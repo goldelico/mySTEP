@@ -2324,7 +2324,7 @@ static NSDictionary *_x11settings;
 	if(!_X112screen)
 		{ // calculate and cache
 		_X112screen=[(NSAffineTransform *)_screen2X11 copy];
-		[ictm invert];
+		[_X112screen invert];
 		}
 	return _X112screen;
 }

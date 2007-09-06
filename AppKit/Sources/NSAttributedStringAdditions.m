@@ -1120,17 +1120,17 @@ static BOOL done;
 
 - (void) superscriptRange:(NSRange)range
 {
-	[self setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:1] forKey:NSSuperscriptAttributeName]];
+	[self setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:1] forKey:NSSuperscriptAttributeName] range:range];
 }
 
 - (void) subscriptRange:(NSRange)range
 {
-	[self setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:-1] forKey:NSSuperscriptAttributeName]];
+	[self setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:-1] forKey:NSSuperscriptAttributeName] range:range];
 }
 
 - (void) unscriptRange:(NSRange)range
 { // Undo previous superscripting
-	[self setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:0] forKey:NSSuperscriptAttributeName]];
+	[self setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:0] forKey:NSSuperscriptAttributeName] range:range];
 }
 
 - (void) applyFontTraits:(NSFontTraitMask)traitMask range:(NSRange)range
