@@ -1,0 +1,1218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!-- Server: sf-web4 -->
+<html lang="en">
+  <head><script language="JavaScript" type="text/javascript">
+<!--
+	clientScreenWidth = screen.width;
+	clientScreenHeight = screen.height;
+	clientScreenColorDepth = screen.colorDepth;
+	// Detection code based on the JavaScript tutorial freely provided at http://www.howtocreate.co.uk/tutorials/index.php?tut=0
+	if( typeof( window.innerWidth ) == 'number' ) {
+		browserWidth = window.innerWidth;
+		browserHeight = window.innerHeight;
+	} else {
+		if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+			browserWidth = document.documentElement.clientWidth;
+			browserHeight = document.documentElement.clientHeight;
+		} else {
+			if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+				browserWidth = document.body.clientWidth;
+				browserHeight = document.body.clientHeight;
+			} else {
+				browserWidth = 0;
+				browserHeight = 0;
+			}
+		}
+	}
+	// End detection code
+	document.write( '<link rel="stylesheet" type="text/css" href="http://sourceforge.net/cssdef.php?clientScreenWidth=' + clientScreenWidth + '&clientScreenHeight=' + clientScreenHeight + '&clientScreenColorDepth=' + clientScreenColorDepth + '&browserWidth=' + browserWidth + '&browserHeight=' + browserHeight + '">' );
+-->
+</script>
+<noscript>
+<link rel="stylesheet" type="text/css" href="http://sourceforge.net/cssdef.php">
+</noscript>
+<!-- BEGIN: AdSolution-Tag 4.2: Global-Code [PLACE IN HTML-HEAD-AREA!] -->
+<script type="text/javascript" language="javascript" src="http://a.as-us.falkag.net/dat/dlv/aslmain.js"></script>
+<!-- END: AdSolution-Tag 4.2: Global-Code -->
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <TITLE>SourceForge.net: Introduction to the database layout</TITLE>
+	<SCRIPT language="JavaScript" type="text/javascript">
+	<!--
+	function help_window(helpurl) {
+		HelpWin = window.open( 'http://sourceforge.net' + helpurl,'HelpWindow','scrollbars=yes,resizable=yes,toolbar=no,height=400,width=400');
+	}
+	// -->
+	</SCRIPT>
+
+		<link rel="SHORTCUT ICON" href="/images/favicon.ico">
+<!-- This is temp javascript for the jump button. If we could actually have a jump script on the server side that would be ideal -->
+<script language="JavaScript" type="text/javascript">
+<!--
+	function jump(targ,selObj,restore){ //v3.0
+	if (selObj.options[selObj.selectedIndex].value) 
+		eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
+	if (restore) selObj.selectedIndex=0;
+	}
+	//-->
+</script>
+
+<style type="text/css">
+<!--
+A:link { text-decoration:none }
+A:visited { text-decoration:none }
+A:active { text-decoration:none }
+A:hover { text-decoration:underline; color:#0066FF; }
+-->
+</style>
+<script language="JavaScript" type="text/javascript">
+<!--
+document.write( '<link rel="stylesheet" type="text/css" href="http://sourceforge.net/sitedocs_cssdef.php?clientScreenWidth=' + clientScreenWidth + '&clientScreenHeight=' + clientScreenHeight + '&clientScreenColorDepth=' + clientScreenColorDepth + '&browserWidth=' + browserWidth + '&browserHeight=' + browserHeight + '">' );
+-->
+</script>
+
+<style type="text/css" media="print">
+DIV.SDdoclinks { display: none; }
+</style>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" link="#003399" vlink="#003399" alink="#003399">
+
+<!-- begin OSTG navbar -->
+<table width="100%" border="0" cellpadding="2" cellspacing="0" 
+bgcolor="#444444" style="border-top: 2px #666666 solid; border-bottom: 
+1px #222222 solid;">
+        <tr>
+                <td valign="middle" nowrap style="border-bottom: 1px #333333 solid;">
+                        <font face="arial, sans-serif" color="#999999" size="-2"><a 
+href="http://ostg.com" class="osdn-navlink"><font color="#cccccc">OSTG</font></a> |
+			<a href="http://eclipse.techforge.com" class="osdn-navlink"><font
+color="#cccccc">Eclipse TechForge</font></a>
+                        -&nbsp;<a href="http://thinkgeek.com" class="osdn-navlink"><font 
+color="#cccccc">ThinkGeek</font></a>
+                        -&nbsp;<a href="http://slashdot.org" class="osdn-navlink"><font 
+color="#cccccc">Slashdot</font></a>
+                        -&nbsp;<a href="http://itmj.com" class="osdn-navlink"><font color="#cccccc">ITMJ</font></a>
+                        -&nbsp;<a href="http://linux.com" class="osdn-navlink"><font 
+color="#cccccc">Linux.com</font></a>
+                        -&nbsp;<a href="http://newsforge.com" class="osdn-navlink"><font 
+color="#cccccc">NewsForge</font></a>
+                        -&nbsp;<a href="http://freshmeat.net" class="osdn-navlink"><font 
+color="#cccccc">freshmeat</font></a>
+                        -&nbsp;<a href="http://newsletters.osdn.com" class="osdn-navlink"><font 
+color="#cccccc">Newsletters</font></a>
+                        -&nbsp;<a href="http://sourceforge.pricegrabber.com/" class="osdn-navlink"><font
+color="#cccccc">PriceGrabber</font></a>
+                        -&nbsp;<a href="http://ads.osdn.com/?ad_id=2435&alloc_id=5907&op=click" class="osdn-navlink"><font color="#cccccc">Jobs</font></a>
+                        -&nbsp;<a href="http://ads.osdn.com/?ad_id=2560&alloc_id=6182&op=click" class="osdn-navlink"><font 
+color="#cccccc">Broadband</font></a>
+			-&nbsp;<a
+href="http://ads.osdn.com/?ad_id=7402&alloc_id=16315&op=click" class="osdn-navlink"><font
+color="#cccccc">Whitepapers</font></a></font>
+                </td>
+        </tr>
+</table>
+<!-- end OSTG navbar --><table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+               <td bgcolor="#000000" valign="middle" align="center">
+
+
+    <!-- AD POSITION 1 -->
+<!-- placeholder for ad position 1 -->
+    <!-- END AD POSITION 1 -->
+<!-- BEGIN: AdSolution-Website-Tag 4.2 : SourceForge / none_p1_top_leaderboard -->
+<script language='javascript' type='text/javascript'>
+Ads_kid=0;Ads_bid=0;Ads_xl=0;Ads_yl=0;Ads_xp='';Ads_yp='';Ads_xp1='';Ads_yp1='';Ads_opt=0;
+Ads_wrd='opengeodb,plsql,ml,independent,gis,xml,database';
+Ads_prf='logged_in=1;page=index';Ads_par='';Ads_cnturl='';Ads_sec=0;Ads_channels='RON_P1_Leaderboard';
+</script>
+<script type='text/javascript' language='javascript' src='http://a.as-us.falkag.net/dat/njf/104/sourceforge/none_p1_top_leaderboard.js'></script>
+<!-- END:AdSolution-Tag 4.2 -->
+   
+      <!-- image audit code -->
+      <script LANGUAGE="JAVASCRIPT">
+      <!--
+      now = new Date();
+      tail = now.getTime();
+      document.write("<IMG SRC='http://images-aud.sourceforge.net/pc.gif?l,");
+      document.write(tail);
+      document.write("' WIDTH=1 HEIGHT=1 BORDER=0>");
+      //-->
+      </SCRIPT>
+      <noscript>
+     <img src="http://images-aud.sourceforge.net/pc.gif?l,73438"
+      WIDTH=1 HEIGHT=1 BORDER=0>
+      </noscript>
+      <!-- end audit code -->
+</td>
+       </tr>
+</table>
+<!--
+
+
+End OSDN NavBar
+gid: 132421 
+keywords: opengeodb,plsql,ml,independent,gis,xml,database 
+
+--><table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr bgcolor="#003399">
+<td rowspan="3" height="52"  background="http://images.sourceforge.net/images/head_bgx.gif"  valign="bottom" bgcolor="#000000"><a href="/"><IMG src="http://images.sourceforge.net/images/head_bg_new2.gif" border="0" alt="SourceForge.net Home" width="200" height="52"></a></td>
+<td rowspan="2" width="50%"  background="http://images.sourceforge.net/images/head_bgx.gif"  height="41" bgcolor="#000000">&nbsp;</td>
+<td colspan="10" align="center" nowrap valign="top"  background="http://images.sourceforge.net/images/head_bgx.gif"  height="22" bgcolor="#000000">&nbsp;</td>
+<td rowspan="2" width="50%"  background="http://images.sourceforge.net/images/head_bgx.gif"  height="41" bgcolor="#000000">&nbsp;</td>
+<td rowspan="3" align="right" valign="bottom"  background="http://images.sourceforge.net/images/head_bgx.gif"  height="41" bgcolor="#000000">
+<!-- begin SF.net jump menu -->
+<table border="0" cellspacing="0" cellpadding="0" width="100%">
+<form action="/my/favorite_redirect.php" method="POST">
+<tr bgcolor="#003399">
+<td align="right" valign="bottom"  background="http://images.sourceforge.net/images/head_bgx.gif"  height="41" bgcolor="#000000">
+<small>
+<select name="navmenu" onChange="jump('parent',this,1)" class="smfc0b"><option value="">My Favorites</option>
+<option value="/">SF.net Home</option>
+<option value="http://eclipse.techforge.com/">Eclipse TechForge</option>
+<option value=""> </option>
+<option value="">---- My Projects ----</option>
+<option value="/projects/mac06/">mac06</option>
+<option value="/projects/powermaker/">powermaker</option>
+<option value=""> </option>
+<option value="">---- My Bookmarks ----</option>
+<option value="/my/bookmark_add.php?bookmark_url=%2Fdocman%2Fdisplay_doc.php%3Fdocid%3D27614%26group_id%3D132421&amp;bookmark_title=Introduction+to+the+database+layout">(Bookmark this page)</option>
+<option value="/projects/generationx">Project Info - Gen...</option>
+<option value="/projects/xfree86">Project Info - XFr...</option>
+</select>
+</small>
+</td>
+<td valign="bottom"  background="http://images.sourceforge.net/images/head_bgx.gif"  height="41" bgcolor="#000000">
+<input type="image" border="0" name="Submit" value="GO" alt="Go" width="30" height="20"  src="http://images.sourceforge.net/images/go.gif" >
+</td>
+</tr>
+<tr>
+<td  background="http://images.sourceforge.net/images/chrome_bar.png"  colspan="2" bgcolor="#dddddd"><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="1" height="11"></td>
+</tr>
+</form>
+</table>
+<!-- end SF.net jump menu -->
+</td>
+</tr>
+<!-- begin SF.net main navbar -->
+<tr> <td  background="http://images.sourceforge.net/images/menubar_bg.png"  bgcolor="#eeeeee" align="left" height="20" valign="middle"><IMG src="http://images.sourceforge.net/images/menubar_l.png" alt="" border="0" width="3" height="20"></td>
+<td  background="http://images.sourceforge.net/images/menubar_bg.png"  bgcolor="#eeeeee" nowrap valign="middle" align="center" height="20">&nbsp;&nbsp;&nbsp;&nbsp;<b class="mdfc0b"><a href="/my/" style="text-decoration:none">my&nbsp;sf.net</a></b>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td  background="http://images.sourceforge.net/images/menubar_bg.png"  bgcolor="#dddddd" height="20"><IMG src="http://images.sourceforge.net/images/div.png" alt="|" border="0" width="6" height="20"></td>
+<td  background="http://images.sourceforge.net/images/menubar_bg.png"  bgcolor="#eeeeee" nowrap valign="middle" align="center" height="20">&nbsp;&nbsp;&nbsp;&nbsp;<b class="mdfc0b"><a href="/softwaremap/" style="text-decoration:none">software&nbsp;map</a></b>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td  background="http://images.sourceforge.net/images/menubar_bg.png"  bgcolor="#dddddd" nowrap height="20"><IMG src="http://images.sourceforge.net/images/div.png" alt="|" border="0" width="6" height="20"></td>
+<td  background="http://images.sourceforge.net/images/menubar_bg.png"  bgcolor="#eeeeee" nowrap valign="middle" align="center" height="20">&nbsp;&nbsp;&nbsp;&nbsp;<b class="mdfc0b"><a href="/donate/" style="text-decoration:none">donate to sf.net</a></b>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td  background="http://images.sourceforge.net/images/menubar_bg.png"  bgcolor="#dddddd" height="20"><IMG src="http://images.sourceforge.net/images/div.png" alt="|" border="0" width="6" height="20"></td>
+<td  background="http://images.sourceforge.net/images/menubar_bg.png"  bgcolor="#eeeeee" nowrap valign="middle" align="center" height="20">&nbsp;&nbsp;&nbsp;&nbsp;<b class="mdfc0b"><a href="/docman/display_doc.php?docid=6025&amp;group_id=1" style="text-decoration:none">about sf.net</a></b>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td  background="http://images.sourceforge.net/images/menubar_bg.png"  bgcolor="#eeeeee" align="right" height="20"><IMG src="http://images.sourceforge.net/images/menubar_r.png" alt="" border="0" width="3" height="20"></td>
+</tr>
+<!-- end SF.net main navbar -->
+<tr>
+<td  background="http://images.sourceforge.net/images/chrome_bar.png"  colspan="13" bgcolor="#dddddd"><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="1" height="11"></td>
+</tr>
+</table>
+<!-- end SF.net header -->
+
+<!-- begin SF.net content -->
+<table width="100%" border="0" cellspacing="0" cellpadding="8">
+  <tr>
+  <!-- begin left column -->
+    <td valign="top"> <!-- begin SF.net sub nav global -->
+      <table width="165" border="0" cellspacing="0" cellpadding="0">
+
+	<!-- menus -->
+	
+			<tr align="center">
+					<td height="20" colspan="2"><small>welcomes&nbsp;<a href="/users/dhns/">dhns</a> (<a href="/account/logout.php">Logout</a>)</small><br><small>We <a href='/docman/display_doc.php?docid=759&amp;group_id=1#semilogin'>remember you</a></small></td>
+					</tr>
+
+										<tr align="center">
+					<td height="20" colspan="2"><small><b>
+					<a href="/register/">Register New Project</a>
+					</b></small></td>
+					</tr>
+					<tr>
+					<td align="right" colspan="2" bgcolor="#003399"><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="150" height="4"></td>
+					</tr><FORM action="/search/" method="GET">
+ 	<tr height=4>
+		<td align="right" colspan="2" bgcolor="#003399" height=4><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="150" height="4"></td>
+        </tr>
+        <tr>
+		<td colspan="2" bgcolor="#dddddd" align="left"><b>&nbsp;&nbsp;&nbsp;Search</b></td>
+        </tr>
+	<tr>
+		<td colspan="2" align="left" bgcolor="#eeeeee">
+
+
+		<br>
+	    <center>
+		<small>
+		<select name="type_of_search"> <OPTION value="pervasive" >This Project</OPTION
+		<OPTION value="soft">Software/Group</OPTION>
+		<OPTION value="people">People</OPTION>
+		<OPTION value="freshmeat">Freshmeat.net</OPTION>
+			<OPTION value="sitedocs">Site Docs</option>
+		</select></small></center></TD></TR><tr> <td align="center" bgcolor="#eeeeee"> <small>
+		<INPUT TYPE="HIDDEN" VALUE="132421" NAME="group_id">
+		<INPUT TYPE="text" SIZE="12" NAME="words" VALUE=""></small></td><td align="right" bgcolor="#eeeeee"><small><input type="image" border="0" name="imageField"  src="http://images.sourceforge.net/images/search.gif"  width="50" height="20" align="middle">&nbsp;&nbsp;&nbsp;</small></td></tr><tr><td bgcolor="#eeeeee" colspan="2"><font face="Verdana, sans-serif" style="font-size: 9px">results by <b><font color="#FF0033" style="font-size: 10px">YAHOO!</font> <font style="font-size: 9px">search</b></font>
+  		</td>
+	</tr>
+	<tr>
+		<td colspan="2" bgcolor="#eeeeee">&nbsp;</td>
+	</tr>
+
+</FORM>
+ 	<tr height=4>
+		<td align="right" colspan="2" bgcolor="#003399" height=4><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="150" height="4"></td>
+        </tr>
+        <tr>
+		<td colspan="2" bgcolor="#dddddd" align="left"><b>&nbsp;&nbsp;&nbsp;SF.net Subscription</b></td>
+        </tr>
+	<tr>
+		<td colspan="2" align="left" bgcolor="#eeeeee">
+
+	<b>&nbsp;&middot;&nbsp;</b><A href="/subscribe/">Subscribe Now</A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="/my/subscriptions.php"><font color="#800000">Manage Subscription</font></A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="/subscription.php"><font color="#800000">Realtime Statistics</font></A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="/subscription.php"><font color="#800000">Direct Download</font></A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="/subscription.php"><font color="#800000">Priority Tech Support</font></A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="/subscription.php"><font color="#800000">Project Monitoring</font></A><br>
+  		</td>
+	</tr>
+	<tr>
+		<td colspan="2" bgcolor="#eeeeee">&nbsp;</td>
+	</tr>
+
+
+ 	<tr height=4>
+		<td align="right" colspan="2" bgcolor="#003399" height=4><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="150" height="4"></td>
+        </tr>
+        <tr>
+		<td colspan="2" bgcolor="#dddddd" align="left"><b>&nbsp;&nbsp;&nbsp;SF.net Resources</b></td>
+        </tr>
+	<tr>
+		<td colspan="2" align="left" bgcolor="#eeeeee">
+
+	<b>&nbsp;&middot;&nbsp;</b><A href="/docman/?group_id=1"><b>Site Docs</b></A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="/docs/A04/">Site Status <font size="-3">(07/29)</font></A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="/supporters.php">SF.net Supporters</A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="/docman/display_doc.php?docid=762&amp;group_id=1">Compile Farm</A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="/people/">Project Help Wanted</A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="/new/">New Releases</A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="http://blog.dev.sf.net/">SF.net Engineer Blog</A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="/support/getsupport.php?group_id=132421"><b>Get Support</b></A><br>
+  		</td>
+	</tr>
+	<tr>
+		<td colspan="2" bgcolor="#eeeeee">&nbsp;</td>
+	</tr>
+
+
+ 	<tr height=4>
+		<td align="right" colspan="2" bgcolor="#003399" height=4><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="150" height="4"></td>
+        </tr>
+        <tr>
+		<td colspan="2" bgcolor="#dddddd" align="left"><b>&nbsp;&nbsp;&nbsp;Site Sponsors</b></td>
+        </tr>
+	<tr>
+		<td colspan="2" align="center" bgcolor="#eeeeee">
+
+<br>
+<!-- placeholder for ad position 10 -->
+<!-- BEGIN: AdSolution-Website-Tag 4.2 : SourceForge / none_p10_top_left_sponsor -->
+<script language='javascript' type='text/javascript'>
+Ads_kid=0;Ads_bid=0;Ads_xl=0;Ads_yl=0;Ads_xp='';Ads_yp='';Ads_xp1='';Ads_yp1='';Ads_opt=0;
+Ads_wrd='opengeodb,plsql,ml,independent,gis,xml,database';
+Ads_prf='logged_in=1;page=index';Ads_par='';Ads_cnturl='';Ads_sec=0;Ads_channels='RON_TopSponsor_Tile';
+</script>
+<script type='text/javascript' language='javascript' src='http://a.as-us.falkag.net/dat/njf/104/sourceforge/none_p10_top_left_sponsor.js'></script>
+<!-- END:AdSolution-Tag 4.2 -->
+   <br><br>
+<!-- placeholder for ad position 11 -->
+<!-- BEGIN: AdSolution-Website-Tag 4.2 : SourceForge / none_p11_second_left_sponsor -->
+<script language='javascript' type='text/javascript'>
+Ads_kid=0;Ads_bid=0;Ads_xl=0;Ads_yl=0;Ads_xp='';Ads_yp='';Ads_xp1='';Ads_yp1='';Ads_opt=0;
+Ads_wrd='opengeodb,plsql,ml,independent,gis,xml,database';
+Ads_prf='logged_in=1;page=index';Ads_par='';Ads_cnturl='';Ads_sec=0;Ads_channels='RON_Other_Tile';
+</script>
+<script type='text/javascript' language='javascript' src='http://a.as-us.falkag.net/dat/njf/104/sourceforge/none_p11_second_left_sponsor.js'></script>
+<!-- END:AdSolution-Tag 4.2 -->
+   <br><br>
+<!-- placeholder for ad position 12 -->
+<!-- BEGIN: AdSolution-Website-Tag 4.2 : SourceForge / none_p12_third_left_sponsor -->
+<script language='javascript' type='text/javascript'>
+Ads_kid=0;Ads_bid=0;Ads_xl=0;Ads_yl=0;Ads_xp='';Ads_yp='';Ads_xp1='';Ads_yp1='';Ads_opt=0;
+Ads_wrd='opengeodb,plsql,ml,independent,gis,xml,database';
+Ads_prf='logged_in=1;page=index';Ads_par='';Ads_cnturl='';Ads_sec=0;Ads_channels='RON_Other_Tile';
+</script>
+<script type='text/javascript' language='javascript' src='http://a.as-us.falkag.net/dat/njf/104/sourceforge/none_p12_third_left_sponsor.js'></script>
+<!-- END:AdSolution-Tag 4.2 -->
+   <br><br>
+<!-- placeholder for ad position 13 -->
+
+<!-- BEGIN: AdSolution-Website-Tag 4.2 : SourceForge / none_p13_bottom_left_sponsor -->
+<script language='javascript' type='text/javascript'>
+Ads_kid=0;Ads_bid=0;Ads_xl=0;Ads_yl=0;Ads_xp='';Ads_yp='';Ads_xp1='';Ads_yp1='';Ads_opt=0;
+Ads_wrd='opengeodb,plsql,ml,independent,gis,xml,database';
+Ads_prf='logged_in=1;page=index';Ads_par='';Ads_cnturl='';Ads_sec=0;Ads_channels='RON_Other_Tile';
+</script>
+<script type='text/javascript' language='javascript' src='http://a.as-us.falkag.net/dat/njf/104/sourceforge/none_p13_bottom_left_sponsor.js'></script>
+<!-- END:AdSolution-Tag 4.2 -->
+   
+  		</td>
+	</tr>
+	<tr>
+		<td colspan="2" bgcolor="#eeeeee">&nbsp;</td>
+	</tr>
+
+
+<tr>
+	<td colspan=2>
+	<!-- begin sub section title-->
+	<table width="100%" border="0" cellspacing="1" cellpadding="3">
+		<tr> <td colspan=2><font size="-1" face="verdana, arial, sans-serif"><b>Most Active</b></font></td>
+		</tr>
+		<tr> <td colspan=2  background="http://images.sourceforge.net/images/div_grad_blue.gif" ><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="1" height="4"></td>
+		</tr><TR align=left>
+					<TD colspan=2><!-- end sub section title--><b>1</b> <a href="/projects/azureus/">Azureus - BitTorrent Client</a><a href="/donate/index.php?group_id=84122"><IMG src="http://images.sourceforge.net/images/icons/prj_d.png" alt="Accepting Donations" border="0" width="16" height="16"></a><br>
+<b>2</b> <a href="/projects/gaim/">Gaim</a><br>
+<b>3</b> <a href="/projects/compiere/">Compiere ERP + CRM Business Solution</a><br>
+<b>4</b> <a href="/projects/inkscape/">Inkscape</a><a href="/donate/index.php?group_id=93438"><IMG src="http://images.sourceforge.net/images/icons/prj_d.png" alt="Accepting Donations" border="0" width="16" height="16"></a><br>
+<b>5</b> <a href="/projects/snap/">SNAP Platform and SNAPPIX</a><a href="/donate/index.php?group_id=23486"><IMG src="http://images.sourceforge.net/images/icons/prj_d.png" alt="Accepting Donations" border="0" width="16" height="16"></a><br>
+<b>6</b> <a href="/projects/phpmyadmin/">phpMyAdmin</a><a href="/donate/index.php?group_id=23067"><IMG src="http://images.sourceforge.net/images/icons/prj_d.png" alt="Accepting Donations" border="0" width="16" height="16"></a><br>
+<b>7</b> <a href="/projects/sevenzip/">7-Zip</a><br>
+<b>8</b> <a href="/projects/pdfcreator/">PDFCreator</a><a href="/donate/index.php?group_id=57796"><IMG src="http://images.sourceforge.net/images/icons/prj_d.png" alt="Accepting Donations" border="0" width="16" height="16"></a><br>
+<b>9</b> <a href="/projects/fckeditor/">FCKeditor</a><br>
+<b>10</b> <a href="/projects/filezilla/">FileZilla</a><a href="/donate/index.php?group_id=21558"><IMG src="http://images.sourceforge.net/images/icons/prj_d.png" alt="Accepting Donations" border="0" width="16" height="16"></a><br>
+<p align=right><A href="/top/mostactive.php?type=week">More Activity</A>&gt;&gt;
+
+					</TD>
+					</TR>
+					</TABLE>
+					
+	</td>
+</tr>
+<tr>
+	<td colspan=2>
+	<!-- begin sub section title-->
+	<table width="100%" border="0" cellspacing="1" cellpadding="3">
+		<tr> <td colspan=2><font size="-1" face="verdana, arial, sans-serif"><b>Top Downloads</b></font></td>
+		</tr>
+		<tr> <td colspan=2  background="http://images.sourceforge.net/images/div_grad_blue.gif" ><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="1" height="4"></td>
+		</tr><TR align=left>
+					<TD colspan=2><!-- end sub section title--><b>1</b> <a href="/projects/azureus/">Azureus - BitTorrent Client</a><a href="/donate/index.php?group_id=84122"><IMG src="http://images.sourceforge.net/images/icons/prj_d.png" alt="Accepting Donations" border="0" width="16" height="16"></a><br>
+<b>2</b> <a href="/projects/emule/">eMule</a><br>
+<b>3</b> <a href="/projects/bittorrent/">BitTorrent</a><br>
+<b>4</b> <a href="/projects/nasa-exp/">NASA World Wind</a><br>
+<b>5</b> <a href="/projects/shareaza/">Shareaza</a><br>
+<b>6</b> <a href="/projects/dcplusplus/">DC++</a><br>
+<b>7</b> <a href="/projects/gimp-win/">GTK+ and The GIMP installers for Windows</a><br>
+<b>8</b> <a href="/projects/virtualdub/">VirtualDub</a><br>
+<b>9</b> <a href="/projects/sevenzip/">7-Zip</a><br>
+<b>10</b> <a href="/projects/filezilla/">FileZilla</a><a href="/donate/index.php?group_id=21558"><IMG src="http://images.sourceforge.net/images/icons/prj_d.png" alt="Accepting Donations" border="0" width="16" height="16"></a><br>
+<p align=right><A href="/top/">More Statistics</A>&gt;&gt;
+					</TD>
+					</TR>
+					</TABLE>
+					
+	</td>
+</tr>
+ 	<tr height=4>
+		<td align="right" colspan="2" bgcolor="#003399" height=4><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="150" height="4"></td>
+        </tr>
+        <tr>
+		<td colspan="2" bgcolor="#dddddd" align="left"><b>&nbsp;&nbsp;&nbsp;SF.net Services</b></td>
+        </tr>
+	<tr>
+		<td colspan="2" align="left" bgcolor="#eeeeee">
+
+<IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="150" height="4"><br>	<b>&nbsp;&middot;&nbsp;</b><A href="http://ads.osdn.com/?ad_id=2436&alloc_id=5908&op=click">Jobs</A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="http://sourceforge.pricegrabber.com">PriceGrabber</A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="http://ads.osdn.com/?ad_id=7070&alloc_id=15725&op=click">Whitepapers</A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="http://newsletters.osdn.com/netc.html">Partner Product Offers</A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="http://ads.osdn.com/?ad_id=2561&alloc_id=6183&op=click">Get Broadband</A><br>	<b>&nbsp;&middot;&nbsp;</b><A href="http://ads.osdn.com/?ad_id=5195&alloc_id=11179&op=click">IT Product Guide</A><br>
+  		</td>
+	</tr>
+	<tr>
+		<td colspan="2" bgcolor="#eeeeee">&nbsp;</td>
+	</tr>
+
+
+ 	<tr height=4>
+		<td align="right" colspan="2" bgcolor="#003399" height=4><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="150" height="4"></td>
+        </tr>
+        <tr>
+		<td colspan="2" bgcolor="#dddddd" align="left"><b>&nbsp;&nbsp;&nbsp;Sponsored Content</b></td>
+        </tr>
+	<tr>
+		<td colspan="2" align="left" bgcolor="#eeeeee">
+
+
+<!-- AD POSITION 7 --> 
+
+<!-- placeholder for ad position 7 -->
+<!-- END AD POSITION 7 -->
+
+<!-- BEGIN: AdSolution-Website-Tag 4.2 : SourceForge / none_p7_bottom_left_sky -->
+<script language='javascript' type='text/javascript'>
+Ads_kid=0;Ads_bid=0;Ads_xl=0;Ads_yl=0;Ads_xp='';Ads_yp='';Ads_xp1='';Ads_yp1='';Ads_opt=0;
+Ads_wrd='opengeodb,plsql,ml,independent,gis,xml,database';
+Ads_prf='logged_in=1;page=index';Ads_par='';Ads_cnturl='';Ads_sec=0;Ads_channels='RON_Other_Skyscraper';
+</script>
+<script type='text/javascript' language='javascript' src='http://a.as-us.falkag.net/dat/njf/104/sourceforge/none_p7_bottom_left_sky.js'></script>
+<!-- END:AdSolution-Tag 4.2 -->
+   
+  		</td>
+	</tr>
+	<tr>
+		<td colspan="2" bgcolor="#eeeeee">&nbsp;</td>
+	</tr>
+
+      </table>
+    </td>
+<!-- begin center column -->
+<td width="100%" valign="top" align="left">
+
+<BR>
+
+
+ <table width="100%" border="0" cellspacing="0" cellpadding="0">
+ <tr valign="middle">
+ <td bgcolor="#003399"><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="1" height="2"></td>
+ </tr>
+ <tr valign="middle">
+ <td bgcolor="#dddddd" width="100%" height="37"  background="http://images.sourceforge.net/images/osdn_navbar.gif" ><b class="xlgfc2b">&nbsp;&nbsp;
+	Project: open geo coordinates database: Document Manager: Display Document
+</b></td>
+</tr>
+<tr valign="middle">
+<td bgcolor="#eeeeee"><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="1" height="1"></td>
+</tr>
+<tr valign="middle" bgcolor="#cccccc">
+<td><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="250" height="2"></td>
+</tr>
+<tr valign="middle" bgcolor="#333333">
+<td><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="250" height="1"></td>
+</tr>
+<tr valign="middle" bgcolor="#999999">
+<td><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="250" height="1"></td>
+</tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="bottom" align="right" bgcolor="eeeeee">
+<td  background="http://images.sourceforge.net/images/div_grad_blue.gif"  bgcolor="#003399"><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="1" height="4"></td>
+</tr>
+</table>
+	</H2><P>
+		<HR SIZE="1" NoShade>
+		<A class=tabs href="/projects/opengeodb/">Summary</A>&nbsp;|&nbsp;
+		<A class=tabs href="/project/admin/?group_id=132421">Admin</A>&nbsp;|&nbsp;
+		<A class=tabs href="http://opengeodb.sourceforge.net">Home Page</A>&nbsp;|&nbsp;
+		<A class=tabs href="/forum/?group_id=132421">Forums</A>&nbsp;|&nbsp;
+		<A class=tabs href="/tracker/?group_id=132421">Tracker</A>&nbsp;|&nbsp;
+		<A class=tabs href="/mail/?group_id=132421">Lists</A>&nbsp;|&nbsp;
+		<A class=tabs href="/pm/?group_id=132421">Tasks</A>&nbsp;|&nbsp;
+		<A class=tabselect href="/docman/?group_id=132421">Docs</A>&nbsp;|&nbsp;
+		<A class=tabs href="/news/?group_id=132421">News</A>&nbsp;|&nbsp;
+		<A class=tabs href="/cvs/?group_id=132421">CVS</A>&nbsp;|&nbsp;
+		<A class=tabs href="/project/showfiles.php?group_id=132421">Files</A>&nbsp;|&nbsp;<HR SIZE="1" NoShade><BR><p><b><a href="/docman/new.php?group_id=132421">Submit new documentation</a> | <a href="/docman/index.php?group_id=132421">View Documentation</a> | <a href="/docman/admin/index.php?group_id=132421">Admin</a></b><!-- DOCMANAGER DOCUMENT START --><br><br>
+<b>1)<a href="#T1"><b>Introduction to the database scheme</b></a>
+<b>2)<a href="#T2"><b>The relational tables in details</b></a>
+<b>3)<a href="#T3"><b>The praxis of SQL in opengeodb</b></a>
+<b>3.1)<a href="#T3_1"><b>Introduction:</b> All names of towns mit their area code</a>
+<b>3.2)<a href="#T3_2"><b>For advanced people:</b> Area codes and towns of Liechtenstein country</a>
+<b>3.3)<a href="#T3_3"><b>Much too simple:</b> All Cantones of Switzerland</a>
+<b>4)<a href="#T4"><b>Special cases and other notes</b></a>
+<b>4.1)<a href="#T4_1"><b>- Dates giving the validity of entries</b></a>
+<b>4.2)<a href="#T4_2"><b>- Special attributes in geodb_textdata</b></a>
+<b>4.3)<a href="#T4_3"><b>- geodb_coordinates is still beta</b></a>
+<p>
+
+<hr>
+
+
+
+
+
+
+
+
+<hr>
+<a name="T1"><h3>1) INTRODUCTION TO THE DATABASE SCHEME:</h3>
+The opengeodb database consists mainly of the relational tables
+(Tabellen) <code>geodb_locations</code>, <code>geodb_hierarchies</code>, <code>geodb_coordinates</code> and
+<code>geodb_textdata</code> currently.<p>
+
+The other tables named <code>geodb_floatdata</code>, <code>geodb_intdata</code>, <code>geodb_areas</code>,
+<code>geodb_polygons</code> and <code>geodb_type_names</code> do not (yet) play any (important) role.<p>
+
+<hr>
+<a name="T2"><h3>2) THE RELATIONAL TABLES IN DETAILS:</h3>
+<i>geodb_locations:</i><br>
+<pre>
+      create table geodb_locations (
+        loc_id               serial primary key,
+        loc_type             integer not null
+          check (loc_type = CONTINENT or loc_type = STATE or
+                 loc_type = NUTS_I or loc_type = NUTS_II or
+                 loc_type = NUTS_III or loc_type = POL_DIVISION or
+                 loc_type = POPULATED_AREA or loc_type = LOC_AREA_CODE)
+      );
+</pre>
+
+<blockquote>
+  geodb_locations is the main relation where <i>any</i> location
+  <i>has to have</i> an entry. It defines an attribute named
+  <code>loc_id</code> meaning a unique identifier, identifying
+  this locations in all others tables as well.<p>
+
+  The second attribute is named <code>loc_type</code>, and it
+  should make clear, what kind of entry we can expect here: Are
+  the geo-coordinates and data etc. related to a town or to an
+  area code or whatever.<p>
+</blockquote>
+
+
+
+<i>geodb_hierarchies:</i><br>
+<pre>
+    create table geodb_hierarchies (
+      loc_id               integer not null references geodb_locations,
+      level                integer not null check (level&gt;0 and level&lt;=9),
+      id_lvl1              integer not null,
+      id_lvl2              integer,
+      id_lvl3              integer,
+      id_lvl4              integer,
+      id_lvl5              integer,
+      id_lvl6              integer,
+      id_lvl7              integer,
+      id_lvl8              integer,
+      id_lvl9              integer,
+      valid_since          date,
+      date_type_since      integer,
+      valid_until          date not null,
+      date_type_until      integer not null
+      check (
+        (
+          (level = 1 and<nobr> <wbr></nobr>/* loc_id = id_lvl1 and */
+                         id_lvl2 is null and id_lvl3 is null and
+                         id_lvl4 is null and id_lvl5 is null and
+                         id_lvl6 is null and id_lvl7 is null and
+                         id_lvl8 is null and id_lvl9 is null) or
+          (level = 2 and<nobr> <wbr></nobr>/* loc_id = id_lvl2 and */
+                         id_lvl1 is not null and id_lvl3 is null and
+                         id_lvl4 is null and id_lvl5 is null and
+                         id_lvl6 is null and id_lvl7 is null and
+                         id_lvl8 is null and id_lvl9 is null) or
+          (level = 3 and<nobr> <wbr></nobr>/* loc_id = id_lvl3 and */
+                         id_lvl1 is not null and id_lvl2 is not null and
+                         id_lvl4 is null and id_lvl5 is null and
+                         id_lvl6 is null and id_lvl7 is null and
+                         id_lvl8 is null and id_lvl9 is null) or
+          (level = 4 and<nobr> <wbr></nobr>/* loc_id = id_lvl4 and */
+                         id_lvl1 is not null and id_lvl2 is not null and
+                         id_lvl3 is not null and id_lvl5 is null and
+                         id_lvl6 is null and id_lvl7 is null and
+                         id_lvl8 is null and id_lvl9 is null) or
+          (level = 5 and<nobr> <wbr></nobr>/* loc_id = id_lvl5 and */
+                         id_lvl1 is not null and id_lvl2 is not null and
+                         id_lvl3 is not null and id_lvl4 is not null and
+                         id_lvl6 is null and id_lvl7 is null and
+                         id_lvl8 is null and id_lvl9 is null) or
+          (level = 6 and<nobr> <wbr></nobr>/* loc_id = id_lvl6 and */
+                         id_lvl1 is not null and id_lvl2 is not null and
+                         id_lvl3 is not null and id_lvl4 is not null and
+                         id_lvl5 is not null and id_lvl7 is null and
+                         id_lvl8 is null and id_lvl9 is null) or
+          (level = 7 and<nobr> <wbr></nobr>/* loc_id = id_lvl7 and */
+                         id_lvl1 is not null and id_lvl2 is not null and
+                         id_lvl3 is not null and id_lvl4 is not null and
+                         id_lvl5 is not null and id_lvl6 is not null and
+                         id_lvl8 is null and id_lvl9 is null) or
+          (level = 8 and<nobr> <wbr></nobr>/* loc_id = id_lvl8 and */
+                         id_lvl1 is not null and id_lvl2 is not null and
+                         id_lvl3 is not null and id_lvl4 is not null and
+                         id_lvl5 is not null and id_lvl6 is not null and
+                         id_lvl7 is not null and id_lvl9 is null) or
+          (level = 9 and<nobr> <wbr></nobr>/* loc_id = id_lvl9 and */
+                         id_lvl1 is not null and id_lvl2 is not null and
+                         id_lvl3 is not null and id_lvl4 is not null and
+                         id_lvl5 is not null and id_lvl6 is not null and
+                         id_lvl7 is not null and id_lvl8 is not null)
+          ) and
+          (
+            (valid_since is null and date_type_since is null) or
+            (valid_since is not null and date_type_since is not null)
+          )
+      )
+    );
+</pre>
+
+<blockquote>
+  geodb_hierarchies contains the hierarchical (== political) structures,
+  the location is bound to. For this we have nine attributes named
+  id_lvl1 to id_lvl9 containing the loc_ids of all nine political
+  levels. See for example the town of Karwitz (Germany) with the
+  loc_id 27431:<p>
+
+<code><pre>
+     104 105 116 176 351 19122 27431 null null
+
+  id_lvl1 (104):    Europe
+  id_lvl2 (105):    Germany
+  id_lvl3 (116):    Lower Saxony
+  id_lvl4 (176):    Regierungsbezirk L&uuml;neburg
+  id_lvl5 (351):    Landkreis L&uuml;chow-Dannenberg
+  id_lvl6 (19122):  Samtgemeinde Dannenberg (Elbe)
+  id_lvl7 (27431):  Karwitz
+  id_lvl8 (null):   -
+  id_lvl9 (null):   -
+</pre></code>
+
+  The attribute "level" denotes the level of the locations itself,
+  in this case it would have to be level seven. A level of six
+  describes "normal" (self-administered) towns, a level of seven
+  describes parts of towns. An entry with a level of two would mean
+  a normal state like Germany or US or UK or India.<p>
+</blockquote>
+
+
+
+<i>geodb_coordinates, geodb_textdata, geodb_floatdata, geodb_intdata:</i><br>
+<pre>
+    create table geodb_coordinates (
+      loc_id               integer not null references geodb_locations,
+      lon                  double precision,
+      lat                  double precision,
+      sin_lon              double precision,
+      sin_lat              double precision,
+      cos_lon              double precision,
+      cos_lat              double precision,
+      coord_type           integer not null check (coord_type=WGS84),
+      coord_subtype        integer,
+      valid_since          date,
+      date_type_since      integer,
+      valid_until          date not null,
+      date_type_until      integer not null
+    );
+
+    create table geodb_textdata (
+      loc_id               integer not null references geodb_locations,
+      text_val             varchar(255) not null,<nobr> <wbr></nobr>/* varchar(2000)? */
+      text_type            integer not null,
+      text_locale          varchar(5),<nobr> <wbr></nobr>/* ISO 639-1 */
+      is_native_lang       smallint(1),
+      is_default_name      smallint(1),
+      valid_since          date,
+      date_type_since      integer,
+      valid_until          date not null,
+      date_type_until      integer not null,
+        check (
+          (
+            (
+              (text_type = NAME    or text_type = NAME_7BITLC    or
+               text_type = NAME_VG or text_type = NAME_VG_7BITLC or
+               text_type = SOURCE  or text_type = COMMENT
+              ) and
+              text_locale like '__%' and
+              is_native_lang is not null and
+              is_default_name is not null
+            ) or
+            (
+              (text_type = ISO_3166_1_ALPHA_2 or text_type = ISO_3166_2 or
+               text_type = AREA_CODE          or text_type = CAR_LICENSE_CODE or
+               text_type = CAR_LIC_CODE_NAME
+              ) and
+              text_locale is null and
+              is_native_lang is null and
+              is_default_name is null
+            )
+          ) and
+            (
+              (valid_since is null and date_type_since is null) or
+              (valid_since is not null and date_type_since is not null)
+            )
+        )
+    );
+
+    create table geodb_intdata (
+      loc_id               integer not null references geodb_locations,
+      int_val              bigint not null,
+      int_type             integer not null,
+      int_subtype          integer,
+      valid_since          date,
+      date_type_since      integer,
+      valid_until          date not null,
+      date_type_until      integer not null
+    );
+
+    create table geodb_floatdata (
+      loc_id               integer not null references geodb_locations,
+      float_val            double precision not null,
+      float_type           integer not null,
+      float_subtype        integer,
+      valid_since          date,
+      date_type_since      integer,
+      valid_until          date not null,
+      date_type_until      integer not null
+    );
+</pre>
+
+<blockquote>
+  In these tables you will find any data related to the location,
+  maybe the name or the population or whatever may be available.<p>
+
+  While geodb_coordinates basically just contains the longitude and
+  latitude values of the locations, the three following tables are
+  "universal containers" being able to be stuffed with any data
+  fitting into the related format (text&nbsp;/ floating point
+  numbers&nbsp;/ integers).<p>
+
+  The real content is determined by the <code>type</code> attribute
+  in the table, which is <code>text_type</code>, <code>float_type</code>
+  or <code>int_type</code>.<p>
+
+  If you like to read the name of a location, you will need a query
+  like:<p>
+
+<code><pre>
+    SELECT text_val
+    FROM geodb_textdata
+    WHERE text_type=500100000<nobr> <wbr></nobr>/* NAME */ AND
+          loc_id=27431;
+</pre></code>
+
+
+  Currently, geodb_textdata knows about the text types:<br>
+  <ul>
+    <li> name<br>
+    <li> name in 7 bit ASCII and small caps (e.g. for sorting)<br>
+    <li> name of an administrative cooperation in Germany<br>
+    <li> same thing, but again 7 bit etc.<br>
+    <li> ISO codes for countries and provinces<br>
+    <li> area codes<br>
+    <li> car license codes<br>
+    <li> official code string for communities in Germany (AGS&nbsp;=
+         Amtlicher Gemeindeschl&uuml;ssel)<br>
+    <li> source of data (only tests so far)<br>
+    <li> comments (only tests so far)<br>
+  </ul><p>
+
+  geodb_floatdata does not yet contain any data, one could think of
+  the size of the area of a location or else.<p>
+
+  geodb_intdata just contains some test data, in this case, we have
+  some population data of maybe 10 to 50 data sets. Other data like
+  the altitude of a location are possible.<p>
+</blockquote>
+
+
+
+<i>geodb_type_names:</i><br>
+<pre>
+    create table geodb_type_names (
+      type_id              integer not null,
+      type_locale          varchar(5) not null,
+      name                 varchar(255) not null,
+    unique (type_id, type_locale)
+    );
+</pre>
+
+<blockquote>
+  The table is supposed to contain names for the text_type, float_type
+  etc. attributes in geodb_textdata etc.. It not yet quite clear, if
+  it is really meaningful to have such information in the database.
+  Currently, we just have some (incomplete) data in it.<p>
+</blockquote>
+
+
+
+<i>geodb_areas, geodb_polygons:</i><br>
+<blockquote>
+  These tables do not contain any data so far. Probably the layout
+  of these tables will change a little or a little more, before we
+  include our first data. The meaning of these tables is to store
+  vector data in them. The most wanted data like this are currently
+  the border lines of states and provinces, but it is not limited
+  to anything.<p>
+</blockquote>
+
+
+
+
+
+
+<hr>
+<a name="T3"><h3>3) THE PRAXIS OF SQL IN OPENGEODB:</h3>
+<a name="T3_1"><h4>3.1) INTRODUCTION:</b> All names of towns mit their area code</h4>
+
+  The above SQL sample just shows a very limited query that will
+  normally not be sufficient.<p>
+
+  So we do some more elaborate tests here. Let us start with the
+  names of all locations together with there area codes:<p>
+
+<code><pre>
+    SELECT code.text_val as "area code", name.text_val as "town"
+    FROM geodb_textdata code, geodb_textdata name
+    WHERE name.loc_id=code.loc_id AND
+          code.text_type=500300000<nobr> <wbr></nobr>/* AREA_CODE */ AND
+          name.text_type=500100000<nobr> <wbr></nobr>/* NAME */
+    ORDER by 2;
+</pre></code>
+
+
+  Firstly, wie need TWO <i>DIFFERENT</i> data sets from geodb_textdata:
+  one to read the <i>area code</i> and another one to read the <i>name</i>
+  of the location. For this we have to have geodb_textdata twice in the
+  FROM section. To differentiate both of them (which is necessary anyway),
+  we name them "code" and "name" here.<p>
+
+  From the first geodb_textdata we read the area code:<p>
+<code><pre>
+    SELECT code.text_val as "area code" [...] FROM geodb_textdata code
+</pre></code>
+
+  From the second geodb_textdata we read the name of the location:
+<code><pre>
+    SELECT [...], name.text_val as "town" FROM [...], geodb_textdata name
+</pre></code>
+
+
+  Obviously, the area code and the name should be for one and the same
+  location. This location is uniquely identified by the loc_id as
+  mentioned above, so we need an additional clause in the WHERE section:<p>
+
+<code><pre><nobr> <wbr></nobr>... WHERE name.loc_id=code.loc_id [...]
+</pre></code>
+
+  Furthermore, the table named "code" is supposed to return area
+  codes <i>only</i>, so we add a constraint for the <code>text_type</code>:
+
+<code><pre><nobr> <wbr></nobr>... WHERE [...] AND code.text_type=500300000<nobr> <wbr></nobr>/* area code */ [...]
+</pre></code>
+
+  In the same way we only want names from the second geodb_textdata
+  table to be returned, so we write:
+
+<code><pre><nobr> <wbr></nobr>... WHERE [...] AND name.text_type=500100000<nobr> <wbr></nobr>/* NAME */
+</pre></code>
+
+
+
+
+<a name="T3_2"><h4>3.2) FOR ADVANCED PEOPLE:</b> Area codes and towns of Liechtenstein country</h4>
+
+  Ok, this might have been a little too many locations, so how about
+  a restriction on a very small European country called "Liechtenstein"?<p>
+
+  In this case, we have to look into geodb_hierarchies, as this is the
+  only place, the political hierarchy can be known of.<p>
+
+  Let us remember: the attributes of geodb_hierarchies include:<p>
+
+  <ul>
+    loc_id
+    level
+    id_lvl1, which is the loc_id of the continent in which this
+        location is to be found
+    id_lvl2: the state of the location
+    id_lvl3: the province
+    id_lvl4: a high order administrative division, also called NUTS II in Europe
+    id_lvl5: the county
+    id_lvl6: a town
+    id_lvl7 to id_lvl9: parts of a town
+  </ul><p>
+
+  So, we first start with a restriction for the country "Liechtenstein",
+  this means, we restrict like this:<p>
+
+<code><pre><nobr> <wbr></nobr>... WHERE id_lvl2=???
+</pre></code>
+
+  Ok, but what value should id_lvl2 be? Or let us ask the other way round:
+  What is the loc_id of a town in Liechtenstein? We can look for the name
+  "F&uuml;rstentum Liechtenstein" or we can as well look for the ISO code
+  "FL", as this is the code for Liechtenstein:<p>
+
+<code><pre>
+    SELECT [...] geodb_textdata.loc_id
+    FROM geodb_textdata
+    WHERE text_val='FL' AND
+              text_type=500100001<nobr> <wbr></nobr>/* ISO Code */
+</pre></code>
+
+  Or let us put both ideas together now:<p>
+
+<code><pre>
+    SELECT<nobr> <wbr></nobr>...
+    FROM geodb_hierarchies hi, geodb_textdata state
+    WHERE hi.id_lvl2=state.loc_id AND
+          state.text_val='FL' AND
+          state.text_type=500100001<nobr> <wbr></nobr>/* ISO 3166 */
+</pre></code>
+
+  We like to have the name of the towns as well (from geodb_textdata
+  again), but we cannot re-use <code>geodb_textdata state</code>, as
+  this will give us the name of a state ONLY. So we add another
+  geodb_textdata, let us call it <i>town</i>. This town obviously
+  should be restraint to any location found by the restraints so
+  far, so we join it to the loc_id's, already found in geodb_hierarchies:<p>
+
+<code><pre><nobr> <wbr></nobr>... WHERE [...] ort.loc_id = hi.loc_id AND
+          town.text_type = 500100000<nobr> <wbr></nobr>/* NAME */
+</pre></code>
+
+  And now everything in one place:<p>
+
+<code><pre>
+    SELECT town.text_val
+    FROM geodb_hierarchies hi, geodb_textdata state, geodb_textdata town
+    WHERE hi.id_lvl2=state.loc_id AND
+          state.text_val='FL' AND
+          state.text_type=500100001<nobr> <wbr></nobr>/* ISO 3166 */ AND
+          town.loc_id = hi.loc_id AND
+          town.text_type = 500100000<nobr> <wbr></nobr>/* NAME */
+</pre></code>
+
+  We are still missing the area codes, so we still add a geodb_textdata
+  table to the query, also joining it to the so far found loc_id's and
+  again restraining it to the wanted text_type, in this case the area
+  code:<p>
+
+<code><pre>
+    SELECT code.text_val, town.text_val
+    FROM geodb_hierarchies hi,
+         geodb_textdata state,
+         geodb_textdata town,
+         geodb_textdata code
+    WHERE hi.id_lvl2=state.loc_id AND
+          state.text_val='FL' AND
+          state.text_type=500100001<nobr> <wbr></nobr>/* ISO 3166 */ AND
+          town.loc_id = hi.loc_id AND
+          town.text_type = 500100000<nobr> <wbr></nobr>/* NAME */ AND
+          code.loc_id = town.loc_id AND
+          code.text_type = 500300000<nobr> <wbr></nobr>/* AREA CODE */
+</pre></code>
+
+  So, there is some space left for improvements in the appearance
+  of the output:<p>
+
+<code><pre>
+    SELECT code.text_val as "Areacode",
+           concat(concat(state.text_val,'-'),town.text_val) as "Name"
+    FROM geodb_hierarchies hi,
+         geodb_textdata state,
+         geodb_textdata town,
+         geodb_textdata code
+    WHERE hi.id_lvl2=state.loc_id AND
+          state.text_val='FL' AND
+          state.text_type=500100001<nobr> <wbr></nobr>/* ISO 3166 */ AND
+          town.loc_id = hi.loc_id AND
+          town.text_type = 500100000<nobr> <wbr></nobr>/* NAME */ AND
+          code.loc_id = town.loc_id AND
+          code.text_type = 500300000<nobr> <wbr></nobr>/* AREA CODE */
+    ORDER BY 2
+</pre></code>
+
+  (Postgres users have to replace any "<code>concat</code>" by "<code>textcat</code>")<p>
+
+  Is it difficult? Well, I would say, it is somehow <i>"complex"</i>, but not
+  really difficult...<p>
+
+
+
+
+<a name="T3_3"><h4>3.3) MUCH TOO SIMPLE:</b> All Cantones of Switzerland</h4>
+
+  <i>Ok, but??? We just did this one?</i> -- Yes, you are right!<p>
+
+  There are some small differences: we like to output the ISO code
+  instead of the area codes (there are no area codes for cantones),
+  we are looking for the text "Switzerland" with the text_type
+  <code>NAME</code> (which is 5001000000) instead of for the ISO name
+  "FL":<p>
+
+<code><pre>
+    SELECT iso.text_val as "ISO",
+           name.text_val as "Name"
+    FROM geodb_hierarchies hi,
+         geodb_textdata state,
+         geodb_textdata name,
+         geodb_textdata iso
+    WHERE hi.id_lvl2=state.loc_id AND
+          state.text_val='Switzerland' AND
+          state.text_type=500100000<nobr> <wbr></nobr>/* NAME */ AND
+          name.loc_id = hi.loc_id AND
+          name.text_type = 500100000<nobr> <wbr></nobr>/* NAME */ AND
+          iso.loc_id = name.loc_id AND
+          iso.text_type = 500100001<nobr> <wbr></nobr>/* ISO 3166 */
+</pre></code>
+
+  Unfortunately, we not only have the cantones of Switzerland,
+  but Switzerland itself as well. Actually, when we want the
+  cantones <i>only</i>, we have to say so: we might want to
+  add something like:<p>
+
+<code><pre>
+    WHERE<nobr> <wbr></nobr>... AND level=3<nobr> <wbr></nobr>...
+</pre></code>
+
+  but we can do it more easily, when we don't look for
+  <code>name.loc_id&nbsp;=&nbsp;hi.loc_id</code>, but look for
+  <code>name.loc_id&nbsp;=&nbsp;hi.<i>id_lvl3</i></code>:<p>
+
+<code><pre>
+    SELECT iso.text_val as "ISO",
+           name.text_val as "Name"
+    FROM geodb_hierarchies hi,
+         geodb_textdata state,
+         geodb_textdata name,
+         geodb_textdata iso
+    WHERE hi.id_lvl2=state.loc_id AND
+          state.text_val='Switzerland' AND
+          state.text_type=500100000<nobr> <wbr></nobr>/* NAME */ AND
+          name.loc_id = hi.id_lvl3 AND
+          name.text_type = 500100000<nobr> <wbr></nobr>/* NAME */ AND
+          iso.loc_id = name.loc_id AND
+          iso.text_type = 500100001<nobr> <wbr></nobr>/* ISO 3166 */
+</pre></code>
+
+
+
+
+
+
+
+<a name="T4"><h3>4) SPECIAL CASES AND OTHER NOTES:</h3>
+
+<a name="T4_1"><h4>4.1) Dates giving the validity of entries:</h4>
+
+    All data do have two dates specifying the range of time, when
+    this entry is valid. They can be found in almost any table in
+    the attributes valid_since, date_type_since, valid_until and
+    date_type_until.<p>
+
+    date_type_since&nbsp;/ date_type_until give the information, how
+    exact this date is to be interpreted. 2000-01-01 might mean the
+    exact date on first of January or it might mean <i>the year</i>
+    2000 or at some day in the month of January 2000. We cannot tell
+    from valid_since&nbsp;/ valid_until, as they will always contain
+    an exact date. A special date type is called UNKNOWN_FUTURE_DATE
+    (300500000) and means that the validity of the entry has not yet
+    expired.<p>
+
+    UNKNOWN_FUTURE_DATE has ALWAYS the date 3000-01-01, so if one wants
+    to query for current data only, one would add something like this:<p>
+
+<code><pre><nobr> <wbr></nobr>... WHERE valid_until &gt;= [today]
+</pre></code>
+
+    One exception is found when querying for population data,
+    as they are related to time stamps and not to time ranges.
+    I have still not made up my mind about how to input the
+    dates in these cases. This is not yet too problematic, as
+    population data is still more or less a test case.<p>
+
+
+
+<a name="T4_2"><h4>4.2) Special attributes in geodb_textdata:</h4>
+
+    To allow for multiple different names of a location
+    (e.g. M&uuml;nchen&nbsp;/ Munich in Germany or Belgium&nbsp;/
+    Belgi&euml;&nbsp;/Belgique), we have another attribute in
+    geodb_textdata with the name <code>text_locale</code>.<p>
+
+    Quite often, one does not care for many different names,
+    but just for the names used in that location. So we added
+    a boolean attribute <code>is_native_lang</code> with true
+    (or 1) meaning: this name is used in this location.<p>
+
+    Multiple names generate still more problems. Often (or even
+    mostly) one just wants to have one ("the best fitting") name
+    for that location. Returning many names can complicate an
+    application program VERY much. For this we included an attribute
+    <code>is_default_name</code>. It is garantueed that this
+    attribute is either null (for certain text_type values) or 
+    exactly one time true for other text_type values like NAME.<p>
+
+    By this you can garantuee with:<p>
+
+<code><pre><nobr> <wbr></nobr>... AND is_default_name = 1
+</pre></code>
+
+    on text_type=NAME etc. that you will get back only one name,
+    and this is the most reasonable name in a universal sense. I
+    think it is garantueed as well that is_native_lang is true as
+    well in this case.<p>
+
+    As there are some situations, where there is no really perfect
+    solution for a default name (take "Europe" for example knowing
+    maybe 20 or so "native" names), we will revert to the english
+    name in such cases.<p>
+
+    This will give you another problem: say, you are hosting a
+    slovenic web page. Querying for:<nobr> <wbr></nobr><code>... is_default_name&nbsp;=
+    1</code> will result in the english name 'Europe', even though
+    the slovenic web page would want 'Evropa' as name.<p>
+
+    In this case one would have to revert to an exclusive-or
+    constraint. This would allow for the slovenic language, IF
+    there is an entry in this language (AND IF it is a native
+    language for that location) OR IF this is not the case,
+    revert to the default name.<p>
+
+    Exclusive-or conditions do not belong to an earlier SQL-standardization,
+    so it might be that one has to build such a construct via the
+    application program, which might be rather complex.<p>
+
+
+<a name="T4_3"><h4>4.3) geodb_coordinates is still beta:</h4>
+
+<a name="T4_3_1">4.3.1) This table is currently quite huge due to
+      many derived values
+      like sin_lon etc. pp.. The idea was to enhance query performance,
+      e.g., when querying the distance between locations by using these
+      ready-made sine and cosine values.<p>
+
+      In praxis, it does not really look like this goal will be reached
+      by this method, as it blows up the tables substantially (by this
+      requiring more reads from the harddisk, which is REALLY slow in
+      comparison).<p>
+
+      This is the reason, why I'm thinking about removing these four
+      attributes from geodb_coordinates.<p>
+
+
+<a name="T4_3_2">4.3.2) The attribute coord_type contains the type
+      of the coordinates,
+      in this case WGS84. This is meaningful ONLY when one allows for
+      other coord_types as well, e.g. UTM or whatever. On the other
+      hand, these other coord_types would again just be derived values
+      without giving you any additional information.<p>
+
+      For this I'm thinking about removing the coord_type attribute from
+      geodb_coordinates (and renaming coord_subtype to coord_type).<p>
+</a></a></a></a></a></a></a></a></a></a></a></a></b></b></b></b></b></b></b><!-- sf.net/safe_html --><!-- DOCMANAGER DOCUMENT END -->
+ <td valign="top" class="smfc0n"></td>
+<!-- end right column -->
+</tr>
+</table>
+<p align=center>
+<!-- begin OSTG Footer -->
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr bgcolor="#999999">
+<td><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="1" height="1"></td>
+</tr>
+<tr align="center" valign="middle">
+<td height="50" class="osdn-foottext">
+<a href="http://www.vasoftware.com/sourceforge/index.php">Powered by SourceForge&#174; software project management solutions from VA Software</a><br>
+&copy; Copyright 2005 - <a href="http://www.ostg.com/" class="legallink">OSTG</a> Open Source Technology Group, All Rights Reserved<br>
+<a href="/docman/display_doc.php?docid=6025&amp;group_id=1" class="legallink">About SourceForge.net</a>
+&nbsp;&#149;&nbsp;
+<a href="http://www.ostg.com/about/"  class="legallink">About OSTG</a> &nbsp;&#149;&nbsp; <a href="/docman/display_doc.php?docid=6049&amp;group_id=1" class="legallink">Privacy Statement</a>
+&nbsp;&#149;&nbsp; <a href="/docman/display_doc.php?docid=6048&amp;group_id=1" class="legallink">Terms of Use</a> &nbsp;&#149;&nbsp;
+<a href="http://www.ostg.com/advertising/" class="legallink">Advertise</a> &nbsp;&#149;&nbsp;
+
+<a href="/support/getsupport.php?group_id=132421" class="legallink">Get Support</a></tr>
+
+
+<tr bgcolor="#999999">
+<td><IMG src="http://images.sourceforge.net/images/blank.gif" alt="" border="0" width="1" height="1"></td>
+</tr>
+</table>
+<p align="center">
+<a href="http://productguide.itmanagersjournal.com" style="color: #D3D3D3; font-size: 8px">IT Product Guide--enterprise IT product reviews</a></font>
+<SCRIPT SRC="http://an.tacoda.net/an/11715/slf.js" LANGUAGE="JavaScript"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">
+	var cats = [ 'tbs', 'hcm' ];
+	var cc = cats[ Math.floor(Math.random() * (cats.length))];
+	TCDA("cc="+cc+"; dt");
+</SCRIPT>
+<!-- done with OSDN Footer -->
+</body>
+</html>
+	

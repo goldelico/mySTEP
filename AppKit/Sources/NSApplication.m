@@ -1,0 +1,2036 @@
+/* 
+ NSApplication.m
+
+ Application class
+
+ Copyright (C) 1996 Free Software Foundation, Inc.
+
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+*/ 
+
+#import <Foundation/Foundation.h>
+#import <Foundation/NSObjCRuntime.h>
+#import <AppKit/NSApplication.h>
+#import <AppKit/NSBezierPath.h>
+#import <AppKit/NSPopUpButton.h>
+#import <AppKit/NSColor.h>
+#import <AppKit/NSColorPanel.h>
+#import <AppKit/NSGraphics.h>
+#import <AppKit/NSPasteboard.h>
+#import <AppKit/NSPanel.h>
+#import <AppKit/NSEvent.h>
+#import <AppKit/NSImage.h>
+#import <AppKit/NSMenu.h>
+#import <AppKit/NSMenuItem.h>
+#import <AppKit/NSCursor.h>
+#import <AppKit/NSNibLoading.h>
+#import <AppKit/NSWorkspace.h>
+#import <AppKit/NSDocumentController.h>
+#import <AppKit/NSStatusBar.h>
+#import <AppKit/NSScreen.h>
+#import <AppKit/NSGraphicsContext.h>
+#import <AppKit/NSPageLayout.h>
+
+#import "NSAppKitPrivate.h"
+#import "NSBackendPrivate.h"
+#import "NSUIServer.h"
+
+#import "GSServices.h"
+
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+// Menu delegate classes instantiated by NIBLoading
+
+@interface _NSWindowMenuUpdater : NSObject
+- (void) menuNeedsUpdate:(NSMenu *) menu;
+@end
+
+@implementation _NSWindowMenuUpdater
+
+- (void) menuNeedsUpdate:(NSMenu *) menu;
+{
+#if 0
+	NSEnumerator *e=[[self windows] objectEnumerator];
+	// clear all existing window items
+	while((w=[e nextObject]))
+		{
+		if(![w isExcludedFromWindowsMenu])
+			{ // build menu
+			NSMenuItem <NSMenuItem> *item=[[NSMenuItem alloc] initWithTitle:[w title]
+																	 action:@selector(makeKeyAndOrderFront:)
+															  keyEquivalent:@""];
+			[item setTarget:w];
+			[menu addItem:item];
+			[item release];
+			}
+		}
+#endif
+	NSLog(@"update Windows menu");
+}
+
+@end
+
+@interface NSServiceMaster : NSObject
+@end
+
+@implementation NSServiceMaster
+- (void) menuNeedsUpdate:(NSMenu *) menu;
+{
+	NSLog(@"should update Services menu");
+}
+@end
+
+#define NOTICE(notif_name) NSApplication##notif_name##Notification
+
+//
+// Types
+//
+struct _NSModalSession {
+	NSWindow *window;			// the modal window
+	NSModalSession previous;
+	NSMutableArray *nonModalEventsQueue;		// we collect events that are blocked from other windows
+	int runState;	// and return value
+	int windowTag;	// window ID
+	BOOL visible;	// window was (still) visible and now disappeared
+};
+
+// Class variables
+NSApplication *NSApp = nil;
+NSString *NSApplicationDidChangeScreenParametersNotification=@"NSApplicationDidChangeScreenParametersNotification";
+
+static NSString	*NSAbortModalException = @"NSAbortModalException";
+
+// static NSMenu *__copyOfMainMenu = nil;
+static Class __windowClass = Nil;
+extern NSView *__toolTipOwnerView;
+
+// GSListener is a proxy class used in communicating with other
+// apps.  It implements some dangerous methods in a harmless 
+// manner to reduce the chances of a malicious app messing with 
+// us.  It forwards service requests and other communications.
+
+@interface GSListener : NSObject
+
++ (GSListener *) listener;
++ (void) _connectionBecameInvalid:(NSNotification*)notification;
+
+- (void) performService:(NSString*)name
+		 withPasteboard:(NSPasteboard*)pb
+			   userData:(NSString*)ud
+				  error:(NSString**)e;
+@end
+
+//
+// Class variables
+//
+static GSListener *__listener = nil;
+
+@implementation GSListener
+
++ (GSListener*) listener
+{
+	return __listener ? __listener : (__listener = (id)NSAllocateObject(self, 0, NSDefaultMallocZone()));
+}
+
++ (void) _connectionBecameInvalid:(NSNotification *) notification
+{
+	NSLog(@"GSListener + connectionBecameInvalid: %@", notification);
+	NSUnregisterServicesProvider(nil);	// it is our connection
+}
+
+- (Class) class							{ return nil; }
+- (void) dealloc						{ return; [super dealloc]; }
+- (void) release						{}
+- (id) retain							{ return self; }
+- (id) self								{ return self; }
+
+	// this is called for all unimplemented methods
+
+- (void) forwardInvocation:(NSInvocation *) i
+{
+	SEL aSel=[i selector];
+	NSString *selName = NSStringFromSelector(aSel);
+	id delegate;		// If the selector matches the correct form for a services 
+						// request, send the message to the services provider - 
+						// otherwise raise a method is not implemented exception.
+	NSLog(@"GSListener checking request %@", selName);
+	
+#if 0
+	if ([selName hasSuffix: @":userData:error:"])
+		{
+		// [i setTargeg:__servicesProvider];
+		[i invokeWithTarget:__servicesProvider];
+		return;
+		}
+	
+	NSLog(@"GSListener NSApp delegate=%@", [NSApp delegate]);
+	// If app delegate can handle the message forward it to it
+	
+	if([selName isEqualToString:@"_application:openURLs:withOptions:"])
+		{
+#if 1
+		NSArray *urls;
+		int options;
+		[i getArgument:&urls atIndex:3];
+		[i getArgument:&options atIndex:4];
+		NSLog(@"NSApp is asked to open URLs %@ with options %d", urls, options);
+#endif
+		[i invokeWithTarget:NSApp];
+		return;
+		}
+#endif
+	
+	if ([(delegate = [NSApp delegate]) respondsToSelector: aSel] == YES)
+		{
+#if 1
+		NSLog(@"%08x:%@ forwarding %@ to NSApp delegate (%@)", self, self, selName, delegate);
+		// NSLog(@"aSel=%08x frame=%08x: %08x %08x %08x", aSel, frame, ((long *)frame)[0], ((long *)frame)[1], ((long *)frame)[2]);
+		// [i setTargeg:__servicesProvider];
+#endif
+		[i invokeWithTarget:delegate];
+		return;	// invocation has been modified as defined by delegate
+		}
+	NSLog(@"GSListener blocks request %@", selName);
+	[NSException raise: NSGenericException
+				format: @"method %@ not implemented", selName];
+	return;
+}
+
+// FIXME: shouldn't this be oneway void so that a launching app can't be blocked too long by a launched app?
+
+- (BOOL) _application:(in NSApplication *) app openURLs:(in bycopy NSArray *) urls withOptions:(in bycopy NSWorkspaceLaunchOptions) opts;	// handle open
+{ // forward to the application which will dispatch the call
+	NSLog(@"GSListener %@ _application:openURLs:withOptions:", NSApp);
+	[NSApp _application:NSApp openURLs:urls withOptions:opts];
+	NSLog(@"  opened...");
+	return YES;
+}
+
+- (void) performService:(NSString*)name
+		 withPasteboard:(NSPasteboard*)pb
+			   userData:(NSString*)ud
+				  error:(NSString**)e
+{
+	id obj = [[GSServices sharedManager] servicesProvider];
+	SEL msgSel = NSSelectorFromString(name);
+	IMP msgImp;
+	
+	if (obj != nil && [obj respondsToSelector: msgSel])
+		{
+		if ((msgImp = [obj methodForSelector: msgSel]) != 0)
+			{
+			(*msgImp)(obj, msgSel, pb, ud, e);
+			return;
+			}	}
+	
+	if ((obj = [NSApp delegate]) != nil && [obj respondsToSelector: msgSel])
+		{
+		if ((msgImp = [obj methodForSelector: msgSel]) != 0)
+			{
+			(*msgImp)(obj, msgSel, pb, ud, e);
+			return;
+			}
+		}
+	*e = @"No object available to provide service"; 
+}
+
+- (void) activate;
+{ // show menu (+windows, i.e. everything)
+	NSLog(@"requested to activate");
+	[NSApp activateIgnoringOtherApps:NO];
+}
+
+- (void) deactivate;
+{ // hide menu
+	NSLog(@"requested to deactivate");
+	[NSMenuView _deactivate];	// close any still open menu
+	[NSApp deactivate];
+}
+
+- (void) hide;
+{ // hide windows (+menu, i.e. everything)
+	NSLog(@"requested to hide");
+	// FIXME: hide all windows
+	[NSApp hide:nil];
+}
+
+- (void) unhide;
+{ // show windows
+	NSLog(@"requested to unhide");
+	[NSApp unhide:nil];
+}
+
+- (void) echo;
+{ // can be used to check if I am awake...
+	NSLog(@"requested to echo");
+}
+
+@end /* GSListener */
+
+static id __servicesProvider = nil;
+static id __registeredName = nil;
+static NSConnection	*__listenerConnection = nil;
+
+void NSUnregisterServicesProvider(NSString *name)
+{
+#if 0
+	NSLog(@"NSUnregisterServicesProvider: '%@'", name);
+#endif
+	if (__listenerConnection)		// Ensure there is no previous listener and 
+		{							// nothing else using the given port name.
+		if(name)
+			[[NSPortNameServer systemDefaultPortNameServer] removePortForName: name];
+		[[NSNotificationCenter defaultCenter] removeObserver: [GSListener class]
+														name: NSConnectionDidDieNotification
+													  object: __listenerConnection];
+		[__listenerConnection release];
+		__listenerConnection = nil;
+		}
+	
+	[__servicesProvider release];
+	__servicesProvider = nil;
+}
+
+void NSRegisterServicesProvider(id provider, NSString *name)
+{
+	if(!name)
+		name = [[NSBundle mainBundle] bundleIdentifier];
+	
+	if (name && provider)
+		{
+#if 0
+		NSLog(@"NSRegisterServicesProvider: '%@'", name);
+#endif
+		NSUnregisterServicesProvider(name);	// if any
+		
+		if(!(__listenerConnection = [NSConnection new]))	// create new connection
+			[NSException raise: NSGenericException format: @"unable to create connection for %@", name];
+		[__listenerConnection setRootObject:provider];	// register object
+		if(![__listenerConnection registerName:name])	// publish connection point
+			[NSException raise: NSGenericException format: @"unable to register %@", name];
+		[[NSNotificationCenter defaultCenter] addObserver: [GSListener class]
+												 selector: @selector(_connectionBecameInvalid:)
+													 name: NSConnectionDidDieNotification
+												   object: __listenerConnection];	// observe this connection to automatically unregister the services provider
+#if 0
+		NSLog(@"registered __listenerConnection %@ for %@", __listenerConnection, name);
+#endif
+		}
+	
+	ASSIGN(__servicesProvider, provider);
+	ASSIGN(__registeredName, name);
+}
+
+//*****************************************************************************
+//
+// 		NSApplication 
+//
+//*****************************************************************************
+
+@implementation NSApplication
+
++ (NSApplication *) sharedApplication
+{
+	Class class;
+#if 0
+	NSLog(@"-sharedApplication");
+#endif
+	if(!NSApp)
+		{
+		if(!(class = [[NSBundle mainBundle] principalClass]))
+			class=[self class];
+#if 0
+		NSLog(@"class = %@", NSStringFromClass(class));
+#endif
+		if(![class isSubclassOfClass:[self class]])
+		   NSLog(@"principal class (%@) of main bundle is not subclass of NSApplication", NSStringFromClass(class));
+		[class new];
+		}
+#if 0
+	NSLog(@"NSApp = %@", NSApp);
+#endif
+	return NSApp;
+}
+
+- (void) _screenParametersNotification:(NSNotification *) notification;
+{
+	NSLog(@"%@ _screenParametersNotification: %@", NSStringFromClass([self class]), notification);
+	[_mainMenuWindow setFrame:[[_mainMenuWindow screen] _menuBarFrame] display:YES animate:YES];	// move menu bar (if screen rotates)
+}
+
+- (id) init
+{
+	NSDebugLog(@"Begin of NSApplication -init\n");
+#if 0
+	NSLog(@"Begin of [NSApplication init]\n");
+#endif
+	if(NSApp != nil)
+		{
+		NSLog(@"Warning: NSApp has already been initialized.");
+		return NSApp;	// there is already one
+		}
+	if((self=[super init]))
+		{
+		NSNotificationCenter *n=[NSNotificationCenter defaultCenter];
+		__windowClass = [NSWindow class];
+		_eventQueue = [[NSMutableArray alloc] initWithCapacity:9];
+
+		_listener = [GSServices sharedManager];				// register for default DO access through App bundle identifier
+
+		[self setNextResponder:nil];						// NSApp is the end of
+															// the responder chain
+		_app.windowsNeedUpdate = YES;						// default to first update
+
+		[n addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:nil];	// observe all windows
+		[n addObserver:self selector:@selector(windowDidBecomeKey:) name:NSWindowDidBecomeKeyNotification object:nil];
+		[n addObserver:self selector:@selector(windowDidBecomeMain:) name:NSWindowDidBecomeMainNotification object:nil];
+		[n addObserver:self selector:@selector(windowDidResignKey:) name:NSWindowDidResignKeyNotification object:nil];
+		[n addObserver:self selector:@selector(windowDidResignMain:) name:NSWindowDidResignMainNotification object:nil];
+
+		// process incoming DO requests also while in these modes
+		
+		[[NSConnection defaultConnection] addRequestMode:NSModalPanelRunLoopMode];
+		[[NSConnection defaultConnection] addRequestMode:NSEventTrackingRunLoopMode];
+				
+#if 0
+		NSLog(@"End of [NSApplication init]\n");
+#endif
+		}
+	return NSApp=self;
+}
+
+- (void) _processCommandLineArguments:(NSArray *) args;
+{ // open all files we have been passed as arguments
+  // NOTE: this must match the way NSWorkspace and NSTask pass arguments down to launched apps
+	NSEnumerator *e=[args objectEnumerator];
+	NSString *arg;
+	NSMutableArray *urls=[NSMutableArray arrayWithCapacity:[args count]];
+	NSWorkspaceLaunchOptions opts=0;
+	NSUserDefaults *ud=[NSUserDefaults standardUserDefaults];	// read from ArgumentsDomain
+#if 0
+	NSLog(@"_processCommandLineArguments: %@", args);
+#endif
+//	arg=[e nextObject]; // skip application name
+	arg=[e nextObject]; // skip application executable path
+	while((arg=[e nextObject]))
+		{ // process all arguments and convert to URL
+		NSURL *url;
+		if([arg hasPrefix:@"-"])
+			continue;	// skip
+#if 0
+		if([arg isEqualToString:@"-NSPrint"])
+			{
+			opts |= NSWorkspaceLaunchAndPrint;
+			continue;
+			}
+		if([arg isEqualToString:@"-NSNew"])
+			{
+			opts |= NSWorkspaceLaunchNewInstance;
+			continue;
+			}
+		if([arg isEqualToString:@"-NSTemp"])
+			{
+			opts |= NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchNewInstance;
+			continue;
+			}
+		if([arg isEqualToString:@"-NSNoUI"])
+			{
+			opts |= NSWorkspaceLaunchWithoutAddingToRecents;
+			continue;
+			}
+#endif
+		url=nil;
+		if([[arg componentsSeparatedByString:@":"] count] >= 2)
+			url=[NSURL URLWithString:arg];		// assume that it is a URL
+		if(!url)
+			url=[NSURL fileURLWithPath:arg];	// assume that it is a file path
+		[urls addObject:url];
+		}
+	if([ud stringForKey:@"NSPrint"])	// -NSPrint (any value)
+		opts |= NSWorkspaceLaunchAndPrint;
+	if([ud stringForKey:@"NSNew"])
+		opts |= NSWorkspaceLaunchNewInstance;
+	if([ud stringForKey:@"NSTemp"])
+		opts |= NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchNewInstance;
+	if([ud stringForKey:@"NSNoUI"])
+		opts |= NSWorkspaceLaunchWithoutAddingToRecents;
+	[self _application:self openURLs:urls withOptions:opts];
+}
+
+- (void) finishLaunching
+{
+	NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+	NSString *mainModelFile = [infoDict objectForKey:@"NSMainNibFile"];
+	NSString *name=[infoDict objectForKey:@"CFBundleName"];
+	NSString *ident=[infoDict objectForKey:@"CFBundleIdentifier"];
+#if 0
+	NSLog(@"finishLaunching - mainmodel=%@ name=%@ ident=%@", mainModelFile, name, ident);
+#endif
+	ASSIGN(_appIcon, [NSImage imageNamed:NSApplicationIcon]);	// try to load
+#if 0
+	NSLog(@"App Icon = %@", _appIcon);
+#endif
+	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillFinishLaunching) object:self];
+	if(!_app.disableServices)						// register services handler before any awakeFromNib calls
+		[_listener registerAsServiceProvider];
+
+	// FIXME: according to Tiger docu we should already show the menu bar here - if [NSMenu menuBarVisible] is YES
+
+	// register with system UI server
+
+	NS_DURING
+		{
+			NSString *path=[[NSBundle mainBundle] bundlePath];
+			if(!name)
+				name=[[path lastPathComponent] stringByDeletingPathExtension];	// use bundle name w/o .app instead
+#if 0
+			NSLog(@"try to registerApplication:%@ with systemUIServer", ident);
+#endif
+			[[NSWorkspace _distributedWorkspace] registerApplication:getpid()
+																name:ident		// name
+																path:path		// full path
+															   NSApp:NSApp];	// register as newly launched application with mySystemUIServer
+		}
+	NS_HANDLER
+		NSLog(@"could not register %@[%@] with mySystemUIServer due to %@", name, ident, [localException reason]);
+		// ignore for now
+	NS_ENDHANDLER
+
+	if([[infoDict objectForKey:@"LSGetAppDiedEvents"] boolValue])
+		{ // convert SIGCHLD
+		// find a mechanism to handle kAEApplicationDied
+		}
+	else
+		signal(SIGCHLD, SIG_IGN);	// ignore
+#if 1
+	NSLog(@"NSMainNibFile = %@", mainModelFile);
+#endif
+	if([mainModelFile length] > 0)
+		{ // is defined
+		NSNib *nib=[[[NSNib alloc] initWithNibNamed:mainModelFile bundle:[NSBundle mainBundle]] autorelease];	// search in mainBundle
+		if(![nib instantiateNibWithOwner:NSApp topLevelObjects:NULL])
+			NSLog(@"Cannot load the main model file '%@'", mainModelFile);
+		}
+	if(![self mainMenu])
+		[self setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// did not load
+	if([[self mainMenu] numberOfItems] == 0)
+		[[self mainMenu] addItemWithTitle:@"" action:NULL keyEquivalent:@""];	// empty main menu
+	if([[[[self mainMenu] itemAtIndex:0] title] length] == 0)
+		{ // application menu title is empty - substitute from bundle
+		NSString *applicationName=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+		if(!applicationName)
+			applicationName=[[NSProcessInfo processInfo] processName];	// replacement
+		if(applicationName)
+			[[[self mainMenu] itemAtIndex:0] setTitle:applicationName];	// insert application name
+		}
+	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];
+	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object: self]; // notify that launch has finally finished
+	[self activateIgnoringOtherApps:NO];
+}
+
+- (void) dealloc
+{
+	NSDebugLog(@"dealloc NSApplication\n");
+													// Let ourselves know we 
+	_app.isDeallocating = YES;						// are within dealloc
+	
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSApplicationDidChangeScreenParametersNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowWillCloseNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidBecomeMainNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidBecomeKeyNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignMainNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidResignKeyNotification object:nil];
+	
+	[_listener release];
+	[_eventQueue release];
+	[_currentEvent release];
+
+	while (_session != 0)							// We may need to tidy up 
+		{											// nested modal session 
+		NSModalSession tmp = _session;				// structures.
+		_session = tmp->previous;
+		objc_free(tmp);
+		}
+	[super dealloc];
+}
+
+- (void) run
+{ // Run the main event loop
+#if 0
+	NSLog(@"NSApplication -run\n");
+#endif
+	[self finishLaunching];
+	_app.isRunning = YES;
+	do { // embrace with private autorelease pool and exception handler
+		NSEvent *e;
+		NSAutoreleasePool *arp=[NSAutoreleasePool new];
+		NS_DURING // protect against exceptions
+			e=[self nextEventMatchingMask:NSAnyEventMask
+								untilDate:[NSDate distantFuture]
+								   inMode:NSDefaultRunLoopMode
+								  dequeue:YES];
+			[self sendEvent:e];	// this can set as a side effect isRunning=NO to break the loop
+		NS_HANDLER
+			NSLog(@"Exception %@ - %@", [localException name], [localException reason]);
+		NS_ENDHANDLER
+		[arp release];
+		}
+	while(_app.isRunning);
+	NSDebugLog(@"NSApplication end of run loop\n");	
+}
+
+- (int) runModalForWindow:(NSWindow*)aWindow
+{
+	static NSModalSession s = 0;
+	static int r;	// Run a modal event loop
+
+	NS_DURING
+		{
+		s = [self beginModalSessionForWindow:aWindow];
+		while((r = [self runModalSession: s]) == NSRunContinuesResponse)
+			{
+			NSAutoreleasePool *arp=[NSAutoreleasePool new];
+			[self nextEventMatchingMask:NSAnyEventMask
+							  untilDate:[NSDate distantFuture]
+								 inMode:NSModalPanelRunLoopMode
+								dequeue:NO];	// wait for but don't process events
+			[arp release];
+			}
+		[self endModalSession: s];
+		}
+	NS_HANDLER
+		{
+		if (s)
+			[self endModalSession: s];
+		if ([[localException name] isEqual: NSAbortModalException] == NO)
+			[localException raise];
+		r = NSRunAbortedResponse;
+		}
+	NS_ENDHANDLER
+	return r;
+}
+
+- (void) beginSheet:(NSWindow *) sheet
+		 modalForWindow:(NSWindow *) doc
+			modalDelegate:(id) delegate
+		 didEndSelector:(SEL) selector
+				contextInfo:(void *) context;
+{
+	int r;
+	NSModalSession s;
+	void (*didend)(id, SEL, NSWindow *, int, void *);
+	didend = (void (*)(id, SEL, NSWindow *, int, void *))[delegate methodForSelector:selector];
+	// make the sheet a child window of the doc
+	// animate sheet to show up as a sliding 'sheet'
+	// run modal session
+	r=[self runModalSession:s];
+	if(didend)
+		didend(delegate, selector, sheet, r, context);	// send result to modal delegate
+}
+
+- (int) runModalSession:(NSModalSession)as
+{
+	NSEvent *e;
+	if (as != _session)
+		[NSException raise: NSInvalidArgumentException format: @"runModalSession: with wrong session"];
+//	[as->window displayIfNeeded];
+	[as->window makeKeyAndOrderFront: self];
+	as->windowTag = [as->window windowNumber];	// should be assigned now
+#if 0
+		NSLog(@"new session: as->window %@", as->window);
+		NSLog(@"						 as->windowTag %d", as->windowTag);
+#endif
+		
+	while((e = [self _eventMatchingMask:NSAnyEventMask dequeue:YES])
+		 && (as->runState == NSRunContinuesResponse))
+		{
+		if([e window] == as->window)
+				{ // the modal window
+				NSWindow *w = [NSWindow _windowForNumber:as->windowTag];	// check if the server still knows us by tag
+				BOOL was = as->visible;
+				if(w == nil || (!(as->visible = [w isVisible]) && was))
+					{
+#if 0
+					NSLog(@"window was visible: event window %d %@", [[e window] windowNumber], [e window]);
+					NSLog(@"                    as->window %@", as->window);
+					NSLog(@"                    as->windowTag %d -> %@", as->windowTag, w);
+#endif
+					[self stopModal];			// if window was visible but has now gone away: end the session
+					}
+				else
+					[self sendEvent:e];	// dispatch to the event window (which is the modal window)
+				}
+		else if([[e window] worksWhenModal])
+			{
+#if 1
+			NSLog(@"worksWhenModal: %@", [e window]);
+#endif
+			[self sendEvent:e];	// the window has explicity opted to receive events
+			}
+		// FIXME: check if we click into the title bar to allow moving the window!
+		else
+			{ // queue events for all other windows for processing by endModalSession
+			NSEventType t = [e type];
+			if (t == NSLeftMouseDown || (t == NSRightMouseDown))
+				NSBeep();
+			else
+				{
+				if (!as->nonModalEventsQueue)
+					as->nonModalEventsQueue = [NSMutableArray new];				
+				[as->nonModalEventsQueue addObject: e];
+				}
+			}
+		}
+	
+	if (_app.windowsNeedUpdate && (as->runState == NSRunContinuesResponse))
+			{
+			[as->window displayIfNeeded];		// update first
+			[as->window flushWindowIfNeeded];
+			[self updateWindows];				// update other visible windows
+			[as->window makeKeyAndOrderFront: self];	// stay in front
+			}
+
+	NSAssert(_session == as, @"Session was changed while running");
+#if 0
+	NSLog(@"runModalSession: %d", as->runState);
+#endif
+
+	return as->runState;
+}
+
+- (void) abortModal
+{
+	if (_session == 0)
+		[NSException raise: NSAbortModalException
+					 format:@"abortModal called while not in a modal session"];
+
+	[NSException raise: NSAbortModalException format: @"abortModal"];
+}
+
+- (IBAction) stop:(id)sender	
+{
+	if (_session)
+		[self stopModal];
+	else
+		_app.isRunning = NO;
+}
+
+- (void) stopModal			
+{ 
+	[self stopModalWithCode: NSRunStoppedResponse]; 
+}
+
+- (void) stopModalWithCode:(int)returnCode
+{
+#if 0
+	NSLog(@"stopModalWithCode: %d", returnCode);
+	abort();
+#endif
+	if (_session == 0)
+		[NSException raise: NSInvalidArgumentException
+					 format:@"stopModalWithCode: when not in a modal session"];
+
+	if (returnCode == NSRunContinuesResponse)
+		[NSException raise: NSInvalidArgumentException
+					 format: @"stopModalWithCode: NSRunContinuesResponse ?"];
+ 
+	_session->runState = returnCode;
+}
+
+- (NSModalSession) beginModalSessionForWindow:(NSWindow*)aWindow
+{
+	NSModalSession s;
+	s = (NSModalSession) objc_calloc(1, sizeof(struct _NSModalSession));
+	if(s != NULL)
+		{
+		s->runState = NSRunContinuesResponse;
+		s->window = aWindow; 
+		s->previous = _session;
+		_session = s;
+		}
+	return s;
+}
+
+- (NSModalSession) beginModalSessionForWindow:(NSWindow *)aWindow relativeToWindow:(NSWindow *) other
+{
+	NSModalSession s;
+	DEPRECATED;
+	s = (NSModalSession) objc_calloc(1, sizeof(struct _NSModalSession));
+	if(s != NULL)
+		{
+		s->runState = NSRunContinuesResponse;
+		s->window = aWindow; 
+		s->previous = _session;
+		_session = s;
+		}
+	return s;
+}
+
+- (NSWindow *) modalWindow;
+{ // current modal window (if any)
+	if(_session)
+		return _session->window;
+	return nil;
+}
+
+- (void) endModalSession:(NSModalSession)aSession
+{
+	NSModalSession tmp = _session;
+
+	if (aSession == 0)
+		[NSException raise: NSInvalidArgumentException
+					 format: @"null pointer passed to endModalSession:"];
+
+	if (aSession->nonModalEventsQueue)
+		{
+		[_eventQueue addObjectsFromArray: aSession->nonModalEventsQueue];
+		[aSession->nonModalEventsQueue release];
+		}
+
+	while (tmp && tmp != aSession)					// Remove this session from
+		tmp = tmp->previous;						// linked list of sessions
+
+	if (tmp == 0)
+		[NSException raise: NSInvalidArgumentException
+					 format: @"unknown session passed to endModalSession:"];
+
+	while (_session != aSession)
+		{
+		tmp = _session;
+		_session = tmp->previous;
+		free(tmp);
+		}
+	_session = _session->previous;
+	free(aSession);
+}
+
+- (void) endSheet:(NSWindow *) sheet returnCode:(int) code
+{
+	// animate sheet to disappear
+	[self stopModalWithCode:code];
+}
+
+- (void) endSheet:(NSWindow *) sheet
+{
+	[self endSheet:sheet returnCode:NSRunStoppedResponse];
+}
+
+// internal communication with the NSWindows - although we are not the window delegate, we observe these notifications
+
+- (void) windowWillClose:(NSNotification *)aNotification 
+{
+	NSArray *_windowList=[self windows];
+	int i = [_windowList count];				// find a replacement
+#if 1
+	NSLog(@"NSApp: windowWillClose - %d open windows", i);
+#endif
+	if(!_app.isHidden && _app.isActive && [aNotification object] == _keyWindow)
+		{ // the key window is being closed
+		NSWindow *oldKey = _keyWindow;
+		NSWindow *w;
+		_keyWindow = nil;								// assumes resignMain was sent first
+		if (oldKey != _mainWindow && _mainWindow && [_mainWindow canBecomeKeyWindow])
+			{	// I am not the main window, but it can become the key window
+			[_mainWindow becomeKeyWindow];
+			return;
+			}
+		// if window was key & main try to skip myself
+		while(i-- > 0)
+			{
+			if(((w = [_windowList objectAtIndex: i]) != oldKey) && [w isVisible] && [w canBecomeKeyWindow])	
+				{
+				[w orderFront:self];
+				[w becomeKeyWindow];
+				[w makeMainWindow];
+				break;
+				}
+			}
+		}
+}
+
+- (void) windowDidResignKey:(NSNotification *)aNotification
+{
+#if 1
+	NSLog(@"%@%@ %@", self, NSStringFromSelector(_cmd), aNotification);
+#endif
+	if (!_app.isHidden && [aNotification object] == _keyWindow)
+		_keyWindow = nil;
+}
+
+- (void) windowDidResignMain:(NSNotification *)aNotification
+{
+#if 1
+	NSLog(@"%@%@ %@", self, NSStringFromSelector(_cmd), aNotification);
+#endif
+	if (!_app.isHidden && [aNotification object] == _mainWindow)
+		_mainWindow = nil;
+}
+
+- (void) windowDidBecomeKey:(NSNotification *)aNotification
+{
+#if 0
+	NSLog(@"%@ %@", self, aNotification);
+#endif
+	_keyWindow = [aNotification object];
+}
+
+- (void) windowDidBecomeMain:(NSNotification *)aNotification
+{
+#if 0
+	NSLog(@"%@ %@", self, aNotification);
+#endif
+	_mainWindow = [aNotification object];
+}
+
+- (BOOL) shouldBeTreatedAsInkEvent:(NSEvent *) theEvent;
+{ // permit ink-anywhere
+	return [[theEvent window] shouldBeTreatedAsInkEvent:theEvent];
+}
+
+- (BOOL) _eventIsQueued:(NSEvent *) event; { return [_eventQueue indexOfObjectIdenticalTo:event] != NSNotFound; }
+
+- (NSEvent*) _eventMatchingMask:(unsigned int)mask dequeue:(BOOL)dequeue
+{
+	int i, cnt;
+#if 0
+	NSLog(@"_eventMatchingMask");
+#endif
+	if(_app.windowsNeedUpdate)		// needs to send an update message to all visible windows
+		[self updateWindows];
+	if(!mask)
+		return nil;	// no event will match
+	cnt=[_eventQueue count];
+	for (i = 0; i < cnt; i++)							// return next event
+		{												// in the queue which
+		NSEvent *e = [_eventQueue objectAtIndex:i];		// matches mask
+		if((mask == NSAnyEventMask) || mask & NSEventMaskFromType([e type])) 
+			{
+			[e retain];	// save across removeObjectAtIndex
+			if(dequeue)
+				[_eventQueue removeObjectAtIndex:i];
+#if 0
+			NSLog(@"_eventMatchingMask found");
+#endif
+			return [e autorelease];		// return an event from the queue which matches the mask
+			}
+		}
+#if 0
+	NSLog(@"_eventMatchingMask no event found");
+#endif
+	return nil;		// no event in the queue matches mask
+}
+
+- (void) doCommandBySelector:(SEL) sel;
+{
+	if([self respondsToSelector:sel])
+		[self performSelector:sel withObject:nil];
+	else if(_nextResponder)
+		[_nextResponder doCommandBySelector:sel];	// pass down
+	else if(_delegate && [self respondsToSelector:_cmd])
+		[_delegate doCommandBySelector:sel];		// pass down
+	else
+		[self noResponderFor:sel];	// Beep
+}
+
+- (void) sendEvent:(NSEvent *)event					// pass event to the window
+{
+#if 0
+	NSLog(@"NSApp sendEvent: %@", event);
+#endif
+	switch([event type])							// determine the event type					
+		{
+		case NSPeriodic:							// NSApp traps periodic
+			break;									// events
+		case NSLeftMouseDown:
+			{
+				if([self shouldBeTreatedAsInkEvent:event])
+					{ // this should be an inking event
+					NS_DURING
+						{ // try to handle by UI server which can pass back recognized characters to -sendEvent or even better postEvent:
+							id <_NSInputServicesProtocol> dws=[NSWorkspace _inputServices];
+							if(dws)
+								{ // ok
+								NSPoint point=[[event window] convertBaseToScreen:[event locationInWindow]];
+								[dws startInkingForApplication:self atScreenPosition:point];
+								NS_VOIDRETURN;
+								}
+						}
+					NS_HANDLER
+						NSLog(@"could not send startInking message due to %@", [localException reason]);
+					NS_ENDHANDLER
+					}
+				// activate by clicking into window
+				if(!_app.isActive && ([event window] != _appIconWindow))
+					[NSApp activateIgnoringOtherApps:YES];
+			}
+		case NSLeftMouseUp:
+		case NSRightMouseDown:
+		case NSRightMouseUp:
+		case NSOtherMouseDown:
+		case NSOtherMouseUp:
+		case NSMouseMoved:
+		case NSLeftMouseDragged:
+		case NSRightMouseDragged:
+		case NSOtherMouseDragged:
+		case NSMouseEntered:
+		case NSMouseExited:
+		case NSScrollWheel:
+		case NSTabletPoint:
+		case NSTabletProximity:
+			{ // send all mouse related events to the window specified in the event
+				[[event window] sendEvent:event];
+				break;
+			}
+		case NSKeyDown:
+			{
+#if 1
+				NSLog(@"%@ keyDown: %@", NSStringFromClass(isa), event);
+#endif
+				if(_app.isActive && [[event characters] length] > 0)
+					{ // event is providing characters - i.e. not just a meta-key
+					NSEnumerator *e;
+					NSWindow *w;
+					if([_keyWindow performKeyEquivalent:event])
+						return;	// has been processed
+					if([_mainWindow performKeyEquivalent:event])
+						return;	// has been processed
+					e = [[NSWindow _windowList] objectEnumerator];	// all windows incl. menu windows
+					while((w = [e nextObject]))
+						{ // Try all other windows
+						if(w == _keyWindow || w == _mainWindow)
+							continue;	// already tried
+						if([w performKeyEquivalent:event])
+							return;	// has been processed by window
+						}
+					// FIXME: also try popup and contextual menus!
+					// FIXME: do we really need this? A Menu window is also a window...
+//					if([[self mainMenu] performKeyEquivalent:event])	// finally try main menu (not menu window)
+//						return;
+					}
+			}
+		case NSKeyUp:
+		case NSFlagsChanged:
+		case NSCursorUpdate:
+		case NSApplicationDefined:
+		case NSAppKitDefined:
+		case NSSystemDefined:
+			{ // send key events to key window
+				if(_app.isActive)
+					{
+					NSDebugLog(@"NSEvent type: %d", [event type]);
+					[_keyWindow sendEvent:event];
+					}
+				break;
+			}
+		}
+}
+
+- (void) discardEventsMatchingMask:(unsigned int)mask
+					   beforeEvent:(NSEvent *)lastEvent
+{
+int i = 0, loop;
+int count = [_eventQueue count];
+NSEvent *event = nil;									// if queue contains
+														// events check them
+	for (loop = 0; ((event != lastEvent) && (loop < count)); loop++) 
+		{											
+		event = [_eventQueue objectAtIndex:i];			// remove event from
+														// the queue if it 
+		if ((mask & NSEventMaskFromType([event type]))) // matches the mask
+			[_eventQueue removeObjectAtIndex:i];
+		else											// inc queue cntr only
+			i++;										// if not a match else
+		}												// we will run off the
+}														// end of the queue
+
+- (NSEvent *) nextEventMatchingMask:(unsigned int)mask
+						  untilDate:(NSDate *)expiration
+							 inMode:(NSString *)mode
+							dequeue:(BOOL)fl
+{
+	NSRunLoop *currentLoop=[NSRunLoop currentRunLoop];
+	NSAutoreleasePool *pool=[NSAutoreleasePool new];
+	NSDate *limit;
+#if 0
+	NSLog(@"nextEventMatchingMask:%08x untilDate:%@ inMode:%@", mask, expiration, mode);
+#endif
+	if(!expiration)
+		expiration=[NSDate distantPast];	// fall through immediately
+	for(;;)
+		{ // If there are matching events in the queue, wait for next events to arrive
+		limit=[currentLoop limitDateForMode:mode];	// limit by any pending timers - this will already poll the input sources (at least on MacOS!)
+		if((_currentEvent = [self _eventMatchingMask:mask dequeue:fl]))	// check if we (now) have a matching event
+			break;	// found one
+#if 0
+		NSLog(@"limitDateForMode:%@ = %@ - exp = %@", mode, [currentLoop limitDateForMode:mode], expiration);
+#endif
+		limit=[limit earlierDate:expiration];	// limit to given expiration
+#if 0
+		NSLog(@"earlier: %@", limit);
+#endif
+		if(![currentLoop runMode:mode beforeDate:limit])		// blocks until (more) input arrives or the next scheduled timeout occurs
+			{
+			NSLog(@"no input sources for mode: %@", mode);
+			break;
+			}
+#if 0
+		NSLog(@"after runloop: %@", limit);
+#endif
+		if([expiration timeIntervalSinceNow] < 0)
+			break;	// untilDate has expired
+#if 0
+		NSLog(@"ARP release");
+#endif
+		[pool release];					// release current
+#if 0
+		NSLog(@"ARP released");
+#endif
+		pool=[NSAutoreleasePool new];	// and create a new pool
+ 		}
+#if 0
+	NSLog(@"ARP release with event: %@", _currentEvent);
+#endif
+	[_currentEvent retain];
+	[pool release];
+	return [_currentEvent autorelease];
+}
+
+- (void) postEvent:(NSEvent *)event atStart:(BOOL)flag
+{
+#if 0
+	if(flag)
+		NSLog(@"postEvent:atStart:YES %@", event);
+	else
+		NSLog(@"postEvent:atStart:NO %@", event);
+#endif
+	if(!flag)
+		[_eventQueue addObject: event];
+	else
+		[_eventQueue insertObject:event atIndex:0];
+}
+
+// Send action messages
+
+- (BOOL) sendAction:(SEL)aSelector to:(id) aTarget from:(id) sender
+{
+	id target=[self targetForAction:aSelector to:aTarget from:sender];
+	if(!target)
+		return NO;
+	NS_DURING
+		[target performSelector:aSelector withObject:sender];
+	NS_HANDLER
+		NSLog(@"could not send action %@ from %@ to %@: %@", NSStringFromSelector(aSelector), sender, aTarget, [localException reason]);
+	NS_ENDHANDLER
+	return YES;
+}												
+
+- (id) targetForAction:(SEL)aSelector to:(id)aTarget from:(id)sender
+{
+	if(!aSelector)
+		return nil;
+	if([aTarget respondsToSelector:aSelector])
+		return aTarget; // responds...
+	return [self targetForAction:aSelector];
+}
+	
+- (id) targetForAction:(SEL)aSelector
+{ // look up in responder chain
+	id responder;
+	NSDocumentController *docController;
+	if(!aSelector)
+		return nil;
+	// check key window first
+	responder = [_keyWindow firstResponder];
+	while(responder)
+		{ // traverse first responder chain
+		if ([responder respondsToSelector: aSelector])
+			return responder;
+		responder = [responder nextResponder];
+		}
+	if([_keyWindow respondsToSelector: aSelector])
+		return _keyWindow;
+	responder = [_keyWindow delegate];
+	if(responder != nil && [responder respondsToSelector: aSelector])
+		return responder;
+	// check main window if different
+	if(_keyWindow != _mainWindow)
+		{ // and traverse main window as well
+		responder = [_mainWindow firstResponder];
+		while(responder)
+			{
+			if([responder respondsToSelector: aSelector])
+				return responder;
+			responder = [responder nextResponder];
+			}
+		if([_mainWindow respondsToSelector: aSelector])
+			return _mainWindow;
+		responder = [_mainWindow delegate];
+		if(responder != nil && [responder respondsToSelector: aSelector])
+			return responder;
+		}
+	// check application
+	if([self respondsToSelector: aSelector])
+		return self;
+	// check delegate
+	if(_delegate != nil && [_delegate respondsToSelector: aSelector])
+		return _delegate;
+	// check document controller (if it exists)
+	docController=[NSDocumentController sharedDocumentController];
+	if(docController && [docController respondsToSelector: aSelector])
+		return docController;
+	return nil; // no responder available
+}
+
+- (BOOL) tryToPerform:(SEL)aSelector with:anObject
+{
+	if ([super tryToPerform: aSelector with: anObject] == YES)
+		return YES;
+	if (_delegate != nil && [_delegate respondsToSelector: aSelector])
+		{
+		[_delegate performSelector: aSelector withObject: anObject];
+		return YES;
+		}
+	return NO;
+}
+
+- (void) setApplicationIconImage:(NSImage*)img	{ BACKEND; }
+- (NSImage *) applicationIconImage				{ return _appIcon; }
+- (NSEvent *) currentEvent						{ return _currentEvent; }
+- (NSWindow*) appIcon							{ return _appIconWindow; }
+- (NSWindow*) keyWindow							{ return _keyWindow; }
+- (NSWindow*) mainWindow						{ return _mainWindow; }
+- (NSWindow*) windowWithWindowNumber:(int)num	{ return [NSWindow _windowForNumber:num]; }	// BACKEND
+
+// FIXME: should we exclude menu windows???
+
+- (NSArray *) windows							{ return [NSWindow _windowList]; }
+
+- (NSArray *) orderedWindows;
+{ // should include only scriptable windows, i.e. exclude panels
+	return [self windows];
+}
+
+- (BOOL) isRunning								{ return _app.isRunning; }
+- (BOOL) isActive								{ return _app.isActive; }
+- (BOOL) isHidden								{ return _app.isHidden; }
+
+- (void) activateIgnoringOtherApps:(BOOL)flag
+{
+#if 1
+	NSLog(@"activateIgnoringOtherApps:%@", flag?@"YES":@"NO");
+#endif
+	if (!_app.isActive || flag)				// menu's should listen for note so
+		{									// that they are up when app active
+		_app.isActive = YES;
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillBecomeActive) object: self];
+#if 0
+		[_mainMenu display];							// unhide app's menu's
+#endif
+		if(flag)
+			{
+			if(_mainWindow)
+				[_mainWindow becomeMainWindow];
+			if(_keyWindow)
+				[_keyWindow becomeKeyWindow];
+			}
+
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidBecomeActive) object: self];
+		}
+	if(flag)
+		[_mainMenuWindow orderFront:self];	// order front our application menu
+}
+
+- (void) deactivate
+{
+	[NSMenuView _deactivate];					// close any open menu
+	if (_app.isActive)				// in order to make themselves invisible 
+		{			 				// when the application is not active.
+		_app.isActive = NO;
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillResignActive) object:self];
+#if 1
+		NSLog(@"NSApp deactivate");
+#endif
+		[_keyWindow resignKeyWindow];
+		[_mainMenuWindow orderOut:self];	// hide our application menu (?)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidResignActive) object:self];
+		}
+}
+
+- (IBAction) hide:(id)sender
+{
+	if (!_app.isHidden)								
+		{
+		NSEnumerator *e = [[NSWindow _windowList] reverseObjectEnumerator];	// incl. menus
+		NSWindow *w;
+
+		_app.isHidden = YES;						// notify that we will hide
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillHide) object:self];
+													
+		[self deactivate];
+
+		while((w = [e nextObject]))					// Tell the windows to hide
+			[w orderOut:sender];
+													// notify that we did hide
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidHide) object:self];
+		}					
+}
+
+- (IBAction) unhide:(id)sender
+{
+	[self unhideWithoutActivation];
+	[self activateIgnoringOtherApps: YES];
+}
+
+- (IBAction) unhideAllApplications:(id)sender;
+{
+	NSDictionary *a;
+	NSEnumerator *e=[[[NSWorkspace _distributedWorkspace] launchedApplications] objectEnumerator];
+	while((a=[e nextObject]))
+		{
+		if([a objectForKey:@"NSApplicationNSApp"] == NSApp)
+			continue;	// to self - ????? does this work through object NSPortEncoding?
+		NS_DURING
+			NSLog(@"unhideWithoutActivation %@", a);
+			[[a objectForKey:@"NSApplicationNSApp"] unhideWithoutActivation];	// try to unhide
+		NS_HANDLER
+			NSLog(@"could not send unhideWithoutActivation message due to %@", [localException reason]);
+		NS_ENDHANDLER
+		}
+}
+
+- (int) requestUserAttention:(NSRequestUserAttentionType) requestType;
+{
+	NS_DURING
+		NS_VALUERETURN([[NSWorkspace _distributedWorkspace] requestUserAttention:requestType forApplication:self], int);
+	NS_HANDLER
+		NSLog(@"could not requestUserAttention due to %@", [localException reason]);
+	NS_ENDHANDLER
+	return 0;
+}
+
+- (void) cancelUserAttentionRequest:(int) request;
+{
+	if(request != 0)
+		{
+		NS_DURING
+			[[NSWorkspace _distributedWorkspace] cancelUserAttentionRequest:request];
+		NS_HANDLER
+			NSLog(@"could not requestUserAttention due to %@", [localException reason]);
+		NS_ENDHANDLER
+		}
+}
+
+- (IBAction) hideOtherApplications:(id)sender; { [[NSWorkspace sharedWorkspace] hideOtherApplications]; }
+
+- (void) unhideWithoutActivation
+{
+	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillUnhide) object:self];
+	[self arrangeInFront: self];
+	_app.isHidden = NO;
+	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidUnhide) object:self];
+}
+
+- (IBAction) arrangeInFront:(id)sender						
+{
+	if (_windowsMenu)
+		{
+		NSEnumerator *e = [[_windowsMenu itemArray] objectEnumerator];
+		NSPoint topLeft={ 0.0, 512.0 };
+		id <NSMenuItem> item;
+
+		while((item = [e nextObject]))
+			{ // bring to front all windows int the menu
+			NSWindow *w = [item target];
+			if ((w != _keyWindow) && (w != _mainWindow) && ![w isExcludedFromWindowsMenu])
+				{
+				[w orderFront: sender];
+				topLeft=[w cascadeTopLeftFromPoint:topLeft];
+				}
+			}
+		if(_mainWindow && (_keyWindow != _mainWindow))
+			{ // if main and key window are different
+			[_mainWindow orderFront: sender];
+			topLeft=[_mainWindow cascadeTopLeftFromPoint:topLeft];
+			}
+		if(_keyWindow)
+			{
+			[_keyWindow orderFront: sender];
+			topLeft=[_keyWindow cascadeTopLeftFromPoint:topLeft];
+			}
+		}
+}
+
+- (NSWindow *) makeWindowsPerform:(SEL)aSelector inOrder:(BOOL)flag
+{
+NSEnumerator *e;
+NSWindow *w;
+
+	if (flag)
+		e = [[self windows] objectEnumerator];
+	else
+		e = [[self windows] reverseObjectEnumerator];
+
+	while((w = [e nextObject]))
+		if ([w performSelector: aSelector] != nil)
+			return w;
+
+	return nil;
+}
+
+- (IBAction) miniaturizeAll:(id)sender
+{
+	NSEnumerator *e = [[self windows] objectEnumerator];
+	NSWindow *w;
+	while((w = [e nextObject]))
+		[w miniaturize:sender];
+}
+
+- (void) setWindowsNeedUpdate:(BOOL)flag
+{
+	_app.windowsNeedUpdate = flag;
+}
+
+- (void) _setPendingWindow:(NSWindow *) win;
+{ // register window to be ordered front on next updateWindows event (i.e. after the current mouseDown has been processed)
+	_pendingWindow=win;
+}
+
+- (void) preventWindowOrdering;
+{ // cancel delayed window ordering
+	_pendingWindow=nil;
+}
+
+- (void) updateWindows								// send an update message
+{													// to all visible windows
+#if 0
+	NSLog(@"updateWindows");
+	{
+#endif
+	NSArray *_windowList = [NSWindow _windowList];
+	int i, count = [_windowList count];
+	// an update is imminent
+	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillUpdate) object: self];
+	[_pendingWindow makeKeyAndOrderFront:self];
+	_app.windowsNeedUpdate=NO;	// reset - so that an update call can set it for the next loop
+#if 1
+	if(count == 0)
+		NSLog(@"no windows to update?");
+#endif
+	for(i = 0; i < count; i++)
+		{
+		NSWindow *w = [_windowList objectAtIndex:i];
+		if([w isVisible])
+			{ // send to visible windows only
+			[w update];	// update this window
+			_app.windowsNeedUpdate |= [w viewsNeedDisplay];	// might still or again need update!
+			}
+		[w flushWindow];	// might have pending mapping and other events
+		}
+	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidUpdate) object:self];	// notify that update did occur
+#if 0
+	}
+	NSLog(@"updateWindows done");
+#endif
+	}
+
+- (IBAction) orderFrontColorPanel:(id)sender			// Standard Panels
+{
+	NSLog(@"orderFrontColorPanel");
+	[[NSColorPanel sharedColorPanel] orderFront:sender];
+}
+
+- (IBAction) orderFrontCharacterPalette:(id)sender
+{
+	NSLog(@"orderFrontCharacterPalette");
+	[[NSWorkspace _inputServices] enableVKBD:YES];
+}
+
+#if OLD
+- (IBAction) orderFrontHelpPanel:(id)sender
+{
+//	NIMP;
+}
+#endif
+
+- (IBAction) orderFrontStandardAboutPanel:sender; { [self orderFrontStandardAboutPanelWithOptions:nil]; }
+
+- (void) orderFrontStandardAboutPanelWithOptions:(NSDictionary *)optionsDictionary;
+{
+		if(!optionsDictionary)
+			optionsDictionary=[NSWorkspace _standardAboutOptions];	// use default
+		if(!_aboutPanel)
+			{ // try to load from NIB
+			if(![NSBundle loadNibNamed:@"AboutPanel" owner:self])	// being the owner allows to connect to views in the panel
+				[NSException raise: NSInternalInconsistencyException format: @"Unable to open about panel model file."];
+			}
+#if 1
+		NSLog(@"options %@", optionsDictionary);
+#endif
+	[_credits setStringValue:[optionsDictionary objectForKey:@"Credits"]];
+	[_applicationName setStringValue:[optionsDictionary objectForKey:@"ApplicationName"]];
+	[_applicationImage setImage:[optionsDictionary objectForKey:@"ApplicationIcon"]];
+	[_version setStringValue:[optionsDictionary objectForKey:@"Version"]];
+	[_copyright setStringValue:[optionsDictionary objectForKey:@"Copyright"]];
+	[_applicationVersion setStringValue:[optionsDictionary objectForKey:@"ApplicationVersion"]];
+#if OLD
+	NSRunAlertPanel(@"About",
+									 @"Application:\t%@\nBuild:\t(v%@)\nVersion:\t%@\nCopyright:\t%@\nCredits:\t%@",
+									 @"Ok", nil, nil,
+									 applicationName,
+									 version,
+									 applicationVersion,
+									 copyright,
+									 [credits string]);
+#endif
+	[_aboutPanel orderFront:self];
+}
+
+- (IBAction) runPageLayout:(id)sender
+{
+	[[NSPageLayout pageLayout] runModal];
+}
+
+- (IBAction) showHelp:(id)sender
+{
+	// check registration of helpbook
+	NSLog(@"open help viewer...");
+	return;	// NIMP
+}
+
+- (void) setMenu:(NSMenu *)aMenu	{ [self setMainMenu:aMenu]; }	// override NSResponder's implementation
+
+- (NSWindow *) _mainMenuWindow; { return _mainMenuWindow; }
+
+- (void) setMainMenu:(NSMenu *)aMenu
+{
+	NSScreen *menuScreen=[[NSScreen screens] objectAtIndex:0];
+#if 0
+	NSLog(@"NSApplication setMainMenu=%@", [aMenu _longDescription]);
+#endif
+	[super setMenu:aMenu];	// NSResponder
+#if 0
+	NSLog(@"setMainMenu - infoDict: %@", [[NSBundle mainBundle] infoDictionary]);
+#endif
+	if(!_mainMenuWindow && [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"LSUIElement"] intValue] == 0)
+		{ // no window for main menu assigned yet and UI not disabled - create a fresh one
+#if 0
+		NSLog(@"create application menu bar %@", NSStringFromRect([[menuScreen menuBarFrame]));
+#endif
+		_mainMenuWindow=[[[NSPanel alloc] initWithContentRect:[menuScreen _menuBarFrame]
+													 styleMask:NSBorderlessWindowMask
+													   backing:NSBackingStoreBuffered
+														 defer:/*YES*/ NO] retain];	// will be released on close
+		[_mainMenuWindow setWorksWhenModal:YES];
+		[_mainMenuWindow setLevel:NSMainMenuWindowLevel];
+		[_mainMenuWindow setTitle:@"Main Menu Window"];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_screenParametersNotification:) name:NSApplicationDidChangeScreenParametersNotification object:nil];	// track all further screen changes
+		_mainMenuView=[[[NSMenuView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 50.0, 50.0)] retain];	// make new NSMenuView
+		[_mainMenuWindow setContentView:_mainMenuView];		// make content view
+		if(0 && [menuScreen _menuBarFrame].origin.x != 0.0)
+			{ // Smartphone menu layout
+#if 0
+			NSLog(@"Smartphone layout");
+#endif
+			[_mainMenuView _setHorizontalResize:NO]; // keep full width of enclosing window
+			[_mainMenuView setHorizontal:YES];		// make horizontal
+			[_mainMenuView _setStatusBar:YES];		// i.e. flush right
+			}
+		else
+			{ // PDA layout
+#if 0
+			NSLog(@"PDA layout");
+#endif
+			if([self interfaceStyle] != NSMacintoshInterfaceStyle)
+				[_mainMenuView _setHorizontalResize:NO]; // keep full width of enclosing window if bottom menubar
+			else
+				[_mainMenuView _setHorizontalResize:YES]; // resize as needed if menu in top menubar
+			[_mainMenuView setHorizontal:YES];		// make horizontal
+			[_mainMenuView _setStatusBar:NO];		// no status bar
+			}
+		}
+	if(0 && [menuScreen _menuBarFrame].origin.x != 0.0)
+		{ // Smartphone menu (a single item holding the application menu)
+		NSString *title=[[aMenu itemAtIndex:0] title]; // should be the application name
+		NSMenu *m=[[[NSMenu alloc] initWithTitle:title] autorelease];
+		[[m addItemWithTitle:title action:NULL keyEquivalent:@"F2"] setSubmenu:aMenu]; // create single entry and make it a submenu
+		// [[mi objectAtIndex:0] setTitle:@"Application"]; // convert into an 'Application' submenu
+		[_mainMenuView setMenu:m]; // attach the new menu
+//		[_mainMenuView sizeToFit];	// update
+		}
+	else
+		{ // PDA menu
+		[_mainMenuView setMenu:aMenu];			// attach the new menu
+//		[_mainMenuView sizeToFit];				// update
+		}
+#if 0
+	NSLog(@"_mainMenuWindow = %@", _mainMenuWindow);
+	NSLog(@"_mainMenuView = %@", _mainMenuView);
+#endif
+	if([NSMenu menuBarVisible])
+		[_mainMenuWindow orderFront:nil];			// and finally show
+#if 0
+	NSLog(@"Main Menu now set to %@", [_menu _longDescription]);
+#endif
+	[[NSDocumentController sharedDocumentController] _updateOpenRecentMenu];	// create/add/update Open Recent submenu
+}
+
+- (void) _setMenuBarVisible:(BOOL) flag;
+{
+	if(flag)
+		[_mainMenuWindow orderFront:nil];		// show
+	else
+		[_mainMenuWindow orderOut:nil];			// hide
+}
+
+- (void) _setAppleMenu:(NSMenu *)aMenu
+{ // set first item
+	// what if the mainMenu is not yet defined?
+	[[[self mainMenu] itemAtIndex:0] setSubmenu:aMenu];
+#if 0
+	NSLog(@"Apple Menu set to %@", [[[self mainMenu] itemAtIndex:0] submenu]);
+#endif
+}
+
+- (NSMenu *) mainMenu					{ return [super menu]; } // remove Window Close menu item
+- (NSMenu *) windowsMenu				{ return _windowsMenu; }
+
+// FIXME: we should observe the windowDidBecome(In)visible notifications and handle the menu
+
+- (void) addWindowsItem:(NSWindow *)aWindow								// Windows submenu
+				 title:(NSString *)aString
+				 filename:(BOOL)isFilename
+{
+	[self changeWindowsItem:aWindow title:aString filename:isFilename];
+	
+	if(!_mainWindow)							// if the window is being added
+		{										// to the app's window menu it
+		_mainWindow = aWindow;					// can become main so ask it to
+		[aWindow becomeMainWindow];				// be main if no other win is.
+		}
+}
+
+- (void) changeWindowsItem:(NSWindow *)aWindow 
+					 title:(NSString *)aString 
+					 filename:(BOOL)isFilename
+{
+	NSArray *itemArray;
+	int idx;
+	SEL winaction;
+	if (![aWindow isKindOfClass: __windowClass])
+		[NSException raise: NSInvalidArgumentException
+					 format: @"Object of bad type passed as window"];
+													// Can't permit an untitled 
+													// window in the win menu.
+	if (aString == nil || [aString isEqualToString: @""])
+		return;
+
+	if (!_windowsMenu)
+		return;	// there is no windows menu
+	winaction=@selector(makeKeyAndOrderFront:);
+	idx = [_windowsMenu indexOfItemWithTarget:aWindow andAction:winaction];
+#if 0
+	NSLog(@"NSApp changeWindowsItem idx=%d", idx);
+#endif
+	if(idx >= 0)
+		{ // If the menu exists and the window already has an item, remove it
+		[_windowsMenu removeItemAtIndex:idx]; 
+		_windowItems--;	// one removed
+		}
+
+	// insert by searching from the end of the menu
+	// if we reach a separator or an item which is not connected to makeKeyAndOrderFront: insert a separator and then add us
+	itemArray=[_windowsMenu itemArray];
+	idx = [itemArray count]-1;	// last item
+	while(idx >= 0)
+		{
+		id <NSMenuItem> item = [itemArray objectAtIndex: idx];
+		if ([item isSeparatorItem])
+			{
+			idx++;	// append behind separator
+			break;
+			}
+		if (!SEL_EQ([item action], winaction))
+			{ // different action found, i.e. start of list - append separator and item
+			[_windowsMenu addItem:[NSMenuItem separatorItem]];
+			idx+=2;	// insert first behind separator
+			break;
+			}
+		if ([[item title] compare: aString] == NSOrderedAscending)
+			{ // we have found the position, insert before
+			idx++;
+			break;
+			}
+		idx--;
+		}
+
+	[[_windowsMenu insertItemWithTitle: aString
+						 action: @selector(makeKeyAndOrderFront:)
+						 keyEquivalent: @""
+						 atIndex: idx] setTarget: aWindow];
+	_windowItems++;	// one added
+//	[_windowsMenu sizeToFit];
+//	[_windowsMenu update];
+}
+
+- (void) removeWindowsItem:(NSWindow*)aWindow
+{
+#if 1
+	NSLog(@"NSApp: removeWindowsItem (total=%d) - %@", _windowItems, aWindow);
+#endif
+	if (_app.isDeallocating)		// If we are within our dealloc then don't remove the window. Most likely dealloc is removing windows from our window list and subsequently NSWindow is calling us to remove itself.
+		return;
+	if (_windowsMenu)
+		{
+		int idx=[_windowsMenu indexOfItemWithTarget:aWindow andAction:@selector(makeKeyAndOrderFront:)];
+		if(idx >= 0)
+			{ // remove from menu
+			[_windowsMenu removeItemAtIndex:idx];
+			_windowItems--;	// one removed
+			}
+		}
+#if 0
+	NSLog(@"window items after remove=%d", _windowItems);
+#endif
+	if(_windowItems <= 0)
+		{ // we were the last window
+		id <NSMenuItem> last=[[_windowsMenu itemArray] lastObject];
+		if([last isSeparatorItem])
+			[_windowsMenu removeItem:last];	// remove the separator if present
+		_windowItems=0;
+		if(!_delegate && ![NSApp mainMenu])
+			[self terminate:self];	// we are a menu-less daemon and have no delegate - default to terminate
+		else if(_delegate && [_delegate respondsToSelector:@selector(applicationShouldTerminateAfterLastWindowClosed:)] &&
+						[_delegate applicationShouldTerminateAfterLastWindowClosed:self])
+			{
+#if 1
+			NSLog(@"last windows item removed - terminate");
+#endif
+			[self terminate:self];	// we are the last one and are allowed by delegate to terminate
+			}
+		}
+}
+
+- (void) setWindowsMenu:(NSMenu *) aMenu
+{
+	ASSIGN(_windowsMenu, aMenu);
+#if 0
+	NSLog(@"Windows Menu set to %@", aMenu);
+#endif
+}
+
+- (void) updateWindowsItem:(NSWindow *) aWindow
+{ // update the status of the menu item
+	if (_windowsMenu)
+		{
+		NSArray *itemArray = [_windowsMenu itemArray];
+		unsigned i, count = [itemArray count];
+
+		for (i = 0; i < count; i++)
+			{
+			id item = [itemArray objectAtIndex: i];
+	
+			if ([item target] == aWindow)
+				{
+				NSCellImagePosition	oldPos = [item imagePosition];
+				NSImage *oldImage = [item image];
+				BOOL changed = NO;
+		
+				if ([aWindow representedFilename] == nil)
+					{
+					if (oldPos != NSNoImage)
+						{
+						[item setImagePosition: NSNoImage];
+						changed = YES;
+					}	}
+				else
+					{
+					NSImage	*newImage = oldImage;
+		
+					if (oldPos != NSImageLeft)
+						{
+						[item setImagePosition: NSImageLeft];
+						changed = YES;
+						}
+
+					if ([aWindow isDocumentEdited])
+						newImage = [NSImage imageNamed: @"GSCloseBroken"];
+					else
+						newImage = [NSImage imageNamed: @"GSClose"];
+
+					if (newImage != oldImage)
+						{
+						[item setImage: newImage];
+						changed = YES;
+					}	}
+
+				if (changed)
+					{
+					[(NSControl*)[item controlView] sizeToFit];
+					[_windowsMenu sizeToFit];
+					[_windowsMenu update];
+					}
+
+				break;
+		}	}	}
+}
+															// Services menu
+- (void) registerServicesMenuSendTypes:(NSArray *)sendTypes returnTypes:(NSArray *)returnTypes
+{
+	if(!_app.disableServices)
+		[_listener registerSendTypes:sendTypes returnTypes:returnTypes];
+}
+
+- (NSMenu *) servicesMenu			{ return [_listener servicesMenu]; }
+- (id) servicesProvider				{ return [_listener servicesProvider]; }
+
+- (void) setServicesMenu:(NSMenu *)aMenu
+{
+	[_listener setServicesMenu: aMenu];
+}
+
+- (void) setServicesProvider:(id)anObject
+{
+	if ([_listener servicesProvider] != anObject)
+		NSRegisterServicesProvider(anObject, nil);
+}
+
+- (id) validRequestorForSendType:(NSString *)sendType returnType:(NSString *)returnType
+{
+	return nil;
+}
+
+- (void) reportException:(NSException *)anException
+{ // Report exception
+	if (anException)
+		NSLog(@"reported exception - %@", anException);
+}
+
+- (IBAction) terminate:(id) sender
+{ // App termination
+	NSDocumentController *d=[NSDocumentController sharedDocumentController];
+#if 0
+	NSLog(@"terminate:");
+#endif
+	if(d && ![d _applicationShouldTerminate:self])	// ask for termination
+		return;	// cancelled
+	if([_delegate respondsToSelector:@selector(applicationShouldTerminate:)])
+		if([_delegate applicationShouldTerminate:self] != NSTerminateNow)
+			return;	// not now, i.e. NSTerminateCancel or NSTerminateLater
+	[self replyToApplicationShouldTerminate:YES];	// NSTerminateNow
+}							
+
+- (void) replyToApplicationShouldTerminate:(BOOL) shouldTerminate;
+{ // call if delegate returned NSTerminateLater
+	if(shouldTerminate)
+		{
+#if 0
+		NSLog(@"replyToApplicationShouldTerminate:YES");
+#endif
+		[[NSUserDefaults standardUserDefaults] synchronize]; // write all unwritten changes
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillTerminate) object: self];	// last chance to clean-up
+		
+		NSLog(@"try to unRegisterApplication with mySystemUIServer");
+		NS_DURING
+			[[NSWorkspace _distributedWorkspace] unRegisterApplication:getpid()];	// unregister with mySystemUIServer
+		NS_HANDLER
+			NSLog(@"could not unregister in launchedApplications with mySystemUIServer due to %@", [localException reason]);
+			// but otherwise ignore
+		NS_ENDHANDLER
+		[[NSGraphicsContext currentContext] release];			// clean up connection to X server
+		exit(0);	
+		}
+}
+
+- (void) replyToOpenOrPrint:(NSApplicationDelegateReply) reply;
+{
+#if 1
+	NSLog(@"replyToOpenOrPrint:%d", reply);
+#endif
+	// should somehow send back to caller!
+}
+
+- (BOOL) _application:(in NSApplication *) app openURLs:(in bycopy NSArray *) urls withOptions:(in bycopy NSWorkspaceLaunchOptions) opts;	// handle open
+{ // generic application open handler
+	unsigned int i, uc=[urls count];
+	NSDocumentController *d=[NSDocumentController sharedDocumentController];
+	NSMutableArray *files;
+	NSEnumerator *e;
+	NSURL *url;
+#if 1
+	NSLog(@"_application: %@ openURLs: %@ opts: %d", app, urls, opts); 
+#endif
+	if(_delegate && [_delegate respondsToSelector:_cmd] && [_delegate _application:app openURLs:urls withOptions:opts])
+		return YES;	// allow to implement in delegate
+	else if(d && [d _application:app openURLs:urls withOptions:opts])
+		return YES;	// catched in document controller
+	files=[NSMutableArray arrayWithCapacity:uc];
+	e=[urls objectEnumerator];
+	while((url=[e nextObject]))
+		{ // accept file names only
+		if(![url isFileURL])
+			{
+			NSLog(@"can't open %@ as file", url);
+			return NO;
+			}
+		[files addObject:[url path]];
+		}
+	if(_delegate)
+		{
+		if(opts&NSWorkspaceLaunchAndPrint)
+			{ // print
+#if 1
+			NSLog(@"  print by delegate");
+#endif
+			if([_delegate respondsToSelector:@selector(application:printFiles:withSettings:showPrintPanels:)])
+				[_delegate application:app printFiles:files withSettings:nil showPrintPanels:NO];
+			else if((uc > 1 || ![_delegate respondsToSelector:@selector(application:printFile:)]) && [_delegate respondsToSelector:@selector(application:printFiles:)])
+				[_delegate application:app printFiles:files];
+			else if([_delegate respondsToSelector:@selector(application:printFile:)])
+				{ // print them individually
+				for(i=0; i<uc; i++)
+					[_delegate application:app printFile:[files objectAtIndex:i]];
+				}
+			else
+				return NO;	// can't print
+#if 1
+			NSLog(@"  has been printed by delegate");
+#endif
+			return YES;
+			}
+		if(uc == 1 && (opts&NSWorkspaceLaunchWithoutAddingToRecents) && !(opts&NSWorkspaceLaunchNewInstance) && [_delegate respondsToSelector:@selector(application:openFileWithoutUI:)])
+			[_delegate application:app openFileWithoutUI:[files objectAtIndex:0]];
+		else if(uc == 1 && (opts&NSWorkspaceLaunchWithoutAddingToRecents) && (opts&NSWorkspaceLaunchNewInstance) && [_delegate respondsToSelector:@selector(application:openTempFile:)])
+			[_delegate application:app openTempFile:[files objectAtIndex:0]];
+		else if(uc == 0 && (opts&NSWorkspaceLaunchNewInstance) && [_delegate respondsToSelector:@selector(applicationOpenUntitledFile:)])
+			{ // new file
+			if([_delegate respondsToSelector:@selector(applicationShouldOpenUntitledFile:)] && ![_delegate applicationShouldOpenUntitledFile:app])
+				return NO;	// denied
+			[_delegate applicationOpenUntitledFile:app];	// open untitled
+			}
+		else if((uc > 1 || ![_delegate respondsToSelector:@selector(application:openFile:)]) && [_delegate respondsToSelector:@selector(application:openFiles:)])
+			[_delegate application:app openFiles:files];
+		else if([_delegate respondsToSelector:@selector(application:openFile:)])
+			{ // open files individually
+			for(i=0; i<uc; i++)
+				[_delegate application:app openFile:[files objectAtIndex:i]];
+			}
+		else
+			return NO;
+#if 1
+		NSLog(@"  opened by delegate");
+#endif
+		return YES;
+		}
+	return NO;
+}
+	
+// drawing context
+
+- (NSGraphicsContext *) context			{ return [NSGraphicsContext currentContext]; }
+- (id) delegate							{ return _delegate; }
+
+- (void) setDelegate:(id)anObject
+{
+	NSNotificationCenter *n;
+
+	if(_delegate == anObject)
+		return;
+
+#define IGNORE_(notif_name) [n removeObserver:_delegate \
+								name:NSApplication##notif_name##Notification \
+								object:self]
+
+	n = [NSNotificationCenter defaultCenter];
+	if (_delegate)
+		{
+		IGNORE_(DidBecomeActive);
+		IGNORE_(DidFinishLaunching);
+		IGNORE_(DidHide);
+		IGNORE_(DidResignActive);
+		IGNORE_(DidUnhide);
+		IGNORE_(DidUpdate);
+		IGNORE_(WillBecomeActive);
+		IGNORE_(WillFinishLaunching);
+		IGNORE_(WillHide);
+		IGNORE_(WillResignActive);
+		IGNORE_(WillUnhide);
+		IGNORE_(WillUpdate);
+		IGNORE_(WillTerminate);
+		}
+
+	ASSIGN(_delegate, anObject);
+	if(!anObject)
+		return;
+
+#define OBSERVE_(notif_name) \
+	if ([_delegate respondsToSelector:@selector(application##notif_name:)]) \
+		[n addObserver:_delegate \
+		 selector:@selector(application##notif_name:) \
+		 name:NSApplication##notif_name##Notification \
+		 object:self]
+
+	OBSERVE_(DidBecomeActive);
+	OBSERVE_(DidFinishLaunching);
+	OBSERVE_(DidHide);
+	OBSERVE_(DidResignActive);
+	OBSERVE_(DidUnhide);
+	OBSERVE_(DidUpdate);
+	OBSERVE_(WillBecomeActive);
+	OBSERVE_(WillFinishLaunching);
+	OBSERVE_(WillHide);
+	OBSERVE_(WillResignActive);
+	OBSERVE_(WillUnhide);
+	OBSERVE_(WillUpdate);
+	OBSERVE_(WillTerminate);
+}
+
+- (void) encodeWithCoder:(NSCoder *)aCoder						// NSCoding protocol
+{
+	[super encodeWithCoder:aCoder];
+	
+	[aCoder encodeObject: [NSWindow _windowList]];
+	[aCoder encodeConditionalObject:_keyWindow];
+	[aCoder encodeConditionalObject:_mainWindow];
+	[aCoder encodeConditionalObject:_delegate];
+	[aCoder encodeConditionalObject:_windowsMenu];
+}
+
+- (id) initWithCoder:(NSCoder *)aDecoder
+{
+	self=[super initWithCoder:aDecoder];
+	if([aDecoder allowsKeyedCoding])
+		{
+		return NIMP;
+		}
+	_keyWindow = [aDecoder decodeObject];
+	_mainWindow = [aDecoder decodeObject];
+	_delegate = [aDecoder decodeObject];
+	_windowsMenu = [aDecoder decodeObject];
+
+	return self;
+}
+
++ (void) detachDrawingThread:(SEL) selector toTarget:(id) target withObject:(id) argument;
+{
+	NSLog(@"*** -detachDrawingThread: drawing is not (yet) thread safe! ***");
+	[NSThread detachNewThreadSelector:selector toTarget:target withObject:argument];
+}
+
+/*
+-orderedWindows' not found 
+-orderedDocuments' not found -> ask document controller for docbased
+*/
+
+/*
+ 
+-activateContextHelpMode:' not found
+  1. change cursor to a ?
+  2. run a mouse tracking loop while mouse is not clicked and just moved
+  3. display tooltips of the elements we are over
+
+	*/
+
+@end /* NSApplication */

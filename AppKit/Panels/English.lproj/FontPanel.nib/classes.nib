@@ -1,0 +1,28 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = NSDatePicker; LANGUAGE = ObjC; SUPERCLASS = NSControl; }, 
+        {
+            ACTIONS = {
+                "_searchFont" = id; 
+                "_selectSize" = id; 
+                "_selectSystemFont" = id; 
+                "_singleClick" = id; 
+                "_stepperAction" = id; 
+            }; 
+            CLASS = NSFontPanel; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                browser = NSBrowser; 
+                searchField = NSSearchField; 
+                sizeSelector = NSComboBox; 
+                sizeStepper = NSStepper; 
+                systemFontSelector = NSPopUpButton; 
+            }; 
+            SUPERCLASS = NSPanel; 
+        }, 
+        {CLASS = NSObject; LANGUAGE = ObjC; }, 
+        {CLASS = "java.lang.Object"; LANGUAGE = Java; }
+    ); 
+    IBVersion = 1; 
+}

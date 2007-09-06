@@ -1,0 +1,80 @@
+/* 
+   NSNotification.m
+
+   Implementation of NSNotification for mySTEP
+
+   Copyright (C) 1996 Free Software Foundation, Inc.
+
+   Author:	Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
+   Date:	March 1996
+
+   This file is part of the mySTEP Library and is provided
+   under the terms of the GNU Library General Public License.
+*/
+
+#import <Foundation/NSNotification.h>
+#import <Foundation/NSString.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSDictionary.h>
+#import <Foundation/NSCoder.h>
+
+@implementation NSNotification
+
++ (NSNotification *) notificationWithName:(NSString*)name
+								   object:(id)object
+								   userInfo:(NSDictionary*)info
+{
+	return [[[self alloc] initWithName: name 
+						  object: object 
+						  userInfo: info] autorelease];
+}
+
++ (NSNotification *) notificationWithName:(NSString*)name object:object
+{
+	return [self notificationWithName:name object:object userInfo:nil];
+}
+
+- (id) initWithName:(NSString*)name object:(id)object userInfo:(NSDictionary*)info
+{
+	if((self=[super init]))
+		{
+		_name = [name copy];							// designated initializer (not official!)
+//		_object = [object retain];			// this causes problems with sending notificatins from within -dealloc
+		_object = object;
+		_info = [info retain];
+		}
+	return self;
+}
+
+- (NSString *) description; { return [NSString stringWithFormat:@"%@: %@ -> %@\n%@", NSStringFromClass(isa), _name, _object, _info]; }
+
+- (void) dealloc
+{
+	[_name release];
+//	[_object release];
+	[_info release];
+	[_queued release];
+
+	[super dealloc];
+}
+
+- (NSString*) name						{ return _name; }
+- (id) object							{ return _object; }
+- (id) copyWithZone:(NSZone *) zone								{ return [self retain]; }
+- (NSDictionary*) userInfo				{ return _info; }
+
+- (void) encodeWithCoder:(NSCoder*)coder				// NSCoding protocol
+{
+    [coder encodeObject:_name];
+    [coder encodeObject:_object];
+    [coder encodeObject:_info];
+}
+
+- (id) initWithCoder:(NSCoder*)coder
+{
+    return [self initWithName:[coder decodeObject] 
+				 object:[coder decodeObject] 
+				 userInfo:[coder decodeObject]];
+}
+
+@end

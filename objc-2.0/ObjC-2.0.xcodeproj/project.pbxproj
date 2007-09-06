@@ -1,0 +1,141 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXFileReference section */
+		EE4108510B956BA30065DD36 /* gram.y */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.yacc; path = gram.y; sourceTree = "<group>"; };
+		EE4108520B956BA30065DD36 /* main.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		EE4108530B956BA30065DD36 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		EE4108540B956BA30065DD36 /* scan.l */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.lex; path = scan.l; sourceTree = "<group>"; };
+		EE4108550B956BA30065DD36 /* y.output */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = y.output; sourceTree = "<group>"; };
+		EE4108560B956BA30065DD36 /* y.tab.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = y.tab.h; sourceTree = "<group>"; };
+		EEFD77D40B957C83002EA6A8 /* test.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = test.m; sourceTree = "<group>"; };
+		EEFD871D0B95DA5B002EA6A8 /* ToDo */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ToDo; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		EED3C1200488F87500000103 = {
+			isa = PBXGroup;
+			children = (
+				EE4108510B956BA30065DD36 /* gram.y */,
+				EE4108520B956BA30065DD36 /* main.c */,
+				EE4108530B956BA30065DD36 /* Makefile */,
+				EE4108540B956BA30065DD36 /* scan.l */,
+				EEFD77D40B957C83002EA6A8 /* test.m */,
+				EEFD871D0B95DA5B002EA6A8 /* ToDo */,
+				EE4108550B956BA30065DD36 /* y.output */,
+				EE4108560B956BA30065DD36 /* y.tab.h */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		EE4108580B956BC50065DD36 /* Make */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = EE4108590B956BFA0065DD36 /* Build configuration list for PBXLegacyTarget "Make" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			dependencies = (
+			);
+			name = Make;
+			passBuildSettingsInEnvironment = 1;
+			productName = Ma;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		EED3C1240488F87500000103 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ObjC-2.0" */;
+			hasScannedForEncodings = 1;
+			mainGroup = EED3C1200488F87500000103;
+			productRefGroup = EED3C1200488F87500000103;
+			projectDirPath = "";
+			targets = (
+				EE4108580B956BC50065DD36 /* Make */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		EE41085A0B956BFA0065DD36 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = Make;
+			};
+			name = Development;
+		};
+		EE41085B0B956BFA0065DD36 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				PRODUCT_NAME = Make;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE41085C0B956BFA0065DD36 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = Make;
+			};
+			name = Default;
+		};
+		EE772D2F0A10C27000F73E78 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Development;
+		};
+		EE772D300A10C27000F73E78 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Deployment;
+		};
+		EE772D310A10C27000F73E78 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Default;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EE4108590B956BFA0065DD36 /* Build configuration list for PBXLegacyTarget "Make" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE41085A0B956BFA0065DD36 /* Development */,
+				EE41085B0B956BFA0065DD36 /* Deployment */,
+				EE41085C0B956BFA0065DD36 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ObjC-2.0" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE772D2F0A10C27000F73E78 /* Development */,
+				EE772D300A10C27000F73E78 /* Deployment */,
+				EE772D310A10C27000F73E78 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EED3C1240488F87500000103 /* Project object */;
+}

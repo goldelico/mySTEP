@@ -1,0 +1,3399 @@
+{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fnil\fcharset77 Monaco;
+\f3\fswiss\fcharset77 Helvetica-Oblique;}
+{\colortbl;\red255\green255\blue255;\red118\green15\blue80;}
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b\fs36 \cf0 mySTEP History\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0\fs24 \cf0 \
+This document describes the changes and additions to the mySTEP library.\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 ------------------------------------
+\f1\b0 \
+
+\f0\b Version 2.3 (B186...)\
+------------------------------------
+\f1\b0 \
+\
+
+\f0\b 1. Foundation:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSMapTable, NSHashTable\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 is_prime
+\f1\fs24 \CocoaLigature1  was quite inefficient by using a 
+\f2\fs20 \CocoaLigature0 double sqrt()
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NS(Socket)Stream\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * now links with 
+\f2\fs20 \CocoaLigature0 libopenssl
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSBundle\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * added an Autorelease Pool when searching through the bundle\
+* changed 
+\f2\fs20 \CocoaLigature0 bundleWithPath:
+\f1\fs24 \CocoaLigature1  so that it allocates properly for a subclass\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSURLProtocol\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * prepared to handle the 
+\f2\fs20 \CocoaLigature0 data:
+\f1\fs24 \CocoaLigature1  URI (RFC2397)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 2. AppKit:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSMenuItem and NSPopUpButtonCell\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * modified to properly work correctly in the class hierarchy\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSBezierPath\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * drawing of bezel styles for 
+\f2\fs20 \CocoaLigature0 NSButtonCell
+\f0\b\fs24 \CocoaLigature1 , 
+\f2\b0\fs20 \CocoaLigature0 NSPopUpButtonCell
+\f0\b\fs24 \CocoaLigature1 , 
+\f2\b0\fs20 \CocoaLigature0 NSComboBoxCell
+\f0\b\fs24 \CocoaLigature1 , 
+\f2\b0\fs20 \CocoaLigature0 NSSegmentedCell
+\f0\b\fs24 \CocoaLigature1 \
+   
+\f1\b0 harmonized and reduced to a single private method in 
+\f2\fs20 \CocoaLigature0 NSBezierPath
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSScrollView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * now correctly uses 
+\f2\fs20 \CocoaLigature0 isFlipped
+\f1\fs24 \CocoaLigature1  
+\f2\fs20 \CocoaLigature0 YES
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSSlider(Cell)\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * mouse tracking moved to Cell variant\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSButton\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * now correctly uses 
+\f2\fs20 \CocoaLigature0 isFlipped
+\f1\fs24 \CocoaLigature1  
+\f2\fs20 \CocoaLigature0 YES
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSCell\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 performClick
+\f1\fs24 \CocoaLigature1  now has got visual feedback\
+* tracking code simplified\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 needsDisplay 
+\f1\fs24 \CocoaLigature1 corrected (should not look at list of dirty sub-rects but at the total invalid rect)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSCustomResource\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * had a 
+\f2\fs20 \CocoaLigature0 retain
+\f1\fs24 \CocoaLigature1  error\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSImage\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 imageNamed
+\f1\fs24 \CocoaLigature1 : improved search paths\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
+
+\f0\b \cf0 NSEditor, NSEditorRegistration\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
+
+\f1\b0 \cf0 * informal protocols added to header files\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSString Additions\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * corrected text position for 
+\f2\fs20 \CocoaLigature0 drawAtPoint:
+\f1\fs24 \CocoaLigature1  for flipped coordinates\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 3. Others:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 X11 Backend\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * added system wide screen scaling transparent to AppKit (i.e. 
+\f2\fs20 \CocoaLigature0 NSScreen
+\f1\fs24 \CocoaLigature1  dimensions are also scaled accordingly)\
+* fixed a bug in the Expose rect calculation\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 ------------------------------------
+\f1\b0 \
+
+\f0\b Version 2.2 (B109...B185)\
+------------------------------------
+\f1\b0 \
+\
+This is a completeness and bug fixing release. The following bugs and deficiencies have been fixed.\
+\
+
+\f0\b 1. Foundation:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSArray\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * fixed a bug in 
+\f2\fs20 \CocoaLigature0 -initArrayWithObjects:...\
+
+\f1\fs24 \CocoaLigature1 * made 
+\f2\fs20 \CocoaLigature0 writeToFile:
+\f1\fs24 \CocoaLigature1  use XML format\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSBundle\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * made more flexible to handle multi-platform bundles\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSDateFormatter\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 -initWithCoder:
+\f1\fs24 \CocoaLigature1  added\
+* most missing methods of 10.4 added\
+* some bugs with formatting corrected\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSDecimalPlaceholder (private)\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * added because it appears in NIB files with 
+\f2\fs20 \CocoaLigature0 NSDecimalFormatter
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSByteOrder\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * fixed a bug with swapped double values on the ARM processor\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSNotification\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * removed 
+\f2\fs20 \CocoaLigature0 retain
+\f1\fs24 \CocoaLigature1 /
+\f2\fs20 \CocoaLigature0 release
+\f1\fs24 \CocoaLigature1  for the notification object because this causes trouble when notifications are sent from 
+\f2\fs20 \CocoaLigature0 -dealloc
+\f1\fs24 \CocoaLigature1  (like in 
+\f2\fs20 \CocoaLigature0 NSWindow
+\f1\fs24 \CocoaLigature1 )\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSIndexSet\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * completed and tested to work for 
+\f2\fs20 \CocoaLigature0 NSTableView
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSIndexPath\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * tested to work for 
+\f2\fs20 \CocoaLigature0 NSOutlineView
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSURL\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 -copyWithZone:
+\f1\fs24 \CocoaLigature1  added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSURLConnection, NSURLProtocol, NSURLResponse etc.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * made work with HTTP (without supporting: caching, cookies, FTP and HTTPS)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSURLHandle\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * reimplemented to be based on 
+\f2\fs20 \CocoaLigature0 NSURLProtocol
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 NSURLRequest
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NS(Socket)Stream\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * prepared to include libssl (to provide https for 
+\f2\fs20 \CocoaLigature0 NSURLProtocol
+\f1\fs24 \CocoaLigature1 )\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSString\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * most missing 10.4 methods implemented\
+* fixed some bugs in conversion code between C-String and Unicode strings (might still be buggy, e.g. when appending an Unicode string to a C-String)\
+* several bugs fixed and difficult to maintain code optimized in handling of character encoding\
+* improved 
+\f2\fs20 \CocoaLigature0 -initWithFormat:...
+\f1\fs24 \CocoaLigature1  to be safe against overflows and prepared to handle Unicode strings\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSAttributedString\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 -setAttributedString
+\f1\fs24 \CocoaLigature1  made more efficient(since it is used heavily in 
+\f2\fs20 \CocoaLigature0 StringDrawingAdditions
+\f1\fs24 \CocoaLigature1 )\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 Distributed Objects: NSProxy, NSConnection, NSPort etc.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * continued towards a working solution\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSPortMessage\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * made roughly compatible how MacOS X encodes a message into a data stream sent over TCP/IP\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSMessagePort, NSMessagePortNameServer\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * implemented using 
+\f2\fs20 \CocoaLigature0 AF_UNIX
+\f1\fs24 \CocoaLigature1  named socket files in 
+\f2\fs20 \CocoaLigature0 /tmp/
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSSocketPort, NSSocketPortNameServer\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * implemented using 
+\f2\fs20 \CocoaLigature0 AF_INET
+\f1\fs24 \CocoaLigature1  sockets\
+* implemented using 
+\f2\fs20 \CocoaLigature0 NSNetService
+\f1\fs24 \CocoaLigature1  releasing us from using 
+\f2\fs20 \CocoaLigature0 gdomap
+\f1\fs24 \CocoaLigature1  any more (but 
+\f2\fs20 \CocoaLigature0 NSNetService
+\f1\fs24 \CocoaLigature1  does not yet work)\
+* 
+\f2\fs20 \CocoaLigature0 gdomap
+\f1\fs24 \CocoaLigature1  daemon removed\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSPropertyListSerialization\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * fixed a bug when decoding binary boolean values
+\f0\b \
+
+\f1\b0 * fixed a bug when decoding double precision float values
+\f0\b \
+
+\f1\b0 * writing of binary property lists added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSKeyedUnarchiver\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * fixed a bug with recursive 
+\f2\fs20 \CocoaLigature0 NSClassSwapper
+\f1\fs24 \CocoaLigature1  decoding \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSXMLParser\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * added a mode to handle input much more lazily for HTML syntax (i.e. don't expect 
+\f2\fs20 \CocoaLigature0 <?xml?>
+\f1\fs24 \CocoaLigature1 , auto-close open tags)\
+* load file HTMLEntities.strings to translate entities when in HTML mode\
+* error handling improved and made compatible\
+* moved source code to SimpleWebKit - but remains part of Foundation\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSSortDescriptor\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * keyed decoding added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSTimeSzone\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * made complete (newer methods added)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSNetServices\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * made monitor the ZeroConf socket and receive&decode DNS messages\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSNumberFormatter\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * added from GNUstep-base\
+* fixed some missing includes and 
+\f2\fs20 \CocoaLigature0 substringFromRange:
+\f1\fs24 \CocoaLigature1  -> 
+\f2\fs20 \CocoaLigature0 substringWithRange:
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 2. AppKit:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSApplication\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 -modalWindow
+\f1\fs24 \CocoaLigature1  added\
+* 
+\f2\fs20 \CocoaLigature0 -requestUserAttention:
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 -cancelUserAttentionRequest:
+\f1\fs24 \CocoaLigature1  prepared\
+* inking engine moved to SystemUIServer services\
+* improved/fixed responder chain for key-events with key-equivalents\
+* 
+\f2\fs20 \CocoaLigature0 -preventWindowOrdering
+\f1\fs24 \CocoaLigature1  implemented\
+* add new modes to default 
+\f2\fs20 \CocoaLigature0 NSConnection\
+
+\f1\fs24 \CocoaLigature1 * handling of 
+\f0\b Windows
+\f1\b0  menu fixed\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSText, NSTextView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * basic editing functionality (re)implemented\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSClipView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * fixed to really and correctly clip\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSComboBox(Cell)\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * properly pop up/down a 
+\f2\fs20 \CocoaLigature0 NSPanel
+\f1\fs24 \CocoaLigature1  with an embedded 
+\f2\fs20 \CocoaLigature0 NSTableView
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSScrollView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * decoding of scroller visibility flags from NIB files\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSTableView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * grid drawing added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * fixed a bug that 
+\f2\fs20 \CocoaLigature0 -setNeedsDisplayInRect
+\f1\fs24 \CocoaLigature1  was not propagated properly\
+* added 
+\f2\fs20 \CocoaLigature0 NSShowAllDrawing
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 NSShowAllViews
+\f1\fs24 \CocoaLigature1  defaults added (can also be used on the command line by 
+\f2\fs20 \CocoaLigature0 -NSShowAllViews
+\f1\fs24 \CocoaLigature1 )\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSWindow\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * honors 
+\f2\fs20 \CocoaLigature0 -setOneShot:
+\f1\fs24 \CocoaLigature1  so that a graphics context (X11 window) is released on 
+\f2\fs20 \CocoaLigature0 -orderOut:
+\f1\fs24 \CocoaLigature1  and recreated on 
+\f2\fs20 \CocoaLigature0 -orderFront:
+\f1\fs24 \CocoaLigature1 \
+* forward 
+\f2\fs20 \CocoaLigature0 -makeKey
+\f1\fs24 \CocoaLigature1  to the backend\
+* set window shape on first 
+\f2\fs20 \CocoaLigature0 drawRect:
+\f1\fs24 \CocoaLigature1  of the 
+\f2\fs20 \CocoaLigature0 NSThemeFrame\
+
+\f1\fs24 \CocoaLigature1 * made progress towards working 
+\f2\fs20 \CocoaLigature0 setLevel:
+\f1\fs24 \CocoaLigature1 \
+* handling of 
+\f0\b Windows
+\f1\b0  menu fixed\
+* fixed bug with 
+\f2\fs20 \CocoaLigature0 -dealloc
+\f1\fs24 \CocoaLigature1  for windows (e.g. panels)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSSound\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * implemented to call SystemUIServer services\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSTextField\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * modified to properly display (and edit) formatted values\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSCursor\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * blanking improved; arrow cursor added as bitmap image\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSBox\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * adapted in style and fixed positioning of components\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSButtonCell\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 -backgroundColor
+\f1\fs24 \CocoaLigature1  added\
+* Bezel styles reviewed and adjusted\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSBitmapImageRep\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * converting representations to PNG, TIFF, JPEG etc. added so that images can be written to files\
+* GIF loading made working (again)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSCachedImageRep\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * missing implementation added\
+* use NSCopyBits() to draw (by blitting a rect on the server)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSNibLoading\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * some smaller and larger bugs fixed\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSAttributedString additions\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * definitions for document attributes added\
+* dynamically load and use WebKit for initialization with HTML\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NS(Attributed)StringDrawing\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * burden of all work moved to 
+\f2\fs20 \CocoaLigature0 NSLayoutManager
+\f1\fs24 \CocoaLigature1  with help of 
+\f2\fs20 \CocoaLigature0 NSTextContainer
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 NSTextStorage
+\f1\fs24 \CocoaLigature1 \
+* backend interface for all text rendering focussed in 
+\f2\fs20 \CocoaLigature0 NSLayoutManager
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 NSGlyphGenerator
+\f1\fs24 \CocoaLigature1  plus 
+\f2\fs20 \CocoaLigature0 NSFont
+\f1\fs24 \CocoaLigature1 \
+* improved to handling some simple compositing operations\
+* fixed a subtle bug with 
+\f2\fs20 \CocoaLigature0 XChar2b
+\f1\fs24 \CocoaLigature1  which resulted in bad string width calculations on the Zaurus\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSDocumentController, NSDocument, NSWindowController\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * made working and loading NIB files again\
+* fixed to load files and URLs and handle 'any' file types\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSFont, NSFontManager, NSFontDescriptor, NSFontPanel\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * header files reviewed to be 10.4-aligned\
+* headers/sources prepared to use 
+\f2\fs20 \CocoaLigature0 libfreetype2
+\f1\fs24 \CocoaLigature1  in the Backend\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSSplitView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * fixed bugs with correctly drawing the splitter\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 3. Others:\
+\
+NSUIServer protocol\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * moved to separate file\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 SimpleWebKit\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * improved largely to basically work (loads HTTP, parses HTML and displays it in a 
+\f2\fs20 \CocoaLigature0 NSTextView
+\f1\fs24 \CocoaLigature1 )\
+* knows about the DOM tree\
+* has a partial implementation of ECMAScript\
+* is written completely in Objective-C and compiles with gcc-2.95.3\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 QTKit\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * framework and header files started\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 objc-2.0\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * started to create a translator from Obj-C 2.0 to Obj-C 1.0 (with gcc 2.95.3 limitations)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 ----------------------------------
+\f1\b0 \
+
+\f0\b Version 2.1 (B94...B108)\
+----------------------------------
+\f1\b0 \
+\
+This is a bug fixing release. The following bugs and deficiencies have been fixed.\
+\
+
+\f0\b 1. Foundation:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSString\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * allocation of temporaries on stack replaced by 
+\f2\fs20 \CocoaLigature0 objc_malloc()\
+
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSUserDefaults\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * caching improved\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSScanner\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * private methods to support 
+\f2\fs20 \CocoaLigature0 NSText
+\f1\fs24 \CocoaLigature1  removed\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSByteOrder\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 NSBigEndian
+\f1\fs24 \CocoaLigature1  etc. renamed to 
+\f2\fs20 \CocoaLigature0 NS_BigEndian
+\f1\fs24 \CocoaLigature1  (to match documentation)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSKeyedArchiver\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * keyed decoding of 
+\f2\fs20 \CocoaLigature0 NSCalendarDate
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 NSTimeZone
+\f1\fs24 \CocoaLigature1  added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSPropertyListSerialization\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * handling of 
+\f2\fs20 \CocoaLigature0 float
+\f1\fs24 \CocoaLigature1 /
+\f2\fs20 \CocoaLigature0 double
+\f1\fs24 \CocoaLigature1  values in XML format corrected (
+\f2\fs20 \CocoaLigature0 <real>
+\f1\fs24 \CocoaLigature1 )\
+* base 64 decoding of 
+\f2\fs20 \CocoaLigature0 NSData
+\f1\fs24 \CocoaLigature1  values in XML format added (
+\f2\fs20 \CocoaLigature0 <data>
+\f1\fs24 \CocoaLigature1 )\
+* added writing 
+\f2\fs20 \CocoaLigature0 NSNumber
+\f1\fs24 \CocoaLigature1  values\
+* properly byte-swap Unicode characters in binary property list\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSRunLoop\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * found several bugs and memory leaks\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSTimer\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * found bugs and memory leaks\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSAffineTransform\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * added internal flags to reduce number of floating point operations for some simple transforms (identity and flip-Y, optionally with translation)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSKeyValueObserving\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * implementation skeleton added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSBundle\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * caching of resource search paths improved\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 2. AppKit:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * remaining header files reviewed\
+* drawing system fine-tuned\
+* NIB loading improved\
+- still missing: double buffered drawing\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSApplication\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * autorelease pool for runloop improved\
+* issues in interworking with window refresh and event handling fixed\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 \
+NSButtonCell\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * image vs. text position and horizontal/vertical alignment issues fixed\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 \
+NSText\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * reimplemented to be more compatible to MacOS X 10.4\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSTextView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * reimplemented as a real subclass to be more compatible\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSTextStorage, NSTextContainer, NSLayoutManager\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * partially implemented to allow for display of a single container in a single 
+\f2\fs20 \CocoaLigature0 NSTextView
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSParagraphStyle\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * completed\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSTextAttachment, NSTextAttachmentCell\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * skeleton implementation\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * fixed a bug in 
+\f2\fs20 \CocoaLigature0 initWithCoder:
+\f1\fs24 \CocoaLigature1  that resulted in errors when decoding 
+\f2\fs20 \CocoaLigature0 NSClassSwapper
+\f1\fs24 \CocoaLigature1  swapped views\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSScroller\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 NSScroller
+\f1\fs24 \CocoaLigature1  fixed focus stack nesting error\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSNibConnector\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * handling of 
+\f2\fs20 \CocoaLigature0 NSIBHelpConnector
+\f1\fs24 \CocoaLigature1  added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSLevelIndicator/Cell\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * implemented mostly\
+* still missing is:\
+  - drawing of major tick indicators\
+  - rating indicator style\
+  - vertical orientation\
+  - use of a scaled image with color gradient as the indicator\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSStepper/Cell\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * implemented\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSSearchField/Cell\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * graphical appearance fixed\
+* loading from keyed NIB file fixed\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSControl\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * added 
+\f2\fs20 \CocoaLigature0 lockFocus
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 NSRectClip
+\f1\fs24 \CocoaLigature1  to initialize for properly calling e.g. 
+\f2\fs20 \CocoaLigature0 -highlight
+\f1\fs24 \CocoaLigature1  of 
+\f2\fs20 \CocoaLigature0 NSCells
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSStringDrawing\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * improved handling of word/line wrapping\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSTableView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * reworked to use 
+\f2\fs20 \CocoaLigature0 NSIndexSet
+\f1\fs24 \CocoaLigature1  for selections\
+* sort descriptors, header highlighting, alternating background etc. added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSThemeFrame\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * dragging and resizing of window implemented\
+* button actions corrected\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSMenuView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * modified to harmonize better with the new 
+\f2\fs20 \CocoaLigature0 NSThemeFrame
+\f1\fs24 \CocoaLigature1  mechanism\
+* modified to use a tracking loop\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSFont\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * cache named fonts\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 -inLiveResize
+\f1\fs24 \CocoaLigature1  added\
+* 
+\f2\fs20 \CocoaLigature0 -didAddSubview:
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 -willRemoveSubview:
+\f1\fs24 \CocoaLigature1  added\
+* some bugs and imprecisions fixed\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSWindow\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * optimized to set round corners shape\
+* exact positioning fixed\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSImage\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * caching with 
+\f2\fs20 \CocoaLigature0 +imageNamed:
+\f1\fs24 \CocoaLigature1  improved (especially if image is 
+\f3\i not
+\f1\i0  found)\
+* drawing and compositing revised to modify the CTM and call backend's 
+\f2\fs20 \CocoaLigature0 _draw
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSX11GraphicsContext\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * byte swapping of unicode characters on ARM processor for X11 string drawing corrected\
+* did not copy the clipping path on 
+\f2\fs20 \CocoaLigature0 saveGraphicsState
+\f1\fs24 \CocoaLigature1 \
+* added a method to set the window shape\
+* changed backend drawing method from 
+\f2\fs20 \CocoaLigature0 _composite
+\f1\fs24 \CocoaLigature1  to 
+\f2\fs20 \CocoaLigature0 _draw
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 IOBluetooth.framework
+\f1\b0 \
+started to add framework. Purpose is a generic Bluetooth API (similar to our own Wireless API). Unfortunately, the original is a mixture of Cocoa, CoreFoundation, IOKit and the kernel... \
+\
+
+\f0\b ---------------------------
+\f1\b0 \
+
+\f0\b Version 2.0 (...B93)\
+---------------------------
+\f1\b0 \
+\
+This is a major release since it rearranged all the sources to build framework directory structures.\
+When doing this, many smaller and larger issues have been addressed. They are not documented\
+here in detail.\
+\
+This also means\
+* strict use Xcode and Apple gcc for first pass compilation (to faster and more easily identify bugs)\
+* integration of DO into Foundation\
+* better abstraction of the Backend based on NSGraphicsContext\
+* X11 backend completely rewritten for graphics functions (e.g. clipping to bezier paths, smooth image scaling)\
+* directly load Models from modern XML-based NIB files (nib2mib translation removed)\
+* Header files have been reviewed to match the MacOS X 10.4 Cocoa documentation as good as possible\
+* many missing classes have been added (e.g. NSIndexSet, NSURLDownload, NSNetServices, NSStream, NSPredicate, NSSegmentedCell)\
+* bundleForClass: working\
+\
+\
+
+\f0\b -----------------------------
+\f1\b0 \
+
+\f0\b Version 1.12 (...B87)\
+-----------------------------
+\f1\b0 \
+\
+This release adds more missing methods and classes and fixes many bugs and visual glitches.\
+\
+
+\f0\b Foundation:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSData\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 -writeToUrl:atomically:
+\f1\fs24 \CocoaLigature1  added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSFileManager\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 -directoryContentsAtPath
+\f1\fs24 \CocoaLigature1  now checks for a file 
+\f2\fs20 \CocoaLigature0 "$DIR/.hidden"
+\f1\fs24 \CocoaLigature1  and hides these files\
+* skip resource forks (file names beginning with 
+\f2\fs20 \CocoaLigature0 "._"
+\f1\fs24 \CocoaLigature1 )
+\f2\fs20 \CocoaLigature0 \
+
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSString
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 stringByAddingPercentEscapesUsingEncoding:
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 stringByReplacingPercentEscapesUsingEncoding:
+\f1\fs24 \CocoaLigature1  added\
+\
+
+\f0\b NSURL
+\f1\b0 \
+* strip off trailing 
+\f2\fs20 \CocoaLigature0 /
+\f1\fs24 \CocoaLigature1  from 
+\f2\fs20 \CocoaLigature0 -path\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\fs24 \cf0 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSIndexPath, NSIndexSet\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * headers and implementation added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 AppKit:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSApplication
+\f1\b0 \
+* command line argument processing streamlined and extended to handle all delegate methods (incl. printing)\
+* moved 
+\f2\fs20 \CocoaLigature0 GSListener
+\f1\fs24 \CocoaLigature1  from 
+\f2\fs20 \CocoaLigature0 GSServices.m
+\f1\fs24 \CocoaLigature1  here\
+\
+
+\f0\b NSDocumentController
+\f1\b0 \
+* interworking with 
+\f2\fs20 \CocoaLigature0 NSApplication
+\f1\fs24 \CocoaLigature1  for opening files improved\
+\
+
+\f0\b NSTreeController
+\f1\b0 \
+* header added\
+\
+
+\f0\b NSArrayController, NSObjectController, NSUserDefaultsController, NSTreeController, NSController
+\f1\b0 \
+* common implemetation NSController.m added\
+\
+
+\f0\b NSWorkspace
+\f1\b0 \
+* launching of applications with URLs improved to handle more options (incl. printing) and pass arguments as expeced by 
+\f2\fs20 \CocoaLigature0 NSApplication
+\f1\fs24 \CocoaLigature1  or its delegate\
+* added a mechanism to recognize the 
+\f2\fs20 \CocoaLigature0 LSTypeIsPackage
+\f1\fs24 \CocoaLigature1  for document bundles\
+* removable media checking and notifications added (so that Finder can notice them and Open/Save panel can mount/eject)\
+\
+
+\f0\b NSImageRep
+\f1\b0 \
+* bug in 
+\f2\fs20 \CocoaLigature0 imageRepsWithContentsOfFile
+\f1\fs24 \CocoaLigature1  fixed (if file does not exist)\
+* disabled smooth scaling in 
+\f2\fs20 \CocoaLigature0 drawRect:
+\f1\fs24 \CocoaLigature1  due to low speed and high memory requirements of current smooting algorithm\
+\
+
+\f0\b NSImage
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 lockFocus
+\f1\fs24 \CocoaLigature1  made less sensible if there are no representations (e.g. the image file can't be parsed)\
+\
+
+\f0\b NSSavePanel, NSOpenPanel
+\f1\b0 \
+* fixed and made working\
+\
+
+\f0\b NSDocumentController
+\f1\b0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
+\cf0 * use first Editor type for 
+\f2\fs20 \CocoaLigature0 -defaultType
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 -newDocument
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSTableView
+\f1\b0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
+\cf0 * 
+\f2\fs20 \CocoaLigature0 columnAutoresizingStyle
+\f1\fs24 \CocoaLigature1  properly named\
+* prepared to handle grid and alternating background\
+* header cells given light blue background\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
+
+\f0\b \cf0 NSTableColumn
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 sizeToFit
+\f1\fs24 \CocoaLigature1  implemented\
+* retain header/data cell (to be more robust)
+\f2\fs20 \CocoaLigature0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 \CocoaLigature1 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
+
+\f0\b \cf0 NSScrollView
+\f1\b0 \
+* vertical scroll bar moved to the right
+\f2\fs20 \CocoaLigature0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 \CocoaLigature1 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
+
+\f0\b \cf0 NSWindow, NSPanel
+\f1\b0 \
+* additional window mask bits added\
+* handling of window background color improved\
+* prepared for using NSThemeFrame in a mode without a window manager\
+\
+
+\f0\b NSColor\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
+
+\f1\b0 \cf0 * proper conversion between RGB and HSB added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 nib2mib, GMArchiver, GMAppKit etc.
+\f1\b0 \
+* fixed to allow to properly encode and decode custom objects\
+\
+
+\f0\b ------------------
+\f1\b0 \
+
+\f0\b Version 1.11\
+------------------
+\f1\b0 \
+\
+This release adds many more missing methods and classes. And it has been adapted to compile\
+on MacOS X 10.4 (Tiger). It includes some first extensions from 10.4 Cocoa.\
+\
+
+\f0\b Foundation:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSValueTransformer
+\f1\b0 \
+* class implemented\
+\
+
+\f0\b NSKeyValueCoding
+\f1\b0 \
+* class reworked\
+\
+
+\f0\b NSKeyValueObserving
+\f1\b0 \
+* class header added\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSArray
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 * prepared to use QuickSort\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSMutableArray
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 * 
+\f2\fs20 \CocoaLigature0 initWithCoder:
+\f1\fs24 \CocoaLigature1  fixed to properly decode empty array\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSString
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 * bug with getting 
+\f2\fs20 \CocoaLigature0 cString
+\f1\fs24 \CocoaLigature1  from string created by 
+\f2\fs20 \CocoaLigature0 initWithData:encoding:NSASCIIStringEncoding
+\f1\fs24 \CocoaLigature1  fixed\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSCalendarDate, NSDate, NSTimeZone
+\f1\b0 \
+* latest version imported from mGSTEP-0.547\
+* added 
+\f2\fs20 \CocoaLigature0 %F 
+\f1\fs24 \CocoaLigature1 to initialized 
+\f2\fs20 \CocoaLigature0 NSCalendarDate
+\f1\fs24 \CocoaLigature1  \
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSSocketPort, NSStream
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 * added\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSPropertyList
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 * now decode/encode 
+\f2\fs20 \CocoaLigature0 NSValue
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 NSDate
+\f1\fs24 \CocoaLigature1  in binary format\
+* auto-detection of format improved\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSNetService, NSNetServiceBrowser
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 * header files defined based on 10.4 (no implementation yet)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 AppKit:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSArrayController, NSObjectController, NSUserDefaultsController, NSController
+\f1\b0 \
+* header files added\
+\
+
+\f0\b NSApplication
+\f1\b0 \
+* hide/unhide application menu on 
+\f2\fs20 \CocoaLigature0 orderFront
+\f1\fs24 \CocoaLigature1 /
+\f2\fs20 \CocoaLigature0 orderFront
+\f1\fs24 \CocoaLigature1 \
+\
+
+\f0\b NSKeyValueBindingCreation, NSKeyValueBinding (NSPlaceholders)
+\f1\b0 \
+* class headers added\
+\
+
+\f0\b NSWindow
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 update
+\f1\fs24 \CocoaLigature1  mechanism improved for 
+\f2\fs20 \CocoaLigature0 orderFront:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\fs24 \cf0 \CocoaLigature1 * 
+\f2\fs20 \CocoaLigature0 defaultButtons:
+\f1\fs24 \CocoaLigature1  added
+\f2\fs20 \CocoaLigature0 \
+
+\f1\fs24 \CocoaLigature1 * experimental code to handle 
+\f2\fs20 \CocoaLigature0 setLevel:
+\f1\fs24 \CocoaLigature1  added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSWorkspace
+\f1\b0 \
+* application database reworked (moved to new class 
+\f2\fs20 \CocoaLigature0 QSLaunchServices
+\f1\fs24 \CocoaLigature1 )\
+\
+
+\f0\b NSParagraphStyle
+\f1\b0 \
+* code added to really handle paragraph style\
+\
+
+\f0\b NSString (Drawing Additions - XRDrawingEnginge)
+\f1\b0 \
+* made draw multi-line strings (without properly handling Tabs yet)\
+* perpared to draw X11 Unicode fonts\
+\
+
+\f0\b NSMatrix
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 sendAction
+\f1\fs24 \CocoaLigature1  changed to send action to taget of 
+\f2\fs20 \CocoaLigature0 NSMatrix
+\f1\fs24 \CocoaLigature1  if button has no action/target\
+\
+
+\f0\b NSTabView
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 selectTabViewItemWithIdentifier
+\f1\fs24 \CocoaLigature1  added\
+* 
+\f2\fs20 \CocoaLigature0 takeSelectedTabViewItemFromSender
+\f1\fs24 \CocoaLigature1  coded\
+* controlSize & controlTint prepared\
+\
+
+\f0\b NSPopUpButton(+Cell)
+\f1\b0 \
+* made pop up its menu\
+
+\f0\b \
+NSSearchField, NSSearchFieldCell
+\f1\b0 \
+* fixed handling of search string\
+\
+
+\f0\b NSAffineTransform\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * taken from mGStep-0.547 and replaced 
+\f2\fs20 \CocoaLigature0 PSMatrix
+\f1\fs24 \CocoaLigature1 ; 
+\f2\fs20 \CocoaLigature0 PSMatrix
+\f1\fs24 \CocoaLigature1  removed\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 \
+NSView
+\f1\b0 \
+* found some bugs in the -
+\f2\fs20 \CocoaLigature0 displayXXX
+\f1\fs24 \CocoaLigature1  methods\
+* made use 
+\f2\fs20 \CocoaLigature0 NSAffineTransform
+\f1\fs24 \CocoaLigature1  and not 
+\f2\fs20 \CocoaLigature0 PSMatrix
+\f1\fs24 \CocoaLigature1 \
+
+\f0\b \
+NSBitmapImageRep
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 -initWithFocusedViewRect:
+\f1\fs24 \CocoaLigature1  updated to really read pixel data from the X screen\
+\
+
+\f0\b NSMenu
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 menuNeedsUpdate:
+\f1\fs24 \CocoaLigature1  delegate method implemented (called by 
+\f2\fs20 \CocoaLigature0 NSMenuView
+\f1\fs24 \CocoaLigature1 )\
+\
+
+\f0\b NSEvent
+\f1\b0 \
+* +
+\f2\fs20 \CocoaLigature0 mouseLocation
+\f1\fs24 \CocoaLigature1  added to header file\
+\
+
+\f0\b NSMenuItemCell
+\f1\b0 \
+* did not properly handle 
+\f2\fs20 \CocoaLigature0 -length
+\f1\fs24 \CocoaLigature1  of 0.0 from 
+\f2\fs20 \CocoaLigature0 -representedObject
+\f1\fs24 \CocoaLigature1  (e.g. 
+\f2\fs20 \CocoaLigature0 NSStatusMenuItem
+\f1\fs24 \CocoaLigature1 )\
+\
+
+\f0\b NSScreen
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 deviceDescription
+\f1\fs24 \CocoaLigature1  added\
+* prepared to handle screen rotation (portrait/landscape) by checking hinge status and updating 
+\f2\fs20 \CocoaLigature0 deviceDescription
+\f1\fs24 \CocoaLigature1 \
+* cache 
+\f2\fs20 \CocoaLigature0 visibleFrame
+\f1\fs24 \CocoaLigature1 \
+\
+
+\f0\b NSTabelColumn
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 -isResizable
+\f1\fs24 \CocoaLigature1  replaced by 
+\f2\fs20 \CocoaLigature0 -resizingMask
+\f1\fs24 \CocoaLigature1 \
+\
+
+\f0\b NSAttributedStringAdditions
+\f1\b0 \
+* prepared to handle HTML and DOC formats (not implemented)\
+\
+
+\f0\b NSFont
+\f1\b0 \
+* cache default font size for menu fonts\
+\
+
+\f0\b NSText, NSTextFieldCell, NSTextField, NSControl
+\f1\b0 \
+* handling of 
+\f2\fs20 \CocoaLigature0 textDid...:
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 control:textDid...:
+\f1\fs24 \CocoaLigature1  notifications fixed\
+\
+
+\f0\b Others:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 ABAddressBook
+\f1\b0 \
+* vCard processing aligned with vCalendar impelmentation (not public)\
+\
+
+\f0\b NSMailDelivery
+\f1\b0 \
+* rewritten to call the private Mail.framework of QuantumSTEP\
+\
+
+\f0\b WebKit
+\f1\b0 \
+* header files extended and aligned to latest documentation\
+\
+
+\f0\b mySTEP.sdk
+\f1\b0 \
+* added an 
+\f2\fs20 \CocoaLigature0 -I
+\f1\fs24 \CocoaLigature1  include search path so that when building frameworks we can refer to our own headers by 
+\f2\fs20 \CocoaLigature0 #import <Framework/header.h>
+\f1\fs24 \CocoaLigature1 \
+\
+
+\f0\b nib2mib / GMArchiver / GMAppKit
+\f1\b0 \
+* added handling of 
+\f2\fs20 \CocoaLigature0 NSMenu delegate\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\fs24 \cf0 \CocoaLigature1 * added handling of 
+\f2\fs20 \CocoaLigature0 NSTabView
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 NSTabViewItem
+\f1\fs24 \CocoaLigature1 \
+* macro 
+\f2\fs20 \CocoaLigature0 SET_CLASS
+\f1\fs24 \CocoaLigature1  did have a bug\
+* fixed a bug in loading the menu of NSPopUpButton\
+* improved to handle File Owner/NSOwner references properly\
+* archiving of checkboxes and radio buttons of small and mini size fixed\
+* adapted to new Tiger instance variables and internal classes\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSSystemStatus
+\f1\b0 \
+* changed 
+\f2\fs20 \CocoaLigature0 SYSDevice
+\f1\fs24 \CocoaLigature1 , 
+\f2\fs20 \CocoaLigature0 SYSWireless
+\f1\fs24 \CocoaLigature1 , 
+\f2\fs20 \CocoaLigature0 SYSLocation
+\f1\fs24 \CocoaLigature1  to a new event/notification driven mechanism\
+* worked on 
+\f2\fs20 \CocoaLigature0 SYSWireless
+\f1\fs24 \CocoaLigature1  for managing WLAN and GPRS cards (e.g. Audiovox RTM8000, Eagletech GSM/GPRS CF+ FCC ID: MSQAGC100)\
+* worked on 
+\f2\fs20 \CocoaLigature0 SYSLocation
+\f1\fs24 \CocoaLigature1  for managing NMEA 183 compatible GPS cards (e.g. Billionton CF GPS)\
+* worked on 
+\f2\fs20 \CocoaLigature0 NSCameraMovie
+\f1\fs24 \CocoaLigature1  for Sharp CE-AG06 card\
+* added option to issue 
+\f2\fs20 \CocoaLigature0 stty
+\f1\fs24 \CocoaLigature1  command when opening the device to set e.g. baud rate\
+\
+
+\f0\b ------------------
+\f1\b0 \
+
+\f0\b Version 1.10\
+------------------
+\f1\b0 \
+\
+This is mainly a smoothing and bug fixing release. It also adds some missing methods and classes.\
+\
+
+\f0\b Foundation:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSFileManager
+\f1\b0 \
+* createDirectoryAtPath now requires that the superdirectory exists\
+* added 
+\f2\fs20 \CocoaLigature0 _createDirectoryDownToPath:
+\f1\fs24 \CocoaLigature1  to create paths\
+\
+
+\f0\b NSUserDefaults
+\f1\b0 \
+* create database directory if it does not yet exist\
+\
+
+\f0\b NSArray, NSDictionary, NSString
+\f1\b0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+\cf0 * 
+\f2\fs20 \CocoaLigature0 dataWithContentsOfURL:
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 initWithContentsOfURL:
+\f1\fs24 \CocoaLigature1  added
+\f2\fs20 \CocoaLigature0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b\fs24 \cf0 \CocoaLigature1 \
+NSMutableArray
+\f1\b0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+\cf0 * 
+\f2\fs20 \CocoaLigature0 exchangeObjectAtIndex:withObjectAtIndex:
+\f1\fs24 \CocoaLigature1  added
+\f2\fs20 \CocoaLigature0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b\fs24 \cf0 \CocoaLigature1 \
+NSData
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 dataWithBytesNoCopy:length:freeWhenDone: 
+\f1\fs24 \CocoaLigature1 added\
+* properly 
+\f2\fs20 \CocoaLigature0 initWithContentsOfFile:
+\f1\fs24 \CocoaLigature1  for device files, /proc and named pipes where a seek fails\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f2\fs20 \cf0 \CocoaLigature0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b\fs24 \cf0 \CocoaLigature1 NSDate
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 descriptionWithCalendarFormat:timeZone:locale: 
+\f1\fs24 \CocoaLigature1 added\
+
+\f0\b \
+NSXMLParser
+\f1\b0 \
+* class added\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSSortDescriptor\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * class added\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSError
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 * class added\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSString
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 * bug with 
+\f2\fs20 \CocoaLigature0 UFT8string
+\f1\fs24 \CocoaLigature1  fixed\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSCalendarDate, NSDate, NSTimeZone
+\f1\b0 \
+* header files unmangled\
+* description format 
+\f2\fs20 \CocoaLigature0 %F
+\f1\fs24 \CocoaLigature1  fixed to print milliseconds\
+
+\f0\b \
+NSDateFormatter
+\f1\b0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+\cf0 * added from GNUstep
+\f2\fs20 \CocoaLigature0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b\fs24 \cf0 \CocoaLigature1 \
+NSPropertyListSerialization
+\f1\b0 \
+* changed to use NSXMLParser - improves performance\
+* new highly compressed binary format introduced (by approx. 7-8 compared to XML format)\
+* found a double-release bug\
+\
+
+\f0\b AppKit:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSWindow
+\f1\b0 \
+* bug in 
+\f2\fs20 \CocoaLigature0 setContentSize:
+\f1\fs24 \CocoaLigature1  fixed\
+\
+
+\f0\b NSFormCell
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 dealloc
+\f1\fs24 \CocoaLigature1  issue solved\
+\
+
+\f0\b NSPopUpButton(+Cell)
+\f1\b0 \
+* reworked to use NSMenu and added several missing methods\
+
+\f0\b \
+NSSearchField, NSSearchFieldCell
+\f1\b0 \
+* class added\
+\
+
+\f0\b NSTableView
+\f1\b0 \
+* split into correct header files 
+\f2\fs20 \CocoaLigature0 NSTableColumn.h
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 NSTableHeaderView.h
+\f1\fs24 \CocoaLigature1 \
+\
+
+\f0\b NSOutlineView
+\f1\b0 \
+* class borrowed from GNUstep-gui 0.8.5\
+\
+
+\f0\b NSTextFieldCell
+\f1\b0 \
+* handling of 
+\f2\fs20 \CocoaLigature0 placeholderString
+\f1\fs24 \CocoaLigature1  added\
+\
+
+\f0\b NSView
+\f1\b0 \
+* method 
+\f2\fs20 \CocoaLigature0 enclosingScrollView
+\f1\fs24 \CocoaLigature1  added\
+\
+
+\f0\b NSProgressIndicator
+\f1\b0 \
+* added from GNUstep\
+\
+
+\f0\b NSApplication
+\f1\b0 \
+* method 
+\f2\fs20 \CocoaLigature0 replyToApplicationShouldTerminate:
+\f1\fs24 \CocoaLigature1  added\
+* method 
+\f2\fs20 \CocoaLigature0 application:openFiles:
+\f1\fs24 \CocoaLigature1  added\
+\
+
+\f0\b NSDocumentController
+\f1\b0 \
+* management of Open Recent submenu added\
+
+\f0\b \
+NSImage
+\f1\b0 \
+* some bugs and potential memory leaks fixed\
+
+\f0\b \
+NSBitmapImageRep
+\f1\b0 \
+* now reading ICNS format\
+\
+
+\f0\b NSMenu
+\f1\b0 \
+* code from NSMenu behaving like a NSView removed...\
+* optimized amount of menu redrawing\
+\
+
+\f0\b NSMenuItem, NSMenuItemCell
+\f1\b0 \
+* found a memory leak when removing menu items\
+\
+
+\f0\b NSGeometry
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 NSContainsRect()
+\f1\fs24 \CocoaLigature1  fixed if edges are aligned\
+\
+
+\f0\b Others:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 ABAddressBook
+\f1\b0 \
+* create database directory if it does not yet exist\
+* 
+\f2\fs20 \CocoaLigature0 ABSearchElement
+\f1\fs24 \CocoaLigature1  made working\
+* encoding&decoding extended\
+\
+
+\f0\b mySTEP.sdk
+\f1\b0 \
+* fixed bug with stripping too much for loadable bundles in cross-makefile\
+* fixed cross-makefile to properly use 
+\f2\fs20 \CocoaLigature0 -fPIC
+\f1\fs24 \CocoaLigature1  for loadable bundles\
+* added rules to generate Frameworks (copies will be stored in the 
+\f2\fs20 \CocoaLigature0 /Development ... /mySTEP.sdk
+\f1\fs24 \CocoaLigature1 ) and include them\
+\
+
+\f0\b nib2mib
+\f1\b0 \
+* added 
+\f2\fs20 \CocoaLigature0 -b
+\f1\fs24 \CocoaLigature1  flag to write new binary property list format\
+\
+
+\f0\b ----------------
+\f1\b0 \
+
+\f0\b Version 1.9\
+----------------
+\f1\b0 \
+\
+This is a bug fix and GUI smoothing release.\
+\
+
+\f0\b NSButton
+\f1\b0 \
+* push button drawing glitches fixed\
+* 
+\f2\fs20 \CocoaLigature0 NSButtonType
+\f1\fs24 \CocoaLigature1  adapted to Cocoa numbering (needed to be identical for nib2mib to work)\
+* honors 
+\f2\fs20 \CocoaLigature0 setTransparent
+\f1\fs24 \CocoaLigature1 :\
+* honors 
+\f2\fs20 \CocoaLigature0 setBezelStyle
+\f1\fs24 \CocoaLigature1 :\
+\
+
+\f0\b NSBezierPath
+\f1\b0 \
+* round coordinates to next integer\
+\
+
+\f0\b NSWindow
+\f1\b0 \
+* did not properly catch 
+\f2\fs20 \CocoaLigature0 NSWindowDidResignKey
+\f1\fs24 \CocoaLigature1  so that 
+\f2\fs20 \CocoaLigature0 NSSystemDefinedEvent
+\f1\fs24 \CocoaLigature1  could go to Nirvana\
+* made return an 
+\f2\fs20 \CocoaLigature0 NSTextView
+\f1\fs24 \CocoaLigature1  as the fieldEditor (so that it really implements input methods)\
+\
+
+\f0\b NSTextFieldCell
+\f1\b0 \
+* draw focus ring around cell\
+* draw background if enabled or if bezeled\
+\
+
+\f0\b NSRunAlertPanel()
+\f1\b0 \
+* sizing/screen location/layout issues improved\
+* crash fixed when pressing Ok (was the 
+\f2\fs20 \CocoaLigature0 NSWindow
+\f1\fs24 \CocoaLigature1  issue)\
+\
+
+\f0\b NSFileManager
+\f1\b0 \
+* prepared to handle virtual home directories on removable media (/Users on SD card)\
+\
+
+\f0\b ----------------
+\f1\b0 \
+
+\f0\b Version 1.8\
+----------------
+\f1\b0 \
+\
+The most important changes and fixes have been to the visual appearance and API completeness/compatibility in the area of the Text Editing and keyboard/pen interaction.\
+\
+
+\f0\b WindowManager
+\f1\b0 \
+* we have integrated a source snapshot of InterfaceWM (0.2.7) into the sources and made it compiling on MacOS X and mySTEP.\
+   This Window Manager is itself written (mostly) in Objective-C. Currently it uses only -lFoundation. The target is to integrate with\
+   parts of 
+\f2\fs20 \CocoaLigature0 -lAppKit
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 -lxraw
+\f1\fs24 \CocoaLigature1  so that the layout style stays harmonized. This will also allow to use e.g. 
+\f2\fs20 \CocoaLigature0 NSImage
+\f1\fs24 \CocoaLigature1  in the window manager.\
+* an alternative might be to add methods to XRaw to support a window manager (will be part of the myPDA runtime system)\
+\
+
+\f0\b NSUserDefaults
+\f1\b0 \
+* completely rewritten to store persistent domains in separate files\
+* added to handle 
+\f2\fs20 \CocoaLigature0 NSGlobalDomain
+\f1\fs24 \CocoaLigature1 \
+\
+
+\f0\b NSWindow (XRaw)\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * added more private methods in the xraw backend to allow writing a full window manager by using AppKit\
+* processing of 
+\f2\fs20 \CocoaLigature0 frameRect
+\f1\fs24 \CocoaLigature1 /
+\f2\fs20 \CocoaLigature0 contentRect
+\f1\fs24 \CocoaLigature1  fixed to be aligned with Cocoa\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 performKeyEquivalent
+\f1\fs24 \CocoaLigature1  added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSTimeZone
+\f1\b0 \
+* added 
+\f2\fs20 \CocoaLigature0 systemTimeZone
+\f1\fs24 \CocoaLigature1  management\
+* initialization modified to be more lazily\
+\
+
+\f0\b NSBundle
+\f1\b0 \
+* main initialization changed so that 
+\f2\fs20 \CocoaLigature0 standardDefaults
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 systemTimeZone
+\f1\fs24 \CocoaLigature1  are reloaded after initializing the 
+\f2\fs20 \CocoaLigature0 mainBundle
+\f1\fs24 \CocoaLigature1 \
+\
+
+\f0\b NSBrowser
+\f1\b0 \
+* made 
+\f2\fs20 \CocoaLigature0 setDelegate
+\f1\fs24 \CocoaLigature1  call 
+\f2\fs20 \CocoaLigature0 loadColumnZero
+\f1\fs24 \CocoaLigature1  so that 
+\f2\fs20 \CocoaLigature0 NSBrowsers
+\f1\fs24 \CocoaLigature1  initialized from a nib file are automatically displaying the first column\
+\
+
+\f0\b NSMenuItemCell
+\f1\b0 \
+* draw triangle for submenus (like NSBrowserCell)\
+\
+
+\f0\b NSButtonCell and NSButton
+\f1\b0 \
+* made handle 
+\f2\fs20 \CocoaLigature0 setObjectValue
+\f1\fs24 \CocoaLigature1 , 
+\f2\fs20 \CocoaLigature0 objectValue
+\f1\fs24 \CocoaLigature1  properly - even for mixed state\
+* made display of mixed state checkbox working\
+* handling of first responder status moved to 
+\f2\fs20 \CocoaLigature0 NSCell
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSWorkspace\
+
+\f1\b0 * added 
+\f2\fs20 \CocoaLigature0 -isFilePackageAtPath:\
+
+\f1\fs24 \CocoaLigature1 \
+
+\f0\b NSCell\
+
+\f1\b0 * modified to use string drawing additions instead of an Xraw backend\
+* improved handling of 
+\f2\fs20 \CocoaLigature0 textColor
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 background
+\f1\fs24 \CocoaLigature1 \
+* 
+\f2\fs20 \CocoaLigature0 setBezeled
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 setBordered
+\f1\fs24 \CocoaLigature1  made mutually exclusive (as written in documentation)\
+* focus ring mechanism prepared\
+\
+
+\f0\b NSText\
+
+\f1\b0 * made sending proper Notifications and delegate methods (e.g. 
+\f2\fs20 \CocoaLigature0 NSTextDidBeginEditing
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 textDidBeginEditing:
+\f1\fs24 \CocoaLigature1 )\
+\
+
+\f0\b NSControl (and subclasses)\
+
+\f1\b0 * fixed to handle delegate for e.g. 
+\f2\fs20 \CocoaLigature0 NSControlTextDidBeginEditing 
+\f1\fs24 \CocoaLigature1 in a systematic way\
+\
+
+\f0\b NSTextField and NSTextFieldCell\
+
+\f1\b0 * made working properly (incl. background, bezeled etc.)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 GSListener\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * bug fixed when opening document based applications through DO (receiving 
+\f2\fs20 \CocoaLigature0 application:openFile:
+\f1\fs24 \CocoaLigature1 )\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 GSImageRep\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * prepared subclass to handle 
+\f2\fs20 \CocoaLigature0 .icns
+\f1\fs24 \CocoaLigature1  files (Application icons)\
+* and 
+\f2\fs20 \CocoaLigature0 .xwd
+\f1\fs24 \CocoaLigature1  files (X Window Dump)\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 SYSRemovableDevice\
+
+\f1\b0 * to manage e.g. CF cards\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 SYSWireless\
+
+\f1\b0 * modified to utilize 
+\f2\fs20 \CocoaLigature0 SYSRemovableDevice
+\f1\fs24 \CocoaLigature1  and handle both, WLAN and GPRS cards\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSComboBox and NSComboBoxCell\
+
+\f1\b0 * made working with 
+\f2\fs20 \CocoaLigature0 dataSource
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSClipView\
+
+\f1\b0 * 
+\f2\fs20 \CocoaLigature0 scrollToPoint:
+\f1\fs24 \CocoaLigature1  moved from backend to class\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSObject (NSRunLoop)\
+
+\f1\b0 * modified 
+\f2\fs20 \CocoaLigature0 cancelPreviousPerformRequestsWithTarget:::
+\f1\fs24 \CocoaLigature1  so that selectors are matched properly (note: 
+\f2\fs20 \CocoaLigature0 @selector(x)
+\f1\fs24 \CocoaLigature1  != 
+\f2\fs20 \CocoaLigature0 @selector(x) 
+\f1\fs24 \CocoaLigature1 on GNU Obj-C library!)\
+* added 
+\f2\fs20 \CocoaLigature0 cancelPreviousPerformRequestsWithTarget
+\f1\fs24 \CocoaLigature1  and modified so that the timer and memory is released properly\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSString\
+
+\f1\b0 * added 
+\f2\fs20 \CocoaLigature0 stringByTrimmingCharactersInSet
+\f1\fs24 \CocoaLigature1 \
+
+\f0\b \
+NSAttributedString Additions\
+
+\f1\b0 * prepared to write RTF files\
+* prepared for proper unit conversion of RTF 'twips' to millimeters\
+
+\f0\b \
+nib2mib\
+
+\f1\b0 * modified to encode properly all named 
+\f2\fs20 \CocoaLigature0 NSImages
+\f1\fs24 \CocoaLigature1  that are stored in the nib\
+* made translating 
+\f2\fs20 \CocoaLigature0 NSComboBox
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 NSComboBoxCell
+\f1\fs24 \CocoaLigature1 \
+\
+
+\f0\b GMAppKit
+\f1\b0 \
+* modified to encode 
+\f2\fs20 \CocoaLigature0 NSImage
+\f1\fs24 \CocoaLigature1  name only (and not e.g. size which might be different)\
+* fixed some bugs and missing variables e.g. in unarchiving 
+\f2\fs20 \CocoaLigature0 NSMatrix
+\f1\fs24 \CocoaLigature1  resp. 
+\f2\fs20 \CocoaLigature0 NSForm
+\f1\fs24 \CocoaLigature1 \
+* archive either 
+\f2\fs20 \CocoaLigature0 isBezeled
+\f1\fs24 \CocoaLigature1  or 
+\f2\fs20 \CocoaLigature0 isBordered
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 * handle mixed state and radio/switch box buttons properly\
+* added a trick to encode the buttonType of 
+\f2\fs20 \CocoaLigature0 NSButton
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 NSButtonCell
+\f1\fs24 \CocoaLigature1 \
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+
+\f0\b \cf0 NSEvent (+XRContext)\
+
+\f1\b0 * modified to better handle modifier key events (
+\f2\fs20 \CocoaLigature0 NSFlagsChanged
+\f1\fs24 \CocoaLigature1 )\
+
+\f0\b \
+ABPerson\
+
+\f1\b0 * modified to add more info to a vCard\
+
+\f0\b \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 ----------------
+\f1\b0 \
+
+\f0\b Version 1.7\
+----------------
+\f1\b0 \
+\
+
+\f0\b General
+\f1\b0 \
+* crash with 
+\f2\fs20 \CocoaLigature0 NSLog(@"...%%...", ...)
+\f1\fs24 \CocoaLigature1  fixed\
+\
+
+\f0\b NSApplication\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * run method protected by exception handler (so that e.g. unimplemented menu actions do no longer crash)\
+* changed updateWindows to the beginning of the loop so that they are updated once even on entering the run-loop\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 ABAddressBook etc.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * rewritten from scratch to simplify code and reduce library size\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSObject\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * made 
+\f2\fs20 \CocoaLigature0 doesNotRecognizeSelector:
+\f1\fs24 \CocoaLigature1  raise an exception (instead of calling error:)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSTimeZone\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * made find timezone files\
+* added reading timezone from NSUserDefaults database\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSString\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * added UTF8 to 
+\f2\fs20 \CocoaLigature0 -dataUsingEncoding:allowLossyConversion:\
+
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSPipe\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * did not return a pipe
+\f2\fs20 \CocoaLigature0 \
+
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSTask\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * made accept either NSFileHandle, NSPipe or NSNumber for stdinput, stdoutput, stderror
+\f2\fs20 \CocoaLigature0 \
+
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSUserDefaults\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * memory leak fixed
+\f2\fs20 \CocoaLigature0 \
+
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSBundle\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 infoDictionary
+\f1\fs24 \CocoaLigature1  did not 
+\f2\fs20 \CocoaLigature0 retain
+\f1\fs24 \CocoaLigature1  internal reference
+\f2\fs20 \CocoaLigature0 \
+
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSOutlineView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * prepared to be added
+\f2\fs20 \CocoaLigature0 \
+
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSMenu\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 validateMenuItem
+\f1\fs24 \CocoaLigature1  for enabling is called if target responds to this seclector - not only if it is conformant to the 
+\f2\fs20 \CocoaLigature0 NSMenuItemValidation
+\f1\fs24 \CocoaLigature1  protocol
+\f2\fs20 \CocoaLigature0 \
+
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSScreen\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * formula for calculating visibleFrame's height fixed to better cover all cases
+\f2\fs20 \CocoaLigature0 \
+
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 GMArchiver\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * some weak points in decoding objects fixed
+\f2\fs20 \CocoaLigature0 \
+
+\f1\fs24 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 ----------------
+\f1\b0 \
+
+\f0\b Version 1.6\
+----------------
+\f1\b0 \
+\
+The most important changes are the inclusion of image scaling, additional image formats, access to Battery&WLAN status, provisioning of AddressBook, improved interface compatibility and fixing of many bugs.\
+\
+
+\f0\b General
+\f1\b0 \
+* changes of mGStep-0.536 integrated\
+* NSSystemStatus, NSCameraMovie moved from NSAppKit into separate library\
+* jpeg, png, ungif libraries added to SDK to link with libCocoa\
+* jpeg, png, gif representations are recognized\
+* made libFoundation automatically reference all other required libraries (e.g. -lm, -lobjc, -lpthread)\
+* made libAppKit reference all other required libraries (e.g. -lX11, -lmib)\
+* all filenames (NSFileManager) are now UTF8 capable\
+* BrowserView and TableView are now working correctly\
+* TableView incl. Header&Columns are read from .mib file\
+
+\f0\b \
+NSApplication\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 - (\cf2 id\cf0 ) targetForAction:(\cf2 SEL\cf0 )aSelector to:(\cf2 id\cf0 )aTarget from:(\cf2 id\cf0 )sender 
+\f1\fs24 \CocoaLigature1 added\
+* made send application:openFile: to delegate for command line arguments in the proper instant\
+* synchronize user defaults when terminating\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 \
+SYSWireless\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * heavily extended in API and prepared to work with linux/wireless.h, i.e. the linux-wlan-ng extension\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 SYSBattery\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * made to read useful information from /proc/apm\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSNumber
+\f1\b0 \
+* MIB archiving of NSNumber corrected\
+
+\f0\b \
+NSPipe
+\f1\b0 \
+* added to Foundation/NSFileHandle.h\
+
+\f0\b \
+NSTask
+\f1\b0 \
+* prepared to take NSPipe as stdin/out/err\
+
+\f0\b \
+NSMatrix
+\f1\b0 \
+* MIB archiving added\
+
+\f0\b \
+NSForm
+\f1\b0 \
+* MIB archiving added/corrected\
+
+\f0\b \
+NSMovie\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * private API added to wind and fetch frames as NSImage\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSObject\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 className
+\f1\fs24 \CocoaLigature1  added\
+* 
+\f2\fs20 \CocoaLigature0 +isSubclassOfClass:
+\f1\fs24 \CocoaLigature1  added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSDictionary\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * bug in 
+\f2\fs20 \CocoaLigature0 decription:
+\f1\fs24 \CocoaLigature1  made it unreadable as an old style property list\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSPropertyListSerialization\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * fixed a bug which prevented reading (unquoted) empty strings\
+* handle &gt; etc.\
+* made better handle old style property lists (with unquoted sequences)\
+* rewrote XML scanner - speedup is 14s -> 8s for a 5400 lines property list\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSWorkspace\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * file type detection with application/icon/type improved & fixed\
+* prepared to handle multiple applications or versions for same file type\
+* applications/file types database made being presistent (to increase speed); rebuilt once if app is not found\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSDocumentController\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * prepared to manage Open Recent submenu\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSMutableString\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * 
+\f2\fs20 \CocoaLigature0 - (\cf2 unsigned\cf0  \cf2 int\cf0 ) replaceOccurrencesOfString: 
+\f1\fs24 \CocoaLigature1 added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 GMAppKit\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * nib2mib encoding and decoding for many 
+\f2\fs20 \CocoaLigature0 NSCell
+\f1\fs24 \CocoaLigature1  subclasses added\
+* also added for all 
+\f2\fs20 \CocoaLigature0 NSTable
+\f1\fs24 \CocoaLigature1  class cluster\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 ABAddressBook\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * Address Book Framework (Addresses-0.4.5) for GNUstep by Bj\'9arn Giesler integrated\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 ----------------
+\f1\b0 \
+
+\f0\b Version 1.5\
+----------------
+\f1\b0 \
+\
+The most important changes are the inclusion of image scaling and fixing of many bugs.\
+\
+
+\f0\b General
+\f1\b0 \
+* bundle loading and preference panes made working\
+* updated to match mGstep-0.534 (which adds mainly NSImage scaling)\
+* made menu positioning dependent on system method 
+\f2\fs20 \CocoaLigature0 [NSMenu menuBarHeight]
+\f1\fs24 \CocoaLigature1 \
+\
+
+\f0\b NSBezierPath
+\f1\b0 \
+* 
+\f2\fs20 \CocoaLigature0 -stroke
+\f1\fs24 \CocoaLigature1  made working\
+\
+
+\f0\b NSString
+\f1\b0 \
+* UTF-8 encoding/decoding added\
+\
+
+\f0\b NSEvent
+\f1\b0 \
+* keyModifierMask constants adapted (they use the upper 16 bits of an unsigned int)\
+\
+
+\f0\b NSApplication
+\f1\b0 \
+* experimental inking mechanism added (uses a private 
+\f2\fs20 \CocoaLigature0 GSInkingView
+\f1\fs24 \CocoaLigature1  class that manages inking with an 
+\f2\fs20 \CocoaLigature0 NSBezierPath
+\f1\fs24 \CocoaLigature1 )\
+\
+
+\f0\b GSListener
+\f1\b0 \
+* made recognize 
+\f2\fs20 \CocoaLigature0 application:openFile: 
+\f1\fs24 \CocoaLigature1 etc. and forward to 
+\f2\fs20 \CocoaLigature0 delegate
+\f1\fs24 \CocoaLigature1  or 
+\f2\fs20 \CocoaLigature0 NSDocumentController
+\f1\fs24 \CocoaLigature1  for document based applications\
+\
+
+\f0\b NSWorkspace
+\f1\b0 \
+* path processing in 
+\f2\fs20 \CocoaLigature0 openFile:
+\f1\fs24 \CocoaLigature1  and 
+\f2\fs20 \CocoaLigature0 launchApplications:
+\f1\fs24 \CocoaLigature1  revised and corrected (now handles names with/without .app extensions)\
+* 
+\f2\fs20 \CocoaLigature0 openFile: 
+\f1\fs24 \CocoaLigature1 modified to send file to the intended application through Distributed Objects. If there is no response, tries to launch and retries to  contact\
+\
+
+\f0\b NSScreen
+\f1\b0 \
+* allow compilation for different menu layouts (Desktop, PDA, Smartphone)\
+\
+
+\f0\b NSBundle
+\f1\b0 \
+* use FileManager's 
+\f2\fs20 \CocoaLigature0 directoryAtPath
+\f1\fs24 \CocoaLigature1  method to locate resources (was doing private 
+\f2\fs20 \CocoaLigature0 opendir()
+\f1\fs24 \CocoaLigature1 , 
+\f2\fs20 \CocoaLigature0 readdir()
+\f1\fs24 \CocoaLigature1 )\
+\
+
+\f0\b NSPreferencePane
+\f1\b0 \
+* made working\
+* added NSApplication category methods: 
+\f2\fs20 \CocoaLigature0 - (\cf2 void\cf0 ) orderFrontStandardPreferencePane:(\cf2 id\cf0 )sender; - (\cf2 void\cf0 ) orderFrontPreferencePane:(\cf2 NSString *\cf0 )name;
+\f1\fs24 \CocoaLigature1 \
+\
+
+\f0\b NSMenuItem
+\f1\b0 \
+* handling of image corrected\
+\
+
+\f0\b NSMenu
+\f1\b0 \
+* - 
+\f2\fs20 \CocoaLigature0 addItem
+\f1\fs24 \CocoaLigature1 : did notify the wrong index\
+* - 
+\f2\fs20 \CocoaLigature0 update
+\f1\fs24 \CocoaLigature1  fixed to properly enable/disable menu item highlighting\
+* rules for positioning submenus improved\
+\
+
+\f0\b NSMenuItemCell
+\f1\b0 \
+* made recognize represented object's 
+\f2\fs20 \CocoaLigature0 length
+\f1\fs24 \CocoaLigature1  parameter (i.e. 
+\f2\fs20 \CocoaLigature0 NSStatusItem length
+\f1\fs24 \CocoaLigature1 )\
+* processing of 
+\f2\fs20 \CocoaLigature0 keyEquivalentModifierMask
+\f1\fs24 \CocoaLigature1  prepared\
+\
+
+\f0\b NSButtonCell
+\f1\b0 \
+* did not properly return 
+\f2\fs20 \CocoaLigature0 -image
+\f1\fs24 \CocoaLigature1 \
+\
+
+\f0\b NSMenuExtra
+\f1\b0 \
+* made working as I think it sould be working - there is not much documentation available on the methods of this class\
+\
+
+\f0\b WebKit
+\f1\b0 \
+* some core methods and classes implemented to use 
+\f2\fs20 \CocoaLigature0 NSURLHandle
+\f1\fs24 \CocoaLigature1  for fetching data and 
+\f2\fs20 \CocoaLigature0 NSAttributedString
+\f1\fs24 \CocoaLigature1  to read HTML files and 
+\f2\fs20 \CocoaLigature0 NSText
+\f1\fs24 \CocoaLigature1  to render them\
+\
+
+\f0\b nib2mib, IMLoading
+\f1\b0 \
+* prepared to better handle 
+\f2\fs20 \CocoaLigature0 NSOwner
+\f1\fs24 \CocoaLigature1 /File Owner through encoding by a special entry\
+* did not encode 
+\f2\fs20 \CocoaLigature0 keyEquivalentModifierMask
+\f1\fs24 \CocoaLigature1 \
+\
+
+\f0\b ----------------
+\f1\b0 \
+
+\f0\b Version 1.4\
+----------------
+\f1\b0 \
+\
+The most important change is the new Menu system having NSMenuView and NSMenuItemCell implemented. Although these\
+classes are deprecated according to the Cocoa documentation, they have a pretty well designed interface. Nevertheless, Applications\
+should not assume these classes are available but use the NSApp mainMenu methods.\
+Other changes are in the nib2mib logic making the use of NIB file much more robust.\
+\
+
+\f0\b General
+\f1\b0 \
+* Makefiles adapted to work with Zaurus-X-gcc-2.95.3X10.3\
+* nib2mib source code and tool generation makefile moved into this project (based on GNUstep nib2gmodel)\
+* made linking -lCocoa\
+* most important changes from mGSTEP 0.528 -> 0.530 added - Thanks, Felipe!\
+* made all system calls for file names use [path fileSystemRepresentationWithPath] instead of [path cString]\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 Protocol\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * changed to use the Protocol class (subclass of Object - not NSObject) from the gcc objc library\
+* added a - (NSString *) description; method\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSObject\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * forwardInvocation: made more robust for methods with unknown signature\
+* + conformsToProtocol added (was apparently missing?) - using a hack as the methods of libobjc's Protocol class don't work\
+* -copyWithZone and -mutableCopyWithZone added for compatibility (Zones are ignored in mySTEP)\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSProxy
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 * forwardInvocation: made more robust for methods with unknown signature\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSArray\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * makeObjectsPerform: removed - makeObjectsPerformSelector: kept\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSCell, NSActionCell, NSButtonCell\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * setHighlighted: default implementation added\
+* other missing methods added\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSFont\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * more standard font methods defined\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSImage\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * found a bug which prevented loading of system Images\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSAttributedString\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * bug within range checks fixed\
+* range exceptions made a little more verbose\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSAttributedString Additions\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * attributed string drawing implemented and aligned with Cocoa screen layout\
+* wrapping added for drawInRect:\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSString Additions\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * string drawing re-implemented and aligned with Cocoa screen layout\
+* wrapping added for drawInRect:\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSMenu\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * notifications for adding/inserting/removing items added\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSMenuItem\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * some missing methods added\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSMenuView\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * many bugs removed and made working!\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSMenuItemCell\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * many bugs removed and made working!\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSWindow\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * added decoding of mouseDragging events\
+* modified to add all windows to the NSApplication windows list so that all receive update messages\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSEvent\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * Event description text table corrected\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSFileManager\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * handle a virtual chroot("/home/myPDA") - no reference to this elsewhere in the mySTEP source code\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural
+\cf0 * fileExistsAtPath did not use fileSystemRepresentationWithPath\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSBrowser\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * didn't process setTarget, target and setAction, action in a consistent way\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSWorkspace - NSSystemStatus.h\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * extension defined for getting battery status, controlling phone functions, getting (global position) location data, reading environmental sensors\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSAffineTransform, NSBezierPath\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * made compiling - NSAffineTransform will replace PSMatrix completely\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 ZaurusCameraMovie\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * renamed to 
+\f0\b NSCameraMovie
+\f1\b0  to be more generic\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 SimpleWebKit\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * based on NSText and NSAttributedString created (will be replaced by a full port of WebKit)\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 GMAppKit, GMArchiver, NIBClasses, IMConnectors, IMLoading, IMCustomObject\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * adapted to work for and with new nib2mib tool\
+* use of replacementObjectForModelArchiver corrected\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 ----------------
+\f1\b0 \
+
+\f0\b Version 1.3\
+----------------
+\f1\b0 \
+\
+
+\f0\b General
+\f1\b0 \
+* NSLog() made print messages including milliseconds precision - although not provided by kernel...\
+* makefiles fixed to cross-compile only changed source&headers for arm-linux version\
+* NSPortNameServer updated to restart the "gdomap" daemon properly\
+* Mib-reading made a little more foolproof (now also handles NSImageCell)\
+* Bug in NSPortCoder.h (SIGNATURE_FORMAT_STRING) resulted in Segmentation Faults\
+* DOconfig.h corrected to describe Linux_ARM stack frame conventions properly\
+* method_types_get_next_argument() in mframe.m adapted to properly handle indirectly passed structs (e.g. NSPoint)\
+* internal function calls in NSConnection and mframe changed to work around a compiler bug\
+* completely hide mframe.m logic in NSInvocation and NSMethodSignature\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0 * NSStringFromSelector(SEL aSelector) did return quoted string - removed quotes to permit comparing selectors by isEqualToString:\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSPortCoder\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * some bugs with bycopy protocol fixed\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSObject, NSProxy
+\f1\b0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0 * -performv:(SEL)aSel :(arglist_t)argFrame; and -forward:(SEL)aSel :(arglist_t)argFrame; removed\
+* made completely understand -forwardInvocation: and permit overriding\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSProxy\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * - (NSString*) descriptionWithLocale:(NSDictionary*)locale indent:(unsigned int)indent; - (NSString*) descriptionWithLocale:(NSDictionary*)locale; added to avoid asking the distant object for existence\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSInvocation\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * largely rewritten\
+* made properly working on ARM-Linux\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSMethodSignature\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * largely rewritten\
+* made properly working on ARM-Linux\
+* non-standard method -(unsigned) getArgumentLengthAtIndex:(unsigned)index; added for convenience\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSDistantObject
+\f1\b0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0 * use forwardInvocation and encode/decode invocations instead of mframes\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSConnection
+\f1\b0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0 * changed to implement -forwardForProxy:self invocation:i\
+* changed to encode and decode NSInvocations\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSArray\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * -initWithCoder: when decoding empty array fixed\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSGeometry\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * NSPointFromString(), NSSizeFromString() etc. made more robust to additional ;  and "\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSStatusBar and NSStatusItem
+\f1\b0 \
+* added from myPDA-3.0 project\
+* made use distributed objects to access a central NSStatusBar object provided by mySystemUIServer\
+\
+
+\f0\b NSImage
+\f1\b0 \
+* made handle +imageNamed:@"NSApplicationIcon" - read CFBundleIconFile from Info.plist\
+\
+
+\f0\b NSImageCell
+\f1\b0 \
+* added from GNUstep GUI\
+\
+
+\f0\b NSMenu\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * -itemAtIndex, -numberOfItems, -removeItemAtIndex added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSMenuItem\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * -(NSMenu *) submenu, -(void) setSubmenu:(NSMenu *) etc. added\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSMenuItemCell
+\f1\b0 \
+* added from myPDA-3.0\
+\
+
+\f0\b NSMenuView
+\f1\b0 \
+* added from myPDA-3.0\
+\
+
+\f0\b NSCell\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * NSOffState, NSOnState, NSMixedState added\
+* - nextState; - setNextState mechanism implemented\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSImageView
+\f1\b0 \
+* styling, scaling, alignment passed through to underlying ImageCell\
+\
+
+\f0\b NSWorkspace\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * use DO to activate/deactivate other applications\
+* read application search path from Info.plist of the system bundle\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSApplication\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * register application with mySystemUIServer by DO to handle system menus and hide/activate\
+* hideOtherApplications: added -> calls [NSWorkspace hideOtherApplications]\
+* event processing corrected to send mouse events properly to the window below the mouse pointer and keyboard events to the key window\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSPropertyListSerialization\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * ASCII representation: accept missing final ; in \{ key:=val; key:=val; \} for dictionary\
+* made decosing of XML tags case sensitive as defined by the standards (i.e. <string>xxx</String> is invalid). As a side effect this speeds XML decoding up a little\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 IMOutletConnector\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * properly handle capitalization of connection labels to set-methods e.g. "dataSource" -> "setDataSource:"\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSMovie
+\f1\b0 \
+* Header added\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 ZaurusCameraMovie\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * defined as subclass of NSMovie - prepared for the Sharp Zaurus CE-AG06 camera module\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSPreferencePane
+\f1\b0 \
+* Headers and Library added - some code added but not yet tested/working\
+\
+
+\f0\b NSMenuExtra
+\f1\b0 \
+* Headers and Library added - code partially working\
+\
+
+\f0\b ----------------
+\f1\b0 \
+
+\f0\b Version 1.2\
+----------------
+\f1\b0 \
+\
+
+\f0\b General
+\f1\b0 \
+* protocol NSValidatedUserInterfaceItem added\
+* IBAction and IBOutlet added\
+* reworked source to reduce number of compiler warnings down to minimum\
+* NSTemporaryDirectory() added to return @"/tmp"\
+* libraries renamed to libAppKit, libFoundation etc.\
+* Mib-reading made handle NSNamedColorSpace and NSPatternColorSpace\
+!! merge Unicode.h to NSString.m\
+!! remove PropertyList.h\
+\
+
+\f0\b AddressBook/AddressBook.h
+\f1\b0 \
+* library started based on description at http://www.cocoadev.com/index.pl?AddressBook\
+\
+
+\f0\b NSZone
+\f1\b0 \
+* simple shortcut macros for NSZone functions added\
+\
+
+\f0\b NSObject
+\f1\b0 \
++ allocWithZone;	added - zone ignored\
+- copyWithZone; 	added - zone ignored\
+- (NSZone) zone;	added - returns NSDefaultMallocZone()\
+\
+
+\f0\b NSProcessInfo
+\f1\b0 \
+- (int) processIdentifier;\
+  added.\
+\
+
+\f0\b NSWorkSpace
+\f1\b0 \
+* searching for applications and file types improved and corrected\
+   - distinguishes between roles "Editor"/"Viewer" and "None"\
+   - checks if icon is defined and substitutes default\
+\
+
+\f0\b NSPropertyList
+\f1\b0 \
+* some improvements\
+* converting NSDictionary into XML property list added\
+\
+
+\f0\b NSDictionary (within NSFileManager)
+\f1\b0 \
+- (unsigned long) fileHFSCreatorCode;\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0 - (unsigned long) fileHFSTypeCode;\
+- (BOOL) fileIsImmutable;\
+- (BOOL) fileExtensionHidden;
+\f2\fs20 \CocoaLigature0 \
+
+\f1\fs24 \CocoaLigature1   and constants added for compatibility\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSApplication
+\f1\b0 \
+* delegate changed to return NSApplicationTerminateReply\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0    - (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *)sender;\
+* made NSApplication instantiate NSDocumentController and add to responder chain if any Document Types are defined in the Info.plist\
+- (NSNotificationCenter *) notificationCenter;\
+  added to return the defaultNotificationCenter\
+- (id) targetForAction:(SEL) selector\
+  made return nil for a nil selector instead of a segmentation fault\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSMenu
+\f1\b0 \
+* changed to use NSApplication's targetForAction: method to scan the responder chain\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+
+\f0\b \cf0 NSUndoManager
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 * added form GNUstep-base\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSURL & NSURLHandle (incl. GSFTPURLHandle, GSHTTPURLHandle, GSMimeParser, GSMimeHeader, GSMimeDocument)
+\f1\b0 \
+* added form GNUstep-base\
+* handles file:// ftp:// http:// and https:// URLs\
+\
+
+\f0\b NSNull
+\f1\b0 \
+* added form GNUstep-base\
+\
+
+\f0\b NSColor
+\f1\b0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0 + (NSColor*) colorWithCatalogName:(NSString *)listName colorName:(NSString *)colorName;\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 + (NSColor*) colorWithPatternImage:(NSImage *)image;\
+  added - but not supported by backend!\
+* colors defined in system color space made much more like MacOS X\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSString
+\f1\b0 \
+* added constants for some NSStringEncodings\
+\
+
+\f0\b NSFileWrapper
+\f1\b0 \
+* added form GNUstep-gui\
+\
+
+\f0\b NSAffineTransform
+\f1\b0 \
+* added form GNUstep-gui\
+\
+
+\f0\b NSBezierPath
+\f1\b0 \
+* added form GNUstep-gui\
+\
+
+\f0\b NSDocument
+\f1\b0 \
+* added form GNUstep-gui\
+\
+
+\f0\b NSDocumentController
+\f1\b0 \
+* added form GNUstep-gui\
+\
+
+\f0\b NSWindowController
+\f1\b0 \
+* added form GNUstep-gui\
+\
+
+\f0\b NSApplication
+\f1\b0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0 - (void) orderFrontStandardAboutPanel;\
+- (void) orderFrontStandardAboutPanelWithOptions:(NSDictionary *) optionsDictionary;\
+  added\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSResponder
+\f1\b0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0 - (BOOL) shouldBeTreatedAsInkEvent:(NSEvent *) theEvent;\
+  added - but nowhere processed for an ink-anywhere handwriting system (yet)\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 GMArchiver\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * fixed some problems with unknown classes and a potentially uninitialized variable\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 GMAppKit\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\b0 \cf0 * NSColor unarchiving made handle NSNamedColorSpace and NSPatternColorSpace\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 ----------------
+\f1\b0 \
+
+\f0\b Version 1.1\
+----------------
+\f1\b0 \
+\
+
+\f0\b General
+\f1\b0 \
+* nil changed to be (void *) 0\
+* NSOpenStepRootDirectory() added to return /home/myPDA and made the single reference to the file system locations\
+\
+
+\f0\b NSTimeZone
+\f1\b0 \
+* database files added from GNUStep\
+* search path modified\
+\
+
+\f0\b NSProperyListSerialization
+\f1\b0 \
+* Class added (Header file in: NSPropertyList.h) and partially implemented\
+* two extra (compared to Cocoa) encodings added: NSPropertyListAnyFormat and NSPropertyListStringFileFormat\
+\
+
+\f0\b NSString
+\f1\b0 \
+- (id) propertyList;\
+   made to recognize XML based property lists\
+\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0 - (NSRange) rangeOfString:(NSString *) aString options:(unsigned int) mask range:(NSRange) aRange;\
+- (NSComparisonResult) compare:(NSString*)aString options:(unsigned int)mask range:(NSRange)aRange;\
+- (NSString*) commonPrefixWithString:(NSString*)aString options:(unsigned int)mask;\
+- (BOOL) isEqualToString:(NSString*)aString;\
+   added internal NSAutoreleasePool for non-literal search to handle composed Unichars (would otherwise flood the memory)\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSDictionary
+\f1\b0 \
++ (id) dictionaryFromFile:(NSString *) path;\
+   made to recognize XML based property lists\
+\
+
+\f0\b NSScanner
+\f1\b0 \
+* improved speed a little\
+* WARNING:\
+   avoid calls like [scanner scanCharactersFromSet:[NSCharacterSet characterSetWithCharactersInString:@" \\t\\n\\r"] intoString:nil];\
+   -- this will allocate a fresh autoreleased NSCharacterSet each loop cycle -> flooding the memory with approx. 8200 bytes each\
+   -- There is no real cure to that. There could be a NSStringCharSet subclass which optimizes memory for short strings\
+   -- also, NSBitmapCharSet could optimize its bifields by saving a range outside which all characters are assumed to be no members
+\f2\fs20 \CocoaLigature0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f1\fs24 \cf0 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSBundle
+\f1\b0 \
+* made to cope with the situation that the application executable is not within a bundle -> mainBundle == nil\
+* executablePath added to return the proper platform dependent location in a Fat Binary application bundle\
+* some other methods added (but only some implemented)\
+\
+
+\f0\b NSWorkspace
+\f1\b0 \
+* made to search for applications and file types when first used\
+\
+
+\f0\b NSProcessInfo
+\f1\b0 \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0 - (NSString *) globallyUniqueString;\
+  made to contain no : or [ or blank characters (unless hostname contains these characters)\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\cf0 * removed MGSTEP_ROOT environment or command line mechanism - now uses exclusively NSOpenStepRootDirectory() \
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 NSMailDelivery
+\f1\b0 \
+* a first draft header file (Message/NSMailDelivery.h) added\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\li480\fi-480\ql\qnatural
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+
+\f0\b \cf0 ----------------
+\f1\b0 \
+
+\f0\b Version 1.0\
+----------------
+\f1\b0 \
+* first release\
+* MacOS X compatible bundle structure added\
+}

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>AppKit</string>
+	<key>CFBundleGetInfoString</key>
+	<string>mySTEP; Copyright FSF 2003-2005; based on GNUstep and mySTEP; licenced under LGPL</string>
+	<key>CFBundleIdentifier</key>
+	<string>de.dsitri.mySTEP.AppKit</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>AppKit</string>
+	<key>CFBundlePackageType</key>
+	<string>BNDL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.12</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>2.0</string>
+	<key>NSApplicationSearchPath</key>
+	<array>
+		<string>/System/Applications</string>
+		<string>/System/Library/CoreServices</string>
+		<string>~/Applications</string>
+		<string>~/Library/Applications</string>
+		<string>/Volumes/card/Applications</string>
+		<string>/Volumes/card/Library/Applications</string>
+		<string>/Volumes/cf/Applications</string>
+		<string>/Volumes/cf/Library/Applications</string>
+		<string>/Library/Applications</string>
+		<string>/Applications</string>
+		<string>/Applications/Utilities</string>
+		<string>/Developer/Applications</string>
+		<string>/Developer/Applications/Utilities</string>
+	</array>
+	<key>NSFontSearchPath</key>
+	<array>
+		<string>/opt/QtPalmtop/lib/X11/fonts/75dpi</string>
+		<string>/System/Library/Fonts</string>
+		<string>/Library/Fonts</string>
+		<string>~/Library/Fonts</string>
+	</array>
+	<key>NSLanguages</key>
+	<dict>
+		<key>de</key>
+		<string>Deutsch</string>
+		<key>en</key>
+		<string>English</string>
+	</dict>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+</dict>
+</plist>

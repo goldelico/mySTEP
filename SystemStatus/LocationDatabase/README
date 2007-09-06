@@ -1,0 +1,23 @@
+######################################################################
+#
+# OpenGeoDB
+#
+# Copyright (c) 2003 - 2005 OpenGeoDB-Team
+#
+# For more information visit: http://www.opengeodb.de
+#
+# This program is free software. You can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License (LGPL)
+# as published by the Free Software Foundation; either version 2 of
+# the License.
+#
+# 25.5.2005
+#
+######################################################################
+#
+# NOTE:
+#
+# If you use MySQL version 3, the create table statements will fail,
+# as MySQL does not support the SET CHARSET and CHECK constraints.
+# In this case, you should remove these parts from the create table()
+# statements.

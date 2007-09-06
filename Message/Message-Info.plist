@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleExecutable</key>
+	<string>Message</string>
+	<key>CFBundleGetInfoString</key>
+	<string>mySTEP; Copyright FSF 2003-2005; based on GNUstep and mGStep; licenced under LGPL</string>
+	<key>CFBundleIdentifier</key>
+	<string>de.dsitri.mySTEP.Message</string>
+	<key>CFBundleName</key>
+	<string>Message</string>
+	<key>CFBundleVersion</key>
+	<string>1.12</string>
+	<key>NSPrincipalClass</key>
+	<string>NSObject</string>
+</dict>
+</plist>

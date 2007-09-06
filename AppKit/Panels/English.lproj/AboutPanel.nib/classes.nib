@@ -1,0 +1,38 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {
+                activateContextHelpMode = id; 
+                arrangeInFront = id; 
+                hide = id; 
+                hideOtherApplications = id; 
+                miniaturizeAll = id; 
+                orderFrontCharacterPalette = id; 
+                orderFrontColorPanel = id; 
+                orderFrontStandardAboutPanel = id; 
+                runPageLayout = id; 
+                showHelp = id; 
+                stop = id; 
+                terminate = id; 
+                unhide = id; 
+                unhideAllApplications = id; 
+            }; 
+            CLASS = NSApplication; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                "_aboutPanel" = NSPanel; 
+                "_applicationImage" = NSImageView; 
+                "_applicationName" = NSTextField; 
+                "_applicationVersion" = NSTextField; 
+                "_copyright" = NSTextField; 
+                "_credits" = NSTextField; 
+                "_version" = NSTextField; 
+            }; 
+            SUPERCLASS = NSResponder; 
+        }, 
+        {CLASS = NSObject; LANGUAGE = ObjC; }, 
+        {CLASS = "java.lang.Object"; LANGUAGE = Java; }
+    ); 
+    IBVersion = 1; 
+}

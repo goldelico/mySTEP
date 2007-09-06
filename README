@@ -1,0 +1,67 @@
+VERSION
+
+  This is version 2.0 of the mySTEP libraries.
+  
+  The code is based on mGstep-0.536. Many thanks to Felipe A. Rodriguez for providing the source codes!!!
+  
+  And on GNUstep.
+  
+  Modifications are described in the file HISTORY.rtf
+	
+SUPPORTED PLATFORMS
+
+  Currently, this package has been built on ARM-Linux for the Sharp Zaurus PDA.
+
+HOW TO BUILD
+
+  This package builds within it's own hierarchy right from within Xcode.
+  
+  Open the project file (Frameworks.xcode).
+  
+  Select the myFrameworks target.
+  
+  Press Build.
+	
+INSTALLATION
+
+  mySTEP automatically copies itself to the Sharp Zaurus if one is connected.
+  
+  mySTEP installs itself in the SDK directory on the MacOS X machine to allow
+  for linking new applications to the SDK.
+
+LICENSE
+
+   The mySTEP library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public
+   License as published by the Free Software Foundation; either
+   version 2 of the License, or (at your option) any later version.
+   
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Library General Public License for more details.
+
+   You should have received a copy of the GNU Library General Public
+   License along with this library; see the file COPYING.LIB.
+   If not, write to the Free Software Foundation,
+   59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+   Various files in mGSTEP/Foundation are derived from libFoundation
+   and in deference to it's authors these files retain a BSD type 
+   license as follows:
+
+     Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
+     All rights reserved.
+
+     Permission to use, copy, modify, and distribute this software and
+     its documentation for any purpose and without fee is hereby granted,
+     provided that the above copyright notice appear in all copies and 
+     that both that copyright notice and this permission notice appear
+     in supporting documentation.
+
+     We disclaim all warranties with regard to this software, including all
+     implied warranties of merchantability and fitness, in no event shall
+     we be liable for any special, indirect or consequential damages or any
+     damages whatsoever resulting from loss of use, data or profits, whether
+     in an action of contract, negligence or other tortious action, arising
+     out of or in connection with the use or performance of this software.

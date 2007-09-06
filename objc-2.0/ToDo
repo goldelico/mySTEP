@@ -1,0 +1,51 @@
+Objective-C 2.0 will add some new features to the language
+
+Assumptions are based on
+* http://www.quepublishing.com/articles/article.asp?p=665128&seqNum=3&rl=1
+* http://developer.apple.com/leopard/overview/tools.html
+
+ToDos:
+
+- add __strong and __weak keywords/attributes for pointers and somehow pass to the GC
+- add a global/local symbol table and track if identifiers are declared as types by typedef, @interface/@protocol/@implementation, or @class
+- method names/selector components can be identical to type names... this makes parsing even more complex
+- add real translator functions. Most of the code can be echoed 1:1
+- add __attribute__
+
+Ideas how translation could work:
+
+1) __weak and __strong pointers
+- if we use the libobjc GC, do we need that?
+- alternatively, we could try to emit code that registers the weak and strong pointers with the GC
+
+2) @optional, @required
+- does only compile time flagging of a method table created for that class
+- checks if all @implementations of a class using this protocol implement them all
+- and copy the default implementation from the @protocol if not
+- this means that the symbol table tracks all @implementations and their method names and compares with the @protocols
+- or we simply remove all @optional methods from the output - objc-1.0 does then check all remaining @required methods
+- and if an optional method has an @implementation without @interface or @protocol, objc-1.0 would simply deduce it
+- only issue with this approach: using @optional methods in DO?
+
+3) __attribute__
+- add to syntax
+- can otherwise be ignored
+
+4) @property (ivar = anInstanceVariable, copies, setter = aSetMethod:) int aProperty;
+- generates a simple ivar
+- but remembers the attribtes and the setter method name in the ivar symbol table
+- object.path.path would translate to [object valueForKey:@"path.path"] or a getter or a setter call
+- when reading a @property in a @interface context, the code for the setter method should be prepared
+  and be added to the @implementation of the class
+
+5) for(NSString * string in anArray) { NSLog(@"%@", string); }
+- translate to
+	{
+	NSString *string;
+	NSEnumerator *e=[anArray objectEnumerator];
+	while((string=[e nextObject]))
+		{ NSLog(@"%@", string); }
+	}
+
+- what if somebody implements countByEnumeratingWithState:objects:count: for a private collection class?
+- well, it would simply not be used

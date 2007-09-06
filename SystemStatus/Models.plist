@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>C3100</key>
+	<dict>
+		<key>Alias</key>
+		<string>Zaurus</string>
+	</dict>
+	<key>C860</key>
+	<dict>
+		<key>Alias</key>
+		<string>Zaurus</string>
+	</dict>
+	<key>GTA01</key>
+	<dict>
+		<key>GSM Off</key>
+		<string>echo "0" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
+		<key>GSM On</key>
+		<string>echo "1" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
+		<key>Shutdown</key>
+		<string>?</string>
+		<key>Sleep</key>
+		<string>(sleep 1; echo mem &gt; /sys/power/state) &amp;&amp; exit</string>
+		<key>Product</key>
+		<string>OpenMoko GTA01</string>
+		<key>Bluetooth On</key>
+		<string>echo "1" &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
+		<key>Bluetooth Off</key>
+		<string>echo "0" &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
+	</dict>
+	<key>Zaurus</key>
+	<dict>
+		<key>Product</key>
+		<string>Sharp Zaurus</string>
+		<key>GPRS</key>
+		<dict>
+			<key>DIAL_DATA</key>
+			<string>at d "%@"</string>
+			<key>DIAL_VOICE</key>
+			<string>at d "%@;"</string>
+			<key>GET_ALL_NETWORKS</key>
+			<string>at+cops=?</string>
+			<key>GET_NETWORK</key>
+			<string>at+cops?</string>
+			<key>GET_SIGNAL_QUALITY</key>
+			<string>at+csq=?</string>
+			<key>HANGUP</key>
+			<string>at+chup</string>
+			<key>SET_NETWORK</key>
+			<string>at+CGDCONT=1,'IP', '%@'</string>
+			<key>SET_PIN</key>
+			<string>at+cpin=\"%@\"</string>
+		</dict>
+		<key>PCMCIA</key>
+		<string>cat /var/lib/pcmcia/stab &amp;&amp; /sbin/cardctl ident &amp;&amp; /sbin/cardctl status &amp;&amp; /sbin/cardctl config</string>
+		<key>Shutdown</key>
+		<string>?</string>
+		<key>Sleep</key>
+		<string>?</string>
+		<key>apm</key>
+		<string>/proc/apm</string>
+		<key>cardctl</key>
+		<string>/sbin/cardctl</string>
+		<key>sdctl</key>
+		<string>/etc/sdcontrol</string>
+	<dict>
+		<key>GSM Off</key>
+		<string>cardctl 0 suspend</string>
+		<key>GSM On</key>
+		<string>cardctl 0 resume</string>
+	</dict>
+</dict>
+</plist>
