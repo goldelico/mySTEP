@@ -49,7 +49,7 @@
 
 		r = NSDrawTiledRects(bounds, rect, BUTTON_EDGES_NORMAL, grays, 6);
 
-		if(_cw.isActive)
+		if(!_cw.isActive)
 			[[NSColor whiteColor] set];
 		else
 			[[NSColor lightGrayColor] set];
@@ -89,6 +89,8 @@
 			{
 //			[[NSColorPanel sharedColorPanel] display];
 			[[NSColorPanel sharedColorPanel] makeKeyAndOrderFront:self];
+			// FIXME: closing the ColorPanel should deactivate the current ColorWell (without changing)!
+			// so we need to track the WindowClosed notification
 			}
 //		}
 }
@@ -101,6 +103,12 @@
 - (void) deactivate
 {
 	_cw.isActive = NO;
+}
+
+- (void)changeColor:(id)sender
+{ // if we are the first responder
+	[self setColor:[sender color]];
+	[self deactivate];
 }
 
 - (NSColor*) color						{ return _color; }

@@ -1008,7 +1008,7 @@
 		EEA3F8910BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FindPanel.nib; sourceTree = "<group>"; };
 		EEA3F8930BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FontPanel.nib; sourceTree = "<group>"; };
 		EEACF8A409ED3A9F0085F56E /* NSDrawer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDrawer.m; sourceTree = "<group>"; };
-		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEC8036209AE4EBF006EEB03 /* mySTEP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mySTEP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EECD83250A0788DB00EF3E30 /* NSLevelIndicator.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSLevelIndicator.m; sourceTree = "<group>"; };
 		EECD83560A07940600EF3E30 /* NSDatePicker.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDatePicker.m; sourceTree = "<group>"; };
@@ -1030,7 +1030,6 @@
 		EEDB37850ABD584F00C31F1E /* myTest.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = myTest.icns; sourceTree = "<group>"; };
 		EEDB378F0ABD592900C31F1E /* rss.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = rss.gif; sourceTree = "<group>"; };
 		EEDB39880ABDA06200C31F1E /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = /opt/local/include; sourceTree = "<absolute>"; };
-		EEDB39CD0ABDB84D00C31F1E /* libpng.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = libpng.txt; path = "../ other/libpng.txt"; sourceTree = SOURCE_ROOT; };
 		EEDB5E570A1497C600E4CA39 /* HISTORY.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = HISTORY.rtf; path = ../HISTORY.rtf; sourceTree = SOURCE_ROOT; };
 		EEF5292D0A55355E0049AF3C /* NSTypesetter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSTypesetter.h; sourceTree = "<group>"; };
 		EEF5298E0A554ABB0049AF3C /* GSComboBoxH.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSComboBoxH.tiff; sourceTree = "<group>"; };
@@ -1600,7 +1599,6 @@
 				EE09BBB20C11F69700F3199C /* NSFreeTypeFont.h */,
 				EE09BBB10C11F69700F3199C /* NSFreeTypeFont.m */,
 				EEA3719C09540271001244CF /* GSBitmapImageReps.m */,
-				EEDB39CD0ABDB84D00C31F1E /* libpng.txt */,
 				EEDB39880ABDA06200C31F1E /* include */,
 			);
 			name = Backend;
