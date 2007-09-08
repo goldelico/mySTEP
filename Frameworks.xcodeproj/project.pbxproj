@@ -95,7 +95,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\n\nexport BUILD_FOR_PACKAGE=true\nexport SEND2ZAURUS=false\nexport RUN=false\n \necho ## Frameworks ##\nfor i in Foundation AppKit Cocoa AddressBook Message PreferencePanes Security SimpleWebKit IOBluetooth SystemStatus SystemUIPlugin Tools\n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -target \"$i\" )\n\tdone\necho ## done. ##";
+			shellScript = "# shell script goes here\n\nexport BUILD_FOR_PACKAGE=true\nexport SEND2ZAURUS=false\nexport RUN=false\n \necho ## Frameworks ##\nfor i in Foundation AppKit Cocoa AddressBook Message PreferencePanes Security SimpleWebKit IOBluetooth SystemStatus SystemUIPlugin Tools\n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -target \"$i\" )\n\tdone\necho ## done. ##\n\necho ## TestApps ##\nfor i in NSImageRep NSTextTable NSURLConnection ZeroConfDistributedObjects\n\tdo\n\t(cd TestApplications/$i && xcodebuild -configuration 'Development' -target \"Test\" )\n\tdone\necho ## done. ##";
 		};
 /* End PBXShellScriptBuildPhase section */
 
