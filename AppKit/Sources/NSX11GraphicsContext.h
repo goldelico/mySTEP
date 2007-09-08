@@ -81,9 +81,6 @@ typedef struct _NSX11GraphicsState
 
 @end
 
-// FIXME: shouldn't we better make these concrete subclasses to get rid of all these instance-renaming macros?
-// and just overwrite alloc&init to return an instance of these concrete subclasses?
-
 @interface _NSX11Screen : NSScreen
 {
 @public
