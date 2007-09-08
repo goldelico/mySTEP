@@ -39,7 +39,7 @@
 
 - (void) drawRect:(NSRect)rect
 {
-	float inset = 7;
+	float inset = 3;
 	NSRect r;
 
 	if (_cw.isBordered)
@@ -79,18 +79,18 @@
 
 - (void) mouseDown:(NSEvent*)event
 {
-	NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
+//	NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
 
-	if(!NSMouseInRect(p, NSInsetRect(bounds, 7, 7), NO))
-		{	// click on border
+//	if(!NSMouseInRect(p, NSInsetRect(bounds, 7, 7), NO))
+//		{	// click on border
 		_cw.isActive = !(_cw.isActive);
 		[self setNeedsDisplay:YES];
 		if(_cw.isActive)
 			{
-			[[NSColorPanel sharedColorPanel] display];
+//			[[NSColorPanel sharedColorPanel] display];
 			[[NSColorPanel sharedColorPanel] makeKeyAndOrderFront:self];
 			}
-		}
+//		}
 }
 
 - (void) activate:(BOOL)exclusive							// Activation
