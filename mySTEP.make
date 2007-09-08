@@ -4,7 +4,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 # This file is part of Zaurus-X-gcc
 #
-# Last Change: 05 Sep 2007
+# Last Change: 08 Sep 2007
 #
 # You should not edit this file as it affects all projects you will compile!
 #
@@ -61,16 +61,23 @@ endif
 # override if (stripped) package is build using xcodebuild
 
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
-	OPTIMIZE := 3				# optimize for speed
-	STRIP_Framework := true		# remove headers and symbols
-	STRIP_MacOS := true			# remove MacOS X code
-	INSTALL := true				# install in our file system so that we can build the package
-	SEND2ZAURUS := false		# don't send to the device
-	RUN := false				# and don't run
+	# optimize for speed
+	OPTIMIZE := 3
+	# remove headers and symbols
+	STRIP_Framework := true
+	# remove MacOS X code
+	STRIP_MacOS := true
+	# install in our file system so that we can build the package
+	INSTALL := true
+	# don't send to the device
+	SEND2ZAURUS := false
+	# and don't run
+	RUN := false
 endif
 
 ifeq ($(OPTIMIZE),)
-	OPTIMIZE := s				# default to optimize for space
+	# default to optimize for space
+	OPTIMIZE := s
 endif
 
 ZAURUS:=$(shell cat /Developer/Xtoolchain/IPaddr)
@@ -208,12 +215,12 @@ build: "$(EXEC)" "$(BINARY)"
 ifeq ($(INSTALL),false)
 else
 	# install locally $(ROOT)$(INSTALL_PATH) 
-	- $(TAR) czf - -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)'; cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)'; cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 ifeq ($(SEND2ZAURUS),false)
 else
 	# install on $(ZAURUS) at $(EMBEDDED_ROOT)/$(INSTALL_PATH) 
 	ls -l "$(BINARY)"
-	- $(TAR) czf - --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(ZAURUS) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
+	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(ZAURUS) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
 	# try to launch
 ifeq ($(RUN),false)
 else
