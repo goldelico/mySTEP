@@ -133,7 +133,7 @@ endif
 #TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Zaurus-X-gcc/opt/Embedix/tools/arm-linux
 # TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Xtoolchain/native/gcc-2.95.3-glibc-2.2.2/arm-quantumstep-linux-gnu/arm-quantumstep-linux-gnu
 TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Xtoolchain/native/$(COMPILER)/$(ARCHITECTURE)/$(ARCHITECTURE)
-TOOLS := $(SYSTEM_DEVELOPER_DIR)/Zaurus-X-gcc/tools
+# TOOLS := $(SYSTEM_DEVELOPER_DIR)/Zaurus-X-gcc/tools
 CC := $(TOOLCHAIN)/bin/gcc
 LS := $(TOOLCHAIN)/bin/ld
 AS := $(TOOLCHAIN)/bin/as
