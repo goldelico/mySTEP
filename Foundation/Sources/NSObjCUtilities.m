@@ -809,7 +809,7 @@ static void * _load(char *lib)
 		else
 			_softFloat=YES;	// did return value in r0/r1 instead of fp0
 #if 1
-		printf("appears to be %s limc/libm\n", _softFloat?"softfloat":"hardfloat"); fflush(stdout);
+		printf("appears to be %s libc/libm\n", _softFloat?"softfloat":"hardfloat"); fflush(stdout);
 #endif
 		}
 	return libp;
