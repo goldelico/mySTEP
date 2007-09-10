@@ -73,19 +73,17 @@ id __imageCellClass = nil;
 - (NSSize) cellSize
 {
 	if (!_contents)
-		return (NSSize){1,1};
-
-	if (_ic.imageFrameStyle == NSImageFrameNone) 
+		return (NSSize){ 1, 1 };
+	if(_ic.imageFrameStyle == NSImageFrameNone) 
 		return [_contents size];
-
-	return NSOffsetRect((NSRect){{0,0}, [_contents size]}, 2, 2).size;
+	return NSOffsetRect((NSRect){{ 0, 0 }, [_contents size]}, 3, 3).size;
 }
 
 - (NSRect) drawingRectForBounds:(NSRect)rect
 {
-	if (_ic.imageFrameStyle == NSImageFrameNone) 
+	if(_ic.imageFrameStyle == NSImageFrameNone) 
 		return rect;
-	return NSInsetRect(rect, 2, 2);
+	return NSInsetRect(rect, 3, 3);
 }
 
 - (void) drawWithFrame:(NSRect)cellFrame
@@ -134,8 +132,14 @@ id __imageCellClass = nil;
 		NSLog(@"ImageCell trying to draw: %@", _contents);
 		return;
 		}
+#if 1
+	NSLog(@"NSImageCell drawInRect frame=%@", NSStringFromRect(cFrame));
+#endif
 	rect=[self drawingRectForBounds:cFrame];	// reduce if it has frame
-
+#if 1
+	NSLog(@"NSImageCell drawInRect rect=%@", NSStringFromRect(rect));
+#endif
+	
 	switch (_ic.imageScaling)
 		{
 		case NSScaleProportionally:
@@ -193,6 +197,9 @@ id __imageCellClass = nil;
 			rect.origin.y += (NSHeight(rect) - is.height) / 2;
 			break;
 		}
+#if 1
+	NSLog(@"NSImageCell drawInRect %@", NSStringFromRect((NSRect){rect.origin,is}));
+#endif
 	[_contents drawInRect:(NSRect){rect.origin,is} fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 }
 
@@ -249,20 +256,6 @@ id __imageCellClass = nil;
 		[self setCell:[[__imageCellClass new] autorelease]];
 
 	return [super initWithFrame:frameRect];
-}
-
-- (void) drawRect:(NSRect)rect
-{
-	if(!NSEqualRects(rect, bounds))
-		{
-		// FIXME using NSBackend method
-#if 0
-		PSrectclip(NSMinX(rect),NSMinY(rect),NSWidth(rect),NSHeight(rect));
-#endif
-		rect.origin = NSZeroPoint;
-		}
-
-	[_cell drawWithFrame:rect inView:self];
 }
 
 - (void) setImageAlignment:(NSImageAlignment)align
