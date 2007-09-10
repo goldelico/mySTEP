@@ -872,25 +872,29 @@ static void * _load(char *lib)
 #undef atof
 WRAP_FLOAT(libc, atof, const char *, nptr);	// is in libc!
 
-WRAP_DOUBLE(libm, ceil, double, x);
-WRAP_FLOAT(libm, ceilf, float, x);
-WRAP_DOUBLE(libm, floor, double, x);
-WRAP_FLOAT(libm, floorf, float, x);
-WRAP_DOUBLE(libm, rint, double, x);
-WRAP_FLOAT(libm, rintf, float, x);
-WRAP_DOUBLE(libm, sin, double, x);
-WRAP_FLOAT(libm, sinf, float, x);
-WRAP_DOUBLE(libm, cos, double, x);
-WRAP_FLOAT(libm, cosf, float, x);
-WRAP_DOUBLE2(libm, pow, double, x, double, y);
 WRAP_DOUBLE(libm, acos, double, x);
 WRAP_DOUBLE(libm, asin, double, x);
 WRAP_DOUBLE(libm, atan, double, x);
 WRAP_DOUBLE2(libm, atan2, double, x, double, y);
-WRAP_DOUBLE(libm, tan, double, x);
-WRAP_DOUBLE(libm, sqrt, double, x);
-WRAP_DOUBLE(libm, log, double, x);
+WRAP_DOUBLE(libm, ceil, double, x);
+WRAP_FLOAT(libm, ceilf, float, x);
+WRAP_DOUBLE(libm, cos, double, x);
+WRAP_FLOAT(libm, cosf, float, x);
 WRAP_DOUBLE(libm, exp, double, x);
+WRAP_DOUBLE(libm, floor, double, x);
+WRAP_FLOAT(libm, floorf, float, x);
+WRAP_DOUBLE2(libm, fmod, double, x, double, y);
+// WRAP_FLOAT2(libm, fmodf, double, x, double, y);
+WRAP_DOUBLE(libm, log, double, x);
+WRAP_DOUBLE2(libm, pow, double, x, double, y);
+WRAP_DOUBLE(libm, rint, double, x);
+WRAP_FLOAT(libm, rintf, float, x);
+WRAP_DOUBLE(libm, sin, double, x);
+WRAP_FLOAT(libm, sinf, float, x);
+WRAP_DOUBLE(libm, sqrt, double, x);
+WRAP_FLOAT(libm, sqrtf, float, x);
+WRAP_DOUBLE(libm, tan, double, x);
+WRAP_DOUBLE(libm, tgamma, double, x);
 
 #endif
 
