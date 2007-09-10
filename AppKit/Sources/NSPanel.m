@@ -223,8 +223,6 @@
 			[d setAction: @selector(_defaultButtonAction:)];
 			[d setTitle: defaultButton];
 			[d setKeyEquivalent: @"\n"];
-			//			[d setImagePosition: NSImageRight];
-			//			[d setImage: [NSImage imageNamed: @"GSReturn"]];
 			[p setInitialFirstResponder: d];
 			[cv addSubview: d];
 			[d release];

@@ -198,14 +198,6 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 	[__rightCell setAlternateImage:[NSImage imageNamed:@"GSArrowRightH"]];
 
 	__knobCell = [_NSKnobCell new];
-#if OLD
-	[__knobCell setBordered:YES];
-	[__knobCell setBezelStyle:NSRoundedBezelStyle];
-	[__knobCell setButtonType:NSMomentaryChangeButton];		// highlight by changing content (but we don't have alternateImage)
-	// somehow set [NSColor knobColor];
-	[__knobCell setImagePosition:NSImageOnly];				// i.e. centered within knobCell
-	[__knobCell setImage:[NSImage imageNamed:@"GSDimple"]];	// set dimple icon
-#endif
 }
 
 - (void) checkSpaceForParts
