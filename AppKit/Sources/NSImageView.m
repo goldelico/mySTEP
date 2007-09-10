@@ -136,7 +136,7 @@ id __imageCellClass = nil;
 	NSLog(@"NSImageCell drawInRect frame=%@", NSStringFromRect(cFrame));
 #endif
 	rect=[self drawingRectForBounds:cFrame];	// reduce if it has frame
-	rect=NSInsetRect(rect, 8, 8);	// max. image size
+	rect=NSInsetRect(rect, 4, 4);				// keep frame
 #if 0
 	NSLog(@"NSImageCell drawInRect rect=%@", NSStringFromRect(rect));
 #endif
