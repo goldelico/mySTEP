@@ -1141,9 +1141,10 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	 * get current screen image for compositing
 	 */
 	hasAlpha=[rep hasAlpha];
-	if(hasAlpha || atms.m11 != 1.0 || atms.m22 != 1.0 || atms.m12 != 0.0 || atms.m21 != 0.0 ||
-	   (_compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy))
-		{ // must really fetch current image from our context
+	if(atms.m11 != 1.0 || atms.m22 != 1.0 || atms.m12 != 0.0 || atms.m21 != 0.0 ||
+	   hasAlpha && (_compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
+					_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut))
+		{ // if rotated or any alpha blending, we must really fetch the current image from our context
 		  //		NS_DURING
 		{
 			img=XGetImage(_display, ((Window) _graphicsPort),
@@ -1204,7 +1205,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	XFillRectangle(_display, ((Window) _graphicsPort), _state->_gc, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 #endif
 	/*
-	 * get direct access to the bitmap
+	 * get direct access to the bitmap planes
 	 */
 	isPlanar=[(NSBitmapImageRep *) rep isPlanar];
 	bytesPerRow=[(NSBitmapImageRep *) rep bytesPerRow];
