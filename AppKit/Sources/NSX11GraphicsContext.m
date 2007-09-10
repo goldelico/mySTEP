@@ -1141,12 +1141,21 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	 * get current screen image for compositing
 	 */
 	hasAlpha=[rep hasAlpha];
-	if(atms.m11 != 1.0 || atms.m22 != 1.0 || atms.m12 != 0.0 || atms.m21 != 0.0 ||
+	if(atms.m12 != 0.0 || atms.m21 != 0.0 || !(atms.m11 == atms.m22 || atms.m11 == -atms.m22) ||
 	   hasAlpha && (_compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
 					_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut))
 		{ // if rotated or any alpha blending, we must really fetch the current image from our context
+#if 1
+		NSLog(@"fetch from screen alpha=%d", hasAlpha);
+		NSLog(@"atms.m11=%lf", atms.m11);
+		NSLog(@"atms.m22=%lf", atms.m22);
+		NSLog(@"atms.m12=%lf", atms.m12);
+		NSLog(@"atms.m21=%lf", atms.m21);
+		NSLog(@"composite=%d", _compositingOperation);
+#endif
 		  //		NS_DURING
 		{
+			// FIXME: this is quite slow if we don't have double buffering!
 			img=XGetImage(_display, ((Window) _graphicsPort),
 						  xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height,
 						  0x00ffffff, ZPixmap);
@@ -1312,6 +1321,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 		}
 	/*
 	 * draw to screen
+	 * FIXME: this is quite slow if we don't have double buffering
 	 */
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 	XDestroyImage(img);
