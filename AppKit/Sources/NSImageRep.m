@@ -979,6 +979,22 @@ static NSArray *__pbBitmapImageReps;
 	if (bitsPerSample <= 0 || samplesPerPixel <= 0 || samplesPerPixel > 5 || width <= 0 || height <= 0) 
 		[NSException raise: NSInvalidArgumentException
 					format: @"initWithBitmapDataPlanes missing required arguments"];
+	/* FIXME: more consistency checks
+	 if([colorSpaceName isEqual:@"RGB"])
+		components=3;
+	 else if([colorSpaceName isEqual:@"HSB"])
+		components=3;
+	 else if([colorSpaceName isEqual:@"White"])
+		components=1;
+	 else if([colorSpaceName isEqual:@"CMYK"])
+		components=4;
+	 else
+		error;
+	 if(alpha)
+		components++;
+	 if(components != samplesPerPixel)
+		error;
+	 */
 	if((self=[super init]))
 		{
 		_pixelsWide = width;
