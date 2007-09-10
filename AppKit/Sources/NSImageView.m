@@ -132,11 +132,12 @@ id __imageCellClass = nil;
 		NSLog(@"ImageCell trying to draw: %@", _contents);
 		return;
 		}
-#if 1
+#if 0
 	NSLog(@"NSImageCell drawInRect frame=%@", NSStringFromRect(cFrame));
 #endif
 	rect=[self drawingRectForBounds:cFrame];	// reduce if it has frame
-#if 1
+	rect=NSInsetRect(rect, 8, 8);	// max. image size
+#if 0
 	NSLog(@"NSImageCell drawInRect rect=%@", NSStringFromRect(rect));
 #endif
 	
@@ -197,7 +198,7 @@ id __imageCellClass = nil;
 			rect.origin.y += (NSHeight(rect) - is.height) / 2;
 			break;
 		}
-#if 1
+#if 0
 	NSLog(@"NSImageCell drawInRect %@", NSStringFromRect((NSRect){rect.origin,is}));
 #endif
 	[_contents drawInRect:(NSRect){rect.origin,is} fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
@@ -278,6 +279,7 @@ id __imageCellClass = nil;
 - (void) setEditable:(BOOL)flag				{ [_cell setEditable:flag]; }
 - (BOOL) isEditable							{ return [_cell isEditable]; }
 - (BOOL) isOpaque							{ return YES; }
+- (BOOL) isFlipped							{ return NO; }
 - (NSImageScaling) imageScaling				{ return [_cell imageScaling]; }
 - (NSImageAlignment) imageAlignment			{ return [_cell imageAlignment]; }
 - (NSImageFrameStyle) imageFrameStyle		{ return [_cell imageFrameStyle]; }
@@ -286,7 +288,7 @@ id __imageCellClass = nil;
 - (void) mouseDown:(NSEvent*)event
 {
 	// handle D&D
-	// handle selection so that we can delete the image with backspace
+	// handle first responder selection so that we can delete the image with backspace
 	return;
 }
 #endif
