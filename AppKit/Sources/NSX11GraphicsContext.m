@@ -95,7 +95,7 @@ typedef struct
 // Class variables
 //
 
-static Display *_display;		// we can currently manage only one Display - but several Screens
+static Display *_display;		// we can currently manage only one Display - but multiple Screens
 
 static Atom _stateAtom;
 static Atom _protocolsAtom;
@@ -1145,7 +1145,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	   hasAlpha && (_compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
 					_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut))
 		{ // if rotated or any alpha blending, we must really fetch the current image from our context
-#if 1
+#if 0
 		NSLog(@"fetch from screen alpha=%d", hasAlpha);
 		NSLog(@"atms.m11=%lf", atms.m11);
 		NSLog(@"atms.m22=%lf", atms.m22);
@@ -1638,7 +1638,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	return __modFlags;
 }
 
-@end /* XRGraphicsContext */
+@end /* _NSX11GraphicsContext */
 
 static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *eventModFlags)
 { // translate key code
@@ -2224,6 +2224,9 @@ static NSDictionary *_x11settings;
 		BOOL changed=NO;
 		NSSize size, resolution;
 		_screenScale=[[_x11settings objectForKey:@"systemSpaceScaleFactor"] floatValue];
+#if 1
+		NSLog(@"system space scale factor=%lf", _screenScale);
+#endif
 		if(_screenScale <= 0.01) _screenScale=1.0;
 		_xRect.width=WidthOfScreen(_screen);			// screen width in pixels
 		_xRect.height=HeightOfScreen(_screen);			// screen height in pixels
