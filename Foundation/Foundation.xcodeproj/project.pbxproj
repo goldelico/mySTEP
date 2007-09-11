@@ -19,6 +19,17 @@
 			name = Foundation;
 			productName = All;
 		};
+		EEBAEECA0C94803F00596D9C /* FPU check */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = EEBAEECD0C94805D00596D9C /* Build configuration list for PBXAggregateTarget "FPU check" */;
+			buildPhases = (
+				EEBAEEC90C94803F00596D9C /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = "FPU check";
+			productName = "FPU check";
+		};
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
@@ -1172,6 +1183,7 @@
 			targets = (
 				EEA331860953829D001244CF /* Foundation */,
 				EEAA86140A148ED200F2E5B5 /* Foundation.framework */,
+				EEBAEECA0C94803F00596D9C /* FPU check */,
 			);
 		};
 /* End PBXProject section */
@@ -1211,6 +1223,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# project settings\nexport SOURCES=\"Sources/NS*.m Sources/Externs.m Sources/mframe.m Sources/Unicode.m ../SimpleWebKit/Sources/NSXMLParser.m\"   # all source codes\nexport LIBS=\"-Uobjc_main -lm -ldl -lpthread -lssl -lcrypto -lobjc\"   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
+		EEBAEEC90C94803F00596D9C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# this shell script identifies all fpu calls in all frameworks and applications\n\nROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\ncd $ROOT\n\nARCHITECTURE=arm-quantumstep-linux-gnu\n# ARCHITECTURE=arm-hardfloat-linux-gnu\n# ARCHITECTURE=arm-softfloat-linux-gnueabi\nCOMPILER=gcc-2.95.3-glibc-2.2.2\nTOOLCHAIN=$SYSTEM_DEVELOPER_DIR/Xtoolchain/native/$COMPILER/$ARCHITECTURE/$ARCHITECTURE\n\nfind Applications Developer Library System/Library \\( -name *.framework -o -name *.app \\) -print -prune | while read file\ndo\n\tcase $file in\n\t\t*.app )\n\t\t\tbinary=$file/Contents/$ARCHITECTURE/*\n\t\t\t;;\n\t\t*.framework )\n\t\t\tbinary=$file/Versions/current/$ARCHITECTURE/*.so\n\t\t\t;;\n\t\t* )\n\t\t\techo $file has no binaries\n\t\t\t;;\n\tesac\n\t$TOOLCHAIN/bin/nm -u $binary\ndone | sort | uniq\n\nexit 0";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1514,6 +1539,35 @@
 			};
 			name = Default;
 		};
+		EEBAEECE0C94805D00596D9C /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "FPU check";
+			};
+			name = Development;
+		};
+		EEBAEECF0C94805D00596D9C /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				PRODUCT_NAME = "FPU check";
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EEBAEED00C94805D00596D9C /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "FPU check";
+			};
+			name = Default;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1543,6 +1597,16 @@
 				EEAA86EC0A148ED200F2E5B5 /* Development */,
 				EEAA86ED0A148ED200F2E5B5 /* Deployment */,
 				EEAA86EE0A148ED200F2E5B5 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EEBAEECD0C94805D00596D9C /* Build configuration list for PBXAggregateTarget "FPU check" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEBAEECE0C94805D00596D9C /* Development */,
+				EEBAEECF0C94805D00596D9C /* Deployment */,
+				EEBAEED00C94805D00596D9C /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
