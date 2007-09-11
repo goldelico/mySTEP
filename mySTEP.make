@@ -4,7 +4,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 # This file is part of Zaurus-X-gcc
 #
-# Last Change: 08 Sep 2007
+# Last Change: $Id$
 #
 # You should not edit this file as it affects all projects you will compile!
 #
@@ -23,6 +23,8 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #  5. open the information (i) or (Apple-I)
 #  6. copy the following code into the "Script" area
 
+########################### start cut here ############################
+
 # project settings
 export SOURCES=*.m                  # all source codes
 export LIBS=						# add any additional libraries like -ltiff etc.
@@ -37,6 +39,8 @@ export INSTALL_PATH=/Applications   # override INSTALL_PATH for MacOS X for the 
 #export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
 export ROOT=$HOME/Documents/Projects/QuantumSTEP	# project root
 /usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
+
+########################### end to cut here ###########################
 
 #  7. change the SRC= line to include all required source files (e.g. main.m other/*.m)
 #  8. change the LIBS= line to add any non-standard libraries (e.g. -lAddressBook -lPreferencePane -lWebKit)
