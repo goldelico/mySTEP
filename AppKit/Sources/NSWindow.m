@@ -842,16 +842,16 @@ static BOOL __cursorHidden = NO;
 
 - (void) becomeKeyWindow
 {
-	if(_w.isKey)	// already key window
+	if(_w.isKey)	// we are already key window
 		return;
 	_w.isKey = YES;
-#if 0
+#if 1
 	NSLog(@"becomeKeyWin %@", _windowTitle);
 #endif
 	if(_w.visible)	// already visible
 		{
-#if 0
-		NSLog(@"XSetInputFocus");
+#if 1
+		NSLog(@"becomeKeyWindow XSetInputFocus");
 #endif
 		[_context _makeKeyWindow];
 		[_context flushGraphics];
@@ -935,10 +935,13 @@ static BOOL __cursorHidden = NO;
 - (void) orderWindow:(NSWindowOrderingMode) place 
 		  relativeTo:(int) otherWin
 { // main interface call
+#if 1
+	NSLog(@"orderWindow:%d relativeTo:%d - %@", place, otherWin, self);
+#endif
 	if(place == NSWindowOut)
 		{ // close window
 		if(_w.isOneShot)
-			{ // close screen representation
+			{ // also close screen representation
 			[_context release];
 			_context=nil;
 			_gState=0;
@@ -967,7 +970,11 @@ static BOOL __cursorHidden = NO;
 		{ // queue events until window becomes (in)visible
 		[[NSRunLoop currentRunLoop] runMode:NSEventTrackingRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];	// wait some fractions of a second...
 		}
-	if(_w.isKey)
+#if 1
+	if(_w.isKey && place != NSWindowOut)
+		NSLog(@"orderWindow XSetInputFocus");
+#endif
+	if(_w.isKey && place != NSWindowOut)
 		[_context _makeKeyWindow];
 	if(!_w.menuExclude)
 		[NSApp changeWindowsItem:self title:_windowTitle filename:NO];	// update

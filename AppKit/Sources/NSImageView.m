@@ -314,14 +314,14 @@ id __imageCellClass = nil;
 }
 #endif
 
-- (void) delete(id)sender
-{
+- (void) delete:(id)sender
+{ // menu item
 	if(_allowsCutCopyPaste)
 		[self setImage:nil];
 }
 
 - (void) deleteBackward:(id)sender
-{
+{ // key
 	if(_allowsCutCopyPaste)
 		[self setImage:nil];
 }
