@@ -284,15 +284,6 @@ id __imageCellClass = nil;
 - (NSImageAlignment) imageAlignment			{ return [_cell imageAlignment]; }
 - (NSImageFrameStyle) imageFrameStyle		{ return [_cell imageFrameStyle]; }
 
-#if 0
-- (void) mouseDown:(NSEvent*)event
-{
-	// handle D&D
-	// handle first responder selection so that we can delete the image with backspace
-	return;
-}
-#endif
-
 - (BOOL) animates;							{ return [_cell _animates]; }
 - (void) setAnimates:(BOOL)flag;			{ [_cell _setAnimates:flag]; }
 - (BOOL) allowsCutCopyPaste;				{ return _allowsCutCopyPaste; }
@@ -310,6 +301,64 @@ id __imageCellClass = nil;
 		[_cell setEditable:[dc decodeBoolForKey:@"NSEditable"]];
 		}
 	return self;
+}
+
+// first responder methods
+
+#if 0
+- (void) mouseDown:(NSEvent*)event
+{
+	// handle D&D
+	// handle first responder selection so that we can delete the image with backspace
+	return;
+}
+#endif
+
+- (void) delete(id)sender
+{
+	if(_allowsCutCopyPaste)
+		[self setImage:nil];
+}
+
+- (void) deleteBackward:(id)sender
+{
+	if(_allowsCutCopyPaste)
+		[self setImage:nil];
+}
+
+- (void) cut:(id)sender
+{
+	if(_allowsCutCopyPaste)
+		{
+		; // copy to pasteboard
+		[self setImage:nil];
+		}
+}
+
+- (void) copy:(id)sender
+{
+	if(_allowsCutCopyPaste)
+		; // copy to pasteboard
+}
+
+- (void) paste:(id)sender
+{
+	if(_allowsCutCopyPaste)
+		; // paste from
+}
+
+- (BOOL) validateMenuItem:(id <NSMenuItem>)menuItem
+{
+	NSString *str=NSStringFromSelector([menuItem action]);
+	if(!_allowsCutCopyPaste)
+		return NO;
+	if([str isEqualToString:@"cut:"] ||
+	   [str isEqualToString:@"copy:"] ||
+	   [str isEqualToString:@"delete:"])
+		return [self image] != nil;
+	if([str isEqualToString:@"paste:"])
+		return YES;	// FIXME: check if we have matching pasteboard type
+	return NO;
 }
 
 @end /* NSImageView */
