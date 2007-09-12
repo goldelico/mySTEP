@@ -260,7 +260,7 @@ printing
 
 + (void) initialize;
 {
-	NSUserDefaults *ud=[NSUserDefaults standardUserDefaults];	// read from ArgumentsDomain
+	NSUserDefaults *ud=[NSUserDefaults standardUserDefaults];			// read from ArgumentsDomain
 	_NSShowAllViews=([ud stringForKey:@"NSShowAllViews"] != nil);		// -NSShowAllViews (any value)
 	_NSShowAllDrawing=([ud stringForKey:@"NSShowAllDrawing"] != nil);	// -NSShowAllDrawing (any value)
 }

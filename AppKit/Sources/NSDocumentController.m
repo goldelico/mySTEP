@@ -187,7 +187,7 @@ should always use this method to get the NSDocumentController. */
 		if(doc)
 			any=YES;
 		if(opts&NSWorkspaceLaunchAndPrint)
-			[doc print:nil];	// trigger printing
+			[doc printDocument:nil];	// trigger printing
 		}
 	return any;
 }
@@ -927,6 +927,11 @@ the user's home directory if no document has been opened before.
 - (void) setAutosavingDelay:(NSTimeInterval) delay;
 {
 	_autosavingDelay=delay;
+}
+
+- (IBAction ) print:(id) sender
+{
+	[[self currentDocument] printDocument:sender];	// forward to the current document (main window)
 }
 
 /* new methods

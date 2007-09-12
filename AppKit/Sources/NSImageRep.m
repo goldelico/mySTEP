@@ -476,6 +476,7 @@ static NSCountedSet *__pb;
 //
 //		NSBitmapImageRep natively understands TIFF
 // 		Private tiff functions and structures (read/write data from libtiff)
+//		see e.g. http://www.squarebox.co.uk/cgi-squarebox/manServer/libtiff.3T
 //
 //*****************************************************************************
 
@@ -586,6 +587,12 @@ TiffHandleMap(thandle_t handle, tdata_t *data, toff_t *size)
 	return 1;
 }
 
+static void GSTiffWarningHandler(const char* module, const char* fmt, va_list ap)
+{
+	NSString *str=[[NSString alloc] initWithFormat:[NSString stringWithUTF8String:fmt] arguments:ap];
+	NSLog(@"NSBitmapImageRep TIFF: %@", str);
+}
+
 TIFF * 
 GSTiffOpenData(char *data, long size, const char *mode)
 {												// Open a tiff from a stream. 
@@ -599,7 +606,11 @@ GSTiffOpenData(char *data, long size, const char *mode)
 	handle->size = size;
 	handle->mode = mode;
 	
-	return TIFFClientOpen("NSData", mode, (thandle_t)handle, TiffHandleRead, 
+//	typedef void (*TIFFWarningHandler)(const char* module, const char* fmt, va_list ap); 
+
+	TIFFSetWarningHandler(GSTiffWarningHandler);
+	
+	return TIFFClientOpen("NSBitmapImageRep", mode, (thandle_t)handle, TiffHandleRead, 
 						  TiffHandleWrite, TiffHandleSeek, TiffHandleClose,
 						  TiffHandleSize, TiffHandleMap, TiffHandleUnmap);
 }
