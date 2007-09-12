@@ -850,7 +850,7 @@ static BOOL __cursorHidden = NO;
 #endif
 	if(_w.visible)	// already visible
 		{
-#if 1
+#if 0
 		NSLog(@"becomeKeyWindow XSetInputFocus");
 #endif
 		[_context _makeKeyWindow];
@@ -970,7 +970,7 @@ static BOOL __cursorHidden = NO;
 		{ // queue events until window becomes (in)visible
 		[[NSRunLoop currentRunLoop] runMode:NSEventTrackingRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];	// wait some fractions of a second...
 		}
-#if 1
+#if 0
 	if(_w.isKey && place != NSWindowOut)
 		NSLog(@"orderWindow XSetInputFocus");
 #endif

@@ -106,7 +106,7 @@
 
 @implementation NSFontDescriptor (NSBackend)	// the NSFontDescriptor can cache a libfreetype FT_Face structure
 
-#define FONT_CACHE	[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Caches/eu.QuantumSTEP.Fonts.plist"]
+#define FONT_CACHE	[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Caches/com.quantum-step.mySTEP.NSFonts.plist"]
 
 FT_Library _ftLibrary(void)
 {

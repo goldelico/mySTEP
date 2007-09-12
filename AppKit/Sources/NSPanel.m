@@ -439,8 +439,9 @@ id NSGetInformationalAlertPanel(NSString *title,
 void
 NSReleaseAlertPanel(id alertPanel)
 {
-	//	[alertPanel orderOut: nil];	// don't close but simply make invisible
+	[alertPanel orderOut: nil];	// don't close but simply make invisible
 	//	if (alertPanel != __alertPanel)
+	// CHECKME: this should be the last reference and close the panel
 	[alertPanel release];	// it wasn't the shared alert panel
 							//	else
 							//		__alertPanelIsActive = NO;

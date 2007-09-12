@@ -210,6 +210,7 @@ static BOOL __fileSystemChanged = NO;
 #endif
 	if([a count] == 0)
 		return nil;
+	// FIXME: check if application (binary) really exists - otherwise update
 	return [a objectAtIndex:0];	// first, i.e. preferred
 }
 
@@ -563,7 +564,9 @@ static BOOL __fileSystemChanged = NO;
 					identOrApp=[[__launchServices preferredIdentForExtension:@"*"] objectForKey:@"CFBundleIdentifier"];
 				}
 			if(!identOrApp)
-				return NO;	// don't know how to launch
+				{ // don't know how to launch
+				return NO;
+				}
 			arglist=[apps objectForKey:identOrApp];
 			if(!arglist)
 				[apps setObject:arglist=[NSMutableArray arrayWithCapacity:10] forKey:identOrApp];
