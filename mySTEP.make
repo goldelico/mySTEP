@@ -32,8 +32,6 @@ export FRAMEWORKS=					# add any additional Frameworks (e.g. AddressBook) etc. (
 export INSTALL_PATH=/Applications   # override INSTALL_PATH for MacOS X for the Zaurus
 
 # global/compile settings
-#export STRIP_Framework=true        # set to true if you want to strip headers, debugging symbols etc.
-#export STRIP_MacOS=true            # set to true if you want a mySTEP only bundle
 #export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
 #export SEND2ZAURUS=true			# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)
 #export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
@@ -68,9 +66,9 @@ ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 	# optimize for speed
 	OPTIMIZE := 3
 	# remove headers and symbols
-	STRIP_Framework := true
+#	STRIP_Framework := true
 	# remove MacOS X code
-	STRIP_MacOS := true
+#	STRIP_MacOS := true
 	# install in our file system so that we can build the package
 	INSTALL := true
 	# don't send to the device
@@ -254,21 +252,21 @@ clean:
 	$(CC) $(CFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBS)
 	# make dependent on development style
 #	$(NM) "$(BINARY)"
-ifeq ($(WRAPPER_EXTENSION),framework)
+#ifeq ($(WRAPPER_EXTENSION),framework)
 	# save a local unstripped copy in Developer/Frameworks so that Xcode can still ink to it
-	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (cd "$(ROOT)/Developer/Frameworks" && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
-endif
-ifeq ($(STRIP_Framework),true)
-	- echo should rm -r $(HEADERS)
-	- echo stripping binary 
-	$(STRIP) -xg "$(BINARY)"	# this makes the debugger unuseable!
-endif
+#	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (cd "$(ROOT)/Developer/Frameworks" && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+#endif
+#ifeq ($(STRIP_Framework),true)
+#	- echo should rm -r $(HEADERS)
+#	- echo stripping binary 
+#	$(STRIP) -xg "$(BINARY)"	# this makes the debugger unuseable!
+#endif
 #	$(NM) "$(BINARY)"
-ifeq ($(STRIP_MacOS),true)
+#ifeq ($(STRIP_MacOS),true)
 	# strip MacOS executables and NIBs
-	rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)/MacOS" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Frameworks" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Versions/Current/$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Versions/Current/Headers" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
-	find "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -name '*.nib' -prune -exec rm -rf {}/classes.nib {}/info.nib \;
-endif
+#	rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)/MacOS" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Frameworks" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Versions/Current/$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Versions/Current/Headers" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
+#	find "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -name '*.nib' -prune -exec rm -rf {}/classes.nib {}/info.nib \;
+#endif
 	# compiled.
 
 # link headers of framework

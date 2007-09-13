@@ -103,7 +103,7 @@
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE291C660AD7BD50004A1CA6 /* scutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scutil; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE291C6C0AD7BD6F004A1CA6 /* scutil.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = scutil.m; sourceTree = "<group>"; };
-		EE2FDDA10976F595003EA8A2 /* tools */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tools; path = "/Developer/Zaurus-X-gcc/tools"; sourceTree = "<absolute>"; };
+		EE2FDDA10976F595003EA8A2 /* tools */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tools; path = /Developer/Xtoolchain/tools; sourceTree = "<absolute>"; };
 		EE3254080A531D5D0057B3B1 /* scselect.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = scselect.m; sourceTree = "<group>"; };
 		EE3254190A53225D0057B3B1 /* scselect */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scselect; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE93E77D0A239FE9008A5E48 /* plutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = plutil; sourceTree = BUILT_PRODUCTS_DIR; };
