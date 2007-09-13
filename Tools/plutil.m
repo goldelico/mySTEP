@@ -15,6 +15,7 @@ void usage(char *str)
 			"                        -s\n"
 			"                        -o\n"
 			"                        -e extension\n"
+			"     non-standard (as of MacOS):\n"
 		    "        -list file\n"
 		    "        -format file\n"
 		    "        -get keypath file\n"
@@ -43,16 +44,24 @@ void readfromfile(char *path)
 	NSString *root=[NSString stringWithUTF8String:[@"/" fileSystemRepresentation]];
 	if(!path)
 		usage("missing file");
-//	NSLog(@"cwd=%@", [[NSFileManager defaultManager] currentDirectoryPath]);
+#if 0
+	NSLog(@"cwd=%@", [[NSFileManager defaultManager] currentDirectoryPath]);
+#endif
 	filePath=[[NSString stringWithUTF8String:path] stringByExpandingTildeInPath];
 	if(![filePath isAbsolutePath])
 		filePath=[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent:filePath];   // prefix with current directory
-//	NSLog(@"filePath=%@", filePath);
-//	NSLog(@"root=%@", root);
+#if 0
+	NSLog(@"filePath=%@", filePath);
+	NSLog(@"root=%@", root);
+#endif
+	if([filePath hasPrefix:@"/home/root/"])	// special for Zaurus (/usr/share -> /home/root/usr/share)
+		filePath=[filePath substringFromIndex:[@"/home/root/" length]-1];
 	if([filePath hasPrefix:root])
 		filePath=[filePath substringFromIndex:[root length]-1];  // will be added back by file manager
-//	NSLog(@"filePath=%@", filePath);
+#if 1
+	NSLog(@"filePath=%@", filePath);
 //	system("pwd");
+#endif
 	data=[NSData dataWithContentsOfFile:filePath];
 	if(!data)
 		{
@@ -91,24 +100,55 @@ int main(int argc, char *argv[])
 	NSString *keypath;
 	char *cmd;
 //	NSLog(@"plutil");
-#if 1
-	{
-		id plist=[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:17.0], @"the key", nil];
-		NSString *err;
-		[NSPropertyListSerialization dataFromPropertyList:plist format:NSPropertyListBinaryFormat_v1_0 errorDescription:&err];
-		exit(0);
-	}
-#endif
 	if(!argv[1] || strcmp(argv[1], "-help") == 0)
-		usage(NULL), exit(0);
+		{
+		usage(NULL);
+		exit(0);
+		}
 	if(strcmp(argv[1], "-convert") == 0)
 		{
-		// handle convert command
-		// readfromfile
-		// update format
-		// writetofile
-		fprintf(stderr, "not implemented\n");
-		exit(1);
+		NSPropertyListFormat newformat;
+		argv++;
+		if(!argv[1])
+			{
+			fprintf(stderr, "missing format specification\n");
+			exit(1);
+			}
+		if(strcmp(argv[1], "openstep") == 0)
+			newformat=NSPropertyListOpenStepFormat;
+		else if(strcmp(argv[1], "xml1") == 0)
+			newformat=NSPropertyListXMLFormat_v1_0;
+		else if(strcmp(argv[1], "binary1") == 0)
+			newformat=NSPropertyListBinaryFormat_v1_0;
+		else 
+			{
+			fprintf(stderr, "unknown format specificatin: %s\n", argv[1]);
+			exit(1);
+			}
+		argv++;
+		while(argv[1] && argv[1][0] == '-')
+			{ // additional arguments
+			// -s
+			// -o output file
+			// -e extension files...
+			argv++;
+			}
+		if(!argv[1])
+			{
+			fprintf(stderr, "missing file(s) to convert\n");
+			exit(1);
+			}
+		while(argv[1])
+			{
+			readfromfile(argv[1]);
+			if(format != newformat)	// or we have -o or -e
+				{
+				format=newformat;
+				// modify file name if needed
+				writetofile();
+				}
+			}
+		exit(0);
 		}
 	if(strcmp(argv[1], "-format") == 0)
 		{ // -format file
@@ -171,9 +211,14 @@ int main(int argc, char *argv[])
 		exit(1);
 		}
 	if(strcmp(argv[1], "-lint") == 0)
-		argv++;
-	readfromfile(argv[1]);
-#if OLD
+		argv++;	// ignore/default
+	if(strcmp(argv[1], "--") == 0)
+		argv++;	// ignore
+	while(argv[1])
+		readfromfile(argv[1]), argv++;
+	[arp release];
+	return 0;
+#if OLD_MATERIAL
 	if(!create && !data)
 		fprintf(stderr, "can't read file: %s\n", file), exit(1);
 	plutil=[NSPropertyListSerialization propertyListFromData:data mutabilityOption:NSPropertyListMutableContainersAndLeaves format:&format errorDescription:&error];
@@ -234,7 +279,4 @@ int main(int argc, char *argv[])
 			}
 		}
 #endif
-	// if any change, write back
-	[arp release];
-	return 0;
 }
