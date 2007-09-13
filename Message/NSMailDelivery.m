@@ -9,7 +9,7 @@
 #import <Message/NSMailDelivery.h>
 
 // these lines only define the interface
-// You must also link the private Mail.framework to use NSMailDelivery on mySTEP
+// You must also link the private Mail.framework into your application to use NSMailDelivery on mySTEP
 
 @interface Mail : NSObject
 + (id) new;

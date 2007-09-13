@@ -250,23 +250,6 @@ clean:
 	#
 	@mkdir -p "$(EXEC)"
 	$(CC) $(CFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBS)
-	# make dependent on development style
-#	$(NM) "$(BINARY)"
-#ifeq ($(WRAPPER_EXTENSION),framework)
-	# save a local unstripped copy in Developer/Frameworks so that Xcode can still ink to it
-#	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (cd "$(ROOT)/Developer/Frameworks" && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
-#endif
-#ifeq ($(STRIP_Framework),true)
-#	- echo should rm -r $(HEADERS)
-#	- echo stripping binary 
-#	$(STRIP) -xg "$(BINARY)"	# this makes the debugger unuseable!
-#endif
-#	$(NM) "$(BINARY)"
-#ifeq ($(STRIP_MacOS),true)
-	# strip MacOS executables and NIBs
-#	rm -rf "$(PKG)/$(NAME_EXT)/$(CONTENTS)/MacOS" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Frameworks" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Versions/Current/$(PRODUCT_NAME)" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Versions/Current/Headers" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
-#	find "$(PKG)/$(NAME_EXT)/$(CONTENTS)" -name '*.nib' -prune -exec rm -rf {}/classes.nib {}/info.nib \;
-#endif
 	# compiled.
 
 # link headers of framework
