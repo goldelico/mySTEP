@@ -73,14 +73,14 @@
 		if(!key)
 			NSLog(@"missing <key> for <dict>");	// error
 		else
-			[dict setObject:o forKey:key];
+			[dict setObject:o forKey:key];	// insert into parent dictionary
 		[key release];	// has been used
 		key=nil;
 		}
 	else if(array)
-		[array addObject:o];
+		[array addObject:o];	// append to parent array
 	else
-		plist=o;	// not retained!
+		plist=o;	// top-level node; not retained!
 }
 
 - (void) setMutabilityOption:(NSPropertyListMutabilityOptions) flag; { isMutable=flag; }
@@ -195,7 +195,16 @@
 	else if([elementName isEqualToString:@"integer"])
 		[self setValue:[NSNumber numberWithInt:[currentValue intValue]]];
 	else if([elementName isEqualToString:@"real"])
-		[self setValue:[NSNumber numberWithDouble:[currentValue doubleValue]]];
+		{
+		double val=[currentValue doubleValue];
+		NSNumber *num=[NSNumber numberWithDouble:val];
+		[self setValue:num];
+#if 0
+		NSLog(@"<real> %@", currentValue);
+		NSLog(@"-> %lf", val);
+		NSLog(@"-> %@", num);
+#endif
+		}
 	else if([elementName isEqualToString:@"true"])
 		[self setValue:[NSNumber numberWithBool:YES]];
 	else if([elementName isEqualToString:@"false"])

@@ -2130,7 +2130,15 @@ unsigned int end, start = anIndex;						// Determining Composed
 								  freeWhenDone: YES] autorelease];
 }
 
-- (double) doubleValue			{ return atof([self cString]); }
+- (double) doubleValue
+{
+#if 0
+	char *s=[self cString];
+	fprintf(stderr, "%s %lf", s, atof(s));
+#endif
+	return atof([self cString]);
+}
+
 - (float) floatValue			{ return (float) atof([self cString]); }
 - (int) intValue				{ return atoi([self cString]); }
 
@@ -2650,6 +2658,7 @@ struct stat tmp_stat;
 	// before doing that, encode all non-ISOLatin1 as &#ddd; including embedded & characters
 	NSMutableString *s=[NSMutableString string];
 	int i, count=[self length];
+	NIMP;
 	for(i=0; i<count; i++)
 		{
 		unichar c=[self characterAtIndex:i];

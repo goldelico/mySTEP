@@ -39,8 +39,6 @@
 #define PRIVATE_NUMBER_CLASS_INTERFACE_(class_name, data_type) \
 	@interface class_name : GSConcreteNumber	{ data_type data; } @end
 
-static NSNumber *__sharedNum = nil;
-
 
 @interface NSNumber (Private)
 
@@ -90,8 +88,10 @@ PRIVATE_NUMBER_CLASS_INTERFACE_(GSULongLongNumber,unsigned long long)
 @implementation NSNumber
 
 // FIXME:
-// this simplifies [[NSNumber alloc] initWith...] so that the initWith does not need to release
-// but this also introduces a severe pitfall risk: [[NSNumber alloc] release] breaks everything
+// this simplifies [[NSNumber alloc] initWith...] so that initWith does not need to release if it returns a private instance
+// but this also introduces a severe risk: [[NSNumber alloc] release] breaks everything
+
+static NSNumber *__sharedNum = nil;
 
 + (void) initialize
 {
@@ -1332,8 +1332,8 @@ int	o = [self _typeOrder];
 
 - (NSComparisonResult) _promotedCompare:(NSNumber*)other
 {
-double v0 = [self doubleValue];
-double v1 = [other doubleValue];
+	double v0 = [self doubleValue];
+	double v1 = [other doubleValue];
 
     if (v0 == v1)
 		return NSOrderedSame;

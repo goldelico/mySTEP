@@ -697,7 +697,7 @@
 			name = "Runtime & Misc";
 			sourceTree = "<group>";
 		};
-		EE52D6F00B8EEF540093595A /* Data */ = {
+		EE52D6F00B8EEF540093595A /* Data&Strings */ = {
 			isa = PBXGroup;
 			children = (
 				EE8EFA9F0960954D006CCB63 /* NSAffineTransform.h */,
@@ -726,7 +726,7 @@
 				EEA32F5D09537D0D001244CF /* NSValue.h */,
 				EEA32F5E09537D0D001244CF /* NSValue.m */,
 			);
-			name = Data;
+			name = "Data&Strings";
 			sourceTree = "<group>";
 		};
 		EE52D6F10B8EEF7F0093595A /* Predicates */ = {
@@ -990,7 +990,7 @@
 				EE81F9010962E72600F9F896 /* FoundationErrors.h */,
 				EE52D6ED0B8EEF1B0093595A /* Coding & Serialization */,
 				EE52D6EE0B8EEF280093595A /* Container */,
-				EE52D6F00B8EEF540093595A /* Data */,
+				EE52D6F00B8EEF540093595A /* Data&Strings */,
 				EE52D6F20B8EEF870093595A /* Distributed Objects */,
 				EE52D6F30B8EEFEC0093595A /* Files & Paths */,
 				EE52D6F40B8EEFF40093595A /* Formatters */,

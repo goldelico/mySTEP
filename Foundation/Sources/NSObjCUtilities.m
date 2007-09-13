@@ -870,7 +870,7 @@ static void * _load(char *lib)
 // the following functions are known to be used by QuantumSTEP
 
 #undef atof
-WRAP_FLOAT(libc, atof, const char *, nptr);	// is in libc!
+WRAP_DOUBLE(libc, atof, const char *, nptr);	// is in libc!
 
 WRAP_DOUBLE(libm, acos, double, x);
 WRAP_DOUBLE(libm, asin, double, x);
