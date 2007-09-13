@@ -14,10 +14,12 @@
    Author:	Stevo Crvenkovski <stevo@btinternet.com>
    Date:	December 1997
 
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-
- hns@computer.org: modified to handle the myPDA /Users/xxx structure
+   ARM Softfloat wrapper
+   Author:	Nikolaus Schaller <hns@computer.org>
+   Date:	2003 - August 2007
+ 
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
  
 */ 
 
@@ -777,8 +779,6 @@ kern_return_t r = vm_copy (mach_task_self(), source, bytes, dest);
 */
 
 #if __arm__
-
-// we could also try to determine at runtime if it works by comparing results
 
 static void *_libc;
 static void *_libm;
