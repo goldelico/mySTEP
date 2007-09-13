@@ -791,12 +791,16 @@ static void * _load(char *lib)
 	printf("_load %s\n", lib); fflush(stdout);
 #endif
 	libp=dlopen(lib, RTLD_NOW);
+	if(!libp)
+		{
+		fprintf(stderr, "can't dlopen(%s)\n", lib);
+		exit(99);	// really fatal
+		}
 #if 0
 	printf("libp=%p\n", libp); fflush(stdout);
 #endif
-	// FIXME - assumes the first call is for a libm function
 	if(!_libm)
-		{
+		{ // first call - try to determine which type of library we have
 		double r;
 		double (*sqrtfn)(double);
 		sqrtfn=dlsym(libp, "sqrt");
@@ -809,13 +813,13 @@ static void * _load(char *lib)
 		else
 			_softFloat=YES;	// did return value in r0/r1 instead of fp0
 #if 1
-		printf("appears to be %s libc/libm\n", _softFloat?"softfloat":"hardfloat"); fflush(stdout);
+		fprintf(stderr, "%s appears to be %s libc/libm\n", lib, _softFloat?"softfloat":"hardfloat");
 #endif
 		}
 	return libp;
 }
 
-#define NEED(LIB) if(!_##LIB) _##LIB=_load("/lib/"#LIB".so.6")
+#define NEED(LIB) if(!_libm) { _libm=_load("/lib/libm.so.6"); _libc=_load("/lib/libc.so.6"); }
 
 // add cache for symbol pointer
 
