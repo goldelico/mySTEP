@@ -64,11 +64,10 @@ typedef struct _NSX11GraphicsState
 	XRectangle _dirty;					// dirty area
 	NSPoint _cursor;					// current text drawing position (after applying the CTM)
 	_NSX11Screen *_nsscreen;			// cached pointer from NSWindow
-	Window _frontWindow;				// may be the same or different from _graphicsPort for double buffered windows
+	Window _realWindow;					// may be the same or different from _graphicsPort for double buffered windows
 	float _baseline;					// current baseline
  @public
 	XRectangle _xRect;					// X11 rectangle
-// #define _window ((Window) _graphicsPort)					// our X11 window
 #define _state ((_NSX11GraphicsState *) _graphicsState)		// our graphics state
 	float _scale;						// our scaling factor
 	float _fraction;					// compositing fraction

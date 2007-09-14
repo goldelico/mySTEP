@@ -104,6 +104,8 @@ static Atom _windowDecorAtom;
 
 static NSArray *_XRunloopModes;	// runloop modes to handle X11 events
 
+static BOOL _doubleBufferering=YES;
+
 #if OLD
 Window __xKeyWindowNeedsFocus = None;			// xWindow waiting to be focusd
 extern Window __xAppTileWindow;
@@ -201,10 +203,40 @@ static NSString *NSStringFromXRect(XRectangle rect)
 
 @implementation _NSX11GraphicsContext
 
-// FIXME:
+static void XIntersect(XRectangle *result, XRectangle *with)
+{
+	if(with->x > result->x+result->width)
+		result->width=0;	// second box is completely to the right
+	else if(with->x > result->x)
+		result->width-=(with->x-result->x), result->x=with->x;	// new left border
+	if(with->x+with->width < result->x)
+		result->width=0;	// second box is completely to the left
+	else if(with->x+with->width < result->x+result->width)
+		result->width=with->x+with->width-result->x;	// new right border
+	if(with->y > result->y+result->height)
+		result->height=0;
+	else if(with->y > result->y)
+		result->height-=(with->y-result->y), result->y=with->y;
+	if(with->y+with->height < result->y)
+		result->height=0;	// empty
+	else if(with->y+with->height < result->y+result->height)
+		result->height=with->y+with->height-result->y;
+}
 
-#define _setDirty(rect)	(_dirty=NSUnionRect(_dirty,(rect)))	// enlarge dirty area for double buffer
-#define _isDoubleBuffered (((Window) _graphicsPort) != _frontWindow)	
+static void XUnion(XRectangle *result, XRectangle with)
+{
+	if(with.x+with.width > result->x+result->width)
+		result->width=with.x+with.width-result->x;			// extend to the right
+	if(with.x < result->x)
+		result->width+=result->x-with.x, result->x=with.x;	// extend to the left
+	if(with.y+with.height > result->y+result->height)
+		result->height=with.y+with.height-result->y;		// extend to the top
+	if(with.y < result->y)
+		result->height+=result->y-with.y, result->y=with.y;	// extend to the bottom
+}
+
+#define _setDirtyRect(x, y, width, height)	if(_isDoubleBuffered)(XUnion(&_dirty,(XRectangle){x, y, width, height}))	// enlarge dirty area for double buffer
+#define _isDoubleBuffered					(((Window) _graphicsPort) != _realWindow)	
 
 - (void) _setSizeHints;
 {
@@ -212,7 +244,7 @@ static NSString *NSStringFromXRect(XRectangle rect)
 	size_hints.x=_xRect.x;
 	size_hints.y=_xRect.y;
 	size_hints.flags = PPosition | USPosition;		
-	XSetNormalHints(_display, ((Window) _graphicsPort), &size_hints);
+	XSetNormalHints(_display, _realWindow, &size_hints);
 }
 
 - (id) _initWithAttributes:(NSDictionary *) attributes;
@@ -300,9 +332,11 @@ static NSString *NSStringFromXRect(XRectangle rect)
 	NSLog(@"Window list: %@", NSAllMapTableValues(__WindowNumToNSWindow));
 #endif
 	self=[self _initWithGraphicsPort:(void *) win];
-	if(backingType ==  NSBackingStoreBuffered && 1 /* not disabled by -NSNotDubleBuffered or similar */)
-		{
-		// allocate pixmap for background buffer
+	if(backingType ==  NSBackingStoreBuffered && _doubleBufferering)
+		{ // allocate a backing store buffer pixmap for our window
+		XWindowAttributes attrs;
+		XGetWindowAttributes(_display, win, &attrs);
+		_graphicsPort=(void *) XCreatePixmap(_display, win, _xRect.width, _xRect.height, attrs.depth);
 		}
 	if(styleMask&NSUnscaledWindowMask)
 		{ // set 1:1 transform (here or in NSWindow???)
@@ -311,13 +345,13 @@ static NSString *NSStringFromXRect(XRectangle rect)
 	wm_hints->initial_state = NormalState;			// set window manager hints
 	wm_hints->input = True;								
 	wm_hints->flags = StateHint | InputHint;		// WindowMaker ignores the
-	XSetWMHints(_display, ((Window) _graphicsPort), wm_hints);		// frame origin unless it's also specified as a hint 
+	XSetWMHints(_display, _realWindow, wm_hints);	// frame origin unless it's also specified as a hint 
 	if((styleMask & NSClosableWindowMask))			// if window has close, button inform WM 
-		XSetWMProtocols(_display, ((Window) _graphicsPort), &_deleteWindowAtom, 1);
+		XSetWMProtocols(_display, _realWindow, &_deleteWindowAtom, 1);
 	attrs.window_level = [window level];
 	attrs.flags = GSWindowStyleAttr|GSWindowLevelAttr;
 	attrs.window_style = (styleMask & GSAllWindowMask);		// set WindowMaker WM
-	XChangeProperty(_display, ((Window) _graphicsPort), _windowDecorAtom, _windowDecorAtom,		// window style hints
+	XChangeProperty(_display, _realWindow, _windowDecorAtom, _windowDecorAtom,		// window style hints
 					32, PropModeReplace, (unsigned char *)&attrs,
 					sizeof(GSAttributes)/sizeof(CARD32));
 	XFree(wm_hints);
@@ -337,11 +371,11 @@ static NSString *NSStringFromXRect(XRectangle rect)
 	// e.g. get size hints
 #endif
 	_graphicsPort=port;	// _window is a typed alias for _graphicsPort
-	_frontWindow=(Window) port;	// default is unbuffered
+	_realWindow=(Window) port;	// default is unbuffered
 	_windowNum=(int) (_graphicsPort);	// we should get a system-wide unique integer (slot #) from the window list/level manager
 	_scale=_nsscreen->_screenScale; 
 	[self saveGraphicsState];	// initialize graphics state with transformations, GC etc. - don't use anything which depends on graphics state before here!
-	XSelectInput(_display, ((Window) _graphicsPort),
+	XSelectInput(_display, _realWindow,
 				 ExposureMask | KeyPressMask | 
 				 KeyReleaseMask | ButtonPressMask | 
 				 ButtonReleaseMask | ButtonMotionMask | 
@@ -360,12 +394,11 @@ static NSString *NSStringFromXRect(XRectangle rect)
 	NSLog(@"NSWindow dealloc in backend: %@", self);
 #endif
 	if(_isDoubleBuffered)
-		/* XFreePixmap(_display, _backWindow) */
-		;
-	if(((Window) _graphicsPort))
+		XFreePixmap(_display, (Pixmap) _graphicsPort);
+	if(_realWindow)
 		{
 		NSMapRemove(__WindowNumToNSWindow, (void *) _windowNum);	// Remove X11 Window to NSWindows mapping
-		XDestroyWindow(_display, ((Window) _graphicsPort));							// Destroy the X Window
+		XDestroyWindow(_display, _realWindow);						// Destroy the X Window
 		XFlush(_display);
 		}
 	// here we could check if we were the last window and XDestroyWindow(_display, xAppRootWindow); XCloseDisplay(_display);
@@ -648,6 +681,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	while([self _pointsForPath:&state])
 		XDrawLines(_display, ((Window) _graphicsPort), _state->_gc, state.points, state.npoints, CoordModeOrigin);
+	_setDirtyRect(0, 0, 100, 100);
 }
 
 - (void) _fill:(NSBezierPath *) path;
@@ -671,6 +705,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			XFillPolygon(_display, ((Window) _graphicsPort), _state->_gc, state.points, state.npoints, Complex, CoordModeOrigin);
 		}
 	XSetForeground(_display, _state->_gc, values.foreground);	// restore
+	_setDirtyRect(0, 0, 100, 100);
 }
 
 - (Region) _regionFromPath:(NSBezierPath *) path
@@ -770,7 +805,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		Bool bounding_shaped, clip_shaped;
 		int x_bounding, y_bounding, x_clip, y_clip;
 		unsigned int w_bounding, h_bounding, w_clip, h_clip;
-		XShapeQueryExtents(_display, ((Window) _graphicsPort), 
+		XShapeQueryExtents(_display, _realWindow, 
 						   &bounding_shaped, 
 						   &x_bounding, &y_bounding,
 						   &w_bounding, &h_bounding,
@@ -783,12 +818,12 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			  x_clip, y_clip, w_clip, h_clip);
 	}
 #endif
-	XShapeCombineRegion(_display, ((Window) _graphicsPort),
+	XShapeCombineRegion(_display, _realWindow,
 						ShapeClip,
 						0, 0,
 						region,
 						ShapeSet);
-	XShapeCombineRegion(_display, ((Window) _graphicsPort),
+	XShapeCombineRegion(_display, _realWindow,
 						ShapeBounding,
 						0, 0,
 						region,
@@ -800,7 +835,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		Bool bounding_shaped, clip_shaped;
 		int x_bounding, y_bounding, x_clip, y_clip;
 		unsigned int w_bounding, h_bounding, w_clip, h_clip;
-		XShapeQueryExtents(_display, ((Window) _graphicsPort), 
+		XShapeQueryExtents(_display, _realWindow, 
 						   &bounding_shaped, 
 						   &x_bounding, &y_bounding,
 						   &w_bounding, &h_bounding,
@@ -863,21 +898,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (void) _string:(NSString *) string;
 { // draw string fragment -  PDF: (string) Tj
 	unsigned length=[string length];
-//	static unichar *buf;
-//	static unsigned buflen;	// how much is allocated
-#if 0
-	if(draw)
-		NSLog(@"NSString: _string:%@ withAttributes:%@ at {%f,%f}", string, attr, _cursor.x, _cursor.y);
+#if 1
+	NSLog(@"NSString: _string:%@", string);
 #endif
-//	if(buflen < sizeof(buf[0])*length)
-//		buf=(unichar *) objc_realloc(buf, buflen+=sizeof(buf[0])*(length+20));	// increase buffer size
-//	[string getCharacters:buf];
-//	if(NSHostByteOrder() == NS_LittleEndian)
-//		{ // we need to swap all bytes
-//		int i;
-//		for(i=0; i<length; i++)
-//			buf[i]=NSSwapShort(buf[i]);
-//		}
 	[self _setCompositing];
 	[_state->_font _setScale:_scale];
 	XSetFont(_display, _state->_gc, [_state->_font _font]->fid);	// set font-ID in GC
@@ -889,6 +912,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			NSLog(@"draw string %@ at (%d,%d) box=%@", string, (int)_cursor.x, (int)(_cursor.y-baseline+[_state->_font _font]->ascent+1), NSStringFromXRect(box));
 		}
 #endif
+	// FIXME: do we need to use XDrawImageString16 to draw a background color?
 	XDrawString16(_display, ((Window) _graphicsPort),
 							_state->_gc, 
 				  _cursor.x, (int)(_cursor.y-_baseline+[_state->_font _font]->ascent+1),	// X11 defines y as the character baseline
@@ -897,7 +921,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				  // But here it appears to work since Xlib appears to assume that there are 2*length bytes to send to the server
 							XChar2bFromString(string, YES), // (XChar2b *) buf,
 							length);		// Unicode drawing
-//	_cursor.x+=size.width;	// advance cursor accordingly
+	_setDirtyRect(_cursor.x, _cursor.y, 100, 100);	// we need to ask XTextString16 for the line width!
 }
 
 - (void) _setFraction:(float) fraction;
@@ -908,31 +932,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		_fraction=0.0;
 	else
 		_fraction=fraction;	// save compositing fraction - fixme: convert to 0..256-integer
-}
-
-static void XIntersect(XRectangle *result, XRectangle *with)
-{
-	if(with->x > result->x+result->width)
-		result->width=0;	// second box is completely to the right
-	else if(with->x > result->x)
-		result->width-=(with->x-result->x), result->x=with->x;	// new left border
-	if(with->x+with->width < result->x)
-		result->width=0;	// second box is completely to the left
-	else if(with->x+with->width < result->x+result->width)
-		result->width=with->x+with->width-result->x;	// new right border
-	if(with->y > result->y+result->height)
-		result->height=0;
-	else if(with->y > result->y)
-		result->height-=(with->y-result->y), result->y=with->y;
-	if(with->y+with->height < result->y)
-		result->height=0;	// empty
-	else if(with->y+with->height < result->y+result->height)
-		result->height=with->y+with->height-result->y;
-}
-
-static void XUnion(XRectangle *result, XRectangle *with)
-{
-	// extend result if needed
 }
 
 struct RGBA8
@@ -1325,6 +1324,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	 */
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 	XDestroyImage(img);
+	_setDirtyRect(xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 #if 0
 	[[NSColor redColor] set];	// will change _gc
 	XDrawRectangle(_display, ((Window) _graphicsPort), _state->_gc, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
@@ -1341,11 +1341,12 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	NSLog(@"_copyBits");
 #endif
 	XCopyArea(_display,
-			  (Window) (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort),	// source window
+			  (Window) (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort),	// source window/bitmap
 			  ((Window) _graphicsPort), _state->_gc,
 			  srcRect.origin.x, srcRect.origin.y,
 			  srcRect.size.width, /*-*/srcRect.size.height,
 			  destPoint.x, destPoint.y);
+	_setDirtyRect(destPoint.x, destPoint.y, srcRect.size.width, srcRect.size.height);
 }
 
 - (void) _setCursor:(NSCursor *) cursor;
@@ -1353,7 +1354,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 #if 0
 	NSLog(@"_setCursor:%@", cursor);
 #endif
-	XDefineCursor(_display, ((Window) _graphicsPort), [(_NSX11Cursor *) cursor _cursor]);
+	XDefineCursor(_display, _realWindow, [(_NSX11Cursor *) cursor _cursor]);
 }
 
 - (int) _windowNumber; { return _windowNum; }
@@ -1371,19 +1372,19 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	switch(place)
 		{
 		case NSWindowOut:
-			XUnmapWindow(_display, ((Window) _graphicsPort));
+			XUnmapWindow(_display, _realWindow);
 			break;
 		case NSWindowAbove:
-			XMapWindow(_display, ((Window) _graphicsPort));	// if not yet
+			XMapWindow(_display, _realWindow);	// if not yet
 			values.sibling=otherWin;		// 0 will order front
 			values.stack_mode=Above;
-			XConfigureWindow(_display, ((Window) _graphicsPort), CWStackMode, &values);
+			XConfigureWindow(_display, _realWindow, CWStackMode, &values);
 			break;
 		case NSWindowBelow:
-			XMapWindow(_display, ((Window) _graphicsPort));	// if not yet
+			XMapWindow(_display, _realWindow);	// if not yet
 			values.sibling=otherWin;		// 0 will order back
 			values.stack_mode=Below;
-			XConfigureWindow(_display, ((Window) _graphicsPort), CWStackMode, &values);
+			XConfigureWindow(_display, _realWindow, CWStackMode, &values);
 			break;
 		}
 	// save (new) level so that we can order other windows accordingly
@@ -1393,7 +1394,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 - (void) _miniaturize;
 {
 	NSLog(@"_miniaturize");
-//	Status XIconifyWindow(_display, ((Window) _graphicsPort), _screen_number)
+//	Status XIconifyWindow(_display, _realWindow, _screen_number)
 }
 
 - (void) _setOrigin:(NSPoint) point;
@@ -1404,7 +1405,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	_windowRect.origin=[(NSAffineTransform *)(_nsscreen->_screen2X11) transformPoint:point];
 	_xRect.x=NSMinX(_windowRect);
 	_xRect.y=NSMaxY(_windowRect)+WINDOW_MANAGER_TITLE_HEIGHT;
-	XMoveWindow(_display, ((Window) _graphicsPort),
+	XMoveWindow(_display, _realWindow,
 				_xRect.x,
 				_xRect.y);
 	[self _setSizeHints];
@@ -1423,11 +1424,15 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	_xRect.height=NSMinY(_windowRect)-NSMaxY(_windowRect);	// _windowRect.size.heigh is negative
 	if(_xRect.width == 0) _xRect.width=48;
 	if(_xRect.height == 0) _xRect.height=49;
-	XMoveResizeWindow(_display, ((Window) _graphicsPort), 
+	XMoveResizeWindow(_display, _realWindow, 
 					  _xRect.x,
 					  _xRect.y,
 					  _xRect.width,
 					  _xRect.height);
+	if(_isDoubleBuffered)
+		{
+		// FIXME: resize the double buffer!
+		}
 	[self _setSizeHints];
 }
 
@@ -1436,8 +1441,8 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	XTextProperty windowName;
 	const char *newTitle = [string cString];	// UTF8String??
 	XStringListToTextProperty((char**) &newTitle, 1, &windowName);
-	XSetWMName(_display, ((Window) _graphicsPort), &windowName);
-	XSetWMIconName(_display, ((Window) _graphicsPort), &windowName);
+	XSetWMName(_display, _realWindow, &windowName);
+	XSetWMIconName(_display, _realWindow, &windowName);
 }
 
 - (void) _setLevel:(int) level;
@@ -1449,7 +1454,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	attrs.window_level = [window level];
 	attrs.flags = GSWindowStyleAttr|GSWindowLevelAttr;
 	attrs.window_style = (styleMask & GSAllWindowMask);
-	XChangeProperty(_display, ((Window) _graphicsPort), _windowDecorAtom, _windowDecorAtom,		// window style hints
+	XChangeProperty(_display, _realWindow, _windowDecorAtom, _windowDecorAtom,		// window style hints
 					32, PropModeReplace, (unsigned char *)&attrs,
 					sizeof(GSAttributes)/sizeof(CARD32));
 */
@@ -1457,7 +1462,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 
 - (void) _makeKeyWindow;
 {
-	XSetInputFocus(_display, ((Window) _graphicsPort), RevertToNone, CurrentTime);
+	XSetInputFocus(_display, _realWindow, RevertToNone, CurrentTime);
 }
 
 - (BOOL) _isKeyWindow;
@@ -1465,7 +1470,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	Window focus_return;
 	int revert_to_return;
 	XGetInputFocus(_display, &focus_return, &revert_to_return);
-	return focus_return == ((Window) _graphicsPort);	// check if we are the key window
+	return focus_return == _realWindow;	// check if we are the key window
 }
 
 - (NSRect) _frame;
@@ -1473,7 +1478,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	int x, y;
 	unsigned width, height;
 	NSAffineTransform *ictm=[_nsscreen _X112screen];
-	XGetGeometry(_display, ((Window) _graphicsPort), NULL, &x, &y, &width, &height, NULL, NULL);
+	XGetGeometry(_display, _realWindow, NULL, &x, &y, &width, &height, NULL, NULL);
 	return (NSRect){[ictm transformPoint:NSMakePoint(x, y)], [ictm transformSize:NSMakeSize(width, -height)]};	// translate to screen coordinates!
 }
 
@@ -1483,7 +1488,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
     memset(&attrs, 0, sizeof(GSAttributes));
 	attrs.extra_flags = (flag) ? GSDocumentEditedFlag : 0;
 	attrs.flags = GSExtraFlagsAttr;						// set WindowMaker WM window style hints
-	XChangeProperty(_display, ((Window) _graphicsPort),
+	XChangeProperty(_display, _realWindow,
 					_windowDecorAtom, _windowDecorAtom, 
 					32, PropModeReplace, (unsigned char *)&attrs, 
 					sizeof(GSAttributes)/sizeof(CARD32));
@@ -1587,7 +1592,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	struct RGBA8 pix;
 	NSColor *c;
 	location=[_state->_ctm transformPoint:location];
-	img=XGetImage(_display, ((Window) _graphicsPort),
+	img=XGetImage(_display, _realWindow,
 				  location.x, location.y, 1, 1,
 				  0x00ffffff, ZPixmap);
 	pix=XGetRGBA8(img, 0, 0);
@@ -1601,7 +1606,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	XImage *img;
 	rect.origin=[_state->_ctm transformPoint:rect.origin];
 	rect.size=[_state->_ctm transformSize:rect.size];
-	img=XGetImage(_display, ((Window) _graphicsPort),
+	img=XGetImage(_display, _realWindow,
 				  rect.origin.x, rect.origin.y, rect.size.width, -rect.size.height,
 				  0x00ffffff, ZPixmap);
 	// copy pixels to bitmap
@@ -1613,9 +1618,18 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 #if 0
 	NSLog(@"X11 flushGraphics");
 #endif
-	if(_isDoubleBuffered)
-		{
-		// copy dirty area (if any) from back to front buffer and clear dirty area
+	if(_isDoubleBuffered && _dirty.width > 0 && _dirty.height > 0)
+		{ // copy dirty area (if any) from back to front buffer
+#if 1
+		NSLog(@"flushing backing store buffer");
+#endif
+		XCopyArea(_display,
+				  ((Window) _graphicsPort), 
+				  _realWindow,
+				  _state->_gc,		// checkme - can we really use this GC or do we need a different one???
+				  _dirty.x, _dirty.y,
+				  _dirty.width, _dirty.height,
+				  _dirty.x, _dirty.y);
 		_dirty=(XRectangle){ 0, 0, 0, 0 };	// clear
 		}
 	XFlush(_display);
@@ -1626,7 +1640,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	Window root, child;
 	int root_x, root_y, window_x, window_y;
 	unsigned int mask;	// modifier and mouse keys
-	if(!XQueryPointer(_display, ((Window) _graphicsPort), &root, &child, &root_x, &root_y, &window_x, &window_y, &mask))
+	if(!XQueryPointer(_display, _realWindow, &root, &child, &root_x, &root_y, &window_x, &window_y, &mask))
 		return NSZeroPoint;
 	if(_scale != 1.0)
 		return NSMakePoint(window_x/_scale, (_xRect.height-window_y)/_scale);
@@ -1956,8 +1970,9 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 	for(i=0; requests[i].name; i++)
 		if(requests[i].major == error_event->request_code)
 			break;
+	NSLog(@"  sequence: %u:%u", LastKnownRequestProcessed(display), NextRequest(display));
 	if(requests[i].name)
-		NSLog(@"  request: %s(%u).%u", requests[i].name, error_event->request_code, error_event->minor_code);
+		NSLog(@"  request: %u:%u %s(%u).%u", requests[i].name, error_event->request_code, error_event->minor_code);
 	else
 		NSLog(@"  request: %u.%u", error_event->request_code, error_event->minor_code);
     NSLog(@"  resource: %lu", error_event->resourceid);
@@ -2155,6 +2170,10 @@ static NSDictionary *_x11settings;
 	NSFileHandle *fh;
 	NSUserDefaults *def=[[[NSUserDefaults alloc] initWithUser:@"root"] autorelease];
 	_x11settings=[[def persistentDomainForName:@"com.quantumstep.X11"] retain];
+	_doubleBufferering=![def boolForKey:@"NoNSBackingStoreBuffered"];
+#if 1
+	NSLog(@"%@", _doubleBufferering?@"backing store is buffered":@"directly to X11");
+#endif
 #if 1
 	NSLog(@"NSScreen backend +initialize");
 	//	system("export;/usr/X11R6/bin/xeyes&");
@@ -2571,7 +2590,7 @@ static NSDictionary *_x11settings;
 					break;
 				case Expose:
 					{
-						if(/* window isDoubleBuffered */ 0)
+						if(/* window isDoubleBuffered (((Window) _graphicsPort) != _realWindow)	*/ 0)
 							{ // copy from backing store
 							}
 						else
