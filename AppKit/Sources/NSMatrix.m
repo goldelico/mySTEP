@@ -1532,8 +1532,9 @@ NSCell *c;
 								   untilDate:[NSDate distantFuture]
 									  inMode:NSEventTrackingRunLoopMode
 									 dequeue:YES];
-
-		NSDebugLog(@"Matrix: got event of type: %d\n", [event type]);
+#if 1
+		NSLog(@"Matrix: got next event of type: %d\n", [event type]);
+#endif
 		}
 }
 

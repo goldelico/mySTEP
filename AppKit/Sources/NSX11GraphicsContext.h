@@ -60,14 +60,13 @@ typedef struct _NSX11GraphicsState
 @interface _NSX11GraphicsContext : NSGraphicsContext
 { // describes one output window
 	NSRect _windowRect;					// window in NSScreen coords (required to flip window coordinates and to clip composite operations)
-
 	XRectangle _dirty;					// dirty area
 	NSPoint _cursor;					// current text drawing position (after applying the CTM)
 	_NSX11Screen *_nsscreen;			// cached pointer from NSWindow
-	Window _realWindow;					// may be the same or different from _graphicsPort for double buffered windows
 	float _baseline;					// current baseline
  @public
-	XRectangle _xRect;					// X11 rectangle
+	Window _realWindow;					// may be the same or different from _graphicsPort for double buffered windows
+	XRectangle _xRect;					// X11 rectangle of the window
 #define _state ((_NSX11GraphicsState *) _graphicsState)		// our graphics state
 	float _scale;						// our scaling factor
 	float _fraction;					// compositing fraction

@@ -304,35 +304,35 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 - (NSString *) description;
 {
 //	return [NSString stringWithFormat:@"NSFont: %@", _descriptor];
-	NSMutableString *str=[NSMutableString stringWithFormat:@"NSFont: %@\n", _descriptor];
+	NSMutableString *str=[NSMutableString stringWithFormat:@"NSFont: %@ ", _descriptor];
 #if 0
-		[str appendFormat:@"advancement=%@ ", NSStringFromSize([self advancementForGlyph:100])];
-		[str appendFormat:@"ascender=%f ", [self ascender]];
-		[str appendFormat:@"boundingRectForFont=%@ ", NSStringFromRect([self boundingRectForFont])];
-		[str appendFormat:@"boundingRectForGlyph=%@ ", NSStringFromRect([self boundingRectForGlyph:100])];
-		[str appendFormat:@"capHeight=%f ", [self capHeight]];
-		[str appendFormat:@"coveredCharacterSet=%@ ", [self coveredCharacterSet]];
-		[str appendFormat:@"descender=%f ", [self descender]];
+		[str appendFormat:@" advancement=%@", NSStringFromSize([self advancementForGlyph:100])];
+		[str appendFormat:@" ascender=%f", [self ascender]];
+		[str appendFormat:@" boundingRectForFont=%@", NSStringFromRect([self boundingRectForFont])];
+		[str appendFormat:@" boundingRectForGlyph=%@", NSStringFromRect([self boundingRectForGlyph:100])];
+		[str appendFormat:@" capHeight=%f", [self capHeight]];
+		[str appendFormat:@" coveredCharacterSet=%@", [self coveredCharacterSet]];
+		[str appendFormat:@" descender=%f", [self descender]];
 #endif
-		[str appendFormat:@"displayName=%@ ", [self displayName]];
-		[str appendFormat:@"familyName=%@ ", [self familyName]];
-		[str appendFormat:@"fontName=%@ ", [self fontName]];
+		[str appendFormat:@" displayName=%@", [self displayName]];
+		[str appendFormat:@" familyName=%@", [self familyName]];
+		[str appendFormat:@" fontName=%@", [self fontName]];
 #if 0
-		[str appendFormat:@"isFixedPitch=%@ ", [self isFixedPitch]?@"YES":@"NO"];
-		[str appendFormat:@"italicAngle=%f ", [self italicAngle]];
-		[str appendFormat:@"leading=%f ", [self leading]];
-		[str appendFormat:@"maximumAdvancement=%f ", [self maximumAdvancement]];
-		[str appendFormat:@"numberOfGlyphs=%d ", [self numberOfGlyphs]];
+		[str appendFormat:@" isFixedPitch=%@", [self isFixedPitch]?@"YES":@"NO"];
+		[str appendFormat:@" italicAngle=%f", [self italicAngle]];
+		[str appendFormat:@" leading=%f", [self leading]];
+		[str appendFormat:@" maximumAdvancement=%f", [self maximumAdvancement]];
+		[str appendFormat:@" numberOfGlyphs=%d", [self numberOfGlyphs]];
 #endif
-		[str appendFormat:@"pointSize=%f ", [self pointSize]];
+		[str appendFormat:@" pointSize=%f", [self pointSize]];
 #if 0
-		[str appendFormat:@"postscriptName=%f ", [_descriptor postscriptName]];
+		[str appendFormat:@" postscriptName=%f", [_descriptor postscriptName]];
 #endif
-		[str appendFormat:@"renderingMode=%d ", [self renderingMode]];
+		[str appendFormat:@" renderingMode=%d", [self renderingMode]];
 #if 0
-		[str appendFormat:@"textTransform=%@ ", [self textTransform]];
-		[str appendFormat:@"underlinePosition=%f ", [self underlinePosition]];
-		[str appendFormat:@"xHeight=%f\n", [self xHeight]];
+		[str appendFormat:@" textTransform=%@", [self textTransform]];
+		[str appendFormat:@" underlinePosition=%f", [self underlinePosition]];
+		[str appendFormat:@" xHeight=%f", [self xHeight]];
 #endif
 		return str;
 }

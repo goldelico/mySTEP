@@ -138,8 +138,6 @@ static NSTextContainer *_textContainer;
 {
 	NSRect r=[self boundingRectWithSize:NSMakeSize(16000.0, 16000.0) options:0];	// start with infinite box
 	r.origin=point; // move to given origin
-//	if([[NSGraphicsContext currentContext] isFlipped])
-//		r.origin.y-=r.size.height;
 	[self drawWithRect:r options:0];
 }
 
@@ -149,7 +147,7 @@ static NSTextContainer *_textContainer;
 }
 
 - (void) drawWithRect:(NSRect) rect options:(NSStringDrawingOptions) options;
-{ // draw with line breaks within box defined by rect - might clip
+{ // draw with line breaks within box defined by rect - might clip if lines are too long
 	if([self length] == 0)
 		return;	// empty string
 	[self _setupWithRect:rect options:options];

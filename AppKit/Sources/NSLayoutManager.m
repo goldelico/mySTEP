@@ -275,6 +275,9 @@
 			}
 		[[attr objectForKey:NSFontAttributeName] setInContext:ctxt];	// set font (if not nil)
 		attrib=[attr objectForKey:NSForegroundColorAttributeName];
+#if 0
+		NSLog(@"text color=%@", attrib);
+#endif
 		if(attrib)
 			[attrib setStroke];
 		else

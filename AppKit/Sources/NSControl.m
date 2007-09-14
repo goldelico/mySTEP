@@ -281,7 +281,7 @@ static Class __controlCellClass = Nil;
 
 - (void) updateCell:(NSCell*)aCell
 {
-#if 1
+#if 0
 	NSLog(@"%@ updateCell:%@", self, aCell);
 #endif
 	[self setNeedsDisplay:YES];

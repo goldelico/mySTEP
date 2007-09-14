@@ -717,9 +717,6 @@ id __buttonCellClass = nil;
 			}
 		}
 	savedContents=_contents;	// FIXME: do we really need to save? We don't use it otherwise
-#if 0
-	NSLog(@"ButtonCell draw: %@", title);
-#endif
 	ASSIGN(_textColor, titleColor);	// change color as needed
 	/* NOTE:
 		this code will also work if title is an AttributedString or if a NSFormatter is attached
@@ -729,6 +726,9 @@ id __buttonCellClass = nil;
 #if 0	// test to find out why NSEnabled is not working properly
 	if(!_c.enabled)
 		NSLog(@"button not enabled: %@", self);
+#endif
+#if 0
+	NSLog(@"ButtonCell draw: %@ textFrame: %@", _contents, NSStringFromRect(textFrame));
 #endif
 	[super drawInteriorWithFrame:textFrame inView:controlView];
 	_contents=savedContents;
@@ -766,6 +766,9 @@ id __buttonCellClass = nil;
 		_image=_mixedImage;
 	else if(_alternateImage && stateOrHighlight(NSContentsCellMask))	// alternate content
 		_image=_alternateImage;
+#if 0
+	NSLog(@"draw image %@", _image);
+#endif
 	[self drawImage:_image withFrame:cellFrame inView:controlView];
 	// FIXME: here, we are not clean for data types!!!
 	// and: when should we use title and when attributedTitle
@@ -775,6 +778,9 @@ id __buttonCellClass = nil;
 		if([_alternateTitle length] != 0)
 			title = (NSAttributedTitle *) _alternateTitle;
 		}
+#if 0
+	NSLog(@"draw title %@", title);
+#endif
 	[self drawTitle:title withFrame:cellFrame inView:controlView];
 }
 

@@ -920,7 +920,7 @@ static NSCursor *__textCursor = nil;
 	unsigned int mask = NSLeftMouseDraggedMask | NSRightMouseDraggedMask | NSLeftMouseDownMask | NSMouseMovedMask | NSLeftMouseUpMask;
 	BOOL mouseWentUp = NO;
 	BOOL tracking;
-	if (_c.actOnMouseDown && action)
+	if(_c.actOnMouseDown && action)
 		[(NSControl*)controlView sendAction:action to:target];	
 	if(_c.continuous)	// (sub)cell class wants tracking
 		{ // enable periodic events

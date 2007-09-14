@@ -145,7 +145,7 @@ static NSImage *__highlightBranchImage;
 		imageRect.origin.y += (imageRect.size.height - size.height) / 2;
 		if(image)
 			{
-#if 1
+#if 0
 			NSLog(@"NSBrowserCell draw image %@", image);
 #endif
 			[image compositeToPoint:imageRect.origin operation:op];

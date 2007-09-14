@@ -11,26 +11,27 @@
  
  Author:	H. N. Schaller <hns@computer.org>
  Date:		Jan 2006 - completely reworked
-
- Useful Manuals:
-	http://tronche.com/gui/x/xlib											Xlib - basic X11 calls
-    http://freetype.sourceforge.net/freetype2/docs/reference/ft2-toc.html	libFreetype2 - API
-	http://freetype.sourceforge.net/freetype2/docs/tutorial/step1.html		tutorial
-(	http://netmirror.org/mirror/xfree86.org/4.4.0/doc/HTML/Xft.3.html		Xft - freetype glue)
-(	http://netmirror.org/mirror/xfree86.org/4.4.0/doc/HTML/Xrandr.3.html	XResize - rotate extension)
-	http://netmirror.org/mirror/xfree86.org/4.4.0/doc/HTML/Xrender.3.html	XRender - antialiased, alpha, subpixel rendering
  
+ Useful Manuals:
+ http://tronche.com/gui/x/xlib											Xlib - basic X11 calls
+ http://freetype.sourceforge.net/freetype2/docs/reference/ft2-toc.html	libFreetype2 - API
+ http://freetype.sourceforge.net/freetype2/docs/tutorial/step1.html		tutorial
+(http://netmirror.org/mirror/xfree86.org/4.4.0/doc/HTML/Xft.3.html		Xft - freetype glue)
+(http://netmirror.org/mirror/xfree86.org/4.4.0/doc/HTML/Xrandr.3.html	XResize - rotate extension)
+ http://netmirror.org/mirror/xfree86.org/4.4.0/doc/HTML/Xrender.3.html	XRender - antialiased, alpha, subpixel rendering
+		
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
- */ 
+*/ 
 
-/* Notes when dealing with X11:
-  - if we need to check that an object is not rotated, check that ctm transformStruct.m12 and .m21 both are 0.0
-  - we can't handle any rotation for text drawing (yet)
-  - we can't rotatate windows by angles not multiples of 90 degrees
-  - note that X11 coordinates are flipped. This is taken into account by the _screen2X11 CTM.
-  - But: for NSSizes you have to use -height because of that
-  - finally, drawing into a window is relative to the origin
+/*
+ Note when dealing with X11:
+- if we need to check that an object is not rotated, check that ctm transformStruct.m12 and .m21 both are 0.0
+- we can't handle any rotation for text drawing (yet)
+- we can't rotatate windows by angles not multiples of 90 degrees (well we could do in combination with setShape)
+- note that X11 coordinates are flipped. This is taken into account by the _screen2X11 CTM.
+- But: for NSSizes you have to use -height because of that
+- finally, drawing into a window is relative to the origin
 */
 
 #import "NSX11GraphicsContext.h"
@@ -62,6 +63,139 @@
 #define SCRCTL_GET_ROTATION 0x413c
 #endif
 
+static BOOL _doubleBufferering=YES;	// DISABLED until we have solved all the setNeedsDisplay issues...
+
+#pragma mark Class variables
+
+static Display *_display;		// we can currently manage only one Display - but multiple Screens
+
+static Atom _stateAtom;
+static Atom _protocolsAtom;
+static Atom _deleteWindowAtom;
+static Atom _windowDecorAtom;
+
+static NSArray *_XRunloopModes;	// runloop modes to handle X11 events
+
+#if OLD
+Window __xKeyWindowNeedsFocus = None;			// xWindow waiting to be focusd
+extern Window __xAppTileWindow;
+#endif
+
+#if 1	// DEPRECATED - only used in XRView to modify dragging operations - should be handled through the backend interface
+unsigned int __modFlags = 0;		// current global modifier flags - updated every keyDown/keyUp event
+#endif
+
+static NSMapTable *__WindowNumToNSWindow = NULL;	// map Window to NSWindow
+
+static unsigned int xKeyModifierFlags(unsigned int state);
+static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *eventModFlags);
+// extern void xHandleSelectionRequest(XSelectionRequestEvent *xe);
+
+#pragma mark GraphicsPipeline
+
+// A filter pipeline has some resemblance to the concept of Core Image but runs completely on the CPU
+
+struct RGBA8
+{ // 8 bit per channel RGBA
+	unsigned char R, G, B, A;
+};
+
+struct pipeline
+{ // a filter chain element
+	struct pipeline *source;					// filter source (could also be an id)
+	struct RGBA8 (*method)(float x, float y);	// get pixel after processing
+};
+
+@interface _NSGraphicsPipeline : NSObject
+{
+	id source;		// source image or _NSGraphicsPipeline subclass
+	id parameter;	// a second parameter (other image source, NSAffineTransform etc.)
+	@public	// allows us to use (pointer->method)(x, y)
+		struct RGBA8 (*method)(float x, float y);	// get pixel after processing
+}
+@end
+
+/*
+ basically, we need the following filter pipeline nodes:
+ - sample into RGBA8 (from a given bitmap or XImage)
+ - transform (rotate/scale/flip) by CTM
+ - clip
+ 
+ - composite (with a second source)
+ - interpolate (with adjacent pixels)
+ - convert RGBA8 to RGB24 or RGB16
+ - store into XImage
+ */
+
+@implementation _NSX11GraphicsContext
+
+#pragma mark BackingStoreBuffered
+
+static NSString *NSStringFromXRect(XRectangle rect)
+{
+	return [NSString stringWithFormat:
+		@"{%d, %d}, {%u, %u}",
+		rect.x,
+		rect.y,
+		rect.width,
+		rect.height];
+}
+
+static void XIntersect(XRectangle *result, XRectangle *with)
+{
+	if(with->x > result->x+result->width)
+		result->width=0;	// second box is completely to the right
+	else if(with->x > result->x)
+		result->width-=(with->x-result->x), result->x=with->x;	// new left border
+	if(with->x+with->width < result->x)
+		result->width=0;	// second box is completely to the left
+	else if(with->x+with->width < result->x+result->width)
+		result->width=with->x+with->width-result->x;	// new right border
+	if(with->y > result->y+result->height)
+		result->height=0;
+	else if(with->y > result->y)
+		result->height-=(with->y-result->y), result->y=with->y;
+	if(with->y+with->height < result->y)
+		result->height=0;	// empty
+	else if(with->y+with->height < result->y+result->height)
+		result->height=with->y+with->height-result->y;
+}
+
+static void XUnion(XRectangle *result, XRectangle with)
+{
+	if(with.x+with.width > result->x+result->width)
+		result->width=with.x+with.width-result->x;			// extend to the right
+	if(with.x < result->x)
+		result->width+=result->x-with.x, result->x=with.x;	// extend to the left
+	if(with.y+with.height > result->y+result->height)
+		result->height=with.y+with.height-result->y;		// extend to the top
+	if(with.y < result->y)
+		result->height+=result->y-with.y, result->y=with.y;	// extend to the bottom
+}
+
+static inline int _isDoubleBuffered(_NSX11GraphicsContext *win)
+{
+	return (((Window) win->_graphicsPort) != win->_realWindow);
+}
+
+static inline void _setDirtyRect(_NSX11GraphicsContext *win, int x, int y, unsigned width, unsigned height)
+{ // enlarge dirty area for double buffer
+	if(_isDoubleBuffered(win))
+		XUnion(&win->_dirty, (XRectangle){x, y, width, height});
+}
+
+static inline void _setDirtyPoints(_NSX11GraphicsContext *win, XPoint *points, int npoints)
+{
+	if(_isDoubleBuffered(win))
+		{
+		int n=npoints;
+		while(n-->0)
+			XUnion(&win->_dirty, (XRectangle){points[n].x, points[n].y, 1, 1});
+		}
+}
+
+#pragma mark WindowManager
+
 typedef struct
 { // WindowMaker window manager support
     CARD32 flags;
@@ -91,39 +225,14 @@ typedef struct
 #define WMFHideOtherApplications			10
 #define WMFHideApplication					12
 
-//
-// Class variables
-//
-
-static Display *_display;		// we can currently manage only one Display - but multiple Screens
-
-static Atom _stateAtom;
-static Atom _protocolsAtom;
-static Atom _deleteWindowAtom;
-static Atom _windowDecorAtom;
-
-static NSArray *_XRunloopModes;	// runloop modes to handle X11 events
-
-static BOOL _doubleBufferering=YES;
-
-#if OLD
-Window __xKeyWindowNeedsFocus = None;			// xWindow waiting to be focusd
-extern Window __xAppTileWindow;
-#endif
-
-#if 1	// DEPRECATED - only used in XRView to modify dragging operations - should be handled through the backend interface
-unsigned int __modFlags = 0;		// current global modifier flags - updated every keyDown/keyUp event
-#endif
-
-static NSMapTable *__WindowNumToNSWindow = NULL;	// map Window to NSWindow
-
-//
-//  Private functions
-//
-
-static unsigned int xKeyModifierFlags(unsigned int state);
-static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *eventModFlags);
-extern void xHandleSelectionRequest(XSelectionRequestEvent *xe);
+- (void) _setSizeHints;
+{
+	XSizeHints size_hints;		// also specified as a hint
+	size_hints.x=_xRect.x;
+	size_hints.y=_xRect.y;
+	size_hints.flags = PPosition | USPosition;		
+	XSetNormalHints(_display, _realWindow, &size_hints);
+}
 
 static XChar2b *XChar2bFromString(NSString *str, BOOL remote)
 { // convert to XChar2b (note that this might be 4 bytes per character although advertized as 2)
@@ -162,91 +271,6 @@ static XChar2b *XChar2bFromString(NSString *str, BOOL remote)
 	return buf;
 }
 
-// A filter pipeline has some resemblance to the concept of Core Image but runs completely on the CPU
-
-struct pipeline
-{ // a filter chain element
-	struct pipeline *source;					// filter source (could also be an id)
-	struct RGBA8 (*method)(float x, float y);	// get pixel after processing
-};
-
-@interface _NSGraphicsPipeline : NSObject
-{
-	id source;		// source image or _NSGraphicsPipeline subclass
-	id parameter;	// a second parameter (other image source, NSAffineTransform etc.)
-	@public	// allows us to use (pointer->method)(x, y)
-		struct RGBA8 (*method)(float x, float y);	// get pixel after processing
-}
-@end
-
-/*
- basically, we need the following filter pipeline nodes:
- - sample into RGBA8 (from a given bitmap or XImage)
- - transform (rotate/scale/flip) by CTM
- - clip
- 
- - composite (with a second source)
- - interpolate (with adjacent pixels)
- - convert RGBA8 to RGB24 or RGB16
- - store into XImage
- */
-
-static NSString *NSStringFromXRect(XRectangle rect)
-{
-	return [NSString stringWithFormat:
-		@"{%d, %d}, {%u, %u}",
-		rect.x,
-		rect.y,
-		rect.width,
-		rect.height];
-}
-
-@implementation _NSX11GraphicsContext
-
-static void XIntersect(XRectangle *result, XRectangle *with)
-{
-	if(with->x > result->x+result->width)
-		result->width=0;	// second box is completely to the right
-	else if(with->x > result->x)
-		result->width-=(with->x-result->x), result->x=with->x;	// new left border
-	if(with->x+with->width < result->x)
-		result->width=0;	// second box is completely to the left
-	else if(with->x+with->width < result->x+result->width)
-		result->width=with->x+with->width-result->x;	// new right border
-	if(with->y > result->y+result->height)
-		result->height=0;
-	else if(with->y > result->y)
-		result->height-=(with->y-result->y), result->y=with->y;
-	if(with->y+with->height < result->y)
-		result->height=0;	// empty
-	else if(with->y+with->height < result->y+result->height)
-		result->height=with->y+with->height-result->y;
-}
-
-static void XUnion(XRectangle *result, XRectangle with)
-{
-	if(with.x+with.width > result->x+result->width)
-		result->width=with.x+with.width-result->x;			// extend to the right
-	if(with.x < result->x)
-		result->width+=result->x-with.x, result->x=with.x;	// extend to the left
-	if(with.y+with.height > result->y+result->height)
-		result->height=with.y+with.height-result->y;		// extend to the top
-	if(with.y < result->y)
-		result->height+=result->y-with.y, result->y=with.y;	// extend to the bottom
-}
-
-#define _setDirtyRect(x, y, width, height)	if(_isDoubleBuffered)(XUnion(&_dirty,(XRectangle){x, y, width, height}))	// enlarge dirty area for double buffer
-#define _isDoubleBuffered					(((Window) _graphicsPort) != _realWindow)	
-
-- (void) _setSizeHints;
-{
-	XSizeHints size_hints;		// also specified as a hint
-	size_hints.x=_xRect.x;
-	size_hints.y=_xRect.y;
-	size_hints.flags = PPosition | USPosition;		
-	XSetNormalHints(_display, _realWindow, &size_hints);
-}
-
 - (id) _initWithAttributes:(NSDictionary *) attributes;
 {
 	NSWindow *window;
@@ -272,7 +296,7 @@ static void XUnion(XRectangle *result, XRectangle with)
 	_nsscreen=(_NSX11Screen *) [window screen];	// we know that we only have _NSX11Screen instances
 	if(![window isKindOfClass:[NSWindow class]])
 		{ [self release]; return nil; }	// must provide a NSWindow
-	// check that there isn't a non-rectangular rotation!
+										// check that there isn't a non-rectangular rotation!
 	_windowRect.origin=[(NSAffineTransform *) (_nsscreen->_screen2X11) transformPoint:frame.origin];
 	_windowRect.size=[(NSAffineTransform *) (_nsscreen->_screen2X11) transformSize:frame.size];
 #if 0
@@ -337,6 +361,15 @@ static void XUnion(XRectangle *result, XRectangle with)
 		XWindowAttributes attrs;
 		XGetWindowAttributes(_display, win, &attrs);
 		_graphicsPort=(void *) XCreatePixmap(_display, win, _xRect.width, _xRect.height, attrs.depth);
+#if 0
+		XCopyArea(_display,
+				  win,
+				  (Window) _graphicsPort, 
+				  _state->_gc,
+				  0, 0,
+				  _xRect.width, _xRect.height,
+				  0, 0);			// copy window background
+#endif
 		}
 	if(styleMask&NSUnscaledWindowMask)
 		{ // set 1:1 transform (here or in NSWindow???)
@@ -393,7 +426,7 @@ static void XUnion(XRectangle *result, XRectangle with)
 #if 1
 	NSLog(@"NSWindow dealloc in backend: %@", self);
 #endif
-	if(_isDoubleBuffered)
+	if(_isDoubleBuffered(self))
 		XFreePixmap(_display, (Pixmap) _graphicsPort);
 	if(_realWindow)
 		{
@@ -407,7 +440,7 @@ static void XUnion(XRectangle *result, XRectangle with)
 
 - (BOOL) isDrawingToScreen	{ return YES; }
 
-// NSBackend interface
+#pragma mark PDFOperators
 
 - (void) _setColor:(NSColor *) color;
 {
@@ -426,7 +459,6 @@ static void XUnion(XRectangle *result, XRectangle with)
 	NSLog(@"_setColor -> pixel=%08x", pixel);
 #endif
 	XSetBackground(_display, _state->_gc, pixel);
-	// FIXME: X11 uses the foreground color for filling!
 	XSetForeground(_display, _state->_gc, pixel);
 }
 
@@ -441,7 +473,7 @@ static void XUnion(XRectangle *result, XRectangle with)
 
 - (void) _setCTM:(NSAffineTransform *) atm;
 { // we must also translate window base coordinates to window-relative X11 coordinates
-	// NOTE: we could also cache this window relative transformation!
+  // NOTE: we could also cache this window relative transformation!
 	[_state->_ctm release];
 	_state->_ctm=[(NSAffineTransform *) (_nsscreen->_screen2X11) copy];									// this translates to screen coordinates
 	if(_scale == 1.0)
@@ -589,8 +621,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	state->npoints=0;
 	while(state->element < state->elements)
-		{
-		// (re)alloc points array as needed
+		{ // get next (closed) subpath
 		switch([state->path elementAtIndex:state->element associatedPoints:points])
 			{
 			case NSMoveToBezierPathElement:
@@ -604,51 +635,71 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				break;
 			case NSCurveToBezierPathElement:
 				{
-
-				// should better create path by algorithm like the following:
-				
-				// http://www.niksula.cs.hut.fi/~hkankaan/Homepages/bezierfast.html
-				// or http://www.antigrain.com/research/adaptive_bezier/
-				
-				// but: there might even be a better algorithm that resembles Bresenham or CORDIC that
-				//
-				// - works with integer values
-				// - moves one pixel per step either in x or y direction
-				// - is not based on a predefined number of steps
-				// - uses screen resolution as the smoothness limit
-				//
-				NSPoint p0=current;
-				NSPoint p1=[_state->_ctm transformPoint:points[0]];
-				NSPoint p2=[_state->_ctm transformPoint:points[1]];
-				NSPoint p3=[_state->_ctm transformPoint:points[2]];
-				float t;
+					
+					// should better create path by algorithm like the following:
+					
+					// http://www.niksula.cs.hut.fi/~hkankaan/Homepages/bezierfast.html
+					// or http://www.antigrain.com/research/adaptive_bezier/
+					
+					// but: there might even be a better algorithm that resembles Bresenham or CORDIC that
+					//
+					// - works with integer values
+					// - moves one pixel per step either in x or y direction
+					// - is not based on a predefined number of steps
+					// - uses screen resolution as the smoothness limit
+					//
+					NSPoint p0=current;
+					NSPoint p1=[_state->_ctm transformPoint:points[0]];
+					NSPoint p2=[_state->_ctm transformPoint:points[1]];
+					NSPoint p3=[_state->_ctm transformPoint:points[2]];
+					float t;
 #if 0
-				NSLog(@"pointsForPath: curved element");
+					NSLog(@"pointsForPath: curved element");
 #endif
-				// FIXME: we should adjust the step size to the size of the path
-				for(t=0.1; t<=0.9; t+=0.1)
-					{ // very simple and slow approximation
-					float t1=(1.0-t);
-					float t12=t1*t1;
-					float t13=t1*t12;
-					float t2=t*t;
-					float t3=t*t2;
-					NSPoint pnt;
-					pnt.x=p0.x*t13+3.0*(p1.x*t*t12+p2.x*t2*t1)+p3.x*t3;
-					pnt.y=p0.y*t13+3.0*(p1.y*t*t12+p2.y*t2*t1)+p3.y*t3;
-					addPoint(state, pnt);
-					}
-				addPoint(state, next=p3);	// move to final point (if not already there)
-				current=next;
-				break;
+					// FIXME: we should adjust the step size to the size of the path
+					for(t=0.1; t<=0.9; t+=0.1)
+						{ // very simple and slow approximation
+						float t1=(1.0-t);
+						float t12=t1*t1;
+						float t13=t1*t12;
+						float t2=t*t;
+						float t3=t*t2;
+						NSPoint pnt;
+						pnt.x=p0.x*t13+3.0*(p1.x*t*t12+p2.x*t2*t1)+p3.x*t3;
+						pnt.y=p0.y*t13+3.0*(p1.y*t*t12+p2.y*t2*t1)+p3.y*t3;
+						addPoint(state, pnt);
+						}
+					addPoint(state, next=p3);	// move to final point (if not already there)
+					current=next;
+					break;
 				}
 			case NSClosePathBezierPathElement:
 				addPoint(state, first);
-				break;
+				state->element++;
+				return YES;	// stroke/fill the closed path and start a new one if we have multiple sections
 			}
 		state->element++;
 		}	
 	return YES;
+}
+
+- (Region) _regionFromPath:(NSBezierPath *) path
+{ // get region from path
+	PointsForPathState state={ path };
+	Region region=NULL;
+	while([self _pointsForPath:&state])
+		{
+		if(!region)
+			{
+			if(state.npoints < 2)
+				region=XCreateRegion();	// create empty region
+			else
+				region=XPolygonRegion(state.points, state.npoints, [path windingRule] == NSNonZeroWindingRule?WindingRule:EvenOddRule);
+			}
+		else
+			NSLog(@"can't handle complex winding rules"); // else  FIXME: build the Union or intersection of both (depending on winding rule)
+		}
+	return region;
 }
 
 - (void) _stroke:(NSBezierPath *) path;
@@ -680,14 +731,16 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		XSetDashes(_display, _state->_gc, phase, dash_list, count);
 		}
 	while([self _pointsForPath:&state])
+		{
 		XDrawLines(_display, ((Window) _graphicsPort), _state->_gc, state.points, state.npoints, CoordModeOrigin);
-	_setDirtyRect(0, 0, 100, 100);
+		_setDirtyPoints(self, state.points, state.npoints);
+		}
 }
 
 - (void) _fill:(NSBezierPath *) path;
 {
 	PointsForPathState state={ path };
-	XGCValues values;	// FIXME: we have to temporarily swap background & foreground colors since X11 uses the FG color to fill!
+	XGCValues values; // we have to temporarily swap background & foreground colors since X11 uses the FG color to fill!
 #if 0
 	NSLog(@"_fill");
 #endif
@@ -700,31 +753,17 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		{
 		XRectangle rect;
 		if([self _rectForPath:&state rect:&rect])
-			XFillRectangles(_display, ((Window) _graphicsPort), _state->_gc, &rect, 1);
-		else
-			XFillPolygon(_display, ((Window) _graphicsPort), _state->_gc, state.points, state.npoints, Complex, CoordModeOrigin);
-		}
-	XSetForeground(_display, _state->_gc, values.foreground);	// restore
-	_setDirtyRect(0, 0, 100, 100);
-}
-
-- (Region) _regionFromPath:(NSBezierPath *) path
-{ // get region from path
-	PointsForPathState state={ path };
-	Region region=NULL;
-	while([self _pointsForPath:&state])
-		{
-		if(!region)
 			{
-			if(state.npoints < 2)
-				region=XCreateRegion();	// create empty region
-			else
-				region=XPolygonRegion(state.points, state.npoints, [path windingRule] == NSNonZeroWindingRule?WindingRule:EvenOddRule);
+			XFillRectangles(_display, ((Window) _graphicsPort), _state->_gc, &rect, 1);
+			_setDirtyRect(self, rect.x, rect.y, rect.width, rect.height);
 			}
 		else
-			; // else  FIXME: build the Union or intersection of both (depending on winding rule)
+			{
+			XFillPolygon(_display, ((Window) _graphicsPort), _state->_gc, state.points, state.npoints, Complex, CoordModeOrigin);
+			_setDirtyPoints(self, state.points, state.npoints);
+			}
 		}
-	return region;
+	XSetForeground(_display, _state->_gc, values.foreground);	// restore stroke color
 }
 
 - (void) _setClip:(NSBezierPath *) path;
@@ -778,14 +817,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	}
 #endif
 }
-
-#if OLD
-- (NSRect) _clipBox;
-{
-	// could use XClipBox(_state->_clip, rect clip) -- to determine where to really draw/fill
-	return NSZeroRect;
-}
-#endif
 
 - (void) _setShadow:(NSShadow *) shadow;
 { // we can't draw shadows without alpha
@@ -898,31 +929,43 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (void) _string:(NSString *) string;
 { // draw string fragment -  PDF: (string) Tj
 	unsigned length=[string length];
-#if 1
-	NSLog(@"NSString: _string:%@", string);
+	XFontStruct *font;
+#if 0
+	NSLog(@"NSString: _string:%@ font:%@", string, _state->_font);
 #endif
 	[self _setCompositing];
 	[_state->_font _setScale:_scale];
-	XSetFont(_display, _state->_gc, [_state->_font _font]->fid);	// set font-ID in GC
-	// set any other attributes
+	font=[_state->_font _font];
+	XSetFont(_display, _state->_gc, font->fid);	// set font-ID in GC
+												// set any other attributes
 #if 0
-		{
-			XRectangle box;
-			XClipBox(_state->_clip, &box);
-			NSLog(@"draw string %@ at (%d,%d) box=%@", string, (int)_cursor.x, (int)(_cursor.y-baseline+[_state->_font _font]->ascent+1), NSStringFromXRect(box));
-		}
+	{
+		XRectangle box;
+		XClipBox(_state->_clip, &box);
+		NSLog(@"draw string %@ at (%d,%d) clip=%@", string, (int)_cursor.x, (int)(_cursor.y-_baseline+font->ascent+1), NSStringFromXRect(box));
+	}
 #endif
 	// FIXME: do we need to use XDrawImageString16 to draw a background color?
 	XDrawString16(_display, ((Window) _graphicsPort),
-							_state->_gc, 
-				  _cursor.x, (int)(_cursor.y-_baseline+[_state->_font _font]->ascent+1),	// X11 defines y as the character baseline
-				  // NOTE:
-				  // XChar2b is a struct which may be 4 bytes locally depending on struct alignment rules!
-				  // But here it appears to work since Xlib appears to assume that there are 2*length bytes to send to the server
-							XChar2bFromString(string, YES), // (XChar2b *) buf,
-							length);		// Unicode drawing
-	_setDirtyRect(_cursor.x, _cursor.y, 100, 100);	// we need to ask XTextString16 for the line width!
+				  _state->_gc, 
+				  _cursor.x, (int)(_cursor.y-_baseline+font->ascent+1),	// X11 defines y as the character baseline
+																							// NOTE:
+																							// XChar2b is a struct which may be 4 bytes locally depending on struct alignment rules!
+																							// But here it appears to work since Xlib appears to assume that there are 2*length bytes to send to the server
+				  XChar2bFromString(string, YES), // (XChar2b *) buf,
+				  length);		// Unicode drawing
+	_setDirtyRect(self,
+				  _cursor.x, _cursor.y,
+				  XTextWidth16(font, XChar2bFromString(string, NO), length),
+				  font->ascent + font->descent);	// we need to ask XTextString16 for the line width!
 }
+
+- (void) _beginPage:(NSString *) title;
+{ // can we (mis-)use that as setTitle???
+	return;
+}
+
+- (void) _endPage; { return; }
 
 - (void) _setFraction:(float) fraction;
 {
@@ -934,25 +977,20 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		_fraction=fraction;	// save compositing fraction - fixme: convert to 0..256-integer
 }
 
-struct RGBA8
-{ // 8 bit per channel RGBA
-	unsigned char R, G, B, A;
-};
-
-// this is the bitmap sampler
+#pragma mark BitmapDrawing
 
 inline static struct RGBA8 getPixel(int x, int y,
-							int pixelsWide,
-							int pixelsHigh,
-							/*
-							 int bitsPerSample,
-							 int samplesPerPixel,
-							 int bitsPerPixel,
-							 */
-							int bytesPerRow,
-							BOOL isPlanar,
-							BOOL hasAlpha, 
-							unsigned char *data[5])
+									int pixelsWide,
+									int pixelsHigh,
+									/*
+									 int bitsPerSample,
+									 int samplesPerPixel,
+									 int bitsPerPixel,
+									 */
+									int bytesPerRow,
+									BOOL isPlanar,
+									BOOL hasAlpha, 
+									unsigned char *data[5])
 { // extract RGBA8 value of given pixel from bitmap
 	int offset;
 	struct RGBA8 src;
@@ -1005,7 +1043,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 			}
 		case 16:
 			{ // scale 0..31 to 0..255
-				// a better? algorithm could be val8bit=(val5bit<<3)+(val5bit>>2), i.e. fill the less significant bits with a copy of the more significant
+			  // a better? algorithm could be val8bit=(val5bit<<3)+(val5bit>>2), i.e. fill the less significant bits with a copy of the more significant
 				unsigned char tab5[]={ 
 					( 0*255)/31,( 1*255)/31,( 2*255)/31,( 3*255)/31,( 4*255)/31,( 5*255)/31,( 6*255)/31,( 7*255)/31,
 					( 8*255)/31,( 9*255)/31,(10*255)/31,(11*255)/31,(12*255)/31,(13*255)/31,(14*255)/31,(15*255)/31,
@@ -1030,32 +1068,32 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 }
 
 /* idea for sort of core-image extension
- *
- * struct filter { struct RGBA8 (*filter)(float x, float y); struct filter *input; other paramters }; describes a generic filter node
- * 
- * now, build a chain of filter modules, i.e.
- * 0. scanline RGBA to output image
- * 1. composite with a second image (i.e. the image fetched from screen)
- * 2. rotate&scale coordinates
- * 3. sample/interpolate
- * 4. fetch as RGBA from given bitmap
- * could add color space transforms etc.
- *
- */
+*
+* struct filter { struct RGBA8 (*filter)(float x, float y); struct filter *input; other paramters }; describes a generic filter node
+* 
+* now, build a chain of filter modules, i.e.
+* 0. scanline RGBA to output image
+* 1. composite with a second image (i.e. the image fetched from screen)
+* 2. rotate&scale coordinates
+* 3. sample/interpolate
+* 4. fetch as RGBA from given bitmap
+* could add color space transforms etc.
+*
+*/
 
 - (BOOL) _draw:(NSImageRep *) rep;
 { // composite into unit square using current CTM, current compositingOp & fraction etc.
-
-/* here we know:
-- source bitmap: rep
-- source rect: defined indirectly by clipping path
-- clipping path (we only need to scan-line and interpolate visible pixels): _state->_clip
-- compositing operation: _compositingOperation
-- compositing fraction: _fraction
-- interpolation algorithm: _imageInterpolation
-- CTM (scales, rotates and translates): _state->_ctm
--- how do we know if we should really rotate or not? we don't need to know.
-*/
+	
+	/* here we know:
+	- source bitmap: rep
+	- source rect: defined indirectly by clipping path
+	- clipping path (we only need to scan-line and interpolate visible pixels): _state->_clip
+	- compositing operation: _compositingOperation
+	- compositing fraction: _fraction
+	- interpolation algorithm: _imageInterpolation
+	- CTM (scales, rotates and translates): _state->_ctm
+	-- how do we know if we should really rotate or not? we don't need to know.
+	*/
 	static NSRect unitSquare={{ 0.0, 0.0 }, { 1.0, 1.0 }};
 	NSString *csp;
 	int bytesPerRow;
@@ -1110,7 +1148,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 #endif
 	/*
 	 * clip to visible area (by clipping box, window and screen
-	 */
+							 */
 	XClipBox(_state->_clip, &box);
 #if 0
 	NSLog(@"  clip box=%@", NSStringFromXRect(box));
@@ -1152,7 +1190,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 		NSLog(@"atms.m21=%lf", atms.m21);
 		NSLog(@"composite=%d", _compositingOperation);
 #endif
-		  //		NS_DURING
+		//		NS_DURING
 		{
 			// FIXME: this is quite slow if we don't have double buffering!
 			img=XGetImage(_display, ((Window) _graphicsPort),
@@ -1224,7 +1262,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	for(y=0; y<img->height; y++)
 		{
 		struct RGBA8 src={0,0,0,255}, dest={0,0,0,255};	// initialize
-		// FIXME: we must adjust x&y if we have clipped to the window, i.e. x&y are not aligned with the dest origin
+														// FIXME: we must adjust x&y if we have clipped to the window, i.e. x&y are not aligned with the dest origin
 		pnt.x=/*atms.m11*(0)+*/ -atms.m12*(y)+atms.tX;	// first point of this scan line
 		pnt.y=/*atms.m21*(0)+*/ atms.m22*(y)+atms.tY;
 		for(x=0; x<img->width; x++, pnt.x+=atms.m11, pnt.y-=atms.m21)
@@ -1234,7 +1272,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 				{ // get smoothed RGBA from bitmap
 				if(_compositingOperation != NSCompositeCopy)
 					dest=XGetRGBA8(img, x, y);	// get current image value
-				// we should pipeline this through core-image like filter modules
+												// we should pipeline this through core-image like filter modules
 				switch(_imageInterpolation)
 					{
 					case NSImageInterpolationDefault:	// default is same as low
@@ -1244,22 +1282,22 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 						// FIXME: here we should inter/extrapolate more source points
 					case NSImageInterpolationNone:
 						{
-						src=getPixel((int) pnt.x, (int) pnt.y, width, height,
-									 /*
-									  int bitsPerSample,
-									  int samplesPerPixel,
-									  int bitsPerPixel,
-									  */
-									 bytesPerRow,
-									 isPlanar, hasAlpha,
-									 imagePlanes);
-						if(fract != 256)
-							{ // dim source image
-							src.R=(fract*src.R)>>8;
-							src.G=(fract*src.G)>>8;
-							src.B=(fract*src.B)>>8;
-							src.A=(fract*src.A)>>8;
-							}
+							src=getPixel((int) pnt.x, (int) pnt.y, width, height,
+										 /*
+										  int bitsPerSample,
+										  int samplesPerPixel,
+										  int bitsPerPixel,
+										  */
+										 bytesPerRow,
+										 isPlanar, hasAlpha,
+										 imagePlanes);
+							if(fract != 256)
+								{ // dim source image
+								src.R=(fract*src.R)>>8;
+								src.G=(fract*src.G)>>8;
+								src.B=(fract*src.B)>>8;
+								src.A=(fract*src.A)>>8;
+								}
 						}
 					}
 				}
@@ -1306,12 +1344,12 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 				dest.B=(F*src.B+G*dest.B)>>8;
 				dest.A=(F*src.A+G*dest.A)>>8;
 				}
-/* FIXME
-			if(dest.R > 255) dest.R=255;
+			/* FIXME
+				if(dest.R > 255) dest.R=255;
 			if(dest.G > 255) dest.G=255;
 			if(dest.B > 255) dest.B=255;
 			if(dest.A > 255) dest.A=255;
-*/
+			*/
 			if(img->depth == 24)
 				XPutPixel(img, x, y, (dest.R<<16)+(dest.G<<8)+(dest.B<<0));
 			else if(img->depth==16)
@@ -1324,7 +1362,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	 */
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 	XDestroyImage(img);
-	_setDirtyRect(xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
+	_setDirtyRect(self, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 #if 0
 	[[NSColor redColor] set];	// will change _gc
 	XDrawRectangle(_display, ((Window) _graphicsPort), _state->_gc, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
@@ -1346,8 +1384,10 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 			  srcRect.origin.x, srcRect.origin.y,
 			  srcRect.size.width, /*-*/srcRect.size.height,
 			  destPoint.x, destPoint.y);
-	_setDirtyRect(destPoint.x, destPoint.y, srcRect.size.width, srcRect.size.height);
+	_setDirtyRect(self, destPoint.x, destPoint.y, srcRect.size.width, srcRect.size.height);
 }
+
+#pragma mark WindowControl
 
 - (void) _setCursor:(NSCursor *) cursor;
 {
@@ -1359,7 +1399,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 
 - (int) _windowNumber; { return _windowNum; }
 
-// FIXME: NSWindow frontend should identify the otherWin from the global window list
+	// FIXME: NSWindow frontend should identify the otherWin from the global window list
 
 - (void) _orderWindow:(NSWindowOrderingMode) place relativeTo:(int) otherWin;
 {
@@ -1389,12 +1429,12 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 		}
 	// save (new) level so that we can order other windows accordingly
 	// maybe we should use a window property to store the level?
-	}
+}
 
 - (void) _miniaturize;
 {
 	NSLog(@"_miniaturize");
-//	Status XIconifyWindow(_display, _realWindow, _screen_number)
+	//	Status XIconifyWindow(_display, _realWindow, _screen_number)
 }
 
 - (void) _setOrigin:(NSPoint) point;
@@ -1429,8 +1469,9 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 					  _xRect.y,
 					  _xRect.width,
 					  _xRect.height);
-	if(_isDoubleBuffered)
+	if(_isDoubleBuffered(self))
 		{
+		NSLog(@"resize backing store buffer");
 		// FIXME: resize the double buffer!
 		}
 	[self _setSizeHints];
@@ -1451,13 +1492,13 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	NSLog(@"setLevel of window %d", level);
 #endif
 	/*
-	attrs.window_level = [window level];
-	attrs.flags = GSWindowStyleAttr|GSWindowLevelAttr;
-	attrs.window_style = (styleMask & GSAllWindowMask);
-	XChangeProperty(_display, _realWindow, _windowDecorAtom, _windowDecorAtom,		// window style hints
-					32, PropModeReplace, (unsigned char *)&attrs,
-					sizeof(GSAttributes)/sizeof(CARD32));
-*/
+	 attrs.window_level = [window level];
+	 attrs.flags = GSWindowStyleAttr|GSWindowLevelAttr;
+	 attrs.window_style = (styleMask & GSAllWindowMask);
+	 XChangeProperty(_display, _realWindow, _windowDecorAtom, _windowDecorAtom,		// window style hints
+					 32, PropModeReplace, (unsigned char *)&attrs,
+					 sizeof(GSAttributes)/sizeof(CARD32));
+	 */
 }
 
 - (void) _makeKeyWindow;
@@ -1482,6 +1523,14 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	return (NSRect){[ictm transformPoint:NSMakePoint(x, y)], [ictm transformSize:NSMakeSize(width, -height)]};	// translate to screen coordinates!
 }
 
+- (NSRect) _clipBox;
+{
+	XRectangle box;
+	NSAffineTransform *ictm=[_nsscreen _X112screen];
+	XClipBox(_state->_clip, &box);
+	return (NSRect){[ictm transformPoint:NSMakePoint(box.x, box.y)], [ictm transformSize:NSMakeSize(box.width, -box.height)]};	// translate to screen coordinates!
+}
+
 - (void) _setDocumentEdited:(BOOL)flag					// mark doc as edited
 { 
 	GSAttributes attrs;
@@ -1493,13 +1542,6 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 					32, PropModeReplace, (unsigned char *)&attrs, 
 					sizeof(GSAttributes)/sizeof(CARD32));
 }
-
-- (void) _beginPage:(NSString *) title;
-{ // can we (mis-)use that as setTitle???
-	return;
-}
-
-- (void) _endPage; { return; }
 
 - (_NSGraphicsState *) _copyGraphicsState:(_NSGraphicsState *) state;
 { 
@@ -1618,10 +1660,10 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 #if 0
 	NSLog(@"X11 flushGraphics");
 #endif
-	if(_isDoubleBuffered && _dirty.width > 0 && _dirty.height > 0)
+	if(_isDoubleBuffered(self) && _dirty.width > 0 && _dirty.height > 0)
 		{ // copy dirty area (if any) from back to front buffer
 #if 1
-		NSLog(@"flushing backing store buffer");
+		NSLog(@"flushing backing store buffer: %@", NSStringFromXRect(_dirty));
 #endif
 		XCopyArea(_display,
 				  ((Window) _graphicsPort), 
@@ -2052,13 +2094,13 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 		NSWindowList(context, count, list);
 		for(i=0; i<count; i++)
 			[a addObject:NSMapGet(__WindowNumToNSWindow, (void *) list[i]);	// translate to NSWindows
-		return a;
+				return a;
 		}
-	return nil;
+return nil;
 #endif
-	if(__WindowNumToNSWindow)
-		return NSAllMapTableValues(__WindowNumToNSWindow);		// all windows we currently know by window number
-	return nil;
+if(__WindowNumToNSWindow)
+return NSAllMapTableValues(__WindowNumToNSWindow);		// all windows we currently know by window number
+return nil;
 }
 
 @end
@@ -2169,14 +2211,15 @@ static NSDictionary *_x11settings;
 	Atom atoms[sizeof(atomNames)/sizeof(atomNames[0])];
 	NSFileHandle *fh;
 	NSUserDefaults *def=[[[NSUserDefaults alloc] initWithUser:@"root"] autorelease];
-	_x11settings=[[def persistentDomainForName:@"com.quantumstep.X11"] retain];
-	_doubleBufferering=![def boolForKey:@"NoNSBackingStoreBuffered"];
-#if 1
-	NSLog(@"%@", _doubleBufferering?@"backing store is buffered":@"directly to X11");
-#endif
 #if 1
 	NSLog(@"NSScreen backend +initialize");
 	//	system("export;/usr/X11R6/bin/xeyes&");
+#endif
+	_x11settings=[[def persistentDomainForName:@"com.quantumstep.X11"] retain];
+	if([def boolForKey:@"NoNSBackingStoreBuffered"])
+		_doubleBufferering=NO;
+#if 1
+	NSLog(@"%@", _doubleBufferering?@"backing store is buffered":@"directly to X11");
 #endif
 #if 0
 	XInitThreads();	// make us thread-safe
@@ -2192,9 +2235,9 @@ static NSDictionary *_x11settings;
 	_XRunloopModes=[[NSArray alloc] initWithObjects:
 		NSDefaultRunLoopMode,
 #if 1
-		// CHECKME:
-		// do we really have to handle NSConnectionReplyMode?
-		// Well, this keeps the UI responsive if DO is multi-threaded but might als lead to strange synchronization issues (nested runloops)
+										 // CHECKME:
+										 // do we really have to handle NSConnectionReplyMode?
+										 // Well, this keeps the UI responsive if DO is multi-threaded but might als lead to strange synchronization issues (nested runloops)
 		NSConnectionReplyMode,
 #endif
 		NSModalPanelRunLoopMode,
@@ -2256,7 +2299,7 @@ static NSDictionary *_x11settings;
 		[(NSAffineTransform *) _screen2X11 release];
 		_screen2X11=[[NSAffineTransform alloc] init];
 		[(NSAffineTransform *) _screen2X11 scaleXBy:_screenScale yBy:-_screenScale];	// flip Y axis and scale
-		// FIXME: do we have to divide the 0.5 by scale as well???
+																						// FIXME: do we have to divide the 0.5 by scale as well???
 		[(NSAffineTransform *) _screen2X11 translateXBy:0.5 yBy:-0.5-size.height];		// adjust for real screen height and proper rounding
 #if __APPLE__
 		size.height-=[self _windowTitleHeight]/_screenScale;	// subtract menu bar of X11 server from frame
@@ -2289,7 +2332,7 @@ static NSDictionary *_x11settings;
 						break;
 					case 2:	// Case open & portrait
 						{ // swap x and y
-							// what if we need to apply a different scaling factor?
+						  // what if we need to apply a different scaling factor?
 							unsigned xh;
 							float h;
 							xh=_xRect.width; _xRect.width=_xRect.height; _xRect.height=h;
@@ -2341,13 +2384,13 @@ static NSDictionary *_x11settings;
 - (const NSWindowDepth *) supportedWindowDepths;
 {
 	/*
-	int *XListDepths(display, screen_number, count_return)
-	Display *display;
-	int screen_number;
-	int *count_return;
+	 int *XListDepths(display, screen_number, count_return)
+	 Display *display;
+	 int screen_number;
+	 int *count_return;
 	 
 	 and translate
-
+	 
 	 */
 	NIMP; return NULL; 
 }
@@ -2410,7 +2453,7 @@ static NSDictionary *_x11settings;
 					thisXWin=xe.xmotion.window;
 					if(thisXWin != lastXWin)						
 						lastMotionEvent=nil;	// window has changed - we need a new event
-					break;
+						break;
 				case ReparentNotify:
 					thisXWin=xe.xreparent.window;
 					break;
@@ -2534,8 +2577,8 @@ static NSDictionary *_x11settings;
 						[window performClose:self];
 						}									// to close window
 #if DND
-					else
-						XRProcessXDND(_display, &xe);		// handle X DND
+						else
+							XRProcessXDND(_display, &xe);		// handle X DND
 #endif
 					break;
 				case ColormapNotify:					// colormap attribute chg
@@ -2545,7 +2588,7 @@ static NSDictionary *_x11settings;
 					NSDebugLog(@"ConfigureNotify\n");
 #if FIXME
 					if(!xe.xconfigure.override_redirect || 
-						xe.xconfigure.window == _wAppTileWindow)
+					   xe.xconfigure.window == _wAppTileWindow)
 						{
 						NSRect f = (NSRect){{(float)xe.xconfigure.x,
 							(float)xe.xconfigure.y},
@@ -2563,15 +2606,15 @@ static NSDictionary *_x11settings;
 						// FIXME: shouldn't this be an NSNotification that a window can catch?
 						[window _setFrame:f];
 						}
-					if(xe.xconfigure.window == lastXWin)
-						{
-						// xFrame = [w xFrame];
-						xFrame = (NSRect){{(float)xe.xconfigure.x,
+						if(xe.xconfigure.window == lastXWin)
+							{
+							// xFrame = [w xFrame];
+							xFrame = (NSRect){{(float)xe.xconfigure.x,
 								(float)xe.xconfigure.y},
 								{(float)xe.xconfigure.width,
 									(float)xe.xconfigure.height}};
-						}
-					break;								
+							}
+						break;								
 #endif
 				case ConfigureRequest:					// same as ConfigureNotify but we get this event
 					NSDebugLog(@"ConfigureRequest\n");	// before the change has 
@@ -2590,8 +2633,20 @@ static NSDictionary *_x11settings;
 					break;
 				case Expose:
 					{
-						if(/* window isDoubleBuffered (((Window) _graphicsPort) != _realWindow)	*/ 0)
+						_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[window graphicsContext];
+						if(_isDoubleBuffered(ctxt))
 							{ // copy from backing store
+							  // FIXME: we should suppress this until we have done the first flush command!
+#if 1
+							NSLog(@"expose backing store %@ (%d,%d),(%u,%u)", window, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);
+#endif
+							XCopyArea(_display,
+									  (Window) (ctxt->_graphicsPort), 
+									  ctxt->_realWindow,
+									  ((_NSX11GraphicsState *) (ctxt->_graphicsState))->_gc,		// checkme - can we really use this GC or do we need a different one???
+									  xe.xexpose.x, xe.xexpose.y,
+									  xe.xexpose.width, xe.xexpose.height,
+									  xe.xexpose.x, xe.xexpose.y);							
 							}
 						else
 							{
@@ -2614,29 +2669,45 @@ static NSDictionary *_x11settings;
 					}
 				case FocusIn:							
 					{ // keyboard focus entered one of our windows - take this a a hint from the WindowManager to bring us to the front
-					NSLog(@"FocusIn 1: %d\n", xe.xfocus.detail);
+						NSLog(@"FocusIn 1: %d\n", xe.xfocus.detail);
 #if OLD
-					// NotifyAncestor			0
-					// NotifyVirtual			1
-					// NotifyInferior			2
-					// NotifyNonlinear			3
-					// NotifyNonlinearVirtual	4
-					// NotifyPointer			5
-					// NotifyPointerRoot		6
-					// NotifyDetailNone			7
-					[NSApp activateIgnoringOtherApps:YES];	// user has clicked: bring our application windows and menus to front
-					[window makeKey];
-					if(xe.xfocus.detail == NotifyAncestor)
-						{
-						//				if (![[[NSApp mainMenu] _menuWindow] isVisible])
-						//					[[NSApp mainMenu] display];
-						}
-					else if(xe.xfocus.detail == NotifyNonlinear
-							&& __xKeyWindowNeedsFocus == None)
-						{ // create fake mouse dn
-						NSLog(@"FocusIn 2");
-						// FIXME: shouldn't we better use data1 and data2 to specify that we are having focus-events??
-						e = [NSEvent otherEventWithType:NSAppKitDefined
+						// NotifyAncestor			0
+						// NotifyVirtual			1
+						// NotifyInferior			2
+						// NotifyNonlinear			3
+						// NotifyNonlinearVirtual	4
+						// NotifyPointer			5
+						// NotifyPointerRoot		6
+						// NotifyDetailNone			7
+						[NSApp activateIgnoringOtherApps:YES];	// user has clicked: bring our application windows and menus to front
+						[window makeKey];
+						if(xe.xfocus.detail == NotifyAncestor)
+							{
+							//				if (![[[NSApp mainMenu] _menuWindow] isVisible])
+							//					[[NSApp mainMenu] display];
+							}
+						else if(xe.xfocus.detail == NotifyNonlinear
+								&& __xKeyWindowNeedsFocus == None)
+							{ // create fake mouse dn
+							NSLog(@"FocusIn 2");
+							// FIXME: shouldn't we better use data1 and data2 to specify that we are having focus-events??
+							e = [NSEvent otherEventWithType:NSAppKitDefined
+												   location:NSZeroPoint
+											  modifierFlags:0
+												  timestamp:(NSTimeInterval)0
+											   windowNumber:windowNumber
+													context:self
+													subtype:xe.xfocus.serial
+													  data1:0
+													  data2:0];
+							}
+#endif
+						break;
+					}
+				case FocusOut:
+					{ // keyboard focus has left one of our windows
+						NSDebugLog(@"FocusOut");
+						e = [NSEvent otherEventWithType:NSSystemDefined
 											   location:NSZeroPoint
 										  modifierFlags:0
 											  timestamp:(NSTimeInterval)0
@@ -2645,54 +2716,38 @@ static NSDictionary *_x11settings;
 												subtype:xe.xfocus.serial
 												  data1:0
 												  data2:0];
-						}
-#endif
-					break;
-					}
-				case FocusOut:
-					{ // keyboard focus has left one of our windows
-					NSDebugLog(@"FocusOut");
-					e = [NSEvent otherEventWithType:NSSystemDefined
-										   location:NSZeroPoint
-									  modifierFlags:0
-										  timestamp:(NSTimeInterval)0
-									   windowNumber:windowNumber
-											context:self
-											subtype:xe.xfocus.serial
-											  data1:0
-											  data2:0];
 #if FIXME
-					if(xe.xfocus.detail == NotifyAncestor)	// what does this mean?
-						{
-						NSLog(@"FocusOut 1");
-						[w xFrame];
-						XFlush(_display);
-						if([w xGrabMouse] == GrabSuccess)
-							[w xReleaseMouse];
+						if(xe.xfocus.detail == NotifyAncestor)	// what does this mean?
+							{
+							NSLog(@"FocusOut 1");
+							[w xFrame];
+							XFlush(_display);
+							if([w xGrabMouse] == GrabSuccess)
+								[w xReleaseMouse];
+							else
+								{
+								NSWindow *k = [NSApp keyWindow];
+								
+								if((w == k && [k isVisible]) || !k)
+									[[NSApp mainMenu] close];	// parent titlebar is moving the window
+								}
+							}
 						else
 							{
-							NSWindow *k = [NSApp keyWindow];
-							
-							if((w == k && [k isVisible]) || !k)
-								[[NSApp mainMenu] close];	// parent titlebar is moving the window
+							Window xfw;
+							int r;
+							// check if focus is in one of our windows
+							XGetInputFocus(_display, &xfw, &r);
+							if(!(w = XRWindowWithXWindow(xfw)))
+								{
+								NSLog(@"FocusOut 3");
+								//							[NSApp deactivate];
+								}
 							}
-						}
-					else
-						{
-						Window xfw;
-						int r;
-						// check if focus is in one of our windows
-						XGetInputFocus(_display, &xfw, &r);
-						if(!(w = XRWindowWithXWindow(xfw)))
-							{
-							NSLog(@"FocusOut 3");
-							//							[NSApp deactivate];
-							}
-						}
-					if(__xKeyWindowNeedsFocus == xe.xfocus.window)
-						__xKeyWindowNeedsFocus = None;
+						if(__xKeyWindowNeedsFocus == xe.xfocus.window)
+							__xKeyWindowNeedsFocus = None;
 #endif
-					break;
+						break;
 					}
 				case GraphicsExpose:
 					NSDebugLog(@"GraphicsExpose\n");
@@ -2748,161 +2803,161 @@ static NSDictionary *_x11settings;
 #endif
 						break;
 					}
-					
-				case KeymapNotify:						// reports the state of the
-					NSDebugLog(@"KeymapNotify");		// keyboard when pointer or
-					break;								// focus enters a window
-					
-				case MapNotify:							// when a window changes
-					NSDebugLog(@"MapNotify");			// state from ummapped to
-														// mapped or vice versa
-					[window _setIsVisible:YES];
-					break;								 
-					
-				case UnmapNotify:						// find the NSWindow and
-					NSDebugLog(@"UnmapNotify\n");		// inform it that it is no
-														// longer visible
-					[window _setIsVisible:NO];
-					break;
-					
-				case MapRequest:						// like MapNotify but
-					NSDebugLog(@"MapRequest\n");		// occurs before the
-					break;								// request is carried out
-					
-				case MappingNotify:						// keyboard or mouse   
-					NSDebugLog(@"MappingNotify\n");		// mapping has been changed
-					break;								// by another client
-					
-				case MotionNotify:
-					{ // the mouse has moved
-					NSDebugLog(@"MotionNotify");
-					if(xe.xmotion.state & Button1Mask)		
-						type = NSLeftMouseDragged;	
-					else if(xe.xmotion.state & Button3Mask)		
-						type = NSRightMouseDragged;	
-					else if(xe.xmotion.state & Button2Mask)		
-						type = NSOtherMouseDragged;	
-					else
-						type = NSMouseMoved;	// not pressed
-#if 0
-					if(lastMotionEvent &&
-					   [NSApp _eventIsQueued:lastMotionEvent])
-						{
-						NSLog(@"motion event still in queue: %@", lastMotionEvent);
-						}
-#endif
-					if(lastMotionEvent &&
-					   [NSApp _eventIsQueued:lastMotionEvent] &&	// must come first because event may already have been relesed/deallocated
-					   [lastMotionEvent type] == type)
-						{ // replace/update if last motion event is still unprocessed in queue
-						typedef struct _NSEvent_t { @defs(NSEvent) } _NSEvent;
-						_NSEvent *a = (_NSEvent *)lastMotionEvent;	// this allows to access iVars directly
-#if 0
-						NSLog(@"update last motion event");
-#endif
-						a->location_point=X11toScreen(xe.xmotion);
-						a->modifier_flags=__modFlags;
-						a->event_time=X11toTimestamp(xe.xmotion);
-						a->event_data.mouse.event_num=xe.xmotion.serial;
+						
+					case KeymapNotify:						// reports the state of the
+						NSDebugLog(@"KeymapNotify");		// keyboard when pointer or
+						break;								// focus enters a window
+						
+					case MapNotify:							// when a window changes
+						NSDebugLog(@"MapNotify");			// state from ummapped to
+															// mapped or vice versa
+						[window _setIsVisible:YES];
+						break;								 
+						
+					case UnmapNotify:						// find the NSWindow and
+						NSDebugLog(@"UnmapNotify\n");		// inform it that it is no
+															// longer visible
+						[window _setIsVisible:NO];
 						break;
-						}
-					e = [NSEvent mouseEventWithType:type		// create NSEvent
-										   location:X11toScreen(xe.xmotion)
-									  modifierFlags:__modFlags
-										  timestamp:X11toTimestamp(xe.xmotion)
-									   windowNumber:windowNumber
-											context:self
-										eventNumber:xe.xmotion.serial
-										 clickCount:1
-										   pressure:1.0];
-					lastMotionEvent = e;
+						
+					case MapRequest:						// like MapNotify but
+						NSDebugLog(@"MapRequest\n");		// occurs before the
+						break;								// request is carried out
+						
+					case MappingNotify:						// keyboard or mouse   
+						NSDebugLog(@"MappingNotify\n");		// mapping has been changed
+						break;								// by another client
+						
+					case MotionNotify:
+						{ // the mouse has moved
+							NSDebugLog(@"MotionNotify");
+							if(xe.xmotion.state & Button1Mask)		
+								type = NSLeftMouseDragged;	
+							else if(xe.xmotion.state & Button3Mask)		
+								type = NSRightMouseDragged;	
+							else if(xe.xmotion.state & Button2Mask)		
+								type = NSOtherMouseDragged;	
+							else
+								type = NSMouseMoved;	// not pressed
 #if 0
-					NSLog(@"MotionNotify e=%@", e);
+							if(lastMotionEvent &&
+							   [NSApp _eventIsQueued:lastMotionEvent])
+								{
+								NSLog(@"motion event still in queue: %@", lastMotionEvent);
+								}
 #endif
-					break;
-					}
-				case PropertyNotify:
-					{ // a window property has changed or been deleted
-					NSDebugLog(@"PropertyNotify");
-					if(_stateAtom == xe.xproperty.atom)
-						{
-						Atom target;
-						unsigned long number_items, bytes_remaining;
-						unsigned char *data;
-						int status, format;						
-						status = XGetWindowProperty(_display,
-													xe.xproperty.window, 
-													xe.xproperty.atom, 
-													0, 1, False, _stateAtom,
-													&target, &format, 
-													&number_items,&bytes_remaining,
-													(unsigned char **)&data);
-						if(status != Success || !data) 
+							if(lastMotionEvent &&
+							   [NSApp _eventIsQueued:lastMotionEvent] &&	// must come first because event may already have been relesed/deallocated
+							   [lastMotionEvent type] == type)
+								{ // replace/update if last motion event is still unprocessed in queue
+								typedef struct _NSEvent_t { @defs(NSEvent) } _NSEvent;
+								_NSEvent *a = (_NSEvent *)lastMotionEvent;	// this allows to access iVars directly
+#if 0
+								NSLog(@"update last motion event");
+#endif
+								a->location_point=X11toScreen(xe.xmotion);
+								a->modifier_flags=__modFlags;
+								a->event_time=X11toTimestamp(xe.xmotion);
+								a->event_data.mouse.event_num=xe.xmotion.serial;
+								break;
+								}
+							e = [NSEvent mouseEventWithType:type		// create NSEvent
+												   location:X11toScreen(xe.xmotion)
+											  modifierFlags:__modFlags
+												  timestamp:X11toTimestamp(xe.xmotion)
+											   windowNumber:windowNumber
+													context:self
+												eventNumber:xe.xmotion.serial
+												 clickCount:1
+												   pressure:1.0];
+							lastMotionEvent = e;
+#if 0
+							NSLog(@"MotionNotify e=%@", e);
+#endif
 							break;
-						if(*data == IconicState)
-							[window miniaturize:self];
-						else if(*data == NormalState)
-							[window deminiaturize:self];
-						if(number_items > 0)
-							XFree(data);
 						}
+					case PropertyNotify:
+						{ // a window property has changed or been deleted
+							NSDebugLog(@"PropertyNotify");
+							if(_stateAtom == xe.xproperty.atom)
+								{
+								Atom target;
+								unsigned long number_items, bytes_remaining;
+								unsigned char *data;
+								int status, format;						
+								status = XGetWindowProperty(_display,
+															xe.xproperty.window, 
+															xe.xproperty.atom, 
+															0, 1, False, _stateAtom,
+															&target, &format, 
+															&number_items,&bytes_remaining,
+															(unsigned char **)&data);
+								if(status != Success || !data) 
+									break;
+								if(*data == IconicState)
+									[window miniaturize:self];
+								else if(*data == NormalState)
+									[window deminiaturize:self];
+								if(number_items > 0)
+									XFree(data);
+								}
 #if 1	// debug
-					if(_stateAtom == xe.xproperty.atom)
-						{
-						char *data = XGetAtomName(_display, xe.xproperty.atom);
-						NSLog(@"PropertyNotify: Atom name is '%s' \n", data);
-						XFree(data);
-						}
+							if(_stateAtom == xe.xproperty.atom)
+								{
+								char *data = XGetAtomName(_display, xe.xproperty.atom);
+								NSLog(@"PropertyNotify: Atom name is '%s' \n", data);
+								XFree(data);
+								}
 #endif
-					break;
-					}
-				case ReparentNotify:					// a client successfully
-					NSDebugLog(@"ReparentNotify\n");	// reparents a window
+							break;
+						}
+					case ReparentNotify:					// a client successfully
+						NSDebugLog(@"ReparentNotify\n");	// reparents a window
 #if FIXME
-					if(__xAppTileWindow == xe.xreparent.window)
-						{ // WM reparenting appicon
-						_wAppTileWindow = xe.xreparent.parent;
-					//	[window xSetFrameFromXContentRect: [window xFrame]];
-						XSelectInput(_display, _wAppTileWindow, StructureNotifyMask);
-						// FIXME: should this be an NSNotification?
-						}
+						if(__xAppTileWindow == xe.xreparent.window)
+							{ // WM reparenting appicon
+							_wAppTileWindow = xe.xreparent.parent;
+							//	[window xSetFrameFromXContentRect: [window xFrame]];
+							XSelectInput(_display, _wAppTileWindow, StructureNotifyMask);
+							// FIXME: should this be an NSNotification?
+							}
 #endif
-					break;
-				case ResizeRequest:						// another client (or WM) attempts to change window size
-					NSDebugLog(@"ResizeRequest"); 
-					break;
-				case SelectionNotify:
-					NSLog(@"SelectionNotify");
-					{
-//						NSPasteboard *pb = [NSPasteboard generalPasteboard];
-
-						// FIXME: should this be an NSNotification? Or where should we send this event to?
-//						[pb _handleSelectionNotify:(XSelectionEvent *)&xe];
-
-						e = [NSEvent otherEventWithType:NSFlagsChanged	
-											   location:NSZeroPoint
-										  modifierFlags:0
-											  timestamp:X11toTimestamp(xe.xbutton)
-										   windowNumber:windowNumber	// 0 ??
-												context:self
-												subtype:0
-												  data1:0
-												  data2:0];
+							break;
+					case ResizeRequest:						// another client (or WM) attempts to change window size
+						NSDebugLog(@"ResizeRequest"); 
 						break;
-					}					
-				case SelectionClear:						// X selection events 
-				case SelectionRequest:
-					NSLog(@"SelectionRequest");
+					case SelectionNotify:
+						NSLog(@"SelectionNotify");
+						{
+							//						NSPasteboard *pb = [NSPasteboard generalPasteboard];
+							
+							// FIXME: should this be an NSNotification? Or where should we send this event to?
+							//						[pb _handleSelectionNotify:(XSelectionEvent *)&xe];
+							
+							e = [NSEvent otherEventWithType:NSFlagsChanged	
+												   location:NSZeroPoint
+											  modifierFlags:0
+												  timestamp:X11toTimestamp(xe.xbutton)
+											   windowNumber:windowNumber	// 0 ??
+													context:self
+													subtype:0
+													  data1:0
+													  data2:0];
+							break;
+						}					
+						case SelectionClear:						// X selection events 
+						case SelectionRequest:
+							NSLog(@"SelectionRequest");
 #if FIXME
-					xHandleSelectionRequest((XSelectionRequestEvent *)&xe);
+							xHandleSelectionRequest((XSelectionRequestEvent *)&xe);
 #endif
-					break;
-				case VisibilityNotify:						// window's visibility 
-					NSDebugLog(@"VisibilityNotify");		// has changed
-					break;
-				default:									// should not get here
-					NSLog(@"Received an untrapped event");
-					break;
+							break;
+						case VisibilityNotify:						// window's visibility 
+							NSDebugLog(@"VisibilityNotify");		// has changed
+							break;
+						default:									// should not get here
+							NSLog(@"Received an untrapped event");
+							break;
 				} // end of event type switch
 			if(e != nil)
 				[NSApp postEvent:e atStart:NO];			// add event to app queue
@@ -2984,7 +3039,7 @@ static NSDictionary *_x11settings;
 { // make it a screen font
 	if(_fontStruct)
 		return nil;	// is already a screen font!
-	// FIXME: check if we either have no transform matrix or it is an identity matrix
+					// FIXME: check if we either have no transform matrix or it is an identity matrix
 	if((self=[[self copy] autorelease]))
 		{
 		_renderingMode=mode;	// make it a bitmapped screen font
@@ -3020,8 +3075,8 @@ static NSDictionary *_x11settings;
 #endif
 	if(_fontScale == 1.0 && _unscaledFontStruct)
 		return _unscaledFontStruct;
-//	if(_renderingMode != NSFontDefaultRenderingMode)
-//		[NSException raise:NSGenericException format:@"Is not a screen font %@:%f", name, [self pointSize]];		
+	//	if(_renderingMode != NSFontDefaultRenderingMode)
+	//		[NSException raise:NSGenericException format:@"Is not a screen font %@:%f", name, [self pointSize]];		
 	if(!_fontStruct)
 		{
 		char *xFoundry = "*";
@@ -3036,13 +3091,13 @@ static NSDictionary *_x11settings;
 		char *xYDPI = "*";
 		char *xSpacing = "*";									// P proportional, M monospaced, C cell
 		char *xAverage = "*";									// average width
-		char *xRegistry = "*";
-		char *xEncoding = "*";
+		char *xRegistry = "*";									// should try ISO10646-1, iso8859-1, iso8859-2, etc.
+		char *xEncoding = "*";									// -1 goes here...
 		NSString *xf = nil;
 		
 		if(!_display)
 			[NSScreen class];	// +initialize
-			// [NSException raise:NSGenericException format:@"font %@: no _display: %@", self, xf];
+								// [NSException raise:NSGenericException format:@"font %@: no _display: %@", self, xf];
 		sprintf(xPoint, "%.0f", _fontScale*[self pointSize]);	// scaled font for X11 server
 		
 		if([name caseInsensitiveCompare:@"Helvetica"] == NSOrderedSame)
@@ -3072,30 +3127,44 @@ static NSDictionary *_x11settings;
 			xRegistry="iso8859";
 			xFamily="1";
 			}
+		else
+			{ // default
+			xFamily="lucida*";
+			xWeight="medium";
+			}
 		xf=[NSString stringWithFormat: @"-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s",
 			xFoundry, xFamily, xWeight, xSlant, xWidth, xStyle,
 			xPixel, xPoint, xXDPI, xYDPI, xSpacing, xAverage,
 			xRegistry, xEncoding];
+#if 1
+		NSLog(@"try %@", xf);
+#endif
 		if((_fontStruct = XLoadQueryFont(_display, [xf cString])))	// Load X font
 			return _fontStruct;
-		xWeight="*";	// any weight
+		xWeight="*";	// try any weight
 		xf=[NSString stringWithFormat: @"-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s",
 			xFoundry, xFamily, xWeight, xSlant, xWidth, xStyle,
 			xPixel, xPoint, xXDPI, xYDPI, xSpacing, xAverage,
 			xRegistry, xEncoding];
+#if 1
+		NSLog(@"try %@", xf);
+#endif
 		if((_fontStruct = XLoadQueryFont(_display, [xf cString])))	// Load X font
 			return _fontStruct;
-		xFamily="*";	// any family
+		xFamily="*";	// try any family
 		xf=[NSString stringWithFormat: @"-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s-%s",
 			xFoundry, xFamily, xWeight, xSlant, xWidth, xStyle,
 			xPixel, xPoint, xXDPI, xYDPI, xSpacing, xAverage,
 			xRegistry, xEncoding];
+#if 1
+		NSLog(@"try %@", xf);
+#endif
 		if((_fontStruct = XLoadQueryFont(_display, [xf cString])))	// Load X font
 			return _fontStruct;
 		NSLog(@"font: %@ is not available", xf);
 		NSLog(@"Trying 9x15 system font instead");			
 		if((_fontStruct = XLoadQueryFont(_display, "9x15")))
-		   return _fontStruct;	// "9x15" exists
+			return _fontStruct;	// "9x15" exists
 		NSLog(@"Trying fixed font instead");			
 		if((_fontStruct = XLoadQueryFont(_display, "fixed")))
 			return _fontStruct;	// "fixed" exists
