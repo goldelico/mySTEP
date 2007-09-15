@@ -31,7 +31,8 @@
 #import "NSBackendPrivate.h"
 
 // Class variables
-static BOOL _ignoresAlpha = NO;
+static BOOL _ignoresAlpha = YES;		// application wide default
+
 static NSColorList *_systemColors = nil;
 static NSMutableDictionary *_colorStrings = nil;
 

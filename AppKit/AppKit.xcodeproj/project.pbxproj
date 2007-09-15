@@ -988,7 +988,7 @@
 		EEA3F8910BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FindPanel.nib; sourceTree = "<group>"; };
 		EEA3F8930BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FontPanel.nib; sourceTree = "<group>"; };
 		EEACF8A409ED3A9F0085F56E /* NSDrawer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDrawer.m; sourceTree = "<group>"; };
-		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEC8036209AE4EBF006EEB03 /* mySTEP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mySTEP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EECD83250A0788DB00EF3E30 /* NSLevelIndicator.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSLevelIndicator.m; sourceTree = "<group>"; };
 		EECD83560A07940600EF3E30 /* NSDatePicker.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDatePicker.m; sourceTree = "<group>"; };
@@ -1307,7 +1307,6 @@
 				EEA3720409540273001244CF /* NSColor.h */,
 				EEA3720509540273001244CF /* NSColor.m */,
 				EEA3720609540273001244CF /* NSColorList.h */,
-				EEA3720709540273001244CF /* NSColorPanel.h */,
 				EEA3720809540273001244CF /* NSColorPicker.h */,
 				EEA3720909540273001244CF /* NSColorPicking.h */,
 				EE349C3E097027D500CBF42C /* NSColorSpace.h */,
@@ -1342,6 +1341,7 @@
 			isa = PBXGroup;
 			children = (
 				EE349C39097027D500CBF42C /* NSAlert.h */,
+				EEA3720709540273001244CF /* NSColorPanel.h */,
 				EE349C42097027D500CBF42C /* NSDrawer.h */,
 				EEACF8A409ED3A9F0085F56E /* NSDrawer.m */,
 				EEA3724009540273001244CF /* NSOpenPanel.h */,

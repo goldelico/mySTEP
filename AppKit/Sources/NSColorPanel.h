@@ -69,8 +69,8 @@ enum
 	IBOutlet NSTextField *_html;
 	/* */
 	NSView *_accessoryView;
-//	NSColor *_color;	// stored in color well
 	NSColorList *_colorList;
+	id _target;
 	SEL _action;
 	int _mode;
 	BOOL _isContinuous;

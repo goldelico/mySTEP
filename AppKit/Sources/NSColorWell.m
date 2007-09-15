@@ -42,6 +42,8 @@
 	float inset = 3;
 	NSRect r;
 
+	// 	if(![super isEnabled])
+
 	if (_cw.isBordered)
 		{
 		float grays[] = { NSBlack, NSBlack, NSWhite,	// Draw outer frame
@@ -71,28 +73,44 @@
 
 - (void) drawWellInside:(NSRect)insideRect
 {
-	if (NSIsEmptyRect(insideRect))
+	if(NSIsEmptyRect(insideRect))
 		return;
+	if([_color alphaComponent] != 1.0)
+		{ // is not completely opaque
+		NSBezierPath *p=[NSBezierPath new];
+		[p moveToPoint:NSMakePoint(NSMinX(insideRect), NSMinY(insideRect))];
+		[p lineToPoint:NSMakePoint(NSMaxX(insideRect), NSMaxY(insideRect))];
+		[p lineToPoint:NSMakePoint(NSMinX(insideRect), NSMaxY(insideRect))];
+		[[NSColor blackColor] setFill];
+		[p fill];	// black triangle
+		[p removeAllPoints];
+		[p moveToPoint:NSMakePoint(NSMinX(insideRect), NSMinY(insideRect))];
+		[p lineToPoint:NSMakePoint(NSMaxX(insideRect), NSMaxY(insideRect))];
+		[p lineToPoint:NSMakePoint(NSMaxX(insideRect), NSMinY(insideRect))];
+		[[NSColor whiteColor] setFill];
+		[p fill];	// white triangle
+		[p release];
+		}
 	[_color set];
-	NSRectFill(insideRect);
+	NSRectFill(insideRect);	// overlay with current color
 }
 
 - (void) mouseDown:(NSEvent*)event
 {
-//	NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
-
-//	if(!NSMouseInRect(p, NSInsetRect(bounds, 7, 7), NO))
-//		{	// click on border
-		_cw.isActive = !(_cw.isActive);
-		[self setNeedsDisplay:YES];
-		if(_cw.isActive)
-			{
-//			[[NSColorPanel sharedColorPanel] display];
-			[[NSColorPanel sharedColorPanel] makeKeyAndOrderFront:self];
-			// FIXME: closing the ColorPanel should deactivate the current ColorWell (without changing)!
-			// so we need to track the WindowClosed notification
-			}
-//		}
+	if([super isEnabled])
+		return;	// ignore
+	_cw.isActive = !(_cw.isActive);
+	[self setNeedsDisplay:YES];
+	if(_cw.isActive)
+		{
+		NSColorPanel *panel=[NSColorPanel sharedColorPanel];
+		[panel makeKeyAndOrderFront:self];
+		[panel setAction:@selector(_changeColor:)];
+		[panel setTarget:self];
+		[panel setContinuous:[super isContinuous]];
+		// FIXME: closing the ColorPanel should deactivate the current ColorWell (without changing)!
+		// so we need to track the WindowClosed notification
+		}
 }
 
 - (void) activate:(BOOL)exclusive							// Activation
@@ -105,17 +123,23 @@
 	_cw.isActive = NO;
 }
 
-- (void)changeColor:(id)sender
-{ // if we are the first responder
+- (void) _changeColor:(id)sender
+{
 	[self setColor:[sender color]];
 	[self deactivate];
+	// make [super send our action/target]
 }
 
 - (NSColor*) color						{ return _color; }
-- (void) setColor:(NSColor*)color		{ ASSIGN(_color, color); }
 - (BOOL) isActive						{ return _cw.isActive; }
 - (BOOL) isOpaque						{ return _cw.isBordered; }
 - (BOOL) isBordered						{ return _cw.isBordered; }
+
+- (void) setColor:(NSColor*)color
+{
+	ASSIGN(_color, color);
+	[self setNeedsDisplay:YES];
+}
 
 - (void) setBordered:(BOOL)bordered
 {
@@ -125,8 +149,8 @@
 
 - (void) takeColorFrom:(id)sender
 {
-	if ([sender respondsToSelector:@selector(color)])
-		ASSIGN(_color, [sender color]);
+	if([sender respondsToSelector:@selector(color)])
+		[self setColor:[sender color]];
 }
 
 - (void) encodeWithCoder:(NSCoder *) aCoder

@@ -1414,26 +1414,79 @@ static NSColorPanel *__colorPanel;
 		 withEvent:(NSEvent *)anEvent
 		  fromView:(NSView *)sourceView		{ return NO; }
 
-- (void) _notify;
+- (IBAction) _notify:(id) sender;
 {
-	[[NSApp targetForAction:@selector(changeColor:)] changeColor:self];	// send to the first responder
+	NSLog(@"NSColorPanel _notify: %@", sender);
+	// check sender, i.e. which slider was moved
+	// or which text field did end editing
+	if(_target && _action)
+		[_target performSelector:_action];
+}
+
+- (void) _update;
+{
+	BOOL alph=![NSColor ignoresAlpha] && _showsAlpha;
+	float red, green, blue, alpha;
+	[_alpha setHidden:!alph];
+	[_alphaSlider setHidden:!alph];
+	[[_colorWell color] getRed:&red green:&green blue:&blue alpha:&alpha];
+	if(alph)
+		{
+		[_alphaSlider setFloatValue:alpha];
+		[_alpha setStringValue:[NSString stringWithFormat:@"%.0f", 255*alpha]];
+		}
+	[_redSlider setFloatValue:red];
+	[_red setStringValue:[NSString stringWithFormat:@"%d", (int)(255*red)]];
+	[_greenSlider setFloatValue:green];
+	[_green setStringValue:[NSString stringWithFormat:@"%d", (int)(255*green)]];
+	[_blueSlider setFloatValue:blue];
+	[_blue setStringValue:[NSString stringWithFormat:@"%d", (int)(255*blue)]];
+	[_html setStringValue:[NSString stringWithFormat:@"#02x02x02x", (int)(255*red), (int)(255*green), (int)(255*blue)]];
 }
 
 - (NSView *) accessoryView					{ return _accessoryView; }
-- (BOOL) isContinuous						{ return NO; }
-- (BOOL) showsAlpha							{ return NO; }
-- (int) mode								{ return 0; }
-- (void) setAccessoryView:(NSView *)aView	{ ASSIGN(_accessoryView, aView); }
-- (void) setAction:(SEL)aSelector			{}
-- (void) setContinuous:(BOOL)flag			{}
-- (void) setMode:(int)mode					{}
-- (void) setShowsAlpha:(BOOL)flag			{}
-- (void) setTarget:(id)anObject				{}
+- (BOOL) isContinuous						{ return _isContinuous; }
+- (BOOL) showsAlpha							{ return _showsAlpha; }
+- (int) mode								{ return _mode; }
+- (float) alpha								{ return [_alphaSlider isHidden]?1.0:[[_colorWell color] alphaComponent]; }
+- (NSColor *) color							{ return [_colorWell color]; }
+
+- (void) setAction:(SEL)aSelector			{ _action=aSelector; }
+
+- (void) setMode:(int)mode					{ _mode=mode; }
+
+- (void) setTarget:(id)anObject				{ _target=anObject; }
 - (void) attachColorList:(NSColorList *)aColorList		{}
 - (void) detachColorList:(NSColorList *)aColorList		{}
-- (float) alpha								{ return 0; }
-- (NSColor *) color							{ return nil; }
-- (void) setColor:(NSColor *)aColor			{}
+
+- (void) setContinuous:(BOOL)flag
+{
+	_isContinuous=flag;
+	[_redSlider setContinuous:_isContinuous];		// sliders will trigger action(s)
+	[_greenSlider setContinuous:_isContinuous];
+	[_blueSlider setContinuous:_isContinuous];
+	[_alphaSlider setContinuous:_isContinuous];
+}
+
+- (void) setAccessoryView:(NSView *)aView
+{
+	ASSIGN(_accessoryView, aView);
+	[self _update];
+	// should also update the full window
+}
+
+- (void) setShowsAlpha:(BOOL)flag
+{
+	_showsAlpha=flag;
+	[self _update];
+}
+
+- (void) setColor:(NSColor *)aColor
+	{
+	[_colorWell setColor:aColor];
+	// FIXME: send NSColorPanelColorDidChangeNotification
+	[self _update];
+	}
 
 - (void) encodeWithCoder:(NSCoder *)aCoder				// NSCoding protocol
 {
