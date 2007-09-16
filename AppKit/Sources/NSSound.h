@@ -56,7 +56,7 @@ extern NSString *NSSoundPboardType;
 - (BOOL) play;
 - (BOOL) resume;
 - (void) setDelegate:(id)anObject;							// Set the Delegate
-- (void) setName:(NSString *) name;
+- (BOOL) setName:(NSString *) name;
 - (BOOL) stop;
 - (void) writeToPasteboard:(NSPasteboard *) pasteboard;
 

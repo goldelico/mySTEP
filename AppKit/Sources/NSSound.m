@@ -22,17 +22,13 @@
 
 NSString *NSSoundPboardType=@"NSSound";
 
+static NSMutableDictionary *__nameToSoundDict = nil;
+
 @implementation NSSound
 
-+ (BOOL) canInitWithPasteboard:(NSPasteboard*)pasteboard;
++ (void) initialize
 {
-	NIMP;
-	return NO;
-}
-
-+ (id) soundNamed:(NSString*)name;
-{
-	return NIMP;
+	__nameToSoundDict = [[NSMutableDictionary alloc] initWithCapacity: 10];
 }
 
 + (NSArray *) _soundFileTypes;
@@ -41,6 +37,92 @@ NSString *NSSoundPboardType=@"NSSound";
 	if(!_soundFileTypes)
 		_soundFileTypes=[[[NSWorkspace _distributedWorkspace] soundFileTypes] retain];
 	return _soundFileTypes;
+}
+
++ (id) soundNamed:(NSString *) aName;
+{
+	NSSound *sound;
+	NSString *name;
+	NSString *ext;
+	NSString *path;
+	NSArray *fileTypes;
+	NSBundle *bundle;
+	NSEnumerator *e;
+#if 0
+	NSLog(@"load soundNamed %@", aName);
+#endif
+	if((sound = [__nameToSoundDict objectForKey:aName]))
+		{ // in cache
+		if([sound isKindOfClass:[NSNull class]])
+			return nil; // we know that we don't know...
+		return sound;
+		}
+	ext = [aName pathExtension];		// dict search for it
+	fileTypes = [self _soundFileTypes];
+#if 0
+	NSLog(@"soundFileTypes = %@", fileTypes);
+#endif
+	bundle = [NSBundle mainBundle];		// look into main bundle first
+	path=nil;
+	if([fileTypes containsObject:ext])
+		{
+		name = [aName stringByDeletingPathExtension];		// has a supported extension
+		path = [bundle pathForResource:name ofType:ext];	// look up
+		}
+	if(!path)
+		{ // name does not have a supported ext: search for the sound locally (mainBundle)
+		id o;
+		ext=nil;	// ignore extension
+		e = [fileTypes objectEnumerator];
+		name = aName;
+		while((o = [e nextObject]))
+			{
+#if 0
+			NSLog(@"try %@: %@.%@", [bundle bundlePath], name, o);
+#endif
+			if((path = [bundle pathForResource:name ofType:o]))
+				break;
+			}
+		}
+	if(!path)
+		{ // If not found in app bundle search for sound in system
+		bundle=[NSBundle bundleForClass:[self class]];	// look up in AppKit.framework
+		if(ext)
+			path = [bundle pathForResource:name ofType:ext];
+		else 
+			{ // try all extensions we know
+			id o;
+			e = [fileTypes objectEnumerator];
+			while((o = [e nextObject]))
+				{
+#if 0
+				NSLog(@"try %@: %@.%@", [bundle bundlePath], name, o);
+#endif
+				if((path = [bundle pathForResource:name ofType:o]))
+					break;
+				}
+			}
+		}
+#if 0
+	NSLog(@"found %@ at path=%@ in bundle %@", aName, path, bundle);
+#endif
+	sound=nil;
+	if(path && (sound = [[NSSound alloc] initWithContentsOfFile:path]))
+		{ // file really exists
+		[sound setName:aName];	// will save in __nameToSoundDict - and increment retain count
+#if 0
+		NSLog(@"NSsound: -soundNamed:%@ -> %@", aName, sound);
+#endif
+		[sound autorelease];	// don't leak if everything is released - unfortunately we are never deleted from the sound cache
+		}
+	if(!sound)
+		{
+#if 0
+		NSLog(@"could not find NSSound -soundNamed:%@", aName);
+#endif
+		[__nameToSoundDict setObject:[NSNull null] forKey:aName];	// save a tag that we don't know the sound
+		}
+	return sound;
 }
 
 + (NSArray*) soundUnfilteredFileTypes;
@@ -53,15 +135,23 @@ NSString *NSSoundPboardType=@"NSSound";
 	return [self _soundFileTypes];
 }
 
++ (BOOL) canInitWithPasteboard:(NSPasteboard*)pasteboard;
+{
+	NIMP;
+	return NO;
+}
+
 - (id) initWithContentsOfFile:(NSString*)filename;
 {
 	// save filename only
+	return nil;
 	return NIMP;
 }
 
 - (id) initWithContentsOfURL:(NSURL*)url;
 {
 	// save URL
+	return nil;
 	return NIMP;
 }
 
@@ -70,6 +160,7 @@ NSString *NSSoundPboardType=@"NSSound";
 	if(!data)
 		;
 	// write to temp file and save filename
+	return nil;
 	return NIMP;
 }
 
@@ -81,6 +172,8 @@ NSString *NSSoundPboardType=@"NSSound";
 - (void) dealloc;
 {
 	[self stop];
+	if(_name && self == [__nameToSoundDict objectForKey:_name]) 
+		[__nameToSoundDict removeObjectForKey:_name];	// only if we are not a copy with the same name
 	[_name release];
 	[super dealloc];
 }
@@ -104,7 +197,7 @@ NSString *NSSoundPboardType=@"NSSound";
 
 - (BOOL) resume;
 {
-	[[NSWorkspace _distributedWorkspace] resume:self];
+	/* return? */ [[NSWorkspace _distributedWorkspace] resume:self];
 	return YES;
 }
 
@@ -121,14 +214,24 @@ NSString *NSSoundPboardType=@"NSSound";
 
 - (NSString*) name; { return _name; }
 
-- (void) setName:(NSString *) name;
+- (BOOL) setName:(NSString *) name;
 {
+	if(!name || [__nameToSoundDict objectForKey:name])
+		return NO;	// if already in dictionary
 	ASSIGN(_name, name);
-	// manage named sound cache i.e. remove id name==nil
+	[__nameToSoundDict setObject:self forKey:_name];	// save in dictionary
+	return YES;
 }
 
 - (id) delegate; { return _delegate; }
 - (void) setDelegate:(id)anObject; { _delegate=anObject; }
+
+- (id) awakeAfterUsingCoder:(NSCoder*)aDecoder
+{
+	if(_name && [__nameToSoundDict objectForKey:_name]) 
+		return [__nameToSoundDict objectForKey:_name];
+	return self;
+}
 
 - (void) encodeWithCoder:(NSCoder *) coder;
 {

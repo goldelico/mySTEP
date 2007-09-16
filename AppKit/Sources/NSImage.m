@@ -264,7 +264,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	[_reps release]; 
 	[_cache release]; 
 	if(_name && self == [__nameToImageDict objectForKey: _name]) 
-		[__nameToImageDict removeObjectForKey:_name];	// only if we are not a named copy
+		[__nameToImageDict removeObjectForKey:_name];	// only if we are not a copy with the same name
 	[_name release];
 	[_backgroundColor release];
 	[super dealloc];
