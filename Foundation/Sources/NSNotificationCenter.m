@@ -328,8 +328,12 @@ id name, enumerator = [_nameToObjects keyEnumerator];
     noname = [_nullNameToObjects listToNotifyForObject:object];
 
 												// send notifications
-    [name makeObjectsPerformSelector:@selector(postNotification:) withObject:notice];
-    [noname makeObjectsPerformSelector:@selector(postNotification:) withObject:notice];
+	NS_DURING
+		[name makeObjectsPerformSelector:@selector(postNotification:) withObject:notice];
+		[noname makeObjectsPerformSelector:@selector(postNotification:) withObject:notice];
+	NS_HANDLER
+		NSLog(@"Exception during postNotification %@: %@", notice, [localException reason]);
+	NS_ENDHANDLER
 }
 
 @end /* NSNotificationCenter */
