@@ -1320,6 +1320,7 @@ static NSColorPanel *__colorPanel;
 #endif
 	__colorPanel=self;
 	[__colorPanel setWorksWhenModal:YES];
+	_showsAlpha=YES;	// default
 }
 
 + (BOOL) sharedColorPanelExists				{ return __colorPanel != nil; }
@@ -1420,28 +1421,29 @@ static NSColorPanel *__colorPanel;
 	// check sender, i.e. which slider was moved
 	// or which text field did end editing
 	if(_target && _action)
-		[_target performSelector:_action];
+		[NSApp sendAction:_action to:_target from:self];
 }
 
 - (void) _update;
 {
-	BOOL alph=![NSColor ignoresAlpha] && _showsAlpha;
+	BOOL hideAlpha=!(![NSColor ignoresAlpha] && _showsAlpha);
 	float red, green, blue, alpha;
-	[_alpha setHidden:!alph];
-	[_alphaSlider setHidden:!alph];
+	[_alpha setHidden:hideAlpha];
+	[_alphaSlider setHidden:hideAlpha];
+	// show/hide message
 	[[_colorWell color] getRed:&red green:&green blue:&blue alpha:&alpha];
-	if(alph)
+	if(!hideAlpha)
 		{
 		[_alphaSlider setFloatValue:alpha];
-		[_alpha setStringValue:[NSString stringWithFormat:@"%.0f", 255*alpha]];
+		[_alpha setIntValue:(int)(255*alpha)];
 		}
 	[_redSlider setFloatValue:red];
-	[_red setStringValue:[NSString stringWithFormat:@"%d", (int)(255*red)]];
+	[_red setIntValue:(int)(255*red)];
 	[_greenSlider setFloatValue:green];
-	[_green setStringValue:[NSString stringWithFormat:@"%d", (int)(255*green)]];
+	[_green setIntValue:(int)(255*green)];
 	[_blueSlider setFloatValue:blue];
-	[_blue setStringValue:[NSString stringWithFormat:@"%d", (int)(255*blue)]];
-	[_html setStringValue:[NSString stringWithFormat:@"#02x02x02x", (int)(255*red), (int)(255*green), (int)(255*blue)]];
+	[_blue setIntValue:(int)(255*blue)];
+	[_html setStringValue:[NSString stringWithFormat:@"#%02x%02x%02x", (int)(255*red), (int)(255*green), (int)(255*blue)]];
 }
 
 - (NSView *) accessoryView					{ return _accessoryView; }

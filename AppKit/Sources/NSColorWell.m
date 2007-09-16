@@ -73,9 +73,11 @@
 
 - (void) drawWellInside:(NSRect)insideRect
 {
+	float alpha;
 	if(NSIsEmptyRect(insideRect))
 		return;
-	if([_color alphaComponent] != 1.0)
+	alpha=[_color alphaComponent];
+	if(alpha != 1.0)
 		{ // is not completely opaque
 		NSBezierPath *p=[NSBezierPath new];
 		[p moveToPoint:NSMakePoint(NSMinX(insideRect), NSMinY(insideRect))];
@@ -91,8 +93,11 @@
 		[p fill];	// white triangle
 		[p release];
 		}
-	[_color set];
-	NSRectFill(insideRect);	// overlay with current color
+	if(alpha > 0.0)
+		{
+		[_color set];
+		NSRectFill(insideRect);	// overlay with current color
+		}
 }
 
 - (void) mouseDown:(NSEvent*)event
@@ -108,6 +113,7 @@
 		[panel setAction:@selector(_changeColor:)];
 		[panel setTarget:self];
 		[panel setContinuous:[super isContinuous]];
+		[panel setColor:_color];	// select our color
 		// FIXME: closing the ColorPanel should deactivate the current ColorWell (without changing)!
 		// so we need to track the WindowClosed notification
 		}
@@ -127,13 +133,17 @@
 {
 	[self setColor:[sender color]];
 	[self deactivate];
-	// make [super send our action/target]
+	[super sendAction:_action to:_target];	// notify action/target
 }
 
 - (NSColor*) color						{ return _color; }
 - (BOOL) isActive						{ return _cw.isActive; }
 - (BOOL) isOpaque						{ return _cw.isBordered; }
 - (BOOL) isBordered						{ return _cw.isBordered; }
+- (SEL) action; { return _action; }
+- (id) target; { return _target; }
+- (void) setAction:(SEL) action; { _action=action; }
+- (void) setTarget:(id) target; { _target=target; }
 
 - (void) setColor:(NSColor*)color
 {
@@ -167,11 +177,12 @@
 		{
 		_color=[[aDecoder decodeObjectForKey:@"NSColor"] retain];
 		_cw.isBordered=[aDecoder decodeBoolForKey:@"NSIsBordered"];
-		return self;
 		}
-	_color = [[aDecoder decodeObject] retain];
-	[aDecoder decodeValueOfObjCType:@encode(unsigned int) at: &_cw];
-	
+	else
+		{
+		_color = [[aDecoder decodeObject] retain];
+		[aDecoder decodeValueOfObjCType:@encode(unsigned int) at: &_cw];
+		}
 	return self;
 }
 

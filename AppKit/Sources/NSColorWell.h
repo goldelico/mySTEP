@@ -25,6 +25,8 @@
 @interface NSColorWell : NSControl  <NSCoding>
 {
 	NSColor *_color;
+	SEL _action;
+	id _target;		// NSControl uses an NSCell but we don't have one!
 	struct __ColorWellFlags {
 		unsigned int isActive:1;
 		unsigned int isBordered:1;
