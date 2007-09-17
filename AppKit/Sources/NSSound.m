@@ -59,7 +59,7 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 		}
 	ext = [aName pathExtension];		// dict search for it
 	fileTypes = [self _soundFileTypes];
-#if 0
+#if 1
 	NSLog(@"soundFileTypes = %@", fileTypes);
 #endif
 	bundle = [NSBundle mainBundle];		// look into main bundle first
@@ -77,7 +77,7 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 		name = aName;
 		while((o = [e nextObject]))
 			{
-#if 0
+#if 1
 			NSLog(@"try %@: %@.%@", [bundle bundlePath], name, o);
 #endif
 			if((path = [bundle pathForResource:name ofType:o]))
@@ -95,7 +95,7 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 			e = [fileTypes objectEnumerator];
 			while((o = [e nextObject]))
 				{
-#if 0
+#if 1
 				NSLog(@"try %@: %@.%@", [bundle bundlePath], name, o);
 #endif
 				if((path = [bundle pathForResource:name ofType:o]))
@@ -103,21 +103,21 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 				}
 			}
 		}
-#if 0
+#if 1
 	NSLog(@"found %@ at path=%@ in bundle %@", aName, path, bundle);
 #endif
 	sound=nil;
 	if(path && (sound = [[NSSound alloc] initWithContentsOfFile:path]))
 		{ // file really exists
 		[sound setName:aName];	// will save in __nameToSoundDict - and increment retain count
-#if 0
+#if 1
 		NSLog(@"NSsound: -soundNamed:%@ -> %@", aName, sound);
 #endif
 		[sound autorelease];	// don't leak if everything is released - unfortunately we are never deleted from the sound cache
 		}
 	if(!sound)
 		{
-#if 0
+#if 1
 		NSLog(@"could not find NSSound -soundNamed:%@", aName);
 #endif
 		[__nameToSoundDict setObject:[NSNull null] forKey:aName];	// save a tag that we don't know the sound
@@ -143,25 +143,25 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 
 - (id) initWithContentsOfFile:(NSString*)filename;
 {
-	// save filename only
-	return nil;
-	return NIMP;
+	if((self=[super init]))
+		_url=[[NSURL fileURLWithPath:filename] retain];
+	return self;
 }
 
 - (id) initWithContentsOfURL:(NSURL*)url;
 {
-	// save URL
-	return nil;
-	return NIMP;
+	if((self=[super init]))
+		_url=[url retain];
+	return self;
 }
 
 - (id) initWithData:(NSData*)data;
 {
-	if(!data)
-		;
-	// write to temp file and save filename
-	return nil;
-	return NIMP;
+	if((self=[super init]))
+		{
+		// FIXME: save to /tmp and init with the filename
+		}
+	return self;
 }
 
 - (id) initWithPasteboard:(NSPasteboard*)pasteboard;
@@ -175,12 +175,13 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 	if(_name && self == [__nameToSoundDict objectForKey:_name]) 
 		[__nameToSoundDict removeObjectForKey:_name];	// only if we are not a copy with the same name
 	[_name release];
+	[_url release];
 	[super dealloc];
 }
 
 - (BOOL) play;
 {
-	[[NSWorkspace _distributedWorkspace] play:self];
+	[[NSWorkspace _distributedWorkspace] play:self withURL:_url];
 	return YES;
 }
 
@@ -209,6 +210,7 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 
 - (void) writeToPasteboard:(NSPasteboard *) pasteboard;
 {
+	// read file and paste
 	NIMP;
 }
 

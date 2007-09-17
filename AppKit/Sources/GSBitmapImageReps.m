@@ -213,11 +213,15 @@ static void png_write(png_structp png_ptr, png_bytep row, int pass)
 
 + (NSData *) representationOfImageRepsInArray:(NSArray *)imageReps usingType:(NSBitmapImageFileType)storageType properties:(NSDictionary *)properties
 { // create PNG file (ignore storageType)
+	NSBitmapImageRep *irep=[imageReps objectAtIndex:0];	// save first only
 	NSMutableData *data;
-	id val;
-	NSBitmapImageRep *irep=[imageReps objectAtIndex:0];	// first only
-	return nil;
-#if NOT_YET
+	id val;	// property values
+	if([imageReps count] != 1)
+		return nil;	// FIXME: raise exception
+	if(storageType != NSPNGFileType)
+		return nil;
+	data=[NSMutableData dataWithCapacity:([irep bytesPerPlane]*[irep numberOfPlanes]+1000)];	// should be enough for uncompressed data
+#if BITMAP_WRITING
     png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, (png_voidp)user_error_ptr, user_error_fn, user_warning_fn);
     png_infop info_ptr;
 	if(!png_ptr)
@@ -233,7 +237,6 @@ static void png_write(png_structp png_ptr, png_bytep row, int pass)
        png_destroy_write_struct(&png_ptr, &info_ptr);
        return nil;
     }
-	data=[NSMutableData dataWithCapacity:([irep bytesPerPlane]*[irep numberOfPlanes]+1000)];	// should be enough for uncompressed data
 	// set png_ptr->ip_ptr to data object
 	val=[properties objectForKey:@"xxx"];	// get values for the following calls from properties
     png_set_write_status_fn(png_ptr, png_write);
@@ -350,19 +353,16 @@ static void png_write(png_structp png_ptr, png_bytep row, int pass)
     png_set_sCAL_s(png_ptr, info_ptr, unit, "2.54", "2.54");
 /*
  
-    Title            Short (one line) title or
-                     caption for image
+    Title            Short (one line) title or caption for image
     Author           Name of image's creator
     Description      Description of image (possibly long)
     Copyright        Copyright notice
-    Creation Time    Time of original image creation
-                     (usually RFC 1123 format, see below)
-    Software         "mySTEP-2.0"
+    Creation Time    Time of original image creation (usually RFC 1123 format, see below)
+    Software         "mySTEP"
     Disclaimer       Legal disclaimer
     Warning          Warning of nature of content
     Source           Device used to create the image
-    Comment          Miscellaneous comment; conversion
-                     from other image format
+    Comment          Miscellaneous comment; conversion from other image format
 */
 	
 //    png_set_invert_alpha(png_ptr);
@@ -371,8 +371,8 @@ static void png_write(png_structp png_ptr, png_bytep row, int pass)
     png_write_image(png_ptr, row_pointers);
     png_write_end(png_ptr, info_ptr);
     png_destroy_write_struct(&png_ptr, &info_ptr);
-	return data;
 #endif
+	return data;
 }
 
 @end /* GSBitmapImageRepPNG */

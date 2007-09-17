@@ -26,7 +26,7 @@ extern NSString *NSSoundPboardType;
 @interface NSSound : NSObject  <NSCoding>
 {
 	NSString *_name;
-	NSString *_filePath;
+	NSURL *_url;
 	id _delegate;
 
 	struct __soundFlags {

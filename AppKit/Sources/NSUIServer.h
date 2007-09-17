@@ -34,14 +34,14 @@
 - (oneway void) unRegisterApplication:(int) pid;	// unregister (pid should be pid of sender!)
 - (oneway void) hideOtherApplications:(int) pid;	// send hide: to all other applications
 
-/* get access to the system wide status bar */
+/* provide access to the system wide status bar */
 
 - (byref NSStatusBar *) systemStatusBar;			// get global status bar
 
 /* system wide sound generator component */
 
 - (bycopy NSArray *) soundFileTypes;
-- (oneway void) play:(byref NSSound *) sound;	// mix sound into currently playing sounds or schedule to end of queue
+- (oneway void) play:(byref NSSound *) sound withURL:(bycopy NSURL *) _url;	// mix sound into currently playing sounds or schedule to end of queue
 - (oneway void) pause:(byref NSSound *) sound;
 - (oneway void) resume:(byref NSSound *) sound;
 - (oneway void) stop:(byref NSSound *) sound;
