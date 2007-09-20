@@ -139,7 +139,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 {
 	if(_closeOnDealloc)
 		[self closeFile];
-	[self _setReadMode:kIsNotWaiting inModes:nil];	// cancel anypending request(s)
+	[self _setReadMode:kIsNotWaiting inModes:nil];	// cancel any pending request(s)
 	[_inputStream release];
 	[_outputStream release];
 	[super dealloc];
@@ -326,37 +326,40 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 
 - (void) _setReadMode:(int) mode inModes:(NSArray *) modes;
 {
-	static NSArray *_defaultModes;
 	NSEnumerator *e;
 	NSString *m;
 #if 0
 	NSLog(@"[%@ %@] mode:%d modes:%@", NSStringFromClass([self class]), NSStringFromSelector(_cmd), mode, modes);
 #endif
-	if(!modes)
-		modes=_defaultModes?_defaultModes:(_defaultModes=[[NSArray arrayWithObject:NSDefaultRunLoopMode] retain]);
-	if(mode == 0)
-		{ // remove from runloop
-		if(_readMode != 0)
-		   	{
-			e=[modes objectEnumerator];
+	if(mode == kIsNotWaiting)
+		{ // don't wait
+		if(_readMode != kIsNotWaiting)
+		   	{ // remove current modes from runloop
+			e=[_readModes objectEnumerator];
 			while((m=[e nextObject]))
 				[_inputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:m];
 			[_readModes release];
+			_readModes=nil;
+			_readMode=mode;	
+			}
+		return;
+		}
+	else
+		{ // set mode
+		if(_readMode != kIsNotWaiting)
+			[NSException raise:NSFileHandleOperationException
+					format:@"already running a background notification for NSFileHandle"];	
+		else
+			{ // add to runloop
+			if(!modes)
+				modes=[NSArray arrayWithObject:NSDefaultRunLoopMode];	// default mode
+			_readModes=[modes retain];	// save modes so that we can remove properly if mode is set to kIsNotWaiting
+			e=[_readModes objectEnumerator];
+			while((m=[e nextObject]))
+				[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:m];
+			_readMode=mode;	
 			}
 		}
-	else if(_readMode != 0)
-		[NSException raise:NSFileHandleOperationException
-					format:@"already running a background notification for NSFileHandle"];	
-	else
-		{ // add to runloop
-		if(!modes)
-			modes=[NSArray arrayWithObject:NSDefaultRunLoopMode];	// default modes
-		_readModes=[modes retain];	// save modes so that we can remove properly if mode is set to
-		e=[modes objectEnumerator];
-		while((m=[e nextObject]))
-			[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:m];
-		}
-	_readMode=mode;	
 }
 
 /*
@@ -420,7 +423,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 								}
 							}
 						else
-							{ // nonwaiting mode
+							{ // not to EOF
 							[self _setReadMode:kIsNotWaiting inModes:nil];
 							[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleReadCompletionNotification
 																				object:self
@@ -430,8 +433,8 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 																					nil]];
 							}
 						}
-					else	// no read mode
-						{
+					else
+						{ // waiting
 						[self _setReadMode:kIsNotWaiting inModes:nil];
 						[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleDataAvailableNotification object:self];
 						}
@@ -466,7 +469,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 							}
 						}
 					else
-						{
+						{ // waiting mode
 						[self _setReadMode:kIsNotWaiting inModes:nil];
 						// ??
 						[[NSNotificationCenter defaultCenter] postNotificationName:NSFileHandleDataAvailableNotification object:self];
