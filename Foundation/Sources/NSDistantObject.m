@@ -178,6 +178,7 @@
 + (BOOL) respondsToSelector:(SEL)aSelector;
 {
 	NIMP;
+	// translate to [[target class] classRespondsToSelector]
 	return NO;
 }
 
@@ -185,7 +186,7 @@
 {
 	if(_target)
 		{ // send a request over the connection to remove the proxy there!
-		NSLog(@"*** should send a -dealloc to the remote side: %@", self);
+		NSLog(@"??? should we send a -dealloc to the remote side: %@", self);
 		}
 	if(_isLocal)
 		[_target release];

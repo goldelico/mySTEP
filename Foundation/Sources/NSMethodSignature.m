@@ -137,7 +137,7 @@ static int structReturnPointerLength;		// how much room do we need for that (may
 		{
 		methodTypes=objc_malloc(strlen(t)+1);
 		strcpy(((char *) methodTypes), t);	// save unchanged
-#if 1
+#if 0
 		NSLog(@"NSMethodSignature -> %s", t);
 #endif
 		}

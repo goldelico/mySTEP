@@ -117,7 +117,7 @@
 	retval_t r;
 	NSInvocation *inv;
 #if 1
-	NSLog(@"%@ forward:@selector(%@):", self, NSStringFromSelector(aSel));
+	NSLog(@"forward:@selector(%@) :... through %@", NSStringFromSelector(aSel), self);
 #endif
 	if(aSel == 0)
 		[NSException raise:NSInvalidArgumentException

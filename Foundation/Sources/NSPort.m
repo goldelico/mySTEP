@@ -211,7 +211,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 - (void) removeFromRunLoop:(NSRunLoop *)runLoop
 				   forMode:(NSString *)mode;
 {
-#if 1
+#if 0
 	NSLog(@"--- removeFromRunLoop:%@ forMode:%@ - %@", runLoop, mode, self);
 #endif
 	[runLoop _removeInputWatcher:self forMode:mode];
@@ -220,7 +220,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 - (void) scheduleInRunLoop:(NSRunLoop *)runLoop
 				   forMode:(NSString *)mode;
 {
-#if 1
+#if 0
 	NSLog(@"+++ scheduleInRunLoop:%@ forMode:%@ - %@", runLoop, mode, self);
 #endif
 	[runLoop _addInputWatcher:self forMode:mode];
@@ -673,7 +673,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		id cached=NSMapGet(__sockets, &_address);	// look up in cache
 		if(cached)
 			{ // we already have a socket with these specific properties ("data")
-#if 1
+#if 0
 			NSLog(@"substitute by cached socket: %@ %d+1", cached, [self retainCount]);
 #endif
 			if(cached != self)

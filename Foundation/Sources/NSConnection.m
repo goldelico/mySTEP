@@ -104,7 +104,12 @@ NSString *NSFailedAuthenticationException = @"NSFailedAuthenticationException";
 	NSLog(@"replyWithException: %@", exception);
 #endif
 	if([[_invocation methodSignature] isOneway])
+		{
+#if 1
+		NSLog(@"oneway replyWithException ignored: %@", exception);
+#endif
 		return;	// no response needed!
+		}
 	[(NSMutableArray *) [_coder _components] removeAllObjects];	// we simply reuse the port coder object!
 	if(exception)
 		{ // send back exception
