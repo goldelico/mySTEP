@@ -728,8 +728,8 @@ static BOOL __fileSystemChanged = NO;
 		{
 		if([[b bundleIdentifier] isEqual:[[NSBundle mainBundle] bundleIdentifier]])
 			{
-			a=[GSListener listener];	// handle like a remote connection
-										// a=[NSApp delegate];	// that is myself
+			// a=[GSListener listener];	// handle like a remote connection
+			a=[NSApp delegate];			// that is myself
 			}
 		else
 			{ // Try to contact an existing instance
@@ -1321,7 +1321,7 @@ static NSArray *prevList;
 {
 	NSLog(@"hideOtherApplications");
 	NS_DURING
-		[[NSWorkspace _distributedWorkspace] hideOtherApplications:getpid()];
+		[[NSWorkspace _distributedWorkspace] hideApplicationsExcept:getpid()];
 	NS_HANDLER
 		NSLog(@"could not send hideOtherApplications: message due to %@", [localException reason]);
 	NS_ENDHANDLER
@@ -1413,16 +1413,14 @@ static NSArray *prevList;
 
 + (id <_NSUIServerProtocol>) _distributedWorkspace;			// distributed workspace
 {
-	NSString *server=@"com.quantum-step.mySTEP.mySystemUIServer";
 	static id _distributedWorkspace;	// distributed workspace server used for launchedApplications etc.
 	if(!_distributedWorkspace)
 		{
 #if 1
 		NSLog(@"get _distributedWorkspace");
-		return nil;
 #endif
 		NS_DURING
-			_distributedWorkspace = [NSConnection rootProxyForConnectionWithRegisteredName:server host:nil];
+			_distributedWorkspace = [NSConnection rootProxyForConnectionWithRegisteredName:NSUIServer host:nil];
 #if 0
 			NSLog(@"created _distributedWorkspace=%@", _distributedWorkspace);
 #endif
@@ -1432,7 +1430,7 @@ static NSArray *prevList;
 #endif
 			[((NSDistantObject *) _distributedWorkspace) setProtocolForProxy:@protocol(_NSUIServerProtocol)];
 		NS_HANDLER
-			NSLog(@"could not contact %@ due to %@ - %@", server, [localException name], [localException reason]);
+			NSLog(@"could not contact %@ due to %@ - %@", NSUIServer, [localException name], [localException reason]);
 			_distributedWorkspace=nil;	// no connection established
 			// we could alternatively setup ourselves as a (local) server
 		NS_ENDHANDLER

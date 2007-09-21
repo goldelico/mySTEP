@@ -17,9 +17,24 @@
 #import <AppKit/NSStatusBar.h>
 #import <AppKit/NSWorkspace.h>
 
+@protocol _NSApplicationRemoteControlProtocol
+
+// basic communication with any application
+
+- (BOOL) _application:(in NSApplication *) app openURLs:(in bycopy NSArray *) urls withOptions:(in bycopy NSWorkspaceLaunchOptions) opts;	// handle open
+- (void) activate;
+- (void) deactivate;
+- (void) hide;
+- (void) unhide;
+- (void) echo;
+
+@end
+
 @protocol _NSUIServerProtocol
 
 // communication with distributed workspace server (which should be the SystemUIServer process)
+
+#define NSUIServer @"com.quantum-step.mySTEP.mySystemUIServer"
 
 /* application management */
 
@@ -32,7 +47,7 @@
 							   path:(bycopy NSString *) path		// full file path
 							  NSApp:(byref NSApplication *) app;	// creates NSDistantObject to remotely access NSApp
 - (oneway void) unRegisterApplication:(int) pid;	// unregister (pid should be pid of sender!)
-- (oneway void) hideOtherApplications:(int) pid;	// send hide: to all other applications
+- (oneway void) hideApplicationsExcept:(int) pid;	// send hide: to all other applications
 
 /* provide access to the system wide status bar */
 
@@ -41,11 +56,11 @@
 /* system wide sound generator component */
 
 - (bycopy NSArray *) soundFileTypes;
-- (oneway void) play:(byref NSSound *) sound withURL:(bycopy NSURL *) _url;	// mix sound into currently playing sounds or schedule to end of queue
-- (oneway void) pause:(byref NSSound *) sound;
-- (oneway void) resume:(byref NSSound *) sound;
-- (oneway void) stop:(byref NSSound *) sound;
-- (BOOL) isPlaying:(byref NSSound *) sound;
+- (oneway void) playSound:(byref NSSound *) sound withURL:(bycopy NSURL *) _url;	// mix sound into currently playing sounds or schedule to end of queue
+- (oneway void) pauseSound:(byref NSSound *) sound;
+- (oneway void) resumeSound:(byref NSSound *) sound;
+- (oneway void) stopSound:(byref NSSound *) sound;
+- (BOOL) isPlayingSound:(byref NSSound *) sound;
 
 /* request&cancel user attention for a given application */
 
@@ -67,7 +82,7 @@
 
 @end
 
-@interface NSWorkspace (NSUIServer)
+@interface NSWorkspace (_NSUIServer)
 
 + (id <_NSUIServerProtocol>) _distributedWorkspace;			// get proxy to contact UIServer
 + (id <_NSInputServicesProtocol>) _inputServices;

@@ -107,32 +107,32 @@ static NSString	*NSAbortModalException = @"NSAbortModalException";
 static Class __windowClass = Nil;
 extern NSView *__toolTipOwnerView;
 
+#if OLD
+
 // GSListener is a proxy class used in communicating with other
 // apps.  It implements some dangerous methods in a harmless 
 // manner to reduce the chances of a malicious app messing with 
 // us.  It forwards service requests and other communications.
 
-@interface GSListener : NSObject
+@interface _NSApplicationRemoteAccess : NSObject <_NSApplicationRemoteControlProtocol>
 
-+ (GSListener *) listener;
 + (void) _connectionBecameInvalid:(NSNotification*)notification;
 
-- (void) performService:(NSString*)name
-		 withPasteboard:(NSPasteboard*)pb
-			   userData:(NSString*)ud
-				  error:(NSString**)e;
 @end
 
-//
-// Class variables
-//
-static GSListener *__listener = nil;
+@implementation _NSApplicationRemoteAccess
 
-@implementation GSListener
+// + (GSListener *) listener
+// {
+// 	return __listener ? __listener : (__listener = (id)NSAllocateObject(self, 0, NSDefaultMallocZone()));
+// }
 
-+ (GSListener*) listener
+- (id) init;
 {
-	return __listener ? __listener : (__listener = (id)NSAllocateObject(self, 0, NSDefaultMallocZone()));
+	if((self=[super init]))
+		{
+		}
+	return self;
 }
 
 + (void) _connectionBecameInvalid:(NSNotification *) notification
@@ -141,12 +141,13 @@ static GSListener *__listener = nil;
 	NSUnregisterServicesProvider(nil);	// it is our connection
 }
 
-- (Class) class							{ return nil; }
+// - (Class) class							{ return nil; }
 - (void) dealloc						{ return; [super dealloc]; }
-- (void) release						{}
+- (void) release						{ return; }
 - (id) retain							{ return self; }
 - (id) self								{ return self; }
 
+#if OLD
 	// this is called for all unimplemented methods
 
 - (void) forwardInvocation:(NSInvocation *) i
@@ -183,7 +184,9 @@ static GSListener *__listener = nil;
 		}
 #endif
 	
-	if ([(delegate = [NSApp delegate]) respondsToSelector: aSel] == YES)
+	// FIXME: this allows all applications to remotely access any private AppController method...
+	
+	if([(delegate = [NSApp delegate]) respondsToSelector: aSel] == YES)
 		{
 #if 1
 		NSLog(@"%08x:%@ forwarding %@ to NSApp delegate (%@)", self, self, selName, delegate);
@@ -198,6 +201,8 @@ static GSListener *__listener = nil;
 				format: @"method %@ not implemented", selName];
 	return;
 }
+
+#endif
 
 // FIXME: shouldn't this be oneway void so that a launching app can't be blocked too long by a launched app?
 
@@ -264,12 +269,18 @@ static GSListener *__listener = nil;
 }
 
 - (void) echo;
-{ // can be used to check if I am awake...
+{ // can be used to check if I am responding...
 	NSLog(@"requested to echo");
 }
 
 @end /* GSListener */
 
+#endif
+
+//
+// Class variables
+//
+static id __listener = nil;
 static id __servicesProvider = nil;
 static id __registeredName = nil;
 static NSConnection	*__listenerConnection = nil;
@@ -283,9 +294,9 @@ void NSUnregisterServicesProvider(NSString *name)
 		{							// nothing else using the given port name.
 		if(name)
 			[[NSPortNameServer systemDefaultPortNameServer] removePortForName: name];
-		[[NSNotificationCenter defaultCenter] removeObserver: [GSListener class]
-														name: NSConnectionDidDieNotification
-													  object: __listenerConnection];
+//		[[NSNotificationCenter defaultCenter] removeObserver: [GSListener class]
+//														name: NSConnectionDidDieNotification
+//													  object: __listenerConnection];
 		[__listenerConnection release];
 		__listenerConnection = nil;
 		}
@@ -311,10 +322,10 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		[__listenerConnection setRootObject:provider];	// register object
 		if(![__listenerConnection registerName:name])	// publish connection point
 			[NSException raise: NSGenericException format: @"unable to register %@", name];
-		[[NSNotificationCenter defaultCenter] addObserver: [GSListener class]
-												 selector: @selector(_connectionBecameInvalid:)
-													 name: NSConnectionDidDieNotification
-												   object: __listenerConnection];	// observe this connection to automatically unregister the services provider
+//		[[NSNotificationCenter defaultCenter] addObserver: [provider class]
+//												 selector: @selector(_connectionBecameInvalid:)
+//													 name: NSConnectionDidDieNotification
+//												   object: __listenerConnection];	// observe this connection to automatically unregister the services provider
 #if 0
 		NSLog(@"registered __listenerConnection %@ for %@", __listenerConnection, name);
 #endif
@@ -323,6 +334,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	ASSIGN(__servicesProvider, provider);
 	ASSIGN(__registeredName, name);
 }
+
 
 //*****************************************************************************
 //
@@ -361,6 +373,37 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	[_mainMenuWindow setFrame:[[_mainMenuWindow screen] _menuBarFrame] display:YES animate:YES];	// move menu bar (if screen rotates)
 }
 
+- (id) _remoteControlRootProxy;
+{ // this allows overwriting in a category
+	return self;
+}
+
+- (NSConnection *) _setupRemoteControl;
+{
+	NSNotificationCenter *n=[NSNotificationCenter defaultCenter];
+	NSMessagePort *port = [[[NSMessagePort alloc] init] autorelease];	// create new message port
+	NSConnection *connection = [[NSConnection connectionWithReceivePort:port sendPort:nil] retain];	// uses same port to send and receive
+	NSString *name=[[NSBundle mainBundle] bundleIdentifier];
+	
+	if(![[NSMessagePortNameServer sharedInstance] registerPort:port name:name])	// register as named message port
+		NSLog(@"Could not publish message port %@ as %@", port, name);
+	else
+		{
+		NSLog(@"MessagePort published %@", port);
+		// should be proteced by a NSProtocolChecker
+		[connection setRootObject:[self _remoteControlRootProxy]];
+		NSLog(@"Root object %@", [connection rootObject]);
+#if OLD
+		[n addObserver: [remote class]
+												 selector: @selector(_connectionBecameInvalid:)
+													 name: NSConnectionDidDieNotification
+												   object: remote];
+#endif
+		}
+	NSLog(@"Remote Access connection %@", connection);
+	return connection;
+}
+
 - (id) init
 {
 	NSDebugLog(@"Begin of NSApplication -init\n");
@@ -375,9 +418,11 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	if((self=[super init]))
 		{
 		NSNotificationCenter *n=[NSNotificationCenter defaultCenter];
+
 		__windowClass = [NSWindow class];
 		_eventQueue = [[NSMutableArray alloc] initWithCapacity:9];
 
+		[self _setupRemoteControl];
 #if 0
 		// CHECKME: which NSPorts do we create here???
 		[[NSConnection defaultConnection] addRequestMode:NSModalPanelRunLoopMode];
@@ -394,7 +439,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		[n addObserver:self selector:@selector(windowDidBecomeMain:) name:NSWindowDidBecomeMainNotification object:nil];
 		[n addObserver:self selector:@selector(windowDidResignKey:) name:NSWindowDidResignKeyNotification object:nil];
 		[n addObserver:self selector:@selector(windowDidResignMain:) name:NSWindowDidResignMainNotification object:nil];
-
 		
 #if 0
 		NSLog(@"End of [NSApplication init]\n");
@@ -491,9 +535,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 			NSLog(@"try to registerApplication:%@ with systemUIServer", ident);
 #endif
 			[[NSWorkspace _distributedWorkspace] registerApplication:getpid()
-																name:ident		// name
-																path:path		// full path
-															   NSApp:NSApp];	// register as newly launched application with mySystemUIServer
+																name:name		// application name
+																path:path		// full path of bundle
+															   NSApp:self];		// register as newly launched application with mySystemUIServer
 		}
 	NS_HANDLER
 		NSLog(@"could not register %@[%@] with mySystemUIServer due to %@", name, ident, [localException reason]);
@@ -1692,7 +1736,10 @@ NSWindow *w;
 			[_windowsMenu removeItem:last];	// remove the separator if present
 		_windowItems=0;
 		if(!_delegate && ![NSApp mainMenu])
+			{
+			NSLog(@"terminating daemon without menu");
 			[self terminate:self];	// we are a menu-less daemon and have no delegate - default to terminate
+			}
 		else if(_delegate && [_delegate respondsToSelector:@selector(applicationShouldTerminateAfterLastWindowClosed:)] &&
 						[_delegate applicationShouldTerminateAfterLastWindowClosed:self])
 			{

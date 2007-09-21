@@ -181,30 +181,30 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 
 - (BOOL) play;
 {
-	[[NSWorkspace _distributedWorkspace] play:self withURL:_url];
+	[[NSWorkspace _distributedWorkspace] playSound:self withURL:_url];
 	return YES;
 }
 
 - (BOOL) isPlaying;
 {
-	return [[NSWorkspace _distributedWorkspace] isPlaying:self];
+	return [[NSWorkspace _distributedWorkspace] isPlayingSound:self];
 }
 
 - (BOOL) pause;
 {
-	[[NSWorkspace _distributedWorkspace] pause:self];
+	[[NSWorkspace _distributedWorkspace] pauseSound:self];
 	return YES;
 }
 
 - (BOOL) resume;
 {
-	/* return? */ [[NSWorkspace _distributedWorkspace] resume:self];
+	/* return? */ [[NSWorkspace _distributedWorkspace] resumeSound:self];
 	return YES;
 }
 
 - (BOOL) stop;
 {
-	[[NSWorkspace _distributedWorkspace] stop:self];
+	[[NSWorkspace _distributedWorkspace] stopSound:self];
 	return YES;
 }
 

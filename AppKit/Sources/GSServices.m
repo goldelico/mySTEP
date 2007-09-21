@@ -627,8 +627,7 @@ int NSSetShowsServicesMenuItem(NSString *name, BOOL enabled)
 	return [[GSServices sharedManager] setShowsServicesMenuItem: name to: enabled];
 }
 
-BOOL
-NSShowsServicesMenuItem(NSString * name)
+BOOL NSShowsServicesMenuItem(NSString * name)
 {
 	return [[GSServices sharedManager] showsServicesMenuItem: name];
 }
