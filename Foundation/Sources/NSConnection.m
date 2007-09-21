@@ -556,7 +556,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 		return nil;	// rise exception?
 	if(_isLocal)
 		return _rootObject;	// we are a local connection (within this thread)
-#if 1
+#if 0
 	NSLog(@"*** (conn=%p) -rootProxy: ask peer for rootObject", self);
 #endif
 	arp=[NSAutoreleasePool new];	// create a local pool
@@ -679,7 +679,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 	else
 		_currentConversation=[NSObject new];
 	NS_DURING
-#if 1
+#if 0
 		NSLog(@"*** (conn=%p) send request to %@", self, [_portCoder _sendPort]);
 #endif		
 		[_portCoder sendBeforeTime:_requestTimeout sendReplyPort:_receivePort];		// encode and send - raises exception on timeout
@@ -688,7 +688,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 			NSDate *until=[NSDate dateWithTimeIntervalSinceNow:_replyTimeout];
 			NSRunLoop *rl=[NSRunLoop currentRunLoop];
 			Class class;
-#if 1
+#if 0
 			NSLog(@"*** (conn=%p) waiting for response before %@ in runloop %@ from %@", self, [NSDate dateWithTimeIntervalSinceNow:_replyTimeout], rl, _receivePort);
 #endif
 			[_receivePort scheduleInRunLoop:rl forMode:NSConnectionReplyMode];	// schedule our receive port so that we can be connected
@@ -699,7 +699,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 			//
 			while(_portCoder == portCoder && [until timeIntervalSinceNow] > 0)
 				{ // not yet timed out and current conversation is not yet completed
-#if 1
+#if 0
 				NSLog(@"*** (Conn=%p) loop for response in %@ at %@: %@", self, NSConnectionReplyMode, _receivePort, rl);
 #endif
 				if(![_receivePort isValid])
@@ -711,7 +711,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 			[_receivePort removeFromRunLoop:rl forMode:NSConnectionReplyMode];
 			if([until timeIntervalSinceNow] < 0)
 				[NSException raise:NSPortTimeoutException format:@"did not receive response within %.0f seconds", _replyTimeout];
-#if 1
+#if 0
 			NSLog(@"*** (conn=%p) runloop done for mode: %@", self, NSConnectionReplyMode);
 #endif
 #if 0
@@ -752,7 +752,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 //	NSConnection *c;
 	NSPort *recv, *send;
 	NSMutableArray *components;
-#if 1
+#if 0
 	NSLog(@"### (conn=%p) handlePortMessage:%@\nmsgid=%d\nrecv=%@\nsend=%@\ncomponents=%@", self, message, [message msgid], [message receivePort], [message sendPort], [message components]);
 #endif
 	if(!message)
@@ -816,27 +816,23 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 	pc=[req _portCoder];
 	if([pc _msgid] != 0)
 		{ // it is a response
-#if 1
+#if 0
 		NSLog(@"*** (conn=%p) response received from %@ on %@", self, [pc _sendPort], [pc _receivePort]);
 		NSLog(@"*** send=%@, recv=%@", [self sendPort], [self receivePort]);
 #endif
+#if OLD
 		if([pc _sendPort] != _sendPort)
 			NSLog(@"we are asked to send to a different port next time");	// it is the spawned child port of the vendor object - so we have a private connection now
-//		if(_receivePort != [pc _receivePort])
-//			{
+		if(_receivePort != [pc _receivePort])
+			{
 			// FIXME: do we have to better secure this? Can any connection redirect?
-#if 1
-//			NSLog(@"redirect");
+			NSLog(@"redirect");
+			[_receivePort release];
+			_receivePort=[pc _receivePort];
+			}
 #endif
-//			[_receivePort release];
-//			_receivePort=[pc _receivePort];
-//			}
-		//
-		// This will end the runLoop in sendInvocation
-		//
-		
 		[_portCoder release];
-		_portCoder=[pc retain];	// replace and pass message back to sendInvocation
+		_portCoder=[pc retain];	// replace and pass message back to sendInvocation - this will end the runLoop in sendInvocation
 		return;
 		}
 #if 1

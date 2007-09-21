@@ -247,7 +247,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 			   reserved:(unsigned)headerSpaceReserved;	// ignored...
 { // make us generically work as an NSPort based on UNIX file descriptors (sockets)
 	NSRunLoop *loop=[NSRunLoop currentRunLoop];
-#if 1
+#if 0
 	NSLog(@"%@ sendBeforeDate:%@ msgid:%u components:%@ from:%@ reserved:%u", self, limitDate, msgid, components, receivePort, headerSpaceReserved);
 #endif
 	if(!_isValid)
@@ -260,18 +260,18 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 	if(!_sendData)
 		[NSException raise:NSPortSendException format:@"could not convert data to machMessage"];
 	[_sendData retain];	// NSRunLoop may autorelease pools until everything is sent!
-#if 1
+#if 0
 	NSLog(@"send length=%u data=%@ to fd=%d", [_sendData length], _sendData, _sendfd);
 #endif
 	_sendPos=0;
 	[loop _addOutputWatcher:self forMode:NSConnectionReplyMode];	// get callbacks when we can send
 	[loop _addInputWatcher:self forMode:NSConnectionReplyMode];		// get callbacks for our listen() port even if we are scheduled in NSDefaultRunLoopMode only
-#if 1
+#if 0
 	NSLog(@"remaining interval %lf", [limitDate timeIntervalSinceNow]);
 #endif
 	while(_sendData && [limitDate timeIntervalSinceNow] > 0)
 		{
-#if 1
+#if 0
 		NSLog(@"run loop %@ in mode %@", loop, NSConnectionReplyMode);
 #endif
 		if(!_isValid)
@@ -282,7 +282,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 			}
 		if(![loop runMode:NSConnectionReplyMode beforeDate:limitDate])
 			{ // some runloop error, e.g. not scheduled in this mode
-#if 1
+#if 0
 			NSLog(@"sendBeforeDate: runloop error");
 #endif
 			[loop _removeInputWatcher:self forMode:NSConnectionReplyMode];
@@ -290,7 +290,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 			[NSException raise:NSPortSendException format:@"sendBeforeDate: runloop error for %@", self];
 			break;
 			}
-#if 1
+#if 0
 		NSLog(@"remaining interval %lf", [limitDate timeIntervalSinceNow]);
 #endif
 		}
@@ -384,7 +384,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 { // callback
 	NSPort *recv;	// 'official' receive port
 	id d;			// delegate
-#if 1
+#if 0
 	NSLog(@"_readFileDescriptorReady: %@", self);
 #endif
 	if(!_isValid)
@@ -414,7 +414,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 #endif
 		memset(&ss, 0, saddrlen);			// clear completely before using
 		newfd=accept(_fd, (struct sockaddr *) &ss, &saddrlen);
-#if 1
+#if 0
 		NSLog(@"accepted on fd=%d newfd=%d salen=%d", _fd, newfd, saddrlen);
 #endif
 		if(newfd < 0)
@@ -431,9 +431,8 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		NSLog(@"  address=%@", addr);
 #endif
 		newPort=[[isa alloc] initRemoteWithProtocolFamily:family socketType:_address.type protocol:_address.protocol address:addr];
+		NSAssert1(newPort->_sendfd < 0, @"Already connected! newport=%@", newPort);
 		newPort->_parent=[self retain];
-		if(newPort->_sendfd >= 0)
-			NSLog(@"*** already connected! newport=%@", newPort);
 		newPort->_isBound=YES;			// pretend we are already bound
 		newPort->_sendfd=newfd;			// we are already connected
 #if 0
@@ -492,7 +491,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 			[self invalidate];
 			return;
 			}
-#if 1
+#if 0
 		NSLog(@"header received length=%u on fd=%d", _recvLength, _sendfd);
 #endif
 		_recvBuffer=objc_malloc(_recvLength);
@@ -519,14 +518,14 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 			[self invalidate];
 			[NSException raise:NSPortReceiveException format:@"_readFileDescriptorReady: read error %s", strerror(errno)];
 			}
-#if 1
+#if 0
 		NSLog(@"did read %u bytes from fd=%d", len, _sendfd);
 #endif
 		_recvPos+=len;
 		if(_recvPos < _recvLength)
 			return;	// incomplete
 		}
-#if 1
+#if 0
 	NSLog(@"complete message received on %@: %@", self, [NSData dataWithBytesNoCopy:_recvBuffer length:_recvLength freeWhenDone:NO]);
 #endif
 	recv=_parent?_parent:self;	// act for parent if we are a child
@@ -591,7 +590,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		if(len == 0)
 			{ // done
 			fsync(_sendfd);
-#if 1
+#if 0
 			NSLog(@"all sent");
 #endif
 			[_sendData release];

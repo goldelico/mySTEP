@@ -664,7 +664,7 @@ struct PortFlags {
 		if(header.magic != NSSwapHostLongToBig(0xd0cf50c0))
 			{
 #if 1
-			NSLog(@"bad magic");
+			NSLog(@"-initWithMachMessage: bad magic");
 #endif
 			[self release];
 			return nil;
@@ -673,7 +673,7 @@ struct PortFlags {
 		if(header.len > 0x80000000)
 			{
 #if 1
-			NSLog(@"unreasonable length");
+			NSLog(@"-initWithMachMessage: unreasonable length");
 #endif
 			[self release];
 			return nil;

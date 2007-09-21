@@ -267,7 +267,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	NSAutoreleasePool *arp;
 	
 	NSAssert(mode, NSInvalidArgumentException);
-#if 1
+#if 0
 	NSLog(@"_runLoopForMode:%@ beforeDate:%@ limitDate:%p", mode, before, limit);
 #endif
 	if(limit)
@@ -363,7 +363,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			{
 			NSObject *watcher = [watchers objectAtIndex:i];
 			int fd=[watcher _readFileDescriptor];
-#if 1
+#if 0
 			NSLog(@"watch fd=%d for input", fd);
 #endif
 			if(fd >= 0 && fd < FD_SETSIZE)
@@ -470,11 +470,10 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 - (NSDate *) limitDateForMode:(NSString *)mode
 {  // determine the earliest timeout of all timers in this mode to end the accept loop
-#if 1
 	NSDate *limit;
 	[self _runLoopForMode:mode beforeDate:nil limitDate:&limit];	// run once, non-blocking
 	return limit;
-#else
+#if OLD
 	NSMutableArray *timers;
 	NSTimer *timerWithNearestFireDate = nil;
 	static NSDate *distFuture;
@@ -578,9 +577,8 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 - (void) acceptInputForMode:(NSString*)mode beforeDate:(NSDate *)limit_date
 {
-#if 1
 	[self _runLoopForMode:mode beforeDate:limit_date limitDate:NULL];	// run blocking until limit_date
-#else
+#if OLD
 	NSTimeInterval ti;								// Listen to input sources.
 	struct timeval timeout;
 	void *select_timeout;
@@ -878,7 +876,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 { // each observer should be added only once for each fd/mode - but this implementation takes care that it still works
 	NSMutableArray *watchers = NSMapGet(_mode_2_inputwatchers, mode);
 	NSAssert(mode != nil, @"trying to add input watcher for nil mode");
-#if 1
+#if 0
 	NSLog(@"_addInputWatcher:%@ forMode:%@", watcher, mode);
 #endif
 	if(!watchers)
@@ -888,7 +886,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		[watchers release];
 		}
 	[watchers addObject:watcher];
-#if 1
+#if 0
 	NSLog(@"watchers=%@", watchers);
 #endif
 }
@@ -897,7 +895,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 {
 	NSMutableArray *watchers = NSMapGet(_mode_2_inputwatchers, mode);
 	NSAssert(mode != nil, @"trying to remove input watcher for nil mode");
-#if 1
+#if 0
 	NSLog(@"_removeInputWatcher:%@ forMode:%@", watcher, mode);
 #endif
 	if(watchers)
@@ -906,7 +904,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		if(idx != NSNotFound)
 			[watchers removeObjectAtIndex:idx];	// remove only one instance!
 		}
-#if 1
+#if 0
 	NSLog(@"watchers=%@", watchers);
 #endif
 }

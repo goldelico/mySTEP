@@ -673,7 +673,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				format_to_go = formatter_pos+2;
 				continue;	// skip %%
 				}
-			// FIXME: somehow handle %C and other specifiers!
+			// FIXME: somehow handle %C and other new specifiers!
 			spec_pos = strpbrk(formatter_pos+1, "dioxXucsfeEgGpn");	// Specifiers from K&R C 2nd ed.
 			if(*(spec_pos - 1) == '*')
 				{
