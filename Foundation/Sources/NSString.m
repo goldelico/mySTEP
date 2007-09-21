@@ -677,8 +677,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			spec_pos = strpbrk(formatter_pos+1, "dioxXucsfeEgGpn");	// Specifiers from K&R C 2nd ed.
 			if(*(spec_pos - 1) == '*')
 				{
-#if 1
-				fprintf(stderr, " *spec\n");
+#if 0
+				fprintf(stderr, " -initWithFormat: %%* specifier found\n");
 #endif
 				(void) va_arg(arg_list, int);	// handle %*s, %.*f etc.
 				}
@@ -2656,7 +2656,8 @@ struct stat tmp_stat;
 {
 	// convert to ISOLatin1
 	// before doing that, encode all non-ISOLatin1 as &#ddd; including embedded & characters
-	NSMutableString *s=[NSMutableString string];
+//	NSMutableString *s=[NSMutableString string];
+	NSMutableString *s=[NSMutableString stringWithString:self];
 	int i, count=[self length];
 	NIMP;
 	for(i=0; i<count; i++)
@@ -2669,7 +2670,7 @@ struct stat tmp_stat;
 		if(c <= 0x20 || c >= 0x7f)
 			;
 		}
-	return self;
+	return s;
 }
 
 - (NSString *) stringByReplacingPercentEscapesUsingEncoding:(NSStringEncoding) encoding;

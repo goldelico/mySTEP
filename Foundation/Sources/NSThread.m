@@ -30,7 +30,6 @@ typedef enum _NSThreadPriority
 } NSThreadPriority;
 
 
-
 @implementation NSThread
 
 + (NSThread *) currentThread		{ return (id) objc_thread_get_data(); }

@@ -378,8 +378,13 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		__windowClass = [NSWindow class];
 		_eventQueue = [[NSMutableArray alloc] initWithCapacity:9];
 
+#if 0
+		// CHECKME: which NSPorts do we create here???
+		[[NSConnection defaultConnection] addRequestMode:NSModalPanelRunLoopMode];
+		[[NSConnection defaultConnection] addRequestMode:NSEventTrackingRunLoopMode];		// process incoming DO requests also while in these modes
+		
 		_listener = [GSServices sharedManager];				// register for default DO access through App bundle identifier
-
+#endif
 		[self setNextResponder:nil];						// NSApp is the end of
 															// the responder chain
 		_app.windowsNeedUpdate = YES;						// default to first update
@@ -390,11 +395,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		[n addObserver:self selector:@selector(windowDidResignKey:) name:NSWindowDidResignKeyNotification object:nil];
 		[n addObserver:self selector:@selector(windowDidResignMain:) name:NSWindowDidResignMainNotification object:nil];
 
-		// process incoming DO requests also while in these modes
 		
-		[[NSConnection defaultConnection] addRequestMode:NSModalPanelRunLoopMode];
-		[[NSConnection defaultConnection] addRequestMode:NSEventTrackingRunLoopMode];
-				
 #if 0
 		NSLog(@"End of [NSApplication init]\n");
 #endif
@@ -1459,15 +1460,15 @@ NSWindow *w;
 
 - (void) orderFrontStandardAboutPanelWithOptions:(NSDictionary *)optionsDictionary;
 {
-		if(!optionsDictionary)
-			optionsDictionary=[NSWorkspace _standardAboutOptions];	// use default
-		if(!_aboutPanel)
-			{ // try to load from NIB
-			if(![NSBundle loadNibNamed:@"AboutPanel" owner:self])	// being the owner allows to connect to views in the panel
-				[NSException raise: NSInternalInconsistencyException format: @"Unable to open about panel model file."];
-			}
+	if(!optionsDictionary)
+		optionsDictionary=[NSWorkspace _standardAboutOptions];	// use default
+	if(!_aboutPanel)
+		{ // try to load from NIB
+		if(![NSBundle loadNibNamed:@"AboutPanel" owner:self])	// being the owner allows to connect to views in the panel
+			[NSException raise: NSInternalInconsistencyException format: @"Unable to open about panel model file."];
+		}
 #if 1
-		NSLog(@"options %@", optionsDictionary);
+	NSLog(@"options %@", optionsDictionary);
 #endif
 	[_credits setStringValue:[optionsDictionary objectForKey:@"Credits"]];
 	[_applicationName setStringValue:[optionsDictionary objectForKey:@"ApplicationName"]];
@@ -1475,16 +1476,6 @@ NSWindow *w;
 	[_version setStringValue:[optionsDictionary objectForKey:@"Version"]];
 	[_copyright setStringValue:[optionsDictionary objectForKey:@"Copyright"]];
 	[_applicationVersion setStringValue:[optionsDictionary objectForKey:@"ApplicationVersion"]];
-#if OLD
-	NSRunAlertPanel(@"About",
-									 @"Application:\t%@\nBuild:\t(v%@)\nVersion:\t%@\nCopyright:\t%@\nCredits:\t%@",
-									 @"Ok", nil, nil,
-									 applicationName,
-									 version,
-									 applicationVersion,
-									 copyright,
-									 [credits string]);
-#endif
 	[_aboutPanel orderFront:self];
 }
 

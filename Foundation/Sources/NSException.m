@@ -138,8 +138,11 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 
 @end
 
+// we could make this partof the NS_DURING... macros or make it inline code
+
 void _NSAddHandler2(NSHandler2 *handler)
 {
+	// NSThread *thread=(id) objc_thread_get_data();
 	NSThread *thread = [NSThread currentThread];
     handler->next = thread->_exception_handler;
     thread->_exception_handler = handler;
@@ -147,6 +150,7 @@ void _NSAddHandler2(NSHandler2 *handler)
 
 void _NSRemoveHandler2(NSHandler2 *handler)
 {
+	// NSThread *thread=(id) objc_thread_get_data();
 	NSThread *thread = [NSThread currentThread];
     thread->_exception_handler = thread->_exception_handler->next;
 }

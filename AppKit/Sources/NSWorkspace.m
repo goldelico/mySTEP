@@ -1417,7 +1417,10 @@ static NSArray *prevList;
 	static id _distributedWorkspace;	// distributed workspace server used for launchedApplications etc.
 	if(!_distributedWorkspace)
 		{
+#if 1
 		NSLog(@"get _distributedWorkspace");
+		return nil;
+#endif
 		NS_DURING
 			_distributedWorkspace = [NSConnection rootProxyForConnectionWithRegisteredName:server host:nil];
 #if 0

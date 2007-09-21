@@ -40,7 +40,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	NSLog(@"%@ _popUpItemAction:%@", self, sender);
 #endif
 	[self selectItem:sender];
-	[_controlView performClick:_controlView];	// and notify whoever wants to know
+	[_controlView performClick:_controlView];	// and notify whomever wants to know
 }
 
 - (NSRect) drawingRectForBounds:(NSRect) cellFrame
@@ -321,10 +321,10 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 #if 0
 	NSLog(@"selectItemAtIndex: %d [0,%d]", index, [_menu numberOfItems]-1);
 #endif
-	if(_selectedItem >= 0 && !_pullsDown)
+	if(_altersStateOfSelectedItem && _selectedItem >= 0 && !_pullsDown)
 		[[self selectedItem] setState:NSOffState];	// deselect previous
 	_selectedItem = index;
-	if(_selectedItem >= 0 && !_pullsDown)
+	if(_altersStateOfSelectedItem && _selectedItem >= 0 && !_pullsDown)
 		[[self selectedItem] setState:NSOnState];	// select new
 #if 0
 	NSLog(@"selectedItem=%d:%@ state=%d", _selectedItem, [self selectedItem], [[self selectedItem] state]);
@@ -389,10 +389,10 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	NSLog(@"synchronizeTitleAndSelectedItem i=%d", i);
 #endif
 	if(i < 0 || i >= [_menu numberOfItems])
-		[super setTitle:@"?"];	// nothing/invalid
+		[super setTitle:nil];	// nothing/invalid
 	else
 		[super setTitle:[[_menu itemAtIndex: i] title]]; 
-	//	[_controlView setNeedsDisplay:YES];	// should redraw for our cell only!
+	[_controlView updateCell:self];
 }
 
 - (void) attachPopUpWithFrame:(NSRect) cellFrame inView:(NSView *) controlView;

@@ -365,6 +365,9 @@ NSSize size = [image size];
 	if([self allowsTickMarkValuesOnly])
 		v=[self closestTickMarkValueToValue:v]; // round to nearest tick mark
 	[self setFloatValue:v];	// calls updateCell:
+#if 1
+	NSLog(@"startTrackingAt -> controlView=%@", control);
+#endif
 	return YES;
 }
 
@@ -372,6 +375,9 @@ NSSize size = [image size];
 					   at:(NSPoint)currentPoint
 				   inView:(NSView *)controlView
 {
+#if 1
+	NSLog(@"NSSliderCell continueTracking:%@ at:%@", NSStringFromPoint(lastPoint), NSStringFromPoint(currentPoint));
+#endif
 	[self startTrackingAt:currentPoint inView:controlView];	// move slider
 	return YES;	// always continue
 }
@@ -441,131 +447,5 @@ NSSize size = [image size];
 { 
 	[_cell drawWithFrame:rect inView:self];
 }
-
-#if OLD
-
-- (float) _floatValueForMousePoint:(NSPoint)point knobRect:(NSRect)knobRect
-{
-NSRect slotRect = [_cell trackRect];
-BOOL isVertical = [_cell isVertical];
-float minValue = [_cell minValue];
-float maxValue = [_cell maxValue];
-float floatValue = 0;
-float position;
-										// Adjust the point to lie inside the 
-	if (isVertical) 					// knob slot. We don't have to worry
-		{								// whether the view is flipped or not.
-		if (point.y < slotRect.origin.y + knobRect.size.height / 2)
-			position = slotRect.origin.y + knobRect.size.height / 2;
-    	else 
-			if (point.y <= (position = NSMaxY(slotRect) -NSHeight(knobRect)/2))
-      			position = point.y;
-													// Compute the float value 
-    	floatValue = (position - (slotRect.origin.y + knobRect.size.height/2))
-		  				/ (slotRect.size.height - knobRect.size.height);
-   		if ([self isFlipped])
-      		floatValue = 1 - floatValue;
-  		}
-	else 											// Adjust the point to lie
-		{						 					// inside the knob slot 
-		if (point.x < slotRect.origin.x + knobRect.size.width / 2)
-			position = slotRect.origin.x + knobRect.size.width / 2;
-		else 
-			if (point.x <= (position = NSMaxX(slotRect) - NSWidth(knobRect)/2))
-      			position = point.x;
-													// Compute the float value
-						 							// given the knob size
-    	floatValue = (position - (slotRect.origin.x + knobRect.size.width / 2))
-		  				/ (slotRect.size.width - knobRect.size.width);
-  		}
-
-	return floatValue * (maxValue - minValue) + minValue;
-}
-
-- (void) trackKnob:(NSEvent*)event knobRect:(NSRect)knobRect
-{
-	NSEventType eventType = NSLeftMouseDown;
-	NSPoint current, previous;
-	BOOL isContinuous = [self isContinuous];
-	float oldFloatValue = [_cell floatValue];
-	NSDate *distantFuture = [NSDate distantFuture];
-	id target = [_cell target];
-	SEL action = [_cell action];
-	
-	// Why do we need periodic events at all? Maybe to handle drawing events triggered by the action?
-	// no: if we want to periodically notify the position even if it wasn't moved
-
-	[NSEvent startPeriodicEventsAfterDelay:0.05 withPeriod:0.05];
-
-	while((eventType = [event type]) != NSLeftMouseUp) 
-		{
-		if(eventType != NSPeriodic)
-			current = [event locationInWindow];
-		else
-			{
-			if(current.x != previous.x || current.y != previous.y) 
-				{
-				NSPoint p = [self convertPoint:current fromView:nil];
-				float v = [self _floatValueForMousePoint:p knobRect:knobRect];
-
-				previous = current;
-				if (v != oldFloatValue) 
-					{ // has really changed
-					oldFloatValue = v;
-					if([_cell allowsTickMarkValuesOnly])
-						v=[_cell closestTickMarkValueToValue:v]; // round to nearest tick mark
-					[_cell setFloatValue:v];
-					[_cell drawWithFrame:bounds inView:self];
-					[window flushWindow];
-					if(isContinuous)
-	  					[target performSelector:action withObject:self];
-      				}
-      			knobRect.origin = p;
-				}
-			}
-
-		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
-								   untilDate:distantFuture 
-									  inMode:NSEventTrackingRunLoopMode
-									 dequeue:YES];
-		}
- 
-	if(!isContinuous)	// If the control is not continuous send the action at the end of the drag
-		[target performSelector:action withObject:self];
-	[NSEvent stopPeriodicEvents];
-}
-
-// FIXME: we should be able to use the standard tracking loop of NSControl and NSCell!
-
-- (void) mouseDown:(NSEvent *)event
-{
-	NSPoint location = [self convertPoint:[event locationInWindow]fromView:nil];
-	NSRect rect = [_cell knobRectFlipped:[self isFlipped]];
-
-	[self lockFocus];
-	NSRectClip(bounds);
-														// Mouse is not on the 
-	if (![self mouse:location inRect:rect]) 			// knob, move knob to
-		{												// the mouse position 
-		float value = [self _floatValueForMousePoint:location knobRect:rect];
-	
-		[_cell setFloatValue:value];
-		if([self isContinuous])
-			[[_cell target] performSelector:[_cell action] withObject:self];
-		[_cell drawWithFrame:[self bounds] inView:self];
-		[window flushWindow];
-		}
-	
-	[self trackKnob:event knobRect:rect];
-	[self unlockFocus];
-}
-#endif
-
-#if 1
-- (void) mouseDown:(NSEvent *)event
-{
-	[super mouseDown:event];
-}
-#endif
 
 @end /* NSSlider */

@@ -270,8 +270,8 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 @end
 
 @interface NSObject (NSRunLoopWatcher)
-- (int) _readFileDescriptor;			// the fd to watch (-1 to ignore)
-- (int) _writeFileDescriptor;			// the fd to watch
+- (int) _readFileDescriptor;			// return fd to watch for read/listen
+- (int) _writeFileDescriptor;			// the fd to watch for write (or connect)
 - (void) _readFileDescriptorReady;		// callback
 - (void) _writeFileDescriptorReady;		// callback
 @end
@@ -465,6 +465,8 @@ typedef struct NSArgumentInfo
 - (void) _setMsgid:(unsigned) msgid;	// msgid to use when sending a NSPortMessage
 - (void) _setConnection:(NSConnection *) connection;
 - (NSArray *) _components;
+- (NSPort *) _receivePort;
+- (NSPort *) _sendPort;
 @end
 
 @interface NSDistantObjectRequest (NSPrivate)

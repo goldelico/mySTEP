@@ -67,6 +67,7 @@ extern NSString *NSFailedAuthenticationException;
 	NSMutableArray *_requestQueue;	// queue of pending NSDistantObjectRequests
 	NSTimeInterval _requestTimeout;
 	NSTimeInterval _replyTimeout;
+	NSDistantObject *_proxy;		// (cached) the proxy that represents the remote NSConnection object
 	unsigned int _sequence;
 	BOOL _multipleThreadsEnabled;
 	BOOL _isValid;

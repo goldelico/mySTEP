@@ -168,6 +168,11 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	return [self _initWithFileDescriptor:open([path fileSystemRepresentation], O_RDONLY)];
 }
 
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:@"%@(%p) fd=%d", NSStringFromClass(isa), self, _fd];
+}
+
 - (id) initWithData:(NSData *) data
 {
 	[self release];
@@ -295,6 +300,11 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	return self;
 }
 
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:@"%@(%p) buffer=%p[%d:%d]", NSStringFromClass(isa), self, _buffer, _position, _capacity];
+}
+
 - (BOOL) hasBytesAvailable; { return _position < _capacity; }
 
 - (BOOL) getBuffer:(unsigned char **) buffer length:(unsigned int *) len;
@@ -379,6 +389,11 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	return self;
 }
 
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:@"%@(%p) fd=%d", NSStringFromClass(isa), self, _fd];
+}
+
 - (int) _writeFileDescriptor; { return _fd; }
 
 - (id) initToFileAtPath:(NSString *) path append:(BOOL) flag
@@ -460,6 +475,11 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		_capacityLimit=LONG_MAX;
 		}
 	return self;
+}
+
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:@"%@(%p) buffer=%p[%d:%d]", NSStringFromClass(isa), self, _buffer, _position, _capacityLimit];
 }
 
 - (BOOL) hasSpaceAvailable; { return _position < _capacityLimit; }

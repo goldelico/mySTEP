@@ -3,16 +3,9 @@
 
    Implementation of NSPortCoder object for remote messaging
 
-   Copyright (C) 1994, 1995, 1996, 1997 Free Software Foundation, Inc.
-
-   Author:	Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
-   Date:	July 1994
-   Rewrite:	Richard Frith-Macdonald <richard@brainstorm.co.uk>
-   Date:	August 1997
-
    Complete rewrite:
    Dr. H. Nikolaus Schaller <hns@computer.org>
-   Date: Jan 2006-Jan 2007
+   Date: Jan 2006-Sep 2007
    Some implementation expertise comes from from Crashlogs found on the Internet: Google e.g. for "NSPortCoder sendBeforeTime:"
 
    This file is part of the mySTEP Library and is provided
@@ -32,21 +25,23 @@
 #import "NSPrivate.h"
 
 /*
- this is how an Apple Cocoa request for [connection rootProxy] arrives in the first component of a NSPortMessage (msgid=0)
+ this is how an Apple Cocoa request for [connection rootProxy] arrives in the first component of a NSPortMessage (with msgid=0)
  
- 04edfe1f 0e01 0101 0101
- 0d									len (incl. 00)
- 4e53496e766f636174696f6e00			"NSInvocation"		class
- 0001 0101
- 10									len (incl. 00)
- 4e5344697374616e744f626a65637400	"NSDistantObject"	self
- 0000 0101 0101 020101
- 0b									len (incl. 00)
- 726f6f744f626a65637400				"rootObject			_cmd
- 0101
+ 04edfe1f 0e01 0101 0101			?
+ 0d									string len (incl. 00)
+ 4e53496e766f636174696f6e00			"NSInvocation"		class	- this payload encodes an NSInvocation
+ 0001 0101							?
+ 10									string len (incl. 00)
+ 4e5344697374616e744f626a65637400	"NSDistantObject"	self	- appears to be the 'target' component
+ 0000 0101 0101 020101				?
+ 0b									string len (incl. 00)
+ 726f6f744f626a65637400				"rootObject			_cmd	- appears to be the 'selector' component
+ 0101								?
  04									len (incl. 00)
  40403a00							"@@:"				signature (return type=id, self=id, _cmd=SEL)
- 0140010000
+ 0140010000							?
+ 
+ The encoding is not exactly clear
  
  NOTE: our NSPortCoder is NOT compatible!!!
 
@@ -64,13 +59,13 @@
 - (void) sendBeforeTime:(NSTimeInterval) time sendReplyPort:(NSPort *) port;
 { // this method is not documented but exists!
 	NSPortMessage *pm=[[NSPortMessage alloc] initWithSendPort:_send
-												  receivePort:_recv
+												  receivePort:port?port:_recv	// override recv port
 												   components:_components];
 	NSDate *due=[NSDate dateWithTimeIntervalSinceNow:time];
 	BOOL r;
 	[pm setMsgid:_msgid];
 #if 0
-	NSLog(@"sendBeforeTime %@ msgid=%d replyPort:%@", due, _msgid, port);
+	NSLog(@"sendBeforeTime %@ msgid=%d replyPort:%@ _send:%@ _recv:%@", due, _msgid, port, _send, _recv);
 #endif
 	r=[pm sendBeforeDate:due];
 	[pm release];
@@ -85,6 +80,8 @@
 
 - (NSConnection *) connection; { return _connection; }
 
+- (NSPort *) _receivePort; { return _recv; }
+- (NSPort *) _sendPort; { return _send; }
 - (NSArray *) _components; { return _components; }
 - (void) _setConnection:(NSConnection *) connection; { _connection=connection; }	// not retained!
 - (void) _setMsgid:(unsigned) msgid; { _msgid=msgid; }
