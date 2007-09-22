@@ -2653,34 +2653,59 @@ struct stat tmp_stat;
 }
 
 - (NSString *) stringByAddingPercentEscapesUsingEncoding:(NSStringEncoding) encoding;
-{
-	// convert to ISOLatin1
-	// before doing that, encode all non-ISOLatin1 as &#ddd; including embedded & characters
-//	NSMutableString *s=[NSMutableString string];
-	NSMutableString *s=[NSMutableString stringWithString:self];
-	int i, count=[self length];
-	NIMP;
-	for(i=0; i<count; i++)
+{ // convert to given encoding (should be UTF8) http://www.w3.org/International/O-URL-code.html
+	NSMutableString *s;
+	NSData *data=[self dataUsingEncoding:encoding];
+	int i, count;
+	const char *p;
+	if(!data)
+		return nil;	// can't encode
+	p=[data bytes];
+	count=[data length];
+	s=[NSMutableString stringWithCapacity:count+6];	// for 1-2 encoded characters
+	for(i=0; i<count; p++, i++)
 		{
-		unichar c=[self characterAtIndex:i];
-		if(c == '&')
-			;
-		if(c == '%')
-			;
-		if(c <= 0x20 || c >= 0x7f)
-			;
+		if(*p == '%' || *p <= 0x20 || *p >= 0x7f)
+			[s appendFormat:@"%%%02x", *p];
+		else
+			[s appendFormat:@"%c", *p];
 		}
 	return s;
 }
 
 - (NSString *) stringByReplacingPercentEscapesUsingEncoding:(NSStringEncoding) encoding;
 {
-	NIMP;
-	// scan all %xx sequences and replace by character
-	// note that we should be able to handle multibyte characters like UTF8 for sequences of %xx!
-	// i.e. we search for the first % and then collect all directly following % sequences
-	// and if we arrive at the first non-% or end of string, we parse and translate the full sequence of bytes according to the encoding
-	return nil;
+	NSMutableData *data=[NSMutableData dataWithCapacity:[self length]];
+	int i, count=[self length];
+	for(i=0; i<count; i++)
+		{
+		unichar c=[self characterAtIndex:i];
+		char ac;
+		if(c > 255)
+			return nil;	// can't decode
+		if(c == '%')
+			{
+			i++;
+			if(count - i < 2)
+				return nil;	// too short
+			c=[self characterAtIndex:i++];
+			if(c >= '0' && c <= '9') ac=c;
+			else if(c >= 'A' && c <= 'F') ac=(c-'A'+10);
+			else if(c >= 'a' && c <= 'f') ac=(c-'a'+10);
+			else return nil;	// invalid character
+			ac=(ac&0x000f)<<4;
+			c=[self characterAtIndex:i++];
+			if(c >= '0' && c <= '9') c&=0x0f;
+			else if(c >= 'A' && c <= 'F') c=(c-'A'+10);
+			else if(c >= 'a' && c <= 'f') c=(c-'a'+10);
+			else return nil;	// invalid character
+			ac+=c;
+			}
+		else
+			ac=c;
+		[data appendBytes:&ac length:1];
+		}
+	return [[[NSString alloc] initWithData:data encoding:encoding] autorelease];	// and try to decode
 }
 
 - (NSString *) decomposedStringWithCanonicalMapping; { return NIMP; }
