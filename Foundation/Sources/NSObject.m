@@ -235,9 +235,11 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 - (id) replacementObjectForPortCoder:(NSPortCoder*)anEncoder	{ return SUBCLASS; }	// defined as category in NSPortCoder.m
 
 - (NSString *) className;				{ return NSStringFromClass([self class]); }
+
+// default implementations
+
 - (Class) classForCoder					{ return [self class]; }
 - (Class) classForArchiver				{ return [self classForCoder]; }
-- (Class) classForPortCoder				{ return [self classForCoder]; }
 
 - (id) replacementObjectForArchiver:(NSArchiver*)anArchiver
 {
@@ -438,6 +440,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 @implementation NSObject (NEXTSTEP_MISC)			// NEXTSTEP Object class 
 													// compatibility & misc
+#if OLD
+
 - (id) _error:(const char *)aString, ...
 {
 char fmtStr[] = "error: %s (%s)\n%s\n";
@@ -461,8 +465,6 @@ va_list ap;
 	return [self isMemberOfClass:aClassObject];
 }
 
-#if OLD
-
 + (BOOL) instancesRespondTo:(SEL)aSel
 {
 	return [self instancesRespondToSelector:aSel];
@@ -485,7 +487,6 @@ va_list ap;
 {
 	return [self conformsToProtocol:aProtocol];
 }
-#endif
 
 + (IMP) instanceMethodFor:(SEL)aSel
 {
@@ -530,12 +531,14 @@ Class old_isa = nil;
 	return old_isa;
 }
 
+#endif
+
 - (int) compare:(id)anObject
 {
 	if ([self isEqual:anObject])
 		return 0;
 
-	return ((char *) self-(char *)anObject) > 0 ? 1 : -1;	// FIXME - this is strange!
+	return ((char *) self-(char *)anObject) > 0 ? 1 : -1;	// FIXME - this looks quite strange!
 }
 
 @end

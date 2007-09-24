@@ -168,7 +168,7 @@ static int structReturnPointerLength;		// how much room do we need for that (may
 		info = objc_malloc(sizeof(NSArgumentInfo) * allocArgs);
 		for(i = 0; *types != 0; i++)
 			{ // process all types
-#if 0
+#if 1
 			NSLog(@"%d: %s", i, types);
 #endif
 			if(i >= allocArgs)
@@ -212,17 +212,20 @@ static int structReturnPointerLength;		// how much room do we need for that (may
 #endif
 			if(i>0 && info[i].isReg && info[0].byRef)
 				info[i].offset += structReturnPointerLength;	// adapt offset because we have a virtual first argument
-#if 0
+#if 1
 			NSLog(@"%d: type %s size %d align %d offset %d isreg %d qual %d byRef %d fltDbl %d",
 		           info[i].index,  info[i].type,  info[i].size,  info[i].align,
 		           info[i].offset, info[i].isReg, info[i].qual,
 				   info[i].byRef,  info[i].floatAsDouble);
 #endif
-			if(info[i].byRef)
-				argFrameLength += sizeof(void *);
-			else
-				{ // handle alignment here
-				argFrameLength += info[i].align*((info[i].align-1+info[i].size)/info[i].align);
+			if(i > 2)
+				{ // don't include self and _cmd
+				if(info[i].byRef)
+					argFrameLength += sizeof(void *);
+				else
+					{ // handle alignment here
+					argFrameLength += info[i].align*((info[i].align-1+info[i].size)/info[i].align);
+					}
 				}
 			}
 		numArgs = i-1;	// 0 i.e. return type does not count
@@ -288,8 +291,8 @@ static int structReturnPointerLength;		// how much room do we need for that (may
 		[NSException raise: NSInvalidArgumentException format: @"Index %d too high (%d).", index, numArgs];
 	NEED_INFO();
 	offset = info[index+1].offset;
-#if 0
-	NSLog(@"_setArgument offset=%u", offset);
+#if 1
+	NSLog(@"_setArgument[%d] offset=%u", index, offset);
 #endif
 #if WORDS_BIGENDIAN
 	if(info[index+1].size < sizeof(int))
@@ -312,7 +315,7 @@ static int structReturnPointerLength;		// how much room do we need for that (may
 }
 
 - (void) _prepareFrameForCall:(arglist_t) _argframe;
-{ // preload registers for ARM stack frame
+{ // preload registers from ARM stack frame
 #ifndef __APPLE__
 	((void **)_argframe)[1] = ((void **)_argframe)[2];		// copy target/self value to the register frame
 	((void **)_argframe)[3] = (*(void ***)_argframe)[0];	// copy first 3 stack args to the register frame

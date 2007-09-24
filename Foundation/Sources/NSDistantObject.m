@@ -265,7 +265,7 @@
 	return [super respondsToSelector:aSelector];	// we must ask the remote side
 }
 
-- (Class) classForPortCoder; { return [self class]; }
+- (Class) classForPortCoder; { return isa; }
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't ever replace by another proxy
 

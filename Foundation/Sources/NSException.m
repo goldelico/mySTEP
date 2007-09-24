@@ -115,7 +115,7 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 - (NSString *) name										{ return e_name; }
 - (NSString *) reason									{ return e_reason; }
 - (NSDictionary *) userInfo								{ return e_info; }
-- (Class) classForPortCoder								{ return [self class];}
+- (Class) classForPortCoder								{ return isa;}
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// send exception bycopy
 

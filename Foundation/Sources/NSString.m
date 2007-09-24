@@ -3821,7 +3821,7 @@ struct stat tmp_stat;
 - (id) retain							{ return self; }
 - (oneway void) release					{ return; }
 - (id) autorelease						{ return self; }
-- (id) copyWithZone:(NSZone *) z								{ return self; }
+- (id) copyWithZone:(NSZone *) z		{ return self; }
 - (NSStringEncoding) fastestEncoding	{ return NSASCIIStringEncoding; }
 - (NSStringEncoding) smallestEncoding	{ return NSASCIIStringEncoding; }
 

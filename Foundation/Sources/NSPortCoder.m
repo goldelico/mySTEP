@@ -114,7 +114,7 @@
 
 - (void) encodePortObject:(NSPort *) port;
 {
-	// assert subclass of NSPort
+	NSAssert([port isKindOfClass:[NSPort class]], @"NSPort expected");
 	[(NSMutableArray *) _components addObject:port];
 }
 
@@ -122,6 +122,9 @@
 						 count:(unsigned int)count
 							at:(const void*)array
 { // try to encode as a single component
+#if 0
+	NSLog(@"encodeArrayOfObjCType %s count %d", type, count);
+#endif
 	switch(*type)
 		{
 		case _C_ID:
@@ -151,7 +154,7 @@
 	NSLog(@"NSPortCoder encodeObject%@%@ %p", _isBycopy?@" bycopy":@"", _isByref?@" byref":@"", obj);
 	NSLog(@"  obj %@", obj);
 #endif
-	obj=[obj replacementObjectForPortCoder:self];	// substitute by proxy if expected
+	obj=[obj replacementObjectForPortCoder:self];	// substitute by a proxy if required
 #if 0
 	NSLog(@"  replacement %@", obj);
 #endif
@@ -196,6 +199,7 @@
 
 - (void) encodeDataObject:(NSData *)data
 {
+	NSAssert([data isKindOfClass:[NSData class]], @"NSData expected");
 	[(NSMutableArray *) _components addObject:data];	// as it is...
 }
 
@@ -325,6 +329,9 @@
 { // try to decode as a single component
 	unsigned size;
 	char *bytes;
+#if 0
+	NSLog(@"decodeArrayOfObjCType %s count %d", type, count);
+#endif
 	switch(*type)
 		{
 		case _C_ID:
@@ -351,6 +358,7 @@
 - (id) decodeObject
 {
 	Class class;
+	id obj;
 	[self decodeValueOfObjCType:@encode(Class) at:&class];
 #if 0
 	NSLog(@"NSPortCoder decodeObject of class %@", NSStringFromClass(class));
@@ -358,14 +366,18 @@
 	if(class == Nil)
 		return nil;	// was a nil object
 	// should also look up in class translation table!
-	return [[class alloc] initWithCoder:self];	// decode
+	obj=[[[class alloc] initWithCoder:self] autorelease];	// decode
+#if 1
+	NSLog(@"NSPortCoder decodeObject(%@) -> %@", NSStringFromClass(class), obj);
+#endif
+	return obj;
 }
 
 - (void *) decodeBytesWithReturnedLength:(unsigned *)numBytes;
 {
 	NSData *d=[self decodeDataObject];
 #if 0
-	NSLog(@"decodeBytesWithReturnedLength=%@", d);
+	NSLog(@"decodeBytesWithReturnedLength: %@", d);
 #endif
 	*numBytes=[d length];
 	return (void *) [d bytes];
@@ -501,8 +513,8 @@
 			{
 				unsigned numBytes;
 				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-#if 0
-				NSLog(@"decoded %u bytes string", numBytes);
+#if 1
+				NSLog(@"decoded %u bytes atomar string", numBytes);
 #endif
 				// FIXME: we should replace the string
 				*((char **) address) = addr;	// store address (storage object is an autoreleased NSData!)
@@ -534,12 +546,7 @@
 
 @implementation NSObject (NSPortCoder)
 
-// default implementations
-
-- (Class) classForPortCoder;
-{
-	return [self classForCoder];
-}
+- (Class) classForPortCoder				{ return [self classForCoder]; }
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder
 { // default is to encode a proxy
