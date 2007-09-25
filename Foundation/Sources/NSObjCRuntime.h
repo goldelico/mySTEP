@@ -162,18 +162,18 @@ typedef void *av_alist;
 
 #endif
 
-#define mframe_next_arg(TYPES, INFO) TYPES
+// #define mframe_next_arg(TYPES, INFO) TYPES
 
 #else
 
 // additional interfaces for gcc runtime
 
-struct NSArgumentInfo;
-const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *info); // Step through method encoding information extracting details.
-BOOL mframe_decode_return(const char *type, void* buffer, void* retframe); // Copy the return value from retframe into the specified buffer.
-void *mframe_handle_return(const char* type, void* retval, arglist_t argFrame); // Return the value of the specified type in retval using argFrame
-arglist_t mframe_create_argframe(const char *types, void** retbuf);
-void mframe_destroy_argframe(const char *types, arglist_t argframe);
+// struct NSArgumentInfo;
+// const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *info); // Step through method encoding information extracting details.
+// BOOL mframe_decode_return(const char *type, void* buffer, void* retframe); // Copy the return value from retframe into the specified buffer.
+// void *mframe_handle_return(const char* type, void* retval, arglist_t argFrame); // Return the value of the specified type in retval using argFrame
+// arglist_t mframe_create_argframe(const char *types, void** retbuf);
+// void mframe_destroy_argframe(const char *types, arglist_t argframe);
 
 int objc_check_undefineds(FILE *errorStream);
 void objc_invalidate_dtable(Class class);

@@ -2,6 +2,7 @@
 /// should become part of NSMethodSignature as the only class that encapsulates a stack frame
 
 /// CHECKME: which parts do we still use?
+/// just some macros...
 
 /*
    mframe.h
@@ -569,6 +570,35 @@ frame is the address passed to - (retval_t) forward:(SEL)aSel :(arglist_t)frame
 	Type signatures use
 	i+8		to access frame + 8
 	i8		to access (aptr) + 8
+
+NOTE: gcc documentation is giving a good description (if you have learned to interpret it correctly)
+
+	__builtin_apply_args ()
+	This built-in function returns a pointer of type void * to data describing how to perform a call with the same arguments as were passed to the current function.
+	The function saves the arg pointer register, structure value address, and all registers that might be used to pass arguments to a function into a block of memory allocated on the stack. Then it returns the address of that block.
+
+i.e.
+* the void * structure contains
+  - arg-pointer-register: a pointer to the argument values pushed on the stack (this is not necessarily in the same data block!)
+  - optionally structure value address
+  - all registers that might be used to pass arguments (this is CPU specific)
+
+	__builtin_apply (function, arguments, size)
+	This built-in function invokes function (type void (*)()) with a copy of the parameters described by arguments (type void *) and size (type int).
+	The value of arguments should be the value returned by __builtin_apply_args. The argument size specifies the size of the stack argument data, in bytes.
+
+* i.e. the arguments descriptor as defined above
+* size specifies how many bytes should be copied to the stack - it does not need to include the register arguments!
+
+	This function returns a pointer of type void * to data describing how to return whatever value was returned by function. The data is saved in a block of memory allocated on the stack.
+
+	It is not always simple to compute the proper value for size. The value is used by __builtin_apply to compute the amount of data that should be pushed on the stack and copied from the incoming argument area.
+
+* it should be possible to derive it properly from the @encode()
+
+
+	__builtin_return (result)
+	This built-in function returns the value described by result from the containing function. You should specify, for result, a value returned by __builtin_apply.
 
 	*/
 

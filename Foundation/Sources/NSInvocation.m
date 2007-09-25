@@ -215,7 +215,7 @@ static retval_t apply_pointer(void *data)
 	void *buffer;
 	int i;
 	NSLog(@"%@ %@", str, self);
-	for(i=0; i<[_sig frameLength]/4; i++)
+	for(i=0; i<12+[_sig frameLength]/4; i++)
 		{
 		NSString *note=@"";
 		if(((void **)_argframe)[i] == [self target]) note=(@"self");
@@ -223,6 +223,9 @@ static retval_t apply_pointer(void *data)
 		if(((void **)_argframe)[i] == (_argframe+0x28)) note=(@"argp");
 		NSLog(@"arg[%2d]:%08x %08x %ld %@", i, &(((void **)_argframe)[i]), ((void **)_argframe)[i], ((void **)_argframe)[i], note);
 		}
+#if 1
+	NSLog(@"allocating buffer - len=%d", MAX([_sig frameLength], [_sig methodReturnLength]));
+#endif
 	buffer=objc_malloc(MAX([_sig frameLength], [_sig methodReturnLength]));	// make buffer large enough for max value size
 	// print argframe
 	for(i = _validReturn?-1:0; i < _numArgs; i++)
@@ -238,10 +241,15 @@ static retval_t apply_pointer(void *data)
 			type=[_sig methodReturnType];
 			[self getReturnValue:buffer];
 			}
+#if 1
 		if(*type == _C_ID)
-			NSLog(@"argument %d qual=%d type=%s %p %@", i, qual, type, *(id *) buffer, *(id *) buffer);
+//			NSLog(@"argument %d qual=%d type=%s %p %@", i, qual, type, *(id *) buffer, *(id *) buffer);
+			NSLog(@"argument %d qual=%d type=%s %p %p", i, qual, type, *(id *) buffer, *(id *) buffer);
 		else if(*type == _C_SEL)
 			NSLog(@"argument %d qual=%d type=%s %p %@", i, qual, type, *(SEL *) buffer, NSStringFromSelector(*(SEL *) buffer));
+		else
+			NSLog(@"argument %d qual=%d type=%s %p %08x", i, qual, type, *(SEL *) buffer, *(long *) buffer);
+#endif
 		}
 	objc_free(buffer);
 }
@@ -277,7 +285,7 @@ static retval_t apply_pointer(void *data)
 			}
 		else
 			{ // create fresh argument frame
-			_argframe = objc_calloc(1, [_sig frameLength]);
+			_argframe = [_sig _allocArgFrame];
 			if(!_argframe)
 				{ // could not allocate
 				[self dealloc];
