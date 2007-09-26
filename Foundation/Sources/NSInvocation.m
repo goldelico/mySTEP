@@ -267,57 +267,27 @@ static retval_t apply_pointer(void *data)
 		_sig = [aSignature retain];
 		_numArgs = [aSignature numberOfArguments];
 		_info = [aSignature _methodInfo];	// FIXME: get rid of this
-		if(argFrame)
-			{ // extract what we need from the existing argframe
-			_argframe = argFrame;	// remember
-//			_retval=NULL;
-//			[_sig _getArgument:&_retval fromFrame:_argframe atIndex:-1];	// oops - this tries to copy the value to *_retval...
-//			if(!_retval)
-//				{ // allocate locally
-				_retval = objc_calloc(1, _info[0].size);
-				if(!_retval)
-					{ // could not allocate
-					[self dealloc];
-					return nil;
-					}
-				_retvalismalloc=YES;
-//				}
+		_argframe = [_sig _allocArgFrame:argFrame];
+		if(!_argframe)
+			{ // could not allocate
+#if 1
+			NSLog(@"_initWithMethodSignature:andArgFrame: could not allocate _argframe");
+#endif
+			[self dealloc];
+			return nil;
 			}
-		else
-			{ // create fresh argument frame
-			_argframe = [_sig _allocArgFrame];
-			if(!_argframe)
+		_argframeismalloc=(_argframe != argFrame);	// is different
+		if(_info[0].size > 0)
+			{
+			_retval = objc_calloc(1, _info[0].size);
+			if(!_retval)
 				{ // could not allocate
+#if 1
+				NSLog(@"_initWithMethodSignature:andArgFrame: could not allocate _retval");
+#endif
 				[self dealloc];
 				return nil;
 				}
-			_argframeismalloc=YES;
-			if(_info[0].size > 0)
-				{ // and allocate return value space
-//				NSLog(@"_retval alloc(%d)", _info[0].size);
-				// might we cut off from argframe?
-				// ((void **)_argframe)[2] = ((char *) _argframe) + [_sig frameLength] - _info[0].size;
-				_retval = objc_malloc(_info[0].size);
-				if(!_retval)
-					{ // could not allocate
-					[self dealloc];
-					return nil;
-					}
-				_retvalismalloc=YES;
-//				NSLog(@"_retval %08x", _retval);
-				}
-#if 0
-#if defined(Linux_ARM)
-			// how to get this offset automatically???
-			*(char **)_argframe=((char *) _argframe) + 10*4;	// set pointer to stack arguments
-			if(_info[0].byRef)
-				{ // if struct is returned - set pointer at _argframe+8 as well
-//				NSLog(@"argframe=%08x return struct ptr at %08x", _argframe, argframe_arg_addr(_argframe, &_info[0]));
-				*(char **)_argframe = ((char *) _argframe) + 12*4;	// we need room for the return value pointer
-				[_sig _setArgument:&_retval forFrame:_argframe atIndex:-1];
-				}
-#endif
-#endif
 			}
 		}
 #if 1

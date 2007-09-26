@@ -571,14 +571,19 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 		memcpy(addr, buffer, info[index+1].size);
 }
 
-- (arglist_t) _allocArgFrame
-{ // make a single buffer that is large enough to hold the _builtin_apply() block + space for frameLength arguments
-	int part1 = sizeof(void *) + structReturnPointerLength + registerSaveAreaSize;	// first part
-	arglist_t frame=(arglist_t) objc_calloc(part1 + argFrameLength, sizeof(char));
-	void *args=(char *) frame + part1;
-	NSLog(@"allocated frame=%p args=%p framelength=%d", frame, args, argFrameLength);
-	((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
-	// FIXME: we might have to keep room if we return a struct
+- (arglist_t) _allocArgFrame:(arglist_t) frame
+{ // (re)allocate stack frame
+	if(!frame)
+		{ // make a single buffer that is large enough to hold the _builtin_apply() block + space for frameLength arguments
+		int part1 = sizeof(void *) + structReturnPointerLength + registerSaveAreaSize;	// first part
+		void *args;
+		frame=(arglist_t) objc_calloc(part1 + argFrameLength, sizeof(char));
+		args=(char *) frame + part1;
+		NSLog(@"allocated frame=%p args=%p framelength=%d", frame, args, argFrameLength);
+		((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
+		}
+	else
+		((void **)frame)[0]+=12;	// on ARM - forward:: returns the full stack while __builtin_apply needs only extra arguments
 	return frame;
 }
 

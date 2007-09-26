@@ -427,14 +427,14 @@ typedef struct NSArgumentInfo
 - (unsigned) _getArgumentQualifierAtIndex:(int)index;
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
 - (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index;
-- (arglist_t) _allocArgFrame;	// allocate an empty frame
+- (arglist_t) _allocArgFrame:(arglist_t) frame;
+- (void) _prepareFrameForCall:(arglist_t) _argframe;
 - (id) _initWithObjCTypes:(const char*) t;
 - (const char *) _methodType;		// total method type
 
 // OLD
 
 - (NSArgumentInfo *) _methodInfo;	// method info array - FIXME: remove
-- (void) _prepareFrameForCall:(arglist_t) _argframe;
 
 @end
 
