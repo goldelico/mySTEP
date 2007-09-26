@@ -47,51 +47,46 @@ static BOOL returnStructByVirtualArgument;	// returns structs by virtual argumen
 
 #endif
 
-// processor specific constants
-// defined in +initialize
+// processor specific constants initialized in +initialize
 
 static BOOL isBigEndian;
-static int registerSaveAreaSize;			// how much room do we need for that (may be 0)
-static int structReturnPointerLength;		// how much room do we need for that (may be 0)
+static BOOL structByRef;
+static BOOL floatAsDouble;
+static int registerSaveAreaSize;			// how much bytes we need for that (may be 0)
+static int structReturnPointerLength;		// how much bytes we need for that (may be 0)
 
 // merge this into NSMethodSignature
 
 const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 {
-	BOOL flag;								// information extracting details.
-	
 	NSAssert(info, @"missing NSArgumentInfo");
-	
-	// Skip past any type qualifiers,
-	flag = YES;								// return them if caller wants them
+	// FIXME: NO, we should keep the flags+type but remove the offset
 	info->qual = 0;	// start with no qualifier
 	info->floatAsDouble = NO;
-	while(flag)
+	// Skip past any type qualifiers,
+	for(; YES; typePtr++)
 		{
 		switch (*typePtr)
 			{
-			case _C_CONST:  info->qual |= _F_CONST; break;
-			case _C_IN:     info->qual |= _F_IN; break;
-			case _C_INOUT:  info->qual |= _F_INOUT; break;
-			case _C_OUT:    info->qual |= _F_OUT; break;
-			case _C_BYCOPY: info->qual |= _F_BYCOPY; info->qual &= ~_F_BYREF; break;
+			case _C_CONST:  info->qual |= _F_CONST; continue;
+			case _C_IN:     info->qual |= _F_IN; continue;
+			case _C_INOUT:  info->qual |= _F_INOUT; continue;
+			case _C_OUT:    info->qual |= _F_OUT; continue;
+			case _C_BYCOPY: info->qual |= _F_BYCOPY; info->qual &= ~_F_BYREF; continue;
 #ifdef _C_BYREF
-			case _C_BYREF:  info->qual |= _F_BYREF; info->qual &= ~_F_BYCOPY; break;
+			case _C_BYREF:  info->qual |= _F_BYREF; info->qual &= ~_F_BYCOPY; continue;
 #endif
-			case _C_ONEWAY: info->qual |= _F_ONEWAY; break;
-			default: flag = NO; continue;
+			case _C_ONEWAY: info->qual |= _F_ONEWAY; continue;
+			default: break;
 			}
-		if(flag)
-			typePtr++;
+		break;	// break loop
 		}
-	// NO, we should keep the flags+type but remove the offset
 	info->type = typePtr;
 	
-#if MFRAME_STRUCT_BYREF
-	info->byRef = (*typePtr == _C_STRUCT_B || *typePtr == _C_UNION_B || *typePtr == _C_ARY_B);
-#else
-	info->byRef = NO;
-#endif
+	if(structByRef)
+		info->byRef = (*typePtr == _C_STRUCT_B || *typePtr == _C_UNION_B || *typePtr == _C_ARY_B);
+	else
+		info->byRef = NO;
 	
 	switch (*typePtr++)				// Scan for size and alignment information.
 		{
@@ -161,15 +156,18 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 			break;
 			
 		case _C_FLT:
-#if MFRAME_FLT_IN_FRAME_AS_DBL
-			// I guess we should set align/size differently...
-			info->floatAsDouble = YES;
-			info->size = sizeof(double);
-			info->align = __alignof__(double);
-#else
-			info->size = sizeof(float);
-			info->align = __alignof__(float);
-#endif
+			if(floatAsDouble)
+				{
+				// I guess we should set align/size differently...
+				info->floatAsDouble = YES;
+				info->size = sizeof(double);
+				info->align = __alignof__(double);
+				}
+			else
+				{
+				info->size = sizeof(float);
+				info->align = __alignof__(float);
+				}
 			break;
 			
 		case _C_DBL:
@@ -214,8 +212,8 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 			
 		case _C_STRUCT_B:
 			{
-				//			struct { int x; double y; } fooalign;
 				NSArgumentInfo local;
+				//	struct { int x; double y; } fooalign;
 				struct { unsigned char x; } fooalign;
 				int acc_size = 0;
 				int acc_align = __alignof__(fooalign);
@@ -286,9 +284,6 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 	
 	if(*typePtr == 0)
 		return NULL;								// error
-													// If we had a pointer argument, we will already have 
-													// gathered (and skipped past) the argframe offset 
-													// info - so we don't need to (and can't) do it here.
 	if(info->type[0] != _C_PTR || info->type[1] == '?')
 		{
 		if(*typePtr == '+')	 
@@ -303,12 +298,10 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 		info->offset = 0;
 		while(isdigit(*typePtr))
 			info->offset = 10 * info->offset + (*typePtr++ - '0');
-//		if(!info->isReg)
-//			info->offset += 12;	// FIXME: is this needed for all CPUs or ARM only?
-		// should also be based on last + offset (i.e. highest register offset - 8 ?)
 		}
 	
 	// FIXME: to be more compatible, we should return a string incl. qualifier but without offset part!
+	// i.e. Vv, R@, O@ etc.
 
 	return typePtr;
 }
@@ -323,11 +316,12 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 	passStructByPointer=NO;
 	returnStructByVirtualArgument=YES;
 #else
-#if defined(Linux_ARM)
-// for ARM_Linux
+#if defined(Linux_ARM)	// for ARM_Linux
 	registerSaveAreaSize=4*sizeof(long);		// for ARM processor
 	structReturnPointerLength=sizeof(void *);	// if we have one
 	isBigEndian=NSHostByteOrder()==NS_BigEndian;
+	floatAsDouble=YES;
+	structByRef=YES;
 #if 1
 	NSLog(@"NSMethodSignature: processor is %@", isBigEndian?@"Big Endian":@"Little Endian");
 #endif
@@ -409,12 +403,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 	return self;
 }
 
-#if 1	// still needed to be public because it is used in NSInvocation
-
-//
-// FIXME: this is not yet platform independent
-// and contains a lot of hacks for the ARM architecture
-//
+// still needed to be public because it is used in NSInvocation
 
 - (NSArgumentInfo *) _methodInfo
 { // collect all information from methodTypes in a platform independent way
@@ -431,7 +420,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 		info = objc_malloc(sizeof(NSArgumentInfo) * allocArgs);
 		for(i = 0; *types != 0; i++)
 			{ // process all types
-#if 1
+#if 0
 			NSLog(@"%d: %s", i, types);
 #endif
 			if(i >= allocArgs)
@@ -447,34 +436,6 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 				else
 					info[i].qual |= _F_IN;		// default to "bycopy in"
 				}
-#if OLD
-			// check for useless combinations
-			// i.e. "in" for return value
-			// and "byref char *"
-#if defined(Linux_ARM)
-			/// manipulate offsets - should be done by constants/rules identified in +initialize
-			if(i == 0 && (*info[0].type == _C_STRUCT_B || *info[0].type == _C_UNION_B || *info[0].type == _C_ARY_B))
-				{ // denote struct return by virtual first argument
-			//	argFrameLength+=structReturnPointerLength;	// enlarge
-				info[i].isReg=YES;	// formally handle as a register offset
-				info[i].byRef=YES;	// and value is stored by reference
-				info[i].offset=2*structReturnPointerLength;	// set offset so we can use argframe_get_arg() properly
-				}
-			else if(i == 2)
-				{ // convert _cmd to stack access
-				info[i].offset=0;		// default offset for _cmd is :+12 and real location is just at arg_ptr
-				info[i].isReg=NO;		// no longer access as register
-				}
-			else if(i > 2)
-				{ // increment offset
-				if(info[i].align < 4)
-					info[i].align=4;			// ARM seems to push all arguments as long
-				info[i].offset=info[i-1].offset+info[i-1].size;	// behind previous
-				info[i].offset=info[i].align*((info[i].align-1+info[i].offset)/info[i].align);
-				info[i].isReg=NO;	// no (longer) access as register
-				}
-#endif
-#endif // OLD
 			if(isBigEndian && info[i].align < 4)
 				{ // adjust offset
 				info[i].offset+=4-info[i].align;	// point to the correct byte
@@ -490,29 +451,15 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 				   info[i].byRef, info[i].floatAsDouble);
 #endif
 			if(!info[i].isReg)	// value is on stack - counts for frameLength
-//			if(i > 2)	// value is on stack - counts in frameLength
 				argFrameLength += ((info[i].size+info[i].align-1)/info[i].align)*info[i].align;
-#if OLD
-			if(i > 2)
-				{ // don't include self and _cmd
-				if(info[i].byRef)
-					argFrameLength += sizeof(void *);
-				else
-					{ // handle alignment here
-					argFrameLength += info[i].align*((info[i].align-1+info[i].size)/info[i].align);
-					}
-				}
-#endif
 			}
-		numArgs = i-1;	// 0 i.e. return type does not count
-#if 1
+		numArgs = i-1;	// return type does not count
+#if 0
 		NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
 #endif
     	}
     return info;
 }
-
-#endif
 
 - (const char*) _methodType	{ return methodTypes; }
 
@@ -570,7 +517,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 }
 
 - (arglist_t) _allocArgFrame:(arglist_t) frame
-{ // (re)allocate stack frame
+{ // (re)allocate stack frame for ARM CPU
 	if(!frame)
 		{ // make a single buffer that is large enough to hold the _builtin_apply() block + space for frameLength arguments
 		int part1 = sizeof(void *) + structReturnPointerLength + registerSaveAreaSize;	// first part
@@ -587,14 +534,15 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 	return frame;
 }
 
-- (void) _prepareFrameForCall:(arglist_t) _argframe;
-{ // preload registers from ARM stack frame
-#ifndef __APPLE__
+static retval_t wrapped_builtin_apply(void *imp, arglist_t frame, int stack)
+{ // wrap call because it fails within a Objective-C method
+	return __builtin_apply(imp, frame, stack);	// here, we really invoke the implementation
+}
+
+- (retval_t) _call:(void *) imp frame:(arglist_t) _argframe;
+{ // preload registers from ARM stack frame and call implementation
 	((void **)_argframe)[1] = ((void **)_argframe)[2];		// copy target/self value to the register frame
-//	((void **)_argframe)[3] = (*(void ***)_argframe)[0];	// copy first 3 stack args to the register frame
-//	((void **)_argframe)[4] = (*(void ***)_argframe)[1];
-//	((void **)_argframe)[5] = (*(void ***)_argframe)[2];
-#endif
+	return wrapped_builtin_apply(imp, _argframe, argFrameLength);	// here, we really invoke the implementation
 }
 
 #if AUTO_DETECT

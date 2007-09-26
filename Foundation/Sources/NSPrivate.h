@@ -428,7 +428,7 @@ typedef struct NSArgumentInfo
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
 - (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index;
 - (arglist_t) _allocArgFrame:(arglist_t) frame;
-- (void) _prepareFrameForCall:(arglist_t) _argframe;
+- (retval_t) _call:(void *) imp frame:(arglist_t) _argframe;
 - (id) _initWithObjCTypes:(const char*) t;
 - (const char *) _methodType;		// total method type
 

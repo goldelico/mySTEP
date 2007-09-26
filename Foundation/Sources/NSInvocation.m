@@ -474,19 +474,9 @@ static retval_t apply_pointer(void *data)
 	[self invoke];
 }
 
-#ifndef __APPLE__	// avoid unused function warning
-
-static retval_t wrapped_builtin_apply(void *imp, arglist_t frame, int stack)
-{ // wrap call because it fails within a Objective-C method
-	return __builtin_apply(imp, frame, stack);	// here, we really invoke the implementation
-}
-
-#endif
-
 - (void) invoke
 {
 #ifndef __APPLE__
-//	id old_target;		// save target
 	IMP imp;			// method implementation pointer
 	retval_t retframe;	// returned frame
 	id target;
@@ -516,15 +506,16 @@ static retval_t wrapped_builtin_apply(void *imp, arglist_t frame, int stack)
 #endif
 		imp = objc_msg_lookup(target, selector);
 		}
-	[_sig _prepareFrameForCall:_argframe];	// update stackframe as needed by CPU
 
-#if 1
+#if 0
 	[self _log:@"invoke"];
 	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, [_sig frameLength]);
 //	*((long *)1)=0;
 #endif
 
-	retframe = wrapped_builtin_apply((void(*)(void))imp, _argframe, [_sig frameLength]);	// here, we really invoke the implementation
+	retframe=[_sig _call:imp frame:_argframe];	// call
+
+//	retframe = wrapped_builtin_apply((void(*)(void))imp, _argframe, [_sig frameLength]);	// here, we really invoke the implementation
 
 #if 0
 	NSLog(@"retframe= %p", retframe);
