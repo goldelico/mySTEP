@@ -322,10 +322,11 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 	isBigEndian=NSHostByteOrder()==NS_BigEndian;
 	floatAsDouble=YES;
 	structByRef=YES;
-#if 1
-	NSLog(@"NSMethodSignature: processor is %@", isBigEndian?@"Big Endian":@"Little Endian");
 #endif
 #endif
+#if 0
+	NSLog(@"NSMethodSignature +initialize: processor is %@", isBigEndian?@"Big Endian":@"Little Endian");
+	NSLog(@"NSMethodSignature +initialize: register save area %d bytes", registerSaveAreaSize);
 #endif
 }
 
