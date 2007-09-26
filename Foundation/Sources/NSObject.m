@@ -408,9 +408,16 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 { // called by runtime
 	retval_t r;
 	NSInvocation *inv;
-#if 0
+#if 1
+	int i;
 	NSLog(@"NSObject -forward:@selector(%@):", NSStringFromSelector(aSel));
 	NSLog(@"Object=%@", self);
+	NSLog(@"frame=%p", argFrame);
+	for(i=0; i<24; i++)
+		{
+		NSLog(@"frame[%2d]:%p %08x", i, &((void **)argFrame)[i], ((void **)argFrame)[i]);
+		}
+	// addresses on stack
 #endif
 	if(aSel == 0)
 		[NSException raise:NSInvalidArgumentException

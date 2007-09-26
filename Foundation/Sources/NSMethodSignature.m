@@ -291,7 +291,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 													// If we had a pointer argument, we will already have 
 													// gathered (and skipped past) the argframe offset 
 													// info - so we don't need to (and can't) do it here.
-	if (info->type[0] != _C_PTR || info->type[1] == '?')
+	if(info->type[0] != _C_PTR || info->type[1] == '?')
 		{
 		if(*typePtr == '+')	 
 			{ // register offset
@@ -303,10 +303,11 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 			info->isReg = NO;
 			}
 		info->offset = 0;
-		while (isdigit(*typePtr))
+		while(isdigit(*typePtr))
 			info->offset = 10 * info->offset + (*typePtr++ - '0');
-		if(!info->isReg)
-			info->offset += 4;	// FIXME: is this needed for all CPUs or ARM only?
+//		if(!info->isReg)
+//			info->offset += 12;	// FIXME: is this needed for all CPUs or ARM only?
+		// should also be based on last + offset (i.e. highest register offset - 8 ?)
 		}
 	
 	// FIXME: to be more compatible, we should return a string incl. qualifier but without offset part!
@@ -326,7 +327,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 #else
 #if defined(Linux_ARM)
 // for ARM_Linux
-	registerSaveAreaSize=10*sizeof(long);		// for ARM processor
+	registerSaveAreaSize=4*sizeof(long);		// for ARM processor
 	structReturnPointerLength=sizeof(void *);	// if we have one
 	isBigEndian=NSHostByteOrder()==NS_BigEndian;
 #if 1
@@ -485,12 +486,13 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 			if(i>0 && info[i].isReg && info[0].byRef)
 				info[i].offset += structReturnPointerLength;	// adapt offset because we have a virtual first argument
 #if 1
-			NSLog(@"%d: type %s size %d align %d isreg %d offset %d qual %d byRef %d fltDbl %d",
+			NSLog(@"%d: type=%s size=%d align=%d isreg=%d offset=%d qual=%x byRef=%d fltDbl=%d",
 		           info[i].index, info[i].type, info[i].size, info[i].align,
 		           info[i].isReg, info[i].offset, info[i].qual,
 				   info[i].byRef, info[i].floatAsDouble);
 #endif
-			if(!info[i].isReg)	// value is on stack - counts in frameLength
+			if(!info[i].isReg)	// value is on stack - counts for frameLength
+//			if(i > 2)	// value is on stack - counts in frameLength
 				argFrameLength += ((info[i].size+info[i].align-1)/info[i].align)*info[i].align;
 #if OLD
 			if(i > 2)
@@ -570,9 +572,12 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 }
 
 - (arglist_t) _allocArgFrame
-{ // make a single buffer large enough to hold header + frameLength arguments
-	arglist_t frame=(arglist_t) objc_calloc(1, sizeof(void *) + registerSaveAreaSize + argFrameLength);
-	((void **)frame)[0]=&((void **)frame)[10];	// insert argument pointer
+{ // make a single buffer that is large enough to hold the _builtin_apply() block + space for frameLength arguments
+	int part1 = sizeof(void *) + structReturnPointerLength + registerSaveAreaSize;	// first part
+	arglist_t frame=(arglist_t) objc_calloc(part1 + argFrameLength, sizeof(char));
+	void *args=(char *) frame + part1;
+	NSLog(@"allocated frame=%p args=%p framelength=%d", frame, args, argFrameLength);
+	((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
 	// FIXME: we might have to keep room if we return a struct
 	return frame;
 }

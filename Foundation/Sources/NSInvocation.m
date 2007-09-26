@@ -215,7 +215,7 @@ static retval_t apply_pointer(void *data)
 	void *buffer;
 	int i;
 	NSLog(@"%@ %@", str, self);
-	for(i=0; i<12+[_sig frameLength]/4; i++)
+	for(i=0; i<16+[_sig frameLength]/4; i++)
 		{
 		NSString *note=@"";
 		if(((void **)_argframe)[i] == [self target]) note=(@"self");
@@ -306,6 +306,7 @@ static retval_t apply_pointer(void *data)
 				_retvalismalloc=YES;
 //				NSLog(@"_retval %08x", _retval);
 				}
+#if 0
 #if defined(Linux_ARM)
 			// how to get this offset automatically???
 			*(char **)_argframe=((char *) _argframe) + 10*4;	// set pointer to stack arguments
@@ -315,6 +316,7 @@ static retval_t apply_pointer(void *data)
 				*(char **)_argframe = ((char *) _argframe) + 12*4;	// we need room for the return value pointer
 				[_sig _setArgument:&_retval forFrame:_argframe atIndex:-1];
 				}
+#endif
 #endif
 			}
 		}
@@ -540,6 +542,33 @@ static retval_t apply_pointer(void *data)
 	[self invoke];
 }
 
+void direct(id target)
+{
+	void *args[50];
+	void *frame[6];	// build our own stack frame manually
+	NSLog(@"** preparing frame=%p args=%p", frame, args);
+	frame[0]=args;
+	frame[1]=target;		// self
+	frame[2]=@"frame[2]";	// this one is ignored!
+	frame[3]=@selector(registerApplication:name:path:NSApp:);
+	frame[4]=(void *) 4567;	// pid
+	frame[5]=@"directname";
+	args[0]=@"directpath";	// this are the args that are NOT passed in registers
+	args[1]=@"directapp";
+	NSLog(@"** apply");
+	__builtin_apply((void *) [target methodForSelector:(SEL) frame[3]], (void *) frame, 2*sizeof(args[0]));
+	NSLog(@"** done");
+}
+
+#ifndef __APPLE__
+
+static retval_t wrapped_builtin_apply(void *imp, arglist_t frame, int stack)
+{ // wrap call because it fails within a Objective-C method
+	return __builtin_apply(imp, frame, stack);	// here, we really invoke the implementation
+}
+
+#endif
+
 - (void) invoke
 {
 #ifndef __APPLE__
@@ -574,7 +603,7 @@ static retval_t apply_pointer(void *data)
 #endif
 		imp = objc_msg_lookup(target, selector);
 		}
-//	[_sig _prepareFrameForCall:_argframe];	// update stackframe as needed by CPU
+	[_sig _prepareFrameForCall:_argframe];	// update stackframe as needed by CPU
 #if 1
 	[self _log:@"invoke"];
 #endif
@@ -588,10 +617,15 @@ static retval_t apply_pointer(void *data)
 	  if(((void **)_argframe)[i] == (void *) imp) 		note=(@"imp")
 	  );
 #endif
+	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, stack_argsize);
 #if 0
-	NSLog(@"__builtin_apply(%08x, %08x, %d)", imp, _argframe, stack_argsize);
+	*((long *)1)=0;
 #endif
-	retframe = __builtin_apply((void(*)(void))imp, _argframe, stack_argsize);	// here, we really invoke the implementation
+
+	//	direct(target);
+
+	//	retframe = __builtin_apply((void(*)(void))imp, _argframe, stack_argsize);	// here, we really invoke the implementation
+	retframe = wrapped_builtin_apply((void(*)(void))imp, _argframe, stack_argsize);	// here, we really invoke the implementation
 #if 0
 	NSLog(@"retframe= %p", retframe);
 #endif
