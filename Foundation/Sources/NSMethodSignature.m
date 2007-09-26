@@ -579,11 +579,13 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 		void *args;
 		frame=(arglist_t) objc_calloc(part1 + argFrameLength, sizeof(char));
 		args=(char *) frame + part1;
+#if 1
 		NSLog(@"allocated frame=%p args=%p framelength=%d", frame, args, argFrameLength);
+#endif
 		((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
 		}
 	else
-		((void **)frame)[0]+=12;	// on ARM - forward:: returns the full stack while __builtin_apply needs only extra arguments
+		((char **)frame)[0]+=12;	// on ARM - forward:: returns the full stack while __builtin_apply needs only the extra arguments
 	return frame;
 }
 

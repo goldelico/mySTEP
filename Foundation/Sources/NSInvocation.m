@@ -9,7 +9,7 @@
    Author:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
 
    Author:  Nikolaus Schaller <hns@computer.org> 
-			removed mframe and only rely on libobjc and gcc __builtin and private methods of NSMethodSignature
+			removed mframe and only rely on libobjc and gcc __builtin() and private methods of NSMethodSignature
 			(the compiler should hide and manage the processor architecture!).
  
    This file is part of the mySTEP Library and is provided
@@ -25,25 +25,6 @@
 #import <Foundation/NSInvocation.h>
 #import <Foundation/NSMethodSignature.h>
 #import "NSPrivate.h"
-
-// FIXME: get rid of this dependency:
-#include "mframe.h"	// this should be the only location to use outside mframe.m and NSMethodSignature.h
-
-#define dump(args, len, X) \
-{ \
-	int i; \
-	NSLog(@"%@ dumping %@ - sig=%s", self, NSStringFromSelector(_cmd), [[self methodSignatureForSelector:_cmd] _methodType]); \
-	for(i=0; i<len/4; i++) \
-		{ \
-		NSString *note=@""; \
-		if(((void **)args)[i] == self) note=(@"self"); \
-		if(((void **)args)[i] == _cmd) note=(@"_cmd"); \
-		if(((void **)args)[i] == args) note=(@"args"); \
-		if(((void **)args)[0] == &((void **)args)[i]) note=(@"<- arg[0]"); \
-		X; \
-		NSLog(@"arg[%2d]:%08x %08x %@", i, &(((void **)args)[i]), ((void **)args)[i], note); \
-		} \
-}
 
 #ifndef __APPLE__
 
@@ -74,13 +55,13 @@ static void *return_pointer (void *data)	{ return data; }  // pointer
 static retval_t apply_block(void *data)
 {
 	void *args = __builtin_apply_args();
-	return __builtin_apply((apply_t)return_block, args, sizeof(void *));
+	return __builtin_apply((apply_t)return_block, args, sizeof(data));
 }
 
 static retval_t apply_void(void)
 {
 	void *args = __builtin_apply_args();
-	return __builtin_apply((apply_t)return_void, args, 8);	// just be safe with "8"
+	return __builtin_apply((apply_t)return_void, args, 0);
 }
 
 static retval_t apply_char(char data)
@@ -154,7 +135,7 @@ static retval_t apply_pointer(void *data)
 }
 
 - (id) initWithMethodSignature:(NSMethodSignature*)aSignature
-{ // undocumented in Cocoa	
+{ // undocumented in Cocoa but exists
 	return [self _initWithMethodSignature:aSignature andArgFrame:NULL];
 }
 
@@ -169,9 +150,6 @@ static retval_t apply_pointer(void *data)
 		[[self target] release];	// release current target
 		}
 	[_sig _setArgument:&anObject forFrame:_argframe atIndex:0];
-#if 0
-	dump(_argframe, [_sig frameLength], );
-#endif
 }
 
 - (id) target
@@ -184,9 +162,6 @@ static retval_t apply_pointer(void *data)
 - (void) setSelector:(SEL)aSelector
 {
 	[_sig _setArgument:&aSelector forFrame:_argframe atIndex:1];
-#if 0
-	dump(_argframe, [_sig frameLength], );
-#endif
 }
 
 - (SEL) selector
@@ -243,8 +218,8 @@ static retval_t apply_pointer(void *data)
 			}
 #if 1
 		if(*type == _C_ID)
-//			NSLog(@"argument %d qual=%d type=%s %p %@", i, qual, type, *(id *) buffer, *(id *) buffer);
-			NSLog(@"argument %d qual=%d type=%s %p %p", i, qual, type, *(id *) buffer, *(id *) buffer);
+			NSLog(@"argument %d qual=%d type=%s %p %@", i, qual, type, *(id *) buffer, *(id *) buffer);
+//			NSLog(@"argument %d qual=%d type=%s %p %p", i, qual, type, *(id *) buffer, *(id *) buffer);
 		else if(*type == _C_SEL)
 			NSLog(@"argument %d qual=%d type=%s %p %@", i, qual, type, *(SEL *) buffer, NSStringFromSelector(*(SEL *) buffer));
 		else
@@ -256,7 +231,9 @@ static retval_t apply_pointer(void *data)
 
 - (id) _initWithMethodSignature:(NSMethodSignature*)aSignature andArgFrame:(arglist_t) argFrame
 {
-//	NSLog(@"NSInovcation _initWithMethodSignature:%@", aSignature);
+#if 0
+	NSLog(@"NSInovcation _initWithMethodSignature:%@", aSignature);
+#endif
 	if(!aSignature)
 		{ // missing signature
 		[self dealloc];
@@ -290,7 +267,7 @@ static retval_t apply_pointer(void *data)
 				}
 			}
 		}
-#if 1
+#if 0
 	[self _log:@"_initWithMethodSignature:andArgFrame:"];
 #endif
 	return self;
@@ -298,14 +275,13 @@ static retval_t apply_pointer(void *data)
 
 - (retval_t) _returnValue;
 { // encode the return value so that it can be passed back in the libobjc forward:: method
-#ifndef __APPLE__
-	static char ret[MFRAME_RESULT_SIZE];	// we should be able to determine this from _info[0].size
 //	NSLog(@"_returnValue");
 	if(!_validReturn && *_info[0].type != _C_VOID)
 		{ // no valid return value
 		NSLog(@"warning - no valid return value set");
 		[NSException raise: NSInvalidArgumentException format: @"did not 'setReturnValue:' for non-void NSInvocation"];
 		}
+#ifndef __APPLE__
 	switch(*_info[0].type)
 		{
 		case _C_VOID:		return apply_void();
@@ -325,18 +301,11 @@ static retval_t apply_pointer(void *data)
 		case _C_UNION_B:
 		case _C_STRUCT_B:
 			{
-//				NSLog(@"_returnFrame by struct value of size %d", _info[0].size);
-//				NSLog(@"_argframe=%08x", _argframe);
-//				NSLog(@"_argframe[0]=%08x", ((void **)_argframe)[0]);
-//				NSLog(@"_argframe[1]=%08x", ((void **)_argframe)[1]);
-//				NSLog(@"_argframe[2]=%08x", ((void **)_argframe)[2]);
-//				NSLog(@"_argframe[3]=%08x", ((void **)_argframe)[3]);
-//				dump(_argframe, );
-// #if 1	// struct return by pointer - at least on ARM_Linux
-				// already memcpy'ed here by setReturnValue!
+				// FIXME
+				
 //				memcpy(((void **)_argframe)[2], _retval, _info[0].size);
 				if(_info[0].byRef)
-					return (retval_t) ret;	// ???
+					return (retval_t) _retval;	// ???
 // #else
 				if (_info[0].size > 8)
 					// should be dependent on maximum size returned in a register (typically 8 but sometimes 4)
@@ -346,10 +315,9 @@ static retval_t apply_pointer(void *data)
 // #endif
 			}
 		default:	// all others
-			memcpy(ret, _retval, _info[0].size);	// copy to static location
-			return (retval_t) ret;	// uh???
+			return (retval_t) _retval;	// uh???
 		}
-#else
+#else // __Apple__
 	return (retval_t) NULL;
 #endif
 }
@@ -408,10 +376,6 @@ static retval_t apply_pointer(void *data)
 	length=[_sig methodReturnLength];
 	if(length == 0)
 		return;	// probably void
-#if WORDS_BIGENDIAN
-	if(length < sizeof(void *))
-		length = sizeof(void *);
-#endif
 #if 0
 	NSLog(@"getReturnValue: len=%d fm=%p to=%p *fm=%x", length, _retval, buffer, *(long *) _retval);
 #endif
@@ -466,10 +430,6 @@ static retval_t apply_pointer(void *data)
 #endif
 	if(_retval && length > 0)
 		{ // buffer exists and we have to return something
-#if WORDS_BIGENDIAN
-		if(length < sizeof(void *))
-			length = sizeof(void *);
-#endif
 		memcpy(_retval, buffer, length);
 		}
 	_validReturn = YES;
@@ -512,25 +472,7 @@ static retval_t apply_pointer(void *data)
 	[self invoke];
 }
 
-void direct(id target)
-{
-	void *args[50];
-	void *frame[6];	// build our own stack frame manually
-	NSLog(@"** preparing frame=%p args=%p", frame, args);
-	frame[0]=args;
-	frame[1]=target;		// self
-	frame[2]=@"frame[2]";	// this one is ignored!
-	frame[3]=@selector(registerApplication:name:path:NSApp:);
-	frame[4]=(void *) 4567;	// pid
-	frame[5]=@"directname";
-	args[0]=@"directpath";	// this are the args that are NOT passed in registers
-	args[1]=@"directapp";
-	NSLog(@"** apply");
-	__builtin_apply((void *) [target methodForSelector:(SEL) frame[3]], (void *) frame, 2*sizeof(args[0]));
-	NSLog(@"** done");
-}
-
-#ifndef __APPLE__
+#ifndef __APPLE__	// avoid unused function warning
 
 static retval_t wrapped_builtin_apply(void *imp, arglist_t frame, int stack)
 { // wrap call because it fails within a Objective-C method
@@ -544,7 +486,6 @@ static retval_t wrapped_builtin_apply(void *imp, arglist_t frame, int stack)
 #ifndef __APPLE__
 //	id old_target;		// save target
 	IMP imp;			// method implementation pointer
-	int stack_argsize;	// size of stack frame to be pushed
 	retval_t retframe;	// returned frame
 	id target;
 	SEL selector;
@@ -574,28 +515,15 @@ static retval_t wrapped_builtin_apply(void *imp, arglist_t frame, int stack)
 		imp = objc_msg_lookup(target, selector);
 		}
 	[_sig _prepareFrameForCall:_argframe];	// update stackframe as needed by CPU
+
 #if 1
 	[self _log:@"invoke"];
-#endif
-	stack_argsize = [_sig frameLength];
-#if 0
-	NSLog(@"sending message %@ to object %@ with argframe %08x", NSStringFromSelector(selector), target, _argframe);
-	dump(_argframe, stack_argsize,
-	  if(((void **)_argframe)[i] == (void *) _retval) 	note=(@"_retval");
-	  if(((void **)_argframe)[i] == (void *) target) 	note=(@"target");
-	  if(((void **)_argframe)[i] == (void *) selector) note=(@"selector");
-	  if(((void **)_argframe)[i] == (void *) imp) 		note=(@"imp")
-	  );
-#endif
-	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, stack_argsize);
-#if 0
-	*((long *)1)=0;
+	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, [_sig frameLength]);
+//	*((long *)1)=0;
 #endif
 
-	//	direct(target);
+	retframe = wrapped_builtin_apply((void(*)(void))imp, _argframe, [_sig frameLength]);	// here, we really invoke the implementation
 
-	//	retframe = __builtin_apply((void(*)(void))imp, _argframe, stack_argsize);	// here, we really invoke the implementation
-	retframe = wrapped_builtin_apply((void(*)(void))imp, _argframe, stack_argsize);	// here, we really invoke the implementation
 #if 0
 	NSLog(@"retframe= %p", retframe);
 #endif
