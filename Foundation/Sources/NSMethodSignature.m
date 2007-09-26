@@ -2,6 +2,7 @@
    NSMethodSignature.m
 
    Implementation of NSMethodSignature for mySTEP
+   This file encapsulates all CPU specific specialities (e.g. how the __builtin_apply() frame is organized, how registers are handled etc.)
 
    Copyright (C) 1994, 1995, 1996, 1998 Free Software Foundation, Inc.
    
@@ -23,7 +24,6 @@
    based on (id, SEL, ...)
  * so we need to create a different structure to call any existing/nonexisting method by __builtin_apply()
  * libobjc seems to use #define OBJC_MAX_STRUCT_BY_VALUE 1 (runtime-info.h) meaning that a char[1] only struct is returned in a register
- * should finally merge mframe.m into this source
  * use more support functions from libobjc
 
 */ 
@@ -32,8 +32,6 @@
 #import <Foundation/NSException.h>
 #import <Foundation/NSString.h>
 #import "NSPrivate.h"
-
-#include "mframe.h"	// this should be the only location to use outside mframe.m and NSInvocation.h
 
 #define AUTO_DETECT 0
 
@@ -585,7 +583,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 		((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
 		}
 	else
-		((char **)frame)[0]+=12;	// on ARM - forward:: returns the full stack while __builtin_apply needs only the extra arguments
+		((char **)frame)[0]+=12;		// on ARM - forward:: returns the full stack while __builtin_apply() needs only the extra arguments
 	return frame;
 }
 

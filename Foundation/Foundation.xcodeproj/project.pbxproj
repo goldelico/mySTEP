@@ -50,9 +50,7 @@
 		EEAA86170A148ED200F2E5B5 /* cop.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA32EC109537D0C001244CF /* cop.h */; };
 		EEAA86180A148ED200F2E5B5 /* cyrillic.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA32EC209537D0C001244CF /* cyrillic.h */; };
 		EEAA86190A148ED200F2E5B5 /* decomp.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA32EC309537D0C001244CF /* decomp.h */; };
-		EEAA861A0A148ED200F2E5B5 /* DOConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA32EC509537D0C001244CF /* DOConfig.h */; };
 		EEAA861B0A148ED200F2E5B5 /* Foundation.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA32EC709537D0C001244CF /* Foundation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEAA861D0A148ED200F2E5B5 /* mframe.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA32ECD09537D0C001244CF /* mframe.h */; };
 		EEAA861E0A148ED200F2E5B5 /* nextstep.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA32ECF09537D0C001244CF /* nextstep.h */; };
 		EEAA861F0A148ED200F2E5B5 /* NSArchiver.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA32ED009537D0C001244CF /* NSArchiver.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEAA86200A148ED200F2E5B5 /* NSArray.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA32ED209537D0C001244CF /* NSArray.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -356,11 +354,8 @@
 		EEA32EC109537D0C001244CF /* cop.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cop.h; sourceTree = "<group>"; };
 		EEA32EC209537D0C001244CF /* cyrillic.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cyrillic.h; sourceTree = "<group>"; };
 		EEA32EC309537D0C001244CF /* decomp.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = decomp.h; sourceTree = "<group>"; };
-		EEA32EC509537D0C001244CF /* DOConfig.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = DOConfig.h; path = Sources/DOConfig.h; sourceTree = "<group>"; };
 		EEA32EC609537D0C001244CF /* Externs.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = Externs.m; path = Sources/Externs.m; sourceTree = "<group>"; };
 		EEA32EC709537D0C001244CF /* Foundation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Foundation.h; path = Sources/Foundation.h; sourceTree = "<group>"; };
-		EEA32ECD09537D0C001244CF /* mframe.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = mframe.h; path = Sources/mframe.h; sourceTree = "<group>"; };
-		EEA32ECE09537D0C001244CF /* mframe.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = mframe.m; path = Sources/mframe.m; sourceTree = "<group>"; };
 		EEA32ECF09537D0C001244CF /* nextstep.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = nextstep.h; sourceTree = "<group>"; };
 		EEA32ED009537D0C001244CF /* NSArchiver.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSArchiver.h; path = Sources/NSArchiver.h; sourceTree = "<group>"; };
 		EEA32ED109537D0C001244CF /* NSArchiver.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSArchiver.m; path = Sources/NSArchiver.m; sourceTree = "<group>"; };
@@ -919,16 +914,6 @@
 			name = "System Services";
 			sourceTree = "<group>";
 		};
-		EE52D7020B8EF32E0093595A /* Distributed Objects */ = {
-			isa = PBXGroup;
-			children = (
-				EEA32EC509537D0C001244CF /* DOConfig.h */,
-				EEA32ECD09537D0C001244CF /* mframe.h */,
-				EEA32ECE09537D0C001244CF /* mframe.m */,
-			);
-			name = "Distributed Objects";
-			sourceTree = "<group>";
-		};
 		EEA32EDE09537D0C001244CF /* CharacterSets */ = {
 			isa = PBXGroup;
 			children = (
@@ -969,7 +954,6 @@
 				EEA32EC609537D0C001244CF /* Externs.m */,
 				EEA32F8609537D0D001244CF /* tzfile.h */,
 				EEA3306009537D30001244CF /* Unicode */,
-				EE52D7020B8EF32E0093595A /* Distributed Objects */,
 			);
 			name = Private;
 			sourceTree = "<group>";
@@ -1037,9 +1021,7 @@
 				EEAA86170A148ED200F2E5B5 /* cop.h in Headers */,
 				EEAA86180A148ED200F2E5B5 /* cyrillic.h in Headers */,
 				EEAA86190A148ED200F2E5B5 /* decomp.h in Headers */,
-				EEAA861A0A148ED200F2E5B5 /* DOConfig.h in Headers */,
 				EEAA861B0A148ED200F2E5B5 /* Foundation.h in Headers */,
-				EEAA861D0A148ED200F2E5B5 /* mframe.h in Headers */,
 				EEAA861E0A148ED200F2E5B5 /* nextstep.h in Headers */,
 				EEAA861F0A148ED200F2E5B5 /* NSArchiver.h in Headers */,
 				EEAA86200A148ED200F2E5B5 /* NSArray.h in Headers */,
@@ -1222,7 +1204,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# project settings\nexport SOURCES=\"Sources/NS*.m Sources/Externs.m Sources/mframe.m Sources/Unicode.m ../SimpleWebKit/Sources/NSXMLParser.m\"   # all source codes\nexport LIBS=\"-Uobjc_main -lm -ldl -lpthread -lssl -lcrypto -lobjc\"   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "# project settings\nexport SOURCES=\"Sources/NS*.m Sources/Externs.m Sources/Unicode.m ../SimpleWebKit/Sources/NSXMLParser.m\"   # all source codes\nexport LIBS=\"-Uobjc_main -lm -ldl -lpthread -lssl -lcrypto -lobjc\"   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EEBAEEC90C94803F00596D9C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;

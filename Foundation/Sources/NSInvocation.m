@@ -12,6 +12,8 @@
 			removed mframe and only rely on libobjc and gcc __builtin() and private methods of NSMethodSignature
 			(the compiler should hide and manage the processor architecture!).
  
+			Sept 2007 - should now be machine independent
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
  
