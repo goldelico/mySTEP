@@ -560,43 +560,6 @@ static NSSavePanel *__savePanel;
 	[super dealloc];
 }
 
-#if OLD
-- (id) init
-{
-	self=[super init];
-	if(self)
-		{
-		if(!__loading)
-			{ // not loading from NIB file
-			__loading=YES;	// avoid recursion
-			__unarchivedPanel=nil;
-			[NSUnarchiver decodeClassName:@"GSSavePanel" 
-							  asClassName:NSStringFromClass([self class])];	// unarchive as same class as the self object
-			if(![NSBundle loadNibNamed:@"SavePanel" owner:NSApp] || !__unarchivedPanel)	// make the application the file owner (ignored)
-				[NSException raise:NSInternalInconsistencyException 
-							format:@"Cannot open save panel model file."];
-			[self release];
-			self=__unarchivedPanel;	// replace by unarchived panel
-			treatsFilePackagesAsDirectories = NO;
-			includeNewFolderButton = YES;
-			allowsOtherFileTypes = NO;
-			[self setCanCreateDirectories:YES];
-			[self setDirectory:@"/"];
-			[self setPrompt:@"Save"];
-			[self setTitle:@"Save"];
-			[self setNameFieldLabel:@"Save As:"];
-			}
-		else
-			{ // we are the object fetched from the NIB file
-			  // CHECKME: does this really happen?
-			  // does unarchiving call init?
-			NSLog(@"NSSavePanel -init should not be called");
-			}
-		}
-	return self;
-}
-#endif
-
 - (BOOL) performDragOperation:(id <NSDraggingInfo>)sender
 {
 	NSPasteboard *pb = [NSPasteboard pasteboardWithName:NSDragPboard];
@@ -659,7 +622,14 @@ static NSSavePanel *__savePanel;
 - (void) setAllowsOtherFileTypes:(BOOL) flag; { allowsOtherFileTypes=flag; }
 - (void) setCanSelectHiddenExtension:(BOOL) flag; { canSelectHiddenExtension=flag; }
 - (void) setTitle:(NSString *)title		{ [super setTitle:title]; }		// use Panel's title
-- (void) setPrompt:(NSString *)prompt	{ [okButton setTitle:prompt]; }
+
+- (void) setPrompt:(NSString *)prompt
+{ // set the prompt button string
+	if([prompt hasSuffix:@":"])
+		prompt=[prompt substringToIndex:[prompt length]-1];	// remove : suffix s docmented
+	[okButton setTitle:prompt];
+}
+
 - (void) setNameFieldLabel:(NSString *)label { }
 - (void) setMessage:(NSString *)message { }
 - (void) setTreatsFilePackagesAsDirectories:(BOOL)flag { treatsFilePackagesAsDirectories = flag; }
