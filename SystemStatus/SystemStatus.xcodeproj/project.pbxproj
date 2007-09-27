@@ -373,18 +373,33 @@
 		EEEB9D4C09A7561A00626AB7 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				PREBINDING = NO;
 			};
 			name = Development;
 		};
 		EEEB9D4D09A7561A00626AB7 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				PREBINDING = NO;
 			};
 			name = Deployment;
 		};
 		EEEB9D4E09A7561A00626AB7 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				PREBINDING = NO;
 			};
 			name = Default;
 		};

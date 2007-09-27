@@ -2,7 +2,7 @@
  PCCard driver.
  
  Copyright (C)	H. Nikolaus Schaller <hns@computer.org>
- Date:			2004
+ Date:			2004-2007
  
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
@@ -156,6 +156,12 @@ static int intValue(NSString *str)
 	SYSDevice *card;
 	NSNotificationCenter *n=[NSNotificationCenter defaultCenter];
 	[self deviceList];   // initialize if required
+	if(system("[ -r /var/lib/pcmcia/stab ] && [ -x /sbin/cardctl ]") != 0)
+		{ // can't read
+		NSLog(@"can't read /var/lib/pcmcia/stab or execute /sbin/cardctl");
+		[self updateDeviceList:NO];	// don't update any more
+		return;	// don't try again
+		}
 	// pipe everything we can find out to the FILE * - we will fiddle out by detecting the format
 #if 0
 	stab=popen("echo 'cat /var/lib/pcmcia/stab && /sbin/cardctl ident && /sbin/cardctl status && /sbin/cardctl config'", "r");  // open subprocess
@@ -358,7 +364,7 @@ static int intValue(NSString *str)
 			;;	// ignore exceptions
 		NS_ENDHANDLER
 		}
-	[self performSelector:_cmd withObject:nil afterDelay:3.7];	// and finally try to update approx. every 4 seconds
+//	[self performSelector:_cmd withObject:nil afterDelay:3.7];	// and finally try to update approx. every 4 seconds
 }
 
 #define OBSERVE_(o, notif_name) \
@@ -415,7 +421,7 @@ static int observers;
 #if 1
 		NSLog(@"updateDeviceList enabled");
 #endif
-		timer=[[NSTimer scheduledTimerWithTimeInterval:1.0
+		timer=[[NSTimer scheduledTimerWithTimeInterval:4.0
 												target:self
 											  selector:@selector(_updateCardStatus)
 											  userInfo:nil
