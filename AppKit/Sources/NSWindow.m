@@ -946,7 +946,7 @@ static BOOL __cursorHidden = NO;
 		  relativeTo:(int) otherWin
 { // main interface call
 #if 1
-	NSString *str[]={@"Below", @"Out", @"Above"};
+	NSString *str[]={ @"Below", @"Out", @"Above" };
 	NSLog(@"orderWindow:NSWindow%@ relativeTo:%d - %@", str[place+1], otherWin, self);
 #endif
 	if(place == NSWindowOut)

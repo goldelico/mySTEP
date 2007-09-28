@@ -1055,19 +1055,24 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 //					if([[self mainMenu] performKeyEquivalent:event])	// finally try main menu (not menu window)
 //						return;
 					}
+				break;
 			}
 		case NSKeyUp:
 		case NSFlagsChanged:
 		case NSCursorUpdate:
 		case NSApplicationDefined:
-		case NSAppKitDefined:
-		case NSSystemDefined:
 			{ // send key events to key window
 				if(_app.isActive)
 					{
 					NSDebugLog(@"NSEvent type: %d", [event type]);
 					[_keyWindow sendEvent:event];
 					}
+				break;
+			}
+		case NSSystemDefined:
+		case NSAppKitDefined:
+			{
+				[[event window] sendEvent:event];
 				break;
 			}
 		}

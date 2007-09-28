@@ -18,11 +18,15 @@ This document describes the changes and additions to the mySTEP library.\
 \f0\b Versions B300..399\
 ------------------------------------
 \f1\b0 \
+\
 * AppKit: NSColorWell made to show a black/white triangle with the color alpha-blended (if the Backend supports!)\
 * AppKit: interaction between NSColorWell, NSColorPanel improved (e.g. setContinuous, setColor, etc.)\
-* Foundation: Distributed Objects made working!\
+* Foundation: Distributed Objects through NSMessagePort made working!\
 * AppKit: communication with SystemUIServer improved\
 * Foundation: NSMessageSignature and NSInvocation cleaned up to properly use the type info and build a stack frame (for __builtin_apply)\
+* AppKit: queued up X11 expose events as NSApplicationDefinedEvents and processed in NSWindow's -sendEvent\
+* AppKit: added _setTexturedBackground: private method\
+* SystemStatus: device description database extended and some bugs found\
 \
 
 \f0\b ------------------------------------

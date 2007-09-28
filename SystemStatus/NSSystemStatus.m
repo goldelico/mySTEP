@@ -20,6 +20,25 @@ static NSMutableDictionary *sysInfo;
 
 #define setmySTEP(PACKAGE_NAME, mySTEP_MAJOR_VERSION, mySTEP_MINOR_VERSION) [sysInfo setObject:[NSString stringWithFormat:@"%@.%@", @#mySTEP_MAJOR_VERSION, @#mySTEP_MINOR_VERSION] forKey:@#PACKAGE_NAME]
 
++ (NSDictionary *) _infoForModel:(NSString *) model fromDict:(NSDictionary *) dict
+{
+	NSDictionary *info=[dict objectForKey:model];	// get model description
+	NSString *parentModel=[info objectForKey:@"Inherit"];
+#if 1
+	NSLog(@"%@ -> parent=%@", model, parentModel);
+#endif
+	if(parentModel)
+		{
+		NSMutableDictionary *parent=[[self _infoForModel:parentModel fromDict:dict] mutableCopy];
+		if(parent)
+			{
+			[parent addEntriesFromDictionary:info];	// overwrite all our specific definitions of parent
+			return [parent autorelease];
+			}
+		}
+	return info;
+}
+
 + (NSDictionary *) sysInfo;
 { // collect all reasonable info we can get
 	if(!sysInfo)
@@ -41,20 +60,18 @@ static NSMutableDictionary *sysInfo;
 					NSString *model=[[l lastObject] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 					NSString *path=[[NSBundle bundleForClass:[self class]] pathForResource:@"Models" ofType:@"plist"];
 					NSDictionary *dict=[NSDictionary dictionaryWithContentsOfFile:path];	// read model dictionary
-					do
-						{
-							sysInfo=[dict objectForKey:model];	// get model description
-							model=[sysInfo objectForKey:@"Alias"];
-						} while(model);	// loop through aliases
-					sysInfo=[sysInfo mutableCopy];	// and make a copy
+					sysInfo=[[self _infoForModel:model fromDict:dict] mutableCopy];	// and make a copy
 					break;
 					}
 				// collect other values, e.g. Clock, Memory etc.
 				// should we simply collect ALL entries into the dict?
 				}
 			}
-		if(!sysInfo)	// no model description found
+		if(!sysInfo)	// still no model description found
+			{
 			sysInfo=[[NSMutableDictionary alloc] initWithCapacity:10];
+			[sysInfo setObject:@"Unknown" forKey:@"Product"];
+			}
 		setmySTEP(PACKAGE_NAME, mySTEP_MAJOR_VERSION, mySTEP_MINOR_VERSION);
 		[sysInfo setObject:[NSString stringWithCString: u.sysname] forKey:@"SysName"];
 		[sysInfo setObject:[NSString stringWithCString: u.nodename] forKey:@"Nodename"];

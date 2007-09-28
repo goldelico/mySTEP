@@ -678,14 +678,14 @@ static retval_t apply_pointer(void *data)
 				continue;	// don't encode void return value
 			[self getReturnValue:buffer];
 			}
-#if 0
+#if 1
 		NSLog(@"NSInvocation encode arg %d type %s", i, type);
 #endif
 		if(_validReturn && (qual & _F_IN) != 0)
 			continue;	// don't encode in responses
 		if(!_validReturn && (qual & _F_OUT) != 0)
 			continue;	// don't encode in requests
-#if 0
+#if 1
 		NSLog(@"buffer=%p", buffer);
 		NSLog(@"long buffer[0]=%x", *(long *) buffer);
 #endif
