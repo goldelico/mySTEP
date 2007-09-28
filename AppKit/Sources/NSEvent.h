@@ -80,13 +80,17 @@ enum
 	NSOtherMouseDraggedMask		= 1<<NSOtherMouseDragged,
 	
 	NSAnyEventMask 				= 0xffffffffU,
+	
+	// private extensions
+	
 	GSTrackingLoopMask			= (NSLeftMouseDownMask|NSLeftMouseUpMask|NSMouseMovedMask|NSLeftMouseDraggedMask|NSPeriodicMask),		// tracking loops, t's above 
 	GSMouseEventMask			= (NSLeftMouseDownMask|NSLeftMouseUpMask|NSRightMouseDownMask|NSRightMouseUpMask|NSMouseMovedMask|
 								   NSLeftMouseDraggedMask|NSRightMouseDraggedMask|NSScrollWheelMask),	// mouse events, m's above 
 	GSOtherEventMask			= (NSFlagsChangedMask|NSAppKitDefinedMask|NSSystemDefinedMask|NSApplicationDefinedMask|NSPeriodicMask)	// other events, o's above 
 };
 
-enum {
+enum
+{
 	NSAlphaShiftKeyMask = 1*65536,
 	NSShiftKeyMask		= 2*65536,
 	NSControlKeyMask	= 4*65536,
@@ -119,7 +123,10 @@ enum
 	NSPenUpperSideMask
 };
 
-enum {
+// NSAppKit Event types
+
+enum
+{
 	NSWindowExposedEventType			= 0,
 	NSApplicationActivatedEventType		= 1,
 	NSApplicationDeactivatedEventType	= 2,
@@ -128,9 +135,11 @@ enum {
 	NSAWTEventType						= 16
 };
 
+// NSSystemDefined Event types
+
 enum
 {
-	NSPowerOffEventType=1
+	NSPowerOffEventType	= 1
 };
 
 @interface NSEvent : NSObject  <NSCoding, NSCopying>

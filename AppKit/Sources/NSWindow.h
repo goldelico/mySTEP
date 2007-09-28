@@ -83,9 +83,9 @@ typedef enum _NSWindowStyleMask
 
 typedef enum _NSWindowOrderingMode
 { // Window ordering
-	NSWindowAbove,
-	NSWindowBelow,
-	NSWindowOut
+	NSWindowBelow = -1,
+	NSWindowOut,
+	NSWindowAbove
 } NSWindowOrderingMode;
 
 typedef enum _NSWindowButton

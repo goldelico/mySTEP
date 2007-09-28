@@ -235,7 +235,7 @@ static BOOL __cursorHidden = NO;
 { // last chance to draw anything - note that we start with the graphics state left over by the previous operations
 	if((_style & NSResizableWindowMask) != 0)
 		{ // draw resizing handle in the lower right corner
-#if 1		// FIXME: collides somehow with changing the CTM by subviews?
+#if 1		// FIXME: does this collide with changing the CTM by subviews?
 		[NSGraphicsContext setGraphicsState:[window gState]];
 		[[NSBezierPath bezierPathWithRect:bounds] setClip];
 		[[NSColor grayColor] set];
@@ -252,6 +252,15 @@ static BOOL __cursorHidden = NO;
 }
 
 - (unsigned int) style; { return _style; }
+
+- (void) _setTexturedBackground:(BOOL)flag;
+{
+	_style &= ~NSTexturedBackgroundWindowMask;
+	if(flag)
+		_style |= NSTexturedBackgroundWindowMask;
+	[self setNeedsDisplay:YES];
+}
+
 - (NSString *) title; { return _title; }
 - (void) setTitle:(NSString *) title; { ASSIGN(_title, title); }
 - (NSImage *) titleIcon; { return _titleIcon; }
@@ -750,6 +759,7 @@ static BOOL __cursorHidden = NO;
 - (void) setBackgroundColor:(NSColor*)color	{ [(NSThemeFrame *) _themeFrame setBackgroundColor:color]; }
 - (void) setMiniwindowImage:(NSImage*)image	{ ASSIGN(_miniWindowImage,image); }
 - (void) setOneShot:(BOOL)flag				{ _w.isOneShot = flag; }
+- (void) _setTexturedBackground:(BOOL)flag;	{ [(NSThemeFrame *) _themeFrame _setTexturedBackground:flag]; }
 
 - (void) setTitle:(NSString*)aString
 {
@@ -936,7 +946,8 @@ static BOOL __cursorHidden = NO;
 		  relativeTo:(int) otherWin
 { // main interface call
 #if 1
-	NSLog(@"orderWindow:%d relativeTo:%d - %@", place, otherWin, self);
+	NSString *str[]={@"Below", @"Out", @"Above"};
+	NSLog(@"orderWindow:NSWindow%@ relativeTo:%d - %@", str[place+1], otherWin, self);
 #endif
 	if(place == NSWindowOut)
 		{ // close window
@@ -1649,11 +1660,36 @@ static BOOL __cursorHidden = NO;
 
 	switch ([event type])
     	{													
-		case NSAppKitDefined:	// Focus In
-			[_firstResponder becomeFirstResponder];
-			if (!_w.isKey)
-				[self makeKeyAndOrderFront:self];
-			break;
+		case NSAppKitDefined:
+			{
+#if 1
+				NSLog(@"Event %@", event);
+#endif
+				switch([event subtype])
+					{
+					case NSWindowExposedEventType:
+						{
+							NSRect r={[event locationInWindow], {[event data1], [event data2] }};
+#if 1
+							NSLog(@"exposed %@", NSStringFromRect(r));
+#endif
+							[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidExposeNotification
+																				object:self
+																			  userInfo:[NSDictionary dictionaryWithObject:[NSValue valueWithRect:r]
+																													forKey:@"NSExposedRect"]];
+							[_themeFrame displayRect:r];	// and (re)display
+						}
+					case NSApplicationActivatedEventType:
+						{
+						[NSApp activateIgnoringOtherApps:YES];	// user has clicked: bring our application windows and menus to front
+						[_firstResponder becomeFirstResponder];
+						if (!_w.isKey)
+							[self makeKeyAndOrderFront:self];
+						break;
+						}
+					}
+				break;
+			}
 
 		case NSLeftMouseDown:								// Left mouse down
 			if (__cursorHidden)

@@ -2417,7 +2417,7 @@ static NSDictionary *_x11settings;
 
 // FIXME: should translate mouse locations by CTM to account for screen rotation through CTM!
 
-#define X11toScreen(record) NSMakePoint(record.x/windowScale, (windowHeight-record.y)/windowScale)
+#define X11toScreen(record) (windowScale != 1.0?NSMakePoint(record.x/windowScale, (windowHeight-record.y)/windowScale):NSMakePoint(record.x, windowHeight-record.y))
 #define X11toTimestamp(record) ((NSTimeInterval)(record.time*0.001))
 
 + (void) _handleNewEvents;
@@ -2649,21 +2649,33 @@ static NSDictionary *_x11settings;
 									  xe.xexpose.x, xe.xexpose.y);							
 							}
 						else
-							{
-							NSRect r;
-							r.origin=X11toScreen(xe.xexpose);		// top left corner
-							r.size=NSMakeSize(xe.xexpose.width/windowScale, xe.xexpose.height/windowScale);
-							r.origin.y-=r.size.height;	// AppKit assumes that we specify the bottom left corner
+							{ // queue up an expose event
+							NSSize sz;
+							if(windowScale != 1.0)
+								sz=NSMakeSize(xe.xexpose.width/windowScale+0.5, xe.xexpose.height/windowScale+0.5);
+							else
+								sz=NSMakeSize(xe.xexpose.width, xe.xexpose.height);
 #if 0
 							NSLog(@"expose %@ %@ -> %@", window,
 								  NSStringFromXRect(xe.xexpose),
-								  NSStringFromRect(r));
+								  NSStringFromSize(sz));
 #endif
+							e = [NSEvent otherEventWithType:NSAppKitDefined
+												   location:X11toScreen(xe.xexpose)
+											  modifierFlags:0
+												  timestamp:0
+											   windowNumber:windowNumber
+													context:self
+													subtype:NSWindowExposedEventType
+													  data1:sz.width
+													  data2:sz.height];	// truncated to (int)
+#if OLD
 							// shouldn't we post the event to the start of the queue to sync with runloop actions?
 							[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidExposeNotification
 																				object:window
 																			  userInfo:[NSDictionary dictionaryWithObject:[NSValue valueWithRect:r]
 																												   forKey:@"NSExposedRect"]];
+#endif
 							}
 						break;
 					}
@@ -2679,8 +2691,8 @@ static NSDictionary *_x11settings;
 						// NotifyPointer			5
 						// NotifyPointerRoot		6
 						// NotifyDetailNone			7
-						[NSApp activateIgnoringOtherApps:YES];	// user has clicked: bring our application windows and menus to front
-						[window makeKey];
+	//					[NSApp activateIgnoringOtherApps:YES];	// user has clicked: bring our application windows and menus to front
+	//					[window makeKey];
 						if(xe.xfocus.detail == NotifyAncestor)
 							{
 							//				if (![[[NSApp mainMenu] _menuWindow] isVisible])
@@ -2690,14 +2702,13 @@ static NSDictionary *_x11settings;
 								&& __xKeyWindowNeedsFocus == None)
 							{ // create fake mouse dn
 							NSLog(@"FocusIn 2");
-							// FIXME: shouldn't we better use data1 and data2 to specify that we are having focus-events??
 							e = [NSEvent otherEventWithType:NSAppKitDefined
 												   location:NSZeroPoint
 											  modifierFlags:0
 												  timestamp:(NSTimeInterval)0
 											   windowNumber:windowNumber
 													context:self
-													subtype:xe.xfocus.serial
+													subtype:NSApplicationActivatedEventType
 													  data1:0
 													  data2:0];
 							}
@@ -2707,13 +2718,13 @@ static NSDictionary *_x11settings;
 				case FocusOut:
 					{ // keyboard focus has left one of our windows
 						NSDebugLog(@"FocusOut");
-						e = [NSEvent otherEventWithType:NSSystemDefined
+						e = [NSEvent otherEventWithType:NSAppKitDefined
 											   location:NSZeroPoint
 										  modifierFlags:0
 											  timestamp:(NSTimeInterval)0
 										   windowNumber:windowNumber
 												context:self
-												subtype:xe.xfocus.serial
+												subtype:NSApplicationDeactivatedEventType
 												  data1:0
 												  data2:0];
 #if FIXME
@@ -2849,7 +2860,7 @@ static NSDictionary *_x11settings;
 							if(lastMotionEvent &&
 							   [NSApp _eventIsQueued:lastMotionEvent] &&	// must come first because event may already have been relesed/deallocated
 							   [lastMotionEvent type] == type)
-								{ // replace/update if last motion event is still unprocessed in queue
+								{ // replace/update if last motion event which is still unprocessed in queue
 								typedef struct _NSEvent_t { @defs(NSEvent) } _NSEvent;
 								_NSEvent *a = (_NSEvent *)lastMotionEvent;	// this allows to access iVars directly
 #if 0
@@ -2909,6 +2920,7 @@ static NSDictionary *_x11settings;
 								XFree(data);
 								}
 #endif
+						// FIXME: if window was moved or changed screen externally, queue an NSAppKitDefinedEvent / NSWindowMovedEventType
 							break;
 						}
 					case ReparentNotify:					// a client successfully

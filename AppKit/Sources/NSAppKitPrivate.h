@@ -152,6 +152,7 @@ typedef enum _NSRoundedBezelSegments
 - (void) _setIsVisible:(BOOL) flag;
 + (void) _didExpose:(NSNotification *) n;	// rect of some became visible and needs to be redrawn
 - (void) _didExpose:(NSNotification *) n;	// rect of this window became visible and needs to be redrawn
+- (void) _setTexturedBackground:(BOOL) flag;
 @end
 
 @interface NSView (NSPrivate)
