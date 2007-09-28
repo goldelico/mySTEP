@@ -2655,9 +2655,9 @@ static NSDictionary *_x11settings;
 								sz=NSMakeSize(xe.xexpose.width/windowScale+0.5, xe.xexpose.height/windowScale+0.5);
 							else
 								sz=NSMakeSize(xe.xexpose.width, xe.xexpose.height);
-#if 0
-							NSLog(@"expose %@ %@ -> %@", window,
-								  NSStringFromXRect(xe.xexpose),
+#if 1
+							NSLog(@"not doble buffered expose %@ -> %@", window,
+								//  NSStringFromXRect(xe.xexpose),
 								  NSStringFromSize(sz));
 #endif
 							e = [NSEvent otherEventWithType:NSAppKitDefined
@@ -2669,13 +2669,6 @@ static NSDictionary *_x11settings;
 													subtype:NSWindowExposedEventType
 													  data1:sz.width
 													  data2:sz.height];	// truncated to (int)
-#if OLD
-							// shouldn't we post the event to the start of the queue to sync with runloop actions?
-							[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidExposeNotification
-																				object:window
-																			  userInfo:[NSDictionary dictionaryWithObject:[NSValue valueWithRect:r]
-																												   forKey:@"NSExposedRect"]];
-#endif
 							}
 						break;
 					}
@@ -2718,6 +2711,7 @@ static NSDictionary *_x11settings;
 				case FocusOut:
 					{ // keyboard focus has left one of our windows
 						NSDebugLog(@"FocusOut");
+#if OLD
 						e = [NSEvent otherEventWithType:NSAppKitDefined
 											   location:NSZeroPoint
 										  modifierFlags:0
@@ -2727,6 +2721,7 @@ static NSDictionary *_x11settings;
 												subtype:NSApplicationDeactivatedEventType
 												  data1:0
 												  data2:0];
+#endif
 #if FIXME
 						if(xe.xfocus.detail == NotifyAncestor)	// what does this mean?
 							{

@@ -380,7 +380,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (NSConnection *) _setupRemoteControl;
 {
-	NSNotificationCenter *n=[NSNotificationCenter defaultCenter];
+//	NSNotificationCenter *n=[NSNotificationCenter defaultCenter];
 	NSMessagePort *port = [[[NSMessagePort alloc] init] autorelease];	// create new message port
 	NSConnection *connection = [[NSConnection connectionWithReceivePort:port sendPort:nil] retain];	// uses same port to send and receive
 	NSString *name=[[NSBundle mainBundle] bundleIdentifier];
@@ -389,10 +389,13 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		NSLog(@"Could not publish message port %@ as %@", port, name);
 	else
 		{
+#if 1
 		NSLog(@"MessagePort published %@", port);
-		// should be proteced by a NSProtocolChecker
-		[connection setRootObject:[self _remoteControlRootProxy]];
+#endif
+		[connection setRootObject:[self _remoteControlRootProxy]];	// should be proteced by a NSProtocolChecker
+#if 1
 		NSLog(@"Root object %@", [connection rootObject]);
+#endif
 #if OLD
 		[n addObserver: [remote class]
 												 selector: @selector(_connectionBecameInvalid:)
@@ -400,7 +403,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 												   object: remote];
 #endif
 		}
+#if 1
 	NSLog(@"Remote Access connection %@", connection);
+#endif
 	return connection;
 }
 
@@ -1322,7 +1327,10 @@ NSEvent *event = nil;									// if queue contains
 		[self deactivate];
 
 		while((w = [e nextObject]))					// Tell the windows to hide
-			[w orderOut:sender];
+			{
+			if([w canHide])
+				[w orderOut:sender];
+			}
 													// notify that we did hide
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidHide) object:self];
 		}					

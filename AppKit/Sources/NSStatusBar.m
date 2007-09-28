@@ -70,11 +70,14 @@
 	NSMenuItem *menuItem=[[[NSMenuItem alloc] initWithTitle:@"?" action:NULL keyEquivalent:@""] autorelease];
 	id item=[[[NSStatusItem alloc] _initForStatusBar:(NSStatusBar *) self andMenuItem:menuItem withLength:length] autorelease];
 	[[self _statusMenu] addItem:menuItem];	// attach controlled menuitem to menu
+#if 1
+	NSLog(@"added to status menu: %@", [[self _statusMenu] _longDescription]);
+#endif
 	return item;
 }
 
 - (float) thickness;
-{
+{ // should be 22 according to documentation
 	[menuView sizeToFit];
 	return [menuView frame].size.height;
 }

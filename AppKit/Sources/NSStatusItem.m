@@ -16,9 +16,11 @@
 
 - (id) _initForStatusBar:(NSStatusBar *) bar andMenuItem:(NSMenuItem *) item withLength:(float) len;
 {
-	self=[super init];
-	if(self)
+	if(self=[super init])
 		{
+#if 1
+		NSLog(@"_initForStatusBar:%@ andMenuItem:%@ withLength:%lf", bar, item, len);
+#endif
 		statusBar=bar;
 		menuItem=[item retain];
 		[menuItem setRepresentedObject:self];

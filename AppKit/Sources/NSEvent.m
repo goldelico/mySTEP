@@ -230,12 +230,14 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 	// 1. X11 allows to query the mouse pointer relative to a window
 	// 2. if we have multiple screens, which screen do we address? We could not really make mouseLocationOutsideOfEventStream work on the screen of the specified window
 	NSPoint p;
-	NSWindow *win=[NSApp mainWindow];	// try main window
+	NSWindow *win=[NSApp keyWindow];	// try key window
 	if(!win)
-		win=[[[NSApp mainMenu] menuRepresentation] window];	// try window of main menu
+		win=[NSApp mainWindow];			// try main window
+	if(!win)
+		win=[NSApp _mainMenuWindow];	// try main menu window
 	if(!win)
 		{
-		NSLog(@"mouseLocation: there is no main window");
+		NSLog(@"mouseLocation: there is no key/main/mainMenu window");
 		return NSZeroPoint;
 		}
 	p=[win mouseLocationOutsideOfEventStream];	// get within window base coordinates

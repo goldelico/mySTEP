@@ -162,6 +162,8 @@ typedef enum _NSSelectionDirection
 		UIBITFIELD(unsigned int, isZoomed, 1);
 		UIBITFIELD(unsigned int, ignoresMouseEvents, 1);
 		UIBITFIELD(unsigned int, hasShadow, 1);
+		UIBITFIELD(unsigned int, canHide, 1);
+		UIBITFIELD(unsigned int, isOpaque, 1);
 	} _w;
 }
 

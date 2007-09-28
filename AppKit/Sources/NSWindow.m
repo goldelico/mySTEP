@@ -28,6 +28,7 @@
 #import <AppKit/NSMenu.h>
 #import <AppKit/NSApplication.h>
 #import <AppKit/NSImage.h>
+#import <AppKit/NSCachedImageRep.h>
 #import <AppKit/NSTextFieldCell.h>
 #import <AppKit/NSTextField.h>
 #import <AppKit/NSTextView.h>
@@ -550,7 +551,6 @@ static BOOL __cursorHidden = NO;
 		{
 		NSDebugLog(@"Initialize NSWindow class\n");
 		__responderClass = [NSResponder class];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_didExpose:) name:NSWindowDidExposeNotification object:nil];	// handle expose events		
 		}
 }
 
@@ -718,13 +718,10 @@ static BOOL __cursorHidden = NO;
 		_w.cursorRectsEnabled = YES;
 		_w.backingType = bufferingType;
 		_w.styleMask = aStyle;
+		_w.canHide = YES;
+		_w.hidesOnDeactivate = YES;
 		frame=[NSWindow frameRectForContentRect:cRect styleMask:aStyle];		// get requested screen frame
 		[self _screenParametersNotification:nil];								// initially adjust/restrict frame
-#if 0	// postpone until orderFront:
-		// the next 2 calls should be deferred until orderFront: is called
-		_context=[[NSGraphicsContext graphicsContextWithWindow:self] retain];	// now, create window
-		_gState=[_context _currentGState];			// save gState
-#endif
 		_themeFrame=[[NSThemeFrame alloc] initWithFrame:(NSRect){{0, 0}, frame.size} forStyleMask:aStyle forScreen:_screen];	// create view hierarchy
 		[_themeFrame _setWindow:self];
 		[_themeFrame setNextResponder:self];
@@ -836,6 +833,7 @@ static BOOL __cursorHidden = NO;
 }
 
 - (int) level								{ return _level; }
+- (BOOL) canHide							{ return _w.canHide; }
 - (BOOL) hidesOnDeactivate					{ return _w.hidesOnDeactivate; }
 - (BOOL) isMiniaturized						{ return _w.miniaturized; }
 - (BOOL) isVisible							{ return _w.visible; }
@@ -959,10 +957,15 @@ static BOOL __cursorHidden = NO;
 			return;
 			}
 		}
-	else if(!_context)
-		{ // allocate context (had been temporarily deallocated if we are a oneshot window)
-		_context=[[NSGraphicsContext graphicsContextWithWindow:self] retain];	// now, create window
-		_gState=[_context _currentGState];			// save gState
+	else
+		{
+		if(!_context)
+			{ // allocate context (had been temporarily deallocated if we are a oneshot window)
+			_context=[[NSGraphicsContext graphicsContextWithWindow:self] retain];	// now, create window
+			_gState=[_context _currentGState];			// save gState
+			}
+		_w.needsDisplay = NO;							// reset first - display may result in callbacks that will set this flag again
+		[_themeFrame displayIfNeeded];					// Draw the window view hierarchy (if changed)
 		}
 	if(!otherWin)
 		{ // find first/last window on same level to place in front/behind
@@ -975,7 +978,7 @@ static BOOL __cursorHidden = NO;
 		// compare levels
 		// determine relevant 'other window' according to current level (might still be 0 if we are the first window)
 		}
-	[_context _orderWindow:place relativeTo:otherWin];	// request from beackend
+	[_context _orderWindow:place relativeTo:otherWin];	// request map/umap from beackend
 	[_context flushGraphics];							// and directly send to the server
 	while(place == NSWindowOut?_w.visible:!_w.visible)
 		{ // queue events until window becomes (in)visible
@@ -1011,6 +1014,7 @@ static BOOL __cursorHidden = NO;
 		[self orderWindow:NSWindowAbove relativeTo:0];	// and immediately rearrange
 }
 
+- (void) setCanHide:(BOOL)flag				{ _w.canHide = flag; }
 - (void) setHidesOnDeactivate:(BOOL)flag	{ _w.hidesOnDeactivate = flag; }
 
 - (NSPoint) cascadeTopLeftFromPoint:(NSPoint)topLeftPoint
@@ -1277,24 +1281,6 @@ static BOOL __cursorHidden = NO;
 		[self display];
     	}
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidUpdateNotification object:self];
-}
-
-- (void) _didExpose:(NSNotification *) n;
-{ // some rect became visible and needs to be redrawn
-	NSValue *val=[[n userInfo] objectForKey:@"NSExposedRect"];
-	NSRect rect=[val rectValue];
-	rect=[_themeFrame convertRect:rect fromView:nil];	// from window to theme frame (which uses flipped coordinates!)
-#if 1
-	NSLog(@"%@ _didExpose:%@", self, NSStringFromRect(rect));
-#endif
-	[_themeFrame setNeedsDisplayInRect:rect];	// we know that we own the top-level view...
-	if(!_w.needsDisplay)
-		NSLog(@"window did expose but does not need to display? %@", self);
-}
-
-+ (void) _didExpose:(NSNotification *) n;
-{ // pass to specified window
-	[[n object] _didExpose:n];
 }
 
 - (void) flushWindowIfNeeded
@@ -1659,7 +1645,7 @@ static BOOL __cursorHidden = NO;
 		[self resetCursorRects];
 
 	switch ([event type])
-    	{													
+    	{
 		case NSAppKitDefined:
 			{
 #if 1
@@ -1669,16 +1655,21 @@ static BOOL __cursorHidden = NO;
 					{
 					case NSWindowExposedEventType:
 						{
-							NSRect r={[event locationInWindow], {[event data1], [event data2] }};
+							NSRect rect={[event locationInWindow], {[event data1], [event data2] }};
+							NSDictionary *uinfo=[NSDictionary dictionaryWithObject:[NSValue valueWithRect:rect] forKey:@"NSExposedRect"];
 #if 1
-							NSLog(@"exposed %@", NSStringFromRect(r));
+							NSLog(@"NSWindowExposedEventType %@", NSStringFromRect(rect));
 #endif
 							[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidExposeNotification
 																				object:self
-																			  userInfo:[NSDictionary dictionaryWithObject:[NSValue valueWithRect:r]
-																													forKey:@"NSExposedRect"]];
-							[_themeFrame displayRect:r];	// and (re)display
+																			  userInfo:uinfo];
+							rect=[_themeFrame convertRect:rect fromView:nil];	// from window to theme frame (which uses flipped coordinates!)
+							[_themeFrame setNeedsDisplayInRect:rect];	// we know that we own the top-level view...
+							if(!_w.needsDisplay)
+								NSLog(@"window did expose but does not need to display? %@", self);
+							break;
 						}
+					// should this event ever arrive at a NSWindow???
 					case NSApplicationActivatedEventType:
 						{
 						[NSApp activateIgnoringOtherApps:YES];	// user has clicked: bring our application windows and menus to front
@@ -1692,6 +1683,8 @@ static BOOL __cursorHidden = NO;
 			}
 
 		case NSLeftMouseDown:								// Left mouse down
+			if(!_w.visible)
+				break;			// we check if we are still visible (user may have clicked while we were ordering out)
 			if (__cursorHidden)
 				{ 
 				[NSCursor unhide]; 
@@ -2289,5 +2282,20 @@ id prev;
 {
 	[_cachedRep draw];
 }
+
+- (void) setAlphaValue:(float) alpha;
+{
+	if(alpha != 1.0)
+		_w.isOpaque=NO;
+	//
+}
+
+- (float) alphaValue;
+{
+	return 1.0;
+}
+
+- (void) setOpaque:(BOOL) flag; { _w.isOpaque=flag; }
+- (BOOL) isOpaque; { return _w.isOpaque; }
 
 @end /* NSWindow */
