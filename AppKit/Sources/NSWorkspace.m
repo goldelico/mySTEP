@@ -1473,6 +1473,7 @@ static NSArray *prevList;
 
 - (int) extendPowerOffBy:(int)requested;
 {
+	// touch some system file so that the loginwindow process can monitor
 	return 0;
 }
 

@@ -86,23 +86,33 @@
 
 - (void) setValue:(id) val forKey:(NSString *) str;
 {
-	NSString *ss=[NSString stringWithFormat:@"set%@%@:", [[str substringToIndex:1] capitalizedString], [str substringFromIndex:1]];
-	SEL s=NSSelectorFromString(ss);
+	const char *varName = [str cString];
+	char *selName = objc_malloc(3+strlen(varName)+1);
+	if(selName)
+		{ // check if a matching setter exists
+		SEL s;
+		strcpy(selName, "set");
+		strcpy(selName+3, varName);	// append
+		selName[3]=toupper(selName[3]);	// capitalize the letter following "set"
+		s=sel_get_any_uid(selName);
+		objc_free(selName);
+		if(!s)
+			; // check for alternate setter names
 #if 0
-	NSLog(@"setter = %@ (%@)", ss, NSStringFromSelector(s));
-	NSLog(@"%@: setValue:forKeyPath:%@ to %@", self, str, val);
+		NSLog(@"setter = %@ (%@)", ss, NSStringFromSelector(s));
+		NSLog(@"%@: setValue:forKeyPath:%@ to %@", self, str, val);
 #endif
-	if(s && [self respondsToSelector:s])
-		{
-		if(!val)
-			[self setNilValueForKey:str];
-		[self performSelector:s withObject:val];
-		return;
+		if(s && [self respondsToSelector:s])
+			{
+			if(!val)
+				[self setNilValueForKey:str];
+			[self performSelector:s withObject:val];
+			return;
+			}
 		}
 	if([isa accessInstanceVariablesDirectly])
 		{
 		struct objc_class *class;
-		const char *varName=[str UTF8String];
 		for(class=isa; class != Nil; class = class_get_super_class(class))
 			{ // walk upwards through class tree
 			struct objc_ivar_list *ivars;
@@ -112,11 +122,14 @@
 				for(i = 0; i < ivars->ivar_count; i++) 
 					{
 					struct objc_ivar ivar = ivars->ivar_list[i];
+#if 0
+					NSLog(@"check %s = %s", ivar.ivar_name, varName);
+#endif
 					if(!ivar.ivar_name)
 						continue;	// no name - skip
 					if(strcmp(ivar.ivar_name, varName) == 0 || (ivar.ivar_name[0]=='_' && strcmp(ivar.ivar_name+1, varName) == 0)) 
 						{
-						// FIXME: should take a look at ivar_type to be an id
+						// FIXME: should take a look at ivar_type to be an id or call a converter
 						id *vp=(id *) (((char *)self) + ivar.ivar_offset);
 						[*vp autorelease];
 						*vp=[val retain];
@@ -132,17 +145,17 @@
 
 - (void) setValue:(id)value forUndefinedKey:(NSString *)key
 {
-	[NSException raise:NSUndefinedKeyException format:@"setValue:forKey:%@ is undefined: %@", key, self];
+	[NSException raise:NSUndefinedKeyException format:@"%@ setValue:%@ forKey:%@ is undefined: %@", self, value, key, self];
 }
 
 - (void) setNilValueForKey:(NSString *)key
 {
-	[NSException raise:NSInvalidArgumentException format:@"can't setNilValue: for key %@: %@", key, self];
+	[NSException raise:NSInvalidArgumentException format:@"%@ can't setNilValue: for key %@: %@", self, key, self];
 }
 
 - (id) valueForUndefinedKey:(NSString *)key
 {
-	[NSException raise:NSUndefinedKeyException format:@"value: for key %@ is undefined: %@", key, self];
+	[NSException raise:NSUndefinedKeyException format:@"%@ value: for key %@ is undefined: %@", self, key, self];
 	return nil;
 }
 

@@ -98,7 +98,8 @@ struct _NSModalSession {
 };
 
 // Class variables
-NSApplication *NSApp = nil;
+id NSApp = nil;
+
 NSString *NSApplicationDidChangeScreenParametersNotification=@"NSApplicationDidChangeScreenParametersNotification";
 
 static NSString	*NSAbortModalException = @"NSAbortModalException";
@@ -353,13 +354,16 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	if(!NSApp)
 		{
 		if(!(class = [[NSBundle mainBundle] principalClass]))
-			class=[self class];
-#if 0
+			{
+			NSLog(@"Main bundle does not define an existing principal class");
+			exit(1);
+			}
+#if 1
 		NSLog(@"class = %@", NSStringFromClass(class));
 #endif
 		if(![class isSubclassOfClass:[self class]])
 		   NSLog(@"principal class (%@) of main bundle is not subclass of NSApplication", NSStringFromClass(class));
-		[class new];
+		[class new];	// create instance -init will set NSApp
 		}
 #if 0
 	NSLog(@"NSApp = %@", NSApp);
@@ -411,9 +415,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (id) init
 {
-	NSDebugLog(@"Begin of NSApplication -init\n");
+	NSDebugLog(@"Begin of NSApplication -init");
 #if 0
-	NSLog(@"Begin of [NSApplication init]\n");
+	NSLog(@"Begin of %@ init", self);
 #endif
 	if(NSApp != nil)
 		{
@@ -423,6 +427,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	if((self=[super init]))
 		{
 		NSNotificationCenter *n=[NSNotificationCenter defaultCenter];
+
+		NSApp=self;
 
 		__windowClass = [NSWindow class];
 		_eventQueue = [[NSMutableArray alloc] initWithCapacity:9];
@@ -446,10 +452,10 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		[n addObserver:self selector:@selector(windowDidResignMain:) name:NSWindowDidResignMainNotification object:nil];
 		
 #if 0
-		NSLog(@"End of [NSApplication init]\n");
+		NSLog(@"End of %@ init", self);
 #endif
 		}
-	return NSApp=self;
+	return self;
 }
 
 - (void) _processCommandLineArguments:(NSArray *) args;

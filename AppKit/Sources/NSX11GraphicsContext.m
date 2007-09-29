@@ -2967,7 +2967,10 @@ static NSDictionary *_x11settings;
 							break;
 				} // end of event type switch
 			if(e != nil)
+				{
 				[NSApp postEvent:e atStart:NO];			// add event to app queue
+				[[NSWorkspace sharedWorkspace] extendPowerOffBy:1];	// extend power off if there was a user activity
+				}
 			}
 		}
 }

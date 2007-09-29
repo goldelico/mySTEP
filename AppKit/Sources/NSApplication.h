@@ -75,7 +75,7 @@ extern NSString *NSModalPanelRunLoopMode;
 extern NSString *NSEventTrackingRunLoopMode;
 
 extern NSString *NSApplicationIcon;	// App Icon key into NSBundle
-extern NSApplication *NSApp;		// NSApp global var
+extern id NSApp;					// NSApp global var
 
 @interface NSApplication : NSResponder  <NSCoding>
 {
