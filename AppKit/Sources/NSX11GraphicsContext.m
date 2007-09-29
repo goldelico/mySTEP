@@ -2636,17 +2636,29 @@ static NSDictionary *_x11settings;
 						_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[window graphicsContext];
 						if(_isDoubleBuffered(ctxt))
 							{ // copy from backing store
-							  // FIXME: we should suppress this until we have done the first flush command!
-#if 1
+							static GC neutralGC;
+							if(!neutralGC)
+								neutralGC=XCreateGC(_display, (Window) (ctxt->_graphicsPort), 0, NULL);	// create a default GC
+#if 0
 							NSLog(@"expose backing store %@ (%d,%d),(%u,%u)", window, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);
+	//						XSetClipMask(_display, ((_NSX11GraphicsState *) (ctxt->_graphicsState))->_gc, None);	// remove any clipping
+#if 1
+							{
+								XRectangle box;
+								XClipBox(((_NSX11GraphicsState *) (ctxt->_graphicsState))->_clip, &box);
+								NSLog(@"clip box=((%d,%d),(%d,%d))", box.x, box.y, box.width, box.height);
+							}
+#endif
 #endif
 							XCopyArea(_display,
 									  (Window) (ctxt->_graphicsPort), 
 									  ctxt->_realWindow,
-									  ((_NSX11GraphicsState *) (ctxt->_graphicsState))->_gc,		// checkme - can we really use this GC or do we need a different one???
+//									  ((_NSX11GraphicsState *) (ctxt->_graphicsState))->_gc,		// checkme - can we really use this GC or do we need a different one???
+									  neutralGC,
 									  xe.xexpose.x, xe.xexpose.y,
 									  xe.xexpose.width, xe.xexpose.height,
 									  xe.xexpose.x, xe.xexpose.y);							
+//							XSetRegion(_display, ((_NSX11GraphicsState *) (ctxt->_graphicsState))->_gc, ((_NSX11GraphicsState *) (ctxt->_graphicsState))->_clip);	// restore clipping mask
 							}
 						else
 							{ // queue up an expose event
