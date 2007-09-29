@@ -2668,7 +2668,7 @@ static NSDictionary *_x11settings;
 							else
 								sz=NSMakeSize(xe.xexpose.width, xe.xexpose.height);
 #if 1
-							NSLog(@"not doble buffered expose %@ -> %@", window,
+							NSLog(@"not double buffered expose %@ -> %@", window,
 								//  NSStringFromXRect(xe.xexpose),
 								  NSStringFromSize(sz));
 #endif
