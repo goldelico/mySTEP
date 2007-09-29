@@ -107,7 +107,7 @@ NSString *NSFailedAuthenticationException = @"NSFailedAuthenticationException";
 	if([[_invocation methodSignature] isOneway])
 		{
 #if 1
-		NSLog(@"oneway replyWithException ignored: %@", exception);
+		NSLog(@"replyWithException: %@ - oneway ignored", exception);
 #endif
 		return;	// no response needed!
 		}

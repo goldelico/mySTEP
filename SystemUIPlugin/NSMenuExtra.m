@@ -35,6 +35,10 @@
 		NSLog(@"add item to systemStatusBar");
 #endif
 		[[[NSStatusBar systemStatusBar] _statusMenu] addItem:item];	// attach controlled menuItem to menu
+		[[[NSStatusBar systemStatusBar] _menuView] setNeedsDisplay:YES];
+#if 1
+		NSLog(@"added to status menu: %@", [[[NSStatusBar systemStatusBar] _statusMenu] _longDescription]);
+#endif
 		[self setTarget:self];
 		nib=[bundle objectForInfoDictionaryKey:@"NSMainNibFile"];
 		if(nib)
@@ -53,8 +57,7 @@
 
 - (id) initWithBundle:(NSBundle *) bundle data:(NSData *)data;
 {
-	self=[self initWithBundle:bundle];
-	if(self)
+	if([self initWithBundle:bundle])
 		{
 		// what does 'data' mean???
 		// does it control default position, additional flags?
