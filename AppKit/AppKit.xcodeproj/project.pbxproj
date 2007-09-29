@@ -348,8 +348,6 @@
 		EE349C80097027D600CBF42C /* NSTokenFieldCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5B097027D600CBF42C /* NSTokenFieldCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE349C81097027D600CBF42C /* NSToolbar.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5C097027D600CBF42C /* NSToolbar.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE349C82097027D600CBF42C /* NSToolbarItem.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5D097027D600CBF42C /* NSToolbarItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE4812470A96DE1000D931F3 /* NSUIServer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE4812460A96DE1000D931F3 /* NSUIServer.h */; };
-		EE4812480A96DE1000D931F3 /* NSUIServer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE4812460A96DE1000D931F3 /* NSUIServer.h */; };
 		EE4CC7110B3546F300B04C5F /* PrintProgressPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE4CC70F0B3546F300B04C5F /* PrintProgressPanel.nib */; };
 		EE4CC7120B3546F400B04C5F /* PrintProgressPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE4CC70F0B3546F300B04C5F /* PrintProgressPanel.nib */; };
 		EE527DA909A13CF600218247 /* NSX11GraphicsContext.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1D48300996A68B00DDE5E0 /* NSX11GraphicsContext.h */; };
@@ -649,6 +647,8 @@
 		EEF529900A554ABB0049AF3C /* GSComboBoxH.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEF5298E0A554ABB0049AF3C /* GSComboBoxH.tiff */; };
 		EEF529950A554AF50049AF3C /* GSDiscloseH.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEF529940A554AF50049AF3C /* GSDiscloseH.tiff */; };
 		EEF529960A554AF50049AF3C /* GSDiscloseH.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEF529940A554AF50049AF3C /* GSDiscloseH.tiff */; };
+		EEF77A330CAE980000C71DD2 /* NSSystemServer.h in Headers */ = {isa = PBXBuildFile; fileRef = EEF77A320CAE980000C71DD2 /* NSSystemServer.h */; };
+		EEF77A340CAE980000C71DD2 /* NSSystemServer.h in Headers */ = {isa = PBXBuildFile; fileRef = EEF77A320CAE980000C71DD2 /* NSSystemServer.h */; };
 		EEFE7DD909BCE6DF00084E78 /* NSAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = EEFE7DD809BCE6DF00084E78 /* NSAnimation.m */; };
 		EEFE7DDA09BCE6DF00084E78 /* NSAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = EEFE7DD809BCE6DF00084E78 /* NSAnimation.m */; };
 		EEFF5E3C096DA4BD00DD100F /* NSBackendPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = EEFF5E3B096DA4BD00DD100F /* NSBackendPrivate.h */; };
@@ -751,7 +751,6 @@
 		EE349C5B097027D600CBF42C /* NSTokenFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSTokenFieldCell.h; sourceTree = "<group>"; };
 		EE349C5C097027D600CBF42C /* NSToolbar.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbar.h; sourceTree = "<group>"; };
 		EE349C5D097027D600CBF42C /* NSToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbarItem.h; sourceTree = "<group>"; };
-		EE4812460A96DE1000D931F3 /* NSUIServer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSUIServer.h; sourceTree = "<group>"; };
 		EE4CC7100B3546F300B04C5F /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PrintProgressPanel.nib; sourceTree = "<group>"; };
 		EE526D78099B2E6300218247 /* mgstep-0.552 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "mgstep-0.552"; path = "../ other/mgstep/mgstep-0.552"; sourceTree = SOURCE_ROOT; };
 		EE527865099D363C00218247 /* gnustep-gui-0.10.2 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "gnustep-gui-0.10.2"; path = "../ other/gnustep-gui-0.10.2"; sourceTree = SOURCE_ROOT; };
@@ -1014,6 +1013,7 @@
 		EEF5292D0A55355E0049AF3C /* NSTypesetter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSTypesetter.h; sourceTree = "<group>"; };
 		EEF5298E0A554ABB0049AF3C /* GSComboBoxH.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSComboBoxH.tiff; sourceTree = "<group>"; };
 		EEF529940A554AF50049AF3C /* GSDiscloseH.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSDiscloseH.tiff; sourceTree = "<group>"; };
+		EEF77A320CAE980000C71DD2 /* NSSystemServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSSystemServer.h; sourceTree = "<group>"; };
 		EEFE7DD809BCE6DF00084E78 /* NSAnimation.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSAnimation.m; sourceTree = "<group>"; };
 		EEFF5E3B096DA4BD00DD100F /* NSBackendPrivate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSBackendPrivate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1439,7 +1439,7 @@
 			children = (
 				EE05053B096EDABE004D1F47 /* NSAppKitPrivate.h */,
 				EEFF5E3B096DA4BD00DD100F /* NSBackendPrivate.h */,
-				EE4812460A96DE1000D931F3 /* NSUIServer.h */,
+				EEF77A320CAE980000C71DD2 /* NSSystemServer.h */,
 				EEA3719609540271001244CF /* Externs.m */,
 				EEA3719709540271001244CF /* Functions.m */,
 				EEA3719F09540271001244CF /* GSServices.h */,
@@ -1762,10 +1762,10 @@
 				EE31948109AA47490089A9A2 /* NSToolbarItem.h in Headers */,
 				EE0B25820A51B3E8002E1464 /* NSGlyphGenerator.h in Headers */,
 				EEF5292F0A55355E0049AF3C /* NSTypesetter.h in Headers */,
-				EE4812480A96DE1000D931F3 /* NSUIServer.h in Headers */,
 				EE291C7E0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h in Headers */,
 				EE291C7F0AD7C0EE004A1CA6 /* NSSpeechSynthesizer.h in Headers */,
 				EE09BBB40C11F69700F3199C /* NSFreeTypeFont.h in Headers */,
+				EEF77A330CAE980000C71DD2 /* NSSystemServer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1921,10 +1921,10 @@
 				EE349C82097027D600CBF42C /* NSToolbarItem.h in Headers */,
 				EE0B25810A51B3E8002E1464 /* NSGlyphGenerator.h in Headers */,
 				EEF5292E0A55355E0049AF3C /* NSTypesetter.h in Headers */,
-				EE4812470A96DE1000D931F3 /* NSUIServer.h in Headers */,
 				EE291C7C0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h in Headers */,
 				EE291C7D0AD7C0EE004A1CA6 /* NSSpeechSynthesizer.h in Headers */,
 				EE09BBB60C11F69700F3199C /* NSFreeTypeFont.h in Headers */,
+				EEF77A340CAE980000C71DD2 /* NSSystemServer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

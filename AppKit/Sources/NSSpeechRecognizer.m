@@ -10,7 +10,7 @@
 #import <AppKit/NSSpeechRecognizer.h>
 #import <Foundation/Foundation.h>
 #import "NSAppKitPrivate.h"
-#import "NSUIServer.h"
+#import "NSSystemServer.h"
 
 @implementation NSSpeechRecognizer
 

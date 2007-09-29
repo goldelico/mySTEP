@@ -18,7 +18,7 @@
 #import <AppKit/NSSound.h>
 #import <AppKit/NSPasteboard.h>
 #import "NSAppKitPrivate.h"
-#import "NSUIServer.h"
+#import "NSSystemServer.h"
 
 NSString *NSSoundPboardType=@"NSSound";
 

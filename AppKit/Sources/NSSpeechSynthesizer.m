@@ -9,7 +9,7 @@
 #import <AppKit/NSSpeechSynthesizer.h>
 #import <Foundation/Foundation.h>
 #import "NSAppKitPrivate.h"
-#import "NSUIServer.h"
+#import "NSSystemServer.h"
 
 NSString *NSVoiceIdentifier=@"Identifier";
 NSString *NSVoiceName=@"Name";

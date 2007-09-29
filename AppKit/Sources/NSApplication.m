@@ -34,7 +34,7 @@
 
 #import "NSAppKitPrivate.h"
 #import "NSBackendPrivate.h"
-#import "NSUIServer.h"
+#import "NSSystemServer.h"
 
 #import "GSServices.h"
 
@@ -537,15 +537,15 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 			if(!name)
 				name=[[path lastPathComponent] stringByDeletingPathExtension];	// use bundle name w/o .app instead
 #if 0
-			NSLog(@"try to registerApplication:%@ with systemUIServer", ident);
+			NSLog(@"try to registerApplication:%@ with NSSystemServer", ident);
 #endif
 			[[NSWorkspace _distributedWorkspace] registerApplication:getpid()
 																name:name		// application name
 																path:path		// full path of bundle
-															   NSApp:self];		// register as newly launched application with mySystemUIServer
+															   NSApp:self];		// register as newly launched application with NSSystemServer
 		}
 	NS_HANDLER
-		NSLog(@"could not register %@[%@] with mySystemUIServer due to %@", name, ident, [localException reason]);
+		NSLog(@"could not register %@[%@] with NSSystemServer due to %@", name, ident, [localException reason]);
 		// ignore for now
 	NS_ENDHANDLER
 
@@ -999,8 +999,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 				if([self shouldBeTreatedAsInkEvent:event])
 					{ // this should be an inking event
 					NS_DURING
-						{ // try to handle by UI server which can pass back recognized characters to -sendEvent or even better postEvent:
-							id <_NSInputServicesProtocol> dws=[NSWorkspace _inputServices];
+						{ // try to handle by server which can pass back recognized characters to -sendEvent or even better postEvent:
+							id <_NSWorkspaceServerProtocol> dws=[NSWorkspace _distributedWorkspace];
 							if(dws)
 								{ // ok
 								NSPoint point=[[event window] convertBaseToScreen:[event locationInWindow]];
@@ -1503,7 +1503,7 @@ NSWindow *w;
 - (IBAction) orderFrontCharacterPalette:(id)sender
 {
 	NSLog(@"orderFrontCharacterPalette");
-	[[NSWorkspace _inputServices] enableVKBD:YES];
+	[[NSWorkspace _distributedWorkspace] enableVKBD:YES];
 }
 
 #if OLD
@@ -1883,11 +1883,11 @@ NSWindow *w;
 		[[NSUserDefaults standardUserDefaults] synchronize]; // write all unwritten changes
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillTerminate) object: self];	// last chance to clean-up
 		
-		NSLog(@"try to unRegisterApplication with mySystemUIServer");
+		NSLog(@"try to unRegisterApplication with NSSystemServer");
 		NS_DURING
-			[[NSWorkspace _distributedWorkspace] unRegisterApplication:getpid()];	// unregister with mySystemUIServer
+			[[NSWorkspace _distributedWorkspace] unRegisterApplication:getpid()];	// unregister with NSSystemServer
 		NS_HANDLER
-			NSLog(@"could not unregister in launchedApplications with mySystemUIServer due to %@", [localException reason]);
+			NSLog(@"could not unregister in launchedApplications with NSSystemServer due to %@", [localException reason]);
 			// but otherwise ignore
 		NS_ENDHANDLER
 		[[NSGraphicsContext currentContext] release];			// clean up connection to X server

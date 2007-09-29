@@ -11,7 +11,10 @@
 #import <AppKit/NSWorkspace.h>
 
 #import "NSAppKitPrivate.h"
-#import "NSUIServer.h"
+
+// FIXME - the system status bar is no longer the SystemServer
+
+#import "NSSystemServer.h"
 
 @implementation NSStatusBar (NSPrivate)
 
@@ -55,6 +58,7 @@
 #if 1
 	NSLog(@"NSStatusBar +systemStatusBar");
 #endif
+	// FIXME!
 	return [[NSWorkspace _distributedWorkspace] systemStatusBar];	// request from distributed server
 }
 

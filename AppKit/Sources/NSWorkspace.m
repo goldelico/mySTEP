@@ -46,7 +46,7 @@ NSWorkspace.m
 #import <AppKit/NSPanel.h>
 
 #import "NSAppKitPrivate.h"
-#import "NSUIServer.h"
+#import "NSSystemServer.h"
 
 #include <sys/types.h>
 #include <unistd.h>		// getpid()
@@ -1411,7 +1411,7 @@ static NSArray *prevList;
 
 #endif
 
-+ (id <_NSUIServerProtocol>) _distributedWorkspace;			// distributed workspace
++ (id <_NSWorkspaceServerProtocol>) _distributedWorkspace;			// distributed workspace
 {
 	static id _distributedWorkspace;	// distributed workspace server used for launchedApplications etc.
 	if(!_distributedWorkspace)
@@ -1420,7 +1420,7 @@ static NSArray *prevList;
 		NSLog(@"get _distributedWorkspace");
 #endif
 		NS_DURING
-			_distributedWorkspace = [NSConnection rootProxyForConnectionWithRegisteredName:NSUIServer host:nil];
+			_distributedWorkspace = [NSConnection rootProxyForConnectionWithRegisteredName:NSWorkspaceServerPort host:nil];
 #if 0
 			NSLog(@"created _distributedWorkspace=%@", _distributedWorkspace);
 #endif
@@ -1428,9 +1428,9 @@ static NSArray *prevList;
 #if 0
 			NSLog(@"retained");
 #endif
-			[((NSDistantObject *) _distributedWorkspace) setProtocolForProxy:@protocol(_NSUIServerProtocol)];
+			[((NSDistantObject *) _distributedWorkspace) setProtocolForProxy:@protocol(_NSWorkspaceServerProtocol)];
 		NS_HANDLER
-			NSLog(@"could not contact %@ due to %@ - %@", NSUIServer, [localException name], [localException reason]);
+			NSLog(@"could not contact %@ due to %@ - %@", NSWorkspaceServerPort, [localException name], [localException reason]);
 			_distributedWorkspace=nil;	// no connection established
 			// we could alternatively setup ourselves as a (local) server
 		NS_ENDHANDLER
@@ -1439,37 +1439,6 @@ static NSArray *prevList;
 	NSLog(@"_distributedWorkspace=%@", _distributedWorkspace);
 #endif
 	return _distributedWorkspace;
-}
-
-+ (id <_NSInputServicesProtocol>) _inputServices;			// loginwindow bundles
-{
-	NSString *server=@"com.quantum-step.mySTEP.myInputServices";
-	static id _inputServices;	// distributed workspace server used for launchedApplications etc.
-	if(!_inputServices)
-		{
-#if 1
-		NSLog(@"get _inputServices");
-#endif
-		NS_DURING
-			_inputServices = [NSConnection rootProxyForConnectionWithRegisteredName:server host:nil];
-#if 0
-			NSLog(@"created _inputServices=%@", _inputServices);
-#endif
-			[_inputServices retain];
-#if 0
-			NSLog(@"retained %u", [_inputServices count]);
-#endif
-			[((NSDistantObject *) _inputServices) setProtocolForProxy:@protocol(_NSInputServicesProtocol)];
-		NS_HANDLER
-			NSLog(@"could not contact %@ due to %@ - %@", server, [localException name], [localException reason]);
-			_inputServices=nil;	// no connection established
-										// we could alternatively setup ourselves as a (local) server
-		NS_ENDHANDLER
-		}
-#if 1
-	NSLog(@"_inputServices=%@", _inputServices);
-#endif
-	return _inputServices;
 }
 
 // should be replaced by [[QSLaunchServices sharedLaunchServices] applicationList] etc.
