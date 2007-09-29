@@ -291,6 +291,7 @@
 					ppc,
 					i386,
 				);
+				PREBINDING = NO;
 			};
 			name = Development;
 		};
@@ -301,6 +302,7 @@
 					ppc,
 					i386,
 				);
+				PREBINDING = NO;
 			};
 			name = Deployment;
 		};
@@ -311,6 +313,7 @@
 					ppc,
 					i386,
 				);
+				PREBINDING = NO;
 			};
 			name = Default;
 		};

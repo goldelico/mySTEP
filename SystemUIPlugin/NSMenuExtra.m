@@ -23,7 +23,7 @@
 - (id) initWithBundle:(NSBundle *) bundle;
 {
 	NSMenuItem *item=[[[NSMenuItem alloc] initWithTitle:@"NSMenuExtra" action:NULL keyEquivalent:@""] autorelease];
-#if 0
+#if 1
 	NSLog(@"this is %@ initWithBundle: %@", NSStringFromClass([self class]), bundle);
 #endif
 	self=[super _initForStatusBar:[NSStatusBar systemStatusBar] andMenuItem:item withLength:NSVariableStatusItemLength];   // make me control this menu item
@@ -31,19 +31,19 @@
 		{
 		NSString *nib;
 		_bundle=bundle;
-#if 0
-		NSLog(@"add item");
+#if 1
+		NSLog(@"add item to systemStatusBar");
 #endif
 		[[[NSStatusBar systemStatusBar] _statusMenu] addItem:item];	// attach controlled menuItem to menu
 		[self setTarget:self];
 		nib=[bundle objectForInfoDictionaryKey:@"NSMainNibFile"];
 		if(nib)
 			{ // load
-#if 0
+#if 1
 			NSLog(@"loading NSMenuExtra nib file %@", nib);
 #endif
 			[bundle loadNibFile:nib externalNameTable:[NSDictionary dictionaryWithObject:self forKey:@"NSOwner"] withZone:NSDefaultMallocZone()];
-#if 0
+#if 1
 			NSLog(@"loaded NSMenuExtra nib file %@", nib);
 #endif
 			}
