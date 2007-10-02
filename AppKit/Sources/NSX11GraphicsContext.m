@@ -611,18 +611,20 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 { // process next part - return YES if anything found
 	NSPoint points[3];
 	NSPoint first, current, next;
+	NSBezierPathElement element;
 	if(state->element == 0)
 		state->elements=[state->path elementCount];	// initialize
 	if(state->element >= state->elements)
-		{
+		{ // no more elements
 		if(state->points)
 			objc_free(state->points);	// release buffer
 		return NO;	// all done
 		}
 	state->npoints=0;
-	while(state->element < state->elements)
-		{ // get next (closed) subpath
-		switch([state->path elementAtIndex:state->element associatedPoints:points])
+	element=[state->path elementAtIndex:state->element associatedPoints:points];	// get first element
+	while(YES)
+		{ // get next (closed or open) subpath
+		switch(element)
 			{
 			case NSMoveToBezierPathElement:
 				current=first=[_state->_ctm transformPoint:points[0]];
@@ -636,18 +638,57 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			case NSCurveToBezierPathElement:
 				{
 					
-					// should better create path by algorithm like the following:
+					// FIXME: we should better create a path by subdividig the path or by using some algorithm like the following:
 					
 					// http://www.niksula.cs.hut.fi/~hkankaan/Homepages/bezierfast.html
+					
+					/*
+					 unsigned int i, steps=10;
+					 float x, xd, xdd, xddd, xdd_per_2, xddd_per_2, xddd_per_6;
+					 float y, yd, ydd, yddd, ydd_per_2, yddd_per_2, yddd_per_6;
+					 double t = 1.0 / steps;
+					 double t3 = 3.0 * t;
+					 double tt = t * t;
+					 double tt3 = 3.0 * tt;
+					 x = p[0].x;
+					 xd = (p[1].x - p[0].x) * t3;
+					 xdd_per_2 = (p[0].x - 2 * p[1].x + p[2].x) * tt3;
+					 xddd_per_2 = (3 * (p[1].x - p[2].x) + p[3].x - p[0].x) * tt * t3;
+					 xddd = xddd_per_2 + xddd_per_2;
+					 xdd = xdd_per_2 + xdd_per_2;
+					 xddd_per_6 = xddd_per_2 * (1.0 / 3.0);
+					 y = p[0].y;
+					 yd = (p[1].y - p[0].y) * t3;
+					 ydd_per_2 = (p[0].y - 2 * p[1].y + p[2].y) * tt3;
+					 yddd_per_2 = (3 * (p[1].y - p[2].y) + p[3].y - p[0].y) * tt * t3;
+					 yddd = yddd_per_2 + yddd_per_2;
+					 ydd = ydd_per_2 + ydd_per_2;
+					 yddd_per_6 = yddd_per_2 * (1.0 / 3.0);
+					 for(i=0; i < steps; i++)
+					 {
+						 addPoint(state, NSMakePoint(x, y));
+						 x = x + xd + xdd_per_2 + xddd_per_6;
+						 xd = xd + xdd + xddd_per_2;
+						 xdd = xdd + xddd;
+						 xdd_per_2 = xdd_per_2 + xddd_per_2;
+						 y = y + yd + ydd_per_2 + yddd_per_6;
+						 yd = yd + ydd + yddd_per_2;
+						 ydd = ydd + yddd;
+						 ydd_per_2 = ydd_per_2 + yddd_per_2;
+					 }
+					 addPoint(state, next=NSMakePoint(x, y));	// add last one (should be p3)
+					 */
+					
 					// or http://www.antigrain.com/research/adaptive_bezier/
 					
-					// but: there might even be a better algorithm that resembles Bresenham or CORDIC that
+					// is there a better algorithm? That resembles Bresenham or CORDIC that
 					//
 					// - works with integer values
 					// - moves one pixel per step either in x or y direction
 					// - is not based on a predefined number of steps
 					// - uses screen resolution as the smoothness limit
 					//
+				
 					NSPoint p0=current;
 					NSPoint p1=[_state->_ctm transformPoint:points[0]];
 					NSPoint p2=[_state->_ctm transformPoint:points[1]];
@@ -679,8 +720,12 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				return YES;	// stroke/fill the closed path and start a new one if we have multiple sections
 			}
 		state->element++;
+		if(state->element >= state->elements)
+			return YES;	// done
+		element=[state->path elementAtIndex:state->element associatedPoints:points];	// get next element
+		if(element == NSMoveToBezierPathElement)
+			return YES;	// end of previous (non-closed) element
 		}	
-	return YES;
 }
 
 - (Region) _regionFromPath:(NSBezierPath *) path
