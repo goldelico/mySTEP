@@ -252,7 +252,6 @@ extern NSView *__toolTipOwnerView;
 - (void) deactivate;
 { // hide menu
 	NSLog(@"requested to deactivate");
-	[NSMenuView _deactivate];	// close any still open menu
 	[NSApp deactivate];
 }
 
@@ -1019,8 +1018,16 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 					NS_ENDHANDLER
 					}
 				// activate by clicking into window
+					// FIXME: check if we are a non-activating panel
 				if(!_app.isActive && ([event window] != _appIconWindow))
-					[NSApp activateIgnoringOtherApps:YES];
+					{
+					if([[event window] styleMask] & NSNonactivatingPanelMask)
+						{ // only grab the keyboard focus without activating
+						[_keyWindow becomeKeyWindow];
+						}
+					else
+						[NSApp activateIgnoringOtherApps:YES];
+					}
 			}
 		case NSLeftMouseUp:
 		case NSRightMouseDown:
@@ -1287,9 +1294,11 @@ NSEvent *event = nil;									// if queue contains
 		{									// that they are up when app active
 		_app.isActive = YES;
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillBecomeActive) object: self];
-#if 0
-		[_mainMenu display];							// unhide app's menu's
-#endif
+		NS_DURING
+			[[NSWorkspace _distributedWorkspace] makeActiveApplication:getpid()];
+		NS_HANDLER
+			NSLog(@"could not notify activation due to %@", [localException reason]);
+		NS_ENDHANDLER
 		if(flag)
 			{
 			if(_mainWindow)
@@ -1297,7 +1306,6 @@ NSEvent *event = nil;									// if queue contains
 			if(_keyWindow)
 				[_keyWindow becomeKeyWindow];
 			}
-
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidBecomeActive) object: self];
 		}
 	if(flag)
@@ -1307,7 +1315,7 @@ NSEvent *event = nil;									// if queue contains
 - (void) deactivate
 {
 	[NSMenuView _deactivate];					// close any open menu
-	if (_app.isActive)				// in order to make themselves invisible 
+	if(_app.isActive)				// in order to make themselves invisible 
 		{			 				// when the application is not active.
 		_app.isActive = NO;
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillResignActive) object:self];
@@ -1316,6 +1324,7 @@ NSEvent *event = nil;									// if queue contains
 #endif
 		[_keyWindow resignKeyWindow];
 		[_mainMenuWindow orderOut:self];	// hide our application menu (?)
+		// FIXME: we should also hide inspector panels etc.
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidResignActive) object:self];
 		}
 }
@@ -1355,7 +1364,7 @@ NSEvent *event = nil;									// if queue contains
 	while((a=[e nextObject]))
 		{
 		if([a objectForKey:@"NSApplicationNSApp"] == NSApp)
-			continue;	// to self - ????? does this work through object NSPortEncoding?
+			continue;	// compare to self - ????? does this work through object NSPortEncoding?
 		NS_DURING
 			NSLog(@"unhideWithoutActivation %@", a);
 			[[a objectForKey:@"NSApplicationNSApp"] unhideWithoutActivation];	// try to unhide
