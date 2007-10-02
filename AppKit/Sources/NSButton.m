@@ -115,6 +115,20 @@ id __buttonCellClass = nil;
 	return c;
 }
 
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:@"%@\n"
+		@"stateMask=%02x\n"
+		@"highlightMask=%02x\n" 
+		@"buttonType=%d\n" 
+		@"bezelStyle=%d\n"
+		@"transparent=%d\n"
+		@"dimsWhenDisabled=%d\n" 
+		@"bgcolor=%@\n", 
+		[super description], _stateMask, _highlightMask, _buttonType, _bezelStyle, _transparent, _dimsWhenDisabled, _backgroundColor
+		];
+}
+
 - (NSColor *) backgroundColor				{ return _backgroundColor; }
 - (void) setBackgroundColor:(NSColor *)col	{ ASSIGN(_backgroundColor,col); }
 - (NSString *) alternateTitle				{ return _alternateTitle; }
@@ -220,7 +234,7 @@ id __buttonCellClass = nil;
 
 - (void) setButtonType:(NSButtonType)buttonType			// Graphic Attributes
 {
-	switch(_buttonType=buttonType) 
+	switch(_buttonType=buttonType)
 		{
 		case NSMomentaryLightButton:
 			_highlightMask = NSChangeGrayCellMask | NSChangeBackgroundCellMask;
@@ -373,6 +387,9 @@ id __buttonCellClass = nil;
 	NSColor *backgroundColor;
 	NSGraphicsContext *ctxt;
 	NSBezierPath *bezel;
+#if 0
+	NSLog(@"drawBezelWithFrame %@", self);
+#endif
 	if(!_c.bordered)
 		{ // not bordered - e.g. Radio Button and Checkbox
 		backgroundColor=_backgroundColor;
@@ -392,6 +409,9 @@ id __buttonCellClass = nil;
 	else
 		backgroundColor = nil;	// default: transparent
 	cellFrame=[self drawingRectForBounds:cellFrame];
+#if 0
+	NSLog(@"bgcolor=%@", backgroundColor);
+#endif
 	switch(_bezelStyle & 15)	// only lower 4 bits are relevant
 		{
 		case _NSTraditionalBezelStyle:
@@ -801,13 +821,23 @@ id __buttonCellClass = nil;
 		{
 		unsigned int buttonflags=[aDecoder decodeIntForKey:@"NSButtonFlags"];
 		unsigned int buttonflags2=[aDecoder decodeIntForKey:@"NSButtonFlags2"];
+		_buttonType=-1;	// we don't know
 #if 0
 		NSLog(@"%@ controlSize=%d", self, [self controlSize]);
 #endif
 #define PUSHIN ((buttonflags&0x80000000)!=0)
-#define STATEBY ((buttonflags&0x70000000)>>28)
-		_stateMask=STATEBY;	// set default
-#define HIGHLIGHTSBY ((buttonflags&0x0e000000)>>25)
+		// this is quite weired
+		// stateby mapping
+		//		bit 0 <-> bit 30
+		//		bit 1 <-> ?
+		//		bit 2,3 <-> bit 28,29
+#define STATEBY (((buttonflags&0x30000000)>>26)+((buttonflags&0x40000000)>>30))
+		_stateMask=STATEBY;
+		// stateby mapping
+		//		bit 0 <-> bit 27
+		//		bit 1 <-> bit 31
+		//		bit 2,3 <-> bit 25,26
+#define HIGHLIGHTSBY (((buttonflags&0x06000000)>>23)+((buttonflags&0x0800000000)>>24)+((buttonflags&0x8000000000)>>30))
 		_highlightMask=HIGHLIGHTSBY;
 #define DRAWING ((buttonflags&0x01000000)!=0)
 		// ignored
@@ -1006,6 +1036,7 @@ id __buttonCellClass = nil;
 - (void) setBezelStyle:(NSBezelStyle) style;
 {
 	[_cell setBezelStyle:style];
+	[_cell setBezeled:YES];
 	[self setNeedsDisplay:YES];
 }
 
@@ -1109,6 +1140,6 @@ id __buttonCellClass = nil;
 }
 
 - (void) encodeWithCoder:(NSCoder *) aCoder		{ [super encodeWithCoder:aCoder]; }
-- (id) initWithCoder:(NSCoder *) aDecdr			{ return [super initWithCoder:aDecdr];}
+- (id) initWithCoder:(NSCoder *) aDecdr			{ return [super initWithCoder:aDecdr]; }
 
 @end /* NSButton */

@@ -144,47 +144,61 @@
 	NSLog(@"drawsBackground=%@", _c.drawsBackground?@"YES":@"NO");
 	NSLog(@"_backgroundColor=%@", _backgroundColor);
 #endif
-	if([self showsFirstResponder])
-		{ // button is first responder cell
-		NSColor *y = [NSColor selectedControlColor];
-		NSColor *c[] = {y, y, y, y};
-		NSRect cellRing=NSInsetRect(cellFrame, -1, -1);	// draw around
-		NSDrawColorTiledRects(cellRing,cellRing,[controlView isFlipped] ? BEZEL_EDGES_FLIPPED : BEZEL_EDGES_NORMAL,c,4);
-		}
-	if(_c.bezeled || _c.drawsBackground || _c.editable)
+	if(_c.bordered || _c.bezeled || _c.editable)
     	{ // draw cell background
-#if 0
-		NSLog(@"_backgroundColor=%@", _backgroundColor);
-#endif
-		[_backgroundColor set];
-		NSRectFill(cellFrame);	// fill
-    	}
-	if(_c.bezeled) 
-		{
-		if(_bezelStyle == NSTextFieldRoundedBezel)
+		if([self showsFirstResponder])
+			{ // button is first responder cell
+			NSColor *y = [NSColor selectedControlColor];
+			NSColor *c[] = {y, y, y, y};
+			NSRect cellRing=NSInsetRect(cellFrame, -1, -1);	// draw around
+			NSDrawColorTiledRects(cellRing,cellRing,[controlView isFlipped] ? BEZEL_EDGES_FLIPPED : BEZEL_EDGES_NORMAL,c,4);
+			}
+		if(_c.bezeled) 
 			{
-			NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
-			NSBezierPath *p=[NSBezierPath _bezierPathWithRoundedBezelInRect:cellFrame vertical:NO];	// box with halfcircular rounded ends
-			[ctxt saveGraphicsState];
-			[p addClip];	// clip to contour
-			[[NSColor whiteColor] setFill];
-			[p fill];		// fill with background color
-			[ctxt restoreGraphicsState];
-			[[NSColor blackColor] setStroke];
-			[p stroke];		// fill border
+			if(_bezelStyle == NSTextFieldRoundedBezel)
+				{
+				NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
+				NSBezierPath *p=[NSBezierPath _bezierPathWithRoundedBezelInRect:cellFrame vertical:NO];	// box with halfcircular rounded ends
+				if(_c.drawsBackground)
+					{
+					[ctxt saveGraphicsState];
+					[p addClip];	// clip to contour
+					[_backgroundColor setFill];
+					[p fill];		// fill with background color
+					[ctxt restoreGraphicsState];
+					}
+				[[NSColor blackColor] setStroke];
+				[p stroke];		// fill border
+				}
+			else
+				{
+				float grays[] = { NSWhite, NSWhite, NSDarkGray, NSDarkGray,
+					NSLightGray, NSLightGray, NSBlack, NSBlack };
+				NSRectEdge *edges = BEZEL_EDGES_NORMAL;
+				if(_c.drawsBackground)
+					{
+					[_backgroundColor set];
+					NSRectFill(cellFrame);	// fill
+					}
+				NSDrawTiledRects(cellFrame, cellFrame, edges, grays, 8);
+				}
 			}
 		else
-			{
-			float grays[] = { NSWhite, NSWhite, NSDarkGray, NSDarkGray,
-				NSLightGray, NSLightGray, NSBlack, NSBlack };
-			NSRectEdge *edges = BEZEL_EDGES_NORMAL;
-			NSDrawTiledRects(cellFrame, cellFrame, edges, grays, 8);
+			{ // not bezeled
+			if(_c.drawsBackground)
+				{
+#if 0
+				NSLog(@"_backgroundColor=%@", _backgroundColor);
+#endif
+				[_backgroundColor set];
+				NSRectFill(cellFrame);	// fill
+				}
+			if(_c.bordered)
+				{ // but draw cell border if needed.
+				[[NSColor blackColor] set];	// black frame
+				NSFrameRect(cellFrame);
+				}
 			}
-		}
-	else if(_c.bordered)
-		{ // draw cell border if needed.
-		[[NSColor blackColor] set];	// black frame
-		NSFrameRect(cellFrame);
 		}
 	if(_c.editing)
 		return; // use editor to draw
@@ -245,14 +259,14 @@
 - (id) initWithCoder:(NSCoder *)aDecoder
 {
 #if 0
-	NSLog(@"NSTextField %@ initWithCoder:%@", self, aDecoder);
+	NSLog(@"%@ -[NSTextField initWithCoder:] %@", self, aDecoder);
 #endif
 	self=[super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
 		{
+		// done in NSCell:	_textColor = [[aDecoder decodeObjectForKey:@"NSTextColor"] retain];
+		// done in NSCell:	_c.drawsBackground = [aDecoder decodeBoolObjectForKey:@"NSDrawsBackground"];
 		_backgroundColor = [[aDecoder decodeObjectForKey:@"NSBackgroundColor"] retain];
-	// done in NSCell:	_textColor = [[aDecoder decodeObjectForKey:@"NSTextColor"] retain];
-	// done in NSCell:	_c.drawsBackground = [aDecoder decodeBoolObjectForKey:@"NSDrawsBackground"];
 		_bezelStyle = [aDecoder decodeIntForKey:@"NSTextBezelStyle"];
 		_delegate = [aDecoder decodeObjectForKey:@"NSDelegate"];
 #if 0

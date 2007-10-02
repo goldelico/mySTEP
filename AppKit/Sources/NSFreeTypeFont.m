@@ -66,7 +66,7 @@
 									 count:(unsigned) count; { return; }
 
 - (void) getAdvancements:(NSSizeArray) advancements
-				 forPacketGlyphs:(const void *) glyphs
+				 forPackedGlyphs:(const void *) glyphs
 									 count:(unsigned) count; { return; }
 
 - (void) getBoundingRects:(NSRectArray) bounds
@@ -322,6 +322,22 @@ static NSMutableDictionary *cache;
 		FT_Done_Face((FT_Face) _faceStruct);
 	[_attributes release];
 	[super dealloc];
+}
+
+@end
+
+@implementation NSBezierPath (Backend)
+
+- (void) appendBezierPathWithGlyphs:(NSGlyph *)glyphs 
+							  count:(int)count
+							 inFont:(NSFont *)font
+{
+	NIMP;
+}
+
+- (void) appendBezierPathWithPackedGlyphs:(const char *)packedGlyphs
+{
+	NIMP;
 }
 
 @end

@@ -137,7 +137,7 @@ extern NSString *NSFontSetChangedNotification;
 			   forGlyphs:(const NSGlyph *) glyphs
 				   count:(unsigned) count;
 - (void) getAdvancements:(NSSizeArray) advancements
-			   forPacketGlyphs:(const void *) glyphs
+			   forPackedGlyphs:(const void *) glyphs
 				   count:(unsigned) count;
 - (void) getBoundingRects:(NSRectArray) bounds
 				forGlyphs:(const NSGlyph *) glyphs

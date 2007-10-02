@@ -1178,7 +1178,9 @@ typedef struct _PathElement
 - (void) appendBezierPathWithGlyph:(NSGlyph)glyph
 							inFont:(NSFont *)font
 {
-	BACKEND;
+	[self appendBezierPathWithGlyphs:&glyph 
+							   count:1
+							  inFont:font];
 }
 
 - (void) appendBezierPathWithGlyphs:(NSGlyph *)glyphs 
