@@ -141,7 +141,7 @@ id __buttonCellClass = nil;
 - (void) setAlternateImage:(NSImage*)aImage	{ ASSIGN(_alternateImage,aImage); }
 - (void) setImage:(NSImage *)anImage		{ ASSIGN(_normalImage, anImage); }
 - (void) _setMixedImage:(NSImage *)anImage	{ ASSIGN(_mixedImage, anImage); }
-- (NSAttributedString *) attributedTitle	{ return [_title isKindOfClass:[NSAttributedString class]]?_title:[[[NSAttributedString alloc] initWithString:_title] autorelease]; }
+- (NSAttributedString *) attributedTitle	{ return [_title isKindOfClass:[NSAttributedString class]]?(NSAttributedString *) _title:[[[NSAttributedString alloc] initWithString:_title] autorelease]; }
 - (NSString *) title						{ return [_title isKindOfClass:[NSAttributedString class]]?[(NSAttributedString *) _title string]:_title; }
 - (void) setAttributedTitle:(NSAttributedString *)aStr	{ ASSIGN(_title, aStr); }
 
@@ -673,7 +673,7 @@ id __buttonCellClass = nil;
 	[_image compositeToPoint:cellFrame.origin operation:op];	
 }
 
-- (void) drawTitle:(NSAttributedTitle *) title withFrame:(NSRect) cellFrame inView:(NSView *) controlView;
+- (void) drawTitle:(NSAttributedString *) title withFrame:(NSRect) cellFrame inView:(NSView *) controlView;
 { // this is an inofficial method!
 	NSColor *titleColor = [NSColor controlTextColor];	// default
 	NSRect textFrame;
@@ -777,7 +777,7 @@ id __buttonCellClass = nil;
 
 - (void) drawInteriorWithFrame:(NSRect) cellFrame inView:(NSView*) controlView
 {
-	NSAttributedTitle *title;
+	NSAttributedString *title;
 	if([_normalImage isKindOfClass:[NSButtonImageSource class]])
 		_image=[(NSButtonImageSource *) _normalImage buttonImageForCell:self];	// substitute
 	else
@@ -792,11 +792,11 @@ id __buttonCellClass = nil;
 	[self drawImage:_image withFrame:cellFrame inView:controlView];
 	// FIXME: here, we are not clean for data types!!!
 	// and: when should we use title and when attributedTitle
-	title=(NSAttributedTitle *) _title;
+	title=(NSAttributedString *) _title;
 	if([title length] == 0 || stateOrHighlight(NSContentsCellMask))		// standard content
 		{ // change to alternate text/image (if defined)
 		if([_alternateTitle length] != 0)
-			title = (NSAttributedTitle *) _alternateTitle;
+			title = (NSAttributedString *) _alternateTitle;
 		}
 #if 0
 	NSLog(@"draw title %@", title);

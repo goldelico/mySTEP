@@ -94,7 +94,7 @@ typedef enum _NSGradientType {
 - (NSBezelStyle) bezelStyle;
 - (void) drawBezelWithFrame:(NSRect) frame inView:(NSView *) control;
 - (void) drawImage:(NSImage *) image withFrame:(NSRect) frame inView:(NSView *) control;
-- (void) drawTitle:(NSAttributedTitle *) title withFrame:(NSRect) frame inView:(NSView *) control;
+- (void) drawTitle:(NSAttributedString *) title withFrame:(NSRect) frame inView:(NSView *) control;
 - (void) getPeriodicDelay:(float *)delay interval:(float *)interval;
 - (NSGradientType) gradientType;
 - (int) highlightsBy;
