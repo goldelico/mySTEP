@@ -637,12 +637,12 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				break;
 			case NSCurveToBezierPathElement:
 				{
+#if 0	// untested but should be better
 					
 					// FIXME: we should better create a path by subdividig the path or by using some algorithm like the following:
 					
 					// http://www.niksula.cs.hut.fi/~hkankaan/Homepages/bezierfast.html
 					
-					/*
 					 unsigned int i, steps=10;
 					 float x, xd, xdd, xddd, xdd_per_2, xddd_per_2, xddd_per_6;
 					 float y, yd, ydd, yddd, ydd_per_2, yddd_per_2, yddd_per_6;
@@ -677,18 +677,19 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 						 ydd_per_2 = ydd_per_2 + yddd_per_2;
 					 }
 					 addPoint(state, next=NSMakePoint(x, y));	// add last one (should be p3)
-					 */
-					
-					// or http://www.antigrain.com/research/adaptive_bezier/
-					
-					// is there a better algorithm? That resembles Bresenham or CORDIC that
-					//
-					// - works with integer values
-					// - moves one pixel per step either in x or y direction
-					// - is not based on a predefined number of steps
-					// - uses screen resolution as the smoothness limit
-					//
-				
+
+					 // or http://www.antigrain.com/research/adaptive_bezier/
+					 
+					 // is there a better algorithm? That resembles Bresenham or CORDIC that
+					 //
+					 // - works with integer values
+					 // - moves one pixel per step either in x or y direction
+					 // - is not based on a predefined number of steps
+					 // - uses screen resolution as the smoothness limit
+					 //
+					 
+#else
+					// straight forward - works
 					NSPoint p0=current;
 					NSPoint p1=[_state->_ctm transformPoint:points[0]];
 					NSPoint p2=[_state->_ctm transformPoint:points[1]];
@@ -711,6 +712,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 						addPoint(state, pnt);
 						}
 					addPoint(state, next=p3);	// move to final point (if not already there)
+#endif
 					current=next;
 					break;
 				}
@@ -730,7 +732,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (Region) _regionFromPath:(NSBezierPath *) path
 { // get region from path
-	PointsForPathState state={ path };
+	PointsForPathState state={ path };	// initializes other struct components with 0
 	Region region=NULL;
 	while([self _pointsForPath:&state])
 		{
@@ -749,7 +751,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _stroke:(NSBezierPath *) path;
 {
-	PointsForPathState state={ path };
+	PointsForPathState state={ path };	// initializes other struct components with 0
 	float *pattern=NULL;	// FIXME: who is owner of this data? and who takes care not to overflow?
 	int count;
 	float phase;
@@ -784,12 +786,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _fill:(NSBezierPath *) path;
 {
-	PointsForPathState state={ path };
+	PointsForPathState state={ path };	// initializes other struct components with 0
 	XGCValues values; // we have to temporarily swap background & foreground colors since X11 uses the FG color to fill!
 #if 0
 	NSLog(@"_fill");
 #endif
 	[self _setCompositing];
+	// FIXME: is this fetched from the Server? Then, to reduce the roundtrip time, we should keep TWO GCs
 	XGetGCValues(_display, _state->_gc, GCForeground | GCBackground, &values);
 	XSetForeground(_display, _state->_gc, values.background);	// set the fill color
 	XSetFillStyle(_display, _state->_gc, FillSolid);

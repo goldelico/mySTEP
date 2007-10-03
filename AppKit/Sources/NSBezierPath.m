@@ -308,9 +308,12 @@ typedef struct _PathElement
 		_bz.windingRule = __defaultWindingRule;
 		_miterLimit = __defaultMiterLimit;
 	
-		_bPath = objc_malloc(sizeof(void *) * (_capacity = 8));
+		_bPath = objc_malloc((_capacity = 8) * sizeof(PathElement *));
 		if(!_bPath)
-			{ [self release]; return nil; }
+			{
+			[self release];
+			return nil;
+			}
 		_bz.flat = YES;
 		}
 	return self;
@@ -318,16 +321,10 @@ typedef struct _PathElement
 
 - (void) dealloc
 {
-	if(_cacheImage != nil)
-		[_cacheImage release];
-	
+	[self removeAllPoints];
+	objc_free(_bPath);
 	if (_dashPattern != NULL)
 		objc_free(_dashPattern);
-	
-	while (_count--)
-		objc_free(_bPath[_count]);
-	objc_free(_bPath);
-	
 	[super dealloc];
 }
 
@@ -352,7 +349,6 @@ typedef struct _PathElement
 			case NSClosePathBezierPathElement:
 				str=[str stringByAppendingFormat:@"h\n"];
 				break;
-				break;
 			}
 		}
 	return str;
@@ -365,16 +361,9 @@ typedef struct _PathElement
 	e->type = NSMoveToBezierPathElement;
 	e->points[0] = aPoint;
 	if (_count >= _capacity)
-		{
-		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count) * sizeof(id));
-		// FIXME: do we need that or is the exception part of the objc_ macros?
-		if(!_bPath)
-			[NSException raise:NSMallocException format:@"out of memory"];
-		}
+		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count + 3) * sizeof(PathElement *));
 	_bPath[_count++] = e;
 	_bz.shouldRecalculateBounds = YES;
-	[_cacheImage release];
-	_cacheImage=nil;
 }
 
 - (void) lineToPoint:(NSPoint)aPoint
@@ -384,11 +373,9 @@ typedef struct _PathElement
 	e->type = NSLineToBezierPathElement;
 	e->points[0] = aPoint;
 	if (_count >= _capacity)
-		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count) * sizeof(id));
+		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count + 3) * sizeof(PathElement *));
 	_bPath[_count++] = e;
 	_bz.shouldRecalculateBounds = YES;
-	[_cacheImage release];
-	_cacheImage=nil;
 }
 
 - (void) curveToPoint:(NSPoint)aPoint 
@@ -402,35 +389,44 @@ typedef struct _PathElement
 	e->points[1] = controlPoint2;
 	e->points[2] = aPoint;
 	if (_count >= _capacity)
-		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count) * sizeof(id));
+		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count + 3) * sizeof(PathElement *));
 	_bPath[_count++] = e;
+
 	_bz.flat = NO;
 	
 	_bz.shouldRecalculateBounds = YES;
-	[_cacheImage release];
-	_cacheImage=nil;
 }
 
 - (void) closePath
 {
 	PathElement *e = objc_malloc(sizeof(PathElement));
-	
 	e->type = NSClosePathBezierPathElement;
 	if (_count >= _capacity)
-		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count) * sizeof(id));
+		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count + 3) * sizeof(PathElement *));
 	_bPath[_count++] = e;
 	_bz.shouldRecalculateBounds = YES;
-	[_cacheImage release];
-	_cacheImage=nil;
 }
 
 - (void) removeAllPoints
 {
-	while (_count--)
+#if 0
+	NSLog(@"removeAllPoints[%u capa=%u] %p %@", _count, _capacity, _bPath, self);
+#endif
+	while(_count > 0)
+		{
+		_count--;
+#if 0
+		NSLog(@"remove %u %p", _count, _bPath[_count]);
+#endif
 		objc_free(_bPath[_count]);
+		}
+#if 0
+	NSLog(@"  cnt=%u", _count);
+#endif
 	_bz.shouldRecalculateBounds = YES;
-	[_cacheImage release];
-	_cacheImage=nil;
+#if 0
+	NSLog(@"  -> [%u] %@", _count, self);
+#endif
 }
 
 - (void) relativeMoveToPoint:(NSPoint)aPoint
@@ -530,35 +526,6 @@ typedef struct _PathElement
 - (void) fill
 {
 	[[NSGraphicsContext currentContext] _fill:self];
-#if 0
-	if(_bz.cachesBezierPath) 
-		{
-		NSRect bounds = [self bounds];
-		NSPoint origin = bounds.origin;
-		// FIX ME: I don't see how this
-		if(_cacheImage == nil)			// should work with color changes
-			{
-			_cacheImage = [[NSImage alloc] initWithSize: bounds.size];		
-			[_cacheImage lockFocus];
-			PStranslate(-origin.x, -origin.y);
-			[self _strokepath];
-			if (_bz.windingRule == NSNonZeroWindingRule)
-				PSfill();
-			else
-				PSeofill();
-			[_cacheImage unlockFocus];
-			}
-		[_cacheImage compositeToPoint: origin operation: NSCompositeSourceOver];
-		} 
-	else 
-		{
-		[self _strokepath];
-		if (_bz.windingRule == NSNonZeroWindingRule)
-			PSfill();
-		else
-			PSeofill();
-		}
-#endif
 }
 
 - (void) addClip
@@ -577,14 +544,15 @@ typedef struct _PathElement
 	NSPoint pts[3];
 	NSPoint coeff[4];
 	NSPoint p, last_p;
-	int i, count = [self elementCount];
+	int i;
 	BOOL first = YES;
 	
 	if (_bz.flat)
 		return self;	// already flat
 	path = [isa bezierPath];	// allocate fresh path
 	
-	for(i = 0; i < count; i++) 
+	for(i = 0; i < _count; i++)
+		{
 		switch([self elementAtIndex: i associatedPoints: pts]) 
 			{
 			case NSMoveToBezierPathElement:
@@ -619,8 +587,9 @@ typedef struct _PathElement
 				p = last_p;
 			default:
 				break;
+			}
 		}
-			
+	
 	return path;
 }
 
@@ -630,10 +599,10 @@ typedef struct _PathElement
 	NSBezierPathElement type, last_type = NSMoveToBezierPathElement;
 	NSPoint pts[3];
 	NSPoint p, cp1, cp2;
-	int i, j, count = [self elementCount];
+	int i, j;
 	BOOL closed = NO;
 	
-	for(i = count - 1; i >= 0; i--) 
+	for(i = _count - 1; i >= 0; i--) 
 		{
 		switch((type = [self elementAtIndex: i associatedPoints: pts])) 
 			{
@@ -717,20 +686,18 @@ typedef struct _PathElement
 			}
 			
 	_bz.shouldRecalculateBounds = YES;
-	[_cacheImage release];
-	_cacheImage=nil;
 }
 
 - (NSPoint) currentPoint
 {
 	NSPoint points[3];
-	int i, count;
+	int i;
 	
-	if (!(count = [self elementCount])) 
+	if (!_count) 
 		[NSException raise: NSGenericException
 					format: @"No current Point in NSBezierPath"];
 	
-	switch([self elementAtIndex: count - 1 associatedPoints: points]) 
+	switch([self elementAtIndex: _count - 1 associatedPoints: points]) 
 		{
 		case NSMoveToBezierPathElement:
 		case NSLineToBezierPathElement:
@@ -740,7 +707,7 @@ typedef struct _PathElement
 			return points[2];
 			
 		case NSClosePathBezierPathElement:			// We have to find the last			
-			for (i = count - 2; i >= 0; i--)		// move element and take
+			for (i = _count - 2; i >= 0; i--)		// move element and take
 				{									// its point
 				NSBezierPathElement type = [self elementAtIndex: i
 											   associatedPoints: points];
@@ -772,10 +739,10 @@ typedef struct _PathElement
 		double x, y, t, k = 0.25;
 		float maxx, minx, maxy, miny;
 		float cpmaxx, cpminx, cpmaxy, cpminy;	
-		int i, count;
+		int i;
 		BOOL first = YES;
 		
-		if(!(count = [self elementCount]))
+		if(!_count)
 			{
 			_bounds = NSZeroRect;
 			_controlPointBounds = NSZeroRect;
@@ -785,7 +752,7 @@ typedef struct _PathElement
 		maxx = maxy = cpmaxx = cpmaxy = -1E9;		// Some big starting values
 		minx = miny = cpminx = cpminy = 1E9;
 		
-		for(i = 0; i < count; i++) 
+		for(i = 0; i < _count; i++) 
 			{
 			switch([self elementAtIndex: i associatedPoints: pts]) 
 				{
@@ -882,10 +849,12 @@ typedef struct _PathElement
 					  associatedPoints:(NSPoint *)points
 {
 	PathElement *e;
-	
+#if 0
+	NSLog(@"elementAtIndex:%d [%u]", index, _count);
+#endif
 	if (index < 0 || index >= _count)
 		[NSException raise: NSRangeException format: @"Bad Index"];
-	
+
 	e = _bPath[index];
 	if (points != NULL) 
 		{
@@ -918,7 +887,7 @@ typedef struct _PathElement
 	if ((_count + count) >= _capacity)
 		{
 		_capacity = (2 * _count) + count;
-		_bPath = objc_realloc(_bPath, _capacity * sizeof(id));
+		_bPath = objc_realloc(_bPath, _capacity * sizeof(PathElement *));
 		}
 	
 	for (i = 0; i < count; i++)
@@ -930,8 +899,6 @@ typedef struct _PathElement
 		}
 	
 	_bz.shouldRecalculateBounds = YES;
-	[_cacheImage release];
-	_cacheImage=nil;
 }
 
 - (void) appendBezierPathWithRect:(NSRect)rect
@@ -1002,7 +969,7 @@ typedef struct _PathElement
 	/* Start point */
 	p0 = NSMakePoint (center.x + radius * cos (startAngle_rad), 
 					  center.y + radius * sin (startAngle_rad));
-	if ([self elementCount] == 0)
+	if (_count == 0)
 		[self moveToPoint: p0];
 	else
 		{
@@ -1095,7 +1062,7 @@ typedef struct _PathElement
 	float dx1, dy1, dx2, dy2;
 	float l, a1, a2;
 	NSPoint p;
-	if ([self elementCount] == 0)
+	if (_count == 0)
 		[self moveToPoint: point1];
 	p = [self currentPoint];
 	
@@ -1195,17 +1162,8 @@ typedef struct _PathElement
 	BACKEND;
 }
 
-- (BOOL) cachesBezierPath					{ return _bz.cachesBezierPath; }
-
-- (void) setCachesBezierPath:(BOOL)flag
-{
-	if(!(_bz.cachesBezierPath = flag))
-		{
-		_bz.shouldRecalculateBounds = YES;
-		[_cacheImage release];
-		_cacheImage=nil;	// might be called twice
-		}
-}
+- (BOOL) cachesBezierPath	{ return NO; }	// no effect
+- (void) setCachesBezierPath:(BOOL)flag	{ return; }	// no effect
 
 - (void) encodeWithCoder:(NSCoder *)aCoder			// NSCoding protocol
 {
@@ -1295,8 +1253,6 @@ typedef struct _PathElement
 	int i;
 	if(!path)
 		return nil;	// could not create copy
-	if(_bz.cachesBezierPath && _cacheImage)
-		path->_cacheImage = [_cacheImage copyWithZone:zone];	
 	if (_dashPattern != NULL)
 		{
 		float *pattern = objc_malloc(_dashCount * sizeof(*pattern));
@@ -1336,8 +1292,6 @@ typedef struct _PathElement
 			break;
 		}
 	_bz.shouldRecalculateBounds = YES;
-	[_cacheImage release];
-	_cacheImage=nil;
 }
 
 - (BOOL) containsPoint:(NSPoint)point

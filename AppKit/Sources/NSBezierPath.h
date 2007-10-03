@@ -76,7 +76,7 @@ typedef enum NSBezierPathElement
 	float _miterLimit;
 	NSRect _bounds;
 	NSRect _controlPointBounds;
-	NSImage *_cacheImage;
+//	NSImage *_cacheImage;
 	
 	void **_bPath;
 	unsigned int _count;
@@ -87,8 +87,8 @@ typedef enum NSBezierPathElement
 		TYPEDBITFIELD(NSLineCapStyle, lineCapStyle, 2);
 		TYPEDBITFIELD(NSLineJoinStyle, lineJoinStyle, 2);
 		UIBITFIELD(unsigned int, flat, 1);
-		UIBITFIELD(unsigned int, cachesBezierPath, 1);
 		UIBITFIELD(unsigned int, shouldRecalculateBounds, 1);
+//		UIBITFIELD(unsigned int, cachesBezierPath, 1);
 		UIBITFIELD(unsigned int, reserved, 7);
 	} _bz;
 }
