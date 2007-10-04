@@ -34,8 +34,11 @@ is_prime(unsigned n)
 #endif
 	if((n & 1) == 0)
 		return NO;	// even number
+	// maxDivisor = ceil(sqrt(n));
+	// we could also use Newton-Iteration: maxDivisor=(maxDivisor+n/maxDivisor)/2; (start with maxDivisor=n/3)
+	// but that might be slower since it involves integer divisions
     for(maxDivisor = 2, n2 = 4; n2 <= n; maxDivisor <<= 1, n2 <<= 2)
-		; // ceil(sqrt(n))
+		;
 #if 0
 	fprintf(stderr, "n=%u maxdivisor=%u n2=%u\n", n, maxDivisor, n2);
 #endif
