@@ -66,6 +66,7 @@ enum {		// of a view which are resized when the view's superview is resized
 	unsigned int cInvalidRects;
 	NSAffineTransform *_bounds2frame;	// created on demand
 	NSAffineTransform *_bounds2base;	// created on demand
+	NSAffineTransform *_base2bounds;	// created on demand
 	float frameRotation;
 	float boundsRotation;
 	NSSize unitSquareSize;	// ?? do we need that or is it just scaling bounds/frame size?

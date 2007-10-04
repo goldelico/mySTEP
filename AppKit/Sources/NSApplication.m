@@ -354,8 +354,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		{
 		if(!(class = [[NSBundle mainBundle] principalClass]))
 			{
-			NSLog(@"Main bundle does not define an existing principal class");
-			exit(1);
+			NSLog(@"Main bundle does not define an existing principal class: %@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPrincipalClass"]);
+//			exit(1);
+			class=self;
 			}
 #if 1
 		NSLog(@"class = %@", NSStringFromClass(class));

@@ -161,7 +161,7 @@ static void XIntersect(XRectangle *result, XRectangle *with)
 		result->height=with->y+with->height-result->y;
 }
 
-static void XUnion(XRectangle *result, XRectangle with)
+static /* inline */ void XUnion(XRectangle *result, XRectangle with)
 {
 	if(with.x+with.width > result->x+result->width)
 		result->width=with.x+with.width-result->x;			// extend to the right
@@ -180,12 +180,14 @@ static inline int _isDoubleBuffered(_NSX11GraphicsContext *win)
 
 static inline void _setDirtyRect(_NSX11GraphicsContext *win, int x, int y, unsigned width, unsigned height)
 { // enlarge dirty area for double buffer
+	// FIXME: limit dirty area to clipping box!
 	if(_isDoubleBuffered(win))
 		XUnion(&win->_dirty, (XRectangle){x, y, width, height});
 }
 
 static inline void _setDirtyPoints(_NSX11GraphicsContext *win, XPoint *points, int npoints)
 {
+	// FIXME: limit dirty area to clipping box!
 	if(_isDoubleBuffered(win))
 		{
 		int n=npoints;
@@ -759,7 +761,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	if(width < 1)
 		width=1;	// default width
 #if 0
-	NSLog(@"_stroke");
+	NSLog(@"_stroke %@", path);
 #endif
 	[self _setCompositing];
 	[path getLineDash:pattern count:&count phase:&phase];
@@ -779,6 +781,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	while([self _pointsForPath:&state])
 		{
+#if 0
+		NSLog(@"npoints=%d", state.npoints);
+#endif
 		XDrawLines(_display, ((Window) _graphicsPort), _state->_gc, state.points, state.npoints, CoordModeOrigin);
 		_setDirtyPoints(self, state.points, state.npoints);
 		}
@@ -792,7 +797,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	NSLog(@"_fill");
 #endif
 	[self _setCompositing];
-	// FIXME: is this fetched from the Server? Then, to reduce the roundtrip time, we should keep TWO GCs
+	// FIXME: is this fetched from the Server? If yes, to reduce the roundtrip time, we should keep TWO GCs
 	XGetGCValues(_display, _state->_gc, GCForeground | GCBackground, &values);
 	XSetForeground(_display, _state->_gc, values.background);	// set the fill color
 	XSetFillStyle(_display, _state->_gc, FillSolid);

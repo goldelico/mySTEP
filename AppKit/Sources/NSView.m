@@ -530,6 +530,7 @@ printing
 		[self mouseExited:nil];	// call before releasing anything
 	[_bounds2frame release];
 	[_bounds2base release];
+	[_base2bounds release];
 	[_dragTypes release];
 	// FIXME: release gState if we have a private one
 //	[sub_views makeObjectsPerformSelector:@selector(release)];  // HNS: why that?? sub_views release will send a second release message which might go to a dealloc'ed sub_view
@@ -1000,17 +1001,20 @@ printing
 			}
 		else
 			_bounds2base=[[self _bounds2frame] retain];				// we are the toplevel view
+		[_base2bounds release];
+		_base2bounds=nil;	// recache
 		}
 	return _bounds2base;
 }
 
 - (NSAffineTransform *) _base2bounds;
 {
-	// we could cache this inverse as well and just return a copy of the cached matrix
-	NSAffineTransform *atm;
-	atm=[[[self _bounds2base] copy] autorelease];
-	[atm invert];	// go back from window to our coordinates
-	return atm;
+	if(!_base2bounds)
+		{ // not cached
+		_base2bounds=[[self _bounds2base] copy];
+		[_base2bounds invert];	// go back from window to our bounds coordinates
+		}
+	return _base2bounds;
 }
 
 + (NSAffineTransform *) _matrixFromView:(NSView *) from toView:(NSView *) to;
@@ -1022,11 +1026,15 @@ printing
 		if(!identity) identity=[[NSAffineTransform transform] retain];
 		return identity;
 		}
-	if(!to)
-		return [from _bounds2base];	// convert to window coordinates (only)
-	atm=[to _base2bounds];	// this assumes that we return a copy!
-	if(from)
-		[atm prependTransform:[from _bounds2base]];
+	if(!from)
+		return [to _base2bounds];	// convert from window coordinates to base only
+	atm=[from _bounds2base];	// convert from base to window coordinates
+	if(to)
+		{ // and transform from window to base
+		atm=[atm copy];	// get a working copy
+		[atm appendTransform:[to _base2bounds]];
+		[atm autorelease];
+		}
 	return atm;
 }
 
@@ -1044,10 +1052,18 @@ printing
 	if(aView == self)
 		return aRect;
 	atm=[isa _matrixFromView:aView toView:self];
+//	if([aView isFlipped])
+//		aRect.origin.y+=aRect.size.height;		// always convert lower left point
 	r.origin=[atm transformPoint:aRect.origin];
 	r.size=[atm transformSize:aRect.size];
-	if([self isFlipped] != [aView isFlipped])
-		r.origin.y-=(r.size.height=-r.size.height);
+	if((aRect.size.height < 0) != (r.size.height < 0))
+		r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved: r.size.height=sgn(aRect.size.height)*abs(r.size.height)
+//	if([self isFlipped])
+//		r.origin.y-=r.size.height;				// always convert lower left point
+#if 1
+	if(r.size.height < 0)
+		abort();
+#endif
 	return r;
 }
 
@@ -1057,7 +1073,7 @@ printing
 	if(aView == self)
 		return aSize;
 	s=[[isa _matrixFromView:aView toView:self] transformSize:aSize];
-	if([self isFlipped] != [aView isFlipped])
+	if((aSize.height < 0) != (s.height < 0))
 		s.height=-s.height;
 	return s;
 }
@@ -1079,12 +1095,20 @@ printing
 	NSLog(@"convertRect 1");
 #endif
 	atm=[isa _matrixFromView:self toView:aView];
+//	if([self isFlipped])
+//		aRect.origin.y+=aRect.size.height;		// always convert lower left point
 	r.origin=[atm transformPoint:aRect.origin];
 	r.size=[atm transformSize:aRect.size];
-	if([self isFlipped] != [aView isFlipped])
-		r.origin.y-=(r.size.height=-r.size.height);
+	if((aRect.size.height < 0) != (r.size.height < 0))
+		r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved
+//	if([aView isFlipped])
+//		r.origin.y-=r.size.height;				// always convert lower left point
 #if 0
 	NSLog(@"convertRect 2");
+#endif
+#if 1
+	if(r.size.height < 0)
+		abort();
 #endif
 	return r;
 }
@@ -1095,7 +1119,7 @@ printing
 	if(aView == self)
 		return aSize;
 	s=[[isa _matrixFromView:self toView:aView] transformSize:aSize];
-	if([self isFlipped] != [aView isFlipped])
+	if((aSize.height < 0) != (s.height < 0))
 		s.height=-s.height;
 	return s;
 }
@@ -1427,10 +1451,11 @@ printing
 	NSLog(@"-setNeedsDisplayInRect:%@ of %@", NSStringFromRect(rect), self);
 #endif
 	// _v.needsDisplay=YES;
-	if([self _addRectNeedingDisplay:rect])
+//	rect=NSIntersectionRect(bounds, rect);	// limit to bounds
+	if([self _addRectNeedingDisplay:rect] || YES)
 		{ // we (and our superviews) didn't know yet
 #if 0
-		NSLog(@"setneedsdisplay 1");
+		NSLog(@"setneedsdisplay 1: %@", self);
 #endif
 		if(super_view)
 			{
@@ -1440,11 +1465,20 @@ printing
 				// FIXME:  if we are opaque we should just need to setNeedsDisplay without updating the invalidRect of the superview
 				// but the superview must know that there is something to redraw
 				// i.e. this is the real reason why we need the 'ifNeeded' flag independently of the dirty rects
+#if 0	// both should be equivalent
 			[super_view setNeedsDisplayInRect:[self convertRect:rect toView:super_view]];
+#else
+			[super_view setNeedsDisplayInRect:[super_view convertRect:rect fromView:self]];
+#endif
 			}
 		}
 	else
-		{ // we already did have the rect invalidated - assume the superviews also know that
+		// FIXME: this does not properly work!
+		{ // we already did have the rect invalidated - assume that our superviews also know that
+#if 1
+		NSLog(@"not increased: %@", self);
+		NSLog(@"super_view: %@", super_view);
+#endif
 		while(super_view)
 			{			
 			self=super_view;
@@ -1453,11 +1487,11 @@ printing
 		}
 	[window setViewsNeedDisplay:YES];	// we have reached the topmost view
 #if 0
-	NSLog(@"setneedsdisplay 2");
+	NSLog(@"setneedsdisplay 2: %@", self);
 #endif
 	[NSApp setWindowsNeedUpdate:YES];	// and NSApp should also know...
 #if 0
-	NSLog(@"setneedsdisplay 3");
+	NSLog(@"setneedsdisplay 3: %@", self);
 #endif
 }
 
@@ -1501,13 +1535,17 @@ printing
 	// NOTE: we must be prepared for the case that drawRect: changes our frame and/or bounds and even calls setNeedsDisplay
 	[self _drawRect:rect];	// this may use the invalid rects list as a hint to speed up drawing (i.e. if 2 separate lines of a tableview have been marked as needing display)
 	if(context == [window graphicsContext])		// NOTE: remove after drawing!
-		[self _removeRectNeedingDisplay:rect];	// may end up with empty list i.e. no more needsDrawing
+		[self _removeRectNeedingDisplay:rect];	// should end up with empty list i.e. no more needsDrawing
 	e=[sub_views objectEnumerator];
 	while((subview=[e nextObject]))	// go downwards independently of their needsDisplay status since we have redrawn their background
 		{
 		if(![subview isHidden])	// this saves converting the rect
 			{
+#if 0	// both should be equivalent
 			NSRect subRect=[self convertRect:rect toView:subview];
+#else
+			NSRect subRect=[subview convertRect:rect fromView:self];
+#endif
 			// FIXME: not rotation-safe
 			[subview displayRectIgnoringOpacity:subRect inContext:context];
 			// what do we do if the subview does NOT draw all its dirty rects?

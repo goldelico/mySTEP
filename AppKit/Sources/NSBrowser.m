@@ -74,7 +74,8 @@
 		_titles = [NSMutableArray new];
 		_columns = [NSMutableArray new];
 		_unusedColumns = [NSMutableArray new];
-		
+
+		[self tile];
 		[self setMaxVisibleColumns:1];  // default
 		}
 	return self;
@@ -1041,6 +1042,7 @@ SEL n = @selector(browser:numberOfRowsInColumn:);
 		_titles = [NSMutableArray new];
 		_columns = [NSMutableArray new];
 		_unusedColumns = [NSMutableArray new];
+		[self tile];
 		[self setMaxVisibleColumns:[coder decodeIntForKey:@"NSMaxNumberOfVisibleColumns"]];  // create columns as needed
 		return self;
 		}

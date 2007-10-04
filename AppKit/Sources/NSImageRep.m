@@ -391,7 +391,7 @@ static NSCountedSet *__pb;
 		int bitsPerS=[aDecoder decodeBoolForKey:@"NSCacheWindowBPS"];
 		id colorSpace=[aDecoder decodeObjectForKey:@"NSCacheWindowColorSpace"];
 		/* create in cache window and store self (which is now an NSBitmapImageRep) */
-		abort();
+		NSLog(@"*** should create cached image rep ***");
 		return self;
 		}
 	return NIMP;

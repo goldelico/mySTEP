@@ -1088,7 +1088,7 @@
 				EE526D78099B2E6300218247 /* mgstep-0.552 */,
 				EE9792BB0AAC9413007ECDE1 /* mgstep-0.556 */,
 				EEA3309609537E48001244CF /* Resources */,
-				EE3196E109AB7E8A0089A9A2 /* NIB */,
+				EE3196E109AB7E8A0089A9A2 /* mySTEP Test */,
 				EEA370FA09540051001244CF /* mySTEP Frameworks */,
 				EEA374C009542133001244CF /* MacOS X Frameworks */,
 				EE29D8D8058A38830035639B /* Products */,
@@ -1109,7 +1109,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		EE3196E109AB7E8A0089A9A2 /* NIB */ = {
+		EE3196E109AB7E8A0089A9A2 /* mySTEP Test */ = {
 			isa = PBXGroup;
 			children = (
 				EE3196E209AB7E8A0089A9A2 /* AppController.h */,
@@ -1121,7 +1121,7 @@
 				EE31970C09AB7E8B0089A9A2 /* main.m */,
 				EECD84030A089FA300EF3E30 /* Resources */,
 			);
-			name = NIB;
+			name = "mySTEP Test";
 			path = ../TestApplications/NIB;
 			sourceTree = "<group>";
 		};
@@ -2717,25 +2717,35 @@
 					"objc_realloc=realloc",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]";
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
+					/usr/include/X11/..,
+					/usr/include/X11/../freetype2,
+				);
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = (
-					/usr/X11R6/lib,
 					/opt/local/lib,
+					/usr/X11R6/lib,
 				);
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
 					0x20200000,
 					"-lX11",
+					"-lXext",
+					"-lfreetype",
+					"-ljpeg",
+					"-lpng",
+					"-lungif",
+					"-ltiff",
 					"-lobjc",
 				);
 				OTHER_REZFLAGS = "";
-				PREBINDING = YES;
+				PREBINDING = NO;
 				PRODUCT_NAME = AppKit;
 				SECTORDER_FLAGS = "";
-				USER_HEADER_SEARCH_PATHS = /opt/local/include;
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include /usr/include/X11/..  /usr/include/X11/../freetype2";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -2768,25 +2778,35 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2 = "NIMP=[NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ nil;";
-				HEADER_SEARCH_PATHS = /opt/local/include;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
+					/usr/include/X11/..,
+					/usr/include/X11/../freetype2,
+				);
 				INFOPLIST_FILE = "AppKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = (
-					/usr/X11R6/lib,
 					/opt/local/lib,
+					/usr/X11R6/lib,
 				);
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
 					0x20200000,
 					"-lX11",
+					"-lXext",
+					"-lfreetype",
+					"-ljpeg",
+					"-lpng",
+					"-lungif",
+					"-ltiff",
 					"-lobjc",
 				);
 				OTHER_REZFLAGS = "";
-				PREBINDING = YES;
+				PREBINDING = NO;
 				PRODUCT_NAME = AppKit;
 				SECTORDER_FLAGS = "";
-				USER_HEADER_SEARCH_PATHS = /opt/local/include;
+				USER_HEADER_SEARCH_PATHS = "/opt/local/include /usr/include/X11/..  /usr/include/X11/../freetype2";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -3207,7 +3227,7 @@
 				PRODUCT_NAME = myTest.mixed;
 				USER_HEADER_SEARCH_PATHS = /opt/local/lib;
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
@@ -3222,7 +3242,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = /opt/local/include;
-				INFOPLIST_FILE = myTest/Info.plist;
+				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
@@ -3245,7 +3265,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = /opt/local/include;
-				INFOPLIST_FILE = myTest/Info.plist;
+				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				LINK_WITH_STANDARD_LIBRARIES = YES;
