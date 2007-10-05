@@ -1081,10 +1081,25 @@ inline static struct RGBA8 getPixel(int x, int y,
 
 // this is the XImage sampler
 
+inline static void XSetRGBA8(XImage *img, int x, int y, struct RGBA8 *dest)
+{ // set RGBA8
+  // FIXME: apply calibration curves
+	switch(img->depth)
+		{
+		case 24:
+			XPutPixel(img, x, y, (dest->R<<16)+(dest->G<<8)+(dest->B<<0));
+		case 16:
+			XPutPixel(img, x, y, ((dest->R<<8)&0xf800)+((dest->G<<3)&0x07e0)+((dest->B>>3)&0x1f));	// 5/6/5 bit
+		default:
+			;
+		}
+}
+
 inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 { // get RGBA8
 	unsigned int pixel=XGetPixel(img, x, y);
 	struct RGBA8 dest;
+	// apply calibration curves/tables - we can read the tables from a file on the first call!
 	switch(img->depth)
 		{
 		case 24:
@@ -1158,6 +1173,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	XRectangle box;			// relevant subarea to draw to
 	NSRect scanRect;		// dest on screen in X11 coords
 	BOOL isFlipped;
+	BOOL calibrated;
 	NSAffineTransform *atm;	// projection from X11 window-relative to bitmap coordinates
 	NSAffineTransformStruct atms;
 	XRectangle xScanRect;	// on X11 where XImage is coming from
@@ -1177,7 +1193,8 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 		return NO;
 		}
 	csp=[rep colorSpaceName];
-	if(![csp isEqualToString:NSCalibratedRGBColorSpace] && ![csp isEqualToString:NSDeviceRGBColorSpace])
+	calibrated=[csp isEqualToString:NSCalibratedRGBColorSpace];
+	if(!calibrated && ![csp isEqualToString:NSDeviceRGBColorSpace])
 		{
 		NSLog(@"_draw: colorSpace %@ not supported!", csp);
 		// raise exception?
@@ -1403,10 +1420,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 			if(dest.B > 255) dest.B=255;
 			if(dest.A > 255) dest.A=255;
 			*/
-			if(img->depth == 24)
-				XPutPixel(img, x, y, (dest.R<<16)+(dest.G<<8)+(dest.B<<0));
-			else if(img->depth==16)
-				XPutPixel(img, x, y, ((dest.R<<8)&0xf800)+((dest.G<<3)&0x07e0)+((dest.B>>3)&0x1f));	// 5/6/5 bit
+			XSetRGBA8(img, x, y, &dest);
 			}
 		}
 	/*
