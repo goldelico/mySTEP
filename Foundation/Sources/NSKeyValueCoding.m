@@ -94,16 +94,17 @@
 		strcpy(selName, "set");
 		strcpy(selName+3, varName);	// append
 		selName[3]=toupper(selName[3]);	// capitalize the letter following "set"
+		strcat(selName+3, ":");	// append a :
 		s=sel_get_any_uid(selName);
-		objc_free(selName);
-		if(!s)
-			; // check for alternate setter names
 #if 0
-		NSLog(@"setter = %@ (%@)", ss, NSStringFromSelector(s));
-		NSLog(@"%@: setValue:forKeyPath:%@ to %@", self, str, val);
+		NSLog(@"%@: setValue:forKey:%@ val=%@", self, str, val);
+		NSLog(@"setter = %@ (%s)", NSStringFromSelector(s), selName);
 #endif
 		if(s && [self respondsToSelector:s])
 			{
+			// check for NSNumber/NSValue compatible argument
+			// either call setNilValueForKey: or use [val intValue] etc. to fetch the argument
+			objc_free(selName);
 			if(!val)
 				[self setNilValueForKey:str];
 			[self performSelector:s withObject:val];
@@ -127,19 +128,25 @@
 #endif
 					if(!ivar.ivar_name)
 						continue;	// no name - skip
-					if(strcmp(ivar.ivar_name, varName) == 0 || (ivar.ivar_name[0]=='_' && strcmp(ivar.ivar_name+1, varName) == 0)) 
+					// FIXME: we should really search (and not only compare) in this order: _<key>, _is<Key>, <key>, or is<Key>
+					if((ivar.ivar_name[0]=='_' && strcmp(ivar.ivar_name+1, varName) == 0) ||
+					   (ivar.ivar_name[0]=='_' && ivar.ivar_name[1]=='i' &&ivar.ivar_name[2]=='s' && strcmp(ivar.ivar_name+3, selName+3) == 0) ||
+						strcmp(ivar.ivar_name, varName) == 0 ||
+					   (ivar.ivar_name[0]=='i' &&ivar.ivar_name[1]=='s' && strcmp(ivar.ivar_name+2, selName+3) == 0))
 						{
 						// FIXME: should take a look at ivar_type to be an id or call a converter
 						id *vp=(id *) (((char *)self) + ivar.ivar_offset);
+						objc_free(selName);
 						[*vp autorelease];
 						*vp=[val retain];
-						NSDebugLog(@"found it!");
+						NSDebugLog(@"found matching ivar: %s", ivar.ivar_name);
 						return;
 						}
 					}
 				}
 			}
 		}
+	objc_free(selName);
 	[self setValue:(id) val forUndefinedKey:str];
 }
 
