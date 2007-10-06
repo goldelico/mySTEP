@@ -325,9 +325,9 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 - (void) doesNotRecognizeSelector:(SEL)aSelector
 {
 	[NSException raise:NSInvalidArgumentException
-				format:@"NSObject [%@ %@%@]: selector not recognized", 
-						NSStringFromClass([self class]), 
+				format:@"NSObject %@[%@ %@]: selector not recognized", 
 						object_is_instance(self)?@"-":@"+",
+						NSStringFromClass([self class]), 
 						NSStringFromSelector(aSelector)];
 }
 

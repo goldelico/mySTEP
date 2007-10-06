@@ -53,7 +53,7 @@
 - (id) valueForKey:(NSString *) str;
 {
 	SEL s=NSSelectorFromString(str);
-	// FIXME: should look for getters like str, _str, isStr, getStr etc.
+	// FIXME: should look for getters like key, _key, isKey, getKey etc.
 	if(s && [self respondsToSelector:s])
 		return [self performSelector:s];
 	if([isa accessInstanceVariablesDirectly])
@@ -117,31 +117,64 @@
 		for(class=isa; class != Nil; class = class_get_super_class(class))
 			{ // walk upwards through class tree
 			struct objc_ivar_list *ivars;
+			struct objc_ivar ivar;
 			if((ivars = class->ivars))
-				{ // go through instance variables
+				{ // go through instance variables in this order: _<key>, _is<Key>, <key>, or is<Key>
 				int i;
 				for(i = 0; i < ivars->ivar_count; i++) 
-					{
-					struct objc_ivar ivar = ivars->ivar_list[i];
+					{ // check _key
+					ivar = ivars->ivar_list[i];
 #if 0
 					NSLog(@"check %s = %s", ivar.ivar_name, varName);
 #endif
-					if(!ivar.ivar_name)
-						continue;	// no name - skip
-					// FIXME: we should really search (and not only compare) in this order: _<key>, _is<Key>, <key>, or is<Key>
-					if((ivar.ivar_name[0]=='_' && strcmp(ivar.ivar_name+1, varName) == 0) ||
-					   (ivar.ivar_name[0]=='_' && ivar.ivar_name[1]=='i' &&ivar.ivar_name[2]=='s' && strcmp(ivar.ivar_name+3, selName+3) == 0) ||
-						strcmp(ivar.ivar_name, varName) == 0 ||
-					   (ivar.ivar_name[0]=='i' &&ivar.ivar_name[1]=='s' && strcmp(ivar.ivar_name+2, selName+3) == 0))
-						{
-						// FIXME: should take a look at ivar_type to be an id or call a converter
-						id *vp=(id *) (((char *)self) + ivar.ivar_offset);
-						objc_free(selName);
-						[*vp autorelease];
-						*vp=[val retain];
-						NSDebugLog(@"found matching ivar: %s", ivar.ivar_name);
-						return;
+					if(!ivar.ivar_name) continue;	// no name - skip
+					if(ivar.ivar_name[0]=='_' && strcmp(ivar.ivar_name+1, varName) == 0) break;	// found
+					}
+				if(i == ivars->ivar_count)
+					{
+					for(i = 0; i < ivars->ivar_count; i++)
+						{ // check _isKey
+						ivar = ivars->ivar_list[i];
+#if 0
+						NSLog(@"check %s = %s", ivar.ivar_name, selName+3);
+#endif
+						if(!ivar.ivar_name) continue;	// no name - skip
+						if(ivar.ivar_name[0]=='_' && ivar.ivar_name[1]=='i' && ivar.ivar_name[2]=='s' && strcmp(ivar.ivar_name+3, selName+3) == 0) break;	// found
 						}
+					}
+				if(i == ivars->ivar_count)
+					{
+					for(i = 0; i < ivars->ivar_count; i++)
+						{ // check key
+						ivar = ivars->ivar_list[i];
+#if 0
+						NSLog(@"check %s = %s", ivar.ivar_name, varName);
+#endif
+						if(!ivar.ivar_name) continue;	// no name - skip
+						if(strcmp(ivar.ivar_name, varName) == 0) break;	// found
+						}
+					}
+				if(i == ivars->ivar_count) 
+					{
+					for(i = 0; i < ivars->ivar_count; i++)
+						{ // check isKey
+						ivar = ivars->ivar_list[i];
+#if 0
+						NSLog(@"check %s = %s", ivar.ivar_name, selName+3);
+#endif
+						if(!ivar.ivar_name) continue;	// no name - skip
+						if(ivar.ivar_name[0]=='i' &&ivar.ivar_name[1]=='s' && strcmp(ivar.ivar_name+2, selName+3) == 0) break;	// found
+						}
+					}
+				if(i < ivars->ivar_count) 
+					{ // found
+					  // FIXME: should take a look at ivar_type to be an id or call a converter
+					id *vp=(id *) (((char *)self) + ivar.ivar_offset);
+					objc_free(selName);
+					[*vp autorelease];
+					*vp=[val retain];
+					NSDebugLog(@"found matching ivar: %s", ivar.ivar_name);
+					return;
 					}
 				}
 			}
