@@ -204,7 +204,7 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 					id *vp=(id *) (((char *)self) + ivar.ivar_offset);
 					[*vp autorelease];
 					*vp=[val retain];
-#if 1
+#if 0
 					NSLog(@"found matching ivar: %s", ivar.ivar_name);
 #endif
 					objc_free(selName);
