@@ -84,35 +84,67 @@
 	return [self valueForUndefinedKey:str];
 }
 
+/*
+ use as
+ if((ivar=_findIvar(isa, "_", 1, name)) == NULL)
+	if((ivar=_findIvar(isa, "_isa", 1, name)) == NULL)
+		return not found;
+ ...
+ */
+
+static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int preflen, char *name)
+{
+	struct objc_ivar *ivar;
+	for(; class != Nil; class = class_get_super_class(class))
+		{ // walk upwards through class tree
+		struct objc_ivar_list *ivars;
+		int i;
+		if((ivars = class->ivars))
+			{
+			for(i = 0; i < ivars->ivar_count; i++) 
+				{ // check _key
+				ivar=&ivars->ivar_list[i];
+#if 0
+				NSLog(@"check %s = %s", ivar->ivar_name, varName);
+#endif
+				if(!ivar->ivar_name)
+					continue;	// no name - skip
+				if(strncmp(ivar->ivar_name, prefix, preflen) == 0 && strcmp(ivar->ivar_name+preflen, name) == 0)
+					return ivar;	// found
+				}
+			}
+		}
+	return NULL;	// not found
+}
+		
 - (void) setValue:(id) val forKey:(NSString *) str;
 {
-	const char *varName = [str cString];
-	char *selName = objc_malloc(3+strlen(varName)+1);
-	if(selName)
-		{ // check if a matching setter exists
-		SEL s;
-		strcpy(selName, "set");
-		strcpy(selName+3, varName);	// append
-		selName[3]=toupper(selName[3]);	// capitalize the letter following "set"
-		strcat(selName+3, ":");	// append a :
-		s=sel_get_any_uid(selName);
+	const char *varName=[str cString];
+	char *selName=objc_malloc(3+strlen(varName)+1+1);	// check if a matching setter exists (incl. room for "set" or "_is" and a ":")
+	SEL s;
+	strcpy(selName, "set");
+	strcpy(selName+3, varName);	// append
+	selName[3]=toupper(selName[3]);	// capitalize the letter following "set"
+	strcat(selName+3, ":");	// append a :
+	s=sel_get_any_uid(selName);
 #if 0
-		NSLog(@"%@: setValue:forKey:%@ val=%@", self, str, val);
-		NSLog(@"setter = %@ (%s)", NSStringFromSelector(s), selName);
+	NSLog(@"%@: setValue:forKey:%@ val=%@", self, str, val);
+	NSLog(@"setter = %@ (%s)", NSStringFromSelector(s), selName);
 #endif
-		if(s && [self respondsToSelector:s])
-			{
-			// check for NSNumber/NSValue compatible argument
-			// either call setNilValueForKey: or use [val intValue] etc. to fetch the argument
-			objc_free(selName);
-			if(!val)
-				[self setNilValueForKey:str];
-			[self performSelector:s withObject:val];
-			return;
-			}
+	if(s && [self respondsToSelector:s])
+		{
+		// check for NSNumber/NSValue compatible argument
+		// either call setNilValueForKey: or use [val intValue] etc. to fetch the argument
+		objc_free(selName);
+		if(!val)
+			[self setNilValueForKey:str];
+		[self performSelector:s withObject:val];
+		return;
 		}
 	if([isa accessInstanceVariablesDirectly])
 		{
+		// FIXME: we should walk the tree for each variant!
+		// FIXME: here, we must remove the trailing ":"
 		struct objc_class *class;
 		for(class=isa; class != Nil; class = class_get_super_class(class))
 			{ // walk upwards through class tree
@@ -170,10 +202,12 @@
 					{ // found
 					  // FIXME: should take a look at ivar_type to be an id or call a converter
 					id *vp=(id *) (((char *)self) + ivar.ivar_offset);
-					objc_free(selName);
 					[*vp autorelease];
 					*vp=[val retain];
-					NSDebugLog(@"found matching ivar: %s", ivar.ivar_name);
+#if 1
+					NSLog(@"found matching ivar: %s", ivar.ivar_name);
+#endif
+					objc_free(selName);
 					return;
 					}
 				}
