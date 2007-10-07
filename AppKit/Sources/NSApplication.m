@@ -466,7 +466,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NSMutableArray *urls=[NSMutableArray arrayWithCapacity:[args count]];
 	NSWorkspaceLaunchOptions opts=0;
 	NSUserDefaults *ud=[NSUserDefaults standardUserDefaults];	// read from ArgumentsDomain
-#if 0
+#if 1
 	NSLog(@"_processCommandLineArguments: %@", args);
 #endif
 //	arg=[e nextObject]; // skip application name
@@ -583,8 +583,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 			[[[self mainMenu] itemAtIndex:0] setTitle:applicationName];	// insert application name
 		}
 	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];
-	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object: self]; // notify that launch has finally finished
 	[self activateIgnoringOtherApps:NO];
+	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
 }
 
 - (void) dealloc
@@ -1583,15 +1583,15 @@ NSWindow *w;
 #if 0
 		NSLog(@"create application menu bar %@", NSStringFromRect([[menuScreen menuBarFrame]));
 #endif
-		_mainMenuWindow=[[[NSPanel alloc] initWithContentRect:[menuScreen _menuBarFrame]
-													 styleMask:NSBorderlessWindowMask
-													   backing:NSBackingStoreBuffered
-														 defer:/*YES*/ NO] retain];	// will be released on close
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_screenParametersNotification:) name:NSApplicationDidChangeScreenParametersNotification object:nil];	// track all further screen changes
+		_mainMenuWindow=[[NSPanel alloc] initWithContentRect:[menuScreen _menuBarFrame]
+												   styleMask:NSBorderlessWindowMask
+													 backing:NSBackingStoreBuffered
+													   defer:YES];	// will be released on close
 		[_mainMenuWindow setWorksWhenModal:YES];
 		[_mainMenuWindow setLevel:NSMainMenuWindowLevel];
 		[_mainMenuWindow setTitle:@"Main Menu Window"];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_screenParametersNotification:) name:NSApplicationDidChangeScreenParametersNotification object:nil];	// track all further screen changes
-		_mainMenuView=[[[NSMenuView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 50.0, 50.0)] retain];	// make new NSMenuView
+		_mainMenuView=[[NSMenuView alloc] initWithFrame:[[_mainMenuWindow contentView] bounds]];	// make new NSMenuView
 		[_mainMenuWindow setContentView:_mainMenuView];		// make content view
 		if(0 && [menuScreen _menuBarFrame].origin.x != 0.0)
 			{ // Smartphone menu layout
@@ -1933,6 +1933,8 @@ NSWindow *w;
 		return YES;	// allow to implement in delegate
 	else if(d && [d _application:app openURLs:urls withOptions:opts])
 		return YES;	// catched in document controller
+	if([urls count] == 0)
+		return YES;	// nothing to open...
 	files=[NSMutableArray arrayWithCapacity:uc];
 	e=[urls objectEnumerator];
 	while((url=[e nextObject]))

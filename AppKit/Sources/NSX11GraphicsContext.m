@@ -1,5 +1,6 @@
 /* 
  NSX11GraphicsContext.m
+ mySTEP
  
  X11 Backend Graphics Context class.  Conceptually, instances of 
  this subclass encapsulate a connection to an X display (X server).
@@ -10,7 +11,7 @@
  Date:		November 1998
  
  Author:	H. N. Schaller <hns@computer.org>
- Date:		Jan 2006 - completely reworked
+ Date:		Jan 2006 - completely reworked so that it has more or less nothing in common with GNUstep and mGstep any more
  
  Useful Manuals:
  http://tronche.com/gui/x/xlib											Xlib - basic X11 calls
@@ -28,10 +29,10 @@
  Note when dealing with X11:
 - if we need to check that an object is not rotated, check that ctm transformStruct.m12 and .m21 both are 0.0
 - we can't handle any rotation for text drawing (yet)
-- we can't rotatate windows by angles not multiples of 90 degrees (well we could do in combination with setShape)
+- we can't rotatate windows by angles not multiples of 90 degrees (well we could do that in combination with setShape)
 - note that X11 coordinates are flipped. This is taken into account by the _screen2X11 CTM.
-- But: for NSSizes you have to use -height because of that
-- finally, drawing into a window is relative to the origin
+- But: for NSSizes you have to use -height because of a flipping CTM
+- finally, drawing into a window is relative to the screen origin of the window
 */
 
 #import "NSX11GraphicsContext.h"
@@ -1083,13 +1084,15 @@ inline static struct RGBA8 getPixel(int x, int y,
 
 inline static void XSetRGBA8(XImage *img, int x, int y, struct RGBA8 *dest)
 { // set RGBA8
-  // FIXME: apply calibration curves
+  // FIXME: depending on color space we should apply a calibration curves
 	switch(img->depth)
 		{
 		case 24:
 			XPutPixel(img, x, y, (dest->R<<16)+(dest->G<<8)+(dest->B<<0));
+			break;
 		case 16:
 			XPutPixel(img, x, y, ((dest->R<<8)&0xf800)+((dest->G<<3)&0x07e0)+((dest->B>>3)&0x1f));	// 5/6/5 bit
+			break;
 		default:
 			;
 		}

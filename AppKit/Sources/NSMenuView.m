@@ -249,6 +249,10 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 	// might have to update highlighting!!
 	// mark new cell for needing redraw?!
 	[self setMenuItemCell:c forItemAtIndex:pos];	// to add all cell connections and updates
+	[self setNeedsDisplayForItemAtIndex:pos];		// redisplay changed item
+#if 0
+	NSLog(@"itemAdded - %@", self);
+#endif
 }
 
 - (void) itemChanged:(NSNotification *) notification;
@@ -406,7 +410,7 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 - (void) setMenu:(NSMenu *) m;
 {
 	int i, cnt;
-#if 0
+#if 1
 	NSLog(@"%@ setMenu: %@", self, m);
 #endif
 	if(_menumenu)
@@ -455,10 +459,8 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 - (void) setNeedsDisplayForItemAtIndex:(int) index;
 {
 	[[_cells objectAtIndex:index] setNeedsDisplay:YES];				// mark cell to redraw itself
-	[self setNeedsDisplayInRect:[self rectOfItemAtIndex:index]];	// we need redrawing
-	
-	[self setNeedsDisplay:YES];
-	
+	[self setNeedsDisplayInRect:[self rectOfItemAtIndex:index]];	// we need redrawing for this cell
+//	[self setNeedsDisplay:YES];
 }
 
 - (void) setNeedsSizing:(BOOL) flag; { _needsSizing=flag; }
@@ -572,7 +574,7 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 	int nc;
 	if(!_needsSizing)
 		return;
-#if 0
+#if 1
 	NSLog(@"sizeToFit %@", self);
 #endif
 	if(!window)
@@ -582,12 +584,9 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 #endif
 		return;	// no reference frame (yet)
 		}
-#if 0	// workaround to let string drawing additions ask the server for font size (used by NSMenuItemCell)
-	[self lockFocus];
-#endif
 	_needsSizing=NO;	// will have been done when calling other methods (avoid endless recursion)
 	f=[window frame];	// get enclosing window frame
-#if 0
+#if 1
 	NSLog(@"window: %@", window);
 	NSLog(@"frame before: %@", NSStringFromRect(f));
 #endif
@@ -606,7 +605,7 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 			p.size=[c cellSize];			// get cell size (based on new total state/image widths)
 			// fixme: this should already be returned by [c cellSize] - but self might not be initialized properly yet!
 			p.size.height=f.size.height;	// enforce full menu bar height
-#if 0
+#if 1
 			NSLog(@"item %d width=%lf", i, p.size.width);
 #endif
 			_rectOfCells[i]=p;				// set new cell rectangle
@@ -655,13 +654,11 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 			}
 		f.size.height=p.origin.y+VERTICAL_PADDING;	// resize to total height
 		}
-#if 0	// workaround to let string drawing additions ask the server for font size (used by NSMenuItemCell)
-	[self unlockFocus];
-#endif
 #if 0
 	NSLog(@"NSMenuView sizetofit: window frame=%@", NSStringFromRect(f));
 #endif
-	[window setFrame:f display:NO];	// resize enclosing window - but do not display immediately; since we are the contenView, we are resized accordingly
+	[window setFrame:f display:NO];	// resize enclosing window - but do not display immediately;
+//	[self setFrame:(NSRect){ NSZeroPoint, f.size}];	// since we are the contentView, we are resized as needed
 	[self setNeedsDisplayInRect:bounds];	// we finally need to redraw full menu, i.e. all items
 #if 0
 	NSLog(@"sizetofit: done");
@@ -788,18 +785,33 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 		];
 }
 
+- (NSString *) _longDescription;
+{
+	return [NSString stringWithFormat:@"%@ menu:%@ item[0]:%@ %@", 
+		[super description], 
+		[_menumenu title],
+		[_menumenu numberOfItems] > 0?[[_menumenu itemAtIndex:0] title]:@"?", 
+		_menumenu
+		];
+}
+
 - (BOOL) shouldDelayWindowOrderingForEvent:(NSEvent *)anEvent; { return YES; }	// don't become key or main window
 - (BOOL) acceptsFirstMouse:(NSEvent *)theEvent { return YES; } // yes, respond immediately on activation
 
 - (void) mouseDown:(NSEvent *) theEvent;
 { // is not an NSControl so we must track ourselves
 	// FIXME: don't leave the loop if mouse goes up after a certain delay (i.e. menu stays open)
+	// rule should be
+	// exit loop on click on menu item
+	// or click outside (which is posted back to the beginning of the loop)
+	// or if we are deactivated
 	NSTimeInterval menuOpenTimestamp;
 	NSMenuView *mv;
 	int idx;
+	// get rid of this
 	BOOL stillOpen;
 	[NSApp preventWindowOrdering];
-#if 1
+#if 0
 	NSLog(@"mouseDown:%@ current=%@", theEvent, [[_currentlyOpenMenuView menu] title]);
 #endif
 	[_menumenu update];	// update/enable menu(s)
