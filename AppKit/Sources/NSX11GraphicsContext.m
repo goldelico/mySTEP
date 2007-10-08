@@ -363,10 +363,10 @@ static XChar2b *XChar2bFromString(NSString *str, BOOL remote)
 		{ // allocate a backing store buffer pixmap for our window
 		XWindowAttributes attrs;
 		XGetWindowAttributes(_display, win, &attrs);
-		_graphicsPort=(void *) XCreatePixmap(_display, win, _xRect.width, _xRect.height, attrs.depth);
+		_graphicsPort=(void *) XCreatePixmap(_display, _realWindow, _xRect.width, _xRect.height, attrs.depth);
 #if 0
 		XCopyArea(_display,
-				  win,
+				  _realWindow,
 				  (Window) _graphicsPort, 
 				  _state->_gc,
 				  0, 0,
@@ -1541,8 +1541,22 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 					  _xRect.height);
 	if(_isDoubleBuffered(self))
 		{
+		XWindowAttributes attrs;
+#if 1
 		NSLog(@"resize backing store buffer");
-		// FIXME: resize the double buffer!
+#endif
+		XGetWindowAttributes(_display, _realWindow, &attrs);
+		XFreePixmap(_display, (Pixmap) _graphicsPort);
+		_graphicsPort=(void *) XCreatePixmap(_display, _realWindow, _xRect.width, _xRect.height, attrs.depth);
+#if 0
+		XCopyArea(_display,
+				  win,	// should be old pixmap...
+				  (Window) _graphicsPort, 
+				  _state->_gc,
+				  0, 0,
+				  _xRect.width, _xRect.height,
+				  0, 0);
+#endif
 		}
 	[self _setSizeHints];
 }
@@ -1721,7 +1735,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	img=XGetImage(_display, _realWindow,
 				  rect.origin.x, rect.origin.y, rect.size.width, -rect.size.height,
 				  0x00ffffff, ZPixmap);
-	// copy pixels to bitmap
+	// FIXME: copy pixels to bitmap
 	XDestroyImage(img);
 }
 
