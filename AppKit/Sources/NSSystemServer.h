@@ -27,7 +27,7 @@
 
 @end
 
-#define NSWorkspaceServerPort @"com.quantum-step.mySTEP.loginwindow"	// NSMessagePort to contact
+#define NSWorkspaceServerPort @"com.quantum-step.loginwindow"	// NSMessagePort to contact
 
 @protocol _NSWorkspaceServerProtocol	// communication with distributed workspace server (which should be the loginwindow process)
 
@@ -55,7 +55,8 @@
 - (oneway void) shutdown;				// request a shutdown
 - (oneway void) restart;				// request a restart
 - (oneway void) sleep;					// request to sleep
-- (oneway void) showAbout;				// show About panel
+- (oneway void) showAboutPanel;			// show About panel
+- (oneway void) showSoftwareUpdater;
 - (oneway void) showKillApplications;	// show Applications list panel
 
 	/* system wide sound generator */
@@ -81,9 +82,9 @@
 
 - (oneway void) startInkingForApplication:(byref NSApplication *) app atScreenPosition:(NSPoint) point;	// calls back [app postEvent:] with keyboard events
 
-- (oneway void) enableASR:(BOOL) flag;	// enable automatic speech recognition
-- (oneway void) enableOCR:(BOOL) flag;	// enable OCR
-- (oneway void) enableVKBD:(BOOL) flag;	// enable virtual keyboard
+- (oneway void) enableASR:(BOOL) flag;	// enable/disable automatic speech recognition
+- (oneway void) enableOCR:(BOOL) flag;	// enable/disable OCR
+- (oneway void) enableVKBD:(BOOL) flag;	// enable/disable virtual keyboard
 
 @end
 

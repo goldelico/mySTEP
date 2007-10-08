@@ -223,9 +223,10 @@ else
 	# install on $(ZAURUS) at $(EMBEDDED_ROOT)/$(INSTALL_PATH) 
 	ls -l "$(BINARY)"
 	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(ZAURUS) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
-	# try to launch
 ifeq ($(RUN),false)
+	# dont launch
 else
+	# try to launch
 	if [ "$(WRAPPER_EXTENSION)" = app ] ; then \
                 defaults write com.apple.x11 nolisten_tcp false; \
 				open -a X11; \
