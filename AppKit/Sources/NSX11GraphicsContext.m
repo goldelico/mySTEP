@@ -1522,7 +1522,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 }
 
 - (void) _setOriginAndSize:(NSRect) frame;
-{ // note: it is the optimization task of NSWindow to call this only if setFrame really changes the size
+{ // note: it is the optimization task of NSWindow to call this only if setFrame really changes origin or size
 #if 0
 	NSLog(@"_setOriginAndSize:%@", NSStringFromRect(frame));
 #endif

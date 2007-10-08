@@ -383,7 +383,7 @@ static BOOL __cursorHidden = NO;
 	NSPoint p = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 	// we can make this dependent on activatingWindow
 	// activate application?
-	[NSMenuView _deactivate];			// close any open menu
+//	[NSMenuView _deactivate];			// close any open menu
 #if 0
 	NSLog(@"NSThemeFrame clicked (%@)", NSStringFromPoint(p));
 #endif
@@ -1711,7 +1711,7 @@ static BOOL __cursorHidden = NO;
 #if 1
 					NSLog(@"first click results in makeKeyAndOrderFront");
 #endif
-					[NSMenuView _deactivate];			// close any open menu
+//					[NSMenuView _deactivate];			// close any open menu
 					[self makeKeyAndOrderFront:self];	// bring clicked window to front
 					}
 				else

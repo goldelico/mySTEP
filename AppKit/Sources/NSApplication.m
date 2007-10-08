@@ -1315,7 +1315,7 @@ NSEvent *event = nil;									// if queue contains
 
 - (void) deactivate
 {
-	[NSMenuView _deactivate];					// close any open menu
+//	[NSMenuView _deactivate];					// close any open menu
 	if(_app.isActive)				// in order to make themselves invisible 
 		{			 				// when the application is not active.
 		_app.isActive = NO;
@@ -1744,38 +1744,38 @@ NSWindow *w;
 #if 1
 	NSLog(@"NSApp: removeWindowsItem (total=%d) - %@", _windowItems, aWindow);
 #endif
-	if (_app.isDeallocating)		// If we are within our dealloc then don't remove the window. Most likely dealloc is removing windows from our window list and subsequently NSWindow is calling us to remove itself.
+	if(_app.isDeallocating)		// If we are within our dealloc then don't remove the window. Most likely dealloc is removing windows from our window list and subsequently NSWindow is calling us to remove itself.
 		return;
-	if (_windowsMenu)
+	if(_windowsMenu)
 		{
 		int idx=[_windowsMenu indexOfItemWithTarget:aWindow andAction:@selector(makeKeyAndOrderFront:)];
 		if(idx >= 0)
 			{ // remove from menu
 			[_windowsMenu removeItemAtIndex:idx];
 			_windowItems--;	// one removed
-			}
-		}
 #if 0
-	NSLog(@"window items after remove=%d", _windowItems);
+			NSLog(@"window items after remove=%d", _windowItems);
 #endif
-	if(_windowItems <= 0)
-		{ // we were the last window
-		id <NSMenuItem> last=[[_windowsMenu itemArray] lastObject];
-		if([last isSeparatorItem])
-			[_windowsMenu removeItem:last];	// remove the separator if present
-		_windowItems=0;
-		if(!_delegate && ![NSApp mainMenu])
-			{
-			NSLog(@"terminating daemon without menu");
-			[self terminate:self];	// we are a menu-less daemon and have no delegate - default to terminate
-			}
-		else if(_delegate && [_delegate respondsToSelector:@selector(applicationShouldTerminateAfterLastWindowClosed:)] &&
+			if(_windowItems <= 0)
+				{ // we have removed the last window
+				id <NSMenuItem> last=[[_windowsMenu itemArray] lastObject];
+				if([last isSeparatorItem])
+					[_windowsMenu removeItem:last];	// remove the separator if present
+				_windowItems=0;
+				if(!_delegate && ![NSApp mainMenu])
+					{
+					NSLog(@"terminating daemon without menu");
+					[self terminate:self];	// we are a menu-less daemon and have no delegate - default to terminate
+					}
+				else if(_delegate && [_delegate respondsToSelector:@selector(applicationShouldTerminateAfterLastWindowClosed:)] &&
 						[_delegate applicationShouldTerminateAfterLastWindowClosed:self])
-			{
+					{
 #if 1
-			NSLog(@"last windows item removed - terminate");
+					NSLog(@"last windows item removed - terminate");
 #endif
-			[self terminate:self];	// we are the last one and are allowed by delegate to terminate
+					[self terminate:self];	// we are the last one and are allowed by delegate to terminate
+					}
+				}
 			}
 		}
 }
