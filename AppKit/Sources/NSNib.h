@@ -20,7 +20,7 @@ extern NSString *NSNibTopLevelObjects;
 @interface NSNib : NSObject <NSCoding>
 {
 	id decoded;	// decoded root object tree
-	NSMutableArray *objects;
+	NSMutableArray *decodedObjects;
 }
 
 - (id) initWithContentsOfURL:(NSURL *) url;

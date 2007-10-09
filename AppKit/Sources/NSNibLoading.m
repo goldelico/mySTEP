@@ -162,7 +162,11 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #endif
 	targetFramework=[[coder decodeObjectForKey:@"NSFramework"] retain];
 	rootObject=[[coder decodeObjectForKey:@"NSRoot"] retain];
+	// FIXME: there is also an objects table in NIB
 	objects=[[coder decodeObjectForKey:@"NSObjectsValues"] retain];	// all objects from NIB that need to receive awakeFromNib
+#if 0
+	NSLog(@"objects 1=%@", objects);
+#endif
 	[coder decodeObjectForKey:@"NSObjectsKeys"];
 	connections=[[coder decodeObjectForKey:@"NSConnections"] retain];
 	visibleWindows=[[coder decodeObjectForKey:@"NSVisibleWindows"] retain];
@@ -228,9 +232,11 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	NSEnumerator *e=[connections objectEnumerator];
 	NSNibConnector *c;
 	id owner=[table objectForKey:NSNibOwner];
+	unsigned idx=[objects indexOfObject:rootObject];
 #if 0
 	NSLog(@"loaded %ld connections", [connections count]);
-	NSLog(@"rootObject=%@", rootObject);
+	NSLog(@"rootObject=%@ idx=%u", rootObject, idx);
+	NSLog(@"owner=%@", owner);
 #endif
 	while((c=[e nextObject]))
 		{
@@ -245,9 +251,11 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	[visibleWindows makeObjectsPerformSelector:@selector(orderFront:) withObject:nil];	// make these windows visible
 }
 
+- (id) rootObject; { return rootObject; }
+
 - (void) dealloc;
 {
-#if 1
+#if 0
 	NSLog(@"NSIBObjectData dealloc");
 #endif
 	[targetFramework release];
@@ -611,10 +619,11 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 
 @implementation NSCustomResource
 
-#if 1
+#if 0
 - (NSSize) size;
 {
 	NSLog(@"!!! someone is asking for -size of %@", self);
+	abort();
 	return NSMakeSize(10.0, 10.0);
 }
 #endif
@@ -793,8 +802,8 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #if 0
 	NSLog(@"unarchiver:%@ didDecodeObject:%@", unarchiver, object);
 #endif
-	if(![objects containsObject:object])
-		[objects addObject:object];	// keep it unique (should we use an NSMutableSet?)
+	if(![decodedObjects containsObject:object])
+		[decodedObjects addObject:object];	// keep it unique (should we use a NSMutableSet?)
 	return object;
 }
 
@@ -872,7 +881,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #if 0
 	NSLog(@"file mapped %@", path);
 #endif
-	objects=[[NSMutableArray alloc] initWithCapacity:100];	// will store all objects
+	decodedObjects=[[NSMutableArray alloc] initWithCapacity:100];	// will store all objects
 #if 0
 	NSLog(@"initialize unarchiver %@", path);
 #endif
@@ -911,7 +920,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 
 - (void) dealloc;
 {
-	[objects release];
+	[decodedObjects release];
 	[decoded release];
 	[super dealloc];
 }
@@ -921,11 +930,15 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	NSMutableArray *t;
 	NSEnumerator *e;
 	id o;
+	id owner;
+	id rootObject;
 #if 0
 	NSLog(@"instantiateNibWithExternalNameTable=%@", table);
 #endif
 	if(![decoded isKindOfClass:[NSIBObjectData class]])
 		return NO;
+	owner=[table objectForKey:NSNibOwner];
+	rootObject=[decoded rootObject];
 #if 0
 	NSLog(@"establishConnections");
 #endif
@@ -934,12 +947,14 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	NSLog(@"awakeFromNib %d objects", [objects count]);
 #endif
 #if 0
-	NSLog(@"objects=%@", objects);
+	NSLog(@"objects 2=%@", decodedObjects);
 #endif
-	e=[objects objectEnumerator];	// make objects awake from nib (in no specific order)
+	e=[decodedObjects objectEnumerator];	// make objects awake from nib (in no specific order)
 	t=[table objectForKey:NSNibTopLevelObjects];
 	while((o=[e nextObject]))
 		{
+		if(o == rootObject)
+			o=owner;	// replace
 		[t addObject:o];
 		if([o respondsToSelector:@selector(awakeFromNib)])
 			{
@@ -949,8 +964,8 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 			[o awakeFromNib];							// Send awakeFromNib
 			}
 		}
-	[objects release];
-	objects=nil;
+	[decodedObjects release];
+	decodedObjects=nil;
 #if 0
 	NSLog(@"orderFrontVisibleWindows");
 #endif
@@ -963,6 +978,9 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 - (BOOL) instantiateNibWithOwner:(id) owner topLevelObjects:(NSArray **) o;
 {
 	NSDictionary *table;
+#if 0
+	NSLog(@"instantiateNibWithOwner:%@ topLevelObjects:%@", owner, o);
+#endif
 	if(o)
 		{
 		*o=[NSMutableArray arrayWithCapacity:10];	// get top level objects
