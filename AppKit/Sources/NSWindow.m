@@ -163,7 +163,7 @@ static BOOL __cursorHidden = NO;
 				}
 			// add window title button (?)
 			}
-		[self addSubview:[[NSView new] autorelease]];	// always add a default content view
+		[self addSubview:[[[NSView alloc] initWithFrame:NSZeroRect] autorelease]];	// always add a default content view
 		[self layout];
 		ASSIGN(_backgroundColor, [NSColor windowBackgroundColor]);	// default background
 		}
@@ -296,7 +296,6 @@ static BOOL __cursorHidden = NO;
 		{
 		// resize everything to have room for toolbar frame
 		}
-	// should we call resizeSubviewsWithOldSize?
 	cv=[self contentView];
 #if 0
 	NSLog(@"layout %@", self);
@@ -473,7 +472,6 @@ static BOOL __cursorHidden = NO;
 - (void) layout;
 { // we don't have a button bar
 	[[self contentView] setFrame:[self frame]];	// adjust the content view to the frame
-	// should we call resizeSubviewsWithOldSize?
 }
 
 - (void) setToolbar:(NSToolbar *) toolbar; { NIMP; }	// don't save/create
