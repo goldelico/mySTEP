@@ -803,8 +803,8 @@ printing
 #if 1
 	NSLog(@"autosize %d %@", _v.autoSizeSubviews, self);
 #endif
-	if(_v.autoSizeSubviews)
-		[self resizeSubviewsWithOldSize: o];				// Resize subviews
+	if(_v.autoSizeSubviews && !NSEqualSizes(o, frame.size))
+		[self resizeSubviewsWithOldSize: o];	// Resize subviews
 	if(_v.postFrameChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
 }
@@ -1160,6 +1160,8 @@ printing
 
 - (void) resizeSubviewsWithOldSize:(NSSize)oldSize
 {
+	if(NSEqualSizes(oldSize, frame.size))
+		return;	// ignore unchanged size
 #if 1
 	NSLog(@"resizeSubviewsWithOldSize:%@ -> %@ %@", NSStringFromSize(oldSize), NSStringFromSize(frame.size), self);
 #endif
@@ -1179,12 +1181,14 @@ printing
 {
 	float change, changePerOption;
 	NSSize old_size = frame.size;
-	NSSize superViewFrameSize = [super_view frame].size;
+	NSSize superViewFrameSize = [super_view frame].size;	// super_view should not be nil!
 	BOOL changedOrigin = NO;
 	BOOL changedSize = NO;
 	int options = 0;
+	if(NSEqualSizes(oldSize, superViewFrameSize))
+		return;	// ignore unchanged size
 #if 1
-	NSLog(@"resizeWithOldSuperviewSize %x: %@ -> %@ %@", _v.autoresizingMask, NSStringFromSize(oldSize), NSStringFromSize(frame.size), self);
+	NSLog(@"resizeWithOldSuperviewSize %x: %@ -> %@ %@", _v.autoresizingMask, NSStringFromSize(oldSize), NSStringFromSize(superViewFrameSize), self);
 #endif
 	// do nothing if view is not resizable
 	if(_v.autoresizingMask == NSViewNotSizable) 
@@ -1207,7 +1211,7 @@ printing
 			float oldFrameWidth = frame.size.width;
 
 			frame.size.width += changePerOption;
-			//			NSWidth(frame) = MAX(0, NSWidth(frame) + changePerOption);
+			// NSWidth(frame) = MAX(0, NSWidth(frame) + changePerOption);
 			if (NSWidth(frame) <= 0)
 				{
 				NSAssert((NSWidth(frame) <= 0), @"View frame width <= 0!");
@@ -1248,7 +1252,7 @@ printing
 			float oldFrameHeight = frame.size.height;
 
 			frame.size.height += changePerOption;
-			//			NSHeight(frame) = MAX(0, NSHeight(frame) + changePerOption);
+			// NSHeight(frame) = MAX(0, NSHeight(frame) + changePerOption);
 			if (NSHeight(frame) <= 0)
 				{
 				NSAssert((NSHeight(frame) <= 0), @"View frame height <= 0!");
@@ -1281,8 +1285,7 @@ printing
 														
 	if(changedSize || changedOrigin)
 		{					 
-		if(super_view)
-			[self _setSuperview:super_view];	// update (invalidates CTM)
+		[self _invalidateCTM];	// update when needed
 		[self resizeSubviewsWithOldSize: old_size];	// recursively go down
 		}
 }
