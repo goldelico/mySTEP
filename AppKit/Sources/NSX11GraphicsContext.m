@@ -1523,6 +1523,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 
 - (void) _setOriginAndSize:(NSRect) frame;
 { // note: it is the optimization task of NSWindow to call this only if setFrame really changes origin or size
+	unsigned newWidth, newHeight;
 #if 0
 	NSLog(@"_setOriginAndSize:%@", NSStringFromRect(frame));
 #endif
@@ -1530,34 +1531,40 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	_windowRect.size=[(NSAffineTransform *)(_nsscreen->_screen2X11) transformSize:frame.size];
 	_xRect.x=NSMinX(_windowRect);
 	_xRect.y=NSMaxY(_windowRect)+WINDOW_MANAGER_TITLE_HEIGHT;
-	_xRect.width=NSWidth(_windowRect);
-	_xRect.height=NSMinY(_windowRect)-NSMaxY(_windowRect);	// _windowRect.size.heigh is negative
-	if(_xRect.width == 0) _xRect.width=48;
-	if(_xRect.height == 0) _xRect.height=49;
-	XMoveResizeWindow(_display, _realWindow, 
-					  _xRect.x,
-					  _xRect.y,
-					  _xRect.width,
-					  _xRect.height);
-	if(_isDoubleBuffered(self))
-		{
-		XWindowAttributes attrs;
-#if 1
-		NSLog(@"resize backing store buffer");
-#endif
-		XGetWindowAttributes(_display, _realWindow, &attrs);
-		XFreePixmap(_display, (Pixmap) _graphicsPort);
-		_graphicsPort=(void *) XCreatePixmap(_display, _realWindow, _xRect.width, _xRect.height, attrs.depth);
-#if 0
-		XCopyArea(_display,
-				  win,	// should be old pixmap...
-				  (Window) _graphicsPort, 
-				  _state->_gc,
-				  0, 0,
-				  _xRect.width, _xRect.height,
-				  0, 0);
-#endif
+	// compare with previous and don't allocate a new double buffer
+	newWidth=NSWidth(_windowRect);
+	newHeight=NSMinY(_windowRect)-NSMaxY(_windowRect);	// _windowRect.size.heigh is negative
+	if(newWidth == 0) newWidth=48;
+	if(newHeight == 0) newHeight=49;
+	if(newWidth != _xRect.width || newHeight != _xRect.height)
+		{ // did change size
+		XMoveResizeWindow(_display, _realWindow, 
+						 _xRect.x,
+						 _xRect.y,
+						 _xRect.width=newWidth,
+						 _xRect.height=newHeight);
+		if(_isDoubleBuffered(self))
+			{
+			XWindowAttributes attrs;
+	#if 1
+			NSLog(@"resize backing store buffer");
+	#endif
+			XGetWindowAttributes(_display, _realWindow, &attrs);
+			XFreePixmap(_display, (Pixmap) _graphicsPort);
+			_graphicsPort=(void *) XCreatePixmap(_display, _realWindow, _xRect.width, _xRect.height, attrs.depth);
+	#if 0
+			XCopyArea(_display,
+					  win,	// should be old pixmap...
+					  (Window) _graphicsPort, 
+					  _state->_gc,
+					  0, 0,
+					  _xRect.width, _xRect.height,
+					  0, 0);
+	#endif
+			}
 		}
+	else
+		XMoveWindow(_display, _realWindow, _xRect.x, _xRect.y);				 
 	[self _setSizeHints];
 }
 

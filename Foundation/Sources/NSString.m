@@ -2817,7 +2817,7 @@ struct stat tmp_stat;
 		return NO;
 	
 	if (c == _strClass || c == _mutableStringClass)
-		{
+		{ // c is a Unicode string
 		if (_hash == 0)
 			_hash = _strHashImp(self, @selector(hash));
 		if (((GSString*)obj)->_hash == 0)
@@ -2827,7 +2827,7 @@ struct stat tmp_stat;
 		}
 	else if (c == _cStringClass || c == _mutableCStringClass
 			 || c == _constantStringClass)
-		{
+		{ // c is a C-String
 		if (_hash == 0)
 			_hash = _strHashImp(self, @selector(hash));
 		if ((c != _constantStringClass) && (_hash != [obj hash]))
@@ -2837,11 +2837,11 @@ struct stat tmp_stat;
 		NS_DURING
 			if(!_cString)
 				[self cString];	// may fail with character conversion error!
-			NS_VALUERETURN((memcmp(_cString, ((NSString*)obj)->_cString, _count) != 0 ? NO : YES), BOOL);
+			NS_VALUERETURN((memcmp(_cString, ((NSString*)obj)->_cString, _count) == 0), BOOL);
 		NS_HANDLER
 			; // ignore
 		NS_ENDHANDLER
-			return NO;
+			return NO;	// failed - i.e. we have some non-convertible characters
 		}
 	
 	if (_classIsKindOfClass(c, _nsStringClass))
@@ -2867,8 +2867,8 @@ struct stat tmp_stat;
 
 	if (_hash == 0)
 		_hash = _strHashImp(self, @selector(hash));
-	if (c == _strClass || c == _mutableStringClass)			// other is a unichar string
-		{
+	if (c == _strClass || c == _mutableStringClass)
+		{ // other is a unichar string
 		if (((GSString*)aString)->_hash == 0)
 			((GSString*)aString)->_hash = _strHashImp(aString,@selector(hash));
 		if (_hash != ((GSString*)aString)->_hash)
@@ -2883,7 +2883,7 @@ struct stat tmp_stat;
 		NS_DURING
 			if(!_cString)
 				[self cString];	// may fail with character conversion error!
-			NS_VALUERETURN((memcmp(_cString, aString->_cString, _count) != 0 ? NO : YES), BOOL);
+			NS_VALUERETURN((memcmp(_cString, aString->_cString, _count) == 0), BOOL);
 		NS_HANDLER
 			; // ignore
 		NS_ENDHANDLER
@@ -2987,7 +2987,13 @@ struct stat tmp_stat;
 	for(i = 0; i < _count; i++)
 		{
 		if(!(*e)(_uniChars[i], &bp))
+			{
+#if 0
+			NSLog(@"can't convert due to non-ASCII characters: %@", self);
+			abort();
+#endif
 			[NSException raise:NSCharacterConversionException format:@"can't convert due to non-ASCII characters: %@", self];	// conversion error
+			}
 		}
 	*bp=0;
 	return _cString;

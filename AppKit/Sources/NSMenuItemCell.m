@@ -19,8 +19,9 @@ doing this is a little tricky because this needs to change the button background
 and menu item state is not the same as cell highlighting...
 
 Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
-also setting appropriate attributes (incl. Font) in -init so that it looks like a menu item
-but [super setTitle:...] can still be used
+
+	also setting appropriate attributes (incl. Font) in -init so that it looks like a menu item
+	but [super setTitle:...] can still be used
 
 */
 
@@ -287,11 +288,11 @@ but [super setTitle:...] can still be used
 #if 0
 		NSLog(@"menuItem %@ size=%@", [as string], NSStringFromSize(size));
 #endif
-		if([menuItem isSeparatorItem])
-			size.height*=0.8;		// reduce size of separator items to 80% - title should be an empty string and size being determined by font
 		}
 	else
 		size=NSMakeSize(0.0, 10.0);	// no title but needs some height
+	if([menuItem isSeparatorItem])
+		size.height*=0.8;		// reduce size of separator items to 80% - title should be an empty string and size being determined by font
 	titleWidth=size.width;		// determine by text length
 #if 0
 	NSLog(@"%@.size=%@", [menuItem title], NSStringFromSize(size));
@@ -385,10 +386,13 @@ but [super setTitle:...] can still be used
 			}
 		else if(len >= 0.0)
 			{ // override fixed width
-			size.width=(int) (len+0.5); // round
+			size.width=floor(len+0.5); // round
+#if 1
+			NSLog(@"fixed width: %@", NSStringFromSize(size));
+#endif
 			}
 		if(size.width < imageWidth)
-			imageWidth=size.width, titleWidth=0.0;
+			imageWidth=size.width, titleWidth=0.0;	// shrink
 		else if(size.width < imageWidth+horizontalEdgePadding+titleWidth)
 			{
 			titleWidth=size.width-imageWidth-horizontalEdgePadding;

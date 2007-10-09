@@ -1121,7 +1121,7 @@ static BOOL __cursorHidden = NO;
 		{
 		NSRect r={aPoint, frame.size};
 		[_context _setOrigin:r.origin];
-		[_context flushGraphics];
+//		[_context flushGraphics];
 		frame.origin=aPoint;	// remember
 		}
 }
