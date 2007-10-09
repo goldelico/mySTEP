@@ -247,10 +247,9 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 	NSLog(@"itemAdded - pos=%d, cell=%@", pos, c);
 #endif
 	[_cells insertObject:c atIndex:pos];				// make new slot (will be replaced with c)
-	_rectOfCells=(NSRect *) objc_realloc(_rectOfCells, [_cells count]*sizeof(NSRect));	// adjust size
+	_rectOfCells=(NSRect *) objc_realloc(_rectOfCells, [_cells count]*sizeof(NSRect));	// adjust size if needed
 	_rectOfCells[pos]=NSZeroRect;	// clear
 	// might have to update highlighting!!
-	// mark new cell for needing redraw?!
 	[self setMenuItemCell:c forItemAtIndex:pos];	// to add all cell connections and updates
 	[self setNeedsDisplayForItemAtIndex:pos];		// redisplay changed item
 #if 0
@@ -283,7 +282,11 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 	[cell setMenuItem:nil];	// remove reference to menu item to be shown
 	[cell setMenuView:nil];	// remove reference to myself
 	[_cells removeObjectAtIndex:pos];	// this will dealloc the itemCell
-	_rectOfCells=(NSRect *) objc_realloc(_rectOfCells, [_cells count]*sizeof(NSRect));	// adjust size
+#if 0
+	NSLog(@"cells count %u", [_cells count]);
+#endif
+	if([_cells count] > 10)	// keep last 10 items
+		_rectOfCells=(NSRect *) objc_realloc(_rectOfCells, [_cells count]*sizeof(NSRect));	// adjust size
 	_needsSizing=YES;	// recalculate
 	[self setNeedsDisplay:YES];
 }
@@ -414,6 +417,9 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 - (void) setMenu:(NSMenu *) m;
 {
 	int i, cnt;
+#if 1
+	NSLog(@"setMenu");
+#endif
 #if 0
 	NSLog(@"%@ setMenu: %@", self, m);
 #endif
@@ -676,12 +682,15 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 
 - (void) update;
 { // update autoenabling status and sizes - called once per runloop
-#if 0
+#if 1
 	NSLog(@"NSMenuView update");
 #endif
 	[_menumenu update];	// update our menu (and submenus)
 	if(_needsSizing)
-		[self sizeToFit];	// will set needsDisplay
+		[self sizeToFit];	// will finally set needsDisplay
+#if 1
+	NSLog(@"NSMenuView update done");
+#endif
 }
 
 // overridden methods
@@ -812,7 +821,7 @@ static NSMenuView *_currentlyOpenMenuView;		// in which view
 #if 0
 	NSLog(@"mouseDown:%@", theEvent);
 #endif
-	[_menumenu update];	// update/enable menu(s)
+	[self update];	// update/enable menu(s)
 	while(YES)
 		{ // loop until mouse goes up
 		NSEventType type=[theEvent type];

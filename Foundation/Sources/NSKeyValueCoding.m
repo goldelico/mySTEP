@@ -128,7 +128,7 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 	strcat(selName+3, ":");	// append a :
 	s=sel_get_any_uid(selName);
 #if 0
-	NSLog(@"%@: setValue:forKey:%@ val=%@", self, str, val);
+	NSLog(@"%p %@: setValue:forKey:%@ val=%@", self, self, str, val);
 	NSLog(@"setter = %@ (%s)", NSStringFromSelector(s), selName);
 #endif
 	if(s && [self respondsToSelector:s])
@@ -205,7 +205,7 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 					[*vp autorelease];
 					*vp=[val retain];
 #if 0
-					NSLog(@"found matching ivar: %s", ivar.ivar_name);
+					NSLog(@"found matching ivar: %s[%d] %p", ivar.ivar_name, ivar.ivar_offset, vp);
 #endif
 					objc_free(selName);
 					return;

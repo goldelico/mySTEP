@@ -12,13 +12,14 @@
 #import <AppKit/NSView.h>
 #import <AppKit/NSImage.h>
 
-@interface NSStatusItem : NSObject {
+@interface NSStatusItem : NSObject
+{
 	NSMenuItem *menuItem;
 	NSStatusBar *statusBar;
 	NSAttributedString *attributedTitle;
+	NSView *view;
 	float length;
 	BOOL highlightedMode;
-	NSView *view;
 }
 
 - (SEL) action;

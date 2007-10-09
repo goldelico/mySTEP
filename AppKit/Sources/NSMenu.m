@@ -507,7 +507,7 @@ static BOOL __userKeyEquivalents = YES;
 							  object:self
 							userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:index]
 																 forKey:@"NSMenuItemIndex"]];
-	_mn.menuHasChanged = YES;							// menu needs update
+	_mn.menuHasChanged = YES;							// menu needs update (maybe later)
 }
 
 - (void) itemChanged:(id <NSMenuItem>)anItem
@@ -518,9 +518,10 @@ static BOOL __userKeyEquivalents = YES;
 		if(row == NSNotFound)
 			return; // not part of this menu
 		[[NSNotificationCenter defaultCenter] postNotificationName:NSMenuDidChangeItemNotification
-		object:self userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:row] forKey:@"NSMenuItemIndex"]];
+															object:self
+														  userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:row] forKey:@"NSMenuItemIndex"]];
 		}
-	_mn.menuHasChanged = YES;							// menu needs update
+	_mn.menuHasChanged = YES;							// menu needs update (maybe later)
 }
 
 - (id <NSMenuItem>) itemWithTag:(int)aTag

@@ -1,6 +1,5 @@
 //
-// taken from Menu Cracker
-// and description at http://cocoadevcentral.com/articles/000078.php
+// taken from Menu Cracker / Growl
 //
 // i.e. use as #import <SystemUIPlugin/NSMenuExtra.h>
 //
@@ -8,14 +7,15 @@
 #import <Cocoa/Cocoa.h>
 
 // Reverse engineered from the ObjectiveC runtime.
+// and description at http://cocoadevcentral.com/articles/000078.php
 
-@interface NSMenuExtra  : NSStatusItem
+@interface NSMenuExtra : NSStatusItem
 {
 // @private
     NSBundle *_bundle;
-	NSMenu *_menu;
-    NSView *_view;
-    float _length;
+	IBOutlet NSMenu *_menu;		// Not used - but allows to connect and setMenu: is called
+    IBOutlet NSView *_view;		// Not used - NSStatusItem also has a view variable
+    float _length;				// Not used - NSStatusItem also has a length variable
     struct {
         unsigned int customView:1;
         unsigned int menuDown:1;
@@ -24,12 +24,12 @@
     id _controller;
 }
 
-- (id)initWithBundle:(NSBundle *) bundle;
-- (id)initWithBundle:(NSBundle *) bundle data:(NSData *) data;
+- (id) initWithBundle:(NSBundle *) bundle;
+- (id) initWithBundle:(NSBundle *) bundle data:(NSData *) data;
 
-- (void)willUnload;
+- (void) willUnload;
 
-- (NSBundle *)bundle;
+- (NSBundle *) bundle;
 
 - (BOOL) isMenuDown;
 - (void) drawMenuBackground:(BOOL)flag;

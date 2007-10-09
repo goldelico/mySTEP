@@ -16,6 +16,7 @@
 @interface NSStatusItem(NSAppKitPrivate)
 - (NSMenuItem *) _menuItem;
 - (id) _initForStatusBar:(NSStatusBar *) bar andMenuItem:(NSMenuItem *) item withLength:(float) len;
+// - (id) _initInStatusBar:(NSStatusBar *) bar withLength:(float) len withPriority:(int) prio;
 @end
 
 @implementation NSMenuExtra
@@ -24,7 +25,7 @@
 {
 	NSMenuItem *item=[[[NSMenuItem alloc] initWithTitle:@"NSMenuExtra" action:NULL keyEquivalent:@""] autorelease];
 #if 1
-	NSLog(@"this is %@ initWithBundle: %@", NSStringFromClass([self class]), bundle);
+	NSLog(@"this is %@ %p initWithBundle: %@", NSStringFromClass([self class]), self, bundle);
 #endif
 	self=[super _initForStatusBar:[NSStatusBar systemStatusBar] andMenuItem:item withLength:NSVariableStatusItemLength];   // make me control this menu item
 	if(self)
@@ -35,7 +36,7 @@
 		NSLog(@"add item to systemStatusBar");
 #endif
 		[[[NSStatusBar systemStatusBar] _statusMenu] addItem:item];	// attach controlled menuItem to menu
-		[[[NSStatusBar systemStatusBar] _menuView] setNeedsDisplay:YES];
+//		[[[NSStatusBar systemStatusBar] _menuView] setNeedsDisplay:YES];
 #if 1
 		NSLog(@"added to status menu: %@", [[[NSStatusBar systemStatusBar] _statusMenu] _longDescription]);
 #endif
@@ -46,7 +47,7 @@
 #if 1
 			NSLog(@"loading NSMenuExtra nib file %@", nib);
 #endif
-			[bundle loadNibFile:nib externalNameTable:[NSDictionary dictionaryWithObject:self forKey:@"NSOwner"] withZone:NSDefaultMallocZone()];
+			[bundle loadNibFile:nib externalNameTable:[NSDictionary dictionaryWithObject:self forKey:NSNibOwner] withZone:NSDefaultMallocZone()];
 #if 1
 			NSLog(@"loaded NSMenuExtra nib file %@", nib);
 #endif
@@ -72,7 +73,7 @@
 - (BOOL) isMenuDown; { return _flags.menuDown; }
 
 - (void) drawMenuBackground:(BOOL) flag; { return; }	// default does nothing
-- (void) popUpMenu:(NSMenu *) menu; { _menu=menu; }
+- (void) popUpMenu:(NSMenu *) menu; { [self setMenu:menu]; /* and now? */ }
 
 - (void) setImage:(NSImage *) img;
 {

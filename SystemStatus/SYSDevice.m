@@ -466,7 +466,8 @@ static int observers;
 		[self isInserted]?@" inserted":@"",
 		[self isSuspended]?@" suspended":@"",
 		[self isReady]?@" ready":@"",
-		[self isLocked]?@" locked":@""
+		[self isLocked]?@" locked":@"",
+		[self isRemovable]?@" removable":@""
 		];
 }
 
@@ -478,11 +479,18 @@ static int observers;
 - (NSString *) mountPath; { return nil; } // /mnt path - if available
 - (NSString *) deviceType; { return @"PCMCIA"; }	// device type: PCMCIA, SD, USB, IDE, ...
 
-- (BOOL) isRemovable; { return YES; }
+- (BOOL) isRemovable;
+{
+	// FIXME - we should probably detect by mount point or driver
+	if([[deviceInfo objectForKey:@"Manufacturer"] isEqualToString:@"HITACHI"] && [[deviceInfo objectForKey:@"Devicetype"] isEqualToString:@"microdrive"])
+		return NO;	// Zaurus SL-C3x00 builtin microdrive
+	return YES;
+}
 
 - (BOOL) _cardCmd:(NSString *) cmd;
 {
 	NSString *c;
+	// FIXME: get card command from our device description database
 	if([[self deviceType] isEqualToString:@"PCMCIA"])
 		c=[NSString stringWithFormat:@"/sbin/cardctl %@ %@", cmd, [deviceInfo objectForKey:@"socket"]];
 	else if([[self deviceType] isEqualToString:@"SD"])

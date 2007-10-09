@@ -1417,10 +1417,14 @@ printing
 			continue;
 			}
 		if(NSIntersectsRect(rect, invalidRects[i]))
+			{
+#if 0
 			NSLog(@"drawing rect %@ intersects %@ for %@", NSStringFromRect(rect), NSStringFromRect( invalidRects[i]), self);
-		// what if it intersects???
-		// we might cut out parts
-		// but since this are only hints to optimize drawing, leave it as it is
+#endif
+			// what if it intersects???
+			// we might cut out parts
+			// but since this are only hints to optimize drawing, leave it as it is
+			}
 		}
 	if(nInvalidRects == 0)
 		invalidRect=NSZeroRect;	// all has been drawn

@@ -374,20 +374,20 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 		size.width+=horizontalEdgePadding+imageWidth;
 	if(keyEquivalentWidth > 0)
 		size.width+=horizontalEdgePadding+keyEquivalentWidth;
-	if([[menuItem representedObject] respondsToSelector:@selector(length)])
+	if(isHorizontal && [[menuItem representedObject] respondsToSelector:@selector(length)])
 		{ // may be a status item - override width if it is specified
 		float len=[((NSStatusItem *) [menuItem representedObject]) length];	// get length
 #if 0
-		NSLog(@"NSMenuItemCell representedObject length=%f", len);
+		NSLog(@"NSMenuItemCell %@ representedObject %@ length=%f", menuItem, [menuItem representedObject], len);
 #endif
-		if(len == NSSquareStatusItemLength && isHorizontal)
+		if(len == NSSquareStatusItemLength)
 			{ // determine by enclosing view's height (if possible)
 			size.width=[_controlView frame].size.height;	// make it square
 			}
 		else if(len >= 0.0)
 			{ // override fixed width
 			size.width=floor(len+0.5); // round
-#if 1
+#if 0
 			NSLog(@"fixed width: %@", NSStringFromSize(size));
 #endif
 			}
@@ -413,6 +413,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #endif
 	[[self isHighlighted]?[NSColor selectedMenuItemColor]:[NSColor windowBackgroundColor] set];
 	NSRectFill(frame);
+	// FIXME: if we have a representedObject that responds to -drawMenuBackground:(BOOL) flag then call
 }
 
 // FIXME: should somehow use drawImage:withFrame:inView: (NSButtonCell)
