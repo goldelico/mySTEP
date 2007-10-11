@@ -1148,136 +1148,38 @@ static NSOpenPanel *__openPanel;
 //
 //*****************************************************************************
 
-#import <math.h>
-int __colorWheelSize = 159;
-
-typedef struct WheelMatrix {
-    unsigned int width, height;			// Size of the colorwheel
-    unsigned char *data[3];				// Wheel data (R,G,B)
-    unsigned char values[256];			// Precalculated values R,G & B = 0-255
-} wheelMatrix;
-
-unsigned char
-getShift(unsigned char value)
+@interface GSColorWheelView : NSImageView
 {
-	unsigned char i = -1;
-	
-    if (value == 0)
-		return 0;
-	
-    while (value) 
-		{
-		value >>= 1;
-		i++;
-		}
-	
-    return i;
+	IBOutlet NSColorPanel *_colorPanel;	// connected in NIB file
+	NSPoint _selection;
 }
 
-static wheelMatrix *
-wheelCreateMatrix(unsigned int width, unsigned int height)
+- (void) setColorPanel:(NSColorPanel *) panel;
+- (NSColorPanel *) colorPanel;
+
+@end
+
+@implementation GSColorWheelView
+
+- (void) drawRect:(NSRect) rect;
 {
-	wheelMatrix	*matrix = NULL;
-	int	i;
-    
-    assert((width > 0) && (height > 0));
-    
-    matrix = malloc(sizeof(wheelMatrix));
-    memset(matrix, 0, sizeof(wheelMatrix));
-    matrix->width = width;
-    matrix->height = height;
-	
-    for (i = 0; i < 3; i++)
-		matrix->data[i] = malloc(width * height * sizeof(unsigned char));
-	
-    return matrix;
+	float brightness=[[_colorPanel color] brightnessComponent];
+	// make us handle use brightness by dimming the image
+	[super drawRect:rect];
+	[[NSColor whiteColor] set];
+	// draw small square box at current selection position
 }
 
-static void
-wheelDestroyMatrix(wheelMatrix *matrix)
+- (void) setColorPanel:(NSColorPanel *) panel; { _colorPanel=panel; }
+- (NSColorPanel *) colorPanel; { return _colorPanel; }
+
+- (void) mouseDown:(NSEvent *) event;
 {
-	int i;
-    
-	if (!matrix)
-		return;
-    
-    for (i = 0; i < 3; i++)
-		if (matrix->data[i])
-	    	free(matrix->data[i]);
-	
-    free(matrix);
+	// track mouse movements
+	// invalidate just the box between old and new location!
 }
 
-static void
-wheelInitMatrix(wheelMatrix *matrix)
-{
-	int i, x, y;
-	long ofs[4];
-	int xcor, ycor;
-	int dhue[4];
-	const int cw_halfsize = (__colorWheelSize) / 2;
-	const int cw_sqsize = (__colorWheelSize) * (__colorWheelSize);
-	const int uchar_shift = getShift(sizeof(unsigned char));
-	struct HSB_Color hsb;
-	
-    hsb.brightness = 255;
-    
-    ofs[0] = -1;							// offsets are counterclockwise
-    ofs[1] = -(__colorWheelSize);			// (in triangles)
-	
-    for (y = 0; y < cw_halfsize; y++) 
-		{
-		for (x = y; x < (__colorWheelSize-y); x++) 
-			{			// (xcor, ycor) is (x,y) relative to center of matrix
-			xcor = 2 * x - __colorWheelSize;
-			ycor = 2 * y - __colorWheelSize;
-			// saturation will wrap after 255
-			hsb.saturation = rint(255.0 * sqrt(xcor * xcor + ycor * ycor) 
-								  / __colorWheelSize);
-			ofs[0]++;								// top quadrant of matrix
-			ofs[1] += __colorWheelSize;				// left quadrant    ____
-    	    ofs[2] = cw_sqsize - 1 - ofs[0];		// bottom quadrant |\  /|
-			ofs[3] = cw_sqsize - 1 - ofs[1];		// right quadrant  | \/ |
-	    											//                 | /\ |
-			if (hsb.saturation < 256)				//                 |/__\|
-				{
-				if (xcor != 0)
-					dhue[0] = rint(atan((double)ycor / (double)xcor) 
-								   * (180.0 / M_PI)) + (xcor < 0 ? 180.0 : 0.0);
-				else
-					dhue[0] = 270;
-				
-				dhue[0] = 360 - dhue[0];	// Reverse direction of ColorWheel
-				dhue[1] = 270 - dhue[0] + (dhue[0] > 270 ? 360 : 0);
-				dhue[2] = dhue[0] - 180 + (dhue[0] < 180 ? 360 : 0);
-				dhue[3] = 90 - dhue[0]  + (dhue[0] > 90  ? 360 : 0);
-				
-				for (i = 0; i < 4; i++)
-					{
-					int shift = (ofs[i] << uchar_shift);
-					struct RGB_Color rgb;
-					
-					hsb.hue = dhue[i];
-					GSConvertHSBtoRGB(hsb, &rgb);
-					matrix->data[0][shift] = (unsigned char)(rgb.red);
-					matrix->data[1][shift] = (unsigned char)(rgb.green);
-					matrix->data[2][shift] = (unsigned char)(rgb.blue);
-					}	}
-			else 
-				{
-				for (i = 0; i < 4; i++) 
-					{
-					int shift = (ofs[i] << uchar_shift);
-					
-					matrix->data[0][shift] = (unsigned char)0;
-					matrix->data[1][shift] = (unsigned char)0;
-					matrix->data[2][shift] = (unsigned char)0;
-					}	}	}
-		
-		ofs[0] += 2 * y + 1;
-		ofs[1] += 1 - (__colorWheelSize) * (__colorWheelSize - 1 - 2 * y);
-		}
-}
+@end
 
 @implementation NSColorPanel
 
@@ -1302,69 +1204,6 @@ static NSColorPanel *__colorPanel;
 					format: @"Unable to open color panel model file."];
 	[__colorPanel center];
 	return __colorPanel;
-#if OLD
-	BOOL needsColorWheel = (!__colorPanel);
-	
-	//	__colorPanel=[[self alloc] initWithFrame;
-	if ((!__colorPanel) && ![NSBundle loadNibNamed:@"ColorPanel" owner:__colorPanel])
-		[NSException raise: NSInternalInconsistencyException 
-					format: @"Unable to open color panel model file."];
-	
-	if(needsColorWheel)
-		{
-		NSImage *im = [[NSImage alloc] initWithSize: NSZeroSize];
-		NSBitmapImageRep *imageRep = [NSBitmapImageRep alloc];
-		// int row, col;
-		
-		[imageRep initWithBitmapDataPlanes: NULL
-								pixelsWide: 159
-								pixelsHigh: 159
-							 bitsPerSample: 8
-						   samplesPerPixel: 3
-								  hasAlpha: NO
-								  isPlanar: NO
-							colorSpaceName: nil
-							   bytesPerRow: 0
-							  bitsPerPixel: 0];
-		
-		[im addRepresentation:imageRep];
-		[[[[__colorPanel contentView] subviews] objectAtIndex:0] setImage: im];
-		
-		{
-			int x, y;
-			unsigned long ofs = 0;
-			wheelMatrix *w;
-			unsigned char *data = [imageRep bitmapData];
-			
-			w = wheelCreateMatrix(__colorWheelSize, __colorWheelSize);
-			wheelInitMatrix(w);
-			
-			for (y = 0; y < __colorWheelSize ; y++) 
-				for (x = 0; x < __colorWheelSize ; x++) 
-					{
-					if ((w->data[0][ofs] != 0)				// if inside wheel
-						&& (w->data[1][ofs] != 0) 
-						&& (w->data[2][ofs] != 0))
-						{
-						*(data++) = (unsigned char)(w->data[0][ofs]);
-						*(data++) = (unsigned char)(w->data[1][ofs]);
-						*(data++) = (unsigned char)(w->data[2][ofs]);
-						//						*(ptr++) = 0;
-						}
-					else 
-						{
-						*(data++) = (0xae);
-						*(data++) = (0xaa);
-						*(data++) = (0xae);
-						//						*(ptr++) = 255;
-						}
-					ofs++;
-					}
-					wheelDestroyMatrix(w);
-		}
-		}
-	return __colorPanel;
-#endif
 }
 
 + (id) alloc
@@ -1383,37 +1222,76 @@ static NSColorPanel *__colorPanel;
 
 + (BOOL) dragColor:(NSColor **)aColor
 		 withEvent:(NSEvent *)anEvent
-		  fromView:(NSView *)sourceView		{ return NO; }
+		  fromView:(NSView *)sourceView
+{
+	return NO;
+}
 
 - (IBAction) _notify:(id) sender;
 {
+	NSColor *c=[_colorWell color];
 	NSLog(@"NSColorPanel _notify: %@", sender);
-	// check sender, i.e. which slider was moved
-	// or which text field did end editing
+	NSLog(@"fltvalue=%lf", [sender floatValue]);
+	NSLog(@"intvalue=%lf", [sender intValue]);
+	if(sender == _alphaSlider)
+		c=[c colorWithAlphaComponent:[sender floatValue]];
+	else if(sender == _alpha)	// text field
+		c=[c colorWithAlphaComponent:[sender intValue]/255.0];
+	else if(sender == _redSlider)
+		c=[c colorWithAlphaComponent:[sender floatValue]];
+	else if(sender == _red)
+		c=[c colorWithAlphaComponent:[sender intValue]/255.0];
+	[self setColor:c];
 	if(_target && _action)
 		[NSApp sendAction:_action to:_target from:self];
 }
 
+- (IBAction) _pick:(id) sender;
+{ // called from button action method
+	NSLog(@"pick mode");
+	// pick and update color from screen
+}
+
 - (void) _update;
-{
+{ // update sliders etc.
 	BOOL hideAlpha=!(![NSColor ignoresAlpha] && _showsAlpha);
-	float red, green, blue, alpha;
+	float red, green, blue, alpha, brightness;
+	[[_colorWell color] getRed:&red green:&green blue:&blue alpha:&alpha];
 	[_alpha setHidden:hideAlpha];
 	[_alphaSlider setHidden:hideAlpha];
 	// show/hide message
-	[[_colorWell color] getRed:&red green:&green blue:&blue alpha:&alpha];
 	if(!hideAlpha)
 		{
 		[_alphaSlider setFloatValue:alpha];
 		[_alpha setIntValue:(int)(255*alpha)];
 		}
-	[_redSlider setFloatValue:red];
-	[_red setIntValue:(int)(255*red)];
-	[_greenSlider setFloatValue:green];
-	[_green setIntValue:(int)(255*green)];
-	[_blueSlider setFloatValue:blue];
-	[_blue setIntValue:(int)(255*blue)];
 	[_html setStringValue:[NSString stringWithFormat:@"#%02x%02x%02x", (int)(255*red), (int)(255*green), (int)(255*blue)]];
+	switch([_colorTabs indexOfTabViewItem:[_colorTabs selectedTabViewItem]])
+		{
+		case 0:
+			[_redSlider setFloatValue:red];
+			[_red setIntValue:(int)(255*red)];
+			[_greenSlider setFloatValue:green];
+			[_green setIntValue:(int)(255*green)];
+			[_blueSlider setFloatValue:blue];
+			[_blue setIntValue:(int)(255*blue)];
+			break;
+		case 1:
+			break;
+		case 2:
+			brightness=[[_colorWell color] brightnessComponent];
+			[_brightnessSlider setFloatValue:brightness];
+			[_brightness setIntValue:(int)(255*brightness)];
+			break;
+		}
+}
+
+- (void) tabView:(NSTabView *) tabView didSelectTabViewItem:(NSTabViewItem *) tabViewItem
+{ // different tab has been seleceted
+#if 1
+	NSLog(@"tabViewItem %@", tabViewItem);
+#endif
+	[self _update];
 }
 
 - (NSView *) accessoryView					{ return _accessoryView; }
@@ -1454,11 +1332,15 @@ static NSColorPanel *__colorPanel;
 }
 
 - (void) setColor:(NSColor *)aColor
-	{
+{
+	if([_colorWell color] == aColor)
+		return;	// unchanged
 	[_colorWell setColor:aColor];
+	if([_colorTabs indexOfTabViewItem:[_colorTabs selectedTabViewItem]] == 2)
+		[_colorWheel setNeedsDisplay:YES];	// we are showing the color wheel
+	[self _update];	// update sliders and text fields
 	// FIXME: send NSColorPanelColorDidChangeNotification
-	[self _update];
-	}
+}
 
 - (void) encodeWithCoder:(NSCoder *)aCoder				// NSCoding protocol
 {
@@ -1470,7 +1352,6 @@ static NSColorPanel *__colorPanel;
 	self=[super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
 		return self;
-	
 	return self;
 }
 

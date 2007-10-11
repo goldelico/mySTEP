@@ -38,6 +38,13 @@ id __imageCellClass = nil;
 	return c;
 }
 
+- (SEL) action							{ return action; }
+- (int) tag								{ return tag; }
+- (id) target							{ return target; }
+- (void) setAction:(SEL)aSelector		{ action = aSelector; }
+- (void) setTag:(int)anInt				{ tag = anInt; }
+- (void) setTarget:(id)anObject			{ target = anObject; }
+
 - (NSImageScaling) imageScaling				{ return _ic.imageScaling; }
 - (NSImageAlignment) imageAlignment			{ return _ic.imageAlignment; }
 - (NSImageFrameStyle) imageFrameStyle		{ return _ic.imageFrameStyle; }

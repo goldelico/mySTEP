@@ -51,12 +51,16 @@ enum
 @class NSEvent;
 @class NSTabView;
 @class NSSlider;
+@class NSMatrix;
+@class NSImageView;
 @class NSTextField;
 
 @interface NSColorPanel : NSPanel  <NSCoding>
 {
 	IBOutlet NSTabView *_colorTabs;
 	IBOutlet NSColorWell *_colorWell;
+	/* general */
+	IBOutlet NSTextField *_html;
 	IBOutlet NSTextField *_alpha;
 	IBOutlet NSSlider *_alphaSlider;
 	/* RGB panel */
@@ -66,7 +70,12 @@ enum
 	IBOutlet NSTextField *_red;
 	IBOutlet NSTextField *_green;
 	IBOutlet NSTextField *_blue;
-	IBOutlet NSTextField *_html;
+	/* Crayons */
+	IBOutlet NSMatrix *_crayons;
+	/* Color Wheel */
+	IBOutlet NSImageView *_colorWheel;
+	IBOutlet NSSlider *_brightnessSlider;
+	IBOutlet NSTextField *_brightness;
 	/* */
 	NSView *_accessoryView;
 	NSColorList *_colorList;

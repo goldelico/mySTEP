@@ -350,6 +350,8 @@
 		EE349C82097027D600CBF42C /* NSToolbarItem.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5D097027D600CBF42C /* NSToolbarItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE4CC7110B3546F300B04C5F /* PrintProgressPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE4CC70F0B3546F300B04C5F /* PrintProgressPanel.nib */; };
 		EE4CC7120B3546F400B04C5F /* PrintProgressPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE4CC70F0B3546F300B04C5F /* PrintProgressPanel.nib */; };
+		EE4EF11D0CBE2A7C00376CD3 /* GSColorWheel.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */; };
+		EE4EF11E0CBE2A7C00376CD3 /* GSColorWheel.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */; };
 		EE527DA909A13CF600218247 /* NSX11GraphicsContext.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1D48300996A68B00DDE5E0 /* NSX11GraphicsContext.h */; };
 		EE527DAA09A13CF600218247 /* NSX11GraphicsContext.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D48310996A68B00DDE5E0 /* NSX11GraphicsContext.m */; };
 		EE52833009A1FB2E00218247 /* NSCursor.m in Sources */ = {isa = PBXBuildFile; fileRef = EE52832F09A1FB2E00218247 /* NSCursor.m */; };
@@ -752,6 +754,7 @@
 		EE349C5C097027D600CBF42C /* NSToolbar.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbar.h; sourceTree = "<group>"; };
 		EE349C5D097027D600CBF42C /* NSToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbarItem.h; sourceTree = "<group>"; };
 		EE4CC7100B3546F300B04C5F /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PrintProgressPanel.nib; sourceTree = "<group>"; };
+		EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = GSColorWheel.jpg; sourceTree = "<group>"; };
 		EE526D78099B2E6300218247 /* mgstep-0.552 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "mgstep-0.552"; path = "../ other/mgstep/mgstep-0.552"; sourceTree = SOURCE_ROOT; };
 		EE527865099D363C00218247 /* gnustep-gui-0.10.2 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "gnustep-gui-0.10.2"; path = "../ other/gnustep-gui-0.10.2"; sourceTree = SOURCE_ROOT; };
 		EE52832F09A1FB2E00218247 /* NSCursor.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSCursor.m; sourceTree = "<group>"; };
@@ -1507,6 +1510,7 @@
 				EEA371A909540272001244CF /* GSArrowUpH.tiff */,
 				EEA371AB09540272001244CF /* GSClose.tiff */,
 				EEA371AC09540272001244CF /* GSCloseBroken.tiff */,
+				EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */,
 				EEA371AE09540272001244CF /* GSComboBox.tiff */,
 				EEF5298E0A554ABB0049AF3C /* GSComboBoxH.tiff */,
 				EEA371AF09540272001244CF /* GSCopyCursor.tiff */,
@@ -2127,6 +2131,7 @@
 				EEA3F88E0BEDD65400E39682 /* ColorPanel.nib in Resources */,
 				EEA3F8940BEDD66A00E39682 /* FindPanel.nib in Resources */,
 				EEA3F8950BEDD66A00E39682 /* FontPanel.nib in Resources */,
+				EE4EF11E0CBE2A7C00376CD3 /* GSColorWheel.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2202,6 +2207,7 @@
 				EEA3F88F0BEDD65400E39682 /* ColorPanel.nib in Resources */,
 				EEA3F8960BEDD66A00E39682 /* FindPanel.nib in Resources */,
 				EEA3F8970BEDD66A00E39682 /* FontPanel.nib in Resources */,
+				EE4EF11D0CBE2A7C00376CD3 /* GSColorWheel.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

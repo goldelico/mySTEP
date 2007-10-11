@@ -2,7 +2,13 @@
     IBClasses = (
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
-            ACTIONS = {"_notify" = id; }; 
+            CLASS = GSColorWheelView; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {colorPanel = NSColorPanel; }; 
+            SUPERCLASS = NSImageView; 
+        }, 
+        {
+            ACTIONS = {"_notify" = id; "_pick" = id; }; 
             CLASS = NSColorPanel; 
             LANGUAGE = ObjC; 
             OUTLETS = {
@@ -10,8 +16,12 @@
                 "_alphaSlider" = NSSlider; 
                 "_blue" = NSTextField; 
                 "_blueSlider" = NSSlider; 
+                "_brightness" = NSTextField; 
+                "_brightnessSlider" = NSSlider; 
                 "_colorTabs" = NSTabView; 
                 "_colorWell" = NSColorWell; 
+                "_colorWheel" = NSImageView; 
+                "_crayons" = NSMatrix; 
                 "_green" = NSTextField; 
                 "_greenSlider" = NSSlider; 
                 "_html" = NSTextField; 

@@ -73,31 +73,7 @@
 
 - (void) drawWellInside:(NSRect)insideRect
 {
-	float alpha;
-	if(NSIsEmptyRect(insideRect))
-		return;
-	alpha=[_color alphaComponent];
-	if(alpha != 1.0)
-		{ // is not completely opaque
-		NSBezierPath *p=[NSBezierPath new];
-		[p moveToPoint:NSMakePoint(NSMinX(insideRect), NSMinY(insideRect))];
-		[p lineToPoint:NSMakePoint(NSMaxX(insideRect), NSMaxY(insideRect))];
-		[p lineToPoint:NSMakePoint(NSMinX(insideRect), NSMaxY(insideRect))];
-		[[NSColor blackColor] setFill];
-		[p fill];	// black triangle
-		[p removeAllPoints];
-		[p moveToPoint:NSMakePoint(NSMinX(insideRect), NSMinY(insideRect))];
-		[p lineToPoint:NSMakePoint(NSMaxX(insideRect), NSMaxY(insideRect))];
-		[p lineToPoint:NSMakePoint(NSMaxX(insideRect), NSMinY(insideRect))];
-		[[NSColor whiteColor] setFill];
-		[p fill];	// white triangle
-		[p release];
-		}
-	if(alpha > 0.0)
-		{
-		[_color set];
-		NSRectFill(insideRect);	// overlay with current color
-		}
+	[_color drawSwatchInRect:insideRect];
 }
 
 - (void) mouseDown:(NSEvent*)event
@@ -117,6 +93,7 @@
 		// FIXME: closing the ColorPanel should deactivate the current ColorWell (without changing)!
 		// so we need to track the WindowClosed notification
 		}
+	// start a tracking loop to check if we should call + NSColorPanel (BOOL)dragColor:(NSColor *)color withEvent:(NSEvent *)anEvent fromView:(NSView *)sourceView	
 }
 
 - (void) activate:(BOOL)exclusive							// Activation

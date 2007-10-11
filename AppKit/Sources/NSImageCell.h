@@ -49,6 +49,9 @@ typedef enum {
 
 @interface NSImageCell : NSCell <NSCopying, NSCoding>
 {
+	int tag;
+	id target;
+	SEL action;
 	struct __ImageCellFlags {
 		TYPEDBITFIELD(NSImageScaling, imageScaling, 2);
 		TYPEDBITFIELD(NSImageAlignment, imageAlignment, 4);

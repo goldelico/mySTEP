@@ -487,8 +487,32 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 
 - (void) drawSwatchInRect:(NSRect)rect	
 {
-	[self set];
-	NSRectFill(rect);
+	// we should override for a pattern color
+	float alpha;
+	if(NSIsEmptyRect(rect))
+		return;
+	alpha=[self alphaComponent];
+	if(alpha != 1.0)
+		{ // is not completely opaque
+		NSBezierPath *p=[NSBezierPath new];
+		[p moveToPoint:NSMakePoint(NSMinX(rect), NSMinY(rect))];
+		[p lineToPoint:NSMakePoint(NSMaxX(rect), NSMaxY(rect))];
+		[p lineToPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect))];
+		[[NSColor blackColor] setFill];
+		[p fill];	// black triangle
+		[p removeAllPoints];
+		[p moveToPoint:NSMakePoint(NSMinX(rect), NSMinY(rect))];
+		[p lineToPoint:NSMakePoint(NSMaxX(rect), NSMaxY(rect))];
+		[p lineToPoint:NSMakePoint(NSMaxX(rect), NSMinY(rect))];
+		[[NSColor whiteColor] setFill];
+		[p fill];	// white triangle
+		[p release];
+		}
+	if(alpha > 0.0)
+		{ // not completely transparent
+		[self set];
+		NSRectFill(rect);	// overlay with current color
+		}
 }
 
 - (NSString*) description
