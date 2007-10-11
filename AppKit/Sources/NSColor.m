@@ -51,8 +51,8 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 
 #define NEEDRGB() 	if(!_color.rgb) { GSConvertHSBtoRGB(_hsb, &_rgb); _color.rgb = YES; }
 #define NEEDHSB() 	if(!_color.hsb) { GSConvertRGBtoHSB(_rgb, &_hsb); _color.hsb = YES; }
-#define NEEDCMYK()
-#define NEEDWHITE()
+#define NEEDCMYK()	NIMP
+#define NEEDWHITE()	NIMP
 
 @implementation NSColor
 
@@ -784,9 +784,9 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 - (NSColor*) blendedColorWithFraction:(float)fraction 
 							  ofColor:(NSColor*)aColor
 {
-NSColor	*color = self;									// Blending the Color
-NSColor	*other = aColor;
-float mr, mg, mb, or, og, ob, r, g, b;
+	NSColor	*color = self;									// Blending the Color
+	NSColor	*other = aColor;
+	float mr, mg, mb, or, og, ob, r, g, b;
 
 	if ((_colorspaceName != NSCalibratedRGBColorSpace)
 			&& (_colorspaceName != NSDeviceRGBColorSpace))
@@ -810,8 +810,26 @@ float mr, mg, mb, or, og, ob, r, g, b;
 
 - (NSColor*) colorWithAlphaComponent:(float)alpha
 {
-	_alpha = alpha < 0 || alpha > 1 ? 0 : alpha;
-	return self;
+	NSColor *c=[isa alloc];	// make a copy
+	if(c)
+		{ // make a "mutable" copy
+		c->_colorspaceName=[_colorspaceName retain];
+		c->_catalogName=[_catalogName retain];
+		c->_colorName=[_catalogName retain];
+		c->_colorPatternImage=[_catalogName retain];
+		c->_rgb=_rgb;
+		c->_cmyk=_cmyk;
+		c->_hsb=_hsb;
+		c->_white=_white;
+		c->_color=_color;
+		if(alpha < 0)
+			c->_alpha = 0.0;
+		else if(alpha > 1.0)
+			c->_alpha=1.0;
+		else
+			c->_alpha=alpha;
+		}
+	return [c autorelease];
 }
 
 - (NSColor*) highlightWithLevel:(float)level

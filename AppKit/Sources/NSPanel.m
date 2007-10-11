@@ -1163,11 +1163,14 @@ static NSOpenPanel *__openPanel;
 
 - (void) drawRect:(NSRect) rect;
 {
-	float brightness=[[_colorPanel color] brightnessComponent];
+	NSColor *c=[_colorPanel color];
+	float brightness=[c brightnessComponent];
 	// make us handle use brightness by dimming the image
 	[super drawRect:rect];
 	[[NSColor whiteColor] set];
-	// draw small square box at current selection position
+	// convert current color into position
+	_selection=NSMakePoint(30, 30);	// and remember
+	NSFrameRect(NSMakeRect(_selection.x-1, _selection.y-1, 3, 3));	// draw small white square box at current selection position
 }
 
 - (void) setColorPanel:(NSColorPanel *) panel; { _colorPanel=panel; }
@@ -1175,8 +1178,30 @@ static NSOpenPanel *__openPanel;
 
 - (void) mouseDown:(NSEvent *) event;
 {
-	// track mouse movements
-	// invalidate just the box between old and new location!
+	while(YES)
+		{
+		NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
+		NSColor *c=nil;
+		// convert position into color
+		if(c)
+			{ // mouse is within circle
+/*
+ NSRect r;
+			r.origin.x=MIN(_selection.x, p.x);
+			r.origin.y=MIN(_selection.y, p.y);
+			r.size.width=fabs(_selection.x - p.x);
+			r.size.height=fabs(_selection.y - p.y);
+			[self setNeedsDisplayInRect:NSInsetRect(r, -2.0, -2.0)];
+ */ // the following code will make us update...
+			[_colorPanel setColor:c];
+			}
+		if([event type] == NSLeftMouseUp)
+			break;
+		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+								   untilDate:[NSDate distantFuture]						// get next event
+									  inMode:NSEventTrackingRunLoopMode 
+									 dequeue:YES];
+		}
 }
 
 @end
@@ -1230,17 +1255,43 @@ static NSColorPanel *__colorPanel;
 - (IBAction) _notify:(id) sender;
 {
 	NSColor *c=[_colorWell color];
+	float r, g, b, a;
+#if 1
 	NSLog(@"NSColorPanel _notify: %@", sender);
 	NSLog(@"fltvalue=%lf", [sender floatValue]);
 	NSLog(@"intvalue=%lf", [sender intValue]);
-	if(sender == _alphaSlider)
-		c=[c colorWithAlphaComponent:[sender floatValue]];
-	else if(sender == _alpha)	// text field
-		c=[c colorWithAlphaComponent:[sender intValue]/255.0];
-	else if(sender == _redSlider)
-		c=[c colorWithAlphaComponent:[sender floatValue]];
-	else if(sender == _red)
-		c=[c colorWithAlphaComponent:[sender intValue]/255.0];
+#endif
+	if(sender == _brightness || sender == _brightnessSlider)
+		{ // Color Wheel
+		float h, s, b;
+		[c getHue:&h saturation:&s brightness:&b alpha:&a];
+		if(sender == _brightness)
+			b=[sender floatValue];
+		else
+			b=[sender intValue]/255.0;
+		c=[NSColor colorWithCalibratedHue:h saturation:s brightness:b alpha:a];
+		}
+	else
+		{ // RGB or Alpha
+		[c getRed:&r green:&g blue:&b alpha:&a];
+		if(sender == _redSlider)
+			r=[sender floatValue];
+		else if(sender == _greenSlider)
+			g=[sender floatValue];
+		else if(sender == _blueSlider)
+			b=[sender floatValue];
+		else if(sender == _alphaSlider)
+			a=[sender floatValue];
+		else if(sender == _red)	// text field
+			r=[sender intValue]/255.0;
+		else if(sender == _green)
+			g=[sender intValue]/255.0;
+		else if(sender == _blue)
+			b=[sender intValue]/255.0;
+		else if(sender == _alpha)
+			a=[sender intValue]/255.0;
+		c=[NSColor colorWithCalibratedRed:r green:g blue:b alpha:a];
+		}
 	[self setColor:c];
 	if(_target && _action)
 		[NSApp sendAction:_action to:_target from:self];
@@ -1333,6 +1384,7 @@ static NSColorPanel *__colorPanel;
 
 - (void) setColor:(NSColor *)aColor
 {
+	NSAssert(aColor, @"setColor is nil");
 	if([_colorWell color] == aColor)
 		return;	// unchanged
 	[_colorWell setColor:aColor];
