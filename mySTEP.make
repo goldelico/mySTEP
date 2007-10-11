@@ -82,7 +82,7 @@ ifeq ($(OPTIMIZE),)
 	OPTIMIZE := s
 endif
 
-ZAURUS:=$(shell cat /Developer/Xtoolchain/IPaddr)
+ZAURUS:=$(shell cat /Developer/Xtoolchain/IPaddr 2>/dev/null)
 
 ifeq ($(ZAURUS),)
 	ZAURUS=192.168.129.201
@@ -230,7 +230,7 @@ else
 	if [ "$(WRAPPER_EXTENSION)" = app ] ; then \
                 defaults write com.apple.x11 nolisten_tcp false; \
 				open -a X11; \
-				export DISPLAY=localhost:0.0; /usr/X11R6/bin/xhost +$(ZAURUS) && \
+				export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(ZAURUS) && \
 		ssh -l zaurus $(ZAURUS) \
 		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=zaurus; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' -NoNSBackingStoreBuffered" ;\
 	fi
