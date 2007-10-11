@@ -342,6 +342,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 - (BOOL) isDataRetained						{ return _img.dataRetained; }
 - (BOOL) isFlipped							{ return _img.flipDraw; }
 - (BOOL) cacheDepthMatchesImageDepth		{ return _img.unboundedCacheDepth;}
+- (BOOL) scalesWhenResized					{ return _img.scalable; }
+- (void) setScalesWhenResized:(BOOL)flag	{ _img.scalable = flag; }
 
 - (NSString *) description;
 {
@@ -351,7 +353,9 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		_img.scalable?@" scalable":@"",
 		_img.isValid?@" valid":@"",
 		_img.flipDraw?@" flipped":@"",
-		// should also show scaledWhenResized, flipDraw, ...
+		_img.scalable?@" scalesWhenResized":@"",
+		_img.cacheSeparately?@" cachedSeparately":@"",
+		_img.dataRetained?@" dataRetained":@"",
 		nil
 		];
 }
@@ -370,8 +374,6 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	_img.isValid=NO;
 }
 
-- (BOOL) scalesWhenResized					{ return _img.scalable; }
-- (void) setScalesWhenResized:(BOOL)flag	{ _img.scalable = flag; }
 - (void) setBackgroundColor:(NSColor*)color	{ ASSIGN(_backgroundColor, color); }
 - (NSColor*) backgroundColor				{ return _backgroundColor; }
 - (NSArray*) representations				{ return (NSArray*)_reps; }
@@ -433,6 +435,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	[ctx _setFraction:fraction];
 	if(_img.flipDraw)
 		{ // scaleXBy:1.0 yBy:-1.0
+		NSLog(@"should flip drawInRect: %@", self);
 		}
 	[atm translateXBy:dest.origin.x-src.origin.x yBy:dest.origin.y-src.origin.y];
 	[atm scaleXBy:dest.size.width yBy:dest.size.height];	// will draw to unit square
@@ -498,12 +501,13 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	[ctx setCompositingOperation:op];
 	[ctx _setFraction:fraction];
 	if(_img.flipDraw)
-		;	// scaleXBy:1.0 yBy:-1.0
+		NSLog(@"should flip compositeToPoint: %@", self);
+		;	// FIXME: scaleXBy:1.0 yBy:-1.0
 	// FIXME: do we have to scale src.origin?
 	[atm translateXBy:pnt.x-src.origin.x yBy:pnt.y-src.origin.y];
 	[atm scaleXBy:src.size.width yBy:src.size.height];	// will draw the src rect to unit square
 	[ctx _concatCTM:atm];	// add to CTM as needed
-	// somehow reset rotation
+	// FIXME: somehow remove any rotation
 	if(!unitSquare)
 		unitSquare=[[NSBezierPath bezierPathWithRect:NSMakeRect(0.0, 0.0, 1.0, 1.0)] retain];
 	[ctx _addClip:unitSquare];	// set CTM as needed
