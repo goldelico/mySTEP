@@ -3078,6 +3078,50 @@ static NSDictionary *_x11settings;
 		}
 }
 
+- (void) _sendEvent:(NSEvent *) e;
+{ // based on http://homepage3.nifty.com/tsato/xvkbd/events.html
+	NSWindow *win;
+	NSPoint loc;
+	XKeyEvent event;
+	long mask;
+	switch([e type])
+		{
+		case NSKeyUp:
+			event.type = KeyRelease;
+			mask = KeyReleaseMask;
+			break;
+		case NSKeyDown:
+			event.type = KeyPress;
+			mask = KeyPressMask;
+			break;
+		default:
+			// raise exception or ignore
+			return;
+		}
+	event.window=[e windowNumber];	// use 1 == InputFocus
+	win=[NSWindow _windowForNumber:event.window];	// try to find
+	if(!win)
+		{
+		// ???
+		}
+	event.display = _display;
+	event.root = RootWindowOfScreen(_screen);
+	event.subwindow = None;
+	event.time = [e timestamp]/1000.0;
+	// fixme - translate location!
+	loc=[e locationInWindow];
+// #define X11toScreen(record) (windowScale != 1.0?NSMakePoint(record.x/windowScale, (windowHeight-record.y)/windowScale):NSMakePoint(record.x, windowHeight-record.y))
+	event.x = loc.x;
+	event.y = loc.y;
+	event.x_root = 1;
+	event.y_root = 1;
+	event.same_screen=([win screen] == self);
+	// FIXME: translate Cocoa keycodes and modifier flags to what X11 expects!
+	event.keycode = [e keyCode];
+	event.state = [e modifierFlags];	
+	XSendEvent(event.display, event.window, True, mask, (XEvent *) &event);
+}
+
 @end
 
 @implementation NSColor (NSBackendOverride)
