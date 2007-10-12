@@ -141,6 +141,8 @@
 @interface NSScreen (NSBackend)
 - (BOOL) _hasWindowManager;	// there is a window manager...
 - (int) _windowTitleHeight;
+- (void) _sendEvent:(NSEvent *) event;
+- (int) _keyWindowNumber;
 @end
 
 @interface NSWindow (NSBackend)

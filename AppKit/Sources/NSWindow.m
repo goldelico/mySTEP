@@ -843,21 +843,21 @@ static BOOL __cursorHidden = NO;
 	_w.visible=flag;
 }
 
-- (BOOL) isKeyWindow						{ return [_context _isKeyWindow]; }	// this asks the backend if we are really the key window!
+- (BOOL) isKeyWindow						{ return [_context _windowNumber] == [_screen _keyWindowNumber]; }	// this asks the backend if we are really the key window!
 - (BOOL) isMainWindow						{ return _w.isMain; }
 
 - (void) becomeKeyWindow
 {
+#if 0
+	NSLog(@"becomeKeyWin %@", _windowTitle);
+#endif
 	if(_w.isKey)	// we are already key window
 		return;
 	_w.isKey = YES;
-#if 1
-	NSLog(@"becomeKeyWin %@", _windowTitle);
-#endif
 	if(_w.visible)	// already visible
 		{
 #if 0
-		NSLog(@"becomeKeyWindow XSetInputFocus");
+		NSLog(@"becomeKeyWindow _makeKeyWindow");
 #endif
 		[_context _makeKeyWindow];
 		[_context flushGraphics];
@@ -887,8 +887,14 @@ static BOOL __cursorHidden = NO;
 }
 
 - (void) makeKeyAndOrderFront:(id) sender
-{	
+{
+#if 0
+	NSLog(@"makeKeyAndOrderFront: %@", self);
+#endif
 	[self orderFront:sender];						// order self to the front
+#if 0
+	NSLog(@"isKey: %d", _w.isKey);
+#endif
 	if(!_w.isKey)
 		{
 		[self makeKeyWindow];						// Make self the key window
@@ -898,10 +904,12 @@ static BOOL __cursorHidden = NO;
 
 - (void) makeKeyWindow
 {													// Can we become the key
+#if 0
+	NSLog(@"makeKeyWindow: %@", self);
+#endif
 	if ((_w.isKey) || ![self canBecomeKeyWindow]) 	// window?
 		return;										
-													// ask current key window
-	[[NSApp keyWindow] resignKeyWindow];			// to resign status
+	[[NSApp keyWindow] resignKeyWindow];			// ask current key window to resign status
 	[self becomeKeyWindow];
 }													 
 	
@@ -1566,7 +1574,7 @@ static BOOL __cursorHidden = NO;
 
 - (BOOL) makeFirstResponder:(NSResponder *)aResponder
 {
-#if 1
+#if 0
 	NSLog(@"makeFirstResponder: %@", aResponder);
 #endif
 	if (_firstResponder == aResponder)				// if responder is already

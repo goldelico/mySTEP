@@ -320,6 +320,8 @@ static Class __textFieldCellClass = Nil;
 
 - (BOOL) acceptsFirstResponder				{ return [_cell isSelectable]; }
 
+- (BOOL) needsPanelToBecomeKey				{ return [_cell isEditable]; }
+
 - (BOOL) becomeFirstResponder
 { // become first responder - the cell is activated for editing through a mouseDown
 #if 0

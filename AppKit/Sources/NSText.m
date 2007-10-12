@@ -591,6 +591,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 }
 
 - (BOOL) acceptsFirstResponder					{ return _tx.selectable; }
+- (BOOL) needsPanelToBecomeKey					{ return _tx.editable; }
 - (BOOL) acceptsFirstMouse:(NSEvent *)event		{ return _tx.fieldEditor; }
 
 - (BOOL) becomeFirstResponder

@@ -1575,6 +1575,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	XStringListToTextProperty((char**) &newTitle, 1, &windowName);
 	XSetWMName(_display, _realWindow, &windowName);
 	XSetWMIconName(_display, _realWindow, &windowName);
+	// XStoreName???
 }
 
 - (void) _setLevel:(int) level;
@@ -1595,14 +1596,6 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 - (void) _makeKeyWindow;
 {
 	XSetInputFocus(_display, _realWindow, RevertToNone, CurrentTime);
-}
-
-- (BOOL) _isKeyWindow;
-{
-	Window focus_return;
-	int revert_to_return;
-	XGetInputFocus(_display, &focus_return, &revert_to_return);
-	return focus_return == _realWindow;	// check if we are the key window
 }
 
 - (NSRect) _frame;
@@ -2501,6 +2494,14 @@ static NSDictionary *_x11settings;
 	return YES;
 }
 
+- (int) _keyWindowNumber;
+{ // returns the global focus window number (may be on a different screen!)
+	Window focus;
+	int revert_to;
+	XGetInputFocus(_display, &focus, &revert_to);
+	return focus;
+}
+
 - (int) _windowTitleHeight;
 { // amount added by window manager for window title
 	return 22;
@@ -2869,7 +2870,7 @@ static NSDictionary *_x11settings;
 					break;								// of its parent
 				case KeyPress:							// a key has been pressed
 				case KeyRelease:						// a key has been released
-#if 0
+#if 1
 					NSLog(@"Process key event");
 #endif
 					{
@@ -2881,7 +2882,6 @@ static NSDictionary *_x11settings;
 						unsigned short keyCode = 0;
 						unsigned mflags, _modFlags;
 						unsigned int count = XLookupString(&xe.xkey, buf, 256, &ksym, &cs);
-						
 						
 						buf[MIN(count, 255)] = '\0'; // Terminate string properly
 #if 0
@@ -2905,7 +2905,7 @@ static NSDictionary *_x11settings;
 											 context:self
 										  characters:keys
 						 charactersIgnoringModifiers:[keys lowercaseString]		// FIX ME?
-										   isARepeat:NO	// any idea how to FIXME?
+										   isARepeat:NO	// any idea how to FIXME? - maybe comparing time stamp and keycode with previous key event
 											 keyCode:keyCode];
 #if 0
 						NSLog(@"xKeyEvent: %@", e);
@@ -3084,6 +3084,9 @@ static NSDictionary *_x11settings;
 	NSPoint loc;
 	XKeyEvent event;
 	long mask;
+#if 1
+	NSLog(@"_sendEvent %@", e);
+#endif
 	switch([e type])
 		{
 		case NSKeyUp:
@@ -3108,6 +3111,8 @@ static NSDictionary *_x11settings;
 	event.root = RootWindowOfScreen(_screen);
 	event.subwindow = None;
 	event.time = [e timestamp]/1000.0;
+	if(event.time == 0)
+		event.time=CurrentTime;
 	// fixme - translate location!
 	loc=[e locationInWindow];
 // #define X11toScreen(record) (windowScale != 1.0?NSMakePoint(record.x/windowScale, (windowHeight-record.y)/windowScale):NSMakePoint(record.x, windowHeight-record.y))

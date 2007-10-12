@@ -90,7 +90,6 @@ typedef struct _NSX11GraphicsState
 }
 + (void) _handleNewEvents;	// synchronously check for new events
 - (NSAffineTransform *) _X112screen;
-- (void) _sendEvent:(NSEvent *) event;
 @end
 
 @interface _NSX11Color : NSColor

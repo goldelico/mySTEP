@@ -97,6 +97,31 @@
 - (BOOL) worksWhenModal						{ return _worksWhenModal; }
 - (BOOL) becomesKeyOnlyIfNeeded				{ return _becomesKeyOnlyIfNeeded; }
 
+- (BOOL) _needsPanelToBecomeKey:(NSView *) v
+{
+	NSEnumerator *e;
+	if([v needsPanelToBecomeKey])
+		return YES;
+	e=[[v subviews] objectEnumerator];
+	while((v=[e nextObject]))
+		if([self _needsPanelToBecomeKey:v])
+			return YES;	// any subview wants to make us key
+	return NO;
+}
+
+- (BOOL) canBecomeKeyWindow
+{
+	if(_becomesKeyOnlyIfNeeded)
+		{
+#if 0
+		NSLog(@"canBecomeKeyWindow=%d: %@", [self _needsPanelToBecomeKey:[self contentView]], self);
+#endif
+		return [self _needsPanelToBecomeKey:[self contentView]];
+		}
+	else
+		return [super canBecomeKeyWindow];
+}
+
 - (BOOL) canBecomeMainWindow					
 { 
 	return NO; 
