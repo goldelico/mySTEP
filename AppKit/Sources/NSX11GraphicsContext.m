@@ -82,9 +82,7 @@ Window __xKeyWindowNeedsFocus = None;			// xWindow waiting to be focusd
 extern Window __xAppTileWindow;
 #endif
 
-#if 1	// DEPRECATED - only used in XRView to modify dragging operations - should be handled through the backend interface
 unsigned int __modFlags = 0;		// current global modifier flags - updated every keyDown/keyUp event
-#endif
 
 static NSMapTable *__WindowNumToNSWindow = NULL;	// map Window to NSWindow
 
@@ -1773,15 +1771,10 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	return NSMakePoint(window_x, _xRect.height-window_y);
 }
 
-- (int) _keyModfierFlags;
-{
-	return __modFlags;
-}
-
 @end /* _NSX11GraphicsContext */
 
 static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *eventModFlags)
-{ // translate key code
+{ // translate key codes to NSEvent key codes and add some modifier flags
 	unsigned short keyCode = 0;
 	
 	switch(keysym)
@@ -1798,8 +1791,7 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 	if ((keysym >= XK_F1) && (keysym <= XK_F35)) 			// if a function
 		{													// key was pressed
 		*eventModFlags |= NSFunctionKeyMask; 
-		
-		switch(xEvent->xkey.keycode)	// FIXME: why not use keysym here??
+		switch(keysym)	// FIXME: why not use keysym here??
 			{
 			case XK_F1:  keyCode = NSF1FunctionKey;  break;
 			case XK_F2:  keyCode = NSF2FunctionKey;  break;
@@ -1837,7 +1829,8 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 			case XK_F34: keyCode = NSF34FunctionKey; break;
 			case XK_F35: keyCode = NSF35FunctionKey; break;
 			default:								 break;
-			}	}
+			}
+		}
 	else 
 		{
 		switch(keysym) 
@@ -1863,7 +1856,7 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 			case XK_Find:  		keyCode = NSFindFunctionKey;		break;
 			case XK_Help:		keyCode = NSHelpFunctionKey;		break;
 			case XK_Break:  	keyCode = NSBreakFunctionKey;		break;
-			case XK_Mode_switch:keyCode = NSModeSwitchFunctionKey;	break;
+//			case XK_Mode_switch:keyCode = NSModeSwitchFunctionKey;	break;
 			case XK_Sys_Req:	keyCode = NSSysReqFunctionKey;		break;
 			case XK_Scroll_Lock:keyCode = NSScrollLockFunctionKey;	break;
 			case XK_Pause:  	keyCode = NSPauseFunctionKey;		break;
@@ -1888,6 +1881,8 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 			else if ((keysym == XK_Alt_R) || (keysym == XK_Meta_R))
 				*eventModFlags |= NSAlternateKeyMask;
 			else if ((keysym == XK_Alt_L) || (keysym == XK_Meta_L))
+				*eventModFlags |= NSCommandKeyMask | NSAlternateKeyMask; 
+			else if ((keysym == XK_Mode_switch))
 				*eventModFlags |= NSCommandKeyMask | NSAlternateKeyMask; 
 			}
 		}
@@ -1919,8 +1914,8 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 	
 	if (((keysym > XK_KP_Space) && (keysym <= XK_KP_9)) ||
 		((keysym > XK_space) && (keysym <= XK_asciitilde)))
-		{
-		// Not processed
+		{ // translate into key code
+		
 		} 
 	
 	return keyCode;
@@ -2876,27 +2871,29 @@ static NSDictionary *_x11settings;
 					{
 						NSEventType eventType=(xe.type == KeyPress)?NSKeyDown:NSKeyUp;
 						char buf[256];
-						XComposeStatus cs;
 						KeySym ksym;
 						NSString *keys = @"";
 						unsigned short keyCode = 0;
-						unsigned mflags, _modFlags;
-						unsigned int count = XLookupString(&xe.xkey, buf, 256, &ksym, &cs);
-						
-						buf[MIN(count, 255)] = '\0'; // Terminate string properly
-#if 0
-						NSLog(@"xKeyEvent: xkey.state=%d", xe.xkey.state);
+						unsigned mflags;
+						unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);						
+						buf[MIN(count, sizeof(buf)-1)] = '\0'; // Terminate string properly
+#if 1
+						NSLog(@"xKeyEvent: xkey.state=%d keycode=%d keysym=%s", xe.xkey.state, xe.xkey.keycode, XKeysymToString(ksym));
 #endif						
-						_modFlags = mflags = xKeyModifierFlags(xe.xkey.state);		// decode modifier flags
-						if((keyCode = xKeyCode(&xe, ksym, &_modFlags)) != 0 || count != 0)
+						mflags = xKeyModifierFlags(xe.xkey.state);		// decode modifier flags
+						if((keyCode = xKeyCode(&xe, ksym, &mflags)) != 0 || count != 0)
+							{
 							keys = [NSString stringWithCString:buf];	// key has a code
+							__modFlags=mflags;		// may also be modified
+							}
 						else
 							{ // if we have neither a keyCode nor characters we have just changed a modifier Key
 							if(eventType == NSKeyUp)
-								_modFlags &= ~mflags;	// just reset flags by this key
+								__modFlags &= ~mflags;	// just reset flags defined by this key
+							else
+								__modFlags=mflags;	// if modified
 							eventType=NSFlagsChanged;
 							}
-						__modFlags=_modFlags;	// if modified
 						e= [NSEvent keyEventWithType:eventType
 											location:NSZeroPoint
 									   modifierFlags:__modFlags
@@ -2907,7 +2904,7 @@ static NSDictionary *_x11settings;
 						 charactersIgnoringModifiers:[keys lowercaseString]		// FIX ME?
 										   isARepeat:NO	// any idea how to FIXME? - maybe comparing time stamp and keycode with previous key event
 											 keyCode:keyCode];
-#if 0
+#if 1
 						NSLog(@"xKeyEvent: %@", e);
 #endif
 						break;

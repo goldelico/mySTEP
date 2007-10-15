@@ -130,11 +130,6 @@
 // handling input devices
 
 - (NSPoint) _mouseLocationOutsideOfEventStream;
-- (int) _keyModfierFlags;
-
-// what about notifications? 
-// keyboard&mouse are sent through the NSEvent queue.
-// But external changes of window mapping/level/size/location, screen attribute updates?
 
 @end
 

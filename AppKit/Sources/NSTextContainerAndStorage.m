@@ -210,7 +210,7 @@
 - (NSArray *) characters; { return NIMP; }
 - (NSFont *) font; { return NIMP; }
 - (NSColor *) foregroundColor; { return NIMP; }
-- (NSArray *) paragraphs; { return NIMP; }
+- (NSArray *) paragraphs; { return [[self string] componentsSeparatedByString:@"\n"]; }
 - (void) setAttributeRuns:(NSArray *)attributeRuns; { NIMP; return; }
 - (void) setCharacters:(NSArray *)characters; { NIMP; return; }
 - (void) setFont:(NSFont *)font; { NIMP; return; }

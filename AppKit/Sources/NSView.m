@@ -529,6 +529,7 @@ printing
 	if(__toolTipOwnerView == self)
 		[self mouseExited:nil];	// call before releasing anything
 	[_bounds2frame release];
+	[_frame2bounds release];
 	[_bounds2base release];
 	[_base2bounds release];
 	[_dragTypes release];
@@ -938,10 +939,10 @@ printing
 {
 	NSRect n=[self convertRect:aRect toView:nil];		// to NSWindow coordinates
 	n.origin=[window convertBaseToScreen:n.origin];
-	n.origin.x=0.5+(int)(n.origin.x);					// to center of screen pixels - don't round!
-	n.origin.y=0.5+(int)(n.origin.y);
-	n.size.width=(int)(n.size.width+0.5);				// round to nearest integer size
-	n.size.height=(int)(n.size.height+0.5);
+	n.origin.x=0.5+floor(n.origin.x);					// to center of screen pixels - don't round!
+	n.origin.y=0.5+floor(n.origin.y);
+	n.size.width=rint(n.size.width);					// round to nearest integer size
+	n.size.height=rint(n.size.height);
 	n.origin=[window convertScreenToBase:n.origin];		// convert back to NSWindow
 	return [self convertRect:n fromView:nil];			// and back to view
 }
@@ -953,10 +954,13 @@ printing
 	[sub_views makeObjectsPerformSelector:_cmd];	// and invalidate all subviews
 }
 
+// FIXME: frame and bounds rotation are not correctly handled
+// FIXME: scaleUnitSquare is not correctly handled
+
 - (NSAffineTransform*) _bounds2frame;
 { // create transformation matrix
 	if(!_bounds2frame)
-		{ // FIXME: can we optimize if(!_v.customBounds) ???
+		{ // FIXME: can we optimize this if(!_v.customBounds) ???
 		_bounds2frame=[[NSAffineTransform alloc] init];	// create a new transform
 		if([self isFlipped])
 			{
@@ -968,6 +972,9 @@ printing
 			[_bounds2frame translateXBy:-bounds.origin.x yBy:-bounds.origin.y];
 			if(frameRotation != 0.0)
 				[_bounds2frame rotateByDegrees:frameRotation];	// rotate around frame origin
+
+			// FIXME: we can optimize this step if(super_view && [super_view isFlipped])
+
 			[_bounds2frame translateXBy:frame.origin.x yBy:-frame.origin.y];	// shift view to its position within superview
 			}
 		else
@@ -980,8 +987,28 @@ printing
 			if(frameRotation != 0.0)
 				[_bounds2frame rotateByDegrees:frameRotation];	// rotate around frame origin
 			}
+#if 1
+		if(super_view && [super_view isFlipped])
+			{ // flip back coordinates, but take care that our frame.origin is still expressed in flipped coordinates!
+			[_bounds2frame translateXBy:-frame.origin.x yBy:frame.origin.y];	// shift us back (frame.origin is flipped by superview)
+			[_bounds2frame scaleXBy:1.0 yBy:-1.0];	// undo flipping
+			[_bounds2frame translateXBy:frame.origin.x yBy:frame.origin.y-frame.size.height];	// shift view to its target position within flipped superview
+			}
+#endif
+		[_frame2bounds release];
+		_frame2bounds=nil;	// recache
 		}
 	return _bounds2frame;
+}
+
+- (NSAffineTransform *) _frame2bounds;
+{
+	if(!_frame2bounds)
+		{ // not cached
+		_frame2bounds=[[self _bounds2frame] copy];
+		[_frame2bounds invert];	// go back from window to our bounds coordinates
+		}
+	return _frame2bounds;
 }
 
 - (NSAffineTransform *) _bounds2base;
@@ -991,12 +1018,14 @@ printing
 		if(super_view)
 			{
 			_bounds2base=[[self _bounds2frame] copy];
+#if 0
 			if([super_view isFlipped])
 				{ // flip back coordinates, but take care that our frame.origin is still expressed in flipped coordinates!
 				[_bounds2base translateXBy:-frame.origin.x yBy:frame.origin.y];	// shift us back (frame.origin is flipped by superview)
 				[_bounds2base scaleXBy:1.0 yBy:-1.0];	// undo flipping
 				[_bounds2base translateXBy:frame.origin.x yBy:frame.origin.y-frame.size.height];	// shift view to its target position within flipped superview
 				}
+#endif
 			[_bounds2base appendTransform:[super_view _bounds2base]];	// merge with superview's transformation(s)
 			}
 		else
@@ -1028,6 +1057,16 @@ printing
 		}
 	if(!from)
 		return [to _base2bounds];	// convert from window coordinates to base only
+#if 1
+	if(to == [from superview])
+		{ // shortcut to direct superview
+		return [from _bounds2frame];
+		}
+	if(from == [to superview])
+		{ // shortcut to direct subview
+		return [to _frame2bounds];
+		}
+#endif
 	atm=[from _bounds2base];	// convert from base to window coordinates
 	if(to)
 		{ // and transform from window to base
@@ -1052,14 +1091,10 @@ printing
 	if(aView == self)
 		return aRect;
 	atm=[isa _matrixFromView:aView toView:self];
-//	if([aView isFlipped])
-//		aRect.origin.y+=aRect.size.height;		// always convert lower left point
 	r.origin=[atm transformPoint:aRect.origin];
 	r.size=[atm transformSize:aRect.size];
 	if((aRect.size.height < 0) != (r.size.height < 0))
 		r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved: r.size.height=sgn(aRect.size.height)*abs(r.size.height)
-//	if([self isFlipped])
-//		r.origin.y-=r.size.height;				// always convert lower left point
 #if 1
 	if(r.size.height < 0)
 		abort();
@@ -1095,14 +1130,10 @@ printing
 	NSLog(@"convertRect 1");
 #endif
 	atm=[isa _matrixFromView:self toView:aView];
-//	if([self isFlipped])
-//		aRect.origin.y+=aRect.size.height;		// always convert lower left point
 	r.origin=[atm transformPoint:aRect.origin];
 	r.size=[atm transformSize:aRect.size];
 	if((aRect.size.height < 0) != (r.size.height < 0))
 		r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved
-//	if([aView isFlipped])
-//		r.origin.y-=r.size.height;				// always convert lower left point
 #if 0
 	NSLog(@"convertRect 2");
 #endif
@@ -1419,7 +1450,7 @@ printing
 		if(NSIntersectsRect(rect, invalidRects[i]))
 			{
 #if 0
-			NSLog(@"drawing rect %@ intersects %@ for %@", NSStringFromRect(rect), NSStringFromRect( invalidRects[i]), self);
+			NSLog(@"drawing rect %@ intersects %@ for %@", NSStringFromRect(rect), NSStringFromRect(invalidRects[i]), self);
 #endif
 			// what if it intersects???
 			// we might cut out parts
@@ -1432,7 +1463,7 @@ printing
 
 - (BOOL) needsDisplay;
 {
-	return !NSIsEmptyRect(invalidRect);	// need to draw if not empty
+	return !_v.hidden && !NSIsEmptyRect(invalidRect);	// needs to draw something if not empty
 	//	return nInvalidRects != 0;
 }
 
@@ -1451,10 +1482,6 @@ printing
 - (void) setNeedsDisplayInRect:(NSRect) rect;
 {
 #if 0
-	if([isa focusView] != self)
-		NSLog(@"*** -setNeedsDisplayInRect of %@ called while focussed on %@ ***", self, [isa focusView]);
-#endif
-#if 0
 	NSLog(@"-setNeedsDisplayInRect:%@ of %@", NSStringFromRect(rect), self);
 #endif
 	// _v.needsDisplay=YES;
@@ -1466,17 +1493,23 @@ printing
 #endif
 		if(super_view)
 			{
+			NSAffineTransform *atm;
+			NSRect r;
 			// FIXME: not rotation-safe
 			if([self isOpaque])
 				; 
 				// FIXME:  if we are opaque we should just need to setNeedsDisplay without updating the invalidRect of the superview
 				// but the superview must know that there is something to redraw
-				// i.e. this is the real reason why we need the 'ifNeeded' flag independently of the dirty rects
-#if 0	// both should be equivalent
-			[super_view setNeedsDisplayInRect:[self convertRect:rect toView:super_view]];
-#else
-			[super_view setNeedsDisplayInRect:[super_view convertRect:rect fromView:self]];
-#endif
+				// i.e. this is the real reason why we probably need the 'ifNeeded' flag independently of the dirty rects
+			atm=[self _bounds2frame];	// goes to our superview
+			// HM - we should transform the corners individually and determine min/max dimension of the invalidated superview
+			// we can also estimate the bounding box (as long as it is at least the required size)
+			r.origin=[atm transformPoint:rect.origin];
+			r.size=[atm transformSize:rect.size];
+			if((rect.size.height < 0) != (r.size.height < 0))
+				r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved
+			[super_view setNeedsDisplayInRect:r];
+			// FIXME: we should simply loop instead of doing a recursion - to call [window setViewsNeedDisplay:YES]; etc. just once
 			}
 		}
 	else
@@ -1536,7 +1569,7 @@ printing
 		}
 	rect=NSIntersectionRect(bounds, rect);	// shrink to bounds (not invalidRect!)
 	if(NSIsEmptyRect(rect))
-		return;	// nothing to draw
+		return;	// nothing to draw within our bounds - this ends recursion into areas that are not dirty
 	if(![self lockFocusIfCanDrawInContext:context])
 		return;	// can't lock focus
 	// NOTE: we must be prepared for the case that drawRect: changes our frame and/or bounds and even calls setNeedsDisplay
@@ -1544,19 +1577,21 @@ printing
 	if(context == [window graphicsContext])		// NOTE: remove after drawing!
 		[self _removeRectNeedingDisplay:rect];	// should end up with empty list i.e. no more needsDrawing
 	e=[sub_views objectEnumerator];
-	while((subview=[e nextObject]))	// go downwards independently of their needsDisplay status since we have redrawn their background
+	while((subview=[e nextObject]))	// go downwards independently of their needsDisplay status since we have redrawn the background
 		{
-		if(![subview isHidden])	// this saves converting the rect
+		if(![subview isHidden])		// this saves converting the rect if the subview doesn't want to be drawn
 			{
-#if 0	// both should be equivalent
-			NSRect subRect=[self convertRect:rect toView:subview];
-#else
-			NSRect subRect=[subview convertRect:rect fromView:self];
-#endif
+			NSAffineTransform *atm;
+			NSRect subRect;
 			// FIXME: not rotation-safe
+			atm=[subview _frame2bounds];	// transform the dirty rect to our subview
+			// HM - we should transform the corners individually and determine min/max dimension of the invalidated superview
+			// we can also estimate the bounding box (as long as it is at least the required size)
+			subRect.origin=[atm transformPoint:rect.origin];
+			subRect.size=[atm transformSize:rect.size];
+			if((rect.size.height < 0) != (subRect.size.height < 0))
+				subRect.origin.y-=(subRect.size.height=-subRect.size.height);	// there was some flipping involved
 			[subview displayRectIgnoringOpacity:subRect inContext:context];
-			// what do we do if the subview does NOT draw all its dirty rects?
-			// well, we should also have those dirty rects
 			}
 		}
 	[self unlockFocus];
