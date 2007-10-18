@@ -79,11 +79,10 @@ endif
 
 ifeq ($(OPTIMIZE),)
 	# default to optimize depending on BUILD_STYLE
-	# ??? or make it depend on GCC_OPTIMIZATION_LEVEL ???
 	ifeq ($(BUILD_STYLE),Development)
 		OPTIMIZE := s
 	else
-		OPTIMIZE := 3
+		OPTIMIZE := $(GCC_OPTIMIZATION_LEVEL)
 	endif
 endif
 

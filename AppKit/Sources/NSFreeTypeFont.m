@@ -11,7 +11,7 @@
  Useful Manuals:
 	http://tronche.com/gui/x/xlib											Xlib - basic X11 calls
     http://freetype.sourceforge.net/freetype2/docs/reference/ft2-toc.html	libFreetype2 - API
- http://freetype.sourceforge.net/freetype2/docs/tutorial/step1.html tutorial
+	http://freetype.sourceforge.net/freetype2/docs/tutorial/step1.html		a tutorial
 	http://netmirror.org/mirror/xfree86.org/4.4.0/doc/HTML/Xft.3.html		Xft - freetype glue
 	http://netmirror.org/mirror/xfree86.org/4.4.0/doc/HTML/Xrandr.3.html	XResize - rotate extension
 	http://netmirror.org/mirror/xfree86.org/4.4.0/doc/HTML/Xrender.3.html	XRender - antialiased, alpha, subpixel rendering
@@ -101,8 +101,6 @@
 
 @end
 
-// FIXME: we wrap many libFreetype calls here
-// tutorial: http://www.freetype.org/freetype2/docs/tutorial/step1.html
 
 @implementation NSFontDescriptor (NSBackend)	// the NSFontDescriptor can cache a libfreetype FT_Face structure
 
@@ -110,14 +108,14 @@
 
 FT_Library _ftLibrary(void)
 {
-		FT_Error error;
-		static FT_Library _freetypeLibrary;	// For multi-threaded applications each thread should have its own FT_Library object!
-		if(!_freetypeLibrary)
-			{
-			if((error=FT_Init_FreeType(&_freetypeLibrary)))
-				[NSException raise:NSGenericException format:@"Unable to initialize libFreetype"];
-			}
-		return _freetypeLibrary;
+	FT_Error error;
+	static FT_Library _freetypeLibrary;	// For multi-threaded applications each thread should have its own FT_Library object!
+	if(!_freetypeLibrary)
+		{
+		if((error=FT_Init_FreeType(&_freetypeLibrary)))
+			[NSException raise:NSGenericException format:@"Unable to initialize libFreetype"];
+		}
+	return _freetypeLibrary;
 }
 
 // the font cache is a NSDictionary indexed by Font Families
@@ -137,16 +135,16 @@ static NSMutableDictionary *cache;
 #endif
 	for(faceIndex=0; faceIndex < 10; faceIndex++)
 		{ // loop until we can't read a given face
-			FT_Error error;
-			NSDictionary *fontRecord;
-			NSString *family;
-			NSString *style;
-			NSString *name;
-			if(_faceStruct)
-				{
-				FT_Done_Face(_faceStruct);
-				_backendPrivate=NULL;
-				}
+		FT_Error error;
+		NSDictionary *fontRecord;
+		NSString *family;
+		NSString *style;
+		NSString *name;
+		if(_faceStruct)
+			{
+			FT_Done_Face(_faceStruct);
+			_backendPrivate=NULL;
+			}
 #if 0
 		NSLog(@"try face #%lu", faceIndex);
 #endif

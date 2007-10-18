@@ -162,14 +162,24 @@ static void XIntersect(XRectangle *result, XRectangle *with)
 
 static /* inline */ void XUnion(XRectangle *result, XRectangle with)
 {
-	if(with.x+with.width > result->x+result->width)
-		result->width=with.x+with.width-result->x;			// extend to the right
-	if(with.x < result->x)
-		result->width+=result->x-with.x, result->x=with.x;	// extend to the left
-	if(with.y+with.height > result->y+result->height)
-		result->height=with.y+with.height-result->y;		// extend to the top
-	if(with.y < result->y)
-		result->height+=result->y-with.y, result->y=with.y;	// extend to the bottom
+	if(result->width == 0)
+		result->x=with.x, result->width=with.width;	// first point
+	else
+		{
+		if(with.x+with.width > result->x+result->width)
+			result->width=with.x+with.width-result->x;			// extend to the right
+		if(with.x < result->x)
+			result->width+=result->x-with.x, result->x=with.x;	// extend to the left
+		}
+	if(result->height == 0)
+		result->y=with.y, result->height=with.height;	// first point
+	else
+		{
+		if(with.y+with.height > result->y+result->height)
+			result->height=with.y+with.height-result->y;		// extend to the top
+		if(with.y < result->y)
+			result->height+=result->y-with.y, result->y=with.y;	// extend to the bottom
+		}
 }
 
 static inline int _isDoubleBuffered(_NSX11GraphicsContext *win)
@@ -1744,13 +1754,16 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 #endif
 	if(_isDoubleBuffered(self) && _dirty.width > 0 && _dirty.height > 0)
 		{ // copy dirty area (if any) from back to front buffer
+		static GC neutralGC;	// this is a GC with neutral image processing options
 #if 1
 		NSLog(@"flushing backing store buffer: %@", NSStringFromXRect(_dirty));
 #endif
+		if(!neutralGC)
+			neutralGC=XCreateGC(_display, (Window) _graphicsPort, 0, NULL);	// create a default GC
 		XCopyArea(_display,
 				  ((Window) _graphicsPort), 
 				  _realWindow,
-				  _state->_gc,		// checkme - can we really use this GC or do we need a different one???
+				  neutralGC,
 				  _dirty.x, _dirty.y,
 				  _dirty.width, _dirty.height,
 				  _dirty.x, _dirty.y);
@@ -2723,29 +2736,8 @@ static NSDictionary *_x11settings;
 						_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[window graphicsContext];
 						if(_isDoubleBuffered(ctxt))
 							{ // copy from backing store
-							static GC neutralGC;
-							if(!neutralGC)
-								neutralGC=XCreateGC(_display, (Window) (ctxt->_graphicsPort), 0, NULL);	// create a default GC
-#if 0
-							NSLog(@"expose backing store %@ (%d,%d),(%u,%u)", window, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);
-	//						XSetClipMask(_display, ((_NSX11GraphicsState *) (ctxt->_graphicsState))->_gc, None);	// remove any clipping
-#if 1
-							{
-								XRectangle box;
-								XClipBox(((_NSX11GraphicsState *) (ctxt->_graphicsState))->_clip, &box);
-								NSLog(@"clip box=((%d,%d),(%d,%d))", box.x, box.y, box.width, box.height);
-							}
-#endif
-#endif
-							XCopyArea(_display,
-									  (Window) (ctxt->_graphicsPort), 
-									  ctxt->_realWindow,
-//									  ((_NSX11GraphicsState *) (ctxt->_graphicsState))->_gc,		// checkme - can we really use this GC or do we need a different one???
-									  neutralGC,
-									  xe.xexpose.x, xe.xexpose.y,
-									  xe.xexpose.width, xe.xexpose.height,
-									  xe.xexpose.x, xe.xexpose.y);							
-//							XSetRegion(_display, ((_NSX11GraphicsState *) (ctxt->_graphicsState))->_gc, ((_NSX11GraphicsState *) (ctxt->_graphicsState))->_clip);	// restore clipping mask
+							_setDirtyRect(ctxt, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);	// flush at least the exposed area
+							[ctxt flushGraphics];	// plus anything we need to flush anyway
 							}
 						else
 							{ // queue up an expose event

@@ -19,7 +19,8 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \f1\b0 \
 \
-* AppKit: setNeedsDisplayInRect: and drawing further optimized to reduce number of FPU commands\
+* Backend: flushGraphics did not use a neutral GC; expose events now simply update the dirty rect and issue a flushGraphics\
+* AppKit: setNeedsDisplayInRect: and drawing (convertRect:toView: etc.) further optimized to reduce number of FPU operations\
 * AppKit: needsPanelToBecomeKey and becomesKeyOnlyIfNeeded implemented\
 * Backend: _sendEvent added to _NSX11Screen to support handwriting and virtual keyboards\
 * AppKit: NSColorPanel improved (e.g. use a JPEG graphics to display the Color Wheel)\
