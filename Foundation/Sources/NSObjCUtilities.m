@@ -26,7 +26,7 @@
 #define LOG_MEMORY 1	// NSLog prints real memory and number of allocated objects
 
 #if __arm__
-#define atof _atof
+#define atof _atof	// rename atof in loaded header file
 #endif
 
 #include <sys/types.h>
@@ -832,7 +832,7 @@ static void * _load(char *lib)
 	if(_softFloat) \
 		{ \
 			static long (*lp)(); \
-			union { float f; long l; } val; \
+			volatile union { float f; long l; } val; \
 			val.l=(FNP(lp, LIB, FUNCTION))(ARG); \
 			return val.f; \
 		} \
@@ -848,7 +848,7 @@ static void * _load(char *lib)
 	if(_softFloat) \
 		{ \
 			static long long (*lp)(); \
-			union { double f; long long l; } val; \
+			volatile union { double f; long long l; } val; \
 			val.l=(FNP(lp, LIB, FUNCTION))(ARG); \
 			return val.f; \
 		} \
@@ -862,7 +862,7 @@ static void * _load(char *lib)
 	if(_softFloat) \
 		{ \
 			static long long (*lp)(); \
-			union { double f; long long l; } val; \
+			volatile union { double f; long long l; } val; \
 			val.l=(FNP(lp, LIB, FUNCTION))(ARG1, ARG2); \
 			return val.f; \
 		} \
@@ -874,6 +874,7 @@ static void * _load(char *lib)
 // the following functions are known to be used by QuantumSTEP
 
 #undef atof
+
 WRAP_DOUBLE(libc, atof, const char *, nptr);	// is in libc!
 
 WRAP_DOUBLE(libm, acos, double, x);

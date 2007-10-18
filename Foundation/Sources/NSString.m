@@ -2132,9 +2132,9 @@ unsigned int end, start = anIndex;						// Determining Composed
 
 - (double) doubleValue
 {
-#if 0
-	char *s=[self cString];
-	fprintf(stderr, "%s %lf", s, atof(s));
+#if 1
+	const char *s=[self cString];
+	fprintf(stderr, "doubleValue(%s) -> %lf\n", s, atof(s));
 #endif
 	return atof([self cString]);
 }

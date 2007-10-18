@@ -795,12 +795,12 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #if 0
 	NSLog(@"_fill");
 #endif
-	[self _setCompositing];
-	// FIXME: is this fetched from the Server? If yes, to reduce the roundtrip time, we should keep TWO GCs
+	// FIXME: is this fetched from the Server? If yes, to reduce the roundtrip time, we should have TWO GCs
 	XGetGCValues(_display, _state->_gc, GCForeground | GCBackground, &values);
 	XSetForeground(_display, _state->_gc, values.background);	// set the fill color
 	XSetFillStyle(_display, _state->_gc, FillSolid);
 	XSetFillRule(_display, _state->_gc, [path windingRule] == NSNonZeroWindingRule?WindingRule:EvenOddRule);
+	[self _setCompositing];
 	while([self _pointsForPath:&state])
 		{
 		XRectangle rect;

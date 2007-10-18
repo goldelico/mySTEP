@@ -58,7 +58,15 @@ static NSNotificationCenter *_defaultCenter = nil;
 
 - (void) postNotification:(NSNotification*)notification
 {
+#if 0
+	NSLog(@"postNotification %@", notification, observer);
+	NSLog(@"  observer=%p", observer);
+	NSLog(@"  observer=%@", observer);
+#endif
     [observer performSelector:selector withObject:notification];
+#if 0
+	NSLog(@"posted");
+#endif
 }
 
 @end /* GSNoteObserver */
@@ -285,7 +293,8 @@ GSNoteDictionary *reg;
 
 - (void) removeObserver:observer
 {
-id name, enumerator = [_nameToObjects keyEnumerator];
+	NSString *name;
+	NSEnumerator *enumerator = [_nameToObjects keyEnumerator];
 
     while ((name = [enumerator nextObject]))
 		[[_nameToObjects objectForKey:name] removeObserver:observer];
@@ -295,7 +304,7 @@ id name, enumerator = [_nameToObjects keyEnumerator];
 
 - (void) postNotificationName:(NSString*)notificationName object:object
 {
-	id notice = [[NSNotification alloc] initWithName:notificationName object:object userInfo:nil];
+	NSNotification *notice = [[NSNotification alloc] initWithName:notificationName object:object userInfo:nil];
     [self postNotification: notice];
     [notice release];
 }
@@ -304,7 +313,7 @@ id name, enumerator = [_nameToObjects keyEnumerator];
 					   object:object
 					   userInfo:(NSDictionary*)userInfo;
 {
-	id notice = [[NSNotification alloc] initWithName:notificationName object:object userInfo:userInfo];
+	NSNotification *notice = [[NSNotification alloc] initWithName:notificationName object:object userInfo:userInfo];
 	[self postNotification: notice];
     [notice release];
 }
@@ -328,6 +337,11 @@ id name, enumerator = [_nameToObjects keyEnumerator];
     noname = [_nullNameToObjects listToNotifyForObject:object];
 
 												// send notifications
+#if 0
+	NSLog(@"post notification %@", notice);
+	NSLog(@"  name %@", name);
+	NSLog(@"  noname %@", noname);
+#endif
 	NS_DURING
 		[name makeObjectsPerformSelector:@selector(postNotification:) withObject:notice];
 		[noname makeObjectsPerformSelector:@selector(postNotification:) withObject:notice];

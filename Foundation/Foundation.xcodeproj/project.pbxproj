@@ -1457,7 +1457,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GENERATE_MASTER_OBJECT_FILE = NO;
-				INFOPLIST_FILE = "/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/Foundation/Foundation-Info copy.plist";
+				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				MACOSX_DEPLOYMENT_TARGET = 10.3;
 				OTHER_CFLAGS = "";
@@ -1494,7 +1494,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GENERATE_MASTER_OBJECT_FILE = NO;
-				INFOPLIST_FILE = "/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/Foundation/Foundation-Info copy.plist";
+				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				MACOSX_DEPLOYMENT_TARGET = 10.3;
 				OTHER_CFLAGS = "";

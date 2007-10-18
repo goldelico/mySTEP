@@ -347,8 +347,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 + (NSApplication *) sharedApplication
 {
 	Class class;
-#if 0
-	NSLog(@"-sharedApplication");
+#if 1
+	NSLog(@"+sharedApplication");
 #endif
 	if(!NSApp)
 		{
@@ -365,7 +365,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		   NSLog(@"principal class (%@) of main bundle is not subclass of NSApplication", NSStringFromClass(class));
 		[class new];	// create instance -init will set NSApp
 		}
-#if 0
+#if 1
 	NSLog(@"NSApp = %@", NSApp);
 #endif
 	return NSApp;
@@ -415,14 +415,14 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (id) init
 {
-	NSDebugLog(@"Begin of NSApplication -init");
-#if 0
+#if 1
 	NSLog(@"Begin of %@ init", self);
 #endif
-	if(NSApp != nil)
+	if(NSApp != nil && NSApp != self)
 		{
-		NSLog(@"Warning: NSApp has already been initialized.");
-		return NSApp;	// there is already one
+		// this will be called to initWithCoder the dummy object if NSApp is the file owner of a NIB file
+		NSLog(@"Warning: NSApp has already been initialized to %@: %@", NSApp, self);
+		return [NSApp retain];	// there is already one
 		}
 	if((self=[super init]))
 		{

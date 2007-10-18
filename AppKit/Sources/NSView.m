@@ -534,7 +534,6 @@ printing
 	[_base2bounds release];
 	[_dragTypes release];
 	// FIXME: release gState if we have a private one
-//	[sub_views makeObjectsPerformSelector:@selector(release)];  // HNS: why that?? sub_views release will send a second release message which might go to a dealloc'ed sub_view
 	[sub_views release];
 	[super dealloc];
 }
@@ -801,13 +800,19 @@ printing
 		[self _setSuperview:super_view];	// will also call invalidate
 	else
 		[self _invalidateCTM];
-#if 1
+#if 0
 	NSLog(@"autosize %d %@", _v.autoSizeSubviews, self);
 #endif
 	if(_v.autoSizeSubviews && !NSEqualSizes(o, frame.size))
 		[self resizeSubviewsWithOldSize: o];	// Resize subviews
+#if 0
+	NSLog(@"autosized");
+#endif
 	if(_v.postFrameChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
+#if 0
+	NSLog(@"notified");
+#endif
 }
 
 - (void) setFrameOrigin:(NSPoint)newOrigin
@@ -950,7 +955,9 @@ printing
 - (void) _invalidateCTM;
 {
 	ASSIGN(_bounds2frame, nil);
+	ASSIGN(_frame2bounds, nil);
 	ASSIGN(_bounds2base, nil);
+	ASSIGN(_base2bounds, nil);
 	[sub_views makeObjectsPerformSelector:_cmd];	// and invalidate all subviews
 }
 
@@ -987,14 +994,12 @@ printing
 			if(frameRotation != 0.0)
 				[_bounds2frame rotateByDegrees:frameRotation];	// rotate around frame origin
 			}
-#if 1
 		if(super_view && [super_view isFlipped])
 			{ // flip back coordinates, but take care that our frame.origin is still expressed in flipped coordinates!
 			[_bounds2frame translateXBy:-frame.origin.x yBy:frame.origin.y];	// shift us back (frame.origin is flipped by superview)
 			[_bounds2frame scaleXBy:1.0 yBy:-1.0];	// undo flipping
 			[_bounds2frame translateXBy:frame.origin.x yBy:frame.origin.y-frame.size.height];	// shift view to its target position within flipped superview
 			}
-#endif
 		[_frame2bounds release];
 		_frame2bounds=nil;	// recache
 		}
@@ -1057,7 +1062,6 @@ printing
 		}
 	if(!from)
 		return [to _base2bounds];	// convert from window coordinates to base only
-#if 1
 	if(to == [from superview])
 		{ // shortcut to direct superview
 		return [from _bounds2frame];
@@ -1066,7 +1070,6 @@ printing
 		{ // shortcut to direct subview
 		return [to _frame2bounds];
 		}
-#endif
 	atm=[from _bounds2base];	// convert from base to window coordinates
 	if(to)
 		{ // and transform from window to base
@@ -1097,7 +1100,10 @@ printing
 		r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved: r.size.height=sgn(aRect.size.height)*abs(r.size.height)
 #if 1
 	if(r.size.height < 0)
-		abort();
+		{
+		NSLog(@"conversion from %@ to %@ results in negative rect height: %@ -> %@", aView, self, NSStringFromRect(aRect), NSStringFromRect(r));
+//		abort();
+		}
 #endif
 	return r;
 }
@@ -1139,7 +1145,9 @@ printing
 #endif
 #if 1
 	if(r.size.height < 0)
-		abort();
+		{
+		NSLog(@"conversion to %@ from %@ results in negative rect height: %@ -> %@", aView, self, NSStringFromRect(aRect), NSStringFromRect(r));
+		}
 #endif
 	return r;
 }
@@ -1195,6 +1203,7 @@ printing
 		return;	// ignore unchanged size
 #if 1
 	NSLog(@"resizeSubviewsWithOldSize:%@ -> %@ %@", NSStringFromSize(oldSize), NSStringFromSize(frame.size), self);
+	NSLog(@"subviews=%@", sub_views);
 #endif
 	if (_v.autoSizeSubviews && !_v.isRotatedFromBase)					 
 		{												// resize subviews only
@@ -1212,10 +1221,13 @@ printing
 {
 	float change, changePerOption;
 	NSSize old_size = frame.size;
-	NSSize superViewFrameSize = [super_view frame].size;	// super_view should not be nil!
+	NSSize superViewFrameSize;	// super_view should not be nil!
 	BOOL changedOrigin = NO;
 	BOOL changedSize = NO;
 	int options = 0;
+	if(!super_view)
+		return;	// how can this happen? We are called as [[sub_views objectAtIndex:i] resizeWithOldSuperviewSize: oldSize]
+	superViewFrameSize = [super_view frame].size;	// super_view should not be nil!
 	if(NSEqualSizes(oldSize, superViewFrameSize))
 		return;	// ignore unchanged size
 #if 1
@@ -1405,7 +1417,7 @@ printing
 - (NSRect) visibleRect									// return intersection
 {														// between bounds and
 	if(super_view)										// superview's visible rect
-		{ 
+		{
 		NSRect s = [self convertRect:[super_view visibleRect] fromView:super_view];
 		return NSIntersectionRect(s, bounds);
 		}

@@ -131,9 +131,11 @@
 
 - (int) numberOfItems
 {
+#if 1
+	NSLog(@"numberOfItems: %@", self);
+#endif
 	if (_cbc.usesDataSource)
 		return [_dataSource numberOfItemsInComboBoxCell: self];
-
     return [_popUpList count];
 }
 
@@ -213,12 +215,11 @@
 	if (_cbc.usesDataSource)
 		NSLog(@"NSComboBoxCell is not configured for an internal datasource");
 	else
-		return [_popUpList indexOfObject:object];
-	
+		return [_popUpList indexOfObject:object];	
 	return NSNotFound;
 }
 
-- (void) reloadData	{ [_tableView reloadData]; }
+- (void) reloadData	{ NSLog(@"reloading"); [_tableView reloadData]; NSLog(@"reloaded"); }
 
 - (void) noteNumberOfItemsChanged { [_tableView noteNumberOfRowsChanged]; }
 
