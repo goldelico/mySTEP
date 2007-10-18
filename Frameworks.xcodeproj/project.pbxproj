@@ -18,6 +18,17 @@
 			name = SDK;
 			productName = src;
 		};
+		EEA30E900CC7D77D0046EFB1 /* copy MacPorts dylibs */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = EEA30E970CC7D7990046EFB1 /* Build configuration list for PBXAggregateTarget "copy MacPorts dylibs" */;
+			buildPhases = (
+				EEA30E8F0CC7D77D0046EFB1 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = "copy MacPorts dylibs";
+			productName = "copy MacPorts dylibs";
+		};
 		EEA3B528095422CF001244CF /* src */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = EE2F830D0983F176003EA8A2 /* Build configuration list for PBXAggregateTarget "src" */;
@@ -78,6 +89,7 @@
 				EEF4049E05B163340068F931 /* myFrameworks */,
 				EEA3B528095422CF001244CF /* src */,
 				EE87B8F90CBDFFA7000A2B66 /* SDK */,
+				EEA30E900CC7D77D0046EFB1 /* copy MacPorts dylibs */,
 			);
 		};
 /* End PBXProject section */
@@ -95,6 +107,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# shell script goes here\n\nwhile read CMD EQ VALUE\ndo\n\tcase $CMD in\n\t\tMAJOR_VERSION ) MAJOR_VERSION=\"$VALUE\";;\n\t\tMINOR_VERSION ) MINOR_VERSION=\"$VALUE\";;\n\t\tBUILD_NUMBER ) BUILD_NUMBER=\"$VALUE\";;\n\tesac\ndone <Version.def\n\nDEST=mySTEP-SDK-${MAJOR_VERSION}.${MINOR_VERSION}B${BUILD_NUMBER}.tgz \n\ntar czf $DEST \\\n--exclude '*.mode1' \\\n--exclude '*.pbxuser' \\\n--exclude .DS_Store \\\n--exclude build \\\n--exclude CVS \\\n--exclude .svn \\\n--exclude '*~.nib' \\\n--exclude '*~.mib' \\\n--exclude '._*' \\\n--exclude $'Icon\\r' \\\n--exclude '.gdb_history' \\\n-C $HOME \\\n./Documents/Projects/QuantumSTEP/System/Sources/Frameworks/HISTORY.rtf \\\n\"./Documents/Projects/QuantumSTEP/System/Sources/Frameworks/LGPL LICENCE.txt\" \\\n./Documents/Projects/QuantumSTEP/System/Sources/Frameworks/README \\\n./Documents/Projects/QuantumSTEP/System/Sources/Frameworks/Version.def \\\n./Documents/Projects/QuantumSTEP/System/Sources/Frameworks/mySTEP.make \\\n./Documents/Projects/QuantumSTEP/System/Library/Frameworks \\\n./Documents/Projects/QuantumSTEP/usr/include \\\n./Documents/Projects/QuantumSTEP/usr/lib\n\nls -l $DEST\ntar tvzf $DEST";
+		};
+		EEA30E8F0CC7D77D0046EFB1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here\n\n# make a local copy of special libraries that we do not find on the Mac\n\nrm -rf macports-dylibs\nmkdir -p macports-dylibs/include macports-dylibs/lib\n\n(cd /opt/local/include && tar czf - gif_lib.h jpeglib.h png.h libpng12/ openssl/ tiff.h zlib.h) | (cd macports-dylibs/include && tar xvzf -)\n(cd /opt/local/lib && tar czf - libfreetype*.dylib libssl*.dylib libungif*.dylib libjpeg*.dylib libpng*.dylib libtiff*.dylib libz*.dylib) | (cd macports-dylibs/lib && tar xvzf -)\n\nexit 0";
 		};
 		EEA3B527095422CF001244CF /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -314,6 +339,35 @@
 			};
 			name = Default;
 		};
+		EEA30E980CC7D7990046EFB1 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "copy MacPorts dylibs";
+			};
+			name = Development;
+		};
+		EEA30E990CC7D7990046EFB1 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				PRODUCT_NAME = "copy MacPorts dylibs";
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EEA30E9A0CC7D7990046EFB1 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "copy MacPorts dylibs";
+			};
+			name = Default;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -353,6 +407,16 @@
 				EE87B8FC0CBDFFA7000A2B66 /* Development */,
 				EE87B8FD0CBDFFA7000A2B66 /* Deployment */,
 				EE87B8FE0CBDFFA7000A2B66 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EEA30E970CC7D7990046EFB1 /* Build configuration list for PBXAggregateTarget "copy MacPorts dylibs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEA30E980CC7D7990046EFB1 /* Development */,
+				EEA30E990CC7D7990046EFB1 /* Deployment */,
+				EEA30E9A0CC7D7990046EFB1 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
