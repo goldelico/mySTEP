@@ -78,8 +78,13 @@ ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 endif
 
 ifeq ($(OPTIMIZE),)
-	# default to optimize for space
-	OPTIMIZE := s
+	# default to optimize depending on BUILD_STYLE
+	# ??? or make it depend on GCC_OPTIMIZATION_LEVEL ???
+	ifeq ($(BUILD_STYLE),Development)
+		OPTIMIZE := s
+	else
+		OPTIMIZE := 3
+	endif
 endif
 
 ZAURUS:=$(shell cat /Developer/Xtoolchain/IPaddr 2>/dev/null)
