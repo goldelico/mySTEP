@@ -1581,7 +1581,7 @@ printing
 		}
 	rect=NSIntersectionRect(bounds, rect);	// shrink to bounds (not invalidRect!)
 	if(NSIsEmptyRect(rect))
-		return;	// nothing to draw within our bounds - this ends recursion into areas that are not dirty
+		return;	// nothing to draw within our bounds
 	if(![self lockFocusIfCanDrawInContext:context])
 		return;	// can't lock focus
 	// NOTE: we must be prepared for the case that drawRect: changes our frame and/or bounds and even calls setNeedsDisplay
@@ -1591,20 +1591,21 @@ printing
 	e=[sub_views objectEnumerator];
 	while((subview=[e nextObject]))	// go downwards independently of their needsDisplay status since we have redrawn the background
 		{
-		if(![subview isHidden])		// this saves converting the rect if the subview doesn't want to be drawn
-			{
-			NSAffineTransform *atm;
-			NSRect subRect;
-			// FIXME: not rotation-safe
-			atm=[subview _frame2bounds];	// transform the dirty rect to our subview
-			// HM - we should transform the corners individually and determine min/max dimension of the invalidated superview
-			// we can also estimate the bounding box (as long as it is at least the required size)
-			subRect.origin=[atm transformPoint:rect.origin];
-			subRect.size=[atm transformSize:rect.size];
-			if((rect.size.height < 0) != (subRect.size.height < 0))
-				subRect.origin.y-=(subRect.size.height=-subRect.size.height);	// there was some flipping involved
-			[subview displayRectIgnoringOpacity:subRect inContext:context];
-			}
+		NSAffineTransform *atm;
+		NSRect subRect;
+		if([subview isHidden])		// this saves converting the rect if the subview doesn't want to be drawn
+			continue;
+		if(!NSIntersectsRect([subview frame], rect))
+			continue;	// subview is not within rect - ignore transformation
+		// FIXME: not rotation-safe
+		atm=[subview _frame2bounds];	// transform the dirty rect to our subview
+										// HM - we should transform the corners individually and determine min/max dimension of the invalidated superview
+										// we can also estimate the bounding box (as long as it is at least the required size)
+		subRect.origin=[atm transformPoint:rect.origin];
+		subRect.size=[atm transformSize:rect.size];
+		if((rect.size.height < 0) != (subRect.size.height < 0))
+			subRect.origin.y-=(subRect.size.height=-subRect.size.height);	// there was some flipping involved
+		[subview displayRectIgnoringOpacity:subRect inContext:context];
 		}
 	[self unlockFocus];
 }

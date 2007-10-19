@@ -183,7 +183,7 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 	[__upCell setHighlightsBy:NSContentsCellMask];	// no PushIn effect - just swap images
 	[__upCell setImagePosition:NSImageOnly];
 	[__upCell setContinuous:YES];
-	[__upCell setPeriodicDelay:0.05 interval:0.05];
+	[__upCell setPeriodicDelay:0.15 interval:0.05];
 	__downCell = [__upCell copy];
 	__leftCell = [__upCell copy];
 	__rightCell = [__upCell copy];

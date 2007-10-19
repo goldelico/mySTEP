@@ -162,6 +162,9 @@ static void XIntersect(XRectangle *result, XRectangle *with)
 
 static /* inline */ void XUnion(XRectangle *result, XRectangle with)
 {
+#if 0
+	NSLog(@"XUnion: %@ %@", NSStringFromXRect(*result), NSStringFromXRect(with));
+#endif
 	if(result->width == 0)
 		result->x=with.x, result->width=with.width;	// first point
 	else
@@ -180,6 +183,9 @@ static /* inline */ void XUnion(XRectangle *result, XRectangle with)
 		if(with.y < result->y)
 			result->height+=result->y-with.y, result->y=with.y;	// extend to the bottom
 		}
+#if 0
+	NSLog(@"result: %@", NSStringFromXRect(*result));
+#endif
 }
 
 static inline int _isDoubleBuffered(_NSX11GraphicsContext *win)
@@ -2532,7 +2538,7 @@ static NSDictionary *_x11settings;
 			{	// loop and grab all events
 			static Window lastXWin=None;		// last window (cache key)
 			static int windowNumber;			// number of lastXWin
-			static unsigned int windowHeight;	// attributes of lastXWin
+			static int windowHeight;			// attributes of lastXWin (signed so that we can calculate windowHeight-y and return negative coordinates)
 			static float windowScale;			// scaling factor
 			static NSWindow *window=nil;		// associated NSWindow of lastXWin
 			static NSEvent *lastMotionEvent=nil;
@@ -3072,11 +3078,13 @@ static NSDictionary *_x11settings;
 	NSWindow *win;
 	NSPoint loc;
 	XKeyEvent event;
+	_NSX11GraphicsContext *ctxt;
 	long mask;
+	int type=[e type];
 #if 1
 	NSLog(@"_sendEvent %@", e);
 #endif
-	switch([e type])
+	switch(type)
 		{
 		case NSKeyUp:
 			event.type = KeyRelease;
@@ -3092,8 +3100,9 @@ static NSDictionary *_x11settings;
 		}
 	event.window=[e windowNumber];	// use 1 == InputFocus
 	win=[NSWindow _windowForNumber:event.window];	// try to find
+	ctxt=(_NSX11GraphicsContext *) [win graphicsContext];
 	if(!win)
-		{
+		{ // we don't know the window...
 		// ???
 		}
 	event.display = _display;
@@ -3102,11 +3111,9 @@ static NSDictionary *_x11settings;
 	event.time = [e timestamp]/1000.0;
 	if(event.time == 0)
 		event.time=CurrentTime;
-	// fixme - translate location!
 	loc=[e locationInWindow];
-// #define X11toScreen(record) (windowScale != 1.0?NSMakePoint(record.x/windowScale, (windowHeight-record.y)/windowScale):NSMakePoint(record.x, windowHeight-record.y))
-	event.x = loc.x;
-	event.y = loc.y;
+	event.x = loc.x*ctxt->_scale;
+	event.y = ctxt->_xRect.height - (int)(loc.y*ctxt->_scale);
 	event.x_root = 1;
 	event.y_root = 1;
 	event.same_screen=([win screen] == self);

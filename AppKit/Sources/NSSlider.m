@@ -329,7 +329,7 @@ NSSize size = [image size];
 	float maxValue = [self maxValue];
 	float floatValue = 0;
 	float position;
-	// Adjust the point to lie inside the knob slot. We don't have to worry  whether the view is flipped or not.
+	// Adjust the point to lie inside the knob slot. We don't have to worry whether the view is flipped or not.
 	if (isVertical)
 		{
 		if (point.y < slotRect.origin.y + knobRect.size.height / 2)
