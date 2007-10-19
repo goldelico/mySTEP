@@ -38,6 +38,7 @@
 #endif
 
 #include <dlfcn.h>
+#include <math.h>
 
 #import <Foundation/NSObjCRuntime.h>
 
@@ -803,7 +804,7 @@ static void * _load(char *lib)
 		{ // first call - try to determine which type of library we have
 		double r;
 		double (*sqrtfn)(double);
-		sqrtfn=dlsym(libp, "sqrt");
+		sqrtfn=dlsym(libp, "sqrt");	// original, unwrapped sqrt function
 #if 0
 		printf("sqrtfn=%p\n", sqrtfn); fflush(stdout);
 #endif
@@ -815,6 +816,8 @@ static void * _load(char *lib)
 #if 1
 		fprintf(stderr, "%s appears to be %s libc/libm\n", lib, _softFloat?"softfloat":"hardfloat");
 #endif
+		if(_softFloat && sqrt(4.0) != 2.0)
+			fprintf(stderr, "softfloat wrapper error sqrt(4.0) -> %lf", sqrt(4.0));
 		}
 	return libp;
 }
