@@ -255,6 +255,8 @@
 - (void) setBoundsRotation:(float)angle			{ NIMP; }
 - (void) setFrameRotation:(float)angle			{ NIMP; }
 
+// FIXME: our superview is now flipped!
+
 - (void) scrollToPoint:(NSPoint)point
 { // point should lie within the bounds rect of self
 	extern BOOL _NSShowAllDrawing;	// defined in NSView
@@ -359,6 +361,8 @@
 			{
 			[[NSColor blueColor] set];
 			NSFrameRect(dest);
+			[[self window] flushGraphics];
+			sleep(1);
 			}
 		[self unlockFocus];
 		}
@@ -374,6 +378,8 @@
 			[[NSColor redColor] set];
 			NSFrameRect(xSlice);
 			[self unlockFocus];
+			[[self window] flushGraphics];
+			sleep(1);
 			}
 		}
 	if(!NSIsEmptyRect(ySlice))
@@ -385,6 +391,8 @@
 			[[NSColor greenColor] set];
 			NSFrameRect(ySlice);
 			[self unlockFocus];
+			[[self window] flushGraphics];
+			sleep(1);
 			}
 		}													
 }			

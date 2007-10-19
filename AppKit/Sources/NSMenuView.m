@@ -792,8 +792,9 @@
 	NSTimeInterval menuOpenTimestamp=[theEvent timestamp];
 	NSMenuView *mv;
 	int idx;
+	BOOL stayOpen=NO;
 	[NSApp preventWindowOrdering];
-#if 0
+#if 1
 	NSLog(@"mouseDown:%@", theEvent);
 #endif
 	[self update];	// update/enable menu(s)
@@ -808,8 +809,8 @@
 			}
 		if(type == NSLeftMouseDown)
 			{
-			if(![self trackWithEvent:theEvent])
-				{
+			if(![self trackWithEvent:theEvent] && stayOpen)
+				{ // user clicked outside after a mouse up in this loop
 				[NSApp postEvent:theEvent atStart:YES];	// re-queue
 				break;	// clicked outside of menu
 				}
@@ -818,6 +819,7 @@
 			{
 			if([theEvent timestamp]-menuOpenTimestamp > 0.5)
 				break;	// was hold down long enough
+			stayOpen=YES;
 			}
 		else if(type == NSMouseMoved || type == NSLeftMouseDragged)
 			[self trackWithEvent:theEvent];
@@ -851,7 +853,7 @@
 	NSPanel *win;
 	NSMenuView *menuView;
 	NSRect r;
-#if 0
+#if 1
 	NSLog(@"popUpContextMenu %08x", menu);
 	NSLog(@"popUpContextMenu %@", [menu title]);
 	NSLog(@"popUpContextMenu event %@", event);
@@ -867,7 +869,7 @@
 										defer:YES] retain];	// will be released on close
 	[win setWorksWhenModal:YES];
 	[win setLevel:NSSubmenuWindowLevel];
-#if 1
+#if 0
 	[win setTitle:@"Context Menu"];
 #endif
 	menuView=[[[NSMenuView class] alloc] initWithFrame:[[win contentView] frame]];	// make new NSMenuView
@@ -875,15 +877,11 @@
 	[menuView setHorizontal:NO];	// make popup menu vertical
 	[menuView _setContextMenu:YES];	// close on mouseUp
 	[menuView setMenu:menu];		// define to manage selected menu
-#if 1
+#if 0
 	NSLog(@"win=%@", win);
 	NSLog(@"autodisplay=%d", [win isAutodisplay]);
 #endif
 	[[win contentView] addSubview:menuView];	// add to view hiearachy
-
-	/// FIXME: use mouse location of current event to determine correct menu location
-
-//	r=[view convertRect:[view frame] toView:nil];			// convert view's frame
 	r.origin=[[view window] convertBaseToScreen:[event locationInWindow]];	// to screen coordinates
 	r.size=NSMakeSize(1.0, 1.0);
 #if 1

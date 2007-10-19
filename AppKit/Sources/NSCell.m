@@ -910,11 +910,11 @@ static NSCursor *__textCursor = nil;
 			 ofView:(NSView *)controlView
 	   untilMouseUp:(BOOL)untilMouseUp
 {
-	NSPoint point = [controlView convertPoint:[event locationInWindow] fromView:nil];
+	NSPoint point=[controlView convertPoint:[event locationInWindow] fromView:nil];
 	NSPoint last_point=point;
 	id target = [self target];
 	SEL action = [self action];
-	NSMenu *contextMenu=[controlView menu];	// if we have a context menu, pop it up after 0.5 seconds without movement
+	NSMenu *contextMenu=[controlView menu];	// if we have a context menu, pop it up after approx. 0.5 seconds without movement
 	NSDate *expiration;
 	// FIXME: mask should probably depend on which mouse went down in event!
 	unsigned int mask = NSLeftMouseDraggedMask | NSRightMouseDraggedMask | NSLeftMouseDownMask | NSMouseMovedMask | NSLeftMouseUpMask;
@@ -954,7 +954,7 @@ static NSCursor *__textCursor = nil;
 		NSLog(@"event=%@", event);
 #endif
 		if(!event)
-			{ // no next event, i.e. timed out
+			{ // no matching event, i.e. timed out
 #if 1
 			NSLog(@"pop up context menu: %@", contextMenu);
 #endif

@@ -838,7 +838,7 @@ NSRect r = {{0,0}, {MAX(1, intercellWidth), NSHeight(frame)}};
 - (int) numberOfRows							 
 {
 	// FIXME: cache until -noteNumberOfRowsChanged is called which clears the cache
-#if 1
+#if 0
 	NSLog(@"numberOfRows: %@", self);
 #endif
 	return [_dataSource numberOfRowsInTableView:self];
@@ -1627,7 +1627,7 @@ int index = [self columnWithIdentifier:identifier];
 {
 	int rows = [self numberOfRows];
 	int cols = [_tableColumns count];
-#if 1
+#if 0
 	NSLog(@"tile %@", self);
 	NSLog(@"cols %d", cols);
 #endif
@@ -1636,7 +1636,7 @@ int index = [self columnWithIdentifier:identifier];
 		NSRect c = [self rectOfColumn: cols - 1];	// last column
 		NSRect r = [_headerView frame];
 		r.size.width = NSMaxX(c);
-#if 1
+#if 0
 		NSLog(@"header view frame: %@", NSStringFromRect(r));
 #endif
 		[_headerView setFrame: r];
@@ -1647,31 +1647,31 @@ int index = [self columnWithIdentifier:identifier];
 			// limit column rect height in case frame size has changed
 			c.size.height = NSMaxY(r); 
 			r.size.width = NSWidth(c);
-#if 1
+#if 0
 			NSLog(@"tile r=%@ c=%@", NSStringFromRect(r), NSStringFromRect(c));
 #endif
 			r=NSUnionRect(r, c);
-#if 1
+#if 0
 			NSLog(@"union r=%@", NSStringFromRect(r));
 #endif
 			[super setFrame:r];	// does nothing if we did not really change
 			}
 		}
-#if 1
+#if 0
 	NSLog(@"tile done");
 #endif
 }
 
 - (void) reloadData							
 {
-#if 1
+#if 0
 	NSLog(@"reloadData: %@", self);
 #endif
 	// end any editing
 	[self noteNumberOfRowsChanged];
 	[self tile];
 	[self setNeedsDisplayInRect:bounds];
-#if 1
+#if 0
 	NSLog(@"reloadData done.");
 #endif
 }

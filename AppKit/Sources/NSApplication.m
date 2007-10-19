@@ -347,7 +347,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 + (NSApplication *) sharedApplication
 {
 	Class class;
-#if 1
+#if 0
 	NSLog(@"+sharedApplication");
 #endif
 	if(!NSApp)
@@ -358,14 +358,14 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 //			exit(1);
 			class=self;
 			}
-#if 1
+#if 0
 		NSLog(@"class = %@", NSStringFromClass(class));
 #endif
 		if(![class isSubclassOfClass:[self class]])
 		   NSLog(@"principal class (%@) of main bundle is not subclass of NSApplication", NSStringFromClass(class));
 		[class new];	// create instance -init will set NSApp
 		}
-#if 1
+#if 0
 	NSLog(@"NSApp = %@", NSApp);
 #endif
 	return NSApp;
@@ -373,7 +373,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (void) _screenParametersNotification:(NSNotification *) notification;
 {
+#if 1
 	NSLog(@"%@ _screenParametersNotification: %@", NSStringFromClass([self class]), notification);
+#endif
 	[_mainMenuWindow setFrame:[[_mainMenuWindow screen] _menuBarFrame] display:YES animate:YES];	// move menu bar (if screen rotates)
 }
 
