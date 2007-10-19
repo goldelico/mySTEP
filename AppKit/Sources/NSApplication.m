@@ -1315,7 +1315,6 @@ NSEvent *event = nil;									// if queue contains
 
 - (void) deactivate
 {
-//	[NSMenuView _deactivate];					// close any open menu
 	if(_app.isActive)				// in order to make themselves invisible 
 		{			 				// when the application is not active.
 		_app.isActive = NO;

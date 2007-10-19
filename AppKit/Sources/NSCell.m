@@ -918,6 +918,7 @@ static NSCursor *__textCursor = nil;
 	NSDate *expiration;
 	// FIXME: mask should probably depend on which mouse went down in event!
 	unsigned int mask = NSLeftMouseDraggedMask | NSRightMouseDraggedMask | NSLeftMouseDownMask | NSMouseMovedMask | NSLeftMouseUpMask;
+	NSEvent *mousedown=event;
 	BOOL mouseWentUp = NO;
 	BOOL tracking;
 	if(_c.actOnMouseDown && action)
@@ -953,7 +954,7 @@ static NSCursor *__textCursor = nil;
 		NSLog(@"event=%@", event);
 #endif
 		if(!event)
-			{ // no event, i.e. timed out
+			{ // no next event, i.e. timed out
 #if 1
 			NSLog(@"pop up context menu: %@", contextMenu);
 #endif
@@ -964,11 +965,11 @@ static NSCursor *__textCursor = nil;
 			// FIXME: define correct popup position
 			// FIXME: a popup menu should have some shadow or a border so that it can be distinguished from the background
 			
-			[NSMenu popUpContextMenu:contextMenu withEvent:event forView:controlView];
 			[self stopTracking:last_point
 							at:point
 						inView:controlView
 					 mouseIsUp:NO];
+			[NSMenu popUpContextMenu:contextMenu withEvent:mousedown forView:controlView];	// show the popup menu
 			return YES;	// exit tracking loop(s)
 			}
 #if 1
