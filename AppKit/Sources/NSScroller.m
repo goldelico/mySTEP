@@ -178,6 +178,7 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 	
 	__upCell = [NSButtonCell new];
 	[__upCell setBordered:YES];
+	[__upCell setBezeled:YES];
 	[__upCell setBezelStyle:NSRegularSquareBezelStyle];
 	[__upCell setFocusRingType:NSFocusRingTypeNone];
 	[__upCell setHighlightsBy:NSContentsCellMask];	// no PushIn effect - just swap images

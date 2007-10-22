@@ -740,7 +740,7 @@ static BOOL __cursorHidden = NO;
 - (NSString *) representedFilename			{ return _representedFilename; }
 - (NSImage *) miniwindowImage				{ return _miniWindowImage; }
 - (unsigned int) styleMask					{ return _w.styleMask; }
-- (void)setBackingType:(NSBackingStoreType)t{ _w.backingType = t; }
+- (void)setBackingType:(NSBackingStoreType)t{ _w.backingType = t; }	// FIXME: should be reflected in the backend!
 - (NSBackingStoreType) backingType			{ return _w.backingType; }
 - (NSDictionary *) deviceDescription		{ return [_screen deviceDescription]; }
 - (NSGraphicsContext*) graphicsContext		{ return _context; }

@@ -261,8 +261,8 @@ printing
 + (void) initialize;
 {
 	NSUserDefaults *ud=[NSUserDefaults standardUserDefaults];			// read from ArgumentsDomain
-	_NSShowAllViews=([ud stringForKey:@"NSShowAllViews"] != nil);		// -NSShowAllViews (any value)
-	_NSShowAllDrawing=([ud stringForKey:@"NSShowAllDrawing"] != nil);	// -NSShowAllDrawing (any value)
+	_NSShowAllViews=([ud stringForKey:@"NSShowAllViews"] != nil) || getenv("NSShowAllViews");		// -NSShowAllViews (any value)
+	_NSShowAllDrawing=([ud stringForKey:@"NSShowAllDrawing"] != nil) || getenv("NSShowAllDrawing");	// -NSShowAllDrawing (any value)
 }
 
 + (NSView *) focusView
@@ -270,7 +270,7 @@ printing
 	return [(NSArray *) [[NSGraphicsContext currentContext] focusStack] lastObject];
 }
 
-+ (NSMenu *)defaultMenu; { return nil; }	// override in subclasses
++ (NSMenu *) defaultMenu; { return nil; }	// override in subclasses
 + (NSFocusRingType) defaultFocusRingType; { return NSFocusRingTypeExterior; }	// override in subclasses
 
 - (void) print:(id) sender
@@ -1347,7 +1347,7 @@ printing
 	NSLog(@"_drawRect:%@ %@", NSStringFromRect(rect), self);
 #endif
 	NS_DURING
-		if(_NSShowAllDrawing)
+		if(_NSShowAllDrawing && [window isVisible])
 			{ // blink rect that will be redrawn - note that transparent views will get a magenta background by this feature...
 			[[NSGraphicsContext currentContext] saveGraphicsState];
 			[[NSColor magentaColor] set];
@@ -1365,7 +1365,7 @@ printing
 			[NSBezierPath clipRect:rect];
 			}
 		[self drawRect:rect];		// that one is overridden in subviews and really draws
-		if(_NSShowAllViews)
+		if(_NSShowAllViews && [window isVisible])
 			{ // draw box around all views
 			[[NSColor brownColor] set];
 			NSFrameRect(bounds);

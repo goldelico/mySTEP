@@ -56,6 +56,7 @@ id __buttonCellClass = nil;
 		[self setTitle:aString];	// replace title default (@"Button")
 		_bezelStyle=NSRoundedBezelStyle;	// default style
 		[self setButtonType:NSMomentaryPushInButton];
+		_backgroundColor = [[NSColor controlColor] retain];
 		_periodicDelay = 0.4;
 		_periodicInterval = 0.075;
 		}
@@ -283,9 +284,10 @@ id __buttonCellClass = nil;
 
 - (BOOL) isOpaque
 	{ 
-	return !_transparent || _c.bordered || 
+	return _backgroundColor && (
+		!_transparent || _c.bordered || 
 		(_stateMask & NSChangeBackgroundCellMask) || 
-		stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask);
+		stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask));
 	}
 
 - (int) highlightsBy					{ return _highlightMask; }

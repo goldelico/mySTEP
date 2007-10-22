@@ -191,7 +191,7 @@ static Class __rulerViewClass = nil;
 		if (_vertScroller == nil)
 			{ // create one if not yet
 			[self setVerticalScroller:[[[NSScroller alloc] initWithFrame:NSZeroRect] autorelease]];
-			if (_contentView && ![_contentView isFlipped])
+			if (_contentView && [self isFlipped] != [_contentView isFlipped])
 				[_vertScroller setFloatValue:1];
 			}
 		[self addSubview:_vertScroller];
@@ -258,9 +258,9 @@ static Class __rulerViewClass = nil;
 			if (scroller == _vertScroller) 				
 				{										
      			p.x = clipBounds.origin.x;		
-														// If view is flipped 
-				if ([_contentView isFlipped])			// reverse the scroll 
-					amount = -amount;					// direction 
+																			// If view is flipped 
+				if ([self isFlipped] != [_contentView isFlipped])			// reverse the scroll 
+					amount = -amount;										// direction 
       			NSDebugLog (@"increment/decrement: amount = %f, flipped = %d",
 	     					 amount, [_contentView isFlipped]);
       			p.y = clipBounds.origin.y + amount;
@@ -283,7 +283,7 @@ static Class __rulerViewClass = nil;
 			if (scroller == _vertScroller) 
 				{
       			p.x = clipBounds.origin.x;
-      			if (![_contentView isFlipped])
+      			if ([self isFlipped] != [_contentView isFlipped])
 					floatValue = 1 - floatValue;
       			p.y = floatValue * (NSHeight(documentRect) - NSHeight(clipBounds));
     			}
@@ -325,7 +325,7 @@ static Class __rulerViewClass = nil;
 				[_vertScroller setHidden:NO];	// show
 			knobProportion =NSHeight(clipViewBounds) / NSHeight(documentFrame);
 			floatValue = clipViewBounds.origin.y / (NSHeight(documentFrame) - NSHeight(clipViewBounds));
-			if (![_contentView isFlipped])
+			if ([self isFlipped] != [_contentView isFlipped])
 				floatValue = 1 - floatValue;
 			[_vertScroller setFloatValue:floatValue 
 						   knobProportion:knobProportion];
@@ -470,7 +470,7 @@ static Class __rulerViewClass = nil;
 		{
 		[_vertScroller setFrame:vertScrollerRect];
 		[_vertScroller setNeedsDisplay:YES];
-		if (![_contentView isFlipped])				// If the document view is not flipped reverse the meaning
+		if ([self isFlipped] != [_contentView isFlipped])				// If the document view is not flipped reverse the meaning
 			[_vertScroller setFloatValue:1];		// of the vertical scroller's
 		}
 }
@@ -556,7 +556,7 @@ static Class __rulerViewClass = nil;
 			[self addSubview:_cornerView];
 		}
 	[_contentView setDocumentView:aView];
-	if(_contentView && ![_contentView isFlipped])
+	if(_contentView && [self isFlipped] != [_contentView isFlipped])
 		[_vertScroller setFloatValue:1];
 	[self tile];
 	[self reflectScrolledClipView:(NSClipView*)_contentView];		// update scroller
