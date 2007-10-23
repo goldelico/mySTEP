@@ -827,23 +827,22 @@ id __buttonCellClass = nil;
 #if 0
 		NSLog(@"%@ controlSize=%d", self, [self controlSize]);
 #endif
-#define PUSHIN ((buttonflags&0x80000000)!=0)
-		// this is quite weired
+		// the encoding is quite weired
 		// stateby mapping
 		//		bit 0 <-> bit 30
 		//		bit 1 <-> ?
 		//		bit 2,3 <-> bit 28,29
-#define STATEBY (((buttonflags&0x30000000)>>26)+((buttonflags&0x40000000)>>30))
+#define STATEBY (((buttonflags&(1<<30))>>(30-0))+((buttonflags&(3<<28))>>(28-2)))
 		_stateMask=STATEBY;
 		// stateby mapping
 		//		bit 0 <-> bit 27
 		//		bit 1 <-> bit 31
 		//		bit 2,3 <-> bit 25,26
-#define HIGHLIGHTSBY (((buttonflags&0x06000000)>>23)+((buttonflags&0x0800000000)>>24)+((buttonflags&0x8000000000)>>30))
+#define HIGHLIGHTSBY (((buttonflags&(1<<27))>>(27-0))+((buttonflags&(1<<31))>>(31-1))+((buttonflags&(3<<25))>>(25-2)))
 		_highlightMask=HIGHLIGHTSBY;
-#define DRAWING ((buttonflags&0x01000000)!=0)
+#define DRAWING ((buttonflags&(1<<24))!=0)
 		// ignored
-#define BORDERED ((buttonflags&0x00800000)!=0)
+#define BORDERED ((buttonflags&(1<<23))!=0)
 		_c.bordered |= BORDERED;	// combine with cell border (meaning isBezeled...)
 #define OVERLAPS ((buttonflags&0x00400000)!=0)
 #define IMAGEPOSITION (NSImageAbove-((buttonflags&0x00300000)>>20))
@@ -863,13 +862,13 @@ id __buttonCellClass = nil;
 #define INSET ((buttonflags&0x00006000)>>13)
 #define DIMSWHENDISABLED ((buttonflags&0x00001000)==0)
 		_dimsWhenDisabled=DIMSWHENDISABLED;
-#define GRADIENTTYPE ((buttonflags&0x00000e00)>>9)
+#define GRADIENTTYPE ((buttonflags&(7<<9))>>9)
 #define ALTERNATEMNEMONICLOC ((buttonflags&0x000000ff)>>0)	// 0xff=none
 
 #define KEYEQUIVALENTMASK ((buttonflags2&0xffffff00)>>8)
 		_keyEquivalentModifierMask = KEYEQUIVALENTMASK;	// if encoded by flags
 #define BORDERWHILEMOUSEINSIDE ((buttonflags2&0x00000010)!=0)
-#define BEZELSTYLE (((buttonflags2&0x00000007)>>0)+((buttonflags2&0x00000020)>>2))
+#define BEZELSTYLE (((buttonflags2&(7<<0))>>0)+((buttonflags2&(8<<2))>>2))
 		_bezelStyle=BEZELSTYLE;
 		
 		ASSIGN(_alternateTitle, [aDecoder decodeObjectForKey:@"NSAlternateContents"]);

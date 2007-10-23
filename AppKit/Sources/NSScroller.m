@@ -61,8 +61,7 @@ static void GSPrecalculateScroller(NSRect slotRect, NSRect knobRect, BOOL isHori
 
 static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 {
-	static float p;
-
+	float p;
 	if (isHorizontal) 									// Adjust point to lie
 		{												// within the knob slot
 		p = MIN(MAX(point.x, __leftOfKnob), __rightOfKnob);
@@ -108,6 +107,8 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 		case NSMiniControlSize: return 11.0;
 		}
 }
+
+- (BOOL) isFlipped; { return NO; }
 
 - (id) initWithFrame:(NSRect)frameRect
 {
@@ -190,13 +191,21 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 	__rightCell = [__upCell copy];
 
 	[__upCell setImage:[NSImage imageNamed:@"GSArrowUp"]];
+	[[__upCell image] setScalesWhenResized:YES];
 	[__upCell setAlternateImage:[NSImage imageNamed:@"GSArrowUpH"]];
+	[[__upCell alternateImage] setScalesWhenResized:YES];
 	[__downCell setImage:[NSImage imageNamed:@"GSArrowDown"]];
+	[[__downCell image] setScalesWhenResized:YES];
 	[__downCell setAlternateImage:[NSImage imageNamed:@"GSArrowDownH"]];
+	[[__downCell alternateImage] setScalesWhenResized:YES];
 	[__leftCell setImage:[NSImage imageNamed:@"GSArrowLeft"]];
+	[[__leftCell image] setScalesWhenResized:YES];
 	[__leftCell setAlternateImage:[NSImage imageNamed:@"GSArrowLeftH"]];
+	[[__leftCell alternateImage] setScalesWhenResized:YES];
 	[__rightCell setImage:[NSImage imageNamed:@"GSArrowRight"]];
+	[[__rightCell image] setScalesWhenResized:YES];
 	[__rightCell setAlternateImage:[NSImage imageNamed:@"GSArrowRightH"]];
+	[[__rightCell alternateImage] setScalesWhenResized:YES];
 
 	__knobCell = [_NSKnobCell new];
 }
@@ -346,8 +355,6 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 { // handle mouse down events
 	NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
 
-	[self lockFocus];	// we will call cells directly to draw their interior
-	NSRectClip(bounds);
 	if(![_target respondsToSelector:_action])
 		NSLog(@"NSScroller: target %@ does not repsond to action %@!", _target, NSStringFromSelector(_action));
 	if(_isHorizontal)								// configure global cells
@@ -383,13 +390,17 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 		
 		case NSScrollerKnobSlot: 
 			{
+				// FIXME - we should generate page up/down events and move the knob in steps
+			
 			NSRect knobRect = [self rectForPart: NSScrollerKnob];
 			NSRect slotRect = [self rectForPart: NSScrollerKnobSlot];
+
+			// move the scroller to the position where we have clicked
 
 			GSPrecalculateScroller(slotRect, knobRect, _isHorizontal);
 			[self setFloatValue: GSConvertScrollerPoint(p, _isHorizontal)];
 			[self sendAction:_action to:_target];
-			[self drawKnob];
+			[self setNeedsDisplayInRect:slotRect];
 			[self trackKnob:event];
 			break;
 			}
@@ -399,70 +410,43 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 		}
 	
 	_hitPart = NSScrollerNoPart;
-	[self unlockFocus];
 }
 
 - (void) trackKnob:(NSEvent*)event
 {
 	NSDate *distantFuture = [NSDate distantFuture];
+	NSEventType type;
 	NSRect knobRect = [self rectForPart: NSScrollerKnob];
 	NSRect slotRect = [self rectForPart: NSScrollerKnobSlot];
-	NSPoint point, current, offset = NSZeroPoint;
-	float previous = _floatValue;
-	NSEventType type;
-
+	NSPoint initial = [self convertPoint:[event locationInWindow] fromView:nil];
+	NSSize offset = NSMakeSize(initial.x - knobRect.origin.x, initial.y - knobRect.origin.y);
+	
 	NSDebugLog(@"NSScroller trackKnob");
 	
-	GSPrecalculateScroller(slotRect, knobRect, _isHorizontal);
-	point = [self convertPoint:[event locationInWindow] fromView:nil];
-	if (_isHorizontal)
-		offset.x = NSMidX(knobRect) - point.x;
-	else
-		offset.y = NSMidY(knobRect) - point.y;
-	current.x += offset.x;
-	current.y += offset.y;
-	knobRect.origin = [self convertPoint:point fromView:nil];
-
-	_hitPart = NSScrollerKnob;						// set periodic events rate
-													// to achieve max of ~30fps
-	[NSEvent startPeriodicEventsAfterDelay:0.02 withPeriod:0.033];
+	_hitPart = NSScrollerKnob;
 
 	while ((type = [event type]) != NSLeftMouseUp)				 
-		{											// user is moving scroller
-		if (type != NSPeriodic)						// loop until left mouse up
-			{
-			current = [event locationInWindow];
-			current.x += offset.x;
-			current.y += offset.y;
+		{ // user is moving scroller
+		if (type == NSLeftMouseDragged) 
+			{ // mouse has moved
+			NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+			float v;
+			point.x+=offset.width;
+			point.y+=offset.height;
+			v = GSConvertScrollerPoint(point, _isHorizontal);
+			if (v != _floatValue)
+				{ // value has changed
+				_floatValue = MIN(MAX(v, 0), 1);
+				[self setNeedsDisplayInRect:slotRect];	// redraw (could be optimized to redraw the scroller knob plus the previous position only)
+				[_target performSelector:_action withObject:self];
+				}
+			knobRect.origin = point;
 			}
-		else				
-			{
-			point = [self convertPoint:current fromView:nil];
-
-			if (point.x != knobRect.origin.x || point.y != knobRect.origin.y) 
-				{ // mouse has moved							
-				float v = GSConvertScrollerPoint(point, _isHorizontal);
-
-				if (v != previous)
-					{ // value has changed
-					previous = v;
-					_floatValue = MIN(MAX(v, 0), 1);
-					[self drawKnob];				// draw the scroller knob
-					[window flushWindow];
-					[_target performSelector:_action withObject:self];
-					}
-
-				knobRect.origin = point;
-			}	}
-
 		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 								   untilDate:distantFuture 
 									  inMode:NSEventTrackingRunLoopMode
 									 dequeue:YES];
   		}
-
-	[NSEvent stopPeriodicEvents];
-
 	if([_target isKindOfClass:[NSResponder class]])
 		[_target mouseUp:event];
 }
@@ -499,8 +483,8 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 			NSRect rect = [self rectForPart:_hitPart];
 			BOOL done = NO;
 
-			[theCell highlight:YES withFrame:rect inView:self];	
-			[window flushWindow];
+			[theCell setHighlighted:YES];
+			[self setNeedsDisplay:YES];	// FIXME: only the cell rect needs udpate
 
 			NSDebugLog (@"tracking cell %x", theCell);
 
@@ -509,8 +493,8 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 							ofView:self						// goes up
 							untilMouseUp:YES];
 
-			[theCell highlight:NO withFrame:rect inView:self];
-			[window flushWindow];
+			[theCell setHighlighted:NO];
+			[self setNeedsDisplay:YES];	// FIXME: only the cell rect needs udpate
 
 			if (done)
 				{
@@ -543,13 +527,15 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 	id theCell = nil;
 	NSRect rect = [self rectForPart:(whichButton == NSScrollerIncrementArrow
 						? NSScrollerIncrementLine : NSScrollerDecrementLine)];
-
+	NSSize isize;
 	NSDebugLog (@"position of %s cell is (%f, %f)",
 		(whichButton == NSScrollerIncrementArrow ? "increment" : "decrement"),
 		rect.origin.x, rect.origin.y);
 	
 	if(rect.size.width <= 0.0 || rect.size.height <= 0.0)
 		return;	// nothing to draw
+
+	isize=NSMakeSize(rect.size.width-2, rect.size.height-2);
 
 	switch(whichButton) 
 		{
@@ -559,7 +545,10 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 		case NSScrollerIncrementArrow:
 			theCell = (_isHorizontal ? __rightCell : __upCell);
 			break;
-		}	
+		}
+	[[theCell image] setSize:isize];
+	[[theCell alternateImage] setSize:isize];
+	[theCell setHighlighted:flag];
 	[theCell drawWithFrame:rect inView:self];
 }
 
@@ -594,7 +583,8 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 				arrowsPosition = NSScrollerArrowsMaxEnd;
 			else
 				arrowsPosition = NSScrollerArrowsNone;
-		}	}
+			}
+		}
 	else
 		arrowsPosition = _arrowsPosition;
 
@@ -626,8 +616,7 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
       		
 			// calc the slot Height
 			
-			slotHeight = height - (arrowsPosition == NSScrollerArrowsNone ? 
-								0 : 2 * width);
+			slotHeight = height - (arrowsPosition == NSScrollerArrowsNone ? 0 : 2 * width);
 			knobHeight = floor(_knobProportion * slotHeight);
 			if (knobHeight < width)			// adjust knob height
 				{							// and proportion if
@@ -661,7 +650,7 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 			break;
 
 		case NSScrollerDecrementPage:
-			// should be area between knob and buttons
+			// FIXME: should be area between knob and buttons
 		case NSScrollerDecrementLine:	// left/down arrow
 			// FIXME: we could recursively call ourselves for the NSScrollerKnobSlot and split by 2
 			if (usableParts == NSNoScrollerParts)		// if scroller has no
@@ -675,7 +664,7 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 			break;
 
 		case NSScrollerIncrementPage:
-			// should be area between knob and buttons
+			// FIXME: should be area between knob and buttons
 		case NSScrollerIncrementLine:	// up/right arrow
 			if (usableParts == NSNoScrollerParts)		// if scroller has no
 				return NSZeroRect;						// parts or knob then
@@ -694,8 +683,8 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
   		}
 	if(_isHorizontal)
 		return (NSRect) {{y, x}, {height, width}};
-	 else
-		 return (NSRect) {{x, y}, {width, height}};
+   else
+	   return (NSRect) {{x, y}, {width, height}};
 }
 
 @end

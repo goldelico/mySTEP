@@ -419,10 +419,13 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 + (NSColor*) alternateSelectedControlColor			{ CLR(); }
 
 + (NSArray *) controlAlternatingRowBackgroundColors
-{
+{ // can be overwritten to provide a different list
 	static NSArray *ca;
 	if(!ca)
-		ca=[[NSArray alloc] initWithObjects:[NSColor controlBackgroundColor], [NSColor selectedTextColor], nil];
+		ca=[[NSArray alloc] initWithObjects:
+			[NSColor controlBackgroundColor], 
+			[NSColor colorWithCalibratedRed:0.92 green:0.95 blue:0.99 alpha:1.0],
+			nil];
 	return ca;
 }
 

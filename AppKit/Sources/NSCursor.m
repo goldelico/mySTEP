@@ -89,7 +89,7 @@ static NSCursor *__blankCursor, *__hiddenCursor, *__currentCursor;
 + (NSCursor *) disappearingItemCursor; { CURSOR(@"GSDisappearingItemCursor"); }	
 + (NSCursor *) IBeamCursor; { CURSOR(@"iBeamCursor"); }				// Create standard I beam
 + (NSCursor *) openHandCursor; { CURSOR(@"GSOpenHandCursor"); }	
-+ (NSCursor *) pointingHandCursor; { CURSOR(@"GSRointingHandCursor"); }	
++ (NSCursor *) pointingHandCursor; { CURSOR(@"GSPointingHandCursor"); }	
 + (NSCursor *) resizeDownCursor; { CURSOR(@"GSResizeDownCursor"); }	
 + (NSCursor *) resizeLeftCursor; { CURSOR(@"GSResizeLeftCursor"); }	
 + (NSCursor *) resizeLeftRightCursor; { CURSOR(@"GSResizeCursor"); }

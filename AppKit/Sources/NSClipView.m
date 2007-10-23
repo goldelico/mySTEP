@@ -9,6 +9,8 @@
    under the terms of the GNU Library General Public License.
 */
 
+#include <unistd.h>
+
 #import <Foundation/NSString.h>
 #import <Foundation/NSNotification.h>
 
@@ -361,7 +363,7 @@
 			{
 			[[NSColor blueColor] set];
 			NSFrameRect(dest);
-			[[self window] flushGraphics];
+			[[NSGraphicsContext currentContext] flushGraphics];
 			sleep(1);
 			}
 		[self unlockFocus];
@@ -378,7 +380,7 @@
 			[[NSColor redColor] set];
 			NSFrameRect(xSlice);
 			[self unlockFocus];
-			[[self window] flushGraphics];
+			[[NSGraphicsContext currentContext] flushGraphics];
 			sleep(1);
 			}
 		}
@@ -391,7 +393,7 @@
 			[[NSColor greenColor] set];
 			NSFrameRect(ySlice);
 			[self unlockFocus];
-			[[self window] flushGraphics];
+			[[NSGraphicsContext currentContext] flushGraphics];
 			sleep(1);
 			}
 		}													

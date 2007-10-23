@@ -1273,25 +1273,26 @@ int index = [self columnWithIdentifier:identifier];
 
 - (NSRange) rowsInRect:(NSRect)rect 
 {
+	// FIXME: we should cache the row rects in some tree structure for fast(er) access
 	NSRange r = {0,0};
 
 	if (!NSIsEmptyRect(rect))
 		{
-		int i, count = [self numberOfRows];
-
-		for (i = 0; i < count; i++)
-			{
-			float y = (_rowHeight + _intercellSpacing.height) * i;	// calc row
-			NSRect rowRect = NSMakeRect(0, y, NSWidth(frame), _rowHeight);	// rect
-			NSRect intersection = NSIntersectionRect(rowRect, rect);
-
-			if (!NSIsEmptyRect(intersection))
-				{
+		int i=0;
+		while(YES)
+			{ // loop until we find the first rect that is inside and then collect until we find the last one
+			if(NSIntersectsRect([self rectOfRow:i], rect))
+				{ // row is within rect
 				if (r.length == 0)
-					r = (NSRange){i,1};
+					r = (NSRange){i,1};	// first match
 				else
-					r.length++;
-		}	}	}
+					r.length++;	// is still within rect
+				}
+			else if(r.length > 0)
+				break;	// rect is the first one that is outside
+			i++;
+			}
+		}
 
 	return r;
 }
@@ -1476,8 +1477,6 @@ int index = [self columnWithIdentifier:identifier];
 	NSRect r, visibleRect;
 	BOOL scrolled=NO;
 
-//	if(row == NSNotFound)
-//		return;	// ??? this does not allow to click below the last existing row
 	_clickedColumn=[self columnAtPoint:p];
 	_clickedRow=row;
 	if(_lastSelectedRow >= 0)								// pre-existing sel
@@ -1496,19 +1495,20 @@ int index = [self columnWithIdentifier:identifier];
 		[self selectRow:row byExtendingSelection:NO];			// select start row
 
 	startRow = lastRow = row;
-//	[self displayIfNeeded];
-//	[window flushWindow];
 	visibleRect = [self visibleRect];
 
 	[NSEvent startPeriodicEventsAfterDelay:0.05 withPeriod:0.03];
-	[self lockFocus];
 
 	while ((eventType = [event type]) != NSLeftMouseUp) 
 		{
+		// 
+		// we should make periodic events after some delay simply call [self autoscroll:lastmouse] while the mouse is outside of a certain inner frame
+		//
 		if (eventType != NSPeriodic)
 			current = [event locationInWindow];
 		else
 			{
+			// we should simply detect NSLeftMouseMoved
 			if (current.x != previous.x || current.y != previous.y || scrolled) 
 				{ // something changed
 				previous = current;
@@ -1554,7 +1554,9 @@ int index = [self columnWithIdentifier:identifier];
 								else
 									if(row < startRow)
 										extend = (NSRange){row, startRow - 1};
-						}	}	}
+								}
+							}
+						}
 
 					if(extend.location >= 0)				// extend selection
 						{
@@ -1564,10 +1566,7 @@ int index = [self columnWithIdentifier:identifier];
 						for (i = extend.location; i <= extend.length; i++)
 							{
 							[_selectedRows addIndex:i];
-							[self highlightSelectionInClipRect:r];
-							[self drawRow:i clipRect:r];
-							if(_tv.gridStyleMask !=  NSTableViewGridNone)
-								[self drawGridInClipRect:r];
+							[self setNeedsDisplayInRect:r];
 							r.origin.y += _rowHeight + _intercellSpacing.height;
 							}
 						extend.location = -1;
@@ -1581,16 +1580,13 @@ int index = [self columnWithIdentifier:identifier];
 						for (i = reduce.location; i <= reduce.length; i++)
 							{
 							[_selectedRows removeIndex:i];
-							[_backgroundColor set];
-							NSRectFill(r);
-							[self drawRow:i clipRect:r];
+							[self setNeedsDisplayInRect:r];
 							r.origin.y += _rowHeight +_intercellSpacing.height;
 							}
 						reduce.location = -1;
 						}
 
 					lastRow = row;
-					[window flushWindow];
 					}
 
 				if(lastRow != scrollRow)					// auto scroll
@@ -1600,7 +1596,9 @@ int index = [self columnWithIdentifier:identifier];
 					r.origin.x = NSMinX(visibleRect);
 					if ((scrolled = [self scrollRectToVisible:r]))
 						visibleRect = [self visibleRect];
-			}	}	}
+					}
+				}
+			}
 
 		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 								   untilDate:[NSDate distantFuture] 
@@ -1608,7 +1606,6 @@ int index = [self columnWithIdentifier:identifier];
 									 dequeue:YES];
 		}
 
-	[self unlockFocus];
 	[NSEvent stopPeriodicEvents];
 
 	if(_tv.allowsMultipleSelection)
@@ -1684,7 +1681,6 @@ int index = [self columnWithIdentifier:identifier];
 #if 0
 	NSLog(@"drawRect of %@: %@", self, NSStringFromRect(rect));
 #endif
-	[self drawBackgroundInClipRect:rect];
 
 	if(_cacheOrigin != NSMinX(rect) || (_cacheWidth != NSWidth(rect)))
 		{
@@ -1712,14 +1708,14 @@ int index = [self columnWithIdentifier:identifier];
 	rowClipRect.size.width = NSWidth(rect);
 	for (i = rowRange.location; i < maxRowRange; i++)
 		{
-		// FIXME: handle alternating background to cover even non-existing rows
+		[self drawBackgroundInClipRect:rowClipRect];
+		if(_tv.gridStyleMask !=  NSTableViewGridNone)
+			[self drawGridInClipRect:rowClipRect];
 		if([_selectedRows containsIndex:i])
 			[self highlightSelectionInClipRect: rowClipRect];
 		[self drawRow: i clipRect: rowClipRect];
 		rowClipRect.origin.y += (_rowHeight + _intercellSpacing.height);
 		}
-	if(_tv.gridStyleMask !=  NSTableViewGridNone)
-		[self drawGridInClipRect:rect];
 }
 
 - (void) updateCell:(NSCell *) cell;
@@ -1799,26 +1795,12 @@ int index = [self columnWithIdentifier:identifier];
 	if(horz || vert)
 		[_gridColor set];
 	if(horz)
-		{
-		NSRange rng=[self columnsInRect:rect];
-		while(rng.length > 0)
-			{
-			NSRect rect=[self rectOfColumn:rng.location];
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(rect.origin.x, rect.origin.y) toPoint:NSMakePoint(rect.origin.x, rect.origin.y+rect.size.height)];
-			rng.location++;
-			rng.length--;
-			}
+		{ // on the right edge
+		[NSBezierPath strokeLineFromPoint:NSMakePoint(NSMaxX(rect)-1.0, NSMinY(rect)) toPoint:NSMakePoint(NSMaxX(rect)-1.0, NSMaxY(rect))];
 		}
 	if(vert)
-		{
-		NSRange rng=[self rowsInRect:rect];
-		while(rng.length > 0)
-			{
-			NSRect rect=[self rectOfRow:rng.location];
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(rect.origin.x, rect.origin.y) toPoint:NSMakePoint(rect.origin.x+rect.size.width, rect.origin.y)];
-			rng.location++;
-			rng.length--;
-			}
+		{ // on the bottom edge
+		[NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect)) toPoint:NSMakePoint(NSMaxX(rect), NSMaxY(rect))];
 		}
 }
 
@@ -1826,22 +1808,17 @@ int index = [self columnWithIdentifier:identifier];
 {
 	if(_tv.usesAlternatingRowBackgroundColors)
 		{ // we ignore background color
-		NSRange rowRange = [self rowsInRect:rect];	// determine first row
+		int row = [self rowAtPoint:rect.origin];	// determine row number
 		NSArray *colors=[NSColor controlAlternatingRowBackgroundColors];
 		unsigned int ncolors=[colors count];
 		if(ncolors > 0)
 			{
-			while(YES)
-				{
-				NSRect rowRect=[self rectOfRow:rowRange.location];
-				if(rowRect.origin.y < rect.origin.y+rect.size.height)
-					return;	// row no longer inside
-				[[colors objectAtIndex:(rowRange.location++)%ncolors] setFill];	// set color
-				NSRectFill(rowRect);
-				}
+			[[colors objectAtIndex:(row%ncolors)] setFill];	// set color
+			NSRectFill(rect);
 			}
 		}
-	[_backgroundColor set];	// draw uniform color
+	else
+		[_backgroundColor set];	// draw uniform color
 	NSRectFill(rect);
 }
 
@@ -1948,7 +1925,7 @@ int index = [self columnWithIdentifier:identifier];
 		long tvFlags=[aDecoder decodeInt32ForKey:@"NSTvFlags"];
 		int i;
 		NSNull *null=[NSNull null];
-#if 0
+#if 1
 		NSLog(@"TvFlags=%08lx", tvFlags);
 #endif
 #define ALLOWSCOLUMNREORDERING ((tvFlags&0x80000000)!=0)
@@ -1963,7 +1940,8 @@ int index = [self columnWithIdentifier:identifier];
 		_tv.allowsColumnSelection=ALLOWSCOLUMNSELECTION;
 #define REFUSESFIRSTRESPONDER ((tvFlags&0x00000002)!=0)
 		_refusesFirstResponder=REFUSESFIRSTRESPONDER;	// NSControl
-		// _tv.usesAlternatingRowBackgroundColor=???
+#define ALTERNATINGBACKGROUND ((tvFlags&0x00800000)!=0)
+		_tv.usesAlternatingRowBackgroundColors=ALTERNATINGBACKGROUND;
 		_tv.autoResizingStyle=[aDecoder decodeIntForKey:@"NSColumnAutoresizingStyle"];
 		_tv.gridStyleMask=[aDecoder decodeIntForKey:@"NSGridStyleMask"];
 		_intercellSpacing.height=[aDecoder decodeFloatForKey:@"NSIntercellSpacingHeight"];
