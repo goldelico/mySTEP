@@ -208,7 +208,8 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 			return bundle;
 			}
 		}
-	return __mainBundle;	// default
+	NSLog(@"could not locate bundle for class %@", NSStringFromClass(aClass));
+	return __mainBundle;	// default if not found
 }
 
 + (NSBundle *) bundleWithPath:(NSString *)path

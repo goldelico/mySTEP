@@ -560,7 +560,7 @@ const char *s, *d;
 		NSFileSystemNumber
 	};
 	id values[sizeof(keys)/sizeof(keys[0])];
-#if 1
+#if 0
 	NSLog(@"fileSystemAttributesAtPath:%s", cpath);
 #endif
 	
@@ -787,7 +787,7 @@ const char *npath = [self fileSystemRepresentationWithPath:otherPath];
 		if(!virtualRoot)
 			{
 			NSProcessInfo *pi = [NSProcessInfo processInfo];
-			virtualRoot = [[pi environment] objectForKey:@"QuantumSTEP"];
+			virtualRoot = [[[pi environment] objectForKey:@"QuantumSTEP"] retain];
 			if(!virtualRoot)
 				virtualRoot=@"/home/myPDA";		// default
 #if 0
@@ -813,11 +813,13 @@ const char *npath = [self fileSystemRepresentationWithPath:otherPath];
 		static int clen;
 		if(!virtualCRoot)
 			{
-			virtualCRoot=[@"/" fileSystemRepresentation];
+			char *str=[@"/" fileSystemRepresentation];
 #if 0
-			NSLog(@"virtualCRoot=%s", virtualCRoot);
+			NSLog(@"virtualCRoot=%s", str);
 #endif
-			clen=strlen(virtualCRoot);
+			clen=strlen(str);
+			virtualCRoot=objc_malloc(clen+1);
+			strcpy(virtualCRoot, str);	// save (retain) a copy
 			}
 #if 0
 		NSLog(@"stringWithFileSystemRepresentation: %s len:%d virtualRoot=%s", string, len, virtualCRoot);
