@@ -291,6 +291,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (void) lockFocusOnRepresentation:(NSImageRep *) imageRep;
 {
+	NIMP;
 	if(!imageRep)
 		{ // not yet determined
 		if(_imageFilePath)

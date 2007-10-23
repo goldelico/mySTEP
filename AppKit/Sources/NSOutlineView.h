@@ -1,30 +1,30 @@
 /* 
-   NSOutlineView.h
-
-   The outline class.
-   
-   Copyright (C) 2001 Free Software Foundation, Inc.
-
-   Author:  Gregory John Casamento <greg_casamento@yahoo.com>
-   Date: October 2001
-   
-   This file is part of the GNUstep GUI Library.
-
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public
-   License as published by the Free Software Foundation; either
-   version 2 of the License, or (at your option) any later version.
-   
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
-
-   You should have received a copy of the GNU Library General Public
-   License along with this library; see the file COPYING.LIB.
-   If not, write to the Free Software Foundation,
-   59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-*/ 
+NSOutlineView.h
+ 
+ The outline class.
+ 
+ Copyright (C) 2001 Free Software Foundation, Inc.
+ 
+ Author:  Gregory John Casamento <greg_casamento@yahoo.com>
+ Date: October 2001
+ 
+ This file is part of the GNUstep GUI Library.
+ 
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Library General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later version.
+ 
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Library General Public License for more details.
+ 
+ You should have received a copy of the GNU Library General Public
+ License along with this library; see the file COPYING.LIB.
+ If not, write to the Free Software Foundation,
+ 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */ 
 
 #ifndef _GNUstep_H_NSOutlineView
 #define _GNUstep_H_NSOutlineView
@@ -38,18 +38,18 @@
 
 @interface NSOutlineView : NSTableView
 {
-  NSMapTable *_itemDict;
-  NSMutableArray *_items;
-  NSMutableArray *_expandedItems;
-  NSMapTable *_levelOfItems;
-  NSTableColumn *_outlineTableColumn;
+	NSMapTable *_itemDict;
+	NSMutableArray *_items;
+	NSMutableArray *_expandedItems;
+	NSMapTable *_levelOfItems;
+	NSTableColumn *_outlineTableColumn;
 	id _outlineDataSource;	// data source that understands the NSOutlinView datasource protocol
 	id _outlineDelegate;
-  float _indentationPerLevel;
-	unsigned _numberOfRows;
-  BOOL _autoResizesOutlineColumn;
-  BOOL _indentationMarkerFollowsCell;
-  BOOL _autosaveExpandedItems;
+	float _indentationPerLevel;
+	//	unsigned _numberOfRows;
+	BOOL _autoResizesOutlineColumn;
+	BOOL _indentationMarkerFollowsCell;
+	BOOL _autosaveExpandedItems;
 	BOOL _selectingColumns;
 	BOOL _del_responds;
 	BOOL _drawsGrid;
@@ -83,32 +83,32 @@
 
 @end /* interface of NSOutlineView */
 
-/* 
- * Informal protocol NSOutlineViewDataSource 
- */
+	/* 
+	* Informal protocol NSOutlineViewDataSource 
+	 */
 @interface NSObject (NSOutlineViewDataSource)
 - (BOOL)outlineView: (NSOutlineView *)outlineView 
          acceptDrop: (id <NSDraggingInfo>)info 
                item: (id)item 
          childIndex: (int)index;
 
-// required method
+	// required method
 - (id)outlineView: (NSOutlineView *)outlineView 
             child: (int)index 
            ofItem: (id)item;
 
-// required method
+	// required method
 - (BOOL)outlineView: (NSOutlineView *)outlineView
    isItemExpandable: (id)item;
 
 - (id)outlineView: (NSOutlineView *)outlineView 
 itemForPersistentObject:(id)object;
 
-// required method
+	// required method
 - (int)outlineView: (NSOutlineView *)outlineView
 numberOfChildrenOfItem: (id)item;
 
-// required method
+	// required method
 - (id)outlineView: (NSOutlineView *)outlineView 
 objectValueForTableColumn:(NSTableColumn *)tableColumn 
            byItem:(id)item;
@@ -164,12 +164,12 @@ extern NSString *NSOutlineViewItemWillCollapseNotification;
 - (void) outlineViewSelectionDidChange: (NSNotification *)aNotification;
 - (void) outlineViewSelectionIsChanging: (NSNotification *)aNotification;
 
-// delegate methods
+	// delegate methods
 - (BOOL)  outlineView: (NSOutlineView *)outlineView 
    shouldCollapseItem: (id)item;
 - (BOOL)  outlineView: (NSOutlineView *)outlineView 
 shouldEditTableColumn: (NSTableColumn *)tableColumn
-	         item: (id)item;
+				 item: (id)item;
 - (BOOL)  outlineView: (NSOutlineView *)outlineView 
      shouldExpandItem: (id)item;
 - (BOOL)  outlineView: (NSOutlineView *)outlineView 

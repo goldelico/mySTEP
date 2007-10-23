@@ -716,7 +716,7 @@
 		EE31970C09AB7E8B0089A9A2 /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EE31971109AB7E8B0089A9A2 /* myView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = myView.h; sourceTree = "<group>"; };
 		EE31971209AB7E8B0089A9A2 /* myView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = myView.m; sourceTree = "<group>"; };
-		EE31971B09AB7EC60089A9A2 /* myTest.cocoa.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = myTest.cocoa.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE31971B09AB7EC60089A9A2 /* myTest.cocoa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.cocoa.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE349C39097027D500CBF42C /* NSAlert.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSAlert.h; sourceTree = "<group>"; };
 		EE349C3A097027D500CBF42C /* NSAnimation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSAnimation.h; sourceTree = "<group>"; };
 		EE349C3B097027D500CBF42C /* NSAppAccessibility.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSAppAccessibility.h; sourceTree = "<group>"; };
@@ -785,8 +785,6 @@
 		EEA371A709540272001244CF /* GSArrowRightH.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSArrowRightH.tiff; sourceTree = "<group>"; };
 		EEA371A809540272001244CF /* GSArrowUp.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSArrowUp.tiff; sourceTree = "<group>"; };
 		EEA371A909540272001244CF /* GSArrowUpH.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSArrowUpH.tiff; sourceTree = "<group>"; };
-		EEA371AB09540272001244CF /* GSClose.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = GSClose.tiff; path = " old/GSClose.tiff"; sourceTree = "<group>"; };
-		EEA371AC09540272001244CF /* GSCloseBroken.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = GSCloseBroken.tiff; path = " old/GSCloseBroken.tiff"; sourceTree = "<group>"; };
 		EEA371AE09540272001244CF /* GSComboBox.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSComboBox.tiff; sourceTree = "<group>"; };
 		EEA371AF09540272001244CF /* GSCopyCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSCopyCursor.tiff; sourceTree = "<group>"; };
 		EEA371B009540272001244CF /* GSDimple.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSDimple.tiff; sourceTree = "<group>"; };
@@ -1508,8 +1506,6 @@
 				EEA371A709540272001244CF /* GSArrowRightH.tiff */,
 				EEA371A809540272001244CF /* GSArrowUp.tiff */,
 				EEA371A909540272001244CF /* GSArrowUpH.tiff */,
-				EEA371AB09540272001244CF /* GSClose.tiff */,
-				EEA371AC09540272001244CF /* GSCloseBroken.tiff */,
 				EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */,
 				EEA371AE09540272001244CF /* GSComboBox.tiff */,
 				EEF5298E0A554ABB0049AF3C /* GSComboBoxH.tiff */,

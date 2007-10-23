@@ -46,8 +46,8 @@ static Class _sliderCellClass;
 		_minValue = 0;
 		_maxValue = 1;
 		_contents = [[NSNumber numberWithFloat:0.0] retain];
-		[self setBordered:YES];
-		[self setBezeled:YES];	
+		[self setBordered:NO];
+		[self setBezeled:NO];	
 		_knobCell = [NSCell new];
 		}
 	return self;
@@ -63,26 +63,26 @@ static Class _sliderCellClass;
 {
 	// FIXME: we can cache the path
 	NSBezierPath *p=[NSBezierPath bezierPath];
+	float w2=2.5;
+	float w=5.0;
 	int i;
-	// note: we must draw our own background or moving the knob would mix up everything
-	[[NSColor controlBackgroundColor] set];						
-	NSRectFill(rect);									// draw the bar background
 	[[NSColor blackColor] set];
 	for(i=0; i<_numberOfTickMarks; i++)
-		NSRectFill([self rectOfTickMarkAtIndex:i]);		// draw a tick mark by filling
+		NSRectFill([self rectOfTickMarkAtIndex:i]);		// draw tick marks by filling
+	[p setLineWidth:w];
 	if(_isVertical)
 		{
-		float x=rect.origin.x+rect.size.width/2.0-2.0;
-		[p moveToPoint:NSMakePoint(x, rect.origin.y+5.0)];
-		[p lineToPoint:NSMakePoint(x, rect.origin.y+rect.size.height-5.0)];
+		float x=rect.origin.x+rect.size.width/2.0-w2;
+		[p moveToPoint:NSMakePoint(x, rect.origin.y+w)];
+		[p lineToPoint:NSMakePoint(x, rect.origin.y+rect.size.height-w)];
 		}
 	else
 		{
-		float y=rect.origin.y+rect.size.height/2.0+2.0;
-		[p moveToPoint:NSMakePoint(rect.origin.x+5.0, y)];
-		[p lineToPoint:NSMakePoint(rect.origin.x+rect.size.width-5.0, y)];
+		float y=rect.origin.y+rect.size.height/2.0+(flipped?-w2:w2);
+		[p moveToPoint:NSMakePoint(rect.origin.x+w, y)];
+		[p lineToPoint:NSMakePoint(rect.origin.x+rect.size.width-w, y)];
 		}
-	[p setLineWidth:5.0];
+	[p setLineWidth:w];
 	[p setLineCapStyle:NSRoundLineCapStyle];	// round line cap
 	[p stroke];
 }
@@ -145,6 +145,7 @@ static Class _sliderCellClass;
 
 - (void) drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 {
+	NSRect kr;
 	_controlView=controlView;	// remember
 	if(_sliderType == NSCircularSlider)
 		;
@@ -183,7 +184,13 @@ static Class _sliderCellClass;
 //		[_titleCell drawInteriorWithFrame:cellFrame inView:controlView];
 	
 	[self drawBarInside:cellFrame flipped:[controlView isFlipped]];
-	[self drawKnob];
+	kr=[self knobRectFlipped:[_controlView isFlipped]];
+	kr.origin.x+=cellFrame.origin.x;
+	if([_controlView isFlipped])
+		kr.origin.y+=cellFrame.origin.y-kr.size.height;	// draw relative to given frame
+	else
+		kr.origin.y+=cellFrame.origin.y;	// draw relative to given frame
+	[self drawKnob:kr];
 }
 
 - (float) knobThickness
@@ -403,11 +410,11 @@ NSSize size = [image size];
 
 - (id) initWithFrame:(NSRect)frameRect
 {
-	[super initWithFrame:frameRect];
-	
-	[self setCell:[[_sliderCellClass new] autorelease]];		// set our cell
-	[_cell setState:1];
-
+	if((self=[super initWithFrame:frameRect]))
+		{
+		[self setCell:[[_sliderCellClass new] autorelease]];		// set our cell
+		[_cell setState:1];
+		}
 	return self;
 }
 
@@ -442,10 +449,5 @@ NSSize size = [image size];
 - (double) tickMarkValueAtIndex:(int) index;	{ return [_cell tickMarkValueAtIndex:index]; }
 - (NSRect) trackRect						{ return [_cell trackRect]; }
 - (BOOL) acceptsFirstMouse:(NSEvent*)event	{ return YES; }
-
-- (void) drawRect:(NSRect)rect	
-{ 
-	[_cell drawWithFrame:rect inView:self];
-}
 
 @end /* NSSlider */

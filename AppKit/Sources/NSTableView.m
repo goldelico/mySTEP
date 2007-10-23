@@ -264,7 +264,8 @@
 					u = (NSRect){{p.x,0},{2,NSHeight(c)}};
 					NSRectFillUsingOperation(u, NSCompositeXOR);
 					[window flushWindow];
-				}	}
+					}
+				}
 	
 			event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 									   untilDate:distantFuture 
@@ -280,13 +281,10 @@
 		c.size.width = c.size.width - (NSMinX(t) - NSMinX(c));
 		c.origin.x = NSMinX(t);
 		[self drawRect:c];
-
-		[_tableView lockFocus];
 		f.origin.x = c.origin.x;
 		f.size.width = c.size.width;
-		[_tableView drawRect:f];
-		[_tableView unlockFocus];
 		[NSCursor pop];
+		[_tableView setNeedsDisplayInRect:f];
 		}
 	else
 		{
@@ -333,7 +331,9 @@
 						cRepBounds = (NSRect){{0,0},u.size};			
 						_headerDragImage = [NSImage alloc];
 						[_headerDragImage initWithSize:u.size];
+						
 						[_headerDragImage lockFocusOnRepresentation:nil];
+						
 						u.origin.y = NSMinY(t);
 						at=[NSAffineTransform transform];
 						[at translateXBy:-NSMinX(u) yBy:NSHeight(frame) - NSMinY(u)];
@@ -433,7 +433,9 @@
 						oldRect.size.width = NSWidth(h);
 						[window flushWindow];
 						lastPoint = p;
-				}	}	}
+						}
+					}
+				}
 	
 			event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 									   untilDate:distantFuture 
@@ -449,14 +451,13 @@
 		else
 			[_tableView deselectColumn:_draggedColumn];
 	
-		oldRect = NSUnionRect(oldRect, 
-							  [self headerRectOfColumn:_draggedColumn]);
+		oldRect = NSUnionRect(oldRect, [self headerRectOfColumn:_draggedColumn]);
 		_draggedColumn = -1;
 		[self drawRect:oldRect];
 	
 		t.origin.x = oldRect.origin.x;
 		t.size.width = oldRect.size.width;
-		[_tableView displayRect:t];
+		[_tableView setNeedsDisplayInRect:t];
 
 		[_headerDragImage release];
 		_headerDragImage = nil;
@@ -514,13 +515,13 @@
 
 - (void) resetCursorRects
 {
-NSRange columnRange = [_tableView columnsInRect:[self visibleRect]];
-NSArray *tableColumns = [_tableView tableColumns];
-int i, count;
-NSCursor *resize = [NSCursor resizeLeftRightCursor];
-float intercellWidth = [_tableView intercellSpacing].width;
-NSRect r = {{0,0}, {MAX(1, intercellWidth), NSHeight(frame)}};
-
+	NSRange columnRange = [_tableView columnsInRect:[self visibleRect]];
+	NSArray *tableColumns = [_tableView tableColumns];
+	int i, count;
+	NSCursor *resize = [NSCursor resizeLeftRightCursor];
+	float intercellWidth = [_tableView intercellSpacing].width;
+	NSRect r = {{0,0}, {MAX(1, intercellWidth), NSHeight(frame)}};
+	
 	count = NSMaxRange(columnRange);
 	for (i = 0; i < count; i++)
 		{
@@ -566,6 +567,7 @@ NSRect r = {{0,0}, {MAX(1, intercellWidth), NSHeight(frame)}};
 
 @interface _NSCornerView : NSView
 @end
+
 @implementation _NSCornerView
 
 - (void) encodeWithCoder:(id)aCoder						// NSCoding protocol
@@ -810,10 +812,11 @@ NSRect r = {{0,0}, {MAX(1, intercellWidth), NSHeight(frame)}};
 	sel = @selector(tableView:shouldSelectTableColumn:);
 	_tv.delegateShouldSelectTableColumn = [_delegate respondsToSelector:sel];
 	sel = @selector(selectionShouldChangeInTableView:);
-	_tv.delegateSelectionShouldChangeInTableView 
-		= [_delegate respondsToSelector:sel];
+	_tv.delegateSelectionShouldChangeInTableView = [_delegate respondsToSelector:sel];
 	sel = @selector(tableView:shouldEditTableColumn:row:);
 	_tv.delegateShouldEditTableColumn = [_delegate respondsToSelector:sel];
+	sel = @selector(tableView:heightOfRow:);
+	_tv.delegateProvidesHeightOfRow = [_delegate respondsToSelector:sel];
 }
 
 - (void) setUsesAlternatingRowBackgroundColors:(BOOL) flag { _tv.usesAlternatingRowBackgroundColors=flag; }
@@ -837,11 +840,35 @@ NSRect r = {{0,0}, {MAX(1, intercellWidth), NSHeight(frame)}};
 
 - (int) numberOfRows							 
 {
-	// FIXME: cache until -noteNumberOfRowsChanged is called which clears the cache
 #if 0
 	NSLog(@"numberOfRows: %@", self);
 #endif
-	return [_dataSource numberOfRowsInTableView:self];
+	if(_numberOfRows < 0)
+		{ // not in cache, ask delegate
+		_numberOfRows=[_dataSource numberOfRowsInTableView:self];
+		if(_tv.delegateProvidesHeightOfRow)
+			[self noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _numberOfRows)]];
+		}
+	return _numberOfRows;
+}
+
+- (void) noteNumberOfRowsChanged
+{ // clear cache
+	/* update the scroller size/positions */
+	_numberOfRows=-1;
+}
+
+- (void) noteHeightOfRowsWithIndexesChanged:(NSIndexSet *) idx;
+{
+	if(_tv.delegateProvidesHeightOfRow)
+		{
+		unsigned first=[idx firstIndex];
+		while(first != NSNotFound)
+			{
+			// do something
+			first=[idx indexGreaterThanIndex:first];
+			}
+		}
 }
 
 - (void) addTableColumn:(NSTableColumn *)column 
@@ -905,7 +932,6 @@ int index = [self columnWithIdentifier:identifier];
 	NIMP;
 }
 
-- (void) noteNumberOfRowsChanged		{ /* we should at least update the scroller size/positions */ }
 - (id) target							{ return _target; }
 - (void) setTarget:anObject				{ ASSIGN(_target, anObject); }
 - (void) setAction:(SEL)aSelector		{ _action = aSelector; NSLog(@"NSTableView action=%@", NSStringFromSelector(aSelector)); }
@@ -1232,10 +1258,32 @@ int index = [self columnWithIdentifier:identifier];
 
 - (NSRect) rectOfRow:(int) row 
 { // FIXME: there should be a cache if we have millions of rows...!
-	// fixme: float rowHeight=[delegate tableView:self heightOfRow:row];
-	// and: we must sum up all rows up to the one asked for
+	if(_tv.delegateProvidesHeightOfRow)
+		{
+		float rowHeight=[_delegate tableView:self heightOfRow:row];
+		// and: we must sum up all rows up to the one asked for
+		}
 	float y = (_rowHeight + _intercellSpacing.height) * row;
 	return NSMakeRect(0, y, NSWidth(frame), _rowHeight);
+}
+
+- (int) columnAtPoint:(NSPoint)point 
+{
+	int i=0;
+	NSTableColumn *col;
+	NSEnumerator *e=[_tableColumns objectEnumerator];
+	float x = 0;
+	while((col=[e nextObject]))
+		{
+		if(point.x >= x && point.x < (x + col->_width))
+			return i;
+		x += (col->_width + _intercellSpacing.width);
+		if (point.x < x)
+			break;
+		i++;
+		}
+	
+	return NSNotFound;
 }
 
 - (NSRange) columnsInRect:(NSRect)rect 
@@ -1271,8 +1319,33 @@ int index = [self columnWithIdentifier:identifier];
 	return r;
 }
 
+- (int) rowAtPoint:(NSPoint)point 
+{
+	if(_tv.delegateProvidesHeightOfRow)
+		{
+		int i, count = [self numberOfRows];
+		// FIXME: use the cache (binary tree?) to rapidly find row for a point if we have millions of rows
+		for (i = 0; i < count; i++)
+			if (NSPointInRect(point, [self rectOfRow:i]))
+				return i;
+		return NSNotFound;
+		}
+	else
+		{
+		if(point.y < 0)
+			return NSNotFound;
+		return (point.y/(_rowHeight + _intercellSpacing.height));	// we could subtract _intercellSpacing.height/2 so that it jumps halfway between the cells
+		}
+}
+
 - (NSRange) rowsInRect:(NSRect)rect 
 {
+	NSRange r;
+	r.location=[self rowAtPoint:rect.origin];
+	if(r.location == NSNotFound)
+		return NSMakeRange(0, 0);
+	r.length=[self rowAtPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect))]-r.location+1;	// round up
+#if OLD
 	// FIXME: we should cache the row rects in some tree structure for fast(er) access
 	NSRange r = {0,0};
 
@@ -1293,37 +1366,8 @@ int index = [self columnWithIdentifier:identifier];
 			i++;
 			}
 		}
-
+#endif
 	return r;
-}
-
-- (int) columnAtPoint:(NSPoint)point 
-{
-	int i=0;
-	NSTableColumn *col;
-	NSEnumerator *e=[_tableColumns objectEnumerator];
-	float x = 0;
-	while((col=[e nextObject]))
-		{
-		if(point.x >= x && point.x < (x + col->_width))
-			return i;
-		x += (col->_width + _intercellSpacing.width);
-		if (point.x < x)
-			break;
-		i++;
-		}
-
-	return NSNotFound;
-}
-
-- (int) rowAtPoint:(NSPoint)point 
-{
-	int i, count = [self numberOfRows];
-	// FIXME: use the cache (binary tree?) to rapidly find row for a point if we have millions of rows
-	for (i = 0; i < count; i++)
-		if (NSPointInRect(point, [self rectOfRow:i]))
-			return i;
-	return NSNotFound;
 }
 
 - (NSRect) frameOfCellAtColumn:(int)column row:(int)row 
@@ -1558,6 +1602,8 @@ int index = [self columnWithIdentifier:identifier];
 							}
 						}
 
+					// FIXME: use selectRowIndex:byExtendingSelection
+					
 					if(extend.location >= 0)				// extend selection
 						{
 						r = [self rectOfRow: extend.location];
@@ -1648,6 +1694,7 @@ int index = [self columnWithIdentifier:identifier];
 			NSLog(@"tile r=%@ c=%@", NSStringFromRect(r), NSStringFromRect(c));
 #endif
 			r=NSUnionRect(r, c);
+			// FIXME: should be enlarged to always cover the visible rect so that we draw background even for 0 rows
 #if 0
 			NSLog(@"union r=%@", NSStringFromRect(r));
 #endif
@@ -1676,7 +1723,7 @@ int index = [self columnWithIdentifier:identifier];
 - (void) drawRect:(NSRect)rect								// Draw tableview
 {
 	NSRange rowRange = [self rowsInRect:rect];
-	NSRect rowClipRect = [self rectOfRow: rowRange.location];
+	NSRect rowClipRect;
 	int i, maxRowRange = NSMaxRange(rowRange);
 #if 0
 	NSLog(@"drawRect of %@: %@", self, NSStringFromRect(rect));
@@ -1690,32 +1737,31 @@ int index = [self columnWithIdentifier:identifier];
 		_cachedColOrigin = NSMinX([self rectOfColumn:_columnRange.location]);
 		}
 
+	[self drawBackgroundInClipRect:rect];					// draw table background
+
 	if(_lastSelectedColumn >= 0)							// if cols selected
 		{													// highlight them
 		int maxColRange = NSMaxRange(_columnRange);
-
 		for (i = _columnRange.location; i <= maxColRange; i++)
 			{
 			if([_selectedColumns containsIndex:i])
 				{
 				NSRect c = NSIntersectionRect(rect, [self rectOfColumn:i]);
-				[self highlightSelectionInClipRect: c];
+				[self highlightSelectionInClipRect: c];		// draw selected column background
 				}
 			}
 		}
 
-	rowClipRect.origin.x = NSMinX(rect);
-	rowClipRect.size.width = NSWidth(rect);
 	for (i = rowRange.location; i < maxRowRange; i++)
-		{
-		[self drawBackgroundInClipRect:rowClipRect];
-		if(_tv.gridStyleMask !=  NSTableViewGridNone)
-			[self drawGridInClipRect:rowClipRect];
+		{ // draw rows
+		rowClipRect=[self rectOfRow:i];
 		if([_selectedRows containsIndex:i])
-			[self highlightSelectionInClipRect: rowClipRect];
-		[self drawRow: i clipRect: rowClipRect];
-		rowClipRect.origin.y += (_rowHeight + _intercellSpacing.height);
+			[self highlightSelectionInClipRect: rowClipRect];	// draw selected column background
+		[self drawRow:i clipRect:rowClipRect];					// cell might also highlight
 		}
+
+	if(_tv.gridStyleMask !=  NSTableViewGridNone)
+		[self drawGridInClipRect:rect];						// finally draw grid
 }
 
 - (void) updateCell:(NSCell *) cell;
@@ -1747,12 +1793,12 @@ int index = [self columnWithIdentifier:identifier];
 	rect.origin.x = _cachedColOrigin;
 
 	for (i = _columnRange.location; i < maxColRange; i++)
-		{
+		{ // draw all columns of this row that are visible
 		NSTableColumn *col = [_tableColumns objectAtIndex:i];
 		NSTableDataCell *aCell = [col dataCellForRow:row];
 		id data;
 		if(row < [self numberOfRows])
-			data=[_dataSource tableView:self objectValueForTableColumn:col row:row];
+			data=[_dataSource tableView:self objectValueForTableColumn:col row:row];	// ask data source
 		else
 			data=nil;
 #if 0
@@ -1766,17 +1812,8 @@ int index = [self columnWithIdentifier:identifier];
 			{ // set data from data source
 			[aCell setObjectValue:data];
 			if(_tv.delegateWillDisplayCell)
-				[_delegate tableView:self 
-					 willDisplayCell:aCell 
-					  forTableColumn:col
-								 row:row];
-#if 0
-			NSLog(@"highlight?");
-#endif
-			if([_selectedRows containsIndex:row] || [_selectedColumns containsIndex:i])
-				[aCell highlight:YES withFrame:rect inView:self];
-			else
-				[aCell drawInteriorWithFrame:rect inView:self];	// FIXME: why interior only?
+				[_delegate tableView:self willDisplayCell:aCell forTableColumn:col row:row];	// give delegate a chance to nodify the cell
+			[aCell highlight:([_selectedRows containsIndex:row] || [_selectedColumns containsIndex:i]) withFrame:rect inView:self];
 			}
 		rect.origin.x = NSMaxX(rect) + _intercellSpacing.width;
 		}
@@ -1795,12 +1832,26 @@ int index = [self columnWithIdentifier:identifier];
 	if(horz || vert)
 		[_gridColor set];
 	if(horz)
-		{ // on the right edge
-		[NSBezierPath strokeLineFromPoint:NSMakePoint(NSMaxX(rect)-1.0, NSMinY(rect)) toPoint:NSMakePoint(NSMaxX(rect)-1.0, NSMaxY(rect))];
+		{
+		NSRange rng=[self columnsInRect:rect];
+		while(rng.length > 0)
+			{
+			NSRect rect=[self rectOfColumn:rng.location];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(rect.origin.x+rect.size.width, rect.origin.y) toPoint:NSMakePoint(rect.origin.x+rect.size.width, rect.origin.y+rect.size.height)];
+			rng.location++;
+			rng.length--;
+			}
 		}
 	if(vert)
-		{ // on the bottom edge
-		[NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect)) toPoint:NSMakePoint(NSMaxX(rect), NSMaxY(rect))];
+		{
+		NSRange rng=[self rowsInRect:rect];
+		while(rng.length > 0)
+			{
+			NSRect rect=[self rectOfRow:rng.location];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(rect.origin.x, rect.origin.y+rect.size.height) toPoint:NSMakePoint(rect.origin.x+rect.size.width, rect.origin.y+rect.size.height)];
+			rng.location++;
+			rng.length--;
+			}
 		}
 }
 
@@ -1808,13 +1859,19 @@ int index = [self columnWithIdentifier:identifier];
 {
 	if(_tv.usesAlternatingRowBackgroundColors)
 		{ // we ignore background color
-		int row = [self rowAtPoint:rect.origin];	// determine row number
+		NSRange rowRange = [self rowsInRect:rect];	// determine first row
 		NSArray *colors=[NSColor controlAlternatingRowBackgroundColors];
 		unsigned int ncolors=[colors count];
 		if(ncolors > 0)
 			{
-			[[colors objectAtIndex:(row%ncolors)] setFill];	// set color
-			NSRectFill(rect);
+			while(YES)
+				{
+				NSRect rowRect=[self rectOfRow:rowRange.location];
+				if(rowRect.origin.y < rect.origin.y+rect.size.height)
+					return;	// row no longer inside
+				[[colors objectAtIndex:(rowRange.location++)%ncolors] setFill];	// set color
+				NSRectFill(rowRect);
+				}
 			}
 		}
 	else
@@ -1866,12 +1923,8 @@ int index = [self columnWithIdentifier:identifier];
 		_draggingSourceOperationMaskForRemote=mask;
 }
 
-	/* NIMP methods
-
+/* missing methods
 -setDropRow:dropOperation:
--selectRowIndexes:byExtendingSelection:
--selectColumnIndexes:byExtendingSelection:
--noteHeightOfRowsWithIndexesChanged:
 -dragImageForRowsWithIndexes:tableColumns:event:offset:
 -canDragRowsWithIndexes:atPoint:
 */

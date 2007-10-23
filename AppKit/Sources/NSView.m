@@ -1612,7 +1612,7 @@ printing
 
 - (BOOL) autoscroll:(NSEvent *)event					// Auto Scrolling
 {
-	return super_view ? [super_view autoscroll:event] : NO;	// closest ancestor NSClipView will have overridden
+	return super_view ? [super_view autoscroll:event] : NO;	// closest ancestor NSClipView will have it overridden
 }
 
 - (BOOL) scrollRectToVisible:(NSRect)aRect

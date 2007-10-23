@@ -1195,7 +1195,8 @@ static NSOpenPanel *__openPanel;
 	[[NSColor whiteColor] set];
 	// convert current color into position
 	_selection=NSMakePoint(30, 30);	// and remember
-	NSFrameRect(NSMakeRect(_selection.x-1, _selection.y-1, 3, 3));	// draw small white square box at current selection position
+	rect=NSMakeRect(_selection.x, _selection.y, 1, 1);
+	NSFrameRect(NSInsetRect(rect, -2, -2));	// draw small white square box at current selection position
 }
 
 - (void) setColorPanel:(NSColorPanel *) panel; { _colorPanel=panel; }

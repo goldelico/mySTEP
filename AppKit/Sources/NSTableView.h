@@ -81,6 +81,7 @@ typedef enum NSTableViewDropOperation {
     int _editingRow;
     int _clickedColumn;
     int _clickedRow;
+	int _numberOfRows;	// cached value
 
 	struct __TableViewFlags {
 		UIBITFIELD(unsigned int, delegateSelectionShouldChangeInTableView, 1);
@@ -88,6 +89,7 @@ typedef enum NSTableViewDropOperation {
 		UIBITFIELD(unsigned int, delegateShouldSelectRow, 1);
 		UIBITFIELD(unsigned int, delegateShouldEditTableColumn, 1);
 		UIBITFIELD(unsigned int, delegateWillDisplayCell, 1);
+		UIBITFIELD(unsigned int, delegateProvidesHeightOfRow, 1);
 		UIBITFIELD(unsigned int, allowsColumnSelection, 1);
 		UIBITFIELD(unsigned int, allowsMultipleSelection, 1);
 		UIBITFIELD(unsigned int, allowsEmptySelection, 1);
