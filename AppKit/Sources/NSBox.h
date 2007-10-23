@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jan 2006 - aligned with 10.4
 
+   Author:	Fabian Spillner
+   Date:	19. October 2007  
+
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -63,15 +66,15 @@ typedef enum _NSBoxType
 - (NSBoxType) boxType;
 - (id) contentView;										// Content View
 - (NSSize) contentViewMargins;
-- (void) setBorderType:(NSBorderType)aType;
-- (void) setBoxType:(NSBoxType)aType;
-- (void) setContentView:(NSView *)aView;
-- (void) setContentViewMargins:(NSSize)offsetSize;
-- (void) setFrameFromContentFrame:(NSRect)contentFrame;
-- (void) setTitle:(NSString *)aString;
-- (void) setTitleFont:(NSFont *)fontObj;
-- (void) setTitlePosition:(NSTitlePosition)aPosition;
-- (void) setTitleWithMnemonic:(NSString *)aString;
+- (void) setBorderType:(NSBorderType) type;
+- (void) setBoxType:(NSBoxType) type;
+- (void) setContentView:(NSView *) view;
+- (void) setContentViewMargins:(NSSize) size;
+- (void) setFrameFromContentFrame:(NSRect) frame;
+- (void) setTitle:(NSString *) title;
+- (void) setTitleFont:(NSFont *) font;
+- (void) setTitlePosition:(NSTitlePosition) pos;
+- (void) setTitleWithMnemonic:(NSString *) title;
 - (void) sizeToFit;										// Sizing the Box
 - (NSString *) title;
 - (id) titleCell;

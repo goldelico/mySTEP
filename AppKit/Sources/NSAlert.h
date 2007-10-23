@@ -1,13 +1,16 @@
-//
-//  NSAlert.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
-//  Copyright (c) 2005 DSITRI.
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+  NSAlert.h
+  mySTEP
+
+  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
+  Copyright (c) 2005 DSITRI. 
+
+  Author:	Fabian Spillner
+  Date:		16. October 2007  
+ 
+  This file is part of the mySTEP Library and is provided
+  under the terms of the GNU Library General Public License.
+*/
 
 #ifndef _mySTEP_H_NSAlert
 #define _mySTEP_H_NSAlert
@@ -42,8 +45,9 @@ enum
 	BOOL _showsHelp;
 }
 
-+ (NSAlert *) alertWithError:(NSError *) error;
-+ (NSAlert *) alertWithMessageText:(NSString *) message defaultButton:(NSString *) default alternateButton:(NSString *) alt otherButton:(NSString *) other informativeTextWithFormat:(NSString *) format, ...;
++ (NSAlert *) alertWithError:(NSError *) err;
++ (NSAlert *) alertWithMessageText:(NSString *) message defaultButton:(NSString *) defaultTitle alternateButton:(NSString *) altTitle otherButton:(NSString *) otherTitle informativeTextWithFormat:(NSString *) textWithFormat, ...;
+
 - (NSButton *) addButtonWithTitle:(NSString *) title;
 - (NSAlertStyle) alertStyle;
 - (void) beginSheetModalForWindow:(NSWindow *) window modalDelegate:(id) delegate didEndSelector:(SEL) sel contextInfo:(void *) context;
@@ -55,9 +59,9 @@ enum
 - (NSString *) informativeText;
 - (NSString *) messageText;
 - (int) runModal;
-- (void) setAlertStyle:(NSAlertStyle) style;
+- (void) setAlertStyle:(NSAlertStyle) alertStyle;
 - (void) setDelegate:(id) delegate;
-- (void) setHelpAnchor:(NSString *) anchor;
+- (void) setHelpAnchor:(NSString *) helpAnchor;
 - (void) setIcon:(NSImage *) icon;
 - (void) setInformativeText:(NSString *) text;
 - (void) setMessageText:(NSString *) message;
@@ -68,7 +72,7 @@ enum
 @end
 
 @interface NSObject (NSAlertDelegate)
-- (BOOL) alertShowHelp:(NSAlert *) alert;
+- (BOOL) alertShowHelp:(NSAlert *) anAlert;
 @end
 
 #endif /* _mySTEP_H_NSAlert */

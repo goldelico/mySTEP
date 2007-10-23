@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	19. October 2007  
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -33,13 +36,13 @@
 + (NSImage *) highlightedBranchImage;
 
 - (NSImage *) alternateImage;
-- (NSColor *) highlightColorInView:(NSView *) controlView;
+- (NSColor *) highlightColorInView:(NSView *) view;
 - (NSImage *) image;
 - (BOOL) isLeaf;										// cell type in browser
 - (BOOL) isLoaded;										// cell load status
 - (void) reset;											// cell state
-- (void) setAlternateImage:(NSImage *)anImage;
-- (void) setImage:(NSImage *)anImage;
+- (void) setAlternateImage:(NSImage *)image;
+- (void) setImage:(NSImage *)image;
 - (void) setLeaf:(BOOL)flag;
 - (void) setLoaded:(BOOL)flag;
 - (void) set;

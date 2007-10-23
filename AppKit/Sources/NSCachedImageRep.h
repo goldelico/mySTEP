@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	22. October 2007   
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -29,11 +32,8 @@
 	NSWindow *_window;
 }
 
-- (id) initWithSize:(NSSize)aSize
-			  depth:(NSWindowDepth)aDepth
-			  separate:(BOOL)separate
-			  alpha:(BOOL)alpha;
-- (id) initWithWindow:(NSWindow *)aWindow rect:(NSRect)aRect;
+- (id) initWithSize:(NSSize) aSize depth:(NSWindowDepth) aDepth separate:(BOOL) separate alpha:(BOOL) alpha;
+- (id) initWithWindow:(NSWindow *) aWindow rect:(NSRect) aRect;
 - (NSRect) rect;
 - (NSWindow *) window;
 

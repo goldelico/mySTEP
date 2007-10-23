@@ -8,7 +8,10 @@
    
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jan 2006 - aligned with 10.4
-
+ 
+   Author:	Fabian Spillner
+   Date:	16. October 2007
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -25,7 +28,7 @@
 - (void) concat;
 - (void) set;
 
-- (NSBezierPath *) transformBezierPath:(NSBezierPath *) aPath;
+- (NSBezierPath *) transformBezierPath:(NSBezierPath *) path;
 
 @end
 

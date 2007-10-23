@@ -10,6 +10,9 @@
    
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jan 2006 - aligned with 10.4
+ 
+   Author:	Fabian Spillner
+   Date:	16. October 2007
 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -113,38 +116,28 @@ extern id NSApp;					// NSApp global var
     } _app;
 }
 
-+ (void) detachDrawingThread:(SEL) selector toTarget:(id) target withObject:(id) argument;
++ (void) detachDrawingThread:(SEL) sel toTarget:(id) target withObject:(id) arg;
 + (NSApplication *) sharedApplication;
 
 - (void) abortModal;										// Event loop
-- (void) activateContextHelpMode:(id)sender;
-- (void) activateIgnoringOtherApps:(BOOL)flag;				// activate app
-- (void) addWindowsItem:(NSWindow *) aWindow								// Windows menu
-				  title:(NSString *) aString
-			   filename:(BOOL) isFilename;
+- (void) activateContextHelpMode:(id) sender;
+- (void) activateIgnoringOtherApps:(BOOL) flag;				// activate app
+- (void) addWindowsItem:(NSWindow *) window	title:(NSString *) title filename:(BOOL) isFile;
 - (NSImage *) applicationIconImage;
 - (void) arrangeInFront:(id) sender;
-- (NSModalSession) beginModalSessionForWindow:(NSWindow *) aWindow;
-- (NSModalSession) beginModalSessionForWindow:(NSWindow *) aWindow
-							 relativeToWindow:(NSWindow *) docWindow;
-- (void) beginSheet:(NSWindow *) sheet
-	 modalForWindow:(NSWindow *) doc
-	  modalDelegate:(id) delegate
-	 didEndSelector:(SEL) selector
-		contextInfo:(void *) context;
-- (void) cancelUserAttentionRequest:(int) request;
-- (void) changeWindowsItem:(NSWindow *) aWindow
-					 title:(NSString *) aString
-				  filename:(BOOL) isFilename;
+- (NSModalSession) beginModalSessionForWindow:(NSWindow *) window;
+- (NSModalSession) beginModalSessionForWindow:(NSWindow *) window relativeToWindow:(NSWindow *) documentWindow; /* DEPRECATED */
+- (void) beginSheet:(NSWindow *) window modalForWindow:(NSWindow *) doc modalDelegate:(id) delegate didEndSelector:(SEL) selector contextInfo:(void *) context;
+- (void) cancelUserAttentionRequest:(int) req;
+- (void) changeWindowsItem:(NSWindow *) window title:(NSString *) string filename:(BOOL) isFile;
 - (NSGraphicsContext *) context;										// Display context
 - (NSEvent*) currentEvent;									// Events
 - (void) deactivate;
 - (id) delegate;
-- (void) discardEventsMatchingMask:(unsigned int) mask
-					   beforeEvent:(NSEvent *) lastEvent;
+- (void) discardEventsMatchingMask:(unsigned int) matchingMask beforeEvent:(NSEvent *) event;
 - (void) endModalSession:(NSModalSession) aSession;
-- (void) endSheet:(NSWindow *) sheet;
-- (void) endSheet:(NSWindow *) sheet returnCode:(int) code;
+- (void) endSheet:(NSWindow *) aSheet;
+- (void) endSheet:(NSWindow *) aSheet returnCode:(int) ret;
 - (void) finishLaunching;
 - (void) hide:(id) sender;										// Hiding windows
 - (void) hideOtherApplications:(id) sender;
@@ -154,103 +147,97 @@ extern id NSApp;					// NSApp global var
 - (NSWindow *) keyWindow;									// Managing windows
 - (NSMenu *) mainMenu;										// Main menu
 - (NSWindow *) mainWindow;
-- (NSWindow *) makeWindowsPerform:(SEL) aSelector
-						  inOrder:(BOOL) flag;
+- (NSWindow *) makeWindowsPerform:(SEL) sel inOrder:(BOOL) flag;
 - (void) miniaturizeAll:(id) sender;
 - (NSWindow *) modalWindow;
-- (NSEvent *) nextEventMatchingMask:(unsigned int) mask
-						 untilDate:(NSDate *) expiration
-							inMode:(NSString *) mode
-						   dequeue:(BOOL) flag;
+- (NSEvent *) nextEventMatchingMask:(unsigned int) matchingMask untilDate:(NSDate *) expirationDate inMode:(NSString *) mode dequeue:(BOOL) flag;
 - (NSArray *) orderedDocuments;
 - (NSArray *) orderedWindows;
 - (void) orderFrontCharacterPalette:(id) sender;					// Show std Panels
 - (void) orderFrontColorPanel:(id) sender;						// Show std Panels
 - (void) orderFrontStandardAboutPanel:(id) sender;
-- (void) orderFrontStandardAboutPanelWithOptions:(NSDictionary *)optionsDictionary;
+- (void) orderFrontStandardAboutPanelWithOptions:(NSDictionary *) options;
 - (void) postEvent:(NSEvent *) event atStart:(BOOL) flag;
 - (void) preventWindowOrdering;
-- (void) registerServicesMenuSendTypes:(NSArray *) sendTypes
-						   returnTypes:(NSArray *) returnTypes;
-- (void) removeWindowsItem:(NSWindow *) aWindow;
-- (void) replyToApplicationShouldTerminate:(BOOL) shouldTerminate;	// call if delegate returned NSTerminateLater
-- (void) replyToOpenOrPrint:(NSApplicationDelegateReply) reply;
-- (void) reportException:(NSException *) anException;		// Report exception
-- (int) requestUserAttention:(NSRequestUserAttentionType) requestType;
+- (void) registerServicesMenuSendTypes:(NSArray *) send returnTypes:(NSArray *) ret;
+- (void) removeWindowsItem:(NSWindow *) window;
+- (void) replyToApplicationShouldTerminate:(BOOL) flag;	// call if delegate returned NSTerminateLater
+- (void) replyToOpenOrPrint:(NSApplicationDelegateReply) rep;
+- (void) reportException:(NSException *) exception;		// Report exception
+- (int) requestUserAttention:(NSRequestUserAttentionType) request;
 - (void) run;
-- (int) runModalForWindow:(NSWindow *) aWindow;
-// - (int) runModalForWindow:(NSWindow *) aWindow relativeToWindow:(NSWindow *) docWindow;	// deprecated
-- (int) runModalSession:(NSModalSession) aSession;
+- (int) runModalForWindow:(NSWindow *) window;
+- (int) runModalForWindow:(NSWindow *) aWindow relativeToWindow:(NSWindow *) docWindow;	/* DEPRECATED */
+- (int) runModalSession:(NSModalSession) session;
 - (void) runPageLayout:(id) sender;
-- (BOOL) sendAction:(SEL) aSelector to:(id) aTarget from:(id) sender;
+- (BOOL) sendAction:(SEL) sel to:(id) target from:(id) sender;
 - (void) sendEvent:(NSEvent *)event;
 - (NSMenu *) servicesMenu;									// Service menu
 - (id) servicesProvider;
 // - (void) setAppleMenu:(NSMenu *)aMenu;						// set first entry of the mainMenu
-- (void) setApplicationIconImage:(NSImage *) anImage;		// app's icon
-- (void) setDelegate:(id) anObject;
-- (void) setMainMenu:(NSMenu *) aMenu;
-- (void) setServicesMenu:(NSMenu *) aMenu;
-- (void) setServicesProvider:(id) anObject;
-- (void) setWindowsMenu:(NSMenu *) aMenu;
+- (void) setApplicationIconImage:(NSImage *) image;		// app's icon
+- (void) setDelegate:(id) delegate;
+- (void) setMainMenu:(NSMenu *) menu;
+- (void) setServicesMenu:(NSMenu *) menu;
+- (void) setServicesProvider:(id) provider;
+- (void) setWindowsMenu:(NSMenu *) menu;
 - (void) setWindowsNeedUpdate:(BOOL) flag;
 - (void) showHelp:(id) sender;
 - (void) stop:(id) sender;
 - (void) stopModal;
-- (void) stopModalWithCode:(int) returnCode;
-- (id) targetForAction:(SEL) aSelector;						// target / action
-- (id) targetForAction:(SEL) aSelector
-					to:(id) aTarget
-				  from:(id) sender;
+- (void) stopModalWithCode:(int) ret;
+- (id) targetForAction:(SEL) selector;						// target / action
+- (id) targetForAction:(SEL) selector to:(id) target from:(id) sender;
 - (void) terminate:(id) sender;									// Terminate app
-- (BOOL) tryToPerform:(SEL)aSelector with:(id) anObject;
+- (BOOL) tryToPerform:(SEL)selector with:(id) object;
 - (void) unhide:(id) sender;
 - (void) unhideAllApplications:(id) sender;
 - (void) unhideWithoutActivation;
 - (void) updateWindows;
-- (void) updateWindowsItem:(NSWindow *) aWindow;
-- (id) validRequestorForSendType:(NSString *) sendType
-					  returnType:(NSString *) returnType;
+- (void) updateWindowsItem:(NSWindow *) window;
+- (id) validRequestorForSendType:(NSString *) send returnType:(NSString *) ret;
 - (NSArray *) windows;
 - (NSMenu*) windowsMenu;
-- (NSWindow *) windowWithWindowNumber:(int) windowNum;
+- (NSWindow *) windowWithWindowNumber:(int) num;
 
 @end
 
 @interface NSObject (NSApplicationDelegate)					// Implemented by
 															// the delegate
-- (BOOL) application:(NSApplication *)app openFile:(NSString *)filename;
-- (void) application:(NSApplication *)app openFiles:(NSArray *)filenames;
-- (BOOL) application:(NSApplication *)app openFileWithoutUI:(NSString *)filename;
-- (BOOL) application:(NSApplication *)app openTempFile:(NSString *)filename;
-- (BOOL) applicationOpenUntitledFile:(NSApplication *)app;
-- (BOOL) applicationShouldOpenUntitledFile:(NSApplication *)app;
-- (BOOL) applicationShouldHandleReopen:(NSApplication *) app hasVisibleWindows:(BOOL)flag;
 
-- (BOOL) application:(NSApplication *)app printFile:(NSString *)filename;
-- (void) application:(NSApplication *)app printFiles:(NSArray *)filenames;
+- (BOOL) application:(NSApplication *) sender delegateHandlesKey:(NSString *) value;
+- (BOOL) application:(NSApplication *) app openFile:(NSString *) file;
+- (void) application:(NSApplication *) app openFiles:(NSArray *) files;
+- (BOOL) application:(NSApplication *) app openFileWithoutUI:(NSString *) file;
+- (BOOL) application:(NSApplication *) app openTempFile:(NSString *) file;
+- (BOOL) applicationOpenUntitledFile:(NSApplication *) app;
+- (BOOL) applicationShouldOpenUntitledFile:(NSApplication *) app;
+- (BOOL) applicationShouldHandleReopen:(NSApplication *) app hasVisibleWindows:(BOOL) flag;
+
+- (BOOL) application:(NSApplication *) app printFile:(NSString *) file;
+- (void) application:(NSApplication *) app printFiles:(NSArray *) files;
 - (NSApplicationPrintReply) application:(NSApplication *) app printFiles:(NSArray *) files withSettings:(NSDictionary *) settings showPrintPanels:(BOOL) flag;
 
 - (NSMenu *) applicationDockMenu:(NSApplication *) sender;
 
-- (void) applicationDidChangeScreenParameters:(NSNotification *)aNotification;
+- (void) applicationDidChangeScreenParameters:(NSNotification *) notification;
 
-- (void) applicationDidBecomeActive:(NSNotification *)aNotification;
-- (void) applicationDidFinishLaunching:(NSNotification *)aNotification;
-- (void) applicationDidHide:(NSNotification *)aNotification;
-- (void) applicationDidResignActive:(NSNotification *)aNotification;
-- (void) applicationDidUnhide:(NSNotification *)aNotification;
-- (void) applicationDidUpdate:(NSNotification *)aNotification;
-- (void) applicationWillBecomeActive:(NSNotification *)aNotification;
-- (void) applicationWillFinishLaunching:(NSNotification *)aNotification;
-- (void) applicationWillHide:(NSNotification *)aNotification;
-- (void) applicationWillResignActive:(NSNotification *)aNotification;
-- (void) applicationWillUnhide:(NSNotification *)aNotification;
-- (void) applicationWillUpdate:(NSNotification *)aNotification;
+- (void) applicationDidBecomeActive:(NSNotification *) notification;
+- (void) applicationDidFinishLaunching:(NSNotification *) notification;
+- (void) applicationDidHide:(NSNotification *) notification;
+- (void) applicationDidResignActive:(NSNotification *) notification;
+- (void) applicationDidUnhide:(NSNotification *) notification;
+- (void) applicationDidUpdate:(NSNotification *) notification;
+- (void) applicationWillBecomeActive:(NSNotification *) notification;
+- (void) applicationWillFinishLaunching:(NSNotification *) notification;
+- (void) applicationWillHide:(NSNotification *) notification;
+- (void) applicationWillResignActive:(NSNotification *) notification;
+- (void) applicationWillUnhide:(NSNotification *) notification;
+- (void) applicationWillUpdate:(NSNotification *) notification;
 
-- (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *)sender;
-- (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender;
-- (void) applicationWillTerminate:(NSNotification *)notification;
+- (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *) app;
+- (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *) app;
+- (void) applicationWillTerminate:(NSNotification *) notification;
 
 - (NSError *) application:(NSApplication *) app willPresentError:(NSError *) error;
 
@@ -259,9 +246,9 @@ extern id NSApp;					// NSApp global var
 
 @interface NSObject (NSServicesRequests)					// Pasteboard
 
-- (BOOL) readSelectionFromPasteboard:(NSPasteboard *)pboard;
-- (BOOL) writeSelectionToPasteboard:(NSPasteboard *)pboard
-                              types:(NSArray *)types;
+- (BOOL) readSelectionFromPasteboard:(NSPasteboard *) pboard;
+- (BOOL) writeSelectionToPasteboard:(NSPasteboard *) pboard
+                              types:(NSArray *) types;
 @end
 
 

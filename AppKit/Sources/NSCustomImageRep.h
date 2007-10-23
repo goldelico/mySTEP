@@ -10,6 +10,9 @@
    
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
+ 
+   Author:	Fabian Spillner
+   Date:	22. October 2007
 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -28,7 +31,7 @@
 
 - (id) delegate;
 - (SEL) drawSelector;
-- (id) initWithDrawSelector:(SEL)aSelector delegate:(id)anObject;
+- (id) initWithDrawSelector:(SEL) aSelector delegate:(id) anObject;
 
 @end
 

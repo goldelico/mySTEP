@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	22. October 2007  
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -95,7 +98,7 @@ typedef enum _NSGradientType {
 - (void) drawBezelWithFrame:(NSRect) frame inView:(NSView *) control;
 - (void) drawImage:(NSImage *) image withFrame:(NSRect) frame inView:(NSView *) control;
 - (void) drawTitle:(NSAttributedString *) title withFrame:(NSRect) frame inView:(NSView *) control;
-- (void) getPeriodicDelay:(float *)delay interval:(float *)interval;
+- (void) getPeriodicDelay:(float *)delay interval:(float *) interval;
 - (NSGradientType) gradientType;
 - (int) highlightsBy;
 - (BOOL) imageDimsWhenDisabled;
@@ -108,31 +111,31 @@ typedef enum _NSGradientType {
 - (void) mouseEntered:(NSEvent *) event;
 - (void) mouseExited:(NSEvent *) event;
 // inherited - (void) performClick:(id)sender;						// -> NSCell
-- (void) setAlternateImage:(NSImage *)anImage;
+- (void) setAlternateImage:(NSImage *) anImage;
 - (void) setAlternateMnemonicLocation:(unsigned) location;
-- (void) setAlternateTitle:(NSString *)aString;
-- (void) setAlternateTitleWithMnemonic:(NSString *)aString;
-- (void) setAttributedAlternateTitle:(NSAttributedString *)aString;
-- (void) setAttributedTitle:(NSAttributedString *)aString;
+- (void) setAlternateTitle:(NSString *) aString;
+- (void) setAlternateTitleWithMnemonic:(NSString *) aString;
+- (void) setAttributedAlternateTitle:(NSAttributedString *) aString;
+- (void) setAttributedTitle:(NSAttributedString *) aString;
 - (void) setBackgroundColor:(NSColor *) color;
 - (void) setBezelStyle:(NSBezelStyle) style;
 - (void) setButtonType:(NSButtonType) aType;
 // - (void) setFont:(NSFont *)fontObject;   // -> NSFont & NSActionCell
 - (void) setGradientType:(NSGradientType) type;
-- (void) setHighlightsBy:(int)aType;
+- (void) setHighlightsBy:(int) aType;
 - (void) setImageDimsWhenDisabled:(BOOL) flag;
-- (void) setImagePosition:(NSCellImagePosition)aPosition;
-- (void) setKeyEquivalent:(NSString *)aKeyEquivalent;
-- (void) setKeyEquivalentFont:(NSFont *)fontObj;
-- (void) setKeyEquivalentFont:(NSString *)fontName size:(float)fontSize;
-- (void) setKeyEquivalentModifierMask:(unsigned int)mask;
-- (void) setPeriodicDelay:(float)delay interval:(float)interval;
+- (void) setImagePosition:(NSCellImagePosition) aPosition;
+- (void) setKeyEquivalent:(NSString *) aKeyEquivalent;
+- (void) setKeyEquivalentFont:(NSFont *) fontObj;
+- (void) setKeyEquivalentFont:(NSString *) fontName size:(float) fontSize;
+- (void) setKeyEquivalentModifierMask:(unsigned int) mask;
+- (void) setPeriodicDelay:(float)delay interval:(float) interval;
 - (void) setShowsBorderOnlyWhileMouseInside:(BOOL) flag;
-- (void) setShowsStateBy:(int)aType;
-- (void) setSound:(NSSound *)aSound;
+- (void) setShowsStateBy:(int) aType;
+- (void) setSound:(NSSound *) aSound;
 // inherited - (void) setTitle:(NSString *)aString;					// -> NSCell
 // inherited - (void) setTitleWithMnemonic:(NSString *)aString;		// -> NSCell
-- (void) setTransparent:(BOOL)flag;
+- (void) setTransparent:(BOOL) flag;
 - (BOOL) showsBorderOnlyWhileMouseInside;
 - (int) showsStateBy;
 - (NSSound *)sound;

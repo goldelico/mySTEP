@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	22. October 2007  
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -74,39 +77,39 @@
 + (NSColor *) brownColor;
 + (NSColor *) clearColor;
 + (NSColor *) colorForControlTint:(NSControlTint) tint;
-+ (NSColor *) colorFromPasteboard:(NSPasteboard *)pasteBoard;
-+ (NSColor *) colorWithCalibratedHue:(float)hue
-						  saturation:(float)saturation
-						  brightness:(float)brightness
-							   alpha:(float)alpha;
-+ (NSColor *) colorWithCalibratedRed:(float)red
-							   green:(float)green
-								blue:(float)blue
-							   alpha:(float)alpha;
-+ (NSColor *) colorWithCalibratedWhite:(float)white
-								 alpha:(float)alpha;
-+ (NSColor *) colorWithCatalogName:(NSString *)listName
-						 colorName:(NSString *)colorName;
-// + (NSColor *) colorWithCIColor:(CIColor *) color;
++ (NSColor *) colorFromPasteboard:(NSPasteboard *) pasteBoard;
++ (NSColor *) colorWithCalibratedHue:(float) hue
+						  saturation:(float) saturation
+						  brightness:(float) brightness
+							   alpha:(float) alpha;
++ (NSColor *) colorWithCalibratedRed:(float) red
+							   green:(float) green
+								blue:(float) blue
+							   alpha:(float) alpha;
++ (NSColor *) colorWithCalibratedWhite:(float) white
+								 alpha:(float) alpha;
++ (NSColor *) colorWithCatalogName:(NSString *) listName
+						 colorName:(NSString *) colorName;
+//+ (NSColor *) colorWithCIColor:(CIColor *) color;
 + (NSColor *) colorWithColorSpace:(NSColorSpace *) space
 					   components:(const float *) comp
 							count:(int) number;
-+ (NSColor *) colorWithDeviceCyan:(float)cyan
-						  magenta:(float)magenta
-						   yellow:(float)yellow
-							black:(float)black
-							alpha:(float)alpha;
-+ (NSColor *) colorWithDeviceHue:(float)hue
-					  saturation:(float)saturation
-					  brightness:(float)brightness
-						   alpha:(float)alpha;
-+ (NSColor *) colorWithDeviceRed:(float)red
-						   green:(float)green
-							blue:(float)blue
-						   alpha:(float)alpha;
-+ (NSColor *) colorWithDeviceWhite:(float)white
-							 alpha:(float)alpha;
-+ (NSColor *) colorWithPatternImage:(NSImage *)image;
++ (NSColor *) colorWithDeviceCyan:(float) cyan
+						  magenta:(float) magenta
+						   yellow:(float) yellow
+							black:(float) black
+							alpha:(float) alpha;
++ (NSColor *) colorWithDeviceHue:(float) hue
+					  saturation:(float) saturation
+					  brightness:(float) brightness
+						   alpha:(float) alpha;
++ (NSColor *) colorWithDeviceRed:(float) red
+						   green:(float) green
+							blue:(float) blue
+						   alpha:(float) alpha;
++ (NSColor *) colorWithDeviceWhite:(float) white
+							 alpha:(float) alpha;
++ (NSColor *) colorWithPatternImage:(NSImage *) image;
 + (NSArray *) controlAlternatingRowBackgroundColors;
 + (NSColor *) controlBackgroundColor;					// System colors
 + (NSColor *) controlColor;
@@ -143,7 +146,7 @@
 + (NSColor *) selectedMenuItemTextColor;
 + (NSColor *) selectedTextBackgroundColor;
 + (NSColor *) selectedTextColor;
-+ (void) setIgnoresAlpha:(BOOL)flag;
++ (void) setIgnoresAlpha:(BOOL) flag;
 + (NSColor *) shadowColor;
 + (NSColor *) textBackgroundColor;
 + (NSColor *) textColor;
@@ -155,38 +158,38 @@
 
 - (float) alphaComponent;								// Access Components
 - (float) blackComponent;
-- (NSColor *) blendedColorWithFraction:(float)fraction	// Change the color
-							  ofColor:(NSColor *)aColor;
+- (NSColor *) blendedColorWithFraction:(float) fraction	// Change the color
+							   ofColor:(NSColor *) aColor;
 - (float) blueComponent;
 - (float) brightnessComponent;
 - (NSString *) catalogNameComponent;
 - (NSString *) colorNameComponent;
 - (NSColorSpace *) colorSpace;
 - (NSString *) colorSpaceName;
-- (NSColor *) colorUsingColorSpace:(NSColorSpace *)space;
-- (NSColor *) colorUsingColorSpaceName:(NSString *)colorSpace;
-- (NSColor *) colorUsingColorSpaceName:(NSString *)colorSpace
-								device:(NSDictionary *)deviceDescription;
-- (NSColor *) colorWithAlphaComponent:(float)alpha;
+- (NSColor *) colorUsingColorSpace:(NSColorSpace *) space;
+- (NSColor *) colorUsingColorSpaceName:(NSString *) colorSpace;
+- (NSColor *) colorUsingColorSpaceName:(NSString *) colorSpace
+								device:(NSDictionary *) deviceDescription;
+- (NSColor *) colorWithAlphaComponent:(float) alpha;
 - (float) cyanComponent;
-- (void) drawSwatchInRect:(NSRect)rect;					// Drawing with color
+- (void) drawSwatchInRect:(NSRect) rect;					// Drawing with color
 - (void) getComponents:(float *) components;
-- (void) getCyan:(float *)cyan							// Access Component Set
-		 magenta:(float *)magenta
-		  yellow:(float *)yellow
-		   black:(float *)black
-		   alpha:(float *)alpha;
-- (void) getHue:(float *)hue
-	 saturation:(float *)saturation
-	 brightness:(float *)brightness
-		  alpha:(float *)alpha;
-- (void) getRed:(float *)red
-		  green:(float *)green
-		   blue:(float *)blue
-		  alpha:(float *)alpha;
-- (void) getWhite:(float *)white alpha:(float *)alpha;
+- (void) getCyan:(float *) cyan							// Access Component Set
+		 magenta:(float *) magenta
+		  yellow:(float *) yellow
+		   black:(float *) black
+		   alpha:(float *) alpha;
+- (void) getHue:(float *) hue
+	 saturation:(float *) saturation
+	 brightness:(float *) brightness
+		  alpha:(float *) alpha;
+- (void) getRed:(float *) red
+		  green:(float *) green
+		   blue:(float *) blue
+		  alpha:(float *) alpha;
+- (void) getWhite:(float *) white alpha:(float *) alpha;
 - (float) greenComponent;
-- (NSColor *) highlightWithLevel:(float)level;
+- (NSColor *) highlightWithLevel:(float) level;
 - (float) hueComponent;
 - (NSString *) localizedCatalogNameComponent;
 - (NSString *) localizedColorNameComponent;
@@ -198,9 +201,9 @@
 - (void) set;
 - (void) setFill;
 - (void) setStroke;
-- (NSColor *) shadowWithLevel:(float)level;
+- (NSColor *) shadowWithLevel:(float) level;
 - (float) whiteComponent;
-- (void) writeToPasteboard:(NSPasteboard *)pasteBoard;	// Copy / Paste
+- (void) writeToPasteboard:(NSPasteboard *) pasteBoard;	// Copy / Paste
 - (float) yellowComponent;
 
 @end

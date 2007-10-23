@@ -10,6 +10,9 @@
    
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jan 2006 - aligned with 10.4
+ 
+   Author:	Fabian Spillner
+   Date:	19. October 2007   
 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -101,75 +104,64 @@ extern NSString *NSImageRGBColorTable;
     } _brep;
 }
 
-+ (void) getTIFFCompressionTypes:(const NSTIFFCompression **)list
-						   count:(int *)numTypes;
-+ (NSArray *) imageRepsWithData:(NSData *)tiffData;
-+ (id) imageRepWithData:(NSData *)tiffData;
-+ (NSString *) localizedNameForTIFFCompressionType:(NSTIFFCompression)compression;
-+ (NSData *) representationOfImageRepsInArray:(NSArray *)imageReps
-									usingType:(NSBitmapImageFileType)storageType
-								   properties:(NSDictionary *)properties;
-+ (NSData *) TIFFRepresentationOfImageRepsInArray:(NSArray *)anArray;
-+ (NSData *) TIFFRepresentationOfImageRepsInArray:(NSArray *)anArray
-								 usingCompression:(NSTIFFCompression)compressionType
-										   factor:(float)factor;
++ (void) getTIFFCompressionTypes:(const NSTIFFCompression **) list count:(int *) count;
++ (NSArray *) imageRepsWithData:(NSData *) data;
++ (id) imageRepWithData:(NSData *) data;
++ (NSString *) localizedNameForTIFFCompressionType:(NSTIFFCompression) comp;
++ (NSData *) representationOfImageRepsInArray:(NSArray *) reps usingType:(NSBitmapImageFileType) type properties:(NSDictionary *) props;
++ (NSData *) TIFFRepresentationOfImageRepsInArray:(NSArray *) anArray;
++ (NSData *) TIFFRepresentationOfImageRepsInArray:(NSArray *) anArray usingCompression:(NSTIFFCompression) compType factor:(float) factor;
 
 - (unsigned char *) bitmapData;	// Access image Data
 - (NSBitmapFormat) bitmapFormat;
 - (int) bitsPerPixel;
 - (int) bytesPerPlane;
 - (int) bytesPerRow;
-- (BOOL) canBeCompressedUsing:(NSTIFFCompression) compression;
-- (NSColor *) colorAtX:(int) x y:(int) y;
-- (void) colorizeByMappingGray:(float) midPoint
-					   toColor:(NSColor *) midPointColor
-				  blackMapping:(NSColor *) shadowColor
-				  whiteMapping:(NSColor *) lightColor;
-- (void) getBitmapDataPlanes:(unsigned char **)data;
-- (void) getCompression:(NSTIFFCompression *)compression 
-				 factor:(float *)factor;
-- (void) getPixel:(unsigned int[]) pixelData atX:(int) x y:(int) y;
-- (int) incrementalLoadFromData:(NSData *) data complete:(BOOL) complete;
+- (BOOL) canBeCompressedUsing:(NSTIFFCompression) comp;
+- (NSColor *) colorAtX:(int) posX y:(int) posY;
+- (void) colorizeByMappingGray:(float) midPt toColor:(NSColor *) midPtColor blackMapping:(NSColor *) blackMapping whiteMapping:(NSColor *) whiteMapping;
+- (void) getBitmapDataPlanes:(unsigned char **) dataPlanes;
+- (void) getCompression:(NSTIFFCompression *) comp factor:(float *) factor;
+- (void) getPixel:(unsigned int[]) pixelData atX:(int) posX y:(int) posY;
+- (int) incrementalLoadFromData:(NSData *) data complete:(BOOL) flag;
 - (id) initForIncrementalLoad;
-- (id) initWithBitmapDataPlanes:(unsigned char **)planes
-					 pixelsWide:(int)width
-					 pixelsHigh:(int)height
-				  bitsPerSample:(int)bps
-				samplesPerPixel:(int)spp
-					   hasAlpha:(BOOL)alpha
-					   isPlanar:(BOOL)config
-				 colorSpaceName:(NSString *)colorSpaceName
-				   bitmapFormat:(NSBitmapFormat)bitmapFormat 
-					bytesPerRow:(int)rowBytes
-				   bitsPerPixel:(int)pixelBits;
-- (id) initWithBitmapDataPlanes:(unsigned char **)planes
-					 pixelsWide:(int)width
-					 pixelsHigh:(int)height
-				  bitsPerSample:(int)bps
-				samplesPerPixel:(int)spp
-					   hasAlpha:(BOOL)alpha
-					   isPlanar:(BOOL)config
-				 colorSpaceName:(NSString *)colorSpaceName
-					bytesPerRow:(int)rowBytes
-				   bitsPerPixel:(int)pixelBits;
-- (id) initWithData:(NSData *)tiffData;
-- (id) initWithFocusedViewRect:(NSRect)rect;
+
+- (id) initWithBitmapDataPlanes:(unsigned char **) p
+					 pixelsWide:(int) w
+					 pixelsHigh:(int) h
+				  bitsPerSample:(int) bps
+				samplesPerPixel:(int) spp
+					   hasAlpha:(BOOL) alpha
+					   isPlanar:(BOOL) planar
+				 colorSpaceName:(NSString *) csName
+				   bitmapFormat:(NSBitmapFormat) format 
+					bytesPerRow:(int) bpr
+				   bitsPerPixel:(int) bpp;
+
+- (id) initWithBitmapDataPlanes:(unsigned char **) p
+					 pixelsWide:(int) w
+					 pixelsHigh:(int) h
+				  bitsPerSample:(int) bps
+				samplesPerPixel:(int) spp
+					   hasAlpha:(BOOL) alpha
+					   isPlanar:(BOOL) planar
+				 colorSpaceName:(NSString *) csName
+					bytesPerRow:(int) bpr
+				   bitsPerPixel:(int) bpp;
+
+- (id) initWithData:(NSData *) data;
+- (id) initWithFocusedViewRect:(NSRect) viewRect;
 - (BOOL) isPlanar;
 - (int) numberOfPlanes;
-- (NSData *) representationUsingType:(NSBitmapImageFileType) storageType
-						  properties:(NSDictionary *) properties;
+- (NSData *) representationUsingType:(NSBitmapImageFileType) type properties:(NSDictionary *) props;
 - (int) samplesPerPixel;
-- (void) setColor:(NSColor *) color
-			  atX:(int) x y:(int) y;
-- (void) setCompression:(NSTIFFCompression)compression
-				 factor:(float)factor;
-- (void) setPixel:(unsigned int[]) pixelData
-			  atX:(int) x y:(int) y;
-- (void) setProperty:(NSString *)property withValue:(id)value;
+- (void) setColor:(NSColor *) color atX:(int) posX y:(int) posY;
+- (void) setCompression:(NSTIFFCompression) comp factor:(float) factor;
+- (void) setPixel:(unsigned int[]) pixels atX:(int) posX y:(int) posY;
+- (void) setProperty:(NSString *) prop withValue:(id) val;
 - (NSData*) TIFFRepresentation;
-- (NSData*) TIFFRepresentationUsingCompression:(NSTIFFCompression)compressType 
-										factor:(float)factor;
-- (id) valueForProperty:(NSString *)property;
+- (NSData*) TIFFRepresentationUsingCompression:(NSTIFFCompression) compressType factor:(float) factor;
+- (id) valueForProperty:(NSString *) prop;
 														// Compression Types 
 @end
 

@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	22. October 2007   
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -33,35 +36,35 @@
 - (NSAttributedString *) attributedAlternateTitle;
 - (NSAttributedString *) attributedTitle;
 - (NSBezelStyle) bezelStyle;
-- (void) getPeriodicDelay:(float *)delay interval:(float *)interval;
-- (void) highlight:(BOOL)flag;							// Drawing
+- (void) getPeriodicDelay:(float *) delay interval:(float *) interval;
+- (void) highlight:(BOOL) flag;							// Drawing
 - (NSImage *) image;
 - (NSCellImagePosition) imagePosition;
 - (BOOL) isBordered;									// Graphic attributes
 - (BOOL) isTransparent;
 - (NSString *) keyEquivalent;							// Key equivalent
 - (unsigned int) keyEquivalentModifierMask;
-- (BOOL) performKeyEquivalent:(NSEvent *)anEvent;
-- (void) setAllowsMixedState:(BOOL)flag;
-- (void) setAlternateImage:(NSImage *)anImage;			// Images
-- (void) setAlternateTitle:(NSString *)aString;			// Titles 
-- (void) setAttributedAlternateTitle:(NSAttributedString *)aString;
-- (void) setAttributedTitle:(NSAttributedString *)aString;
+- (BOOL) performKeyEquivalent:(NSEvent *) event;
+- (void) setAllowsMixedState:(BOOL) flag;
+- (void) setAlternateImage:(NSImage *) anImage;			// Images
+- (void) setAlternateTitle:(NSString *) aString;			// Titles 
+- (void) setAttributedAlternateTitle:(NSAttributedString *) aString;
+- (void) setAttributedTitle:(NSAttributedString *) aString;
 - (void) setBezelStyle:(NSBezelStyle) bezelStyle;
-- (void) setBordered:(BOOL)flag;
-- (void) setButtonType:(NSButtonType)aType;				// Set button type
-- (void) setImage:(NSImage *)anImage;
-- (void) setImagePosition:(NSCellImagePosition)aPosition;
-- (void) setKeyEquivalent:(NSString *)aKeyEquivalent;
-- (void) setKeyEquivalentModifierMask:(unsigned int)mask;
+- (void) setBordered:(BOOL) flag;
+- (void) setButtonType:(NSButtonType) aType;				// Set button type
+- (void) setImage:(NSImage *) anImage;
+- (void) setImagePosition:(NSCellImagePosition) aPosition;
+- (void) setKeyEquivalent:(NSString *) aKeyEquivalent;
+- (void) setKeyEquivalentModifierMask:(unsigned int) mask;
 - (void) setNextState;
-- (void) setPeriodicDelay:(float)delay interval:(float)interval;
+- (void) setPeriodicDelay:(float) delay interval:(float) interval;
 - (void) setShowsBorderOnlyWhileMouseInside:(BOOL) flag;
 - (void) setSound:(NSSound *) sound;
-- (void) setState:(int)value;							// Button state
-- (void) setTitle:(NSString *)aString;
-- (void) setTitleWithMnemonic:(NSString *)aString;
-- (void) setTransparent:(BOOL)flag;
+- (void) setState:(int) value;							// Button state
+- (void) setTitle:(NSString *) aString;
+- (void) setTitleWithMnemonic:(NSString *) aString;
+- (void) setTransparent:(BOOL) flag;
 - (BOOL) showsBorderOnlyWhileMouseInside;
 - (NSSound *) sound;
 - (int) state;

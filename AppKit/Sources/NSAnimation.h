@@ -1,13 +1,16 @@
-//
-//  NSAnimation.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
-//  Copyright (c) 2005 DSITRI.
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+  NSAnimation.h
+  mySTEP
+
+  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
+  Copyright (c) 2005 DSITRI. Hinweis: Methoden verglichen, alles drin
+
+  Author:	Fabian Spillner
+  Date:		16. October 2007 
+ 
+  This file is part of the mySTEP Library and is provided
+  under the terms of the GNU Library General Public License.
+*/
 
 #ifndef _mySTEP_H_NSAnimation
 #define _mySTEP_H_NSAnimation
@@ -66,26 +69,26 @@ extern NSString *NSAnimationProgressMarkNotification;
 - (NSArray *) runLoopModesForAnimating;
 - (void) setAnimationBlockingMode:(NSAnimationBlockingMode) mode;
 - (void) setAnimationCurve:(NSAnimationCurve) curve;
-- (void) setCurrentProgress:(NSAnimationProgress) progress;
+- (void) setCurrentProgress:(NSAnimationProgress) currentProgress;
 - (void) setDelegate:(id) delegate;
 - (void) setDuration:(NSTimeInterval) duration;
 - (void) setFrameRate:(float) fps;
-- (void) setProgressMarks:(NSArray *) progress;
+- (void) setProgressMarks:(NSArray *) progresses;
 - (void) startAnimation;
-- (void) startWhenAnimation:(NSAnimation *) animation reachesProgress:(NSAnimationProgress) start;
+- (void) startWhenAnimation:(NSAnimation *) ani reachesProgress:(NSAnimationProgress) start;
 - (void) stopAnimation;
-- (void) stopWhenAnimation:(NSAnimation *) animation reachesProgress:(NSAnimationProgress) stop;
+- (void) stopWhenAnimation:(NSAnimation *) ani reachesProgress:(NSAnimationProgress) stop;
 
 @end
 
 
 @interface NSObject (NSAnimation)
 
-- (void) animation:(NSAnimation *) animation didReachProgressMark:(NSAnimationProgress) progress;
-- (float) animation:(NSAnimation *) animation valueForProgress:(NSAnimationProgress) progress;
-- (void) animationDidEnd:(NSAnimation *) animation;
-- (void) animationDidStop:(NSAnimation *) animation;
-- (BOOL) animationShouldStart:(NSAnimation *) animation;
+- (void) animation:(NSAnimation *) ani didReachProgressMark:(NSAnimationProgress) progressMark;
+- (float) animation:(NSAnimation *) ani valueForProgress:(NSAnimationProgress) progressValue;
+- (void) animationDidEnd:(NSAnimation *) ani;
+- (void) animationDidStop:(NSAnimation *) ani;
+- (BOOL) animationShouldStart:(NSAnimation *) ani;
 
 @end
 
@@ -102,8 +105,8 @@ extern NSString *NSViewAnimationFadeOutEffect;
 	NSArray *_viewAnimations;
 }
 
-- (id) initWithViewAnimations:(NSArray *) animations;
-- (void) setWithViewAnimations:(NSArray *) animations;
+- (id) initWithViewAnimations:(NSArray *)animations;
+- (void) setWithViewAnimations:(NSArray *)animations;
 - (NSArray *) viewAnimations;
 
 @end

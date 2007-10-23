@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	22. October 2007  
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -28,24 +31,23 @@
 @protocol NSColorPickingCustom
 
 - (int) currentMode;
-- (NSView *) provideNewView:(BOOL)firstRequest;
-- (void) setColor:(NSColor *)aColor;
-- (BOOL) supportsMode:(int)mode;
+- (NSView *) provideNewView:(BOOL) firstRequest;
+- (void) setColor:(NSColor *) aColor;
+- (BOOL) supportsMode:(int) mode;
 
 @end
 
 
 @protocol NSColorPickingDefault
 
-- (void) alphaControlAddedOrRemoved:(id)sender;
-- (void) attachColorList:(NSColorList *)aColorList;				// Color Lists
-- (void) detachColorList:(NSColorList *)aColorList;
-- (id) initWithPickerMask:(int)mask colorPanel:(NSColorPanel *)colorPanel;
-- (void) insertNewButtonImage:(NSImage *)newImage 
-						   in:(NSButtonCell *)newButtonCell;
+- (void) alphaControlAddedOrRemoved:(id) sender;
+- (void) attachColorList:(NSColorList *) aColorList;				// Color Lists
+- (void) detachColorList:(NSColorList *) aColorList;
+- (id) initWithPickerMask:(int) mask colorPanel:(NSColorPanel *) colorPanel;
+- (void) insertNewButtonImage:(NSImage *) newImage in:(NSButtonCell *) newButtonCell;
 - (NSImage *) provideNewButtonImage;
-- (void) setMode:(int)mode;
-- (void) viewSizeChanged:(id)sender;
+- (void) setMode:(int) mode;
+- (void) viewSizeChanged:(id) sender;
 
 @end
 

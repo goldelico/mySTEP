@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	22. October 2007   
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -86,34 +89,32 @@ enum
 	BOOL _showsAlpha;
 }
 
-+ (BOOL) dragColor:(NSColor **)aColor						// Color
-		 withEvent:(NSEvent *)anEvent
-		  fromView:(NSView *)sourceView;
-+ (void) setPickerMask:(int)mask;							// Configuration
-+ (void) setPickerMode:(int)mode;
++ (BOOL) dragColor:(NSColor **) aColor withEvent:(NSEvent *) anEvent fromView:(NSView *) sourceView;	// Color
++ (void) setPickerMask:(int) mask;							// Configuration
++ (void) setPickerMode:(int) mode;
 + (NSColorPanel *) sharedColorPanel;						// shared instance
 + (BOOL) sharedColorPanelExists;
 
 - (NSView *) accessoryView;
 - (float) alpha;
-- (void) attachColorList:(NSColorList *)aColorList;			// Color List
+- (void) attachColorList:(NSColorList *) aColorList;			// Color List
 - (NSColor *) color;
-- (void) detachColorList:(NSColorList *)aColorList;
+- (void) detachColorList:(NSColorList *) aColorList;
 - (BOOL) isContinuous;
 - (int) mode;
-- (void) setAccessoryView:(NSView *)aView;
-- (void) setAction:(SEL)aSelector;
-- (void) setColor:(NSColor *)aColor;
-- (void) setContinuous:(BOOL)flag;
-- (void) setMode:(int)mode;
-- (void) setShowsAlpha:(BOOL)flag;
-- (void) setTarget:(id)anObject;
+- (void) setAccessoryView:(NSView *) aView;
+- (void) setAction:(SEL) aSelector;
+- (void) setColor:(NSColor *) aColor;
+- (void) setContinuous:(BOOL) flag;
+- (void) setMode:(int) mode;
+- (void) setShowsAlpha:(BOOL) flag;
+- (void) setTarget:(id) anObject;
 - (BOOL) showsAlpha;
 
 @end
 
 @interface NSResponder (NSColorPanelDelegate)
-- (void) changeColor:(id)sender;
+- (void) changeColor:(id) sender;
 @end
 
 extern NSString *NSColorPanelColorChangedNotification;		// Notifications

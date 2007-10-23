@@ -10,6 +10,9 @@
    
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jan 2006 - aligned with 10.4
+
+   Author:	Fabian Spillner
+   Date:	16. October 2007
  
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -32,20 +35,18 @@
 - (double) doubleValue;
 - (float) floatValue;
 - (int) intValue;
-- (void) setAction:(SEL)aSelector;						// Target / Action
-- (void) setAlignment:(NSTextAlignment)mode;			// graphic attributes
-- (void) setBezeled:(BOOL)flag;
-- (void) setBordered:(BOOL)flag;
-- (void) setControlView:(NSView*) view;
-- (void) setEnabled:(BOOL)flag;
-- (void) setFloatingPointFormat:(BOOL)autoRange
-						   left:(unsigned int)leftDigits
-						   right:(unsigned int)rightDigits;
-- (void) setFont:(NSFont *)fontObject;				// -> NSCell
-- (void) setImage:(NSImage *)image;
+- (void) setAction:(SEL) sel;						// Target / Action
+- (void) setAlignment:(NSTextAlignment) mode;			// graphic attributes
+- (void) setBezeled:(BOOL) flag;
+- (void) setBordered:(BOOL) flag;
+- (void) setControlView:(NSView*) controlView;
+- (void) setEnabled:(BOOL) flag;
+- (void) setFloatingPointFormat:(BOOL) range left:(unsigned int) left right:(unsigned int) right;
+- (void) setFont:(NSFont *) font;				// -> NSCell
+- (void) setImage:(NSImage *) image;
 - (void) setObjectValue:(id <NSCopying>) object;
-- (void) setTag:(int)anInt;								// Integer Tag
-- (void) setTarget:(id)anObject;
+- (void) setTag:(int) tag;								// Integer Tag
+- (void) setTarget:(id) target;
 - (NSString *) stringValue;
 - (int) tag;
 - (id) target;

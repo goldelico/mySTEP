@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jan 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	22. October 2007
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -53,7 +56,7 @@
 + (NSCursor *) resizeRightCursor;
 + (NSCursor *) resizeUpCursor;
 + (NSCursor *) resizeUpDownCursor;
-+ (void) setHiddenUntilMouseMoves:(BOOL)flag;
++ (void) setHiddenUntilMouseMoves:(BOOL) flag;
 + (void) unhide;
 
 - (NSPoint) hotSpot;
@@ -66,13 +69,13 @@
 			 hotSpot:(NSPoint) spot;
 - (BOOL) isSetOnMouseEntered;
 - (BOOL) isSetOnMouseExited;
-- (void) mouseEntered:(NSEvent *)event;					// Setting the Cursor
-- (void) mouseExited:(NSEvent *)event;
+- (void) mouseEntered:(NSEvent *) event;					// Setting the Cursor
+- (void) mouseExited:(NSEvent *) event;
 - (void) pop;
 - (void) push;
 - (void) set;
-- (void) setOnMouseEntered:(BOOL)flag;
-- (void) setOnMouseExited:(BOOL)flag;
+- (void) setOnMouseEntered:(BOOL) flag;
+- (void) setOnMouseExited:(BOOL) flag;
 
 @end
 

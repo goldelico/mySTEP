@@ -1,13 +1,16 @@
-//
-//  NSDatePickerCell.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
-//  Copyright (c) 2005 DSITRI.
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+	NSDatePickerCell.h
+	mySTEP
+ 
+	Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
+	Copyright (c) 2005 DSITRI.
+ 
+	Author:	Fabian Spillner
+	Date:	22. October 2007
+ 
+	This file is part of the mySTEP Library and is provided
+	under the terms of the GNU Library General Public License.
+*/
 
 #ifndef _mySTEP_H_NSDatePickerCell
 #define _mySTEP_H_NSDatePickerCell
@@ -64,14 +67,14 @@ typedef enum _NSDatePickerElementFlags
 - (NSDate *) dateValue;
 - (id) delegate;
 - (BOOL) drawsBackground;
-- (BOOL) isBezeled;
-- (BOOL) isBordered;
+- (BOOL) isBezeled; /* DONT EXIST IN API */
+- (BOOL) isBordered; /* DONT EXIST IN API */
 - (NSLocale *) locale;
 - (NSDate *) maxDate;
 - (NSDate *) minDate;
 - (void) setBackgroundColor:(NSColor *) color;
-- (void) setBezeled:(BOOL) flag;
-- (void) setBordered:(BOOL) flag;
+- (void) setBezeled:(BOOL) flag; /* DONT EXIST IN API */
+- (void) setBordered:(BOOL) flag; /* DONT EXIST IN API */
 - (void) setCalendar:(NSCalendar *) calendar;
 - (void) setDatePickerElements:(unsigned) flags;
 - (void) setDatePickerMode:(NSDatePickerMode) mode;
@@ -88,6 +91,14 @@ typedef enum _NSDatePickerElementFlags
 - (NSColor *) textColor;
 - (NSTimeInterval) timeInterval;
 - (NSTimeZone *) timeZone;
+
+@end
+
+@interface NSObject (NSDataPickerCellDelegate)
+
+- (void)datePickerCell:(NSDatePickerCell *) aDatePickerCell 
+validateProposedDateValue:(NSDate **) proposedDateValue 
+		  timeInterval:(NSTimeInterval *) proposedTimeInterval;
 
 @end
 

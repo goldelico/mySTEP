@@ -8,6 +8,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	22. October 2007 
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -36,31 +39,31 @@
 		} _clip;
 }
 
-- (BOOL) autoscroll:(NSEvent*)event;
-- (NSColor*) backgroundColor;
-- (NSPoint) constrainScrollPoint:(NSPoint)proposedNewOrigin;
+- (BOOL) autoscroll:(NSEvent *) event;
+- (NSColor *) backgroundColor;
+- (NSPoint) constrainScrollPoint:(NSPoint) proposedNewOrigin;
 - (BOOL) copiesOnScroll;
-- (NSCursor*) documentCursor;
+- (NSCursor *) documentCursor;
 - (NSRect) documentRect;
 - (id) documentView;
 - (NSRect) documentVisibleRect;
 - (BOOL) drawsBackground;
-- (void) scrollToPoint:(NSPoint)newOrigin;
-- (void) setBackgroundColor:(NSColor*)aColor;
-- (void) setCopiesOnScroll:(BOOL)flag;
-- (void) setDocumentCursor:(NSCursor*)aCursor;
-- (void) setDocumentView:(NSView*)aView;
+- (void) scrollToPoint:(NSPoint) newOrigin;
+- (void) setBackgroundColor:(NSColor *) aColor;
+- (void) setCopiesOnScroll:(BOOL) flag;
+- (void) setDocumentCursor:(NSCursor *) aCursor;
+- (void) setDocumentView:(NSView *) aView;
 - (void) setDrawsBackground:(BOOL) flag;
-- (void) viewBoundsChanged:(NSNotification*)aNotification;
-- (void) viewFrameChanged:(NSNotification*)aNotification;
+- (void) viewBoundsChanged:(NSNotification *) aNotification;
+- (void) viewFrameChanged:(NSNotification *) aNotification;
 
 @end
 
 
 @interface NSView (NSClipViewAdditions)
 
-- (void) reflectScrolledClipView:(NSClipView*)aClipView;
-- (void) scrollClipView:(NSClipView*)aClipView toPoint:(NSPoint)newOrigin;
+- (void) reflectScrolledClipView:(NSClipView *) aClipView;
+- (void) scrollClipView:(NSClipView *) aClipView toPoint:(NSPoint) newOrigin;
 
 @end
 

@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	22. October 2007   
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -34,15 +37,15 @@
 		} _cw;
 }
 
-- (void) activate:(BOOL)exclusive;						// Activation
+- (void) activate:(BOOL) exclusive;						// Activation
 - (NSColor *) color;									// Managing Color
 - (void) deactivate;
-- (void) drawWellInside:(NSRect)insideRect;				// Drawing
+- (void) drawWellInside:(NSRect) insideRect;				// Drawing
 - (BOOL) isActive;
 - (BOOL) isBordered;									// Graphic attributes
-- (void) setBordered:(BOOL)bordered;
-- (void) setColor:(NSColor *)color;
-- (void) takeColorFrom:(id)sender;
+- (void) setBordered:(BOOL) bordered;
+- (void) setColor:(NSColor *) color;
+- (void) takeColorFrom:(id) sender;
 
 @end
 

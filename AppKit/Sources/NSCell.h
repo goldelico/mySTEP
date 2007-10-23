@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	22. October 2007  
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -173,55 +176,47 @@ enum {
 - (BOOL) allowsUndo;
 - (NSAttributedString *) attributedStringValue;
 - (NSWritingDirection) baseWritingDirection;
-- (void) calcDrawInfo:(NSRect)aRect;					// Component sizes
-- (int) cellAttribute:(NSCellAttribute)aParameter;		// Setting Parameters
+- (void) calcDrawInfo:(NSRect) aRect;					// Component sizes
+- (int) cellAttribute:(NSCellAttribute) aParameter;		// Setting Parameters
 - (NSSize) cellSize;
-- (NSSize) cellSizeForBounds:(NSRect)aRect;
+- (NSSize) cellSizeForBounds:(NSRect) aRect;
 // inherited - (NSComparisonResult) compare:(id)otherCell;
-- (BOOL) continueTracking:(NSPoint)lastPoint
-									  at:(NSPoint)currentPoint
-								  inView:(NSView*)controlView;
+- (BOOL) continueTracking:(NSPoint) lastPoint at:(NSPoint) currentPoint inView:(NSView *) controlView;
 - (NSControlSize) controlSize;
 - (NSControlTint) controlTint;
-- (NSView*) controlView;
+- (NSView *) controlView;
 - (double) doubleValue;									// Get & Set Cell Value
-- (NSRect) drawingRectForBounds:(NSRect)theRect;
-- (void) drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView;
-- (void) drawWithFrame:(NSRect)cellFrame inView:(NSView*)controlView;
-- (void) editWithFrame:(NSRect)aRect					// Text Editing
-							inView:(NSView*)controlView	
-							editor:(NSText*)textObject	
-						  delegate:(id)anObject	
-							 event:(NSEvent*)event;
-- (void) endEditing:(NSText*)textObject;
-- (int) entryType;										// Validating Input - deprecated
+- (NSRect) drawingRectForBounds:(NSRect) theRect;
+- (void) drawInteriorWithFrame:(NSRect) cellFrame inView:(NSView *) controlView;
+- (void) drawWithFrame:(NSRect) cellFrame inView:(NSView *) controlView;
+- (void) editWithFrame:(NSRect) aRect inView:(NSView *) controlView editor:(NSText *) textObject delegate:(id) anObject event:(NSEvent *) event; // Text Editing
+- (void) endEditing:(NSText *) textObject;
+- (int) entryType;										// Validating Input - DEPRECATED
 - (float) floatValue;
 - (NSFocusRingType) focusRingType;
-- (NSFont*) font;
+- (NSFont *) font;
 - (id) formatter;
-- (void) getPeriodicDelay:(float*)delay interval:(float*)interval;
+- (void) getPeriodicDelay:(float *) delay interval:(float *) interval;
 - (BOOL) hasValidObjectValue;
-- (void) highlight:(BOOL)lit							// Drawing the cell
-			   withFrame:(NSRect)cellFrame
-				  inView:(NSView*)controlView;
+- (void) highlight:(BOOL) lit withFrame:(NSRect) cellFrame inView:(NSView *) controlView; // Drawing the cell
 - (NSColor *) highlightColorWithFrame:(NSRect) frame inView:(NSView *) controlView;
 - (NSImage*) image;										// Setting the Image
-- (NSRect) imageRectForBounds:(NSRect)theRect;
+- (NSRect) imageRectForBounds:(NSRect) theRect;
 - (BOOL) importsGraphics;
-- (id) initImageCell:(NSImage*)anImage;
-- (id) initTextCell:(NSString*)aString;
+- (id) initImageCell:(NSImage *) anImage;
+- (id) initTextCell:(NSString *) aString;
 - (int) intValue;
 - (BOOL) isBezeled;										// Graphic Attributes
 - (BOOL) isBordered;
 - (BOOL) isContinuous;
 - (BOOL) isEditable;
 - (BOOL) isEnabled;										// Enable / Disable
-- (BOOL) isEntryAcceptable:(NSString*)aString;			// deprecated
+- (BOOL) isEntryAcceptable:(NSString *) aString;
 - (BOOL) isHighlighted;
 - (BOOL) isOpaque;
 - (BOOL) isScrollable;
 - (BOOL) isSelectable;
-- (NSString*) keyEquivalent;							// Keyboard Alternative
+- (NSString *) keyEquivalent;							// Keyboard Alternative
 - (NSLineBreakMode) lineBreakMode;
 - (NSMenu *) menu;
 - (NSMenu *) menuForEvent:(NSEvent *) anEvent inRect:(NSRect) frame ofView:(NSView *) aView;
@@ -230,88 +225,80 @@ enum {
 - (int) mouseDownFlags;
 - (int) nextState;
 - (id) objectValue;
-- (void) performClick:(id)sender;
+- (void) performClick:(id) sender;
 - (BOOL) refusesFirstResponder;
 - (id) representedObject;								// Represent an Object
-- (void) resetCursorRect:(NSRect)cellFrame inView:(NSView*)controlView;
-- (void) selectWithFrame:(NSRect)aRect
-							  inView:(NSView*)controlView	 
-							  editor:(NSText*)textObject	 
-							delegate:(id)anObject	 
-							   start:(int)selStart	 
-							  length:(int)selLength;
-- (int) sendActionOn:(int)mask;
+- (void) resetCursorRect:(NSRect) cellFrame inView:(NSView *) controlView;
+- (void) selectWithFrame:(NSRect) aRect 
+				  inView:(NSView *) controlView 
+				  editor:(NSText *) textObject 
+				delegate:(id) anObject 
+				   start:(int) selStart 
+				  length:(int) selLength;
+- (int) sendActionOn:(int) mask;
 - (BOOL) sendsActionOnEndEditing;
 - (void) setAction:(SEL) selector;
-- (void) setAlignment:(NSTextAlignment)mode;
-- (void) setAllowsEditingTextAttributes:(BOOL)flag;
-- (void) setAllowsMixedState:(BOOL)flag;
-- (void) setAllowsUndo:(BOOL)flag;
+- (void) setAlignment:(NSTextAlignment) mode;
+- (void) setAllowsEditingTextAttributes:(BOOL) flag;
+- (void) setAllowsMixedState:(BOOL) flag;
+- (void) setAllowsUndo:(BOOL) flag;
 - (void) setAttributedStringValue:(NSAttributedString *) string;
 - (void) setBaseWritingDirection:(NSWritingDirection) direction;
-- (void) setBezeled:(BOOL)flag;
-- (void) setBordered:(BOOL)flag;
-- (void) setCellAttribute:(NSCellAttribute)aParameter to:(int)value;
-- (void) setContinuous:(BOOL)flag;
-- (void) setControlSize:(NSControlSize)size;
-- (void) setControlTint:(NSControlTint)tint;
+- (void) setBezeled:(BOOL) flag;
+- (void) setBordered:(BOOL) flag;
+- (void) setCellAttribute:(NSCellAttribute) aParameter to:(int) value;
+- (void) setContinuous:(BOOL) flag;
+- (void) setControlSize:(NSControlSize) size;
+- (void) setControlTint:(NSControlTint) tint;
 - (void) setControlView:(NSView *) view;
-- (void) setDoubleValue:(double)aDouble;
-- (void) setEditable:(BOOL)flag;
-- (void) setEnabled:(BOOL)flag;
-- (void) setEntryType:(int)aType;	// deprecated
-- (void) setFloatingPointFormat:(BOOL)autoRange			// Formatting Data
-											 left:(unsigned int)leftDigits
-											right:(unsigned int)rightDigits;
-- (void) setFloatValue:(float)aFloat;
+- (void) setDoubleValue:(double) aDouble;
+- (void) setEditable:(BOOL) flag;
+- (void) setEnabled:(BOOL) flag;
+- (void) setEntryType:(int) aType;	// deprecated
+- (void) setFloatingPointFormat:(BOOL) autoRange left:(unsigned int) leftDigits right:(unsigned int) rightDigits;			// Formatting Data 
+- (void) setFloatValue:(float) aFloat;
 - (void) setFocusRingType:(NSFocusRingType) type;
-- (void) setFont:(NSFont *)fontObject;
+- (void) setFont:(NSFont *) fontObject;
 - (void) setFormatter:(NSFormatter*) newFormatter;
 - (void) setHighlighted:(BOOL) flag;
-- (void) setImage:(NSImage *)anImage;
-- (void) setImportsGraphics:(BOOL)flag;
-- (void) setIntValue:(int)anInt;
+- (void) setImage:(NSImage *) anImage;
+- (void) setImportsGraphics:(BOOL) flag;
+- (void) setIntValue:(int) anInt;
 - (void) setLineBreakMode:(NSLineBreakMode) mode;
 - (void) setMenu:(NSMenu *) menu;
-- (void) setMnemonicLocation:(unsigned)location;
+- (void) setMnemonicLocation:(unsigned) location;
 - (void) setNextState;
-- (void) setObjectValue:(id <NSCopying>)anObject;
-- (void) setRefusesFirstResponder:(BOOL)flag;
-- (void) setRepresentedObject:(id)anObject;
-- (void) setScrollable:(BOOL)flag;
-- (void) setSelectable:(BOOL)flag;
-- (void) setSendsActionOnEndEditing:(BOOL)flag;
-- (void) setShowsFirstResponder:(BOOL)flag;
-- (void) setState:(int)value;							// NSCell's State
-- (void) setStringValue:(NSString*)aString;
-- (void) setTag:(int)anInt;								// Assigning a Tag
-- (void) setTarget:(id)anObject;
-- (void) setTitle:(NSString *)aString;
-- (void) setTitleWithMnemonic:(NSString *)aString;
-- (void) setType:(NSCellType)aType;						// NSCell's Type
-- (NSText*) setUpFieldEditorAttributes:(NSText*)textObject;
-- (void) setWraps:(BOOL)flag;
+- (void) setObjectValue:(id <NSCopying>) anObject;
+- (void) setRefusesFirstResponder:(BOOL) flag;
+- (void) setRepresentedObject:(id) anObject;
+- (void) setScrollable:(BOOL) flag;
+- (void) setSelectable:(BOOL) flag;
+- (void) setSendsActionOnEndEditing:(BOOL) flag;
+- (void) setShowsFirstResponder:(BOOL) flag;
+- (void) setState:(int) value;							// NSCell's State
+- (void) setStringValue:(NSString *) aString;
+- (void) setTag:(int) anInt;								// Assigning a Tag
+- (void) setTarget:(id) anObject;
+- (void) setTitle:(NSString *) aString;
+- (void) setTitleWithMnemonic:(NSString *) aString;
+- (void) setType:(NSCellType) aType;						// NSCell's Type
+- (NSText *) setUpFieldEditorAttributes:(NSText *) textObject;
+- (void) setWraps:(BOOL) flag;
 - (BOOL) showsFirstResponder;
-- (BOOL) startTrackingAt:(NSPoint)startPoint inView:(NSView*)controlView;
+- (BOOL) startTrackingAt:(NSPoint) startPoint inView:(NSView*) controlView;
 - (int) state;
-- (void) stopTracking:(NSPoint)lastPoint
-							   at:(NSPoint)stopPoint
-						   inView:(NSView*)controlView
-						mouseIsUp:(BOOL)flag;
-- (NSString*) stringValue;
+- (void) stopTracking:(NSPoint) lastPoint at:(NSPoint) stopPoint inView:(NSView *) controlView mouseIsUp:(BOOL) flag;
+- (NSString *) stringValue;
 - (int) tag;
-- (void) takeDoubleValueFrom:(id)sender;				// Cell Interaction
-- (void) takeFloatValueFrom:(id)sender;
-- (void) takeIntValueFrom:(id)sender;
-- (void) takeObjectValueFrom:(id)sender;
-- (void) takeStringValueFrom:(id)sender;
+- (void) takeDoubleValueFrom:(id) sender;				// Cell Interaction
+- (void) takeFloatValueFrom:(id) sender;
+- (void) takeIntValueFrom:(id) sender;
+- (void) takeObjectValueFrom:(id) sender;
+- (void) takeStringValueFrom:(id) sender;
 - (id) target;
 - (NSString *) title;
-- (NSRect) titleRectForBounds:(NSRect)theRect;
-- (BOOL) trackMouse:(NSEvent*)event
-					  inRect:(NSRect)cellFrame
-					  ofView:(NSView*)controlView
-				untilMouseUp:(BOOL)flag;
+- (NSRect) titleRectForBounds:(NSRect) theRect;
+- (BOOL) trackMouse:(NSEvent *) event inRect:(NSRect) cellFrame ofView:(NSView *) controlView untilMouseUp:(BOOL) flag;
 - (NSCellType) type;
 - (BOOL) wraps;
 

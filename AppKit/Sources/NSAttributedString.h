@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jun 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	19. October 2007 
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -151,71 +154,45 @@ extern const unsigned NSUnderlineByWordMask;
 
 @interface NSAttributedString (NSAttributedStringAdditions)
 
+//+ (NSAttributedString *) attributedStringWithAttachment:(NSTextAttachment *)attach; // Problem, parse error
 + (NSArray *) textFileTypes;
 + (NSArray *) textPasteboardTypes;
 + (NSArray *) textUnfilteredFileTypes;
 + (NSArray *) textUnfilteredPasteboardTypes;
 
+- (NSRect)boundingRectWithSize:(NSSize)size options:(NSStringDrawingOptions)opts;
 - (BOOL) containsAttachments;
-- (NSData *) dataFromRange:(NSRange) range
-		documentAttributes:(NSDictionary *) dict
-					 error:(NSError **) error;
-- (NSData *) docFormatFromRange:(NSRange) range
-			 documentAttributes:(NSDictionary *) dict;
-- (NSRange) doubleClickAtIndex:(unsigned)location;
-- (NSFileWrapper *) fileWrapperFromRange:(NSRange)range
-					  documentAttributes:(NSDictionary *)dict
-								   error:(NSError **)error;
-- (NSDictionary *) fontAttributesInRange:(NSRange)range;	// filter attribs
-- (id) initWithData:(NSData *)data
-			options:(NSDictionary *)options
- documentAttributes:(NSDictionary **)dict
-			  error:(NSError **)error;
-- (id) initWithDocFormat:(NSData *)data
-	  documentAttributes:(NSDictionary **)dict;
-- (id) initWithHTML:(NSData *)data
-			baseURL:(NSURL *)url
- documentAttributes:(NSDictionary **)dict;
-- (id) initWithHTML:(NSData *)data
- documentAttributes:(NSDictionary **)dict;
-- (id) initWithHTML:(NSData *)data
-			options:(NSDictionary *)options
- documentAttributes:(NSDictionary **)dict;
-- (id) initWithPath:(NSString *)path
- documentAttributes:(NSDictionary **)dict;	// with file URL
-- (id) initWithRTF:(NSData *)data
-documentAttributes:(NSDictionary **)dict;
-- (id) initWithRTFD:(NSData *)data
- documentAttributes:(NSDictionary **)dict;
-- (id) initWithRTFDFileWrapper:(NSFileWrapper *)wrapper
-			documentAttributes:(NSDictionary **)dict;
-- (id) initWithURL:(NSURL *)url
-documentAttributes:(NSDictionary **)dict;
-- (id) initWithURL:(NSURL *)url
-		   options:(NSDictionary *)options
-documentAttributes:(NSDictionary **)dict
-			 error:(NSError **)error;
-- (NSRange) itemNumberInTextList:(NSTextList *)list
-						 atIndex:(unsigned)location;
-- (unsigned) lineBreakBeforeIndex:(unsigned)location
-					  withinRange:(NSRange)aRange;
-- (unsigned) lineBreakByHyphenatingBeforeIndex:(unsigned)location
-								   withinRange:(NSRange)aRange;
-- (unsigned) nextWordFromIndex:(unsigned)location
-					   forward:(BOOL)isForward;
-- (NSRange) rangeOfTextBlock:(NSTextBlock *)block
-					 atIndex:(unsigned)location;
-- (NSRange) rangeOfTextList:(NSTextList *)list
-					atIndex:(unsigned)location;
-- (NSRange) rangeOfTextTable:(NSTextTable *)table
-					 atIndex:(unsigned)location;
-- (NSFileWrapper *) RTFDFileWrapperFromRange:(NSRange)range 
-						  documentAttributes:(NSDictionary *)dict;
-- (NSData *) RTFDFromRange:(NSRange)range
-		documentAttributes:(NSDictionary *)d;
-- (NSData *) RTFFromRange:(NSRange)range
-	   documentAttributes:(NSDictionary *)d;
-- (NSDictionary *) rulerAttributesInRange:(NSRange)range;
+- (NSData *) dataFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs error:(NSError **) error;
+- (NSData *) docFormatFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs;
+- (NSRange) doubleClickAtIndex:(unsigned) location;
+- (void)drawAtPoint:(NSPoint) pt;
+- (void)drawInRect:(NSRect) rect;
+- (void)drawWithRect:(NSRect) rect options:(NSStringDrawingOptions) opts;
+- (NSFileWrapper *) fileWrapperFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs error:(NSError **) error;
+- (NSDictionary *) fontAttributesInRange:(NSRange) range;	// filter attribs
+- (id) initWithData:(NSData *) data options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs error:(NSError **) error;
+- (id) initWithDocFormat:(NSData *) data documentAttributes:(NSDictionary **) attrs;
+- (id) initWithHTML:(NSData *) data baseURL:(NSURL *) url documentAttributes:(NSDictionary **) attrs;
+- (id) initWithHTML:(NSData *) data documentAttributes:(NSDictionary **) attrs;
+- (id) initWithHTML:(NSData *) data options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs;
+- (id) initWithPath:(NSString *) path documentAttributes:(NSDictionary **) attrs;	// with file URL
+- (id) initWithRTF:(NSData *) data documentAttributes:(NSDictionary **) attrs;
+- (id) initWithRTFD:(NSData *) data documentAttributes:(NSDictionary **) attrs;
+- (id) initWithRTFDFileWrapper:(NSFileWrapper *) fileWrapper documentAttributes:(NSDictionary **) attrs;
+- (id) initWithURL:(NSURL *) url documentAttributes:(NSDictionary **) attrs;
+- (id) initWithURL:(NSURL *) url options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs error:(NSError **) error;
+- (NSRange) itemNumberInTextList:(NSTextList *) textList atIndex:(unsigned) loc;
+- (unsigned) lineBreakBeforeIndex:(unsigned) loc withinRange:(NSRange) range;
+- (unsigned) lineBreakByHyphenatingBeforeIndex:(unsigned) loc withinRange:(NSRange) range;
+- (unsigned) nextWordFromIndex:(unsigned) loc forward:(BOOL) isForward;
+- (NSRange) rangeOfTextBlock:(NSTextBlock *) textBlock atIndex:(unsigned) loc;
+- (NSRange) rangeOfTextList:(NSTextList *) textList atIndex:(unsigned) loc;
+- (NSRange) rangeOfTextTable:(NSTextTable *) textTable atIndex:(unsigned) loc;
+- (NSFileWrapper *) RTFDFileWrapperFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs;
+- (NSData *) RTFDFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs;
+- (NSData *) RTFFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs;
+- (NSDictionary *) rulerAttributesInRange:(NSRange) range;
+- (NSSize)size;
 
 @end
 
@@ -232,34 +209,21 @@ extern NSString *NSTextSizeMultiplierDocumentOption;
 
 @interface NSMutableAttributedString (NSMutableAttributedStringAdditions)
 
-- (void) applyFontTraits:(NSFontTraitMask)traitMask
-				   range:(NSRange)range;
-- (void) fixAttachmentAttributeInRange:(NSRange)range;
-- (void) fixAttributesInRange:(NSRange)range;		// master fix method
-- (void) fixFontAttributeInRange:(NSRange)range;
-- (void) fixParagraphStyleAttributeInRange:(NSRange)range;
-- (BOOL) readFromData:(NSData *)data
-			  options:(NSDictionary *)options
-   documentAttributes:(NSDictionary **)dict;
-- (BOOL) readFromData:(NSData *)data
-			  options:(NSDictionary *)opts
-   documentAttributes:(NSDictionary **)dict
-				error:(NSError **)error;
-- (BOOL) readFromURL:(NSURL *)url
-			 options:(NSDictionary *)options
-  documentAttributes:(NSDictionary **)documentAttributes;
-- (BOOL) readFromURL:(NSURL *)url
-			 options:(NSDictionary *)opts
-  documentAttributes:(NSDictionary **)dict
-			   error:(NSError **)error;
-- (void) setAlignment:(NSTextAlignment)alignment
-				range:(NSRange)range;
-- (void) setBaseWritingDirection:(NSWritingDirection)writingDirection
-						   range:(NSRange)range;
-- (void) subscriptRange:(NSRange)range;
-- (void) superscriptRange:(NSRange)range;
-- (void) unscriptRange:(NSRange)range; 			// Undo previous superscripting
-- (void) updateAttachmentsFromPath:(NSString *)path;
+- (void) applyFontTraits:(NSFontTraitMask) traitMask range:(NSRange) range;
+- (void) fixAttachmentAttributeInRange:(NSRange) range;
+- (void) fixAttributesInRange:(NSRange) range;		// master fix method
+- (void) fixFontAttributeInRange:(NSRange) range;
+- (void) fixParagraphStyleAttributeInRange:(NSRange) range;
+- (BOOL) readFromData:(NSData *) data options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs;
+- (BOOL) readFromData:(NSData *) data options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs error:(NSError **) error;
+- (BOOL) readFromURL:(NSURL *) url options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs;
+- (BOOL) readFromURL:(NSURL *) url options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs error:(NSError **) error;
+- (void) setAlignment:(NSTextAlignment) align range:(NSRange) range;
+- (void) setBaseWritingDirection:(NSWritingDirection) direction range:(NSRange) range;
+- (void) subscriptRange:(NSRange) range;
+- (void) superscriptRange:(NSRange) range;
+- (void) unscriptRange:(NSRange) range; 			// Undo previous superscripting
+- (void) updateAttachmentsFromPath:(NSString *) path;
 
 @end
 
