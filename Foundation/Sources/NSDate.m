@@ -975,7 +975,7 @@ int m, d, y;
 					if (ycent)
 						k = sprintf(&(buf[j]), "%04d", yd);
 					else
-						k = sprintf(&(buf[j]), "%02d", (yd - 1900));
+						k = sprintf(&(buf[j]), "%02d", yd%100);
 					j += k;
 					break;
 
