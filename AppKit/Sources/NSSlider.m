@@ -61,7 +61,7 @@ static Class _sliderCellClass;
 
 - (void) drawBarInside:(NSRect)rect flipped:(BOOL)flipped
 {
-	// FIXME: we can cache the path
+	// FIXME: can we cache the path?
 	NSBezierPath *p=[NSBezierPath bezierPath];
 	float w2=2.5;
 	float w=5.0;
