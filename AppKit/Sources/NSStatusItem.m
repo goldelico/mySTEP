@@ -16,7 +16,7 @@
 
 - (id) _initForStatusBar:(NSStatusBar *) bar andMenuItem:(NSMenuItem *) item withLength:(float) len;
 {
-	if(self=[super init])
+	if((self=[super init]))
 		{
 #if 1
 		NSLog(@"_initForStatusBar:%@ andMenuItem:%@ withLength:%lf", bar, item, len);

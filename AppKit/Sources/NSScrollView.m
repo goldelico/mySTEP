@@ -104,8 +104,8 @@ static Class __rulerViewClass = nil;
 		{
 		if(!_prohibitTiling)	// skip if called from initWithCoder
 			[self setContentView:[[NSClipView alloc] initWithFrame:rect]];	// install default content view
-		_lineScroll = 10;
-		_pageScroll = 40;
+		[self setLineScroll:10];
+		[self setPageScroll:40];
 		_borderType = NSBezelBorder;
 		_scrollsDynamically = YES;
 		}
@@ -222,35 +222,35 @@ static Class __rulerViewClass = nil;
 
 - (void) _doScroller:(NSScroller *)scroller	// may be decoded as the NSScroller action from a NIB file - so, don't rename
 { // action method of NSScroller
-	float floatValue = [scroller floatValue];
 	float amount=0.0;
-	BOOL _knobMoved;
+	BOOL _knobMoved=NO;
 	NSRect clipBounds = [_contentView bounds];
 	NSScrollerPart hitPart = [scroller hitPart];
 	NSRect documentRect = [_contentView documentRect];
 	NSPoint p;
 
 	NSDebugLog (@"_doScroller: float value = %f", floatValue);
-
-	if(hitPart == NSScrollerKnob)
-		_knobMoved = YES;
-	else
+	
+	switch(hitPart)
 		{
-		_knobMoved = NO;
-		if (hitPart == NSScrollerIncrementLine)
-			amount = _lineScroll;
-		else if (hitPart == NSScrollerIncrementPage)
-			amount = _pageScroll;
-		else if (hitPart == NSScrollerDecrementLine)
-			amount = -_lineScroll;
-		else if (hitPart == NSScrollerDecrementPage)
-			amount = -_pageScroll;
-		else
-			_knobMoved = YES;
+		case NSScrollerIncrementLine:
+			amount = (scroller == _horizScroller)?_horizontalLineScroll:_verticalLineScroll;
+			break;
+		case NSScrollerIncrementPage:
+			amount = (scroller == _horizScroller)?_horizontalPageScroll:_verticalPageScroll;
+			break;
+		case NSScrollerDecrementLine:
+			amount = -((scroller == _horizScroller)?_horizontalLineScroll:_verticalLineScroll);
+			break;
+		case NSScrollerDecrementPage:
+			amount = -((scroller == _horizScroller)?_horizontalPageScroll:_verticalPageScroll);
+			break;
+		default:
+			_knobMoved = YES;	// still unknown
 		}
-
-	if (!_knobMoved) 										// button scrolling
-		{
+	
+	if (!_knobMoved)
+		{ // button scrolling
 		if (scroller == _horizScroller) 				
 			p = (NSPoint){NSMinX(clipBounds) + amount, NSMinY(clipBounds)};
     	else 
@@ -258,39 +258,38 @@ static Class __rulerViewClass = nil;
 			if (scroller == _vertScroller) 				
 				{										
      			p.x = clipBounds.origin.x;		
-																			// If view is flipped 
+																			// If view is differently flipped 
 				if ([self isFlipped] != [_contentView isFlipped])			// reverse the scroll 
 					amount = -amount;										// direction 
       			NSDebugLog (@"increment/decrement: amount = %f, flipped = %d",
 	     					 amount, [_contentView isFlipped]);
       			p.y = clipBounds.origin.y + amount;
-      			p.y = (p.y < 0) ? 0 : p.y;					// FIX ME s/b in
-	   			}											// clipview
+//     			p.y = (p.y < 0) ? 0 : p.y;					// FIX ME s/b in clipview
+	   			}
     		else 
      			return;										// do nothing
 			}
 		p = [_contentView constrainScrollPoint:p];
   		}
-  	else 													// knob scolling
-		{													
+  	else
+		{ // knob scolling
+		float floatValue = [scroller floatValue];
     	if (scroller == _horizScroller) 				
 			{
      		p.x = floatValue * (NSWidth(documentRect) - NSWidth(clipBounds));
       		p.y = clipBounds.origin.y;
     		}
-    	else
-			{ 
-			if (scroller == _vertScroller) 
-				{
-      			p.x = clipBounds.origin.x;
-      			if ([self isFlipped] != [_contentView isFlipped])
-					floatValue = 1 - floatValue;
-      			p.y = floatValue * (NSHeight(documentRect) - NSHeight(clipBounds));
-    			}
-    		else 
-     			return;										// do nothing
-		}	}
-
+    	else if (scroller == _vertScroller) 
+			{
+			p.x = clipBounds.origin.x;
+			if ([self isFlipped] != [_contentView isFlipped])
+				floatValue = 1 - floatValue;	// differently flipped
+			p.y = floatValue * (NSHeight(documentRect) - NSHeight(clipBounds));
+			}
+		else 
+			return;										// do nothing if unknown scroller
+		}
+	
 	[_contentView scrollToPoint:p];							// scroll clipview
 
 	if(!_knobMoved)
@@ -324,7 +323,7 @@ static Class __rulerViewClass = nil;
 			if(_autohidesScrollers)
 				[_vertScroller setHidden:NO];	// show
 			knobProportion =NSHeight(clipViewBounds) / NSHeight(documentFrame);
-			floatValue = clipViewBounds.origin.y / (NSHeight(documentFrame) - NSHeight(clipViewBounds));
+			floatValue = -clipViewBounds.origin.y / (NSHeight(documentFrame) - NSHeight(clipViewBounds));	// scrolling moves bounds in negative direction!
 			if ([self isFlipped] != [_contentView isFlipped])
 				floatValue = 1 - floatValue;
 			[_vertScroller setFloatValue:floatValue 
@@ -595,14 +594,14 @@ static Class __rulerViewClass = nil;
 - (void) setHorizontalPageScroll:(float)aFloat		{ _horizontalPageScroll = aFloat; }
 - (void) setVerticalLineScroll:(float)aFloat		{ _verticalLineScroll = aFloat; }
 - (void) setVerticalPageScroll:(float)aFloat		{ _verticalPageScroll = aFloat; }
-- (void) setLineScroll:(float)aFloat				{ _lineScroll = aFloat; }
-- (void) setPageScroll:(float)aFloat				{ _pageScroll = aFloat; }
+- (void) setLineScroll:(float)aFloat				{ [self setHorizontalLineScroll:aFloat]; [self setVerticalLineScroll:aFloat]; }	// doc says we call these methods
+- (void) setPageScroll:(float)aFloat				{ [self setHorizontalPageScroll:aFloat]; [self setVerticalPageScroll:aFloat]; }
 - (float) horizontalPageScroll						{ return _horizontalPageScroll; }
 - (float) horizontalLineScroll						{ return _horizontalLineScroll; }
 - (float) verticalPageScroll						{ return _verticalPageScroll; }
 - (float) verticalLineScroll						{ return _verticalLineScroll; }
-- (float) pageScroll								{ return _pageScroll; }
-- (float) lineScroll								{ return _lineScroll; }
+- (float) pageScroll								{ return [self verticalPageScroll]; }
+- (float) lineScroll								{ return [self verticalLineScroll]; }
 - (void) setScrollsDynamically:(BOOL)flag			{ _scrollsDynamically = flag; }
 - (BOOL) scrollsDynamically							{ return _scrollsDynamically; }
 - (BOOL) isOpaque									{ return YES; }
@@ -626,8 +625,6 @@ static Class __rulerViewClass = nil;
 	if([aDecoder allowsKeyedCoding])
 		{
 		int sFlags=[aDecoder decodeInt32ForKey:@"NSsFlags"];
-		unsigned char *amts;
-		unsigned len=0;
 		_horizScroller=[[aDecoder decodeObjectForKey:@"NSHScroller"] retain];
 		_vertScroller=[[aDecoder decodeObjectForKey:@"NSVScroller"] retain];
 #define BORDERTYPE			((sFlags&0x0003) >> 0)
@@ -649,10 +646,20 @@ static Class __rulerViewClass = nil;
 #endif
 		if([aDecoder containsValueForKey:@"NSScrollAmts"])
 			{
-			// should be 6 floats in bigendian format - we should have a struct
-			// but is 16 bytes...
-			amts=[aDecoder decodeBytesForKey:@"NSScrollAmts" returnedLength:&len];
-			NSLog(@"scroll amts=%p[%u]", amts, len);
+			struct _AMTS { NSSwappedFloat hline, vline, hpage, vpage; } *amts;
+			unsigned len=0;
+			amts=(struct _AMTS *) [aDecoder decodeBytesForKey:@"NSScrollAmts" returnedLength:&len];
+			if(len != sizeof(*amts))
+				NSLog(@"scroll amts=%p[%u]", amts, len);
+			else
+				{ // byte swap from bigendian to host byte order
+#if 0
+				_horizontalLineScroll=NSSwapBigFloatToHost(amts->hline);
+				_verticalLineScroll=NSSwapBigFloatToHost(amts->vline);
+				_horizontalPageScroll=NSSwapBigFloatToHost(amts->hpage);
+				_verticalPageScroll=NSSwapBigFloatToHost(amts->vpage);
+#endif
+				}
 			}
 //		[self setContentView:[aDecoder decodeObjectForKey:@"NSContentView"]];
 		_contentView = [[aDecoder decodeObjectForKey:@"NSContentView"] retain];		// should load content and document view

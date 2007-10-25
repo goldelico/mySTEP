@@ -124,9 +124,9 @@ static Class _sliderCellClass;
 		{
 		if(_tickMarkPosition == NSTickMarkAbove)	// == NSTickMarkLeft
 			;
-		// adjust for tick marks
+		// adjust to make room for tick marks
 		}
-	return NSMakeRect (origin.x, origin.y, size.width, size.height);  
+	return (NSRect){ origin, size };  
 }
 
 - (void) drawKnob
@@ -201,14 +201,12 @@ static Class _sliderCellClass;
 
 - (void) setKnobThickness:(float)thickness
 {
-NSImage* image = [_knobCell image];
-NSSize size = [image size];
-
+	NSImage* image = [_knobCell image];
+	NSSize size = [image size];
 	if (_isVertical)
 		size.height = thickness;
 	else
 		size.width = thickness;
-	
 	[image setSize:size];
 }
 
@@ -249,15 +247,17 @@ NSSize size = [image size];
 - (NSRect) rectOfTickMarkAtIndex:(int) index;
 {
 	NSRect r=NSZeroRect;
+	float w=2.0+16.0;	// knob size
+	float w2=0.5*w;
 	if(_isVertical)
 		{
 		r.origin.x=5.0;	// FIXME: make dependent on left/right
-		r.origin.y=2.0+index*(_trackRect.size.height-4.0/(_numberOfTickMarks-1));
+		r.origin.y=w2+index*(_trackRect.size.height-w)/(_numberOfTickMarks-1);
 		r.size=NSMakeSize(5.0, 1.0);
 		}
 	else
 		{
-		r.origin.x=2.0+index*(_trackRect.size.width-4.0/(_numberOfTickMarks-1));
+		r.origin.x=w2+index*(_trackRect.size.width-w)/(_numberOfTickMarks-1);
 		r.origin.y=5.0;	// FIXME: make dependent on above/below
 		r.size=NSMakeSize(1.0, 5.0);
 		}

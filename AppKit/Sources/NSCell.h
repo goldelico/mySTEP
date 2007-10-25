@@ -137,7 +137,7 @@ enum {
 		UIBITFIELD(unsigned int, continuous, 1);
 		UIBITFIELD(unsigned int, actOnMouseDown, 1);
 		UIBITFIELD(unsigned int, actOnMouseDragged, 1);
-		UIBITFIELD(unsigned int, dontActOnMouseUp, 1);
+		UIBITFIELD(unsigned int, actOnMouseUp, 1);
 		UIBITFIELD(unsigned int, floatAutorange, 1);
 		TYPEDBITFIELD(NSCellType, type, 2);		
 		TYPEDBITFIELD(NSTextAlignment, alignment, 3);

@@ -58,7 +58,7 @@
 #if 1
 	NSLog(@"NSStatusBar +systemStatusBar");
 #endif
-	// FIXME!
+	// FIXME! No longer provided by DWS server but by mySystemUIServer!
 	return [[NSWorkspace _distributedWorkspace] systemStatusBar];	// request from distributed server
 }
 

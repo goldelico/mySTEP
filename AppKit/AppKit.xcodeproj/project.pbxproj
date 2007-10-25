@@ -755,8 +755,6 @@
 		EE349C5D097027D600CBF42C /* NSToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbarItem.h; sourceTree = "<group>"; };
 		EE4CC7100B3546F300B04C5F /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PrintProgressPanel.nib; sourceTree = "<group>"; };
 		EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = GSColorWheel.jpg; sourceTree = "<group>"; };
-		EE526D78099B2E6300218247 /* mgstep-0.552 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "mgstep-0.552"; path = "../ other/mgstep/mgstep-0.552"; sourceTree = SOURCE_ROOT; };
-		EE527865099D363C00218247 /* gnustep-gui-0.10.2 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "gnustep-gui-0.10.2"; path = "../ other/gnustep-gui-0.10.2"; sourceTree = SOURCE_ROOT; };
 		EE52832F09A1FB2E00218247 /* NSCursor.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSCursor.m; sourceTree = "<group>"; };
 		EE61B6A509B21985005A250B /* NSColorSpace.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSColorSpace.m; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -765,10 +763,7 @@
 		EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myViewTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE93C79C0B901DF500FBD885 /* Info ViewTest.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Info ViewTest.plist"; sourceTree = "<group>"; };
 		EE93C7A30B901E5700FBD885 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = "English.lproj/MainMenu ViewTest.nib"; sourceTree = "<group>"; };
-		EE978F2D0AAC3BBE007ECDE1 /* gnustep-gui-0.11.0 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "gnustep-gui-0.11.0"; path = "../ other/gnustep-gui-0.11.0"; sourceTree = SOURCE_ROOT; };
-		EE9792BB0AAC9413007ECDE1 /* mgstep-0.556 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "mgstep-0.556"; path = "../ other/mgstep/mgstep-0.556"; sourceTree = SOURCE_ROOT; };
 		EE9929C409FD233C003C308D /* NSSegmentedControl.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSegmentedControl.m; sourceTree = "<group>"; };
-		EE9C62A80AC02EE300F2ABAC /* Headers.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = Headers.txt; path = ../Headers.txt; sourceTree = SOURCE_ROOT; };
 		EEA331A30953FA54001244CF /* AppKit-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = "AppKit-Info.plist"; sourceTree = "<group>"; };
 		EEA370FF09540065001244CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../Foundation/build/Development/Foundation.framework; sourceTree = SOURCE_ROOT; };
 		EEA3717D09540271001244CF /* AppKit.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AppKit.h; sourceTree = "<group>"; };
@@ -988,7 +983,7 @@
 		EEA3F8910BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FindPanel.nib; sourceTree = "<group>"; };
 		EEA3F8930BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FontPanel.nib; sourceTree = "<group>"; };
 		EEACF8A409ED3A9F0085F56E /* NSDrawer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDrawer.m; sourceTree = "<group>"; };
-		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEC8036209AE4EBF006EEB03 /* mySTEP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mySTEP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EECD83250A0788DB00EF3E30 /* NSLevelIndicator.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSLevelIndicator.m; sourceTree = "<group>"; };
 		EECD83560A07940600EF3E30 /* NSDatePicker.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDatePicker.m; sourceTree = "<group>"; };
@@ -1079,15 +1074,10 @@
 			isa = PBXGroup;
 			children = (
 				EEDB5E570A1497C600E4CA39 /* HISTORY.rtf */,
-				EE9C62A80AC02EE300F2ABAC /* Headers.txt */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
 				EEA3717B09540271001244CF /* Classes */,
 				EEA3306C09537DB5001244CF /* Private */,
 				EEA372FB09540275001244CF /* Backend */,
-				EE527865099D363C00218247 /* gnustep-gui-0.10.2 */,
-				EE978F2D0AAC3BBE007ECDE1 /* gnustep-gui-0.11.0 */,
-				EE526D78099B2E6300218247 /* mgstep-0.552 */,
-				EE9792BB0AAC9413007ECDE1 /* mgstep-0.556 */,
 				EEA3309609537E48001244CF /* Resources */,
 				EE3196E109AB7E8A0089A9A2 /* mySTEP Test */,
 				EEA370FA09540051001244CF /* mySTEP Frameworks */,

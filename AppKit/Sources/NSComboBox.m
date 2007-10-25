@@ -400,12 +400,12 @@
 	[super drawWithFrame:cellFrame inView:controlView];		// text cell background goes to the left
 }
 
-- (void) encodeWithCoder:(id)aCoder						// NSCoding protocol
+- (void) encodeWithCoder:(NSCoder *)aCoder						// NSCoding protocol
 {
 	[super encodeWithCoder:aCoder];
 }
 
-- (id) initWithCoder:(id)aDecoder
+- (id) initWithCoder:(NSCoder *)aDecoder
 {
 #if 0
 	NSLog(@"%@ initWithCoder:%@", NSStringFromClass([self class]), aDecoder);
@@ -631,7 +631,12 @@ NSNotificationCenter *n;
 	return 0;
 }
 
-- (id) initWithCoder:(id)aDecoder
+- (void) encodeWithCoder:(NSCoder *)aCoder
+{
+	NIMP;
+}
+
+- (id) initWithCoder:(NSCoder *)aDecoder
 {
 #if 0
 	NSLog(@"%@ initWithCoder:%@", NSStringFromClass([self class]), aDecoder);

@@ -595,7 +595,7 @@
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@: identifier=%@ sortDescriptor=%@", NSStringFromClass(isa), _identifier, _sortDescriptor];
+	return [NSString stringWithFormat:@"%p %@: identifier=%@ sortDescriptor=%@", self, NSStringFromClass(isa), _identifier, _sortDescriptor];
 }
 
 - (id) initWithIdentifier:(id)identifier			
@@ -718,6 +718,7 @@
 	self=[super initWithFrame:frameRect];
 	if(self)
 		{
+		_tv.initializing=YES;
 		_intercellSpacing = (NSSize){2,2};
 		_rowHeight = 17;
 		_headerView = [[NSTableHeaderView alloc] initWithFrame:h];
@@ -732,6 +733,7 @@
 		_gridColor = [[NSColor gridColor] retain];
 		_tv.allowsColumnReordering = YES;
 		_tv.allowsColumnResizing = YES;
+		_tv.initializing=NO;
 		}
 	return self;
 }
@@ -843,8 +845,10 @@
 #if 0
 	NSLog(@"numberOfRows: %@", self);
 #endif
-	if(_numberOfRows < 0)
+	if(_numberOfRows == NSNotFound)
 		{ // not in cache, ask delegate
+		if(_tv.initializing || !_dataSource)
+			return 0;	// don't ask data source before it exists
 		_numberOfRows=[_dataSource numberOfRowsInTableView:self];
 		if(_tv.delegateProvidesHeightOfRow)
 			[self noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _numberOfRows)]];
@@ -852,10 +856,18 @@
 	return _numberOfRows;
 }
 
+// quite a hack but we can't guarantee that the data source is already initialized when we do first things
+
+- (void) awakeFromNib
+{
+	NSLog(@"awakeFromNib %@", self);
+	[self reloadData];	// needs to reload after awake
+}
+
 - (void) noteNumberOfRowsChanged
 { // clear cache
-	/* update the scroller size/positions */
-	_numberOfRows=-1;
+	/* immediately update the scroller size/positions */
+	_numberOfRows=NSNotFound;
 }
 
 - (void) noteHeightOfRowsWithIndexesChanged:(NSIndexSet *) idx;
@@ -1258,12 +1270,13 @@ int index = [self columnWithIdentifier:identifier];
 
 - (NSRect) rectOfRow:(int) row 
 { // FIXME: there should be a cache if we have millions of rows...!
+	float y;
 	if(_tv.delegateProvidesHeightOfRow)
 		{
 		float rowHeight=[_delegate tableView:self heightOfRow:row];
-		// and: we must sum up all rows up to the one asked for
+		// and: we must sum up all rows up to the one asked for...
 		}
-	float y = (_rowHeight + _intercellSpacing.height) * row;
+	y = (_rowHeight + _intercellSpacing.height) * row;
 	return NSMakeRect(0, y, NSWidth(frame), _rowHeight);
 }
 
@@ -1519,6 +1532,8 @@ int index = [self columnWithIdentifier:identifier];
 	NSRange extend = {-1, 0}, reduce = {-1, 0};
 	NSEventType eventType;
 	NSRect r, visibleRect;
+	NSTableColumn *clickedCol;
+	NSRect clickedCellFrame;
 	BOOL scrolled=NO;
 
 	_clickedColumn=[self columnAtPoint:p];
@@ -1534,7 +1549,17 @@ int index = [self columnWithIdentifier:identifier];
 			return;
 			}
 		}
-
+	clickedCellFrame = [self frameOfCellAtColumn:_clickedColumn row:_clickedRow];
+	clickedCol = [_tableColumns objectAtIndex:_clickedColumn];
+	_clickedCell = row < [self numberOfRows]?[[clickedCol dataCellForRow:row] copy]:nil;
+	if(_clickedCell)
+		{
+		id data=[_dataSource tableView:self objectValueForTableColumn:clickedCol row:_clickedRow];	// ask data source
+		[_clickedCell setObjectValue:data];
+		if(_tv.delegateWillDisplayCell)
+			[_delegate tableView:self willDisplayCell:_clickedCell forTableColumn:clickedCol row:_clickedRow];	// give delegate a chance to modify the cell
+		}
+		
 	if(row != NSNotFound)
 		[self selectRow:row byExtendingSelection:NO];			// select start row
 
@@ -1543,8 +1568,11 @@ int index = [self columnWithIdentifier:identifier];
 
 	[NSEvent startPeriodicEventsAfterDelay:0.05 withPeriod:0.03];
 
-	while ((eventType = [event type]) != NSLeftMouseUp) 
+	while (YES) 
 		{
+		eventType = [event type];
+		if(eventType == NSLeftMouseUp)
+			break;	// done
 		// 
 		// we should make periodic events after some delay simply call [self autoscroll:lastmouse] while the mouse is outside of a certain inner frame
 		//
@@ -1643,9 +1671,25 @@ int index = [self columnWithIdentifier:identifier];
 					if ((scrolled = [self scrollRectToVisible:r]))
 						visibleRect = [self visibleRect];
 					}
+				if(_clickedCell && NSMouseInRect(p, clickedCellFrame, [self isFlipped]))
+					{ // it was a click into a cell - track while we are in the cell
+					BOOL done;
+					[_clickedCell setHighlighted:YES];	
+					[self setNeedsDisplay:YES];
+					done=[_clickedCell trackMouse:event inRect:clickedCellFrame ofView:self untilMouseUp:NO];	// track until we leave the cell rect
+					[_clickedCell setHighlighted:NO];	
+					[self setNeedsDisplay:YES];
+					if(done)
+						{ // mouse went up in cell
+						// send tableView:setObjectValue: ...
+						break;	// end the tracking loop
+						}
+					else
+						{ // we did simply leave the cell
+						}
+					}
 				}
 			}
-
 		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 								   untilDate:[NSDate distantFuture] 
 									  inMode:NSEventTrackingRunLoopMode
@@ -1653,7 +1697,7 @@ int index = [self columnWithIdentifier:identifier];
 		}
 
 	[NSEvent stopPeriodicEvents];
-
+	
 	if(_tv.allowsMultipleSelection)
 		_lastSelectedRow = (startRow > lastRow) ? startRow : lastRow;
 	else
@@ -1664,12 +1708,21 @@ int index = [self columnWithIdentifier:identifier];
 		_clickedColumn=[self columnAtPoint:p];
 		[_target performSelector:_action withObject:self];	// single click
 		}
+
+	[_clickedCell release];
+	_clickedCell=nil;
 }
 
 - (void) tile 
 {
-	int rows = [self numberOfRows];
-	int cols = [_tableColumns count];
+	int rows;
+	int cols;
+	if(!_dataSource)
+		{
+		return;
+		}
+	rows = [self numberOfRows];
+	cols = [_tableColumns count];
 #if 0
 	NSLog(@"tile %@", self);
 	NSLog(@"cols %d", cols);
@@ -1795,28 +1848,35 @@ int index = [self columnWithIdentifier:identifier];
 	for (i = _columnRange.location; i < maxColRange; i++)
 		{ // draw all columns of this row that are visible
 		NSTableColumn *col = [_tableColumns objectAtIndex:i];
-		NSTableDataCell *aCell = [col dataCellForRow:row];
-		id data;
-		if(row < [self numberOfRows])
-			data=[_dataSource tableView:self objectValueForTableColumn:col row:row];	// ask data source
-		else
-			data=nil;
-#if 0
-		NSLog(@"drawRow:%d column %d", row, i);
-		NSLog(@"col=%@", col);
-		NSLog(@"cel=%@", aCell);
-		NSLog(@"data=%@", data);
-#endif
 		rect.size.width = col->_width;
-		if(data)
-			{ // set data from data source
-			[aCell setObjectValue:data];
-			if(_tv.delegateWillDisplayCell)
-				[_delegate tableView:self willDisplayCell:aCell forTableColumn:col row:row];	// give delegate a chance to nodify the cell
-			[aCell highlight:([_selectedRows containsIndex:row] || [_selectedColumns containsIndex:i]) withFrame:rect inView:self];
+		if(_clickedCell && _clickedRow == row && _clickedColumn == col)
+			{ // we are tracking this cell
+			[_clickedCell drawWithFrame:rect inView:self];
+			}
+		else
+			{ // get from data source
+			NSTableDataCell *aCell = [col dataCellForRow:row];
+			id data;
+			if(row < [self numberOfRows])
+				data=[_dataSource tableView:self objectValueForTableColumn:col row:row];	// ask data source
+			else
+				data=nil;
+#if 0
+			NSLog(@"drawRow:%d column %d", row, i);
+			NSLog(@"col=%@", col);
+			NSLog(@"cel=%@", aCell);
+			NSLog(@"data=%@", data);
+#endif
+			if(data)
+				{ // set data from data source
+				[aCell setObjectValue:data];
+				if(_tv.delegateWillDisplayCell)
+					[_delegate tableView:self willDisplayCell:aCell forTableColumn:col row:row];	// give delegate a chance to modify the cell
+				[aCell drawWithFrame:rect inView:self];
+				}
 			}
 		rect.origin.x = NSMaxX(rect) + _intercellSpacing.width;
-		}
+	}
 }
 
 - (void) highlightSelectionInClipRect:(NSRect)rect
@@ -1864,18 +1924,20 @@ int index = [self columnWithIdentifier:identifier];
 		unsigned int ncolors=[colors count];
 		if(ncolors > 0)
 			{
+			float bottom=NSMaxY(rect);
 			while(YES)
 				{
 				NSRect rowRect=[self rectOfRow:rowRange.location];
-				if(rowRect.origin.y < rect.origin.y+rect.size.height)
-					return;	// row no longer inside
-				[[colors objectAtIndex:(rowRange.location++)%ncolors] setFill];	// set color
+				if(rowRect.origin.y > bottom)
+					break;	// row no longer inside
+				[[colors objectAtIndex:rowRange.location%ncolors] setFill];	// set color
 				NSRectFill(rowRect);
+				rowRange.location++;
 				}
+			return;
 			}
 		}
-	else
-		[_backgroundColor set];	// draw uniform color
+	[_backgroundColor set];	// draw uniform color
 	NSRectFill(rect);
 }
 
@@ -1978,6 +2040,7 @@ int index = [self columnWithIdentifier:identifier];
 		long tvFlags=[aDecoder decodeInt32ForKey:@"NSTvFlags"];
 		int i;
 		NSNull *null=[NSNull null];
+		_tv.initializing=YES;
 #if 1
 		NSLog(@"TvFlags=%08lx", tvFlags);
 #endif
@@ -2022,6 +2085,8 @@ int index = [self columnWithIdentifier:identifier];
 #if 0
 		NSLog(@"initWithCoder -> enclosingScrollView=%@", [[self enclosingScrollView] _descriptionWithSubviews]);
 #endif
+		_numberOfRows=NSNotFound;	// recache
+		_tv.initializing=NO;
 		return self;
 		}
 	[aDecoder decodeValueOfObjCType: "i" at: &_lastSelectedColumn];

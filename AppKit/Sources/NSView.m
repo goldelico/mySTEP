@@ -459,7 +459,7 @@ printing
 - (NSString *) description
 {
 	NSMutableString *s;
-	s=[NSMutableString stringWithString:NSStringFromClass(isa)];
+	s=[NSMutableString stringWithFormat:@"%p: %@", self, NSStringFromClass(isa)];
 	[s appendFormat:@" win=%@", [window title]];
 	[s appendFormat:@" frame=[%.1lf,%.1lf,%.1lf,%.1lf]", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height];
 	[s appendFormat:@" bounds=[%.1lf,%.1lf,%.1lf,%.1lf]", bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height];
@@ -513,7 +513,7 @@ printing
 #if 0
 		NSLog(@"NSView: initWithFrame 2b %@", self);
 #endif
-		[super setMenu:[isa defaultMenu]];
+		[self setMenu:[isa defaultMenu]];	// initialize with default menu
 #if 0
 		NSLog(@"NSView: initWithFrame 3 %@", self);
 #endif
@@ -969,6 +969,10 @@ printing
 	if(!_bounds2frame)
 		{ // FIXME: can we optimize this if(!_v.customBounds) ???
 		_bounds2frame=[[NSAffineTransform alloc] init];	// create a new transform
+#if 0
+		if(bounds.origin.x != 0 || bounds.origin.y != 0)
+			NSLog(@"displaced origin");
+#endif
 		if([self isFlipped])
 			{
 			if(_v.isRotatedFromBase)
@@ -1511,7 +1515,7 @@ printing
 			if([self isOpaque])
 				; 
 				// FIXME:  if we are opaque we should just need to setNeedsDisplay without updating the invalidRect of the superview
-				// but the superview must know that there is something to redraw
+				// but the superview must still learn that there is something to redraw
 				// i.e. this is the real reason why we probably need the 'ifNeeded' flag independently of the dirty rects
 			atm=[self _bounds2frame];	// goes to our superview
 			// HM - we should transform the corners individually and determine min/max dimension of the invalidated superview
@@ -1523,7 +1527,13 @@ printing
 			[super_view setNeedsDisplayInRect:r];
 			// FIXME: we should simply loop instead of doing a recursion - to call [window setViewsNeedDisplay:YES]; etc. just once
 			}
+		else
+			{
+			[window setViewsNeedDisplay:YES];	// recursion has reached the topmost view
+			[NSApp setWindowsNeedUpdate:YES];	// and NSApp should also know...
+			}
 		}
+#if FIXME
 	else
 		// FIXME: this does not properly work!
 		{ // we already did have the rect invalidated - assume that our superviews also know that
@@ -1537,13 +1547,6 @@ printing
 			// _v.needsDisplay=YES;
 			}
 		}
-	[window setViewsNeedDisplay:YES];	// we have reached the topmost view
-#if 0
-	NSLog(@"setneedsdisplay 2: %@", self);
-#endif
-	[NSApp setWindowsNeedUpdate:YES];	// and NSApp should also know...
-#if 0
-	NSLog(@"setneedsdisplay 3: %@", self);
 #endif
 }
 
@@ -1666,8 +1669,11 @@ printing
 	return NO;
 }
 
-- (NSRect) adjustScroll:(NSRect)newVisible				{ return NSZeroRect; }
+- (NSRect) adjustScroll:(NSRect)newVisible				{ return newVisible; }
 - (void) reflectScrolledClipView:(NSClipView*)aClipView { return; }
+
+// FXIME: make this interwork correctly with NSClipView
+
 - (void) scrollClipView:(NSClipView *)aClipView 
 				toPoint:(NSPoint)aPoint					{ NIMP }
 - (void) scrollPoint:(NSPoint)aPoint					{ NIMP }
@@ -1717,7 +1723,7 @@ id v;
 			return nil;		// If not within our frame then immediately return
 			}
 		}
-	aPoint=[self convertPoint:aPoint fromView:super_view];	// convert from superview's coordinates to ours
+	aPoint=[[self _frame2bounds] transformPoint:aPoint];	// transform the dirty rect from superview's coordinates
 	for(i = [sub_views count] - 1; i >= 0; i--)	
 		{ // Check our sub_views front to back
 		if((v = [[sub_views objectAtIndex:i] hitTest:aPoint]))

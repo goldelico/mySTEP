@@ -97,8 +97,8 @@
 	
 			if (proposedNewOrigin.x > difference)
 				new.x = difference;
-		}	}				// if doc is smaller than bounds do not adjust Y
-							// because of a possible offset to doc's origin
+			}
+		}				// if doc is smaller than bounds do not adjust Y because of a possible offset to doc's origin
 	if(docFrameRect.size.height >= bounds.size.height)
 		{
 		if (proposedNewOrigin.y < docFrameRect.origin.y)
@@ -109,7 +109,8 @@
 
 			if(proposedNewOrigin.y > difference)
 				new.y = difference;
-		}	}
+			}
+		}
 
 	return new;
 }
@@ -232,7 +233,7 @@
 - (void) translateOriginToPoint:(NSPoint)aPoint
 {
 	[super translateOriginToPoint:aPoint];
-// already called:	[super_view reflectScrolledClipView:self];
+	// no need to call [super_view reflectScrolledClipView:self] here;
 }
 
 - (id) documentView								{ return _documentView; }
@@ -257,8 +258,6 @@
 - (void) setBoundsRotation:(float)angle			{ NIMP; }
 - (void) setFrameRotation:(float)angle			{ NIMP; }
 
-// FIXME: our superview is now flipped!
-
 - (void) scrollToPoint:(NSPoint)point
 { // point should lie within the bounds rect of self
 	extern BOOL _NSShowAllDrawing;	// defined in NSView
@@ -267,8 +266,8 @@
 	NSRect src=NSZeroRect;				// rectangle to copy from
 	NSRect dest=NSZeroRect;				// rectangle to copy to
 	NSRect start=bounds;				// original origin
-	point.y = floor(point.y);		// avoid rounding errors by constraining the scroll
-	point.x = floor(point.x);		// to integer numbers
+	point.x = floor(point.x);			// avoid rounding errors by constraining the scroll to integer numbers
+	point.y = -floor(point.y);			// and negate since we (or our superview?) are flipped
 	if(NSEqualPoints(start.origin, point))
 		return;	// no movement required
 	[self setBoundsOrigin:point];	// translate to new origin
@@ -412,9 +411,17 @@
 }
 
 - (void) setNeedsDisplayInRect:(NSRect) rect;
-{
+{ // limit dirty area to our frame rect
 	// CHECKME: shouldn't we use documentVisibleRect??
-	[super setNeedsDisplayInRect:NSIntersectionRect(rect, (NSRect) { bounds.origin, frame.size })];
+	// shouldn't we transform the size through frame2bounds? to handle flipping/scaling
+	rect=NSIntersectionRect(rect, (NSRect){NSZeroPoint, frame.size});
+	[super setNeedsDisplayInRect:rect];
+}
+
+- (void) displayRectIgnoringOpacity:(NSRect) rect inContext:(NSGraphicsContext *) context;
+{ // never draw outside our frame rect
+	rect=NSIntersectionRect(rect, (NSRect){NSZeroPoint, frame.size});
+	[super displayRectIgnoringOpacity:rect inContext:context];
 }
 
 - (void) drawRect:(NSRect)rect
@@ -456,6 +463,8 @@
 		if([aDecoder containsValueForKey:@"NSBounds"])
 			[self setBounds:[aDecoder decodeRectForKey:@"NSBounds"]];
 		_documentView=[[aDecoder decodeObjectForKey:@"NSDocView"] retain];
+		if(!_backgroundColor && [_documentView respondsToSelector:@selector(backgroundColor)])								
+			ASSIGN(_backgroundColor, (NSColor *)[(id)_documentView backgroundColor]);	// copy from document view
 		// Register for notifications sent by the document view 
 		[_documentView setPostsFrameChangedNotifications:YES];
 		[_documentView setPostsBoundsChangedNotifications:YES];

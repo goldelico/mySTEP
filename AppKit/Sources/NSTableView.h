@@ -54,6 +54,7 @@ typedef enum NSTableViewDropOperation {
 {
 	NSTableHeaderView *_headerView;
 	NSView *_cornerView;
+	NSTableDataCell *_clickedCell;
     NSCell *_editingCell;
     NSColor *_backgroundColor;
     NSColor *_gridColor;
@@ -84,6 +85,8 @@ typedef enum NSTableViewDropOperation {
 	int _numberOfRows;	// cached value
 
 	struct __TableViewFlags {
+		TYPEDBITFIELD(NSTableViewColumnAutoresizingStyle, autoResizingStyle, 3);
+		UIBITFIELD(unsigned int, gridStyleMask, 2);
 		UIBITFIELD(unsigned int, delegateSelectionShouldChangeInTableView, 1);
 		UIBITFIELD(unsigned int, delegateShouldSelectTableColumn, 1);
 		UIBITFIELD(unsigned int, delegateShouldSelectRow, 1);
@@ -94,12 +97,11 @@ typedef enum NSTableViewDropOperation {
 		UIBITFIELD(unsigned int, allowsMultipleSelection, 1);
 		UIBITFIELD(unsigned int, allowsEmptySelection, 1);
 		UIBITFIELD(unsigned int, usesAlternatingRowBackgroundColors, 1);
-		UIBITFIELD(unsigned int, gridStyleMask, 2);
 		UIBITFIELD(unsigned int, allowsColumnResizing, 1);
 		UIBITFIELD(unsigned int, allowsColumnReordering, 1);
-		TYPEDBITFIELD(NSTableViewColumnAutoresizingStyle, autoResizingStyle, 3);
 		UIBITFIELD(unsigned int, autosaveTableColumns, 1);
 		UIBITFIELD(unsigned int, verticalMotionCanBeginDrag, 1);
+		UIBITFIELD(unsigned int, initializing, 1);
 		} _tv;
 }
 

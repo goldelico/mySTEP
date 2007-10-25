@@ -1266,7 +1266,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	 */
 	hasAlpha=[rep hasAlpha];
 	if(atms.m12 != 0.0 || atms.m21 != 0.0 || !(atms.m11 == atms.m22 || atms.m11 == -atms.m22) ||
-	   hasAlpha && (_compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
+	   (hasAlpha && _compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
 					_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut))
 		{ // if rotated or any alpha blending, we must really fetch the current image from our context
 #if 0

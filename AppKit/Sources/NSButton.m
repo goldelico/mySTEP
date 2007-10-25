@@ -48,15 +48,15 @@ id __buttonCellClass = nil;
 #if 0
 	NSLog(@"%@ (NSButtonCell)initTextCell:%@", self, aString);
 #endif
-	self=[super initTextCell:@"0"];	// aString is not printed but used as the state!
-	if(self)
+	if((self=[super initTextCell:@"0"]))	// aString is not printed but used as the state!
 		{
 		[self setBordered:YES];		// draw bezel
 		[self setShowsFirstResponder:YES];	//default
 		[self setTitle:aString];	// replace title default (@"Button")
 		_bezelStyle=NSRoundedBezelStyle;	// default style
 		[self setButtonType:NSMomentaryPushInButton];
-		_backgroundColor = [[NSColor controlColor] retain];
+		_backgroundColor=[[NSColor controlColor] retain];	// default color
+		_c.drawsBackground=NO;	// but don't draw background (CHECKME)
 		_periodicDelay = 0.4;
 		_periodicInterval = 0.075;
 		}
@@ -285,7 +285,7 @@ id __buttonCellClass = nil;
 - (BOOL) isOpaque
 	{ 
 	return _backgroundColor && (
-		!_transparent || _c.bordered || 
+		!_transparent || _c.bordered || _c.drawsBackground || 
 		(_stateMask & NSChangeBackgroundCellMask) || 
 		stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask));
 	}
@@ -392,24 +392,27 @@ id __buttonCellClass = nil;
 #if 0
 	NSLog(@"drawBezelWithFrame %@", self);
 #endif
-	if(!_c.bordered)
-		{ // not bordered - e.g. Radio Button and Checkbox
+#if 0
+	if([_title isEqualToString:@"Round Textured"])
+		NSLog(@"drawing %@", _title);
+#endif
+	if(stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask))
+		backgroundColor = [NSColor whiteColor];		// make background white dependent on state/highlight
+	else if(_c.drawsBackground) // not bordered - e.g. Radio Button and Checkbox
 		backgroundColor=_backgroundColor;
-		if(_stateMask & NSChangeBackgroundCellMask)
-			backgroundColor = [NSColor controlColor];	// show control background even if not bordered (On/Off and Push On/Push Off buttons)
-		if(_backgroundColor)
+	else 
+		backgroundColor = nil;	// default: transparent
+	if(!_c.bordered)
+		{ // special case for non-bordered buttons
+		if(!backgroundColor && (_stateMask & NSChangeBackgroundCellMask))
+			backgroundColor = [NSColor windowBackgroundColor];	// show control background even if not bordered (On/Off and Push On/Push Off buttons)
+		if(backgroundColor)
 			{
-			[_backgroundColor setFill];
+			[backgroundColor setFill];
 			NSRectFill(cellFrame);
 			}
 		return;
-		}
-	if(stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask))
-		backgroundColor = [NSColor whiteColor];		// make background white dependent on state/highlight
-	else if(_stateMask & NSChangeBackgroundCellMask)
-		backgroundColor = [NSColor controlColor];	// show control background even if not bordered (On/Off and Push On/Push Off buttons)
-	else
-		backgroundColor = nil;	// default: transparent
+		}	
 	cellFrame=[self drawingRectForBounds:cellFrame];
 #if 0
 	NSLog(@"bgcolor=%@", backgroundColor);
@@ -528,7 +531,7 @@ id __buttonCellClass = nil;
 		case NSTexturedSquareBezelStyle:
 			{
 				if(stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask))
-					[[NSColor controlDarkShadowColor] setFill];
+					[[NSColor controlShadowColor] setFill];
 				else if(!backgroundColor)
 					[[NSColor controlHighlightColor] setFill]; // bordered cell never has transparent background
 				else
@@ -575,7 +578,7 @@ id __buttonCellClass = nil;
 		case NSTexturedRoundBezelStyle:
 			{
 				if(stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask))
-					[[NSColor controlDarkShadowColor] setFill];
+					[[NSColor controlShadowColor] setFill];
 				else if(!backgroundColor)
 					[[NSColor controlHighlightColor] setFill]; // bordered cell never has transparent background
 				else
@@ -827,14 +830,14 @@ id __buttonCellClass = nil;
 #if 0
 		NSLog(@"%@ controlSize=%d", self, [self controlSize]);
 #endif
-		// the encoding is quite weired
+		// the encoding is quite weird
 		// stateby mapping
 		//		bit 0 <-> bit 30
-		//		bit 1 <-> ?
+		//		bit 1 <- always 0
 		//		bit 2,3 <-> bit 28,29
 #define STATEBY (((buttonflags&(1<<30))>>(30-0))+((buttonflags&(3<<28))>>(28-2)))
 		_stateMask=STATEBY;
-		// stateby mapping
+		// highlightsby mapping
 		//		bit 0 <-> bit 27
 		//		bit 1 <-> bit 31
 		//		bit 2,3 <-> bit 25,26

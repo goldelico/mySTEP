@@ -39,8 +39,6 @@
 	float _horizontalPageScroll;
 	float _verticalLineScroll;
 	float _verticalPageScroll;
-	float _lineScroll;
-	float _pageScroll;
 	NSBorderType _borderType;
 	// FIXME: should be collected into a bitfield struct
 	BOOL _hasHorizScroller;

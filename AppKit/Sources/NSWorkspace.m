@@ -404,7 +404,7 @@ static BOOL __fileSystemChanged = NO;
 		arp=[NSAutoreleasePool new];
 		[de skipDescendents];		// don't search/find embedded applications! (why or why not?)
 		dp=[fp stringByAppendingPathComponent:dp];	// make absolute path
-#if 1
+#if 0
 		NSLog(@"candidate: %@", dp);
 #endif
 		[self addApplicationAtPath:dp];
@@ -1134,14 +1134,14 @@ static BOOL __fileSystemChanged = NO;
 #endif
 			i=[[[NSImage alloc] initByReferencingFile:icon] autorelease];
 			if(i)
-				return i;	// was able to loaded
+				return i;	// was able to load
 			}
 		}
 	if([fm fileExistsAtPath:fullPath isDirectory:&is_dir])
 		{
 		i=[self iconForFileType:[fullPath pathExtension]];	// try on extension
 #if 0
-		NSLog(@"iconForFileType:%@=%@", [fullPath pathExtension], icon);
+		NSLog(@"iconForFileType:%@=%@", [fullPath pathExtension], i);
 #endif
 		if(i)
 			return i;	// found
@@ -1206,11 +1206,22 @@ static BOOL __fileSystemChanged = NO;
 - (NSImage *) iconForFileType:(NSString *) fileType
 {
 	NSString *path;
+	NSEnumerator *e;
+	NSDictionary *a;
+#if 0
+	NSLog(@"iconForFileType %@", fileType);
+#endif
 	if(!fileType)
 		return nil;
 	if(!__launchServices)
 		[QSLaunchServices sharedLaunchServices];
-	path=[[__launchServices preferredIdentForExtension:fileType] objectForKey:@"CFBundleTypeIconPath"];	// look up icon path for known file extensions
+	e=[[__launchServices identsForExtension:fileType] objectEnumerator];
+	while((a=[e nextObject]))
+		{ // locate first app with an icon for this extension
+		path=[a objectForKey:@"CFBundleTypeIconPath"];	// look up icon path for known file extensions
+		if(path)
+			break;	// app has defined an icon
+		}
 #if 0
 	NSLog(@"%@ has iconFile %@", fileType, path);
 #endif

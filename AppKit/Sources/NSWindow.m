@@ -99,6 +99,7 @@ static BOOL __cursorHidden = NO;
 - (void) setToolbar:(NSToolbar *) toolbar;
 - (BOOL) showsToolbarButton;
 - (void) setShowsToolbarButton:(BOOL) flag;
+- (void) _setTexturedBackground:(BOOL)flag;
 
 @end
 

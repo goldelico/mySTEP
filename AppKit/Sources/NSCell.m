@@ -63,6 +63,7 @@ static NSCursor *__textCursor = nil;
 	if((self=[super init]))
 		{
 		_c.enabled = YES;
+		[self sendActionOn:NSLeftMouseUpMask];
 		ASSIGN(_menu, [isa defaultMenu]);	// set default context menu
 		[self setImage:anImage];	// makes us an NSImageCell
 		}
@@ -83,6 +84,7 @@ static NSCursor *__textCursor = nil;
 		_c.enabled = YES;
 		_c.alignment = NSCenterTextAlignment;
 		_c.floatAutorange = YES;
+		[self sendActionOn:NSLeftMouseUpMask];
 		ASSIGN(_menu, [isa defaultMenu]);	// set default context menu
 		_c.type = NSNullCellType;		// force initialization as NSTextCellType (incl. font & textColor)
 		[self setType:NSTextCellType];	// make us a text cell which should assign default font and color
@@ -262,6 +264,14 @@ static NSCursor *__textCursor = nil;
 - (void) setMenu:(NSMenu *)menu				{ ASSIGN(_menu, menu); }
 - (void) setTitleWithMnemonic:(NSString *)aString; { [self setTitle:aString]; }
 - (id) objectValue							{ return _contents; }
+
+- (NSMenu *) menuForEvent:(NSEvent *) event inRect:(NSRect) rect ofView:(NSView *) view
+{
+	NSMenu *m=[self menu];	// if we have an individual menu
+	if(!m)
+		m=[view menuForEvent:event];
+	return m;
+}
 
 - (NSString *) stringValue;
 { // try to format as NSString
@@ -799,13 +809,13 @@ static NSCursor *__textCursor = nil;
 
 	previousMask |= _c.continuous ? NSPeriodicMask : 0;
 	previousMask |= _c.actOnMouseDown ? NSLeftMouseDownMask : 0;
-	previousMask |= _c.dontActOnMouseUp ? 0 : NSLeftMouseUpMask;
+	previousMask |= _c.actOnMouseUp ? NSLeftMouseUpMask : 0;
 	previousMask |= _c.actOnMouseDragged ? NSLeftMouseDraggedMask : 0;
 
-	_c.continuous = (mask & NSPeriodicMask);
-	_c.actOnMouseDown = (mask & NSLeftMouseDownMask);
-	_c.actOnMouseDragged = (mask & NSLeftMouseDraggedMask);
-	_c.dontActOnMouseUp = !(mask & NSLeftMouseUpMask);
+	_c.continuous = (mask & NSPeriodicMask) != 0;
+	_c.actOnMouseDown = (mask & NSLeftMouseDownMask) != 0;
+	_c.actOnMouseDragged = (mask & NSLeftMouseDraggedMask) != 0;
+	_c.actOnMouseUp = (mask & NSLeftMouseUpMask) != 0;
 
 	return previousMask;
 }
@@ -911,19 +921,19 @@ static NSCursor *__textCursor = nil;
 	   untilMouseUp:(BOOL)untilMouseUp
 {
 	NSPoint point=[controlView convertPoint:[event locationInWindow] fromView:nil];
+	NSPoint first_point=point;
 	NSPoint last_point=point;
 	id target = [self target];
 	SEL action = [self action];
-	NSMenu *contextMenu=[controlView menu];	// if we have a context menu, pop it up after approx. 0.5 seconds without movement
+	// FIXME: shouldn't we use [controlView menuForEvent:event]; and have that overriden in NSControl/NSMatrix (but not NSTableView!)
+	NSMenu *contextMenu=[self menuForEvent:event inRect:cellFrame ofView:controlView];	// if we have a context menu, pop it up after approx. 0.5 seconds without movement
 	NSDate *expiration;
 	// FIXME: mask should probably depend on which mouse went down in event!
 	unsigned int mask = NSLeftMouseDraggedMask | NSRightMouseDraggedMask | NSLeftMouseDownMask | NSMouseMovedMask | NSLeftMouseUpMask;
 	NSEvent *mousedown=event;
 	BOOL mouseWentUp = NO;
 	BOOL tracking;
-	if(_c.actOnMouseDown && action)
-		[(NSControl*)controlView sendAction:action to:target];	
-	if(_c.continuous)	// (sub)cell class wants tracking
+	if(_c.continuous)	// (sub)cell class wants periodic tracking
 		{ // enable periodic events
 		float delay, interval;
 		[self getPeriodicDelay:&delay interval:&interval];
@@ -931,6 +941,8 @@ static NSCursor *__textCursor = nil;
 		mask |= NSPeriodicMask;
 		}
 	tracking=[self startTrackingAt:point inView:controlView];
+	if(_c.actOnMouseDown && action)
+		[(NSControl*)controlView sendAction:action to:target];	// do this after starttracking (which may update the cell)
 	if(contextMenu)	// setup a timeout that tracks that the cursor is not moved and pops up the context menu
 		{
 #if 0
@@ -990,9 +1002,10 @@ static NSCursor *__textCursor = nil;
 				}
 			case NSLeftMouseDragged:
 				{ // pointer has moved
-					expiration=[NSDate distantFuture];	// if pointer has been moved, disable context menu
 					last_point=point;
 					point = [controlView convertPoint:[event locationInWindow] fromView:nil];
+					if(fabs(point.x-first_point.x)+fabs(point.y-first_point.y) > 5.0)
+					   expiration=[NSDate distantFuture];	// if pointer has been moved too far, disable context menu detection
 #if 1
 					NSLog(@"NSCell trackMouse: pointIsInCell=%@", [controlView mouse:point inRect:cellFrame]?@"YES":@"NO");
 #endif
@@ -1019,7 +1032,7 @@ static NSCursor *__textCursor = nil;
 					at:point
 				inView:controlView
 			 mouseIsUp:mouseWentUp];
-	if(!(_c.dontActOnMouseUp) && action && mouseWentUp)
+	if(_c.actOnMouseUp && action && mouseWentUp)
 		[(NSControl*)controlView sendAction:action to:target];
 	return mouseWentUp;
 }													
@@ -1094,7 +1107,7 @@ static NSCursor *__textCursor = nil;
 #define LOADED ((cellflags&0x00000080)!=0)
 		_d.isLoaded=LOADED;
 #define ACTUP ((cellflags&0x00000020)==0)
-		_c.dontActOnMouseUp=!ACTUP;
+		_c.actOnMouseUp=ACTUP;
 #define SHOWSFIRSTRESPONDER ((cellflags&0x00000004)!=0)
 		_c.showsFirstResponder=SHOWSFIRSTRESPONDER;
 #define FOCUSRINGTYPE ((cellflags&0x00000003)>>0)

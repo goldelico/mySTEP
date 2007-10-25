@@ -303,8 +303,10 @@ static Class __controlCellClass = Nil;
 - (int) sendActionOn:(int)msk				{ return [(NSCell *) _cell sendActionOn:msk];}
 - (SEL) action								{ return [_cell action]; }
 - (void) setAction:(SEL)aSelector			{ [_cell setAction:aSelector]; }
-- (void) setTarget:(id)anObject				{ [_cell setTarget:anObject]; }
 - (id) target								{ return [_cell target]; }
+- (void) setTarget:(id)anObject				{ [_cell setTarget:anObject]; }
+- (NSMenu *) menu							{ return [_cell menu]; }
+- (void) setMenu:(NSMenu *)menu				{ [_cell setMenu:menu]; }
 - (BOOL) refusesFirstResponder;				{ return _refusesFirstResponder; }
 - (void) setRefusesFirstResponder:(BOOL)flag; { _refusesFirstResponder=flag; }
 - (BOOL) acceptFirstResponder;				{ return !_refusesFirstResponder; }

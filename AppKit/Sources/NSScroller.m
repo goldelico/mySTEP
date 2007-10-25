@@ -45,16 +45,16 @@ static void GSPrecalculateScroller(NSRect slotRect, NSRect knobRect, BOOL isHori
 {															
 	if (isHorizontal)
 		{
-		__halfKnobWidth = knobRect.size.width / 2;
-		__leftOfKnob = slotRect.origin.x + __halfKnobWidth;
+		__halfKnobWidth = NSWidth(knobRect) / 2;
+		__leftOfKnob = NSMinX(slotRect) + __halfKnobWidth;
 		__rightOfKnob = NSMaxX(slotRect) - __halfKnobWidth;
-		__slotWidthMinusKnobWidth = slotRect.size.width - knobRect.size.width;
+		__slotWidthMinusKnobWidth = NSWidth(slotRect) - NSWidth(knobRect);
 		}
 	else
 		{
-		__halfKnobHeight = knobRect.size.height / 2;
-		__bottomOfKnob = slotRect.origin.y + __halfKnobHeight;
-		__topOfKnob = NSMaxY(slotRect) - __halfKnobHeight;
+		__halfKnobHeight = NSHeight(knobRect) / 2;
+		__topOfKnob = NSMinY(slotRect) + __halfKnobHeight;
+		__bottomOfKnob = NSMaxY(slotRect) - __halfKnobHeight;
 		__slotHeightMinusKnobHeight = NSHeight(slotRect) - NSHeight(knobRect);
 		}
 }
@@ -69,9 +69,8 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 		}
 	else
 		{
-		p = MIN(MAX(point.y, __bottomOfKnob), __topOfKnob);
-		p = (p - __bottomOfKnob) / __slotHeightMinusKnobHeight;
-		p = 1 - p;
+		p = MIN(MAX(point.y, __topOfKnob), __bottomOfKnob);
+		p = (p - __topOfKnob) / __slotHeightMinusKnobHeight;
 		}
 	return p;
 }
@@ -95,7 +94,7 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 
 + (float) scrollerWidth
 {
-	return 18.0;
+	return 18.0;	// system constant
 }
 
 + (float) scrollerWidthForControlSize:(NSControlSize) size;
@@ -117,9 +116,11 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 #endif
 	if((self=[super initWithFrame:frameRect]))
 		{
+		_isEnabled=YES;
 		_isHorizontal = frameRect.size.width > frameRect.size.height;
 		_arrowsPosition=_isHorizontal?NSScrollerArrowsMinEnd:NSScrollerArrowsMaxEnd;
 		_hitPart = NSScrollerNoPart;
+		_knobProportion = 0.3;
 		[self drawParts];
 		[self checkSpaceForParts];
 		}
@@ -385,7 +386,7 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 		
 		case NSScrollerKnobSlot: 
 			{
-				// FIXME - we should generate page up/down events and move the knob in steps
+#if 1	// click positions the scroller absolute
 			
 			NSRect knobRect = [self rectForPart: NSScrollerKnob];
 			NSRect slotRect = [self rectForPart: NSScrollerKnobSlot];
@@ -395,8 +396,10 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 			GSPrecalculateScroller(slotRect, knobRect, _isHorizontal);
 			[self setFloatValue: GSConvertScrollerPoint(p, _isHorizontal)];
 			[self sendAction:_action to:_target];
-			[self setNeedsDisplayInRect:slotRect];
 			[self trackKnob:event];
+#else
+			// FIXME - we should generate (repeating) page up/down events to move the knob in steps until we hit the knob directly
+#endif
 			break;
 			}
 	
@@ -511,7 +514,10 @@ static float GSConvertScrollerPoint(NSPoint point, BOOL isHorizontal)
 {
 	NSDebugLog (@"NSScroller drawRect: ((%f, %f), (%f, %f))",
 			rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-	NSFrameRect(rect);	// border box
+//	[[NSColor lightGrayColor] set];
+//	NSRectFill(bounds);	// draw border box
+	[[NSColor whiteColor] set];
+	NSRectFill(rect);	// draw background
 	[self drawArrow:NSScrollerDecrementArrow highlight:NO];	
 	[self drawArrow:NSScrollerIncrementArrow highlight:NO];	
 	[self drawKnob];
