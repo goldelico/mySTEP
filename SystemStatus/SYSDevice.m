@@ -9,6 +9,7 @@
  */ 
 
 #import <SystemStatus/SYSDevice.h>
+#import <SystemStatus/NSSystemStatus.h>
 
 /*
   running /sbin/cardctl 0 status/ident/config is better than using ioctl() although slower it is accessible from

@@ -31,6 +31,10 @@
 		<string>echo "0" &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
 		<key>Bluetooth On</key>
 		<string>echo "1" &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
+		<key>Bluetooth Status</key>
+		<string>hciconfig</string>
+		<key>GSM Commands</key>
+		<dict/>
 		<key>GSM Off</key>
 		<string>echo "0" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
 		<key>GSM On</key>
@@ -94,7 +98,7 @@
 	<dict>
 		<key> Notes</key>
 		<string>deprecated entries are: cardctl, PCMCIA, </string>
-		<key>GPRS</key>
+		<key>GSM Commands</key>
 		<dict>
 			<key>DIAL_DATA</key>
 			<string>at d "%@"</string>
@@ -117,6 +121,8 @@
 		<string>cardctl 0 suspend</string>
 		<key>GSM On</key>
 		<string>cardctl 0 resume</string>
+		<key>GSM Resumed</key>
+		<string>/sbin/setserial %@ uart 16550a</string>
 		<key>IrDA Discovery</key>
 		<string>cat /proc/net/irda/discovery</string>
 		<key>IrDA Off</key>
