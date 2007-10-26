@@ -156,23 +156,20 @@ static int intValue(NSString *str)
 	SYSDevice *card;
 	NSNotificationCenter *n=[NSNotificationCenter defaultCenter];
 	[self deviceList];   // initialize if required
-	if(system("[ -r /var/lib/pcmcia/stab ] && [ -x /sbin/cardctl ]") != 0)
-		{ // can't read
-		NSLog(@"can't read /var/lib/pcmcia/stab or execute /sbin/cardctl");
+	if(![NSSystemStatus sysInfoForKey:@"PCMCIA Discovery"])
+		{ // not available
+		NSLog(@"Device does not support PCMCIA cards");
 		[self updateDeviceList:NO];	// don't update any more
 		return;	// don't try again
 		}
-	// pipe everything we can find out to the FILE * - we will fiddle out by detecting the format
-#if 0
-	stab=popen("echo 'cat /var/lib/pcmcia/stab && /sbin/cardctl ident && /sbin/cardctl status && /sbin/cardctl config'", "r");  // open subprocess
-#else
-	stab=popen("cat /var/lib/pcmcia/stab && /sbin/cardctl ident && /sbin/cardctl status && /sbin/cardctl config", "r");  // open subprocess
-#endif
+	// pipe everything we can find into a single FILE * - we will fiddle out by detecting the format
+	stab=popen([[NSSystemStatus sysInfoForKey:@"PCMCIA Discovery"] cString], "r");  // open subprocess
 	if(!stab)
 		{ // can't read
 		NSLog(@"can't read device status");
 		return;
 		}
+	// FIXME: ignore PCMCIA slot defined in [NSSystemStatus sysInfoForKey:@"PCMCIA Exclude"], e.g. Microdrive slot of Sharp Zaurus C3x00
 	while(fgets(line, sizeof(line)-1, stab))
 		{
 		char *c0, *c1, *c;
@@ -364,7 +361,6 @@ static int intValue(NSString *str)
 			;;	// ignore exceptions
 		NS_ENDHANDLER
 		}
-//	[self performSelector:_cmd withObject:nil afterDelay:3.7];	// and finally try to update approx. every 4 seconds
 }
 
 #define OBSERVE_(o, notif_name) \
@@ -491,6 +487,7 @@ static int observers;
 {
 	NSString *c;
 	// FIXME: get card command from our device description database
+	// e.g. [NSSystemStatus sysInfoForKey:@"PCMCIA Control"]
 	if([[self deviceType] isEqualToString:@"PCMCIA"])
 		c=[NSString stringWithFormat:@"/sbin/cardctl %@ %@", cmd, [deviceInfo objectForKey:@"socket"]];
 	else if([[self deviceType] isEqualToString:@"SD"])
