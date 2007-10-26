@@ -1959,7 +1959,6 @@ NSEvent *e = (NSEvent *)[sender userInfo];
 			[__toolTipWindow setWorksWhenModal:YES];
 			[__toolTipWindow setBackgroundColor:y];
 			v = [__toolTipWindow contentView];
-			v->_v.interfaceStyle = YES;
 			[v addSubview:__toolTipText];
 			}
 

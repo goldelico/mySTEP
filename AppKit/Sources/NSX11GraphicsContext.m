@@ -2743,7 +2743,8 @@ static NSDictionary *_x11settings;
 						if(_isDoubleBuffered(ctxt))
 							{ // copy from backing store
 							_setDirtyRect(ctxt, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);	// flush at least the exposed area
-							[ctxt flushGraphics];	// plus anything we need to flush anyway
+							// FIXME: we should set up a timer or so to handle multiple expose events with a single flush!
+							[ctxt flushGraphics];	// plus anything else we need to flush anyway
 							}
 						else
 							{ // queue up an expose event

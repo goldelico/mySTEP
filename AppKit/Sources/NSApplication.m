@@ -573,17 +573,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 			NSLog(@"Cannot load the main model file '%@'", mainModelFile);
 		}
 	if(![self mainMenu])
-		[self setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// did not load
-	if([[self mainMenu] numberOfItems] == 0)
-		[[self mainMenu] addItemWithTitle:@"" action:NULL keyEquivalent:@""];	// empty main menu
-	if([[[[self mainMenu] itemAtIndex:0] title] length] == 0)
-		{ // application menu title is empty - substitute from bundle
-		NSString *applicationName=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
-		if(!applicationName)
-			applicationName=[[NSProcessInfo processInfo] processName];	// replacement
-		if(applicationName)
-			[[[self mainMenu] itemAtIndex:0] setTitle:applicationName];	// insert application name
-		}
+		[self setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// did not load from a NIB
 	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];
 	[self activateIgnoringOtherApps:NO];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
@@ -1565,7 +1555,10 @@ NSWindow *w;
 	return;	// NIMP
 }
 
-- (void) setMenu:(NSMenu *)aMenu	{ [self setMainMenu:aMenu]; }	// override NSResponder's implementation
+- (void) setMenu:(NSMenu *)aMenu
+{
+	[self setMainMenu:aMenu];
+}	// override NSResponder's implementation
 
 - (NSWindow *) _mainMenuWindow; { return _mainMenuWindow; }
 
@@ -1575,7 +1568,17 @@ NSWindow *w;
 #if 0
 	NSLog(@"NSApplication setMainMenu=%@", [aMenu _longDescription]);
 #endif
-	[super setMenu:aMenu];	// NSResponder
+	if([aMenu numberOfItems] == 0)
+		[aMenu addItemWithTitle:@"" action:NULL keyEquivalent:@""];	// create at least one entry in main menu
+	if([[[aMenu itemAtIndex:0] title] length] == 0)
+		{ // application menu title is empty - substitute from bundle
+		NSString *applicationName=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+		if(!applicationName)
+			applicationName=[[NSProcessInfo processInfo] processName];	// replacement
+		if(applicationName)
+			[[aMenu itemAtIndex:0] setTitle:applicationName];	// insert application name
+		}
+	[super setMenu:aMenu];	// store through NSResponder's setter
 #if 0
 	NSLog(@"setMainMenu - infoDict: %@", [[NSBundle mainBundle] infoDictionary]);
 #endif

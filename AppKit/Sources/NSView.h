@@ -86,7 +86,6 @@ enum {		// of a view which are resized when the view's superview is resized
 		unsigned int autoSizeSubviews:1;
 		unsigned int autoresizingMask:6;
 		unsigned int hasToolTip:1;
-		unsigned int interfaceStyle:1;
 		unsigned int _focusRingType:2;
 		unsigned int hidden:1;
 		unsigned int preservesContentDuringLiveResize:1;

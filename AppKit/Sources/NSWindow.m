@@ -153,11 +153,9 @@ static BOOL __cursorHidden = NO;
 			[self addSubview:b0=[NSWindow standardWindowButton:NSWindowCloseButton forStyleMask:aStyle]];
 			[self addSubview:b1=[NSWindow standardWindowButton:NSWindowMiniaturizeButton forStyleMask:aStyle]];
 			[self addSubview:b2=[NSWindow standardWindowButton:NSWindowZoomButton forStyleMask:aStyle]];
-#if 0
 			if([self interfaceStyle] >= NSPDAInterfaceStyle)
 				[b1 setHidden:YES], [b2 setHidden:YES];	// standard PDA screen is not large enough for multiple resizable windows
 			else
-#endif	
 			if((aStyle & (NSClosableWindowMask | NSMiniaturizableWindowMask| NSResizableWindowMask)) == 0)
 				{ // no visible buttons!
 				[b0 setHidden:YES], [b1 setHidden:YES], [b2 setHidden:YES];
@@ -235,20 +233,20 @@ static BOOL __cursorHidden = NO;
 
 - (void) unlockFocus;
 { // last chance to draw anything - note that we start with the graphics state left over by the previous operations
-	if((_style & NSResizableWindowMask) != 0)
+	if((_style & NSResizableWindowMask) != 0 && !([self interfaceStyle] >= NSPDAInterfaceStyle))
 		{ // draw resizing handle in the lower right corner
-#if 1		// FIXME: does this collide with changing the CTM by subviews?
 		[NSGraphicsContext setGraphicsState:[window gState]];
 		[[NSBezierPath bezierPathWithRect:bounds] setClip];
 		[[NSColor grayColor] set];
-//		[[NSColor redColor] set];
+#if 0
+		[[NSColor redColor] set];
+#endif
 		[NSBezierPath strokeLineFromPoint:NSMakePoint(bounds.size.width-2, bounds.size.height-8)
 															toPoint:NSMakePoint(bounds.size.width-8, bounds.size.height-2)];
 		[NSBezierPath strokeLineFromPoint:NSMakePoint(bounds.size.width-2, bounds.size.height-11)
 															toPoint:NSMakePoint(bounds.size.width-11, bounds.size.height-2)];
 		[NSBezierPath strokeLineFromPoint:NSMakePoint(bounds.size.width-2, bounds.size.height-14)
 															toPoint:NSMakePoint(bounds.size.width-14, bounds.size.height-2)];
-#endif
 		}
 	[super unlockFocus];
 }
@@ -484,15 +482,11 @@ static BOOL __cursorHidden = NO;
 {
 	if((self=[super initWithFrame:f]))
 		{
-// FIXME: this might require a _NSWidgetCell
-		// set/modify style for 'textured'
 		[self setButtonType:NSMomentaryChangeButton];	// toggle images
 		[_cell setAlignment:NSCenterTextAlignment];
 		[_cell setImagePosition:NSImageOverlaps];
 		[_cell setBordered:NO];	// no bezel
-		// [self setBezelStyle:NSCircularBezelStyle];
 		[_cell setFont:[NSFont titleBarFontOfSize:0]];
-//		ASSIGN(_cell->_textColor, [NSColor windowFrameTextColor]);
 		}
 	return self;
 }
@@ -635,7 +629,7 @@ static BOOL __cursorHidden = NO;
 	if((self=[super init]))
 		{
 		_context=[[NSGraphicsContext graphicsContextWithGraphicsPort:ref flipped:YES] retain];
-		frame=[_context _frame];	// get frame from window
+		[self _setFrame:[_context _frame]];	// get frame from existing window
 		_w.isOneShot=NO;
 		// FIXME: anything else to init?
 		}
@@ -648,14 +642,14 @@ static BOOL __cursorHidden = NO;
 #if 0
 	NSLog(@"%@ _screenParametersNotification: %@", NSStringFromClass([self class]), notification);
 #endif
+	if(notification)
+		; // FIXME: we might have to rearrange menu bars! - better solutions: menu bars separately register for this notification
 	if((_w.styleMask&GSAllWindowMask) == NSBorderlessWindowMask)
-		// FIXME: we still might have to rearrange menus!
 		return;	// don't touch borderless windows (e.g. menus)
-	f=[self constrainFrameRect:frame toScreen:_screen];		// default: constrain to screen
 	if((_w.styleMask & NSResizableWindowMask) && [self interfaceStyle] >= NSPDAInterfaceStyle)
-		{ // this is a special procedure for PDA screens
-		f=[_screen visibleFrame];	// resize to full screen
-		}
+		f=[_screen visibleFrame];	// resize to full screen for PDA styles
+	else
+		f=[self constrainFrameRect:frame toScreen:_screen];		// default: constrain to screen
 #if 0
 	NSLog(@"frame=%@", NSStringFromRect(frame));
 #endif
@@ -2135,7 +2129,6 @@ id prev;
 			[b setAction:@selector(_close:)];
 			[b setEnabled:(aStyle&NSClosableWindowMask) != 0];
 			[b setImage:[NSImage imageNamed:@"NSWindowCloseButton"]];
-//			[[b cell] setBackgroundColor:[NSColor redColor]];
 			[b setTitle:@"x"];
 			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 			break;

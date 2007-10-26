@@ -1205,7 +1205,7 @@ static BOOL __fileSystemChanged = NO;
 
 - (NSImage *) iconForFileType:(NSString *) fileType
 {
-	NSString *path;
+	NSString *path=nil;
 	NSEnumerator *e;
 	NSDictionary *a;
 #if 0
@@ -1226,9 +1226,7 @@ static BOOL __fileSystemChanged = NO;
 	NSLog(@"%@ has iconFile %@", fileType, path);
 #endif
 	if([path length] > 0)	// string is not nil and not empty
-		{
 		return [[[NSImage alloc] initByReferencingFile:path] autorelease];	// database knows about this file type (path extension)
-		}
 	return nil;	// unknown
 }
 
