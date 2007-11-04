@@ -459,7 +459,7 @@ static Class __rulerViewClass = nil;
 			}
 		}
 	[_contentView setFrame:contentRect];
-	[_contentView setNeedsDisplay:YES];
+	[_contentView setNeedsDisplay:YES];	// mark as dirty
 	if(_hasHorizScroller && _horizScroller)
 		{
 		[_horizScroller setFrame:horizScrollerRect];

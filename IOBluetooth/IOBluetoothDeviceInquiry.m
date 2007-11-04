@@ -101,6 +101,7 @@
 
 - (IOReturn) start; 
 {
+	// FIXME - we should better do an "hcitool inq" and a separate "hcitool name" (this is sufficient for the IOBluetoothDeviceInquiry API)
 	NSString *cmd;
 	if(_task)
 		return kIOReturnError;	// already running

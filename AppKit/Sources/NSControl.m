@@ -240,7 +240,7 @@ static Class __controlCellClass = Nil;
 
 - (void) drawRect:(NSRect)rect
 {
-	[_cell drawWithFrame:bounds inView:self]; 
+	[_cell drawWithFrame:(NSRect){NSZeroPoint, bounds.size} inView:self]; 
 }
 
 - (void) drawCell:(NSCell*)aCell

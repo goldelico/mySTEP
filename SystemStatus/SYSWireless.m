@@ -1,5 +1,6 @@
 /* 
  Wireless card (GPRS/WLAN) driver.
+ or optionally a Bluetooth connection to a GPRS modem
  
  Copyright (C)	H. Nikolaus Schaller <hns@computer.org>
  Date:			2004

@@ -14,6 +14,7 @@
 #define _mySTEP_H_SYSLocationStatus
 
 #import <AppKit/AppKit.h>
+
 @class SYSDevice;
 
 extern NSString *SYSLocationInsertedNotification;		// device was inserted
@@ -78,7 +79,7 @@ typedef struct GeoMovement
 #define GeoLocationCountry		@"Country"		// Germany - Great Britain - USA
 #define GeoLocationState		@"State"		// Bavaria - England - Michigan
 #define GeoLocationRegion		@"Region"		// Oberbayern - % - (South East)
-#define GeoLocationDistrict		@"District"		// Landkreis MÃ¼nchen - City of London - Wayne County
+#define GeoLocationDistrict		@"District"		// Landkreis MŸnchen - City of London - Wayne County
 #define GeoLocationCity			@"City"			// Oberhaching - London - Dearborn
 #define GeoLocationVillage		@"Village"		// Deisenhofen - Notting Hill - %
 #define GeoLocationZIP			@"ZIP"			// 82041 - W11 - 48124
@@ -88,8 +89,8 @@ typedef struct GeoMovement
 #define GeoLocationDistance		@"Distance"		// NSNumber with distance to point originally asked for
 
 - (NSDictionary *) geoDataForLocation:(GeoLocation) location;			// ask Geodatabase for nearest geo-location
-- (GeoLocation) geoLocationForData:(NSDictionary *) pattern;			// search for location
-- (double) distanceBetween:(GeoLocation) loc1 and:(GeoLocation) loc2;	// distance in meter
+- (GeoLocation) geoLocationForData:(NSDictionary *) pattern;			// search for nearest known location
+- (double) distanceBetween:(GeoLocation) loc1 and:(GeoLocation) loc2;	// distance in meter on earth surface
 - (float) routeBetween:(GeoLocation) loc1 and:(GeoLocation) loc2;		// north-pointing angle for navigation
 
 @end

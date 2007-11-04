@@ -551,6 +551,10 @@ const char *s, *d;
 - (NSDictionary*) fileSystemAttributesAtPath:(NSString*)path
 {
 	const char *cpath = [self fileSystemRepresentationWithPath: path];
+	struct stat statbuf;
+#if HAS_STATFS
+	struct statfs statfsbuf;
+#endif
 	long long totalsize=0, freesize=0;
 	id keys[5] = {
 		NSFileSystemSize,
@@ -564,60 +568,25 @@ const char *s, *d;
 	NSLog(@"fileSystemAttributesAtPath:%s", cpath);
 #endif
 	
-#if defined(__WIN32__) || defined(_WIN32)
-	DWORD SectorsPerCluster, BytesPerSector, NumberFreeClusters;
-	DWORD TotalNumberClusters;
 	
-    if (!GetDiskFreeSpace(cpath, &SectorsPerCluster, &BytesPerSector, 
-						  &NumberFreeClusters, &TotalNumberClusters))
+	if (!cpath || stat(cpath, &statbuf) != 0)
+		{
+#if 1
+		NSLog(@"fileSystemAttributesAtPath: can't stat %s", cpath);
+#endif
+		return nil;
+		}
+#if HAS_STATFS
+	if (statfs(cpath, &statfsbuf) != 0)
 		return nil;
 	
-    totalsize = TotalNumberClusters * SectorsPerCluster * BytesPerSector;
-    freesize = NumberFreeClusters * SectorsPerCluster * BytesPerSector;
-    
-    values[2] = [NSNumber numberWithLong: LONG_MAX];
-    values[3] = [NSNumber numberWithLong: LONG_MAX];
-    values[4] = [NSNumber numberWithUnsignedInt: 0];
-#else
+	totalsize = statfsbuf.f_bsize * statfsbuf.f_blocks;
+	freesize = statfsbuf.f_bsize * statfsbuf.f_bavail;
 	
-#if HAVE_SYS_VFS_H || HAVE_SYS_STATFS_H
-	{
-		struct stat statbuf;
-		
-#if HAVE_STATVFS
-		struct statvfs statfsbuf;
-#else
-		struct statfs statfsbuf;
+	values[2] = [NSNumber numberWithLong: statfsbuf.f_files];
+	values[3] = [NSNumber numberWithLong: statfsbuf.f_ffree];
+	values[4] = [NSNumber numberWithUnsignedInt: statbuf.st_dev];
 #endif
-		
-		if (!cpath || stat(cpath, &statbuf) != 0)
-			{
-#if 1
-			NSLog(@"fileSystemAttributesAtPath: can't stat %s", cpath);
-#endif
-			return nil;
-			}
-		
-#if HAVE_STATVFS
-		if (statvfs(cpath, &statfsbuf) != 0)
-			return nil;
-#else
-		if (statfs(cpath, &statfsbuf) != 0)
-			return nil;
-#endif
-		
-		totalsize = statfsbuf.f_bsize * statfsbuf.f_blocks;
-		freesize = statfsbuf.f_bsize * statfsbuf.f_bavail;
-		
-		values[2] = [NSNumber numberWithLong: statfsbuf.f_files];
-		values[3] = [NSNumber numberWithLong: statfsbuf.f_ffree];
-		values[4] = [NSNumber numberWithUnsignedInt: statbuf.st_dev];
-	}
-    
-#else	// no statfs
-    return nil;
-#endif
-#endif /* WIN32 */
 	
     values[0] = [NSNumber numberWithLongLong: totalsize];
     values[1] = [NSNumber numberWithLongLong: freesize];
@@ -789,12 +758,12 @@ const char *npath = [self fileSystemRepresentationWithPath:otherPath];
 			NSProcessInfo *pi = [NSProcessInfo processInfo];
 			virtualRoot = [[[pi environment] objectForKey:@"QuantumSTEP"] retain];
 			if(!virtualRoot)
-				virtualRoot=@"/home/myPDA";		// default
+				virtualRoot=@"/usr/share/QuantumSTEP";		// default
 #if 0
 			NSLog(@"virtualRoot=%@", virtualRoot);
 #endif
 			}		   
-		if(![path hasPrefix:@"/dev"] && ![path hasPrefix:@"/proc"] && ![path hasPrefix:@"/tmp"])	// we could also check for upper/lower case?
+		if(![path hasPrefix:@"/dev"] && ![path hasPrefix:@"/proc"] && ![path hasPrefix:@"/tmp"] && ![path hasPrefix:@"/bin"])	// we could also check for upper/lower case?
 			path=[virtualRoot stringByAppendingString:path]; // virtually do a chroot("/home/myPDA")
 		}
 #if 0
@@ -809,7 +778,7 @@ const char *npath = [self fileSystemRepresentationWithPath:otherPath];
 #if __mySTEP__
 	if(len > 0 && string[0] == '/')
 		{ // absolute path
-		static const char *virtualCRoot;	// with trailing /
+		static char *virtualCRoot;	// with trailing /
 		static int clen;
 		if(!virtualCRoot)
 			{

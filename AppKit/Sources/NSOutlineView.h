@@ -87,48 +87,25 @@ NSOutlineView.h
 	* Informal protocol NSOutlineViewDataSource 
 	 */
 @interface NSObject (NSOutlineViewDataSource)
-- (BOOL)outlineView: (NSOutlineView *)outlineView 
-         acceptDrop: (id <NSDraggingInfo>)info 
-               item: (id)item 
-         childIndex: (int)index;
 
-	// required method
-- (id)outlineView: (NSOutlineView *)outlineView 
-            child: (int)index 
-           ofItem: (id)item;
+- (BOOL) outlineView: (NSOutlineView *)outlineView acceptDrop: (id <NSDraggingInfo>)info item: (id)item childIndex: (int)index;
 
-	// required method
-- (BOOL)outlineView: (NSOutlineView *)outlineView
-   isItemExpandable: (id)item;
+- (id)outlineView: (NSOutlineView *)outlineView child: (int)index ofItem: (id)item;	// required method
+- (BOOL)outlineView: (NSOutlineView *)outlineView isItemExpandable: (id)item;	// required method
+- (id)outlineView: (NSOutlineView *)outlineView itemForPersistentObject:(id)object;	// required method
+- (int)outlineView: (NSOutlineView *)outlineView numberOfChildrenOfItem: (id)item;	// required method
+- (id)outlineView: (NSOutlineView *)outlineView  objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item;	// required method
 
-- (id)outlineView: (NSOutlineView *)outlineView 
-itemForPersistentObject:(id)object;
+- (id) outlineView: (NSOutlineView *)outlineView persistentObjectForItem: (id)item;
 
-	// required method
-- (int)outlineView: (NSOutlineView *)outlineView
-numberOfChildrenOfItem: (id)item;
+- (BOOL) outlineView:(NSOutlineView *)sender isGroupItem:(id)item;
 
-	// required method
-- (id)outlineView: (NSOutlineView *)outlineView 
-objectValueForTableColumn:(NSTableColumn *)tableColumn 
-           byItem:(id)item;
+- (void) outlineView: (NSOutlineView *)outlineView setObjectValue: (id)object forTableColumn: (NSTableColumn *)tableColumn byItem: (id)item;
 
-- (id)outlineView: (NSOutlineView *)outlineView
-persistentObjectForItem: (id)item;
+- (NSDragOperation)outlineView: (NSOutlineView*)outlineView validateDrop: (id <NSDraggingInfo>)info proposedItem: (id)item proposedChildIndex: (int)index;
 
-- (void)outlineView: (NSOutlineView *)outlineView 
-     setObjectValue: (id)object
-     forTableColumn: (NSTableColumn *)tableColumn
-             byItem: (id)item;
+- (BOOL)outlineView: (NSOutlineView *)outlineView writeItems: (NSArray*)items toPasteboard: (NSPasteboard*)pboard;
 
-- (NSDragOperation)outlineView: (NSOutlineView*)outlineView 
-                  validateDrop: (id <NSDraggingInfo>)info 
-                  proposedItem: (id)item 
-            proposedChildIndex: (int)index;
-
-- (BOOL)outlineView: (NSOutlineView *)outlineView 
-         writeItems: (NSArray*)items 
-       toPasteboard: (NSPasteboard*)pboard;
 @end
 
 /*

@@ -1,5 +1,8 @@
 /* 
-GPS driver.
+ GPS driver for PCMCIA/CF GPS receiver
+ or optionally a Bluetooth connection to a GPS receiver
+ ?? or USB ??
+ Device must support NMEA183 commands and format
  
  Copyright (C)	H. Nikolaus Schaller <hns@computer.org>
  Date:			2004

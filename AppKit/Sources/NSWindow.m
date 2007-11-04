@@ -342,7 +342,7 @@ static BOOL __cursorHidden = NO;
 		[wb setTarget:window];
 		f=[wb frame];		// button frame
 		wf=[window frame];	// window frame
-		f.origin.x+=wf.size.width-f.size.width;	// flush button to the right end
+		f.origin.x+=wf.size.width-f.size.width;	// flush toolbar button to the right end
 		[wb setFrameOrigin:f.origin];
 		tv=[[NSToolbarView alloc] initWithFrame:(NSRect){{0.0, wf.size.width}, {20.0, 20.0}}];	// as wide as the window
 		[tv setAutoresizingMask:NSViewMaxYMargin|NSViewWidthSizable];
@@ -470,7 +470,7 @@ static BOOL __cursorHidden = NO;
 	[[self contentView] setFrame:[self frame]];	// adjust the content view to the frame
 }
 
-- (void) setToolbar:(NSToolbar *) toolbar; { NIMP; }	// don't save/create
+- (void) setToolbar:(NSToolbar *) toolbar; { NIMP; }	// can't save/create for borderless windows
 
 // - (BOOL) mouseDownCanMoveWindow; { return YES; } but only in titlebar area!
 
@@ -530,6 +530,8 @@ static BOOL __cursorHidden = NO;
 }
 
 - (NSToolbar *) toolbar; { return _toolbar; }
+
+// ADDME: handle mouse-down and tracking etc.
 
 @end
 
@@ -1253,7 +1255,7 @@ static BOOL __cursorHidden = NO;
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];	// collect all drawing temporaries here
 		_w.needsDisplay = NO;	// reset first - display may result in callbacks that will set this flag again
 		[self disableFlushWindow];						// tmp disable of display
-		[_themeFrame displayIfNeeded];					// Draw the window view hierarchy (if changed)
+		[_themeFrame display];							// Draw the window view hierarchy (if changed)
 		[self enableFlushWindow];						// Reenable displaying
 		[self flushWindowIfNeeded];
 		[arp release];
@@ -1262,8 +1264,18 @@ static BOOL __cursorHidden = NO;
 
 - (void) displayIfNeeded
 {
-	if(_w.needsDisplay) 
-		[self display];
+	if(!_w.visible)
+		[self orderFront:nil];	// will call -update when window becomes mapped
+	else
+		{
+		NSAutoreleasePool *arp=[NSAutoreleasePool new];	// collect all drawing temporaries here
+		_w.needsDisplay = NO;	// reset first - display may result in callbacks that will set this flag again
+		[self disableFlushWindow];						// tmp disable of display
+		[_themeFrame displayIfNeeded];					// Draw the window view hierarchy (if changed)
+		[self enableFlushWindow];						// Reenable displaying
+		[self flushWindowIfNeeded];
+		[arp release];
+		}
 }
 
 - (void) update
@@ -1276,7 +1288,7 @@ static BOOL __cursorHidden = NO;
 #if 0
 		NSLog(@"%@ update %@", self, [_themeFrame _descriptionWithSubviews]);
 #endif
-		[self display];
+		[self displayIfNeeded];	// display subviews if needed
     	}
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidUpdateNotification object:self];
 }
@@ -2293,5 +2305,8 @@ id prev;
 
 - (void) setOpaque:(BOOL) flag; { _w.isOpaque=flag; }
 - (BOOL) isOpaque; { return _w.isOpaque; }
+
+- (void) setToolbar:(NSToolbar *) toolbar; { [_themeFrame setToolbar:toolbar]; }
+- (NSToolbar *) toolbar; { return [_themeFrame toolbar]; }
 
 @end /* NSWindow */

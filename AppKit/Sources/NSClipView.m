@@ -276,7 +276,6 @@
 		[_documentView setNeedsDisplay:YES];
 		return;					
 		}
-
 	if(start.origin.y != point.y)		 				// scrolling the y axis	
 		{												
 		if(start.origin.y < point.y)		 			// scroll down document
@@ -414,13 +413,15 @@
 { // limit dirty area to our frame rect
 	// CHECKME: shouldn't we use documentVisibleRect??
 	// shouldn't we transform the size through frame2bounds? to handle flipping/scaling
-	rect=NSIntersectionRect(rect, (NSRect){NSZeroPoint, frame.size});
+//	rect=NSIntersectionRect(rect, (NSRect){NSZeroPoint, frame.size});
+	rect=NSIntersectionRect(rect, [self visibleRect]);
 	[super setNeedsDisplayInRect:rect];
 }
 
 - (void) displayRectIgnoringOpacity:(NSRect) rect inContext:(NSGraphicsContext *) context;
 { // never draw outside our frame rect
-	rect=NSIntersectionRect(rect, (NSRect){NSZeroPoint, frame.size});
+	rect=NSIntersectionRect(rect, [self visibleRect]);
+//	rect=NSIntersectionRect(rect, (NSRect){NSZeroPoint, frame.size});
 	[super displayRectIgnoringOpacity:rect inContext:context];
 }
 
@@ -431,7 +432,7 @@
 		[_backgroundColor set];				
 		NSRectFill(rect);
 		}
-	[NSBezierPath clipRect:[self documentVisibleRect]];	// install clipping before drawing the subview
+//	[NSBezierPath clipRect:[self documentVisibleRect]];	// install clipping before drawing the subview
 }
 
 - (void) encodeWithCoder:(id)aCoder						// NSCoding protocol
