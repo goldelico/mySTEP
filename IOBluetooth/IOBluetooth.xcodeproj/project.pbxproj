@@ -6,39 +6,123 @@
 	objectVersion = 42;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		EEE1771E0CDB214300A85BD3 /* IOBluetooth */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = EEE177280CDB215A00A85BD3 /* Build configuration list for PBXAggregateTarget "IOBluetooth" */;
+			buildPhases = (
+			);
+			dependencies = (
+				EEE177230CDB214900A85BD3 /* PBXTargetDependency */,
+				EEE177250CDB214C00A85BD3 /* PBXTargetDependency */,
+			);
+			name = IOBluetooth;
+			productName = IOBluetooth;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		EE5D9CBD0A556B47000AE53D /* Bluetooth.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5D9CBC0A556B47000AE53D /* Bluetooth.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE5D9CE10A556C5E000AE53D /* BluetoothAssignedNumbers.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5D9CE00A556C5E000AE53D /* BluetoothAssignedNumbers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEA370950953FFEF001244CF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA370940953FFEF001244CF /* Foundation.framework */; };
 		EEA3716B095400F2001244CF /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3716A095400F2001244CF /* AppKit.framework */; };
-		EEE7462C095D6CD800178065 /* IOBluetoothDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE74628095D6CD800178065 /* IOBluetoothDevice.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE169610CD71E5000A85BD3 /* IOBluetoothObject.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE1695F0CD71E5000A85BD3 /* IOBluetoothObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE169620CD71E5000A85BD3 /* IOBluetoothObject.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE169600CD71E5000A85BD3 /* IOBluetoothObject.m */; };
+		EEE169670CD71E8E00A85BD3 /* IOBluetoothL2CAPChannel.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE169650CD71E8E00A85BD3 /* IOBluetoothL2CAPChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE169680CD71E8E00A85BD3 /* IOBluetoothL2CAPChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE169660CD71E8E00A85BD3 /* IOBluetoothL2CAPChannel.m */; };
+		EEE1696D0CD71EBF00A85BD3 /* IOBluetoothRFCOMMChannel.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE1696B0CD71EBF00A85BD3 /* IOBluetoothRFCOMMChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE1696E0CD71EBF00A85BD3 /* IOBluetoothRFCOMMChannel.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE1696C0CD71EBF00A85BD3 /* IOBluetoothRFCOMMChannel.m */; };
+		EEE169730CD71EEE00A85BD3 /* IOBluetoothDeviceInquiry.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE169710CD71EEE00A85BD3 /* IOBluetoothDeviceInquiry.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE169740CD71EEE00A85BD3 /* IOBluetoothDeviceInquiry.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE169720CD71EEE00A85BD3 /* IOBluetoothDeviceInquiry.m */; };
+		EEE169790CD71F0800A85BD3 /* IOBluetoothUserNotification.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE169770CD71F0800A85BD3 /* IOBluetoothUserNotification.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE1697A0CD71F0800A85BD3 /* IOBluetoothUserNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE169780CD71F0800A85BD3 /* IOBluetoothUserNotification.m */; };
+		EEE1697F0CD71F1B00A85BD3 /* IOBluetoothSDPDataElement.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE1697D0CD71F1B00A85BD3 /* IOBluetoothSDPDataElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE169800CD71F1B00A85BD3 /* IOBluetoothSDPDataElement.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE1697E0CD71F1B00A85BD3 /* IOBluetoothSDPDataElement.m */; };
+		EEE169850CD71F3000A85BD3 /* IOBluetoothSDPServiceAttribute.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE169830CD71F3000A85BD3 /* IOBluetoothSDPServiceAttribute.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE169860CD71F3000A85BD3 /* IOBluetoothSDPServiceAttribute.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE169840CD71F3000A85BD3 /* IOBluetoothSDPServiceAttribute.m */; };
+		EEE1698B0CD71F4200A85BD3 /* IOBluetoothSDPServiceRecord.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE169890CD71F4200A85BD3 /* IOBluetoothSDPServiceRecord.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE1698C0CD71F4200A85BD3 /* IOBluetoothSDPServiceRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE1698A0CD71F4200A85BD3 /* IOBluetoothSDPServiceRecord.m */; };
+		EEE169910CD71F5E00A85BD3 /* IOBluetoothOBEXSession.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE1698F0CD71F5E00A85BD3 /* IOBluetoothOBEXSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE169920CD71F5E00A85BD3 /* IOBluetoothOBEXSession.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE169900CD71F5E00A85BD3 /* IOBluetoothOBEXSession.m */; };
+		EEE169970CD71F8500A85BD3 /* IOBluetoothSDPUUID.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE169950CD71F8500A85BD3 /* IOBluetoothSDPUUID.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE169980CD71F8500A85BD3 /* IOBluetoothSDPUUID.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE169960CD71F8500A85BD3 /* IOBluetoothSDPUUID.m */; };
+		EEE1699D0CD71F9900A85BD3 /* OBEXSession.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE1699B0CD71F9900A85BD3 /* OBEXSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE1699E0CD71F9900A85BD3 /* OBEXSession.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE1699C0CD71F9900A85BD3 /* OBEXSession.m */; };
+		EEE169A30CD71FAF00A85BD3 /* OBEXFileTransferServices.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE169A10CD71FAF00A85BD3 /* OBEXFileTransferServices.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE169A40CD71FAF00A85BD3 /* OBEXFileTransferServices.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE169A20CD71FAF00A85BD3 /* OBEXFileTransferServices.m */; };
+		EEE16A110CD7225300A85BD3 /* IOBluetoothPairingController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE16A0F0CD7225300A85BD3 /* IOBluetoothPairingController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE16A120CD7225300A85BD3 /* IOBluetoothPairingController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE16A100CD7225300A85BD3 /* IOBluetoothPairingController.m */; };
+		EEE16DF40CDA36E100A85BD3 /* IOBluetoothDeviceSelectorController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE16A010CD721A900A85BD3 /* IOBluetoothDeviceSelectorController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE16DF50CDA36E100A85BD3 /* IOBluetoothObjectPushUIController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE16A070CD7222C00A85BD3 /* IOBluetoothObjectPushUIController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE16DF60CDA36E100A85BD3 /* IOBluetoothPairingController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE16A0F0CD7225300A85BD3 /* IOBluetoothPairingController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE16DF70CDA36E100A85BD3 /* IOBluetoothServiceBrowserController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE16A1D0CD722C300A85BD3 /* IOBluetoothServiceBrowserController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE16DFD0CDA36E100A85BD3 /* IOBluetoothUIUserLib.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE16AEF0CD73D0800A85BD3 /* IOBluetoothUIUserLib.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE16E0D0CDA36E100A85BD3 /* IOBluetoothDeviceSelectorController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE16A020CD721A900A85BD3 /* IOBluetoothDeviceSelectorController.m */; };
+		EEE16E0E0CDA36E100A85BD3 /* IOBluetoothObjectPushUIController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE16A080CD7222C00A85BD3 /* IOBluetoothObjectPushUIController.m */; };
+		EEE16E0F0CDA36E100A85BD3 /* IOBluetoothPairingController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE16A100CD7225300A85BD3 /* IOBluetoothPairingController.m */; };
+		EEE16E100CDA36E100A85BD3 /* IOBluetoothServiceBrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE16A1E0CD722C300A85BD3 /* IOBluetoothServiceBrowserController.m */; };
+		EEE16E110CDA36E100A85BD3 /* IOBluetoothUIUserLib.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE16AF00CD73D0800A85BD3 /* IOBluetoothUIUserLib.m */; };
+		EEE16E130CDA36E100A85BD3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA370940953FFEF001244CF /* Foundation.framework */; };
+		EEE16E140CDA36E100A85BD3 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3716A095400F2001244CF /* AppKit.framework */; };
+		EEE7462C095D6CD800178065 /* IOBluetoothDevice.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE74628095D6CD800178065 /* IOBluetoothDevice.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEE7462D095D6CD800178065 /* IOBluetoothDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE74629095D6CD800178065 /* IOBluetoothDevice.m */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXBuildStyle section */
-		014F96C9005DB72811CA0E35 /* Development */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OPTIMIZATION_CFLAGS = "-O0";
-				ZERO_LINK = YES;
-			};
-			name = Development;
+/* Begin PBXContainerItemProxy section */
+		EEE177220CDB214900A85BD3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EE6FE351076F05AF009CC969;
+			remoteInfo = IOBluetoothCore;
 		};
-		014F96CA005DB72811CA0E35 /* Deployment */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
+		EEE177240CDB214C00A85BD3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EEE16DE60CDA36E100A85BD3;
+			remoteInfo = IOBluetoothUI;
 		};
-/* End PBXBuildStyle section */
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EEE16AF90CD73D3400A85BD3 /* Copy objc Headers */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Headers/objc;
+			dstSubfolderSpec = 1;
+			files = (
+				EEE169610CD71E5000A85BD3 /* IOBluetoothObject.h in Copy objc Headers */,
+				EEE169670CD71E8E00A85BD3 /* IOBluetoothL2CAPChannel.h in Copy objc Headers */,
+				EEE1696D0CD71EBF00A85BD3 /* IOBluetoothRFCOMMChannel.h in Copy objc Headers */,
+				EEE7462C095D6CD800178065 /* IOBluetoothDevice.h in Copy objc Headers */,
+				EEE169730CD71EEE00A85BD3 /* IOBluetoothDeviceInquiry.h in Copy objc Headers */,
+				EEE169790CD71F0800A85BD3 /* IOBluetoothUserNotification.h in Copy objc Headers */,
+				EEE1697F0CD71F1B00A85BD3 /* IOBluetoothSDPDataElement.h in Copy objc Headers */,
+				EEE169850CD71F3000A85BD3 /* IOBluetoothSDPServiceAttribute.h in Copy objc Headers */,
+				EEE1698B0CD71F4200A85BD3 /* IOBluetoothSDPServiceRecord.h in Copy objc Headers */,
+				EEE169910CD71F5E00A85BD3 /* IOBluetoothOBEXSession.h in Copy objc Headers */,
+				EEE169970CD71F8500A85BD3 /* IOBluetoothSDPUUID.h in Copy objc Headers */,
+				EEE16A110CD7225300A85BD3 /* IOBluetoothPairingController.h in Copy objc Headers */,
+			);
+			name = "Copy objc Headers";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEE16DE80CDA36E100A85BD3 /* Copy objc Headers */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Headers/objc;
+			dstSubfolderSpec = 1;
+			files = (
+				EEE16DF40CDA36E100A85BD3 /* IOBluetoothDeviceSelectorController.h in Copy objc Headers */,
+				EEE16DF50CDA36E100A85BD3 /* IOBluetoothObjectPushUIController.h in Copy objc Headers */,
+				EEE16DF60CDA36E100A85BD3 /* IOBluetoothPairingController.h in Copy objc Headers */,
+				EEE16DF70CDA36E100A85BD3 /* IOBluetoothServiceBrowserController.h in Copy objc Headers */,
+			);
+			name = "Copy objc Headers";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
@@ -47,6 +131,43 @@
 		EE6FE352076F05AF009CC969 /* IOBluetooth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IOBluetooth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEA370940953FFEF001244CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../Foundation/build/Development/Foundation.framework; sourceTree = SOURCE_ROOT; };
 		EEA3716A095400F2001244CF /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../AppKit/build/Development/AppKit.framework; sourceTree = SOURCE_ROOT; };
+		EEE1695F0CD71E5000A85BD3 /* IOBluetoothObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothObject.h; sourceTree = "<group>"; };
+		EEE169600CD71E5000A85BD3 /* IOBluetoothObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothObject.m; sourceTree = "<group>"; };
+		EEE169650CD71E8E00A85BD3 /* IOBluetoothL2CAPChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothL2CAPChannel.h; sourceTree = "<group>"; };
+		EEE169660CD71E8E00A85BD3 /* IOBluetoothL2CAPChannel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothL2CAPChannel.m; sourceTree = "<group>"; };
+		EEE1696B0CD71EBF00A85BD3 /* IOBluetoothRFCOMMChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothRFCOMMChannel.h; sourceTree = "<group>"; };
+		EEE1696C0CD71EBF00A85BD3 /* IOBluetoothRFCOMMChannel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothRFCOMMChannel.m; sourceTree = "<group>"; };
+		EEE169710CD71EEE00A85BD3 /* IOBluetoothDeviceInquiry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothDeviceInquiry.h; sourceTree = "<group>"; };
+		EEE169720CD71EEE00A85BD3 /* IOBluetoothDeviceInquiry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothDeviceInquiry.m; sourceTree = "<group>"; };
+		EEE169770CD71F0800A85BD3 /* IOBluetoothUserNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothUserNotification.h; sourceTree = "<group>"; };
+		EEE169780CD71F0800A85BD3 /* IOBluetoothUserNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothUserNotification.m; sourceTree = "<group>"; };
+		EEE1697D0CD71F1B00A85BD3 /* IOBluetoothSDPDataElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothSDPDataElement.h; sourceTree = "<group>"; };
+		EEE1697E0CD71F1B00A85BD3 /* IOBluetoothSDPDataElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothSDPDataElement.m; sourceTree = "<group>"; };
+		EEE169830CD71F3000A85BD3 /* IOBluetoothSDPServiceAttribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothSDPServiceAttribute.h; sourceTree = "<group>"; };
+		EEE169840CD71F3000A85BD3 /* IOBluetoothSDPServiceAttribute.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothSDPServiceAttribute.m; sourceTree = "<group>"; };
+		EEE169890CD71F4200A85BD3 /* IOBluetoothSDPServiceRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothSDPServiceRecord.h; sourceTree = "<group>"; };
+		EEE1698A0CD71F4200A85BD3 /* IOBluetoothSDPServiceRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothSDPServiceRecord.m; sourceTree = "<group>"; };
+		EEE1698F0CD71F5E00A85BD3 /* IOBluetoothOBEXSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothOBEXSession.h; sourceTree = "<group>"; };
+		EEE169900CD71F5E00A85BD3 /* IOBluetoothOBEXSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothOBEXSession.m; sourceTree = "<group>"; };
+		EEE169950CD71F8500A85BD3 /* IOBluetoothSDPUUID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothSDPUUID.h; sourceTree = "<group>"; };
+		EEE169960CD71F8500A85BD3 /* IOBluetoothSDPUUID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothSDPUUID.m; sourceTree = "<group>"; };
+		EEE1699B0CD71F9900A85BD3 /* OBEXSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OBEXSession.h; sourceTree = "<group>"; };
+		EEE1699C0CD71F9900A85BD3 /* OBEXSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OBEXSession.m; sourceTree = "<group>"; };
+		EEE169A10CD71FAF00A85BD3 /* OBEXFileTransferServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OBEXFileTransferServices.h; sourceTree = "<group>"; };
+		EEE169A20CD71FAF00A85BD3 /* OBEXFileTransferServices.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OBEXFileTransferServices.m; sourceTree = "<group>"; };
+		EEE16A010CD721A900A85BD3 /* IOBluetoothDeviceSelectorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothDeviceSelectorController.h; sourceTree = "<group>"; };
+		EEE16A020CD721A900A85BD3 /* IOBluetoothDeviceSelectorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothDeviceSelectorController.m; sourceTree = "<group>"; };
+		EEE16A070CD7222C00A85BD3 /* IOBluetoothObjectPushUIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothObjectPushUIController.h; sourceTree = "<group>"; };
+		EEE16A080CD7222C00A85BD3 /* IOBluetoothObjectPushUIController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothObjectPushUIController.m; sourceTree = "<group>"; };
+		EEE16A0F0CD7225300A85BD3 /* IOBluetoothPairingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothPairingController.h; sourceTree = "<group>"; };
+		EEE16A100CD7225300A85BD3 /* IOBluetoothPairingController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothPairingController.m; sourceTree = "<group>"; };
+		EEE16A1D0CD722C300A85BD3 /* IOBluetoothServiceBrowserController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothServiceBrowserController.h; sourceTree = "<group>"; };
+		EEE16A1E0CD722C300A85BD3 /* IOBluetoothServiceBrowserController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothServiceBrowserController.m; sourceTree = "<group>"; };
+		EEE16AEF0CD73D0800A85BD3 /* IOBluetoothUIUserLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothUIUserLib.h; sourceTree = "<group>"; };
+		EEE16AF00CD73D0800A85BD3 /* IOBluetoothUIUserLib.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothUIUserLib.m; sourceTree = "<group>"; };
+		EEE16E1A0CDA36E100A85BD3 /* IOBluetoothUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IOBluetoothUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEE16E290CDA381400A85BD3 /* IOBluetoothUI-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "IOBluetoothUI-Info.plist"; sourceTree = "<group>"; };
+		EEE1772F0CDB792500A85BD3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		EEE74627095D6CD800178065 /* IOBluetooth-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = "IOBluetooth-Info.plist"; sourceTree = "<group>"; };
 		EEE74628095D6CD800178065 /* IOBluetoothDevice.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = IOBluetoothDevice.h; sourceTree = "<group>"; };
 		EEE74629095D6CD800178065 /* IOBluetoothDevice.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothDevice.m; sourceTree = "<group>"; };
@@ -62,6 +183,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEE16E120CDA36E100A85BD3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEE16E130CDA36E100A85BD3 /* Foundation.framework in Frameworks */,
+				EEE16E140CDA36E100A85BD3 /* AppKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -69,7 +199,8 @@
 			isa = PBXGroup;
 			children = (
 				EE27270005426A7F0000013C /* mySTEP.make */,
-				EEA3309A09537E58001244CF /* Classes */,
+				EEE16B6E0CD7B19400A85BD3 /* IOBluetooth */,
+				EEE16DE50CDA36AF00A85BD3 /* IOBluetoothUI */,
 				EEA3306C09537DB5001244CF /* Private */,
 				EEA3309609537E48001244CF /* Resources */,
 				EEA370EA0953FFFB001244CF /* Frameworks */,
@@ -82,6 +213,7 @@
 			isa = PBXGroup;
 			children = (
 				EE6FE352076F05AF009CC969 /* IOBluetooth.framework */,
+				EEE16E1A0CDA36E100A85BD3 /* IOBluetoothUI.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -97,28 +229,71 @@
 			isa = PBXGroup;
 			children = (
 				EEE74627095D6CD800178065 /* IOBluetooth-Info.plist */,
+				EEE16E290CDA381400A85BD3 /* IOBluetoothUI-Info.plist */,
 			);
 			name = Resources;
-			sourceTree = "<group>";
-		};
-		EEA3309A09537E58001244CF /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				EE5D9CBC0A556B47000AE53D /* Bluetooth.h */,
-				EE5D9CE00A556C5E000AE53D /* BluetoothAssignedNumbers.h */,
-				EEE74628095D6CD800178065 /* IOBluetoothDevice.h */,
-				EEE74629095D6CD800178065 /* IOBluetoothDevice.m */,
-			);
-			name = Classes;
 			sourceTree = "<group>";
 		};
 		EEA370EA0953FFFB001244CF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EEE1772F0CDB792500A85BD3 /* Cocoa.framework */,
 				EEA370940953FFEF001244CF /* Foundation.framework */,
 				EEA3716A095400F2001244CF /* AppKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		EEE16B6E0CD7B19400A85BD3 /* IOBluetooth */ = {
+			isa = PBXGroup;
+			children = (
+				EE5D9CBC0A556B47000AE53D /* Bluetooth.h */,
+				EE5D9CE00A556C5E000AE53D /* BluetoothAssignedNumbers.h */,
+				EEE169A10CD71FAF00A85BD3 /* OBEXFileTransferServices.h */,
+				EEE169A20CD71FAF00A85BD3 /* OBEXFileTransferServices.m */,
+				EEE1699B0CD71F9900A85BD3 /* OBEXSession.h */,
+				EEE1699C0CD71F9900A85BD3 /* OBEXSession.m */,
+				EEE74628095D6CD800178065 /* IOBluetoothDevice.h */,
+				EEE74629095D6CD800178065 /* IOBluetoothDevice.m */,
+				EEE169710CD71EEE00A85BD3 /* IOBluetoothDeviceInquiry.h */,
+				EEE169720CD71EEE00A85BD3 /* IOBluetoothDeviceInquiry.m */,
+				EEE169650CD71E8E00A85BD3 /* IOBluetoothL2CAPChannel.h */,
+				EEE169660CD71E8E00A85BD3 /* IOBluetoothL2CAPChannel.m */,
+				EEE1698F0CD71F5E00A85BD3 /* IOBluetoothOBEXSession.h */,
+				EEE169900CD71F5E00A85BD3 /* IOBluetoothOBEXSession.m */,
+				EEE1695F0CD71E5000A85BD3 /* IOBluetoothObject.h */,
+				EEE169600CD71E5000A85BD3 /* IOBluetoothObject.m */,
+				EEE1696B0CD71EBF00A85BD3 /* IOBluetoothRFCOMMChannel.h */,
+				EEE1696C0CD71EBF00A85BD3 /* IOBluetoothRFCOMMChannel.m */,
+				EEE1697D0CD71F1B00A85BD3 /* IOBluetoothSDPDataElement.h */,
+				EEE1697E0CD71F1B00A85BD3 /* IOBluetoothSDPDataElement.m */,
+				EEE169830CD71F3000A85BD3 /* IOBluetoothSDPServiceAttribute.h */,
+				EEE169840CD71F3000A85BD3 /* IOBluetoothSDPServiceAttribute.m */,
+				EEE169890CD71F4200A85BD3 /* IOBluetoothSDPServiceRecord.h */,
+				EEE1698A0CD71F4200A85BD3 /* IOBluetoothSDPServiceRecord.m */,
+				EEE169950CD71F8500A85BD3 /* IOBluetoothSDPUUID.h */,
+				EEE169960CD71F8500A85BD3 /* IOBluetoothSDPUUID.m */,
+				EEE169770CD71F0800A85BD3 /* IOBluetoothUserNotification.h */,
+				EEE169780CD71F0800A85BD3 /* IOBluetoothUserNotification.m */,
+			);
+			name = IOBluetooth;
+			sourceTree = "<group>";
+		};
+		EEE16DE50CDA36AF00A85BD3 /* IOBluetoothUI */ = {
+			isa = PBXGroup;
+			children = (
+				EEE16A010CD721A900A85BD3 /* IOBluetoothDeviceSelectorController.h */,
+				EEE16A020CD721A900A85BD3 /* IOBluetoothDeviceSelectorController.m */,
+				EEE16A070CD7222C00A85BD3 /* IOBluetoothObjectPushUIController.h */,
+				EEE16A080CD7222C00A85BD3 /* IOBluetoothObjectPushUIController.m */,
+				EEE16A0F0CD7225300A85BD3 /* IOBluetoothPairingController.h */,
+				EEE16A100CD7225300A85BD3 /* IOBluetoothPairingController.m */,
+				EEE16A1D0CD722C300A85BD3 /* IOBluetoothServiceBrowserController.h */,
+				EEE16A1E0CD722C300A85BD3 /* IOBluetoothServiceBrowserController.m */,
+				EEE16AEF0CD73D0800A85BD3 /* IOBluetoothUIUserLib.h */,
+				EEE16AF00CD73D0800A85BD3 /* IOBluetoothUIUserLib.m */,
+			);
+			name = IOBluetoothUI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -128,19 +303,30 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEE7462C095D6CD800178065 /* IOBluetoothDevice.h in Headers */,
 				EE5D9CBD0A556B47000AE53D /* Bluetooth.h in Headers */,
 				EE5D9CE10A556C5E000AE53D /* BluetoothAssignedNumbers.h in Headers */,
+				EEE1699D0CD71F9900A85BD3 /* OBEXSession.h in Headers */,
+				EEE169A30CD71FAF00A85BD3 /* OBEXFileTransferServices.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEE16DF80CDA36E100A85BD3 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEE16DFD0CDA36E100A85BD3 /* IOBluetoothUIUserLib.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		EE6FE351076F05AF009CC969 /* IOBluetooth */ = {
+		EE6FE351076F05AF009CC969 /* IOBluetoothCore */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "IOBluetooth" */;
+			buildConfigurationList = EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "IOBluetoothCore" */;
 			buildPhases = (
+				EEE16C0D0CD7BC7900A85BD3 /* Create Headers-objc */,
+				EEE16AF90CD73D3400A85BD3 /* Copy objc Headers */,
 				EE6FE34D076F05AF009CC969 /* Headers */,
 				EE6FE34E076F05AF009CC969 /* Resources */,
 				EE6FE34F076F05AF009CC969 /* Sources */,
@@ -149,60 +335,36 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					/Volumes/Data/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/Foundation/build,
-					/Volumes/Data/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/build,
-				);
-				FRAMEWORK_VERSION = A;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				INFOPLIST_FILE = "Security-Info.plist";
-				INSTALL_PATH = /Library/Frameworks;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-seg1addr",
-					0x20200000,
-				);
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Security;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			comments = "
 ";
 			dependencies = (
 			);
-			name = IOBluetooth;
+			name = IOBluetoothCore;
 			productName = Calendar;
 			productReference = EE6FE352076F05AF009CC969 /* IOBluetooth.framework */;
-			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>Calendar</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.Calendar</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundlePackageType</key>
-	<string>FMWK</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>1.0</string>
-</dict>
-</plist>
+			productType = "com.apple.product-type.framework";
+		};
+		EEE16DE60CDA36E100A85BD3 /* IOBluetoothUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEE16E160CDA36E100A85BD3 /* Build configuration list for PBXNativeTarget "IOBluetoothUI" */;
+			buildPhases = (
+				EEE16DE70CDA36E100A85BD3 /* Create Headers-objc */,
+				EEE16DE80CDA36E100A85BD3 /* Copy objc Headers */,
+				EEE16DF80CDA36E100A85BD3 /* Headers */,
+				EEE16DFE0CDA36E100A85BD3 /* Resources */,
+				EEE16DFF0CDA36E100A85BD3 /* Sources */,
+				EEE16E120CDA36E100A85BD3 /* Frameworks */,
+				EEE16E150CDA36E100A85BD3 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			comments = "
 ";
+			dependencies = (
+			);
+			name = IOBluetoothUI;
+			productName = Calendar;
+			productReference = EEE16E1A0CDA36E100A85BD3 /* IOBluetoothUI.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -211,24 +373,27 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "IOBluetooth" */;
-			buildSettings = {
-			};
-			buildStyles = (
-				014F96C9005DB72811CA0E35 /* Development */,
-				014F96CA005DB72811CA0E35 /* Deployment */,
-			);
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";
 			targets = (
-				EE6FE351076F05AF009CC969 /* IOBluetooth */,
+				EEE1771E0CDB214300A85BD3 /* IOBluetooth */,
+				EE6FE351076F05AF009CC969 /* IOBluetoothCore */,
+				EEE16DE60CDA36E100A85BD3 /* IOBluetoothUI */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		EE6FE34E076F05AF009CC969 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEE16DFE0CDA36E100A85BD3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -249,7 +414,48 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"\"   # all source codes\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=\"IOBluetoothObject.m IOBluetoothDevice*.m IOBluetooth*Channel.m IOBluetoothSDP*.m IOBluetoothUserNotification.m *OBEX*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"Cocoa SystemStatus\"\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
+		EEE16C0D0CD7BC7900A85BD3 /* Create Headers-objc */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Create Headers-objc";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "mkdir -p ${CONFIGURATION_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/Headers/objc";
+		};
+		EEE16DE70CDA36E100A85BD3 /* Create Headers-objc */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Create Headers-objc";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "mkdir -p ${CONFIGURATION_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/Headers/objc";
+		};
+		EEE16E150CDA36E100A85BD3 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SOURCES=\"*Controller.m *UIUserLib.m\"   # all source codes\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=IOBluetooth\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -259,23 +465,200 @@
 			buildActionMask = 2147483647;
 			files = (
 				EEE7462D095D6CD800178065 /* IOBluetoothDevice.m in Sources */,
+				EEE169620CD71E5000A85BD3 /* IOBluetoothObject.m in Sources */,
+				EEE169680CD71E8E00A85BD3 /* IOBluetoothL2CAPChannel.m in Sources */,
+				EEE1696E0CD71EBF00A85BD3 /* IOBluetoothRFCOMMChannel.m in Sources */,
+				EEE169740CD71EEE00A85BD3 /* IOBluetoothDeviceInquiry.m in Sources */,
+				EEE1697A0CD71F0800A85BD3 /* IOBluetoothUserNotification.m in Sources */,
+				EEE169800CD71F1B00A85BD3 /* IOBluetoothSDPDataElement.m in Sources */,
+				EEE169860CD71F3000A85BD3 /* IOBluetoothSDPServiceAttribute.m in Sources */,
+				EEE1698C0CD71F4200A85BD3 /* IOBluetoothSDPServiceRecord.m in Sources */,
+				EEE169920CD71F5E00A85BD3 /* IOBluetoothOBEXSession.m in Sources */,
+				EEE169980CD71F8500A85BD3 /* IOBluetoothSDPUUID.m in Sources */,
+				EEE1699E0CD71F9900A85BD3 /* OBEXSession.m in Sources */,
+				EEE169A40CD71FAF00A85BD3 /* OBEXFileTransferServices.m in Sources */,
+				EEE16A120CD7225300A85BD3 /* IOBluetoothPairingController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEE16DFF0CDA36E100A85BD3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEE16E0D0CDA36E100A85BD3 /* IOBluetoothDeviceSelectorController.m in Sources */,
+				EEE16E0E0CDA36E100A85BD3 /* IOBluetoothObjectPushUIController.m in Sources */,
+				EEE16E0F0CDA36E100A85BD3 /* IOBluetoothPairingController.m in Sources */,
+				EEE16E100CDA36E100A85BD3 /* IOBluetoothServiceBrowserController.m in Sources */,
+				EEE16E110CDA36E100A85BD3 /* IOBluetoothUIUserLib.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		EEE177230CDB214900A85BD3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EE6FE351076F05AF009CC969 /* IOBluetoothCore */;
+			targetProxy = EEE177220CDB214900A85BD3 /* PBXContainerItemProxy */;
+		};
+		EEE177250CDB214C00A85BD3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EEE16DE60CDA36E100A85BD3 /* IOBluetoothUI */;
+			targetProxy = EEE177240CDB214C00A85BD3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		EEE16E170CDA36E100A85BD3 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				COPY_PHASE_STRIP = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INFOPLIST_FILE = "IOBluetoothUI-Info.plist";
+				INSTALL_PATH = /Library/Frameworks;
+				OPTIMIZATION_CFLAGS = "-O0";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-seg1addr",
+					0x20200000,
+				);
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = IOBluetoothUI;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		EEE16E180CDA36E100A85BD3 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				COPY_PHASE_STRIP = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INFOPLIST_FILE = "IOBluetoothUI-Info.plist";
+				INSTALL_PATH = /Library/Frameworks;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-seg1addr",
+					0x20200000,
+				);
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = IOBluetoothUI;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EEE16E190CDA36E100A85BD3 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INFOPLIST_FILE = "IOBluetoothUI-Info.plist";
+				INSTALL_PATH = /Library/Frameworks;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-seg1addr",
+					0x20200000,
+				);
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = IOBluetoothUI;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Default;
+		};
+		EEE177290CDB215A00A85BD3 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = IOBluetooth;
+			};
+			name = Development;
+		};
+		EEE1772A0CDB215A00A85BD3 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				PRODUCT_NAME = IOBluetooth;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EEE1772B0CDB215A00A85BD3 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = IOBluetooth;
+			};
+			name = Default;
+		};
 		EEEB9CF409A7542900626AB7 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(FRAMEWORK_SEARCH_PATHS)",
-					"$(SRCROOT)/../SystemUIPlugin/build/Development",
-				);
+				FRAMEWORK_SEARCH_PATHS = "";
 				FRAMEWORK_VERSION = A;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -292,6 +675,7 @@
 					0x20200000,
 				);
 				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
 				PRODUCT_NAME = IOBluetooth;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
@@ -307,13 +691,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				COPY_PHASE_STRIP = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(FRAMEWORK_SEARCH_PATHS)",
-					"$(SRCROOT)/../SystemUIPlugin/build/Development",
-				);
+				FRAMEWORK_SEARCH_PATHS = "";
 				FRAMEWORK_VERSION = A;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -326,7 +711,8 @@
 					0x20200000,
 				);
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Security;
+				PREBINDING = NO;
+				PRODUCT_NAME = IOBluetooth;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -341,12 +727,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(FRAMEWORK_SEARCH_PATHS)",
-					"$(SRCROOT)/../SystemUIPlugin/build/Development",
-				);
+				FRAMEWORK_SEARCH_PATHS = "";
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
@@ -358,7 +745,8 @@
 					0x20200000,
 				);
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Security;
+				PREBINDING = NO;
+				PRODUCT_NAME = IOBluetooth;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -389,7 +777,27 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "IOBluetooth" */ = {
+		EEE16E160CDA36E100A85BD3 /* Build configuration list for PBXNativeTarget "IOBluetoothUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEE16E170CDA36E100A85BD3 /* Development */,
+				EEE16E180CDA36E100A85BD3 /* Deployment */,
+				EEE16E190CDA36E100A85BD3 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EEE177280CDB215A00A85BD3 /* Build configuration list for PBXAggregateTarget "IOBluetooth" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEE177290CDB215A00A85BD3 /* Development */,
+				EEE1772A0CDB215A00A85BD3 /* Deployment */,
+				EEE1772B0CDB215A00A85BD3 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "IOBluetoothCore" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EEEB9CF409A7542900626AB7 /* Development */,

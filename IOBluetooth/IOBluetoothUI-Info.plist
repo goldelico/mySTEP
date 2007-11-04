@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleExecutable</key>
-	<string>IOBluetooth</string>
+	<string>IOBluetoothUI</string>
 	<key>CFBundleGetInfoString</key>
 	<string>mySTEP; Copyright FSF 2003-2005; based on GNUstep and mGStep; licenced under LGPL</string>
 	<key>CFBundleIdentifier</key>
-	<string>de.dsitri.mySTEP.IOBluetooth</string>
+	<string>de.dsitri.mySTEP. IOBluetoothUI</string>
 	<key>CFBundleName</key>
 	<string>Security</string>
 	<key>CFBundleVersion</key>
