@@ -9,6 +9,20 @@
 //  under the terms of the GNU Library General Public License.
 //
 
+#import <Foundation/NSObject.h>
+#import <Foundation/NSDate.h>
+
+enum
+{
+	NSEraCalendarUnit
+	// ...
+}; typedef NSUInteger NSCalendarUnit;
+
 @interface NSCalendar : NSObject
 // not implemented yet
+
++ (id) autoupdatingCurrentCalendar;
+
+- (BOOL) rangeOfUnit:(NSCalendarUnit) unit startDate:(NSDate **) datep interval:(NSTimeInterval *) tip forDate:(NSDate *) date;
+
 @end

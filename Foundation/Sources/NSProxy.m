@@ -89,12 +89,12 @@
 	return NO;
 }
 
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale indent:(unsigned int)indent;
+- (NSString*) descriptionWithLocale:(id)locale indent:(unsigned int)indent;
 { // called in decription of NSArray etc. - don't bother the distant object with that
 	return [self descriptionWithLocale:locale];
 }
 
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale;
+- (NSString*) descriptionWithLocale:(id)locale;
 { // called in decription of NSArray etc. - don't bother the distant object with that
 	return [self description];
 }

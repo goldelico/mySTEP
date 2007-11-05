@@ -54,8 +54,8 @@
 - (NSString*) componentsJoinedByString:(NSString*)separator;
 - (BOOL) containsObject:(id) anObject;
 - (NSString*) description;
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale;
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale
+- (NSString*) descriptionWithLocale:(id)locale;
+- (NSString*) descriptionWithLocale:(id)locale
 							 indent:(unsigned int)level;
 - (id) firstObjectCommonWithArray:(NSArray*)otherArray;
 - (void) getObjects:(id*)objs;

@@ -90,6 +90,8 @@ extern NSString *NSFailedAuthenticationException;
 + (NSDistantObject *) rootProxyForConnectionWithRegisteredName:(NSString *)name
 														  host:(NSString *)hostName
 											   usingNameServer:(NSPortNameServer *)server;
++ (id) serviceConnectionWithName:(NSString *) name rootObject:(id) root usingNameServer:(NSPortNameServer *) server;
++ (id) serviceConnectionWithName:(NSString *) name rootObject:(id) root;
 
 - (void) addRequestMode:(NSString *)mode;
 - (void) addRunLoop:(NSRunLoop *)loop;

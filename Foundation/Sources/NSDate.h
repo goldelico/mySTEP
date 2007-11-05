@@ -50,7 +50,7 @@ extern NSTimeInterval NSTimeIntervalSince1970;
 - (NSString*) descriptionWithCalendarFormat:(NSString *)formatString
 								   timeZone:(NSTimeZone *)timeZone
 									 locale:(NSDictionary *)locale;
-- (NSString*) descriptionWithLocale:(NSDictionary *)locale;
+- (NSString*) descriptionWithLocale:(id)locale;
 - (NSDate*) earlierDate:(NSDate*)otherDate;
 - (id) init;
 - (id) initWithString:(NSString*)description;

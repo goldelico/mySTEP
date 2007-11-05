@@ -83,8 +83,7 @@ typedef enum _NSDateFormatterBehavior
 				  error:(NSError **) error;
 - (NSDate *) gregorianStartDate;
 - (id) init;
-- (id) initWithDateFormat:(NSString *) format
-     allowNaturalLanguage:(BOOL) flag;
+- (id) initWithDateFormat:(NSString *) format allowNaturalLanguage:(BOOL) flag;
 - (BOOL) isLenient;
 - (NSLocale *) locale;
 - (NSArray *) longEraSymbols;

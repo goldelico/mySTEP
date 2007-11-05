@@ -44,8 +44,8 @@
 - (unsigned int) count;									// Count Entries
 - (NSString*) description;
 - (NSString*) descriptionInStringsFileFormat;
-- (NSString*) descriptionWithLocale:(NSDictionary*)localeDictionary;
-- (NSString*) descriptionWithLocale:(NSDictionary*)localeDictionary
+- (NSString*) descriptionWithLocale:(id)localeDictionary;
+- (NSString*) descriptionWithLocale:(id)localeDictionary
 							 indent:(unsigned int)level;
 - (id) initWithContentsOfFile:(NSString*)path;
 - (id) initWithContentsOfURL:(NSURL*)url;

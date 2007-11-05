@@ -164,7 +164,7 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 
 @interface NSSet (NSPrivate)
 
-- (NSString*)descriptionWithLocale:(NSDictionary*)locale
+- (NSString*)descriptionWithLocale:(id)locale
 							indent:(unsigned int)level;
 - (id)initWithObject:(id)firstObj arglist:(va_list)arglist;
 
@@ -421,8 +421,6 @@ typedef struct NSArgumentInfo
 
 @interface NSMethodSignature (NSPrivate)
 
-+ (NSMethodSignature*) signatureWithObjCTypes:(const char*)types;	// create from @encode() - exists undocumented in Cocoa with this name
-
 - (unsigned) _getArgumentLengthAtIndex:(int)index;
 - (unsigned) _getArgumentQualifierAtIndex:(int)index;
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
@@ -454,8 +452,8 @@ typedef struct NSArgumentInfo
 
 @interface NSProxy (NSPrivate)
 + (void) load;
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale indent:(unsigned int)indent;
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale;
+- (NSString*) descriptionWithLocale:(id)locale indent:(unsigned int)indent;
+- (NSString*) descriptionWithLocale:(id)locale;
 - (id) notImplemented:(SEL)aSel;
 @end
 

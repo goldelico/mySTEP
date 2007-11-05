@@ -39,7 +39,7 @@
 - (BOOL)containsObject:(id)anObject;
 - (unsigned int)count;
 - (NSString *) description;
-- (NSString *) descriptionWithLocale:(NSDictionary *) locale;
+- (NSString *) descriptionWithLocale:(id) locale;
 - (id)initWithArray:(NSArray*)array;
 - (id)initWithObjects:(id)firstObj,...;
 - (id)initWithObjects:(id*)objects count:(unsigned int)count;

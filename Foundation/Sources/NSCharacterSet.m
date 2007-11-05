@@ -127,86 +127,86 @@ static NSString *__charSetPath /*= @"CS"*/;
 	return set;
 }
 
-+ (NSCharacterSet *) alphanumericCharacterSet
++ (id) alphanumericCharacterSet
 {
 	return [self _bitmapForSet:@"alphanum" number: 0];
 }
 
-+ (NSCharacterSet *) controlCharacterSet
++ (id) controlCharacterSet
 {
 	return [self _bitmapForSet:@"control" number: 1];
 }
 
-+ (NSCharacterSet *) decimalDigitCharacterSet
++ (id) decimalDigitCharacterSet
 {
 	return [self _bitmapForSet:@"decimal" number: 2];
 }
 
-+ (NSCharacterSet *) decomposableCharacterSet
++ (id) decomposableCharacterSet
 {
 	NSLog(@"Warning: Decomposable set not yet fully specified");
 	return [self _bitmapForSet:@"decomposable" number: 3];
 }
 
-+ (NSCharacterSet *) illegalCharacterSet
++ (id) illegalCharacterSet
 {
 	NSLog(@"Warning: Illegal set not yet fully specified\n");
 	return [self _bitmapForSet:@"illegal" number: 4];
 }
 
-+ (NSCharacterSet *) letterCharacterSet
++ (id) letterCharacterSet
 {
 	return [self _bitmapForSet:@"letterchar" number: 5];
 }
 
-+ (NSCharacterSet *) lowercaseLetterCharacterSet
++ (id) lowercaseLetterCharacterSet
 {
 	return [self _bitmapForSet:@"lowercase" number: 6];
 }
 
-+ (NSCharacterSet *) nonBaseCharacterSet
++ (id) nonBaseCharacterSet
 {
 	return [self _bitmapForSet:@"nonbase" number: 7];
 }
 
-+ (NSCharacterSet *) punctuationCharacterSet;
++ (id) punctuationCharacterSet;
 {
 	return NIMP;
 }
 
-+ (NSCharacterSet *) symbolCharacterSet;
++ (id) symbolCharacterSet;
 {
 	return NIMP;
 }
 
-+ (NSCharacterSet *) capitalizedLetterCharacterSet;
++ (id) capitalizedLetterCharacterSet;
 {
 	return NIMP;
 }
 
-+ (NSCharacterSet *) uppercaseLetterCharacterSet
++ (id) uppercaseLetterCharacterSet
 {
 	return [self _bitmapForSet:@"uppercase" number: 8];
 }
 
-+ (NSCharacterSet *) whitespaceAndNewlineCharacterSet
++ (id) whitespaceAndNewlineCharacterSet
 {
 	return [self _bitmapForSet:@"whitespaceandnl" number: 9];
 }
 
-+ (NSCharacterSet *) whitespaceCharacterSet
++ (id) whitespaceCharacterSet
 {
 	return [self _bitmapForSet:@"whitespace" number: 10];
 }
 
 // Creating custom character sets
 
-+ (NSCharacterSet *) characterSetWithBitmapRepresentation:(NSData *)data
++ (id) characterSetWithBitmapRepresentation:(NSData *)data
 {
 	return [[[NSBitmapCharSet alloc] initWithBitmap:data] autorelease];
 }
 
-+ (NSCharacterSet *) characterSetWithCharactersInString:(NSString *)aString
++ (id) characterSetWithCharactersInString:(NSString *)aString
 {
 	int i, length;
 	NSMutableData *bitmap = [NSMutableData dataWithLength:BITMAP_SIZE];
@@ -226,7 +226,7 @@ static NSString *__charSetPath /*= @"CS"*/;
 	return [self characterSetWithBitmapRepresentation:bitmap];
 }
 
-+ (NSCharacterSet *) characterSetWithRange:(NSRange)aRange
++ (id) characterSetWithRange:(NSRange)aRange
 {
 int i;
 NSMutableData *bitmap = [NSMutableData dataWithLength:BITMAP_SIZE];
@@ -242,7 +242,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 	return [self characterSetWithBitmapRepresentation:bitmap];
 }
 
-+ (NSCharacterSet *) characterSetWithContentsOfFile: (NSString *)aFile
++ (id) characterSetWithContentsOfFile: (NSString *)aFile
 {
 	if ([@"bitmap" isEqual: [aFile pathExtension]])
 		{

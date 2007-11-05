@@ -243,7 +243,7 @@ NSTimeInterval NSTimeIntervalSince1970=0.0;
 	return [[self dateWithCalendarFormat:format timeZone:aTimeZone] descriptionWithLocale:locale];
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary *)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
 	return [self descriptionWithCalendarFormat:nil timeZone:nil locale:locale];
 }
@@ -1125,7 +1125,7 @@ int m, d, y;
 	return [NSString stringWithCString: buf];
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary *)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
 	return [self descriptionWithCalendarFormat:calendar_format locale:locale];
 }

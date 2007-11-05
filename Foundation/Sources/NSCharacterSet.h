@@ -25,25 +25,27 @@ typedef unsigned long UTF32Char;
 
 @interface NSCharacterSet : NSObject  <NSCoding, NSCopying, NSMutableCopying>
 
-+ (NSCharacterSet *) alphanumericCharacterSet;		// standard character sets
-+ (NSCharacterSet *) capitalizedLetterCharacterSet;
-+ (NSCharacterSet *) characterSetWithBitmapRepresentation:(NSData *)data;
-+ (NSCharacterSet *) characterSetWithCharactersInString:(NSString *)aString;
-+ (NSCharacterSet*) characterSetWithContentsOfFile:(NSString*)file;
-+ (NSCharacterSet *) characterSetWithRange:(NSRange)aRange;
-+ (NSCharacterSet *) controlCharacterSet;
-+ (NSCharacterSet *) decimalDigitCharacterSet;
-+ (NSCharacterSet *) decomposableCharacterSet;
-+ (NSCharacterSet *) illegalCharacterSet;
-+ (NSCharacterSet *) letterCharacterSet;
-+ (NSCharacterSet *) lowercaseLetterCharacterSet;
-+ (NSCharacterSet *) nonBaseCharacterSet;
-+ (NSCharacterSet *) punctuationCharacterSet;
-+ (NSCharacterSet *) symbolCharacterSet;
-+ (NSCharacterSet *) uppercaseLetterCharacterSet;
-+ (NSCharacterSet *) whitespaceAndNewlineCharacterSet;
-+ (NSCharacterSet *) whitespaceCharacterSet;
-													// custom character sets
++ (id) alphanumericCharacterSet;		// standard character sets
++ (id) capitalizedLetterCharacterSet;
++ (id) characterSetWithBitmapRepresentation:(NSData *)data;
++ (id) characterSetWithCharactersInString:(NSString *)aString;
++ (id) characterSetWithContentsOfFile:(NSString*)file;
++ (id) characterSetWithRange:(NSRange)aRange;
++ (id) controlCharacterSet;
++ (id) decimalDigitCharacterSet;
++ (id) decomposableCharacterSet;
++ (id) illegalCharacterSet;
++ (id) letterCharacterSet;
++ (id) lowercaseLetterCharacterSet;
++ (id) newlineCharacterSet;
++ (id) nonBaseCharacterSet;
++ (id) punctuationCharacterSet;
++ (id) symbolCharacterSet;
++ (id) uppercaseLetterCharacterSet;
++ (id) whitespaceAndNewlineCharacterSet;
++ (id) whitespaceCharacterSet;
+
+// custom character sets
 
 - (NSData *) bitmapRepresentation;
 - (BOOL) characterIsMember:(unichar)aCharacter;

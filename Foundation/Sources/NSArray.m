@@ -629,12 +629,12 @@ unsigned i = range.location, j;				// beyond end of array then return
 	return [self descriptionWithLocale:nil indent:0];
 }
 
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale
+- (NSString*) descriptionWithLocale:(id)locale
 {
 	return [self descriptionWithLocale:locale indent:0];
 }
 
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale
+- (NSString*) descriptionWithLocale:(id)locale
 							 indent:(unsigned int)level
 {
 	NSMutableString	*result;

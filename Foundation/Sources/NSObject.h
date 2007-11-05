@@ -84,6 +84,8 @@
 + (id) mutableCopyWithZone:(NSZone *) zone;
 + (id) new;
 + (void) poseAsClass:(Class)aClass;
+- (BOOL) resolveClassMethod:(SEL) sel;
+- (BOOL) resolveInstanceMethod:(SEL) sel;
 + (void) setVersion:(int)aVersion;
 + (Class) superclass;
 + (int) version;
@@ -94,6 +96,7 @@
 - (void) dealloc;
 - (void) doesNotRecognizeSelector: (SEL)aSelector;
 - (void) finalize;
+- (id) forwardingTargetForSelector:(SEL) sel;
 - (void) forwardInvocation:(NSInvocation*) anInvocation;
 - (id) init;
 - (IMP) methodForSelector: (SEL)aSelector;

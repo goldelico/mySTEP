@@ -27,18 +27,23 @@ extern NSString *NSLocaleGroupingSeparator;
 extern NSString *NSLocaleCurrencySymbol;
 extern NSString *NSLocaleCurrencyCode;
 
+extern NSString *NSCurrentLocaleDidChangeNotification;
+
 @interface NSLocale : NSObject <NSCoding, NSCopying>
 {
 }
 
++ (id) autoupdatingCurrentLocale;
 + (NSArray *) availableLocaleIdentifiers;
 + (NSString *) canonicalLocaleIdentifierFromString:(NSString *) string;
++ (NSArray *) commonISOCurrencyCodes;
 + (NSDictionary *) componentsFromLocaleIdentifier:(NSString *) string;
 + (id) currentLocale;
 + (NSArray *) ISOCountryCodes;
 + (NSArray *) ISOCurrencyCodes;
 + (NSArray *) ISOLanguageCodes;
 + (NSString *) localeIdentifierFromComponents:(NSDictionary *) dict;
++ (NSArray *) preferredLanguages;
 + (id) systemLocale;
 
 - (NSString *) displayNameForKey:(id) key value:(id) val;

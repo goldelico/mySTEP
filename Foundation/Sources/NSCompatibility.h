@@ -9,4 +9,4 @@
 //  under the terms of the GNU Library General Public License.
 //
 
-// obsolete
+// obsolete (removed in 10.5)

@@ -38,7 +38,9 @@ typedef enum _NSPredicateOperatorType
 	NSBeginsWithPredicateOperatorType,
 	NSEndsWithPredicateOperatorType,
 	NSInPredicateOperatorType,
-	NSCustomSelectorPredicateOperatorType
+	NSCustomSelectorPredicateOperatorType,
+	NSContainsPredicateOperatorType,
+	NSBetweenPredicateOperatorType
 } NSPredicateOperatorType;
 
 @interface NSComparisonPredicate : NSPredicate

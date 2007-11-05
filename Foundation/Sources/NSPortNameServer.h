@@ -33,6 +33,7 @@
 - (NSPort *) portForName:(NSString *) name host:(NSString *) host;	// use the most appropriate subclass (local/remote)
 - (BOOL) registerPort:(NSPort *) port name:(NSString *) name;
 - (BOOL) removePortForName:(NSString *) name;
+- (NSPort *) servicePortWithName:(NSString *) name;
 
 @end
 

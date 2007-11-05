@@ -100,6 +100,7 @@ typedef enum _NSNumberFormatterRoundingMode
 - (NSAttributedString*) attributedStringForZero;
 - (NSString*) currencyCode;
 - (NSString*) currencyDecimalSeparator;
+- (NSString *) currencyGroupingSeparator;
 - (NSString*) currencySymbol;
 - (NSString*) decimalSeparator;
 - (NSString*) exponentSymbol;
@@ -115,14 +116,18 @@ typedef enum _NSNumberFormatterRoundingMode
 - (unsigned int) groupingSize;
 - (BOOL) hasThousandSeparators;
 - (NSString *) internationalCurrencySymbol;
+- (BOOL) isLenient;
+- (BOOL) isPartialStringValidationEnabled;
 - (NSLocale *) locale;
 - (BOOL) localizesFormat;
 - (NSNumber*) maximum;	// may return NSDecimalNumber
 - (unsigned int) maximumFractionDigits;
 - (unsigned int) maximumIntegerDigits;
+- (NSUInteger) maximumSignificantDigits;
 - (NSNumber*) minimum;	// may return NSDecimalNumber
 - (unsigned int) minimumFractionDigits;
 - (unsigned int) minimumIntegerDigits;
+- (NSUInteger) minimumSignificantDigits;
 - (NSString *) minusSign;
 - (NSNumber *) multiplier;
 - (NSString *) negativeFormat;
@@ -153,10 +158,11 @@ typedef enum _NSNumberFormatterRoundingMode
 - (void) setAttributedStringForZero: (NSAttributedString*)newAttributedString;
 - (void) setCurrencyCode:(NSString *)string;
 - (void) setCurrencyDecimalSeparator:(NSString *)string;
+- (void) setCurrencyGroupingSeparator:(NSString *)string;
 - (void) setCurrencySymbol:(NSString *)string;
 - (void) setDecimalSeparator: (NSString*)newSeparator;
 - (void) setExponentSymbol:(NSString *)string;
-- (void) setFormat: (NSString*)aFormat;
+- (void) setFormat:(NSString*)aFormat;
 - (void) setFormatterBehavior:(NSNumberFormatterBehavior)behavior;
 - (void) setFormatWidth:(unsigned int)number;
 - (void) setGeneratesDecimalNumbers:(BOOL)flag;
@@ -164,14 +170,17 @@ typedef enum _NSNumberFormatterRoundingMode
 - (void) setGroupingSize:(unsigned int)size;
 - (void) setHasThousandSeparators: (BOOL)flag;
 - (void) setInternationalCurrencySymbol:(NSString *)string;
+- (void) setLenient:(BOOL) flag;
 - (void) setLocale:(NSLocale *)locale;
 - (void) setLocalizesFormat: (BOOL)flag;
 - (void) setMaximum: (NSNumber*)aMaximum;
 - (void) setMaximumFractionDigits:(unsigned int)number;
 - (void) setMaximumIntegerDigits:(unsigned int)number;
+- (void) setMaximumSignificantDigits:(NSUInteger) number;
 - (void) setMinimum: (NSNumber*)aMinimum;
 - (void) setMinimumFractionDigits:(unsigned int)number;
 - (void) setMinimumIntegerDigits:(unsigned int)number;
+- (void) setMinimumSignificantDigits:(NSUInteger) number;
 - (void) setMinusSign:(NSString *)string;
 - (void) setMultiplier:(NSNumber *)number;
 - (void) setNegativeFormat: (NSString*)aFormat;
@@ -183,6 +192,7 @@ typedef enum _NSNumberFormatterRoundingMode
 - (void) setNumberStyle:(NSNumberFormatterStyle)style;
 - (void) setPaddingCharacter:(NSString *)string;
 - (void) setPaddingPosition:(NSNumberFormatterPadPosition)position;
+- (void) setPartialStringValidationEnabled:(BOOL) flag;
 - (void) setPercentSymbol:(NSString *)string;
 - (void) setPerMillSymbol:(NSString *)string;
 - (void) setPlusSign:(NSString *)string;
@@ -203,6 +213,7 @@ typedef enum _NSNumberFormatterRoundingMode
 - (void) setTextAttributesForZero:(NSDictionary *)newAttributes;
 - (void) setThousandSeparator: (NSString*)newSeparator;
 - (void) setUsesGroupingSeparator:(BOOL) flag;
+- (void) setUsesSignificantDigits:(BOOL) flag;
 - (void) setZeroSymbol:(NSString *)string;
 - (NSString *) stringFromNumber:(NSNumber *)number;
 - (NSDictionary *) textAttributesForNegativeInfinity;
@@ -214,6 +225,7 @@ typedef enum _NSNumberFormatterRoundingMode
 - (NSDictionary *) textAttributesForZero;
 - (NSString*) thousandSeparator;
 - (BOOL) usesGroupingSeparator;
+- (BOOL) usesSignificantDigits;
 - (NSString *) zeroSymbol;
 
 @end

@@ -384,10 +384,8 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 - (void) encodeWithCoder:(NSCoder*)aCoder	{ NIMP; }
 - (id) initWithCoder:(NSCoder*)aCoder		{ NIMP; return nil; }
 
-// private methods
-
 + (NSMethodSignature *) signatureWithObjCTypes:(const char*) t;
-{ // although private, we know that this method exists in Cocoa
+{ // now officially made public (10.5)
 	return [[[NSMethodSignature alloc] _initWithObjCTypes:t] autorelease];
 }
 

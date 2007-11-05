@@ -47,23 +47,24 @@ extern NSString *NSURLFileScheme;	// @"file"
 	void		*_data;
 }
 
-+ (id) fileURLWithPath: (NSString*)aPath;
-+ (id) URLWithString: (NSString*)aUrlString;
-+ (id) URLWithString: (NSString*)aUrlString
-       relativeToURL: (NSURL*)aBaseUrl;
++ (id) fileURLWithPath:(NSString *) aPath;
++ (id) fileURLWithPath:(NSString *) aPath isDirectory:(BOOL) isDir;
++ (id) URLWithString:(NSString *) aUrlString;
++ (id) URLWithString:(NSString *) aUrlString relativeToURL:(NSURL *) aBaseUrl;
 
 - (NSString*) absoluteString;
 - (NSURL*) absoluteURL;
 - (NSURL*) baseURL;
 - (NSString*) fragment;
 - (NSString*) host;
-- (id) initFileURLWithPath: (NSString*)aPath;
-- (id) initWithScheme: (NSString*)aScheme
-				 host: (NSString*)aHost
-				 path: (NSString*)aPath;
-- (id) initWithString: (NSString*)aUrlString;
-- (id) initWithString: (NSString*)aUrlString
-		relativeToURL: (NSURL*)aBaseUrl;
+- (id) initFileURLWithPath:(NSString *) aPath;
+- (id) initFileURLWithPath:(NSString *) aPath isDirectory:(BOOL) isDir;
+- (id) initWithScheme: (NSString *) aScheme
+				 host: (NSString *) aHost
+				 path: (NSString *) aPath;
+- (id) initWithString: (NSString *) aUrlString;
+- (id) initWithString: (NSString *) aUrlString
+		relativeToURL: (NSURL *) aBaseUrl;
 - (BOOL) isFileURL;
 - (void) loadResourceDataNotifyingClient: (id)client
 							  usingCache: (BOOL)shouldUseCache;

@@ -24,6 +24,7 @@
 @class NSMutableArray;
 
 extern NSString *NSDefaultRunLoopMode;							// Mode strings
+extern NSString *NSRunLoopCommonModes;
 // NSConnectionReplyMode defined in Foundation/NSConnection.h
 // NSModalPanelRunLoopMode defined in AppKit/NSApplication.h
 // NSEventTrackingRunLoopMode defined in AppKit/NSApplication.h
@@ -42,6 +43,7 @@ extern NSString *NSDefaultRunLoopMode;							// Mode strings
 }
 
 + (NSRunLoop*) currentRunLoop;
++ (NSRunLoop *) mainRunLoop;
 
 - (void) acceptInputForMode:(NSString*)mode beforeDate:(NSDate*)date;
 - (void) addPort:(NSPort *)port forMode:(NSString *)mode;

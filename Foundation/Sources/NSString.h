@@ -30,17 +30,21 @@ typedef unsigned short unichar;
 @class NSData;
 @class NSDictionary;
 @class NSError;
+@class NSLocale;
 @class NSMutableString;
 @class NSURL;
 
 enum 
 {
-	NSCaseInsensitiveSearch = 1,
-	NSLiteralSearch			= 2,
-	NSBackwardsSearch		= 4,
-	NSAnchoredSearch		= 8,
-	NSNumericSearch			= 64
-};
+	NSCaseInsensitiveSearch			= 1,
+	NSLiteralSearch					= 2,
+	NSBackwardsSearch				= 4,
+	NSAnchoredSearch				= 8,
+	NSNumericSearch					= 64,
+	NSDiacriticInsensitiveSearch	= 128,
+	NSWidthInsensitiveSearch		= 256,
+	NSForcedOrderingSearch			= 512
+}; typedef NSUInteger NSStringCompareOptions;
 
 typedef enum _NSStringEncoding				// O encoding defines a variable of
 {											// type encoding that is undefined
@@ -75,13 +79,27 @@ typedef enum _NSStringEncoding				// O encoding defines a variable of
 	NSISOLatin6StringEncoding,
 	NSISOLatin7StringEncoding,
 	NSISOLatin8StringEncoding,
-	NSISOLatin9StringEncoding
+	NSISOLatin9StringEncoding,
+	
+	// new in 10.5
+	NSUTF16StringEncoding=NSUnicodeStringEncoding,
+	NSUTF16BigEndianStringEncoding	= 200,
+	NSUTF16LittleEndianStringEncoding,
+	NSUTF32StringEncoding,
+	NSUTF32BigEndianStringEncoding,
+	NSUTF32LittleEndianStringEncoding
 	
 } NSStringEncoding;
 
 enum {
 	NSOpenStepUnicodeReservedBase = 0xF400
 };
+
+enum
+{
+    NSStringEncodingConversionAllowLossy = 1,
+    NSStringEncodingConversionExternalRepresentation
+}; typedef NSUInteger NSStringEncodingConversionOptions;
 
 extern NSString *NSParseErrorException;
 
@@ -122,6 +140,7 @@ extern NSString *NSParseErrorException;
 + (id) stringWithString:(NSString*)aString;
 + (id) stringWithUTF8String:(const char *)bytes;
 
+- (BOOL) boolValue;
 - (BOOL) canBeConvertedToEncoding:(NSStringEncoding)encoding;
 - (NSString*) capitalizedString;						// Changing Case
 - (NSComparisonResult) caseInsensitiveCompare:(NSString*)aString;
@@ -138,6 +157,7 @@ extern NSString *NSParseErrorException;
 					   options:(unsigned int)mask
 						 range:(NSRange)aRange
 						locale:(NSDictionary *)locale;
+- (NSArray *) componentsSeparatedByCharactersInSet:(NSCharacterSet *) set;
 - (NSArray*) componentsSeparatedByString:(NSString*)separator;
 - (const char*) cString;								// C Strings
 - (unsigned int) cStringLength;
@@ -151,6 +171,13 @@ extern NSString *NSParseErrorException;
 - (double) doubleValue;
 - (NSStringEncoding) fastestEncoding;
 - (float) floatValue;									// Numeric Values
+- (BOOL) getBytes:(void *) buffer
+		maxLength:(NSUInteger) maxBufferCount
+	   usedLength:(NSUInteger *) usedBufferCount
+		 encoding:(NSStringEncoding) encoding
+		  options:(NSStringEncodingConversionOptions) options
+			range:(NSRange) range
+   remainingRange:(NSRangePointer) leftover;
 - (void) getCharacters:(unichar*)buffer;
 - (void) getCharacters:(unichar*)buffer range:(NSRange)aRange;
 - (void) getCString:(char*)buffer;
@@ -226,6 +253,7 @@ extern NSString *NSParseErrorException;
 - (NSRange) lineRangeForRange:(NSRange)aRange;
 - (NSComparisonResult) localizedCaseInsensitiveCompare:(NSString *)string;
 - (NSComparisonResult) localizedCompare:(NSString *)string;
+- (long long) longLongValue;
 - (const char *) lossyCString;
 - (NSString*) lowercaseString;
 - (unsigned) maximumLengthOfBytesUsingEncoding:(NSStringEncoding)enc;	// estimate
@@ -241,16 +269,29 @@ extern NSString *NSParseErrorException;
 							options:(unsigned int)mask
 							  range:(NSRange)aRange;
 - (NSRange) rangeOfComposedCharacterSequenceAtIndex:(unsigned int)anIndex;
+- (NSRange) rangeOfComposedCharacterSequencesForRange:(NSRange) range;
 - (NSRange) rangeOfString:(NSString*)string;
 - (NSRange) rangeOfString:(NSString*)string options:(unsigned int)mask;
 - (NSRange) rangeOfString:(NSString*)aString
 				  options:(unsigned int)mask
 					range:(NSRange)aRange;
+- (NSRange) rangeOfString:(NSString *) aString
+				  options:(NSUInteger) mask
+					range:(NSRange) searchRange
+				   locale:(NSLocale *) locale;
 - (NSStringEncoding) smallestEncoding;
 - (NSString *) stringByAddingPercentEscapesUsingEncoding:(NSStringEncoding) encoding;
 - (NSString *) stringByAppendingFormat:(NSString*)format,...;
 - (NSString *) stringByAppendingString:(NSString*)aString;
+- (NSString *) stringByFoldingWithOptions:(NSUInteger) options locale:(NSLocale *) locale;
 - (NSString *) stringByPaddingToLength:(unsigned)len withString:(NSString *) pad startingAtIndex:(unsigned) index;
+- (NSString *) stringByReplacingCharactersInRange:(NSRange) range withString:(NSString *) replacement;
+- (NSString *) stringByReplacingOccurrencesOfString:(NSString *) target
+										 withString:(NSString *) replacement
+											options:(NSUInteger) mask
+											  range:(NSRange) search;
+- (NSString *) stringByReplacingOccurrencesOfString:(NSString *) target
+										 withString:(NSString *) replacement;
 - (NSString *) stringByReplacingPercentEscapesUsingEncoding:(NSStringEncoding) encoding;
 - (NSString *) stringByTrimmingCharactersInSet:(NSCharacterSet *)set;
 - (NSString *) substringFromIndex:(unsigned int)index;

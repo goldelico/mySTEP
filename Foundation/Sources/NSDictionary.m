@@ -468,7 +468,7 @@ id keys, key;										// Comparing Dictionaries
     return YES;
 }
 
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale
+- (NSString*) descriptionWithLocale:(id)locale
 							 indent:(unsigned int)indent
 {
 	id pool, key, value, keys, kd, vd;
@@ -544,7 +544,7 @@ NSMutableArray *keys = [[[self allKeys] mutableCopy] autorelease];
     return description;
 }
 
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale
+- (NSString*) descriptionWithLocale:(id)locale
 {
     return [self descriptionWithLocale:locale indent:0];
 }

@@ -32,6 +32,8 @@
     struct NSArgumentInfo *info;
 }
 
++ (NSMethodSignature*) signatureWithObjCTypes:(const char*)types;	// create from @encode()
+
 - (unsigned) frameLength;
 - (const char *) getArgumentTypeAtIndex:(unsigned) index;
 - (BOOL) isOneway;

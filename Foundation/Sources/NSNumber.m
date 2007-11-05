@@ -356,7 +356,7 @@ int i;
 - (id) copyWithZone:(NSZone *) zone					{ return [self retain]; }
 - (NSString*) stringValue							{ return [self descriptionWithLocale: nil]; }
 - (NSString*) description							{ return [self descriptionWithLocale: nil]; }
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale { return SUBCLASS }
+- (NSString*) descriptionWithLocale:(id)locale { return SUBCLASS }
 - (Class) classForCoder								{ return [NSNumber class]; }
 - (NSComparisonResult) compare:(NSNumber *)other	{ SUBCLASS; return 0; }
 - (id) initWithCoder:(NSCoder *)coder				{ return self; }
@@ -451,7 +451,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
     return [NSString stringWithFormat:@"%d", (unsigned int)data];
 }
@@ -527,7 +527,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
     return [NSString stringWithFormat:@"%uc", (unsigned char)data];
 }
@@ -603,7 +603,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
     return [NSString stringWithFormat:@"%c", (char)data];
 }
@@ -679,7 +679,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
     return [NSString stringWithFormat:@"%hu", (unsigned short)data];
 }
@@ -755,7 +755,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
     return [NSString stringWithFormat:@"%hd", (short)data];
 }
@@ -831,7 +831,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
     return [NSString stringWithFormat:@"%u", (unsigned int)data];
 }
@@ -909,7 +909,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
 	return [NSString stringWithFormat:@"%d", (int)data];
 }
@@ -985,7 +985,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
     return [NSString stringWithFormat:@"%lu", (unsigned long)data];
 }
@@ -1061,7 +1061,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
     return [NSString stringWithFormat:@"%ld", (long)data];
 }
@@ -1137,7 +1137,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
 	return [NSString stringWithFormat:@"%llu",(unsigned long long)data];
 }
@@ -1213,7 +1213,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
 	return [NSString stringWithFormat:@"%lld", (long long)data];
 }
@@ -1289,7 +1289,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
     return [NSString stringWithFormat:@"%f", (float)data];
 }
@@ -1364,7 +1364,7 @@ int	o = [self _typeOrder];
 	return _compareNumbers(other, self);
 }
 
-- (NSString *) descriptionWithLocale:(NSDictionary*)locale
+- (NSString *) descriptionWithLocale:(id)locale
 {
     return [NSString stringWithFormat:@"%lg", (double)data];
 }

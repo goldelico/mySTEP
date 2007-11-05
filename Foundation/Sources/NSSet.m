@@ -311,7 +311,7 @@ id key, keys = [self objectEnumerator];
 	return YES;
 }
 													// ret a String Description
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale
+- (NSString*) descriptionWithLocale:(id)locale
 {
     return [self descriptionWithLocale:locale indent:0];
 }
@@ -321,7 +321,7 @@ id key, keys = [self objectEnumerator];
     return [self descriptionWithLocale:nil indent:0];
 }
 
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale
+- (NSString*) descriptionWithLocale:(id)locale
 							 indent:(unsigned int)indent;
 {
 NSMutableString *description = [NSMutableString stringWithCString:"(\n"];
@@ -723,7 +723,7 @@ id k, v;
 - (void) removeObject:(id)object		{ NSMapRemove(table, object); }
 - (void) removeAllObjects				{ NSResetMapTable(table); }
 
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale
+- (NSString*) descriptionWithLocale:(id)locale
 							 indent:(unsigned int)level;
 {
 int count = [self count];

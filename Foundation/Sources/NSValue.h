@@ -74,7 +74,7 @@
 - (BOOL) boolValue;
 - (char) charValue;
 - (NSComparisonResult) compare:(NSNumber*)otherNumber;
-- (NSString*) descriptionWithLocale:(NSDictionary*)locale;
+- (NSString*) descriptionWithLocale:(id)locale;
 - (double) doubleValue;
 - (float) floatValue;
 - (id) initWithBool:(BOOL)value;

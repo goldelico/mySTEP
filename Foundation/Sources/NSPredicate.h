@@ -25,6 +25,7 @@
 + (NSPredicate *) predicateWithValue:(BOOL) value;	// returns private subclass
 
 - (BOOL) evaluateWithObject:(id) object;
+- (BOOL) evaluateWithObject:(id) object substitutionVariables:(NSDictionary *) variables;
 - (NSString *) predicateFormat;
 - (NSPredicate *) predicateWithSubstitutionVariables:(NSDictionary *) variables;
 

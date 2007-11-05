@@ -52,7 +52,7 @@ NSCalendarDate.h
 - (NSString *) descriptionWithCalendarFormat:(NSString *)format;
 - (NSString *) descriptionWithCalendarFormat:(NSString *)format
 									  locale:(NSDictionary *)locale;
-- (NSString*) descriptionWithLocale:(NSDictionary *)locale;
+- (NSString*) descriptionWithLocale:(id)locale;
 - (int) hourOfDay;
 - (id) initWithString:(NSString *)description;
 - (id) initWithString:(NSString *)description 

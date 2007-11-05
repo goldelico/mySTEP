@@ -112,7 +112,7 @@
 - (NSDecimalNumber *) decimalNumberBySubtracting:(NSDecimalNumber *)decimalNumber 
 									withBehavior:(id <NSDecimalNumberBehaviors>)behavior;
 - (NSDecimal) decimalValue;
-- (NSString *) descriptionWithLocale:(NSDictionary *)locale;
+- (NSString *) descriptionWithLocale:(id)locale;
 - (double) doubleValue;
 - (id) initWithDecimal:(NSDecimal)decimal;
 - (id) initWithMantissa:(unsigned long long)mantissa 

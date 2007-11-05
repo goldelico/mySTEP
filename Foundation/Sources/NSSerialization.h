@@ -1,8 +1,10 @@
 /* 
    NSSerialization.h
 
-   Protocol for NSSerialization - is deprecated since 10.2!
-
+   Protocol for NSSerialization
+   - is deprecated since 10.2!
+   - removed in 10.5
+ 
    Copyright (C) 1995 Free Software Foundation, Inc.
 
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4

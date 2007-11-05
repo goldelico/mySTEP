@@ -18,12 +18,22 @@
 #define _mySTEP_H_NSTimeZone
 
 #import <Foundation/NSObject.h>
+#import <Foundation/NSDate.h>
 
 @class NSArray;
 @class NSData;
 @class NSDate;
 @class NSDictionary;
 @class NSString;
+@class NSLocale;
+
+enum
+{
+    NSTimeZoneNameStyleStandard,
+    NSTimeZoneNameStyleShortStandard,
+    NSTimeZoneNameStyleDaylightSaving,
+    NSTimeZoneNameStyleShortDaylightSaving
+}; typedef NSInteger NSTimeZoneNameStyle;
 
 @interface NSTimeZone : NSObject  <NSCopying, NSCoding>
 
@@ -42,16 +52,23 @@
 - (NSString *) abbreviation;
 - (NSString *) abbreviationForDate:(NSDate *) date;
 - (NSData *) data;
+- (NSTimeInterval) daylightSavingTimeOffset;
+- (NSTimeInterval) daylightSavingTimeOffsetForDate:(NSDate *) date;
 - (NSString *) description;
 - (id) initWithName:(NSString *)name;
 - (id) initWithName:(NSString *)timeZoneName data:(NSData *)data;
 - (BOOL) isDaylightSavingTime;
 - (BOOL) isDaylightSavingTimeForDate:(NSDate *) date;
 - (BOOL) isEqualToTimeZone:(NSTimeZone *)timeZone;
+- (NSString *) localizedName:(NSTimeZoneNameStyle) style locale:(NSLocale *) locale;
 - (NSString *) name;
+- (NSDate *) nextDaylightSavingTimeTransition;
+- (NSDate *) nextDaylightSavingTimeTransitionAfterDate:(NSDate *) date;
 - (int) secondsFromGMT;
 - (int) secondsFromGMTForDate:(NSDate *) date;
 
 @end
+
+extern NSString *NSSystemTimeZoneDidChangeNotification;
 
 #endif /* _mySTEP_H_NSTimeZone */

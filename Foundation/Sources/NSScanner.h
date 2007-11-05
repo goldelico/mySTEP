@@ -48,9 +48,12 @@
 // - (BOOL) scanDecimal:(NSDecimal *) decimalValue;	-- defined in NSDecimalNumber.h
 - (BOOL) scanDouble:(double *)value;
 - (BOOL) scanFloat:(float *)value;
+- (BOOL) scanHexDouble:(double *)value;
+- (BOOL) scanHexFloat:(float *)value;
 - (BOOL) scanHexInt:(unsigned *)value;
+- (BOOL) scanHexLongLong:(unsigned long long *) value;
 - (BOOL) scanInt:(int *)value;
-- (BOOL) scanInteger:(NSInteger *) ptr;
+- (BOOL) scanInteger:(NSInteger *) value;
 - (unsigned) scanLocation;
 - (BOOL) scanLongLong:(long long *)value;
 - (BOOL) scanString:(NSString *)string intoString:(NSString **)value;

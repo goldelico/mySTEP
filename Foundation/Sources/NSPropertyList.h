@@ -38,13 +38,13 @@ typedef enum _NSPropertyListFormat
 
 + (NSData *) dataFromPropertyList:(id) plist
 						   format:(NSPropertyListFormat) format
-				 errorDescription:(NSString **) errorString;
+				 errorDescription:(NSString **) errorString;	// NOTE: this string is NOT autoreleased!
 + (BOOL) propertyList:(id) plist
 	 isValidForFormat:(NSPropertyListFormat) format;
 + (id) propertyListFromData:(NSData *) data
 		   mutabilityOption:(NSPropertyListMutabilityOptions) opt
 			format:(NSPropertyListFormat *) format
-		   errorDescription:(NSString **) errorString;
+		   errorDescription:(NSString **) errorString;	// NOTE: this string is NOT autoreleased!
 
 @end
 
