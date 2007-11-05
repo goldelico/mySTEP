@@ -32,6 +32,7 @@
 - (BOOL) containsIndexes:(NSIndexSet *) indexSet;
 - (BOOL) containsIndexesInRange:(NSRange) range;
 - (unsigned int) count;
+- (NSUInteger) countOfIndexesInRange:(NSRange) range;
 - (unsigned int) firstIndex;
 - (unsigned int) getIndexes:(unsigned int *) indexBuffer
 				   maxCount:(unsigned int) bufferSize

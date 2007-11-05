@@ -106,4 +106,10 @@ NSString *__NSDescribeObjects(void* table, const void* anObject);
 NSString *__NSDescribePointers(void* table, const void* anObject);
 NSString *__NSDescribeInts(void* table, const void* anObject);
 
+#if NEW
+@interface NSHashTable : Object
+{
+}
+#endif
+
 #endif /* _mySTEP_H_NSHashTable */

@@ -47,6 +47,24 @@
 #include <objc/objc-api.h>
 #include <objc/Protocol.h>
 
+// new types that might appear in the AppKit API of 10.5
+
+#if 0	// 64 bit processor
+typedef long NSInteger;
+typedef unsigned long NSUInteger;
+typedef double CGFloat;
+typedef long CFIndex; 
+#else	// 32 bit processor
+typedef int NSInteger;
+typedef unsigned int NSUInteger;
+typedef float CGFloat;
+typedef long CFIndex; 
+#endif
+
+#define NSIntegerMax   LONG_MAX
+#define NSIntegerMin   LONG_MIN
+#define NSUIntegerMax  ULONG_MAX
+
 #ifdef __linux__			
 // those from gcc but not available on MacOS X
 
@@ -126,20 +144,10 @@
 #define sel_types_match(A, B) NO
 #define sel_register_typed_name(NAME, TYPE) ((SEL)name)
 
-#if 1	// FIXME: required to compile mframe.m on MacOS X - BUT DOES NOT WORK!!!
-
 typedef void *objc_mutex_t;
 typedef void *objc_condition_t;
-typedef int __avword;
-typedef void *av_alist;
 
-#define av_start_ptr(alist, imp, type, retval) 
-#define av_ptr(alist, type, anObject) 
-#define _av_start_struct(alist, imp, size, split, retval)
-#define av_start_void(alist, imp)
-#define av_call(alist)
-
-// differes from GNU definition!
+// differs from GNU definition!
 #define _C_CONST	'c'
 #define _C_IN		'i'
 #define _C_INOUT	'j'
@@ -160,20 +168,7 @@ typedef void *av_alist;
 #define _F_ONEWAY	0x20
 #define _F_BYREF	0x40
 
-#endif
-
-// #define mframe_next_arg(TYPES, INFO) TYPES
-
 #else
-
-// additional interfaces for gcc runtime
-
-// struct NSArgumentInfo;
-// const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *info); // Step through method encoding information extracting details.
-// BOOL mframe_decode_return(const char *type, void* buffer, void* retframe); // Copy the return value from retframe into the specified buffer.
-// void *mframe_handle_return(const char* type, void* retval, arglist_t argFrame); // Return the value of the specified type in retval using argFrame
-// arglist_t mframe_create_argframe(const char *types, void** retbuf);
-// void mframe_destroy_argframe(const char *types, arglist_t argframe);
 
 int objc_check_undefineds(FILE *errorStream);
 void objc_invalidate_dtable(Class class);

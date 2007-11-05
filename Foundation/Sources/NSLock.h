@@ -32,10 +32,13 @@
 
 @interface NSLock : NSObject  <NSLocking>				// simple lock class
 {
-   objc_mutex_t _mutex;
+	NSString *_name;
+	objc_mutex_t _mutex;
 }
 
 - (BOOL) lockBeforeDate:(NSDate *)limit;
+- (NSString *) name;
+- (void) setName:(NSString *) name;
 - (BOOL) tryLock;
 
 @end
@@ -43,9 +46,10 @@
 
 @interface NSConditionLock : NSObject  <NSLocking>
 {
-   objc_mutex_t _mutex;								// Allows locking and 
-   objc_condition_t _condition;						// unlocking to be based 
-   int _conditionValue;								// upon a condition
+	NSString *_name;
+	objc_mutex_t _mutex;								// Allows locking and 
+	objc_condition_t _condition;						// unlocking to be based 
+	int _conditionValue;								// upon a condition
 }
 
 - (int) condition;									// condition of the lock
@@ -54,6 +58,8 @@
 - (void) lockWhenCondition:(int)value;				// Acquire / release lock
 - (BOOL) lockWhenCondition:(int)condition			// a date condition
 				beforeDate:(NSDate *)limit;
+- (NSString *) name;
+- (void) setName:(NSString *) name;
 - (BOOL) tryLock;
 - (BOOL) tryLockWhenCondition:(int)value;
 - (void) unlockWithCondition:(int)value;
@@ -63,11 +69,14 @@
 
 @interface NSRecursiveLock : NSObject  <NSLocking>
 {								// Allows the lock to be recursively acquired
-   objc_mutex_t _mutex;			// by the same thread.  If the same thread
+	NSString *_name;
+	objc_mutex_t _mutex;		// by the same thread.  If the same thread
 }								// locks the mutex (n) times then that same
 								// thread must also unlock it (n) times before
 								// another thread can acquire the lock.
 - (BOOL) lockBeforeDate:(NSDate *)limit;
+- (NSString *) name;
+- (void) setName:(NSString *) name;
 - (BOOL) tryLock;	
 
 @end

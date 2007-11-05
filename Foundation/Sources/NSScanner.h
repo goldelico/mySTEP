@@ -50,6 +50,7 @@
 - (BOOL) scanFloat:(float *)value;
 - (BOOL) scanHexInt:(unsigned *)value;
 - (BOOL) scanInt:(int *)value;
+- (BOOL) scanInteger:(NSInteger *) ptr;
 - (unsigned) scanLocation;
 - (BOOL) scanLongLong:(long long *)value;
 - (BOOL) scanString:(NSString *)string intoString:(NSString **)value;

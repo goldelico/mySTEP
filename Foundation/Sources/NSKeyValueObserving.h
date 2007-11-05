@@ -34,7 +34,9 @@ typedef enum
 typedef enum
 { // bit mask
 	NSKeyValueObservingOptionNew = 1 << 0,
-	NSKeyValueObservingOptionOld = 1 << 1
+	NSKeyValueObservingOptionOld = 1 << 1,
+	NSKeyValueObservingOptionInitial = 1 << 2,
+	NSKeyValueObservingOptionPrior = 1 << 3
 } NSKeyValueObservingOptions;
 
 typedef enum
@@ -55,6 +57,7 @@ extern NSString *NSKeyValueChangeIndexesKey;
 // class NSMutableDictionary *_dependentKeys;
 + (BOOL) automaticallyNotifiesObserversForKey:(NSString *) key;
 + (void) setKeys:(NSArray *) keys triggerChangeNotificationsForDependentKey:(NSString *) dependentKey;
++ (NSSet *) keyPathsForValuesAffectingValueForKey:(NSString *) key;
 
 - (void) addObserver:(id) obj
 		  forKeyPath:(NSString *) str

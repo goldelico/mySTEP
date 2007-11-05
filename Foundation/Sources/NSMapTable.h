@@ -122,4 +122,10 @@ void NSMapRemove(NSMapTable *table, const void *key);
 
 NSString *NSStringFromMapTable(NSMapTable *table);
 
+#if NEW
+@interface NSMapTable : Object
+{
+}
+#endif
+
 #endif /* _mySTEP_H_NSMapTable */

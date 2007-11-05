@@ -33,6 +33,12 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		EE2114DB0CDF55910062A8AD /* NSGarbageCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2114D90CDF55910062A8AD /* NSGarbageCollector.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE2114DC0CDF55910062A8AD /* NSGarbageCollector.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2114DA0CDF55910062A8AD /* NSGarbageCollector.m */; };
+		EE2114FA0CDF568D0062A8AD /* NSOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2114F80CDF568D0062A8AD /* NSOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE2114FB0CDF568D0062A8AD /* NSOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2114F90CDF568D0062A8AD /* NSOperation.m */; };
+		EE2115130CDF58F70062A8AD /* NSCondition.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2115110CDF58F70062A8AD /* NSCondition.h */; };
+		EE2115140CDF58F70062A8AD /* NSCondition.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2115120CDF58F70062A8AD /* NSCondition.m */; };
 		EE6954260A34312B00E0C6C0 /* NSKeyValueObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6954250A34312B00E0C6C0 /* NSKeyValueObserving.m */; };
 		EE79057F0BCE873C00A35703 /* NSNumberFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = EE79057E0BCE873C00A35703 /* NSNumberFormatter.m */; };
 		EEA925860C0B004500A846D2 /* alphanum.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257B0C0B004500A846D2 /* alphanum.charSet */; };
@@ -276,6 +282,12 @@
 		EE1D7856096C735E0063CE1F /* NSURLProtocol.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSURLProtocol.h; path = Sources/NSURLProtocol.h; sourceTree = "<group>"; };
 		EE1D7857096C735E0063CE1F /* NSURLProtocol.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSURLProtocol.m; path = Sources/NSURLProtocol.m; sourceTree = "<group>"; };
 		EE1DF4E0098ECB8C00DDE5E0 /* NSSpellServer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSSpellServer.m; path = Sources/NSSpellServer.m; sourceTree = "<group>"; };
+		EE2114D90CDF55910062A8AD /* NSGarbageCollector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSGarbageCollector.h; sourceTree = "<group>"; };
+		EE2114DA0CDF55910062A8AD /* NSGarbageCollector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSGarbageCollector.m; sourceTree = "<group>"; };
+		EE2114F80CDF568D0062A8AD /* NSOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSOperation.h; sourceTree = "<group>"; };
+		EE2114F90CDF568D0062A8AD /* NSOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSOperation.m; sourceTree = "<group>"; };
+		EE2115110CDF58F70062A8AD /* NSCondition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSCondition.h; sourceTree = "<group>"; };
+		EE2115120CDF58F70062A8AD /* NSCondition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSCondition.m; sourceTree = "<group>"; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE2FDDA10976F595003EA8A2 /* tools */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tools; path = /Developer/Xtoolchain/tools; sourceTree = "<absolute>"; };
 		EE2FDF2709770599003EA8A2 /* NSLocale.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSLocale.m; path = Sources/NSLocale.m; sourceTree = "<group>"; };
@@ -688,6 +700,10 @@
 				EEA32F3C09537D0D001244CF /* NSRange.h */,
 				EE81F9690962EB5200F9F896 /* NSUtilities.h */,
 				EE81F9680962EB5200F9F896 /* NSZone.h */,
+				EE2114D90CDF55910062A8AD /* NSGarbageCollector.h */,
+				EE2114DA0CDF55910062A8AD /* NSGarbageCollector.m */,
+				EE2115110CDF58F70062A8AD /* NSCondition.h */,
+				EE2115120CDF58F70062A8AD /* NSCondition.m */,
 			);
 			name = "Runtime & Misc";
 			sourceTree = "<group>";
@@ -885,6 +901,8 @@
 				EEA32F3E09537D0D001244CF /* NSRunLoop.m */,
 				EEA32F5009537D0D001244CF /* NSTimer.h */,
 				EEA32F5109537D0D001244CF /* NSTimer.m */,
+				EE2114F80CDF568D0062A8AD /* NSOperation.h */,
+				EE2114F90CDF568D0062A8AD /* NSOperation.m */,
 			);
 			name = "Runloop & Timers";
 			sourceTree = "<group>";
@@ -1126,6 +1144,9 @@
 				EEAA86880A148ED200F2E5B5 /* NSURLProtocol.h in Headers */,
 				EEAA86890A148ED200F2E5B5 /* NSHTTPCookie.h in Headers */,
 				EEAA868A0A148ED200F2E5B5 /* NSHTTPCookieStorage.h in Headers */,
+				EE2114DB0CDF55910062A8AD /* NSGarbageCollector.h in Headers */,
+				EE2114FA0CDF568D0062A8AD /* NSOperation.h in Headers */,
+				EE2115130CDF58F70062A8AD /* NSCondition.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1307,6 +1328,9 @@
 				EEAA86E70A148ED200F2E5B5 /* NSSpellServer.m in Sources */,
 				EE6954260A34312B00E0C6C0 /* NSKeyValueObserving.m in Sources */,
 				EE79057F0BCE873C00A35703 /* NSNumberFormatter.m in Sources */,
+				EE2114DC0CDF55910062A8AD /* NSGarbageCollector.m in Sources */,
+				EE2114FB0CDF568D0062A8AD /* NSOperation.m in Sources */,
+				EE2115140CDF58F70062A8AD /* NSCondition.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

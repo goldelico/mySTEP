@@ -171,7 +171,7 @@ typedef enum _NSComparisonResult
 
 } NSComparisonResult;
 
-enum { NSNotFound = 0x7fffffff };
+enum { NSNotFound = NSIntegerMax };
 
 @interface NSObject (Miscellaneous)
 - (id) _subclass:(SEL) cmd;

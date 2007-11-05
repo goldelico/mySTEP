@@ -81,13 +81,16 @@ typedef enum _NSDateFormatterBehavior
 			  forString:(NSString *) string
 				  range:(inout NSRange *) rangep
 				  error:(NSError **) error;
+- (NSDate *) gregorianStartDate;
 - (id) init;
 - (id) initWithDateFormat:(NSString *) format
      allowNaturalLanguage:(BOOL) flag;
 - (BOOL) isLenient;
 - (NSLocale *) locale;
+- (NSArray *) longEraSymbols;
 - (NSArray *) monthSymbols;
 - (NSString *) PMSymbol;
+- (NSArray *) quarterSymbols;
 - (void) setAMSymbol:(NSString *) string;
 - (void) setCalendar:(NSCalendar *) calendar;
 - (void) setDateFormat:(NSString *) string;
@@ -96,22 +99,47 @@ typedef enum _NSDateFormatterBehavior
 - (void) setEraSymbols:(NSArray *) array;
 - (void) setFormatterBehavior:(NSDateFormatterBehavior) behavior;
 - (void) setGeneratesCalendarDates:(BOOL) flag;
+- (void) setGregorianStartDate:(NSDate *) date;
 - (void) setLenient:(BOOL) flag;
 - (void) setLocale:(NSLocale *) locale;
+- (void) setLongEraSymbols:(NSArray *) array;
 - (void) setMonthSymbols:(NSArray *) array;
 - (void) setPMSymbol:(NSString *) string;
+- (void) setQuarterSymbols:(NSArray *) array;
 - (void) setShortMonthSymbols:(NSArray *) array;
+- (void) setShortQuarterSymbols:(NSArray *) array;
+- (void) setShortStandaloneMonthSymbols:(NSArray *) array;
+- (void) setShortStandaloneQuarterSymbols:(NSArray *) array;
+- (void) setShortStandaloneWeekdaySymbols:(NSArray *) array;
 - (void) setShortWeekdaySymbols:(NSArray *) array;
+- (void) setStandaloneMonthSymbols:(NSArray *) array;
+- (void) setStandaloneQuarterSymbols:(NSArray *) array;
+- (void) setStandaloneWeekdaySymbols:(NSArray *) array;
 - (void) setTimeStyle:(NSDateFormatterStyle) style;
 - (void) setTimeZone:(NSTimeZone *) tz;
 - (void) setTwoDigitStartDate:(NSDate *) date;
 - (void) setWeekdaySymbols:(NSArray *) array;
+- (void) setVeryShortMonthSymbols:(NSArray *) array;
+- (void) setVeryShortStandaloneMonthSymbols:(NSArray *) array;
+- (void) setVeryShortStandaloneWeekdaySymbols:(NSArray *) array;
+- (void) setVeryShortWeekdaySymbols:(NSArray *) array;
 - (NSArray *) shortMonthSymbols;
+- (NSArray *) shortQuarterSymbols;
+- (NSArray *) shortStandaloneMonthSymbols;
+- (NSArray *) shortStandaloneQuarterSymbols;
+- (NSArray *) shortStandaloneWeekdaySymbols;
 - (NSArray *) shortWeekdaySymbols;
+- (NSArray *) standaloneMonthSymbols;
+- (NSArray *) standaloneQuarterSymbols;
+- (NSArray *) standaloneWeekdaySymbols;
 - (NSString *) stringFromDate:(NSDate *) date;
 - (NSDateFormatterStyle) timeStyle;
 - (NSTimeZone *) timeZone;
 - (NSDate *) twoDigitStartDate;
+- (NSArray *) veryShortMonthSymbols;
+- (NSArray *) veryShortStandaloneMonthSymbols;
+- (NSArray *) veryShortStandaloneWeekdaySymbols;
+- (NSArray *) veryShortWeekdaySymbols;
 - (NSArray *) weekdaySymbols;
 
 @end

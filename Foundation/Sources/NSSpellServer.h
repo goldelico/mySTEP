@@ -27,6 +27,7 @@
 
 @interface NSObject (NSSpellServerDelegate)
 
+- (NSRange) spellServer:(NSSpellServer *) sender checkGrammarInString:(NSString *) string language:(NSString *) language details:(NSArray **) details;
 - (void) spellServer:(NSSpellServer *) sender didForgetWord:(NSString *) word inLanguage:(NSString *) language;
 - (void) spellServer:(NSSpellServer *) sender didLearnWord:(NSString *) word inLanguage:(NSString *) language;
 - (NSRange) spellServer:(NSSpellServer *) sender findMisspelledWordInString:(NSString *) stringToCheck
@@ -39,3 +40,8 @@
 - (NSArray *) spellServer:(NSSpellServer *) sender suggestGuessesForWord:(NSString *) word inLanguage:(NSString *) language;
 
 @end
+
+extern NSString *NSGrammarRange;
+extern NSString *NSGrammarUserDescription;
+extern NSString *NSGrammarCorrections;
+

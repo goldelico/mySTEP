@@ -16,6 +16,7 @@
 
 #import <Foundation/NSException.h>
 #import <Foundation/NSAutoreleasePool.h>
+#import <Foundation/NSDate.h>
 
 @class NSMutableDictionary;
 @class NSDate;
@@ -50,17 +51,55 @@
 		} _autorelease_vars;
 }
 
-+ (NSThread*) currentThread;
-+ (void) detachNewThreadSelector:(SEL)aSelector
-						toTarget:(id)aTarget
-						withObject:(id)anArgument;
++ (NSThread *) currentThread;
++ (void) detachNewThreadSelector:(SEL) aSelector
+						toTarget:(id) aTarget
+						withObject:(id) anArgument;
 + (void) exit;
++ (BOOL) isMainThread;
 + (BOOL) isMultiThreaded;
++ (NSThread *) mainThread;
 + (BOOL) setThreadPriority:(double) priority;
-+ (void) sleepUntilDate:(NSDate*)date;
++ (void) sleepForTimeInterval:(NSTimeInterval) interval;
++ (void) sleepUntilDate:(NSDate *) date;
 + (double) threadPriority;
 
+- (void) cancel;
+- (id) init;
+- (id) initWithTarget:(id) target selector:(SEL) sel object:(id) arg;
+- (BOOL) isCancelled;
+- (BOOL) isExecuting;
+- (BOOL) isFinished;
+- (BOOL) isMainThread;
+- (void) main;    // thread body method
+- (NSString *) name;
+- (void) setName:(NSString *) name;
+- (void) setStackSize:(NSUInteger) size;
+- (NSUInteger) stackSize;
+- (void) start;
 - (NSMutableDictionary*) threadDictionary;
+
+@end
+
+@interface NSObject (NSThread)
+
+- (void) performSelectorOnMainThread:(SEL) sel
+						  withObject:(id) arg
+					   waitUntilDone:(BOOL) wait;
+- (void) performSelectorOnMainThread:(SEL) sel
+						  withObject:(id) arg
+					   waitUntilDone:(BOOL) wait
+							   modes:(NSArray *) array;
+- (void) performSelector:(SEL) sel
+				onThread:(NSThread *) thread
+			  withObject:(id) arg
+		   waitUntilDone:(BOOL) wait;
+- (void) performSelector:(SEL) sel
+				onThread:(NSThread *) thread
+			  withObject:(id) arg
+		   waitUntilDone:(BOOL) wait
+				   modes:(NSArray *) array;
+- (void) performSelectorInBackground:(SEL) sel withObject:(id) arg;
 
 @end
 

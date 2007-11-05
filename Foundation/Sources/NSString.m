@@ -2134,7 +2134,7 @@ unsigned int end, start = anIndex;						// Determining Composed
 {
 #if 1
 	const char *s=[self cString];
-	fprintf(stderr, "doubleValue(%s) -> %lf\n", s, atof(s));
+	fprintf(stderr, "doubleValue(%s) -> %f\n", s, atof(s));
 #endif
 	return atof([self cString]);
 }

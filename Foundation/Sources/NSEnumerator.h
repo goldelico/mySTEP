@@ -24,4 +24,20 @@
 
 @end
 
+@protocol NSFastEnumeration
+
+typedef struct
+{
+    unsigned long state;
+    id *itemsPtr;
+    unsigned long *mutationsPtr;
+    unsigned long extra[5];
+} NSFastEnumerationState;
+
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *) state
+								   objects:(id *) stackbuf
+									 count:(NSUInteger) len;
+
+@end
+
 #endif /* _mySTEP_H_NSEnumerator */

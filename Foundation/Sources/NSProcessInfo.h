@@ -45,18 +45,21 @@ enum {
 	int _pid;
 }
 
-+ (NSProcessInfo*) processInfo;						// Shared NSProcessInfo
++ (NSProcessInfo *) processInfo;						// Shared NSProcessInfo
 
-- (NSArray*) arguments;								// Access Process Info
-- (NSDictionary*) environment;
-- (NSString*) globallyUniqueString;
-- (NSString*) hostName;
+- (NSUInteger) activeProcessorCount;
+- (NSArray *) arguments;
+- (NSDictionary *) environment;
+- (NSString *) globallyUniqueString;
+- (NSString *) hostName;
 - (unsigned int) operatingSystem;
-- (NSString*) operatingSystemName;
+- (NSString *) operatingSystemName;
 - (NSString *) operatingSystemVersionString;
+- (unsigned long long) physicalMemory;
 - (int) processIdentifier;
-- (NSString*) processName;
-- (void) setProcessName:(NSString*)newName;			// Modify Process Name
+- (NSString *) processName;
+- (NSUInteger) processorCount;
+- (void) setProcessName:(NSString *)newName;			// Modify Process Name
 
 @end
 

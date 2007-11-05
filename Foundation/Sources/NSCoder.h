@@ -37,6 +37,7 @@
 - (long) decodeInt32ForKey:(NSString *)key;
 - (long long) decodeInt64ForKey:(NSString *)key;
 - (int) decodeIntForKey:(NSString *)key;
+- (NSInteger) decodeIntegerForKey:(NSString *)key;
 - (id) decodeNXObject;
 - (id) decodeObject;
 - (id) decodeObjectForKey:(NSString *)key;
@@ -65,6 +66,7 @@
 - (void) encodeInt32:(long)val forKey:(NSString *)key;
 - (void) encodeInt64:(long long)intv forKey:(NSString *)key;
 - (void) encodeInt:(int)intv forKey:(NSString *)key;
+- (void) encodeInteger:(NSInteger)intv forKey:(NSString *)key;
 - (void) encodeNXObject:(id)object;
 - (void) encodeObject:(id)anObject;
 - (void) encodeObject:(id)val forKey:(NSString *)key;

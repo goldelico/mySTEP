@@ -32,6 +32,7 @@
 
 @class NSString;
 @class NSArray;
+@class NSError;
 @class NSMutableArray;
 @class NSDictionary;
 @class NSMutableDictionary;
@@ -73,11 +74,13 @@ extern NSString *NSLoadedClasses;
 - (NSString *) bundlePath;
 - (Class) classNamed:(NSString *)className;
 - (NSString *) developmentLocalization;
+- (NSArray *) executableArchitectures;
 - (NSString *) executablePath;
 - (NSDictionary *) infoDictionary;
 - (id) initWithPath:(NSString *) fullpath;
 - (BOOL) isLoaded;
 - (BOOL) load;
+- (BOOL) loadAndReturnError:(NSError **) error;
 - (NSArray *) localizations;
 - (NSDictionary *) localizedInfoDictionary;
 - (NSString *) localizedStringForKey:(NSString *)key	
@@ -100,11 +103,13 @@ extern NSString *NSLoadedClasses;
 						  inDirectory:(NSString *)subpath
 					  forLocalization:(NSString *)locale;
 - (NSArray *) preferredLocalizations;
+- (BOOL) preflightAndReturnError:(NSError **) error;
 - (Class) principalClass;
 - (NSString *) privateFrameworksPath;
 - (NSString *) resourcePath;
 - (NSString *) sharedFrameworksPath;
 - (NSString *) sharedSupportPath;
+- (BOOL) unload;
 
 @end
 

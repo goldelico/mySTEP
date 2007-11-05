@@ -219,6 +219,7 @@ extern NSString *NSParseErrorException;
 - (id) initWithString:(NSString*)string;
 - (id) initWithUTF8String:(const char *)bytes;
 - (int) intValue;
+- (NSInteger) integerValue;
 - (BOOL) isEqualToString:(NSString*)aString;
 - (unsigned int) length;
 - (unsigned) lengthOfBytesUsingEncoding:(NSStringEncoding)enc;	// exact

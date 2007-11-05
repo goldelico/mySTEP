@@ -817,7 +817,7 @@ static void * _load(char *lib)
 		fprintf(stderr, "%s appears to be %s libc/libm\n", lib, _softFloat?"softfloat":"hardfloat");
 #endif
 		if(_softFloat && sqrt(4.0) != 2.0)
-			fprintf(stderr, "softfloat wrapper error sqrt(4.0) -> %lf", sqrt(4.0));
+			fprintf(stderr, "softfloat wrapper error sqrt(4.0) -> %f", sqrt(4.0));
 		}
 	return libp;
 }

@@ -68,6 +68,8 @@
 + (NSNumber*) numberWithUnsignedLong:(unsigned long)value;
 + (NSNumber*) numberWithUnsignedLongLong:(unsigned long long)value;
 + (NSNumber*) numberWithUnsignedShort:(unsigned short)value;
++ (NSNumber *) numberWithInteger:(NSInteger) value;
++ (NSNumber *) numberWithUnsignedInteger:(NSUInteger) value;
 
 - (BOOL) boolValue;
 - (char) charValue;
@@ -80,15 +82,18 @@
 - (id) initWithDouble:(double)value;
 - (id) initWithFloat:(float)value;
 - (id) initWithInt:(int)value;
+- (id) initWithInteger:(NSInteger)value;
 - (id) initWithLong:(long)value;
 - (id) initWithLongLong:(long long)value;
 - (id) initWithShort:(short)value;
 - (id) initWithUnsignedChar:(unsigned char)value;
 - (id) initWithUnsignedInt:(unsigned int)value;
+- (id) initWithUnsignedInteger:(NSUInteger)value;
 - (id) initWithUnsignedLong:(unsigned long)value;
 - (id) initWithUnsignedLongLong:(unsigned long long)value;
 - (id) initWithUnsignedShort:(unsigned short)value;
 - (int) intValue;
+- (NSInteger) integerValue;
 - (BOOL) isEqualToNumber:(NSNumber*)otherNumber;
 - (long long) longLongValue;
 - (long) longValue;
@@ -96,6 +101,7 @@
 - (NSString*) stringValue;
 - (unsigned char) unsignedCharValue;
 - (unsigned int) unsignedIntValue;
+- (NSUInteger) unsignedIntegerValue;
 - (unsigned long long) unsignedLongLongValue;
 - (unsigned long) unsignedLongValue;
 - (unsigned short) unsignedShortValue;

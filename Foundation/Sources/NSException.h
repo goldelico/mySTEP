@@ -39,6 +39,7 @@
 				  format:(NSString *)format
 				  arguments:(va_list)argList;
 
+- (NSArray *) callStackReturnAddresses;
 - (id) initWithName:(NSString *)name 
 			 reason:(NSString *)reason 
 			 userInfo:(NSDictionary *)userInfo;

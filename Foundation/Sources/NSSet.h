@@ -52,6 +52,9 @@
 - (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)anObject;
 - (id)member:(id)anObject;
 - (NSEnumerator*)objectEnumerator;
+- (NSSet *)setByAddingObject:(id)anObject;
+- (NSSet *)setByAddingObjectsFromSet:(NSSet *)other;
+- (NSSet *)setByAddingObjectsFromArray:(NSArray *)other;
 
 @end
 
