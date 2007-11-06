@@ -53,15 +53,8 @@ typedef enum _NSDateFormatterBehavior
 
 @interface NSDateFormatter : NSFormatter <NSCoding, NSCopying>
 {
-//	NSString				*_dateFormat;
-//	NSDateFormatterBehavior	_formatterBehavior;
-//	NSDateFormatterStyle	_dateStyle;
-//	NSDate 					*_defaultDate;
-//	NSLocale				*_locale;
 	NSMutableDictionary		*_attributes;
 	BOOL					_allowsNaturalLanguage;
-//	BOOL					_generatesCalendarDates;
-//	BOOL					_isLenient;
 }
 
 + (NSDateFormatterBehavior) defaultFormatterBehavior;

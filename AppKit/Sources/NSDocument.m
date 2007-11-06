@@ -43,18 +43,18 @@ If not, write to the Free Software Foundation,
 
 @implementation NSDocument
 
-+ (NSArray *)readableTypes
++ (NSArray *) readableTypes
 {
 	return [[NSDocumentController sharedDocumentController]
 	   _editorAndViewerTypesForClass:self];
 }
 
-+ (NSArray *)writableTypes
++ (NSArray *) writableTypes
 {
 	return [[NSDocumentController sharedDocumentController] _editorTypesForClass:self];
 }
 
-+ (BOOL)isNativeType:(NSString *)type
++ (BOOL) isNativeType:(NSString *)type
 {
 	return ([[self readableTypes] containsObject:type] &&
 			[[self writableTypes] containsObject:type]);
@@ -73,7 +73,7 @@ If not, write to the Free Software Foundation,
 	return self;
 }
 
-- (id)initWithContentsOfFile:(NSString *)fileName ofType:(NSString *)fileType
+- (id) initWithContentsOfFile:(NSString *)fileName ofType:(NSString *)fileType
 {
 #if 0
 	NSLog(@"initWithContentsOfFile: %@", fileName);
@@ -95,7 +95,7 @@ If not, write to the Free Software Foundation,
 	return self;
 }
 
-- (id)initWithContentsOfURL:(NSURL *)url ofType:(NSString *)fileType
+- (id) initWithContentsOfURL:(NSURL *)url ofType:(NSString *)fileType
 {
 #if 0
 	NSLog(@"initWithContentsOfURL: %@", url);
@@ -117,7 +117,7 @@ If not, write to the Free Software Foundation,
 	return self;
 }
 
-- (void)dealloc
+- (void) dealloc
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[_undoManager release];
@@ -131,17 +131,17 @@ If not, write to the Free Software Foundation,
 	[super dealloc];
 }
 
-- (NSString *)fileName
+- (NSString *) fileName
 {
 	return _fileName;
 }
 
-- (NSURL *)fileURL
+- (NSURL *) fileURL
 {
 	return NIMP;
 }
 
-- (void)setFileName:(NSString *)fileName
+- (void) setFileName:(NSString *)fileName
 {
 	ASSIGN(_fileName, fileName);
 	
@@ -149,22 +149,22 @@ If not, write to the Free Software Foundation,
 		@selector(synchronizeWindowTitleWithDocumentName)];
 }
 
-- (NSString *)fileType
+- (NSString *) fileType
 {
 	return _fileType;
 }
 
-- (void)setFileType:(NSString *)type
+- (void) setFileType:(NSString *)type
 {
 	ASSIGN(_fileType, type);
 }
 
-- (NSArray *)windowControllers
+- (NSArray *) windowControllers
 {
 	return _windowControllers;
 }
 
-- (void)addWindowController:(NSWindowController *)windowController
+- (void) addWindowController:(NSWindowController *)windowController
 {
 #if 0
 	NSLog(@"%@ addWindowController:%@ window=%@", self, windowController, _window);
@@ -174,7 +174,7 @@ If not, write to the Free Software Foundation,
 		[windowController setDocument:self];
 }
 
-- (void)removeWindowController:(NSWindowController *)windowController
+- (void) removeWindowController:(NSWindowController *)windowController
 {
 	if ([_windowControllers containsObject:windowController])
 		{
@@ -183,7 +183,7 @@ If not, write to the Free Software Foundation,
 		}
 }
 
-- (NSString *)windowNibName
+- (NSString *) windowNibName
 {
 	return nil;
 }
@@ -223,12 +223,12 @@ If not, write to the Free Software Foundation,
 	[_windowControllers makeObjectsPerformSelector:@selector(showWindow:) withObject:self];
 }
 
-- (BOOL)isDocumentEdited
+- (BOOL) isDocumentEdited
 {
 	return _changeCount != 0;
 }
 
-- (void)updateChangeCount:(NSDocumentChangeType)change
+- (void) updateChangeCount:(NSDocumentChangeType)change
 {
 	int i, count = [_windowControllers count];
 	BOOL isEdited;
@@ -257,7 +257,7 @@ If not, write to the Free Software Foundation,
 		}
 }
 
-- (BOOL)canCloseDocument
+- (BOOL) canCloseDocument
 {
 	int result;
 	
@@ -287,7 +287,7 @@ If not, write to the Free Software Foundation,
 		}
 }
 
-- (void)canCloseDocumentWithDelegate:(id)delegate 
+- (void) canCloseDocumentWithDelegate:(id)delegate 
 				 shouldCloseSelector:(SEL)shouldCloseSelector 
 						 contextInfo:(void *)contextInfo
 {
@@ -302,7 +302,7 @@ If not, write to the Free Software Foundation,
 		}
 }
 
-- (BOOL)shouldCloseWindowController:(NSWindowController *)windowController
+- (BOOL) shouldCloseWindowController:(NSWindowController *)windowController
 {
 	if (![_windowControllers containsObject:windowController]) return YES;
 	
@@ -317,7 +317,7 @@ If not, write to the Free Software Foundation,
 	return YES;
 }
 
-- (void)shouldCloseWindowController:(NSWindowController *)windowController 
+- (void) shouldCloseWindowController:(NSWindowController *)windowController 
 						   delegate:(id)delegate 
 				shouldCloseSelector:(SEL)callback
 						contextInfo:(void *)contextInfo
@@ -333,7 +333,7 @@ If not, write to the Free Software Foundation,
 		}
 }
 
-- (NSString *)displayName
+- (NSString *) displayName
 {
 	static unsigned int untitledCount = 1;
 	if ([self fileName] != nil)
@@ -343,26 +343,26 @@ If not, write to the Free Software Foundation,
 	return [NSString stringWithFormat:@"Untitled-%u", _documentIndex];
 }
 
-- (BOOL)keepBackupFile
+- (BOOL) keepBackupFile
 {
 	return NO;
 }
 
-- (NSData *)dataRepresentationOfType:(NSString *)type
+- (NSData *) dataRepresentationOfType:(NSString *)type
 {
 	[NSException raise:NSInternalInconsistencyException format:@"%@ must implement %@",
 	       NSStringFromClass(isa), NSStringFromSelector(_cmd)];
 	return nil;
 }
 
-- (BOOL)loadDataRepresentation:(NSData *)data ofType:(NSString *)type
+- (BOOL) loadDataRepresentation:(NSData *)data ofType:(NSString *)type
 {
 	[NSException raise:NSInternalInconsistencyException format:@"%@ must implement %@",
 	       NSStringFromClass(isa), NSStringFromSelector(_cmd)];
 	return NO;
 }
 
-- (NSFileWrapper *)fileWrapperRepresentationOfType:(NSString *)type
+- (NSFileWrapper *) fileWrapperRepresentationOfType:(NSString *)type
 {
 	NSData *data = [self dataRepresentationOfType:type];
 	
@@ -372,7 +372,7 @@ If not, write to the Free Software Foundation,
 	return [[[NSFileWrapper alloc] initRegularFileWithContents:data] autorelease];
 }
 
-- (BOOL)loadFileWrapperRepresentation:(NSFileWrapper *)wrapper ofType:(NSString *)type
+- (BOOL) loadFileWrapperRepresentation:(NSFileWrapper *)wrapper ofType:(NSString *)type
 {
 	if ([wrapper isRegularFile])
 		{
@@ -389,24 +389,37 @@ If not, write to the Free Software Foundation,
 	return NO;
 }
 
-- (BOOL)writeToFile:(NSString *)fileName ofType:(NSString *)type
+- (BOOL) writeToFile:(NSString *)fileName ofType:(NSString *)type
 {
 	return [[self fileWrapperRepresentationOfType:type]
 	   writeToFile:fileName atomically:YES updateFilenames:YES];
 }
 
-- (BOOL)readFromFile:(NSString *)fileName ofType:(NSString *)type
+- (BOOL) readFromFile:(NSString *)fileName ofType:(NSString *)type
 {
 	NSFileWrapper *wrapper = [[[NSFileWrapper alloc] initWithPath:fileName] autorelease];
 	return [self loadFileWrapperRepresentation:wrapper ofType:type];
 }
 
-- (BOOL)revertToSavedFromFile:(NSString *)fileName ofType:(NSString *)type
+- (BOOL) readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError
+{
+	if([absoluteURL isFileURL])
+		{ // use default
+		if(outError)
+			*outError=nil;
+		return [self readFromFile:[absoluteURL path] ofType:typeName];
+		}
+	NSLog(@"%@ must be overridden if your document deals with files.",
+		  NSStringFromSelector(_cmd));
+	return NO;
+}
+
+- (BOOL) revertToSavedFromFile:(NSString *)fileName ofType:(NSString *)type
 {
 	return [self readFromFile:fileName ofType:type];
 }
 
-- (BOOL)writeToURL:(NSURL *)url ofType:(NSString *)type
+- (BOOL) writeToURL:(NSURL *)url ofType:(NSString *)type
 {
 	NSData *data = [self dataRepresentationOfType:type];
 	
@@ -416,7 +429,7 @@ If not, write to the Free Software Foundation,
 	return [url setResourceData: data];
 }
 
-- (BOOL)readFromURL:(NSURL *)url ofType:(NSString *)type
+- (BOOL) readFromURL:(NSURL *)url ofType:(NSString *)type
 {
 	NSData *data = [url resourceDataUsingCache: YES];
 	
@@ -426,12 +439,12 @@ If not, write to the Free Software Foundation,
 	return [self loadDataRepresentation: data ofType: type];
 }
 
-- (BOOL)revertToSavedFromURL:(NSURL *)url ofType:(NSString *)type
+- (BOOL) revertToSavedFromURL:(NSURL *)url ofType:(NSString *)type
 {
 	return [self readFromURL: url ofType: type];
 }
 
-- (IBAction)changeSaveType:(id)sender
+- (IBAction) changeSaveType:(id)sender
 { 
 	//FIXME if we have accessory -- store the desired save type somewhere.
 }
@@ -462,7 +475,7 @@ If not, write to the Free Software Foundation,
 
 #endif
 
-- (NSString *)fileNameFromRunningSavePanelForSaveOperation:(NSSaveOperationType)saveOperation
+- (NSString *) fileNameFromRunningSavePanelForSaveOperation:(NSSaveOperationType)saveOperation
 {
 	NSView *accessory = nil;
 	NSString *title;
@@ -514,17 +527,17 @@ If not, write to the Free Software Foundation,
 	return nil;
 }
 
-- (BOOL)shouldChangePrintInfo:(NSPrintInfo *)newPrintInfo
+- (BOOL) shouldChangePrintInfo:(NSPrintInfo *)newPrintInfo
 {
 	return YES;
 }
 
-- (NSPrintInfo *)printInfo
+- (NSPrintInfo *) printInfo
 {
 	return _printInfo? _printInfo : [NSPrintInfo sharedPrintInfo];
 }
 
-- (void)setPrintInfo:(NSPrintInfo *)printInfo
+- (void) setPrintInfo:(NSPrintInfo *)printInfo
 {
 	ASSIGN(_printInfo, printInfo);
 }
@@ -532,12 +545,12 @@ If not, write to the Free Software Foundation,
 
 // Page layout panel (Page Setup)
 
-- (int)runModalPageLayoutWithPrintInfo:(NSPrintInfo *)printInfo
+- (int) runModalPageLayoutWithPrintInfo:(NSPrintInfo *)printInfo
 {
 	return [[NSPageLayout pageLayout] runModalWithPrintInfo:printInfo];
 }
 
-- (IBAction)runPageLayout:(id)sender
+- (IBAction) runPageLayout:(id)sender
 {
 	NSPrintInfo *printInfo = [self printInfo];
 	
@@ -554,12 +567,12 @@ If not, write to the Free Software Foundation,
 {
 }
 
-- (IBAction)printDocument:(id)sender
+- (IBAction) printDocument:(id)sender
 {
 	[self printShowingPrintPanel:YES];
 }
 
-- (BOOL)validateMenuItem:(NSMenuItem *)anItem
+- (BOOL) validateMenuItem:(NSMenuItem *)anItem
 {
 	if ([anItem action] == @selector(revertDocumentToSaved:))
 		return ([self fileName] != nil && [self isDocumentEdited]);
@@ -569,7 +582,7 @@ If not, write to the Free Software Foundation,
 	return YES;
 }
 
-- (BOOL)validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem
+- (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem
 {
 	if ([anItem action] == @selector(revertDocumentToSaved:))
 		return ([self fileName] != nil);
@@ -577,14 +590,14 @@ If not, write to the Free Software Foundation,
 	return YES;
 }
 
-- (NSString *)fileTypeFromLastRunSavePanel
+- (NSString *) fileTypeFromLastRunSavePanel
 {
 	// FIXME this should return type picked on save accessory
 	// return [spaPopupButton title];
 	return [self fileType];
 }
 
-- (NSDictionary *)fileAttributesToWriteToFile: (NSString *)fullDocumentPath 
+- (NSDictionary *) fileAttributesToWriteToFile: (NSString *)fullDocumentPath 
 									   ofType: (NSString *)docType 
 								saveOperation: (NSSaveOperationType)saveOperationType
 {
@@ -592,7 +605,7 @@ If not, write to the Free Software Foundation,
 	return [NSDictionary dictionary];
 }
 
-- (BOOL)writeToFile:(NSString *)fileName 
+- (BOOL) writeToFile:(NSString *)fileName 
 			 ofType:(NSString *)type 
        originalFile:(NSString *)origFileName
       saveOperation:(NSSaveOperationType)saveOp
@@ -600,7 +613,7 @@ If not, write to the Free Software Foundation,
 	return [self writeToFile: fileName ofType: type];
 }
 
-- (BOOL)writeWithBackupToFile:(NSString *)fileName 
+- (BOOL) writeWithBackupToFile:(NSString *)fileName 
 					   ofType:(NSString *)fileType 
 				saveOperation:(NSSaveOperationType)saveOp
 {
@@ -658,7 +671,7 @@ If not, write to the Free Software Foundation,
 	return NO;
 }
 
-- (IBAction)saveDocument:(id)sender
+- (IBAction) saveDocument:(id)sender
 {
 	NSString *filename = [self fileName];
 	
@@ -673,7 +686,7 @@ If not, write to the Free Software Foundation,
 				  saveOperation: NSSaveOperation];
 }
 
-- (IBAction)saveDocumentAs:(id)sender
+- (IBAction) saveDocumentAs:(id)sender
 {
 	NSString *filename = 
 	[self fileNameFromRunningSavePanelForSaveOperation: 
@@ -684,7 +697,7 @@ If not, write to the Free Software Foundation,
 				  saveOperation: NSSaveAsOperation];
 }
 
-- (IBAction)saveDocumentTo:(id)sender
+- (IBAction) saveDocumentTo:(id)sender
 {
 	NSString *filename = 
 	[self fileNameFromRunningSavePanelForSaveOperation: 
@@ -695,36 +708,39 @@ If not, write to the Free Software Foundation,
 				  saveOperation: NSSaveToOperation];
 }
 
-- (void)saveDocumentWithDelegate:(id)delegate 
+- (void) saveDocumentWithDelegate:(id)delegate 
 				 didSaveSelector:(SEL)didSaveSelector 
 					 contextInfo:(void *)contextInfo
 {
 	// FIXME
+	NIMP;
 }
 
-- (void)saveToFile:(NSString *)fileName 
+- (void) saveToFile:(NSString *)fileName 
      saveOperation:(NSSaveOperationType)saveOperation 
 		  delegate:(id)delegate
    didSaveSelector:(SEL)didSaveSelector 
        contextInfo:(void *)contextInfo
 {
 	// FIXME
+	NIMP;
 }
 
-- (BOOL)prepareSavePanel:(NSSavePanel *)savePanel
+- (BOOL) prepareSavePanel:(NSSavePanel *)savePanel
 {
 	return YES;
 }
 
-- (void)runModalSavePanelForSaveOperation:(NSSaveOperationType)saveOperation 
+- (void) runModalSavePanelForSaveOperation:(NSSaveOperationType)saveOperation 
 								 delegate:(id)delegate
 						  didSaveSelector:(SEL)didSaveSelector 
 							  contextInfo:(void *)contextInfo
 {
 	// FIXME
+	NIMP;
 }
 
-- (IBAction)revertDocumentToSaved:(id)sender
+- (IBAction) revertDocumentToSaved:(id)sender
 {
 	int result;
 	
@@ -746,7 +762,7 @@ from the list of documents known by the NSDocumentController. This
 method does not ask the user if they want to save the document before
 closing. It is closed without saving any information.
 */
-- (void)close
+- (void) close
 {
 	if (_docFlags.inClose == NO)
 		{
@@ -766,10 +782,10 @@ closing. It is closed without saving any information.
 		}
 }
 
-- (void)windowControllerWillLoadNib:(NSWindowController *)windowController {}
-- (void)windowControllerDidLoadNib:(NSWindowController *)windowController  {}
+- (void) windowControllerWillLoadNib:(NSWindowController *)windowController { return; }
+- (void) windowControllerDidLoadNib:(NSWindowController *)windowController  { return; }
 
-- (NSUndoManager *)undoManager
+- (NSUndoManager *) undoManager
 {
 	if (_undoManager == nil && [self hasUndoManager])
 		{
@@ -779,7 +795,7 @@ closing. It is closed without saving any information.
 	return _undoManager;
 }
 
-- (void)setUndoManager:(NSUndoManager *)undoManager
+- (void) setUndoManager:(NSUndoManager *)undoManager
 {
 	if (undoManager != _undoManager)
 		{
@@ -823,12 +839,12 @@ closing. It is closed without saving any information.
 		}
 }
 
-- (BOOL)hasUndoManager
+- (BOOL) hasUndoManager
 {
 	return _docFlags.hasUndoManager;
 }
 
-- (void)setHasUndoManager:(BOOL)flag
+- (void) setHasUndoManager:(BOOL)flag
 {
 	if (_undoManager && !flag)
 		[self setUndoManager:nil];
@@ -844,7 +860,7 @@ closing. It is closed without saving any information.
 	return _window;
 }
 
-- (void)_removeWindowController:(NSWindowController *)windowController
+- (void) _removeWindowController:(NSWindowController *)windowController
 {
 	if ([_windowControllers containsObject:windowController])
 		{
@@ -860,17 +876,17 @@ closing. It is closed without saving any information.
 		}
 }
 
-- (void)_changeWasDone:(NSNotification *)notification
+- (void) _changeWasDone:(NSNotification *)notification
 {
 	[self updateChangeCount:NSChangeDone];
 }
 
-- (void)_changeWasUndone:(NSNotification *)notification
+- (void) _changeWasUndone:(NSNotification *)notification
 {
 	[self updateChangeCount:NSChangeUndone];
 }
 
-- (void)_changeWasRedone:(NSNotification *)notification
+- (void) _changeWasRedone:(NSNotification *)notification
 {
 	[self updateChangeCount:NSChangeDone];
 }

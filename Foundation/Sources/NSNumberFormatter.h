@@ -72,6 +72,9 @@ typedef enum _NSNumberFormatterRoundingMode
 
 @interface NSNumberFormatter : NSFormatter
 {
+	// FIXME: store everything in a dictionary and not in iVars
+	NSMutableDictionary *_attributes;
+	// 
 	NSDecimalNumberHandler *_roundingBehavior;
 	NSDecimalNumber *_maximum;
 	NSDecimalNumber *_minimum;
