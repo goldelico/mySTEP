@@ -14,6 +14,9 @@
    Author:	Fabian Spillner
    Date:	22. October 2007  
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	6. November 2007 - aligned with 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -30,10 +33,10 @@
 
 @protocol NSColorPickingCustom
 
-- (int) currentMode;
+- (NSColorPanelMode) currentMode;
 - (NSView *) provideNewView:(BOOL) firstRequest;
 - (void) setColor:(NSColor *) aColor;
-- (BOOL) supportsMode:(int) mode;
+- (BOOL) supportsMode:(NSColorPanelMode) mode;
 
 @end
 
@@ -42,9 +45,11 @@
 
 - (void) alphaControlAddedOrRemoved:(id) sender;
 - (void) attachColorList:(NSColorList *) aColorList;				// Color Lists
+- (NSString *) buttonToolTip;
 - (void) detachColorList:(NSColorList *) aColorList;
-- (id) initWithPickerMask:(int) mask colorPanel:(NSColorPanel *) colorPanel;
+- (id) initWithPickerMask:(NSUInteger) mask colorPanel:(NSColorPanel *) colorPanel;
 - (void) insertNewButtonImage:(NSImage *) newImage in:(NSButtonCell *) newButtonCell;
+- (NSSize) minContentSize;
 - (NSImage *) provideNewButtonImage;
 - (void) setMode:(int) mode;
 - (void) viewSizeChanged:(id) sender;

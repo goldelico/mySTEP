@@ -12,6 +12,9 @@
    Author:	Fabian Spillner
    Date:	19. October 2007  
  
+   Author:  Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	5. November 2007 - aligned with 10.5
+ 
    This file is part of the mySTEP Library.
 
    This library is free software; you can redistribute it and/or
@@ -99,35 +102,37 @@ typedef enum NSBezierPathElement
 + (NSBezierPath *) bezierPath;
 + (NSBezierPath *) bezierPathWithOvalInRect:(NSRect) rect;
 + (NSBezierPath *) bezierPathWithRect:(NSRect) rect;
++ (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
 + (void) clipRect:(NSRect) rect;
-+ (float) defaultFlatness;
++ (CGFloat) defaultFlatness;
 + (NSLineCapStyle) defaultLineCapStyle;
 + (NSLineJoinStyle) defaultLineJoinStyle;
-+ (float) defaultLineWidth;
-+ (float) defaultMiterLimit;
++ (CGFloat) defaultLineWidth;
++ (CGFloat) defaultMiterLimit;
 + (NSWindingRule) defaultWindingRule;
 + (void) drawPackedGlyphs:(const char *) glyphs atPoint:(NSPoint) pt;
 + (void) fillRect:(NSRect) rect;
-+ (void) setDefaultFlatness:(float) value;
++ (void) setDefaultFlatness:(CGFloat) value;
 + (void) setDefaultLineCapStyle:(NSLineCapStyle) style;
 + (void) setDefaultLineJoinStyle:(NSLineJoinStyle) style;
-+ (void) setDefaultLineWidth:(float) lineWidth;
-+ (void) setDefaultMiterLimit:(float) miterLimit;
++ (void) setDefaultLineWidth:(CGFloat) lineWidth;
++ (void) setDefaultMiterLimit:(CGFloat) miterLimit;
 + (void) setDefaultWindingRule:(NSWindingRule) rule;
 + (void) strokeLineFromPoint:(NSPoint) pt1 toPoint:(NSPoint) pt2;
 + (void) strokeRect:(NSRect) rect;
 
 - (void) addClip;
 - (void) appendBezierPath:(NSBezierPath *) path;
-- (void) appendBezierPathWithArcFromPoint:(NSPoint) pt1 toPoint:(NSPoint) pt2 radius:(float) rad;
-- (void) appendBezierPathWithArcWithCenter:(NSPoint) centerPt radius:(float) rad startAngle:(float) startValue endAngle:(float) endValue;
-- (void) appendBezierPathWithArcWithCenter:(NSPoint) centerPt radius:(float) rad startAngle:(float) startValue endAngle:(float) endValue clockwise:(BOOL) flag;
+- (void) appendBezierPathWithArcFromPoint:(NSPoint) pt1 toPoint:(NSPoint) pt2 radius:(CGFloat) rad;
+- (void) appendBezierPathWithArcWithCenter:(NSPoint) centerPt radius:(CGFloat) rad startAngle:(CGFloat) startValue endAngle:(CGFloat) endValue;
+- (void) appendBezierPathWithArcWithCenter:(NSPoint) centerPt radius:(CGFloat) rad startAngle:(CGFloat) startValue endAngle:(CGFloat) endValue clockwise:(BOOL) flag;
 - (void) appendBezierPathWithGlyph:(NSGlyph) glyph inFont:(NSFont *) font;
 - (void) appendBezierPathWithGlyphs:(NSGlyph *) glyphs count:(int) count inFont:(NSFont *) font;
 - (void) appendBezierPathWithOvalInRect:(NSRect) rect;
 - (void) appendBezierPathWithPackedGlyphs:(const char *) glyphs;
-- (void) appendBezierPathWithPoints:(NSPoint *) pts count:(int) count;
+- (void) appendBezierPathWithPoints:(NSPointArray) pts count:(NSInteger) count;
 - (void) appendBezierPathWithRect:(NSRect) rect;
+- (void) appendBezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
 - (NSBezierPath *) bezierPathByFlatteningPath;
 - (NSBezierPath *) bezierPathByReversingPath;
 - (NSRect) bounds;
@@ -137,12 +142,12 @@ typedef enum NSBezierPathElement
 - (NSRect) controlPointBounds;
 - (NSPoint) currentPoint;
 - (void) curveToPoint:(NSPoint) pt controlPoint1:(NSPoint) controlPt1 controlPoint2:(NSPoint) controlPt2;
-- (NSBezierPathElement) elementAtIndex:(int) loc;
-- (NSBezierPathElement) elementAtIndex:(int) loc associatedPoints:(NSPoint *) pts;
-- (int) elementCount;
+- (NSBezierPathElement) elementAtIndex:(NSInteger) loc;
+- (NSBezierPathElement) elementAtIndex:(NSInteger) loc associatedPoints:(NSPointArray) pts;
+- (NSInteger) elementCount;
 - (void) fill;
-- (float) flatness;
-- (void) getLineDash:(float *) patternValue count:(int *) count phase:(float *) phaseValue;
+- (CGFloat) flatness;
+- (void) getLineDash:(float *) patternValue count:(NSInteger *) count phase:(CGFloat *) phaseValue;
 - (BOOL) isEmpty;
 - (NSLineCapStyle) lineCapStyle;
 - (NSLineJoinStyle) lineJoinStyle;
@@ -154,15 +159,15 @@ typedef enum NSBezierPathElement
 - (void) relativeLineToPoint:(NSPoint) pt;
 - (void) relativeMoveToPoint:(NSPoint) pt;
 - (void) removeAllPoints;
-- (void) setAssociatedPoints:(NSPointArray) pts atIndex:(int) loc;
+- (void) setAssociatedPoints:(NSPointArray) pts atIndex:(NSInteger) loc;
 - (void) setCachesBezierPath:(BOOL) flag;
 - (void) setClip;
-- (void) setFlatness:(float) flatness;
+- (void) setFlatness:(CGFloat) flatness;
 - (void) setLineCapStyle:(NSLineCapStyle) style;
-- (void) setLineDash:(const float *) patternPointer count:(int) count phase:(float) phaseValue;
+- (void) setLineDash:(const CGFloat *) patternPointer count:(NSInteger) count phase:(CGFloat) phaseValue;
 - (void) setLineJoinStyle:(NSLineJoinStyle) style;
-- (void) setLineWidth:(float) width;
-- (void) setMiterLimit:(float) limit;
+- (void) setLineWidth:(CGFloat) width;
+- (void) setMiterLimit:(CGFloat) limit;
 - (void) setWindingRule:(NSWindingRule) windingRule;
 - (void) stroke;
 - (void) transformUsingAffineTransform:(NSAffineTransform *) transform;

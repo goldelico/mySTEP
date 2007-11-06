@@ -11,6 +11,9 @@
    Author: H. N. Schaller <hns@computer.org>
    Date: Sept 2005 - adapted to 10.4 API
 
+   Author: Fabian Spillner
+   Date: 23. October
+ 
    This file is part of the GNUstep GUI Library.
 
    This library is free software; you can redistribute it and/or

@@ -8,6 +8,9 @@
   Author:	Fabian Spillner
   Date:		16. October 2007 
  
+  Author:	Fabian Spillner <fabian.spillner@gmail.com>
+  Date:		05. November 2007 - aligned with 10.5
+ 
   This file is part of the mySTEP Library and is provided
   under the terms of the GNU Library General Public License.
 */
@@ -17,24 +20,32 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum _NSAnimationCurve
+enum
 {
 	NSAnimationEaseInOut=0,	// default
 	NSAnimationEaseIn,
 	NSAnimationEaseOut,
 	NSAnimationLinear
-} NSAnimationCurve;
+};
 
-typedef enum _NSAnimationBlockingMode
+typedef NSUInteger NSAnimationCurve;
+
+enum
 {
 	NSAnimationBlocking,
 	NSAnimationNonblocking,
 	NSAnimationNonblockingThreaded
-} NSAnimationBlockingMode;
+};
+
+typedef NSUInteger NSAnimationBlockingMode;
+
+extern NSString *NSAnimationTriggerOrderIn; 
+extern NSString *NSAnimationTriggerOrderOut; 
 
 typedef float NSAnimationProgress;
 
 extern NSString *NSAnimationProgressMarkNotification;
+extern NSString *NSAnimationProgressMark;
 
 @interface NSAnimation : NSObject <NSCopying, NSCoding>
 {

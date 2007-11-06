@@ -7,6 +7,9 @@
 
   Author:	Fabian Spillner
   Date:		16. October 2007  
+
+  Author:	Fabian Spillner <fabian.spillner@gmail.com>
+  Date:		05. November 2007 - aligned with 10.5  
  
   This file is part of the mySTEP Library and is provided
   under the terms of the GNU Library General Public License.
@@ -18,12 +21,14 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/NSImage.h>
 
-typedef enum _NSAlertStyle
+enum
 {
 	NSWarningAlertStyle,
 	NSInformationalAlertStyle,
 	NSCriticalAlertStyle
-} NSAlertStyle;
+};
+
+typedef NSUInteger NSAlertStyle;
 
 enum
 {
@@ -46,8 +51,13 @@ enum
 }
 
 + (NSAlert *) alertWithError:(NSError *) err;
-+ (NSAlert *) alertWithMessageText:(NSString *) message defaultButton:(NSString *) defaultTitle alternateButton:(NSString *) altTitle otherButton:(NSString *) otherTitle informativeTextWithFormat:(NSString *) textWithFormat, ...;
++ (NSAlert *) alertWithMessageText:(NSString *) message 
+					 defaultButton:(NSString *) defaultTitle 
+				   alternateButton:(NSString *) altTitle 
+					   otherButton:(NSString *) otherTitle 
+		 informativeTextWithFormat:(NSString *) textWithFormat, ...;
 
+- (NSView *) accessoryView;
 - (NSButton *) addButtonWithTitle:(NSString *) title;
 - (NSAlertStyle) alertStyle;
 - (void) beginSheetModalForWindow:(NSWindow *) window modalDelegate:(id) delegate didEndSelector:(SEL) sel contextInfo:(void *) context;
@@ -57,8 +67,10 @@ enum
 - (NSString *) helpAnchor;
 - (NSImage *) icon;
 - (NSString *) informativeText;
+- (void) layout;
 - (NSString *) messageText;
-- (int) runModal;
+- (NSInteger) runModal;
+- (void) setAccessoryView:(NSView *) view;
 - (void) setAlertStyle:(NSAlertStyle) alertStyle;
 - (void) setDelegate:(id) delegate;
 - (void) setHelpAnchor:(NSString *) helpAnchor;
@@ -66,7 +78,10 @@ enum
 - (void) setInformativeText:(NSString *) text;
 - (void) setMessageText:(NSString *) message;
 - (void) setShowsHelp:(BOOL) flag;
+- (void) setShowsSuppressionButton:(BOOL) flag;
 - (BOOL) showsHelp;
+- (BOOL) showsSuppressionButton;
+- (NSButton *) suppressionButton;
 - (id) window;
 
 @end

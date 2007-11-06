@@ -12,7 +12,10 @@
    Date:	Feb 2006 - aligned with 10.4
  
    Author:	Fabian Spillner
-   Date:	22. October 2007   
+   Date:	22. October 2007 
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	6. November 2007 - aligned with 10.5
  
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -35,12 +38,14 @@
 }
 
 - (void) attachColorList:(NSColorList *) colorList;
+- (NSString *) buttonToolTip;
 - (NSColorPanel *) colorPanel;
 - (void) detachColorList:(NSColorList *) colorList;
-- (id) initWithPickerMask:(int) aMask colorPanel:(NSColorPanel *) colorPanel;
+- (id) initWithPickerMask:(NSUInteger) aMask colorPanel:(NSColorPanel *) colorPanel;
 - (void) insertNewButtonImage:(NSImage *) newImage in:(NSButtonCell *) newButtonCell;
+- (NSSize) minContentSize;
 - (NSImage *) provideNewButtonImage;
-- (void) setMode:(int) mode;
+- (void) setMode:(NSColorPanelMode) mode;
 - (void) viewSizeChanged:(id) sender;
 
 @end

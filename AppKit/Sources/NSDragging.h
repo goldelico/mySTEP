@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Apr 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner
+   Date:	23. October 2007
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -49,20 +52,20 @@ typedef enum _NSDragOperation {
 - (id) draggingSource;
 - (NSDragOperation) draggingSourceOperationMask;
 - (NSArray *) namesOfPromisedFilesDroppedAtDestination:(NSURL *) destination;
-- (void) slideDraggedImageTo:(NSPoint)screenPoint;
+- (void) slideDraggedImageTo:(NSPoint) screenPoint;
 
 @end
 
 													// Methods implemented by 
 @interface NSObject (NSDraggingDestination)			// a reciever of drag ops 
 													// (drag destination)
-- (void) concludeDragOperation:(id <NSDraggingInfo>)sender;
-- (void) draggingEnded:(id <NSDraggingInfo>)sender;
-- (NSDragOperation) draggingEntered:(id <NSDraggingInfo>)sender;
-- (void) draggingExited:(id <NSDraggingInfo>)sender;
-- (NSDragOperation) draggingUpdated:(id <NSDraggingInfo>)sender;
-- (BOOL) performDragOperation:(id <NSDraggingInfo>)sender;
-- (BOOL) prepareForDragOperation:(id <NSDraggingInfo>)sender;
+- (void) concludeDragOperation:(id <NSDraggingInfo>) sender;
+- (void) draggingEnded:(id <NSDraggingInfo>) sender;
+- (NSDragOperation) draggingEntered:(id <NSDraggingInfo>) sender;
+- (void) draggingExited:(id <NSDraggingInfo>) sender;
+- (NSDragOperation) draggingUpdated:(id <NSDraggingInfo>) sender;
+- (BOOL) performDragOperation:(id <NSDraggingInfo>) sender;
+- (BOOL) prepareForDragOperation:(id <NSDraggingInfo>) sender;
 - (BOOL) wantsPeriodicDraggingUpdates;
 
 @end
@@ -70,16 +73,16 @@ typedef enum _NSDragOperation {
 													// object that initiated 
 @interface NSObject (NSDraggingSource)				// the drag session.  First 
 													// must be implemented
-- (void) draggedImage:(NSImage *)image
-			  beganAt:(NSPoint)screenPoint;
-- (void) draggedImage:(NSImage*)image
-			  endedAt:(NSPoint)screenPoint
-			operation:(NSDragOperation)operation;
-- (void) draggedImage:(NSImage *)image
-			  movedTo:(NSPoint)screenPoint;
-- (unsigned int) draggingSourceOperationMaskForLocal:(BOOL)isLocal;
+- (void) draggedImage:(NSImage *) image
+			  beganAt:(NSPoint) screenPoint;
+- (void) draggedImage:(NSImage*) image
+			  endedAt:(NSPoint) screenPoint
+			operation:(NSDragOperation) operation;
+- (void) draggedImage:(NSImage *) image
+			  movedTo:(NSPoint) screenPoint;
+- (unsigned int) draggingSourceOperationMaskForLocal:(BOOL) isLocal;
 - (BOOL) ignoreModifierKeysWhileDragging;
-- (NSArray *) namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination;
+- (NSArray *) namesOfPromisedFilesDroppedAtDestination:(NSURL *) dropDestination;
 
 @end
 

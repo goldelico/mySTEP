@@ -14,6 +14,9 @@
    Author:	Fabian Spillner
    Date:	22. October 2007  
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	6. November 2007 - aligned with 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -46,7 +49,7 @@
 - (NSColor *) colorWithKey:(NSString *) key;
 - (id) initWithName:(NSString *) name;
 - (id) initWithName:(NSString *) name fromFile:(NSString *) path;
-- (void) insertColor:(NSColor *) color key:(NSString *) key atIndex:(unsigned) location;
+- (void) insertColor:(NSColor *) color key:(NSString *) key atIndex:(NSUInteger) location;
 - (BOOL) isEditable;
 - (NSString *) name;
 - (void) removeColorWithKey:(NSString *) key;

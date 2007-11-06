@@ -13,6 +13,9 @@
  
    Author:	Fabian Spillner
    Date:	16. October 2007
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	05. November 2007 - aligned with 10.5
 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -44,6 +47,10 @@ enum {
 	NSRunStoppedResponse = -1000,
 	NSRunAbortedResponse = -1001,
 	NSRunContinuesResponse = -1002
+};
+
+enum {
+	NSUpdateWindowsRunLoopOrdering = 500000
 };
 
 typedef enum _NSApplicationDelegateReply
@@ -128,7 +135,7 @@ extern id NSApp;					// NSApp global var
 - (NSModalSession) beginModalSessionForWindow:(NSWindow *) window;
 - (NSModalSession) beginModalSessionForWindow:(NSWindow *) window relativeToWindow:(NSWindow *) documentWindow; /* DEPRECATED */
 - (void) beginSheet:(NSWindow *) window modalForWindow:(NSWindow *) doc modalDelegate:(id) delegate didEndSelector:(SEL) selector contextInfo:(void *) context;
-- (void) cancelUserAttentionRequest:(int) req;
+- (void) cancelUserAttentionRequest:(NSInteger) req;
 - (void) changeWindowsItem:(NSWindow *) window title:(NSString *) string filename:(BOOL) isFile;
 - (NSGraphicsContext *) context;										// Display context
 - (NSEvent*) currentEvent;									// Events
@@ -166,9 +173,9 @@ extern id NSApp;					// NSApp global var
 - (void) reportException:(NSException *) exception;		// Report exception
 - (int) requestUserAttention:(NSRequestUserAttentionType) request;
 - (void) run;
-- (int) runModalForWindow:(NSWindow *) window;
-- (int) runModalForWindow:(NSWindow *) aWindow relativeToWindow:(NSWindow *) docWindow;	/* DEPRECATED */
-- (int) runModalSession:(NSModalSession) session;
+- (NSInteger) runModalForWindow:(NSWindow *) window;
+- (NSInteger) runModalForWindow:(NSWindow *) aWindow relativeToWindow:(NSWindow *) docWindow;	/* DEPRECATED */
+- (NSInteger) runModalSession:(NSModalSession) session;
 - (void) runPageLayout:(id) sender;
 - (BOOL) sendAction:(SEL) sel to:(id) target from:(id) sender;
 - (void) sendEvent:(NSEvent *)event;
@@ -185,7 +192,7 @@ extern id NSApp;					// NSApp global var
 - (void) showHelp:(id) sender;
 - (void) stop:(id) sender;
 - (void) stopModal;
-- (void) stopModalWithCode:(int) ret;
+- (void) stopModalWithCode:(NSInteger) ret;
 - (id) targetForAction:(SEL) selector;						// target / action
 - (id) targetForAction:(SEL) selector to:(id) target from:(id) sender;
 - (void) terminate:(id) sender;									// Terminate app
@@ -198,7 +205,7 @@ extern id NSApp;					// NSApp global var
 - (id) validRequestorForSendType:(NSString *) send returnType:(NSString *) ret;
 - (NSArray *) windows;
 - (NSMenu*) windowsMenu;
-- (NSWindow *) windowWithWindowNumber:(int) num;
+- (NSWindow *) windowWithWindowNumber:(NSInteger) num;
 
 @end
 

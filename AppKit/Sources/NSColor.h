@@ -12,7 +12,10 @@
    Date:	Feb 2006 - aligned with 10.4
  
    Author:	Fabian Spillner
-   Date:	22. October 2007  
+   Date:	22. October 2007
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	6. November 2007 - aligned with 10.5
  
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -78,37 +81,37 @@
 + (NSColor *) clearColor;
 + (NSColor *) colorForControlTint:(NSControlTint) tint;
 + (NSColor *) colorFromPasteboard:(NSPasteboard *) pasteBoard;
-+ (NSColor *) colorWithCalibratedHue:(float) hue
-						  saturation:(float) saturation
-						  brightness:(float) brightness
-							   alpha:(float) alpha;
-+ (NSColor *) colorWithCalibratedRed:(float) red
-							   green:(float) green
-								blue:(float) blue
-							   alpha:(float) alpha;
-+ (NSColor *) colorWithCalibratedWhite:(float) white
-								 alpha:(float) alpha;
++ (NSColor *) colorWithCalibratedHue:(CGFloat) hue
+						  saturation:(CGFloat) saturation
+						  brightness:(CGFloat) brightness
+							   alpha:(CGFloat) alpha;
++ (NSColor *) colorWithCalibratedRed:(CGFloat) red
+							   green:(CGFloat) green
+								blue:(CGFloat) blue
+							   alpha:(CGFloat) alpha;
++ (NSColor *) colorWithCalibratedWhite:(CGFloat) white
+								 alpha:(CGFloat) alpha;
 + (NSColor *) colorWithCatalogName:(NSString *) listName
 						 colorName:(NSString *) colorName;
 //+ (NSColor *) colorWithCIColor:(CIColor *) color;
 + (NSColor *) colorWithColorSpace:(NSColorSpace *) space
-					   components:(const float *) comp
-							count:(int) number;
-+ (NSColor *) colorWithDeviceCyan:(float) cyan
-						  magenta:(float) magenta
-						   yellow:(float) yellow
-							black:(float) black
-							alpha:(float) alpha;
-+ (NSColor *) colorWithDeviceHue:(float) hue
-					  saturation:(float) saturation
-					  brightness:(float) brightness
-						   alpha:(float) alpha;
-+ (NSColor *) colorWithDeviceRed:(float) red
-						   green:(float) green
-							blue:(float) blue
-						   alpha:(float) alpha;
-+ (NSColor *) colorWithDeviceWhite:(float) white
-							 alpha:(float) alpha;
+					   components:(const CGFloat *) comp
+							count:(NSInteger) number;
++ (NSColor *) colorWithDeviceCyan:(CGFloat) cyan
+						  magenta:(CGFloat) magenta
+						   yellow:(CGFloat) yellow
+							black:(CGFloat) black
+							alpha:(CGFloat) alpha;
++ (NSColor *) colorWithDeviceHue:(CGFloat) hue
+					  saturation:(CGFloat) saturation
+					  brightness:(CGFloat) brightness
+						   alpha:(CGFloat) alpha;
++ (NSColor *) colorWithDeviceRed:(CGFloat) red
+						   green:(CGFloat) green
+							blue:(CGFloat) blue
+						   alpha:(CGFloat) alpha;
++ (NSColor *) colorWithDeviceWhite:(CGFloat) white
+							 alpha:(CGFloat) alpha;
 + (NSColor *) colorWithPatternImage:(NSImage *) image;
 + (NSArray *) controlAlternatingRowBackgroundColors;
 + (NSColor *) controlBackgroundColor;					// System colors
@@ -156,12 +159,12 @@
 + (NSColor *) windowFrameTextColor;
 + (NSColor *) yellowColor;
 
-- (float) alphaComponent;								// Access Components
-- (float) blackComponent;
-- (NSColor *) blendedColorWithFraction:(float) fraction	// Change the color
+- (CGFloat) alphaComponent;								// Access Components
+- (CGFloat) blackComponent;
+- (NSColor *) blendedColorWithFraction:(CGFloat) fraction	// Change the color
 							   ofColor:(NSColor *) aColor;
-- (float) blueComponent;
-- (float) brightnessComponent;
+- (CGFloat) blueComponent;
+- (CGFloat) brightnessComponent;
 - (NSString *) catalogNameComponent;
 - (NSString *) colorNameComponent;
 - (NSColorSpace *) colorSpace;
@@ -170,41 +173,41 @@
 - (NSColor *) colorUsingColorSpaceName:(NSString *) colorSpace;
 - (NSColor *) colorUsingColorSpaceName:(NSString *) colorSpace
 								device:(NSDictionary *) deviceDescription;
-- (NSColor *) colorWithAlphaComponent:(float) alpha;
-- (float) cyanComponent;
+- (NSColor *) colorWithAlphaComponent:(CGFloat) alpha;
+- (CGFloat) cyanComponent;
 - (void) drawSwatchInRect:(NSRect) rect;					// Drawing with color
-- (void) getComponents:(float *) components;
-- (void) getCyan:(float *) cyan							// Access Component Set
-		 magenta:(float *) magenta
-		  yellow:(float *) yellow
-		   black:(float *) black
-		   alpha:(float *) alpha;
-- (void) getHue:(float *) hue
-	 saturation:(float *) saturation
-	 brightness:(float *) brightness
-		  alpha:(float *) alpha;
-- (void) getRed:(float *) red
-		  green:(float *) green
-		   blue:(float *) blue
-		  alpha:(float *) alpha;
-- (void) getWhite:(float *) white alpha:(float *) alpha;
-- (float) greenComponent;
-- (NSColor *) highlightWithLevel:(float) level;
-- (float) hueComponent;
+- (void) getComponents:(CGFloat *) components;
+- (void) getCyan:(CGFloat *) cyan							// Access Component Set
+		 magenta:(CGFloat *) magenta
+		  yellow:(CGFloat *) yellow
+		   black:(CGFloat *) black
+		   alpha:(CGFloat *) alpha;
+- (void) getHue:(CGFloat *) hue
+	 saturation:(CGFloat *) saturation
+	 brightness:(CGFloat *) brightness
+		  alpha:(CGFloat *) alpha;
+- (void) getRed:(CGFloat *) red
+		  green:(CGFloat *) green
+		   blue:(CGFloat *) blue
+		  alpha:(CGFloat *) alpha;
+- (void) getWhite:(CGFloat *) white alpha:(CGFloat *) alpha;
+- (CGFloat) greenComponent;
+- (NSColor *) highlightWithLevel:(CGFloat) level;
+- (CGFloat) hueComponent;
 - (NSString *) localizedCatalogNameComponent;
 - (NSString *) localizedColorNameComponent;
-- (float) magentaComponent;
-- (int) numberOfComponents;
+- (CGFloat) magentaComponent;
+- (NSInteger) numberOfComponents;
 - (NSImage *) patternImage;
-- (float) redComponent;
-- (float) saturationComponent;
+- (CGFloat) redComponent;
+- (CGFloat) saturationComponent;
 - (void) set;
 - (void) setFill;
 - (void) setStroke;
-- (NSColor *) shadowWithLevel:(float) level;
-- (float) whiteComponent;
+- (NSColor *) shadowWithLevel:(CGFloat) level;
+- (CGFloat) whiteComponent;
 - (void) writeToPasteboard:(NSPasteboard *) pasteBoard;	// Copy / Paste
-- (float) yellowComponent;
+- (CGFloat) yellowComponent;
 
 @end
 

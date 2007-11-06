@@ -14,6 +14,9 @@
    Author:	Fabian Spillner
    Date:	22. October 2007  
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	6. November 2007 - aligned with 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -27,7 +30,9 @@
 @class NSSound;
 @class NSAttributedTitle;
 
-typedef enum _NSButtonType {	// plese don't change order! setButtonType: isn't compatible otherwise
+typedef NSUInteger NSButtonType;
+
+enum {	// plese don't change order! setButtonType: isn't compatible otherwise
 	NSMomentaryLightButton=0,
 	NSPushOnPushOffButton,
 	NSToggleButton,
@@ -36,9 +41,11 @@ typedef enum _NSButtonType {	// plese don't change order! setButtonType: isn't c
 	NSMomentaryChangeButton,
 	NSOnOffButton,
 	NSMomentaryPushInButton
-} NSButtonType;
+};
 
-typedef enum _NSBezelStyle {		// Name in IB
+typedef NSUInteger NSBezelStyle;
+
+enum {		// Name in IB
 	_NSTraditionalBezelStyle=0,
 	NSRoundedBezelStyle=1,			// Push Button
 	NSRegularSquareBezelStyle,		// Rounded Bevel Button
@@ -54,7 +61,9 @@ typedef enum _NSBezelStyle {		// Name in IB
 	NSRoundRectBezelStyle,			// -
 	NSRecessedBezelStyle,			// -
 	NSRoundedDisclosureBezelStyle	// -
-} NSBezelStyle;
+};
+
+typedef NSUInteger NSGradientType;
 
 typedef enum _NSGradientType {
 	NSGradientNone=0,
@@ -89,7 +98,7 @@ typedef enum _NSGradientType {
 
 - (NSImage *) alternateImage;								// Images
 - (NSString *) alternateMnemonic;
-- (unsigned) alternateMnemonicLocation;
+- (NSUInteger) alternateMnemonicLocation;
 - (NSString *) alternateTitle;								// Titles
 - (NSAttributedString *) attributedAlternateTitle;
 - (NSAttributedString *) attributedTitle;
@@ -100,14 +109,15 @@ typedef enum _NSGradientType {
 - (void) drawTitle:(NSAttributedString *) title withFrame:(NSRect) frame inView:(NSView *) control;
 - (void) getPeriodicDelay:(float *)delay interval:(float *) interval;
 - (NSGradientType) gradientType;
-- (int) highlightsBy;
+- (NSInteger) highlightsBy;
 - (BOOL) imageDimsWhenDisabled;
 - (NSCellImagePosition) imagePosition;
+- (NSImageScaling) imageScaling;
 // inherited - (BOOL) isOpaque;										// -> NSCell
 - (BOOL) isTransparent;										// Graphic Attribs
 // inherited - (NSString *) keyEquivalent;							// -> NSCell
 - (NSFont *) keyEquivalentFont;
-- (unsigned int) keyEquivalentModifierMask;
+- (NSUInteger) keyEquivalentModifierMask;
 - (void) mouseEntered:(NSEvent *) event;
 - (void) mouseExited:(NSEvent *) event;
 // inherited - (void) performClick:(id)sender;						// -> NSCell
@@ -122,22 +132,23 @@ typedef enum _NSGradientType {
 - (void) setButtonType:(NSButtonType) aType;
 // - (void) setFont:(NSFont *)fontObject;   // -> NSFont & NSActionCell
 - (void) setGradientType:(NSGradientType) type;
-- (void) setHighlightsBy:(int) aType;
+- (void) setHighlightsBy:(NSInteger) aType;
 - (void) setImageDimsWhenDisabled:(BOOL) flag;
 - (void) setImagePosition:(NSCellImagePosition) aPosition;
+- (void) setImageScaling:(NSImageScaling) scale;
 - (void) setKeyEquivalent:(NSString *) aKeyEquivalent;
 - (void) setKeyEquivalentFont:(NSFont *) fontObj;
-- (void) setKeyEquivalentFont:(NSString *) fontName size:(float) fontSize;
-- (void) setKeyEquivalentModifierMask:(unsigned int) mask;
+- (void) setKeyEquivalentFont:(NSString *) fontName size:(CGFloat) fontSize;
+- (void) setKeyEquivalentModifierMask:(NSUInteger) mask;
 - (void) setPeriodicDelay:(float)delay interval:(float) interval;
 - (void) setShowsBorderOnlyWhileMouseInside:(BOOL) flag;
-- (void) setShowsStateBy:(int) aType;
+- (void) setShowsStateBy:(NSInteger) aType;
 - (void) setSound:(NSSound *) aSound;
 // inherited - (void) setTitle:(NSString *)aString;					// -> NSCell
 // inherited - (void) setTitleWithMnemonic:(NSString *)aString;		// -> NSCell
 - (void) setTransparent:(BOOL) flag;
 - (BOOL) showsBorderOnlyWhileMouseInside;
-- (int) showsStateBy;
+- (NSInteger) showsStateBy;
 - (NSSound *)sound;
 // inherited - (NSString *) title;									// -> NSCell
 

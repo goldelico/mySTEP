@@ -14,6 +14,9 @@
    Author:	Fabian Spillner
    Date:	19. October 2007  
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	6. November 2007 - aligned with 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -38,14 +41,16 @@
 - (NSImage *) alternateImage;
 - (NSColor *) highlightColorInView:(NSView *) view;
 - (NSImage *) image;
-- (BOOL) isLeaf;										// cell type in browser
+- (NSImageScaling) imageScaling;
+- (BOOL) isLeaf;									// cell type in browser
 - (BOOL) isLoaded;										// cell load status
 - (void) reset;											// cell state
-- (void) setAlternateImage:(NSImage *)image;
-- (void) setImage:(NSImage *)image;
-- (void) setLeaf:(BOOL)flag;
-- (void) setLoaded:(BOOL)flag;
 - (void) set;
+- (void) setAlternateImage:(NSImage *) image;
+- (void) setImage:(NSImage *) image;
+- (void) setImageScaling:(NSImageScaling) scaling;
+- (void) setLeaf:(BOOL) flag;
+- (void) setLoaded:(BOOL) flag;
 
 @end
 

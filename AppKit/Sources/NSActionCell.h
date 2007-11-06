@@ -14,6 +14,9 @@
    Author:	Fabian Spillner
    Date:	16. October 2007
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	05. November 2007 - aligned with 10.5 
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -35,6 +38,7 @@
 - (double) doubleValue;
 - (float) floatValue;
 - (int) intValue;
+- (NSInteger) integerValue;
 - (void) setAction:(SEL) sel;						// Target / Action
 - (void) setAlignment:(NSTextAlignment) mode;			// graphic attributes
 - (void) setBezeled:(BOOL) flag;
@@ -48,7 +52,7 @@
 - (void) setTag:(int) tag;								// Integer Tag
 - (void) setTarget:(id) target;
 - (NSString *) stringValue;
-- (int) tag;
+- (NSInteger) tag;
 - (id) target;
 
 @end

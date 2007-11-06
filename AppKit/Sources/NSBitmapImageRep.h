@@ -12,7 +12,10 @@
    Date:	Jan 2006 - aligned with 10.4
  
    Author:	Fabian Spillner
-   Date:	19. October 2007   
+   Date:	19. October 2007
+ 
+   Author:  Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	6. November 2007 - aligned with 10.5
 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -77,6 +80,7 @@ extern NSString *NSImageCurrentFrame;
 extern NSString *NSImageCurrentFrameDuration;
 extern NSString *NSImageDitherTransparency;
 extern NSString *NSImageEXIFData;
+extern NSString *NSImageFallbackBackgroundColor; 
 extern NSString *NSImageFrameCount;
 extern NSString *NSImageGamma;
 extern NSString *NSImageInterlaced;
@@ -104,7 +108,7 @@ extern NSString *NSImageRGBColorTable;
     } _brep;
 }
 
-+ (void) getTIFFCompressionTypes:(const NSTIFFCompression **) list count:(int *) count;
++ (void) getTIFFCompressionTypes:(const NSTIFFCompression **) list count:(NSInteger *) count;
 + (NSArray *) imageRepsWithData:(NSData *) data;
 + (id) imageRepWithData:(NSData *) data;
 + (NSString *) localizedNameForTIFFCompressionType:(NSTIFFCompression) comp;
@@ -114,50 +118,53 @@ extern NSString *NSImageRGBColorTable;
 
 - (unsigned char *) bitmapData;	// Access image Data
 - (NSBitmapFormat) bitmapFormat;
-- (int) bitsPerPixel;
-- (int) bytesPerPlane;
-- (int) bytesPerRow;
+- (NSInteger) bitsPerPixel;
+- (NSInteger) bytesPerPlane;
+- (NSInteger) bytesPerRow;
 - (BOOL) canBeCompressedUsing:(NSTIFFCompression) comp;
-- (NSColor *) colorAtX:(int) posX y:(int) posY;
-- (void) colorizeByMappingGray:(float) midPt toColor:(NSColor *) midPtColor blackMapping:(NSColor *) blackMapping whiteMapping:(NSColor *) whiteMapping;
+- (CGImageRef) CGImage; 
+- (NSColor *) colorAtX:(NSInteger) posX y:(NSInteger) posY;
+- (void) colorizeByMappingGray:(CGFloat) midPt toColor:(NSColor *) midPtColor blackMapping:(NSColor *) blackMapping whiteMapping:(NSColor *) whiteMapping;
 - (void) getBitmapDataPlanes:(unsigned char **) dataPlanes;
 - (void) getCompression:(NSTIFFCompression *) comp factor:(float *) factor;
-- (void) getPixel:(unsigned int[]) pixelData atX:(int) posX y:(int) posY;
+- (void) getPixel:(NSUInteger[]) pixelData atX:(NSInteger) posX y:(NSInteger) posY;
 - (int) incrementalLoadFromData:(NSData *) data complete:(BOOL) flag;
 - (id) initForIncrementalLoad;
 
 - (id) initWithBitmapDataPlanes:(unsigned char **) p
-					 pixelsWide:(int) w
-					 pixelsHigh:(int) h
-				  bitsPerSample:(int) bps
-				samplesPerPixel:(int) spp
+					 pixelsWide:(NSInteger) w
+					 pixelsHigh:(NSInteger) h
+				  bitsPerSample:(NSInteger) bps
+				samplesPerPixel:(NSInteger) spp
 					   hasAlpha:(BOOL) alpha
 					   isPlanar:(BOOL) planar
 				 colorSpaceName:(NSString *) csName
 				   bitmapFormat:(NSBitmapFormat) format 
-					bytesPerRow:(int) bpr
-				   bitsPerPixel:(int) bpp;
+					bytesPerRow:(NSInteger) bpr
+				   bitsPerPixel:(NSInteger) bpp;
 
 - (id) initWithBitmapDataPlanes:(unsigned char **) p
-					 pixelsWide:(int) w
-					 pixelsHigh:(int) h
-				  bitsPerSample:(int) bps
-				samplesPerPixel:(int) spp
+					 pixelsWide:(NSInteger) w
+					 pixelsHigh:(NSInteger) h
+				  bitsPerSample:(NSInteger) bps
+				samplesPerPixel:(NSInteger) spp
 					   hasAlpha:(BOOL) alpha
 					   isPlanar:(BOOL) planar
 				 colorSpaceName:(NSString *) csName
-					bytesPerRow:(int) bpr
-				   bitsPerPixel:(int) bpp;
+					bytesPerRow:(NSInteger) bpr
+				   bitsPerPixel:(NSInteger) bpp;
 
+- (id) initWithCGImage:(CGImageRef) cgImgRef;
+- (id) initWithCIImage:(CIImage *) ciImg;
 - (id) initWithData:(NSData *) data;
 - (id) initWithFocusedViewRect:(NSRect) viewRect;
 - (BOOL) isPlanar;
-- (int) numberOfPlanes;
+- (NSInteger) numberOfPlanes;
 - (NSData *) representationUsingType:(NSBitmapImageFileType) type properties:(NSDictionary *) props;
-- (int) samplesPerPixel;
-- (void) setColor:(NSColor *) color atX:(int) posX y:(int) posY;
+- (NSInteger) samplesPerPixel;
+- (void) setColor:(NSColor *) color atX:(NSInteger) posX y:(NSInteger) posY;
 - (void) setCompression:(NSTIFFCompression) comp factor:(float) factor;
-- (void) setPixel:(unsigned int[]) pixels atX:(int) posX y:(int) posY;
+- (void) setPixel:(NSUInteger[]) pixels atX:(NSInteger) posX y:(NSInteger) posY;
 - (void) setProperty:(NSString *) prop withValue:(id) val;
 - (NSData*) TIFFRepresentation;
 - (NSData*) TIFFRepresentationUsingCompression:(NSTIFFCompression) compressType factor:(float) factor;

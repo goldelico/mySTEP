@@ -14,6 +14,9 @@
    Author:	Fabian Spillner
    Date:	22. October 2007  
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	6. November 2007 - aligned with 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -37,6 +40,14 @@
 
 extern NSString *NSControlTintDidChangeNotification;
 
+typedef NSUInteger NSCellType;
+
+typedef enum _NSCellType {
+	NSNullCellType=0,
+	NSTextCellType,
+	NSImageCellType
+} NSCellType;
+
 enum {
     NSAnyType			 = 0,
     NSIntType			 = 1,
@@ -48,11 +59,16 @@ enum {
 	NSDateType			 = 7
 };
 
-typedef enum _NSCellType {
-	NSNullCellType=0,
-	NSTextCellType,
-	NSImageCellType
-} NSCellType;
+typedef NSUInteger NSBackgroundStyle;
+
+enum {
+	NSBackgroundStyleLight = 0,
+	NSBackgroundStyleDark,
+	NSBackgroundStyleRaised,
+	NSBackgroundStyleLowered
+};
+
+typedef NSUInteger NSControlTint;
 
 typedef enum _NSControlTint {
 	NSDefaultControlTint=0,
@@ -61,11 +77,22 @@ typedef enum _NSControlTint {
 	NSClearControlTint
 } NSControlTint;
 
+typedef NSUInteger NSControlSize;
+
 typedef enum _NSControlSize {
 	NSRegularControlSize=0,
 	NSSmallControlSize,
 	NSMiniControlSize
 } NSControlSize;
+
+enum {
+	NSCellHitNone = 0,
+	NSCellHitContentArea = 1 << 0,
+	NSCellHitEditableTextArea = 1 << 1,
+	NSCellHitTrackableArea = 1 << 2,
+};
+
+typedef NSUInteger NSCellImagePosition;
 
 typedef enum {
 	NSNoImage = 0,
@@ -76,6 +103,25 @@ typedef enum {
 	NSImageAbove,
 	NSImageOverlaps
 } NSCellImagePosition;
+
+typedef NSUInteger NSImageScaling;
+
+enum {
+	NSImageScaleProportionallyDown = 0,
+	NSImageScaleAxesIndependently,
+	NSImageScaleNone,
+	NSImageScaleProportionallyUpOrDown
+};
+
+typedef NSUInteger NSCellStateValue;
+
+typedef enum _NSCellState {
+	NSMixedState = -1,
+	NSOffState   = 0,
+	NSOnState    = 1
+} NSCellStateValue;
+
+typedef NSUInteger NSCellAttribute;
 
 typedef enum _NSCellAttribute {
 	NSCellDisabled,
@@ -175,6 +221,7 @@ enum {
 - (BOOL) allowsMixedState;								// allowed / not allowed
 - (BOOL) allowsUndo;
 - (NSAttributedString *) attributedStringValue;
+- (NSBackgroundStyle) backgroundStyle;
 - (NSWritingDirection) baseWritingDirection;
 - (void) calcDrawInfo:(NSRect) aRect;					// Component sizes
 - (int) cellAttribute:(NSCellAttribute) aParameter;		// Setting Parameters
@@ -188,10 +235,12 @@ enum {
 - (double) doubleValue;									// Get & Set Cell Value
 - (NSRect) drawingRectForBounds:(NSRect) theRect;
 - (void) drawInteriorWithFrame:(NSRect) cellFrame inView:(NSView *) controlView;
+- (void) drawWithExpansionFrame:(NSRect) cellFrame inView:(NSView *) controlView;
 - (void) drawWithFrame:(NSRect) cellFrame inView:(NSView *) controlView;
 - (void) editWithFrame:(NSRect) aRect inView:(NSView *) controlView editor:(NSText *) textObject delegate:(id) anObject event:(NSEvent *) event; // Text Editing
 - (void) endEditing:(NSText *) textObject;
 - (int) entryType;										// Validating Input - DEPRECATED
+- (NSRect) expansionFrameWithFrame:(NSRect) cellFrame inView:(NSView *) controlView;
 - (float) floatValue;
 - (NSFocusRingType) focusRingType;
 - (NSFont *) font;
@@ -200,11 +249,14 @@ enum {
 - (BOOL) hasValidObjectValue;
 - (void) highlight:(BOOL) lit withFrame:(NSRect) cellFrame inView:(NSView *) controlView; // Drawing the cell
 - (NSColor *) highlightColorWithFrame:(NSRect) frame inView:(NSView *) controlView;
+- (NSUInteger) hitTestForEvent:(NSEvent *) event inRect:(NSRect) cellFrame ofView:(NSView *) view;
 - (NSImage*) image;										// Setting the Image
 - (NSRect) imageRectForBounds:(NSRect) theRect;
 - (BOOL) importsGraphics;
 - (id) initImageCell:(NSImage *) anImage;
 - (id) initTextCell:(NSString *) aString;
+- (NSInteger) integerValue;
+- (NSBackgroundStyle) interiorBackgroundStyle;
 - (int) intValue;
 - (BOOL) isBezeled;										// Graphic Attributes
 - (BOOL) isBordered;
@@ -221,11 +273,12 @@ enum {
 - (NSMenu *) menu;
 - (NSMenu *) menuForEvent:(NSEvent *) anEvent inRect:(NSRect) frame ofView:(NSView *) aView;
 - (NSString *) mnemonic;
-- (unsigned) mnemonicLocation;
-- (int) mouseDownFlags;
-- (int) nextState;
+- (NSUInteger) mnemonicLocation;
+- (NSInteger) mouseDownFlags;
+- (NSInteger) nextState;
 - (id) objectValue;
 - (void) performClick:(id) sender;
+- (NSImage *) preparedImage;
 - (BOOL) refusesFirstResponder;
 - (id) representedObject;								// Represent an Object
 - (void) resetCursorRect:(NSRect) cellFrame inView:(NSView *) controlView;
@@ -233,9 +286,9 @@ enum {
 				  inView:(NSView *) controlView 
 				  editor:(NSText *) textObject 
 				delegate:(id) anObject 
-				   start:(int) selStart 
-				  length:(int) selLength;
-- (int) sendActionOn:(int) mask;
+				   start:(NSInteger) selStart 
+				  length:(NSInteger) selLength;
+- (NSInteger) sendActionOn:(NSInteger) mask;
 - (BOOL) sendsActionOnEndEditing;
 - (void) setAction:(SEL) selector;
 - (void) setAlignment:(NSTextAlignment) mode;
@@ -243,10 +296,11 @@ enum {
 - (void) setAllowsMixedState:(BOOL) flag;
 - (void) setAllowsUndo:(BOOL) flag;
 - (void) setAttributedStringValue:(NSAttributedString *) string;
+- (void) setBackgroundStyle:(NSBackgroundStyle) backgroundStyle;
 - (void) setBaseWritingDirection:(NSWritingDirection) direction;
 - (void) setBezeled:(BOOL) flag;
 - (void) setBordered:(BOOL) flag;
-- (void) setCellAttribute:(NSCellAttribute) aParameter to:(int) value;
+- (void) setCellAttribute:(NSCellAttribute) aParameter to:(NSInteger) value;
 - (void) setContinuous:(BOOL) flag;
 - (void) setControlSize:(NSControlSize) size;
 - (void) setControlTint:(NSControlTint) tint;
@@ -255,7 +309,7 @@ enum {
 - (void) setEditable:(BOOL) flag;
 - (void) setEnabled:(BOOL) flag;
 - (void) setEntryType:(int) aType;	// deprecated
-- (void) setFloatingPointFormat:(BOOL) autoRange left:(unsigned int) leftDigits right:(unsigned int) rightDigits;			// Formatting Data 
+- (void) setFloatingPointFormat:(BOOL) autoRange left:(NSUInteger) leftDigits right:(NSUInteger) rightDigits;			// Formatting Data 
 - (void) setFloatValue:(float) aFloat;
 - (void) setFocusRingType:(NSFocusRingType) type;
 - (void) setFont:(NSFont *) fontObject;
@@ -263,10 +317,11 @@ enum {
 - (void) setHighlighted:(BOOL) flag;
 - (void) setImage:(NSImage *) anImage;
 - (void) setImportsGraphics:(BOOL) flag;
+- (void) setIntegerValue:(NSInteger) integer;
 - (void) setIntValue:(int) anInt;
 - (void) setLineBreakMode:(NSLineBreakMode) mode;
 - (void) setMenu:(NSMenu *) menu;
-- (void) setMnemonicLocation:(unsigned) location;
+- (void) setMnemonicLocation:(NSUInteger) location;
 - (void) setNextState;
 - (void) setObjectValue:(id <NSCopying>) anObject;
 - (void) setRefusesFirstResponder:(BOOL) flag;
@@ -277,7 +332,7 @@ enum {
 - (void) setShowsFirstResponder:(BOOL) flag;
 - (void) setState:(int) value;							// NSCell's State
 - (void) setStringValue:(NSString *) aString;
-- (void) setTag:(int) anInt;								// Assigning a Tag
+- (void) setTag:(NSInteger) anInt;								// Assigning a Tag
 - (void) setTarget:(id) anObject;
 - (void) setTitle:(NSString *) aString;
 - (void) setTitleWithMnemonic:(NSString *) aString;
@@ -286,12 +341,13 @@ enum {
 - (void) setWraps:(BOOL) flag;
 - (BOOL) showsFirstResponder;
 - (BOOL) startTrackingAt:(NSPoint) startPoint inView:(NSView*) controlView;
-- (int) state;
+- (NSInteger) state;
 - (void) stopTracking:(NSPoint) lastPoint at:(NSPoint) stopPoint inView:(NSView *) controlView mouseIsUp:(BOOL) flag;
 - (NSString *) stringValue;
-- (int) tag;
+- (NSInteger) tag;
 - (void) takeDoubleValueFrom:(id) sender;				// Cell Interaction
 - (void) takeFloatValueFrom:(id) sender;
+- (void) takeIntegerValueFrom:(id)sender;
 - (void) takeIntValueFrom:(id) sender;
 - (void) takeObjectValueFrom:(id) sender;
 - (void) takeStringValueFrom:(id) sender;
@@ -300,6 +356,7 @@ enum {
 - (NSRect) titleRectForBounds:(NSRect) theRect;
 - (BOOL) trackMouse:(NSEvent *) event inRect:(NSRect) cellFrame ofView:(NSView *) controlView untilMouseUp:(BOOL) flag;
 - (NSCellType) type;
+- (BOOL) wantsNotificationForMarkedText;
 - (BOOL) wraps;
 
 @end

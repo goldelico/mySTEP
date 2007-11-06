@@ -12,7 +12,10 @@
    Date:	Feb 2006 - aligned with 10.4
  
    Author:	Fabian Spillner
-   Date:	22. October 2007   
+   Date:	22. October 2007  
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	6. November 2007 - aligned with 10.5
  
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -34,6 +37,20 @@ enum
 	NSColorPanelWheelModeMask			=0x0040,
 	NSColorPanelCrayonModeMask			=0x0080,
 	NSColorPanelAllModesMask			=0x0100
+};
+
+typedef NSInteger NSColorPanelMode;
+
+enum {
+	NSNoModeColorPanel             = -1,
+	NSGrayModeColorPanel            = 0,
+	NSRGBModeColorPanel             = 1,
+	NSCMYKModeColorPanel            = 2,
+	NSHSBModeColorPanel             = 3,
+	NSCustomPaletteModeColorPanel   = 4,
+	NSColorListModeColorPanel       = 5,
+	NSWheelModeColorPanel           = 6,
+	NSCrayonModeColorPanel          = 7
 };
 
 enum
@@ -89,24 +106,24 @@ enum
 	BOOL _showsAlpha;
 }
 
-+ (BOOL) dragColor:(NSColor **) aColor withEvent:(NSEvent *) anEvent fromView:(NSView *) sourceView;	// Color
-+ (void) setPickerMask:(int) mask;							// Configuration
-+ (void) setPickerMode:(int) mode;
++ (BOOL) dragColor:(NSColor *) aColor withEvent:(NSEvent *) anEvent fromView:(NSView *) sourceView;	// Color
++ (void) setPickerMask:(NSUInteger) mask;							// Configuration
++ (void) setPickerMode:(NSColorPanelMode) mode;
 + (NSColorPanel *) sharedColorPanel;						// shared instance
 + (BOOL) sharedColorPanelExists;
 
 - (NSView *) accessoryView;
-- (float) alpha;
+- (CGFloat) alpha;
 - (void) attachColorList:(NSColorList *) aColorList;			// Color List
 - (NSColor *) color;
 - (void) detachColorList:(NSColorList *) aColorList;
 - (BOOL) isContinuous;
-- (int) mode;
+- (NSColorPanelMode) mode;
 - (void) setAccessoryView:(NSView *) aView;
 - (void) setAction:(SEL) aSelector;
 - (void) setColor:(NSColor *) aColor;
 - (void) setContinuous:(BOOL) flag;
-- (void) setMode:(int) mode;
+- (void) setMode:(NSColorPanelMode) mode;
 - (void) setShowsAlpha:(BOOL) flag;
 - (void) setTarget:(id) anObject;
 - (BOOL) showsAlpha;

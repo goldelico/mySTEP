@@ -1,16 +1,19 @@
-//
-//  NSDrawer.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
-//  Copyright (c) 2005 DSITRI.
-//
-//	Author:	H. N. Schaller <hns@computer.org>
-//	Date:	Jun 2006 - aligned with 10.4
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+	NSDrawer.h	
+	mySTEP
+ 
+	Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
+	Copyright (c) 2005 DSITRI.
+	
+	Author:	H. N. Schaller <hns@computer.org>
+	Date:	Jun 2006 - aligned with 10.4
+ 
+	Author:	Fabian Spillner
+	Date: 23. October 2007
+
+	This file is part of the mySTEP Library and is provided
+	under the terms of the GNU Library General Public License.
+*/
 
 #ifndef _mySTEP_H_NSDrawer
 #define _mySTEP_H_NSDrawer

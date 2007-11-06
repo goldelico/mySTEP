@@ -13,6 +13,9 @@
 
    Author:	Fabian Spillner
    Date:	19. October 2007  
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	6. November 2007 - aligned with 10.5
 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -36,6 +39,8 @@ typedef enum _NSTitlePosition
 	NSAtBottom	  = 5,
 	NSBelowBottom = 6
 } NSTitlePosition;
+
+typedef NSUInteger NSBoxType;
 
 typedef enum _NSBoxType
 {
@@ -61,20 +66,30 @@ typedef enum _NSBoxType
 		} _bx;
 }
 
+- (NSColor *) borderColor; 
 - (NSRect) borderRect;									// Border+Title attribs
 - (NSBorderType) borderType;
+- (CGFloat) borderWidth;
 - (NSBoxType) boxType;
 - (id) contentView;										// Content View
 - (NSSize) contentViewMargins;
+- (CGFloat) cornerRadius;
+- (NSColor *) fillColor;
+- (BOOL) isTransparent;
+- (void) setBorderColor:(NSColor *) color;
 - (void) setBorderType:(NSBorderType) type;
+- (void) setBorderWidth:(CGFloat) width;
 - (void) setBoxType:(NSBoxType) type;
 - (void) setContentView:(NSView *) view;
 - (void) setContentViewMargins:(NSSize) size;
+- (void) setCornerRadius:(CGFloat) rad;
+- (void) setFillColor:(NSColor *) color;
 - (void) setFrameFromContentFrame:(NSRect) frame;
 - (void) setTitle:(NSString *) title;
 - (void) setTitleFont:(NSFont *) font;
 - (void) setTitlePosition:(NSTitlePosition) pos;
 - (void) setTitleWithMnemonic:(NSString *) title;
+- (void) setTransparent:(BOOL) flag;
 - (void) sizeToFit;										// Sizing the Box
 - (NSString *) title;
 - (id) titleCell;

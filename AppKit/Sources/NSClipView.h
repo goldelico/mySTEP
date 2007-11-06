@@ -11,6 +11,9 @@
    Author:	Fabian Spillner
    Date:	22. October 2007 
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	6. November 2007 - aligned with 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */

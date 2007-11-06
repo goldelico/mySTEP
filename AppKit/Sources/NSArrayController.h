@@ -8,6 +8,9 @@
   Author: Fabian Spillner
   Date:	16. October 2007 
  
+  Author: Fabian Spillner
+  Date:	  05. November 2007 - aligned with 10.5  
+ 
   This file is part of the mySTEP Library and is provided
   under the terms of the GNU Library General Public License.
 */
@@ -30,6 +33,7 @@
 	BOOL _preservesSelection;
 }
 
+- (void) add:(id) sender;
 - (void) addObject:(id) obj;
 - (void) addObjects:(NSArray *) obj;
 - (BOOL) addSelectedObjects:(NSArray *) obj;
@@ -38,11 +42,14 @@
 - (id) arrangedObjects;
 - (NSArray *) arrangeObjects:(NSArray *) obj;
 - (BOOL) automaticallyPreparesContent; 
+- (BOOL) automaticallyRearrangesObjects;
+- (NSArray *) automaticRearrangementKeyPaths;
 - (BOOL) avoidsEmptySelection;
 - (BOOL) canInsert;
 - (BOOL) canSelectNext;
 - (BOOL) canSelectPrevious;
-- (BOOL) clearsFilterPredicateOnInsertion; 
+- (BOOL) clearsFilterPredicateOnInsertion;
+- (void) didChangeArrangementCriteria;
 - (NSPredicate *) filterPredicate; 
 - (void) insert:(id) sender;
 - (void) insertObject:(id) obj atArrangedObjectIndex:(unsigned int) idx;
@@ -64,6 +71,7 @@
 - (BOOL) selectsInsertedObjects;
 - (void) setAlwaysUsesMultipleValuesMarker:(BOOL) flag;
 - (void) setAutomaticallyPreparesContent:(BOOL) flag; 
+- (void) setAutomaticallyRearrangesObjects:(BOOL) flag;
 - (void) setAvoidsEmptySelection:(BOOL) flag;
 - (void) setClearsFilterPredicateOnInsertion:(BOOL) flag; 
 - (void) setFilterPredicate:(NSPredicate *) filter; 

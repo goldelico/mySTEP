@@ -7,6 +7,9 @@
 
    Author:  Felipe A. Rodriguez <far@ix.netcom.com>
    Date: Sept 1998
+ 
+   Author:	Fabian Spillner
+   Date:	23. October 2007
 
    This file is part of the GNUstep GUI Library.
 
@@ -52,86 +55,39 @@ typedef enum
 	NSImage		*_iconImage;
 }
 
-//
-// Initialization 
-//
-
-// Init instance of directory type
-- (id)initDirectoryWithFileWrappers:(NSDictionary *)docs;	 
-
-	// Init instance of regular file type
-- (id)initRegularFileWithContents:(NSData *)data;		 
-
-	// Init instance of symbolic link type
-- (id)initSymbolicLinkWithDestination:(NSString *)path;
-
-	// Init an instance from the file, directory, or symbolic link at path. 
-	// This can create a tree of instances 
-- (id)initWithPath:(NSString *)path;	// with a directory instance at the top
-
-	// Init an instance from data in standard serial format.  Serial format
-	// is the same as that used by NSText's RTFDFromRange: method.  This can 
-	// create a tree of instances with a directory instance at the top
-- (id)initWithSerializedRepresentation:(NSData *)data;
-
-	//
-	// General methods 
-	//
-
-	// write instace to disk at path. if directory type, this method is recursive
-	// if flag is YES, the wrapper will be updated with the name used in writing
-	// the file
-- (BOOL)writeToFile:(NSString *)path
-         atomically:(BOOL)atomicFlag
-    updateFilenames:(BOOL)updateFilenamesFlag;
-
-- (NSData *)serializedRepresentation;
-
-- (void)setFilename:(NSString *)filename;
-- (NSString *)filename;
-
-- (void)setPreferredFilename:(NSString *)filename;
-- (NSString *)preferredFilename;
-
-- (void)setFileAttributes:(NSDictionary *)attributes;
-- (NSDictionary *)fileAttributes;
-
-- (BOOL)isRegularFile;
-- (BOOL)isDirectory;
-- (BOOL)isSymbolicLink;
-
-- (void)setIcon:(NSImage *)icon;
-- (NSImage *)icon;
-
-- (BOOL)needsToBeUpdatedFromPath:(NSString *)path;
-- (BOOL)updateFromPath:(NSString *)path;
-
-	//								
-	// Directory type methods 				  
-	//
-
-	// these messages raise an exception when sent to non-directory type wrappers!
-- (NSString *)addFileWrapper:(NSFileWrapper *)doc;
-- (void)removeFileWrapper:(NSFileWrapper *)doc;
-- (NSDictionary *)fileWrappers;
-- (NSString *)keyForFileWrapper:(NSFileWrapper *)doc;
-- (NSString *)addFileWithPath:(NSString *)path;
-- (NSString *)addRegularFileWithContents:(NSData *)data 
-                       preferredFilename:(NSString *)filename;
-- (NSString *)addSymbolicLinkWithDestination:(NSString *)path 
-                           preferredFilename:(NSString *)filename;
-
-	//
-	// Regular file type methods 				  
-	//
-
-- (NSData *)regularFileContents;
-
-	//
-	// Symbolic link type methods 				  
-	//
-
-- (NSString *)symbolicLinkDestination;
+- (NSString *) addFileWithPath:(NSString *) path;
+- (NSString *) addFileWrapper:(NSFileWrapper *) doc;
+- (NSString *) addRegularFileWithContents:(NSData *) data 
+                        preferredFilename:(NSString *) filename;
+- (NSString *) addSymbolicLinkWithDestination:(NSString *) path 
+                            preferredFilename:(NSString *) filename;
+- (NSDictionary *) fileAttributes;
+- (NSString *) filename;
+- (NSDictionary *) fileWrappers;
+- (NSImage *) icon;
+- (id) initDirectoryWithFileWrappers:(NSDictionary *) docs;	 
+- (id) initRegularFileWithContents:(NSData *) data;		 
+- (id) initSymbolicLinkWithDestination:(NSString *) path;
+- (id) initWithPath:(NSString *) path;	
+- (id) initWithSerializedRepresentation:(NSData *) data;
+- (BOOL) isDirectory;
+- (BOOL) isRegularFile;
+- (BOOL) isSymbolicLink;
+- (NSString *) keyForFileWrapper:(NSFileWrapper *) doc;
+- (BOOL) needsToBeUpdatedFromPath:(NSString *) path;
+- (NSString *) preferredFilename;
+- (NSData *) regularFileContents;
+- (void) removeFileWrapper:(NSFileWrapper *) doc;
+- (NSData *) serializedRepresentation;
+- (void) setFileAttributes:(NSDictionary *) attributes;
+- (void) setFilename:(NSString *) filename;
+- (void) setIcon:(NSImage *) icon;
+- (void) setPreferredFilename:(NSString *) filename;
+- (NSString *) symbolicLinkDestination;
+- (BOOL) updateFromPath:(NSString *) path;
+- (BOOL) writeToFile:(NSString *) path
+          atomically:(BOOL) atomicFlag
+     updateFilenames:(BOOL) updateFilenamesFlag;
 
 @end
 

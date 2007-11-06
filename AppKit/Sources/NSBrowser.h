@@ -12,7 +12,10 @@
    Date:	Jan 2006 - aligned with 10.4
  
    Author:	Fabian Spillner
-   Date:	19. October 2007  
+   Date:	19. October 2007
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	6. November 2007 - aligned with 10.5
  
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -35,6 +38,12 @@ typedef enum _NSBrowserColumnResizingType
 	NSBrowserAutoColumnResizing,
 	NSBrowserUserColumnResizing
 } NSBrowserColumnResizingType;
+
+enum {
+	NSBrowserDropOn,
+	NSBrowserDropAbove
+};
+typedef NSUInteger NSBrowserDropOperation;
 
 @interface NSBrowser : NSControl  <NSCoding>
 {
@@ -83,52 +92,62 @@ typedef enum _NSBrowserColumnResizingType
 - (BOOL) allowsBranchSelection;							// Selection behavior
 - (BOOL) allowsEmptySelection;
 - (BOOL) allowsMultipleSelection;
+- (BOOL) allowsTypeSelect;
+- (NSColor *) backgroundColor;
+- (BOOL) canDragRowsWithIndexes:(NSIndexSet *) rowIds inColumn:(NSInteger) colId withEvent:(NSEvent *) event;
 - (id) cellPrototype;
-- (float)columnContentWidthForColumnWidth:(float)width;
-- (int) columnOfMatrix:(NSMatrix *) mtx;				// Manipulating Columns
+- (CGFloat)columnContentWidthForColumnWidth:(CGFloat)width;
+- (NSInteger) columnOfMatrix:(NSMatrix *) mtx;				// Manipulating Columns
 - (NSBrowserColumnResizingType) columnResizingType;
 - (NSString *) columnsAutosaveName;
-- (float) columnWidthForColumnContentWidth:(float) colWith;
+- (CGFloat) columnWidthForColumnContentWidth:(CGFloat) colWith;
 - (id) delegate;										// delegate
 - (void) displayAllColumns;
 - (void) displayColumn:(int) col;
 - (void) doClick:(id) sender;							// Event Handling
 - (void) doDoubleClick:(id) sender;
-- (SEL) doubleAction;									// Target / Action
-- (void) drawTitleOfColumn:(int)col inRect:(NSRect)rect;
+- (SEL) doubleAction;	// Target / Action
+- (NSImage *) draggingImageForRowsWithIndexes:(NSIndexSet *) rowIds 
+									 inColumn:(NSInteger) colId 
+									withEvent:(NSEvent *) event 
+									   offset:(NSPointPointer) offset;
+- (NSDragOperation) draggingSourceOperationMaskForLocal:(BOOL) dest;
+- (void) drawTitleOfColumn:(NSInteger) col inRect:(NSRect) rect;
 - (void) drawTitle:(NSString *) title inRect:(NSRect) rect ofColumn:(int) col; /* THIS METHOD DOESNT EXIST IN API */
-- (int) firstVisibleColumn;
-- (NSRect) frameOfColumn:(int) col;					// Column Frames
-- (NSRect) frameOfInsideOfColumn:(int) col;
+- (NSInteger) firstVisibleColumn;
+- (NSRect) frameOfColumn:(NSInteger) col;					// Column Frames
+- (NSRect) frameOfInsideOfColumn:(NSInteger) col;
 - (BOOL) hasHorizontalScroller;
 - (BOOL) isLoaded;
 - (BOOL) isTitled;										// Column Titles
-- (int) lastColumn;
-- (int) lastVisibleColumn;
+- (NSInteger) lastColumn;
+- (NSInteger) lastVisibleColumn;
 - (void) loadColumnZero;
-- (id) loadedCellAtRow:(int) row column:(int) col;		// Matrices and Cells
+- (id) loadedCellAtRow:(NSInteger) row column:(NSInteger) col;		// Matrices and Cells
 - (Class) matrixClass;
-- (NSMatrix *) matrixInColumn:(int) col;
-- (int) maxVisibleColumns;								// NSBrowser Appearance
-- (float) minColumnWidth;
-- (int) numberOfVisibleColumns;
-- (NSString*) path;										// Manipulating Paths
-- (NSString*) pathSeparator;
-- (NSString*) pathToColumn:(int) col;
+- (NSMatrix *) matrixInColumn:(NSInteger) col;
+- (NSInteger) maxVisibleColumns;								// NSBrowser Appearance
+- (CGFloat) minColumnWidth;
+- (NSArray *) namesOfPromisedFilesDroppedAtDestination:(NSURL *) dest;
+- (NSInteger) numberOfVisibleColumns;
+- (NSString *) path;										// Manipulating Paths
+- (NSString *) pathSeparator;
+- (NSString *) pathToColumn:(NSInteger) col;
 - (BOOL) prefersAllColumnUserResizing;
-- (void) reloadColumn:(int) col;
+- (void) reloadColumn:(NSInteger) col;
 - (BOOL) reusesColumns;									// NSBrowser Behavior
-- (void) scrollColumnsLeftBy:(int) amount;			// NSBrowser Scrolling
-- (void) scrollColumnsRightBy:(int) amount;
-- (void) scrollColumnToVisible:(int) col;
+- (void) scrollColumnsLeftBy:(NSInteger) amount;			// NSBrowser Scrolling
+- (void) scrollColumnsRightBy:(NSInteger) amount;
+- (void) scrollColumnToVisible:(NSInteger) col;
 - (void) scrollViaScroller:(NSScroller *) sender;
 - (void) selectAll:(id) sender;
 - (id) selectedCell;
-- (id) selectedCellInColumn:(int) col;
+- (id) selectedCellInColumn:(NSInteger) col;
 - (NSArray *) selectedCells;
-- (int) selectedColumn;
-- (int) selectedRowInColumn:(int) col;
-- (void) selectRow:(int) row inColumn:(int) col;
+- (NSInteger) selectedColumn;
+- (NSInteger) selectedRowInColumn:(NSInteger) col;
+- (NSIndexSet *) selectedRowIndexesInColumn:(NSInteger) col;
+- (void) selectRow:(NSInteger) row inColumn:(NSInteger) col;
 - (BOOL) sendAction;
 - (BOOL) sendsActionOnArrowKeys;
 - (BOOL) separatesColumns;
@@ -136,17 +155,20 @@ typedef enum _NSBrowserColumnResizingType
 - (void) setAllowsBranchSelection:(BOOL) flag;
 - (void) setAllowsEmptySelection:(BOOL) flag;
 - (void) setAllowsMultipleSelection:(BOOL) flag;
+- (void) setAllowsTypeSelect:(BOOL) flag;
+- (void) setBackgroundColor:(NSColor *) color; 
 - (void) setCellClass:(Class) classId;
 - (void) setCellPrototype:(NSCell *) cell;
 - (void) setColumnResizingType:(NSBrowserColumnResizingType) type;
 - (void) setColumnsAutosaveName:(NSString *) autosaveName;
 - (void) setDelegate:(id) delegate;
 - (void) setDoubleAction:(SEL) sel;
+- (void) setDraggingSourceOperationMask:(NSDragOperation) opMask forLocal:(BOOL) dest;
 - (void) setHasHorizontalScroller:(BOOL) flag;			// Horizontal Scroller
-- (void) setLastColumn:(int) col;
+- (void) setLastColumn:(NSInteger) col;
 - (void) setMatrixClass:(Class) classId;
-- (void) setMaxVisibleColumns:(int) colCount;
-- (void) setMinColumnWidth:(float) colWidth;
+- (void) setMaxVisibleColumns:(NSInteger) colCount;
+- (void) setMinColumnWidth:(CGFloat) colWidth;
 - (BOOL) setPath:(NSString *) path;
 - (void) setPathSeparator:(NSString *) string;
 - (void) setPrefersAllColumnUserResizing:(BOOL) flag;
@@ -154,35 +176,57 @@ typedef enum _NSBrowserColumnResizingType
 - (void) setSendsActionOnArrowKeys:(BOOL) flag;
 - (void) setSeparatesColumns:(BOOL) flag;
 - (void) setTakesTitleFromPreviousColumn:(BOOL) flag;
-- (void) setTitle:(NSString *) title ofColumn:(int) col;
+- (void) setTitle:(NSString *) title ofColumn:(NSInteger) col;
 - (void) setTitled:(BOOL) flag;
-- (void) setWidth:(float)colWidth ofColumn:(int)colIndex;
+- (void) setWidth:(CGFloat) colWidth ofColumn:(NSInteger) colIndex;
 - (BOOL) takesTitleFromPreviousColumn;
 - (void) tile;											// Layout support
-- (NSRect) titleFrameOfColumn:(int) col;
-- (float) titleHeight;
-- (NSString *) titleOfColumn:(int) col;
+- (NSRect) titleFrameOfColumn:(NSInteger) col;
+- (CGFloat) titleHeight;
+- (NSString *) titleOfColumn:(NSInteger) col;
 - (void) updateScroller;
 - (void) validateVisibleColumns;
-- (float) widthOfColumn:(int) col;
+- (CGFloat) widthOfColumn:(NSInteger) col;
 
 @end
 
 
 @interface NSObject (NSBrowserDelegate)					// to be implemented by
 														// the delegate
-- (void) browser:(NSBrowser *) sender createRowsForColumn:(int) col inMatrix:(NSMatrix *) mtx;
-- (BOOL) browser:(NSBrowser *) sender isColumnValid:(int) col;
-- (int) browser:(NSBrowser *) sender numberOfRowsInColumn:(int) col;
-- (BOOL) browser:(NSBrowser *) sender selectCellWithString:(NSString *) title inColumn:(int) col;
-- (BOOL) browser:(NSBrowser *) sender selectRow:(int) row inColumn:(int) col;
-- (NSString*) browser:(NSBrowser *) sender titleOfColumn:(int) col;
-- (void) browser:(NSBrowser *) sender willDisplayCell:(id) cell atRow:(int) row column:(int) col;
+- (BOOL) browser:(NSBrowser *) sender 
+	  acceptDrop:(id <NSDraggingInfo>) info 
+		   atRow:(NSInteger) rowId 
+		  column:(NSInteger) colId 
+   dropOperation:(NSBrowserDropOperation) dropOp;
+- (BOOL) browser:(NSBrowser *) sender canDragRowsWithIndexes:(NSIndexSet *) rowIds inColumn:(NSInteger) col withEvent:(NSEvent *) event;
+- (void) browser:(NSBrowser *) sender createRowsForColumn:(NSInteger) col inMatrix:(NSMatrix *) mtx;
+- (NSImage *) browser:(NSBrowser *) sender 
+draggingImageForRowsWithIndexes:(NSIndexSet *) rowIds 
+			 inColumn:(NSInteger) col 
+			withEvent:(NSEvent *) event 
+			   offset:(NSPointPointer) offset;
+- (BOOL) browser:(NSBrowser *) sender isColumnValid:(NSInteger) col;
+- (NSArray *) browser:(NSBrowser *) sender namesOfPromisedFilesDroppedAtDestination:(NSURL *) url forDraggedRowsWithIndexes:(NSIndexSet *) rowIds inColumn:(NSInteger) col;
+- (NSInteger) browser:(NSBrowser *) sender nextTypeSelectMatchFromRow:(NSInteger) startRow toRow:(NSInteger) endRow inColumn:(NSInteger) col forString:(NSString *) keyword;
+- (NSInteger) browser:(NSBrowser *) sender numberOfRowsInColumn:(NSInteger) col;
+- (BOOL) browser:(NSBrowser *) sender selectCellWithString:(NSString *) title inColumn:(NSInteger) col;
+- (BOOL) browser:(NSBrowser *) sender selectRow:(NSInteger) row inColumn:(NSInteger) col;
+- (BOOL) browser:(NSBrowser *) sender shouldShowCellExpansionForRow:(NSInteger) row column:(NSInteger) col;
+- (CGFloat) browser:(NSBrowser *) sender shouldSizeColumn:(NSInteger) col forUserResize:(BOOL) flag toWidth:(CGFloat) width;
+- (BOOL) browser:(NSBrowser *) sender shouldTypeSelectForEvent:(NSEvent *) event withCurrentSearchString:(NSString *) keyword;
+- (CGFloat) browser:(NSBrowser *) sender sizeToFitWidthOfColumn:(NSInteger) colIndex;
+- (NSString *) browser:(NSBrowser *) sender titleOfColumn:(NSInteger) col;
+- (NSString *) browser:(NSBrowser *) sender typeSelectStringForRow:(NSInteger) row inColumn:(NSInteger) col;
+- (NSDragOperation) browser:(NSBrowser *) sender 
+			   validateDrop:(id <NSDraggingInfo>) info 
+				proposedRow:(NSInteger *) row 
+					 column:(NSInteger *) col 
+			  dropOperation:(NSBrowserDropOperation *) dropOp;
+- (void) browser:(NSBrowser *) sender willDisplayCell:(id) cell atRow:(NSInteger) row column:(NSInteger) col;
+- (BOOL) browser:(NSBrowser *) sender writeRowsWithIndexes:(NSIndexSet *) rowIds inColumn:(NSInteger) col toPasteboard:(NSPasteboard *) pboard;
+- (void) browserColumnConfigurationDidChange:(NSNotification *) notif;
 - (void) browserDidScroll:(NSBrowser *) sender;
 - (void) browserWillScroll:(NSBrowser *) sender;
-- (float) browser:(NSBrowser *) sender shouldSizeColumn:(int) col forUserResize:(BOOL) flag toWidth:(float) w;
-- (float) browser:(NSBrowser *) sender sizeToFitWidthOfColumn:(int) colIndex;
-- (void) browserColumnConfigurationDidChange:(NSNotification *) notif;
 
 @end
 

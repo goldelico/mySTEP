@@ -10,6 +10,9 @@
    
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jun 2006 - aligned with 10.4
+   
+   Author:	Fabian Spillner
+   Date:	23. October 2007
  
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -180,51 +183,51 @@ enum
 		} event_data;
 }
 
-+ (NSEvent *) enterExitEventWithType:(NSEventType)type	
-							location:(NSPoint)location
-							modifierFlags:(unsigned int)flags
-							timestamp:(NSTimeInterval)time
-							windowNumber:(int)windowNum
-							context:(NSGraphicsContext *)context	
-							eventNumber:(int)eventNum
-							trackingNumber:(int)trackingNum
-							userData:(void *)userData; 
++ (NSEvent *) enterExitEventWithType:(NSEventType) type	
+							location:(NSPoint) location
+					   modifierFlags:(unsigned int) flags
+						   timestamp:(NSTimeInterval) time
+						windowNumber:(int) windowNum
+							 context:(NSGraphicsContext *) context	
+						 eventNumber:(int) eventNum
+					  trackingNumber:(int) trackingNum
+							userData:(void *) userData; 
 
-+ (NSEvent *) keyEventWithType:(NSEventType)type
-					  location:(NSPoint)location
-					  modifierFlags:(unsigned int)flags
-					  timestamp:(NSTimeInterval)time
-					  windowNumber:(int)windowNum
-					  context:(NSGraphicsContext *)context	
-					  characters:(NSString *)keys	
-					  charactersIgnoringModifiers:(NSString *)ukeys
-					  isARepeat:(BOOL)repeatKey	
-					  keyCode:(unsigned short)code;
++ (NSEvent *) keyEventWithType:(NSEventType) type
+					  location:(NSPoint) location
+				 modifierFlags:(unsigned int) flags
+					 timestamp:(NSTimeInterval) time
+				  windowNumber:(int) windowNum
+					   context:(NSGraphicsContext *) context	
+					characters:(NSString *) keys	
+   charactersIgnoringModifiers:(NSString *) ukeys
+					 isARepeat:(BOOL) repeatKey	
+					   keyCode:(unsigned short) code;
 
-+ (NSEvent *) mouseEventWithType:(NSEventType)type	
-					   location:(NSPoint)location
-					   modifierFlags:(unsigned int)flags
-					   timestamp:(NSTimeInterval)time
-					   windowNumber:(int)windowNum	
-					   context:(NSGraphicsContext *)context	
-					   eventNumber:(int)eventNum	
-					   clickCount:(int)clickNum	
-					   pressure:(float)pressureValue;
++ (NSEvent *) mouseEventWithType:(NSEventType) type	
+						location:(NSPoint) location
+				   modifierFlags:(unsigned int) flags
+					   timestamp:(NSTimeInterval) time
+					windowNumber:(int) windowNum	
+					     context:(NSGraphicsContext *) context	
+					 eventNumber:(int) eventNum	
+					  clickCount:(int) clickNum	
+					    pressure:(float) pressureValue;
 
 + (NSPoint) mouseLocation;
 
-+ (NSEvent *) otherEventWithType:(NSEventType)type	
-					   location:(NSPoint)location
-					   modifierFlags:(unsigned int)flags
-					   timestamp:(NSTimeInterval)time
-					   windowNumber:(int)windowNum	
-					   context:(NSGraphicsContext *)context	
-					   subtype:(short)subType	
-					   data1:(int)data1	
-					   data2:(int)data2;
++ (NSEvent *) otherEventWithType:(NSEventType) type	
+					    location:(NSPoint) location
+				   modifierFlags:(unsigned int) flags
+					   timestamp:(NSTimeInterval) time
+					windowNumber:(int) windowNum	
+					     context:(NSGraphicsContext *) context	
+					     subtype:(short) subType	
+					       data1:(int) data1	
+					       data2:(int) data2;
 
-+ (void) startPeriodicEventsAfterDelay:(NSTimeInterval)delaySeconds
-							withPeriod:(NSTimeInterval)periodSeconds;
++ (void) startPeriodicEventsAfterDelay:(NSTimeInterval) delaySeconds
+							withPeriod:(NSTimeInterval) periodSeconds;
 + (void) stopPeriodicEvents;							// Periodic Events
 
 - (int) absoluteX;

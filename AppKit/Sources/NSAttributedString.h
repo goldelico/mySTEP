@@ -14,6 +14,9 @@
    Author:	Fabian Spillner
    Date:	19. October 2007 
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	05. November 2007 - aligned with 10.5  
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -70,7 +73,8 @@ extern NSString *NSStrokeWidthAttributeName;
 extern NSString *NSSuperscriptAttributeName;      	// NSNumber int, 0		 
 extern NSString *NSToolTipAttributeName;
 extern NSString *NSUnderlineColorAttributeName;
-extern NSString *NSUnderlineStyleAttributeName;   	// NSNumber int, 0 no line 	 
+extern NSString *NSUnderlineStyleAttributeName;   	// NSNumber int, 0 no line 
+extern NSString *NSMarkedClauseSegmentAttributeName; 
 
 enum // FIXME: this enum is DEPRECATED since 10.3
 {
@@ -117,6 +121,9 @@ extern NSString *NSMacSimpleTextDocumentType;
 extern NSString *NSHTMLTextDocumentType;
 extern NSString *NSDocFormatTextDocumentType;
 extern NSString *NSWordMLTextDocumentType;
+extern NSString *NSWebArchiveTextDocumentType; 
+extern NSString *NSOfficeOpenXMLTextDocumentType; 
+extern NSString *NSOpenDocumentTextDocumentType; 
 
 // for HTML export
 
@@ -135,6 +142,13 @@ extern NSString *NSTextSizeMultiplierDocumentOption;
 extern NSString *NSTimeoutDocumentOption;
 extern NSString *NSWebPreferencesDocumentOption;
 extern NSString *NSWebResourceLoadDelegateDocumentOption;
+
+// spelling
+extern NSString *NSSpellingStateAttributeName;
+enum {
+	NSSpellingStateSpellingFlag = (1 << 0),
+	NSSpellingStateGrammarFlag  = (1 << 1)
+};
 
 // special attributes
 
@@ -157,8 +171,10 @@ extern const unsigned NSUnderlineByWordMask;
 //+ (NSAttributedString *) attributedStringWithAttachment:(NSTextAttachment *)attach; // Problem, parse error
 + (NSArray *) textFileTypes;
 + (NSArray *) textPasteboardTypes;
++ (NSArray *) textTypes;
 + (NSArray *) textUnfilteredFileTypes;
 + (NSArray *) textUnfilteredPasteboardTypes;
++ (NSArray *) textUnfilteredTypes;
 
 - (NSRect)boundingRectWithSize:(NSSize)size options:(NSStringDrawingOptions)opts;
 - (BOOL) containsAttachments;
@@ -193,6 +209,7 @@ extern const unsigned NSUnderlineByWordMask;
 - (NSData *) RTFFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs;
 - (NSDictionary *) rulerAttributesInRange:(NSRange) range;
 - (NSSize)size;
+- (NSURL *) URLAtIndex:(NSUInteger) loc effectiveRange:(NSRangePointer) range; 
 
 @end
 
