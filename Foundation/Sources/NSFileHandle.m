@@ -137,6 +137,9 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 
 - (void) dealloc;
 {
+#if 0
+	NSLog(@"NSFileHandle dealloc");
+#endif
 	if(_closeOnDealloc)
 		[self closeFile];
 	[self _setReadMode:kIsNotWaiting inModes:nil];	// cancel any pending request(s)
@@ -147,6 +150,9 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 
 - (void) closeFile;
 {
+#if 0
+	NSLog(@"NSFileHandle close");
+#endif
 	[_inputStream close];
 	[_outputStream close];
 }
@@ -197,7 +203,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	unsigned char *buffer=NULL;
 	unsigned long bufpos=0;
 	unsigned int len;
-#if 1
+#if 0
 	NSLog(@"readDataOfLength %u", length);
 #endif
 	if([_inputStream getBuffer:&buffer length:&len])
@@ -210,11 +216,11 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 			buffer=objc_realloc(buffer, bufpos+FRAGMENT);	// make enough room for next junk
 		if(!buffer)
 			return nil;	// we can't allocate a buffer
-#if 1
+#if 0
 		NSLog(@"bufsize=%u read length=%u", bufpos+FRAGMENT, MIN(length, FRAGMENT));
 #endif
 		len=[_inputStream read:buffer+bufpos maxLength:MIN(length, FRAGMENT)];	// fetch as much as possible but still in junks
-#if 1
+#if 0
 		NSLog(@"returned length=%u err=%s", len, strerror(errno));
 #endif
 		if(len == 0)
@@ -508,14 +514,17 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 			[self release];
 			return nil;
 			}
-		read=[[[NSFileHandle alloc] initWithFileDescriptor:fd[0]] retain];
-		write=[[[NSFileHandle alloc] initWithFileDescriptor:fd[1]] retain];
+		read=[[NSFileHandle alloc] initWithFileDescriptor:fd[0] closeOnDealloc:YES];
+		write=[[NSFileHandle alloc] initWithFileDescriptor:fd[1] closeOnDealloc:YES];
 		}
 	return self;
 }
 
 - (void) dealloc;
 {
+#if 0
+	NSLog(@"NSPipe dealloc");
+#endif
 	[read release];
 	[write release];
 	[super dealloc];

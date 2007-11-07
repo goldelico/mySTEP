@@ -270,6 +270,11 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 - (id) initWithReceivePort:(NSPort *)receivePort
 				  sendPort:(NSPort *)sendPort;
 {
+#if 1
+	NSLog(@"-rootProxy disabled because it leaks one NSMessagePort even if we can't connect (check with ls -l /proc/<procid>/fd)");
+	return nil;
+#endif
+	
 #if 0
 	NSLog(@"NSConnection -initWithReceivePort:%@ sendPort:%@", receivePort, sendPort);
 #endif

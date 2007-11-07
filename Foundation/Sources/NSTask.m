@@ -66,20 +66,21 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 			}
 
     	if (_task.hasTerminated && !_task.hasNotified)
-			{
+			{ // post notification immediately
 			NSNotificationQueue *nq = [NSNotificationQueue defaultQueue];
 
 			_task.hasNotified = YES;
 			[nq enqueueNotification:NOTE(DidTerminate)
-				postingStyle:NSPostASAP
+				postingStyle:NSPostNow
 				coalesceMask:NSNotificationNoCoalescing
 				forModes:nil];
 			[__taskList removeObject:self];
-		}	}
+			}
+		}
 }
 
 + (void) _taskDidTerminate:(NSNotification *)aNotification
-{
+{ // we receive this notification immediately from the runloop after _catchChildExit()
 	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	NSEnumerator *enumerator = [__taskList reverseObjectEnumerator];
 	NSTask *anObject;
@@ -133,6 +134,9 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 
 - (void) dealloc
 {
+#if 1
+	NSLog(@"NSTask dealloc");
+#endif
 	[_standardInput release];
 	[_standardOutput release];
 	[_standardError release];
@@ -140,7 +144,6 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 	[_environment release];
 	[_launchPath release];
 	[_currentDirectoryPath release];
-
 	[super dealloc];
 }
 
@@ -275,8 +278,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 		return [(read?[object fileHandleForReading]:[object fileHandleForWriting]) fileDescriptor];
 	if([object isKindOfClass:[NSNumber class]])
 		return [object intValue];
-	[NSException raise: NSInvalidArgumentException
-				format: @"NSTask - invalid file descriptor %@", object];
+	[NSException raise: NSInvalidArgumentException format: @"NSTask - invalid file descriptor %@", object];
 	return -1;
 }
 
@@ -313,11 +315,10 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
     executable = [_launchPath fileSystemRepresentation];
 	// set sig handler to
 	(void)signal(SIGCHLD, _catchChildExit);				// catch child exit
-//    args[0] = [[_launchPath lastPathComponent] UTF8String];
-    args[0] = [_launchPath UTF8String];	// pass full path
-    for (i = 0; i < argCount; i++)
+    args[0] = [_launchPath UTF8String];					// pass full path
+    for(i = 0; i < argCount; i++)
 		args[i+1] = [[[a objectAtIndex: i] description] UTF8String];
-    args[argCount+1] = 0;
+    args[argCount+1] = NULL;
 
 	if(_currentDirectoryPath == nil)
 		{ // use launch path to set the directory
@@ -338,7 +339,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 		envl[i] = [s UTF8String];
 		}
     envl[envCount] = 0;
-#if 0
+#if 1
 	NSLog(@"cd %s; %s %s %s ...", path, args[0], args[1]!=NULL?args[1]:"", (args[1]!=NULL&&args[2]!=NULL)?args[2]:"");
 	NSLog(@"stdin=%d stdout=%d stderr=%d", idesc, odesc, edesc);
 #endif
@@ -349,6 +350,9 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 								 format: @"NSTask - failed to create child process"];
 		case 0:
 			{ // child process -- fork return zero
+#if 0
+			NSLog(@"child process");
+#endif
 			// WARNING - don't raise NSExceptions here or we will end up in two instances of the calling task!
 			if(idesc != 0)	
 				dup2(idesc, 0), close(idesc); // redirect
@@ -366,6 +370,9 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 			// try to switch working directory
 			if(chdir(path) == -1)
 				NSLog(@"NSTask: unable to change directory to %s", path);
+#if 0
+			NSLog(@"execve...");
+#endif
 			execve(executable, (char *const *)args, (char *const *)envl);	// and execute
 			NSLog(@"NSTask: unable to execve %s", executable);
 			exit(127);
@@ -427,19 +434,20 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 
 - (void) waitUntilExit
 {
-    while ([self isRunning]) 				// Poll at 1.0 second intervals.
+    while([self isRunning])
 		{
-		NSDate *d = [[NSDate alloc] initWithTimeIntervalSinceNow: 1.0];
-
+#if OLD
+		NSDate *d = [[NSDate alloc] initWithTimeIntervalSinceNow: 1.0]; // Poll at 1.0 second intervals.
 		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:d];
 		[d release];
+#endif
+		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];	// will return if we catch SIGCHLD
 		}
 }
 
 @end
 
-static void
-_catchChildExit(int sig)								
+static void _catchChildExit(int sig)								
 {
 #if 1
 	NSLog(@"_catchChildExit");

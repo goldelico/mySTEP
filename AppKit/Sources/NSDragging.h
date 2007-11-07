@@ -27,7 +27,7 @@
 @class NSPasteboard;
 @class NSImage;
 
-typedef enum _NSDragOperation {
+enum {
 	NSDragOperationNone		= 0,					// no op == rejection
 	NSDragOperationCopy		= 1,
 	NSDragOperationLink		= 2,
@@ -38,7 +38,9 @@ typedef enum _NSDragOperation {
 	NSDragOperationEvery	= 0xffff,
 	// the following constant is deprecated
 	NSDragOperationAll		= 15   
-} NSDragOperation;
+};
+
+typedef NSUInteger NSDragOperation;
 
 													// protocol for sender of 
 @protocol NSDraggingInfo							// messages to a drag 

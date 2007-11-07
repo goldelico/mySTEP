@@ -37,7 +37,7 @@
 		EE2114DC0CDF55910062A8AD /* NSGarbageCollector.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2114DA0CDF55910062A8AD /* NSGarbageCollector.m */; };
 		EE2114FA0CDF568D0062A8AD /* NSOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2114F80CDF568D0062A8AD /* NSOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE2114FB0CDF568D0062A8AD /* NSOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2114F90CDF568D0062A8AD /* NSOperation.m */; };
-		EE2115130CDF58F70062A8AD /* NSCondition.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2115110CDF58F70062A8AD /* NSCondition.h */; };
+		EE2115130CDF58F70062A8AD /* NSCondition.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2115110CDF58F70062A8AD /* NSCondition.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE2115140CDF58F70062A8AD /* NSCondition.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2115120CDF58F70062A8AD /* NSCondition.m */; };
 		EE6954260A34312B00E0C6C0 /* NSKeyValueObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6954250A34312B00E0C6C0 /* NSKeyValueObserving.m */; };
 		EE79057F0BCE873C00A35703 /* NSNumberFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = EE79057E0BCE873C00A35703 /* NSNumberFormatter.m */; };

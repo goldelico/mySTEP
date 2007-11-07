@@ -490,6 +490,11 @@ static void unescape(const char *from, char * to)
 	return AUTORELEASE([[NSURL alloc] initFileURLWithPath: aPath]);
 }
 
++ (id) fileURLWithPath: (NSString*)aPath isDirectory:(BOOL) flag
+{
+	return AUTORELEASE([[NSURL alloc] initFileURLWithPath: aPath isDirectory:flag]);
+}
+
 + (void) initialize
 {
 	if (clientsLock == nil)
@@ -589,26 +594,20 @@ static void unescape(const char *from, char * to)
  * specifies a directory.<br />
  * Calls -initWithScheme:host:path:
  */
+
 - (id) initFileURLWithPath: (NSString*)aPath
 {
-	BOOL	isDir = NO;
-	
-	if ([[NSFileManager defaultManager] fileExistsAtPath: aPath
-											 isDirectory: &isDir])
-		{
-		if ([aPath isAbsolutePath] == NO)
-			{
-			aPath = [aPath stringByStandardizingPath];
-			}
-		if (isDir && [aPath hasSuffix: @"/"] == NO)
-			{
-			aPath = [aPath stringByAppendingString: @"/"];
-			}
-		}
-#if 0
-	NSLog(@"NSURLFileScheme=%@", NSURLFileScheme);
-#endif	
-	return [self initWithScheme: @"file" // NSURLFileScheme
+	BOOL isDir;
+	return [self initFileURLWithPath:aPath isDirectory:([[NSFileManager defaultManager] fileExistsAtPath: aPath isDirectory: &isDir] && isDir)];
+}
+
+- (id) initFileURLWithPath: (NSString*)aPath isDirectory:(BOOL) isDir
+{
+	if(![aPath isAbsolutePath])
+		aPath = [aPath stringByStandardizingPath];
+	if(isDir && ![aPath hasSuffix: @"/"])
+		aPath = [aPath stringByAppendingString: @"/"];
+	return [self initWithScheme: NSURLFileScheme
 						   host: nil
 						   path: aPath];
 }

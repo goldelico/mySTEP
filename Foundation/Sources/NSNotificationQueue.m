@@ -228,28 +228,16 @@ id object = [notification object];
 - (BOOL) postNotification:(NSNotification*)notification
 		 		 forModes:(NSArray*)modes
 {
-	BOOL post = NO;
 	NSString *mode;	// check to see if run loop is in a valid mode
-#if 1
+#if 0
 	NSLog(@"postNotification: %@ forModes: %@", notification, modes);
 #endif
-    if (!modes || !(mode = [[NSRunLoop currentRunLoop] currentMode]))
-		post = YES;
-    else
+    if (!modes || !(mode = [[NSRunLoop currentRunLoop] currentMode]) || [modes containsObject:mode])	// if no modes (i.e. all) or specific mode is valid then post
 		{
-		int i;
-
-		for (i = [modes count] - 1; i >= 0; i--)
-			if ([mode isEqual:[modes objectAtIndex:i]])
-				{
-				post = YES;
-				break;
-		}		}
-
-    if (post)									// if mode is valid then post
 		[_center postNotification:notification];
-
-    return post;
+		return YES;
+		}
+	return NO;
 }
 
 - (void) enqueueNotification:(NSNotification*)notification
@@ -303,7 +291,7 @@ id object = [notification object];
 + (void) _runLoopIdle
 {
 	InstanceList *item;
-#if 1
+#if 0
 	NSLog(@"_runLoopIdle");
 #endif
     for (item = __notificationQueues; item; item = item->next)
@@ -323,7 +311,7 @@ id object = [notification object];
 + (void) _runLoopASAP
 {
 	InstanceList *item;   
-#if 1
+#if 0
 	NSLog(@"_runLoopASAP");
 #endif
     for (item = __notificationQueues; item; item = item->next)

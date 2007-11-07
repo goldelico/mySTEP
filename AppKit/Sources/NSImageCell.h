@@ -20,11 +20,11 @@
 
 #import <AppKit/NSCell.h>
 
-typedef enum {
+enum {
 	NSScaleProportionally = 0,
 	NSScaleToFit,
 	NSScaleNone
-} NSImageScaling;
+};
 
 typedef enum {
 	NSImageAlignCenter = 0,

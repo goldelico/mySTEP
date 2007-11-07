@@ -20,9 +20,10 @@
 
 #import <Foundation/Foundation.h>
 
+typedef void *CGColorSpaceRef;
 typedef NSInteger NSColorSpaceModel;
 
-typedef enum _NSColorSpaceModel
+enum
 {
 	NSUnknownColorSpaceModel = -1,
 	NSGrayColorSpaceModel,
@@ -32,7 +33,7 @@ typedef enum _NSColorSpaceModel
 	NSDeviceNColorSpaceModel,
 	NSIndexedColorSpaceModel,
 	NSPatternColorSpaceModel
-} NSColorSpaceModel;
+};
 
 @interface NSColorSpace : NSObject <NSCoding>
 {

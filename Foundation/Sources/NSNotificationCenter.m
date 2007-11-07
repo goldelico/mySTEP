@@ -56,6 +56,11 @@ static NSNotificationCenter *_defaultCenter = nil;
 	return ((long)observer >> 4)+ __NSHashCString(NULL,sel_get_name(selector));
 }
 
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:@"%@: -> %@", NSStringFromClass(isa), observer];
+}
+
 - (void) postNotification:(NSNotification*)notification
 {
 #if 0

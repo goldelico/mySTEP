@@ -65,13 +65,13 @@ enum {		// Name in IB
 
 typedef NSUInteger NSGradientType;
 
-typedef enum _NSGradientType {
+enum {
 	NSGradientNone=0,
 	NSGradientConcaveWeak,
 	NSGradientConcaveStrong,
 	NSGradientConvexWeak,
 	NSGradientConvexStrong
-} NSGradientType;
+};
 
 @interface NSButtonCell : NSActionCell  <NSCopying, NSCoding>
 {

@@ -42,13 +42,13 @@ typedef enum _NSTitlePosition
 
 typedef NSUInteger NSBoxType;
 
-typedef enum _NSBoxType
+enum _NSBoxType
 {
 	NSBoxPrimary=0,
 	NSBoxSecondary,
 	NSBoxSeparator,
 	NSBoxOldStyle
-} NSBoxType;
+};
 
 @interface NSBox : NSView  <NSCoding>
 {

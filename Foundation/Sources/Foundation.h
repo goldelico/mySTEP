@@ -30,6 +30,7 @@
 #import <Foundation/NSComparisonPredicate.h>
 #import <Foundation/NSCompatibility.h>
 #import <Foundation/NSCompoundPredicate.h>
+#import <Foundation/NSCondition.h>
 #import <Foundation/NSConnection.h>
 #import <Foundation/NSData.h>
 #import <Foundation/NSDate.h>
@@ -72,6 +73,7 @@
 #import <Foundation/NSNumberFormatter.h>
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSObject.h>
+#import <Foundation/NSOperation.h>
 #import <Foundation/NSPathUtilities.h>
 #import <Foundation/NSPort.h>
 #import <Foundation/NSPortCoder.h>

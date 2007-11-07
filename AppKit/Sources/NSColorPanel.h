@@ -53,18 +53,6 @@ enum {
 	NSCrayonModeColorPanel          = 7
 };
 
-enum
-{
-	NSGrayModeColorPanel,
-	NSRGBModeColorPanel,
-	NSCMYKModeColorPanel,
-	NSHSBModeColorPanel,
-	NSCustomPaletteModeColorPanel,
-	NSColorListModeColorPanel,
-	NSWheelModeColorPanel,
-	NSCrayonModeColorPanel
-};
-
 @class NSView;
 @class NSColorList;
 @class NSColorWell;

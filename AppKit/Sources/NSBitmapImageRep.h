@@ -32,6 +32,9 @@
 @class NSMutableData;
 @class NSColor;
 
+typedef id CGImageRef;
+@class CIImage;
+
 typedef enum _NSTIFFCompression
 {
 	NSTIFFCompressionNone	   = 1,

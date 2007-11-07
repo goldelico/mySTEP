@@ -7,6 +7,7 @@
 //
 
 #import <IOBluetooth/objc/IOBluetoothDevice.h>
+#import <IOBluetooth/objc/IOBluetoothDeviceInquiry.h>
 #import <IOBluetooth/objc/IOBluetoothUserNotification.h>
 #import <IOBluetooth/objc/IOBluetoothSDPServiceRecord.h>
 #import <IOBluetooth/objc/IOBluetoothSDPUUID.h>
@@ -16,14 +17,37 @@ static NSMutableArray *_paired;
 
 @implementation IOBluetoothDevice
 
-+ (NSArray *) favoriteDevices; { return _favorites; }
-+ (NSArray *) pairedDevices; { return _paired; } 
-+ (NSArray *) recentDevices:(UInt32) limit; { return NIMP; }
++ (void) initialize
+{
+	// read favourite addresses from user defaults
+}
+
++ (NSArray *) favoriteDevices;
+{
+	return _favorites;
+}
+
++ (NSArray *) pairedDevices;
+{
+	return _paired;
+}
+
++ (NSArray *) recentDevices:(UInt32) limit;
+{
+	return NIMP;
+}
+
 + (IOBluetoothUserNotification *) registerForConnectNotifications:(id) observer selector:(SEL) sel; { return NIMP; }
+
 + (IOBluetoothDevice *) withAddress:(const BluetoothDeviceAddress *) address; { return [[[self alloc] _initWithAddress:address] autorelease]; }
 + (IOBluetoothDevice *) withDeviceRef:(IOBluetoothDeviceRef) ref; { return [[[self alloc] _initWithDeviceRef:ref] autorelease]; }
 
-- (IOReturn) addToFavorites; { NIMP; return 0; }
+- (IOReturn) addToFavorites;
+{
+	[_favorites addObject:self];
+	// store addresses in user defaults
+	return kIOReturnSuccess;
+}
 
 - (IOReturn) closeConnection;
 {
@@ -106,15 +130,41 @@ static NSMutableArray *_paired;
 	return [IOBluetoothUserNotification _bluetoothUserNotification:@"Disconnect" observer:(id) observer selector:(SEL) sel object:self];
 }
 
-- (IOReturn) remoteNameRequest:(id) target; { return [self remoteNameRequest:target withPageTimeout:0]; }
+- (IOReturn) remoteNameRequest:(id) target; { return [self remoteNameRequest:target withPageTimeout:10]; }
 
+- (void) _remoteNameRequestDone:(NSNotification *) notif;
+{
+	int status=[[notif object] terminationStatus];
+	NSData *result=[[[[notif object] standardOutput] fileHandleForReading] readDataToEndOfFile];
+#if 1
+	NSLog(@"_remoteNameRequestDone is done status=%d", status);
+	NSLog(@"result=%@", result);
+#endif
+	// [self _setName:name];
+	// [target - (void) remoteNameRequestComplete:self status:(int) status name:(NSString *) name;
+}
+	
 - (IOReturn) remoteNameRequest:(id) target withPageTimeout:(BluetoothHCIPageTimeout) timeout;
 {
-	// use "hcitool name <bdaddr>"
-	NIMP; return 0;
+	// FIXME: pass target through to _remoteNameRequestDone:
+	NSTask *task=[IOBluetoothDeviceInquiry _hcitool:[NSArray arrayWithObjects:@"scan", nil] handler:self done:@selector(_remoteNameRequestDone:)];
+	if(!task)
+		return kIOReturnError;	// could not launch
+	if(!target)
+		{ // wait for completion
+		[task waitUntilExit];
+		if([task terminationStatus] != 0)
+			return kIOReturnError;	// some error
+		}
+	return kIOReturnSuccess;
 }
 
-- (IOReturn) removeFromFavorites; { NIMP; return 0; }
+- (IOReturn) removeFromFavorites;
+{
+	[_favorites removeObject:self];
+	// store addresses in user defaults
+	return kIOReturnSuccess;
+}
 
 - (IOReturn) requestAuthentication;
 {

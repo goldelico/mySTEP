@@ -15,15 +15,16 @@
 {
 	NSMutableArray *_devices;
 	NSTask *_task;		// scanning task
-	NSPipe *_output;
 	id _delegate;
 	uint8_t _timeout;	// in seconds up to 255
+	BOOL _bluetoothAvailable;
 	BOOL _updateNewDeviceNames;
 	BOOL _aborted;
 }
 
 + (BOOL) _activateBluetoothHardware:(BOOL) flag;
 + (BOOL) _bluetoothHardwareIsActive;
++ (NSTask *) _hcitool:(NSArray *) cmds handler:(id) handler done:(SEL) sel;
 
 + (IOBluetoothDeviceInquiry *) inquiryWithDelegate:(id) delegate; 
 

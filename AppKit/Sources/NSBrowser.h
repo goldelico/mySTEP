@@ -25,6 +25,7 @@
 #define _mySTEP_H_NSBrowser
 
 #import <AppKit/NSControl.h>
+#import <AppKit/NSDragging.h>
 
 @class NSString;
 @class NSArray;

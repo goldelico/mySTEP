@@ -336,7 +336,7 @@ static XChar2b *XChar2bFromString(NSString *str, BOOL remote)
 	else
 		_windowRect.origin.y -= WINDOW_MANAGER_TITLE_HEIGHT;   // if window manager moves window down by that amount!
 #endif
-#if 1
+#if 0
 	_windowRect.size.height=-_windowRect.size.height;
 	NSLog(@"_windowRect %@", NSStringFromRect(_windowRect));	// _windowRect.size.heigh is negative
 	_windowRect.size.height=-_windowRect.size.height;
@@ -347,7 +347,7 @@ static XChar2b *XChar2bFromString(NSString *str, BOOL remote)
 	_xRect.height=NSMinY(_windowRect)-NSMaxY(_windowRect);	// _windowRect.size.heigh is negative (!)
 	if(_xRect.width == 0) _xRect.width=48;
 	if(_xRect.height == 0) _xRect.height=49;
-#if 1
+#if 0
 	NSLog(@"XCreateWindow(%@)", NSStringFromXRect(_xRect));	// _windowRect.size.heigh is negative
 #endif
 	win=XCreateWindow(_display,
@@ -2384,7 +2384,7 @@ static NSDictionary *_x11settings;
 		BOOL changed=NO;
 		NSSize size, resolution;
 		_screenScale=[[_x11settings objectForKey:@"systemSpaceScaleFactor"] floatValue];
-#if 1
+#if 0
 		NSLog(@"system space scale factor=%lf", _screenScale);
 #endif
 		if(_screenScale <= 0.01) _screenScale=1.0;
@@ -2414,7 +2414,7 @@ static NSDictionary *_x11settings;
 			if(fd < 0)
 				fd=open("/dev/apm_bios", O_RDWR|O_NONBLOCK);
 			if(fd < 0)
-				NSLog(@"Failed to get hinge state from /dev/apm_bios");
+				NSLog(@"Failed to open /dev/apm_bios");
 			else
 				{
 				r=ioctl(fd, SCRCTL_GET_ROTATION);
@@ -2423,6 +2423,8 @@ static NSDictionary *_x11settings;
 #endif
 				switch(r)
 					{
+					case -1:
+						break;	// unsupported ioctl
 					default:
 						NSLog(@"unknown hinge state %d", r);
 						break;
@@ -2459,7 +2461,7 @@ static NSDictionary *_x11settings;
 			[NSValue valueWithSize:size], NSDeviceSize,
 			[NSNumber numberWithInt:XScreenNumberOfScreen(_screen)], @"NSScreenNumber",
 			nil];
-#if 1
+#if 0
 		NSLog(@"deviceDescription=%@", _device);
 		NSLog(@"  resolution=%@", NSStringFromSize(resolution));
 		NSLog(@"  size=%@", NSStringFromSize(size));

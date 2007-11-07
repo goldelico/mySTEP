@@ -21,9 +21,11 @@ This document describes the changes and additions to the mySTEP library.\
 \
 * AppKit: fixed more bugs in NSScroller, NSScrollView, NSClipView interworking\
 \
+* Foundation: fixed NSTask so that NSTaskDidTerminateNotifications are delivered immediately from the runloop (not ASAP)\
+* Foundation: fixed bugs in NSTask that did not properly close NSPipe descriptors\
 * Foundation: new methods of 10.5 added to header files (almost no implementations available)\
 * Foundation: NSUInteger, NSInteger, CGFloat, CFIndex defined\
-* IOBluetooth/IOBluetoothUI: rough implementation for IOBluetoothDeviceInquiry and IOBluetoothDevice on Linux added\
+* IOBluetooth/IOBluetoothUI: rough implementation for IOBluetoothDeviceInquiry and IOBluetoothDevice based on hcitool for Linux added\
 * SystemStatus: device description database extended and Bluetooth, IrDA added for several devices\
 * AppKit: fixed most bugs in NSButtonCell highlighting and transparency\
 * AppKit: context menu initializsation, getters, setters corrected\

@@ -99,25 +99,112 @@
 	_updateNewDeviceNames=flag;
 }
 
++ (NSTask *) _hcitool:(NSArray *) cmds handler:(id) handler done:(SEL) sel;
+{
+	NSString *tool=[[NSSystemStatus sysInfo] objectForKey:@"Bluetooth Discovery"];
+	NSTask *task;
+#if 0
+	NSLog(@"tool=%@", tool);
+#endif
+	if(!tool)
+		return nil;	// bluetooth is not supported
+	task=[NSTask new];
+	[[NSNotificationCenter defaultCenter] addObserver:handler selector:sel name:NSTaskDidTerminateNotification object:task];
+	[task setLaunchPath:@"/bin/hcitool"];
+	[task setArguments:cmds];
+	[task setStandardOutput:[NSPipe pipe]];
+#if 0
+	NSLog(@"task=%@", task);
+#endif
+	[task launch];
+	return [task autorelease];
+}
+
 - (IOReturn) start; 
 {
 	// FIXME - we should better do an "hcitool inq" and a separate "hcitool name" (this is sufficient for the IOBluetoothDeviceInquiry API)
-	NSString *cmd;
+#if 0
+	NSLog(@"start %@", self);
+#endif
 	if(_task)
-		return kIOReturnError;	// already running
-	cmd=[[NSSystemStatus sysInfo] objectForKey:@"Bluetooth Discovery"];
-	if(!cmd)
-		return kIOReturnError;	// bluetooth is not supported
-	_task=[NSTask new];
+		return kIOReturnError;	// task is already running
 	_aborted=NO;
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_done:) name:NSTaskDidTerminateNotification object:_task];
-	[_task setLaunchPath:@"/bin/sh"];
-	[_task setArguments:[NSArray arrayWithObjects:@"-c", cmd, nil]];
-	_output=[NSPipe pipe];
-	[_task setStandardOutput:_output];
-	[_task launch];
+	_task=[[isa _hcitool:[NSArray arrayWithObjects:@"scan", nil] handler:self done:@selector(_done:)] retain];
+	if(!_task)
+		return 42;	// could not launch
 	[_delegate deviceInquiryStarted:self];
 	return kIOReturnSuccess;
+}
+
+// NOTE: this assumes that the full output of the subtask can be buffered and the pipe does never stall
+// and we process the result of a "hcitool scan" command (should simply be "hcitool inq")
+
+- (void) _done:(NSNotification *) notif;
+{
+	int status=[_task terminationStatus];
+	NSFileHandle *rfh=[[[[_task standardOutput] fileHandleForReading] retain] autorelease];	// keep
+#if 0
+	NSLog(@"task is done status=%d %@", status, _task);
+	NSLog(@"rfh=%@", rfh);
+#endif
+	[_task release];
+	_task=nil;
+	if(status == 0)
+		{ // build new list of devices
+		NSData *result=[rfh readDataToEndOfFile];
+		unsigned rlength;
+#if 0
+		NSLog(@"result=%@", result);
+#endif
+		if((rlength=[result length]) == 0)
+			{ // no data - i.e. we don't currently support bluetooth (e.g. hcitool installed, but no device)
+			status=31;
+			}
+		else
+			{
+			const char *cp=[result bytes];
+			const char *cend=cp+rlength;
+			if(cend > cp+8 && strncmp(cp, "Scanning", 8) == 0)
+				{ // ok
+				[_devices removeAllObjects];
+				while(cp < cend && *cp != '\n')
+					cp++;	// skip "Scanning..."
+				cp++;
+				while(cp < cend)
+					{ // get next line
+					IOBluetoothDevice *dev;
+					BluetoothDeviceAddress addr;
+					const char *c0;
+					int len;
+					/*	a line looks like
+00:16:CB:2F:A0:46       MacBook
+00:11:24:AF:2E:E3       MacMini
+						*/
+					while(cp < cend && isspace(*cp)) cp++;
+					sscanf(cp, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx%n", &addr.addr[0], &addr.addr[1], &addr.addr[2], &addr.addr[3], &addr.addr[4], &addr.addr[5], &len);
+					cp+=len;
+					while(cp < cend && isspace(*cp)) cp++;	// skip spaces
+					c0=cp;
+					while(cp < cend && *cp != '\n') cp++;	// get span of name
+					dev=[IOBluetoothDevice withAddress:&addr];
+					[_devices addObject:dev];
+					if(_updateNewDeviceNames)
+						[dev remoteNameRequest:self];	// request to asynchronously update the device name
+					[dev _setName:[NSString stringWithCString:c0 length:cp-c0]];
+					cp++;	// skip \n
+					}
+				}
+			}
+		}
+	else
+		status=31;	// not available
+	[_delegate deviceInquiryComplete:self error:status aborted:_aborted];
+}
+
+- (void) remoteNameRequestComplete:(IOBluetoothDevice *) dev status:(int) status name:(NSString *) name;
+{ // device name received
+	// FIXME: isn't this already done by the name request?
+	[dev _setName:name];
 }
 
 - (IOReturn) stop; 
@@ -158,60 +245,6 @@
 	line[fread(line, sizeof(line[0]), sizeof(line)-1, file)]=0; // read as much as we get but not more than buffer holds
 	pclose(file);
 	return strlen(line) > 0;
-}
-
-// NOTE: this assumes that the full output of the subtask can be buffered and the pipe does not stall
-
-- (void) _done:(NSNotification *) notif;
-{
-	int status=[_task terminationStatus];
-	NSData *result;
-	unsigned rlength;
-	[_task release];
-	_task=nil;
-	result=[[_output fileHandleForReading] readDataToEndOfFile];
-	[result autorelease];
-	if(status == 0)
-		{ // build new list of devices
-		if((rlength=[result length]) == 0)
-			{ // no data - i.e. we don't support bluetooth
-			status=42;
-			}
-		else
-			{
-			const char *cp=[result bytes];
-			const char *cend=cp+rlength;
-			if(cend > cp+8 && strncmp(cp, "Scanning", 8) == 0)
-				{ // ok
-				[_devices removeAllObjects];
-				while(cp < cend && *cp != '\n')
-					cp++;	// skip "Scanning..."
-				cp++;
-				while(cp < cend)
-					{ // get next line
-					IOBluetoothDevice *dev;
-					BluetoothDeviceAddress addr;
-					const char *c0;
-					int len;
-					/*	a line looks like
-						00:16:CB:2F:A0:46       MacBook
-						00:11:24:AF:2E:E3       MacMini
-					*/
-					while(cp < cend && isspace(*cp)) cp++;
-					sscanf(cp, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx%n", &addr.addr[0], &addr.addr[1], &addr.addr[2], &addr.addr[3], &addr.addr[4], &addr.addr[5], &len);
-					cp+=len;
-					while(cp < cend && isspace(*cp)) cp++;	// skip spaces
-					c0=cp;
-					while(cp < cend && *cp != '\n') cp++;	// get span of name
-					dev=[IOBluetoothDevice withAddress:&addr];
-					[dev _setName:[NSString stringWithCString:c0 length:cp-c0]];
-					[_devices addObject:dev];
-					cp++;	// skip \n
-					}
-				}
-			}
-		}
-	[_delegate deviceInquiryComplete:self error:status aborted:_aborted];
 }
 
 @end

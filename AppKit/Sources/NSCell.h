@@ -42,11 +42,11 @@ extern NSString *NSControlTintDidChangeNotification;
 
 typedef NSUInteger NSCellType;
 
-typedef enum _NSCellType {
+enum _NSCellType {
 	NSNullCellType=0,
 	NSTextCellType,
 	NSImageCellType
-} NSCellType;
+};
 
 enum {
     NSAnyType			 = 0,
@@ -70,20 +70,20 @@ enum {
 
 typedef NSUInteger NSControlTint;
 
-typedef enum _NSControlTint {
+enum _NSControlTint {
 	NSDefaultControlTint=0,
 	NSBlueControlTint,
 	NSGraphiteControlTint=6,
 	NSClearControlTint
-} NSControlTint;
+};
 
 typedef NSUInteger NSControlSize;
 
-typedef enum _NSControlSize {
+enum _NSControlSize {
 	NSRegularControlSize=0,
 	NSSmallControlSize,
 	NSMiniControlSize
-} NSControlSize;
+};
 
 enum {
 	NSCellHitNone = 0,
@@ -94,7 +94,7 @@ enum {
 
 typedef NSUInteger NSCellImagePosition;
 
-typedef enum {
+enum {
 	NSNoImage = 0,
 	NSImageOnly,
 	NSImageLeft,
@@ -102,7 +102,7 @@ typedef enum {
 	NSImageBelow,
 	NSImageAbove,
 	NSImageOverlaps
-} NSCellImagePosition;
+};
 
 typedef NSUInteger NSImageScaling;
 
@@ -115,15 +115,15 @@ enum {
 
 typedef NSUInteger NSCellStateValue;
 
-typedef enum _NSCellState {
+enum {
 	NSMixedState = -1,
 	NSOffState   = 0,
 	NSOnState    = 1
-} NSCellStateValue;
+};
 
 typedef NSUInteger NSCellAttribute;
 
-typedef enum _NSCellAttribute {
+enum {
 	NSCellDisabled,
 	NSCellState,
 	NSPushInCell,
@@ -141,14 +141,7 @@ typedef enum _NSCellAttribute {
 	NSCellChangesContents,  
 	NSCellIsInsetButton,
 	NSCellAllowsMixedState
-} NSCellAttribute;
-
-typedef enum _NSCellStateType
-{
-	NSMixedState				= -1,
-	NSOffState					= NO,
-	NSOnState					= YES
-} NSCellStateType;
+};
 
 enum {
 	NSNoCellMask				= 0x00,
