@@ -2132,7 +2132,7 @@ unsigned int end, start = anIndex;						// Determining Composed
 
 - (double) doubleValue
 {
-#if 1
+#if 0
 	const char *s=[self cString];
 	fprintf(stderr, "doubleValue(%s) -> %f\n", s, atof(s));
 #endif

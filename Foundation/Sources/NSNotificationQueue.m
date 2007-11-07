@@ -228,9 +228,11 @@ id object = [notification object];
 - (BOOL) postNotification:(NSNotification*)notification
 		 		 forModes:(NSArray*)modes
 {
-BOOL post = NO;
-NSString *mode;									// check to see if run loop is
-    											// in a valid mode
+	BOOL post = NO;
+	NSString *mode;	// check to see if run loop is in a valid mode
+#if 1
+	NSLog(@"postNotification: %@ forModes: %@", notification, modes);
+#endif
     if (!modes || !(mode = [[NSRunLoop currentRunLoop] currentMode]))
 		post = YES;
     else
@@ -284,14 +286,14 @@ NSString *mode;									// check to see if run loop is
 }
 
 - (void) _notifyIdle
-{										// post next IDLE notification in queue
+{ // post next IDLE notification in queue
 	if ([self postNotification:_idleQueue->head->notification 
 			  forModes:_idleQueue->head->modes])
 		GSRemoveFromQueue(_idleQueue, _idleQueue->head);
 }
 
 - (void) _notifyASAP
-{										// post all ASAP notifications in queue
+{ // post all ASAP notifications in queue
     while (_asapQueue->head) 
 		if ([self postNotification:_asapQueue->head->notification
 		      	  forModes:_asapQueue->head->modes])
@@ -300,8 +302,10 @@ NSString *mode;									// check to see if run loop is
 
 + (void) _runLoopIdle
 {
-InstanceList *item;
-
+	InstanceList *item;
+#if 1
+	NSLog(@"_runLoopIdle");
+#endif
     for (item = __notificationQueues; item; item = item->next)
 		if(((NSNotificationQueue_t *)item->queue)->_idleQueue->head)
 			[item->queue _notifyIdle];
@@ -309,19 +313,19 @@ InstanceList *item;
 
 + (BOOL) _runLoopMore
 {
-InstanceList *item;
-
+	InstanceList *item;
     for (item = __notificationQueues; item; item = item->next)
 		if(((NSNotificationQueue_t *)item->queue)->_idleQueue->head)
 			return YES;
-
 	return NO;
 }
 
 + (void) _runLoopASAP
 {
-	InstanceList *item;
-    
+	InstanceList *item;   
+#if 1
+	NSLog(@"_runLoopASAP");
+#endif
     for (item = __notificationQueues; item; item = item->next)
 		if(((NSNotificationQueue_t *)item->queue)->_asapQueue->head)
 			[item->queue _notifyASAP];

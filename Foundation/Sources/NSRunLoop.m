@@ -32,11 +32,6 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
-// Class variables
-static NSThread *__currentThread = nil;
-static NSRunLoop *__currentRunLoop = nil;
-NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
-
 
 //*****************************************************************************
 //
@@ -176,6 +171,12 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 @implementation NSRunLoop
 
+// Class variables
+static NSThread *__currentThread = nil;
+static NSRunLoop *__currentRunLoop = nil;
+static NSRunLoop *__mainRunLoop = nil;
+NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
+
 + (NSRunLoop *) currentRunLoop
 {
 	NSString *key = @"NSRunLoopThreadKey";
@@ -187,11 +188,18 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		if((__currentRunLoop = [[t threadDictionary] objectForKey:key]) == nil)					
 			{										// if current thread has no
 			__currentRunLoop = [NSRunLoop new];		// run loop create one
+			if(!__mainRunLoop)
+				__mainRunLoop=__currentRunLoop;		// the first runloop is the main runloop
 			[[t threadDictionary] setObject:__currentRunLoop forKey:key];
 			[__currentRunLoop release];
-		}	}
-
+			}
+		}
 	return __currentRunLoop;
+}
+
++ (NSRunLoop *) mainRunLoop
+{
+	return __mainRunLoop;
 }
 
 - (id) init											// designated initializer
@@ -419,7 +427,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 #endif
 	if(select_return < 0)
 		{
-		if(errno == EINTR)							// a signal was caught
+		if(errno == EINTR)							// a signal was caught - handle like Idle Mode
 			select_return = 0;
 		else										// Some kind of exceptional
 			{										// condition has occurred
@@ -429,10 +437,10 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		}
 	
 	if(select_return == 0)
-		[NSNotificationQueue _runLoopIdle]; 
+		[NSNotificationQueue _runLoopIdle];			// dispatch pending notifications if we timeout (incl. task terminated)
 	else 
 		{ // Inspect all file descriptors where select() says they are ready, notify the respective object for each ready fd.
-		for (fd_index = 0; fd_index < FD_SETSIZE /* FIXME:can't we limit to select_return? */; fd_index++)
+		for (fd_index = 0; fd_index < FD_SETSIZE; fd_index++)
 			{
 			if (FD_ISSET (fd_index, &write_fds))
 				{
@@ -453,6 +461,10 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 #endif
 				[w _readFileDescriptorReady];	// notify
 				}
+#if 0
+			if(any && --select_return == 0)
+				break;	// don't scan all fds
+#endif
 			}
 		[NSNotificationQueue _runLoopASAP];
 		}

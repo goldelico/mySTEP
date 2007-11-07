@@ -80,9 +80,9 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 
 + (void) _taskDidTerminate:(NSNotification *)aNotification
 {
-NSAutoreleasePool *pool = [NSAutoreleasePool new];
-NSEnumerator *enumerator = [__taskList reverseObjectEnumerator];
-NSTask *anObject;
+	NSAutoreleasePool *pool = [NSAutoreleasePool new];
+	NSEnumerator *enumerator = [__taskList reverseObjectEnumerator];
+	NSTask *anObject;
 
 	__notifyTaskDidTerminate=YES;	// reenable queuing another notification
 
@@ -95,7 +95,7 @@ NSTask *anObject;
 
 + (void) initialize
 {
-NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
 	[nc addObserver: self
 		selector: @selector(_taskDidTerminate:)
@@ -348,7 +348,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 			[NSException raise: NSInvalidArgumentException			// error
 								 format: @"NSTask - failed to create child process"];
 		case 0:
-			{ // child -- fork return zero
+			{ // child process -- fork return zero
 			// WARNING - don't raise NSExceptions here or we will end up in two instances of the calling task!
 			if(idesc != 0)	
 				dup2(idesc, 0), close(idesc); // redirect
@@ -371,9 +371,16 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 			exit(127);
 			}
 		default:						
-			{ // parent -- fork returns PID of child
+			{ // parent process -- fork returns PID of child
 			_taskPID = pid;
 			_task.hasLaunched = YES;
+			// close unused ends of NSPipes to free up file descriptors
+			if([_standardInput isKindOfClass:[NSPipe class]])
+				[[_standardInput fileHandleForReading] closeFile];
+			if([_standardOutput isKindOfClass:[NSPipe class]])
+				[[_standardOutput fileHandleForWriting] closeFile];
+			if([_standardError isKindOfClass:[NSPipe class]])
+				[[_standardError fileHandleForWriting] closeFile];
 			break;
 			}
 		}
@@ -434,10 +441,13 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 static void
 _catchChildExit(int sig)								
 {
+#if 1
+	NSLog(@"_catchChildExit");
+#endif
 	if(sig == SIGCHLD && __notifyTaskDidTerminate)
 		{
 		[__notificationQueue enqueueNotification:__taskDidTerminate
-							 postingStyle:NSPostASAP
+							 postingStyle:NSPostWhenIdle	// a signal interrupts the runloop like Idle mode
 							 coalesceMask:NSNotificationNoCoalescing
 							 forModes:nil];
 		__notifyTaskDidTerminate=NO;	// ignore until we have processed this notification - might this create a short blind period?

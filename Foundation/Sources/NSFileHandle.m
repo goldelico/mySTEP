@@ -165,82 +165,78 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	listen([self fileDescriptor], 128);
 }
 
-#define FRAGMENT 1024
+- (NSData *) readDataToEndOfFile;
+{ // read as much as we can hold in an NSData
+	return [self readDataOfLength:NSIntegerMax];
+}
 
 - (NSData *) availableData;
-{
-	unsigned char *buffer;
-	unsigned int len=0;
-	unsigned int capacity;
+{ // read as much as we can get but don't block
 	int fd;
-	if([_inputStream getBuffer:&buffer length:&len])
-		return [NSData dataWithBytes:buffer length:len];	// buffer was directly available
-	fd=[_inputStream _readFileDescriptor];
-	fcntl(fd, F_SETFL, O_NONBLOCK);	// don't block
-	buffer=NULL;
-	capacity=0;
-	while(YES)
-		{ // read in fragments as much as we can get without blocking
-		int l;
-		if(len+FRAGMENT >= capacity)
-			{ // not enough space for one more fragment
-			NSLog(@"realloc buffer for %d minimum capacity", len+FRAGMENT);
-			buffer=objc_realloc(buffer, capacity+=4*FRAGMENT);	// get more space
-			NSLog(@"capacity %d", capacity);
-			if(!buffer)
-				{
-				[NSException raise:NSFileHandleOperationException
-							format:@"failed to allocate data buffer for NSFileHandle - %s", strerror(errno)];	
-				}
-			}
-		l=[_inputStream read:buffer+len maxLength:FRAGMENT];	// try to get next part
-		if(l == 0)
-			break;	// done
-		if(l < 0)
-			{
-			if(errno == EWOULDBLOCK)
-				break;	// also done peeking for data
-			objc_free(buffer);
-			[NSException raise:NSFileHandleOperationException
-						format:@"failed to read data from NSFileHandle - %s", strerror(errno)];	
-			return nil;
-			}
-		len+=l;
-		}
-	fcntl(fd, F_SETFL, O_ASYNC);		// back to normal operation
-	if(!buffer)
-		return [NSData data];			// empty data
-	buffer=objc_realloc(buffer, len);	// free unused buffer space
-	return [NSData dataWithBytesNoCopy:buffer length:len freeWhenDone:YES];	// take over responsibility for buffer
-}
-
-- (NSData *) readDataToEndOfFile;
-{
-	NSData *d=nil;
-	while([_inputStream streamStatus] < NSStreamStatusAtEnd)
-		{
-		NIMP;
-		}
-	return d;
-}
-
-- (NSData *) readDataOfLength:(unsigned int) length;
-{
+	NSData *r;
 	unsigned char *buffer;
 	unsigned int len;
 	if([_inputStream getBuffer:&buffer length:&len])
+		return [NSData dataWithBytes:buffer length:len];	// buffer was directly available
+	fd=[_inputStream _readFileDescriptor];
+	fcntl(fd, F_SETFL, O_NONBLOCK);		// don't block
+	NS_DURING
+		r=[self readDataToEndOfFile];
+	NS_HANDLER
+		fcntl(fd, F_SETFL, O_ASYNC);	// back to normal operation even in case of an exception
+		[localException raise];	// re-raise
+	NS_ENDHANDLER
+	fcntl(fd, F_SETFL, O_ASYNC);		// back to normal operation
+	return r;
+}
+
+#define FRAGMENT (10*1024)
+
+- (NSData *) readDataOfLength:(unsigned int) length;
+{
+	unsigned char *buffer=NULL;
+	unsigned long bufpos=0;
+	unsigned int len;
+#if 1
+	NSLog(@"readDataOfLength %u", length);
+#endif
+	if([_inputStream getBuffer:&buffer length:&len])
 		return [NSData dataWithBytes:buffer length:MIN(len, length)];	// buffer is directly available
-	if(!(buffer=objc_malloc(length)))
-		return nil;	// can't allocate large enough buffer
-	len=[_inputStream read:buffer maxLength:length];	// fetch get as much as possible
-	if(len < 0)
+	do
+		{ // read in junks and enlarge buffer if required
+		if(bufpos == 0)
+			buffer=objc_malloc(bufpos+FRAGMENT);
+		else
+			buffer=objc_realloc(buffer, bufpos+FRAGMENT);	// make enough room for next junk
+		if(!buffer)
+			return nil;	// we can't allocate a buffer
+#if 1
+		NSLog(@"bufsize=%u read length=%u", bufpos+FRAGMENT, MIN(length, FRAGMENT));
+#endif
+		len=[_inputStream read:buffer+bufpos maxLength:MIN(length, FRAGMENT)];	// fetch as much as possible but still in junks
+#if 1
+		NSLog(@"returned length=%u err=%s", len, strerror(errno));
+#endif
+		if(len == 0)
+			break;	// EOF or smaller than length
+		if(len < 0)
+			{
+			if(errno == EWOULDBLOCK)
+				break;	// currently there is no more data
+			objc_free(buffer);
+			[NSException raise:NSFileHandleOperationException format:@"failed to read data from NSFileHandle - %s", strerror(errno)];	
+			return nil;
+			}
+		bufpos+=len;
+		length-=len;
+		} while(length > 0);
+	if(bufpos == 0)
 		{
 		objc_free(buffer);
-		[NSException raise:NSFileHandleOperationException format:@"failed to read data from NSFileHandle - %s", strerror(errno)];	
-		return nil;
+		return [NSData data];	// empty data
 		}
-	buffer=objc_realloc(buffer, len);	// free unused buffer space
-	return [NSData dataWithBytesNoCopy:buffer length:len freeWhenDone:YES];	// take over responsibility for buffer
+	buffer=objc_realloc(buffer, bufpos);	// free unused buffer space
+	return [NSData dataWithBytesNoCopy:buffer length:bufpos freeWhenDone:YES];	// take over responsibility for buffer
 }
 
 - (void) readInBackgroundAndNotify;
@@ -496,7 +492,9 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 @implementation NSPipe
 
 + (id) pipe; { return [[[self alloc] init] autorelease]; }
+
 - (NSFileHandle *) fileHandleForReading; { return read; }
+
 - (NSFileHandle *) fileHandleForWriting; { return write; }
 
 - (id) init;

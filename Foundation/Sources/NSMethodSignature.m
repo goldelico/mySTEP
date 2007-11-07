@@ -443,7 +443,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 			// CHECKME!
 			if(i>0 && info[i].isReg && info[0].byRef)
 				info[i].offset += structReturnPointerLength;	// adapt offset because we have a virtual first argument
-#if 1
+#if 0
 			NSLog(@"%d: type=%s size=%d align=%d isreg=%d offset=%d qual=%x byRef=%d fltDbl=%d",
 		           info[i].index, info[i].type, info[i].size, info[i].align,
 		           info[i].isReg, info[i].offset, info[i].qual,
@@ -504,7 +504,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d too high (%d).", index, numArgs];
 	NEED_INFO();
 	addr = (info[index+1].isReg?((char *)_argframe):(*(char **)_argframe)) + info[index+1].offset;
-#if 1
+#if 0
 	NSLog(@"_setArgument[%d] offset=%u addr=%p", index, info[index+1].offset, addr);
 #endif
 	if(info[index+1].byRef)
@@ -523,7 +523,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 		void *args;
 		frame=(arglist_t) objc_calloc(part1 + argFrameLength, sizeof(char));
 		args=(char *) frame + part1;
-#if 1
+#if 0
 		NSLog(@"allocated frame=%p args=%p framelength=%d", frame, args, argFrameLength);
 #endif
 		((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
