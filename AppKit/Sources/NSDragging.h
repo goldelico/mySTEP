@@ -14,6 +14,9 @@
    Author:	Fabian Spillner
    Date:	23. October 2007
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	7. November 2007 - aligned with 10.5 
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -26,6 +29,8 @@
 @class NSWindow;
 @class NSPasteboard;
 @class NSImage;
+
+typedef NSUInteger NSDragOperation;
 
 enum {
 	NSDragOperationNone		= 0,					// no op == rejection
@@ -50,7 +55,7 @@ typedef NSUInteger NSDragOperation;
 - (NSWindow *) draggingDestinationWindow;
 - (NSPoint) draggingLocation;
 - (NSPasteboard *) draggingPasteboard;
-- (int) draggingSequenceNumber;
+- (NSInteger) draggingSequenceNumber;
 - (id) draggingSource;
 - (NSDragOperation) draggingSourceOperationMask;
 - (NSArray *) namesOfPromisedFilesDroppedAtDestination:(NSURL *) destination;
@@ -82,7 +87,7 @@ typedef NSUInteger NSDragOperation;
 			operation:(NSDragOperation) operation;
 - (void) draggedImage:(NSImage *) image
 			  movedTo:(NSPoint) screenPoint;
-- (unsigned int) draggingSourceOperationMaskForLocal:(BOOL) isLocal;
+- (NSDragOperation) draggingSourceOperationMaskForLocal:(BOOL) isLocal;
 - (BOOL) ignoreModifierKeysWhileDragging;
 - (NSArray *) namesOfPromisedFilesDroppedAtDestination:(NSURL *) dropDestination;
 

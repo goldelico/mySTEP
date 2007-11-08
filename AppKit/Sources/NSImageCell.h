@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Sep 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	8. November 2007 - aligned with 10.5 
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -61,13 +64,14 @@ typedef enum {
 		} _ic;
 }
 
-- (NSImageScaling) imageScaling;
 - (NSImageAlignment) imageAlignment;
 - (NSImageFrameStyle) imageFrameStyle;
+- (NSImageScaling) imageScaling;
 
-- (void) setImageScaling:(NSImageScaling)newScaling;
-- (void) setImageAlignment:(NSImageAlignment)newAlign;
-- (void) setImageFrameStyle:(NSImageFrameStyle)newStyle;
+- (void) setImageAlignment:(NSImageAlignment) newAlign;
+- (void) setImageFrameStyle:(NSImageFrameStyle) newStyle;
+- (void) setImageScaling:(NSImageScaling) newScaling;
+
 
 @end
 

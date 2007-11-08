@@ -42,7 +42,7 @@ typedef enum _NSTitlePosition
 
 typedef NSUInteger NSBoxType;
 
-enum _NSBoxType
+enum
 {
 	NSBoxPrimary=0,
 	NSBoxSecondary,

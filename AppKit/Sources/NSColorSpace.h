@@ -20,8 +20,8 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void *CGColorSpaceRef;
 typedef NSInteger NSColorSpaceModel;
+typedef struct CGColorSpace *CGColorSpaceRef; // should be definied in CGColorspace.h
 
 enum
 {

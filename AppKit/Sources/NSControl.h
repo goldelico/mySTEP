@@ -14,6 +14,9 @@
    Author:	Fabian Spillner
    Date:	22. October 2007
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	7. November 2007 - aligned with 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -56,10 +59,11 @@
 - (void) drawCell:(NSCell *) aCell;							// Drawing control
 - (void) drawCellInside:(NSCell *) aCell;
 - (float) floatValue;
-- (NSFont*) font;
+- (NSFont *) font;
 - (id) formatter;
 - (BOOL) ignoresMultiClick;
 - (id) initWithFrame:(NSRect) frameRect;
+- (NSInteger) integerValue;
 - (int) intValue;
 - (BOOL) isContinuous;
 - (BOOL) isEnabled;
@@ -69,9 +73,9 @@
 - (BOOL) refusesFirstResponder;
 - (void) selectCell:(NSCell *) aCell;
 - (id) selectedCell;										// Selected Cell
-- (int) selectedTag;
+- (NSInteger) selectedTag;
 - (BOOL) sendAction:(SEL) theAction to:(id) theTarget;
-- (int) sendActionOn:(int) mask;
+- (NSInteger) sendActionOn:(NSInteger) mask;
 - (void) setAction:(SEL) aSelector;
 - (void) setAlignment:(NSTextAlignment) mode;
 - (void) setAttributedStringValue:(NSAttributedString *) aString;
@@ -80,23 +84,25 @@
 - (void) setContinuous:(BOOL) flag;
 - (void) setDoubleValue:(double) aDouble;
 - (void) setEnabled:(BOOL) flag;								// Enable / Disable
-- (void) setFloatingPointFormat:(BOOL) autoRange left:(unsigned) leftDigits right:(unsigned) rightDigits;
+- (void) setFloatingPointFormat:(BOOL) autoRange left:(NSUInteger) leftDigits right:(NSUInteger) rightDigits;
 - (void) setFloatValue:(float) aFloat;
 - (void) setFont:(NSFont *) fontObject;
 - (void) setFormatter:(NSFormatter *) newFormatter;
 - (void) setIgnoresMultiClick:(BOOL) flag;
+- (void) setIntegerValue:(NSInteger) integer;
 - (void) setIntValue:(int) anInt;
 - (void) setNeedsDisplay;
 - (void) setObjectValue:(id <NSCopying>) anObject;
 - (void) setRefusesFirstResponder:(BOOL) flag;
 - (void) setStringValue:(NSString *) aString;
-- (void) setTag:(int) anInt;									// Assigning a Tag
+- (void) setTag:(NSInteger) anInt;									// Assigning a Tag
 - (void) setTarget:(id) anObject;
 - (void) sizeToFit;
 - (NSString *) stringValue;
-- (int) tag;
+- (NSInteger) tag;
 - (void) takeDoubleValueFrom:(id) sender;					// Interaction
 - (void) takeFloatValueFrom:(id) sender;
+- (void) takeIntegerValueFrom:(id) sender;
 - (void) takeIntValueFrom:(id) sender;
 - (void) takeObjectValueFrom:(id) sender;
 - (void) takeStringValueFrom:(id) sender;
@@ -129,7 +135,7 @@
 			 textView:(NSTextView *) view
 		  completions:(NSArray *) words
   forPartialWordRange:(NSRange) range
-  indexOfSelectedItem:(int *) index;
+  indexOfSelectedItem:(NSInteger *) index;
 - (BOOL) control:(NSControl *) control
 		 textView:(NSTextView *) view
 		 doCommandBySelector:(SEL) command;

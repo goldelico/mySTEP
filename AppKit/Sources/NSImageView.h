@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Sep 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	8. November 2007 - aligned with 10.5  
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -33,13 +36,13 @@
 - (NSImageFrameStyle) imageFrameStyle;
 - (NSImageScaling) imageScaling;
 - (BOOL) isEditable;
-- (void) setAllowsCutCopyPaste:(BOOL)flag;
-- (void) setAnimates:(BOOL)flag;
-- (void) setEditable:(BOOL)flag;
-- (void) setImage:(NSImage *)image;
-- (void) setImageAlignment:(NSImageAlignment)align;
-- (void) setImageFrameStyle:(NSImageFrameStyle)style;
-- (void) setImageScaling:(NSImageScaling)scaling;
+- (void) setAllowsCutCopyPaste:(BOOL) flag;
+- (void) setAnimates:(BOOL) flag;
+- (void) setEditable:(BOOL) flag;
+- (void) setImage:(NSImage *) image;
+- (void) setImageAlignment:(NSImageAlignment) align;
+- (void) setImageFrameStyle:(NSImageFrameStyle) style;
+- (void) setImageScaling:(NSImageScaling) scaling;
 
 @end
 

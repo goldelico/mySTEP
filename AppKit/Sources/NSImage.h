@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	8. November 2007 - aligned with 10.5  
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -66,6 +69,57 @@ typedef enum _NSImageCacheMode
 	NSImageCacheNever
 } NSImageCacheMode;
 
+// button template images
+extern NSString *const NSImageNameQuickLookTemplate;
+extern NSString *const NSImageNameBluetoothTemplate;
+extern NSString *const NSImageNameIChatTheaterTemplate;
+extern NSString *const NSImageNameSlideshowTemplate;
+extern NSString *const NSImageNameActionTemplate;
+extern NSString *const NSImageNameSmartBadgeTemplate;
+extern NSString *const NSImageNamePathTemplate;
+extern NSString *const NSImageNameInvalidDataFreestandingTemplate;
+extern NSString *const NSImageNameLockLockedTemplate;
+extern NSString *const NSImageNameLockUnlockedTemplate;
+extern NSString *const NSImageNameGoRightTemplate;
+extern NSString *const NSImageNameGoLeftTemplate;
+extern NSString *const NSImageNameRightFacingTriangleTemplate;
+extern NSString *const NSImageNameLeftFacingTriangleTemplate;
+extern NSString *const NSImageNameAddTemplate;
+extern NSString *const NSImageNameRemoveTemplate;
+extern NSString *const NSImageNameRevealFreestandingTemplate;
+extern NSString *const NSImageNameFollowLinkFreestandingTemplate;
+extern NSString *const NSImageNameEnterFullScreenTemplate;
+extern NSString *const NSImageNameExitFullScreenTemplate;
+extern NSString *const NSImageNameStopProgressTemplate;
+extern NSString *const NSImageNameStopProgressFreestandingTemplate;
+extern NSString *const NSImageNameRefreshTemplate;
+extern NSString *const NSImageNameRefreshFreestandingTemplate;
+
+extern NSString *const NSImageNameMultipleDocuments;
+
+extern NSString *const NSImageNameUser;
+extern NSString *const NSImageNameUserGroup;
+extern NSString *const NSImageNameEveryone;
+
+extern NSString *const NSImageNameBonjour;
+extern NSString *const NSImageNameDotMac;
+extern NSString *const NSImageNameComputer;
+extern NSString *const NSImageNameFolderBurnable;
+extern NSString *const NSImageNameFolderSmart;
+extern NSString *const NSImageNameNetwork;
+
+extern NSString *const NSImageNameUserAccounts;
+extern NSString *const NSImageNamePreferencesGeneral;
+extern NSString *const NSImageNameAdvanced;
+extern NSString *const NSImageNameInfo;
+extern NSString *const NSImageNameFontPanel;
+extern NSString *const NSImageNameColorPanel;
+
+extern NSString *const NSImageNameIconViewTemplate;
+extern NSString *const NSImageNameListViewTemplate;
+extern NSString *const NSImageNameColumnViewTemplate;
+extern NSString *const NSImageNameFlowViewTemplate;
+
 @interface NSImage : NSObject  <NSCoding, NSCopying>
 {
 	NSString *_name;			// image name (if named)
@@ -99,85 +153,92 @@ typedef enum _NSImageCacheMode
 		} _img;
 }
 
-+ (BOOL) canInitWithPasteboard:(NSPasteboard*)pasteboard;
-+ (NSArray*) imageFileTypes;
-+ (id) imageNamed:(NSString*)name;
-+ (NSArray*) imagePasteboardTypes;
-+ (NSArray*) imageUnfilteredFileTypes;
-+ (NSArray*) imageUnfilteredPasteboardTypes;
++ (BOOL) canInitWithPasteboard:(NSPasteboard *) pasteboard;
++ (NSArray *) imageFileTypes;
++ (id) imageNamed:(NSString *) name;
++ (NSArray *) imagePasteboardTypes;
++ (NSArray *) imageTypes;
++ (NSArray *) imageUnfilteredFileTypes;
++ (NSArray *) imageUnfilteredPasteboardTypes;
++ (NSArray *) imageUnfilteredTypes;
 
-- (void) addRepresentation:(NSImageRep*)imageRep;			// Representations
-- (void) addRepresentations:(NSArray*)imageRepArray;
-- (NSColor*) backgroundColor;
-- (NSImageRep*) bestRepresentationForDevice:(NSDictionary*)deviceDescription;
+- (void) addRepresentation:(NSImageRep *) imageRep;			// Representations
+- (void) addRepresentations:(NSArray *) imageRepArray;
+- (NSRect) alignmentRect;
+- (NSColor *) backgroundColor;
+- (NSImageRep *) bestRepresentationForDevice:(NSDictionary *) deviceDescription;
 - (BOOL) cacheDepthMatchesImageDepth;
 - (NSImageCacheMode) cacheMode;
 - (void) cancelIncrementalLoad;
-- (void) compositeToPoint:(NSPoint)aPoint
-				 fromRect:(NSRect)aRect
-				operation:(NSCompositingOperation)op;
-- (void) compositeToPoint:(NSPoint)aPoint
-				 fromRect:(NSRect)aRect
-				operation:(NSCompositingOperation)op
-				 fraction:(float)fraction;	// most general method
-- (void) compositeToPoint:(NSPoint)aPoint
-				operation:(NSCompositingOperation)op;
-- (void) compositeToPoint:(NSPoint)aPoint
-				operation:(NSCompositingOperation)op
-				 fraction:(float)fraction;
+- (void) compositeToPoint:(NSPoint) aPoint
+				 fromRect:(NSRect) aRect
+				operation:(NSCompositingOperation) op;
+- (void) compositeToPoint:(NSPoint) aPoint
+				 fromRect:(NSRect) aRect
+				operation:(NSCompositingOperation) op
+				 fraction:(CGFloat) fraction;	// most general method
+- (void) compositeToPoint:(NSPoint) aPoint
+				operation:(NSCompositingOperation) op;
+- (void) compositeToPoint:(NSPoint) aPoint
+				operation:(NSCompositingOperation) op
+				 fraction:(CGFloat) fraction;
 - (id) delegate;
-- (void) dissolveToPoint:(NSPoint)aPoint
-				fraction:(float)aFloat;
-- (void) dissolveToPoint:(NSPoint)aPoint
-				fromRect:(NSRect)aRect
-				fraction:(float)aFloat;
-- (void) drawAtPoint:(NSPoint)point
-		    fromRect:(NSRect)src
-		   operation:(NSCompositingOperation)op
-		    fraction:(float)fraction;
-- (void) drawInRect:(NSRect)rect
-		   fromRect:(NSRect)src
-		  operation:(NSCompositingOperation)op
-		   fraction:(float)fraction;
-- (BOOL) drawRepresentation:(NSImageRep *)imageRep
-					 inRect:(NSRect)aRect;
-- (id) initByReferencingFile:(NSString*)filename;
-- (id) initByReferencingURL:(NSURL*)url;
-- (id) initWithContentsOfFile:(NSString*)filename;
-- (id) initWithContentsOfURL:(NSURL*)url;
-- (id) initWithData:(NSData*)data;
-- (id) initWithPasteboard:(NSPasteboard*)pasteboard;
-- (id) initWithSize:(NSSize)aSize;
+- (void) dissolveToPoint:(NSPoint) aPoint
+				fraction:(CGFloat) aFloat;
+- (void) dissolveToPoint:(NSPoint) aPoint
+				fromRect:(NSRect) aRect
+				fraction:(CGFloat) aFloat;
+- (void) drawAtPoint:(NSPoint) point
+		    fromRect:(NSRect) src
+		   operation:(NSCompositingOperation) op
+		    fraction:(CGFloat) fraction;
+- (void) drawInRect:(NSRect) rect
+		   fromRect:(NSRect) src
+		  operation:(NSCompositingOperation) op
+		   fraction:(CGFloat) fraction;
+- (BOOL) drawRepresentation:(NSImageRep *) imageRep
+					 inRect:(NSRect) aRect;
+- (id) initByReferencingFile:(NSString *) filename;
+- (id) initByReferencingURL:(NSURL *) url;
+- (id) initWithContentsOfFile:(NSString *) filename;
+- (id) initWithContentsOfURL:(NSURL *) url;
+- (id) initWithData:(NSData *) data;
+- (id) initWithIconRef:(IconRef) ref;
+- (id) initWithPasteboard:(NSPasteboard *) pasteboard;
+- (id) initWithSize:(NSSize) aSize;
 - (BOOL) isCachedSeparately;
 - (BOOL) isDataRetained;
 - (BOOL) isFlipped;
+- (BOOL) isTemplate;
 - (BOOL) isValid;											// Drawing details
 - (void) lockFocus;
-- (void) lockFocusOnRepresentation:(NSImageRep *)imageRepresentation;
+- (void) lockFocusOnRepresentation:(NSImageRep *) imageRepresentation;
 - (BOOL) matchesOnMultipleResolution;
-- (NSString*) name;
+- (NSString *) name;
 - (BOOL) prefersColorMatch;
 - (void) recache;
-- (void) removeRepresentation:(NSImageRep*)imageRep;
-- (NSArray*) representations;
+- (void) removeRepresentation:(NSImageRep *) imageRep;
+- (NSArray *) representations;
 - (BOOL) scalesWhenResized;
-- (void) setBackgroundColor:(NSColor*)aColor;
-- (void) setCacheDepthMatchesImageDepth:(BOOL)flag;
-- (void) setCachedSeparately:(BOOL)flag;					// Storage details
+- (void) setAlignmentRect:(NSRect) aRect; 
+- (void) setBackgroundColor:(NSColor *) aColor;
+- (void) setCacheDepthMatchesImageDepth:(BOOL) flag;
+- (void) setCachedSeparately:(BOOL) flag;					// Storage details
 - (void) setCacheMode:(NSImageCacheMode) mode;
-- (void) setDataRetained:(BOOL)flag;
-- (void) setDelegate:(id)anObject;							// Set the Delegate
-- (void) setFlipped:(BOOL)flag;
-- (void) setMatchesOnMultipleResolution:(BOOL)flag;
-- (BOOL) setName:(NSString*)name;
-- (void) setPrefersColorMatch:(BOOL)flag;
-- (void) setScalesWhenResized:(BOOL)flag;
-- (void) setSize:(NSSize)aSize;
-- (void) setUsesEPSOnResolutionMismatch:(BOOL)flag;
+- (void) setDataRetained:(BOOL) flag;
+- (void) setDelegate:(id) anObject;							// Set the Delegate
+- (void) setFlipped:(BOOL) flag;
+- (void) setMatchesOnMultipleResolution:(BOOL) flag;
+- (BOOL) setName:(NSString *) name;
+- (void) setPrefersColorMatch:(BOOL) flag;
+- (void) setScalesWhenResized:(BOOL) flag;
+- (void) setSize:(NSSize) aSize;
+- (void) setTemplate:(BOOL) flag;
+- (void) setUsesEPSOnResolutionMismatch:(BOOL) flag;
 - (NSSize) size;
-- (NSData*) TIFFRepresentation;								// Producing a TIFF
-- (NSData*) TIFFRepresentationUsingCompression:(NSTIFFCompression)comp
-										factor:(float)aFloat;
+- (NSData *) TIFFRepresentation;								// Producing a TIFF
+- (NSData *) TIFFRepresentationUsingCompression:(NSTIFFCompression) comp
+										 factor:(CGFloat) aFloat;
 - (void) unlockFocus;
 - (BOOL) usesEPSOnResolutionMismatch;
 
@@ -186,18 +247,18 @@ typedef enum _NSImageCacheMode
 
 @interface NSObject (NSImageDelegate)						// Implemented by
 															// the delegate
-- (void) image:(NSImage *)image didLoadRepresentation:(NSImageRep *)rep withStatus:(NSImageLoadStatus)status;
-- (void) image:(NSImage *)image didLoadPartOfRepresentation:(NSImageRep *)rep withValidRows:(int)rows;
-- (void) image:(NSImage *)image didLoadRepresentationHeader:(NSImageRep *)rep;
-- (void) image:(NSImage *)image willLoadRepresentation:(NSImageRep *)rep;
-- (NSImage *) imageDidNotDraw:(id)sender inRect:(NSRect)aRect;
+- (void) image:(NSImage *) image didLoadRepresentation:(NSImageRep *)rep withStatus:(NSImageLoadStatus) status;
+- (void) image:(NSImage *) image didLoadPartOfRepresentation:(NSImageRep *) rep withValidRows:(NSInteger) rows;
+- (void) image:(NSImage *) image didLoadRepresentationHeader:(NSImageRep *) rep;
+- (void) image:(NSImage *) image willLoadRepresentation:(NSImageRep *) rep;
+- (NSImage *) imageDidNotDraw:(id) sender inRect:(NSRect) aRect;
 
 @end
 
 
 @interface NSBundle (NSImageAdditions) 
 
-- (NSString*) pathForImageResource:(NSString*)name;
+- (NSString *) pathForImageResource:(NSString *) name;
 
 @end
 

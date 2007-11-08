@@ -4,6 +4,9 @@
  Author:	H. N. Schaller <hns@computer.org>
  Date:		Jun 2006 - aligned with 10.4
  
+ Author:	Fabian Spillner <fabian.spillner@gmail.com>
+ Date:	8. November 2007 - aligned with 10.5 
+ 
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
  */
@@ -22,11 +25,11 @@ enum
 
 - (NSAttributedString *) attributedString;
 - (void ) insertGlyphs:(const NSGlyph *) glyphs
-				length:(unsigned int) length
-		forStartingGlyphAtIndex:(unsigned int) glyph
-		characterIndex:(unsigned int) index;
-- (unsigned int) layoutOptions;
-- (void) setIntAttribute:(int) tag value:(int) value forGlyphAtIndex:(unsigned) index;
+				length:(NSUInteger) length
+		forStartingGlyphAtIndex:(NSUInteger) glyph
+		characterIndex:(NSUInteger) index;
+- (NSUInteger) layoutOptions;
+- (void) setIntAttribute:(NSInteger) tag value:(NSInteger) value forGlyphAtIndex:(NSUInteger) index;
 
 @end
 
@@ -34,8 +37,8 @@ enum
 
 + (id) sharedGlyphGenerator;
 - (void) generateGlyphsForGlyphStorage:(id <NSGlyphStorage>) storage
-			 desiredNumberOfCharacters:(unsigned int) num
-							glyphIndex:(unsigned int *) glyph
-						characterIndex:(unsigned int *) index;
+			 desiredNumberOfCharacters:(NSUInteger) num
+							glyphIndex:(NSUInteger *) glyph
+						characterIndex:(NSUInteger *) index;
 
 @end

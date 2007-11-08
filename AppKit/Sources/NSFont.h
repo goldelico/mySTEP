@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Oct 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	8. November 2007 - aligned with 10.5 
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -91,43 +94,42 @@ extern NSString *NSFontSetChangedNotification;
 // 	void *_backendPrivate;	// stores an XFontStruct if we are a screen font
 }
 
-+ (NSFont *) boldSystemFontOfSize:(float)fontSize;
-+ (NSFont *) controlContentFontOfSize: (float)fontSize;
-+ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(float) size;
-+ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(float) size
-				  textTransform:(NSAffineTransform *) transform;
-+ (NSFont *) fontWithName:(NSString*)fontName matrix:(const float *)fontMatrix;
-+ (NSFont *) fontWithName:(NSString*)fontName size:(float)fontSize;
-+ (NSFont *) labelFontOfSize: (float)fontSize;
-+ (float) labelFontSize;
-+ (NSFont *) menuBarFontOfSize: (float)fontSize;
-+ (NSFont *) menuFontOfSize: (float)fontSize;
-+ (NSFont *) messageFontOfSize: (float)fontSize;
-+ (NSFont *) paletteFontOfSize: (float)fontSize;
++ (NSFont *) boldSystemFontOfSize:(GFloat) fontSize;
++ (NSFont *) controlContentFontOfSize: (GFloat) fontSize;
++ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(GFloat) size;
++ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(GFloat) size textTransform:(NSAffineTransform *) transform;
++ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor textTransform:(NSAffineTransform *) transform;
++ (NSFont *) fontWithName:(NSString *) fontName matrix:(const CGFloat *) fontMatrix;
++ (NSFont *) fontWithName:(NSString *) fontName size:(CGFloat) fontSize;
++ (NSFont *) labelFontOfSize:(CGFloat) fontSize;
++ (CGFloat) labelFontSize;
++ (NSFont *) menuBarFontOfSize:(CGFloat) fontSize;
++ (NSFont *) menuFontOfSize:(CGFloat) fontSize;
++ (NSFont *) messageFontOfSize:(CGFloat) fontSize;
++ (NSFont *) paletteFontOfSize:(CGFloat) fontSize;
 + (NSArray *) preferredFontNames;	// deprecated
 + (void) setPreferredFontNames:(NSArray *) names;	// deprecated
-+ (void) setUserFixedPitchFont:(NSFont *)aFont;				// Setting the Font
-+ (void) setUserFont:(NSFont *)aFont;
-+ (float) smallSystemFontSize;
-+ (NSFont *) systemFontOfSize:(float)fontSize;
-+ (float) systemFontSize;
-+ (float) systemFontSizeForControlSize:(NSControlSize) size;
-+ (NSFont *) titleBarFontOfSize:(float)fontSize;
-+ (NSFont *) titleFontOfSize: (float)fontSize;
-+ (NSFont *) toolTipsFontOfSize: (float)fontSize;
-+ (void) useFont:(NSString *)fontName;	// deprecated
-+ (NSFont *) userFixedPitchFontOfSize:(float)fontSize;
-+ (NSFont *) userFontOfSize:(float)fontSize;
++ (void) setUserFixedPitchFont:(NSFont *) aFont;				// Setting the Font
++ (void) setUserFont:(NSFont *) aFont;
++ (CGFloat) smallSystemFontSize;
++ (NSFont *) systemFontOfSize:(CGFloat) fontSize;
++ (CGFloat) systemFontSize;
++ (CGFloat) systemFontSizeForControlSize:(NSControlSize) size;
++ (NSFont *) titleBarFontOfSize:(CGFloat) fontSize;
++ (NSFont *) toolTipsFontOfSize:(CGFloat) fontSize;
++ (NSFont *) userFixedPitchFontOfSize:(CGFloat) fontSize;
++ (void) useFont:(NSString *) fontName;	// deprecated
++ (NSFont *) userFontOfSize:(CGFloat) fontSize;
 
-- (NSSize) advancementForGlyph:(NSGlyph)aGlyph;
+- (NSSize) advancementForGlyph:(NSGlyph) aGlyph;
 - (NSDictionary *) afmDictionary;	// deprecated
-- (float) ascender;
+- (CGFloat) ascender;
 - (NSRect) boundingRectForFont;
-- (NSRect) boundingRectForGlyph:(NSGlyph)aGlyph;
-- (float) capHeight;
+- (NSRect) boundingRectForGlyph:(NSGlyph) aGlyph;
+- (CGFloat) capHeight;
 - (NSCharacterSet *) coveredCharacterSet;
 - (float) defaultLineHeightForFont;	// deprecated
-- (float) descender;
+- (CGFloat) descender;
 - (NSString *) displayName;
 - (NSString *) encodingScheme;	// deprecated
 - (NSString *) familyName;
@@ -135,46 +137,46 @@ extern NSString *NSFontSetChangedNotification;
 - (NSString *) fontName;
 - (void) getAdvancements:(NSSizeArray) advancements
 			   forGlyphs:(const NSGlyph *) glyphs
-				   count:(unsigned) count;
+				   count:(NSUInteger) count;
 - (void) getAdvancements:(NSSizeArray) advancements
 			   forPackedGlyphs:(const void *) glyphs
-				   count:(unsigned) count;
+				   count:(NSUInteger) count;
 - (void) getBoundingRects:(NSRectArray) bounds
 				forGlyphs:(const NSGlyph *) glyphs
-					count:(unsigned) count;
-- (BOOL) glyphIsEncoded:(NSGlyph)aGlyph;	// deprecated
+					count:(NSUInteger) count;
+- (BOOL) glyphIsEncoded:(NSGlyph) aGlyph;	// deprecated
 - (NSMultibyteGlyphPacking) glyphPacking;	// deprecated
 - (NSGlyph) glyphWithName:(NSString *) name;
 - (BOOL) isBaseFont;	// deprecated
 - (BOOL) isFixedPitch;
-- (float) italicAngle;
-- (float) leading;
-- (const float *) matrix;
+- (CGFloat) italicAngle;
+- (CGFloat) leading;
+- (const CGFloat *) matrix;
 - (NSSize) maximumAdvancement;
 // - (NSSize) minimumAdvancement;	// ??
 - (NSStringEncoding) mostCompatibleStringEncoding;
-- (unsigned) numberOfGlyphs;
-- (float) pointSize;	// effective vertical point size
-- (NSPoint) positionOfGlyph:(NSGlyph)curGlyph
-			forCharacter:(unichar)character
-				  struckOverRect:(NSRect)rect;	// deprecated
-- (NSPoint) positionOfGlyph:(NSGlyph)curGlyph
-			precededByGlyph:(NSGlyph)prevGlyph
-				  isNominal:(BOOL *)nominal;	// deprecated
-- (NSPoint) positionOfGlyph:(NSGlyph)curGlyph
-			struckOverGlyph:(NSGlyph)prevGlyph
-				  metricExists:(BOOL *)flag;	// deprecated
-- (NSPoint) positionOfGlyph:(NSGlyph)curGlyph
-			struckOverRect:(NSRect)rect
-				  metricExists:(BOOL *)flag;	// deprecated
-- (NSPoint) positionOfGlyph:(NSGlyph)curGlyph
-			 withRelation:(NSGlyphRelation)relation
-				toBaseGlyph:(NSGlyph)otherGlyph
-		   totalAdvancement:(NSSizePointer)offset
-			   metricExists:(BOOL *)flag;	// deprecated
+- (NSUInteger) numberOfGlyphs;
+- (CGFloat) pointSize;	// effective vertical point size
+- (NSPoint) positionOfGlyph:(NSGlyph) curGlyph
+			forCharacter:(unichar) character
+				  struckOverRect:(NSRect) rect;	// deprecated
+- (NSPoint) positionOfGlyph:(NSGlyph) curGlyph
+			precededByGlyph:(NSGlyph) prevGlyph
+				  isNominal:(BOOL *) nominal;	// deprecated
+- (NSPoint) positionOfGlyph:(NSGlyph) curGlyph
+			struckOverGlyph:(NSGlyph) prevGlyph
+				  metricExists:(BOOL *) flag;	// deprecated
+- (NSPoint) positionOfGlyph:(NSGlyph) curGlyph
+			struckOverRect:(NSRect) rect
+				  metricExists:(BOOL *) flag;	// deprecated
+- (NSPoint) positionOfGlyph:(NSGlyph) curGlyph
+			 withRelation:(NSGlyphRelation) relation
+				toBaseGlyph:(NSGlyph) otherGlyph
+		   totalAdvancement:(NSSizePointer) offset
+			   metricExists:(BOOL *) flag;	// deprecated
 - (int) positionsForCompositeSequence:(NSGlyph *) glyphs
 					   numberOfGlyphs:(int) number
-						   pointArray:(NSPointArray) points;
+						   pointArray:(NSPointArray) points; // deprecated
 - (NSFont *) printerFont;
 - (NSFontRenderingMode) renderingMode;
 - (NSFont *) screenFont;
@@ -182,10 +184,10 @@ extern NSString *NSFontSetChangedNotification;
 - (void) set;
 - (void) setInContext:(NSGraphicsContext *) context;
 - (NSAffineTransform *) textTransform;
-- (float) underlinePosition;
-- (float) underlineThickness;
-- (float) widthOfString:(NSString *)string;	// deprecated
-- (float) xHeight;
+- (CGFloat) underlinePosition;
+- (CGFloat) underlineThickness;
+- (float) widthOfString:(NSString *) string;	// deprecated
+- (CGFloat) xHeight;
 
 @end
 

@@ -14,6 +14,9 @@
    Author:	Fabian Spillner
    Date:	22. October 2007
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	7. October 2007 - aligned with 10.5
+ 
    This file is part of the GNUstep GUI Library.
 
    This library is free software; you can redistribute it and/or
@@ -73,10 +76,10 @@ typedef enum _NSDocumentChangeType {
 } NSDocumentChangeType;
 
 typedef enum _NSSaveOperationType {
-    NSSaveOperation			= 0,
-    NSSaveAsOperation		= 1,
-    NSSaveToOperation		= 2,
-	NSAutosaveOperation		= 3
+	NSSaveOperation				= 0,
+	NSSaveAsOperation			= 1,
+	NSSaveToOperation			= 2,
+	NSAutosaveOperation			= 3
 } NSSaveOperationType;
 
 
@@ -124,6 +127,7 @@ typedef enum _NSSaveOperationType {
 						  originalContentsURL:(NSURL *) original
 									    error:(NSError **) error;
 - (NSDate *) fileModificationDate;
+- (NSString *) fileNameExtensionForType:(NSString *) type saveOperation:(NSSaveOperationType) savOp;
 - (BOOL) fileNameExtensionWasHiddenInLastRunSavePanel;
 - (NSString *) fileType;
 - (NSString *) fileTypeFromLastRunSavePanel;

@@ -42,7 +42,7 @@ extern NSString *NSControlTintDidChangeNotification;
 
 typedef NSUInteger NSCellType;
 
-enum _NSCellType {
+enum {
 	NSNullCellType=0,
 	NSTextCellType,
 	NSImageCellType
@@ -70,7 +70,7 @@ enum {
 
 typedef NSUInteger NSControlTint;
 
-enum _NSControlTint {
+enum {
 	NSDefaultControlTint=0,
 	NSBlueControlTint,
 	NSGraphiteControlTint=6,
@@ -79,7 +79,7 @@ enum _NSControlTint {
 
 typedef NSUInteger NSControlSize;
 
-enum _NSControlSize {
+enum {
 	NSRegularControlSize=0,
 	NSSmallControlSize,
 	NSMiniControlSize

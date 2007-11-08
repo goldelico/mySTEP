@@ -13,6 +13,9 @@
    
    Author:	Fabian Spillner
    Date:	23. October 2007
+
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	8. November 2007 - aligned with 10.5 
  
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -101,7 +104,8 @@ enum
 	NSCommandKeyMask	= 16*65536,
 	NSNumericPadKeyMask = 32*65536,
 	NSHelpKeyMask		= 64*65536,
-	NSFunctionKeyMask	= 128*65536
+	NSFunctionKeyMask	= 128*65536,
+	NSDeviceIndependentModifierFlagsMask = 0xffff0000U
 };
 
 typedef enum
@@ -111,6 +115,7 @@ typedef enum
 	NSCursorPointingDevice,
 	NSEraserPointingDevice
 } NSPointingDeviceType;
+
 
 enum
 {
@@ -185,19 +190,21 @@ enum
 
 + (NSEvent *) enterExitEventWithType:(NSEventType) type	
 							location:(NSPoint) location
-					   modifierFlags:(unsigned int) flags
+					   modifierFlags:(NSUInteger) flags
 						   timestamp:(NSTimeInterval) time
-						windowNumber:(int) windowNum
+						windowNumber:(NSInteger) windowNum
 							 context:(NSGraphicsContext *) context	
-						 eventNumber:(int) eventNum
-					  trackingNumber:(int) trackingNum
+						 eventNumber:(NSInteger) eventNum
+					  trackingNumber:(NSInteger) trackingNum
 							userData:(void *) userData; 
+
++ (NSEvent *) eventWithEventRef:(const void *) ref;
 
 + (NSEvent *) keyEventWithType:(NSEventType) type
 					  location:(NSPoint) location
-				 modifierFlags:(unsigned int) flags
+				 modifierFlags:(NSUInteger) flags
 					 timestamp:(NSTimeInterval) time
-				  windowNumber:(int) windowNum
+				  windowNumber:(NSInteger) windowNum
 					   context:(NSGraphicsContext *) context	
 					characters:(NSString *) keys	
    charactersIgnoringModifiers:(NSString *) ukeys
@@ -206,72 +213,75 @@ enum
 
 + (NSEvent *) mouseEventWithType:(NSEventType) type	
 						location:(NSPoint) location
-				   modifierFlags:(unsigned int) flags
+				   modifierFlags:(NSUInteger) flags
 					   timestamp:(NSTimeInterval) time
-					windowNumber:(int) windowNum	
+					windowNumber:(NSInteger) windowNum	
 					     context:(NSGraphicsContext *) context	
-					 eventNumber:(int) eventNum	
-					  clickCount:(int) clickNum	
+					 eventNumber:(NSInteger) eventNum	
+					  clickCount:(NSInteger) clickNum	
 					    pressure:(float) pressureValue;
 
 + (NSPoint) mouseLocation;
 
 + (NSEvent *) otherEventWithType:(NSEventType) type	
 					    location:(NSPoint) location
-				   modifierFlags:(unsigned int) flags
+				   modifierFlags:(NSUInteger) flags
 					   timestamp:(NSTimeInterval) time
-					windowNumber:(int) windowNum	
+					windowNumber:(NSInteger) windowNum	
 					     context:(NSGraphicsContext *) context	
 					     subtype:(short) subType	
-					       data1:(int) data1	
-					       data2:(int) data2;
+					       data1:(NSInteger) data1	
+					       data2:(NSInteger) data2;
 
 + (void) startPeriodicEventsAfterDelay:(NSTimeInterval) delaySeconds
 							withPeriod:(NSTimeInterval) periodSeconds;
+
 + (void) stopPeriodicEvents;							// Periodic Events
 
-- (int) absoluteX;
-- (int) absoluteY;
-- (int) absoluteZ;
-- (unsigned int) buttonMask;
-- (int) buttonNumber;
-- (unsigned int) capabilityMask;
+- (NSInteger) absoluteX;
+- (NSInteger) absoluteY;
+- (NSInteger) absoluteZ;
+- (NSUInteger) buttonMask;
+- (NSInteger) buttonNumber;
+- (NSUInteger) capabilityMask;
 - (NSString *) characters;								// Key Event Info
 - (NSString *) charactersIgnoringModifiers;
-- (int) clickCount;										// Mouse Event Info
+- (NSInteger) clickCount;										// Mouse Event Info
 - (NSGraphicsContext *) context;								// Event Information
-- (int) data1;											// Special Events
-- (int) data2;
-- (float) deltaX;
-- (float) deltaY;
-- (float) deltaZ;
-- (unsigned int) deviceID;
-- (int) eventNumber;
+- (NSInteger) data1;											// Special Events
+- (NSInteger) data2;
+- (CGFloat) deltaX;
+- (CGFloat) deltaY;
+- (CGFloat) deltaZ;
+- (NSUInteger) deviceID;
+- (NSInteger) eventNumber;
+- (const void *) eventRef;
 - (BOOL) isARepeat;
 - (BOOL) isEnteringProximity;
 - (unsigned short) keyCode;
 - (NSPoint) locationInWindow;
-- (unsigned int) modifierFlags;
-- (unsigned int) pointingDeviceID;
-- (unsigned int) pointingDeviceSerialNumber;
+- (NSUInteger) modifierFlags;
+- (NSUInteger) pointingDeviceID;
+- (NSUInteger) pointingDeviceSerialNumber;
 - (NSPointingDeviceType) pointingDeviceType;
 - (float) pressure;
 - (float) rotation;
 - (short) subtype;
-- (unsigned int) systemTabletID;
-- (unsigned int) tabletID;
+- (NSUInteger) systemTabletID;
+- (NSUInteger) tabletID;
 - (float) tangentialPressure;
 - (NSPoint) tilt;
 - (NSTimeInterval) timestamp;
-- (int) trackingNumber;									// Tracking Event Info
+- (NSTrackingArea *) trackingArea;
+- (NSInteger) trackingNumber;									// Tracking Event Info
 - (NSEventType) type;
 - (unsigned long long) uniqueID;
 - (void *) userData;
 - (id) vendorDefined;
-- (unsigned int) vendorID;
-- (unsigned int) vendorPointingDeviceType;
+- (NSUInteger) vendorID;
+- (NSUInteger) vendorPointingDeviceType;
 - (NSWindow *) window;
-- (int) windowNumber;
+- (NSInteger) windowNumber;
 
 @end
 

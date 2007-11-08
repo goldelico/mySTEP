@@ -13,6 +13,9 @@
 
    Author: Fabian Spillner
    Date: 23. October
+
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	7. November 2007 - aligned with 10.5
  
    This file is part of the GNUstep GUI Library.
 
@@ -86,7 +89,7 @@
 					error:(NSError **) err;	// most generic call
 - (id) makeDocumentWithContentsOfURL:(NSURL *) url ofType:(NSString *) type error:(NSError **) err;
 - (id) makeUntitledDocumentOfType:(NSString *) type error:(NSError **) err;
-- (unsigned int) maximumRecentDocumentCount;
+- (NSUInteger) maximumRecentDocumentCount;
 - (IBAction) newDocument:(id) sender;
 - (void) noteNewRecentDocument:(NSDocument *) doc;
 - (void) noteNewRecentDocumentURL:(NSURL *) url;
@@ -109,7 +112,7 @@
 - (void) reviewUnsavedDocumentsWithAlertTitle:(NSString *) title
 								  cancellable:(BOOL) flag delegate:(id) delegate
 						 didReviewAllSelector:(SEL) sel contextInfo:(void *) context;
-- (int) runModalOpenPanel:(NSOpenPanel *) panel forTypes:(NSArray *) types;
+- (NSInteger) runModalOpenPanel:(NSOpenPanel *) panel forTypes:(NSArray *) types;
 - (IBAction) saveAllDocuments:(id) sender;
 - (void) setAutosavingDelay:(NSTimeInterval) autosavingDelay;
 - (NSString *) typeFromFileExtension:(NSString *) ext;
@@ -121,7 +124,7 @@
 
 @end
 
-@interface NSObject(NSDocumentController)
+@interface NSObject (NSDocumentController)
 
 - (void) documentController:(NSDocumentController *) ctrl didCloseAll:(BOOL) flag contextInfo:(void *) context;
 - (void) didPresentErrorWithRecovery:(BOOL) flag contextInfo:(void *) context;

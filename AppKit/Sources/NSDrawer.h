@@ -10,6 +10,9 @@
  
 	Author:	Fabian Spillner
 	Date: 23. October 2007
+ 
+    Author:	Fabian Spillner <fabian.spillner@gmail.com>
+    Date:	7. November 2007 - aligned with 10.5 
 
 	This file is part of the mySTEP Library and is provided
 	under the terms of the GNU Library General Public License.
@@ -19,6 +22,13 @@
 #define _mySTEP_H_NSDrawer
 
 #import "AppKit/NSWindow.h"
+
+typedef enum _NSDrawerState {
+	NSDrawerClosedState  = 0,
+	NSDrawerOpeningState = 1,
+	NSDrawerOpenState    = 2,
+	NSDrawerClosingState = 3
+} NSDrawerState;
 
 @interface NSDrawer : NSResponder
 {
@@ -40,7 +50,7 @@
 - (id) delegate;
 - (NSRectEdge) edge;
 - (id) initWithContentSize:(NSSize) size preferredEdge:(NSRectEdge) edge;
-- (float) leadingOffset;
+- (CGFloat) leadingOffset;
 - (NSSize) maxContentSize;
 - (NSSize) minContentSize;
 - (void) open;
@@ -51,15 +61,15 @@
 - (void) setContentSize:(NSSize) size;
 - (void) setContentView:(NSView *) view;
 - (void) setDelegate:(id) delegate;
-- (void) setLeadingOffset:(float) offset;
+- (void) setLeadingOffset:(CGFloat) offset;
 - (void) setMaxContentSize:(NSSize) size;
 - (void) setMinContentSize:(NSSize) size;
 - (void) setParentWindow:(NSWindow *) parent;
 - (void) setPreferredEdge:(NSRectEdge) edge;
 - (void) setTrailingOffset:(float) offset;
-- (int) state;
+- (NSInteger) state;
 - (void) toggle:(id) sender;
-- (float) trailingOffset;
+- (CGFloat) trailingOffset;
 
 @end
 

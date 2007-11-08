@@ -12,6 +12,8 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jan 2006 - aligned with 10.4
 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	8. November 2007 - aligned with 10.5 
 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -44,6 +46,16 @@ typedef enum _NSImageInterpolation
 	NSImageInterpolationHigh
 } NSImageInterpolation;
 
+typedef NSInteger NSColorRenderingIntent;
+
+enum {
+	NSColorRenderingIntentDefault,
+	NSColorRenderingIntentAbsoluteColorimetric,
+	NSColorRenderingIntentRelativeColorimetric,
+	NSColorRenderingIntentPerceptual,
+	NSColorRenderingIntentSaturation
+};
+
 @interface NSGraphicsContext : NSObject
 {
 @private
@@ -68,9 +80,10 @@ typedef enum _NSImageInterpolation
 + (void) restoreGraphicsState;
 + (void) saveGraphicsState;
 + (void) setCurrentContext:(NSGraphicsContext *) context;
-+ (void) setGraphicsState:(int) state;
++ (void) setGraphicsState:(NSInteger) state;
 
 - (NSDictionary *) attributes;
+- (NSColorRenderingIntent) colorRenderingIntent; 
 - (NSCompositingOperation) compositingOperation;
 - (void) flushGraphics;
 - (void *) focusStack;
@@ -81,6 +94,7 @@ typedef enum _NSImageInterpolation
 - (NSPoint) patternPhase;
 - (void) restoreGraphicsState;
 - (void) saveGraphicsState;
+- (void) setColorRenderingIntent:(NSColorRenderingIntent) intent;
 - (void) setCompositingOperation:(NSCompositingOperation) operation;
 - (void) setFocusStack:(void *) stack;
 - (void) setImageInterpolation:(NSImageInterpolation) interpolation;

@@ -17,27 +17,29 @@
 
 #import "AppKit/NSActionCell.h"
 
-typedef enum _NSDatePickerStyle	
-{
-	NSTextFieldAndStepperDatePickerStyle,
-	NSClockAndCalendarDatePickerStyle
-} NSDatePickerStyle;
+enum {
+	NSTextFieldAndStepperDatePickerStyle    = 0,
+	NSClockAndCalendarDatePickerStyle       = 1,
+	NSTextFieldDatePickerStyle              = 2
+};
+typedef NSUInteger NSDatePickerStyle;
 
-typedef enum _NSDatePickerMode
-{
-	NSSingleDateMode,
-	NSRangeDateMode
-} NSDatePickerMode;
+enum {
+	NSSingleDateMode = 0,
+	NSRangeDateMode = 1
+};
+typedef NSUInteger NSDatePickerMode;
 
-typedef enum _NSDatePickerElementFlags
-{
-	NSHourMinuteDatePickerElementFlag			= 0x01,
-	NSHourMinuteSecondDatePickerElementFlag		= 0x02,
-	NSTimeZoneDatePickerElementFlag				= 0x04,
-	NSYearMonthDatePickerElementFlag			= 0x08,
-	NSYearMonthDayDatePickerElementFlag			= 0x10,
-	NSEraDatePickerElementFlag					= 0x20
-} NSDatePickerElementFlags;
+enum {
+	NSHourMinuteDatePickerElementFlag       = 0x000c,
+	NSHourMinuteSecondDatePickerElementFlag = 0x000e,
+	NSTimeZoneDatePickerElementFlag        = 0x0010,
+	
+	NSYearMonthDatePickerElementFlag        = 0x00c0,
+	NSYearMonthDayDatePickerElementFlag        = 0x00e0,
+	NSEraDatePickerElementFlag            = 0x0100,
+};
+typedef NSUInteger NSDatePickerElementFlags;
 
 @interface NSDatePickerCell : NSActionCell
 {
@@ -67,16 +69,16 @@ typedef enum _NSDatePickerElementFlags
 - (NSDate *) dateValue;
 - (id) delegate;
 - (BOOL) drawsBackground;
-- (BOOL) isBezeled; /* DONT EXIST IN API */
-- (BOOL) isBordered; /* DONT EXIST IN API */
+- (BOOL) isBezeled; /* DOESNT EXIST IN API */
+- (BOOL) isBordered; /* DOESNT EXIST IN API */
 - (NSLocale *) locale;
 - (NSDate *) maxDate;
 - (NSDate *) minDate;
 - (void) setBackgroundColor:(NSColor *) color;
-- (void) setBezeled:(BOOL) flag; /* DONT EXIST IN API */
-- (void) setBordered:(BOOL) flag; /* DONT EXIST IN API */
+- (void) setBezeled:(BOOL) flag; /* DOESNT EXIST IN API */
+- (void) setBordered:(BOOL) flag; /* DOESNT EXIST IN API */
 - (void) setCalendar:(NSCalendar *) calendar;
-- (void) setDatePickerElements:(unsigned) flags;
+- (void) setDatePickerElements:(NSDatePickerElementFlags) flags;
 - (void) setDatePickerMode:(NSDatePickerMode) mode;
 - (void) setDatePickerStyle:(NSDatePickerStyle) style;
 - (void) setDateValue:(NSDate *) date;

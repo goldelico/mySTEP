@@ -1,13 +1,19 @@
-//
-//  NSFontDescriptor.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
-//  Copyright (c) 2005 DSITRI.
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+ 
+  NSFontDescriptor.h
+  mySTEP
+
+  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
+  Copyright (c) 2005 DSITRI.
+
+  Author:	Fabian Spillner <fabian.spillner@gmail.com>
+  Date:		8. November 2007 - aligned with 10.5 
+ 
+  This file is part of the mySTEP Library and is provided
+  under the terms of the GNU Library General Public License.
+
+ 
+*/
 
 #ifndef _mySTEP_H_NSFontDescriptor
 #define _mySTEP_H_NSFontDescriptor
@@ -50,13 +56,14 @@ extern NSString *NSFontNameAttribute;
 extern NSString *NSFontFaceAttribute;
 extern NSString *NSFontSizeAttribute; 
 extern NSString *NSFontVisibleNameAttribute; 
-extern NSString *NSFontColorAttribute;
+extern NSString *NSFontColorAttribute; // deprecated
 extern NSString *NSFontMatrixAttribute;
 extern NSString *NSFontVariationAttribute;
 extern NSString *NSFontCharacterSetAttribute;
 extern NSString *NSFontCascadeListAttribute;
 extern NSString *NSFontTraitsAttribute;
 extern NSString *NSFontFixedAdvanceAttribute;
+extern NSString *NSFontFeatureSettingsAttribute; 
 
 extern NSString *NSFontSymbolicTrait;
 extern NSString *NSFontWeightTrait;
@@ -69,6 +76,9 @@ extern NSString *NSFontVariationAxisMaximumValueKey;
 extern NSString *NSFontVariationAxisDefaultValueKey;
 extern NSString *NSFontVariationAxisNameKey;
 
+extern NSString *NSFontFeatureTypeIdentifierKey;
+extern NSString *NSFontFeatureSelectorIdentifierKey;
+
 @interface NSFontDescriptor : NSObject <NSCoding>
 {
 	NSDictionary *_attributes;
@@ -77,20 +87,21 @@ extern NSString *NSFontVariationAxisNameKey;
 
 + (id) fontDescriptorWithFontAttributes:(NSDictionary *) attributes;
 + (id) fontDescriptorWithName:(NSString *) name matrix:(NSAffineTransform *) matrix;
-+ (id) fontDescriptorWithName:(NSString *) name size:(float) size;
++ (id) fontDescriptorWithName:(NSString *) name size:(CGFloat) size;
 
 - (NSDictionary *) fontAttributes;
 - (NSFontDescriptor *) fontDescriptorByAddingAttributes:(NSDictionary *) attributes;
 - (NSFontDescriptor *) fontDescriptorWithFace:(NSString *) face;
 - (NSFontDescriptor *) fontDescriptorWithFamily:(NSString *) family;
 - (NSFontDescriptor *) fontDescriptorWithMatrix:(NSAffineTransform *) matrix;
-- (NSFontDescriptor *) fontDescriptorWithSize:(float) size;
+- (NSFontDescriptor *) fontDescriptorWithSize:(CGFloat) size;
 - (NSFontDescriptor *) fontDescriptorWithSymbolicTraits:(NSFontSymbolicTraits) traits;
 - (id) initWithFontAttributes:(NSDictionary *) attributes;
 - (NSArray *) matchingFontDescriptorsWithMandatoryKeys:(NSSet *) keys;
+- (NSFontDescriptor *) matchingFontDescriptorWithMandatoryKeys:(NSSet *) keys;
 - (NSAffineTransform *) matrix;
 - (id) objectForKey:(NSString *) attribute;
-- (float) pointSize;
+- (CGFloat) pointSize;
 - (NSString *) postscriptName;
 - (NSFontSymbolicTraits) symbolicTraits;
 

@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Oct 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	8. November 2007 - aligned with 10.5 
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -61,11 +64,11 @@ enum {
 
 - (NSView *) accessoryView;
 - (BOOL) isEnabled;
-- (NSFont *) panelConvertFont:(NSFont *)fontObject;
+- (NSFont *) panelConvertFont:(NSFont *) fontObject;
 - (void) reloadDefaultFontFamilies;
-- (void) setAccessoryView:(NSView *)aView;
-- (void) setEnabled:(BOOL)flag;
-- (void) setPanelFont:(NSFont *)fontObject isMultiple:(BOOL)flag;
+- (void) setAccessoryView:(NSView *) aView;
+- (void) setEnabled:(BOOL) flag;
+- (void) setPanelFont:(NSFont *) fontObject isMultiple:(BOOL) flag;
 - (BOOL) worksWhenModal;
 
 @end

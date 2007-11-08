@@ -14,6 +14,9 @@
    Author:	Fabian Spillner
    Date:	22. October 2007
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	7. November 2007 - aligned with 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -34,37 +37,37 @@
 - (void) addItemWithObjectValue:(id) object;
 - (BOOL) completes;
 - (id) dataSource;
-- (void) deselectItemAtIndex:(int) index;
+- (void) deselectItemAtIndex:(NSInteger) index;
 - (void) encodeWithCoder:(NSCoder *) coder;
 - (BOOL) hasVerticalScroller;
-- (int) indexOfItemWithObjectValue:(id) object;
-- (int) indexOfSelectedItem;
+- (NSInteger) indexOfItemWithObjectValue:(id) object;
+- (NSInteger) indexOfSelectedItem;
 - (id) initWithCoder:(NSCoder *) coder;
-- (void) insertItemWithObjectValue:(id) object atIndex:(int) index;
+- (void) insertItemWithObjectValue:(id) object atIndex:(NSInteger) index;
 - (NSSize) intercellSpacing;
 - (BOOL) isButtonBordered;
-- (float) itemHeight;
-- (id) itemObjectValueAtIndex:(int) index;
+- (CGFloat) itemHeight;
+- (id) itemObjectValueAtIndex:(NSInteger) index;
 - (void) noteNumberOfItemsChanged;
-- (int) numberOfItems;
-- (int) numberOfVisibleItems;
+- (NSInteger) numberOfItems;
+- (NSInteger) numberOfVisibleItems;
 - (id) objectValueOfSelectedItem;
 - (NSArray *) objectValues;
 - (void) reloadData;
 - (void) removeAllItems;
-- (void) removeItemAtIndex:(int) index;
+- (void) removeItemAtIndex:(NSInteger) index;
 - (void) removeItemWithObjectValue:(id) object;
-- (void) scrollItemAtIndexToTop:(int) index;
-- (void) scrollItemAtIndexToVisible:(int) index;
-- (void) selectItemAtIndex:(int) index;
+- (void) scrollItemAtIndexToTop:(NSInteger) index;
+- (void) scrollItemAtIndexToVisible:(NSInteger) index;
+- (void) selectItemAtIndex:(NSInteger) index;
 - (void) selectItemWithObjectValue:(id) object;
 - (void) setButtonBordered:(BOOL) flag;
 - (void) setCompletes:(BOOL) flag;
 - (void) setDataSource:(id) aSource;
 - (void) setHasVerticalScroller:(BOOL) flag;
 - (void) setIntercellSpacing:(NSSize) aSize;
-- (void) setItemHeight:(float) itemHeight;
-- (void) setNumberOfVisibleItems:(int) visibleItems;
+- (void) setItemHeight:(CGFloat) itemHeight;
+- (void) setNumberOfVisibleItems:(NSInteger) visibleItems;
 - (void) setUsesDataSource:(BOOL) flag;
 - (BOOL) usesDataSource;
 
@@ -74,9 +77,9 @@
 @interface NSObject (NSComboBoxDataSource)
 
 - (NSString *) comboBox:(NSComboBox *) aComboBox completedString:(NSString *) str;
-- (unsigned int) comboBox:(NSComboBox *) aComboBox indexOfItemWithStringValue:(NSString *) string;
-- (id) comboBox:(NSComboBox *) aComboBox objectValueForItemAtIndex:(int) index;
-- (int) numberOfItemsInComboBox:(NSComboBox *) aComboBox;
+- (NSUInteger) comboBox:(NSComboBox *) aComboBox indexOfItemWithStringValue:(NSString *) string;
+- (id) comboBox:(NSComboBox *) aComboBox objectValueForItemAtIndex:(NSInteger) index;
+- (NSInteger) numberOfItemsInComboBox:(NSComboBox *) aComboBox;
 
 @end
 

@@ -41,44 +41,48 @@ enum {
     } _irep;
 }
 
-+ (Class) imageRepClassForData:(NSData *)data;				// Manage subclass
-+ (Class) imageRepClassForFileType:(NSString *)type;
-+ (Class) imageRepClassForPasteboardType:(NSString *)type;
-+ (NSArray *) registeredImageRepClasses;
-+ (void) registerImageRepClass:(Class)imageRepClass;
-+ (void) unregisterImageRepClass:(Class)imageRepClass;
++ (Class) imageRepClassForData:(NSData *) data;				// Manage subclass
++ (Class) imageRepClassForFileType:(NSString *) type;
++ (Class) imageRepClassForPasteboardType:(NSString *) type;
++ (Class) imageRepClassForType:(NSString *) type;
 
-+ (BOOL) canInitWithData:(NSData *)data;					// Check Data Types
-+ (BOOL) canInitWithPasteboard:(NSPasteboard *)pasteboard;
++ (NSArray *) registeredImageRepClasses;
++ (void) registerImageRepClass:(Class) imageRepClass;
++ (void) unregisterImageRepClass:(Class) imageRepClass;
+
++ (BOOL) canInitWithData:(NSData *) data;					// Check Data Types
++ (BOOL) canInitWithPasteboard:(NSPasteboard *) pasteboard;
 + (NSArray *) imageFileTypes;
 + (NSArray *) imagePasteboardTypes;
++ (NSArray *) imageTypes;
 + (NSArray *) imageUnfilteredFileTypes;
 + (NSArray *) imageUnfilteredPasteboardTypes;
++ (NSArray *) imageUnfilteredTypes;
 
-+ (NSArray *) imageRepsWithContentsOfFile:(NSString *)filename;
-+ (NSArray *) imageRepsWithPasteboard:(NSPasteboard *)pasteboard;
-+ (id) imageRepWithPasteboard:(NSPasteboard *)pasteboard;
-+ (id) imageRepWithContentsOfFile:(NSString *)filename;
++ (NSArray *) imageRepsWithContentsOfFile:(NSString *) filename;
++ (NSArray *) imageRepsWithContentsOfURL:(NSURL *) url; 
++ (NSArray *) imageRepsWithPasteboard:(NSPasteboard *) pasteboard;
++ (id) imageRepWithPasteboard:(NSPasteboard *) pasteboard;
++ (id) imageRepWithContentsOfFile:(NSString *) filename;
++ (id) imageRepWithContentsOfURL:(NSURL *) url; 
 
-- (void) setSize:(NSSize)aSize;								// Size of Image 
-- (NSSize) size;
-
-- (int) bitsPerSample;										// Image info
-- (int) pixelsHigh;
-- (int) pixelsWide;
+- (NSInteger) bitsPerSample;										// Image info
 - (NSString *) colorSpaceName;
+- (BOOL) draw;												// Draw the Image
+- (BOOL) drawAtPoint:(NSPoint) aPoint;
+- (BOOL) drawInRect:(NSRect) aRect;
 - (BOOL) hasAlpha;
 - (BOOL) isOpaque;
-- (void) setAlpha:(BOOL)flag;
-- (void) setBitsPerSample:(int)anInt;
-- (void) setColorSpaceName:(NSString *)aString;
-- (void) setOpaque:(BOOL)flag;
-- (void) setPixelsHigh:(int)anInt;
-- (void) setPixelsWide:(int)anInt;
-
-- (BOOL) draw;												// Draw the Image
-- (BOOL) drawAtPoint:(NSPoint)aPoint;
-- (BOOL) drawInRect:(NSRect)aRect;
+- (NSInteger) pixelsHigh;
+- (NSInteger) pixelsWide;
+- (void) setAlpha:(BOOL) flag;
+- (void) setBitsPerSample:(NSInteger) anInt;
+- (void) setColorSpaceName:(NSString *) aString;
+- (void) setOpaque:(BOOL) flag;
+- (void) setPixelsHigh:(NSInteger) anInt;
+- (void) setPixelsWide:(NSInteger) anInt;
+- (void) setSize:(NSSize) aSize;								// Size of Image 
+- (NSSize) size;
 
 @end
 

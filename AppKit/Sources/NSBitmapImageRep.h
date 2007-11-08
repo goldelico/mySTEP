@@ -26,11 +26,13 @@
 
 #import <AppKit/NSImageRep.h>
 
+@class CIImage; 
 @class NSArray;
 @class NSString;
 @class NSData;
 @class NSMutableData;
 @class NSColor;
+
 
 typedef id CGImageRef;
 @class CIImage;
