@@ -94,10 +94,10 @@ extern NSString *NSFontSetChangedNotification;
 // 	void *_backendPrivate;	// stores an XFontStruct if we are a screen font
 }
 
-+ (NSFont *) boldSystemFontOfSize:(GFloat) fontSize;
-+ (NSFont *) controlContentFontOfSize: (GFloat) fontSize;
-+ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(GFloat) size;
-+ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(GFloat) size textTransform:(NSAffineTransform *) transform;
++ (NSFont *) boldSystemFontOfSize:(CGFloat) fontSize;
++ (NSFont *) controlContentFontOfSize: (CGFloat) fontSize;
++ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(CGFloat) size;
++ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(CGFloat) size textTransform:(NSAffineTransform *) transform;
 + (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor textTransform:(NSAffineTransform *) transform;
 + (NSFont *) fontWithName:(NSString *) fontName matrix:(const CGFloat *) fontMatrix;
 + (NSFont *) fontWithName:(NSString *) fontName size:(CGFloat) fontSize;

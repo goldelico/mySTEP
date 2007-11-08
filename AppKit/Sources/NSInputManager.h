@@ -20,6 +20,8 @@
 
 #import "AppKit/NSController.h"
 
+@class NSInputServer;
+
 @protocol NSTextInput
 
 - (NSAttributedString *) attributedSubstringFromRange:(NSRange) range;

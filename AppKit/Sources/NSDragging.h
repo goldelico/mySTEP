@@ -30,8 +30,6 @@
 @class NSPasteboard;
 @class NSImage;
 
-typedef NSUInteger NSDragOperation;
-
 enum {
 	NSDragOperationNone		= 0,					// no op == rejection
 	NSDragOperationCopy		= 1,

@@ -123,11 +123,6 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	return _getNSFont(@"NSFont", @"Helvetica", fontSize, [NSFont systemFontSize]);
 }
 
-+ (NSFont *) titleFontOfSize:(float)fontSize
-{
-	return _getNSFont(@"NSFont", @"Helvetica", fontSize, [NSFont systemFontSize]);
-}
-
 + (NSFont *) labelFontOfSize:(float)fontSize
 {
 	return _getNSFont(@"NSFont", @"Helvetica", fontSize, [NSFont labelFontSize]);

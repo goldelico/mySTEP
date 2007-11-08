@@ -31,6 +31,7 @@
 @class NSString;
 @class NSWindow;
 @class NSGraphicsContext;
+@class NSTrackingArea;
 
 typedef enum _NSEventType
 {

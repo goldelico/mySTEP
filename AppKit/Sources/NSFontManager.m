@@ -19,17 +19,6 @@ NSFontManager.m
 
 #import <AppKit/AppKit.h>
 
-enum NSFontTag {
-	NSNoFontChangeAction,
-	NSViaPanelFontAction,
-	NSAddTraitFontAction,
-	NSRemoveTraitFontAction,
-	NSSizeUpFontAction,
-	NSSizeDownFontAction,
-	NSHeavierFontAction,
-	NSLighterFontAction,
-};
-
 //
 // Class variables
 //

@@ -25,6 +25,8 @@
 #import <AppKit/AppKitDefines.h>
 #import <AppKit/NSBitmapImageRep.h>
 
+typedef void *IconRef;
+
 @class NSString;
 @class NSURL;
 @class NSData;
