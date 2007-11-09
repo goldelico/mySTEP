@@ -70,6 +70,7 @@ typedef enum NSTableViewDropOperation {
     SEL _doubleAction;
     NSSize _intercellSpacing;
 	NSRange _columnRange;
+	NSRect _clickedCellFrame;
     float _rowHeight;
 	float _cacheOrigin;
 	float _cacheWidth;

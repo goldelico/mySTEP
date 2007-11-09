@@ -31,39 +31,6 @@ static NSButtonCell *__leftCell = nil;					// instances to draw
 static NSButtonCell *__rightCell = nil;					// buttons and knob.
 static NSButtonCell *__knobCell = nil;
 
-static float GSConvertScrollerPoint(NSRect slotRect, NSRect knobRect, NSPoint point, BOOL isHorizontal)
-{
-	float p;
-	
-	if (isHorizontal) 									// Adjust point to lie
-		{												// within the knob slot
-		float __halfKnobWidth;
-		float __leftOfKnob;
-		float __rightOfKnob;
-		float __slotWidthMinusKnobWidth;
-		__halfKnobWidth = NSWidth(knobRect) / 2;
-		__leftOfKnob = NSMinX(slotRect) + __halfKnobWidth;
-		__rightOfKnob = NSMaxX(slotRect) - __halfKnobWidth;
-		__slotWidthMinusKnobWidth = NSWidth(slotRect) - NSWidth(knobRect);
-		p = MIN(MAX(point.x, __leftOfKnob), __rightOfKnob);
-		p = (p - __leftOfKnob) / __slotWidthMinusKnobWidth;
-		}
-	else
-		{
-		float __halfKnobHeight;
-		float __bottomOfKnob;
-		float __topOfKnob;
-		float __slotHeightMinusKnobHeight;
-		__halfKnobHeight = NSHeight(knobRect) / 2;
-		__topOfKnob = NSMinY(slotRect) + __halfKnobHeight;
-		__bottomOfKnob = NSMaxY(slotRect) - __halfKnobHeight;
-		__slotHeightMinusKnobHeight = NSHeight(slotRect) - NSHeight(knobRect);
-		p = MIN(MAX(point.y, __topOfKnob), __bottomOfKnob);
-		p = (p - __topOfKnob) / __slotHeightMinusKnobHeight;
-		}
-	return p;
-}
-
 @interface _NSKnobCell : NSActionCell
 @end
 
@@ -234,8 +201,9 @@ static float GSConvertScrollerPoint(NSRect slotRect, NSRect knobRect, NSPoint po
 {
 	aFloat = MIN(MAX(aFloat, 0), 1);
 	if(_floatValue == aFloat)
-		return;
+		return;	// no change
 	_floatValue=aFloat;
+	// fixme: redraw union of old and new NSScrollerKnob
 	[self setNeedsDisplayInRect:[self rectForPart:NSScrollerKnobSlot]];
 }
 
@@ -309,17 +277,17 @@ static float GSConvertScrollerPoint(NSRect slotRect, NSRect knobRect, NSPoint po
 	if ([self mouse:point inRect:[self rectForPart:NSScrollerIncrementLine]])
 		return NSScrollerIncrementLine;
 	
-	if ([self mouse:point inRect:[self rectForPart:NSScrollerKnob]])
-		return NSScrollerKnob;
-	
-	if ([self mouse:point inRect:[self rectForPart:NSScrollerKnobSlot]])
-		return NSScrollerKnobSlot;
-	
 	if ([self mouse:point inRect:[self rectForPart:NSScrollerDecrementPage]])
 		return NSScrollerDecrementPage;
 	
 	if ([self mouse:point inRect:[self rectForPart:NSScrollerIncrementPage]])
 		return NSScrollerIncrementPage;
+	
+	if ([self mouse:point inRect:[self rectForPart:NSScrollerKnob]])
+		return NSScrollerKnob;
+	
+	if ([self mouse:point inRect:[self rectForPart:NSScrollerKnobSlot]])
+		return NSScrollerKnobSlot;
 	
 	return NSScrollerNoPart;
 }
@@ -383,7 +351,12 @@ static float GSConvertScrollerPoint(NSRect slotRect, NSRect knobRect, NSPoint po
 					{ // make scroller jump and then track
 					NSRect knobRect = [self rectForPart: NSScrollerKnob];
 					NSRect slotRect = [self rectForPart: NSScrollerKnobSlot];
-					[self setFloatValue: GSConvertScrollerPoint(slotRect, knobRect, p, _isHorizontal)];
+					float v;
+					if(_isHorizontal)
+						v=(p.x-knobRect.size.width/2.0-slotRect.origin.x)/(slotRect.size.width-knobRect.size.width);
+					else
+						v=(p.y-knobRect.size.height/2.0-slotRect.origin.y)/(slotRect.size.height-knobRect.size.height);
+					[self setFloatValue:v];
 					[self sendAction:_action to:_target];
 					[self trackKnob:event];
 					}
@@ -400,34 +373,38 @@ static float GSConvertScrollerPoint(NSRect slotRect, NSRect knobRect, NSPoint po
 - (void) trackKnob:(NSEvent*)event
 {
 	NSDate *distantFuture = [NSDate distantFuture];
-	NSEventType type;
 	NSRect knobRect = [self rectForPart: NSScrollerKnob];
 	NSRect slotRect = [self rectForPart: NSScrollerKnobSlot];
 	NSPoint initial = [self convertPoint:[event locationInWindow] fromView:nil];
 	NSSize offset = NSMakeSize(initial.x - knobRect.origin.x, initial.y - knobRect.origin.y);	// offset to origin within knob
-#if 1
+	NSEventType type;
+#if 0
 	NSLog(@"NSScroller trackKnob");
 	NSLog(@" offset=%@", NSStringFromSize(offset));
 #endif
 	_hitPart = NSScrollerKnob;
 
-	while ((type = [event type]) != NSLeftMouseUp)				 
+	while((type = [event type]) != NSLeftMouseUp)				 
 		{ // user is moving scroller
 		if (type == NSLeftMouseDragged) 
 			{ // mouse has moved
-			NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
 			float v;
-			point.x+=offset.width;
-			point.y+=offset.height;
-			v = GSConvertScrollerPoint(slotRect, knobRect, point, _isHorizontal);
+			NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+			if(_isHorizontal)
+				v=(point.x-offset.width-slotRect.origin.x)/(slotRect.size.width-knobRect.size.width);
+			else
+				v=(point.y-offset.height-slotRect.origin.y)/(slotRect.size.height-knobRect.size.height);
+			if(v < 0.0)
+				v=0.0;
+			else if(v > 1.0)
+				v=1.0;
 			if (v != _floatValue)
-				{ // value has changed
-				_floatValue = MIN(MAX(v, 0), 1);
-				[self setNeedsDisplayInRect:slotRect];	// redraw (could be optimized to redraw the scroller knob plus the previous position only)
+				{ // value has really changed
+				_floatValue = v;
+				knobRect = [self rectForPart: NSScrollerKnob];	// update
+				[self setNeedsDisplayInRect:slotRect];	// redraw (could be optimized to redraw the scroller knob union previous position only)
 				[_target performSelector:_action withObject:self];
-				slotRect = [self rectForPart: NSScrollerKnobSlot];
 				}
-			knobRect.origin = point;	// has been changed
 			}
 		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 								   untilDate:distantFuture 
@@ -586,7 +563,7 @@ static float GSConvertScrollerPoint(NSRect slotRect, NSRect knobRect, NSPoint po
 				slotHeight = height - (_arrowsPosition == NSScrollerArrowsNone ? 0 : 2 * width);	// calc the slot Height
 				knobHeight = floor(_knobProportion * slotHeight);
 				if (knobHeight < width)			// adjust knob height and proportion if necessary
-					{
+					{ // make it at least square
 					knobHeight = width; 
 					_knobProportion = (float)(knobHeight / slotHeight);
 					}

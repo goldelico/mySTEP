@@ -53,6 +53,13 @@ static Class _sliderCellClass;
 	return self;
 }
 
+#if FIXME
+- (id) copyWithZone:(NSZone *) z;
+{
+	return NIMP;
+}
+#endif
+
 - (void) dealloc
 {
 	[_knobCell release];

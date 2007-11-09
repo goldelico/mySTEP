@@ -748,6 +748,7 @@
 	[_selectedRows release];
 	[_autosaveName release];
 	[_indicatorImages release];
+	[_clickedCell release];
 	[super dealloc];
 }
 
@@ -1533,7 +1534,6 @@ int index = [self columnWithIdentifier:identifier];
 	NSEventType eventType;
 	NSRect r, visibleRect;
 	NSTableColumn *clickedCol;
-	NSRect clickedCellFrame;
 	BOOL scrolled=NO;
 
 	_clickedColumn=[self columnAtPoint:p];
@@ -1549,9 +1549,11 @@ int index = [self columnWithIdentifier:identifier];
 			return;
 			}
 		}
-	clickedCellFrame = [self frameOfCellAtColumn:_clickedColumn row:_clickedRow];
 	clickedCol = [_tableColumns objectAtIndex:_clickedColumn];
-	_clickedCell = row < [self numberOfRows]?[[clickedCol dataCellForRow:row] copy]:nil;
+	if(row < [self numberOfRows])
+		_clickedCell = [[clickedCol dataCellForRow:row] copy];	// we need a copy since a single cell will be used for all rows!
+	if(_clickedCell)
+		_clickedCellFrame = [self frameOfCellAtColumn:_clickedColumn row:_clickedRow];
 	if(_clickedCell)
 		{
 		id data=[_dataSource tableView:self objectValueForTableColumn:clickedCol row:_clickedRow];	// ask data source
@@ -1671,14 +1673,14 @@ int index = [self columnWithIdentifier:identifier];
 					if ((scrolled = [self scrollRectToVisible:r]))
 						visibleRect = [self visibleRect];
 					}
-				if(_clickedCell && NSMouseInRect(p, clickedCellFrame, [self isFlipped]))
+				if(_clickedCell && NSMouseInRect(p, _clickedCellFrame, [self isFlipped]))
 					{ // it was a click into a cell - track while we are in the cell
 					BOOL done;
 					[_clickedCell setHighlighted:YES];	
-					[self setNeedsDisplayInRect:clickedCellFrame];
-					done=[_clickedCell trackMouse:event inRect:clickedCellFrame ofView:self untilMouseUp:NO];	// track until we leave the cell rect
+					[self setNeedsDisplayInRect:_clickedCellFrame];
+					done=[_clickedCell trackMouse:event inRect:_clickedCellFrame ofView:self untilMouseUp:NO];	// track until we leave the cell rect
 					[_clickedCell setHighlighted:NO];	
-					[self setNeedsDisplayInRect:clickedCellFrame];
+					[self setNeedsDisplayInRect:_clickedCellFrame];
 					if(done)
 						{ // mouse went up in cell
 						// send tableView:setObjectValue: ...
@@ -1824,7 +1826,10 @@ int index = [self columnWithIdentifier:identifier];
 #endif
 	if(cell == _clickedCell)
 		{
+#if 0
 		NSLog(@"update clicked cell");
+#endif
+		[self setNeedsDisplayInRect:_clickedCellFrame];
 		}
 	return;	// don't call super to avoid recursion, since we know that we update the cell during drawRect:
 }
@@ -1855,6 +1860,9 @@ int index = [self columnWithIdentifier:identifier];
 		rect.size.width = col->_width;
 		if(_clickedCell && _clickedRow == row && _clickedColumn == i)
 			{ // we are tracking this cell - don't update from data source!
+#if 1
+			NSLog(@"draw clicked cell");
+#endif
 			[_clickedCell drawWithFrame:rect inView:self];
 			}
 		else
