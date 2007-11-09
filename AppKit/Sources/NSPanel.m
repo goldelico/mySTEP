@@ -1268,10 +1268,10 @@ static NSColorPanel *__colorPanel;
 	[super dealloc];
 }
 
-+ (void) setPickerMask:(int)mask			{ NIMP }
++ (void) setPickerMask:(unsigned int)mask			{ NIMP }
 + (void) setPickerMode:(int)mode			{ NIMP }
 
-+ (BOOL) dragColor:(NSColor **)aColor
++ (BOOL) dragColor:(NSColor *)aColor
 		 withEvent:(NSEvent *)anEvent
 		  fromView:(NSView *)sourceView
 {
@@ -1439,7 +1439,7 @@ static NSColorPanel *__colorPanel;
 
 @implementation NSColorPicker
 
-- (id) initWithPickerMask:(int)aMask colorPanel:(NSColorPanel *)colorPanel
+- (id) initWithPickerMask:(unsigned int)aMask colorPanel:(NSColorPanel *)colorPanel
 {
 	if((self=[super init]))
 		{

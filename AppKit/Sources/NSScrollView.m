@@ -263,13 +263,12 @@ static Class __rulerViewClass = nil;
 					amount = -amount;										// direction 
       			NSDebugLog (@"increment/decrement: amount = %f, flipped = %d",
 	     					 amount, [_contentView isFlipped]);
-      			p.y = clipBounds.origin.y + amount;
+      			p.y = -clipBounds.origin.y + amount;
 //     			p.y = (p.y < 0) ? 0 : p.y;					// FIX ME s/b in clipview
 	   			}
     		else 
      			return;										// do nothing
 			}
-		p = [_contentView constrainScrollPoint:p];
   		}
   	else
 		{ // knob scolling
@@ -290,12 +289,12 @@ static Class __rulerViewClass = nil;
 			return;										// do nothing if unknown scroller
 		}
 	
-	[_contentView scrollToPoint:p];							// scroll clipview
+	[_contentView scrollPoint:p];						// scroll clipview
 
 	if(!_knobMoved)
 		[self reflectScrolledClipView:_contentView];
 	if(_headerContentView)
-		[_headerContentView scrollToPoint:(NSPoint){p.x,0}];
+		[_headerContentView scrollPoint:(NSPoint){p.x,0}];
 }
 
 - (void) reflectScrolledClipView:(NSClipView*)aClipView

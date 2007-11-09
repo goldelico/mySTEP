@@ -23,6 +23,8 @@
 #import <AppKit/NSGraphicsContext.h>
 #import <AppKit/NSMenu.h>
 
+#import "NSAppKitPrivate.h"
+
 // Class variables
 static NSString	*__timers = @"NSEventTimersKey";
 

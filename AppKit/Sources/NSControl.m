@@ -65,6 +65,7 @@ static Class __controlCellClass = Nil;
 - (NSFont*) font				{ return [_cell font]; }
 - (int) selectedTag				{ return [[self selectedCell] tag]; }
 - (int) intValue				{ return [[self selectedCell] intValue]; }
+- (NSInteger) integerValue		{ return [[self selectedCell] integerValue]; }
 - (float) floatValue			{ return [[self selectedCell] floatValue]; }
 - (double) doubleValue			{ return [[self selectedCell] doubleValue]; }
 - (NSString*) stringValue		{ return [[self selectedCell] stringValue]; }
@@ -140,6 +141,14 @@ static Class __controlCellClass = Nil;
 		[self updateCellInside:cell];	// mark for needing update
 }
 
+- (void) setIntegerValue:(NSInteger)anInt
+{
+	NSCell *cell=[self selectedCell];
+	[cell setIntegerValue:anInt];
+	if(cell && ![cell isKindOfClass:[NSActionCell class]])
+		[self updateCellInside:cell];	// mark for needing update
+}
+
 - (void) takeDoubleValueFrom:(id)sender
 {
 	[[self selectedCell] takeDoubleValueFrom:sender];
@@ -155,6 +164,12 @@ static Class __controlCellClass = Nil;
 - (void) takeIntValueFrom:(id)sender
 {
 	[[self selectedCell] takeIntValueFrom:sender];
+	[self setNeedsDisplay];
+}
+
+- (void) takeIntegerValueFrom:(id)sender
+{
+	[[self selectedCell] takeIntegerValueFrom:sender];
 	[self setNeedsDisplay];
 }
 

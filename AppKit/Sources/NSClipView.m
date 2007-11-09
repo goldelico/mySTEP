@@ -181,7 +181,7 @@
 
 	[_documentView setPostsFrameChangedNotifications:YES];			// reenable
 
-	[self setBoundsOrigin:[self constrainScrollPoint:bounds.origin]];
+	[self scrollToPoint:bounds.origin];
 	[super_view reflectScrolledClipView:self];
 //	[_documentView setNeedsDisplay:NO];		// reset area to draw in subview
 	if(NSWidth(mr) < NSWidth(frame) || NSHeight(mr) < NSHeight(frame))
@@ -258,144 +258,138 @@
 - (void) setBoundsRotation:(float)angle			{ NIMP; }
 - (void) setFrameRotation:(float)angle			{ NIMP; }
 
-- (void) scrollToPoint:(NSPoint)point
-{ // point should lie within the bounds rect of self
-	extern BOOL _NSShowAllDrawing;	// defined in NSView
-	NSRect ySlice;						// top or bottom slice to redraw
-	NSRect xSlice;						// left or right slice to redraw
-	NSRect src=NSZeroRect;				// rectangle to copy from
-	NSRect dest=NSZeroRect;				// rectangle to copy to
-	NSRect start=bounds;				// original origin
+- (void) scrollToPoint:(NSPoint) point
+{
+	point=[self constrainScrollPoint:point];
 	point.x = floor(point.x);			// avoid rounding errors by constraining the scroll to integer numbers
 	point.y = -floor(point.y);			// and negate since we (or our superview?) are flipped
-	if(NSEqualPoints(start.origin, point))
-		return;	// no movement required
-	[self setBoundsOrigin:point];	// translate to new origin
+	[self setBoundsOrigin:point];		// translate to new origin
+}
+
+- (void) scrollPoint:(NSPoint) point
+{ // point should lie within the bounds rect of self
 	if(!_clip.copiesOnScroll)
-		{ // we are not copying but redraw the full document view
-		[_documentView setNeedsDisplay:YES];
-		return;					
-		}
-	if(start.origin.y != point.y)		 				// scrolling the y axis	
-		{												
-		if(start.origin.y < point.y)		 			// scroll down document
-			{											
-			float amount = point.y - start.origin.y;	// calc area visible
-														// before and after 
-			NSDivideRect(bounds, &ySlice, &dest, amount, NSMinYEdge);
-			
-			src.origin = dest.origin;
-			dest.origin = bounds.origin;				// calc area of slice
-														// needing redisplay
-			ySlice.origin.y = NSMaxY(bounds) - ySlice.size.height;
-			}
-		else											// scroll up document 
-			{												
-			float amount = start.origin.y - point.y;
-			
-			NSDivideRect(bounds, &ySlice, &dest, amount, NSMinYEdge);
-			src.origin = bounds.origin;
-			}
+		{
+		[self scrollToPoint:point];	// translate to new origin
+		[_documentView setNeedsDisplay:YES];// we are not copying but redraw the full document view
 		}
 	else
-		ySlice.size.height = 0;	// not scrolling in y direction
-	
-	if(start.origin.x != point.x)		 				// scrolling the x axis
-		{												
-		NSRect xRemainder;	// area to add to ySlice so that we end up with three areas to process
-		if(start.origin.x < point.x)		 			// scroll doc right
-			{											
-			float amount = point.x - start.origin.x;	// calc area visible
-														// before and after 
-			NSDivideRect(bounds, &xSlice, &xRemainder, amount, NSMinXEdge);
-			
-			if(start.origin.y != point.y)	
-				src.origin.x = xRemainder.origin.x;
-			else	 					
-				src.origin = xRemainder.origin;
-			
-			xRemainder.origin = bounds.origin;			// calc area of slice
-														// needing redisplay
-			xSlice.origin.x = NSMaxX(bounds) - xSlice.size.width;
-			}
-		else											// scroll doc left
-			{											
-			float amount = start.origin.x - point.x;	
-			
-			NSDivideRect(bounds, &xSlice, &xRemainder, amount, NSMinXEdge);
-			
-			if(start.origin.y != point.y)	
-				src.origin.x = bounds.origin.x;	// don't change y
-			else	 					
+		{		
+		extern BOOL _NSShowAllDrawing;		// defined in NSView
+		NSRect ySlice;						// top or bottom slice to redraw
+		NSRect xSlice;						// left or right slice to redraw
+		NSRect src=NSZeroRect;				// rectangle to copy from
+		NSRect dest=NSZeroRect;				// rectangle to copy to
+		NSRect start=bounds;				// original origin
+		if(start.origin.y != point.y)		 				// scrolling the y axis	
+			{												
+			if(start.origin.y < point.y)		 			// scroll down document
+				{											
+				float amount = point.y - start.origin.y;	// calc area visible
+															// before and after 
+				NSDivideRect(bounds, &ySlice, &dest, amount, NSMinYEdge);
+				
+				src.origin = dest.origin;
+				dest.origin = bounds.origin;				// calc area of slice
+															// needing redisplay
+				ySlice.origin.y = NSMaxY(bounds) - ySlice.size.height;
+				}
+			else											// scroll up document 
+				{												
+				float amount = start.origin.y - point.y;
+				
+				NSDivideRect(bounds, &ySlice, &dest, amount, NSMinYEdge);
 				src.origin = bounds.origin;
-			}
-		
-		if(start.origin.y != point.y)
-			{
-			dest.size.width = xRemainder.size.width;
-			dest.origin.x = xRemainder.origin.x;
+				}
 			}
 		else
-			{
-			dest.size = xRemainder.size;
-			dest.origin = xRemainder.origin;
+			ySlice.size.height = 0;	// not scrolling in y direction
+		
+		if(start.origin.x != point.x)		 				// scrolling the x axis
+			{												
+			NSRect xRemainder;	// area to add to ySlice so that we end up with three areas to process
+			if(start.origin.x < point.x)		 			// scroll doc right
+				{											
+				float amount = point.x - start.origin.x;	// calc area visible
+															// before and after 
+				NSDivideRect(bounds, &xSlice, &xRemainder, amount, NSMinXEdge);
+				
+				if(start.origin.y != point.y)	
+					src.origin.x = xRemainder.origin.x;
+				else	 					
+					src.origin = xRemainder.origin;
+				
+				xRemainder.origin = bounds.origin;			// calc area of slice
+															// needing redisplay
+				xSlice.origin.x = NSMaxX(bounds) - xSlice.size.width;
+				}
+			else											// scroll doc left
+				{											
+				float amount = start.origin.x - point.x;	
+				
+				NSDivideRect(bounds, &xSlice, &xRemainder, amount, NSMinXEdge);
+				
+				if(start.origin.y != point.y)	
+					src.origin.x = bounds.origin.x;	// don't change y
+				else	 					
+					src.origin = bounds.origin;
+				}
+			
+			if(start.origin.y != point.y)
+				{
+				dest.size.width = xRemainder.size.width;
+				dest.origin.x = xRemainder.origin.x;
+				}
+			else
+				{
+				dest.size = xRemainder.size;
+				dest.origin = xRemainder.origin;
+				}
 			}
-		}
-	else
-		xSlice.size.width = 0;	// not scrolling in x direction
-	
-	src.size=dest.size;
-	
-	// at this point, we have split up the new ClipView contents into three rectangles:
-	//
-	// dest - which is derived by copying pixels from src
-	// ySlice - a horizontal rect spanning the full bounds width where to draw fresh content
-	// xSlice - a vertical rect with same height as dest where to draw fresh content
-	
-	if(!NSIsEmptyRect(src))
-		{ // anything to copy
-		[self lockFocus];	// prepare for drawing
-		NSRectClip(dest);	// clip to dest rectangle
-		NSCopyBits(0, src, dest.origin);	// copy source rect in current graphics state
-		if(_NSShowAllDrawing)
-			{
-			[[NSColor blueColor] set];
-			NSFrameRect(dest);
-			[[NSGraphicsContext currentContext] flushGraphics];
-			sleep(1);
-			}
-		[self unlockFocus];
-		}
-	if(!NSIsEmptyRect(xSlice))
-		{ // redraw along x axis
+		else
+			xSlice.size.width = 0;	// not scrolling in x direction
+		
+		src.size=dest.size;
+		
+		// at this point, we have split up the new ClipView contents into three rectangles:
+		//
+		// dest - which is derived by copying pixels from src
+		// ySlice - a horizontal rect spanning the full bounds width where to draw fresh content
+		// xSlice - a vertical rect with same height as dest where to draw fresh content
+		
+		[self scrollRect:src by:dest.size];	// if threre is anything to copy
+		[self scrollToPoint:point];	// translate to new origin
+		if(!NSIsEmptyRect(xSlice))
+			{ // redraw along x axis
 #if 0
-		NSLog(@"xSlice=%@", NSStringFromRect(xSlice));
+			NSLog(@"xSlice=%@", NSStringFromRect(xSlice));
 #endif
-		[self displayRectIgnoringOpacity:xSlice];	// redraw background and subview(s)
-		if(_NSShowAllDrawing)
-			{
-			[self lockFocus];
-			[[NSColor redColor] set];
-			NSFrameRect(xSlice);
-			[self unlockFocus];
-			[[NSGraphicsContext currentContext] flushGraphics];
-			sleep(1);
+			[self displayRectIgnoringOpacity:xSlice];	// redraw background and subview(s)
+			if(_NSShowAllDrawing)
+				{
+				[self lockFocus];
+				[[NSColor redColor] set];
+				NSFrameRect(xSlice);
+				[self unlockFocus];
+				[[NSGraphicsContext currentContext] flushGraphics];
+				sleep(1);
+				}
 			}
+		if(!NSIsEmptyRect(ySlice))
+			{ // redraw along y axis
+			[self displayRectIgnoringOpacity:ySlice];
+			if(_NSShowAllDrawing)
+				{
+				[self lockFocus];
+				[[NSColor greenColor] set];
+				NSFrameRect(ySlice);
+				[self unlockFocus];
+				[[NSGraphicsContext currentContext] flushGraphics];
+				sleep(1);
+				}
+			}													
 		}
-	if(!NSIsEmptyRect(ySlice))
-		{ // redraw along y axis
-		[self displayRectIgnoringOpacity:ySlice];
-		if(_NSShowAllDrawing)
-			{
-			[self lockFocus];
-			[[NSColor greenColor] set];
-			NSFrameRect(ySlice);
-			[self unlockFocus];
-			[[NSGraphicsContext currentContext] flushGraphics];
-			sleep(1);
-			}
-		}													
-}			
+}
 
 - (BOOL) becomeFirstResponder
 {

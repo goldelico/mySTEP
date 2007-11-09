@@ -1620,78 +1620,105 @@ printing
 
 - (BOOL) scrollRectToVisible:(NSRect)aRect
 {
-	if(super_view && [super_view respondsToSelector:@selector(scrollToPoint:)])
+	if(super_view)
 		{
-		NSRect v = [self visibleRect];
-		NSPoint a = [super_view bounds].origin;
-		BOOL shouldScroll = NO;
-
-		if(NSWidth(v) == 0 && NSHeight(v) == 0)			
-			return NO;
-
-		if((NSWidth(bounds) > NSWidth(v)) && !(NSMinX(v) <= NSMinX(aRect) 
-				&& (NSMaxX(v) >= NSMaxX(aRect))))		
-			{									// X dimension of aRect is not
-			shouldScroll = YES;					// within visible rect
-			if(aRect.origin.x < v.origin.x)
-				a.x = aRect.origin.x;
-			else
-				a.x = v.origin.x + (NSMaxX(aRect) - NSMaxX(v));
-			}
-
-		if((NSHeight(bounds) > NSHeight(v)) && !(NSMinY(v) <= NSMinY(aRect) 
-				&& (NSMaxY(v) >= NSMaxY(aRect))))		
-			{									// Y dimension of aRect is not
-			shouldScroll = YES;					// within visible rect
-			if(aRect.origin.y < v.origin.y)
-				a.y = aRect.origin.y;
-			else
-				a.y = v.origin.y + (NSMaxY(aRect) - NSMaxY(v));
-			}
-
-		if(shouldScroll)
+		if([super_view respondsToSelector:@selector(scrollPoint:)])
 			{
-			id cSuper = [super_view superview];
-			NSClipView *clipView = (NSClipView *) super_view;
-
-			NSDebugLog(@"NSView scrollToPoint: (%1.2f, %1.2f)\n", a.x, a.y);
-
-			a = [(NSClipView *)super_view constrainScrollPoint:a];
-			[clipView scrollToPoint:a];
-
-			if([cSuper respondsToSelector:@selector(reflectScrolledClipView:)])
-				[(NSScrollView *)cSuper reflectScrolledClipView:clipView];
-
-			return YES;
+			NSRect v = [self adjustScroll:[self visibleRect]];
+			NSPoint a = [super_view bounds].origin;
+			BOOL shouldScroll = NO;
+			
+			if(NSWidth(v) == 0 && NSHeight(v) == 0)			
+				return NO;
+			
+			if((NSWidth(bounds) > NSWidth(v)) && !(NSMinX(v) <= NSMinX(aRect) 
+												   && (NSMaxX(v) >= NSMaxX(aRect))))		
+				{									// X dimension of aRect is not
+				shouldScroll = YES;					// within visible rect
+				if(aRect.origin.x < v.origin.x)
+					a.x = aRect.origin.x;
+				else
+					a.x = v.origin.x + (NSMaxX(aRect) - NSMaxX(v));
+				}
+			
+			if((NSHeight(bounds) > NSHeight(v)) && !(NSMinY(v) <= NSMinY(aRect) 
+													 && (NSMaxY(v) >= NSMaxY(aRect))))		
+				{									// Y dimension of aRect is not
+				shouldScroll = YES;					// within visible rect
+				if(aRect.origin.y < v.origin.y)
+					a.y = aRect.origin.y;
+				else
+					a.y = v.origin.y + (NSMaxY(aRect) - NSMaxY(v));
+				}
+			
+			if(shouldScroll)
+				{
+				NSView *cSuper = [super_view superview];
+				NSDebugLog(@"NSView scrollPoint: (%1.2f, %1.2f)\n", a.x, a.y);
+				[cSuper scrollPoint:a];
+				if([cSuper respondsToSelector:@selector(reflectScrolledClipView:)])
+					[(NSScrollView *)cSuper reflectScrolledClipView:(NSClipView *) cSuper];
+				return YES;
+				}
 			}
+		else
+			return [super_view scrollRectToVisible:aRect];	// pass up in tree
 		}
-
+		
 	return NO;
 }
 
-- (NSRect) adjustScroll:(NSRect)newVisible				{ return newVisible; }
-- (void) reflectScrolledClipView:(NSClipView*)aClipView { return; }
+- (NSRect) adjustScroll:(NSRect)newVisible				{ return newVisible; }	// default
+
+- (void) reflectScrolledClipView:(NSClipView *)aClipView { return; }	// default
 
 // FXIME: make this interwork correctly with NSClipView
 
 - (void) scrollClipView:(NSClipView *)aClipView 
-				toPoint:(NSPoint)aPoint					{ NIMP }
-- (void) scrollPoint:(NSPoint)aPoint					{ NIMP }
-- (void) scrollRect:(NSRect)aRect by:(NSSize)delta		{ NIMP }	// here we should use NSCopyBits()
+				toPoint:(NSPoint)aPoint
+{
+	[aClipView scrollToPoint:aPoint];
+}
+
+- (void) scrollPoint:(NSPoint)aPoint
+{
+	[super_view scrollPoint:aPoint];	// NSClipView will overrride
+}
+
+// CHECKME: is aRect the source or the dest?
+
+- (void) scrollRect:(NSRect)src by:(NSSize)delta
+{ // scroll the rect by given delta (called by scrollPoint)
+	NSRect dest;
+	if((delta.width == 0.0 && delta.height == 0.0) || NSIsEmptyRect(src))
+		return;	// nothing to scroll
+	[self lockFocus];	// prepare for drawing
+	dest=NSOffsetRect(src, delta.width, delta.height);
+	NSRectClip(dest);	// clip to dest rectangle (?)
+	NSCopyBits(0, src, dest.origin);	// copy source rect in current graphics state
+	if(_NSShowAllDrawing)
+		{ // show copy operation
+		[[NSColor blueColor] set];
+		NSFrameRect(src);
+		[[NSColor yellowColor] set];
+		NSFrameRect(dest);
+		[[NSGraphicsContext currentContext] flushGraphics];
+		sleep(1);
+		}
+	[self unlockFocus];
+}
 
 - (id) viewWithTag:(int)aTag
 {
-int i, count = [sub_views count];
-id v;
-
+	int i, count = [sub_views count];
+	id v;
 	for (i = 0; i < count; ++i)
 		if ([(v = [sub_views objectAtIndex:i]) tag] == aTag)
 			return v;
-
 	return nil;
 }
 
-// FIXME: is pretty time consuming...
+// FIXME: this is pretty time consuming...
 
 - (NSView *) hitTest:(NSPoint)aPoint // aPoint is in superview's coordinates (or window base coordinates if there is no superview)
 {

@@ -34,7 +34,7 @@
 @class NSColor;
 
 
-typedef id CGImageRef;
+typedef struct CGImage *CGImageRef;
 @class CIImage;
 
 typedef enum _NSTIFFCompression

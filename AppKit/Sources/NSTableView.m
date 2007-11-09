@@ -1675,10 +1675,10 @@ int index = [self columnWithIdentifier:identifier];
 					{ // it was a click into a cell - track while we are in the cell
 					BOOL done;
 					[_clickedCell setHighlighted:YES];	
-					[self setNeedsDisplay:YES];
+					[self setNeedsDisplayInRect:clickedCellFrame];
 					done=[_clickedCell trackMouse:event inRect:clickedCellFrame ofView:self untilMouseUp:NO];	// track until we leave the cell rect
 					[_clickedCell setHighlighted:NO];	
-					[self setNeedsDisplay:YES];
+					[self setNeedsDisplayInRect:clickedCellFrame];
 					if(done)
 						{ // mouse went up in cell
 						// send tableView:setObjectValue: ...
@@ -1822,6 +1822,10 @@ int index = [self columnWithIdentifier:identifier];
 #if 0
 	NSLog(@"NSTableView updateCell:%@", cell);
 #endif
+	if(cell == _clickedCell)
+		{
+		NSLog(@"update clicked cell");
+		}
 	return;	// don't call super to avoid recursion, since we know that we update the cell during drawRect:
 }
 
@@ -1849,8 +1853,8 @@ int index = [self columnWithIdentifier:identifier];
 		{ // draw all columns of this row that are visible
 		NSTableColumn *col = [_tableColumns objectAtIndex:i];
 		rect.size.width = col->_width;
-		if(_clickedCell && _clickedRow == row && _clickedColumn == col)
-			{ // we are tracking this cell
+		if(_clickedCell && _clickedRow == row && _clickedColumn == i)
+			{ // we are tracking this cell - don't update from data source!
 			[_clickedCell drawWithFrame:rect inView:self];
 			}
 		else
