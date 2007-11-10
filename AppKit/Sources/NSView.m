@@ -1418,14 +1418,17 @@ printing
 	*count=0;	// FIXME: not yet supported
 }
 
-- (NSRect) visibleRect									// return intersection
-{														// between bounds and
-	if(super_view)										// superview's visible rect
+- (NSRect) visibleRect
+{ // return intersection between frame and superview's visible rect
+	if(super_view)
 		{
-		NSRect s = [self convertRect:[super_view visibleRect] fromView:super_view];
+		NSRect s;
+		s = [super_view visibleRect];
+		s = NSIntersectionRect(s, frame);	// assume that our frame is also used for clipping
+		s = [self convertRect:s fromView:super_view];	// convert to our bounds coordinates
 		return NSIntersectionRect(s, bounds);
 		}
-	return bounds;										// if no super view, bounds is visible
+	return bounds;	// if no super view, whole frame is visible
 }
 
 - (BOOL) _addRectNeedingDisplay:(NSRect) rect;

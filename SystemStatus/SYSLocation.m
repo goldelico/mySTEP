@@ -1,11 +1,13 @@
 /* 
  GPS driver for PCMCIA/CF GPS receiver
- or optionally a Bluetooth connection to a GPS receiver
- ?? or USB ??
+ FIXME: or optionally a Bluetooth (or USB) connection to a GPS receiver
+ NOTE: it might be identify itself as a Mobile Phone...
+ So, it must be part of a shared Bluetooth Config so that the user can match the receiver with this driver
+
  Device must support NMEA183 commands and format
  
  Copyright (C)	H. Nikolaus Schaller <hns@computer.org>
- Date:			2004
+ Date:			2004-2007
  
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
@@ -269,6 +271,7 @@ NSString *SYSLocationNMEA183Notification=@"SYSLocationNMEA183Notification";		// 
 #if 1
 		NSLog(@"#S visible=%d", numVisibleSatellites);
 #endif
+		// we could parse the info into a NSArray or NSDictionary (indexed by Sat#)
 		}
 	else if([cmd isEqualToString:@"GPGGA"])
 		{ // more location info (e.g. altitude above geoid)

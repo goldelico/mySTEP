@@ -1250,8 +1250,8 @@ int index = [self columnWithIdentifier:identifier];
 	return [a objectEnumerator];
 }
 
-- (NSRect) rectOfColumn:(int)column 						// Layout support
-{
+- (NSRect) rectOfColumn:(int)column
+{ // Layout support
 	int i;
 	NSEnumerator *e;
 	NSTableColumn *col;
@@ -1719,43 +1719,46 @@ int index = [self columnWithIdentifier:identifier];
 {
 	int rows;
 	int cols;
-	if(!_dataSource)
+	[[self enclosingScrollView] tile];	// tile scrollview
+	if(_dataSource)
 		{
-		return;
-		}
-	rows = [self numberOfRows];
-	cols = [_tableColumns count];
+		rows = [self numberOfRows];
+		cols = [_tableColumns count];
 #if 0
-	NSLog(@"tile %@", self);
-	NSLog(@"cols %d", cols);
+		NSLog(@"tile %@", self);
+		NSLog(@"cols %d", cols);
 #endif
-	if(cols > 0)
-		{
-		NSRect c = [self rectOfColumn: cols - 1];	// last column
-		NSRect r = [_headerView frame];
-		r.size.width = NSMaxX(c);
-#if 0
-		NSLog(@"header view frame: %@", NSStringFromRect(r));
-#endif
-		[_headerView setFrame: r];
-		//	[_headerView resetCursorRects];
-		if(rows > 0)
+		if(cols > 0)
 			{
-			r = [self rectOfRow:rows - 1];	// last row
-			// limit column rect height in case frame size has changed
-			c.size.height = NSMaxY(r); 
-			r.size.width = NSWidth(c);
+			NSRect c = [self rectOfColumn: cols - 1];	// last column (c.size.height comes from current frame height and may be 0!)
+			NSRect h = [_headerView frame];
+			NSRect r;
+			if(rows > 0)
+				r = [self rectOfRow:rows - 1];	// last row
+			else
+				r = NSZeroRect;
+			if(r.size.height < 10)
+				r.size.height=10;			// apply minimum height
+			// should we make union with [self visibleRect]?
+			c.size.height = NSMaxY(r);		// adjust column rect to real height (rectOfColumn return is not reliable)
+			r.size.width = NSMaxX(c);		// adjust row rect to real width (rectOfRow return is not reliable)
 #if 0
 			NSLog(@"tile r=%@ c=%@", NSStringFromRect(r), NSStringFromRect(c));
 #endif
 			r=NSUnionRect(r, c);
-			// FIXME: should be enlarged to always cover the visible rect so that we draw background even for 0 rows
 #if 0
 			NSLog(@"union r=%@", NSStringFromRect(r));
 #endif
+			h.size.width = NSMaxX(c);	// resize to total width
+#if 0
+			NSLog(@"header view frame: %@", NSStringFromRect(r));
+#endif
+			[_headerView setFrame:h];	// adjust our header view
+										//	[_headerView resetCursorRects];
 			[super setFrame:r];	// does nothing if we did not really change
 			}
 		}
+	[self setNeedsDisplay:YES];
 #if 0
 	NSLog(@"tile done");
 #endif
@@ -1769,7 +1772,6 @@ int index = [self columnWithIdentifier:identifier];
 	// end any editing
 	[self noteNumberOfRowsChanged];
 	[self tile];
-	[self setNeedsDisplayInRect:bounds];
 #if 0
 	NSLog(@"reloadData done.");
 #endif

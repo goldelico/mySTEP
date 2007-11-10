@@ -102,13 +102,17 @@ static NSMutableDictionary *sysInfo;
 			   s_info.totalswap, s_info.freeswap,
 			   s_info.procs);
 #endif	// read memory from /proc/meminfo
+#if 1
+		NSLog(@"sysInfo=%@", sysInfo);
+#endif
 		}
-	NSLog(@"sysInfo=%@", sysInfo);
 	return sysInfo;
 }
 
 + (id) sysInfoForKey:(NSString *) key;
 {
+	if(!sysInfo)
+		[self sysInfo];
 	return [sysInfo objectForKey:key];
 }
 

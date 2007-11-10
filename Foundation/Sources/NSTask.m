@@ -339,7 +339,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 		envl[i] = [s UTF8String];
 		}
     envl[envCount] = 0;
-#if 1
+#if 0
 	NSLog(@"cd %s; %s %s %s ...", path, args[0], args[1]!=NULL?args[1]:"", (args[1]!=NULL&&args[2]!=NULL)?args[2]:"");
 	NSLog(@"stdin=%d stdout=%d stderr=%d", idesc, odesc, edesc);
 #endif

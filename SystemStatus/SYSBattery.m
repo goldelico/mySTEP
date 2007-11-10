@@ -9,6 +9,7 @@
  */ 
 
 #import <SystemStatus/SYSBattery.h>
+#import <SystemStatus/NSSystemStatus.h>
 
 #define DEMO 0  // set to 1 for sawtooth demo mode
 
@@ -47,7 +48,14 @@ struct bat
 static struct bat getbat(void)
 { // fetch battery data
 	struct bat r;
-	FILE *f=fopen("/proc/apm", "r");
+	NSString *tool=[NSSystemStatus sysInfoForKey:@"Battery"];
+	FILE *f;
+	if(!tool)
+		{
+		memset(&r, 0, sizeof(r));
+		return r;
+		}
+	f=fopen([tool cString], "r");
 	if(!f)
 		{ // apm can't be opened
 		memset(&r, 0, sizeof(r));
@@ -67,7 +75,7 @@ static struct bat getbat(void)
 	if(r.percentage > 100)
 		r.percentage=100;	// C860 return 255 while charging
 	if(r.time == -1)
-		r.time=0;   // apm can't deliver value: should estimate time to charge and time to decharge
+		r.time=0;   // apm can't deliver value: should estimate time to charge and time to decharge yourself
 	if(strncmp(r.units, "min", 32) == 0)
 		r.time*=60; // in minutes
 	return r;

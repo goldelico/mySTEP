@@ -48,6 +48,7 @@
 	BOOL _scrollsDynamically;
 	BOOL _autohidesScrollers;
 	BOOL _prohibitTiling;
+	BOOL _doubleLongClick;
 }
 
 + (NSSize) contentSizeForFrameSize:(NSSize)frameSize		// Layout

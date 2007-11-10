@@ -15,9 +15,11 @@
 #else
 @interface NSSystemStatus : NSObject
 + (NSDictionary *) sysInfo;
++ (id) sysInfoForKey:(NSString *) key;
 @end
 @implementation NSSystemStatus
 + (NSDictionary *) sysInfo; { return nil; }
++ (id) sysInfoForKey:(NSString *) key; { return nil; }
 @end
 #endif
 
@@ -95,13 +97,13 @@
 }
 
 - (void) setUpdateNewDeviceNames:(BOOL) flag; 
-{
+{ // NOTE: this makes it much slower because we isssue a separate hcitool name command for each device
 	_updateNewDeviceNames=flag;
 }
 
 + (NSTask *) _hcitool:(NSArray *) cmds handler:(id) handler done:(SEL) sel;
 {
-	NSString *tool=[[NSSystemStatus sysInfo] objectForKey:@"Bluetooth Discovery"];
+	NSString *tool=[NSSystemStatus sysInfoForKey:@"Bluetooth Tool"];
 	NSTask *task;
 #if 0
 	NSLog(@"tool=%@", tool);
@@ -110,7 +112,7 @@
 		return nil;	// bluetooth is not supported
 	task=[NSTask new];
 	[[NSNotificationCenter defaultCenter] addObserver:handler selector:sel name:NSTaskDidTerminateNotification object:task];
-	[task setLaunchPath:@"/bin/hcitool"];
+	[task setLaunchPath:tool];
 	[task setArguments:cmds];
 	[task setStandardOutput:[NSPipe pipe]];
 #if 0
@@ -122,14 +124,13 @@
 
 - (IOReturn) start; 
 {
-	// FIXME - we should better do an "hcitool inq" and a separate "hcitool name" (this is sufficient for the IOBluetoothDeviceInquiry API)
 #if 0
 	NSLog(@"start %@", self);
 #endif
 	if(_task)
 		return kIOReturnError;	// task is already running
 	_aborted=NO;
-	_task=[[isa _hcitool:[NSArray arrayWithObjects:@"scan", nil] handler:self done:@selector(_done:)] retain];
+	_task=[[isa _hcitool:[NSArray arrayWithObjects:_updateNewDeviceNames?@"inq":@"scan", nil] handler:self done:@selector(_done:)] retain];
 	if(!_task)
 		return 42;	// could not launch
 	[_delegate deviceInquiryStarted:self];
@@ -143,7 +144,7 @@
 {
 	int status=[_task terminationStatus];
 	NSFileHandle *rfh=[[[[_task standardOutput] fileHandleForReading] retain] autorelease];	// keep
-#if 0
+#if 1
 	NSLog(@"task is done status=%d %@", status, _task);
 	NSLog(@"rfh=%@", rfh);
 #endif
@@ -153,7 +154,7 @@
 		{ // build new list of devices
 		NSData *result=[rfh readDataToEndOfFile];
 		unsigned rlength;
-#if 0
+#if 1
 		NSLog(@"result=%@", result);
 #endif
 		if((rlength=[result length]) == 0)
@@ -190,7 +191,8 @@
 					[_devices addObject:dev];
 					if(_updateNewDeviceNames)
 						[dev remoteNameRequest:self];	// request to asynchronously update the device name
-					[dev _setName:[NSString stringWithCString:c0 length:cp-c0]];
+					else
+						[dev _setName:[NSString stringWithCString:c0 length:cp-c0]];	// store what we got
 					cp++;	// skip \n
 					}
 				}
@@ -222,7 +224,10 @@
 
 + (BOOL) _activateBluetoothHardware:(BOOL) flag;
 {
-	NSString *cmd=[[NSSystemStatus sysInfo] objectForKey:flag?@"Bluetooth On":@"Bluetooth Off"];
+	NSString *cmd=[NSSystemStatus sysInfoForKey:(flag?@"Bluetooth On":@"Bluetooth Off")];
+#if 1
+	NSLog(@"command=%@", cmd);
+#endif
 	return system([cmd cString]) == 0;
 }
 
@@ -230,7 +235,7 @@
 {
 	FILE *file;
 	char line[256];
-	NSString *cmd=[[NSSystemStatus sysInfo] objectForKey:@"Bluetooth Status"];
+	NSString *cmd=[NSSystemStatus sysInfoForKey:@"Bluetooth Status"];
 	if(!cmd)
 		return NO;
 	file=popen([cmd cString], "r");	// check status

@@ -128,6 +128,8 @@
 	NSSize documentBoundsSize = _documentView?[_documentView bounds].size:NSZeroSize;
 	NSRect rect;
 	rect.origin = bounds.origin;
+	if([self isFlipped])
+		rect.origin.y=-rect.origin.y;
 	rect.size.width = MIN(documentBoundsSize.width, bounds.size.width);
 	rect.size.height = MIN(documentBoundsSize.height, bounds.size.height);
 	return rect;
@@ -260,10 +262,12 @@
 
 - (void) scrollToPoint:(NSPoint) point
 {
+	NSRect b=bounds;
 	point=[self constrainScrollPoint:point];
-	point.x = floor(point.x);			// avoid rounding errors by constraining the scroll to integer numbers
-	point.y = -floor(point.y);			// and negate since we (or our superview?) are flipped
-	[self setBoundsOrigin:point];		// translate to new origin
+	b.origin.x = floor(point.x);			// avoid rounding errors by constraining the scroll to integer numbers
+	b.origin.y = -floor(point.y);			// and negate since we (or our superview?) are flipped
+	b.size = _documentView?[_documentView frame].size:NSZeroSize;	// as large as the full document
+	[self setBounds:b];		// translate to new origin
 }
 
 - (void) scrollPoint:(NSPoint) point
@@ -405,17 +409,31 @@
 
 - (void) setNeedsDisplayInRect:(NSRect) rect;
 { // limit dirty area to our frame rect
-	// CHECKME: shouldn't we use documentVisibleRect??
-	// shouldn't we transform the size through frame2bounds? to handle flipping/scaling
-//	rect=NSIntersectionRect(rect, (NSRect){NSZeroPoint, frame.size});
+#if 1
+	NSLog(@"NSClipView setNeedsDisplayInRect:%@", NSStringFromRect(rect));
+	NSLog(@"  frame:%@", NSStringFromRect(frame));
+	NSLog(@"  bounds:%@", NSStringFromRect(bounds));
+	NSLog(@"  visible:%@", NSStringFromRect([self visibleRect]));
+	NSLog(@"  docview:%@", [self documentView]);
+	NSLog(@"  docrect:%@", NSStringFromRect([self documentRect]));
+	NSLog(@"  docvis:%@", NSStringFromRect([self documentVisibleRect]));
+#endif
 	rect=NSIntersectionRect(rect, [self visibleRect]);
 	[super setNeedsDisplayInRect:rect];
 }
 
 - (void) displayRectIgnoringOpacity:(NSRect) rect inContext:(NSGraphicsContext *) context;
 { // never draw outside our frame rect
+#if 1
+	NSLog(@"NSClipView displayRectIgnoringOpacity:%@", NSStringFromRect(rect));
+	NSLog(@"  frame:%@", NSStringFromRect(frame));
+	NSLog(@"  bounds:%@", NSStringFromRect(bounds));
+	NSLog(@"  visible:%@", NSStringFromRect([self visibleRect]));
+	NSLog(@"  docview:%@", [self documentView]);
+	NSLog(@"  docrect:%@", NSStringFromRect([self documentRect]));
+	NSLog(@"  docvis:%@", NSStringFromRect([self documentVisibleRect]));
+#endif	
 	rect=NSIntersectionRect(rect, [self visibleRect]);
-//	rect=NSIntersectionRect(rect, (NSRect){NSZeroPoint, frame.size});
 	[super displayRectIgnoringOpacity:rect inContext:context];
 }
 
@@ -426,7 +444,8 @@
 		[_backgroundColor set];				
 		NSRectFill(rect);
 		}
-//	[NSBezierPath clipRect:[self documentVisibleRect]];	// install clipping before drawing the subview
+//	rect=[self documentVisibleRect];
+//	[NSBezierPath clipRect:rect];	// install clipping before drawing the subview
 }
 
 - (void) encodeWithCoder:(id)aCoder						// NSCoding protocol

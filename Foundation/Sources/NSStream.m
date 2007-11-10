@@ -51,7 +51,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	int s=socket(AF_INET, SOCK_STREAM, PF_UNSPEC);
 	if(s < 0)
 		{
-#if 1
+#if 0
 		NSLog(@"stream creation error:%s", strerror(errno));
 #endif
 		*inp=nil;
@@ -62,7 +62,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	*outp=[[[_NSSocketOutputStream alloc] _initWithFileDescriptor:s] autorelease];
 	((_NSSocketInputStream *) *inp)->_output=((_NSSocketOutputStream *) *outp);		// establish cross-link
 	[((_NSSocketOutputStream *) *outp) _setHost:host andPort:port];
-#if 1
+#if 0
 	NSLog(@"inp=%@", *inp);
 	NSLog(@"outp=%@", *outp);
 #endif
@@ -149,7 +149,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (id) _initWithFileDescriptor:(int) fd;
 {
-#if 1
+#if 0
 	NSLog(@"%@ _initWithFileDescriptor:%d", NSStringFromClass(isa), fd);
 #endif
 	if(fd < 0)
@@ -372,7 +372,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (id) _initWithFileDescriptor:(int) fd append:(BOOL) flag;
 {
-#if 1
+#if 0
 	NSLog(@"%@ _initWithFileDescriptor:%d", NSStringFromClass(isa), fd);
 #endif
 	if(fd < 0)
@@ -575,7 +575,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		[self _sendErrorWithDomain:@"already open" code:0];
 		return;
 		}
-#if 1
+#if 0
 	NSLog(@"open NSSocketOutputStream to %@:%u", _host, _port);
 #endif
 	if(!_host)

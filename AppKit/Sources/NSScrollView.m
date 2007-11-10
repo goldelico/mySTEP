@@ -567,6 +567,47 @@ static Class __rulerViewClass = nil;
 	[self tile];
 }
 
+// experimental to handle new navigation ideas
+
+- (NSView *) hitTest:(NSPoint)aPoint
+{
+	NSEvent *event=[NSApp currentEvent];
+	if([event type] == NSLeftMouseDown && [event clickCount] == 2)
+		{ // decode long press on second click
+		NSDate *limit=[NSDate dateWithTimeIntervalSinceNow:0.3];
+		while(YES)
+			{
+			event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+									   untilDate:limit 
+										  inMode:NSEventTrackingRunLoopMode
+										 dequeue:NO];
+			// if mouse moved but not very far away, continue loop
+			break;
+			}
+		if(event == nil)
+			{ // timed out before we got the next event
+			_doubleLongClick=YES;
+			NSLog(@"NSScrollView doubleLongClick");
+			return self;
+			}
+		}
+	_doubleLongClick=NO;
+	return [super hitTest:aPoint];
+}
+
+- (void) _doubleLongClick:(NSEvent *) event;
+{ // no function
+	NSLog(@"NSScrollView _doubleLongClick");
+}
+
+- (void) mouseDown:(NSEvent *) event;
+{
+	if(_doubleLongClick)
+		[self _doubleLongClick:event];
+	else
+		[super mouseDown:event];
+}
+
 - (NSColor *) backgroundColor		{ return [_contentView backgroundColor]; }
 - (NSSize) contentSize				{ return [_contentView bounds].size; }
 - (NSView *) contentView			{ return _contentView; }
