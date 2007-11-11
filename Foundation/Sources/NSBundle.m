@@ -353,8 +353,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		else
 			{
 			if([self load] == NO)
-				return Nil;
-		
+				return Nil;		
 			if(n)
 				_principalClass = NSClassFromString(n);
 			if(!_principalClass && ([_bundleClasses count]))
@@ -383,41 +382,43 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 			[NSException raise:NSInvalidArgumentException format:@"Undefined executable for bundle %@", _path];
 		_bundleClasses = [[NSMutableArray arrayWithCapacity:2] retain];
 		__loadingBundle = self;
-
+		
 #ifdef NeXT_RUNTIME		// FIX ME rewrite routine per NeXT to avoid this mess
 		char *modPtr[2] = {"", NULL};
 		modPtr[0] = (char *) [obj fileSystemRepresentation];
 		if(objc_loadModules(modPtr, stderr, _bundleLoadCallback, NULL,NULL))
-#else /* !NeXT_RUNTIME */
-     	if(objc_load_module([obj fileSystemRepresentation], stderr, _bundleLoadCallback, NULL, NULL))
-#endif /* NeXT_RUNTIME */
 			{ // could not properly load
+#else /* !NeXT_RUNTIME */
+			if(objc_load_module([obj fileSystemRepresentation], stderr, _bundleLoadCallback, NULL, NULL))
+				{ // could not properly load
+#endif /* NeXT_RUNTIME */
 #if 0
-			NSLog(@"NSBundle: before loadunlock 2");
+				NSLog(@"NSBundle: before loadunlock 2");
 #endif
-			[__loadLock unlock];
+				[__loadLock unlock];
 #if 0
-			NSLog(@"NSBundle: after loadunlock 2");
+				NSLog(@"NSBundle: after loadunlock 2");
 #endif
 #if 0
-			fprintf(stderr, "could not properly load\n");
+				fprintf(stderr, "could not properly load\n");
 #endif
-			return NO;
+				return NO;
+				}
+			else
+				{
+				NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+				NSDictionary *dict;
+				
+				dict = [NSDictionary dictionaryWithObjects: &_bundleClasses
+												   forKeys: &NSLoadedClasses 
+													 count: 1];
+				_codeLoaded = YES;
+				__loadingBundle = nil;
+				[nc postNotificationName: NSBundleDidLoadNotification 
+								  object: self
+								userInfo: dict];
+				}	
 			}
-		else
-			{
-			NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-			NSDictionary *dict;
-
-			dict = [NSDictionary dictionaryWithObjects: &_bundleClasses
-								 forKeys: &NSLoadedClasses 
-								 count: 1];
-			_codeLoaded = YES;
-			__loadingBundle = nil;
-			[nc postNotificationName: NSBundleDidLoadNotification 
-				object: self
-				userInfo: dict];
-		}	}
 #if 0
 		NSLog(@"NSBundle: before loadunlock 3");
 #endif
@@ -426,7 +427,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		NSLog(@"NSBundle: after loadunlock 3");
 #endif
 		
-	return YES;
+		return YES;
 }
 
 + (NSString *) _findFileInPath:(NSString *) path andName:(NSString *)name

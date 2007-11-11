@@ -21,6 +21,7 @@ extern NSString *NSNibTopLevelObjects;
 {
 	id decoded;	// decoded root object tree
 	NSMutableArray *decodedObjects;
+	NSBundle *_bundle;	// bundle where we should locate resources
 }
 
 - (id) initWithContentsOfURL:(NSURL *) url;

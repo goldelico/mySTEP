@@ -955,20 +955,20 @@ static NSCursor *__textCursor = nil;
 	
 	while(YES)
 		{ // Get next mouse event until a mouse up is obtained
-#if 1
-		NSLog(@"expiration=%@", expiration);
+#if 0
+		NSLog(@"NSCell expiration=%@", expiration);
 #endif
 		event = [NSApp nextEventMatchingMask:mask 
 								   untilDate:expiration
 									  inMode:NSEventTrackingRunLoopMode 
 									 dequeue:YES];
-#if 1
-		NSLog(@"event=%@", event);
+#if 0
+		NSLog(@"NSCell event=%@", event);
 #endif
 		if(!event)
 			{ // no matching event, i.e. timed out
-#if 1
-			NSLog(@"pop up context menu: %@", contextMenu);
+#if 0
+			NSLog(@"NSCell pop up context menu: %@", contextMenu);
 #endif
 			if((mask & NSPeriodicMask) != 0)
 				[NSEvent stopPeriodicEvents];	// was still tracking
@@ -984,7 +984,7 @@ static NSCursor *__textCursor = nil;
 			[NSMenu popUpContextMenu:contextMenu withEvent:mousedown forView:controlView];	// show the popup menu
 			return YES;	// exit tracking loop(s)
 			}
-#if 1
+#if 0
 		NSLog(@"NSCell trackMouse: event=%@", event);
 #endif
 		switch([event type])
@@ -1006,7 +1006,7 @@ static NSCursor *__textCursor = nil;
 					point = [controlView convertPoint:[event locationInWindow] fromView:nil];
 					if(fabs(point.x-first_point.x)+fabs(point.y-first_point.y) > 5.0)
 					   expiration=[NSDate distantFuture];	// if pointer has been moved too far, disable context menu detection
-#if 1
+#if 0
 					NSLog(@"NSCell trackMouse: pointIsInCell=%@", [controlView mouse:point inRect:cellFrame]?@"YES":@"NO");
 #endif
 					if(!untilMouseUp && ![controlView mouse:point inRect:cellFrame]) // we did leave the cell

@@ -44,13 +44,17 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 + (id) imageNamed:(NSString*)aName
 {
-	NSImage *image;
+	return [self _imageNamed:aName inBundle:[NSBundle mainBundle]];
+}
+
++ (id) _imageNamed:(NSString*)aName inBundle:(NSBundle *) bundle;
+{ // locate in specific bundle (e.g. a loaded bundle) and then in AppKit.framework
 	NSString *name;
-	NSString *ext;
 	NSString *path;
-	NSArray *fileTypes;
-	NSBundle *bundle;
 	NSEnumerator *e;
+	NSString *ext;
+	NSArray *fileTypes;
+	NSImage *image;
 #if 0
 	NSLog(@"load imageNamed %@", aName);
 #endif
@@ -66,12 +70,11 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		if([subst length] > 0)
 			aName=subst;			// try to load
 		}
-	ext = [aName pathExtension];		// dict search for it
-	fileTypes = [NSImageRep imageFileTypes];
 #if 0
 	NSLog(@"imageFileTypes = %@", fileTypes);
 #endif
-	bundle = [NSBundle mainBundle];		// look into main bundle first
+	ext = [aName pathExtension];		// dict search for it
+	fileTypes = [NSImageRep imageFileTypes];
 	path=nil;
 	if([fileTypes containsObject:ext])
 		{

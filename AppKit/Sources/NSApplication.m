@@ -572,6 +572,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		if(![nib instantiateNibWithOwner:NSApp topLevelObjects:NULL])
 			NSLog(@"Cannot load the main model file '%@'", mainModelFile);
 		}
+#if 1
+	NSLog(@"did load nib");
+#endif
 	if(![self mainMenu])
 		[self setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// did not load from a NIB
 	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];

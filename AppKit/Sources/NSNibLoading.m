@@ -648,6 +648,10 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 		{
 		_className = [[coder decodeObjectForKey:@"NSClassName"] retain];
 		_resourceName = [[coder decodeObjectForKey:@"NSResourceName"] retain];
+#if 0
+		NSLog(@"delegate: %@", [(NSKeyedUnarchiver *) coder delegate]);
+		NSLog(@"bundle: %@", [[(NSKeyedUnarchiver *) coder delegate] _bundle]);
+#endif
 		if([_className isEqualToString:@"NSImage"])
 			{
 			NSImage *img;
@@ -655,9 +659,10 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #if 0
 			NSLog(@"NSCustomResource replaced by NSImage: %@", _resourceName);
 #endif
-			img=[[NSImage imageNamed:_resourceName] retain];
+			// FIXME: should locate in the specified bundle first!
+			img=[[NSImage _imageNamed:_resourceName inBundle:[[(NSKeyedUnarchiver *) coder delegate] _bundle]] retain];
 			if(!img)
-				NSLog(@"did not find NSImage: %@", _resourceName);
+				NSLog(@"NSCustomResource did not find NSImage: %@", _resourceName);
 			return img;
 			}
 #if 0
@@ -824,6 +829,9 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 }
 #endif
 
+- (NSBundle *) _bundle; { return _bundle; }	// the bundle we load the nib file from (required to locate Custom Resources)
+- (void) _setBundle:(NSBundle *) b { ASSIGN(_bundle, b); }
+
 - (id) initWithNibNamed:(NSString *) name bundle:(NSBundle *) bundle;
 {
 	NSString *path;
@@ -834,10 +842,15 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	if([name hasSuffix:@".nib"]) name=[name stringByDeletingPathExtension];
 	if(!(path=[bundle pathForResource:name ofType:@"nib" inDirectory:nil]))
 		{ [self release]; return nil; }
-	return [self initWithContentsOfURL:[NSURL fileURLWithPath:path]];	// FIXME: bundle oder kexedobjects.nib filename?
+	return [self _initWithContentsOfURL:[NSURL fileURLWithPath:path] bundle:bundle];	// FIXME: what is the filename: NIB bundle oder kexedobjects.nib filename?
 }
 
 - (id) initWithContentsOfURL:(NSURL *) url;
+{
+	return [self _initWithContentsOfURL:url bundle:nil];	// no bundle
+}
+
+- (id) _initWithContentsOfURL:(NSURL *) url bundle:(NSBundle *) bundle;
 	{
 	NSData *data;
 	NSKeyedUnarchiver *unarchiver;
@@ -890,6 +903,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	if(!unarchiver)
 		NSLog(@"can't open with keyed unarchiver");
 	[unarchiver setDelegate:self];
+	_bundle=[bundle retain];
 #if 0
 	NSLog(@"unarchiver decode IB.objectdata %@", path);
 #endif
@@ -920,6 +934,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 
 - (void) dealloc;
 {
+	[_bundle release];
 	[decodedObjects release];
 	[decoded release];
 	[super dealloc];
@@ -944,7 +959,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #endif
 	[decoded establishConnectionsWithExternalNameTable:table];
 #if 0
-	NSLog(@"awakeFromNib %d objects", [objects count]);
+	NSLog(@"awakeFromNib %d objects", [decodedObjects count]);
 #endif
 #if 0
 	NSLog(@"objects 2=%@", decodedObjects);
@@ -1021,7 +1036,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 {
 	NSBundle *b=[NSBundle bundleForClass:[owner class]];
 	if(!b) b=[NSBundle mainBundle];
-	return [b loadNibFile:name externalNameTable:[NSDictionary dictionaryWithObject:owner forKey:NSNibOwner] withZone:[owner zone]];
+	return [b loadNibFile:name externalNameTable:[NSDictionary dictionaryWithObjectsAndKeys:owner, NSNibOwner, nil] withZone:[owner zone]];
 }
 
 @end /* NSBundle (NibLoading) */

@@ -307,7 +307,7 @@ static Class __controlCellClass = Nil;
 
 - (void) updateCellInside:(NSCell*)aCell
 {
-#if 1
+#if 0
 	NSLog(@"%@ updateCellInside:%@", self, aCell);
 #endif
 	[self setNeedsDisplay:YES];
@@ -352,7 +352,7 @@ static Class __controlCellClass = Nil;
 			BOOL done;
 			[_cell setHighlighted:YES];	
 			[self setNeedsDisplay:YES];
-#if 1
+#if 0
 			NSLog(@"NSControl mouseDown highlighted");
 #endif
 			done=[_cell trackMouse:event
@@ -361,7 +361,7 @@ static Class __controlCellClass = Nil;
 					  untilMouseUp:[[_cell class] prefersTrackingUntilMouseUp]];
 			[_cell setHighlighted:NO];	
 			[self setNeedsDisplay:YES];
-#if 1
+#if 0
 			NSLog(@"NSControl mouseDown lowlighted, done=%@", done?@"YES":@"NO");
 #endif
 			if(done)
@@ -374,7 +374,7 @@ static Class __controlCellClass = Nil;
 									 dequeue:YES];
 
   		}
-#if 1
+#if 0
 	NSLog(@"NSControl mouseDown up");
 #endif
 }
@@ -403,10 +403,12 @@ static Class __controlCellClass = Nil;
 			[self setAction:NSSelectorFromString([aDecoder decodeObjectForKey:@"NSAction"])];
 		if([aDecoder containsValueForKey:@"NSFont"])	// cell might not understand!
 			[self setFont:[aDecoder decodeObjectForKey:@"NSFont"]];
+	// FIXME: this appears to be broken or at least inconsistent...
 		if([aDecoder containsValueForKey:@"NSEnabled"])
 			{
-#if 0
-			NSLog(@"self.enabled=%@", [self isEnabled]?@"YES":@"NO");
+#if 1
+			NSLog(@"%@", self);
+			NSLog(@"[self isEnabled]=%@", [self isEnabled]?@"YES":@"NO");
 			NSLog(@"NSEnabled=%@", [aDecoder decodeBoolForKey:@"NSEnabled"]?@"YES":@"NO");
 #endif
 			[self setEnabled:[aDecoder decodeBoolForKey:@"NSEnabled"]];	// enable/disable current cell (unless setEnabled is overwritten)

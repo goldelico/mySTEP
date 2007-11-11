@@ -24,6 +24,7 @@
 #import <AppKit/NSGraphicsContext.h>
 #import <AppKit/NSImageCell.h>
 #import <AppKit/NSMenuItem.h>
+#import <AppKit/NSNib.h>
 #import <AppKit/NSOpenPanel.h>
 #import <AppKit/NSPrintOperation.h>
 #import <AppKit/NSPrinter.h>
@@ -213,6 +214,10 @@ typedef enum _NSRoundedBezelSegments
 - (void) _drawItem:(NSTabViewItem *) anItem;
 @end
 
+@interface NSImage (NSPrivate)
++ (id) _imageNamed:(NSString*)aName inBundle:(NSBundle *) bundle;
+@end
+
 @interface NSImageCell (NSPrivate)
 - (BOOL) _animates;
 - (void) _setAnimates:(BOOL)flag;
@@ -333,5 +338,13 @@ enum _NSGlyphAttribute
 - (IBAction) _search:(id)sender;
 - (IBAction) _click:(id)sender;
 - (IBAction) _doubleClick:(id)sender;
+
+@end
+
+@interface NSNib (NSPrivate)
+
+- (NSBundle *) _bundle;
+- (void) _setBundle:(NSBundle *) bundle;
+- (id) _initWithContentsOfURL:(NSURL *) url bundle:(NSBundle *) bundle;
 
 @end

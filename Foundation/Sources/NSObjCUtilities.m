@@ -844,6 +844,7 @@ static void * _load(char *lib)
 }
 
 // FIXME - is this swapping rule correct?
+// it looks like -O3 optimizes too much so that it does not work
 
 #define WRAP_DOUBLE(LIB, FUNCTION, TYPE, ARG) double FUNCTION(TYPE ARG) \
 { static double (*fp)(); \

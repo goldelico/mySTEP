@@ -316,7 +316,7 @@ id __buttonCellClass = nil;
 						   inView:(NSView*)controlView
 						mouseIsUp:(BOOL)flag;
 {
-#if 1
+#if 0
 	NSLog(@"clicked on %@ bezelStyle=%d", _title, _bezelStyle);
 #endif
 	if(flag)
@@ -783,14 +783,18 @@ id __buttonCellClass = nil;
 - (void) drawInteriorWithFrame:(NSRect) cellFrame inView:(NSView*) controlView
 {
 	NSAttributedString *title;
-	if([_normalImage isKindOfClass:[NSButtonImageSource class]])
-		_image=[(NSButtonImageSource *) _normalImage buttonImageForCell:self];	// substitute
-	else
-		_image=_normalImage;	// default image
+#if 0
+	NSLog(@"normimage=%@", _normalImage);
+	NSLog(@"altimage=%@", _alternateImage);
+#endif
 	if(_c.state == NSMixedState && _mixedImage)
 		_image=_mixedImage;
 	else if(_alternateImage && stateOrHighlight(NSContentsCellMask))	// alternate content
 		_image=_alternateImage;
+	else if([_normalImage isKindOfClass:[NSButtonImageSource class]])
+		_image=[(NSButtonImageSource *) _normalImage buttonImageForCell:self];	// substitute
+	else
+		_image=_normalImage;	// default image
 #if 0
 	NSLog(@"draw image %@", _image);
 #endif
@@ -875,10 +879,23 @@ id __buttonCellClass = nil;
 		_bezelStyle=BEZELSTYLE;
 		
 		ASSIGN(_alternateTitle, [aDecoder decodeObjectForKey:@"NSAlternateContents"]);
-		ASSIGN(_alternateImage, [aDecoder decodeObjectForKey:@"NSNormalImage"]);	// appears to be mixed up in IB archive
-		ASSIGN(_normalImage, [aDecoder decodeObjectForKey:@"NSAlternateImage"]);
+		ASSIGN(_normalImage, [aDecoder decodeObjectForKey:@"NSNormalImage"]);
+		ASSIGN(_alternateImage, [aDecoder decodeObjectForKey:@"NSAlternateImage"]);
+		if([_alternateImage isKindOfClass:[NSFont class]])
+			{ // bug (or feature?) in IB archiver
+			// [self setFont:(NSFont *)_alternateImage];
+#if 1
+			NSLog(@"strange NSAlternateImage %@", _alternateImage);
+#endif
+			[_alternateImage release], _alternateImage=nil;
+			}
 		if(_normalImage==nil || [_normalImage isKindOfClass:[NSFont class]])
-			ASSIGN(_normalImage, _alternateImage), [_alternateImage release], _alternateImage=nil;	// bug in IB archiver
+			{
+#if 1
+			NSLog(@"strange NSNormalImage %@", _normalImage);
+#endif
+			ASSIGN(_normalImage, _alternateImage), [_alternateImage release], _alternateImage=nil;
+			}
 		ASSIGN(_title, [aDecoder decodeObjectForKey:@"NSContents"]);		// define as title string and not really _contents
 		if([aDecoder containsValueForKey:@"NSAttributedTitle"])
 			ASSIGN(_title, [aDecoder decodeObjectForKey:@"NSAttributedTitle"]);	// overwrite
