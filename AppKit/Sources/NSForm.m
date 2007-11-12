@@ -238,8 +238,7 @@ int i, count = [self numberOfRows];
 
 - (void) setEntryWidth:(float)width
 {
-NSSize size = {width, [self cellSize].height};
-
+	NSSize size = {width, [self cellSize].height};
 	[self setCellSize:size];
 	[self sizeToCells];	
 }
@@ -313,6 +312,12 @@ int i, count = [self numberOfRows];
 - (void) drawCellAtRow:(int)row column:(int)column
 {
 	[self drawCellAtIndex:row];
+}
+
+- (void) setFrameSize:(NSSize) size
+{
+	[self setEntryWidth:size.width];
+	[super setFrameSize:size];
 }
 
 - (void) encodeWithCoder:(NSCoder *)aCoder						// NSCoding protocol

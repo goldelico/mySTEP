@@ -495,8 +495,6 @@ id __buttonCellClass = nil;
 			{
 				NSImage *img=_image;
 				// img=[[NSButtonImageSource alloc] initWithName:@"NSDisclose"];	// assign as default image source
-				// if([img isKindOfClass:[NSButtonImageSource class]])
-				//	img=[_image buttonImageForCell:self];
 				[img drawInRect:cellFrame fromRect:NSZeroRect operation:0 fraction:1.0];
 				break;
 			}
@@ -637,6 +635,8 @@ id __buttonCellClass = nil;
 		op = NSCompositeHighlight;	// change background
 	else
 		op = NSCompositeSourceOver;	// default composition
+	if([img isKindOfClass:[NSButtonImageSource class]])
+		img=[(NSButtonImageSource *) img buttonImageForCell:self];	// substitute
 	// shouldn't we use imageRectForBounds?
 	imageSize = [img size];
 	switch(_c.imagePosition) 
@@ -675,7 +675,7 @@ id __buttonCellClass = nil;
 #endif
 	// FIXME: handle imageDimsWhenDisabled
 	// shouldn't we drawInRect: to scale properly?
-	[_image compositeToPoint:cellFrame.origin operation:op];	
+	[img compositeToPoint:cellFrame.origin operation:op];	
 }
 
 - (void) drawTitle:(NSAttributedString *) title withFrame:(NSRect) cellFrame inView:(NSView *) controlView;
@@ -715,7 +715,10 @@ id __buttonCellClass = nil;
 	textFrame=cellFrame;
 	if(_image && !(_c.imagePosition == NSNoImage || _c.imagePosition == NSImageOverlaps))
 		{ // adjust text field position for image
-		NSSize imageSize=[_image size];
+		NSSize imageSize;
+		if([_image isKindOfClass:[NSButtonImageSource class]])
+			_image=[(NSButtonImageSource *) _image buttonImageForCell:self];	// substitute
+		imageSize=[_image size];
 		switch(_c.imagePosition) 
 			{												
 			case NSImageLeft:					 			// draw image to the left of title
@@ -791,8 +794,6 @@ id __buttonCellClass = nil;
 		_image=_mixedImage;
 	else if(_alternateImage && stateOrHighlight(NSContentsCellMask))	// alternate content
 		_image=_alternateImage;
-	else if([_normalImage isKindOfClass:[NSButtonImageSource class]])
-		_image=[(NSButtonImageSource *) _normalImage buttonImageForCell:self];	// substitute
 	else
 		_image=_normalImage;	// default image
 #if 0
