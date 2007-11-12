@@ -978,9 +978,9 @@ printing
 			if(_v.isRotatedFromBase)
 				[_bounds2frame rotateByDegrees:boundsRotation];	// rotate around origin
 			[_bounds2frame translateXBy:0 yBy:bounds.size.height];
-			[_bounds2frame scaleXBy:1.0 yBy:-1.0];
 			// [_bounds2frame scaleXBy:unitSquareSize.width yBy:-unitSquareSize.height];	// finally (or initially?) scale (incl. origin)
 			[_bounds2frame translateXBy:-bounds.origin.x yBy:-bounds.origin.y];
+			[_bounds2frame scaleXBy:1.0 yBy:-1.0];	// apply flipping
 			if(frameRotation != 0.0)
 				[_bounds2frame rotateByDegrees:frameRotation];	// rotate around frame origin
 
@@ -1675,8 +1675,6 @@ printing
 
 - (void) reflectScrolledClipView:(NSClipView *)aClipView { return; }	// default
 
-// FXIME: make this interwork correctly with NSClipView
-
 - (void) scrollClipView:(NSClipView *)aClipView 
 				toPoint:(NSPoint)aPoint
 {
@@ -1688,8 +1686,6 @@ printing
 	[super_view scrollPoint:aPoint];	// NSClipView will overrride
 }
 
-// CHECKME: is aRect the source or the dest?
-
 - (void) scrollRect:(NSRect)src by:(NSSize)delta
 { // scroll the rect by given delta (called by scrollPoint)
 	NSRect dest;
@@ -1697,7 +1693,7 @@ printing
 		return;	// nothing to scroll
 	[self lockFocus];	// prepare for drawing
 	dest=NSOffsetRect(src, delta.width, delta.height);
-	NSRectClip(dest);	// clip to dest rectangle (?)
+//	NSRectClip(dest);	// clip to dest rectangle
 	NSCopyBits(0, src, dest.origin);	// copy source rect in current graphics state
 	if(_NSShowAllDrawing)
 		{ // show copy operation

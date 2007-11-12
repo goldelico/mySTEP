@@ -22,8 +22,6 @@
 
 #import "NSAppKitPrivate.h"
 
-#define VISUAL_FEEDBACK 1	// show copy/redraw slices for testing
-
 @implementation NSClipView
 
 - (id) initWithFrame:(NSRect)frameRect
@@ -41,7 +39,7 @@
 - (void) setDocumentView:(NSView*)aView
 {
 	NSNotificationCenter *dnc;
-#if 1
+#if 0
 	NSLog(@"%@ setDocumentView: %@", self, aView);
 #endif
 	if(_documentView == aView)
@@ -128,7 +126,7 @@
 	NSSize documentBoundsSize = _documentView?[_documentView bounds].size:NSZeroSize;
 	NSRect rect;
 	rect.origin = bounds.origin;
-	if([self isFlipped])
+	if([self isFlipped] != [_documentView isFlipped])
 		rect.origin.y=-rect.origin.y;
 	rect.size.width = MIN(documentBoundsSize.width, bounds.size.width);
 	rect.size.height = MIN(documentBoundsSize.height, bounds.size.height);
@@ -182,8 +180,7 @@
 		[_documentView setFrameOrigin:mr.origin];	
 
 	[_documentView setPostsFrameChangedNotifications:YES];			// reenable
-
-	[self scrollToPoint:bounds.origin];
+	[super_view scrollClipView:self toPoint:bounds.origin];
 	[super_view reflectScrolledClipView:self];
 //	[_documentView setNeedsDisplay:NO];		// reset area to draw in subview
 	if(NSWidth(mr) < NSWidth(frame) || NSHeight(mr) < NSHeight(frame))
@@ -240,7 +237,8 @@
 
 - (id) documentView								{ return _documentView; }
 - (BOOL) isOpaque								{ return YES; }
-- (BOOL) isFlipped								{ return [_documentView isFlipped]; }
+//- (BOOL) isFlipped								{ return [_documentView isFlipped]; }
+- (BOOL) isFlipped								{ return YES; }
 - (BOOL) copiesOnScroll							{ return _clip.copiesOnScroll; }
 - (BOOL) drawsBackground;						{ return _clip.drawsBackground; }
 - (void) setCopiesOnScroll:(BOOL)flag			{ _clip.copiesOnScroll = flag; }
@@ -262,20 +260,18 @@
 
 - (void) scrollToPoint:(NSPoint) point
 {
-	NSRect b=bounds;
 	point=[self constrainScrollPoint:point];
-	b.origin.x = floor(point.x);			// avoid rounding errors by constraining the scroll to integer numbers
-	b.origin.y = -floor(point.y);			// and negate since we (or our superview?) are flipped
-	b.size = _documentView?[_documentView frame].size:NSZeroSize;	// as large as the full document
-	[self setBounds:b];		// translate to new origin
+	point.x = floor(point.x);			// avoid rounding errors by constraining the scroll to integer numbers
+	point.y = floor(point.y);
+	[self setBoundsOrigin:point];		// translate to new origin
 }
 
 - (void) scrollPoint:(NSPoint) point
 { // point should lie within the bounds rect of self
-	if(!_clip.copiesOnScroll)
+	if(1 || !_clip.copiesOnScroll)
 		{
-		[self scrollToPoint:point];	// translate to new origin
-		[_documentView setNeedsDisplay:YES];// we are not copying but redraw the full document view
+		[super_view scrollClipView:self toPoint:point];
+		[_documentView setNeedsDisplay:YES];// we are not copying so redraw the full document view
 		}
 	else
 		{		
@@ -362,7 +358,7 @@
 		// xSlice - a vertical rect with same height as dest where to draw fresh content
 		
 		[self scrollRect:src by:dest.size];	// if threre is anything to copy
-		[self scrollToPoint:point];	// translate to new origin
+		[super_view scrollClipView:self toPoint:point];
 		if(!NSIsEmptyRect(xSlice))
 			{ // redraw along x axis
 #if 0
@@ -409,7 +405,7 @@
 
 - (void) setNeedsDisplayInRect:(NSRect) rect;
 { // limit dirty area to our frame rect
-#if 1
+#if 0
 	NSLog(@"NSClipView setNeedsDisplayInRect:%@", NSStringFromRect(rect));
 	NSLog(@"  frame:%@", NSStringFromRect(frame));
 	NSLog(@"  bounds:%@", NSStringFromRect(bounds));
@@ -424,7 +420,7 @@
 
 - (void) displayRectIgnoringOpacity:(NSRect) rect inContext:(NSGraphicsContext *) context;
 { // never draw outside our frame rect
-#if 1
+#if 0
 	NSLog(@"NSClipView displayRectIgnoringOpacity:%@", NSStringFromRect(rect));
 	NSLog(@"  frame:%@", NSStringFromRect(frame));
 	NSLog(@"  bounds:%@", NSStringFromRect(bounds));

@@ -35,12 +35,10 @@ static Class __rulerViewClass = nil;
 
 + (NSSize) contentSizeForFrameSize:(NSSize)frameSize	// calc content size by
 			 hasHorizontalScroller:(BOOL)hFlag			// taking into account 
-			 hasVerticalScroller:(BOOL)vFlag			// the border type
-			 borderType:(NSBorderType)borderType
+			   hasVerticalScroller:(BOOL)vFlag			// the border type
+						borderType:(NSBorderType)borderType
 {
-	NSSize size = frameSize;			
-
-	// FIXME: where do we get the scroller size from???
+	NSSize size = frameSize;
 
 	if (hFlag)		// account for scroller
 		size.height -= [NSScroller scrollerWidth];
@@ -50,14 +48,11 @@ static Class __rulerViewClass = nil;
 	switch (borderType) 
 		{
 		case NSLineBorder:
+		case NSGrooveBorder:
+		case NSBezelBorder:
 			size.width -= 2;
 			size.height -= 2;
 			break;
-	
-		case NSBezelBorder:
-		case NSGrooveBorder:
-			size.width -= 4;
-			size.height -= 4;
 		case NSNoBorder:
 			break;
   		}
@@ -67,8 +62,8 @@ static Class __rulerViewClass = nil;
 
 + (NSSize) frameSizeForContentSize:(NSSize)contentSize
 			 hasHorizontalScroller:(BOOL)hFlag
-			 hasVerticalScroller:(BOOL)vFlag
-			 borderType:(NSBorderType)borderType
+			   hasVerticalScroller:(BOOL)vFlag
+						borderType:(NSBorderType)borderType
 {
 	NSSize size = contentSize;
 
@@ -263,8 +258,7 @@ static Class __rulerViewClass = nil;
 					amount = -amount;										// direction 
       			NSDebugLog (@"increment/decrement: amount = %f, flipped = %d",
 	     					 amount, [_contentView isFlipped]);
-      			p.y = -clipBounds.origin.y + amount;
-//     			p.y = (p.y < 0) ? 0 : p.y;					// FIX ME s/b in clipview
+      			p.y = clipBounds.origin.y + amount;
 	   			}
     		else 
      			return;										// do nothing
@@ -290,11 +284,10 @@ static Class __rulerViewClass = nil;
 		}
 	
 	[_contentView scrollPoint:p];						// scroll clipview
-
+	if(_headerContentView)
+		[_headerContentView scrollPoint:(NSPoint){p.x, 0}];
 	if(!_knobMoved)
 		[self reflectScrolledClipView:_contentView];
-	if(_headerContentView)
-		[_headerContentView scrollPoint:(NSPoint){p.x,0}];
 }
 
 - (void) reflectScrolledClipView:(NSClipView*)aClipView
@@ -316,34 +309,50 @@ static Class __rulerViewClass = nil;
 	if(_hasVertScroller) 
 		{
 		if(_autohidesScrollers && documentFrame.size.height <= clipViewBounds.size.height)
-			[_vertScroller setHidden:YES];	// make invisible
+			{
+			if([_vertScroller isHidden])
+				{
+				[_vertScroller setHidden:YES];	// hide
+				[self tile];
+				}
+			}
 		else 
 			{
-			if(_autohidesScrollers)
+			if([_vertScroller isHidden])
+				{
 				[_vertScroller setHidden:NO];	// show
-			knobProportion =NSHeight(clipViewBounds) / NSHeight(documentFrame);
-			floatValue = -clipViewBounds.origin.y / (NSHeight(documentFrame) - NSHeight(clipViewBounds));	// scrolling moves bounds in negative direction!
-			if ([self isFlipped] != [_contentView isFlipped])
-				floatValue = 1 - floatValue;
+				[self tile];
+				}
+			knobProportion = NSHeight(clipViewBounds) / NSHeight(documentFrame);
+			floatValue = clipViewBounds.origin.y / (NSHeight(documentFrame) - NSHeight(clipViewBounds));	// scrolling moves bounds in negative direction!
+//			if ([self isFlipped] != [_contentView isFlipped])
+//				floatValue = 1 - floatValue;
 			[_vertScroller setFloatValue:floatValue 
 						   knobProportion:knobProportion];
 			}
-		// FIXME: tile if changed??
 		}
 	if(_hasHorizScroller) 
 		{
 		if(_autohidesScrollers && documentFrame.size.width <= clipViewBounds.size.width)
-			[_horizScroller setHidden:YES];
+			{
+			if(![_horizScroller isHidden])
+				{
+				[_horizScroller setHidden:YES];
+				[self tile];
+				}
+			}
 		else 
 			{
-			if(_autohidesScrollers)
+			if([_horizScroller isHidden])
+				{
 				[_horizScroller setHidden:NO];	// show
+				[self tile];
+				}
       		knobProportion = NSWidth(clipViewBounds) / NSWidth(documentFrame);
       		floatValue = clipViewBounds.origin.x / (NSWidth(documentFrame) - NSWidth(clipViewBounds));
       		[_horizScroller setFloatValue:floatValue 
 							knobProportion:knobProportion];
 			}
-		// FIXME: tile if changed??
 		}
 }
 
@@ -405,16 +414,16 @@ static Class __rulerViewClass = nil;
 	switch (_borderType) 
 		{
 		case NSNoBorder:		borderThickness = 0; 	break;
-		case NSLineBorder:		borderThickness = 1;	break;
+		case NSLineBorder:
 		case NSBezelBorder:
-		case NSGrooveBorder:	borderThickness = 2;	break;
+		case NSGrooveBorder:	borderThickness = 1;	break;
  		}
 
 	contentRect.origin = (NSPoint){ borderThickness, borderThickness };
-	contentRect.size = (NSSize)[isa contentSizeForFrameSize:bounds.size
-									hasHorizontalScroller:NO
-									hasVerticalScroller:NO
-									borderType:_borderType];
+	contentRect.size = [isa contentSizeForFrameSize:bounds.size
+							  hasHorizontalScroller:NO
+								hasVerticalScroller:NO
+										 borderType:_borderType];	// default size without any scrollers
 	if(_hasHorizScroller && _horizScroller && ![_horizScroller isHidden])
 		{ // make room for the horiz. scroller at the bottom
 		horizScrollerRect.size.height = [_horizScroller frame].size.height;	// adjust for scroller height
@@ -596,14 +605,49 @@ static Class __rulerViewClass = nil;
 }
 
 - (void) _doubleLongClick:(NSEvent *) event;
-{ // no function
-	NSLog(@"NSScrollView _doubleLongClick");
+{ // grab&drag
+	NSPoint last = [self convertPoint:[event locationInWindow] fromView:nil];
+	NSRect clipBounds = [_contentView bounds];
+	NSTimeInterval lastTime = [event timestamp];
+	[[NSCursor pointingHandCursor] push];
+	while(YES)
+		{
+		int type=[event type];
+		if(type == NSLeftMouseUp)	// loop until mouse goes up 
+			break;
+		if(type == NSLeftMouseDragged)
+			{ // drag image
+			NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
+			NSTimeInterval thisTime = [event timestamp];
+			NSTimeInterval deltaTime = thisTime-lastTime;
+			NSSize velocity = (NSSize){ (p.x-last.x)/deltaTime, (p.y-last.y)/deltaTime };	// can be used to smooth movements or continue after mouse-up
+			lastTime=thisTime;
+#if 0
+			NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p));
+#endif
+			clipBounds.origin.x -= p.x-last.x;
+			clipBounds.origin.y -= p.y-last.y;
+			[_contentView scrollPoint:clipBounds.origin];
+			if(_headerContentView)
+				[_headerContentView scrollPoint:(NSPoint){clipBounds.origin.x, 0}];
+			[self reflectScrolledClipView:_contentView];
+			last=p;
+			}
+		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+								   untilDate:[NSDate distantFuture]						// get next event
+									  inMode:NSEventTrackingRunLoopMode 
+									 dequeue:YES];
+  		}
+	[NSCursor pop];
 }
 
 - (void) mouseDown:(NSEvent *) event;
 {
 	if(_doubleLongClick)
+		{
 		[self _doubleLongClick:event];
+		_doubleLongClick=NO;	// has been recognized as such
+		}
 	else
 		[super mouseDown:event];
 }
