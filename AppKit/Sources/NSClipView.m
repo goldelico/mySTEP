@@ -268,7 +268,7 @@
 
 - (void) scrollPoint:(NSPoint) point
 { // point should lie within the bounds rect of self
-	if(1 || !_clip.copiesOnScroll)
+	if(!_clip.copiesOnScroll)
 		{
 		[super_view scrollClipView:self toPoint:point];
 		[_documentView setNeedsDisplay:YES];// we are not copying so redraw the full document view

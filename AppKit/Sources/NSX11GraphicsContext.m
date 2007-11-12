@@ -1460,7 +1460,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	srcRect.size=[((_NSX11GraphicsState *) srcGstate)->_ctm transformSize:srcRect.size];
 	destPoint=[_state->_ctm transformPoint:destPoint];
 #if 1
-	NSLog(@"_copyBits");
+	NSLog(@"_copyBits from %@ to %@", NSStringFromRect(srcRect), NSStringFromPoint(destPoint));
 #endif
 	XCopyArea(_display,
 			  (Window) (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort),	// source window/bitmap
