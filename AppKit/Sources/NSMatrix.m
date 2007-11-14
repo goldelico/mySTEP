@@ -33,6 +33,27 @@
 
 enum { DEFAULT_CELL_HEIGHT = 17, DEFAULT_CELL_WIDTH = 100 };
 
+
+typedef struct {									// struct used to compute 
+	int x;											// selection in list mode.
+	int y;
+} MPoint;
+
+typedef struct {
+	int x;
+	int y;
+	int width;
+	int height;
+} MRect;
+
+typedef struct _tMatrix {
+	int numRows;
+	int numCols;
+	int allocatedRows;
+	int allocatedCols;
+	BOOL **matrix;
+} *tMatrix;
+
 //
 // Class variables
 //
@@ -1127,11 +1148,6 @@ id array[count];
 		}
 }
 
-- (void) setNextText:(id)anObject			{ NIMP; }
-- (void) setPreviousText:(id)anObject		{ NIMP; }
-- (id) nextText								{ return nil; }
-- (id) previousText							{ return nil; }
-
 - (void) textDidBeginEditing:(NSNotification *)aNotification
 {
 	// FIXME: add NSFieldEditor to the notification user info
@@ -1203,7 +1219,7 @@ NSNumber *code;
 		}
 
 	NSBeep();												// entry not valid
-	[[selectedCell target] performSelector:_errorAction withObject:self];
+//	[[selectedCell target] performSelector:_errorAction withObject:self];
 	[aTextObject setString:[selectedCell stringValue]];
 
 	return NO;
@@ -1620,12 +1636,8 @@ int i, j;
 - (id) delegate								{ return _delegate; }
 - (id) target								{ return _target; }
 - (void) setTarget:anObject					{ ASSIGN(_target, anObject); }
-- (void) setAction:(SEL)aSelector			{ _action = aSelector; }
 - (void) setDoubleAction:(SEL)aSelector		{ _doubleAction = aSelector; }
-- (void) setErrorAction:(SEL)sel			{ _errorAction = sel; }
-- (SEL) action								{ return _action; }
 - (SEL) doubleAction						{ return _doubleAction; }
-- (SEL) errorAction							{ return _errorAction; }
 - (void) setSelectionByRect:(BOOL)flag		{ _m.selectionByRect = flag; }
 - (void) setDrawsBackground:(BOOL)flag		{ _m.drawsBackground = flag; }
 - (void) setAllowsEmptySelection:(BOOL)flag	{ _m.allowsEmptySelect = flag; }
@@ -1647,6 +1659,10 @@ int i, j;
 - (int) mouseDownFlags		   				{ return _mouseDownFlags; }
 - (BOOL) isFlipped							{ return YES; }
 - (BOOL) acceptsFirstResponder				{ return YES; }
+
+// override NSControl's methods
+- (SEL) action								{ return _action; }
+- (void) setAction:(SEL)aSelector			{ _action = aSelector; }
 
 - (BOOL) becomeFirstResponder
 {

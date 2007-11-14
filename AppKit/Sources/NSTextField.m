@@ -343,10 +343,6 @@ static Class __textFieldCellClass = Nil;
 - (BOOL) isSelectable						{ return [_cell isSelectable]; }
 - (void) setEditable:(BOOL)flag				{ [_cell setEditable:flag]; }
 - (void) setSelectable:(BOOL)flag			{ [_cell setSelectable:flag]; }
-- (id) nextText								{ return _nextKeyView; }
-- (id) previousText							{ return [self previousKeyView]; }
-- (void) setNextText:(id)anObject			{ [self setNextKeyView:anObject]; }
-- (void) setPreviousText:(id)anObject		{ [anObject setNextKeyView:self]; }
 
 - (void) selectText:(id)sender
 {
@@ -378,8 +374,6 @@ NSText *t;
 - (void) setBordered:(BOOL)flag				{ [_cell setBordered:flag]; }
 - (id) delegate								{ return _delegate; }
 - (void) setDelegate:(id)anObject			{ [super setDelegate:anObject]; }
-- (SEL) errorAction							{ return _errorAction; }
-- (void) setErrorAction:(SEL)aSelector		{ _errorAction = aSelector; }
 
 // Field editor's delegate methods called when editing - delegate is registered to the notification center
 
@@ -475,7 +469,7 @@ NSText *t;
 		}
 
 	NSBeep();											// entry is not valid
-	[[_cell target] performSelector:_errorAction withObject:self];
+//	[[_cell target] performSelector:_errorAction withObject:self];
 	[aTextObject setString:[_cell stringValue]];	// reset cell to original string
 
 	return NO;
@@ -492,7 +486,7 @@ NSText *t;
 	[super encodeWithCoder:aCoder];
 	
 	[aCoder encodeConditionalObject:_delegate];
-	[aCoder encodeValueOfObjCType:@encode(SEL) at:&_errorAction];
+//	[aCoder encodeValueOfObjCType:@encode(SEL) at:&_errorAction];
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder
@@ -501,11 +495,10 @@ NSText *t;
 	if([aDecoder allowsKeyedCoding])
 		{
 		// delegate?
-		// error action?
 		return self;
 		}
 	_delegate = [[aDecoder decodeObject] retain];
-	[aDecoder decodeValueOfObjCType:@encode(SEL) at:&_errorAction];
+//	[aDecoder decodeValueOfObjCType:@encode(SEL) at:&_errorAction];
 	
 	return self;
 }

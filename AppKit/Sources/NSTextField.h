@@ -24,7 +24,6 @@
 @interface NSTextField : NSControl  <NSCoding>
 {
 //	id _delegate;	// inherit from NSControl
-	SEL _errorAction;
 }
 
 - (BOOL) isEditable;									// Access to Text
@@ -33,11 +32,6 @@
 - (void) setSelectable:(BOOL)flag;
 
 - (void) selectText:(id)sender;							// Editing Text
-
-- (id) nextText;										// Tab Key Behavior
-- (id) previousText;
-- (void) setNextText:(id)anObject;
-- (void) setPreviousText:(id)anObject;
 
 - (void) setDelegate:(id)anObject;						// Delegate
 - (id) delegate;
@@ -52,9 +46,6 @@
 - (BOOL) isBordered;
 - (void) setBezeled:(BOOL)flag;
 - (void) setBordered:(BOOL)flag;
-
-- (SEL) errorAction;									// Target / Action
-- (void) setErrorAction:(SEL)aSelector;
 
 - (BOOL) acceptsFirstResponder;							// Event handling
 - (void) textDidBeginEditing:(NSNotification *)aNotification;

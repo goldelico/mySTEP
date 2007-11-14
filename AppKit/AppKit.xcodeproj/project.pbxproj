@@ -2834,6 +2834,12 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1)",
+					"CGFloat=float",
+					"NSInteger=int",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
 				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
@@ -2860,6 +2866,12 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1)",
+					"CGFloat=float",
+					"NSInteger=int",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
 				INFOPLIST_FILE = myTest/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
@@ -2883,6 +2895,12 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1)",
+					"CGFloat=float",
+					"NSInteger=int",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
 				INFOPLIST_FILE = myTest/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
@@ -3316,6 +3334,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
@@ -3342,6 +3361,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				INFOPLIST_FILE = "/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/myTest/Info copy 2.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
@@ -3366,6 +3386,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				INFOPLIST_FILE = "/Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/AppKit/myTest/Info copy 2.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;

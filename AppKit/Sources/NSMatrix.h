@@ -197,24 +197,5 @@ typedef enum _NSMatrixMode {
 @end
 
 
-typedef struct {									// struct used to compute 
-	int x;											// selection in list mode.
-	int y;
-} MPoint;
-
-typedef struct {
-	int x;
-	int y;
-	int width;
-	int height;
-} MRect;
-
-typedef struct _tMatrix {
-	int numRows;
-	int numCols;
-	int allocatedRows;
-	int allocatedCols;
-	BOOL **matrix;
-} *tMatrix;
 
 #endif /* _mySTEP_H_NSMatrix */
