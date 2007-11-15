@@ -11,19 +11,24 @@
 
 #import "Foundation/Foundation.h"
 
-NSString *NSPOSIXErrorDomain			=@"NSPOSIXErrorDomain";
-NSString *NSOSStatusErrorDomain			=@"NSOSStatusErrorDomain";
+NSString *CFStreamErrorDomain			=@"CFStreamErrorDomain";
+NSString *NSCocoaErrorDomain			=@"NSCocoaErrorDomain";
 NSString *NSMachErrorDomain				=@"NSMachErrorDomain";
-NSString *NSURLErrorDomain				=@"NSURLErrorDomain";
+NSString *NSOSStatusErrorDomain			=@"NSOSStatusErrorDomain";
+NSString *NSPOSIXErrorDomain			=@"NSPOSIXErrorDomain";
 
-NSString *NSErrorFailingURLStringKey	=@"NSErrorFailingURLStringKey";
+NSString *NSFilePathErrorKey			=@"NSFilePathErrorKey";
 NSString *NSLocalizedDescriptionKey		=@"NSLocalizedDescriptionKey";
+NSString *NSStringEncodingErrorKey		=@"NSStringEncodingErrorKey";
+NSString *NSErrorFailingURLStringKey	=@"NSErrorFailingURLStringKey";
 NSString *NSUnderlyingErrorKey			=@"NSUnderlyingErrorKey";
 
 NSString *NSLocalizedFailureReasonErrorKey		=@"NSLocalizedFailureReasonErrorKey";
 NSString *NSLocalizedRecoverySuggestionErrorKey	=@"NSLocalizedRecoverySuggestionErrorKey";
 NSString *NSLocalizedRecoveryOptionsErrorKey	=@"NSLocalizedRecoveryOptionsErrorKey";
 NSString *NSRecoveryAttempterErrorKey			=@"NSRecoveryAttempterErrorKey";
+
+NSString *NSURLErrorDomain				=@"NSURLErrorDomain";
 
 @implementation NSError
 
