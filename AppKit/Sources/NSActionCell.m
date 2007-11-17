@@ -74,6 +74,8 @@ static Class __controlClass;
 
 - (void) setImage:(NSImage *)image
 {
+	if(_contents == image)
+		return;
 	[super setImage:image];
 	if (_controlView && ([_controlView isKindOfClass: __controlClass]))
 		[(NSControl *)_controlView updateCell:self];

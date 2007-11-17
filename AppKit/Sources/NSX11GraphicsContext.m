@@ -1223,28 +1223,45 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	isFlipped=[self isFlipped];
 	origin=[_state->_ctm transformPoint:NSZeroPoint];	// determine real drawing origin in X11 coordinates
 	scanRect=[_state->_ctm _boundingRectForTransformedRect:unitSquare];	// get bounding box for transformed unit square
-#if 0
+#if 1
+	NSLog(@"_draw: %@", rep);
+	NSLog(@"context %@", self);
+	NSLog(@"window number %d", _windowNum);
+	NSLog(@"window %@", [NSWindow _windowForNumber:_windowNum]);
+	NSLog(@"focusview %@", [NSView focusView]);
 	NSLog(@"scan rect=%@", NSStringFromRect(scanRect));
 #endif
 	xScanRect.width=scanRect.size.width;
 	xScanRect.height=scanRect.size.height;
 	xScanRect.x=scanRect.origin.x;
 	xScanRect.y=scanRect.origin.y;	// X11 specifies upper left corner
-#if 0
+#if 1
 	NSLog(@"  scan box=%@", NSStringFromXRect(xScanRect));
 #endif
 	/*
-	 * clip to visible area (by clipping box, window and screen
-							 */
-	XClipBox(_state->_clip, &box);
-#if 0
+	 * clip to visible area (by clipping box, window and screen - note: window may be partially outside of screen)
+	 */
+	XClipBox(_state->_clip, &box);	// clip as defined by drawing code
+	// FIXME: clip by screen rect (if window is partially offscreen)
+	/*
+	 for this calculation use:
+	 WidthOfScreen(_screen);			// screen width in pixels
+	 HeightOfScreen(_screen);			// screen height in pixels
+	 _windowRect
+	 onscreenbox in window Koordinaten:
+	 onscreen.x=MIN(0, -_windowRect.x)
+	 onscreen.width=MAX(widthofscreen, windowRect.x+windowRect.width)
+	 if(windowRect.x < 0)
+		box.x-=windowRect.x, box.width+=windowRect.x;
+	 
+	 */
+#if 1
 	NSLog(@"  clip box=%@", NSStringFromXRect(box));
 #endif
 	XIntersect(&xScanRect, &box);
-#if 0
-	NSLog(@"  intersected scan box=%@", NSStringFromXRect(xScanRect));
+#if 1
+	NSLog(@"  final scan box=%@", NSStringFromXRect(xScanRect));
 #endif
-	// FIXME: clip by screen rect (if window is partially offscreen)
 	if(xScanRect.width == 0 || xScanRect.height == 0)
 		return YES;	// empty
 	/*
@@ -1279,10 +1296,16 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 #endif
 		//		NS_DURING
 		{
-			// FIXME: this is quite slow if we don't have double buffering!
+			// FIXME: this is quite slow even if we have double buffering!
+#if 1
+			NSLog(@"XGetImage(%d, %d, %u, %u)", xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
+#endif
 			img=XGetImage(_display, ((Window) _graphicsPort),
 						  xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height,
 						  0x00ffffff, ZPixmap);
+#if 1
+			NSLog(@"got %p", img);
+#endif
 		}
 		//		NS_HANDLER
 		//			NSLog(@"_composite: could not fetch current screen contents due to %@", [localException reason]);
@@ -1292,6 +1315,9 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	else
 		{ // we can simply create a new rectangular image and don't use anything existing
 		int screen_number=XScreenNumberOfScreen(_nsscreen->_screen);
+#if 1
+		NSLog(@"XCreateImage(%u, %u)", xScanRect.width, xScanRect.height);
+#endif
 		img=XCreateImage(_display, DefaultVisual(_display, screen_number), DefaultDepth(_display, screen_number),
 						 ZPixmap, 0, NULL,
 						 xScanRect.width, xScanRect.height,
@@ -1301,6 +1327,9 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 			XDestroyImage(img);
 			img=NULL;
 			}
+#if 1
+		NSLog(@"created %p", img);
+#endif
 		}
 	if(!img)
 		{
@@ -1349,7 +1378,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	for(y=0; y<img->height; y++)
 		{
 		struct RGBA8 src={0,0,0,255}, dest={0,0,0,255};	// initialize
-														// FIXME: we must adjust x&y if we have clipped to the window, i.e. x&y are not aligned with the dest origin
+		// FIXME: we must adjust x&y if we have clipped, i.e. x&y are not aligned with the dest origin
 		pnt.x=/*atms.m11*(0)+*/ -atms.m12*(y)+atms.tX;	// first point of this scan line
 		pnt.y=/*atms.m21*(0)+*/ atms.m22*(y)+atms.tY;
 		for(x=0; x<img->width; x++, pnt.x+=atms.m11, pnt.y-=atms.m21)
@@ -1364,9 +1393,9 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 					{
 					case NSImageInterpolationDefault:	// default is same as low
 					case NSImageInterpolationLow:
-						// FIXME: here we should inter/extrapolate several source points
+						// FIXME: here we should inter/extrapolate adjacent source points
 					case NSImageInterpolationHigh:
-						// FIXME: here we should inter/extrapolate more source points
+						// FIXME: here we should inter/extrapolate adjacent source points
 					case NSImageInterpolationNone:
 						{
 							src=getPixel((int) pnt.x, (int) pnt.y, width, height,
@@ -1379,7 +1408,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 										 isPlanar, hasAlpha,
 										 imagePlanes);
 							if(fract != 256)
-								{ // dim source image
+								{ // dim source image by fraction
 								src.R=(fract*src.R)>>8;
 								src.G=(fract*src.G)>>8;
 								src.B=(fract*src.B)>>8;
@@ -1388,7 +1417,8 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 						}
 					}
 				}
-			// FIXME: speed optimization: handle by table of functions, i.e. CompositeClear(struct RGBA *dest, struct RGBA *src) { dest->r=0; dest->g=(255*src->g+(255-src->a)*dest->g)>>8; ... }
+			// FIXME: speed optimization - handle without intermediate F&G e.g. NSCompositeClear: dest->r=0; dest->g=(255*src->g+(255-src->a)*dest->g)>>8; ...
+			// FIXME: use inline static functions as operation kernels
 			switch(_compositingOperation)
 				{ // based on http://www.cs.wisc.edu/~schenney/courses/cs559-s2001/lectures/lecture-8-online.ppt
 				case NSCompositeClear:				F=0, G=0; break;
@@ -1444,6 +1474,9 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	 * draw to screen
 	 * FIXME: this is quite slow if we don't have double buffering
 	 */
+#if 1
+	NSLog(@"XPutImage(%d, %d, %u, %u)", xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
+#endif	
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 	XDestroyImage(img);
 	_setDirtyRect(self, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
@@ -2396,9 +2429,8 @@ static NSDictionary *_x11settings;
 		resolution.height=(25.4*size.height)/HeightMMOfScreen(_screen);
 		[(NSAffineTransform *) _screen2X11 release];
 		_screen2X11=[[NSAffineTransform alloc] init];
+		[(NSAffineTransform *) _screen2X11 translateXBy:0.5 yBy:0.5+_xRect.height];		// adjust for real screen height and proper rounding
 		[(NSAffineTransform *) _screen2X11 scaleXBy:_screenScale yBy:-_screenScale];	// flip Y axis and scale
-																						// FIXME: do we have to divide the 0.5 by scale as well???
-		[(NSAffineTransform *) _screen2X11 translateXBy:0.5 yBy:-0.5-size.height];		// adjust for real screen height and proper rounding
 #if __APPLE__
 		size.height-=[self _windowTitleHeight]/_screenScale;	// subtract menu bar of X11 server from frame
 #endif

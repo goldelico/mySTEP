@@ -202,6 +202,8 @@ static NSCursor *__textCursor = nil;
 
 - (void) setImage:(NSImage *)anImage
 {
+	if(_contents == anImage)
+		return;
 	if(anImage)
 		[self setType:NSImageCellType];
 	ASSIGN(_contents, anImage); 
