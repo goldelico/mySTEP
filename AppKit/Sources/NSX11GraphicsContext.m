@@ -1223,7 +1223,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	isFlipped=[self isFlipped];
 	origin=[_state->_ctm transformPoint:NSZeroPoint];	// determine real drawing origin in X11 coordinates
 	scanRect=[_state->_ctm _boundingRectForTransformedRect:unitSquare];	// get bounding box for transformed unit square
-#if 1
+#if 0
 	NSLog(@"_draw: %@", rep);
 	NSLog(@"context %@", self);
 	NSLog(@"window number %d", _windowNum);
@@ -1235,7 +1235,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	xScanRect.height=scanRect.size.height;
 	xScanRect.x=scanRect.origin.x;
 	xScanRect.y=scanRect.origin.y;	// X11 specifies upper left corner
-#if 1
+#if 0
 	NSLog(@"  scan box=%@", NSStringFromXRect(xScanRect));
 #endif
 	/*
@@ -1255,11 +1255,11 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 		box.x-=windowRect.x, box.width+=windowRect.x;
 	 
 	 */
-#if 1
+#if 0
 	NSLog(@"  clip box=%@", NSStringFromXRect(box));
 #endif
 	XIntersect(&xScanRect, &box);
-#if 1
+#if 0
 	NSLog(@"  final scan box=%@", NSStringFromXRect(xScanRect));
 #endif
 	if(xScanRect.width == 0 || xScanRect.height == 0)
@@ -1297,13 +1297,13 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 		//		NS_DURING
 		{
 			// FIXME: this is quite slow even if we have double buffering!
-#if 1
+#if 0
 			NSLog(@"XGetImage(%d, %d, %u, %u)", xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 #endif
 			img=XGetImage(_display, ((Window) _graphicsPort),
 						  xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height,
 						  0x00ffffff, ZPixmap);
-#if 1
+#if 0
 			NSLog(@"got %p", img);
 #endif
 		}
@@ -1315,7 +1315,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	else
 		{ // we can simply create a new rectangular image and don't use anything existing
 		int screen_number=XScreenNumberOfScreen(_nsscreen->_screen);
-#if 1
+#if 0
 		NSLog(@"XCreateImage(%u, %u)", xScanRect.width, xScanRect.height);
 #endif
 		img=XCreateImage(_display, DefaultVisual(_display, screen_number), DefaultDepth(_display, screen_number),
@@ -1327,7 +1327,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 			XDestroyImage(img);
 			img=NULL;
 			}
-#if 1
+#if 0
 		NSLog(@"created %p", img);
 #endif
 		}
@@ -1474,7 +1474,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	 * draw to screen
 	 * FIXME: this is quite slow if we don't have double buffering
 	 */
-#if 1
+#if 0
 	NSLog(@"XPutImage(%d, %d, %u, %u)", xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 #endif	
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
