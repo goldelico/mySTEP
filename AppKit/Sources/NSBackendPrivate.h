@@ -76,10 +76,10 @@
 - (void) _setWordSpace:(float) val;			// PDF: v Tw
 - (void) _setBaseline:(float) val;			// PDF: v Ts
 
-// FIXME: don't use _string but _drawGlyphs
+// FIXME: should not use _string but _drawGlyphs
 
 - (void) _string:(NSString *) string;		// (string) Tj
-- (void) _drawGlyphs:(NSGlyph *)glyphs count:(unsigned)cnt;	// (string) Tj
+- (void) _drawGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;	// (string) Tj
 
 - (void) _endText;							// PDF: ET
 
@@ -137,6 +137,7 @@
 - (BOOL) _hasWindowManager;	// there is a window manager...
 - (int) _windowTitleHeight;
 - (void) _sendEvent:(NSEvent *) event;
+- (void) _grabKey:(int) keycode;
 - (int) _keyWindowNumber;
 @end
 

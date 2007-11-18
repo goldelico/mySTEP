@@ -972,6 +972,13 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 	[_pdf appendFormat:@" T*"];
 }
 
+// FIMXE: _string: should be replaced by
+
+- (void) _drawGlyphs:(NSGlyph *)glyphs count:(unsigned)cnt;	// (string) Tj
+{
+//	[_pdf appendFormat:@" (%C) Tj", glyphs];
+}
+
 - (void) _string:(NSString *) string;
 {
 	[_pdf appendFormat:@" (%@) Tj", string];	// FIXME: substitute characters as needed!!!

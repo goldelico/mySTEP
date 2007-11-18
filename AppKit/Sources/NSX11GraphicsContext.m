@@ -994,6 +994,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	_baseline=val;
 }
 
+// FIMXE: _string: should be replaced by
+
+- (void) _drawGlyphs:(NSGlyph *)glyphs count:(unsigned)cnt;	// (string) Tj
+{
+	NIMP;
+}
+
 - (void) _string:(NSString *) string;
 { // draw string fragment -  PDF: (string) Tj
 	unsigned length=[string length];
@@ -3156,6 +3163,18 @@ static NSDictionary *_x11settings;
 	event.keycode = [e keyCode];
 	event.state = [e modifierFlags];	
 	XSendEvent(event.display, event.window, True, mask, (XEvent *) &event);
+}
+
+- (void) _grabKey:(int) keycode;
+{
+	int r=XGrabKey(_display, keycode, AnyModifier, RootWindowOfScreen(_screen), True, GrabModeAsync, GrabModeAsync);
+	if(r)
+		NSLog(@"XGrabKey returns %d", r);
+	/* XUngrabKey(display, keycode, modifiers, grab_window)
+	Display *display;
+	int keycode;
+	unsigned int modifiers;
+	Window grab_window; */
 }
 
 @end
