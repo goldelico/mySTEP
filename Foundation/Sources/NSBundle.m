@@ -383,15 +383,14 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		_bundleClasses = [[NSMutableArray arrayWithCapacity:2] retain];
 		__loadingBundle = self;
 		
-#ifdef NeXT_RUNTIME		// FIX ME rewrite routine per NeXT to avoid this mess
+#ifdef NeXT_RUNTIME		// FIXME rewrite routine per NeXT to avoid this mess
 		char *modPtr[2] = {"", NULL};
 		modPtr[0] = (char *) [obj fileSystemRepresentation];
 		if(objc_loadModules(modPtr, stderr, _bundleLoadCallback, NULL,NULL))
-			{ // could not properly load
 #else /* !NeXT_RUNTIME */
 			if(objc_load_module([obj fileSystemRepresentation], stderr, _bundleLoadCallback, NULL, NULL))
-				{ // could not properly load
 #endif /* NeXT_RUNTIME */
+				{ // could not properly load
 #if 0
 				NSLog(@"NSBundle: before loadunlock 2");
 #endif
@@ -404,21 +403,21 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 #endif
 				return NO;
 				}
-			else
-				{
-				NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-				NSDictionary *dict;
-				
-				dict = [NSDictionary dictionaryWithObjects: &_bundleClasses
-												   forKeys: &NSLoadedClasses 
-													 count: 1];
-				_codeLoaded = YES;
-				__loadingBundle = nil;
-				[nc postNotificationName: NSBundleDidLoadNotification 
-								  object: self
-								userInfo: dict];
-				}	
-			}
+				else
+					{
+					NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+					NSDictionary *dict;
+					
+					dict = [NSDictionary dictionaryWithObjects: &_bundleClasses
+													   forKeys: &NSLoadedClasses 
+														 count: 1];
+					_codeLoaded = YES;
+					__loadingBundle = nil;
+					[nc postNotificationName: NSBundleDidLoadNotification 
+									  object: self
+									userInfo: dict];
+					}	
+		}
 #if 0
 		NSLog(@"NSBundle: before loadunlock 3");
 #endif
@@ -426,7 +425,6 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 #if 0
 		NSLog(@"NSBundle: after loadunlock 3");
 #endif
-		
 		return YES;
 }
 
@@ -689,7 +687,14 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 
 - (NSDictionary *) localizedInfoDictionary;	{ return NIMP; }
 
-- (NSString *) bundleIdentifier; { return [self objectForInfoDictionaryKey:@"CFBundleIdentifier"]; }
+- (NSString *) bundleIdentifier;
+{
+	NSString *ident=[self objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+	if(!ident)
+		ident=[[_path lastPathComponent] stringByDeletingPathExtension];	// use bundle name w/o .app instead
+	return ident;
+}
+
 - (NSString *) developmentLocalization;	{ return [self objectForInfoDictionaryKey:@"CFBundleDevelopmentRegion"]; }
 
 
