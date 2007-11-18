@@ -323,14 +323,7 @@ static BOOL __fileSystemChanged = NO;
 	if(!appname)
 		appname=[[path lastPathComponent] stringByDeletingPathExtension];	// if no display name is defined
 	// should check if already defined - keep/sort newer one
-	ident=[info objectForKey:@"CFBundleIdentifier"];
-	if(!ident)
-		{
-#if 0
-		NSLog(@"Missing CFBundleIdentifier for %@", path);
-#endif
-		return;
-		}
+	ident=[b bundleIdentifier];
 	if(![[NSFileManager defaultManager] isExecutableFileAtPath:[b executablePath]])
 		{
 		// FIXME: Here, we could call something like '/usr/bin/softpear $BUNDLE/Contents/MacOS/$EXECUTABLE $*' 
@@ -697,6 +690,7 @@ static BOOL __fileSystemChanged = NO;
 	NSString *path;
 	NSBundle *b;
 	NSDictionary *dict;
+	NSString *appname;
 	id a;
 #if 1
 	NSLog(@"launchAppWithBundleIdentifier: %@ options: %d eventparam: %@", identOrApp, options, ignored); 
@@ -712,9 +706,9 @@ static BOOL __fileSystemChanged = NO;
 	if(!path)
 		return NO;	// still not found
 	b=[NSBundle bundleWithPath:path];
-
+	
 	// FIXME: somewhere here we should move this code into __launchServices
-
+	
 	if(!b)
 		return NO;	// is not a valid bundle
 	if(options&NSWorkspaceLaunchInhibitingBackgroundOnly)
@@ -746,9 +740,12 @@ static BOOL __fileSystemChanged = NO;
 			NS_ENDHANDLER
 			}
 		}
+	appname=[b objectForInfoDictionaryKey:@"CFBundleName"];
+	if(!appname)
+		appname=[[path lastPathComponent] stringByDeletingPathExtension];	// use bundle name w/o .app instead
 	dict=[NSDictionary dictionaryWithObjectsAndKeys:
 		path, @"NSApplicationPath",
-		[b objectForInfoDictionaryKey:@"CFBundleName"], @"NSApplicationName",
+		appname, @"NSApplicationName",
 		[b bundleIdentifier], @"NSApplicationBundleIdentifier",
 		[NSNumber numberWithInt:0], @"NSApplicationProcessIdentifier",
 		[NSNumber numberWithInt:0], @"NSApplicationProcessSerialNumberHigh",
@@ -1464,7 +1461,7 @@ static NSArray *prevList;
 	if((o=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"]))
 		[d setObject:o forKey:@"ApplicationName"];
 	else
-		[d setObject:[[NSProcessInfo processInfo] processName] forKey:@"ApplicationName"];
+		[d setObject:[[[[NSBundle mainBundle] bundlePath] lastPathComponent] stringByDeletingPathExtension] forKey:@"ApplicationName"];
 	if((o=[NSImage imageNamed:@"NSApplicationIcon"]))
 		[d setObject:o forKey:@"ApplicationIcon"];
 	else if((o=[NSImage imageNamed:@"generic Application Icon in AppKit.framework"]))

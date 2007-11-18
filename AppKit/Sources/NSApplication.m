@@ -523,7 +523,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
 	NSString *mainModelFile = [infoDict objectForKey:@"NSMainNibFile"];
 	NSString *name=[infoDict objectForKey:@"CFBundleName"];
-	NSString *ident=[infoDict objectForKey:@"CFBundleIdentifier"];
+	NSString *ident=[[NSBundle mainBundle] bundleIdentifier];
 #if 0
 	NSLog(@"finishLaunching - mainmodel=%@ name=%@ ident=%@", mainModelFile, name, ident);
 #endif
@@ -542,11 +542,11 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NS_DURING
 		{
 			NSString *path=[[NSBundle mainBundle] bundlePath];
-			if(!name)
-				name=[[path lastPathComponent] stringByDeletingPathExtension];	// use bundle name w/o .app instead
 #if 0
 			NSLog(@"try to registerApplication:%@ with NSSystemServer", ident);
 #endif
+			if(!name)
+				name=[[path lastPathComponent] stringByDeletingPathExtension];	// use bundle name w/o .app instead
 			[[NSWorkspace _distributedWorkspace] registerApplication:getpid()
 																name:name		// application name
 																path:path		// full path of bundle
