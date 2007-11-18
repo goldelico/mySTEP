@@ -1425,55 +1425,265 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 					}
 				}
 			// FIXME: speed optimization - handle without intermediate F&G e.g. NSCompositeClear: dest->r=0; dest->g=(255*src->g+(255-src->a)*dest->g)>>8; ...
-			// FIXME: use inline static functions as operation kernels
-			switch(_compositingOperation)
-				{ // based on http://www.cs.wisc.edu/~schenney/courses/cs559-s2001/lectures/lecture-8-online.ppt
-				case NSCompositeClear:				F=0, G=0; break;
-				default:
-				case NSCompositeCopy:				F=255, G=0; break;
-				case NSCompositeHighlight:			// deprecated and mapped to NSCompositeSourceOver
-				case NSCompositeSourceOver:			F=255, G=255-src.A; break;
-				case NSCompositeSourceIn:			F=dest.A, G=0; break;
-				case NSCompositeSourceOut:			F=255-dest.A, G=0; break;
-				case NSCompositeSourceAtop:			F=dest.A, G=255-src.A; break;
-				case NSCompositeDestinationOver:	F=255-dest.A, G=255; break;
-				case NSCompositeDestinationIn:		F=0, G=src.A; break;
-				case NSCompositeDestinationOut:		F=0, G=255-src.A; break;
-				case NSCompositeDestinationAtop:	F=255-dest.A, G=src.A; break;
-				case NSCompositePlusDarker:			F=255-25, G=255-25; break;		// FIXME: should not influence alpha of result!
-				case NSCompositePlusLighter:		F=255+25, G=255+25; break;
-				case NSCompositeXOR:				F=255-dest.A, G=255-src.A; break;
-				}
+			// FIXME: use e.g. inline static functions as operation kernels
 			// FIXME: (255*255>>8) => 254???
 			// FIXME: using Highlight etc. must be limited to pixel value 0/255
 			// we must divide by 255 and not 256 - or adjust F&G scaling
-			if(G == 0)
-				{ // calculation is done with 'int' precision; stores only 8 bit
-				dest.R=(F*src.R)>>8;
-				dest.G=(F*src.G)>>8;
-				dest.B=(F*src.B)>>8;
-				dest.A=(F*src.A)>>8;
+			switch(_compositingOperation)
+				{ // based on http://www.cs.wisc.edu/~schenney/courses/cs559-s2001/lectures/lecture-8-online.ppt
+				  // dest=F*src+G*dest;
+				case NSCompositeClear:
+					// F=0, G=0;
+					dest.R=0;
+					dest.G=0;
+					dest.B=0;
+					dest.A=0;
+					break;
+				default:
+				case NSCompositeCopy:
+					// F=255, G=0;
+					dest=src;
+					break;
+				case NSCompositeHighlight:			// deprecated and mapped to NSCompositeSourceOver
+				case NSCompositeSourceOver:
+					F=256, G=255-src.A;
+					if(G == 0)
+						{ // calculation is done with 'int' precision; stores only 8 bit
+						dest.R=(F*src.R)>>8;
+						dest.G=(F*src.G)>>8;
+						dest.B=(F*src.B)>>8;
+						dest.A=(F*src.A)>>8;
+						}
+						else if(F == 0)
+							{
+							dest.R=(G*dest.R)>>8;
+							dest.G=(G*dest.G)>>8;
+							dest.B=(G*dest.B)>>8;
+							dest.A=(G*dest.A)>>8;
+							}
+						else
+							{
+							dest.R=(F*src.R+G*dest.R)>>8;
+							dest.G=(F*src.G+G*dest.G)>>8;
+							dest.B=(F*src.B+G*dest.B)>>8;
+							dest.A=(F*src.A+G*dest.A)>>8;
+							}
+						/* FIXME
+						if(dest.R > 255) dest.R=255;
+						if(dest.G > 255) dest.G=255;
+						if(dest.B > 255) dest.B=255;
+						if(dest.A > 255) dest.A=255;
+						*/
+						break;
+				case NSCompositeSourceIn:
+					F=dest.A, G=0;
+					dest.R=(F*src.R)>>8;
+					dest.G=(F*src.G)>>8;
+					dest.B=(F*src.B)>>8;
+					dest.A=(F*src.A)>>8;
+					break;
+				case NSCompositeSourceOut:
+					F=255-dest.A, G=0;
+					dest.R=(F*src.R)>>8;
+					dest.G=(F*src.G)>>8;
+					dest.B=(F*src.B)>>8;
+					dest.A=(F*src.A)>>8;
+					break;
+				case NSCompositeSourceAtop:
+					F=dest.A, G=255-src.A;
+					if(G == 0)
+						{ // calculation is done with 'int' precision; stores only 8 bit
+						dest.R=(F*src.R)>>8;
+						dest.G=(F*src.G)>>8;
+						dest.B=(F*src.B)>>8;
+						dest.A=(F*src.A)>>8;
+						}
+						else if(F == 0)
+							{
+							dest.R=(G*dest.R)>>8;
+							dest.G=(G*dest.G)>>8;
+							dest.B=(G*dest.B)>>8;
+							dest.A=(G*dest.A)>>8;
+							}
+						else
+							{
+							dest.R=(F*src.R+G*dest.R)>>8;
+							dest.G=(F*src.G+G*dest.G)>>8;
+							dest.B=(F*src.B+G*dest.B)>>8;
+							dest.A=(F*src.A+G*dest.A)>>8;
+							}
+						/* FIXME
+						if(dest.R > 255) dest.R=255;
+						if(dest.G > 255) dest.G=255;
+						if(dest.B > 255) dest.B=255;
+						if(dest.A > 255) dest.A=255;
+						*/
+						break;
+				case NSCompositeDestinationOver:
+					F=255-dest.A, G=255;
+					if(G == 0)
+						{ // calculation is done with 'int' precision; stores only 8 bit
+						dest.R=(F*src.R)>>8;
+						dest.G=(F*src.G)>>8;
+						dest.B=(F*src.B)>>8;
+						dest.A=(F*src.A)>>8;
+						}
+						else if(F == 0)
+							{
+							dest.R=(G*dest.R)>>8;
+							dest.G=(G*dest.G)>>8;
+							dest.B=(G*dest.B)>>8;
+							dest.A=(G*dest.A)>>8;
+							}
+						else
+							{
+							dest.R=(F*src.R+G*dest.R)>>8;
+							dest.G=(F*src.G+G*dest.G)>>8;
+							dest.B=(F*src.B+G*dest.B)>>8;
+							dest.A=(F*src.A+G*dest.A)>>8;
+							}
+						/* FIXME
+						if(dest.R > 255) dest.R=255;
+						if(dest.G > 255) dest.G=255;
+						if(dest.B > 255) dest.B=255;
+						if(dest.A > 255) dest.A=255;
+						*/
+						break;
+				case NSCompositeDestinationIn:
+					F=0, G=src.A;
+					dest.R=(G*dest.R)>>8;
+					dest.G=(G*dest.G)>>8;
+					dest.B=(G*dest.B)>>8;
+					dest.A=(G*dest.A)>>8;
+					break;
+				case NSCompositeDestinationOut:
+					F=0, G=255-src.A;
+					dest.R=(G*dest.R)>>8;
+					dest.G=(G*dest.G)>>8;
+					dest.B=(G*dest.B)>>8;
+					dest.A=(G*dest.A)>>8;
+					break;
+				case NSCompositeDestinationAtop:
+					F=255-dest.A, G=src.A;
+					if(G == 0)
+						{ // calculation is done with 'int' precision; stores only 8 bit
+						dest.R=(F*src.R)>>8;
+						dest.G=(F*src.G)>>8;
+						dest.B=(F*src.B)>>8;
+						dest.A=(F*src.A)>>8;
+						}
+						else if(F == 0)
+							{
+							dest.R=(G*dest.R)>>8;
+							dest.G=(G*dest.G)>>8;
+							dest.B=(G*dest.B)>>8;
+							dest.A=(G*dest.A)>>8;
+							}
+						else
+							{
+							dest.R=(F*src.R+G*dest.R)>>8;
+							dest.G=(F*src.G+G*dest.G)>>8;
+							dest.B=(F*src.B+G*dest.B)>>8;
+							dest.A=(F*src.A+G*dest.A)>>8;
+							}
+						/* FIXME
+						if(dest.R > 255) dest.R=255;
+						if(dest.G > 255) dest.G=255;
+						if(dest.B > 255) dest.B=255;
+						if(dest.A > 255) dest.A=255;
+						*/
+						break;
+				case NSCompositePlusDarker:
+					F=255-25, G=255-25;
+					if(G == 0)
+						{ // calculation is done with 'int' precision; stores only 8 bit
+						dest.R=(F*src.R)>>8;
+						dest.G=(F*src.G)>>8;
+						dest.B=(F*src.B)>>8;
+						dest.A=(F*src.A)>>8;
+						}
+						else if(F == 0)
+							{
+							dest.R=(G*dest.R)>>8;
+							dest.G=(G*dest.G)>>8;
+							dest.B=(G*dest.B)>>8;
+							dest.A=(G*dest.A)>>8;
+							}
+						else
+							{
+							dest.R=(F*src.R+G*dest.R)>>8;
+							dest.G=(F*src.G+G*dest.G)>>8;
+							dest.B=(F*src.B+G*dest.B)>>8;
+							dest.A=(F*src.A+G*dest.A)>>8;
+							}
+						/* FIXME
+						if(dest.R > 255) dest.R=255;
+						if(dest.G > 255) dest.G=255;
+						if(dest.B > 255) dest.B=255;
+						if(dest.A > 255) dest.A=255;
+						*/
+						break;		// FIXME: should not influence alpha of result!
+				case NSCompositePlusLighter:
+					F=255+25, G=255+25;
+					if(G == 0)
+						{ // calculation is done with 'int' precision; stores only 8 bit
+						dest.R=(F*src.R)>>8;
+						dest.G=(F*src.G)>>8;
+						dest.B=(F*src.B)>>8;
+						dest.A=(F*src.A)>>8;
+						}
+						else if(F == 0)
+							{
+							dest.R=(G*dest.R)>>8;
+							dest.G=(G*dest.G)>>8;
+							dest.B=(G*dest.B)>>8;
+							dest.A=(G*dest.A)>>8;
+							}
+						else
+							{
+							dest.R=(F*src.R+G*dest.R)>>8;
+							dest.G=(F*src.G+G*dest.G)>>8;
+							dest.B=(F*src.B+G*dest.B)>>8;
+							dest.A=(F*src.A+G*dest.A)>>8;
+							}
+						/* FIXME
+						if(dest.R > 255) dest.R=255;
+						if(dest.G > 255) dest.G=255;
+						if(dest.B > 255) dest.B=255;
+						if(dest.A > 255) dest.A=255;
+						*/
+						break;
+				case NSCompositeXOR:
+					F=255-dest.A, G=255-src.A;
+					if(G == 0)
+						{ // calculation is done with 'int' precision; stores only 8 bit
+						dest.R=(F*src.R)>>8;
+						dest.G=(F*src.G)>>8;
+						dest.B=(F*src.B)>>8;
+						dest.A=(F*src.A)>>8;
+						}
+						else if(F == 0)
+							{
+							dest.R=(G*dest.R)>>8;
+							dest.G=(G*dest.G)>>8;
+							dest.B=(G*dest.B)>>8;
+							dest.A=(G*dest.A)>>8;
+							}
+						else
+							{
+							dest.R=(F*src.R+G*dest.R)>>8;
+							dest.G=(F*src.G+G*dest.G)>>8;
+							dest.B=(F*src.B+G*dest.B)>>8;
+							dest.A=(F*src.A+G*dest.A)>>8;
+							}
+						/* FIXME
+						if(dest.R > 255) dest.R=255;
+						if(dest.G > 255) dest.G=255;
+						if(dest.B > 255) dest.B=255;
+						if(dest.A > 255) dest.A=255;
+						*/
+						break;
 				}
-			else if(F == 0)
-				{
-				dest.R=(G*dest.R)>>8;
-				dest.G=(G*dest.G)>>8;
-				dest.B=(G*dest.B)>>8;
-				dest.A=(G*dest.A)>>8;
-				}
-			else
-				{
-				dest.R=(F*src.R+G*dest.R)>>8;
-				dest.G=(F*src.G+G*dest.G)>>8;
-				dest.B=(F*src.B+G*dest.B)>>8;
-				dest.A=(F*src.A+G*dest.A)>>8;
-				}
-			/* FIXME
-				if(dest.R > 255) dest.R=255;
-			if(dest.G > 255) dest.G=255;
-			if(dest.B > 255) dest.B=255;
-			if(dest.A > 255) dest.A=255;
-			*/
 			XSetRGBA8(img, x, y, &dest);
 			}
 		}
