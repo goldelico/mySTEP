@@ -1,13 +1,16 @@
-//
-//  NSLevelIndicator.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
-//  Copyright (c) 2006 DSITRI.
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+  NSLevelIndicator.h
+  mySTEP
+
+  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
+  Copyright (c) 2006 DSITRI.
+
+  Author:	Fabian Spillner <fabian.spillner@gmail.com>
+  Date:	13. November 2007 - aligned with 10.5   
+ 
+  This file is part of the mySTEP Library and is provided
+  under the terms of the GNU Library General Public License.
+*/
 
 #ifndef _mySTEP_H_NSLevelIndicator
 #define _mySTEP_H_NSLevelIndicator
@@ -20,18 +23,18 @@
 - (double) criticalValue;
 - (double) maxValue;
 - (double) minValue;
-- (int) numberOfMajorTickMarks;
-- (int) numberOfTickMarks;
-- (NSRect) rectOfTickMarkAtIndex:(int) index;
+- (NSInteger) numberOfMajorTickMarks;
+- (NSInteger) numberOfTickMarks;
+- (NSRect) rectOfTickMarkAtIndex:(NSInteger) index;
 - (void) setCriticalValue:(double) val;
 - (void) setMaxValue:(double) val;
 - (void) setMinValue:(double) val;
-- (void) setNumberOfMajorTickMarks:(int) count;
-- (void) setNumberOfTickMarks:(int) count;
+- (void) setNumberOfMajorTickMarks:(NSInteger) count;
+- (void) setNumberOfTickMarks:(NSInteger) count;
 - (void) setTickMarkPosition:(NSTickMarkPosition) pos;
 - (void) setWarningValue:(double) val;
 - (NSTickMarkPosition) tickMarkPosition;
-- (double) tickMarkValueAtIndex:(int) index;
+- (double) tickMarkValueAtIndex:(NSInteger) index;
 - (double) warningValue;
 
 @end

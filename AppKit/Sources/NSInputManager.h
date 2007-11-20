@@ -20,7 +20,7 @@
 
 #import "AppKit/NSController.h"
 
-@class NSInputServer;
+@class NSInputServer; 
 
 @protocol NSTextInput
 

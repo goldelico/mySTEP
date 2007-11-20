@@ -7,6 +7,9 @@
 
    Author:  Scott Christley <scottc@net-community.com>
    Date: 	1996
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	14. November 2007 - aligned with 10.5 
    
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -22,6 +25,7 @@
 @class NSArray;
 @class NSData;
 @class NSMutableArray;
+@class NSFileWrapper; 
 
 //
 // Pasteboard global types
@@ -31,6 +35,10 @@ extern NSString *NSColorPboardType;
 extern NSString *NSFileContentsPboardType;
 extern NSString *NSFilenamesPboardType;
 extern NSString *NSFontPboardType;
+extern NSString *NSHTMLPboardType; 
+extern NSString *NSPDFPboardType; 
+extern NSString *NSPICTPboardType; 
+extern NSString *NSPostScriptPboardType; 
 extern NSString *NSRulerPboardType;
 extern NSString *NSPostScriptPboardType;
 extern NSString *NSTabularTextPboardType;
@@ -39,6 +47,11 @@ extern NSString *NSRTFDPboardType;
 extern NSString *NSTIFFPboardType;
 extern NSString *NSDataLinkPboardType;
 extern NSString *NSGeneralPboardType;
+extern NSString *NSURLPboardType; 
+extern NSString *NSVCardPboardType; 
+extern NSString *NSFilesPromisePboardType; 
+extern NSString *NSInkTextPboardType; 
+extern NSString *NSMultipleTextSelectionPboardType; 
 
 //
 // Pasteboard global names
@@ -66,41 +79,39 @@ extern NSString *NSPasteboardCommunicationException;
 }
 
 + (NSPasteboard *) generalPasteboard;
-+ (NSPasteboard *) pasteboardWithName:(NSString *)name;
-+ (NSPasteboard *) pasteboardWithUniqueName;
-- (void) releaseGlobally;
-															// Filter contents 
-+ (NSPasteboard *) pasteboardByFilteringData:(NSData *)data
-									 ofType:(NSString *)type;
-+ (NSPasteboard *) pasteboardByFilteringFile:(NSString *)filename;
-+ (NSPasteboard*) pasteboardByFilteringTypesInPasteboard:(NSPasteboard *)pb;
-+ (NSArray *) typesFilterableTo:(NSString *)type;
++ (NSPasteboard *) pasteboardByFilteringData:(NSData *) data
+									  ofType:(NSString *) type;
++ (NSPasteboard *) pasteboardByFilteringFile:(NSString *) filename;
++ (NSPasteboard *) pasteboardByFilteringTypesInPasteboard:(NSPasteboard *) pb;
++ (NSPasteboard *) pasteboardWithName:(NSString *) name;
++ (NSPasteboard *) pasteboardWithUniqueName;															// Filter contents 
++ (NSArray *) typesFilterableTo:(NSString *) type;
 
+- (NSInteger) addTypes:(NSArray *) newTypes owner:(id) newOwner;	// Writing Data
+- (NSString *) availableTypeFromArray:(NSArray *) types;		// Available Types
+- (NSInteger) changeCount;										// Reading Data
+- (NSData *) dataForType:(NSString *) dataType;
+- (NSInteger) declareTypes:(NSArray *) newTypes owner:(id) newOwner;
 - (NSString *) name;										// Pasteboard Name
-
-- (int) addTypes:(NSArray *)newTypes owner:(id)newOwner;	// Writing Data
-- (int) declareTypes:(NSArray *)newTypes owner:(id)newOwner;
-- (BOOL) setData:(NSData *)data forType:(NSString *)dataType;
-- (BOOL) setPropertyList:(id)propertyList forType:(NSString *)dataType;
-- (BOOL) setString:(NSString *)string forType:(NSString *)dataType;
-- (BOOL) writeFileContents:(NSString *)filename;
-
-- (NSString *) availableTypeFromArray:(NSArray *)types;		// Available Types
+- (id) propertyListForType:(NSString *) dataType;
+- (NSString *) readFileContentsType:(NSString *) type toFile:(NSString *) name;
+- (NSFileWrapper *) readFileWrapper; 
+- (void) releaseGlobally;
+- (BOOL) setData:(NSData *) data forType:(NSString *) dataType;
+- (BOOL) setPropertyList:(id) propertyList forType:(NSString *) dataType;
+- (BOOL) setString:(NSString *) string forType:(NSString *) dataType;
+- (NSString *) stringForType:(NSString *) dataType;
 - (NSArray *) types;
-
-- (int) changeCount;										// Reading Data
-- (NSData *) dataForType:(NSString *)dataType;
-- (id) propertyListForType:(NSString *)dataType;
-- (NSString *) readFileContentsType:(NSString *)type toFile:(NSString *)name;
-- (NSString *) stringForType:(NSString *)dataType;
+- (BOOL) writeFileContents:(NSString *) filename;
+- (BOOL) writeFileWrapper:(NSFileWrapper *) fileWrapper; 
 
 @end
 
 
-@interface NSObject (NSPasteboardOwner)
+@interface NSObject (NSPasteboardDelegate)
 
-- (void) pasteboard:(NSPasteboard *)sender provideDataForType:(NSString *)type;
-- (void) pasteboardChangedOwner:(NSPasteboard *)sender;
+- (void) pasteboard:(NSPasteboard *) sender provideDataForType:(NSString *) type;
+- (void) pasteboardChangedOwner:(NSPasteboard *) sender;
 
 @end
 

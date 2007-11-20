@@ -122,6 +122,8 @@ extern NSString *const NSImageNameListViewTemplate;
 extern NSString *const NSImageNameColumnViewTemplate;
 extern NSString *const NSImageNameFlowViewTemplate;
 
+typedef struct OpaqueIconRef * IconRef; 
+
 @interface NSImage : NSObject  <NSCoding, NSCopying>
 {
 	NSString *_name;			// image name (if named)

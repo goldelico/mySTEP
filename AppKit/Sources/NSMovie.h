@@ -1,12 +1,12 @@
 /*
- *  NSMovie.h
- *  mySTEP
- *
- *  Created by Dr. H. Nikolaus Schaller on Sat Sep 27 2003.
- *  Copyright (c) 2003 DSITRI. All rights reserved.
- *
- *  licensed under the LGPL
- */
+	NSMovie.h
+	mySTEP
+ 
+	Created by Dr. H. Nikolaus Schaller on Sat Sep 27 2003.
+	Copyright (c) 2003 DSITRI. All rights reserved.
+ 
+	licensed under the LGPL
+*/
 
 #import <Foundation/Foundation.h>
 #import <AppKit/NSPasteboard.h>

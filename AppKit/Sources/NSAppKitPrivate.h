@@ -289,12 +289,14 @@ extern void GSConvertRGBtoHSB(struct RGB_Color rgb, struct HSB_Color *hsb);
 - (void) _removeOutputStream:(NSOutputStream *) stream forMode:(NSString *) mode;
 @end
 
+/* declared in NSLayoutManager
 enum _NSGlyphAttribute
 {
     NSGlyphAttributeSoft = 0,
     NSGlyphAttributeElastic = 1,
     NSGlyphAttributeInscribe = 5,
 };
+*/
 
 @interface NSText (NSPrivate)
 

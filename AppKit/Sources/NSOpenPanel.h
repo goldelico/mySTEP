@@ -1,16 +1,19 @@
 /* 
-   NSOpenPanel.h
+	NSOpenPanel.h
 
-   Standard open panel for opening files
+	Standard open panel for opening files
 
-   Copyright (C) 1996 Free Software Foundation, Inc.
+	Copyright (C) 1996 Free Software Foundation, Inc.
 
-   Author:  Daniel Bðhringer <boehring@biomed.ruhr-uni-bochum.de>
-   Date: August 1998
-   Integration by Felipe A. Rodriguez <far@ix.netcom.com> 
+	Author:  Daniel Bðhringer <boehring@biomed.ruhr-uni-bochum.de>	
+	Date: August 1998
+	Integration by Felipe A. Rodriguez <far@ix.netcom.com> 
    
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
+	Author:	Fabian Spillner <fabian.spillner@gmail.com>
+	Date:	14. November 2007 - aligned with 10.5 
+ 
+	This file is part of the mySTEP Library and is provided
+	under the terms of the GNU Library General Public License.
 */ 
 
 #ifndef _mySTEP_H_NSOpenPanel
@@ -34,21 +37,34 @@
 
 + (NSOpenPanel *) openPanel;
 
-- (BOOL) allowsMultipleSelection;						// Filtering Files
-- (void) setAllowsMultipleSelection:(BOOL)flag;
+- (BOOL) allowsMultipleSelection;
+- (void) beginForDirectory:(NSString *) absolutePath 
+					  file:(NSString *) file 
+					 types:(NSArray *) types 
+		  modelessDelegate:(id) delegate 
+			didEndSelector:(SEL) sel 
+			   contextInfo:(void *) context;
+- (void) beginSheetForDirectory:(NSString *) absolutePath 
+						   file:(NSString *) file 
+						  types:(NSArray *) types 
+				 modalForWindow:(NSWindow *) window 
+				  modalDelegate:(id) delegate 
+				 didEndSelector:(SEL) sel 
+					contextInfo:(void *) context;
 - (BOOL) canChooseDirectories;
-- (void) setCanChooseDirectories:(BOOL)flag;
 - (BOOL) canChooseFiles;
-- (void) setCanChooseFiles:(BOOL)flag;
-							// Returns an array of the selected files and 
-							// directories as absolute paths. Array ontains a  
-- (NSArray *) filenames;	// single path if multiple selection is not allowed
+- (NSArray *) filenames;
+- (BOOL) resolvesAliases; 
+- (NSInteger) runModalForDirectory:(NSString *) path
+							  file:(NSString *) name
+							 types:(NSArray *) fileTypes;
+- (NSInteger) runModalForTypes:(NSArray *) fileTypes;
+- (void) setAllowsMultipleSelection:(BOOL) flag;
+- (void) setCanChooseDirectories:(BOOL) flag;
+- (void) setCanChooseFiles:(BOOL) flag;
+- (void) setResolvesAliases:(BOOL) flag; 
 - (NSArray *) URLs;
 
-- (int) runModalForTypes:(NSArray *)fileTypes;			// Run the NSOpenPanel
-- (int) runModalForDirectory:(NSString *)path
-						file:(NSString *)name
-						types:(NSArray *)fileTypes;
 @end
 
 #endif /* _mySTEP_H_NSOpenPanel */

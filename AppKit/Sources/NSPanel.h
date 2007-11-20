@@ -7,6 +7,9 @@
 
    Author:  Scott Christley <scottc@net-community.com>
    Date: 1996
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	14. November 2007 - aligned with 10.5 
    
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -47,13 +50,45 @@ enum {
 
 - (BOOL) becomesKeyOnlyIfNeeded;
 - (BOOL) isFloatingPanel;
-- (void) setBecomesKeyOnlyIfNeeded:(BOOL)flag;
-- (void) setFloatingPanel:(BOOL)flag;
-- (void) setWorksWhenModal:(BOOL)flag;
+- (void) setBecomesKeyOnlyIfNeeded:(BOOL) flag;
+- (void) setFloatingPanel:(BOOL) flag;
+- (void) setWorksWhenModal:(BOOL) flag;
 - (BOOL) worksWhenModal;
 
 @end
 
+void NSBeginAlertSheet(NSString *title,
+					   NSString *defaultButton,
+					   NSString *altButton,
+					   NSString *otherButton,
+					   NSWindow *window,
+					   id delegate,
+					   SEL endSel,
+					   SEL dismissSel,
+					   void *context,
+					   NSString *message, ...);
+
+void NSBeginCriticalAlertSheet(NSString *title,
+							   NSString *defaultButton,
+							   NSString *altButton,
+							   NSString *otherButton,
+							   NSWindow *window,
+							   id delegate,
+							   SEL endSel,
+							   SEL dismissSel,
+							   void *context,
+							   NSString *message, ...);
+
+void NSBeginInformationalAlertSheet(NSString *title,
+									NSString *defaultButton,
+									NSString *altButton,
+									NSString *otherButton,
+									NSWindow *window,
+									id delegate,
+									SEL endSel,
+									SEL dismissSel,
+									void *context,
+									NSString *msg, ...);
 
 id NSGetAlertPanel(NSString *title,						// Create alert panel
                    NSString *msg,
@@ -68,10 +103,10 @@ id NSGetCriticalAlertPanel(NSString *title,						// Create alert panel
                    NSString *otherButton, ...);
 
 id NSGetInformationalAlertPanel(NSString *title,						// Create alert panel
-													 NSString *msg,
-													 NSString *defaultButton,
-													 NSString *alternateButton, 
-													 NSString *otherButton, ...);
+								NSString *msg,
+								NSString *defaultButton,
+								NSString *alternateButton, 
+								NSString *otherButton, ...);
 
 int NSRunAlertPanel(NSString *title,					// Create and run an 
                     NSString *msg,						// alert panel

@@ -1,14 +1,18 @@
-//
-//  NSMenuItemCell.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Mar 29 2003.
-//  Copyright (c) 2003 DSITRI. All rights reserved.
-//
-//	Author:	H. N. Schaller <hns@computer.org>
-//	Date:	Apr 2006 - aligned with 10.4
-//  licensed under the LGPL
-//
+/*
+	NSMenuItemCell.h
+	mySTEP
+
+	Created by Dr. H. Nikolaus Schaller on Sat Mar 29 2003.
+	Copyright (c) 2003 DSITRI. All rights reserved.
+ 
+	Author:	H. N. Schaller <hns@computer.org>
+	Date:	Apr 2006 - aligned with 10.4
+ 
+    Author:	Fabian Spillner <fabian.spillner@gmail.com>
+    Date:	14. November 2007 - aligned with 10.5    
+ 
+	licensed under the LGPL
+*/
 
 #import <AppKit/NSButtonCell.h>
 #import <AppKit/NSMenuItem.h>
@@ -36,11 +40,11 @@
 - (void) drawSeparatorItemWithFrame:(NSRect) frame inView:(NSView *) view;
 - (void) drawStateImageWithFrame:(NSRect) frame inView:(NSView *) view;
 - (void) drawTitleWithFrame:(NSRect) frame inView:(NSView *) view;
-- (NSRect) imageRectForBounds:(NSRect) frame;
-- (float) imageWidth;	// image width
-- (BOOL) isHighlighted;
+- (NSRect) imageRectForBounds:(NSRect) frame; 
+- (CGFloat) imageWidth;	// image width
+- (BOOL) isHighlighted; 
 - (NSRect) keyEquivalentRectForBounds:(NSRect) frame;
-- (float) keyEquivalentWidth;	// key equivalent width
+- (CGFloat) keyEquivalentWidth;	// key equivalent width
 - (NSMenuItem *) menuItem;
 - (NSMenuView *) menuView;
 - (BOOL) needsDisplay;
@@ -50,11 +54,11 @@
 - (void) setMenuView:(NSMenuView *) menuView;
 - (void) setNeedsDisplay:(BOOL) flag;
 - (void) setNeedsSizing:(BOOL) flag;
-- (void) setTag:(int) tag;
+- (void) setTag:(NSInteger) tag;
 - (NSRect) stateImageRectForBounds:(NSRect) frame;
-- (float) stateImageWidth;	// state image width
-- (int) tag;
+- (CGFloat) stateImageWidth;	// state image width
+- (NSInteger) tag;
 - (NSRect) titleRectForBounds:(NSRect) frame;
-- (float) titleWidth;		// title width
+- (CGFloat) titleWidth;		// title width
 
 @end

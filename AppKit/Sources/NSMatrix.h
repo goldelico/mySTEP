@@ -3,6 +3,9 @@
 
    Copyright (C) 1996 Free Software Foundation, Inc.
 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	13. November 2007 - aligned with 10.5   
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -61,141 +64,117 @@ typedef enum _NSMatrixMode {
 		} _m;
 }
 
+//+ (void) setCellClass:(Class) classId;
 //+ (Class) cellClass;
-//+ (void) setCellClass:(Class)classId;
 
-- (id) initWithFrame:(NSRect)frameRect;
-- (id) initWithFrame:(NSRect)frameRect
-				mode:(int)aMode
-				cellClass:(Class)classId
-				numberOfRows:(int)rowsHigh
-				numberOfColumns:(int)colsWide;
-- (id) initWithFrame:(NSRect)frameRect
-				mode:(int)aMode
-				prototype:(NSCell *)aCell
-				numberOfRows:(int)rowsHigh
-				numberOfColumns:(int)colsWide;
-
-- (void) setMode:(NSMatrixMode)aMode;					// Selection Mode
-- (NSMatrixMode) mode;
-
-- (BOOL) allowsEmptySelection;							// Matrix Configuration
-- (BOOL) isSelectionByRect;
-- (void) setAllowsEmptySelection:(BOOL)flag;
-- (void) setSelectionByRect:(BOOL)flag;
-
-- (void) setPrototype:(NSCell *)aCell;					// Cell Class
-- (void) setCellClass:(Class)classId;
-- (Class) cellClass;
-- (id) prototype;
-
-- (void) addColumnWithCells:(NSArray *)cellArray;		// Matrix layout
-- (void) addRowWithCells:(NSArray *)cellArray;
+- (BOOL) acceptsFirstMouse:(NSEvent *) event;			// Event processing
 - (void) addColumn;
+- (void) addColumnWithCells:(NSArray *) cellArray;		// Matrix layout
 - (void) addRow;
-- (NSRect) cellFrameAtRow:(int)row column:(int)column;
+- (void) addRowWithCells:(NSArray *) cellArray;
+- (BOOL) allowsEmptySelection;							// Matrix Configuration
+- (BOOL) autosizesCells;								// Resizing Matrix
+- (NSColor *) backgroundColor;							// Graphic Attributes
+- (id) cellAtRow:(NSInteger) row column:(NSInteger) column;			// Locate Cells
+- (NSColor *) cellBackgroundColor;
+- (Class) cellClass;
+- (NSRect) cellFrameAtRow:(NSInteger) row column:(NSInteger) column;
+- (NSArray *) cells;
 - (NSSize) cellSize;
-- (void) getNumberOfRows:(int *)rowCount columns:(int *)columnCount;
-- (void) insertColumn:(int)column;
-- (void) insertColumn:(int)column withCells:(NSArray *)cellArray;
-- (void) insertRow:(int)row;
-- (void) insertRow:(int)row withCells:(NSArray *)cellArray;
-- (NSSize) intercellSpacing;
-- (NSCell *) makeCellAtRow:(int)row column:(int)column;
-- (void) putCell:(NSCell *)newCell atRow:(int)row column:(int)column;
-- (void) removeColumn:(int)column;
-- (void) removeRow:(int)row;
-- (void) renewRows:(int)newRows columns:(int)newColumns;
-- (void) setCellSize:(NSSize)aSize;
-- (void) setIntercellSpacing:(NSSize)aSize;
-- (void) sortUsingFunction:(int(*)(id element1,id element2,void *userData))cp
-				   context:(void *)context;
-- (void) sortUsingSelector:(SEL)comparator;
-- (int) numberOfColumns;
-- (int) numberOfRows;
-														// Matrix Coordinates 
-- (BOOL) getRow:(int *)row column:(int *)column forPoint:(NSPoint)aPoint;
-- (BOOL) getRow:(int *)row column:(int *)column ofCell:(NSCell *)aCell;
-
-														// Modify a Cell 
-- (void) setState:(int)value atRow:(int)row column:(int)column;
-
+- (id) cellWithTag:(NSInteger) anInt;
+- (id) delegate;
 - (void) deselectAllCells;								// Selected Cells
 - (void) deselectSelectedCell;
-- (void) selectAll:(id)sender;
-- (void) selectCellAtRow:(int)row column:(int)column;
-- (BOOL) selectCellWithTag:(int)anInt;
-- (id) selectedCell;
-- (NSArray *) selectedCells;
-- (int) selectedColumn;
-- (int) selectedRow;
-- (void) setSelectionFrom:(int)startPos
-					  to:(int)endPos
-					  anchor:(int)anchorPos
-					  highlight:(BOOL)flag;
-
-- (id) cellAtRow:(int)row column:(int)column;			// Locate Cells
-- (id) cellWithTag:(int)anInt;
-- (NSArray *) cells;
-
-- (NSColor *) backgroundColor;							// Graphic Attributes
-- (NSColor *) cellBackgroundColor;
+- (SEL) doubleAction;
+- (void) drawCellAtRow:(NSInteger) row column:(NSInteger) column;		// Drawing
 - (BOOL) drawsBackground;
 - (BOOL) drawsCellBackground;
-- (void) setBackgroundColor:(NSColor *)aColor;
-- (void) setCellBackgroundColor:(NSColor *)aColor;
-- (void) setDrawsBackground:(BOOL)flag;
-- (void) setDrawsCellBackground:(BOOL)flag;
-
-- (void) selectText:(id)sender;							// Editing Text
-- (id) selectTextAtRow:(int)row column:(int)column;
-- (void) textDidBeginEditing:(NSNotification *)notification;
-- (void) textDidChange:(NSNotification *)notification;
-- (void) textDidEndEditing:(NSNotification *)notification;
-- (BOOL) textShouldBeginEditing:(NSText *)textObject;
-- (BOOL) textShouldEndEditing:(NSText *)textObject;
-
-- (id) nextText;										// Tab Key Behavior
-- (id) previousText;
-- (void) setNextText:(id)anObject;
-- (void) setPreviousText:(id)anObject;
-
-- (void) setDelegate:(id)anObject;						// Delegate
-- (id) delegate;
-
-- (BOOL) autosizesCells;								// Resizing Matrix
-- (void) setAutosizesCells:(BOOL)flag;
-- (void) setValidateSize:(BOOL)flag;
-- (void) sizeToCells;
-
+- (void) getNumberOfRows:(NSInteger *) rowCount columns:(NSInteger *) columnCount;
+- (BOOL) getRow:(NSInteger *) row column:(NSInteger *) column forPoint:(NSPoint) aPoint;
+- (BOOL) getRow:(NSInteger *) row column:(NSInteger *) column ofCell:(NSCell *) aCell;
+- (void) highlightCell:(BOOL) flag atRow:(NSInteger) row column:(NSInteger) column;
+- (id) initWithFrame:(NSRect) frameRect;
+- (id) initWithFrame:(NSRect) frameRect
+				mode:(NSInteger) aMode
+		   cellClass:(Class) classId
+		numberOfRows:(NSInteger) rowsHigh
+	 numberOfColumns:(NSInteger) colsWide;
+- (id) initWithFrame:(NSRect) frameRect
+				mode:(NSInteger) aMode
+		   prototype:(NSCell *) aCell
+		numberOfRows:(NSInteger) rowsHigh
+	 numberOfColumns:(NSInteger) colsWide;
+- (void) insertColumn:(NSInteger) column;
+- (void) insertColumn:(NSInteger) column withCells:(NSArray *) cellArray;
+- (void) insertRow:(NSInteger) row;
+- (void) insertRow:(NSInteger) row withCells:(NSArray *) cellArray;
+- (NSSize) intercellSpacing;
 - (BOOL) isAutoscroll;									// Scrolling
-- (void) scrollCellToVisibleAtRow:(int)row column:(int)column;
-- (void) setAutoscroll:(BOOL)flag;
-- (void) setScrollable:(BOOL)flag;
-
-- (void) drawCellAtRow:(int)row column:(int)column;		// Drawing
-- (void) highlightCell:(BOOL)flag atRow:(int)row column:(int)column;
-
-- (void) setAction:(SEL)aSelector;						// Target / Action
-- (void) setDoubleAction:(SEL)aSelector;
-- (void) setErrorAction:(SEL)aSelector;
-- (SEL) action;
-- (SEL) doubleAction;
-- (SEL) errorAction;
-- (BOOL) sendAction;
-- (void) sendAction:(SEL)aSelector to:(id)anObject forAllCells:(BOOL)flag;
-- (void) sendDoubleAction;
-- (void) setErrorAction:(SEL)aSelector;
-
-- (BOOL) acceptsFirstMouse:(NSEvent *)event;			// Event processing
-- (BOOL) performKeyEquivalent:(NSEvent *)event;
-- (void) mouseDown:(NSEvent *)event;
-- (int) mouseDownFlags;
-
+- (BOOL) isSelectionByRect;
+- (id) keyCell; 
+- (NSCell *) makeCellAtRow:(NSInteger) row column:(NSInteger) column;
+- (NSMatrixMode) mode;
+- (void) mouseDown:(NSEvent *) event;
+- (NSInteger) mouseDownFlags;
+- (NSInteger) numberOfColumns;
+- (NSInteger) numberOfRows;
+- (BOOL) performKeyEquivalent:(NSEvent *) event; 
+- (id) prototype;
+- (void) putCell:(NSCell *) newCell atRow:(NSInteger) row column:(NSInteger) column;
+- (void) removeColumn:(NSInteger) column;
+- (void) removeRow:(NSInteger) row;
+- (void) renewRows:(NSInteger) newRows columns:(NSInteger) newColumns;
 - (void) resetCursorRects;								// Managing Cursor
+- (void) scrollCellToVisibleAtRow:(NSInteger) row column:(NSInteger) column;
+- (void) selectAll:(id) sender;
+- (void) selectCellAtRow:(NSInteger) row column:(NSInteger) column;
+- (BOOL) selectCellWithTag:(NSInteger) anInt;
+- (id) selectedCell;
+- (NSArray *) selectedCells;
+- (NSInteger) selectedColumn;
+- (NSInteger) selectedRow;
+- (void) selectText:(id) sender;							// Editing Text
+- (id) selectTextAtRow:(NSInteger) row column:(NSInteger) column;
+- (BOOL) sendAction;
+- (void) sendAction:(SEL) aSelector to:(id) anObject forAllCells:(BOOL) flag;
+- (void) sendDoubleAction;
+- (void) setAllowsEmptySelection:(BOOL) flag;
+- (void) setAutoscroll:(BOOL) flag;
+- (void) setAutosizesCells:(BOOL) flag;
+- (void) setBackgroundColor:(NSColor *) aColor;
+- (void) setCellBackgroundColor:(NSColor *) aColor;
+- (void) setCellClass:(Class) classId;
+- (void) setCellSize:(NSSize) aSize;
+- (void) setDelegate:(id) anObject;						// Delegate
+- (void) setDoubleAction:(SEL) aSelector;
+- (void) setDrawsBackground:(BOOL) flag;
+- (void) setDrawsCellBackground:(BOOL) flag;
+- (void) setIntercellSpacing:(NSSize) aSize;
+- (void) setKeyCell:(NSCell *) cell; 
+- (void) setMode:(NSMatrixMode) aMode;					// Selection Mode
+- (void) setPrototype:(NSCell *) aCell;					// Cell Class
+- (void) setScrollable:(BOOL) flag;
+- (void) setSelectionByRect:(BOOL) flag;
+- (void) setSelectionFrom:(NSInteger) startPos
+					   to:(NSInteger) endPos
+				   anchor:(NSInteger) anchorPos
+				highlight:(BOOL) flag;
+- (void) setState:(NSInteger) value atRow:(NSInteger) row column:(NSInteger) column;
+- (void) setTabKeyTraversesCells:(BOOL) flag; 
+- (void) setToolTip:(NSString *) string forCell:(NSCell *) cell; 
+- (void) setValidateSize:(BOOL) flag;
+- (void) sizeToCells;
+- (void) sortUsingFunction:(int(*)(id element1, id element2, void *userData)) cp
+				   context:(void *) context;
+- (void) sortUsingSelector:(SEL) comparator;
+- (BOOL) tabKeyTraversesCells; 
+- (void) textDidBeginEditing:(NSNotification *) notification;
+- (void) textDidChange:(NSNotification *) notification;
+- (void) textDidEndEditing:(NSNotification *) notification;
+- (BOOL) textShouldBeginEditing:(NSText *) textObject;
+- (BOOL) textShouldEndEditing:(NSText *) textObject;
+- (NSString *) toolTipForCell:(NSCell *) cell;
 
 @end
-
-
 
 #endif /* _mySTEP_H_NSMatrix */

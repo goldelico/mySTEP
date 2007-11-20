@@ -1,15 +1,18 @@
-//
-//  NSMenuView.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Thu Mar 27 2003.
-//  Copyright (c) 2003 DSITRI. All rights reserved.
-//
-//	Author:	H. N. Schaller <hns@computer.org>
-//	Date:	Apr 2006 - aligned with 10.4
-//
-//  licensed under the LGPL
-//
+/*
+	NSMenuView.h
+	mySTEP
+
+	Created by Dr. H. Nikolaus Schaller on Thu Mar 27 2003.
+	Copyright (c) 2003 DSITRI. All rights reserved.
+
+	Author:	H. N. Schaller <hns@computer.org>
+	Date:	Apr 2006 - aligned with 10.4
+ 
+	Author:	Fabian Spillner <fabian.spillner@gmail.com>
+	Date:	14. November 2007 - aligned with 10.5
+
+	licensed under the LGPL
+*/
 
 #import <Foundation/Foundation.h>
 #import <AppKit/NSMenu.h>
@@ -43,18 +46,18 @@
 	BOOL _isTornOff;
 }
 
-+ (float) menuBarHeight;
++ (CGFloat) menuBarHeight;
 
 - (NSMenu *) attachedMenu;
 - (NSMenuView *) attachedMenuView;
-- (void) attachSubmenuForItemAtIndex:(int) index;
+- (void) attachSubmenuForItemAtIndex:(NSInteger) index;
 - (void) detachSubmenu;
 - (NSFont *) font;
-- (int) highlightedItemIndex;
-- (float) horizontalEdgePadding;
-- (float) imageAndTitleOffset;	// offset based on width and horizontalEdgePadding
-- (float) imageAndTitleWidth;	// max. width of all cells image+title
-- (int) indexOfItemAtPoint:(NSPoint) point;
+- (NSInteger) highlightedItemIndex;
+- (CGFloat) horizontalEdgePadding;
+- (CGFloat) imageAndTitleOffset;	// offset based on width and horizontalEdgePadding
+- (CGFloat) imageAndTitleWidth;	// max. width of all cells image+title
+- (NSInteger) indexOfItemAtPoint:(NSPoint) point;
 - (id) initAsTearOff;	// returns nil
 - (id) initWithFrame:(NSRect) frame;
 - (NSRect) innerRect;
@@ -64,26 +67,27 @@
 - (void) itemAdded:(NSNotification *) notification;
 - (void) itemChanged:(NSNotification *) notification;
 - (void) itemRemoved:(NSNotification *) notification;
-- (float) keyEquivalentOffset;	// offset based on width and horizontalEdgePadding
-- (float) keyEquivalentWidth;	// max. width of all cells key equivalent
+- (CGFloat) keyEquivalentOffset;	// offset based on width and horizontalEdgePadding
+- (CGFloat) keyEquivalentWidth;	// max. width of all cells key equivalent
 - (NSPoint) locationForSubmenu:(NSMenu *) submenu;
 - (NSMenu *) menu;
-- (NSMenuItemCell *) menuItemCellForItemAtIndex:(int) index;
+- (NSMenuItemCell *) menuItemCellForItemAtIndex:(NSInteger) index;
 - (BOOL) needsSizing;
-- (void) performActionWithHighlighingForItemAtIndex:(int) index;
-- (NSRect) rectOfItemAtIndex:(int) index;
+- (void) performActionWithHighlighingForItemAtIndex:(NSInteger) index;
+- (NSRect) rectOfItemAtIndex:(NSInteger) index;
 - (void) setFont:(NSFont *) f;
-- (void) setHighlightedItemIndex:(int) index;
+- (void) setHighlightedItemIndex:(NSInteger) index;
 - (void) setHorizontal:(BOOL) flag;
-- (void) setHorizontalEdgePadding:(float) pad;
+- (void) setHorizontalEdgePadding:(CGFloat) pad;
 - (void) setMenu:(NSMenu *) m;
-- (void) setMenuItemCell:(NSMenuItemCell *) cell forItemAtIndex:(int) index;
-- (void) setNeedsDisplayForItemAtIndex:(int) index;
+- (void) setMenuItemCell:(NSMenuItemCell *) cell forItemAtIndex:(NSInteger) index;
+- (void) setNeedsDisplayForItemAtIndex:(NSInteger) index;
 - (void) setNeedsSizing:(BOOL) flag;
-- (void) setWindowFrameForAttachingToRect:(NSRect) frame onScreen:(NSScreen *) screen preferredEdge:(NSRectEdge) edge popUpSelectedItem:(int) index;
+- (void) setWindowFrameForAttachingToRect:(NSRect) frame onScreen:(NSScreen *) screen preferredEdge:(NSRectEdge) edge popUpSelectedItem:(NSInteger) index;
 - (void) sizeToFit;
-- (float) stateImageOffset;	// offset based on width and horizontalEdgePadding
-- (float) stateImageWidth;	// max. width of all cells state image
+- (CGFloat) stateImageOffset;	// offset based on width and horizontalEdgePadding
+- (CGFloat) stateImageWidth;	// max. width of all cells state image
 - (BOOL) trackWithEvent:(NSEvent *) event;
 - (void) update;
+
 @end

@@ -7,6 +7,9 @@
 
    Author:  Scott Christley <scottc@net-community.com>
    Date: 1996
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	14. November 2007 - aligned with 10.5 
    
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -19,7 +22,9 @@
 
 @class NSPrintInfo;
 @class NSView;
+@class NSViewController; 
 
+// ????
 enum {
   NSPLImageButton,
   NSPLTitleField,
@@ -34,34 +39,33 @@ enum {
 
 // FIXME: should be NSObject and have no NSCoding!
 
-@interface NSPageLayout : NSPanel  <NSCoding>
+@interface NSPageLayout : NSObject
 {
 }
 
 + (NSPageLayout *) pageLayout;
 
-- (int) runModal;											// Run the Panel
-- (int) runModalWithPrintInfo:(NSPrintInfo *)pInfo;
-
-- (NSView *) accessoryView;									// Customize Panel
-- (void) setAccessoryView:(NSView *)aView;
-
-//
-// Updating the Panel's Display 
-//
-- (void)convertOldFactor:(float *)old
-	       newFactor:(float *)new;
-- (void)pickedButton:(id)sender;
-- (void)pickedOrientation:(id)sender;
-- (void)pickedPaperSize:(id)sender;
-- (void)pickedUnits:(id)sender;
-
-//
-// Communicating with the NSPrintInfo Object 
-//
+- (NSArray *) accessoryControllers; 
+- (NSView *) accessoryView; /* DEPRECATED */
+- (void) addAccessoryController:(NSViewController *) accContr; 
+- (void) beginSheetWithPrintInfo:(NSPrintInfo *) pInfo 
+				  modalForWindow:(NSWindow *) window 
+						delegate:(id) delegate 
+				  didEndSelector:(SEL) sel 
+					 contextInfo:(void *) context;
+- (void) convertOldFactor:(float *) old /* DEPRECATED */
+				newFactor:(float *) new;
+- (void) pickedButton:(id) sender; /* DEPRECATED */
+- (void) pickedOrientation:(id) sender; /* DEPRECATED */
+- (void) pickedPaperSize:(id) sender; /* DEPRECATED */
+- (void) pickedUnits:(id) sender; /* DEPRECATED */
 - (NSPrintInfo *) printInfo;
-- (void) readPrintInfo;
-- (void) writePrintInfo;
+- (void) readPrintInfo; /* DEPRECATED */
+- (void) removeAccessoryController:(NSViewController *) accContr; 
+- (NSInteger) runModal;
+- (NSInteger) runModalWithPrintInfo:(NSPrintInfo *) pInfo;
+- (void) setAccessoryView:(NSView *) aView;
+- (void) writePrintInfo; /* DEPRECATED */
 
 @end
 
