@@ -75,12 +75,13 @@ static NSMutableDictionary *__nameToImageDict = nil;
 #endif
 	ext = [aName pathExtension];		// dict search for it
 	fileTypes = [NSImageRep imageFileTypes];
-	path=nil;
 	if([fileTypes containsObject:ext])
 		{
 		name = [aName stringByDeletingPathExtension];		// has a supported extension
 		path = [bundle pathForResource:name ofType:ext];	// look up
 		}
+	else
+		path=nil;
 	if(!path)
 		{ // name does not have a supported ext: search for the image locally (mainBundle)
 		id o;
@@ -276,16 +277,19 @@ static NSMutableDictionary *__nameToImageDict = nil;
 - (id) copyWithZone:(NSZone *) zone
 {
 	NSImage *copy = [isa allocWithZone:zone];
+	if(!_img.isValid)
+		{
+		}
 	// copy instance variables
 	copy->_name = [_name retain];
 	copy->_imageFilePath = [_imageFilePath retain];
-	copy->_reps = [NSMutableArray new];
-	copy->_cache = [NSMutableArray new];
-	copy->_bestRep = nil;
+	copy->_reps = [_reps mutableCopy];
+	copy->_cache = [_cache mutableCopy];
+	copy->_bestRep = _bestRep;
 	copy->_backgroundColor = [_backgroundColor retain];
 	copy->_size = _size;
 	copy->_delegate = [_delegate retain];
-	copy->_img = _img;
+	copy->_img = _img;	// copy all image flags
 	[copy recache];
 	return copy;
 }
@@ -373,15 +377,17 @@ static NSMutableDictionary *__nameToImageDict = nil;
 {
 	// FIXME: remove cached bitmap reps only!
 	// FIXME: should clear only and not even remove any cache!
+#if 0
 	[_cache removeAllObjects];
 	_bestRep=nil;
 	_img.isValid=NO;
+#endif
 }
 
 - (void) setBackgroundColor:(NSColor*)color	{ ASSIGN(_backgroundColor, color); }
 - (NSColor*) backgroundColor				{ return _backgroundColor; }
-- (NSArray*) representations				{ return (NSArray*)_reps; }
-- (void) setDelegate:anObject				{ ASSIGN(_delegate,anObject); }
+- (NSArray*) representations				{ return _reps; }
+- (void) setDelegate:(id)anObject			{ ASSIGN(_delegate, anObject); }
 - (id) delegate								{ return _delegate; }
 
 - (void) setSize:(NSSize)aSize
@@ -567,7 +573,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 {														 
 	if(!_img.isValid)
 		{
-#if 0
+#if 1
 		NSLog(@"load image representation(s) (at path: %@)", _imageFilePath);
 #endif
 		if(_imageFilePath)
@@ -587,9 +593,14 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			else
 				NSLog(@"could not load image at path: %@", _imageFilePath);
 			}
+		else
+			NSLog(@"no file path");
 		if([_reps count])
 			_img.isValid = YES;	// any valid representation loaded
 		}
+#if 0
+	NSLog(@"image valid %d", _img.isValid);
+#endif
 	return _img.isValid;
 }
 
@@ -638,6 +649,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	int i;
 	int highScore;
 	static NSDictionary *__currentDevice = nil;		// cache for deviceDescription
+	NSEnumerator *e;
+	NSImageRep *r;
 	// FIXME: this cache should respond to NSScreenDeviceProfileChangedNotification!
 	if(_bestRep && (deviceDescription == __currentDevice))
 		return _bestRep;	// already determined
@@ -649,9 +662,9 @@ static NSMutableDictionary *__nameToImageDict = nil;
 #endif
 	_bestRep=nil;
 	highScore=-1;
-	for(i = [_reps count]; i-- > 0;)
+	e=[_reps reverseObjectEnumerator];
+	while((r=[e nextObject]))
 		{
-		NSImageRep *r=[_reps objectAtIndex:i];
 		int newScore=[self _scoreRepresentation:r forDevice:deviceDescription];
 		if(newScore > highScore)
 			{ // found a better one than before
@@ -660,7 +673,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			}
 		}
 	if (!_img.sizeWasExplicitlySet) 
-		_size = [_bestRep size];	
+		_size = [_bestRep size];
 #if 0
 	NSLog(@"_bestRep: %@ size:%@", _bestRep, NSStringFromSize(_size));
 #endif
@@ -714,7 +727,6 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		{
 		unsigned int iflags=[coder decodeIntForKey:@"NSImageFlags"];
 		_cache = [NSMutableArray new];
-		_reps = [NSMutableArray new];
 #define SCALABLE ((iflags&0x8000000) != 0)
 		_img.scalable=SCALABLE;
 #define SIZESET ((iflags&0x2000000) != 0)
@@ -733,7 +745,12 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		_size=[coder decodeSizeForKey:@"NSSize"];
 		_backgroundColor=[[coder decodeObjectForKey:@"NSColor"] retain];
 		if([coder containsValueForKey:@"NSReps"])
+			{
 			_reps=[[coder decodeObjectForKey:@"NSReps"] retain];	// load array of reps
+			_img.isValid=YES;
+			}
+		else
+			_reps = [NSMutableArray new];
 		return self;
 		}
 	NSLog(@"NSImage: can't initWithCoder");

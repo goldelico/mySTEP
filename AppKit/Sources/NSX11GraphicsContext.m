@@ -2040,6 +2040,18 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	return NSMakePoint(window_x, _xRect.height-window_y);
 }
 
+- (void) _grabKey:(int) keycode;
+{
+	int r=XGrabKey(_display, keycode, AnyModifier, _realWindow, True, GrabModeAsync, GrabModeAsync);
+	if(r)
+		NSLog(@"XGrabKey returns %d", r);
+	/* XUngrabKey(display, keycode, modifiers, grab_window)
+		Display *display;
+	int keycode;
+	unsigned int modifiers;
+	Window grab_window; */
+}
+
 @end /* _NSX11GraphicsContext */
 
 static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *eventModFlags)
@@ -3373,18 +3385,6 @@ static NSDictionary *_x11settings;
 	event.keycode = [e keyCode];
 	event.state = [e modifierFlags];	
 	XSendEvent(event.display, event.window, True, mask, (XEvent *) &event);
-}
-
-- (void) _grabKey:(int) keycode;
-{
-	int r=XGrabKey(_display, keycode, AnyModifier, RootWindowOfScreen(_screen), True, GrabModeAsync, GrabModeAsync);
-	if(r)
-		NSLog(@"XGrabKey returns %d", r);
-	/* XUngrabKey(display, keycode, modifiers, grab_window)
-	Display *display;
-	int keycode;
-	unsigned int modifiers;
-	Window grab_window; */
 }
 
 @end

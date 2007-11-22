@@ -136,6 +136,11 @@ static NSCountedSet *__pb;
 	return ([array count]) ? [array objectAtIndex: 0] : nil;	// return first
 }
 
+// CHECKME: can we cache the image reps???
+// this would only create a problem if we save an image rep to a file and then reload
+// or expect that an externally changed file can be immediately seen when loading again.
+// but since we don't known when the file is overwriten we should probably clear the cache by a timer
+
 + (NSArray *) imageRepsWithContentsOfFile:(NSString *)filename
 {
 	NSString *ext = [filename pathExtension];

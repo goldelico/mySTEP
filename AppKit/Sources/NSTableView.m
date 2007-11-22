@@ -734,6 +734,7 @@
 		_tv.allowsColumnReordering = YES;
 		_tv.allowsColumnResizing = YES;
 		_tv.initializing=NO;
+		_tv.needsTiling=YES;
 		}
 	return self;
 }
@@ -1732,14 +1733,18 @@ int index = [self columnWithIdentifier:identifier];
 			{
 			NSRect c = [self rectOfColumn: cols - 1];	// last column (c.size.height comes from current frame height and may be 0!)
 			NSRect h = [_headerView frame];
+			float minH = super_view?[super_view bounds].size.height:10;
 			NSRect r;
 			if(rows > 0)
 				r = [self rectOfRow:rows - 1];	// last row
 			else
 				r = NSZeroRect;
-			if(r.size.height < 10)
-				r.size.height=10;			// apply minimum height
-			// should we make union with [self visibleRect]?
+			if(r.size.height < minH)
+				r.size.height=minH;			// apply minimum height
+#if 0
+			NSLog(@"self visibleRect %@", NSStringFromRect([self visibleRect]));
+			NSLog(@"superview bounds %@", NSStringFromRect([super_view bounds]));
+#endif
 			c.size.height = NSMaxY(r);		// adjust column rect to real height (rectOfColumn return is not reliable)
 			r.size.width = NSMaxX(c);		// adjust row rect to real width (rectOfRow return is not reliable)
 #if 0
@@ -1756,6 +1761,7 @@ int index = [self columnWithIdentifier:identifier];
 			[_headerView setFrame:h];	// adjust our header view
 										//	[_headerView resetCursorRects];
 			[super setFrame:r];	// does nothing if we did not really change
+			_tv.needsTiling=NO;
 			}
 		}
 	[self setNeedsDisplay:YES];
@@ -1785,7 +1791,8 @@ int index = [self columnWithIdentifier:identifier];
 #if 0
 	NSLog(@"drawRect of %@: %@", self, NSStringFromRect(rect));
 #endif
-
+	if(_tv.needsTiling)
+		NSLog(@"table view needs tiling");
 	if(_cacheOrigin != NSMinX(rect) || (_cacheWidth != NSWidth(rect)))
 		{
 		_cacheOrigin = NSMinX(rect);						// cache col origin
@@ -2101,6 +2108,7 @@ int index = [self columnWithIdentifier:identifier];
 #endif
 		_numberOfRows=NSNotFound;	// recache
 		_tv.initializing=NO;
+		_tv.needsTiling=YES;
 		return self;
 		}
 	[aDecoder decodeValueOfObjCType: "i" at: &_lastSelectedColumn];

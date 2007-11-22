@@ -103,6 +103,7 @@ typedef enum NSTableViewDropOperation {
 		UIBITFIELD(unsigned int, autosaveTableColumns, 1);
 		UIBITFIELD(unsigned int, verticalMotionCanBeginDrag, 1);
 		UIBITFIELD(unsigned int, initializing, 1);
+		UIBITFIELD(unsigned int, needsTiling, 1);
 		} _tv;
 }
 

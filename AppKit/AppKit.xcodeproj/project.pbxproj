@@ -643,6 +643,9 @@
 		EEDB378D0ABD584F00C31F1E /* myTest.icns in Resources */ = {isa = PBXBuildFile; fileRef = EEDB37850ABD584F00C31F1E /* myTest.icns */; };
 		EEDB37900ABD592900C31F1E /* rss.gif in Resources */ = {isa = PBXBuildFile; fileRef = EEDB378F0ABD592900C31F1E /* rss.gif */; };
 		EEDB37910ABD592900C31F1E /* rss.gif in Resources */ = {isa = PBXBuildFile; fileRef = EEDB378F0ABD592900C31F1E /* rss.gif */; };
+		EEEBB1DD0CF4C279003B9D6E /* 1bK Copy.png in Resources */ = {isa = PBXBuildFile; fileRef = EEEBB1DC0CF4C279003B9D6E /* 1bK Copy.png */; };
+		EEEBB1DE0CF4C279003B9D6E /* 1bK Copy.png in Resources */ = {isa = PBXBuildFile; fileRef = EEEBB1DC0CF4C279003B9D6E /* 1bK Copy.png */; };
+		EEEBB1DF0CF4C279003B9D6E /* 1bK Copy.png in Resources */ = {isa = PBXBuildFile; fileRef = EEEBB1DC0CF4C279003B9D6E /* 1bK Copy.png */; };
 		EEF5292E0A55355E0049AF3C /* NSTypesetter.h in Headers */ = {isa = PBXBuildFile; fileRef = EEF5292D0A55355E0049AF3C /* NSTypesetter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEF5292F0A55355E0049AF3C /* NSTypesetter.h in Headers */ = {isa = PBXBuildFile; fileRef = EEF5292D0A55355E0049AF3C /* NSTypesetter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEF5298F0A554ABB0049AF3C /* GSComboBoxH.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEF5298E0A554ABB0049AF3C /* GSComboBoxH.tiff */; };
@@ -1006,6 +1009,7 @@
 		EEDB378F0ABD592900C31F1E /* rss.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = rss.gif; sourceTree = "<group>"; };
 		EEDB39880ABDA06200C31F1E /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = /opt/local/include; sourceTree = "<absolute>"; };
 		EEDB5E570A1497C600E4CA39 /* HISTORY.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = HISTORY.rtf; path = ../HISTORY.rtf; sourceTree = SOURCE_ROOT; };
+		EEEBB1DC0CF4C279003B9D6E /* 1bK Copy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "1bK Copy.png"; sourceTree = "<group>"; };
 		EEF5292D0A55355E0049AF3C /* NSTypesetter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSTypesetter.h; sourceTree = "<group>"; };
 		EEF5298E0A554ABB0049AF3C /* GSComboBoxH.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSComboBoxH.tiff; sourceTree = "<group>"; };
 		EEF529940A554AF50049AF3C /* GSDiscloseH.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSDiscloseH.tiff; sourceTree = "<group>"; };
@@ -1584,6 +1588,7 @@
 			isa = PBXGroup;
 			children = (
 				EEDB37820ABD584F00C31F1E /* 1bK.png */,
+				EEEBB1DC0CF4C279003B9D6E /* 1bK Copy.png */,
 				EEDB37830ABD584F00C31F1E /* Default.tiff */,
 				EEDB37840ABD584F00C31F1E /* Lion.jpg */,
 				EEDB37850ABD584F00C31F1E /* myTest.icns */,
@@ -2131,6 +2136,7 @@
 				EEDB37880ABD584F00C31F1E /* Lion.jpg in Resources */,
 				EEDB37890ABD584F00C31F1E /* myTest.icns in Resources */,
 				EEDB37900ABD592900C31F1E /* rss.gif in Resources */,
+				EEEBB1DE0CF4C279003B9D6E /* 1bK Copy.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2220,6 +2226,7 @@
 				EEDB378C0ABD584F00C31F1E /* Lion.jpg in Resources */,
 				EEDB378D0ABD584F00C31F1E /* myTest.icns in Resources */,
 				EEDB37910ABD592900C31F1E /* rss.gif in Resources */,
+				EEEBB1DD0CF4C279003B9D6E /* 1bK Copy.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2233,6 +2240,7 @@
 				EE0AC3B10C355F5600782ABF /* Lion.jpg in Resources */,
 				EE0AC3B20C355F5600782ABF /* myTest.icns in Resources */,
 				EEC8035609AE4EBF006EEB03 /* MainMenu.nib in Resources */,
+				EEEBB1DF0CF4C279003B9D6E /* 1bK Copy.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

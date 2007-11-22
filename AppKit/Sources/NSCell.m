@@ -301,19 +301,22 @@ static NSCursor *__textCursor = nil;
 - (float) floatValue;						{ return [_contents floatValue]; }
 - (int) intValue							{ return [_contents intValue]; }
 
+// FIXME: the formatter should be applied when setting the object - not when drawing!!!
+
 - (void) setObjectValue:(id <NSCopying>)anObject
 {
 #if 0
 	NSLog(@"%@ setObjectValue:%@ (_contents=%@)", self, anObject, _contents);
 #endif
-	if(anObject == _contents)
-		return;	// needn't do anything
 	if(_c.editing)
 		[_controlView abortEditing];
-	if(anObject && _c.type != NSTextCellType)
-		[self setType:NSTextCellType];	// make us a text cell
+	if(anObject == _contents)
+		return;	// needn't do anything
 	[_contents autorelease];
-	_contents=[anObject copyWithZone:NULL];	// save a copy
+	if(_c.type == NSTextCellType)
+		_contents=[anObject copyWithZone:NULL];	// save a copy (of a mutable string)
+	else
+		_contents=[anObject retain];	// copying an NSImage objectValue (e.g. the result of a TableView's dataSource) would cause a lot of trouble if it is not yet valid...
 #if 0
 	NSLog(@"%@ setObjectValue done:", self);
 #endif
@@ -336,6 +339,8 @@ static NSCursor *__textCursor = nil;
 
 - (void) setStringValue:(NSString*)aString
 {
+	if(aString && _c.type != NSTextCellType)
+		[self setType:NSTextCellType];	// make us a text cell
 	if([_contents isKindOfClass:[NSString class]] && [_contents isEqualToString:aString])
 		return;	// no change
 	[self setObjectValue:aString];
@@ -646,6 +651,8 @@ static NSCursor *__textCursor = nil;
 		return;
 	[self drawInteriorWithFrame:cellFrame inView:controlView];
 }
+
+// FIXME: the formatter should be applied when setting the object - not when drawing!!!
 
 - (void) _getFormattedString:(NSString **) string withAttribs:(NSDictionary **) attribs orAttributedString:(NSAttributedString **) astring ignorePlaceholder:(BOOL) flag;	// whichever is more convenient
 { // get whatever you have

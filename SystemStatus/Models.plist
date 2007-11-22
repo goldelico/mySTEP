@@ -2,17 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Linux</key>
-	<dict>
-		<key> Notes</key>
-		<string>Generic Linux entries</string>
-		<key>Battery</key>
-		<string>/proc/apm</string>
-		<key>Bluetooth Tool</key>
-		<string>/bin/hcitool</string>
-		<key>Bluetooth Status</key>
-		<string>/bin/hciconfig</string>
-	</dict>
 	<key>Acer-N30</key>
 	<dict>
 		<key> Notes</key>
@@ -21,6 +10,8 @@
 		<string>echo "0" &gt;/sys/bus/platform/devices/s3c2410-bl/power/state</string>
 		<key>Bluetooth On</key>
 		<string>echo "1" &gt;/sys/bus/platform/devices/s3c2410-bl/power/state ; hciattach /dev/ttySAC2 bcsp 115200 noflow</string>
+		<key>Inherit</key>
+		<string>Linux</string>
 		<key>IrDA Discovery</key>
 		<string>cat /proc/net/irda/discovery</string>
 		<key>IrDA Off</key>
@@ -33,13 +24,9 @@
 		<string>?</string>
 		<key>Sleep</key>
 		<string>?</string>
-		<key>Inherit</key>
-		<string>Linux</string>
 	</dict>
 	<key>GTA01</key>
 	<dict>
-		<key>Inherit</key>
-		<string>Linux</string>
 		<key>Bluetooth Off</key>
 		<string>echo "0" &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
 		<key>Bluetooth On</key>
@@ -50,12 +37,25 @@
 		<string>echo "0" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
 		<key>GSM On</key>
 		<string>echo "1" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
+		<key>Inherit</key>
+		<string>Linux</string>
 		<key>Product</key>
 		<string>OpenMoko GTA01</string>
 		<key>Shutdown</key>
 		<string>?</string>
 		<key>Sleep</key>
 		<string>(sleep 1; echo mem &gt; /sys/power/state) &amp;&amp; exit</string>
+	</dict>
+	<key>Linux</key>
+	<dict>
+		<key> Notes</key>
+		<string>Generic Linux entries</string>
+		<key>Battery</key>
+		<string>/proc/apm</string>
+		<key>Bluetooth Status</key>
+		<string>/bin/hciconfig</string>
+		<key>Bluetooth Tool</key>
+		<string>/bin/hcitool</string>
 	</dict>
 	<key>SL-C1000</key>
 	<dict>
@@ -107,8 +107,6 @@
 	</dict>
 	<key>Zaurus</key>
 	<dict>
-		<key>Inherit</key>
-		<string>Linux</string>
 		<key> Notes</key>
 		<string>deprecated entries are: cardctl, PCMCIA, </string>
 		<key>GSM Commands</key>
@@ -136,6 +134,8 @@
 		<string>cardctl 0 resume</string>
 		<key>GSM Resumed</key>
 		<string>/sbin/setserial %@ uart 16550a</string>
+		<key>Inherit</key>
+		<string>Linux</string>
 		<key>IrDA Discovery</key>
 		<string>cat /proc/net/irda/discovery</string>
 		<key>IrDA Off</key>
@@ -153,7 +153,7 @@
 		<key>Shutdown</key>
 		<string>?</string>
 		<key>Sleep</key>
-		<string>?</string>
+		<string>echo suspend &gt; /dev/zapmd &amp;</string>
 		<key>apm</key>
 		<string>/proc/apm</string>
 	</dict>
