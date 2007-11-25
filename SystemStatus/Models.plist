@@ -18,6 +18,8 @@
 		<string>?</string>
 		<key>IrDA On</key>
 		<string>irattach /dev/ttySAC1 -s</string>
+		<key>IrDA Serial</key>
+		<string>/dev/ttySAC1</string>
 		<key>Product</key>
 		<string>Acer n30 with Letux</string>
 		<key>Shutdown</key>
@@ -31,12 +33,16 @@
 		<string>echo "0" &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
 		<key>Bluetooth On</key>
 		<string>echo "1" &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
+		<key>GPS Serial</key>
+		<string>/dev/unknown</string>
 		<key>GSM Commands</key>
 		<dict/>
 		<key>GSM Off</key>
-		<string>echo "0" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
+		<string>stty -F /dev/ttySAC0 -crtscts; echo "0" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 -echo; echo "1" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 crtscts; sleep 1; echo -e "AT@POFF\r" &gt;/dev/ttySAC0; sleep 1; stty -F /dev/ttySAC0 -crtscts; echo "0" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
 		<key>GSM On</key>
-		<string>echo "1" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
+		<string>stty -F /dev/ttySAC0 -echo; echo "1" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
+		<key>GSM Serial</key>
+		<string>/dev/ttySAC0</string>
 		<key>Inherit</key>
 		<string>Linux</string>
 		<key>Product</key>
@@ -142,6 +148,8 @@
 		<string>?</string>
 		<key>IrDA On</key>
 		<string>irattach /dev/ttyS2 -s 1</string>
+		<key>IrDA Serial</key>
+		<string>/dev/ttyS2</string>
 		<key>PCMCIA Control</key>
 		<string>/sbin/cardctl</string>
 		<key>PCMCIA Discovery</key>

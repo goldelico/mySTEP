@@ -50,6 +50,7 @@ static NSString *NSRoleKey              = @"CFBundleTypeRole";
 static NSString *NSEditorRole			= @"Editor";
 static NSString *NSViewerRole			= @"Viewer";
 static NSString *NSNoRole				= @"None";
+static NSString *NSShellRole			= @"Shell";
 static NSString *NSHumanReadableNameKey = @"NSHumanReadableName";
 static NSString *NSUnixExtensionsKey    = @"CFBundleTypeExtensions";
 static NSString *NSDOSExtensionsKey     = @"CFBundleTypeDOSExtensions";	// not standard by MacOS X
@@ -291,13 +292,13 @@ becomes the shared instance.
 {
 	NSDictionary *customDict = [[NSBundle mainBundle] infoDictionary];
 	
-	self=[super init];
-	if(self)
+	if((self=[super init]))
 		{
 		ASSIGN (_types, [customDict objectForKey: NSTypesKey]);
 #if 0
 		NSLog(@"types=%@", _types);
 #endif
+		// FIXME: check for valid types: 'Editor', 'Viewer', 'None', or 'Shell'
 		_documents = [[NSMutableArray alloc] init];
 		_controllerFlags.shouldCreateUI = YES;
 		
@@ -324,7 +325,7 @@ becomes the shared instance.
 						name: NSWorkspaceWillPowerOffNotification
 					  object: nil];
 		
-		// register for applicationWillTerminate
+		// FIXME: register for applicationWillTerminate
 
 		NSLog(@"[NSDocumentController init] => %@", self);
 		}

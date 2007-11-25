@@ -2306,7 +2306,7 @@ id prev;
 - (void) setOpaque:(BOOL) flag; { _w.isOpaque=flag; }
 - (BOOL) isOpaque; { return _w.isOpaque; }
 
-- (void) setToolbar:(NSToolbar *) toolbar; { [_themeFrame setToolbar:toolbar]; }
-- (NSToolbar *) toolbar; { return [_themeFrame toolbar]; }
+- (void) setToolbar:(NSToolbar *) toolbar; { [(NSThemeFrame *) _themeFrame setToolbar:toolbar]; }
+- (NSToolbar *) toolbar; { return [(NSThemeFrame *) _themeFrame toolbar]; }
 
 @end /* NSWindow */

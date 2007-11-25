@@ -890,10 +890,10 @@ id __buttonCellClass = nil;
 #endif
 			[_alternateImage release], _alternateImage=nil;
 			}
-		if(_normalImage==nil || [_normalImage isKindOfClass:[NSFont class]])
+		if(_normalImage == nil || [_normalImage isKindOfClass:[NSFont class]])
 			{
 #if 1
-			NSLog(@"strange NSNormalImage %@", _normalImage);
+			NSLog(@"strange NSNormalImage %@ substituting %@", _normalImage, _alternateImage);
 #endif
 			ASSIGN(_normalImage, _alternateImage), [_alternateImage release], _alternateImage=nil;
 			}

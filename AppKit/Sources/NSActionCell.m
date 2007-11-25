@@ -118,8 +118,9 @@ static Class __controlClass;
 
 - (void) setObjectValue:(id <NSCopying>)obj
 {
+	id oldValue=_contents;
 	[super setObjectValue:obj];
-	if (_controlView && ([_controlView isKindOfClass: __controlClass]))
+	if (obj != oldValue && _controlView && ([_controlView isKindOfClass: __controlClass]))
 		[(NSControl *)_controlView updateCell: self];
 }
 

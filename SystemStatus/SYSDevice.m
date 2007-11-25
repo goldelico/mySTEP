@@ -148,6 +148,7 @@ static int intValue(NSString *str)
 
 + (void) _updateCardStatus;
 { // update cards list and status
+	NSString *discovery;
 	FILE *stab;
 	char line[256];
 	int sock=0;
@@ -157,14 +158,15 @@ static int intValue(NSString *str)
 	SYSDevice *card;
 	NSNotificationCenter *n=[NSNotificationCenter defaultCenter];
 	[self deviceList];   // initialize if required
-	if(![NSSystemStatus sysInfoForKey:@"PCMCIA Discovery"])
+	discovery=[NSSystemStatus sysInfoForKey:@"PCMCIA Discovery"];
+	if(!discovery)
 		{ // not available
-		NSLog(@"Device does not support PCMCIA cards");
-		[self updateDeviceList:NO];	// don't update any more
-		return;	// don't try again
+		NSLog(@"Device not configured for PCMCIA cards");
+		[self updateDeviceList:NO];	// don't try again
+		return;
 		}
-	// pipe everything we can find into a single FILE * - we will fiddle out by detecting the format
-	stab=popen([[NSSystemStatus sysInfoForKey:@"PCMCIA Discovery"] cString], "r");  // open subprocess
+	// pipes everything we can find into a single FILE * - we will fiddle out by detecting the format
+	stab=popen([discovery cString], "r");  // open subprocess
 	if(!stab)
 		{ // can't read
 		NSLog(@"can't read device status");

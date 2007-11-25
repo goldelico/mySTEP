@@ -52,7 +52,7 @@ If not, write to the Free Software Foundation,
 static NSNotificationCenter *nc = nil;
 // static const int current_version = 1;
 
-int NSOutlineViewDropOnItemIndex = -1;
+// int NSOutlineViewDropOnItemIndex = -1;
 
 static int lastVerticalQuarterPosition;
 static int lastHorizontalHalfPosition;

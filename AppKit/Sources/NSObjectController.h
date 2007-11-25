@@ -17,13 +17,12 @@
 
 #import "AppKit/NSController.h"
 #import "AppKit/NSMenuItem.h"
+#import "AppKit/NSUserInterfaceValidation.h"
 
 @class NSString;
 @class NSCoder;
 @class NSFetchRequest; 
 @class NSManagedObjectContext; 
-
-@protocol NSValidatedUserInterfaceItem; 
 
 @interface NSObjectController : NSController <NSCoding>
 {

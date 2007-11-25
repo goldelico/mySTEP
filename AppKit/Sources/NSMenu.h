@@ -27,10 +27,11 @@
 @class NSMenu;		// forward declaration for NSMenuItem protocol
 @class NSMenuItem; 
 
+#if 1	// DEPRECATED
+
 // according to the documentation, this protocol is defined in NSMenuItem.h
 // but we need it here anyway.
 // if you want to import this protocol (only), please use NSMenuItem.h!
-
 
 @protocol NSMenuItem  <NSCopying, NSCoding>
 
@@ -85,6 +86,8 @@
 - (NSString*) userKeyEquivalentModifier;
 
 @end
+
+#endif
 
 @interface NSMenu : NSObject  <NSCoding, NSCopying>
 {

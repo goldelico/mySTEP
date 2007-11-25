@@ -305,6 +305,7 @@ static NSCursor *__textCursor = nil;
 
 - (void) setObjectValue:(id <NSCopying>)anObject
 {
+	id oldContents;
 #if 0
 	NSLog(@"%@ setObjectValue:%@ (_contents=%@)", self, anObject, _contents);
 #endif
@@ -312,11 +313,12 @@ static NSCursor *__textCursor = nil;
 		[_controlView abortEditing];
 	if(anObject == _contents)
 		return;	// needn't do anything
-	[_contents autorelease];
+	oldContents=_contents;
 	if(_c.type == NSTextCellType)
 		_contents=[anObject copyWithZone:NULL];	// save a copy (of a mutable string)
 	else
-		_contents=[anObject retain];	// copying an NSImage objectValue (e.g. the result of a TableView's dataSource) would cause a lot of trouble if it is not yet valid...
+		_contents=[(NSObject *) anObject retain];	// copying an NSImage objectValue (e.g. the result of a TableView's dataSource) would cause a lot of trouble if it is not yet valid...
+	[oldContents release];
 #if 0
 	NSLog(@"%@ setObjectValue done:", self);
 #endif
