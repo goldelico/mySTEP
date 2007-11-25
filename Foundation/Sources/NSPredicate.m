@@ -655,6 +655,8 @@
 		case NSBeginsWithPredicateOperatorType: comp=@"BEGINSWITH"; break;
 		case NSEndsWithPredicateOperatorType: comp=@"ENDSWITH"; break;
 		case NSInPredicateOperatorType: comp=@"IN"; break;
+		case NSContainsPredicateOperatorType: comp=@"CONTAINS"; break;
+		case NSBetweenPredicateOperatorType: comp=@"BETWEEN"; break;
 		case NSCustomSelectorPredicateOperatorType:
 			{
 				comp=NSStringFromSelector(_selector);

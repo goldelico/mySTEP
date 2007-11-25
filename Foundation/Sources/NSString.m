@@ -713,7 +713,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			format_to_go = spec_pos+1;
 			}
 		arg=(id) va_arg(arg_list, id);
-//		fprintf(stderr, "arg=%p\n", arg);
+//		fprintf(stderr, "arg.1=%p\n", arg);
 		if(arg && ![arg isKindOfClass:[NSString class]])
 			{ // not yet a string
 			if(locale && [arg respondsToSelector:@selector(descriptionWithLocale:)])
@@ -723,7 +723,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			}
 		if(!arg)
 			arg=@"<nil>";	// nil object or description
-//		fprintf(stderr, "arg2=%p\n", arg);
+//		fprintf(stderr, "arg.2=%p\n", arg);
 		[result appendString:arg];
 		format_to_go = atsign_pos + 2;				// Skip over this `%@', and look for another one.
 		}

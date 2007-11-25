@@ -132,20 +132,19 @@ GSRemoveFromQueue(NSNotificationQueueList *queue, GSQueueRegistration *item)
 
 - (id) init
 {
-NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-
+	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     return [self initWithNotificationCenter: nc];
 }
 
 - (id) initWithNotificationCenter:(NSNotificationCenter*)notificationCenter
 {
-InstanceList *regItem;
+	InstanceList *regItem;
 
     _center = [notificationCenter retain];					// init queue
     _asapQueue = objc_calloc(1, sizeof(NSNotificationQueueList));
     _idleQueue = objc_calloc(1, sizeof(NSNotificationQueueList));
 
-    regItem = objc_calloc(1, sizeof(InstanceList));				// insert in global 
+    regItem = objc_calloc(1, sizeof(InstanceList));			// insert in global 
 	regItem->next = __notificationQueues;					// list of queues
 	regItem->queue = self;
 	__notificationQueues = regItem;

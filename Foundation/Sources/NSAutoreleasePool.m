@@ -251,7 +251,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 				{
 				*p++=nil;	// take out of the list
 #if 0
-				fprintf(stderr, "ARP: release %p\n", anObject);
+				fprintf(stderr, "ARP: release object %p\n", anObject);
 #endif
 				[anObject release];
 				}

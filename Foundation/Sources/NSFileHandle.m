@@ -135,14 +135,19 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	return self;
 }
 
+- (void) finalize;
+{
+	if(_closeOnDealloc)
+		[self closeFile];
+	[self _setReadMode:kIsNotWaiting inModes:nil];	// cancel any pending request(s)
+}
+
 - (void) dealloc;
 {
 #if 0
 	NSLog(@"NSFileHandle dealloc");
 #endif
-	if(_closeOnDealloc)
-		[self closeFile];
-	[self _setReadMode:kIsNotWaiting inModes:nil];	// cancel any pending request(s)
+	[self finalize];
 	[_inputStream release];
 	[_outputStream release];
 	[super dealloc];
@@ -179,7 +184,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 - (NSData *) availableData;
 { // read as much as we can get but don't block
 	int fd;
-	NSData *r;
+	NSData *r=nil;
 	unsigned char *buffer;
 	unsigned int len;
 	if([_inputStream getBuffer:&buffer length:&len])
@@ -190,7 +195,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 		r=[self readDataToEndOfFile];
 	NS_HANDLER
 		fcntl(fd, F_SETFL, O_ASYNC);	// back to normal operation even in case of an exception
-		[localException raise];	// re-raise
+		[localException raise];			// re-raise
 	NS_ENDHANDLER
 	fcntl(fd, F_SETFL, O_ASYNC);		// back to normal operation
 	return r;
@@ -204,7 +209,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	unsigned long bufpos=0;
 	unsigned int ulen;
 	int len;
-#if 1
+#if 0
 	NSLog(@"readDataOfLength %u", length);
 #endif
 	if([_inputStream getBuffer:&buffer length:&ulen])

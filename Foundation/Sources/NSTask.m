@@ -47,51 +47,47 @@ static void _catchChildExit(int sig);
 static NSMutableArray *__taskList = nil;
 static NSNotification *__taskDidTerminate = nil;	// notification sent to NSTask class on SIGCHLD
 static BOOL __notifyTaskDidTerminate=YES;
+static int __childExitCount=0;
 static NSNotificationQueue *__notificationQueue = nil;
 NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 
 @implementation NSTask
 
 - (void) _collectChild
-{
-    if (!_task.hasCollected) 
+{ // collect termination status
+	if (waitpid(_taskPID, &_terminationStatus, WNOHANG) == _taskPID) 
 		{
-		if (waitpid(_taskPID, &_terminationStatus, WNOHANG) == _taskPID) 
-			{
-			_task.hasCollected = YES;
-			_task.hasTerminated = YES;
-
-	    	if (WIFEXITED(_terminationStatus)) 
-				_terminationStatus = WEXITSTATUS(_terminationStatus);
-			}
-
-    	if (_task.hasTerminated && !_task.hasNotified)
-			{ // post notification immediately
-			NSNotificationQueue *nq = [NSNotificationQueue defaultQueue];
-
-			_task.hasNotified = YES;
-			[nq enqueueNotification:NOTE(DidTerminate)
-				postingStyle:NSPostNow
-				coalesceMask:NSNotificationNoCoalescing
-				forModes:nil];
-			[__taskList removeObject:self];
-			}
+		_task.hasCollected = YES;
+		_task.hasTerminated = YES;
+		
+		if (WIFEXITED(_terminationStatus)) 
+			_terminationStatus = WEXITSTATUS(_terminationStatus);
 		}
-}
-
-+ (void) _taskDidTerminate:(NSNotification *)aNotification
-{ // we receive this notification immediately from the runloop after _catchChildExit()
-	NSAutoreleasePool *pool = [NSAutoreleasePool new];
-	NSEnumerator *enumerator = [__taskList reverseObjectEnumerator];
-	NSTask *anObject;
-
-	__notifyTaskDidTerminate=YES;	// reenable queuing another notification
-
-	while ((anObject = (NSTask*)[enumerator nextObject]))
-		if (!anObject->_task.hasCollected)
-			[anObject _collectChild];
-
-    [pool release];
+	
+	if (_task.hasTerminated && !_task.hasNotified)
+		{ // post notification immediately
+		NSNotificationQueue *nq = [NSNotificationQueue defaultQueue];
+		
+		_task.hasNotified = YES;
+#if 0
+		NSLog(@"task did terminate: %@ %p", self, self);
+		NSLog(@"a. tasklist count=%d", [__taskList count]);
+#endif
+		[nq enqueueNotification:NOTE(DidTerminate)
+				   postingStyle:NSPostNow
+				   coalesceMask:NSNotificationNoCoalescing
+					   forModes:nil];	// this might add new objects!
+#if 0
+		NSLog(@"b. tasklist count=%d", [__taskList count]);
+		NSLog(@"b. tasklist=%@", __taskList);
+#endif
+		[__taskList removeObjectIdenticalTo:self];	// may issue a [self dealloc]
+		__childExitCount--;
+#if 0
+		NSLog(@"c. tasklist count=%d", [__taskList count]);
+		NSLog(@"c. tasklist=%@", __taskList);
+#endif
+		}
 }
 
 + (void) initialize
@@ -134,8 +130,8 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 
 - (void) dealloc
 {
-#if 1
-	NSLog(@"NSTask dealloc");
+#if 0
+	NSLog(@"NSTask dealloc %@", self);
 #endif
 	[_standardInput release];
 	[_standardOutput release];
@@ -245,24 +241,11 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 
     if (!_task.hasCollected)
 		[self _collectChild];
+    if (!_task.hasCollected)
+		[NSException raise: NSInvalidArgumentException
+					format: @"NSTask - could not collect termination status"];
 
     return _terminationStatus;
-}
-
-- (void) interrupt
-{
-    if (_task.hasLaunched == NO) 
-		[NSException raise: NSInvalidArgumentException
-					format: @"NSTask - task has not yet launched"];
-	
-	if (!_task.hasTerminated)
-		{
-#ifdef HAVE_KILLPG
-		killpg(_taskPID, SIGINT);
-#else
-		kill(_taskPID, SIGINT);
-#endif
-		}
 }
 
 static int getfd(NSTask *self, id object, BOOL read, int def)
@@ -343,6 +326,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 	NSLog(@"cd %s; %s %s %s ...", path, args[0], args[1]!=NULL?args[1]:"", (args[1]!=NULL&&args[2]!=NULL)?args[2]:"");
 	NSLog(@"stdin=%d stdout=%d stderr=%d", idesc, odesc, edesc);
 #endif
+	_task.hasLaunched = YES;		// we may receive the SIGCHLD before our fork returns...
     switch (pid = fork())									// fork to create
 		{													// a child process
 		case -1:
@@ -353,7 +337,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 #if 0
 			NSLog(@"child process");
 #endif
-			// WARNING - don't raise NSExceptions here or we will end up in two instances of the calling task!
+			// WARNING - don't raise NSExceptions here or we will end up in two instances of the calling task with shared address space!
 			if(idesc != 0)	
 				dup2(idesc, 0), close(idesc); // redirect
 			if(odesc != 1)
@@ -380,7 +364,6 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 		default:						
 			{ // parent process -- fork returns PID of child
 			_taskPID = pid;
-			_task.hasLaunched = YES;
 			// close unused ends of NSPipes to free up file descriptors
 			if([_standardInput isKindOfClass:[NSPipe class]])
 				[[_standardInput fileHandleForReading] closeFile];
@@ -390,6 +373,22 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 				[[_standardError fileHandleForWriting] closeFile];
 			break;
 			}
+		}
+}
+
+- (void) interrupt
+{
+    if (_task.hasLaunched == NO) 
+		[NSException raise: NSInvalidArgumentException
+					format: @"NSTask - task has not yet launched"];
+	
+	if (!_task.hasTerminated)
+		{
+#ifdef HAVE_KILLPG
+		killpg(_taskPID, SIGINT);
+#else
+		kill(_taskPID, SIGINT);
+#endif
 		}
 }
 
@@ -434,30 +433,72 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 
 - (void) waitUntilExit
 {
+#if 0
+	NSLog(@"waitUntilExit");
+#endif
     while([self isRunning])
 		{
-#if OLD
-		NSDate *d = [[NSDate alloc] initWithTimeIntervalSinceNow: 1.0]; // Poll at 1.0 second intervals.
-		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:d];
-		[d release];
+		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];	// will return if we catch a signal, e.g. SIGCHLD
+		}
+#if 0
+	NSLog(@"didExit %@", self);
 #endif
-		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];	// will return if we catch SIGCHLD
+}
+
++ (void) _taskDidTerminate:(NSNotification *)aNotification
+{ // we receive this notification from the runloop at next idle time after _catchChildExit()
+	do
+		{
+			NSAutoreleasePool *pool = [NSAutoreleasePool new];
+			NSEnumerator *enumerator = [__taskList reverseObjectEnumerator];
+			NSTask *anObject;
+			while ((anObject = (NSTask*)[enumerator nextObject]))
+				{
+				if (!anObject->_task.hasCollected)
+					[anObject _collectChild];	// this may release the task
+				}
+#if 0
+			NSLog(@"d. tasklist count=%d", [__taskList count]);
+			NSLog(@"d. tasklist=%@", __taskList);
+#endif
+			[pool release];
+#if 0
+			NSLog(@"e. tasklist count=%d", [__taskList count]);
+#endif
+		} while(__childExitCount > 0 && [__taskList count] > 0);	// we have lost some signal while processing the task loop
+	__notifyTaskDidTerminate=YES;	// reenable queuing another notification
+	if(__childExitCount != 0)
+		{
+		NSLog(@"did probably loose %d SIGCHLD notification(s)", __childExitCount);
+		NSLog(@"  tasklist count=%d", [__taskList count]);
+		NSLog(@"  tasklist=%@", __taskList);
 		}
 }
 
 @end
 
 static void _catchChildExit(int sig)								
-{
-#if 1
-	NSLog(@"_catchChildExit");
+{ // this is a signal handler - don't call NSLog here or put anything into an ARP
+#if 0
+	fprintf(stderr, "_catchChildExit %d\n", sig);
 #endif
-	if(sig == SIGCHLD && __notifyTaskDidTerminate)
+	if(sig == SIGCHLD)
 		{
-		[__notificationQueue enqueueNotification:__taskDidTerminate
-							 postingStyle:NSPostWhenIdle	// a signal interrupts the runloop like Idle mode
-							 coalesceMask:NSNotificationNoCoalescing
-							 forModes:nil];
-		__notifyTaskDidTerminate=NO;	// ignore until we have processed this notification - might this create a short blind period?
+		__childExitCount++;
+		if(__notifyTaskDidTerminate)
+			{
+			__notifyTaskDidTerminate=NO;	// ignore further signals until we have received this notification through the runloop - CHECKME: might this create a short blind period?
+			[__notificationQueue enqueueNotification:__taskDidTerminate
+										postingStyle:NSPostWhenIdle	// a signal interrupts the runloop like Idle mode
+										coalesceMask:NSNotificationNoCoalescing	// NSNotificationCoalescingOnName?
+											forModes:nil];
+#if 0
+			fprintf(stderr, "_catchChildExit notification queued count=%d\n", __childExitCount);
+#endif
+			}
+#if 0
+		else
+			fprintf(stderr, "_catchChildExit skipped count=%d\n", __childExitCount);
+#endif
 		}
 }

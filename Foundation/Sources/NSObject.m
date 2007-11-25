@@ -45,6 +45,17 @@ static NSMapTable *__zombieMap;	// map object addresses to object descriptions
 	return NULL;
 }	
 
+#if 0
+- (BOOL) isKindOfClass:(Class)aClass
+{
+	NSString *s=NSMapGet(__zombieMap, (void *) self);
+	NSLog(@"asking zombied object %p for isKindOfClass: %@", self, NSStringFromClass(aClass));
+	NSLog(@"obj=%@", s);
+	abort();
+	return NO;
+}
+#endif
+
 @end
 
 BOOL													// Increment, decrement
@@ -268,15 +279,23 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (oneway void) release
 {
-	if (((_object_layout)(self))[-1].retained-- == 0)				// if ref count is zero
+	if (((_object_layout)(self))[-1].retained == 0)				// if ref count becomes zero (was 1)
 		{
 		if(NSZombieEnabled)
 			{
+			NSAutoreleasePool *arp=[NSAutoreleasePool new];
+			NSZombieEnabled=NO;	// don't Zombie temporaries while we get the description
 			if(!__zombieMap)
 				__zombieMap=NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
 											 NSObjectMapValueCallBacks, 200);
+#if 0
+			if([self isKindOfClass:[NSTask class]])
+				NSLog(@"zombiing %p: %@", self, [self description]);
+#endif
 			NSMapInsert(__zombieMap, (void *) self, [self description]);		// save last object description before making it a zombie
 			isa=objc_lookup_class("_NSZombie");		// _NSZombie does fail for all method calls, especially a second release after dealloc
+			[arp release];
+			NSZombieEnabled=YES;
 			}
 		else
 			{
@@ -284,14 +303,17 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 			if([self isKindOfClass:[NSData class]])
 				NSLog(@"dealloc %p", self);
 #endif
-			[self dealloc];				// dealloc, else just decrement the count
+			((_object_layout)(self))[-1].retained--;
+			[self dealloc];				// dealloc
 			}
 		}
+	else
+		((_object_layout)(self))[-1].retained--;
 }
 
 - (void) finalize
 {
-	// garbage collect
+	return;	// default for garbage collection
 }
 
 - (id) retain
@@ -400,6 +422,11 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
     return m ? [NSMethodSignature signatureWithObjCTypes:m->method_types] :nil;
 }
 
+- (id) forwardingTargetForSelector:(SEL) sel;
+{
+	return self;
+}
+
 @end
 
 @implementation NSObject (NSObjCRuntime)					// special
@@ -410,7 +437,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 { // called by runtime
 	retval_t r;
 	NSInvocation *inv;
-#if 1
+#if 0
 	int i;
 	NSLog(@"NSObject -forward:@selector(%@):", NSStringFromSelector(aSel));
 	NSLog(@"Object=%@", self);
@@ -431,6 +458,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 		[self doesNotRecognizeSelector:aSel];
 		return nil;
 		}
+	[inv setTarget:[self forwardingTargetForSelector:aSel]];
 	[self forwardInvocation:inv];
 #if 0
 	NSLog(@"invocation forwarded. Returning result");

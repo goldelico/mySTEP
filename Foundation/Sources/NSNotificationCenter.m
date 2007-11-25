@@ -108,8 +108,8 @@ static NSNotificationCenter *_defaultCenter = nil;
 
 - (void) addObjectsToList:(NSMutableArray*)list
 {
-NSHashEnumerator items = NSEnumerateHashTable(observerItems);
-id reg;
+	NSHashEnumerator items = NSEnumerateHashTable(observerItems);
+	id reg;
 
     while((reg = (id)NSNextHashEnumeratorItem(&items)))
 		[list addObject:reg];
@@ -117,7 +117,7 @@ id reg;
 
 - (void) addObserver:(id)observer selector:(SEL)selector
 {
-GSNoteObserver *reg = [[GSNoteObserver alloc] autorelease];
+	GSNoteObserver *reg = [[GSNoteObserver alloc] autorelease];
 
 	reg->observer = observer;
 	reg->selector = selector;
@@ -126,10 +126,10 @@ GSNoteObserver *reg = [[GSNoteObserver alloc] autorelease];
 
 - (void) removeObserver:(id)observer
 {
-GSNoteObserver *reg;
-int i, count = NSCountHashTable(observerItems);
-NSMutableArray *list = [[NSMutableArray alloc] initWithCapacity:count];
-NSHashEnumerator itemsEnum = NSEnumerateHashTable(observerItems);
+	GSNoteObserver *reg;
+	int i, count = NSCountHashTable(observerItems);
+	NSMutableArray *list = [[NSMutableArray alloc] initWithCapacity:count];
+	NSHashEnumerator itemsEnum = NSEnumerateHashTable(observerItems);
 
 	[list autorelease];
     
@@ -194,7 +194,7 @@ id list;
 
 - (void) addObserver:(id)observer selector:(SEL)selector object:(id)object
 {
-GSNoteObjectObservers *reg;
+	GSNoteObjectObservers *reg;
     
     if (object) 
 		{

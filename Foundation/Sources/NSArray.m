@@ -58,8 +58,7 @@ static Class __stringClass = Nil;
 	_contents = contents;
 	_array = [anArray retain];
 	_index = [_array count] - 1;
-	
-	return [self autorelease];
+	return self;
 }
 
 - (void) dealloc
@@ -68,9 +67,7 @@ static Class __stringClass = Nil;
 	[super dealloc];
 }
 
-// FIXME: this returns the full array - not only the remaining entries!
-
-- (NSArray *) allObjects				{ return _array; }
+- (NSArray *) allObjects	{ NSArray *all=[_array subarrayWithRange:NSMakeRange(0, _index)]; _index=-1; return all; }
 
 - (id) nextObject
 {
@@ -93,8 +90,7 @@ static Class __stringClass = Nil;
 	_contents = contents;
 	_array = [anArray retain];
 	_count = [_array count];
-
-	return [self autorelease];
+	return self;
 }
 
 - (id) nextObject
@@ -102,10 +98,12 @@ static Class __stringClass = Nil;
 	return (_index >= _count) ? nil : _contents[_index++];
 }
 
-- (id) previousObject
+- (id) _previousObject	// inofficial!
 {
 	return (_index < 0) ? nil : _contents[_index--];
 }
+
+- (NSArray *) allObjects	{ NSArray *all=[_array subarrayWithRange:NSMakeRange(_index, _count-_index)]; _index=_count; return all; }
 
 @end /* NSArrayEnumerator */
 
@@ -126,7 +124,7 @@ static Class __stringClass = Nil;
 		}
 }
 
-+ (id) array					{ return [[self new] autorelease]; }
++ (id) array { return [[self new] autorelease]; }
 
 + (id) arrayWithArray:(NSArray*)array
 {
@@ -248,7 +246,7 @@ int count;
     return [self initWithObjects:array->_contents count:array->_count];
 }
 
-- (id) init						{ return [self initWithObjects: 0 count: 0]; }
+- (id) init { return [self initWithObjects: NULL count: 0]; }
 
 - (id) initWithObjects:(id*)objects count:(unsigned)count
 {										
@@ -260,6 +258,7 @@ int count;
 			[NSException raise: NSMallocException format:@"malloc failed in NSArray -initWithObjects:count:"];
 
 		for (i = 0; i < count; i++)
+			{
 			if ((_contents[i] = [objects[i] retain]) == nil)
 				{
 				_count = i;
@@ -267,7 +266,7 @@ int count;
 				[NSException raise: NSInvalidArgumentException
 							 format: @"NSArray initWithObjects: Tried to add nil"];
 				}
-
+			}
 		_count = count;
 		}
 
@@ -616,12 +615,12 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 - (NSEnumerator*) objectEnumerator
 {
-	return [[NSArrayEnumerator alloc] initWithArray:self and:_contents];
+	return [[[NSArrayEnumerator alloc] initWithArray:self and:_contents] autorelease];
 }
 
 - (NSEnumerator*) reverseObjectEnumerator
 {
-	return [[NSArrayEnumeratorReverse alloc] initWithArray:self and:_contents];
+	return [[[NSArrayEnumeratorReverse alloc] initWithArray:self and:_contents] autorelease];
 }
 
 - (NSString*) description
@@ -687,6 +686,9 @@ unsigned i = range.location, j;				// beyond end of array then return
 		
 		if(!item)
 			continue;	// should not be possible - but just to be safe!
+#if 0
+		fprintf(stderr, "NSArray descriptionWithLocale item %d %p\n", i, item);
+#endif
 		if (![item isKindOfClass: __stringClass]) 
 			{ 
 			if ([item respondsToSelector: 
@@ -932,64 +934,82 @@ id e, o;
 	[_contents[_count] release];
 }
 
-- (void) removeObjectIdenticalTo:anObject inRange:(NSRange)aRange
+- (void) removeObjectIdenticalTo:(id) anObject inRange:(NSRange)aRange
 {
 	unsigned j, i = MIN(NSMaxRange(aRange), _count);
 	id o;
 
 	while (i-- > aRange.location)
+		{
 		if ((o = _contents[i]) == anObject)
 			{
 			_count--;
+			// FIXME: improve this by using memcpy!
 			for (j = i; j < _count; j++)
 				_contents[j] = _contents[j + 1];
 			[o release];
 			}
+		}
 }
 
-- (void) removeObjectIdenticalTo:anObject
+- (void) removeObjectIdenticalTo:(id) anObject
 { // remove all occurrences!
 	unsigned j, i = _count;
 	id o;
 
 	while (i-- > 0)
+		{
 		if ((o = _contents[i]) == anObject)
 			{
 			_count--;
+			// FIXME: improve this by using memcpy!
 			for (j = i; j < _count; j++)
 				_contents[j] = _contents[j + 1];
+#if 0
+			NSLog(@"removeObjectIdenticalTo: releasing %@", o);
+#endif
 			[o release];
 			}
+		}
 }
 
-- (void) removeObject:anObject inRange:(NSRange)aRange
+- (void) removeObject:(id) anObject inRange:(NSRange)aRange
 {
 	unsigned j, i = MIN(NSMaxRange(aRange), _count);
 	id o;
 
 	while (i-- > aRange.location)
+		{
 		if ((o = _contents[i]) == anObject || [o isEqual: anObject])
 			{
 			_count--;
+			// FIXME: improve this by using memcpy!
 			for (j = i; j < _count; j++)
 				_contents[j] = _contents[j + 1];
 			[o release];
 			}
+		}
 }
 
-- (void) removeObject:anObject
-{ // remove all occurrences!
+- (void) removeObject:(id) anObject
+{ // removes all occurrences!
 	unsigned j, i = _count;
 	id o;
 
 	while (i-- > 0)
+		{
 		if ((o = _contents[i]) == anObject || [o isEqual: anObject])
 			{
 			_count--;
+			// FIXME: improve this by using memcpy!
 			for (j = i; j < _count; j++)
 				_contents[j] = _contents[j + 1];
+#if 0
+			NSLog(@"removeObject: releasing %@", o);
+#endif
 			[o release];
 			}
+		}
 }
 
 - (void) removeObjectAtIndex:(unsigned)idx
@@ -1002,7 +1022,7 @@ id e, o;
 
 	o = _contents[idx];
 	_count--;
-	// FIXME: improve by using memcpy!
+	// FIXME: improve this by using memcpy!
 	for (; idx < _count; idx++)
 		_contents[idx] = _contents[idx + 1];
 	[o release];
