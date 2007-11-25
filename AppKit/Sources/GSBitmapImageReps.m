@@ -799,6 +799,8 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 #if 0
 	NSLog(@"range=%@", NSStringFromRange(NSMakeRange(sizeof(long), sizeof(size))));
 #endif
+	if([self length] < sizeof(long)+sizeof(size))
+		return 0;	// file too short
 	[self getBytes:&size range:NSMakeRange(sizeof(long), sizeof(size))];	// second 4 bytes
 	size=NSSwapBigLongToHost(size);	// is stored in big endian order (i.e. PowerPC) and needs to be swapped for the ARM processor
 	if(size > [self length])
@@ -830,12 +832,24 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 		[self getBytes:&type range:NSMakeRange(off, sizeof(type))];	// type
 		[self getBytes:&size range:NSMakeRange(off+sizeof(type), sizeof(size))];	// size
 		size=NSSwapBigLongToHost(size);	// is stored in big endian order (i.e. PowerPC) and needs to be swapped for the ARM processor
-		if(NSSwapBigLongToHost(type) == t)
-			{ // found!
+		type=NSSwapBigLongToHost(type);
+		if(off+size > cnt)
+			{
 #if 0
-			NSLog(@"subResourceOfType:%4c %08x found", t, t);
+			NSLog(@"subResourceOfType:'%c%c%c%c' %08x length error: off=%u size=%u cnt=%u", type>>24, type>>16, type>>8, type, type, off, size, cnt);
 #endif
-			if(len) *len=size-sizeof(type)-sizeof(size);
+			return nil;	// length error
+			}
+#if 0
+		NSLog(@"subResourceOfType:'%c%c%c%c' %08x found", type>>24, type>>16, type>>8, type, type);
+#endif
+		if(type == t)
+			{ // found!
+			if(len)
+				*len=size-sizeof(type)-sizeof(size);
+#if 0
+			NSLog(@"offset=%u len=%u", off, size);
+#endif
 			return [self subdataWithRange:NSMakeRange(off, size)];	// cut out resource
 			}
 		}

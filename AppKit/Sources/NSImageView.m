@@ -81,16 +81,24 @@ id __imageCellClass = nil;
 {
 	if (!_contents)
 		return (NSSize){ 1, 1 };
-	if(_ic.imageFrameStyle == NSImageFrameNone) 
-		return [_contents size];
-	return NSOffsetRect((NSRect){{ 0, 0 }, [_contents size]}, 3, 3).size;
+	switch(_ic.imageFrameStyle)
+		{
+		case NSImageFrameNone:
+			return [_contents size];
+		default:
+			return NSOffsetRect((NSRect){{ 0, 0 }, [_contents size]}, 3, 3).size;
+		}
 }
 
 - (NSRect) drawingRectForBounds:(NSRect)rect
 {
-	if(_ic.imageFrameStyle == NSImageFrameNone) 
-		return rect;
-	return NSInsetRect(rect, 3, 3);
+	switch(_ic.imageFrameStyle)
+		{
+		case NSImageFrameNone:
+			return rect;
+		default:
+			return NSInsetRect(rect, 3, 3);
+		}
 }
 
 - (void) drawWithFrame:(NSRect)cellFrame
@@ -142,8 +150,15 @@ id __imageCellClass = nil;
 #if 0
 	NSLog(@"NSImageCell drawInRect frame=%@", NSStringFromRect(cFrame));
 #endif
-	rect=[self drawingRectForBounds:cFrame];	// reduce if it has frame
-	rect=NSInsetRect(rect, 4, 4);				// keep frame
+	switch(_ic.imageFrameStyle)
+		{
+		case NSImageFrameNone:
+			rect=cFrame;
+			break;
+		default:
+			rect=NSInsetRect(cFrame, 4, 4);	// keep frame
+			break;
+		}
 #if 0
 	NSLog(@"NSImageCell drawInRect rect=%@", NSStringFromRect(rect));
 #endif

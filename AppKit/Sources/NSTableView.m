@@ -1343,12 +1343,12 @@ int index = [self columnWithIdentifier:identifier];
 		for (i = 0; i < count; i++)
 			if (NSPointInRect(point, [self rectOfRow:i]))
 				return i;
-		return NSNotFound;
+		return -1;
 		}
 	else
 		{
 		if(point.y < 0)
-			return NSNotFound;
+			return -1;
 		return (point.y/(_rowHeight + _intercellSpacing.height));	// we could subtract _intercellSpacing.height/2 so that it jumps halfway between the cells
 		}
 }
@@ -1357,7 +1357,7 @@ int index = [self columnWithIdentifier:identifier];
 {
 	NSRange r;
 	r.location=[self rowAtPoint:rect.origin];
-	if(r.location == NSNotFound)
+	if(r.location < 0)
 		return NSMakeRange(0, 0);
 	r.length=[self rowAtPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect))]-r.location+1;	// round up
 #if OLD
@@ -1537,13 +1537,15 @@ int index = [self columnWithIdentifier:identifier];
 	NSTableColumn *clickedCol;
 	BOOL scrolled=NO;
 
+	if(row >= _numberOfRows)
+		row=-1;	// outside
 	_clickedColumn=[self columnAtPoint:p];
 	_clickedRow=row;
 	if(_lastSelectedRow >= 0)								// pre-existing sel
 		{
 		if ((_lastSelectedRow == row) && [event clickCount] > 1)									
 			{ // double click on selected row
-			if(_clickedRow != NSNotFound && _clickedColumn != NSNotFound && [[_tableColumns objectAtIndex:_clickedColumn] isEditable])
+			if(_clickedRow >= 0 && _clickedColumn >= 0 && [[_tableColumns objectAtIndex:_clickedColumn] isEditable])
 				[self editColumn:_clickedColumn row:row withEvent:event select:NO];
 			else if(_target && _doubleAction)				// double click
 				[_target performSelector:_doubleAction withObject:self];
@@ -1563,7 +1565,7 @@ int index = [self columnWithIdentifier:identifier];
 			[_delegate tableView:self willDisplayCell:_clickedCell forTableColumn:clickedCol row:_clickedRow];	// give delegate a chance to modify the cell
 		}
 		
-	if(row != NSNotFound)
+	if(row >= 0)
 		[self selectRow:row byExtendingSelection:NO];			// select start row
 
 	startRow = lastRow = row;
@@ -1589,7 +1591,7 @@ int index = [self columnWithIdentifier:identifier];
 				previous = current;
 				p = [self convertPoint:current fromView:nil];
 
-				if((row = [self rowAtPoint:p]) != NSNotFound)
+				if((row = [self rowAtPoint:p]) >= 0 && row <= _numberOfRows)
 					{
 					if(!_tv.allowsMultipleSelection)
 						{
@@ -1929,7 +1931,7 @@ int index = [self columnWithIdentifier:identifier];
 		while(rng.length > 0)
 			{
 			NSRect rect=[self rectOfRow:rng.location];
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(rect.origin.x, rect.origin.y+rect.size.height) toPoint:NSMakePoint(rect.origin.x+rect.size.width, rect.origin.y+rect.size.height)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(rect.origin.x, rect.origin.y/*+rect.size.height*/) toPoint:NSMakePoint(rect.origin.x+rect.size.width, rect.origin.y/*+rect.size.height*/)];
 			rng.location++;
 			rng.length--;
 			}

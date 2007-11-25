@@ -39,7 +39,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 + (void) initialize
 {
 	__nameToImageDict = [[NSMutableDictionary alloc] initWithCapacity: 10];
-	[NSBitmapImageRep class]; // initialize NSBitmapImageRep class
+	[NSBitmapImageRep class]; // initialize NSBitmapImageRep class now
 }
 
 + (id) imageNamed:(NSString*)aName
@@ -55,42 +55,49 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	NSString *ext;
 	NSArray *fileTypes;
 	NSImage *image;
-#if 0
-	NSLog(@"load imageNamed %@", aName);
+#if 1
+	NSLog(@"load imageNamed %@ inBundle %@", aName, bundle);
 #endif
-	if((image = [__nameToImageDict objectForKey:aName]))
-		{ // in cache
-		if([image isKindOfClass:[NSNull class]])
-			return nil; // we know that we don't know...
-		return image;
-		}
 	if([aName isEqualToString:NSApplicationIcon])
 		{ // try to load application icon
 		NSString *subst=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIconFile"];	// replace from Info.plist
 		if([subst length] > 0)
 			aName=subst;			// try to load
 		}
-#if 0
-	NSLog(@"imageFileTypes = %@", fileTypes);
-#endif
+	if((image = [__nameToImageDict objectForKey:aName]))
+		{ // found a record in cache
+		if([image isKindOfClass:[NSNull class]])
+			return nil; // we know that we don't know...
+		return image;
+		}
 	ext = [aName pathExtension];		// dict search for it
 	fileTypes = [NSImageRep imageFileTypes];
+#if 1
+	NSLog(@"ext = %@ imageFileTypes = %@", ext, fileTypes);
+#endif
 	if([fileTypes containsObject:ext])
-		{
+		{ // known extension
 		name = [aName stringByDeletingPathExtension];		// has a supported extension
 		path = [bundle pathForResource:name ofType:ext];	// look up
+#if 1
+		NSLog(@"name = %@", name);
+		NSLog(@"ext = %@", ext);
+		NSLog(@"path = %@", path);
+#endif
 		}
 	else
-		path=nil;
+		{ // keep full name
+		name = aName;
+		path = nil;
+		}
 	if(!path)
 		{ // name does not have a supported ext: search for the image locally (mainBundle)
 		id o;
 		ext=nil;	// ignore extension
 		e = [fileTypes objectEnumerator];
-		name = aName;
 		while((o = [e nextObject]))
 			{
-#if 0
+#if 1
 			NSLog(@"try %@: %@.%@", [bundle bundlePath], name, o);
 #endif
 			if((path = [bundle pathForResource:name ofType:o]))
@@ -108,7 +115,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			e = [fileTypes objectEnumerator];
 			while((o = [e nextObject]))
 				{
-#if 0
+#if 1
 				NSLog(@"try %@: %@.%@", [bundle bundlePath], name, o);
 #endif
 				if((path = [bundle pathForResource:name ofType:o]))
