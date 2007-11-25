@@ -6,18 +6,21 @@
 //  Copyright (c) 2005 DSITRI. All rights reserved.
 //
 
+#import <Security/Authorization.h>
+#import <Security/AuthorizationDB.h>
+#import <Security/AuthorizationTags.h>
+
 #import <Cocoa/Cocoa.h>
 
-typedef char *AuthorizationString;
-typedef void *AuthorizationRights;
-typedef void *AuthorizationEnvironment;
-typedef int AuthorizationFlags;
-typedef id AuthorizationRef;
-#ifndef __APPLE__
-typedef int OSStatus;
-#endif
-
-@interface SFAuthorization
+@interface SFAuthorization : NSObject
+{
+struct AuthorizationOpaqueRef
+	{
+		AuthorizationFlags flags;
+		AuthorizationRights *rights;
+		AuthorizationEnvironment *env;
+	} _auth;
+}
 
 + (id) authorization; 
 - (AuthorizationRef) authorizationRef;
