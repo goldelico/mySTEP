@@ -111,7 +111,7 @@
 - (void) setContent:(id) content; { ASSIGN(_content, content); }
 - (void) setEditable:(BOOL) flag; { _isEditable=flag; }
 - (void) setObjectClass:(Class) class; { _objectClass=class; }
-- (BOOL) validateMenuItem:(id <NSMenuItem>) item; { NIMP; return NO; }
+- (BOOL) validateMenuItem:(NSMenuItem *) item; { NIMP; return NO; }
 
 - (id) copyWithZone:(NSZone *) zone { return [self retain]; }
 - (void) encodeWithCoder:(NSCoder *) aCoder	{ return; }

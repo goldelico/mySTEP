@@ -59,9 +59,9 @@
 		{
 		if(![w isExcludedFromWindowsMenu])
 			{ // build menu
-			NSMenuItem <NSMenuItem> *item=[[NSMenuItem alloc] initWithTitle:[w title]
-																	 action:@selector(makeKeyAndOrderFront:)
-															  keyEquivalent:@""];
+			NSMenuItem *item=[[NSMenuItem alloc] initWithTitle:[w title]
+														action:@selector(makeKeyAndOrderFront:)
+												 keyEquivalent:@""];
 			[item setTarget:w];
 			[menu addItem:item];
 			[item release];
@@ -1407,7 +1407,7 @@ NSEvent *event = nil;									// if queue contains
 		{
 		NSEnumerator *e = [[_windowsMenu itemArray] objectEnumerator];
 		NSPoint topLeft={ 0.0, 512.0 };
-		id <NSMenuItem> item;
+		NSMenuItem *item;
 
 		while((item = [e nextObject]))
 			{ // bring to front all windows int the menu
@@ -1717,7 +1717,7 @@ NSWindow *w;
 	idx = [itemArray count]-1;	// last item
 	while(idx >= 0)
 		{
-		id <NSMenuItem> item = [itemArray objectAtIndex: idx];
+		NSMenuItem *item = [itemArray objectAtIndex: idx];
 		if ([item isSeparatorItem])
 			{
 			idx++;	// append behind separator
@@ -1765,7 +1765,7 @@ NSWindow *w;
 #endif
 			if(_windowItems <= 0)
 				{ // we have removed the last window
-				id <NSMenuItem> last=[[_windowsMenu itemArray] lastObject];
+				NSMenuItem *last=[[_windowsMenu itemArray] lastObject];
 				if([last isSeparatorItem])
 					[_windowsMenu removeItem:last];	// remove the separator if present
 				_windowItems=0;

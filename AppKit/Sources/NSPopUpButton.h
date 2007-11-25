@@ -52,17 +52,17 @@ extern NSString *NSPopUpButtonWillPopUpNotification;
 - (NSArray *) itemArray;
 - (NSString *) itemTitleAtIndex:(int)index;
 - (NSArray *) itemTitles;
-- (id <NSMenuItem>) itemAtIndex:(int)index;
-- (id <NSMenuItem>) itemWithTitle:(NSString *)title;
-- (id <NSMenuItem>) lastItem;
-- (id <NSMenuItem>) selectedItem;
+- (NSMenuItem *) itemAtIndex:(int)index;
+- (NSMenuItem *) itemWithTitle:(NSString *)title;
+- (NSMenuItem *) lastItem;
+- (NSMenuItem *) selectedItem;
 - (NSString*) titleOfSelectedItem;
 
 	// - (NSFont *) font;		// Graphic Attributes
 - (NSPopUpArrowPosition) arrowPosition;
 - (NSRectEdge) preferredEdge;
 - (BOOL) pullsDown;
-- (void) selectItem:(id <NSMenuItem>) item;
+- (void) selectItem:(NSMenuItem *) item;
 - (void) selectItemAtIndex:(int)index;
 - (void) selectItemWithTitle:(NSString *)title;
 - (void) setObjectValue:(id) obj;	// selectItemAtIndex:[obj intValue]

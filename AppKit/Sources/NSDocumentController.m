@@ -42,7 +42,7 @@ If not, write to the Free Software Foundation,
 
 #import "NSAppKitPrivate.h"
 
-// changed to conform with MacOS X 10.4 Info.plist
+// changed to conform to MacOS X 10.4 Info.plist
 
 static NSString *NSTypesKey             = @"CFBundleDocumentTypes";
 static NSString *NSNameKey              = @"CFBundleTypeName";

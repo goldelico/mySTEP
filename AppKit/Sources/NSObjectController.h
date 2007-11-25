@@ -67,7 +67,7 @@
 - (void) setObjectClass:(Class) class;
 - (void) setUsesLazyFetching:(BOOL) flag; 
 - (BOOL) usesLazyFetching; 
-- (BOOL) validateMenuItem:(id <NSMenuItem>) item;
+- (BOOL) validateMenuItem:(NSMenuItem *) item;
 - (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>) uiItem; 
 
 @end

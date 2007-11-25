@@ -354,7 +354,7 @@ id __imageCellClass = nil;
 		; // paste from
 }
 
-- (BOOL) validateMenuItem:(id <NSMenuItem>)menuItem
+- (BOOL) validateMenuItem:(NSMenuItem *)menuItem
 {
 	NSString *str=NSStringFromSelector([menuItem action]);
 	if(!_allowsCutCopyPaste)

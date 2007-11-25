@@ -68,10 +68,10 @@ extern NSString *NSPopUpButtonCellWillPopUpNotification;
 - (NSArray *) itemArray;
 - (NSString *) itemTitleAtIndex:(int)index;
 - (NSArray *) itemTitles;
-- (id <NSMenuItem>) itemAtIndex:(int)index;
-- (id <NSMenuItem>) itemWithTitle:(NSString *)title;
-- (id <NSMenuItem>) lastItem;
-- (id <NSMenuItem>) selectedItem;
+- (NSMenuItem *) itemAtIndex:(int)index;
+- (NSMenuItem *) itemWithTitle:(NSString *)title;
+- (NSMenuItem *) lastItem;
+- (NSMenuItem *) selectedItem;
 - (NSString*) titleOfSelectedItem;
 
 // - (NSFont *) font;		// Graphic Attributes
@@ -79,7 +79,7 @@ extern NSString *NSPopUpButtonCellWillPopUpNotification;
 - (NSRectEdge) preferredEdge;
 - (BOOL) pullsDown;
 - (BOOL) usesItemFromMenu;
-- (void) selectItem:(id <NSMenuItem>) item;
+- (void) selectItem:(NSMenuItem *) item;
 - (void) selectItemAtIndex:(int)index;
 - (void) selectItemWithTitle:(NSString *)title;
 - (void) setObjectValue:(id <NSCopying>) obj;	// selectItemAtIndex:[obj intValue]

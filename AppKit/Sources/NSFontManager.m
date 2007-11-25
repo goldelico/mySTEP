@@ -420,7 +420,7 @@ static NSString *__fontCollections = nil;
 {
 	if (create && !_fontMenu)
 		{ // create a default font menu (unless we load one from a NIB file)
-		id <NSMenuItem> menuItem;		
+		NSMenuItem *menuItem;		
 		_fontMenu = [NSMenu new];		// As the font menu is stored in a instance variable we dont autorelease it
 		[_fontMenu setTitle: @"Font Menu"];
 		// First an entry to start the font panel
@@ -660,7 +660,7 @@ static NSString *__fontCollections = nil;
 	[__fontPanel setPanelFont: fontObject isMultiple: flag];
 	if (_fontMenu)
 		{
-		id <NSMenuItem> menuItem;
+		NSMenuItem *menuItem;
 		NSFontTraitMask trait = [self traitsOfFont: fontObject];
 		
 		/*
