@@ -60,6 +60,7 @@
 		_timeout=10;
 		_delegate=delegate;
 		_devices=[[NSMutableArray alloc] initWithCapacity:5];
+		_updateNewDeviceNames=YES;
 		}
 	return self;
 }
@@ -110,16 +111,19 @@
 #endif
 	if(!tool)
 		return nil;	// bluetooth is not supported
-	task=[NSTask new];
+	task=[[NSTask new] autorelease];
 	[[NSNotificationCenter defaultCenter] addObserver:handler selector:sel name:NSTaskDidTerminateNotification object:task];
 	[task setLaunchPath:tool];
 	[task setArguments:cmds];
 	[task setStandardOutput:[NSPipe pipe]];
 #if 0
-	NSLog(@"task=%@", task);
+	NSLog(@"launching task %@ %p %u", task, task, [task retainCount]);
 #endif
 	[task launch];
-	return [task autorelease];
+#if 0
+	NSLog(@"launched task %@ %p %u", task, task, [task retainCount]);
+#endif
+	return task;
 }
 
 - (IOReturn) start; 
@@ -130,7 +134,7 @@
 	if(_task)
 		return kIOReturnError;	// task is already running
 	_aborted=NO;
-	_task=[[isa _hcitool:[NSArray arrayWithObjects:_updateNewDeviceNames?@"inq":@"scan", nil] handler:self done:@selector(_done:)] retain];
+	_task=[[isa _hcitool:[NSArray arrayWithObjects:_updateNewDeviceNames?@"inq":@"inq", nil] handler:self done:@selector(_done:)] retain];
 	if(!_task)
 		return 42;	// could not launch
 	[_delegate deviceInquiryStarted:self];
@@ -138,23 +142,36 @@
 }
 
 // NOTE: this assumes that the full output of the subtask can be buffered and the pipe does never stall
-// and we process the result of a "hcitool scan" command (should simply be "hcitool inq")
+// and we process the result of a "hcitool inq" command
+
+/* output looks like
+
+$ hcitool inq 
+Inquiring ...
+	01:90:71:10:02:AA       clock offset: 0x4402    class: 0x720204
+	00:11:24:AF:2E:E3       clock offset: 0x0704    class: 0x102104
+	00:16:CB:2F:A0:46       clock offset: 0x30d2    class: 0x10210c
+
+*/
 
 - (void) _done:(NSNotification *) notif;
 {
 	int status=[_task terminationStatus];
 	NSFileHandle *rfh=[[[[_task standardOutput] fileHandleForReading] retain] autorelease];	// keep
-#if 1
+	NSMutableArray *recentDevices=(NSMutableArray *) [IOBluetoothDevice recentDevices:0];
+	IOBluetoothDevice *dev;
+#if 0
 	NSLog(@"task is done status=%d %@", status, _task);
 	NSLog(@"rfh=%@", rfh);
 #endif
-	[_task release];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSTaskDidTerminateNotification object:_task];
+	[_task autorelease];
 	_task=nil;
 	if(status == 0)
 		{ // build new list of devices
 		NSData *result=[rfh readDataToEndOfFile];
 		unsigned rlength;
-#if 1
+#if 0
 		NSLog(@"result=%@", result);
 #endif
 		if((rlength=[result length]) == 0)
@@ -165,48 +182,115 @@
 			{
 			const char *cp=[result bytes];
 			const char *cend=cp+rlength;
-			if(cend > cp+8 && strncmp(cp, "Scanning", 8) == 0)
+			if(cend > cp+8 && strncmp(cp, "Inquiring", 8) == 0)
 				{ // ok
-				[_devices removeAllObjects];
-				while(cp < cend && *cp != '\n')
-					cp++;	// skip "Scanning..."
-				cp++;
 				while(cp < cend)
 					{ // get next line
-					IOBluetoothDevice *dev;
 					BluetoothDeviceAddress addr;
-					const char *c0;
-					int len;
-					/*	a line looks like
-00:16:CB:2F:A0:46       MacBook
-00:11:24:AF:2E:E3       MacMini
-						*/
-					while(cp < cend && isspace(*cp)) cp++;
-					sscanf(cp, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx%n", &addr.addr[0], &addr.addr[1], &addr.addr[2], &addr.addr[3], &addr.addr[4], &addr.addr[5], &len);
-					cp+=len;
-					while(cp < cend && isspace(*cp)) cp++;	// skip spaces
-					c0=cp;
-					while(cp < cend && *cp != '\n') cp++;	// get span of name
+					long offset;
+					long class;
+					int idx;
+					while(cp < cend && *cp != '\n')
+						cp++;	// skip previous line and/or "Scanning..."
+					cp++;
+					if(cp >= cend)
+						break;
+					sscanf(cp, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx clock offset: %lx class: %lx", 
+						   &addr.addr[0], &addr.addr[1], &addr.addr[2], &addr.addr[3], &addr.addr[4], &addr.addr[5],
+						   &offset, &class);
 					dev=[IOBluetoothDevice withAddress:&addr];
-					[_devices addObject:dev];
-					if(_updateNewDeviceNames)
-						[dev remoteNameRequest:self];	// request to asynchronously update the device name
+					idx=[recentDevices indexOfObject:dev];
+					if(idx == NSNotFound)
+						{ // this is really a new device
+						[recentDevices insertObject:dev atIndex:0];	// most recent
+						if([recentDevices count] > 100)
+							{
+							// truncate...
+							}
+#if 0
+						NSLog(@"device added to recent devices: %@", dev);
+#endif
+						}
 					else
-						[dev _setName:[NSString stringWithCString:c0 length:cp-c0]];	// store what we got
-					cp++;	// skip \n
+						{
+						dev=[recentDevices objectAtIndex:idx];	// use existing record and not the new one
+						[dev retain];
+						[recentDevices removeObjectAtIndex:idx];
+						[recentDevices insertObject:dev atIndex:0];	// move to front (LRU queue)
+						[dev release];
+						}
+					
+					// recentDevices should be written to a persistent storage so that processes can share...
+					
+					[dev _setClassOfDevice:class];			// this updates the last Inquiry update timestamp
+					[dev _setClockOffset:offset];
+					if(![_devices containsObject:dev])
+						{
+						[_devices addObject:dev];			// device found
+						[_delegate deviceInquiryDeviceFound:self device:dev];
+						}
 					}
+				}
+			}
+		if(_updateNewDeviceNames)
+			{ // find devices still without a name
+			int i, cnt=[_devices count];
+			int remaining=0;
+			for(i=0; i<cnt; i++)
+				{
+				dev=[_devices objectAtIndex:i];
+				if([dev getName] == nil)
+					remaining++;
+				}
+			if(remaining)
+				{ // now fetch device names
+				[_delegate deviceInquiryUpdatingDeviceNamesStarted:self devicesRemaining:remaining];
+				[self remoteNameRequestComplete:nil status:status name:nil];	// trigger first one
+				return;
 				}
 			}
 		}
 	else
 		status=31;	// not available
-	[_delegate deviceInquiryComplete:self error:status aborted:_aborted];
+	[_delegate deviceInquiryComplete:self error:status aborted:_aborted];	// nothing remaining
 }
 
 - (void) remoteNameRequestComplete:(IOBluetoothDevice *) dev status:(int) status name:(NSString *) name;
 { // device name received
-	// FIXME: isn't this already done by the name request?
-	[dev _setName:name];
+	int i, cnt=[_devices count];
+	int remaining=0;
+	IOBluetoothDevice *d;
+	for(i=0; i<cnt; i++)
+		{ // count remaining devices still without name
+		d=[_devices objectAtIndex:i];
+		if(d != dev && [d getName] == nil)
+			remaining++;	// don't count
+		}
+	if(dev)
+		{
+#if 0
+		NSLog(@"name request completed: %@", name);
+#endif
+		[dev _setName:name];
+		[_delegate deviceInquiryDeviceNameUpdated:self device:dev devicesRemaining:remaining];
+		}
+	if(!_aborted && remaining > 0)
+		{ // any names remaining
+		for(i=0; i<cnt; i++)
+			{ // find first and request name
+			d=[_devices objectAtIndex:i];
+			if([d getName] == nil)
+				{
+				[d remoteNameRequest:self];	// request to asynchronously update the device name once
+				break;
+				}
+			}
+		}
+	else
+		{
+		NSLog(@"nothing remaining");
+		[_delegate deviceInquiryComplete:self error:status aborted:_aborted];	// nothing remains
+		}
 }
 
 - (IOReturn) stop; 

@@ -50,7 +50,7 @@ typedef id BluetoothConnectionHandle;
 
 // FIXME: should probably be enums...
 
-typedef int BluetoothClassOfDevice;
+typedef long BluetoothClassOfDevice;
 
 /*
  e.g.
@@ -59,9 +59,9 @@ typedef int BluetoothClassOfDevice;
  kBluetoothDeviceClassMinorPeripheral1Keyboard
  */
 
-typedef int BluetoothDeviceClassMajor; 
-typedef int BluetoothDeviceClassMinor; 
-typedef int BluetoothServiceClassMajor;
+typedef char BluetoothDeviceClassMajor;
+typedef short BluetoothDeviceClassMinor;
+typedef int BluetoothServiceClassMajor;		// bitmask
 
 typedef int BluetoothHCIEncryptionMode; 
 typedef int BluetoothLinkType;

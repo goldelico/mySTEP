@@ -14,12 +14,82 @@
 
 static NSMutableArray *_favorites;
 static NSMutableArray *_paired;
+static NSMutableArray *_recent;
+
+@interface _IOBluetoothDeviceNameRequestHandler : NSObject
+{
+	IOBluetoothDevice *_dev;
+	id _target;
+}
+- (id) initWithDevice:(IOBluetoothDevice *) dev andTarget:(id) target;
+- (void) remoteNameRequestDone:(NSNotification *) notif;
+@end
+
+@implementation _IOBluetoothDeviceNameRequestHandler
+
+- (id) initWithDevice:(IOBluetoothDevice *) dev andTarget:(id) target;
+{
+	if((self=[super init]))
+		{
+		_dev=[dev retain];
+		_target=[target retain];
+		}
+	return self;
+}
+
+- (void) dealloc;
+{
+	[_dev release];
+	[_target release];
+	[super dealloc];
+}
+
+- (void) remoteNameRequestDone:(NSNotification *) notif;
+{
+	NSTask *task=[notif object];
+#if 0
+	NSLog(@"remoteNameRequestDone %p notif=%@", self, notif);
+	NSLog(@"remoteNameRequestDone task %@ %p %u", task, task, [task retainCount]);
+	{
+#endif
+	int status=[task terminationStatus];
+	NSData *result=[[[task standardOutput] fileHandleForReading] readDataToEndOfFile];
+	NSString *name=[[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];	// contains a terminating \n
+	int len=[name length];
+	if(len > 0)
+		{
+		name=[name substringToIndex:len-1];
+#if 0
+		NSLog(@"_remoteNameRequestDone is done status=%d", status);
+		NSLog(@"result=%@", result);
+		NSLog(@"name=%@", name);
+#endif
+		[_dev _setName:name];
+		[_target remoteNameRequestComplete:_dev status:status name:name];
+		}
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+#if 0
+	NSLog(@"remoteNameRequestDone releasing task %@ %p %u", task, task, [task retainCount]);
+#endif
+	[task release];	// was retained when created
+	[self release];	// we can be released now...
+#if 0
+	}
+	NSLog(@"remoteNameRequestDone %p", self);
+#endif
+}
+
+@end
 
 @implementation IOBluetoothDevice
 
 + (void) initialize
 {
+	_favorites=[[NSMutableArray alloc] initWithCapacity:10];
+	_paired=[[NSMutableArray alloc] initWithCapacity:10];
+	_recent=[[NSMutableArray alloc] initWithCapacity:10];
 	// read favourite addresses from user defaults
+	// read paired addresses from system user defaults
 }
 
 + (NSArray *) favoriteDevices;
@@ -34,7 +104,9 @@ static NSMutableArray *_paired;
 
 + (NSArray *) recentDevices:(UInt32) limit;
 {
-	return NIMP;
+	if(limit == 0)
+		return _recent;
+	return [_recent objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, limit-1)]];
 }
 
 + (IOBluetoothUserNotification *) registerForConnectNotifications:(id) observer selector:(SEL) sel; { return NIMP; }
@@ -55,6 +127,11 @@ static NSMutableArray *_paired;
 	NIMP; return 0;
 }
 
+- (NSString *) decription;
+{
+	return [NSString stringWithFormat:@"IOBluetoothDevice %@ name: %@ class:%d clockoff:%d", [self getAddressString], [self getName], [self getClassOfDevice], [self getClockOffset]];
+}
+
 - (const BluetoothDeviceAddress *) getAddress; { return &_addr; }
 
 - (NSString *) getAddressString; 
@@ -62,15 +139,15 @@ static NSMutableArray *_paired;
 	return [NSString stringWithFormat:@"%02x:%02x:%02x:%02x:%02x:%02x", _addr.addr[0], _addr.addr[1], _addr.addr[2], _addr.addr[3], _addr.addr[4], _addr.addr[5]];
 }
 
-- (BluetoothClassOfDevice) getClassOfDevice; { NIMP; return 0; }
-- (BluetoothClockOffset) getClockOffset; { NIMP; return 0; }
+- (BluetoothClassOfDevice) getClassOfDevice; { return _classOfDevice; }
+- (BluetoothClockOffset) getClockOffset; { return _clockOffset; }
 - (BluetoothConnectionHandle) getConnectionHandle; { NIMP; return nil; }
-- (BluetoothDeviceClassMajor) getDeviceClassMajor; { NIMP; return 0; }
-- (BluetoothDeviceClassMinor) getDeviceClassMinor; { NIMP; return 0; }
+- (BluetoothDeviceClassMajor) getDeviceClassMajor; { return (_classOfDevice>>8)&0x0f; }
+- (BluetoothDeviceClassMinor) getDeviceClassMinor; { return (_classOfDevice>>0)&0x0ff; }
 - (IOBluetoothDeviceRef) getDeviceRef; { return NIMP; }
 - (BluetoothHCIEncryptionMode) getEncryptionMode; { NIMP; return 0; }
-- (NSDate *) getLastInquiryUpdate; { return NIMP; }
-- (NSDate *) getLastNameUpdate; { return NIMP; }
+- (NSDate *) getLastInquiryUpdate; { return _lastInquiryUpdate; }
+- (NSDate *) getLastNameUpdate; { return _lastNameUpdate; }
 - (NSDate *) getLastServicesUpdate; { return NIMP; }
 - (BluetoothLinkType) getLinkType; { NIMP; return 0; }
 - (NSString *) getName; { return _name; }
@@ -78,14 +155,28 @@ static NSMutableArray *_paired;
 - (BluetoothPageScanMode) getPageScanMode; { NIMP; return 0; }
 - (BluetoothPageScanPeriodMode) getPageScanPeriodMode; { NIMP; return 0; }
 - (BluetoothPageScanRepetitionMode) getPageScanRepetitionMode; { NIMP; return 0; }
-- (BluetoothServiceClassMajor) getServiceClassMajor; { NIMP; return 0; }
+- (BluetoothServiceClassMajor) getServiceClassMajor; { return (_classOfDevice>>12)&0x0fffff; }
 - (IOBluetoothSDPServiceRecord *) getServiceRecordForUUID:(IOBluetoothSDPUUID *) sdpUUID; { return NIMP; }
 - (NSArray *) getServices; { return NIMP; }
 - (BOOL) isConnected; { return NO; }
-- (BOOL) isEqual:(id) other; { NIMP; return NO; }
+
+- (BOOL) isEqual:(id) other;
+{ // same address?
+	const BluetoothDeviceAddress *addr;
+	if(self == other)
+		return YES;
+	addr=[other getAddress];
+	return addr->addr[5]==_addr.addr[5] &&
+		addr->addr[4]==_addr.addr[4] &&
+		addr->addr[3]==_addr.addr[3] &&
+		addr->addr[2]==_addr.addr[2] &&
+		addr->addr[1]==_addr.addr[1] &&
+		addr->addr[0]==_addr.addr[0];
+}
+
 - (BOOL) isFavorite; { return [_favorites containsObject:self]; }
 - (BOOL) isIncoming; { return NO; }
-- (BOOL) isPaired; { return NO; }
+- (BOOL) isPaired; { return [_paired containsObject:self]; }
 - (IOReturn) openConnection; { return [self openConnection:nil]; }
 - (IOReturn) openConnection:(id) target; { return [self openConnection:target withPageTimeout:10 authenticationRequired:NO]; }
 
@@ -132,26 +223,21 @@ static NSMutableArray *_paired;
 
 - (IOReturn) remoteNameRequest:(id) target; { return [self remoteNameRequest:target withPageTimeout:10]; }
 
-- (void) _remoteNameRequestDone:(NSNotification *) notif;
-{
-	int status=[[notif object] terminationStatus];
-	NSData *result=[[[[notif object] standardOutput] fileHandleForReading] readDataToEndOfFile];
-#if 1
-	NSLog(@"_remoteNameRequestDone is done status=%d", status);
-	NSLog(@"result=%@", result);
-#endif
-	// [self _setName:name];
-	// [target - (void) remoteNameRequestComplete:self status:(int) status name:(NSString *) name;
-}
-	
 - (IOReturn) remoteNameRequest:(id) target withPageTimeout:(BluetoothHCIPageTimeout) timeout;
 {
-	// FIXME: pass target through to _remoteNameRequestDone:
-	NSTask *task=[IOBluetoothDeviceInquiry _hcitool:[NSArray arrayWithObjects:@"scan", nil] handler:self done:@selector(_remoteNameRequestDone:)];
+	_IOBluetoothDeviceNameRequestHandler *handler=[[_IOBluetoothDeviceNameRequestHandler alloc] initWithDevice:self andTarget:target];
+	NSTask *task=[IOBluetoothDeviceInquiry _hcitool:[NSArray arrayWithObjects:@"name", [self getAddressString], nil] handler:handler done:@selector(remoteNameRequestDone:)];
 	if(!task)
+		{
+		[handler release];		// will never be called...
 		return kIOReturnError;	// could not launch
+		}
+	[task retain];	// don't autorelease until we received the notification in our _IOBluetoothDeviceNameRequestHandler
+#if 0
+	NSLog(@"remoteNameRequest task %@ %p %u", task, task, [task retainCount]);
+#endif
 	if(!target)
-		{ // wait for completion
+		{ // if no target, synchronously wait for completion
 		[task waitUntilExit];
 		if([task terminationStatus] != 0)
 			return kIOReturnError;	// some error
@@ -196,6 +282,17 @@ static NSMutableArray *_paired;
 {
 	[_name autorelease];
 	_name=[name retain];
+	[_lastNameUpdate release];
+	_lastNameUpdate=[[NSDate alloc] init];	// now
+}
+
+- (void) _setClockOffset:(BluetoothClockOffset) offset; { _clockOffset=offset; }
+
+- (void) _setClassOfDevice:(BluetoothClassOfDevice) class;
+{
+	_classOfDevice=class;
+	[_lastInquiryUpdate release];
+	_lastInquiryUpdate=[[NSDate alloc] init];	// now
 }
 
 - (void) dealloc;

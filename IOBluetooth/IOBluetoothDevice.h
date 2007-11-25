@@ -21,8 +21,12 @@ typedef IOBluetoothDevice *IOBluetoothDeviceRef;
 
 @interface IOBluetoothDevice : IOBluetoothObject
 {
-	BluetoothDeviceAddress _addr;
+	NSDate *_lastInquiryUpdate;
+	NSDate *_lastNameUpdate;
 	NSString *_name;
+	BluetoothDeviceAddress _addr;
+	BluetoothClassOfDevice _classOfDevice;
+	BluetoothClockOffset _clockOffset;
 }
 
 + (NSArray *) favoriteDevices; 
@@ -91,9 +95,19 @@ typedef IOBluetoothDevice *IOBluetoothDeviceRef;
 - (IOReturn) requestAuthentication; 
 - (IOReturn) sendL2CAPEchoRequest:(void *) data length:(UInt16) length; 
 
+// private
+
 - (id) _initWithAddress:(const BluetoothDeviceAddress *) address;
 - (id) _initWithDeviceRef:(IOBluetoothDeviceRef) ref;
 - (void) _setName:(NSString *) name;
+- (void) _setClockOffset:(BluetoothClockOffset) offset;
+- (void) _setClassOfDevice:(BluetoothClassOfDevice) class;
+
+@end
+
+@interface NSObject (IOBluetoothDevice)
+
+- (void) remoteNameRequestComplete:(IOBluetoothDevice *) dev status:(int) status name:(NSString *) name;
 
 @end
 
