@@ -1117,7 +1117,7 @@ BOOL (*mImp)(id, SEL, unichar);
 		step = 1;
 		}
 
-	range = (NSRange){0, 0};
+	range = (NSRange){NSNotFound, 0};
 	cImp = (unichar(*)(id,SEL,unsigned)) 
     		[self methodForSelector: @selector(characterAtIndex:)];
 	mImp = (BOOL(*)(id,SEL,unichar)) [aSet methodForSelector: __charIsMem];
@@ -1161,7 +1161,7 @@ unichar strFirstCharacter;
 														// Ensure the string 
 	strLength = [aString length];						// can be found
 	if (strLength > aRange.length || strLength == 0)
-		return (NSRange){0, 0};
+		return (NSRange){NSNotFound, 0};
 
 	// NSCaseInsensitiveSearch = 1,
 	//	NSLiteralSearch			= 2,
@@ -1540,7 +1540,7 @@ unichar strFirstCharacter;
 			break;
 		}
 
-	return (NSRange){0,0};
+	return (NSRange){NSNotFound, 0};
 }
 
 - (NSRange) rangeOfComposedCharacterSequenceAtIndex:(unsigned int)anIndex
@@ -2403,8 +2403,8 @@ struct stat tmp_stat;
 	NSRange search = {0, [s length]};
 	NSRange found = [s rangeOfString:@"//" options:2 range:search];
 		
-		//	if ([s hasPrefix: @"/private"])						// Remove `/private'
-		//		[s deleteCharactersInRange:((NSRange){0,7})];
+	if ([s hasPrefix: @"/private"])						// Remove `/private' - not useful but according to documentation
+		[s deleteCharactersInRange:((NSRange){0,7})];
 		
 	while (found.length)
 		{

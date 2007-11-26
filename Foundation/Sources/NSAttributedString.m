@@ -67,8 +67,8 @@ _attributesAtIndexEffectiveRange( unsigned int index,
 								  NSMutableArray *locateArray,
 								  unsigned int *foundIndex)
 {
-unsigned int low, high, used, cnt, foundLoc, nextLoc;
-NSDictionary *foundDict;
+	unsigned int low, high, used, cnt, foundLoc, nextLoc;
+	NSDictionary *foundDict;
 
 	if(tmpLength > 0 && index >= tmpLength)
 		[NSException raise:NSRangeException
@@ -211,8 +211,8 @@ NSDictionary *foundDict;
 				   longestEffectiveRange:(NSRange *)aRange 
 				   inRange:(NSRange)rangeLimit
 {
-NSDictionary *attrDictionary, *tmpDictionary;
-NSRange tmpRange;
+	NSDictionary *attrDictionary, *tmpDictionary;
+	NSRange tmpRange;
 
 	if(NSMaxRange(rangeLimit) > [self length])
 		[NSException raise:NSRangeException 
@@ -224,20 +224,24 @@ NSRange tmpRange;
 		return attrDictionary;
   
 	while(aRange->location > rangeLimit.location)
-		{										// Check extend range backwards
+		{ // Check extend range backwards
 		tmpDictionary = [self attributesAtIndex:aRange->location-1
 							  effectiveRange:&tmpRange];
 		if([tmpDictionary isEqualToDictionary:attrDictionary])
 			aRange->location = tmpRange.location;
+		else
+			break;	// different
 		}
 	while(NSMaxRange(*aRange) < NSMaxRange(rangeLimit))
-		{										// Check extend range forwards
+		{ // Check extend range forwards
 		tmpDictionary = [self attributesAtIndex:NSMaxRange(*aRange)
 							  effectiveRange:&tmpRange];
 		if([tmpDictionary isEqualToDictionary:attrDictionary])
 			aRange->length = NSMaxRange(tmpRange) - aRange->location;
+		else
+			break;	// different
 		}
-	*aRange = NSIntersectionRange(*aRange,rangeLimit);	// Clip to rangeLimit
+	*aRange = NSIntersectionRange(*aRange, rangeLimit);	// Clip to rangeLimit
 
 	return attrDictionary;
 }
@@ -270,9 +274,9 @@ NSRange tmpRange;
 		 longestEffectiveRange:(NSRange *)aRange 
 		 inRange:(NSRange)rangeLimit
 {
-NSDictionary *tmpDictionary;
-id attrValue, tmpAttrValue;
-NSRange tmpRange;
+	NSDictionary *tmpDictionary;
+	id attrValue, tmpAttrValue;
+	NSRange tmpRange;
 
 	if(NSMaxRange(rangeLimit) > [self length])
 			[NSException raise:NSRangeException 
@@ -281,8 +285,7 @@ NSRange tmpRange;
 			
 	attrValue = [self attribute:attributeName 
 					  atIndex:index 
-					  effectiveRange:aRange];
-								// Raises exception if index is out of range
+					  effectiveRange:aRange]; // Raises exception if index is out of range
 	if(!attributeName)
 		return nil;		// attribute:atIndex:effectiveRange: handles this case.
 	if(!aRange)

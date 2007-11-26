@@ -101,84 +101,84 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize)
 	char		*tmp;
 	unsigned int	len = 1;
 	
-	if (rel->scheme != 0)
+	if (rel->scheme != NULL)
 		{
 		len += strlen(rel->scheme) + 3;	// scheme://
 		}
-	if (rel->user != 0)
+	if (rel->user != NULL)
 		{
 		len += strlen(rel->user) + 1;	// user...@
 		}
-	if (rel->password != 0)
+	if (rel->password != NULL)
 		{
 		len += strlen(rel->password) + 1;	// :password
 		}
-	if (rel->host != 0)
+	if (rel->host != NULL)
 		{
 		len += strlen(rel->host) + 1;	// host.../
 		}
-	if (rel->port != 0)
+	if (rel->port != NULL)
 		{
 		len += strlen(rel->port) + 1;	// :port
 		}
-	if (rel->path != 0)
+	if (rel->path != NULL)
 		{
 		len += strlen(rel->path) + 1;	// path
 		}
-	if (base != 0 && base->path != 0)
+	if (base != NULL && base->path != NULL)
 		{
 		len += strlen(base->path) + 1;	// path
 		}
-	if (rel->parameters != 0)
+	if (rel->parameters != NULL)
 		{
 		len += strlen(rel->parameters) + 1;	// ;parameters
 		}
-	if (rel->query != 0)
+	if (rel->query != NULL)
 		{
 		len += strlen(rel->query) + 1;		// ?query
 		}
-	if (rel->fragment != 0)
+	if (rel->fragment != NULL)
 		{
 		len += strlen(rel->fragment) + 1;		// #fragment
 		}
 	
 	ptr = buf = (char*)objc_malloc(len);
 	
-	if (rel->scheme != 0)
+	if (rel->scheme != NULL)
 		{
 		strcpy(ptr, rel->scheme);
 		ptr = &ptr[strlen(ptr)];
 		*ptr++ = ':';
 		}
-	if (rel->isGeneric == YES
-		|| rel->user != 0 || rel->password != 0 || rel->host != 0 || rel->port != 0)
+	if (rel->isGeneric
+		|| rel->user != NULL || rel->password != NULL || rel->host != NULL || rel->port != NULL)
 		{
 		*ptr++ = '/';
 		*ptr++ = '/';
-		if (rel->user != 0 || rel->password != 0)
+		if (rel->user != NULL || rel->password != NULL)
 			{
-			if (rel->user != 0)
+			if (rel->user != NULL)
 				{
 				strcpy(ptr, rel->user);
 				ptr = &ptr[strlen(ptr)];
 				}
-			if (rel->password != 0)
+			if (rel->password != NULL)
 				{
 				*ptr++ = ':';
 				strcpy(ptr, rel->password);
 				ptr = &ptr[strlen(ptr)];
 				}
-			if (rel->host != 0 || rel->port != 0)
+			if (rel->host != NULL || rel->port != NULL)
 				{
 				*ptr++ = '@';
 				}
 			}
-		if (rel->host != 0)
+		if (rel->host != NULL)
 			{
 			strcpy(ptr, rel->host);
 			ptr = &ptr[strlen(ptr)];
 			}
-		if (rel->port != 0)
+		if (rel->port != NULL)
 			{
 			*ptr++ = ':';
 			strcpy(ptr, rel->port);
@@ -199,7 +199,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize)
 			}
 		strcpy(tmp, rel->path);
 		}
-	else if (base == 0)
+	else if (base == NULL)
 		{
 		strcpy(tmp, rel->path);
 		}
@@ -216,7 +216,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize)
 		char	*start = base->path;
 		char	*end = strrchr(start, '/');
 		
-		if (end != 0)
+		if (end != NULL)
 			{
 			*tmp++ = '/';
 			strncpy(tmp, start, end - start);
@@ -308,19 +308,19 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize)
 		}
 	ptr = &ptr[strlen(ptr)];
 	
-	if (rel->parameters != 0)
+	if (rel->parameters != NULL)
 		{
 		*ptr++ = ';';
 		strcpy(ptr, rel->parameters);
 		ptr = &ptr[strlen(ptr)];
 		}
-	if (rel->query != 0)
+	if (rel->query != NULL)
 		{
 		*ptr++ = '?';
 		strcpy(ptr, rel->query);
 		ptr = &ptr[strlen(ptr)];
 		}
-	if (rel->fragment != 0)
+	if (rel->fragment != NULL)
 		{
 		*ptr++ = '#';
 		strcpy(ptr, rel->fragment);
@@ -603,10 +603,13 @@ static void unescape(const char *from, char * to)
 
 - (id) initFileURLWithPath: (NSString*)aPath isDirectory:(BOOL) isDir
 {
-	if(![aPath isAbsolutePath])
-		aPath = [aPath stringByStandardizingPath];
+//	NSLog(@"initFileURLWithPath %@", aPath);
+	NSAssert([aPath isAbsolutePath], @"fileURL must be absolute path");
 	if(isDir && ![aPath hasSuffix: @"/"])
 		aPath = [aPath stringByAppendingString: @"/"];
+#if 0
+	NSLog(@"-> %@", aPath);
+#endif
 	return [self initWithScheme: NSURLFileScheme
 						   host: nil
 						   path: aPath];
