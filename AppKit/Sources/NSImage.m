@@ -43,21 +43,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 }
 
 + (id) imageNamed:(NSString*)aName
-{
-	return [self _imageNamed:aName inBundle:[NSBundle mainBundle]];
-}
-
-+ (id) _imageNamed:(NSString*)aName inBundle:(NSBundle *) bundle;
-{ // locate in specific bundle (e.g. a loaded bundle) and then in AppKit.framework
-	NSString *name;
-	NSString *path;
-	NSEnumerator *e;
-	NSString *ext;
-	NSArray *fileTypes;
+{ // locate by name or load from main bundle
 	NSImage *image;
-#if 1
-	NSLog(@"load imageNamed %@ inBundle %@", aName, bundle);
-#endif
 	if([aName isEqualToString:NSApplicationIcon])
 		{ // try to load application icon
 		NSString *subst=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIconFile"];	// replace from Info.plist
@@ -70,16 +57,38 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			return nil; // we know that we don't know...
 		return image;
 		}
+	image=[self _imageNamed:aName inBundle:[NSBundle mainBundle]];
+	if(!image)
+		{
+#if 0
+		NSLog(@"could not find NSImage -imageNamed:%@", aName);
+#endif
+		[__nameToImageDict setObject:[NSNull null] forKey:aName];	// save a tag that we don't know the image
+		}
+	return image;
+}
+
++ (id) _imageNamed:(NSString*)aName inBundle:(NSBundle *) bundle;
+{ // locate in specific bundle (e.g. a loaded bundle) and then in AppKit.framework
+	NSString *name;
+	NSString *path;
+	NSEnumerator *e;
+	NSString *ext;
+	NSArray *fileTypes;
+	NSImage *image;
+#if 0
+	NSLog(@"load imageNamed %@ inBundle %@", aName, bundle);
+#endif
 	ext = [aName pathExtension];		// dict search for it
 	fileTypes = [NSImageRep imageFileTypes];
-#if 1
+#if 0
 	NSLog(@"ext = %@ imageFileTypes = %@", ext, fileTypes);
 #endif
 	if([fileTypes containsObject:ext])
 		{ // known extension
 		name = [aName stringByDeletingPathExtension];		// has a supported extension
 		path = [bundle pathForResource:name ofType:ext];	// look up
-#if 1
+#if 0
 		NSLog(@"name = %@", name);
 		NSLog(@"ext = %@", ext);
 		NSLog(@"path = %@", path);
@@ -97,7 +106,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		e = [fileTypes objectEnumerator];
 		while((o = [e nextObject]))
 			{
-#if 1
+#if 0
 			NSLog(@"try %@: %@.%@", [bundle bundlePath], name, o);
 #endif
 			if((path = [bundle pathForResource:name ofType:o]))
@@ -115,7 +124,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			e = [fileTypes objectEnumerator];
 			while((o = [e nextObject]))
 				{
-#if 1
+#if 0
 				NSLog(@"try %@: %@.%@", [bundle bundlePath], name, o);
 #endif
 				if((path = [bundle pathForResource:name ofType:o]))
@@ -134,13 +143,6 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		NSLog(@"NSImage: -imageNamed:%@ -> %@", aName, image);
 #endif
 		[image autorelease];	// don't leak if everything is released - unfortunately we are never deleted from the image cache
-		}
-	if(!image)
-		{
-#if 0
-		NSLog(@"could not find NSImage -imageNamed:%@", aName);
-#endif
-		[__nameToImageDict setObject:[NSNull null] forKey:aName];	// save a tag that we don't know the image
 		}
 	return image;
 }
@@ -580,7 +582,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 {														 
 	if(!_img.isValid)
 		{
-#if 1
+#if 0
 		NSLog(@"load image representation(s) (at path: %@)", _imageFilePath);
 #endif
 		if(_imageFilePath)

@@ -1347,7 +1347,7 @@ int index = [self columnWithIdentifier:identifier];
 		}
 	else
 		{
-		if(point.y < 0)
+		if(point.y < 0 || point.y >= NSMaxY(bounds))
 			return -1;
 		return (point.y/(_rowHeight + _intercellSpacing.height));	// we could subtract _intercellSpacing.height/2 so that it jumps halfway between the cells
 		}
