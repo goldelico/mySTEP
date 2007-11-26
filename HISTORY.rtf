@@ -1,4 +1,4 @@
-{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf420
+{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf440
 {\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fnil\fcharset77 Monaco;
 \f3\fswiss\fcharset77 Helvetica-Oblique;}
 {\colortbl;\red255\green255\blue255;\red118\green15\blue80;}
@@ -19,6 +19,9 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \f1\b0 \
 \
+* Foundation: fixed a bug in NSAttributedString where getting the longestEffectiveRange went into an infinte loop\
+* AppKit/Foundation: fixed handling of relative file names passed on the command line (conversion to file: URL)\
+* Foundation: fixed return value of rangeOfString: when string is not found\
 * AppKit: fixed issue when loading damaged ICNS file (resulted in spurious exception)\
 * AppKit: fixed issue with loading the selected item of a NSPopUpButtonCell from NIBs\
 * AppKit: removed internal use of the NSMenuItem protocol (10.5)\
