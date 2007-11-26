@@ -375,7 +375,7 @@ int s = [self length];			// assumes that the NSRange location and length
 								// of a less-than-zero check).
 	if(NSMaxRange(aRange) > s)
 		[NSException raise: NSRangeException
-					format: @"Range: %@ Size: %d", NSStringFromRange(aRange), s];	// goes behind end
+					format: @"-[NSData getBytes:range:] Range: %@ Size: %d", NSStringFromRange(aRange), s];	// goes behind end
 	memcpy(buffer, ((char *)[self bytes]) + aRange.location, aRange.length);
 }
 
@@ -392,7 +392,6 @@ int s = [self length];			// assumes that the NSRange location and length
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder
 { // default is to encode by copy
-  // FIXME: NOT for mutable strings!!!
 	if(![coder isByref])
 		return self;
 	return [super replacementObjectForPortCoder:coder];
@@ -405,7 +404,7 @@ unsigned l = [self length];			// can be sure that we don't get a range
 									// exception after we have alloc'd memory.
 	if (aRange.location > l || aRange.length > l || NSMaxRange(aRange) > l)
 		[NSException raise: NSRangeException
-					 format: @"Range: (%u, %u) Size: %d",
+					 format: @"-[NSData subdataWithRange:] Range: (%u, %u) Size: %d",
 							aRange.location, aRange.length, l];
 
 	if ((buffer = objc_malloc(aRange.length)) == 0)
@@ -955,7 +954,7 @@ unsigned result;
 {
 	if (aRange.location > length || NSMaxRange(aRange) > length)
 		[NSException raise: NSRangeException
-					 format: @"Range: (%u, %u) Size: %d",
+					 format: @"-[NSData getBytes:range:] Range: (%u, %u) Size: %d",
 					 aRange.location, aRange.length, length];
 	memcpy(buffer, ((char *) bytes) + aRange.location, aRange.length);
 }
@@ -965,7 +964,7 @@ getBytes(void* dst, void* src, unsigned len, unsigned limit, unsigned *pos)
 {
 	if (*pos > limit || len > limit || len+*pos > limit)
 		[NSException raise: NSRangeException
-					 format: @"Range: (%u, %u) Size: %d", *pos, len, limit];
+					 format: @"getbytes() Range: (%u, %u) Size: %d", *pos, len, limit];
 
 	memcpy(dst, ((char *) src) + *pos, len);
 	*pos += len;
@@ -1201,7 +1200,7 @@ getBytes(void* dst, void* src, unsigned len, unsigned limit, unsigned *pos)
 {
     if (*cursor >= length)
 		[NSException raise: NSRangeException
-					 format: @"Range: (%u, 1) Size: %d", *cursor, length];
+					 format: @"_deserializeTypeTagAtCursor Range: (%u, 1) Size: %d", *cursor, length];
     return ((unsigned char*)bytes)[(*cursor)++];
 }
 
@@ -1861,7 +1860,7 @@ unsigned l;
 {
     if (aRange.location > length || NSMaxRange(aRange) > length)
 		[NSException raise: NSRangeException
-		    		 format: @"Range: (%u, %u) Size: %u", aRange.location, 
+		    		 format: @"replaceBytesInRange Range: (%u, %u) Size: %u", aRange.location, 
 								aRange.length, length];
 
     memcpy(((char *) bytes) + aRange.location, moreBytes, aRange.length);
@@ -1875,7 +1874,7 @@ unsigned l;
 	// resize to make room for len bytes! Then replace - we might need to use memmove!
     if (aRange.location > length || NSMaxRange(aRange) > length)
 		[NSException raise: NSRangeException
-					format: @"Range: (%u, %u) Size: %u", aRange.location, 
+					format: @"replaceBytesInRange Range: (%u, %u) Size: %u", aRange.location, 
 			aRange.length, length];
 	
     memcpy(((char *) bytes) + aRange.location, moreBytes, aRange.length);
@@ -2116,7 +2115,7 @@ unsigned l;
 											// Check for 'out of range' errors.
 	if(aRange.location >size || aRange.length >size || NSMaxRange(aRange)>size)
 		[NSException raise: NSRangeException
-					 format: @"Range: (%u, %u) Size: %d", aRange.location,
+					 format: @"resetBytesInRange Range: (%u, %u) Size: %d", aRange.location,
 								aRange.length, size];
 
 	memset((char*)[self bytes] + aRange.location, 0, aRange.length);

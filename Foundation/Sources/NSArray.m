@@ -300,7 +300,7 @@ int count;
 #if 1	// useful for debugging...
 		NSLog(@"index %u out of bounds (%u) of %@", idx, _count, self);
 #endif
-		[NSException raise:NSRangeException format:@"Index out of bounds"];
+		[NSException raise:NSRangeException format:@"objectAtIndex: Index out of bounds"];
 		}
 
 	return _contents[idx];
@@ -413,7 +413,7 @@ id objects[c];
 - (void) getObjects:(id*)aBuffer range:(NSRange)r
 {
 	if (NSMaxRange(r) > _count)
-		[NSException raise: NSRangeException format: @"Range out of bounds"];
+		[NSException raise: NSRangeException format: @"getObjects: Range out of bounds"];
 	memcpy(aBuffer, _contents + r.location, r.length * sizeof(id*));
 }
 
@@ -887,7 +887,7 @@ id e, o;
 
 	if (_count < NSMaxRange(aRange))
 		[NSException raise: NSRangeException
-					 format: @"Replacing objects beyond end of array."];
+					 format: @"replaceObjectsInRange: Replacing objects beyond end of array."];
 	[self removeObjectsInRange: aRange];
 	e = [anArray reverseObjectEnumerator];
 	while ((o = [e nextObject]))
@@ -929,7 +929,7 @@ id e, o;
 {
 	if (_count == 0)
 		[NSException raise: NSRangeException
-					 format: @"Trying to remove from an empty array."];
+					 format: @"Trying to removeLastObject from an empty array."];
 	_count--;
 	[_contents[_count] release];
 }
