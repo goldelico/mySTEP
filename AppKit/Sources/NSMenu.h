@@ -27,7 +27,7 @@
 @class NSMenu;		// forward declaration for NSMenuItem protocol
 @class NSMenuItem; 
 
-#if 0	// DEPRECATED
+#if 1	// DEPRECATED but we still need to keep it to remain compatible to older source codes
 
 // according to the documentation, this protocol is defined in NSMenuItem.h
 // but we need it here anyway.

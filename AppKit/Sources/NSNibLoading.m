@@ -659,7 +659,12 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #if 0
 			NSLog(@"NSCustomResource replaced by NSImage: %@", _resourceName);
 #endif
-			// FIXME: should locate in the specified bundle first!
+			if([_resourceName isEqualToString:NSApplicationIcon])
+				{ // try to load application icon
+				NSString *subst=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIconFile"];	// replace from Info.plist
+				if([subst length] > 0)
+					ASSIGN(_resourceName, subst);			// try to load that one
+				}
 			img=[[NSImage _imageNamed:_resourceName inBundle:[[(NSKeyedUnarchiver *) coder delegate] _bundle]] retain];
 			if(!img)
 				NSLog(@"NSCustomResource did not find NSImage: %@", _resourceName);
@@ -766,7 +771,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 				break;
 			}
 		}
-	else
+	if(!img)
 		{ // FIXME: raise exception
 #if 0
 		NSLog(@"unknown: %@ buttonImageForCell:%@", self, cell);
@@ -789,6 +794,9 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 			[img setSize:NSMakeSize(10.0, 10.0)];
 			break;
 		}
+#if 0
+	NSLog(@"image=%@", img);
+#endif
 	return img;
 }
 

@@ -414,7 +414,10 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if(!_img.sizeWasExplicitlySet && _size.width == 0) 
 		{
 		NSImageRep *best=[self bestRepresentationForDevice: nil];
-		_size = [best size];
+		if(best)
+			_size = [best size];
+		else
+			NSLog(@"there is no best representation");
 #if 0
 		NSLog(@"image %@ best %@: size=%@", _name, best, NSStringFromSize(_size));
 #endif
@@ -620,6 +623,9 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	int bpp;	// bits per plane
 	if(!_img.prefersColorMatch)
 		; // reverse rule 1 and 2 by reversing the high scores
+#if 0
+	NSLog(@"score %@: %@", NSStringFromClass([r class]), r);
+#endif
 	// Rule 1:
 	if(![r respondsToSelector:@selector(numberOfPlanes)])
 		{ // not a bitmap rep - assume we are an EPS
@@ -632,7 +638,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		score += 0;
 		}
 	else
-		{ // prefer color image rep over b&w
+		{ // prefer color image rep over b&w unless we know that we have a b&w display
 		score += 100;	// we assume to have a color display...
 		}
 	// Rule 2:
@@ -681,11 +687,13 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			highScore=newScore;
 			}
 		}
-	if (!_img.sizeWasExplicitlySet) 
+	if (!_img.sizeWasExplicitlySet && _bestRep) 
 		_size = [_bestRep size];
 #if 0
 	NSLog(@"_bestRep: %@ size:%@", _bestRep, NSStringFromSize(_size));
 #endif
+	if(!_bestRep)
+		NSLog(@"no best rep found for %@ in %@", deviceDescription, _reps);
 	return _bestRep;
 }
 
@@ -756,13 +764,19 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		if([coder containsValueForKey:@"NSReps"])
 			{
 			_reps=[[coder decodeObjectForKey:@"NSReps"] retain];	// load array of reps
+#if 1
+			NSLog(@"NSImage initWithCoder igores archived reps _reps=%@", _reps);
+#endif
 			_img.isValid=YES;
+			[self release];
+			return nil;		// IB stores the Image Reps of Checkbox icons explicitly
 			}
 		else
 			_reps = [NSMutableArray new];
 		return self;
 		}
 	NSLog(@"NSImage: can't initWithCoder");
+	[self release];
 	return nil;
 }
 

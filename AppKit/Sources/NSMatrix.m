@@ -1713,7 +1713,6 @@ int i, j;
 		selectedRow = [aDecoder decodeIntForKey:@"NSSelectedRow"];
 		selectedCell = [aDecoder decodeObjectForKey:@"NSSelectedCell"];	// not retained
 		[self selectCellAtRow:selectedRow column:selectedColumn];	// set selected cell
-		// what about target, action, doubleAction, errorAction
 #if 0
 		NSLog(@"%@ initWithCoder:%@", self, aDecoder]);
 #endif

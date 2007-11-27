@@ -468,3 +468,25 @@ NSString *NSTextStorageWillProcessEditingNotification=@"NSTextStorageWillProcess
 }
 
 @end
+
+@implementation NSAttributedString (NSAttributedStringAttachmentConveniences)
+
++ (NSAttributedString *) attributedStringWithAttachment:(NSTextAttachment *)attachment;
+{
+	static NSString *str;
+	static unichar c=NSAttachmentCharacter;
+	if(!str)
+		str=[[NSString alloc] initWithCharacters:&c length:1];
+	return [[[self alloc] initWithString:str attributes:[NSDictionary dictionaryWithObject:attachment forKey:NSAttachmentAttributeName]] autorelease];
+}
+
+@end
+
+@implementation NSMutableAttributedString (NSMutableAttributedStringAttachmentConveniences)
+
+- (void) updateAttachmentsFromPath:(NSString *)path;
+{
+	NIMP;
+}
+
+@end

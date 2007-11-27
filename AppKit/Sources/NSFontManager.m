@@ -474,16 +474,20 @@ static NSString *__fontCollections = nil;
 	return _fontMenu;
 }
 
-// FIXME: ask the font descriptor of the font
+// FIXME: should ask the font descriptor of the font
 
-- (int) weightOfFont:(NSFont *)fontObject		{ NIMP; return 0; }
+- (int) weightOfFont:(NSFont *)fontObject
+{
+	return 5;
+}
 
 - (NSFontTraitMask) traitsOfFont:(NSFont *)fontObject
 {
-	NIMP;
-	return (NSFontTraitMask)0;
+	return (NSFontTraitMask) (NSUnboldFontMask | NSUnitalicFontMask);
 }
+
 // Target / Action
+
 - (void) setAction:(SEL)aSelector				{ _action = aSelector; }
 - (SEL) action									{ return _action; }
 
@@ -571,7 +575,8 @@ static NSString *__fontCollections = nil;
 	NSLog(@"NSFontManager availableFonts");
 #endif
 	// create Array of NSArrays of pattern ("Times-Italic", "Italic", 6, 5)
-	return NIMP;
+	return [NSArray array];
+	NIMP;
 }
 
 - (NSArray *) availableFontNamesMatchingFontDescriptor:(NSFontDescriptor *) descriptor;
@@ -582,7 +587,8 @@ static NSString *__fontCollections = nil;
 #endif
 	// load from the "All Fonts" collection
 	// get font names
-	return NIMP;
+	return [NSArray array];
+	NIMP;
 }
 
 - (NSArray *) availableFontNamesWithTraits:(NSFontTraitMask) mask;

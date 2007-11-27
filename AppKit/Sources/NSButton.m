@@ -654,11 +654,11 @@ id __buttonCellClass = nil;
 			cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width) - 4;
 			cellFrame.origin.y += (NSHeight(cellFrame) - imageSize.height)/2;
 			break;
-		case NSImageBelow:								// draw image below the title
+		case NSImageAbove:						 		// draw image above the title
 			cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width)/2;
 			cellFrame.origin.y += 4;
 			break;
-		case NSImageAbove:						 		// draw image above the title
+		case NSImageBelow:								// draw image below the title
 			cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width)/2;
 			cellFrame.origin.y += (NSHeight(cellFrame) - imageSize.height) - 4;
 			break;
@@ -729,12 +729,12 @@ id __buttonCellClass = nil;
 				textFrame.origin.x+=4;
 				textFrame.size.width-=imageSize.width+8;
 				break;
-			case NSImageBelow:								// draw image below the title
+			case NSImageAbove:						 		// draw image above the title
 				_c.alignment=NSCenterTextAlignment;
 				textFrame.origin.y += imageSize.height+4;
 				textFrame.size.height-=imageSize.height+8;
 				break;
-			case NSImageAbove:						 		// draw image above the title
+			case NSImageBelow:								// draw image below the title
 				_c.alignment=NSCenterTextAlignment;
 				_d.verticallyCentered=NO;
 				textFrame.origin.y += 4;

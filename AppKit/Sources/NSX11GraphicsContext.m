@@ -128,6 +128,18 @@ struct pipeline
 
 @implementation _NSX11GraphicsContext
 
+static unsigned char tab5[32];	// convert 5bit color value to 8 bit (using full range 0..255)
+static unsigned char tab6[64];
+
+static void inittab565(void)
+{ // initialize color translation table
+	int i;
+	for(i=0; i<=31; i++)
+		tab5[i]=(i*255+31/2)/31;
+	for(i=0; i<=63; i++)
+		tab6[i]=(i*255+63/2)/63;
+}
+
 #pragma mark BackingStoreBuffered
 
 static NSString *NSStringFromXRect(XRectangle rect)
@@ -241,6 +253,11 @@ typedef struct
 
 #define WMFHideOtherApplications			10
 #define WMFHideApplication					12
+
++ (void) initialize;
+{
+	inittab565();	// initialize color profile table(s)
+}
 
 - (void) _setSizeHints;
 {
@@ -1105,14 +1122,15 @@ inline static struct RGBA8 getPixel(int x, int y,
 
 inline static void XSetRGBA8(XImage *img, int x, int y, struct RGBA8 *dest)
 { // set RGBA8
-  // FIXME: depending on color space we should apply a calibration curves
+	// FIXME: depending on color space we should apply a calibration curves
+	// we should use a table driven approach (faster)
 	switch(img->depth)
 		{
 		case 24:
 			XPutPixel(img, x, y, (dest->R<<16)+(dest->G<<8)+(dest->B<<0));
 			break;
 		case 16:
-			XPutPixel(img, x, y, ((dest->R<<8)&0xf800)+((dest->G<<3)&0x07e0)+((dest->B>>3)&0x1f));	// 5/6/5 bit
+			XPutPixel(img, x, y, ((dest->R & 0x00f8)<<8)+((dest->G & 0x00fc)<<3)+((dest->B & 0x00f8)>>3));	// 5/6/5 bit
 			break;
 		default:
 			;
@@ -1135,21 +1153,6 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 			}
 		case 16:
 			{ // scale 0..31 to 0..255
-			  // a better? algorithm could be val8bit=(val5bit<<3)+(val5bit>>2), i.e. fill the less significant bits with a copy of the more significant
-				unsigned char tab5[]={ 
-					( 0*255)/31,( 1*255)/31,( 2*255)/31,( 3*255)/31,( 4*255)/31,( 5*255)/31,( 6*255)/31,( 7*255)/31,
-					( 8*255)/31,( 9*255)/31,(10*255)/31,(11*255)/31,(12*255)/31,(13*255)/31,(14*255)/31,(15*255)/31,
-					(16*255)/31,(17*255)/31,(18*255)/31,(19*255)/31,(20*255)/31,(21*255)/31,(22*255)/31,(23*255)/31,
-					(24*255)/31,(25*255)/31,(26*255)/31,(27*255)/31,(28*255)/31,(29*255)/31,(30*255)/31,(31*255)/31 };
-				unsigned char tab6[]={
-					( 0*255)/63,( 1*255)/63,( 2*255)/63,( 3*255)/63,( 4*255)/63,( 5*255)/63,( 6*255)/63,( 7*255)/63,
-					( 8*255)/63,( 9*255)/63,(10*255)/63,(11*255)/63,(12*255)/63,(13*255)/63,(14*255)/63,(15*255)/63,
-					(16*255)/63,(17*255)/63,(18*255)/63,(19*255)/63,(20*255)/63,(21*255)/63,(22*255)/63,(23*255)/63,
-					(24*255)/63,(25*255)/63,(26*255)/63,(27*255)/63,(28*255)/63,(29*255)/63,(30*255)/63,(31*255)/63,
-					(32*255)/63,(33*255)/63,(34*255)/63,(35*255)/63,(36*255)/63,(37*255)/63,(38*255)/63,(39*255)/63,
-					(40*255)/63,(41*255)/63,(42*255)/63,(43*255)/63,(44*255)/63,(45*255)/63,(46*255)/63,(47*255)/63,
-					(48*255)/63,(49*255)/63,(50*255)/63,(51*255)/63,(52*255)/63,(53*255)/63,(54*255)/63,(55*255)/63,
-					(56*255)/63,(57*255)/63,(58*255)/63,(59*255)/63,(60*255)/63,(61*255)/63,(62*255)/63,(63*255)/63 };
 				dest.R=tab5[(pixel>>11)&0x1f];	// highest 5 bit
 				dest.G=tab6[(pixel>>5)&0x3f];	// middle 6 bit
 				dest.B=tab5[pixel&0x1f];		// lowest 5 bit
@@ -1676,12 +1679,6 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 							dest.B=(F*src.B+G*dest.B)>>8;
 							dest.A=(F*src.A+G*dest.A)>>8;
 							}
-						/* FIXME
-						if(dest.R > 255) dest.R=255;
-						if(dest.G > 255) dest.G=255;
-						if(dest.B > 255) dest.B=255;
-						if(dest.A > 255) dest.A=255;
-						*/
 						break;
 				}
 			XSetRGBA8(img, x, y, &dest);

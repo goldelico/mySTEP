@@ -1196,7 +1196,8 @@ typedef struct _PathElement
 			case NSClosePathBezierPathElement:
 			default:
 				break;
-			}	}
+			}
+		}
 }
 
 - (id) initWithCoder:(NSCoder *)aCoder
@@ -1242,7 +1243,8 @@ typedef struct _PathElement
 				[self closePath];
 			default:
 				break;
-			}	}
+			}
+		}
 	
 	return self;
 }

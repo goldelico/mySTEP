@@ -471,40 +471,24 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 1
 	NSLog(@"_processCommandLineArguments: %@", args);
 #endif
-//	arg=[e nextObject]; // skip application name
 	arg=[e nextObject]; // skip application executable path
 	while((arg=[e nextObject]))
 		{ // process all arguments and convert to URL
 		NSURL *url;
 		if([arg hasPrefix:@"-"])
-			continue;	// skip
-#if 0
-		if([arg isEqualToString:@"-NSPrint"])
-			{
-			opts |= NSWorkspaceLaunchAndPrint;
-			continue;
-			}
-		if([arg isEqualToString:@"-NSNew"])
-			{
-			opts |= NSWorkspaceLaunchNewInstance;
-			continue;
-			}
-		if([arg isEqualToString:@"-NSTemp"])
-			{
-			opts |= NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchNewInstance;
-			continue;
-			}
-		if([arg isEqualToString:@"-NSNoUI"])
-			{
-			opts |= NSWorkspaceLaunchWithoutAddingToRecents;
-			continue;
-			}
-#endif
+			continue;	// skip options
 		url=nil;
-		if([[arg componentsSeparatedByString:@":"] count] >= 2)
+#if 0
+		NSLog(@"%@ %@", arg, NSStringFromRange([arg rangeOfString:@":"]));
+#endif
+		if([arg rangeOfString:@":"].location != NSNotFound)
 			url=[NSURL URLWithString:arg];		// assume that it is a URL
 		if(!url)
+			{
+			if(![arg isAbsolutePath])
+				arg=[[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingFormat:@"/%@", arg];	// prefix with current directory
 			url=[NSURL fileURLWithPath:arg];	// assume that it is a file path
+			}
 		[urls addObject:url];
 		}
 	if([ud stringForKey:@"NSPrint"])	// -NSPrint (any value)

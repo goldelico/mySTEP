@@ -273,7 +273,7 @@
 				size=[font _sizeOfString:substr]; // get new width
 				}
 			}
-		[[attr objectForKey:NSFontAttributeName] setInContext:ctxt];	// set font (if not nil)
+		[font setInContext:ctxt];	// set font
 		attrib=[attr objectForKey:NSForegroundColorAttributeName];
 #if 0
 		NSLog(@"text color=%@", attrib);

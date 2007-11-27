@@ -32,7 +32,7 @@
 #import <AppKit/NSText.h>
 #import <AppKit/NSParagraphStyle.h>
 
-@class NSFileWrapper, NSError, NSTextBlock, NSTextList, NSTextTable;
+@class NSFileWrapper, NSTextAttachment, NSError, NSTextBlock, NSTextList, NSTextTable;
 
 enum _NSUnderlineStyle
 {
@@ -171,7 +171,7 @@ extern const unsigned NSUnderlineByWordMask;
 
 @interface NSAttributedString (NSAttributedStringAdditions)
 
-//+ (NSAttributedString *) attributedStringWithAttachment:(NSTextAttachment *)attach; // Problem, parse error
++ (NSAttributedString *) attributedStringWithAttachment:(NSTextAttachment *)attach; // Problem, parse error
 + (NSArray *) textFileTypes;
 + (NSArray *) textPasteboardTypes;
 + (NSArray *) textTypes;
