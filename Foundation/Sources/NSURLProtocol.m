@@ -64,9 +64,10 @@
 
 @end
 
-static NSMutableArray *_registeredClasses;
 
 @implementation NSURLProtocol
+
+static NSMutableArray *_registeredClasses;
 
 + (void) initialize;
 {
@@ -738,24 +739,24 @@ static NSMutableArray *_registeredClasses;
 - (void) startLoading;
 {
 	// check for GET/PUT/DELETE etc so that we can also write to a file
-	NSData *data=[NSData dataWithContentsOfFile:[[_request URL] path] /* options: error: - don't use that because it is based on self */];
+	NSString *path=[[_request URL] path];
+	NSData *data=[NSData dataWithContentsOfFile:path /* options: error: - don't use that because it is based on self */];
 	NSURLResponse *r;
+	NSString *enc=@"unknown";
 	if(!data)
 		{
 		[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"can't load file" 
-																																	 code:0
-																															 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-																																					[_request URL], @"URL",
-																																					[[_request URL] path], @"path", nil]
+																	   code:0
+																   userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+																	   [_request URL], @"URL",
+																	   [[_request URL] path], @"path", nil]
 			]];
 		return;
 		}
 	r=[[NSURLResponse alloc] initWithURL:[_request URL]
-		// FIXME: we might try to deduce from contents
-								MIMEType:@"text/html"
+								MIMEType:nil	// try to substitute
 				   expectedContentLength:[data length]
-		// FIXME: we might try to check for BOM bytes
-						textEncodingName:@"unknown"];	
+						textEncodingName:enc];	
 	[_client URLProtocol:self didReceiveResponse:r cacheStoragePolicy:NSURLRequestUseProtocolCachePolicy];
 	[_client URLProtocol:self didLoadData:data];
 	[_client URLProtocolDidFinishLoading:self];

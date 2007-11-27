@@ -174,7 +174,7 @@ static NSFileManager *__fm = nil;
 
 - (NSString*) currentDirectoryPath
 {
-char path[PATH_MAX];
+	char path[PATH_MAX];
 
 #if defined(__WIN32__) || defined(_WIN32)
 	if(GetCurrentDirectory(PATH_MAX, path) > PATH_MAX)
@@ -800,6 +800,10 @@ const char *npath = [self fileSystemRepresentationWithPath:otherPath];
 		if(len >= 15 && strncmp(string, "/mnt/card/Users/", 15) == 0)
 			return [NSString stringWithFormat:@"/Users/%.*s", len-15, string+15];	// translate virtual home
 		if(strcmp(string, "/mnt/card/Users") == 0)
+			return @"/Users";	// translate virtual home
+		if(len >= 17 && strncmp(string, "/media/card/Users/", 17) == 0)
+			return [NSString stringWithFormat:@"/Users/%.*s", len-17, string+17];	// translate virtual home
+		if(strcmp(string, "/media/card/Users") == 0)
 			return @"/Users";	// translate virtual home
 		if(len >= 9 && strncmp(string, "/mnt/net/", 9) == 0)
 			return [NSString stringWithFormat:@"/Network/%.*s", len-8, string+8];	// translate

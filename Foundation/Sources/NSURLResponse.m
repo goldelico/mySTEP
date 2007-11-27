@@ -6,13 +6,26 @@
 //  Copyright (c) 2004 DSITRI. All rights reserved.
 //
 
-// CODE NOT TESTED
-
 #import <Foundation/Foundation.h>
 #import <Foundation/NSURLResponse.h>
-
+#import "NSPrivate.h"
 
 @implementation NSURLResponse
+
+static NSDictionary *_mimeExtensions;
+
++ (void) initialize;
+{ // read from "mime.types" resource?
+	_mimeExtensions=[[NSDictionary alloc] initWithObjectsAndKeys:	// map some common file extensions to mime types (default is text/html)
+		@"image/jpeg", @"jpeg",
+		@"image/jpeg", @"jpg",
+		@"image/tiff", @"tiff",
+		@"image/png", @"png",
+		@"image/gif", @"gif",
+		@"text/pdf", @"pdf",
+		@"text/xml", @"xml",
+		nil];
+}
 
 - (long long) expectedContentLength; { return _expectedContentLength; }
 - (NSString *) MIMEType; { return _MIMEType; }
@@ -31,6 +44,12 @@
 	if((self=[super init]))
 		{
 		_URL=[URL retain];
+		if(!MIMEType)
+			{
+			MIMEType=[_mimeExtensions objectForKey:[[URL path] pathExtension]];	// get from extension
+			if(!MIMEType)
+				MIMEType=@"text/html";
+			}
 		_MIMEType=[MIMEType retain];
 		_textEncodingName=[name retain];
 		if(length < -1) length=-1;	// ignore heavily negative values
