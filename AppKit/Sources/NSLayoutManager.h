@@ -80,36 +80,52 @@ typedef NSInteger NSTypesetterBehavior;
 
 @interface NSLayoutManager : NSObject <NSGlyphStorage>
 {	
-	NSTextStorage *textStorage;
-    NSGlyphGenerator *glyphGenerator;
-    NSTypesetter *typesetter;
+	NSTextStorage *_textStorage;
+    NSMutableArray *_textContainers;
+    NSGlyphGenerator *_glyphGenerator;
+    NSTypesetter *_typesetter;
+    NSTextContainer *_extraLineFragmentContainer;
+    NSTextView *_firstTextView;		// Cache for first text view (that is text view of the first text container which has one)
 	
-    NSMutableArray *textContainers;
+    id _delegate;
+
+	NSRect _extraLineFragmentRect;
+    NSRect _extraLineFragmentUsedRect;
+	
+	float _hyphenationFactor;
+	NSImageScaling _defaultAttachmentScaling;
+	NSTypesetterBehavior _typesetterBehavior;
+
+	NSGlyph *_glyphs;
+	unsigned int _numberOfGlyphs;
+	unsigned int _glyphBufferCapacity;
+		
+	BOOL _backgroundLayoutEnabled;
+	BOOL _showsControlCharacters;
+	BOOL _showsInvisibleCharacters;
+	BOOL _usesScreenFonts;
+	
+#if 0
+	// GNUstep headers
+	
     NSStorage *containerUsedRects;
-	
+
     NSStorage *glyphs;
     NSRunStorage *containerRuns;
     NSRunStorage *fragmentRuns;
     NSRunStorage *glyphLocations;
     NSRunStorage *glyphRotationRuns;
     
-    NSRect extraLineFragmentRect;
-    NSRect extraLineFragmentUsedRect;
-    NSTextContainer *extraLineFragmentContainer;
 	
     NSSortedArray *glyphHoles;
     NSSortedArray *layoutHoles;
-	
-    id delegate;
 	
     // Enable/disable stacks
     unsigned short textViewResizeDisableStack;
     unsigned short displayInvalidationDisableStack;
     NSRange deferredDisplayCharRange;
 	
-	// Cache for first text view (that is text view of the first text container which has one)
 
-    NSTextView *firstTextView;
 	
 	// Cache for rectangle arrays
     NSRect *cachedRectArray;
@@ -131,7 +147,8 @@ typedef NSInteger NSTypesetterBehavior;
 	// Cache for first unlaid glypha and character
     unsigned firstUnlaidGlyphIndex;
     unsigned firstUnlaidCharIndex;
-	
+
+
 	// Outlets for ruler accessory view.
     NSBox *rulerAccView;
     NSMatrix *rulerAccViewAlignmentButtons;
@@ -145,13 +162,7 @@ typedef NSInteger NSTypesetterBehavior;
 	
     NSRange newlyFilledGlyphRange;
 	
-	float hyphenationFactor;
-	NSImageScaling defaultAttachmentScaling;
-	NSTypesetterBehavior typesetterBehavior;
-	BOOL backgroundLayoutEnabled;
-	BOOL showsControlCharacters;
-	BOOL showsInvisibleCharacters;
-	BOOL usesScreenFonts;
+#endif
 }
 
 - (void) addTemporaryAttribute:(NSString *) attr value:(id) val forCharacterRange:(NSRange) range;

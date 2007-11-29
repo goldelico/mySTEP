@@ -44,7 +44,7 @@
 // FIXME: add freetype rendering
 
 - (NSSize) _sizeOfString:(NSString *) string;
-{ // get size
+{ // get size of string (fragment)
 	return size;	// return size of character box
 }
 #endif
@@ -98,6 +98,29 @@
 - (float) underlineThickness; { return 0.0; }
 
 - (float) xHeight; { return 0.0; }
+
+- (NSFont *) screenFontWithRenderingMode:(NSFontRenderingMode) mode; // category also overwrites - conflict with NSX11GraphicsContext?
+{ // make it a screen font
+	if(mode == NSFontDefaultRenderingMode)
+		mode=NSFontIntegerAdvancementsRenderingMode;
+	if(_renderingMode == NSFontIntegerAdvancementsRenderingMode)
+		return nil;	// is already a screen font!
+					// FIXME: check if we either have no transform matrix or it is an identity matrix
+	if((self=[[self copy] autorelease]))
+		{
+		_renderingMode=mode;
+		// we could check first if we have a matching antialiased font and fallback if not
+		if(mode == NSFontIntegerAdvancementsRenderingMode)
+			{ // not antialiased and integer advancements
+			[self _setScale:1.0];
+			if(![self _font])
+				{ // can't find a matching X11 font
+				_renderingMode=NSFontAntialiasedIntegerAdvancementsRenderingMode;	// ry freetype
+				}
+			}
+		}
+	return self;
+}
 
 @end
 
@@ -272,40 +295,6 @@ static NSMutableDictionary *cache;
 	return _faceStruct;
 }
 
-// FIXME: should be moved to the current context where we store the current _faceStruct
-
-- (void) _render:(NSString *) string forContext:(NSGraphicsContext *) ctxt;
-{ // render the string
-	FT_Error error;
-	FT_GlyphSlot slot = _faceStruct->glyph;
-	FT_Vector pen;
-	unsigned long len=[string length];
-	unsigned long i;
-	
-	//	error = FT_Select_CharMap(_faceStruct, FT_ENCODING_BIG5 );	// not required since we use Unicode
-	
-	/* the pen position in 26.6 cartesian space coordinates */
-	
-	pen.x = 0;
-	pen.y = 0;
-	
-	for(i = 0; i < len; i++)
-		{	// render characters
-		FT_ULong c=[string characterAtIndex:i];
-		error = FT_Load_Char(_faceStruct, c, FT_LOAD_RENDER);
-		if(error)
-			continue;
-		/*
-		 // draw/render into context
-		 my_draw_bitmap( &slot->bitmap,
-						 slot->bitmap_left,
-						 slot->bitmap_top );
-		 */
-		pen.x += slot->advance.x;
-		pen.y += slot->advance.y;
-		}
-}
-
 - (NSArray *) matchingFontDescriptorsWithMandatoryKeys:(NSSet *) keys;
 { // this is the core font search engine that knows about font directories
 	// search all fonts we know
@@ -320,6 +309,37 @@ static NSMutableDictionary *cache;
 		FT_Done_Face((FT_Face) _faceStruct);
 	[_attributes release];
 	[super dealloc];
+}
+
+- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
+{ // render the string
+	FT_Error error;
+	FT_GlyphSlot slot = _faceStruct->glyph;
+	FT_Vector pen;
+	unsigned long i;
+	
+	//	error = FT_Select_CharMap(_faceStruct, FT_ENCODING_BIG5 );	// not required since we use Unicode
+	
+	/* the pen position in 26.6 cartesian space coordinates */
+	
+	pen.x = 0;
+	pen.y = 0;
+	
+	for(i = 0; i < cnt; i++)
+		{	// render characters
+		error = FT_Load_Char(_faceStruct, glyphs[i], FT_LOAD_RENDER);
+		if(error)
+			continue;
+		/*
+			my_draw_bitmap( context, &slot->bitmap,
+						 slot->bitmap_left,
+						 slot->bitmap_top,
+						 pen
+						 );
+		 */
+		pen.x += slot->advance.x;
+		pen.y += slot->advance.y;
+		}
 }
 
 @end

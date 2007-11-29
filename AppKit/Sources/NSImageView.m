@@ -67,6 +67,12 @@ id __imageCellClass = nil;
 	[super setImage:image];
 }
 
+- (void) setObjectValue:(id)image
+{ // called by NSTableView to show data from source
+	[(NSImage *) image setScalesWhenResized: (_ic.imageScaling != NSScaleNone)];	// apply current scaling
+	[super setImage:image];
+}
+
 - (void) setImageAlignment:(NSImageAlignment)alignment
 {
 	_ic.imageAlignment = alignment;
@@ -277,28 +283,30 @@ id __imageCellClass = nil;
 {
 	if(!_cell)
 		[self setCell:[[__imageCellClass new] autorelease]];
-
 	return [super initWithFrame:frameRect];
 }
 
 - (void) setImageAlignment:(NSImageAlignment)align
 {
 	[_cell setImageAlignment:align];
+	[self setNeedsDisplay:YES];
 }
 
 - (void) setImageScaling:(NSImageScaling)scaling
 {
 	[_cell setImageScaling:scaling];
+	[self setNeedsDisplay:YES];
 }
 
 - (void) setImageFrameStyle:(NSImageFrameStyle)style
 {
 	[_cell setImageFrameStyle:style];
+	[self setNeedsDisplay:YES];
 }
 
 - (NSImage *) image							{ return [_cell image]; }
-- (void) setImage:(NSImage *)image			{ [_cell setImage:image]; }
-- (void) setEditable:(BOOL)flag				{ [_cell setEditable:flag]; }
+- (void) setImage:(NSImage *)image			{ [_cell setImage:image]; [self setNeedsDisplay:YES]; }
+- (void) setEditable:(BOOL)flag				{ [_cell setEditable:flag]; [self setNeedsDisplay:YES]; }
 - (BOOL) isEditable							{ return [_cell isEditable]; }
 - (BOOL) isOpaque							{ return YES; }
 - (BOOL) isFlipped							{ return NO; }
@@ -307,9 +315,9 @@ id __imageCellClass = nil;
 - (NSImageFrameStyle) imageFrameStyle		{ return [_cell imageFrameStyle]; }
 
 - (BOOL) animates;							{ return [_cell _animates]; }
-- (void) setAnimates:(BOOL)flag;			{ [_cell _setAnimates:flag]; }
+- (void) setAnimates:(BOOL)flag;			{ [_cell _setAnimates:flag]; [self setNeedsDisplay:YES]; }
 - (BOOL) allowsCutCopyPaste;				{ return _allowsCutCopyPaste; }
-- (void) setAllowsCutCopyPaste:(BOOL)flag;	{ _allowsCutCopyPaste=flag; }
+- (void) setAllowsCutCopyPaste:(BOOL)flag;	{ _allowsCutCopyPaste=flag; [self setNeedsDisplay:YES]; }
 
 - (void) encodeWithCoder:(id)ec				{ [super encodeWithCoder:ec]; }
 

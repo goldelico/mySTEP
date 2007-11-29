@@ -351,11 +351,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 
 - (NSFont *) printerFont;
 { // make it a printer font
-	if((self=[[self copy] autorelease]))
-		{
-		_renderingMode=NSFontAntialiasedRenderingMode;	// make it a postscript font
-		}
-	return self;
+	return BACKEND;
 }
 
 - (NSFontDescriptor *) fontDescriptor; { return _descriptor; }

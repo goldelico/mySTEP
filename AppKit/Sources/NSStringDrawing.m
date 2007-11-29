@@ -157,6 +157,8 @@ static NSTextContainer *_textContainer;
 	[_layoutManager drawGlyphsForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [self length])
 																   actualCharacterRange:NULL]
 									atPoint:rect.origin];
+	// underline...
+	// strikethrough...
 	if(options&NSStringDrawingOneShot)
 		{ // remove
 		[_textStorage release];

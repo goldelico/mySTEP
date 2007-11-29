@@ -71,7 +71,7 @@
 }
 
 #define __SMARTPHONE_EDITION__ 0
-#define SYSTEM_MENU_WIDTH 1.0
+#define SYSTEM_MENU_WIDTH 1.2
 
 - (NSRect) _statusBarFrame;
 { // the system status menu bar (accessed by NSStatusBar)

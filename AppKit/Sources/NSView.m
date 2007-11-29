@@ -1022,6 +1022,8 @@ printing
 
 - (NSAffineTransform *) _bounds2base;
 { // transform base coordinates to NSWindow's base
+	if(!window)
+		NSLog(@"Not yet part of the window hierarchy - CTM is invalid: %@", self);
 	if(!_bounds2base)
 		{
 		if(super_view)

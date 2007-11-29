@@ -119,7 +119,7 @@
 //
 //*****************************************************************************
 
-@implementation NSTableDataCell
+@implementation NSTableDataCell	// a simple text cell
 
 - (id) initTextCell:(NSString *)aString
 {
@@ -1560,7 +1560,7 @@ int index = [self columnWithIdentifier:identifier];
 	if(_clickedCell)
 		{
 		id data=[_dataSource tableView:self objectValueForTableColumn:clickedCol row:_clickedRow];	// ask data source
-		[_clickedCell setObjectValue:data];
+		[_clickedCell setObjectValue:data];	// set as object value
 		if(_tv.delegateWillDisplayCell)
 			[_delegate tableView:self willDisplayCell:_clickedCell forTableColumn:clickedCol row:_clickedRow];	// give delegate a chance to modify the cell
 		}

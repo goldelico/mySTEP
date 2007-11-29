@@ -387,8 +387,8 @@ static NSString *__fontCollections = nil;
 				return [NSFont fontWithName: [fontDef objectAtIndex: 0] size: size];
 				}
 			}
-		}	
-	NSLog(@"Invalid font request\n");
+		}
+	NSLog(@"Invalid font request: fontWithFamily:%@ traits:%08x weight:%d size:%f", family, traits, weight, size);
 	return nil;
 }
 

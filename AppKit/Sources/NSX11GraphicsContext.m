@@ -268,43 +268,6 @@ typedef struct
 	XSetNormalHints(_display, _realWindow, &size_hints);
 }
 
-static XChar2b *XChar2bFromString(NSString *str, BOOL remote)
-{ // convert to XChar2b (note that this might be 4 bytes per character although advertized as 2)
-	unsigned i, length=[str length];
-	static XChar2b *buf;
-	static unsigned buflen;	// how much is allocated
-	SEL cai=@selector(characterAtIndex:);
-	typedef unichar (*CAI)(id self, SEL _cmd, int i);
-	CAI imp=(CAI)[str methodForSelector:cai];	// don't try to cache this! Different strings may have different implementations
-#if 0
-	NSLog(@"sizeof(unichar)=%d sizeof(XChar2b)=%d", sizeof(unichar), sizeof(XChar2b));
-#endif
-	if(buflen < sizeof(buf[0])*length)
-		buf=(XChar2b *) objc_realloc(buf, buflen+=sizeof(buf[0])*(length+20));	// increase buffer size
-	if(sizeof(XChar2b) != 2 && remote)
-		{ // fix subtle bug when struct alignment rules of the compiler make XChar2b larger than 2 bytes
-		for(i=0; i<length; i++)
-			{
-			unichar c=(*imp)(str, cai,i);
-			((XChar2b *) (((short *)buf)+i))->byte1=c>>8;
-			((XChar2b *) (((short *)buf)+i))->byte2=c;
-			}
-		}
-	else
-		{
-		for(i=0; i<length; i++)
-			{
-			unichar c=(*imp)(str, cai,i);
-			buf[i].byte1=c>>8;
-			buf[i].byte2=c;
-			}
-		}
-#if 0
-	NSLog(@"buf=%@", [NSData dataWithBytesNoCopy:buf length:sizeof(buf[0])*length freeWhenDone:NO]);
-#endif
-	return buf;
-}
-
 - (id) _initWithAttributes:(NSDictionary *) attributes;
 {
 	NSWindow *window;
@@ -1011,45 +974,80 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	_baseline=val;
 }
 
-// FIMXE: _string: should be replaced by
-
-- (void) _drawGlyphs:(NSGlyph *)glyphs count:(unsigned)cnt;	// (string) Tj
+- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;
 {
-	NIMP;
+	BACKEND;	// overwritten in NSFreeType.m
 }
 
-- (void) _string:(NSString *) string;
-{ // draw string fragment -  PDF: (string) Tj
-	unsigned length=[string length];
+- (void) _drawGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;	// (string) Tj
+{
+	static XChar2b *buf;	// translation buffer (NSGlyph -> XChar2b)
+	static unsigned int buflen;
+	unsigned int i;
 	XFontStruct *font;
 #if 0
-	NSLog(@"NSString: _string:%@ font:%@", string, _state->_font);
+	NSLog(@"NSString: _drawGlyphs:%p count:%u font:%@", glyphs, cnt, _state->_font);
 #endif
 	[self _setCompositing];
-	[_state->_font _setScale:_scale];
-	font=[_state->_font _font];
-	XSetFont(_display, _state->_gc, font->fid);	// set font-ID in GC
-												// set any other attributes
+	if([_state->_font renderingMode] == NSFontIntegerAdvancementsRenderingMode)
+		{ // use the basic X11 bitmap font rendering services
+		[_state->_font _setScale:_scale];
+		font=[_state->_font _font];
+		XSetFont(_display, _state->_gc, font->fid);	// set font-ID in GC
+													// set any other attributes
 #if 0
-	{
-		XRectangle box;
-		XClipBox(_state->_clip, &box);
-		NSLog(@"draw string %@ at (%d,%d) clip=%@", string, (int)_cursor.x, (int)(_cursor.y-_baseline+font->ascent+1), NSStringFromXRect(box));
-	}
+		{
+			XRectangle box;
+			XClipBox(_state->_clip, &box);
+			NSLog(@"draw %u glyphs at (%d,%d) clip=%@", cnt, (int)_cursor.x, (int)(_cursor.y-_baseline+font->ascent+1), NSStringFromXRect(box));
+		}
 #endif
-	// FIXME: do we need to use XDrawImageString16 to draw a background color?
-	XDrawString16(_display, ((Window) _graphicsPort),
-				  _state->_gc, 
-				  _cursor.x, (int)(_cursor.y-_baseline+font->ascent+1),	// X11 defines y as the character baseline
-																							// NOTE:
-																							// XChar2b is a struct which may be 4 bytes locally depending on struct alignment rules!
-																							// But here it appears to work since Xlib appears to assume that there are 2*length bytes to send to the server
-				  XChar2bFromString(string, YES), // (XChar2b *) buf,
-				  length);		// Unicode drawing
-	_setDirtyRect(self,
-				  _cursor.x, _cursor.y,
-				  XTextWidth16(font, XChar2bFromString(string, NO), length),
-				  font->ascent + font->descent);	// we need to ask XTextString16 for the line width!
+		if(!buf || cnt > buflen)
+			buf=(XChar2b *) objc_realloc(buf, sizeof(buf[0])*(buflen=cnt+20));	// increase translation buffer if needed
+		if(sizeof(XChar2b) != 2)
+			{ // fix subtle bug when struct alignment rules of the compiler make XChar2b larger than 2 bytes
+			for(i=0; i<cnt; i++)
+				{ // we need a different encoding for XDrawString16() and XTextWidth16()
+				NSGlyph g=glyphs[i];
+				((XChar2b *) (((short *)buf)+i))->byte1=g>>8;
+				((XChar2b *) (((short *)buf)+i))->byte2=g;
+				}
+			}
+		else
+			{
+			for(i=0; i<cnt; i++)
+				{
+				NSGlyph g=glyphs[i];
+				buf[i].byte1=g>>8;
+				buf[i].byte2=g;
+				}
+			}	
+		XDrawString16(_display, ((Window) _graphicsPort),
+					  _state->_gc, 
+					  _cursor.x, (int)(_cursor.y-_baseline+font->ascent+1),	// X11 defines y as the character baseline
+																			// NOTE:
+																			// XChar2b is a struct which may be 4 bytes locally depending on struct alignment rules!
+																			// But here it appears to work since Xlib appears to assume that there are 2*length bytes to send to the server
+					  buf,
+					  cnt);		// Unicode drawing
+		if(sizeof(XChar2b) != 2)
+			{ // fix subtle bug when struct alignment rules of the compiler make XChar2b larger than 2 bytes
+			for(i=0; i<cnt; i++)
+				{ 
+				NSGlyph g=glyphs[i];
+				buf[i].byte1=g>>8;
+				buf[i].byte2=g;
+				}
+			}
+		_setDirtyRect(self,
+					  _cursor.x, _cursor.y,
+					  XTextWidth16(font, buf, cnt),
+					  font->ascent + font->descent);	// we need to ask XTextString16 for the line width!
+		}
+	else
+		{ // use Freetype
+		[[_state->_font fontDescriptor] _drawAntialisedGlyphs:glyphs count:cnt inContext:self];
+		}
 }
 
 - (void) _beginPage:(NSString *) title;
@@ -3450,27 +3448,34 @@ static NSDictionary *_x11settings;
 	return NSAllocateObject([_NSX11Font class], 0, z?z:NSDefaultMallocZone());
 }
 
-@end
-
-@implementation _NSX11Font
-
-- (NSFont *) screenFontWithRenderingMode:(NSFontRenderingMode) mode;
-{ // make it a screen font
-	if(_fontStruct)
+- (NSFont *) screenFontWithRenderingMode:(NSFontRenderingMode) mode; // overwritten in NSFreeTypeFont category
+{ // default is to make it an X11 screen font
+	if(mode == NSFontDefaultRenderingMode)
+		mode=NSFontIntegerAdvancementsRenderingMode;
+	if(_renderingMode == NSFontIntegerAdvancementsRenderingMode)
 		return nil;	// is already a screen font!
 					// FIXME: check if we either have no transform matrix or it is an identity matrix
 	if((self=[[self copy] autorelease]))
 		{
-		_renderingMode=mode;	// make it a bitmapped screen font
+		_renderingMode=NSFontIntegerAdvancementsRenderingMode;
 		[self _setScale:1.0];
 		if(![self _font])
-			{ // try to make it a screen font
+			{ // can't find a matching X11 font
 			[self release];
 			return nil;
 			}
 		}
 	return self;
 }
+
+- (NSFont *) printerFont;
+{ // we make no distinction
+	return self;
+}
+
+@end
+
+@implementation _NSX11Font
 
 - (void) _setScale:(float) scale;
 { // scale font
@@ -3595,16 +3600,36 @@ static NSDictionary *_x11settings;
 
 - (NSSize) _sizeOfString:(NSString *) string;
 { // get size from X11 font assuming no scaling
+	static XChar2b *buf;	// translation buffer (unichar -> XChar2b)
+	static unsigned int buflen;
+	unsigned int i;
 	unsigned length=[string length];
 	NSSize size;
+	SEL cai=@selector(characterAtIndex:);
+	typedef unichar (*CAI)(id self, SEL _cmd, int i);
+	CAI imp=(CAI)[string methodForSelector:cai];	// don't try to cache this! Different strings may have different implementations
+#if 0
+	NSLog(@"_sizeOfString:%@ font:%@", string, _state->_font);
+#endif
+	if(!buf || length > buflen)
+		buf=(XChar2b *) objc_realloc(buf, sizeof(buf[0])*(buflen=length+20));	// increase translation buffer if needed
 	if(!_unscaledFontStruct)
 		{
 		_fontScale=10.0;
-		[self _font];			// load font data
-		_unscaledFontStruct=_fontStruct;
-		_fontStruct=NULL;		// recache if we need a different scaling
+		[self _font];						// load font data with scaling (10)
+		_unscaledFontStruct=_fontStruct;	// copy
+		_fontStruct=NULL;					// recache if we finally need a different scaling
 		}
-	size=NSMakeSize(XTextWidth16(_unscaledFontStruct, XChar2bFromString(string, NO), length), (((XFontStruct *)_unscaledFontStruct)->ascent + ((XFontStruct *)_unscaledFontStruct)->descent));	// character box
+	if(buflen < sizeof(buf[0])*length)
+		buf=(XChar2b *) objc_realloc(buf, buflen+=sizeof(buf[0])*(length+20));	// increase buffer size
+	for(i=0; i<length; i++)
+		{
+		unichar c=(*imp)(string, cai,i);
+		buf[i].byte1=c>>8;
+		buf[i].byte2=c;
+		}
+	size=NSMakeSize(XTextWidth16(_unscaledFontStruct, buf, length),
+					(((XFontStruct *)_unscaledFontStruct)->ascent + ((XFontStruct *)_unscaledFontStruct)->descent));	// character box
 #if 0
 	NSLog(@"%@[%@] -> %@ (C: %d)", self, string, NSStringFromSize(size), XTextWidth(_fontStruct, [string cString], length));
 #endif
