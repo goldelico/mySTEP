@@ -20,6 +20,7 @@
 
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSGeometry.h>
+#import <Foundation/NSURL.h>
 
 @class NSString;
 @class NSArray;

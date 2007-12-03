@@ -1,5 +1,5 @@
 //
-//  NSPredicateEditor.h
+//  NSRuleEditor.m
 //  AppKit
 //
 //  Created by Fabian Spillner on 03.12.07.
@@ -8,11 +8,7 @@
 
 #import "NSRuleEditor.h"
 
-@interface NSPredicateEditor : NSRuleEditor {
 
-}
-
-- (NSArray *) rowTemplates; 
-- (void) setRowTemplates:(NSArray *) templates; 
+@implementation NSRuleEditor
 
 @end

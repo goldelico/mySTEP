@@ -8,7 +8,22 @@
 
 #import <Foundation/Foundation.h>
 
-@class NSPredicate; 
+@class NSPredicate, NSEntityDescription; 
+
+/* CoreData Framework */
+typedef enum {
+	NSUndefinedAttributeType = 0,
+	NSInteger16AttributeType = 100,
+	NSInteger32AttributeType = 200,
+	NSInteger64AttributeType = 300,
+	NSDecimalAttributeType = 400,
+	NSDoubleAttributeType = 500,
+	NSFloatAttributeType = 600,
+	NSStringAttributeType = 700,
+	NSBooleanAttributeType = 800,
+	NSDateAttributeType = 900,
+	NSBinaryDataAttributeType = 1000
+} NSAttributeType;
 
 @interface NSPredicateEditorRowTemplate : NSObject {
 
