@@ -25,7 +25,7 @@
 #import <AppKit/AppKitDefines.h>
 #import <AppKit/NSBitmapImageRep.h>
 
-typedef struct OpaqueIconRef *IconRef;
+//typedef struct OpaqueIconRef *IconRef;
 
 @class NSString;
 @class NSURL;

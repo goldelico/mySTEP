@@ -8,6 +8,9 @@
    Author: Michael Hanni <mhanni@sprintmail.com>
    Date:   June 1999
    
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	29. November 2007 - aligned with 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -30,50 +33,48 @@ extern NSString *NSPopUpButtonWillPopUpNotification;
 {
 }
 
-- (id) initWithFrame:(NSRect)frameRect pullsDown:(BOOL)flag;
-
-- (void) addItemWithTitle:(NSString *)title;			// Adding Items
-- (void) addItemsWithTitles:(NSArray *)itemTitles;
-- (void) insertItemWithTitle:(NSString *)title atIndex:(unsigned int)index;
-
-- (void) removeAllItems;								// Removing Items
-- (void) removeItemWithTitle:(NSString *)title;
-- (void) removeItemAtIndex:(int)index;
-
-- (int) indexOfItemWithTitle:(NSString *)title;			// Access Items
-- (int) indexOfItemWithTag:(int)tag;
-- (int) indexOfItemWithRepresentedObject:(id)obj;
-- (int) indexOfItemWithTarget:(id)target andAction:(SEL)action;
-- (int) indexOfSelectedItem;
-- (id <NSCopying>) objectValue;	// NSNumber with indexOfSelectedItem
-- (void) setMenu:(NSMenu *) menu;
-- (NSMenu *) menu;
-- (int) numberOfItems;
+- (void) addItemsWithTitles:(NSArray *) itemTitles;
+- (void) addItemWithTitle:(NSString *) title;
+- (BOOL) autoenablesItems; 
+- (NSInteger) indexOfItem:(id < NSMenuItem >) obj; 
+- (NSInteger) indexOfItemWithRepresentedObject:(id) obj;
+- (NSInteger) indexOfItemWithTag:(NSInteger) tag;
+- (NSInteger) indexOfItemWithTarget:(id) target andAction:(SEL) action;
+- (NSInteger) indexOfItemWithTitle:(NSString *) title;
+- (NSInteger) indexOfSelectedItem;
+- (id) initWithFrame:(NSRect) frameRect pullsDown:(BOOL) flag;
+- (void) insertItemWithTitle:(NSString *) title atIndex:(NSInteger) index;
 - (NSArray *) itemArray;
-- (NSString *) itemTitleAtIndex:(int)index;
+- (id <NSMenuItem>) itemAtIndex:(NSInteger) index;
+- (NSString *) itemTitleAtIndex:(NSInteger) index;
 - (NSArray *) itemTitles;
-- (NSMenuItem *) itemAtIndex:(int)index;
-- (NSMenuItem *) itemWithTitle:(NSString *)title;
-- (NSMenuItem *) lastItem;
-- (NSMenuItem *) selectedItem;
-- (NSString*) titleOfSelectedItem;
-
-	// - (NSFont *) font;		// Graphic Attributes
-- (NSPopUpArrowPosition) arrowPosition;
+- (id <NSMenuItem>) itemWithTitle:(NSString *) title;
+- (id <NSMenuItem>) lastItem;
+- (NSMenu *) menu;
+- (NSInteger) numberOfItems;
+- (id) objectValue;
 - (NSRectEdge) preferredEdge;
 - (BOOL) pullsDown;
-- (void) selectItem:(NSMenuItem *) item;
-- (void) selectItemAtIndex:(int)index;
-- (void) selectItemWithTitle:(NSString *)title;
-- (void) setObjectValue:(id) obj;	// selectItemAtIndex:[obj intValue]
-- (void) setArrowPosition:(NSPopUpArrowPosition) position;
-	  // - (void) setFont:(NSFont *)fontObject;
-- (void) setPreferredEdge:(NSRectEdge) edge;
-- (void) setPullsDown:(BOOL)flag;
-- (void) setTitle:(NSString *)aString;
-- (void) synchronizeTitleAndSelectedItem;
-
+- (void) removeAllItems;	
+- (void) removeItemAtIndex:(NSInteger) index;
+- (void) removeItemWithTitle:(NSString *) title;
+- (id <NSMenuItem>) selectedItem;
+- (void) selectItem:(id <NSMenuItem>) item;
+- (void) selectItemAtIndex:(NSInteger) index;
+- (BOOL) selectItemWithTag:(NSInteger) tag; 
+- (void) selectItemWithTitle:(NSString *) title;
+- (void) setAutoenablesItems:(BOOL) flag; 
 - (void) setImage:(NSImage *) image;	// has no effect
+- (void) setMenu:(NSMenu *) menu;
+- (void) setObjectValue:(id) obj;
+- (void) setPreferredEdge:(NSRectEdge) edge;
+- (void) setPullsDown:(BOOL) flag;
+- (void) setTitle:(NSString *) aString;
+- (void) synchronizeTitleAndSelectedItem;
+- (NSString *) titleOfSelectedItem;
+
+- (NSPopUpArrowPosition) arrowPosition; // not in API
+- (void) setArrowPosition:(NSPopUpArrowPosition) position; // not in API
 
 @end
 

@@ -7,6 +7,9 @@
 
    Author: H. Nikolaus Schaller <hns@computer.org>
    Date:   May 2004
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	29. November 2007 - aligned with 10.5 
    
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -45,63 +48,54 @@ extern NSString *NSPopUpButtonCellWillPopUpNotification;
 	BOOL _pullsDown;
 }
 
-//- (id) initWithFrame:(NSRect)frameRect pullsDown:(BOOL)flag;
-- (id) initTextCell:(NSString *)value pullsDown:(BOOL)flag;
-
-- (void) addItemWithTitle:(NSString *)title;			// Adding Items
-- (void) addItemsWithTitles:(NSArray *)itemTitles;
-- (void) insertItemWithTitle:(NSString *)title atIndex:(unsigned int)index;
-
-- (void) removeAllItems;								// Removing Items
-- (void) removeItemWithTitle:(NSString *)title;
-- (void) removeItemAtIndex:(int)index;
-
-- (int) indexOfItemWithTitle:(NSString *)title;			// Access Items
-- (int) indexOfItemWithTag:(int)tag;
-- (int) indexOfItemWithRepresentedObject:(id)obj;
-- (int) indexOfItemWithTarget:(id)target andAction:(SEL)action;
-- (int) indexOfSelectedItem;
-- (id <NSCopying>) objectValue;	// NSNumber with indexOfSelectedItem
-//- (void) setMenu:(NSMenu *) menu;
-//- (NSMenu *) menu;
-- (int) numberOfItems;
-- (NSArray *) itemArray;
-- (NSString *) itemTitleAtIndex:(int)index;
-- (NSArray *) itemTitles;
-- (NSMenuItem *) itemAtIndex:(int)index;
-- (NSMenuItem *) itemWithTitle:(NSString *)title;
-- (NSMenuItem *) lastItem;
-- (NSMenuItem *) selectedItem;
-- (NSString*) titleOfSelectedItem;
-
-// - (NSFont *) font;		// Graphic Attributes
+- (void) addItemsWithTitles:(NSArray *) itemTitles;
+- (void) addItemWithTitle:(NSString *) title;
+- (BOOL) altersStateOfSelectedItem;
 - (NSPopUpArrowPosition) arrowPosition;
+- (void) attachPopUpWithFrame:(NSRect) cellFrame inView:(NSView *) controlView;
+- (BOOL) autoenablesItems;
+- (void) dismissPopUp;
+- (NSInteger) indexOfItem:(id < NSMenuItem >) item; 
+- (NSInteger) indexOfItemWithRepresentedObject:(id) obj;
+- (NSInteger) indexOfItemWithTag:(NSInteger) tag;
+- (NSInteger) indexOfItemWithTarget:(id) target andAction:(SEL) action;
+- (NSInteger) indexOfItemWithTitle:(NSString *) title;
+- (NSInteger) indexOfSelectedItem;
+- (id) initTextCell:(NSString *) value pullsDown:(BOOL) flag;
+- (void) insertItemWithTitle:(NSString *) title atIndex:(NSInteger) index;
+- (NSArray *) itemArray;
+- (id <NSMenuItem>) itemAtIndex:(NSInteger) index;
+- (NSString *) itemTitleAtIndex:(int) index;
+- (NSArray *) itemTitles;
+- (id <NSMenuItem>) itemWithTitle:(NSString *) title;
+- (id <NSMenuItem>) lastItem;
+- (NSMenu *) menu; 
+- (NSInteger) numberOfItems;
+- (id) objectValue;
+- (void) performClickWithFrame:(NSRect) frame inView:(NSView *) controlView;
 - (NSRectEdge) preferredEdge;
 - (BOOL) pullsDown;
-- (BOOL) usesItemFromMenu;
+- (void) removeAllItems;
+- (void) removeItemAtIndex:(NSInteger) index;
+- (void) removeItemWithTitle:(NSString *) title;
+- (id <NSMenuItem>) selectedItem;
 - (void) selectItem:(NSMenuItem *) item;
-- (void) selectItemAtIndex:(int)index;
-- (void) selectItemWithTitle:(NSString *)title;
-- (void) setObjectValue:(id <NSCopying>) obj;	// selectItemAtIndex:[obj intValue]
+- (void) selectItemAtIndex:(NSInteger) index;
+- (BOOL) selectItemWithTag:(NSInteger) tag; 
+- (void) selectItemWithTitle:(NSString *) title;
+- (void) setAltersStateOfSelectedItem:(BOOL) flag;
 - (void) setArrowPosition:(NSPopUpArrowPosition) position;
-// - (void) setFont:(NSFont *)fontObject;
+- (void) setAutoenablesItems:(BOOL) flag;
+- (void) setImage:(NSImage *) image; // has no effect
+- (void) setMenu:(NSMenu *) menu; 
+- (void) setObjectValue:(id) obj;
 - (void) setPreferredEdge:(NSRectEdge) edge;
-- (void) setPullsDown:(BOOL)flag;
-- (void) setUsesItemFromMenu:(BOOL)flag;
-- (void) setTitle:(NSString *)aString;
+- (void) setPullsDown:(BOOL) flag;
+- (void) setTitle:(NSString *) aString;
+- (void) setUsesItemFromMenu:(BOOL) flag;
 - (void) synchronizeTitleAndSelectedItem;
-
-// - (NSString *) stringValue;	// ???
-- (void) setImage:(NSImage *) image;	// has no effect
-
-- (BOOL) autoenablesItems;								// Display management
-- (void) setAutoenablesItems:(BOOL)flag;
-- (BOOL) altersStateOfSelectedItem;
-- (void) setAltersStateOfSelectedItem:(BOOL)flag;
-
-- (void) attachPopUpWithFrame:(NSRect) cellFrame inView:(NSView *) controlView;
-- (void) dismissPopUp;
-- (void) performClickWithFrame:(NSRect)frame inView:(NSView *) controlView;
+- (NSString *) titleOfSelectedItem;
+- (BOOL) usesItemFromMenu;
 
 @end
 
