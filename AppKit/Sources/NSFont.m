@@ -1,5 +1,5 @@
 /* 
-   XRFont.m
+   NSFont.m
 
    NSFont Backend
 
@@ -12,7 +12,10 @@
    Date: 	May 1998
    Author:	Michael Hanni <mhanni@sprintmail.com>
    Date: 	August 1998
-   
+
+   Author:	Nikolaus Schaller <hns@computer.org>
+   Date: 	2003-2007
+
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -38,7 +41,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 { // get system font (cached)
 	NSUserDefaults *u = [NSUserDefaults standardUserDefaults];
 	NSString *fontName = [u objectForKey:key];	// e.g. NSBoldFont=Helvetica
-	static NSMutableDictionary *fcache;	// font cache
+	static NSMutableDictionary *fcache;	// system font cache
 	NSFont *f;
 #if 0
 	NSLog(@"_getFont %@ %lf (%@ %lf)", key, size, defaultFontName, deflt);
@@ -59,9 +62,12 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 		NSLog(@"add font to cache: %@", key);
 #endif
 		f=[NSFont fontWithName:fontName size:size];
-		if(!fcache)
-			fcache=[[NSMutableDictionary alloc] initWithCapacity:20];	// there was no cache yet
-		[fcache setObject:f forKey:key];
+		if(f)
+			{ // store in font cache
+			if(!fcache)
+				fcache=[[NSMutableDictionary alloc] initWithCapacity:20];	// there was no cache yet
+			[fcache setObject:f forKey:key];
+			}
 		}
 #if 0
 	NSLog(@"_gotFont size=%f", size);
@@ -192,52 +198,44 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 // the transform/matrix can be used to rotate/scale/shear the whole font (independently of the CTM!)
 
 + (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor size:(float) size textTransform:(NSAffineTransform *) transform;
-{
-	NSArray *a;
-	if(size == 0.0)
-		size=[NSFont systemFontSize];	// default
-	descriptor=[descriptor fontDescriptorWithSize:size];
-	if(transform)
-		descriptor=[descriptor fontDescriptorByAddingAttributes:[NSDictionary dictionaryWithObject:transform forKey:NSFontMatrixAttribute]];
-	a=[descriptor matchingFontDescriptorsWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
-	if([a count] == 0)
-		return nil;
-	return [a objectAtIndex:0];	// return first matching font
+{ // change size first
+	return [self fontWithDescriptor:[descriptor fontDescriptorWithSize:size] textTransform:transform];
 }
 
-+ (NSFont *) fontWithName:(NSString*) name matrix:(const float*) fontMatrix
-{ // should this simply create a NSFont object?
-	NSArray *c=[name componentsSeparatedByString:@"-"];	// e.g. Helvetica-Bold
++ (NSFont *) fontWithDescriptor:(NSFontDescriptor *) descriptor textTransform:(NSAffineTransform *) transform;
+{
+	if(transform)
+		descriptor=[descriptor fontDescriptorByAddingAttributes:[NSDictionary dictionaryWithObject:transform forKey:NSFontMatrixAttribute]];
+	descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
+	if(!descriptor)
+		return [NSFont fontWithName:@"Times" size:0.0];	// substitute a system default
+	return [[[NSFont alloc] _initWithDescriptor:descriptor] autorelease];
+}
+
++ (NSFont *) fontWithName:(NSString*) name matrix:(const float *) fontMatrix
+{
+	NSFontDescriptor *descriptor;
 	NSAffineTransform *matrix=[NSAffineTransform transform];
-	NSDictionary *attribs;
-	NSFontDescriptor *fd;
 	[matrix setTransformStruct:*(NSAffineTransformStruct *)&fontMatrix];
-	attribs=[NSDictionary dictionaryWithObjectsAndKeys:
-		name,	NSFontNameAttribute,
-		name, NSFontVisibleNameAttribute,
-		[c objectAtIndex:0], NSFontFamilyAttribute,
-		[NSString stringWithFormat:@"%d", fontMatrix[3]],	NSFontSizeAttribute,
-		matrix, NSFontMatrixAttribute,
-		[c lastObject],	NSFontFaceAttribute,	// may be nil!
-		nil];
-	fd=[[[NSFontDescriptor alloc] initWithFontAttributes:attribs] autorelease];
-	return [[[NSFont alloc] _initWithDescriptor:fd] autorelease];
+	descriptor=[NSFontDescriptor fontDescriptorWithName:name matrix:matrix];
+	descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
+	if(!descriptor)
+		return nil;	// no matching font found
+	return [[[NSFont alloc] _initWithDescriptor:descriptor] autorelease];
 }
 
 + (NSFont *) fontWithName:(NSString*) name size:(float) size
 { // create a font without matrix
-	NSArray *c=[name componentsSeparatedByString:@"-"];	// e.g. Helvetica-Bold
-	NSDictionary *attribs;
-	NSFontDescriptor *fd;
-	attribs=[NSDictionary dictionaryWithObjectsAndKeys:
-		name,	NSFontNameAttribute,
-		name, NSFontVisibleNameAttribute,
-		[c objectAtIndex:0],	NSFontFamilyAttribute,
-		[NSNumber numberWithFloat:size], NSFontSizeAttribute,
-		[c lastObject],	NSFontFaceAttribute,	// may be nil!
-		nil];
-	fd=[[[NSFontDescriptor alloc] initWithFontAttributes:attribs] autorelease];
-	return [[[NSFont alloc] _initWithDescriptor:fd] autorelease];
+	NSFontDescriptor *descriptor;
+	if(size == 0.0)
+		// FIXME: the NSUserFont entry is just the font name!
+		// size=[[[NSUserDefaults standardUserDefaults] objectForKey:@"NSUserFont"] pointSize];	// default
+		size=12.0;
+	descriptor=[NSFontDescriptor fontDescriptorWithName:name size:size];
+	descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
+	if(!descriptor)
+		return nil;	// no matching font found
+	return [[[NSFont alloc] _initWithDescriptor:descriptor] autorelease];
 }
 
 - (NSString *) fontName							{ return [_descriptor objectForKey:NSFontNameAttribute]; }
@@ -259,12 +257,17 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 {
 	if([aDecoder allowsKeyedCoding])
 		{
+		NSFont *r;
+		float size=[aDecoder decodeFloatForKey:@"NSSize"];
 		int fFlags=[aDecoder decodeIntForKey:@"NSfFlags"];	// renderingMode? denotes if a descriptor exists or not?
 #if 0
 		NSLog(@"%@ NSfFlags=%08x", self, [aDecoder decodeIntForKey:@"NSfFlags"]);
 #endif
 		[self release];
-		return [[NSFont fontWithName:[aDecoder decodeObjectForKey:@"NSName"] size:[aDecoder decodeFloatForKey:@"NSSize"]] retain];
+		r=[NSFont fontWithName:[aDecoder decodeObjectForKey:@"NSName"] size:size];	// fails if we don't have this font
+		if(!r)
+			r=[NSFont systemFontOfSize:size];	// substitute system font
+		return [r retain];
 		}
 //	_fontName = [[aDecoder decodeObject] retain];
 //	[aDecoder decodeArrayOfObjCType:"f" count:6 at:_matrix];
@@ -273,11 +276,11 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 }
 
 - (id) _initWithDescriptor:(NSFontDescriptor *) desc
-{
+{ // can beoverwritten by freetype backend
 	if((self=[super init]))
 		{
 		_descriptor=[desc retain];
-		_renderingMode=NSFontAntialiasedRenderingMode;
+		_renderingMode=NSFontIntegerAdvancementsRenderingMode;	// default rendering mode
 		}
 	return self;
 }
@@ -400,7 +403,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 				   count:(unsigned) count; { BACKEND; }
 
 - (void) getAdvancements:(NSSizeArray) advancements
-		 forPacketGlyphs:(const void *) glyphs
+		 forPackedGlyphs:(const void *) glyphs
 				   count:(unsigned) count; { BACKEND; }
 
 - (void) getBoundingRects:(NSRectArray) bounds
@@ -587,9 +590,115 @@ NSString *NSFontVariationAxisNameKey=@"VariationAxisName";
 	return f;
 }
 
-- (NSArray *) matchingFontDescriptorsWithMandatoryKeys:(NSSet *) keys;	// this is the core font search engine that knows about font directories
+#define FONT_CACHE	[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Caches/com.quantum-step.mySTEP.NSFonts.plist"]
+
+// the font cache is a NSDictionary indexed by Font Families
+// each family contains NSDictionary indexed by Font Faces
+// each Face has an entry "File" and and entry "FaceNumber"
+// each Face can also have and entry "NSFontDescriptor" storing the attributes dictionary
+
+// ?? how to handle duplicate Family-Faces? If there are two files and potentially two different FaceNumbers
+
+/* shouldn't we organize the cache differently:
+
+NSDictionary -> NSDictionary -> NSArray -> Record
+attribute    -> value        -> index
+
+i.e. [cache valueForKeyPath:@"name.Helvetica.7"] would return the 7-th Helvetica entry
+
+then, searching by a keyset is getting/filtering all these indexes and finding the common ones
+
+
+match:
+  loop through keys
+  get cache.key
+  get array indexed by _attributes
+  if(first key)
+     take as result
+  else
+	 remvoe from current result all entries not in our array
+
+*/
+
+static NSMutableDictionary *cache;
+static BOOL changed;
+
++ (NSDictionary *) _fonts;
 {
-	return BACKEND;
+	if(!cache)
+		{
+#if 1
+		NSLog(@"read font cache");
+#endif
+		cache=[[NSMutableDictionary alloc] initWithContentsOfFile:FONT_CACHE];
+		if(!cache)
+			{
+			cache=[[NSMutableDictionary alloc] initWithCapacity:10];	// empty cache
+			[self _findFonts];
+			}
+		}
+	if(changed)
+		{
+		NSString *error;
+#if 1
+		NSLog(@"write font cache %@", cache);
+#endif
+		if(![[NSPropertyListSerialization dataFromPropertyList:cache format:NSPropertyListBinaryFormat_v1_0 errorDescription:&error] writeToFile:FONT_CACHE atomically:YES])
+			[NSException raise:NSGenericException format:@"Can't write font cache: %@", FONT_CACHE];
+		changed=NO;
+		}
+	return cache;
+}
+
++ (void) _addDescriptor:(NSDictionary *) record;
+{ // add a system record that helps to find the font file
+	NSEnumerator *e=[record keyEnumerator];
+	NSString *key;
+	while((key=[e nextObject]))
+		{ // add indexes for all attributes
+		id val=[record objectForKey:key];
+		NSMutableDictionary *index=[cache objectForKey:key];
+		NSMutableArray *list=nil;
+		if(!index)
+			[cache setObject:(index=[NSMutableDictionary dictionaryWithCapacity:20]) forKey:key];
+		else
+			list=[index objectForKey:val];	// is there already an index entry?
+		if(!list)
+			[index setObject:[NSMutableArray arrayWithObject:record] forKey:val];	// first entry
+		else
+			[list addObject:record];	// add to cache
+		}
+	changed=YES;
+}
+
++ (void) _findFonts;
+{
+	return;		// Backend override
+}
+
+- (NSArray *) matchingFontDescriptorsWithMandatoryKeys:(NSSet *) keys;
+{ // this is the core font search engine that knows about font directories
+	NSMutableArray *r=[NSArray array];
+	NSDictionary *fonts=[isa _fonts];
+	if([keys containsObject:NSFontNameAttribute])
+		{ // match by name
+		r=[[fonts objectForKey:NSFontNameAttribute] objectForKey:[_attributes objectForKey:NSFontNameAttribute]]; 
+		}
+	if([keys containsObject:@"Size"])
+		{ // specific size
+		}
+	// search all fonts we know
+	// FIXME: filter by matching attributes
+	// returns array of matching font descriptors!
+	return r;
+}
+
+- (NSFontDescriptor *) matchingFontDescriptorWithMandatoryKeys:(NSSet *) keys;
+{
+	NSArray *r=[self matchingFontDescriptorsWithMandatoryKeys:keys];
+	if([r count])
+		return [r objectAtIndex:0];
+	return nil;
 }
 
 - (NSAffineTransform *) matrix; { return [_attributes objectForKey:NSFontMatrixAttribute]; }

@@ -100,20 +100,19 @@ typedef struct _NSX11GraphicsState
 - (unsigned long) _pixelForScreen:(Screen *) scr;
 @end
 
-@interface NSFontDescriptor (NSPrivate)
-
-- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
-
-@end
-
 @interface _NSX11Font : NSFont
 {
 	XFontStruct *_unscaledFontStruct;	// cached font struct for scale=1.0
 	XFontStruct *_fontStruct;			// a second font struct cache if we have a different font scale
 	float _fontScale;					// scaling factor used
+	void *_backendPrivate;
 }
+
 - (void) _setScale:(float) scale;		// set font scaling factor
 - (XFontStruct *) _font;				// X11 bitmap font
+
+- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
+
 @end
 
 @interface _NSX11Cursor : NSCursor

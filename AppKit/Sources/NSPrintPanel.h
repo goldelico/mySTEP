@@ -21,9 +21,17 @@
 #import <AppKit/NSPanel.h>
 
 @class NSView, NSViewController;
-@protocol NSPrintPanelAccessorizing; 
 
-/* NOT IN API */
+NSString *NSPrintPanelAccessorySummaryItemNameKey;
+NSString *NSPrintPanelAccessorySummaryItemDescriptionKey;
+
+@protocol NSPrintPanelAccessorizing
+- (NSSet *) keyPathsForValuesAffectingPreview;
+- (NSArray *) localizedSummaryItems;
+@end
+
+/* NOT IN API - OpenSTEP? */
+
 enum {
 	NSPPSaveButton,
 	NSPPPreviewButton,

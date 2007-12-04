@@ -17,12 +17,15 @@ typedef enum {
 	NSAdobeKorea1CharacterCollection     = 5,
 } NSCharacterCollection;
 
-@interface NSGlyphInfo : NSObject {
-
+@interface NSGlyphInfo : NSObject <NSCoding>
+{
+	NSUInteger _identifier;
+	NSCharacterCollection _collection;
+	NSString *_name;
 }
 
 + (NSGlyphInfo *) glyphInfoWithCharacterIdentifier:(NSUInteger) identifier 
-										collection:(NSCharacterCollection) charCollection 
+										collection:(NSCharacterCollection) chars 
 										baseString:(NSString *) string;
 + (NSGlyphInfo *) glyphInfoWithGlyph:(NSGlyph) glyph 
 							 forFont:(NSFont *) font 
@@ -34,6 +37,5 @@ typedef enum {
 - (NSCharacterCollection) characterCollection;
 - (NSUInteger) characterIdentifier;
 - (NSString *) glyphName;
-
 
 @end

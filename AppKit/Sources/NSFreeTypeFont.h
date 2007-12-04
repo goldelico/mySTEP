@@ -23,8 +23,22 @@
 #import "NSFontDescriptor.h"
 #import "NSScreen.h"
 
-@interface NSFontDescriptor (NSFreeTypeFont)
+@interface _NSX11Font (NSFreeTypeFont)
+
 #define _faceStruct ((FT_Face) _backendPrivate)
+
+- (void) _clear;
 - (FT_Face) _face;
+- (void) _finalize;
+- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
+
 @end
+
+@interface NSFontDescriptor (NSFreeTypeFont)
+
++ (void) _loadFontFromFile:(NSString *) path;
++ (void) _findFonts;
+
+@end
+
 #endif /* _mySTEP_H_NSFreeTypeFont */

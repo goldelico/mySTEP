@@ -82,7 +82,6 @@ extern NSString *NSFontFeatureSelectorIdentifierKey;
 @interface NSFontDescriptor : NSObject <NSCoding>
 {
 	NSDictionary *_attributes;
-	void *_backendPrivate;		// caches an FT_Face
 }
 
 + (id) fontDescriptorWithFontAttributes:(NSDictionary *) attributes;

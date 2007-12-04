@@ -270,10 +270,8 @@
 		substr=[str substringWithRange:attribRange];
 		font=[attr objectForKey:NSFontAttributeName];
 		if(!font)
-			font=[NSFont systemFontOfSize:12.0];	// substitute default font
-		if([ctxt isDrawingToScreen])
-			font=[self substituteFontForFont:font];
-		size=[font _sizeOfString:substr];
+			font=[NSFont userFontOfSize:0.0];		// use default system font
+		size=[font _sizeOfString:substr];			// use metrics of unsubstituted font
 		if((pos.x-origin.x)+size.width > containerSize.width)
 			{ // new word fragment does not fit into remaining line
 			if(pos.x > origin.x)
@@ -292,6 +290,8 @@
 				size=[font _sizeOfString:substr]; // get new width
 				}
 			}
+		if([ctxt isDrawingToScreen])
+			font=[self substituteFontForFont:font];
 		[font setInContext:ctxt];	// set font
 		foreGround=[attr objectForKey:NSForegroundColorAttributeName];
 #if 0
@@ -547,7 +547,7 @@ containerOrigin:(NSPoint)containerOrigin;
 	if((self=[super init]))
 		{
 		_textContainers=[NSMutableArray new];
-		_usesScreenFonts=YES;
+		_usesScreenFonts=NO;
 		}
 	return self;
 }
@@ -832,7 +832,7 @@ containerOrigin:(NSPoint)containerOrigin;
 	if(_usesScreenFonts)
 		{
 		// FIXME: check if any NSTextView is scaled or rotated
-		newFont=[originalFont screenFont];	// use matching screen font based on defaults settings
+		newFont=[originalFont screenFontWithRenderingMode:NSFontDefaultRenderingMode];	// use matching screen font based on defaults settings
 		if(newFont)
 			return newFont;
 		}
@@ -922,7 +922,7 @@ containerOrigin:(NSPoint)containerOrigin;
 	[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
 	_textContainers=[[coder decodeObjectForKey:@"NSTextContainers"] retain];
 	_textStorage=[[coder decodeObjectForKey:@"NSTextStorage"] retain];
-	_usesScreenFonts=YES;
+	_usesScreenFonts=NO;
 #if 0
 	NSLog(@"%@ done", self);
 #endif

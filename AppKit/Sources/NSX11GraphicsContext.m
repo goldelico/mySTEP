@@ -1046,7 +1046,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	else
 		{ // use Freetype
-		[[_state->_font fontDescriptor] _drawAntialisedGlyphs:glyphs count:cnt inContext:self];
+		[_state->_font _drawAntialisedGlyphs:glyphs count:cnt inContext:self];
 		}
 }
 
@@ -3448,21 +3448,44 @@ static NSDictionary *_x11settings;
 	return NSAllocateObject([_NSX11Font class], 0, z?z:NSDefaultMallocZone());
 }
 
-- (NSFont *) screenFontWithRenderingMode:(NSFontRenderingMode) mode; // overwritten in NSFreeTypeFont category
-{ // default is to make it an X11 screen font
-	if(mode == NSFontDefaultRenderingMode)
-		mode=NSFontIntegerAdvancementsRenderingMode;
+@end
+
+@implementation _NSX11Font
+
+#if 0
++ (void) initialize
+{ // ask X Server for list of fonts
+	/*
+	 NSDictionary *record;
+	 int count_return;
+	 XFontStruct *info_return;
+	char ** names=XListFontsWithInfo(_display, "*", 200, &count_return, &info_return)
+	 // go through all fonts
+	 // split name
+	 // add required info to easily find the font
+	 [NSFontDescriptor _addFont:name withRecord:record];
+	 */
+}
+#endif
+
+- (NSFont *) screenFontWithRenderingMode:(NSFontRenderingMode) mode;
+{ // check if we can make it an X11 screen font - otherwise make it a freetype font
 	if(_renderingMode == NSFontIntegerAdvancementsRenderingMode)
 		return nil;	// is already a screen font!
-					// FIXME: check if we either have no transform matrix or it is an identity matrix
+	if(mode == NSFontDefaultRenderingMode)
+		mode = NSFontIntegerAdvancementsRenderingMode;	// read from user defaults...
+														// FIXME: check if we either have no transform matrix or it is an identity matrix
 	if((self=[[self copy] autorelease]))
-		{
-		_renderingMode=NSFontIntegerAdvancementsRenderingMode;
-		[self _setScale:1.0];
-		if(![self _font])
-			{ // can't find a matching X11 font
-			[self release];
-			return nil;
+		{ // make a modified copy
+		_renderingMode=mode;
+		if(mode == NSFontIntegerAdvancementsRenderingMode)
+			{ // try to use an X11 font
+			[self _setScale:1.0];
+			if(![self _font])
+				{ // we can't find a matching X11 font
+				[self release];
+				return nil;
+				}
 			}
 		}
 	return self;
@@ -3472,10 +3495,6 @@ static NSDictionary *_x11settings;
 { // we make no distinction
 	return self;
 }
-
-@end
-
-@implementation _NSX11Font
 
 - (void) _setScale:(float) scale;
 { // scale font
@@ -3495,12 +3514,10 @@ static NSDictionary *_x11settings;
 {
 	NSString *name=[self fontName];
 #if 0
-	NSLog(@"_font %@ %.1f", name, [self pointSize]);
+	NSLog(@"_font %@ %.1f scale %f", name, [self pointSize], _fontScale);
 #endif
 	if(_fontScale == 1.0 && _unscaledFontStruct)
 		return _unscaledFontStruct;
-	//	if(_renderingMode != NSFontDefaultRenderingMode)
-	//		[NSException raise:NSGenericException format:@"Is not a screen font %@:%f", name, [self pointSize]];		
 	if(!_fontStruct)
 		{
 		char *xFoundry = "*";
@@ -3522,8 +3539,15 @@ static NSDictionary *_x11settings;
 		if(!_display)
 			[NSScreen class];	// +initialize
 								// [NSException raise:NSGenericException format:@"font %@: no _display: %@", self, xf];
+#if 1
+		if(_fontScale*[self pointSize] < 1.0)
+			{
+			NSLog(@"??? zero point font: %@ descriptor:%@", self, [[self fontDescriptor] fontAttributes]);
+			NSLog(@"scale %f", _fontScale);
+			NSLog(@"pointSize %f", [self pointSize]);
+			}
+#endif
 		sprintf(xPoint, "%.0f", _fontScale*[self pointSize]);	// scaled font for X11 server
-		
 		if([name caseInsensitiveCompare:@"Helvetica"] == NSOrderedSame)
 			{
 			xFamily = "helvetica";
@@ -3585,6 +3609,9 @@ static NSDictionary *_x11settings;
 #endif
 		if((_fontStruct = XLoadQueryFont(_display, [xf cString])))	// Load X font
 			return _fontStruct;
+		
+		return NULL;
+		
 		NSLog(@"font: %@ is not available", xf);
 		NSLog(@"Trying 9x15 system font instead");			
 		if((_fontStruct = XLoadQueryFont(_display, "9x15")))
@@ -3593,7 +3620,7 @@ static NSDictionary *_x11settings;
 		if((_fontStruct = XLoadQueryFont(_display, "fixed")))
 			return _fontStruct;	// "fixed" exists
 		[NSException raise:NSGenericException format:@"Unable to open any fixed font for %@:%f", name, [self pointSize]];
-		return NULL;	// here we should return nil for screenFont because we can't get one
+		return NULL;
 		}
 	return _fontStruct;
 }
@@ -3636,12 +3663,23 @@ static NSDictionary *_x11settings;
 	return size;	// return size of character box
 }
 
+- (void) _finalize
+{ // overwritten by FreeTypeFont
+	return;
+}
+
+- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
+{ // overwritten by FreeTypeFont
+	NSLog(@"can't draw antialiased fonts");
+}
+
 - (void) dealloc;
 {
 	if(_fontStruct)
 		XFreeFont(_display, _fontStruct);	// no longer needed
 	if(_unscaledFontStruct)
 		XFreeFont(_display, _unscaledFontStruct);	// no longer needed
+	[self _finalize];
 	[super dealloc];
 }
 

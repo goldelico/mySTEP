@@ -90,8 +90,6 @@ extern NSString *NSFontSetChangedNotification;
 {
 	NSFontDescriptor *_descriptor;
 	NSFontRenderingMode _renderingMode;
-// @public
-// 	void *_backendPrivate;	// stores an XFontStruct if we are a screen font
 }
 
 + (NSFont *) boldSystemFontOfSize:(CGFloat) fontSize;

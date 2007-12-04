@@ -320,7 +320,15 @@ enum _NSGlyphAttribute
 
 @interface NSFont (NSPrivate)
 
-- (id) _initWithDescriptor:(NSFontDescriptor *) desc;
+- (id) _initWithDescriptor:(NSFontDescriptor *) desc;	// look up in system
+
+@end
+
+@interface NSFontDescriptor (NSPrivate)
+
++ (NSDictionary *) _fonts;		// all known fonts (cached)
++ (void) _addDescriptor:(NSDictionary *) record;	// add font descriptor to cache
++ (void) _findFonts;			// find fonts (either in cache or by searching font directories)
 
 @end
 

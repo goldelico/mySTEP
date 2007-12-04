@@ -20,6 +20,9 @@
  under the terms of the GNU Library General Public License.
  */ 
 
+#if 1	// set to 0 to disable libfreetype references
+
+#import "NSX11GraphicsContext.h"
 #import "NSFreeTypeFont.h"
 
 // load full headers (to expand @class forward references)
@@ -38,7 +41,7 @@
 #import "NSWindow.h"
 #import "NSPasteboard.h"
 
-@implementation NSFont (NSFreeTypeFont)
+@implementation _NSX11Font (NSFreeTypeFont)
 
 #if 0
 // FIXME: add freetype rendering
@@ -49,7 +52,7 @@
 }
 #endif
 
-- (float) ascender; { return [_descriptor _face]->ascender * (1.0/32.0); }
+- (float) ascender; { return _faceStruct->ascender * (1.0/32.0); }
 
 - (NSRect) boundingRectForFont; { return NSZeroRect; }
 
@@ -59,7 +62,7 @@
 
 - (NSCharacterSet *) coveredCharacterSet;  { return nil; }
 
-- (float) descender; { return [_descriptor _face]->descender * (1.0/32.0); }
+- (float) descender; { return _faceStruct->descender * (1.0/32.0); }
 
 - (void) getAdvancements:(NSSizeArray) advancements
 							 forGlyphs:(const NSGlyph *) glyphs
@@ -75,7 +78,7 @@
 
 - (NSGlyph) glyphWithName:(NSString *) name;
 {
-	FT_UInt glyph=FT_Get_Name_Index([_descriptor _face], (FT_String *) [name cString]);
+	FT_UInt glyph=FT_Get_Name_Index(_faceStruct, (FT_String *) [name cString]);
 	if(glyph == 0)
 		return NSNullGlyph;
 	return glyph;
@@ -99,35 +102,23 @@
 
 - (float) xHeight; { return 0.0; }
 
-- (NSFont *) screenFontWithRenderingMode:(NSFontRenderingMode) mode; // category also overwrites - conflict with NSX11GraphicsContext?
-{ // make it a screen font
-	if(mode == NSFontDefaultRenderingMode)
-		mode=NSFontIntegerAdvancementsRenderingMode;
-	if(_renderingMode == NSFontIntegerAdvancementsRenderingMode)
-		return nil;	// is already a screen font!
-					// FIXME: check if we either have no transform matrix or it is an identity matrix
-	if((self=[[self copy] autorelease]))
+- (id) _initWithDescriptor:(NSFontDescriptor *) desc
+{
+	if((self=[super init]))
 		{
-		_renderingMode=mode;
-		// we could check first if we have a matching antialiased font and fallback if not
-		if(mode == NSFontIntegerAdvancementsRenderingMode)
-			{ // not antialiased and integer advancements
-			[self _setScale:1.0];
-			if(![self _font])
-				{ // can't find a matching X11 font
-				_renderingMode=NSFontAntialiasedIntegerAdvancementsRenderingMode;	// ry freetype
-				}
+		_renderingMode=NSFontAntialiasedRenderingMode;
+		_descriptor=[desc retain];
+		if(![self _face])
+			{ // can't load backend info
+#if 1
+			NSLog(@"Can't find font %@", [desc fontAttributes]);
+#endif
+			[self release];
+			return nil;
 			}
 		}
 	return self;
 }
-
-@end
-
-
-@implementation NSFontDescriptor (NSBackend)	// the NSFontDescriptor can cache a libfreetype FT_Face structure
-
-#define FONT_CACHE	[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Caches/com.quantum-step.mySTEP.NSFonts.plist"]
 
 FT_Library _ftLibrary(void)
 {
@@ -141,174 +132,57 @@ FT_Library _ftLibrary(void)
 	return _freetypeLibrary;
 }
 
-// the font cache is a NSDictionary indexed by Font Families
-// each family contains NSDictionary indexed by Font Faces
-// each Face has an entry "File" and and entry "FaceNumber"
-// dynamically, each Face can also have and entry "NSFontDescriptor" storing the attributes dictionary
-
-// ?? how to handle duplicate Family-Faces? There are two files and potentially two different FaceNumbers
-
-static NSMutableDictionary *cache;
-
-- (void) _loadFontFromFile:(NSString *) path;
-{ // try to load to cache - ignore if we can't really load
-	FT_Long	faceIndex;
-#if 1
-	NSLog(@"_loadFontFromFile:%@", path);
-#endif
-	for(faceIndex=0; faceIndex < 10; faceIndex++)
-		{ // loop until we can't read a given face
-		FT_Error error;
-		NSDictionary *fontRecord;
-		NSString *family;
-		NSString *style;
-		NSString *name;
-		if(_faceStruct)
-			{
-			FT_Done_Face(_faceStruct);
-			_backendPrivate=NULL;
-			}
-#if 0
-		NSLog(@"try face #%lu", faceIndex);
-#endif
-		error=FT_New_Face(_ftLibrary(), [path fileSystemRepresentation], faceIndex, (FT_Face *) &_backendPrivate);	// try to load first face
-		if(error)
-			return;	// any error
-#if 0
-		NSLog(@"num faces=%lu", _faceStruct->num_faces);
-#endif
-		family=[NSString stringWithCString:_faceStruct->family_name];
-		if(_faceStruct->style_name)
-			style=[NSString stringWithCString:_faceStruct->style_name];
-		else
-			style=@"Regular";	// N/A
-		if([style isEqualToString:@"Regular"])
-			name=family;
-		else
-			name=[NSString stringWithFormat:@"%@-%@", family, style];
-#if 1
-		NSLog(@"add #%lu[%lu] %@-%@ at %@", faceIndex, _faceStruct->num_faces, family, style, path);
-#endif
-		fontRecord=[NSDictionary dictionaryWithObjectsAndKeys:
-			path, @"File",
-			[NSNumber numberWithUnsignedLong:faceIndex], @"Face",
-			nil];
-		[[cache objectForKey:NSFontNameAttribute] setObject:fontRecord forKey:name];
-		// add to cache
-		// create { "File"=path, "Face"=NSNumber(faceIndex) }
-		// save e.g. as "Helvetica-Bold" in NSFontNameAttribute
-		// save in NSSet with name NSFontFamilyAttribute
-		// in the Family, we should keep spaces
-		// for the font name, we should remove space characters
-		// remove "Regular" from style name for building postscript name
-		}
-}
-
-- (void) _createCache;
+- (void) _clear;
 {
-	NSEnumerator *e=[[[NSBundle bundleForClass:isa] objectForInfoDictionaryKey:@"NSFontSearchPath"] objectEnumerator];
-	NSString *dir;
 	if(_faceStruct)
 		{
 		FT_Done_Face(_faceStruct);
 		_backendPrivate=NULL;
 		}
-#if 1
-	NSLog(@"create font cache");
-#endif
-	cache=[[NSMutableDictionary alloc] initWithObjectsAndKeys:
-		[NSMutableDictionary dictionaryWithCapacity:20], NSFontFamilyAttribute,
-		[NSMutableDictionary dictionaryWithCapacity:20], NSFontNameAttribute,
-		nil];
-	while((dir=[e nextObject]))
-		{
-		NSEnumerator *f;
-		NSString *file;
-		dir=[dir stringByExpandingTildeInPath];
-		f=[[[NSFileManager defaultManager] directoryContentsAtPath:dir] objectEnumerator];
-		while((file=[f nextObject]))
-			{
-			if([file hasPrefix:@"."])
-				continue;	// ignore hidden files
-			[self _loadFontFromFile:[dir stringByAppendingPathComponent:file]];
-			}
-		}
-#if 1
-	NSLog(@"write font cache");
-#endif
-	if(![cache writeToFile:FONT_CACHE atomically:YES])
-		[NSException raise:NSGenericException format:@"Can't write font cache: %@", FONT_CACHE];
 }
 
 - (FT_Face) _face;
 { // get _face
 	if(!_faceStruct)
 		{
-		FT_Error error;
-		FT_Long	faceIndex;
-		NSString *fontFile;
-		NSString *fontName;
-		NSDictionary *fontRecord;
-		fontName=[_attributes objectForKey:NSFontNameAttribute];											// get our font name
-//		NS_DURING
-			if(!cache)
-				cache=[[NSMutableDictionary alloc] initWithContentsOfFile:FONT_CACHE];			// load cache if needed
-//		NS_HANDLER
-//			cache=nil;
-//		NS_ENDHANDLER
-		fontRecord=[[cache objectForKey:NSFontNameAttribute] objectForKey:fontName];	// look up in cache
-		if(!fontRecord)
+		NSDictionary *attribs=[_descriptor fontAttributes];
+		if(attribs)
 			{
-			[self _createCache];	// does not exist, try to rebuild cache
-			fontRecord=[[cache objectForKey:NSFontNameAttribute] objectForKey:fontName];
-			if(!fontFile)
-				[NSException raise:NSGenericException format:@"Font not in cache: %@", fontName];
+			FT_Error error;
+			FT_Long	faceIndex=[[attribs objectForKey:@"FaceNumber"] unsignedLongValue];
+			NSString *fontFile=[attribs objectForKey:@"FilePath"];
+			_backendPrivate=NULL;
+			error=FT_New_Face(_ftLibrary(), [fontFile fileSystemRepresentation], faceIndex, (FT_Face *) &_backendPrivate);
+			if(!error)
+				{
+				// get transform/size
+				// if we don't have a transform we must have a pointSize
+				// else get point size from matrix, and scale matrix by inverse size
+				/*
+				 error = FT_Set_Char_Size((FT_Face *) &_faceStruct,			// handle to face object
+										  0,														// char_width in 1/64th of points
+										  [self pointSize]*64,					// char_height in 1/64th of points
+										  72,     // horizontal device resolution
+										  72 );   // vertical device resolution
+				 */
+				/*
+				 NSAffineTransformStruct m;
+				 FT_Matrix matrix = { m.m11*0x10000, m.m12*0x10000, m.m21*0x10000, m.m22*0x10000 };
+				 FT_Vector delta = { m.tX*64, m.tY*64 };
+				 error = FT_Set_Transform((FT_Face *) &_faceStruct,			// handle to face object
+										  &matrix,    // pointer to 2x2 matrix
+										  &delta );   // pointer to 2d vector
+				 */
+				}
 			}
-		fontFile=[fontRecord objectForKey:@"File"];
-		faceIndex=[[fontRecord objectForKey:@"Face"] unsignedLongValue];
-		_backendPrivate=NULL;
-		error=FT_New_Face(_ftLibrary(), [fontFile fileSystemRepresentation], faceIndex, (FT_Face *) &_backendPrivate);
-		// fixme: should we clear the cache on errors so that it is rebuilt from scratch?
-		if(error == FT_Err_Unknown_File_Format)
-			[NSException raise:NSGenericException format:@"Invalid font %@ file format: %@", fontName, fontFile];
-		if(error)
-			[NSException raise:NSGenericException format:@"Unable to load font %@ from %@", fontName, fontFile];
-		// get transform/size
-		// if we don't have a transform we must have a pointSize
-		// else get point size from matrix, and scale matrix by inverse size
-		/*
-		 error = FT_Set_Char_Size((FT_Face *) &_faceStruct,			// handle to face object
-															0,														// char_width in 1/64th of points
-															[self pointSize]*64,					// char_height in 1/64th of points
-															72,     // horizontal device resolution
-															72 );   // vertical device resolution
-		 */
-		/*
-		 NSAffineTransformStruct m;
-		 FT_Matrix matrix = { m.m11*0x10000, m.m12*0x10000, m.m21*0x10000, m.m22*0x10000 };
-		 FT_Vector delta = { m.tX*64, m.tY*64 };
-		 error = FT_Set_Transform((FT_Face *) &_faceStruct,			// handle to face object
-															&matrix,    // pointer to 2x2 matrix
-															&delta );   // pointer to 2d vector
-		*/
 		}
 	return _faceStruct;
 }
 
-- (NSArray *) matchingFontDescriptorsWithMandatoryKeys:(NSSet *) keys;
-{ // this is the core font search engine that knows about font directories
-	// search all fonts we know
-	// FIXME: filter by matching attributes
-	// returns array of font desriptors!
-	return nil;
-}
-
-- (void) dealloc;
-{
+- (void) _finalize
+{ // called when deallocating the X11Font
 	if(_faceStruct)
 		FT_Done_Face((FT_Face) _faceStruct);
-	[_attributes release];
-	[super dealloc];
 }
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
@@ -331,7 +205,7 @@ static NSMutableDictionary *cache;
 		if(error)
 			continue;
 		/*
-			my_draw_bitmap( context, &slot->bitmap,
+		 my_draw_bitmap( context, &slot->bitmap,
 						 slot->bitmap_left,
 						 slot->bitmap_top,
 						 pen
@@ -341,6 +215,93 @@ static NSMutableDictionary *cache;
 		pen.y += slot->advance.y;
 		}
 }
+
+@end
+
+
+@implementation NSFontDescriptor (NSFreeTypeFont)	// the NSFontDescriptor can cache a libfreetype FT_Face structure
+
++ (void) _loadFontFromFile:(NSString *) path;
+{ // try to load to cache - ignore if we can't really load
+	FT_Long	faceIndex;
+	FT_Face face;
+#if 1
+	NSLog(@"_loadFontFromFile:%@", path);
+#endif
+	for(faceIndex=0; faceIndex < 10; faceIndex++)
+		{ // loop until we can't read a given face
+		FT_Error error;
+		NSDictionary *fontRecord;
+		NSString *family;
+		NSString *style;
+		NSString *name;
+#if 0
+		NSLog(@"try face #%lu", faceIndex);
+#endif
+		error=FT_New_Face(_ftLibrary(), [path fileSystemRepresentation], faceIndex, &face);	// try to load first face
+		if(error == FT_Err_Unknown_File_Format)
+			{
+			NSLog(@"Invalid font file format: %@", path);
+			return;
+			}
+		if(error)
+			{
+			NSLog(@"Unable to load font file %@ (error=%d)", path, error);
+			return;	// any error
+			}
+#if 0
+		NSLog(@"num faces=%lu", face.num_faces);
+#endif
+		family=[NSString stringWithCString:face->family_name];
+		if(face->style_name)
+			style=[NSString stringWithCString:face->style_name];
+		else
+			style=@"Regular";	// N/A
+		if([style isEqualToString:@"Regular"])
+			name=family;
+		else
+			name=[NSString stringWithFormat:@"%@-%@", family, style];
+#if 1
+		NSLog(@"add #%lu[%lu] %@-%@ at %@", faceIndex, face->num_faces, family, style, path);
+#endif
+		fontRecord=[NSDictionary dictionaryWithObjectsAndKeys:
+			family, NSFontFamilyAttribute,
+			style, NSFontFaceAttribute,
+			name, NSFontNameAttribute,
+			// add other attributes if we can get them...
+			path, @"FilePath",
+			[NSNumber numberWithUnsignedLong:faceIndex], @"FaceNumber",
+			nil];
+		[NSFontDescriptor _addDescriptor:fontRecord];
+		FT_Done_Face(face);
+		}
+}
+
++ (void) _findFonts;
+{
+	NSEnumerator *e=[[[NSBundle bundleForClass:self] objectForInfoDictionaryKey:@"NSFontSearchPath"] objectEnumerator];
+	NSString *dir;
+#if 1
+	NSLog(@"scan for fonts");
+#endif
+	while((dir=[e nextObject]))
+		{
+		NSEnumerator *f;
+		NSString *file;
+#if 1
+		NSLog(@"scan %@", dir);
+#endif
+		dir=[dir stringByExpandingTildeInPath];
+		f=[[[NSFileManager defaultManager] directoryContentsAtPath:dir] objectEnumerator];
+		while((file=[f nextObject]))
+			{
+			if([file hasPrefix:@"."])
+				continue;	// ignore hidden files
+			[self _loadFontFromFile:[dir stringByAppendingPathComponent:file]];
+			}
+		}
+}
+
 
 @end
 
@@ -359,5 +320,7 @@ static NSMutableDictionary *cache;
 }
 
 @end
+
+#endif
 
 // EOF
