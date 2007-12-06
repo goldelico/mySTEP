@@ -12,7 +12,10 @@
 
 @interface NSCollectionViewItem : NSObject <NSCoding, NSCopying> 
 {
-
+	NSCollectionView *_collectionView; 
+	id _representedObject; 
+	NSView *_view; 	
+	BOOL _isSelected; 
 }
 
 - (NSCollectionView *) collectionView; 

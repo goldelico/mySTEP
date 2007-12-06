@@ -34,11 +34,4 @@
 
 @end
 
-@interface NSFontDescriptor (NSFreeTypeFont)
-
-+ (void) _loadFontFromFile:(NSString *) path;
-+ (void) _findFonts;
-
-@end
-
 #endif /* _mySTEP_H_NSFreeTypeFont */

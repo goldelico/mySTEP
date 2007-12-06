@@ -22,8 +22,8 @@
 
 @class NSView, NSViewController;
 
-NSString *NSPrintPanelAccessorySummaryItemNameKey;
-NSString *NSPrintPanelAccessorySummaryItemDescriptionKey;
+extern NSString *NSPrintPanelAccessorySummaryItemNameKey;
+extern NSString *NSPrintPanelAccessorySummaryItemDescriptionKey;
 
 @protocol NSPrintPanelAccessorizing
 - (NSSet *) keyPathsForValuesAffectingPreview;

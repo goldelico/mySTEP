@@ -143,6 +143,20 @@ typedef struct _PathElement
 	return b;
 }
 
++ (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
+{
+	NSBezierPath *p=[self new];
+	[p appendBezierPathWithRoundedRect:rect xRadius:xrad yRadius:yrad];
+	return p;
+}
+
+- (void) appendBezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
+{
+	NIMP;
+}
+
+#if 1	// can be replaced by new + (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
+
 // this is a special case of _drawRoundedBezel:
 
 + (NSBezierPath *) _bezierPathWithRoundedBezelInRect:(NSRect) borderRect vertical:(BOOL) flag;	// box with halfcircular rounded ends
@@ -175,6 +189,8 @@ typedef struct _PathElement
 	[p closePath];
 	return p;
 }
+
+#endif
 
 // rename to _drawSegmentedBezel
 // add backgroundColor parameter (for the default if not enabled)

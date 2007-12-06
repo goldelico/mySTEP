@@ -52,17 +52,19 @@
 }
 #endif
 
-- (float) ascender; { return _faceStruct->ascender * (1.0/32.0); }
+#define Free2Pt(VAL) (VAL*(1.0/32.0))
+
+- (float) ascender; { return Free2Pt(_faceStruct->ascender); }
 
 - (NSRect) boundingRectForFont; { return NSZeroRect; }
 
 - (NSRect) boundingRectForGlyph:(NSGlyph)aGlyph; { return NSZeroRect; }
 
-- (float) capHeight; { return 0.0; }
+- (float) capHeight; { return Free2Pt(_faceStruct->height); }
 
 - (NSCharacterSet *) coveredCharacterSet;  { return nil; }
 
-- (float) descender; { return _faceStruct->descender * (1.0/32.0); }
+- (float) descender; { return Free2Pt(_faceStruct->descender); }
 
 - (void) getAdvancements:(NSSizeArray) advancements
 							 forGlyphs:(const NSGlyph *) glyphs
@@ -84,23 +86,23 @@
 	return glyph;
 }
 
-- (BOOL) isFixedPitch;	{ return NO; }
+- (BOOL) isFixedPitch;	{ return FT_IS_FIXED_WIDTH(_faceStruct) != 0; }
 
-- (float) italicAngle; { return 0.0; }
+- (float) italicAngle; { return -1.0; }
 
-- (float) leading; { return 0.0; }
+- (float) leading; { return -1.0; }
 
-- (NSSize) maximumAdvancement; { return NSZeroSize; }
+- (NSSize) maximumAdvancement; { return NSMakeSize(Free2Pt(_faceStruct->max_advance_width), Free2Pt(_faceStruct->max_advance_height)); }
 
 - (NSStringEncoding) mostCompatibleStringEncoding; { return NSASCIIStringEncoding; }
 
-- (unsigned) numberOfGlyphs; { return 0; }
+- (unsigned) numberOfGlyphs; { return _faceStruct->num_glyphs; }
 
-- (float) underlinePosition; { return 0.0; }
+- (float) underlinePosition; { return Free2Pt(_faceStruct->underline_position); }
 
-- (float) underlineThickness; { return 0.0; }
+- (float) underlineThickness; { return Free2Pt(_faceStruct->underline_thickness); }
 
-- (float) xHeight; { return 0.0; }
+- (float) xHeight; { return -1.0; }
 
 - (id) _initWithDescriptor:(NSFontDescriptor *) desc
 {
@@ -221,20 +223,76 @@ FT_Library _ftLibrary(void)
 
 @implementation NSFontDescriptor (NSFreeTypeFont)	// the NSFontDescriptor can cache a libfreetype FT_Face structure
 
-+ (void) _loadFontFromFile:(NSString *) path;
+#define USE_SQLITE 0
+
+#if USE_SQLITE	// sqlite based font cache - overwrites default implementation
+
+#define FONT_CACHE	[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Caches/com.quantum-step.mySTEP.NSFonts.sqlite"]
+
++ (NSArray *) _matchingFontDescriptorsWithAttributes:(NSDictionary *) attributes mandatoryKeys:(NSSet *) keys limit:(unsigned) limit;
+{ // this is the core font search engine that knows about font directories
+	NSString *query=@"SELECT * FROM fonts";
+	NSString *delim=@"WHERE";
+	NSArray *keylist=nil;	// nur die die gespeichert werden!
+	NSEnumerator *e=[keys objectEnumerator];
+	NSString *key;
+	while((key=[e nextObject]) && [keylist containsObject:key])
+		query=[NSString stringWithFormat:@"%@ %@ %@='%@'", query, delim, key, [_attributes objectForKey:key]], delim=@"AND";
+	if(limit < 99999)
+		query=[NSString stringWithFormat:@"%@ LIMIT %u", query, limit];
+	NSLog(@"query=%@", query);
+	abort();
+	return nil;
+}
+
++ (NSDictionary *) _fonts;
+{
+	return NIMP;
+}
+
++ (void) _writeFonts;
+{
+	return;
+}
+
++ (void) _addFontWithAttributes:(NSDictionary *) record;
+{ // add a system record that helps to find the font file
+	NSEnumerator *e=[record keyEnumerator];
+	NSString *key;
+	// create table fonts (Name text,Family text,Face text,PostscriptName text, Traits integer, FaceNumber integer,FilePath text);
+	const char *path=[FONT_CACHE fileSystemRepresentation];
+	FILE *f=fopen(path, "a");
+	char c;
+	fprintf(f, "insert into fonts ");
+	c='(';
+	while((key=[e nextObject]))
+		fprintf(f, "%c%s", c, [key cString]), c=',';
+	fprintf(f, ") values ");
+	c='(';
+	e=[record keyEnumerator];
+	while((key=[e nextObject]))
+		fprintf(f, "%c'%s'", c, [[[record objectForKey:key] description] UTF8String]), c=',';
+	fprintf(f, ");\n");
+	fclose(f);
+}
+#endif
+
++ (void) _loadFontsFromFile:(NSString *) path;
 { // try to load to cache - ignore if we can't really load
 	FT_Long	faceIndex;
 	FT_Face face;
 #if 1
-	NSLog(@"_loadFontFromFile:%@", path);
+	NSLog(@"_loadFontsFromFile:%@", path);
 #endif
 	for(faceIndex=0; faceIndex < 10; faceIndex++)
 		{ // loop until we can't read a given face
 		FT_Error error;
-		NSDictionary *fontRecord;
+		NSMutableDictionary *fontRecord;
 		NSString *family;
 		NSString *style;
 		NSString *name;
+		NSFontTraitMask traits=0;
+		const char *psname;
 #if 0
 		NSLog(@"try face #%lu", faceIndex);
 #endif
@@ -249,59 +307,63 @@ FT_Library _ftLibrary(void)
 			NSLog(@"Unable to load font file %@ (error=%d)", path, error);
 			return;	// any error
 			}
+		if(!FT_IS_SCALABLE(face))
+			continue;	// must be scalable - FIXME: we could derive a NSFontSizeAttribute
 #if 0
 		NSLog(@"num faces=%lu", face.num_faces);
 #endif
 		family=[NSString stringWithCString:face->family_name];
-		if(face->style_name)
+		if(face->style_name && strcmp(face->style_name, "Regular") != 0)
+			{
 			style=[NSString stringWithCString:face->style_name];
-		else
-			style=@"Regular";	// N/A
-		if([style isEqualToString:@"Regular"])
-			name=family;
-		else
 			name=[NSString stringWithFormat:@"%@-%@", family, style];
+			}
+		else
+			{
+			style=@"";	// N/A
+			name=family;
+			}
+		if(face->style_flags&FT_STYLE_FLAG_ITALIC)
+			traits |= NSItalicFontMask;
+//		else
+//			traits |= NSUnitalicFontMask;
+		if(face->style_flags&FT_STYLE_FLAG_BOLD)
+			traits |= NSBoldFontMask;
+//		else
+//			traits |= NSUnboldFontMask;
+		// nonstandardcharset traits
+		// narrowfont
+		// expanded
+		// condensed
+		// smallcaps
+		// posterfont
+		// compressed
+		if(FT_IS_FIXED_WIDTH(face))
+			traits |= NSFixedPitchFontMask;
 #if 1
 		NSLog(@"add #%lu[%lu] %@-%@ at %@", faceIndex, face->num_faces, family, style, path);
 #endif
-		fontRecord=[NSDictionary dictionaryWithObjectsAndKeys:
+		psname=FT_Get_Postscript_Name(face);
+		fontRecord=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+			// official
 			family, NSFontFamilyAttribute,
 			style, NSFontFaceAttribute,
 			name, NSFontNameAttribute,
-			// add other attributes if we can get them...
+			[NSDictionary dictionaryWithObjectsAndKeys:
+				[NSNumber numberWithUnsignedInt:traits], NSFontSymbolicTrait,
+				[NSNumber numberWithFloat:0.0], NSFontWeightTrait,
+				// NSFontSlantTrait
+				// NSFontWidthTrait
+				nil], NSFontTraitsAttribute,
+			// internal
 			path, @"FilePath",
 			[NSNumber numberWithUnsignedLong:faceIndex], @"FaceNumber",
+			psname?[NSString stringWithCString:psname]:nil, @"PostscriptName",
 			nil];
-		[NSFontDescriptor _addDescriptor:fontRecord];
+		[NSFontDescriptor _addFontWithAttributes:fontRecord];
 		FT_Done_Face(face);
 		}
 }
-
-+ (void) _findFonts;
-{
-	NSEnumerator *e=[[[NSBundle bundleForClass:self] objectForInfoDictionaryKey:@"NSFontSearchPath"] objectEnumerator];
-	NSString *dir;
-#if 1
-	NSLog(@"scan for fonts");
-#endif
-	while((dir=[e nextObject]))
-		{
-		NSEnumerator *f;
-		NSString *file;
-#if 1
-		NSLog(@"scan %@", dir);
-#endif
-		dir=[dir stringByExpandingTildeInPath];
-		f=[[[NSFileManager defaultManager] directoryContentsAtPath:dir] objectEnumerator];
-		while((file=[f nextObject]))
-			{
-			if([file hasPrefix:@"."])
-				continue;	// ignore hidden files
-			[self _loadFontFromFile:[dir stringByAppendingPathComponent:file]];
-			}
-		}
-}
-
 
 @end
 
