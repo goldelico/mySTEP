@@ -341,6 +341,15 @@ static NSString *__fontCollections = nil;
 		return newFont;
 }
 
+- (NSFontAction) currentFontAction;
+{
+	return _storedTag;
+}
+
+- (NSFontTraitMask) convertFontTraits:(NSFontTraitMask) fontTraits;
+{
+}
+
 - (NSFont *) fontWithFamily:(NSString *)family
 					 traits:(NSFontTraitMask)traits
 					 weight:(int)weight
@@ -505,6 +514,8 @@ static NSString *__fontCollections = nil;
 
 - (void) setAction:(SEL)aSelector				{ _action = aSelector; }
 - (SEL) action									{ return _action; }
+- (void) setTarget:(id) target;					{ _target = target; }
+- (id) target;									{ return _target; }
 
 - (BOOL) sendAction
 {
@@ -578,10 +589,10 @@ static NSString *__fontCollections = nil;
 		{ // get unique families from fonts and return in specific format
 		NSDictionary *attribs=[fd fontAttributes];
 		NSArray *a=[NSArray arrayWithObjects:
-			[fd objectForKey:@"PostscriptName"],
-			[fd objectForKey:NSFontFaceAttribute],
+			[attribs objectForKey:@"PostscriptName"],
+			[attribs objectForKey:NSFontFaceAttribute],
 			[NSNumber numberWithInt:5],		// weight
-			[fd objectForKey:@"Traits"],
+			[attribs objectForKey:@"Traits"],
 			nil];
 		[r addObject:a];
 		}
@@ -613,7 +624,8 @@ static NSString *__fontCollections = nil;
 - (NSArray *) availableFontFamilies;
 {
 	NSFontDescriptor *fd=[NSFontDescriptor fontDescriptorWithFontAttributes:nil];
-	NSEnumerator *e=[[fd matchingFontDescriptorsWithMandatoryKeys:[NSSet set]] objectEnumerator];
+	NSSet *empty=[NSSet setWithObjects:nil];	// gcc 2.95.3 confuses -(void) set and +(NSSet *) set
+	NSEnumerator *e=[[fd matchingFontDescriptorsWithMandatoryKeys:empty] objectEnumerator];
 	NSMutableArray *r=[[NSMutableArray alloc] initWithCapacity:50];
 #if 1
 	NSLog(@"NSFontManager availableFontFamilies");

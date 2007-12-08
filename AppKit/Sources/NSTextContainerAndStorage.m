@@ -142,6 +142,7 @@
 
 - (void) dealloc;
 {
+	NSLog(@"dealloc %p: %@", self, self);
 #if __APPLE__
 	[concreteString release];
 #endif
@@ -309,7 +310,9 @@
 
 - (void) setAttributedString:(NSAttributedString *) str;
 {
+	[str retain];
 	[concreteString setAttributedString:str];
+	[str release];
 }
 
 - (void) setAttributes:(NSDictionary *)attributes range:(NSRange)aRange

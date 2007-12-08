@@ -197,9 +197,29 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 
 - (id) mutableCopyWithZone:(NSZone *) zone
 {
-	NSMutableParagraphStyle *c=[NSMutableParagraphStyle new];
-	// fill with copied data
-	NIMP;
+	NSParagraphStyle *c=[NSMutableParagraphStyle new];
+	if(c)
+		{ // components are not becoming mutable!
+		c->tabStops=[tabStops retain];
+		c->textBlocks=[textBlocks retain];
+		c->textLists=[textLists retain];
+		c->lineSpacing=lineSpacing;
+		c->paragraphSpacing=paragraphSpacing;
+		c->paragraphSpacingBefore=paragraphSpacingBefore;
+		c->headIndent=headIndent;
+		c->tailIndent=tailIndent;
+		c->firstLineHeadIndent=firstLineHeadIndent;
+		c->defaultTabInterval=defaultTabInterval;
+		c->hyphenationFactor=hyphenationFactor;
+		c->lineHeightMultiple=lineHeightMultiple;
+		c->minimumLineHeight=minimumLineHeight;
+		c->maximumLineHeight=maximumLineHeight;
+		c->tighteningFactorForTruncation=tighteningFactorForTruncation;
+		c->alignment=alignment;
+		c->lineBreakMode=lineBreakMode;
+		c->writingDirection=writingDirection;
+		c->headerLevel=headerLevel;
+		}
 	return c;
 }
 
@@ -224,8 +244,8 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 
 - (id) copyWithZone:(NSZone *) zone
 {
-	// make an immutable copy!
-	return NIMP;
+	// FIXME: should make an immutable copy!
+	return [self retain];
 }
 
 - (void) setLineSpacing:(float)aFloat							{ lineSpacing=aFloat; }
@@ -237,7 +257,7 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 - (void) setLineBreakMode:(NSLineBreakMode)mode					{ lineBreakMode=mode; }
 - (void) setMinimumLineHeight:(float)aFloat						{ minimumLineHeight=aFloat; }
 - (void) setMaximumLineHeight:(float)aFloat						{ maximumLineHeight=aFloat; }
-// FIXME: we should insert-sort!!!
+// FIXME: we should insert-sort tabs at the correct position!!!
 - (void) addTabStop:(NSTextTab *)anObject						{ [(NSMutableArray *)tabStops addObject:anObject]; }
 - (void) removeTabStop:(NSTextTab *)anObject					{ [(NSMutableArray *)tabStops removeObject:anObject]; }
 - (void) setTabStops:(NSArray *)array							{ [tabStops release]; tabStops=[array mutableCopy]; }

@@ -60,7 +60,7 @@ NSStringDrawing.m
 	{
 #endif
 		NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attributes];
-		[a drawWithRect:rect options:options];	// draw attributed string
+		[a drawWithRect:rect options:options];	// draw as attributed string
 		[a release];							// no longer needed
 #if 0
 	}
@@ -102,18 +102,18 @@ static NSTextContainer *_textContainer;
 #if 0
 		NSLog(@"create global text storage");
 #endif
-		_textStorage=[[NSTextStorage alloc] initWithAttributedString:self];				// store a copy
+		_textStorage=[[NSTextStorage alloc] initWithAttributedString:self];			// store a copy
 		_textContainer=[[NSTextContainer alloc] initWithContainerSize:rect.size];	// predefine the size of the container
 		_layoutManager=[NSLayoutManager new];
 		[_layoutManager addTextContainer:_textContainer];
-		[_textContainer release];
+		[_textContainer release];	// is retained by _layoutManager
 		[_textStorage addLayoutManager:_layoutManager];
-		[_layoutManager release];
+		[_layoutManager release];	// is retained by _textStorage
 		}
 	else
 		{
 		[_textContainer setContainerSize:rect.size];	// resize container
-		[_textStorage setAttributedString:self];			// replace
+		[_textStorage setAttributedString:self];		// replace
 		}
 #if 0
 	NSLog(@"self = %@", self);
@@ -154,6 +154,9 @@ static NSTextContainer *_textContainer;
 	// FIXME: should this be moved to the layout manager as well?
 	if(![[NSGraphicsContext currentContext] isFlipped])
 		rect.origin.y+=rect.size.height;	// start at top of rect
+#if 0
+	NSLog(@"drawWithRect:options: %@", self);
+#endif
 	[_layoutManager drawGlyphsForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [self length])
 																   actualCharacterRange:NULL]
 									atPoint:rect.origin];

@@ -40,6 +40,7 @@
 #import "NSScreen.h"
 #import "NSWindow.h"
 #import "NSPasteboard.h"
+#import "NSGlyphGenerator.h"
 
 @implementation _NSX11Font (NSFreeTypeFont)
 
@@ -77,6 +78,11 @@
 - (void) getBoundingRects:(NSRectArray) bounds
 								forGlyphs:(const NSGlyph *) glyphs
 										count:(unsigned) count; { return; }
+
+- (NSGlyph) _glyphForCharacter:(unichar) c;
+{
+	return FT_Get_Char_Index(_faceStruct, c);
+}
 
 - (NSGlyph) glyphWithName:(NSString *) name;
 {
@@ -146,7 +152,7 @@ FT_Library _ftLibrary(void)
 - (FT_Face) _face;
 { // get _face
 	if(!_faceStruct)
-		{
+		{ // not yet initialized
 		NSDictionary *attribs=[_descriptor fontAttributes];
 		if(attribs)
 			{
@@ -157,25 +163,35 @@ FT_Library _ftLibrary(void)
 			error=FT_New_Face(_ftLibrary(), [fontFile fileSystemRepresentation], faceIndex, (FT_Face *) &_backendPrivate);
 			if(!error)
 				{
-				// get transform/size
-				// if we don't have a transform we must have a pointSize
-				// else get point size from matrix, and scale matrix by inverse size
-				/*
-				 error = FT_Set_Char_Size((FT_Face *) &_faceStruct,			// handle to face object
-										  0,														// char_width in 1/64th of points
-										  [self pointSize]*64,					// char_height in 1/64th of points
-										  72,     // horizontal device resolution
-										  72 );   // vertical device resolution
-				 */
-				/*
-				 NSAffineTransformStruct m;
-				 FT_Matrix matrix = { m.m11*0x10000, m.m12*0x10000, m.m21*0x10000, m.m22*0x10000 };
-				 FT_Vector delta = { m.tX*64, m.tY*64 };
-				 error = FT_Set_Transform((FT_Face *) &_faceStruct,			// handle to face object
-										  &matrix,    // pointer to 2x2 matrix
-										  &delta );   // pointer to 2d vector
-				 */
+				NSAffineTransform *t=[_descriptor matrix];
+				if(t)
+					{ // we have a text transform
+					NSAffineTransformStruct m=[t transformStruct];
+					FT_Matrix matrix = { m.m11*0x10000, m.m12*0x10000, m.m21*0x10000, m.m22*0x10000 };
+					FT_Vector delta = { m.tX*64, m.tY*64 };
+					FT_Set_Transform(_faceStruct,			// handle to face object
+									 &matrix,				// pointer to 2x2 matrix
+									 &delta );				// pointer to 2d vector
+					return _faceStruct;
+					}
+				else
+					{ // use pointSize
+					  // FIXME: here we must handle the user and system space scale factors or the bitmaps will not be scaled to DPI!
+					// we should cache and reload only if we draw to a different context!
+					int hdpi=2*72;
+					int vdpi=2*72;
+					FT_F26Dot6 size=64*[_descriptor pointSize];
+					error = FT_Set_Char_Size(_faceStruct,					// handle to face object
+											  size,							// char_width in 1/64th of points
+											  size,							// char_height in 1/64th of points
+											  hdpi,							// horizontal device resolution
+											  vdpi);						// vertical device resolution
+					if(!error)
+						return _faceStruct;
+					}
+				FT_Select_Charmap(_faceStruct, FT_ENCODING_UNICODE);
 				}
+			NSLog(@"*** Internal font loading error: %@", fontFile);
 			}
 		}
 	return _faceStruct;
@@ -187,39 +203,103 @@ FT_Library _ftLibrary(void)
 		FT_Done_Face((FT_Face) _faceStruct);
 }
 
+- (NSSize) _sizeOfAntialisedString:(NSString *) string;
+{ // overwritten in Freetype.m
+
+	// FIXME: this uses the X11 font metrics!
+	
+	NSFontRenderingMode rm=_renderingMode;
+	NSSize sz;
+	_renderingMode=NSFontIntegerAdvancementsRenderingMode;
+	sz=[self _sizeOfString:string];
+	_renderingMode=rm;
+	return sz;
+}
+
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
 { // render the string
 	FT_Error error;
 	FT_GlyphSlot slot = _faceStruct->glyph;
-	FT_Vector pen;
+	NSPoint pen = NSZeroPoint;
 	unsigned long i;
-	
-	//	error = FT_Select_CharMap(_faceStruct, FT_ENCODING_BIG5 );	// not required since we use Unicode
-	
-	/* the pen position in 26.6 cartesian space coordinates */
-	
-	pen.x = 0;
-	pen.y = 0;
-	
 	for(i = 0; i < cnt; i++)
-		{	// render characters
+		{ // render glyphs
 		error = FT_Load_Char(_faceStruct, glyphs[i], FT_LOAD_RENDER);
 		if(error)
 			continue;
-		/*
-		 my_draw_bitmap( context, &slot->bitmap,
-						 slot->bitmap_left,
-						 slot->bitmap_top,
-						 pen
-						 );
-		 */
-		pen.x += slot->advance.x;
-		pen.y += slot->advance.y;
+		[ctxt _drawGlyphBitmap:slot->bitmap.buffer atPoint:NSMakePoint(pen.x /*+slot->bitmap_left*/, pen.y/*-slot->bitmap_top*/) width:slot->bitmap.width height:slot->bitmap.rows];
+		if(_renderingMode == NSFontAntialiasedIntegerAdvancementsRenderingMode)
+			{ // a little faster but less accurate
+			pen.x += slot->advance.x>>6;
+			pen.y += slot->advance.y>>6;
+			}
+		else
+			{ // needs 4 additional float operations per step
+			pen.x += ((float) slot->advance.x)*(1.0/64.0);
+			pen.y += ((float) slot->advance.y)*(1.0/64.0);
+			}
 		}
 }
 
 @end
 
+@implementation NSGlyphGenerator (NSFreeTypeFont)
+
+- (void) generateGlyphsForGlyphStorage:(id <NSGlyphStorage>) storage
+			 desiredNumberOfCharacters:(unsigned int) num glyphIndex:(unsigned int *) gidx characterIndex:(unsigned int *) cidx
+{
+	NSAttributedString *astr=[storage attributedString];	// get string to layout
+	NSString *str=[astr string];
+	unsigned int options=[storage layoutOptions];	 // NSShowControlGlyphs, NSShowInvisibleGlyphs, NSWantsBidiLevels
+
+	while(num > 0)
+		{
+		
+		// FIXME: handle invisible characters, make page breaks etc. optionally visible, handle multi-character glyphs (ligatures), multi-glyph characters etc.
+		// convert unicode to glyph encoding
+		
+		// loop through characters
+		// switch fonts as necessary
+		// add line breaks (?)
+		// convert character to glyph encoding
+
+		NSGlyph glyph;
+		int gnum=1;
+		unichar c=[str characterAtIndex:*cidx];
+		NSDictionary *attribs=[astr attributesAtIndex:*cidx effectiveRange:NULL];
+		NSFont *font=[attribs objectForKey:@"Font"];
+		switch(c)
+			{
+			// handle special characters like \n \t and textattachments
+			default:
+				glyph=FT_Get_Char_Index([(_NSX11Font *) font _face], c);
+			}
+
+#if FRAGMENT
+		/* convert character code to glyph index */
+#endif
+		// generate position information
+#if FRAGMENT
+		initialize previous by [storage _glyphAtIndex:(*gidx)-1]
+		/* retrieve kerning distance and move pen position */
+		if(use_kerning && previous && glyph_index)
+			{ // handle kerning
+			FT_Vector delta;
+			FT_Get_Kerning([font _face], previous, glyph, ft_kerning_mode_default, &delta);
+			pen_x += delta.x >> 6;
+			pen_y += delta.y >> 6;
+			previous=glyph;
+			}
+#endif
+		[storage insertGlyphs:&glyph length:gnum forStartingGlyphAtIndex:*gidx characterIndex:*cidx];
+//		[storage setIntAttribute:124 value:4321 forGlyphAtIndex:*gidx];
+		*gidx+=gnum;
+		*cidx++;
+		num--;
+		}
+}
+
+@end
 
 @implementation NSFontDescriptor (NSFreeTypeFont)	// the NSFontDescriptor can cache a libfreetype FT_Face structure
 
@@ -373,6 +453,53 @@ FT_Library _ftLibrary(void)
 							  count:(int)count
 							 inFont:(NSFont *)font
 {
+	FT_Face face=[(_NSX11Font *) font _face];
+	// do similar loop as in - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
+	// but collect contents of slot->outline
+	/*
+	 n_contours	
+	 The number of contours in the outline.
+	 
+	 this is an inner loop!
+	 
+	 n_points	
+	 The number of points in the outline.
+	 
+	 points	
+	 A pointer to an array of ‘n_points’ FT_Vector elements, giving the outline's point coordinates.
+	 
+	 tags	
+	 A pointer to an array of ‘n_points’ chars, giving each outline point's type. If bit 0 is unset, the point is ‘off’ the curve, i.e., a Bézier control point, while it is ‘on’ when set.
+	 
+	 Bit 1 is meaningful for ‘off’ points only. If set, it indicates a third-order Bézier arc control point; and a second-order control point if unset.
+	 
+	 switch(slot->outline->tags[i]&3)
+		{
+		case 0:
+			// second order control point
+			break;
+		case 1:
+			[self lineTo: ];
+			break;
+		case 2:
+			// third order control point
+		case 3:
+			// error
+		}
+	 contours	
+	 An array of ‘n_contours’ shorts, giving the end point of each contour within the outline. For example, the first contour is defined by the points ‘0’ to ‘contours[0]’, the second one is defined by the points ‘contours[0]+1’ to ‘contours[1]’, etc.
+	 
+	 => [self close]
+	 
+	 flags	
+	 A set of bit flags used to characterize the outline and give hints to the scan-converter and hinter on how to convert/grid-fit it. See FT_OUTLINE_FLAGS.
+	 
+	 FT_OUTLINE_EVEN_ODD_FILL
+	 By default, outlines are filled using the non-zero winding rule. If set to 1, the outline will be filled using the even-odd fill rule (only works with the smooth raster).
+	 
+	 
+	 */
+	
 	NIMP;
 }
 

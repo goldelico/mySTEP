@@ -99,10 +99,10 @@ typedef NSInteger NSTypesetterBehavior;
 	NSGlyph *_glyphs;
 	unsigned int _numberOfGlyphs;
 	unsigned int _glyphBufferCapacity;
-		
+	
+	unsigned int _layoutOptions;
+	
 	BOOL _backgroundLayoutEnabled;
-	BOOL _showsControlCharacters;
-	BOOL _showsInvisibleCharacters;
 	BOOL _usesScreenFonts;
 	
 #if 0

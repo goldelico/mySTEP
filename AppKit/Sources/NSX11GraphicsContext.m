@@ -931,15 +931,15 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _setFont:(NSFont *) font;
 {
-	if(font == _state->_font)
-		return;	// change only if needed since it is quite expensive
+	if(!font || font == _state->_font)
+		return;	// change only if needed
 	[_state->_font release];
 	_state->_font=[font retain];
 }
 
 - (void) _beginText;
 {
-	// FIXME: we could postpone the CTM until we really draw text
+	// FIXME: we could postpone using the CTM until we really draw text
 	_cursor=[_state->_ctm transformPoint:NSZeroPoint];	// start at (0,0)
 	_baseline=0;
 }
@@ -972,6 +972,41 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (void) _setBaseline:(float) val;
 {
 	_baseline=val;
+}
+
+- (void) _drawGlyphBitmap:(unsigned char *) buffer atPoint:(NSPoint) pnt width:(unsigned) width height:(unsigned) height;
+{ // paint to screen
+	// we could also (re)use an NSBitmapImageRep and fill it appropriately by alpha/rgb
+	// the bitmap is a grey level bitmap - so how do we colorize?
+	// how do we handle compositing?
+	XImage *img;
+	int screen_number=XScreenNumberOfScreen(_nsscreen->_screen);
+	int x=pnt.x+_cursor.x;	// relative to cursor position
+	int y=pnt.y+_cursor.y;
+#if 1
+	NSLog(@"_drawGlyphBitmap");
+	NSLog(@"size={%d %d}", width, height);
+	NSLog(@"font=%@", _state->_font);
+#endif
+	img=XCreateImage(_display, DefaultVisual(_display, screen_number), DefaultDepth(_display, screen_number),
+					 ZPixmap, 0, NULL,
+					 width, height,
+					 8, 0);
+	if(img && (img->data = objc_malloc(img->bytes_per_line*img->height)))
+		{ // copy pixels
+		int pxx, pxy;
+		for(pxy=0; pxy<height; pxy++)
+			{
+			for(pxx=0; pxx<width; pxx++)
+				{
+				int val=255-*buffer++;
+				XPutPixel(img, pxx, pxy, 0x010101*val);	// black/white
+				}
+			}
+		}
+	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, x, y, width, height);	
+	_setDirtyRect(self, x, y, width, height);
+	XDestroyImage(img);
 }
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;
@@ -1326,6 +1361,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 #if 0
 		NSLog(@"XCreateImage(%u, %u)", xScanRect.width, xScanRect.height);
 #endif
+		// FIXME: can we reuse this?
 		img=XCreateImage(_display, DefaultVisual(_display, screen_number), DefaultDepth(_display, screen_number),
 						 ZPixmap, 0, NULL,
 						 xScanRect.width, xScanRect.height,
@@ -3625,42 +3661,55 @@ static NSDictionary *_x11settings;
 	return _fontStruct;
 }
 
+// GET RID OF THIS SINCE IT DEPENDEND ON CHARACTER ENCODING
+
+- (NSSize) _sizeOfAntialisedString:(NSString *) string;
+{ // overwritten in Freetype.m
+	BACKEND;
+	return NSZeroSize;
+}
+
 - (NSSize) _sizeOfString:(NSString *) string;
 { // get size from X11 font assuming no scaling
-	static XChar2b *buf;	// translation buffer (unichar -> XChar2b)
-	static unsigned int buflen;
-	unsigned int i;
-	unsigned length=[string length];
-	NSSize size;
-	SEL cai=@selector(characterAtIndex:);
-	typedef unichar (*CAI)(id self, SEL _cmd, int i);
-	CAI imp=(CAI)[string methodForSelector:cai];	// don't try to cache this! Different strings may have different implementations
-#if 0
-	NSLog(@"_sizeOfString:%@ font:%@", string, _state->_font);
-#endif
-	if(!buf || length > buflen)
-		buf=(XChar2b *) objc_realloc(buf, sizeof(buf[0])*(buflen=length+20));	// increase translation buffer if needed
-	if(!_unscaledFontStruct)
+	if(_renderingMode == NSFontIntegerAdvancementsRenderingMode)
 		{
-		_fontScale=10.0;
-		[self _font];						// load font data with scaling (10)
-		_unscaledFontStruct=_fontStruct;	// copy
-		_fontStruct=NULL;					// recache if we finally need a different scaling
-		}
-	if(buflen < sizeof(buf[0])*length)
-		buf=(XChar2b *) objc_realloc(buf, buflen+=sizeof(buf[0])*(length+20));	// increase buffer size
-	for(i=0; i<length; i++)
-		{
-		unichar c=(*imp)(string, cai,i);
-		buf[i].byte1=c>>8;
-		buf[i].byte2=c;
-		}
-	size=NSMakeSize(XTextWidth16(_unscaledFontStruct, buf, length),
-					(((XFontStruct *)_unscaledFontStruct)->ascent + ((XFontStruct *)_unscaledFontStruct)->descent));	// character box
+		static XChar2b *buf;	// translation buffer (unichar -> XChar2b)
+		static unsigned int buflen;
+		unsigned int i;
+		unsigned length=[string length];
+		NSSize size;
+		SEL cai=@selector(characterAtIndex:);
+		typedef unichar (*CAI)(id self, SEL _cmd, int i);
+		CAI imp=(CAI)[string methodForSelector:cai];	// don't try to cache this! Different strings may have different implementations
 #if 0
-	NSLog(@"%@[%@] -> %@ (C: %d)", self, string, NSStringFromSize(size), XTextWidth(_fontStruct, [string cString], length));
+		NSLog(@"_sizeOfString:%@ font:%@", string, _state->_font);
 #endif
-	return size;	// return size of character box
+		if(!buf || length > buflen)
+			buf=(XChar2b *) objc_realloc(buf, sizeof(buf[0])*(buflen=length+20));	// increase translation buffer if needed
+		if(!_unscaledFontStruct)
+			{
+			_fontScale=10.0;
+			[self _font];						// load font data with scaling (10)
+			_unscaledFontStruct=_fontStruct;	// copy
+			_fontStruct=NULL;					// recache if we finally need a different scaling
+			}
+		if(buflen < sizeof(buf[0])*length)
+			buf=(XChar2b *) objc_realloc(buf, buflen+=sizeof(buf[0])*(length+20));	// increase buffer size
+		for(i=0; i<length; i++)
+			{
+			unichar c=(*imp)(string, cai,i);
+			buf[i].byte1=c>>8;
+			buf[i].byte2=c;
+			}
+		size=NSMakeSize(XTextWidth16(_unscaledFontStruct, buf, length),
+						(((XFontStruct *)_unscaledFontStruct)->ascent + ((XFontStruct *)_unscaledFontStruct)->descent));	// character box
+#if 0
+		NSLog(@"%@[%@] -> %@ (C: %d)", self, string, NSStringFromSize(size), XTextWidth(_fontStruct, [string cString], length));
+#endif
+		return size;	// return size of character box
+		}
+	else
+		return [self _sizeOfAntialisedString:string];
 }
 
 - (void) _finalize

@@ -246,7 +246,23 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	descriptor=[NSFontDescriptor fontDescriptorWithName:name size:size];	// add size for search
 	descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
 	if(!descriptor)
-		return nil;	// no matching font found
+		{
+#ifdef __mySTEP__
+		// FIXME: susbtitute some free fonts until we have an official substitution mechanism for that and/or a license for the Helvetica etc. fonts
+		if([name isEqualToString:@"Times"]) name=@"Luxi Serif";
+		else if([name isEqualToString:@"Helvetica"]) name=@"Luxi Sans";
+		else if([name isEqualToString:@"Helvetica-Bold"]) name=@"Luxi Sans";
+		else if([name isEqualToString:@"Courier"]) name=@"Nonserif";
+		else if([name isEqualToString:@"Monaco"]) name=@"Luxi Sans";
+		else if([name isEqualToString:@"Lucida Grande"]) name=@"Luxi Sans";
+		else if([name isEqualToString:@"Geneva"]) name=@"Luxi Sans";
+		else return nil;
+		descriptor=[NSFontDescriptor fontDescriptorWithName:name size:size];	// add size for search
+		descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
+		if(!descriptor)
+#endif
+			return nil;	// no matching font found
+		}
 	descriptor=[descriptor fontDescriptorWithSize:size];	// add size to result
 	return [[[NSFont alloc] _initWithDescriptor:descriptor] autorelease];
 }
@@ -258,6 +274,8 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 - (NSString *) displayName						{ return [_descriptor objectForKey:NSFontVisibleNameAttribute]; }
 
 - (float) pointSize								{ return [_descriptor pointSize]; }	// effective vertical size
+
+- (NSAffineTransform *) textTransform;			{ return [_descriptor matrix]; }
 
 - (void) encodeWithCoder:(NSCoder *)aCoder
 {														// NSCoding protocol
@@ -423,6 +441,8 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 				forGlyphs:(const NSGlyph *) glyphs
 					count:(unsigned) count; { BACKEND; }
 
+- (NSGlyph) _glyphForCharacter:(unichar) c; { return c; }
+
 - (NSGlyph) glyphWithName:(NSString *) name; { BACKEND; return NSNullGlyph; }
 
 - (BOOL) isFixedPitch;	{ BACKEND; return NO; }
@@ -436,8 +456,6 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 - (NSStringEncoding) mostCompatibleStringEncoding; { BACKEND; return NSASCIIStringEncoding; }
 
 - (unsigned) numberOfGlyphs; { BACKEND; return 0; }
-
-- (NSAffineTransform *) textTransform; { return BACKEND; }
 
 - (float) underlinePosition; { BACKEND; return 0.0; }
 
@@ -662,14 +680,14 @@ static BOOL changed;
 #if 1
 		NSLog(@"read font cache");
 #endif
+#if 1	// if 0: rebuild cache each time while debugging
 		cache=[[NSMutableDictionary alloc] initWithContentsOfFile:FONT_CACHE];
+#endif
 		if(!cache)
 			{ // could not load
 			cache=[[NSMutableDictionary alloc] initWithCapacity:10];	// allocate empty cache
 			[self _findFonts];
-#if 0
 			[self _writeFonts];
-#endif
 			}
 		}
 	return cache;
@@ -679,8 +697,8 @@ static BOOL changed;
 { // write font cache
 	if(changed)
 		{
-		NSString *error=@"write error";
-#if 1
+		NSString *error=@"file write error";
+#if 0
 		NSLog(@"write font cache %@", cache);
 #endif
 		if(![[NSPropertyListSerialization dataFromPropertyList:cache format:NSPropertyListBinaryFormat_v1_0 errorDescription:&error] writeToFile:FONT_CACHE atomically:YES])

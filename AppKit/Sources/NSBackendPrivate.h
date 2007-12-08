@@ -78,8 +78,8 @@
 
 // FIXME: should not use _string but _drawGlyphs
 
-- (void) _string:(NSString *) string;		// (string) Tj
 - (void) _drawGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;	// (string) Tj
+- (void) _drawGlyphBitmap:(unsigned char *) buffer atPoint:(NSPoint) pnt width:(unsigned) width height:(unsigned) height;
 
 - (void) _endText;							// PDF: ET
 
@@ -152,6 +152,7 @@
 @end
 
 @interface NSFont (NSBackend)
+- (NSGlyph) _glyphForCharacter:(unichar) c;
 - (NSSize) _sizeOfString:(NSString *) string;	// query bounding box
 @end
 

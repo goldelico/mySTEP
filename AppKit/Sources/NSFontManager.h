@@ -70,17 +70,17 @@ typedef enum _NSFontAction
 @interface NSFontManager : NSObject
 {
 	id _delegate;
+	id _target;
 	SEL _action;
 	NSFont *_selectedFont;
 	NSDictionary *_selectedAttributes;
 	NSMenu *_fontMenu;
-	NSFontTraitMask _trait;
 	NSMutableDictionary *_localCollections;
-	int _storedTag;
-	BOOL _multiple;
-
+	NSFontTraitMask _trait;
 	NSDictionary *_collections;	// each one contains an array of font descriptors
 	NSArray *fontsList;
+	NSFontAction _storedTag;
+	BOOL _multiple;
 }
 
 + (void) setFontManagerFactory:(Class) classId;

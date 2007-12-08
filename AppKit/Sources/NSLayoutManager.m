@@ -32,22 +32,17 @@
 							glyphIndex:(unsigned int *) glyph
 						characterIndex:(unsigned int *) index;
 {
-	NSAttributedString *astr=[storage attributedString];	// get string to layout
-	NSString *str=[astr string];
-	unsigned int options=[storage layoutOptions];
-	NSGlyph *glyphs=NULL;
-	
-	// FIXME: handle invisible characters, make page breaks etc. optionally visible, handle multi-character glyphs (ligatures), multi-glyph characters etc.
-	// convert unicode to glyph encoding
-
-	[storage insertGlyphs:glyphs length:num forStartingGlyphAtIndex:*glyph characterIndex:*index];
-	*glyph+=num;
-	*index+=num;
+	BACKEND;
 }
 
 @end
 
 @implementation NSLayoutManager
+
+- (NSGlyph *) _glyphsAtIndex:(unsigned) idx;
+{
+	return &_glyphs[idx];
+}
 
 - (void) addTemporaryAttributes:(NSDictionary *)attrs forCharacterRange:(NSRange)range;
 {
@@ -120,6 +115,7 @@
 
 - (float) defaultLineHeightForFont:(NSFont *) font;
 {
+	// NIMP
 	return 12;
 }
 
@@ -127,7 +123,9 @@
 
 - (void) deleteGlyphsInRange:(NSRange)glyphRange;
 {
-	NIMP;
+	// check range
+	memcpy(&_glyphs[glyphRange.location], &_glyphs[NSMaxRange(glyphRange)], sizeof(_glyphs[0])*glyphRange.length);
+	_numberOfGlyphs-=glyphRange.length;
 }
 
 - (void) drawBackgroundForGlyphRange:(NSRange)glyphsToShow 
@@ -143,11 +141,12 @@
 	NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
 	NSTextContainer *container=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];	// this call could fill the cache if needed...
 	NSSize containerSize=[container containerSize];
-	NSString *str=[_textStorage string];					// raw characters
+	NSString *str=[_textStorage string];				// raw characters
 	NSRange rangeLimit=glyphsToShow;					// initial limit
 	NSPoint pos;
-	NSFont *font=[NSFont systemFontOfSize:12.0];		// default/current font attribute
+	NSFont *font;										// default/current font attribute
 	NSColor *foreGround;
+	BOOL flipped=[ctxt isFlipped];
 	NSAssert(glyphsToShow.location==0 && glyphsToShow.length == [str length], @"can render ful glyph range only");
 	//
 	// FIXME: optimize/cache for large NSTextStorages and multiple NSTextContainers
@@ -164,7 +163,7 @@
 	// i.e.
 	// [ctxt _setFont:xxx]; 
 	// [ctxt _beginText];
-	// [ctxt _setTextPosition:origin];
+	// [ctxt _setTextPosition:fragmentOrigin];
 	// [ctxt _setBaseline:xxx]; 
 	// [ctxt _drawGlyphs:(NSGlyph *)glyphs count:(unsigned)cnt;	// -> (string) Tj
 	// [ctxt _endText];
@@ -249,8 +248,9 @@
 					continue;
 				}
 			case ' ':
-				{ // advance to next character position
-					pos.x+=[font _sizeOfString:@" "].width;		// white space
+				{ // advance to next character position but don't draw a glyph
+					NSFont *font=[_textStorage attribute:NSFontAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
+					pos.x+=[font _sizeOfString:@" "].width;		// width of space
 					// [ctxt _gotohpos:pos.x];
 					rangeLimit.location++;
 					rangeLimit.length--;
@@ -278,7 +278,7 @@
 				{ // we didn't just start on a newline, so insert a newline
 //				[ctxt _newLine];
 				pos.x=origin.x;
-				if([ctxt isFlipped])
+				if(flipped)
 					pos.y+=1.2*size.height;
 				else
 					pos.y-=1.2*size.height;
@@ -312,22 +312,20 @@
 			[ctxt _setBaseline:baseline];	// adjust baseline
 			[ctxt _setTextPosition:pos];	// set where to start drawing
 			}
-		//
-		// handle kerning attributes
-		//
 		
 		// this code assumes unicode encoding and a 1:1 relationship for glyphs and characters
 		
 		// here, we should already have laid out
 		_numberOfGlyphs=[substr length];
 		if(!_glyphs || _numberOfGlyphs >= _glyphBufferCapacity)
-			_glyphs=(NSGlyph *) objc_realloc(_glyphs, sizeof(*_glyphs)*(_glyphBufferCapacity=_numberOfGlyphs+20));	// make room
+			_glyphs=(NSGlyph *) objc_realloc(_glyphs, sizeof(_glyphs[0])*(_glyphBufferCapacity=_numberOfGlyphs+20));
+		// fixme this should be done through the GlyphGenerator
+		// [_glyphGenerator generateGlyphsForGlyphStorage:self desiredNumberOfCharacters:attribRange.length glyphIndex:0 characterIndex:attribRange.location];
 		for(i=0; i<_numberOfGlyphs; i++)
-			_glyphs[i]=[substr characterAtIndex:i];		// copy to glyph buffer
+			_glyphs[i]=[font _glyphForCharacter:[substr characterAtIndex:i]];		// translate and copy to glyph buffer
 
 		[ctxt _drawGlyphs:[self _glyphsAtIndex:0] count:_numberOfGlyphs];	// -> (string) Tj
-		
-		
+				
 		/* FIXME:
 			should be part of - (void) underlineGlyphRange:(NSRange)glyphRange 
 underlineType:(int)underlineVal 
@@ -440,11 +438,6 @@ containerOrigin:(NSPoint)containerOrigin;
 						   glyphIndex:(unsigned *)glyphIndex;
 {
 	NIMP;
-}
-
-- (NSGlyph *) _glyphsAtIndex:(unsigned) idx;
-{
-	return &_glyphs[idx];
 }
 
 - (unsigned) getGlyphs:(NSGlyph *)glyphArray range:(NSRange)glyphRange;
@@ -582,7 +575,7 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (void) invalidateDisplayForCharacterRange:(NSRange)charRange;
 {
-	NIMP;
+	[self invalidateGlyphsForCharacterRange:charRange changeInLength:0 actualCharacterRange:NULL];
 }
 
 - (void) invalidateDisplayForGlyphRange:(NSRange)glyphRange;
@@ -602,8 +595,7 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (BOOL) isValidGlyphIndex:(unsigned)glyphIndex;
 {
-	NIMP;
-	return NO;
+	return glyphIndex < _numberOfGlyphs;
 }
 
 - (BOOL) layoutManagerOwnsFirstResponderInWindow:(NSWindow *)aWindow;
@@ -654,8 +646,8 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (unsigned) numberOfGlyphs;
 {
-	NIMP;
-	return 0;
+	// generate any glyphs
+	return _numberOfGlyphs;
 }
 
 - (NSRange) rangeOfNominallySpacedGlyphsContainingIndex:(unsigned)glyphIndex;
@@ -698,7 +690,8 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (void) replaceGlyphAtIndex:(unsigned)glyphIndex withGlyph:(NSGlyph)newGlyph;
 {
-	NIMP;
+	// FIXME: error checking
+	_glyphs[glyphIndex]=newGlyph;
 }
 
 - (void) replaceTextStorage:(NSTextStorage *)newTextStorage;
@@ -779,9 +772,9 @@ containerOrigin:(NSPoint)containerOrigin;
 
 // FIXME: does this trigger relayout?
 
-- (void) setShowsControlCharacters:(BOOL)flag; { _showsControlCharacters=flag; }
+- (void) setShowsControlCharacters:(BOOL)flag; { if(flag) _layoutOptions |= NSShowControlGlyphs; else _layoutOptions &= ~NSShowControlGlyphs; }
 
-- (void) setShowsInvisibleCharacters:(BOOL)flag; { _showsInvisibleCharacters=flag; }
+- (void) setShowsInvisibleCharacters:(BOOL)flag; { if(flag) _layoutOptions |= NSShowInvisibleGlyphs; else _layoutOptions &= ~NSShowInvisibleGlyphs; }
 
 - (void) setTemporaryAttributes:(NSDictionary *)attrs forCharacterRange:(NSRange)charRange;
 {
@@ -813,8 +806,8 @@ containerOrigin:(NSPoint)containerOrigin;
 	NIMP;
 }
 
-- (BOOL) showsControlCharacters; { return _showsControlCharacters; }
-- (BOOL) showsInvisibleCharacters; { return _showsInvisibleCharacters; }
+- (BOOL) showsControlCharacters; { return (_layoutOptions&NSShowControlGlyphs) != 0; }
+- (BOOL) showsInvisibleCharacters; { return (_layoutOptions&NSShowInvisibleGlyphs) != 0; }
 
 - (void) strikethroughGlyphRange:(NSRange)glyphRange
 			   strikethroughType:(int)strikethroughVal
@@ -933,7 +926,7 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (NSAttributedString *) attributedString; { return _textStorage; }
 
-- (unsigned int) layoutOptions; { return 0; }
+- (unsigned int) layoutOptions; { return _layoutOptions; }
 
 - (void ) insertGlyphs:(const NSGlyph *) glyphs
 				length:(unsigned int) length
@@ -941,11 +934,11 @@ containerOrigin:(NSPoint)containerOrigin;
 		characterIndex:(unsigned int) index;
 {
 	// mange _glyphs container
-	// and glyph to character mapping
 }
 
 - (void) setIntAttribute:(int)attributeTag value:(int)val forGlyphAtIndex:(unsigned)glyphIndex;
 {
+	// manage _intAttributes container
 	NIMP;
 }
 

@@ -679,7 +679,7 @@ id __buttonCellClass = nil;
 }
 
 - (void) drawTitle:(NSAttributedString *) title withFrame:(NSRect) cellFrame inView:(NSView *) controlView;
-{ // this is an inofficial method!
+{ // this is an inofficial method! And, the title can also be an NSString
 	NSColor *titleColor = [NSColor controlTextColor];	// default
 	NSRect textFrame;
 	id savedContents;
@@ -747,7 +747,7 @@ id __buttonCellClass = nil;
 	savedContents=_contents;	// FIXME: do we really need to save? We don't use it otherwise
 	ASSIGN(_textColor, titleColor);	// change color as needed
 	/* NOTE:
-		this code will also work if title is an AttributedString or if a NSFormatter is attached
+		this code will also work if title is a NSString or an NSAttributedString or if a NSFormatter is attached
 		i.e. we can easily implement attributedTitle, attributedAlternateTitle etc.
 		*/
 	_contents=title;	// draw title by superclass
@@ -801,14 +801,14 @@ id __buttonCellClass = nil;
 #endif
 	[self drawImage:_image withFrame:cellFrame inView:controlView];
 	// FIXME: here, we are not clean for data types!!!
-	// and: when should we use title and when attributedTitle
+	// and: when should we use title and when attributedTitle?
 	title=(NSAttributedString *) _title;
 	if([title length] == 0 || stateOrHighlight(NSContentsCellMask))		// standard content
 		{ // change to alternate text/image (if defined)
 		if([_alternateTitle length] != 0)
 			title = (NSAttributedString *) _alternateTitle;
 		}
-#if 0
+#if 1
 	NSLog(@"draw title %@", title);
 #endif
 	[self drawTitle:title withFrame:cellFrame inView:controlView];
