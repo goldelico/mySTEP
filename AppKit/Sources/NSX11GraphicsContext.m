@@ -974,7 +974,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	_baseline=val;
 }
 
-- (void) _drawGlyphBitmap:(unsigned char *) buffer atPoint:(NSPoint) pnt width:(unsigned) width height:(unsigned) height;
+- (void) _drawGlyphBitmap:(unsigned char *) buffer atPoint:(NSPoint) pnt left:(int) left top:(int) top width:(unsigned) width height:(unsigned) height;
 { // paint to screen
 	// we could also (re)use an NSBitmapImageRep and fill it appropriately by alpha/rgb
 	// the bitmap is a grey level bitmap - so how do we colorize?
@@ -983,7 +983,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	int screen_number=XScreenNumberOfScreen(_nsscreen->_screen);
 	int x=pnt.x+_cursor.x;	// relative to cursor position
 	int y=pnt.y+_cursor.y;
-#if 1
+#if 0
 	NSLog(@"_drawGlyphBitmap");
 	NSLog(@"size={%d %d}", width, height);
 	NSLog(@"font=%@", _state->_font);
@@ -1004,7 +1004,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				}
 			}
 		}
-	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, x, y, width, height);	
+	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, x+left, y-top, width, height);	
 	_setDirtyRect(self, x, y, width, height);
 	XDestroyImage(img);
 }

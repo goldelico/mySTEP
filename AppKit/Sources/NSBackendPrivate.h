@@ -79,7 +79,7 @@
 // FIXME: should not use _string but _drawGlyphs
 
 - (void) _drawGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;	// (string) Tj
-- (void) _drawGlyphBitmap:(unsigned char *) buffer atPoint:(NSPoint) pnt width:(unsigned) width height:(unsigned) height;
+- (void) _drawGlyphBitmap:(unsigned char *) buffer atPoint:(NSPoint) pnt left:(int) left top:(int) top width:(unsigned) width height:(unsigned) height;
 
 - (void) _endText;							// PDF: ET
 

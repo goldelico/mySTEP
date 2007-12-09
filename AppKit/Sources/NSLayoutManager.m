@@ -171,8 +171,11 @@
 	// glyphranges could be handled in string + font + position fragments
 	//
 	[ctxt setCompositingOperation:NSCompositeCopy];
-	[ctxt _beginText];			// starts at (0,0)
+	[ctxt _beginText];			// starts at position (0,0)
 	pos=origin;					// tracks current drawing position
+	
+	// CHECKME: what is the (0,0) position in PDF? Baseline or top or bottom?
+	
 	// we should loop over lines first
 	//   then over words (for wrapping&hyphenation)
 	//     then over attribute ranges (for switching modes)
@@ -322,7 +325,8 @@
 		// fixme this should be done through the GlyphGenerator
 		// [_glyphGenerator generateGlyphsForGlyphStorage:self desiredNumberOfCharacters:attribRange.length glyphIndex:0 characterIndex:attribRange.location];
 		for(i=0; i<_numberOfGlyphs; i++)
-			_glyphs[i]=[font _glyphForCharacter:[substr characterAtIndex:i]];		// translate and copy to glyph buffer
+			//			_glyphs[i]=[font _glyphForCharacter:[substr characterAtIndex:i]];		// translate and copy to glyph buffer
+			_glyphs[i]=[substr characterAtIndex:i];
 
 		[ctxt _drawGlyphs:[self _glyphsAtIndex:0] count:_numberOfGlyphs];	// -> (string) Tj
 				

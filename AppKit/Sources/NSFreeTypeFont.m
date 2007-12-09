@@ -178,8 +178,8 @@ FT_Library _ftLibrary(void)
 					{ // use pointSize
 					  // FIXME: here we must handle the user and system space scale factors or the bitmaps will not be scaled to DPI!
 					// we should cache and reload only if we draw to a different context!
-					int hdpi=2*72;
-					int vdpi=2*72;
+					int hdpi=120;
+					int vdpi=120;
 					FT_F26Dot6 size=64*[_descriptor pointSize];
 					error = FT_Set_Char_Size(_faceStruct,					// handle to face object
 											  size,							// char_width in 1/64th of points
@@ -200,7 +200,7 @@ FT_Library _ftLibrary(void)
 - (void) _finalize
 { // called when deallocating the X11Font
 	if(_faceStruct)
-		FT_Done_Face((FT_Face) _faceStruct);
+		FT_Done_Face(_faceStruct);
 }
 
 - (NSSize) _sizeOfAntialisedString:(NSString *) string;
@@ -222,12 +222,20 @@ FT_Library _ftLibrary(void)
 	FT_GlyphSlot slot = _faceStruct->glyph;
 	NSPoint pen = NSZeroPoint;
 	unsigned long i;
+//	if(![ctxt isFlipped])
+		pen.y=1.2*[self pointSize];
+#if 0
+	if([_descriptor pointSize] < 9.0)
+		NSLog(@"micro");
+	if([_descriptor pointSize] == 9.0)
+		NSLog(@"mini");
+#endif
 	for(i = 0; i < cnt; i++)
 		{ // render glyphs
 		error = FT_Load_Char(_faceStruct, glyphs[i], FT_LOAD_RENDER);
 		if(error)
 			continue;
-		[ctxt _drawGlyphBitmap:slot->bitmap.buffer atPoint:NSMakePoint(pen.x /*+slot->bitmap_left*/, pen.y/*-slot->bitmap_top*/) width:slot->bitmap.width height:slot->bitmap.rows];
+		[ctxt _drawGlyphBitmap:slot->bitmap.buffer atPoint:NSMakePoint(pen.x, pen.y) left:slot->bitmap_left top:slot->bitmap_top width:slot->bitmap.width height:slot->bitmap.rows];
 		if(_renderingMode == NSFontAntialiasedIntegerAdvancementsRenderingMode)
 			{ // a little faster but less accurate
 			pen.x += slot->advance.x>>6;

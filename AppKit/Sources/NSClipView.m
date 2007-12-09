@@ -268,13 +268,9 @@
 
 - (void) scrollPoint:(NSPoint) point
 { // point should lie within the bounds rect of self
-	if(!_clip.copiesOnScroll)
+#if 0	// handle copiesOnScroll
+	if(_clip.copiesOnScroll)
 		{
-		[super_view scrollClipView:self toPoint:point];
-		[_documentView setNeedsDisplay:YES];// we are not copying so redraw the full document view
-		}
-	else
-		{		
 		extern BOOL _NSShowAllDrawing;		// defined in NSView
 		NSRect ySlice;						// top or bottom slice to redraw
 		NSRect xSlice;						// left or right slice to redraw
@@ -387,8 +383,12 @@
 				[[NSGraphicsContext currentContext] flushGraphics];
 				sleep(1);
 				}
-			}													
+			}
+		return;
 		}
+#endif
+	[super_view scrollClipView:self toPoint:point]; // no copy on scroll
+	[_documentView setNeedsDisplay:YES];			// simply redraw the full document view
 }
 
 - (BOOL) becomeFirstResponder

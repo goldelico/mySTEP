@@ -683,7 +683,10 @@ id __buttonCellClass = nil;
 	NSColor *titleColor = [NSColor controlTextColor];	// default
 	NSRect textFrame;
 	id savedContents;
-	
+#if 0
+	if([title isEqualToString:@"mini"])
+		NSLog(@"mini");
+#endif
 	if(!title || _transparent || _c.imagePosition == NSImageOnly)
 		return;	// don't draw title
 	if(stateOrHighlight(NSChangeGrayCellMask)) 
@@ -884,16 +887,24 @@ id __buttonCellClass = nil;
 		ASSIGN(_alternateImage, [aDecoder decodeObjectForKey:@"NSAlternateImage"]);
 		if([_alternateImage isKindOfClass:[NSFont class]])
 			{ // bug (or feature?) in IB archiver
-			// [self setFont:(NSFont *)_alternateImage];
+			[self setFont:(NSFont *)_alternateImage];
 #if 1
 			NSLog(@"strange NSAlternateImage %@", _alternateImage);
 #endif
 			[_alternateImage release], _alternateImage=nil;
 			}
-		if(_normalImage == nil || [_normalImage isKindOfClass:[NSFont class]])
+		if([_normalImage isKindOfClass:[NSFont class]])
 			{
+			[self setFont:(NSFont *)_alternateImage];
 #if 1
-			NSLog(@"strange NSNormalImage %@ substituting %@", _normalImage, _alternateImage);
+			NSLog(@"strange NSNormalImage %@", _normalImage);
+#endif
+			[_normalImage release], _normalImage=nil;
+			}
+		if(!_normalImage)
+			{ // no normal image
+#if 1
+			NSLog(@"no NSNormalImage %@ substituting alternate %@", _normalImage, _alternateImage);
 #endif
 			ASSIGN(_normalImage, _alternateImage), [_alternateImage release], _alternateImage=nil;
 			}

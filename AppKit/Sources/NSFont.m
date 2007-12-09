@@ -246,9 +246,9 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	descriptor=[NSFontDescriptor fontDescriptorWithName:name size:size];	// add size for search
 	descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
 	if(!descriptor)
-		{
-#ifdef __mySTEP__
-		// FIXME: susbtitute some free fonts until we have an official substitution mechanism for that and/or a license for the Helvetica etc. fonts
+		{ // not found
+#ifndef __APPLE__
+		// FIXME: substitute some free fonts until we have an official substitution mechanism for that and/or a license for the Helvetica etc. fonts
 		if([name isEqualToString:@"Times"]) name=@"Luxi Serif";
 		else if([name isEqualToString:@"Helvetica"]) name=@"Luxi Sans";
 		else if([name isEqualToString:@"Helvetica-Bold"]) name=@"Luxi Sans";
@@ -654,7 +654,7 @@ static BOOL changed;
 		NSArray *list;
 		while((list=[f nextObject]))
 			{
-			NSEnumerator *e=[[cache objectForKey:name] objectEnumerator];	// list of attribute records
+			NSEnumerator *e=[list objectEnumerator];	// list of all attribute records
 			NSDictionary *record;
 			while(limit > 0 && (record=[e nextObject]))
 				if([self _record:record matchesAttributes:attributes mandatoryKeys:keys])

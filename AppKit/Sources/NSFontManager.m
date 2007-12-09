@@ -348,6 +348,8 @@ static NSString *__fontCollections = nil;
 
 - (NSFontTraitMask) convertFontTraits:(NSFontTraitMask) fontTraits;
 {
+	NIMP;
+	return fontTraits;
 }
 
 - (NSFont *) fontWithFamily:(NSString *)family
@@ -582,7 +584,7 @@ static NSString *__fontCollections = nil;
 	NSFontDescriptor *fd=[NSFontDescriptor fontDescriptorWithFontAttributes:[NSDictionary dictionaryWithObject:family forKey:NSFontFamilyAttribute]];
 	NSEnumerator *e=[[fd matchingFontDescriptorsWithMandatoryKeys:[NSSet setWithObject:NSFontFamilyAttribute]] objectEnumerator];
 	NSMutableArray *r=[[NSMutableArray alloc] initWithCapacity:20];
-#if 1
+#if 0
 	NSLog(@"NSFontManager availableFonts");
 #endif
 	while((fd=[e nextObject]))
@@ -601,11 +603,12 @@ static NSString *__fontCollections = nil;
 
 - (NSArray *) availableFontNamesMatchingFontDescriptor:(NSFontDescriptor *) descriptor;
 {
-	NSEnumerator *e=[[descriptor matchingFontDescriptorsWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]] objectEnumerator];
+	NSArray *mfd=[descriptor matchingFontDescriptorsWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];
+	NSEnumerator *e=[mfd objectEnumerator];
 	NSMutableArray *r=[[NSMutableArray alloc] initWithCapacity:50];
 	NSFontDescriptor *fd;
-#if 1
-	NSLog(@"NSFontManager availableFonts");
+#if 0
+	NSLog(@"NSFontManager availableFontNamesMatchingFontDescriptor: %@ => %@", descriptor, mfd);
 #endif
 	while((fd=[e nextObject]))
 		{ // get unique font names
@@ -618,17 +621,18 @@ static NSString *__fontCollections = nil;
 
 - (NSArray *) availableFonts
 {
-	return [self availableFontNamesMatchingFontDescriptor:[NSFontDescriptor fontDescriptorWithFontAttributes:nil]];	// all
+	return [self availableFontNamesMatchingFontDescriptor:[NSFontDescriptor fontDescriptorWithFontAttributes:[NSDictionary dictionary]]];	// all
 }
 
 - (NSArray *) availableFontFamilies;
 {
 	NSFontDescriptor *fd=[NSFontDescriptor fontDescriptorWithFontAttributes:nil];
-	NSSet *empty=[NSSet setWithObjects:nil];	// gcc 2.95.3 confuses -(void) set and +(NSSet *) set
-	NSEnumerator *e=[[fd matchingFontDescriptorsWithMandatoryKeys:empty] objectEnumerator];
+	NSSet *empty=[[NSSet new] autorelease];	// gcc 2.95.3 confuses -(void) set and +(NSSet *) set
+	NSArray *mfd=[fd matchingFontDescriptorsWithMandatoryKeys:empty];
+	NSEnumerator *e=[mfd objectEnumerator];
 	NSMutableArray *r=[[NSMutableArray alloc] initWithCapacity:50];
-#if 1
-	NSLog(@"NSFontManager availableFontFamilies");
+#if 0
+	NSLog(@"NSFontManager availableFontFamilies => %@", mfd);
 #endif
 	while((fd=[e nextObject]))
 		{ // get unique families from fonts
