@@ -253,7 +253,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 		else if([name isEqualToString:@"Helvetica"]) name=@"Luxi Sans";
 		else if([name isEqualToString:@"Helvetica-Bold"]) name=@"Luxi Sans";
 		else if([name isEqualToString:@"Courier"]) name=@"Nonserif";
-		else if([name isEqualToString:@"Monaco"]) name=@"Luxi Sans";
+		else if([name isEqualToString:@"Monaco"]) name=@"Luxi Mono";
 		else if([name isEqualToString:@"Lucida Grande"]) name=@"Luxi Sans";
 		else if([name isEqualToString:@"Geneva"]) name=@"Luxi Sans";
 		else return nil;

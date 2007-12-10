@@ -128,6 +128,8 @@ struct pipeline
 
 @implementation _NSX11GraphicsContext
 
+#pragma mark BitmapDrawing
+
 static unsigned char tab5[32];	// convert 5bit color value to 8 bit (using full range 0..255)
 static unsigned char tab6[64];
 
@@ -138,6 +140,354 @@ static void inittab565(void)
 		tab5[i]=(i*255+31/2)/31;
 	for(i=0; i<=63; i++)
 		tab6[i]=(i*255+63/2)/63;
+}
+
+// this is the XImage sampler
+
+inline static void XSetRGBA8(XImage *img, int x, int y, struct RGBA8 *dest)
+{ // set RGBA8
+  // FIXME: depending on color space we should apply a calibration curves
+  // we should use a table driven approach (faster)
+	switch(img->depth)
+		{
+		case 24:
+			XPutPixel(img, x, y, (dest->R<<16)+(dest->G<<8)+(dest->B<<0));
+			break;
+		case 16:
+			XPutPixel(img, x, y, ((dest->R & 0x00f8)<<8)+((dest->G & 0x00fc)<<3)+((dest->B & 0x00f8)>>3));	// 5/6/5 bit
+			break;
+		default:
+			;
+		}
+}
+
+inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
+{ // get RGBA8
+	unsigned int pixel=XGetPixel(img, x, y);
+	struct RGBA8 dest;
+	// apply calibration curves/tables - we can read the tables from a file on the first call!
+	switch(img->depth)
+		{
+		case 24:
+			{
+				dest.R=(pixel>>16);
+				dest.G=(pixel>>8);
+				dest.B=(pixel>>0);
+				break;
+			}
+		case 16:
+			{ // scale 0..31 to 0..255
+				dest.R=tab5[(pixel>>11)&0x1f];	// highest 5 bit
+				dest.G=tab6[(pixel>>5)&0x3f];	// middle 6 bit
+				dest.B=tab5[pixel&0x1f];		// lowest 5 bit
+			}
+		}
+	dest.A=255;
+	return dest;
+}
+
+static inline void composite(NSCompositingOperation compositingOperation, struct RGBA8 *src, struct RGBA8 *dest)
+{
+	// FIXME: (255*255>>8) => 254???
+	// FIXME: using Highlight etc. must be limited to pixel value 0/255
+	// we must divide by 255 and not 256 - or adjust F&G scaling
+	unsigned short F, G;
+	switch(compositingOperation)
+		{ // based on http://www.cs.wisc.edu/~schenney/courses/cs559-s2001/lectures/lecture-8-online.ppt
+		  // dest=F*src+G*dest;
+		case NSCompositeClear:
+			// F=0, G=0;
+			dest->R=0;
+			dest->G=0;
+			dest->B=0;
+			dest->A=0;
+			break;
+		default:
+		case NSCompositeCopy:
+			// F=255, G=0;
+			*dest=*src;
+			break;
+		case NSCompositeHighlight:			// deprecated and mapped to NSCompositeSourceOver
+		case NSCompositeSourceOver:
+			F=256, G=255-src->A;
+			if(G == 0)
+				{ // calculation is done with 'int' precision; stores only 8 bit
+				dest->R=(F*src->R)>>8;
+				dest->G=(F*src->G)>>8;
+				dest->B=(F*src->B)>>8;
+				dest->A=(F*src->A)>>8;
+				}
+			else if(F == 0)
+				{
+				dest->R=(G*dest->R)>>8;
+				dest->G=(G*dest->G)>>8;
+				dest->B=(G*dest->B)>>8;
+				dest->A=(G*dest->A)>>8;
+				}
+			else
+				{
+				dest->R=(F*src->R+G*dest->R)>>8;
+				dest->G=(F*src->G+G*dest->G)>>8;
+				dest->B=(F*src->B+G*dest->B)>>8;
+				dest->A=(F*src->A+G*dest->A)>>8;
+				}
+			/* FIXME
+			if(dest->R > 255) dest->R=255;
+			if(dest->G > 255) dest->G=255;
+			if(dest->B > 255) dest->B=255;
+			if(dest->A > 255) dest->A=255;
+			*/
+			break;
+		case NSCompositeSourceIn:
+			F=dest->A, G=0;
+			dest->R=(F*src->R)>>8;
+			dest->G=(F*src->G)>>8;
+			dest->B=(F*src->B)>>8;
+			dest->A=(F*src->A)>>8;
+			break;
+		case NSCompositeSourceOut:
+			F=255-dest->A, G=0;
+			dest->R=(F*src->R)>>8;
+			dest->G=(F*src->G)>>8;
+			dest->B=(F*src->B)>>8;
+			dest->A=(F*src->A)>>8;
+			break;
+		case NSCompositeSourceAtop:
+			F=dest->A, G=255-src->A;
+			if(G == 0)
+				{ // calculation is done with 'int' precision; stores only 8 bit
+				dest->R=(F*src->R)>>8;
+				dest->G=(F*src->G)>>8;
+				dest->B=(F*src->B)>>8;
+				dest->A=(F*src->A)>>8;
+				}
+			else if(F == 0)
+				{
+				dest->R=(G*dest->R)>>8;
+				dest->G=(G*dest->G)>>8;
+				dest->B=(G*dest->B)>>8;
+				dest->A=(G*dest->A)>>8;
+				}
+			else
+				{
+				dest->R=(F*src->R+G*dest->R)>>8;
+				dest->G=(F*src->G+G*dest->G)>>8;
+				dest->B=(F*src->B+G*dest->B)>>8;
+				dest->A=(F*src->A+G*dest->A)>>8;
+				}
+			/* FIXME
+			if(dest->R > 255) dest->R=255;
+			if(dest->G > 255) dest->G=255;
+			if(dest->B > 255) dest->B=255;
+			if(dest->A > 255) dest->A=255;
+			*/
+			break;
+		case NSCompositeDestinationOver:
+			F=255-dest->A, G=255;
+			if(G == 0)
+				{ // calculation is done with 'int' precision; stores only 8 bit
+				dest->R=(F*src->R)>>8;
+				dest->G=(F*src->G)>>8;
+				dest->B=(F*src->B)>>8;
+				dest->A=(F*src->A)>>8;
+				}
+			else if(F == 0)
+				{
+				dest->R=(G*dest->R)>>8;
+				dest->G=(G*dest->G)>>8;
+				dest->B=(G*dest->B)>>8;
+				dest->A=(G*dest->A)>>8;
+				}
+			else
+				{
+				dest->R=(F*src->R+G*dest->R)>>8;
+				dest->G=(F*src->G+G*dest->G)>>8;
+				dest->B=(F*src->B+G*dest->B)>>8;
+				dest->A=(F*src->A+G*dest->A)>>8;
+				}
+			/* FIXME
+			if(dest->R > 255) dest->R=255;
+			if(dest->G > 255) dest->G=255;
+			if(dest->B > 255) dest->B=255;
+			if(dest->A > 255) dest->A=255;
+			*/
+			break;
+		case NSCompositeDestinationIn:
+			F=0, G=src->A;
+			dest->R=(G*dest->R)>>8;
+			dest->G=(G*dest->G)>>8;
+			dest->B=(G*dest->B)>>8;
+			dest->A=(G*dest->A)>>8;
+			break;
+		case NSCompositeDestinationOut:
+			F=0, G=255-src->A;
+			dest->R=(G*dest->R)>>8;
+			dest->G=(G*dest->G)>>8;
+			dest->B=(G*dest->B)>>8;
+			dest->A=(G*dest->A)>>8;
+			break;
+		case NSCompositeDestinationAtop:
+			F=255-dest->A, G=src->A;
+			if(G == 0)
+				{ // calculation is done with 'int' precision; stores only 8 bit
+				dest->R=(F*src->R)>>8;
+				dest->G=(F*src->G)>>8;
+				dest->B=(F*src->B)>>8;
+				dest->A=(F*src->A)>>8;
+				}
+			else if(F == 0)
+				{
+				dest->R=(G*dest->R)>>8;
+				dest->G=(G*dest->G)>>8;
+				dest->B=(G*dest->B)>>8;
+				dest->A=(G*dest->A)>>8;
+				}
+			else
+				{
+				dest->R=(F*src->R+G*dest->R)>>8;
+				dest->G=(F*src->G+G*dest->G)>>8;
+				dest->B=(F*src->B+G*dest->B)>>8;
+				dest->A=(F*src->A+G*dest->A)>>8;
+				}
+			/* FIXME
+			if(dest->R > 255) dest->R=255;
+			if(dest->G > 255) dest->G=255;
+			if(dest->B > 255) dest->B=255;
+			if(dest->A > 255) dest->A=255;
+			*/
+			break;
+		case NSCompositePlusDarker:
+			F=255-25, G=255-25;
+			if(G == 0)
+				{ // calculation is done with 'int' precision; stores only 8 bit
+				dest->R=(F*src->R)>>8;
+				dest->G=(F*src->G)>>8;
+				dest->B=(F*src->B)>>8;
+				dest->A=(F*src->A)>>8;
+				}
+			else if(F == 0)
+				{
+				dest->R=(G*dest->R)>>8;
+				dest->G=(G*dest->G)>>8;
+				dest->B=(G*dest->B)>>8;
+				dest->A=(G*dest->A)>>8;
+				}
+			else
+				{
+				dest->R=(F*src->R+G*dest->R)>>8;
+				dest->G=(F*src->G+G*dest->G)>>8;
+				dest->B=(F*src->B+G*dest->B)>>8;
+				dest->A=(F*src->A+G*dest->A)>>8;
+				}
+			/* FIXME
+			if(dest->R > 255) dest->R=255;
+			if(dest->G > 255) dest->G=255;
+			if(dest->B > 255) dest->B=255;
+			if(dest->A > 255) dest->A=255;
+			*/
+			break;		// FIXME: should not influence alpha of result!
+		case NSCompositePlusLighter:
+			F=255+25, G=255+25;
+			if(G == 0)
+				{ // calculation is done with 'int' precision; stores only 8 bit
+				dest->R=(F*src->R)>>8;
+				dest->G=(F*src->G)>>8;
+				dest->B=(F*src->B)>>8;
+				dest->A=(F*src->A)>>8;
+				}
+			else if(F == 0)
+				{
+				dest->R=(G*dest->R)>>8;
+				dest->G=(G*dest->G)>>8;
+				dest->B=(G*dest->B)>>8;
+				dest->A=(G*dest->A)>>8;
+				}
+			else
+				{
+				dest->R=(F*src->R+G*dest->R)>>8;
+				dest->G=(F*src->G+G*dest->G)>>8;
+				dest->B=(F*src->B+G*dest->B)>>8;
+				dest->A=(F*src->A+G*dest->A)>>8;
+				}
+			/* FIXME
+			if(dest->R > 255) dest->R=255;
+			if(dest->G > 255) dest->G=255;
+			if(dest->B > 255) dest->B=255;
+			if(dest->A > 255) dest->A=255;
+			*/
+			break;
+		case NSCompositeXOR:
+			F=255-dest->A, G=255-src->A;
+			if(G == 0)
+				{ // calculation is done with 'int' precision; stores only 8 bit
+				dest->R=(F*src->R)>>8;
+				dest->G=(F*src->G)>>8;
+				dest->B=(F*src->B)>>8;
+				dest->A=(F*src->A)>>8;
+				}
+			else if(F == 0)
+				{
+				dest->R=(G*dest->R)>>8;
+				dest->G=(G*dest->G)>>8;
+				dest->B=(G*dest->B)>>8;
+				dest->A=(G*dest->A)>>8;
+				}
+			else
+				{
+				dest->R=(F*src->R+G*dest->R)>>8;
+				dest->G=(F*src->G+G*dest->G)>>8;
+				dest->B=(F*src->B+G*dest->B)>>8;
+				dest->A=(F*src->A+G*dest->A)>>8;
+				}
+			break;
+		}
+}
+
+inline static struct RGBA8 getPixel(int x, int y,
+									int pixelsWide,
+									int pixelsHigh,
+									/*
+									 int bitsPerSample,
+									 int samplesPerPixel,
+									 int bitsPerPixel,
+									 */
+									int bytesPerRow,
+									BOOL isPlanar,
+									BOOL hasAlpha, 
+									unsigned char *data[5])
+{ // extract RGBA8 value of given pixel from bitmap
+	int offset;
+	struct RGBA8 src;
+	if(x < 0 || y < 0 || x >= pixelsWide || y >= pixelsHigh)
+		{ // outside - transparent
+		src.R=0;
+		src.G=0;
+		src.B=0;
+		src.A=0;
+		}
+	else if(isPlanar)
+		{ // planar
+		offset=x+bytesPerRow*y;
+		src.R=data[0][offset];
+		src.G=data[1][offset];
+		src.B=data[2][offset];
+		if(hasAlpha)
+			src.A=data[3][offset];
+		else
+			src.A=255;	// opaque
+		}
+	else
+		{ // meshed
+		offset=(hasAlpha?4:3)*x + bytesPerRow*y;
+		src.R=data[0][offset+0];	// a good compiler should be able to optimize this constant expression data[0][offset]
+		src.G=data[0][offset+1];
+		src.B=data[0][offset+2];
+		if(hasAlpha)
+			src.A=data[0][offset+3];
+		else
+			src.A=255;	// opaque
+		}
+	return src;
 }
 
 #pragma mark BackingStoreBuffered
@@ -152,7 +502,7 @@ static NSString *NSStringFromXRect(XRectangle rect)
 		rect.height];
 }
 
-static void XIntersect(XRectangle *result, XRectangle *with)
+static inline void XIntersect(XRectangle *result, XRectangle *with)
 {
 	if(with->x > result->x+result->width)
 		result->width=0;	// second box is completely to the right
@@ -172,7 +522,7 @@ static void XIntersect(XRectangle *result, XRectangle *with)
 		result->height=with->y+with->height-result->y;
 }
 
-static /* inline */ void XUnion(XRectangle *result, XRectangle with)
+static inline void XUnion(XRectangle *result, XRectangle with)
 {
 #if 0
 	NSLog(@"XUnion: %@ %@", NSStringFromXRect(*result), NSStringFromXRect(with));
@@ -983,27 +1333,49 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	int screen_number=XScreenNumberOfScreen(_nsscreen->_screen);
 	int x=pnt.x+_cursor.x;	// relative to cursor position
 	int y=pnt.y+_cursor.y;
+	int pxx, pxy;
+	XGCValues values;
+	BOOL mustFetch;
 #if 0
 	NSLog(@"_drawGlyphBitmap");
 	NSLog(@"size={%d %d}", width, height);
 	NSLog(@"font=%@", _state->_font);
 #endif
-	img=XCreateImage(_display, DefaultVisual(_display, screen_number), DefaultDepth(_display, screen_number),
+	mustFetch=_compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
+		_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut;
+	if(mustFetch)
+		{ // we must really fetch the current image from our context
+			// FIXME: this is quite slow even if we have double buffering!
+		img=XGetImage(_display, ((Window) _graphicsPort),
+						x+left, y-top, width, height,
+						0x00ffffff, ZPixmap);
+		}
+	else
+		{
+		img=XCreateImage(_display, DefaultVisual(_display, screen_number), DefaultDepth(_display, screen_number),
 					 ZPixmap, 0, NULL,
 					 width, height,
 					 8, 0);
-	if(img && (img->data = objc_malloc(img->bytes_per_line*img->height)))
-		{ // copy pixels
-		int pxx, pxy;
-		for(pxy=0; pxy<height; pxy++)
+		if(!(img && (img->data = objc_malloc(img->bytes_per_line*img->height))))
+			return;	// error
+		}
+	XGetGCValues(_display, _state->_gc, GCForeground | GCBackground, &values);
+	values.foreground;	// 565 or 888 color
+	for(pxy=0; pxy<height; pxy++)
+		{ // composite all pixels
+		for(pxx=0; pxx<width; pxx++)
 			{
-			for(pxx=0; pxx<width; pxx++)
-				{
-				int val=255-*buffer++;
-				XPutPixel(img, pxx, pxy, 0x010101*val);	// black/white
-				}
+			int val=(255-*buffer++);
+			struct RGBA8 src = { val, val, val, 0 };	// black/white - should multiply by RGB text color!
+			struct RGBA8 dest = { 0, 0, 0, 0 };
+			if(mustFetch)
+				dest=XGetRGBA8(img, x, y);	// get current image value			
+			composite(_compositingOperation, &src, &dest);
+			XSetRGBA8(img, pxx, pxy, &dest);
 			}
 		}
+	values.function=GXcopy;
+	XChangeGC(_display, _state->_gc, GCFunction, &values);
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, x+left, y-top, width, height);	
 	_setDirtyRect(self, x, y, width, height);
 	XDestroyImage(img);
@@ -1102,99 +1474,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		_fraction=fraction;	// save compositing fraction - fixme: convert to 0..256-integer
 }
 
-#pragma mark BitmapDrawing
-
-inline static struct RGBA8 getPixel(int x, int y,
-									int pixelsWide,
-									int pixelsHigh,
-									/*
-									 int bitsPerSample,
-									 int samplesPerPixel,
-									 int bitsPerPixel,
-									 */
-									int bytesPerRow,
-									BOOL isPlanar,
-									BOOL hasAlpha, 
-									unsigned char *data[5])
-{ // extract RGBA8 value of given pixel from bitmap
-	int offset;
-	struct RGBA8 src;
-	if(x < 0 || y < 0 || x >= pixelsWide || y >= pixelsHigh)
-		{ // outside - transparent
-		src.R=0;
-		src.G=0;
-		src.B=0;
-		src.A=0;
-		}
-	else if(isPlanar)
-		{ // planar
-		offset=x+bytesPerRow*y;
-		src.R=data[0][offset];
-		src.G=data[1][offset];
-		src.B=data[2][offset];
-		if(hasAlpha)
-			src.A=data[3][offset];
-		else
-			src.A=255;	// opaque
-		}
-	else
-		{ // meshed
-		offset=(hasAlpha?4:3)*x + bytesPerRow*y;
-		src.R=data[0][offset+0];	// compiler should be able to optimize constant expression data[0][offset]
-		src.G=data[0][offset+1];
-		src.B=data[0][offset+2];
-		if(hasAlpha)
-			src.A=data[0][offset+3];
-		else
-			src.A=255;	// opaque
-		}
-	return src;
-}
-
-// this is the XImage sampler
-
-inline static void XSetRGBA8(XImage *img, int x, int y, struct RGBA8 *dest)
-{ // set RGBA8
-	// FIXME: depending on color space we should apply a calibration curves
-	// we should use a table driven approach (faster)
-	switch(img->depth)
-		{
-		case 24:
-			XPutPixel(img, x, y, (dest->R<<16)+(dest->G<<8)+(dest->B<<0));
-			break;
-		case 16:
-			XPutPixel(img, x, y, ((dest->R & 0x00f8)<<8)+((dest->G & 0x00fc)<<3)+((dest->B & 0x00f8)>>3));	// 5/6/5 bit
-			break;
-		default:
-			;
-		}
-}
-
-inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
-{ // get RGBA8
-	unsigned int pixel=XGetPixel(img, x, y);
-	struct RGBA8 dest;
-	// apply calibration curves/tables - we can read the tables from a file on the first call!
-	switch(img->depth)
-		{
-		case 24:
-			{
-				dest.R=(pixel>>16);
-				dest.G=(pixel>>8);
-				dest.B=(pixel>>0);
-				break;
-			}
-		case 16:
-			{ // scale 0..31 to 0..255
-				dest.R=tab5[(pixel>>11)&0x1f];	// highest 5 bit
-				dest.G=tab6[(pixel>>5)&0x3f];	// middle 6 bit
-				dest.B=tab5[pixel&0x1f];		// lowest 5 bit
-			}
-		}
-	dest.A=255;
-	return dest;
-}
-
 /* idea for sort of core-image extension
 *
 * struct filter { struct RGBA8 (*filter)(float x, float y); struct filter *input; other paramters }; describes a generic filter node
@@ -1241,6 +1520,8 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	int x, y;				// current position within XImage
 	NSPoint pnt;			// current pixel in bitmap
 	unsigned short fract=256.0*_fraction+0.5;
+	XGCValues values;
+	BOOL mustFetch;
 	if(fract > 256)
 		fract=256;	// limit
 	/*
@@ -1325,9 +1606,10 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 	 * get current screen image for compositing
 	 */
 	hasAlpha=[rep hasAlpha];
-	if(atms.m12 != 0.0 || atms.m21 != 0.0 || !(atms.m11 == atms.m22 || atms.m11 == -atms.m22) ||
+	mustFetch=(atms.m12 != 0.0 || atms.m21 != 0.0 || !(atms.m11 == atms.m22 || atms.m11 == -atms.m22) ||
 	   (hasAlpha && _compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
-					_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut))
+		_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut));
+	if(mustFetch)
 		{ // if rotated or any alpha blending, we must really fetch the current image from our context
 #if 0
 		NSLog(@"fetch from screen alpha=%d", hasAlpha);
@@ -1427,12 +1709,11 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 		pnt.y=/*atms.m21*(0)+*/ atms.m22*(y)+atms.tY;
 		for(x=0; x<img->width; x++, pnt.x+=atms.m11, pnt.y-=atms.m21)
 			{
-			unsigned short F, G;
+			if(mustFetch)
+				dest=XGetRGBA8(img, x, y);	// get current image value
 			if(_compositingOperation != NSCompositeClear)
 				{ // get smoothed RGBA from bitmap
-				if(_compositingOperation != NSCompositeCopy)
-					dest=XGetRGBA8(img, x, y);	// get current image value
-												// we should pipeline this through core-image like filter modules
+				// we should pipeline this through core-image like filter modules
 				switch(_imageInterpolation)
 					{
 					case NSImageInterpolationDefault:	// default is same as low
@@ -1442,6 +1723,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 						// FIXME: here we should inter/extrapolate adjacent source points
 					case NSImageInterpolationNone:
 						{
+							// should interpolate several pixels
 							src=getPixel((int) pnt.x, (int) pnt.y, width, height,
 										 /*
 										  int bitsPerSample,
@@ -1461,260 +1743,7 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 						}
 					}
 				}
-			// FIXME: speed optimization - handle without intermediate F&G e.g. NSCompositeClear: dest->r=0; dest->g=(255*src->g+(255-src->a)*dest->g)>>8; ...
-			// FIXME: use e.g. inline static functions as operation kernels
-			// FIXME: (255*255>>8) => 254???
-			// FIXME: using Highlight etc. must be limited to pixel value 0/255
-			// we must divide by 255 and not 256 - or adjust F&G scaling
-			switch(_compositingOperation)
-				{ // based on http://www.cs.wisc.edu/~schenney/courses/cs559-s2001/lectures/lecture-8-online.ppt
-				  // dest=F*src+G*dest;
-				case NSCompositeClear:
-					// F=0, G=0;
-					dest.R=0;
-					dest.G=0;
-					dest.B=0;
-					dest.A=0;
-					break;
-				default:
-				case NSCompositeCopy:
-					// F=255, G=0;
-					dest=src;
-					break;
-				case NSCompositeHighlight:			// deprecated and mapped to NSCompositeSourceOver
-				case NSCompositeSourceOver:
-					F=256, G=255-src.A;
-					if(G == 0)
-						{ // calculation is done with 'int' precision; stores only 8 bit
-						dest.R=(F*src.R)>>8;
-						dest.G=(F*src.G)>>8;
-						dest.B=(F*src.B)>>8;
-						dest.A=(F*src.A)>>8;
-						}
-						else if(F == 0)
-							{
-							dest.R=(G*dest.R)>>8;
-							dest.G=(G*dest.G)>>8;
-							dest.B=(G*dest.B)>>8;
-							dest.A=(G*dest.A)>>8;
-							}
-						else
-							{
-							dest.R=(F*src.R+G*dest.R)>>8;
-							dest.G=(F*src.G+G*dest.G)>>8;
-							dest.B=(F*src.B+G*dest.B)>>8;
-							dest.A=(F*src.A+G*dest.A)>>8;
-							}
-						/* FIXME
-						if(dest.R > 255) dest.R=255;
-						if(dest.G > 255) dest.G=255;
-						if(dest.B > 255) dest.B=255;
-						if(dest.A > 255) dest.A=255;
-						*/
-						break;
-				case NSCompositeSourceIn:
-					F=dest.A, G=0;
-					dest.R=(F*src.R)>>8;
-					dest.G=(F*src.G)>>8;
-					dest.B=(F*src.B)>>8;
-					dest.A=(F*src.A)>>8;
-					break;
-				case NSCompositeSourceOut:
-					F=255-dest.A, G=0;
-					dest.R=(F*src.R)>>8;
-					dest.G=(F*src.G)>>8;
-					dest.B=(F*src.B)>>8;
-					dest.A=(F*src.A)>>8;
-					break;
-				case NSCompositeSourceAtop:
-					F=dest.A, G=255-src.A;
-					if(G == 0)
-						{ // calculation is done with 'int' precision; stores only 8 bit
-						dest.R=(F*src.R)>>8;
-						dest.G=(F*src.G)>>8;
-						dest.B=(F*src.B)>>8;
-						dest.A=(F*src.A)>>8;
-						}
-						else if(F == 0)
-							{
-							dest.R=(G*dest.R)>>8;
-							dest.G=(G*dest.G)>>8;
-							dest.B=(G*dest.B)>>8;
-							dest.A=(G*dest.A)>>8;
-							}
-						else
-							{
-							dest.R=(F*src.R+G*dest.R)>>8;
-							dest.G=(F*src.G+G*dest.G)>>8;
-							dest.B=(F*src.B+G*dest.B)>>8;
-							dest.A=(F*src.A+G*dest.A)>>8;
-							}
-						/* FIXME
-						if(dest.R > 255) dest.R=255;
-						if(dest.G > 255) dest.G=255;
-						if(dest.B > 255) dest.B=255;
-						if(dest.A > 255) dest.A=255;
-						*/
-						break;
-				case NSCompositeDestinationOver:
-					F=255-dest.A, G=255;
-					if(G == 0)
-						{ // calculation is done with 'int' precision; stores only 8 bit
-						dest.R=(F*src.R)>>8;
-						dest.G=(F*src.G)>>8;
-						dest.B=(F*src.B)>>8;
-						dest.A=(F*src.A)>>8;
-						}
-						else if(F == 0)
-							{
-							dest.R=(G*dest.R)>>8;
-							dest.G=(G*dest.G)>>8;
-							dest.B=(G*dest.B)>>8;
-							dest.A=(G*dest.A)>>8;
-							}
-						else
-							{
-							dest.R=(F*src.R+G*dest.R)>>8;
-							dest.G=(F*src.G+G*dest.G)>>8;
-							dest.B=(F*src.B+G*dest.B)>>8;
-							dest.A=(F*src.A+G*dest.A)>>8;
-							}
-						/* FIXME
-						if(dest.R > 255) dest.R=255;
-						if(dest.G > 255) dest.G=255;
-						if(dest.B > 255) dest.B=255;
-						if(dest.A > 255) dest.A=255;
-						*/
-						break;
-				case NSCompositeDestinationIn:
-					F=0, G=src.A;
-					dest.R=(G*dest.R)>>8;
-					dest.G=(G*dest.G)>>8;
-					dest.B=(G*dest.B)>>8;
-					dest.A=(G*dest.A)>>8;
-					break;
-				case NSCompositeDestinationOut:
-					F=0, G=255-src.A;
-					dest.R=(G*dest.R)>>8;
-					dest.G=(G*dest.G)>>8;
-					dest.B=(G*dest.B)>>8;
-					dest.A=(G*dest.A)>>8;
-					break;
-				case NSCompositeDestinationAtop:
-					F=255-dest.A, G=src.A;
-					if(G == 0)
-						{ // calculation is done with 'int' precision; stores only 8 bit
-						dest.R=(F*src.R)>>8;
-						dest.G=(F*src.G)>>8;
-						dest.B=(F*src.B)>>8;
-						dest.A=(F*src.A)>>8;
-						}
-						else if(F == 0)
-							{
-							dest.R=(G*dest.R)>>8;
-							dest.G=(G*dest.G)>>8;
-							dest.B=(G*dest.B)>>8;
-							dest.A=(G*dest.A)>>8;
-							}
-						else
-							{
-							dest.R=(F*src.R+G*dest.R)>>8;
-							dest.G=(F*src.G+G*dest.G)>>8;
-							dest.B=(F*src.B+G*dest.B)>>8;
-							dest.A=(F*src.A+G*dest.A)>>8;
-							}
-						/* FIXME
-						if(dest.R > 255) dest.R=255;
-						if(dest.G > 255) dest.G=255;
-						if(dest.B > 255) dest.B=255;
-						if(dest.A > 255) dest.A=255;
-						*/
-						break;
-				case NSCompositePlusDarker:
-					F=255-25, G=255-25;
-					if(G == 0)
-						{ // calculation is done with 'int' precision; stores only 8 bit
-						dest.R=(F*src.R)>>8;
-						dest.G=(F*src.G)>>8;
-						dest.B=(F*src.B)>>8;
-						dest.A=(F*src.A)>>8;
-						}
-						else if(F == 0)
-							{
-							dest.R=(G*dest.R)>>8;
-							dest.G=(G*dest.G)>>8;
-							dest.B=(G*dest.B)>>8;
-							dest.A=(G*dest.A)>>8;
-							}
-						else
-							{
-							dest.R=(F*src.R+G*dest.R)>>8;
-							dest.G=(F*src.G+G*dest.G)>>8;
-							dest.B=(F*src.B+G*dest.B)>>8;
-							dest.A=(F*src.A+G*dest.A)>>8;
-							}
-						/* FIXME
-						if(dest.R > 255) dest.R=255;
-						if(dest.G > 255) dest.G=255;
-						if(dest.B > 255) dest.B=255;
-						if(dest.A > 255) dest.A=255;
-						*/
-						break;		// FIXME: should not influence alpha of result!
-				case NSCompositePlusLighter:
-					F=255+25, G=255+25;
-					if(G == 0)
-						{ // calculation is done with 'int' precision; stores only 8 bit
-						dest.R=(F*src.R)>>8;
-						dest.G=(F*src.G)>>8;
-						dest.B=(F*src.B)>>8;
-						dest.A=(F*src.A)>>8;
-						}
-						else if(F == 0)
-							{
-							dest.R=(G*dest.R)>>8;
-							dest.G=(G*dest.G)>>8;
-							dest.B=(G*dest.B)>>8;
-							dest.A=(G*dest.A)>>8;
-							}
-						else
-							{
-							dest.R=(F*src.R+G*dest.R)>>8;
-							dest.G=(F*src.G+G*dest.G)>>8;
-							dest.B=(F*src.B+G*dest.B)>>8;
-							dest.A=(F*src.A+G*dest.A)>>8;
-							}
-						/* FIXME
-						if(dest.R > 255) dest.R=255;
-						if(dest.G > 255) dest.G=255;
-						if(dest.B > 255) dest.B=255;
-						if(dest.A > 255) dest.A=255;
-						*/
-						break;
-				case NSCompositeXOR:
-					F=255-dest.A, G=255-src.A;
-					if(G == 0)
-						{ // calculation is done with 'int' precision; stores only 8 bit
-						dest.R=(F*src.R)>>8;
-						dest.G=(F*src.G)>>8;
-						dest.B=(F*src.B)>>8;
-						dest.A=(F*src.A)>>8;
-						}
-						else if(F == 0)
-							{
-							dest.R=(G*dest.R)>>8;
-							dest.G=(G*dest.G)>>8;
-							dest.B=(G*dest.B)>>8;
-							dest.A=(G*dest.A)>>8;
-							}
-						else
-							{
-							dest.R=(F*src.R+G*dest.R)>>8;
-							dest.G=(F*src.G+G*dest.G)>>8;
-							dest.B=(F*src.B+G*dest.B)>>8;
-							dest.A=(F*src.A+G*dest.A)>>8;
-							}
-						break;
-				}
+			composite(_compositingOperation, &src, &dest);
 			XSetRGBA8(img, x, y, &dest);
 			}
 		}
@@ -1725,6 +1754,8 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 #if 0
 	NSLog(@"XPutImage(%d, %d, %u, %u)", xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 #endif	
+	values.function=GXcopy;
+	XChangeGC(_display, _state->_gc, GCFunction, &values);
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 	XDestroyImage(img);
 	_setDirtyRect(self, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
@@ -1734,6 +1765,8 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 #endif
 	return YES;
 }
+
+// FIXME: this uses the current translated composition operation!!!
 
 - (void) _copyBits:(void *) srcGstate fromRect:(NSRect) srcRect toPoint:(NSPoint) destPoint;
 { // copy srcRect using CTM from (_NSX11GraphicsState *) srcGstate to destPoint transformed by current CTM
@@ -3645,9 +3678,6 @@ static NSDictionary *_x11settings;
 #endif
 		if((_fontStruct = XLoadQueryFont(_display, [xf cString])))	// Load X font
 			return _fontStruct;
-		
-		return NULL;
-		
 		NSLog(@"font: %@ is not available", xf);
 		NSLog(@"Trying 9x15 system font instead");			
 		if((_fontStruct = XLoadQueryFont(_display, "9x15")))
