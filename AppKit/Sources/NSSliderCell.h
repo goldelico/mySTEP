@@ -9,6 +9,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jul 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	05. December 2007 - aligned with 10.5   
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -59,40 +62,40 @@ typedef enum _NSTickMarkPosition
 - (BOOL) allowsTickMarkValuesOnly;
 - (double) altIncrementValue;							// cell's behavior
 - (double) closestTickMarkValueToValue:(double) value;
-- (void) drawBarInside:(NSRect)rect flipped:(BOOL)flipped;
+- (void) drawBarInside:(NSRect) rect flipped:(BOOL) flipped;
 - (void) drawKnob;
-- (void) drawKnob:(NSRect)knobRect;
-- (int) indexOfTickMarkAtPoint:(NSPoint) point;
-- (int) isVertical;
-- (NSRect) knobRectFlipped:(BOOL)flipped;
-- (float) knobThickness;								// Graphic Attributes
+- (void) drawKnob:(NSRect) knobRect;
+- (NSInteger) indexOfTickMarkAtPoint:(NSPoint) point;
+- (NSInteger) isVertical;
+- (NSRect) knobRectFlipped:(BOOL) flipped;
+- (CGFloat) knobThickness;								// Graphic Attributes
 - (double) maxValue;
 - (double) minValue;									// Cell Limits
-- (int) numberOfTickMarks;
-- (NSRect) rectOfTickMarkAtIndex:(int) index;
+- (NSInteger) numberOfTickMarks;
+- (NSRect) rectOfTickMarkAtIndex:(NSInteger) index;
 - (void) setAllowsTickMarkValuesOnly:(BOOL) flag;
-- (void) setAltIncrementValue:(double)increment;
-- (void) setKnobThickness:(float)thickness;				// Set Attributes
-- (void) setMaxValue:(double)aDouble;
-- (void) setMinValue:(double)aDouble;
-- (void) setNumberOfTickMarks:(int) num;
+- (void) setAltIncrementValue:(double) increment;
+- (void) setKnobThickness:(CGFloat) thickness;				// Set Attributes
+- (void) setMaxValue:(double) aDouble;
+- (void) setMinValue:(double) aDouble;
+- (void) setNumberOfTickMarks:(NSInteger) num;
 - (void) setSliderType:(NSSliderType) sliderType;
 - (void) setTickMarkPosition:(NSTickMarkPosition) pos;
 - (NSSliderType) sliderType;
 - (NSTickMarkPosition) tickMarkPosition;
-- (double) tickMarkValueAtIndex:(int) index;
+- (double) tickMarkValueAtIndex:(NSInteger) index;
 - (NSRect) trackRect;
 
 // deprecated
 
-- (void) setTitle:(NSString*)title;
-- (void) setTitleCell:(NSCell*)aCell;
-- (void) setTitleColor:(NSColor*)color;
-- (void) setTitleFont:(NSFont*)font;
-- (NSString*) title;
+- (void) setTitle:(NSString *) title;
+- (void) setTitleCell:(NSCell *) aCell;
+- (void) setTitleColor:(NSColor *) color;
+- (void) setTitleFont:(NSFont *) font;
+- (NSString *) title;
 - (id) titleCell;
-- (NSColor*) titleColor;
-- (NSFont*) titleFont;
+- (NSColor *) titleColor;
+- (NSFont *) titleFont;
 
 @end
 

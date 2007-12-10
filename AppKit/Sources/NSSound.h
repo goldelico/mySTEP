@@ -2,7 +2,10 @@
    NSSound.h
 
    Sound container class
-
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	05. December 2007 - aligned with 10.5   
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -12,6 +15,7 @@
 
 #import <Foundation/NSBundle.h>
 #import <AppKit/AppKitDefines.h>
+#import <Foundation/NSDate.h>
 
 @class NSString;
 @class NSData;
@@ -40,30 +44,45 @@ extern NSString *NSSoundPboardType;
 		} _snd;
 }
 
-+ (BOOL) canInitWithPasteboard:(NSPasteboard*)pasteboard;
-+ (id) soundNamed:(NSString*)name;
-+ (NSArray*) soundUnfilteredFileTypes;
-+ (NSArray*) soundUnfilteredPasteboardTypes;
++ (BOOL) canInitWithPasteboard:(NSPasteboard *) pasteboard;
++ (id) soundNamed:(NSString *) name;
++ (NSArray *) soundUnfilteredFileTypes;
++ (NSArray *) soundUnfilteredPasteboardTypes;
++ (NSArray *)soundUnfilteredTypes;
 
+- (NSArray *) channelMapping;
+- (NSTimeInterval) currentTime; 
 - (id) delegate;
-- (id) initWithContentsOfFile:(NSString*)filename;
-- (id) initWithContentsOfURL:(NSURL*)url;
-- (id) initWithData:(NSData*)data;
-- (id) initWithPasteboard:(NSPasteboard*)pasteboard;
+- (NSTimeInterval) duration;
+- (id) initWithContentsOfFile:(NSString *) filename byReference:(BOOL) flag; 
+- (id) initWithContentsOfFile:(NSString *) filename; // NOT IN API
+- (id) initWithContentsOfURL:(NSURL *) url byReference:(BOOL) flag;
+- (id) initWithContentsOfURL:(NSURL *) url; // NOT IN API
+- (id) initWithData:(NSData *) data;
+- (id) initWithPasteboard:(NSPasteboard *) pasteboard;
 - (BOOL) isPlaying;
-- (NSString*) name;
+- (BOOL) loops; 
+- (NSString *) name; 
 - (BOOL) pause;
 - (BOOL) play;
+- (NSString *) playbackDeviceIdentifier;
 - (BOOL) resume;
-- (void) setDelegate:(id)anObject;							// Set the Delegate
+- (void) setChannelMapping:(NSArray *) mappings; 
+- (void) setCurrentTime:(NSTimeInterval) time;
+- (void) setDelegate:(id) anObject;
+- (void) setLoops:(BOOL) flag;
 - (BOOL) setName:(NSString *) name;
+- (void) setPlaybackDeviceIdentifier:(NSString *) name;
+- (void) setVolume:(float)vol; 
 - (BOOL) stop;
+- (float) volume; 
 - (void) writeToPasteboard:(NSPasteboard *) pasteboard;
 
 @end
 
 
-@interface NSObject (NSSoundDelegate)						// Implemented by the delegate
+@interface NSObject (NSSoundDelegate)
+
 - (void)sound:(NSSound *) sound didFinishPlaying:(BOOL) flag;
 
 @end

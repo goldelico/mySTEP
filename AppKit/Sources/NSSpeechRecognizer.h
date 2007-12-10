@@ -3,6 +3,9 @@
 
    Interface to the global ASR module
 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	05. December 2007 - aligned with 10.5    
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -40,7 +43,9 @@
 @end
 
 @interface NSObject (NSSpeechRecognizerDelegate)
+
 - (void) speechRecognizer:(NSSpeechRecognizer *) sender didRecognizeCommand:(id) command;
+
 @end
 
 #endif /* _mySTEP_H_NSSpeechRecognizer */

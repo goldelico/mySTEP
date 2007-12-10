@@ -7,7 +7,10 @@
 
    Author: H. Nikolaus Schaller <hns@computer.org>
    Date: Dec 2004
-   
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	05. December 2007 - aligned with 10.5   
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -19,10 +22,10 @@
 
 @interface NSSearchField : NSTextField
 
-- (NSArray *) recentSearches;
 - (NSString *) recentsAutosaveName;
-- (void) setRecentSearches:(NSArray *) searches;
+- (NSArray *) recentSearches;
 - (void) setRecentsAutosaveName:(NSString *) name;
+- (void) setRecentSearches:(NSArray *) searches;
 
 @end
 

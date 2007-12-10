@@ -18,9 +18,9 @@
 #ifndef _mySTEP_H_NSPrintPanel
 #define _mySTEP_H_NSPrintPanel
 
-#import <AppKit/NSPanel.h>
+#import <Foundation/NSObject.h>
 
-@class NSView, NSViewController;
+@class NSView, NSWindow, NSViewController;
 
 extern NSString *NSPrintPanelAccessorySummaryItemNameKey;
 extern NSString *NSPrintPanelAccessorySummaryItemDescriptionKey;
@@ -71,8 +71,8 @@ typedef NSInteger NSPrintPanelOptions;
 {
 	NSView *_accessoryView;
 	NSString *_jobStyleHint;
-	BOOL done;
-	BOOL success;
+	BOOL pdone;
+	BOOL psuccess;
 }
 
 + (NSPrintPanel *) printPanel; 

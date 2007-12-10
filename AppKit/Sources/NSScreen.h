@@ -22,6 +22,8 @@
 @class NSDictionary;
 @class NSMutableDictionary;
 
+
+
 @interface NSScreen : NSObject
 {
 	NSMutableDictionary *_device;
@@ -41,7 +43,7 @@
 - (NSDictionary *) deviceDescription;
 - (NSRect) frame;
 - (const NSWindowDepth *) supportedWindowDepths;
-- (float) userSpaceScaleFactor;
+- (CGFloat) userSpaceScaleFactor;
 - (NSRect) visibleFrame;
 
 @end

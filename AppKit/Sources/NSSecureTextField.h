@@ -7,7 +7,10 @@
 
    Author:  Felipe A. Rodriguez <far@ix.netcom.com>
    Date: Dec 1999
-   
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	05. December 2007 - aligned with 10.5   
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -18,10 +21,18 @@
 #import <AppKit/NSTextField.h>
 #import <AppKit/NSTextFieldCell.h>
 
+
 @interface NSSecureTextField : NSTextField
 @end
 
-@interface NSSecureTextFieldCell : NSTextFieldCell
+
+@interface NSSecureTextFieldCell : NSTextFieldCell {
+	
+}
+
+- (BOOL) echosBullets; 
+- (void) setEchosBullets:(BOOL) flag; 
+
 @end
 
 #endif /* _mySTEP_H_NSSecureTextField */

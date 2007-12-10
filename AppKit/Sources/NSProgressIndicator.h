@@ -6,6 +6,9 @@
  Author:  Gerrit van Dyk <gerritvd@decimax.com>
  Date: 1999
  
+ Author:	Fabian Spillner <fabian.spillner@gmail.com>
+ Date:		04. December 2007 - aligned with 10.5 
+ 
  This file is part of the GNUstep GUI Library.
  
  This library is free software; you can redistribute it and/or
@@ -38,10 +41,12 @@
 /* For NSControlSize */
 #import <AppKit/NSCell.h>
 
-#define NSProgressIndicatorPreferredThickness 14
-#define NSProgressIndicatorPreferredSmallThickness 10
-#define NSProgressIndicatorPreferredLargeThickness 18
-#define NSProgressIndicatorPreferredAquaThickness 12
+typedef enum _NSProgressIndicatorThickness {
+	NSProgressIndicatorPreferredThickness       = 14,
+	NSProgressIndicatorPreferredSmallThickness  = 10,
+	NSProgressIndicatorPreferredLargeThickness  = 18,
+	NSProgressIndicatorPreferredAquaThickness   = 12
+} NSProgressIndicatorThickness;
 
 typedef enum _NSProgressIndicatorStyle
 {
@@ -49,7 +54,7 @@ typedef enum _NSProgressIndicatorStyle
 	NSProgressIndicatorSpinningStyle	= 1
 } NSProgressIndicatorStyle;
 
-@interface NSProgressIndicator : NSView	// note, we are not a subclass of NSControl!
+@interface NSProgressIndicator : NSView	
 {
 	double						_doubleValue;
 	double						_minValue;
@@ -67,47 +72,38 @@ typedef enum _NSProgressIndicatorStyle
 	BOOL						_isRunning;
 }
 
-//
-// Animating the progress indicator
-//
-- (void)animate:(id)sender;
-- (NSTimeInterval)animationDelay;
-- (void)setAnimimationDelay:(NSTimeInterval)delay;
-- (void)startAnimation:(id)sender;
-- (void)stopAnimation:(id)sender;
-- (BOOL)usesThreadedAnimation;
-- (void)setUsesThreadedAnimation:(BOOL)flag;
-
-	// 
-	// Advancing the progress bar
-	//
-- (void)incrementBy:(double)delta;
-- (double)doubleValue;
-- (void)setDoubleValue:(double)aValue;
-- (double)minValue;
-- (void)setMinValue:(double)newMinimum;
-- (double)maxValue;
-- (void)setMaxValue:(double)newMaximum;
-
-	//
-	// Setting the appearance
-	//
-- (BOOL)isBezeled;
-- (void)setBezeled:(BOOL)flag;
-- (BOOL)isIndeterminate;
-- (void)setIndeterminate:(BOOL)flag;
-- (BOOL)isDisplayedWhenStopped;
-- (void)setDisplayedWhenStopped:(BOOL)flag;
+- (NSControlSize) controlSize;
+- (NSControlTint) controlTint;
+- (double) doubleValue;
+- (void) incrementBy:(double) delta;
+- (BOOL) isBezeled;
+- (BOOL) isDisplayedWhenStopped;
+- (BOOL) isIndeterminate;
+- (double) maxValue;
+- (double) minValue;
+- (void) setBezeled:(BOOL) flag;
+- (void) setControlSize:(NSControlSize) size;
+- (void) setControlTint:(NSControlTint) tint;
+- (void) setDisplayedWhenStopped:(BOOL) flag;
+- (void) setDoubleValue:(double) aValue;
+- (void) setIndeterminate:(BOOL) flag;
+- (void) setMaxValue:(double) newMaximum;
+- (void) setMinValue:(double) newMinimum;
+- (void) setStyle:(NSProgressIndicatorStyle) flag;
+- (void) setUsesThreadedAnimation:(BOOL) flag;
+- (void) sizeToFit;
+- (void) startAnimation:(id) sender;
+- (void) stopAnimation:(id) sender;
 - (NSProgressIndicatorStyle) style;
-- (void)setStyle:(NSProgressIndicatorStyle)flag;
+- (BOOL) usesThreadedAnimation;
 
-	//
-	// Standard control layout
-	//
-- (NSControlSize)controlSize;
-- (void)setControlSize:(NSControlSize)size;
-- (NSControlTint)controlTint;
-- (void)setControlTint:(NSControlTint)tint;
+@end
+
+@interface NSProgressIndicator (Deprecated)
+
+- (void) animate:(id) sender; /* DEPRECATED */
+- (NSTimeInterval) animationDelay; /* DEPRECATED */
+- (void) setAnimimationDelay:(NSTimeInterval) delay; /* DEPRECATED */
 
 @end
 

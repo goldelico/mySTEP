@@ -9,6 +9,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jul 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	05. December 2007 - aligned with 10.5   
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -33,30 +36,30 @@
 - (double) altIncrementValue;							// cell's behavior
 - (double) closestTickMarkValueToValue:(double) value;
 - (NSImage *) image;
-- (int) indexOfTickMarkAtPoint:(NSPoint) point;
-- (int) isVertical;
-- (float) knobThickness;								// Graphic Attributes
+- (NSInteger) indexOfTickMarkAtPoint:(NSPoint) point;
+- (NSInteger) isVertical;
+- (CGFloat) knobThickness;								// Graphic Attributes
 - (double) maxValue;
 - (double) minValue;									// Cell Limits
-- (int) numberOfTickMarks;
-- (NSRect) rectOfTickMarkAtIndex:(int) index;
+- (NSInteger) numberOfTickMarks;
+- (NSRect) rectOfTickMarkAtIndex:(NSInteger) index;
 - (void) setAllowsTickMarkValuesOnly:(BOOL) flag;
-- (void) setAltIncrementValue:(double)increment;
-- (void) setImage:(NSImage *)backgroundImage;
-- (void) setKnobThickness:(float)thickness;				// Set Attributes
-- (void) setMaxValue:(double)aDouble;
-- (void) setMinValue:(double)aDouble;
-- (void) setNumberOfTickMarks:(int) num;
+- (void) setAltIncrementValue:(double) increment;
+- (void) setImage:(NSImage *) backgroundImage;
+- (void) setKnobThickness:(CGFloat) thickness;				// Set Attributes
+- (void) setMaxValue:(double) aDouble;
+- (void) setMinValue:(double) aDouble;
+- (void) setNumberOfTickMarks:(NSInteger) num;
 - (void) setTickMarkPosition:(NSTickMarkPosition) pos;
 - (NSTickMarkPosition) tickMarkPosition;
-- (double) tickMarkValueAtIndex:(int) index;
-- (NSRect) trackRect;
+- (double) tickMarkValueAtIndex:(NSInteger) index;
+- (NSRect) trackRect; // NOT IN API
 
 // deprecated
-- (void) setTitle:(NSString *)aString;
-- (void) setTitleCell:(NSCell *)aCell;
-- (void) setTitleColor:(NSColor *)aColor;
-- (void) setTitleFont:(NSFont *)fontObject;
+- (void) setTitle:(NSString *) aString;
+- (void) setTitleCell:(NSCell *) aCell;
+- (void) setTitleColor:(NSColor *) aColor;
+- (void) setTitleFont:(NSFont *) fontObject;
 - (NSString *) title;
 - (id) titleCell;
 - (NSColor *) titleColor;

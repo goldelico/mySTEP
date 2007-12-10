@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Aug 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	05. December 2007 - aligned with 10.5   
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -51,23 +54,23 @@
 	BOOL _doubleLongClick;
 }
 
-+ (NSSize) contentSizeForFrameSize:(NSSize)frameSize		// Layout
-			 hasHorizontalScroller:(BOOL)hFlag
-			 hasVerticalScroller:(BOOL)vFlag
-			 borderType:(NSBorderType)borderType;
-+ (NSSize) frameSizeForContentSize:(NSSize)contentSize
-			 hasHorizontalScroller:(BOOL)hFlag
-			 hasVerticalScroller:(BOOL)vFlag
-			 borderType:(NSBorderType)borderType;
++ (NSSize) contentSizeForFrameSize:(NSSize) frameSize		// Layout
+			 hasHorizontalScroller:(BOOL) hFlag
+			   hasVerticalScroller:(BOOL) vFlag
+						borderType:(NSBorderType) borderType;
++ (NSSize) frameSizeForContentSize:(NSSize) contentSize
+			 hasHorizontalScroller:(BOOL) hFlag
+			   hasVerticalScroller:(BOOL) vFlag
+						borderType:(NSBorderType) borderType;
 + (Class) rulerViewClass;
-+ (void) setRulerViewClass:(Class)aClass;					// Rulers
++ (void) setRulerViewClass:(Class) aClass;					// Rulers
 
 - (BOOL) autohidesScrollers;
-- (NSColor*) backgroundColor;
+- (NSColor *) backgroundColor;
 - (NSBorderType) borderType;
 - (NSSize) contentSize;
-- (NSView*) contentView;
-- (NSCursor*) documentCursor;
+- (NSClipView *) contentView;
+- (NSCursor *) documentCursor;
 - (id) documentView;
 - (NSRect) documentVisibleRect;
 - (BOOL) drawsBackground;
@@ -75,44 +78,44 @@
 - (BOOL) hasHorizontalScroller;
 - (BOOL) hasVerticalRuler;
 - (BOOL) hasVerticalScroller;
-- (float) horizontalLineScroll;
-- (float) horizontalPageScroll;
-- (NSRulerView*) horizontalRulerView;
-- (NSScroller*) horizontalScroller;
-- (float) lineScroll;
-- (float) pageScroll;
-- (void) reflectScrolledClipView:(NSClipView*)aClipView;
+- (CGFloat) horizontalLineScroll;
+- (CGFloat) horizontalPageScroll;
+- (NSRulerView *) horizontalRulerView;
+- (NSScroller *) horizontalScroller;
+- (CGFloat) lineScroll;
+- (CGFloat) pageScroll;
+- (void) reflectScrolledClipView:(NSClipView *)aClipView;
 - (BOOL) rulersVisible;
 - (BOOL) scrollsDynamically;
 - (void) scrollWheel:(NSEvent *) event;
-- (void) setAutohidesScrollers:(BOOL)flag;
-- (void) setBackgroundColor:(NSColor*)aColor;
-- (void) setBorderType:(NSBorderType)borderType;
-- (void) setContentView:(NSClipView*)aView;
-- (void) setDocumentCursor:(NSCursor*)aCursor;
-- (void) setDocumentView:(NSView*)aView;
-- (void) setDrawsBackground:(BOOL)flag;
-- (void) setHasHorizontalRuler:(BOOL)flag;
-- (void) setHasHorizontalScroller:(BOOL)flag;
-- (void) setHasVerticalRuler:(BOOL)flag;
-- (void) setHasVerticalScroller:(BOOL)flag;
-- (void) setHorizontalLineScroll:(float)aFloat;
-- (void) setHorizontalPageScroll:(float)aFloat;
-- (void) setHorizontalRulerView:(NSRulerView*)aRulerView;
-- (void) setHorizontalScroller:(NSScroller*)aScroller;
-- (void) setLineScroll:(float)aFloat;
-- (void) setPageScroll:(float)aFloat;
-- (void) setRulersVisible:(BOOL)flag;
-- (void) setScrollsDynamically:(BOOL)flag;
-- (void) setVerticalLineScroll:(float)aFloat;
-- (void) setVerticalPageScroll:(float)aFloat;
-- (void) setVerticalRulerView:(NSRulerView*)aRulerView;
-- (void) setVerticalScroller:(NSScroller*)aScroller;
+- (void) setAutohidesScrollers:(BOOL) flag;
+- (void) setBackgroundColor:(NSColor *) aColor;
+- (void) setBorderType:(NSBorderType) borderType;
+- (void) setContentView:(NSClipView *) aView;
+- (void) setDocumentCursor:(NSCursor *) aCursor;
+- (void) setDocumentView:(NSView *) aView;
+- (void) setDrawsBackground:(BOOL) flag;
+- (void) setHasHorizontalRuler:(BOOL) flag;
+- (void) setHasHorizontalScroller:(BOOL) flag;
+- (void) setHasVerticalRuler:(BOOL) flag;
+- (void) setHasVerticalScroller:(BOOL) flag;
+- (void) setHorizontalLineScroll:(CGFloat) aFloat;
+- (void) setHorizontalPageScroll:(CGFloat) aFloat;
+- (void) setHorizontalRulerView:(NSRulerView *) aRulerView;
+- (void) setHorizontalScroller:(NSScroller *) aScroller;
+- (void) setLineScroll:(CGFloat) aFloat;
+- (void) setPageScroll:(CGFloat) aFloat;
+- (void) setRulersVisible:(BOOL) flag;
+- (void) setScrollsDynamically:(BOOL) flag;
+- (void) setVerticalLineScroll:(CGFloat) aFloat;
+- (void) setVerticalPageScroll:(CGFloat) aFloat;
+- (void) setVerticalRulerView:(NSRulerView *) aRulerView;
+- (void) setVerticalScroller:(NSScroller *) aScroller;
 - (void) tile;
-- (float) verticalLineScroll;
-- (float) verticalPageScroll;
-- (NSRulerView*) verticalRulerView;
-- (NSScroller*) verticalScroller;
+- (CGFloat) verticalLineScroll;
+- (CGFloat) verticalPageScroll;
+- (NSRulerView *) verticalRulerView;
+- (NSScroller *) verticalScroller;
 
 @end
 

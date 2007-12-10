@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jun 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	05. December 2007 - aligned with 10.5   
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -67,28 +70,28 @@ typedef enum _NSScrollerArrow {
 	NSControlTint _controlTint;
 }
 
-+ (float) scrollerWidth;
-+ (float) scrollerWidthForControlSize:(NSControlSize) controlSize;
++ (CGFloat) scrollerWidth;
++ (CGFloat) scrollerWidthForControlSize:(NSControlSize) controlSize;
 
 - (NSScrollArrowPosition) arrowsPosition;
 - (void) checkSpaceForParts;
 - (NSControlSize) controlSize;
 - (NSControlTint) controlTint;
-- (void) drawArrow:(NSScrollerArrow)whichButton highlight:(BOOL)flag;
+- (void) drawArrow:(NSScrollerArrow) whichButton highlight:(BOOL) flag;
 - (void) drawKnob;
 - (void) drawParts;
 - (void) highlight:(BOOL) flag;
 - (NSScrollerPart) hitPart;									// Handling Events
-- (float) knobProportion;									// Attributes
-- (NSRect) rectForPart:(NSScrollerPart)partCode;
-- (void) setArrowsPosition:(NSScrollArrowPosition)where;
+- (CGFloat) knobProportion;									// Attributes
+- (NSRect) rectForPart:(NSScrollerPart) partCode;
+- (void) setArrowsPosition:(NSScrollArrowPosition) where;
 - (void) setControlSize:(NSControlSize) size;
 - (void) setControlTint:(NSControlTint) tint;
-- (void) setEnabled:(BOOL)flag;
-- (void) setFloatValue:(float)aFloat knobProportion:(float)ratio;
-- (NSScrollerPart) testPart:(NSPoint)thePoint;
-- (void) trackKnob:(NSEvent *)event;
-- (void) trackScrollButtons:(NSEvent *)event;
+- (void) setEnabled:(BOOL) flag;
+- (void) setFloatValue:(float) aFloat knobProportion:(CGFloat) ratio;
+- (NSScrollerPart) testPart:(NSPoint) thePoint;
+- (void) trackKnob:(NSEvent *) event;
+- (void) trackScrollButtons:(NSEvent *) event;
 - (NSUsableScrollerParts) usableParts;
 
 @end

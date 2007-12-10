@@ -481,16 +481,16 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 						 delegate:self
 				   didEndSelector:@selector(_notify:end:)
 					  contextInfo:NULL];
-	while(!done)
+	while(!pdone)
 		{
 		// run modal loop
 #if 1
-		done=YES;
-		success=YES;
+		pdone=YES;
+		psuccess=YES;
 #endif
 		}
 	[self finalWritePrintInfo];
-	return success;
+	return psuccess;
 }
 
 - (void) beginSheetWithPrintInfo:(NSPrintInfo *) info modalForWindow:(NSWindow *) window delegate:(id) delegate didEndSelector:(SEL) sel contextInfo:(void *) context;

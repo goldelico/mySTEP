@@ -7,7 +7,7 @@
 //
 
 #import <AppKit/NSControl.h>
-#import <AppKit/NSPathCell.h>
+#import "NSPathCell.h"
 #import <AppKit/NSDragging.h>
 
 @class NSColor, NSPathComponentCell;
