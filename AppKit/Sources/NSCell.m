@@ -667,7 +667,7 @@ static NSCursor *__textCursor = nil;
 		nil];
 	*string=nil;
 	*astring=nil;
-#if 1
+#if 0
 	NSLog(@"attribs=%@", *attribs);
 	NSLog(@"string=%@", *string);
 	NSLog(@"astring=%@", *astring);

@@ -148,6 +148,13 @@ inline static void XSetRGBA8(XImage *img, int x, int y, struct RGBA8 *dest)
 { // set RGBA8
   // FIXME: depending on color space we should apply a calibration curves
   // we should use a table driven approach (faster)
+#if 0
+	if(dest->A != 255)
+		{ // we are drawing a transparent result
+		struct RGBA8 src=XGetPixel(img, x, y);
+		// blend
+		}
+#endif
 	switch(img->depth)
 		{
 		case 24:
@@ -161,12 +168,11 @@ inline static void XSetRGBA8(XImage *img, int x, int y, struct RGBA8 *dest)
 		}
 }
 
-inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
+inline static struct RGBA8 Pixel2RGBA8(int depth, unsigned int pixel)
 { // get RGBA8
-	unsigned int pixel=XGetPixel(img, x, y);
 	struct RGBA8 dest;
 	// apply calibration curves/tables - we can read the tables from a file on the first call!
-	switch(img->depth)
+	switch(depth)
 		{
 		case 24:
 			{
@@ -184,6 +190,11 @@ inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
 		}
 	dest.A=255;
 	return dest;
+}
+
+inline static struct RGBA8 XGetRGBA8(XImage *img, int x, int y)
+{ // get RGBA8
+	return Pixel2RGBA8(img->depth, XGetPixel(img, x, y));
 }
 
 static inline void composite(NSCompositingOperation compositingOperation, struct RGBA8 *src, struct RGBA8 *dest)
@@ -211,32 +222,16 @@ static inline void composite(NSCompositingOperation compositingOperation, struct
 		case NSCompositeSourceOver:
 			F=256, G=255-src->A;
 			if(G == 0)
-				{ // calculation is done with 'int' precision; stores only 8 bit
-				dest->R=(F*src->R)>>8;
-				dest->G=(F*src->G)>>8;
-				dest->B=(F*src->B)>>8;
-				dest->A=(F*src->A)>>8;
-				}
-			else if(F == 0)
 				{
-				dest->R=(G*dest->R)>>8;
-				dest->G=(G*dest->G)>>8;
-				dest->B=(G*dest->B)>>8;
-				dest->A=(G*dest->A)>>8;
+				*dest=*src;	// F=256
 				}
 			else
-				{
+				{ // calculation is done with 'int' precision; stores only 8 bit
 				dest->R=(F*src->R+G*dest->R)>>8;
 				dest->G=(F*src->G+G*dest->G)>>8;
 				dest->B=(F*src->B+G*dest->B)>>8;
 				dest->A=(F*src->A+G*dest->A)>>8;
 				}
-			/* FIXME
-			if(dest->R > 255) dest->R=255;
-			if(dest->G > 255) dest->G=255;
-			if(dest->B > 255) dest->B=255;
-			if(dest->A > 255) dest->A=255;
-			*/
 			break;
 		case NSCompositeSourceIn:
 			F=dest->A, G=0;
@@ -293,10 +288,7 @@ static inline void composite(NSCompositingOperation compositingOperation, struct
 				}
 			else if(F == 0)
 				{
-				dest->R=(G*dest->R)>>8;
-				dest->G=(G*dest->G)>>8;
-				dest->B=(G*dest->B)>>8;
-				dest->A=(G*dest->A)>>8;
+				*dest=*src;
 				}
 			else
 				{
@@ -1324,6 +1316,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	_baseline=val;
 }
 
+// FIXME:
+// does not handle rotation
+// ignores CTM scaling (mostly!)
+
 - (void) _drawGlyphBitmap:(unsigned char *) buffer atPoint:(NSPoint) pnt left:(int) left top:(int) top width:(unsigned) width height:(unsigned) height;
 { // paint to screen
 	// we could also (re)use an NSBitmapImageRep and fill it appropriately by alpha/rgb
@@ -1336,19 +1332,22 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	int pxx, pxy;
 	XGCValues values;
 	BOOL mustFetch;
+	struct RGBA8 stroke;
 #if 0
 	NSLog(@"_drawGlyphBitmap");
 	NSLog(@"size={%d %d}", width, height);
 	NSLog(@"font=%@", _state->_font);
 #endif
-	mustFetch=_compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
-		_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut;
+	// CHECKME: does the compositing operation apply to text drawing?
+//	mustFetch=_compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
+//		_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut;
+	mustFetch=YES;
 	if(mustFetch)
 		{ // we must really fetch the current image from our context
 			// FIXME: this is quite slow even if we have double buffering!
 		img=XGetImage(_display, ((Window) _graphicsPort),
 						x+left, y-top, width, height,
-						0x00ffffff, ZPixmap);
+						AllPlanes, ZPixmap);
 		}
 	else
 		{
@@ -1359,23 +1358,30 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		if(!(img && (img->data = objc_malloc(img->bytes_per_line*img->height))))
 			return;	// error
 		}
+	if(!img)
+		return;	// can't allocate or fetch
 	XGetGCValues(_display, _state->_gc, GCForeground | GCBackground, &values);
-	values.foreground;	// 565 or 888 color
+	stroke = Pixel2RGBA8(img->depth, values.foreground);	// translate 565 or 888 color to RGBA8
 	for(pxy=0; pxy<height; pxy++)
 		{ // composite all pixels
 		for(pxx=0; pxx<width; pxx++)
 			{
-			int val=(255-*buffer++);
-			struct RGBA8 src = { val, val, val, 0 };	// black/white - should multiply by RGB text color!
-			struct RGBA8 dest = { 0, 0, 0, 0 };
+			struct RGBA8 src = { stroke.R, stroke.G, stroke.B, *buffer++ };	// alpha-blend stroke color by grey value of bitmap
+			struct RGBA8 dest;
 			if(mustFetch)
-				dest=XGetRGBA8(img, x, y);	// get current image value			
-			composite(_compositingOperation, &src, &dest);
+				dest=XGetRGBA8(img, pxx, pxy);	// get current image value			
+			else
+				dest = (struct RGBA8){ 0, 0, 0, 0 };
+//			composite(/*_compositingOperation*/ NSCompositeSourceOver, &src, &dest);
+			// "simple" composition
+			dest.R=(src.A*src.R + (255-src.A)*dest.R)>>8;
+			dest.G=(src.A*src.R + (255-src.A)*dest.G)>>8;
+			dest.B=(src.A*src.R + (255-src.A)*dest.B)>>8;
 			XSetRGBA8(img, pxx, pxy, &dest);
 			}
 		}
 	values.function=GXcopy;
-	XChangeGC(_display, _state->_gc, GCFunction, &values);
+	XChangeGC(_display, _state->_gc, GCFunction, &values);	// use X11 copy compositing
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, x+left, y-top, width, height);	
 	_setDirtyRect(self, x, y, width, height);
 	XDestroyImage(img);
@@ -1395,13 +1401,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #if 0
 	NSLog(@"NSString: _drawGlyphs:%p count:%u font:%@", glyphs, cnt, _state->_font);
 #endif
-	[self _setCompositing];
 	if([_state->_font renderingMode] == NSFontIntegerAdvancementsRenderingMode)
 		{ // use the basic X11 bitmap font rendering services
 		[_state->_font _setScale:_scale];
 		font=[_state->_font _font];
 		XSetFont(_display, _state->_gc, font->fid);	// set font-ID in GC
 													// set any other attributes
+		[self _setCompositing];	// use X11 compositing
 #if 0
 		{
 			XRectangle box;
@@ -1533,6 +1539,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		// raise exception
 		return NO;
 		}
+	hasAlpha=[rep hasAlpha];
+	isPlanar=[(NSBitmapImageRep *) rep isPlanar];
+	bytesPerRow=[(NSBitmapImageRep *) rep bytesPerRow];
+	[(NSBitmapImageRep *) rep getBitmapDataPlanes:imagePlanes];
 	csp=[rep colorSpaceName];
 	calibrated=[csp isEqualToString:NSCalibratedRGBColorSpace];
 	if(!calibrated && ![csp isEqualToString:NSDeviceRGBColorSpace])
@@ -1605,7 +1615,11 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	/*
 	 * get current screen image for compositing
 	 */
-	hasAlpha=[rep hasAlpha];
+
+	// struct context { atm, NSPoint currentPoint, int lastx, int lasty, rep, fract } - so that sampler can optimize advancements by float coordinates
+
+	// FIXME: make more general function - (BOOL) _render:(struct RGB8 (*)(int x, int y, void *context)) sampler xScanRect:(XRect) scanRect context:(void *) context  
+	
 	mustFetch=(atms.m12 != 0.0 || atms.m21 != 0.0 || !(atms.m11 == atms.m22 || atms.m11 == -atms.m22) ||
 	   (hasAlpha && _compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
 		_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut));
@@ -1627,7 +1641,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #endif
 			img=XGetImage(_display, ((Window) _graphicsPort),
 						  xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height,
-						  0x00ffffff, ZPixmap);
+						  AllPlanes, ZPixmap);
 #if 0
 			NSLog(@"got %p", img);
 #endif
@@ -1693,12 +1707,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XFillRectangle(_display, ((Window) _graphicsPort), _state->_gc, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 #endif
 	/*
-	 * get direct access to the bitmap planes
-	 */
-	isPlanar=[(NSBitmapImageRep *) rep isPlanar];
-	bytesPerRow=[(NSBitmapImageRep *) rep bytesPerRow];
-	[(NSBitmapImageRep *) rep getBitmapDataPlanes:imagePlanes];
-	/*
 	 * draw by scanning lines
 	 */
 	for(y=0; y<img->height; y++)
@@ -1733,14 +1741,14 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 										 bytesPerRow,
 										 isPlanar, hasAlpha,
 										 imagePlanes);
-							if(fract != 256)
-								{ // dim source image by fraction
-								src.R=(fract*src.R)>>8;
-								src.G=(fract*src.G)>>8;
-								src.B=(fract*src.B)>>8;
-								src.A=(fract*src.A)>>8;
-								}
 						}
+					}
+				if(fract != 256)
+					{ // dim source image by fraction
+					src.R=(fract*src.R)>>8;
+					src.G=(fract*src.G)>>8;
+					src.B=(fract*src.B)>>8;
+					src.A=(fract*src.A)>>8;
 					}
 				}
 			composite(_compositingOperation, &src, &dest);
@@ -1755,7 +1763,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	NSLog(@"XPutImage(%d, %d, %u, %u)", xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 #endif	
 	values.function=GXcopy;
-	XChangeGC(_display, _state->_gc, GCFunction, &values);
+	XChangeGC(_display, _state->_gc, GCFunction, &values);	// use X11 copy compositing
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 	XDestroyImage(img);
 	_setDirtyRect(self, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
@@ -2048,7 +2056,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	location=[_state->_ctm transformPoint:location];
 	img=XGetImage(_display, _realWindow,
 				  location.x, location.y, 1, 1,
-				  0x00ffffff, ZPixmap);
+				  AllPlanes, ZPixmap);
 	pix=XGetRGBA8(img, 0, 0);
 	XDestroyImage(img);
 	c=[NSColor colorWithDeviceRed:pix.R/255.0 green:pix.G/255.0 blue:pix.B/255.0 alpha:pix.A/255.0];	// convert pixel to NSColor
@@ -2062,7 +2070,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	rect.size=[_state->_ctm transformSize:rect.size];
 	img=XGetImage(_display, _realWindow,
 				  rect.origin.x, rect.origin.y, rect.size.width, -rect.size.height,
-				  0x00ffffff, ZPixmap);
+				  AllPlanes, ZPixmap);
 	// FIXME: copy pixels to bitmap
 	XDestroyImage(img);
 }

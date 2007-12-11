@@ -20,6 +20,7 @@
 @class NSDictionary;
 @class NSDistantObject;
 @class NSURL;
+@class NSError;
 
 enum {
 	NSSpeechImmediateBoundary =  0,
