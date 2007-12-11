@@ -147,15 +147,6 @@ static NSFileManager *__fm = nil;
 #endif
 }
 
-- (BOOL) _createDirectoryDownToPath:(NSString *) path;
-{ // create all directories on this path (if possible)
-	if([self fileExistsAtPath:path])
-		return YES;	// ok.
-	if(![self _createDirectoryDownToPath:[path stringByDeletingLastPathComponent]])	// create super-directory first
-		return NO;	// was not able to create superdirectory
-	return [self createDirectoryAtPath:path attributes:nil];	// default attributes
-}
-
 - (BOOL) createDirectoryAtPath:(NSString*)path
 					attributes:(NSDictionary*)attributes
 { // superdirectory must exist!
@@ -170,6 +161,45 @@ static NSFileManager *__fm = nil;
 	if(attributes)
 		return [self changeFileAttributes:attributes atPath:path];
 	return YES;
+}
+
+- (BOOL)createDirectoryAtPath:(NSString *)path
+  withIntermediateDirectories:(BOOL)flag
+				   attributes:(NSDictionary *)attributes
+						error:(NSError **)error;
+{
+	struct stat statbuf;
+	const char *cpath = [self fileSystemRepresentationWithPath:path];
+	if(!cpath)
+		{
+		if(error)
+			*error=[NSError errorWithDomain:@"FileManager" code:1 userInfo:nil];
+		return NO;
+		}
+	if(stat(cpath, &statbuf) == 0) 		// file or directory already exists!
+		{
+		if(error)
+			*error=[NSError errorWithDomain:@"FileManager" code:2 userInfo:nil];
+		return NO;
+		}
+	if(flag && [path length] > 1)
+		[self createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:attributes error:NULL];
+	if(mkdir(cpath, 0777) != 0)			// will be reduced by umask
+		{
+		if(error)
+			*error=[NSError errorWithDomain:@"FileManager" code:3 userInfo:nil];
+		return NO;
+		}
+	if(attributes)
+		{
+		if(![self changeFileAttributes:attributes atPath:path])
+			{
+			if(error)
+				*error=[NSError errorWithDomain:@"FileManager" code:4 userInfo:nil];
+			return NO;
+			}
+		}
+	return YES;	
 }
 
 - (NSString*) currentDirectoryPath

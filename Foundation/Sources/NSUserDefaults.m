@@ -44,10 +44,6 @@ static NSUserDefaults *__sharedDefaults = nil;
 
 #define NSGLOBALDOMAINFILE @".GlobalPreferences"
 
-@interface NSFileManager (Extension)
-- (BOOL) _createDirectoryDownToPath:(NSString *) path;
-@end
-
 @implementation NSUserDefaults
 
 - (NSDictionary *) _createArgumentDictionary
@@ -180,7 +176,10 @@ static NSUserDefaults *__sharedDefaults = nil;
 	if (!_defaultsDatabase)
 		{
 		_defaultsDatabase = [[NSString stringWithFormat:@"%@/%@", home, __userDefaultsDB] retain];  // the defaults directory
-		if(![[NSFileManager defaultManager] _createDirectoryDownToPath:_defaultsDatabase])	// try to create
+		if(![[NSFileManager defaultManager] createDirectoryAtPath:_defaultsDatabase
+									  withIntermediateDirectories:YES
+													   attributes:nil
+															error:NULL])	// try to create
 			[NSException raise:NSGenericException format:@"NSUserDefaults: could not create user defaults database'%@'", _defaultsDatabase];
 		}
 	_searchList = [[NSMutableArray array] retain];	// start with an empty search list

@@ -101,7 +101,7 @@
 - (BOOL) copyPath:(NSString *)source toPath:(NSString *)destination handler:(id)handler;
 - (BOOL) createDirectoryAtPath:(NSString *)path
 					attributes:(NSDictionary *)attributes;
-- (BOOL)createDirectoryAtPath:(NSDictionary *)path
+- (BOOL)createDirectoryAtPath:(NSString *)path
   withIntermediateDirectories:(BOOL)flag
 				   attributes:(NSDictionary *)attributes
 						error:(NSError **)error;
