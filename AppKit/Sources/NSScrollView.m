@@ -654,7 +654,7 @@ static Class __rulerViewClass = nil;
 
 - (NSColor *) backgroundColor		{ return [_contentView backgroundColor]; }
 - (NSSize) contentSize				{ return [_contentView bounds].size; }
-- (NSView *) contentView			{ return _contentView; }
+- (NSClipView *) contentView		{ return _contentView; }
 - (id) documentView					{ return [_contentView documentView]; }
 - (NSCursor *) documentCursor		{ return [_contentView documentCursor]; }
 

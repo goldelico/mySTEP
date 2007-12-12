@@ -76,10 +76,7 @@
 - (void) _setWordSpace:(float) val;			// PDF: v Tw
 - (void) _setBaseline:(float) val;			// PDF: v Ts
 
-// FIXME: should not use _string but _drawGlyphs
-
 - (void) _drawGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;	// (string) Tj
-- (void) _drawGlyphBitmap:(unsigned char *) buffer atPoint:(NSPoint) pnt left:(int) left top:(int) top width:(unsigned) width height:(unsigned) height;
 
 - (void) _endText;							// PDF: ET
 

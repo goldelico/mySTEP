@@ -779,8 +779,9 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 		return nil;
 		}
 	
-// FIXME: we could simply use drawInRect: to scale the image during drawing!
+// FIXME: we could better use drawInRect: to scale the image during drawing!
 	
+	[img setScalesWhenResized:YES];
 	switch([cell controlSize])
 		{
 		default:

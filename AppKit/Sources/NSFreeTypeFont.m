@@ -42,47 +42,77 @@
 #import "NSPasteboard.h"
 #import "NSGlyphGenerator.h"
 
+@interface NSGraphicsContext (NSFreeTypeFont)
+- (void) _drawGlyphBitmap:(unsigned char *) buffer atPoint:(NSPoint) pnt left:(int) left top:(int) top width:(unsigned) width height:(unsigned) height;
+@end
+
 @implementation _NSX11Font (NSFreeTypeFont)
 
-#if 0
-// FIXME: add freetype rendering
-
-- (NSSize) _sizeOfString:(NSString *) string;
-{ // get size of string (fragment)
-	return size;	// return size of character box
-}
-#endif
-
-#define Free2Pt(VAL) (VAL*(1.0/32.0))
+#define Free2Pt(VAL) (VAL*(1.0/64.0))
 
 - (float) ascender; { return Free2Pt(_faceStruct->ascender); }
 
-- (NSRect) boundingRectForFont; { return NSZeroRect; }
-
-- (NSRect) boundingRectForGlyph:(NSGlyph)aGlyph; { return NSZeroRect; }
+- (NSRect) boundingRectForFont;
+{
+	return NSMakeRect(Free2Pt(_faceStruct->bbox.xMin), Free2Pt(_faceStruct->bbox.yMin), Free2Pt(_faceStruct->bbox.xMax-_faceStruct->bbox.xMin), Free2Pt(_faceStruct->bbox.yMax-_faceStruct->bbox.yMin));
+}
 
 - (float) capHeight; { return Free2Pt(_faceStruct->height); }
 
-- (NSCharacterSet *) coveredCharacterSet;  { return nil; }
+- (NSCharacterSet *) coveredCharacterSet;
+{
+	NSMutableCharacterSet *cs=[[NSMutableCharacterSet new] autorelease];
+	FT_ULong charcode;                                              
+	FT_UInt gindex;                                                	
+	charcode = FT_Get_First_Char(_faceStruct, &gindex);                   
+	while(gindex != 0)                                            
+		{
+		[cs addCharactersInRange:NSMakeRange(charcode, 1)];
+		charcode = FT_Get_Next_Char(_faceStruct, charcode, &gindex);        
+		}
+	return cs;
+}
 
 - (float) descender; { return Free2Pt(_faceStruct->descender); }
 
 - (void) getAdvancements:(NSSizeArray) advancements
-							 forGlyphs:(const NSGlyph *) glyphs
-									 count:(unsigned) count; { return; }
+			   forGlyphs:(const NSGlyph *) glyphs
+				   count:(unsigned) count;
+{
+	while(count-- > 0)
+		{
+		NSSize sz;
+		FT_Load_Glyph(_faceStruct, *glyphs++, FT_LOAD_DEFAULT);
+		if(_renderingMode == NSFontAntialiasedIntegerAdvancementsRenderingMode)
+			{ // a little faster but less accurate
+			sz=NSMakeSize(_faceStruct->glyph->advance.x>>6, _faceStruct->glyph->advance.y>>6);
+			}
+		else
+			{ // needs additional float operations per step
+			sz=NSMakeSize(_faceStruct->glyph->linearHoriAdvance*(1.0/65536.0), _faceStruct->glyph->linearVertAdvance*(1.0/65536.0));
+			}
+		*advancements++=sz;
+		}
+}
 
 - (void) getAdvancements:(NSSizeArray) advancements
 				 forPackedGlyphs:(const void *) glyphs
-									 count:(unsigned) count; { return; }
+									 count:(unsigned) count; { NIMP; }
 
 - (void) getBoundingRects:(NSRectArray) bounds
 								forGlyphs:(const NSGlyph *) glyphs
-										count:(unsigned) count; { return; }
-
-- (NSGlyph) _glyphForCharacter:(unichar) c;
+										count:(unsigned) count;
 {
-	return FT_Get_Char_Index(_faceStruct, c);
+	while(count-- > 0)
+		{
+		NSRect rect;
+		FT_Load_Glyph(_faceStruct, *glyphs++, FT_LOAD_DEFAULT);
+		rect=NSMakeRect(Free2Pt(_faceStruct->glyph->metrics.horiBearingX), Free2Pt(_faceStruct->glyph->metrics.height-_faceStruct->glyph->metrics.horiBearingY),
+						Free2Pt(_faceStruct->glyph->metrics.width), Free2Pt(_faceStruct->glyph->metrics.height));
+		*bounds++=rect;
+		}
 }
+
 
 - (NSGlyph) glyphWithName:(NSString *) name;
 {
@@ -94,13 +124,32 @@
 
 - (BOOL) isFixedPitch;	{ return FT_IS_FIXED_WIDTH(_faceStruct) != 0; }
 
-- (float) italicAngle; { return -1.0; }
+- (float) italicAngle; { return 0.0; }	// FIXME
 
-- (float) leading; { return -1.0; }
+- (float) leading; { return Free2Pt(_faceStruct->height); }
 
 - (NSSize) maximumAdvancement; { return NSMakeSize(Free2Pt(_faceStruct->max_advance_width), Free2Pt(_faceStruct->max_advance_height)); }
 
-- (NSStringEncoding) mostCompatibleStringEncoding; { return NSASCIIStringEncoding; }
+- (NSStringEncoding) mostCompatibleStringEncoding;
+{
+	NSStringEncoding enc=NSASCIIStringEncoding;
+	int i;
+	for(i=0; i<_faceStruct->num_charmaps; i++)
+		{
+		switch(_faceStruct->charmaps[i]->encoding)
+			{
+			case FT_ENCODING_UNICODE:
+				enc=NSUnicodeStringEncoding;
+				break;
+			case FT_ENCODING_APPLE_ROMAN:
+				enc=NSMacOSRomanStringEncoding;
+				break;
+			default:
+				break;
+			}
+		}
+	return enc;
+}
 
 - (unsigned) numberOfGlyphs; { return _faceStruct->num_glyphs; }
 
@@ -108,7 +157,11 @@
 
 - (float) underlineThickness; { return Free2Pt(_faceStruct->underline_thickness); }
 
-- (float) xHeight; { return -1.0; }
+- (float) xHeight;
+{
+	FT_Load_Glyph(_faceStruct, FT_Get_Char_Index(_faceStruct, 'x'), FT_LOAD_DEFAULT);
+	return Free2Pt(_faceStruct->size->metrics.ascender);
+}
 
 - (id) _initWithDescriptor:(NSFontDescriptor *) desc
 {
@@ -164,6 +217,7 @@ FT_Library _ftLibrary(void)
 			if(!error)
 				{
 				NSAffineTransform *t=[_descriptor matrix];
+//				FT_Select_Charmap(_faceStruct, FT_ENCODING_UNICODE);
 				if(t)
 					{ // we have a text transform
 					NSAffineTransformStruct m=[t transformStruct];
@@ -171,12 +225,16 @@ FT_Library _ftLibrary(void)
 					FT_Vector delta = { m.tX*64, m.tY*64 };
 					FT_Set_Transform(_faceStruct,			// handle to face object
 									 &matrix,				// pointer to 2x2 matrix
-									 &delta );				// pointer to 2d vector
+									 &delta);				// pointer to 2d vector
 					return _faceStruct;
 					}
 				else
 					{ // use pointSize
-					  // FIXME: here we must handle the user and system space scale factors or the bitmaps will not be scaled to DPI!
+					// well, this should be screen independent!!
+					float scale=[[[[[NSScreen screens] objectAtIndex:0] deviceDescription] objectForKey:@"systemSpaceScaleFactor"] floatValue];
+					error=FT_Set_Pixel_Sizes(_faceStruct, 0, (int) (scale*[_descriptor pointSize]));
+#if OLD
+					// FIXME: here we must handle the user and system space scale factors or the bitmaps will not be scaled to DPI!
 					// we should cache and reload only if we draw to a different context!
 					int hdpi=120;
 					int vdpi=120;
@@ -186,10 +244,10 @@ FT_Library _ftLibrary(void)
 											  size,							// char_height in 1/64th of points
 											  hdpi,							// horizontal device resolution
 											  vdpi);						// vertical device resolution
+#endif
 					if(!error)
 						return _faceStruct;
 					}
-				FT_Select_Charmap(_faceStruct, FT_ENCODING_UNICODE);
 				}
 			NSLog(@"*** Internal font loading error: %@", fontFile);
 			}
@@ -203,36 +261,51 @@ FT_Library _ftLibrary(void)
 		FT_Done_Face(_faceStruct);
 }
 
-- (NSSize) _sizeOfAntialisedString:(NSString *) string;
-{ // overwritten in Freetype.m
+- (NSGlyph) _glyphForCharacter:(unichar) c;
+	// FIXME - this should be moved to NSGlyphGenerator!
+{
+	return FT_Get_Char_Index(_faceStruct, c);
+}
 
-	// FIXME: this uses the X11 font metrics!
-	
-	NSFontRenderingMode rm=_renderingMode;
-	NSSize sz;
-	_renderingMode=NSFontIntegerAdvancementsRenderingMode;
-	sz=[self _sizeOfString:string];
-	_renderingMode=rm;
+- (NSSize) _sizeOfAntialisedString:(NSString *) string;
+{ // deprecated...
+	NSSize sz=NSZeroSize;
+	unsigned long i, cnt=[string length];
+	// we could sum up the integer widths/heights and convert to float only once
+	for(i = 0; i < cnt; i++)
+		{ // load glyphs
+		FT_Error error = FT_Load_Char(_faceStruct, [string characterAtIndex:i], FT_LOAD_DEFAULT);
+		float h;
+		if(error)
+			continue;
+		if(_renderingMode == NSFontAntialiasedIntegerAdvancementsRenderingMode)
+			{ // a little faster but less accurate
+			sz.width += _faceStruct->glyph->advance.x>>6;
+			}
+		else
+			{
+			sz.width += _faceStruct->glyph->linearHoriAdvance*(1.0/65536);
+			}
+		h=Free2Pt(_faceStruct->glyph->metrics.height);
+		if(h > sz.height)
+			sz.height=h;
+		}
 	return sz;
 }
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
 { // render the string
-	FT_Error error;
 	FT_GlyphSlot slot = _faceStruct->glyph;
 	NSPoint pen = NSZeroPoint;
 	unsigned long i;
-//	if(![ctxt isFlipped])
-		pen.y=1.2*[self pointSize];
-#if 0
-	if([_descriptor pointSize] < 9.0)
-		NSLog(@"micro");
-	if([_descriptor pointSize] == 9.0)
-		NSLog(@"mini");
+#if 1
+	if([_descriptor pointSize] != 12.0)
+		NSLog(@"non-standard font size to %f", [_descriptor pointSize]);
 #endif
+	pen.y=[self ascender];	// one line down
 	for(i = 0; i < cnt; i++)
 		{ // render glyphs
-		error = FT_Load_Char(_faceStruct, glyphs[i], FT_LOAD_RENDER);
+		FT_Error error = FT_Load_Glyph(_faceStruct, glyphs[i], FT_LOAD_RENDER);
 		if(error)
 			continue;
 		[ctxt _drawGlyphBitmap:slot->bitmap.buffer atPoint:NSMakePoint(pen.x, pen.y) left:slot->bitmap_left top:slot->bitmap_top width:slot->bitmap.width height:slot->bitmap.rows];
@@ -243,8 +316,8 @@ FT_Library _ftLibrary(void)
 			}
 		else
 			{ // needs 4 additional float operations per step
-			pen.x += ((float) slot->advance.x)*(1.0/64.0);
-			pen.y += ((float) slot->advance.y)*(1.0/64.0);
+			pen.x += slot->linearHoriAdvance*(1.0/65536);
+// not reliable	- use FT_HAS_VERTICAL()		pen.y += slot->linearVertAdvance*(1.0/65536);
 			}
 		}
 }
@@ -254,12 +327,15 @@ FT_Library _ftLibrary(void)
 @implementation NSGlyphGenerator (NSFreeTypeFont)
 
 - (void) generateGlyphsForGlyphStorage:(id <NSGlyphStorage>) storage
-			 desiredNumberOfCharacters:(unsigned int) num glyphIndex:(unsigned int *) gidx characterIndex:(unsigned int *) cidx
+			 desiredNumberOfCharacters:(unsigned int) num
+							glyphIndex:(unsigned int *) gidx
+						characterIndex:(unsigned int *) cidx
 {
 	NSAttributedString *astr=[storage attributedString];	// get string to layout
 	NSString *str=[astr string];
 	unsigned int options=[storage layoutOptions];	 // NSShowControlGlyphs, NSShowInvisibleGlyphs, NSWantsBidiLevels
-
+	NSGlyph previous=0;
+	BOOL usekerning=YES;	// ask storage?
 	while(num > 0)
 		{
 		
@@ -276,31 +352,26 @@ FT_Library _ftLibrary(void)
 		unichar c=[str characterAtIndex:*cidx];
 		NSDictionary *attribs=[astr attributesAtIndex:*cidx effectiveRange:NULL];
 		NSFont *font=[attribs objectForKey:@"Font"];
+		FT_Face face=[(_NSX11Font *) font _face];
 		switch(c)
 			{
-			// handle special characters like \n \t and textattachments
+			// handle special characters like \n \t and textattachments depending on options
 			default:
-				glyph=FT_Get_Char_Index([(_NSX11Font *) font _face], c);
+				glyph=FT_Get_Char_Index(face, c);
 			}
 
-#if FRAGMENT
-		/* convert character code to glyph index */
-#endif
 		// generate position information
-#if FRAGMENT
-		initialize previous by [storage _glyphAtIndex:(*gidx)-1]
-		/* retrieve kerning distance and move pen position */
-		if(use_kerning && previous && glyph_index)
+		if(usekerning && previous && glyph)
 			{ // handle kerning
 			FT_Vector delta;
-			FT_Get_Kerning([font _face], previous, glyph, ft_kerning_mode_default, &delta);
-			pen_x += delta.x >> 6;
-			pen_y += delta.y >> 6;
+			FT_Get_Kerning(face, previous, glyph, FT_KERNING_DEFAULT, &delta);
+//			pen_x += Free2Pt(delta.x);
+//			pen_y += Free2Pt(delta.y);
 			previous=glyph;
 			}
-#endif
 		[storage insertGlyphs:&glyph length:gnum forStartingGlyphAtIndex:*gidx characterIndex:*cidx];
 //		[storage setIntAttribute:124 value:4321 forGlyphAtIndex:*gidx];
+//		store glyph positions
 		*gidx+=gnum;
 		*cidx++;
 		num--;
@@ -404,7 +475,7 @@ FT_Library _ftLibrary(void)
 		if(face->style_name && strcmp(face->style_name, "Regular") != 0)
 			{
 			style=[NSString stringWithCString:face->style_name];
-			name=[NSString stringWithFormat:@"%@-%@", family, style];
+			name=[NSString stringWithFormat:@"%@-%@", family, style];	// build display name
 			}
 		else
 			{
@@ -432,11 +503,14 @@ FT_Library _ftLibrary(void)
 		NSLog(@"add #%lu[%lu] %@-%@ at %@", faceIndex, face->num_faces, family, style, path);
 #endif
 		psname=FT_Get_Postscript_Name(face);
+		if(!psname)
+			continue;	// we can handle fonts with postscript name only
 		fontRecord=[NSMutableDictionary dictionaryWithObjectsAndKeys:
 			// official
 			family, NSFontFamilyAttribute,
 			style, NSFontFaceAttribute,
-			name, NSFontNameAttribute,
+			[NSString stringWithCString:psname], NSFontNameAttribute,	// official name
+			name, NSFontVisibleNameAttribute,	// display name
 			[NSDictionary dictionaryWithObjectsAndKeys:
 				[NSNumber numberWithUnsignedInt:traits], NSFontSymbolicTrait,
 				[NSNumber numberWithFloat:0.0], NSFontWeightTrait,
@@ -446,7 +520,6 @@ FT_Library _ftLibrary(void)
 			// internal
 			path, @"FilePath",
 			[NSNumber numberWithUnsignedLong:faceIndex], @"FaceNumber",
-			psname?[NSString stringWithCString:psname]:nil, @"PostscriptName",
 			nil];
 		[NSFontDescriptor _addFontWithAttributes:fontRecord];
 		FT_Done_Face(face);

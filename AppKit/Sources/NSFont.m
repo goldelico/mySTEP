@@ -37,6 +37,8 @@
 NSString *NSAntialiasThresholdChangedNotification=@"NSAntialiasThresholdChangedNotification";
 NSString *NSFontSetChangedNotification=@"NSFontSetChangedNotification";
 
+// FIXME: move the font-size cache to _initWithName: size: so that it also applies to fonts decoded from NIBs
+
 static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, float deflt)
 { // get system font (cached)
 	NSUserDefaults *u = [NSUserDefaults standardUserDefaults];
@@ -223,6 +225,8 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	return [[[NSFont alloc] _initWithDescriptor:descriptor] autorelease];
 }
 
+// FIXME: make font name substitution more general
+
 + (NSFont *) fontWithName:(NSString*) name matrix:(const float *) fontMatrix
 {
 	NSFontDescriptor *descriptor;
@@ -236,35 +240,46 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	return [[[NSFont alloc] _initWithDescriptor:descriptor] autorelease];
 }
 
-+ (NSFont *) fontWithName:(NSString*) name size:(float) size
-{ // create a font without matrix
+- (id) _initWithName:(NSString *) postscriptName size:(float) size
+	{
+	
+	// We should have the name-size cache here!
+	
 	NSFontDescriptor *descriptor;
 	if(size == 0.0)
 		// FIXME: the NSUserFont entry is just the font name!
 		// size=[[[NSUserDefaults standardUserDefaults] objectForKey:@"NSUserFont"] pointSize];	// default
 		size=12.0;
-	descriptor=[NSFontDescriptor fontDescriptorWithName:name size:size];	// add size for search
+	descriptor=[NSFontDescriptor fontDescriptorWithName:postscriptName size:size];	// add size for search
 	descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
 	if(!descriptor)
-		{ // not found
+		{
 #ifndef __APPLE__
-		// FIXME: substitute some free fonts until we have an official substitution mechanism for that and/or a license for the Helvetica etc. fonts
-		if([name isEqualToString:@"Times"]) name=@"Luxi Serif";
-		else if([name isEqualToString:@"Helvetica"]) name=@"Luxi Sans";
-		else if([name isEqualToString:@"Helvetica-Bold"]) name=@"Luxi Sans";
-		else if([name isEqualToString:@"Courier"]) name=@"Nonserif";
-		else if([name isEqualToString:@"Monaco"]) name=@"Luxi Mono";
-		else if([name isEqualToString:@"Lucida Grande"]) name=@"Luxi Sans";
-		else if([name isEqualToString:@"Geneva"]) name=@"Luxi Sans";
+		// FIXME: substitute some free fonts until we have an official substitution mechanism for that and/or a license for these fonts
+		if([postscriptName isEqualToString:@"Times"]) postscriptName=@"Luxi Serif";
+		else if([postscriptName isEqualToString:@"Helvetica"]) postscriptName=@"Luxi Sans";
+		else if([postscriptName isEqualToString:@"Helvetica-Bold"]) postscriptName=@"Luxi Sans";
+		else if([postscriptName isEqualToString:@"Courier"]) postscriptName=@"Nonserif";
+		else if([postscriptName isEqualToString:@"Monaco"]) postscriptName=@"Luxi Mono";
+		else if([postscriptName isEqualToString:@"LucidaGrande"]) postscriptName=@"Luxi Sans";
+		else if([postscriptName isEqualToString:@"Geneva"]) postscriptName=@"Luxi Sans";
 		else return nil;
-		descriptor=[NSFontDescriptor fontDescriptorWithName:name size:size];	// add size for search
+		descriptor=[NSFontDescriptor fontDescriptorWithName:postscriptName size:size];	// add size for search
 		descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
 		if(!descriptor)
 #endif
-			return nil;	// no matching font found
+			{ // no matching font found
+			[self release];
+			return nil;
+			}
 		}
 	descriptor=[descriptor fontDescriptorWithSize:size];	// add size to result
-	return [[[NSFont alloc] _initWithDescriptor:descriptor] autorelease];
+	return [self _initWithDescriptor:descriptor];
+}
+
++ (NSFont *) fontWithName:(NSString*) name size:(float) size
+{ // create a font without matrix
+	return [[[self alloc] _initWithName:name size:size] autorelease];
 }
 
 - (NSString *) fontName							{ return [_descriptor objectForKey:NSFontNameAttribute]; }
@@ -289,16 +304,18 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	if([aDecoder allowsKeyedCoding])
 		{
 		NSFont *r;
+		int fFlags=[aDecoder decodeIntForKey:@"NSfFlags"];	// renderingMode? denotes if a descriptor exists or not? font traits?
+#define IS_SCREEN_FONT (((fFlags>>0)&1)!=0)
+#define MATRIX_IS_IDENTITY (((fFlags>>13)&1)!=0)
+#define RENDERING_MODE ((fFlags>>14)&0x07)
 		float size=[aDecoder decodeFloatForKey:@"NSSize"];
-		int fFlags=[aDecoder decodeIntForKey:@"NSfFlags"];	// renderingMode? denotes if a descriptor exists or not?
+		NSString *postscriptName=[aDecoder decodeObjectForKey:@"NSName"];
 #if 0
 		NSLog(@"%@ NSfFlags=%08x", self, [aDecoder decodeIntForKey:@"NSfFlags"]);
 #endif
-		[self release];
-		r=[NSFont fontWithName:[aDecoder decodeObjectForKey:@"NSName"] size:size];	// fails if we don't have this font
-		if(!r)
-			r=[NSFont systemFontOfSize:size];	// substitute system font
-		return [r retain];
+		self=[self _initWithName:postscriptName size:size];
+//		_renderingMode=RENDERING_MODE;
+		return self;
 		}
 //	_fontName = [[aDecoder decodeObject] retain];
 //	[aDecoder decodeArrayOfObjCType:"f" count:6 at:_matrix];
@@ -307,7 +324,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 }
 
 - (id) _initWithDescriptor:(NSFontDescriptor *) desc
-{ // can beoverwritten by freetype backend
+{
 	if((self=[super init]))
 		{
 		_descriptor=[desc retain];
@@ -453,7 +470,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 
 - (NSSize) maximumAdvancement; { BACKEND; return NSZeroSize; }
 
-- (NSStringEncoding) mostCompatibleStringEncoding; { BACKEND; return NSASCIIStringEncoding; }
+- (NSStringEncoding) mostCompatibleStringEncoding; { BACKEND; return 0; }
 
 - (unsigned) numberOfGlyphs; { BACKEND; return 0; }
 

@@ -131,7 +131,7 @@
 
 - (int) numberOfItems
 {
-#if 1
+#if 0
 	NSLog(@"numberOfItems: %@", self);
 #endif
 	if (_cbc.usesDataSource)

@@ -2793,6 +2793,7 @@ static NSDictionary *_x11settings;
 			[NSValue valueWithSize:resolution], NSDeviceResolution,
 			[NSValue valueWithSize:size], NSDeviceSize,
 			[NSNumber numberWithInt:XScreenNumberOfScreen(_screen)], @"NSScreenNumber",
+			[NSNumber numberWithFloat:_screenScale], @"systemSpaceScaleFactor",
 			nil];
 #if 0
 		NSLog(@"deviceDescription=%@", _device);
@@ -3496,15 +3497,6 @@ static NSDictionary *_x11settings;
 			NSLog(@"Unable to allocate color %@ for X11 Screen %08x", color, scr);
 			return 0;
 			}
-#if OLD
-		else
-			{ // Copy actual values back to the NSColor variables
-			_rgb.red = ((float) (((XColor *) _colorData)->red)) / 65535;
-			_rgb.green = ((float) (((XColor *) _colorData)->green)) / 65535;
-			_rgb.blue = ((float) (((XColor *) _colorData)->blue)) / 65535;
-			_color.rgb=YES;
-			}
-#endif
 		}
 	return ((XColor *) _colorData)->pixel;
 }

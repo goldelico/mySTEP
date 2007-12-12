@@ -85,8 +85,8 @@ extern NSString *NSFontFeatureSelectorIdentifierKey;
 }
 
 + (id) fontDescriptorWithFontAttributes:(NSDictionary *) attributes;
-+ (id) fontDescriptorWithName:(NSString *) name matrix:(NSAffineTransform *) matrix;
-+ (id) fontDescriptorWithName:(NSString *) name size:(CGFloat) size;
++ (id) fontDescriptorWithName:(NSString *) postscript matrix:(NSAffineTransform *) matrix;
++ (id) fontDescriptorWithName:(NSString *) postscript size:(CGFloat) size;
 
 - (NSDictionary *) fontAttributes;
 - (NSFontDescriptor *) fontDescriptorByAddingAttributes:(NSDictionary *) attributes;

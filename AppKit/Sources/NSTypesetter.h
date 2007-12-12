@@ -5,7 +5,7 @@
 //  Created by Dr. H. Nikolaus Schaller on Fri Jun 29 2006.
 //  Copyright (c) 2006 DSITRI.
 //
-//  This is incomplete!
+//  This is incomplete and more or less deprecated.
 //
 //  This file is part of the mySTEP Library and is provided
 //  under the terms of the GNU Library General Public License.

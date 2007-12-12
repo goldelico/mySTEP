@@ -115,8 +115,8 @@
 
 - (float) defaultLineHeightForFont:(NSFont *) font;
 {
-	// NIMP
-	return 12;
+	abort();
+	return [font leading];
 }
 
 - (id) delegate; { return _delegate; }
@@ -213,7 +213,7 @@
 						  layoutManager:self];
 					pos.x += rect.size.width;
 					if(pos.x > containerSize.width)
-						; // FIXME: need to start at a new line
+						; // FIXME: need to start on a new line
 					}
 				rangeLimit.location++;
 				rangeLimit.length--;
@@ -232,7 +232,7 @@
 				{
 					NSParagraphStyle *p=[_textStorage attribute:NSParagraphStyleAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
 #if 0	// if backend works reliable
-					float leading=1.2*[font boundingRectForFont].size.height+[p paragraphSpacing];
+					float leading=[font leading]+[p paragraphSpacing];
 #else
 					float leading=1.2*[font _sizeOfString:@"X"].height+[p paragraphSpacing];
 #endif
@@ -282,9 +282,9 @@
 //				[ctxt _newLine];
 				pos.x=origin.x;
 				if(flipped)
-					pos.y+=1.2*size.height;
+					pos.y+=1.2*size.height/*+[p paragraphSpacing]*/;
 				else
-					pos.y-=1.2*size.height;
+					pos.y-=1.2*size.height/*+[p paragraphSpacing]*/;
 				}
 			while(size.width > containerSize.width && attribRange.length > 1)
 				{ // does still not fit into box at all - we must truncate
@@ -295,6 +295,8 @@
 			}
 		if([ctxt isDrawingToScreen])
 			font=[self substituteFontForFont:font];
+		if(!font)
+			NSLog(@"no screen font available");
 		[font setInContext:ctxt];	// set font
 		foreGround=[attr objectForKey:NSForegroundColorAttributeName];
 #if 0
@@ -315,19 +317,17 @@
 			[ctxt _setBaseline:baseline];	// adjust baseline
 			[ctxt _setTextPosition:pos];	// set where to start drawing
 			}
-		
-		// this code assumes unicode encoding and a 1:1 relationship for glyphs and characters
-		
+
+		// FIXME: this all should be done through the GlyphGenerator
+
+		// [_glyphGenerator generateGlyphsForGlyphStorage:self desiredNumberOfCharacters:attribRange.length glyphIndex:0 characterIndex:attribRange.location];
 		// here, we should already have laid out
 		_numberOfGlyphs=[substr length];
 		if(!_glyphs || _numberOfGlyphs >= _glyphBufferCapacity)
 			_glyphs=(NSGlyph *) objc_realloc(_glyphs, sizeof(_glyphs[0])*(_glyphBufferCapacity=_numberOfGlyphs+20));
-		// fixme this should be done through the GlyphGenerator
-		// [_glyphGenerator generateGlyphsForGlyphStorage:self desiredNumberOfCharacters:attribRange.length glyphIndex:0 characterIndex:attribRange.location];
 		for(i=0; i<_numberOfGlyphs; i++)
-			//			_glyphs[i]=[font _glyphForCharacter:[substr characterAtIndex:i]];		// translate and copy to glyph buffer
-			_glyphs[i]=[substr characterAtIndex:i];
-
+			_glyphs[i]=[font _glyphForCharacter:[substr characterAtIndex:i]];		// translate and copy to glyph buffer
+		
 		[ctxt _drawGlyphs:[self _glyphsAtIndex:0] count:_numberOfGlyphs];	// -> (string) Tj
 				
 		/* FIXME:

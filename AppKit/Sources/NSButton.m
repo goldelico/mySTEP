@@ -687,7 +687,7 @@ id __buttonCellClass = nil;
 	if([title isEqualToString:@"mini"])
 		NSLog(@"mini");
 #endif
-	if(!title || _transparent || _c.imagePosition == NSImageOnly)
+	if(!title || _c.imagePosition == NSImageOnly)
 		return;	// don't draw title
 	if(stateOrHighlight(NSChangeGrayCellMask)) 
 		{ // change text color when highlighting
@@ -803,15 +803,15 @@ id __buttonCellClass = nil;
 	NSLog(@"draw image %@", _image);
 #endif
 	[self drawImage:_image withFrame:cellFrame inView:controlView];
-	// FIXME: here, we are not clean for data types!!!
-	// and: when should we use title and when attributedTitle?
+	if(_c.imagePosition == NSImageOnly)
+		return;
 	title=(NSAttributedString *) _title;
 	if([title length] == 0 || stateOrHighlight(NSContentsCellMask))		// standard content
 		{ // change to alternate text/image (if defined)
 		if([_alternateTitle length] != 0)
 			title = (NSAttributedString *) _alternateTitle;
 		}
-#if 1
+#if 0
 	NSLog(@"draw title %@", title);
 #endif
 	[self drawTitle:title withFrame:cellFrame inView:controlView];
@@ -888,7 +888,7 @@ id __buttonCellClass = nil;
 		if([_alternateImage isKindOfClass:[NSFont class]])
 			{ // bug (or feature?) in IB archiver
 			[self setFont:(NSFont *)_alternateImage];
-#if 1
+#if 0
 			NSLog(@"strange NSAlternateImage %@", _alternateImage);
 #endif
 			[_alternateImage release], _alternateImage=nil;
@@ -896,13 +896,13 @@ id __buttonCellClass = nil;
 		if([_normalImage isKindOfClass:[NSFont class]])
 			{
 			[self setFont:(NSFont *)_alternateImage];
-#if 1
+#if 0
 			NSLog(@"strange NSNormalImage %@", _normalImage);
 #endif
 			[_normalImage release], _normalImage=nil;
 			}
-		if(!_normalImage)
-			{ // no normal image
+		if(!_normalImage && _alternateImage)
+			{ // no normal image but alternate
 #if 1
 			NSLog(@"no NSNormalImage %@ substituting alternate %@", _normalImage, _alternateImage);
 #endif

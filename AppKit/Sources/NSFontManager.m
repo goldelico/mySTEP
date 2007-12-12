@@ -145,7 +145,6 @@ static NSString *__fontCollections = nil;
 	return newFont;
 }
 
-
 - (NSFont*) convertFont: (NSFont *)fontObject toFamily: (NSString *)family
 {
 	if ([family isEqualToString: [fontObject familyName]])
@@ -352,11 +351,13 @@ static NSString *__fontCollections = nil;
 	return fontTraits;
 }
 
+// FIXME: use NSFontDescriptor to fint matchingDescriptors
+
 - (NSFont *) fontWithFamily:(NSString *)family
 					 traits:(NSFontTraitMask)traits
 					 weight:(int)weight
 					   size:(float)size
-{ // shouldn't we use NSFontDescriptor to fint matchingDescriptors?
+{
 	NSArray *fontDefs = [self availableMembersOfFontFamily: family];
 	unsigned int i;	
 	//NSLog(@"Searching font %@: %i: %i size %.0f", family, weight, traits, size);
@@ -493,13 +494,10 @@ static NSString *__fontCollections = nil;
 	return _fontMenu;
 }
 
-// FIXME: should ask the font descriptor of the font
-
 - (int) weightOfFont:(NSFont *)fontObject
 {
 	NSDictionary *attrs=[[fontObject fontDescriptor] fontAttributes];
-	NSDictionary *traits=[attrs objectForKey:NSFontTraitsAttribute];
-	id weight=[traits objectForKey:NSFontWeightTrait];
+	id weight=[[attrs objectForKey:NSFontTraitsAttribute] objectForKey:NSFontWeightTrait];
 	if(weight)
 		return (int)(4.5*[weight floatValue]+5.0);	// map -1.0 .. 1.0 to 0 .. 9
 	return 5;
@@ -508,8 +506,7 @@ static NSString *__fontCollections = nil;
 - (NSFontTraitMask) traitsOfFont:(NSFont *)fontObject
 {
 	NSDictionary *attrs=[[fontObject fontDescriptor] fontAttributes];
-	NSDictionary *traits=[attrs objectForKey:NSFontTraitsAttribute];
-	return [[traits objectForKey:NSFontSymbolicTrait] unsignedIntValue];
+	return [[[attrs objectForKey:NSFontTraitsAttribute] objectForKey:NSFontSymbolicTrait] unsignedIntValue];
 }
 
 // Target / Action
@@ -581,22 +578,33 @@ static NSString *__fontCollections = nil;
 
 - (NSArray *) availableMembersOfFontFamily:(NSString *) family;
 {
-	NSFontDescriptor *fd=[NSFontDescriptor fontDescriptorWithFontAttributes:[NSDictionary dictionaryWithObject:family forKey:NSFontFamilyAttribute]];
-	NSEnumerator *e=[[fd matchingFontDescriptorsWithMandatoryKeys:[NSSet setWithObject:NSFontFamilyAttribute]] objectEnumerator];
-	NSMutableArray *r=[[NSMutableArray alloc] initWithCapacity:20];
-#if 0
-	NSLog(@"NSFontManager availableFonts");
+	static NSMutableDictionary *cache;
+	NSMutableArray *r=[cache objectForKey:family];
+	if(!r)
+		{
+		NSFontDescriptor *fd=[NSFontDescriptor fontDescriptorWithFontAttributes:[NSDictionary dictionaryWithObject:family forKey:NSFontFamilyAttribute]];
+		NSEnumerator *e=[[fd matchingFontDescriptorsWithMandatoryKeys:[NSSet setWithObject:NSFontFamilyAttribute]] objectEnumerator];
+		r=[[NSMutableArray alloc] initWithCapacity:20];
+#if 1
+		NSLog(@"NSFontManager availableMembersOfFontFamily %@", family);
 #endif
-	while((fd=[e nextObject]))
-		{ // get unique families from fonts and return in specific format
-		NSDictionary *attribs=[fd fontAttributes];
-		NSArray *a=[NSArray arrayWithObjects:
-			[attribs objectForKey:@"PostscriptName"],
-			[attribs objectForKey:NSFontFaceAttribute],
-			[NSNumber numberWithInt:5],		// weight
-			[attribs objectForKey:@"Traits"],
-			nil];
-		[r addObject:a];
+		while((fd=[e nextObject]))
+			{ // get unique families from fonts and return in specific format
+			NSDictionary *attribs=[fd fontAttributes];
+			NSArray *a=[NSArray arrayWithObjects:
+				[attribs objectForKey:NSFontNameAttribute],
+				[attribs objectForKey:NSFontFaceAttribute],
+				[[attribs objectForKey:NSFontTraitsAttribute] objectForKey:NSFontWeightTrait],		// weight
+				[[attribs objectForKey:NSFontTraitsAttribute] objectForKey:NSFontSymbolicTrait],		// traits
+				nil];
+			[r addObject:a];
+			}
+		if(!cache)
+			cache=[[NSMutableDictionary alloc] initWithCapacity:10];
+		[cache setObject:r forKey:family];
+#if 1
+		NSLog(@"=> %@", r);
+#endif
 		}
 	return r;
 }
@@ -621,24 +629,31 @@ static NSString *__fontCollections = nil;
 
 - (NSArray *) availableFonts
 {
-	return [self availableFontNamesMatchingFontDescriptor:[NSFontDescriptor fontDescriptorWithFontAttributes:[NSDictionary dictionary]]];	// all
+	static NSArray *cache;
+	if(!cache)
+		cache=[[self availableFontNamesMatchingFontDescriptor:[NSFontDescriptor fontDescriptorWithFontAttributes:[NSDictionary dictionary]]] retain];	// all
+	return cache;
 }
 
 - (NSArray *) availableFontFamilies;
 {
+	static NSMutableArray *r;
 	NSFontDescriptor *fd=[NSFontDescriptor fontDescriptorWithFontAttributes:nil];
 	NSSet *empty=[[NSSet new] autorelease];	// gcc 2.95.3 confuses -(void) set and +(NSSet *) set
 	NSArray *mfd=[fd matchingFontDescriptorsWithMandatoryKeys:empty];
 	NSEnumerator *e=[mfd objectEnumerator];
-	NSMutableArray *r=[[NSMutableArray alloc] initWithCapacity:50];
+	if(!r)
+		{
+		r=[[NSMutableArray alloc] initWithCapacity:50];
+		while((fd=[e nextObject]))
+			{ // get unique families from fonts
+			NSString *family=[[fd fontAttributes] objectForKey:NSFontFamilyAttribute];
+			if(![r containsObject:family])
+				[r addObject:family];	// new family
+			}
 #if 0
-	NSLog(@"NSFontManager availableFontFamilies => %@", mfd);
+		NSLog(@"NSFontManager availableFontFamilies => %@", r);
 #endif
-	while((fd=[e nextObject]))
-		{ // get unique families from fonts
-		NSString *family=[[fd fontAttributes] objectForKey:NSFontFamilyAttribute];
-		if(![r containsObject:family])
-			[r addObject:family];	// new family
 		}
 	return r;
 }
