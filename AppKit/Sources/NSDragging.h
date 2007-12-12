@@ -44,7 +44,6 @@ enum {
 };
 
 typedef NSUInteger NSDragOperation;
-
 													// protocol for sender of 
 @protocol NSDraggingInfo							// messages to a drag 
 													// destination

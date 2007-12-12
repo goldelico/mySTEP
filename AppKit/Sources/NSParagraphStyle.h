@@ -13,7 +13,7 @@
 	Date:	Jun 2006 - aligned with 10.4
 
 	Author:	Fabian Spillner <fabian.spillner@gmail.com>
-	Date:	14. November 2007 - aligned with 10.5 only NSMutableParagraphStyle, NSParagraphStyle
+	Date:	12. December 2007 - aligned with 10.5
 
 	This file is part of the mySTEP Library and is provided
 	under the terms of the GNU Library General Public License.
@@ -51,9 +51,9 @@ extern NSString *NSTabColumnTerminatorsAttributeName;
 }
 
 - (NSTextAlignment) alignment;
-- (id) initWithTextAlignment:(NSTextAlignment) align location:(float) loc options:(NSDictionary *) options;
-- (id) initWithType:(NSTextTabType)type location:(float)loc;
-- (float) location;
+- (id) initWithTextAlignment:(NSTextAlignment) align location:(CGFloat) loc options:(NSDictionary *) options;
+- (id) initWithType:(NSTextTabType) type location:(CGFloat) loc;
+- (CGFloat) location;
 - (NSDictionary *) options;
 - (NSTextTabType) tabStopType;
 

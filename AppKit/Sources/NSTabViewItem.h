@@ -9,6 +9,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Feb 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	12. December 2007 - aligned with 10.5 
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -39,21 +42,21 @@ typedef enum {
 	NSTabState item_state;
 }
 
-- (NSColor *)color;
-- (void)drawLabel:(BOOL)shouldTruncateLabel inRect:(NSRect)tabRect;
-- (id)identifier;
-- (id)initialFirstResponder;
-- (id) initWithIdentifier:(id)identifier;
-- (NSString *)label;
-- (void)setColor:(NSColor *)color;	// deprecated, i.e. not used
-- (void)setIdentifier:(id)identifier;
-- (void)setInitialFirstResponder:(NSView *)view;
-- (void)setLabel:(NSString *)label;
-- (void)setView:(NSView *)view;
-- (NSSize)sizeOfLabel:(BOOL)shouldTruncateLabel;
-- (NSTabState)tabState;
-- (NSTabView *)tabView;
-- (NSView *)view;
+- (NSColor *) color;
+- (void) drawLabel:(BOOL) shouldTruncateLabel inRect:(NSRect) tabRect;
+- (id) identifier;
+- (id) initialFirstResponder;
+- (id) initWithIdentifier:(id) identifier;
+- (NSString *) label;
+- (void) setColor:(NSColor *) color;	/* DEPRECATED */
+- (void) setIdentifier:(id) identifier;
+- (void) setInitialFirstResponder:(NSView *) view;
+- (void) setLabel:(NSString *) label;
+- (void) setView:(NSView *) view;
+- (NSSize) sizeOfLabel:(BOOL) shouldTruncateLabel;
+- (NSTabState) tabState;
+- (NSTabView *) tabView;
+- (NSView *) view;
 
 @end
 

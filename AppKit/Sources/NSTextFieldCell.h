@@ -7,6 +7,9 @@
 
    Author:  Felipe A. Rodriguez <far@pcmagic.net>
    Date:    June 2000
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	12. December 2007 - aligned with 10.5 
    
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -32,16 +35,21 @@ typedef enum _NSTextFieldBezelStyle
 	NSTextFieldBezelStyle _bezelStyle;
 }
 
+- (NSArray *) allowedInputSourceLocales; 
 - (NSColor *) backgroundColor;							// Graphic Attributes
 - (NSTextFieldBezelStyle) bezelStyle;
 - (BOOL) drawsBackground;
-- (NSString *) placeholderString;
 - (NSAttributedString *) placeholderAttributedString;
-- (void) setBackgroundColor:(NSColor *)aColor;
-- (void) setDrawsBackground:(BOOL)flag;
-- (void) setTextColor:(NSColor *)aColor;
-- (void) setPlaceholderString:(NSString *) string;
+- (NSString *) placeholderString;
+- (void) setAllowedInputSourceLocales:(NSArray *) ids; 
+- (void) setBackgroundColor:(NSColor *) aColor;
+- (void) setBezelStyle:(NSTextFieldBezelStyle) bezelStyle; 
+- (void) setDrawsBackground:(BOOL) flag;
 - (void) setPlaceholderAttributedString:(NSAttributedString *) string;
+- (void) setPlaceholderString:(NSString *) string;
+- (void) setTextColor:(NSColor *) aColor;
+- (NSText *) setUpFieldEditorAttributes:(NSText *) obj; 
+- (void) setWantsNotificationForMarkedText:(BOOL) flag; 
 - (NSColor *) textColor;
 
 @end

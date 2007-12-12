@@ -7,7 +7,10 @@
 
    Author:  Robert Vasvari <vrobi@ddrummer.com>
    Date: Jul 1998
-   
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	12. December 2007 - aligned with 10.5    
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -31,15 +34,23 @@
 	BOOL _isVertical;
 }
 
-- (void) setDelegate: (id)anObject;
-- (id) delegate;
 - (void) adjustSubviews;
-- (void) drawDividerInRect: (NSRect)aRect;
-
-- (void) setVertical: (BOOL)flag;		// Vert splitview has a vert split bar 
+- (NSString *) autosaveName;
+- (id) delegate;
+- (CGFloat) dividerThickness;  		// defaults to 8
+- (void) drawDividerInRect:(NSRect) aRect; 
+- (BOOL) isPaneSplitter; 
+- (BOOL) isSubviewCollapsed:(NSView *) subview; 
 - (BOOL) isVertical;
-									// extension methods to make it more usable
-- (float) dividerThickness;  		// defaults to 8
+- (CGFloat) maxPossiblePositionOfDividerAtIndex:(NSInteger) index; 
+- (CGFloat) minPossiblePositionOfDividerAtIndex:(NSInteger) index; 
+- (void) setAutosaveName:(NSString *) name; 
+- (void) setDelegate: (id)anObject;
+- (void) setIsPaneSplitter:(BOOL) flag; 
+- (void) setPosition:(CGFloat) pos ofDividerAtIndex:(NSInteger) index; 
+- (void) setVertical: (BOOL) flag;
+
+/* NOT IN API */
 - (void) setDividerThickNess: (float)newWidth;
 - (float) draggedBarWidth;
 - (void) setDraggedBarWidth: (float)newWidth;
@@ -57,18 +68,30 @@
 
 @interface NSObject(NSSplitViewDelegate)
 
-- (void) splitView:(NSSplitView *)sender 
-		 resizeSubviewsWithOldSize:(NSSize)oldSize;
-- (void) splitView:(NSSplitView *)sender 
-		 constrainMinCoordinate:(float *)min 
-		 maxCoordinate:(float *)max 
-		 ofSubviewAt:(int)offset;
-- (void) splitViewWillResizeSubviews:(NSNotification *)notification;
-- (void) splitViewDidResizeSubviews:(NSNotification *)notification;
+- (NSRect) splitView:(NSSplitView *) sender additionalEffectiveRectOfDividerAtIndex:(NSInteger) index;
+- (BOOL) splitView:(NSSplitView *) sender canCollapseSubview:(NSView *) subview; 
+- (CGFloat) splitView:(NSSplitView *) sender constrainMaxCoordinate:(CGFloat) max ofSubviewAt:(NSInteger) index;
+- (CGFloat) splitView:(NSSplitView *) sender constrainMinCoordinate:(CGFloat) min ofSubviewAt:(NSInteger) index; 
+- (CGFloat) splitView:(NSSplitView *) sender constrainSplitPosition:(CGFloat) pos ofSubviewAt:(NSInteger) index;
+- (NSRect) splitView:(NSSplitView *) sender 
+	   effectiveRect:(NSRect) effectiveRect 
+		forDrawnRect:(NSRect) rect 
+	ofDividerAtIndex:(NSInteger)index; 
+- (void) splitView:(NSSplitView *) sender resizeSubviewsWithOldSize:(NSSize) oldSize;
+- (BOOL) splitView:(NSSplitView *) sender shouldCollapseSubview:(NSView *) subview forDoubleClickOnDividerAtIndex:(NSInteger) index;
+- (void) splitViewDidResizeSubviews:(NSNotification *) notification;
+- (void) splitViewWillResizeSubviews:(NSNotification *) notification;
+
+/* NOT IN API */
+
+- (void) splitView:(NSSplitView *) sender 
+	constrainMinCoordinate:(float *) min 
+	 maxCoordinate:(float *) max 
+	   ofSubviewAt:(int) offset;
 
 @end
 
-extern NSString *NSSplitViewDidResizeSubviewsNotification;	  // Notifications
+extern NSString *NSSplitViewDidResizeSubviewsNotification;
 extern NSString *NSSplitViewWillResizeSubviewsNotification;
 
 #endif /* _mySTEP_H_NSSplitView */

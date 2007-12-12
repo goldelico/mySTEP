@@ -1,21 +1,22 @@
 /*
- NSTextView.h
+	NSTextView.h
  
- much more sophisticated subclass of NSText that displays the glyphs laid out in one NSTextContainer and therefore
- allows for a text network (multiple views into one text storage, multiple containers).
+	much more sophisticated subclass of NSText that displays the glyphs laid out in one NSTextContainer and therefore
+	allows for a text network (multiple views into one text storage, multiple containers).
  
- Copyright (C) 1996 Free Software Foundation, Inc.
+	Copyright (C) 1996 Free Software Foundation, Inc.
  
- Author:  Daniel Bðhringer <boehring@biomed.ruhr-uni-bochum.de>
- Date: August 1998
- Source by Daniel Bðhringer integrated into mySTEP gui
- by Felipe A. Rodriguez <far@ix.netcom.com> 
+	Author:  Daniel Bðhringer <boehring@biomed.ruhr-uni-bochum.de>
+	Date: August 1998
  
- Author:	H. N. Schaller <hns@computer.org>
- Date:	Jun 2006 - aligned with 10.4
+	Source by Daniel Bðhringer integrated into mySTEP gui
+	by Felipe A. Rodriguez <far@ix.netcom.com> 
  
- This file is part of the mySTEP Library and is provided
- under the terms of the GNU Library General Public License.
+	Author:	H. N. Schaller <hns@computer.org>
+	Date:	Jun 2006 - aligned with 10.4
+ 
+	This file is part of the mySTEP Library and is provided
+	under the terms of the GNU Library General Public License.
  */
 
 #ifndef _mySTEP_H_NSTextView

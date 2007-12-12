@@ -1,13 +1,16 @@
-//
-//  NSTextList.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
-//  Copyright (c) 2005 DSITRI.
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+	NSTextList.h
+	mySTEP
+
+	Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
+	Copyright (c) 2005 DSITRI.
+
+	Author:	Fabian Spillner <fabian.spillner@gmail.com>
+	Date:	12. December 2007 - aligned with 10.5
+ 
+	This file is part of the mySTEP Library and is provided
+	under the terms of the GNU Library General Public License.
+*/
 
 #ifndef _mySTEP_H_NSTextList
 #define _mySTEP_H_NSTextList
@@ -25,9 +28,9 @@ enum _NSTextListOptions
 	unsigned _listOptions;
 }
 
-- (id) initWithMarkerFormat:(NSString *) format options:(unsigned) mask;
-- (unsigned) listOptions;
-- (NSString *) markerForItemNumber:(int) item;
+- (id) initWithMarkerFormat:(NSString *) format options:(NSUInteger) mask;
+- (NSUInteger) listOptions;
+- (NSString *) markerForItemNumber:(NSInteger) item;
 - (NSString *) markerFormat;
 
 @end

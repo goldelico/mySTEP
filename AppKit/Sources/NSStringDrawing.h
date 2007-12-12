@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jan 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	12. December 2007 - aligned with 10.5 (NSStringDrawingAdditions)
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -33,17 +36,17 @@ typedef enum
 
 @interface NSString (NSStringDrawingAdditions)
 
-- (NSRect) boundingRectWithSize:(NSSize)size
-						options:(NSStringDrawingOptions)options
-					 attributes:(NSDictionary *)attributes;
-- (void) drawAtPoint:(NSPoint)point
-	  withAttributes:(NSDictionary *)attrs;
-- (void) drawInRect:(NSRect)rect
-	 withAttributes:(NSDictionary *)attrs;
-- (void) drawWithRect:(NSRect)rect
-			  options:(NSStringDrawingOptions)options
-		   attributes:(NSDictionary *)attributes;
-- (NSSize) sizeWithAttributes:(NSDictionary *)attrs;
+- (NSRect) boundingRectWithSize:(NSSize) size
+						options:(NSStringDrawingOptions) options
+					 attributes:(NSDictionary *) attributes;
+- (void) drawAtPoint:(NSPoint) point
+	  withAttributes:(NSDictionary *) attrs;
+- (void) drawInRect:(NSRect) rect
+	 withAttributes:(NSDictionary *) attrs;
+- (void) drawWithRect:(NSRect) rect
+			  options:(NSStringDrawingOptions) options
+		   attributes:(NSDictionary *) attributes;
+- (NSSize) sizeWithAttributes:(NSDictionary *) attrs;
 
 @end
 

@@ -1,10 +1,13 @@
-//
-//  NSStatusItem.h
-//  myPDA
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Apr 05 2003.
-//  Copyright (c) 2003 DSITRI. All rights reserved.
-//
+/*
+	NSStatusItem.h
+	myPDA
+
+	Created by Dr. H. Nikolaus Schaller on Sat Apr 05 2003.
+	Copyright (c) 2003 DSITRI. All rights reserved.
+ 
+    Author:	Fabian Spillner <fabian.spillner@gmail.com>
+    Date:	12. December 2007 - aligned with 10.5
+*/
 
 #import <Foundation/Foundation.h>
 #import <AppKit/NSMenuItem.h>
@@ -23,19 +26,25 @@
 }
 
 - (SEL) action;
+- (NSImage *) alternateImage; 
 - (NSAttributedString *) attributedTitle;
+- (SEL) doubleAction;
+- (void) drawStatusBarBackgroundInRect:(NSRect) rect withHighlight:(BOOL) flag; 
 - (BOOL) highlightMode;
 - (NSImage *) image;
 - (BOOL) isEnabled;
-- (float) length;
+- (CGFloat) length;
 - (NSMenu *) menu;
-- (void) sendActionOn:(int) mask;
+- (void) popUpStatusItemMenu:(NSMenu *) menu; 
+- (void) sendActionOn:(NSInteger) mask;
 - (void) setAction:(SEL) action;
+- (void) setAlternateImage:(NSImage *) img;
 - (void) setAttributedTitle:(NSAttributedString *) title;
+- (void) setDoubleAction:(SEL) sel; 
 - (void) setEnabled:(BOOL) flag;
 - (void) setHighlightMode:(BOOL) highlightMode;
 - (void) setImage:(NSImage *) image;
-- (void) setLength:(float) length;
+- (void) setLength:(CGFloat) length;
 - (void) setMenu:(NSMenu *) menu;
 - (void) setTarget:(id) target;
 - (void) setTitle:(NSString *) title;

@@ -1,5 +1,5 @@
 /*
-NSTextAttachment.h
+	NSTextAttachment.h
  
 	Classes to represent text attachments.
  
@@ -13,18 +13,22 @@ NSTextAttachment.h
 	NSTextAttachmentCell is a simple subclass of NSCell which provides 
 	the NSTextAttachment protocol.
  
- Copyright (C) 1996 Free Software Foundation, Inc.
+	Copyright (C) 1996 Free Software Foundation, Inc.
  
- Author:  Daniel Bðhringer <boehring@biomed.ruhr-uni-bochum.de>
- Date: August 1998
- Source by Daniel Bðhringer integrated into mySTEP gui
- by Felipe A. Rodriguez <far@ix.netcom.com> 
+	Author: Daniel Bðhringer <boehring@biomed.ruhr-uni-bochum.de>
+	Date:	August 1998
  
- Author:	H. N. Schaller <hns@computer.org>
- Date:	Jun 2006 - aligned with 10.4
+	Source by Daniel Bðhringer integrated into mySTEP gui
+	by Felipe A. Rodriguez <far@ix.netcom.com> 
  
- This file is part of the mySTEP Library and is provided
- under the terms of the GNU Library General Public License.
+	Author:	H. N. Schaller <hns@computer.org>
+	Date:	Jun 2006 - aligned with 10.4
+ 
+	Author:	Fabian Spillner <fabian.spillner@gmail.com>
+	Date:	12. December 2007 - aligned with 10.5 
+ 
+	This file is part of the mySTEP Library and is provided
+	under the terms of the GNU Library General Public License.
  */
 
 #import <Foundation/Foundation.h>
@@ -42,7 +46,11 @@ enum
     NSAttachmentCharacter = 0xfffc	/* To denote attachments. */
 };
 
-/* These are the only methods required of cells in text attachments... The default NSCell class implements most of these; the NSTextAttachmentCell class is a subclass which implements all and provides some additional functionality. */
+/* 
+These are the only methods required of cells in text attachments... 
+The default NSCell class implements most of these; the NSTextAttachmentCell class is a subclass 
+which implements all and provides some additional functionality. 
+ */
 
 @protocol NSTextAttachmentCell <NSObject>
 
@@ -51,39 +59,43 @@ enum
 - (NSRect) cellFrameForTextContainer:(NSTextContainer *) container
 				proposedLineFragment:(NSRect) fragment
 					   glyphPosition:(NSPoint) pos
-					  characterIndex:(unsigned) index;
+					  characterIndex:(NSUInteger) index;
 - (NSSize) cellSize;
-- (void) drawWithFrame:(NSRect)cellFrame
-				inView:(NSView *)controlView;
-- (void) drawWithFrame:(NSRect)cellFrame
-				inView:(NSView *)controlView
-		characterIndex:(unsigned) index;
-- (void) drawWithFrame:(NSRect)cellFrame
-				inView:(NSView *)controlView
-		characterIndex:(unsigned) index
+- (void) drawWithFrame:(NSRect) cellFrame
+				inView:(NSView *) controlView;
+- (void) drawWithFrame:(NSRect) cellFrame
+				inView:(NSView *) controlView
+		characterIndex:(NSUInteger) index;
+- (void) drawWithFrame:(NSRect) cellFrame
+				inView:(NSView *) controlView
+		characterIndex:(NSUInteger) index
 		 layoutManager:(NSLayoutManager *) manager;
-- (void) highlight:(BOOL)flag
-		 withFrame:(NSRect)cellFrame
-			inView:(NSView *)controlView;
-- (void) setAttachment:(NSTextAttachment *)anObject;
-- (BOOL) trackMouse:(NSEvent *)event 
-			 inRect:(NSRect)cellFrame 
-			 ofView:(NSView *)controlTextView 
-   atCharacterIndex:(unsigned) index
-	   untilMouseUp:(BOOL)flag;
-- (BOOL) trackMouse:(NSEvent *)event 
-			 inRect:(NSRect)cellFrame 
-			 ofView:(NSView *)controlTextView 
-	   untilMouseUp:(BOOL)flag;
+- (void) highlight:(BOOL) flag
+		 withFrame:(NSRect) cellFrame
+			inView:(NSView *) controlView;
+- (void) setAttachment:(NSTextAttachment *) anObject;
+- (BOOL) trackMouse:(NSEvent *) event 
+			 inRect:(NSRect) cellFrame 
+			 ofView:(NSView *) controlTextView 
+   atCharacterIndex:(NSUInteger) index
+	   untilMouseUp:(BOOL) flag;
+- (BOOL) trackMouse:(NSEvent *) event 
+			 inRect:(NSRect) cellFrame 
+			 ofView:(NSView *) controlTextView 
+	   untilMouseUp:(BOOL) flag;
 - (BOOL) wantsToTrackMouse;
 - (BOOL) wantsToTrackMouseForEvent:(NSEvent *) event
 							inRect:(NSRect) rect
 							ofView:(NSView *) controlView
-				  atCharacterIndex:(unsigned) index;
+				  atCharacterIndex:(NSUInteger) index;
 
 @end
 
-/* Simple class to provide basic attachment cell functionality. By default this class causes NSTextView to send out delegate messages when the attachment is clicked on or dragged. */
+/* 
+
+Simple class to provide basic attachment cell functionality. 
+By default this class causes NSTextView to send out delegate messages 
+when the attachment is clicked on or dragged. */
 
 @interface NSTextAttachmentCell : NSCell <NSTextAttachmentCell> 
 {
@@ -110,17 +122,18 @@ enum
 
 @end
 
-
-/* Convenience for creating an attributed string with an attachment */
+/* 
+Convenience for creating an attributed string with an attachment 
+ */
 
 @interface NSAttributedString (NSAttributedStringAttachmentConveniences)
 
-+ (NSAttributedString *) attributedStringWithAttachment:(NSTextAttachment *)attachment;
++ (NSAttributedString *) attributedStringWithAttachment:(NSTextAttachment *) attachment;
 
 @end
 
 @interface NSMutableAttributedString (NSMutableAttributedStringAttachmentConveniences)
 
-- (void) updateAttachmentsFromPath:(NSString *)path;
+- (void) updateAttachmentsFromPath:(NSString *) path;
 
 @end

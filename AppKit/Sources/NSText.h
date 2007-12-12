@@ -1,21 +1,27 @@
 /* 
-NSText.h
+	NSText.h
 
-The text object
+	The text object
 
-Copyright (C) 1996 Free Software Foundation, Inc.
+	Copyright (C) 1996 Free Software Foundation, Inc.
 
-Author:  Scott Christley <scottc@net-community.com>
-Date:	1996
-Author:  Felipe A. Rodriguez <far@ix.netcom.com>
-Date:	July 1998
-Author:  Daniel Bðhringer <boehring@biomed.ruhr-uni-bochum.de>
-Date:	August 1998
-Author:	H. N. Schaller <hns@computer.org>
-Date:	Jun 2006 - aligned with 10.4
+	Author: Scott Christley <scottc@net-community.com>
+	Date:	1996
 
-This file is part of the mySTEP Library and is provided
-under the terms of the GNU Library General Public License.
+	Author: Felipe A. Rodriguez <far@ix.netcom.com>
+	Date:	July 1998
+
+	Author: Daniel Bðhringer <boehring@biomed.ruhr-uni-bochum.de>
+	Date:	August 1998
+ 
+	Author:	H. N. Schaller <hns@computer.org>
+	Date:	Jun 2006 - aligned with 10.4
+ 
+	Author:	Fabian Spillner <fabian.spillner@gmail.com>
+	Date:	12. December 2007 - aligned with 10.5 
+
+	This file is part of the mySTEP Library and is provided
+	under the terms of the GNU Library General Public License.
 */ 
 
 #ifndef _mySTEP_H_NSText
@@ -116,22 +122,22 @@ enum _NSCommonlyUsedUnicodeCharacters
 	} _tx;
 }
 
-- (void) alignCenter:(id)sender;
-- (void) alignLeft:(id)sender;
+- (void) alignCenter:(id) sender;
+- (void) alignLeft:(id) sender;
 - (NSTextAlignment) alignment;
-- (void) alignRight:(id)sender;
-- (NSColor*) backgroundColor;
+- (void) alignRight:(id) sender;
+- (NSColor *) backgroundColor;
 - (NSWritingDirection) baseWritingDirection;
-- (void) changeFont:(id)sender;
-- (void) checkSpelling:(id)sender;						// Spelling
-- (void) copy:(id)sender;
-- (void) copyFont:(id)sender;
-- (void) copyRuler:(id)sender;
-- (void) cut:(id)sender;
+- (void) changeFont:(id) sender;
+- (void) checkSpelling:(id) sender;						// Spelling
+- (void) copy:(id) sender;
+- (void) copyFont:(id) sender;
+- (void) copyRuler:(id) sender;
+- (void) cut:(id) sender;
 - (id) delegate;
-- (void) delete:(id)sender;
+- (void) delete:(id) sender;
 - (BOOL) drawsBackground;
-- (NSFont*) font;
+- (NSFont *) font;
 - (BOOL) importsGraphics;
 - (BOOL) isEditable;
 - (BOOL) isFieldEditor;
@@ -142,50 +148,50 @@ enum _NSCommonlyUsedUnicodeCharacters
 - (BOOL) isVerticallyResizable;
 - (NSSize) maxSize;
 - (NSSize) minSize;
-- (void) paste:(id)sender;
-- (void) pasteFont:(id)sender;
-- (void) pasteRuler:(id)sender;
-- (BOOL) readRTFDFromFile:(NSString *)path;
-- (void) replaceCharactersInRange:(NSRange)range withRTF:(NSData *)rtfData;
-- (void) replaceCharactersInRange:(NSRange)range withRTFD:(NSData *)rtfdData;
-- (void) replaceCharactersInRange:(NSRange)range withString:(NSString*) aString;
-- (NSData*) RTFDFromRange:(NSRange)range;
-- (NSData*) RTFFromRange:(NSRange)range;
-- (void) scrollRangeToVisible:(NSRange)range;			// Scrolling
-- (void) selectAll:(id)sender;
+- (void) paste:(id) sender;
+- (void) pasteFont:(id) sender;
+- (void) pasteRuler:(id) sender;
+- (BOOL) readRTFDFromFile:(NSString *) path;
+- (void) replaceCharactersInRange:(NSRange) range withRTF:(NSData *) rtfData;
+- (void) replaceCharactersInRange:(NSRange) range withRTFD:(NSData *) rtfdData;
+- (void) replaceCharactersInRange:(NSRange) range withString:(NSString *) aString;
+- (NSData *) RTFDFromRange:(NSRange) range;
+- (NSData *) RTFFromRange:(NSRange) range;
+- (void) scrollRangeToVisible:(NSRange) range;			// Scrolling
+- (void) selectAll:(id) sender;
 - (NSRange) selectedRange;								// Selection
-- (void) setAlignment:(NSTextAlignment)mode;
-- (void) setBackgroundColor:(NSColor*)color;
+- (void) setAlignment:(NSTextAlignment) mode;
+- (void) setBackgroundColor:(NSColor *) color;
 - (void) setBaseWritingDirection:(NSWritingDirection) direct;
-- (void) setDelegate:(id)anObject;						// Delegate
-- (void) setDrawsBackground:(BOOL)flag;
-- (void) setEditable:(BOOL)flag;
-- (void) setFieldEditor:(BOOL)flag;						// Field Editor
-- (void) setFont:(NSFont*)obj;
-- (void) setFont:(NSFont*)font range:(NSRange)range;
-- (void) setHorizontallyResizable:(BOOL)flag;
-- (void) setImportsGraphics:(BOOL)flag;
-- (void) setMaxSize:(NSSize)newMaxSize;
-- (void) setMinSize:(NSSize)newMinSize;
-- (void) setRichText:(BOOL)flag;
-- (void) setSelectable:(BOOL)flag;
-- (void) setSelectedRange:(NSRange)range;
-- (void) setString:(NSString *)string;
-- (void) setTextColor:(NSColor*)color;
-- (void) setTextColor:(NSColor*)color range:(NSRange)range;
-- (void) setUsesFontPanel:(BOOL)flag;
-- (void) setVerticallyResizable:(BOOL)flag;
-- (void) showGuessPanel:(id)sender;
+- (void) setDelegate:(id) anObject;						// Delegate
+- (void) setDrawsBackground:(BOOL) flag;
+- (void) setEditable:(BOOL) flag;
+- (void) setFieldEditor:(BOOL) flag;						// Field Editor
+- (void) setFont:(NSFont *) obj;
+- (void) setFont:(NSFont *)font range:(NSRange) range;
+- (void) setHorizontallyResizable:(BOOL) flag;
+- (void) setImportsGraphics:(BOOL) flag;
+- (void) setMaxSize:(NSSize) newMaxSize;
+- (void) setMinSize:(NSSize) newMinSize;
+- (void) setRichText:(BOOL) flag;
+- (void) setSelectable:(BOOL) flag;
+- (void) setSelectedRange:(NSRange) range;
+- (void) setString:(NSString *) string;
+- (void) setTextColor:(NSColor *) color;
+- (void) setTextColor:(NSColor *) color range:(NSRange) range;
+- (void) setUsesFontPanel:(BOOL) flag;
+- (void) setVerticallyResizable:(BOOL) flag;
+- (void) showGuessPanel:(id) sender;
 - (void) sizeToFit;
-- (NSString*) string;
-- (void) subscript:(id)sender;
-- (void) superscript:(id)sender;
-- (NSColor*) textColor;
-- (void) toggleRuler:(id)sender;
-- (void) underline:(id)sender;
-- (void) unscript:(id)sender;
+- (NSString *) string;
+- (void) subscript:(id) sender;
+- (void) superscript:(id) sender;
+- (NSColor *) textColor;
+- (void) toggleRuler:(id) sender;
+- (void) underline:(id) sender;
+- (void) unscript:(id) sender;
 - (BOOL) usesFontPanel;
-- (BOOL) writeRTFDToFile:(NSString *)path atomically:(BOOL)flag;
+- (BOOL) writeRTFDToFile:(NSString *) path atomically:(BOOL) flag;
 
 @end
 

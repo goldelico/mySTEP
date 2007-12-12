@@ -1,13 +1,16 @@
-//
-//  NSTextTable.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
-//  Copyright (c) 2005 DSITRI.
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+	NSTextTable.h
+	mySTEP
+
+	Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
+	Copyright (c) 2005 DSITRI.
+
+	Author:	Fabian Spillner <fabian.spillner@gmail.com>
+	Date:	12. December 2007 - aligned with 10.5 
+ 
+	This file is part of the mySTEP Library and is provided
+	under the terms of the GNU Library General Public License.
+*/
 
 #ifndef _mySTEP_H_NSTextTable
 #define _mySTEP_H_NSTextTable
@@ -67,40 +70,42 @@ typedef enum _NSTextBlockVerticalAlignment
 - (NSColor *) backgroundColor;
 - (NSColor *) borderColorForEdge:(NSRectEdge) edge;
 - (NSRect) boundsRectForContentRect:(NSRect) cont
-														 inRect:(NSRect) rect
-											textContainer:(NSTextContainer *) container
-										 characterRange:(NSRange) range;
-- (float) contentWidth;
+							 inRect:(NSRect) rect
+					  textContainer:(NSTextContainer *) container
+					 characterRange:(NSRange) range;
+- (CGFloat) contentWidth;
 - (NSTextBlockValueType) contentWidthValueType;
 - (void) drawBackgroundWithFrame:(NSRect) rect
-													inView:(NSView *) view
-									characterRange:(NSRange) range
-									 layoutManager:(NSLayoutManager *) lm;
+						  inView:(NSView *) view
+				  characterRange:(NSRange) range
+				   layoutManager:(NSLayoutManager *) lm;
+- (id) init; 
 - (NSRect) rectForLayoutAtPoint:(NSPoint) point
-												 inRect:(NSRect) rect
-									textContainer:(NSTextContainer *) cont
-								 characterRange:(NSRange) range;
+						 inRect:(NSRect) rect
+				  textContainer:(NSTextContainer *) cont
+				 characterRange:(NSRange) range;
 - (void) setBackgroundColor:(NSColor *) color;
 - (void) setBorderColor:(NSColor *) color;
 - (void) setBorderColor:(NSColor *) color forEdge:(NSRectEdge) edge;
-- (void) setContentWidth:(float) val type:(NSTextBlockValueType) type;
-- (void) setValue:(float) val type:(NSTextBlockValueType) type forDimension:(NSTextBlockDimension) dimension;
+- (void) setContentWidth:(CGFloat) val type:(NSTextBlockValueType) type;
+- (void) setValue:(CGFloat) val type:(NSTextBlockValueType) type forDimension:(NSTextBlockDimension) dimension;
 - (void) setVerticalAlignment:(NSTextBlockVerticalAlignment) alignment;
-- (void) setWidth:(float) val type:(NSTextBlockValueType) type forLayer:(NSTextBlockLayer) layer;
-- (void) setWidth:(float) val type:(NSTextBlockValueType) type forLayer:(NSTextBlockLayer) layer edge:(NSRectEdge) edge;
-- (float) valueForDimension:(NSTextBlockDimension) dimension;
+- (void) setWidth:(CGFloat) val type:(NSTextBlockValueType) type forLayer:(NSTextBlockLayer) layer;
+- (void) setWidth:(CGFloat) val type:(NSTextBlockValueType) type forLayer:(NSTextBlockLayer) layer edge:(NSRectEdge) edge;
+- (CGFloat) valueForDimension:(NSTextBlockDimension) dimension;
 - (NSTextBlockValueType) valueTypeForDimension:(NSTextBlockDimension) dimension;
 - (NSTextBlockVerticalAlignment) verticalAlignment;
-- (float) widthForLayer:(NSTextBlockLayer) layer edge:(NSRectEdge) edge;
+- (CGFloat) widthForLayer:(NSTextBlockLayer) layer edge:(NSRectEdge) edge;
 - (NSTextBlockValueType) widthValueTypeForLayer:(NSTextBlockLayer) layer edge:(NSRectEdge) edge;
 
 @end
 
-typedef enum _NSTextTableLayoutAlgorithm
+enum
 {
 	NSTextTableAutomaticLayoutAlgorithm =0,
 	NSTextTableFixedLayoutAlgorithm
-} NSTextTableLayoutAlgorithm;
+};
+typedef NSUInteger NSTextTableLayoutAlgorithm;
 
 @interface NSTextTable : NSTextBlock
 {
@@ -112,7 +117,7 @@ typedef enum _NSTextTableLayoutAlgorithm
 
 - (NSRect) boundsRectForBlock:(NSTextTableBlock *) block
 				  contentRect:(NSRect) content
-					   inRect:(NSRect)rect
+					   inRect:(NSRect) rect
 				textContainer:(NSTextContainer *) container
 			   characterRange:(NSRange) range;
 - (BOOL) collapsesBorders;
@@ -123,7 +128,7 @@ typedef enum _NSTextTableLayoutAlgorithm
 				  layoutManager:(NSLayoutManager *) manager;
 - (BOOL) hidesEmptyCells;
 - (NSTextTableLayoutAlgorithm) layoutAlgorithm;
-- (unsigned) numberOfColumns;
+- (NSUInteger) numberOfColumns;
 - (NSRect) rectForBlock:(NSTextTableBlock *) block
 		  layoutAtPoint:(NSPoint) start
 				 inRect:(NSRect) rect
@@ -132,7 +137,7 @@ typedef enum _NSTextTableLayoutAlgorithm
 - (void) setCollapsesBorders:(BOOL) flag;
 - (void) setHidesEmptyCells:(BOOL) flag;
 - (void) setLayoutAlgorithm:(NSTextTableLayoutAlgorithm) algorithm;
-- (void) setNumberOfColumns:(unsigned) n;
+- (void) setNumberOfColumns:(NSUInteger) n;
 
 @end
 
@@ -145,15 +150,15 @@ typedef enum _NSTextTableLayoutAlgorithm
 	int _rspan;
 }
 
-- (int) columnSpan;
+- (NSInteger) columnSpan;
 - (id) initWithTable:(NSTextTable *) table
-				 startingRow:(int) row
-						 rowSpan:(int) rspan
-			startingColumn:(int) col
-					columnSpan:(int) cspan;
-- (int) rowSpan;
-- (int) startingColumn;
-- (int) startingRow;
+		 startingRow:(NSInteger) row
+			 rowSpan:(NSInteger) rspan
+	  startingColumn:(NSInteger) col
+		  columnSpan:(NSInteger) cspan;
+- (NSInteger) rowSpan;
+- (NSInteger) startingColumn;
+- (NSInteger) startingRow;
 - (NSTextTable *) table;
 
 @end

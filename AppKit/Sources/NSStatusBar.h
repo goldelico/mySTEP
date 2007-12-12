@@ -1,10 +1,13 @@
-//
-//  NSStatusBar.h
-//  myPDA
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Apr 05 2003.
-//  Copyright (c) 2003 DSITRI. All rights reserved.
-//
+/*
+	NSStatusBar.h
+	myPDA
+ 
+	Created by Dr. H. Nikolaus Schaller on Sat Apr 05 2003.
+	Copyright (c) 2003 DSITRI. All rights reserved.
+ 
+    Author:	Fabian Spillner <fabian.spillner@gmail.com>
+    Date:	12. December 2007 - aligned with 10.5
+*/
 
 #import <Foundation/Foundation.h>
 #import <AppKit/NSMenu.h>
@@ -23,9 +26,10 @@
 #endif
 
 + (NSStatusBar *) systemStatusBar;
+
 - (BOOL) isVertical;	// NO
 - (void) removeStatusItem:(NSStatusItem *) item;
-- (NSStatusItem *) statusItemWithLength:(float) length;
-- (float) thickness;	// 22 on MacOS X
+- (NSStatusItem *) statusItemWithLength:(CGFloat) length;
+- (CGFloat) thickness;	// 22 on MacOS X
 
 @end

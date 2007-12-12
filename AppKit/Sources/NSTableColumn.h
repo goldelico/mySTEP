@@ -11,6 +11,9 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Aug 2006 - aligned with 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	12. December 2007 - aligned with 10.5 
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -56,30 +59,34 @@ enum
 }
 
 - (id) dataCell;
-- (id) dataCellForRow:(int)row;
+- (id) dataCellForRow:(NSInteger) row;
 - (id) headerCell;
+- (NSString *) headerToolTip;
 - (id) identifier;
-- (id) initWithIdentifier:(id)identifier;
+- (id) initWithIdentifier:(id) identifier;
 - (BOOL) isEditable;
+- (BOOL) isHidden;
 - (BOOL) isResizable;	// deprecated in 10.4
-- (float) maxWidth;
-- (float) minWidth;
-- (unsigned) resizingMask;
-- (void) setDataCell:(NSCell*)cell;
-- (void) setEditable:(BOOL)flag;
-- (void) setHeaderCell:(NSCell*)cell;
-- (void) setIdentifier:(id)identifier;
-- (void) setMaxWidth:(float)maxWidth;
-- (void) setMinWidth:(float)minWidth;
-- (void) setResizable:(BOOL)flag;	// deprecated in 10.4
-- (void) setResizingMask:(unsigned)mask;
+- (CGFloat) maxWidth;
+- (CGFloat) minWidth;
+- (NSUInteger) resizingMask;
+- (void) setDataCell:(NSCell *) cell;
+- (void) setEditable:(BOOL) flag;
+- (void) setHeaderCell:(NSCell *) cell;
+- (void) setHeaderToolTip:(NSString *) str;
+- (void) setHidden:(BOOL) flag;
+- (void) setIdentifier:(id) identifier;
+- (void) setMaxWidth:(CGFloat) maxWidth;
+- (void) setMinWidth:(CGFloat) minWidth;
+- (void) setResizable:(BOOL) flag;	// deprecated in 10.4
+- (void) setResizingMask:(NSUInteger) mask;
 - (void) setSortDescriptorPrototype:(NSSortDescriptor *) desc;
-- (void) setTableView:(NSTableView *)tableView;
-- (void) setWidth:(float)width;
+- (void) setTableView:(NSTableView *) tableView;
+- (void) setWidth:(CGFloat) width;
 - (void) sizeToFit;
 - (NSSortDescriptor *) sortDescriptorPrototype;
-- (NSTableView*) tableView;
-- (float) width;
+- (NSTableView *) tableView;
+- (CGFloat) width;
 
 @end
 

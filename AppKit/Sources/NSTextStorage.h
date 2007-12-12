@@ -18,11 +18,15 @@
  
 	Author:  Daniel Bðhringer <boehring@biomed.ruhr-uni-bochum.de>
 	Date: August 1998
+ 
 	Source by Daniel Bðhringer integrated into mySTEP gui
 	by Felipe A. Rodriguez <far@ix.netcom.com> 
  
 	Author:	H. N. Schaller <hns@computer.org>
 	Date:	Jun 2006 - aligned with 10.4
+ 
+	Author:	Fabian Spillner <fabian.spillner@gmail.com>
+	Date:	12. December 2007 - aligned with 10.5 
  
 	This file is part of the mySTEP Library and is provided
 	under the terms of the GNU Library General Public License.
@@ -53,21 +57,21 @@ enum
     BOOL fixesAttributesLazily;
 }
 
-- (void) addLayoutManager:(NSLayoutManager *)obj;
-- (int) changeInLength;
+- (void) addLayoutManager:(NSLayoutManager *) obj;
+- (NSInteger) changeInLength;
 - (id) delegate;
-- (void) edited:(unsigned)editedMask 
-		  range:(NSRange)range 
- changeInLength:(int)delta;
-- (unsigned int) editedMask;
+- (void) edited:(unsigned) editedMask 
+		  range:(NSRange) range 
+ changeInLength:(NSInteger) delta;
+- (NSUInteger) editedMask;
 - (NSRange) editedRange;
-- (void) ensureAttributesAreFixedInRange:(NSRange)range;
+- (void) ensureAttributesAreFixedInRange:(NSRange) range;
 - (BOOL) fixesAttributesLazily;
-- (void) invalidateAttributesInRange:(NSRange)range;
+- (void) invalidateAttributesInRange:(NSRange) range;
 - (NSArray *) layoutManagers;
 - (void) processEditing;
-- (void) removeLayoutManager:(NSLayoutManager *)obj;
-- (void) setDelegate:(id)delegate;
+- (void) removeLayoutManager:(NSLayoutManager *) obj;
+- (void) setDelegate:(id) delegate;
 
 @end
 
@@ -78,20 +82,20 @@ enum
 - (NSFont *) font;
 - (NSColor *) foregroundColor;
 - (NSArray *) paragraphs;
-- (void) setAttributeRuns:(NSArray *)attributeRuns;
-- (void) setCharacters:(NSArray *)characters;
-- (void) setFont:(NSFont *)font;
-- (void) setForegroundColor:(NSColor *)color;
-- (void) setParagraphs:(NSArray *)paragraphs;
-- (void) setWords:(NSArray *)words;
+- (void) setAttributeRuns:(NSArray *) attributeRuns;
+- (void) setCharacters:(NSArray *) characters;
+- (void) setFont:(NSFont *) font;
+- (void) setForegroundColor:(NSColor *) color;
+- (void) setParagraphs:(NSArray *) paragraphs;
+- (void) setWords:(NSArray *) words;
 - (NSArray *) words;
 
 @end
 
 @interface NSObject (NSTextStorageDelegate)	
 
-- (void) textStorageDidProcessEditing:(NSNotification *)notification;	/* Delegate can change the attributes */
-- (void) textStorageWillProcessEditing:(NSNotification *)notification;	/* Delegate can change the characters or attributes */
+- (void) textStorageDidProcessEditing:(NSNotification *) notification;	/* Delegate can change the attributes */
+- (void) textStorageWillProcessEditing:(NSNotification *) notification;	/* Delegate can change the characters or attributes */
 
 @end
 

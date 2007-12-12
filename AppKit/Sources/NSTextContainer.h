@@ -1,17 +1,17 @@
 /*
    NSTextContainer.h
 
-     An NSTextContainer defines a region in which to lay out text.  It's main 
-     responsibility is to calculate line fragments which fall within the region 
-     it represents.  Containers have a line fragment padding which is used by 
-     the typesetter to inset text from the edges of line fragments along the 
-     sweep direction.
+   An NSTextContainer defines a region in which to lay out text.  It's main 
+   responsibility is to calculate line fragments which fall within the region 
+   it represents.  Containers have a line fragment padding which is used by 
+   the typesetter to inset text from the edges of line fragments along the 
+   sweep direction.
 
-     The container can enforce any other geometric constraints as well.  When 
-     drawing the text that has been laid in a container, a NSTextView will clip 
-     to the interior of the container (it clips to the container's rectagular 
-     area only, however, not to the arbitrary shape the container may define 
-     for text flow).
+   The container can enforce any other geometric constraints as well.  When 
+   drawing the text that has been laid in a container, a NSTextView will clip 
+   to the interior of the container (it clips to the container's rectagular 
+   area only, however, not to the arbitrary shape the container may define 
+   for text flow).
 
    Copyright (C) 1996 Free Software Foundation, Inc.
 
@@ -67,16 +67,16 @@ typedef enum _NSLineMovementDirection
 - (id) initWithContainerSize:(NSSize) size;
 - (BOOL) isSimpleRectangularTextContainer;
 - (NSLayoutManager *) layoutManager;
-- (float) lineFragmentPadding;
+- (CGFloat) lineFragmentPadding;
 - (NSRect) lineFragmentRectForProposedRect:(NSRect) proposedRect
-			 sweepDirection:(NSLineSweepDirection) sweepDirection
-			 movementDirection:(NSLineMovementDirection) movementDirection
-			 remainingRect:(NSRect *) remainingRect;
+							sweepDirection:(NSLineSweepDirection) sweepDirection
+						 movementDirection:(NSLineMovementDirection) movementDirection
+							 remainingRect:(NSRectPointer) remainingRect;
 - (void) replaceLayoutManager:(NSLayoutManager *) newLayoutManager;
 - (void) setContainerSize:(NSSize) size;
 - (void) setHeightTracksTextView:(BOOL) flag;
 - (void) setLayoutManager:(NSLayoutManager *) layoutManager;
-- (void) setLineFragmentPadding:(float) pad;
+- (void) setLineFragmentPadding:(CGFloat) pad;
 - (void) setTextView:(NSTextView *) textView;
 - (void) setWidthTracksTextView:(BOOL) flag;
 - (NSTextView *) textView;

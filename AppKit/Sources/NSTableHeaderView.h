@@ -10,6 +10,9 @@
     
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Aug 2006 - aligned with 10.4
+
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	12. December 2007 - aligned with 10.5
  
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -36,13 +39,13 @@
     BOOL _drawingLastColumn;
 }
 
-- (int) columnAtPoint:(NSPoint)point;
-- (int) draggedColumn;
-- (float) draggedDistance;
-- (NSRect) headerRectOfColumn:(int)column;
-- (int) resizedColumn;
-- (void) setTableView:(NSTableView *)tableView;
-- (NSTableView*) tableView;
+- (NSInteger) columnAtPoint:(NSPoint) point;
+- (NSInteger) draggedColumn;
+- (CGFloat) draggedDistance;
+- (NSRect) headerRectOfColumn:(NSInteger) column;
+- (NSInteger) resizedColumn;
+- (void) setTableView:(NSTableView *) tableView;
+- (NSTableView *) tableView;
 
 @end
 

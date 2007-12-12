@@ -1,13 +1,16 @@
-//
-//  NSTableHeaderCell.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
-//  Copyright (c) 2005 DSITRI.
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+	NSTableHeaderCell.h
+	mySTEP
+
+	Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
+	Copyright (c) 2005 DSITRI.
+ 
+	Author:	Fabian Spillner <fabian.spillner@gmail.com>
+	Date:	12. December 2007 - aligned with 10.5    
+
+	This file is part of the mySTEP Library and is provided
+	under the terms of the GNU Library General Public License.
+*/
 
 #ifndef _mySTEP_H_NSTableHeaderCell
 #define _mySTEP_H_NSTableHeaderCell
@@ -17,7 +20,10 @@
 
 @interface NSTableHeaderCell : NSTextFieldCell
 
-- (void) drawSortIndicatorWithFrame:(NSRect) cellFrame inView:(NSView *) controlView ascending:(BOOL) ascending priority:(int) priority;
+- (void) drawSortIndicatorWithFrame:(NSRect) cellFrame 
+							 inView:(NSView *) controlView
+						  ascending:(BOOL) ascending 
+						   priority:(int) priority;
 - (NSRect) sortIndicatorRectForBounds:(NSRect) theRect;
 
 @end
