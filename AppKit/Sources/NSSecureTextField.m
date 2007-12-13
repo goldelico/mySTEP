@@ -31,8 +31,11 @@
 
 - (id) initTextCell:(NSString *)aString
 {
-	_c.secure = YES;
-	return [super initTextCell:aString];
+	if((self=[super initTextCell:aString]))
+		{
+		_c.secure = YES;
+		}
+	return self;
 }
 
 - (NSText*) setUpFieldEditorAttributes:(NSText*)textObject

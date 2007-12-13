@@ -1,0 +1,4 @@
+
+* When undoing, inheritance view is selected and an arrow points to a
+  entity view of which the attributes/relationships are reduced, then
+  the underlying model view isn't repainted correctly.

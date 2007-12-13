@@ -1,0 +1,42 @@
+
+ DataBuilder app README
+ **********************
+
+ This application is the graphical frontend to building data models for
+ the GNUstep Core Data framework in a simple click'n'click fashion. It
+ resembles, to some degree, the data modelling tool of Apple's Xcode
+ IDE, but does not mimic it's behavior. Rather it tries to follow the
+ good old OpenStep fashion of using separate apps for separate purposes
+ (that's why it's not included as part of some IDE, but is instead a
+ stand-alone app).
+
+
+ INSTALLATION
+ ------------
+
+ You must install the GNUstep Core Data framework
+ (http://gscoredata.nongnu.org) and all it's associated dependencies
+ first in order to compile and use DataBuilder. After that it should
+ be as simple as:
+
+ $ make
+ $ make install      <- may require superuser priviledges
+
+
+ AUTHORS
+ -------
+
+ Sašo Kiselkov <diablos@manga.sk>
+
+
+ LICENSE
+ -------
+
+ This application is released under the terms of the GNU General Public
+ License v2 or any later. For the text of the license, see the file
+ COPYING included in this distribution package.
+
+ The acompanying documentation (both separate files and doxygen
+ documentation in the source) are released under the terms of the GNU
+ Free Documentation License (FDL) v1.2 or any later. For the text of the
+ license, see the file COPYING.fdl included in this distribution package.

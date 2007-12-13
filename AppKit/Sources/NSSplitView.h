@@ -29,9 +29,11 @@
 	NSImage *dimpleImage;
 	NSColor *backgroundColor;
 	NSColor *dividerColor;
+	NSString*_autosaveName;
 	int _dividerThickness;
 	int _draggedBarWidth;
 	BOOL _isVertical;
+	BOOL _isPaneSplitter;
 }
 
 - (void) adjustSubviews;

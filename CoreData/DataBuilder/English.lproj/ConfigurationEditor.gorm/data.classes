@@ -1,0 +1,20 @@
+{
+    "## Comment" = "Do NOT change this file, Gorm maintains it";
+    ConfigurationEditor = {
+	Actions = (
+	    "updateConfigurationName:"
+	);
+	Outlets = (
+	    view,
+	    name,
+	    bogusWindow
+	);
+	Super = NSObject;
+    };
+    FirstResponder = {
+	Actions = (
+	    "updateConfigurationName:"
+	);
+	Super = NSObject;
+    };
+}

@@ -1,0 +1,29 @@
+{
+    "## Comment" = "Do NOT change this file, Gorm maintains it";
+    EntityEditor = {
+	Actions = (
+	    "updateEntityName:",
+	    "updateAbstract:",
+	    "updateObjectClassName:",
+	    "updateSuperentity:"
+	);
+	Outlets = (
+	    view,
+	    name,
+	    bogusWindow,
+	    abstract,
+	    objectClassName,
+	    superentity
+	);
+	Super = NSObject;
+    };
+    FirstResponder = {
+	Actions = (
+	    "updateAbstract:",
+	    "updateEntityName:",
+	    "updateObjectClassName:",
+	    "updateSuperentity:"
+	);
+	Super = NSObject;
+    };
+}

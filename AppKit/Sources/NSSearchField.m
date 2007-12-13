@@ -92,6 +92,8 @@
 
 - (BOOL) sendsWholeSearchString; { return sendsWholeSearchString; }
 - (void) setSendsWholeSearchString:(BOOL) flag; { sendsWholeSearchString=flag; }
+- (BOOL) sendsSearchStringImmediately; { return sendsSearchStringImmediately; }
+- (void) setSendsSearchStringImmediately:(BOOL) flag; { sendsSearchStringImmediately=flag; }
 - (int) maximumRecents; { return maxRecents; }
 - (void) setMaximumRecents:(int) max;
 {

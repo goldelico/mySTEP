@@ -1,0 +1,26 @@
+{
+        ApplicationIcon = DataBuilder;
+        ApplicationName = DataBuilder;
+        ApplicationRelease = 0.1;
+
+        Authors = (
+                "Saso Kiselkov <diablos@manga.sk>"
+        );
+        Copyright = "Copyright \U00A9 2005, Saso Kiselkov, All Rights Reserved";
+        CopyrightDescription = "Released under the GNU General Public License 2.0";
+
+        NSExecutable = DataBuilder;
+        NSPrincipalClass = NSApplication;
+
+        NSMainNibFile = DataBuilder.gorm;
+        NSIcon = DataBuilder.tiff;
+        NSTypes = (
+            {
+                NSName = gsdatamodel;
+                NSHumanReadableName = "Data model for GNUstep Core Data";
+                NSIcon = gsdatamodel.tiff;
+                NSUnixExtensions = ( gsdatamodel );
+                NSDocumentClass = Document;
+            }
+        );
+}

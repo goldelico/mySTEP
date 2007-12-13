@@ -1,0 +1,32 @@
+{
+    "## Comment" = "Do NOT change this file, Gorm maintains it";
+    AttributeEditor = {
+	Actions = (
+	    "updateValueClassName:",
+	    "updateType:",
+	    "updateTransient:",
+	    "updateName:",
+	    "updateOptional:"
+	);
+	Outlets = (
+	    view,
+	    bogusWindow,
+	    type,
+	    valueClassName,
+	    name,
+	    transient,
+	    optional
+	);
+	Super = NSObject;
+    };
+    FirstResponder = {
+	Actions = (
+	    "updateTransient:",
+	    "updateName:",
+	    "updateOptional:",
+	    "updateType:",
+	    "updateValueClassName:"
+	);
+	Super = NSObject;
+    };
+}

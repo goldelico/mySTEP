@@ -7,6 +7,7 @@
 //
 
 #import "NSDockTile.h"
+#import <AppKit/NSView.h>
 
 
 @implementation NSDockTile

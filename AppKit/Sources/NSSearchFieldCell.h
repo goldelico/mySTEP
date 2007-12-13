@@ -34,8 +34,9 @@
 	NSButtonCell *_searchButtonCell;
 	NSButtonCell *_cancelButtonCell;
 	NSMenu *_menuTemplate;
-	BOOL sendsWholeSearchString;
 	unsigned char maxRecents;
+	BOOL sendsWholeSearchString;
+	BOOL sendsSearchStringImmediately;
 }
 
 - (NSButtonCell *) cancelButtonCell;

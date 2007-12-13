@@ -6,7 +6,7 @@
 //  Copyright 2007 __MyCompanyName__. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 typedef NSUInteger NSGradientDrawingOptions;
 
@@ -15,13 +15,15 @@ enum {
 	NSGradientDrawsAfterEndingLocation =    (1 << 1),
 };
 
-
+@class NSBezierPath;
+@class NSColor;
+@class NSColorSpace;
 
 @interface NSGradient : NSObject {
 
 }
 
-- (NSColorSpace *)colorSpace; 
+- (NSColorSpace *) colorSpace; 
 - (void) drawFromCenter:(NSPoint) startCenterPt 
 			 	 radius:(CGFloat) startRad 
 			   toCenter:(NSPoint) endCenterPt 
@@ -45,6 +47,5 @@ enum {
 - (id) initWithStartingColor:(NSColor *) startCol endingColor:(NSColor *) endCol;
 - (NSColor *) interpolatedColorAtLocation:(CGFloat) loc;
 - (NSInteger) numberOfColorStops;
-
 
 @end

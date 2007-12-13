@@ -63,6 +63,7 @@
 #import <AppKit/NSCustomImageRep.h>
 #import <AppKit/NSDatePicker.h>
 #import <AppKit/NSDatePickerCell.h>
+#import <AppKit/NSDictionaryController.h>
 #import <AppKit/NSDocument.h>
 #import <AppKit/NSDocumentController.h>
 #import <AppKit/NSDragging.h>

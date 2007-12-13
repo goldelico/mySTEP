@@ -1,0 +1,26 @@
+{
+    "## Comment" = "Do NOT change this file, Gorm maintains it";
+    FetchedPropertyEditor = {
+	Actions = (
+	    "updateTransient:",
+	    "updateName:",
+	    "updateOptional:"
+	);
+	Outlets = (
+	    view,
+	    bogusWindow,
+	    name,
+	    transient,
+	    optional
+	);
+	Super = NSObject;
+    };
+    FirstResponder = {
+	Actions = (
+	    "updateTransient:",
+	    "updateName:",
+	    "updateOptional:"
+	);
+	Super = NSObject;
+    };
+}

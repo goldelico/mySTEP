@@ -346,6 +346,10 @@ NSSplitView.h
 #endif
 
 - (BOOL) isFlipped							{ return YES; }	// compatibility
+- (NSString *) autosaveName;				{ return _autosaveName; }
+- (void) setAutosaveName:(NSString *) name; { ASSIGN(_autosaveName, name); }
+- (BOOL) isPaneSplitter;					{ return _isPaneSplitter; }
+- (void) setIsPaneSplitter:(BOOL) flag;		{ _isPaneSplitter=flag; }
 - (BOOL) isVertical							{ return _isVertical; }
 - (void) setVertical:(BOOL)flag				{ _isVertical = flag; }
 - (void) setDividerThickNess:(float)newWidth{ _dividerThickness = newWidth; }

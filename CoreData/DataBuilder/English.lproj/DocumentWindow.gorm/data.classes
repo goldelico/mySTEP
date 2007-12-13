@@ -1,0 +1,35 @@
+{
+    "## Comment" = "Do NOT change this file, Gorm maintains it";
+    DocumentWindowController = {
+	Actions = (
+	    "updateSelectionDisplay:"
+	);
+	Outlets = (
+	    browser,
+	    modelView,
+	    box,
+	    scrollView
+	);
+	Super = NSWindowController;
+    };
+    FirstResponder = {
+	Actions = (
+	    "setShowsInheritance:",
+	    "setShowsRelationships:",
+	    "updateSelectionDisplay:"
+	);
+	Super = NSObject;
+    };
+    ModelView = {
+	Actions = (
+	    "setShowsInheritance:",
+	    "setShowsRelationships:"
+	);
+	Outlets = (
+	    dataSource,
+	    target,
+	    headerView
+	);
+	Super = NSControl;
+    };
+}
