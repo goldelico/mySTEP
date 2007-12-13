@@ -15,6 +15,9 @@
 	Author:	H. N. Schaller <hns@computer.org>
 	Date:	Jun 2006 - aligned with 10.4
  
+	Author:	Fabian Spillner <fabian.spillner@gmail.com>
+	Date:	13. December 2007 - aligned with 10.5
+ 
 	This file is part of the mySTEP Library and is provided
 	under the terms of the GNU Library General Public License.
  */
@@ -59,6 +62,19 @@ typedef enum _NSFindPanelAction
 	NSFindPanelActionReplaceAllInSelection
 } NSFindPanelAction;
 
+extern NSString *NSAllRomanInputSourcesLocaleIdentifier; 
+
+extern NSString *NSFindPanelSearchOptionsPboardType;
+extern NSString *NSFindPanelCaseInsensitiveSearch;
+extern NSString *NSFindPanelSubstringMatch;
+
+enum {
+	NSFindPanelSubstringMatchTypeContains = 0,
+	NSFindPanelSubstringMatchTypeStartsWith = 1,
+	NSFindPanelSubstringMatchTypeFullWord = 2,
+	NSFindPanelSubstringMatchTypeEndsWith = 3
+};
+typedef NSUInteger NSFindPanelSubstringMatchType;
 
 @interface NSTextView : NSText <NSTextInput,NSUserInterfaceValidations>
 {	
@@ -94,65 +110,72 @@ typedef enum _NSFindPanelAction
 
 - (NSArray *) acceptableDragTypes;
 - (BOOL) acceptsGlyphInfo;
-- (void) alignJustified:(id)sender;
+- (void) alignJustified:(id) sender;
+- (NSArray *) allowedInputSourceLocales;
 - (BOOL) allowsDocumentBackgroundColorChange;
+- (BOOL) allowsImageEditing; 
 - (BOOL) allowsUndo;
-// - (NSColor *) backgroundColor;
+- (NSColor *) backgroundColor;
 - (void) breakUndoCoalescing;
-- (void) changeAttributes:(id)sender;
-- (void) changeColor:(id)sender;
-- (void) changeDocumentBackgroundColor:(id)sender;
+- (void) changeAttributes:(id) sender;
+- (void) changeColor:(id) sender;
+- (void) changeDocumentBackgroundColor:(id) sender;
+- (NSUInteger) characterIndexForInsertionAtPoint:(NSPoint) pt; 
 - (void) cleanUpAfterDragOperation;
-- (void) clickedOnLink:(id)link atIndex:(unsigned)index;
-- (void) complete:(id)sender;
-- (NSArray *) completionsForPartialWordRange:(NSRange)range indexOfSelectedItem:(int *)index;
+- (void) clickedOnLink:(id) link atIndex:(NSUInteger) index;
+- (void) complete:(id) sender;
+- (NSArray *) completionsForPartialWordRange:(NSRange) range indexOfSelectedItem:(NSInteger *) index;
 - (NSParagraphStyle *) defaultParagraphStyle;
-// - (id) delegate; // inherited from NSText
+- (id) delegate; // inherited from NSText
 - (void) didChangeText;
+- (BOOL) displaysLinkToolTips; 
 - (NSImage *) dragImageForSelectionWithEvent:(NSEvent *) event
 									  origin:(NSPointPointer) origin;
-- (unsigned int) dragOperationForDraggingInfo:(id <NSDraggingInfo>) dragInfo
-										 type:(NSString *) type;
+- (NSDragOperation) dragOperationForDraggingInfo:(id <NSDraggingInfo>) dragInfo
+											type:(NSString *) type;
 - (BOOL) dragSelectionWithEvent:(NSEvent *) event
 						 offset:(NSSize) mouse
 					  slideBack:(BOOL) flag;
 - (void) drawInsertionPointInRect:(NSRect) rect
 							color:(NSColor *) color
 						 turnedOn:(BOOL) flag;
-	// - (BOOL) drawsBackground;	// from NSText
+- (BOOL) drawsBackground;	// from NSText
 - (void) drawViewBackgroundInRect:(NSRect) rect;
-	// - (BOOL) importsGraphics;		// from NSText
+- (BOOL) importsGraphics;		// from NSText
 - (id) initWithFrame:(NSRect) frameRect;
-- (id) initWithFrame:(NSRect) frameRect textContainer:(NSTextContainer *)container;
+- (id) initWithFrame:(NSRect) frameRect textContainer:(NSTextContainer *) container;
 - (void) insertCompletion:(NSString *) word
 	  forPartialWordRange:(NSRange) range
-				 movement:(int) movement
+				 movement:(NSInteger) movement
 				  isFinal:(BOOL) flag;
 - (NSColor *) insertionPointColor;
 - (void) insertText:(NSString *) string;
 - (void) invalidateTextContainerOrigin;
+- (BOOL) isAutomaticLinkDetectionEnabled; 
+- (BOOL) isAutomaticQuoteSubstitutionEnabled; 
 - (BOOL) isContinuousSpellCheckingEnabled;
-	// - (BOOL) isEditable;		// from NSText
-	// - (BOOL) isFieldEditor;	// from NSText
-	// - (BOOL) isRichText	;	// from NSText
-	// - (BOOL) isRulerVisible;	// from NSText
-	// - (BOOL) isSelectable;	// from NSText
+- (BOOL) isEditable;		// from NSText
+- (BOOL) isFieldEditor;	// from NSText
+- (BOOL) isGrammarCheckingEnabled; 
+- (BOOL) isRichText;	// from NSText
+- (BOOL) isRulerVisible;	// from NSText
+- (BOOL) isSelectable;	// from NSText
 - (NSLayoutManager *) layoutManager;
 - (NSDictionary *) linkTextAttributes;
-- (void) loosenKerning:(id)sender;
-- (void) lowerBaseline:(id)sender;
+- (void) loosenKerning:(id) sender;
+- (void) lowerBaseline:(id) sender;
 - (NSDictionary *) markedTextAttributes;
-- (void) orderFrontLinkPanel:(id)sender;
-- (void) orderFrontListPanel:(id)sender;
-- (void) orderFrontSpacingPanel:(id)sender;
-- (void) orderFrontTablePanel:(id)sender;
-- (void) outline:(id)sender;
-- (void) pasteAsPlainText:(id)sender;
-- (void) pasteAsRichText:(id)sender;
-- (void) performFindPanelAction:(id)sender;
+- (void) orderFrontLinkPanel:(id) sender;
+- (void) orderFrontListPanel:(id) sender;
+- (void) orderFrontSpacingPanel:(id) sender;
+- (void) orderFrontTablePanel:(id) sender;
+- (void) outline:(id) sender;
+- (void) pasteAsPlainText:(id) sender;
+- (void) pasteAsRichText:(id) sender;
+- (void) performFindPanelAction:(id) sender;
 - (NSString *) preferredPasteboardTypeFromArray:(NSArray *) available 
 					 restrictedToTypesFromArray:(NSArray *) allowed;
-- (void) raiseBaseline:(id)sender;
+- (void) raiseBaseline:(id) sender;
 - (NSRange) rangeForUserCharacterAttributeChange;
 - (NSRange) rangeForUserCompletion;
 - (NSRange) rangeForUserParagraphAttributeChange;
@@ -163,44 +186,48 @@ typedef enum _NSFindPanelAction
 - (NSArray *) readablePasteboardTypes;
 - (BOOL) readSelectionFromPasteboard:(NSPasteboard *) pboard;
 - (BOOL) readSelectionFromPasteboard:(NSPasteboard *) pboard type:(NSString *) type;
-- (void) replaceTextContainer:(NSTextContainer *)newContainer;
-// - (BOOL)resignFirstResponder;	// from NSResponder
-- (void) rulerView:(NSRulerView *)ruler didAddMarker:(NSRulerMarker *)marker;
-- (void) rulerView:(NSRulerView *)ruler didMoveMarker:(NSRulerMarker *)marker;
-- (void) rulerView:(NSRulerView *)ruler didRemoveMarker:(NSRulerMarker *)marker;
-- (void) rulerView:(NSRulerView *)ruler handleMouseDown:(NSEvent *)event;
-- (BOOL) rulerView:(NSRulerView *)ruler shouldAddMarker:(NSRulerMarker *)marker;
-- (BOOL) rulerView:(NSRulerView *)ruler shouldMoveMarker:(NSRulerMarker *)marker;
-- (BOOL) rulerView:(NSRulerView *)ruler shouldRemoveMarker:(NSRulerMarker *)marker;
-- (float) rulerView:(NSRulerView *)ruler willAddMarker:(NSRulerMarker *)marker atLocation:(float)location;
-- (float) rulerView:(NSRulerView *)ruler willMoveMarker:(NSRulerMarker *)marker toLocation:(float)location;
+- (void) replaceTextContainer:(NSTextContainer *) newContainer;
+- (void) rulerView:(NSRulerView *) ruler didAddMarker:(NSRulerMarker *) marker;
+- (void) rulerView:(NSRulerView *) ruler didMoveMarker:(NSRulerMarker *) marker;
+- (void) rulerView:(NSRulerView *) ruler didRemoveMarker:(NSRulerMarker *) marker;
+- (void) rulerView:(NSRulerView *) ruler handleMouseDown:(NSEvent *) event;
+- (BOOL) rulerView:(NSRulerView *) ruler shouldAddMarker:(NSRulerMarker *) marker;
+- (BOOL) rulerView:(NSRulerView *) ruler shouldMoveMarker:(NSRulerMarker *) marker;
+- (BOOL) rulerView:(NSRulerView *) ruler shouldRemoveMarker:(NSRulerMarker *) marker;
+- (float) rulerView:(NSRulerView *) ruler willAddMarker:(NSRulerMarker *) marker atLocation:(float) location;
+- (float) rulerView:(NSRulerView *) ruler willMoveMarker:(NSRulerMarker *) marker toLocation:(float) location;
 - (NSArray *) selectedRanges;
 - (NSDictionary *) selectedTextAttributes;
 - (NSSelectionAffinity) selectionAffinity;
 - (NSSelectionGranularity) selectionGranularity;
 - (NSRange) selectionRangeForProposedRange:(NSRange) proposed granularity:(NSSelectionGranularity) granularity;
 - (void) setAcceptsGlyphInfo:(BOOL) flag;
-- (void) setAlignment:(NSTextAlignment)alignment range:(NSRange)range;
+- (void) setAlignment:(NSTextAlignment) alignment range:(NSRange) range;
+- (void) setAllowedInputSourceLocales:(NSArray *) identifiers; 
 - (void) setAllowsDocumentBackgroundColorChange:(BOOL) flag;
+- (void) setAllowsImageEditing:(BOOL) flag;
 - (void) setAllowsUndo:(BOOL) flag;
+- (void) setAutomaticLinkDetectionEnabled:(BOOL) flag;
+- (void) setAutomaticQuoteSubstitutionEnabled:(BOOL) flag;
 - (void) setBackgroundColor:(NSColor *) color;
 - (void) setBaseWritingDirection:(NSWritingDirection) direction range:(NSRange) range;
-- (void) setConstrainedFrameSize:(NSSize)desiredSize;
-- (void) setContinuousSpellCheckingEnabled:(BOOL)flag;
-- (void) setDefaultParagraphStyle:(NSParagraphStyle *)style;
-		  // - (void) setDelegate:(id) delegate;		// from NSText
-		  // - (void) setDrawsBackground:(BOOL)flag;	// from NSText
-		  // - (void) setEditable:(BOOL)flag;	// from NSText
-		  // - (void) setFieldEditor:(BOOL)flag;	// from NSText
-		  // - (void) setImportsGraphics:(BOOL)flag;	// from NSText
+- (void) setConstrainedFrameSize:(NSSize) desiredSize;
+- (void) setContinuousSpellCheckingEnabled:(BOOL) flag;
+- (void) setDefaultParagraphStyle:(NSParagraphStyle *) style;
+- (void) setDelegate:(id) delegate;		// from NSText
+- (void) setDisplaysLinkToolTips:(BOOL) flag;
+- (void) setDrawsBackground:(BOOL) flag;	// from NSText
+- (void) setEditable:(BOOL) flag;	// from NSText
+- (void) setFieldEditor:(BOOL) flag;	// from NSText
+- (void) setGrammarCheckingEnabled:(BOOL) flag; 
+- (void) setImportsGraphics:(BOOL) flag;	// from NSText
 - (void) setInsertionPointColor:(NSColor *) colour;
 - (void) setLinkTextAttributes:(NSDictionary *) attribs;
 - (void) setMarkedTextAttributes:(NSDictionary *) attribs;
-- (void) setNeedsDisplayInRect:(NSRect)rect avoidAdditionalLayout:(BOOL)flag;
-// - (void) setNeedsDisplayInRect:(NSRect)rect;	// overridden
-// - (void) setRichText:(BOOL)flag;	// from NSText
-// - (void) setRulerVisible:(BOOL)flag;	// from NSText
-// - (void) setSelectable:(BOOL)flag;	// from NSText
+- (void) setNeedsDisplayInRect:(NSRect) rect avoidAdditionalLayout:(BOOL) flag;
+- (void) setRichText:(BOOL) flag;	// from NSText
+- (void) setRulerVisible:(BOOL) flag;	// from NSText
+- (void) setSelectable:(BOOL) flag;	// from NSText
 - (void) setSelectedRange:(NSRange) range;
 - (void) setSelectedRange:(NSRange) range
 				 affinity:(NSSelectionAffinity) affinity
@@ -212,17 +239,19 @@ typedef enum _NSFindPanelAction
 - (void) setSelectedTextAttributes:(NSDictionary *) attribs;
 - (void) setSelectionGranularity:(NSSelectionGranularity) granularity;
 - (void) setSmartInsertDeleteEnabled:(BOOL) flag;
-- (void) setTextContainer:(NSTextContainer*) container;
-- (void) setTextContainerInset:(NSSize)inset;
+- (void) setSpellingState:(NSInteger) val range:(NSRange) range; 
+- (void) setTextContainer:(NSTextContainer *) container;
+- (void) setTextContainerInset:(NSSize) inset;
 - (void) setTypingAttributes:(NSDictionary *) attribs;
 - (void) setUsesFindPanel:(BOOL) flag;
-// - (void) setUsesFontPanel:(BOOL) flag;	// from NSText
+- (void) setUsesFontPanel:(BOOL) flag;	// from NSText
 - (void) setUsesRuler:(BOOL) flag;
 - (BOOL) shouldChangeTextInRange:(NSRange) range
 			   replacementString:(NSString *) string;
 - (BOOL) shouldChangeTextInRanges:(NSArray *) ranges
 			   replacementStrings:(NSArray *) strings;
 - (BOOL) shouldDrawInsertionPoint;
+- (void) showFindIndicatorForRange:(NSRange) range; 
 - (NSRange) smartDeleteRangeForProposedRange:(NSRange) range;
 - (NSString *) smartInsertAfterStringForString:(NSString *) string replacingRange:(NSRange) range;
 - (NSString *) smartInsertBeforeStringForString:(NSString *) string replacingRange:(NSRange) range;
@@ -231,32 +260,35 @@ typedef enum _NSFindPanelAction
 			   replacingRange:(NSRange) range
 				 beforeString:(NSString **) before
 				  afterString:(NSString **) after;
-- (int) spellCheckerDocumentTag;
-- (void) startSpeaking:(id)sender;
-- (void) stopSpeaking:(id)sender;
-- (NSTextContainer*) textContainer;
+- (NSInteger) spellCheckerDocumentTag;
+- (void) startSpeaking:(id) sender;
+- (void) stopSpeaking:(id) sender;
+- (NSTextContainer *) textContainer;
 - (NSSize) textContainerInset;
 - (NSPoint) textContainerOrigin;
 - (NSTextStorage *) textStorage;
-- (void) tightenKerning:(id)sender;
-- (void) toggleBaseWritingDirection:(id)sender;
-- (void) toggleContinuousSpellChecking:(id)sender;
-// - (void) toggleRuler:(id)sender;
-- (void) toggleTraditionalCharacterShape:(id)sender;
-- (void) turnOffKerning:(id)sender;
-- (void) turnOffLigatures:(id)sender;
+- (void) tightenKerning:(id) sender;
+- (void) toggleAutomaticLinkDetection:(id) sender; 
+- (void) toggleAutomaticQuoteSubstitution:(id) sender; 
+- (void) toggleBaseWritingDirection:(id) sender;
+- (void) toggleContinuousSpellChecking:(id) sender;
+- (void) toggleGrammarChecking:(id) sender; 
+- (void) toggleSmartInsertDelete:(id) sender; 
+- (void) toggleTraditionalCharacterShape:(id) sender;
+- (void) turnOffKerning:(id) sender;
+- (void) turnOffLigatures:(id) sender;
 - (NSDictionary *) typingAttributes;
-- (void) underline:(id)sender;
+- (void) underline:(id) sender;
 - (void) updateDragTypeRegistration;
 - (void) updateFontPanel;
-- (void) updateInsertionPointStateAndRestartTimer:(BOOL)flag;
+- (void) updateInsertionPointStateAndRestartTimer:(BOOL) flag;
 - (void) updateRuler;
-- (void) useAllLigatures:(id)sender;
+- (void) useAllLigatures:(id) sender;
 - (BOOL) usesFindPanel;
-// - (BOOL) usesFontPanel;	// from NSText
+- (BOOL) usesFontPanel;	// from NSText
 - (BOOL) usesRuler;
-- (void) useStandardKerning:(id)sender;
-- (void) useStandardLigatures:(id)sender;
+- (void) useStandardKerning:(id) sender;
+- (void) useStandardLigatures:(id) sender;
 - (id) validRequestorForSendType:(NSString *) sendType returnType:(NSString *) returnType;
 - (NSArray *) writablePasteboardTypes;
 - (BOOL) writeSelectionToPasteboard:(NSPasteboard *) pboard type:(NSString *) type;
@@ -267,69 +299,72 @@ typedef enum _NSFindPanelAction
 
 @interface NSObject (NSTextViewDelegate)		// Note all delegation messages come from the first textView
 
-- (void) textView:(NSTextView *)textView 
-	clickedOnCell:(id <NSTextAttachmentCell>)cell 
-		   inRect:(NSRect)cellFrame;
-- (void) textView:(NSTextView *)textView 
-	clickedOnCell:(id <NSTextAttachmentCell>)cell 
-		   inRect:(NSRect)cellFrame
-		  atIndex:(unsigned)index;
-- (void) textView:(NSTextView *)textView 
-	clickedOnLink:(id)link;
-- (BOOL) textView:(NSTextView *)textView 
-	clickedOnLink:(id)link
-		  atIndex:(unsigned)index;
-- (NSArray *) textView:(NSTextView *)textView
-		   completions:(NSArray *)words
-   forPartialWordRange:(NSRange)range
-		 indexOfSelectedItem:(int *)index;
-- (BOOL) textView:(NSTextView *)textView 
-		 doCommandBySelector:(SEL)commandSelector;
-- (void) textView:(NSTextView *)textView 
-		 doubleClickedOnCell:(id <NSTextAttachmentCell>)cell 
-		   inRect:(NSRect)cellFrame;
-- (void) textView:(NSTextView *)textView 
-		 doubleClickedOnCell:(id <NSTextAttachmentCell>)cell 
-		   inRect:(NSRect)cellFrame
-		  atIndex:(unsigned)index;
+- (void) textView:(NSTextView *) textView 
+	clickedOnCell:(id <NSTextAttachmentCell>) cell 
+		   inRect:(NSRect) cellFrame;
+- (void) textView:(NSTextView *) textView 
+	clickedOnCell:(id <NSTextAttachmentCell>) cell 
+		   inRect:(NSRect) cellFrame
+		  atIndex:(NSUInteger) index;
+- (void) textView:(NSTextView *) textView 
+	clickedOnLink:(id) link; /* DEPRECATED */
+- (BOOL) textView:(NSTextView *) textView 
+	clickedOnLink:(id) link
+		  atIndex:(NSUInteger) index;
+- (NSArray *) textView:(NSTextView *) textView
+		   completions:(NSArray *) words
+   forPartialWordRange:(NSRange) range
+		 indexOfSelectedItem:(NSInteger *) index;
+- (BOOL) textView:(NSTextView *) textView 
+		 doCommandBySelector:(SEL) commandSelector;
+- (void) textView:(NSTextView *) textView 
+		 doubleClickedOnCell:(id <NSTextAttachmentCell>) cell 
+		   inRect:(NSRect) cellFrame; /* DEPRECATED */
+- (void) textView:(NSTextView *) textView 
+		 doubleClickedOnCell:(id <NSTextAttachmentCell>) cell 
+		   inRect:(NSRect) cellFrame
+		  atIndex:(NSUInteger) index;
+- (void) textView:(NSTextView *) view 
+	  draggedCell:(id <NSTextAttachmentCell>) cell 
+		   inRect:(NSRect) rect
+			event:(NSEvent *) event; /* DEPRECATED */
+- (void) textView:(NSTextView *) view 
+	  draggedCell:(id <NSTextAttachmentCell>) cell 
+		   inRect:(NSRect) rect
+			event:(NSEvent *) event
+		  atIndex:(NSUInteger) index;
+- (BOOL) textView:(NSTextView *) textView 
+		 shouldChangeTextInRanges:(NSArray *) affectedCharRange 
+		 replacementStrings:(NSArray *) replacementString;
+- (BOOL) textView:(NSTextView *) textView 
+		 shouldChangeTextInRanges:(NSArray *) ranges 
+		 replacementStrings:(NSArray *) strings; 
+- (BOOL) textView:(NSTextView *) textView 
+		 shouldChangeTypingAttributes:(NSDictionary *) oldAttribs 
+	 toAttributes:(NSDictionary *) newAttribs;
+- (NSInteger) textView:(NSTextView *) textView 
+shouldSetSpellingState:(NSInteger) val 
+				 range:(NSRange) charRange; 
+- (NSRange) textView:(NSTextView *) textView 
+			willChangeSelectionFromCharacterRange:(NSRange) oldSelectedCharRange 
+	toCharacterRange:(NSRange) newSelectedCharRange;
+- (NSRange) textView:(NSTextView *) textView 
+			willChangeSelectionFromCharacterRanges:(NSArray *) oldSelectedCharRanges 
+			toCharacterRanges:(NSArray *) newSelectedCharRanges;
+- (NSString *) textView:(NSTextView *) textView
+	 willDisplayToolTip:(NSString *) tooltip
+	forCharacterAtIndex:(NSUInteger) index;
+- (NSArray *) textView:(NSTextView *) textView
+			  writablePasteboardTypesForCell:(id <NSTextAttachmentCell>) cell
+			   atIndex:(NSUInteger) index;
+- (BOOL) textView:(NSTextView *) textView
+		writeCell:(id <NSTextAttachmentCell>) cell
+		  atIndex:(NSUInteger) index
+	 toPasteboard:(NSPasteboard *) pboard
+			 type:(NSString *) type;
 
-- (void) textView:(NSTextView *)view 
-	  draggedCell:(id <NSTextAttachmentCell>)cell 
-		   inRect:(NSRect)rect
-			event:(NSEvent *)event;
-- (void) textView:(NSTextView *)view 
-	  draggedCell:(id <NSTextAttachmentCell>)cell 
-		   inRect:(NSRect)rect
-			event:(NSEvent *)event
-		  atIndex:(unsigned)index;
-- (BOOL) textView:(NSTextView *)textView 
-		 shouldChangeTextInRanges:(NSArray *)affectedCharRange 
-		 replacementStrings:(NSArray *)replacementString;
-- (BOOL) textView:(NSTextView *)textView 
-		 shouldChangeTypingAttributes:(NSDictionary *)oldAttribs 
-	 toAttributes:(NSDictionary *)newAttribs;
-
-- (NSRange) textView:(NSTextView *)textView 
-			willChangeSelectionFromCharacterRange:(NSRange)oldSelectedCharRange 
-	toCharacterRange:(NSRange)newSelectedCharRange;
-- (NSRange) textView:(NSTextView *)textView 
-			willChangeSelectionFromCharacterRanges:(NSArray *)oldSelectedCharRanges 
-			toCharacterRanges:(NSArray *)newSelectedCharRanges;
-- (NSString *) textView:(NSTextView *)textView
-	 willDisplayToolTip:(NSString *)tooltip
-	forCharacterAtIndex:(unsigned) index;
-- (NSArray *) textView:(NSTextView *)textView
-		writablePasteboardTypesForCell:(id <NSTextAttachmentCell>)cell
-			   atIndex:(unsigned)index;
-- (BOOL) textView:(NSTextView *)textView
-		writeCell:(id <NSTextAttachmentCell>)cell
-		  atIndex:(unsigned)index
-	 toPasteboard:(NSPasteboard *)pboard
-			 type:(NSString *)type;
-
-- (void) textViewDidChangeSelection:(NSNotification *)notification;
-
-- (void) textViewDidChangeTypingAttributes:(NSNotification *)notification;
+- (void) textViewDidChangeSelection:(NSNotification *) notification;
+- (void) textViewDidChangeTypingAttributes:(NSNotification *) notification;
 - (NSUndoManager *) undoManagerForTextView:(NSTextView *) textView;
 
 @end

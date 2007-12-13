@@ -52,19 +52,6 @@
 - (void) setPosition:(CGFloat) pos ofDividerAtIndex:(NSInteger) index; 
 - (void) setVertical: (BOOL) flag;
 
-/* NOT IN API */
-- (void) setDividerThickNess: (float)newWidth;
-- (float) draggedBarWidth;
-- (void) setDraggedBarWidth: (float)newWidth;
-								// if flag is yes, dividerThickness is reset to 
-								// the height/width of the dimple image + 1;
-- (void) setDimpleImage:(NSImage *)anImage resetDividerThickness: (BOOL)flag;
-- (NSImage *) dimpleImage;
-- (NSColor *) backgroundColor;
-- (void) setBackgroundColor:(NSColor *)aColor;
-- (NSColor *) dividerColor;
-- (void) setDividerColor:(NSColor *)aColor;
-
 @end
 
 

@@ -1,25 +1,30 @@
-//
-//  NSTokenFieldCell.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
-//  Copyright (c) 2005 DSITRI.
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+	NSTokenFieldCell.h
+	mySTEP
+
+	Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
+	Copyright (c) 2005 DSITRI.
+
+	Author:	Fabian Spillner <fabian.spillner@gmail.com>
+	Date:	13. December 2007 - aligned with 10.5  
+ 
+	This file is part of the mySTEP Library and is provided
+	under the terms of the GNU Library General Public License.
+*/
 
 #ifndef _mySTEP_H_NSTokenFieldCell
 #define _mySTEP_H_NSTokenFieldCell
 
 #import "AppKit/NSTextFieldCell.h"
 
-typedef enum _NSTokenStyle
+typedef NSUInteger NSTokenStyle;
+
+enum
 {
 	NSDefaultTokenStyle,
 	NSPlainTextTokenStyle,
 	NSRoundedTokenStyle
-} NSTokenStyle;
+};
 
 @interface NSTokenFieldCell : NSTextFieldCell
 {
@@ -44,16 +49,30 @@ typedef enum _NSTokenStyle
 
 @interface NSObject (NSTokenFieldDelegate)
 
-- (NSArray *) tokenFieldCell:(NSTokenFieldCell *) cell completionsForSubstring:(NSString *) substring indexOfToken:(int) index indexOfSelectedItem:(int *) selected;
-- (NSString *) tokenFieldCell:(NSTokenFieldCell *) cell displayStringForRepresentedObject:(id) obj;
-- (NSString *) tokenFieldCell:(NSTokenFieldCell *) cell editingStringForRepresentedObject:(id) obj;
-- (BOOL) tokenFieldCell:(NSTokenFieldCell *) cell hasMenuForRepresentedObject:(id) obj;
-- (NSMenu *) tokenFieldCell:(NSTokenFieldCell *) cell menuForRepresentedObject:(id) obj;
-- (NSArray *) tokenFieldCell:(NSTokenFieldCell *) cell readFromPasteboard:(NSPasteboard *) pboard;
-- (id) tokenFieldCell:(NSTokenFieldCell *) cell representedObjectForEditingString:(NSString *) string;
-- (NSArray *) tokenFieldCell:(NSTokenFieldCell *) cell shouldAddObjects:(NSArray *) tokens atIndex:(unsigned) index;
-- (NSTokenStyle) tokenFieldCell:(NSTokenFieldCell *) cell styleForRepresentedObject:(id) obj;
-- (BOOL) tokenFieldCell:(NSTokenFieldCell *) cell writeRepresentedObjects:(NSArray *) objects toPasteboard:(NSPasteboard *) pboard;
+- (NSArray *) tokenFieldCell:(NSTokenFieldCell *) cell 
+	 completionsForSubstring:(NSString *) substring 
+				indexOfToken:(NSInteger) index 
+		 indexOfSelectedItem:(NSInteger *) selected;
+- (NSString *) tokenFieldCell:(NSTokenFieldCell *) cell 
+			   displayStringForRepresentedObject:(id) obj;
+- (NSString *) tokenFieldCell:(NSTokenFieldCell *) cell 
+			   editingStringForRepresentedObject:(id) obj;
+- (BOOL) tokenFieldCell:(NSTokenFieldCell *) cell 
+		 hasMenuForRepresentedObject:(id) obj;
+- (NSMenu *) tokenFieldCell:(NSTokenFieldCell *) cell 
+			 menuForRepresentedObject:(id) obj;
+- (NSArray *) tokenFieldCell:(NSTokenFieldCell *) cell 
+			  readFromPasteboard:(NSPasteboard *) pboard;
+- (id) tokenFieldCell:(NSTokenFieldCell *) cell 
+	   representedObjectForEditingString:(NSString *) string;
+- (NSArray *) tokenFieldCell:(NSTokenFieldCell *) cell 
+			shouldAddObjects:(NSArray *) tokens 
+					 atIndex:(NSUInteger) index;
+- (NSTokenStyle) tokenFieldCell:(NSTokenFieldCell *) cell 
+	  styleForRepresentedObject:(id) obj;
+- (BOOL) tokenFieldCell:(NSTokenFieldCell *) cell 
+writeRepresentedObjects:(NSArray *) objects 
+		   toPasteboard:(NSPasteboard *) pboard;
 
 @end
 

@@ -34,6 +34,7 @@
 #import <AppKit/NSSegmentedCell.h>
 #import <AppKit/NSStatusBar.h>
 #import <AppKit/NSStatusItem.h>
+#import <AppKit/NSSplitView.h>
 #import <AppKit/NSTabView.h>
 #import <AppKit/NSTabViewItem.h>
 #import <AppKit/NSText.h>
@@ -356,5 +357,19 @@ enum _NSGlyphAttribute
 - (NSBundle *) _bundle;
 - (void) _setBundle:(NSBundle *) bundle;
 - (id) _initWithContentsOfURL:(NSURL *) url bundle:(NSBundle *) bundle;
+
+@end
+
+@interface NSSplitView (NSPrivate)
+
+- (void) setDividerThickNess: (float)newWidth;
+- (float) draggedBarWidth;
+- (void) setDraggedBarWidth: (float)newWidth;
+- (void) setDimpleImage:(NSImage *)anImage resetDividerThickness: (BOOL)flag;
+- (NSImage *) dimpleImage;
+- (NSColor *) backgroundColor;
+- (void) setBackgroundColor:(NSColor *)aColor;
+- (NSColor *) dividerColor;
+- (void) setDividerColor:(NSColor *)aColor;
 
 @end
