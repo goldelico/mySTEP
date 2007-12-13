@@ -182,8 +182,10 @@ static NSFileManager *__fm = nil;
 			*error=[NSError errorWithDomain:@"FileManager" code:2 userInfo:nil];
 		return NO;
 		}
-	if(flag && [path length] > 1)
+	if(flag)
+		{ // create intermediates first
 		[self createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:attributes error:NULL];
+		}
 	if(mkdir(cpath, 0777) != 0)			// will be reduced by umask
 		{
 		if(error)
@@ -832,7 +834,9 @@ const char *npath = [self fileSystemRepresentationWithPath:otherPath];
 		if(strcmp(string, "/mnt/card/Users") == 0)
 			return @"/Users";	// translate virtual home
 		if(len >= 17 && strncmp(string, "/media/card/Users/", 17) == 0)
-			return [NSString stringWithFormat:@"/Users/%.*s", len-17, string+17];	// translate virtual home
+			return [NSString stringWithFormat:@"/Users/%.*s", len-17, string+17];	// translate virtual home (OpenMoko)
+		if(len >= 12 && strncmp(string, "/hdd3/Users/", 12) == 0)
+			return [NSString stringWithFormat:@"/Users/%.*s", len-12, string+12];	// translate virtual home (Zaurus)
 		if(strcmp(string, "/media/card/Users") == 0)
 			return @"/Users";	// translate virtual home
 		if(len >= 9 && strncmp(string, "/mnt/net/", 9) == 0)

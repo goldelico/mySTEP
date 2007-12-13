@@ -43,7 +43,7 @@
 #import "NSGlyphGenerator.h"
 
 @interface NSGraphicsContext (NSFreeTypeFont)
-- (void) _drawGlyphBitmap:(unsigned char *) buffer atPoint:(NSPoint) pnt left:(int) left top:(int) top width:(unsigned) width height:(unsigned) height;
+- (void) _drawGlyphBitmap:(unsigned char *) buffer x:(int) x y:(int) y width:(unsigned) width height:(unsigned) height;
 @end
 
 @implementation _NSX11Font (NSFreeTypeFont)
@@ -298,17 +298,15 @@ FT_Library _ftLibrary(void)
 	FT_GlyphSlot slot = _faceStruct->glyph;
 	NSPoint pen = NSZeroPoint;
 	unsigned long i;
-#if 1
-	if([_descriptor pointSize] != 12.0)
-		NSLog(@"non-standard font size to %f", [_descriptor pointSize]);
-#endif
-	pen.y=[self ascender];	// one line down
+//	pen.y=[self ascender];	// one line down
+	pen.y=(_faceStruct->ascender+_faceStruct->descender)>>6;
 	for(i = 0; i < cnt; i++)
 		{ // render glyphs
 		FT_Error error = FT_Load_Glyph(_faceStruct, glyphs[i], FT_LOAD_RENDER);
 		if(error)
 			continue;
-		[ctxt _drawGlyphBitmap:slot->bitmap.buffer atPoint:NSMakePoint(pen.x, pen.y) left:slot->bitmap_left top:slot->bitmap_top width:slot->bitmap.width height:slot->bitmap.rows];
+		// x,y is the top/left position in X11 coordinates, i.e. counted from top/left of screen
+		[ctxt _drawGlyphBitmap:slot->bitmap.buffer x:pen.x+slot->bitmap_left y:pen.y-slot->bitmap_top width:slot->bitmap.width height:slot->bitmap.rows];
 		if(_renderingMode == NSFontAntialiasedIntegerAdvancementsRenderingMode)
 			{ // a little faster but less accurate
 			pen.x += slot->advance.x>>6;

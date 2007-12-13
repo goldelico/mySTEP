@@ -1178,6 +1178,7 @@
 				EEA3717B09540271001244CF /* Classes */,
 				EEA3306C09537DB5001244CF /* Private */,
 				EEA372FB09540275001244CF /* Backend */,
+				EED24EBF0D10395600D4D9B0 /* MacPorts Includes */,
 				EEA3309609537E48001244CF /* Resources */,
 				EE3196E109AB7E8A0089A9A2 /* mySTEP Test */,
 				EEA370FA09540051001244CF /* mySTEP Frameworks */,
@@ -1704,7 +1705,6 @@
 				EE09BBB20C11F69700F3199C /* NSFreeTypeFont.h */,
 				EE09BBB10C11F69700F3199C /* NSFreeTypeFont.m */,
 				EEA3719C09540271001244CF /* GSBitmapImageReps.m */,
-				EEDB39880ABDA06200C31F1E /* include */,
 			);
 			name = Backend;
 			path = Sources;
@@ -1736,6 +1736,15 @@
 				EE93C79C0B901DF500FBD885 /* Info ViewTest.plist */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		EED24EBF0D10395600D4D9B0 /* MacPorts Includes */ = {
+			isa = PBXGroup;
+			children = (
+				EEDB39880ABDA06200C31F1E /* include */,
+			);
+			name = "MacPorts Includes";
+			path = Sources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -176,11 +176,12 @@ static NSUserDefaults *__sharedDefaults = nil;
 	if (!_defaultsDatabase)
 		{
 		_defaultsDatabase = [[NSString stringWithFormat:@"%@/%@", home, __userDefaultsDB] retain];  // the defaults directory
-		if(![[NSFileManager defaultManager] createDirectoryAtPath:_defaultsDatabase
+		if(![[NSFileManager defaultManager] fileExistsAtPath:_defaultsDatabase] && 
+		   ![[NSFileManager defaultManager] createDirectoryAtPath:_defaultsDatabase
 									  withIntermediateDirectories:YES
 													   attributes:nil
 															error:NULL])	// try to create
-			[NSException raise:NSGenericException format:@"NSUserDefaults: could not create user defaults database'%@'", _defaultsDatabase];
+			[NSException raise:NSGenericException format:@"NSUserDefaults: could not create user defaults database '%@'", _defaultsDatabase];
 		}
 	_searchList = [[NSMutableArray array] retain];	// start with an empty search list
 	_tempDomains = [[NSMutableDictionary dictionaryWithCapacity:10] retain];	// set volatile domains

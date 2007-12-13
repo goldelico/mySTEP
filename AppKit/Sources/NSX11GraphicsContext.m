@@ -1320,19 +1320,19 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 // does not handle rotation
 // ignores CTM scaling (mostly!)
 
-- (void) _drawGlyphBitmap:(unsigned char *) buffer atPoint:(NSPoint) pnt left:(int) left top:(int) top width:(unsigned) width height:(unsigned) height;
+- (void) _drawGlyphBitmap:(unsigned char *) buffer x:(int) x y:(int) y width:(unsigned) width height:(unsigned) height;
 { // paint to screen
 	// we could also (re)use an NSBitmapImageRep and fill it appropriately by alpha/rgb
 	// the bitmap is a grey level bitmap - so how do we colorize?
 	// how do we handle compositing?
 	XImage *img;
 	int screen_number=XScreenNumberOfScreen(_nsscreen->_screen);
-	int x=pnt.x+_cursor.x;	// relative to cursor position
-	int y=pnt.y+_cursor.y;
 	int pxx, pxy;
 	XGCValues values;
 	BOOL mustFetch;
 	struct RGBA8 stroke;
+	x+=_cursor.x;	// relative to cursor position
+	y+=_cursor.y;
 #if 0
 	NSLog(@"_drawGlyphBitmap");
 	NSLog(@"size={%d %d}", width, height);
@@ -1346,7 +1346,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		{ // we must really fetch the current image from our context
 			// FIXME: this is quite slow even if we have double buffering!
 		img=XGetImage(_display, ((Window) _graphicsPort),
-						x+left, y-top, width, height,
+						x, y, width, height,
 						AllPlanes, ZPixmap);
 		}
 	else
@@ -1382,7 +1382,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	values.function=GXcopy;
 	XChangeGC(_display, _state->_gc, GCFunction, &values);	// use X11 copy compositing
-	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, x+left, y-top, width, height);	
+	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, x, y, width, height);	
 	_setDirtyRect(self, x, y, width, height);
 	XDestroyImage(img);
 }

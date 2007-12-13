@@ -9,10 +9,6 @@
 #import <AddressBook/AddressBook.h>
 #import "Private.h"
 
-@interface NSFileManager (Extension)
-- (BOOL) _createDirectoryDownToPath:(NSString *) path;
-@end
-
 @implementation ABAddressBook
 
 - (id) init;
@@ -25,7 +21,11 @@
 		if(!records)
 			{ // create new property dictionaries
 			NSBundle *bndl=[NSBundle bundleForClass:[self class]];
-			[[NSFileManager defaultManager] _createDirectoryDownToPath:[AB_DIRECTORY stringByExpandingTildeInPath]];  // create directory
+			[[NSFileManager defaultManager] createDirectoryAtPath:[AB_DIRECTORY stringByExpandingTildeInPath]
+									  withIntermediateDirectories:YES
+													   attributes:nil
+															error:NULL
+				];  // create directory
 			properties=[NSDictionary dictionaryWithObjectsAndKeys:
 				[[[bndl objectForInfoDictionaryKey:@"ABPerson"] mutableCopy] autorelease], @"ABPerson",
 				[[[bndl objectForInfoDictionaryKey:@"ABGroup"] mutableCopy] autorelease], @"ABGroup",
