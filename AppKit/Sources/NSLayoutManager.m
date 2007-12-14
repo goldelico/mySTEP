@@ -221,7 +221,9 @@
 				}
 			case '\t':
 				{
-					float tabwidth=8.0*[font _sizeOfString:@"x"].width;	// approx. 8 characters
+					float tabwidth;
+					font=[_textStorage attribute:NSFontAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
+					tabwidth=8.0*[font _sizeOfString:@"x"].width;	// approx. 8 characters
 					pos.x=(1+(int)((pos.x-origin.x)/tabwidth))*tabwidth+origin.x;
 					// FIXME: check if we need a new line
 					rangeLimit.location++;
@@ -252,7 +254,7 @@
 				}
 			case ' ':
 				{ // advance to next character position but don't draw a glyph
-					NSFont *font=[_textStorage attribute:NSFontAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
+					font=[_textStorage attribute:NSFontAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
 					pos.x+=[font _sizeOfString:@" "].width;		// width of space
 					// [ctxt _gotohpos:pos.x];
 					rangeLimit.location++;

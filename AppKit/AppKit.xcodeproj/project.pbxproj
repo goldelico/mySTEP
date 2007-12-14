@@ -659,6 +659,10 @@
 		EEA3F8970BEDD66A00E39682 /* FontPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEA3F8920BEDD66A00E39682 /* FontPanel.nib */; };
 		EEACF8A509ED3A9F0085F56E /* NSDrawer.m in Sources */ = {isa = PBXBuildFile; fileRef = EEACF8A409ED3A9F0085F56E /* NSDrawer.m */; };
 		EEACF8A609ED3A9F0085F56E /* NSDrawer.m in Sources */ = {isa = PBXBuildFile; fileRef = EEACF8A409ED3A9F0085F56E /* NSDrawer.m */; };
+		EEB143C50D1260A2001212B5 /* NSTrackingArea.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB143C30D1260A2001212B5 /* NSTrackingArea.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEB143C60D1260A2001212B5 /* NSTrackingArea.m in Sources */ = {isa = PBXBuildFile; fileRef = EEB143C40D1260A2001212B5 /* NSTrackingArea.m */; };
+		EEB143C70D1260A2001212B5 /* NSTrackingArea.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB143C30D1260A2001212B5 /* NSTrackingArea.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEB143C80D1260A2001212B5 /* NSTrackingArea.m in Sources */ = {isa = PBXBuildFile; fileRef = EEB143C40D1260A2001212B5 /* NSTrackingArea.m */; };
 		EEC8033D09AE4EB6006EEB03 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE31970609AB7E8B0089A9A2 /* MainMenu.nib */; };
 		EEC8033F09AE4EB6006EEB03 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3196E309AB7E8A0089A9A2 /* AppController.m */; };
 		EEC8034009AE4EB6006EEB03 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31970C09AB7E8B0089A9A2 /* main.m */; };
@@ -1082,7 +1086,9 @@
 		EEA3F8910BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FindPanel.nib; sourceTree = "<group>"; };
 		EEA3F8930BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FontPanel.nib; sourceTree = "<group>"; };
 		EEACF8A409ED3A9F0085F56E /* NSDrawer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDrawer.m; sourceTree = "<group>"; };
-		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEB143C30D1260A2001212B5 /* NSTrackingArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTrackingArea.h; sourceTree = "<group>"; };
+		EEB143C40D1260A2001212B5 /* NSTrackingArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTrackingArea.m; sourceTree = "<group>"; };
+		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEC8036209AE4EBF006EEB03 /* mySTEP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mySTEP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EECD83250A0788DB00EF3E30 /* NSLevelIndicator.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSLevelIndicator.m; sourceTree = "<group>"; };
 		EECD83560A07940600EF3E30 /* NSDatePicker.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDatePicker.m; sourceTree = "<group>"; };
@@ -1410,6 +1416,8 @@
 				EE349C53097027D600CBF42C /* NSShadow.h */,
 				EEA3727109540273001244CF /* NSStringDrawing.h */,
 				EEA3727209540273001244CF /* NSStringDrawing.m */,
+				EEB143C30D1260A2001212B5 /* NSTrackingArea.h */,
+				EEB143C40D1260A2001212B5 /* NSTrackingArea.m */,
 			);
 			name = Drawing;
 			sourceTree = "<group>";
@@ -1922,6 +1930,7 @@
 				EE1227870D059CAF000E4BA5 /* NSCollectionView.h in Headers */,
 				EE1227890D059CAF000E4BA5 /* NSCollectionViewItem.h in Headers */,
 				EE12278F0D059CCC000E4BA5 /* NSGlyphInfo.h in Headers */,
+				EEB143C70D1260A2001212B5 /* NSTrackingArea.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2097,6 +2106,7 @@
 				EE1227830D059CAF000E4BA5 /* NSCollectionView.h in Headers */,
 				EE1227850D059CAF000E4BA5 /* NSCollectionViewItem.h in Headers */,
 				EE12278D0D059CCC000E4BA5 /* NSGlyphInfo.h in Headers */,
+				EEB143C50D1260A2001212B5 /* NSTrackingArea.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2583,6 +2593,7 @@
 				EE1227880D059CAF000E4BA5 /* NSCollectionView.m in Sources */,
 				EE12278A0D059CAF000E4BA5 /* NSCollectionViewItem.m in Sources */,
 				EE1227900D059CCC000E4BA5 /* NSGlyphInfo.m in Sources */,
+				EEB143C80D1260A2001212B5 /* NSTrackingArea.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2701,6 +2712,7 @@
 				EE1227840D059CAF000E4BA5 /* NSCollectionView.m in Sources */,
 				EE1227860D059CAF000E4BA5 /* NSCollectionViewItem.m in Sources */,
 				EE12278E0D059CCC000E4BA5 /* NSGlyphInfo.m in Sources */,
+				EEB143C60D1260A2001212B5 /* NSTrackingArea.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

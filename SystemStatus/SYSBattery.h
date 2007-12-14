@@ -16,12 +16,20 @@
 #import <AppKit/AppKit.h>
 
 @interface SYSBattery : NSObject
+
 + (SYSBattery *) defaultBattery;			// default battery manager
 
-- (float) batteryFillLevel;					// how much filled
+- (float) batteryFillLevel;					// how much filled (0..1)
 - (BOOL) batteryIsCharging;					// is being charged
-- (float) batteryTemperature;				// in Kelvin if available (0 or negative meaning that  we don't know)
-- (NSTimeInterval) remainingBatteryTime;	// estimated remaining time till empty/full - negative value means: unknown
+- (float) batteryTemperature;				// in Kelvin if available (0 or negative meaning that we don't know)
+- (NSTimeInterval) remainingBatteryTime;	// estimated remaining time until empty/full - negative value means: unknown
+
+- (void) sleep;
+- (void) shutdown;
+- (void) reboot;
+- (void) keepAlive;		// trigger watchdog to prevent automatic sleep
+- (void) setBackLightLevel:(float) level;		// 0..1
+- (void) backLight:(BOOL) flag;					// excplicitly on/off
 
 @end
 

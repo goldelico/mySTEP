@@ -238,41 +238,42 @@ id __buttonCellClass = nil;
 	switch(_buttonType=buttonType)
 		{
 		case NSMomentaryLightButton:
-			_highlightMask = NSChangeGrayCellMask | NSChangeBackgroundCellMask;
-			_stateMask = NSNoCellMask;
+			[self setHighlightsBy:NSChangeGrayCellMask | NSChangeBackgroundCellMask];
+			[self showsStateBy:NSNoCellMask];
 			break;
 		case NSMomentaryPushInButton:
-			_highlightMask = NSPushInCellMask | NSChangeGrayCellMask | NSChangeBackgroundCellMask;
-			_stateMask = NSNoCellMask;
+			[self setHighlightsBy:NSPushInCellMask | NSChangeGrayCellMask | NSChangeBackgroundCellMask];
+			[self showsStateBy:NSNoCellMask];
 			break;
 		case NSMomentaryChangeButton:
-			_highlightMask = NSContentsCellMask;
-			_stateMask = NSNoCellMask;
+			[self setHighlightsBy:NSContentsCellMask];
+			[self showsStateBy:NSNoCellMask];
 			break;
 		case NSPushOnPushOffButton:
-			_highlightMask = NSPushInCellMask | NSChangeGrayCellMask | NSChangeBackgroundCellMask;
-			_stateMask = NSChangeGrayCellMask | NSChangeBackgroundCellMask;
+			[self setHighlightsBy:NSPushInCellMask | NSChangeGrayCellMask | NSChangeBackgroundCellMask];
+			[self showsStateBy:NSChangeGrayCellMask | NSChangeBackgroundCellMask];
 			break;
 		case NSOnOffButton:
-			_stateMask = _highlightMask = NSChangeGrayCellMask | NSChangeBackgroundCellMask;
+			[self setHighlightsBy:NSChangeGrayCellMask | NSChangeBackgroundCellMask];
+			[self showsStateBy:NSChangeGrayCellMask | NSChangeBackgroundCellMask];
 			break;
 		case NSToggleButton:
-			_highlightMask = NSPushInCellMask | NSContentsCellMask;
-			_stateMask = NSContentsCellMask;
+			[self setHighlightsBy:NSPushInCellMask | NSContentsCellMask];
+			[self showsStateBy:NSContentsCellMask];
 			break;
 		case NSSwitchButton:
-			_stateMask = _highlightMask = NSContentsCellMask;
-//			[_alternateImage release];
-//			_alternateImage=(NSImage *) [[NSButtonImageSource alloc] initWithName:@"NSSwitch"];
+			[self setHighlightsBy:NSContentsCellMask];
+			[self showsStateBy:NSContentsCellMask];
+			[self setImage:(NSImage *) [[NSButtonImageSource alloc] initWithName:@"NSSwitch"]];
 			[self setImagePosition:NSImageLeft];
-			_c.bordered=NO;	// no Bezel
+			[self setBordered:NO];
 			break;
 		case NSRadioButton:
-			_stateMask = _highlightMask = NSContentsCellMask;
-//			[_alternateImage release];
-//			_alternateImage=(NSImage *) [[NSButtonImageSource alloc] initWithName:@"NSRadioButton"];
+			[self setHighlightsBy:NSContentsCellMask];
+			[self showsStateBy:NSContentsCellMask];
+			[self setImage:(NSImage *) [[NSButtonImageSource alloc] initWithName:@"NSRadioButton"]];
 			[self setImagePosition:NSImageLeft];
-			_c.bordered=NO;	// no Bezel
+			[self setBordered:NO];
 			break;
 		}
 	[self setState:[self state]];		// update our state (to a valid value)

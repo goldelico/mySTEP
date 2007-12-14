@@ -123,9 +123,36 @@ static struct bat getbat(void)
 }
 
 - (float) batteryTemperature;
-{ // in Kelvin if available (0 or negative meaning that  we don't know)
+{ // in Kelvin if available (0 or negative meaning that we don't know)
 	return 0.0;
 }
 
+- (void) sleep;
+{
+	system([[NSSystemStatus sysInfoForKey:@"Sleep"] cString]);
+}
+
+- (void) shutdown;
+{
+	system([[NSSystemStatus sysInfoForKey:@"Shutdown"] cString]);
+}
+
+- (void) reboot;
+{
+	system([[NSSystemStatus sysInfoForKey:@"Reboot"] cString]);
+}
+
+- (void) keepAlive;
+{ // trigger watchdog to prevent automatic sleep
+}
+
+- (void) setBackLightLevel:(float) level;
+{ // 0..1
+}
+
+- (void) backLight:(BOOL) flag;
+{ // excplicitly on/off
+}
+â
 @end
 

@@ -165,6 +165,8 @@
 #import <AppKit/NSTokenFieldCell.h>
 #import <AppKit/NSToolbar.h>
 #import <AppKit/NSToolbarItem.h>
+//#import <AppKit/NSToolbarItemGroup.h>
+#import <AppKit/NSTrackingArea.h>
 #import <AppKit/NSTreeController.h>
 #import <AppKit/NSUserDefaultsController.h>
 #import <AppKit/NSUserInterfaceValidation.h>

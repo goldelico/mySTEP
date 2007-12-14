@@ -140,11 +140,8 @@ static BOOL __userKeyEquivalents = YES;
 	if(self)
 		{
 		[self setAlignment:NSLeftTextAlignment];
-		// [self setButtonType:NSSwitchButton];	// make us a checkbox image/alternate Image
-		// get [[NSBundle sysBundle] imageNamed:...] or something like that
 		[self setOnStateImage:nil]; // set checkmark
 		[self setMixedStateImage:nil]; // set horizontal line
-//		hasSubmenu=NO;
 		}
 	return self;
 }

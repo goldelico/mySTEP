@@ -24,6 +24,8 @@
 		<string>Acer n30 with Letux</string>
 		<key>Shutdown</key>
 		<string>?</string>
+		<key>Reboot</key>
+		<string>?</string>
 		<key>Sleep</key>
 		<string>?</string>
 	</dict>
@@ -48,6 +50,8 @@
 		<key>Product</key>
 		<string>OpenMoko GTA01</string>
 		<key>Shutdown</key>
+		<string>?</string>
+		<key>Reboot</key>
 		<string>?</string>
 		<key>Sleep</key>
 		<string>(sleep 1; echo mem &gt; /sys/power/state) &amp;&amp; exit</string>
@@ -159,7 +163,9 @@
 		<key>SD Control</key>
 		<string>/etc/sdcontrol</string>
 		<key>Shutdown</key>
-		<string>?</string>
+		<string>init 6</string>
+		<key>Reboot</key>
+		<string>init 0</string>
 		<key>Sleep</key>
 		<string>echo suspend &gt; /dev/zapmd &amp;</string>
 		<key>apm</key>
