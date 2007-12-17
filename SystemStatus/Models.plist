@@ -22,9 +22,9 @@
 		<string>/dev/ttySAC1</string>
 		<key>Product</key>
 		<string>Acer n30 with Letux</string>
-		<key>Shutdown</key>
-		<string>?</string>
 		<key>Reboot</key>
+		<string>?</string>
+		<key>Shutdown</key>
 		<string>?</string>
 		<key>Sleep</key>
 		<string>?</string>
@@ -35,6 +35,10 @@
 		<string>echo "0" &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
 		<key>Bluetooth On</key>
 		<string>echo "1" &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
+		<key>GPS Off</key>
+		<string></string>
+		<key>GPS On</key>
+		<string></string>
 		<key>GPS Serial</key>
 		<string>/dev/unknown</string>
 		<key>GSM Commands</key>
@@ -49,9 +53,9 @@
 		<string>Linux</string>
 		<key>Product</key>
 		<string>OpenMoko GTA01</string>
-		<key>Shutdown</key>
-		<string>?</string>
 		<key>Reboot</key>
+		<string>?</string>
+		<key>Shutdown</key>
 		<string>?</string>
 		<key>Sleep</key>
 		<string>(sleep 1; echo mem &gt; /sys/power/state) &amp;&amp; exit</string>
@@ -160,12 +164,12 @@
 		<string>cat /var/lib/pcmcia/stab &amp;&amp; /sbin/cardctl ident &amp;&amp; /sbin/cardctl status &amp;&amp; /sbin/cardctl config</string>
 		<key>Product</key>
 		<string>Sharp Zaurus</string>
+		<key>Reboot</key>
+		<string>init 0</string>
 		<key>SD Control</key>
 		<string>/etc/sdcontrol</string>
 		<key>Shutdown</key>
 		<string>init 6</string>
-		<key>Reboot</key>
-		<string>init 0</string>
 		<key>Sleep</key>
 		<string>echo suspend &gt; /dev/zapmd &amp;</string>
 		<key>apm</key>
