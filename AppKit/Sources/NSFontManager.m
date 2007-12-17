@@ -595,7 +595,7 @@ static NSString *__fontCollections = nil;
 				[attribs objectForKey:NSFontNameAttribute],
 				[attribs objectForKey:NSFontFaceAttribute],
 				[[attribs objectForKey:NSFontTraitsAttribute] objectForKey:NSFontWeightTrait],		// weight
-				[[attribs objectForKey:NSFontTraitsAttribute] objectForKey:NSFontSymbolicTrait],		// traits
+				[[attribs objectForKey:NSFontTraitsAttribute] objectForKey:NSFontSymbolicTrait],	// traits
 				nil];
 			[r addObject:a];
 			}

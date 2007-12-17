@@ -643,8 +643,14 @@ static BOOL changed;
 
 + (BOOL) _record:(NSDictionary *) record matchesAttributes:(NSDictionary *) attributes mandatoryKeys:(NSSet *) keys
 {
-	// match other attributes
-	// mainly Family, Face, Traits, Size
+	NSEnumerator *e=[keys objectEnumerator];
+	NSString *key;
+	while((key=[e nextObject]))
+		{
+		id attr=[attributes objectForKey:key];
+		if(attr && ![attr isEqual:[record objectForKey:key]])
+			return NO;	// explicit No-match
+		}
 	return YES;
 }
 
@@ -655,7 +661,7 @@ static BOOL changed;
 	if(!cache)
 		[self _fonts];	// load from disk
 	if(!name)
-		{ // scan all fonts
+		{ // scan all fonts in cache
 		NSEnumerator *f=[cache objectEnumerator];
 		NSArray *list;
 		while((list=[f nextObject]))
@@ -675,7 +681,6 @@ static BOOL changed;
 			if([self _record:record matchesAttributes:attributes mandatoryKeys:keys])
 				[a addObject:[NSFontDescriptor fontDescriptorWithFontAttributes:record]], limit--;
 		}
-	// search in cache
 	return [a autorelease];
 }
 
