@@ -21,6 +21,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#import "Private.h"
+
 #import "FetchedPropertyEditor.h"
 
 #import "Document.h"

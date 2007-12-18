@@ -25,7 +25,7 @@
 #ifndef _NSPropertyDescription_h_
 #define _NSPropertyDescription_h_
 
-#include <Foundation/NSObject.h>
+#import <Foundation/NSObject.h>
 
 @class NSstring, NSDictionary, NSArray;
 @class NSEntityDescription;
@@ -43,34 +43,19 @@
   NSArray * _validationWarnings;
 }
 
-// Getting and setting general info about the property.
+- (NSEntityDescription *) entity;
+- (BOOL) isOptional;
+- (BOOL) isTransient;
 - (NSString *) name;
 - (void) setName: (NSString *) aName;
-
-- (NSEntityDescription *) entity;
-
-- (BOOL) isOptional;
 - (void) setOptional: (BOOL) flag;
-
-- (BOOL) isTransient;
 - (void) setTransient: (BOOL) flag;
-
-- (NSDictionary *) userInfo;
 - (void) setUserInfo: (NSDictionary *) someUserInfo;
-
-// Controlling validation.
-- (NSArray *) validationPredicates;
-- (NSArray *) validationWarnings;
 - (void) setValidationPredicates: (NSArray *) someValidationPredicates
           withValidationWarnings: (NSArray *) someValidationWarnings;
-
-@end
-
-@interface NSPropertyDescription (GSCoreDataPrivate)
-
-- (void) _setEntity: (NSEntityDescription *) entity;
-
-- (void) _ensureEditableWithReason: (NSString *) aReason;
+- (NSDictionary *) userInfo;
+- (NSArray *) validationPredicates;
+- (NSArray *) validationWarnings;
 
 @end
 

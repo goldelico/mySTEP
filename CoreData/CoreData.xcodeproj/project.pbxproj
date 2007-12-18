@@ -85,6 +85,8 @@
 		EE12FAC40D059075000E4BA5 /* COPYING.fdl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = COPYING.fdl; sourceTree = "<group>"; };
 		EE12FAC50D059087000E4BA5 /* Documentation */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Documentation; sourceTree = "<group>"; };
 		EE12FAE20D0590FD000E4BA5 /* gscoredata-logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "gscoredata-logo.png"; path = "Images/gscoredata-logo.png"; sourceTree = "<group>"; };
+		EEFA7B7F0D185F5C0061DC52 /* CoreDataHeaders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreDataHeaders.h; sourceTree = "<group>"; };
+		EEFA7B800D185F800061DC52 /* Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Private.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +120,7 @@
 				EE12FAC30D05905C000E4BA5 /* README */,
 				EE12FAC50D059087000E4BA5 /* Documentation */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
+				EEFA79D90D1857380061DC52 /* Private */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				089C1665FE841158C02AAC07 /* Resources */,
 				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
@@ -151,9 +154,6 @@
 				EE12FA880D059049000E4BA5 /* CoreData.h */,
 				EE12FA890D059049000E4BA5 /* CoreDataErrors.h */,
 				EE12FA8A0D059049000E4BA5 /* CoreDataErrors.m */,
-				EE12FA8B0D059049000E4BA5 /* CoreDataUtilities.h */,
-				EE12FA8C0D059049000E4BA5 /* GSPersistentStore.h */,
-				EE12FA8D0D059049000E4BA5 /* GSPersistentStore.m */,
 				EE12FA8E0D059049000E4BA5 /* NSAttributeDescription.h */,
 				EE12FA8F0D059049000E4BA5 /* NSAttributeDescription.m */,
 				EE12FA900D059049000E4BA5 /* NSEntityDescription.h */,
@@ -204,6 +204,18 @@
 				32DBCF5E0370ADEE00C91783 /* CoreData_Prefix.pch */,
 			);
 			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		EEFA79D90D1857380061DC52 /* Private */ = {
+			isa = PBXGroup;
+			children = (
+				EEFA7B800D185F800061DC52 /* Private.h */,
+				EEFA7B7F0D185F5C0061DC52 /* CoreDataHeaders.h */,
+				EE12FA8C0D059049000E4BA5 /* GSPersistentStore.h */,
+				EE12FA8D0D059049000E4BA5 /* GSPersistentStore.m */,
+				EE12FA8B0D059049000E4BA5 /* CoreDataUtilities.h */,
+			);
+			name = Private;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

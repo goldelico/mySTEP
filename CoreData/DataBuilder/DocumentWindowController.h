@@ -23,13 +23,13 @@
 
 #import <AppKit/NSWindowController.h>
 #import <AppKit/NSMenu.h>
+#import <CoreData/CoreData.h>
 
 @class NSString, NSNotification;
 @class NSBrowser, NSBox, NSScrollView;
 @class NSMatrix;
 
 @class ModelView, ModelEditor;
-@class NSManagedObjectModel;
 
 /**
  * Main document window controller.
@@ -37,10 +37,10 @@
 
 @interface DocumentWindowController : NSWindowController
 {
-  NSBrowser * browser;
-  ModelView * modelView;
-  NSBox * box;
-  NSScrollView * scrollView;
+  IBOutlet NSBrowser * browser;
+  IBOutlet ModelView * modelView;
+  IBOutlet NSBox * box;
+  IBOutlet NSScrollView * scrollView;
 
   BOOL editorViewSet;
 }
@@ -70,5 +70,26 @@
 - (void) noteConfigurationsChanged: (NSNotification *) notif;
 - (void) noteEntitiesChanged: (NSNotification *) notif;
 - (void) notePropertiesChanged: (NSNotification *) notif;
+
+- (void) createRootBrowserColumnInMatrix: (NSMatrix *) matrix;
+- (void) createConfigurationListInMatrix: (NSMatrix *) matrix;
+- (void) createEntityListInMatrix: (NSMatrix *) matrix;
+- (void) createPropertyListInMatrix: (NSMatrix *) matrix;
+
+- (NSString *) selectedConfiguration;
+- (NSEntityDescription *) selectedEntityFromConfiguration:
+	(NSString *) configuration;
+- (NSPropertyDescription *) selectedPropertyFromEntity:
+	(NSEntityDescription *) entity;
+
+- (BOOL) configurationsBranchSelected;
+- (BOOL) aConfigurationIsSelected;
+- (BOOL) anEntityIsSelected;
+
+@end
+
+@interface NSManagedObjectModel (Private)
+
+- (NSDictionary *) entitiesByNameForConfiguration: (NSString *) configuration;
 
 @end

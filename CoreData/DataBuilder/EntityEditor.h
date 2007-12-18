@@ -28,10 +28,10 @@
 
 @interface EntityEditor : ModelEditor
 {
-  id name;
-  id abstract;
-  id objectClassName;
-  id superentity;
+  IBOutlet NSTextField *name;
+  IBOutlet id abstract;
+  IBOutlet NSTextField *objectClassName;
+  IBOutlet id superentity;
 
   NSEntityDescription * entity;
   NSString * configuration;

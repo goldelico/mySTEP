@@ -20,9 +20,12 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#import "Private.h"
+
 #import "EntityEditor.h"
 
 #import "Document.h"
+#import "DocumentWindowController.h"
 
 @interface EntityEditor (Private)
 
@@ -113,7 +116,6 @@
 
 - (void) refresh: sender
 {
-  NSMutableArray * entityNames;
 
   [name setStringValue: [entity name]];
   [abstract setState: [entity isAbstract]];
@@ -146,9 +148,11 @@
   e = [entities objectEnumerator];
   while ((otherEntity = [e nextObject]) != nil)
     {
-      if (otherEntity != entity &&
-        [otherEntity isSubentityOfEntity: entity] == NO)
-        {
+	  NSEntityDescription *current = otherEntity;
+	  while (current && current != entity && ![current isEqual: entity])
+		  current = [current superentity];
+	  if(!current)
+        { // ok, otherEntity is not a subentity
           [entityNames addObject: [otherEntity name]];
         }
     }
@@ -218,7 +222,7 @@
 
 - (void) updateObjectClassName: (id)sender
 {
-  if ([objectClassName length] > 0)
+  if ([[objectClassName stringValue] length] > 0)
     {
       [[document undoManager] setActionName: _(@"Set Object Class Name")];
       [document setManagedObjectClassName: [objectClassName stringValue]

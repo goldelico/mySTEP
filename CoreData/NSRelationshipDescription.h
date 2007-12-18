@@ -25,7 +25,7 @@
 #ifndef _NSRelationshipDescription_h_
 #define _NSRelationshipDescription_h_
 
-#include <CoreData/NSPropertyDescription.h>
+#import <CoreData/NSPropertyDescription.h>
 
 typedef enum {
         NSNoActionDeleteRule,

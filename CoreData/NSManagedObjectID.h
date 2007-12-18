@@ -25,7 +25,7 @@
 #ifndef _NSManagedObjectID_h_
 #define _NSManagedObjectID_h_
 
-#include <Foundation/NSObject.h>
+#import <Foundation/NSObject.h>
 
 @class NSURL;
 @class NSEntityDescription;
@@ -42,28 +42,6 @@
 - (BOOL) isTemporaryID;
 - (id) persistentStore;
 - (NSURL *) URIRepresentation;
-
-#ifndef NO_GNUSTEP
-- (BOOL) isEqualToManagedObjectID: (NSManagedObjectID *) otherID;
-- (BOOL) isEqual: (id) otherObject;
-#endif
-
-@end
-
-
-// Don't invoke these manually - Core Data uses them internally.
-@interface NSManagedObjectID (GSCoreDataPrivate)
-
-// initializes a temporary ID
-- (id) _initWithEntity: (NSEntityDescription *) entity;
-
-// initializes a permanent ID
-- (id) _initWithEntity: (NSEntityDescription *) entity
-       persistentStore: (GSPersistentStore *) persistentStore
-                 value: (unsigned long long) value;
-
-// returns the ID's value
-- (unsigned long long) _value;
 
 @end
 

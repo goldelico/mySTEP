@@ -25,8 +25,8 @@
 #ifndef _NSPersistentStoreCoordinator_h_
 #define _NSPersistentStoreCoordinator_h_
 
-#include <Foundation/NSObject.h>
-#include <Foundation/NSLock.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSLock.h>
 
 @class NSString,
        NSDictionary,
@@ -81,26 +81,6 @@ extern NSString * const NSStoreUUIDKey;
    */
   BOOL _acquiredModel;
 }
-
-#ifndef NO_GNUSTEP
-
-/**
- * With this you can teach Core Data about new stores types at runtime.
- * The provided class must be a subclass of GSPersistentStore, otherwise
- * an NSInvalidArgumentException is thrown.
- *
- * The method emmits a warning if you try to replace an already defined
- * store type with a different class.
- */
-+ (void) addPersistentStoreType: (NSString *) newStoreType
-                 handledByClass: (Class) aClass;
-
-/**
- * Returns the store types which Core Data knows about.
- */
-+ (NSArray *) supportedPersistentStoreTypes;
-
-#endif // NO_GNUSTEP
 
 // Initialization.
 - (id) initWithManagedObjectModel: (NSManagedObjectModel *) aModel;

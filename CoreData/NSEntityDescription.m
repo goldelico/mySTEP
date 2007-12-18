@@ -22,7 +22,7 @@
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
  */
 
-#include "CoreData.h"
+#import "CoreDataHeaders.h"
 
 // Ensures the entity can be edited. Raises an NSGenericException
 // if the passed model is not nil and is not editable, with a reason
@@ -30,24 +30,17 @@
 static inline void EnsureEntityEditable(NSManagedObjectModel * model,
                                         NSString * reason)
 {
-  if (model != nil && [model isEditable] == NO)
+  if (model != nil && [model _isEditable] == NO)
     {
       [NSException raise: NSGenericException format: reason];
     }
 }
 
-@interface NSEntityDescription (GSCoreDataInternal)
 
-// generates a name-property index from the current properties.
-// if aClass is not `Nil', then the properties included are
-// required to be of this class kind.
-- (NSDictionary *) filteredPropertiesOfClass: (Class) aClass;
+@implementation NSEntityDescription
 
-@end
 
-@implementation NSEntityDescription (GSCoreDataInternal)
-
-- (NSDictionary *) filteredPropertiesOfClass: (Class) aClass
+- (NSDictionary *) _filteredPropertiesOfClass: (Class) aClass
 {
   NSMutableDictionary * dict;
   NSEnumerator * e;
@@ -66,9 +59,11 @@ static inline void EnsureEntityEditable(NSManagedObjectModel * model,
   return [[dict copy] autorelease];
 }
 
-@end
-
-@implementation NSEntityDescription
+- (NSDictionary *) _fetchedPropertiesByName
+{
+	return [self _filteredPropertiesOfClass: [NSFetchedPropertyDescription
+		class]];
+}
 
 + (NSEntityDescription *) entityForName: (NSString *) entityName
                  inManagedObjectContext: (NSManagedObjectContext *) ctxt
@@ -167,7 +162,7 @@ static inline void EnsureEntityEditable(NSManagedObjectModel * model,
  * Returns YES if the receiver is a subentity (inclusively) of
  * `otherEntity', and NO otherwise.
  */
-- (BOOL) isSubentityOfEntity: (NSEntityDescription *) otherEntity
+- (BOOL) _isSubentityOfEntity: (NSEntityDescription *) otherEntity
 {
   NSEntityDescription * entity;
 
@@ -216,7 +211,7 @@ static inline void EnsureEntityEditable(NSManagedObjectModel * model,
   return _superentity;
 }
 
-- (void) setSuperentity: (NSEntityDescription *) entity
+- (void) _setSuperentity: (NSEntityDescription *) entity
 {
   EnsureEntityEditable(_model, _(@"Tried to set super-entity of an entity "
                                  @"already in use"));
@@ -260,18 +255,12 @@ static inline void EnsureEntityEditable(NSManagedObjectModel * model,
 
 - (NSDictionary *) attributesByName
 {
-  return [self filteredPropertiesOfClass: [NSAttributeDescription class]];
-}
-
-- (NSDictionary *) fetchedPropertiesByName
-{
-  return [self filteredPropertiesOfClass: [NSFetchedPropertyDescription
-    class]];
+  return [self _filteredPropertiesOfClass: [NSAttributeDescription class]];
 }
 
 - (NSDictionary *) relationshipsByName
 {
-  return [self filteredPropertiesOfClass: [NSRelationshipDescription class]];
+  return [self _filteredPropertiesOfClass: [NSRelationshipDescription class]];
 }
 
 - (NSArray *) relationshipsWithDestinationEntity:
@@ -310,7 +299,7 @@ static inline void EnsureEntityEditable(NSManagedObjectModel * model,
   [entity setManagedObjectClassName: _managedObjectClassName];
   [entity setAbstract: _abstract];
   [entity setSubentities: _subentities];
-  [entity setSuperentity: _superentity];
+  [entity _setSuperentity: _superentity];
 
   return entity;
 }
@@ -385,10 +374,6 @@ static inline void EnsureEntityEditable(NSManagedObjectModel * model,
                                 at: &_modelRefCount];
     }
 }
-
-@end
-
-@implementation NSEntityDescription (GSCoreDataPrivate)
 
 /**
  * This makes the receiver refer to the passed model as it's managed

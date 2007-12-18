@@ -21,35 +21,20 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#import "Private.h"
+
 #import "NSFontAdditions.h"
 
 #import <Foundation/NSString.h>
+#import <AppKit/NSFont.h>
+#import <AppKit/NSFontManager.h>
 
 @implementation NSFont (Additions)
 
 + (NSFont *) italicSystemFontOfSize: (float) aSize
 {
-  NSFont * font;
-
-  // try 'Italic'
-  font = [NSFont fontWithName: [[[NSFont boldSystemFontOfSize: 0]
-    fontName] stringByReplacingString: @"Bold" withString: @"Italic"]
-                         size: aSize];
-  if (font != nil)
-    {
-      return font;
-    }
-
-  // try 'Oblique'
-  font = [NSFont fontWithName: [[[NSFont boldSystemFontOfSize: 0]
-    fontName] stringByReplacingString: @"Bold" withString: @"Oblique"]
-                         size: aSize];
-  if (font != nil)
-    {
-      return font;
-    }
-
-  return font;
+  NSFont * font = [NSFont boldSystemFontOfSize: aSize];
+	return [[NSFontManager sharedFontManager] convertFont:font toHaveTrait:NSUnboldFontMask | NSItalicFontMask];
 }
 
 @end

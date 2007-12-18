@@ -24,32 +24,19 @@
 #ifndef _CoreData_h_
 #define _CoreData_h_
 
-#include <Foundation/Foundation.h>
+#import <Foundation/Foundation.h>
 
-#include <CoreData/CoreDataErrors.h>
-#include <CoreData/NSAttributeDescription.h>
-#include <CoreData/NSEntityDescription.h>
-#include <CoreData/NSFetchRequest.h>
-#include <CoreData/NSFetchedPropertyDescription.h>
-#include <CoreData/NSManagedObject.h>
-#include <CoreData/NSManagedObjectContext.h>
-#include <CoreData/NSManagedObjectID.h>
-#include <CoreData/NSManagedObjectModel.h>
-#include <CoreData/NSPersistentStoreCoordinator.h>
-#include <CoreData/NSPropertyDescription.h>
-#include <CoreData/NSRelationshipDescription.h>
-
-#ifndef ASSIGN
-#define ASSIGN(VAR, VAL) [(VAR) autorelease], (VAR)=[(VAL) retain]
-#endif
-#ifndef DESTROY
-#define DESTROY(VAR) [(VAR) release], (VAR)=nil
-#endif
-#ifndef TEST_RELEASE
-#define TEST_RELEASE(VAR) if(VAR) [(VAR) release]
-#endif
-#ifndef _
-#define _(STR) STR
-#endif
+#import <CoreData/CoreDataErrors.h>
+#import <CoreData/NSAttributeDescription.h>
+#import <CoreData/NSEntityDescription.h>
+#import <CoreData/NSFetchRequest.h>
+#import <CoreData/NSFetchedPropertyDescription.h>
+#import <CoreData/NSManagedObject.h>
+#import <CoreData/NSManagedObjectContext.h>
+#import <CoreData/NSManagedObjectID.h>
+#import <CoreData/NSManagedObjectModel.h>
+#import <CoreData/NSPersistentStoreCoordinator.h>
+#import <CoreData/NSPropertyDescription.h>
+#import <CoreData/NSRelationshipDescription.h>
 
 #endif // _CoreData_h_

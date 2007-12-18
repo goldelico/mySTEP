@@ -20,6 +20,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#import "Private.h"
+
 #import <Foundation/Foundation.h>
 #import "ModelView.h"
 
@@ -61,49 +63,80 @@ DrawGridInRect(NSRect r)
                      darkGray = 0.8;
 
   unsigned int i, max;
-
+#if USE_PS
   PSsetgray(lightGray);
+#else
+  [[NSColor colorWithCalibratedWhite:lightGray alpha:1.0] set];
+#endif
   for (i = NSMinX(r) - ((unsigned) NSMinX(r) % ModelViewGridStep),
          max = NSMaxX(r);
        i <= max;
        i += ModelViewGridStep)
     {
+#if USE_PS
       PSmoveto(i, r.origin.y);
       PSrlineto(0, r.size.height);
       PSstroke();
+#else
+	  [NSBezierPath strokeLineFromPoint:NSMakePoint(i, r.origin.y) toPoint:NSMakePoint(i, r.origin.y+r.size.height)];
+#endif
     }
 
+#if USE_PS
   PSsetgray(darkGray);
+#else
+  [[NSColor colorWithCalibratedWhite:darkGray alpha:1.0] set];
+#endif
   for (i = NSMinX(r) - ((unsigned) NSMinX(r) % (10 * ModelViewGridStep)),
          max = NSMaxX(r);
        i <= max;
        i += (10 * ModelViewGridStep))
     {
+#if USE_PS
       PSmoveto(i, r.origin.y);
       PSrlineto(0, r.size.height);
       PSstroke();
+#else
+	  [NSBezierPath strokeLineFromPoint:NSMakePoint(i, r.origin.y) toPoint:NSMakePoint(i, r.origin.y+r.size.height)];
+#endif
     }
 
+#if USE_PS
   PSsetgray(lightGray);
+#else
+  [[NSColor colorWithCalibratedWhite:lightGray alpha:1.0] set];
+#endif
   for (i = NSMinY(r) - ((unsigned) NSMinY(r) % ModelViewGridStep),
          max = NSMaxY(r);
        i <= max;
        i += ModelViewGridStep)
     {
-      PSmoveto(r.origin.x, i);
+#if USE_PS
+     PSmoveto(r.origin.x, i);
       PSrlineto(r.size.width, 0);
       PSstroke();
+#else
+	  [NSBezierPath strokeLineFromPoint:NSMakePoint(i, r.origin.y) toPoint:NSMakePoint(i+r.size.width, r.origin.y)];
+#endif
     }
 
+#if USE_PS
   PSsetgray(darkGray);
+#else
+  [[NSColor colorWithCalibratedWhite:darkGray alpha:1.0] set];
+#endif
   for (i = NSMinY(r) - ((unsigned) NSMinY(r) % (10 * ModelViewGridStep)),
          max = NSMaxY(r);
        i <= max;
        i += (10 * ModelViewGridStep))
     {
-      PSmoveto(r.origin.x, i);
+#if USE_PS
+	  PSmoveto(r.origin.x, i);
       PSrlineto(r.size.width, 0);
       PSstroke();
+#else
+	  [NSBezierPath strokeLineFromPoint:NSMakePoint(i, r.origin.y) toPoint:NSMakePoint(i+r.size.width, r.origin.y)];
+#endif
     }
 }
 
@@ -552,8 +585,7 @@ static const float buttonSize = 22;
 
 - (void) noteConfigurationsChanged: (NSNotification *) notif
 {
-  if (configuration != nil && ![[[model configurationsByName]
-    allKeys] containsObject: configuration])
+  if (configuration != nil && ![[model configurations] containsObject: configuration])
     {
       [self setShowsNoConfiguration];
     }

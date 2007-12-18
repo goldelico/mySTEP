@@ -22,7 +22,7 @@
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
  */
 
-#include "CoreData.h"
+#import "CoreDataHeaders.h"
 
 @implementation NSRelationshipDescription
 
@@ -67,7 +67,7 @@
     ![[_destinationEntity properties] containsObject: relationship])
     {
       [NSException raise: NSInvalidArgumentException
-                  format: _("Tried to set inverse relationship which is not in the destination entity.")];
+                  format: _(@"Tried to set inverse relationship which is not in the destination entity.")];
     }
 
   _inverseRelationship = relationship;

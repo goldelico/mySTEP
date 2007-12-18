@@ -25,7 +25,7 @@
 #ifndef _NSEntityDescription_h_
 #define _NSEntityDescription_h_
 
-#include <Foundation/NSObject.h>
+#import <Foundation/NSObject.h>
 
 @class NSString, NSArray, NSDictionary;
 @class NSManagedObjectModel, NSManagedObjectContext;
@@ -58,57 +58,27 @@
 + (id) insertNewObjectForEntityForName: (NSString *) anEntityName
                 inManagedObjectContext: (NSManagedObjectContext *) aContext;
 
-// Getting and setting the name.
-- (NSString *) name;
-- (void) setName: (NSString *) aName;
-
-- (NSManagedObjectModel *) managedObjectModel;
-
-// Getting and setting the managed object's class name.
-- (NSString *) managedObjectClassName;
-- (void) setManagedObjectClassName: (NSString *) aClassName;
-
-// Controlling abstractness.
-- (BOOL) isAbstract;
-- (void) setAbstract: (BOOL) flag;
-
-#ifndef NO_GNUSTEP
-- (BOOL) isSubentityOfEntity: (NSEntityDescription *) otherEntity;
-#endif
-
-// Manipulating the sub-entities.
-- (NSDictionary *) subentitiesByName;
-- (NSArray *) subentities;
-- (void) setSubentities: (NSArray *) someSubentities;
-
-// Manipulating the super-entity.
-- (NSEntityDescription *) superentity;
-- (void) setSuperentity: (NSEntityDescription *) anEntityDescription;
-
-// Manipulating properties.
-- (NSDictionary *) propertiesByName;
-- (NSArray *) properties;
-- (void) setProperties: (NSArray *) someProperties;
-
-// Getting and setting user info.
-- (NSDictionary *) userInfo;
-- (void) setUserInfo: (NSDictionary *) someUserInfo;
-
-// Convenience methods.
 - (NSDictionary *) attributesByName;
+// - (id) copy;
+- (BOOL) isAbstract;
+- (NSString *) managedObjectClassName;
+- (NSManagedObjectModel *) managedObjectModel;
+- (NSString *) name;
+- (NSArray *) properties;
+- (NSDictionary *) propertiesByName;
 - (NSDictionary *) relationshipsByName;
-#ifndef NO_GNUSTEP
-- (NSDictionary *) fetchedPropertiesByName;
-#endif
-- (NSArray *) relationshipsWithDestinationEntity:
-  (NSEntityDescription *) destinationEntity;
-
-@end
-
-@interface NSEntityDescription (GSCoreDataPrivate)
-
-- (void) _addReferenceToManagedObjectModel: (NSManagedObjectModel *) aModel;
-- (void) _removeReferenceToManagedObjectModel: (NSManagedObjectModel *) aModel;
+- (NSArray *) relationshipsWithDestinationEntity:(NSEntityDescription *) _destinationEntity;
+- (void) setAbstract: (BOOL) flag;
+- (void) setManagedObjectClassName: (NSString *) aClassName;
+- (void) setName: (NSString *) aName;
+- (void) setProperties: (NSArray *) someProperties;
+- (void) setSubentities: (NSArray *) someSubentities;
+- (void) setUserInfo: (NSDictionary *) someUserInfo;
+- (NSArray *) subentities;
+- (NSDictionary *) subentitiesByName;
+- (NSEntityDescription *) superentity;
+- (NSDictionary *) userInfo;
+- (BOOL) _isSubentityOfEntity: (NSEntityDescription *) otherEntity;
 
 @end
 

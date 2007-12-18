@@ -21,6 +21,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#import "Private.h"
+
 #import "DocumentWindowController.h"
 
 #import <CoreData/CoreData.h>
@@ -49,26 +51,7 @@
 #define CONFIGURATIONS_ROW              0
 #define FETCH_REQUESTS_ROW              1
 
-@interface DocumentWindowController (Private)
-
-- (void) createRootBrowserColumnInMatrix: (NSMatrix *) matrix;
-- (void) createConfigurationListInMatrix: (NSMatrix *) matrix;
-- (void) createEntityListInMatrix: (NSMatrix *) matrix;
-- (void) createPropertyListInMatrix: (NSMatrix *) matrix;
-
-- (NSString *) selectedConfiguration;
-- (NSEntityDescription *) selectedEntityFromConfiguration:
-  (NSString *) configuration;
-- (NSPropertyDescription *) selectedPropertyFromEntity:
-  (NSEntityDescription *) entity;
-
-- (BOOL) configurationsBranchSelected;
-- (BOOL) aConfigurationIsSelected;
-- (BOOL) anEntityIsSelected;
-
-@end
-
-@implementation DocumentWindowController (Private)
+@implementation DocumentWindowController
 
 - (void) createRootBrowserColumnInMatrix: (NSMatrix *) matrix
 {
@@ -91,7 +74,6 @@
 - (void) createConfigurationListInMatrix: (NSMatrix *) matrix
 {
   NSBrowserCell * cell;
-  NSFont * font;
   NSEnumerator * e;
   NSString * configName;
   unsigned int i;
@@ -243,10 +225,6 @@
 {
   return ([browser selectedRowInColumn: ENTITIES_COLUMN] >= 0);
 }
-
-@end
-
-@implementation DocumentWindowController
 
 - (void) dealloc
 {
@@ -688,7 +666,8 @@
     }
   else
     {
-      return [super validateMenuItem: (NSMenuItem *) menuItem];
+	  return NO;
+//      return [super validateMenuItem: (NSMenuItem *) menuItem];
     }
 }
 
@@ -739,3 +718,24 @@
 }
 
 @end
+
+@implementation NSManagedObjectModel (Private)
+
+- (NSDictionary *) entitiesByNameForConfiguration: (NSString *) configuration
+{
+	NSArray * entities = [self entitiesForConfiguration: configuration];
+	NSMutableDictionary * entitiesByName = [NSMutableDictionary
+    dictionaryWithCapacity: [entities count]];
+	NSEnumerator * e = [entities objectEnumerator];
+	NSEntityDescription * entity;
+	
+	while ((entity = [e nextObject]) != nil)
+		{
+		[entitiesByName setObject: entity forKey: [entity name]];
+		}
+	
+	return [[entitiesByName copy] autorelease];
+}
+
+@end
+

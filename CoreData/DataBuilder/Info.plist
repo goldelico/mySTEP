@@ -9,28 +9,28 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>????</string>
+				<string>gsdatamodel</string>
 			</array>
 			<key>CFBundleTypeIconFile</key>
-			<string></string>
+			<string>gsdatamodel</string>
 			<key>CFBundleTypeName</key>
-			<string>DocumentType</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>????</string>
-			</array>
+			<string>DocumentWindow</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
 			<key>NSDocumentClass</key>
-			<string>MyDocument</string>
+			<string>Document</string>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>Binary</string>
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>DataBuilder</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.DataBuilder</string>
+	<string>org.gnustep.DataBuilder</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -42,7 +42,7 @@
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>NSMainNibFile</key>
-	<string>MainMenu</string>
+	<string>DataBuilder</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>

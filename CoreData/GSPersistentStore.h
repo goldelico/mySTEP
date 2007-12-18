@@ -78,8 +78,12 @@
                                     error: (NSError **) error;
 - (NSDictionary *) fetchObjectWithID: (NSManagedObjectID *) objectID
                      fetchProperties: (NSSet *) propertiesToFetch;
+- (NSDictionary *) fetchObjectsWithEntity: (NSEntityDescription *) entity
+                                predicate: (NSPredicate *) predicate
+                                    error: (NSError **) error;
 - (BOOL) writeSavingObjects: (NSSet *) objectsToWrite
-            deletingObjects: (NSSet *) error;
+			deletingObjects: (NSSet *) objectIDsToDelete
+                      error: (NSError **) error;
 @end
 
 #endif // _GSPersistentStore_h_

@@ -23,8 +23,9 @@
 
 #import <Foundation/NSObject.h>
 
+#import <CoreData/NSManagedObjectModel.h>
+
 @class NSView, NSWindow;
-@class NSManagedObjectModel;
 @class Document;
 
 /**

@@ -1,7 +1,7 @@
 {
     IBClasses = (
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
-        {CLASS = MyDocument; LANGUAGE = ObjC; SUPERCLASS = NSDocument; }
+        {CLASS = Document; LANGUAGE = ObjC; SUPERCLASS = NSDocument; }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
     ); 
     IBVersion = 1; 
 }

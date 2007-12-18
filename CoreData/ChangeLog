@@ -1,3 +1,8 @@
+2007-12-13	Nikolaus Schaller <hns@computer.org>
+
+        * made compile on MacOS X and mySTEP
+		* renamed all private methods to begin with underscore
+
 2005-02-02  Saso Kiselkov <diablos@manga.sk>
 
         * NSManagedObjectContext.m: refined exception reasons to include

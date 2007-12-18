@@ -25,7 +25,7 @@
 #ifndef _NSAttributeDescription_h_
 #define _NSAttributeDescription_h_
 
-#include <CoreData/NSPropertyDescription.h>
+#import <CoreData/NSPropertyDescription.h>
 
 typedef enum {
         NSUndefinedAttributeType = 0,
@@ -46,21 +46,17 @@ typedef enum {
 @interface NSAttributeDescription : NSPropertyDescription
 {
   NSAttributeType _attributeType;
-  NSString * _attributeValueClassName;
   id _defaultValue;
 }
 
 // Getting and setting the attribute type.
 - (NSAttributeType) attributeType;
-- (void) setAttributeType: (NSAttributeType) anAttributeType;
 - (NSString *) attributeValueClassName;
-#ifndef NO_GNUSTEP
-- (void) setAttributeValueClassName: (NSString *) aClassName;
-#endif
+- (id) defaultValue;
+- (void) setAttributeType: (NSAttributeType) anAttributeType;
+- (void) setDefaultValue: (id) aValue;
 
 // Getting and setting the default value.
-- (id) defaultValue;
-- (void) setDefaultValue: (id) aValue;
 
 @end
 

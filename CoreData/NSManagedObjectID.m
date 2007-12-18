@@ -22,22 +22,8 @@
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
  */
 
-#include "NSManagedObjectID.h"
-
-#include "CoreData.h"
-
-#include <Foundation/NSObject.h>
-#include <Foundation/NSURL.h>
-#include <Foundation/NSString.h>
-#include <Foundation/NSBundle.h>
-#include <Foundation/NSException.h>
-#include <Foundation/NSCharacterSet.h>
-#include <Foundation/NSDictionary.h>
-#include <Foundation/NSLock.h>
-
-#include "GSPersistentStore.h"
-#include "NSPersistentStoreCoordinator.h"
-#include "NSEntityDescription.h"
+#import "CoreDataHeaders.h"
+#import "GSPersistentStore.h"
 
 @interface NSManagedObjectID (GSCoreDataInternal)
 
@@ -127,7 +113,7 @@
  *
  * @return YES if the receiver is equal to the other object ID, NO otherwise.
  */
-- (BOOL) isEqualToManagedObjectID: (NSManagedObjectID *) otherID
+- (BOOL) _isEqualToManagedObjectID: (NSManagedObjectID *) otherID
 {
   if ([_entity isEqual: [otherID entity]] == NO)
     {

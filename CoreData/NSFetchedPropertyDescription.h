@@ -25,7 +25,7 @@
 #ifndef _NSFetchedPropertyDescription_h_
 #define _NSFetchedPropertyDescription_h_
 
-#include <CoreData/NSPropertyDescription.h>
+#import <CoreData/NSPropertyDescription.h>
 
 @class NSFetchRequest;
 

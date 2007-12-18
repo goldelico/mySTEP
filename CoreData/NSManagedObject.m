@@ -22,28 +22,7 @@
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
  */
 
-#include "NSManagedObject.h"
-
-#include "CoreData.h"
-
-#include <Foundation/NSException.h>
-#include <Foundation/NSString.h>
-#include <Foundation/NSDictionary.h>
-#include <Foundation/NSArray.h>
-#include <Foundation/NSBundle.h>
-#include <Foundation/NSInvocation.h>
-#include <Foundation/NSKeyValueCoding.h>
-#include <Foundation/NSKeyValueObserving.h>
-#include <Foundation/NSSet.h>
-#include <Foundation/NSError.h>
-
-#include "NSAttributeDescription.h"
-#include "NSRelationshipDescription.h"
-#include "NSEntityDescription.h"
-#include "NSManagedObjectContext.h"
-#include "NSManagedObjectID.h"
-#include "CoreDataErrors.h"
-#include "CoreDataUtilities.h"
+#import "CoreDataHeaders.h"
 
 /**
  * Finds out whether the passed object is a collection object.
@@ -190,7 +169,7 @@ ValidateRelationshipValue(NSRelationshipDescription * relationship,
 
               return NO;
             }
-          if ([[obj entity] isSubentityOf: destEntity] == NO)
+          if ([[obj entity] _isSubentityOf: destEntity] == NO)
             {
               SetNonNullError(error, [NSError
                 errorWithDomain: NSCoreDataErrorDomain
@@ -224,7 +203,7 @@ ValidateRelationshipValue(NSRelationshipDescription * relationship,
           return NO;
         }
 
-      if ([[value entity] isSubentityOf: destEntity] == NO)
+      if ([[value entity] _isSubentityOf: destEntity] == NO)
         {
           SetNonNullError(error, [NSError
             errorWithDomain: NSCoreDataErrorDomain
@@ -245,30 +224,6 @@ ValidateRelationshipValue(NSRelationshipDescription * relationship,
       return NO;
     }
 }*/
-
-@interface NSManagedObject (GSCoreDataInternal)
-
-- (NSPropertyDescription *) _validatedPropertyForKey: (NSString *) key;
-
-/**
- * 
- */
-- (NSArray *) _allPropertiesOfSubclass: (Class) aClass;
-
-- (BOOL) _validateValue: (id *) value
-                 forKey: (NSString *) key
-                  error: (NSError **) error
-               property: (NSPropertyDescription *) desc;
-
-- (id) _primitiveValueForKey: (NSString *) key doValidation: (BOOL) flag;
-
-- (void) _setPrimitiveValue: (id) value
-                     forKey: (NSString *) key
-               doValidation: (BOOL) validationFlag;
-
-- (void) _fireFault;
-
-@end
 
 /**
  * Instances of NSManagedObject (and subclasses of it) are the objects
@@ -662,9 +617,6 @@ ValidateRelationshipValue(NSRelationshipDescription * relationship,
                   usingObjects: objects];
 }
 
-@end
-
-@implementation NSManagedObject (GSCoreDataPrivate)
 
 /**
  * Allows to initialize a managed object with explicitly defining whether
@@ -760,10 +712,6 @@ ValidateRelationshipValue(NSRelationshipDescription * relationship,
 
   _context = nil;
 }
-
-@end
-
-@implementation NSManagedObject (GSCoreDataInternal)
 
 /**
  * Ensures the given key is valid (it exists in the data model).

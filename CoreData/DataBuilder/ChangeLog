@@ -1,3 +1,9 @@
+2007-12-18      Nikolaus Schaller <hns@computer.org>
+
+        * use NSBezierPath instead of PSOperators
+        * made compile on MacOS X and mySTEP
+		* use NSFontManager to get italic system font
+
 2005-10-01      Saso Kiselkov <diablos@manga.sk>
 
         * Implemented "Revert To Saved".

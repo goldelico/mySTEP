@@ -21,6 +21,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#import "Private.h"
+
 #import "Document.h"
 
 #import <CoreData/CoreData.h>
@@ -633,7 +635,8 @@ NSString
                         object: oldSuperentity];
     }
 
-  [entity setSuperentity: superentity];
+/////   [entity setSuperentity: superentity];
+
   [nc postNotificationName: EntityDidChangeNotification
                     object: entity];
 
@@ -669,7 +672,20 @@ NSString
   [[[self undoManager] prepareWithInvocationTarget: self]
     setAttributeValueClassName: oldClassName ofAttribute: attribute];
 
-  [attribute setAttributeValueClassName: className];
+  // FIXME: translate classname to attribute type!
+/*  NSUndefinedAttributeType = 0,
+	  NSInteger16AttributeType = 100,
+	  NSInteger32AttributeType = 200,
+	  NSInteger64AttributeType = 300,
+	  NSDecimalAttributeType = 400,
+	  NSDoubleAttributeType = 500,
+	  NSFloatAttributeType = 600,
+	  NSStringAttributeType = 700,
+	  NSBooleanAttributeType = 800,
+	  NSDateAttributeType = 900,
+	  NSBinaryDataAttributeType = 1000
+*/	  
+ // [attribute setAttributeValueClassName: className];
   [[NSNotificationCenter defaultCenter]
     postNotificationName: PropertyDidChangeNotification
                   object: attribute];

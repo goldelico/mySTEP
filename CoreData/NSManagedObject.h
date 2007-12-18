@@ -25,10 +25,10 @@
 #ifndef _NSManagedObject_h_
 #define _NSManagedObject_h_
 
-#include <Foundation/NSObject.h>
-#include <Foundation/NSArray.h>  // temporary workaround for
+#import <Foundation/NSObject.h>
+#import <Foundation/NSArray.h>  // temporary workaround for
                                  // NSKeyValueObserving.h include bug
-#include <Foundation/NSKeyValueObserving.h>
+#import <Foundation/NSKeyValueObserving.h>
 
 @class NSString, NSMutableDictionary, NSDictionary, NSSet, NSError;
 @class NSManagedObjectContext, NSEntityDescription, NSManagedObjectID;
@@ -103,21 +103,6 @@
 - (void) willChangeValueForKey: (NSString *) aKey
                withSetMutation: (NSKeyValueSetMutationKind) aMutationKind
                   usingObjects: (NSSet *) someObjects;
-
-@end
-
-@interface NSManagedObject (GSCoreDataPrivate)
-
-- (id) _initAsFaultWithEntity: (NSEntityDescription *) entity
-               ownedByContext: (NSManagedObjectContext *) context;
-
-- (void) _setObjectID: (NSManagedObjectID *) newID;
-
-- (void) _setDeleted: (BOOL) flag;
-- (void) _setFault: (BOOL) flag;
-
-- (void) _insertedIntoContext: (NSManagedObjectContext *) context;
-- (void) _removedFromContext;
 
 @end
 

@@ -25,7 +25,7 @@
 #ifndef _NSFetchRequest_h_
 #define _NSFetchRequest_h_
 
-#include <Foundation/NSObject.h>
+#import <Foundation/NSObject.h>
 
 @class NSArray, NSPredicate;
 @class NSEntityDescription;
@@ -41,11 +41,11 @@
 
 #ifndef NO_GNUSTEP
 
-- (id) initWithAffectedStores: (NSArray *) affectedStores
-                       entity: (NSEntityDescription *) entity
-                   fetchLimit: (unsigned int) fetchLimit
-                    predicate: (NSPredicate *) predicate
-              sortDescriptors: (NSArray *) sortDescriptors;
+- (id) _initWithAffectedStores: (NSArray *) affectedStores
+						entity: (NSEntityDescription *) entity
+					fetchLimit: (unsigned int) fetchLimit
+					 predicate: (NSPredicate *) predicate
+			   sortDescriptors: (NSArray *) sortDescriptors;
 
 #endif // NO_GNUSTEP
 

@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
-		8D15AC2D0486D014006FF6A4 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B6FDCFA73011CA2CEA /* MainMenu.nib */; };
-		8D15AC2E0486D014006FF6A4 /* MyDocument.nib in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B4FDCFA73011CA2CEA /* MyDocument.nib */; };
 		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
@@ -38,6 +36,8 @@
 		EE120C570D0593F1000E4BA5 /* InheritanceView.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE120C4D0D0593F1000E4BA5 /* InheritanceView.tiff */; };
 		EE120C580D0593F1000E4BA5 /* RelationshipView.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE120C4E0D0593F1000E4BA5 /* RelationshipView.tiff */; };
 		EEA875350D07D9E3002C296E /* mySTEP.make in Resources */ = {isa = PBXBuildFile; fileRef = EEA875340D07D9E3002C296E /* mySTEP.make */; };
+		EEFA7D560D1874C10061DC52 /* DocumentWindow.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEFA7D4A0D1874C10061DC52 /* DocumentWindow.nib */; };
+		EEFA7D570D1874C10061DC52 /* DataBuilder.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEFA7D4C0D1874C10061DC52 /* DataBuilder.nib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,14 +45,13 @@
 		1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FBA07B3F13500E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		2A37F4B0FDCFA73011CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		2A37F4B5FDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MyDocument.nib; sourceTree = "<group>"; };
-		2A37F4B7FDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32DBCF750370BD2300C91783 /* DataBuilder_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataBuilder_Prefix.pch; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D15AC370486D014006FF6A4 /* DataBuilder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DataBuilder.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE0DCBA00D18283A0007E948 /* Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Private.h; sourceTree = "<group>"; };
 		EE120C0F0D05939E000E4BA5 /* BUGS */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BUGS; sourceTree = "<group>"; };
 		EE120C100D05939E000E4BA5 /* ChangeLog */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ChangeLog; sourceTree = "<group>"; };
 		EE120C110D05939E000E4BA5 /* COPYING */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = COPYING; sourceTree = "<group>"; };
@@ -104,6 +103,8 @@
 		EE120C4D0D0593F1000E4BA5 /* InheritanceView.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = InheritanceView.tiff; path = Images/InheritanceView.tiff; sourceTree = "<group>"; };
 		EE120C4E0D0593F1000E4BA5 /* RelationshipView.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = RelationshipView.tiff; path = Images/RelationshipView.tiff; sourceTree = "<group>"; };
 		EEA875340D07D9E3002C296E /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EEFA7D4B0D1874C10061DC52 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/DocumentWindow.nib; sourceTree = "<group>"; };
+		EEFA7D4D0D1874C10061DC52 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/DataBuilder.nib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -207,6 +208,7 @@
 		2A37F4AFFDCFA73011CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				EE0DCBA00D18283A0007E948 /* Private.h */,
 				32DBCF750370BD2300C91783 /* DataBuilder_Prefix.pch */,
 				2A37F4B0FDCFA73011CA2CEA /* main.m */,
 			);
@@ -216,10 +218,10 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				EEFA7D4A0D1874C10061DC52 /* DocumentWindow.nib */,
+				EEFA7D4C0D1874C10061DC52 /* DataBuilder.nib */,
 				EE120C5B0D0593F6000E4BA5 /* Images */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
-				2A37F4B6FDCFA73011CA2CEA /* MainMenu.nib */,
-				2A37F4B4FDCFA73011CA2CEA /* MyDocument.nib */,
 				8D15AC360486D014006FF6A4 /* Info.plist */,
 				089C165FFE840EACC02AAC07 /* InfoPlist.strings */,
 			);
@@ -295,8 +297,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */,
-				8D15AC2D0486D014006FF6A4 /* MainMenu.nib in Resources */,
-				8D15AC2E0486D014006FF6A4 /* MyDocument.nib in Resources */,
 				8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */,
 				EE120C4F0D0593F1000E4BA5 /* DataBuilder.tiff in Resources */,
 				EE120C500D0593F1000E4BA5 /* EntityLower_sel.tiff in Resources */,
@@ -309,6 +309,8 @@
 				EE120C570D0593F1000E4BA5 /* InheritanceView.tiff in Resources */,
 				EE120C580D0593F1000E4BA5 /* RelationshipView.tiff in Resources */,
 				EEA875350D07D9E3002C296E /* mySTEP.make in Resources */,
+				EEFA7D560D1874C10061DC52 /* DocumentWindow.nib in Resources */,
+				EEFA7D570D1874C10061DC52 /* DataBuilder.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -326,7 +328,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=*.m\"   # all source codes\nexport LIBS=\t\t  \t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=CoreData\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Developer/Applications   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=*.m   # all source codes\nexport LIBS=\t\t  \t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=CoreData\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Developer/Applications   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -364,28 +366,28 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		2A37F4B4FDCFA73011CA2CEA /* MyDocument.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2A37F4B5FDCFA73011CA2CEA /* English */,
-			);
-			name = MyDocument.nib;
-			sourceTree = "<group>";
-		};
-		2A37F4B6FDCFA73011CA2CEA /* MainMenu.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2A37F4B7FDCFA73011CA2CEA /* English */,
-			);
-			name = MainMenu.nib;
-			sourceTree = "<group>";
-		};
 		2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */ = {
 			isa = PBXVariantGroup;
 			children = (
 				2A37F4BAFDCFA73011CA2CEA /* English */,
 			);
 			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		EEFA7D4A0D1874C10061DC52 /* DocumentWindow.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EEFA7D4B0D1874C10061DC52 /* English */,
+			);
+			name = DocumentWindow.nib;
+			sourceTree = "<group>";
+		};
+		EEFA7D4C0D1874C10061DC52 /* DataBuilder.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EEFA7D4D0D1874C10061DC52 /* English */,
+			);
+			name = DataBuilder.nib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

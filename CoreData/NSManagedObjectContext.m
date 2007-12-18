@@ -22,40 +22,7 @@
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
  */
 
-#include "NSManagedObjectContext.h"
-
-#include "CoreData.h"
-
-#include <Foundation/NSString.h>
-#include <Foundation/NSArray.h> // Needed due to NSKeyValueObserving.h
-                                // include bug.
-#include <Foundation/NSSet.h>
-#include <Foundation/NSUndoManager.h>
-#include <Foundation/NSKeyValueObserving.h>
-#include <Foundation/NSNotification.h>
-#include <Foundation/NSException.h>
-#include <Foundation/NSBundle.h>
-#include <Foundation/NSError.h>
-#include <Foundation/NSPredicate.h>
-
-#include "CoreDataErrors.h"
-
-#include "NSManagedObject.h"
-#include "NSManagedObjectID.h"
-#include "NSPersistentStoreCoordinator.h"
-#include "GSPersistentStore.h"
-#include "NSEntityDescription.h"
-#include "NSPropertyDescription.h"
-#include "NSRelationshipDescription.h"
-#include "NSFetchRequest.h"
-
-// #include "GSMergePolicy.h"
-
-#include "CoreDataUtilities.h"
-
-/*#include "GSErrorMergePolicy.h"
-#include "GSOverwritePolicy.h"
-#include "GSRollbackMergePolicy.h"*/
+#import "CoreDataHeaders.h"
 
 id NSErrorMergePolicy = nil,
    NSMergeByPropertyStoreTrumpMergePolicy = nil,
@@ -478,7 +445,7 @@ RemoveKVOSetupFromObjects(id observer, NSSet * objects)
   e = [_registeredObjects objectEnumerator];
   while ((object = [e nextObject]) != nil)
     {
-      if ([[object objectID] isEqualToManagedObjectID: objectID] == YES)
+      if ([[object objectID] _isEqualToManagedObjectID: objectID] == YES)
         {
           return object;
         }

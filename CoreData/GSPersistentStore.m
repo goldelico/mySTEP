@@ -22,11 +22,8 @@
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
 */
 
-#include "GSPersistentStore.h"
-
-#include <Foundation/Foundation.h>
-
-#include "CoreData.h"
+#import "CoreDataHeaders.h"
+#import "GSPersistentStore.h"
 
 #include <stdlib.h>
 #include <time.h>

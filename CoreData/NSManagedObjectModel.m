@@ -22,23 +22,7 @@
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
  */
 
-#include "NSManagedObjectModel.h"
-
-#include "CoreData.h"
-
-#include <Foundation/NSArray.h>
-#include <Foundation/NSException.h>
-#include <Foundation/NSBundle.h>
-#include <Foundation/NSKeyedArchiver.h>
-#include <Foundation/NSData.h>
-#include <Foundation/NSURL.h>
-#include <Foundation/NSSet.h>
-
-// temporary until we have predicates
-//#include <Foundation/NSPredicate.h>
-
-#include "NSEntityDescription.h"
-#include "NSFetchRequest.h"
+#import "CoreDataHeaders.h"
 
 /**
  * Runs through all the passed entities and ensures that they
@@ -188,7 +172,7 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
         initWithArray: [model entities] copyItems: YES] autorelease]];
 
       [confs addEntriesFromDictionary: [[[NSDictionary alloc]
-        initWithDictionary: [model configurationsByName] copyItems: YES]
+        initWithDictionary: [model _configurationsByName] copyItems: YES]
         autorelease]];
 
       // fetch requests can be shared
@@ -283,7 +267,7 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
   return [NSKeyedUnarchiver unarchiveObjectWithData: data];
 }
 
-- (id) initWithContentsOfFile: (NSString *) file
+- (id) _initWithContentsOfFile: (NSString *) file
 {
   return [self initWithContentsOfURL: [NSURL fileURLWithPath: file]];
 }
@@ -351,22 +335,6 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
   return [_configurations objectForKey: conf];
 }
 
-- (NSDictionary *) entitiesByNameForConfiguration: (NSString *) configuration
-{
-  NSArray * entities = [self entitiesForConfiguration: configuration];
-  NSMutableDictionary * entitiesByName = [NSMutableDictionary
-    dictionaryWithCapacity: [entities count]];
-  NSEnumerator * e = [entities objectEnumerator];
-  NSEntityDescription * entity;
-
-  while ((entity = [e nextObject]) != nil)
-    {
-      [entitiesByName setObject: entity forKey: [entity name]];
-    }
-
-  return [[entitiesByName copy] autorelease];
-}
-
 - (void) setEntities: (NSArray *) entities
     forConfiguration: (NSString *) conf
 {
@@ -391,7 +359,7 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
     }
 }
 
-- (NSDictionary *) configurationsByName
+- (NSDictionary *) _configurationsByName
 {
   return [[_configurations copy] autorelease];
 }
@@ -444,7 +412,7 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
     }
 }
 
-- (void) removeFetchRequestTemplateForName: (NSString *) name
+- (void) _removeFetchRequestTemplateForName: (NSString *) name
 {
   if (_usedByPersistentStoreCoordinators)
     {
@@ -474,7 +442,7 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
   // FIXME: what is this supposed to do ???
 }
 
-- (BOOL) isEditable
+- (BOOL) _isEditable
 {
   return (_usedByPersistentStoreCoordinators == 0);
 }
@@ -563,10 +531,6 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
 
   return model;
 }
-
-@end
-
-@implementation NSManagedObjectModel (GSCoreDataPrivate)
 
 /**
  * Sent by a persistent store coordinator which is associated with the

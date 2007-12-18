@@ -28,8 +28,7 @@
 
 @interface ConfigurationEditor : ModelEditor
 {
-  id name;
-
+  IBOutlet NSTextField *name;
   NSString * configuration;
 }
 

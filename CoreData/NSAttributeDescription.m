@@ -22,17 +22,7 @@
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
  */
 
-#include "NSAttributeDescription.h"
-
-#include <Foundation/NSString.h>
-#include <Foundation/NSArray.h>
-#include <Foundation/NSDictionary.h>
-#include <Foundation/NSBundle.h>
-#include <Foundation/NSException.h>
-#include <Foundation/NSCoder.h>
-
-#include "NSEntityDescription.h"
-#include "NSManagedObjectModel.h"
+#import "CoreDataHeaders.h"
 
 @implementation NSAttributeDescription
 
@@ -50,14 +40,21 @@
 
 - (NSString *) attributeValueClassName
 {
-  return _attributeValueClassName;
-}
-
-- (void) setAttributeValueClassName: (NSString *) name
-{
-  [self _ensureEditableWithReason: @"Tried to set the value class name "
-                                   @"of an attribute already in use."];
-  ASSIGN(_attributeValueClassName, [[name copy] autorelease]);
+	switch(_attributeType)
+		{
+		case NSUndefinedAttributeType: return @"NSNull";
+		case NSInteger16AttributeType: return @"NSNumber";
+		case NSInteger32AttributeType: return @"NSNumber";
+		case NSInteger64AttributeType: return @"NSNumber";
+		case NSDecimalAttributeType: return @"NSDecimalNumber";
+		case NSDoubleAttributeType: return @"NSNumber";
+		case NSFloatAttributeType: return @"NSNumber";
+		case NSStringAttributeType: return @"NSString";
+		case NSBooleanAttributeType: return @"NSNumber";
+		case NSDateAttributeType: return @"NSDate";
+		case NSBinaryDataAttributeType: return @"NSData";
+		}
+	return nil;
 }
 
 - (id) defaultValue
@@ -82,15 +79,15 @@
       if ([coder allowsKeyedCoding])
         {
           _attributeType = [coder decodeIntForKey: @"AttributeType"];
-          ASSIGN(_attributeValueClassName, [coder decodeObjectForKey:
-            @"AttributeValueClassName"]);
+ //         ASSIGN(_attributeValueClassName, [coder decodeObjectForKey:
+  //          @"AttributeValueClassName"]);
           ASSIGN(_defaultValue, [coder decodeObjectForKey: @"DefaultValue"]);
         }
       else
         {
           [coder decodeValueOfObjCType: @encode(NSAttributeType)
                                     at: &_attributeType];
-          ASSIGN(_attributeValueClassName, [coder decodeObject]);
+  //        ASSIGN(_attributeValueClassName, [coder decodeObject]);
           ASSIGN(_defaultValue, [coder decodeObject]);
         }
 
@@ -109,15 +106,15 @@
   if ([coder allowsKeyedCoding])
     {
       [coder encodeInt: _attributeType forKey: @"AttributeType"];
-      [coder encodeObject: _attributeValueClassName
-                   forKey: @"AttributeValueClassName"];
+  //    [coder encodeObject: _attributeValueClassName
+  //               forKey: @"AttributeValueClassName"];
       [coder encodeObject: _defaultValue forKey: @"DefaultValue"];
     }
   else
     {
       [coder encodeValueOfObjCType: @encode(NSAttributeType)
                                 at: &_attributeType];
-      [coder encodeObject: _attributeValueClassName];
+  //    [coder encodeObject: _attributeValueClassName];
       [coder encodeObject: _defaultValue];
     }
 }
@@ -129,7 +126,7 @@
   NSAttributeDescription * attr = [super copyWithZone: zone];
 
   [attr setAttributeType: _attributeType];
-  [attr setAttributeValueClassName: _attributeValueClassName];
+//  [attr setAttributeValueClassName: _attributeValueClassName];
   [attr setDefaultValue: _defaultValue];
 
   return attr;

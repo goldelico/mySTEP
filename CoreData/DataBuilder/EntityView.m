@@ -21,6 +21,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#import "Private.h"
+
 #import "EntityView.h"
 
 #import <Foundation/NSNotification.h>
@@ -166,6 +168,37 @@ LoadSelectedImagesIfNecessary(void)
     }
 }
 
+@interface NSEntityDescription (Private)
+
+- (NSDictionary *) fetchedPropertiesByName;
+
+@end
+
+@implementation NSEntityDescription (Private)
+
+- (NSDictionary *) fetchedPropertiesByName
+{
+	Class aClass = [NSFetchedPropertyDescription class];
+	NSMutableDictionary * dict;
+	NSEnumerator * e;
+	NSPropertyDescription * property;
+	NSArray * properties = [self properties];
+	
+	dict = [NSMutableDictionary dictionaryWithCapacity: [properties count]];
+	e = [properties objectEnumerator];
+	while ((property = [e nextObject]) != nil)
+		{
+		if (aClass == Nil || [property isKindOfClass: aClass])
+			{
+			[dict setObject: property forKey: [property name]];
+			}
+		}
+	
+	return [[dict copy] autorelease];
+}
+
+@end
+
 @interface EntityView (Private)
 
 /**
@@ -299,8 +332,7 @@ LoadSelectedImagesIfNecessary(void)
     {
       if (NSPointInRect(p, r))
         {
-          NSDictionary * fetchedPropertiesByName = [entity
-            fetchedPropertiesByName];
+          NSDictionary * fetchedPropertiesByName = [entity fetchedPropertiesByName];
 
           propertiesByName = [entity fetchedPropertiesByName];
           propertyName =  [[[propertiesByName allKeys]

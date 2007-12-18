@@ -28,13 +28,13 @@
 
 @interface RelationshipEditor : ModelEditor
 {
-  id name;
-  id transient;
-  id optional;
-  id destinationEntity;
-  id inverseRelationship;
-  id maxCount, minCount, toMany;
-  id deleteRule;
+  IBOutlet id name;
+  IBOutlet id transient;
+  IBOutlet id optional;
+  IBOutlet id destinationEntity;
+  IBOutlet id inverseRelationship;
+  IBOutlet id maxCount, minCount, toMany;
+  IBOutlet id deleteRule;
 
   NSRelationshipDescription * relationship;
   NSEntityDescription * entity;

@@ -22,32 +22,8 @@
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
  */
 
-#include "NSPersistentStoreCoordinator.h"
-
-#include "CoreData.h"
-
-#include <Foundation/NSString.h>
-#include <Foundation/NSDictionary.h>
-#include <Foundation/NSArray.h>
-#include <Foundation/NSLock.h>
-#include <Foundation/NSBundle.h>
-#include <Foundation/NSException.h>
-#include <Foundation/NSURL.h>
-#include <Foundation/NSError.h>
-
-/*
-#include "GSSQLitePersistentStore.h"
-#include "GSXMLPersistentStore.h"
-#include "GSBinaryStoreType.h"
-#include "GSInMemoryStoreType.h"
-*/
-
-#include "GSPersistentStore.h"
-#include "NSManagedObjectID.h"
-#include "NSManagedObjectModel.h"
-
-#include "CoreDataUtilities.h"
-#include "CoreDataErrors.h"
+#import "CoreDataHeaders.h"
+#import "GSPersistentStore.h"
 
 NSString
   * const NSSQLiteStoreType = @"NSSQLiteStoreType",
@@ -299,7 +275,7 @@ static NSMutableDictionary * persistentStoreTypes = nil;
     }
   else
     {
-      entity = [[_model entitiesByNameForConfiguration: [store configuration]]
+      entity = [[_model _entitiesByNameForConfiguration: [store configuration]]
         objectForKey: entityName];
     }
 

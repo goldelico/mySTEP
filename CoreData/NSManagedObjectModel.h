@@ -25,7 +25,7 @@
 #ifndef _NSManagedObjectModel_h_
 #define _NSManagedObjectModel_h_
 
-#include <Foundation/NSObject.h>
+#import <Foundation/NSObject.h>
 
 @class NSString, NSArray, NSDictionary, NSMutableDictionary, NSURL;
 @class NSFetchRequest, NSAttributeDescription;
@@ -59,27 +59,15 @@
 + (NSManagedObjectModel *) modelByMergingModels: (NSArray *) someModels;
 - initWithContentsOfURL: (NSURL *) aUrl;
 
-#ifndef NO_GNUSTEP
-// Convenience method.
-- initWithContentsOfFile: (NSString *) aFilePath;
-#endif
-
 // Getting and setting entities and configurations.
 - (NSArray *) entities;
 - (NSDictionary *) entitiesByName;
 - (void) setEntities: (NSArray *) someEntities;
 - (NSArray *) configurations;
 - (NSArray *) entitiesForConfiguration: (NSString *) aConfiguration;
-#ifndef NO_GNUSTEP
-- (NSDictionary *) entitiesByNameForConfiguration: (NSString *) aConfiguration;
-#endif
 // passing `nil' as the entities instead deletes the configuration
 - (void) setEntities: (NSArray *) someEntities
     forConfiguration: (NSString *) aConfiguration;
-#ifndef NO_GNUSTEP
-// returns all configurations bound to their respective names in this model.
-- (NSDictionary *) configurationsByName;
-#endif
 
 // Getting and setting fetch request templates.
 - (NSFetchRequest *) fetchRequestTemplateForName: (NSString *) aName;
@@ -88,39 +76,9 @@
 - (void) setFetchRequestTemplate: (NSFetchRequest *) aFetchRequest
                          forName: (NSString *) aName;
 
-#ifndef NO_GNUSTEP
-- (void) removeFetchRequestTemplateForName: (NSString *) aName;
-
-// returns all fetch requests bound to their respective names in this model.
-- (NSDictionary *) fetchRequestsByName;
-#endif
-
 // Localization.
 - (NSDictionary *) localizationDictionary;
 - (void) setLocalizationDictionary: (NSDictionary *) aLocalizationDictionary;
-
-#ifndef NO_GNUSTEP
-
-/**
- * Returns YES if the model is not associated with a persistent store
- * coordinator (and thus is editable), and NO if it is (and thus isn't
- * editable.
- *
- * Before trying to change any part of the model you should first use
- * this method to make sure it is editable, because any attempt to mutate
- * a non-editable model will result in an exception being raised.
- */
-- (BOOL) isEditable;
-
-#endif
-
-@end
-
-@interface NSManagedObjectModel (GSCoreDataPrivate)
-
-- (void) _incrementUseCount;
-
-- (void) _decrementUseCount;
 
 @end
 

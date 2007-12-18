@@ -28,11 +28,11 @@
 
 @interface AttributeEditor : ModelEditor
 {
-  id type;
-  id valueClassName;
-  id name;
-  id transient;
-  id optional;
+  IBOutlet id type;
+  IBOutlet id valueClassName;
+  IBOutlet id name;
+  IBOutlet id transient;
+  IBOutlet id optional;
 
   NSAttributeDescription * attribute;
   NSEntityDescription * entity;

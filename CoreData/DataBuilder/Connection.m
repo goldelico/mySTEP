@@ -20,6 +20,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#import "Private.h"
+
 #import "Connection.h"
 
 #import <Foundation/NSString.h>
@@ -28,7 +30,11 @@
 #import <AppKit/NSView.h>
 #import <AppKit/NSTextFieldCell.h>
 #import <AppKit/NSColor.h>
-// #import <AppKit/PSOperators.h>
+#if USE_PS
+#import <AppKit/PSOperators.h>
+#else
+#import <AppKit/NSBezierPath.h>
+#endif
 
 #import "NSGeometryAdditions.h"
 
@@ -51,6 +57,7 @@ DrawArrow(NSPoint p, ArrowDirection direction, ArrowStyle style)
       switch (direction)
         {
         case UpwardDirection:
+#if USE_PS
           PSmoveto(p.x - ArrowWidth, p.y - ArrowLength);
           PSlineto(p.x, p.y);
           PSlineto(p.x + ArrowWidth, p.y - ArrowLength);
@@ -64,8 +71,26 @@ DrawArrow(NSPoint p, ArrowDirection direction, ArrowStyle style)
                        p.y - ArrowLength - SecondArrowOffset);
               PSstroke();
             }
+#else
+			  {
+				  NSBezierPath *path=[NSBezierPath new];
+			[path moveToPoint:NSMakePoint(p.x - ArrowWidth, p.y - ArrowLength)];
+			[path lineToPoint:NSMakePoint(p.x, p.y)];
+			[path lineToPoint:NSMakePoint(p.x + ArrowWidth, p.y - ArrowLength)];
+			[path stroke];
+			if (style == DoubleArrowStyle)
+				{
+				[path removeAllPoints];
+				[path moveToPoint:NSMakePoint(p.x - ArrowWidth, p.y - ArrowLength - SecondArrowOffset)];
+				[path lineToPoint:NSMakePoint(p.x, p.y - SecondArrowOffset)];
+				[path lineToPoint:NSMakePoint(p.x + ArrowWidth, p.y - ArrowLength - SecondArrowOffset)];
+				[path stroke];
+				}
+			  }
+#endif
           break;
         case DownwardDirection:
+#if USE_PS
           PSmoveto(p.x - ArrowWidth, p.y + ArrowLength);
           PSlineto(p.x, p.y);
           PSlineto(p.x + ArrowWidth, p.y + ArrowLength);
@@ -79,8 +104,26 @@ DrawArrow(NSPoint p, ArrowDirection direction, ArrowStyle style)
                        p.y + ArrowLength + SecondArrowOffset);
               PSstroke();
             }
-          break;
+#else
+			  {
+			  NSBezierPath *path=[NSBezierPath new];
+			[path moveToPoint:NSMakePoint(p.x - ArrowWidth, p.y + ArrowLength)];
+			[path lineToPoint:NSMakePoint(p.x, p.y)];
+			[path lineToPoint:NSMakePoint(p.x + ArrowWidth, p.y + ArrowLength)];
+			[path stroke];
+			if (style == DoubleArrowStyle)
+				{
+				[path removeAllPoints];
+				[path moveToPoint:NSMakePoint(p.x - ArrowWidth, p.y + ArrowLength + SecondArrowOffset)];
+				[path lineToPoint:NSMakePoint(p.x, p.y + SecondArrowOffset)];
+				[path lineToPoint:NSMakePoint(p.x + ArrowWidth, p.y + ArrowLength + SecondArrowOffset)];
+				[path stroke];
+				}
+			  }
+#endif
+				break;
         case LeftDirection:
+#if USE_PS
           PSmoveto(p.x + ArrowLength, p.y + ArrowWidth);
           PSlineto(p.x, p.y);
           PSlineto(p.x + ArrowLength, p.y - ArrowWidth);
@@ -94,8 +137,26 @@ DrawArrow(NSPoint p, ArrowDirection direction, ArrowStyle style)
                        p.y - ArrowWidth);
               PSstroke();
             }
-          break;
+#else
+			  {
+			  NSBezierPath *path=[NSBezierPath new];
+			[path moveToPoint:NSMakePoint(p.x + ArrowLength, p.y + ArrowWidth)];
+			[path lineToPoint:NSMakePoint(p.x, p.y)];
+			[path lineToPoint:NSMakePoint(p.x + ArrowLength, p.y - ArrowWidth)];
+			[path stroke];
+			if (style == DoubleArrowStyle)
+				{
+				[path removeAllPoints];
+				[path moveToPoint:NSMakePoint(p.x + ArrowLength + SecondArrowOffset, p.y + ArrowWidth)];
+				[path lineToPoint:NSMakePoint(p.x + SecondArrowOffset, p.y)];
+				[path lineToPoint:NSMakePoint(p.x + ArrowLength + SecondArrowOffset, p.y - ArrowWidth)];
+				[path stroke];
+				}
+			  }
+#endif
+				break;
         case RightDirection:
+#if USE_PS
           PSmoveto(p.x - ArrowLength, p.y + ArrowWidth);
           PSlineto(p.x, p.y);
           PSlineto(p.x - ArrowLength, p.y - ArrowWidth);
@@ -109,7 +170,24 @@ DrawArrow(NSPoint p, ArrowDirection direction, ArrowStyle style)
                        p.y - ArrowWidth);
               PSstroke();
             }
-          break;
+#else
+			  {
+			  NSBezierPath *path=[NSBezierPath new];
+			[path moveToPoint:NSMakePoint(p.x - ArrowLength, p.y + ArrowWidth)];
+			[path lineToPoint:NSMakePoint(p.x, p.y)];
+			[path lineToPoint:NSMakePoint(p.x - ArrowLength, p.y - ArrowWidth)];
+			[path stroke];
+			if (style == DoubleArrowStyle)
+				{
+				[path removeAllPoints];
+				[path moveToPoint:NSMakePoint(p.x - ArrowLength + SecondArrowOffset, p.y + ArrowWidth)];
+				[path lineToPoint:NSMakePoint(p.x - SecondArrowOffset, p.y)];
+				[path lineToPoint:NSMakePoint(p.x - ArrowLength + SecondArrowOffset, p.y - ArrowWidth)];
+				[path stroke];
+				}
+			  }
+#endif
+				break;
         }
     }
 }
@@ -432,7 +510,7 @@ static NSColor * defaultLineColor = nil;
     {
       return;
     }
-
+#if USE_PS
   PSsetdash(NULL, 0, 0.0);
   PSmoveto(s.x, s.y);
   PSlineto(p1.x, p1.y);
@@ -441,7 +519,18 @@ static NSColor * defaultLineColor = nil;
   PScurveto(p5.x, p5.y, p5.x, p5.y, p6.x, p6.y);
   PSlineto(e.x, e.y);
   PSstroke();
-
+#else
+  {
+	  NSBezierPath *path=[NSBezierPath new];
+	  [path moveToPoint:NSMakePoint(s.x, s.y)];
+	  [path lineToPoint:NSMakePoint(p1.x, p1.y)];
+	  [path curveToPoint:NSMakePoint(p2.x, p2.y) controlPoint1:NSMakePoint(p2.x, p2.y) controlPoint2:NSMakePoint(p3.x, p3.y)];
+	  [path lineToPoint:NSMakePoint(p4.x, p4.y)];
+	  [path curveToPoint:NSMakePoint(p5.x, p5.y) controlPoint1:NSMakePoint(p5.x, p5.y) controlPoint2:NSMakePoint(p6.x, p6.y)];
+	  [path lineToPoint:NSMakePoint(e.x, e.y)];
+	  [path stroke];
+  }
+#endif
   DrawArrow(s, startArrowDirection, view1ArrowStyle);
   DrawArrow(e, endArrowDirection, view2ArrowStyle);
 }

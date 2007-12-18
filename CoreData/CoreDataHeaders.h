@@ -31,6 +31,7 @@
 
 - (void) _addReferenceToManagedObjectModel: (NSManagedObjectModel *) aModel;
 - (NSDictionary *) _fetchedPropertiesByName;
+- (NSDictionary *) _filteredPropertiesOfClass: (Class) aClass;
 - (void) _removeReferenceToManagedObjectModel: (NSManagedObjectModel *) aModel;
 - (void) _setSuperentity: (NSEntityDescription *) anEntityDescription;	// private
 
@@ -48,6 +49,25 @@
 
 - (void) _insertedIntoContext: (NSManagedObjectContext *) context;
 - (void) _removedFromContext;
+- (NSPropertyDescription *) _validatedPropertyForKey: (NSString *) key;
+
+	/**
+	* 
+	 */
+- (NSArray *) _allPropertiesOfSubclass: (Class) aClass;
+
+- (BOOL) _validateValue: (id *) value
+                 forKey: (NSString *) key
+                  error: (NSError **) error
+               property: (NSPropertyDescription *) desc;
+
+- (id) _primitiveValueForKey: (NSString *) key doValidation: (BOOL) flag;
+
+- (void) _setPrimitiveValue: (id) value
+                     forKey: (NSString *) key
+               doValidation: (BOOL) validationFlag;
+
+- (void) _fireFault;
 
 @end
 
@@ -74,10 +94,6 @@
 #ifndef NO_GNUSTEP
 // Convenience method.
 - (id) _initWithContentsOfFile: (NSString *) aFilePath;
-#endif
-
-#ifndef NO_GNUSTEP
-- (NSDictionary *) _entitiesByNameForConfiguration: (NSString *) aConfiguration;
 #endif
 
 #ifndef NO_GNUSTEP

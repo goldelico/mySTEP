@@ -22,7 +22,7 @@
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
  */
 
-#include "CoreData.h"
+#import "CoreDataHeaders.h"
 
 @implementation NSPropertyDescription
 
@@ -227,7 +227,7 @@
   NSManagedObjectModel * model;
 
   model = [_entity managedObjectModel];
-  if (model != nil && [model isEditable] == NO)
+  if (model != nil && [model _isEditable] == NO)
     {
       [NSException raise: NSGenericException format: _(reason)];
     }

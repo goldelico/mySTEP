@@ -25,9 +25,9 @@
 #ifndef _NSManagedObjectContext_h_
 #define _NSManagedObjectContext_h_
 
-#include <Foundation/NSObject.h>
-#include <Foundation/NSLock.h>
-#include <Foundation/NSDate.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSLock.h>
+#import <Foundation/NSDate.h>
 
 @class NSArray, NSString, NSError, NSSet, NSMutableSet;
 @class NSUndoManager;

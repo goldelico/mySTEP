@@ -22,7 +22,7 @@
    Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02111 USA.
  */
 
-#include "CoreData.h"
+#import "CoreDataHeaders.h"
 
 /**
  * An object for storing details about managed object fetches.
@@ -49,7 +49,7 @@
 /**
  * A shorthand method for quick initialization.
  */
-- (id) initWithAffectedStores: (NSArray *) affectedStores
+- (id) _initWithAffectedStores: (NSArray *) affectedStores
                        entity: (NSEntityDescription *) entity
                    fetchLimit: (unsigned int) fetchLimit
                     predicate: (NSPredicate *) predicate
@@ -164,7 +164,7 @@
 - (id) copyWithZone: (NSZone *) zone
 {
   return [[NSFetchRequest allocWithZone: zone]
-    initWithAffectedStores: _affectedStores
+    _initWithAffectedStores: _affectedStores
                     entity: _entity
                 fetchLimit: _fetchLimit
                  predicate: _predicate

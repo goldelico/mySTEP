@@ -6,4 +6,3 @@
     #import <Cocoa/Cocoa.h>
 #endif
 
-#define _(X) X
