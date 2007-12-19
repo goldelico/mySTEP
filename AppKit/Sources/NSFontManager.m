@@ -651,7 +651,7 @@ static NSString *__fontCollections = nil;
 			if(![r containsObject:family])
 				[r addObject:family];	// new family
 			}
-#if 0
+#if 1
 		NSLog(@"NSFontManager availableFontFamilies => %@", r);
 #endif
 		}

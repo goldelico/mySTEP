@@ -208,7 +208,7 @@ static Class __controlCellClass = Nil;
 
 - (BOOL) abortEditing
 {
-	NSText *t=[window fieldEditor:NO forObject:_cell];
+	NSText *t=[_window fieldEditor:NO forObject:_cell];
 #if 1
 	NSLog(@"abort editing %@ - %@", self, t);
 #endif
@@ -217,27 +217,27 @@ static Class __controlCellClass = Nil;
 	if([t delegate] != self)
 		return NO;	// someone else owns...
 	[[self selectedCell] endEditing:t];
-	[window makeFirstResponder:self];
+	[_window makeFirstResponder:self];
 	return YES;
 }
 
 - (NSText*) currentEditor
 {
-	NSText *t = [window fieldEditor:NO forObject:_cell];
+	NSText *t = [_window fieldEditor:NO forObject:_cell];
 #if 1
 	NSLog(@"self=%@", self);
 	NSLog(@"cell=%@", _cell);
 	NSLog(@"currentEditor=%@", t);
 	NSLog(@"[t delegate]=%@", [t delegate]);
-	NSLog(@"[window firstResponder]=%@", [window firstResponder]);
+	NSLog(@"[window firstResponder]=%@", [_window firstResponder]);
 #endif
 //	return ([t delegate] == self && [window firstResponder] == self) ? t : nil;
-	return ([t delegate] == self && [window firstResponder] == t) ? t : nil;
+	return ([t delegate] == self && [_window firstResponder] == t) ? t : nil;
 }
 
 - (void) validateEditing
 {
-	NSText *t = [window fieldEditor:NO forObject:_cell];
+	NSText *t = [_window fieldEditor:NO forObject:_cell];
 #if 1
 	NSLog(@"validateEditing t=%@ - value=%@", t, [t string]);
 #endif
@@ -255,7 +255,7 @@ static Class __controlCellClass = Nil;
 
 - (void) drawRect:(NSRect)rect
 {
-	[_cell drawWithFrame:(NSRect){NSZeroPoint, bounds.size} inView:self]; 
+	[_cell drawWithFrame:(NSRect){NSZeroPoint, _bounds.size} inView:self]; 
 }
 
 - (void) drawCell:(NSCell*)aCell
@@ -263,7 +263,7 @@ static Class __controlCellClass = Nil;
 	if (_cell == aCell)
 		{
 		[self lockFocus];
-		[_cell drawWithFrame:bounds inView:self];
+		[_cell drawWithFrame:_bounds inView:self];
 		[self unlockFocus];
 		}
 }
@@ -273,7 +273,7 @@ static Class __controlCellClass = Nil;
 	if (_cell == aCell)
 		{
 		[self lockFocus];
-		[_cell drawInteriorWithFrame:bounds inView:self];
+		[_cell drawInteriorWithFrame:_bounds inView:self];
 		[self unlockFocus];
 		}
 }
@@ -347,7 +347,7 @@ static Class __controlCellClass = Nil;
 #if 0
 		NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p));
 #endif
-		if(NSMouseInRect(p, bounds, [self isFlipped]))
+		if(NSMouseInRect(p, _bounds, [self isFlipped]))
 			{ // highlight cell
 			BOOL done;
 			[_cell setHighlighted:YES];	
@@ -356,7 +356,7 @@ static Class __controlCellClass = Nil;
 			NSLog(@"NSControl mouseDown highlighted");
 #endif
 			done=[_cell trackMouse:event
-					  inRect:bounds
+					  inRect:_bounds
 					  ofView:self
 					  untilMouseUp:[[_cell class] prefersTrackingUntilMouseUp]];
 			[_cell setHighlighted:NO];	

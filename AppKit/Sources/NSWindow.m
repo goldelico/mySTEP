@@ -187,18 +187,18 @@ static BOOL __cursorHidden = NO;
 			NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
 			float radius=9.0;
 			NSBezierPath *b=[NSBezierPath new];
-			[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(frame)+radius, NSMinY(frame)+radius)
+			[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(_frame)+radius, NSMinY(_frame)+radius)
 										  radius:radius
 									  startAngle:180.0
 										endAngle:270.0
 									   clockwise:NO];	// top left corner
-			[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(frame)-radius, NSMinY(frame)+radius)
+			[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(_frame)-radius, NSMinY(_frame)+radius)
 										  radius:radius
 									  startAngle:270.0
 										endAngle:360.0
 									   clockwise:NO];	// top right corner
-			[b lineToPoint:NSMakePoint(NSMaxX(frame), NSMaxY(frame))];	// bottom right
-			[b lineToPoint:NSMakePoint(0.0, NSMaxY(frame))];	// bottom left
+			[b lineToPoint:NSMakePoint(NSMaxX(_frame), NSMaxY(_frame))];	// bottom right
+			[b lineToPoint:NSMakePoint(0.0, NSMaxY(_frame))];	// bottom left
 			[b closePath];
 			[ctxt _setShape:b];
 			}
@@ -207,14 +207,14 @@ static BOOL __cursorHidden = NO;
 	[_backgroundColor set];
 	NSRectFill(rect);	// draw window background
 	[[NSColor windowFrameColor] set];
-	NSFrameRect(bounds);	// draw a frame
+	NSFrameRect(_bounds);	// draw a frame
 	// FIXME: should also fill background behind a toolbar if present
-	NSRectFill((NSRect){NSZeroPoint, {bounds.size.width, _height}});	// fill titlebar background behind buttons
+	NSRectFill((NSRect){NSZeroPoint, {_bounds.size.width, _height}});	// fill titlebar background behind buttons
 	if(!_title && !_titleIcon)
 		return;
 	if(_titleIcon)
 		{
-		[_titleIcon compositeToPoint:NSMakePoint((bounds.size.width-[_title sizeWithAttributes:a].width)/2.0-[_titleIcon size].width,
+		[_titleIcon compositeToPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0-[_titleIcon size].width,
 																						 1.0+(_height-16.0)/2.0)
 											 operation:NSCompositeSourceOver];
 		}
@@ -227,7 +227,7 @@ static BOOL __cursorHidden = NO;
 			nil] retain];
 	// draw document icon or shouldn't we better use a document NSButton to store the window icon and title?
 	// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
-	[_title drawAtPoint:NSMakePoint((bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, 1.0+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
+	[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, 1.0+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
 	// draw resize area (how to draw it in front of the subviews?) - or add another subview?
 }
 
@@ -235,18 +235,18 @@ static BOOL __cursorHidden = NO;
 { // last chance to draw anything - note that we start with the graphics state left over by the previous operations
 	if((_style & NSResizableWindowMask) != 0 && !([self interfaceStyle] >= NSPDAInterfaceStyle))
 		{ // draw resizing handle in the lower right corner
-		[NSGraphicsContext setGraphicsState:[window gState]];
-		[[NSBezierPath bezierPathWithRect:bounds] setClip];
+		[NSGraphicsContext setGraphicsState:[_window gState]];
+		[[NSBezierPath bezierPathWithRect:_bounds] setClip];
 		[[NSColor grayColor] set];
 #if 0
 		[[NSColor redColor] set];
 #endif
-		[NSBezierPath strokeLineFromPoint:NSMakePoint(bounds.size.width-2, bounds.size.height-8)
-															toPoint:NSMakePoint(bounds.size.width-8, bounds.size.height-2)];
-		[NSBezierPath strokeLineFromPoint:NSMakePoint(bounds.size.width-2, bounds.size.height-11)
-															toPoint:NSMakePoint(bounds.size.width-11, bounds.size.height-2)];
-		[NSBezierPath strokeLineFromPoint:NSMakePoint(bounds.size.width-2, bounds.size.height-14)
-															toPoint:NSMakePoint(bounds.size.width-14, bounds.size.height-2)];
+		[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-8)
+															toPoint:NSMakePoint(_bounds.size.width-8, _bounds.size.height-2)];
+		[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-11)
+															toPoint:NSMakePoint(_bounds.size.width-11, _bounds.size.height-2)];
+		[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-14)
+															toPoint:NSMakePoint(_bounds.size.width-14, _bounds.size.height-2)];
 		}
 	[super unlockFocus];
 }
@@ -339,9 +339,9 @@ static BOOL __cursorHidden = NO;
 		NSButton *wb;
 		NSRect f, wf;
 		[self addSubview:wb=[NSWindow standardWindowButton:NSWindowToolbarButton forStyleMask:_style]];
-		[wb setTarget:window];
+		[wb setTarget:_window];
 		f=[wb frame];		// button frame
-		wf=[window frame];	// window frame
+		wf=[_window frame];	// window frame
 		f.origin.x+=wf.size.width-f.size.width;	// flush toolbar button to the right end
 		[wb setFrameOrigin:f.origin];
 		tv=[[NSToolbarView alloc] initWithFrame:(NSRect){{0.0, wf.size.width}, {20.0, 20.0}}];	// as wide as the window
@@ -386,7 +386,7 @@ static BOOL __cursorHidden = NO;
 		return;	// resizable window has been enlarged for full screen - don't permit to move
 	if(p.y > _height)
 		{ // check if we a have resize enabled in _style and we clicked on lower right corner
-		if((_style & NSResizableWindowMask) == 0 || p.y < frame.size.height-10.0 || p.x < frame.size.width-10.0)
+		if((_style & NSResizableWindowMask) == 0 || p.y < _frame.size.height-10.0 || p.x < _frame.size.width-10.0)
 			return;	// ignore if not in title bar (or we ask hitTest's view if it permits for textured windows)
 		_inLiveResize=YES;
 #if 1
@@ -412,7 +412,7 @@ static BOOL __cursorHidden = NO;
 				return;
 			case NSLeftMouseDragged:
 				{
-					NSRect wframe=[window frame];
+					NSRect wframe=[_window frame];
 					NSPoint loc=[NSEvent mouseLocation];
 					if(_inLiveResize)
 						{ // resizing
@@ -420,9 +420,9 @@ static BOOL __cursorHidden = NO;
 						wframe.size.height+=(loc.y-p.y);	// move like mouse moves
 						// FIXME: handle resizeIncrements
 #if 1
-						NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([window frame]), NSStringFromRect(wframe));
+						NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
 #endif
-						[window setFrame:wframe display:YES];
+						[_window setFrame:wframe display:YES];
 						}
 					else
 						{ // moving
@@ -430,9 +430,9 @@ static BOOL __cursorHidden = NO;
 						wframe.origin.y+=(loc.y-p.y);	// move like mouse moves
 						// FIXME: this has some issues when frame is clipped to the visible screen
 #if 0
-						NSLog(@"move window from (%@) to (%@)", NSStringFromPoint([window frame].origin), NSStringFromPoint(wframe.origin));
+						NSLog(@"move window from (%@) to (%@)", NSStringFromPoint([_window frame].origin), NSStringFromPoint(wframe.origin));
 #endif
-						[window setFrameOrigin:wframe.origin];	// move window (no need to redisplay)
+						[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay)
 						}
 					p=loc;
 					break;
@@ -493,7 +493,7 @@ static BOOL __cursorHidden = NO;
 
 - (void) viewDidMoveToWindow
 { // set window as target for buttons
-	[self setTarget:window];
+	[self setTarget:_window];
 }
 
 - (BOOL) shouldDelayWindowOrderingForEvent:(NSEvent*)event	{ return YES; }		// always delay window ordering

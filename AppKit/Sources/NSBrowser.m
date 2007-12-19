@@ -65,7 +65,7 @@
 		
 		_minColumnWidth = (sw + BORDER_WIDTH);
 		
-		_scroller = [[NSScroller alloc] initWithFrame: (NSRect){{0,0},{NSWidth(frame),sw}}];
+		_scroller = [[NSScroller alloc] initWithFrame: (NSRect){{0,0},{NSWidth(_frame),sw}}];
 		[_scroller setTarget: self];
 		[_scroller setAction: @selector(scrollViaScroller:)];
 		[_scroller setAutoresizingMask: NSViewWidthSizable];
@@ -497,7 +497,7 @@ int n;
 	n = column - _firstVisibleColumn;				// from the first
 	
 	r.origin.x = (n * _columnSize.width) + 2;		// Calculate the frame
-	r.origin.y = frame.size.height - titleHeight + 2;
+	r.origin.y = _frame.size.height - titleHeight + 2;
 	r.size.width = _columnSize.width - 4;
 	r.size.height = titleHeight - 4;
 	
@@ -873,7 +873,7 @@ id c;
 
 - (void) tile									// assume that frame and bounds
 {												// have been set appropriately
-int columnsPossible = (int)(NSWidth(frame) / (_minColumnWidth + COLUMN_SEP));
+int columnsPossible = (int)(NSWidth(_frame) / (_minColumnWidth + COLUMN_SEP));
 int currentVisibleColumns = _numberOfVisibleColumns;
 #if 1
 	NSLog (@"NSBrowser tile");
@@ -881,12 +881,12 @@ int currentVisibleColumns = _numberOfVisibleColumns;
 	_numberOfVisibleColumns = MIN(_maxVisibleColumns, columnsPossible);
 
 	if (_br.separatesColumns)
-		_columnSize.width = ((NSWidth(frame) - ((_numberOfVisibleColumns 
+		_columnSize.width = ((NSWidth(_frame) - ((_numberOfVisibleColumns 
 								- 1) * COLUMN_SEP)) / _numberOfVisibleColumns);
 	else
-		_columnSize.width = NSWidth(frame) / (float)_numberOfVisibleColumns;
+		_columnSize.width = NSWidth(_frame) / (float)_numberOfVisibleColumns;
 	_columnSize.width = ceil(_columnSize.width);
-	_columnSize.height = frame.size.height;
+	_columnSize.height = _frame.size.height;
 	
 	if (_br.hasHorizontalScroller)						// Horizontal scroller
 		_columnSize.height -= ([NSScroller scrollerWidth] + 4);
@@ -1034,7 +1034,7 @@ SEL n = @selector(browser:numberOfRowsInColumn:);
 			[self setTitle:[coder decodeObjectForKey:@"NSFirstColumnTitle"] ofColumn:0];
 		// other init
 		_matrixClass = [NSMatrix class];
-		_scroller = [[NSScroller alloc] initWithFrame:(NSRect){{0,0},{NSWidth(frame),[NSScroller scrollerWidth]}}];
+		_scroller = [[NSScroller alloc] initWithFrame:(NSRect){{0,0},{NSWidth(_frame),[NSScroller scrollerWidth]}}];
 		[_scroller setTarget:self];
 		[_scroller setAction:@selector(scrollViaScroller:)];
 		[_scroller setAutoresizingMask:NSViewWidthSizable];

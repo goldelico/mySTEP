@@ -268,7 +268,7 @@ static NSButtonCell *__knobCell = nil;
 
 - (NSScrollerPart) testPart:(NSPoint)point
 { // return the part of the scroller hit by the mouse
-	if (point.x < 0 || point.y < 0 || point.x > NSWidth(frame) || point.y > NSHeight(frame))
+	if (point.x < 0 || point.y < 0 || point.x > NSWidth(_frame) || point.y > NSHeight(_frame))
 		return NSScrollerNoPart;	// outside
 	
 	if ([self mouse:point inRect:[self rectForPart:NSScrollerDecrementLine]])
@@ -532,7 +532,7 @@ static NSButtonCell *__knobCell = nil;
 
 - (NSRect) rectForPart:(NSScrollerPart)partCode
 { // FIXME: we should cache these values
-	NSRect scrollerFrame = frame;
+	NSRect scrollerFrame = _frame;
 	float x = 1, y = 1, width = 0, height = 0;
 	NSUsableScrollerParts usableParts;
 	// If the scroller is disabled then

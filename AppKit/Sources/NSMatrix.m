@@ -483,8 +483,8 @@ BOOL betweenRows, betweenCols;
 float h, w, approxRowsHeight, approxColsWidth;
 int approxRow, approxCol;
 													// First test limit cases
-	if ((point.x < NSMinX(bounds)) || (point.y < NSMinY(bounds))
-			|| (point.x > NSMaxX(bounds)) || (point.y > NSMaxY(bounds)))
+	if ((point.x < NSMinX(_bounds)) || (point.y < NSMinY(_bounds))
+			|| (point.x > NSMaxX(_bounds)) || (point.y > NSMaxY(_bounds)))
 		return NO;
 
 	h = _cellSize.height + _interCell.height;
@@ -991,7 +991,7 @@ int i, tmpx, tmpy;
 		[self _setState:0 inRect:unselectRect[i]];
 	for (i = 0; i < selectRectsNo; i++)
 		[self _setState:1 inRect:selectRect[i]];
-	[window flushWindow];
+	[_window flushWindow];
 }
 
 - (void) _setState:(BOOL)state startIndex:(int)start endIndex:(int)end
@@ -1072,7 +1072,7 @@ int dca_dla = SIGN(dca) / (SIGN(dla) ? SIGN(dla) : 1);
 		[self _setState:0 startIndex:unselectPoint.x endIndex:unselectPoint.y];
 	if (doSelect)
 		[self _setState:1 startIndex:selectPoint.x endIndex:selectPoint.y];
-	[window flushWindow];
+	[_window flushWindow];
 }
 
 - (void) setSelectionFrom:(int)startPos
@@ -1135,7 +1135,7 @@ id array[count];
 	if (selectedCell && [selectedCell isEditable] && [selectedCell isEnabled])
 		{
 		NSRect r = [self cellFrameAtRow:selectedRow column:selectedColumn];
-		NSText *t = [window fieldEditor:YES forObject:selectedCell];
+		NSText *t = [_window fieldEditor:YES forObject:selectedCell];
 
 		[selectedCell selectWithFrame:r
 					  inView:self
@@ -1176,7 +1176,7 @@ NSNumber *code;
 		switch([code intValue])
 			{
 			case NSReturnTextMovement:
-				[window makeFirstResponder:self];
+				[_window makeFirstResponder:self];
 				if(![self sendAction])
 					[self sendAction:[self action] to:[self target]];
 				break;
@@ -1200,7 +1200,7 @@ NSNumber *code;
 {															// delegate method
 	NSLog(@" NSMatrix textShouldEndEditing ");
 
-	if(![window isKeyWindow])
+	if(![_window isKeyWindow])
 		return NO;
 
 	if(selectedCell && [selectedCell isEntryAcceptable: [aTextObject string]])
@@ -1590,11 +1590,11 @@ NSCell *c;
 				selectedCell = c;
 				[self lockFocus];
 				[self highlightCell:YES atRow:i column:j];
-				[window flushWindow];
+				[_window flushWindow];
 				[c setState:(![c state])?NSOnState:NSOffState];	// toggle
 				[self sendAction];
 				[self highlightCell:NO atRow:i column:j];
-				[window flushWindow];
+				[_window flushWindow];
 				[self unlockFocus];
 				selectedCell = oldSelectedCell;
 				

@@ -144,7 +144,7 @@
 	NSString *str=[_textStorage string];				// raw characters
 	NSRange rangeLimit=glyphsToShow;					// initial limit
 	NSPoint pos;
-	NSFont *font;										// default/current font attribute
+	NSFont *font=(NSFont *) [NSNull null];				// current font attribute
 	NSColor *foreGround;
 	BOOL flipped=[ctxt isFlipped];
 	NSAssert(glyphsToShow.location==0 && glyphsToShow.length == [str length], @"can render ful glyph range only");
@@ -875,6 +875,8 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (void) textStorage:(NSTextStorage *)str edited:(unsigned)editedMask range:(NSRange)newCharRange changeInLength:(int)delta invalidatedRange:(NSRange)invalidatedCharRange;
 {
+	// invalidate
+	// recalculate frame - limited by minSize and maxSize
 	NIMP;
 }
 

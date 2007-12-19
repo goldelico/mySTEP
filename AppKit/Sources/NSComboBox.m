@@ -592,7 +592,7 @@ NSNotificationCenter *n;
 - (void) resetCursorRects								// Manage the cursor
 {
 	NSRect b, t;
-	NSDivideRect(bounds, &b, &t, bounds.size.height-4.0, NSMaxXEdge);
+	NSDivideRect(_bounds, &b, &t, _bounds.size.height-4.0, NSMaxXEdge);
 	[self addCursorRect:t cursor:[NSCursor IBeamCursor]];
 }
 

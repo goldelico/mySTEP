@@ -307,13 +307,17 @@ static NSCursor *__textCursor = nil;
 
 - (void) setSelectedTextAttributes:(NSDictionary *) attribs { ASSIGN(selectedTextAttributes, attribs); }
 - (NSDictionary*) selectedTextAttributes { return selectedTextAttributes; }
+- (void) setLinkTextAttributes:(NSDictionary*) attribs { ASSIGN(linkTextAttributes, attribs); }
+- (NSDictionary*) linkTextAttributes { return linkTextAttributes; }
+- (void) setMarkedTextAttributes:(NSDictionary*) attribs { ASSIGN(markedTextAttributes, attribs); }
+- (NSDictionary*) markedTextAttributes { return markedTextAttributes; }
 
 - (BOOL) shouldDrawInsertionPoint;
 {
 	if(!_tx.editable)					return NO;
 	if(_selectedRange.length > 0)		return NO;
-	if(!window)							return NO;
-	if([window firstResponder] != self)	return NO;
+	if(!_window)							return NO;
+	if([_window firstResponder] != self)	return NO;
 	return YES;
 }
 
@@ -368,9 +372,7 @@ static NSCursor *__textCursor = nil;
 		}	
 }
 
-- (void) setMarkedTextAttributes:(NSDictionary*) attribs { ASSIGN(markedTextAttributes, attribs); }
-- (NSDictionary*) markedTextAttributes { return markedTextAttributes; }
-													// Other NSTextView methods
+	// Other NSTextView methods
 - (void) setRulerVisible:(BOOL)flag
 {
 	if([self isRulerVisible] != flag)
@@ -476,7 +478,7 @@ static NSCursor *__textCursor = nil;
 
 - (void) concludeDragOperation:(id <NSDraggingInfo>)sender
 {
-	[window endEditingFor:self];
+	[_window endEditingFor:self];
 }
 
 - (NSArray*) acceptableDragTypes

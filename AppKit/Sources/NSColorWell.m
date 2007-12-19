@@ -49,7 +49,7 @@
 		float grays[] = { NSBlack, NSBlack, NSWhite,	// Draw outer frame
 						  NSWhite, NSDarkGray, NSDarkGray };
 
-		r = NSDrawTiledRects(bounds, rect, BUTTON_EDGES_NORMAL, grays, 6);
+		r = NSDrawTiledRects(_bounds, rect, BUTTON_EDGES_NORMAL, grays, 6);
 
 		if(!_cw.isActive)
 			[[NSColor whiteColor] set];
@@ -58,13 +58,13 @@
     	}
 	else
 		{
-		r = NSIntersectionRect(bounds, rect);
+		r = NSIntersectionRect(_bounds, rect);
 		[[NSColor lightGrayColor] set];
 		inset = 0;
 		}
 
 	NSRectFill(r);										// Fill background
-	r = NSInsetRect(bounds, inset, inset);
+	r = NSInsetRect(_bounds, inset, inset);
 	NSDrawGrayBezel(r, rect);							// Draw inner frame
 	r = NSInsetRect(r, 2, 2);
 

@@ -453,6 +453,8 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 @implementation NSPrintPanel
 
++ (NSPrintPanel *) printPanel;	{ return [[[self alloc] init] autorelease]; }
+
 - (NSView *)accessoryView					{ return _accessoryView; }
 - (NSString *)jobStyleHint					{ return _jobStyleHint; }
 

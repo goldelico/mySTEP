@@ -346,14 +346,14 @@ static Class __textFieldCellClass = Nil;
 
 - (void) selectText:(id)sender
 {
-NSText *t;
+	NSText *t;
 
-	if(!window)
+	if(!_window)
 		return;
 
-	[_cell selectWithFrame:[_cell drawingRectForBounds:bounds]
+	[_cell selectWithFrame:[_cell drawingRectForBounds:_bounds]
 		   inView:self
-		   editor:(t = [window fieldEditor:YES forObject:_cell])
+		   editor:(t = [_window fieldEditor:YES forObject:_cell])
 		   delegate:self
 		   start:(int)0
 		   length:[[_cell stringValue] length]];
@@ -424,10 +424,10 @@ NSText *t;
 					}
 				break;
 			case NSTabTextMovement:
-				[window selectKeyViewFollowingView:self];
+				[_window selectKeyViewFollowingView:self];
 				break;
 			case NSBacktabTextMovement:
-				[window selectKeyViewPrecedingView:self];
+				[_window selectKeyViewPrecedingView:self];
 			case NSIllegalTextMovement:
 				break;
 			}
@@ -452,7 +452,7 @@ NSText *t;
 {
 	NSLog(@" NSTextField %@ %@", NSStringFromSelector(_cmd), aTextObject);
 
-	if(![window isKeyWindow])
+	if(![_window isKeyWindow])
 		return NO;
 
 	if(_cell && [_cell isEntryAcceptable: [aTextObject string]])

@@ -503,7 +503,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 		_backgroundColor=[[NSColor textBackgroundColor] retain];
 		_minSize = (NSSize){5, 15};
 		_maxSize = (NSSize){HUGE,HUGE};		
-		[self setString:@"NSText"];	// will set rich text to NO
+		[self setString:@""];	// will set rich text to NO
 		[self setSelectedRange:NSMakeRange(0,0)];
 		}
 	return self;
@@ -530,7 +530,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 	NSLog(@"NSText drawRect with %@", textStorage);
 #endif
 	// draw selection or simple line cursor
-	[textStorage drawInRect:bounds];
+	[textStorage drawInRect:_bounds];
 }
 
 - (BOOL) shouldBeTreatedAsInkEvent:(NSEvent *) theEvent; { return (id)self == (id)[[self window] firstResponder]; }
@@ -632,7 +632,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 		_tx.vertResizable = YES;
 		_tx.drawsBackground = YES;
 		_backgroundColor=[[NSColor textBackgroundColor] retain];
-		[self setString:@"NSText"];	// will set rich text to NO
+		[self setString:@""];	// will set rich text to NO
 		[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
 		_minSize=[coder decodeSizeForKey:@"NSMinize"];	// NB: this is a bug in Apple IB: key should be @"NSMinSize" - beware of changes by Apple
 		_maxSize=[coder decodeSizeForKey:@"NSMaxSize"];

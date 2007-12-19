@@ -158,7 +158,7 @@
 + (NSDictionary *) _fonts;									// read font cache from disk
 + (void) _writeFonts;										// write font cache to disk
 + (void) _addFontWithAttributes:(NSDictionary *) record;	// add a font attributes record to the font cache
-+ (void) _loadFontsFromFile:(NSString *) path;				// add fonts found in this file - ignore if we can't really load
++ (NSString *) _loadFontsFromFile:(NSString *) path;		// add fonts found in this file - ignore if we can't really load; returns the Family name
 + (void) _findFonts;										// search through all font directories
 @end
 

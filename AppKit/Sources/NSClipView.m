@@ -85,25 +85,25 @@
 	NSRect docFrameRect = [self documentRect];
 	NSPoint new = proposedNewOrigin;
 
-	if(docFrameRect.size.width >= bounds.size.width)
+	if(docFrameRect.size.width >= _bounds.size.width)
 		{
 		if (proposedNewOrigin.x < docFrameRect.origin.x)
 			new.x = docFrameRect.origin.x;
 		else 
 			{
-			float difference = docFrameRect.size.width - bounds.size.width;
+			float difference = docFrameRect.size.width - _bounds.size.width;
 	
 			if (proposedNewOrigin.x > difference)
 				new.x = difference;
 			}
 		}				// if doc is smaller than bounds do not adjust Y because of a possible offset to doc's origin
-	if(docFrameRect.size.height >= bounds.size.height)
+	if(docFrameRect.size.height >= _bounds.size.height)
 		{
 		if (proposedNewOrigin.y < docFrameRect.origin.y)
 			new.y = docFrameRect.origin.y;
 		else 
 			{
-			float difference = docFrameRect.size.height - bounds.size.height;
+			float difference = docFrameRect.size.height - _bounds.size.height;
 
 			if(proposedNewOrigin.y > difference)
 				new.y = difference;
@@ -116,8 +116,8 @@
 - (NSRect) documentRect
 {
 	NSRect documentRect = _documentView?[_documentView frame]:NSZeroRect;;
-	documentRect.size.width = MAX( NSWidth(documentRect), NSWidth(bounds));
-	documentRect.size.height = MAX( NSHeight(documentRect), NSHeight(bounds));
+	documentRect.size.width = MAX( NSWidth(documentRect), NSWidth(_bounds));
+	documentRect.size.height = MAX( NSHeight(documentRect), NSHeight(_bounds));
 	return documentRect;
 }
 
@@ -125,11 +125,11 @@
 {
 	NSSize documentBoundsSize = _documentView?[_documentView bounds].size:NSZeroSize;
 	NSRect rect;
-	rect.origin = bounds.origin;
+	rect.origin = _bounds.origin;
 	if([self isFlipped] != [_documentView isFlipped])
 		rect.origin.y=-rect.origin.y;
-	rect.size.width = MIN(documentBoundsSize.width, bounds.size.width);
-	rect.size.height = MIN(documentBoundsSize.height, bounds.size.height);
+	rect.size.width = MIN(documentBoundsSize.width, _bounds.size.width);
+	rect.size.height = MIN(documentBoundsSize.height, _bounds.size.height);
 	return rect;
 }
 
@@ -160,30 +160,30 @@
 	NSDebugLog(@"NSClipView viewFrameChanged");		// An unflipped doc view 
 													// smaller than clip view 
 													// requires an org offset 
-	if (mr.size.height < bounds.size.height)		// in order to appear at
+	if (mr.size.height < _bounds.size.height)		// in order to appear at
 		{											// top of the clip view.
-		mr.origin.y = bounds.size.height - mr.size.height;	
-		bounds.origin.y = 0;
+		mr.origin.y = _bounds.size.height - mr.size.height;	
+		_bounds.origin.y = 0;
 		}						// reset doc view origin to 0 if it's height
 	else						// becomes greater than the	size of the clip
 		{						// view. May occur when init docview is resized 		
 		mr.origin.y = 0;
 									// if document is not flipped adjust init
 		if(![self isFlipped])		// scroll position to be top of clip view.
-			bounds.origin.y = mr.size.height - bounds.size.height;
+			_bounds.origin.y = mr.size.height - _bounds.size.height;
 		}
 							
-	if (mr.size.width < bounds.size.width)
-		bounds.origin.x = 0;
+	if (mr.size.width < _bounds.size.width)
+		_bounds.origin.x = 0;
 
 	if(![self isFlipped])			// if document is not flipped adjust init
 		[_documentView setFrameOrigin:mr.origin];	
 
 	[_documentView setPostsFrameChangedNotifications:YES];			// reenable
-	[super_view scrollClipView:self toPoint:bounds.origin];
+	[super_view scrollClipView:self toPoint:_bounds.origin];
 	[super_view reflectScrolledClipView:self];
 //	[_documentView setNeedsDisplay:NO];		// reset area to draw in subview
-	if(NSWidth(mr) < NSWidth(frame) || NSHeight(mr) < NSHeight(frame))
+	if(NSWidth(mr) < NSWidth(_frame) || NSHeight(mr) < NSHeight(_frame))
 		[self setNeedsDisplayInRect:[self visibleRect]];
 }
 

@@ -204,7 +204,7 @@
 }
 
 - (double) criticalValue; { return _criticalValue; }
-- (NSLevelIndicatorStyle) style; { return _style; }
+- (NSLevelIndicatorStyle) levelIndicatorStyle; { return _style; }
 - (NSImage *) image; { return _image; }
 - (double) maxValue; { return _maxValue; }
 - (double) minValue; { return _minValue; }

@@ -188,7 +188,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 		[self addItemWithTitle:[itemTitles objectAtIndex:i]];
 }
 
-- (void) insertItemWithTitle:(NSString *)title atIndex:(unsigned int)index
+- (void) insertItemWithTitle:(NSString *)title atIndex:(int)index
 {
 	int i;
 	NSMenuItem *c;
@@ -306,7 +306,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	return [_menu itemAtIndex:_selectedItem];
 }
 
-- (id <NSCopying>) objectValue;
+- (id) objectValue;
 {
 	return [NSNumber numberWithInt:_selectedItem];
 }
@@ -332,7 +332,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	[self synchronizeTitleAndSelectedItem];
 }
 
-- (void) setObjectValue:(id <NSCopying>) obj;
+- (void) setObjectValue:(id) obj;
 {
 	[self selectItemAtIndex:[(id) obj intValue]];
 }
@@ -343,6 +343,18 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	NSLog(@"selectItem: %@", item);
 #endif
 	[self selectItemAtIndex:[self indexOfItem:item]];
+}
+
+- (BOOL) selectItemWithTag:(int)t
+{
+	int idx=[self indexOfItemWithTag:t];
+#if 0
+	NSLog(@"selectItemWithTag:%d", t);
+#endif
+	if(idx == NSNotFound)
+		return NO;
+	[self selectItemAtIndex: idx];
+	return YES;
 }
 
 - (void) selectItemWithTitle:(NSString *)title
@@ -577,12 +589,13 @@ NSString *NSPopUpButtonWillPopUpNotification=@"NSPopUpButtonWillPopUpNotificatio
 - (void) addItemWithTitle:(NSString *)title { [_cell addItemWithTitle:title]; }
 - (void) addItemsWithTitles:(NSArray *)itemTitles
 { [_cell addItemsWithTitles:itemTitles]; }
-- (void) insertItemWithTitle:(NSString *)title atIndex:(unsigned int)index
+- (void) insertItemWithTitle:(NSString *)title atIndex:(int)index
 {
 	[_cell insertItemWithTitle:title atIndex:index];
 }
 
 - (void) removeItemWithTitle:(NSString *)title { [_cell removeItemWithTitle:title]; }
+- (int) indexOfItem:(NSMenuItem *)item { return [_cell indexOfItem:item]; }
 - (int) indexOfItemWithTitle:(NSString *)title { return [_cell indexOfItemWithTitle:title]; }
 - (int) indexOfItemWithTag:(int)tag; { return [_cell indexOfItemWithTag:tag]; }
 - (int) indexOfItemWithRepresentedObject:(id)obj; { return [_cell indexOfItemWithRepresentedObject:obj]; }
@@ -607,6 +620,7 @@ NSString *NSPopUpButtonWillPopUpNotification=@"NSPopUpButtonWillPopUpNotificatio
 - (NSString *) titleOfSelectedItem					{ return [_cell titleOfSelectedItem]; }
 - (void) selectItem:(NSMenuItem *)item				{ [_cell selectItem:item]; }
 - (void) selectItemAtIndex:(int)index				{ [_cell selectItemAtIndex:index]; }
+- (BOOL) selectItemWithTag:(int)tag					{ return [_cell selectItemWithTag:tag]; }
 - (void) selectItemWithTitle:(NSString *)title		{ [_cell selectItemWithTitle:title]; }
 - (void) setPullsDown:(BOOL)flag					{ [_cell setPullsDown:flag]; }
 - (void) setAutoenablesItems:(BOOL)flag				{ [_cell setAutoenablesItems:flag]; }
@@ -621,7 +635,7 @@ NSString *NSPopUpButtonWillPopUpNotification=@"NSPopUpButtonWillPopUpNotificatio
 - (void) setImage:(NSImage *)anImage				{ [_cell setImage:anImage]; }
 - (void) setObjectValue:(id)anValue					{ [_cell setObjectValue:anValue]; }
 - (void) synchronizeTitleAndSelectedItem			{ [_cell synchronizeTitleAndSelectedItem]; }
-- (id <NSCopying>) objectValue						{ return [_cell objectValue]; }
+- (id) objectValue									{ return [_cell objectValue]; }
 
 - (void) encodeWithCoder:(NSCoder*)aCoder
 {

@@ -17,6 +17,7 @@ NSSplitView.h
 #import <Foundation/Foundation.h>
 
 #import <AppKit/AppKit.h>
+#import "NSAppKitPrivate.h"
 
 #define NOTICE(notif_name) NSSplitView##notif_name##Notification
 
@@ -143,7 +144,7 @@ NSSplitView.h
 		}
 	
 	[self lockFocus];
-	NSRectClip(bounds);
+	NSRectClip(_bounds);
 //	[NSEvent startPeriodicEventsAfterDelay:0.1 withPeriod:0.1];
 	[dividerColor set];
 	r.size = (NSSize){divHorizontal, divVertical};
@@ -180,14 +181,14 @@ NSSplitView.h
 				   (int)NSWidth(r),(int)NSHeight(r));
 		
 		NSRectFillUsingOperation(r, NSCompositeXOR);		// draw the divider
-		[window flushWindow];
+		[_window flushWindow];
 		e = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 							   untilDate:distantFuture 
 								  inMode:NSEventTrackingRunLoopMode 
 								 dequeue:YES];
 		
 		NSRectFillUsingOperation(r, NSCompositeXOR);		// undraw divider
-		[window flushWindow];
+		[_window flushWindow];
 		}
 	
 	[self unlockFocus];
@@ -257,7 +258,7 @@ NSSplitView.h
 	NSDebugLog(@"drawing LAST at x:%d, y:%d, w:%d, h:%d\n", (int)NSMinX(r1), 
 			   (int)NSMinY(r1), (int)NSWidth(r1), (int)NSHeight(r1));
 	
-	[window invalidateCursorRectsForView:self];	
+	[_window invalidateCursorRectsForView:self];	
 			
 //	[window setAcceptsMouseMovedEvents:NO];
 	[self setNeedsDisplay:YES];
@@ -268,12 +269,12 @@ NSSplitView.h
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillResizeSubviews) object: self];
 	
 	if((_delegate) && [_delegate respondsToSelector: @selector(splitView:resizeSubviewsWithOldSize:)])
-      	[_delegate splitView:self resizeSubviewsWithOldSize:frame.size];
+      	[_delegate splitView:self resizeSubviewsWithOldSize:_frame.size];
 	else
 		{ // split the area up evenly 
 		int i, count = [sub_views count];
 		int div = (int)(_dividerThickness * (count - 1));
-		int w = (int)ceil((NSWidth(bounds) - div) / count);
+		int w = (int)ceil((NSWidth(_bounds) - div) / count);
 		float total = 0, maxSize, divRemainder;
 		
 		for(i = 0; i < count; i++)
@@ -285,16 +286,16 @@ NSSplitView.h
 				{					// calc divider thickness not accounted for
 				divRemainder = div - (_dividerThickness * i);
 				maxSize = total + NSHeight(r) + divRemainder;
-				rect = (NSRect){{NSMinX(r),total}, bounds.size};
+				rect = (NSRect){{NSMinX(r),total}, _bounds.size};
 				
-				if(maxSize <= NSHeight(bounds))
+				if(maxSize <= NSHeight(_bounds))
 					{
 					total += (NSHeight(r) + _dividerThickness);
 					rect.size.height = NSHeight(r);
 					}
 				else
 					{
-					rect.size.height = NSHeight(bounds) - total - divRemainder;
+					rect.size.height = NSHeight(_bounds) - total - divRemainder;
 					total += (NSHeight(rect) + _dividerThickness);
 					}
 				
@@ -305,9 +306,9 @@ NSSplitView.h
 				}
 			else
 				{
-				rect.size = NSMakeSize(w, NSHeight(bounds));
+				rect.size = NSMakeSize(w, NSHeight(_bounds));
 				// make sure nothing spills over
-				while((total + NSWidth(rect)) > (NSWidth(bounds) - div))
+				while((total + NSWidth(rect)) > (NSWidth(_bounds) - div))
 					rect.size.width -= 1.;
 				
 				total += NSWidth(rect);
@@ -421,7 +422,7 @@ NSSplitView.h
 {	
 	[super resizeWithOldSuperviewSize:oldSize];
 	[self adjustSubviews];
-	[window invalidateCursorRectsForView:self];
+	[_window invalidateCursorRectsForView:self];
 }
 
 - (NSImage *) dimpleImage					{ return dimpleImage; }

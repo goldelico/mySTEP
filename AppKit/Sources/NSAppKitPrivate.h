@@ -322,6 +322,7 @@ enum _NSGlyphAttribute
 @interface NSFont (NSPrivate)
 
 - (id) _initWithDescriptor:(NSFontDescriptor *) desc;	// look up in system
+- (id) _initWithName:(NSString *) postscriptName size:(float) size useDefault:(NSString *) defaultFont;
 
 @end
 

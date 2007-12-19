@@ -58,26 +58,25 @@ enum {		// of a view which are resized when the view's superview is resized
 
 @interface NSView : NSResponder  <NSCoding> 
 {
-	NSRect frame;
-	NSRect bounds;
-	NSRect invalidRect;			// union of all subrects
-	NSRect *invalidRects;
-	unsigned int nInvalidRects;
-	unsigned int cInvalidRects;
-	NSAffineTransform *_bounds2frame;	// bounds to superview's bounds - created on demand
-	NSAffineTransform *_frame2bounds;	// inverse - created on demand
-	NSAffineTransform *_bounds2base;	// bounds to screen - created on demand
-	NSAffineTransform *_base2bounds;	// inverse - created on demand
-	float frameRotation;
-	float boundsRotation;
-	NSSize unitSquareSize;	// ?? do we need that or is it just scaling bounds/frame size?
-	
 	NSView *_nextKeyView;
 	NSView *super_view;
 	NSMutableArray *sub_views;
     NSArray *_dragTypes;
-	NSWindow *window;
-    int _gState;
+	NSWindow *_window;
+	NSAffineTransform *_bounds2frame;	// bounds to superview's bounds - created on demand
+	NSAffineTransform *_frame2bounds;	// inverse - created on demand
+	NSAffineTransform *_bounds2base;	// bounds to screen - created on demand
+	NSAffineTransform *_base2bounds;	// inverse - created on demand
+	NSRect _frame;
+	NSRect _bounds;
+	NSRect invalidRect;			// union of all subrects
+	NSRect *invalidRects;
+	NSSize unitSquareSize;	// ?? do we need that or is it just scaling bounds/frame size?
+	float frameRotation;
+	float boundsRotation;
+	unsigned int nInvalidRects;
+	unsigned int cInvalidRects;
+	int _gState;
     struct __ViewFlags {
 		unsigned int isRotatedFromBase:1;
 		unsigned int isRotatedOrScaledFromBase:1;

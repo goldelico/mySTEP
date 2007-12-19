@@ -1375,8 +1375,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 //			composite(/*_compositingOperation*/ NSCompositeSourceOver, &src, &dest);
 			// "simple" composition
 			dest.R=(src.A*src.R + (255-src.A)*dest.R)>>8;
-			dest.G=(src.A*src.R + (255-src.A)*dest.G)>>8;
-			dest.B=(src.A*src.R + (255-src.A)*dest.B)>>8;
+			dest.G=(src.A*src.G + (255-src.A)*dest.G)>>8;
+			dest.B=(src.A*src.B + (255-src.A)*dest.B)>>8;
 			XSetRGBA8(img, pxx, pxy, &dest);
 			}
 		}
@@ -2765,12 +2765,10 @@ static NSDictionary *_x11settings;
 						break;
 					case 2:	// Case open & portrait
 						{ // swap x and y
-						  // what if we need to apply a different scaling factor?
-							unsigned xh;
-							float h;
-							xh=_xRect.width; _xRect.width=_xRect.height; _xRect.height=h;
-							h=size.height; size.height=size.width; size.width=h;
-							h=resolution.height; resolution.height=resolution.width; resolution.width=h;
+						  // what if we should now apply a different scaling factor?
+							{ unsigned xh=_xRect.width; _xRect.width=_xRect.height; _xRect.height=xh; }
+							{ float h=size.height; size.height=size.width; size.width=h; }
+							{ float h=resolution.height; resolution.height=resolution.width; resolution.width=h; }
 							[(NSAffineTransform *) _screen2X11 rotateByDegrees:90.0];
 							break;
 						}

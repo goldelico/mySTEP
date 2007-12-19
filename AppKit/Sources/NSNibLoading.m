@@ -429,9 +429,9 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	className=[[coder decodeObjectForKey:@"NSClassName"] retain];
 	extension=[[coder decodeObjectForKey:@"NSExtension"] retain];	// is a NSString
 	vFlags=[coder decodeIntForKey:@"NSvFlags"];
-	frame=[coder decodeRectForKey:@"NSFrame"];	// defaults to NSZeroRect if undefined
+	_frame=[coder decodeRectForKey:@"NSFrame"];	// defaults to NSZeroRect if undefined
 	if([coder containsValueForKey:@"NSFrameSize"])
-		frame.size=[coder decodeSizeForKey:@"NSFrameSize"];
+		_frame.size=[coder decodeSizeForKey:@"NSFrameSize"];
 	nextResponder=[[coder decodeObjectForKey:@"NSNextResponder"] retain];
 	superView=[[coder decodeObjectForKey:@"NSSuperview"] retain];
 	view=[[coder decodeObjectForKey:@"NSView"] retain];
@@ -498,7 +498,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #if 0
 		NSLog(@"  alloced=%@", view);
 #endif
-		view=[view initWithFrame:frame];
+		view=[view initWithFrame:_frame];
 #if 0
 		NSLog(@"  inited with frame=%@", view);
 #endif

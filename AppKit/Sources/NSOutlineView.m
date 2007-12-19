@@ -649,9 +649,9 @@ NSString *NSOutlineViewItemWillCollapseNotification=@"NSOutlineViewItemWillColla
 			}
 		}
 	
-	[self setFrame: NSMakeRect (frame.origin.x, 
-								frame.origin.y,
-								frame.size.width, 
+	[self setFrame: NSMakeRect (_frame.origin.x, 
+								_frame.origin.y,
+								_frame.size.width, 
 								(_numberOfRows * _rowHeight) + 1)];
 	
 	/* If we are shorter in height than the enclosing clipview, we
@@ -660,8 +660,8 @@ NSString *NSOutlineViewItemWillCollapseNotification=@"NSOutlineViewItemWillColla
 		{
 		NSRect superviewBounds; // Get this *after* [self setFrame:]
 		superviewBounds = [super_view bounds];
-		if ((superviewBounds.origin.x <= frame.origin.x) 
-			&& (NSMaxY (superviewBounds) >= NSMaxY (frame)))
+		if ((superviewBounds.origin.x <= _frame.origin.x) 
+			&& (NSMaxY (superviewBounds) >= NSMaxY (_frame)))
 			{
 			[self setNeedsDisplay: YES];
 			}

@@ -297,12 +297,11 @@ FT_Library _ftLibrary(void)
 { // render the string
 	FT_GlyphSlot slot = _faceStruct->glyph;
 	NSPoint pen = NSZeroPoint;
-	unsigned long i;
 //	pen.y=[self ascender];	// one line down
 	pen.y=(_faceStruct->ascender+_faceStruct->descender)>>6;
-	for(i = 0; i < cnt; i++)
+	while(cnt-- > 0)
 		{ // render glyphs
-		FT_Error error = FT_Load_Glyph(_faceStruct, glyphs[i], FT_LOAD_RENDER);
+		FT_Error error = FT_Load_Glyph(_faceStruct, *glyphs++, FT_LOAD_RENDER);
 		if(error)
 			continue;
 		// x,y is the top/left position in X11 coordinates, i.e. counted from top/left of screen
@@ -434,51 +433,60 @@ FT_Library _ftLibrary(void)
 }
 #endif
 
-+ (void) _loadFontsFromFile:(NSString *) path;
++ (NSString *) _loadFontsFromFile:(NSString *) path;
 { // try to load to cache - ignore if we can't really load
 	FT_Long	faceIndex;
+	FT_Long numFaces=10;
 	FT_Face face;
-#if 1
+	NSString *family=nil;
+#if 0
 	NSLog(@"_loadFontsFromFile:%@", path);
 #endif
-	for(faceIndex=0; faceIndex < 10; faceIndex++)
+	for(faceIndex=0; faceIndex < numFaces; faceIndex++)
 		{ // loop until we can't read a given face
 		FT_Error error;
 		NSMutableDictionary *fontRecord;
-		NSString *family;
+		NSString *postscriptName;	// assuming that the name is the same for all faces...
 		NSString *style;
 		NSString *name;
 		NSFontTraitMask traits=0;
+		int cnt;
+		unsigned long lweight;
+		float weight=0.0;
 		const char *psname;
 #if 0
-		NSLog(@"try face #%lu", faceIndex);
+		NSLog(@"try face #%lu num faces=%lu", faceIndex, numFaces);
 #endif
 		error=FT_New_Face(_ftLibrary(), [path fileSystemRepresentation], faceIndex, &face);	// try to load first face
 		if(error == FT_Err_Unknown_File_Format)
 			{
 			NSLog(@"Invalid font file format: %@", path);
-			return;
+			return nil;
 			}
 		if(error)
 			{
 			NSLog(@"Unable to load font file %@ (error=%d)", path, error);
-			return;	// any error
+			return nil;	// any error
 			}
+#if 0
+		NSLog(@"  -> num faces=%lu", face->num_faces);
+#endif
+		numFaces=face->num_faces;
+		psname=FT_Get_Postscript_Name(face);
+		if(!psname)
+			continue;	// we can handle fonts with postscript names only
 		if(!FT_IS_SCALABLE(face))
 			continue;	// must be scalable - FIXME: we could derive a NSFontSizeAttribute
-#if 0
-		NSLog(@"num faces=%lu", face.num_faces);
-#endif
 		family=[NSString stringWithCString:face->family_name];
-		if(face->style_name && strcmp(face->style_name, "Regular") != 0)
-			{
-			style=[NSString stringWithCString:face->style_name];
-			name=[NSString stringWithFormat:@"%@-%@", family, style];	// build display name
+		if(!face->style_name || strcmp(face->style_name, "Regular") == 0)
+			{ // style name N/A or "Regular"
+			style=@"";
+			name=family;
 			}
 		else
-			{
-			style=@"";	// N/A
-			name=family;
+			{ // explicit style name available
+			style=[NSString stringWithCString:face->style_name];
+			name=[NSString stringWithFormat:@"%@-%@", family, style];	// build display name
 			}
 		if(face->style_flags&FT_STYLE_FLAG_ITALIC)
 			traits |= NSItalicFontMask;
@@ -497,21 +505,31 @@ FT_Library _ftLibrary(void)
 		// compressed
 		if(FT_IS_FIXED_WIDTH(face))
 			traits |= NSFixedPitchFontMask;
+		FT_Set_Pixel_Sizes(face, 0, 24);	// render approx. 24x24 pixels
+		FT_Load_Glyph(face, FT_Get_Char_Index(face, 'x'), FT_LOAD_DEFAULT);	// draw a representative character
+		cnt=face->glyph->bitmap.width*face->glyph->bitmap.rows;
+		if(cnt)
+			{
+			lweight=0;
+			while(cnt-- > 0)
+				lweight+=face->glyph->bitmap.buffer[cnt];	// sum up all shaded values
+			weight=(float)lweight/(255*face->glyph->bitmap.width*face->glyph->bitmap.rows);		// proportion of black and white pixels - this has to be scaled through all faces!
+			}
+		else
+			weight=0.0;
 #if 1
-		NSLog(@"add #%lu[%lu] %@-%@ at %@", faceIndex, face->num_faces, family, style, path);
+		NSLog(@"add font %lu [%lu] %@-%@ at %@", faceIndex, face->num_faces, family, style, path);
 #endif
-		psname=FT_Get_Postscript_Name(face);
-		if(!psname)
-			continue;	// we can handle fonts with postscript name only
+		postscriptName=[NSString stringWithCString:psname];
 		fontRecord=[NSMutableDictionary dictionaryWithObjectsAndKeys:
 			// official
 			family, NSFontFamilyAttribute,
 			style, NSFontFaceAttribute,
-			[NSString stringWithCString:psname], NSFontNameAttribute,	// official name
+			postscriptName, NSFontNameAttribute,	// official name
 			name, NSFontVisibleNameAttribute,	// display name
 			[NSDictionary dictionaryWithObjectsAndKeys:
 				[NSNumber numberWithUnsignedInt:traits], NSFontSymbolicTrait,
-				[NSNumber numberWithFloat:0.0], NSFontWeightTrait,
+				[NSNumber numberWithFloat:weight], NSFontWeightTrait,	// -1.0 ... 1.0
 				// NSFontSlantTrait
 				// NSFontWidthTrait
 				nil], NSFontTraitsAttribute,
@@ -519,9 +537,10 @@ FT_Library _ftLibrary(void)
 			path, @"FilePath",
 			[NSNumber numberWithUnsignedLong:faceIndex], @"FaceNumber",
 			nil];
-		[NSFontDescriptor _addFontWithAttributes:fontRecord];
+		[NSFontDescriptor _addFontWithAttributes:fontRecord];		
 		FT_Done_Face(face);
 		}
+	return family;
 }
 
 @end
@@ -533,53 +552,78 @@ FT_Library _ftLibrary(void)
 							 inFont:(NSFont *)font
 {
 	FT_Face face=[(_NSX11Font *) font _face];
-	// do similar loop as in - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
-	// but collect contents of slot->outline
-	/*
-	 n_contours	
-	 The number of contours in the outline.
-	 
-	 this is an inner loop!
-	 
-	 n_points	
-	 The number of points in the outline.
-	 
-	 points	
-	 A pointer to an array of ‘n_points’ FT_Vector elements, giving the outline's point coordinates.
-	 
-	 tags	
-	 A pointer to an array of ‘n_points’ chars, giving each outline point's type. If bit 0 is unset, the point is ‘off’ the curve, i.e., a Bézier control point, while it is ‘on’ when set.
-	 
-	 Bit 1 is meaningful for ‘off’ points only. If set, it indicates a third-order Bézier arc control point; and a second-order control point if unset.
-	 
-	 switch(slot->outline->tags[i]&3)
-		{
-		case 0:
-			// second order control point
-			break;
-		case 1:
-			[self lineTo: ];
-			break;
-		case 2:
-			// third order control point
-		case 3:
-			// error
+	NSFontRenderingMode renderingMode=[font renderingMode];
+	FT_GlyphSlot slot = face->glyph;
+	NSPoint pen = NSZeroPoint;
+	NSAssert(face, @"can't convert font to Bezier Path");
+	//	pen.y=[self ascender];	// one line down
+	pen.y=(face->ascender+face->descender)>>6;
+	while(count-- > 0)
+		{ // render glyphs
+		unsigned int i;
+		FT_Error error = FT_Load_Glyph(face, *glyphs++, FT_LOAD_RENDER);	// CHECKME - do we really need to LOAD_RENDER?
+		if(error)
+			continue;
+		for(i=0; i<slot->outline.n_contours; i++)
+			{ // add contours to path
+		/*
+		 n_contours	
+		 The number of contours in the outline.
+		 
+		 this is an inner loop!
+		 
+		 n_points	
+		 The number of points in the outline.
+		 
+		 points	
+		 A pointer to an array of ‘n_points’ FT_Vector elements, giving the outline's point coordinates.
+		 
+		 tags	
+		 A pointer to an array of ‘n_points’ chars, giving each outline point's type. If bit 0 is unset, the point is ‘off’ the curve, i.e., a Bézier control point, while it is ‘on’ when set.
+		 
+		 Bit 1 is meaningful for ‘off’ points only. If set, it indicates a third-order Bézier arc control point; and a second-order control point if unset.
+		 
+		 switch(slot->outline->tags[i]&3)
+		 {
+			 case 0:	// second order control point
+				 break;
+			 case 1:	// line to
+				 [self lineTo: ];
+				 break;
+			 case 2: // third order control point
+				 
+			 case 3:	// error
+				 break;
+		 }
+		 
+		 An array of ‘n_contours’ shorts, giving the end point of each contour within the outline. For example, the first contour is defined by the points ‘0’ to ‘contours[0]’, the second one is defined by the points ‘contours[0]+1’ to ‘contours[1]’, etc.
+		 
+		 
+		 flags	
+		 A set of bit flags used to characterize the outline and give hints to the scan-converter and hinter on how to convert/grid-fit it. See FT_OUTLINE_FLAGS.
+		 
+		 FT_OUTLINE_EVEN_ODD_FILL
+		 By default, outlines are filled using the non-zero winding rule. If set to 1, the outline will be filled using the even-odd fill rule (only works with the smooth raster).
+		 
+		 
+		 */
+			}
+		
+		if(renderingMode == NSFontAntialiasedIntegerAdvancementsRenderingMode)
+			{ // a little faster but less accurate
+			pen.x += slot->advance.x>>6;
+			pen.y += slot->advance.y>>6;
+			}
+		else
+			{ // needs 4 additional float operations per step
+			pen.x += slot->linearHoriAdvance*(1.0/65536);
+			// not reliable	- use FT_HAS_VERTICAL()		pen.y += slot->linearVertAdvance*(1.0/65536);
+			}
+		[self closePath];	// ??? and start new path for next glyph or is a moveTo: the start indicator.
 		}
-	 contours	
-	 An array of ‘n_contours’ shorts, giving the end point of each contour within the outline. For example, the first contour is defined by the points ‘0’ to ‘contours[0]’, the second one is defined by the points ‘contours[0]+1’ to ‘contours[1]’, etc.
-	 
-	 => [self close]
-	 
-	 flags	
-	 A set of bit flags used to characterize the outline and give hints to the scan-converter and hinter on how to convert/grid-fit it. See FT_OUTLINE_FLAGS.
-	 
-	 FT_OUTLINE_EVEN_ODD_FILL
-	 By default, outlines are filled using the non-zero winding rule. If set to 1, the outline will be filled using the even-odd fill rule (only works with the smooth raster).
-	 
-	 
-	 */
-	
-	NIMP;
+#if 1
+	NSLog(@"path=%@", self);
+#endif
 }
 
 - (void) appendBezierPathWithPackedGlyphs:(const char *)packedGlyphs

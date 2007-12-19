@@ -420,7 +420,7 @@ static Class __rulerViewClass = nil;
  		}
 
 	contentRect.origin = (NSPoint){ borderThickness, borderThickness };
-	contentRect.size = [isa contentSizeForFrameSize:bounds.size
+	contentRect.size = [isa contentSizeForFrameSize:_bounds.size
 							  hasHorizontalScroller:NO
 								hasVerticalScroller:NO
 										 borderType:_borderType];	// default size without any scrollers
@@ -434,7 +434,7 @@ static Class __rulerViewClass = nil;
 		contentRect.size.width -= [_vertScroller frame].size.width;	// adjust for scroller width
 		vertScrollerRect.origin.x = NSMaxX(contentRect);		// to the right
 		vertScrollerRect.origin.y = NSMinY(contentRect);
-		vertScrollerRect.size.width = bounds.size.width - borderThickness - vertScrollerRect.origin.x;	// what remains
+		vertScrollerRect.size.width = _bounds.size.width - borderThickness - vertScrollerRect.origin.x;	// what remains
 		vertScrollerRect.size.height = contentRect.size.height;	// same height
 		}
 	else
@@ -694,7 +694,7 @@ static Class __rulerViewClass = nil;
 - (void) mouseUp:(NSEvent *)event					// called when mouse goes
 {													// up in scroller.
 	if(_headerContentView)
-	   [window invalidateCursorRectsForView:[_headerContentView documentView]];
+	   [_window invalidateCursorRectsForView:[_headerContentView documentView]];
 }													
 
 - (void) encodeWithCoder: (NSCoder *)aCoder			// NSCoding protocol

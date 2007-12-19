@@ -152,7 +152,12 @@
 }
 
 - (void) addLayoutManager:(NSLayoutManager *)lm; { [layoutManagers addObject:lm]; [lm setTextStorage:self]; }
-- (int) changeInLength; { NIMP; return 0; }	// FIXME: send a delegate and/or layout manager message
+
+- (int) changeInLength;
+{
+	NIMP; return 0;
+}	// FIXME: send a delegate and/or layout manager message
+
 - (id) delegate; { return delegate; }
 
 - (void) edited:(unsigned)editedMask 
@@ -176,7 +181,9 @@
 }
 
 - (unsigned int) editedMask; { NIMP; return 0; }
+
 - (NSRange) editedRange; { return editedRange; }
+
 - (void) ensureAttributesAreFixedInRange:(NSRange)range;
 {
 	NIMP;
@@ -268,12 +275,14 @@
 
 - (void) replaceCharactersInRange:(NSRange) rng withAttributedString:(NSAttributedString *) str
 {
-	return [concreteString replaceCharactersInRange:rng withAttributedString:str];
+	[concreteString replaceCharactersInRange:rng withAttributedString:str];
+	//	[layoutManagers textStorage:self edited:(unsigned)mask range:(NSRange)range changeInLength:(int)lengthChange invalidatedRange:(NSRange)invalidatedCharRange
 }
 
 - (void) replaceCharactersInRange:(NSRange) rng withString:(NSString *) str
 {
-	return [concreteString replaceCharactersInRange:rng withString:str];
+	[concreteString replaceCharactersInRange:rng withString:str];
+	//	[layoutManagers textStorage:self edited:(unsigned)mask range:(NSRange)range changeInLength:(int)lengthChange invalidatedRange:(NSRange)invalidatedCharRange
 }
 
 - (NSDictionary *) attributesAtIndex:(unsigned) index effectiveRange:(NSRangePointer) range
@@ -312,12 +321,14 @@
 {
 	[str retain];
 	[concreteString setAttributedString:str];
+	//	[layoutManagers textStorage:self edited:(unsigned)mask range:(NSRange)range changeInLength:(int)lengthChange invalidatedRange:(NSRange)invalidatedCharRange
 	[str release];
 }
 
 - (void) setAttributes:(NSDictionary *)attributes range:(NSRange)aRange
 {
 	[concreteString setAttributes:attributes range:aRange];
+	//	[layoutManagers textStorage:self edited:(unsigned)mask range:(NSRange)range changeInLength:(int)lengthChange invalidatedRange:(NSRange)invalidatedCharRange
 }
 
 #endif

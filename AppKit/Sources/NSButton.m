@@ -239,38 +239,38 @@ id __buttonCellClass = nil;
 		{
 		case NSMomentaryLightButton:
 			[self setHighlightsBy:NSChangeGrayCellMask | NSChangeBackgroundCellMask];
-			[self showsStateBy:NSNoCellMask];
+			[self setShowsStateBy:NSNoCellMask];
 			break;
 		case NSMomentaryPushInButton:
 			[self setHighlightsBy:NSPushInCellMask | NSChangeGrayCellMask | NSChangeBackgroundCellMask];
-			[self showsStateBy:NSNoCellMask];
+			[self setShowsStateBy:NSNoCellMask];
 			break;
 		case NSMomentaryChangeButton:
 			[self setHighlightsBy:NSContentsCellMask];
-			[self showsStateBy:NSNoCellMask];
+			[self setShowsStateBy:NSNoCellMask];
 			break;
 		case NSPushOnPushOffButton:
 			[self setHighlightsBy:NSPushInCellMask | NSChangeGrayCellMask | NSChangeBackgroundCellMask];
-			[self showsStateBy:NSChangeGrayCellMask | NSChangeBackgroundCellMask];
+			[self setShowsStateBy:NSChangeGrayCellMask | NSChangeBackgroundCellMask];
 			break;
 		case NSOnOffButton:
 			[self setHighlightsBy:NSChangeGrayCellMask | NSChangeBackgroundCellMask];
-			[self showsStateBy:NSChangeGrayCellMask | NSChangeBackgroundCellMask];
+			[self setShowsStateBy:NSChangeGrayCellMask | NSChangeBackgroundCellMask];
 			break;
 		case NSToggleButton:
 			[self setHighlightsBy:NSPushInCellMask | NSContentsCellMask];
-			[self showsStateBy:NSContentsCellMask];
+			[self setShowsStateBy:NSContentsCellMask];
 			break;
 		case NSSwitchButton:
 			[self setHighlightsBy:NSContentsCellMask];
-			[self showsStateBy:NSContentsCellMask];
+			[self setShowsStateBy:NSContentsCellMask];
 			[self setImage:(NSImage *) [[NSButtonImageSource alloc] initWithName:@"NSSwitch"]];
 			[self setImagePosition:NSImageLeft];
 			[self setBordered:NO];
 			break;
 		case NSRadioButton:
 			[self setHighlightsBy:NSContentsCellMask];
-			[self showsStateBy:NSContentsCellMask];
+			[self setShowsStateBy:NSContentsCellMask];
 			[self setImage:(NSImage *) [[NSButtonImageSource alloc] initWithName:@"NSRadioButton"]];
 			[self setImagePosition:NSImageLeft];
 			[self setBordered:NO];
@@ -1091,7 +1091,7 @@ id __buttonCellClass = nil;
 
 - (void) highlight:(BOOL)flag
 {
-	[_cell highlight:flag withFrame:bounds inView:self];
+	[_cell highlight:flag withFrame:_bounds inView:self];
 }
 
 - (void) setKeyEquivalent:(NSString*)aKeyEquivalent			// Key Equivalent

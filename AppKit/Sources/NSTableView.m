@@ -263,7 +263,7 @@
 	
 					u = (NSRect){{p.x,0},{2,NSHeight(c)}};
 					NSRectFillUsingOperation(u, NSCompositeXOR);
-					[window flushWindow];
+					[_window flushWindow];
 					}
 				}
 	
@@ -336,10 +336,10 @@
 						
 						u.origin.y = NSMinY(t);
 						at=[NSAffineTransform transform];
-						[at translateXBy:-NSMinX(u) yBy:NSHeight(frame) - NSMinY(u)];
+						[at translateXBy:-NSMinX(u) yBy:NSHeight(_frame) - NSMinY(u)];
 						[at concat];
 						[_tableView drawRect:u];
-						[at translateXBy:0 yBy:-(NSHeight(frame) - NSMinY(u))];
+						[at translateXBy:0 yBy:-(NSHeight(_frame) - NSMinY(u))];
 						[at concat];
 						[headerCell setBackgroundColor:[NSColor blackColor]];
 						[headerCell drawWithFrame:h inView:self];
@@ -354,8 +354,8 @@
 					previous = current;
 					h.origin.x += delta;
 					h.origin.x = MAX(0, NSMinX(h));			// limit movement
-					if(NSMaxX(h) > NSWidth(bounds))			// to view bounds
-						h.origin.x = NSWidth(bounds) - NSWidth(h);
+					if(NSMaxX(h) > NSWidth(_bounds))			// to view bounds
+						h.origin.x = NSWidth(_bounds) - NSWidth(h);
 	
 					if (NSMinX(h) != NSMinX(oldRect) || scrolled) 
 						{
@@ -431,7 +431,7 @@
 	
 						oldRect.origin.x = NSMinX(h);
 						oldRect.size.width = NSWidth(h);
-						[window flushWindow];
+						[_window flushWindow];
 						lastPoint = p;
 						}
 					}
@@ -463,10 +463,10 @@
 		_headerDragImage = nil;
 		}
 
-	[window flushWindow];
+	[_window flushWindow];
 	[self unlockFocus];
 	[NSEvent stopPeriodicEvents];
-	[window invalidateCursorRectsForView:self];
+	[_window invalidateCursorRectsForView:self];
 }
 
 - (void) drawRect:(NSRect)rect		
@@ -476,7 +476,7 @@
 	NSTableColumn *col;
 	NSTableColumn *hlcol=[_tableView highlightedTableColumn];
 	int i=0;
-	NSRect h = bounds, aRect;
+	NSRect h = _bounds, aRect;
 	float max_X = NSMaxX(rect);
 	float intercellWidth = [_tableView intercellSpacing].width;
 	
@@ -510,7 +510,7 @@
 - (NSRect) headerRectOfColumn:(int)column	  
 {
 	NSRect h = [_tableView rectOfColumn:column];
-	return (NSRect){{NSMinX(h),NSMinY(bounds)},{NSWidth(h),NSHeight(bounds)}};
+	return (NSRect){{NSMinX(h),NSMinY(_bounds)},{NSWidth(h),NSHeight(_bounds)}};
 }
 
 - (void) resetCursorRects
@@ -520,7 +520,7 @@
 	int i, count;
 	NSCursor *resize = [NSCursor resizeLeftRightCursor];
 	float intercellWidth = [_tableView intercellSpacing].width;
-	NSRect r = {{0,0}, {MAX(1, intercellWidth), NSHeight(frame)}};
+	NSRect r = {{0,0}, {MAX(1, intercellWidth), NSHeight(_frame)}};
 	
 	count = NSMaxRange(columnRange);
 	for (i = 0; i < count; i++)
@@ -1267,7 +1267,7 @@ int index = [self columnWithIdentifier:identifier];
 		x += (col->_width + _intercellSpacing.width);
 		}
 	col=[e nextObject];
-	return (NSRect){{x, 0}, {col->_width, NSHeight(frame)}};
+	return (NSRect){{x, 0}, {col->_width, NSHeight(_frame)}};
 }
 
 - (NSRect) rectOfRow:(int) row 
@@ -1279,7 +1279,7 @@ int index = [self columnWithIdentifier:identifier];
 		// and: we must sum up all rows up to the one asked for...
 		}
 	y = (_rowHeight + _intercellSpacing.height) * row;
-	return NSMakeRect(0, y, NSWidth(frame), _rowHeight);
+	return NSMakeRect(0, y, NSWidth(_frame), _rowHeight);
 }
 
 - (int) columnAtPoint:(NSPoint)point 
@@ -1309,7 +1309,7 @@ int index = [self columnWithIdentifier:identifier];
 		int i=0;
 		NSEnumerator *e=[_tableColumns objectEnumerator];
 		NSTableColumn *col;
-		NSRect h = bounds;
+		NSRect h = _bounds;
 		NSRect intersection;
 		float max_X = NSMaxX(rect);
 
@@ -1347,7 +1347,7 @@ int index = [self columnWithIdentifier:identifier];
 		}
 	else
 		{
-		if(point.y < 0 || point.y >= NSMaxY(bounds))
+		if(point.y < 0 || point.y >= NSMaxY(_bounds))
 			return -1;
 		return (point.y/(_rowHeight + _intercellSpacing.height));	// we could subtract _intercellSpacing.height/2 so that it jumps halfway between the cells
 		}
@@ -1399,7 +1399,7 @@ int index = [self columnWithIdentifier:identifier];
 	NSText *t;
 
 	if (!(event) && (_editingCell))
-		[window makeFirstResponder:self];
+		[_window makeFirstResponder:self];
 
 	if (!_editingCell)
 		{
@@ -1419,7 +1419,7 @@ int index = [self columnWithIdentifier:identifier];
 	[self scrollRectToVisible: r];
 	[self unlockFocus];
 
-	t = [window fieldEditor:YES forObject:_editingCell];
+	t = [_window fieldEditor:YES forObject:_editingCell];
 
 	if (event)
 		[_editingCell editWithFrame:r
@@ -1478,7 +1478,7 @@ int index = [self columnWithIdentifier:identifier];
 		switch([code intValue])
 			{
 			case NSReturnTextMovement:
-				[window makeFirstResponder:self];
+				[_window makeFirstResponder:self];
 //				[self sendAction:[self action] to:[self target]];
 				break;
 			case NSTabTextMovement:					// FIX ME select next cell
@@ -1492,7 +1492,7 @@ int index = [self columnWithIdentifier:identifier];
 { 
 	NSLog(@" NSTableView textShouldEndEditing ");
 
-	if(![window isKeyWindow])
+	if(![_window isKeyWindow])
 		return NO;
 
 	if([_editingCell isEntryAcceptable: [textObject string]])

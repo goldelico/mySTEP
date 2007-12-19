@@ -116,7 +116,7 @@
 #endif
 	[_attachedMenuView setMenu:submenu];		// define to manage selected submenu
 	r=[self convertRect:[self rectOfItemAtIndex:index] toView:nil];
-	r.origin=[window convertBaseToScreen:r.origin];  // convert to screen coordinates
+	r.origin=[_window convertBaseToScreen:r.origin];  // convert to screen coordinates
 	// might offset y if menu is second tier submenu of the first entry
 	//
 	// FIXME: check if menu vertically fits on screen
@@ -127,7 +127,7 @@
 	NSLog(@"screen rect=%@", NSStringFromRect(r));
 #endif
 	[_attachedMenuView setWindowFrameForAttachingToRect:r
-											   onScreen:[window screen]
+											   onScreen:[_window screen]
 										  preferredEdge:(_isHorizontal?NSMinYEdge:NSMaxXEdge)	// default: below or to the right
 									  popUpSelectedItem:-1];	// this should resize the submenu window
 	[_menuWindow orderFront:self];  // finally, make it visible
@@ -457,14 +457,14 @@
 						popUpSelectedItem:(int) index;
 {
 	NSRect mf;  // new menu frame
-	NSRect sf=[[window screen] visibleFrame];
+	NSRect sf=[[_window screen] visibleFrame];
 #if 0
 	NSLog(@"setWindowFrameForAttachingToRect:%@ screen:... edge:%d item:%d", NSStringFromRect(ref), edge, index);
 #endif
 	if(_needsSizing)
 		[self sizeToFit];	// this will resize the window
 	edge &= 3;
-	mf.size=frame.size;   // copy content size
+	mf.size=_frame.size;   // copy content size
 	switch(edge)
 		{ // calculate preferred location
 		case NSMinXEdge:	// to the left
@@ -504,7 +504,7 @@
 #if 0
 	NSLog(@"set frame=%@", NSStringFromRect(mf));
 #endif
-	[window setFrame:[window frameRectForContentRect:mf] display:NO];	// this will also change our frame&bounds since we are the contentView!
+	[_window setFrame:[_window frameRectForContentRect:mf] display:NO];	// this will also change our frame&bounds since we are the contentView!
 #if 0
 	NSLog(@"set frame done");
 #endif
@@ -563,7 +563,7 @@
 #if 0
 	NSLog(@"sizeToFit %@", self);
 #endif
-	if(!window)
+	if(!_window)
 		{
 #if 1
 		NSLog(@"  menu %@ sizeToFit has no window yet", [_menumenu title]);
@@ -571,7 +571,7 @@
 		return;	// no reference frame (yet)
 		}
 	_needsSizing=NO;	// will have been done when calling other methods (avoid endless recursion)
-	f=[window frame];	// get enclosing window frame
+	f=[_window frame];	// get enclosing window frame
 #if 0
 	NSLog(@"window: %@", window);
 	NSLog(@"frame before: %@", NSStringFromRect(f));
@@ -643,9 +643,9 @@
 #if 0
 	NSLog(@"NSMenuView sizetofit: window frame=%@", NSStringFromRect(f));
 #endif
-	[window setFrame:f display:NO];	// resize enclosing window - but do not display immediately;
+	[_window setFrame:f display:NO];	// resize enclosing window - but do not display immediately;
 //	[self setFrame:(NSRect){ NSZeroPoint, f.size}];	// since we are the contentView, we are resized as needed
-	[self setNeedsDisplayInRect:bounds];	// we finally need to redraw full menu, i.e. all items
+	[self setNeedsDisplay:YES];		// we finally need to redraw full menu, i.e. all items
 #if 0
 	NSLog(@"sizetofit: done");
 #endif
@@ -766,8 +766,8 @@
 	NSPoint p;
 	if(_attachedMenuView && [_attachedMenuView trackWithEvent:event])
 		return YES;	// yes, it has been successfully handled by the submenu
-	p=[self convertPoint:[window mouseLocationOutsideOfEventStream] fromView:nil];	// get coordinates relative to our window (we might have a different one as the event!)
-	if(NSMouseInRect(p, bounds, [self isFlipped]))
+	p=[self convertPoint:[_window mouseLocationOutsideOfEventStream] fromView:nil];	// get coordinates relative to our window (we might have a different one as the event!)
+	if(NSMouseInRect(p, _bounds, [self isFlipped]))
 		{ // highlight cell
 		int item=[self indexOfItemAtPoint:p];	// get selected item
 #if 0

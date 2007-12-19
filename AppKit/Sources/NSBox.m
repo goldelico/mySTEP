@@ -54,7 +54,7 @@
 	NSLog(@"_borderRect=%@", NSStringFromRect(_borderRect));
 #endif
 
-	_borderRect = NSInsetRect(bounds, border.width, border.height);	// move everything inwards if needed
+	_borderRect = NSInsetRect(_bounds, border.width, border.height);	// move everything inwards if needed
 	title.width += 1;						// Add spacer around title
 	title.height += 1;
 	_titleRect.origin.x=_borderRect.origin.x + 3;
@@ -104,7 +104,7 @@
 		[_titleCell setEditable: NO];
 		[_titleCell setBackgroundColor: [NSColor controlBackgroundColor]];
 		_offsets = (NSSize){5,5};	// defaults
-		_borderRect = bounds;
+		_borderRect = _bounds;
 		_bx.borderType = NSLineBorder;
 		_bx.titlePosition = NSAtTop;
 		_contentView = [[NSView alloc] initWithFrame:[self _calcSizes]];
@@ -247,7 +247,7 @@
 		{
 		case NSLineBorder:
 			{
-				[[window backgroundColor] set];
+				[[_window backgroundColor] set];
 				NSRectFill(rect);			// fill with standard control background
 				[[NSColor blackColor] set];
 				NSFrameRect(_borderRect);	// draw black line border
@@ -273,7 +273,7 @@
 	
 	if(_bx.titlePosition != NSNoTitle)
 		{ // Draw the title
-		[_titleCell setBackgroundColor: [window backgroundColor]];
+		[_titleCell setBackgroundColor: [_window backgroundColor]];
 		[_titleCell drawWithFrame: _titleRect inView: self];
 		}
 #if 0	// testing

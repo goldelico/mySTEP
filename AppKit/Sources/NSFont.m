@@ -117,7 +117,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 
 + (NSFont *) userFixedPitchFontOfSize:(float)fontSize
 {
-	return _getNSFont (@"NSUserFixedPitchFont", @"Courier", fontSize, [NSFont systemFontSize]);
+	return _getNSFont (@"NSUserFixedPitchFont", @"Monaco", fontSize, [NSFont systemFontSize]);
 }
 
 + (NSFont *) userFontOfSize:(float)fontSize
@@ -186,15 +186,13 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 		descriptor=[descriptor fontDescriptorWithSize:size];
 	descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all given keys
 	if(!descriptor)
-		return [NSFont fontWithName:@"Times" size:0.0];	// substitute a system default
+		return [NSFont fontWithName:@"Georgia" size:0.0];	// substitute a system default
 	if(transform)
 		descriptor=[descriptor fontDescriptorWithMatrix:transform];
 	if(size != 0.0)
 		descriptor=[descriptor fontDescriptorWithSize:size];
 	return [[[NSFont alloc] _initWithDescriptor:descriptor] autorelease];
 }
-
-// FIXME: make font name substitution more general
 
 + (NSFont *) fontWithName:(NSString*) name matrix:(const float *) fontMatrix
 {
@@ -209,65 +207,9 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	return [[[NSFont alloc] _initWithDescriptor:descriptor] autorelease];
 }
 
-- (id) _initWithName:(NSString *) postscriptName size:(float) size useDefault:(BOOL) flag
-	{
-	static NSMutableDictionary *fcache;	// one more font cache
-	NSString *key;
-	NSFontDescriptor *descriptor;
-	NSFont *f;
-	if(size <= 0.0)
-		// FIXME: the NSUserFont entry is just the font name!
-		// size=[[[NSUserDefaults standardUserDefaults] objectForKey:@"NSUserFont"] pointSize];	// default
-		size=12.0;
-	key=[postscriptName stringByAppendingFormat:@"-%.1f", size];	// build cache key
-	f=[fcache objectForKey:key];	// look into cache
-	if(f)
-		{ // get font object from cache
-		[self release];
-		return [f retain];
-		}
-	descriptor=[NSFontDescriptor fontDescriptorWithName:postscriptName size:size];	// add size for search
-	descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
-	if(!descriptor)
-		{
-#ifndef __APPLE__
-		// FIXME: substitute some free fonts until we have an official substitution mechanism for that and/or a license for these fonts
-		if([postscriptName isEqualToString:@"Times"]) postscriptName=@"LuxiSerif";
-		else if([postscriptName isEqualToString:@"Helvetica"]) postscriptName=@"LuxiSans";
-		else if([postscriptName isEqualToString:@"Helvetica-Bold"]) postscriptName=@"LuxiSans-Bold";
-		else if([postscriptName isEqualToString:@"Helvetica-Italic"]) postscriptName=@"LuxiSans-Italic";
-		else if([postscriptName isEqualToString:@"Courier"]) postscriptName=@"Nonserif";
-		else if([postscriptName isEqualToString:@"Monaco"]) postscriptName=@"LuxiMono";
-		else if([postscriptName isEqualToString:@"Monaco-Bold"]) postscriptName=@"LuxiMono-Bold";
-		else if([postscriptName isEqualToString:@"LucidaGrande"]) postscriptName=@"LuxiSans";
-		else if([postscriptName isEqualToString:@"LucidaGrande-Bold"]) postscriptName=@"LuxiSans-Bold";
-		else if([postscriptName isEqualToString:@"Geneva"]) postscriptName=@"LuxiSans";
-		else if(flag) postscriptName=@"LuxiSans";
-		else
-			return nil;
-#if 1
-		NSLog(@"font substituted by %@", postscriptName);
-#endif
-		descriptor=[NSFontDescriptor fontDescriptorWithName:postscriptName size:size];	// add size for search
-		descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
-		if(!descriptor)
-#endif
-			{ // no matching font found
-			[self release];
-			return nil;
-			}
-		}
-	descriptor=[descriptor fontDescriptorWithSize:size];	// add size to result
-	self=[self _initWithDescriptor:descriptor];		// convert NSFontDescriptor to NSFont
-	if(!fcache)
-		fcache=[[NSMutableDictionary alloc] initWithCapacity:20];	// there was no cache yet
-	[fcache setObject:self forKey:key];	// add to cache
-	return self;
-}
-
 + (NSFont *) fontWithName:(NSString*) name size:(float) size
 { // create a font without matrix
-	return [[[self alloc] _initWithName:name size:size useDefault:NO] autorelease];
+	return [[[self alloc] _initWithName:name size:size useDefault:nil] autorelease];
 }
 
 - (NSString *) fontName							{ return [_descriptor objectForKey:NSFontNameAttribute]; }
@@ -300,9 +242,9 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 #if 0
 		NSLog(@"%@ NSfFlags=%08x", self, [aDecoder decodeIntForKey:@"NSfFlags"]);
 #endif
-		if((self=[self _initWithName:postscriptName size:size useDefault:YES]))
+		if((self=[self _initWithName:postscriptName size:size useDefault:@"LucidaGrande"]))
 			{
-			// _renderingMode=RENDERING_MODE;
+			// _renderingMode=Default RENDERING_MODE;
 			}
 		return self;
 		}
@@ -310,6 +252,52 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 //	[aDecoder decodeArrayOfObjCType:"f" count:6 at:_matrix];
 //	return self;
 	return NIMP;
+}
+
+- (id) _initWithName:(NSString *) postscriptName size:(float) size useDefault:(NSString *) defaultFont
+{
+	static NSMutableDictionary *fcache;	// one more font cache
+	NSString *key;
+	NSFontDescriptor *descriptor;
+	NSFont *f;
+	if(size <= 0.0)
+		// FIXME: the NSUserFont entry is just the font name!
+		// size=[[[NSUserDefaults standardUserDefaults] objectForKey:@"NSUserFont"] pointSize];	// default
+		size=12.0;
+	key=[postscriptName stringByAppendingFormat:@"-%.1f", size];	// build cache key
+	f=[fcache objectForKey:key];	// look into cache
+	if(f)
+		{ // get font object from cache
+		[self release];
+		return [f retain];
+		}
+	descriptor=[NSFontDescriptor fontDescriptorWithName:postscriptName size:size];	// add size for search
+	descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
+	if(!descriptor)
+		{ // no matching font found
+		if(defaultFont)
+			{ // use default
+			descriptor=[NSFontDescriptor fontDescriptorWithName:defaultFont size:size];	// add size for search
+			descriptor=[descriptor matchingFontDescriptorWithMandatoryKeys:[NSSet setWithArray:[[descriptor fontAttributes] allKeys]]];	// match all keys
+			if(!descriptor)
+				{
+				NSLog(@"did not find default font %@", defaultFont);
+				[self release];
+				return nil;
+				}
+			}
+		else
+			{ // don't substitute a default
+			[self release];
+			return nil;
+			}
+		}
+	descriptor=[descriptor fontDescriptorWithSize:size];	// add real size to result (which may have no size or be unscaled)
+	self=[self _initWithDescriptor:descriptor];				// convert NSFontDescriptor to NSFont
+	if(!fcache)
+		fcache=[[NSMutableDictionary alloc] initWithCapacity:20];	// there was no cache yet
+	[fcache setObject:self forKey:key];	// add to cache
+	return self;
 }
 
 - (id) _initWithDescriptor:(NSFontDescriptor *) desc
@@ -647,20 +635,32 @@ static BOOL changed;
 	NSString *key;
 	while((key=[e nextObject]))
 		{
+		id val=[record objectForKey:key];
 		id attr=[attributes objectForKey:key];
-		if(attr && ![attr isEqual:[record objectForKey:key]])
-			return NO;	// explicit No-match
+		if(val && attr && ![attr isEqual:val])
+			break;	// explicit No-match
 		}
-	return YES;
+#if 0
+#if 1
+	if(!key)
+#endif
+		{
+		NSLog(@"fontmatch %@", !key?@"YES":@"NO");
+		NSLog(@"  record=%@", record);
+		NSLog(@"  attribs=%@", attributes);
+		NSLog(@"  keys=%@", keys);
+		}
+#endif
+	return !key;	// matches if we have exhausted all keys
 }
 
 + (NSArray *) _matchingFontDescriptorsWithAttributes:(NSDictionary *) attributes mandatoryKeys:(NSSet *) keys limit:(unsigned) limit;
 { // this is the core font search engine that knows about font directories
 	NSMutableArray *a=[[NSMutableArray alloc] initWithCapacity:10];
-	NSString *name=[attributes objectForKey:NSFontNameAttribute];	// match by name
+	NSString *postscriptName=[attributes objectForKey:NSFontNameAttribute];	// match by name
 	if(!cache)
 		[self _fonts];	// load from disk
-	if(!name)
+	if(!postscriptName)
 		{ // scan all fonts in cache
 		NSEnumerator *f=[cache objectEnumerator];
 		NSArray *list;
@@ -675,7 +675,7 @@ static BOOL changed;
 		}
 	else
 		{ // scan relevant font only
-		NSEnumerator *e=[[cache objectForKey:name] objectEnumerator];	// list of attribute records
+		NSEnumerator *e=[[cache objectForKey:postscriptName] objectEnumerator];	// list of attribute records
 		NSDictionary *record;
 		while(limit > 0 && (record=[e nextObject]))
 			if([self _record:record matchesAttributes:attributes mandatoryKeys:keys])
@@ -689,11 +689,9 @@ static BOOL changed;
 	if(!cache)
 		{
 #if 1
-		NSLog(@"read font cache");
+		NSLog(@"read font cache from %@", FONT_CACHE);
 #endif
-#if 1	// if 0: rebuild cache each time while debugging
 		cache=[[NSMutableDictionary alloc] initWithContentsOfFile:FONT_CACHE];
-#endif
 		if(!cache)
 			{ // could not load
 			cache=[[NSMutableDictionary alloc] initWithCapacity:10];	// allocate empty cache
@@ -718,8 +716,6 @@ static BOOL changed;
 		}
 }
 
-// FIXME: what about duplicates?
-
 + (void) _addFontWithAttributes:(NSDictionary *) record;
 { // add a record to the font cache that helps to find the font file
 	NSString *key=[record objectForKey:NSFontNameAttribute];
@@ -727,16 +723,45 @@ static BOOL changed;
 	if(!list)
 		[cache setObject:[NSMutableArray arrayWithObject:record] forKey:key];	// first entry for this fontname
 	else
-		[list addObject:record];	// add to cache
+		[list addObject:record];	// add to cache	
 	changed=YES;
 }
 
 #endif	// default font cache
 
-+ (void) _loadFontsFromFile:(NSString *) path;
++ (void) _substitute:(NSString *) font by:(NSString *) subst;
+{ // add a second name 'font' to be substituted by existing font 'subst'
+	NSDictionary *match=[NSDictionary dictionaryWithObject:subst forKey:NSFontNameAttribute];
+	NSFontDescriptor *f=[[self _matchingFontDescriptorsWithAttributes:match mandatoryKeys:[NSSet setWithArray:[match allKeys]] limit:1] lastObject];	// locate font by name
+	NSMutableArray *fam=[[font componentsSeparatedByString:@"-"] mutableCopy];
+	NSString *family;
+#if 0
+	NSLog(@"%@ -> %@", font, subst);
+	NSLog(@"match %@", match);
+	NSLog(@"fam %@", fam);
+#endif
+	if(!f)
+		{ // not found
+		NSLog(@"can't substitute %@ -> %@", font, subst);
+		return;
+		}
+	if([fam count] > 1)
+		[fam removeLastObject];	// remove last component to get the family name
+	family=[fam componentsJoinedByString:@"-"];
+	f=[f fontDescriptorByAddingAttributes:[NSDictionary dictionaryWithObjectsAndKeys:font, NSFontNameAttribute,
+														family, NSFontFamilyAttribute,
+														font, NSFontVisibleNameAttribute,
+		nil]];	// substitute name and family
+#if 0
+	NSLog(@"subst = %@", f);
+#endif
+	[self _addFontWithAttributes:[f fontAttributes]];	// add to cache
+}
+
++ (NSString *) _loadFontsFromFile:(NSString *) path;
 { // try to load the font cache - ignore if we can't really load
 	// call [self addFontWithAttributes:]; for all fonts we find in that file
-	BACKEND;
+	return BACKEND;
 }
 
 + (void) _findFonts;
@@ -763,6 +788,25 @@ static BOOL changed;
 			[self _loadFontsFromFile:[dir stringByAppendingPathComponent:file]];
 			}
 		}
+#ifndef __APPLE__
+	[self _substitute:@"Times" by:@"LuxiSerif"];
+	[self _substitute:@"Times-Bold" by:@"LuxiSerif-Bold"];
+	[self _substitute:@"Times-Italic" by:@"LuxiSerif-Italic"];
+	[self _substitute:@"Courier" by:@"LuxiMono"];
+	[self _substitute:@"Courier-Bold" by:@"LuxiMono-Bold"];
+	[self _substitute:@"Monaco" by:@"LuxiMono"];
+	[self _substitute:@"Monaco-Bold" by:@"LuxiMono-Bold"];
+	[self _substitute:@"Helvetica" by:@"LuxiSans"];
+	[self _substitute:@"Helvetica-Bold" by:@"LuxiSans-Bold"];
+	[self _substitute:@"Helvetica-Italic" by:@"LuxiSans-Italic"];
+	[self _substitute:@"Arial" by:@"LuxiSans"];
+	[self _substitute:@"Arial-Bold" by:@"LuxiSans-Bold"];
+	[self _substitute:@"Arial-Italic" by:@"LuxiSans-Italic"];
+	[self _substitute:@"Geneva" by:@"LuxiSans"];
+	[self _substitute:@"LucidaGrande" by:@"LuxiSans"];
+	[self _substitute:@"LucidaGrande-Bold" by:@"LuxiSans-Bold"];
+	[self _substitute:@"LucidaGrande-Italic" by:@"LuxiSans-Italic"];
+#endif
 }
 
 - (NSArray *) matchingFontDescriptorsWithMandatoryKeys:(NSSet *) keys;
