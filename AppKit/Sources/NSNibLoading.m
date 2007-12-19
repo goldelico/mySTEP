@@ -851,7 +851,10 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	if([name hasSuffix:@".nib"]) name=[name stringByDeletingPathExtension];
 	if(!(path=[bundle pathForResource:name ofType:@"nib" inDirectory:nil]))
 		{ [self release]; return nil; }
-	return [self _initWithContentsOfURL:[NSURL fileURLWithPath:path] bundle:bundle];	// FIXME: what is the filename: NIB bundle oder kexedobjects.nib filename?
+#if 1
+	NSLog(@"path=%@", path);
+#endif
+	return [self _initWithContentsOfURL:[NSURL fileURLWithPath:path] bundle:bundle];	// FIXME: what is the filename: NIB bundle oder keyedobjects.nib filename?
 }
 
 - (id) initWithContentsOfURL:(NSURL *) url;

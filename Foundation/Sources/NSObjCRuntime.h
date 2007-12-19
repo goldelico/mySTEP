@@ -248,14 +248,25 @@ char *objc_dynamic_find_file(const void *address);
 #define LONG2PTR(L) (((char*)0)+(L))
 #endif
 
+//// NOTE: these macros are only defined on GNUstep!
+
 //
 //	RETAIN(), RELEASE(), and AUTORELEASE() are placeholders for the
 //	(possible)  future day when we have garbage collecting.
 //
+
+#ifndef RETAIN
 #define	RETAIN(object)		[object retain]
+#endif
+#ifndef RELEASE
 #define	RELEASE(object)		[object release]
+#endif
+#ifndef AUTORELEASE
 #define	AUTORELEASE(object)	[object autorelease]
+#endif
+#ifndef DESTROY
 #define	DESTROY(object)		{ id o=(object); object=nil; [o release]; }	// recursion safe destroy
+#endif
 
 //
 //	ASSIGN(object,value) assignes the value to the object
@@ -263,12 +274,14 @@ char *objc_dynamic_find_file(const void *address);
 //  note: value may be an expression that allocates/copies etc. new objects - must be called only once!
 //  note: retain first if we assign the same value as we have already assigned!
 //
+#ifndef ASSIGN
 #define	ASSIGN(object,value) ({ id temp=(value); \
 if (temp) \
 	[(temp) retain]; \
 								if (object) \
 									[(object) release]; \
 										object = (temp);	})
+#endif
 //
 // Method that must be implemented by a subclass
 //

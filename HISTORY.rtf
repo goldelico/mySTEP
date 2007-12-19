@@ -19,6 +19,9 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \f1\b0 \
 \
+* AppKit: substitute font and font family names\
+* AppKit: fixed issue when loading multiple faces from single font file\
+* AppKit: bounds, frame, window instance variables renamed to _bounds, _frame, _window to reduce problems with subclassing\
 * AppKit: NSFont, NSFontDescriptor, NSFontManager modernized to use NSFontDescriptor as the core font matching mechanism\
 * Backend: wrapped libfreetype to handle smooth fonts by NSFontDescriptor\
 * CoreData: GSCoreData added and made compile (not tested)\
