@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//GNUstep//DTD plist 0.9//EN" "http://www.gnustep.org/plist-0_9.xml">
-<plist version="0.9">
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
 <dict>
-    <key>IBDocumentLocation</key>
-    <string>6 91 366 410 0 0 1152 864</string>
-    <key>IBFramework Version</key>
-    <string>437.0</string>
-    <key>IBOpenItems</key>
-    <array>
-	<integer>2</integer>
-    </array>
-    <key>IBSystem Version</key>
-    <string>8I127</string>
-    <key>IBUsesTextArchiving</key>
-    <true/>
+	<key>IBDocumentLocation</key>
+	<string>74 40 356 240 0 0 1440 878 </string>
+	<key>IBEditorPositions</key>
+	<dict>
+		<key>29</key>
+		<string>97 340 371 44 0 0 1440 878 </string>
+	</dict>
+	<key>IBFramework Version</key>
+	<string>446.1</string>
+	<key>IBOpenObjects</key>
+	<array>
+		<integer>29</integer>
+	</array>
+	<key>IBSystem Version</key>
+	<string>8S2167</string>
 </dict>
 </plist>
