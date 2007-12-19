@@ -21,3 +21,9 @@
 #ifndef NSDebugLog
 #define NSDebugLog(FMT, ARGS...) 
 #endif
+
+#import <CoreData/CoreData.h>
+
+@interface NSManagedObjectModel (Private)
+- (NSDictionary *) entitiesByNameForConfiguration: (NSString *) configuration;
+@end

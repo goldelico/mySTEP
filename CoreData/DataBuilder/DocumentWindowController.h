@@ -88,8 +88,3 @@
 
 @end
 
-@interface NSManagedObjectModel (Private)
-
-- (NSDictionary *) entitiesByNameForConfiguration: (NSString *) configuration;
-
-@end
