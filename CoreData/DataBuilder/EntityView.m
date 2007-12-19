@@ -471,10 +471,10 @@ LoadSelectedImagesIfNecessary(void)
     }
 }
 
-- initWithEntity: (NSEntityDescription *) anEntity
+- (id) initWithEntity: (NSEntityDescription *) anEntity
          inModel: (NSManagedObjectModel *) model
 {
-  if ([super initWithFrame: MinimalFrame])
+	if ((self = [super initWithFrame: MinimalFrame]))
     {
       NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
 
@@ -501,12 +501,8 @@ LoadSelectedImagesIfNecessary(void)
       allowsDragging = YES;
       allowsPropertySelection = YES;
 
-      return self;
     }
-  else
-    {
-      return nil;
-    }
+	return self;
 }
 
 - (NSEntityDescription *) entity

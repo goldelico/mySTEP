@@ -265,7 +265,7 @@ ValidateRelationshipValue(NSRelationshipDescription * relationship,
 - (id)            initWithEntity: (NSEntityDescription *) entity
   insertIntoManagedObjectContext: (NSManagedObjectContext *) ctxt
 {
-  if ([super init])
+  if ((self = [super init]))
     {
       if ([entity isAbstract])
         {
@@ -279,12 +279,8 @@ ValidateRelationshipValue(NSRelationshipDescription * relationship,
 
       [ctxt insertObject: self];
 
-      return self;
     }
-  else
-    {
-      return nil;
-    }
+	return self;
 }
 
 /**
@@ -627,7 +623,7 @@ ValidateRelationshipValue(NSRelationshipDescription * relationship,
 - (id) _initAsFaultWithEntity: (NSEntityDescription *) entity
                ownedByContext: (NSManagedObjectContext *) context
 {
-  if ([super init])
+	if ((self = [super init]))
     {
       if ([entity isAbstract])
         {
@@ -641,14 +637,9 @@ ValidateRelationshipValue(NSRelationshipDescription * relationship,
 
       _context = context;
       _isFault = YES;
-
-      return self;
-    }
-  else
-    {
-      return nil;
-    }
-}
+	}
+	return self;
+ }
 
 /**
  * Sets the managed object ID of the receiver. This used when

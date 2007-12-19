@@ -165,7 +165,7 @@ RemoveKVOSetupFromObjects(id observer, NSSet * objects)
 
 - (id) init
 {
-  if ([super init])
+	if ((self = [super init]))
     {
       _lock = [NSRecursiveLock new];
       _undoManager = [NSUndoManager new];
@@ -176,12 +176,8 @@ RemoveKVOSetupFromObjects(id observer, NSSet * objects)
       _deletedObjects = [NSMutableSet new];
       ASSIGN(_mergePolicy, NSErrorMergePolicy);
 
-      return self;
     }
-  else
-    {
-      return nil;
-    }
+	return self;
 }
 
 /**

@@ -172,18 +172,14 @@ DrawGridInRect(NSRect r)
   [super dealloc];
 }
 
-- initWithFrame: (NSRect) frame
+- (id) initWithFrame: (NSRect) frame
 {
-  if ([super initWithFrame: frame])
+  if ((self = [super initWithFrame: frame]))
     {
       cachedEntityViews = [NSMutableDictionary new];
 
-      return self;
     }
-  else
-    {
-      return nil;
-    }
+	return self;
 }
 
 - (void) awakeFromNib

@@ -55,7 +55,7 @@
 
 - (id) initWithCoder: (NSCoder *) coder
 {
-  if ([super initWithCoder: coder])
+	if ((self = [super initWithCoder: coder]))
     {
       if ([coder allowsKeyedCoding])
         {
@@ -65,14 +65,9 @@
         {
           ASSIGN(_fetchRequest, [coder decodeObject]);
         }
-
-      return self;
-    }
-  else
-    {
-      return nil;
-    }
-}
+	}
+	return self;
+ }
 
 - (void) encodeWithCoder: (NSCoder *) coder
 {

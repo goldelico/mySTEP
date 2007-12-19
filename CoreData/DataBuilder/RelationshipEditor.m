@@ -93,10 +93,10 @@
   [super dealloc];
 }
 
-- initWithModel: (NSManagedObjectModel *) aModel
+- (id) initWithModel: (NSManagedObjectModel *) aModel
        document: (Document *) aDocument
 {
-  if ([super initWithModel: aModel document: aDocument])
+	if ((self = [super initWithModel: aModel document: aDocument]))
     {
       [NSBundle loadNibNamed: @"RelationshipEditor" owner: self];
 
@@ -108,12 +108,8 @@
                name: PropertiesDidChangeNotification
              object: model];
 
-      return self;
     }
-  else
-    {
-      return nil;
-    }
+	return self;
 }
 
 

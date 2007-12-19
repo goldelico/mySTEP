@@ -147,7 +147,7 @@
 
 - (id) initWithCoder: (NSCoder *) coder
 {
-  if ([super initWithCoder: coder])
+  if ((self = [super initWithCoder: coder]))
     {
       if ([coder allowsKeyedCoding])
         {
@@ -172,13 +172,8 @@
           [coder decodeValueOfObjCType: @encode(typeof(_maxCount))
                                     at: &_maxCount];
         }
-
+	}
       return self;
-    }
-  else
-    {
-      return nil;
-    }
 }
 
 - (void) encodeWithCoder: (NSCoder *) coder

@@ -24,6 +24,7 @@
 
 #import "CoreDataHeaders.h"
 #import "GSPersistentStore.h"
+#import "GSSQLitePersistentStore.h"
 
 NSString
   * const NSSQLiteStoreType = @"NSSQLiteStoreType",
@@ -57,8 +58,9 @@ static NSMutableDictionary * persistentStoreTypes = nil;
     {
       persistentStoreTypes = [[NSMutableDictionary alloc]
         initWithObjectsAndKeys:
-/*        NSSQLiteStoreType, [GSSQLitePersistentStore class],
-        NSXMLStoreType, [GSXMLPersistentStore class],
+        NSSQLiteStoreType, [GSSQLitePersistentStore class],
+/*
+		NSXMLStoreType, [GSXMLPersistentStore class],
         NSBinaryStoreType, [GSBinaryPersistentStore class],
         NSInMemoryStoreType, [GSInMemoryPersistentStore class],*/
         nil];
@@ -112,19 +114,15 @@ static NSMutableDictionary * persistentStoreTypes = nil;
 
 - (id) initWithManagedObjectModel: (NSManagedObjectModel *) model
 {
-  if ([self init])
+	if ((self = [self init]))
     {
       ASSIGN(_model, model);
 
       _persistentStores = [NSMutableDictionary new];
       _lock = [NSRecursiveLock new];
 
-      return self;
     }
-  else
-    {
-      return nil;
-    }
+	return self;
 }
 
 - (NSManagedObjectModel *) managedObjectModel

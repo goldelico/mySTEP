@@ -130,7 +130,7 @@
 
 - (id) initWithCoder: (NSCoder *) coder
 {
-  if ([super init])
+	if ((self = [super init]))
     {
       if ([coder allowsKeyedCoding])
         {
@@ -160,13 +160,8 @@
           [coder decodeValueOfObjCType: @encode(typeof(_transient))
                                     at: &_transient];
         }
-
+	}
       return self;
-    }
-  else
-    {
-      return nil;
-    }
 }
 
 - (void) encodeWithCoder: (NSCoder *) coder

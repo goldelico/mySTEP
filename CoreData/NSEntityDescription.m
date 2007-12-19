@@ -308,7 +308,7 @@ static inline void EnsureEntityEditable(NSManagedObjectModel * model,
 
 - (id) initWithCoder: (NSCoder *) coder
 {
-  if ([self init])
+  if ((self = [self init]))
     {
       if ([coder allowsKeyedCoding])
         {
@@ -337,12 +337,8 @@ static inline void EnsureEntityEditable(NSManagedObjectModel * model,
                                     at: &_modelRefCount];
         }
 
-      return self;
     }
-  else
-    {
-      return nil;
-    }
+	return self;
 }
 
 - (void) encodeWithCoder: (NSCoder *) coder

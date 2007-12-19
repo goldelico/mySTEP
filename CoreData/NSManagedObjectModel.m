@@ -274,17 +274,12 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
 
 - (id) init
 {
-  if ([super init])
+	if ((self = [super init]))
     {
       _configurations = [NSMutableDictionary new];
       _fetchRequests = [NSMutableDictionary new];
-
+	}
       return self;
-    }
-  else
-    {
-      return nil;
-    }
 }
 
 - (NSArray *) entities
@@ -451,7 +446,7 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
 
 - (id) initWithCoder: (NSCoder *) coder
 {
-  if ([super init])
+	if ((self = [super init]))
     {
       if ([coder allowsKeyedCoding])
         {
@@ -466,13 +461,8 @@ static void EnsureEntitiesHaveProperNames(NSArray * entities)
           ASSIGN(_configurations, [coder decodeObject]);
           ASSIGN(_fetchRequests, [coder decodeObject]);
         }
-
+	}
       return self;
-    }
-  else
-    {
-      return nil;
-    }
 }
 
 - (void) encodeWithCoder: (NSCoder *) coder

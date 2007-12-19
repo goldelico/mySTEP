@@ -55,7 +55,7 @@
                     predicate: (NSPredicate *) predicate
               sortDescriptors: (NSArray *) sortDescriptors
 {
-  if ([self init])
+  if ((self = [self init]))
     {
       ASSIGN(_affectedStores, affectedStores);
       ASSIGN(_entity, entity);
@@ -63,12 +63,8 @@
       ASSIGN(_predicate, predicate);
       ASSIGN(_sortDescriptors, sortDescriptors);
 
-      return self;
     }
-  else
-    {
-      return nil;
-    }
+	return self;
 }
 
 /**
@@ -195,7 +191,7 @@
 
 - (id) initWithCoder: (NSCoder *) coder
 {
-  if ([self init])
+	if ((self = [self init]))
     {
       if ([coder allowsKeyedCoding])
         {
@@ -217,12 +213,8 @@
           ASSIGN(_sortDescriptors, [coder decodeObject]);
         }
 
-      return self;
     }
-  else
-    {
-      return nil;
-    }
+	return self;
 }
 
 @end

@@ -177,7 +177,7 @@ static NSRecursiveLock * lock = nil;
 
 - (id) _initWithEntity: (NSEntityDescription *) entity
 {
-  if ([super init])
+	if ((self = [super init]))
     {
       ASSIGN(_entity, entity);
 
@@ -196,31 +196,22 @@ static NSRecursiveLock * lock = nil;
           _value = nextTemporaryID;
           nextTemporaryID++;
         }
-
+	}
       return self;
-    }
-  else
-    {
-      return nil;
-    }
 }
 
 - (id) _initWithEntity: (NSEntityDescription *) entity
        persistentStore: (GSPersistentStore *) persistentStore
                  value: (unsigned long long) value
 {
-  if ([super init])
+	if ((self = [super init]))
     {
       ASSIGN(_entity, entity);
       ASSIGN(_persistentStore, persistentStore);
       _value = value;
 
-      return self;
-    }
-  else
-    {
-      return nil;
-    }
+	}
+	return self;
 }
 
 - (unsigned long long) _value
