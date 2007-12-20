@@ -32,3 +32,14 @@
 - (NSURL *) URL; 
 
 @end
+
+
+@interface NSObject (NSPathControlDelegate)
+
+- (BOOL) pathControl:(NSPathControl *) sender acceptDrop:(id <NSDraggingInfo>) draggingInfo; 
+- (BOOL) pathControl:(NSPathControl *) sender shouldDragPathComponentCell:(NSPathComponentCell *) cell withPasteboard:(NSPasteboard *)pboard; 
+- (NSDragOperation) pathControl:(NSPathControl *) sender validateDrop:(id <NSDraggingInfo>) draggingInfo; 
+- (void) pathControl:(NSPathControl *) sender willDisplayOpenPanel:(NSOpenPanel *) openPanel; 
+- (void) pathControl:(NSPathControl *) sender willPopUpMenu:(NSMenu *) menu; 
+
+@end

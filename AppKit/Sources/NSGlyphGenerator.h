@@ -33,6 +33,7 @@ enum
 
 @end
 
+
 @interface NSGlyphGenerator : NSObject
 
 + (id) sharedGlyphGenerator;

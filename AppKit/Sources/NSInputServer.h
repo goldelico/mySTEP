@@ -27,4 +27,34 @@
 
 @end
 
+
+@protocol NSInputServerMouseTracker
+
+- (BOOL) mouseDownOnCharacterIndex:(NSUInteger) idx atCoordinate:(NSPoint) pt withModifier:(NSUInteger) modifiers client:(id) sender; 
+- (BOOL) mouseDraggedOnCharacterIndex:(NSUInteger) idx atCoordinate:(NSPoint) pt withModifier:(NSUInteger) modifiers client:(id) sender; 
+- (void) mouseUpOnCharacterIndex:(NSUInteger) idx atCoordinate:(NSPoint) pt withModifier:(NSUInteger) modifiers client:(id) sender; 
+
+@end
+
+
+@protocol NSInputServiceProvider
+
+- (void) activeConversationChanged:(id) sender toNewConversation:(NSInteger) newConv; 
+- (void) activeConversationWillChange:(id) sender fromOldConversation:(NSInteger) oldConv; 
+- (BOOL) canBeDisabled; 
+- (void) doCommandBySelector:(SEL) sel client:(id) sender; 
+- (void) inputClientBecomeActive:(id) sender; 
+- (void) inputClientDisabled:(id) sender; 
+- (void) inputClientEnabled:(id) sender; 
+- (void) inputClientResignActive:(id) sender; 
+- (void) insertText:(id) str client:(id) sender; 
+- (void) markedTextAbandoned:(id) sender; 
+- (void) markedTextSelectionChanged:(NSRange) range client:(id) sender; 
+- (void) terminate:(id) sender; 
+- (BOOL) wantsToDelayTextChangeNotifications; 
+- (BOOL) wantsToHandleMouseEvents; 
+- (BOOL) wantsToInterpretAllKeystrokes; 
+
+@end
+
 #endif /* _mySTEP_H_NSInputServer */

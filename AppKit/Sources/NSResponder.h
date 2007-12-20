@@ -32,6 +32,7 @@
 @class NSEvent;
 @class NSMenu;
 @class NSUndoManager;
+@class NSArray;
 
 @interface NSResponder : NSObject  <NSCoding>
 {

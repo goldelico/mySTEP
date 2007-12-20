@@ -44,7 +44,7 @@
 @protocol NSColorPickingDefault
 
 - (void) alphaControlAddedOrRemoved:(id) sender;
-- (void) attachColorList:(NSColorList *) aColorList;				// Color Lists
+- (void) attachColorList:(NSColorList *) aColorList;
 - (NSString *) buttonToolTip;
 - (void) detachColorList:(NSColorList *) aColorList;
 - (id) initWithPickerMask:(NSUInteger) mask colorPanel:(NSColorPanel *) colorPanel;

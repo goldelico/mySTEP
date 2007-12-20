@@ -7,6 +7,9 @@
 
    Author: Fred Kiefer <FredKiefer@gmx.de>
    Date: 2001
+ 
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	20. December 2007 - aligned with 10.5
    
    This file is part of the GNUstep GUI Library.
 
@@ -30,14 +33,14 @@
 
 @protocol NSValidatedUserInterfaceItem
 
-- (SEL)action;
-- (int)tag;
+- (SEL) action;
+- (NSInteger) tag;
 
 @end
 
 @protocol NSUserInterfaceValidations
 
-- (BOOL)validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>)anItem;
+- (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>) item;
 
 @end
 

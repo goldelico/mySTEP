@@ -116,10 +116,25 @@ extern NSString *NSViewAnimationFadeOutEffect;
 	NSArray *_viewAnimations;
 }
 
-- (id) initWithViewAnimations:(NSArray *)animations;
-- (void) setWithViewAnimations:(NSArray *)animations;
+- (id) initWithViewAnimations:(NSArray *) animations;
+- (void) setWithViewAnimations:(NSArray *) animations;
 - (NSArray *) viewAnimations;
 
 @end
+
+
+@protocol NSAnimatablePropertyContainer
+
++ (id) defaultAnimationForKey:(NSString *) key; 
+
+- (id) animationForKey:(NSString *) key; 
+- (NSDictionary *) animations; 
+- (id)animator; 
+- (void) setAnimations:(NSDictionary *) animations; 
+
+@end
+
+extern NSString *NSAnimationTriggerOrderIn;
+extern NSString *NSAnimationTriggerOrderOut;
 
 #endif /* _mySTEP_H_NSAnimation */

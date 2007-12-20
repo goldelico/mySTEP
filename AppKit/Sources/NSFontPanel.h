@@ -92,7 +92,7 @@ enum
 
 @protocol NSFontPanelValidation
 
-- (unsigned int) validModesForFontPanel:(NSFontPanel *) fontPanel;
+- (NSUInteger) validModesForFontPanel:(NSFontPanel *) fontPanel;
 
 @end
 

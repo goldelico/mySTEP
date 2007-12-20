@@ -7,6 +7,9 @@
 
    Author:	Scott Christley <scottc@net-community.com>
    Date:	1996
+ 
+   Author:    Fabian Spillner <fabian.spillner@gmail.com>
+   Date:      20. December 2007 - aligned with 10.5 
    
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -28,6 +31,7 @@
 @class NSNumber;
 
 typedef unsigned int NSWorkspaceLaunchOptions;
+
 enum {
 	NSWorkspaceLaunchAndPrint = 0x0001,
 	NSWorkspaceLaunchInhibitingBackgroundOnly=0x0002,
@@ -42,89 +46,90 @@ enum {
 	NSWorkspaceLaunchDefault=NSWorkspaceLaunchAsync | NSWorkspaceLaunchAllowingClassicStartup
 };
 
+enum {
+	NSExcludeQuickDrawElementsIconCreationOption    = 1 << 1,
+	NSExclude10_4ElementsIconCreationOption        = 1 << 2
+};
+typedef unsigned int NSWorkspaceIconCreationOptions;
+
 @interface NSWorkspace : NSObject
 
 + (NSWorkspace *) sharedWorkspace;
 
-- (BOOL) openFile:(NSString *)fullPath;						// Open files
-- (BOOL) openFile:(NSString *)fullPath withApplication:(NSString *)appName;
-- (BOOL) openFile:(NSString *)fullPath
-		 withApplication:(NSString *)appName
-		 andDeactivate:(BOOL)flag;
-- (BOOL) openTempFile:(NSString *)fullPath;
-- (BOOL) openURL:(NSURL *)url;								// Open url
-- (BOOL) openURLs:(NSArray *) list							// Open multiple files or URLs - this is the main function
-		 withAppBundleIdentifier:(NSString *) ident
-		 options:(NSWorkspaceLaunchOptions) options
-		 additionalEventParamDescriptor:(id) ignored
-		 launchIdentifiers:(NSArray **) identifiers;
-
-- (BOOL) openFile:(NSString *)fullPath
-		fromImage:(NSImage *)anImage
-			   at:(NSPoint)point
-		   inView:(NSView *)aView;		// open in Finder
-- (BOOL) selectFile:(NSString *)fullPath
-		 inFileViewerRootedAtPath:(NSString *)rootFullpath;
-
-- (BOOL) performFileOperation:(NSString *)operation			// Manipulate files
-					   source:(NSString *)source
-					   destination:(NSString *)destination
-					   files:(NSArray *)files
-					   tag:(int *)tag;
-
-- (BOOL) getFileSystemInfoForPath:(NSString *)fullPath		// File information
-					  isRemovable:(BOOL *)removableFlag
-					  isWritable:(BOOL *)writableFlag
-					  isUnmountable:(BOOL *)unmountableFlag
-					  description:(NSString **)description
-					  type:(NSString **)fileSystemType;
-- (BOOL) getInfoForFile:(NSString *)fullPath
-			application:(NSString **)appName
-			type:(NSString **)type;
-- (NSString *) absolutePathForAppBundleWithIdentifier:(NSString *)bundleIdentifier;
-- (NSString *) fullPathForApplication:(NSString *)appName;
-- (BOOL) isFilePackageAtPath:(NSString *)fullPath;
-- (NSImage *) iconForFile:(NSString *)fullPath;
-- (NSImage *) iconForFiles:(NSArray *)pathArray;
-- (NSImage *) iconForFileType:(NSString *)fileType;
-
-- (BOOL) fileSystemChanged;									// Track Changes
-- (void) noteFileSystemChanged;
-
-- (void) findApplications;									// Find all Apps
-
-- (BOOL) launchApplication:(NSString *)appName;				// Launch Apps
-- (BOOL) launchApplication:(NSString *)appName
-				 showIcon:(BOOL)showIcon
-				 autolaunch:(BOOL)autolaunch;
+- (NSString *) absolutePathForAppBundleWithIdentifier:(NSString *) bundleIdentifier;
+- (NSDictionary *) activeApplication;
+- (void) checkForRemovableMedia;
+- (NSInteger) extendPowerOffBy:(NSInteger) requested;
+- (BOOL) filenameExtension:(NSString *) extension isValidForType:(NSString *) type;
+- (BOOL) fileSystemChanged;
+- (void) findApplications;
+- (NSString *) fullPathForApplication:(NSString *) appName;
+- (BOOL) getFileSystemInfoForPath:(NSString *) fullPath
+					  isRemovable:(BOOL *) removableFlag
+					   isWritable:(BOOL *) writableFlag
+					isUnmountable:(BOOL *) unmountableFlag
+					  description:(NSString **) description
+							 type:(NSString **) fileSystemType;
+- (BOOL) getInfoForFile:(NSString *) fullPath
+			application:(NSString **) appName
+				   type:(NSString **) type;
+- (void) hideOtherApplications;
+- (NSImage *) iconForFile:(NSString *) fullPath;
+- (NSImage *) iconForFiles:(NSArray *) pathArray;
+- (NSImage *) iconForFileType:(NSString *) fileType;
+- (BOOL) isFilePackageAtPath:(NSString *) fullPath;
+- (BOOL) launchApplication:(NSString *) appName;
+- (BOOL) launchApplication:(NSString *) appName
+				  showIcon:(BOOL) showIcon
+				autolaunch:(BOOL) autolaunch;
 - (BOOL) launchAppWithBundleIdentifier:(NSString *) identOrApp
 							   options:(NSWorkspaceLaunchOptions) options
 		additionalEventParamDescriptor:(id) ignored
 					  launchIdentifier:(NSNumber **) identifiers;
-
-- (NSArray *) mountNewRemovableMedia;						// Mount devices
-- (NSArray *) mountedRemovableMedia;
-- (BOOL) unmountAndEjectDeviceAtPath:(NSString *)path;
-- (void) checkForRemovableMedia;
-
-- (void) noteUserDefaultsChanged;							// Track ddb change
-- (BOOL) userDefaultsChanged;
-
-- (NSNotificationCenter *) notificationCenter;
-
-- (NSDictionary *) activeApplication;
 - (NSArray *) launchedApplications;
-- (void) hideOtherApplications;
-
-- (void) slideImage:(NSImage *)image
-			   from:(NSPoint)fromPoint
-			   to:(NSPoint)toPoint;
-- (int) extendPowerOffBy:(int)requested;
-- (BOOL) isFilePackageAtPath:(NSString *) fullPath;
+- (NSString *) localizedDescriptionForType:(NSString *) type; 
+- (NSArray *) mountedLocalVolumePaths; 
+- (NSArray *) mountedRemovableMedia;
+- (NSArray *) mountNewRemovableMedia;
+- (void) noteFileSystemChanged;
+- (void) noteFileSystemChanged:(NSString *) path;
+- (void) noteUserDefaultsChanged;
+- (NSNotificationCenter *) notificationCenter;
+- (BOOL) openFile:(NSString *) fullPath;
+- (BOOL) openFile:(NSString *) fullPath
+		fromImage:(NSImage *) anImage
+			   at:(NSPoint) point
+		   inView:(NSView *) aView;
+- (BOOL) openFile:(NSString *) fullPath withApplication:(NSString *) appName;
+- (BOOL) openFile:(NSString *) fullPath
+		 withApplication:(NSString *) appName
+		 andDeactivate:(BOOL) flag;
+- (BOOL) openTempFile:(NSString *) fullPath;
+- (BOOL) openURL:(NSURL *) url;
+- (BOOL) openURLs:(NSArray *) list
+		 withAppBundleIdentifier:(NSString *) ident
+		 options:(NSWorkspaceLaunchOptions) options
+		 additionalEventParamDescriptor:(id) ignored
+		 launchIdentifiers:(NSArray **) identifiers;
+- (BOOL) performFileOperation:(NSString *) operation
+					   source:(NSString *) source
+				  destination:(NSString *) destination
+						files:(NSArray *) files
+						  tag:(NSInteger *) tag;
+- (NSString *) preferredFilenameExtensionForType:(NSString *) type; 
+- (BOOL) selectFile:(NSString *) fullPath inFileViewerRootedAtPath:(NSString *) rootFullpath;
+- (BOOL) setIcon:(NSImage *) img forFile:(NSString *) path options:(NSWorkspaceIconCreationOptions) opts; 
+- (void) slideImage:(NSImage *) image
+			   from:(NSPoint) fromPoint
+				 to:(NSPoint) toPoint;
+- (BOOL) type:(NSString *) firstType conformsToType:(NSString *) secondType; 
+- (NSString *) typeOfFile:(NSString *) path error:(NSError **) error; 
+- (BOOL) unmountAndEjectDeviceAtPath:(NSString *) path;
+- (BOOL) userDefaultsChanged;
 
 @end
 
-extern NSString *NSWorkspaceDidMountNotification;			// Notifications
+extern NSString *NSWorkspaceDidMountNotification;
 extern NSString *NSWorkspaceDidLaunchApplicationNotification;	
 extern NSString *NSWorkspaceDidPerformFileOperationNotification;
 extern NSString *NSWorkspaceDidTerminateApplicationNotification;
@@ -133,7 +138,7 @@ extern NSString *NSWorkspaceWillLaunchApplicationNotification;
 extern NSString *NSWorkspaceWillPowerOffNotification;
 extern NSString *NSWorkspaceWillUnmountNotification;
 
-extern NSString *NSPlainFileType;					// File Type Globals
+extern NSString *NSPlainFileType;
 extern NSString *NSDirectoryFileType;
 extern NSString *NSApplicationFileType;
 extern NSString *NSFilesystemFileType;
@@ -144,7 +149,7 @@ extern NSString *NSApplicationPath;
 extern NSString *NSApplicationName;
 extern NSString *NSApplicationProcessIdentifier;
 
-extern NSString *NSWorkspaceCompressOperation;		// File Operation Globals
+extern NSString *NSWorkspaceCompressOperation;
 extern NSString *NSWorkspaceCopyOperation;
 extern NSString *NSWorkspaceDecompressOperation;
 extern NSString *NSWorkspaceDecryptOperation;

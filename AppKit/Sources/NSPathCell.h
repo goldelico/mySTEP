@@ -9,6 +9,8 @@
 #import <AppKit/NSActionCell.h>
 
 @class NSPathComponentCell; 
+@class NSOpenPanel; 
+@class NSMenu; 
 
 enum {
 	NSPathStyleStandard,
@@ -49,5 +51,13 @@ typedef NSInteger NSPathStyle;
 - (void) setPlaceholderString:(NSString *) pStr;
 - (void) setURL:(NSURL *) url; 
 - (NSURL *) URL; 
+
+@end
+
+
+@interface NSObject (NSPathCellDelegate)
+
+- (void) pathCell:(NSPathCell *) sender willDisplayOpenPanel:(NSOpenPanel *) openPanel; 
+- (void) pathCell:(NSPathCell *) sender willPopUpMenu:(NSMenu *) menu; 
 
 @end

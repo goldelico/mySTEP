@@ -26,8 +26,10 @@ extern NSString *NSPrintPanelAccessorySummaryItemNameKey;
 extern NSString *NSPrintPanelAccessorySummaryItemDescriptionKey;
 
 @protocol NSPrintPanelAccessorizing
+
 - (NSSet *) keyPathsForValuesAffectingPreview;
 - (NSArray *) localizedSummaryItems;
+
 @end
 
 /* NOT IN API - OpenSTEP? */

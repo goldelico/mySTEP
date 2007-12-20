@@ -24,6 +24,7 @@
 
 @end
 
+
 @protocol NSIgnoreMisspelledWords
 
 - (void) ignoreSpelling:(id) sender;

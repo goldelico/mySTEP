@@ -248,8 +248,10 @@ typedef NSUInteger NSTableViewDropOperation;
 @end
 
 @interface NSTableView (NSTableViewPrivate) 
+
 + (NSImage *) _defaultTableHeaderReverseSortImage; 
 + (NSImage *) _defaultTableHeaderSortImage; 
+
 @end
 
 @interface NSObject (NSTableViewDelegate)					// Implemented by

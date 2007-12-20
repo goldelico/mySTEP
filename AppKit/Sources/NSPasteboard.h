@@ -9,7 +9,7 @@
    Date: 	1996
  
    Author:	Fabian Spillner <fabian.spillner@gmail.com>
-   Date:	14. November 2007 - aligned with 10.5 
+   Date:	14. December 2007 - aligned with 10.5 
    
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -20,12 +20,15 @@
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSString.h>
+#import <Foundation/NSURL.h>
+
 
 @class NSString;
 @class NSArray;
 @class NSData;
 @class NSMutableArray;
 @class NSFileWrapper; 
+@class NSURL; 
 
 //
 // Pasteboard global types
@@ -112,6 +115,13 @@ extern NSString *NSPasteboardCommunicationException;
 
 - (void) pasteboard:(NSPasteboard *) sender provideDataForType:(NSString *) type;
 - (void) pasteboardChangedOwner:(NSPasteboard *) sender;
+
+@end
+
+@interface NSURL (NSURLPasteboardAdditions)
+
++ (NSURL *) URLFromPasteboard:(NSPasteboard *) pboard;
+- (void) writeToPasteboard:(NSPasteboard *) pboard;
 
 @end
 

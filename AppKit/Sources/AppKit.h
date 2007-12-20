@@ -165,12 +165,13 @@
 #import <AppKit/NSTokenFieldCell.h>
 #import <AppKit/NSToolbar.h>
 #import <AppKit/NSToolbarItem.h>
-//#import <AppKit/NSToolbarItemGroup.h>
+#import <AppKit/NSToolbarItemGroup.h>
 #import <AppKit/NSTrackingArea.h>
 #import <AppKit/NSTreeController.h>
 #import <AppKit/NSUserDefaultsController.h>
 #import <AppKit/NSUserInterfaceValidation.h>
 #import <AppKit/NSView.h>
+#import <AppKit/NSViewController.h>
 #import <AppKit/NSWindow.h>
 #import <AppKit/NSWindowController.h>
 #import <AppKit/NSWorkspace.h>
