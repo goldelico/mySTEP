@@ -6,7 +6,7 @@
 //  Copyright 2007 __MyCompanyName__. All rights reserved.
 //
 
-#import "AppKit/NSToolbarItem.h"
+#import <AppKit/NSToolbarItem.h>
 
 @class NSArray; 
 

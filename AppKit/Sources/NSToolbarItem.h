@@ -15,7 +15,14 @@
 #ifndef _mySTEP_H_NSToolbarItem
 #define _mySTEP_H_NSToolbarItem
 
-#import "AppKit/NSMenuItem.h"
+#import <Foundation/NSObject.h>
+#import <Foundation/NSGeometry.h>
+
+@class NSString; 
+@class NSMenuItem; 
+@class NSToolbar; 
+@class NSImage; 
+@class NSView; 
 
 enum {
 	NSToolbarItemVisibilityPriorityStandard = 0,
@@ -24,7 +31,7 @@ enum {
 	NSToolbarItemVisibilityPriorityUser  = 2000
 };
 
-@interface NSToolbarItem : NSMenuItem
+@interface NSToolbarItem : NSObject
 {
 }
 
@@ -64,6 +71,13 @@ enum {
 
 @end
 
+
+@interface NSObject (NSToolbarItemValidation)
+
+- (BOOL) validateToolbarItem:(NSToolbarItem *) item;
+
+@end
+
 extern NSString *NSToolbarSeparatorItemIdentifier;
 extern NSString *NSToolbarSpaceItemIdentifier;
 extern NSString *NSToolbarFlexibleSpaceItemIdentifier;
@@ -71,11 +85,5 @@ extern NSString *NSToolbarShowColorsItemIdentifier;
 extern NSString *NSToolbarShowFontsItemIdentifier;
 extern NSString *NSToolbarCustomizeToolbarItemIdentifier;
 extern NSString *NSToolbarPrintItemIdentifier;
-
-@interface NSObject (NSToolbarItemValidation)
-
-- (BOOL) validateToolbarItem:(NSToolbarItem *) item;
-
-@end
 
 #endif /* _mySTEP_H_NSToolbarItem */
