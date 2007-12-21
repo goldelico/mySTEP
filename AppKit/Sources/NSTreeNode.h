@@ -10,11 +10,14 @@
 
 @class NSArray, NSIndexPath, NSMutableArray;
 
-@interface NSTreeNode : NSObject {
-
+@interface NSTreeNode : NSObject
+{
+	id _representedObject;
+	NSMutableArray *_childNodes;
+	NSTreeNode *_parentNote;
 }
 
-+ (id)treeNodeWithRepresentedObject:(id)modelObject; 
++ (id) treeNodeWithRepresentedObject:(id)modelObject; 
 
 - (NSArray *) childNodes; 
 - (NSTreeNode *) descendantNodeAtIndexPath:(NSIndexPath *) path; 

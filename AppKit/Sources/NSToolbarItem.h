@@ -33,6 +33,21 @@ enum {
 
 @interface NSToolbarItem : NSObject
 {
+	NSString *_itemIdentifier;
+	NSString *_label;
+	NSString *_paletteLabel;
+	NSImage *_image;
+	NSMenuItem *_menuFormRepresentation;
+	NSString *_toolTip;
+	NSToolbar *_toolbar;
+	id _view;
+	NSView *_backView;
+	NSSize _maxSize;
+	NSSize _minSize;
+	int _tag;
+	BOOL _modified;
+	BOOL _selectable;
+	BOOL _allowsDuplicatesInToolbar;	
 }
 
 - (SEL) action; 

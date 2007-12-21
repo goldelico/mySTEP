@@ -412,6 +412,18 @@
 		EE349C80097027D600CBF42C /* NSTokenFieldCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5B097027D600CBF42C /* NSTokenFieldCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE349C81097027D600CBF42C /* NSToolbar.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5C097027D600CBF42C /* NSToolbar.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE349C82097027D600CBF42C /* NSToolbarItem.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5D097027D600CBF42C /* NSToolbarItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE469E530D1B9D4800E99DA0 /* NSToolbarItemGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE469E540D1B9D4800E99DA0 /* NSToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = EE469E520D1B9D4800E99DA0 /* NSToolbar.m */; };
+		EE469E550D1B9D4800E99DA0 /* NSToolbarItemGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE469E560D1B9D4800E99DA0 /* NSToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = EE469E520D1B9D4800E99DA0 /* NSToolbar.m */; };
+		EE469E590D1B9D7D00E99DA0 /* NSTreeNode.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E570D1B9D7D00E99DA0 /* NSTreeNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE469E5A0D1B9D7D00E99DA0 /* NSTreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = EE469E580D1B9D7D00E99DA0 /* NSTreeNode.m */; };
+		EE469E5B0D1B9D7D00E99DA0 /* NSTreeNode.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E570D1B9D7D00E99DA0 /* NSTreeNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE469E5C0D1B9D7D00E99DA0 /* NSTreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = EE469E580D1B9D7D00E99DA0 /* NSTreeNode.m */; };
+		EE469E5F0D1B9D9000E99DA0 /* NSViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E5D0D1B9D9000E99DA0 /* NSViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE469E600D1B9D9000E99DA0 /* NSViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE469E5E0D1B9D9000E99DA0 /* NSViewController.m */; };
+		EE469E610D1B9D9000E99DA0 /* NSViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E5D0D1B9D9000E99DA0 /* NSViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE469E620D1B9D9000E99DA0 /* NSViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE469E5E0D1B9D9000E99DA0 /* NSViewController.m */; };
 		EE4CC7110B3546F300B04C5F /* PrintProgressPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE4CC70F0B3546F300B04C5F /* PrintProgressPanel.nib */; };
 		EE4CC7120B3546F400B04C5F /* PrintProgressPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE4CC70F0B3546F300B04C5F /* PrintProgressPanel.nib */; };
 		EE4EF11D0CBE2A7C00376CD3 /* GSColorWheel.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */; };
@@ -856,6 +868,13 @@
 		EE349C5B097027D600CBF42C /* NSTokenFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSTokenFieldCell.h; sourceTree = "<group>"; };
 		EE349C5C097027D600CBF42C /* NSToolbar.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbar.h; sourceTree = "<group>"; };
 		EE349C5D097027D600CBF42C /* NSToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbarItem.h; sourceTree = "<group>"; };
+		EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSToolbarItemGroup.h; sourceTree = "<group>"; };
+		EE469E520D1B9D4800E99DA0 /* NSToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSToolbar.m; sourceTree = "<group>"; };
+		EE469E570D1B9D7D00E99DA0 /* NSTreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTreeNode.h; sourceTree = "<group>"; };
+		EE469E580D1B9D7D00E99DA0 /* NSTreeNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTreeNode.m; sourceTree = "<group>"; };
+		EE469E5D0D1B9D9000E99DA0 /* NSViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSViewController.h; sourceTree = "<group>"; };
+		EE469E5E0D1B9D9000E99DA0 /* NSViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSViewController.m; sourceTree = "<group>"; };
+		EE46A01A0D1BA9F900E99DA0 /* NSToolbarItemGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSToolbarItemGroup.m; sourceTree = "<group>"; };
 		EE4CC7100B3546F300B04C5F /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PrintProgressPanel.nib; sourceTree = "<group>"; };
 		EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = GSColorWheel.jpg; sourceTree = "<group>"; };
 		EE52832F09A1FB2E00218247 /* NSCursor.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSCursor.m; sourceTree = "<group>"; };
@@ -1344,6 +1363,9 @@
 				EE349C5B097027D600CBF42C /* NSTokenFieldCell.h */,
 				EE349C5C097027D600CBF42C /* NSToolbar.h */,
 				EE349C5D097027D600CBF42C /* NSToolbarItem.h */,
+				EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */,
+				EE46A01A0D1BA9F900E99DA0 /* NSToolbarItemGroup.m */,
+				EE469E520D1B9D4800E99DA0 /* NSToolbar.m */,
 				EEA3728709540273001244CF /* NSView.h */,
 				EEA3728809540273001244CF /* NSView.m */,
 			);
@@ -1382,11 +1404,15 @@
 				EECD84090A08A17800EF3E30 /* NSKeyValueBinding.m */,
 				EEA3723F09540273001244CF /* NSObjectController.h */,
 				EEA3728409540273001244CF /* NSTreeController.h */,
+				EE469E570D1B9D7D00E99DA0 /* NSTreeNode.h */,
+				EE469E580D1B9D7D00E99DA0 /* NSTreeNode.m */,
 				EEA3728609540273001244CF /* NSUserDefaultsController.h */,
 				EE1227380D059B98000E4BA5 /* NSDictionaryController.h */,
 				EE1227390D059B98000E4BA5 /* NSDictionaryController.m */,
 				EEA3721609540273001244CF /* NSDocumentController.h */,
 				EEA3721709540273001244CF /* NSDocumentController.m */,
+				EE469E5D0D1B9D9000E99DA0 /* NSViewController.h */,
+				EE469E5E0D1B9D9000E99DA0 /* NSViewController.m */,
 				EEA3728B09540273001244CF /* NSWindowController.h */,
 				EEA3728C09540273001244CF /* NSWindowController.m */,
 			);
@@ -1931,6 +1957,9 @@
 				EE1227890D059CAF000E4BA5 /* NSCollectionViewItem.h in Headers */,
 				EE12278F0D059CCC000E4BA5 /* NSGlyphInfo.h in Headers */,
 				EEB143C70D1260A2001212B5 /* NSTrackingArea.h in Headers */,
+				EE469E550D1B9D4800E99DA0 /* NSToolbarItemGroup.h in Headers */,
+				EE469E5B0D1B9D7D00E99DA0 /* NSTreeNode.h in Headers */,
+				EE469E610D1B9D9000E99DA0 /* NSViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2107,6 +2136,9 @@
 				EE1227850D059CAF000E4BA5 /* NSCollectionViewItem.h in Headers */,
 				EE12278D0D059CCC000E4BA5 /* NSGlyphInfo.h in Headers */,
 				EEB143C50D1260A2001212B5 /* NSTrackingArea.h in Headers */,
+				EE469E530D1B9D4800E99DA0 /* NSToolbarItemGroup.h in Headers */,
+				EE469E590D1B9D7D00E99DA0 /* NSTreeNode.h in Headers */,
+				EE469E5F0D1B9D9000E99DA0 /* NSViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2594,6 +2626,9 @@
 				EE12278A0D059CAF000E4BA5 /* NSCollectionViewItem.m in Sources */,
 				EE1227900D059CCC000E4BA5 /* NSGlyphInfo.m in Sources */,
 				EEB143C80D1260A2001212B5 /* NSTrackingArea.m in Sources */,
+				EE469E560D1B9D4800E99DA0 /* NSToolbar.m in Sources */,
+				EE469E5C0D1B9D7D00E99DA0 /* NSTreeNode.m in Sources */,
+				EE469E620D1B9D9000E99DA0 /* NSViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2713,6 +2748,9 @@
 				EE1227860D059CAF000E4BA5 /* NSCollectionViewItem.m in Sources */,
 				EE12278E0D059CCC000E4BA5 /* NSGlyphInfo.m in Sources */,
 				EEB143C60D1260A2001212B5 /* NSTrackingArea.m in Sources */,
+				EE469E540D1B9D4800E99DA0 /* NSToolbar.m in Sources */,
+				EE469E5A0D1B9D7D00E99DA0 /* NSTreeNode.m in Sources */,
+				EE469E600D1B9D9000E99DA0 /* NSViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
