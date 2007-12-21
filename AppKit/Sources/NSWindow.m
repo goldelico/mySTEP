@@ -562,10 +562,10 @@ static BOOL __cursorHidden = NO;
 	return aRect;
 }
 
-+ (NSRect) minFrameWidthWithTitle:(NSString *)aTitle
++ (float) minFrameWidthWithTitle:(NSString *)aTitle
 						styleMask:(unsigned int)aStyle
 {
-	return NSZeroRect;
+	return 0.0;
 }
 
 + (float) _titleBarHeightForStyleMask:(unsigned int) mask

@@ -64,17 +64,19 @@
 
 // fonts and drawing
 
-- (void) _setFont:(NSFont *) font;			// PDF: font size TF (explicit)
 - (void) _beginText;						// PDF: BT (clears matrix)
-- (void) _setTextPosition:(NSPoint) pos;	// PDF: x y Td (?)
-- (void) _moveByX:(float) x andY:(float) y setLead:(BOOL) flag;	// PDF: (optional -y TL) x y Td
+
+- (void) _setFont:(NSFont *) font;			// PDF: font size TF (explicit)
+
+- (void) _setTextPosition:(NSPoint) pos;	// PDF: x y Td
 - (void) _setTM:(NSAffineTransform *) tm;	// PDF: a b c d e f Tm
-- (void) _newLine;							// PDF: T*
 - (void) _setLeading:(float) val;			// PDF: v TL
 - (void) _setCharSpace:(float) val;			// PDF: v Tc
-- (void) _setScale:(float) val;				// PDF: v Tz
+- (void) _setHorizontalScale:(float) val;	// PDF: v Tz
 - (void) _setWordSpace:(float) val;			// PDF: v Tw
 - (void) _setBaseline:(float) val;			// PDF: v Ts
+- (void) _newLine:(NSPoint) pos;			// PDF: x y TD
+- (void) _newLine;							// PDF: T*
 
 - (void) _drawGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;	// (string) Tj
 
@@ -150,7 +152,6 @@
 
 @interface NSFont (NSBackend)
 - (NSGlyph) _glyphForCharacter:(unichar) c;
-- (NSSize) _sizeOfString:(NSString *) string;	// query bounding box
 @end
 
 @interface NSFontDescriptor (NSBackend)

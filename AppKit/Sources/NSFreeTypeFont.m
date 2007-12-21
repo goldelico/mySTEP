@@ -48,16 +48,32 @@
 
 @implementation _NSX11Font (NSFreeTypeFont)
 
-#define Free2Pt(VAL) (VAL*(1.0/64.0))
+static float scale;		// cache for screen scale
+static float rscale;	// cache for 1/screen scale
+static float rscale64;	// cache for 1/(64.0*screen scale)
 
-- (float) ascender; { return Free2Pt(_faceStruct->ascender); }
+#define Free2Pt(VAL) ((VAL)*rscale64)	// we mignt need to undo global screen scaling!
+
+- (float) ascender;
+{
+	FT_Face f=_faceStruct;
+	if(!FT_IS_SCALABLE(_faceStruct))
+		;	// error
+	return Free2Pt(_faceStruct->size->metrics.ascender);
+}
 
 - (NSRect) boundingRectForFont;
 {
 	return NSMakeRect(Free2Pt(_faceStruct->bbox.xMin), Free2Pt(_faceStruct->bbox.yMin), Free2Pt(_faceStruct->bbox.xMax-_faceStruct->bbox.xMin), Free2Pt(_faceStruct->bbox.yMax-_faceStruct->bbox.yMin));
 }
 
-- (float) capHeight; { return Free2Pt(_faceStruct->height); }
+- (float) capHeight;
+{
+	FT_Load_Glyph(_faceStruct, FT_Get_Char_Index(_faceStruct, 'X'), FT_LOAD_DEFAULT | FT_LOAD_IGNORE_TRANSFORM);
+	return Free2Pt(_faceStruct->glyph->metrics.horiBearingY);
+}
+
+// FIXME: should this be stored in the font cache (?) as NSFontCharacterSetAttribute
 
 - (NSCharacterSet *) coveredCharacterSet;
 {
@@ -73,7 +89,7 @@
 	return cs;
 }
 
-- (float) descender; { return Free2Pt(_faceStruct->descender); }
+- (float) descender; { return Free2Pt(_faceStruct->size->metrics.descender); }
 
 - (void) getAdvancements:(NSSizeArray) advancements
 			   forGlyphs:(const NSGlyph *) glyphs
@@ -82,7 +98,7 @@
 	while(count-- > 0)
 		{
 		NSSize sz;
-		FT_Load_Glyph(_faceStruct, *glyphs++, FT_LOAD_DEFAULT);
+		FT_Load_Glyph(_faceStruct, *glyphs++, FT_LOAD_DEFAULT | FT_LOAD_IGNORE_TRANSFORM);
 		if(_renderingMode == NSFontAntialiasedIntegerAdvancementsRenderingMode)
 			{ // a little faster but less accurate
 			sz=NSMakeSize(_faceStruct->glyph->advance.x>>6, _faceStruct->glyph->advance.y>>6);
@@ -96,17 +112,17 @@
 }
 
 - (void) getAdvancements:(NSSizeArray) advancements
-				 forPackedGlyphs:(const void *) glyphs
-									 count:(unsigned) count; { NIMP; }
+		 forPackedGlyphs:(const void *) glyphs
+				   count:(unsigned) count; { NIMP; }
 
 - (void) getBoundingRects:(NSRectArray) bounds
-								forGlyphs:(const NSGlyph *) glyphs
-										count:(unsigned) count;
+				forGlyphs:(const NSGlyph *) glyphs
+					count:(unsigned) count;
 {
 	while(count-- > 0)
 		{
 		NSRect rect;
-		FT_Load_Glyph(_faceStruct, *glyphs++, FT_LOAD_DEFAULT);
+		FT_Load_Glyph(_faceStruct, *glyphs++, FT_LOAD_DEFAULT | FT_LOAD_IGNORE_TRANSFORM);
 		rect=NSMakeRect(Free2Pt(_faceStruct->glyph->metrics.horiBearingX), Free2Pt(_faceStruct->glyph->metrics.height-_faceStruct->glyph->metrics.horiBearingY),
 						Free2Pt(_faceStruct->glyph->metrics.width), Free2Pt(_faceStruct->glyph->metrics.height));
 		*bounds++=rect;
@@ -126,7 +142,9 @@
 
 - (float) italicAngle; { return 0.0; }	// FIXME
 
-- (float) leading; { return Free2Pt(_faceStruct->height); }
+- (float) leading; { return Free2Pt(_faceStruct->size->metrics.height-(_faceStruct->size->metrics.ascender-_faceStruct->size->metrics.descender)); }
+
+- (float) defaultLineHeightForFont; { return Free2Pt(_faceStruct->size->metrics.height); }
 
 - (NSSize) maximumAdvancement; { return NSMakeSize(Free2Pt(_faceStruct->max_advance_width), Free2Pt(_faceStruct->max_advance_height)); }
 
@@ -159,12 +177,18 @@
 
 - (float) xHeight;
 {
-	FT_Load_Glyph(_faceStruct, FT_Get_Char_Index(_faceStruct, 'x'), FT_LOAD_DEFAULT);
-	return Free2Pt(_faceStruct->size->metrics.ascender);
+	FT_Load_Glyph(_faceStruct, FT_Get_Char_Index(_faceStruct, 'x'), FT_LOAD_DEFAULT | FT_LOAD_IGNORE_TRANSFORM);
+	return Free2Pt(_faceStruct->glyph->metrics.horiBearingY);
 }
 
 - (id) _initWithDescriptor:(NSFontDescriptor *) desc
 {
+	if(scale == 0.0)
+		{ // initialize cache
+		scale=[[[[[NSScreen screens] objectAtIndex:0] deviceDescription] objectForKey:@"systemSpaceScaleFactor"] floatValue];
+		rscale=1.0/scale;
+		rscale64=rscale/64.0;
+		}
 	if((self=[super init]))
 		{
 		_renderingMode=NSFontAntialiasedRenderingMode;
@@ -172,7 +196,7 @@
 		if(![self _face])
 			{ // can't load backend info
 #if 1
-			NSLog(@"Can't find font %@", [desc fontAttributes]);
+			NSLog(@"Can't find font with descriptor %@", desc);
 #endif
 			[self release];
 			return nil;
@@ -215,39 +239,11 @@ FT_Library _ftLibrary(void)
 			_backendPrivate=NULL;
 			error=FT_New_Face(_ftLibrary(), [fontFile fileSystemRepresentation], faceIndex, (FT_Face *) &_backendPrivate);
 			if(!error)
-				{
-				NSAffineTransform *t=[_descriptor matrix];
-//				FT_Select_Charmap(_faceStruct, FT_ENCODING_UNICODE);
-				if(t)
-					{ // we have a text transform
-					NSAffineTransformStruct m=[t transformStruct];
-					FT_Matrix matrix = { m.m11*0x10000, m.m12*0x10000, m.m21*0x10000, m.m22*0x10000 };
-					FT_Vector delta = { m.tX*64, m.tY*64 };
-					FT_Set_Transform(_faceStruct,			// handle to face object
-									 &matrix,				// pointer to 2x2 matrix
-									 &delta);				// pointer to 2d vector
+				{ // scale points to screen size
+				FT_Error error;
+				error=FT_Set_Pixel_Sizes(_faceStruct, 0, (int) (scale*[_descriptor pointSize]));
+				if(!error)
 					return _faceStruct;
-					}
-				else
-					{ // use pointSize
-					// well, this should be screen independent!!
-					float scale=[[[[[NSScreen screens] objectAtIndex:0] deviceDescription] objectForKey:@"systemSpaceScaleFactor"] floatValue];
-					error=FT_Set_Pixel_Sizes(_faceStruct, 0, (int) (scale*[_descriptor pointSize]));
-#if OLD
-					// FIXME: here we must handle the user and system space scale factors or the bitmaps will not be scaled to DPI!
-					// we should cache and reload only if we draw to a different context!
-					int hdpi=120;
-					int vdpi=120;
-					FT_F26Dot6 size=64*[_descriptor pointSize];
-					error = FT_Set_Char_Size(_faceStruct,					// handle to face object
-											  size,							// char_width in 1/64th of points
-											  size,							// char_height in 1/64th of points
-											  hdpi,							// horizontal device resolution
-											  vdpi);						// vertical device resolution
-#endif
-					if(!error)
-						return _faceStruct;
-					}
 				}
 			NSLog(@"*** Internal font loading error: %@", fontFile);
 			}
@@ -267,55 +263,64 @@ FT_Library _ftLibrary(void)
 	return FT_Get_Char_Index(_faceStruct, c);
 }
 
-- (NSSize) _sizeOfAntialisedString:(NSString *) string;
+- (float) _widthOfAntialisedString:(NSString *) string;
 { // deprecated...
-	NSSize sz=NSZeroSize;
+	FT_Matrix matrix = { 1<<16, 0, 0, 1<<16 };	// identity matrix
+	FT_Vector delta = { 0, 0 };
+	FT_GlyphSlot slot = _faceStruct->glyph;
 	unsigned long i, cnt=[string length];
 	// we could sum up the integer widths/heights and convert to float only once
 	for(i = 0; i < cnt; i++)
-		{ // load glyphs
-		FT_Error error = FT_Load_Char(_faceStruct, [string characterAtIndex:i], FT_LOAD_DEFAULT);
-		float h;
+		{ // load glyphs but don't transform
+		FT_Error error;
+		FT_Set_Transform(_faceStruct,			// handle to face object
+						 &matrix,				// pointer to 2x2 matrix
+						 &delta);				// pointer to 2d vector
+		error = FT_Load_Char(_faceStruct, [string characterAtIndex:i], FT_LOAD_DEFAULT | FT_LOAD_IGNORE_TRANSFORM);
 		if(error)
 			continue;
-		if(_renderingMode == NSFontAntialiasedIntegerAdvancementsRenderingMode)
-			{ // a little faster but less accurate
-			sz.width += _faceStruct->glyph->advance.x>>6;
-			}
-		else
-			{
-			sz.width += _faceStruct->glyph->linearHoriAdvance*(1.0/65536);
-			}
-		h=Free2Pt(_faceStruct->glyph->metrics.height);
-		if(h > sz.height)
-			sz.height=h;
+		delta.x += slot->advance.x;
+//		delta.y += slot->advance.y;	// we can't handle vertical rendering anyway
 		}
-	return sz;
+	return Free2Pt(delta.x);
 }
 
-- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
+- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
 { // render the string
 	FT_GlyphSlot slot = _faceStruct->glyph;
-	NSPoint pen = NSZeroPoint;
-//	pen.y=[self ascender];	// one line down
-	pen.y=(_faceStruct->ascender+_faceStruct->descender)>>6;
+	NSPoint pen = [ctm transformPoint:NSZeroPoint];
+	FT_Matrix matrix = { 1<<16, 0, 0, 1<<16 };	// identity matrix
+	FT_Vector delta;
+	NSAffineTransform *t=[_descriptor matrix];
+	// catenate Font matrix (if available)
+	// with text matrix
+	// with CTM
+	// remove scaling (i.e. make it a non-scaling transformation matrix) - scale = sqrt(m11*m11+m22*m22)
+	if(t)
+		{ // we have a font with an explicit text transform
+		NSAffineTransformStruct m=[t transformStruct];		
+		// divide by [_descriptor pointSize] so that a rotation/shearing part remains
+		matrix = (FT_Matrix) { m.m11*(1<<16), m.m12*(1<<16), m.m21*(1<<16), m.m22*(1<<16) };
+		delta = (FT_Vector) { m.tX*64, m.tY*64 };
+		}
+	else
+		{ // translate only
+		delta.x=(int)(64*pen.x);
+		delta.y=32-(int)(64*pen.y);
+		}
 	while(cnt-- > 0)
 		{ // render glyphs
-		FT_Error error = FT_Load_Glyph(_faceStruct, *glyphs++, FT_LOAD_RENDER);
+		FT_Error error;
+		FT_Set_Transform(_faceStruct,			// handle to face object
+						 &matrix,				// pointer to 2x2 matrix
+						 &delta);				// pointer to 2d vector
+		error = FT_Load_Glyph(_faceStruct, *glyphs++, FT_LOAD_RENDER);
 		if(error)
 			continue;
 		// x,y is the top/left position in X11 coordinates, i.e. counted from top/left of screen
-		[ctxt _drawGlyphBitmap:slot->bitmap.buffer x:pen.x+slot->bitmap_left y:pen.y-slot->bitmap_top width:slot->bitmap.width height:slot->bitmap.rows];
-		if(_renderingMode == NSFontAntialiasedIntegerAdvancementsRenderingMode)
-			{ // a little faster but less accurate
-			pen.x += slot->advance.x>>6;
-			pen.y += slot->advance.y>>6;
-			}
-		else
-			{ // needs 4 additional float operations per step
-			pen.x += slot->linearHoriAdvance*(1.0/65536);
-// not reliable	- use FT_HAS_VERTICAL()		pen.y += slot->linearVertAdvance*(1.0/65536);
-			}
+		[ctxt _drawGlyphBitmap:slot->bitmap.buffer x:slot->bitmap_left y:-slot->bitmap_top width:slot->bitmap.width height:slot->bitmap.rows];
+		delta.x += slot->advance.x;
+		delta.y += slot->advance.y;
 		}
 }
 

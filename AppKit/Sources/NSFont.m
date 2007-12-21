@@ -469,7 +469,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 }
 
 - (NSDictionary *) afmDictionary;	{ DEPRECATED; return nil; }
-- (float) defaultLineHeightForFont;	{ DEPRECATED; return [self leading]; }
+- (float) defaultLineHeightForFont;	{ DEPRECATED; return [self ascender]+[self descender]+[self leading]; }
 - (NSString *) encodingScheme;	{ DEPRECATED; return @"FontSpecificEncoding"; }
 - (BOOL) glyphIsEncoded:(NSGlyph)aGlyph;	{ DEPRECATED; return NO; }
 - (NSMultibyteGlyphPacking) glyphPacking;	{ DEPRECATED; return NSNativeShortGlyphPacking; }
@@ -483,8 +483,8 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 
 - (float) widthOfString:(NSString *) string
 { // calc the size of string in this font
-	DEPRECATED;
-	return [self _sizeOfString:string].width;	// ask backend
+	BACKEND;
+	return 0.0;
 }
 
 @end /* NSFont */

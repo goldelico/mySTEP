@@ -65,7 +65,7 @@
 - (NSRect) boundingRectForGlyphRange:(NSRange)glyphRange 
 					 inTextContainer:(NSTextContainer *)container;
 {
-	// FIXME: we should ask the NSFont and glyph layout system...
+	// FIXME: we should trigger the NSFont and glyph layout system here...
 	NSRange attribRange;
 	NSFont *font=nil;
 	NSDictionary *attrs=nil;
@@ -83,7 +83,7 @@
 		}
 	if(!font)
 		font=[NSFont systemFontOfSize:12];
-	r.size=[font _sizeOfString:[_textStorage string]];
+	r.size=NSMakeSize([font widthOfString:[_textStorage string]], [font defaultLineHeightForFont]+[font leading]);
 	return r;
 }
 
@@ -115,8 +115,7 @@
 
 - (float) defaultLineHeightForFont:(NSFont *) font;
 {
-	abort();
-	return [font leading];
+	return [font defaultLineHeightForFont];
 }
 
 - (id) delegate; { return _delegate; }
@@ -136,7 +135,7 @@
 }
 
 - (void) drawGlyphsForGlyphRange:(NSRange)glyphsToShow 
-						 atPoint:(NSPoint)origin;
+						 atPoint:(NSPoint)origin;		// top left in flipped coordinates
 { // this is the core text drawing interface and all string additions are based on this call!
 	NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
 	NSTextContainer *container=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];	// this call could fill the cache if needed...
@@ -144,7 +143,12 @@
 	NSString *str=[_textStorage string];				// raw characters
 	NSRange rangeLimit=glyphsToShow;					// initial limit
 	NSPoint pos;
-	NSFont *font=(NSFont *) [NSNull null];				// current font attribute
+	NSPoint pdfPos;
+#if 1
+	NSFont *font=(NSFont *) [NSNull null];				// check for internal errors
+#else
+	NSFont *font;				// current font attribute
+#endif
 	NSColor *foreGround;
 	BOOL flipped=[ctxt isFlipped];
 	NSAssert(glyphsToShow.location==0 && glyphsToShow.length == [str length], @"can render ful glyph range only");
@@ -153,18 +157,21 @@
 	//
 	// FIXME: use and update glyph cache if needed
 	// well, we should move that to the shared NSGlyphGenerator which does the layout
+	// and make it run in the background
 	//
 	// 1. split into paragraphs
 	// 2. split into lines
-	// 3. split into words and try to fill line and insert additional new lines if needed
+	// 3. split into words and try to fill line and hyphenate / line break
+	// 4. split into attribute ranges
 	//
 	// either generate (glyphs) " in PDF context or do raw drawing of the glyphs by libfreetype
 	// emit positioning command(s) only if new lines and/or different containers are generated
 	// i.e.
 	// [ctxt _setFont:xxx]; 
 	// [ctxt _beginText];
-	// [ctxt _setTextPosition:fragmentOrigin];
+	// [ctxt _newLine:...]; or [ctxt _setTextPositions:...];
 	// [ctxt _setBaseline:xxx]; 
+	// [ctxt _setHorizontalScale:xxx]; 
 	// [ctxt _drawGlyphs:(NSGlyph *)glyphs count:(unsigned)cnt;	// -> (string) Tj
 	// [ctxt _endText];
 	//
@@ -172,13 +179,9 @@
 	//
 	[ctxt setCompositingOperation:NSCompositeCopy];
 	[ctxt _beginText];			// starts at position (0,0)
-	pos=origin;					// tracks current drawing position
-	
-	// CHECKME: what is the (0,0) position in PDF? Baseline or top or bottom?
-	
-	// we should loop over lines first
-	//   then over words (for wrapping&hyphenation)
-	//     then over attribute ranges (for switching modes)
+	pdfPos=NSZeroPoint;			// what PDF currently thinks - FIXME: we could also make a relative position once and then work only with deltas
+	pos=origin;					// tracks current drawing position (top left of the line) - PDF needs to position to the baseline
+
 	while(rangeLimit.length > 0)
 		{ // parse and process white-space separated words resp. fragments with same attributes
 		NSRange attribRange;	// range with constant attributes
@@ -188,7 +191,7 @@
 		id attrib;				// some individual attribute
 		unsigned style;			// underline and strike-through mask
 		NSRange wordRange;		// to find word that fits into line
-		NSSize size;			// size of the substr with given font
+		float width;			// width of the substr with given font
 		float baseline;
 		switch([str characterAtIndex:rangeLimit.location])
 			{
@@ -199,7 +202,7 @@
 				if(cell)
 					{
 					NSRect rect=[cell cellFrameForTextContainer:container
-										   proposedLineFragment:NSZeroRect
+										   proposedLineFragment:(NSRect) { pos, { 12.0, 12.0 } }
 												  glyphPosition:pos
 												 characterIndex:rangeLimit.location];
 					if([ctxt isFlipped])
@@ -223,31 +226,32 @@
 				{
 					float tabwidth;
 					font=[_textStorage attribute:NSFontAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
-					tabwidth=8.0*[font _sizeOfString:@"x"].width;	// approx. 8 characters
+					if(!font)
+						font=[NSFont userFontOfSize:0.0];		// use default system font
+					tabwidth=8.0*[font widthOfString:@"x"];	// approx. 8 characters
 					pos.x=(1+(int)((pos.x-origin.x)/tabwidth))*tabwidth+origin.x;
-					// FIXME: check if we need a new line
-					rangeLimit.location++;
-					rangeLimit.length--;
-					continue;
+					if((pos.x-origin.x)+width <= containerSize.width)
+						{ // still fits into remaining line
+						rangeLimit.location++;
+						rangeLimit.length--;
+						continue;
+						}
+					// treat as a newline
 				}
 			case '\n':
 				{
 					NSParagraphStyle *p=[_textStorage attribute:NSParagraphStyleAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
-#if 0	// if backend works reliable
-					float leading=[font leading]+[p paragraphSpacing];
-#else
-					float leading=1.2*[font _sizeOfString:@"X"].height+[p paragraphSpacing];
-#endif
-					// [ctxt _newLine];	// start new line
+					font=[_textStorage attribute:NSFontAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
+					if(!font)
+						font=[NSFont userFontOfSize:0.0];		// use default system font
 					if([ctxt isFlipped])
-						pos.y+=leading;		// go down one line
+						pos.y+=[self defaultLineHeightForFont:font]+[p paragraphSpacing];		// go down one line
 					else
-						pos.y-=leading;		// go down one line
+						pos.y-=[self defaultLineHeightForFont:font]+[p paragraphSpacing];		// go down one line
 				}
 			case '\r':
 				{ // start over at beginning of line but not a new line
 					pos.x=origin.x;
-					// [ctxt _gotohpos:pos.x];
 					rangeLimit.location++;
 					rangeLimit.length--;
 					continue;
@@ -255,8 +259,9 @@
 			case ' ':
 				{ // advance to next character position but don't draw a glyph
 					font=[_textStorage attribute:NSFontAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
-					pos.x+=[font _sizeOfString:@" "].width;		// width of space
-					// [ctxt _gotohpos:pos.x];
+					if(!font)
+						font=[NSFont userFontOfSize:0.0];		// use default system font
+					pos.x+=[font widthOfString:@" "];		// width of space
 					rangeLimit.location++;
 					rangeLimit.length--;
 					continue;
@@ -276,23 +281,23 @@
 		font=[attr objectForKey:NSFontAttributeName];
 		if(!font)
 			font=[NSFont userFontOfSize:0.0];		// use default system font
-		size=[font _sizeOfString:substr];			// use metrics of unsubstituted font
-		if((pos.x-origin.x)+size.width > containerSize.width)
+		width=[font widthOfString:substr];			// use metrics of unsubstituted font
+		if((pos.x-origin.x)+width > containerSize.width)
 			{ // new word fragment does not fit into remaining line
 			if(pos.x > origin.x)
-				{ // we didn't just start on a newline, so insert a newline
-//				[ctxt _newLine];
+				{ // we didn't just start on a newline, so insert another newline
+				NSParagraphStyle *p=[_textStorage attribute:NSParagraphStyleAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
 				pos.x=origin.x;
 				if(flipped)
-					pos.y+=1.2*size.height/*+[p paragraphSpacing]*/;
+					pos.y+=[self defaultLineHeightForFont:font]+[p paragraphSpacing];
 				else
-					pos.y-=1.2*size.height/*+[p paragraphSpacing]*/;
+					pos.y-=[self defaultLineHeightForFont:font]+[p paragraphSpacing];
 				}
-			while(size.width > containerSize.width && attribRange.length > 1)
+			while(width > containerSize.width && attribRange.length > 1)
 				{ // does still not fit into box at all - we must truncate
 				attribRange.length--;	// try with one character less
 				substr=[str substringWithRange:attribRange];
-				size=[font _sizeOfString:substr]; // get new width
+				width=[font widthOfString:substr]; // get new width
 				}
 			}
 		if([ctxt isDrawingToScreen])
@@ -314,10 +319,20 @@
 			baseline=[attrib floatValue];
 		if((attrib=[attr objectForKey:NSSuperscriptAttributeName]))
 			baseline+=3.0*[attrib intValue];
-		if(pos.x != 0.0 || pos.y != 0.0)
-			{ // not the first call where everything is initialized to be 0
-			[ctxt _setBaseline:baseline];	// adjust baseline
-			[ctxt _setTextPosition:pos];	// set where to start drawing
+		[ctxt _setBaseline:baseline];	// update baseline
+		if(flipped)
+			{
+			NSPoint newPdfPos=pos;
+			newPdfPos.y+=[self defaultLineHeightForFont:font];
+			[ctxt _setTextPosition:NSMakePoint(newPdfPos.x-pdfPos.x, newPdfPos.y-pdfPos.y)];	// set where to start drawing (relative move)
+			pdfPos=newPdfPos;
+			}
+		else
+			{
+			NSPoint newPdfPos=pos;
+			newPdfPos.y-=[self defaultLineHeightForFont:font];
+			[ctxt _setTextPosition:NSMakePoint(newPdfPos.x-pdfPos.x, newPdfPos.y-pdfPos.y)];	// set where to start drawing (relative move)
+			pdfPos=newPdfPos;
 			}
 
 		// FIXME: this all should be done through the GlyphGenerator
@@ -350,33 +365,33 @@ containerOrigin:(NSPoint)containerOrigin;
 		// fixme: setLineWidth:[font underlineThickness]
 		if((style=[[attr objectForKey:NSUnderlineStyleAttributeName] intValue]))
 			{ // underline
-			float posy=pos.y+size.height+baseline+[font underlinePosition];
+			float posy=pos.y+[font defaultLineHeightForFont]+baseline+[font underlinePosition];
 #if 0
 			NSLog(@"underline %x", style);
 #endif
 			[foreGround setStroke];
 			[[attr objectForKey:NSUnderlineColorAttributeName] setStroke];		// change stroke color if defined differently
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(pos.x, posy) toPoint:NSMakePoint(pos.x+size.width, posy)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(pos.x, posy) toPoint:NSMakePoint(pos.x+width, posy)];
 			}
 		if((style=[[attr objectForKey:NSStrikethroughStyleAttributeName] intValue]))
 			{ // strike through
-			float posy=pos.y+size.height/2.0+baseline-[font xHeight]/2.0;
+			float posy=pos.y+([font defaultLineHeightForFont]-[font xHeight])/2.0+baseline;
 #if 0
 			NSLog(@"strike through %x", style);
 #endif
 			[foreGround setStroke];
 			[[attr objectForKey:NSStrikethroughColorAttributeName] setStroke];		// change stroke color if defined differently
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(pos.x, posy) toPoint:NSMakePoint(pos.x+size.width, posy)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(pos.x, posy) toPoint:NSMakePoint(pos.x+width, posy)];
 			}
 		if((attrib=[attr objectForKey:NSLinkAttributeName]))
 			{ // link
-			float posy=pos.y+size.height+baseline+[font underlinePosition];
+			float posy=pos.y+[font defaultLineHeightForFont]+baseline+[font underlinePosition];
 			[[NSColor blueColor] setStroke];
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(pos.x, posy) toPoint:NSMakePoint(pos.x+size.width, posy)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(pos.x, posy) toPoint:NSMakePoint(pos.x+width, posy)];
 			}
 		rangeLimit.location=NSMaxRange(attribRange);	// handle next fragment
 		rangeLimit.length-=attribRange.length;
-		pos.x+=size.width;	// advance to next fragment
+		pos.x+=width;	// advance to next fragment
 		}
 	[ctxt _endText];
 }

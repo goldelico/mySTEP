@@ -84,7 +84,7 @@ typedef enum {
 - (NSArray *) tabViewItems;
 - (NSTabViewType) tabViewType;
 - (void) takeSelectedTabViewItemFromSender:(id) sender;
-- (NSWindow *) window;
+// - (NSWindow *) window;	// inherited
 
 @end
 

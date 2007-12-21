@@ -773,6 +773,8 @@ typedef struct
 		XDestroyWindow(_display, _realWindow);						// Destroy the X Window
 		XFlush(_display);
 		}
+	[_textMatrix release];
+	[_textLineMatrix release];
 	// here we could check if we were the last window and XDestroyWindow(_display, xAppRootWindow); XCloseDisplay(_display);
 	[super dealloc];
 }
@@ -875,6 +877,8 @@ typedef struct
 		}
 	XChangeGC(_display, _state->_gc, GCFunction, &values);
 }
+
+#pragma mark Paths
 
 static int _capStyles[]=
 { // translate cap styles
@@ -1271,6 +1275,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #endif
 }
 
+#pragma mark Text
+
 - (void) _setFont:(NSFont *) font;
 {
 	if(!font || font == _state->_font)
@@ -1281,9 +1287,11 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _beginText;
 {
-	// FIXME: we could postpone using the CTM until we really draw text
-	_cursor=[_state->_ctm transformPoint:NSZeroPoint];	// start at (0,0)
-	_baseline=0;
+	ASSIGN(_textMatrix, [NSAffineTransform transform]);	// identity
+	ASSIGN(_textLineMatrix, _textMatrix);
+	// FIXME: reset other text state ???
+	_rise=0.0;
+	_horizontalScale=1.0;
 }
 
 - (void) _endText; { return; }
@@ -1291,48 +1299,63 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (void) _setTextPosition:(NSPoint) pos;
 { // PDF: x y Td
   // FIXME: we could postpone the CTM until we really draw text
-	_cursor=[_state->_ctm transformPoint:pos];
-#if 0
-	NSLog(@"_setTextPosition %@ -> %@", NSStringFromPoint(pos), NSStringFromPoint(_cursor));
-#endif
+	[_textMatrix translateXBy:pos.x yBy:pos.y];
+	ASSIGN(_textLineMatrix, _textMatrix);	// update text line matrix
 }
 
-- (void) _setLeading:(float) lead;
+- (void) _setTM:(NSAffineTransform *) tm;
+{ // PDF: a b c d e f Tm
+	ASSIGN(_textMatrix, tm);
+}
+
+- (void) _setLeading:(float) val;
 { // PDF: x TL
-	NIMP;
+	_leading=val;
 }
 
-// FIXME: this does not properly handle rotated coords and newline
+- (void) _setCharSpace:(float) val;
+{ // PDF: v Tc
+	_characterSpace=val;
+}
+
+- (void) _setHorizontalScale:(float) val;
+{ // PDF: v Tz
+	_horizontalScale=val;
+}
+
+- (void) _setWordSpace:(float) val;
+{ // PDF: v Tw
+	_wordSpace=val;
+}
+
+- (void) _setBaseline:(float) val;
+{ // PDF: v Ts
+	_rise=val;
+}
+
+- (void) _newLine:(NSPoint) pos;
+{ // PDF: x y TD
+	_leading=-pos.y;
+	[self _setTextPosition:pos];
+}
 
 - (void) _newLine;
 { // PDF: T*
-	NIMP;
-}
-
-// we need a command to set x-pos (only)
-
-- (void) _setBaseline:(float) val;
-{
-	_baseline=val;
+	[self _setTextPosition:NSMakePoint(0.0, _leading)];
 }
 
 // FIXME:
 // does not handle rotation
-// ignores CTM scaling (mostly!)
+// ignores CTM scaling (only in cursor position!)
 
 - (void) _drawGlyphBitmap:(unsigned char *) buffer x:(int) x y:(int) y width:(unsigned) width height:(unsigned) height;
 { // paint to screen
-	// we could also (re)use an NSBitmapImageRep and fill it appropriately by alpha/rgb
-	// the bitmap is a grey level bitmap - so how do we colorize?
-	// how do we handle compositing?
 	XImage *img;
 	int screen_number=XScreenNumberOfScreen(_nsscreen->_screen);
 	int pxx, pxy;
 	XGCValues values;
 	BOOL mustFetch;
 	struct RGBA8 stroke;
-	x+=_cursor.x;	// relative to cursor position
-	y+=_cursor.y;
 #if 0
 	NSLog(@"_drawGlyphBitmap");
 	NSLog(@"size={%d %d}", width, height);
@@ -1344,7 +1367,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	mustFetch=YES;
 	if(mustFetch)
 		{ // we must really fetch the current image from our context
-			// FIXME: this is quite slow even if we have double buffering!
+		// FIXME: this is quite slow even if we have double buffering!
+		// restrict to window/screen
 		img=XGetImage(_display, ((Window) _graphicsPort),
 						x, y, width, height,
 						AllPlanes, ZPixmap);
@@ -1399,10 +1423,21 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	unsigned int i;
 	XFontStruct *font;
 #if 0
+	NSAffineTransform *trm=[NSAffineTransform transform];
+	[trm setTransformStruct:(NSAffineTransformStruct){ _horizontalScale, 0.0, 0.0, 1.0, 0.0, _rise }];
+	[trm appendTransform:_textMatrix];
+	[trm appendTransform:_state->_ctm];
+#endif
+#if 0
 	NSLog(@"NSString: _drawGlyphs:%p count:%u font:%@", glyphs, cnt, _state->_font);
 #endif
 	if([_state->_font renderingMode] == NSFontIntegerAdvancementsRenderingMode)
 		{ // use the basic X11 bitmap font rendering services
+		NSAffineTransformStruct atms=[_textMatrix transformStruct];
+		NSPoint cursor=[_state->_ctm transformPoint:NSMakePoint(atms.tX, atms.tY)];
+#if 0
+		NSLog(@"_setTextPosition %@ -> %@", NSStringFromPoint(pos), NSStringFromPoint(cursor));
+#endif
 		[_state->_font _setScale:_scale];
 		font=[_state->_font _font];
 		XSetFont(_display, _state->_gc, font->fid);	// set font-ID in GC
@@ -1412,7 +1447,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		{
 			XRectangle box;
 			XClipBox(_state->_clip, &box);
-			NSLog(@"draw %u glyphs at (%d,%d) clip=%@", cnt, (int)_cursor.x, (int)(_cursor.y-_baseline+font->ascent+1), NSStringFromXRect(box));
+			NSLog(@"draw %u glyphs at (%d,%d) clip=%@", cnt, (int) cursor.x, (int)(cursor.y-_baseline+font->ascent+1), NSStringFromXRect(box));
 		}
 #endif
 		if(!buf || cnt > buflen)
@@ -1437,10 +1472,11 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			}	
 		XDrawString16(_display, ((Window) _graphicsPort),
 					  _state->_gc, 
-					  _cursor.x, (int)(_cursor.y-_baseline+font->ascent+1),	// X11 defines y as the character baseline
-																			// NOTE:
-																			// XChar2b is a struct which may be 4 bytes locally depending on struct alignment rules!
-																			// But here it appears to work since Xlib appears to assume that there are 2*length bytes to send to the server
+					  cursor.x, (int)(cursor.y-_rise+font->ascent+1),	// X11 defines y as the character top line so we have to adjust for the ascent
+					  /* NOTE:
+							XChar2b is a struct which may be 4 bytes locally depending on struct alignment rules!
+							But here it appears to work since Xlib appears to assume that there are 2*length bytes to send to the server
+					  */
 					  buf,
 					  cnt);		// Unicode drawing
 		if(sizeof(XChar2b) != 2)
@@ -1453,13 +1489,17 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				}
 			}
 		_setDirtyRect(self,
-					  _cursor.x, _cursor.y,
+					  cursor.x, cursor.y,
 					  XTextWidth16(font, buf, cnt),
-					  font->ascent + font->descent);	// we need to ask XTextString16 for the line width!
+					  font->ascent + font->descent);
 		}
 	else
 		{ // use Freetype
-		[_state->_font _drawAntialisedGlyphs:glyphs count:cnt inContext:self];
+		NSAffineTransform *trm=[NSAffineTransform transform];
+		[trm setTransformStruct:(NSAffineTransformStruct){ _horizontalScale, 0.0, 0.0, 1.0, 0.0, _rise }];
+		[trm appendTransform:_textMatrix];
+		[trm appendTransform:_state->_ctm];
+		[_state->_font _drawAntialisedGlyphs:glyphs count:cnt inContext:self matrix:trm];
 		}
 }
 
@@ -1469,6 +1509,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 }
 
 - (void) _endPage; { return; }
+
+#pragma mark Bitmap
 
 - (void) _setFraction:(float) fraction;
 {
@@ -3689,15 +3731,20 @@ static NSDictionary *_x11settings;
 	return _fontStruct;
 }
 
-// GET RID OF THIS SINCE IT DEPENDEND ON CHARACTER ENCODING
-
-- (NSSize) _sizeOfAntialisedString:(NSString *) string;
+- (float) _widthOfAntialisedString:(NSString *) string;
 { // overwritten in Freetype.m
-	BACKEND;
-	return NSZeroSize;
+	NSLog(@"can't determine width of antialiased strings");
+	return 0.0;
 }
 
-- (NSSize) _sizeOfString:(NSString *) string;
+- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
+{ // overwritten by FreeTypeFont
+	NSLog(@"can't draw antialiased fonts");
+}
+
+// DEPRECATED SINCE IT DEPENDEND ON CHARACTER ENCODING AND WRITING DIRECTION
+
+- (float) widthOfString:(NSString *) string;
 { // get size from X11 font assuming no scaling
 	if(_renderingMode == NSFontIntegerAdvancementsRenderingMode)
 		{
@@ -3705,12 +3752,12 @@ static NSDictionary *_x11settings;
 		static unsigned int buflen;
 		unsigned int i;
 		unsigned length=[string length];
-		NSSize size;
+		float width;
 		SEL cai=@selector(characterAtIndex:);
 		typedef unichar (*CAI)(id self, SEL _cmd, int i);
 		CAI imp=(CAI)[string methodForSelector:cai];	// don't try to cache this! Different strings may have different implementations
 #if 0
-		NSLog(@"_sizeOfString:%@ font:%@", string, _state->_font);
+		NSLog(@"widthOfString:%@ font:%@", string, _state->_font);
 #endif
 		if(!buf || length > buflen)
 			buf=(XChar2b *) objc_realloc(buf, sizeof(buf[0])*(buflen=length+20));	// increase translation buffer if needed
@@ -3729,25 +3776,19 @@ static NSDictionary *_x11settings;
 			buf[i].byte1=c>>8;
 			buf[i].byte2=c;
 			}
-		size=NSMakeSize(XTextWidth16(_unscaledFontStruct, buf, length),
-						(((XFontStruct *)_unscaledFontStruct)->ascent + ((XFontStruct *)_unscaledFontStruct)->descent));	// character box
+		width=XTextWidth16(_unscaledFontStruct, buf, length);
 #if 0
-		NSLog(@"%@[%@] -> %@ (C: %d)", self, string, NSStringFromSize(size), XTextWidth(_fontStruct, [string cString], length));
+		NSLog(@"%@[%@] -> %f (C: %d)", self, string, width, XTextWidth(_fontStruct, [string cString], length));
 #endif
-		return size;	// return size of character box
+		return width;	// return size of character box
 		}
 	else
-		return [self _sizeOfAntialisedString:string];
+		return [self _widthOfAntialisedString:string];
 }
 
 - (void) _finalize
 { // overwritten by FreeTypeFont
 	return;
-}
-
-- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
-{ // overwritten by FreeTypeFont
-	NSLog(@"can't draw antialiased fonts");
 }
 
 - (void) dealloc;

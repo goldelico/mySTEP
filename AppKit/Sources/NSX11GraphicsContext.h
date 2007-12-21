@@ -61,9 +61,14 @@ typedef struct _NSX11GraphicsState
 { // describes one output window
 	NSRect _windowRect;					// window in NSScreen coords (required to flip window coordinates and to clip composite operations)
 	XRectangle _dirty;					// dirty area
-	NSPoint _cursor;					// current text drawing position (after applying the CTM)
 	_NSX11Screen *_nsscreen;			// cached pointer from NSWindow
-	float _baseline;					// current baseline
+	NSAffineTransform *_textMatrix;
+	NSAffineTransform *_textLineMatrix;
+	float _characterSpace;				// PDF text parameters
+	float _wordSpace;
+	float _horizontalScale;
+	float _leading;
+	float _rise;						// current baseline
  @public
 	Window _realWindow;					// may be the same or different from _graphicsPort for double buffered windows
 	XRectangle _xRect;					// X11 rectangle of the window

@@ -667,6 +667,6 @@
 	return self;
 }
 
-- (NSWindow *) window; { return _window; }
+// - (NSWindow *) window; { return _window; }
 
 @end /* NSTabView */

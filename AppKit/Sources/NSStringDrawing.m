@@ -151,9 +151,8 @@ static NSTextContainer *_textContainer;
 	if([self length] == 0)
 		return;	// empty string
 	[self _setupWithRect:rect options:options];
-	// FIXME: should this be moved to the layout manager as well?
 	if(![[NSGraphicsContext currentContext] isFlipped])
-		rect.origin.y+=rect.size.height;	// start at top of rect
+		rect.origin.y+=rect.size.height;	// start at top of rect (drawGlyphsForGlyphRange expects flipped coordinates)
 #if 0
 	NSLog(@"drawWithRect:options: %@", self);
 #endif

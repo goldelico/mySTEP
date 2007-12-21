@@ -461,7 +461,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 	[textStorage removeAttribute:NSUnderlineStyleAttributeName 
 						  range:_selectedRange];
 	// typingAttributes is only known in NSTextView!
-	[[self typingAttributes] removeObjectForKey:NSUnderlineStyleAttributeName];
+//	[[self typingAttributes] removeObjectForKey:NSUnderlineStyleAttributeName];
 	[self setNeedsDisplay:YES];
 }
 
