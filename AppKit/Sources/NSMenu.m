@@ -177,6 +177,13 @@ static BOOL __userKeyEquivalents = YES;
 #endif
 }
 
+- (CGFloat) menuBarHeight; 
+{
+	if(self == [NSApp mainMenu])
+		return [isa menuBarHeight];
+	return 0.0;
+}
+
 - (NSString *) description;
 {
 	NSMutableString *s=[NSMutableString stringWithFormat:@"%@: %@ -> [%@ %@]", 
