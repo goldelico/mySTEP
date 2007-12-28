@@ -78,6 +78,10 @@ NSString *NSDrawerWillOpenNotification=@"NSDrawerWillOpenNotification";
 	// resize the content view
 }
 
+- (NSView *) contentView; { [_drawerWindow contentView]; }
+- (id) delegate; { return _delegate; }
+
+- (void) setContentView:(NSView *) view; { [_drawerWindow setContentView:view]; }
 - (void) setDelegate:(id) delegate
 {
 // FIXME: disconnect old and connect new delegate to the 4 notifications

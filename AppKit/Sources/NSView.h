@@ -293,7 +293,7 @@ typedef NSInteger NSTrackingRectTag;
 - (NSShadow *) shadow; 
 - (BOOL) shouldDelayWindowOrderingForEvent:(NSEvent *) anEvent;
 - (BOOL) shouldDrawColor;
-- (void) sortSubviewsUsingFunction:(NSComparisonResult (*)(id ,id ,void *)) compare 
+- (void) sortSubviewsUsingFunction:(NSComparisonResult (*)(id, id, void *)) compare 
 						   context:(void *) context;
 - (NSMutableArray *) subviews;
 - (NSView *) superview;

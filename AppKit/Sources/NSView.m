@@ -25,6 +25,7 @@
 #import <Foundation/NSTimer.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSAffineTransform.h>
 
 #import <AppKit/NSView.h>
 #import <AppKit/NSApplication.h>
@@ -503,7 +504,7 @@ printing
 		NSLog(@"NSView: initWithFrame 1 %@", self);
 #endif
 		_frame = frameRect;
-		_bounds = (NSRect){NSZeroPoint, _frame.size};
+		_bounds = (NSRect){ NSZeroPoint, _frame.size };
 //		unitSquareSize = NSMakeSize(1.0, 1.0);		// FIXME???
 		sub_views = [NSMutableArray new];
 #if 0
@@ -725,7 +726,7 @@ printing
 		NSLog(@"NSView warning: replaceSubview: not found: %@, oldView");
 }
 
-- (void) sortSubviewsUsingFunction:(int (*)(id ,id ,void *))compare 
+- (void) sortSubviewsUsingFunction:(NSComparisonResult (*)(id ,id ,void *))compare 
 						   context:(void *)context
 {
 	[sub_views sortUsingFunction:compare context:context];
@@ -796,14 +797,11 @@ printing
 	_frame=frameRect;
 	if(!_v.customBounds)
 		_bounds.size = frameRect.size;	// always adjust
-	if(super_view)
-		[self _setSuperview:super_view];	// will also call invalidate
-	else
-		[self _invalidateCTM];
+	[self _invalidateCTM];
 #if 0
 	NSLog(@"autosize %d %@", _v.autoSizeSubviews, self);
 #endif
-	if(_v.autoSizeSubviews && !NSEqualSizes(o, _frame.size))
+	if(_v.autoSizeSubviews)
 		[self resizeSubviewsWithOldSize: o];	// Resize subviews
 #if 0
 	NSLog(@"autosized");
@@ -821,8 +819,6 @@ printing
 		return;	// no change
 	_frame.origin = newOrigin;
 	[self _invalidateCTM];
-	if(super_view)
-		[self _setSuperview:super_view];
 	if(_v.postFrameChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
 }
@@ -948,17 +944,22 @@ printing
 	n.origin.y=0.5+floor(n.origin.y);
 	n.size.width=rint(n.size.width);					// round to nearest integer size
 	n.size.height=rint(n.size.height);
-	n.origin=[_window convertScreenToBase:n.origin];		// convert back to NSWindow
+	n.origin=[_window convertScreenToBase:n.origin];	// convert back to NSWindow
 	return [self convertRect:n fromView:nil];			// and back to view
+}
+
+- (void) _invalidateCTMtoBase;
+{ // invalidate direct mapping to screen (only)
+	[_bounds2base release], _bounds2base=nil;
+	[_base2bounds release], _base2bounds=nil;
+	[sub_views makeObjectsPerformSelector:_cmd];	// and invalidate all subviews
 }
 
 - (void) _invalidateCTM;
 {
-	ASSIGN(_bounds2frame, nil);
-	ASSIGN(_frame2bounds, nil);
-	ASSIGN(_bounds2base, nil);
-	ASSIGN(_base2bounds, nil);
-	[sub_views makeObjectsPerformSelector:_cmd];	// and invalidate all subviews
+	[_bounds2frame release], _bounds2frame=nil;
+	[_frame2bounds release], _frame2bounds=nil;
+	[self _invalidateCTMtoBase];	// subviews can keep their bounds2frame mapping intact - only their mapping to the screen changes
 }
 
 // FIXME: frame and bounds rotation are not correctly handled
@@ -979,7 +980,8 @@ printing
 				[_bounds2frame rotateByDegrees:boundsRotation];	// rotate around origin
 			[_bounds2frame translateXBy:0 yBy:_bounds.size.height];
 			// [_bounds2frame scaleXBy:unitSquareSize.width yBy:-unitSquareSize.height];	// finally (or initially?) scale (incl. origin)
-			[_bounds2frame translateXBy:-_bounds.origin.x yBy:-_bounds.origin.y];
+			if(_bounds.origin.x != 0.0 || _bounds.origin.y != 0.0)
+				[_bounds2frame translateXBy:-_bounds.origin.x yBy:-_bounds.origin.y];
 			[_bounds2frame scaleXBy:1.0 yBy:-1.0];	// apply flipping
 			if(frameRotation != 0.0)
 				[_bounds2frame rotateByDegrees:frameRotation];	// rotate around frame origin
@@ -991,7 +993,8 @@ printing
 		else
 			{ // not flipped
 			// [_bounds2frame scaleXBy:unitSquareSize.width yBy:unitSquareSize.height];	// finally (or initially?) scale (incl. origin)
-			[_bounds2frame translateXBy:-_bounds.origin.x yBy:-_bounds.origin.y];
+			if(_bounds.origin.x != 0.0 || _bounds.origin.y != 0.0)
+				[_bounds2frame translateXBy:-_bounds.origin.x yBy:-_bounds.origin.y];
 			if(boundsRotation != 0.0)
 				[_bounds2frame rotateByDegrees:boundsRotation];
 			[_bounds2frame translateXBy:_frame.origin.x yBy:_frame.origin.y];	// shift view to its position within superview
@@ -1040,9 +1043,9 @@ printing
 			[_bounds2base appendTransform:[super_view _bounds2base]];	// merge with superview's transformation(s)
 			}
 		else
-			_bounds2base=[[self _bounds2frame] retain];				// we are the toplevel view
+			_bounds2base=[[self _bounds2frame] retain];	// we are the toplevel view
 		[_base2bounds release];
-		_base2bounds=nil;	// recache
+		_base2bounds=nil;	// recache inverse
 		}
 	return _bounds2base;
 }
@@ -1173,7 +1176,7 @@ printing
 {
 	if((super_view = superview) == nil)
 		return;	// removed
-	[self _invalidateCTM];	// update when needed
+	[self _invalidateCTMtoBase];	// update when needed
 	if(_v.hasToolTip)
 		{
 		NSMutableArray *trackRects = [_window _trackingRects];
@@ -1719,16 +1722,16 @@ printing
 	return nil;
 }
 
-// FIXME: this is pretty time consuming...
+// FIXME: this can be pretty time consuming...
 
-- (NSView *) hitTest:(NSPoint)aPoint // aPoint is in superview's coordinates (or window base coordinates if there is no superview)
+- (NSView *) hitTest:(NSPoint) aPoint // aPoint is in superview's coordinates (or window base coordinates if there is no superview)
 {
 	int i;
 	NSView *v;
 	// can we somehow cache this?
 	// We go through the view hierarchy twice:
 	//  1. to find shouldBeTreatedAsInkEvent
-	//  2. if not to find the view to forward the mouse event to
+	//  2. if not, to find the view to forward the mouse event to
 	// Note: this is a recursive call!
 	// basically we need a list of NSRect to NSView mapping that is invalidated as soon as any sub(sub)view moves
 	// or we just have a short-term cache that handles the case that hitTest is called for the same point twice (inking!)

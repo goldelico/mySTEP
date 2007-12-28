@@ -791,21 +791,25 @@ static BOOL changed;
 #ifndef __APPLE__
 	[self _substitute:@"Times" by:@"LuxiSerif"];
 	[self _substitute:@"Times-Bold" by:@"LuxiSerif-Bold"];
-	[self _substitute:@"Times-Italic" by:@"LuxiSerif-Italic"];
+	[self _substitute:@"Times-Italic" by:@"LuxiSerif-Oblique"];
+	[self _substitute:@"Times-BoldItalic" by:@"LuxiSerif-BoldOblique"];
 	[self _substitute:@"Courier" by:@"LuxiMono"];
 	[self _substitute:@"Courier-Bold" by:@"LuxiMono-Bold"];
 	[self _substitute:@"Monaco" by:@"LuxiMono"];
 	[self _substitute:@"Monaco-Bold" by:@"LuxiMono-Bold"];
 	[self _substitute:@"Helvetica" by:@"LuxiSans"];
 	[self _substitute:@"Helvetica-Bold" by:@"LuxiSans-Bold"];
-	[self _substitute:@"Helvetica-Italic" by:@"LuxiSans-Italic"];
+	[self _substitute:@"Helvetica-Italic" by:@"LuxiSans-Oblique"];
+	[self _substitute:@"Helvetica-BoldItalic" by:@"LuxiSans-BoldOblique"];
 	[self _substitute:@"Arial" by:@"LuxiSans"];
 	[self _substitute:@"Arial-Bold" by:@"LuxiSans-Bold"];
-	[self _substitute:@"Arial-Italic" by:@"LuxiSans-Italic"];
+	[self _substitute:@"Arial-Italic" by:@"LuxiSans-Oblique"];
+	[self _substitute:@"Arial-BoldItalic" by:@"Luxi Sans-Bold Oblique"];
 	[self _substitute:@"Geneva" by:@"LuxiSans"];
 	[self _substitute:@"LucidaGrande" by:@"LuxiSans"];
 	[self _substitute:@"LucidaGrande-Bold" by:@"LuxiSans-Bold"];
-	[self _substitute:@"LucidaGrande-Italic" by:@"LuxiSans-Italic"];
+	[self _substitute:@"LucidaGrande-Italic" by:@"LuxiSans-Oblique"];
+	[self _substitute:@"LucidaGrande-BoldItalic" by:@"LuxiSans-BoldOblique"];
 #endif
 }
 

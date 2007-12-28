@@ -1347,8 +1347,8 @@ int index = [self columnWithIdentifier:identifier];
 		}
 	else
 		{
-		if(point.y < 0 || point.y >= NSMaxY(_bounds))
-			return -1;
+		if(point.y < 0 || point.y > NSMaxY(_bounds))
+			return -1;	// outside bounds
 		return (point.y/(_rowHeight + _intercellSpacing.height));	// we could subtract _intercellSpacing.height/2 so that it jumps halfway between the cells
 		}
 }
@@ -1356,10 +1356,15 @@ int index = [self columnWithIdentifier:identifier];
 - (NSRange) rowsInRect:(NSRect)rect 
 {
 	NSRange r;
+	int r2;
 	r.location=[self rowAtPoint:rect.origin];
 	if(r.location < 0)
 		return NSMakeRange(0, 0);
-	r.length=[self rowAtPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect))]-r.location+1;	// round up
+	r2=[self rowAtPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect))];
+	if(r2 >= (int) r.location)
+		r.length=r2-r.location+1;	// round up
+	else
+		r.length=0;
 #if OLD
 	// FIXME: we should cache the row rects in some tree structure for fast(er) access
 	NSRange r = {0,0};
@@ -1722,7 +1727,6 @@ int index = [self columnWithIdentifier:identifier];
 {
 	int rows;
 	int cols;
-	[[self enclosingScrollView] tile];	// tile scrollview
 	if(_dataSource)
 		{
 		rows = [self numberOfRows];
@@ -1738,11 +1742,11 @@ int index = [self columnWithIdentifier:identifier];
 			float minH = super_view?[super_view bounds].size.height:10;
 			NSRect r;
 			if(rows > 0)
-				r = [self rectOfRow:rows - 1];	// last row
+				r = [self rectOfRow:rows - 1];	// up to last row
 			else
 				r = NSZeroRect;
-			if(r.size.height < minH)
-				r.size.height=minH;			// apply minimum height
+			if(NSMaxY(r) < minH)
+				r.size.height=minH-r.origin.y;	// apply minimum height so that we are asked to draw the background
 #if 0
 			NSLog(@"self visibleRect %@", NSStringFromRect([self visibleRect]));
 			NSLog(@"superview bounds %@", NSStringFromRect([super_view bounds]));
@@ -1756,13 +1760,14 @@ int index = [self columnWithIdentifier:identifier];
 #if 0
 			NSLog(@"union r=%@", NSStringFromRect(r));
 #endif
-			h.size.width = NSMaxX(c);	// resize to total width
+			h.size.width = NSMaxX(c);	// resize header to total width
 #if 0
 			NSLog(@"header view frame: %@", NSStringFromRect(r));
 #endif
 			[_headerView setFrame:h];	// adjust our header view
-										//	[_headerView resetCursorRects];
-			[super setFrame:r];	// does nothing if we did not really change
+										// [_headerView resetCursorRects];
+			[super setFrame:r];			// does nothing if we did not really change - otherwise notifies NSClipView
+			[[self enclosingScrollView] tile];	// tile scrollview (i.e. properly layout header and our superview)
 			_tv.needsTiling=NO;
 			}
 		}
@@ -1916,24 +1921,31 @@ int index = [self columnWithIdentifier:identifier];
 		[_gridColor set];
 	if(horz)
 		{
-		NSRange rng=[self columnsInRect:rect];
-		while(rng.length > 0)
+		int col=[self columnAtPoint:rect.origin];	// determine first row
+		int maxcol=[_tableColumns count];
+		float right=NSMaxX(rect);
+		while(col < maxcol)
 			{
-			NSRect rect=[self rectOfColumn:rng.location];
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(rect.origin.x+rect.size.width, rect.origin.y) toPoint:NSMakePoint(rect.origin.x+rect.size.width, rect.origin.y+rect.size.height)];
-			rng.location++;
-			rng.length--;
+			NSRect colRect=[self rectOfColumn:col];
+			if(colRect.origin.x > right)
+				break;	// column no longer inside
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(colRect.origin.x+colRect.size.width+1.0, colRect.origin.y)
+									  toPoint:NSMakePoint(colRect.origin.x+colRect.size.width+1.0, colRect.origin.y+colRect.size.height)];
+			col++;
 			}
 		}
 	if(vert)
 		{
-		NSRange rng=[self rowsInRect:rect];
-		while(rng.length > 0)
+		int row=[self rowAtPoint:rect.origin];	// determine first row
+		float bottom=NSMaxY(rect);
+		while(YES)
 			{
-			NSRect rect=[self rectOfRow:rng.location];
-			[NSBezierPath strokeLineFromPoint:NSMakePoint(rect.origin.x, rect.origin.y/*+rect.size.height*/) toPoint:NSMakePoint(rect.origin.x+rect.size.width, rect.origin.y/*+rect.size.height*/)];
-			rng.location++;
-			rng.length--;
+			NSRect rowRect=[self rectOfRow:row];
+			if(rowRect.origin.y > bottom)
+				break;	// row no longer inside
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(rowRect.origin.x, rowRect.origin.y-1.0 /*+rowRect.size.height*/)
+									  toPoint:NSMakePoint(rowRect.origin.x+rowRect.size.width, rowRect.origin.y-1.0 /*+rowRect.size.height*/)];
+			row++;
 			}
 		}
 }
@@ -1942,20 +1954,20 @@ int index = [self columnWithIdentifier:identifier];
 {
 	if(_tv.usesAlternatingRowBackgroundColors)
 		{ // we ignore background color
-		NSRange rowRange = [self rowsInRect:rect];	// determine first row
 		NSArray *colors=[NSColor controlAlternatingRowBackgroundColors];
 		unsigned int ncolors=[colors count];
 		if(ncolors > 0)
 			{
+			int row=[self rowAtPoint:rect.origin];	// determine first row
 			float bottom=NSMaxY(rect);
 			while(YES)
 				{
-				NSRect rowRect=[self rectOfRow:rowRange.location];
+				NSRect rowRect=[self rectOfRow:row];
 				if(rowRect.origin.y > bottom)
 					break;	// row no longer inside
-				[[colors objectAtIndex:rowRange.location%ncolors] setFill];	// set color
+				[[colors objectAtIndex:row%ncolors] setFill];	// set color (cycling through color list)
 				NSRectFill(rowRect);
-				rowRange.location++;
+				row++;	// next row
 				}
 			return;
 			}

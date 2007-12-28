@@ -560,7 +560,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NSLog(@"did load nib");
 #endif
 	if(![self mainMenu])
-		[self setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// did not load from a NIB
+		[self setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// could not load from a NIB
 	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];
 	[self activateIgnoringOtherApps:NO];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
@@ -1049,20 +1049,21 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 							return;	// has been processed by window
 						}
 					// FIXME: also try popup and contextual menus!
-					// FIXME: do we really need this? A Menu window is also a window...
+					// FIXME: do we really need this? A Menu window is also an "other" window...
 //					if([[self mainMenu] performKeyEquivalent:event])	// finally try main menu (not menu window)
 //						return;
 					}
-				break;
 			}
 		case NSKeyUp:
 		case NSFlagsChanged:
 		case NSCursorUpdate:
 		case NSApplicationDefined:
-			{ // send key events to key window
+			{ // send to key window only
 				if(_app.isActive)
 					{
-					NSDebugLog(@"NSEvent type: %d", [event type]);
+#if 1
+					NSLog(@"NSEvent: %@ to keyWindow %@", event, _keyWindow);
+#endif
 					[_keyWindow sendEvent:event];
 					}
 				break;
@@ -1603,7 +1604,7 @@ NSWindow *w;
 			else
 				[_mainMenuView _setHorizontalResize:YES]; // resize as needed if menu in top menubar
 			[_mainMenuView setHorizontal:YES];		// make horizontal
-			[_mainMenuView _setStatusBar:NO];		// no status bar
+			[_mainMenuView _setStatusBar:NO];		// not status bar
 			}
 		}
 	if(0 && [menuScreen _menuBarFrame].origin.x != 0.0)
@@ -1613,12 +1614,10 @@ NSWindow *w;
 		[[m addItemWithTitle:title action:NULL keyEquivalent:@"F2"] setSubmenu:aMenu]; // create single entry and make it a submenu
 		// [[mi objectAtIndex:0] setTitle:@"Application"]; // convert into an 'Application' submenu
 		[_mainMenuView setMenu:m]; // attach the new menu
-//		[_mainMenuView sizeToFit];	// update
 		}
 	else
 		{ // PDA menu
 		[_mainMenuView setMenu:aMenu];			// attach the new menu
-//		[_mainMenuView sizeToFit];				// update
 		}
 #if 0
 	NSLog(@"_mainMenuWindow = %@", _mainMenuWindow);

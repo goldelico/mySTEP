@@ -36,6 +36,7 @@ typedef enum _NSDrawerState {
 	NSSize _minContentSize;
 	NSSize _maxContentSize;
 	NSWindow *_parentWindow;
+	NSWindow *_drawerWindow;
 	id _delegate;
 	float _leadingOffset;
 	float _trailingOffset;

@@ -417,7 +417,8 @@ static BOOL __cursorHidden = NO;
 					if(_inLiveResize)
 						{ // resizing
 						wframe.size.width+=(loc.x-p.x);
-						wframe.size.height+=(loc.y-p.y);	// move like mouse moves
+						wframe.size.height-=(loc.y-p.y);	// resize as mouse moves
+						wframe.origin.y+=(loc.y-p.y);		// keep top left corner constant
 						// FIXME: handle resizeIncrements
 #if 1
 						NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
@@ -427,7 +428,7 @@ static BOOL __cursorHidden = NO;
 					else
 						{ // moving
 						wframe.origin.x+=(loc.x-p.x);
-						wframe.origin.y+=(loc.y-p.y);	// move like mouse moves
+						wframe.origin.y+=(loc.y-p.y);	// move as mouse moves
 						// FIXME: this has some issues when frame is clipped to the visible screen
 #if 0
 						NSLog(@"move window from (%@) to (%@)", NSStringFromPoint([_window frame].origin), NSStringFromPoint(wframe.origin));
@@ -483,6 +484,8 @@ static BOOL __cursorHidden = NO;
 	if((self=[super initWithFrame:f]))
 		{
 		[self setButtonType:NSMomentaryChangeButton];	// toggle images
+		[self setAutoresizesSubviews:YES];
+		[self setAutoresizingMask:(NSViewMaxXMargin|NSViewMinYMargin)];	// don't resize with window
 		[_cell setAlignment:NSCenterTextAlignment];
 		[_cell setImagePosition:NSImageOverlaps];
 		[_cell setBordered:NO];	// no bezel

@@ -2171,11 +2171,22 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *eventModFlags)
 { // translate key codes to NSEvent key codes and add some modifier flags
 	unsigned short keyCode = 0;
-	
+
+#if 1
+	NSLog(@"xkeycode: %d", xEvent->xkey.keycode);
+#endif
+	switch(xEvent->xkey.keycode)
+		{ // specials
+		case 8:	// AUX button on Neo1973
+			*eventModFlags |= NSFunctionKeyMask; 
+			return NSF1FunctionKey;
+		}
+
 	switch(keysym)
 		{
 		case XK_Return:
 		case XK_KP_Enter:
+			return '\r';
 		case XK_Linefeed:
 			return '\r';
 		case XK_Tab:
@@ -2268,7 +2279,7 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 		if(keyCode)
 			*eventModFlags |= NSFunctionKeyMask;
 		else
-			{ // other keys to handle
+			{ // no keycode - other keys to handle
 			if ((keysym == XK_Shift_L) || (keysym == XK_Shift_R))
 				*eventModFlags |= NSFunctionKeyMask | NSShiftKeyMask; 
 			else if ((keysym == XK_Control_L) || (keysym == XK_Control_R))
@@ -3253,20 +3264,20 @@ static NSDictionary *_x11settings;
 						unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);						
 						buf[MIN(count, sizeof(buf)-1)] = '\0'; // Terminate string properly
 #if 1
-						NSLog(@"xKeyEvent: xkey.state=%d keycode=%d keysym=%s", xe.xkey.state, xe.xkey.keycode, XKeysymToString(ksym));
+						NSLog(@"xKeyEvent: xkey.state=%d keycode=%d keysym=%d:%s", xe.xkey.state, xe.xkey.keycode, ksym, XKeysymToString(ksym));
 #endif						
-						mflags = xKeyModifierFlags(xe.xkey.state);		// decode modifier flags
+						mflags = xKeyModifierFlags(xe.xkey.state);		// decode (initial) modifier flags
 						if((keyCode = xKeyCode(&xe, ksym, &mflags)) != 0 || count != 0)
 							{
-							keys = [NSString stringWithCString:buf];	// key has a code
-							__modFlags=mflags;		// may also be modified
+							keys = [NSString stringWithCString:buf];	// key has a code or a string
+							__modFlags=mflags;							// may also be modified
 							}
 						else
 							{ // if we have neither a keyCode nor characters we have just changed a modifier Key
 							if(eventType == NSKeyUp)
 								__modFlags &= ~mflags;	// just reset flags defined by this key
 							else
-								__modFlags=mflags;	// if modified
+								__modFlags=mflags;		// if modified
 							eventType=NSFlagsChanged;
 							}
 						e= [NSEvent keyEventWithType:eventType
