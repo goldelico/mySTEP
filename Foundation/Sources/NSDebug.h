@@ -11,3 +11,10 @@
 
 // this is a private and unsupported API for the Apple Cocoa Runtime
 // therefore we have not (yet?) implemented
+
+extern BOOL NSZombieEnabled;
+extern BOOL NSDeallocateZombies;
+extern BOOL NSDebugEnabled;
+extern BOOL NSHangOnUncaughtException;
+extern BOOL NSEnableAutoreleasePool;
+extern BOOL NSAutoreleaseFreedObjectCheckEnabled;

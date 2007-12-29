@@ -11,8 +11,19 @@
 
 #import <Foundation/NSKeyValueObserving.h>
 #import <Foundation/Foundation.h>
+#import "NSPrivate.h"
 
-@interface _NSObjectObserver	// root class that does not recognize any method
+static NSMapTable *_observationInfo;
+
+NSString *NSKeyValueChangeKindKey=@"NSKeyValueChangeKindKey";
+NSString *NSKeyValueChangeNewKey=@"NSKeyValueChangeNewKey";
+NSString *NSKeyValueChangeOldKey=@"NSKeyValueChangeOldKey";
+NSString *NSKeyValueChangeIndexesKey=@"NSKeyValueChangeIndexesKey";
+
+@interface _NSObjectObserver	// root class object that does not recognize any method
+{
+	NSObject *_realobject;
+}
 @end
 
 @implementation _NSObjectObserver
@@ -21,14 +32,13 @@
 { // state changes result from calling a method. Therefore, we intercept all method calls, record state and issue notifications
 	retval_t r;
 	NSInvocation *inv;
-	NSObject *realobject;
 #if 1
 	NSLog(@"forward:@selector(%@) :... through %@", NSStringFromSelector(aSel), self);
 #endif
 	if(aSel == 0)
 		[NSException raise:NSInvalidArgumentException
 					format:@"_NSObjectObserver forward:: %@ NULL selector", NSStringFromSelector(_cmd)];
-	inv=[[NSInvocation alloc] _initWithMethodSignature:[self methodSignatureForSelector:aSel] andArgFrame:argFrame];
+	inv=[[NSInvocation alloc] _initWithMethodSignature:[_realobject methodSignatureForSelector:aSel] andArgFrame:argFrame];
 	if(!inv)
 		{ // unknown to system
 		[NSException raise:NSInvalidArgumentException
@@ -38,7 +48,7 @@
 		return nil;
 		}
 	// save object state
-	[realobject forwardInvocation:inv];
+	[_realobject forwardInvocation:inv];
 	// compare object state
 	// send all notifications we need
 #if 0
@@ -54,8 +64,9 @@
 
 - (void) dealloc;
 { // do differently
-	[self setObservationInfo:NULL];
-	[realobject dealloc];
+	NSMapRemove(_observationInfo, (void *) _realobject);
+	[_realobject dealloc];
+	// NSObjectDealloc(self);
 }
 
 @end
@@ -63,8 +74,6 @@
 @implementation NSObject (NSKeyValueObserving)
 
 #pragma mark implementation
-
-static NSMapTable *_observationInfo;
 
 - (void *) observationInfo;
 {
@@ -259,15 +268,15 @@ static NSMapTable *_observationInfo;
 }
 #endif
 
-- (void) didChange:(NSKeyValueChange) change
-   valuesAtIndexes:(NSIndexSet *) idx
-			forKey:(NSString *) key;
+- (void) didChange:(NSKeyValueChange) changeKind
+   valuesAtIndexes:(NSIndexSet *) indexes
+			forKey:(NSString *) aKey;
 {
-	GSKVOInfo	        *info;
+	_NSObjectObserver     *info;
 	NSMutableDictionary   *change;
 	NSMutableArray        *array;
 	
-	info = [self observationInfo];
+	info = (_NSObjectObserver *)[self observationInfo];
 	change = (NSMutableDictionary *)[info changeForKey: aKey];
 	array = [self valueForKey: aKey];
 	
@@ -287,12 +296,12 @@ static NSMapTable *_observationInfo;
 	[self didChangeValueForDependentsOfKey: aKey];
 }
 
-- (void) didChangeValueForKey:(NSString *) key;
+- (void) didChangeValueForKey:(NSString *) aKey;
 {
-	GSKVOInfo	        *info;
+	_NSObjectObserver		*info;
 	NSMutableDictionary   *change;
 	
-	info = (GSKVOInfo *)[self observationInfo];
+	info = (_NSObjectObserver *)[self observationInfo];
 	change = (NSMutableDictionary *)[info changeForKey: aKey];
 	[change setValue: [self valueForKey: aKey]
 			  forKey: NSKeyValueChangeNewKey];
@@ -304,16 +313,16 @@ static NSMapTable *_observationInfo;
 	[self didChangeValueForDependentsOfKey: aKey];
 }
 
-- (void) didChangeValueForKey:(NSString *) key
+- (void) didChangeValueForKey:(NSString *) aKey
 			  withSetMutation:(NSKeyValueSetMutationKind) mutationKind
 				 usingObjects:(NSSet *) objects;
 {
-	GSKVOInfo	        *info;
+	_NSObjectObserver	  *info;
 	NSMutableDictionary   *change;
 	NSMutableSet          *oldSet;
 	NSMutableSet          *set;
 	
-	info = (GSKVOInfo *)[self observationInfo];
+	info = (_NSObjectObserver *)[self observationInfo];
 	change = (NSMutableDictionary *)[info changeForKey: aKey];
 	oldSet = [change valueForKey: @"oldSet"];
 	set = [self valueForKey: aKey];
@@ -355,15 +364,15 @@ static NSMapTable *_observationInfo;
 	[self didChangeValueForDependentsOfKey: aKey];
 }
 
-- (void) willChange:(NSKeyValueChange) change
-	valuesAtIndexes:(NSIndexSet *) idx
-			 forKey:(NSString *) key;
+- (void) willChange:(NSKeyValueChange) changeKind
+	valuesAtIndexes:(NSIndexSet *) indexes
+			 forKey:(NSString *) aKey;
 {
-	GSKVOInfo	        *info;
+	_NSObjectObserver	  *info;
 	NSDictionary          *change;
 	NSMutableArray        *array;
 	
-	info = [self observationInfo];
+	info = (_NSObjectObserver *)[self observationInfo];
 	change = [NSMutableDictionary dictionary];
 	array = [self valueForKey: aKey];
 	
@@ -378,7 +387,7 @@ static NSMapTable *_observationInfo;
 	[self willChangeValueForDependentsOfKey: aKey];
 }
 
-- (void) willChangeValueForKey:(NSString *) key;
+- (void) willChangeValueForKey:(NSString *) aKey;
 {
 	id old = [self valueForKey: aKey];
 	NSDictionary * change;
@@ -388,19 +397,19 @@ static NSMapTable *_observationInfo;
                   forKey: NSKeyValueChangeOldKey];
 	else
 		change = [NSMutableDictionary dictionary];
-	[(GSKVOInfo *)[self observationInfo] setChange: change forKey: aKey];
+	[(_NSObjectObserver *)[self observationInfo] setChange: change forKey: aKey];
 	[self willChangeValueForDependentsOfKey: aKey];
 }
 
-- (void) willChangeValueForKey:(NSString *) key
+- (void) willChangeValueForKey:(NSString *) aKey
 			   withSetMutation:(NSKeyValueSetMutationKind) mutationKind
 				  usingObjects:(NSSet *) objects;
 {
-	GSKVOInfo	*info;
+	_NSObjectObserver	*info;
 	NSDictionary  *change;
 	NSMutableSet  *set;
 	
-	info = [self observationInfo];
+	info = (_NSObjectObserver *)[self observationInfo];
 	change = [NSMutableDictionary dictionary];
 	set = [self valueForKey: aKey];
 	

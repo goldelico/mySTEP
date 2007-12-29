@@ -26,8 +26,14 @@
 #import <Foundation/NSInvocation.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSEnumerator.h>
+#import <Foundation/NSDebug.h>
 
-static int NSZombieEnabled=NO;
+BOOL NSZombieEnabled=NO;
+BOOL NSDeallocateZombies=NO;
+BOOL NSDebugEnabled=NO;
+BOOL NSHangOnUncaughtException=NO;
+BOOL NSEnableAutoreleasePool=YES;
+BOOL NSAutoreleaseFreedObjectCheckEnabled=NO;
 
 @interface _NSZombie	// root class wich does not recognize any method
 @end

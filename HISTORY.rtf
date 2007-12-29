@@ -19,6 +19,10 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \f1\b0 \
 \
+* Foundation: NSZombieEnabled made a variable of NSDebug.h\
+* Foundation: some KVO code from GNUstep integrated\
+* AppKit: some code added to NSViewAnimation\
+* AppKit: fixed issues with CTM cache and NSTableView tiling\
 * CoreData: CoreData moved to the gna.org svn repositoty\
 * CoreData: CoreData and the DataBuilder tools now compile with some warnings only\
 * AppKit: substitute font and font family names\
@@ -30,7 +34,7 @@ This document describes the changes and additions to the mySTEP library.\
 * AppKit: added underlining, strike-through, link underlining and NSTextAttachment handling for text drawing by NSLayoutManager\
 * AppKit/Backend: modified to pass NSGlyph to the graphics context for text drawing\
 * AppKit: fixed an issue with ImageReps stored in a NIB file (for Checkboxes etc.)\
-* Foundation: substitute default MIME type for NSURLProtocols based on path extension if server does not provide one or if we load from a file: URL\
+* Foundation: substitute default MIME type for NSURLProtocols based on path extension if server does not provide one or if we load from a "file:" URL\
 * AppKit: added some missing NSTextAttachment methods\
 * Foundation: fixed a bug in NSAttributedString where getting the longestEffectiveRange went into an infinte loop\
 * AppKit/Foundation: fixed handling of relative file names passed on the command line (conversion to file: URL)\

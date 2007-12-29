@@ -1175,14 +1175,7 @@ static BOOL __cursorHidden = NO;
 		}
 }
 
-- (void) animation:(NSAnimation*) animation didReachProgressMark:(NSAnimationProgress) progress;
-{
-	NSRect v;	// velocity
-	// calculate precise origin/size values which we need
-	[self setFrame:v display:YES];	// setFrame and display
-}
-
-- (void) setFrame:(NSRect)rect display:(BOOL)flag animate:(BOOL)animate
+- (void) setFrame:(NSRect) rect display:(BOOL) flag animate:(BOOL) animate
 {
 	if(NSEqualRects(rect, frame))
 		return;	// no change
@@ -1190,35 +1183,16 @@ static BOOL __cursorHidden = NO;
 		{ // smooth resize
 		NSArray *animations=[NSArray arrayWithObject:
 			[NSDictionary dictionaryWithObjectsAndKeys:
-				[NSValue valueWithRect:rect], NSViewAnimationEndFrameKey,	// new frame
+				[NSValue valueWithRect:frame], NSViewAnimationStartFrameKey,	// current frame
+				[NSValue valueWithRect:rect], NSViewAnimationEndFrameKey,		// new frame
+				self, NSViewAnimationTargetKey,
 				nil]
 			];
 		NSViewAnimation *a=[[[NSViewAnimation alloc] initWithViewAnimations:animations] autorelease];
-		[a setDuration:[self animationResizeTime:rect]];
-		[a setAnimationCurve:NSAnimationEaseInOut];
-		[a setAnimationBlockingMode:NSAnimationNonblocking];
-		[a setDelegate:self];
 		[a startAnimation];	// start
 		return;
 		}
 	[self setFrame:rect display:flag];	// just setFrame...
-}
-
-- (NSTimeInterval) animationResizeTime:(NSRect) rect
-{
-	static float t=0.0;
-	float chg;	// pixels of change
-	if(t == 0.0)
-		{
-		// replace by NSWindowResizeTime from NSUserDefaults if defined
-		t=0.2;	// default
-		t/=150.0;	// time per 150 pixels movement
-		}
-	chg = fabs(rect.origin.x-frame.origin.x);
-	chg += fabs(rect.origin.y-frame.origin.y);
-	chg += fabs(rect.size.width-frame.size.width);
-	chg += fabs(rect.size.height-frame.size.height);
-	return chg*t;
 }
 
 - (void) setMinSize:(NSSize)aSize				{ _minSize = aSize; }
