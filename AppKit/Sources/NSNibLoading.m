@@ -852,7 +852,11 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	if(!(path=[bundle pathForResource:name ofType:@"nib" inDirectory:nil]))
 		{ [self release]; return nil; }
 #if 1
+	NSLog(@"bundle=%@", bundle);
+	NSLog(@"bundlePath=%@", [bundle bundlePath]);
 	NSLog(@"path=%@", path);
+	if(![path isAbsolutePath])
+		NSLog(@"??? NOT ABSOLUTE ???");
 #endif
 	return [self _initWithContentsOfURL:[NSURL fileURLWithPath:path] bundle:bundle];	// FIXME: what is the filename: NIB bundle oder keyedobjects.nib filename?
 }

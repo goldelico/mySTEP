@@ -15,14 +15,26 @@ This document describes the changes and additions to the mySTEP library.\
 \f0\b \cf0 ------------------------------------
 \f1\b0 \
 
+\f0\b Versions B600..699\
+------------------------------------
+\f1\b0 \
+\
+* \
+\
+
+\f0\b ------------------------------------
+\f1\b0 \
+
 \f0\b Versions B500..599\
 ------------------------------------
 \f1\b0 \
 \
+* AppKit/Backend: scaled font positioning/sizing fixed\
 * Foundation: NSZombieEnabled made a variable of NSDebug.h\
 * Foundation: some KVO code from GNUstep integrated\
 * AppKit: some code added to NSViewAnimation\
 * AppKit: fixed issues with CTM cache and NSTableView tiling\
+* AppKit: optimized grid and background drawing\
 * CoreData: CoreData moved to the gna.org svn repositoty\
 * CoreData: CoreData and the DataBuilder tools now compile with some warnings only\
 * AppKit: substitute font and font family names\
@@ -36,7 +48,7 @@ This document describes the changes and additions to the mySTEP library.\
 * AppKit: fixed an issue with ImageReps stored in a NIB file (for Checkboxes etc.)\
 * Foundation: substitute default MIME type for NSURLProtocols based on path extension if server does not provide one or if we load from a "file:" URL\
 * AppKit: added some missing NSTextAttachment methods\
-* Foundation: fixed a bug in NSAttributedString where getting the longestEffectiveRange went into an infinte loop\
+* Foundation: fixed a bug in NSAttributedString where getting the longestEffectiveRange ran into an infinte loop\
 * AppKit/Foundation: fixed handling of relative file names passed on the command line (conversion to file: URL)\
 * Foundation: fixed return value of rangeOfString: when string is not found\
 * AppKit: fixed issue when loading damaged ICNS file (resulted in spurious exception)\

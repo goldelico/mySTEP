@@ -216,13 +216,16 @@
 
 - (void) sizeToFit
 {
-	NSRect r = NSZeroRect;
-	id o, e = [[_contentView subviews] objectEnumerator];
+	if(_contentView)
+		{
+		NSRect r = NSZeroRect;
+		id o, e = [[_contentView subviews] objectEnumerator];
 
-	while ((o = [e nextObject]))
-		r = NSUnionRect(r, [o frame]);	// Loop through subviews and calculate union rect to encompass all
+		while ((o = [e nextObject]))
+			r = NSUnionRect(r, [o frame]);	// Loop through subviews and calculate union rect to encompass all
 	
-	[self setFrameFromContentFrame: r];
+		[self setFrameFromContentFrame: r];
+		}
 }
 
 - (void) resizeWithOldSuperviewSize: (NSSize)oldSize
@@ -243,44 +246,67 @@
 
 - (void) drawRect:(NSRect)rect							// Draw the box
 {
-	switch(_bx.borderType)								// Draw the border
-		{
-		case NSLineBorder:
-			{
-				[[_window backgroundColor] set];
-				NSRectFill(rect);			// fill with standard control background
-				[[NSColor blackColor] set];
-				NSFrameRect(_borderRect);	// draw black line border
-				break;
-			}
-		case NSBezelBorder:
-		case NSGrooveBorder:
-			{
-				// we could/should cache the path and clear the cache by _calcSizes
-				NSBezierPath *b=[NSBezierPath _bezierPathWithBoxBezelInRect:_borderRect radius:6.0];
-				if(!_bx.transparent)
-					{
-					[[NSColor controlHighlightColor] set];
-					[b fill];	// draw box background
-					}
-				[[NSColor lightGrayColor] set];
-				[b stroke];	// stroke border line
-				[b release];
-			}
-		case NSNoBorder:
-			break;
-		}
-	
+#if 0	// testing
+	[[NSColor redColor] set];
+	NSFrameRect(bounds);
+#endif	
 	if(_bx.titlePosition != NSNoTitle)
 		{ // Draw the title
 		[_titleCell setBackgroundColor: [_window backgroundColor]];
 		[_titleCell drawWithFrame: _titleRect inView: self];
 		}
-#if 0	// testing
-	[[NSColor redColor] set];
-	NSFrameRect(bounds);
+	switch(_bx.boxType)
+		{
+		case NSBoxSeparator:
+			{ // horizontal or vertical line
+#if 0
+				NSLog(@"line for %@", NSStringFromRect(_bounds));
 #endif
+				[[NSColor blackColor] set];
+				if(_bounds.size.width > _bounds.size.height)
+					[NSBezierPath strokeLineFromPoint:NSMakePoint(NSMinX(_bounds), NSMidY(_bounds)) toPoint:NSMakePoint(NSMaxX(_bounds), NSMidY(_bounds))];	// horizontal
+				else
+					[NSBezierPath strokeLineFromPoint:NSMakePoint(NSMidX(_bounds), NSMinY(_bounds)) toPoint:NSMakePoint(NSMidX(_bounds), NSMaxY(_bounds))];	// vertical
+				break;
+			}
+		case NSBoxPrimary:
+		case NSBoxSecondary:
+		case NSBoxOldStyle:
+			{
+			switch(_bx.borderType)								// Draw the border
+				{
+				case NSLineBorder:
+					{
+						// can we be transparent?
+						[[_window backgroundColor] set];
+						NSRectFill(rect);			// fill with standard control background
+						[[NSColor blackColor] set];
+						NSFrameRect(_borderRect);	// draw black line border
+						break;
+					}
+				case NSBezelBorder:
+				case NSGrooveBorder:
+					{
+						// we could/should cache the path and clear the cache by _calcSizes
+						NSBezierPath *b=[NSBezierPath _bezierPathWithBoxBezelInRect:_borderRect radius:6.0];
+						if(!_bx.transparent)
+							{
+							[[NSColor controlHighlightColor] set];
+							[b fill];	// draw box background
+							}
+						[[NSColor lightGrayColor] set];
+						[b stroke];	// stroke border line
+						[b release];
+					}
+				case NSNoBorder:
+					break;
+				}
+			}
+		}
 }
+
+- (BOOL) isTransparent; { return _bx.transparent; }
+- (void) setTransparent:(BOOL) flag; { _bx.transparent = flag; }
 
 - (void) encodeWithCoder:(NSCoder *) aCoder							// NSCoding protocol
 {

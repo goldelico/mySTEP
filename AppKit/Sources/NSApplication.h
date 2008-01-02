@@ -95,15 +95,19 @@ extern id NSApp;					// NSApp global var
 	id _keyWindow;
 	id _mainWindow;
 	id _listener;
-	NSPanel *_mainMenuWindow;					// the main menu window
-	NSMenuView *_mainMenuView;				// the main menu view; the main menu is the menu iVar of NSResponder
+	NSPanel *_mainMenuWindow;			// the main menu window
+	NSMenuView *_mainMenuView;			// the main menu view; the main menu is the menu iVar of NSResponder
 //	NSMenuItem *_windowsMenuItem;		// the "Windows" item in the main menu
-	NSMenu *_windowsMenu;							// the windows menu
-	int _windowItems;									// counter for explicitly added/removed menu items
+	NSMenu *_windowsMenu;				// the windows menu
+	int _windowItems;					// counter for explicitly added/removed menu items
 	NSImage *_appIcon;
 	NSWindow *_appIconWindow;
 	NSWindow *_pendingWindow;
+	
 	id _delegate;
+
+// IBOutlet NSMenu *dockMenu;
+	
 	IBOutlet NSPanel *_aboutPanel;
 	IBOutlet NSTextField *_credits;
 	IBOutlet NSTextField *_applicationName;

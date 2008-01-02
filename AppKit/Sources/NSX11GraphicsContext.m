@@ -1820,19 +1820,48 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _copyBits:(void *) srcGstate fromRect:(NSRect) srcRect toPoint:(NSPoint) destPoint;
 { // copy srcRect using CTM from (_NSX11GraphicsState *) srcGstate to destPoint transformed by current CTM
+	XRectangle src, dest;
+#if 1
+	static GC gc;	// this is a GC with neutral image processing options
+	[self _setCompositing];
+	if(!gc)
+		gc=XCreateGC(_display, (Window) _graphicsPort, 0, NULL);	// create a default GC
+#endif
 	srcRect.origin=[((_NSX11GraphicsState *) srcGstate)->_ctm transformPoint:srcRect.origin];
 	srcRect.size=[((_NSX11GraphicsState *) srcGstate)->_ctm transformSize:srcRect.size];
 	destPoint=[_state->_ctm transformPoint:destPoint];
+	src.width=srcRect.size.width;
+	src.height=srcRect.size.height;
+	src.x=srcRect.origin.x;
+	src.y=srcRect.origin.y-srcRect.size.height;	// start src rect at top
+	dest.width=src.width;
+	dest.height=src.height;
+	dest.x=destPoint.x;
+	dest.y=destPoint.y-dest.height;
 #if 1
-	NSLog(@"_copyBits from %@ to %@", NSStringFromRect(srcRect), NSStringFromPoint(destPoint));
+	NSLog(@"_copyBits from %@ to %@", NSStringFromXRect(src), NSStringFromXRect(dest));
+	NSLog(@"  src-win=%d", (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort));
+	NSLog(@"  dest-win=%d", _graphicsPort);
+#endif
+#if 0
+	XSetForeground(_display, gc, 0x555555);
+	XFillRectangles(_display, ((Window) _graphicsPort), gc, &src, 1);
+	_setDirtyRect(self, src.x, src.y, src.width, src.height);
+#endif
+#if 1
+	XSetForeground(_display, gc, 0xaaaaaa);
+	XFillRectangles(_display, ((Window) _graphicsPort), gc, &dest, 1);
+	_setDirtyRect(self, dest.x, dest.y, dest.width, dest.height);
 #endif
 	XCopyArea(_display,
 			  (Window) (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort),	// source window/bitmap
-			  ((Window) _graphicsPort), _state->_gc,
-			  srcRect.origin.x, srcRect.origin.y,
-			  srcRect.size.width, /*-*/srcRect.size.height,
-			  destPoint.x, destPoint.y);
-	_setDirtyRect(self, destPoint.x, destPoint.y, srcRect.size.width, srcRect.size.height);
+			  ((Window) _graphicsPort),
+			 // _state->_gc,	// wirklich???
+			  gc,
+			  src.x, src.y,
+			  src.width, src.height,
+			  dest.x, dest.y);
+	_setDirtyRect(self, dest.x, dest.y, dest.width, dest.height);
 }
 
 #pragma mark WindowControl
@@ -2649,7 +2678,8 @@ return nil;
 	 
 	 */
 #endif
-	for(s=0; s<ScreenCount(_display); s++)
+	j=0;
+	for(s=0; s<ScreenCount(_display) && j<size; s++)
 		{
 #if 1
 		NSLog(@"XQueryTree");
@@ -2659,7 +2689,7 @@ return nil;
 #if 1
 		NSLog(@"  nchildren= %d", nchildren);
 #endif
-		for(i=nchildren-1, j=0; i>0; i--)
+		for(i=nchildren-1; i>0; i--)
 			{
 			if(context != 0 && 0 /* not equal */)
 				{
@@ -2675,7 +2705,7 @@ return nil;
 			}
 		XFree(children);
 		}
-	return i;
+	return j;
 }
 
 @end

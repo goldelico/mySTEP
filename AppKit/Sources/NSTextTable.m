@@ -9,7 +9,6 @@
 //  under the terms of the GNU Library General Public License.
 //
 
-#import "AppKit/NSTextList.h"
 #import "AppKit/NSTextTable.h"
 #import "AppKit/NSColor.h"
 
@@ -172,62 +171,5 @@
 - (int) startingColumn; { return _col; }
 - (int) startingRow; { return _row; }
 - (NSTextTable *) table; { return _table; }
-
-@end
-
-@implementation NSTextList
-
-- (id) initWithMarkerFormat:(NSString *) format options:(unsigned) mask;
-{
-	if((self=[super init]))
-		{
-		_markerFormat=[format retain];
-		_listOptions=mask;
-		}
-	return self;
-}
-
-- (void) dealloc;
-{
-	[_markerFormat release];
-	[super dealloc];
-}
-
-- (unsigned) listOptions; { return _listOptions; }
-- (NSString *) markerFormat; { return _markerFormat; }
-
-- (NSString *) markerForItemNumber:(int) item;
-{ // decode marker format string e.g. {decimal} according to CSS3 spec
-	NSMutableString *s=[_markerFormat mutableCopy];
-	[s replaceOccurrencesOfString:@"{decimal}" withString:[NSString stringWithFormat:@"%d", item] options:0 range:NSMakeRange(0, [s length])];
-	[s replaceOccurrencesOfString:@"{lower-alpha}" withString:[NSString stringWithFormat:@"%c", item+'a'] options:0 range:NSMakeRange(0, [s length])];
-	[s replaceOccurrencesOfString:@"{lower-latin}" withString:[NSString stringWithFormat:@"%c", item+'a'] options:0 range:NSMakeRange(0, [s length])];
-	[s replaceOccurrencesOfString:@"{upper-alpha}" withString:[NSString stringWithFormat:@"%c", item+'A'] options:0 range:NSMakeRange(0, [s length])];
-	[s replaceOccurrencesOfString:@"{upper-latin}" withString:[NSString stringWithFormat:@"%c", item+'A'] options:0 range:NSMakeRange(0, [s length])];
-	return [s autorelease];
-}
-
-- (void) encodeWithCoder:(NSCoder *)aCoder				// NSCoding protocol
-{
-//	[super encodeWithCoder:aCoder];
-	if([aCoder allowsKeyedCoding])
-		{
-		}
-	else
-		{
-		}
-	NIMP;
-}
-
-- (id) initWithCoder:(NSCoder *)aDecoder
-{
-	if([aDecoder allowsKeyedCoding])
-		{
-		}
-	else
-		{
-		}
-	return NIMP;
-}
 
 @end

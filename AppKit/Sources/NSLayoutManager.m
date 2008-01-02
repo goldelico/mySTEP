@@ -62,15 +62,16 @@
 
 - (BOOL) backgroundLayoutEnabled; { return _backgroundLayoutEnabled; }
 
-- (NSRect) boundingRectForGlyphRange:(NSRange)glyphRange 
-					 inTextContainer:(NSTextContainer *)container;
+- (NSRect) boundingRectForGlyphRange:(NSRange) glyphRange 
+					 inTextContainer:(NSTextContainer *) container;
 {
-	// FIXME: we should trigger the NSFont and glyph layout system here...
+	// FIXME: we should run the glyph generator system here...
 	NSRange attribRange;
 	NSFont *font=nil;
 	NSDictionary *attrs=nil;
 	NSRect r=NSZeroRect;
 	unsigned int len=[_textStorage length];
+	int lines=1;
 #if 0
 	NSLog(@"boundingRectForGlyphRange %@", NSStringFromRange(glyphRange));
 	NSLog(@"text storage range %@", NSStringFromRange(NSMakeRange(0, len)));
@@ -83,7 +84,9 @@
 		}
 	if(!font)
 		font=[NSFont systemFontOfSize:12];
-	r.size=NSMakeSize([font widthOfString:[_textStorage string]], [font defaultLineHeightForFont]+[font leading]);
+	// FIXME - limit width to container size!
+	r.size=NSMakeSize([font widthOfString:[_textStorage string]], lines*[font defaultLineHeightForFont]+(lines-1)*[font leading]);
+	r=NSIntersectionRect(r, (NSRect) { NSZeroPoint, [container containerSize] });	// limit to given container (if any)
 	return r;
 }
 
@@ -135,7 +138,7 @@
 }
 
 - (void) drawGlyphsForGlyphRange:(NSRange)glyphsToShow 
-						 atPoint:(NSPoint)origin;		// top left in flipped coordinates
+						 atPoint:(NSPoint)origin;		// top left of the text container (in flipped coordinates)
 { // this is the core text drawing interface and all string additions are based on this call!
 	NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
 	NSTextContainer *container=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];	// this call could fill the cache if needed...
@@ -151,7 +154,7 @@
 #endif
 	NSColor *foreGround;
 	BOOL flipped=[ctxt isFlipped];
-	NSAssert(glyphsToShow.location==0 && glyphsToShow.length == [str length], @"can render ful glyph range only");
+	NSAssert(glyphsToShow.location==0 && glyphsToShow.length == [str length], @"can render full glyph range only");
 	//
 	// FIXME: optimize/cache for large NSTextStorages and multiple NSTextContainers
 	//
@@ -177,6 +180,18 @@
 	//
 	// glyphranges could be handled in string + font + position fragments
 	//
+#if 0
+	[[NSColor redColor] set];
+	if(flipped)
+		NSRectFill((NSRect) { origin, containerSize });
+	else
+		NSRectFill((NSRect) { { origin.x, origin.y-containerSize.height }, containerSize });
+	[[NSColor yellowColor] set];
+	if(flipped)
+		NSRectFill((NSRect) { origin, { 2.0, 2.0 } });
+	else
+		NSRectFill((NSRect) { { origin.x, origin.y-containerSize.height }, { 2.0, 2.0 } });
+#endif
 	[ctxt setCompositingOperation:NSCompositeCopy];
 	[ctxt _beginText];			// starts at position (0,0)
 	pdfPos=NSZeroPoint;			// what PDF currently thinks - FIXME: we could also make a relative position once and then work only with deltas
@@ -323,14 +338,14 @@
 		if(flipped)
 			{
 			NSPoint newPdfPos=pos;
-			newPdfPos.y+=[self defaultLineHeightForFont:font];
+			newPdfPos.y+=[font ascender];
 			[ctxt _setTextPosition:NSMakePoint(newPdfPos.x-pdfPos.x, newPdfPos.y-pdfPos.y)];	// set where to start drawing (relative move)
 			pdfPos=newPdfPos;
 			}
 		else
 			{
 			NSPoint newPdfPos=pos;
-			newPdfPos.y-=[self defaultLineHeightForFont:font];
+			newPdfPos.y-=[font ascender];
 			[ctxt _setTextPosition:NSMakePoint(newPdfPos.x-pdfPos.x, newPdfPos.y-pdfPos.y)];	// set where to start drawing (relative move)
 			pdfPos=newPdfPos;
 			}

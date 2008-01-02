@@ -618,6 +618,7 @@ static NSCursor *__textCursor = nil;
 	if(!layoutManager)
 		return;
 	// FIXME: somehow we should even restrict rect to really clipped rect we ask the backend for!
+	// FIXME: handle textContainerInset
 	[self drawViewBackgroundInRect:rect];
 	range=[layoutManager glyphRangeForTextContainer:textContainer];
 #if 0

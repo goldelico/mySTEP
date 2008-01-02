@@ -412,6 +412,8 @@
 		EE349C80097027D600CBF42C /* NSTokenFieldCell.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5B097027D600CBF42C /* NSTokenFieldCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE349C81097027D600CBF42C /* NSToolbar.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5C097027D600CBF42C /* NSToolbar.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE349C82097027D600CBF42C /* NSToolbarItem.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5D097027D600CBF42C /* NSToolbarItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE3E754A0D294E8400B28288 /* NSTextList.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3E75490D294E8400B28288 /* NSTextList.m */; };
+		EE3E754B0D294E8400B28288 /* NSTextList.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3E75490D294E8400B28288 /* NSTextList.m */; };
 		EE469E530D1B9D4800E99DA0 /* NSToolbarItemGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE469E540D1B9D4800E99DA0 /* NSToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = EE469E520D1B9D4800E99DA0 /* NSToolbar.m */; };
 		EE469E550D1B9D4800E99DA0 /* NSToolbarItemGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -868,6 +870,7 @@
 		EE349C5B097027D600CBF42C /* NSTokenFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSTokenFieldCell.h; sourceTree = "<group>"; };
 		EE349C5C097027D600CBF42C /* NSToolbar.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbar.h; sourceTree = "<group>"; };
 		EE349C5D097027D600CBF42C /* NSToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbarItem.h; sourceTree = "<group>"; };
+		EE3E75490D294E8400B28288 /* NSTextList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextList.m; sourceTree = "<group>"; };
 		EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSToolbarItemGroup.h; sourceTree = "<group>"; };
 		EE469E520D1B9D4800E99DA0 /* NSToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSToolbar.m; sourceTree = "<group>"; };
 		EE469E570D1B9D7D00E99DA0 /* NSTreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTreeNode.h; sourceTree = "<group>"; };
@@ -1107,7 +1110,7 @@
 		EEACF8A409ED3A9F0085F56E /* NSDrawer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDrawer.m; sourceTree = "<group>"; };
 		EEB143C30D1260A2001212B5 /* NSTrackingArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTrackingArea.h; sourceTree = "<group>"; };
 		EEB143C40D1260A2001212B5 /* NSTrackingArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTrackingArea.m; sourceTree = "<group>"; };
-		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEC8036209AE4EBF006EEB03 /* mySTEP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mySTEP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EECD83250A0788DB00EF3E30 /* NSLevelIndicator.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSLevelIndicator.m; sourceTree = "<group>"; };
 		EECD83560A07940600EF3E30 /* NSDatePicker.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDatePicker.m; sourceTree = "<group>"; };
@@ -1548,6 +1551,7 @@
 				EEA3727D09540273001244CF /* NSTextContainer.h */,
 				EE0B25750A519691002E1464 /* NSTextContainerAndStorage.m */,
 				EE349C58097027D600CBF42C /* NSTextList.h */,
+				EE3E75490D294E8400B28288 /* NSTextList.m */,
 				EE349C59097027D600CBF42C /* NSTextTable.h */,
 				EE03CDAC0BCD431C0031DB7C /* NSTextTable.m */,
 				EEA3728109540273001244CF /* NSTextStorage.h */,
@@ -2629,6 +2633,7 @@
 				EE469E560D1B9D4800E99DA0 /* NSToolbar.m in Sources */,
 				EE469E5C0D1B9D7D00E99DA0 /* NSTreeNode.m in Sources */,
 				EE469E620D1B9D9000E99DA0 /* NSViewController.m in Sources */,
+				EE3E754B0D294E8400B28288 /* NSTextList.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2751,6 +2756,7 @@
 				EE469E540D1B9D4800E99DA0 /* NSToolbar.m in Sources */,
 				EE469E5A0D1B9D7D00E99DA0 /* NSTreeNode.m in Sources */,
 				EE469E600D1B9D9000E99DA0 /* NSViewController.m in Sources */,
+				EE3E754A0D294E8400B28288 /* NSTextList.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

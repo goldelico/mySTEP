@@ -202,64 +202,79 @@ NSString *NSViewAnimationFadeOutEffect=@"NSViewAnimationFadeOutEffect";
 
 @implementation NSViewAnimation
 
+struct _NSViewAnimation
+{ // private structure
+	NSRect start;
+	NSRect delta;
+	id target;
+	int effect;
+	BOOL windowTarget;
+};
+
 - (void) animation:(NSAnimation *) animation didReachProgressMark:(NSAnimationProgress) progress;
 {
-	NSEnumerator *e=[_viewAnimations objectEnumerator];
-	NSDictionary *dict;
+	int i;
+	struct _NSViewAnimation *record=_private;
+	for(i=0; i<_count; i++)
+		{ // process all animations
+		NSRect pos;
 #if 1
 	NSLog(@"NSViewAnimation didReachProgressMark:%f", progress);
 #endif
-	while((dict=[e nextObject]))
-		{ // process all animations
-		id target=[dict objectForKey:NSViewAnimationTargetKey];
-		NSRect start=[[dict objectForKey:NSViewAnimationStartFrameKey] rectValue];
-		NSRect delta=[[dict objectForKey:@"delta"] rectValue];
-		NSString *effect=[dict objectForKey:NSViewAnimationEffectKey];
-		delta.origin.x = start.origin.x + progress*delta.origin.x;
-		delta.origin.y = start.origin.y + progress*delta.origin.y;
-		delta.size.width = start.size.width + progress*delta.size.width;
-		delta.size.height = start.size.height + progress*delta.size.height;
+		pos.origin.x = record->start.origin.x + progress*record->delta.origin.x;
+		pos.origin.y = record->start.origin.y + progress*record->delta.origin.y;
+		pos.size.width = record->start.size.width + progress*record->delta.size.width;
+		pos.size.height = record->start.size.height + progress*record->delta.size.height;
 		// handle effect
 #if 1
-		NSLog(@"new frame %@", NSStringFromRect(delta));
+		NSLog(@"new frame %@", NSStringFromRect(pos));
 #endif
-		if([target isKindOfClass:[NSWindow class]])
-			[target setFrame:delta display:YES];
+		if(record->windowTarget)
+			[record->target setFrame:pos display:YES];
 		else
-			[target setFrame:delta];
+			[record->target setFrame:pos];
+		record++;
 		}
 }
 
 - (id) initWithViewAnimations:(NSArray *) animations;
 {
-	NSEnumerator *e=[animations objectEnumerator];
-	NSDictionary *dict;
-	while((dict=[e nextObject]))
-		{
-		id target=[dict objectForKey:NSViewAnimationTargetKey];
-		NSRect start;
-		NSRect end;
-		id val;
-		if(!target)
-			{
-			[self release];
-			return nil;
-			}
-		val=[dict objectForKey:NSViewAnimationStartFrameKey];
-		if(val)
-			start=[val rectValue];
-		else
-			start=[target frame];
-		val=[dict objectForKey:NSViewAnimationEndFrameKey];
-		if(val)
-			end=[val rectValue];
-		else
-			end=[target frame];
-		// substitute and store start and delta
-		}
 	if((self=[super initWithDuration:0.5 animationCurve:NSAnimationEaseInOut]))
 		{
+		NSEnumerator *e=[animations objectEnumerator];
+		NSDictionary *dict;
+		struct _NSViewAnimation *record;
 		_viewAnimations=[animations retain];
+		_count=[animations count];
+		record=_private=objc_malloc(_count*sizeof(struct _NSViewAnimation));
+		while((dict=[e nextObject]))
+			{ // translate into internal data
+			id val;
+			record->target=[dict objectForKey:NSViewAnimationTargetKey];
+			if(!record->target)
+				{ // missing
+				[self release];
+				return nil;
+				}
+			record->windowTarget=[record->target isKindOfClass:[NSWindow class]];
+			val=[dict objectForKey:NSViewAnimationStartFrameKey];
+			if(val)
+				record->start=[val rectValue];
+			else
+				record->start=[record->target frame];
+			val=[dict objectForKey:NSViewAnimationEndFrameKey];
+			if(val)
+				record->delta=[val rectValue];
+			else
+				record->delta=[record->target frame];
+			record->delta.origin.x-=record->start.origin.x;
+			record->delta.origin.y-=record->start.origin.y;
+			record->delta.size.width-=record->start.size.width;
+			record->delta.size.height-=record->start.size.height;
+			val=[dict objectForKey:NSViewAnimationEffectKey];
+			// store effect
+			record++;
+			}
 		[self setAnimationBlockingMode:NSAnimationNonblocking];
 		[self setDelegate:self];
 #if 0
@@ -286,6 +301,8 @@ NSString *NSViewAnimationFadeOutEffect=@"NSViewAnimationFadeOutEffect";
 
 - (void) dealloc;
 {
+	if(_private);
+		objc_free(_private);
 	[_viewAnimations release];
 	[super dealloc];
 }

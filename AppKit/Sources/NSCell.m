@@ -654,7 +654,7 @@ static NSCursor *__textCursor = nil;
 	[self drawInteriorWithFrame:cellFrame inView:controlView];
 }
 
-// FIXME: the formatter should be applied when setting the object - not when drawing!!!
+// FIXME: the formatter should be applied when setting the object - not when drawing!???
 
 - (void) _getFormattedString:(NSString **) string withAttribs:(NSDictionary **) attribs orAttributedString:(NSAttributedString **) astring ignorePlaceholder:(BOOL) flag;	// whichever is more convenient
 { // get whatever you have
