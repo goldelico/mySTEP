@@ -720,8 +720,8 @@ static BOOL __cursorHidden = NO;
 		_themeFrame=[[NSThemeFrame alloc] initWithFrame:(NSRect){{0, 0}, frame.size} forStyleMask:aStyle forScreen:_screen];	// create view hierarchy
 		[_themeFrame _setWindow:self];
 		[_themeFrame setNextResponder:self];
-		[self setNextResponder:NSApp];				// NSApp is next responder
-		[[NSCursor arrowCursor] push];	// push the arrow as the default cursor	- FIXME: are we doing that for every new window???
+		[self setNextResponder:NSApp];	// NSApp is next responder
+		[[NSCursor arrowCursor] push];	// push the arrow as the default cursor	- FIXME: why are we doing that for every new window???
 		if(!defer)
 			[self orderWindow:NSWindowAbove relativeTo:0];	// insert sort relative to self; add to Window menu when being mapped
 #if 0

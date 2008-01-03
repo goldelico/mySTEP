@@ -108,6 +108,7 @@ static NSCursor *__blankCursor, *__hiddenCursor, *__currentCursor;
  backgroundColorHint:(NSColor *) bg
 			 hotSpot:(NSPoint) spot;
 {
+	NSAssert(image, @"image for NSCursor");
 	if((self=[super init]))
 		{
 		_image=[image retain];	// nil image will create a "None" cursor
@@ -151,7 +152,7 @@ static NSCursor *__blankCursor, *__hiddenCursor, *__currentCursor;
 - (void) setOnMouseEntered:(BOOL)flag		{ _isSetOnMouseEntered = flag;}
 - (void) setOnMouseExited:(BOOL)flag		{ _isSetOnMouseExited = flag; }
 - (void) pop								{ [isa pop]; }
-- (void) set								{ [[NSGraphicsContext currentContext] _setCursor:self]; }
+- (void) set								{ BACKEND; }
 - (BOOL) isSetOnMouseEntered				{ return _isSetOnMouseEntered;}
 - (BOOL) isSetOnMouseExited					{ return _isSetOnMouseExited; }
 

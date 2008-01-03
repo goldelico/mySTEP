@@ -117,10 +117,6 @@
 - (void) _setTitle:(NSString *) string;		// same as _beginPage???
 - (void) _setDocumentEdited:(BOOL) flag;	// mark doc as edited
 
-// managing the cursor
-
-- (void) _setCursor:(NSCursor *) cursor;	// select as current cursor
-
 // reading from screen
 
 - (NSColor *) _readPixel:(NSPoint) location;	// read from current drawable

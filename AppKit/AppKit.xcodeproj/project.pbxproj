@@ -439,6 +439,30 @@
 		EE52D86D09E4466D0047FBB3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
 		EE61B6A609B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
 		EE61B6A709B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
+		EE7860550D2D4E1E00B2197B /* GSArrowCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */; };
+		EE7860560D2D4E1E00B2197B /* GSArrowCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */; };
+		EE7860640D2D4F4600B2197B /* GSHiddenCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860590D2D4F4600B2197B /* GSHiddenCursor.tiff */; };
+		EE7860650D2D4F4600B2197B /* GSOpenHandCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE78605A0D2D4F4600B2197B /* GSOpenHandCursor.tiff */; };
+		EE7860660D2D4F4600B2197B /* GSCrosshairCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE78605B0D2D4F4600B2197B /* GSCrosshairCursor.tiff */; };
+		EE7860670D2D4F4600B2197B /* GSDisappearingItemCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE78605C0D2D4F4600B2197B /* GSDisappearingItemCursor.tiff */; };
+		EE7860680D2D4F4600B2197B /* GSResizeUpDownCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE78605D0D2D4F4600B2197B /* GSResizeUpDownCursor.tiff */; };
+		EE7860690D2D4F4600B2197B /* GSPointingHandCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE78605E0D2D4F4600B2197B /* GSPointingHandCursor.tiff */; };
+		EE78606A0D2D4F4600B2197B /* GSResizeLeftCursor .tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE78605F0D2D4F4600B2197B /* GSResizeLeftCursor .tiff */; };
+		EE78606B0D2D4F4600B2197B /* GSClosedHandCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860600D2D4F4600B2197B /* GSClosedHandCursor.tiff */; };
+		EE78606C0D2D4F4600B2197B /* GSResizeRightCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860610D2D4F4600B2197B /* GSResizeRightCursor.tiff */; };
+		EE78606D0D2D4F4600B2197B /* GSResizeDownCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860620D2D4F4600B2197B /* GSResizeDownCursor.tiff */; };
+		EE78606E0D2D4F4600B2197B /* GSResizeUpCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860630D2D4F4600B2197B /* GSResizeUpCursor.tiff */; };
+		EE78606F0D2D4F4600B2197B /* GSHiddenCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860590D2D4F4600B2197B /* GSHiddenCursor.tiff */; };
+		EE7860700D2D4F4600B2197B /* GSOpenHandCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE78605A0D2D4F4600B2197B /* GSOpenHandCursor.tiff */; };
+		EE7860710D2D4F4600B2197B /* GSCrosshairCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE78605B0D2D4F4600B2197B /* GSCrosshairCursor.tiff */; };
+		EE7860720D2D4F4600B2197B /* GSDisappearingItemCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE78605C0D2D4F4600B2197B /* GSDisappearingItemCursor.tiff */; };
+		EE7860730D2D4F4600B2197B /* GSResizeUpDownCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE78605D0D2D4F4600B2197B /* GSResizeUpDownCursor.tiff */; };
+		EE7860740D2D4F4600B2197B /* GSPointingHandCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE78605E0D2D4F4600B2197B /* GSPointingHandCursor.tiff */; };
+		EE7860750D2D4F4600B2197B /* GSResizeLeftCursor .tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE78605F0D2D4F4600B2197B /* GSResizeLeftCursor .tiff */; };
+		EE7860760D2D4F4600B2197B /* GSClosedHandCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860600D2D4F4600B2197B /* GSClosedHandCursor.tiff */; };
+		EE7860770D2D4F4600B2197B /* GSResizeRightCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860610D2D4F4600B2197B /* GSResizeRightCursor.tiff */; };
+		EE7860780D2D4F4600B2197B /* GSResizeDownCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860620D2D4F4600B2197B /* GSResizeDownCursor.tiff */; };
+		EE7860790D2D4F4600B2197B /* GSResizeUpCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860630D2D4F4600B2197B /* GSResizeUpCursor.tiff */; };
 		EE8D1C350A2B4C71000632BC /* GSSearch.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C330A2B4C71000632BC /* GSSearch.tiff */; };
 		EE8D1C360A2B4C71000632BC /* GSStop.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C340A2B4C71000632BC /* GSStop.tiff */; };
 		EE8D1C370A2B4C71000632BC /* GSSearch.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C330A2B4C71000632BC /* GSSearch.tiff */; };
@@ -883,6 +907,18 @@
 		EE52832F09A1FB2E00218247 /* NSCursor.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSCursor.m; sourceTree = "<group>"; };
 		EE61B6A509B21985005A250B /* NSColorSpace.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSColorSpace.m; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSArrowCursor.tiff; sourceTree = "<group>"; };
+		EE7860590D2D4F4600B2197B /* GSHiddenCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSHiddenCursor.tiff; sourceTree = "<group>"; };
+		EE78605A0D2D4F4600B2197B /* GSOpenHandCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSOpenHandCursor.tiff; sourceTree = "<group>"; };
+		EE78605B0D2D4F4600B2197B /* GSCrosshairCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSCrosshairCursor.tiff; sourceTree = "<group>"; };
+		EE78605C0D2D4F4600B2197B /* GSDisappearingItemCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSDisappearingItemCursor.tiff; sourceTree = "<group>"; };
+		EE78605D0D2D4F4600B2197B /* GSResizeUpDownCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSResizeUpDownCursor.tiff; sourceTree = "<group>"; };
+		EE78605E0D2D4F4600B2197B /* GSPointingHandCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSPointingHandCursor.tiff; sourceTree = "<group>"; };
+		EE78605F0D2D4F4600B2197B /* GSResizeLeftCursor .tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "GSResizeLeftCursor .tiff"; sourceTree = "<group>"; };
+		EE7860600D2D4F4600B2197B /* GSClosedHandCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSClosedHandCursor.tiff; sourceTree = "<group>"; };
+		EE7860610D2D4F4600B2197B /* GSResizeRightCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSResizeRightCursor.tiff; sourceTree = "<group>"; };
+		EE7860620D2D4F4600B2197B /* GSResizeDownCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSResizeDownCursor.tiff; sourceTree = "<group>"; };
+		EE7860630D2D4F4600B2197B /* GSResizeUpCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSResizeUpCursor.tiff; sourceTree = "<group>"; };
 		EE8D1C330A2B4C71000632BC /* GSSearch.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSSearch.tiff; sourceTree = "<group>"; };
 		EE8D1C340A2B4C71000632BC /* GSStop.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSStop.tiff; sourceTree = "<group>"; };
 		EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myViewTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1667,6 +1703,18 @@
 		EEA371A109540271001244CF /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */,
+				EE7860590D2D4F4600B2197B /* GSHiddenCursor.tiff */,
+				EE78605A0D2D4F4600B2197B /* GSOpenHandCursor.tiff */,
+				EE78605B0D2D4F4600B2197B /* GSCrosshairCursor.tiff */,
+				EE78605C0D2D4F4600B2197B /* GSDisappearingItemCursor.tiff */,
+				EE78605D0D2D4F4600B2197B /* GSResizeUpDownCursor.tiff */,
+				EE78605E0D2D4F4600B2197B /* GSPointingHandCursor.tiff */,
+				EE78605F0D2D4F4600B2197B /* GSResizeLeftCursor .tiff */,
+				EE7860600D2D4F4600B2197B /* GSClosedHandCursor.tiff */,
+				EE7860610D2D4F4600B2197B /* GSResizeRightCursor.tiff */,
+				EE7860620D2D4F4600B2197B /* GSResizeDownCursor.tiff */,
+				EE7860630D2D4F4600B2197B /* GSResizeUpCursor.tiff */,
 				EEA371A209540271001244CF /* GSArrowDown.tiff */,
 				EEA371A309540271001244CF /* GSArrowDownH.tiff */,
 				EEA371A409540271001244CF /* GSArrowLeft.tiff */,
@@ -2346,6 +2394,18 @@
 				EEA3F8940BEDD66A00E39682 /* FindPanel.nib in Resources */,
 				EEA3F8950BEDD66A00E39682 /* FontPanel.nib in Resources */,
 				EE4EF11E0CBE2A7C00376CD3 /* GSColorWheel.jpg in Resources */,
+				EE7860560D2D4E1E00B2197B /* GSArrowCursor.tiff in Resources */,
+				EE78606F0D2D4F4600B2197B /* GSHiddenCursor.tiff in Resources */,
+				EE7860700D2D4F4600B2197B /* GSOpenHandCursor.tiff in Resources */,
+				EE7860710D2D4F4600B2197B /* GSCrosshairCursor.tiff in Resources */,
+				EE7860720D2D4F4600B2197B /* GSDisappearingItemCursor.tiff in Resources */,
+				EE7860730D2D4F4600B2197B /* GSResizeUpDownCursor.tiff in Resources */,
+				EE7860740D2D4F4600B2197B /* GSPointingHandCursor.tiff in Resources */,
+				EE7860750D2D4F4600B2197B /* GSResizeLeftCursor .tiff in Resources */,
+				EE7860760D2D4F4600B2197B /* GSClosedHandCursor.tiff in Resources */,
+				EE7860770D2D4F4600B2197B /* GSResizeRightCursor.tiff in Resources */,
+				EE7860780D2D4F4600B2197B /* GSResizeDownCursor.tiff in Resources */,
+				EE7860790D2D4F4600B2197B /* GSResizeUpCursor.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2423,6 +2483,18 @@
 				EEA3F8960BEDD66A00E39682 /* FindPanel.nib in Resources */,
 				EEA3F8970BEDD66A00E39682 /* FontPanel.nib in Resources */,
 				EE4EF11D0CBE2A7C00376CD3 /* GSColorWheel.jpg in Resources */,
+				EE7860550D2D4E1E00B2197B /* GSArrowCursor.tiff in Resources */,
+				EE7860640D2D4F4600B2197B /* GSHiddenCursor.tiff in Resources */,
+				EE7860650D2D4F4600B2197B /* GSOpenHandCursor.tiff in Resources */,
+				EE7860660D2D4F4600B2197B /* GSCrosshairCursor.tiff in Resources */,
+				EE7860670D2D4F4600B2197B /* GSDisappearingItemCursor.tiff in Resources */,
+				EE7860680D2D4F4600B2197B /* GSResizeUpDownCursor.tiff in Resources */,
+				EE7860690D2D4F4600B2197B /* GSPointingHandCursor.tiff in Resources */,
+				EE78606A0D2D4F4600B2197B /* GSResizeLeftCursor .tiff in Resources */,
+				EE78606B0D2D4F4600B2197B /* GSClosedHandCursor.tiff in Resources */,
+				EE78606C0D2D4F4600B2197B /* GSResizeRightCursor.tiff in Resources */,
+				EE78606D0D2D4F4600B2197B /* GSResizeDownCursor.tiff in Resources */,
+				EE78606E0D2D4F4600B2197B /* GSResizeUpCursor.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

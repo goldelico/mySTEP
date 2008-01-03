@@ -1866,14 +1866,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 #pragma mark WindowControl
 
-- (void) _setCursor:(NSCursor *) cursor;
-{
-#if 0
-	NSLog(@"_setCursor:%@", cursor);
-#endif
-	XDefineCursor(_display, _realWindow, [(_NSX11Cursor *) cursor _cursor]);
-}
-
 - (int) _windowNumber; { return _windowNum; }
 
 	// FIXME: NSWindow frontend should identify the otherWin from the global window list
@@ -3873,6 +3865,16 @@ static NSDictionary *_x11settings;
 			return None;	// did not initialize
 		}
 	return _cursor;
+}
+
+- (void) set;
+{
+#if 0
+	NSLog(@"_setCursor:%@", cursor);
+#endif
+	// should we loop for all screens?
+	// for(i=0; i<ScreenCount(_display); i++)
+	XDefineCursor(_display, RootWindowOfScreen(XScreenOfDisplay(_display, 0)), [self _cursor]);
 }
 
 - (void) dealloc;
