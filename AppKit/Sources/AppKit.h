@@ -160,6 +160,7 @@
 #import <AppKit/NSTextFieldCell.h>
 #import <AppKit/NSTextList.h>
 #import <AppKit/NSTextStorage.h>
+#import <AppKit/NSTextTable.h>
 #import <AppKit/NSTextView.h>
 #import <AppKit/NSTokenField.h>
 #import <AppKit/NSTokenFieldCell.h>
