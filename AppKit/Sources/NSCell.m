@@ -415,6 +415,7 @@ static NSCursor *__textCursor = nil;
 
 - (NSText*) setUpFieldEditorAttributes:(NSText*)textObject
 { // make the field editor imitate the cell as good as possible - note: the field editor is shared for all cells in a window
+	NSString *str;
 	if(_c.enabled && _textColor)
 		[textObject setTextColor:_textColor];
 	else
@@ -424,12 +425,13 @@ static NSCursor *__textCursor = nil;
 		[textObject setSelectable:_c.selectable];	// pass on selectable flag
 	[textObject setFont:_font];
 	[textObject setAlignment:_c.alignment];
-	// FIXME: we should check for attributed string value and set rich text...
+	// FIXME: we should check if the cell has an attributed string value and set rich text...
 	[textObject setRichText:NO];
-	[textObject setString:[self stringValue]];
 #if 0
 	NSLog(@"textObject setString:%@", [self stringValue]);
 #endif
+asdc	str=[self stringValue];
+	if(str) [textObject setString:str];
 	[textObject setFocusRingType:NSFocusRingTypeExterior];
 
 	if(_c.drawsBackground)
