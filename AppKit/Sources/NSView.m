@@ -1542,9 +1542,8 @@ printing
 			[NSApp setWindowsNeedUpdate:YES];	// and NSApp should also know...
 			}
 		}
-#if FIXME
+#if FIXME	// FIXME: this does not properly work!
 	else
-		// FIXME: this does not properly work!
 		{ // we already did have the rect invalidated - assume that our superviews also know that
 #if 1
 		NSLog(@"not increased: %@", self);
@@ -1905,7 +1904,7 @@ NSView *p = nil;
 - (void) setPreservesContentDuringLiveResize:(BOOL)flag	{ _v.preservesContentDuringLiveResize = flag; }
 - (BOOL) autoresizesSubviews					{ return _v.autoSizeSubviews; }
 - (BOOL) canBecomeKeyView;						{ return NO; }
-- (BOOL) isHidden								{ return _v.hidden; }
+- (BOOL) isHidden								{ return _v.hidden != 0; }
 - (BOOL) isOpaque								{ return (super_view == nil); }	// only if I represent the NSWindow
 - (BOOL) inLiveResize							{ return super_view?[super_view inLiveResize]:NO; }
 - (BOOL) shouldDrawColor						{ return YES; }
@@ -2184,7 +2183,7 @@ GSTrackingRect *m = [GSTrackingRect alloc];
 #endif
 #define RESIZESUBVIEWS (((viewflags>>8)&1)==0)
 		_v.autoSizeSubviews=RESIZESUBVIEWS;
-#if 1
+#if 0
 		if(_v.autoresizingMask != 0 && !_v.autoSizeSubviews)
 			NSLog(@"autoresizesSubviews=NO and mask=%x: %@", _v.autoresizingMask, self);
 #endif

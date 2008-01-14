@@ -153,6 +153,7 @@ static Class __rulerViewClass = nil;
 		{
 		if (_horizScroller == nil)
 			[self setHorizontalScroller:[[[NSScroller alloc] initWithFrame:NSZeroRect] autorelease]];
+		[_horizScroller setControlSize:NSRegularControlSize];
 		[self addSubview:_horizScroller];
 		}
 	else
@@ -185,7 +186,8 @@ static Class __rulerViewClass = nil;
 		{
 		if (_vertScroller == nil)
 			{ // create one if not yet
-			[self setVerticalScroller:[[[NSScroller alloc] initWithFrame:NSZeroRect] autorelease]];
+			[self setVerticalScroller:[[[NSScroller alloc] initWithFrame:NSZeroRect ] autorelease]];
+			[_vertScroller setControlSize:NSRegularControlSize];
 			if (_contentView && [self isFlipped] != [_contentView isFlipped])
 				[_vertScroller setFloatValue:1];
 			}
@@ -297,6 +299,7 @@ static Class __rulerViewClass = nil;
 	float floatValue;
 	float knobProportion;
 	id documentView;
+	BOOL hide;
 															// do nothing if 
 	if(aClipView != _contentView)							// aClipView is not 
 		return;												// our content view
@@ -308,21 +311,14 @@ static Class __rulerViewClass = nil;
 		documentFrame = [documentView frame];
 	if(_hasVertScroller) 
 		{
-		if(_autohidesScrollers && documentFrame.size.height <= clipViewBounds.size.height)
-			{
-			if([_vertScroller isHidden])
-				{
-				[_vertScroller setHidden:YES];	// hide
-				[self tile];
-				}
+		hide = (_autohidesScrollers && documentFrame.size.height <= clipViewBounds.size.height);
+		if([_vertScroller isHidden] != hide)
+			{ // needs to change
+			[_vertScroller setHidden:hide];
+			[self tile];
 			}
-		else 
-			{
-			if([_vertScroller isHidden])
-				{
-				[_vertScroller setHidden:NO];	// show
-				[self tile];
-				}
+		if(!hide)
+			{ // update scroller size
 			knobProportion = NSHeight(clipViewBounds) / NSHeight(documentFrame);
 			floatValue = clipViewBounds.origin.y / (NSHeight(documentFrame) - NSHeight(clipViewBounds));	// scrolling moves bounds in negative direction!
 //			if ([self isFlipped] != [_contentView isFlipped])
@@ -333,21 +329,14 @@ static Class __rulerViewClass = nil;
 		}
 	if(_hasHorizScroller) 
 		{
-		if(_autohidesScrollers && documentFrame.size.width <= clipViewBounds.size.width)
-			{
-			if(![_horizScroller isHidden])
-				{
-				[_horizScroller setHidden:YES];
-				[self tile];
-				}
+		hide = (_autohidesScrollers && documentFrame.size.width <= clipViewBounds.size.width);
+		if([_horizScroller isHidden] != hide)
+			{ // needs to change
+			[_horizScroller setHidden:hide];
+			[self tile];
 			}
-		else 
-			{
-			if([_horizScroller isHidden])
-				{
-				[_horizScroller setHidden:NO];	// show
-				[self tile];
-				}
+		if(!hide) 
+			{ // update scroller size
       		knobProportion = NSWidth(clipViewBounds) / NSWidth(documentFrame);
       		floatValue = clipViewBounds.origin.x / (NSWidth(documentFrame) - NSWidth(clipViewBounds));
       		[_horizScroller setFloatValue:floatValue 
@@ -405,12 +394,13 @@ static Class __rulerViewClass = nil;
 	NSRect vertScrollerRect, horizScrollerRect, contentRect;
 	float borderThickness=0;
 	if(_prohibitTiling)
+		{
 		return;	// temporarily disabled during initWithCoder:
+		}
 #if 0
 	NSLog(@"tile %@", self);
 #endif
 	// FIXME: we should also tile the RulerViews
-	_prohibitTiling=YES;	// protect against recursion through NSClipView's setFrame:
 	switch (_borderType) 
 		{
 		case NSNoBorder:		borderThickness = 0; 	break;
@@ -426,12 +416,20 @@ static Class __rulerViewClass = nil;
 										 borderType:_borderType];	// default size without any scrollers
 	if(_hasHorizScroller && _horizScroller && ![_horizScroller isHidden])
 		{ // make room for the horiz. scroller at the bottom
-		horizScrollerRect.size.height = [_horizScroller frame].size.height;	// adjust for scroller height
+		float height=[_vertScroller frame].size.height;
+		if(height < 1.0)
+			height=[NSScroller scrollerWidthForControlSize:[_horizScroller controlSize]];
+		horizScrollerRect.size.height = height;	// adjust for scroller height
 		contentRect.size.height -= horizScrollerRect.size.height;
 		}
+	else
+		horizScrollerRect.size.height=0.0;
 	if(_hasVertScroller && _vertScroller && ![_vertScroller isHidden])
 		{ // make room on the right side
-		contentRect.size.width -= [_vertScroller frame].size.width;	// adjust for scroller width
+		float width=[_vertScroller frame].size.width;
+		if(width < 1.0)
+			width=[NSScroller scrollerWidthForControlSize:[_vertScroller controlSize]];
+		contentRect.size.width -= width;	// adjust for scroller width
 		vertScrollerRect.origin.x = NSMaxX(contentRect);		// to the right
 		vertScrollerRect.origin.y = NSMinY(contentRect);
 		vertScrollerRect.size.width = _bounds.size.width - borderThickness - vertScrollerRect.origin.x;	// what remains
@@ -466,8 +464,6 @@ static Class __rulerViewClass = nil;
 			[_cornerView setNeedsDisplay:YES];
 			}
 		}
-	[_contentView setFrame:contentRect];
-	[_contentView setNeedsDisplay:YES];	// mark as dirty
 	if(_hasHorizScroller && _horizScroller)
 		{
 		[_horizScroller setFrame:horizScrollerRect];
@@ -477,10 +473,9 @@ static Class __rulerViewClass = nil;
 		{
 		[_vertScroller setFrame:vertScrollerRect];
 		[_vertScroller setNeedsDisplay:YES];
-		if ([self isFlipped] != [_contentView isFlipped])				// If the document view is not flipped reverse the meaning
-			[_vertScroller setFloatValue:1];		// of the vertical scroller's
 		}
-	_prohibitTiling=NO;
+	[_contentView setFrame:contentRect];	// this may recurse if scrollers are auto-hidden/unhidden
+	[_contentView setNeedsDisplay:YES];		// mark as dirty
 }
 
 - (void) drawRect:(NSRect)rect
@@ -491,6 +486,7 @@ static Class __rulerViewClass = nil;
 #endif
 	switch (_borderType) 
 		{
+		// FIXME: this does not match tiling calculations and visual expectations
 		case NSLineBorder:
 			{
 				borderThickness = 1;

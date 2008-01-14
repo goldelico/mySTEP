@@ -268,7 +268,7 @@
 
 - (void) scrollPoint:(NSPoint) point
 { // point should lie within the bounds rect of self
-#if 0	// handle copiesOnScroll
+#if 1	// handle copiesOnScroll
 	if(_clip.copiesOnScroll)
 		{
 		extern BOOL _NSShowAllDrawing;		// defined in NSView
@@ -276,26 +276,29 @@
 		NSRect xSlice;						// left or right slice to redraw
 		NSRect src=NSZeroRect;				// rectangle to copy from
 		NSRect dest=NSZeroRect;				// rectangle to copy to
-		NSRect start=bounds;				// original origin
+		NSRect start=_bounds;				// original origin
+#if 1
+		_NSShowAllDrawing=YES;
+#endif
 		if(start.origin.y != point.y)		 				// scrolling the y axis	
 			{												
 			if(start.origin.y < point.y)		 			// scroll down document
 				{											
 				float amount = point.y - start.origin.y;	// calc area visible
 															// before and after 
-				NSDivideRect(bounds, &ySlice, &dest, amount, NSMinYEdge);
+				NSDivideRect(_bounds, &ySlice, &dest, amount, NSMinYEdge);
 				
 				src.origin = dest.origin;
-				dest.origin = bounds.origin;				// calc area of slice
+				dest.origin = _bounds.origin;				// calc area of slice
 															// needing redisplay
-				ySlice.origin.y = NSMaxY(bounds) - ySlice.size.height;
+				ySlice.origin.y = NSMaxY(_bounds) - ySlice.size.height;
 				}
 			else											// scroll up document 
 				{												
 				float amount = start.origin.y - point.y;
 				
-				NSDivideRect(bounds, &ySlice, &dest, amount, NSMinYEdge);
-				src.origin = bounds.origin;
+				NSDivideRect(_bounds, &ySlice, &dest, amount, NSMinYEdge);
+				src.origin = _bounds.origin;
 				}
 			}
 		else
@@ -308,27 +311,27 @@
 				{											
 				float amount = point.x - start.origin.x;	// calc area visible
 															// before and after 
-				NSDivideRect(bounds, &xSlice, &xRemainder, amount, NSMinXEdge);
+				NSDivideRect(_bounds, &xSlice, &xRemainder, amount, NSMinXEdge);
 				
 				if(start.origin.y != point.y)	
 					src.origin.x = xRemainder.origin.x;
 				else	 					
 					src.origin = xRemainder.origin;
 				
-				xRemainder.origin = bounds.origin;			// calc area of slice
+				xRemainder.origin = _bounds.origin;			// calc area of slice
 															// needing redisplay
-				xSlice.origin.x = NSMaxX(bounds) - xSlice.size.width;
+				xSlice.origin.x = NSMaxX(_bounds) - xSlice.size.width;
 				}
 			else											// scroll doc left
 				{											
 				float amount = start.origin.x - point.x;	
 				
-				NSDivideRect(bounds, &xSlice, &xRemainder, amount, NSMinXEdge);
+				NSDivideRect(_bounds, &xSlice, &xRemainder, amount, NSMinXEdge);
 				
 				if(start.origin.y != point.y)	
-					src.origin.x = bounds.origin.x;	// don't change y
+					src.origin.x = _bounds.origin.x;	// don't change y
 				else	 					
-					src.origin = bounds.origin;
+					src.origin = _bounds.origin;
 				}
 			
 			if(start.origin.y != point.y)
@@ -360,6 +363,7 @@
 #if 0
 			NSLog(@"xSlice=%@", NSStringFromRect(xSlice));
 #endif
+			// FIXME: use setNeedsDisplayInRect
 			[self displayRectIgnoringOpacity:xSlice];	// redraw background and subview(s)
 			if(_NSShowAllDrawing)
 				{
@@ -464,9 +468,9 @@
 #if 0
 		NSLog(@"%@ initWithCoder:%@", self, aDecoder);
 #endif
-#define NOCOPYONSCROLL (cvFlags&0x20)!=0
-		_clip.copiesOnScroll = !NOCOPYONSCROLL;
-#define DRAWSBACKGROUND (cvFlags&0x40)!=0
+#define COPIESONSCROLL ((cvFlags&0x20)==0)
+		_clip.copiesOnScroll = COPIESONSCROLL;
+#define DRAWSBACKGROUND ((cvFlags&0x40)!=0)
 		_clip.drawsBackground = DRAWSBACKGROUND;
 		_backgroundColor=[[aDecoder decodeObjectForKey:@"NSBGColor"] retain];
 		_cursor=[[aDecoder decodeObjectForKey:@"NSCursor"] retain];
