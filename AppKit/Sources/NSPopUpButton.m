@@ -171,7 +171,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (void) dealloc
 {
-	[_menu release];
+//	[_menu release];
 	[super dealloc];
 }
 
