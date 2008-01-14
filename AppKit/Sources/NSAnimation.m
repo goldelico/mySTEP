@@ -256,6 +256,9 @@ struct _NSViewAnimation
 				[self release];
 				return nil;
 				}
+			//
+			// kill from any other animation using this target!!!
+			//
 			record->windowTarget=[record->target isKindOfClass:[NSWindow class]];
 			val=[dict objectForKey:NSViewAnimationStartFrameKey];
 			if(val)

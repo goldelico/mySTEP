@@ -430,7 +430,7 @@ static NSCursor *__textCursor = nil;
 #if 0
 	NSLog(@"textObject setString:%@", [self stringValue]);
 #endif
-asdc	str=[self stringValue];
+	str=[self stringValue];
 	if(str) [textObject setString:str];
 	[textObject setFocusRingType:NSFocusRingTypeExterior];
 

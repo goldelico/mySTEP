@@ -157,6 +157,7 @@
 		[_contentView removeFromSuperview];	// if I am still the owner, just remove
 	ASSIGN(_contentView, aView);	// then save
 	[_contentView setFrame:[self _calcSizes]];
+	[_contentView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 }
 
 - (void) setTitle:(NSString *)aString
@@ -237,7 +238,7 @@
 - (void) addSubview:(NSView *)aView
 		 positioned:(NSWindowOrderingMode)place
 		 relativeTo:(NSView *)otherView
-{ // Subviews get added to our content view's list
+{ // Our subviews get added to our content view's list
 #if 0
 	NSLog(@"NSBox _contentView=%@ addSubview:%@", _contentView, aView);
 #endif

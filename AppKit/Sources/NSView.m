@@ -472,6 +472,7 @@ printing
 	if([self isFlipped]) [s appendString:@" isFlipped"];
 	if([self isOpaque]) [s appendString:@" isOpaque"];
 	if([self canDraw]) [s appendString:@" canDraw"];
+	if(_v.autoSizeSubviews) [s appendFormat:@" autosize (%02x)", _v.autoresizingMask];
 	if(_v.isRotatedFromBase) [s appendString:@" is rotated"];
 	if(_v.isRotatedOrScaledFromBase) [s appendString:@" or scaled"];
 	return s;
@@ -2143,7 +2144,7 @@ GSTrackingRect *m = [GSTrackingRect alloc];
 #if 0
 	NSLog(@"NSView: %@ initWithCoder:%@", NSStringFromClass([self class]), aDecoder);
 //	NSLog(@"nslog worked");
-	NSLog(@"viewflags=%d", [aDecoder decodeIntForKey:@"NSvFlags"]);
+	NSLog(@"viewflags=%08x", [aDecoder decodeIntForKey:@"NSvFlags"]);
 #endif
 	if(![aDecoder allowsKeyedCoding])
 		{
@@ -2159,8 +2160,8 @@ GSTrackingRect *m = [GSTrackingRect alloc];
 		{ // initialize, then subviews and finally superview
 		unsigned int viewflags=[aDecoder decodeIntForKey:@"NSvFlags"];
 #if 0
-		NSLog(@"viewflags=%d", viewflags);
-		NSLog(@"self=%@", self);
+		NSLog(@"viewflags=%08x", viewflags);
+//		NSLog(@"self=%@", self);
 #endif
 		if([aDecoder containsValueForKey:@"NSFrameSize"])
 			self=[self initWithFrame:(NSRect){NSZeroPoint, [aDecoder decodeSizeForKey:@"NSFrameSize"]}];
@@ -2176,17 +2177,19 @@ GSTrackingRect *m = [GSTrackingRect alloc];
 		NSLog(@"self=%@", self);
 #endif
 		
-#define RESIZINGMASK ((viewflags&0x3f000000)>24)	// 6 bit
+#define RESIZINGMASK ((viewflags>>0)&0x3f)	// 6 bit
 		_v.autoresizingMask=RESIZINGMASK;
 #if 0
 		NSLog(@"%@ autoresizingMask=%02x", self, _v.autoresizingMask);
 #endif
-#define RESIZESUBVIEWS ((viewflags&0x00800000)==0)
+#define RESIZESUBVIEWS (((viewflags>>8)&1)==0)
 		_v.autoSizeSubviews=RESIZESUBVIEWS;
 #if 1
 		if(_v.autoresizingMask != 0 && !_v.autoSizeSubviews)
 			NSLog(@"autoresizesSubviews=NO and mask=%x: %@", _v.autoresizingMask, self);
 #endif
+#define HIDDEN (((viewflags>>31)&1)!=0)
+		_v.hidden=HIDDEN;
 		
 		// how to overwrite NSBounds? - does this occur anywhere?
 

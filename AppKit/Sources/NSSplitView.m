@@ -193,21 +193,6 @@ NSSplitView.h
 	
 	[self unlockFocus];
 //	[NSEvent stopPeriodicEvents];
-#if 0	// this is strange - we must allow the user to move by single pixels...
-	// do nothing if move
-	if(!_isVertical)									// was less than half
-		{												// of divider thickness
-		float d = p.y > NSMinY(r1) ? (p.y - NSMinY(r1)) : (NSMinY(r1) - p.y);
-		if (d <= (_dividerThickness / 2))
-			return;
-		}
-	else
-		{
-		float d = p.x > NSMinX(r1) ? (p.x - NSMinX(r1)) : (NSMinX(r1) - p.x);
-		if (d <= (_dividerThickness / 2))
-			return;
-		}
-#endif
 	r = [prev frame];
 	r1 = [v frame];
 #if 1
@@ -227,6 +212,7 @@ NSSplitView.h
 			r.size.width = 1.;
 		}
 	[prev setFrame:r];
+	[prev setNeedsDisplay:YES];
 	NSDebugLog(@"drawing PREV at x:%d, y:%d, w:%d, h:%d\n", (int)NSMinX(r), 
 			   (int)NSMinY(r), (int)NSWidth(r), (int)NSHeight(r));
 	
@@ -249,6 +235,7 @@ NSSplitView.h
 			r1.size.width = 1.;
 		}
 	[v setFrame:r1];
+	[v setNeedsDisplay:YES];
 #if 1
 	NSLog(@"p=%@", NSStringFromPoint(p));
 	NSLog(@"bigRect=%@", NSStringFromRect(bigRect));
@@ -261,7 +248,7 @@ NSSplitView.h
 	[_window invalidateCursorRectsForView:self];	
 			
 //	[window setAcceptsMouseMovedEvents:NO];
-	[self setNeedsDisplay:YES];
+//	[self setNeedsDisplay:YES];
 }
 
 - (void) adjustSubviews
@@ -326,25 +313,6 @@ NSSplitView.h
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidResizeSubviews) object: self];
 }
-
-#if OLD	// no need to override!
-
-- (void) addSubview:(NSView *)aView
-		 positioned:(NSWindowOrderingMode)place
-		 relativeTo:(NSView *)otherView
-{	
-	[super addSubview:aView positioned:place relativeTo:otherView];
-	if(!_initializing)
-		[self adjustSubviews];
-}
-
-- (void) addSubview:aView
-{
-	[super addSubview:aView];
-	[self adjustSubviews];
-}
-
-#endif
 
 - (BOOL) isFlipped							{ return YES; }	// compatibility
 - (NSString *) autosaveName;				{ return _autosaveName; }

@@ -879,7 +879,7 @@
 		unsigned first=[idx firstIndex];
 		while(first != NSNotFound)
 			{
-			// do something
+			// do something, i.e. request redraw, update row position tree
 			first=[idx indexGreaterThanIndex:first];
 			}
 		}
@@ -1771,6 +1771,7 @@ int index = [self columnWithIdentifier:identifier];
 			_tv.needsTiling=NO;
 			}
 		}
+	// set scroll amounts for the scrollview
 	[self setNeedsDisplay:YES];
 #if 0
 	NSLog(@"tile done");
@@ -1799,7 +1800,7 @@ int index = [self columnWithIdentifier:identifier];
 	NSLog(@"drawRect of %@: %@", self, NSStringFromRect(rect));
 #endif
 	if(_tv.needsTiling)
-		NSLog(@"table view needs tiling");
+		NSLog(@"table view needs tiling before drawing");
 	if(_cacheOrigin != NSMinX(rect) || (_cacheWidth != NSWidth(rect)))
 		{
 		_cacheOrigin = NSMinX(rect);						// cache col origin

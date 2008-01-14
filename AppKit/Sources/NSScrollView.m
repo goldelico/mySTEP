@@ -410,7 +410,7 @@ static Class __rulerViewClass = nil;
 	NSLog(@"tile %@", self);
 #endif
 	// FIXME: we should also tile the RulerViews
-
+	_prohibitTiling=YES;	// protect against recursion through NSClipView's setFrame:
 	switch (_borderType) 
 		{
 		case NSNoBorder:		borderThickness = 0; 	break;
@@ -480,6 +480,7 @@ static Class __rulerViewClass = nil;
 		if ([self isFlipped] != [_contentView isFlipped])				// If the document view is not flipped reverse the meaning
 			[_vertScroller setFloatValue:1];		// of the vertical scroller's
 		}
+	_prohibitTiling=NO;
 }
 
 - (void) drawRect:(NSRect)rect
