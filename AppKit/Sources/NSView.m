@@ -1474,7 +1474,7 @@ printing
 			}
 		if(NSIntersectsRect(rect, invalidRects[i]))
 			{
-#if 0
+#if 1
 			NSLog(@"drawing rect %@ intersects %@ for %@", NSStringFromRect(rect), NSStringFromRect(invalidRects[i]), self);
 #endif
 			// what if it intersects???
@@ -1482,25 +1482,33 @@ printing
 			// but since this are only hints to optimize drawing, leave it as it is
 			}
 		}
+	if(NSContainsRect(rect, invalidRect))
+		{ // HACK: assume this completely covers all invalid rects
+		nInvalidRects=0;	// remove
+		}
 	if(nInvalidRects == 0)
 		invalidRect=NSZeroRect;	// all has been drawn
 }
 
 - (BOOL) needsDisplay;
 {
-	return !_v.hidden && !NSIsEmptyRect(invalidRect);	// needs to draw something if not empty
+	return !_v.hidden && (_v.needsDisplaySubviews || !NSIsEmptyRect(invalidRect));	// needs to draw something if not empty
 	//	return nInvalidRects != 0;
 }
 
 - (void) setNeedsDisplay:(BOOL) flag;
 {
 	if(flag)
+		{
+		nInvalidRects=0;	// clear list first
 		[self setNeedsDisplayInRect:_bounds];
+		}
 	else
 		{
 		nInvalidRects=0;	// clear list
 		invalidRect=NSZeroRect;
 		// _v.needsDisplay=NO;	// done
+		_v.needsDisplaySubviews=NO;
 		}
 }
 
@@ -1509,23 +1517,34 @@ printing
 #if 0
 	NSLog(@"-setNeedsDisplayInRect:%@ of %@", NSStringFromRect(rect), self);
 #endif
+	rect=NSIntersectionRect(_bounds, rect);	// limit to bounds
+#if 0
+	if(!NSContainsRect(_bounds, rect))
+		NSLog(@"setNeedsDisplayInRect:%@ beyond bounds %@", NSStringFromRect(rect), NSStringFromRect(_bounds));
+#endif
 	// _v.needsDisplay=YES;
-//	rect=NSIntersectionRect(bounds, rect);	// limit to bounds
+//	_v.needsDisplaySubviews=YES;	// we must also redraw our subviews
+	// FIXME - we should stop recursion upwards if a superview already covers our dirty rect
 	if([self _addRectNeedingDisplay:rect] || YES)
-		{ // we (and our superviews) didn't know yet
+		{ // we (and our superviews) didn't know this rect yet
 #if 0
 		NSLog(@"setneedsdisplay 1: %@", self);
 #endif
 		if(super_view)
-			{
+			{ // FIXME: not rotation-safe
 			NSAffineTransform *atm;
 			NSRect r;
-			// FIXME: not rotation-safe
-			if([self isOpaque])
-				; 
-				// FIXME:  if we are opaque we should just need to setNeedsDisplay without updating the invalidRect of the superview
-				// but the superview must still learn that there is something to redraw
-				// i.e. this is the real reason why we probably need the 'ifNeeded' flag independently of the dirty rects
+			if(NO && [self isOpaque])
+				{ // just mark all the superviews to needsDisplaySubviews without updating their dirty rect
+				while(super_view)
+					{
+					self=super_view;
+					_v.needsDisplaySubviews=YES;	// mark to redraw subviews
+					}
+				[_window setViewsNeedDisplay:YES];	// recursion has reached the topmost view
+				[NSApp setWindowsNeedUpdate:YES];	// and NSApp should also know...
+				return;
+				}
 			atm=[self _bounds2frame];	// goes to our superview
 			// HM - we should transform the corners individually and determine min/max dimension of the invalidated superview
 			// we can also estimate the bounding box (as long as it is at least the required size)
@@ -1534,7 +1553,7 @@ printing
 			if((rect.size.height < 0) != (r.size.height < 0))
 				r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved
 			[super_view setNeedsDisplayInRect:r];
-			// FIXME: we should simply loop instead of doing a recursion - to call [_window setViewsNeedDisplay:YES]; etc. just once
+			// FIXME: we should simply loop instead of doing a recursion
 			}
 		else
 			{
@@ -1578,6 +1597,7 @@ printing
 { // recursively draw view and subviews - without flushing
 	NSEnumerator *e;
 	NSView *subview;
+	BOOL locked;
 #if 0
 	NSLog(@"displayRectIgnoringOpacity:%@ inContext:%@ for %@", NSStringFromRect(rect), context, self);
 #endif
@@ -1591,34 +1611,42 @@ printing
 		return;
 		}
 	rect=NSIntersectionRect(_bounds, rect);	// shrink to bounds (not invalidRect!)
-	if(NSIsEmptyRect(rect))
-		return;	// nothing to draw within our bounds
-	if(![self lockFocusIfCanDrawInContext:context])
-		return;	// can't lock focus
-	// NOTE: we must be prepared for the case that drawRect: changes our frame and/or bounds and even calls setNeedsDisplay
-	[self _drawRect:rect];	// this may use the invalid rects list as a hint to speed up drawing (i.e. if 2 separate lines of a tableview have been marked as needing display)
-	if(context == [_window graphicsContext])		// NOTE: remove after drawing!
-		[self _removeRectNeedingDisplay:rect];	// should end up with empty list i.e. no more needsDrawing
-	e=[sub_views objectEnumerator];
-	while((subview=[e nextObject]))	// go downwards independently of their needsDisplay status since we have redrawn the background
-		{
-		NSAffineTransform *atm;
-		NSRect subRect;
-		if([subview isHidden])		// this saves converting the rect if the subview doesn't want to be drawn
-			continue;
-		if(!NSIntersectsRect([subview frame], rect))
-			continue;	// subview is not within rect - ignore transformation
-		// FIXME: not rotation-safe
-		atm=[subview _frame2bounds];	// transform the dirty rect to our subview
-										// HM - we should transform the corners individually and determine min/max dimension of the invalidated superview
-										// we can also estimate the bounding box (as long as it is at least the required size)
-		subRect.origin=[atm transformPoint:rect.origin];
-		subRect.size=[atm transformSize:rect.size];
-		if((rect.size.height < 0) != (subRect.size.height < 0))
-			subRect.origin.y-=(subRect.size.height=-subRect.size.height);	// there was some flipping involved
-		[subview displayRectIgnoringOpacity:subRect inContext:context];
+	_v.needsDisplaySubviews=NO;
+	locked=NO;
+	if(!NSIsEmptyRect(rect))
+		{ // we are dirty ourselves - otherwise we have a dirty but opaque subview
+		if(![self lockFocusIfCanDrawInContext:context])
+			return;	// can't lock focus
+		locked=YES;
+		// NOTE: we must be prepared for the case that drawRect: changes our frame and/or bounds and even calls setNeedsDisplay
+		[self _drawRect:rect];	// this may use the invalid rects list as a hint to speed up drawing (i.e. if 2 separate lines of a tableview have been marked as needing display)
+		if(context == [_window graphicsContext])		// NOTE: remove after drawing!
+			[self _removeRectNeedingDisplay:rect];	// should end up with empty list i.e. no more needsDrawing
 		}
-	[self unlockFocus];
+	if(YES || _v.needsDisplaySubviews)
+		{
+		e=[sub_views objectEnumerator];
+		while((subview=[e nextObject]))	// go downwards independently of their needsDisplay status since we have redrawn the background
+			{
+			NSAffineTransform *atm;
+			NSRect subRect;
+			if([subview isHidden])		// this saves converting the rect if the subview doesn't want to be drawn
+				continue;
+			if(!NSIntersectsRect([subview frame], rect))
+				continue;	// subview is not within rect - ignore transformation
+							// FIXME: not rotation-safe
+			atm=[subview _frame2bounds];	// transform the dirty rect to our subview
+											// HM - we should transform the corners individually and determine min/max dimension of the invalidated superview
+											// we can also estimate the bounding box (as long as it is at least the required size)
+			subRect.origin=[atm transformPoint:rect.origin];
+			subRect.size=[atm transformSize:rect.size];
+			if((rect.size.height < 0) != (subRect.size.height < 0))
+				subRect.origin.y-=(subRect.size.height=-subRect.size.height);	// there was some flipping involved
+			[subview displayRectIgnoringOpacity:subRect inContext:context];
+			}
+		if(locked)
+			[self unlockFocus];	// after drawing any subviews
+		}
 }
 
 - (BOOL) autoscroll:(NSEvent *)event					// Auto Scrolling
@@ -1702,6 +1730,8 @@ printing
 	NSCopyBits(0, src, dest.origin);	// copy source rect in current graphics state
 	if(_NSShowAllDrawing)
 		{ // show copy operation
+		[[NSGraphicsContext currentContext] flushGraphics];
+		sleep(1);
 		[[NSColor blueColor] set];
 		NSFrameRect(src);
 		[[NSColor yellowColor] set];

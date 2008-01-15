@@ -416,7 +416,7 @@ static Class __rulerViewClass = nil;
 										 borderType:_borderType];	// default size without any scrollers
 	if(_hasHorizScroller && _horizScroller && ![_horizScroller isHidden])
 		{ // make room for the horiz. scroller at the bottom
-		float height=[_vertScroller frame].size.height;
+		float height=[_horizScroller frame].size.height;
 		if(height < 1.0)
 			height=[NSScroller scrollerWidthForControlSize:[_horizScroller controlSize]];
 		horizScrollerRect.size.height = height;	// adjust for scroller height

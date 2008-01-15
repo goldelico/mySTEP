@@ -95,6 +95,7 @@ typedef NSInteger NSTrackingRectTag;
 		unsigned int preservesContentDuringLiveResize:1;
 		unsigned int customBounds:1;
 //		unsigned int needsDisplay:1;
+		unsigned int needsDisplaySubviews:1;
 		} _v;
 }
 

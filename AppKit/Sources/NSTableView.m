@@ -1768,10 +1768,10 @@ int index = [self columnWithIdentifier:identifier];
 										// [_headerView resetCursorRects];
 			[super setFrame:r];			// does nothing if we did not really change - otherwise notifies NSClipView
 			[[self enclosingScrollView] tile];	// tile scrollview (i.e. properly layout header and our superview)
+			; // asjust scroll amounts for the scrollview
 			_tv.needsTiling=NO;
 			}
 		}
-	// set scroll amounts for the scrollview
 	[self setNeedsDisplay:YES];
 #if 0
 	NSLog(@"tile done");
