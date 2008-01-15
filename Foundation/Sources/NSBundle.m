@@ -89,7 +89,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 									 NSObjectMapValueCallBacks, 0);
 		if(!virtualRoot)
 			virtualRoot=[NSString stringWithUTF8String:[@"/" fileSystemRepresentation]], vrl=[virtualRoot length]-1;
-#if 0
+#if 1
 		NSLog(@"args=%@", [pi arguments]);
 		NSLog(@"$0=%@", path);
 		NSLog(@"virtualRoot=%@", virtualRoot);
@@ -101,7 +101,10 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 			NSString *basepath;
 			while((basepath=[e nextObject]))
 				{
-				NSString *p=[basepath stringByAppendingPathComponent:path];
+				NSString *p;
+				if([basepath length] == 0 || [basepath isEqualToString:@"."])
+					basepath=[[fm currentDirectoryPath] stringByAppendingPathComponent:path];	// denotes relative location
+				p=[basepath stringByAppendingPathComponent:path];
 #if 0
 				NSLog(@"check %@", p);
 #endif
@@ -115,6 +118,8 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 					}
 				}
 			}
+		if([path hasPrefix:@"./"])
+			path=[[fm currentDirectoryPath] stringByAppendingPathComponent:path];	// denotes relative location
 		if([path hasPrefix:@"/hdd2"])
 			path=[path substringFromIndex:5];	// strip off - just in case of C3000...
 		if([path hasPrefix:@"/home/root"])

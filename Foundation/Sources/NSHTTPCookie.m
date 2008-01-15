@@ -20,6 +20,7 @@
 
 @implementation NSHTTPCookie
 
+// NSString *NSHTTPCookieCreated=@"Created";
 NSString *NSHTTPCookieComment=@"Comment";
 NSString *NSHTTPCookieCommentURL=@"CommentURL";
 NSString *NSHTTPCookieDiscard=@"Discard";

@@ -208,8 +208,8 @@ void objc_load_callback(Class class, Category *category)
 #endif
     if (class != 0 && category != 0) 		// Invalidate the dtable, so it 
 		{									// will be rebuilt correctly
-		objc_invalidate_dtable(class);
-		objc_invalidate_dtable(class->class_pointer);
+//		objc_invalidate_dtable(class);
+//		objc_invalidate_dtable(class->class_pointer);
 		}
 	
     if (objc_loadmodule_callback)
