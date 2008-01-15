@@ -583,6 +583,8 @@
 	return self;
 }
 
+- (BOOL) isFlipped							{ return YES; }
+
 @end
 
 //*****************************************************************************
@@ -1737,10 +1739,12 @@ int index = [self columnWithIdentifier:identifier];
 #endif
 		if(cols > 0)
 			{
+			NSScrollView *sv=[self enclosingScrollView];
 			NSRect c = [self rectOfColumn: cols - 1];	// last column (c.size.height comes from current frame height and may be 0!)
 			NSRect h = [_headerView frame];
 			float minH = super_view?[super_view bounds].size.height:10;
 			NSRect r;
+			float lheight;
 			if(rows > 0)
 				r = [self rectOfRow:rows - 1];	// up to last row
 			else
@@ -1767,8 +1771,12 @@ int index = [self columnWithIdentifier:identifier];
 			[_headerView setFrame:h];	// adjust our header view
 										// [_headerView resetCursorRects];
 			[super setFrame:r];			// does nothing if we did not really change - otherwise notifies NSClipView
-			[[self enclosingScrollView] tile];	// tile scrollview (i.e. properly layout header and our superview)
-			; // asjust scroll amounts for the scrollview
+			[sv tile];	// tile scrollview (i.e. properly layout header and our superview)
+			lheight=[self rowHeight]+[self intercellSpacing].height;
+			[sv setVerticalLineScroll:lheight];	// scroll by one line
+			[sv setVerticalPageScroll:lheight];	// scroll by one page keeping one line visible
+	//		[sv setHorizontalLineScroll:??];
+			[sv setHorizontalPageScroll:0.0];
 			_tv.needsTiling=NO;
 			}
 		}

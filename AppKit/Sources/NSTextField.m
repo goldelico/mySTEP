@@ -339,6 +339,7 @@ static Class __textFieldCellClass = Nil;
 	return YES;
 }
 
+- (BOOL) isFlipped							{ return YES; }
 - (BOOL) isEditable							{ return [_cell isEditable]; }
 - (BOOL) isSelectable						{ return [_cell isSelectable]; }
 - (void) setEditable:(BOOL)flag				{ [_cell setEditable:flag]; }

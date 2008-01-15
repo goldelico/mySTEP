@@ -773,7 +773,7 @@ static NSCursor *__textCursor = nil;
 			if([controlView isFlipped])
 				frame.origin.y += (NSHeight(frame) - size.height) / 2;
 			else
-				frame.origin.y -= (NSHeight(frame) - size.height) / 2;
+				frame.origin.y += (NSHeight(frame) - size.height) / 2;
 			}
 #if 0
 		NSLog(@"inFrame %@", NSStringFromRect(frame));

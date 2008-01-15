@@ -277,6 +277,8 @@ static NSButtonCell *__knobCell = nil;
 	if ([self mouse:point inRect:[self rectForPart:NSScrollerIncrementLine]])
 		return NSScrollerIncrementLine;
 	
+	// the Option key should also make us scroll pages
+
 	if ([self mouse:point inRect:[self rectForPart:NSScrollerDecrementPage]])
 		return NSScrollerDecrementPage;
 	

@@ -171,17 +171,16 @@
 	return self;
 }
 
-- (void) addTabViewItem:(NSTabViewItem *)tabViewItem
+- (BOOL) isFlipped							{ return YES; }
+
+- (NSString *) description
 {
-	[tabViewItem _setTabView:self];
-	[tab_items insertObject:tabViewItem atIndex:[tab_items count]];
-//	[[tabViewItem view] setHidden:YES];
-//	[self addSubview:[tabViewItem view]];
-//	if(!tab_selected)
-//		[self selectFirstTabViewItem:nil];
-	if([tab_delegate respondsToSelector:
-			@selector(tabViewDidChangeNumberOfTabViewItems:)])
-		[tab_delegate tabViewDidChangeNumberOfTabViewItems:self];
+	return [NSString stringWithFormat:@"%@ items %@", [super description], tab_items];
+}
+
+- (void) addTabViewItem:(NSTabViewItem *)tabViewItem
+{ // insert at end
+	[self insertTabViewItem:tabViewItem atIndex:[tab_items count]];
 }
 
 - (void) insertTabViewItem:(NSTabViewItem *)tabViewItem 
@@ -297,7 +296,8 @@
 		NSView *v=[tab_selected view];
 		[tab_selected _setTabState:NSSelectedTab];
 		[self setNeedsDisplayInRect:[tab_selected _tabRect]];
-		[self addSubview:v];
+		if([sub_views indexOfObjectIdenticalTo:v] == NSNotFound)
+			[self addSubview:v];	// if not yet a subview
 		[v setFrame:[self contentRect]];
 		[v setNeedsDisplay:YES];
 		if([tab_delegate respondsToSelector:@selector(tabView:didSelectTabViewItem:)])
@@ -451,17 +451,18 @@
 			rect.size.width-=16.0;
 			rect.origin.y+=8.0;
 			break;
-		case NSTopTabsBezelBorder:
+		case NSBottomTabsBezelBorder:
 			rect.origin.x+=10.0;
 			rect.size.width-=16.0;
 			rect.origin.y+=13.0;
-			rect.size.height+=0.0;
-//			rect.size.height-=adjust;
+//			rect.size.height+=0.0;
+			rect.size.height-=adjust;
 			break;
-		case NSBottomTabsBezelBorder:
+		case NSTopTabsBezelBorder:
 			rect.origin.x+=8.0;
 			rect.size.width-=16.0;
-			rect.origin.y+=8.0;
+			rect.origin.y+=8.0+adjust;
+			rect.size.height-=adjust;
 			break;
 		case NSNoTabsBezelBorder:
 		case NSNoTabsLineBorder:
@@ -492,18 +493,18 @@
 		{
 		case NSMiniControlSize:
 			hspacing=20.0;
-			tabRect.origin.y+=tabRect.size.height-16.0;
+			tabRect.origin.y+=3.0;
 			tabRect.size.height=13.0;
 			break;
 		case NSSmallControlSize:
 			hspacing=24.0;
-			tabRect.origin.y+=tabRect.size.height-18.0;
+			tabRect.origin.y+=2.0;
 			tabRect.size.height=16.0;
 			break;
 		case NSRegularControlSize:
 		default:
 			hspacing=24.0;
-			tabRect.origin.y+=tabRect.size.height-24.0;
+			tabRect.origin.y+=4.0;
 			tabRect.size.height=20.0;
 		}
 	for(i = 0; i < numberOfTabs; i++) 
@@ -512,7 +513,8 @@
 		width+=[anItem sizeOfLabel:tab_truncated_label].width;
 		}
 	tabRect.origin.x=(tabRect.size.width-width-numberOfTabs*hspacing)/2.0;	// start at center
-	borderRect.size.height=tabRect.origin.y+tabRect.size.height/2.0-0.5;	// cut tabs in the middle
+	borderRect.origin.y=tabRect.origin.y+tabRect.size.height/2.0-0.5;	// cut tabs in the middle
+	borderRect.size.height-=borderRect.origin.y;
 	switch(tab_type) 
 		{
 		case NSLeftTabsBezelBorder:
@@ -549,7 +551,7 @@
 		tabRect.size.width=s.width+hspacing;	// define drawing box
 		if(NSIntersectsRect(tabRect, rect))
 			{ // is at least partially visible
-			[anItem _setTabRect:tabRect];	// cache for mouseDown etc.
+			[anItem _setTabRect:tabRect];	// cache for mouseDown etc. (must be drawn once to be initialized)
 			[self _drawItem:anItem];
 			}
 		tabRect.origin.x+=tabRect.size.width;	// go to next one
@@ -589,7 +591,7 @@
 				[self setNeedsDisplayInRect:[prev _tabRect]];	// redraw in previous state
 				}
 			if(aTab)
-				{ // there is one selected
+				{ // there is one selected now
 				prevstate=[aTab tabState];	// save previous state (NSSelectedTab/NSBackgroundTab)
 				[aTab _setTabState:NSPressedTab];
 				[self setNeedsDisplayInRect:[aTab _tabRect]];	// redraw in pressed state
@@ -601,7 +603,7 @@
 									  inMode:NSEventTrackingRunLoopMode 
 									 dequeue:YES];
   		}
-	if(prev && prev != aTab)
+	if(prev)
 		{ // unhighlight last one
 		[prev _setTabState:prevstate];
 		[self setNeedsDisplayInRect:[prev _tabRect]];	// redraw in previous state
@@ -651,7 +653,7 @@
 		[self setDelegate:[aDecoder decodeObjectForKey:@"NSDelegate"]];
 		if(!tab_selected)
 			[self selectFirstTabViewItem:nil];
-#if 0
+#if 1
 		NSLog(@"NSTabView initialized to %@", [self _descriptionWithSubviews]);
 #endif
 		return self;

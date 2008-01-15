@@ -384,15 +384,18 @@ NSString *NSColorSpaceFromDepth(NSWindowDepth depth)
 void NSCopyBits(int srcGstate, NSRect srcRect, NSPoint destPoint)
 {
 	_NSGraphicsState *state;
+	NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
 	if(!srcGstate)
-		state=(_NSGraphicsState *) ([NSGraphicsContext currentContext]->_graphicsState);	// current
+		state=(_NSGraphicsState *) (ctxt->_graphicsState);	// current
 	else
 		{
 		state=NSMapGet(_gState2struct, (void *) srcGstate);
 		if(!state)
 			[NSException raise:NSGenericException format:@"NSCopyBits: invalid source graphics state %d", srcGstate];
 		}
-	[[NSGraphicsContext currentContext] _copyBits:state fromRect:srcRect toPoint:destPoint];
+	// FIXME: should we save/restore the compositing operation?
+	[ctxt setCompositingOperation:NSCompositeCopy];
+	[ctxt _copyBits:state fromRect:srcRect toPoint:destPoint];
 }
 
 void NSCountWindows(int *count)

@@ -735,16 +735,15 @@ printing
 
 - (void) _setWindow:(NSWindow *)newWindow
 {
-	int i, count;
 	if(_window == newWindow)
 		return;	// no change
 	[self viewWillMoveToWindow:newWindow];
-	count = [sub_views count];
+	[_bounds2base release], _bounds2base=nil;
+	[_base2bounds release], _base2bounds=nil;	// no recursion required (done through _setWindow)
 	if([_window firstResponder] == self)
 		[_window makeFirstResponder:nil];	// we are currently the first responder of the old window
 	_window=newWindow;	// set new window
-	for (i = 0; i < count; ++i)				// Pass down to all subviews
-		[[sub_views objectAtIndex:i] _setWindow:newWindow];
+	[sub_views makeObjectsPerformSelector:_cmd withObject:newWindow];	// recursively for all subviews
 	nInvalidRects=0;	// clear cache
 	[self setNeedsDisplayInRect:_bounds];	// we need to be redisplayed completely in the new window
 	[self viewDidMoveToWindow];
@@ -970,6 +969,9 @@ printing
 { // create transformation matrix
 	if(!_bounds2frame)
 		{ // FIXME: can we optimize this if(!_v.customBounds) ???
+#if 0
+		NSLog(@"calculating bounds2frame: %@", self);
+#endif
 		_bounds2frame=[[NSAffineTransform alloc] init];	// create a new transform
 #if 0
 		if(_bounds.origin.x != 0 || _bounds.origin.y != 0)
@@ -1018,6 +1020,9 @@ printing
 {
 	if(!_frame2bounds)
 		{ // not cached
+#if 0
+		NSLog(@"calculating _frame2bounds: %@", self);
+#endif
 		_frame2bounds=[[self _bounds2frame] copy];
 		[_frame2bounds invert];	// go back from window to our bounds coordinates
 		}
@@ -1030,6 +1035,9 @@ printing
 		NSLog(@"Not yet part of the window hierarchy - CTM is invalid: %@", self);
 	if(!_bounds2base)
 		{
+#if 0
+		NSLog(@"calculating _bounds2base: %@", self);
+#endif
 		if(super_view)
 			{
 			_bounds2base=[[self _bounds2frame] copy];
@@ -1055,6 +1063,9 @@ printing
 {
 	if(!_base2bounds)
 		{ // not cached
+#if 0
+		NSLog(@"calculating _base2bounds: %@", self);
+#endif
 		_base2bounds=[[self _bounds2base] copy];
 		[_base2bounds invert];	// go back from window to our bounds coordinates
 		}
@@ -1474,7 +1485,7 @@ printing
 			}
 		if(NSIntersectsRect(rect, invalidRects[i]))
 			{
-#if 1
+#if 0
 			NSLog(@"drawing rect %@ intersects %@ for %@", NSStringFromRect(rect), NSStringFromRect(invalidRects[i]), self);
 #endif
 			// what if it intersects???
@@ -1719,13 +1730,20 @@ printing
 	[super_view scrollPoint:aPoint];	// NSClipView will overrride
 }
 
+// FIXME:
+// [clipView scrollRect:NSMakeRect(0, 0, 100, 100) by:NSMakeSize(10, 30)];
+// on MacOS X this defines a rect starting at the lower left corner and moves right/up, i.e. unflipped coordinates
+// (at least if the contentView is a NSImageView)
+// we must also fix scrollToPoint: in NSClipView to match this
+
 - (void) scrollRect:(NSRect)src by:(NSSize)delta
 { // scroll the rect by given delta (called by scrollPoint)
 	NSRect dest;
-	if((delta.width == 0.0 && delta.height == 0.0) || NSIsEmptyRect(src))
+	if(src.size.width <= 0.0 || src.size.height <= 0.0 || (delta.width == 0.0 && delta.height == 0.0) || NSIsEmptyRect(src))
 		return;	// nothing to scroll
+	dest=NSOffsetRect(src, delta.width, delta.height);	
+	// check if dest is visible at all (e.g. any intersection with bounds)
 	[self lockFocus];	// prepare for drawing
-	dest=NSOffsetRect(src, delta.width, delta.height);
 //	NSRectClip(dest);	// clip to dest rectangle
 	NSCopyBits(0, src, dest.origin);	// copy source rect in current graphics state
 	if(_NSShowAllDrawing)

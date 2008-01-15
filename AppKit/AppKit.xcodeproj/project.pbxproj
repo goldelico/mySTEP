@@ -902,6 +902,7 @@
 		EE469E5D0D1B9D9000E99DA0 /* NSViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSViewController.h; sourceTree = "<group>"; };
 		EE469E5E0D1B9D9000E99DA0 /* NSViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSViewController.m; sourceTree = "<group>"; };
 		EE46D7A20D1BF11A00E99DA0 /* ANNOUNCE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ANNOUNCE; path = ../../ANNOUNCE; sourceTree = "<group>"; };
+		EE4CA9E70D3D082E00B1513B /* trunk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = trunk; path = ../GNUstep/gui/trunk; sourceTree = SOURCE_ROOT; };
 		EE4CC7100B3546F300B04C5F /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PrintProgressPanel.nib; sourceTree = "<group>"; };
 		EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = GSColorWheel.jpg; sourceTree = "<group>"; };
 		EE52832F09A1FB2E00218247 /* NSCursor.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSCursor.m; sourceTree = "<group>"; };
@@ -1146,7 +1147,7 @@
 		EEACF8A409ED3A9F0085F56E /* NSDrawer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDrawer.m; sourceTree = "<group>"; };
 		EEB143C30D1260A2001212B5 /* NSTrackingArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTrackingArea.h; sourceTree = "<group>"; };
 		EEB143C40D1260A2001212B5 /* NSTrackingArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTrackingArea.m; sourceTree = "<group>"; };
-		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEC8036209AE4EBF006EEB03 /* mySTEP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mySTEP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EECD83250A0788DB00EF3E30 /* NSLevelIndicator.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSLevelIndicator.m; sourceTree = "<group>"; };
 		EECD83560A07940600EF3E30 /* NSDatePicker.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDatePicker.m; sourceTree = "<group>"; };
@@ -1246,6 +1247,7 @@
 				EED24EBF0D10395600D4D9B0 /* MacPorts Includes */,
 				EEA3309609537E48001244CF /* Resources */,
 				EE3196E109AB7E8A0089A9A2 /* mySTEP Test */,
+				EE4CA9E30D3D080100B1513B /* GNUstep */,
 				EEA370FA09540051001244CF /* mySTEP Frameworks */,
 				EEA374C009542133001244CF /* MacOS X Frameworks */,
 				EE29D8D8058A38830035639B /* Products */,
@@ -1304,6 +1306,15 @@
 			);
 			name = "mySTEP Test";
 			path = ../TestApplications/NIB;
+			sourceTree = "<group>";
+		};
+		EE4CA9E30D3D080100B1513B /* GNUstep */ = {
+			isa = PBXGroup;
+			children = (
+				EE4CA9E70D3D082E00B1513B /* trunk */,
+			);
+			name = GNUstep;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		EE52F20D0B8F2F090093595A /* Views & Cells */ = {

@@ -234,12 +234,14 @@ static Class __rulerViewClass = nil;
 			amount = (scroller == _horizScroller)?_horizontalLineScroll:_verticalLineScroll;
 			break;
 		case NSScrollerIncrementPage:
+			// FIXME: this amount is the delta to a full page - i.e. ask the contentView for a page height
 			amount = (scroller == _horizScroller)?_horizontalPageScroll:_verticalPageScroll;
 			break;
 		case NSScrollerDecrementLine:
 			amount = -((scroller == _horizScroller)?_horizontalLineScroll:_verticalLineScroll);
 			break;
 		case NSScrollerDecrementPage:
+			// FIXME: this amount is the delta to a full page - i.e. ask the contentView for a page height
 			amount = -((scroller == _horizScroller)?_horizontalPageScroll:_verticalPageScroll);
 			break;
 		default:

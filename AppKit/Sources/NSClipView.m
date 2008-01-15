@@ -59,6 +59,7 @@
 	if ((_documentView = aView)) 
 		{ // add new
 		[self addSubview:_documentView];
+		[self _invalidateCTM];		// our isFlipped state may change
 		[_documentView setNeedsDisplay:YES];	// this should set ourselves dirty
 		// Register for notifications sent by the document view 
 		[_documentView setPostsFrameChangedNotifications:YES];
@@ -238,7 +239,14 @@
 
 - (id) documentView								{ return _documentView; }
 - (BOOL) isOpaque								{ return YES; }
-//- (BOOL) isFlipped								{ return [_documentView isFlipped]; }
+
+/* FIXME/CHECKME: do we really have to track the isFlipped status of the documentView???
+this is how it should be
+but this results in problems with NSTextViews (unflipped) embedded in a NSScrollView (flipped)
+because this reverses the writing direction within the text container
+*/
+// - (BOOL) isFlipped								{ return [_documentView isFlipped]; }
+
 - (BOOL) isFlipped								{ return YES; }
 - (BOOL) copiesOnScroll							{ return _clip.copiesOnScroll; }
 - (BOOL) drawsBackground;						{ return _clip.drawsBackground; }
@@ -283,33 +291,39 @@
 		delta.width = start.origin.x - _bounds.origin.x;
 		if(delta.width == 0.0 && delta.height == 0.0)
 			return;	// not moved
-		
-#if 1
-		_NSShowAllDrawing=YES;
+#if 0
+		{
+			extern BOOL _NSShowAllViews;
+			extern BOOL _NSShowAllDrawing;
+			_NSShowAllDrawing=YES;
+			_NSShowAllViews=YES;
+		}
 #endif
 
-		ySlice=(NSRect) { NSZeroPoint, { start.size.width, 0.0 } };
-		xSlice=(NSRect) { NSZeroPoint, { 0.0, start.size.height } };
+		ySlice=(NSRect) { start.origin, { start.size.width, 0.0 } };
+		xSlice=(NSRect) { start.origin, { 0.0, start.size.height } };
 
 		if(delta.height < 0)		 		// scroll down, i.e. move document up
 			{
-			src.size.height += delta.height;
-			src.origin.y -= delta.height;	// is negative
+			src.size.height += delta.height;	// is negative
+			src.origin.y -= 2.0*delta.height;	// is negative
 			ySlice.size.height = -delta.height;
-			ySlice.origin.y = NSMaxY(start) - ySlice.size.height;
+			ySlice.origin.y = NSMaxY(start);
 			}
-		else if(delta.width > 0)			// scroll up, i.e. move document down
-			{												
+		else if(delta.height > 0)			// scroll up, i.e. move document down
+			{
 			src.size.height -= delta.height;
+			src.origin.y -= delta.height;
 			ySlice.size.height = delta.height;
+			ySlice.origin.y -= delta.height;
 			}
 
 		if(delta.width < 0)		 			// scroll doc left
-			{											
+			{
 			src.size.width += delta.width;
-			src.origin.y -= delta.width;	// is negative!
+			src.origin.x -= delta.width;	// is negative!
 			xSlice.size.width = -delta.width;
-			xSlice.origin.y = NSMaxX(start) - xSlice.size.width;
+			xSlice.origin.x = NSMaxX(start) - xSlice.size.width;
 			ySlice.size.width += delta.width;
 			}
 		else if(delta.width > 0)
@@ -326,7 +340,7 @@
 		// ySlice - a horizontal rect where to draw fresh content
 		// xSlice - a vertical rect where to draw fresh content
 
-		[self scrollRect:src by:delta];		// if threre is anything to copy
+		[self scrollRect:src by:delta];		// if there is anything to copy (src.size.height/width may be negative)
 		if(!NSIsEmptyRect(xSlice))
 			{ // redraw along x axis
 #if 0

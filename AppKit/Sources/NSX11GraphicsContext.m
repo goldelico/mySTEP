@@ -666,11 +666,11 @@ typedef struct
 	_xRect.x=NSMinX(_windowRect);
 	_xRect.y=NSMaxY(_windowRect);
 	_xRect.width=NSWidth(_windowRect);
-	_xRect.height=NSMinY(_windowRect)-NSMaxY(_windowRect);	// _windowRect.size.heigh is negative (!)
+	_xRect.height=NSMinY(_windowRect)-NSMaxY(_windowRect);	// _windowRect.size.height is negative (!)
 	if(_xRect.width == 0) _xRect.width=48;
 	if(_xRect.height == 0) _xRect.height=49;
 #if 0
-	NSLog(@"XCreateWindow(%@)", NSStringFromXRect(_xRect));	// _windowRect.size.heigh is negative
+	NSLog(@"XCreateWindow(%@)", NSStringFromXRect(_xRect));
 #endif
 	win=XCreateWindow(_display,
 					  RootWindowOfScreen(_nsscreen->_screen),		// create an X window on the screen defined by RootWindow
@@ -1618,8 +1618,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	 * clip to visible area (by clipping box, window and screen - note: window may be partially outside of screen)
 	 */
 	XClipBox(_state->_clip, &box);	// clip as defined by drawing code
-	// FIXME: clip by screen rect (if window is partially offscreen)
+#if 0
+	NSLog(@"  clip box=%@", NSStringFromXRect(box));
+#endif
+	XIntersect(&xScanRect, &box);
 	/*
+	 FIXME: clip by screen rect (if window is partially offscreen)
+	
 	 for this calculation use:
 	 WidthOfScreen(_screen);			// screen width in pixels
 	 HeightOfScreen(_screen);			// screen height in pixels
@@ -1631,10 +1636,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		box.x-=windowRect.x, box.width+=windowRect.x;
 	 
 	 */
-#if 0
-	NSLog(@"  clip box=%@", NSStringFromXRect(box));
-#endif
-	XIntersect(&xScanRect, &box);
 #if 0
 	NSLog(@"  final scan box=%@", NSStringFromXRect(xScanRect));
 #endif
@@ -1816,29 +1817,31 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	return YES;
 }
 
-// FIXME: this uses the current translated composition operation!!!
-
 - (void) _copyBits:(void *) srcGstate fromRect:(NSRect) srcRect toPoint:(NSPoint) destPoint;
 { // copy srcRect using CTM from (_NSX11GraphicsState *) srcGstate to destPoint transformed by current CTM
 	XRectangle src, dest;
-#if 1
-	static GC gc;	// this is a GC with neutral image processing options
 	[self _setCompositing];
-	if(!gc)
-		gc=XCreateGC(_display, (Window) _graphicsPort, 0, NULL);	// create a default GC
-#endif
 	srcRect.origin=[((_NSX11GraphicsState *) srcGstate)->_ctm transformPoint:srcRect.origin];
 	srcRect.size=[((_NSX11GraphicsState *) srcGstate)->_ctm transformSize:srcRect.size];
 	destPoint=[_state->_ctm transformPoint:destPoint];
-	src.width=srcRect.size.width;
-	src.height=srcRect.size.height;
 	src.x=srcRect.origin.x;
-	src.y=srcRect.origin.y-srcRect.size.height;	// start src rect at top
+	src.y=srcRect.origin.y;
+	src.width=srcRect.size.width;
+	if(srcRect.size.height < 0)
+		{
+		src.height=-srcRect.size.height;	// negative if not flipped 
+		src.y-=src.height;					// caller expects he has specified bottom+left of rect
+		dest.y=(int)(destPoint.y)-dest.height;
+		}
+	else
+		{
+		src.height=srcRect.size.height;
+		dest.y=destPoint.y;
+		}
 	dest.width=src.width;
 	dest.height=src.height;
 	dest.x=destPoint.x;
-	dest.y=destPoint.y-dest.height;
-#if 1
+#if 0
 	NSLog(@"_copyBits from %@ to %@", NSStringFromXRect(src), NSStringFromXRect(dest));
 	NSLog(@"  src-win=%d", (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort));
 	NSLog(@"  dest-win=%d", _graphicsPort);
@@ -1848,7 +1851,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XFillRectangles(_display, ((Window) _graphicsPort), gc, &src, 1);
 	_setDirtyRect(self, src.x, src.y, src.width, src.height);
 #endif
-#if 1
+#if 0
 	XSetForeground(_display, gc, 0xaaaaaa);
 	XFillRectangles(_display, ((Window) _graphicsPort), gc, &dest, 1);
 	_setDirtyRect(self, dest.x, dest.y, dest.width, dest.height);
@@ -1856,8 +1859,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XCopyArea(_display,
 			  (Window) (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort),	// source window/bitmap
 			  ((Window) _graphicsPort),
-			 // _state->_gc,	// wirklich???
-			  gc,
+			  _state->_gc,	// defines clipping etc.
 			  src.x, src.y,
 			  src.width, src.height,
 			  dest.x, dest.y);
@@ -3853,9 +3855,10 @@ static NSDictionary *_x11settings;
 		{
 		if(_image)
 			{
+			NSBitmapImageRep *bestRep = [_image bestRepresentationForDevice:nil];	// get device description??
+			NSLog(@"convert %@ to PixmapCursor", bestRep);
 #if FIXME
 			// we should lockFocus on a Pixmap and call _draw:bestRep
-			NSBitmapImageRep *bestRep = [_image bestRepresentationForDevice:nil];	// get device description??
 			Pixmap mask = (Pixmap)[bestRep xPixmapMask];
 			Pixmap bits = (Pixmap)[bestRep xPixmapBitmap];
 			_cursor = XCreatePixmapCursor(_display, bits, mask, &fg, &bg, _hotSpot.x, _hotSpot.y);

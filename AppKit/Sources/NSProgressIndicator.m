@@ -67,6 +67,8 @@ NSImage *images[maxCount];
 	[super dealloc];
 }
 
+- (BOOL) isFlipped							{ return YES; }
+
 - (void)animate:(id)sender
 {
 	if (!_isIndeterminate)

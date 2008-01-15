@@ -427,6 +427,7 @@ static Class _sliderCellClass;
 
 - (NSImage *) image							{ return [_cell image]; }
 - (int) isVertical							{ return [_cell isVertical]; }
+// NOT TESTED: - (BOOL) isFlipped							{ return YES; }
 - (float) knobThickness						{ return [_cell knobThickness]; }
 - (void) setImage:(NSImage*)backgroundImg	{ [_cell setImage:backgroundImg]; }
 - (void) setKnobThickness:(float)aFloat		{ [_cell setKnobThickness:aFloat];}
