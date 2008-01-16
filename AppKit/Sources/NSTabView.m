@@ -161,6 +161,20 @@
 
 @implementation NSTabView
 
+static struct _NSTabViewSizing
+{
+	float hspacing;		// horizontal spacing
+	float baseline;		// baseline
+	float tabheight;	// height of a tab
+	float voffset;		// vertical offset for contentRect
+	NSSize adjust;		// adjustment (inset) for contentRect
+} tsz[]={
+	{ 24.0, 4.0, 20.0, 10.0, { 10.0, 23.0 } },
+	{ 24.0, 2.0, 16.0, 5.0, { 10.0, 19.0 } },
+	{ 20.0, 3.0, 13.0, 3.0, { 10.0, 16.0 } },
+	{ 24.0, 4.0, 20.0, 10.0, { 10.0, 23.0 } },
+};
+
 - (id) initWithFrame:(NSRect)rect
 {
 	if((self=[super initWithFrame:rect]))
@@ -175,7 +189,7 @@
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"%@ items %@", [super description], tab_items];
+	return [NSString stringWithFormat:@"%@ csize %d type %d items %@", [super description], _controlSize, tab_type, tab_items];
 }
 
 - (void) addTabViewItem:(NSTabViewItem *)tabViewItem
@@ -361,7 +375,7 @@
 
 - (void) setControlSize:(NSControlSize) sz
 {
-	_controlSize = sz;
+	_controlSize = sz&3;
 	[self setTabViewType:tab_type];	// resize
 }
 
@@ -388,24 +402,9 @@
 				float hspacing;
 				NSRect tabRect=[self bounds];
 				float width=0.0;
-				switch(_controlSize)
-					{
-					case NSMiniControlSize:
-						hspacing=20.0;
-						tabRect.origin.y+=tabRect.size.height-16.0;
-						tabRect.size.height=13.0;
-						break;
-					case NSSmallControlSize:
-						hspacing=24.0;
-						tabRect.origin.y+=tabRect.size.height-18.0;
-						tabRect.size.height=16.0;
-						break;
-					case NSRegularControlSize:
-					default:
-						hspacing=24.0;
-						tabRect.origin.y+=tabRect.size.height-24.0;
-						tabRect.size.height=20.0;
-					}
+				hspacing=tsz[_controlSize].hspacing;
+				tabRect.origin.y+=tsz[_controlSize].baseline;
+				tabRect.size.height=tsz[_controlSize].tabheight;
 				for(i = 0; i < numberOfTabs; i++) 
 					{ // calculate total width of all tabs (to center)
 					NSTabViewItem *anItem = [tab_items objectAtIndex:i];
@@ -425,50 +424,29 @@
 - (NSRect) contentRect
 {
 	NSRect rect=[self bounds];
-	float adjust;
 	rect.origin=NSZeroPoint;
-	switch(_controlSize)
-		{
-		case NSMiniControlSize:
-			adjust=10.0;
-			break;
-		case NSSmallControlSize:
-			adjust=12.0;
-			break;
-		case NSRegularControlSize:
-		default:
-			adjust=16.0;
-		}
 	switch(tab_type) 
 		{
+/*
 		case NSLeftTabsBezelBorder:
-			rect.origin.x+=8.0;
-			rect.size.width-=16.0;
 			rect.origin.y+=8.0;
 			break;
 		case NSRightTabsBezelBorder:
-			rect.origin.x+=8.0;
-			rect.size.width-=16.0;
 			rect.origin.y+=8.0;
 			break;
+*/
 		case NSBottomTabsBezelBorder:
-			rect.origin.x+=10.0;
-			rect.size.width-=16.0;
-			rect.origin.y+=13.0;
-//			rect.size.height+=0.0;
-			rect.size.height-=adjust;
+			rect.origin.y-=2.0*tsz[_controlSize].voffset;
 			break;
 		case NSTopTabsBezelBorder:
-			rect.origin.x+=8.0;
-			rect.size.width-=16.0;
-			rect.origin.y+=8.0+adjust;
-			rect.size.height-=adjust;
 			break;
 		case NSNoTabsBezelBorder:
 		case NSNoTabsLineBorder:
 		default:
-			break;
+			return rect;
 		}
+	rect.origin.y+=tsz[_controlSize].voffset;
+	rect=NSInsetRect(rect, tsz[_controlSize].adjust.width, tsz[_controlSize].adjust.height);
 	return rect;
 }
 
@@ -488,33 +466,23 @@
 	unsigned i, numberOfTabs = [tab_items count];
 	float width=0.0;
 	float hspacing;
-	NSRect tabRect=[self bounds], borderRect=tabRect;
-	switch(_controlSize)
-		{
-		case NSMiniControlSize:
-			hspacing=20.0;
-			tabRect.origin.y+=3.0;
-			tabRect.size.height=13.0;
-			break;
-		case NSSmallControlSize:
-			hspacing=24.0;
-			tabRect.origin.y+=2.0;
-			tabRect.size.height=16.0;
-			break;
-		case NSRegularControlSize:
-		default:
-			hspacing=24.0;
-			tabRect.origin.y+=4.0;
-			tabRect.size.height=20.0;
-		}
+	NSRect tabRect=[self bounds];
+	NSRect borderRect;
+	float delta;
+	// FIXME: can we skip/optimize this if we have NSNoTabs*Border?
+	hspacing=tsz[_controlSize].hspacing;
+	tabRect.origin.y+=tsz[_controlSize].baseline;
+	tabRect.size.height=tsz[_controlSize].tabheight;
 	for(i = 0; i < numberOfTabs; i++) 
 		{ // calculate total width of all tabs (to center)
 		NSTabViewItem *anItem = [tab_items objectAtIndex:i];
 		width+=[anItem sizeOfLabel:tab_truncated_label].width;
 		}
 	tabRect.origin.x=(tabRect.size.width-width-numberOfTabs*hspacing)/2.0;	// start at center
-	borderRect.origin.y=tabRect.origin.y+tabRect.size.height/2.0-0.5;	// cut tabs in the middle
-	borderRect.size.height-=borderRect.origin.y;
+	borderRect=NSInsetRect([self contentRect], -3.0, -3.0);	// basically around tabs
+	delta=borderRect.origin.y-(tabRect.origin.y+tabRect.size.height/2.0-0.5);
+	borderRect.origin.y-=delta;
+	borderRect.size.height+=delta;
 	switch(tab_type) 
 		{
 		case NSLeftTabsBezelBorder:
@@ -524,13 +492,15 @@
 		case NSNoTabsBezelBorder:
 			{
 				NSBezierPath *b;
-				borderRect.origin.x+=8.0;
-				borderRect.size.width-=16.0;
 				b=[NSBezierPath _bezierPathWithBoxBezelInRect:borderRect radius:6.0];
 				[[NSColor controlHighlightColor] set];
 				[b fill];
 				[[NSColor lightGrayColor] set];
 				[b stroke];
+#if 0
+				[[NSColor redColor] set];
+				NSRectFill([self contentRect]);
+#endif
 				break;
 			}
 		case NSNoTabsLineBorder:
@@ -638,14 +608,14 @@
 		tab_draws_background=[aDecoder decodeBoolForKey:@"NSDrawsBackground"];
 		vFlags=[aDecoder decodeIntForKey:@"NSTvFlags"];
 #define NEEDSLAYOUT ((vFlags&0x80000000)!=0)
-#define CONTROLTINT ((vFlags&0x70000000)>>28)	// ???
+#define CONTROLTINT ((vFlags>>28)&7)	// ???
 		_controlTint=CONTROLTINT;
-#define CONTROLSIZE ((vFlags&0x18000000)>>27)
+#define CONTROLSIZE ((vFlags>>27)&3)
 		_controlSize=CONTROLSIZE;
 #if 0
 		NSLog(@"vFlags=%08x controlSize=%d", vFlags, _controlSize);
 #endif
-#define TABTYPE (vFlags&0x00000007)
+#define TABTYPE ((vFlags>>0)&0x00000007)
 		tab_type=TABTYPE;
 		tab_items=[[aDecoder decodeObjectForKey:@"NSTabViewItems"] retain];
 		tab_font=[[aDecoder decodeObjectForKey:@"NSFont"] retain];
