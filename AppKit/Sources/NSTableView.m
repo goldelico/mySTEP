@@ -720,7 +720,6 @@
 	self=[super initWithFrame:frameRect];
 	if(self)
 		{
-		_tv.initializing=YES;
 		_intercellSpacing = (NSSize){2,2};
 		_rowHeight = 17;
 		_headerView = [[NSTableHeaderView alloc] initWithFrame:h];
@@ -735,8 +734,6 @@
 		_gridColor = [[NSColor gridColor] retain];
 		_tv.allowsColumnReordering = YES;
 		_tv.allowsColumnResizing = YES;
-		_tv.initializing=NO;
-		_tv.needsTiling=YES;
 		}
 	return self;
 }
@@ -843,35 +840,17 @@
 - (NSSize) intercellSpacing					{ return _intercellSpacing; }
 - (NSArray*) tableColumns					{ return _tableColumns; }
 - (int) numberOfColumns						{ return [_tableColumns count]; }
-
-- (int) numberOfRows							 
-{
-#if 0
-	NSLog(@"numberOfRows: %@", self);
-#endif
-	if(_numberOfRows == NSNotFound)
-		{ // not in cache, ask delegate
-		if(_tv.initializing || !_dataSource)
-			return 0;	// don't ask data source before it exists
-		_numberOfRows=[_dataSource numberOfRowsInTableView:self];
-		if(_tv.delegateProvidesHeightOfRow)
-			[self noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _numberOfRows)]];
-		}
-	return _numberOfRows;
-}
-
-// quite a hack but we can't guarantee that the data source is already initialized when we do first things
-
-- (void) awakeFromNib
-{
-	NSLog(@"awakeFromNib %@", self);
-	[self reloadData];	// needs to reload after awake
-}
+- (int) numberOfRows						{ return _numberOfRows; }
 
 - (void) noteNumberOfRowsChanged
 { // clear cache
-	/* immediately update the scroller size/positions */
-	_numberOfRows=NSNotFound;
+	int n=_numberOfRows;
+	if(!_window || !super_view || !_dataSource)
+		return;	// don't ask data source before it exists
+	_numberOfRows=[_dataSource numberOfRowsInTableView:self];
+	if(_numberOfRows == n)
+		return;	// hsan't really changed
+	[self noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _numberOfRows)]];
 }
 
 - (void) noteHeightOfRowsWithIndexesChanged:(NSIndexSet *) idx;
@@ -881,10 +860,11 @@
 		unsigned first=[idx firstIndex];
 		while(first != NSNotFound)
 			{
-			// do something, i.e. request redraw, update row position tree
+			// do something, i.e. update row position tree
 			first=[idx indexGreaterThanIndex:first];
 			}
 		}
+	[self tile];
 }
 
 - (void) addTableColumn:(NSTableColumn *)column 
@@ -1729,7 +1709,11 @@ int index = [self columnWithIdentifier:identifier];
 {
 	int rows;
 	int cols;
-	if(_dataSource)
+#if 1
+	if(!_window)
+		NSLog(@"tiling without window %@", self);
+#endif
+	if(_window && _dataSource)
 		{
 		rows = [self numberOfRows];
 		cols = [_tableColumns count];
@@ -1745,6 +1729,11 @@ int index = [self columnWithIdentifier:identifier];
 			float minH = super_view?[super_view bounds].size.height:10;
 			NSRect r;
 			float lheight;
+			if(!sv || !_headerView || !super_view)
+				{
+				NSLog(@"can't tile %@", self);
+				return;
+				}
 			if(rows > 0)
 				r = [self rectOfRow:rows - 1];	// up to last row
 			else
@@ -1777,7 +1766,6 @@ int index = [self columnWithIdentifier:identifier];
 			[sv setVerticalPageScroll:lheight];	// scroll by one page keeping one line visible
 	//		[sv setHorizontalLineScroll:??];
 			[sv setHorizontalPageScroll:0.0];
-			_tv.needsTiling=NO;
 			}
 		}
 	[self setNeedsDisplay:YES];
@@ -1793,11 +1781,13 @@ int index = [self columnWithIdentifier:identifier];
 #endif
 	// end any editing
 	[self noteNumberOfRowsChanged];
-	[self tile];
 #if 0
 	NSLog(@"reloadData done.");
 #endif
 }
+
+- (void) viewDidMoveToWindow;		{ [self tile]; }
+- (void) viewDidMoveToSuperView;	{ [self tile]; }
 
 - (void) drawRect:(NSRect)rect								// Draw tableview
 {
@@ -1807,8 +1797,6 @@ int index = [self columnWithIdentifier:identifier];
 #if 0
 	NSLog(@"drawRect of %@: %@", self, NSStringFromRect(rect));
 #endif
-	if(_tv.needsTiling)
-		NSLog(@"table view needs tiling before drawing");
 	if(_cacheOrigin != NSMinX(rect) || (_cacheWidth != NSWidth(rect)))
 		{
 		_cacheOrigin = NSMinX(rect);						// cache col origin
@@ -2084,7 +2072,6 @@ int index = [self columnWithIdentifier:identifier];
 		long tvFlags=[aDecoder decodeInt32ForKey:@"NSTvFlags"];
 		int i;
 		NSNull *null=[NSNull null];
-		_tv.initializing=YES;
 #if 1
 		NSLog(@"TvFlags=%08lx", tvFlags);
 #endif
@@ -2130,8 +2117,6 @@ int index = [self columnWithIdentifier:identifier];
 		NSLog(@"initWithCoder -> enclosingScrollView=%@", [[self enclosingScrollView] _descriptionWithSubviews]);
 #endif
 		_numberOfRows=NSNotFound;	// recache
-		_tv.initializing=NO;
-		_tv.needsTiling=YES;
 		return self;
 		}
 	[aDecoder decodeValueOfObjCType: "i" at: &_lastSelectedColumn];
