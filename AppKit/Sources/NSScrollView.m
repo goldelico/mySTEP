@@ -395,6 +395,10 @@ static Class __rulerViewClass = nil;
 { // calculate layout: scrollers on right or bottom - headerView on top of contentView - note that we have flipped coordinates!
 	NSRect vertScrollerRect, horizScrollerRect, contentRect;
 	float borderThickness=0;
+#if 1
+	if(!_window)
+		NSLog(@"tiling without window %@", self);
+#endif
 	if(_prohibitTiling)
 		{
 		return;	// temporarily disabled during initWithCoder:
@@ -479,6 +483,9 @@ static Class __rulerViewClass = nil;
 	[_contentView setFrame:contentRect];	// this may recurse if scrollers are auto-hidden/unhidden
 	[_contentView setNeedsDisplay:YES];		// mark as dirty
 }
+
+- (void) viewDidMoveToWindow;		{ [self tile]; }
+- (void) viewDidMoveToSuperView;	{ [self tile]; }
 
 - (void) drawRect:(NSRect)rect
 {
