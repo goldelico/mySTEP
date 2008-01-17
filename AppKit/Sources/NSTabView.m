@@ -169,10 +169,10 @@ static struct _NSTabViewSizing
 	float voffset;		// vertical offset for contentRect
 	NSSize adjust;		// adjustment (inset) for contentRect
 } tsz[]={
-	{ 24.0, 4.0, 20.0, 10.0, { 10.0, 23.0 } },
-	{ 24.0, 2.0, 16.0, 5.0, { 10.0, 19.0 } },
-	{ 20.0, 3.0, 13.0, 3.0, { 10.0, 16.0 } },
-	{ 24.0, 4.0, 20.0, 10.0, { 10.0, 23.0 } },
+	{ 24.0, 5.0, 20.0, 10.0, { 10.0, 23.0 } },
+	{ 24.0, 3.0, 16.0, 5.0, { 10.0, 19.0 } },
+	{ 20.0, 4.0, 13.0, 3.0, { 10.0, 16.0 } },
+	{ 24.0, 5.0, 20.0, 10.0, { 10.0, 23.0 } },
 };
 
 - (id) initWithFrame:(NSRect)rect
