@@ -232,8 +232,8 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	NSEnumerator *e=[connections objectEnumerator];
 	NSNibConnector *c;
 	id owner=[table objectForKey:NSNibOwner];
-	unsigned idx=[objects indexOfObject:rootObject];
 #if 0
+	unsigned idx=[objects indexOfObject:rootObject];
 	NSLog(@"loaded %ld connections", [connections count]);
 	NSLog(@"rootObject=%@ idx=%u", rootObject, idx);
 	NSLog(@"owner=%@", owner);
@@ -851,7 +851,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	if([name hasSuffix:@".nib"]) name=[name stringByDeletingPathExtension];
 	if(!(path=[bundle pathForResource:name ofType:@"nib" inDirectory:nil]))
 		{ [self release]; return nil; }
-#if 1
+#if 0
 	NSLog(@"bundle=%@", bundle);
 	NSLog(@"bundlePath=%@", [bundle bundlePath]);
 	NSLog(@"path=%@", path);

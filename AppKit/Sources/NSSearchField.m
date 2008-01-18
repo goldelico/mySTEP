@@ -240,7 +240,7 @@
 	_cancelButtonCell = [[aDecoder decodeObjectForKey:@"NSCancelButtonCell"] retain];
 	_searchButtonCell = [[aDecoder decodeObjectForKey:@"NSSearchButtonCell"] retain];
 	maxRecents = [aDecoder decodeIntForKey:@"NSMaximumRecents"];
-	sendsWholeSearchString = [aDecoder decodeIntForKey:@"NSSendsWholeSearchString"];
+	sendsWholeSearchString = [aDecoder decodeBoolForKey:@"NSSendsWholeSearchString"];
 	// NSSearchFieldFlags - NSData (?)
 	[self resetCancelButtonCell];
 	[self resetSearchButtonCell];

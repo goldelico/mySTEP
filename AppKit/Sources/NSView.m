@@ -586,9 +586,9 @@ printing
 													// Make ourselves the next 
 	[aView setNextResponder:self];					// responder of the view
 
-	[aView viewWillMoveToWindow:_window];
+//	[aView viewWillMoveToWindow:_window];	// already called by _setWindow
 	[aView _setWindow:_window];						// place on same window as we are
-	[aView viewDidMoveToWindow];					// Tell the view what 
+//	[aView viewDidMoveToWindow];					// Tell the view what 
 													// window it has moved to
 	[self didAddSubview:aView];
 	[aView setNeedsDisplay:YES];					// (re)draw incl. new view
@@ -967,7 +967,7 @@ printing
 
 - (NSAffineTransform*) _bounds2frame;
 { // create transformation matrix
-	if(!_bounds2frame)
+	if(_window && !_bounds2frame)
 		{ // FIXME: can we optimize this if(!_v.customBounds) ???
 #if 0
 		NSLog(@"calculating bounds2frame: %@", self);
@@ -1018,7 +1018,7 @@ printing
 
 - (NSAffineTransform *) _frame2bounds;
 {
-	if(!_frame2bounds)
+	if(_window && !_frame2bounds)
 		{ // not cached
 #if 0
 		NSLog(@"calculating _frame2bounds: %@", self);
@@ -1033,7 +1033,7 @@ printing
 { // transform base coordinates to NSWindow's base
 	if(!_window)
 		NSLog(@"Not yet part of the window hierarchy - CTM is invalid: %@", self);
-	if(!_bounds2base)
+	if(_window && !_bounds2base)
 		{
 #if 0
 		NSLog(@"calculating _bounds2base: %@", self);
@@ -1061,7 +1061,7 @@ printing
 
 - (NSAffineTransform *) _base2bounds;
 {
-	if(!_base2bounds)
+	if(_window && !_base2bounds)
 		{ // not cached
 #if 0
 		NSLog(@"calculating _base2bounds: %@", self);
@@ -1739,12 +1739,15 @@ printing
 - (void) scrollRect:(NSRect)src by:(NSSize)delta
 { // scroll the rect by given delta (called by scrollPoint)
 	NSRect dest;
+#if 1
+	NSLog(@"scrollRect:%@ by:%@ %@", NSStringFromRect(src), NSStringFromSize(delta), self);
+#endif
 	if(src.size.width <= 0.0 || src.size.height <= 0.0 || (delta.width == 0.0 && delta.height == 0.0) || NSIsEmptyRect(src))
 		return;	// nothing to scroll
-	dest=NSOffsetRect(src, delta.width, delta.height);	
-	// check if dest is visible at all (e.g. any intersection with bounds)
+	dest=NSOffsetRect(src, delta.width, delta.height);
+//	if(!NSIntersectsRect(dest, _bounds))
+//		return;	// no visible result
 	[self lockFocus];	// prepare for drawing
-//	NSRectClip(dest);	// clip to dest rectangle
 	NSCopyBits(0, src, dest.origin);	// copy source rect in current graphics state
 	if(_NSShowAllDrawing)
 		{ // show copy operation

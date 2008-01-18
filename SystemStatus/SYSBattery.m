@@ -148,11 +148,13 @@ static struct bat getbat(void)
 
 - (void) setBackLightLevel:(float) level;
 { // 0..1
+	
 }
 
 - (void) backLight:(BOOL) flag;
-{ // excplicitly on/off
+{ // switch excplicitly on/off
+	[self setBackLightLevel:flag?1.0:0.0];
 }
-â
+
 @end
 

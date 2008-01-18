@@ -97,12 +97,11 @@ static Class __rulerViewClass = nil;
 #endif
 	if((self=[super initWithFrame:rect]))
 		{
-		if(!_prohibitTiling)	// skip if called from initWithCoder
-			[self setContentView:[[NSClipView alloc] initWithFrame:rect]];	// install default content view
+		[self setContentView:[[NSClipView alloc] initWithFrame:rect]];	// install default content view
 		[self setLineScroll:10];
 		[self setPageScroll:40];
-		_borderType = NSBezelBorder;
-		_scrollsDynamically = YES;
+		_sv.borderType = NSBezelBorder;
+		_sv.scrollsDynamically = YES;
 		}
 	return self;
 }
@@ -142,12 +141,12 @@ static Class __rulerViewClass = nil;
 		[_horizScroller setAction:@selector(_doScroller:)];
 		}
 	else
-		_hasHorizScroller = NO; 
+		_sv.hasHorizScroller = NO; 
 }
 
 - (void) setHasHorizontalScroller:(BOOL)flag
 {
-	if (_hasHorizScroller == flag)
+	if (_sv.hasHorizScroller == flag)
 		return;
 	if (flag) 
 		{
@@ -159,7 +158,7 @@ static Class __rulerViewClass = nil;
 	else
 		[_horizScroller removeFromSuperviewWithoutNeedingDisplay];
 
-	_hasHorizScroller = flag;
+	_sv.hasHorizScroller = flag;
 	[self tile];
 }
 
@@ -175,12 +174,12 @@ static Class __rulerViewClass = nil;
 		[_vertScroller setAction:@selector(_doScroller:)];
 		}
 	else
-		_hasVertScroller = NO; 
+		_sv.hasVertScroller = NO; 
 }
 
 - (void) setHasVerticalScroller:(BOOL)flag
 {
-	if (_hasVertScroller == flag)
+	if (_sv.hasVertScroller == flag)
 		return;
 	if (flag) 
 		{
@@ -196,12 +195,12 @@ static Class __rulerViewClass = nil;
 	else
 		[_vertScroller removeFromSuperviewWithoutNeedingDisplay];
 
-	_hasVertScroller = flag;
+	_sv.hasVertScroller = flag;
 	[self tile];
 }
 
-- (void) setAutohidesScrollers:(BOOL)flag; { _autohidesScrollers=flag; }
-- (BOOL) autohidesScrollers; { return _autohidesScrollers; }
+- (void) setAutohidesScrollers:(BOOL)flag; { _sv.autohidesScrollers=flag; }
+- (BOOL) autohidesScrollers; { return _sv.autohidesScrollers; }
 - (BOOL) drawsBackground;	{ return [_contentView drawsBackground]; }
 - (void) setDrawsBackground:(BOOL) flag	
 {
@@ -311,9 +310,9 @@ static Class __rulerViewClass = nil;
 	clipViewBounds = [_contentView bounds];
 	if((documentView = [_contentView documentView]))
 		documentFrame = [documentView frame];
-	if(_hasVertScroller) 
+	if(_sv.hasVertScroller) 
 		{
-		hide = (_autohidesScrollers && documentFrame.size.height <= clipViewBounds.size.height);
+		hide = (_sv.autohidesScrollers && documentFrame.size.height <= clipViewBounds.size.height);
 		if([_vertScroller isHidden] != hide)
 			{ // needs to change
 			[_vertScroller setHidden:hide];
@@ -329,9 +328,9 @@ static Class __rulerViewClass = nil;
 						   knobProportion:knobProportion];
 			}
 		}
-	if(_hasHorizScroller) 
+	if(_sv.hasHorizScroller) 
 		{
-		hide = (_autohidesScrollers && documentFrame.size.width <= clipViewBounds.size.width);
+		hide = (_sv.autohidesScrollers && documentFrame.size.width <= clipViewBounds.size.width);
 		if([_horizScroller isHidden] != hide)
 			{ // needs to change
 			[_horizScroller setHidden:hide];
@@ -354,10 +353,9 @@ static Class __rulerViewClass = nil;
 
 - (void) setHasHorizontalRuler:(BOOL)flag						// FIX ME
 {
-	if (_hasHorizRuler == flag)
+	if (_sv.hasHorizRuler == flag)
 		return;
-
-	_hasHorizRuler = flag;
+	_sv.hasHorizRuler = flag;
 }
 
 - (void) setVerticalRulerView:(NSRulerView*)ruler				// FIX ME
@@ -367,10 +365,9 @@ static Class __rulerViewClass = nil;
 
 - (void) setHasVerticalRuler:(BOOL)flag							// FIX ME
 {
-	if (_hasVertRuler == flag)
+	if (_sv.hasVertRuler == flag)
 		return;
-
-	_hasVertRuler = flag;
+	_sv.hasVertRuler = flag;
 }
 
 - (void) setRulersVisible:(BOOL)flag
@@ -395,19 +392,18 @@ static Class __rulerViewClass = nil;
 { // calculate layout: scrollers on right or bottom - headerView on top of contentView - note that we have flipped coordinates!
 	NSRect vertScrollerRect, horizScrollerRect, contentRect;
 	float borderThickness=0;
-#if 1
-	if(!_window)
+	if(!_contentView || !_window || !super_view)
+		{ // no need to tile now
+#if 0
 		NSLog(@"tiling without window %@", self);
 #endif
-	if(_prohibitTiling)
-		{
-		return;	// temporarily disabled during initWithCoder:
+		return;
 		}
 #if 0
 	NSLog(@"tile %@", self);
 #endif
 	// FIXME: we should also tile the RulerViews
-	switch (_borderType) 
+	switch (_sv.borderType) 
 		{
 		case NSNoBorder:		borderThickness = 0; 	break;
 		case NSLineBorder:
@@ -419,8 +415,8 @@ static Class __rulerViewClass = nil;
 	contentRect.size = [isa contentSizeForFrameSize:_bounds.size
 							  hasHorizontalScroller:NO
 								hasVerticalScroller:NO
-										 borderType:_borderType];	// default size without any scrollers
-	if(_hasHorizScroller && _horizScroller && ![_horizScroller isHidden])
+										 borderType:_sv.borderType];	// default size without any scrollers
+	if(_sv.hasHorizScroller && _horizScroller && ![_horizScroller isHidden])
 		{ // make room for the horiz. scroller at the bottom
 		float height=[_horizScroller frame].size.height;
 		if(height < 1.0)
@@ -430,7 +426,7 @@ static Class __rulerViewClass = nil;
 		}
 	else
 		horizScrollerRect.size.height=0.0;
-	if(_hasVertScroller && _vertScroller && ![_vertScroller isHidden])
+	if(_sv.hasVertScroller && _vertScroller && ![_vertScroller isHidden])
 		{ // make room on the right side
 		float width=[_vertScroller frame].size.width;
 		if(width < 1.0)
@@ -444,7 +440,7 @@ static Class __rulerViewClass = nil;
 	else
 		vertScrollerRect=NSZeroRect;
 	
-	if(_hasHorizScroller)
+	if(_sv.hasHorizScroller)
 		{
 		horizScrollerRect.origin.x = NSMinX(contentRect);
 		horizScrollerRect.origin.y = NSMaxY(contentRect) + borderThickness;	// position below
@@ -470,12 +466,12 @@ static Class __rulerViewClass = nil;
 			[_cornerView setNeedsDisplay:YES];
 			}
 		}
-	if(_hasHorizScroller && _horizScroller)
+	if(_sv.hasHorizScroller && _horizScroller)
 		{
 		[_horizScroller setFrame:horizScrollerRect];
 		[_horizScroller setNeedsDisplay:YES];
 		}
-	if(_hasVertScroller && _vertScroller)
+	if(_sv.hasVertScroller && _vertScroller)
 		{
 		[_vertScroller setFrame:vertScrollerRect];
 		[_vertScroller setNeedsDisplay:YES];
@@ -493,7 +489,7 @@ static Class __rulerViewClass = nil;
 #if 0
 	NSLog(@"NSScrollView drawRect: %@", NSStringFromRect(rect));
 #endif
-	switch (_borderType) 
+	switch (_sv.borderType) 
 		{
 		// FIXME: this does not match tiling calculations and visual expectations
 		case NSLineBorder:
@@ -542,7 +538,7 @@ static Class __rulerViewClass = nil;
 
 - (void) setDocumentView:(NSView*)aView
 {
-#if 1
+#if 0
 	NSLog(@"NSScrollView setDocumentView:%@ _contentView=%@", aView, _contentView);
 #endif
 	if([_contentView documentView] == aView)
@@ -601,12 +597,12 @@ static Class __rulerViewClass = nil;
 			}
 		if(event == nil)
 			{ // timed out before we got the next event
-			_doubleLongClick=YES;
+			_sv.doubleLongClick=YES;
 			NSLog(@"NSScrollView doubleLongClick");
 			return self;
 			}
 		}
-	_doubleLongClick=NO;
+	_sv.doubleLongClick=NO;
 	return [super hitTest:aPoint];
 }
 
@@ -649,10 +645,10 @@ static Class __rulerViewClass = nil;
 
 - (void) mouseDown:(NSEvent *) event;
 {
-	if(_doubleLongClick)
+	if(_sv.doubleLongClick)
 		{
 		[self _doubleLongClick:event];
-		_doubleLongClick=NO;	// has been recognized as such
+		_sv.doubleLongClick=NO;	// has been recognized as such
 		}
 	else
 		[super mouseDown:event];
@@ -669,14 +665,14 @@ static Class __rulerViewClass = nil;
 	[_contentView setDocumentCursor:aCursor];
 }
 
-- (void) setBorderType:(NSBorderType)type			{ _borderType = type; }
-- (NSBorderType) borderType							{ return _borderType; }
+- (void) setBorderType:(NSBorderType)type			{ _sv.borderType = type; }
+- (NSBorderType) borderType							{ return _sv.borderType; }
 - (NSScroller*) horizontalScroller					{ return _horizScroller; }
 - (NSScroller*) verticalScroller					{ return _vertScroller; }
-- (BOOL) hasVerticalScroller						{ return _hasVertScroller; }
-- (BOOL) hasHorizontalScroller						{ return _hasHorizScroller; }
-- (BOOL) hasHorizontalRuler							{ return _hasHorizRuler; }
-- (BOOL) hasVerticalRuler							{ return _hasVertRuler; }
+- (BOOL) hasVerticalScroller						{ return _sv.hasVertScroller; }
+- (BOOL) hasHorizontalScroller						{ return _sv.hasHorizScroller; }
+- (BOOL) hasHorizontalRuler							{ return _sv.hasHorizRuler; }
+- (BOOL) hasVerticalRuler							{ return _sv.hasVertRuler; }
 - (BOOL) rulersVisible								{ return _horizRuler && ![_horizRuler isHidden]; }
 - (NSRulerView*) horizontalRulerView				{ return _horizRuler; }
 - (NSRulerView*) verticalRulerView					{ return _vertRuler; }
@@ -692,8 +688,8 @@ static Class __rulerViewClass = nil;
 - (float) verticalLineScroll						{ return _verticalLineScroll; }
 - (float) pageScroll								{ return [self verticalPageScroll]; }
 - (float) lineScroll								{ return [self verticalLineScroll]; }
-- (void) setScrollsDynamically:(BOOL)flag			{ _scrollsDynamically = flag; }
-- (BOOL) scrollsDynamically							{ return _scrollsDynamically; }
+- (void) setScrollsDynamically:(BOOL)flag			{ _sv.scrollsDynamically = flag; }
+- (BOOL) scrollsDynamically							{ return _sv.scrollsDynamically; }
 - (BOOL) isOpaque									{ return YES; }
 - (BOOL) isFlipped									{ return YES; }	// compatibility
 
@@ -710,7 +706,6 @@ static Class __rulerViewClass = nil;
 
 - (id) initWithCoder: (NSCoder *)aDecoder
 {
-	_prohibitTiling=YES;
 	self=[super initWithCoder:aDecoder];	// will call initWithFrame
 	if([aDecoder allowsKeyedCoding])
 		{
@@ -718,13 +713,13 @@ static Class __rulerViewClass = nil;
 		_horizScroller=[[aDecoder decodeObjectForKey:@"NSHScroller"] retain];
 		_vertScroller=[[aDecoder decodeObjectForKey:@"NSVScroller"] retain];
 #define BORDERTYPE			((sFlags&0x0003) >> 0)
-		_borderType=BORDERTYPE;
+		_sv.borderType=BORDERTYPE;
 #define VSCROLLER			((sFlags&0x0010) != 0)
 		[self setHasVerticalScroller:VSCROLLER];
 #define HSCROLLER			((sFlags&0x0020) != 0)
 		[self setHasHorizontalScroller:HSCROLLER];
 #define AUTOHIDE			((sFlags&0x0200) != 0)
-		_autohidesScrollers=AUTOHIDE;
+		_sv.autohidesScrollers=AUTOHIDE;
 #if 0
 		NSLog(@"%@ initWithCoder:%@ sFlags=%08x", self, aDecoder, sFlags);
 #endif
@@ -751,15 +746,13 @@ static Class __rulerViewClass = nil;
 #endif
 				}
 			}
-//		[self setContentView:[aDecoder decodeObjectForKey:@"NSContentView"]];
-		_contentView = [[aDecoder decodeObjectForKey:@"NSContentView"] retain];		// should load content and document view
+		[self setContentView:[aDecoder decodeObjectForKey:@"NSContentView"]];
+//		_contentView = [[aDecoder decodeObjectForKey:@"NSContentView"] retain];		// should load content and document view
 		[self setDrawsBackground:[aDecoder decodeBoolForKey:@"NSDrawsBackground"]];	// CHECKME: is this a property of the scrollview or the content view?
 #if 0
 		NSLog(@"%@ initWithCoder:%@ sFlags=%08x", self, aDecoder, sFlags);
 #endif
 		}
-	_prohibitTiling=NO;
-	[self tile];	// finally tile (!may fail to properly handle scrollers because they are not yet linked as subviews!)
 	return self;
 }
 

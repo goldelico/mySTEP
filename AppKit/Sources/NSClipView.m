@@ -273,12 +273,16 @@ because this reverses the writing direction within the text container
 	point.x = floor(point.x);			// avoid rounding errors by constraining the scroll to integer numbers
 	point.y = floor(point.y);
 	[self setBoundsOrigin:point];		// translate to new origin
+	[self resetCursorRects];
 }
 
 - (void) scrollPoint:(NSPoint) point
 { // point should lie within the bounds rect of self
 	NSRect start=_bounds;				// original origin
-	[super_view scrollClipView:self toPoint:point];	// this may round up/down and to a raster
+	[super_view scrollClipView:self toPoint:point];	// this should call scrollToPoint which may round up/down to raster
+#if 1
+	NSLog(@"scrollPoint %@", NSStringFromPoint(point));
+#endif
 #if 1	// handle copiesOnScroll
 	if(_clip.copiesOnScroll)
 		{
@@ -291,7 +295,7 @@ because this reverses the writing direction within the text container
 		delta.width = start.origin.x - _bounds.origin.x;
 		if(delta.width == 0.0 && delta.height == 0.0)
 			return;	// not moved
-#if 0
+#if 1
 		{
 			extern BOOL _NSShowAllViews;
 			extern BOOL _NSShowAllDrawing;
@@ -346,7 +350,7 @@ because this reverses the writing direction within the text container
 #if 0
 			NSLog(@"xSlice=%@", NSStringFromRect(xSlice));
 #endif
-			[self setNeedsDisplayInRect:xSlice];	// redraw background and subview(s)
+			[self displayRect:xSlice];	// redraw background and subview(s)
 			if(_NSShowAllDrawing)
 				{
 				[self lockFocus];
@@ -362,7 +366,9 @@ because this reverses the writing direction within the text container
 			}
 		if(!NSIsEmptyRect(ySlice))
 			{ // redraw along y axis
-			[self setNeedsDisplayInRect:ySlice];
+//			[self setNeedsDisplayInRect:ySlice];
+//			[_window displayIfNeeded];
+			[self displayRect:ySlice];
 			if(_NSShowAllDrawing)
 				{
 				[self lockFocus];
@@ -455,9 +461,9 @@ because this reverses the writing direction within the text container
 #if 0
 		NSLog(@"%@ initWithCoder:%@", self, aDecoder);
 #endif
-#define COPIESONSCROLL ((cvFlags&0x20)==0)
+#define COPIESONSCROLL ((cvFlags&0x02)==0)
 		_clip.copiesOnScroll = COPIESONSCROLL;
-#define DRAWSBACKGROUND ((cvFlags&0x40)!=0)
+#define DRAWSBACKGROUND ((cvFlags&0x04)!=0)
 		_clip.drawsBackground = DRAWSBACKGROUND;
 		_backgroundColor=[[aDecoder decodeObjectForKey:@"NSBGColor"] retain];
 		_cursor=[[aDecoder decodeObjectForKey:@"NSCursor"] retain];

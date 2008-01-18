@@ -1481,8 +1481,6 @@
 				EEA3721209540273001244CF /* NSCursor.h */,
 				EE52832F09A1FB2E00218247 /* NSCursor.m */,
 				EEA3721809540273001244CF /* NSDragging.h */,
-				EEA3721909540273001244CF /* NSEvent.h */,
-				EEA3721A09540273001244CF /* NSEvent.m */,
 				EE1227700D059C5C000E4BA5 /* NSGradient.h */,
 				EE1227710D059C5C000E4BA5 /* NSGradient.m */,
 				EEA3722409540273001244CF /* NSGraphics.h */,
@@ -1557,21 +1555,19 @@
 			name = "Application & Document & Workspace";
 			sourceTree = "<group>";
 		};
-		EE52F2140B8F2FD00093595A /* Windows & Responder */ = {
+		EE52F2140B8F2FD00093595A /* Windows */ = {
 			isa = PBXGroup;
 			children = (
 				EE349C39097027D500CBF42C /* NSAlert.h */,
 				EE349C42097027D500CBF42C /* NSDrawer.h */,
 				EEACF8A409ED3A9F0085F56E /* NSDrawer.m */,
-				EEA3725409540273001244CF /* NSResponder.h */,
-				EEA3725509540273001244CF /* NSResponder.m */,
 				EEA3725909540273001244CF /* NSScreen.h */,
 				EEA3725A09540273001244CF /* NSScreen.m */,
 				EEA3728909540273001244CF /* NSWindow.h */,
 				EEA3728A09540273001244CF /* NSWindow.m */,
 				EEA3728509540273001244CF /* NSUserInterfaceValidation.h */,
 			);
-			name = "Windows & Responder";
+			name = Windows;
 			sourceTree = "<group>";
 		};
 		EE52F2150B8F2FF50093595A /* Font */ = {
@@ -1607,20 +1603,24 @@
 			name = Text;
 			sourceTree = "<group>";
 		};
-		EE52F2170B8F306B0093595A /* Input & Menu */ = {
+		EE52F2170B8F306B0093595A /* Events & Input & Menu & Responder */ = {
 			isa = PBXGroup;
 			children = (
+				EEA3721909540273001244CF /* NSEvent.h */,
+				EEA3721A09540273001244CF /* NSEvent.m */,
 				EE349C46097027D500CBF42C /* NSInputManager.h */,
 				EE349C47097027D500CBF42C /* NSInputServer.h */,
 				EEA3723309540273001244CF /* NSMenu.h */,
 				EEA3723409540273001244CF /* NSMenu.m */,
 				EEA3723509540273001244CF /* NSMenuItem.h */,
+				EEA3725409540273001244CF /* NSResponder.h */,
+				EEA3725509540273001244CF /* NSResponder.m */,
 				EEA3726D09540273001244CF /* NSStatusBar.h */,
 				EEA3726E09540273001244CF /* NSStatusBar.m */,
 				EEA3726F09540273001244CF /* NSStatusItem.h */,
 				EEA3727009540273001244CF /* NSStatusItem.m */,
 			);
-			name = "Input & Menu";
+			name = "Events & Input & Menu & Responder";
 			sourceTree = "<group>";
 		};
 		EE52F2180B8F30BE0093595A /* NIB */ = {
@@ -1699,13 +1699,13 @@
 				EE52F2100B8F2F480093595A /* Drawing */,
 				EE52F2150B8F2FF50093595A /* Font */,
 				EE52F2110B8F2F5A0093595A /* Images & Movies & Sound */,
-				EE52F2170B8F306B0093595A /* Input & Menu */,
+				EE52F2170B8F306B0093595A /* Events & Input & Menu & Responder */,
 				EE52F2180B8F30BE0093595A /* NIB */,
 				EE52F2190B8F30F60093595A /* Printing */,
 				EE52F2160B8F30210093595A /* Text */,
 				EE52F20D0B8F2F090093595A /* Views & Cells */,
 				EE1227140D059AC2000E4BA5 /* System Panels */,
-				EE52F2140B8F2FD00093595A /* Windows & Responder */,
+				EE52F2140B8F2FD00093595A /* Windows */,
 			);
 			name = Classes;
 			path = Sources;

@@ -1820,6 +1820,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (void) _copyBits:(void *) srcGstate fromRect:(NSRect) srcRect toPoint:(NSPoint) destPoint;
 { // copy srcRect using CTM from (_NSX11GraphicsState *) srcGstate to destPoint transformed by current CTM
 	XRectangle src, dest;
+#if 1
+	NSLog(@"_copyBits from %@ to %@", NSStringFromRect(srcRect), NSStringFromPoint(destPoint));
+#endif
 	[self _setCompositing];
 	srcRect.origin=[((_NSX11GraphicsState *) srcGstate)->_ctm transformPoint:srcRect.origin];
 	srcRect.size=[((_NSX11GraphicsState *) srcGstate)->_ctm transformSize:srcRect.size];
@@ -1841,8 +1844,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	dest.width=src.width;
 	dest.height=src.height;
 	dest.x=destPoint.x;
-#if 0
-	NSLog(@"_copyBits from %@ to %@", NSStringFromXRect(src), NSStringFromXRect(dest));
+#if 1
+	NSLog(@"  X11 %@ to %@", NSStringFromXRect(src), NSStringFromXRect(dest));
 	NSLog(@"  src-win=%d", (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort));
 	NSLog(@"  dest-win=%d", _graphicsPort);
 #endif

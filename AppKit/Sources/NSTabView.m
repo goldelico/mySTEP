@@ -102,18 +102,19 @@
 {
 	NSColor *labelColor=[NSColor controlTextColor];
 	id delegate=[(NSTabView *) item_tabview delegate];
-#if 1
+	NSDictionary *attribs;
+	NSSize bounds;
 	if([delegate respondsToSelector:@selector(tabView:shouldSelectTabViewItem:)] &&
 		![delegate tabView:(NSTabView *) item_tabview shouldSelectTabViewItem:self])
-		labelColor=[NSColor disabledControlTextColor];	// will be disabled
-#endif
-	tabRect.origin.x+=4;	// FIXME: we should center the tab label
-	tabRect.origin.y-=2;
-	[item_label drawInRect:tabRect
-			withAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
-				labelColor, NSForegroundColorAttributeName,
-				[(NSTabView *) item_tabview font], NSFontAttributeName,
- 				nil]];
+		labelColor=[NSColor disabledControlTextColor];	// show as disabled
+	attribs=[NSDictionary dictionaryWithObjectsAndKeys:
+		labelColor, NSForegroundColorAttributeName,
+		[(NSTabView *) item_tabview font], NSFontAttributeName,
+		nil];
+	bounds=[item_label boundingRectWithSize:(NSSize){ FLT_MAX, FLT_MAX } options:0 attributes:attribs].size;
+	tabRect.origin.x+=(tabRect.size.width-bounds.width)/2.0;	// center the tab label
+	tabRect.origin.y+=(tabRect.size.height-bounds.height)/2.0;
+	[item_label drawInRect:tabRect withAttributes:attribs];
 }
 
 - (void) encodeWithCoder: (NSCoder *)aCoder				// NSCoding protocol
@@ -170,7 +171,7 @@ static struct _NSTabViewSizing
 	NSSize adjust;		// adjustment (inset) for contentRect
 } tsz[]={
 	{ 24.0, 5.0, 20.0, 10.0, { 10.0, 23.0 } },
-	{ 24.0, 3.0, 16.0, 5.0, { 10.0, 19.0 } },
+	{ 24.0, 3.0, 16.0, 6.0, { 10.0, 19.0 } },
 	{ 20.0, 4.0, 13.0, 3.0, { 10.0, 16.0 } },
 	{ 24.0, 5.0, 20.0, 10.0, { 10.0, 23.0 } },
 };
@@ -309,11 +310,17 @@ static struct _NSTabViewSizing
 		{
 		NSView *v=[tab_selected view];
 		[tab_selected _setTabState:NSSelectedTab];
-		[self setNeedsDisplayInRect:[tab_selected _tabRect]];
+		[self setNeedsDisplayInRect:[tab_selected _tabRect]];	// redraw tab
+#if 1	// FIXME
+		if(!NSEqualRects([v frame], [self contentRect]))
+			{
+			NSLog(@"mismatch between loaded content rect %@ and calculated %@", NSStringFromRect([v frame]), NSStringFromRect([self contentRect]));
+			}
+//		[v setFrame:[self contentRect]];	// should have been done when creating the item in IB or programmatically
+#endif
 		if([sub_views indexOfObjectIdenticalTo:v] == NSNotFound)
 			[self addSubview:v];	// if not yet a subview
-		[v setFrame:[self contentRect]];
-		[v setNeedsDisplay:YES];
+		[v setNeedsDisplay:YES];	// redraw new content
 		if([tab_delegate respondsToSelector:@selector(tabView:didSelectTabViewItem:)])
 			[tab_delegate tabView:self didSelectTabViewItem:tab_selected];
 		}

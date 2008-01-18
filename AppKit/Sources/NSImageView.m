@@ -69,8 +69,8 @@ id __imageCellClass = nil;
 
 - (void) setObjectValue:(id)image
 { // called by NSTableView to show data from source
-	[(NSImage *) image setScalesWhenResized: (_ic.imageScaling != NSScaleNone)];	// apply current scaling
-	[super setImage:image];
+	if([image isKindOfClass:[NSImage class]])
+		[self setImage:image];
 }
 
 - (void) setImageAlignment:(NSImageAlignment)alignment

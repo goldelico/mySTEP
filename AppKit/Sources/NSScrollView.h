@@ -42,16 +42,16 @@
 	float _horizontalPageScroll;
 	float _verticalLineScroll;
 	float _verticalPageScroll;
-	NSBorderType _borderType;
-	// FIXME: should be collected into a bitfield struct
-	BOOL _hasHorizScroller;
-	BOOL _hasVertScroller;
-	BOOL _hasHorizRuler;
-	BOOL _hasVertRuler;
-	BOOL _scrollsDynamically;
-	BOOL _autohidesScrollers;
-	BOOL _prohibitTiling;
-	BOOL _doubleLongClick;
+	struct {
+		UIBITFIELD(unsigned int, hasHorizScroller, 1);
+		UIBITFIELD(unsigned int, hasVertScroller, 1);
+		UIBITFIELD(unsigned int, hasHorizRuler, 1);
+		UIBITFIELD(unsigned int, hasVertRuler, 1);
+		UIBITFIELD(unsigned int, scrollsDynamically, 1);
+		UIBITFIELD(unsigned int, autohidesScrollers, 1);
+		UIBITFIELD(unsigned int, doubleLongClick, 1);
+		UIBITFIELD(NSBorderType, borderType, 2);
+	} _sv;
 }
 
 + (NSSize) contentSizeForFrameSize:(NSSize) frameSize		// Layout

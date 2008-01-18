@@ -606,7 +606,15 @@ NSString *NSTextMovement=@"NSTextMovement";
 //		[self _startCaretBlinkTimer];
 //	reason=NSCancelTextMovement;	// set default reason
 	[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:NOTE(DidBeginEditing) object:self]];
+	// show keyboard
+	[NSApp orderFrontCharacterPalette:self];
 	return YES;
+}
+
+- (BOOL) resignFirstResponder
+{
+	// hide keyboard
+	return [super resignFirstResponder];
 }
 
 - (void) encodeWithCoder:(NSCoder *) coder;

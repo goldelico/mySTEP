@@ -734,6 +734,7 @@
 		_gridColor = [[NSColor gridColor] retain];
 		_tv.allowsColumnReordering = YES;
 		_tv.allowsColumnResizing = YES;
+		_numberOfRows = NSNotFound;
 		}
 	return self;
 }
@@ -846,7 +847,12 @@
 { // clear cache
 	int n=_numberOfRows;
 	if(!_window || !super_view || !_dataSource)
+		{
+#if 0
+		NSLog(@"noteNumberOfRowsChanged ignored: w:%p s:%p d:%p", _window, super_view, _dataSource);
+#endif
 		return;	// don't ask data source before it exists
+		}
 	_numberOfRows=[_dataSource numberOfRowsInTableView:self];
 	if(_numberOfRows == n)
 		return;	// hsan't really changed
@@ -1053,16 +1059,20 @@ int index = [self columnWithIdentifier:identifier];
 
 - (void) selectRow:(int)row byExtendingSelection:(BOOL)extend
 {
-	// FIXME: should be based on selectIndexes
+	// FIXME: should be based on selectIndexes and optimize redrawing!
 	BOOL colSelectionDidChange = NO;
 	BOOL rowSelectionDidChange = NO;
-	NSRect rect = [self visibleRect];
 	// FIXME: check delegate to allow selection change
 	if([_selectedColumns count] > 0)
-		{
+		{ // deselect any column
 		_lastSelectedColumn = -1;
 		colSelectionDidChange=[_selectedColumns count] > 0;	// there have been rows selected
-		[_selectedColumns removeAllIndexes];	// deselect all rows
+		if(colSelectionDidChange)
+			{
+			[self setNeedsDisplayInRect:[self rectOfColumn:[_selectedColumns firstIndex]]];
+			[self setNeedsDisplayInRect:[self rectOfColumn:[_selectedColumns lastIndex]]];	// invalidate full range
+			[_selectedColumns removeAllIndexes];	// deselect all rows
+			}
 		}
 	
 	if(!extend)
@@ -1070,8 +1080,14 @@ int index = [self columnWithIdentifier:identifier];
 		if([_selectedRows count] != 1 || ![_selectedRows containsIndex:row])
 			{ // really change
 			rowSelectionDidChange = YES;
-			[_selectedRows removeAllIndexes];
+			if([_selectedRows count] > 0)
+				{
+				[self setNeedsDisplayInRect:[self rectOfRow:[_selectedRows firstIndex]]];
+				[self setNeedsDisplayInRect:[self rectOfRow:[_selectedRows lastIndex]]];	// invalidate full range
+				[_selectedRows removeAllIndexes];
+				}
 			[_selectedRows addIndex:row];	// a single selection
+			[self setNeedsDisplayInRect:[self rectOfRow:row]];
 			}
 		}
 	else if (!_tv.allowsMultipleSelection)
@@ -1079,20 +1095,16 @@ int index = [self columnWithIdentifier:identifier];
 					format: @"Multiple selection is not allowed"];
 	
 	if(![_selectedRows containsIndex:row])
-		{ // is not same as current selection
-		if(!colSelectionDidChange && !rowSelectionDidChange)
-			rect = NSIntersectionRect(rect, [self rectOfRow:row]);
+		{ // is not already part of current selection
 		rowSelectionDidChange = YES;
 		[_selectedRows addIndex:row];
+		[self setNeedsDisplayInRect:[self rectOfRow:row]];
 		}
 	
 	_lastSelectedRow = row;
 	
 	if(colSelectionDidChange || rowSelectionDidChange)
-		{
-		[self setNeedsDisplayInRect:rect];
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTE(SelectionDidChange) object: self];
-		}
 }
 
 - (void) selectColumnIndexes:(NSIndexSet *) indexes byExtendingSelection:(BOOL) flag;
@@ -1104,7 +1116,6 @@ int index = [self columnWithIdentifier:identifier];
 { // core selection method
 	BOOL colSelectionDidChange = NO;
 	BOOL rowSelectionDidChange = NO;
-	NSRect rect = [self visibleRect];
 	NIMP;
 #if 0
 	// FIXME: check delegate to allow selection change
@@ -1259,6 +1270,7 @@ int index = [self columnWithIdentifier:identifier];
 		{
 		float rowHeight=[_delegate tableView:self heightOfRow:row];
 		// and: we must sum up all rows up to the one asked for...
+		// or use some tree data structure to rapidly find the row
 		}
 	y = (_rowHeight + _intercellSpacing.height) * row;
 	return NSMakeRect(0, y, NSWidth(_frame), _rowHeight);
@@ -1528,8 +1540,8 @@ int index = [self columnWithIdentifier:identifier];
 		row=-1;	// outside
 	_clickedColumn=[self columnAtPoint:p];
 	_clickedRow=row;
-	if(_lastSelectedRow >= 0)								// pre-existing sel
-		{
+	if(_lastSelectedRow >= 0)
+		{ // pre-existing sel
 		if ((_lastSelectedRow == row) && [event clickCount] > 1)									
 			{ // double click on selected row
 			if(_clickedRow >= 0 && _clickedColumn >= 0 && [[_tableColumns objectAtIndex:_clickedColumn] isEditable])
@@ -1709,16 +1721,19 @@ int index = [self columnWithIdentifier:identifier];
 {
 	int rows;
 	int cols;
-#if 1
+#if 0
 	if(!_window)
 		NSLog(@"tiling without window %@", self);
+	if(_numberOfRows != NSNotFound)
+		NSLog(@"tiling before any noteNumberOfRowsChanged", self);
 #endif
-	if(_window && _dataSource)
+	if(_window && _dataSource && _numberOfRows != NSNotFound)
 		{
-		rows = [self numberOfRows];
+		rows = _numberOfRows;
 		cols = [_tableColumns count];
 #if 0
 		NSLog(@"tile %@", self);
+		NSLog(@"rows %d", rows);
 		NSLog(@"cols %d", cols);
 #endif
 		if(cols > 0)
@@ -1786,8 +1801,21 @@ int index = [self columnWithIdentifier:identifier];
 #endif
 }
 
-- (void) viewDidMoveToWindow;		{ [self tile]; }
-- (void) viewDidMoveToSuperView;	{ [self tile]; }
+- (void) viewDidMoveToWindow;
+{
+#if 0
+	NSLog(@"movetowin w:%p %@", _window, self);
+#endif
+	[self reloadData];
+}
+
+- (void) viewDidMoveToSuperView;
+{
+#if 0
+	NSLog(@"movetosuper s:%p %@", super_view, self);
+#endif
+	[self reloadData];
+}
 
 - (void) drawRect:(NSRect)rect								// Draw tableview
 {

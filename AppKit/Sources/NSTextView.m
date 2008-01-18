@@ -589,7 +589,7 @@ static NSCursor *__textCursor = nil;
 	[__caretBlinkTimer invalidate];
 	__caretBlinkTimer=nil;
 	[self updateInsertionPointStateAndRestartTimer:NO];	// stop blinking
-	return YES;
+	return [super resignFirstResponder];
 }
 
 - (void) setNeedsDisplayInRect:(NSRect)rect
