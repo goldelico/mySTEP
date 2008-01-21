@@ -13,22 +13,25 @@
 
 - (id) init;
 {
-	self=[super init];
-	if(self)
+#if 1
+	NSLog(@"init %@", self);
+#endif
+	if((self=[super init]))
 		{
-		NSDictionary *records=[NSDictionary dictionaryWithContentsOfFile:AB_FILE];	// read file
-		// warning: must be deep mutable!!!
+		NSDictionary *records=[NSMutableDictionary dictionaryWithContentsOfFile:AB_FILE];	// read file
+		// warning: result read from file must be deep mutable!!!
 		if(!records)
 			{ // create new property dictionaries
 			NSBundle *bndl=[NSBundle bundleForClass:[self class]];
+			// warning on MacOS X 10.4...
 			[[NSFileManager defaultManager] createDirectoryAtPath:[AB_DIRECTORY stringByExpandingTildeInPath]
 									  withIntermediateDirectories:YES
 													   attributes:nil
 															error:NULL
 				];  // create directory
 			properties=[NSDictionary dictionaryWithObjectsAndKeys:
-				[[[bndl objectForInfoDictionaryKey:@"ABPerson"] mutableCopy] autorelease], @"ABPerson",
-				[[[bndl objectForInfoDictionaryKey:@"ABGroup"] mutableCopy] autorelease], @"ABGroup",
+				[[[bndl objectForInfoDictionaryKey:AB_KEY_PERSONS] mutableCopy] autorelease], AB_KEY_PERSONS,
+				[[[bndl objectForInfoDictionaryKey:AB_KEY_GROUPS] mutableCopy] autorelease], AB_KEY_GROUPS,
 				nil];
 			ich=nil;	// not defined
 			hasUnsavedChanges=NO;  // need not save yet
@@ -47,7 +50,7 @@
 		[properties retain];
 		[persons retain];
 		[groups retain];
-#if 0
+#if 1
 		NSLog(@"properties=%@", properties);
 		NSLog(@"persons=%@", properties);
 		NSLog(@"groups=%@", properties);
@@ -80,7 +83,7 @@
 {
 	static ABAddressBook *shared;
 	if(!shared)
-		shared=[[self alloc] init];	// reads database
+		shared=[[self alloc] init];	// this also reads database
 	return shared;
 }
 
@@ -124,25 +127,32 @@
 - (NSArray *) recordsMatchingSearchElement:(ABSearchElement *) search; 
 { // scan all persons and/or groups
   // collect to temp array where [search matchesRecord:obj]
+	// NIMP;
 	return nil;
 }
 
 - (BOOL) addRecord:(ABRecord *) record;
 {
 	// check for duplicates?
+#if 1
 	NSLog(@"addRecord: %@", record);
+#endif
 	if([record isKindOfClass:[ABPerson class]])
 		{
-		NSLog(@"persons=%@", groups);
 		[persons addObject:record];
+#if 1
+		NSLog(@"persons=%@", groups);
+#endif
 		}
 	else if([record isKindOfClass:[ABGroup class]])
 		{
-		NSLog(@"groups=%@", groups);
 		[groups addObject:record];
+#if 1
+		NSLog(@"groups=%@", groups);
+#endif
 		}
 	else
-		return NO;
+		return NO;	// something else
 	[self _touch];
 	return YES;
 }
@@ -166,7 +176,7 @@
 - (BOOL) save;
 {
 	NSMutableDictionary *d;
-#if 0
+#if 1
 	NSLog(@"save");
 #endif
 	if(!hasUnsavedChanges)
@@ -178,22 +188,24 @@
 //	[d setObject:persons forKey:AB_KEY_PERSONS];
 //	[d setObject:groups forKey:AB_KEY_GROUPS];
 	hasUnsavedChanges=NO;   // reset anyway
-#if 0
+#if 1
 	NSLog(@"save %@", d);
 #endif
 	return [d writeToFile:AB_FILE atomically:YES] && 
 		   [NSArchiver archiveRootObject:groups toFile:AB_GROUPS] &&
 		   [NSArchiver archiveRootObject:persons toFile:AB_PERSONS];
+	// send distributed notification?
 }
 
-// read from NSUserDefaults from @"de.dsitri.myPDA.ABAddressBook" persistent domain - or NSGlobalDomain
+// read this from NSUserDefaults from @"de.dsitri.myPDA.ABAddressBook" persistent domain - or NSGlobalDomain?
 
-- (NSString *) defaultCountryCode; { return @"int"; }
+- (NSString *) defaultCountryCode; { return @"un"; }
 
 - (int) defaultNameOrdering; { return kABLastNameFirst; }
 
 - (NSAttributedString *) formattedAddressFromDictionary:(NSDictionary *) addr;
 {
+	// NIMP
 	return nil;
 }
 

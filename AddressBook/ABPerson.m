@@ -11,6 +11,10 @@
 
 @implementation ABPerson
 
++ (void) cancelLoadingImageDataForTag:(int) tag;
+{
+}
+
 - (id) initWithUniqueId:(id) uid;
 {
 	self=[super initWithUniqueId:uid];

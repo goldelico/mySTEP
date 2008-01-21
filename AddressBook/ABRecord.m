@@ -96,7 +96,7 @@
 		[t replaceOccurrencesOfString:@"," withString:@"\\," options:0 range:NSMakeRange(pos, [t length]-pos)];
 		[t replaceOccurrencesOfString:@"\n" withString:@"\\n" options:0 range:NSMakeRange(pos, [t length]-pos)];
 		}
-	[self encodeLine:t to:dest];
+	[self _encodeLine:t to:dest];
 }
 
 - (void) _encodeProperty:(NSString *) property as:(NSString *) vCalProperty to:(NSMutableString *) dest;
@@ -261,6 +261,9 @@
 
 - (id) initWithUniqueId:(NSString *) uid;
 {
+#if 1
+	NSLog(@"initWithUniqueId %@, %@", uid, self);
+#endif
 	self=[super init];
 	if(self)
 		{
@@ -281,6 +284,11 @@
 {
 	[data release];
 	[super dealloc];
+}
+
+- (BOOL) isReadOnly;
+{
+	return NO;
 }
 
 - (BOOL) removeValueForProperty:(NSString *) property;

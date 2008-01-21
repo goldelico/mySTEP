@@ -16,8 +16,8 @@
 
 #define AB_KEY_PROPERTIES   @"properties"
 #define AB_KEY_ME			@"ich"
-// #define AB_KEY_PERSONS		@"persons"
-// #define AB_KEY_GROUPS		@"groups"
+#define AB_KEY_PERSONS		@"ABPerson"	// must match class name
+#define AB_KEY_GROUPS		@"ABGroup"
 
 @interface ABAddressBook (private)
 - (void) _touch;
