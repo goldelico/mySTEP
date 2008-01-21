@@ -13,7 +13,7 @@
 
 - (id) init;
 {
-#if 1
+#if 0
 	NSLog(@"init %@", self);
 #endif
 	if((self=[super init]))
@@ -50,7 +50,7 @@
 		[properties retain];
 		[persons retain];
 		[groups retain];
-#if 1
+#if 0
 		NSLog(@"properties=%@", properties);
 		NSLog(@"persons=%@", properties);
 		NSLog(@"groups=%@", properties);
