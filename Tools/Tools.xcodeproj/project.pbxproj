@@ -13,12 +13,13 @@
 			buildPhases = (
 			);
 			dependencies = (
-				EE3254200A5322A40057B3B1 /* PBXTargetDependency */,
-				EE291C6F0AD7BD76004A1CA6 /* PBXTargetDependency */,
+				EE196B960D44E9230074ED1A /* PBXTargetDependency */,
 				EE144F640A14E7C700C93F94 /* PBXTargetDependency */,
 				EE144F660A14E7CE00C93F94 /* PBXTargetDependency */,
 				EE3254220A5322B40057B3B1 /* PBXTargetDependency */,
 				EE9788A50AA70F5E007ECDE1 /* PBXTargetDependency */,
+				EE3254200A5322A40057B3B1 /* PBXTargetDependency */,
+				EE291C6F0AD7BD76004A1CA6 /* PBXTargetDependency */,
 			);
 			name = Tools;
 			productName = Tools;
@@ -30,6 +31,12 @@
 		EE144F2D0A14E6C300C93F94 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EE144F2E0A14E6C300C93F94 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
 		EE144F5F0A14E79300C93F94 /* open.m in Sources */ = {isa = PBXBuildFile; fileRef = EE144F5E0A14E79300C93F94 /* open.m */; };
+		EE196B850D44E89E0074ED1A /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
+		EE196B860D44E89E0074ED1A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
+		EE196B870D44E89E0074ED1A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
+		EE196B8F0D44E8B50074ED1A /* say.m in Sources */ = {isa = PBXBuildFile; fileRef = EE97888C0AA70E4D007ECDE1 /* say.m */; };
+		EE196B900D44E8C30074ED1A /* abook.m in Sources */ = {isa = PBXBuildFile; fileRef = EE196B7F0D44E8990074ED1A /* abook.m */; };
+		EE196C040D44EB360074ED1A /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE196BEF0D44EB360074ED1A /* AddressBook.framework */; };
 		EE291C5E0AD7BD50004A1CA6 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EE291C5F0AD7BD50004A1CA6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EE291C600AD7BD50004A1CA6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
@@ -42,7 +49,6 @@
 		EE93E7760A239FE8008A5E48 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EE93E7770A239FE8008A5E48 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
 		EE93E7830A239FFC008A5E48 /* plutil.m in Sources */ = {isa = PBXBuildFile; fileRef = EE93E7820A239FFC008A5E48 /* plutil.m */; };
-		EE9788900AA70E53007ECDE1 /* open.m in Sources */ = {isa = PBXBuildFile; fileRef = EE144F5E0A14E79300C93F94 /* open.m */; };
 		EE9788920AA70E53007ECDE1 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EE9788930AA70E53007ECDE1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EE9788940AA70E53007ECDE1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
@@ -66,6 +72,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = EE144F280A14E6C300C93F94;
 			remoteInfo = open;
+		};
+		EE196B950D44E9230074ED1A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EE196B810D44E89E0074ED1A /* abook */;
+			remoteInfo = abook;
 		};
 		EE291C6E0AD7BD76004A1CA6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -100,6 +113,9 @@
 /* Begin PBXFileReference section */
 		EE144F340A14E6C300C93F94 /* open */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = open; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE144F5E0A14E79300C93F94 /* open.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = open.m; sourceTree = "<group>"; };
+		EE196B7F0D44E8990074ED1A /* abook.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = abook.m; sourceTree = "<group>"; };
+		EE196B8D0D44E89E0074ED1A /* abook */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = abook; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE196BEF0D44EB360074ED1A /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = /System/Library/Frameworks/AddressBook.framework; sourceTree = "<absolute>"; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE291C660AD7BD50004A1CA6 /* scutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scutil; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE291C6C0AD7BD6F004A1CA6 /* scutil.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = scutil.m; sourceTree = "<group>"; };
@@ -111,7 +127,7 @@
 		EE97888C0AA70E4D007ECDE1 /* say.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = say.m; sourceTree = "<group>"; };
 		EE97889A0AA70E53007ECDE1 /* say */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = say; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEA32EC409537D0C001244CF /* defaults.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = defaults.m; sourceTree = "<group>"; };
-		EEA330A709538118001244CF /* defaults */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = defaults; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEA330A709538118001244CF /* defaults */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = defaults; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEDB61250A1497F300E4CA39 /* HISTORY.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = HISTORY.rtf; path = ../HISTORY.rtf; sourceTree = SOURCE_ROOT; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -126,6 +142,17 @@
 				EE144F2C0A14E6C300C93F94 /* AppKit.framework in Frameworks */,
 				EE144F2D0A14E6C300C93F94 /* Cocoa.framework in Frameworks */,
 				EE144F2E0A14E6C300C93F94 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE196B840D44E89E0074ED1A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE196B850D44E89E0074ED1A /* AppKit.framework in Frameworks */,
+				EE196B860D44E89E0074ED1A /* Cocoa.framework in Frameworks */,
+				EE196B870D44E89E0074ED1A /* Foundation.framework in Frameworks */,
+				EE196C040D44EB360074ED1A /* AddressBook.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -185,6 +212,7 @@
 		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
 			isa = PBXGroup;
 			children = (
+				EE196BEF0D44EB360074ED1A /* AddressBook.framework */,
 				EEDB61250A1497F300E4CA39 /* HISTORY.rtf */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
 				EE2FDDA10976F595003EA8A2 /* tools */,
@@ -198,12 +226,13 @@
 		EE144F550A14E77E00C93F94 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				EE3254080A531D5D0057B3B1 /* scselect.m */,
-				EE291C6C0AD7BD6F004A1CA6 /* scutil.m */,
+				EE196B7F0D44E8990074ED1A /* abook.m */,
 				EEA32EC409537D0C001244CF /* defaults.m */,
 				EE144F5E0A14E79300C93F94 /* open.m */,
 				EE93E7820A239FFC008A5E48 /* plutil.m */,
 				EE97888C0AA70E4D007ECDE1 /* say.m */,
+				EE3254080A531D5D0057B3B1 /* scselect.m */,
+				EE291C6C0AD7BD6F004A1CA6 /* scutil.m */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -211,11 +240,12 @@
 		EE29D8D8058A38830035639B /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				EE196B8D0D44E89E0074ED1A /* abook */,
 				EEA330A709538118001244CF /* defaults */,
 				EE144F340A14E6C300C93F94 /* open */,
 				EE93E77D0A239FE9008A5E48 /* plutil */,
-				EE3254190A53225D0057B3B1 /* scselect */,
 				EE97889A0AA70E53007ECDE1 /* say */,
+				EE3254190A53225D0057B3B1 /* scselect */,
 				EE291C660AD7BD50004A1CA6 /* scutil */,
 			);
 			name = Products;
@@ -249,6 +279,23 @@
 			name = open;
 			productName = defaults;
 			productReference = EE144F340A14E6C300C93F94 /* open */;
+			productType = "com.apple.product-type.tool";
+		};
+		EE196B810D44E89E0074ED1A /* abook */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE196B890D44E89E0074ED1A /* Build configuration list for PBXNativeTarget "abook" */;
+			buildPhases = (
+				EE196B820D44E89E0074ED1A /* Sources */,
+				EE196B840D44E89E0074ED1A /* Frameworks */,
+				EE196B880D44E89E0074ED1A /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = abook;
+			productName = defaults;
+			productReference = EE196B8D0D44E89E0074ED1A /* abook */;
 			productType = "com.apple.product-type.tool";
 		};
 		EE291C5A0AD7BD50004A1CA6 /* scutil */ = {
@@ -348,12 +395,13 @@
 			projectDirPath = "";
 			targets = (
 				EE144F620A14E7C000C93F94 /* Tools */,
-				EE32540C0A53225D0057B3B1 /* scselect */,
-				EE291C5A0AD7BD50004A1CA6 /* scutil */,
+				EE196B810D44E89E0074ED1A /* abook */,
 				EEA330A609538118001244CF /* defaults */,
 				EE144F280A14E6C300C93F94 /* open */,
 				EE93E7710A239FE8008A5E48 /* plutil */,
 				EE97888E0AA70E53007ECDE1 /* say */,
+				EE32540C0A53225D0057B3B1 /* scselect */,
+				EE291C5A0AD7BD50004A1CA6 /* scutil */,
 			);
 		};
 /* End PBXProject section */
@@ -371,6 +419,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export SOURCES=\"open.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
+		EE196B880D44E89E0074ED1A /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SOURCES=\"abook.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=AddressBook\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EE1D41C10995026500DDE5E0 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -448,6 +509,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EE196B820D44E89E0074ED1A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE196B900D44E8C30074ED1A /* abook.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EE291C5B0AD7BD50004A1CA6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -476,7 +545,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE9788900AA70E53007ECDE1 /* open.m in Sources */,
+				EE196B8F0D44E8B50074ED1A /* say.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -500,6 +569,11 @@
 			isa = PBXTargetDependency;
 			target = EE144F280A14E6C300C93F94 /* open */;
 			targetProxy = EE144F650A14E7CE00C93F94 /* PBXContainerItemProxy */;
+		};
+		EE196B960D44E9230074ED1A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EE196B810D44E89E0074ED1A /* abook */;
+			targetProxy = EE196B950D44E9230074ED1A /* PBXContainerItemProxy */;
 		};
 		EE291C6F0AD7BD76004A1CA6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -625,6 +699,81 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = Tools;
+			};
+			name = Default;
+		};
+		EE196B8A0D44E89E0074ED1A /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = /usr/local/bin;
+				OPTIMIZATION_CFLAGS = "-O0";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = abook;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		EE196B8B0D44E89E0074ED1A /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = abook;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE196B8C0D44E89E0074ED1A /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = abook;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
 			};
 			name = Default;
 		};
@@ -1058,6 +1207,16 @@
 				EE144F6C0A14E81200C93F94 /* Development */,
 				EE144F6D0A14E81200C93F94 /* Deployment */,
 				EE144F6E0A14E81200C93F94 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EE196B890D44E89E0074ED1A /* Build configuration list for PBXNativeTarget "abook" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE196B8A0D44E89E0074ED1A /* Development */,
+				EE196B8B0D44E89E0074ED1A /* Deployment */,
+				EE196B8C0D44E89E0074ED1A /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
