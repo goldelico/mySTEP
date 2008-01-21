@@ -613,7 +613,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (BOOL) resignFirstResponder
 {
-	// hide keyboard
+	[NSApp _orderOutCharacterPalette:self];	// hide keyboard
 	return [super resignFirstResponder];
 }
 

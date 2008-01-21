@@ -279,8 +279,7 @@ typedef struct _PathElement
 {
 	NSBezierPath *bp=[NSBezierPath bezierPathWithRect:aRect];
 	[bp setWindingRule:NSEvenOddWindingRule];
-// FIXME: should be	[bp addClip];
-	[bp setClip];
+	[bp addClip];
 }
 
 + (void) strokeLineFromPoint:(NSPoint)point1 toPoint:(NSPoint)point2
@@ -546,12 +545,12 @@ typedef struct _PathElement
 
 - (void) addClip
 {
-	[[NSGraphicsContext currentContext] _addClip:self];
+	[[NSGraphicsContext currentContext] _addClip:self reset:NO];
 }
 
 - (void) setClip
 {
-	[[NSGraphicsContext currentContext] _setClip:self];
+	[[NSGraphicsContext currentContext] _addClip:self reset:YES];
 }
 
 - (NSBezierPath *) bezierPathByFlatteningPath

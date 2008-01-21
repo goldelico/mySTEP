@@ -30,7 +30,6 @@
 - (void) _clear;
 - (FT_Face) _face;
 - (void) _finalize;
-- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
 
 @end
 

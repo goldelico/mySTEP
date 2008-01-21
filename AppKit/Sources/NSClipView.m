@@ -283,7 +283,6 @@ because this reverses the writing direction within the text container
 #if 1
 	NSLog(@"scrollPoint %@", NSStringFromPoint(point));
 #endif
-#if 1	// handle copiesOnScroll
 	if(_clip.copiesOnScroll)
 		{
 		extern BOOL _NSShowAllDrawing;		// defined in NSView
@@ -295,7 +294,7 @@ because this reverses the writing direction within the text container
 		delta.width = start.origin.x - _bounds.origin.x;
 		if(delta.width == 0.0 && delta.height == 0.0)
 			return;	// not moved
-#if 1
+#if 0
 		{
 			extern BOOL _NSShowAllViews;
 			extern BOOL _NSShowAllDrawing;
@@ -384,7 +383,6 @@ because this reverses the writing direction within the text container
 			}
 		return;
 		}
-#endif
 	[_documentView setNeedsDisplay:YES];			// simply redraw the full document view
 }
 

@@ -86,6 +86,7 @@ typedef enum _NSRoundedBezelSegments
 @end
 
 @interface NSApplication (NSPrivate)
+- (IBAction) _orderOutCharacterPalette:(id)sender;
 - (BOOL) _eventIsQueued:(NSEvent *) event;
 - (NSEvent *) _eventMatchingMask:(unsigned int) mask dequeue:(BOOL)dequeue;
 - (BOOL) _application:(in NSApplication *) app openURLs:(in bycopy NSArray *) urls withOptions:(in bycopy NSWorkspaceLaunchOptions) opts;	// handle open

@@ -59,8 +59,7 @@
 
 - (void) _stroke:(NSBezierPath *) path;
 - (void) _fill:(NSBezierPath *) path;
-- (void) _setClip:(NSBezierPath *) path;
-- (void) _addClip:(NSBezierPath *) path;
+- (void) _addClip:(NSBezierPath *) path reset:(BOOL) flag;
 
 // fonts and drawing
 
@@ -111,6 +110,7 @@
 - (void) _makeKeyWindow;	// attract keyboard focus
 - (BOOL) _isKeyWindow;		// if we have keyboard focus
 - (NSRect) _frame;			// get current frame as on screen (might have been moved by window manager)
+- (NSRect) _clipBox;		// get current clipbox
 - (void) _setLevel:(int) level;				// set level property
 - (void) _setOrigin:(NSPoint) point;		// just move
 - (void) _setOriginAndSize:(NSRect) frame;	// usually, this means moving and resizing

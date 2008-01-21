@@ -48,6 +48,7 @@ typedef struct _NSX11GraphicsState
 	NSAffineTransform *_ctm;		// current transformation matrix (transforms directly to X11)
 	GC _gc;							// current context (line width, foreground color, fill rule, font etc.)
 	Region _clip;					// current clipping path
+	XRectangle _clipBox;			// current clippig box
 	_NSX11Font *_font;				// current font
 	// NSShadow *_shadow;			// current shadow
 	// rendering intent;
@@ -116,7 +117,7 @@ typedef struct _NSX11GraphicsState
 - (void) _setScale:(float) scale;		// set font scaling factor
 - (XFontStruct *) _font;				// X11 bitmap font
 
-- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
+- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
 
 @end
 

@@ -466,7 +466,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	[ctx _concatCTM:atm];	// add to CTM as needed
 	if(!unitSquare)
 		unitSquare=[[NSBezierPath bezierPathWithRect:NSMakeRect(0.0, 0.0, 1.0, 1.0)] retain];
-	[ctx _addClip:unitSquare];	// set CTM as needed
+	[ctx _addClip:unitSquare reset:NO];	// set CTM as needed
 	[ctx _draw:[self bestRepresentationForDevice:nil]];
 	[ctx setCompositingOperation:co];
 	[ctx restoreGraphicsState];
@@ -532,7 +532,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	// FIXME: somehow remove any rotation
 	if(!unitSquare)
 		unitSquare=[[NSBezierPath bezierPathWithRect:NSMakeRect(0.0, 0.0, 1.0, 1.0)] retain];
-	[ctx _addClip:unitSquare];	// set CTM as needed
+	[ctx _addClip:unitSquare reset:NO];	// set CTM as needed
 	[ctx _draw:[self bestRepresentationForDevice:nil]];
 	[ctx setCompositingOperation:co];	// restore
 	[ctx restoreGraphicsState];

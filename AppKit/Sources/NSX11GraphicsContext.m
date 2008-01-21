@@ -494,7 +494,7 @@ static NSString *NSStringFromXRect(XRectangle rect)
 		rect.height];
 }
 
-static inline void XIntersect(XRectangle *result, XRectangle *with)
+static inline void XIntersectRect(XRectangle *result, XRectangle *with)
 {
 	if(with->x > result->x+result->width)
 		result->width=0;	// second box is completely to the right
@@ -514,28 +514,28 @@ static inline void XIntersect(XRectangle *result, XRectangle *with)
 		result->height=with->y+with->height-result->y;
 }
 
-static inline void XUnion(XRectangle *result, XRectangle with)
+static inline void XUnionRect(XRectangle *result, XRectangle *with)
 {
 #if 0
-	NSLog(@"XUnion: %@ %@", NSStringFromXRect(*result), NSStringFromXRect(with));
+	NSLog(@"XUnion: %@ %@", NSStringFromXRect(*result), NSStringFromXRect(*with));
 #endif
 	if(result->width == 0)
-		result->x=with.x, result->width=with.width;	// first point
+		result->x=with->x, result->width=with->width;	// first point
 	else
 		{
-		if(with.x+with.width > result->x+result->width)
-			result->width=with.x+with.width-result->x;			// extend to the right
-		if(with.x < result->x)
-			result->width+=result->x-with.x, result->x=with.x;	// extend to the left
+		if(with->x+with->width > result->x+result->width)
+			result->width=with->x+with->width-result->x;			// extend to the right
+		if(with->x < result->x)
+			result->width+=result->x-with->x, result->x=with->x;	// extend to the left
 		}
 	if(result->height == 0)
-		result->y=with.y, result->height=with.height;	// first point
+		result->y=with->y, result->height=with->height;	// first point
 	else
 		{
-		if(with.y+with.height > result->y+result->height)
-			result->height=with.y+with.height-result->y;		// extend to the top
-		if(with.y < result->y)
-			result->height+=result->y-with.y, result->y=with.y;	// extend to the bottom
+		if(with->y+with->height > result->y+result->height)
+			result->height=with->y+with->height-result->y;		// extend to the top
+		if(with->y < result->y)
+			result->height+=result->y-with->y, result->y=with->y;	// extend to the bottom
 		}
 #if 0
 	NSLog(@"result: %@", NSStringFromXRect(*result));
@@ -547,21 +547,30 @@ static inline int _isDoubleBuffered(_NSX11GraphicsContext *win)
 	return (((Window) win->_graphicsPort) != win->_realWindow);
 }
 
-static inline void _setDirtyRect(_NSX11GraphicsContext *win, int x, int y, unsigned width, unsigned height)
+static inline void _setDirtyRect(_NSX11GraphicsContext *ctxt, int x, int y, unsigned width, unsigned height)
 { // enlarge dirty area for double buffer
-	// FIXME: limit dirty area to clipping box!
-	if(_isDoubleBuffered(win))
-		XUnion(&win->_dirty, (XRectangle){x, y, width, height});
+	if(_isDoubleBuffered(ctxt))
+		{
+		XRectangle r={x, y, width, height};
+		if(((_NSX11GraphicsState *) ctxt->_graphicsState)->_clip)
+			XIntersectRect(&r, &((_NSX11GraphicsState *) ctxt->_graphicsState)->_clipBox);	// intersect with box (if any)
+		XUnionRect(&ctxt->_dirty, &r);
+		}
 }
 
-static inline void _setDirtyPoints(_NSX11GraphicsContext *win, XPoint *points, int npoints)
+static inline void _setDirtyPoints(_NSX11GraphicsContext *ctxt, XPoint *points, int npoints)
 {
-	// FIXME: limit dirty area to clipping box!
-	if(_isDoubleBuffered(win))
+	if(_isDoubleBuffered(ctxt))
 		{
 		int n=npoints;
+		BOOL clip=((_NSX11GraphicsState *) ctxt->_graphicsState)->_clip != NULL;
 		while(n-->0)
-			XUnion(&win->_dirty, (XRectangle){points[n].x, points[n].y, 1, 1});
+			{
+			XRectangle r={points[n].x, points[n].y, 1, 1};
+			if(clip)
+				XIntersectRect(&r, &((_NSX11GraphicsState *) ctxt->_graphicsState)->_clipBox);	// intersect with box (if any)
+			XUnionRect(&ctxt->_dirty, &r);
+			}
 		}
 }
 
@@ -1160,34 +1169,22 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XSetForeground(_display, _state->_gc, values.foreground);	// restore stroke color
 }
 
-- (void) _setClip:(NSBezierPath *) path;
-{
-#if 0
-	NSLog(@"_setClip");
-#endif
-	if(_state->_clip)
-		XDestroyRegion(_state->_clip);	// delete previous
-	_state->_clip=[self _regionFromPath:path];
-	// check for Rect region
-	XSetRegion(_display, _state->_gc, _state->_clip);
-#if 0
-	{
-		XRectangle box;
-		XClipBox(_state->_clip, &box);
-		NSLog(@"_setClip box=((%d,%d),(%d,%d))", box.x, box.y, box.width, box.height);
-	}
-#endif
-}
-
-- (void) _addClip:(NSBezierPath *) path;
+- (void) _addClip:(NSBezierPath *) path reset:(BOOL) flag;
 {
 	Region r;
 #if 0
-	NSLog(@"_addClip");
+	NSLog(@"_addClip reset:%d", flag);
 #endif
 	r=[self _regionFromPath:path];
 	if(_state->_clip)
-		{
+		{ // region exists
+		if(flag)
+			{ 
+			XDestroyRegion(_state->_clip);	// delete previous
+			_state->_clip=r;	// save
+			}
+		else
+			{ // intersect with existing region
 #if 0
 		{
 			XRectangle box;
@@ -1197,18 +1194,16 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			NSLog(@"      to box=%@", NSStringFromXRect(box));
 		}
 #endif
-		XIntersectRegion(_state->_clip, r, _state->_clip);
-		XDestroyRegion(r);	// no longer needed
+			XIntersectRegion(_state->_clip, r, _state->_clip);
+			XDestroyRegion(r);	// no longer needed
+			}
 		}
 	else
 		_state->_clip=r;	// first call
 	XSetRegion(_display, _state->_gc, _state->_clip);
+	XClipBox(_state->_clip, &_state->_clipBox);	// get current clipping box
 #if 0
-	{
-		XRectangle box;
-		XClipBox(_state->_clip, &box);
-		NSLog(@"         box=%@", NSStringFromXRect(box));
-	}
+	NSLog(@"         box=%@", NSStringFromXRect(_state->_clipBox));
 #endif
 }
 
@@ -1557,7 +1552,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	float width, height;	// source image width&height
 	unsigned char *imagePlanes[5];
 	NSPoint origin;
-	XRectangle box;			// relevant subarea to draw to
 	NSRect scanRect;		// dest on screen in X11 coords
 	BOOL isFlipped;
 	BOOL calibrated;
@@ -1617,11 +1611,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	/*
 	 * clip to visible area (by clipping box, window and screen - note: window may be partially outside of screen)
 	 */
-	XClipBox(_state->_clip, &box);	// clip as defined by drawing code
 #if 0
-	NSLog(@"  clip box=%@", NSStringFromXRect(box));
+	NSLog(@"  clip box=%@", NSStringFromXRect(_state->_clipBox));
 #endif
-	XIntersect(&xScanRect, &box);
+	XIntersectRect(&xScanRect, &_state->_clipBox);
 	/*
 	 FIXME: clip by screen rect (if window is partially offscreen)
 	
@@ -1820,8 +1813,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (void) _copyBits:(void *) srcGstate fromRect:(NSRect) srcRect toPoint:(NSPoint) destPoint;
 { // copy srcRect using CTM from (_NSX11GraphicsState *) srcGstate to destPoint transformed by current CTM
 	XRectangle src, dest;
-#if 1
+#if 0
 	NSLog(@"_copyBits from %@ to %@", NSStringFromRect(srcRect), NSStringFromPoint(destPoint));
+	NSLog(@"  clip box %@", NSStringFromRect([self _clipBox]));
 #endif
 	[self _setCompositing];
 	srcRect.origin=[((_NSX11GraphicsState *) srcGstate)->_ctm transformPoint:srcRect.origin];
@@ -1844,7 +1838,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	dest.width=src.width;
 	dest.height=src.height;
 	dest.x=destPoint.x;
-#if 1
+#if 0
 	NSLog(@"  X11 %@ to %@", NSStringFromXRect(src), NSStringFromXRect(dest));
 	NSLog(@"  src-win=%d", (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort));
 	NSLog(@"  dest-win=%d", _graphicsPort);
@@ -2003,7 +1997,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 }
 
 - (NSRect) _frame;
-{ // get current frame as on screen (might have been moved by window manager)
+{ // get current window frame as on screen (might have been moved by window manager)
 	int x, y;
 	unsigned width, height;
 	NSAffineTransform *ictm=[_nsscreen _X112screen];
@@ -2015,7 +2009,12 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 {
 	XRectangle box;
 	NSAffineTransform *ictm=[_nsscreen _X112screen];
+	if(!_state->_clip)
+		return (NSRect) { NSZeroPoint, { FLT_MAX, FLT_MAX } };	// not clipped
 	XClipBox(_state->_clip, &box);
+#if 0
+	NSLog(@" X clip box %@", NSStringFromXRect(box));
+#endif
 	return (NSRect){[ictm transformPoint:NSMakePoint(box.x, box.y)], [ictm transformSize:NSMakeSize(box.width, -box.height)]};	// translate to screen coordinates!
 }
 
@@ -2069,13 +2068,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			{
 			new->_clip=XCreateRegion();	// create new region
 			XUnionRegion(((_NSX11GraphicsState *) state)->_clip, ((_NSX11GraphicsState *) state)->_clip, new->_clip);	// copy clipping region
-#if 0
-			{
-				XRectangle box;
-				XClipBox(_state->_clip, &box);
-				NSLog(@"copy clip box=%@", NSStringFromXRect(box));
-			}
-#endif
+			new->_clipBox=((_NSX11GraphicsState *) state)->_clipBox;
 			}
 		else
 			new->_clip=NULL;	// not clipped
@@ -3775,7 +3768,7 @@ static NSDictionary *_x11settings;
 	return 0.0;
 }
 
-- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt;
+- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
 { // overwritten by FreeTypeFont
 	NSLog(@"can't draw antialiased fonts");
 }
@@ -3858,7 +3851,7 @@ static NSDictionary *_x11settings;
 		{
 		if(_image)
 			{
-			NSBitmapImageRep *bestRep = [_image bestRepresentationForDevice:nil];	// get device description??
+			NSBitmapImageRep *bestRep =(NSBitmapImageRep *) [_image bestRepresentationForDevice:nil];	// where to get device description from??
 			NSLog(@"convert %@ to PixmapCursor", bestRep);
 #if FIXME
 			// we should lockFocus on a Pixmap and call _draw:bestRep

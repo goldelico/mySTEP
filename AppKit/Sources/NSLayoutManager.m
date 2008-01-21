@@ -390,7 +390,7 @@ containerOrigin:(NSPoint)containerOrigin;
 			}
 		if((style=[[attr objectForKey:NSStrikethroughStyleAttributeName] intValue]))
 			{ // strike through
-			float posy=pos.y+([font defaultLineHeightForFont]-[font xHeight])/2.0+baseline;
+			float posy=pos.y+[font ascender]+baseline-[font xHeight]/2.0;
 #if 0
 			NSLog(@"strike through %x", style);
 #endif
@@ -905,9 +905,11 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (void) textStorage:(NSTextStorage *)str edited:(unsigned)editedMask range:(NSRange)newCharRange changeInLength:(int)delta invalidatedRange:(NSRange)invalidatedCharRange;
 {
-	// invalidate
-	// recalculate frame - limited by minSize and maxSize
-	NIMP;
+	NSRange glyphsToShow=NSMakeRange(0, [str length]);	// all...
+	NSTextContainer *container=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];
+	NSRect bounds=[self boundingRectForGlyphRange:glyphsToShow inTextContainer:container];
+	// update container size if it can stretch
+	// update _textView(s) if they can stretch
 }
 
 - (NSTextView *) textViewForBeginningOfSelection;

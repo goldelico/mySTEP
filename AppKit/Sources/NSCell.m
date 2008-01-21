@@ -928,6 +928,33 @@ static NSCursor *__textCursor = nil;
 	return;	// nothing to do
 }
 
+- (BOOL) _trackLongPress:(NSEvent *)event
+						  inRect:(NSRect)cellFrame
+						  ofView:(NSView *)controlView
+			   lastPoint:(NSPoint) last_point
+				 atPoint:(NSPoint) point
+{
+	NSMenu *contextMenu=[self menuForEvent:event inRect:cellFrame ofView:controlView];	// if we have a context menu, pop it up after approx. 0.5 seconds without movement
+	if(!contextMenu)
+		return NO;	// continue standard tracking
+#if 0
+	NSLog(@"NSCell pop up context menu: %@", contextMenu);
+#endif
+	if(_c.continuous)
+		[NSEvent stopPeriodicEvents];	// was still tracking
+	
+	// we could start some animation (rotating circle like Maemo) while checking for the final popup...
+	// FIXME: define correct popup position
+	// FIXME: a popup menu should have some shadow or a border so that it can be distinguished from the background
+	
+	[self stopTracking:last_point
+					at:point
+				inView:controlView
+			 mouseIsUp:NO];
+	[NSMenu popUpContextMenu:contextMenu withEvent:event forView:controlView];	// show the popup menu
+	return YES;	// exit tracking loop(s)
+}
+
 - (BOOL) trackMouse:(NSEvent *)event
 			 inRect:(NSRect)cellFrame
 			 ofView:(NSView *)controlView
@@ -939,7 +966,6 @@ static NSCursor *__textCursor = nil;
 	id target = [self target];
 	SEL action = [self action];
 	// FIXME: shouldn't we use [controlView menuForEvent:event]; and have that overriden in NSControl/NSMatrix (but not NSTableView!)
-	NSMenu *contextMenu=[self menuForEvent:event inRect:cellFrame ofView:controlView];	// if we have a context menu, pop it up after approx. 0.5 seconds without movement
 	NSDate *expiration;
 	// FIXME: mask should probably depend on which mouse went down in event!
 	unsigned int mask = NSLeftMouseDraggedMask | NSRightMouseDraggedMask | NSLeftMouseDownMask | NSMouseMovedMask | NSLeftMouseUpMask;
@@ -956,16 +982,7 @@ static NSCursor *__textCursor = nil;
 	tracking=[self startTrackingAt:point inView:controlView];
 	if(_c.actOnMouseDown && action)
 		[(NSControl*)controlView sendAction:action to:target];	// do this after starttracking (which may update the cell)
-	if(contextMenu)	// setup a timeout that tracks that the cursor is not moved and pops up the context menu
-		{
-#if 0
-		NSLog(@"NSCell handle context menu");
-#endif
-		expiration=[NSDate dateWithTimeIntervalSinceNow:0.8];
-		}
-	else
-		expiration=[NSDate distantFuture];
-	
+	expiration=[NSDate dateWithTimeIntervalSinceNow:0.8];
 	while(YES)
 		{ // Get next mouse event until a mouse up is obtained
 #if 0
@@ -980,22 +997,10 @@ static NSCursor *__textCursor = nil;
 #endif
 		if(!event)
 			{ // no matching event, i.e. timed out
-#if 0
-			NSLog(@"NSCell pop up context menu: %@", contextMenu);
-#endif
-			if((mask & NSPeriodicMask) != 0)
-				[NSEvent stopPeriodicEvents];	// was still tracking
-			
-			// we could start some animation (rotating circle like Maemo) while checking for the final popup...
-			// FIXME: define correct popup position
-			// FIXME: a popup menu should have some shadow or a border so that it can be distinguished from the background
-			
-			[self stopTracking:last_point
-							at:point
-						inView:controlView
-					 mouseIsUp:NO];
-			[NSMenu popUpContextMenu:contextMenu withEvent:mousedown forView:controlView];	// show the popup menu
-			return YES;	// exit tracking loop(s)
+			if([self _trackLongPress:event inRect:cellFrame ofView:controlView lastPoint:last_point atPoint:point])
+				return YES;
+			expiration=[NSDate distantFuture];
+			continue;
 			}
 #if 0
 		NSLog(@"NSCell trackMouse: event=%@", event);

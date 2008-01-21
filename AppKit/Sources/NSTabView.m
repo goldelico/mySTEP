@@ -95,7 +95,7 @@
 // Tab view, this is the "super" view.
 - (void) _setTabView:(NSTabView *)tabView	{ item_tabview=tabView; }
 - (NSTabView *) tabView						{ return item_tabview; }
-- (id) initialFirstResponder				{ return nil; }
+- (id) initialFirstResponder				{ return item_initialFirstResponder; }
 - (void) setInitialFirstResponder:(NSView*)view			{ item_initialFirstResponder=view; }
 
 - (void) drawLabel:(BOOL)shouldTruncateLabel inRect:(NSRect)tabRect

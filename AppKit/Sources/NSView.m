@@ -1361,42 +1361,6 @@ printing
 	return;	// default implementation does nothing
 }
 
-- (void) _drawRect:(NSRect) rect;
-{
-	static NSColor *black;
-#if 0
-	NSLog(@"_drawRect:%@ %@", NSStringFromRect(rect), self);
-#endif
-	NS_DURING
-		if(_NSShowAllDrawing && [_window isVisible])
-			{ // blink rect that will be redrawn - note that transparent views will get a magenta background by this feature...
-			[[NSGraphicsContext currentContext] saveGraphicsState];
-			[[NSColor magentaColor] set];
-			NSRectFill(rect);
-			[_window flushWindow];
-			usleep(300*1000);	// sleep 0.3 seconds so that effect it is visible
-			[[NSGraphicsContext currentContext] restoreGraphicsState];
-			}
-		// FIXME: this should be part of the setUpGState logic
-		if(!black) black=[[NSColor blackColor] retain];
-		[black set];				// set default
-		if([self wantsDefaultClipping])
-			{ // may be switched off to speed up
-			  // FIXME: default should clip to list of rects in invalidRects!!!
-			[NSBezierPath clipRect:rect];
-			}
-		[self drawRect:rect];		// that one is overridden in subviews and really draws
-		if(_NSShowAllViews && [_window isVisible])
-			{ // draw box around all views
-			[[NSColor brownColor] set];
-			NSFrameRect(_bounds);
-			[_window flushWindow];
-			}
-	NS_HANDLER
-		NSLog(@"%@ -drawRect: %@", NSStringFromClass(isa), [localException reason]);
-	NS_ENDHANDLER
-}
-
 - (BOOL) needsToDrawRect:(NSRect) rect;
 {
     int i;    
@@ -1630,7 +1594,44 @@ printing
 			return;	// can't lock focus
 		locked=YES;
 		// NOTE: we must be prepared for the case that drawRect: changes our frame and/or bounds and even calls setNeedsDisplay
-		[self _drawRect:rect];	// this may use the invalid rects list as a hint to speed up drawing (i.e. if 2 separate lines of a tableview have been marked as needing display)
+#if 0
+		NSLog(@"_drawRect:%@ %@", NSStringFromRect(rect), self);
+#endif
+		NS_DURING
+			{
+				static NSColor *black;
+				BOOL clip;
+				// FIXME: this should be part of the setUpGState logic
+				if(!black) black=[[NSColor blackColor] retain];
+				[black set];				// set default
+				if(_NSShowAllDrawing && [_window isVisible])
+					{ // blink rect that will be redrawn - note that transparent views will get a magenta background by this feature...
+					[context saveGraphicsState];
+					[[NSColor magentaColor] set];
+					NSRectFill(rect);
+					[_window flushWindow];
+					usleep(300*1000);	// sleep 0.3 seconds so that effect it is visible
+					[context restoreGraphicsState];
+					}
+				if((clip=[self wantsDefaultClipping]))
+					{ // may be switched off to speed up
+					[context saveGraphicsState];
+					  // FIXME: default should clip to list of rects in invalidRects!!!
+					[NSBezierPath clipRect:rect];	// intersect with our inherited clipping path
+					}
+				[self drawRect:rect];		// that one is overridden in subviews and really draws
+				if(_NSShowAllViews && [_window isVisible])
+					{ // draw box around all views
+					[[NSColor brownColor] set];
+					NSFrameRect(_bounds);
+					[_window flushWindow];
+					}
+				if(clip)
+					[context restoreGraphicsState];	// we must restore the clipping path!
+			}
+		NS_HANDLER
+			NSLog(@"%@ -drawRect: %@", NSStringFromClass(isa), [localException reason]);
+		NS_ENDHANDLER
 		if(context == [_window graphicsContext])		// NOTE: remove after drawing!
 			[self _removeRectNeedingDisplay:rect];	// should end up with empty list i.e. no more needsDrawing
 		}

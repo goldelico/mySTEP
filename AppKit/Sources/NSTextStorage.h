@@ -48,13 +48,15 @@ enum
 @interface NSTextStorage : NSMutableAttributedString
 {
 #if __APPLE__
-	NSMutableAttributedString *concreteString;	// we are a semiconcrete subclass of a class cluster...
+	NSMutableAttributedString *_concreteString;	// we are a semiconcrete subclass of a class cluster...
 #endif
-    NSMutableArray *layoutManagers;
-    id delegate;
-    NSRange editedRange;
-    int editedDelta;
-    BOOL fixesAttributesLazily;
+    NSMutableArray *_layoutManagers;
+    id _delegate;
+    NSRange _editedRange;
+	int _editedMask;
+	int _changeInLength;
+    int _editedDelta;
+    BOOL _fixesAttributesLazily;
 }
 
 - (void) addLayoutManager:(NSLayoutManager *) obj;

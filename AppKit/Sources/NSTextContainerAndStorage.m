@@ -116,9 +116,9 @@
 	if((self=[super init]))
 		{
 #if __APPLE__
-		concreteString=[NSMutableAttributedString new];
+		_concreteString=[NSMutableAttributedString new];
 #endif
-		layoutManagers=[NSMutableArray new];
+		_layoutManagers=[NSMutableArray new];
 		}
 	return self;
 }
@@ -128,13 +128,13 @@
 #if __APPLE__
 	if((self=[super init]))
 		{
-		concreteString=[[NSMutableAttributedString alloc] initWithAttributedString:str];
-		layoutManagers=[NSMutableArray new];
+		_concreteString=[[NSMutableAttributedString alloc] initWithAttributedString:str];
+		_layoutManagers=[NSMutableArray new];
 		}
 #else
 	if((self=[super initWithAttributedString:str]))
 		{
-		layoutManagers=[NSMutableArray new];
+		_layoutManagers=[NSMutableArray new];
 		}
 #endif
 	return self;
@@ -144,28 +144,27 @@
 {
 	NSLog(@"dealloc %p: %@", self, self);
 #if __APPLE__
-	[concreteString release];
+	[_concreteString release];
 #endif
-	[layoutManagers release];
+	[_layoutManagers release];
 	[self setDelegate:nil];
 	[super dealloc];
 }
 
-- (void) addLayoutManager:(NSLayoutManager *)lm; { [layoutManagers addObject:lm]; [lm setTextStorage:self]; }
+- (void) addLayoutManager:(NSLayoutManager *)lm; { [_layoutManagers addObject:lm]; [lm setTextStorage:self]; }
 
 - (int) changeInLength;
 {
-	NIMP; return 0;
-}	// FIXME: send a delegate and/or layout manager message
+	return _changeInLength;
+}
 
-- (id) delegate; { return delegate; }
+- (id) delegate; { return _delegate; }
 
 - (void) edited:(unsigned)editedMask 
 		  range:(NSRange)range 
  changeInLength:(int)delta;
 {
-	if(delta != 0)
-		[self changeInLength];
+	// accumulate changeInLength
 	NIMP;
 }
 
@@ -177,40 +176,46 @@
 {
 //	[self fixAttributesInRange:editedRange];
 // inform NSLayoutManager(s)
-		[self changeInLength];
 }
 
-- (unsigned int) editedMask; { NIMP; return 0; }
+- (unsigned int) editedMask; { return _editedMask; }
 
-- (NSRange) editedRange; { return editedRange; }
+- (NSRange) editedRange; { return _editedRange; }
 
 - (void) ensureAttributesAreFixedInRange:(NSRange)range;
 {
 	NIMP;
 }
 
-- (BOOL) fixesAttributesLazily; { return fixesAttributesLazily; }
+- (BOOL) fixesAttributesLazily; { return _fixesAttributesLazily; }
 
 - (void) invalidateAttributesInRange:(NSRange)range;
 {
 	NIMP;
 }
 
-- (NSArray *) layoutManagers; { return layoutManagers; }
+- (NSArray *) layoutManagers; { return _layoutManagers; }
+
 - (void) processEditing;
 {
-	NIMP;
-	return;
+	NSEnumerator *e=[_layoutManagers objectEnumerator];
+	NSLayoutManager *lm;
+	NSNotificationCenter *nc=[NSNotificationCenter defaultCenter];
+	[nc postNotificationName:NSTextStorageWillProcessEditingNotification object:self];
+	// do something???
+	[nc postNotificationName:NSTextStorageDidProcessEditingNotification object:self];
+	while((lm=[e nextObject]))
+		[lm textStorage:self edited:0 range:_editedRange changeInLength:_changeInLength invalidatedRange:NSMakeRange(0, 0)];
 }
 
-- (void) removeLayoutManager:(NSLayoutManager *)obj; { [obj setTextStorage:nil]; [layoutManagers removeObject:obj]; }
+- (void) removeLayoutManager:(NSLayoutManager *)obj; { [obj setTextStorage:nil]; [_layoutManagers removeObject:obj]; }
 
 - (void) setDelegate:(id)obj;
 {
-	if(delegate)
+	if(_delegate)
 		; // disconnect notifications
-	delegate=obj;
-	if(delegate)
+	_delegate=obj;
+	if(_delegate)
 		; // connect notifications
 }
 
@@ -242,7 +247,7 @@
 	NSLog(@"NSDelegate=%@", [coder decodeObjectForKey:@"NSDelegate"]);
 #endif
 #if __APPLE__
-	concreteString=[[NSMutableAttributedString alloc] initWithCoder:coder];
+	_concreteString=[[NSMutableAttributedString alloc] initWithCoder:coder];
 #else
 	self=[super initWithCoder:coder];	// we are a real subclass of NSMutableAttributedString
 	NSLog(@"FIXME: doesn't unarchive textStorage's attributes properly");
@@ -264,37 +269,41 @@
 - (NSString *) string;
 {
 	// we might cache since this is called pretty often
-	return [concreteString string];
+	return [_concreteString string];
 }
 
 - (NSMutableString *) mutableString;
 {
 	// we might cache since this is called pretty often
-	return [concreteString mutableString];
+	return [_concreteString mutableString];
 }
+
+//// FIXME: this is called in SWK when we update the attributed string
+//// and it should at least make the NSTextView resize so that scrollbars are displayed properly
 
 - (void) replaceCharactersInRange:(NSRange) rng withAttributedString:(NSAttributedString *) str
 {
-	[concreteString replaceCharactersInRange:rng withAttributedString:str];
-	//	[layoutManagers textStorage:self edited:(unsigned)mask range:(NSRange)range changeInLength:(int)lengthChange invalidatedRange:(NSRange)invalidatedCharRange
+	[_concreteString replaceCharactersInRange:rng withAttributedString:str];
+	// beginediting
 }
 
 - (void) replaceCharactersInRange:(NSRange) rng withString:(NSString *) str
 {
-	[concreteString replaceCharactersInRange:rng withString:str];
-	//	[layoutManagers textStorage:self edited:(unsigned)mask range:(NSRange)range changeInLength:(int)lengthChange invalidatedRange:(NSRange)invalidatedCharRange
+	[_concreteString replaceCharactersInRange:rng withString:str];
+	// endediting
+	// performediting
 }
 
 - (NSDictionary *) attributesAtIndex:(unsigned) index effectiveRange:(NSRangePointer) range
 {
 	NSDictionary *d;
-//	return [concreteString attributesAtIndex:index effectiveRange:range];
+//	return [_concreteString attributesAtIndex:index effectiveRange:range];
 	NS_DURING
-		d=[concreteString attributesAtIndex:index effectiveRange:range];
+		d=[_concreteString attributesAtIndex:index effectiveRange:range];
 	NS_HANDLER
 		NSLog(@"exception for %@", self);
-		NSLog(@"concrete string %@", concreteString);
-		NSLog(@"concrete string length %u", [concreteString length]);
+		NSLog(@"concrete string %@", _concreteString);
+		NSLog(@"concrete string length %u", [_concreteString length]);
 		NSLog(@"index %d", index);
 		d=nil;
 	NS_ENDHANDLER
@@ -304,13 +313,13 @@
 - (NSDictionary *) attributesAtIndex:(unsigned) index longestEffectiveRange:(NSRangePointer) longest inRange:(NSRange) range
 {
 	NSDictionary *d;
-	//	return [concreteString attributesAtIndex:index longestEffectiveRange:longest inRange:range];
+	//	return [_concreteString attributesAtIndex:index longestEffectiveRange:longest inRange:range];
 	NS_DURING
-		d=[concreteString attributesAtIndex:index longestEffectiveRange:longest inRange:range];
+		d=[_concreteString attributesAtIndex:index longestEffectiveRange:longest inRange:range];
 	NS_HANDLER
 		NSLog(@"exception for %@", self);
-		NSLog(@"concrete string %@", concreteString);
-		NSLog(@"concrete string length %u", [concreteString length]);
+		NSLog(@"concrete string %@", _concreteString);
+		NSLog(@"concrete string length %u", [_concreteString length]);
 		NSLog(@"index %d", index);
 		d=nil;
 	NS_ENDHANDLER
@@ -320,14 +329,14 @@
 - (void) setAttributedString:(NSAttributedString *) str;
 {
 	[str retain];
-	[concreteString setAttributedString:str];
+	[_concreteString setAttributedString:str];
 	//	[layoutManagers textStorage:self edited:(unsigned)mask range:(NSRange)range changeInLength:(int)lengthChange invalidatedRange:(NSRange)invalidatedCharRange
 	[str release];
 }
 
 - (void) setAttributes:(NSDictionary *)attributes range:(NSRange)aRange
 {
-	[concreteString setAttributes:attributes range:aRange];
+	[_concreteString setAttributes:attributes range:aRange];
 	//	[layoutManagers textStorage:self edited:(unsigned)mask range:(NSRange)range changeInLength:(int)lengthChange invalidatedRange:(NSRange)invalidatedCharRange
 }
 

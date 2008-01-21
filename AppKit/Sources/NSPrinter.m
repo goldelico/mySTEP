@@ -879,24 +879,10 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 	[_pdf appendString:[path windingRule]==NSNonZeroWindingRule?@" f":@" f*"];
 }
 
-- (void) _setClip:(NSBezierPath *) path;
+- (void) _addClip:(NSBezierPath *) path reset:(BOOL) flag;
 {
 	// PDF can't do that!
 	// we should allow this to be called only once per saveGraphicsState
-	[self _bezierPath:path];
-	[_pdf appendString:[path windingRule]==NSNonZeroWindingRule?@" W n":@" W* n"];
-}
-
-- (void) _addClip:(NSBezierPath *) path;
-{
-	// PDF can't do that!
-	// we should allow this to be called only once per saveGraphicsState
-	[self _bezierPath:path];
-	[_pdf appendString:[path windingRule]==NSNonZeroWindingRule?@" W n":@" W* n"];
-}
-
-- (void) _intersectClip:(NSBezierPath *) path;
-{
 	[self _bezierPath:path];
 	[_pdf appendString:[path windingRule]==NSNonZeroWindingRule?@" W n":@" W* n"];
 }

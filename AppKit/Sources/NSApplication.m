@@ -1180,9 +1180,9 @@ NSEvent *event = nil;									// if queue contains
 {
 	if(!aSelector)
 		return nil;
-	if([aTarget respondsToSelector:aSelector])
+	if(aTarget)
 		return aTarget; // responds...
-	return [self targetForAction:aSelector];
+	return [self targetForAction:aSelector];	// look up in responder chain
 }
 	
 - (id) targetForAction:(SEL)aSelector
@@ -1204,7 +1204,7 @@ NSEvent *event = nil;									// if queue contains
 	responder = [_keyWindow delegate];
 	if(responder != nil && [responder respondsToSelector: aSelector])
 		return responder;
-	// check main window if different
+	// check main window - if different
 	if(_keyWindow != _mainWindow)
 		{ // and traverse main window as well
 		responder = [_mainWindow firstResponder];
@@ -1223,7 +1223,7 @@ NSEvent *event = nil;									// if queue contains
 	// check application
 	if([self respondsToSelector: aSelector])
 		return self;
-	// check delegate
+	// check application delegate
 	if(_delegate != nil && [_delegate respondsToSelector: aSelector])
 		return _delegate;
 	// check document controller (if it exists)
@@ -1499,6 +1499,12 @@ NSWindow *w;
 {
 	NSLog(@"orderFrontCharacterPalette");
 	[[NSWorkspace _distributedWorkspace] enableVKBD:YES];
+}
+
+- (IBAction) _orderOutCharacterPalette:(id)sender
+{
+	NSLog(@"orderFrontCharacterPalette");
+	[[NSWorkspace _distributedWorkspace] enableVKBD:NO];
 }
 
 #if OLD

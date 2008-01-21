@@ -848,6 +848,7 @@
 		EE291C7B0AD7C0EE004A1CA6 /* NSSpeechSynthesizer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSSpeechSynthesizer.h; sourceTree = "<group>"; };
 		EE291CD60AD7EA40004A1CA6 /* NSSpeechSynthesizer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSpeechSynthesizer.m; sourceTree = "<group>"; };
 		EE291CD70AD7EA40004A1CA6 /* NSSpeechRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSpeechRecognizer.m; sourceTree = "<group>"; };
+		EE2C4F510D4393670017D712 /* Xrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Xrender.h; path = /usr/X11R6/include/X11/extensions/Xrender.h; sourceTree = "<absolute>"; };
 		EE31951109AA47490089A9A2 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE3196E209AB7E8A0089A9A2 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
 		EE3196E309AB7E8A0089A9A2 /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = AppController.m; sourceTree = "<group>"; };
@@ -1402,13 +1403,9 @@
 				EEA3727709540273001244CF /* NSTabView.h */,
 				EEA3727809540273001244CF /* NSTabView.m */,
 				EEA3727909540273001244CF /* NSTabViewItem.h */,
-				EEA3727A09540273001244CF /* NSText.h */,
-				EEA3727B09540273001244CF /* NSText.m */,
 				EEA3727E09540273001244CF /* NSTextField.h */,
 				EEA3727F09540273001244CF /* NSTextField.m */,
 				EEA3728009540273001244CF /* NSTextFieldCell.h */,
-				EEA3728209540273001244CF /* NSTextView.h */,
-				EEA3728309540273001244CF /* NSTextView.m */,
 				EE349C5A097027D600CBF42C /* NSTokenField.h */,
 				EECD838B0A07B8AE00EF3E30 /* NSTokenField.m */,
 				EE349C5B097027D600CBF42C /* NSTokenFieldCell.h */,
@@ -1590,6 +1587,8 @@
 				EE12278C0D059CCC000E4BA5 /* NSGlyphInfo.m */,
 				EEA3723009540273001244CF /* NSLayoutManager.h */,
 				EE0B257D0A51B0DD002E1464 /* NSLayoutManager.m */,
+				EEA3727A09540273001244CF /* NSText.h */,
+				EEA3727B09540273001244CF /* NSText.m */,
 				EEA3727C09540273001244CF /* NSTextAttachment.h */,
 				EEA3727D09540273001244CF /* NSTextContainer.h */,
 				EE0B25750A519691002E1464 /* NSTextContainerAndStorage.m */,
@@ -1598,6 +1597,8 @@
 				EE349C59097027D600CBF42C /* NSTextTable.h */,
 				EE03CDAC0BCD431C0031DB7C /* NSTextTable.m */,
 				EEA3728109540273001244CF /* NSTextStorage.h */,
+				EEA3728209540273001244CF /* NSTextView.h */,
+				EEA3728309540273001244CF /* NSTextView.m */,
 				EEF5292D0A55355E0049AF3C /* NSTypesetter.h */,
 			);
 			name = Text;
@@ -1802,6 +1803,7 @@
 				EE09BBB20C11F69700F3199C /* NSFreeTypeFont.h */,
 				EE09BBB10C11F69700F3199C /* NSFreeTypeFont.m */,
 				EEA3719C09540271001244CF /* GSBitmapImageReps.m */,
+				EE2C4F510D4393670017D712 /* Xrender.h */,
 			);
 			name = Backend;
 			path = Sources;
