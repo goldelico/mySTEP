@@ -102,7 +102,12 @@
 #if 0
 	NSLog(@"establishConnection %@", self);
 #endif
-	[_source setValue:_destination forKey:_label];	// call setter or set instance variable through KVC informal protocol
+	// FIXME: protect against exceptions?
+	NS_DURING
+		[_source setValue:_destination forKey:_label];	// call setter or set instance variable through KVC informal protocol
+	NS_HANDLER
+		NSLog(@"*** While connecting NSNibOutletConnector: %@", localException);
+	NS_ENDHANDLER
 }
 
 @end

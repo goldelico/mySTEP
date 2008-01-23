@@ -43,14 +43,15 @@ enum {
 
 @interface NSFontPanel : NSPanel <NSCoding>
 {
+	IBOutlet NSPopUpButton *_systemFontSelector;
+	IBOutlet NSSearchField *_searchField;
+	IBOutlet NSComboBox *_sizeSelector;
+	IBOutlet NSStepper *_sizeStepper;
+	IBOutlet NSBrowser *_browser;
 	NSFont *_panelFont;
 	NSView *_accessoryView;
-	IBOutlet NSPopUpButton *systemFontSelector;
-	IBOutlet NSSearchField *searchField;
-	IBOutlet NSComboBox *sizeSelector;
-	IBOutlet NSStepper *sizeStepper;
-	IBOutlet NSBrowser *browser;
-	NSArray *families;	// after filtering by search field
+	NSArray *_families;	// sorted font families after filtering by search field
+	NSArray *_fonts;	// sorted members of this family
 }
 
 - (IBAction) _selectSystemFont:(id) sender;

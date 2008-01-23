@@ -22,10 +22,11 @@ NSFontManager.m
 //
 // Class variables
 //
-static NSFontManager *__sharedFontManager = nil;
+
 static NSFontPanel *__fontPanel = nil;
-static Class __fontManagerClass = Nil;
+static NSFontManager *__sharedFontManager = nil;
 static Class __fontPanelClass = Nil;
+static Class __fontManagerClass = Nil;
 static NSString *__fontCollections = nil;
 
 #define FONT_COLLECTION(name) [[__fontCollections stringByAppendingPathComponent:(name)] stringByAppendingPathExtension:@"collection"]
@@ -412,11 +413,11 @@ static NSString *__fontCollections = nil;
 	return nil;
 }
 
-- (NSFontPanel *) fontPanel:(BOOL)create
+- (NSFontPanel *) fontPanel:(BOOL) create
 {
-	if(![NSFontPanel sharedFontPanelExists] && !create)
-		return nil;
-	return [NSFontPanel sharedFontPanel];	// create
+	if([NSFontPanel sharedFontPanelExists] || create)
+		return [NSFontPanel sharedFontPanel];	// exists or create...
+	return nil;
 }
 
 - (BOOL) isEnabled								{ return [__fontPanel isEnabled]; }
@@ -643,7 +644,7 @@ static NSString *__fontCollections = nil;
 	NSArray *mfd=[fd matchingFontDescriptorsWithMandatoryKeys:empty];
 	NSEnumerator *e=[mfd objectEnumerator];
 	if(!r)
-		{
+		{ // first call
 		r=[[NSMutableArray alloc] initWithCapacity:50];
 		while((fd=[e nextObject]))
 			{ // get unique families from fonts
@@ -890,7 +891,11 @@ static NSString *__fontCollections = nil;
 	NSLog(@"NSFontPanel - awake from NIB");
 #endif
 	__fontPanel=self;
+	[__fontPanel setWorksWhenModal:YES];
+	[self reloadDefaultFontFamilies];
 }
+
++ (BOOL) sharedFontPanelExists; { return __fontPanel != nil; }
 
 + (NSFontPanel *) sharedFontPanel
 {
@@ -908,12 +913,10 @@ static NSString *__fontCollections = nil;
 
 - (void) dealloc;
 {
-	[families release];
+	[_families release];
 	[_accessoryView release];
 	[super dealloc];
 }
-
-+ (BOOL) sharedFontPanelExists; { return __fontPanel != nil; }
 
 - (void) _notify;
 {
@@ -924,9 +927,9 @@ static NSString *__fontCollections = nil;
 - (void) reloadDefaultFontFamilies;
 {
 	// rebuild menu for systemFontSelector
-	[families release];
-	families=nil;
-	[browser reloadColumn:0];
+	[_families release];
+	_families=nil;
+	[_browser reloadColumn:0];
 }
 
 - (NSFont *) panelConvertFont:(NSFont *)fontObject
@@ -941,7 +944,7 @@ static NSString *__fontCollections = nil;
 	if(multiple)
 		{
 		[self setEnabled:NO];
-		[sizeSelector setStringValue:@"Multiple"];
+		[_sizeSelector setStringValue:@"Multiple"];
 		// deselect all in browser
 		}
 	else
@@ -954,7 +957,7 @@ static NSString *__fontCollections = nil;
 
 - (BOOL) worksWhenModal								{ return YES; }
 
-- (BOOL) isEnabled									{ return [sizeSelector isEnabled]; }
+- (BOOL) isEnabled									{ return [_sizeSelector isEnabled]; }
 
 	// should be made available through NSSplitView
 
@@ -963,10 +966,10 @@ static NSString *__fontCollections = nil;
 
 - (void) setEnabled:(BOOL)flag
 {
-	[systemFontSelector setEnabled:flag];
-	[sizeSelector setEnabled:flag];
-	[sizeStepper setEnabled:flag];
-	[browser setEnabled:flag];
+	[_systemFontSelector setEnabled:flag];
+	[_sizeSelector setEnabled:flag];
+	[_sizeStepper setEnabled:flag];
+	[_browser setEnabled:flag];
 }
 
 // NSCoding protocol
@@ -992,9 +995,9 @@ static NSString *__fontCollections = nil;
 - (IBAction) _searchFont:(id) sender;
 {
 	NSLog(@"search font");
-	[families release];
-	families=nil;
-	[browser reloadColumn:0];
+	[_families release];
+	_families=nil;
+	[_browser reloadColumn:0];
 }
 
 - (IBAction) _singleClick:(id) sender;
@@ -1022,19 +1025,61 @@ static NSString *__fontCollections = nil;
 	// call delegate action
 }
 
+- (BOOL) browser:(NSBrowser *)sender selectRow:(int) row inColumn:(int) column
+{
+	switch(column)
+		{
+		case 0:
+			[_fonts release];
+			_fonts=nil;
+			[_browser reloadColumn:1];
+			break;
+		case 1:
+			// face selected - send change:
+			break;
+		}
+	return YES;
+}
+
 - (int) browser:(NSBrowser *) sender numberOfRowsInColumn:(int) column
 {
-	if(!families)
-		{ // load families and filter by [searchField stringValue]
+	int selected=[sender selectedRowInColumn:0];
+	if(!_families)
+		{ // load families
+		_families=[[NSFontManager sharedFontManager] availableFontFamilies];
+		// filter by [searchField stringValue]
+		_families=[_families sortedArrayUsingSelector:@selector(compare:)];
+		[_families retain];
+#if 1
+		NSLog(@"families = %@", _families);
+#endif
+		}
+	if(!_fonts && selected >= 0)
+		{
+		_fonts=[[NSFontManager sharedFontManager] availableMembersOfFontFamily:[_families objectAtIndex:selected]];
+		_fonts=[_families sortedArrayUsingSelector:@selector(compare:)];
+		[_fonts retain];
 		}
 	switch(column)
 		{
 		case 0:
-			return [families count];
+			return [_families count];
 		case 1:
-			return 0;	// faces of selected family
+			return [_fonts count];	// faces of selected family
 		}
 	return 0;
+}
+
+- (void) browser:(NSBrowser *)sender willDisplayCell:(id) cell atRow:(int) row column:(int) column
+{
+	switch(column)
+		{
+		case 0:
+			[cell setStringValue:[_families objectAtIndex:row]];
+			return;
+		case 1:
+			[cell setStringValue:[_fonts objectAtIndex:row]];
+		}
 }
 
 @end /* NSFontPanel */

@@ -725,6 +725,8 @@
 		EECD84000A089F8100EF3E30 /* myModel.m in Sources */ = {isa = PBXBuildFile; fileRef = EECD83FD0A089F8000EF3E30 /* myModel.m */; };
 		EECD840A0A08A17800EF3E30 /* NSKeyValueBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = EECD84090A08A17800EF3E30 /* NSKeyValueBinding.m */; };
 		EECD840B0A08A17800EF3E30 /* NSKeyValueBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = EECD84090A08A17800EF3E30 /* NSKeyValueBinding.m */; };
+		EECFCA880D472B2D00CF498C /* GSColorWheel.icns in Resources */ = {isa = PBXBuildFile; fileRef = EECFCA870D472B2D00CF498C /* GSColorWheel.icns */; };
+		EECFCA890D472B2E00CF498C /* GSColorWheel.icns in Resources */ = {isa = PBXBuildFile; fileRef = EECFCA870D472B2D00CF498C /* GSColorWheel.icns */; };
 		EEDA089C09E012AD005AA012 /* NSWindowChangedButton.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEDA089709E012AD005AA012 /* NSWindowChangedButton.tiff */; };
 		EEDA089D09E012AD005AA012 /* NSWindowCloseButton.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEDA089809E012AD005AA012 /* NSWindowCloseButton.tiff */; };
 		EEDA089E09E012AD005AA012 /* NSWindowMiniaturizeButton.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEDA089909E012AD005AA012 /* NSWindowMiniaturizeButton.tiff */; };
@@ -1157,6 +1159,7 @@
 		EECD83FC0A089F8000EF3E30 /* myModel.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = myModel.h; sourceTree = "<group>"; };
 		EECD83FD0A089F8000EF3E30 /* myModel.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = myModel.m; sourceTree = "<group>"; };
 		EECD84090A08A17800EF3E30 /* NSKeyValueBinding.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSKeyValueBinding.m; sourceTree = "<group>"; };
+		EECFCA870D472B2D00CF498C /* GSColorWheel.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = GSColorWheel.icns; sourceTree = "<group>"; };
 		EEDA089709E012AD005AA012 /* NSWindowChangedButton.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSWindowChangedButton.tiff; sourceTree = "<group>"; };
 		EEDA089809E012AD005AA012 /* NSWindowCloseButton.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSWindowCloseButton.tiff; sourceTree = "<group>"; };
 		EEDA089909E012AD005AA012 /* NSWindowMiniaturizeButton.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSWindowMiniaturizeButton.tiff; sourceTree = "<group>"; };
@@ -1736,6 +1739,7 @@
 				EEA371A809540272001244CF /* GSArrowUp.tiff */,
 				EEA371A909540272001244CF /* GSArrowUpH.tiff */,
 				EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */,
+				EECFCA870D472B2D00CF498C /* GSColorWheel.icns */,
 				EEA371AE09540272001244CF /* GSComboBox.tiff */,
 				EEF5298E0A554ABB0049AF3C /* GSComboBoxH.tiff */,
 				EEA371AF09540272001244CF /* GSCopyCursor.tiff */,
@@ -2419,6 +2423,7 @@
 				EE7860770D2D4F4600B2197B /* GSResizeRightCursor.tiff in Resources */,
 				EE7860780D2D4F4600B2197B /* GSResizeDownCursor.tiff in Resources */,
 				EE7860790D2D4F4600B2197B /* GSResizeUpCursor.tiff in Resources */,
+				EECFCA890D472B2E00CF498C /* GSColorWheel.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2508,6 +2513,7 @@
 				EE78606C0D2D4F4600B2197B /* GSResizeRightCursor.tiff in Resources */,
 				EE78606D0D2D4F4600B2197B /* GSResizeDownCursor.tiff in Resources */,
 				EE78606E0D2D4F4600B2197B /* GSResizeUpCursor.tiff in Resources */,
+				EECFCA880D472B2D00CF498C /* GSColorWheel.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1740,7 +1740,7 @@ printing
 - (void) scrollRect:(NSRect)src by:(NSSize)delta
 { // scroll the rect by given delta (called by scrollPoint)
 	NSRect dest;
-#if 1
+#if 0
 	NSLog(@"scrollRect:%@ by:%@ %@", NSStringFromRect(src), NSStringFromSize(delta), self);
 #endif
 	if(src.size.width <= 0.0 || src.size.height <= 0.0 || (delta.width == 0.0 && delta.height == 0.0) || NSIsEmptyRect(src))
