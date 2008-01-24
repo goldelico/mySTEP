@@ -148,10 +148,14 @@ static NSTextContainer *_textContainer;
 
 - (void) drawWithRect:(NSRect) rect options:(NSStringDrawingOptions) options;
 { // draw with line breaks within box defined by rect - might clip if lines are too long
+	NSGraphicsContext *ctxt;
 	if([self length] == 0)
 		return;	// empty string
 	[self _setupWithRect:rect options:options];
-	if(![[NSGraphicsContext currentContext] isFlipped])
+	ctxt=[NSGraphicsContext currentContext];
+	[ctxt saveGraphicsState];
+	[NSBezierPath clipRect:rect];	// set clipping rect
+	if(![ctxt isFlipped])
 		rect.origin.y+=rect.size.height;	// start at top of rect (drawGlyphsForGlyphRange expects flipped coordinates)
 #if 0
 	NSLog(@"drawWithRect:options: %@", self);
@@ -161,6 +165,7 @@ static NSTextContainer *_textContainer;
 									atPoint:rect.origin];
 	// underline...
 	// strikethrough...
+	[ctxt restoreGraphicsState];
 	if(options&NSStringDrawingOneShot)
 		{ // remove
 		[_textStorage release];

@@ -38,9 +38,11 @@ static NSImage *__highlightBranchImage;
 
 - (id) init									
 { 
-	self=[self initTextCell: @"aBrowserCell"]; 
-	[self setImage:[isa branchImage]];	// default
-	[self setAlternateImage:[isa highlightedBranchImage]];	// default
+	if((self=[self initTextCell: @"aBrowserCell"]))
+		{
+		[self setImage:[isa branchImage]];	// default
+		[self setAlternateImage:[isa highlightedBranchImage]];	// default
+		}
 	return self;
 }
 
@@ -49,15 +51,20 @@ static NSImage *__highlightBranchImage;
 #if 0
 	NSLog(@"NSBrowserCell initTextCell");
 #endif
-	[super initTextCell: aString];
+	if((self=[super initTextCell: aString]))
+		{
 #if 0
-	if([self isEnabled])
-		NSLog(@"NSBrowserCell isEnabled");
-	NSLog(@"NSBrowserCell initTextCell _textColor=%@", _textColor);
+		if([self isEnabled])
+			NSLog(@"NSBrowserCell isEnabled");
+		NSLog(@"NSBrowserCell initTextCell _textColor=%@", _textColor);
 #endif
-	_c.alignment = NSLeftTextAlignment;
-	[self setLeaf:NO];		// default to non-leaf
-	_c.selectable = YES;
+		_c.alignment = NSLeftTextAlignment;
+		_c.selectable = YES;
+		_c.bezeled = NO;
+		_c.bordered = NO;
+		_c.enabled = YES;
+		[self setLeaf:NO];		// default to non-leaf
+		}
 	return self;
 }
 
@@ -102,60 +109,67 @@ static NSImage *__highlightBranchImage;
 - (void) drawInteriorWithFrame:(NSRect)cellFrame 		// draw the cell
 						inView:(NSView *)controlView
 {
-	NSRect titleRect = cellFrame;
-	NSRect imageRect = cellFrame;
 	NSCompositingOperation op;
-	NSImage *image = nil;
+	NSImage *image;
+
+	// FIXME: a control view should call setControlView explicitly
 
 	_controlView = controlView;							// remember last view
-														// cell was drawn in 
-	if (_c.highlighted || _c.state)				// temporary hack FAR FIX ME?
+	[_textColor release];
+	if (_c.highlighted || _c.state != NSOffState)
 		{
-		[[NSColor selectedControlColor] set];
 		image = _highlightBranchImage;
 		op = NSCompositeHighlight;
+		_textColor = [NSColor selectedMenuItemTextColor];
 		}									
 	else
 		{	
-		[[NSColor windowBackgroundColor] set];	// FIXME?
 		image = _branchImage;
 		op = NSCompositeSourceOver;
+		_textColor = [NSColor controlTextColor];
 		}
-
-	if (!_d.isLeaf && image)
+	[_textColor retain];
+	if(image)
 		{ // make square room for arrow
+		NSRect imageRect = cellFrame;
 		imageRect.size.height = cellFrame.size.height;
 		imageRect.size.width = imageRect.size.height;   // make it square size
-														// Right justify
-		imageRect.origin.x += NSWidth(cellFrame) - NSWidth(imageRect);
-		}
-	else
-		imageRect = NSZeroRect;
-
-	NSRectFill(cellFrame);								// Clear the background
-
-	titleRect.size.width -= imageRect.size.width + (imageRect.size.width>0.0?4.0:0.0);	// draw the title cell but leave room for the image
-  	[super drawInteriorWithFrame:titleRect inView:controlView];
-
-	if(!_d.isLeaf)										// Draw the image
-		{
-		NSSize size = [image size];
-
-		imageRect.origin.x += (imageRect.size.width - size.width) / 2;
-		imageRect.origin.y += (imageRect.size.height - size.height) / 2;
-		if(image)
-			{
+		imageRect.origin.x = NSMaxX(cellFrame) - NSWidth(imageRect);	// right end is the (potential) arrow
+		cellFrame.size.width = NSMinX(imageRect)-3.0;					// reduce available cell size
+		if(!_d.isLeaf)
+			{ // draw the image (centered)
+			NSSize size = [image size];
+			imageRect.origin.x += (imageRect.size.width - size.width) / 2;
+			imageRect.origin.y += (imageRect.size.height - size.height) / 2;
 #if 0
 			NSLog(@"NSBrowserCell draw image %@", image);
 #endif
 			[image compositeToPoint:imageRect.origin operation:op];
 			}
 		}
+	[super drawInteriorWithFrame:cellFrame inView:controlView];		// standard drawing
 }
 
-- (void) drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
+- (void) drawWithFrame:(NSRect)cellFrame 		// draw the cell
+				inView:(NSView *)controlView
 {
-	[self drawInteriorWithFrame: cellFrame inView: controlView];
+	if (_c.highlighted)
+		{ // draw highlight
+		
+		/// here or by NSMatrix?
+		
+		[[NSColor selectedControlColor] set];
+		NSRectFill(cellFrame);
+		}
+	if (_c.state != NSOffState)
+		{ // draw selection
+		
+		/// here or by NSMatrix?
+		
+		[[NSColor selectedControlColor] set];
+		NSRectFill(cellFrame);
+		}
+	[super drawWithFrame:cellFrame inView:controlView];
 }
 
 - (void) encodeWithCoder:(NSCoder *) aCoder							// NSCoding protocol
@@ -171,6 +185,14 @@ static NSImage *__highlightBranchImage;
 	self=[super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
 		{
+		_c.alignment = NSLeftTextAlignment;
+		_c.selectable = YES;
+		_c.bezeled = NO;
+		_c.bordered = NO;
+		_c.enabled = YES;
+		[self setImage:[isa branchImage]];	// default
+		[self setAlternateImage:[isa highlightedBranchImage]];	// default
+		[self setLeaf:NO];		// default to non-leaf
 		return self;
 		}
 	_branchImage = [[aDecoder decodeObject] retain];
@@ -180,8 +202,7 @@ static NSImage *__highlightBranchImage;
 }
 
 - (NSColor *) highlightColorInView:(NSView *) controlView;
-{
-	// FIXME: no idea how to handle the controlView argument!
+{ // controlView (different NSBrowsers) is ignored unless you override
 	return [NSColor highlightColor];
 }
 

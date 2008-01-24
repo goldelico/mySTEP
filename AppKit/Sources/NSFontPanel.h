@@ -48,7 +48,6 @@ enum {
 	IBOutlet NSComboBox *_sizeSelector;
 	IBOutlet NSStepper *_sizeStepper;
 	IBOutlet NSBrowser *_browser;
-	NSFont *_panelFont;
 	NSView *_accessoryView;
 	NSArray *_families;	// sorted font families after filtering by search field
 	NSArray *_fonts;	// sorted members of this family
@@ -88,8 +87,6 @@ enum
 	NSFontPanelStandardModesMask = 0xffff,
 	NSFontPanelAllModesMask = 0xffffffff
 };
-
-// ?? who is the delegate providing this method to shape which elements are visible ??
 
 @protocol NSFontPanelValidation
 

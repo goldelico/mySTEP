@@ -352,7 +352,7 @@ static NSString *__fontCollections = nil;
 	return fontTraits;
 }
 
-// FIXME: use NSFontDescriptor to fint matchingDescriptors
+// FIXME: can we use NSFontDescriptor to find matchingDescriptors?
 
 - (NSFont *) fontWithFamily:(NSString *)family
 					 traits:(NSFontTraitMask)traits
@@ -589,6 +589,8 @@ static NSString *__fontCollections = nil;
 #if 0
 		NSLog(@"NSFontManager availableMembersOfFontFamily %@", family);
 #endif
+		// FIXME: sort 1. narrowest to widest - 2. lightest to boldest - 3. plain to italic).
+	
 		while((fd=[e nextObject]))
 			{ // get unique families from fonts and return in specific format
 			NSDictionary *attribs=[fd fontAttributes];
@@ -715,20 +717,15 @@ static NSString *__fontCollections = nil;
 - (void) orderFrontFontPanel:(id) sender; { [[self fontPanel:YES] orderFront:sender]; }
 - (void) orderFrontStylesPanel:(id) sender; { [[self fontPanel:YES] orderFront:sender]; }
 
-- (void) setSelectedAttributes:(NSDictionary *) attributes isMultiple:(BOOL) flag; { NIMP; }
+- (void) setSelectedAttributes:(NSDictionary *) attributes isMultiple:(BOOL) flag;
+{
+	[__fontPanel _setPanelAttributes: attributes isMultiple: flag];	// private methods
+}
 
 - (void) setSelectedFont:(NSFont *) fontObject isMultiple:(BOOL) flag
 {
-	if (_selectedFont == fontObject)
-		{ // same as before
-		if (flag != _multiple)
-			{ // only multiple flag has changed
-			_multiple = flag;
-			// The panel should also know if multiple changed
-			[__fontPanel setPanelFont: fontObject isMultiple: flag];
-			}
+	if (_selectedFont == fontObject && flag == _multiple)
 		return;
-		}
 	_multiple = flag;
 	ASSIGN(_selectedFont, fontObject);
 	[__fontPanel setPanelFont: fontObject isMultiple: flag];
@@ -921,12 +918,19 @@ static NSString *__fontCollections = nil;
 - (void) _notify;
 {
 	[[NSApp targetForAction:@selector(changeFont:)] changeFont:self];	// send to the first responder
-																		// may also send	[[NSApp targetForAction:@selector(changeAttributes:)] changeAttributes:self];	// send to the first responder
+}
+
+// Hm - there is no methods like -setPanelFont: to setup attributes (text, background, underlining style)?
+// Well, there should be a separate StylePanel!
+
+- (void) _notifyAttributes;
+{
+	[[NSApp targetForAction:@selector(changeAttributes:)] changeFont:self];	// send to the first responder
 }
 
 - (void) reloadDefaultFontFamilies;
 {
-	// rebuild menu for systemFontSelector
+	// FIXME: rebuild menu for systemFontSelector
 	[_families release];
 	_families=nil;
 	[_browser reloadColumn:0];
@@ -934,13 +938,39 @@ static NSString *__fontCollections = nil;
 
 - (NSFont *) panelConvertFont:(NSFont *)fontObject
 {
-	// make a font descriptor from selected font, family, size and other attributes
-	return fontObject;
+	int font=[_browser selectedRowInColumn:0];
+	int face=[_browser selectedRowInColumn:1];
+	if(font >= 0 && face >= 0)
+		{
+		NSFontManager *fm=[NSFontManager sharedFontManager];
+		NSArray *attribs=[_fonts objectAtIndex:face];
+		NSFont *f=[fm convertFont:fontObject toFamily:[attribs objectAtIndex:0]];
+		NSString *size;
+		f=[fm convertFont:f toFace:[attribs objectAtIndex:1]];
+		// weight
+		f=[fm convertFont:f toHaveTrait:[[attribs objectAtIndex:3] intValue]];
+		size=[_sizeSelector stringValue];
+		if([size length] > 0)
+			f=[fm convertFont:f toSize:[size floatValue]];
+		if(f)
+			return f;
+		}
+	return fontObject;	// could not convert
 }
 
-- (void) setPanelFont:(NSFont *)fontObject isMultiple:(BOOL)multiple	
+- (void) _setPanelAttributes:(NSDictionary *) attributes isMultiple:(BOOL) multiple
+{ // text color, background color, underline color&style, strikethrough color&style, super/subscript, kerning, etc.
+}
+
+- (void) setPanelFont:(NSFont *) fontObject isMultiple:(BOOL) multiple	
 {
+	unsigned int mask=NSFontPanelStandardModesMask;
+	id target=[NSApp targetForAction:@selector(validModesForFontPanel:)];
+	if(target)
+		mask=[target validModesForFontPanel:self];
+
 	NSLog(@"setPanelFont: %@", fontObject);
+	
 	if(multiple)
 		{
 		[self setEnabled:NO];
@@ -949,17 +979,30 @@ static NSString *__fontCollections = nil;
 		}
 	else
 		{
-		// make fields reflect the font attributes
-		// [fontObject pointSize]
-		// etc.
+		// [browser selectItem:[fontObject familyName] inColumn:0];
+		// ditto for font face
+		[_sizeSelector setStringValue:[NSString stringWithFormat:@"%f", [fontObject pointSize]]];
+		// check if we match a system font and update the popup button
 		}
+	
+	[_sizeSelector setHidden:(mask&NSFontPanelSizeModeMask) == 0];
+	[_sizeStepper setHidden:(mask&NSFontPanelSizeModeMask) == 0];
+	/* FIXME: hide/unhide other components
+		NSFontPanelFaceModeMask
+		NSFontPanelCollectionModeMask
+		NSFontPanelUnderlineEffectModeMask
+		NSFontPanelStrikethroughEffectModeMask
+		NSFontPanelTextColorEffectModeMask
+		NSFontPanelDocumentColorEffectModeMask
+		NSFontPanelShadowEffectModeMask
+	*/	
 }
 
 - (BOOL) worksWhenModal								{ return YES; }
 
 - (BOOL) isEnabled									{ return [_sizeSelector isEnabled]; }
 
-	// should be made available through NSSplitView
+	// should be made available through a NSSplitView
 
 - (NSView *) accessoryView;							{ return _accessoryView; }
 - (void) setAccessoryView:(NSView *)aView			{ ASSIGN(_accessoryView, aView); }
@@ -977,8 +1020,6 @@ static NSString *__fontCollections = nil;
 - (void) encodeWithCoder:(NSCoder *) aCoder
 {
 	[super encodeWithCoder:aCoder];
-	
-	[aCoder encodeObject: _panelFont];
 }
 
 - (id) initWithCoder:(NSCoder *) aDecoder
@@ -986,17 +1027,16 @@ static NSString *__fontCollections = nil;
 	self=[super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
 		return self;
-	
-	_panelFont = [[aDecoder decodeObject] retain];
-	
 	return self;
 }
 
 - (IBAction) _searchFont:(id) sender;
 {
+#if 1
 	NSLog(@"search font");
+#endif
 	[_families release];
-	_families=nil;
+	_families=nil;	// this makes us filter the families
 	[_browser reloadColumn:0];
 }
 
@@ -1011,19 +1051,22 @@ static NSString *__fontCollections = nil;
 	NSFont *f=nil;
 	// get selected system font object
 	[self setPanelFont:f isMultiple:NO];
-	// call delegate action
+	[self _notify];
 }
 
 - (IBAction) _selectSize:(id) sender;
 {
-	// call delegate action
+	// validate
+	[self _notify];
 }
 
 - (IBAction) _stepperAction:(id) sender;
 {
 	// select next size level
-	// call delegate action
+	[self _notify];
 }
+
+// CHECKME: is this the same as singleClick where we can ask for clickedColumn???
 
 - (BOOL) browser:(NSBrowser *)sender selectRow:(int) row inColumn:(int) column
 {
@@ -1035,7 +1078,7 @@ static NSString *__fontCollections = nil;
 			[_browser reloadColumn:1];
 			break;
 		case 1:
-			// face selected - send change:
+			[self _notify];
 			break;
 		}
 	return YES;
@@ -1057,8 +1100,10 @@ static NSString *__fontCollections = nil;
 	if(!_fonts && selected >= 0)
 		{
 		_fonts=[[NSFontManager sharedFontManager] availableMembersOfFontFamily:[_families objectAtIndex:selected]];
-		_fonts=[_families sortedArrayUsingSelector:@selector(compare:)];
 		[_fonts retain];
+#if 1
+		NSLog(@"faces = %@", _fonts);
+#endif
 		}
 	switch(column)
 		{
@@ -1074,11 +1119,22 @@ static NSString *__fontCollections = nil;
 {
 	switch(column)
 		{
+		// we could have a third level (ususally invisible) to select font collection
 		case 0:
+			{
 			[cell setStringValue:[_families objectAtIndex:row]];
+			[cell setLeaf:NO];
 			return;
+			}
 		case 1:
-			[cell setStringValue:[_fonts objectAtIndex:row]];
+			{
+			NSString *face=[[_fonts objectAtIndex:row] objectAtIndex:1];	// NSFontFaceAttribute
+			if([face length] == 0)
+				face=@"Regular";
+			[cell setStringValue:face];
+			[cell setLeaf:YES];
+			return;
+			}
 		}
 }
 

@@ -21,6 +21,7 @@
 #import <AppKit/NSDocument.h>
 #import <AppKit/NSDocumentController.h>
 #import <AppKit/NSFont.h>
+#import <AppKit/NSFontPanel.h>
 #import <AppKit/NSGraphicsContext.h>
 #import <AppKit/NSImageCell.h>
 #import <AppKit/NSMenuItem.h>
@@ -156,6 +157,10 @@ typedef enum _NSRoundedBezelSegments
 + (void) _didExpose:(NSNotification *) n;	// rect of some became visible and needs to be redrawn
 - (void) _didExpose:(NSNotification *) n;	// rect of this window became visible and needs to be redrawn
 - (void) _setTexturedBackground:(BOOL) flag;
+@end
+
+@interface NSFontPanel (NSPrivate)
+- (void) _setPanelAttributes:(NSDictionary *) attributes isMultiple:(BOOL) multiple;
 @end
 
 @interface NSView (NSPrivate)

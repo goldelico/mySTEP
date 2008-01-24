@@ -281,7 +281,12 @@ static Class __controlCellClass = Nil;
 - (void) selectCell:(NSCell*)aCell			
 { 
 	if (_cell == aCell) 
-		[_cell setState:1];
+		[_cell setState:NSOnState];
+}
+
+- (void) selectCellWithTag:(int) tag			
+{ 
+	NIMP;
 }
 
 - (BOOL) sendAction:(SEL)action to:(id)target				// Target / Action
@@ -334,8 +339,6 @@ static Class __controlCellClass = Nil;
 #if 0
 	NSLog(@"NSControl mouseDown");
 #endif
-	if(![self isEnabled])
-		return;	// If we are not enabled then ignore the mouse
 	if(_ignoresMultiClick && [event clickCount] > 1)
 		{
 		[super mouseDown:event];	// will try to forward to next responder

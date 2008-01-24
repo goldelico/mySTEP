@@ -240,14 +240,18 @@ static NSCursor *__textCursor = nil;
 		}
 }
 
-- (void) setState:(int)value				{ _c.state = (value>0?NSOnState:((value<0 && _c.allowsMixed)?NSMixedState:NSOffState)); }
+- (void) setState:(int)value
+{
+	_c.state = (value>0?NSOnState:((value<0 && _c.allowsMixed)?NSMixedState:NSOffState));
+}
+
 - (void) setNextState;						{ [self setState:[self nextState]]; }
 - (int) state								{ return _c.state; }
 - (int) nextState
 {
-	if(_c.state < 0)	return NSOffState;
-	if(_c.state == 0)	return NSOnState;
-	return _c.allowsMixed?NSMixedState:NSOffState;
+	if(_c.state < 0)	return NSOnState;	// Mixed -> On
+	if(_c.state > 0)	return NSOffState;	// On -> Off
+	return _c.allowsMixed?NSMixedState:NSOnState;	// Off -> Mixed or On
 }
 - (void) setAllowsMixedState:(BOOL)flag		{ _c.allowsMixed = flag; [self setState:_c.state]; }
 - (BOOL) allowsMixedState;					{ return _c.allowsMixed; }
@@ -663,8 +667,10 @@ static NSCursor *__textCursor = nil;
 #if 0
 	NSLog(@"_getFormattedString...");
 #endif
+	if(!_textColor)
+		_textColor=[[NSColor textColor] retain];	// enforce system default
 	*attribs=[NSMutableDictionary dictionaryWithObjectsAndKeys:
-		((_c.enabled && _textColor) ? _textColor : [NSColor disabledControlTextColor]),	NSForegroundColorAttributeName,
+		(_c.enabled ? _textColor : [NSColor disabledControlTextColor]),	NSForegroundColorAttributeName,
 		_font, NSFontAttributeName,
 		nil];
 	*string=nil;
@@ -972,6 +978,8 @@ static NSCursor *__textCursor = nil;
 	NSEvent *mousedown=event;
 	BOOL mouseWentUp = NO;
 	BOOL tracking;
+	if(![self isEnabled])
+		return NO;
 	if(_c.continuous)	// (sub)cell class wants periodic tracking
 		{ // enable periodic events
 		float delay, interval;
@@ -1141,7 +1149,7 @@ static NSCursor *__textCursor = nil;
 		_c.refusesFirstResponder=REFUSESFIRSTRESPONDER;
 #define ALLOWSUNDO ((cellflags2&0x00004000)==0)
 		_d.allowsUndo=ALLOWSUNDO;
-#define ALLOWSMIXEDSTATE ((cellflags2&0x00001000)!=0)
+#define ALLOWSMIXEDSTATE ((cellflags2&0x01000000)!=0)
 		_c.allowsMixed=ALLOWSMIXEDSTATE;
 #define MIXEDSTATE ((cellflags2&0x00000800)!=0)
 		if(_c.allowsMixed && MIXEDSTATE) _c.state=NSMixedState;	// overwrite state
@@ -1170,6 +1178,9 @@ static NSCursor *__textCursor = nil;
 		_formatter=[[aDecoder decodeObjectForKey:@"NSFormatter"] retain];
 		if([aDecoder containsValueForKey:@"NSState"])
 			_c.state = [aDecoder decodeIntForKey:@"NSState"];	// overwrite state
+		[aDecoder decodeObjectForKey:@"NSAccessibilityOverriddenAttributes"];	// just reference - should save and merge with superclass
+		/*_controlView=*/[aDecoder decodeObjectForKey:@"NSControlView"];		// might be a class-swapped object! - don't initialize until we draw for the first time
+		_contents=[[aDecoder decodeObjectForKey:@"NSContents"] retain];	// contents object
 #if 0
 		NSLog(@"%@ initWithCoder:%@", self, aDecoder);
 		NSLog(@"  NSCellFlags=%08x", [aDecoder decodeIntForKey:@"NSCellFlags"]);
@@ -1178,10 +1189,8 @@ static NSCursor *__textCursor = nil;
 		NSLog(@"  drawsbackground=%d", _c.drawsBackground);
 		NSLog(@"  alignment=%d", _c.alignment);
 		NSLog(@"  state=%d", _c.state);
+		NSLog(@"  contents=%@", _contents);
 #endif
-		[aDecoder decodeObjectForKey:@"NSAccessibilityOverriddenAttributes"];	// just reference - should save and merge with superclass
-		/*_controlView=*/[aDecoder decodeObjectForKey:@"NSControlView"];		// might be a class-swapped object! - don't initialize until we draw for the first time
-		_contents=[[aDecoder decodeObjectForKey:@"NSContents"] retain];	// contents object
 		return self;
 		}
 	_contents = [[aDecoder decodeObject] retain];

@@ -241,7 +241,7 @@ int i, count = [_columns count];				// Find the last loaded column
 
 - (int) columnOfMatrix:(NSMatrix *)matrix
 {												// Find the column that has
-int i, count = [_columns count];				// matrix as it's doc view
+	int i, count = [_columns count];				// matrix as it's doc view
 
 	for (i = 0; i < count; ++i)
 		if (matrix == [[_columns objectAtIndex: i] documentView])
@@ -378,7 +378,7 @@ NSScrollView *sc;
 			}
 
 	if (!m)
-		{										// create a new column matrix
+		{ // create a new column matrix
 		unsigned int mode = _br.allowsMultipleSelection
 							? NSListModeMatrix : NSRadioModeMatrix;
 
@@ -612,9 +612,9 @@ int lastColumnLoaded = [self lastColumn];
 
 - (void) doClick:(id)sender					// handle a single click in a cell
 {
-int column = [self columnOfMatrix: sender];
-BOOL shouldSelect = YES;
-NSArray *a;
+	int column = [self columnOfMatrix: sender];
+	BOOL shouldSelect = YES;
+	NSArray *a;
 											// If the matrix isn't ours then 
 	if (column == NSNotFound)				// just return
 		return;

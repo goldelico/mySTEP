@@ -19,6 +19,10 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \f1\b0 \
 \
+* AppKit: NSButtonCell: found a way to recognize if a NSSwitch or NSRadio button is loaded from NIB and distinguish behaviour\
+* AppKit: NSMatrix: use cell-state to track selections; code heavily simplified; aligned operation to OSX, selectedCell, selectedRow etc. return values fixed\
+* AppKit: NSBrowserCell: fixed appearance and behaviour\
+* AppKit: StringDrawing: fixed setting of text clipping rect\
 * AppKit: NSView: fixed issue with setting/updating/preserving clipping box during drawing of subviews\
 * AppKit: NSClipView: improved scrolling by copying pixels on screen as much as possible\
 * AppKit: fixed isFlipped for more NSView subclasses\

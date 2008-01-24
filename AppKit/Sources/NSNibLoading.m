@@ -628,6 +628,9 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 }
 #endif
 
+- (NSString *) className; { return _className; }
+- (NSString *) resourceName; { return _resourceName; }
+
 - (NSString *) description;
 {
 	return [NSString stringWithFormat:@"%@: classname=%@ resourcename=%@", NSStringFromClass([self class]), _className, _resourceName];
@@ -708,6 +711,8 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 		}
 	return self;
 }
+
+- (NSString *) name; { return _name; }	// same as -[NSImage name]
 
 - (NSString *) description; { return [NSString stringWithFormat:@"NSButtonImageSource: %@", _name]; }
 

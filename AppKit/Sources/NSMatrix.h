@@ -38,9 +38,7 @@ typedef enum _NSMatrixMode {
 	NSColor *backgroundColor;
 	NSColor *cellBackgroundColor;
 	id _cellPrototype;
-	id selectedCell;
 	id _target;
-	void *selectedCells;
 	NSSize _cellSize;
 	NSSize _interCell;
 	SEL _action;
@@ -49,8 +47,6 @@ typedef enum _NSMatrixMode {
 	int _numRows;
 	int _numCols;
 	int _mouseDownFlags;
-	int selectedRow;
-	int selectedColumn;
 
 	struct __MatrixFlags {
 		UIBITFIELD(unsigned int, allowsEmptySelect, 1);

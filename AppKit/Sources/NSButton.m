@@ -321,10 +321,15 @@ id __buttonCellClass = nil;
 	NSLog(@"clicked on %@ bezelStyle=%d", _title, _bezelStyle);
 #endif
 	if(flag)
-		[self setNextState];	// cycle
+		{
+		if(_buttonType == NSRadioButton)
+			[self setState:NSOnState];	// don't cycle through states
+		else
+			[self setNextState];	// cycle
+		}
 }
 
-// does not use _c.state to allow for subclasses to override -state
+// does never use _c.state to allow for subclasses to override -state
 
 - (int) intValue						{ return [self state]; }
 - (float) floatValue					{ return [self state]; }
@@ -335,8 +340,9 @@ id __buttonCellClass = nil;
 // visual appearance (colors, shapes, icons) depends on:
 // _bezelStyle
 // stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask)
+// _c.highlighted (should dim the button a little)
 // _c.bordered
-// _state
+// _state (shows icon, toggles background etc.)
 
 - (NSRect) drawingRectForBounds:(NSRect) cellFrame
 {
@@ -398,7 +404,7 @@ id __buttonCellClass = nil;
 		NSLog(@"drawing %@", _title);
 #endif
 	if(stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask))
-		backgroundColor = [NSColor whiteColor];		// make background white dependent on state/highlight
+		backgroundColor = [NSColor whiteColor];		// FIXME: make background white or light grey dependent on highlight
 	else if(_c.drawsBackground) // not bordered - e.g. Radio Button and Checkbox
 		backgroundColor=_backgroundColor;
 	else 
@@ -877,7 +883,7 @@ id __buttonCellClass = nil;
 #define GRADIENTTYPE ((buttonflags&(7<<9))>>9)
 #define ALTERNATEMNEMONICLOC ((buttonflags&0x000000ff)>>0)	// 0xff=none
 
-#define KEYEQUIVALENTMASK ((buttonflags2&0xffffff00)>>8)
+#define KEYEQUIVALENTMASK ((buttonflags2>>8)&0x00ff)
 		_keyEquivalentModifierMask = KEYEQUIVALENTMASK;	// if encoded by flags
 #define BORDERWHILEMOUSEINSIDE ((buttonflags2&0x00000010)!=0)
 #define BEZELSTYLE (((buttonflags2&(7<<0))>>0)+((buttonflags2&(8<<2))>>2))
@@ -904,10 +910,18 @@ id __buttonCellClass = nil;
 			}
 		if(!_normalImage && _alternateImage)
 			{ // no normal image but alternate
-#if 1
+#if 0
 			NSLog(@"no NSNormalImage %@ substituting alternate %@", _normalImage, _alternateImage);
 #endif
 			ASSIGN(_normalImage, _alternateImage), [_alternateImage release], _alternateImage=nil;
+			}
+		if(_normalImage)
+			{ // try to deduce the button type from the image name
+			NSString *name=[_normalImage name];
+			if([name isEqualToString:@"NSRadioButton"])
+				_buttonType=NSRadioButton;
+			else if([name isEqualToString:@"NSSwitch"])
+				_buttonType=NSSwitchButton;
 			}
 		ASSIGN(_title, [aDecoder decodeObjectForKey:@"NSContents"]);		// define as title string and not really _contents
 		if([aDecoder containsValueForKey:@"NSAttributedTitle"])
@@ -920,7 +934,7 @@ id __buttonCellClass = nil;
 		_periodicDelay = 0.001*[aDecoder decodeIntForKey:@"NSPeriodicDelay"];
 		_periodicInterval = 0.001*[aDecoder decodeIntForKey:@"NSPeriodicInterval"];
 #if 0
-		NSLog(@"initWithCoder: %@", self);
+		NSLog(@"initWithCoder final: %@", self);
 		NSLog(@"  title=%@", _title);
 		NSLog(@"  normalImage=%@", _normalImage);
 		NSLog(@"  alternateImage=%@", _alternateImage);

@@ -1557,7 +1557,7 @@ int index = [self columnWithIdentifier:identifier];
 	if(_clickedCell)
 		_clickedCellFrame = [self frameOfCellAtColumn:_clickedColumn row:_clickedRow];
 	if(_clickedCell)
-		{
+		{ // initialize with current value
 		id data=[_dataSource tableView:self objectValueForTableColumn:clickedCol row:_clickedRow];	// ask data source
 		[_clickedCell setObjectValue:data];	// set as object value
 		if(_tv.delegateWillDisplayCell)
@@ -1571,7 +1571,7 @@ int index = [self columnWithIdentifier:identifier];
 	visibleRect = [self visibleRect];
 
 	[NSEvent startPeriodicEventsAfterDelay:0.05 withPeriod:0.03];
-
+	
 	while (YES) 
 		{
 		eventType = [event type];
@@ -1581,116 +1581,112 @@ int index = [self columnWithIdentifier:identifier];
 		// we should make periodic events after some delay simply call [self autoscroll:lastmouse] while the mouse is outside of a certain inner frame
 		//
 		if (eventType != NSPeriodic)
-			current = [event locationInWindow];
-		else
-			{
-			// we should simply detect NSLeftMouseMoved
-			if (current.x != previous.x || current.y != previous.y || scrolled) 
-				{ // something changed
-				previous = current;
-				p = [self convertPoint:current fromView:nil];
-
-				if((row = [self rowAtPoint:p]) >= 0 && row <= _numberOfRows)
+			current = [event locationInWindow];	// update location
+		if (eventType == NSLeftMouseDown || eventType == NSPeriodic || current.x != previous.x || current.y != previous.y || scrolled) 
+			{ // something changed
+			previous = current;
+			p = [self convertPoint:current fromView:nil];
+			
+			if((row = [self rowAtPoint:p]) >= 0 && row <= _numberOfRows)
+				{
+				if(!_tv.allowsMultipleSelection)
 					{
-					if(!_tv.allowsMultipleSelection)
+					extend = (NSRange){row, row};
+					if (row != lastRow)
+						reduce = (NSRange){lastRow, lastRow};
+					}
+				else
+					{
+					if(row >= startRow && lastRow >= startRow)
 						{
-						extend = (NSRange){row, row};
-						if (row != lastRow)
-							reduce = (NSRange){lastRow, lastRow};
-						}
-					else
-						{
-						if(row >= startRow && lastRow >= startRow)
-							{
-							if(row > lastRow)
-								extend = (NSRange){lastRow + 1, row};
-							else
-								if(row < lastRow)
-									reduce = (NSRange){row + 1, lastRow};
-							}
+						if(row > lastRow)
+							extend = (NSRange){lastRow + 1, row};
 						else
-							{
-							if(row <= startRow && lastRow <= startRow)
-								{
-								if(row < lastRow)
-									extend = (NSRange){row, lastRow - 1};
-								else
-									if(row > lastRow)
-										reduce = (NSRange){lastRow, row - 1};
-								}
-							else							// switch over
-								{
-								if(lastRow < startRow)	
-									reduce = (NSRange){lastRow, startRow - 1};
-								else
-									if(lastRow > startRow)
-										reduce = (NSRange){startRow+1,lastRow};
-								if(row > startRow)
-									extend = (NSRange){startRow + 1, row};
-								else
-									if(row < startRow)
-										extend = (NSRange){row, startRow - 1};
-								}
-							}
-						}
-
-					// FIXME: use selectRowIndex:byExtendingSelection
-					
-					if(extend.location >= 0)				// extend selection
-						{
-						r = [self rectOfRow: extend.location];
-						r.origin.x = NSMinX(visibleRect);
-
-						for (i = extend.location; i <= extend.length; i++)
-							{
-							[_selectedRows addIndex:i];
-							[self setNeedsDisplayInRect:r];
-							r.origin.y += _rowHeight + _intercellSpacing.height;
-							}
-						extend.location = -1;
-						}
-			
-					if(reduce.location >= 0)				// reduce selection
-						{
-						r = [self rectOfRow: reduce.location];
-						r.origin.x = NSMinX(visibleRect);
-			
-						for (i = reduce.location; i <= reduce.length; i++)
-							{
-							[_selectedRows removeIndex:i];
-							[self setNeedsDisplayInRect:r];
-							r.origin.y += _rowHeight +_intercellSpacing.height;
-							}
-						reduce.location = -1;
-						}
-
-					lastRow = row;
-					}
-
-				if(lastRow != scrollRow)					// auto scroll
-					{
-					r = [self rectOfRow: (scrollRow = lastRow)];
-					r.size.width = 1;
-					r.origin.x = NSMinX(visibleRect);
-					if ((scrolled = [self scrollRectToVisible:r]))
-						visibleRect = [self visibleRect];
-					}
-				if(_clickedCell && NSMouseInRect(p, _clickedCellFrame, [self isFlipped]))
-					{ // it was a click into a cell - track while we are in the cell
-					BOOL done;
-					[_clickedCell setHighlighted:YES];	
-					[self setNeedsDisplayInRect:_clickedCellFrame];
-					done=[_clickedCell trackMouse:event inRect:_clickedCellFrame ofView:self untilMouseUp:NO];	// track until we leave the cell rect
-					[_clickedCell setHighlighted:NO];	
-					[self setNeedsDisplayInRect:_clickedCellFrame];
-					if(done)
-						{ // mouse went up in cell
-						// send tableView:setObjectValue: ...
-						break;	// end the tracking loop
+							if(row < lastRow)
+								reduce = (NSRange){row + 1, lastRow};
 						}
 					else
-						{ // we did simply leave the cell
+						{
+						if(row <= startRow && lastRow <= startRow)
+							{
+							if(row < lastRow)
+								extend = (NSRange){row, lastRow - 1};
+							else
+								if(row > lastRow)
+									reduce = (NSRange){lastRow, row - 1};
+							}
+						else							// switch over
+							{
+							if(lastRow < startRow)	
+								reduce = (NSRange){lastRow, startRow - 1};
+							else
+								if(lastRow > startRow)
+									reduce = (NSRange){startRow+1,lastRow};
+							if(row > startRow)
+								extend = (NSRange){startRow + 1, row};
+							else
+								if(row < startRow)
+									extend = (NSRange){row, startRow - 1};
+							}
 						}
+					}
+				
+				// FIXME: use selectRowIndex:byExtendingSelection
+				
+				if(extend.location >= 0)				// extend selection
+					{
+					r = [self rectOfRow: extend.location];
+					r.origin.x = NSMinX(visibleRect);
+					
+					for (i = extend.location; i <= extend.length; i++)
+						{
+						[_selectedRows addIndex:i];
+						[self setNeedsDisplayInRect:r];
+						r.origin.y += _rowHeight + _intercellSpacing.height;
+						}
+					extend.location = -1;
+					}
+				
+				if(reduce.location >= 0)				// reduce selection
+					{
+					r = [self rectOfRow: reduce.location];
+					r.origin.x = NSMinX(visibleRect);
+					
+					for (i = reduce.location; i <= reduce.length; i++)
+						{
+						[_selectedRows removeIndex:i];
+						[self setNeedsDisplayInRect:r];
+						r.origin.y += _rowHeight +_intercellSpacing.height;
+						}
+					reduce.location = -1;
+					}
+				
+				lastRow = row;
+				}
+			
+			if(lastRow != scrollRow)					// auto scroll
+				{
+				r = [self rectOfRow: (scrollRow = lastRow)];
+				r.size.width = 1;
+				r.origin.x = NSMinX(visibleRect);
+				if ((scrolled = [self scrollRectToVisible:r]))
+					visibleRect = [self visibleRect];
+				}
+			if(_clickedCell && NSMouseInRect(p, _clickedCellFrame, [self isFlipped]))
+				{ // it was a click into a cell - track while we are in the cell
+				BOOL done;
+				[_clickedCell setHighlighted:YES];	
+				[self setNeedsDisplayInRect:_clickedCellFrame];
+				done=[_clickedCell trackMouse:event inRect:_clickedCellFrame ofView:self untilMouseUp:NO];	// track until we leave the cell rect
+				[_clickedCell setHighlighted:NO];	
+				[self setNeedsDisplayInRect:_clickedCellFrame];
+				if(done && [_dataSource respondsToSelector:@selector(tableView:setObjectValue:forTableColumn:row:)])
+					{ // mouse went up in cell
+					[_dataSource tableView:self setObjectValue:[_clickedCell objectValue] forTableColumn:clickedCol row:row];	// send editing result to data source
+					break;	// end the tracking loop
+					}
+				else
+					{ // we did simply leave the cell
 					}
 				}
 			}
@@ -1933,7 +1929,7 @@ int index = [self columnWithIdentifier:identifier];
 }
 
 - (void) highlightSelectionInClipRect:(NSRect)rect
-{ // fill line before drawing cell
+{ // fill row/column background before drawing cell
 	[[NSColor selectedControlColor] set];
 	NSRectFill(rect);
 }
