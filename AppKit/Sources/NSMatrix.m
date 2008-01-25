@@ -907,8 +907,10 @@ This method is used for selecting cells in list mode with selection by
 
 - (id) selectTextAtRow:(int)row column:(int)column
 {
-	NSLog(@" NSMatrix: selectTextAtRow --- ");
 	NSCell *cell=[self cellAtRow:row column:column];
+#if 1
+	NSLog(@" NSMatrix: selectTextAtRow --- ");
+#endif
 	if (cell && [cell isEditable])
 		{
 		[self selectCell:cell];
@@ -920,8 +922,10 @@ This method is used for selecting cells in list mode with selection by
 
 - (void) selectText:(id)sender
 {
-	NSLog(@" NSMatrix: selectText --- ");
 	NSCell *selectedCell=[self selectedCell];
+#if 1
+	NSLog(@" NSMatrix: selectText --- ");
+#endif
 	if (selectedCell && [selectedCell isEditable] && [selectedCell isEnabled])
 		{
 		NSText *t = [_window fieldEditor:YES forObject:selectedCell];
@@ -1175,7 +1179,6 @@ This method is used for selecting cells in list mode with selection by
 - (void) mouseDown:(NSEvent *) event
 {
 	int clickCount = [event clickCount];
-	_mouseDownFlags = [event modifierFlags];
 	NSPoint location;	// location in view
 	BOOL inCell;		// initially in cell or in intercell spacing?
 	id aCell;			// selected cell
@@ -1183,6 +1186,7 @@ This method is used for selecting cells in list mode with selection by
 	NSRect rect;		// rect of selected cell
 	id previousCell = nil;			// previous cell during ListMode
 	static MPoint anchor = {0, 0};	// initial cell during ListMode
+	_mouseDownFlags = [event modifierFlags];
 	if(_ignoresMultiClick && clickCount > 1)
 		{
 		[super mouseDown:event];	// NSControl will try to forward to next responder
