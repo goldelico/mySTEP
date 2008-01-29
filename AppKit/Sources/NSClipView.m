@@ -124,14 +124,7 @@
 
 - (NSRect) documentVisibleRect
 {
-	NSSize documentBoundsSize = _documentView?[_documentView bounds].size:NSZeroSize;
-	NSRect rect;
-	rect.origin = _bounds.origin;
-	if([self isFlipped] != [_documentView isFlipped])
-		rect.origin.y=-rect.origin.y;
-	rect.size.width = MIN(documentBoundsSize.width, _bounds.size.width);
-	rect.size.height = MIN(documentBoundsSize.height, _bounds.size.height);
-	return rect;
+	return [self convertRect: _bounds toView:_documentView];
 }
 
 - (BOOL) autoscroll:(NSEvent*)event			
@@ -280,7 +273,7 @@ because this reverses the writing direction within the text container
 { // point should lie within the bounds rect of self
 	NSRect start=_bounds;				// original origin
 	[super_view scrollClipView:self toPoint:point];	// this should call scrollToPoint which may round up/down to raster
-#if 1
+#if 0
 	NSLog(@"scrollPoint %@", NSStringFromPoint(point));
 #endif
 	if(_clip.copiesOnScroll)
