@@ -19,6 +19,10 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \f1\b0 \
 \
+* AppKit: NSMenuView: dynamically changing menu bar height removed since we have resolution independence\
+* AppKit: NSClipView: documentVisibleRect corrected\
+* Backend: reduce clipping box to window\
+* AppKit: NSCell: dim image when highlighted to provide better visual feedback for checkboxes etc.\
 * AppKit: NSButtonCell: found a way to recognize if a NSSwitch or NSRadio button is loaded from NIB and distinguish behaviour\
 * AppKit: NSMatrix: use cell-state to track selections; code heavily simplified; aligned operation to OSX, selectedCell, selectedRow etc. return values fixed\
 * AppKit: NSBrowserCell: fixed appearance and behaviour\

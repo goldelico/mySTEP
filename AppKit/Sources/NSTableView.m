@@ -855,7 +855,7 @@
 		}
 	_numberOfRows=[_dataSource numberOfRowsInTableView:self];
 	if(_numberOfRows == n)
-		return;	// hsan't really changed
+		return;	// hasn't really changed
 	[self noteHeightOfRowsWithIndexesChanged:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _numberOfRows)]];
 }
 
@@ -1672,8 +1672,8 @@ int index = [self columnWithIdentifier:identifier];
 				if ((scrolled = [self scrollRectToVisible:r]))
 					visibleRect = [self visibleRect];
 				}
-			if(_clickedCell && NSMouseInRect(p, _clickedCellFrame, [self isFlipped]))
-				{ // it was a click into a cell - track while we are in the cell
+			if(_clickedCell && [clickedCol isEditable] && NSMouseInRect(p, _clickedCellFrame, [self isFlipped]))
+				{ // it was a click into an editable cell - track while we are in the cell
 				BOOL done;
 				[_clickedCell setHighlighted:YES];	
 				[self setNeedsDisplayInRect:_clickedCellFrame];
@@ -1715,25 +1715,26 @@ int index = [self columnWithIdentifier:identifier];
 
 - (void) tile 
 {
-	int rows;
-	int cols;
 #if 0
 	if(!_window)
 		NSLog(@"tiling without window %@", self);
-	if(_numberOfRows != NSNotFound)
+	if(_numberOfRows == NSNotFound)
 		NSLog(@"tiling before any noteNumberOfRowsChanged", self);
 #endif
-	if(_window && _dataSource && _numberOfRows != NSNotFound)
+	if(_window && super_view && _dataSource)
 		{
-		rows = _numberOfRows;
+		int cols;
+		if(_numberOfRows == NSNotFound)
+			[self noteNumberOfRowsChanged];		// read from data source
 		cols = [_tableColumns count];
 #if 0
 		NSLog(@"tile %@", self);
-		NSLog(@"rows %d", rows);
+		NSLog(@"rows %d", _numberOfRows);
 		NSLog(@"cols %d", cols);
 #endif
 		if(cols > 0)
 			{
+			// FIXME: handle resizing policy - if resize last column to fit and minsize allows, use [[sv contentView] documentVisibleRect] as the reference
 			NSScrollView *sv=[self enclosingScrollView];
 			NSRect c = [self rectOfColumn: cols - 1];	// last column (c.size.height comes from current frame height and may be 0!)
 			NSRect h = [_headerView frame];
@@ -1745,8 +1746,8 @@ int index = [self columnWithIdentifier:identifier];
 				NSLog(@"can't tile %@", self);
 				return;
 				}
-			if(rows > 0)
-				r = [self rectOfRow:rows - 1];	// up to last row
+			if(_numberOfRows > 0)
+				r = [self rectOfRow:_numberOfRows - 1];	// up to including last row
 			else
 				r = NSZeroRect;
 			if(NSMaxY(r) < minH)
@@ -1776,7 +1777,7 @@ int index = [self columnWithIdentifier:identifier];
 			[sv setVerticalLineScroll:lheight];	// scroll by one line
 			[sv setVerticalPageScroll:lheight];	// scroll by one page keeping one line visible
 	//		[sv setHorizontalLineScroll:??];
-			[sv setHorizontalPageScroll:0.0];
+			[sv setHorizontalPageScroll:0.0];	// no additional delta
 			}
 		}
 	[self setNeedsDisplay:YES];
@@ -1818,6 +1819,11 @@ int index = [self columnWithIdentifier:identifier];
 	NSRange rowRange = [self rowsInRect:rect];
 	NSRect rowClipRect;
 	int i, maxRowRange = NSMaxRange(rowRange);
+	if(!_window || _numberOfRows == NSNotFound)
+		{
+		NSLog(@"win=%@ _numRows=%d: %@", _window, _numberOfRows, self);
+		return;	// not yet initialized
+		}
 #if 0
 	NSLog(@"drawRect of %@: %@", self, NSStringFromRect(rect));
 #endif

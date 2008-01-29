@@ -259,7 +259,12 @@ static BOOL __fileSystemChanged = NO;
 		}
 	path=[self absolutePathForAppBundleWithIdentifier:[QSApplicationIdentsByName objectForKey:appName]];	// try to map name to ident to path
 	if(!path)
+		{
+#if 1
+		NSLog(@"did not find %@ in database - rebuild database and try again", appName);
+#endif
 		[self findApplications];	// did not find -> rebuild database
+		}
 	return [self absolutePathForAppBundleWithIdentifier:[QSApplicationIdentsByName objectForKey:appName]];	// try again - returns nil if still unknown
 }
 
@@ -450,7 +455,7 @@ static BOOL __fileSystemChanged = NO;
 		nil
 		];
 #if 1
-	NSLog(@"writeDatabase");
+	NSLog(@"write application Database");
 #endif
 	data=[NSPropertyListSerialization dataFromPropertyList:dict
 #if 0	// human readable for testing */
