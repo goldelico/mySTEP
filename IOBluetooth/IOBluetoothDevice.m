@@ -12,9 +12,9 @@
 #import <IOBluetooth/objc/IOBluetoothSDPServiceRecord.h>
 #import <IOBluetooth/objc/IOBluetoothSDPUUID.h>
 
-static NSMutableArray *_favorites;
 static NSMutableArray *_paired;
-static NSMutableArray *_recent;
+
+#define DEFAULTS	@"com.apple.Bluetooth"	// compatibility
 
 @interface _IOBluetoothDeviceNameRequestHandler : NSObject
 {
@@ -85,16 +85,21 @@ static NSMutableArray *_recent;
 
 + (void) initialize
 {
-	_favorites=[[NSMutableArray alloc] initWithCapacity:10];
 	_paired=[[NSMutableArray alloc] initWithCapacity:10];
-	_recent=[[NSMutableArray alloc] initWithCapacity:10];
-	// read favourite addresses from user defaults
-	// read paired addresses from system user defaults
 }
 
 + (NSArray *) favoriteDevices;
 {
-	return _favorites;
+	NSEnumerator *e=[[[[NSUserDefaults standardUserDefaults] persistentDomainForName:DEFAULTS] objectForKey:@"FavoriteDevices"] objectEnumerator];
+	NSString *addr;
+	NSMutableArray *result=[NSMutableArray arrayWithCapacity:10];
+	while((addr=[e nextObject]))
+		{
+		BluetoothDeviceAddress *addr;
+		// translate addr string into BluetoothDeviceAddress descriptor
+		[result addObject:[self withAddress:addr]];
+		}
+	return result;
 }
 
 + (NSArray *) pairedDevices;
@@ -104,9 +109,18 @@ static NSMutableArray *_recent;
 
 + (NSArray *) recentDevices:(UInt32) limit;
 {
-	if(limit == 0)
-		return _recent;
-	return [_recent objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, limit-1)]];
+	NSDictionary *recents=[[[NSUserDefaults standardUserDefaults] persistentDomainForName:DEFAULTS] objectForKey:@"RecentDevices"];
+	NSEnumerator *e=[recents keyEnumerator];
+	NSString *addr;
+	NSMutableArray *result=[NSMutableArray arrayWithCapacity:10];
+	// sort keys by object value (NSDate) descending
+	while(limit-- > 0 && (addr=[e nextObject]))
+		{ // copy first limit records to result
+		BluetoothDeviceAddress *addr;
+		// translate addr string into BluetoothDeviceAddress descriptor
+		[result addObject:[self withAddress:addr]];
+		}
+	return result;
 }
 
 + (IOBluetoothUserNotification *) registerForConnectNotifications:(id) observer selector:(SEL) sel; { return NIMP; }
@@ -116,9 +130,15 @@ static NSMutableArray *_recent;
 
 - (IOReturn) addToFavorites;
 {
-	[_favorites addObject:self];
-	// store addresses in user defaults
-	return kIOReturnSuccess;
+	NSUserDefaults *ud=[NSUserDefaults standardUserDefaults];
+	NSMutableDictionary *dom=[[[ud persistentDomainForName:DEFAULTS] mutableCopy] autorelease];
+	NSString *addr=[self getAddressString];
+	NSArray *favs=[dom objectForKey:@"FavoriteDevices"];
+	if([favs containsObject:addr])
+		return kIOReturnError;	// already a favourite
+	[dom setObject:[favs arrayByAddingObject:addr] forKey:@"FavoriteDevices"];	// update list
+	[ud setPersistentDomain:dom forName:DEFAULTS];
+	return [ud synchronize]?kIOReturnSuccess:kIOReturnError;	// save
 }
 
 - (IOReturn) closeConnection;
@@ -136,6 +156,7 @@ static NSMutableArray *_recent;
 
 - (NSString *) getAddressString; 
 {
+	// CHECKME - should we return the address separated by - characters?
 	return [NSString stringWithFormat:@"%02x:%02x:%02x:%02x:%02x:%02x", _addr.addr[0], _addr.addr[1], _addr.addr[2], _addr.addr[3], _addr.addr[4], _addr.addr[5]];
 }
 
@@ -174,7 +195,12 @@ static NSMutableArray *_recent;
 		addr->addr[0]==_addr.addr[0];
 }
 
-- (BOOL) isFavorite; { return [_favorites containsObject:self]; }
+- (BOOL) isFavorite;
+{
+	NSArray *favs=[[[NSUserDefaults standardUserDefaults] persistentDomainForName:DEFAULTS] objectForKey:@"FavoriteDevices"];
+	return [favs containsObject:[self getAddressString]];
+}
+
 - (BOOL) isIncoming; { return NO; }
 - (BOOL) isPaired; { return [_paired containsObject:self]; }
 - (IOReturn) openConnection; { return [self openConnection:nil]; }
@@ -247,9 +273,16 @@ static NSMutableArray *_recent;
 
 - (IOReturn) removeFromFavorites;
 {
-	[_favorites removeObject:self];
-	// store addresses in user defaults
-	return kIOReturnSuccess;
+	NSUserDefaults *ud=[NSUserDefaults standardUserDefaults];
+	NSMutableDictionary *dom=[[[ud persistentDomainForName:DEFAULTS] mutableCopy] autorelease];
+	NSString *addr=[self getAddressString];
+	NSMutableArray *favs=[[[dom objectForKey:@"FavoriteDevices"] mutableCopy] autorelease];
+	if(![favs containsObject:addr])
+		return kIOReturnError;	// not a favourite
+	[favs removeObject:addr];
+	[dom setObject:favs forKey:@"FavoriteDevices"];	// update list
+	[ud setPersistentDomain:dom forName:DEFAULTS];
+	return [ud synchronize]?kIOReturnSuccess:kIOReturnError;	// save
 }
 
 - (IOReturn) requestAuthentication;
