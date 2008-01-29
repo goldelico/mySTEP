@@ -55,6 +55,9 @@
 
 + (float) menuBarHeight;
 {
+#if 1
+	return 26.0;
+#else
 	// 240 -> 16
 	// 320 -> 16
 	// 480 -> 24
@@ -71,6 +74,7 @@
 			h=24;	// for large screens
 		}
 	return (float) h;
+#endif
 }
 
 - (void) attachSubmenuForItemAtIndex:(int) index;
