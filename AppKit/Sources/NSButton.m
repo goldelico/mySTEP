@@ -639,7 +639,7 @@ id __buttonCellClass = nil;
 	if(!img || _transparent || _c.imagePosition == NSNoImage)
 		return;	// don't draw any image
 	if(stateOrHighlight(NSChangeBackgroundCellMask))
-		op = NSCompositeHighlight;	// change background
+		op = NSCompositeSourceOver;	// NSCompositeHighlight;	// change background
 	else
 		op = NSCompositeSourceOver;	// default composition
 	if([img isKindOfClass:[NSButtonImageSource class]])
@@ -682,7 +682,7 @@ id __buttonCellClass = nil;
 #endif
 	// FIXME: handle imageDimsWhenDisabled
 	// shouldn't we drawInRect: to scale properly?
-	[img compositeToPoint:cellFrame.origin operation:op];	
+	[img compositeToPoint:cellFrame.origin operation:op fraction:(_c.highlighted?0.6:1.0)];	
 }
 
 - (void) drawTitle:(NSAttributedString *) title withFrame:(NSRect) cellFrame inView:(NSView *) controlView;

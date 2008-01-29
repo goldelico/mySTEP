@@ -799,7 +799,7 @@ static NSCursor *__textCursor = nil;
 		// always center
 		frame.origin.x += (NSWidth(frame) - size.width) / 2;
 		frame.origin.y += (NSHeight(frame) - size.height) / 2;
-		[_contents compositeToPoint:frame.origin operation:op];	  
+		[_contents compositeToPoint:frame.origin operation:op fraction:(_c.highlighted?0.8:1.0)];	  
 		}
 }
 
