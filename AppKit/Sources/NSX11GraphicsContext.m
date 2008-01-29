@@ -1172,6 +1172,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (void) _addClip:(NSBezierPath *) path reset:(BOOL) flag;
 {
 	Region r;
+	XRectangle clip;
 #if 0
 	NSLog(@"_addClip reset:%d", flag);
 #endif
@@ -1202,6 +1203,12 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		_state->_clip=r;	// first call
 	XSetRegion(_display, _state->_gc, _state->_clip);
 	XClipBox(_state->_clip, &_state->_clipBox);	// get current clipping box
+	clip.x=0;
+	clip.y=0;
+	clip.width=_xRect.width;
+	clip.height=_xRect.height;
+	XIntersectRect(&_state->_clipBox, &clip);	// clip to window (to avoid errors when using XGetImage)
+	// FIXME: interset with the screen rect expressed in window coordinates so that we never try to draw outside of the screen
 #if 0
 	NSLog(@"         box=%@", NSStringFromXRect(_state->_clipBox));
 #endif
