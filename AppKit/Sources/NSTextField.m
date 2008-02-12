@@ -206,7 +206,7 @@
 	NSLog(@"%@ setObjectValue: %@", self, anObject);
 #endif
 	if(_c.editing)
-		{ // update field editor - if it exists
+		{ // update field editor while we are editing - if it exists
 		NSString *string;				// string
 		NSDictionary *attribs;
 		NSAttributedString *astring;	// or attributed string to draw
@@ -216,7 +216,7 @@
 		[self _getFormattedString:&string withAttribs:&attribs orAttributedString:&astring ignorePlaceholder:YES];
 		if(astring)
 			[[[[_controlView window] fieldEditor:YES forObject:self] _textStorage] setAttributedString:astring];
-		else
+		else if(string)
 			{
 			// could also set up default attributes
 			[[[_controlView window] fieldEditor:YES forObject:self] setString:string];

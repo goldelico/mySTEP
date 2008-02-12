@@ -102,6 +102,7 @@ static Class __rulerViewClass = nil;
 		[self setPageScroll:40];
 		_sv.borderType = NSBezelBorder;
 		_sv.scrollsDynamically = YES;
+		// FIXME: register for user defaults change notifications and tile if needed (e.g. the scroller position has changed)
 		}
 	return self;
 }
@@ -202,9 +203,11 @@ static Class __rulerViewClass = nil;
 - (void) setAutohidesScrollers:(BOOL)flag; { _sv.autohidesScrollers=flag; }
 - (BOOL) autohidesScrollers; { return _sv.autohidesScrollers; }
 - (BOOL) drawsBackground;	{ return [_contentView drawsBackground]; }
+
 - (void) setDrawsBackground:(BOOL) flag	
 {
-	if(!flag && [_contentView isKindOfClass:[NSClipView class]])
+	[_contentView setDrawsBackground:flag];
+	if(!flag && [_contentView respondsToSelector:@selector(setCopiesOnScroll:)])
 		[_contentView setCopiesOnScroll:NO];
 }
 
@@ -286,9 +289,9 @@ static Class __rulerViewClass = nil;
 			return;										// do nothing if unknown scroller
 		}
 	
-	[_contentView scrollPoint:p];						// scroll clipview
+	[_contentView scrollToPoint:p];						// scroll clipview
 	if(_headerContentView)
-		[_headerContentView scrollPoint:(NSPoint){p.x, 0}];
+		[_headerContentView scrollToPoint:(NSPoint){p.x, 0}];
 	if(!_knobMoved)
 		[self reflectScrolledClipView:_contentView];
 }
@@ -427,7 +430,8 @@ static Class __rulerViewClass = nil;
 	else
 		horizScrollerRect.size.height=0.0;
 	if(_sv.hasVertScroller && _vertScroller && ![_vertScroller isHidden])
-		{ // make room on the right side
+		{ // make room on the right or left side
+		BOOL scrollerLeftPosition=[[[NSUserDefaults standardUserDefaults] stringForKey:@"NSScrollerPosition"] isEqualToString:@"left"];
 		float width=[_vertScroller frame].size.width;
 		if(width < 1.0)
 			width=[NSScroller scrollerWidthForControlSize:[_vertScroller controlSize]];
@@ -436,6 +440,11 @@ static Class __rulerViewClass = nil;
 		vertScrollerRect.origin.y = NSMinY(contentRect);
 		vertScrollerRect.size.width = _bounds.size.width - borderThickness - vertScrollerRect.origin.x;	// what remains
 		vertScrollerRect.size.height = contentRect.size.height;	// same height
+		if(scrollerLeftPosition)
+			{ // move vertical scrollers to the left side
+			contentRect.origin.x += vertScrollerRect.size.width;
+			vertScrollerRect.origin.x = 0.0;	// to the left
+			}
 		}
 	else
 		vertScrollerRect=NSZeroRect;
@@ -452,16 +461,16 @@ static Class __rulerViewClass = nil;
 		{ // make as wide as the content view - shrink content view and vertical scroller to make room for the corner view
 		float h = NSHeight([_headerContentView frame]);
 		NSRect headerRect, cornerRect;
-		contentRect.size.height -= h;
-		vertScrollerRect.size.height -= h;
+		contentRect.size.height -= h;	// reduce height
+		vertScrollerRect.size.height -= h;	// reduce height
 		headerRect = NSMakeRect(NSMinX(contentRect), NSMinY(contentRect), NSWidth(contentRect), h);
 		contentRect.origin.y += h;	// move down
 		vertScrollerRect.origin.y += h;	// move down
 		[_headerContentView setFrame:headerRect];
 		[_headerContentView setNeedsDisplay:YES];
 		if(_cornerView)
-			{ // adjust corner view
-			cornerRect=NSMakeRect(NSMaxX(headerRect), NSMinY(headerRect), NSWidth(vertScrollerRect), h);
+			{ // adjust corner view to be above the vertical scroller
+			cornerRect=NSMakeRect(NSMinX(vertScrollerRect), NSMinY(vertScrollerRect), NSWidth(vertScrollerRect), h);	// may result in zero size
 			[_cornerView setFrame:cornerRect];
 			[_cornerView setNeedsDisplay:YES];
 			}
@@ -629,9 +638,9 @@ static Class __rulerViewClass = nil;
 #endif
 			clipBounds.origin.x -= p.x-last.x;
 			clipBounds.origin.y -= p.y-last.y;
-			[_contentView scrollPoint:clipBounds.origin];
+			[_contentView scrollToPoint:clipBounds.origin];
 			if(_headerContentView)
-				[_headerContentView scrollPoint:(NSPoint){clipBounds.origin.x, 0}];
+				[_headerContentView scrollToPoint:(NSPoint){clipBounds.origin.x, 0}];
 			[self reflectScrolledClipView:_contentView];
 			last=p;
 			}
@@ -748,7 +757,8 @@ static Class __rulerViewClass = nil;
 			}
 		[self setContentView:[aDecoder decodeObjectForKey:@"NSContentView"]];
 //		_contentView = [[aDecoder decodeObjectForKey:@"NSContentView"] retain];		// should load content and document view
-		[self setDrawsBackground:[aDecoder decodeBoolForKey:@"NSDrawsBackground"]];	// CHECKME: is this a property of the scrollview or the content view?
+		if([aDecoder containsValueForKey:@"NSDrawsBackground"])
+			[self setDrawsBackground:[aDecoder decodeBoolForKey:@"NSDrawsBackground"]];	// CHECKME: is this a property of the scrollview or the content view?
 #if 0
 		NSLog(@"%@ initWithCoder:%@ sFlags=%08x", self, aDecoder, sFlags);
 #endif

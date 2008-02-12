@@ -30,7 +30,7 @@ typedef enum _NSScrollArrowPosition {
 	NSScrollerArrowsMaxEnd,		// deprecated
 	NSScrollerArrowsMinEnd,		// deprecated
 	NSScrollerArrowsNone,
-	NSScrollerArrowsDefaultSetting=NSScrollerArrowsMaxEnd
+	NSScrollerArrowsDefaultSetting
 } NSScrollArrowPosition;
 
 typedef enum _NSScrollerPart {

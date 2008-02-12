@@ -301,7 +301,7 @@
 	NS_DURING
 		d=[_concreteString attributesAtIndex:index effectiveRange:range];
 	NS_HANDLER
-		NSLog(@"exception for %@", self);
+		NSLog(@"exception %@ for %@", localException, NSStringFromClass([self class]));
 		NSLog(@"concrete string %@", _concreteString);
 		NSLog(@"concrete string length %u", [_concreteString length]);
 		NSLog(@"index %d", index);
@@ -317,7 +317,7 @@
 	NS_DURING
 		d=[_concreteString attributesAtIndex:index longestEffectiveRange:longest inRange:range];
 	NS_HANDLER
-		NSLog(@"exception for %@", self);
+		NSLog(@"exception %@ for %@", localException, NSStringFromClass([self class]));
 		NSLog(@"concrete string %@", _concreteString);
 		NSLog(@"concrete string length %u", [_concreteString length]);
 		NSLog(@"index %d", index);

@@ -751,7 +751,7 @@ printing
 
 - (void) viewWillMoveToWindow:(NSWindow *)newWindow
 {
-	return;	// default: do noting
+	return;	// default: do nothing
 }
 
 - (void) viewDidMoveToWindow
@@ -761,7 +761,7 @@ printing
 
 - (void) viewWillMoveToSuperview:(NSView *)newView
 {
-	return;	// default: do noting
+	return;	// default: do nothing
 }
 
 - (void) viewDidMoveToSuperview

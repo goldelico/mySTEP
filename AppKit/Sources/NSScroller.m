@@ -79,6 +79,7 @@ static NSButtonCell *__knobCell = nil;
 		_knobProportion = 0.3;
 		[self drawParts];
 		[self checkSpaceForParts];
+		// FIXME: register for user defaults change notifications and redraw if needed
 		}
 	return self;
 }
@@ -104,14 +105,12 @@ static NSButtonCell *__knobCell = nil;
 		_isHorizontal=HORIZONTAL;
 		[self checkSpaceForParts];		// may have changed
 #define ARROWSPOSITION ((sflags>>29)&3)
-		_arrowsPosition=ARROWSPOSITION;
+		[self setArrowsPosition:ARROWSPOSITION];	// this may apply defaults
 #define USABLEPARTS ((sflags>>27)&3)
 		_usableParts=USABLEPARTS;
 #define CONTROLTINT ((sflags>>16)&7)
 		_controlTint=CONTROLTINT;
 		[self setFloatValue:[aDecoder decodeFloatForKey:@"NSCurValue"] knobProportion:[aDecoder decodeFloatForKey:@"NSPercent"]/100.0];
-//		_target = [aDecoder decodeObjectForKey:@"NSTarget"];
-//		_action = NSSelectorFromString([aDecoder decodeObjectForKey:@"NSAction"]);
 		_hitPart = NSScrollerNoPart;
 		[self setEnabled:YES];
 #if 0
@@ -191,6 +190,14 @@ static NSButtonCell *__knobCell = nil;
 
 - (void) setArrowsPosition:(NSScrollArrowPosition)where
 {
+	if(where == NSScrollerArrowsDefaultSetting)
+		{
+		NSString *str=[[NSUserDefaults standardUserDefaults] stringForKey:@"AppleScrollBarVariant"];
+		if([str isEqualToString:@"DoubleMax"])
+			where=NSScrollerArrowsMaxEnd;	// there is no NSScrollerArrowsDoubleMaxEnd
+		else if([str isEqualToString:@"Single"])
+			where=NSScrollerArrowsMinEnd;
+		}
 	if(_arrowsPosition == where)
 		return;
 	_arrowsPosition = where;
@@ -203,6 +210,9 @@ static NSButtonCell *__knobCell = nil;
 	if(_floatValue == aFloat)
 		return;	// no change
 	_floatValue=aFloat;
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"AppleScrollAnimationEnabled"])
+		{ // smooth scroll
+		}
 	// fixme: redraw union of old and new NSScrollerKnob
 	[self setNeedsDisplayInRect:[self rectForPart:NSScrollerKnobSlot]];
 }
@@ -277,19 +287,26 @@ static NSButtonCell *__knobCell = nil;
 	if ([self mouse:point inRect:[self rectForPart:NSScrollerIncrementLine]])
 		return NSScrollerIncrementLine;
 	
-	// the Option key should also make us scroll pages
-
+#if 0
 	if ([self mouse:point inRect:[self rectForPart:NSScrollerDecrementPage]])
 		return NSScrollerDecrementPage;
 	
 	if ([self mouse:point inRect:[self rectForPart:NSScrollerIncrementPage]])
 		return NSScrollerIncrementPage;
-	
+#endif
 	if ([self mouse:point inRect:[self rectForPart:NSScrollerKnob]])
 		return NSScrollerKnob;
 	
 	if ([self mouse:point inRect:[self rectForPart:NSScrollerKnobSlot]])
+		{
+		if([[NSUserDefaults standardUserDefaults] boolForKey:@"AppleScrollerPagingBehavior"])
+			{
+			// check point.y > [self rectForPart:NSScrollerKnobSlot].origin.y
+			// FIXME: return NSScrollerDecrementPage or NSScrollerIncrementPage
+				// if user clicks in the slot
+			}
 		return NSScrollerKnobSlot;
+		}
 	
 	return NSScrollerNoPart;
 }
@@ -432,11 +449,13 @@ static NSButtonCell *__knobCell = nil;
 			case NSScrollerIncrementLine:
 			case NSScrollerIncrementPage:
 				theCell = (_isHorizontal ? __rightCell : __downCell);
+				// if option key - _hitPart=NSScrollerIncrementPage;
 				break;
 
 			case NSScrollerDecrementLine:
 			case NSScrollerDecrementPage:
 				theCell = (_isHorizontal ? __leftCell : __upCell);
+				// if option key - _hitPart=NSScrollerDecrementPage;
 				break;
 
 			default:

@@ -149,6 +149,8 @@
 { // document view notification
 	NSRect mr = [_documentView frame];
 	NSRect bounds = [self bounds];
+	if(!_window)
+		return;	// ignore
 	// disable notifications to prevent an infinite loop
 	[_documentView setPostsFrameChangedNotifications:NO];	
 
@@ -175,7 +177,7 @@
 		[_documentView setFrameOrigin:mr.origin];	
 
 	[_documentView setPostsFrameChangedNotifications:YES];			// reenable
-	[super_view scrollClipView:self toPoint:bounds.origin];	// will call [self scrollToPoint:] and [self setBounds]
+	[super_view scrollClipView:self toPoint:bounds.origin];			// will call [self scrollToPoint:] and [self setBounds]
 	[super_view reflectScrolledClipView:self];
 //	[_documentView setNeedsDisplay:NO];		// reset area to draw in subview
 	if(NSWidth(mr) < NSWidth(_frame) || NSHeight(mr) < NSHeight(_frame))
@@ -260,21 +262,24 @@ because this reverses the writing direction within the text container
 - (void) setBoundsRotation:(float)angle			{ NIMP; }
 - (void) setFrameRotation:(float)angle			{ NIMP; }
 
+- (void) scrollPoint:(NSPoint) point
+{ // finish recursion from NSView's default implementation
+#if 0
+	NSLog(@"scrollPoint %@", NSStringFromPoint(point));
+#endif	
+	[super_view scrollClipView:self toPoint:point];	// this should call scrollToPoint which may round up/down to raster
+}
+
 - (void) scrollToPoint:(NSPoint) point
-{
+{ // point should lie within the bounds rect of self
+	NSRect start=_bounds;				// original origin before translating
 	point=[self constrainScrollPoint:point];
 	point.x = floor(point.x);			// avoid rounding errors by constraining the scroll to integer numbers
 	point.y = floor(point.y);
 	[self setBoundsOrigin:point];		// translate to new origin
 	[self resetCursorRects];
-}
-
-- (void) scrollPoint:(NSPoint) point
-{ // point should lie within the bounds rect of self
-	NSRect start=_bounds;				// original origin
-	[super_view scrollClipView:self toPoint:point];	// this should call scrollToPoint which may round up/down to raster
 #if 0
-	NSLog(@"scrollPoint %@", NSStringFromPoint(point));
+	NSLog(@"scrollToPoint %@", NSStringFromPoint(point));
 #endif
 	if(_clip.copiesOnScroll)
 		{
@@ -314,19 +319,21 @@ because this reverses the writing direction within the text container
 			ySlice.origin.y -= delta.height;
 			}
 
-		if(delta.width < 0)		 			// scroll doc left
+		if(delta.width < 0)		 			// scroll right, doc left
 			{
-			src.size.width += delta.width;
-			src.origin.x -= delta.width;	// is negative!
+			src.size.width += delta.width;	// is negative!
+			src.origin.x -= 2.0*delta.width;	// is negative!
 			xSlice.size.width = -delta.width;
 			xSlice.origin.x = NSMaxX(start) - xSlice.size.width;
+			ySlice.origin.x -= delta.width;
 			ySlice.size.width += delta.width;
 			}
 		else if(delta.width > 0)
-			{												
+			{									
 			src.size.width -= delta.width;
+			src.origin.x -= delta.width;
 			xSlice.size.width = delta.width;
-			ySlice.origin.x += delta.width;
+			xSlice.origin.x -= delta.width;
 			ySlice.size.width -= delta.width;
 			}
 
@@ -337,6 +344,11 @@ because this reverses the writing direction within the text container
 		// xSlice - a vertical rect where to draw fresh content
 
 		[self scrollRect:src by:delta];		// if there is anything to copy (src.size.height/width may be negative)
+		if(_NSShowAllDrawing)
+			{
+			[[NSGraphicsContext currentContext] flushGraphics];
+			sleep(1);
+			}
 		if(!NSIsEmptyRect(xSlice))
 			{ // redraw along x axis
 #if 0
@@ -453,7 +465,9 @@ because this reverses the writing direction within the text container
 		NSLog(@"%@ initWithCoder:%@", self, aDecoder);
 #endif
 #define COPIESONSCROLL ((cvFlags&0x02)==0)
+		// sometimes not properly loaded???
 		_clip.copiesOnScroll = COPIESONSCROLL;
+		_clip.copiesOnScroll = YES;
 #define DRAWSBACKGROUND ((cvFlags&0x04)!=0)
 		_clip.drawsBackground = DRAWSBACKGROUND;
 		_backgroundColor=[[aDecoder decodeObjectForKey:@"NSBGColor"] retain];
