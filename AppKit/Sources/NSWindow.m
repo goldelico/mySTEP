@@ -162,7 +162,6 @@ static BOOL __cursorHidden = NO;
 				}
 			// add window title button (?)
 			}
-		[self addSubview:[[[NSView alloc] initWithFrame:NSZeroRect] autorelease]];	// always add a default content view
 		[self layout];
 		ASSIGN(_backgroundColor, [NSColor windowBackgroundColor]);	// default background
 		}
@@ -281,7 +280,7 @@ static BOOL __cursorHidden = NO;
 		}
 }
 
-- (NSView *) contentView; { return [sub_views objectAtIndex:3]; }
+- (NSView *) contentView; { return [sub_views count] > 3?[sub_views objectAtIndex:3]:nil; }
 
 - (void) layout;
 { // NOTE: if the window fills the screen, the content view has to be made smaller
@@ -301,7 +300,10 @@ static BOOL __cursorHidden = NO;
 	NSLog(@"  cv=%@", cv);
 	NSLog(@"  frame=%@", NSStringFromRect(f));
 #endif
-	[cv setFrame:f];	// enforce size of content view to fit
+	if(!cv)
+		[self addSubview:[[[NSView alloc] initWithFrame:f] autorelease]];	// add an initial content view
+	else
+		[cv setFrame:f];	// enforce size of content view to fit
 	_didSetShape=NO;	// and reset shape
 }
 
@@ -464,11 +466,21 @@ static BOOL __cursorHidden = NO;
 	return nil;	// has no buttons
 }
 
-- (NSView *) contentView; { return [sub_views objectAtIndex:0]; }
+- (NSView *) contentView; { return [sub_views count] > 0?[sub_views objectAtIndex:0]:nil; }
 
 - (void) layout;
 { // we don't have a button bar
-	[[self contentView] setFrame:[self frame]];	// adjust the content view to the frame
+	NSView *cv=[self contentView];
+	NSRect f=[self frame];
+#if 0
+	NSLog(@"layout %@", self);
+	NSLog(@"  cv=%@", cv);
+	NSLog(@"  frame=%@", NSStringFromRect(f));
+#endif
+	if(!cv)
+		[self addSubview:[[[NSView alloc] initWithFrame:f] autorelease]];	// add an initial content view
+	else
+		[cv setFrame:f];	// enforce size of content view to fit
 }
 
 - (void) setToolbar:(NSToolbar *) toolbar; { NIMP; }	// can't save/create for borderless windows

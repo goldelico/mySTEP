@@ -411,20 +411,24 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #if 0
 	NSLog(@"%@ drawBorderAndBackgroundWithFrame:%@ isHighlighted=%d", self, NSStringFromRect(frame), [self isHighlighted]);
 #endif
-	[[self isHighlighted]?[NSColor selectedMenuItemColor]:[NSColor windowBackgroundColor] set];
-	NSRectFill(frame);
-	// FIXME: if we have a representedObject that responds to -drawMenuBackground:(BOOL) flag then call
+	if([[menuItem representedObject] respondsToSelector:@selector(drawMenuBackground:)])
+		[[menuItem representedObject] drawStatusBarBackgroundInRect:frame withHighlight:[self isHighlighted]];
+	else
+		{
+		[[self isHighlighted]?[NSColor selectedMenuItemColor]:[NSColor windowBackgroundColor] set];
+		NSRectFill(frame);
+		}
 }
 
 // FIXME: should somehow use drawImage:withFrame:inView: (NSButtonCell)
 
 - (void) drawImageWithFrame:(NSRect) frame inView:(NSView *) view;
 {
-#if NEW
+#if 1
 	// ??? or do we use the NSButtonCell implementation for drawing the state image?
 	// must implement/override imageRectForBounds in NSButtonCell
 	[self drawImage:[menuItem image] withFrame:frame inView:view];
-#endif
+#else
 	NSImage *i=[menuItem image];
 	NSRect r;
 	NSSize sz;
@@ -440,6 +444,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	NSLog(@"frame:%@\nimage=%@", NSStringFromRect(r), i);
 #endif
 	[i compositeToPoint:r.origin operation:NSCompositeHighlight];
+#endif
 }
 
 - (void) drawKeyEquivalentWithFrame:(NSRect) frame inView:(NSView *) view;
@@ -514,8 +519,6 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	[i compositeToPoint:frame.origin operation:NSCompositeHighlight];
 }
 
-// should use drawImage:withFrame:inView: (NSButtonCell)
-
 - (void) drawTitleWithFrame:(NSRect) frame inView:(NSView *) view;
 {
 #if NEW
@@ -528,11 +531,9 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #if 0
 	NSLog(@"drawTitleWithFrame:%@->%@ - title=%@", NSStringFromRect(frame), NSStringFromRect(r), [[self _titleAttributedString] string]);
 #endif
-	r.origin.y -= (r.size.height-sz.height)/2.0;	// center
+	r.origin.y += (r.size.height-sz.height)/2.0;	// center
 	[ts drawInRect:r];
 }
-
-// FIXME: use NSCell's default implementation!
 
 - (NSRect) imageRectForBounds:(NSRect) frame;
 {

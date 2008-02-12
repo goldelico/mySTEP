@@ -16,6 +16,7 @@
 #import <AppKit/NSColor.h>
 #import <AppKit/NSBezierPath.h>
 #import <AppKit/NSPanel.h>
+#import <AppKit/NSPopUpButton.h>
 
 #import "NSAppKitPrivate.h"
 
@@ -94,9 +95,9 @@
 	if(!_menuWindow)
 		{ // create a new submenu window
 		_menuWindow=[[NSPanel alloc] initWithContentRect:NSMakeRect(0.0, 0.0, 50.0, 50.0)
-																						styleMask:NSBorderlessWindowMask
-																							backing:NSBackingStoreBuffered
-																								defer:YES];	// will be released on close
+											   styleMask:NSBorderlessWindowMask
+												 backing:NSBackingStoreBuffered
+												   defer:YES];	// will be released on close
 		[_menuWindow setWorksWhenModal:YES];
 		[_menuWindow setLevel:NSSubmenuWindowLevel];
 #if 1
@@ -121,21 +122,14 @@
 	[_attachedMenuView setMenu:submenu];		// define to manage selected submenu
 	r=[self convertRect:[self rectOfItemAtIndex:index] toView:nil];
 	r.origin=[_window convertBaseToScreen:r.origin];  // convert to screen coordinates
-	// might offset y if menu is second tier submenu of the first entry
-	//
-	// FIXME: check if menu vertically fits on screen
-	// if not, draw up and down arrow buttons at top and bottom
-	// and make menu scrollable
-	//
 #if 0
 	NSLog(@"screen rect=%@", NSStringFromRect(r));
 #endif
 	[_attachedMenuView setWindowFrameForAttachingToRect:r
 											   onScreen:[_window screen]
 										  preferredEdge:(_isHorizontal?NSMinYEdge:NSMaxXEdge)	// default: below or to the right
-									  popUpSelectedItem:-1];	// this should resize the submenu window
+									  popUpSelectedItem:0];	// this should resize the submenu window and show the first item
 	[_menuWindow orderFront:self];  // finally, make it visible
-									//// [attachedMenuView sizeToFit]?
 #if 0
 	NSLog(@"attachSubmenu done");
 #endif
@@ -197,7 +191,7 @@
 #if 0
 	NSLog(@"MenuView initWithFrame:%@", NSStringFromRect(fr));
 #endif
-	if((self=[super initWithFrame:fr]))
+	if((self=[super initWithFrame:fr]))	// WARNING: this calls [self setMenu:[isa defaultMenu]]
 		{
 #if 0
 		NSLog(@"initWithFrame:%@ bounds:%@", NSStringFromRect([self frame]), NSStringFromRect([self bounds]));
@@ -397,6 +391,8 @@
 - (void) setMenu:(NSMenu *) m;
 {
 	int i, cnt;
+	if(_menumenu == m)
+		return;	// no change
 #if 1
 	NSLog(@"setMenu");
 #endif
@@ -409,30 +405,41 @@
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:NSMenuDidChangeItemNotification object:_menumenu];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:NSMenuDidRemoveItemNotification object:_menumenu];
 		[_menumenu setMenuRepresentation:nil];
+		if([self highlightedItemIndex] >= [m numberOfItems])
+			[self setHighlightedItemIndex:-1];	// remove highlighting
 		}
-	for(i=0, cnt=[_cells count]; i<cnt; i++)
-		{
-		id cell=[_cells objectAtIndex:i];
+	for(i=[m numberOfItems], cnt=[_cells count]; i<cnt; i++)
+		{ // remove all cells we don't need any more
+		id cell=[_cells lastObject];
 		[cell setMenuItem:nil];
-		[cell setMenuView:nil];	// invalidate
+		[cell setMenuView:nil];	// invalidate cell connection
+		[_cells removeLastObject];
 		}
-	[_cells removeAllObjects];	// should dealloc all cells
 	[_menumenu autorelease];
 	if((_menumenu=[m retain]))
 		{ // set new menu
+		cnt=[_menumenu numberOfItems];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemAdded:) name:NSMenuDidAddItemNotification object:_menumenu];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemChanged:) name:NSMenuDidChangeItemNotification object:_menumenu];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemRemoved:) name:NSMenuDidRemoveItemNotification object:_menumenu];
 		[_menumenu setMenuRepresentation:self];
-		for(i=0, cnt=[_menumenu numberOfItems]; i<cnt; i++)
-			{ // (re)add all existing menu items by calling itemAdded
-			[self itemAdded:[NSNotification	notificationWithName:NSMenuDidAddItemNotification
-														  object:_menumenu
-														userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:i]
-																							 forKey:@"NSMenuItemIndex"]]];
+#if 0
+		NSLog(@"itemAdded - pos=%d, cell=%@", pos, c);
+#endif
+		_rectOfCells=(NSRect *) objc_realloc(_rectOfCells, cnt*sizeof(NSRect));	// adjust size
+#if 0
+		NSLog(@"itemAdded - %@", self);
+#endif
+		for(i=[_cells count]; i<cnt; i++)
+			[_cells addObject:[[[NSMenuItemCell alloc] init] autorelease]];		// make more item cells
+		for(i=0; i<cnt; i++)
+			{ // update menu items
+			id cell=[_cells objectAtIndex:i];
+			_rectOfCells[i]=NSZeroRect;	// clear size info
+			[self setMenuItemCell:cell forItemAtIndex:i];		// to add all cell connections and updates
 			}
+		_needsSizing=YES;		// even if we have no cells...
 		[_menumenu update];		// auto-enable and resize if needed
-		_needsSizing=YES;	// surely...
 		}
 }
 
@@ -440,7 +447,7 @@
 {
 	[_cells replaceObjectAtIndex:index withObject:cell];
 	[cell setMenuItem:[[_menumenu itemArray] objectAtIndex:index]];	// make a reference to menu item to be shown
-	[cell setMenuView:self];				// make reference to myself
+	[cell setMenuView:self];			// make reference to myself
 	[cell setFont:[self font]];			// set font
 	[cell setHighlighted:(_highlightedItemIndex==index)];	// may be the currently highlighted element
 	_needsSizing=YES;	// we will need to recalc size - which will also redisplay the full menu
@@ -461,12 +468,13 @@
 						popUpSelectedItem:(int) index;
 {
 	NSRect mf;  // new menu frame
+	NSRect b;	// our bounds
 	NSRect sf=[[_window screen] visibleFrame];
 #if 0
 	NSLog(@"setWindowFrameForAttachingToRect:%@ screen:... edge:%d item:%d", NSStringFromRect(ref), edge, index);
 #endif
 	if(_needsSizing)
-		[self sizeToFit];	// this will resize the window
+		[self sizeToFit];	// this will initially resize the window and our frame/bounds to fit the full menu
 	edge &= 3;
 	mf.size=_frame.size;   // copy content size
 	switch(edge)
@@ -493,22 +501,26 @@
 	if(mf.origin.x+mf.size.width > sf.size.width)   // does (still) not fit to the right - try (again) to the left but align right border on horizontal menus
 		mf.origin.x=ref.origin.x-mf.size.width+((edge==NSMinYEdge || edge==NSMaxYEdge)?ref.size.width:0.0);
 	if(mf.origin.x < 0)
-		mf.origin.x=0.0;	// still no fit - give up (could center to screen)
+		{
+		mf.origin.x=0.0;	// still no fit - needs scrolling
+		mf.size.width=sf.size.width;	// limit to screen
+		}
 	if(mf.origin.y < 0)		// try above if it does not fit below
 		mf.origin.y=ref.origin.y+((edge==NSMinYEdge || edge==NSMaxYEdge)?ref.size.height:0.0);
 	if(mf.origin.y+mf.size.height > sf.size.height) // try below
 		mf.origin.y=ref.origin.y-mf.size.height;
 	if(mf.origin.y < 0)
-		mf.origin.y=0.0;   // still no fit - give up
-	if(index >= 0)
 		{
-		// adjust by index - differently if horizontal or vertical
-		// we can set bounds accordingly
+		mf.origin.y=0.0;	// still no fit - needs scrolling
+		mf.size.height=sf.size.height;	// limit to screen
 		}
 #if 0
 	NSLog(@"set frame=%@", NSStringFromRect(mf));
 #endif
+	b=_bounds;	// preserve bounds size
 	[_window setFrame:[_window frameRectForContentRect:mf] display:NO];	// this will also change our frame&bounds since we are the contentView!
+//	b.origin=[self rectOfItemAtIndex:index].origin;	// get rect of item to show
+	[self setBounds:b];
 #if 0
 	NSLog(@"set frame done");
 #endif
@@ -557,7 +569,6 @@
 
 - (void) sizeToFit;
 { // calculate new size and positon of cells - handle horizontal vs. vertical - handle rightToLeft
-	// FIXME: handle scrolling of large menus
 	NSRect p;				// cell position
 	NSRect f;				// frame size
 	int i;
@@ -587,9 +598,9 @@
 		_keyEquivalentWidth=0.0;
 		_stateImageWidth=0.0;
 		_keyEquivalentOffset=_imageAndTitleOffset=_stateImageOffset=_horizontalEdgePadding;
-		p.origin=NSMakePoint(_horizontalEdgePadding, 0.0);	// initial position
+		p.origin=NSMakePoint(_horizontalEdgePadding, 0.0);	// initial position (top left)
 		for(i=0; i<nc; i++)
-			{ // determine element positions
+			{ // determine item positions
 			NSMenuItemCell *c=[_cells objectAtIndex:i];
 			[c setNeedsSizing:YES];			// get latest values (which might change dynamically if the representedObject supports the -length method)
 			p.size=[c cellSize];			// get cell size (based on new total state/image widths)
@@ -629,15 +640,14 @@
 		for(i=0; i<nc; i++)
 			{ // determine element positions
 			NSMenuItemCell *c;
-			int ii=nc-i-1;	// reverse order because coordinates are flipped for vertical menus
-			c=[_cells objectAtIndex:ii];
+			c=[_cells objectAtIndex:i];
 			p.size=[c cellSize];			// get cell size (based on new total state/image widths)
 			p.size.width=f.size.width;				// extend cell width to total menu width
 			/// FIXME: we should adjust p already here for the statusBar so that we can reduce redisplay for changed cells
 			/// but how should we do that before we know the total width of the status bar???
-			//		if(!NSEqualRects(rectOfCells[ii], p))
+			//		if(!NSEqualRects(rectOfCells[i], p))
 			//			{ // cell has been moved/resized
-			_rectOfCells[ii]=p;	// set new cell rectangle
+			_rectOfCells[i]=p;	// set new cell rectangle
 			//			[self setNeedsDisplayForItemAtIndex:ii];	// and we need to redraw this cell
 			//			}
 			p.origin.y+=p.size.height;	// move down one cell
@@ -647,9 +657,8 @@
 #if 0
 	NSLog(@"NSMenuView sizetofit: window frame=%@", NSStringFromRect(f));
 #endif
-	[_window setFrame:f display:NO];	// resize enclosing window - but do not display immediately;
-//	[self setFrame:(NSRect){ NSZeroPoint, f.size}];	// since we are the contentView, we are resized as needed
-	[self setNeedsDisplay:YES];		// we finally need to redraw full menu, i.e. all items
+	[_window setFrame:f display:NO];	// resize enclosing window (also sets our frame/bounds since we are the content view)
+	[self setNeedsDisplay:YES];			// we later on need to redraw the full menu, i.e. all items
 #if 0
 	NSLog(@"sizetofit: done");
 #endif
@@ -675,7 +684,7 @@
 
 // overridden methods
 
-// - (BOOL) isFlipped; { return NO; }
+- (BOOL) isFlipped; { return YES; }
 
 - (BOOL) mouseDownCanMoveWindow; { return NO; }	// no click-move
 
@@ -699,16 +708,16 @@
 
 - (void) drawRect:(NSRect) rect
 { // Drawing code here.
-  // FIXME: handle scrolling if too large for screen!
 	int i;
 	int nc=[_cells count];
+	BOOL any;
 	if(_needsSizing)
 		NSLog(@"NSMenuView drawRect: please call sizeToFit explicitly before calling display");	// rect is most probably inaccurate
 #if 0
 	NSLog(@"NSMenuView - %@ (nc=%d) drawRect:%@", [[_menumenu itemAtIndex:0] title], nc, NSStringFromRect(rect));
 #endif
 	//// FIXME: the following code deletes all menu items in the drawing rectangle which may be the union of 2 non-adjacent cells!
-	//// so this greys out the cells in between...
+	//// so this greys out the cells in between unless we draw them all...
 	[[NSColor windowBackgroundColor] set];	// draw white/light grey lines
 	NSRectFill(rect);	// draw background
 #if 0	// draw box around menu for testing
@@ -723,6 +732,7 @@
 #if 0
 	NSLog(@"background filled");
 #endif
+	any=NO;
 	for(i=0; i<nc; i++)
 		{ // go through cells and draw them at their calculated position - if needed (needsDisplay of cell)
 		NSRect cRect=[self rectOfItemAtIndex:i];	// get cell rectangle
@@ -736,9 +746,22 @@
 		if(NSIntersectsRect(cRect, rect))
 			{
 			NSMenuItemCell *cell=[_cells objectAtIndex:i];
+			// FIXME - this is to avoid the grey rects
 			[cell setNeedsDisplay:YES];	// so that we really (re)draw...
 			[cell drawInteriorWithFrame:cRect inView:self];
+			any=YES;
 			}
+		else if(any)
+			break;	// we did leave the rect
+		}
+	// clip to rect
+	if(NSMinY(_bounds) < NSMinY(_frame))
+		{
+		NSLog(@"up arrow");
+		}
+	if(NSMaxY(_bounds) > NSMaxY(_frame))
+		{
+		NSLog(@"down arrow");
 		}
 }
 
@@ -766,7 +789,7 @@
 - (BOOL) acceptsFirstMouse:(NSEvent *)theEvent { return YES; } // yes, respond immediately on activation
 
 - (BOOL) trackWithEvent:(NSEvent *) event;
-{ // FIXME: should we loop here?
+{ // FIXME: should we runloop here?
 	NSPoint p;
 	if(_attachedMenuView && [_attachedMenuView trackWithEvent:event])
 		return YES;	// yes, it has been successfully handled by the submenu
@@ -780,6 +803,10 @@
 		if(item != _highlightedItemIndex)
 			{ // has changed
 			[self setHighlightedItemIndex:item];	// highlight new item (which will initiate redisplay)
+			if(!NSEqualRects(_bounds, _frame))
+				{ // check how we have to move the bounds to keep the current item visible
+				NSLog(@"autoscroll menu");
+				}
 			if(item >= 0 && [[_menumenu itemAtIndex:item] hasSubmenu])
 				[self attachSubmenuForItemAtIndex:item];	// and open submenu if available
 			else
@@ -857,6 +884,7 @@
 	NSPanel *win;
 	NSMenuView *menuView;
 	NSRect r;
+	int item;	// item to pop up when scrolling
 #if 1
 	NSLog(@"popUpContextMenu %08x", menu);
 	NSLog(@"popUpContextMenu %@", [menu title]);
@@ -891,10 +919,16 @@
 #if 1
 	NSLog(@"menu to be attached to %@", NSStringFromRect(r));
 #endif
+	if([view respondsToSelector:@selector(selectedItem)])
+		item=[(NSPopUpButton *) view indexOfSelectedItem];
+	else
+		item=0;	// default
+	if(item < 0 || item >= [menu numberOfItems])
+		item=0;
 	[menuView setWindowFrameForAttachingToRect:r
 									  onScreen:[win screen]
 								 preferredEdge:NSMinYEdge	// default: pull down
-							 popUpSelectedItem:-1];
+							 popUpSelectedItem:item];
 	[win orderFront:self];		// make visible
 	[menuView mouseDown:event];	// pass event down - runs a tracking loop
 	[win close];	// and close again
