@@ -883,9 +883,9 @@ printing
 
 - (void) setBounds:(NSRect)aRect
 {
-	_v.customBounds=YES;
 	if(NSEqualRects(_bounds, aRect))
 		return;	// no change
+	_v.customBounds=YES;
 	_bounds = aRect;
 	[self _invalidateCTM];
 	if (_v.postBoundsChange)
@@ -894,9 +894,9 @@ printing
 
 - (void) setBoundsOrigin:(NSPoint)newOrigin			// translate bounds origin
 {													// in opposite direction so that newOrigin becomes the origin when viewed.
-	_v.customBounds=YES;
 	if(NSEqualPoints(_bounds.origin, newOrigin))
 		return;	// no change
+	_v.customBounds=YES;
 	_bounds.origin = newOrigin;
 	[self _invalidateCTM];
 	if(_v.postBoundsChange)
@@ -905,9 +905,9 @@ printing
 
 - (void) setBoundsSize:(NSSize)newSize
 {
-	_v.customBounds=YES;
 	if(NSEqualSizes(_bounds.size, newSize))
 		return;	// no change
+	_v.customBounds=YES;
 	_bounds.size = newSize;
 	[self _invalidateCTM];
 	if (_v.postBoundsChange)
@@ -916,9 +916,9 @@ printing
 
 - (void) setBoundsRotation:(float)angle
 {
-	_v.customBounds=YES;
 	if(boundsRotation == angle)
 		return;	// no change
+	_v.customBounds=YES;
 	boundsRotation=angle;
 	[self _invalidateCTM];
 	_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;
@@ -1268,33 +1268,36 @@ printing
 	if(options > 0)										// any X options are
 		{												// set in the mask
 		change = superViewFrameSize.width - oldSize.width;
-		changePerOption = floor(change / options);		
-	
-		if(_v.autoresizingMask & NSViewWidthSizable)		
-			{		
-			float oldFrameWidth = _frame.size.width;
-
-			_frame.size.width += changePerOption;
-			// NSWidth(frame) = MAX(0, NSWidth(frame) + changePerOption);
-			if (NSWidth(_frame) <= 0)
-				{
-				NSAssert((NSWidth(_frame) <= 0), @"View frame width <= 0!");
-				NSLog(@"resizeWithOldSuperviewSize: View frame width <= 0!");
-				_frame.size.width = 0;
-				}
-			if(_v.isRotatedFromBase)
-				{
-				_bounds.size.width *= _frame.size.width / oldFrameWidth;
-				_bounds.size.width = floor(_bounds.size.width);
-				}
-			else
-				_bounds.size.width += changePerOption;
-			changedSize = YES;
-			}
-		if(_v.autoresizingMask & NSViewMinXMargin)
+		if(change != 0.0)
 			{
-			_frame.origin.x += changePerOption;
-			changedOrigin = YES;
+			changePerOption = floor(change / options);		
+			
+			if(_v.autoresizingMask & NSViewWidthSizable)		
+				{		
+				float oldFrameWidth = _frame.size.width;
+				
+				_frame.size.width += changePerOption;
+				// NSWidth(frame) = MAX(0, NSWidth(frame) + changePerOption);
+				if (NSWidth(_frame) <= 0)
+					{
+					NSAssert((NSWidth(_frame) <= 0), @"View frame width <= 0!");
+					NSLog(@"resizeWithOldSuperviewSize: View frame width <= 0!");
+					_frame.size.width = 0;
+					}
+				if(_v.isRotatedFromBase)
+					{
+					_bounds.size.width *= _frame.size.width / oldFrameWidth;	// keep proportion
+																				//				_bounds.size.width = floor(_bounds.size.width);
+					}
+				else
+					_bounds.size.width += changePerOption;
+				changedSize = YES;
+				}
+			if(_v.autoresizingMask & NSViewMinXMargin)
+				{
+				_frame.origin.x += changePerOption;
+				changedOrigin = YES;
+				}
 			}
 		}
 														// determine if and how 
@@ -1309,47 +1312,49 @@ printing
 	if(options > 0)									// any Y options are  
 		{												// set in the mask
 		change = superViewFrameSize.height - oldSize.height;
-		changePerOption = floor(change/options);		
-	
-		if(_v.autoresizingMask & NSViewHeightSizable)		
-			{											
-			float oldFrameHeight = _frame.size.height;
-
-			_frame.size.height += changePerOption;
-			// NSHeight(frame) = MAX(0, NSHeight(frame) + changePerOption);
-			if (NSHeight(_frame) <= 0)
-				{
-				NSAssert((NSHeight(_frame) <= 0), @"View frame height <= 0!");
-				NSLog(@"resizeWithOldSuperviewSize: View frame height <= 0!");
-				_frame.size.height = 0;
+		if(change != 0.0)
+			{
+			changePerOption = floor(change/options);		
+			
+			if(_v.autoresizingMask & NSViewHeightSizable)		
+				{											
+				float oldFrameHeight = _frame.size.height;
+				
+				_frame.size.height += changePerOption;
+				// NSHeight(frame) = MAX(0, NSHeight(frame) + changePerOption);
+				if (NSHeight(_frame) <= 0)
+					{
+					NSAssert((NSHeight(_frame) <= 0), @"View frame height <= 0!");
+					NSLog(@"resizeWithOldSuperviewSize: View frame height <= 0!");
+					_frame.size.height = 0;
+					}
+				if(_v.isRotatedFromBase)			
+					{										
+					_bounds.size.height *= _frame.size.height/oldFrameHeight;
+					//				_bounds.size.height = floor(_bounds.size.height);
+					}
+				else
+					_bounds.size.height += changePerOption;
+				changedSize = YES;
 				}
-			if(_v.isRotatedFromBase)			
-				{										
-				_bounds.size.height *= _frame.size.height/oldFrameHeight;
-				_bounds.size.height = floor(_bounds.size.height);
+			if(_v.autoresizingMask & NSViewMinYMargin)
+				{				
+				_frame.origin.y += changePerOption;
+				changedOrigin = YES;
 				}
-			else
-				_bounds.size.height += changePerOption;
-			changedSize = YES;
-			}
-		if(_v.autoresizingMask & NSViewMinYMargin)
-			{				
-			_frame.origin.y += changePerOption;
-			changedOrigin = YES;
 			}
 		}
-
-	if(changedSize && _v.isRotatedFromBase)	
-		{
-		float sx = _frame.size.width / _bounds.size.width;
-		float sy = _frame.size.height / _bounds.size.height;
-		// FIXME:
-		NSLog(@"and now? %@", self);
-		}
-														
 	if(changedSize || changedOrigin)
-		{					 
 		[self _invalidateCTM];	// update when needed
+	if(changedSize)
+		{
+		if(_v.isRotatedFromBase)	
+			{
+			float sx = _frame.size.width / _bounds.size.width;
+			float sy = _frame.size.height / _bounds.size.height;
+			// FIXME: should we scale old_size?
+			NSLog(@"and now? %@", self);
+			}
 		[self resizeSubviewsWithOldSize: old_size];	// recursively go down
 		}
 }
@@ -2068,7 +2073,7 @@ NSEvent *e = (NSEvent *)[sender userInfo];
 
 		/* FIXME: according to http://www.macosxhints.com/article.php?story=20061107125819464&query=tooltip
 		
-		we should read parameters
+		we should read these parameters from the (global) userdefaults
 		NSInitialToolTipDelay	-int	Time delay (milliseconds?)
 		NSToolTipAutoWrappingDisabled	-bool	true or false
 		NSToolTipsFont	-string	font name
@@ -2233,9 +2238,9 @@ GSTrackingRect *m = [GSTrackingRect alloc];
 #if 0
 		NSLog(@"%@ autoresizingMask=%02x", self, _v.autoresizingMask);
 #endif
-#define RESIZESUBVIEWS (((viewflags>>8)&1)==0)
+#define RESIZESUBVIEWS (((viewflags>>8)&1) != 0)
 		_v.autoSizeSubviews=RESIZESUBVIEWS;
-#if 0
+#if 1
 		if(_v.autoresizingMask != 0 && !_v.autoSizeSubviews)
 			NSLog(@"autoresizesSubviews=NO and mask=%x: %@", _v.autoresizingMask, self);
 #endif

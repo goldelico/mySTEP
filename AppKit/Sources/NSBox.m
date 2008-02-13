@@ -229,9 +229,9 @@
 		}
 }
 
-- (void) resizeWithOldSuperviewSize: (NSSize)oldSize
+- (void) resizeSubviewsWithOldSize:(NSSize)oldSize
 {
-	[super resizeWithOldSuperviewSize: oldSize];
+	[super resizeSubviewsWithOldSize:oldSize];
 	[_contentView setFrame: [self _calcSizes]];
 }
 
@@ -249,7 +249,7 @@
 {
 #if 0	// testing
 	[[NSColor redColor] set];
-	NSFrameRect(bounds);
+	NSFrameRect(_bounds);
 #endif	
 	if(_bx.titlePosition != NSNoTitle)
 		{ // Draw the title
