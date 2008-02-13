@@ -1752,9 +1752,9 @@ static BOOL __cursorHidden = NO;
 				NSView *v = [_themeFrame hitTest:[event locationInWindow]];
 				[v mouseMoved:event];				// hit view passes event up
 				}									// responder chain to self
-			else									// if we accept mouse moved
-				if(_w.cursorRectsEnabled)
-					[self mouseMoved:event];
+												// if we accept mouse moved
+			if(_w.cursorRectsEnabled)
+				[self mouseMoved:event];	// handle cursor
 			break;
 
 		case NSLeftMouseDragged:									// Mouse moved

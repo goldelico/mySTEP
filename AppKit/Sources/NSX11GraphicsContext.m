@@ -759,7 +759,7 @@ typedef struct
 	XSelectInput(_display, _realWindow,
 				 ExposureMask | KeyPressMask | 
 				 KeyReleaseMask | ButtonPressMask | 
-				 ButtonReleaseMask | ButtonMotionMask | 
+				 ButtonReleaseMask | /* ButtonMotionMask | */
 				 StructureNotifyMask | PointerMotionMask | 
 				 EnterWindowMask | LeaveWindowMask | 
 				 FocusChangeMask | PropertyChangeMask | 
@@ -2969,6 +2969,10 @@ static NSDictionary *_x11settings;
 				case ButtonRelease:
 					thisXWin=xe.xbutton.window;
 					break;
+				case EnterNotify:						// when the pointer enters or leves a window, pass upwards as a motion event
+				case LeaveNotify: 
+					thisXWin=xe.xcrossing.window;
+					break;
 				case MotionNotify:
 					thisXWin=xe.xmotion.window;
 					if(thisXWin != lastXWin)						
@@ -3145,11 +3149,18 @@ static NSDictionary *_x11settings;
 				case DestroyNotify:						// a window has been
 					NSLog(@"DestroyNotify\n");			// Destroyed
 					break;
-				case EnterNotify:						// when the pointer
-					NSDebugLog(@"EnterNotify\n");		// enters a window
-					break;					
-				case LeaveNotify:						// when the pointer 
-					NSDebugLog(@"LeaveNotify\n");		// leaves a window
+				case LeaveNotify: 
+					NSLog(@"leave");
+				case EnterNotify:						// when the pointer enters or leves a window, pass upwards as a motion event
+					e = [NSEvent mouseEventWithType:NSMouseMoved
+										   location:X11toScreen(xe.xcrossing)
+									  modifierFlags:__modFlags
+										  timestamp:X11toTimestamp(xe.xcrossing)
+									   windowNumber:windowNumber
+											context:self
+										eventNumber:xe.xcrossing.serial
+										 clickCount:1
+										   pressure:1.0];
 					break;
 				case Expose:
 					{
@@ -3357,7 +3368,7 @@ static NSDictionary *_x11settings;
 							else if(xe.xmotion.state & Button2Mask)		
 								type = NSOtherMouseDragged;	
 							else
-								type = NSMouseMoved;	// not pressed
+								type = NSMouseMoved;	// no button pressed
 #if 0
 							if(lastMotionEvent &&
 							   [NSApp _eventIsQueued:lastMotionEvent])

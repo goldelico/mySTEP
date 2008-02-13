@@ -438,6 +438,8 @@
 			_rectOfCells[i]=NSZeroRect;	// clear size info
 			[self setMenuItemCell:cell forItemAtIndex:i];		// to add all cell connections and updates
 			}
+		if(cnt > 50)
+			NSLog(@"set large menu");
 		_needsSizing=YES;		// even if we have no cells...
 		[_menumenu update];		// auto-enable and resize if needed
 		}
@@ -457,7 +459,6 @@
 {
 	[[_cells objectAtIndex:index] setNeedsDisplay:YES];				// mark cell to redraw itself
 	[self setNeedsDisplayInRect:[self rectOfItemAtIndex:index]];	// we need redrawing for this cell
-//	[self setNeedsDisplay:YES];
 }
 
 - (void) setNeedsSizing:(BOOL) flag; { _needsSizing=flag; }
@@ -467,9 +468,10 @@
 							preferredEdge:(NSRectEdge) edge
 						popUpSelectedItem:(int) index;
 {
-	NSRect mf;  // new menu frame
+	NSRect mf;  // new menu frame in screen coordinates
 	NSRect b;	// our bounds
 	NSRect sf=[[_window screen] visibleFrame];
+	NSRect item;
 #if 0
 	NSLog(@"setWindowFrameForAttachingToRect:%@ screen:... edge:%d item:%d", NSStringFromRect(ref), edge, index);
 #endif
@@ -477,22 +479,23 @@
 		[self sizeToFit];	// this will initially resize the window and our frame/bounds to fit the full menu
 	edge &= 3;
 	mf.size=_frame.size;   // copy content size
+	item=[self rectOfItemAtIndex:index];	// get rect of item to show
 	switch(edge)
 		{ // calculate preferred location
 		case NSMinXEdge:	// to the left
 			mf.origin.x=ref.origin.x-mf.size.width;
-			mf.origin.y=ref.origin.y+ref.size.height-mf.size.height+VERTICAL_PADDING; // align top edge
+			mf.origin.y=ref.origin.y+ref.size.height-mf.size.height+item.origin.y; // align top edge of selected item
 			break;
 		case NSMaxXEdge:	// to the right
 			mf.origin.x=ref.origin.x+ref.size.width;
-			mf.origin.y=ref.origin.y+ref.size.height-mf.size.height+VERTICAL_PADDING; // align top edge
+			mf.origin.y=ref.origin.y+ref.size.height-mf.size.height+item.origin.y; // align top edge
 			break;
 		case NSMinYEdge:	// below
-			mf.origin.x=ref.origin.x;
+			mf.origin.x=ref.origin.x-item.origin.x;
 			mf.origin.y=ref.origin.y-mf.size.height;
 			break;
 		case NSMaxYEdge:	// above
-			mf.origin.x=ref.origin.x;
+			mf.origin.x=ref.origin.x-item.origin.x;
 			mf.origin.y=ref.origin.y+ref.size.height;
 			break;
 		}
@@ -519,7 +522,7 @@
 #endif
 	b=_bounds;	// preserve bounds size
 	[_window setFrame:[_window frameRectForContentRect:mf] display:NO];	// this will also change our frame&bounds since we are the contentView!
-//	b.origin=[self rectOfItemAtIndex:index].origin;	// get rect of item to show
+	b.origin.y=b.origin.y-b.size.height+mf.size.height;
 	[self setBounds:b];
 	[self setNeedsDisplay:YES];	// needs display everything
 #if 0
@@ -582,7 +585,7 @@
 	if(!_window)
 		{
 #if 1
-		NSLog(@"  menu %@ sizeToFit has no window yet", [_menumenu title]);
+		NSLog(@"  menu %@ sizeToFit has no window", [_menumenu title]);
 #endif
 		return;	// no reference frame (yet)
 		}
@@ -593,6 +596,8 @@
 	NSLog(@"frame before: %@", NSStringFromRect(f));
 #endif
 	nc=[_cells count];
+	if(nc > 50)
+		NSLog(@"sizing large");
 	if(_isHorizontal)
 		{ // horizontal menu
 		_imageAndTitleWidth=0.0;	// we don't know for a horizontal menu
@@ -632,9 +637,9 @@
 		p.origin=NSMakePoint(0.0, VERTICAL_PADDING);	// initial position
 		[self _calcMaxWidthOfCellComponents];	// get maximum width
 		if(_isResizingHorizontally)
-			f.size.width=[self _calcHorizontalPositionOfCellComponents];	// calculate standard total width
+			f.size.width=[self _calcHorizontalPositionOfCellComponents];	// replace by standard total width
 		else
-			[self _calcHorizontalPositionOfCellComponents];
+			[self _calcHorizontalPositionOfCellComponents];	// calculate only
 #if 0
 		NSLog(@"si:%lf-%lf i&t:%lf-%lf ke:%lf-%lf width:%lf", stateImageOffset, stateImageWidth, imageAndTitleOffset, imageAndTitleWidth, keyEquivalentOffset, keyEquivalentWidth, f.size.width);
 #endif		
@@ -712,8 +717,8 @@
 	int i;
 	int nc=[_cells count];
 	BOOL any=NO;
-	if(nc > 20)
-		NSLog(@"large menu");
+	if(nc > 50)
+		NSLog(@"drawing large menu");
 	if(_needsSizing)
 		NSLog(@"NSMenuView drawRect: please call sizeToFit explicitly before calling display");	// rect is most probably inaccurate
 #if 0
@@ -794,10 +799,10 @@
 { // FIXME: should we runloop here?
 	NSPoint p;
 	if(_attachedMenuView && [_attachedMenuView trackWithEvent:event])
-		return YES;	// yes, it has been successfully handled by the submenu
+		return YES;	// yes, it has been successfully handled by the submenu(s)
 	p=[self convertPoint:[_window mouseLocationOutsideOfEventStream] fromView:nil];	// get coordinates relative to our window (we might have a different one as the event!)
 	if(NSMouseInRect(p, _bounds, [self isFlipped]))
-		{ // highlight cell
+		{ // highlight (new) cell
 		int item=[self indexOfItemAtPoint:p];	// get selected item
 #if 0
 		NSLog(@"item=%d", item);
@@ -816,7 +821,11 @@
 			}
 		return YES;
 		}
-	//	[self setHighlightedItemIndex:-1];	// unhighligt item if we leave the menu
+	if(!_attachedMenuView)
+		{
+		[self setHighlightedItemIndex:-1];	// unhighligt item if we leave the menu
+		return NO;
+		}
 	return NO;
 }
 
@@ -851,11 +860,14 @@
 		else if(type == NSLeftMouseUp)
 			{
 			if([theEvent timestamp]-menuOpenTimestamp > 0.5)
-				break;	// was hold down long enough
+				break;	// wasn't hold down long enough
 			stayOpen=YES;
 			}
 		else if(type == NSMouseMoved || type == NSLeftMouseDragged)
-			[self trackWithEvent:theEvent];
+			{
+			if(![self trackWithEvent:theEvent])
+				[self detachSubmenu];	// outside of top level
+			}
 		theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 									  untilDate:[NSDate distantFuture]			// get next event
 										 inMode:NSEventTrackingRunLoopMode 

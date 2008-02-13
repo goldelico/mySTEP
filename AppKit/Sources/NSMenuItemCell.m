@@ -152,7 +152,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 
 - (NSAttributedString *) _titleAttributedString;
 { // get attributed string
-	NSMutableAttributedString *s;
+	NSAttributedString *s;
 	NSRange r;
 #if 0
 	NSLog(@"get attributed titleString (%@)", [menuItem title]);
@@ -167,11 +167,11 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 		NSLog(@"range=%@", NSStringFromRange(r));
 #endif
 		if(r.length)
-			{ // apply menu font
+			{ // apply menu font and color
 			NSFont *f=[_controlView font];
-			[s addAttribute:NSForegroundColorAttributeName value:[self _textColor] range:r];
+			[(NSMutableAttributedString *) s addAttribute:NSForegroundColorAttributeName value:[self _textColor] range:r];
 			if(f)
-				[s addAttribute:NSFontAttributeName value:f range:r];
+				[(NSMutableAttributedString *) s addAttribute:NSFontAttributeName value:f range:r];
 			}
 		[s autorelease];
 		}
@@ -427,7 +427,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 
 - (void) drawImageWithFrame:(NSRect) frame inView:(NSView *) view;
 {
-#if 1
+#if 0
 	// ??? or do we use the NSButtonCell implementation for drawing the state image?
 	// must implement/override imageRectForBounds in NSButtonCell
 	[self drawImage:[menuItem image] withFrame:frame inView:view];
@@ -483,13 +483,14 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	s=[as size];
 	frame.origin.x+=frame.size.width-s.width;
 	frame.size.width=s.width;	// align right
+	frame.origin.y += (frame.size.height-s.height)/2.0;	// center
 	[as drawInRect:frame];
 }
 
 - (void) drawSeparatorItemWithFrame:(NSRect) frame inView:(NSView *) view;
 {
-	[[self _textColor] set];
 #if 0
+	[[self _textColor] set];
 	if([_controlView isHorizontal])
 		{ // draw vertical line centered in frame
 		NSDrawRect(NSMakeRect(frame.origin.x+frame.size.width/2.0, frame.origin.y, 1.0, frame.size.height);
@@ -518,7 +519,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	NSLog(@"frame:%@\nstateImage=%@", NSStringFromRect(frame), i);
 #endif
 	sz=[i size];
-	frame.origin.y -= (frame.size.height-sz.height)/2.0;	// center vertically
+	frame.origin.y += (frame.size.height-sz.height)/2.0;	// center vertically
 	[i compositeToPoint:frame.origin operation:NSCompositeHighlight];
 }
 
