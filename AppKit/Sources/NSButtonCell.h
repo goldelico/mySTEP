@@ -80,8 +80,6 @@ enum {
 	NSImage *_mixedImage;
 	NSString *_alternateTitle;
 	NSString *_keyEquivalent;
-	NSAttributedString *_attributedTitle;
-	NSAttributedString *_attributedAlternateTitle;
 	NSFont *_keyEquivalentFont;
 	NSColor *_backgroundColor;
 	NSImage *_image;	// image that is currently drawn (FIXME: should not be an iVar)

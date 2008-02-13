@@ -158,24 +158,27 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 	NSLog(@"get attributed titleString (%@)", [menuItem title]);
 #endif
 	if([[menuItem representedObject] respondsToSelector:@selector(attributedTitle)])
-		s=[[[menuItem representedObject] attributedTitle] mutableCopy];
-	else
+		s=[[menuItem representedObject] attributedTitle];	// status item...
+	else if(!(s=[menuItem attributedTitle]))
+		{ // convert standard title
 		s=[[NSMutableAttributedString alloc] initWithString:([[menuItem title] length]>0?[menuItem title]:@" ")]; // at least one character wide
-	r=NSMakeRange(0, [s length]);
+		r=NSMakeRange(0, [s length]);
 #if 0
-	NSLog(@"range=%@", NSStringFromRange(r));
+		NSLog(@"range=%@", NSStringFromRange(r));
 #endif
-	if(r.length)
-		{
-		NSFont *f=[_controlView font];
-		[s addAttribute:NSForegroundColorAttributeName value:[self _textColor] range:r];
-		if(f)
-			[s addAttribute:NSFontAttributeName value:f range:r];
+		if(r.length)
+			{ // apply menu font
+			NSFont *f=[_controlView font];
+			[s addAttribute:NSForegroundColorAttributeName value:[self _textColor] range:r];
+			if(f)
+				[s addAttribute:NSFontAttributeName value:f range:r];
+			}
+		[s autorelease];
 		}
 #if 0
 	NSLog(@"titleString=%@", [s string]);
 #endif
-	return [s autorelease];
+	return s;
 }
 
 - (NSMutableAttributedString *) _keyEquivalentAttributedString;

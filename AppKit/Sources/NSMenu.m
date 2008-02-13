@@ -63,6 +63,7 @@ static BOOL __userKeyEquivalents = YES;
 	NSImage *_offStateImage;
 	NSImage *_onStateImage;
 	NSImage *_mixedStateImage;
+	NSAttributedString *_attributedTitle;
 	unsigned _mnemonicLocation;
 	BOOL _isAlternate;
 }
@@ -177,13 +178,6 @@ static BOOL __userKeyEquivalents = YES;
 #endif
 }
 
-- (CGFloat) menuBarHeight; 
-{
-	if(self == [NSApp mainMenu])
-		return [isa menuBarHeight];
-	return 0.0;
-}
-
 - (NSString *) description;
 {
 	NSMutableString *s=[NSMutableString stringWithFormat:@"%@: %@ -> [%@ %@]", 
@@ -233,6 +227,8 @@ static BOOL __userKeyEquivalents = YES;
 - (void) setRepresentedObject:(id) o;			{ [super setRepresentedObject:o]; [self _changed]; }
 - (void) setState:(int) val;		{ if(val == [self state]) return; [super setState:val]; [self _changed]; }
 - (void) setTitle:(NSString *) s;	{ if(s && [s isEqualToString:[self title]]) return; [super setTitle:s]; [self _changed]; }
+- (NSAttributedString *) attributedTitle	{ return _attributedTitle; }
+- (void) setAttributedTitle:(NSAttributedString *) s;	{ ASSIGN(_attributedTitle, s); [self _changed]; }
 - (void) setTitleWithMnemonic:(NSString *) s;   { [super setTitleWithMnemonic:s]; [self _changed]; }
 
 - (NSString *) keyEquivalent
@@ -310,10 +306,10 @@ static BOOL __userKeyEquivalents = YES;
 		_mnemonicLocation=[coder decodeIntForKey:@"NSMnemonicLoc"]; // position of the underlined character
 		_onStateImage=[[coder decodeObjectForKey:@"NSOnImage"] retain];
 		_isAlternate=[coder decodeIntForKey:@"NSIsAlternate"];
-		// FIXME
 		_attributedTitle=[[coder decodeObjectForKey:@"NSAttributedTitle"] retain];
-		_attributedAlternateTitle=[[coder decodeObjectForKey:@"NSAlternateAttributedTitle"] retain];
+		// FIXME
 		[coder decodeBoolForKey:@"NSIsHidden"];
+		[coder decodeObjectForKey:@"NSAlternateAttributedTitle"];
 		// END_FIXME
 		tag=[coder decodeIntForKey:@"NSTag"];
 		[super setEnabled:[coder decodeBoolForKey:@"NSIsDisabled"]];
@@ -423,6 +419,13 @@ static BOOL __userKeyEquivalents = YES;
 	copy->_title = [_title copyWithZone:z];
 	copy->_menuItems = [_menuItems copyWithZone:z];
 	return copy;
+}
+
+- (CGFloat) menuBarHeight; 
+{
+	if(self == [NSApp mainMenu])
+		return [isa menuBarHeight];
+	return 0.0;
 }
 
 - (void) addItem:(NSMenuItem *) item
@@ -894,5 +897,13 @@ static BOOL __userKeyEquivalents = YES;
 		}
 	return NIMP;
 }
+
+/* 10.5
+
+ '-showsStateColumn' not found
+ '-setShowsStateColumn:' not found
+ '-highlightedItem' not found
+ '-cancelTracking' not found
+*/
 
 @end /* NSMenu */

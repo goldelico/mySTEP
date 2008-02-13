@@ -56,7 +56,7 @@ static float rscale64;	// cache for 1/(64.0*screen scale)
 
 - (float) ascender;
 {
-	FT_Face f=_faceStruct;
+//	FT_Face f=_faceStruct;
 	if(!FT_IS_SCALABLE(_faceStruct))
 		;	// error
 	return Free2Pt(_faceStruct->size->metrics.ascender);

@@ -634,7 +634,7 @@ static BOOL __cursorHidden = NO;
 - (id) init
 {
 	NSLog(@"should not -init NSWindow");
-	return [self initWithContentRect:NSMakeRect(0.0, 0.0, 50.0, 50.0)
+	return [self initWithContentRect:NSMakeRect(0.0, 0.0, 48.0, 48.0)
 				 styleMask:GSAllWindowMask				// default style mask
 				 backing:NSBackingStoreBuffered
 				 defer:NO

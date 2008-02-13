@@ -110,7 +110,7 @@
 #if 1
 	[_menuWindow setTitle:[submenu title]];
 #endif
-	_attachedMenuView=[[isa alloc] initWithFrame:NSMakeRect(0.0, 0.0, 50.0, 50.0)];	// make new NSMenuView of arbitrary size
+	_attachedMenuView=[[isa alloc] initWithFrame:[[_menuWindow contentView] frame]];	// make new NSMenuView of matching size
 	[_menuWindow setContentView:_attachedMenuView];	// make content view
 #if 0
 	NSLog(@"attachedMenuView=%@", _attachedMenuView);
@@ -521,6 +521,7 @@
 	[_window setFrame:[_window frameRectForContentRect:mf] display:NO];	// this will also change our frame&bounds since we are the contentView!
 //	b.origin=[self rectOfItemAtIndex:index].origin;	// get rect of item to show
 	[self setBounds:b];
+	[self setNeedsDisplay:YES];	// needs display everything
 #if 0
 	NSLog(@"set frame done");
 #endif
@@ -575,7 +576,7 @@
 	int nc;
 	if(!_needsSizing)
 		return;
-#if 0
+#if 1
 	NSLog(@"sizeToFit %@", self);
 #endif
 	if(!_window)
@@ -659,7 +660,7 @@
 #endif
 	[_window setFrame:f display:NO];	// resize enclosing window (also sets our frame/bounds since we are the content view)
 	[self setNeedsDisplay:YES];			// we later on need to redraw the full menu, i.e. all items
-#if 0
+#if 1
 	NSLog(@"sizetofit: done");
 #endif
 	if(_needsSizing)	NSLog(@"NSMenuView sizeToFit: internal inconsistency - did set needsSizing");
@@ -710,7 +711,9 @@
 { // Drawing code here.
 	int i;
 	int nc=[_cells count];
-	BOOL any;
+	BOOL any=NO;
+	if(nc > 20)
+		NSLog(@"large menu");
 	if(_needsSizing)
 		NSLog(@"NSMenuView drawRect: please call sizeToFit explicitly before calling display");	// rect is most probably inaccurate
 #if 0
@@ -732,7 +735,6 @@
 #if 0
 	NSLog(@"background filled");
 #endif
-	any=NO;
 	for(i=0; i<nc; i++)
 		{ // go through cells and draw them at their calculated position - if needed (needsDisplay of cell)
 		NSRect cRect=[self rectOfItemAtIndex:i];	// get cell rectangle
@@ -743,6 +745,15 @@
 		NSLog(@"%@ cell:%@%@", [[_menumenu itemAtIndex:0] title], NSStringFromRect(cRect), NSIntersectsRect(rect, cRect)?@" intersects":@"");
 #endif
 		// FIXME: check needsDisplay - the following code enforces all cells to display!
+		// clip to rect
+		if(NSMinY(_bounds) < NSMinY(_frame))
+			{
+			NSLog(@"up arrow");
+			}
+		if(NSMaxY(_bounds) > NSMaxY(_frame))
+			{
+			NSLog(@"down arrow");
+			}
 		if(NSIntersectsRect(cRect, rect))
 			{
 			NSMenuItemCell *cell=[_cells objectAtIndex:i];
@@ -753,15 +764,6 @@
 			}
 		else if(any)
 			break;	// we did leave the rect
-		}
-	// clip to rect
-	if(NSMinY(_bounds) < NSMinY(_frame))
-		{
-		NSLog(@"up arrow");
-		}
-	if(NSMaxY(_bounds) > NSMaxY(_frame))
-		{
-		NSLog(@"down arrow");
 		}
 }
 
@@ -895,7 +897,7 @@
 	if(!menu || !event || !view)
 		return;
 	[menu update];					// enable/disable menu items
-	win=[[[NSPanel alloc] initWithContentRect:NSMakeRect(50.0, 50.0, 50.0, 50.0)	// some initial position
+	win=[[[NSPanel alloc] initWithContentRect:NSMakeRect(49.0, 49.0, 49.0, 49.0)	// some initial position
 									styleMask:NSBorderlessWindowMask
 									  backing:NSBackingStoreBuffered
 										defer:YES] retain];	// will be released on close
