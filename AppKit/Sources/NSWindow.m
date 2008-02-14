@@ -54,6 +54,21 @@ static id __lastKeyDown = nil;
 static id __frameNames = nil;
 static BOOL __cursorHidden = NO;
 
+@interface NSView (LifeResize)
+- (void) _performOnAllSubviews:(SEL) sel;
+@end
+
+@implementation NSView (LifeResize)
+- (void) _performOnAllSubviews:(SEL) sel
+{
+	NSEnumerator *e=[sub_views objectEnumerator];
+	NSView *v;
+	[self performSelector:sel];
+	while((v=[e nextObject]))
+		[v _performOnAllSubviews:sel];
+}
+@end
+
 @interface _NSThemeWidget : NSButton
 - (id) initWithFrame:(NSRect) f forStyleMask:(unsigned int) aStyle;
 @end
@@ -304,6 +319,7 @@ static BOOL __cursorHidden = NO;
 		[self addSubview:[[[NSView alloc] initWithFrame:f] autorelease]];	// add an initial content view
 	else
 		[cv setFrame:f];	// enforce size of content view to fit
+	[cv setNeedsDisplay:YES];	// needs redraw
 	_didSetShape=NO;	// and reset shape
 }
 
@@ -394,7 +410,8 @@ static BOOL __cursorHidden = NO;
 #if 1
 		NSLog(@"liveResize started");
 #endif
-		// call viewWillStartLiveResize for all subviews
+		// FIXME: should also be called exactly once if view is added/removed repeatedly to the hierarchy during life resize
+		[self _performOnAllSubviews:@selector(viewWillStartLiveResize)];
 		}
 	p=[NSEvent mouseLocation];	// get in screen coordinates
 	while(YES)
@@ -409,8 +426,12 @@ static BOOL __cursorHidden = NO;
 			default: break;	// ignore
 			case NSLeftMouseUp:					// If mouse went up then we are done
 				if(_inLiveResize)
-					; // call viewDidEndLiveResize for all subviews
-				_inLiveResize=NO;
+					{
+					_inLiveResize=NO;
+					[self _performOnAllSubviews:@selector(viewDidEndLiveResize)];
+					}
+				else
+					_inLiveResize=NO;
 				return;
 			case NSLeftMouseDragged:
 				{
@@ -481,6 +502,7 @@ static BOOL __cursorHidden = NO;
 		[self addSubview:[[[NSView alloc] initWithFrame:f] autorelease]];	// add an initial content view
 	else
 		[cv setFrame:f];	// enforce size of content view to fit
+	[cv setNeedsDisplay:YES];	// needs redraw
 }
 
 - (void) setToolbar:(NSToolbar *) toolbar; { NIMP; }	// can't save/create for borderless windows
@@ -958,7 +980,7 @@ static BOOL __cursorHidden = NO;
 - (void) orderWindow:(NSWindowOrderingMode) place 
 		  relativeTo:(int) otherWin
 { // main interface call
-#if 1
+#if 0
 	NSString *str[]={ @"Below", @"Out", @"Above" };
 	NSLog(@"orderWindow:NSWindow%@ relativeTo:%d - %@", str[place+1], otherWin, self);
 #endif

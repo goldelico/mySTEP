@@ -1337,17 +1337,27 @@ printing
 					_bounds.size.height += changePerOption;
 				changedSize = YES;
 				}
-			if(_v.autoresizingMask & NSViewMinYMargin)
-				{				
-				_frame.origin.y += changePerOption;
-				changedOrigin = YES;
+			if([super_view isFlipped])
+				{
+				if((_v.autoresizingMask & NSViewMaxYMargin))
+					{				
+					_frame.origin.y += changePerOption;
+					changedOrigin = YES;
+					}
+				}
+			else
+				{
+				if((_v.autoresizingMask & NSViewMinYMargin))
+					{				
+					_frame.origin.y += changePerOption;
+					changedOrigin = YES;
+					}
 				}
 			}
 		}
 	if(changedSize || changedOrigin)
-		[self _invalidateCTM];	// update when needed
-	if(changedSize)
 		{
+		[self _invalidateCTM];	// update when needed
 		if(_v.isRotatedFromBase)	
 			{
 			float sx = _frame.size.width / _bounds.size.width;
