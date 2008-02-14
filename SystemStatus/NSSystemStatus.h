@@ -22,7 +22,7 @@
 #import <SystemStatus/SYSWireless.h>
 
 @interface NSSystemStatus : NSObject
-+ (NSDictionary *) sysInfo;				// get CPU type, speed, free memory, etc. for system About box
++ (NSDictionary *) sysInfo;				// get CPU type, speed, free memory, etc. for system About box and other areas
 + (id) sysInfoForKey:(NSString *) key;
 @end
 

@@ -162,7 +162,8 @@ static int intValue(NSString *str)
 	if(!discovery)
 		{ // not available
 		NSLog(@"Device not configured for PCMCIA cards");
-		[self updateDeviceList:NO];	// don't try again
+		NSLog(@"%@", [NSSystemStatus sysInfo]);
+		[self updateDeviceList:NO];	// don't try again until needed
 		return;
 		}
 	// pipes everything we can find into a single FILE * - we will fiddle out by detecting the format

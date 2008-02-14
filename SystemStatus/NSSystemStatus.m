@@ -24,8 +24,8 @@ static NSMutableDictionary *sysInfo;
 {
 	NSDictionary *info=[dict objectForKey:model];	// get model description
 	NSString *parentModel=[info objectForKey:@"Inherit"];
-#if 1
-	NSLog(@"%@ -> parent=%@", model, parentModel);
+#if 0
+	NSLog(@"%@ -> parent=%@ (%@)", model, parentModel, info);
 #endif
 	if(parentModel)
 		{
@@ -52,6 +52,9 @@ static NSMutableDictionary *sysInfo;
 		while((line=[cpuinfo nextObject]))
 			{
 			NSArray *l=[line componentsSeparatedByString:@":"];
+#if 0
+			NSLog(@"l=%@", l);
+#endif
 			if([l count] >= 2)
 				{
 				NSString *token=[[l objectAtIndex:0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
@@ -60,6 +63,8 @@ static NSMutableDictionary *sysInfo;
 					NSString *model=[[l lastObject] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 					NSString *path=[[NSBundle bundleForClass:[self class]] pathForResource:@"Models" ofType:@"plist"];
 					NSDictionary *dict=[NSDictionary dictionaryWithContentsOfFile:path];	// read model dictionary
+					if(!dict)
+						NSLog(@"*** Can't read Models.plist for %@ from %@", model, path);
 					sysInfo=[[self _infoForModel:model fromDict:dict] mutableCopy];	// and make a copy
 					break;
 					}
@@ -102,7 +107,7 @@ static NSMutableDictionary *sysInfo;
 			   s_info.totalswap, s_info.freeswap,
 			   s_info.procs);
 #endif	// read memory from /proc/meminfo
-#if 1
+#if 0
 		NSLog(@"sysInfo=%@", sysInfo);
 #endif
 		}
