@@ -3150,8 +3150,7 @@ static NSDictionary *_x11settings;
 					NSLog(@"DestroyNotify\n");			// Destroyed
 					break;
 				case LeaveNotify: 
-					NSLog(@"leave");
-				case EnterNotify:						// when the pointer enters or leves a window, pass upwards as a motion event
+				case EnterNotify:						// when the pointer enters or leves a window, pass upwards as a first/last motion event
 					e = [NSEvent mouseEventWithType:NSMouseMoved
 										   location:X11toScreen(xe.xcrossing)
 									  modifierFlags:__modFlags

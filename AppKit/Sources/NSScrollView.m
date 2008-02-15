@@ -379,18 +379,6 @@ static Class __rulerViewClass = nil;
 	[_vertRuler setHidden:!flag];
 }
 
-- (void) setFrame:(NSRect)rect
-{
-	[super setFrame:rect];
-	[self tile];
-}
-
-- (void) setFrameSize:(NSSize)size
-{
-	[super setFrameSize:size];
-	[self tile];
-}
-
 - (void) tile
 { // calculate layout: scrollers on right or bottom - headerView on top of contentView - note that we have flipped coordinates!
 	NSRect vertScrollerRect, horizScrollerRect, contentRect;
@@ -580,11 +568,30 @@ static Class __rulerViewClass = nil;
 	[self reflectScrolledClipView:(NSClipView*)_contentView];		// update scroller
 }
 
-- (void) resizeSubviewsWithOldSize:(NSSize)oldSize
+- (void) setFrame:(NSRect) rect
+{
+	NSDebugLog (@"NSScrollView	setFrame ");
+	if(NSEqualRects(rect, _frame))
+		return;	// ignore unchanged frame
+	[super setFrame:rect];
+	[self tile];	// this will setFrame for all our subviews
+}
+
+- (void) setFrameSize:(NSSize) size
+{
+	NSDebugLog (@"NSScrollView	setFrameSize ");
+	if(NSEqualSizes(size, _frame.size))
+		return;	// ignore unchanged size
+	[super setFrameSize:size];
+	[self tile];	// this will setFrame for all our subviews
+}
+
+- (void) resizeSubviewsWithOldSize:(NSSize) size
 {
 	NSDebugLog (@"NSScrollView	resizeSubviewsWithOldSize ");
-	[super resizeSubviewsWithOldSize:oldSize];
-	[self tile];
+	if(NSEqualSizes(size, _frame.size))
+		return;	// ignore unchanged size
+	[self tile];	// this will setFrame for all our subviews
 }
 
 // experimental to handle new navigation ideas

@@ -320,3 +320,13 @@ struct _NSViewAnimation
 - (NSArray *) viewAnimations; { return _viewAnimations; }
 
 @end
+
+@implementation NSObject (NSAnimation)
+
+- (void) animation:(NSAnimation *) ani didReachProgressMark:(NSAnimationProgress) progressMark; { return; }
+- (float) animation:(NSAnimation *) ani valueForProgress:(NSAnimationProgress) progressValue; { return progressValue; }
+- (void) animationDidEnd:(NSAnimation *) ani; { return; }
+- (void) animationDidStop:(NSAnimation *) ani; { return; }
+- (BOOL) animationShouldStart:(NSAnimation *) ani; { return NO; }	// delegate must override
+
+@end

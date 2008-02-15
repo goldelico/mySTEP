@@ -160,8 +160,8 @@ static BOOL __cursorHidden = NO;
 	if((self=[super initWithFrame:f]))
 		{
 		_style=aStyle;
-		[self setAutoresizesSubviews:YES];
 		[self setAutoresizingMask:(NSViewWidthSizable|NSViewHeightSizable)];	// resize with window
+		[self setAutoresizesSubviews:YES];
 		if((aStyle&GSAllWindowMask) != NSBorderlessWindowMask)
 			{
 			NSButton *b0, *b1, *b2;
@@ -323,11 +323,16 @@ static BOOL __cursorHidden = NO;
 	_didSetShape=NO;	// and reset shape
 }
 
-- (void) _setWindow:(NSWindow *) win;
+- (void) resizeSubviewsWithOldSize:(NSSize)oldSize
 {
-	[super _setWindow:win];
+	if(!NSEqualSizes(oldSize, _frame.size))
+		[self layout];	// resize so that the content view matches our current size
+}
+
+- (void) viewWillMoveToWindow:(NSWindow *) win;
+{
 	if(win)
-		[self layout];	// update layout
+		[self layout];	// update layout initially
 }
 
 - (void) setContentView:(NSView *) view;
@@ -340,6 +345,7 @@ static BOOL __cursorHidden = NO;
 #endif
 	[self replaceSubview:cv with:view];	// this checks if a content view exists
 	[view setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+	[view setAutoresizesSubviews:YES];	// enforce for content view
 	[self layout];
 	[self setNeedsDisplay:YES];	// show everything
 #if 0
@@ -364,6 +370,7 @@ static BOOL __cursorHidden = NO;
 		[wb setFrameOrigin:f.origin];
 		tv=[[NSToolbarView alloc] initWithFrame:(NSRect){{0.0, wf.size.width}, {20.0, 20.0}}];	// as wide as the window
 		[tv setAutoresizingMask:NSViewMaxYMargin|NSViewWidthSizable];
+		[tv setAutoresizesSubviews:YES];
 		[self addSubview:tv];
 		[tv release];
 		}
@@ -677,25 +684,13 @@ static BOOL __cursorHidden = NO;
 
 - (void) _screenParametersNotification:(NSNotification *) notification;
 {
-	NSRect f;
 #if 0
 	NSLog(@"%@ _screenParametersNotification: %@", NSStringFromClass([self class]), notification);
 #endif
 	if(notification)
 		; // FIXME: we might have to rearrange menu bars! - better solutions: menu bars separately register for this notification
-	if((_w.styleMask&GSAllWindowMask) == NSBorderlessWindowMask)
-		return;	// don't touch borderless windows (e.g. menus)
-	if((_w.styleMask & NSResizableWindowMask) && [self interfaceStyle] >= NSPDAInterfaceStyle)
-		f=[_screen visibleFrame];	// resize to full screen for PDA styles
-	else
-		f=[self constrainFrameRect:frame toScreen:_screen];		// default: constrain to screen
-#if 0
-	NSLog(@"frame=%@", NSStringFromRect(frame));
-#endif
-	if(notification)
-		[self setFrame:f display:YES animate:YES];	// make window reflect changed frame
-	else
-		frame=f;	// initialize (is being called from within initWithContentRect:)
+	if( _w.visible)
+		[self orderFront:nil];	// this will resize the window if needed
 }
 
 - (id) initWithContentRect:(NSRect)cRect
@@ -738,6 +733,8 @@ static BOOL __cursorHidden = NO;
 			_userSpaceScaleFactor=1.0;
 		else
 			_userSpaceScaleFactor=[_screen userSpaceScaleFactor];	// ask the screen
+		_w.backingType = bufferingType;
+		_w.styleMask = aStyle;
 		_w.needsDisplay = NO;	// will be set by first expose
 		_w.autodisplay = YES;
 		_w.optimizeDrawing = YES;
@@ -745,13 +742,10 @@ static BOOL __cursorHidden = NO;
 		_w.releasedWhenClosed = YES;
 		_w.acceptsMouseMoved = NO;  // default
 		_w.cursorRectsEnabled = YES;
-		_w.backingType = bufferingType;
-		_w.styleMask = aStyle;
 		_w.canHide = YES;
 		_w.hidesOnDeactivate = YES;
-		frame=[NSWindow frameRectForContentRect:cRect styleMask:aStyle];		// get requested screen frame
-		[self _screenParametersNotification:nil];								// initially adjust/restrict frame
-		_themeFrame=[[NSThemeFrame alloc] initWithFrame:(NSRect){{0, 0}, frame.size} forStyleMask:aStyle forScreen:_screen];	// create view hierarchy
+		_frame=[NSWindow frameRectForContentRect:cRect styleMask:aStyle];		// get requested screen frame
+		_themeFrame=[[NSThemeFrame alloc] initWithFrame:(NSRect){{0, 0}, _frame.size} forStyleMask:aStyle forScreen:_screen];	// create view hierarchy
 		[_themeFrame _setWindow:self];
 		[_themeFrame setNextResponder:self];
 		[self setNextResponder:NSApp];	// NSApp is next responder
@@ -1001,8 +995,12 @@ static BOOL __cursorHidden = NO;
 			_context=[[NSGraphicsContext graphicsContextWithWindow:self] retain];	// now, create window
 			_gState=[_context _currentGState];			// save gState
 			}
-		_w.needsDisplay = NO;							// reset first - display may result in callbacks that will set this flag again
-		[_themeFrame displayIfNeeded];					// Draw the window view hierarchy (if changed)
+		[self setFrame:[self constrainFrameRect:_frame toScreen:_screen] display:_w.visible animate:_w.visible];	// constrain window frame if needed
+		if(!_w.visible)
+			{
+			_w.needsDisplay = NO;							// reset first - display may result in callbacks that will set this flag again
+			[_themeFrame displayIfNeeded];					// Draw the window view hierarchy (if changed) before mapping
+			}
 		}
 	if(!otherWin)
 		{ // find first/last window on same level to place in front/behind
@@ -1065,12 +1063,12 @@ static BOOL __cursorHidden = NO;
 	else
 		[self setFrameTopLeftPoint:topLeftPoint];
 
-	if(new.x + frame.size.width > screenSize.width)
+	if(new.x + _frame.size.width > screenSize.width)
 		{
 		new.x = 30 + cascadePoint.x;
 		cascadePoint.x = (cascadePoint.x < 200) ? cascadePoint.x + 50 : 25;
 		}
-	if(new.y - frame.size.height < 0)
+	if(new.y - _frame.size.height < 0)
 		{
 		new.y = screenSize.height - (30 + cascadePoint.y);
 		cascadePoint.y = (cascadePoint.y < 200) ? cascadePoint.y + 50 : 25;
@@ -1081,42 +1079,43 @@ static BOOL __cursorHidden = NO;
 - (void) center
 { // center the window within it's screen
 	NSSize screenSize = [_screen visibleFrame].size;
-	NSPoint origin = frame.origin;
-	origin.x = (screenSize.width - frame.size.width) / 2;
-	origin.y = (screenSize.height - frame.size.height) / 2;
+	NSPoint origin = _frame.origin;
+	origin.x = (screenSize.width - _frame.size.width) / 2;
+	origin.y = (screenSize.height - _frame.size.height) / 2;
 	[self setFrameOrigin:origin];
 }
 
 - (NSRect) constrainFrameRect:(NSRect)rect toScreen:(NSScreen *)screen
 {
-	NSRect vf=[screen visibleFrame];
-	if(!NSContainsRect(vf, rect))
-		{ // scale down and shift to visibleFrame - might also try to rotate if that fits better
-#if 1
-		NSLog(@"rescale/move windowFrame %@ to visibleFrame %@", NSStringFromRect(rect), NSStringFromRect(vf));
+	NSRect vf;
+#if 0
+	NSLog(@"constrain rect %@ forscreen %@", NSStringFromRect(rect), NSStringFromRect([screen visibleFrame]));
 #endif
-		if(rect.size.height > vf.size.height)
-			{ // scale down
-			float scale=vf.size.height/rect.size.height;
-#if 1
-			NSLog(@"scale down by %lf", scale);
+	if((_w.styleMask&GSAllWindowMask) == NSBorderlessWindowMask)
+		return rect;	// never constrain
+	vf=[screen visibleFrame];
+#if 0
+#if __APPLE__
+	vf=NSMakeRect(100.0, 100.0, 800.0, 500.0);	// special constraining for test purposes on the Mac
 #endif
-			rect.size.height *= scale;  // limit
-			// set content view scaling factor
-			}
-		if(rect.origin.y < vf.origin.y)
-			rect.origin.y = vf.origin.y;  // move up as needed
-		else if(rect.origin.y + rect.size.height > vf.origin.y + vf.size.height)
-			rect.origin.y = vf.origin.y + vf.size.height - rect.size.height;	// move down
-		if(rect.origin.x < vf.origin.x)
-			rect.origin.x = vf.origin.x;  // move right as needed
-		else if(rect.origin.x + rect.size.width > vf.origin.x + vf.size.width)
-			rect.origin.x = vf.origin.x + vf.size.width - rect.size.width;	// move left		
-#if 1
-		NSLog(@"result %@", NSStringFromRect(rect));
 #endif
-		}
-	// check for minimum width
+	if((_w.styleMask & NSResizableWindowMask) && [self interfaceStyle] >= NSPDAInterfaceStyle)
+		return vf;	// resize to full screen for PDA styles
+	if(NSMaxX(rect) > NSMaxX(vf))
+		rect.origin.x=NSMaxX(vf)-NSWidth(rect);	// goes beyond right edge - move left
+	if(NSMinX(rect) < NSMinX(vf))
+		rect.origin.x=NSMinX(vf);	// goes beyond left edge - move right
+	if(NSMaxY(rect) > NSMaxY(vf))
+		rect.origin.y=NSMaxY(vf)-NSHeight(rect);	// goes beyond top edge - move down
+	if(NSMinY(rect) < NSMinY(vf))
+		rect.origin.y=NSMinY(vf);	// goes beyond top edge - move down
+#if 0
+	NSLog(@"shifted frameRect %@", NSStringFromRect(rect));
+#endif
+	rect=NSIntersectionRect(vf, rect);	// reduce to visible frame if still too large
+#if 0
+	NSLog(@"constrained frameRect %@", NSStringFromRect(rect));
+#endif
 	return rect;
 }
 
@@ -1136,42 +1135,41 @@ static BOOL __cursorHidden = NO;
 	return cRect;
 }
 
-- (NSRect) frame								{ return frame; }
+- (NSRect) frame								{ return _frame; }
 - (NSSize) minSize								{ return _minSize; }
 - (NSSize) maxSize								{ return _maxSize; }
 
 - (void) setContentSize:(NSSize)aSize
 {
-	NSRect r={frame.origin, aSize};
+	NSRect r={ _frame.origin, aSize };
 	// limit to be larger than minSize and smaller than maxSize!
 	[self setFrame:[self frameRectForContentRect:r] display:_w.visible];
 }
 
 - (void) setFrameTopLeftPoint:(NSPoint)aPoint
 {
-	[self setFrameOrigin:NSMakePoint(aPoint.x, aPoint.y-frame.size.height)];
+	[self setFrameOrigin:NSMakePoint(aPoint.x, aPoint.y-_frame.size.height)];
 }
 
 - (void) setFrameOrigin:(NSPoint)aPoint
 {
-	if(!NSEqualPoints(aPoint, frame.origin))
+	if(!NSEqualPoints(aPoint, _frame.origin))
 		{
-		NSRect r={aPoint, frame.size};
+		NSRect r={aPoint, _frame.size};
 		[_context _setOrigin:r.origin];
-//		[_context flushGraphics];
-		frame.origin=aPoint;	// remember
+		_frame.origin=aPoint;	// remember; no need to update theme frame
 		}
 }
 
 - (void) setFrame:(NSRect)r display:(BOOL)flag
 {
-	if(!NSEqualSizes(r.size, frame.size))
+	if(!NSEqualSizes(r.size, _frame.size))
 		{ // resize (and move)
 		[_context _setOriginAndSize:r];	// set origin since we must "move" in X11 coordinates even if we resize only
-		[self _setFrame:r];	// update content view etc.
+		[self _setFrame:r];	// update content view size etc.
 		// FIXME: must also update window title shape!
 		}
-	else if(!NSEqualPoints(r.origin, frame.origin))
+	else if(!NSEqualPoints(r.origin, _frame.origin))
 		{ // move only
 		[_context _setOrigin:r.origin];
 		[self _setFrame:r];	// update content view etc.
@@ -1192,17 +1190,16 @@ static BOOL __cursorHidden = NO;
 #if 0
 	NSLog(@"_setFrame:%@", NSStringFromRect(rect));
 #endif
-	if(NSEqualRects(rect, frame))
+	if(NSEqualRects(rect, _frame))
 		return;	// no change
-	if(!NSEqualSizes(rect.size, frame.size))
+	if(!NSEqualSizes(rect.size, _frame.size))
 		{ // needs to resize content view
-		frame=rect;
+		_frame=rect;
 		[(NSThemeFrame *) _themeFrame setFrameSize:rect.size];	// adjust theme frame subviews and content View
-		[(NSThemeFrame *) _themeFrame layout];
 		}
 	else
 		{
-		frame.origin=rect.origin;	// just moved
+		_frame.origin=rect.origin;	// just moved
 #if 1
 		NSLog(@"window has no need to re-layout: %@", self);
 #endif
@@ -1211,13 +1208,14 @@ static BOOL __cursorHidden = NO;
 
 - (void) setFrame:(NSRect) rect display:(BOOL) flag animate:(BOOL) animate
 {
-	if(NSEqualRects(rect, frame))
+	if(NSEqualRects(rect, _frame))
 		return;	// no change
+#if 0	// if window animation works
 	if(animate)
 		{ // smooth resize
 		NSArray *animations=[NSArray arrayWithObject:
 			[NSDictionary dictionaryWithObjectsAndKeys:
-				[NSValue valueWithRect:frame], NSViewAnimationStartFrameKey,	// current frame
+				[NSValue valueWithRect:_frame], NSViewAnimationStartFrameKey,	// current frame
 				[NSValue valueWithRect:rect], NSViewAnimationEndFrameKey,		// new frame
 				self, NSViewAnimationTargetKey,
 				nil]
@@ -1226,18 +1224,19 @@ static BOOL __cursorHidden = NO;
 		[a startAnimation];	// start
 		return;
 		}
+#endif
 	[self setFrame:rect display:flag];	// just setFrame...
 }
 
 - (void) setMinSize:(NSSize)aSize				{ _minSize = aSize; }
 - (void) setMaxSize:(NSSize)aSize				{ _maxSize = aSize; }
-- (void) setResizeIncrements:(NSSize)aSize		{ resizeIncrements = aSize; }
+- (void) setResizeIncrements:(NSSize)aSize		{ _resizeIncrements = aSize; }
 
 - (NSAffineTransform *) _base2screen;
 { // return matrix to transform base coordinates to screen coordinates
 	NSAffineTransform *atm=[NSAffineTransform transform];
 	// FIXME: handle userSpaceScaling here?
-	[atm translateXBy:frame.origin.x yBy:frame.origin.y];
+	[atm translateXBy:_frame.origin.x yBy:_frame.origin.y];
 #if 0
 	NSLog(@"_base2screen=%@", atm);
 #endif
@@ -1917,7 +1916,7 @@ static BOOL __cursorHidden = NO;
 - (id) validRequestorForSendType:(NSString *)sendType		// Services menu
 					  returnType:(NSString *)returnType
 {
-id result = nil;
+	id result = nil;
 
 	if (_delegate && [_delegate respondsToSelector: _cmd])
 		result = [_delegate validRequestorForSendType: sendType
@@ -1962,7 +1961,7 @@ NSString *key = [NSString stringWithFormat:@"NSWindow Frame %@",name];
 		
 	NSDebugLog(@"saveFrameUsingName %@\n",[NSValue valueWithRect:frame]);
 
-	[defaults setObject:[NSValue valueWithRect:frame] forKey:key];
+	[defaults setObject:[NSValue valueWithRect:_frame] forKey:key];
 	[defaults synchronize];
 }
 
@@ -2005,7 +2004,7 @@ NSString *key = [NSString stringWithFormat:@"NSWindow Frame %@",name];
 
 - (NSString *) stringWithSavedFrame				
 { 
-	return [[NSValue valueWithRect:frame] description]; 
+	return [[NSValue valueWithRect:_frame] description]; 
 }
 
 - (void) print:(id) sender
@@ -2027,7 +2026,7 @@ NSString *key = [NSString stringWithFormat:@"NSWindow Frame %@",name];
 		NSStringFromClass(isa),
 		[_context _windowNumber],
 		[self title],
-		NSStringFromRect(frame)];
+		NSStringFromRect(_frame)];
 }
 
 - (NSView *) initialFirstResponder			{ return _initialFirstResponder; }
@@ -2093,7 +2092,7 @@ id prev;
 	[super encodeWithCoder:aCoder];
 	
 	NSDebugLog(@"NSWindow: start encoding\n");
-	[aCoder encodeRect:frame];
+	[aCoder encodeRect:_frame];
 	[aCoder encodeObject:_themeFrame];
 	[aCoder encodeObject:_initialFirstResponder];
 //  [aCoder encodeObjectReference: _delegate withName:NULL];
@@ -2111,14 +2110,15 @@ id prev;
 
 - (id) initWithCoder:(NSCoder *)aDecoder
 {
-	// FIXME: we will only decode NSWindowTemplate from NIBs and doc says that this should create an error message!
+	// FIXME: we can only decode a NSWindowTemplate from NIBs
+	// and doc says that this call should create an error message!
 	int _windowNum;
 	self=[super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
 		return NIMP;
 	
 	NSDebugLog(@"NSWindow: start decoding\n");
-	frame = [aDecoder decodeRect];
+	_frame = [aDecoder decodeRect];
 	_themeFrame = [aDecoder decodeObject];
 	_initialFirstResponder = [aDecoder decodeObject];
 //  [aDecoder decodeObjectAt: &_delegate withName:NULL];

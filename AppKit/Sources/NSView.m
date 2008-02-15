@@ -791,8 +791,11 @@ printing
 - (void) setFrame:(NSRect)frameRect
 {
 	NSSize o;
-	if(NSEqualRects(_frame, frameRect))
-		return;	// no change
+	if(NSEqualPoints(_frame.origin, frameRect.origin))
+		{ // change size only - required for Cocoa compatibility if subclass overwrites setFrameSize
+		[self setFrameSize:frameRect.size];	// this will also post a single notification
+		return;
+		}
 	o=_frame.size;	// remember old size
 	_frame=frameRect;
 	if(!_v.customBounds)
@@ -801,8 +804,7 @@ printing
 #if 0
 	NSLog(@"autosize %d %@", _v.autoSizeSubviews, self);
 #endif
-	if(_v.autoSizeSubviews)
-		[self resizeSubviewsWithOldSize: o];	// Resize subviews
+	[self resizeSubviewsWithOldSize: o];	// Resize subviews if needed
 #if 0
 	NSLog(@"autosized");
 #endif
@@ -832,8 +834,7 @@ printing
 	if(!_v.customBounds)
 		_bounds.size = newSize;	// always adjust
 	[self _invalidateCTM];
-	if(_v.autoSizeSubviews)
-		[self resizeSubviewsWithOldSize:o];				// Resize subviews
+	[self resizeSubviewsWithOldSize:o];	// Resize subviews if needed
 	if(_v.postFrameChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
 }
@@ -1226,7 +1227,9 @@ printing
 	NSLog(@"resizeSubviewsWithOldSize:%@ -> %@ %@", NSStringFromSize(oldSize), NSStringFromSize(_frame.size), self);
 	NSLog(@"subviews=%@", sub_views);
 #endif
-	if (_v.autoSizeSubviews && !_v.isRotatedFromBase)					 
+	if (_v.isRotatedFromBase)					 
+		NSLog(@"can't resizeSubviewsWithOldSize (rotated base): %@", self);
+	else if (_v.autoSizeSubviews)					 
 		{												// resize subviews only
 		int i, count = [sub_views count];				// if we are supposed
 														// to and we have never
@@ -1235,11 +1238,11 @@ printing
 			[[sub_views objectAtIndex:i] resizeWithOldSuperviewSize: oldSize];
 		}
 	else
-		NSLog(@"can't resizeSubviewsWithOldSize: %@", self);
+		NSLog(@"don't autoSizeSubviews: %@", self);
 }
 
 - (void) resizeWithOldSuperviewSize:(NSSize)oldSize		
-{
+{ // does not call setFrame: or setFrameSize:!
 	float change, changePerOption;
 	NSSize old_size = _frame.size;
 	NSSize superViewFrameSize;	// super_view should not be nil!
@@ -1324,8 +1327,8 @@ printing
 				// NSHeight(frame) = MAX(0, NSHeight(frame) + changePerOption);
 				if (NSHeight(_frame) <= 0)
 					{
-					NSAssert((NSHeight(_frame) <= 0), @"View frame height <= 0!");
 					NSLog(@"resizeWithOldSuperviewSize: View frame height <= 0!");
+					NSAssert((NSHeight(_frame) <= 0), @"View frame height <= 0!");
 					_frame.size.height = 0;
 					}
 				if(_v.isRotatedFromBase)			
@@ -1334,7 +1337,12 @@ printing
 					//				_bounds.size.height = floor(_bounds.size.height);
 					}
 				else
-					_bounds.size.height += changePerOption;
+					{
+					if([super_view isFlipped])
+						_bounds.size.height -= changePerOption;
+					else
+						_bounds.size.height += changePerOption;
+					}
 				changedSize = YES;
 				}
 			if([super_view isFlipped])
@@ -1365,6 +1373,7 @@ printing
 			// FIXME: should we scale old_size?
 			NSLog(@"and now? %@", self);
 			}
+		[self setNeedsDisplay:YES];	// we (and our superviews) must redraw if we change size or origin
 		[self resizeSubviewsWithOldSize: old_size];	// recursively go down
 		}
 }

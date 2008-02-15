@@ -244,6 +244,7 @@
 		NSTableColumn *tc;		
 		_tableView = [[NSComboTableView alloc] initWithFrame:(NSRect) { NSZeroPoint, f.size }];
 		[_tableView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+		[_tableView setAutoresizesSubviews:YES];
 		[_tableView setBackgroundColor:[NSColor whiteColor]];
 		[_tableView setAllowsColumnReordering:NO];
 		[_tableView setAllowsColumnResizing:NO];

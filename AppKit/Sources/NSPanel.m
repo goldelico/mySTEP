@@ -186,6 +186,7 @@
 #if 0		
 		v = [[NSBox alloc] initWithFrame: rect];		// create middle groove
 		[v setAutoresizingMask: NSViewWidthSizable | NSViewMinYMargin];
+		[v setAutoresizesSubviews:YES];
 		[v setTitlePosition: NSNoTitle];
 		[v setBorderType: NSGrooveBorder];
 		[cv addSubview: v];
@@ -548,7 +549,7 @@ static NSSavePanel *__savePanel;
 #if 1
 	NSLog(@"NSSavePanel - awake from NIB");
 #endif
-	includeNewFolderButton = YES;
+	[self _setIncludeNewFolderButton:YES];
 	[self setCanCreateDirectories:YES];
 	[self setDirectory:@"/"];
 	[self setPrompt:@"Save"];
@@ -651,12 +652,12 @@ static NSSavePanel *__savePanel;
 - (void) setPrompt:(NSString *)prompt
 { // set the prompt button string
 	if([prompt hasSuffix:@":"])
-		prompt=[prompt substringToIndex:[prompt length]-1];	// remove : suffix s docmented
+		prompt=[prompt substringToIndex:[prompt length]-1];	// remove : suffix according to docmentation
 	[okButton setTitle:prompt];
 }
 
-- (void) setNameFieldLabel:(NSString *)label { }
-- (void) setMessage:(NSString *)message { }
+- (void) setNameFieldLabel:(NSString *)label { return; }
+- (void) setMessage:(NSString *)message { return; }
 - (void) setTreatsFilePackagesAsDirectories:(BOOL)flag { treatsFilePackagesAsDirectories = flag; }
 - (void) setCanCreateDirectories:(BOOL)flag { [self _setIncludeNewFolderButton:flag]; }
 
@@ -804,9 +805,12 @@ static NSSavePanel *__savePanel;
 
 - (void) _setIncludeNewFolderButton:(BOOL) flag;
 {
-	includeNewFolderButton=flag;
-	[newFolderButton setHidden:!flag];
-	// rearrange layout
+	if(includeNewFolderButton != flag)
+		{
+		includeNewFolderButton=flag;
+		[newFolderButton setHidden:!flag];
+		// rearrange layout, i.e. resize search field
+		}
 }
 
 - (BOOL) _includeNewFolderButton; { return includeNewFolderButton; }
@@ -815,6 +819,7 @@ static NSSavePanel *__savePanel;
 {
 	NSLog(@"home...");
 	[self setDirectory:NSHomeDirectory()];
+	[browser setPath:[self directory]];
 	[browser loadColumnZero];
 }
 
@@ -823,6 +828,7 @@ static NSSavePanel *__savePanel;
 	NSLog(@"mount...");
 	[[NSWorkspace sharedWorkspace] mountNewRemovableMedia];
 	[self setDirectory:@"/Volumes"];
+	[browser setPath:[self directory]];
 	[browser loadColumnZero];
 }
 

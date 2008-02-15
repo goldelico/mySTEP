@@ -158,6 +158,7 @@
 	ASSIGN(_contentView, aView);	// then save
 	[_contentView setFrame:[self _calcSizes]];
 	[_contentView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+	[_contentView setAutoresizesSubviews:YES];
 }
 
 - (void) setTitle:(NSString *)aString
@@ -221,18 +222,16 @@
 		{
 		NSRect r = NSZeroRect;
 		id o, e = [[_contentView subviews] objectEnumerator];
-
 		while ((o = [e nextObject]))
-			r = NSUnionRect(r, [o frame]);	// Loop through subviews and calculate union rect to encompass all
-	
+			r = NSUnionRect(r, [o frame]);	// Loop through subviews and calculate union rect to encompass all	
 		[self setFrameFromContentFrame: r];
 		}
 }
 
 - (void) resizeSubviewsWithOldSize:(NSSize)oldSize
-{
-	[super resizeSubviewsWithOldSize:oldSize];
-	[_contentView setFrame: [self _calcSizes]];
+{ // special handling of our content view
+	[_contentView setFrame: [self _calcSizes]];	// resize so that they match our current size
+	[_contentView setNeedsDisplay:YES];
 }
 
 - (void) addSubview:(NSView *)aView
@@ -247,7 +246,7 @@
 
 - (void) drawRect:(NSRect)rect							// Draw the box
 {
-#if 0	// testing
+#if 1	// testing
 	[[NSColor redColor] set];
 	NSFrameRect(_bounds);
 #endif	

@@ -619,8 +619,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (int) runModalForWindow:(NSWindow*)aWindow
 {
-	static NSModalSession s = 0;
-	static int r;	// Run a modal event loop
+	NSModalSession s = 0;
+	int r;	// Run a modal event loop
 
 	NS_DURING
 		{
@@ -640,7 +640,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		{
 		if (s)
 			[self endModalSession: s];
-		if ([[localException name] isEqual: NSAbortModalException] == NO)
+		if ([[localException name] isEqualToString: NSAbortModalException] == NO)
 			[localException raise];
 		r = NSRunAbortedResponse;
 		}
@@ -700,12 +700,12 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 				}
 		else if([[e window] worksWhenModal])
 			{
-#if 1
+#if 0
 			NSLog(@"worksWhenModal: %@", [e window]);
 #endif
 			[self sendEvent:e];	// the window has explicity opted to receive events
 			}
-		// FIXME: check if we click into the title bar to allow moving the window!
+		// FIXME: check if we click into the title bar to always allow moving windows which is done in NSThemeFrame
 		else
 			{ // queue events for all other windows for processing by endModalSession
 			NSEventType t = [e type];
@@ -820,7 +820,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 					 format: @"null pointer passed to endModalSession:"];
 
 	if (aSession->nonModalEventsQueue)
-		{
+		{ // add events to regular queue
 		[_eventQueue addObjectsFromArray: aSession->nonModalEventsQueue];
 		[aSession->nonModalEventsQueue release];
 		}
@@ -1061,7 +1061,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 			{ // send to key window only
 				if(_app.isActive)
 					{
-#if 1
+#if 0
 					NSLog(@"NSEvent: %@ to keyWindow %@", event, _keyWindow);
 #endif
 					[_keyWindow sendEvent:event];

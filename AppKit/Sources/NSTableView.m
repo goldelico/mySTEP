@@ -1786,16 +1786,27 @@ int index = [self columnWithIdentifier:identifier];
 #endif
 }
 
-- (void) reloadData							
+- (void) setFrame:(NSRect) rect
 {
-#if 0
-	NSLog(@"reloadData: %@", self);
-#endif
-	// end any editing
-	[self noteNumberOfRowsChanged];
-#if 0
-	NSLog(@"reloadData done.");
-#endif
+	if(NSEqualRects(rect, _frame))
+		return;
+	[super setFrame:rect];
+	[self tile];	// resizes only if needed
+}
+
+- (void) setFrameSize:(NSSize) size
+{
+	if(NSEqualSizes(size, _frame.size))
+		return;
+	[super setFrameSize:size];
+	[self tile];	// resizes only if needed
+}
+
+- (void) resizeSubviewsWithOldSize:(NSSize) size
+{
+	if(NSEqualSizes(size, _frame.size))
+		return;		// unchanged
+	[self tile];	// resize components
 }
 
 - (void) viewDidMoveToWindow;
@@ -1812,6 +1823,18 @@ int index = [self columnWithIdentifier:identifier];
 	NSLog(@"movetosuper s:%p %@", super_view, self);
 #endif
 	[self reloadData];
+}
+
+- (void) reloadData							
+{
+#if 0
+	NSLog(@"reloadData: %@", self);
+#endif
+	// end any editing
+	[self noteNumberOfRowsChanged];
+#if 0
+	NSLog(@"reloadData done.");
+#endif
 }
 
 - (void) drawRect:(NSRect)rect								// Draw tableview

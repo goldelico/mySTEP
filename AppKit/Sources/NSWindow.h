@@ -141,11 +141,10 @@ typedef NSUInteger NSWindowCollectionBehavior;
 
 @interface NSWindow : NSResponder  <NSCoding>
 {
-	NSRect frame;		// window frame rect in NSScreen coordinates
+	NSRect _frame;		// window frame rect in NSScreen coordinates
 	NSSize _minSize;
 	NSSize _maxSize;
-	NSSize resizeIncrements;
-//	NSRect _rectNeedingFlush;
+	NSSize _resizeIncrements;
 	id _delegate;
 	id _fieldEditor;
 	NSView *_themeFrame;	// start of view hierarchy

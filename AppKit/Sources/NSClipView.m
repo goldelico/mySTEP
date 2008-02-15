@@ -153,10 +153,11 @@
 		return;	// ignore
 	// disable notifications to prevent an infinite loop
 	[_documentView setPostsFrameChangedNotifications:NO];	
-
-	NSDebugLog(@"NSClipView viewFrameChanged");		// An unflipped doc view 
+#if 1
+	NSLog(@"NSClipView viewFrameChanged");		// An unflipped doc view 
 													// smaller than clip view 
 													// requires an org offset 
+#endif
 	if (mr.size.height < _bounds.size.height)		// in order to appear at
 		{											// top of the clip view.
 		mr.origin.y = bounds.size.height - mr.size.height;	
@@ -208,6 +209,8 @@
 	[super_view reflectScrolledClipView:self];
 }
 
+// FIXME: keep scrolling position (bounds) stable
+
 - (void) setFrameSize:(NSSize)aSize
 {
 	[super setFrameSize:aSize];
@@ -224,6 +227,12 @@
 {
 	[super setFrame:rect];
 	[super_view reflectScrolledClipView:self];
+}
+
+- (void) resizeSubviewsWithOldSize:(NSSize)oldSize
+{
+	NSLog(@"resizeSubviewsWithOldSize %@", self);
+	[_documentView resizeWithOldSuperviewSize: oldSize];	// forward to our document view
 }
 
 - (void) translateOriginToPoint:(NSPoint)aPoint

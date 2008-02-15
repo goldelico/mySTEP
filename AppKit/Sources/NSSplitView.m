@@ -308,6 +308,7 @@ NSSplitView.h
 				}
 			
 			[v setFrame: rect];
+			[v setNeedsDisplay:YES];
 			}
 		}
 	
@@ -386,9 +387,10 @@ NSSplitView.h
 		}
 }
 
-- (void) resizeWithOldSuperviewSize:(NSSize)oldSize
-{	
-	[super resizeWithOldSuperviewSize:oldSize];
+- (void) resizeSubviewsWithOldSize:(NSSize)oldSize
+{
+	if(NSEqualSizes(oldSize, _frame.size))
+		return;	// ignore unchanged size
 	[self adjustSubviews];
 	[_window invalidateCursorRectsForView:self];
 }

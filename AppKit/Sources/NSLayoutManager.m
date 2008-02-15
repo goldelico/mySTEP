@@ -244,7 +244,7 @@
 					if(!font)
 						font=[NSFont userFontOfSize:0.0];		// use default system font
 					tabwidth=8.0*[font widthOfString:@"x"];	// approx. 8 characters
-					pos.x=(1+(int)((pos.x-origin.x)/tabwidth))*tabwidth+origin.x;
+					pos.x=origin.x+(1+(int)((pos.x-origin.x)/tabwidth))*tabwidth;
 					if((pos.x-origin.x)+width <= containerSize.width)
 						{ // still fits into remaining line
 						rangeLimit.location++;
@@ -254,7 +254,7 @@
 					// treat as a newline
 				}
 			case '\n':
-				{
+				{ // go to a new line
 					NSParagraphStyle *p=[_textStorage attribute:NSParagraphStyleAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
 					font=[_textStorage attribute:NSFontAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
 					if(!font)
@@ -368,10 +368,18 @@ underlineType:(int)underlineVal
 lineFragmentRect:(NSRect)lineRect 
 lineFragmentGlyphRange:(NSRange)lineGlyphRange 
 containerOrigin:(NSPoint)containerOrigin;
+
 		should be part of - (void) strikeThroughGlyphRange:(NSRange)glyphRange 
 underlineType:(int)underlineVal 
 lineFragmentRect:(NSRect)lineRect 
 lineFragmentGlyphRange:(NSRange)lineGlyphRange 
+containerOrigin:(NSPoint)containerOrigin;
+		
+		- (void) drawStrikethroughForGlyphRange:(NSRange)glyphRange
+strikethroughType:(int)strikethroughVal
+baselineOffset:(float)baselineOffset
+lineFragmentRect:(NSRect)lineRect
+lineFragmentGlyphRange:(NSRange)lineGlyphRange
 containerOrigin:(NSPoint)containerOrigin;
 		
 		and not be called here directly
@@ -425,6 +433,15 @@ containerOrigin:(NSPoint)containerOrigin;
 						containerOrigin:(NSPoint)containerOrigin;
 {
 	NIMP;
+#if 0
+	float posy=pos.y+[font ascender]+baselineOffset-[font xHeight]/2.0;
+#if 0
+	NSLog(@"strike through %x", style);
+#endif
+	[foreGround setStroke];
+	[[attr objectForKey:NSStrikethroughColorAttributeName] setStroke];		// change stroke color if defined differently
+	[NSBezierPath strokeLineFromPoint:NSMakePoint(pos.x, posy) toPoint:NSMakePoint(pos.x+width, posy)];
+#endif				
 }
 
 - (void) drawUnderlineForGlyphRange:(NSRange)glyphRange 
@@ -435,6 +452,15 @@ containerOrigin:(NSPoint)containerOrigin;
 					containerOrigin:(NSPoint)containerOrigin;
 {
 	NIMP;
+#if 0
+	float posy=pos.y+[font defaultLineHeightForFont]+baselineOffset+[font underlinePosition];
+#if 0
+	NSLog(@"underline %x", style);
+#endif
+	[foreGround setStroke];
+	[[attr objectForKey:NSUnderlineColorAttributeName] setStroke];		// change stroke color if defined differently
+	[NSBezierPath strokeLineFromPoint:NSMakePoint(pos.x, posy) toPoint:NSMakePoint(pos.x+width, posy)];
+#endif
 }
 
 - (NSRect) extraLineFragmentRect; { return _extraLineFragmentRect; }
@@ -617,6 +643,7 @@ containerOrigin:(NSPoint)containerOrigin;
 - (void) invalidateDisplayForGlyphRange:(NSRange)glyphRange;
 {
 	NIMP;
+	// [textview setNeedsDisplayInRect: ]
 }
 
 - (void) invalidateGlyphsForCharacterRange:(NSRange)charRange changeInLength:(int)delta actualCharacterRange:(NSRange *)actualCharRange;
@@ -753,6 +780,7 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (void) setAttachmentSize:(NSSize)attachmentSize forGlyphRange:(NSRange)glyphRange;
 {
+	// DEPRECATED
 	NIMP;
 }
 

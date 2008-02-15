@@ -176,6 +176,16 @@ static struct _NSTabViewSizing
 	{ 24.0, 5.0, 20.0, 10.0, { 10.0, 23.0 } },
 };
 
+- (void) _tile;
+{
+	NSView *tv=[tab_selected view];
+#if 1
+	NSLog(@"_tile %@ - %@", self, tv);
+#endif
+	[tv setAutoresizesSubviews:YES];
+	[tv setFrame:[self contentRect]];
+}
+
 - (id) initWithFrame:(NSRect)rect
 {
 	if((self=[super initWithFrame:rect]))
@@ -311,19 +321,45 @@ static struct _NSTabViewSizing
 		NSView *v=[tab_selected view];
 		[tab_selected _setTabState:NSSelectedTab];
 		[self setNeedsDisplayInRect:[tab_selected _tabRect]];	// redraw tab
+		if([sub_views indexOfObjectIdenticalTo:v] == NSNotFound)
+			[self addSubview:v];	// if not yet a subview
 #if 1	// FIXME
 		if(!NSEqualRects([v frame], [self contentRect]))
 			{
 			NSLog(@"mismatch between loaded content rect %@ and calculated %@", NSStringFromRect([v frame]), NSStringFromRect([self contentRect]));
+			[self _tile];	// resize to fit - but only once
 			}
-//		[v setFrame:[self contentRect]];	// should have been done when creating the item in IB or programmatically
 #endif
-		if([sub_views indexOfObjectIdenticalTo:v] == NSNotFound)
-			[self addSubview:v];	// if not yet a subview
 		[v setNeedsDisplay:YES];	// redraw new content
 		if([tab_delegate respondsToSelector:@selector(tabView:didSelectTabViewItem:)])
 			[tab_delegate tabView:self didSelectTabViewItem:tab_selected];
 		}
+}
+
+- (void) viewDidMoveToWindow { [self _tile]; }
+- (void) viewDidMoveToSuperview { [self _tile]; }
+
+- (void) setFrame:(NSRect)rect
+{
+	if(NSEqualRects(rect, _frame))
+		return;	// ignore unchanged size
+	[super setFrame:rect];
+	[self _tile];
+}
+
+- (void) setFrameSize:(NSSize)size
+{
+	if(NSEqualSizes(size, _frame.size))
+		return;	// ignore unchanged size
+	[super setFrameSize:size];
+	[self _tile];
+}
+
+- (void) resizeSubviewsWithOldSize:(NSSize)oldSize
+{
+	if(NSEqualSizes(oldSize, _frame.size))
+		return;	// ignore unchanged size
+	[self _tile];
 }
 
 - (void) selectTabViewItemAtIndex:(int)index

@@ -75,7 +75,6 @@
 		_columns = [NSMutableArray new];
 		_unusedColumns = [NSMutableArray new];
 
-		[self tile];
 		[self setMaxVisibleColumns:1];  // default
 		}
 	return self;
@@ -185,7 +184,7 @@
 
 - (void) _updateScrollView:(NSScrollView *)sc
 {
-id matrix = [sc documentView];
+	id matrix = [sc documentView];
 													// Adjust matrix to fit in
 	if (sc && matrix)								// scrollview do so only if 	
 		{											// column has been loaded
@@ -197,12 +196,13 @@ id matrix = [sc documentView];
 			ms.width = cs.width;
 			[matrix setCellSize: ms];
 			[matrix sizeToCells];
-		}	}
+			}
+		}
 }
 
 - (void) _updateColumnFrames
 {
-int count = [_columns count];
+	int count = [_columns count];
 
 	while (count-- > 0)
 		{
@@ -213,11 +213,14 @@ int count = [_columns count];
 			if (![sc superview])				// Add as subview if necessary
 				[self addSubview: sc];
 			[sc setFrame: [self frameOfInsideOfColumn: count]];
+			[sc setNeedsDisplay:YES];
 			[self _updateScrollView: sc];
 			}
-		else									// If it is not visible remove
+		else
+			{ // If it is not visible remove
 			if ([sc superview])					// it from it's superview 
 				[[sc retain] removeFromSuperview];
+			}
 		}
 }
 
@@ -864,17 +867,29 @@ id c;
 	[self tile];								// recalc browser's elements
 }
 
-- (void) resizeWithOldSuperviewSize:(NSSize)oldSize		
+- (void) resizeSubviewsWithOldSize:(NSSize)oldSize		
 {
-	NSDebugLog (@"NSBrowser resizeWithOldSuperviewSize:");
-	[super resizeWithOldSuperviewSize:oldSize];
+	NSDebugLog (@"NSBrowser resizeSubviewsWithOldSize:");
+	[super resizeSubviewsWithOldSize:oldSize];	// required to resize the horizontal scroller
+	[self tile];								// recalc browser's elements
+}
+
+- (void) viewDidMoveToWindow
+{
+	NSDebugLog (@"NSBrowser viewDidMoveToWindow");
+	[self tile];								// recalc browser's elements
+}
+
+- (void) viewDidMoveToSuperview
+{
+	NSDebugLog (@"NSBrowser viewDidMoveToSuperview");
 	[self tile];								// recalc browser's elements
 }
 
 - (void) tile									// assume that frame and bounds
 {												// have been set appropriately
-int columnsPossible = (int)(NSWidth(_frame) / (_minColumnWidth + COLUMN_SEP));
-int currentVisibleColumns = _numberOfVisibleColumns;
+	int columnsPossible = (int)(NSWidth(_frame) / (_minColumnWidth + COLUMN_SEP));
+	int currentVisibleColumns = _numberOfVisibleColumns;
 #if 1
 	NSLog (@"NSBrowser tile");
 #endif
@@ -917,7 +932,8 @@ int currentVisibleColumns = _numberOfVisibleColumns;
 
 			if ([_columns count] > _numberOfVisibleColumns)
 				[self scrollColumnsRightBy: c];
-		}	}
+			}
+		}
 
 	[self _updateColumnFrames];
 }
