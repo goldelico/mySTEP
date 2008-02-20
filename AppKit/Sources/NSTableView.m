@@ -1779,6 +1779,8 @@ int index = [self columnWithIdentifier:identifier];
 	//		[sv setHorizontalLineScroll:??];
 			[sv setHorizontalPageScroll:0.0];	// no additional delta
 			}
+		else
+			NSLog(@"no columns");
 		}
 	[self setNeedsDisplay:YES];
 #if 0

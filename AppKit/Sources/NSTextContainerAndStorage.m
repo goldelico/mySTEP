@@ -71,11 +71,35 @@
 - (void) setLayoutManager:(NSLayoutManager *) lm; { layoutManager=lm; }
 - (void) setLineFragmentPadding:(float) pad; { lineFragmentPadding=pad; }
 
+- (void) _track:(NSNotification *) n;
+{
+	NSRect frame=[textView frame];
+	NSSize inset=[textView textContainerInset];
+	NSSize newSize=size;
+	if(widthTracksTextView)
+		newSize.width=frame.size.width-2.0*inset.width;
+	if(heightTracksTextView)
+		newSize.height=frame.size.height-2.0*inset.height;
+	if(!NSEqualSizes(size, newSize))
+		{
+		size=newSize;
+		// notify layout manager to invalidate the glyph layout
+		}
+}
+
 - (void) setTextView:(NSTextView *) tv;
 {
-	[textView setTextContainer:nil]; ASSIGN(textView, tv);
+	NSNotificationCenter *nc;
+	if(textView == tv)
+		return;
+	nc=[NSNotificationCenter defaultCenter];
+	[nc removeObserver:self name:NSViewFrameDidChangeNotification object:textView];
+	[textView setTextContainer:nil];
+	ASSIGN(textView, tv);
 	[textView setTextContainer:self];
-	// make us track size changes of the text view frame
+	[nc addObserver:self selector:@selector(_track:) name:NSViewFrameDidChangeNotification object:textView];
+	if(textView)
+		[self _track:nil];
 }
 
 - (void) setWidthTracksTextView:(BOOL) flag; { widthTracksTextView=flag; }
@@ -93,14 +117,14 @@
 #if 0
 	NSLog(@"%@ initWithCoder: %@", self, coder);
 #endif
-#define HEIGHTTRACKS ((tcFlags&0x01)!=0)
-	heightTracksTextView=HEIGHTTRACKS;
-#define WIDTHTRACKS ((tcFlags&0x02)!=0)
+#define WIDTHTRACKS ((tcFlags&0x01)!=0)
 	widthTracksTextView=WIDTHTRACKS;
-	layoutManager=[coder decodeObjectForKey:@"NSLayoutManager"];
-	textView=[[coder decodeObjectForKey:@"NSTextView"] retain];
+#define HEIGHTTRACKS ((tcFlags&0x02)!=0)
+	heightTracksTextView=HEIGHTTRACKS;
 	size.height=[coder decodeFloatForKey:@"NSHeight"];
 	size.width=[coder decodeFloatForKey:@"NSWidth"];
+	layoutManager=[coder decodeObjectForKey:@"NSLayoutManager"];
+	[self setTextView:[coder decodeObjectForKey:@"NSTextView"]];
 #if 0
 	NSLog(@"%@ done", self);
 #endif

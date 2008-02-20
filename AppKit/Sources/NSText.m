@@ -374,7 +374,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) setString:(NSString *)string;
 {
-	// FIXME: should this reset the richText flag?
+	// FIXME: shouldn't this reset the richText flag?
 	// make sure to keep the formatting of the old first character
 	[textStorage replaceCharactersInRange:NSMakeRange(0, [textStorage length]) withString:string];
 	[self setSelectedRange:NSMakeRange([string length], 0)];	// to end of string
@@ -400,7 +400,14 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) sizeToFit;
 {
-	// NIMP;
+	NSRect rect=(NSRect) { NSZeroPoint, [textStorage size] };	// ask the text storage for the size
+	if(!_tx.horzResizable)
+		rect.size.width=_bounds.size.width;	// don't resize horizontally
+	if(!_tx.vertResizable)
+		rect.size.height=_bounds.size.height;	// don't resize vertically
+	rect=NSUnionRect(rect, (NSRect) { NSZeroPoint, _minSize });
+	rect=NSIntersectionRect(rect, (NSRect) { NSZeroPoint, _maxSize });
+	[self setFrame:rect];	// adjust to be between min and max size
 }
 
 - (NSString *) string;
@@ -630,8 +637,13 @@ NSString *NSTextMovement=@"NSTextMovement";
 	if((self=[super initWithCoder:coder]))
 		{
 		int tvFlags=[coder decodeInt32ForKey:@"NSTVFlags"];	// do we have these in NSText or NSTextView?
+
+		
 		_spellCheckerDocumentTag=[NSSpellChecker uniqueSpellDocumentTag];
 		textStorage=[NSTextStorage new];	// provide empty default text storage
+		
+		// FIXME: decode from tvFlags!
+		
 		_tx.ownsTextStorage=YES;			// that we own
 		_tx.alignment = NSLeftTextAlignment;
 		_tx.editable = YES;

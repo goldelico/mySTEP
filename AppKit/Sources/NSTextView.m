@@ -102,7 +102,9 @@ static NSCursor *__textCursor = nil;
 	[super dealloc];
 }
 
-// The set method should not be called directly, but you might want to override it.  Gets or sets the text container for this view.  Setting the text container marks the view as needing display.  The text container calls the set method from its setTextView: method.
+// The set method should not be called directly, but you might want to override it.
+// Gets or sets the text container for this view.  Setting the text container marks the view as needing display.
+// The text container calls the set method from its setTextView: method.
 
 - (void) setTextContainer:(NSTextContainer *)container
 {	
@@ -112,7 +114,10 @@ static NSCursor *__textCursor = nil;
 
 - (NSTextContainer*) textContainer			{ return textContainer; }
 
-// This method should be used instead of the primitive -setTextContainer: if you need to replace a view's text container with a new one leaving the rest of the web intact.  This method deals with all the work of making sure the view doesn't get deallocated and removing the old container from the layoutManager and replacing it with the new one.
+// This method should be used instead of the primitive -setTextContainer: 
+// if you need to replace a view's text container with a new one leaving the rest of the web intact.
+// This method deals with all the work of making sure the view doesn't get deallocated
+// and removing the old container from the layoutManager and replacing it with the new one.
 
 - (void) replaceTextContainer:(NSTextContainer *)newContainer
 { // do something to retain the web
@@ -127,25 +132,40 @@ static NSCursor *__textCursor = nil;
 	[self release];
 }
 
-// The textContianerInset determines the padding that the view provides around the container.  The container's origin will be inset by this amount from the bounds point {0,0} and padding will be left to the right and below the container of the same amount.  This inset affects the view sizing in response to new layout and is used by the rectangular text containers when they track the view's frame dimensions.
+// The textContianerInset determines the padding that the view provides around the container. 
+// The container's origin will be inset by this amount from the bounds point {0,0} and padding 
+// will be left to the right and below the container of the same amount. 
+// This inset affects the view sizing in response to new layout and is used by the rectangular text
+// containers when they track the view's frame dimensions.
 
 - (void) setTextContainerInset:(NSSize)inset	{ textContainerInset = inset; }
 - (NSSize) textContainerInset					{ return textContainerInset; }
 
-// The container's origin in the view is determined from the current usage of the container, the container inset, and the view size.  textContainerOrigin returns this point.  invalidateTextContainerOrigin is sent automatically whenever something changes that causes the origin to possibly move.  You usually do not need to call invalidate yourself. 
+// The container's origin in the view is determined from the current usage of the container, the
+// container inset, and the view size.  textContainerOrigin returns this point.
+// invalidateTextContainerOrigin is sent automatically whenever something changes that causes the
+// origin to possibly move.  You usually do not need to call invalidate yourself. 
 
 - (NSPoint) textContainerOrigin					{ return textContainerOrigin; }
 - (void) invalidateTextContainerOrigin			{ NIMP }
 - (NSLayoutManager*) layoutManager				{ return layoutManager; }
 - (NSTextStorage*) textStorage					{ return textStorage; }
 
-						// Sets the frame size of the view to desiredSize 
-						// constrained within min and max size.
+// Sets the frame size of the view to desiredSize 
+// constrained within min and max size.
+// this one is probably called when the layout manager needs more space than available in its text container
 
 - (void) setConstrainedFrameSize:(NSSize)desiredSize		// Sizing methods
-{ NIMP
+{
+	NSSize newSize=_frame.size;
+	if(_tx.horzResizable)
+		newSize.width=MIN(MAX(desiredSize.width, _minSize.width), _maxSize.width);
+	if(_tx.vertResizable)
+		newSize.height=MIN(MAX(desiredSize.height, _minSize.height), _maxSize.height);
+	[self setFrameSize:newSize];	// adjust to be between min and max size
 }
-						// New miscellaneous API above and beyond NSText
+
+// New miscellaneous API above and beyond NSText
 
 - (void) setAlignment:(NSTextAlignment)alignment range:(NSRange)range
 {
@@ -155,12 +175,17 @@ static NSCursor *__textCursor = nil;
 }
 
 - (void) pasteAsPlainText:sender
-{ NIMP
+{
+	NIMP
 }
+
 - (void) pasteAsRichText:sender
-{ NIMP
+{
+	NIMP
 }
-													// New Font menu commands 
+
+// New Font menu commands 
+
 - (void) turnOffKerning:(id)sender
 {
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.0]
@@ -592,6 +617,21 @@ static NSCursor *__textCursor = nil;
 	return [super resignFirstResponder];
 }
 
+- (void) sizeToFit;
+{
+	// if _tx.vertResizable or _tx.horResizable adjust our frame to match the text width/height, i.e. as new content comes in, enlarge ourselves
+	// call [[self enclosingScrollView] reflectClipView] so that scrollers are also updated while we type???
+	NSRect rect=[layoutManager usedRectForTextContainer:textContainer];
+	if(!_tx.horzResizable)
+		rect.size.width=_frame.size.width;	// don't fit to text
+	if(!_tx.vertResizable)
+		rect.size.height=_frame.size.height;	// don't fit to text
+	[self setConstrainedFrameSize:rect.size];
+}
+
+- (void) viewDidMoveToSuperview; { [self sizeToFit]; }
+- (void) viewDidMoveToWindow; { [self sizeToFit]; }
+
 - (void) setNeedsDisplayInRect:(NSRect)rect
 { // override as documented
 	[self setNeedsDisplayInRect:rect avoidAdditionalLayout:NO];
@@ -618,7 +658,6 @@ static NSCursor *__textCursor = nil;
 	if(!layoutManager)
 		return;
 	// FIXME: somehow we should even restrict rect to really clipped rect we ask the backend for!
-	// FIXME: handle textContainerInset
 	[self drawViewBackgroundInRect:rect];
 	range=[layoutManager glyphRangeForTextContainer:textContainer];
 #if 0
@@ -682,6 +721,7 @@ static NSCursor *__textCursor = nil;
 	NSRange rng;	// current selected range
 	
 	// FIXME: characterIndexForPoint may return NSNotFound
+	// FIXME: handle _tx.selectable/_tx.editable
 
 #if 1
 	NSLog(@"NSTextView mouseDown");
@@ -812,7 +852,19 @@ Sources/NSTextView.m:512: warning: class `NSTextView' does not fully implement t
 {
 	// apply flags
 	[dest setBackgroundColor:backgroundColor];
-	[dest setDrawsBackground:(backgroundColor != nil)];
+	[dest setSelectable: ((0x02 & flags) != 0)];	// must be first because a NO resets the editable flag
+	[dest setEditable: ((0x01 & flags) != 0)];
+	[dest setRichText: ((0x04 & flags) != 0)];
+	[dest setImportsGraphics: ((0x08 & flags) != 0)];
+//		  _tf.is_field_editor = ((0x10 & flags) > 0);
+//		  _tf.uses_font_panel = ((0x20 & flags) > 0);
+//		  _tf.is_ruler_visible = ((0x40 & flags) > 0);
+//		  _tf.uses_ruler = ((0x100 & flags) > 0);
+	[dest setDrawsBackground: ((0x800 & flags) != 0)];
+//		  _tf.smart_insert_delete = ((0x2000000 & flags) > 0);
+//		  _tf.allows_undo = ((0x40000000 & flags) > 0);	  
+//	[dest setVerticallyResizable:YES];
+//	[dest setHorizontallyResizable:YES];
 /*	[dest setInsertionPointColor:insertionColor];
 	[dest setDefaultParagraphStyle:defaultParagraphStyle];
 	[dest setLinkTextAttributes:linkAttributes];

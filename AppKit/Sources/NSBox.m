@@ -220,11 +220,19 @@
 {
 	if(_contentView)
 		{
-		NSRect r = NSZeroRect;
-		id o, e = [[_contentView subviews] objectEnumerator];
-		while ((o = [e nextObject]))
-			r = NSUnionRect(r, [o frame]);	// Loop through subviews and calculate union rect to encompass all	
-		[self setFrameFromContentFrame: r];
+		if([_contentView respondsToSelector:_cmd])
+			{ // ask the content view to fit
+			[_contentView sizeToFit];
+			[self setFrameFromContentFrame:[_contentView frame]];
+			}
+		else
+			{ // calculate the union of the content views
+			NSRect r = NSZeroRect;
+			id o, e = [[_contentView subviews] objectEnumerator];
+			while ((o = [e nextObject]))
+				r = NSUnionRect(r, [o frame]);	// Loop through subviews and calculate union rect to encompass all	
+			[self setFrameFromContentFrame: r];
+			}
 		}
 }
 
@@ -246,7 +254,7 @@
 
 - (void) drawRect:(NSRect)rect							// Draw the box
 {
-#if 1	// testing
+#if 0	// testing
 	[[NSColor redColor] set];
 	NSFrameRect(_bounds);
 #endif	

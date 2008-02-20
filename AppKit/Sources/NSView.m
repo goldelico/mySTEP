@@ -581,18 +581,14 @@ printing
 	// FIXME: check for relative position and otherView and insert at expected position
 	
 	[sub_views addObject:(id)aView];				// Append to our subview list
-	[aView viewDidMoveToSuperview];
 	[aView _setSuperview:self];
+	[aView viewDidMoveToSuperview];
 													// Make ourselves the next 
 	[aView setNextResponder:self];					// responder of the view
 
-//	[aView viewWillMoveToWindow:_window];	// already called by _setWindow
 	[aView _setWindow:_window];						// place on same window as we are
-//	[aView viewDidMoveToWindow];					// Tell the view what 
-													// window it has moved to
 	[self didAddSubview:aView];
 	[aView setNeedsDisplay:YES];					// (re)draw incl. new view
-//	[self setNeedsDisplay:YES];						// (re)draw incl. new view
 }
 
 - (NSView *) ancestorSharedWithView:(NSView *)aView
@@ -1324,23 +1320,21 @@ printing
 				float oldFrameHeight = _frame.size.height;
 				
 				_frame.size.height += changePerOption;
-				// NSHeight(frame) = MAX(0, NSHeight(frame) + changePerOption);
-				if (NSHeight(_frame) <= 0)
+				if(NSHeight(_frame) <= 0)
 					{
 					NSLog(@"resizeWithOldSuperviewSize: View frame height <= 0!");
-					NSAssert((NSHeight(_frame) <= 0), @"View frame height <= 0!");
 					_frame.size.height = 0;
 					}
 				if(_v.isRotatedFromBase)			
-					{										
+					{ // rotated
 					_bounds.size.height *= _frame.size.height/oldFrameHeight;
 					//				_bounds.size.height = floor(_bounds.size.height);
 					}
 				else
-					{
-					if([super_view isFlipped])
-						_bounds.size.height -= changePerOption;
-					else
+					{ // normal
+//					if([super_view isFlipped])
+//						_bounds.size.height -= changePerOption;
+//					else
 						_bounds.size.height += changePerOption;
 					}
 				changedSize = YES;
@@ -1364,7 +1358,7 @@ printing
 			}
 		}
 	if(changedSize || changedOrigin)
-		{
+		{ // we could call [self setFrameSize:] but that isn't done on AppKit
 		[self _invalidateCTM];	// update when needed
 		if(_v.isRotatedFromBase)	
 			{
@@ -1373,8 +1367,9 @@ printing
 			// FIXME: should we scale old_size?
 			NSLog(@"and now? %@", self);
 			}
-		[self setNeedsDisplay:YES];	// we (and our superviews) must redraw if we change size or origin
 		[self resizeSubviewsWithOldSize: old_size];	// recursively go down
+		if(_v.postFrameChange)
+			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
 		}
 }
 
