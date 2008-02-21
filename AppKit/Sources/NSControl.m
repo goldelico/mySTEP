@@ -409,8 +409,8 @@ static Class __controlCellClass = Nil;
 	// FIXME: this appears to be broken or at least inconsistent...
 		if([aDecoder containsValueForKey:@"NSEnabled"])
 			{
-#if 1
-			NSLog(@"%@", self);
+#if 0
+			NSLog(@"NSControl initWithCoder %@", self);
 			NSLog(@"[self isEnabled]=%@", [self isEnabled]?@"YES":@"NO");
 			NSLog(@"NSEnabled=%@", [aDecoder decodeBoolForKey:@"NSEnabled"]?@"YES":@"NO");
 #endif

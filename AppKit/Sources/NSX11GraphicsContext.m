@@ -1366,6 +1366,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	// CHECKME: does the compositing operation apply to text drawing?
 //	mustFetch=_compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
 //		_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut;
+	if(x > _state->_clipBox.x+_state->_clipBox.width || x+width <  _state->_clipBox.x)
+		return;	// completely outside
+	if(y > _state->_clipBox.y+_state->_clipBox.height || y+height <  _state->_clipBox.y)
+		return;	// completely outside
 	mustFetch=YES;
 	if(mustFetch)
 		{ // we must really fetch the current image from our context
@@ -3869,7 +3873,9 @@ static NSDictionary *_x11settings;
 		if(_image)
 			{
 			NSBitmapImageRep *bestRep =(NSBitmapImageRep *) [_image bestRepresentationForDevice:nil];	// where to get device description from??
+#if 0
 			NSLog(@"convert %@ to PixmapCursor", bestRep);
+#endif
 #if FIXME
 			// we should lockFocus on a Pixmap and call _draw:bestRep
 			Pixmap mask = (Pixmap)[bestRep xPixmapMask];

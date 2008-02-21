@@ -153,7 +153,7 @@
 		return;	// ignore
 	// disable notifications to prevent an infinite loop
 	[_documentView setPostsFrameChangedNotifications:NO];	
-#if 1
+#if 0
 	NSLog(@"NSClipView viewFrameChanged");		// An unflipped doc view 
 													// smaller than clip view 
 													// requires an org offset 
@@ -231,7 +231,9 @@
 
 - (void) resizeSubviewsWithOldSize:(NSSize)oldSize
 {
-	NSLog(@"resizeSubviewsWithOldSize %@", self);
+#if 0
+	NSLog(@"NSClipView resizeSubviewsWithOldSize %@", self);
+#endif
 	[_documentView resizeWithOldSuperviewSize: oldSize];	// forward to our document view
 }
 
@@ -449,8 +451,10 @@ because this reverses the writing direction within the text container
 		[_backgroundColor set];				
 		NSRectFill(rect);
 		}
-//	rect=[self documentVisibleRect];
-//	[NSBezierPath clipRect:rect];	// install clipping before drawing the subview
+#if 1
+	rect=[self documentVisibleRect];
+	[NSBezierPath clipRect:rect];	// install clipping before drawing the subview
+#endif
 }
 
 - (void) encodeWithCoder:(id)aCoder						// NSCoding protocol

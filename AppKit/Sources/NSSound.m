@@ -59,7 +59,7 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 		}
 	ext = [aName pathExtension];		// dict search for it
 	fileTypes = [self _soundFileTypes];
-#if 1
+#if 0
 	NSLog(@"soundFileTypes = %@", fileTypes);
 #endif
 	bundle = [NSBundle mainBundle];		// look into main bundle first
@@ -77,7 +77,7 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 		name = aName;
 		while((o = [e nextObject]))
 			{
-#if 1
+#if 0
 			NSLog(@"try %@: %@.%@", [bundle bundlePath], name, o);
 #endif
 			if((path = [bundle pathForResource:name ofType:o]))
@@ -95,7 +95,7 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 			e = [fileTypes objectEnumerator];
 			while((o = [e nextObject]))
 				{
-#if 1
+#if 0
 				NSLog(@"try %@: %@.%@", [bundle bundlePath], name, o);
 #endif
 				if((path = [bundle pathForResource:name ofType:o]))
@@ -103,21 +103,21 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 				}
 			}
 		}
-#if 1
+#if 0
 	NSLog(@"found %@ at path=%@ in bundle %@", aName, path, bundle);
 #endif
 	sound=nil;
 	if(path && (sound = [[NSSound alloc] initWithContentsOfFile:path]))
 		{ // file really exists
 		[sound setName:aName];	// will save in __nameToSoundDict - and increment retain count
-#if 1
+#if 0
 		NSLog(@"NSsound: -soundNamed:%@ -> %@", aName, sound);
 #endif
 		[sound autorelease];	// don't leak if everything is released - unfortunately we are never deleted from the sound cache
 		}
 	if(!sound)
 		{
-#if 1
+#if 0
 		NSLog(@"could not find NSSound -soundNamed:%@", aName);
 #endif
 		[__nameToSoundDict setObject:[NSNull null] forKey:aName];	// save a tag that we don't know the sound

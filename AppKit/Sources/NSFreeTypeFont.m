@@ -522,7 +522,7 @@ FT_Library _ftLibrary(void)
 			}
 		else
 			weight=0.0;
-#if 1
+#if 0
 		NSLog(@"add font %lu [%lu] %@-%@ at %@", faceIndex, face->num_faces, family, style, path);
 #endif
 		postscriptName=[NSString stringWithCString:psname];

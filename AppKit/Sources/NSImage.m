@@ -589,7 +589,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		NSLog(@"load image representation(s) (at path: %@)", _imageFilePath);
 #endif
 		if(_imageFilePath)
-			{ // (re)load from path
+			{ // (re)load from path if possible
 			NSArray *a;			
 			if ((a = [NSImageRep imageRepsWithContentsOfFile:_imageFilePath]))
 				{
@@ -605,8 +605,6 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			else
 				NSLog(@"could not load image at path: %@", _imageFilePath);
 			}
-		else
-			NSLog(@"no file path");
 		if([_reps count])
 			_img.isValid = YES;	// any valid representation loaded
 		}
