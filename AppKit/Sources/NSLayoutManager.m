@@ -54,7 +54,7 @@
 	NSRange rangeLimit=glyphsToShow;					// initial limit
 	NSPoint pos;
 	NSPoint pdfPos;
-#if 1
+#if 0
 	NSFont *font=(NSFont *) [NSNull null];				// check for internal errors
 #else
 	NSFont *font;				// current font attribute
@@ -62,6 +62,8 @@
 	NSColor *foreGround;
 	BOOL flipped=draw?[ctxt isFlipped]:NO;
 	NSRect box=NSZeroRect;
+	NSRect clipBox;
+	BOOL outside=YES;
 	NSAssert(glyphsToShow.location==0 && glyphsToShow.length == [str length], @"can render full glyph range only");
 	//
 	// FIXME: optimize/cache for large NSTextStorages and multiple NSTextContainers
@@ -90,6 +92,7 @@
 	//
 	if(draw)
 		{
+		clipBox=[ctxt _clipBox];
 #if 0
 		[[NSColor redColor] set];
 		if(flipped)
@@ -133,11 +136,11 @@
 												 characterIndex:rangeLimit.location];
 					if(flipped)
 						;
-#if 1
-					NSLog(@"drawing attachment (%@): %@ %@", NSStringFromRect(rect), att, cell);
-#endif
 					if(draw)
 						{
+#if 0
+						NSLog(@"drawing attachment (%@): %@ %@", NSStringFromRect(rect), att, cell);
+#endif
 						[cell drawWithFrame:rect
 									 inView:[container textView]
 							 characterIndex:rangeLimit.location
@@ -174,15 +177,19 @@
 			case '\n':
 				{ // go to a new line
 					NSParagraphStyle *p=[_textStorage attribute:NSParagraphStyleAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
+					float advance;
 					font=[_textStorage attribute:NSFontAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
 					if(!font)
 						font=[NSFont userFontOfSize:0.0];		// use default system font
+					advance=[self defaultLineHeightForFont:font];
+					if(p)
+						advance+=[p paragraphSpacing];
 					if(flipped)
-						pos.y+=[self defaultLineHeightForFont:font]+[p paragraphSpacing];		// go down one line
+						pos.y+=advance;		// go down one line
 					else
-						pos.y-=[self defaultLineHeightForFont:font]+[p paragraphSpacing];		// go down one line
+						pos.y-=advance;		// go down one line
 					if(!draw)
-						box.size.height=MAX(box.size.height, pos.y);
+						box.size.height=MAX(box.size.height, -pos.y);
 				}
 			case '\r':
 				{ // start over at beginning of line but not a new line
@@ -224,11 +231,20 @@
 			if(pos.x > origin.x)
 				{ // we didn't just start on a newline, so insert another newline
 				NSParagraphStyle *p=[_textStorage attribute:NSParagraphStyleAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
+				float advance=[self defaultLineHeightForFont:font];
+#if 0
+				NSLog(@"more");
+#endif
+				if(p)
+					advance+=[p paragraphSpacing];
+				switch([p lineBreakMode])
+					{
+					}
 				pos.x=origin.x;
 				if(flipped)
-					pos.y+=[self defaultLineHeightForFont:font]+[p paragraphSpacing];
+					pos.y+=advance;
 				else
-					pos.y-=[self defaultLineHeightForFont:font]+[p paragraphSpacing];
+					pos.y-=advance;
 				}
 			while(width > containerSize.width && attribRange.length > 1)
 				{ // does still not fit into box at all - we must truncate
@@ -343,13 +359,13 @@ containerOrigin:(NSPoint)containerOrigin;
 		if(!draw)
 			{
 			box.size.width=MAX(box.size.width, pos.x);
-			box.size.height=MAX(box.size.height, pos.y+[self defaultLineHeightForFont:font]);
+			box.size.height=MAX(box.size.height, -pos.y+[self defaultLineHeightForFont:font]);
 			}
 		}
 	if(draw)
 		{
 		[ctxt _endText];
-#if 1
+#if 0
 		[[NSColor redColor] set];
 		if(flipped)
 			NSFrameRect((NSRect) { origin, containerSize });
@@ -670,7 +686,7 @@ containerOrigin:(NSPoint)containerOrigin;
 {
 	[_textContainers insertObject:container atIndex:index];
 	if(index == 0)
-		_firstTextView=nil;	// has changed
+		_firstTextView=container;	// has changed
 }
 
 - (int) intAttribute:(int)attributeTag forGlyphAtIndex:(unsigned)glyphIndex;
@@ -792,7 +808,7 @@ containerOrigin:(NSPoint)containerOrigin;
 {
 	if(index == 0)
 		_firstTextView=nil;	// might have changed
-	NIMP;
+	[_textContainers removeObjectAtIndex:index];
 }
 
 - (void) replaceGlyphAtIndex:(unsigned)glyphIndex withGlyph:(NSGlyph)newGlyph;
@@ -955,19 +971,29 @@ containerOrigin:(NSPoint)containerOrigin;
 	NIMP;
 }
 
+// FIXME
+
+// we should circle through containers touched by range
+// NOTE: the container rect might be very large if the container covers several 10-thousands lines
+// therefore, this algorithm must be very efficient
+// and there might be several thousand containers...
+
 - (NSTextContainer *) textContainerForGlyphAtIndex:(unsigned)glyphIndex effectiveRange:(NSRange *)effectiveGlyphRange;
 {
-	
-	// we should circle through containers touched by range
-	// NOTE: the container rect might be very large if the container covers several 10-thousands lines
-	// therefore, this algorithm must be very efficient
-	// and there might be several thousand containers...
-
-	return [_textContainers objectAtIndex:0];	// return first one...
-	return NIMP;
+	NSTextContainer *container=[_textContainers objectAtIndex:0];	// first one
+	NSTextView *tv=[container textView];
+	if(_textStorageChanged && tv)
+		{
+		_textStorageChanged=NO;
+#if 0
+		NSLog(@"sizing text view to changed textStorage");
+#endif
+		[tv sizeToFit];	// size...
+		}
+	return container;
 }
 
-- (NSTextContainer *)textContainerForGlyphAtIndex:(unsigned)glyphIndex effectiveRange:(NSRangePointer)effectiveGlyphRange withoutAdditionalLayout:(BOOL)flag
+- (NSTextContainer *) textContainerForGlyphAtIndex:(unsigned)glyphIndex effectiveRange:(NSRangePointer)effectiveGlyphRange withoutAdditionalLayout:(BOOL)flag
 {
 	return NIMP;
 }
@@ -979,9 +1005,11 @@ containerOrigin:(NSPoint)containerOrigin;
 {
 	NSRange glyphsToShow=NSMakeRange(0, [str length]);	// all...
 	NSTextContainer *container=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];
-	NSRect bounds=[self boundingRectForGlyphRange:glyphsToShow inTextContainer:container];
-	// update container size if it can stretch
-	// update _textView(s) if they can stretch
+	NSTextView *tv=[container textView];
+#if 0
+	NSLog(@"textStorage edited");
+#endif
+	_textStorageChanged=YES;
 }
 
 - (NSTextView *) textViewForBeginningOfSelection;

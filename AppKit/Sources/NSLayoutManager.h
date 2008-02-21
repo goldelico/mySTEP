@@ -104,7 +104,9 @@ typedef NSInteger NSTypesetterBehavior;
 	
 	BOOL _backgroundLayoutEnabled;
 	BOOL _usesScreenFonts;
-	
+
+	BOOL _textStorageChanged;
+
 #if 0
 	// GNUstep headers
 	
@@ -161,7 +163,7 @@ typedef NSInteger NSTypesetterBehavior;
     NSMatrix *rulerAccViewFixedLineHeightButtons;
 	
     NSRange newlyFilledGlyphRange;
-	
+		
 #endif
 }
 

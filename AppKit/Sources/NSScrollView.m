@@ -473,6 +473,9 @@ static Class __rulerViewClass = nil;
 		[_vertScroller setFrame:vertScrollerRect];
 		[_vertScroller setNeedsDisplay:YES];
 		}
+#if 0
+	NSLog(@"resizing contentView to frame %@", NSStringFromRect(contentRect));
+#endif
 	[_contentView setFrame:contentRect];	// this may recurse if scrollers are auto-hidden/unhidden
 	[_contentView setNeedsDisplay:YES];		// mark as dirty
 }

@@ -40,7 +40,8 @@
 	NSDictionary *markedAttributes;
 	NSDictionary *selectedAttributes;
 }
-- (void) apply:(NSText *) dest;
+- (int) flags;
+- (NSColor *) backgroundColor;
 @end
 
 // classes needed are: NSRulerView NSTextContainer NSLayoutManager
@@ -126,8 +127,10 @@ static NSCursor *__textCursor = nil;
 	idx=[[layoutManager textContainers] indexOfObject:textContainer];	// find current text container
 	if(idx != NSNotFound)
 		[layoutManager removeTextContainerAtIndex:idx];	// remove from layout manager
+	else
+		idx=0;	// first
 	[textContainer setTextView:nil];		// unlink
-	[newContainer setTextView:self];		// and link to us
+	[newContainer setTextView:self];		// and link to us - will call our setTextContainer setter
 	[layoutManager insertTextContainer:newContainer atIndex:idx];	// connect to the layout manager
 	[self release];
 }
@@ -153,16 +156,18 @@ static NSCursor *__textCursor = nil;
 
 // Sets the frame size of the view to desiredSize 
 // constrained within min and max size.
-// this one is probably called when the layout manager needs more space than available in its text container
+// this one is probably called when the layout manager needs more or less space in its text container
 
 - (void) setConstrainedFrameSize:(NSSize)desiredSize		// Sizing methods
 {
 	NSSize newSize=_frame.size;
-	if(_tx.horzResizable)
-		newSize.width=MIN(MAX(desiredSize.width, _minSize.width), _maxSize.width);
-	if(_tx.vertResizable)
-		newSize.height=MIN(MAX(desiredSize.height, _minSize.height), _maxSize.height);
-	[self setFrameSize:newSize];	// adjust to be between min and max size
+	newSize.width=MIN(MAX(desiredSize.width, _minSize.width), _maxSize.width);
+	newSize.height=MIN(MAX(desiredSize.height, _minSize.height), _maxSize.height);
+	if(!NSEqualSizes(_frame.size, newSize))
+		{ // adjust to be between min and max size - may adjust the container depending on its tracking flags
+		[self setFrameSize:newSize];
+		[self setNeedsDisplay:YES];
+		}
 }
 
 // New miscellaneous API above and beyond NSText
@@ -349,42 +354,50 @@ static NSCursor *__textCursor = nil;
 - (void) setInsertionPointColor:(NSColor *)color { ASSIGN(insertionPointColor, color); }
 - (NSColor *)insertionPointColor				{ return insertionPointColor; }
 
-// FIXME: if several tetviews share the layout manager, all views must blink the cursor!!
+// FIXME: if several texviews share the same layout manager, all views must blink the cursor!!
 
 - (void) _blinkCaret:(NSTimer *) timer
 { // toggle the caret and trigger redraw
-	if(![self shouldDrawInsertionPoint])
-		{
-		[__caretBlinkTimer invalidate];	// please turn off
-		__caretBlinkTimer=nil;
-		insertionPointIsOn=NO;
-		}
-	else
-		insertionPointIsOn = !insertionPointIsOn;	// toggle
-	[self updateInsertionPointStateAndRestartTimer:NO];	// redraw the insertion point
+	NSRect r;
+	insertionPointIsOn = !insertionPointIsOn;	// toggle state
+	r=[self firstRectForCharacterRange:_selectedRange];	// should be cached!!!
+	r.size.width=1.0;
+	[self setNeedsDisplayInRect:r avoidAdditionalLayout:YES];	// this should redraw only the insertion point - if it is enabled		
 }
 
 - (void) updateInsertionPointStateAndRestartTimer:(BOOL) restartFlag
-{
-	NSRect r;
+{ // does nothing if we should draw insertion point but have no restart
+	// FIXME: the cursor rect should be calculated here and then just used to redraw the cursor
 #if 0
 	NSLog(@"updateInsertionPointStateAndRestartTimer");
 #endif
-	r=[self firstRectForCharacterRange:_selectedRange];
-	r.size.width=1.0;
-	[self setNeedsDisplayInRect:r avoidAdditionalLayout:YES];	// this should redraw only the insertion point - if it is enabled
-	if(restartFlag)
-		{ // restart the timer (if it is running)
-		NSRunLoop *c = [NSRunLoop currentRunLoop];		
-		if(__caretBlinkTimer != nil)
+	if([self shouldDrawInsertionPoint])
+		{ // add to list
+		if(restartFlag)
+			{ // stop existing timer
 			[__caretBlinkTimer invalidate];	// stop any existing timer - there is only one globally blinking cursor!
-		__caretBlinkTimer = [NSTimer timerWithTimeInterval: 0.7
-													target: self
-												  selector: @selector(_blinkCaret:)
-												  userInfo: nil
-												   repeats: YES];		
-		[c addTimer:__caretBlinkTimer forMode:NSDefaultRunLoopMode];
-		[c addTimer:__caretBlinkTimer forMode:NSModalPanelRunLoopMode];
+			__caretBlinkTimer=nil;
+			}
+		if(!__caretBlinkTimer)
+			{ // no timer yet
+			NSRunLoop *c = [NSRunLoop currentRunLoop];		
+			__caretBlinkTimer = [NSTimer timerWithTimeInterval: 0.7
+														target: self
+													  selector: @selector(_blinkCaret:)
+													  userInfo: nil
+													   repeats: YES];		
+			[c addTimer:__caretBlinkTimer forMode:NSDefaultRunLoopMode];
+			[c addTimer:__caretBlinkTimer forMode:NSModalPanelRunLoopMode];
+			insertionPointIsOn=NO;	// (re) start with cursor being on
+			[self _blinkCaret:nil];	// and immediately show cursor
+			}
+		}
+	else
+		{ // stop timer
+		[__caretBlinkTimer invalidate];	// stop any existing timer - there is only one globally blinking cursor!
+		__caretBlinkTimer=nil;
+		insertionPointIsOn=YES;		// end with cursor being off
+		[self _blinkCaret:nil];	// and switch off cursor
 		}
 }
 
@@ -619,15 +632,20 @@ static NSCursor *__textCursor = nil;
 
 - (void) sizeToFit;
 {
-	// if _tx.vertResizable or _tx.horResizable adjust our frame to match the text width/height, i.e. as new content comes in, enlarge ourselves
-	// call [[self enclosingScrollView] reflectClipView] so that scrollers are also updated while we type???
-	NSRect rect=[layoutManager usedRectForTextContainer:textContainer];
+	NSSize size=[textStorage size];	// get bounding box with unlimited size
 	if(!_tx.horzResizable)
-		rect.size.width=_frame.size.width;	// don't fit to text
+		size.width=_frame.size.width;	// don't fit to text, i.e. keep frame
 	if(!_tx.vertResizable)
-		rect.size.height=_frame.size.height;	// don't fit to text
-	[self setConstrainedFrameSize:rect.size];
+		size.height=_frame.size.height;	// don't fit to text, i.e. keep frame
+	if(!NSEqualSizes(size, _frame.size))
+		{ // really resizing
+		[self setConstrainedFrameSize:size];	// may also resize the text container
+		size=[layoutManager usedRectForTextContainer:textContainer].size;	// get bounding box with resized text container
+		[textContainer setContainerSize:size];
+		}
 }
+
+// initial sizing after initWithCoder
 
 - (void) viewDidMoveToSuperview; { [self sizeToFit]; }
 - (void) viewDidMoveToWindow; { [self sizeToFit]; }
@@ -657,15 +675,15 @@ static NSCursor *__textCursor = nil;
 	NSRect r;
 	if(!layoutManager)
 		return;
-	// FIXME: somehow we should even restrict rect to really clipped rect we ask the backend for!
+
+	// FIXME: we should ask the backend for for the current clipped rect so that we draw only glyphs we really need to draw
+	
 	[self drawViewBackgroundInRect:rect];
 	range=[layoutManager glyphRangeForTextContainer:textContainer];
 #if 0
 	NSLog(@"NSTextView drawRect %@", NSStringFromRect(rect));
 #endif
 	
-	// should draw relevant/clipped part of the text container only!
-
 	[layoutManager drawBackgroundForGlyphRange:range atPoint:textContainerOrigin];
 	
 	if(_selectedRange.length > 0)
@@ -694,24 +712,51 @@ static NSCursor *__textCursor = nil;
 	NSLog(@"%@ initWithCoder: %@", self, coder);
 #endif
 	if((self=[super initWithCoder:coder]))
-		{
+		{ // this will have called initWithFrame: so we have to replace the text system
+		NSTextViewSharedData *shared;
 		int tvFlags=[coder decodeInt32ForKey:@"NSTVFlags"];
 #if 0
 		NSLog(@"TVFlags=%d", tvFlags);
 #endif
-		textContainer=[[coder decodeObjectForKey:@"NSTextContainer"] retain];
+		[self replaceTextContainer:[coder decodeObjectForKey:@"NSTextContainer"]];	// this decodes the layoutManager and the textStorage
 #if 0
 		NSLog(@"textContainer=%@", textContainer);
 #endif
-		layoutManager=[[textContainer layoutManager] retain];
+		ASSIGN(layoutManager, [textContainer layoutManager]);	// store a retained reference so that we become the owner
 #if 0
 		NSLog(@"layoutManager=%@", layoutManager);
 #endif
-		ASSIGN(textStorage, [layoutManager textStorage]);	// an empty one has already been assigned by superclass
+		ASSIGN(textStorage, [layoutManager textStorage]);	// an empty one had already been assigned by superclass
 #if 0
 		NSLog(@"textStorage=%@", textStorage);
 #endif
-		[[coder decodeObjectForKey:@"NSSharedData"] apply:self];
+		shared=[coder decodeObjectForKey:@"NSSharedData"];
+		if(shared)
+			{
+			int flags=[shared flags];
+			[self setBackgroundColor:[shared backgroundColor]];
+			_tx.selectable = ((0x02 & flags) != 0);
+			[self setEditable:((0x01 & flags) != 0)];	// will also set selectable
+			_tx.isRichText = ((0x04 & flags) != 0);
+			_tx.importsGraphics = ((0x08 & flags) != 0);
+			//		  _tf.is_field_editor = ((0x10 & flags) > 0);
+			_tx.usesFontPanel = ((0x20 & flags) > 0);
+			_tx.rulerVisible = ((0x40 & flags) > 0);
+			//		  _tf.uses_ruler = ((0x100 & flags) > 0);
+			_tx.drawsBackground = ((0x800 & flags) != 0);
+			smartInsertDeleteEnabled = ((0x2000000 & flags) != 0);
+				//		  _tf.allows_undo = ((0x40000000 & flags) > 0);	  
+				/*	[dest setInsertionPointColor:insertionColor];
+				[dest setDefaultParagraphStyle:defaultParagraphStyle];
+				[dest setLinkTextAttributes:linkAttributes];
+				[dest setMarkedTextAttributes:markedAttributes];
+				[dest setSelectedTextAttributes:selectedAttributes];
+				*/
+			}
+		// probably from tvFlags...
+		//	[dest setVerticallyResizable:YES];
+		//	[dest setHorizontallyResizable:YES];
+
 		}
 	return self;
 }
@@ -848,29 +893,7 @@ Sources/NSTextView.m:512: warning: class `NSTextView' does not fully implement t
 	[super dealloc];
 }
 
-- (void) apply:(NSText *) dest;
-{
-	// apply flags
-	[dest setBackgroundColor:backgroundColor];
-	[dest setSelectable: ((0x02 & flags) != 0)];	// must be first because a NO resets the editable flag
-	[dest setEditable: ((0x01 & flags) != 0)];
-	[dest setRichText: ((0x04 & flags) != 0)];
-	[dest setImportsGraphics: ((0x08 & flags) != 0)];
-//		  _tf.is_field_editor = ((0x10 & flags) > 0);
-//		  _tf.uses_font_panel = ((0x20 & flags) > 0);
-//		  _tf.is_ruler_visible = ((0x40 & flags) > 0);
-//		  _tf.uses_ruler = ((0x100 & flags) > 0);
-	[dest setDrawsBackground: ((0x800 & flags) != 0)];
-//		  _tf.smart_insert_delete = ((0x2000000 & flags) > 0);
-//		  _tf.allows_undo = ((0x40000000 & flags) > 0);	  
-//	[dest setVerticallyResizable:YES];
-//	[dest setHorizontallyResizable:YES];
-/*	[dest setInsertionPointColor:insertionColor];
-	[dest setDefaultParagraphStyle:defaultParagraphStyle];
-	[dest setLinkTextAttributes:linkAttributes];
-	[dest setMarkedTextAttributes:markedAttributes];
-	[dest setSelectedTextAttributes:selectedAttributes];
-	*/
-}
+- (int) flags; { return flags; }
+- (NSColor *) backgroundColor { return backgroundColor; }
 
 @end

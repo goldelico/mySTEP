@@ -58,7 +58,7 @@
 {
 	int idx;
 	[self retain];	// just be sure
-	idx=[[layoutManager textContainers] indexOfObject:self];	// find current text container
+	idx=[[layoutManager textContainers] indexOfObject:self];	// find us int the list of text container
 	if(idx != NSNotFound)
 		[layoutManager removeTextContainerAtIndex:idx];			// remove us from our old layout manager
 	[self setLayoutManager:newLayoutManager];
@@ -298,30 +298,15 @@
 
 - (NSMutableString *) mutableString;
 {
+	// CHECKME: is this a copy or the original??? And, Attributes are moved front/back if we insert/delete through NSMutableString methods?
 	// we might cache since this is called pretty often
 	return [_concreteString mutableString];
-}
-
-//// FIXME: this is called in SWK when we update the attributed string
-//// and it should at least make the NSTextView resize so that scrollbars are displayed properly
-
-- (void) replaceCharactersInRange:(NSRange) rng withAttributedString:(NSAttributedString *) str
-{
-	[_concreteString replaceCharactersInRange:rng withAttributedString:str];
-	// beginediting
-}
-
-- (void) replaceCharactersInRange:(NSRange) rng withString:(NSString *) str
-{
-	[_concreteString replaceCharactersInRange:rng withString:str];
-	// endediting
-	// performediting
 }
 
 - (NSDictionary *) attributesAtIndex:(unsigned) index effectiveRange:(NSRangePointer) range
 {
 	NSDictionary *d;
-//	return [_concreteString attributesAtIndex:index effectiveRange:range];
+	//	return [_concreteString attributesAtIndex:index effectiveRange:range];
 	NS_DURING
 		d=[_concreteString attributesAtIndex:index effectiveRange:range];
 	NS_HANDLER
@@ -349,22 +334,69 @@
 	NS_ENDHANDLER
 	return d;
 }
+#endif
+
+//// FIXME: this is called in SWK when we update the attributed string
+//// and it should at least make the NSTextView resize so that scrollbars are displayed properly
+
+- (void) replaceCharactersInRange:(NSRange) rng withAttributedString:(NSAttributedString *) str
+{
+	NSEnumerator *e;
+	NSLayoutManager *lm;
+#if __APPLE__
+	[_concreteString replaceCharactersInRange:rng withAttributedString:str];
+#else
+	[super replaceCharactersInRange:rng withAttributedString:str];
+#endif
+	e=[_layoutManagers objectEnumerator];
+	while((lm=[e nextObject]))
+		[lm textStorage:self edited:0 range:rng changeInLength:0 invalidatedRange:NSMakeRange(0, [str length])];
+}
+
+- (void) replaceCharactersInRange:(NSRange) rng withString:(NSString *) str
+{
+	NSEnumerator *e;
+	NSLayoutManager *lm;
+#if __APPLE__
+	[_concreteString replaceCharactersInRange:rng withString:str];
+#else
+	[super replaceCharactersInRange:rng withString:str];
+#endif
+	e=[_layoutManagers objectEnumerator];
+	while((lm=[e nextObject]))
+		[lm textStorage:self edited:0 range:rng changeInLength:0 invalidatedRange:NSMakeRange(0, [str length])];
+}
 
 - (void) setAttributedString:(NSAttributedString *) str;
 {
+	NSEnumerator *e;
+	NSLayoutManager *lm;
+	unsigned prevLen=[self length];
+#if __APPLE__
 	[str retain];
 	[_concreteString setAttributedString:str];
-	//	[layoutManagers textStorage:self edited:(unsigned)mask range:(NSRange)range changeInLength:(int)lengthChange invalidatedRange:(NSRange)invalidatedCharRange
 	[str release];
+#else
+	[super setAttributedString:str];
+#endif
+	e=[_layoutManagers objectEnumerator];
+	while((lm=[e nextObject]))
+		[lm textStorage:self edited:0 range:NSMakeRange(0, prevLen) changeInLength:0 invalidatedRange:NSMakeRange(0, [str length])];
 }
 
 - (void) setAttributes:(NSDictionary *)attributes range:(NSRange)aRange
 {
+	NSEnumerator *e;
+	NSLayoutManager *lm;
+#if __APPLE__
 	[_concreteString setAttributes:attributes range:aRange];
-	//	[layoutManagers textStorage:self edited:(unsigned)mask range:(NSRange)range changeInLength:(int)lengthChange invalidatedRange:(NSRange)invalidatedCharRange
-}
-
+#else
+	[super setAttributes:attributes range:aRange];
 #endif
+	e=[_layoutManagers objectEnumerator];
+	while((lm=[e nextObject]))
+		[lm textStorage:self edited:0 range:aRange changeInLength:0 invalidatedRange:aRange];
+}
 
 @end
 

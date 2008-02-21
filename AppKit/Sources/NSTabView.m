@@ -179,8 +179,8 @@ static struct _NSTabViewSizing
 - (void) _tile;
 {
 	NSView *tv=[tab_selected view];
-#if 1
-	NSLog(@"_tile %@ - %@", self, tv);
+#if 0
+	NSLog(@"NSTabView _tile %@ - %@", self, tv);
 #endif
 	[tv setAutoresizesSubviews:YES];
 	[tv setFrame:[self contentRect]];
@@ -304,7 +304,6 @@ static struct _NSTabViewSizing
 			return;
 	if([tab_delegate respondsToSelector:@selector(tabView:willSelectTabViewItem:)])
 		[tab_delegate tabView:self willSelectTabViewItem:tab_selected];
-//	[[tab_selected view] setHidden:YES];
 	if(tab_selected)
 		{ // unselect previous tab
 		NSView *v=[tab_selected view];
@@ -322,7 +321,7 @@ static struct _NSTabViewSizing
 		[tab_selected _setTabState:NSSelectedTab];
 		[self setNeedsDisplayInRect:[tab_selected _tabRect]];	// redraw tab
 		if([sub_views indexOfObjectIdenticalTo:v] == NSNotFound)
-			[self addSubview:v];	// if not yet a subview
+			[self addSubview:v];	// if not yet a subview - this may already resize the sbviews
 #if 1	// FIXME
 		if(!NSEqualRects([v frame], [self contentRect]))
 			{

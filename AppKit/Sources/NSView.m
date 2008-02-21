@@ -1219,7 +1219,7 @@ printing
 {
 	if(NSEqualSizes(oldSize, _frame.size))
 		return;	// ignore unchanged size
-#if 1
+#if 0
 	NSLog(@"resizeSubviewsWithOldSize:%@ -> %@ %@", NSStringFromSize(oldSize), NSStringFromSize(_frame.size), self);
 	NSLog(@"subviews=%@", sub_views);
 #endif
@@ -1250,7 +1250,7 @@ printing
 	superViewFrameSize = [super_view frame].size;	// super_view should not be nil!
 	if(NSEqualSizes(oldSize, superViewFrameSize))
 		return;	// ignore unchanged size
-#if 1
+#if 0
 	NSLog(@"resizeWithOldSuperviewSize %x: %@ -> %@ %@", _v.autoresizingMask, NSStringFromSize(oldSize), NSStringFromSize(superViewFrameSize), self);
 #endif
 	// do nothing if view is not resizable
@@ -2254,7 +2254,7 @@ GSTrackingRect *m = [GSTrackingRect alloc];
 #endif
 #define RESIZESUBVIEWS (((viewflags>>8)&1) != 0)
 		_v.autoSizeSubviews=RESIZESUBVIEWS;
-#if 1
+#if 0
 		if(_v.autoresizingMask != 0 && !_v.autoSizeSubviews)
 			NSLog(@"autoresizesSubviews=NO and mask=%x: %@", _v.autoresizingMask, self);
 #endif
