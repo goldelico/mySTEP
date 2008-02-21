@@ -386,17 +386,25 @@ NSString *NSHomeDirectory (void)
 
 NSString *NSHomeDirectoryForUser (NSString *login_name)
 { // return home dir for login name
+	NSString *h;
 	struct passwd *pwd=getpwnam([login_name UTF8String]);
 	endpwent();
 	if(!pwd)
-		return @"/Unknown User";
-	if(pwd->pw_uid == 0)
-		return @"/";	// root user
+		h=[NSString stringWithFormat:@"/Users/%@", login_name];
+	else if(pwd->pw_uid == 0)
+		h=@"/";	// root user - FIXME
+	else
+		{
 #if 1
-	return [NSString stringWithFormat:@"/Users/%@", login_name];
+		h=[NSString stringWithFormat:@"/Users/%@", login_name];
 #else
-	return [NSString stringWithUTF8String:pwd->pw_dir];
+		h=[NSString stringWithUTF8String:pwd->pw_dir];
 #endif
+		}
+#if 0
+	NSLog(@"NSHomeDirectoryForUser(%@) -> %@", login_name, h);
+#endif
+	return h;
 }
 
 //*****************************************************************************

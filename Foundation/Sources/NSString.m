@@ -625,7 +625,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	char *format_cp_copy = objc_malloc(format_len+1);	// buffer for a mutable copy of the format string
 	char *format_to_go = format_cp_copy;				// pointer into the format string while processing
 	NSMutableString *result=[[NSMutableString alloc] initWithCapacity:2*format_len+20];	// this assumes some minimum result size
-	[self release];	// we return a (mutable!) replacement object - to be correct, autorelease the result and return [self initWithString:result];
+	[self release];	// we return a (mutable!) replacement object - to be correct, we should autorelease the result and return [self initWithString:result];
 	if(!format_cp_copy)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
     strcpy(format_cp_copy, format_cp);		// make local copy for tmp editing
@@ -641,12 +641,23 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		char *buffer;					// vasprintf() buffer return
 		int len;						// length of vasprintf() result
 		id arg;
-		atsign_pos = strstr(format_to_go, "%@");
-		if(atsign_pos)
-			{
-			if((*(atsign_pos-1) == '%') && atsign_pos != format_cp_copy)
-				continue;	// If there is a "%%@", then do the right thing: print it literally
-			*atsign_pos = '\0';		// tmp terminate the string before the next `%@'
+		int mode=0;
+		for(atsign_pos=format_to_go; *atsign_pos != 0; atsign_pos++)
+			{ // scan for special formatters that can't be handled by vsfprint
+			if(atsign_pos[0] == '%')
+				{
+				switch(atsign_pos[1])
+					{
+					case '@':
+					case 'C':
+						mode=atsign_pos[1];
+						*atsign_pos = '\0';		// tmp terminate the string before the next `%@'
+						break;
+					default:
+						continue;
+					}
+				break;
+				}
 			}
 #if 0
 		fprintf(stderr, "fmt2go=%s\n", format_to_go);
@@ -663,7 +674,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				return nil;
 				}
 			}
-		if(!atsign_pos)
+		if(!mode)
 			return result;	// we return a (mutable!) replacement object - to be correct, autorelease the result and return [self initWithString:result];
 		while((formatter_pos = strchr(format_to_go, '%')))	 
 			{ // Skip arguments already processed by last vasprintf().
@@ -673,7 +684,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				format_to_go = formatter_pos+2;
 				continue;	// skip %%
 				}
-			// FIXME: somehow handle %C and other new specifiers!
+			// FIXME: somehow handle %C, %S and other new specifiers!
 			spec_pos = strpbrk(formatter_pos+1, "dioxXucsfeEgGpn");	// Specifiers from K&R C 2nd ed.
 			if(*(spec_pos - 1) == '*')
 				{
@@ -712,17 +723,32 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				}
 			format_to_go = spec_pos+1;
 			}
-		arg=(id) va_arg(arg_list, id);
+		switch(mode)
+			{
+			case '@':
+				{
+				arg=(id) va_arg(arg_list, id);
 //		fprintf(stderr, "arg.1=%p\n", arg);
-		if(arg && ![arg isKindOfClass:[NSString class]])
-			{ // not yet a string
-			if(locale && [arg respondsToSelector:@selector(descriptionWithLocale:)])
-				arg=[arg descriptionWithLocale:locale];
-			else
-				arg=[arg description];
+				if(arg && ![arg isKindOfClass:[NSString class]])
+					{ // not yet a string
+					if(locale && [arg respondsToSelector:@selector(descriptionWithLocale:)])
+						arg=[arg descriptionWithLocale:locale];
+					else
+						arg=[arg description];
+					}
+				if(!arg)
+					arg=@"<nil>";	// nil object or description
+				break;
+				}
+			case 'C':
+				{
+					unichar c=va_arg(arg_list, int);
+					arg=[NSString stringWithCharacters:&c length:1];	// single character
+					break;
+				}
+			default:
+				arg=@"formatter error";
 			}
-		if(!arg)
-			arg=@"<nil>";	// nil object or description
 //		fprintf(stderr, "arg.2=%p\n", arg);
 		[result appendString:arg];
 		format_to_go = atsign_pos + 2;				// Skip over this `%@', and look for another one.
@@ -3200,12 +3226,12 @@ struct stat tmp_stat;
 	if (replace == nil)
 		{
 		[NSException raise: NSInvalidArgumentException
-					format: @"%@ nil search string", NSStringFromSelector(_cmd)];
+					format: @"%@ nil search string (%@)", NSStringFromSelector(_cmd), self];
 		}
 	if (by == nil)
 		{
 		[NSException raise: NSInvalidArgumentException
-					format: @"%@ nil replace string", NSStringFromSelector(_cmd)];
+					format: @"%@ nil replace string (%@)", NSStringFromSelector(_cmd), self];
 		}
 	range = [self rangeOfString: replace options: opts range: searchRange];
 	
@@ -3695,12 +3721,12 @@ struct stat tmp_stat;
 	if (replace == nil)
 		{
 		[NSException raise: NSInvalidArgumentException
-					format: @"%@ nil search string", NSStringFromSelector(_cmd)];
+					format: @"%@ nil search string (%@)", NSStringFromSelector(_cmd), self];
 		}
 	if (by == nil)
 		{
 		[NSException raise: NSInvalidArgumentException
-					format: @"%@ nil replace string", NSStringFromSelector(_cmd)];
+					format: @"%@ nil replace string (%@)", NSStringFromSelector(_cmd), self];
 		}
 	range = [self rangeOfString: replace options: opts range: searchRange];
 	
