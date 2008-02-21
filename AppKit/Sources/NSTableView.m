@@ -193,7 +193,9 @@
 	
 	if (resizing && ![_tableView allowsColumnResizing])
 		return;
-
+#if 1
+	NSLog(@"mouseDown headerview");
+#endif
 	[NSEvent startPeriodicEventsAfterDelay:0.05 withPeriod:0.05];
 	[self lockFocus];
 
@@ -627,9 +629,14 @@
 	if(_width == width)
 		return;	// unchanged
 	_width = MIN(MAX(width, _minWidth), _maxWidth);
+#if 0
+	NSLog(@"size column %@ to %f", self, _width);
+#endif
 	if(_tableView)
 		{
 		// post NSTableViewColumnDidResizeNotification
+		// which triggers a redraw
+		[_tableView setNeedsDisplay:YES];
 		}
 }
 
@@ -929,15 +936,10 @@ int index = [self columnWithIdentifier:identifier];
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTE(ColumnDidMove) object: self];
 }
 
-- (void) sizeLastColumnToFit 
-{
-	NIMP;
-}
-
 - (id) target							{ return _target; }
 - (void) setTarget:anObject				{ ASSIGN(_target, anObject); }
-- (void) setAction:(SEL)aSelector		{ _action = aSelector; NSLog(@"NSTableView action=%@", NSStringFromSelector(aSelector)); }
-- (void) setDoubleAction:(SEL)aSelector	{ _doubleAction = aSelector; NSLog(@"NSTableView doubleAction=%@", NSStringFromSelector(aSelector)); }
+- (void) setAction:(SEL)aSelector		{ _action = aSelector; }
+- (void) setDoubleAction:(SEL)aSelector	{ _doubleAction = aSelector; }
 - (SEL) action							{ return _action; }
 - (SEL) doubleAction					{ return _doubleAction; }
 - (BOOL) isFlipped 						{ return YES; }
@@ -1328,7 +1330,7 @@ int index = [self columnWithIdentifier:identifier];
 	return r;
 }
 
-- (int) rowAtPoint:(NSPoint)point 
+- (int) _rowAtPoint:(NSPoint)point 
 {
 	if(_tv.delegateProvidesHeightOfRow)
 		{
@@ -1347,14 +1349,22 @@ int index = [self columnWithIdentifier:identifier];
 		}
 }
 
+- (int) rowAtPoint:(NSPoint)point 
+{ // outside existing rows returns -1
+	int row=[self _rowAtPoint:point];
+	if(row >= _numberOfRows)
+		row=-1;
+	return row;
+}
+
 - (NSRange) rowsInRect:(NSRect)rect 
 {
 	NSRange r;
 	int r2;
-	r.location=[self rowAtPoint:rect.origin];
+	r.location=[self _rowAtPoint:rect.origin];
 	if(r.location < 0)
 		return NSMakeRange(0, 0);
-	r2=[self rowAtPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect))];
+	r2=[self _rowAtPoint:NSMakePoint(NSMinX(rect), NSMaxY(rect))];
 	if(r2 >= (int) r.location)
 		r.length=r2-r.location+1;	// round up
 	else
@@ -1536,10 +1546,11 @@ int index = [self columnWithIdentifier:identifier];
 	NSTableColumn *clickedCol;
 	BOOL scrolled=NO;
 
-	if(row >= _numberOfRows)
-		row=-1;	// outside
 	_clickedColumn=[self columnAtPoint:p];
 	_clickedRow=row;
+#if 1
+	NSLog(@"mouseDown row=%d col=%d rows=%d", _clickedRow, _clickedColumn, _numberOfRows);
+#endif
 	if(_lastSelectedRow >= 0)
 		{ // pre-existing sel
 		if ((_lastSelectedRow == row) && [event clickCount] > 1)									
@@ -1552,21 +1563,19 @@ int index = [self columnWithIdentifier:identifier];
 			}
 		}
 	clickedCol = [_tableColumns objectAtIndex:_clickedColumn];
-	if(row < [self numberOfRows])
+	if(row >= 0)
+		{ // an existing row
+		id data;
 		_clickedCell = [[clickedCol dataCellForRow:row] copy];	// we need a copy since a single cell will be used for all rows!
-	if(_clickedCell)
 		_clickedCellFrame = [self frameOfCellAtColumn:_clickedColumn row:_clickedRow];
-	if(_clickedCell)
-		{ // initialize with current value
-		id data=[_dataSource tableView:self objectValueForTableColumn:clickedCol row:_clickedRow];	// ask data source
+		data=[_dataSource tableView:self objectValueForTableColumn:clickedCol row:_clickedRow];	// ask data source
 		[_clickedCell setObjectValue:data];	// set as object value
 		if(_tv.delegateWillDisplayCell)
 			[_delegate tableView:self willDisplayCell:_clickedCell forTableColumn:clickedCol row:_clickedRow];	// give delegate a chance to modify the cell
-		}
-		
-	if(row >= 0)
 		[self selectRow:row byExtendingSelection:NO];			// select start row
-
+		}
+	else
+		_clickedCell = nil;
 	startRow = lastRow = row;
 	visibleRect = [self visibleRect];
 
@@ -1586,8 +1595,8 @@ int index = [self columnWithIdentifier:identifier];
 			{ // something changed
 			previous = current;
 			p = [self convertPoint:current fromView:nil];
-			
-			if((row = [self rowAtPoint:p]) >= 0 && row <= _numberOfRows)
+			row = [self rowAtPoint:p];
+			if(row >= 0)
 				{
 				if(!_tv.allowsMultipleSelection)
 					{
@@ -1776,7 +1785,7 @@ int index = [self columnWithIdentifier:identifier];
 			lheight=[self rowHeight]+[self intercellSpacing].height;
 			[sv setVerticalLineScroll:lheight];	// scroll by one line
 			[sv setVerticalPageScroll:lheight];	// scroll by one page keeping one line visible
-	//		[sv setHorizontalLineScroll:??];
+	//		[sv setHorizontalLineScroll:??];	// smallest column? average column?
 			[sv setHorizontalPageScroll:0.0];	// no additional delta
 			}
 		else
@@ -1793,7 +1802,7 @@ int index = [self columnWithIdentifier:identifier];
 	if(NSEqualRects(rect, _frame))
 		return;
 	[super setFrame:rect];
-	[self tile];	// resizes only if needed
+	[self sizeToFit];	// resizes only if needed
 }
 
 - (void) setFrameSize:(NSSize) size
@@ -1801,14 +1810,14 @@ int index = [self columnWithIdentifier:identifier];
 	if(NSEqualSizes(size, _frame.size))
 		return;
 	[super setFrameSize:size];
-	[self tile];	// resizes only if needed
+	[self sizeToFit];	// resizes only if needed
 }
 
 - (void) resizeSubviewsWithOldSize:(NSSize) size
 {
 	if(NSEqualSizes(size, _frame.size))
 		return;		// unchanged
-	[self tile];	// resize components
+	[self sizeToFit];	// resize components
 }
 
 - (void) viewDidMoveToWindow;
@@ -1928,7 +1937,7 @@ int index = [self columnWithIdentifier:identifier];
 		rect.size.width = col->_width;
 		if(_clickedCell && _clickedRow == row && _clickedColumn == i)
 			{ // we are tracking this cell - don't update from data source!
-#if 1
+#if 0
 			NSLog(@"draw clicked cell");
 #endif
 			[_clickedCell drawWithFrame:rect inView:self];
@@ -1988,7 +1997,7 @@ int index = [self columnWithIdentifier:identifier];
 		}
 	if(vert)
 		{
-		int row=[self rowAtPoint:rect.origin];	// determine first row
+		int row=[self _rowAtPoint:rect.origin];	// determine first row
 		float bottom=NSMaxY(rect);
 		while(YES)
 			{
@@ -2010,7 +2019,7 @@ int index = [self columnWithIdentifier:identifier];
 		unsigned int ncolors=[colors count];
 		if(ncolors > 0)
 			{
-			int row=[self rowAtPoint:rect.origin];	// determine first row
+			int row=[self _rowAtPoint:rect.origin];	// determine first row
 			float bottom=NSMaxY(rect);
 			while(YES)
 				{
@@ -2030,9 +2039,58 @@ int index = [self columnWithIdentifier:identifier];
 
 - (void) sizeToFit;
 {
-	// resize all columns to be visible (up to their max width)
-	// then, [self tile];
-	NIMP;
+	unsigned cnt=[_tableColumns count];
+	NSTableColumn *last=[_tableColumns lastObject];
+	if(super_view && cnt > 0 && [last isResizable])
+		{
+		BOOL changed=YES;
+		NSRect bounds=[super_view bounds];
+#if 0
+		NSLog(@"size to fit");
+#endif
+		
+		// FIXME: we need to improve and correct the algorithm
+		
+		// we should repeat this as long as we achieve a change
+		
+		while(changed && NSMaxX([self rectOfColumn:cnt-1]) > NSWidth(bounds))
+			{ // last column is completely outside - try to reduce all others by an evenly distributed value
+			int i;
+			float oversize=NSWidth(bounds)/NSMaxX([self rectOfColumn:cnt-1]);	// oversize factor
+#if 0
+			NSLog(@"oversize=%f", oversize);
+#endif
+			changed=NO;
+			for(i=0; i<cnt; i++)
+				{
+				NSTableColumn *tc=[_tableColumns objectAtIndex:i];
+				if([tc isResizable])
+					{
+					float width=[tc width];
+					[tc setWidth:width*oversize];	// set new width (limited to minimum)
+					if([tc width] != width)
+						changed=YES;	// there was a real change
+					}
+				}
+			}
+		[last setWidth:(NSWidth(bounds)-NSMinX([self rectOfColumn:cnt-1]))];	// finally resize last column to fit (or minWidth)
+		[self tile];
+		}
+}
+
+- (void) sizeLastColumnToFit 
+{ // resize last column to fit for scrollview's width
+	unsigned cnt=[_tableColumns count];
+	NSTableColumn *last=[_tableColumns lastObject];
+	if(super_view && cnt > 0 && [last isResizable])
+		{
+		NSRect bounds=[super_view bounds];
+#if 0
+		NSLog(@"size last column");
+#endif
+		[last setWidth:(NSWidth(bounds)-NSMinX([self rectOfColumn:cnt-1]))];
+		[self tile];
+		}
 }
 
 // FIXME: we could simply take [[col headerCell] image]!
@@ -2127,7 +2185,7 @@ int index = [self columnWithIdentifier:identifier];
 		long tvFlags=[aDecoder decodeInt32ForKey:@"NSTvFlags"];
 		int i;
 		NSNull *null=[NSNull null];
-#if 1
+#if 0
 		NSLog(@"TvFlags=%08lx", tvFlags);
 #endif
 #define ALLOWSCOLUMNREORDERING ((tvFlags&0x80000000)!=0)
