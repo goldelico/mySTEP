@@ -974,7 +974,7 @@ static BOOL __cursorHidden = NO;
 - (void) orderWindow:(NSWindowOrderingMode) place 
 		  relativeTo:(int) otherWin
 { // main interface call
-#if 0
+#if 1
 	NSString *str[]={ @"Below", @"Out", @"Above" };
 	NSLog(@"orderWindow:NSWindow%@ relativeTo:%d - %@", str[place+1], otherWin, self);
 #endif
@@ -1088,19 +1088,29 @@ static BOOL __cursorHidden = NO;
 - (NSRect) constrainFrameRect:(NSRect)rect toScreen:(NSScreen *)screen
 {
 	NSRect vf;
-#if 0
-	NSLog(@"constrain rect %@ forscreen %@", NSStringFromRect(rect), NSStringFromRect([screen visibleFrame]));
+#if 1
+	NSLog(@"constrain rect %@ forscreen %@ mask %0x", NSStringFromRect(rect), NSStringFromRect([screen visibleFrame]), _w.styleMask);
 #endif
-	if((_w.styleMask&GSAllWindowMask) == NSBorderlessWindowMask)
+	if((_w.styleMask & GSAllWindowMask) == NSBorderlessWindowMask)
+		{
+#if 1
+		NSLog(@"borderless");
+#endif
 		return rect;	// never constrain
+		}
 	vf=[screen visibleFrame];
 #if 0
 #if __APPLE__
 	vf=NSMakeRect(100.0, 100.0, 800.0, 500.0);	// special constraining for test purposes on the Mac
 #endif
 #endif
-	if((_w.styleMask & NSResizableWindowMask) && [self interfaceStyle] >= NSPDAInterfaceStyle)
+	if((_w.styleMask & NSResizableWindowMask) != 0 && [self interfaceStyle] >= NSPDAInterfaceStyle)
+		{
+#if 1
+		NSLog(@"to full screen");
+#endif
 		return vf;	// resize to full screen for PDA styles
+		}
 	if(NSMaxX(rect) > NSMaxX(vf))
 		rect.origin.x=NSMaxX(vf)-NSWidth(rect);	// goes beyond right edge - move left
 	if(NSMinX(rect) < NSMinX(vf))
@@ -1108,12 +1118,12 @@ static BOOL __cursorHidden = NO;
 	if(NSMaxY(rect) > NSMaxY(vf))
 		rect.origin.y=NSMaxY(vf)-NSHeight(rect);	// goes beyond top edge - move down
 	if(NSMinY(rect) < NSMinY(vf))
-		rect.origin.y=NSMinY(vf);	// goes beyond top edge - move down
-#if 0
+		rect.origin.y=NSMinY(vf);	// goes beyond bottom edge - move up
+#if 1
 	NSLog(@"shifted frameRect %@", NSStringFromRect(rect));
 #endif
 	rect=NSIntersectionRect(vf, rect);	// reduce to visible frame if still too large
-#if 0
+#if 1
 	NSLog(@"constrained frameRect %@", NSStringFromRect(rect));
 #endif
 	return rect;
@@ -1200,7 +1210,7 @@ static BOOL __cursorHidden = NO;
 	else
 		{
 		_frame.origin=rect.origin;	// just moved
-#if 1
+#if 0
 		NSLog(@"window has no need to re-layout: %@", self);
 #endif
 		}
@@ -1215,7 +1225,7 @@ static BOOL __cursorHidden = NO;
 		{ // smooth resize
 		NSArray *animations=[NSArray arrayWithObject:
 			[NSDictionary dictionaryWithObjectsAndKeys:
-				[NSValue valueWithRect:_frame], NSViewAnimationStartFrameKey,	// current frame
+//				[NSValue valueWithRect:_frame], NSViewAnimationStartFrameKey,	// current frame
 				[NSValue valueWithRect:rect], NSViewAnimationEndFrameKey,		// new frame
 				self, NSViewAnimationTargetKey,
 				nil]

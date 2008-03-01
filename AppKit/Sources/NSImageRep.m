@@ -995,6 +995,9 @@ static NSArray *__pbBitmapImageReps;
 	if (bitsPerSample <= 0 || samplesPerPixel <= 0 || samplesPerPixel > 5 || width <= 0 || height <= 0) 
 		[NSException raise: NSInvalidArgumentException
 					format: @"initWithBitmapDataPlanes missing required arguments"];
+	if (bitmapFormat > 0)
+		[NSException raise: NSInvalidArgumentException
+					format: @"no 10.4 bitmap formats supported"];
 	/* FIXME: more consistency checks
 	 if([colorSpaceName isEqual:@"RGB"])
 		components=3;

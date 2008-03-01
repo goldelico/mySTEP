@@ -58,7 +58,8 @@
 
 	if ((_documentView = aView)) 
 		{ // add new
-		[self addSubview:_documentView];
+		if(![_documentView isDescendantOf:self])
+			[self addSubview:_documentView];	// add us first
 		[self _invalidateCTM];		// our isFlipped state may change
 		[_documentView setNeedsDisplay:YES];	// this should set ourselves dirty
 		// Register for notifications sent by the document view 

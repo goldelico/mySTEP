@@ -414,7 +414,9 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 #if 0
 	NSLog(@"%@ drawBorderAndBackgroundWithFrame:%@ isHighlighted=%d", self, NSStringFromRect(frame), [self isHighlighted]);
 #endif
-	if([[menuItem representedObject] respondsToSelector:@selector(drawMenuBackground:)])
+	if([[menuItem representedObject] respondsToSelector:@selector(drawMenuBackground:)])	// old NSMenuExtra (where do we have this method from???)
+		[[menuItem representedObject] drawMenuBackground:[self isHighlighted]];
+	else if([[menuItem representedObject] respondsToSelector:@selector(drawStatusBarBackgroundInRect:withHighlight:)])	// official
 		[[menuItem representedObject] drawStatusBarBackgroundInRect:frame withHighlight:[self isHighlighted]];
 	else
 		{

@@ -291,6 +291,9 @@
 		else
 			_interfaceStyle=NSMacintoshInterfaceStyle;
 		}
+#if 0
+	NSLog(@"interface style = %0x", _interfaceStyle);
+#endif
 	return _interfaceStyle;
 }
 

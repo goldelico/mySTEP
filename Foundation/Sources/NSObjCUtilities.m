@@ -407,6 +407,378 @@ NSString *NSHomeDirectoryForUser (NSString *login_name)
 	return h;
 }
 
+NSArray *NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory directory, NSSearchPathDomainMask domainMask, BOOL expandTilde)
+{
+	NSLog(@"NSSearchPathForDirectoriesInDomains not implemented");
+	/* how it should be used
+	 NSArray* paths = NSSearchPathForDirectoriesInDomains ( NSApplicationSupportDirectory, NSUserDomainMask, YES );
+	 NSString *processName = [[NSProcessInfo processInfo] processName];
+	 NSString* fullPathToSupport = [paths objectAtIndex:0] stringByAppendingPathComponent:processName]; --> Application Support
+	 */
+	return nil;
+#if 0
+		NSMutableArray  *paths = [NSMutableArray new];
+		NSString        *path;
+		unsigned        i;
+		unsigned        count;
+		
+		InitialisePathUtilities();
+		
+		NSCAssert(gnustepMakefiles!=nil,@"Path utilities without initialisation!");
+		
+		/*
+		 * The order in which we return paths is important - user must come
+		 * first, followed by local, followed by network, followed by system.
+		 * The calling code can then loop on the returned paths, and stop as
+		 * soon as it finds something.  So things in user automatically
+		 * override things in system etc.
+		 */
+		
+#define ADD_PATH(mask, base_dir, add_dir) \
+if (domainMask & mask) \
+{ \
+path = [base_dir stringByAppendingPathComponent: add_dir]; \
+if ([path length] > 0 && [paths containsObject: path] == NO) \
+[paths addObject: path]; \
+}
+#define ADD_PLATFORM_PATH(mask, add_dir) \
+if (domainMask & mask) \
+{ \
+if ([add_dir length] > 0 && [paths containsObject: add_dir] == NO) \
+[paths addObject: add_dir]; \
+}
+		
+		switch (directoryKey)
+		{
+			case NSAllApplicationsDirectory:
+			{
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserApps);
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalApps);
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkApps);
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemApps);
+				
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserAdminApps);
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalAdminApps);
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkAdminApps);
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemAdminApps);
+			}
+				break;
+				
+			case NSApplicationDirectory:
+			{
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserApps);
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalApps);
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkApps);
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemApps);
+			}
+				break;
+				
+			case NSDemoApplicationDirectory:
+			{
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserApps);
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalApps);
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkApps);
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemApps);
+				
+				/* I imagine if ever wanted a separate Demo directory, the
+				 * only way for this to have some meaning across filesystems
+				 * would be as a subdirectory of Applications, as follows.
+				 */
+				/*
+				 ADD_PATH(NSUserDomainMask, gnustepUserApps, @"Demos");
+				 ADD_PATH(NSLocalDomainMask, gnustepLocalApps, @"Demos");
+				 ADD_PATH(NSNetworkDomainMask, gnustepNetworkApps, @"Demos");
+				 ADD_PATH(NSSystemDomainMask, gnustepSystemApps, @"Demos");
+				 */
+			}
+				break;
+				
+			case NSCoreServicesDirectory:
+			{
+				ADD_PATH(NSSystemDomainMask, gnustepSystemLibrary, @"CoreServices");
+			}
+				break;
+				
+			case NSDesktopDirectory:
+			{
+				ADD_PATH(NSUserDomainMask, gnustepUserLibrary, @"Desktop");
+			}
+				break;
+				
+			case NSDeveloperApplicationDirectory:
+			{
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserApps);
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalApps);
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkApps);
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemApps);
+				
+				/* I imagine if ever wanted a separate Developer directory, the
+				 * only way for this to have some meaning across filesystems
+				 * would be as a subdirectory of Applications, as follows.
+				 */
+				/*
+				 ADD_PATH(NSUserDomainMask, gnustepUserApps, @"Developer");
+				 ADD_PATH(NSLocalDomainMask, gnustepLocalApps, @"Developer");
+				 ADD_PATH(NSNetworkDomainMask, gnustepNetworkApps, @"Developer");
+				 ADD_PATH(NSSystemDomainMask, gnustepSystemApps, @"Developer");
+				 */
+			}
+				break;
+				
+			case NSAdminApplicationDirectory:
+			{
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserAdminApps);
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalAdminApps);
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkAdminApps);
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemAdminApps);
+			}
+				break;
+				
+			case NSAllLibrariesDirectory:
+			{
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserLibrary);
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalLibrary);
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkLibrary);
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemLibrary);
+			}
+				break;
+				
+			case NSLibraryDirectory:
+			{
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserLibrary);
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalLibrary);
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkLibrary);
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemLibrary);
+			}
+				break;
+				
+			case NSDeveloperDirectory:
+			{
+				/* The only way of having a Developer directory is as a
+				 * sub-dir of Library.
+				 */
+				ADD_PATH(NSUserDomainMask, gnustepUserLibrary, @"Developer");
+				ADD_PATH(NSLocalDomainMask, gnustepLocalLibrary, @"Developer");
+				ADD_PATH(NSNetworkDomainMask, gnustepNetworkLibrary, @"Developer");
+				ADD_PATH(NSSystemDomainMask, gnustepSystemLibrary, @"Developer");
+			}
+				break;
+				
+			case NSUserDirectory:
+			{
+				/* This is the directory in which user directories are located.
+				 * You can not have user directories in your own user directory,
+				 * so NSUserDomainMask will always return ''.
+				 */
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalUsersDir);
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkUsersDir);
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemUsersDir);
+			}
+				break;
+				
+			case NSDocumentationDirectory:
+			{
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserDocumentation);
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalDocumentation);
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkDocumentation);
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemDocumentation);
+			}
+				break;
+				
+			case NSDocumentDirectory:
+			{
+				ADD_PATH(NSUserDomainMask, gnustepUserLibrary, @"Document");
+				ADD_PATH(NSLocalDomainMask, gnustepLocalLibrary, @"Document");
+				ADD_PATH(NSNetworkDomainMask, gnustepNetworkLibrary, @"Document");
+				ADD_PATH(NSSystemDomainMask, gnustepSystemLibrary, @"Document");
+			}
+				break;
+				
+			case NSCachesDirectory:
+			{
+				/* Uff - at the moment the only place to put Caches seems to
+				 * be Library.  Unfortunately under GNU/Linux Library will
+				 * end up in /usr/lib/GNUstep which could be mounted
+				 * read-only!
+				 */
+				ADD_PATH(NSUserDomainMask, gnustepUserLibrary, @"Caches");
+				ADD_PATH(NSLocalDomainMask, gnustepLocalLibrary, @"Caches");
+				ADD_PATH(NSNetworkDomainMask, gnustepNetworkLibrary, @"Caches");
+				ADD_PATH(NSSystemDomainMask, gnustepSystemLibrary, @"Caches");
+			}
+				break;
+				
+			case NSApplicationSupportDirectory:
+			{
+				ADD_PATH(NSUserDomainMask, gnustepUserLibrary, @"ApplicationSupport");
+				ADD_PATH(NSLocalDomainMask, gnustepLocalLibrary,
+						 @"ApplicationSupport");
+				ADD_PATH(NSNetworkDomainMask, gnustepNetworkLibrary,
+						 @"ApplicationSupport");
+				ADD_PATH(NSSystemDomainMask, gnustepSystemLibrary,
+						 @"ApplicationSupport");
+			}
+				break;
+				
+				/* Now the GNUstep additions */
+			case GSFrameworksDirectory:
+			{
+				ADD_PATH(NSUserDomainMask, gnustepUserLibrary, @"Frameworks");
+				ADD_PATH(NSLocalDomainMask, gnustepLocalLibrary, @"Frameworks");
+				ADD_PATH(NSNetworkDomainMask, gnustepNetworkLibrary, @"Frameworks");
+				ADD_PATH(NSSystemDomainMask, gnustepSystemLibrary, @"Frameworks");
+			}
+				break;
+				
+			case GSFontsDirectory:
+			{
+				ADD_PATH(NSUserDomainMask, gnustepUserLibrary, @"Fonts");
+				ADD_PATH(NSLocalDomainMask, gnustepLocalLibrary, @"Fonts");
+				ADD_PATH(NSNetworkDomainMask, gnustepNetworkLibrary, @"Fonts");
+				ADD_PATH(NSSystemDomainMask, gnustepSystemLibrary, @"Fonts");
+			}
+				break;
+				
+			case GSLibrariesDirectory:
+			{
+				NSString *full = nil;
+				NSString *part = nil;
+				
+				if ([gnustep_is_flattened boolValue] == NO
+					&& gnustep_target_cpu != nil && gnustep_target_os != nil)
+					{
+						part = [gnustep_target_cpu stringByAppendingPathComponent:
+								gnustep_target_os];
+						if (library_combo != nil)
+							{
+								full = [part stringByAppendingPathComponent: library_combo];
+							}
+					}
+				
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserLibraries);
+				if (full) ADD_PATH(NSUserDomainMask, gnustepUserLibraries, full);
+				if (part) ADD_PATH(NSUserDomainMask, gnustepUserLibraries, part);
+				
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalLibraries);
+				if (full) ADD_PATH(NSLocalDomainMask, gnustepLocalLibraries, full);
+				if (part) ADD_PATH(NSLocalDomainMask, gnustepLocalLibraries, part);
+				
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkLibraries);
+				if (full)
+					ADD_PATH(NSNetworkDomainMask, gnustepNetworkLibraries, full);
+				if (part)
+					ADD_PATH(NSNetworkDomainMask, gnustepNetworkLibraries, part);
+				
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemLibraries);
+				if (full) ADD_PATH(NSSystemDomainMask, gnustepSystemLibraries, full);
+				if (part) ADD_PATH(NSSystemDomainMask, gnustepSystemLibraries, part);
+			}
+				break;
+				
+			case GSToolsDirectory:
+			{
+				NSString	*full = nil;
+				NSString	*part = nil;
+				
+				if ([gnustep_is_flattened boolValue] == NO
+					&& gnustep_target_cpu != nil && gnustep_target_os != nil)
+					{
+						part = [gnustep_target_cpu stringByAppendingPathComponent:
+								gnustep_target_os];
+						if (library_combo != nil)
+							{
+								full = [part stringByAppendingPathComponent: library_combo];
+							}
+					}
+				
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserTools);
+				if (full) ADD_PATH(NSUserDomainMask, gnustepUserTools, full);
+				if (part) ADD_PATH(NSUserDomainMask, gnustepUserTools, part);
+				
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalTools);
+				if (full) ADD_PATH(NSLocalDomainMask, gnustepLocalTools, full);
+				if (part) ADD_PATH(NSLocalDomainMask, gnustepLocalTools, part);
+				
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkTools);
+				if (full) ADD_PATH(NSNetworkDomainMask, gnustepNetworkTools, full);
+				if (part) ADD_PATH(NSNetworkDomainMask, gnustepNetworkTools, part);
+				
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemTools);
+				if (full) ADD_PATH(NSSystemDomainMask, gnustepSystemTools, full);
+				if (part) ADD_PATH(NSSystemDomainMask, gnustepSystemTools, part);
+			}
+				break;
+				
+			case GSAdminToolsDirectory:
+			{
+				NSString	*full = nil;
+				NSString	*part = nil;
+				
+				if ([gnustep_is_flattened boolValue] == NO
+					&& gnustep_target_cpu != nil && gnustep_target_os != nil)
+					{
+						part = [gnustep_target_cpu stringByAppendingPathComponent:
+								gnustep_target_os];
+						if (library_combo != nil)
+							{
+								full = [part stringByAppendingPathComponent: library_combo];
+							}
+					}
+				
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserAdminTools);
+				if (full) ADD_PATH(NSUserDomainMask, gnustepUserAdminTools, full);
+				if (part) ADD_PATH(NSUserDomainMask, gnustepUserAdminTools, part);
+				
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalAdminTools);
+				if (full) ADD_PATH(NSLocalDomainMask, gnustepLocalAdminTools, full);
+				if (part) ADD_PATH(NSLocalDomainMask, gnustepLocalAdminTools, part);
+				
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkAdminTools);
+				if (full) ADD_PATH(NSNetworkDomainMask, gnustepNetworkAdminTools, full);
+				if (part) ADD_PATH(NSNetworkDomainMask, gnustepNetworkAdminTools, part);
+				
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemAdminTools);
+				if (full) ADD_PATH(NSSystemDomainMask, gnustepSystemAdminTools, full);
+				if (part) ADD_PATH(NSSystemDomainMask, gnustepSystemAdminTools, part);
+			}
+				break;
+				
+			case GSWebApplicationsDirectory:
+			{
+				ADD_PLATFORM_PATH(NSUserDomainMask, gnustepUserWebApps);
+				ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalWebApps);
+				ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkWebApps);
+				ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemWebApps);
+			}
+				break;
+		}
+		
+#undef ADD_PATH
+#undef ADD_PLATFORM_PATH
+		
+		count = [paths count];
+		for (i = 0; i < count; i++)
+			{
+				path = [paths objectAtIndex: i];
+				
+				if (expandTilde == YES)
+					{
+						[paths replaceObjectAtIndex: i
+										 withObject: [path stringByExpandingTildeInPath]];
+					}
+				else
+					{
+						[paths replaceObjectAtIndex: i
+										 withObject: [path stringByAbbreviatingWithTildeInPath]];
+					}
+			}
+		
+		AUTORELEASE (paths);
+		return paths;
+	}
+#endif
+}
+
 //*****************************************************************************
 //
 // 		NSLog 

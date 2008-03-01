@@ -361,6 +361,7 @@
 		EE8EFA4909605809006CCB63 /* NSPredicate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSPredicate.h; path = Sources/NSPredicate.h; sourceTree = "<group>"; };
 		EE8EFA9F0960954D006CCB63 /* NSAffineTransform.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSAffineTransform.h; path = Sources/NSAffineTransform.h; sourceTree = "<group>"; };
 		EE8EFAA00960954D006CCB63 /* NSAffineTransform.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSAffineTransform.m; path = Sources/NSAffineTransform.m; sourceTree = "<group>"; };
+		EE8F689E0D76A0200096A370 /* trunk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = trunk; path = ../GNUstep/base/trunk; sourceTree = SOURCE_ROOT; };
 		EE93E8030A24CFA3008A5E48 /* objc */ = {isa = PBXFileReference; explicitFileType = folder; name = objc; path = "/Developer/Xtoolchain/i386-apple-Darwin/gcc-2.95.3-glibc-2.2.2/arm-quantumstep-linux-gnu/lib/gcc-lib/arm-quantumstep-linux-gnu/2.95.3/include/objc"; sourceTree = "<absolute>"; };
 		EEA32EC009537D0C001244CF /* caseconv.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = caseconv.h; sourceTree = "<group>"; };
 		EEA32EC109537D0C001244CF /* cop.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cop.h; sourceTree = "<group>"; };
@@ -552,6 +553,7 @@
 				EEA3309A09537E58001244CF /* Classes */,
 				EEA3306C09537DB5001244CF /* Private */,
 				EEA3309609537E48001244CF /* Resources */,
+				EE8F6B7B0D76A03D0096A370 /* GNUstep */,
 				EEFFF241098DF160002610FC /* MacOS X Frameworks */,
 				EEA3CEEA0954503D001244CF /* MacOS X Runtime */,
 				EE29D8D8058A38830035639B /* Products */,
@@ -697,6 +699,7 @@
 				EEA32F5C09537D0D001244CF /* NSObjCUtilities.m */,
 				EEA32F2B09537D0D001244CF /* NSObject.h */,
 				EEA32F2C09537D0D001244CF /* NSObject.m */,
+				EEA32F2D09537D0D001244CF /* NSPathUtilities.h */,
 				EEA32F3C09537D0D001244CF /* NSRange.h */,
 				EE81F9690962EB5200F9F896 /* NSUtilities.h */,
 				EE81F9680962EB5200F9F896 /* NSZone.h */,
@@ -791,7 +794,6 @@
 				EEA32F0609537D0D001244CF /* NSFileHandle.m */,
 				EEA32F0709537D0D001244CF /* NSFileManager.h */,
 				EEA32F0809537D0D001244CF /* NSFileManager.m */,
-				EEA32F2D09537D0D001244CF /* NSPathUtilities.h */,
 				EEA32F4809537D0D001244CF /* NSStream.h */,
 				EEA32F4909537D0D001244CF /* NSStream.m */,
 			);
@@ -930,6 +932,14 @@
 				EEA32F5B09537D0D001244CF /* NSUserDefaults.m */,
 			);
 			name = "System Services";
+			sourceTree = "<group>";
+		};
+		EE8F6B7B0D76A03D0096A370 /* GNUstep */ = {
+			isa = PBXGroup;
+			children = (
+				EE8F689E0D76A0200096A370 /* trunk */,
+			);
+			name = GNUstep;
 			sourceTree = "<group>";
 		};
 		EEA32EDE09537D0C001244CF /* CharacterSets */ = {
@@ -1179,10 +1189,12 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "Foundation" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				EEA331860953829D001244CF /* Foundation */,
 				EEAA86140A148ED200F2E5B5 /* Foundation.framework */,

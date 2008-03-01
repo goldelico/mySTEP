@@ -137,7 +137,7 @@
 		item_tabview=[aDecoder decodeObjectForKey:@"NSTabView"];	// tabview we belong to
 		item_view=[[aDecoder decodeObjectForKey:@"NSView"] retain];	// the real view
 		item_state = NSBackgroundTab;
-#if 1
+#if 0
 		NSLog(@"initWithCoder -> %@", self);
 #endif
 		return self;
@@ -294,7 +294,7 @@ static struct _NSTabViewSizing
 
 - (void) selectTabViewItem:(NSTabViewItem *)tabViewItem
 {
-#if 1
+#if 0
 	NSLog(@"selectTabViewItem: %@", tabViewItem);
 #endif
 	if(tab_selected == tabViewItem)
@@ -620,7 +620,7 @@ static struct _NSTabViewSizing
 		[prev _setTabState:prevstate];
 		[self setNeedsDisplayInRect:[prev _tabRect]];	// redraw in previous state
 		}
-#if 1
+#if 0
 	NSLog(@"clicked tab: %@", aTab);
 #endif
 	if(aTab)
@@ -665,7 +665,7 @@ static struct _NSTabViewSizing
 		[self setDelegate:[aDecoder decodeObjectForKey:@"NSDelegate"]];
 		if(!tab_selected)
 			[self selectFirstTabViewItem:nil];
-#if 1
+#if 0
 		NSLog(@"NSTabView initialized to %@", [self _descriptionWithSubviews]);
 #endif
 		return self;
