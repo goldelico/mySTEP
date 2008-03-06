@@ -1,0 +1,431 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		2761D94208C4ED0D005348B3 /* Package */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 2761D94508C4ED3E005348B3 /* Build configuration list for PBXAggregateTarget "Package" */;
+			buildPhases = (
+				2761D94108C4ED0D005348B3 /* Package App */,
+				27C80D0808C6376800235FD0 /* ShellScript */,
+			);
+			buildSettings = {
+				OPTIMIZATION_CFLAGS = "";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = Package;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			dependencies = (
+				2761D94408C4ED14005348B3 /* PBXTargetDependency */,
+			);
+			name = Package;
+			productName = Package;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		2761D7CE08C47AC1005348B3 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2761D7CD08C47AC1005348B3 /* Quartz.framework */; };
+		2761D91808C4B563005348B3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2761D91708C4B563005348B3 /* Foundation.framework */; };
+		2761D91D08C4C702005348B3 /* README.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2761D91C08C4C702005348B3 /* README.txt */; };
+		2761D92108C4C70D005348B3 /* license.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2761D92008C4C70D005348B3 /* license.txt */; };
+		8DD76F9A0486AA7600D96B5E /* PDFCombine.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* PDFCombine.m */; settings = {ATTRIBUTES = (); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildStyle section */
+		014CEA4F0018CE4811CA2923 /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		014CEA500018CE4811CA2923 /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXContainerItemProxy section */
+		2761D94308C4ED14005348B3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8DD76F960486AA7600D96B5E;
+			remoteInfo = PDFCombine;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8DD76F9E0486AA7600D96B5E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				2761D91D08C4C702005348B3 /* README.txt in CopyFiles */,
+				2761D92108C4C70D005348B3 /* license.txt in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		08FB7796FE84155DC02AAC07 /* PDFCombine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PDFCombine.m; sourceTree = "<group>"; };
+		2761D7CD08C47AC1005348B3 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
+		2761D91708C4B563005348B3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		2761D91C08C4C702005348B3 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		2761D92008C4C70D005348B3 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
+		32A70AAB03705E1F00C91783 /* PDFCombine_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFCombine_Prefix.pch; sourceTree = "<group>"; };
+		8DD76FA10486AA7600D96B5E /* PDFCombine */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PDFCombine; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8DD76F9B0486AA7600D96B5E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2761D7CE08C47AC1005348B3 /* Quartz.framework in Frameworks */,
+				2761D91808C4B563005348B3 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* PDFCombine */ = {
+			isa = PBXGroup;
+			children = (
+				08FB7795FE84155DC02AAC07 /* Source */,
+				C6859EA2029092E104C91782 /* Documentation */,
+				08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */,
+				1AB674ADFE9D54B511CA2CBB /* Products */,
+			);
+			name = PDFCombine;
+			sourceTree = "<group>";
+		};
+		08FB7795FE84155DC02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				32A70AAB03705E1F00C91783 /* PDFCombine_Prefix.pch */,
+				08FB7796FE84155DC02AAC07 /* PDFCombine.m */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		08FB779DFE84155DC02AAC07 /* External Frameworks and Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				2761D91708C4B563005348B3 /* Foundation.framework */,
+				2761D7CD08C47AC1005348B3 /* Quartz.framework */,
+			);
+			name = "External Frameworks and Libraries";
+			sourceTree = "<group>";
+		};
+		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8DD76FA10486AA7600D96B5E /* PDFCombine */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C6859EA2029092E104C91782 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				2761D92008C4C70D005348B3 /* license.txt */,
+				2761D91C08C4C702005348B3 /* README.txt */,
+			);
+			name = Documentation;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8DD76F960486AA7600D96B5E /* pdfcombine */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2761D75508C3D51C005348B3 /* Build configuration list for PBXNativeTarget "pdfcombine" */;
+			buildPhases = (
+				8DD76F990486AA7600D96B5E /* Sources */,
+				8DD76F9B0486AA7600D96B5E /* Frameworks */,
+				8DD76F9E0486AA7600D96B5E /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = PDFCombine_Prefix.pch;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = PDFCombine;
+			};
+			dependencies = (
+			);
+			name = pdfcombine;
+			productInstallPath = "$(HOME)/bin";
+			productName = PDFCombine;
+			productReference = 8DD76FA10486AA7600D96B5E /* PDFCombine */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 2761D75908C3D51C005348B3 /* Build configuration list for PBXProject "PDFCombine" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				014CEA4F0018CE4811CA2923 /* Debug */,
+				014CEA500018CE4811CA2923 /* Release */,
+			);
+			hasScannedForEncodings = 1;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* PDFCombine */;
+			projectDirPath = "";
+			targets = (
+				8DD76F960486AA7600D96B5E /* pdfcombine */,
+				2761D94208C4ED0D005348B3 /* Package */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2761D94108C4ED0D005348B3 /* Package App */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Package App";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "dir=~/Desktop/pdfcombine #dir is the directory for all the zipped files to go\ntempDir=$dir/temp\n\nmkdir $dir\nmkdir $tempDir\n\n#cp all the build files into a temp dir to get rdy for zipping\ncp -R \"$BUILT_PRODUCTS_DIR/pdfcombine\" $tempDir\ncp ./README.txt $tempDir\ncp ./license.txt $tempDir\n\n#finder zip equiv: http://www.macosxhints.com/article.php?story=20031223150348992\n#so zip up the binary with its other files\nditto -c -k -rsrc \\\n$tempDir \\\n$dir/pdfcombine.zip\n\nrm -R $tempDir\n\nexit 0";
+		};
+		27C80D0808C6376800235FD0 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "dir=~/Desktop/pdfcombine #dir is the directory for all the zipped files to go\n\nrm -R \"$BUILD_DIR\" #remove all the build stuff\n\n#finder zip equiv: http://www.macosxhints.com/article.php?story=20031223150348992\n#so zip up the binary with its other files\nditto -c -k -rsrc \\\n./ \\\n$dir/pdfcombine_source.zip\n\nexit 0";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8DD76F990486AA7600D96B5E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8DD76F9A0486AA7600D96B5E /* PDFCombine.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2761D94408C4ED14005348B3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8DD76F960486AA7600D96B5E /* pdfcombine */;
+			targetProxy = 2761D94308C4ED14005348B3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2761D75608C3D51C005348B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Quartz.framework/Versions/A/Frameworks\"";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = PDFCombine_Prefix.pch;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = pdfcombine;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		2761D75708C3D51C005348B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_SEARCH_PATHS = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Quartz.framework/Versions/A/Frameworks\"";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = PDFCombine_Prefix.pch;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = PDFCombine;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		2761D75808C3D51C005348B3 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/Quartz.framework/Versions/A/Frameworks\"";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = PDFCombine_Prefix.pch;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = "$(HOME)/bin";
+				PREBINDING = NO;
+				PRODUCT_NAME = PDFCombine;
+			};
+			name = Default;
+		};
+		2761D75A08C3D51C005348B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		2761D75B08C3D51C005348B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		2761D75C08C3D51C005348B3 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Default;
+		};
+		2761D94608C4ED3E005348B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				OPTIMIZATION_CFLAGS = "-O0";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = Package;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Debug;
+		};
+		2761D94708C4ED3E005348B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				OPTIMIZATION_CFLAGS = "-O0";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = Package;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Release;
+		};
+		2761D94808C4ED3E005348B3 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OPTIMIZATION_CFLAGS = "-O0";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = Package;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Default;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2761D75508C3D51C005348B3 /* Build configuration list for PBXNativeTarget "pdfcombine" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2761D75608C3D51C005348B3 /* Debug */,
+				2761D75708C3D51C005348B3 /* Release */,
+				2761D75808C3D51C005348B3 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		2761D75908C3D51C005348B3 /* Build configuration list for PBXProject "PDFCombine" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2761D75A08C3D51C005348B3 /* Debug */,
+				2761D75B08C3D51C005348B3 /* Release */,
+				2761D75C08C3D51C005348B3 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		2761D94508C4ED3E005348B3 /* Build configuration list for PBXAggregateTarget "Package" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2761D94608C4ED3E005348B3 /* Debug */,
+				2761D94708C4ED3E005348B3 /* Release */,
+				2761D94808C4ED3E005348B3 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

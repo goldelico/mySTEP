@@ -1,0 +1,360 @@
+Errata for PDF Reference, third edition
+(as published in the first printing, November 2001)
+-----------------
+
+Copyright (c) 2001-2003 Adobe Systems Incorporated. All rights reserved.
+Last modified: 18 June 2003
+
+General
+-------
+
+Front Matter
+------------
+
+Chapter 1
+---------
+
+Pages 6 - 7, bullet that begins "Software that accepts...": Replace
+bullet with:
+
+  Authors of software that accepts input in the form of the Portable
+  Document Format must make reasonable efforts to ensure that the
+  software they create respects the access permissions and permissions
+  controls listed in Table 3.15 of this specification, to the extent
+  that they are used in any particular document.
+
+Following the last bullet, insert a non-bulleted paragraph containing
+the second sentence of the former bullet:
+
+  Accessing the document in ways not permitted by the document's access
+  permissions is a violation of the document author's copyright.
+
+Chapter 2
+---------
+
+Chapter 3
+---------
+
+Page 40, Note: Append "See implementation note in Appendix H." The
+implementation note is: "Acrobat 5 and earlier require that the name
+object used as a key in a dictionary entry be a direct object; an
+indirect object reference to a name is not accepted."
+
+Page 76, Table 3.14, R entry: change "V value greater than 2" to "V
+value of 2 or greater".
+
+Page 85, URI entry: should be tagged "(Optional; PDF 1.1)".
+
+Page 89, BoxColorInfo entry: should be tagged "(Optional; PDF 1.4)".
+
+Page 93, Table 3.19, EmbeddedFiles entry, description should be: "A
+name tree mapping name strings to file specifications for embedded
+file streams."
+
+Page 122, Table 3.32, Type entry, append: "(See implementation note xx
+in Appendix H.)"
+
+Page 124, first full paragraph, last sentence should end: "...name
+tree that maps name strings to file specifications that in turn refer
+to embedded file streams through their /EF entries. (See
+implementation note xx in Appendix H.)"
+
+The new implementation note xx should be: "In Acrobat 5, file
+specifications accessed through /EmbeddedFiles have a /Type entry
+whose value is /F instead of the correct /Filespec. Acrobat 6 and
+later accept a file specification whose /Type entry is either
+/Filespec or /F."
+
+
+Chapter 4
+---------
+
+Page 167, Table 4.10, f operator, append: "Any subpaths that are open
+are implicitly closed before being filled."
+
+Page 187, formula for Y[C]: The second term in the numerator for the
+large fraction should be changed from "(X[W] - X[G]) * Y[W]" to
+"(X[W] - X[G]) * Y[R]".
+
+Page 206, second bullet, append: "The colorant names must all be
+different from one another, except that /None may be repeated."
+
+Page 244, Decode entry: Type should be "array", not "rectangle".
+
+Page 259: The formulas that describe a Coons patch as a special case
+of a tensor-product patch are completely wrong (although the
+descriptions of the two kinds of patches themselves are correct). The
+correct choice of internal control points is given by the following
+linear combinations of the external control points (where x and y
+components are computed independently):
+
+p11 = 1/9 * [
+  - 4 * p00
+  + 6 * (p01 + p10)
+  - 2 * (p03 + p30)
+  + 3 * (p31 + p13)
+  - 1 * p33
+]
+
+p12 = 1/9 * [
+  - 4 * p03
+  + 6 * (p02 + p13)
+  - 2 * (p00 + p33)
+  + 3 * (p32 + p10)
+  - 1 * p30
+]
+
+p21 = 1/9 * [
+  - 4 * p30
+  + 6 * (p31 + p20)
+  - 2 * (p33 + p00)
+  + 3 * (p01 + p23)
+  - 1 * p03
+]
+
+p22 = 1/9 * [
+  - 4 * p33
+  + 6 * (p32 + p23)
+  - 2 * (p30 + p03)
+  + 3 * (p02 + p20)
+  - 1 * p00
+]
+
+Page 290, Table 4.44: A PostScript XObject can alternatively be
+represented as an XObject dictionary whose Subtype entry has the value
+Form and additionally contains a Subtype2 entry whose value is PS.
+
+Chapter 5
+---------
+
+Page 308, top: Add the following material to clarify the semantics of
+the implicit transparency group that is imposed on a text object to
+achieve the text knockout behavior:
+
+* The implicit transparency group is a non-isolated knockout group.
+
+* Graphics state parameters, including transparency parameters, are
+inherited from the context in which the text object appears. They are
+not saved and restored, nor are the transparency parameters reset at
+the beginning of the transparency group, as would be in the case of
+explicit invocation of a transparency group XObject. Changes made to
+graphics state parameters within the text object persist beyond the
+end of the text object.
+
+* After the transparency group for the text object has been completely
+evaluated, the group results are composited with the backdrop using
+Normal blend mode and alpha and soft mask values of 1.0. In other
+words, the transparency parameters are applied to the glyphs
+individually rather than to the implicit transparency group as a
+whole.
+
+Page 329, second full paragraph: Change "Windows and Mac OS" to "Mac
+OS and Windows".
+
+Page 347, append the following to Table 5.15:
+
+Generic: 
+Identity-H/V   Adobe-Identity-0   Adobe-Identity-0   Adobe-Identity-0
+
+
+Chapter 6
+---------
+
+Chapter 7
+---------
+
+Page 435: the final formula is incorrectly given as:
+
+         (1-f[s[i]]) * a[i-1] * C[i-1] + f[s[i]] * alpha[t]
+  C[i] = --------------------------------------------------
+                                  a[i]
+
+It should be:
+
+         (1-f[s[i]]) * a[i-1] * C[i-1] + f[s[i]] * C[t]
+  C[i] = ----------------------------------------------
+                                  a[i]
+
+
+Chapter 8
+---------
+
+Page 478, Table 8.3, Outline dictionary, First and Last entries:
+Change "Required" to "Required if there are any outline entries (open
+or closed)".
+
+Page 489, bottom, remove the reference to implementation note 58 and
+replace it with the following:
+
+A given annotation dictionary may be referenced from the Annots array
+of only one page. Attempting to share an annotation dictionary among
+multiple pages will produce unpredictable behavior.
+
+Note: This requirement applies only to the annotation dictionary
+itself, not to subsidiary objects, which can be shared among multiple
+annotations without causing any difficulty.
+
+Page 491, Table 8.10, CA entry: Remove the sentence beginning "The
+specified value is used as the initial alpha constant..." and replace
+it with the following: "The specified value is not used if the
+annotation has an appearance stream; in that case, the appearance
+stream itself must specify any desired transparency. (However, if the
+viewer regenerates the annotation's appearance stream, it may
+incorporate the CA value into the stream's content.)"
+
+Page 493, Table 8.11, Annotation flags: Add an entry for the following
+flag, which was included in PDF 1.4 but was inadvertently omitted from
+the specification:
+
+Bit position 8 -- Locked -- (PDF 1.4) If set, do not allow the
+annotation to be deleted or its properties (including position and
+size) to be modified by the user. However, this does not restrict
+changes to the annotation's contents, such as a form field value. (See
+implementation note in Appendix H.)
+
+The new implementation note is: "Acrobat 5 obeys the Locked flag only
+for widget annotations."
+
+Page 496, Section 8.4.4, replace the second and third paragraphs with
+the following:
+
+[Begin replacement]
+The following method is used to map from the appearance object's
+coordinate system (as defined by its Matrix) to the annotation's
+rectangle in default user space.
+
+1. The appearance's BBox is transformed using the appearance's Matrix
+to produce a quadrilateral with arbitrary orientation. The transformed
+appearance box is defined as the smallest upright rectangle which
+encompasses this quadrilateral.
+
+2. A matrix, A, is computed which scales and translates the
+transformed appearance box to align with the edges of the annotation's
+Rect. The matrix maps the lower-left corner (the one with the least x
+and y coordinates) and the upper-right corner (the one with the
+greatest x and y coordinates) of the transformed appearance box to the
+corresponding corners of the annotation's Rect.
+
+3. The appearance's Matrix is concatenated with A to form a matrix,
+AA, which maps from the appearance's coordinate system to the
+annotation's rectangle in default user space:
+
+  AA = A * Matrix
+
+The annotation may be further scaled and rotated if either the NoZoom
+or NoRotate flag is set (see Section 8.4.2, "Annotation Flags"). Any
+transformation applied to the annotation as a whole will also be
+applied to the appearance within it.
+
+In PDF 1.4, an annotation appearance can include transparency. If the
+appearance dictionary does not contain a Group entry, it is treated as
+a non-isolated, non-knockout transparency group; otherwise, the
+isolated and knockout values specified in the group dictionary are
+used. The transparency group is composited with a backdrop consisting
+of the page content along with any previously painted annotations,
+using a blend mode of Normal, an alpha constant of 1.0, and a soft
+mask of None. (See implementation note xx in Appendix H.)
+[End replacement]
+
+The new implementation note is: "Acrobat 5.0 treats the annotation
+appearance as an isolated group, whether or not a Group entry is
+present. This behavior is corrected in Acrobat 6.0."
+
+Page 501, Table 8.16, /H entry, change the description of the /P value
+to read:
+
+/P (Push) Display the annotation as if it were being "pushed" below
+the surface of the page (see implementation note xx in Appendix H).
+
+The new implementation note is: "Acrobat viewers ignore any down
+appearance for a link annotation. When a link annotation specifies a
+value of /P for the /H entry (highlighting mode), Acrobat viewers
+display the link appearance with a beveled border."
+
+Additionally, remove the next sentence, beginning "A highlighting mode
+other than /P...".
+
+Page 531, Table 8.49, Kids entry: Change "Optional" to "Sometimes
+required, as described below", and append this:
+
+In a non-terminal field, the Kids array is required to refer to field
+dictionaries that are immediate descendants of this field. In a
+terminal field, the Kids array ordinarily must refer to one or more
+separate widget annotations that are associated with this field.
+However, if there is only one associated widget annotation, whose
+contents have been merged into the field dictionary, Kids must be
+omitted.
+
+Page 546, Table 8.59, /Opt entry: Change "Required; inheritable" to
+"Optional". Append to description: "If this entry is not present, no
+choices should be presented to the user."
+
+Page 546, Table 8.59, /TI entry: Change "Optional; inheritable" to
+"Optional". Append to description: "Default value: 0."
+
+Page 546, Table 8.59, /I entry: Remove "inheritable" from the
+description.
+
+Page 560, trailer example below table 8.67: Change "Root c 0 R" to
+"/Root c 0 R".
+
+Page 566, Table 8.73: All three entries are Optional, not Required.
+
+Chapter 9
+---------
+
+Page 579, Table 9.5, remove the "Document catalog" entry.
+
+Page 594, Table 9.11, Stm entry, replace the description with the
+following:
+
+(Optional; must be an indirect reference) The content stream
+containing the marked-content sequence. This entry should be present
+only if the marked-content sequence resides in a content stream other
+than the content stream for the page -- for example, in a form XObject
+(see Section 4.9, "Form XObjects") or an annotation's appearance
+stream (Section 8.4.4, "Appearance Streams"). If this entry is absent,
+the marked-content sequence is contained in the content stream of the
+page identified by Pg (either in the marked-content reference
+dictionary or in the parent structure element).
+
+
+Appendix A
+----------
+
+Appendix B
+----------
+
+Appendix C
+----------
+
+Appendix D
+----------
+
+Appendix E
+----------
+
+Appendix F
+----------
+
+Page 748, Table F.7, items 2 and 10: Remove the clause "specified as
+an offset from the beginning of the file to that thumbnail image,
+minus the length of the thumbnail hint table." [As stated, this is
+simply incorrect. These locations are expressed in a way that is no
+different from any other locations contained in the hint table, as
+described on pages 741-742.]
+
+Page 748, Table F.7, item 9: Change "(a subsection of part 8)" to "(a
+subsection of part 9)".
+
+Appendix G
+----------
+
+Appendix H
+----------
+
+Bibliography
+------------
+
+Index
+-----
