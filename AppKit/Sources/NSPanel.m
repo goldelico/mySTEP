@@ -1288,7 +1288,7 @@ static NSColorPanel *__colorPanel;
 {
 	NSColor *c=[_colorWell color];
 	float r, g, b, a;
-#if 1
+#if 0
 	NSLog(@"NSColorPanel _notify: %@", sender);
 	NSLog(@"fltvalue=%lf", [sender floatValue]);
 	NSLog(@"intvalue=%lf", [sender intValue]);

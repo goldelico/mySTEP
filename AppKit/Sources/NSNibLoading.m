@@ -515,10 +515,12 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 		[subviews release];
 		subviews=nil;
 		}
-	if(vFlags)
-		{
-		NSLog(@"FIXME: should apply vflags %08x", vFlags);
-		}
+#define RESIZINGMASK ((vFlags>>0)&0x3f)	// 6 bit
+	[view setAutoresizingMask:RESIZINGMASK];
+#define RESIZESUBVIEWS (((vFlags>>8)&1) != 0)
+	[view setAutoresizesSubviews:RESIZESUBVIEWS];
+#define HIDDEN (((vFlags>>31)&1)!=0)
+	[view setHidden:HIDDEN];
 	return view;
 }
 
