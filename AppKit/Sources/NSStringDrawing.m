@@ -86,6 +86,7 @@ NSStringDrawing.m
 static NSTextStorage *_textStorage;
 static NSLayoutManager *_layoutManager;
 static NSTextContainer *_textContainer;
+static NSAttributedString *_currentString;
 
 - (void) _setupWithRect:(NSRect) rect options:(NSStringDrawingOptions) options;
 {
@@ -97,6 +98,8 @@ static NSTextContainer *_textContainer;
 	 NSStringDrawingUsesDeviceMetrics - screenFontWithRenderingMode:NSFontIntegerAdvancementsRenderingMode
 	 NSStringDrawingOneShot	- don't cache
 	 */
+	if(self == _currentString)
+		return;	// don't change if we size&draw the same string
 	if(!_textStorage)
 		{
 #if 0
@@ -120,6 +123,8 @@ static NSTextContainer *_textContainer;
 	NSLog(@"_textStorage = %@", _textStorage);
 	NSLog(@"_textContainer = %@", _textContainer);
 #endif
+	[_currentString release];
+	_currentString=[self retain];
 }
 
 - (NSRect) boundingRectWithSize:(NSSize) size

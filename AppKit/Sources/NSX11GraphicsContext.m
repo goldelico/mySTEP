@@ -202,6 +202,7 @@ static inline void composite(NSCompositingOperation compositingOperation, struct
 	// FIXME: (255*255>>8) => 254???
 	// FIXME: using Highlight etc. must be limited to pixel value 0/255
 	// we must divide by 255 and not 256 - or adjust F&G scaling
+	// check if these formulas are correct if we assume premultiplied
 	unsigned short F, G;
 	switch(compositingOperation)
 		{ // based on http://www.cs.wisc.edu/~schenney/courses/cs559-s2001/lectures/lecture-8-online.ppt
@@ -1580,9 +1581,15 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	/*
 	 * check if we can draw
 	 */
-	if(!rep)	// could check for NSBitmapImageRep
+	if(!rep)	// could check for NSBitmapImageRep subclass
 		{
 		NSLog(@"_draw: nil representation!");
+		// raise exception
+		return NO;
+		}
+	if([rep bitmapFormat] != 0)
+		{ // can't handle non-premultiplied and float pixel - we could easily handle alphafirst
+		NSLog(@"_draw: can't draw bitmap format %0x", [rep bitmapFormat]);
 		// raise exception
 		return NO;
 		}
@@ -1781,9 +1788,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 							// should interpolate several pixels
 							src=getPixel((int) pnt.x, (int) pnt.y, width, height,
 										 /*
-										  int bitsPerSample,
-										  int samplesPerPixel,
-										  int bitsPerPixel,
+										  bitsPerSample,
+										  samplesPerPixel,
+										  bitsPerPixel,
+										  bitmapFormat
 										  */
 										 bytesPerRow,
 										 isPlanar, hasAlpha,

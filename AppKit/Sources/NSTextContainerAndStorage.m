@@ -190,6 +190,7 @@
 {
 	// accumulate changeInLength
 	NIMP;
+	[self processEditing];
 }
 
 - (void) beginEditing;
@@ -373,9 +374,10 @@
 	NSLayoutManager *lm;
 	unsigned prevLen=[self length];
 #if __APPLE__
-	[str retain];
-	[_concreteString setAttributedString:str];
-	[str release];
+	if(_concreteString == str)
+		return;	// no change
+	[_concreteString release];
+	_concreteString=[str retain];
 #else
 	[super setAttributedString:str];
 #endif
