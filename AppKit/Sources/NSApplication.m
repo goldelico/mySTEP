@@ -970,6 +970,11 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		[self noResponderFor:sel];	// Beep
 }
 
+- (void) _handleGestureEvent:(NSEvent *) event
+{
+	[[event window] sendEvent:event];
+}
+
 - (void) sendEvent:(NSEvent *)event					// pass event to the window
 {
 #if 0
@@ -1074,6 +1079,12 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 				[[event window] sendEvent:event];
 				break;
 			}
+		case NSRotate:
+		case NSBeginGesture:
+		case NSEndGesture:
+		case NSMagnify:
+		case NSSwipe:
+			[self _handleGestureEvent:event];
 		}
 }
 

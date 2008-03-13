@@ -62,6 +62,7 @@
 - (void) doCommandBySelector:(SEL) aSelector;
 - (void) flagsChanged:(NSEvent *) event;						// Forward messages
 - (void) flushBufferedKeyEvents;
+- (unsigned long long) gestureEventMask;
 - (void) helpRequested:(NSEvent *) event;
 - (void) indent:(id) sender;
 - (void) insertBacktab:(id) sender;
@@ -140,6 +141,7 @@
 - (void) selectParagraph:(id) sender;
 - (void) selectToMark:(id) sender;
 - (void) selectWord:(id) sender;
+- (void) setGestureEventMask:(unsigned long long) mask;
 - (void) setInterfaceStyle:(NSInterfaceStyle) style;
 - (void) setMark:(id) sender;
 - (void) setMenu:(NSMenu *) aMenu;
@@ -158,6 +160,13 @@
 					  returnType:(NSString *) typeReturned;
 - (NSError *) willPresentError:(NSError *) error;
 - (void) yank:(id) sender;
+
+// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
+- (void) magnifyWithEvent:(NSEvent *) event;
+- (void) rotateWithEvent:(NSEvent *) event;
+- (void) swipeWithEvent:(NSEvent *) event;
+- (void) beginGestureWithEvent:(NSEvent *) event;
+- (void) endGestureWithEvent:(NSEvent *) event;
 
 @end
 

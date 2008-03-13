@@ -59,6 +59,12 @@ typedef enum _NSEventType
 	NSOtherMouseDown			= 25,
 	NSOtherMouseUp				= 26,
 	NSOtherMouseDragged			= 27,
+// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
+	NSRotate					= 18,
+	NSBeginGesture				= 19,
+	NSEndGesture				= 20,
+	NSMagnify					= 30,
+	NSSwipe						= 31
 } NSEventType;
 
 enum
@@ -86,6 +92,12 @@ enum
 	NSOtherMouseDownMask		= 1<<NSOtherMouseDown,
 	NSOtherMouseUpMask			= 1<<NSOtherMouseUp,
 	NSOtherMouseDraggedMask		= 1<<NSOtherMouseDragged,
+// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
+	NSRotateMask				= 1<<NSRotate,
+	NSBeginGestureMask			= 1<<NSBeginGesture,
+	NSEndGestureMask			= 1<<NSEndGesture,
+	NSMagnifyMask				= 1<<NSMagnify,
+	NSSwipeMask					= 1<<NSSwipe,
 	
 	NSAnyEventMask 				= 0xffffffffU,
 	
@@ -260,14 +272,18 @@ enum
 - (const void *) eventRef;
 - (BOOL) isARepeat;
 - (BOOL) isEnteringProximity;
+- (BOOL) isGesture;				// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
 - (unsigned short) keyCode;
 - (NSPoint) locationInWindow;
+- (float) magnification;		// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
 - (NSUInteger) modifierFlags;
 - (NSUInteger) pointingDeviceID;
 - (NSUInteger) pointingDeviceSerialNumber;
 - (NSPointingDeviceType) pointingDeviceType;
 - (float) pressure;
 - (float) rotation;
+- (float) standardMagnificationThreshold;	// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
+- (float) standardRotationThreshold;		// new gesture events as described by http://cocoadex.com/2008/02/nsevent-modifications-swipe-ro.html
 - (short) subtype;
 - (NSUInteger) systemTabletID;
 - (NSUInteger) tabletID;
