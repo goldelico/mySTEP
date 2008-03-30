@@ -241,6 +241,16 @@
 		EEAA86E60A148ED200F2E5B5 /* NSLocale.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2FDF2709770599003EA8A2 /* NSLocale.m */; };
 		EEAA86E70A148ED200F2E5B5 /* NSSpellServer.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1DF4E0098ECB8C00DDE5E0 /* NSSpellServer.m */; };
 		EECAD4340B9D772A00F37A98 /* HTMLEntities.strings in Resources */ = {isa = PBXBuildFile; fileRef = EECAD4330B9D772A00F37A98 /* HTMLEntities.strings */; };
+		EECB23E00D9D8450000732B5 /* NSXMLNode.h in Headers */ = {isa = PBXBuildFile; fileRef = EECB23DE0D9D8450000732B5 /* NSXMLNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EECB23E10D9D8450000732B5 /* NSXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = EECB23DF0D9D8450000732B5 /* NSXMLNode.m */; };
+		EECB23E40D9D846F000732B5 /* NSXMLDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = EECB23E20D9D846F000732B5 /* NSXMLDocument.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EECB23E50D9D846F000732B5 /* NSXMLDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = EECB23E30D9D846F000732B5 /* NSXMLDocument.m */; };
+		EECB23E80D9D8480000732B5 /* NSXMLDTD.h in Headers */ = {isa = PBXBuildFile; fileRef = EECB23E60D9D8480000732B5 /* NSXMLDTD.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EECB23E90D9D8480000732B5 /* NSXMLDTD.m in Sources */ = {isa = PBXBuildFile; fileRef = EECB23E70D9D8480000732B5 /* NSXMLDTD.m */; };
+		EECB23EC0D9D8493000732B5 /* NSXMLDTDNode.h in Headers */ = {isa = PBXBuildFile; fileRef = EECB23EA0D9D8493000732B5 /* NSXMLDTDNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EECB23ED0D9D8493000732B5 /* NSXMLDTDNode.m in Sources */ = {isa = PBXBuildFile; fileRef = EECB23EB0D9D8493000732B5 /* NSXMLDTDNode.m */; };
+		EECB23F00D9D84A2000732B5 /* NSXMLElement.h in Headers */ = {isa = PBXBuildFile; fileRef = EECB23EE0D9D84A2000732B5 /* NSXMLElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EECB23F10D9D84A2000732B5 /* NSXMLElement.m in Sources */ = {isa = PBXBuildFile; fileRef = EECB23EF0D9D84A2000732B5 /* NSXMLElement.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -523,6 +533,16 @@
 		EEC4A9500B4D5123001C44B3 /* sys-include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "sys-include"; path = "/Developer/Xtoolchain/i386-apple-Darwin/gcc-2.95.3-glibc-2.2.2/arm-quantumstep-linux-gnu/arm-quantumstep-linux-gnu/sys-include"; sourceTree = "<absolute>"; };
 		EEC4AEE30B4D5135001C44B3 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = "/Developer/Xtoolchain/i386-apple-Darwin/gcc-2.95.3-glibc-2.2.2/arm-quantumstep-linux-gnu/arm-quantumstep-linux-gnu/include"; sourceTree = "<absolute>"; };
 		EECAD4330B9D772A00F37A98 /* HTMLEntities.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = HTMLEntities.strings; path = ../SimpleWebKit/Sources/HTMLEntities.strings; sourceTree = "<group>"; };
+		EECB23DE0D9D8450000732B5 /* NSXMLNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSXMLNode.h; sourceTree = "<group>"; };
+		EECB23DF0D9D8450000732B5 /* NSXMLNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSXMLNode.m; sourceTree = "<group>"; };
+		EECB23E20D9D846F000732B5 /* NSXMLDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSXMLDocument.h; sourceTree = "<group>"; };
+		EECB23E30D9D846F000732B5 /* NSXMLDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSXMLDocument.m; sourceTree = "<group>"; };
+		EECB23E60D9D8480000732B5 /* NSXMLDTD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSXMLDTD.h; sourceTree = "<group>"; };
+		EECB23E70D9D8480000732B5 /* NSXMLDTD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSXMLDTD.m; sourceTree = "<group>"; };
+		EECB23EA0D9D8493000732B5 /* NSXMLDTDNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSXMLDTDNode.h; sourceTree = "<group>"; };
+		EECB23EB0D9D8493000732B5 /* NSXMLDTDNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSXMLDTDNode.m; sourceTree = "<group>"; };
+		EECB23EE0D9D84A2000732B5 /* NSXMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSXMLElement.h; sourceTree = "<group>"; };
+		EECB23EF0D9D84A2000732B5 /* NSXMLElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSXMLElement.m; sourceTree = "<group>"; };
 		EEDB61250A1497F300E4CA39 /* HISTORY.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = HISTORY.rtf; path = ../HISTORY.rtf; sourceTree = SOURCE_ROOT; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -912,9 +932,19 @@
 		EE52D6FE0B8EF2610093595A /* XML */ = {
 			isa = PBXGroup;
 			children = (
+				EECAD4330B9D772A00F37A98 /* HTMLEntities.strings */,
+				EECB23E20D9D846F000732B5 /* NSXMLDocument.h */,
+				EECB23E30D9D846F000732B5 /* NSXMLDocument.m */,
+				EECB23E60D9D8480000732B5 /* NSXMLDTD.h */,
+				EECB23E70D9D8480000732B5 /* NSXMLDTD.m */,
+				EECB23EA0D9D8493000732B5 /* NSXMLDTDNode.h */,
+				EECB23EB0D9D8493000732B5 /* NSXMLDTDNode.m */,
+				EECB23EE0D9D84A2000732B5 /* NSXMLElement.h */,
+				EECB23EF0D9D84A2000732B5 /* NSXMLElement.m */,
+				EECB23DE0D9D8450000732B5 /* NSXMLNode.h */,
+				EECB23DF0D9D8450000732B5 /* NSXMLNode.m */,
 				EEA32F6109537D0D001244CF /* NSXMLParser.h */,
 				EEA32F6209537D0D001244CF /* NSXMLParser.m */,
-				EECAD4330B9D772A00F37A98 /* HTMLEntities.strings */,
 			);
 			name = XML;
 			sourceTree = "<group>";
@@ -1157,6 +1187,11 @@
 				EE2114DB0CDF55910062A8AD /* NSGarbageCollector.h in Headers */,
 				EE2114FA0CDF568D0062A8AD /* NSOperation.h in Headers */,
 				EE2115130CDF58F70062A8AD /* NSCondition.h in Headers */,
+				EECB23E00D9D8450000732B5 /* NSXMLNode.h in Headers */,
+				EECB23E40D9D846F000732B5 /* NSXMLDocument.h in Headers */,
+				EECB23E80D9D8480000732B5 /* NSXMLDTD.h in Headers */,
+				EECB23EC0D9D8493000732B5 /* NSXMLDTDNode.h in Headers */,
+				EECB23F00D9D84A2000732B5 /* NSXMLElement.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1343,6 +1378,11 @@
 				EE2114DC0CDF55910062A8AD /* NSGarbageCollector.m in Sources */,
 				EE2114FB0CDF568D0062A8AD /* NSOperation.m in Sources */,
 				EE2115140CDF58F70062A8AD /* NSCondition.m in Sources */,
+				EECB23E10D9D8450000732B5 /* NSXMLNode.m in Sources */,
+				EECB23E50D9D846F000732B5 /* NSXMLDocument.m in Sources */,
+				EECB23E90D9D8480000732B5 /* NSXMLDTD.m in Sources */,
+				EECB23ED0D9D8493000732B5 /* NSXMLDTDNode.m in Sources */,
+				EECB23F10D9D84A2000732B5 /* NSXMLElement.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
