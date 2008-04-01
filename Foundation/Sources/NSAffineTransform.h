@@ -8,6 +8,9 @@
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	01. April 2008 - aligned with 10.5 
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -32,21 +35,21 @@ typedef struct _NSAffineTransformStruct
 	BOOL _isFlipY;		// special case: A=1 D=-1 and B=C=0
 }
 
-+ (NSAffineTransform*) transform;
++ (NSAffineTransform *) transform;
 
-- (void) appendTransform:(NSAffineTransform *)aTransform;
-- (id) initWithTransform:(NSAffineTransform *)aTransform;
+- (void) appendTransform:(NSAffineTransform *) transform;
+- (id) initWithTransform:(NSAffineTransform *) transform;
 - (void) invert;
-- (void) prependTransform:(NSAffineTransform *)aTransform;
-- (void) rotateByDegrees:(float)angle;
-- (void) rotateByRadians:(float)angle;
-- (void) scaleBy:(float)scale;
-- (void) scaleXBy:(float)sx yBy:(float)sy;
-- (void) setTransformStruct:(NSAffineTransformStruct)aTransformStruct;
-- (NSPoint) transformPoint:(NSPoint)point;
-- (NSSize) transformSize:(NSSize)size;
+- (void) prependTransform:(NSAffineTransform *) transform;
+- (void) rotateByDegrees:(CGFloat) angle;
+- (void) rotateByRadians:(CGFloat) angle;
+- (void) scaleBy:(CGFloat) scale;
+- (void) scaleXBy:(CGFloat) sx yBy:(CGFloat) sy;
+- (void) setTransformStruct:(NSAffineTransformStruct) transformStruct;
+- (NSPoint) transformPoint:(NSPoint) point;
+- (NSSize) transformSize:(NSSize) size;
 - (NSAffineTransformStruct) transformStruct;
-- (void) translateXBy:(float)deltaX yBy:(float)deltaY;
+- (void) translateXBy:(CGFloat) deltaX yBy:(CGFloat) deltaY;
 
 @end
 

@@ -10,6 +10,9 @@
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	01. April 2008 - aligned with 10.5 
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -33,63 +36,63 @@
 	unsigned int _count;
 }
 
-- (id) initWithObjects:(id*)objects count:(unsigned)count;
-- (id) objectAtIndex:(unsigned)index;
-- (unsigned) count;
+- (id) initWithObjects:(id *) objects count:(NSUInteger) count;
+- (id) objectAtIndex:(NSUInteger) index;
+- (NSUInteger) count;
 
 @end
 
 @interface NSArray (NonCore)
 
 + (id) array;
-+ (id) arrayWithArray:(NSArray*)array;
-+ (id) arrayWithContentsOfFile:(NSString*)file;
-+ (id) arrayWithContentsOfURL:(NSURL*)url;
-+ (id) arrayWithObject:(id)anObject;
-+ (id) arrayWithObjects:(id)firstObj, ...;
-+ (id) arrayWithObjects:(id*)objects count:(unsigned)count;
++ (id) arrayWithArray:(NSArray *) array;
++ (id) arrayWithContentsOfFile:(NSString *) file;
++ (id) arrayWithContentsOfURL:(NSURL *) url;
++ (id) arrayWithObject:(id) anObject;
++ (id) arrayWithObjects:(id) firstObj, ...;
++ (id) arrayWithObjects:(id *) objects count:(NSUInteger) count;
 
-- (NSArray*) arrayByAddingObject:anObject;
-- (NSArray*) arrayByAddingObjectsFromArray:(NSArray*)anotherArray;
-- (NSString*) componentsJoinedByString:(NSString*)separator;
+- (NSArray *) arrayByAddingObject: anObject;
+- (NSArray *) arrayByAddingObjectsFromArray:(NSArray *) anotherArray;
+- (NSString *) componentsJoinedByString:(NSString *) separator;
 - (BOOL) containsObject:(id) anObject;
-- (NSString*) description;
-- (NSString*) descriptionWithLocale:(id)locale;
-- (NSString*) descriptionWithLocale:(id)locale
-							 indent:(unsigned int)level;
-- (id) firstObjectCommonWithArray:(NSArray*)otherArray;
-- (void) getObjects:(id*)objs;
-- (void) getObjects:(id*)objs range:(NSRange)aRange;
-- (unsigned) indexOfObject:(id)anObject;
-- (unsigned) indexOfObject:(id)anObject inRange:(NSRange)aRange;
-- (unsigned) indexOfObjectIdenticalTo:(id)anObject;
-- (unsigned) indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)aRange;
-- (id) initWithArray:(NSArray*)array;
-- (id) initWithArray:(NSArray*)array copyItems:(BOOL)flag;
-- (id) initWithContentsOfFile:(NSString*)file;
-- (id) initWithContentsOfURL:(NSURL*)url;
-- (id) initWithObjects:(id)firstObj, ...;
-- (id) inttWithObjects:(id*)objects count:(unsigned)count;
-- (BOOL) isEqualToArray:(NSArray*)otherArray;
+- (NSString *) description;
+- (NSString *) descriptionWithLocale:(id) locale;
+- (NSString *) descriptionWithLocale:(id) locale
+							  indent:(NSUInteger) level;
+- (id) firstObjectCommonWithArray:(NSArray *) otherArray;
+- (void) getObjects:(id *) objs;
+- (void) getObjects:(id *) objs range:(NSRange) aRange;
+- (NSUInteger) indexOfObject:(id) anObject;
+- (NSUInteger) indexOfObject:(id) anObject inRange:(NSRange) aRange;
+- (NSUInteger) indexOfObjectIdenticalTo:(id) anObject;
+- (NSUInteger) indexOfObjectIdenticalTo:(id) anObject inRange:(NSRange) aRange;
+- (id) initWithArray:(NSArray *) array;
+- (id) initWithArray:(NSArray *) array copyItems:(BOOL) flag;
+- (id) initWithContentsOfFile:(NSString *) file;
+- (id) initWithContentsOfURL:(NSURL *) url;
+- (id) initWithObjects:(id) firstObj, ...;
+- (id) inttWithObjects:(id *) objects count:(NSUInteger) count;
+- (BOOL) isEqualToArray:(NSArray *) otherArray;
 - (id) lastObject;
-- (void) makeObjectsPerformSelector:(SEL)aSelector;
-- (void) makeObjectsPerformSelector:(SEL)aSelector withObject:(id)argument;
-- (NSEnumerator*) objectEnumerator;
+- (void) makeObjectsPerformSelector:(SEL) aSelector;
+- (void) makeObjectsPerformSelector:(SEL) aSelector withObject:(id) argument;
+- (NSEnumerator *) objectEnumerator;
 - (NSArray *) objectsAtIndexes:(NSIndexSet *) idx;
-- (NSArray*) pathsMatchingExtensions:(NSArray*)extensions;
-- (NSEnumerator*) reverseObjectEnumerator;
-- (void) setValue:(id)value forKey:(NSString *)key;
-- (NSData*) sortedArrayHint;
-- (NSArray*) sortedArrayUsingFunction:(int (*)(id, id, void*))comparator 
-							  context:(void*)context;
-- (NSArray*) sortedArrayUsingFunction:(int (*)(id, id, void*))comparator 
-							  context:(void*)context
-							  hint:(NSData*)hint;
-- (NSArray*) sortedArrayUsingSelector:(SEL)comparator;
-- (NSArray*) subarrayWithRange:(NSRange)range;
-- (id) valueForKey:(NSString *)key;
-- (BOOL) writeToFile:(NSString*)path atomically:(BOOL)useAuxilliaryFile;
-- (BOOL) writeToURL:(NSString*)path atomically:(BOOL)flag;
+- (NSArray *) pathsMatchingExtensions:(NSArray *) extensions;
+- (NSEnumerator *) reverseObjectEnumerator;
+- (void) setValue:(id) value forKey:(NSString *) key;
+- (NSData *) sortedArrayHint;
+- (NSArray *) sortedArrayUsingFunction:(int (*)(id, id, void*)) comparator 
+							   context:(void *) context;
+- (NSArray *) sortedArrayUsingFunction:(int (*)(id, id, void*)) comparator 
+							   context:(void *) context
+							      hint:(NSData *) hint;
+- (NSArray *) sortedArrayUsingSelector:(SEL) comparator;
+- (NSArray *) subarrayWithRange:(NSRange) range;
+- (id) valueForKey:(NSString *) key;
+- (BOOL) writeToFile:(NSString *) path atomically:(BOOL) useAuxilliaryFile;
+- (BOOL) writeToURL:(NSString *) path atomically:(BOOL) flag;
 
 @end
 
