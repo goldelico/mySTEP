@@ -5,14 +5,12 @@
 //  Created by Dr. H. Nikolaus Schaller on Thu Mar 06 2008.
 //  Copyright (c) 2008 Golden Delicious Computers GmbH&Co KG. All rights reserved.
 //
-//  based on http://www.cocoadev.com/index.pl?UIKit
-//
 //  Licenced under LGPL
 //
 
-#import <UIKit/UIKit.h>
+#import <ApKit/AppKit.h>
 
-@implementation UIHardware
+@interface UIHardware : NSObject
 
 + (CGRect) fullScreenApplicationContentRect;
 {

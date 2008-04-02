@@ -7,10 +7,8 @@
 //
 //  Licenced under LGPL
 //
-//  based on http://www.cocoadev.com/index.pl?UIKit
-//
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 @interface UIHardware : NSObject
 
