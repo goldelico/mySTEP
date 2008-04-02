@@ -3,7 +3,7 @@
 //  AppKit
 //
 //  Created by Fabian Spillner on 08.11.07.
-//  Copyright 2007 __MyCompanyName__. All rights reserved.
+//  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
 #import "NSGradient.h"

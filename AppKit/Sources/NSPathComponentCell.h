@@ -3,7 +3,7 @@
 //  AppKit
 //
 //  Created by Fabian Spillner on 29.11.07.
-//  Copyright 2007 __MyCompanyName__. All rights reserved.
+//  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
 #import <AppKit/NSTextFieldCell.h>
@@ -12,7 +12,8 @@
 
 @interface NSPathComponentCell : NSTextFieldCell 
 {
-
+	NSImage *_image;
+	NSURL *_URL;
 }
 
 - (NSImage *) image;

@@ -3,7 +3,7 @@
 //  AppKit
 //
 //  Created by Fabian Spillner on 27.11.07.
-//  Copyright 2007 __MyCompanyName__. All rights reserved.
+//  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
 #import <AppKit/NSActionCell.h>
@@ -21,7 +21,16 @@ typedef NSInteger NSPathStyle;
 
 @interface NSPathCell : NSActionCell 
 {
-
+	NSArray *_allowedTypes;
+	NSColor *_backgroundColor;
+	NSPathComponentCell *_clickedPathComponentCell; 
+	id _delegate; 
+	NSArray *_pathComponentCells; 
+	NSAttributedString *_placeholderAttributedString;
+	NSRect *_rects;
+	SEL _doubleAction; 
+	NSPathStyle _pathStyle;
+	BOOL _needsSizing;
 }
 
 + (Class) pathComponentCellClass;
@@ -37,18 +46,18 @@ typedef NSInteger NSPathStyle;
 - (NSArray *) pathComponentCells; 
 - (NSPathStyle) pathStyle;
 - (NSAttributedString *) placeholderAttributedString;
-- (NSString *) placeholderString;
+// - (NSString *) placeholderString;	// inherited from superclass
 - (NSRect) rectOfPathComponentCell:(NSPathComponentCell *) c withFrame:(NSRect) rect inView:(NSView *) view;
 - (void) setAllowedTypes:(NSArray *) types;
 - (void) setBackgroundColor:(NSColor *) col;
-- (void) setControlSize:(NSControlSize) controlSize; 
+- (void) setControlSize:(NSControlSize) controlSize;
 - (void) setDelegate:(id) delegate; 
 - (void) setDoubleAction:(SEL) sel; 
 - (void) setObjectValue:(id <NSCopying>) obj;
 - (void) setPathComponentCells:(NSArray *) cells; 
 - (void) setPathStyle:(NSPathStyle) pathStyle; 
 - (void) setPlaceholderAttributedString:(NSAttributedString *) attrStr;
-- (void) setPlaceholderString:(NSString *) pStr;
+// - (void) setPlaceholderString:(NSString *) pStr;	// inherited from superclass
 - (void) setURL:(NSURL *) url; 
 - (NSURL *) URL; 
 

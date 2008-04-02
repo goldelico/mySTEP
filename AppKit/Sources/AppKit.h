@@ -112,6 +112,9 @@
 #import <AppKit/NSPanel.h>
 #import <AppKit/NSParagraphStyle.h>
 #import <AppKit/NSPasteboard.h>
+#import <AppKit/NSPathCell.h>
+#import <AppKit/NSPathComponentCell.h>
+#import <AppKit/NSPathControl.h>
 #import <AppKit/NSPDFImageRep.h>
 #import <AppKit/NSPersistentDocument.h>
 #import <AppKit/NSPopUpButton.h>

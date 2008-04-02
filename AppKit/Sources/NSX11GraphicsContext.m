@@ -1559,23 +1559,25 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	static NSRect unitSquare={{ 0.0, 0.0 }, { 1.0, 1.0 }};
 	NSString *csp;
 	int bytesPerRow;
-	BOOL hasAlpha;
-	BOOL isPlanar;
 	float width, height;	// source image width&height
 	unsigned char *imagePlanes[5];
 	NSPoint origin;
 	NSRect scanRect;		// dest on screen in X11 coords
+	NSBitmapFormat bitmapFormat;
+	BOOL hasAlpha;
+	BOOL isPlanar;
 	BOOL isFlipped;
 	BOOL calibrated;
 	NSAffineTransform *atm;	// projection from X11 window-relative to bitmap coordinates
 	NSAffineTransformStruct atms;
 	XRectangle xScanRect;	// on X11 where XImage is coming from
-	XImage *img;
+	XImage *img;			// the X11 image data structure
 	int x, y;				// current position within XImage
-	NSPoint pnt;			// current pixel in bitmap
-	unsigned short fract=256.0*_fraction+0.5;
+	NSPoint pnt;			// current pixel position in source bitmap
+	// maybe, we should use 26.6 fixed point coordinates and convert to float only if needed!
 	XGCValues values;
 	BOOL mustFetch;
+	unsigned short fract=256.0*_fraction+0.5;
 	if(fract > 256)
 		fract=256;	// limit
 	/*
@@ -1584,12 +1586,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	if(!rep)	// could check for NSBitmapImageRep subclass
 		{
 		NSLog(@"_draw: nil representation!");
-		// raise exception
+		// raise exception?
 		return NO;
 		}
-	if([rep bitmapFormat] != 0)
-		{ // can't handle non-premultiplied and float pixel - we could easily handle alphafirst
-		NSLog(@"_draw: can't draw bitmap format %0x", [rep bitmapFormat]);
+	bitmapFormat=[rep bitmapFormat];
+	if(bitmapFormat != 0)
+		{ // can't handle non-premultiplied and float pixel (but we could easily handle alphafirst)
+		NSLog(@"_draw: can't draw bitmap format %0x yet", [rep bitmapFormat]);
 		// raise exception
 		return NO;
 		}
@@ -1653,7 +1656,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	if(xScanRect.width == 0 || xScanRect.height == 0)
 		return YES;	// empty
 	/*
-	 * calculate reverse projection from XImage pixel coordinate to bitmap coordinate
+	 * calculate reverse projection from XImage pixel coordinate to bitmap coordinates
 	 */
 	atm=[NSAffineTransform transform];
 	[atm translateXBy:-origin.x yBy:-origin.y];		// we will scan through XImage which is thought to be relative to the drawing origin
@@ -1672,7 +1675,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 	// struct context { atm, NSPoint currentPoint, int lastx, int lasty, rep, fract } - so that sampler can optimize advancements by float coordinates
 
-	// FIXME: make more general function - (BOOL) _render:(struct RGB8 (*)(int x, int y, void *context)) sampler xScanRect:(XRect) scanRect context:(void *) context  
+	// FIXME: make this a more general function - (BOOL) _render:(struct RGB8 (*)(int x, int y, void *context)) sampler xScanRect:(XRect) scanRect context:(void *) context  
 	
 	mustFetch=(atms.m12 != 0.0 || atms.m21 != 0.0 || !(atms.m11 == atms.m22 || atms.m11 == -atms.m22) ||
 	   (hasAlpha && _compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&

@@ -3,17 +3,19 @@
 //  AppKit
 //
 //  Created by Fabian Spillner on 29.11.07.
-//  Copyright 2007 __MyCompanyName__. All rights reserved.
+//  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
 #import <AppKit/NSControl.h>
-#import "NSPathCell.h"
 #import <AppKit/NSDragging.h>
+#import "NSPathCell.h"
 
 @class NSColor, NSPathComponentCell;
 
 @interface NSPathControl : NSControl {
-
+//	id _delegate;	// special for mySTEP: NSControl defines _delegate
+	NSDragOperation _localDraggingMask;
+	NSDragOperation _remoteDraggingMask;
 }
 
 - (NSColor *) backgroundColor; 
@@ -37,7 +39,7 @@
 @interface NSObject (NSPathControlDelegate)
 
 - (BOOL) pathControl:(NSPathControl *) sender acceptDrop:(id <NSDraggingInfo>) draggingInfo; 
-- (BOOL) pathControl:(NSPathControl *) sender shouldDragPathComponentCell:(NSPathComponentCell *) cell withPasteboard:(NSPasteboard *)pboard; 
+- (BOOL) pathControl:(NSPathControl *) sender shouldDragPathComponentCell:(NSPathComponentCell *) cell withPasteboard:(NSPasteboard *) pboard; 
 - (NSDragOperation) pathControl:(NSPathControl *) sender validateDrop:(id <NSDraggingInfo>) draggingInfo; 
 - (void) pathControl:(NSPathControl *) sender willDisplayOpenPanel:(NSOpenPanel *) openPanel; 
 - (void) pathControl:(NSPathControl *) sender willPopUpMenu:(NSMenu *) menu; 
