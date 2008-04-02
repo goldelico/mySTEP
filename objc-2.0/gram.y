@@ -26,23 +26,28 @@
 
 %union
 {
-	int ival;
-	double dval;
-	void *symbol;
+	char *strval;
 }
 
 %%
 
+// define result type for each expansion
+
+// %type <strval> selector_component selector_with_arguments
+// %type <plist> decls decl_list decl
+// %type <lambda> lambda_start lambda_type
+// %type <flag> ctxorref
+
 selector_component
-	: IDENTIFIER ':'
-	| ':'
+	: IDENTIFIER ':' { $$ = strcat($1, ":"); }
+	| ':' { $$ = ":"; }
 	;
 
 selector_with_arguments
-	: IDENTIFIER
-	| IDENTIFIER ':' expression 
+	: IDENTIFIER { $$ = $1; }
+	| IDENTIFIER ':' expression  { $$ = strcat($1, ":", $3); }
 	| selector_with_arguments selector_component expression
-	| selector_with_arguments ',' ELLIPSIS
+	| selector_with_arguments ',' ELLIPSIS  { $$ = strcat($1, ",..."; }
 	;
 
 struct_component_expression

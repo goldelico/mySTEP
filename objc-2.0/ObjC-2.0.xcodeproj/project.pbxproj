@@ -54,10 +54,12 @@
 		EED3C1240488F87500000103 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ObjC-2.0" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = EED3C1200488F87500000103;
 			productRefGroup = EED3C1200488F87500000103;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				EE4108580B956BC50065DD36 /* Make */,
 			);
