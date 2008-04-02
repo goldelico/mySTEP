@@ -12,7 +12,6 @@
 			buildConfigurationList = EE1A018D097304E200EAB703 /* Build configuration list for PBXAggregateTarget "Foundation" */;
 			buildPhases = (
 			);
-			comments = "ToDo:\n\n**** Distributed Objects rewrite ****\n\nNSPort:\n* wie geht empfangen?\n* woher kommt receivePort bei Send\n\nNSPortMessage:\n*\n\nNSPortCoder:\n- rewrite\n\nNSConnection:\n- rewrite\n\nNSProxy:\n- rewrite\n\nNSDistantObject:\n- rewrite\n\nNSDistantObjectRequest:\n- rewrite\n\nNSSocketPort:\n- auf NSStream umstellen (und privates Interface für _initWithFileDescriptor)\n\nNSMethodSignature:\n- bereinigen\n\nNSInvocation:\n- bereinigen\n\nNSCoder:\n- keyed machen\n\nNSStream:\n- Einklinken in NSRunLoop\n\nNSInputSocketStream/NSOutputSocketStream\n- fertigstellen\n\n**** anderes ****\n\nNSFileHandle\n- auf NSStream aufstützen\n\nNSBundle:\n- bundleForClass:\n- benötigte makros in NSObjCRuntime setzen\n- NSLocale verwenden\n\nNSHTTPCooke.h usw\n- fehlt!!!";
 			dependencies = (
 				EEAA86FE0A148F7A00F2E5B5 /* PBXTargetDependency */,
 			);
@@ -1195,7 +1194,6 @@
 			);
 			buildRules = (
 			);
-			comments = "Todo:\n\nDistribute System-Info.plist to AB-Framework and AppKit-Framework\n";
 			dependencies = (
 			);
 			name = Foundation.framework;
