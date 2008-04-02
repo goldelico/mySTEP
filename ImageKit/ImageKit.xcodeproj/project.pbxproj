@@ -155,10 +155,12 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EED61B1009D5B06500F2B623 /* Build configuration list for PBXProject "ImageKit" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				EE6FE351076F05AF009CC969 /* ImageKit */,
 			);

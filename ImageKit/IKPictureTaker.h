@@ -11,7 +11,10 @@
 
 @interface IKPictureTaker : NSPanel
 {
+	NSMutableDictionary *_attributes;
 	IBOutlet NSImageView *_image;
+	NSImage *_inputImage;
+	NSImage *_outputImage;
 	BOOL _mirroring;
 }
 
@@ -27,9 +30,22 @@
 - (void) setInputImage:(NSImage *) image;
 - (void) setMirroring:(BOOL) flag;
 
+- (id) valueForKey:(NSString *) key;
+- (void) setValue:(id) val forKey:(NSString *) key;
+
 @end
 
 // to be used in setValue:forKey:
 
 extern NSString *IKPictureTakerAllowsVideoCaptureKey;
-// etc.
+extern NSString *IKPictureTakerAllowsFileChoosingKey;
+extern NSString *IKPictureTakerShowRecentPictureKey;
+extern NSString *IKPictureTakerUpdateRecentPictureKey;
+extern NSString *IKPictureTakerAllowsEditingKey;
+extern NSString *IKPictureTakerShowEffectsKey;
+extern NSString *IKPictureTakerInformationalTextKey;
+extern NSString *IKPictureTakerImageTransformsKey;
+extern NSString *IKPictureTakerOutputImageMaxSizeKey;
+extern NSString *IKPictureTakerCropAreaSizeKey;
+extern NSString *IKPictureTakerShowAddressBookPictureKey;
+extern NSString *IKPictureTakerShowEmptyPictureKey;
