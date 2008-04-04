@@ -2743,6 +2743,8 @@ static NSDictionary *_x11settings;
 	//	system("export;/usr/X11R6/bin/xeyes&");
 #endif
 	_x11settings=[[def persistentDomainForName:@"com.quantumstep.X11"] retain];
+	if(!_x11settings)
+		NSLog("warning: no defaults for root/com.quantumstep.X11 found");
 	if([def boolForKey:@"NoNSBackingStoreBuffered"])
 		_doubleBufferering=NO;
 #if 1
@@ -2793,11 +2795,12 @@ static NSDictionary *_x11settings;
 
 - (float) userSpaceScaleFactor;
 { // get dots per point	
-	static float factor;
+	static float factor=0.0;
 	if(factor <= 0.01)
 		{
-		factor=[[_x11settings objectForKey:@"userSpaceScaleFactor"] floatValue];
-		if(factor <= 0.01) factor=1.0;
+		if(_x11settings)
+			 factor=[[_x11settings objectForKey:@"userSpaceScaleFactor"] floatValue];
+		if(factor <= 0.01) factor=1.0;	// force default
 		}
 	return factor;	// read from user settings
 #if 0	
@@ -2812,11 +2815,12 @@ static NSDictionary *_x11settings;
 		{ // (re)load resolution
 		BOOL changed=NO;
 		NSSize size, resolution;
-		_screenScale=[[_x11settings objectForKey:@"systemSpaceScaleFactor"] floatValue];
+		if(_x11settings)
+			 _screenScale=[[_x11settings objectForKey:@"systemSpaceScaleFactor"] floatValue];
 #if 0
 		NSLog(@"system space scale factor=%lf", _screenScale);
 #endif
-		if(_screenScale <= 0.01) _screenScale=1.0;
+		if(_screenScale <= 0.01) _screenScale=1.0;		// force default
 		_xRect.width=WidthOfScreen(_screen);			// screen width in pixels
 		_xRect.height=HeightOfScreen(_screen);			// screen height in pixels
 		size.width=_xRect.width/_screenScale;					// screen width in 1/72 points

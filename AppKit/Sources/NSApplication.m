@@ -560,8 +560,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NSLog(@"did load nib");
 #endif
 	if(![self mainMenu])
-		[self setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// could not load from a NIB
-	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];
+		[self setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// could not load from a NIB, replace a default menu
+	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];	// process command line and -application:openFile:
 	[self activateIgnoringOtherApps:NO];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
 }
