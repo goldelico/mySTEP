@@ -189,7 +189,6 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if((self=[super init]))
 		{
 		_reps = [NSMutableArray new];
-		_cache = [NSMutableArray new];
 		if(aSize.width && aSize.height)
 			{
 			_size = aSize;
@@ -247,33 +246,21 @@ static NSMutableDictionary *__nameToImageDict = nil;
 {
 	if((self=[self initWithSize: NSZeroSize]))
 		{
-		Class rep;		
-		NSArray *array;
-		NSImageRep *image;	
-		if(!(rep = [NSImageRep imageRepClassForData: data]))
-			{ [self release]; return nil; }
-		if([rep respondsToSelector: @selector(imageRepsWithData:)])
-			{
-			if((array = [rep imageRepsWithData: data]))
-				{
-				[self addRepresentations:array];
-				return self;
-				}
-			}
-		if((image = [rep imageRepWithData: data]))
-			{
-			[self addRepresentation:image];
-			return self;
+		_data=[data retain];
+		if(![self isValid])
+			{ // wasn't able to load
+			[self release];
+			return nil;
 			}
 		}
-	[self release];
-	return nil;
+	return self;
 }
 
 - (id) initWithPasteboard:(NSPasteboard*)pasteboard		{ return NIMP }
 
 - (void) dealloc
 {
+	[_data release];
 	[_reps release]; 
 	[_cache release]; 
 	if(_name && self == [__nameToImageDict objectForKey: _name]) 
@@ -294,7 +281,6 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	copy->_imageFilePath = [_imageFilePath retain];
 	copy->_reps = [_reps mutableCopy];
 	copy->_cache = [_cache mutableCopy];
-	copy->_bestRep = _bestRep;
 	copy->_backgroundColor = [_backgroundColor retain];
 	copy->_size = _size;
 	copy->_delegate = [_delegate retain];
@@ -303,32 +289,24 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	return copy;
 }
 
-- (void) lockFocus { [self lockFocusOnRepresentation:nil]; }
+- (void) lockFocus
+{ // draw into cache
+	[self lockFocusOnRepresentation:nil];
+}
 
 - (void) lockFocusOnRepresentation:(NSImageRep *) imageRep;
 {
-	NIMP;
-	if(!imageRep)
-		{ // not yet determined
-		if(_imageFilePath)
-			imageRep=[self bestRepresentationForDevice:nil];	// FIXME: where can we get the device description from???
-		if(!imageRep)
-			{ // there is no best representation (yet) - create a cached image
-			if(!_size.width || !_size.height)
-				[NSException raise:NSImageCacheException
-							format:@"NSImage lockFocus: cache size not specified\n"];
-			// FIXME: we need to create a new window!?!
-			imageRep=[[NSCachedImageRep alloc] initWithWindow:nil rect:(NSRect){{0,0}, _size}];
-			[_cache addObject:imageRep];	// retained
-			[imageRep release];
-			_img.uniqueWindow = YES;
-			}
-		}
+	NSCachedImageRep *irep=[self _cachedImageRep];
+	[self isValid];	// load or create cached image rep if needed
 	[NSGraphicsContext saveGraphicsState];
-	[NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:(NSBitmapImageRep *)imageRep]];
+	[NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithWindow:[irep window]]];
+	// define CTM so that we really draw into the irep
 }
 
-- (void) unlockFocus { NIMP; }
+- (void) unlockFocus
+{
+	[NSGraphicsContext restoreGraphicsState];
+}
 
 - (void) setMatchesOnMultipleResolution:(BOOL)flag
 {
@@ -384,13 +362,38 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (void) recache
 {
-	// FIXME: remove cached bitmap reps only!
-	// FIXME: should clear only and not even remove any cache!
-#if 0
-	[_cache removeAllObjects];
-	_bestRep=nil;
-	_img.isValid=NO;
-#endif
+	[_cache release];
+	_cache=nil;
+}
+
+- (NSCachedImageRep *) _cachedImageRep;
+{ // return cached image rep - create one if there is none yet
+	NSImageRep *bestRep;
+	if(_cache)
+		return _cache;	// found
+	bestRep=[self bestRepresentationForDevice:nil];
+	switch(_img.cacheMode)
+		{
+		case NSImageCacheDefault:
+		case NSImageCacheNever:
+			return bestRep;
+		case NSImageCacheBySize:
+			// check size:
+//		case NSImageCacheDefault:
+		case NSImageCacheAlways:
+		default:
+			break;
+		}
+	if([bestRep isKindOfClass:[NSCachedImageRep class]])
+		_cache=[bestRep retain];
+	else
+		{ // draw into new cache
+		_cache=[[NSCachedImageRep alloc] initWithSize:_size depth:0 separate:_img.cacheSeparately alpha:YES];
+		[self lockFocusOnRepresentation:_cache];
+		[self drawRepresentation:bestRep inRect:[_cache rect]];	// render into cache window
+		[self unlockFocus];
+		}
+	return _cache;
 }
 
 - (void) setBackgroundColor:(NSColor*)color	{ ASSIGN(_backgroundColor, color); }
@@ -404,15 +407,22 @@ static NSMutableDictionary *__nameToImageDict = nil;
 #if 0
 	NSLog(@"setSize:%@", NSStringFromSize(aSize));
 #endif
+	if(NSEqualSizes(_size, aSize))
+		return;	// effectively unchanged
 	_size = aSize;
 	_img.sizeWasExplicitlySet = YES;
-	[self recache];
+	if(_data)
+		_img.isValid=NO;	// reload from data since it is still available
+	[self recache];		// recache
 }
 
 - (NSSize) size
 {
 	if(!_img.sizeWasExplicitlySet && _size.width == 0) 
-		{
+		{ // determine from best representation if possible
+		if(!_img.isValid)
+			[self isValid];	// try to load reps first
+		// FIXME: we should determine from all reps not only the best for an unknown device
 		NSImageRep *best=[self bestRepresentationForDevice: nil];
 		if(best)
 			_size = [best size];
@@ -467,7 +477,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if(!unitSquare)
 		unitSquare=[[NSBezierPath bezierPathWithRect:NSMakeRect(0.0, 0.0, 1.0, 1.0)] retain];
 	[ctx _addClip:unitSquare reset:NO];	// set CTM as needed
-	[ctx _draw:[self bestRepresentationForDevice:nil]];
+//	[ctx _draw:[self bestRepresentationForDevice:nil]];
+	[ctx _draw:[self _cachedImageRep]];
 	[ctx setCompositingOperation:co];
 	[ctx restoreGraphicsState];
 }
@@ -533,7 +544,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if(!unitSquare)
 		unitSquare=[[NSBezierPath bezierPathWithRect:NSMakeRect(0.0, 0.0, 1.0, 1.0)] retain];
 	[ctx _addClip:unitSquare reset:NO];	// set CTM as needed
-	[ctx _draw:[self bestRepresentationForDevice:nil]];
+//	[ctx _draw:[self bestRepresentationForDevice:nil]];
+	[ctx _draw:[self _cachedImageRep]];
 	[ctx setCompositingOperation:co];	// restore
 	[ctx restoreGraphicsState];
 }
@@ -576,8 +588,6 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (void) removeRepresentation:(NSImageRep *)imageRep
 {
-	if(imageRep == _bestRep)
-		_bestRep = nil;	
 	[_reps removeObjectIdenticalTo:imageRep];
 }
 
@@ -585,28 +595,53 @@ static NSMutableDictionary *__nameToImageDict = nil;
 {														 
 	if(!_img.isValid)
 		{
+		NSArray *reps=nil;
 #if 0
 		NSLog(@"load image representation(s) (at path: %@)", _imageFilePath);
 #endif
 		if(_imageFilePath)
 			{ // (re)load from path if possible
-			NSArray *a;			
-			if ((a = [NSImageRep imageRepsWithContentsOfFile:_imageFilePath]))
-				{
-				[self addRepresentations: a];
-				if(_img.sizeWasExplicitlySet)
-					{
-					NSEnumerator *e=[a objectEnumerator];
-					NSImageRep *r;
-					while((r=[e nextObject]))
-						[r setSize:_size];	// resize representation(s)
-					}
-				}
-			else
+			reps = [NSImageRep imageRepsWithContentsOfFile:_imageFilePath];
+			if(!reps)
 				NSLog(@"could not load image at path: %@", _imageFilePath);
 			}
+		else if(_data)
+			{ // (re)load from data
+			Class rep = [NSImageRep imageRepClassForData:_data];	// find appropriate handler class
+			if(rep)
+				{
+				if([rep respondsToSelector: @selector(imageRepsWithData:)])
+					reps = [rep imageRepsWithData:_data];	// returns multiple reps
+				else
+					{ // single rep
+					NSImageRep *image;
+					if((image = [rep imageRepWithData:_data]))
+						reps=[NSArray arrayWithObject:image];
+					}
+				}
+			if(!_img.dataRetained)
+				{ // free
+				[_data release];
+				_data=nil;
+				}
+			}
+		else	// we have been created by -initWithSize: - create a cached image to draw into
+			reps=[NSArray arrayWithObject:[[[NSCachedImageRep alloc] initWithSize:_size depth:0 separate:_img.cacheSeparately alpha:YES] autorelease]];
+		if(!reps)
+			{
+			NSLog(@"could not load representations");
+			return NO;
+			}
+		[self addRepresentations:reps];
+		if(_img.sizeWasExplicitlySet)
+			{
+				NSEnumerator *e=[reps objectEnumerator];
+				NSImageRep *r;
+				while((r=[e nextObject]))
+					[r setSize:_size];	// resize representation(s)
+			}
 		if([_reps count])
-			_img.isValid = YES;	// any valid representation loaded
+			_img.isValid = YES;	// any valid representation have been loaded
 		}
 #if 0
 	NSLog(@"image valid %d", _img.isValid);
@@ -619,6 +654,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	int score=0;
 	int imageResolution, deviceResolution;
 	int bpp;	// bits per plane
+	if([r isKindOfClass:[NSCachedImageRep class]])
+		return -1;	// ignore in scoring process
 	if(!_img.prefersColorMatch)
 		; // reverse rule 1 and 2 by reversing the high scores
 #if 0
@@ -659,17 +696,12 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (NSImageRep *) bestRepresentationForDevice:(NSDictionary *) deviceDescription
 {
-	int i;
 	int highScore;
-	static NSDictionary *__currentDevice = nil;		// cache for deviceDescription
 	NSEnumerator *e;
 	NSImageRep *r;
-	// FIXME: this cache should respond to NSScreenDeviceProfileChangedNotification!
-	if(_bestRep && (deviceDescription == __currentDevice))
-		return _bestRep;	// already determined
-	__currentDevice = deviceDescription;
-	if(!_img.isValid)
-		[self isValid];		// Make sure we have the image reps loaded in - if possible
+	NSImageRep *_bestRep;		// best representation of all
+	if(!_img.isValid || ![self isValid])
+		return nil;		// Make sure we have the image reps loaded in - if possible
 #if 0
 	NSLog(@"representations: %@", _reps);
 #endif
@@ -695,14 +727,21 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	return _bestRep;
 }
 
-- (NSData*) TIFFRepresentation
+- (NSData *) TIFFRepresentation
 {
+	// simply forward to best rep?
+
 	return [self TIFFRepresentationUsingCompression:NSTIFFCompressionLZW factor:0.0];
 }
 
-- (NSData*) TIFFRepresentationUsingCompression:(NSTIFFCompression)comp
+- (NSData *) TIFFRepresentationUsingCompression:(NSTIFFCompression)comp
 										factor:(float)aFloat
 {
+	// forward to best rep?
+	
+	// check if we have a bitmap rep
+	// then, get TIFF from there
+	// else get TIFF from cached rep
 	return NIMP;
 }
 
@@ -741,7 +780,6 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if([coder allowsKeyedCoding])
 		{
 		unsigned int iflags=[coder decodeIntForKey:@"NSImageFlags"];
-		_cache = [NSMutableArray new];
 #define SCALABLE ((iflags&0x8000000) != 0)
 		_img.scalable=SCALABLE;
 #define SIZESET ((iflags&0x2000000) != 0)

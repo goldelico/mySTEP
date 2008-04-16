@@ -925,7 +925,7 @@
 		EE7860630D2D4F4600B2197B /* GSResizeUpCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSResizeUpCursor.tiff; sourceTree = "<group>"; };
 		EE8D1C330A2B4C71000632BC /* GSSearch.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSSearch.tiff; sourceTree = "<group>"; };
 		EE8D1C340A2B4C71000632BC /* GSStop.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSStop.tiff; sourceTree = "<group>"; };
-		EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myViewTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE93C79A0B901DF500FBD885 /* myTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE93C79C0B901DF500FBD885 /* Info ViewTest.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Info ViewTest.plist"; sourceTree = "<group>"; };
 		EE93C7A30B901E5700FBD885 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = "English.lproj/MainMenu ViewTest.nib"; sourceTree = "<group>"; };
 		EE9929C409FD233C003C308D /* NSSegmentedControl.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSegmentedControl.m; sourceTree = "<group>"; };
@@ -1151,7 +1151,7 @@
 		EEB143C30D1260A2001212B5 /* NSTrackingArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTrackingArea.h; sourceTree = "<group>"; };
 		EEB143C40D1260A2001212B5 /* NSTrackingArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTrackingArea.m; sourceTree = "<group>"; };
 		EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEC8036209AE4EBF006EEB03 /* mySTEP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mySTEP.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEC8036209AE4EBF006EEB03 /* myTest.mySTEP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.mySTEP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EECD83250A0788DB00EF3E30 /* NSLevelIndicator.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSLevelIndicator.m; sourceTree = "<group>"; };
 		EECD83560A07940600EF3E30 /* NSDatePicker.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDatePicker.m; sourceTree = "<group>"; };
 		EECD835B0A07956E00EF3E30 /* NSStepper.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSStepper.m; sourceTree = "<group>"; };
@@ -1290,8 +1290,8 @@
 				EE31951109AA47490089A9A2 /* AppKit.framework */,
 				EE31971B09AB7EC60089A9A2 /* myTest.cocoa.app */,
 				EEC8034909AE4EB6006EEB03 /* myTest.mixed.app */,
-				EEC8036209AE4EBF006EEB03 /* mySTEP.app */,
-				EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */,
+				EEC8036209AE4EBF006EEB03 /* myTest.mySTEP.app */,
+				EE93C79A0B901DF500FBD885 /* myTest.mixed.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2286,7 +2286,7 @@
 			);
 			name = "View Test Mixed on X11";
 			productName = myTest;
-			productReference = EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */;
+			productReference = EE93C79A0B901DF500FBD885 /* myTest.mixed.app */;
 			productType = "com.apple.product-type.application";
 		};
 		EEC8033909AE4EB6006EEB03 /* NIB Test Mixed on X11 */ = {
@@ -2324,7 +2324,7 @@
 			);
 			name = "NIB Test mySTEP";
 			productName = myTest;
-			productReference = EEC8036209AE4EBF006EEB03 /* mySTEP.app */;
+			productReference = EEC8036209AE4EBF006EEB03 /* myTest.mySTEP.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -3034,6 +3034,7 @@
 					"-seg1addr",
 					0x20200000,
 					"-lX11",
+					"-lXrender",
 					"-lXext",
 					"-lfreetype",
 					"-ljpeg",
@@ -3101,6 +3102,7 @@
 					"-seg1addr",
 					0x20200000,
 					"-lX11",
+					"-lXrender",
 					"-lXext",
 					"-lfreetype",
 					"-ljpeg",
@@ -3166,6 +3168,7 @@
 					"-seg1addr",
 					0x20200000,
 					"-lX11",
+					"-lXrender",
 					"-lXext",
 					"-lfreetype",
 					"-ljpeg",
@@ -3238,7 +3241,7 @@
 					"NSInteger=int",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
-				INFOPLIST_FILE = myTest/Info.plist;
+				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				OTHER_LDFLAGS = "";
@@ -3267,7 +3270,7 @@
 					"NSInteger=int",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "\"NSUInteger=unsigned int\"";
-				INFOPLIST_FILE = myTest/Info.plist;
+				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				OTHER_LDFLAGS = "";
@@ -3316,9 +3319,10 @@
 				OTHER_LDFLAGS = (
 					"-seg1addr",
 					0x20200000,
+					"-lfreetype2",
 					"-lX11",
+					"-lXrender",
 					"-lXext",
-					"-lfreetype",
 					"-ljpeg",
 					"-lpng",
 					"-lungif",
@@ -3371,6 +3375,7 @@
 					0x20200000,
 					"-lfreetype2",
 					"-lX11",
+					"-lXrender",
 					"-lXext",
 					"-ljpeg",
 					"-lpng",
@@ -3422,6 +3427,7 @@
 					0x20200000,
 					"-lfreetype2",
 					"-lX11",
+					"-lXrender",
 					"-lXext",
 					"-ljpeg",
 					"-lpng",
@@ -3602,6 +3608,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -3635,6 +3642,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
@@ -3665,6 +3673,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -3710,7 +3719,7 @@
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_NAME = mySTEP;
+				PRODUCT_NAME = myTest.mySTEP;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = YES;
 			};

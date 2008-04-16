@@ -23,13 +23,15 @@
 #undef BOOL
 #include <X11/extensions/shape.h>
 
-#if 0 // RENDER
+#if 1 // RENDER
 #include <X11/extensions/Xrender.h>
 #endif
 
-#define Cursor QDCursor		// conflicting between QuickDraw and X11
+#define Cursor QDCursor				// conflicting between QuickDraw and X11
+#define Picture QuickDrawPicture	// conflicting between QuickDraw and XRender
 #import <Foundation/Foundation.h>
 #undef Cursor
+#undef Picture
 
 #import "NSAppKitPrivate.h"
 #import "NSBackendPrivate.h"
@@ -50,6 +52,8 @@ typedef struct _NSX11GraphicsState
 	Region _clip;					// current clipping path
 	XRectangle _clipBox;			// current clippig box
 	_NSX11Font *_font;				// current font
+	XRenderColor _fillColor;
+	XRenderColor _strokeColor;
 	// NSShadow *_shadow;			// current shadow
 	// rendering intent;
 	// float _globalAlpha;
@@ -77,7 +81,7 @@ typedef struct _NSX11GraphicsState
 	float _scale;						// our scaling factor
 	float _fraction;					// compositing fraction
 	int _windowNum;						// window number
-	BOOL hasRender;						// screen supports render extension
+	Picture _picture;					// window supports render extension
 }
 
 - (id) _initWithGraphicsPort:(void *) port;

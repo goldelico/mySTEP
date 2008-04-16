@@ -32,6 +32,7 @@ typedef struct OpaqueIconRef *IconRef;
 @class NSData;
 @class NSPasteboard;
 @class NSImageRep;
+@class NSCachedImageRep;
 @class NSColor;
 @class NSView;
 @class NSMutableArray;
@@ -72,6 +73,7 @@ typedef enum _NSImageCacheMode
 } NSImageCacheMode;
 
 // button template images
+
 extern NSString *const NSImageNameQuickLookTemplate;
 extern NSString *const NSImageNameBluetoothTemplate;
 extern NSString *const NSImageNameIChatTheaterTemplate;
@@ -126,9 +128,9 @@ extern NSString *const NSImageNameFlowViewTemplate;
 {
 	NSString *_name;			// image name (if named)
 	NSString *_imageFilePath;	// file path (if named)
+	NSData *_data;				// image data
 	NSMutableArray *_reps;		// representations
-	NSMutableArray *_cache;		// cached representations
-	NSImageRep *_bestRep;		// best representation of all
+	NSCachedImageRep *_cache;	// cached representation
 	NSColor *_backgroundColor;	// used when caching
 	NSSize _size;
 	id _delegate;

@@ -742,6 +742,7 @@ typedef struct
 
 - (id) _initWithGraphicsPort:(void *) port;
 { // port should be the X11 Window *
+	int error, event;
 #if 0
 	NSLog(@"_NSX11GraphicsContext _initWithGraphicsPort:%@", attributes);
 #endif
@@ -767,11 +768,26 @@ typedef struct
 				 ColormapChangeMask | KeymapStateMask | 
 				 VisibilityChangeMask);
 	// query server for extensions
+	if(XRenderQueryExtension(_display, &event, &error))
+		{
+		unsigned long valuemask;
+		XRenderPictureAttributes attributes;
+		XRenderPictFormat *format;
+		XWindowAttributes xattr;
+		XGetWindowAttributes(_display, ((Window) _graphicsPort), &xattr);
+		format=XRenderFindVisualFormat(_display, xattr.visual);
+// NO:		format=XRenderFindStandardFormat(_display, PictStandardARGB32);
+		valuemask=0;
+		_picture=XRenderCreatePicture(_display, ((Window) _graphicsPort), format, valuemask, &attributes);
+		NSLog(@"picture %p", _picture);
+		}
 	return self;
 }
 
 - (void) dealloc
 {
+	if(_picture)
+		XRenderFreePicture(_display, _picture);	// release picture handle
 #if 1
 	NSLog(@"NSWindow dealloc in backend: %@", self);
 #endif
@@ -801,6 +817,13 @@ typedef struct
 #endif
 	XSetBackground(_display, _state->_gc, pixel);
 	XSetForeground(_display, _state->_gc, pixel);
+	if(_picture)
+		{
+		_state->_strokeColor.red=_state->_fillColor.red=XDoubleToFixed([color redComponent]);
+		_state->_strokeColor.green=_state->_fillColor.green=XDoubleToFixed([color greenComponent]);
+		_state->_strokeColor.blue=_state->_fillColor.blue=XDoubleToFixed([color blueComponent]);
+		_state->_strokeColor.alpha=_state->_fillColor.alpha=XDoubleToFixed([color alphaComponent]);
+		}
 }
 
 - (void) _setFillColor:(NSColor *) color;
@@ -811,6 +834,13 @@ typedef struct
 #endif
 	XSetBackground(_display, _state->_gc, pixel);
 	XSetForeground(_display, _state->_gc, pixel);
+	if(_picture)
+		{
+		_state->_fillColor.red=XDoubleToFixed([color redComponent]);
+		_state->_fillColor.green=XDoubleToFixed([color greenComponent]);
+		_state->_fillColor.blue=XDoubleToFixed([color blueComponent]);
+		_state->_fillColor.alpha=XDoubleToFixed([color alphaComponent]);
+		}
 }
 
 - (void) _setStrokeColor:(NSColor *) color;
@@ -820,6 +850,13 @@ typedef struct
 	NSLog(@"_setColor -> pixel=%08x", pixel);
 #endif
 	XSetForeground(_display, _state->_gc, pixel);
+	if(_picture)
+		{
+		_state->_strokeColor.red=XDoubleToFixed([color redComponent]);
+		_state->_strokeColor.green=XDoubleToFixed([color greenComponent]);
+		_state->_strokeColor.blue=XDoubleToFixed([color blueComponent]);
+		_state->_strokeColor.alpha=XDoubleToFixed([color alphaComponent]);
+		}
 }
 
 - (void) _setCTM:(NSAffineTransform *) atm;
@@ -831,10 +868,7 @@ typedef struct
 		[_state->_ctm translateXBy:0.0 yBy:(HeightOfScreen(_nsscreen->_screen)-_xRect.height)];		// X11 uses window relative coordinates for all drawing
 	else
 		[_state->_ctm translateXBy:0.0 yBy:(HeightOfScreen(_nsscreen->_screen)-_xRect.height)/_scale];		// X11 uses window relative coordinates for all drawing
-	[_state->_ctm prependTransform:atm];
-#if 0
-	NSLog(@"_setCTM -> %@", _state->_ctm);
-#endif
+	[self _concatCTM:atm];
 }
 
 - (void) _concatCTM:(NSAffineTransform *) atm;
@@ -843,11 +877,65 @@ typedef struct
 #if 0
 	NSLog(@"_concatCTM -> %@", _state->_ctm);
 #endif
+	/* for Xrender:
+	 NSAffineTransformStruct atms=[atm affineTransformStruct];
+	 XTransform xtransform;
+	 
+	 xtransform.matrix[0][0] = XDoubleToFixed(atms.m11);
+	 xtransform.matrix[0][1] = XDoubleToFixed(atms.m12);
+	 xtransform.matrix[0][2] = XDoubleToFixed(atms.tx);
+	 
+	 xtransform.matrix[1][0] = XDoubleToFixed(atms.m21);
+	 xtransform.matrix[1][1] = XDoubleToFixed(atms.m22);
+	 xtransform.matrix[1][2] = XDoubleToFixed(atms.ty);
+	 
+	 xtransform.matrix[2][0] = 0;
+	 xtransform.matrix[2][1] = 0;
+	 xtransform.matrix[2][2] = 1 << 16;
+	 
+	 XRenderSetPictureTransform (_display, _picture, &xtransform);
+	 */
 }
 
 - (void) _setCompositing
 {
 	XGCValues values;
+	/*
+	switch (_compositingOperation)
+	 {
+			case NSCompositeClear:
+				return PictOpClear;
+			case NSCompositeSource:
+				return PictOpSrc;
+			case NSCompositeSourceOver:
+				return PictOpOver;
+			case NSCompositeSourceIn:
+				return PictOpIn;
+			case NSCompositeSourceOut:
+				return PictOpOut;
+			case NSCompositeSourceAtop:
+				return PictOpAtop;
+			case NSCompositeDest:
+				return PictOpDst;
+			case NSCompositeDestOver:
+				return PictOpOverReverse;
+			case NSCompositeDestIn:
+				return PictOpInReverse;
+			case NSCompositeDestOut:
+				return PictOpOutReverse;
+			case NSCompositeDestAtop:
+				return PictOpAtopReverse;
+			case NSCompositeXor:
+				return PictOpXor;
+			case NSCompositeAdd:
+				return PictOpAdd;
+			case NSCompositeSaturate:
+				return PictOpSaturate;
+			default:
+				return PictOpOver;
+		}
+	}
+*/	
 	switch(_compositingOperation)
 		{
 		/* try to translate to
@@ -1203,6 +1291,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	else
 		_state->_clip=r;	// first call
 	XSetRegion(_display, _state->_gc, _state->_clip);
+	/*
+	XRenderSetPictureClipRegion(_display, _picture, _state->_clip);
+	 */
 	XClipBox(_state->_clip, &_state->_clipBox);	// get current clipping box
 	clip.x=0;
 	clip.y=0;
@@ -1347,6 +1438,20 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	[self _setTextPosition:NSMakePoint(0.0, _leading)];
 }
 
+- (void) _defineGlyphBitmap:(unsigned char *) buffer x:(int) x y:(int) y width:(unsigned) width height:(unsigned) height forGlyph:(NSGlyph) glyph;
+{
+	/*
+	 void
+	 XRenderAddGlyphs (Display		*dpy,
+	 GlyphSet		glyphset,	// defined by current font
+	 _Xconst Glyph		*gids,
+	 _Xconst XGlyphInfo	*glyphs,
+	 int			nglyphs,
+	 _Xconst char		*images,
+	 int			nbyte_images);
+*/
+}
+
 // FIXME:
 // does not handle rotation
 // ignores CTM scaling (only in cursor position!)
@@ -1420,7 +1525,22 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;
 {
-	BACKEND;	// overwritten in NSFreeType.m
+/*
+ void
+ XRenderCompositeString16 (Display		    *dpy,
+ int			    op,			// get from compositing op
+ Picture		    src,
+ Picture		    dst,
+ _Xconst XRenderPictFormat *maskFormat,
+ GlyphSet		    glyphset,	// current font
+ int			    xSrc,
+ int			    ySrc,
+ int			    xDst,
+ int			    yDst,
+ _Xconst unsigned short    *string,
+ int			    nchar);
+*/
+ BACKEND;	// overwritten in NSFreeType.m
 }
 
 - (void) _drawGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;	// (string) Tj
@@ -1529,6 +1649,20 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		_fraction=fraction;	// save compositing fraction - fixme: convert to 0..256-integer
 }
 
+- (BOOL) _drawRender:(NSImageRep *) rep;
+{ // experimental
+	XTransform transform;
+	unsigned long valuemask=0;
+	XRenderPictureAttributes attributes;
+	XRenderPictFormat format;
+	Picture picture = XRenderCreatePicture(_display, ((Window) _graphicsPort), &format, valuemask, &attributes);
+	if(!picture)
+		return NO;
+	XRenderSetPictureTransform(_display, ((Window) _graphicsPort), &transform);
+	XRenderFreePicture(_display, picture);
+	return YES;
+}
+
 /* idea for sort of core-image extension
 *
 * struct filter { struct RGBA8 (*filter)(float x, float y); struct filter *input; other paramters }; describes a generic filter node
@@ -1589,10 +1723,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		// raise exception?
 		return NO;
 		}
-	bitmapFormat=[rep bitmapFormat];
+	bitmapFormat=[(NSBitmapImageRep *) rep bitmapFormat];
 	if(bitmapFormat != 0)
 		{ // can't handle non-premultiplied and float pixel (but we could easily handle alphafirst)
-		NSLog(@"_draw: can't draw bitmap format %0x yet", [rep bitmapFormat]);
+		NSLog(@"_draw: can't draw bitmap format %0x yet", [(NSBitmapImageRep *) rep bitmapFormat]);
 		// raise exception
 		return NO;
 		}
@@ -1889,10 +2023,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (int) _windowNumber; { return _windowNum; }
 
-	// FIXME: NSWindow frontend should identify the otherWin from the global window list
-
 - (void) _orderWindow:(NSWindowOrderingMode) place relativeTo:(int) otherWin;
-{
+{ // NSWindow frontend should have identified the otherWin number from the global window list or pass 0
 	XWindowChanges values;
 #if 0
 	NSLog(@"_orderWindow:%02x relativeTo:%d", place, otherWin);
@@ -1917,8 +2049,36 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			XConfigureWindow(_display, _realWindow, CWStackMode, &values);
 			break;
 		}
-	// save (new) level so that we can order other windows accordingly
-	// maybe we should use a window property to store the level?
+	// save (new) level in global window list so that we can order other windows accordingly
+	// maybe we should use a (root) window property to store the level?
+	// or at least a shared file with fast access (FILE * and fread() based)
+#if 1		// test
+	XRenderColor color;
+	XTransform xtransform;
+	
+	xtransform.matrix[0][0] = XDoubleToFixed(2.0);
+	xtransform.matrix[0][1] = XDoubleToFixed(0.2);
+	xtransform.matrix[0][2] = XDoubleToFixed(0.0);
+	
+	xtransform.matrix[1][0] = XDoubleToFixed(0.0);
+	xtransform.matrix[1][1] = XDoubleToFixed(3.0);
+	xtransform.matrix[1][2] = XDoubleToFixed(0.0);
+	
+	xtransform.matrix[2][0] = 0;
+	xtransform.matrix[2][1] = 0;
+	xtransform.matrix[2][2] = 1 << 16;
+	
+	XRenderSetPictureTransform(_display, _picture, &xtransform);
+
+	color.red=XDoubleToFixed(0.7);
+	color.green=XDoubleToFixed(0.3);
+	color.blue=XDoubleToFixed(0.4);
+	color.alpha=XDoubleToFixed(0.5);
+	
+	XRenderFillRectangle(_display, PictOpSrc, _picture, &color, 10, 20, 100, 50);
+	XFlush(_display);
+	sleep(5);
+#endif
 }
 
 - (void) _miniaturize;
@@ -2744,7 +2904,7 @@ static NSDictionary *_x11settings;
 #endif
 	_x11settings=[[def persistentDomainForName:@"com.quantumstep.X11"] retain];
 	if(!_x11settings)
-		NSLog("warning: no defaults for root/com.quantumstep.X11 found");
+		NSLog(@"warning: no defaults for root/com.quantumstep.X11 found");
 	if([def boolForKey:@"NoNSBackingStoreBuffered"])
 		_doubleBufferering=NO;
 #if 1
@@ -3628,6 +3788,28 @@ static NSDictionary *_x11settings;
 
 @implementation _NSX11Font
 
+			 /*
+			 GlyphSet
+			 XRenderCreateGlyphSet (Display *dpy, _Xconst XRenderPictFormat *format);
+			 
+			 GlyphSet
+			 XRenderReferenceGlyphSet (Display *dpy, GlyphSet existing);
+			 
+			 void
+			 XRenderFreeGlyphSet (Display *dpy, GlyphSet glyphset);
+			 
+			 void
+			 XRenderAddGlyphs (Display		*dpy,
+			 GlyphSet		glyphset,
+			 _Xconst Glyph		*gids,
+			 _Xconst XGlyphInfo	*glyphs,
+			 int			nglyphs,
+			 _Xconst char		*images,
+			 int			nbyte_images);
+			 
+			 */
+			 
+			 
 #if 0
 + (void) initialize
 { // ask X Server for list of fonts
@@ -3883,6 +4065,11 @@ static NSDictionary *_x11settings;
 
 - (Cursor) _cursor;
 {
+/* Cursor XRenderCreateCursor (Display	    *dpy,
+							   Picture	    source,
+							   unsigned int   x,
+							   unsigned int   y);
+*/			 
 	if(!_cursor)
 		{
 		if(_image)

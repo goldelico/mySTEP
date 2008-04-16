@@ -346,11 +346,13 @@ static NSCountedSet *__pb;
 		   separate:(BOOL)separate
 			  alpha:(BOOL)alpha
 {
-	if(separate)
-		self=[self initWithWindow:nil rect:(NSRect) { NSZeroPoint, _size }];	// use shared window
-	else
-		NIMP;		//self=[self initWithWindow:shared window rect:(NSRect) { unused area, _size }];	// use shared window
-	if(self)
+	NSWindow *share=nil;
+	NSRect rect={ NSZeroPoint, aSize };
+	if(!separate)
+		{
+		// locate an empty area in the shared window that is large enough
+		}
+	if((self=[self initWithWindow:share rect:rect]))
 		{
 		_irep.hasAlpha = alpha;
 		[_window setDepthLimit:aDepth];
@@ -364,7 +366,7 @@ static NSCountedSet *__pb;
 		{
 		if(NSIsEmptyRect(rect))
 			{
-			if(!_window) 
+			if(!_window)
 				[NSException raise: NSInvalidArgumentException
 							format: @"NSCachedImageRep window and rect are both nil"];		
 			_size = [_window frame].size;
@@ -375,13 +377,12 @@ static NSCountedSet *__pb;
 			_size = rect.size;
 			}	
 		if (win)
-			_window = [win retain];
+			_window = [win retain];	// use given window
 		else
-			// FIXME: eh... shouldn't we make an OFFSCREEN window?
 			_window = [[NSWindow alloc] initWithContentRect: rect
 												  styleMask: NSBorderlessWindowMask
 													backing: NSBackingStoreRetained
-													  defer: NO];
+													  defer: YES];	// dont't draw or orderFront
 		}
 	return self;
 }
