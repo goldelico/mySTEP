@@ -10,6 +10,9 @@
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Author:	Fabian Spillner <fabian.spillner@gmail.com>
+   Date:	07. April 2008 - aligned with 10.5 
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -27,31 +30,31 @@
 @class NSMutableString;
 
 
-@interface NSAttributedString : NSObject <NSCoding,NSCopying,NSMutableCopying>
+@interface NSAttributedString : NSObject <NSCoding, NSCopying, NSMutableCopying>
 {
 	id _string;
 	NSMutableArray *_attributes;
 	NSMutableArray *_locations;
 }
 
-- (id) attribute:(NSString *)attributeName 
-		 atIndex:(unsigned int)index 
-  effectiveRange:(NSRange *)aRange;
-- (id) attribute:(NSString *)attributeName 
-		 atIndex:(unsigned int)index 
-		 longestEffectiveRange:(NSRange *)aRange 
+- (id) attribute:(NSString *) attributeName 
+		 atIndex:(NSUInteger) index 
+  effectiveRange:(NSRangePointer) aRange;
+- (id) attribute:(NSString *) attributeName 
+		 atIndex:(NSUInteger) index 
+		 longestEffectiveRange:(NSRangePointer) aRange 
 		 inRange:(NSRange)rangeLimit;
-- (NSAttributedString *) attributedSubstringFromRange:(NSRange)aRange;
-- (NSDictionary*) attributesAtIndex:(unsigned int)index 	// attribute info
-					 effectiveRange:(NSRange *)aRange;
-- (NSDictionary*) attributesAtIndex:(unsigned int)index 
-			  longestEffectiveRange:(NSRange *)aRange 
-							inRange:(NSRange)rangeLimit;
-- (id) initWithAttributedString:(NSAttributedString*)attributedString;
-- (id) initWithString:(NSString*)aString;
-- (id) initWithString:(NSString*)aString attributes:(NSDictionary*)attributes;
-- (BOOL) isEqualToAttributedString:(NSAttributedString *)otherString;
-- (unsigned int) length;		// character info
+- (NSAttributedString *) attributedSubstringFromRange:(NSRange) aRange;
+- (NSDictionary *) attributesAtIndex:(NSUInteger) index 	// attribute info
+					 effectiveRange:(NSRangePointer) aRange;
+- (NSDictionary *) attributesAtIndex:(NSUInteger) index 
+			   longestEffectiveRange:(NSRangePointer) aRange 
+							 inRange:(NSRange) rangeLimit;
+- (id) initWithAttributedString:(NSAttributedString *) attributedString;
+- (id) initWithString:(NSString *) aString;
+- (id) initWithString:(NSString *) aString attributes:(NSDictionary *) attributes;
+- (BOOL) isEqualToAttributedString:(NSAttributedString *) otherString;
+- (NSUInteger) length;		// character info
 - (NSString *) string;
 
 @end
