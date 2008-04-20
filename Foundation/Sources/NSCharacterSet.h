@@ -1,17 +1,20 @@
 /* 
-   NSCharacterSet.h
+    NSCharacterSet.h
 
-   Interface for NSCharacterSet
+    Interface for NSCharacterSet
 
-   Copyright (C) 1995 Free Software Foundation, Inc.
+    Copyright (C) 1995 Free Software Foundation, Inc.
 
-   Author:	Adam Fedor <fedor@boulder.colorado.edu>
-   Date:	1995
+    Author:	Adam Fedor <fedor@boulder.colorado.edu>
+    Date:	1995
    
-   H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
+    Author:	Fabian Spillner <fabian.spillner@gmail.com>
+    Date:	20. April 2008 - aligned with 10.5
+ 
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
 */ 
 
 #ifndef _mySTEP_H_NSCharacterSet
@@ -21,16 +24,20 @@
 
 typedef unsigned long UTF32Char;
 
+enum {
+	NSOpenStepUnicodeReservedBase = 0xF400
+};
+
 @class NSData;
 
 @interface NSCharacterSet : NSObject  <NSCoding, NSCopying, NSMutableCopying>
 
-+ (id) alphanumericCharacterSet;		// standard character sets
++ (id) alphanumericCharacterSet;
 + (id) capitalizedLetterCharacterSet;
-+ (id) characterSetWithBitmapRepresentation:(NSData *)data;
-+ (id) characterSetWithCharactersInString:(NSString *)aString;
-+ (id) characterSetWithContentsOfFile:(NSString*)file;
-+ (id) characterSetWithRange:(NSRange)aRange;
++ (id) characterSetWithBitmapRepresentation:(NSData *) data;
++ (id) characterSetWithCharactersInString:(NSString *) aString;
++ (id) characterSetWithContentsOfFile:(NSString *) file;
++ (id) characterSetWithRange:(NSRange) aRange;
 + (id) controlCharacterSet;
 + (id) decimalDigitCharacterSet;
 + (id) decomposableCharacterSet;
@@ -45,11 +52,9 @@ typedef unsigned long UTF32Char;
 + (id) whitespaceAndNewlineCharacterSet;
 + (id) whitespaceCharacterSet;
 
-// custom character sets
-
 - (NSData *) bitmapRepresentation;
-- (BOOL) characterIsMember:(unichar)aCharacter;
-- (BOOL) hasMemberInPlane:(unsigned char) plane;
+- (BOOL) characterIsMember:(unichar) aCharacter;
+- (BOOL) hasMemberInPlane:(uint8_t) plane;
 - (NSCharacterSet *) invertedSet;
 - (BOOL) isSupersetOfSet:(NSCharacterSet *) other;
 - (BOOL) longCharacterIsMember:(UTF32Char) aCharacter;
@@ -62,13 +67,13 @@ typedef unsigned long UTF32Char;
 
 @interface NSMutableCharacterSet (NSExtendedCharacterSet)
 
-- (void) addCharactersInRange:(NSRange)aRange;
-- (void) addCharactersInString:(NSString *)aString;
-- (void) formIntersectionWithCharacterSet:(NSCharacterSet *)otherSet;
-- (void) formUnionWithCharacterSet:(NSCharacterSet *)otherSet;
+- (void) addCharactersInRange:(NSRange) aRange;
+- (void) addCharactersInString:(NSString *) aString;
+- (void) formIntersectionWithCharacterSet:(NSCharacterSet *) otherSet;
+- (void) formUnionWithCharacterSet:(NSCharacterSet *) otherSet;
 - (void) invert;
-- (void) removeCharactersInRange:(NSRange)aRange;
-- (void) removeCharactersInString:(NSString *)aString;
+- (void) removeCharactersInRange:(NSRange) aRange;
+- (void) removeCharactersInString:(NSString *) aString;
 
 @end
 
