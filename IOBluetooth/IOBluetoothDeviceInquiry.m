@@ -12,6 +12,12 @@
 
 #ifdef __mySTEP__
 #import <SystemStatus/NSSystemStatus.h>
+
+// new version to be based on bluez
+// FIXME: add -I to project settings
+
+#include <../../Xtoolchain/sources/bluez-libs-3.29/include/bluetooth.h>
+
 #else
 @interface NSSystemStatus : NSObject
 + (NSDictionary *) sysInfo;
@@ -61,6 +67,8 @@
 		_delegate=delegate;
 		_devices=[[NSMutableArray alloc] initWithCapacity:5];
 		_updateNewDeviceNames=YES;
+	//	ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI));
+			// if(ctl < 0) 		perror("Can't open HCI socket.");
 		}
 	return self;
 }
@@ -134,6 +142,86 @@
 	if(_task)
 		return kIOReturnError;	// task is already running
 	_aborted=NO;
+	// see hcitool.c
+	/* --- make this non-blocking!
+	 num_rsp = hci_inquiry(dev_id, length, num_rsp, lap, &info, flags);
+	 if (num_rsp < 0) {
+		perror("Inquiry failed.");
+		exit(1);
+	 }
+
+	 int hci_inquiry(int dev_id, int len, int nrsp, const uint8_t *lap, inquiry_info **ii, long flags)
+	 {
+	 struct hci_inquiry_req *ir;
+	 uint8_t num_rsp = nrsp;
+	 void *buf;
+	 int dd, size, err, ret = -1;
+	 
+	 if (nrsp <= 0) {
+	 num_rsp = 0;
+	 nrsp = 255;
+	 }
+	 
+	 if (dev_id < 0) {
+	 dev_id = hci_get_route(NULL);
+	 if (dev_id < 0) {
+	 errno = ENODEV;
+	 return -1;
+	 }
+	 }	
+	 
+	 dd = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI);
+	 if (dd < 0)
+	 return dd;
+	 
+	 buf = malloc(sizeof(*ir) + (sizeof(inquiry_info) * (nrsp)));
+	 if (!buf)
+	 goto done;
+	 
+	 ir = buf;
+	 ir->dev_id  = dev_id;
+	 ir->num_rsp = num_rsp;
+	 ir->length  = len;
+	 ir->flags   = flags;
+	 
+	 if (lap) {
+	 memcpy(ir->lap, lap, 3);
+	 } else {
+	 ir->lap[0] = 0x33;
+	 ir->lap[1] = 0x8b;
+	 ir->lap[2] = 0x9e;
+	 }
+
+	 // is this one blocking the process?
+	 
+	 ret = ioctl(dd, HCIINQUIRY, (unsigned long) buf);
+	 if (ret < 0)
+	 goto free;
+	 
+	 size = sizeof(inquiry_info) * ir->num_rsp;
+	 
+	 if (!*ii)
+	 *ii = malloc(size);
+	 
+	 if (*ii) {
+	 memcpy((void *) *ii, buf + sizeof(*ir), size);
+	 ret = ir->num_rsp;
+	 } else
+	 ret = -1;
+	 
+	 free:
+	 free(buf);
+	 
+	 done:
+	 err = errno;
+	 close(dd);
+	 errno = err;
+	 
+	 return ret;
+	 }
+	 
+	 */
+	
 	_task=[[isa _hcitool:[NSArray arrayWithObjects:_updateNewDeviceNames?@"inq":@"inq", nil] handler:self done:@selector(_done:)] retain];
 	if(!_task)
 		return 42;	// could not launch
