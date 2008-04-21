@@ -13,8 +13,10 @@
 @class GSEvent;
 
 @interface UIResponder : NSObject {
-	NSResponder *_theResponder;	// NSWindow or NSView or subclass
+	NSResponder *_responder;	// the wrapped NSWindow or NSView or subclass
 }
+
+- (id) _initWithNSResponder:(NSResponder *) responder;	// call instead of [super init] -> [super _initWithNSResponder:proxy]
 
 - (void) mouseDown:(GSEvent *) event;
 - (void) mouseUp:(GSEvent *) event;

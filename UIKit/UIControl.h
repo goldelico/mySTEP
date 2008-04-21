@@ -12,7 +12,7 @@
 #import <UIKit/UIView.h>
 
 @interface UIControl : UIView {
-
+	NSDictionary *_eventDispatch;
 }
 
 #define UIMouseDown              (1<<0)
@@ -24,5 +24,7 @@
 #define UIMouseExitedUp          (1<<7)		//up outside active area
 
 - (void) addTarget:(id) target action:(SEL) action forEvents:(int) eventMask;
+// - (void) addTarget:(id) target action:(SEL) action forControlEvents:(UIControlEvents) events;
+
 
 @end

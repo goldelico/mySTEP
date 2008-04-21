@@ -13,10 +13,11 @@
 @class GSEvent;
 
 @interface UIApplication : NSObject {
-
+	NSApplication *_application;	// the wrapped NSApplication object
+	id _delegate;					// our delegate
 }
 
-int UIApplicationMain(int argc, char *argv[], Class subclass);
+int UIApplicationMain(int argc, char *argv[], NSString *subclass, NString *otherclass);
 
 - (void) applicationDidFinishLaunching:(id) unused;
 - (void) applicationWillTerminate;
