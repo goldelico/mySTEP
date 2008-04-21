@@ -79,7 +79,7 @@ typedef enum _NSTextBlockVerticalAlignment
 						  inView:(NSView *) view
 				  characterRange:(NSRange) range
 				   layoutManager:(NSLayoutManager *) lm;
-- (id) init; 
+// - (id) init; 
 - (NSRect) rectForLayoutAtPoint:(NSPoint) point
 						 inRect:(NSRect) rect
 				  textContainer:(NSTextContainer *) cont

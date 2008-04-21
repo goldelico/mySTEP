@@ -420,10 +420,11 @@ static NSMutableDictionary *__nameToImageDict = nil;
 {
 	if(!_img.sizeWasExplicitlySet && _size.width == 0) 
 		{ // determine from best representation if possible
+		NSImageRep *best;
 		if(!_img.isValid)
 			[self isValid];	// try to load reps first
 		// FIXME: we should determine from all reps not only the best for an unknown device
-		NSImageRep *best=[self bestRepresentationForDevice: nil];
+		best=[self bestRepresentationForDevice: nil];
 		if(best)
 			_size = [best size];
 		else

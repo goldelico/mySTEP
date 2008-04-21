@@ -49,6 +49,8 @@ NSString *NSSystemColorsDidChangeNotification =
 void GSConvertRGBtoHSB(struct RGB_Color rgb, struct HSB_Color *hsb);
 void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 
+// FIXME: should assert _colorPatternImage == nil
+
 #define NEEDRGB() 	if(!_color.rgb) { GSConvertHSBtoRGB(_hsb, &_rgb); _color.rgb = YES; }
 #define NEEDHSB() 	if(!_color.hsb) { GSConvertRGBtoHSB(_rgb, &_hsb); _color.hsb = YES; }
 #define NEEDCMYK()	NIMP

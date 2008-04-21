@@ -52,8 +52,8 @@ typedef struct _NSX11GraphicsState
 	Region _clip;					// current clipping path
 	XRectangle _clipBox;			// current clippig box
 	_NSX11Font *_font;				// current font
-	XRenderColor _fillColor;
-	XRenderColor _strokeColor;
+	Picture _fillColor;
+	Picture _strokeColor;
 	// NSShadow *_shadow;			// current shadow
 	// rendering intent;
 	// float _globalAlpha;
@@ -105,8 +105,10 @@ typedef struct _NSX11GraphicsState
 @interface _NSX11Color : NSColor
 {
 	Screen *_screen;
+	Picture _picture;	// 1x1 pixels picture with repeat flag
 	void *_colorData;
 }
+- (Picture) _pictureForColor;
 - (unsigned long) _pixelForScreen:(Screen *) scr;
 @end
 
@@ -114,12 +116,14 @@ typedef struct _NSX11GraphicsState
 {
 	XFontStruct *_unscaledFontStruct;	// cached font struct for scale=1.0
 	XFontStruct *_fontStruct;			// a second font struct cache if we have a different font scale
-	float _fontScale;					// scaling factor used
 	void *_backendPrivate;
+	GlyphSet _glyphSet;					// associated glyph set
+	float _fontScale;					// scaling factor used
 }
 
 - (void) _setScale:(float) scale;		// set font scaling factor
 - (XFontStruct *) _font;				// X11 bitmap font
+- (GlyphSet) _glyphSet;
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
 

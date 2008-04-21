@@ -324,6 +324,38 @@ FT_Library _ftLibrary(void)
 		}
 }
 
+- (void) _defineGlyphs;
+{ // and add to GlyphSet
+	FT_ULong charcode;
+	FT_UInt gindex;
+	FT_GlyphSlot slot = _faceStruct->glyph;
+	FT_Matrix matrix = { 1<<16, 0, 0, 1<<16 };	// identity matrix
+	FT_Vector delta = { 0, 0 };
+	NSAffineTransform *t=[_descriptor matrix];
+#if 1
+	NSLog(@"_defineGlyphs %@", self);
+#endif
+	if(t)
+		{ // we have a font with an explicit text transform
+			NSAffineTransformStruct m=[t transformStruct];		
+			matrix = (FT_Matrix) { m.m11*(1<<16), m.m12*(1<<16), m.m21*(1<<16), m.m22*(1<<16) };
+			delta = (FT_Vector) { m.tX*64, m.tY*64 };
+		}
+	FT_Set_Transform(_faceStruct,			// handle to face object
+					 &matrix,				// pointer to 2x2 matrix
+					 &delta);				// pointer to 2d vector
+	charcode=FT_Get_First_Char(_faceStruct, &gindex);
+	while(gindex != 0)
+		{ // loop through all glyphs
+			FT_Error error;
+			NSLog(@"char=%04x glyph=%d", charcode, gindex);
+			error = FT_Load_Glyph(_faceStruct, gindex, FT_LOAD_RENDER);
+			if(!error && slot->bitmap.width > 0 && slot->bitmap.rows > 0)
+				[self _addGlyph:(NSGlyph) gindex bitmap:slot->bitmap.buffer x:slot->bitmap_left y:slot->bitmap_top width:slot->bitmap.width height:slot->bitmap.rows];
+			charcode=FT_Get_Next_Char(_faceStruct, charcode, &gindex);
+		}
+}
+
 @end
 
 @implementation NSGlyphGenerator (NSFreeTypeFont)

@@ -15,12 +15,10 @@
 		EE31789D0944DD52008B03D1 /* PDFStream.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31789A0944DD52008B03D1 /* PDFStream.m */; };
 		EE8F5C5D092F793200648BBF /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		EE8F5C7C092F79AD00648BBF /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE8F5C7B092F79AD00648BBF /* Quartz.framework */; };
-		EEC4A68B08633B7A00309A0C /* PDFKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = EE6FE352076F05AF009CC969 /* PDFKit.framework */; };
 		EEE2DE500924F3E80082927B /* PDFView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE2DE4E0924F3E80082927B /* PDFView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEE2DE510924F3E80082927B /* PDFView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE2DE4F0924F3E80082927B /* PDFView.m */; };
 		EEF0B81D0946019A0012D17E /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE8F5C7B092F79AD00648BBF /* Quartz.framework */; };
 		EEF0B864094602EC0012D17E /* PDFKit.framework in Resources */ = {isa = PBXBuildFile; fileRef = EE6FE352076F05AF009CC969 /* PDFKit.framework */; };
-		EEF0B8ED094603540012D17E /* Quartz.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = EEF0B85E094602820012D17E /* Quartz.framework */; };
 		EEF0B900094603940012D17E /* Quartz.h in Headers */ = {isa = PBXBuildFile; fileRef = EEF0B8FF094603940012D17E /* Quartz.h */; };
 		EEF0B92C0946046F0012D17E /* PDFKit.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = EE6FE352076F05AF009CC969 /* PDFKit.framework */; };
 		EEF8BF51092271F000767EF8 /* PDFDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = EEF8BF4B092271F000767EF8 /* PDFDocument.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -54,26 +52,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		EEC4A68108633B1200309A0C /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /Library/Frameworks;
-			dstSubfolderSpec = 0;
-			files = (
-				EEC4A68B08633B7A00309A0C /* PDFKit.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		EEF0B85C094602820012D17E /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /Library/Frameworks;
-			dstSubfolderSpec = 0;
-			files = (
-				EEF0B8ED094603540012D17E /* Quartz.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		EEF0B928094604580012D17E /* Copy Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -126,7 +104,7 @@
 		EEF8BFFE0923E35F00767EF8 /* PDFDestination.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFDestination.m; sourceTree = "<group>"; };
 		EEF8BFFF0923E35F00767EF8 /* PDFOutline.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFOutline.h; sourceTree = "<group>"; };
 		EEF8C0000923E35F00767EF8 /* PDFOutline.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFOutline.m; sourceTree = "<group>"; };
-		EEF8C0C40924EB9300767EF8 /* PDFTest.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = PDFTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEF8C0C40924EB9300767EF8 /* PDFTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDFTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEF8C0C60924EB9300767EF8 /* PDFTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "PDFTest-Info.plist"; sourceTree = "<group>"; };
 		EEF8C2010924EC8C00767EF8 /* MainMenu.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = MainMenu.nib; sourceTree = "<group>"; };
 		EEF8C2060924ECB400767EF8 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
@@ -360,7 +338,6 @@
 				EE6FE34F076F05AF009CC969 /* Sources */,
 				EE6FE350076F05AF009CC969 /* Frameworks */,
 				EE6FE354076F05C9009CC969 /* ShellScript */,
-				EEC4A68108633B1200309A0C /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -381,7 +358,6 @@
 				EEF0B84F094602820012D17E /* Sources */,
 				EEF0B85A094602820012D17E /* Frameworks */,
 				EEF0B85B094602820012D17E /* ShellScript */,
-				EEF0B85C094602820012D17E /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -416,10 +392,12 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EED61B1009D5B06500F2B623 /* Build configuration list for PBXProject "PDFKit" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				EE6FE351076F05AF009CC969 /* PDFKit */,
 				EEF0B843094602820012D17E /* Quartz */,
@@ -476,7 +454,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"PDF*.m NSPDFImageRep.m\"   # all source codes\n\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"AddressBook Calendar\"\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/PrivateFrameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=\"PDF*.m NSPDFImageRep.m\"   # all source codes\n\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"AddressBook Calendar\"\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/PrivateFrameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\nexport ADD_MAC_LIBRARY=true\t\t\t# copy to /Library/Frameworks\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EEF0B85B094602820012D17E /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -489,7 +467,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"\"   # no source code\n\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"AddressBook Calendar\"\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/PrivateFrameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=\"\"   # no source code\n\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"AddressBook Calendar\"\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/PrivateFrameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\nexport ADD_MAC_LIBRARY=true\t\t\t# copy to /Library/Frameworks\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

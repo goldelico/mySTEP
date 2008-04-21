@@ -53,6 +53,7 @@
 #import "NSWindow.h"
 #import "NSPasteboard.h"
 
+
 #if 1	// all windows are borderless, i.e. the frontend draws the title bar and manages windows directly
 #define WINDOW_MANAGER_TITLE_HEIGHT 0
 #else
@@ -69,6 +70,7 @@ static BOOL _doubleBufferering=YES;	// DISABLED until we have solved all the set
 #pragma mark Class variables
 
 static Display *_display;		// we can currently manage only one Display - but multiple Screens
+static BOOL _hasRender;			// display has XRender extension
 
 static Atom _stateAtom;
 static Atom _protocolsAtom;
@@ -742,7 +744,6 @@ typedef struct
 
 - (id) _initWithGraphicsPort:(void *) port;
 { // port should be the X11 Window *
-	int error, event;
 #if 0
 	NSLog(@"_NSX11GraphicsContext _initWithGraphicsPort:%@", attributes);
 #endif
@@ -768,7 +769,7 @@ typedef struct
 				 ColormapChangeMask | KeymapStateMask | 
 				 VisibilityChangeMask);
 	// query server for extensions
-	if(XRenderQueryExtension(_display, &event, &error))
+	if(_hasRender)
 		{
 		unsigned long valuemask;
 		XRenderPictureAttributes attributes;
@@ -811,51 +812,45 @@ typedef struct
 
 - (void) _setColor:(NSColor *) color;
 {
-	unsigned long pixel=[(_NSX11Color *)color _pixelForScreen:_nsscreen->_screen];
-#if 0
-	NSLog(@"_setColor -> pixel=%08x", pixel);
-#endif
-	XSetBackground(_display, _state->_gc, pixel);
-	XSetForeground(_display, _state->_gc, pixel);
-	if(_picture)
+	if(_hasRender)
+		_state->_fillColor=_state->_strokeColor=[(_NSX11Color *) color _pictureForColor];
+	else
 		{
-		_state->_strokeColor.red=_state->_fillColor.red=XDoubleToFixed([color redComponent]);
-		_state->_strokeColor.green=_state->_fillColor.green=XDoubleToFixed([color greenComponent]);
-		_state->_strokeColor.blue=_state->_fillColor.blue=XDoubleToFixed([color blueComponent]);
-		_state->_strokeColor.alpha=_state->_fillColor.alpha=XDoubleToFixed([color alphaComponent]);
+		unsigned long pixel=[(_NSX11Color *)color _pixelForScreen:_nsscreen->_screen];
+#if 0
+		NSLog(@"_setColor -> pixel=%08x", pixel);
+#endif
+		XSetBackground(_display, _state->_gc, pixel);
+		XSetForeground(_display, _state->_gc, pixel);
 		}
 }
 
 - (void) _setFillColor:(NSColor *) color;
 {
-	unsigned long pixel=[(_NSX11Color *)color _pixelForScreen:_nsscreen->_screen];
-#if 0
-	NSLog(@"_setColor -> pixel=%08x", pixel);
-#endif
-	XSetBackground(_display, _state->_gc, pixel);
-	XSetForeground(_display, _state->_gc, pixel);
-	if(_picture)
+	if(_hasRender)
+		_state->_fillColor=[(_NSX11Color *) color _pictureForColor];
+	else
 		{
-		_state->_fillColor.red=XDoubleToFixed([color redComponent]);
-		_state->_fillColor.green=XDoubleToFixed([color greenComponent]);
-		_state->_fillColor.blue=XDoubleToFixed([color blueComponent]);
-		_state->_fillColor.alpha=XDoubleToFixed([color alphaComponent]);
+		unsigned long pixel=[(_NSX11Color *)color _pixelForScreen:_nsscreen->_screen];
+#if 0
+		NSLog(@"_setColor -> pixel=%08x", pixel);
+#endif
+		XSetBackground(_display, _state->_gc, pixel);
+//		XSetForeground(_display, _state->_gc, pixel);
 		}
 }
 
 - (void) _setStrokeColor:(NSColor *) color;
 {
-	unsigned long pixel=[(_NSX11Color *)color _pixelForScreen:_nsscreen->_screen];
-#if 0
-	NSLog(@"_setColor -> pixel=%08x", pixel);
-#endif
-	XSetForeground(_display, _state->_gc, pixel);
-	if(_picture)
+	if(_hasRender)
+		_state->_strokeColor=_state->_strokeColor=[(_NSX11Color *) color _pictureForColor];
+	else
 		{
-		_state->_strokeColor.red=XDoubleToFixed([color redComponent]);
-		_state->_strokeColor.green=XDoubleToFixed([color greenComponent]);
-		_state->_strokeColor.blue=XDoubleToFixed([color blueComponent]);
-		_state->_strokeColor.alpha=XDoubleToFixed([color alphaComponent]);
+		unsigned long pixel=[(_NSX11Color *)color _pixelForScreen:_nsscreen->_screen];
+#if 0
+		NSLog(@"_setColor -> pixel=%08x", pixel);
+#endif
+		XSetForeground(_display, _state->_gc, pixel);
 		}
 }
 
@@ -897,45 +892,45 @@ typedef struct
 	 */
 }
 
+- (int) _XRenderPictOp
+{
+	switch(_compositingOperation)
+	{
+		case NSCompositeClear:
+			return PictOpClear;
+		case NSCompositeCopy:
+			return PictOpSrc;
+		case NSCompositeSourceOver:
+		case NSCompositeHighlight:
+			return PictOpOver;
+		case NSCompositeSourceIn:
+			return PictOpIn;
+		case NSCompositeSourceOut:
+			return PictOpOut;
+		case NSCompositeSourceAtop:
+			return PictOpAtop;
+		case NSCompositeDestinationOver:
+			return PictOpOverReverse;
+		case NSCompositeDestinationIn:
+			return PictOpInReverse;
+		case NSCompositeDestinationOut:
+			return PictOpOutReverse;
+		case NSCompositeDestinationAtop:
+			return PictOpAtopReverse;
+		case NSCompositeXOR:
+			return PictOpXor;
+		case NSCompositePlusLighter:
+			return PictOpAdd;
+		case NSCompositePlusDarker:
+			return PictOpSaturate;
+		default:
+			return PictOpOver;
+	}
+}
+
 - (void) _setCompositing
 {
 	XGCValues values;
-	/*
-	switch (_compositingOperation)
-	 {
-			case NSCompositeClear:
-				return PictOpClear;
-			case NSCompositeSource:
-				return PictOpSrc;
-			case NSCompositeSourceOver:
-				return PictOpOver;
-			case NSCompositeSourceIn:
-				return PictOpIn;
-			case NSCompositeSourceOut:
-				return PictOpOut;
-			case NSCompositeSourceAtop:
-				return PictOpAtop;
-			case NSCompositeDest:
-				return PictOpDst;
-			case NSCompositeDestOver:
-				return PictOpOverReverse;
-			case NSCompositeDestIn:
-				return PictOpInReverse;
-			case NSCompositeDestOut:
-				return PictOpOutReverse;
-			case NSCompositeDestAtop:
-				return PictOpAtopReverse;
-			case NSCompositeXor:
-				return PictOpXor;
-			case NSCompositeAdd:
-				return PictOpAdd;
-			case NSCompositeSaturate:
-				return PictOpSaturate;
-			default:
-				return PictOpOver;
-		}
-	}
-*/	
 	switch(_compositingOperation)
 		{
 		/* try to translate to
@@ -1438,20 +1433,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	[self _setTextPosition:NSMakePoint(0.0, _leading)];
 }
 
-- (void) _defineGlyphBitmap:(unsigned char *) buffer x:(int) x y:(int) y width:(unsigned) width height:(unsigned) height forGlyph:(NSGlyph) glyph;
-{
-	/*
-	 void
-	 XRenderAddGlyphs (Display		*dpy,
-	 GlyphSet		glyphset,	// defined by current font
-	 _Xconst Glyph		*gids,
-	 _Xconst XGlyphInfo	*glyphs,
-	 int			nglyphs,
-	 _Xconst char		*images,
-	 int			nbyte_images);
-*/
-}
-
 // FIXME:
 // does not handle rotation
 // ignores CTM scaling (only in cursor position!)
@@ -1525,22 +1506,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;
 {
-/*
- void
- XRenderCompositeString16 (Display		    *dpy,
- int			    op,			// get from compositing op
- Picture		    src,
- Picture		    dst,
- _Xconst XRenderPictFormat *maskFormat,
- GlyphSet		    glyphset,	// current font
- int			    xSrc,
- int			    ySrc,
- int			    xDst,
- int			    yDst,
- _Xconst unsigned short    *string,
- int			    nchar);
-*/
- BACKEND;	// overwritten in NSFreeType.m
+	BACKEND;	// overwritten in NSFreeType.m
 }
 
 - (void) _drawGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;	// (string) Tj
@@ -1555,9 +1521,25 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	[trm appendTransform:_textMatrix];
 	[trm appendTransform:_state->_ctm];
 #endif
-#if 0
+#if 1
 	NSLog(@"NSString: _drawGlyphs:%p count:%u font:%@", glyphs, cnt, _state->_font);
 #endif
+	if(_picture)
+		{
+		NSLog(@"cnt=%u picture=%d fillColor=%d", cnt, _picture, _state->_fillColor);
+		// if we want to lazily send glyphs to the server, call [_state->_font _defineGlyphs:glyphs count:cnt]
+		XRenderCompositeString32(_display,
+								 [self _XRenderPictOp],
+								 _state->_fillColor,	// (src) color pattern
+								 _picture,				// (dest)
+								 XRenderFindStandardFormat(_display, PictStandardA8),	// the format of the glyph mask
+								 [_state->_font _glyphSet],	// current font
+								 0, 0,	// x,y src
+								 0, 0,	// x,y dest
+								 glyphs,
+								 cnt);
+		return;
+		}
 	if([_state->_font renderingMode] == NSFontIntegerAdvancementsRenderingMode)
 		{ // use the basic X11 bitmap font rendering services
 		NSAffineTransformStruct atms=[_textMatrix transformStruct];
@@ -1649,7 +1631,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		_fraction=fraction;	// save compositing fraction - fixme: convert to 0..256-integer
 }
 
-- (BOOL) _drawRender:(NSImageRep *) rep;
+- (BOOL) _defineImage:(NSImageRep *) rep;
 { // experimental
 	XTransform transform;
 	unsigned long valuemask=0;
@@ -2053,6 +2035,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	// maybe we should use a (root) window property to store the level?
 	// or at least a shared file with fast access (FILE * and fread() based)
 #if 1		// test
+	{
+#if 0
 	XRenderColor color;
 	XTransform xtransform;
 	
@@ -2076,8 +2060,35 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	color.alpha=XDoubleToFixed(0.5);
 	
 	XRenderFillRectangle(_display, PictOpSrc, _picture, &color, 10, 20, 100, 50);
+#else
+	_NSX11Color *c=(_NSX11Color *) [NSColor colorWithDeviceRed:0.9 green:0.5 blue:0.2 alpha:0.5];
+	Picture p=[c _pictureForColor];
+		XTransform xtransform;
+		
+		xtransform.matrix[0][0] = XDoubleToFixed(0.9);
+		xtransform.matrix[0][1] = XDoubleToFixed(0.2);
+		xtransform.matrix[0][2] = XDoubleToFixed(0.0);
+		
+		xtransform.matrix[1][0] = XDoubleToFixed(0.3);
+		xtransform.matrix[1][1] = XDoubleToFixed(1.5);
+		xtransform.matrix[1][2] = XDoubleToFixed(0.0);
+		
+		xtransform.matrix[2][0] = 0;
+		xtransform.matrix[2][1] = 0;
+		xtransform.matrix[2][2] = 1 << 16;
+		
+		XRenderSetPictureTransform(_display, _picture, &xtransform);
+		
+		XRenderComposite(_display, PictOpSrc, p, None, _picture, 0, 0, 0, 0, 30, 10, 100, 50);
+#endif
 	XFlush(_display);
+	
+	// XRenderTrapezoid should composite use the transformation matrix!
+	// fill should split the shape into trapezoids and triangles
+	// stroke should form line-trapezoids around the strokes
+	
 	sleep(5);
+	}
 #endif
 }
 
@@ -2215,7 +2226,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (_NSGraphicsState *) _copyGraphicsState:(_NSGraphicsState *) state;
 { 
 	XGCValues values;
-	_NSX11GraphicsState *new=(_NSX11GraphicsState *) objc_malloc(sizeof(*new));
+	_NSX11GraphicsState *new=(_NSX11GraphicsState *) objc_malloc(sizeof(*new));	// this does not clear all components!
 	new->_gc=XCreateGC(_display, ((Window) _graphicsPort), 0l, &values);	// create a fresh GC without values
 	if(state)
 		{ // copy
@@ -2254,12 +2265,16 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			}
 		else
 			new->_clip=NULL;	// not clipped
+		new->_fillColor=((_NSX11GraphicsState *) state)->_fillColor;
+		new->_strokeColor=((_NSX11GraphicsState *) state)->_strokeColor;
 		}
 	else
 		{ // alloc
 		new->_ctm=nil;		// no initial screen transformation (set by first lockFocus)
 		new->_clip=NULL;	// not clipped
 		new->_font=nil;
+		new->_fillColor=0;
+		new->_strokeColor=0;
 		}
 	return (_NSGraphicsState *) new;
 }
@@ -2687,7 +2702,8 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 		{ "SetModifierMapping", 118 },
 		{ "GetModifierMapping", 119 },
 		{ "NoOperation", 127 },
-		{ NULL} };
+		{ "XRender", 153 },
+		{ NULL } };
 	char string[1025];
 	int i;
     XGetErrorText(display, error_event->error_code, string, sizeof(string)-1);
@@ -2700,12 +2716,12 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 			break;
 	NSLog(@"  sequence: %u:%u", LastKnownRequestProcessed(display), NextRequest(display));
 	if(requests[i].name)
-		NSLog(@"  request: %u:%u %s(%u).%u", requests[i].name, error_event->request_code, error_event->minor_code);
+		NSLog(@"  request: %s(%u).%u", requests[i].name, error_event->request_code, error_event->minor_code);
 	else
 		NSLog(@"  request: %u.%u", error_event->request_code, error_event->minor_code);
     NSLog(@"  resource: %lu", error_event->resourceid);
 	if(error_event->request_code == 73)
-		return;
+		return;	// ignore errors from XGetImage
 #if 1
 	*((long *) 1)=0;	// force SEGFAULT to ease debugging by writing a core dump
 	abort();
@@ -2779,14 +2795,14 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 		NSMutableArray *a=[NSMutableArray arrayWithCapacity:count];
 		NSWindowList(context, count, list);
 		for(i=0; i<count; i++)
-			[a addObject:NSMapGet(__WindowNumToNSWindow, (void *) list[i]);	// translate to NSWindows
-				return a;
+			[a addObject:NSMapGet(__WindowNumToNSWindow, (void *) list[i])];	// translate to NSWindows
+		return a;
 		}
-return nil;
+	return nil;
 #endif
-if(__WindowNumToNSWindow)
-return NSAllMapTableValues(__WindowNumToNSWindow);		// all windows we currently know by window number
-return nil;
+	if(__WindowNumToNSWindow)
+		return NSAllMapTableValues(__WindowNumToNSWindow);		// all windows we currently know by window number
+	return nil;
 }
 
 @end
@@ -2898,6 +2914,7 @@ static NSDictionary *_x11settings;
 	Atom atoms[sizeof(atomNames)/sizeof(atomNames[0])];
 	NSFileHandle *fh;
 	NSUserDefaults *def=[[[NSUserDefaults alloc] initWithUser:@"root"] autorelease];
+	int error, event;
 #if 1
 	NSLog(@"NSScreen backend +initialize");
 	//	system("export;/usr/X11R6/bin/xeyes&");
@@ -2916,6 +2933,10 @@ static NSDictionary *_x11settings;
 	if((_display=XOpenDisplay(NULL)) == NULL) 		// connect to X server based on DISPLAY variable
 		[NSException raise:NSGenericException format:@"Unable to connect to X server"];
 	XSetErrorHandler((XErrorHandler)X11ErrorHandler);
+#ifdef __SYNCHRONIZE__
+	XSynchronize(_display, True);
+	NSLog(@"X11 runs synchronized");
+#endif
 	fh=[[NSFileHandle alloc] initWithFileDescriptor:XConnectionNumber(_display)];
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(_X11EventNotification:)
@@ -2939,6 +2960,7 @@ static NSDictionary *_x11settings;
     _protocolsAtom = atoms[1];
     _deleteWindowAtom = atoms[2];
     _windowDecorAtom = atoms[3];
+	_hasRender=XRenderQueryExtension(_display, &event, &error);
 }
 
 + (void) _X11EventNotification:(NSNotification *) n;
@@ -3376,84 +3398,11 @@ static NSDictionary *_x11settings;
 				case FocusIn:							
 					{ // keyboard focus entered one of our windows - take this a a hint from the WindowManager to bring us to the front
 						NSLog(@"FocusIn 1: %d\n", xe.xfocus.detail);
-#if OLD
-						// NotifyAncestor			0
-						// NotifyVirtual			1
-						// NotifyInferior			2
-						// NotifyNonlinear			3
-						// NotifyNonlinearVirtual	4
-						// NotifyPointer			5
-						// NotifyPointerRoot		6
-						// NotifyDetailNone			7
-	//					[NSApp activateIgnoringOtherApps:YES];	// user has clicked: bring our application windows and menus to front
-	//					[window makeKey];
-						if(xe.xfocus.detail == NotifyAncestor)
-							{
-							//				if (![[[NSApp mainMenu] _menuWindow] isVisible])
-							//					[[NSApp mainMenu] display];
-							}
-						else if(xe.xfocus.detail == NotifyNonlinear
-								&& __xKeyWindowNeedsFocus == None)
-							{ // create fake mouse dn
-							NSLog(@"FocusIn 2");
-							e = [NSEvent otherEventWithType:NSAppKitDefined
-												   location:NSZeroPoint
-											  modifierFlags:0
-												  timestamp:(NSTimeInterval)0
-											   windowNumber:windowNumber
-													context:self
-													subtype:NSApplicationActivatedEventType
-													  data1:0
-													  data2:0];
-							}
-#endif
 						break;
 					}
 				case FocusOut:
 					{ // keyboard focus has left one of our windows
 						NSDebugLog(@"FocusOut");
-#if OLD
-						e = [NSEvent otherEventWithType:NSAppKitDefined
-											   location:NSZeroPoint
-										  modifierFlags:0
-											  timestamp:(NSTimeInterval)0
-										   windowNumber:windowNumber
-												context:self
-												subtype:NSApplicationDeactivatedEventType
-												  data1:0
-												  data2:0];
-#endif
-#if FIXME
-						if(xe.xfocus.detail == NotifyAncestor)	// what does this mean?
-							{
-							NSLog(@"FocusOut 1");
-							[w xFrame];
-							XFlush(_display);
-							if([w xGrabMouse] == GrabSuccess)
-								[w xReleaseMouse];
-							else
-								{
-								NSWindow *k = [NSApp keyWindow];
-								
-								if((w == k && [k isVisible]) || !k)
-									[[NSApp mainMenu] close];	// parent titlebar is moving the window
-								}
-							}
-						else
-							{
-							Window xfw;
-							int r;
-							// check if focus is in one of our windows
-							XGetInputFocus(_display, &xfw, &r);
-							if(!(w = XRWindowWithXWindow(xfw)))
-								{
-								NSLog(@"FocusOut 3");
-								//							[NSApp deactivate];
-								}
-							}
-						if(__xKeyWindowNeedsFocus == xe.xfocus.window)
-							__xKeyWindowNeedsFocus = None;
-#endif
 						break;
 					}
 				case GraphicsExpose:
@@ -3467,9 +3416,6 @@ static NSDictionary *_x11settings;
 					break;								// of its parent
 				case KeyPress:							// a key has been pressed
 				case KeyRelease:						// a key has been released
-#if 1
-					NSLog(@"Process key event");
-#endif
 					{
 						NSEventType eventType=(xe.type == KeyPress)?NSKeyDown:NSKeyUp;
 						char buf[256];
@@ -3479,6 +3425,9 @@ static NSDictionary *_x11settings;
 						unsigned mflags;
 						unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);						
 						buf[MIN(count, sizeof(buf)-1)] = '\0'; // Terminate string properly
+#if 1
+						NSLog(@"Process key event");
+#endif
 #if 1
 						NSLog(@"xKeyEvent: xkey.state=%d keycode=%d keysym=%d:%s", xe.xkey.state, xe.xkey.keycode, ksym, XKeysymToString(ksym));
 #endif						
@@ -3622,15 +3571,6 @@ static NSDictionary *_x11settings;
 						}
 					case ReparentNotify:					// a client successfully
 						NSDebugLog(@"ReparentNotify\n");	// reparents a window
-#if FIXME
-						if(__xAppTileWindow == xe.xreparent.window)
-							{ // WM reparenting appicon
-							_wAppTileWindow = xe.xreparent.parent;
-							//	[window xSetFrameFromXContentRect: [window xFrame]];
-							XSelectInput(_display, _wAppTileWindow, StructureNotifyMask);
-							// FIXME: should this be an NSNotification?
-							}
-#endif
 							break;
 					case ResizeRequest:						// another client (or WM) attempts to change window size
 						NSDebugLog(@"ResizeRequest"); 
@@ -3740,6 +3680,38 @@ static NSDictionary *_x11settings;
 
 @implementation _NSX11Color
 
+- (Picture) _pictureForColor;
+{
+	if(!_picture)
+		{
+		if(_colorPatternImage)
+			{
+			 // get Picture from image's cache
+			 // make a copy?
+			 // set repetition flag
+			}
+		else
+			 { // create an 1x1 repeating Picture filled with our color
+			 Window root=DefaultRootWindow(_display);	// first root window
+			 Pixmap pixmap;
+			 XRenderColor c;
+			 XRenderPictureAttributes pa;
+			 c.red=XDoubleToFixed([self redComponent]);
+			 c.green=XDoubleToFixed([self greenComponent]);
+			 c.blue=XDoubleToFixed([self blueComponent]);
+			 c.alpha=XDoubleToFixed([self alphaComponent]);
+			 pixmap=XCreatePixmap(_display, root, 1, 1, 4*8);	// ARGB32
+			 pa.repeat=True;
+			 _picture=XRenderCreatePicture(_display, pixmap,
+										   XRenderFindStandardFormat(_display, PictStandardARGB32),
+										   CPRepeat, &pa);
+			 XRenderFillRectangle(_display, PictOpSrc, _picture, &c, 0, 0, 1, 1);	// fill picture with given color
+			 XFreePixmap(_display, pixmap);	// no explicit reference required
+			 }
+		}
+	return _picture;
+}
+			 
 - (unsigned long) _pixelForScreen:(Screen *) scr;
 {
 	// FIXME: we must cache different pixel values for different screens!
@@ -3770,6 +3742,8 @@ static NSDictionary *_x11settings;
 
 - (void) dealloc;
 {
+	if(_picture)
+		XRenderFreePicture(_display, _picture);
 	if(_colorData)
 		objc_free(_colorData);
 	[super dealloc];
@@ -3788,28 +3762,6 @@ static NSDictionary *_x11settings;
 
 @implementation _NSX11Font
 
-			 /*
-			 GlyphSet
-			 XRenderCreateGlyphSet (Display *dpy, _Xconst XRenderPictFormat *format);
-			 
-			 GlyphSet
-			 XRenderReferenceGlyphSet (Display *dpy, GlyphSet existing);
-			 
-			 void
-			 XRenderFreeGlyphSet (Display *dpy, GlyphSet glyphset);
-			 
-			 void
-			 XRenderAddGlyphs (Display		*dpy,
-			 GlyphSet		glyphset,
-			 _Xconst Glyph		*gids,
-			 _Xconst XGlyphInfo	*glyphs,
-			 int			nglyphs,
-			 _Xconst char		*images,
-			 int			nbyte_images);
-			 
-			 */
-			 
-			 
 #if 0
 + (void) initialize
 { // ask X Server for list of fonts
@@ -3981,17 +3933,59 @@ static NSDictionary *_x11settings;
 }
 
 - (float) _widthOfAntialisedString:(NSString *) string;
-{ // overwritten in Freetype.m
+{ // overwritten by NSFreeTypeFont.m
 	NSLog(@"can't determine width of antialiased strings");
 	return 0.0;
 }
 
+- (void) _defineGlyphs
+{ // overwritten by NSFreeTypeFont.m; call [self _addGlyph:...]
+	NSLog(@"can't define fonts");
+}
+
+- (GlyphSet) _glyphSet;
+{ // get XRender glyph set
+	if(!_glyphSet)
+		{ // create a new glyphset for this font
+		_glyphSet=XRenderCreateGlyphSet(_display, XRenderFindStandardFormat(_display, PictStandardA8));
+		[self _defineGlyphs];	// render all glyphs into cache
+	}
+	return _glyphSet;
+}
+
+- (void) _addGlyph:(NSGlyph) glyph bitmap:(char *) buffer x:(int) left y:(int) top width:(unsigned) width height:(unsigned) rows;
+{
+	XGlyphInfo info = { width, rows, 0, 0, left, top };
+	Glyph g=glyph;	// Glyph is of type XID, i.e. must not be 0
+	NSLog(@"_addGlyph:%d x=%d y=%d w=%u h=%u", g, left, top, width, rows);
+#if 1
+	{
+		NSString *pattern=@"";
+		int x, y;
+		for(y=0; y<rows; y++)
+			{
+			for(x=0; x<width; x++)
+				{
+				char bits=buffer[y*width+x];
+				static char px[]=" .,;/+*#";
+				pattern=[pattern stringByAppendingFormat:@"%c", px[(bits>>5)&7]];
+				}
+			pattern=[pattern stringByAppendingString:@"\n"];
+			}
+		NSLog(@"\n%@", pattern);
+	}
+#endif
+	XRenderAddGlyphs(_display, _glyphSet, &g, &info, 1, buffer, 2*rows*width);
+	// we could estimate the request length
+	XFlush(_display);	// send
+}
+
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
-{ // overwritten by FreeTypeFont
+{ // overwritten by NSFreeTypeFont.m
 	NSLog(@"can't draw antialiased fonts");
 }
 
-// DEPRECATED SINCE IT DEPENDEND ON CHARACTER ENCODING AND WRITING DIRECTION
+// DEPRECATED SINCE 10.4 BECAUSE THIS DEPENDS ON CHARACTER ENCODING AND WRITING DIRECTION
 
 - (float) widthOfString:(NSString *) string;
 { // get size from X11 font assuming no scaling
@@ -4042,6 +4036,8 @@ static NSDictionary *_x11settings;
 
 - (void) dealloc;
 {
+	if(_glyphSet)
+		XRenderFreeGlyphSet(_display, _glyphSet);
 	if(_fontStruct)
 		XFreeFont(_display, _fontStruct);	// no longer needed
 	if(_unscaledFontStruct)
@@ -4074,6 +4070,7 @@ static NSDictionary *_x11settings;
 		{
 		if(_image)
 			{
+			 // get _cachedImageRep and use the Picture
 			NSBitmapImageRep *bestRep =(NSBitmapImageRep *) [_image bestRepresentationForDevice:nil];	// where to get device description from??
 #if 0
 			NSLog(@"convert %@ to PixmapCursor", bestRep);

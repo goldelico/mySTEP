@@ -223,6 +223,7 @@ typedef enum _NSRoundedBezelSegments
 
 @interface NSImage (NSPrivate)
 + (id) _imageNamed:(NSString*)aName inBundle:(NSBundle *) bundle;
+- (NSCachedImageRep *) _cachedImageRep;
 @end
 
 @interface NSImageCell (NSPrivate)
