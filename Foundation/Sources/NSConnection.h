@@ -11,6 +11,8 @@
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   NSConnection - aligned with 10.5 by Fabian Spillner 22.04.2008
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -76,40 +78,40 @@ extern NSString *NSFailedAuthenticationException;
 }
 
 + (NSArray *) allConnections;
-+ (NSConnection *) connectionWithReceivePort:(NSPort *)receivePort
-									sendPort:(NSPort *)sendPort;
-+ (NSConnection *) connectionWithRegisteredName:(NSString*)n
-										   host:(NSString*)h;
-+ (NSConnection *) connectionWithRegisteredName:(NSString *)name
-										   host:(NSString *)hostName
-								usingNameServer:(NSPortNameServer *)server;
++ (NSConnection *) connectionWithReceivePort:(NSPort *) receivePort
+									sendPort:(NSPort *) sendPort;
++ (NSConnection *) connectionWithRegisteredName:(NSString *) n
+										   host:(NSString *) h;
++ (NSConnection *) connectionWithRegisteredName:(NSString *) name
+										   host:(NSString *) hostName
+								usingNameServer:(NSPortNameServer *) server;
 + (id) currentConversation;
 + (NSConnection *) defaultConnection;
-+ (NSDistantObject *) rootProxyForConnectionWithRegisteredName:(NSString*)name
-														  host:(NSString*)host;
-+ (NSDistantObject *) rootProxyForConnectionWithRegisteredName:(NSString *)name
-														  host:(NSString *)hostName
-											   usingNameServer:(NSPortNameServer *)server;
++ (NSDistantObject *) rootProxyForConnectionWithRegisteredName:(NSString *) name
+														  host:(NSString *) host;
++ (NSDistantObject *) rootProxyForConnectionWithRegisteredName:(NSString *) name
+														  host:(NSString *) hostName
+											   usingNameServer:(NSPortNameServer *) server;
 + (id) serviceConnectionWithName:(NSString *) name rootObject:(id) root usingNameServer:(NSPortNameServer *) server;
 + (id) serviceConnectionWithName:(NSString *) name rootObject:(id) root;
 
-- (void) addRequestMode:(NSString *)mode;
-- (void) addRunLoop:(NSRunLoop *)loop;
+- (void) addRequestMode:(NSString *) mode;
+- (void) addRunLoop:(NSRunLoop *) loop;
 - (id) delegate;
 - (void) enableMultipleThreads;
 - (BOOL) independentConversationQueueing;
-- (id) initWithReceivePort:(NSPort *)receivePort
-				  sendPort:(NSPort *)sendPort;
+- (id) initWithReceivePort:(NSPort *) receivePort
+				  sendPort:(NSPort *) sendPort;
 - (void) invalidate;
 - (BOOL) isValid;
 - (NSArray *) localObjects;
 - (BOOL) multipleThreadsEnabled;
 - (NSPort *) receivePort;
-- (BOOL) registerName:(NSString *)name;
-- (BOOL) registerName:(NSString *)name withNameServer:(NSPortNameServer *)server;
+- (BOOL) registerName:(NSString *) name;
+- (BOOL) registerName:(NSString *) name withNameServer:(NSPortNameServer *) server;
 - (NSArray *) remoteObjects;
-- (void) removeRequestMode:(NSString *)mode;
-- (void) removeRunLoop:(NSRunLoop *)runloop;
+- (void) removeRequestMode:(NSString *) mode;
+- (void) removeRunLoop:(NSRunLoop *) runloop;
 - (NSTimeInterval) replyTimeout;
 - (NSArray *) requestModes;
 - (NSTimeInterval) requestTimeout;
@@ -118,9 +120,9 @@ extern NSString *NSFailedAuthenticationException;
 - (void) runInNewThread;
 - (NSPort *) sendPort;
 - (void) setDelegate:(id) anObj;
-- (void) setIndependentConversationQueueing:(BOOL)flag;
-- (void) setReplyTimeout:(NSTimeInterval)seconds;
-- (void) setRequestTimeout:(NSTimeInterval)seconds;
+- (void) setIndependentConversationQueueing:(BOOL) flag;
+- (void) setReplyTimeout:(NSTimeInterval) seconds;
+- (void) setRequestTimeout:(NSTimeInterval) seconds;
 - (void) setRootObject:(id) anObj;
 - (NSDictionary *) statistics;
 
@@ -143,12 +145,12 @@ extern NSString *NSFailedAuthenticationException;
 
 @interface NSObject (NSConnectionDelegate)
 
-- (BOOL) authenticateComponents:(NSArray *)components withData:(NSData *)authenticationData;
-- (NSData *) authenticationDataForComponents:(NSArray *)components;
-- (BOOL) connection:(NSConnection *)conn handleRequest:(NSDistantObjectRequest *)doReq;
-- (BOOL) connection:(NSConnection *)parentConnection shouldMakeNewConnection:(NSConnection *)conn;
-- (id) createConversationForConnection:(NSConnection *)conn;
-- (BOOL) makeNewConnection:(NSConnection *)newConnection sender:(NSConnection *)conn;
+- (BOOL) authenticateComponents:(NSArray *) components withData:(NSData *) authenticationData;
+- (NSData *) authenticationDataForComponents:(NSArray *) components;
+- (BOOL) connection:(NSConnection *) conn handleRequest:(NSDistantObjectRequest *) doReq;
+- (BOOL) connection:(NSConnection *) parentConnection shouldMakeNewConnection:(NSConnection *) conn;
+- (id) createConversationForConnection:(NSConnection *) conn;
+- (BOOL) makeNewConnection:(NSConnection *) newConnection sender:(NSConnection *) conn;
 
 @end
 

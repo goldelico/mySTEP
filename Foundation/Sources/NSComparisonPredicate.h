@@ -1,13 +1,16 @@
-//
-//  NSComparisonPredicate.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Wed Dec 28 2005.
-//  Copyright (c) 2005 DSITRI.
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+    NSComparisonPredicate.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Wed Dec 28 2005.
+    Copyright (c) 2005 DSITRI.
+
+    Author:	Fabian Spillner <fabian.spillner@gmail.com>
+    Date:	22. April 2008 - aligned with 10.5
+ 
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
+*/
 
 #import <Foundation/NSExpression.h>
 #import <Foundation/NSPredicate.h>
@@ -53,17 +56,26 @@ typedef enum _NSPredicateOperatorType
 	NSExpression *_left, *_right;
 }
 
-+ (NSPredicate *) predicateWithLeftExpression:(NSExpression *) left rightExpression:(NSExpression *) right customSelector:(SEL) sel;
-+ (NSPredicate *) predicateWithLeftExpression:(NSExpression *) left rightExpression:(NSExpression *) right
-									 modifier:(NSComparisonPredicateModifier) modifier type:(NSPredicateOperatorType) type options:(unsigned) opts;
++ (NSPredicate *) predicateWithLeftExpression:(NSExpression *) left 
+							  rightExpression:(NSExpression *) right 
+							   customSelector:(SEL) sel;
++ (NSPredicate *) predicateWithLeftExpression:(NSExpression *) left 
+							  rightExpression:(NSExpression *) right
+									 modifier:(NSComparisonPredicateModifier) modifier 
+										 type:(NSPredicateOperatorType) type 
+									  options:(NSUInteger) opts;
 
 - (NSComparisonPredicateModifier) comparisonPredicateModifier;
 - (SEL) customSelector;
-- (NSPredicate *) initWithLeftExpression:(NSExpression *) left rightExpression:(NSExpression *) right customSelector:(SEL) sel;
+- (NSPredicate *) initWithLeftExpression:(NSExpression *) left 
+						 rightExpression:(NSExpression *) right 
+						  customSelector:(SEL) sel;
 - (id) initWithLeftExpression:(NSExpression *) left rightExpression:(NSExpression *)right
-					 modifier:(NSComparisonPredicateModifier) modifier type:(NSPredicateOperatorType) type options:(unsigned) opts;
+					 modifier:(NSComparisonPredicateModifier) modifier 
+						 type:(NSPredicateOperatorType) type 
+					  options:(NSUInteger) opts;
 - (NSExpression *) leftExpression;
-- (unsigned) options;
+- (NSUInteger) options;
 - (NSPredicateOperatorType) predicateOperatorType;
 - (NSExpression *) rightExpression;
 

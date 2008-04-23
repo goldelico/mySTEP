@@ -68,3 +68,35 @@ enum
 - (NSTimeZone *) timeZone;
 
 @end
+
+
+enum {
+	NSUndefinedDateComponent = 0x7fffffff
+};
+
+
+@interface NSDateComponents : NSObject <NSCopying, NSCoding>
+
+- (NSInteger) era;
+- (NSInteger) year;
+- (NSInteger) month;
+- (NSInteger) day;
+- (NSInteger) hour;
+- (NSInteger) minute;
+- (NSInteger) second;
+- (NSInteger) week;
+- (NSInteger) weekday;
+- (NSInteger) weekdayOrdinal;
+
+- (void) setEra:(NSInteger) value;
+- (void) setYear:(NSInteger) value;
+- (void) setMonth:(NSInteger) value;
+- (void) setDay:(NSInteger) value;
+- (void) setHour:(NSInteger) value;
+- (void) setMinute:(NSInteger) value;
+- (void) setSecond:(NSInteger) value;
+- (void) setWeek:(NSInteger) value;
+- (void) setWeekday:(NSInteger) value;
+- (void) setWeekdayOrdinal:(NSInteger) value;
+
+@end

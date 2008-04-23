@@ -1,17 +1,19 @@
 /* 
-   NSData.h
+    NSData.h
 
-   Interface to NSData
+    Interface to NSData
 
-   Copyright (C) 1995 Free Software Foundation, Inc.
+    Copyright (C) 1995 Free Software Foundation, Inc.
 
-   Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
-   Date:	1995
+    Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
+    Date:	1995
    
-   H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
+    NSData - aligned with 10.5 by Fabian Spillner 23.04.2008
+ 
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
 */ 
 
 #ifndef _mySTEP_H_NSData
@@ -33,37 +35,37 @@ enum _NSDataOptions
 @interface NSData : NSObject <NSCoding, NSCopying, NSMutableCopying>
 
 + (id) data;
-+ (id) dataWithBytes:(const void*)bytes length:(unsigned int)length;
-+ (id) dataWithBytesNoCopy:(void*)bytes length:(unsigned int)length;
-+ (id) dataWithBytesNoCopy:(void*)bytes length:(unsigned int)length freeWhenDone:(BOOL)flag;
-+ (id) dataWithContentsOfFile:(NSString*)path;
-+ (id) dataWithContentsOfFile:(NSString *)path options:(unsigned int)mask error:(NSError **)errorPtr;
-+ (id) dataWithContentsOfMappedFile:(NSString*)path;
-+ (id) dataWithContentsOfURL:(NSURL*)url;
-+ (id) dataWithContentsOfURL:(NSURL *)aURL options:(unsigned int)mask error:(NSError **)errorPtr;
-+ (id) dataWithData:(NSData*)data;
++ (id) dataWithBytes:(const void *) bytes length:(NSUInteger) length;
++ (id) dataWithBytesNoCopy:(void *) bytes length:(NSUInteger) length;
++ (id) dataWithBytesNoCopy:(void *) bytes length:(NSUInteger) length freeWhenDone:(BOOL) flag;
++ (id) dataWithContentsOfFile:(NSString *) path;
++ (id) dataWithContentsOfFile:(NSString *) path options:(NSUInteger) mask error:(NSError **) errorPtr;
++ (id) dataWithContentsOfMappedFile:(NSString *) path;
++ (id) dataWithContentsOfURL:(NSURL *) url;
++ (id) dataWithContentsOfURL:(NSURL *) aURL options:(NSUInteger) mask error:(NSError **) errorPtr;
++ (id) dataWithData:(NSData *) data;
 
-- (const void*) bytes;									// Accessing Data
-- (NSString*) description;
-- (void) getBytes:(void*)buffer;
-- (void) getBytes:(void*)buffer length:(unsigned int)length;
-- (void) getBytes:(void*)buffer range:(NSRange)aRange;
-- (id) initWithBytes:(const void*)bytes length:(unsigned int)length;
-- (id) initWithBytesNoCopy:(void*)bytes length:(unsigned int)length;
-- (id) initWithBytesNoCopy:(void*)bytes length:(unsigned int)length freeWhenDone:(BOOL)flag;
-- (id) initWithContentsOfFile:(NSString*)path;
-- (id) initWithContentsOfFile:(NSString *)path options:(unsigned int)mask error:(NSError **)errorPtr;
-- (id) initWithContentsOfMappedFile:(NSString*)path;
-- (id) initWithContentsOfURL:(NSURL*)url;
-- (id) initWithContentsOfURL:(NSURL *)aURL options:(unsigned int)mask error:(NSError **)errorPtr;
-- (id) initWithData:(NSData*)data;
-- (BOOL) isEqualToData:(NSData*)other;					// Query a Data Object
-- (unsigned int) length;
-- (NSData*) subdataWithRange:(NSRange)aRange;
-- (BOOL) writeToFile:(NSString*)path atomically:(BOOL)useAuxiliaryFile;
-- (BOOL) writeToFile:(NSString *)path options:(unsigned int)mask error:(NSError **)errorPtr;
-- (BOOL) writeToURL:(NSURL*)url atomically:(BOOL)useAuxiliaryFile;
-- (BOOL) writeToURL:(NSURL *)aURL options:(unsigned int)mask error:(NSError **)errorPtr;
+- (const void *) bytes;
+- (NSString *) description;
+- (void) getBytes:(void *) buffer;
+- (void) getBytes:(void *) buffer length:(NSUInteger) length;
+- (void) getBytes:(void *) buffer range:(NSRange) aRange;
+- (id) initWithBytes:(const void *) bytes length:(NSUInteger) length;
+- (id) initWithBytesNoCopy:(void *) bytes length:(NSUInteger) length;
+- (id) initWithBytesNoCopy:(void *) bytes length:(NSUInteger) length freeWhenDone:(BOOL) flag;
+- (id) initWithContentsOfFile:(NSString *) path;
+- (id) initWithContentsOfFile:(NSString *) path options:(NSUInteger) mask error:(NSError **) errorPtr;
+- (id) initWithContentsOfMappedFile:(NSString *) path;
+- (id) initWithContentsOfURL:(NSURL *) url;
+- (id) initWithContentsOfURL:(NSURL *) aURL options:(NSUInteger) mask error:(NSError **) errorPtr;
+- (id) initWithData:(NSData *) data;
+- (BOOL) isEqualToData:(NSData *) other;
+- (NSUInteger) length;
+- (NSData *) subdataWithRange:(NSRange) aRange;
+- (BOOL) writeToFile:(NSString *) path atomically:(BOOL) useAuxiliaryFile;
+- (BOOL) writeToFile:(NSString *) path options:(NSUInteger) mask error:(NSError **) errorPtr;
+- (BOOL) writeToURL:(NSURL *) url atomically:(BOOL) useAuxiliaryFile;
+- (BOOL) writeToURL:(NSURL *) aURL options:(NSUInteger) mask error:(NSError **) errorPtr;
 
 @end
 

@@ -10,6 +10,8 @@
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   NSConditionLock: aligned with 10.5 by Fabian Spillner 22.04.2008
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -49,20 +51,20 @@
 	NSString *_name;
 	objc_mutex_t _mutex;								// Allows locking and 
 	objc_condition_t _condition;						// unlocking to be based 
-	int _conditionValue;								// upon a condition
+	NSInteger _conditionValue;								// upon a condition
 }
 
-- (int) condition;									// condition of the lock
-- (id) initWithCondition:(int)value;
-- (BOOL) lockBeforeDate:(NSDate *)limit;			// Acquiring the lock with 
-- (void) lockWhenCondition:(int)value;				// Acquire / release lock
-- (BOOL) lockWhenCondition:(int)condition			// a date condition
-				beforeDate:(NSDate *)limit;
+- (NSInteger) condition;									// condition of the lock
+- (id) initWithCondition:(NSInteger) value;
+- (BOOL) lockBeforeDate:(NSDate *) limit;			// Acquiring the lock with 
+- (void) lockWhenCondition:(NSInteger) value;				// Acquire / release lock
+- (BOOL) lockWhenCondition:(NSInteger) condition			// a date condition
+				beforeDate:(NSDate *) limit;
 - (NSString *) name;
 - (void) setName:(NSString *) name;
 - (BOOL) tryLock;
-- (BOOL) tryLockWhenCondition:(int)value;
-- (void) unlockWithCondition:(int)value;
+- (BOOL) tryLockWhenCondition:(NSInteger) value;
+- (void) unlockWithCondition:(NSInteger) value;
 
 @end
 
