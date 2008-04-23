@@ -267,8 +267,8 @@
 			if(!foreGround)
 				foreGround=[NSColor blackColor];
 			[foreGround setStroke];
-			[[attr objectForKey:NSStrokeColorAttributeName] setStroke];			// change stroke color if defined differently
-			[[attr objectForKey:NSBackgroundColorAttributeName] setFill];
+			[[attr objectForKey:NSStrokeColorAttributeName] setStroke];			// overwrite stroke color if defined differently
+			[[attr objectForKey:NSBackgroundColorAttributeName] setFill];		// overwrite fill color
 			baseline=0.0;
 			if((attrib=[attr objectForKey:NSBaselineOffsetAttributeName]))
 				baseline=[attrib floatValue];

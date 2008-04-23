@@ -9,9 +9,6 @@
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jan 2006 - aligned with 10.4
  
-   Author:	Fabian Spillner
-   Date:	19. October 2007  
- 
    Author:  Fabian Spillner <fabian.spillner@gmail.com>
    Date:	5. November 2007 - aligned with 10.5
  

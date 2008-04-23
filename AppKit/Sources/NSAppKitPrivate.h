@@ -64,6 +64,7 @@ typedef struct _NSGraphicsState
 } _NSGraphicsState;
 
 @interface NSBezierPath (NSPrivate)
+- (void) _tesselate:(SEL) selector forObject:(id) object;
 + (NSBezierPath *) _bezierPathWithBoxBezelInRect:(NSRect) borderRect radius:(float) radius;		// box with rounded corners
 + (NSBezierPath *) _bezierPathWithRoundedBezelInRect:(NSRect) borderRect vertical:(BOOL) flag;	// box with halfcircular rounded ends
 typedef enum _NSRoundedBezelSegments

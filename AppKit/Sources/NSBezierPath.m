@@ -29,6 +29,7 @@
 #define PMAX  10000
 #define KAPPA 0.5522847498				// magic number = 4 *(sqrt(2) -1)/3	
 
+static int tesselate_compare(void *elements, const void *idx1, const void *idx2);
 static void flatten(NSPoint coeff[], float flatness, NSBezierPath *path);
 
 static float __defaultLineWidth = 1.0;
@@ -329,7 +330,7 @@ typedef struct _PathElement
 			[self release];
 			return nil;
 			}
-		_bz.flat = YES;
+		_bz.flat = YES;	// default is flat and first curve makes it non-flat
 		}
 	return self;
 }
@@ -1084,8 +1085,7 @@ typedef struct _PathElement
 	dx1 = p.x - x1;
 	dy1 = p.y - y1;
 	
-	// FIXME: ??? how can this ever be negative ???
-	if ((l = dx1*dx1 + dy1*dy1) <= 0)
+	if ((l = dx1*dx1 + dy1*dy1) <= 0)	// can't be negative - but simply be sure...
 		{
 		[self lineToPoint: point1];
 		return;
@@ -1397,8 +1397,139 @@ typedef struct _PathElement
 	return ((Rcross % 2) == 1) ? YES : NO;
 }
 
+// based on Seidel's algorithm e.g. http://www.cs.unc.edu/~dm/CODE/GEM/chapter.html
+
+/* 
+   if you want to get triangles,
+   find the longer edge of each trapezoid,
+   split it by two and make 3 triangles
+   unless the shorter has zero width - then it is already a triangle
+ */
+
+- (void) _tesselate:(SEL) selector forObject:(id) object;
+{
+	typedef void (*trapezoid_callback)(id, SEL, NSPoint bottomleft, float topleft_x, float bottomright_x, NSPoint topright);	// bottom and top are horizontal lines
+	// we should check that the object responds to the selector...
+	trapezoid_callback cmd=(trapezoid_callback) [object methodForSelector:selector];
+	struct edge { int from, to; } *edges=NULL;	// current edge
+	int nedges=0;
+	int edgescapacity=0;
+	int *bends;	// sorted array along the y axis
+	int npoints=0;
+	int i;
+	NSPoint first;
+	if(!_bz.flat)
+		self=[self bezierPathByFlatteningPath];	// needs flattening first
+	bends=(int *) objc_malloc(_count*sizeof(bends[0]));
+	for(i=0; i<_count; i++)
+		{ // fill sort array with indices of moveto, lineto, close
+			PathElement *e=_bPath[i];
+			if(e->type == NSMoveToBezierPathElement)
+				first=e->points[0];
+			else if(e->type == NSClosePathBezierPathElement)
+				// FIXME: what if path is NOT closed?
+				e->points[0]=first;	// make coordinate of first point known
+			bends[i]=i;	// define initial index
+		}
+	npoints=_count;
+	qsort_r(bends, npoints, sizeof(bends[0]), _bPath, &tesselate_compare);	// sort along the y axis
+	for(i=0; i<_count; i++)
+		{ // process all edge points in sorted order
+		int j, n;
+		int y=bends[i];				// index of current point
+		BOOL any=NO;
+		PathElement *e=_bPath[y];	// current point
+		NSLog(@"process %d: %@", bends[i], NSStringFromPoint(e->points[0]));
+		for(n=i+1; n<_count; n++)
+			{ // find next point in raising y direction
+				// FIXME - handle closePath elements properly
+			if(bends[n] == y+1 || bends[n] == y-1)
+				break;	// found next edge
+			}
+		for(j=0; j<nedges; j++)
+			{ // update edges or add/remove edges depending on current point
+			if(edges[j].to == y)
+				{ // found
+				if(n < _count)
+					{ // found, move to next edge
+					edges[j].from=y;
+					edges[j].to=bends[n];
+					}
+				else
+					{ // we are a termination point, remove this edge
+					memmove(&edges[j], &edges[j+1], sizeof(edges[0])*(--nedges-j));
+					j--;
+					}
+				any=YES;
+				}
+			}
+		if(!any)
+			{ // not found - we are an initial point
+			nedges+=2;
+			if(nedges >= edgescapacity)
+				edges=(struct edge *) objc_realloc(edges, sizeof(edges[0])*(edgescapacity=2*edgescapacity+4));	// 4, 12, 28, 60, ...
+			// should memmove() to insertion position
+			edges[nedges-2].from=y;
+			if(e->type == NSClosePathBezierPathElement)	// we are last element
+				edges[nedges-2].to=y+1;	// find first
+			else
+				edges[nedges-2].to=y+1;
+			edges[nedges-1].from=y;
+			if(e->type == NSMoveToBezierPathElement)	// we are first element
+				edges[nedges-1].to=y-1;	// find last
+			else
+				edges[nedges-1].to=y-1;
+			}
+#if 1
+		{
+			NSString *e=@"";
+			for(j=0; j<nedges; j++)
+				{
+#if 1
+					e=[e stringByAppendingFormat:@"%d-%d ", edges[j].from, edges[j].to];
+#endif
+				}
+			NSLog(@"edges: %@", e);
+		}
+#endif
+		for(j=0; j<nedges; j++)
+			{
+			// use _bPath[edges[j-1]].points[0] and _bPath[edges[j]].points[0]
+			// interpolate coordinates of as many trapezoids as we have edges or edge-pairs and pass to callback function
+			(*cmd)(object, selector, NSMakePoint(0.0, 0.0), 5.0, 20.0, NSMakePoint(25.0, 20.0));
+			}
+		}
+	if(nedges > 0)
+		NSLog(@"internal error - %d edges left over", nedges);
+	objc_free(bends);
+	if(edges)
+		objc_free(edges);
+}
+
 @end  /* NSBezierPath */
 
+static inline int compare_float(float a, float b)
+{
+	// can we speed up by comparing as a long int? IEEE floats are ordered properly if treated as a bitfield!
+	if(a == b)
+		return 0;
+	return (a > b)?1:-1;	
+}
+
+static int tesselate_compare(void *elements, const void *idx1, const void *idx2)
+{
+	int cmp;
+	int i1=*(int *) idx1;
+	int i2=*(int *) idx2;
+	PathElement *e1=((PathElement **)elements)[i1];
+	PathElement *e2=((PathElement **)elements)[i2];
+	cmp=compare_float(e1->points[0].y, e2->points[0].y);
+	if(cmp == 0)
+		cmp=compare_float(e1->points[0].x, e2->points[0].x);
+	if(cmp == 0 && i1 != i2)	// same point, i.e. first and last in our polygon
+		cmp=(i1 > i2)?1:-1;		// make sure that closepath comes after first move
+	return cmp;
+}
 
 static void
 flatten(NSPoint coeff[], float flatness, NSBezierPath *path)
@@ -1490,3 +1621,4 @@ flatten(NSPoint coeff[], float flatness, NSBezierPath *path)
 		[path lineToPoint: coeff[3]];
 		}
 }
+

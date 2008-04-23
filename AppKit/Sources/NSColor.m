@@ -328,7 +328,6 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 		c->_rgb.green = green < 0 || green > 1 ? 0 : green;
 		c->_rgb.blue = blue < 0 || blue > 1 ? 0 : blue;
 		c->_alpha = alpha < 0 || alpha > 1 ? 0 : alpha;
-		//	RGB2HSB(c);
 		}
 	return c;
 }

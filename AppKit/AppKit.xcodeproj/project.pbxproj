@@ -3085,7 +3085,7 @@
 				EEA3309609537E48001244CF /* Resources */,
 				EE0E65B20DBC828600564003 /* macports-dylibs */,
 				EE3196E109AB7E8A0089A9A2 /* mySTEP Test */,
-				EE4CA9E30D3D080100B1513B /* GNUstep */,
+				EE4CA9E30D3D080100B1513B /* GNUstep GUI */,
 				EEE6DDCA0DBB1C0200C71123 /* mgstep-0.558 */,
 				EEE6DFFC0DBBC48A00C71123 /* cairo-1.5.20 */,
 				EEA370FA09540051001244CF /* mySTEP Frameworks */,
@@ -3286,12 +3286,12 @@
 			path = ../TestApplications/NIB;
 			sourceTree = "<group>";
 		};
-		EE4CA9E30D3D080100B1513B /* GNUstep */ = {
+		EE4CA9E30D3D080100B1513B /* GNUstep GUI */ = {
 			isa = PBXGroup;
 			children = (
 				EE4CA9E70D3D082E00B1513B /* trunk */,
 			);
-			name = GNUstep;
+			name = "GNUstep GUI";
 			path = Sources;
 			sourceTree = "<group>";
 		};
@@ -7025,7 +7025,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../macports-dylibs/lib\"";
-				OTHER_CFLAGS = "-D__SYNCHRONIZE__";
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
 					0x20200000,

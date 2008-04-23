@@ -813,7 +813,10 @@ typedef struct
 - (void) _setColor:(NSColor *) color;
 {
 	if(_hasRender)
-		_state->_fillColor=_state->_strokeColor=[(_NSX11Color *) color _pictureForColor];
+		{
+			ASSIGN(_state->_fillColor, color);
+			ASSIGN(_state->_strokeColor, color);
+		}
 	else
 		{
 		unsigned long pixel=[(_NSX11Color *)color _pixelForScreen:_nsscreen->_screen];
@@ -828,7 +831,7 @@ typedef struct
 - (void) _setFillColor:(NSColor *) color;
 {
 	if(_hasRender)
-		_state->_fillColor=[(_NSX11Color *) color _pictureForColor];
+		ASSIGN(_state->_fillColor, color);
 	else
 		{
 		unsigned long pixel=[(_NSX11Color *)color _pixelForScreen:_nsscreen->_screen];
@@ -843,7 +846,7 @@ typedef struct
 - (void) _setStrokeColor:(NSColor *) color;
 {
 	if(_hasRender)
-		_state->_strokeColor=_state->_strokeColor=[(_NSX11Color *) color _pictureForColor];
+		ASSIGN(_state->_strokeColor, color);
 	else
 		{
 		unsigned long pixel=[(_NSX11Color *)color _pixelForScreen:_nsscreen->_screen];
@@ -872,24 +875,25 @@ typedef struct
 #if 0
 	NSLog(@"_concatCTM -> %@", _state->_ctm);
 #endif
-	/* for Xrender:
-	 NSAffineTransformStruct atms=[atm affineTransformStruct];
-	 XTransform xtransform;
-	 
-	 xtransform.matrix[0][0] = XDoubleToFixed(atms.m11);
-	 xtransform.matrix[0][1] = XDoubleToFixed(atms.m12);
-	 xtransform.matrix[0][2] = XDoubleToFixed(atms.tx);
-	 
-	 xtransform.matrix[1][0] = XDoubleToFixed(atms.m21);
-	 xtransform.matrix[1][1] = XDoubleToFixed(atms.m22);
-	 xtransform.matrix[1][2] = XDoubleToFixed(atms.ty);
-	 
-	 xtransform.matrix[2][0] = 0;
-	 xtransform.matrix[2][1] = 0;
-	 xtransform.matrix[2][2] = 1 << 16;
-	 
-	 XRenderSetPictureTransform (_display, _picture, &xtransform);
-	 */
+	if(_hasRender)
+		{
+		NSAffineTransformStruct atms=[_state->_ctm transformStruct];
+		XTransform xtransform;
+		
+		xtransform.matrix[0][0] = XDoubleToFixed(atms.m11);
+		xtransform.matrix[0][1] = XDoubleToFixed(atms.m12);
+		xtransform.matrix[0][2] = XDoubleToFixed(atms.tX);
+		
+		xtransform.matrix[1][0] = XDoubleToFixed(atms.m21);
+		xtransform.matrix[1][1] = XDoubleToFixed(atms.m22);
+		xtransform.matrix[1][2] = XDoubleToFixed(atms.tY);
+		
+		xtransform.matrix[2][0] = 0;
+		xtransform.matrix[2][1] = 0;
+		xtransform.matrix[2][2] = 1 << 16;
+		
+		XRenderSetPictureTransform (_display, _picture, &xtransform);
+		}
 }
 
 - (int) _XRenderPictOp
@@ -1100,6 +1104,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 					 yddd = yddd_per_2 + yddd_per_2;
 					 ydd = ydd_per_2 + ydd_per_2;
 					 yddd_per_6 = yddd_per_2 * (1.0 / 3.0);
+					
+					// uses 14 additions per step
+					
 					 for(i=0; i < steps; i++)
 					 {
 						 addPoint(state, NSMakePoint(x, y));
@@ -1134,9 +1141,35 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #if 0
 					NSLog(@"pointsForPath: curved element");
 #endif
+					
+					/* here is DeCasteljau Algorithm avoiding sqares and cubes
+					
+					 uses 6 multiplications, 6 additions, 6 subtractions per arbitrary point
+					 					
+					 // simple linear interpolation between two points
+					 void lerp (point &dest, point &a, point &b, float t)
+					 {
+					 dest.x = a.x + (b.x-a.x)*t;
+					 dest.y = a.y + (b.y-a.y)*t;
+					 }
+					 
+					 // evaluate a point on a bezier-curve. t goes from 0 to 1.0
+					 void bezier (point &dest, float t)
+					 {
+					 point ab,bc,cd,abbc,bccd;
+					 lerp (ab, a,b,t);           // point between a and b (green)
+					 lerp (bc, b,c,t);           // point between b and c (green)
+					 lerp (cd, c,d,t);           // point between c and d (green)
+					 lerp (abbc, ab,bc,t);       // point between ab and bc (blue)
+					 lerp (bccd, bc,cd,t);       // point between bc and cd (blue)
+					 lerp (dest, abbc,bccd,t);   // point on the bezier-curve (black)
+					 }
+
+					 */
 					// FIXME: we should adjust the step size to the size of the path
 					for(t=0.1; t<=0.9; t+=0.1)
 						{ // very simple and slow approximation
+							// uses 16 multiplications, 2 scaling, 7 additions per step
 						float t1=(1.0-t);
 						float t12=t1*t1;
 						float t13=t1*t12;
@@ -1187,46 +1220,79 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _stroke:(NSBezierPath *) path;
 {
-	PointsForPathState state={ path };	// initializes other struct components with 0
-	float *pattern=NULL;	// FIXME: who is owner of this data? and who takes care not to overflow?
-	int count;
-	float phase;
-	int width=(_scale != 1.0)?[path lineWidth]*_scale:[path lineWidth];	// multiply with userSpaceScale factor of current NSScreen!
-	if(width < 1)
-		width=1;	// default width
-#if 0
-	NSLog(@"_stroke %@", path);
-#endif
-	[self _setCompositing];
-	[path getLineDash:pattern count:&count phase:&phase];
-	XSetLineAttributes(_display, _state->_gc,
-					   width,
-					   count == 0 ? LineSolid : LineOnOffDash,
-					   _capStyles[[path lineCapStyle]&0x03],
-					   _joinStyles[[path lineJoinStyle]&0x03]
-					   );
-	if(count)
+	if(_picture)
 		{
-		char dash_list[count];	// FIXME: this can overflow stack! => security risk by bad PDF files
-		int i;
-		for(i = 0; i < count; i++)
-			dash_list[i] = (char) pattern[i];		
-		XSetDashes(_display, _state->_gc, phase, dash_list, count);
+			path=[path bezierPathByFlatteningPath];
+			return;
 		}
-	while([self _pointsForPath:&state])
+	else
 		{
+		PointsForPathState state={ path };	// initializes other struct components with 0
+		float *pattern=NULL;	// FIXME: who is owner of this data? and who takes care not to overflow?
+		int count;
+		float phase;
+		int width=(_scale != 1.0)?[path lineWidth]*_scale:[path lineWidth];	// multiply with userSpaceScale factor of current NSScreen!
+		if(width < 1)
+			width=1;	// default width
 #if 0
-		NSLog(@"npoints=%d", state.npoints);
+		NSLog(@"_stroke %@", path);
 #endif
-		XDrawLines(_display, ((Window) _graphicsPort), _state->_gc, state.points, state.npoints, CoordModeOrigin);
-		_setDirtyPoints(self, state.points, state.npoints);
+		[self _setCompositing];
+		[path getLineDash:pattern count:&count phase:&phase];
+		XSetLineAttributes(_display, _state->_gc,
+						   width,
+						   count == 0 ? LineSolid : LineOnOffDash,
+						   _capStyles[[path lineCapStyle]&0x03],
+						   _joinStyles[[path lineJoinStyle]&0x03]
+						   );
+		if(count)
+			{
+			char dash_list[count];	// FIXME: this can overflow stack! => security risk by bad PDF files
+			int i;
+			for(i = 0; i < count; i++)
+				dash_list[i] = (char) pattern[i];		
+			XSetDashes(_display, _state->_gc, phase, dash_list, count);
+			}
+		while([self _pointsForPath:&state])
+			{
+#if 0
+			NSLog(@"npoints=%d", state.npoints);
+#endif
+			XDrawLines(_display, ((Window) _graphicsPort), _state->_gc, state.points, state.npoints, CoordModeOrigin);
+			_setDirtyPoints(self, state.points, state.npoints);
+			}
 		}
+}
+
+
+- (void) _renderTrapezoid:(NSPoint) bottomleft :(float) topleft_x :(float) bottomright_x :(NSPoint) topright;
+{
+	XTrapezoid trap;
+	trap.left.p1.x=XDoubleToFixed(bottomleft.x);	// x
+	trap.left.p1.y=XDoubleToFixed(bottomleft.y);
+	trap.left.p2.x=XDoubleToFixed(topleft_x);	// x must be > p1???
+	trap.left.p2.y=XDoubleToFixed(topright.y);
+	trap.bottom=trap.left.p1.y;			// y
+	trap.right.p1.x=XDoubleToFixed(bottomright_x);	// x
+	trap.right.p1.y=XDoubleToFixed(bottomleft.y);	// x
+	trap.right.p2.x=XDoubleToFixed(topright.x);	// x must be > p1???
+	trap.right.p2.y=XDoubleToFixed(topright.y);
+	trap.top=trap.right.p2.y;			// y
+	// should properly define xSrc and ySrc if we use a pattern color?
+	XRenderCompositeTrapezoids(_display, [self _XRenderPictOp], [_state->_fillColor _pictureForColor], _picture, XRenderFindStandardFormat(_display, PictStandardARGB32), 0, 0, &trap, 1);
 }
 
 - (void) _fill:(NSBezierPath *) path;
 {
-	PointsForPathState state={ path };	// initializes other struct components with 0
-	XGCValues values; // we have to temporarily swap background & foreground colors since X11 uses the FG color to fill!
+	if(_picture)
+		{
+			[path _tesselate:@selector(_renderTrapezoid::::) forObject:self];
+		return;
+		}
+	else
+		{
+		PointsForPathState state={ path };	// initializes other struct components with 0
+		XGCValues values; // we have to temporarily swap background & foreground colors since X11 uses the FG color to fill!
 #if 0
 	NSLog(@"_fill");
 #endif
@@ -1251,6 +1317,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			}
 		}
 	XSetForeground(_display, _state->_gc, values.foreground);	// restore stroke color
+	}
 }
 
 - (void) _addClip:(NSBezierPath *) path reset:(BOOL) flag;
@@ -1286,9 +1353,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	else
 		_state->_clip=r;	// first call
 	XSetRegion(_display, _state->_gc, _state->_clip);
-	/*
-	XRenderSetPictureClipRegion(_display, _picture, _state->_clip);
-	 */
 	XClipBox(_state->_clip, &_state->_clipBox);	// get current clipping box
 	clip.x=0;
 	clip.y=0;
@@ -1299,6 +1363,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #if 0
 	NSLog(@"         box=%@", NSStringFromXRect(_state->_clipBox));
 #endif
+	if(_hasRender)
+		XRenderSetPictureClipRegion(_display, _picture, _state->_clip);
 }
 
 - (void) _setShadow:(NSShadow *) shadow;
@@ -1526,18 +1592,31 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #endif
 	if(_picture)
 		{
+		NSAffineTransformStruct atms=[_textMatrix transformStruct];
+#if 0
 		NSLog(@"cnt=%u picture=%d fillColor=%d", cnt, _picture, _state->_fillColor);
+#endif
 		// if we want to lazily send glyphs to the server, call [_state->_font _defineGlyphs:glyphs count:cnt]
+#if 0
+		[self _setStrokeColor:[NSColor colorWithDeviceRed:0.7 green:0.3 blue:0.0 alpha:0.7]];
+#endif
+			NSLog(@"stroke color %@", _state->_strokeColor);
 		XRenderCompositeString32(_display,
 								 [self _XRenderPictOp],
-								 _state->_fillColor,	// (src) color pattern
+								 [_state->_strokeColor _pictureForColor],	// (src) color pattern
 								 _picture,				// (dest)
 								 XRenderFindStandardFormat(_display, PictStandardA8),	// the format of the glyph mask
 								 [_state->_font _glyphSet],	// current font
 								 0, 0,	// x,y src
-								 0, 0,	// x,y dest
+								 atms.tX, atms.tY,	// x,y dest
 								 glyphs,
 								 cnt);
+/*
+	_setDirtyRect(self,
+					  cursor.x, cursor.y,
+					  XTextWidth16(font, buf, cnt),
+					  font->ascent + font->descent);
+ */
 		return;
 		}
 	if([_state->_font renderingMode] == NSFontIntegerAdvancementsRenderingMode)
@@ -2034,62 +2113,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	// save (new) level in global window list so that we can order other windows accordingly
 	// maybe we should use a (root) window property to store the level?
 	// or at least a shared file with fast access (FILE * and fread() based)
-#if 1		// test
-	{
-#if 0
-	XRenderColor color;
-	XTransform xtransform;
-	
-	xtransform.matrix[0][0] = XDoubleToFixed(2.0);
-	xtransform.matrix[0][1] = XDoubleToFixed(0.2);
-	xtransform.matrix[0][2] = XDoubleToFixed(0.0);
-	
-	xtransform.matrix[1][0] = XDoubleToFixed(0.0);
-	xtransform.matrix[1][1] = XDoubleToFixed(3.0);
-	xtransform.matrix[1][2] = XDoubleToFixed(0.0);
-	
-	xtransform.matrix[2][0] = 0;
-	xtransform.matrix[2][1] = 0;
-	xtransform.matrix[2][2] = 1 << 16;
-	
-	XRenderSetPictureTransform(_display, _picture, &xtransform);
-
-	color.red=XDoubleToFixed(0.7);
-	color.green=XDoubleToFixed(0.3);
-	color.blue=XDoubleToFixed(0.4);
-	color.alpha=XDoubleToFixed(0.5);
-	
-	XRenderFillRectangle(_display, PictOpSrc, _picture, &color, 10, 20, 100, 50);
-#else
-	_NSX11Color *c=(_NSX11Color *) [NSColor colorWithDeviceRed:0.9 green:0.5 blue:0.2 alpha:0.5];
-	Picture p=[c _pictureForColor];
-		XTransform xtransform;
-		
-		xtransform.matrix[0][0] = XDoubleToFixed(0.9);
-		xtransform.matrix[0][1] = XDoubleToFixed(0.2);
-		xtransform.matrix[0][2] = XDoubleToFixed(0.0);
-		
-		xtransform.matrix[1][0] = XDoubleToFixed(0.3);
-		xtransform.matrix[1][1] = XDoubleToFixed(1.5);
-		xtransform.matrix[1][2] = XDoubleToFixed(0.0);
-		
-		xtransform.matrix[2][0] = 0;
-		xtransform.matrix[2][1] = 0;
-		xtransform.matrix[2][2] = 1 << 16;
-		
-		XRenderSetPictureTransform(_display, _picture, &xtransform);
-		
-		XRenderComposite(_display, PictOpSrc, p, None, _picture, 0, 0, 0, 0, 30, 10, 100, 50);
-#endif
-	XFlush(_display);
-	
-	// XRenderTrapezoid should composite use the transformation matrix!
-	// fill should split the shape into trapezoids and triangles
-	// stroke should form line-trapezoids around the strokes
-	
-	sleep(5);
-	}
-#endif
 }
 
 - (void) _miniaturize;
@@ -2224,7 +2247,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 }
 
 - (_NSGraphicsState *) _copyGraphicsState:(_NSGraphicsState *) state;
-{ 
+{
 	XGCValues values;
 	_NSX11GraphicsState *new=(_NSX11GraphicsState *) objc_malloc(sizeof(*new));	// this does not clear all components!
 	new->_gc=XCreateGC(_display, ((Window) _graphicsPort), 0l, &values);	// create a fresh GC without values
@@ -2265,16 +2288,16 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			}
 		else
 			new->_clip=NULL;	// not clipped
-		new->_fillColor=((_NSX11GraphicsState *) state)->_fillColor;
-		new->_strokeColor=((_NSX11GraphicsState *) state)->_strokeColor;
+		new->_fillColor=[((_NSX11GraphicsState *) state)->_fillColor retain];
+		new->_strokeColor=[((_NSX11GraphicsState *) state)->_strokeColor retain];
 		}
 	else
 		{ // alloc
 		new->_ctm=nil;		// no initial screen transformation (set by first lockFocus)
 		new->_clip=NULL;	// not clipped
 		new->_font=nil;
-		new->_fillColor=0;
-		new->_strokeColor=0;
+		new->_fillColor=nil;
+		new->_strokeColor=nil;
 		}
 	return (_NSGraphicsState *) new;
 }
@@ -2283,6 +2306,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 {
 	if(!_graphicsState)
 		return;
+	[_state->_fillColor release];
+	[_state->_strokeColor release];
 	if(_state->_ctm)
 		[_state->_ctm release];
 	if(_state->_clip)
@@ -2726,7 +2751,7 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 	*((long *) 1)=0;	// force SEGFAULT to ease debugging by writing a core dump
 	abort();
 #endif
-	[NSException raise:NSGenericException format:@"X11 Internal Error"];	
+	[NSException raise:NSGenericException format:@"X11 Internal Error"];
 }  /* X11ErrorHandler */
 
 @implementation NSGraphicsContext (NSBackendOverride)
@@ -2961,6 +2986,10 @@ static NSDictionary *_x11settings;
     _deleteWindowAtom = atoms[2];
     _windowDecorAtom = atoms[3];
 	_hasRender=XRenderQueryExtension(_display, &event, &error);
+#if 1
+	if(_hasRender)
+		_doubleBufferering=NO;	// needs different algorithms
+#endif
 }
 
 + (void) _X11EventNotification:(NSNotification *) n;
@@ -3696,12 +3725,12 @@ static NSDictionary *_x11settings;
 			 Pixmap pixmap;
 			 XRenderColor c;
 			 XRenderPictureAttributes pa;
-			 c.red=XDoubleToFixed([self redComponent]);
-			 c.green=XDoubleToFixed([self greenComponent]);
-			 c.blue=XDoubleToFixed([self blueComponent]);
-			 c.alpha=XDoubleToFixed([self alphaComponent]);
+			 c.red=(65535 * [self redComponent]);
+			 c.green=(65535 * [self greenComponent]);
+			 c.blue=(65535 * [self blueComponent]);
+			 c.alpha=(65535 * [self alphaComponent]);
 			 pixmap=XCreatePixmap(_display, root, 1, 1, 4*8);	// ARGB32
-			 pa.repeat=True;
+			 pa.repeat=True;	// repeat pattern
 			 _picture=XRenderCreatePicture(_display, pixmap,
 										   XRenderFindStandardFormat(_display, PictStandardARGB32),
 										   CPRepeat, &pa);
@@ -3947,9 +3976,11 @@ static NSDictionary *_x11settings;
 { // get XRender glyph set
 	if(!_glyphSet)
 		{ // create a new glyphset for this font
+		// we must be able to dealloc a glyph set (LRU...) on the server if it needs too much memory!
 		_glyphSet=XRenderCreateGlyphSet(_display, XRenderFindStandardFormat(_display, PictStandardA8));
 		[self _defineGlyphs];	// render all glyphs into cache
-	}
+		}
+	// update LRU list
 	return _glyphSet;
 }
 
@@ -3957,8 +3988,9 @@ static NSDictionary *_x11settings;
 {
 	XGlyphInfo info = { width, rows, 0, 0, left, top };
 	Glyph g=glyph;	// Glyph is of type XID, i.e. must not be 0
+	int stride=((width+3)&~3);
+#if 0
 	NSLog(@"_addGlyph:%d x=%d y=%d w=%u h=%u", g, left, top, width, rows);
-#if 1
 	{
 		NSString *pattern=@"";
 		int x, y;
@@ -3975,9 +4007,21 @@ static NSDictionary *_x11settings;
 		NSLog(@"\n%@", pattern);
 	}
 #endif
-	XRenderAddGlyphs(_display, _glyphSet, &g, &info, 1, buffer, 2*rows*width);
-	// we could estimate the request length
-	XFlush(_display);	// send
+	if(width == stride)
+		XRenderAddGlyphs(_display, _glyphSet, &g, &info, 1, buffer, width*rows);
+	else
+		{ // convert to ZPixmap format with pad to 4 bytes
+			char *tmp=objc_malloc(stride*rows);
+			int x, y;
+			for(y=0; y<rows; y++)
+				{
+				int ys=y*stride;
+				for(x=0; x<width; x++)
+					tmp[ys+x]=*buffer++;	// copy
+				}
+			XRenderAddGlyphs(_display, _glyphSet, &g, &info, 1, tmp, stride*rows);
+			objc_free(tmp);
+		}
 }
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
