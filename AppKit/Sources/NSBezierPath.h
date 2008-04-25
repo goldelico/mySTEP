@@ -79,7 +79,7 @@ typedef enum NSBezierPathElement
 	float _miterLimit;
 	NSRect _bounds;
 	NSRect _controlPointBounds;
-//	NSImage *_cacheImage;
+	NSBezierPath *_cacheFlattened;
 	
 	void **_bPath;
 	unsigned int _count;

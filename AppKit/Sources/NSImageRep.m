@@ -83,8 +83,8 @@ static NSCountedSet *__pb;
 		}
 }
 
-+ (BOOL) canInitWithData:(NSData *)data			{ SUBCLASS return NO; }
-+ (BOOL) canInitWithPasteboard:(NSPasteboard*)p { SUBCLASS return NO; }
++ (BOOL) canInitWithData:(NSData *)data			{ SUBCLASS; return NO; }
++ (BOOL) canInitWithPasteboard:(NSPasteboard*)p { SUBCLASS; return NO; }
 + (NSArray *) imageUnfilteredFileTypes			{ return [self imageFileTypes]; }
 + (NSArray *) imageUnfilteredPasteboardTypes	{  return [self imagePasteboardTypes]; }
 
@@ -420,7 +420,7 @@ static NSCountedSet *__pb;
 	[super dealloc];
 }
 
-- (NSRect) rect								{ return (NSRect){_origin,_size}; }
+- (NSRect) rect								{ return (NSRect){_origin, _size}; }
 - (NSWindow *) window						{ return _window; }
 
 - (BOOL) draw

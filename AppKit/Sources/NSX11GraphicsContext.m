@@ -43,6 +43,7 @@
 #import "NSApplication.h"
 #import "NSAttributedString.h"
 #import "NSBezierPath.h"
+#import "NSCachedImageRep.h"
 #import "NSColor.h"
 #import "NSCursor.h"
 #import "NSFont.h"
@@ -1245,9 +1246,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 						   _capStyles[[path lineCapStyle]&0x03],
 						   _joinStyles[[path lineJoinStyle]&0x03]
 						   );
-		if(count)
+		if(count > 0 && count < 100)
 			{
-			char dash_list[count];	// FIXME: this can overflow stack! => security risk by bad PDF files
+			char dash_list[count];	// allocate on stack
 			int i;
 			for(i = 0; i < count; i++)
 				dash_list[i] = (char) pattern[i];		
@@ -1265,20 +1266,21 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 }
 
 
-- (void) _renderTrapezoid:(NSPoint) bottomleft :(float) topleft_x :(float) bottomright_x :(NSPoint) topright;
-{
+- (void) _renderTrapezoid:(NSPoint [4]) points;
+{ // callback from _tesselate
 	XTrapezoid trap;
-	trap.left.p1.x=XDoubleToFixed(bottomleft.x);	// x
-	trap.left.p1.y=XDoubleToFixed(bottomleft.y);
-	trap.left.p2.x=XDoubleToFixed(topleft_x);	// x must be > p1???
-	trap.left.p2.y=XDoubleToFixed(topright.y);
+	NSLog(@"{%@, %@, %@, %@}", NSStringFromPoint(points[0]), NSStringFromPoint(points[1]), NSStringFromPoint(points[2]), NSStringFromPoint(points[3]));
+	trap.left.p1.x=XDoubleToFixed(points[0].x);	// x
+	trap.left.p1.y=XDoubleToFixed(points[0].y);
+	trap.left.p2.x=XDoubleToFixed(points[1].x);	// x must be > p1???
+	trap.left.p2.y=XDoubleToFixed(points[1].y);
 	trap.bottom=trap.left.p1.y;			// y
-	trap.right.p1.x=XDoubleToFixed(bottomright_x);	// x
-	trap.right.p1.y=XDoubleToFixed(bottomleft.y);	// x
-	trap.right.p2.x=XDoubleToFixed(topright.x);	// x must be > p1???
-	trap.right.p2.y=XDoubleToFixed(topright.y);
+	trap.right.p1.x=XDoubleToFixed(points[2].x);	// x
+	trap.right.p1.y=XDoubleToFixed(points[2].y);	// x
+	trap.right.p2.x=XDoubleToFixed(points[3].x);	// x must be > p1???
+	trap.right.p2.y=XDoubleToFixed(points[3].y);
 	trap.top=trap.right.p2.y;			// y
-	// should properly define xSrc and ySrc if we use a pattern color?
+	// we should properly define xSrc and ySrc if we use a pattern color
 	XRenderCompositeTrapezoids(_display, [self _XRenderPictOp], [_state->_fillColor _pictureForColor], _picture, XRenderFindStandardFormat(_display, PictStandardARGB32), 0, 0, &trap, 1);
 }
 
@@ -1286,7 +1288,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 {
 	if(_picture)
 		{
-			[path _tesselate:@selector(_renderTrapezoid::::) forObject:self];
+		[path _tesselate:@selector(_renderTrapezoid:) intoObject:self];
 		return;
 		}
 	else
@@ -1710,20 +1712,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		_fraction=fraction;	// save compositing fraction - fixme: convert to 0..256-integer
 }
 
-- (BOOL) _defineImage:(NSImageRep *) rep;
-{ // experimental
-	XTransform transform;
-	unsigned long valuemask=0;
-	XRenderPictureAttributes attributes;
-	XRenderPictFormat format;
-	Picture picture = XRenderCreatePicture(_display, ((Window) _graphicsPort), &format, valuemask, &attributes);
-	if(!picture)
-		return NO;
-	XRenderSetPictureTransform(_display, ((Window) _graphicsPort), &transform);
-	XRenderFreePicture(_display, picture);
-	return YES;
-}
-
 /* idea for sort of core-image extension
 *
 * struct filter { struct RGBA8 (*filter)(float x, float y); struct filter *input; other paramters }; describes a generic filter node
@@ -1740,7 +1728,60 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (BOOL) _draw:(NSImageRep *) rep;
 { // composite into unit square using current CTM, current compositingOp & fraction etc.
-	
+	if(_picture)
+		{
+		Picture src;
+		BOOL cached=[rep isKindOfClass:[NSCachedImageRep class]];
+		if(cached)
+			{ // it is already a Picture
+				_NSX11GraphicsContext *c=(_NSX11GraphicsContext *) [[(NSCachedImageRep *) rep window] graphicsContext];
+				src=c->_picture;
+				[(NSCachedImageRep *) rep rect];
+			}
+		else
+			{ // send bitmap to X Server
+				unsigned long valuemask=0;
+				XRenderPictureAttributes attributes;
+				XRenderPictFormat format;
+				Pixmap pixmap;
+				unsigned char *imagePlanes[5];
+				NSBitmapFormat bitmapFormat=[(NSBitmapImageRep *) rep bitmapFormat];
+				BOOL hasAlpha=[rep hasAlpha];
+				BOOL isPlanar=[(NSBitmapImageRep *) rep isPlanar];
+				BOOL isFlipped=[self isFlipped];
+				BOOL calibrated;
+				int bytesPerRow=[(NSBitmapImageRep *) rep bytesPerRow];
+				NSString *csp=[rep colorSpaceName];
+				if(bitmapFormat != 0)
+					{ // can't handle non-premultiplied and float pixel (but we could easily handle alphafirst)
+						NSLog(@"_draw: can't draw bitmap format %0x yet", [(NSBitmapImageRep *) rep bitmapFormat]);
+						// raise exception
+						return NO;
+					}
+				calibrated=[csp isEqualToString:NSCalibratedRGBColorSpace];
+				if(!calibrated && ![csp isEqualToString:NSDeviceRGBColorSpace])
+					{
+						NSLog(@"_draw: colorSpace %@ not supported!", csp);
+						// raise exception?
+						return NO;
+					}
+				[(NSBitmapImageRep *) rep getBitmapDataPlanes:imagePlanes];
+				_imageInterpolation;	// convert into picture attribute
+				// send bits from rep to pixmap using XPutImage()
+				// how do we send the Alpha channel? through a second pixmap and a compositing operation?
+				// src=XRenderCreatePicture(_display, pixmap, &format, valuemask, &attributes);
+				src=0;
+			}
+		if(!src)
+			return NO;
+		// handle _fraction - is this an Alpha mask???
+		XRenderComposite(_display, [self _XRenderPictOp], src, None, _picture, 0, 0, 0, 0, 0, 0, 10, 10);
+		if(!cached)
+			XRenderFreePicture(_display, src);
+		return YES;
+		}
+	else
+	{
 	/* here we know:
 	- source bitmap: rep
 	- source rect: defined indirectly by clipping path
@@ -2025,6 +2066,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XDrawRectangle(_display, ((Window) _graphicsPort), _state->_gc, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 #endif
 	return YES;
+	}
 }
 
 - (void) _copyBits:(void *) srcGstate fromRect:(NSRect) srcRect toPoint:(NSPoint) destPoint;
@@ -2332,7 +2374,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 }
 
 - (NSColor *) _readPixel:(NSPoint) location;
-{
+{ // read single pixel from screen
 	XImage *img;
 	struct RGBA8 pix;
 	NSColor *c;
@@ -4105,19 +4147,26 @@ static NSDictionary *_x11settings;
 
 - (Cursor) _cursor;
 {
-/* Cursor XRenderCreateCursor (Display	    *dpy,
-							   Picture	    source,
-							   unsigned int   x,
-							   unsigned int   y);
-*/			 
 	if(!_cursor)
 		{
 		if(_image)
 			{
-			 // get _cachedImageRep and use the Picture
-			NSBitmapImageRep *bestRep =(NSBitmapImageRep *) [_image bestRepresentationForDevice:nil];	// where to get device description from??
+			if(_hasRender)
+				{
+					// FIXME: image should be in cache-separately mode!
+					NSCachedImageRep *rep=[_image _cachedImageRep];	// render to cache if needed
+					_NSX11GraphicsContext *c=(_NSX11GraphicsContext *) [[rep window] graphicsContext];
+					if(c)
+						{
+						[(NSCachedImageRep *) rep rect];
+						_cursor=XRenderCreateCursor(_display, c->_picture, 0, 0);
+						}
+				}
+			else
+				{
+				NSBitmapImageRep *bestRep =(NSBitmapImageRep *) [_image bestRepresentationForDevice:nil];	// where to get device description from??
 #if 0
-			NSLog(@"convert %@ to PixmapCursor", bestRep);
+				NSLog(@"convert %@ to PixmapCursor", bestRep);
 #endif
 #if FIXME
 			// we should lockFocus on a Pixmap and call _draw:bestRep
@@ -4125,6 +4174,7 @@ static NSDictionary *_x11settings;
 			Pixmap bits = (Pixmap)[bestRep xPixmapBitmap];
 			_cursor = XCreatePixmapCursor(_display, bits, mask, &fg, &bg, _hotSpot.x, _hotSpot.y);
 #endif
+				}
 			}
 		if(!_cursor)
 			return None;	// did not initialize
