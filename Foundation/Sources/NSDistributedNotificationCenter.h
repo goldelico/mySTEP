@@ -1,27 +1,31 @@
-/* Interface of NSDistributedNotificationCenter class
-   Copyright (C) 1998 Free Software Foundation, Inc.
+/* 
+    Interface of NSDistributedNotificationCenter class
+    Copyright (C) 1998 Free Software Foundation, Inc.
 
-   Written by:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
-   Created: October 1998
+    Written by:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
+    Created: October 1998
 
-   H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+ 
+    Author:	Fabian Spillner <fabian.spillner@gmail.com>
+    Date:	28. April 2008 - aligned with 10.5
+ 
+    This file is part of the GNUstep Base Library.
 
-   This file is part of the GNUstep Base Library.
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
 
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public
-   License as published by the Free Software Foundation; either
-   version 2 of the License, or (at your option) any later version.
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
 
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
-
-   You should have received a copy of the GNU Library General Public
-   License along with this library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
-   */
+    You should have received a copy of the GNU Library General Public
+    License along with this library; if not, write to the Free
+    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
+*/
 
 #ifndef __NSDistributedNotificationCenter_h_GNUSTEP_BASE_INCLUDE
 #define __NSDistributedNotificationCenter_h_GNUSTEP_BASE_INCLUDE
@@ -57,35 +61,35 @@ NSString *GSNetworkNotificationCenterType;
 	BOOL			_suspended;		/* Is delivery suspended?	*/
 }
 
-+ (NSNotificationCenter*) defaultCenter;
-+ (NSNotificationCenter*) notificationCenterForType: (NSString*)type;
++ (NSNotificationCenter *) defaultCenter;
++ (NSNotificationCenter *) notificationCenterForType:(NSString *) type;
 
-- (void) addObserver: (id)anObserver
-			selector: (SEL)aSelector
-				name: (NSString*)notificationName
-			  object: (NSString*)anObject;
-- (void) addObserver: (id)anObserver
-			selector: (SEL)aSelector
-				name: (NSString*)notificationName
-			  object: (NSString*)anObject
-  suspensionBehavior: (NSNotificationSuspensionBehavior)suspensionBehavior;
-- (void) postNotificationName: (NSString*)notificationName
-					   object: (NSString*)anObject;
-- (void) postNotificationName: (NSString*)notificationName
-					   object: (NSString*)anObject
-					 userInfo: (NSDictionary*)userInfo;
-- (void) postNotificationName: (NSString*)notificationName
-					   object: (NSString*)anObject
-					 userInfo: (NSDictionary*)userInfo
-		   deliverImmediately: (BOOL)deliverImmediately;
-- (void) postNotificationName:(NSString *)name
-					   object:(NSString *)anObject
-					 userInfo:(NSDictionary *)userInfo
-					  options:(unsigned)options;
-- (void) removeObserver: (id)anObserver
-				   name: (NSString*)notificationName
-				 object: (NSString*)anObject;
-- (void) setSuspended: (BOOL)flag;
+- (void) addObserver:(id) anObserver
+			selector:(SEL) aSelector
+				name:(NSString *) notificationName
+			  object:(NSString *) anObject;
+- (void) addObserver:(id) anObserver
+			selector:(SEL) aSelector
+				name:(NSString *) notificationName
+			  object:(NSString *) anObject
+  suspensionBehavior:(NSNotificationSuspensionBehavior) suspensionBehavior;
+- (void) postNotificationName:(NSString *) notificationName
+					   object:(NSString *) anObject;
+- (void) postNotificationName:(NSString *) notificationName
+					   object:(NSString *) anObject
+					 userInfo:(NSDictionary *) userInfo;
+- (void) postNotificationName:(NSString *) notificationName
+					   object:(NSString *) anObject
+					 userInfo:(NSDictionary *) userInfo
+		   deliverImmediately:(BOOL) deliverImmediately;
+- (void) postNotificationName:(NSString *) name
+					   object:(NSString *) anObject
+					 userInfo:(NSDictionary *) userInfo
+					  options:(NSUInteger) options;
+- (void) removeObserver:(id) anObserver
+				   name:(NSString *) notificationName
+				 object:(NSString *) anObject;
+- (void) setSuspended:(BOOL) flag;
 - (BOOL) suspended;
 
 @end

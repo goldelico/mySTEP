@@ -44,8 +44,8 @@
 		} _fm;
 }
 
-- (NSDictionary*) directoryAttributes;
-- (NSDictionary*) fileAttributes;
+- (NSDictionary *) directoryAttributes;
+- (NSDictionary *) fileAttributes;
 - (void) skipDescendents;								// Skip subdirectories
 
 @end /* NSDirectoryEnumerator */

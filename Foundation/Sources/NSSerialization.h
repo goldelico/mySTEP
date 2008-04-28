@@ -72,17 +72,19 @@
 					  intoData:(NSMutableData*)d;
 @end
 
+/* Note: NSDeserializer has been deprecated in 10.2! Instead use NSPropertyListSerialization! */
+
 @interface NSDeserializer : NSObject
 
-+ (id) deserializePropertyListFromData:(NSData*)data
-							  atCursor:(unsigned int*)cursor
-							  mutableContainers:(BOOL)flag;
-+ (id) deserializePropertyListFromData:(NSData*)data
-					 mutableContainers:(BOOL)flag;
-+ (id) deserializePropertyListLazilyFromData:(NSData*)data
-									atCursor:(unsigned*)cursor
-									length:(unsigned)length
-									mutableContainers:(BOOL)flag;
++ (id) deserializePropertyListFromData:(NSData *) data
+							  atCursor:(unsigned int *) cursor
+							  mutableContainers:(BOOL) flag;
++ (id) deserializePropertyListFromData:(NSData *) data
+					 mutableContainers:(BOOL) flag;
++ (id) deserializePropertyListLazilyFromData:(NSData *) data
+									atCursor:(unsigned *) cursor
+									length:(unsigned) length
+									mutableContainers:(BOOL) flag;
 @end
 
 #endif /* _mySTEP_H_NSSerialization */

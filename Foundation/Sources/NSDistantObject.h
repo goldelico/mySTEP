@@ -1,18 +1,21 @@
 /* 
-   NSDistantObject.h
+    NSDistantObject.h
 
-   Class which defines proxies for objects in other applications
+    Class which defines proxies for objects in other applications
 
-   Copyright (C) 1997 Free Software Foundation, Inc.
+    Copyright (C) 1997 Free Software Foundation, Inc.
 
-   Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
-   GNUstep:	Richard Frith-Macdonald <richard@brainstorm.co.uk>
-   Date:	August 1997
+    Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
+    GNUstep:	Richard Frith-Macdonald <richard@brainstorm.co.uk>
+    Date:	August 1997
    
-   H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
+    Author:	Fabian Spillner <fabian.spillner@gmail.com>
+    Date:	28. April 2008 - aligned with 10.5
+ 
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
 */
 
 #ifndef _mySTEP_H_NSDistantObject
@@ -30,15 +33,15 @@
 	BOOL _isLocal;
 }
 
-+ (NSDistantObject*) proxyWithLocal:(id)anObject
-						 connection:(NSConnection*)aConnection;
-+ (NSDistantObject*) proxyWithTarget:(id)anObject
-						  connection:(NSConnection*)aConnection;
++ (NSDistantObject *) proxyWithLocal:(id) anObject
+						  connection:(NSConnection *) aConnection;
++ (NSDistantObject *) proxyWithTarget:(id) anObject
+						   connection:(NSConnection *) aConnection;
 
-- (NSConnection*) connectionForProxy;
-- (id) initWithLocal:(id)anObject connection:(NSConnection*)aConnection;
-- (id) initWithTarget:(id)anObject connection:(NSConnection*)aConnection;
-- (void) setProtocolForProxy:(Protocol*)aProtocol;
+- (NSConnection *) connectionForProxy;
+- (id) initWithLocal:(id) anObject connection:(NSConnection *) aConnection;
+- (id) initWithTarget:(id) anObject connection:(NSConnection *) aConnection;
+- (void) setProtocolForProxy:(Protocol *) aProtocol;
 
 @end
 
