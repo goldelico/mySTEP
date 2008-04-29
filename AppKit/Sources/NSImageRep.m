@@ -424,9 +424,17 @@ static NSCountedSet *__pb;
 - (NSWindow *) window						{ return _window; }
 
 - (BOOL) draw
-{ // copy (clipped) area from cached window to current locked focus
-	NSCopyBits([_window gState], [self rect], NSZeroPoint);
-	return YES;
+{
+	BOOL r;
+	NSGraphicsContext *ctx=[NSGraphicsContext currentContext];
+	NSAffineTransform *atm=[NSAffineTransform transform];
+	[ctx saveGraphicsState];
+	[atm scaleXBy:_size.width yBy:_size.height];
+	[atm concat];
+	// [ctx _setFraction:1.0];
+	r=[ctx _draw:self];
+	[ctx restoreGraphicsState];
+	return r;
 }
 
 @end /* NSCachedImageRep */
@@ -1111,7 +1119,7 @@ static NSArray *__pbBitmapImageReps;
 	[ctx saveGraphicsState];
 	[atm scaleXBy:_size.width yBy:_size.height];
 	[atm concat];
-	// [ctx _setFraction:1.0];	// we ignore fraction anyway
+	[ctx _setFraction:1.0];	// we ignore fraction anyway
 	r=[ctx _draw:self];
 	[ctx restoreGraphicsState];
 	return r;

@@ -54,7 +54,6 @@
 #import "NSWindow.h"
 #import "NSPasteboard.h"
 
-
 #if 1	// all windows are borderless, i.e. the frontend draws the title bar and manages windows directly
 #define WINDOW_MANAGER_TITLE_HEIGHT 0
 #else
@@ -880,7 +879,7 @@ typedef struct
 		{
 		NSAffineTransformStruct atms=[_state->_ctm transformStruct];
 		XTransform xtransform;
-		
+
 		xtransform.matrix[0][0] = XDoubleToFixed(atms.m11);
 		xtransform.matrix[0][1] = XDoubleToFixed(atms.m12);
 		xtransform.matrix[0][2] = XDoubleToFixed(atms.tX);
@@ -893,7 +892,7 @@ typedef struct
 		xtransform.matrix[2][1] = 0;
 		xtransform.matrix[2][2] = 1 << 16;
 		
-		XRenderSetPictureTransform (_display, _picture, &xtransform);
+//		XRenderSetPictureTransform (_display, _picture, &xtransform);
 		}
 }
 
@@ -1269,19 +1268,35 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (void) _renderTrapezoid:(NSPoint [4]) points;
 { // callback from _tesselate
 	XTrapezoid trap;
+#if 0
 	NSLog(@"{%@, %@, %@, %@}", NSStringFromPoint(points[0]), NSStringFromPoint(points[1]), NSStringFromPoint(points[2]), NSStringFromPoint(points[3]));
-	trap.left.p1.x=XDoubleToFixed(points[0].x);	// x
+#endif
+#if 0
+	{
+		XRenderColor color = { 255<<8, 0, 255<<8, 0<<8 };
+		XRenderFillRectangle(_display, PictOpSrc, _picture, &color, 8, 11, 43, 19);
+		XRenderComposite(_display, PictOpSrc, [_state->_fillColor _pictureForColor], None, _picture, 0, 0, 0, 0, 100, 150, 300, 500);
+		XFlush(_display);
+	}
+#endif
+	trap.left.p1.x=XDoubleToFixed(points[0].x);
 	trap.left.p1.y=XDoubleToFixed(points[0].y);
-	trap.left.p2.x=XDoubleToFixed(points[1].x);	// x must be > p1???
+	trap.left.p2.x=XDoubleToFixed(points[1].x);
 	trap.left.p2.y=XDoubleToFixed(points[1].y);
-	trap.bottom=trap.left.p1.y;			// y
-	trap.right.p1.x=XDoubleToFixed(points[2].x);	// x
-	trap.right.p1.y=XDoubleToFixed(points[2].y);	// x
-	trap.right.p2.x=XDoubleToFixed(points[3].x);	// x must be > p1???
+	trap.right.p1.x=XDoubleToFixed(points[2].x);
+	trap.right.p1.y=XDoubleToFixed(points[2].y);
+	trap.right.p2.x=XDoubleToFixed(points[3].x);
 	trap.right.p2.y=XDoubleToFixed(points[3].y);
-	trap.top=trap.right.p2.y;			// y
-	// we should properly define xSrc and ySrc if we use a pattern color
-	XRenderCompositeTrapezoids(_display, [self _XRenderPictOp], [_state->_fillColor _pictureForColor], _picture, XRenderFindStandardFormat(_display, PictStandardARGB32), 0, 0, &trap, 1);
+	// this requires that the edges are already extrapolated
+	trap.bottom=MAX(trap.left.p1.y, trap.left.p2.y);
+	trap.top=MIN(trap.left.p1.y, trap.left.p2.y);
+	XRenderCompositeTrapezoids(_display,
+							   [self _XRenderPictOp],
+							   [_state->_fillColor _pictureForColor],
+							   _picture,
+							   XRenderFindStandardFormat(_display, PictStandardA8),	// PictStandardA1 would give non-antialised result
+							   0, 0,	// we should properly define xSrc and ySrc if we use a pattern color
+							   &trap, 1);
 }
 
 - (void) _fill:(NSBezierPath *) path;
@@ -1589,7 +1604,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	[trm appendTransform:_textMatrix];
 	[trm appendTransform:_state->_ctm];
 #endif
-#if 1
+#if 0
 	NSLog(@"NSString: _drawGlyphs:%p count:%u font:%@", glyphs, cnt, _state->_font);
 #endif
 	if(_picture)
@@ -1740,8 +1755,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			}
 		else
 			{ // send bitmap to X Server
+				Window root=DefaultRootWindow(_display);	// first root window
 				unsigned long valuemask=0;
-				XRenderPictureAttributes attributes;
+				XRenderPictureAttributes pa;
 				XRenderPictFormat format;
 				Pixmap pixmap;
 				unsigned char *imagePlanes[5];
@@ -1750,6 +1766,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				BOOL isPlanar=[(NSBitmapImageRep *) rep isPlanar];
 				BOOL isFlipped=[self isFlipped];
 				BOOL calibrated;
+				int width=[rep pixelsWide];
+				int height=[rep pixelsHigh];
 				int bytesPerRow=[(NSBitmapImageRep *) rep bytesPerRow];
 				NSString *csp=[rep colorSpaceName];
 				if(bitmapFormat != 0)
@@ -1767,10 +1785,20 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 					}
 				[(NSBitmapImageRep *) rep getBitmapDataPlanes:imagePlanes];
 				_imageInterpolation;	// convert into picture attribute
+				pixmap=XCreatePixmap(_display, root, width, height, 4*8);	// ARGB32
+				pa.repeat=True;	// repeat pattern
+				src=XRenderCreatePicture(_display, pixmap,
+										 XRenderFindStandardFormat(_display, PictStandardARGB32),
+										 CPRepeat, &pa);
+				{
+					XRenderColor c;
+					c.red=c.green=c.blue=(65535 * 0.8);
+					c.alpha=(65535 * 1.0);
+					XRenderFillRectangle(_display, PictOpSrc, _picture, &c, 0, 0, width, height);	// fill picture with grey color
+				}
+				XFreePixmap(_display, pixmap);	// no explicit reference required
 				// send bits from rep to pixmap using XPutImage()
 				// how do we send the Alpha channel? through a second pixmap and a compositing operation?
-				// src=XRenderCreatePicture(_display, pixmap, &format, valuemask, &attributes);
-				src=0;
 			}
 		if(!src)
 			return NO;
@@ -2155,6 +2183,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	// save (new) level in global window list so that we can order other windows accordingly
 	// maybe we should use a (root) window property to store the level?
 	// or at least a shared file with fast access (FILE * and fread() based)
+#if 0
+	{ // test code
+		NSPoint points[4] = { { 10.0, 10.0 } , { 20.0, 50.0 } , { 100.0, 0.0 } , { 80.0, 50.0 } };
+		[self _setFillColor:[NSColor greenColor]];
+		[self _renderTrapezoid:points];
+	}
+#endif
 }
 
 - (void) _miniaturize;
@@ -3762,23 +3797,23 @@ static NSDictionary *_x11settings;
 			 // set repetition flag
 			}
 		else
-			 { // create an 1x1 repeating Picture filled with our color
-			 Window root=DefaultRootWindow(_display);	// first root window
-			 Pixmap pixmap;
-			 XRenderColor c;
-			 XRenderPictureAttributes pa;
-			 c.red=(65535 * [self redComponent]);
-			 c.green=(65535 * [self greenComponent]);
-			 c.blue=(65535 * [self blueComponent]);
-			 c.alpha=(65535 * [self alphaComponent]);
-			 pixmap=XCreatePixmap(_display, root, 1, 1, 4*8);	// ARGB32
-			 pa.repeat=True;	// repeat pattern
-			 _picture=XRenderCreatePicture(_display, pixmap,
-										   XRenderFindStandardFormat(_display, PictStandardARGB32),
-										   CPRepeat, &pa);
-			 XRenderFillRectangle(_display, PictOpSrc, _picture, &c, 0, 0, 1, 1);	// fill picture with given color
-			 XFreePixmap(_display, pixmap);	// no explicit reference required
-			 }
+			{ // create an 1x1 repeating Picture filled with our color
+			Window root=DefaultRootWindow(_display);	// first root window
+			Pixmap pixmap;
+			XRenderColor c;
+			XRenderPictureAttributes pa;
+			pixmap=XCreatePixmap(_display, root, 1, 1, 4*8);	// ARGB32
+			pa.repeat=True;	// repeat pattern
+			_picture=XRenderCreatePicture(_display, pixmap,
+										  XRenderFindStandardFormat(_display, PictStandardARGB32),
+										  CPRepeat, &pa);
+			c.red=(65535 * [self redComponent]);
+			c.green=(65535 * [self greenComponent]);
+			c.blue=(65535 * [self blueComponent]);
+			c.alpha=(65535 * [self alphaComponent]);
+			XRenderFillRectangle(_display, PictOpSrc, _picture, &c, 0, 0, 1, 1);	// fill picture with given color
+			XFreePixmap(_display, pixmap);	// no explicit reference required
+			}
 		}
 	return _picture;
 }
@@ -4028,9 +4063,17 @@ static NSDictionary *_x11settings;
 
 - (void) _addGlyph:(NSGlyph) glyph bitmap:(char *) buffer x:(int) left y:(int) top width:(unsigned) width height:(unsigned) rows;
 {
-	XGlyphInfo info = { width, rows, 0, 0, left, top };
+	XGlyphInfo info = { width, rows,
+						left, 0,
+						width, 0 };	// should be advancement - correct for integer advancement only!!!
 	Glyph g=glyph;	// Glyph is of type XID, i.e. must not be 0
 	int stride=((width+3)&~3);
+#if 0
+	static int cnt;
+	if(cnt > 100)
+		return;
+	cnt++;
+#endif
 #if 0
 	NSLog(@"_addGlyph:%d x=%d y=%d w=%u h=%u", g, left, top, width, rows);
 	{
