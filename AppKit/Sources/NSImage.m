@@ -366,6 +366,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	_cache=nil;
 }
 
+// CHECKME: shouldn't we return NSImageRep *
+
 - (NSCachedImageRep *) _cachedImageRep;
 { // return cached image rep - create one if there is none yet
 	NSImageRep *bestRep;
@@ -376,7 +378,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		{
 		case NSImageCacheDefault:
 		case NSImageCacheNever:
-			return bestRep;
+			return (NSCachedImageRep *) bestRep;	// use the original
 		case NSImageCacheBySize:
 			// check size:
 //		case NSImageCacheDefault:

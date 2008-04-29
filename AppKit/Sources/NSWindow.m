@@ -1004,16 +1004,22 @@ static BOOL __cursorHidden = NO;
 		}
 	if(!otherWin)
 		{ // find first/last window on same level to place in front/behind
-		int level;
-//		int n=[NSScreen _windowListForContext:0 size:0 list:NULL];
-		// int *list=(int *) objc_malloc(n*sizeof(int));
-//		[NSScreen _windowListForContext:0 size:n list:list];
-		// for(otherWin=0; otherWin<n; otherWin++)
-//			level=[NSWindow _getLevelOfWindowNumber:otherWin];
-		// compare levels
-		// determine relevant 'other window' according to current level (might still be 0 if we are the first window)
+		int i;
+		int n=[NSScreen _systemWindowListForContext:0 size:99999 list:NULL];	// get number of windows
+		int *list=(int *) objc_malloc(n*sizeof(int));	// allocate buffer
+		[NSScreen _systemWindowListForContext:0 size:n list:list];	// fetch window list (must be front to back stacking order)
+		for(i=n-1; i>0; i--)
+			{
+			int level=[NSWindow _getLevelOfWindowNumber:list[i]];
+			if(place == NSWindowBelow && level < _level)
+				break;	// window has a lower level as ours, i.e. the previous was the last of our level
+			otherWin=list[i];
+			if(place == NSWindowAbove && level == _level)
+				break;	// window is first with same level as ours, i.e. the current front window
+			} // otherwin may remain 0!
+		objc_free(list);
 		}
-	[_context _orderWindow:place relativeTo:otherWin];	// request map/umap from beackend
+	[_context _orderWindow:place relativeTo:otherWin];	// request map/umap/restack from backend
 	[_context flushGraphics];							// and directly send to the server
 	while(place == NSWindowOut?_w.visible:!_w.visible)
 		{ // queue events until window becomes (in)visible

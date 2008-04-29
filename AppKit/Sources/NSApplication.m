@@ -684,7 +684,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		{
 		if([e window] == as->window)
 				{ // the modal window
-				NSWindow *w = [NSWindow _windowForNumber:as->windowTag];	// check if the server still knows us by tag
+				NSWindow *w = [NSApp windowWithWindowNumber:as->windowTag];	// check if the server still knows us by tag
 				BOOL was = as->visible;
 				if(w == nil || (!(as->visible = [w isVisible]) && was))
 					{
@@ -1045,7 +1045,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 						return;	// has been processed
 					if([_mainWindow performKeyEquivalent:event])
 						return;	// has been processed
-					e = [[NSWindow _windowList] objectEnumerator];	// all windows incl. menu windows
+					e = [[self windows] objectEnumerator];	// all windows incl. menu windows
 					while((w = [e nextObject]))
 						{ // Try all other windows
 						if(w == _keyWindow || w == _mainWindow)
@@ -1262,11 +1262,12 @@ NSEvent *event = nil;									// if queue contains
 - (NSWindow*) appIcon							{ return _appIconWindow; }
 - (NSWindow*) keyWindow							{ return _keyWindow; }
 - (NSWindow*) mainWindow						{ return _mainWindow; }
-- (NSWindow*) windowWithWindowNumber:(int)num	{ return [NSWindow _windowForNumber:num]; }	// BACKEND
+
+- (NSWindow*) windowWithWindowNumber:(int)num	{ return BACKEND; }
 
 // FIXME: should we exclude menu windows???
 
-- (NSArray *) windows							{ return [NSWindow _windowList]; }
+- (NSArray *) windows							{ return BACKEND; }
 
 - (NSArray *) orderedWindows;
 { // should include only scriptable windows, i.e. exclude panels
@@ -1324,7 +1325,7 @@ NSEvent *event = nil;									// if queue contains
 {
 	if (!_app.isHidden)								
 		{
-		NSEnumerator *e = [[NSWindow _windowList] reverseObjectEnumerator];	// incl. menus
+		NSEnumerator *e = [[self windows] reverseObjectEnumerator];	// incl. menus
 		NSWindow *w;
 
 		_app.isHidden = YES;						// notify that we will hide
@@ -1473,7 +1474,7 @@ NSWindow *w;
 	NSLog(@"updateWindows");
 	{
 #endif
-	NSArray *_windowList = [NSWindow _windowList];
+	NSArray *_windowList = [self windows];
 	int i, count = [_windowList count];
 	// an update is imminent
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillUpdate) object: self];
@@ -2067,7 +2068,7 @@ NSWindow *w;
 {
 	[super encodeWithCoder:aCoder];
 	
-	[aCoder encodeObject: [NSWindow _windowList]];
+//	[aCoder encodeObject: [NSApplication _windowList]];
 	[aCoder encodeConditionalObject:_keyWindow];
 	[aCoder encodeConditionalObject:_mainWindow];
 	[aCoder encodeConditionalObject:_delegate];

@@ -568,13 +568,12 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (id) initWithCoder:(NSCoder *) aDecoder								// NSCoding protocol
 {
-	self=[super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
 		return self;
 	return self;
 }
 
-- (void)encodeWithCoder:(NSCoder *) aCoder				{ [super encodeWithCoder:aCoder]; }
+- (void)encodeWithCoder:(NSCoder *) aCoder				{ return; }
 
 @end /* NSPageLayout */
 

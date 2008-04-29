@@ -150,7 +150,6 @@ typedef enum _NSRoundedBezelSegments
 @end
 
 @interface NSWindow (NSPrivate)
-+ (NSArray *) _windowList;
 + (float) _titleBarHeightForStyleMask:(unsigned int) mask /* forScreen:(NSScreen *) screen */;
 - (NSAffineTransform *) _base2screen;
 - (void) _screenParametersNotification:(NSNotification *) notification;

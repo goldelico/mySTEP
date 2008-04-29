@@ -776,11 +776,22 @@ typedef struct
 		XRenderPictFormat *format;
 		XWindowAttributes xattr;
 		XGetWindowAttributes(_display, ((Window) _graphicsPort), &xattr);
+			
+		// FIXME - what do we have to do to really handle transparent windows?
+
 		format=XRenderFindVisualFormat(_display, xattr.visual);
 // NO:		format=XRenderFindStandardFormat(_display, PictStandardARGB32);
 		valuemask=0;
 		_picture=XRenderCreatePicture(_display, ((Window) _graphicsPort), format, valuemask, &attributes);
-		NSLog(@"picture %p", _picture);
+#if 1
+			{
+			XRenderColor c;
+			c.red=c.green=c.blue=(65535 * 0.8);
+			c.alpha=(65535 * 1.0);
+			XRenderFillRectangle(_display, PictOpSrc, _picture, &c, 0, 0, 500, 500);	// fill picture with grey color
+			NSLog(@"picture %p", _picture);
+			}
+#endif
 		}
 	return self;
 }
@@ -1287,6 +1298,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	trap.right.p1.y=XDoubleToFixed(points[2].y);
 	trap.right.p2.x=XDoubleToFixed(points[3].x);
 	trap.right.p2.y=XDoubleToFixed(points[3].y);
+	if(trap.right.p1.x < trap.left.p1.x)
+		NSLog(@"swap!");
 	// this requires that the edges are already extrapolated
 	trap.bottom=MAX(trap.left.p1.y, trap.left.p2.y);
 	trap.top=MIN(trap.left.p1.y, trap.left.p2.y);
@@ -1790,12 +1803,14 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				src=XRenderCreatePicture(_display, pixmap,
 										 XRenderFindStandardFormat(_display, PictStandardARGB32),
 										 CPRepeat, &pa);
+#if 1
 				{
 					XRenderColor c;
 					c.red=c.green=c.blue=(65535 * 0.8);
 					c.alpha=(65535 * 1.0);
 					XRenderFillRectangle(_display, PictOpSrc, _picture, &c, 0, 0, width, height);	// fill picture with grey color
 				}
+#endif
 				XFreePixmap(_display, pixmap);	// no explicit reference required
 				// send bits from rep to pixmap using XPutImage()
 				// how do we send the Alpha channel? through a second pixmap and a compositing operation?
@@ -2160,7 +2175,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #if 0
 	NSLog(@"_orderWindow:%02x relativeTo:%d", place, otherWin);
 #endif
-	if([[NSWindow _windowForNumber:_windowNum] isMiniaturized])	// FIXME: used as special trick not to really map the window during init
+	if([[NSApp windowWithWindowNumber:_windowNum] isMiniaturized])	// FIXME: used as special trick not to really map the window during init
 		return;
 	switch(place)
 		{
@@ -2270,18 +2285,16 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 }
 
 - (void) _setLevel:(int) level;
-{ // note: it is the task of NSWindow to call this only if setLevel really changes the level
+{ // note: it is the optimization task of NSWindow to call this only if setLevel really changes the level
+	GSAttributes attrs;
 #if 1
 	NSLog(@"setLevel of window %d", level);
 #endif
-	/*
-	 attrs.window_level = [window level];
-	 attrs.flags = GSWindowStyleAttr|GSWindowLevelAttr;
-	 attrs.window_style = (styleMask & GSAllWindowMask);
+	 attrs.window_level = level;
+	 attrs.flags = GSWindowLevelAttr;
 	 XChangeProperty(_display, _realWindow, _windowDecorAtom, _windowDecorAtom,		// window style hints
 					 32, PropModeReplace, (unsigned char *)&attrs,
 					 sizeof(GSAttributes)/sizeof(CARD32));
-	 */
 }
 
 - (void) _makeKeyWindow;
@@ -2863,48 +2876,15 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 #if 1
 	NSLog(@"getLevel of window %d", windowNum);
 #endif
-	
-	return 0;
-	
 	if(!XGetWindowProperty(_display, (Window) windowNum, _windowDecorAtom, 0, 0, False, _windowDecorAtom, 
 						   &actual_type_return, &actual_format_return, &nitems_return, &bytes_after_return, &prop_return))
-		return 0;
+		return 0;	// level information is not available
 	level=((GSAttributes *) prop_return)->window_level;
 	XFree(prop_return);
 #if 1
 	NSLog(@"  = %d", level);
 #endif
 	return level;
-}
-
-+ (NSWindow *) _windowForNumber:(int) windowNum;
-{
-#if 0
-	NSLog(@"_windowForNumber %d -> %@", windowNum, NSMapGet(__WindowNumToNSWindow, (void *) windowNum));
-#endif
-	return NSMapGet(__WindowNumToNSWindow, (void *) windowNum);
-}
-
-+ (NSArray *) _windowList;
-{ // get all NSWindows of this application
-#if COMPLEX
-	int count;
-	int context=getpid();	// filter only our windows!
-	NSCountWindowsForContext(context, &count);
-	if(count)
-		{
-		int list[count];	// get window numbers
-		NSMutableArray *a=[NSMutableArray arrayWithCapacity:count];
-		NSWindowList(context, count, list);
-		for(i=0; i<count; i++)
-			[a addObject:NSMapGet(__WindowNumToNSWindow, (void *) list[i])];	// translate to NSWindows
-		return a;
-		}
-	return nil;
-#endif
-	if(__WindowNumToNSWindow)
-		return NSAllMapTableValues(__WindowNumToNSWindow);		// all windows we currently know by window number
-	return nil;
 }
 
 @end
@@ -2943,59 +2923,76 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 	return screens;
 }
 
-+ (int) _windowListForContext:(int) context size:(int) size list:(int *) list;	// list may be NULL, return # of entries copied
+// FIXME: can we cache the window list and catch mapping and restacking notifications from all other windows?
+// at least we should apply a trick to fetch the windows only once by checking for list == NULL followed by call with list != NULL
+// FIXME: what is the context?
+
+/* this must be
+ a) fast, 
+ b) front2back, 
+ c) allow for easy access to the window level,
+ d) returns internal window numbers and not NSWindows
+ e) for potentially ALL applications
+ */
+
++ (int) _systemWindowListForContext:(int) context size:(int) size list:(int *) list;	// list may be NULL, return # of entries copied
 { // get window numbers from front to back
 	int i, j, s;
-	Window *children;	// list of children
-	unsigned int nchildren;
-	// this mus be a) fast, b) front2back, c) allow for easy access to the window level, d) returns internal window numbers and not NSWindows e) for potentially ALL applications
-	// where can we get that from? a) from the Xserver, b) from a local shared file (per NSScreen), c) from a property attached to the Sceen and/or the Windows (WM_HINTS?)
-#if OLD
-	///
-	/// the task is to fill with up to size window number (front to back)
-	/// and filtered by context (pid?) if that is != 0
-	///
-	/*
-	 or do we use a shared file to store window levels and stacking order?
-	 struct XLevel {
-		 unsigned long nextToBack;
-		 long context;	// pid()
-		 long level;
-		 Window window;
-	 };
-	 
-	 XQueryTree approach must fail since it does not return appropriate stacking order for child windows with different parent!!!
-	 
-	 */
-#endif
+	static Window *children;	// list of children (cached)
+	static unsigned int nchildren; // number of entries (cached)
 	j=0;
 	for(s=0; s<ScreenCount(_display) && j<size; s++)
 		{
 #if 1
 		NSLog(@"XQueryTree");
 #endif
-		if(!XQueryTree(_display, RootWindowOfScreen(XScreenOfDisplay(_display, s)), NULL, NULL, &children, &nchildren))
-			return 0;	// failed
-#if 1
-		NSLog(@"  nchildren= %d", nchildren);
+		if(!list || !children)
+			{ // asking for number of windows only or not yet cached
+			nchildren=size;
+// FIXME: XQueryTree approach must fail since it does not return appropriate stacking order for child windows with different parent!!!
+#if CRASHES
+				if(!XQueryTree(_display, RootWindowOfScreen(XScreenOfDisplay(_display, s)), NULL, NULL, &children, &nchildren))
+				 return 0;	// failed
+#else
+				nchildren=0;
 #endif
-		for(i=nchildren-1; i>0; i--)
-			{
+#if 1
+			NSLog(@"  nchildren= %d", nchildren);
+#endif
+			}
+		for(i=nchildren-1; i >= 0 && j < size; i--, j++)
+			{ // process and count windows
 			if(context != 0 && 0 /* not equal */)
 				{
 				// what is context? A client ID? A process ID?
 				continue;	// skip since it is owned by a different application
 				}
 			if(list)
-				{
-				if(j >= size)
-					break;	// done
-				list[j++]=(int) children[i];	// get windows in front2back order (i.e. reverse) and translate to window numbers
-				}
+				list[j]=(int) children[i];	// get windows in front2back order and translate to window numbers
 			}
-		XFree(children);
+		if(list)
+			XFree(children), children=NULL;	// recache once we have really used the list
 		}
 	return j;
+}
+
+@end
+
+@implementation NSApplication (NSBackend)
+
+- (NSArray *) windows;
+{ // get all NSWindows of this application
+	if(__WindowNumToNSWindow)
+		return NSAllMapTableValues(__WindowNumToNSWindow);		// all windows we currently know by window number
+	return nil;
+}
+
+- (NSWindow *) windowWithWindowNumber:(int) windowNum;
+{
+#if 0
+	NSLog(@"_windowForNumber %d -> %@", windowNum, NSMapGet(__WindowNumToNSWindow, (void *) windowNum));
+#endif
+	return NSMapGet(__WindowNumToNSWindow, (void *) windowNum);
 }
 
 @end
@@ -3749,7 +3746,7 @@ static NSDictionary *_x11settings;
 			return;
 		}
 	event.window=[e windowNumber];	// use 1 == InputFocus
-	win=[NSWindow _windowForNumber:event.window];	// try to find
+	win=[NSApp windowWithWindowNumber:event.window];	// try to find
 	ctxt=(_NSX11GraphicsContext *) [win graphicsContext];
 	if(!win)
 		{ // we don't know the window...

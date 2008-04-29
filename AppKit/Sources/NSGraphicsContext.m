@@ -405,7 +405,7 @@ void NSCountWindows(int *count)
 
 void NSCountWindowsForContext(int context, int *count)
 { // for a specific application
-	*count=[NSScreen _windowListForContext:context size:999999 list:NULL];
+	*count=[NSScreen _systemWindowListForContext:context size:999999 list:NULL];
 }
 
 void NSDisableScreenUpdates(void)
@@ -674,7 +674,7 @@ void NSWindowList(int size, int list[])
 
 void NSWindowListForContext(int context, int size, int list[])
 { // for a specific context (application id) - ask BACKEND
-	[NSScreen _windowListForContext:context size:size list:list];
+	[NSScreen _systemWindowListForContext:context size:size list:list];
 }
 
 int NSGetWindowServerMemory(int context,

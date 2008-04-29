@@ -100,7 +100,6 @@
 
 - (int) _windowNumber;		// get the window number
 - (int) _windowTitleHeight;	// amount added by window manager for window title
-- (int) _windowListForContext:(int) context size:(int) size list:(int []) list;
 - (void) _setBackingType:(NSBackingStoreType) type;
 - (void) _map;		// map the window
 - (void) _unmap;	// unmap the window
@@ -129,6 +128,7 @@
 @end
 
 @interface NSScreen (NSBackend)
++ (int) _systemWindowListForContext:(int) context size:(int) size list:(int *) list;	// list may be NULL, return # of entries copied
 - (BOOL) _hasWindowManager;	// there is a window manager...
 - (int) _windowTitleHeight;
 - (void) _sendEvent:(NSEvent *) event;
@@ -137,9 +137,12 @@
 @end
 
 @interface NSWindow (NSBackend)
-+ (int) _windowListForContext:(int) context size:(int) size list:(int *) list;	// list may be NULL, return # of entries copied
 + (int) _getLevelOfWindowNumber:(int) windowNum;
-+ (NSWindow *) _windowForNumber:(int) windowNum;
+@end
+
+@interface NSApplication (NSBackend)
+- (NSWindow*) windowWithWindowNumber:(int)num;
+- (NSArray *) windows;
 @end
 
 @interface NSWindow (NSBackendCallbacks)	// called from the backend

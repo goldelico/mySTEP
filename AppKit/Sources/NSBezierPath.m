@@ -1406,6 +1406,7 @@ typedef struct _PathElement
 	return ((Rcross % 2) == 1) ? YES : NO;
 }
 
+// CHECKME: should we make a private _NSX11BezierPath subclass that handles all this optimized to call XRenderCompositeTrapeziods?
 // based on Seidel's algorithm e.g. http://www.cs.unc.edu/~dm/CODE/GEM/chapter.html
 
 /* 
@@ -1509,9 +1510,9 @@ typedef struct _PathElement
 				edges=(struct edge *) objc_realloc(edges, sizeof(edges[0])*(edgescapacity=2*edgescapacity+4));	// 4, 12, 28, 60, ...
 			memmove(&edges[j+2], &edges[j], sizeof(edges[0])*(nedges-j-2));	// make room for two new edges
 			edges[j].from=y;
-			edges[j].to=ne;
+			edges[j].to=pr;
 			edges[j+1].from=y;
-			edges[j+1].to=pr;
+			edges[j+1].to=ne;
 			}
 #if 1
 		{
@@ -1536,6 +1537,9 @@ typedef struct _PathElement
 		// FIXME: handle winding rule
 		for(j=0; j<nedges; j+=2)
 			{
+				// CHECKME: XRenderCompositeTrapeziods can also calculate this based on integer variables!
+				// could also handle multiple trapezoids in a single call
+				// NOTE: it is not guaranteed that trapezoids[0/1] are the left and trapezoids[2/3] are on the right side
 			NSPoint fm=((PathElement *) _bPath[edges[j].from])->points[0];
 			NSPoint to=((PathElement *) _bPath[edges[j].to])->points[0];
 			float slope=(to.x-fm.x)/(to.y-fm.y);	// can be 0.0 only for horizontal edges which have been ruled out before
