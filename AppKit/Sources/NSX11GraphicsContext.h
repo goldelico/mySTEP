@@ -138,4 +138,13 @@ typedef struct _NSX11GraphicsState
 - (Cursor) _cursor;
 @end
 
+@interface _NSX11BezierPath : NSBezierPath
+{
+	_NSX11BezierPath *_flattenedPath;	// flattened version
+	_NSX11BezierPath *_strokedPath;		// stroked outline
+}
+- (void) _fill:(_NSX11GraphicsContext *) context color:(_NSX11Color *) color;
+- (void) _stroke:(_NSX11GraphicsContext *) context color:(_NSX11Color *) color;
+@end
+
 #endif /* _mySTEP_H_NSX11GraphicsContext */

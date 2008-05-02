@@ -64,9 +64,16 @@ typedef struct _NSGraphicsState
 } _NSGraphicsState;
 
 @interface NSBezierPath (NSPrivate)
-- (void) _tesselate:(SEL) selector intoObject:(id) object;
+
+typedef struct _PathElement
+	{
+		NSBezierPathElement type;
+		NSPoint points[3];
+	} PathElement;
+
 + (NSBezierPath *) _bezierPathWithBoxBezelInRect:(NSRect) borderRect radius:(float) radius;		// box with rounded corners
 + (NSBezierPath *) _bezierPathWithRoundedBezelInRect:(NSRect) borderRect vertical:(BOOL) flag;	// box with halfcircular rounded ends
+
 typedef enum _NSRoundedBezelSegments
 {
 	NSRoundedBezelMiddleSegment=0,
@@ -74,7 +81,9 @@ typedef enum _NSRoundedBezelSegments
 	NSRoundedBezelRightSegment=2,
 	NSRoundedBezelBothSegment=NSRoundedBezelLeftSegment | NSRoundedBezelRightSegment
 } NSRoundedBezelSegments;
+
 + (void) _drawRoundedBezel:(NSRoundedBezelSegments) border inFrame:(NSRect) frame enabled:(BOOL) enabled selected:(BOOL) selected highlighted:(BOOL) highlighted radius:(float) radius;
+
 @end
 
 @interface NSGraphicsContext (NSPrivate)
@@ -100,10 +109,10 @@ typedef enum _NSRoundedBezelSegments
 
 @interface NSDocument (NSPrivate)
 - (NSWindow *) _window;
-- (void)_removeWindowController:(NSWindowController *)windowController;
-- (void)_changeWasDone:(NSNotification *)notification;
-- (void)_changeWasUndone:(NSNotification *)notification;
-- (void)_changeWasRedone:(NSNotification *)notification;
+- (void) _removeWindowController:(NSWindowController *)windowController;
+- (void) _changeWasDone:(NSNotification *)notification;
+- (void) _changeWasUndone:(NSNotification *)notification;
+- (void) _changeWasRedone:(NSNotification *)notification;
 @end
 
 @interface NSDocumentController (NSPrivate)

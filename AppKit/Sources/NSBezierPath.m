@@ -40,13 +40,6 @@ static NSLineCapStyle __defaultLineCapStyle = NSButtLineCapStyle;
 static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 
-typedef struct _PathElement
-{
-	NSBezierPathElement type;
-	NSPoint points[3];
-} PathElement;
-
-
 @implementation NSBezierPath
 
 + (NSBezierPath *) bezierPath
@@ -337,7 +330,6 @@ typedef struct _PathElement
 
 - (void) dealloc
 {
-	[_cacheFlattened release];
 	[self removeAllPoints];
 	objc_free(_bPath);
 	if (_dashPattern != NULL)
@@ -488,7 +480,7 @@ typedef struct _PathElement
 - (NSLineCapStyle) lineCapStyle					{ return _bz.lineCapStyle; }
 - (NSWindingRule) windingRule					{ return _bz.windingRule; }
 - (void) setLineWidth:(float)lineWidth			{ _lineWidth = lineWidth; }
-- (void) setFlatness:(float)flatness			{ _flatness = flatness; [_cacheFlattened release]; _cacheFlattened=nil; }
+- (void) setFlatness:(float)flatness			{ _flatness = flatness; }
 - (void) setLineCapStyle:(NSLineCapStyle)ls		{ _bz.lineCapStyle = ls; }
 - (void) setLineJoinStyle:(NSLineJoinStyle)lj	{ _bz.lineJoinStyle = lj; }
 - (void) setWindingRule:(NSWindingRule)wr		{ _bz.windingRule = wr; }
@@ -1406,184 +1398,7 @@ typedef struct _PathElement
 	return ((Rcross % 2) == 1) ? YES : NO;
 }
 
-// CHECKME: should we make a private _NSX11BezierPath subclass that handles all this optimized to call XRenderCompositeTrapeziods?
-// based on Seidel's algorithm e.g. http://www.cs.unc.edu/~dm/CODE/GEM/chapter.html
-
-/* 
-   if you want to get triangles,
-   split the trapeyoid along a diagonal into two triangles.
-   Or find the longer horizontal edge of each trapezoid,
-   split it by two and make 3 triangles
-   unless the shorter has zero width - then it is already a triangle
- */
-
-- (void) _tesselate:(SEL) selector intoObject:(id) object;
-{
-	typedef void (*trapezoid_callback)(id, SEL, NSPoint trapezoid[4]);	// bottom and top are horizontal lines
-	// we should check that the object responds to the selector...
-	trapezoid_callback cmd=(trapezoid_callback) [object methodForSelector:selector];
-	struct edge { int from, to; } *edges=NULL;	// current edge
-	int nedges=0;
-	int edgescapacity=0;
-	int *bends;	// sorted array along the y axis
-	int npoints=0;
-	int i;
-	NSPoint first;
-	// FIXME: use a different flag to indicate that we need recaching of the flattened path
-	if((_bz.shouldRecalculateBounds && _cacheFlattened) || !_bz.flat)
-		{ // needs to (re)cache
-		[_cacheFlattened release];
-		_cacheFlattened=[[self bezierPathByFlatteningPath] retain];	// needs flattening first
-		}
-	if(_cacheFlattened)
-		self=_cacheFlattened;	// was already flattened into the cache
-	bends=(int *) objc_malloc(_count*sizeof(bends[0]));
-	for(i=0; i<_count; i++)
-		{ // fill sort array with indices of moveto, lineto, close
-			PathElement *e=_bPath[i];
-			if(i == 0 || e->type == NSMoveToBezierPathElement)
-				first=e->points[0];
-			else if(e->type == NSClosePathBezierPathElement)
-				// FIXME: what if path is NOT closed?
-				e->points[0]=first;	// make coordinate of first point known
-			bends[i]=i;	// define initial index
-		}
-	npoints=_count;
-	qsort_r(bends, npoints, sizeof(bends[0]), _bPath, &tesselate_compare);	// sort along the y axis
-	for(i=0; i<npoints; i++)
-		{ // process all edge points in sorted order
-		int j, n;
-		int y=bends[i];				// index of current point
-		int pr=y-1, ne=y+1;			// previous and next in sequence
-		BOOL any=NO;
-		PathElement *e=_bPath[y];	// current point
-		NSPoint trapezoid[4];	// bl, tl, br, tr - bl.y == br.y and tl.y == tr.y
-		NSLog(@"process %d: %@", bends[i], NSStringFromPoint(e->points[0]));
-		if(e->type == NSClosePathBezierPathElement)
-			{ // find matching moveTo as ne(xt) - use first point if we find none
-			for(ne=y-1; ne > 0 && ((PathElement *) _bPath[ne])->type != NSMoveToBezierPathElement; ne--)
-				if(((PathElement *) _bPath[ne-1])->type == NSClosePathBezierPathElement)
-					break;	// close without move ends before next close
-			}
-		else if(e->type == NSMoveToBezierPathElement)
-			{ // find matching closePath as pr(ev) - use last point if we find none
-			for(pr=y+1; pr < npoints-1 && ((PathElement *) _bPath[pr])->type != NSClosePathBezierPathElement; pr++)
-				if(((PathElement *) _bPath[pr+1])->type == NSMoveToBezierPathElement)
-					break;	// move without close ends before next move
-			}
-		for(n=i+1; n<npoints; n++)
-			{ // find index of nearest point in raising y direction
-			if(bends[n] == pr || bends[n] == ne)
-				break;	// found next edge
-			}
-		for(j=0; j<nedges; j++)
-			{ // update edges or add/remove edges depending on current point
-			if(edges[j].to == y)
-				{ // found
-				if(n < npoints)
-					{ // a next edge was found, so move to next edge
-					edges[j].from=y;
-					edges[j].to=bends[n];
-					}
-				else
-					{ // we are a termination point, remove this edge
-					memmove(&edges[j], &edges[j+1], sizeof(edges[0])*(--nedges-j));
-					j--;
-					}
-				any=YES;
-				}
-			}
-		if(!any)
-			{ // not found - we are an initial point - add edges to next and prev
-			for(j=0; j<nedges; j++)
-				{ // insert before nodes with larger x than e->points[0].x
-				if((e->points[0].x-((PathElement *) _bPath[edges[j].from])->points[0].x)*
-				   (((PathElement *) _bPath[edges[j].to])->points[0].y-((PathElement *) _bPath[edges[j].from])->points[0].y)
-				   >
-				   (e->points[0].y-((PathElement *) _bPath[edges[j].from])->points[0].y)*
-				   (((PathElement *) _bPath[edges[j].to])->points[0].x-((PathElement *) _bPath[edges[j].from])->points[0].x)
-				   )
-					break;	// insert before since this one has a lower x coordinate on the y-level of the current point
-				}
-			nedges+=2;
-			if(nedges >= edgescapacity)
-				edges=(struct edge *) objc_realloc(edges, sizeof(edges[0])*(edgescapacity=2*edgescapacity+4));	// 4, 12, 28, 60, ...
-			memmove(&edges[j+2], &edges[j], sizeof(edges[0])*(nedges-j-2));	// make room for two new edges
-			edges[j].from=y;
-			edges[j].to=pr;
-			edges[j+1].from=y;
-			edges[j+1].to=ne;
-			}
-#if 1
-		{
-			NSString *e=@"";
-			for(j=0; j<nedges; j++)
-				{
-#if 1
-					e=[e stringByAppendingFormat:@"%d-%d ", edges[j].from, edges[j].to];
-#endif
-				}
-			NSLog(@"edges: %@", e);
-		}
-#endif
-		if(i+1 >= npoints)
-			continue;	// no (more) edges to process
-		trapezoid[0].y=((PathElement *) _bPath[y])->points[0].y;			// base level is current y coordinate
-		trapezoid[1].y=((PathElement *) _bPath[bends[i+1]])->points[0].y;	// top level is next sorted y coordinate
-		if(trapezoid[1].y - trapezoid[0].y < 1e-6)
-			continue;	// immediately skip (nearly) zero height, i.e. horizontal edges
-		trapezoid[2].y=trapezoid[0].y;										// same base level
-		trapezoid[3].y=trapezoid[1].y;										// same top level
-		// FIXME: handle winding rule
-		for(j=0; j<nedges; j+=2)
-			{
-				// CHECKME: XRenderCompositeTrapeziods can also calculate this based on integer variables!
-				// could also handle multiple trapezoids in a single call
-				// NOTE: it is not guaranteed that trapezoids[0/1] are the left and trapezoids[2/3] are on the right side
-			NSPoint fm=((PathElement *) _bPath[edges[j].from])->points[0];
-			NSPoint to=((PathElement *) _bPath[edges[j].to])->points[0];
-			float slope=(to.x-fm.x)/(to.y-fm.y);	// can be 0.0 only for horizontal edges which have been ruled out before
-			trapezoid[0].x=fm.x+slope*(trapezoid[0].y-fm.y);
-			trapezoid[1].x=fm.x+slope*(trapezoid[1].y-fm.y);
-			fm=((PathElement *) _bPath[edges[j+1].from])->points[0];
-			to=((PathElement *) _bPath[edges[j+1].to])->points[0];
-			slope=(to.x-fm.x)/(to.y-fm.y);
-			trapezoid[2].x=fm.x+slope*(trapezoid[2].y-fm.y);
-			trapezoid[3].x=fm.x+slope*(trapezoid[3].y-fm.y);
-			(*cmd)(object, selector, trapezoid);
-			}
-		}
-	if(nedges > 0)
-		NSLog(@"internal error - %d edges left over", nedges);
-	objc_free(bends);
-	if(edges)
-		objc_free(edges);
-}
-
 @end  /* NSBezierPath */
-
-static inline int compare_float(float a, float b)
-{
-	// can we speed up by comparing as a long int? IEEE floats are ordered properly if treated as a bitfield!
-	if(a == b)
-		return 0;
-	return (a > b)?1:-1;	
-}
-
-static int tesselate_compare(void *elements, const void *idx1, const void *idx2)
-{
-	int cmp;
-	int i1=*(int *) idx1;
-	int i2=*(int *) idx2;
-	PathElement *e1=((PathElement **)elements)[i1];
-	PathElement *e2=((PathElement **)elements)[i2];
-	cmp=compare_float(e1->points[0].y, e2->points[0].y);
-	if(cmp == 0)
-		cmp=compare_float(e1->points[0].x, e2->points[0].x);
-	if(cmp == 0 && i1 != i2)	// same point, i.e. first and last in our polygon
-		cmp=(i1 > i2)?1:-1;		// make sure that closepath comes after first move
-	return cmp;
-}
 
 static void
 flatten(NSPoint coeff[], float flatness, NSBezierPath *path)

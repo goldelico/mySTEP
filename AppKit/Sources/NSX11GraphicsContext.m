@@ -1233,7 +1233,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 {
 	if(_picture)
 		{
-			path=[path bezierPathByFlatteningPath];
+			[(_NSX11BezierPath *) path _stroke:self color:_state->_strokeColor];
 			return;
 		}
 	else
@@ -1276,8 +1276,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 }
 
 
-- (void) _renderTrapezoid:(NSPoint [4]) points;
-{ // callback from _tesselate
+- (void) _renderTrapezoid:(NSPoint [4]) points color:(_NSX11Color *) color;
+{ // callback from _fill
 	XTrapezoid trap;
 #if 0
 	NSLog(@"{%@, %@, %@, %@}", NSStringFromPoint(points[0]), NSStringFromPoint(points[1]), NSStringFromPoint(points[2]), NSStringFromPoint(points[3]));
@@ -1286,7 +1286,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	{
 		XRenderColor color = { 255<<8, 0, 255<<8, 0<<8 };
 		XRenderFillRectangle(_display, PictOpSrc, _picture, &color, 8, 11, 43, 19);
-		XRenderComposite(_display, PictOpSrc, [_state->_fillColor _pictureForColor], None, _picture, 0, 0, 0, 0, 100, 150, 300, 500);
+		XRenderComposite(_display, PictOpSrc, [color _pictureForColor], None, _picture, 0, 0, 0, 0, 100, 150, 300, 500);
 		XFlush(_display);
 	}
 #endif
@@ -1316,7 +1316,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 {
 	if(_picture)
 		{
-		[path _tesselate:@selector(_renderTrapezoid:) intoObject:self];
+		[(_NSX11BezierPath *) path _fill:self color:_state->_fillColor];
 		return;
 		}
 	else
@@ -1759,12 +1759,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	if(_picture)
 		{
 		Picture src;
+		NSRect rect;
 		BOOL cached=[rep isKindOfClass:[NSCachedImageRep class]];
 		if(cached)
 			{ // it is already a Picture
 				_NSX11GraphicsContext *c=(_NSX11GraphicsContext *) [[(NSCachedImageRep *) rep window] graphicsContext];
 				src=c->_picture;
-				[(NSCachedImageRep *) rep rect];
+				rect=[(NSCachedImageRep *) rep rect];
 			}
 		else
 			{ // send bitmap to X Server
@@ -1783,6 +1784,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				int height=[rep pixelsHigh];
 				int bytesPerRow=[(NSBitmapImageRep *) rep bytesPerRow];
 				NSString *csp=[rep colorSpaceName];
+				unsigned int buffersize;
+				int fragment;
+				char *data;
+				XImage *image;
+				GC gc;
+				XGCValues gcValues={ 0 };
+				int y;
 				if(bitmapFormat != 0)
 					{ // can't handle non-premultiplied and float pixel (but we could easily handle alphafirst)
 						NSLog(@"_draw: can't draw bitmap format %0x yet", [(NSBitmapImageRep *) rep bitmapFormat]);
@@ -1797,7 +1805,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 						return NO;
 					}
 				[(NSBitmapImageRep *) rep getBitmapDataPlanes:imagePlanes];
-				_imageInterpolation;	// convert into picture attribute
 				pixmap=XCreatePixmap(_display, root, width, height, 4*8);	// ARGB32
 				pa.repeat=True;	// repeat pattern
 				src=XRenderCreatePicture(_display, pixmap,
@@ -1806,19 +1813,59 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #if 1
 				{
 					XRenderColor c;
-					c.red=c.green=c.blue=(65535 * 0.8);
+					c.red=c.green=c.blue=(int) rep;
 					c.alpha=(65535 * 1.0);
-					XRenderFillRectangle(_display, PictOpSrc, _picture, &c, 0, 0, width, height);	// fill picture with grey color
+					XRenderFillRectangle(_display, PictOpSrc, src, &c, 0, 0, width, height);	// fill picture with grey color
 				}
 #endif
+				switch(_imageInterpolation)
+					{
+					case NSImageInterpolationDefault:
+						break;
+					case NSImageInterpolationNone:
+						XRenderSetPictureFilter(_display, src, FilterFast, NULL, 0);
+						break;
+					case NSImageInterpolationLow:
+						XRenderSetPictureFilter(_display, src, FilterGood, NULL, 0);
+						break;
+					case NSImageInterpolationHigh:
+						XRenderSetPictureFilter(_display, src, FilterBest, NULL, 0);
+						break;
+					}
+				buffersize=width*height*4;			// 4 bytes per pixel
+				if(buffersize > 128*128*4)
+					buffersize=128*128*4;			// limit - note: we have 3 copies of the bitmap: NSBitmapRep, this buffer and the X server so we have to take care of memory footprint for large images
+				fragment=buffersize/(4*width);
+				data=objc_malloc(buffersize);	// will be freed by Xlib
+				image=XCreateImage(_display,
+									  None,
+									  32,			// depth
+									  ZPixmap,
+									  0,            // offset
+									  data,
+									  width,
+									  height,
+									  8,
+									  4*width);
+				gc=XCreateGC(_display, pixmap, 0, &gcValues);
+				for(y=0; y<height; y+=fragment)
+					{
+						// fill next stride from imageplanes
+						// convert premultiplied etc.
+						// convert float to int
+						// convert ARGB to RGBA
+						// and so on
+					XPutImage(_display, pixmap, gc, image, 0, 0, 0, y, width, fragment);
+					}
+				XFreeGC(_display, gc);
+				XDestroyImage(image);
 				XFreePixmap(_display, pixmap);	// no explicit reference required
-				// send bits from rep to pixmap using XPutImage()
-				// how do we send the Alpha channel? through a second pixmap and a compositing operation?
+				rect=(NSRect) { NSZeroPoint, { width, height } };
 			}
 		if(!src)
 			return NO;
-		// handle _fraction - is this an Alpha mask???
-		XRenderComposite(_display, [self _XRenderPictOp], src, None, _picture, 0, 0, 0, 0, 0, 0, 10, 10);
+		// handle _fraction - is this a repeating Alpha mask??? We could then simply use a transparency color as the mask
+		XRenderComposite(_display, [self _XRenderPictOp], src, None, _picture, rect.origin.x, rect.origin.y, 0, 0, 0, 0, rect.size.width, rect.size.height);
 		if(!cached)
 			XRenderFreePicture(_display, src);
 		return YES;
@@ -2119,50 +2166,57 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	NSLog(@"_copyBits from %@ to %@", NSStringFromRect(srcRect), NSStringFromPoint(destPoint));
 	NSLog(@"  clip box %@", NSStringFromRect([self _clipBox]));
 #endif
-	[self _setCompositing];
-	srcRect.origin=[((_NSX11GraphicsState *) srcGstate)->_ctm transformPoint:srcRect.origin];
-	srcRect.size=[((_NSX11GraphicsState *) srcGstate)->_ctm transformSize:srcRect.size];
-	destPoint=[_state->_ctm transformPoint:destPoint];
-	src.x=srcRect.origin.x;
-	src.y=srcRect.origin.y;
-	src.width=srcRect.size.width;
-	if(srcRect.size.height < 0)
+	if(_picture)
 		{
-		src.height=-srcRect.size.height;	// negative if not flipped 
-		src.y-=src.height;					// caller expects he has specified bottom+left of rect
-		dest.y=(int)(destPoint.y)-dest.height;
+			// use XRender compositing from src to dest _picture (may be the same) and PictOpSrc
 		}
 	else
 		{
-		src.height=srcRect.size.height;
-		dest.y=destPoint.y;
-		}
-	dest.width=src.width;
-	dest.height=src.height;
-	dest.x=destPoint.x;
+		[self _setCompositing];
+		srcRect.origin=[((_NSX11GraphicsState *) srcGstate)->_ctm transformPoint:srcRect.origin];
+		srcRect.size=[((_NSX11GraphicsState *) srcGstate)->_ctm transformSize:srcRect.size];
+		destPoint=[_state->_ctm transformPoint:destPoint];
+		src.x=srcRect.origin.x;
+		src.y=srcRect.origin.y;
+		src.width=srcRect.size.width;
+		if(srcRect.size.height < 0)
+			{
+			src.height=-srcRect.size.height;	// negative if not flipped 
+			src.y-=src.height;					// caller expects he has specified bottom+left of rect
+			dest.y=(int)(destPoint.y)-dest.height;
+			}
+		else
+			{
+			src.height=srcRect.size.height;
+			dest.y=destPoint.y;
+			}
+		dest.width=src.width;
+		dest.height=src.height;
+		dest.x=destPoint.x;
 #if 0
-	NSLog(@"  X11 %@ to %@", NSStringFromXRect(src), NSStringFromXRect(dest));
-	NSLog(@"  src-win=%d", (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort));
-	NSLog(@"  dest-win=%d", _graphicsPort);
+		NSLog(@"  X11 %@ to %@", NSStringFromXRect(src), NSStringFromXRect(dest));
+		NSLog(@"  src-win=%d", (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort));
+		NSLog(@"  dest-win=%d", _graphicsPort);
 #endif
 #if 0
-	XSetForeground(_display, gc, 0x555555);
-	XFillRectangles(_display, ((Window) _graphicsPort), gc, &src, 1);
-	_setDirtyRect(self, src.x, src.y, src.width, src.height);
+		XSetForeground(_display, gc, 0x555555);
+		XFillRectangles(_display, ((Window) _graphicsPort), gc, &src, 1);
+		_setDirtyRect(self, src.x, src.y, src.width, src.height);
 #endif
 #if 0
-	XSetForeground(_display, gc, 0xaaaaaa);
-	XFillRectangles(_display, ((Window) _graphicsPort), gc, &dest, 1);
-	_setDirtyRect(self, dest.x, dest.y, dest.width, dest.height);
+		XSetForeground(_display, gc, 0xaaaaaa);
+		XFillRectangles(_display, ((Window) _graphicsPort), gc, &dest, 1);
+		_setDirtyRect(self, dest.x, dest.y, dest.width, dest.height);
 #endif
-	XCopyArea(_display,
+		XCopyArea(_display,
 			  (Window) (((_NSGraphicsState *) srcGstate)->_context->_graphicsPort),	// source window/bitmap
 			  ((Window) _graphicsPort),
 			  _state->_gc,	// defines clipping etc.
 			  src.x, src.y,
 			  src.width, src.height,
 			  dest.x, dest.y);
-	_setDirtyRect(self, dest.x, dest.y, dest.width, dest.height);
+		_setDirtyRect(self, dest.x, dest.y, dest.width, dest.height);
+		}
 }
 
 #pragma mark WindowControl
@@ -3033,8 +3087,10 @@ static NSDictionary *_x11settings;
 		[NSException raise:NSGenericException format:@"Unable to connect to X server"];
 	XSetErrorHandler((XErrorHandler)X11ErrorHandler);
 #ifdef __SYNCHRONIZE__
+#if 1
 	XSynchronize(_display, True);
 	NSLog(@"X11 runs synchronized");
+#endif
 #endif
 	fh=[[NSFileHandle alloc] initWithFileDescriptor:XConnectionNumber(_display)];
 	[[NSNotificationCenter defaultCenter] addObserver:self
@@ -3063,6 +3119,8 @@ static NSDictionary *_x11settings;
 #if 1
 	if(_hasRender)
 		_doubleBufferering=NO;	// needs different algorithms
+	else
+		NSLog(@"has no XRender");
 #endif
 }
 
@@ -4236,6 +4294,250 @@ static NSDictionary *_x11settings;
 {
 	if(_cursor)
 		XFreeCursor(_display, _cursor);	// no longer needed
+	[super dealloc];
+}
+
+@end
+
+@implementation NSBezierPath (NSBackendOverride)
+
++ (id) allocWithZone:(NSZone *) z;
+{
+	return NSAllocateObject([_NSX11BezierPath class], 0, z?z:NSDefaultMallocZone());
+}
+
+@end
+
+@implementation _NSX11BezierPath
+
+static inline int compare_float(float a, float b)
+{
+	// can we speed up by comparing as a long int? IEEE floats are ordered properly if treated as a bitfield!
+	if(a == b)
+		return 0;
+	return (a > b)?1:-1;	
+}
+
+#ifdef __APPLE__
+// for qsort_r()
+static int tesselate_compare(void *elements, const void *idx1, const void *idx2)
+{
+	int cmp;
+	int i1=*(int *) idx1;
+	int i2=*(int *) idx2;
+	PathElement *e1=((PathElement **)elements)[i1];
+	PathElement *e2=((PathElement **)elements)[i2];
+	cmp=compare_float(e1->points[0].y, e2->points[0].y);
+	if(cmp == 0)
+		cmp=compare_float(e1->points[0].x, e2->points[0].x);
+	if(cmp == 0 && i1 != i2)	// same point, i.e. first and last in our polygon
+		cmp=(i1 > i2)?1:-1;		// make sure that closepath comes after first move
+	return cmp;
+}
+#else
+extern void qsort3(void *const pbase, size_t total_elems, size_t size, int (*cmp)(id, id, void *), void *context);	// implemented in NSArray.m
+static int tesselate_compare3(id idx1, id idx2, void *elements)
+{
+	int cmp;
+	int i1=*(int *) idx1;
+	int i2=*(int *) idx2;
+	PathElement *e1=((PathElement **)elements)[i1];
+	PathElement *e2=((PathElement **)elements)[i2];
+	cmp=compare_float(e1->points[0].y, e2->points[0].y);
+	if(cmp == 0)
+		cmp=compare_float(e1->points[0].x, e2->points[0].x);
+	if(cmp == 0 && i1 != i2)	// same point, i.e. first and last in our polygon
+		cmp=(i1 > i2)?1:-1;		// make sure that closepath comes after first move
+	return cmp;
+}
+#endif
+
+- (void) _fill:(_NSX11GraphicsContext *) context color:(_NSX11Color *) color;
+
+{ // based on Seidel's algorithm e.g. http://www.cs.unc.edu/~dm/CODE/GEM/chapter.html
+	struct edge { int from, to; } *edges=NULL;	// current edge
+	int nedges=0;
+	int edgescapacity=0;
+	int *bends;	// sorted array along the y axis
+	int npoints=0;
+	int i;
+	NSPoint first;
+	// FIXME: use a different flag to indicate that we need recaching of the flattened path
+	if((_bz.shouldRecalculateBounds && _flattenedPath) || !_bz.flat)
+		{ // needs to (re)cache
+			[_flattenedPath release];
+			_flattenedPath=[[self bezierPathByFlatteningPath] retain];	// needs flattening first
+		}
+	if(_flattenedPath)
+		self=_flattenedPath;	// was already flattened into the cache
+	bends=(int *) objc_malloc(_count*sizeof(bends[0]));
+	for(i=0; i<_count; i++)
+		{ // fill sort array with indices of moveto, lineto, close
+			PathElement *e=_bPath[i];
+			if(i == 0 || e->type == NSMoveToBezierPathElement)
+				first=e->points[0];
+			else if(e->type == NSClosePathBezierPathElement)
+				// FIXME: what if path is NOT closed?
+				e->points[0]=first;	// make coordinate of first point known
+			bends[i]=i;	// define initial index
+		}
+	npoints=_count;
+#if __APPLE__	// if BSD compatible?
+	qsort_r(bends, npoints, sizeof(bends[0]), _bPath, &tesselate_compare);	// sort along the y axis
+#else
+	qsort3(bends, npoints, sizeof(bends[0]), &tesselate_compare3, _bPath);
+#endif
+	for(i=0; i<npoints; i++)
+		{ // process all edge points in sorted order
+			int j, n;
+			int y=bends[i];				// index of current point
+			int pr=y-1, ne=y+1;			// previous and next in sequence
+			BOOL any=NO;
+			PathElement *e=_bPath[y];	// current point
+			NSPoint trapezoid[4];	// bl, tl, br, tr - bl.y == br.y and tl.y == tr.y
+			NSLog(@"process %d: %@", bends[i], NSStringFromPoint(e->points[0]));
+			if(e->type == NSClosePathBezierPathElement)
+				{ // find matching moveTo as ne(xt) - use first point if we find none
+					for(ne=y-1; ne > 0 && ((PathElement *) _bPath[ne])->type != NSMoveToBezierPathElement; ne--)
+						if(((PathElement *) _bPath[ne-1])->type == NSClosePathBezierPathElement)
+							break;	// close without move ends before next close
+				}
+			else if(e->type == NSMoveToBezierPathElement)
+				{ // find matching closePath as pr(ev) - use last point if we find none
+					for(pr=y+1; pr < npoints-1 && ((PathElement *) _bPath[pr])->type != NSClosePathBezierPathElement; pr++)
+						if(((PathElement *) _bPath[pr+1])->type == NSMoveToBezierPathElement)
+							break;	// move without close ends before next move
+				}
+			for(n=i+1; n<npoints; n++)
+				{ // find index of nearest point in raising y direction
+					if(bends[n] == pr || bends[n] == ne)
+						break;	// found next edge
+				}
+			for(j=0; j<nedges; j++)
+				{ // update edges or add/remove edges depending on current point
+					if(edges[j].to == y)
+						{ // found
+							if(n < npoints)
+								{ // a next edge was found, so move to next edge
+									edges[j].from=y;
+									edges[j].to=bends[n];
+								}
+							else
+								{ // we are a termination point, remove this edge
+									memmove(&edges[j], &edges[j+1], sizeof(edges[0])*(--nedges-j));
+									j--;
+								}
+							any=YES;
+						}
+				}
+			if(!any)
+				{ // not found - we are an initial point - add edges to next and prev
+					for(j=0; j<nedges; j++)
+						{ // insert before nodes with larger x than e->points[0].x
+							if((e->points[0].x-((PathElement *) _bPath[edges[j].from])->points[0].x)*
+							   (((PathElement *) _bPath[edges[j].to])->points[0].y-((PathElement *) _bPath[edges[j].from])->points[0].y)
+							   >
+							   (e->points[0].y-((PathElement *) _bPath[edges[j].from])->points[0].y)*
+							   (((PathElement *) _bPath[edges[j].to])->points[0].x-((PathElement *) _bPath[edges[j].from])->points[0].x)
+							   )
+								break;	// insert before since this one has a lower x coordinate on the y-level of the current point
+						}
+					nedges+=2;
+					if(nedges >= edgescapacity)
+						edges=(struct edge *) objc_realloc(edges, sizeof(edges[0])*(edgescapacity=2*edgescapacity+4));	// 4, 12, 28, 60, ...
+					memmove(&edges[j+2], &edges[j], sizeof(edges[0])*(nedges-j-2));	// make room for two new edges
+					edges[j].from=y;
+					edges[j].to=pr;
+					edges[j+1].from=y;
+					edges[j+1].to=ne;
+				}
+#if 1
+			{
+				NSString *e=@"";
+				for(j=0; j<nedges; j++)
+					{
+#if 1
+						e=[e stringByAppendingFormat:@"%d-%d ", edges[j].from, edges[j].to];
+#endif
+					}
+				NSLog(@"edges: %@", e);
+			}
+#endif
+			if(i+1 >= npoints)
+				continue;	// no (more) edges to process
+			trapezoid[0].y=((PathElement *) _bPath[y])->points[0].y;			// base level is current y coordinate
+			trapezoid[1].y=((PathElement *) _bPath[bends[i+1]])->points[0].y;	// top level is next sorted y coordinate
+			if(trapezoid[1].y - trapezoid[0].y < 1e-6)
+				continue;	// immediately skip (nearly) zero height, i.e. horizontal edges
+			trapezoid[2].y=trapezoid[0].y;										// same base level
+			trapezoid[3].y=trapezoid[1].y;										// same top level
+			// FIXME: handle winding rule
+			for(j=0; j<nedges; j+=2)
+				{
+					// CHECKME: XRenderCompositeTrapeziods can also calculate this based on integer variables!
+					// could also handle multiple trapezoids in a single call
+					// NOTE: it is not guaranteed that trapezoids[0/1] are the left and trapezoids[2/3] are on the right side
+					NSPoint fm=((PathElement *) _bPath[edges[j].from])->points[0];
+					NSPoint to=((PathElement *) _bPath[edges[j].to])->points[0];
+					float slope=(to.x-fm.x)/(to.y-fm.y);	// can be 0.0 only for horizontal edges which have been ruled out before
+					trapezoid[0].x=fm.x+slope*(trapezoid[0].y-fm.y);
+					trapezoid[1].x=fm.x+slope*(trapezoid[1].y-fm.y);
+					fm=((PathElement *) _bPath[edges[j+1].from])->points[0];
+					to=((PathElement *) _bPath[edges[j+1].to])->points[0];
+					slope=(to.x-fm.x)/(to.y-fm.y);
+					trapezoid[2].x=fm.x+slope*(trapezoid[2].y-fm.y);
+					trapezoid[3].x=fm.x+slope*(trapezoid[3].y-fm.y);
+					/* 
+					 if you want to get triangles,
+					 split the trapezoid along a diagonal into two triangles.
+					 Or find the longer horizontal edge of each trapezoid,
+					 split it by two and make 3 triangles
+					 unless the shorter has zero width - then it is already a triangle
+					 */
+					
+					[context _renderTrapezoid:trapezoid color:color];
+				}
+		}
+	if(nedges > 0)
+		NSLog(@"internal error - %d edges left over", nedges);
+	objc_free(bends);
+	if(edges)
+		objc_free(edges);
+}
+
+- (void) _stroke:(_NSX11GraphicsContext *) context color:(_NSX11Color *) color
+{
+	// FIXME: use a different flag to indicate that we need recaching of the flattened path
+	if((_bz.shouldRecalculateBounds && _flattenedPath) || !_bz.flat)
+		{ // needs to (re)cache
+			[_flattenedPath release];
+			_flattenedPath=[[self bezierPathByFlatteningPath] retain];	// needs flattening first
+		}
+	if(_flattenedPath)
+		self=_flattenedPath;	// was already flattened into the cache
+	if(!_strokedPath)
+		{
+			// generate dashed rectangles handling joins etc. for the contour
+			// Note: this is quite tricky since we have to handle any slope
+			// making a line of thickness 3.0 means adding 1.5 to each direction
+			// perpendicular to the line
+			// so this needs some computing intense trigonometrical calculations!
+			// handling the joins means using arcs - which itself need flattening when being filled!
+		}
+	[_strokedPath _fill:context color:color];
+}
+
+- (void) setFlatness:(float)flatness
+{
+	_flatness = flatness;
+	[_flattenedPath release];
+	_flattenedPath=nil;
+}
+
+- (void) dealloc;
+{
+	[_flattenedPath release];
+	[_strokedPath release];
 	[super dealloc];
 }
 
