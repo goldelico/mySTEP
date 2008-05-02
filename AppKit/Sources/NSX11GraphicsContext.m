@@ -1852,6 +1852,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 					{
 						// fill next stride from imageplanes
 						// convert premultiplied etc.
+						// here, we can also convert color spaces!
 						// convert float to int
 						// convert ARGB to RGBA
 						// and so on
@@ -3087,7 +3088,7 @@ static NSDictionary *_x11settings;
 		[NSException raise:NSGenericException format:@"Unable to connect to X server"];
 	XSetErrorHandler((XErrorHandler)X11ErrorHandler);
 #ifdef __SYNCHRONIZE__
-#if 1
+#if 0
 	XSynchronize(_display, True);
 	NSLog(@"X11 runs synchronized");
 #endif
@@ -3544,6 +3545,7 @@ static NSDictionary *_x11settings;
 								//  NSStringFromXRect(xe.xexpose),
 								  NSStringFromSize(sz));
 #endif
+							xe.xexpose.y+=xe.xexpose.height;	// X11 specifies top left while we expect bottom left
 							e = [NSEvent otherEventWithType:NSAppKitDefined
 												   location:X11toScreen(xe.xexpose)
 											  modifierFlags:0
@@ -4365,11 +4367,17 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 	// FIXME: use a different flag to indicate that we need recaching of the flattened path
 	if((_bz.shouldRecalculateBounds && _flattenedPath) || !_bz.flat)
 		{ // needs to (re)cache
-			[_flattenedPath release];
-			_flattenedPath=[[self bezierPathByFlatteningPath] retain];	// needs flattening first
+		[_flattenedPath release];
+		_flattenedPath=nil;
+		[_strokedPath release];	// must be rebuilt
+		_strokedPath=nil;
+		_flattenedPath=[[self bezierPathByFlatteningPath] retain];	// needs flattening first
 		}
 	if(_flattenedPath)
-		self=_flattenedPath;	// was already flattened into the cache
+		{ // fill flattened version
+		[_flattenedPath _fill:context color:color];
+		return;
+		}
 	bends=(int *) objc_malloc(_count*sizeof(bends[0]));
 	for(i=0; i<_count; i++)
 		{ // fill sort array with indices of moveto, lineto, close
@@ -4395,7 +4403,9 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 			BOOL any=NO;
 			PathElement *e=_bPath[y];	// current point
 			NSPoint trapezoid[4];	// bl, tl, br, tr - bl.y == br.y and tl.y == tr.y
+#if 0
 			NSLog(@"process %d: %@", bends[i], NSStringFromPoint(e->points[0]));
+#endif
 			if(e->type == NSClosePathBezierPathElement)
 				{ // find matching moveTo as ne(xt) - use first point if we find none
 					for(ne=y-1; ne > 0 && ((PathElement *) _bPath[ne])->type != NSMoveToBezierPathElement; ne--)
@@ -4451,15 +4461,11 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 					edges[j+1].from=y;
 					edges[j+1].to=ne;
 				}
-#if 1
+#if 0
 			{
 				NSString *e=@"";
 				for(j=0; j<nedges; j++)
-					{
-#if 1
-						e=[e stringByAppendingFormat:@"%d-%d ", edges[j].from, edges[j].to];
-#endif
-					}
+					e=[e stringByAppendingFormat:@"%d-%d ", edges[j].from, edges[j].to];
 				NSLog(@"edges: %@", e);
 			}
 #endif
@@ -4510,19 +4516,27 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 	// FIXME: use a different flag to indicate that we need recaching of the flattened path
 	if((_bz.shouldRecalculateBounds && _flattenedPath) || !_bz.flat)
 		{ // needs to (re)cache
-			[_flattenedPath release];
-			_flattenedPath=[[self bezierPathByFlatteningPath] retain];	// needs flattening first
+		[_flattenedPath release];
+		_flattenedPath=nil;
+		[_strokedPath release];	// must be rebuilt
+		_strokedPath=nil;
+		_flattenedPath=[[self bezierPathByFlatteningPath] retain];	// needs flattening first
 		}
 	if(_flattenedPath)
-		self=_flattenedPath;	// was already flattened into the cache
+		{ // stroke flattened version
+		[_flattenedPath _stroke:context color:color];
+		return;
+		}
 	if(!_strokedPath)
 		{
 			// generate dashed rectangles handling joins etc. for the contour
 			// Note: this is quite tricky since we have to handle any slope
-			// making a line of thickness 3.0 means adding 1.5 to each direction
+			// And, making a line of thickness 3.0 means adding 1.5 to each direction
 			// perpendicular to the line
-			// so this needs some computing intense trigonometrical calculations!
-			// handling the joins means using arcs - which itself need flattening when being filled!
+			// So this needs some computing intense trigonometrical calculations!
+			// Handling the joins means using arcs - which itself need flattening when being filled!
+			// Dashing means summing up all lengths of line segments and to decide where to split them into disjoint segments
+			// this at least requires to sum up distances sqrt(dx*dx+dy*dy) and then scale dx and dy
 		}
 	[_strokedPath _fill:context color:color];
 }
@@ -4536,6 +4550,7 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 
 - (void) dealloc;
 {
+	NSLog(@"dealloc %p flattened %p stroked %p", self, _flattenedPath, _strokedPath);
 	[_flattenedPath release];
 	[_strokedPath release];
 	[super dealloc];

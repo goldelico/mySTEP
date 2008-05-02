@@ -136,7 +136,7 @@ NSEvent *e = [[NSEvent new] autorelease];
 						data1:(int)data1	
 						data2:(int)data2
 {
-NSEvent *e = [[NSEvent new] autorelease];
+	NSEvent *e = [[NSEvent new] autorelease];
 
 	if (!(NSEventMaskFromType(t) & GSOtherEventMask))
 		[NSException raise:NSInvalidArgumentException 
@@ -337,58 +337,73 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 {
 	if (!(NSEventMaskFromType(event_type) & GSMouseEventMask))
 		return 0;
-
-	return event_data.mouse.pressure;
+	return event_data.mouse.pressure;	// FIXME: ????
 }
 
 - (float) pressure
 {
 	if (!(NSEventMaskFromType(event_type) & GSMouseEventMask))
-		return 0;
-
+		[NSException raise:NSInternalInconsistencyException format:@"pressure not defined"];
 	return event_data.mouse.pressure;
 }
 
 - (int) trackingNumber									// Tracking Event Info
 {
-	if ((event_type != NSMouseEntered) && (event_type != NSMouseExited)
-			&& (event_type != NSCursorUpdate))
-		return 0;
-
+	if ((event_type != NSMouseEntered) && (event_type != NSMouseExited) && (event_type != NSCursorUpdate))
+		[NSException raise:NSInternalInconsistencyException format:@"trackingNumber not defined"];
 	return event_data.tracking.tracking_num;
 }
 
 - (void *) userData
 {
-	if ((event_type != NSMouseEntered) && (event_type != NSMouseExited)
-			&& (event_type != NSCursorUpdate))
-		return NULL;
-
+	if ((event_type != NSMouseEntered) && (event_type != NSMouseExited))
+		[NSException raise:NSInternalInconsistencyException format:@"userData not defined"];
 	return event_data.tracking.user_data;
 }
 
 - (int) data1											// Special Events info
 {
-	if ((event_type != NSFlagsChanged) && (event_type != NSPeriodic))
-		return 0;
-
+	switch(event_type)
+		{
+		case NSAppKitDefined:
+		case NSSystemDefined:
+		case NSApplicationDefined:
+		case NSPeriodic:
+			break;
+		default:
+			[NSException raise:NSInternalInconsistencyException format:@"data1 not defined"];
+		}
 	return event_data.misc.data1;
 }
 
 - (int) data2
 {
-	if ((event_type != NSFlagsChanged) && (event_type != NSPeriodic))
-		return 0;
-
+	switch(event_type)
+		{
+		case NSAppKitDefined:
+		case NSSystemDefined:
+		case NSApplicationDefined:
+		case NSPeriodic:
+			break;
+		default:
+			[NSException raise:NSInternalInconsistencyException format:@"data2 not defined"];
+		}
 	return event_data.misc.data2;
 }
 
 - (short) subtype
 {
-	if ((event_type != NSFlagsChanged) && (event_type != NSPeriodic))
-		return 0;
-
-	return event_data.misc.sub_type;;
+	switch(event_type)
+		{
+		case NSAppKitDefined:
+		case NSSystemDefined:
+		case NSApplicationDefined:
+		case NSPeriodic:
+			break;
+		default:
+			[NSException raise:NSInternalInconsistencyException format:@"subtype not defined"];
+		}
+	return event_data.misc.sub_type;
 }
 
 - (void) encodeWithCoder:(NSCoder *) aCoder							// NSCoding protocol

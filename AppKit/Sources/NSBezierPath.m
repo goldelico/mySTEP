@@ -29,7 +29,6 @@
 #define PMAX  10000
 #define KAPPA 0.5522847498				// magic number = 4 *(sqrt(2) -1)/3	
 
-static int tesselate_compare(void *elements, const void *idx1, const void *idx2);
 static void flatten(NSPoint coeff[], float flatness, NSBezierPath *path);
 
 static float __defaultLineWidth = 1.0;
@@ -602,6 +601,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 				break;
 			}
 		}
+	path->_bz.flat=YES;
 	return path;
 }
 
