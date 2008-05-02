@@ -1072,6 +1072,8 @@ id e, o;
 		[self removeObjectAtIndex: i];
 }
 
+// FIXME: can we use qsort_r now?
+
 /*
 qsort is taken from GNU C Library (also LGPL)
 This file is part of the GNU C Library.

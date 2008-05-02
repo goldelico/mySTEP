@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#include <stdint.h>
 #include <fcntl.h>
 #include <math.h>
 #include <float.h>
@@ -73,6 +74,7 @@ typedef long CFIndex;
 #include <objc/thr.h>
 #include <objc/objc-api.h>
 #include <objc/objc-list.h>
+
 #endif
 
 #ifdef __APPLE__			

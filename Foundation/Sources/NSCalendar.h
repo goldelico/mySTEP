@@ -14,25 +14,28 @@
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSDate.h>
+#import <Foundation/NSLocale.h>
+
+@class NSDateComponents;
 
 typedef NSUInteger NSCalendarUnit;
 
 enum {
-	NSEraCalendarUnit = kCFCalendarUnitEra,
-	NSYearCalendarUnit = kCFCalendarUnitYear,
-	NSMonthCalendarUnit = kCFCalendarUnitMonth,
-	NSDayCalendarUnit = kCFCalendarUnitDay,
-	NSHourCalendarUnit = kCFCalendarUnitHour,
-	NSMinuteCalendarUnit = kCFCalendarUnitMinute,
-	NSSecondCalendarUnit = kCFCalendarUnitSecond,
-	NSWeekCalendarUnit = kCFCalendarUnitWeek,
-	NSWeekdayCalendarUnit = kCFCalendarUnitWeekday,
-	NSWeekdayOrdinalCalendarUnit = kCFCalendarUnitWeekdayOrdinal
+	NSEraCalendarUnit				= 1 << 1,
+	NSYearCalendarUnit				= 1 << 2,
+	NSMonthCalendarUnit				= 1 << 3,
+	NSDayCalendarUnit				= 1 << 4,
+	NSHourCalendarUnit				= 1 << 5,
+	NSMinuteCalendarUnit			= 1 << 6,
+	NSSecondCalendarUnit			= 1 << 7,
+	NSWeekCalendarUnit				= 1 << 8,
+	NSWeekdayCalendarUnit			= 1 << 9,
+	NSWeekdayOrdinalCalendarUnit	= 1 << 10
 };
 
 enum
 {
-	NSWrapCalendarComponents = kCFCalendarComponentsWrap,
+	NSWrapCalendarComponents = 1,
 };
 
 @interface NSCalendar : NSObject

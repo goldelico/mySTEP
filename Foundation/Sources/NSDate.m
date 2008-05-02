@@ -1244,13 +1244,13 @@ int m, d, y;
 							   timeZone:nil];
 }
 
-- (void) years:(int*)years
-		months:(int*)months
-		  days:(int*)days
-		 hours:(int*)hours
-	   minutes:(int*)minutes
-	   seconds:(int*)seconds
-	 sinceDate:(NSDate*)date
+- (void) years:(NSInteger*)years
+		months:(NSInteger*)months
+		  days:(NSInteger*)days
+		 hours:(NSInteger*)hours
+	   minutes:(NSInteger*)minutes
+	   seconds:(NSInteger*)seconds
+	 sinceDate:(NSCalendarDate*)date
 {
 	NSCalendarDate *start;
 	NSCalendarDate *end;

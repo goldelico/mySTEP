@@ -19,8 +19,6 @@
 
 #import <Foundation/NSObject.h>
 
-#define NSTimeIntervalSince1970 978307200.0
-
 typedef double NSTimeInterval;				// Time interval difference between 
 											// two dates, in seconds.
 @class NSArray;

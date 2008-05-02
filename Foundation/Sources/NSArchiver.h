@@ -45,7 +45,7 @@
 - (NSString *) classNameEncodedForTrueClassName:(NSString *) trueName;
 - (void) encodeClassName:(NSString *) trueName
 		   intoClassName:(NSString *) inArchiveName;
-- (void) encodeConditionalObject:(id) obj
+- (void) encodeConditionalObject:(id) obj;
 - (void) encodeRootObject:(id) rootObject;
 - (id) initForWritingWithMutableData:(NSMutableData *) mdata;
 - (void) replaceObject:(id) object withObject:(id) newObject;

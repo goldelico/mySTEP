@@ -1061,7 +1061,7 @@ NSString *className = NSMapGet(classAlias, nameInArchive);
     NSMapInsert(classAlias, nameInArchive, trueName);
 }
 
-- (unsigned int) versionForClassName:(NSString*)className
+- (int) versionForClassName:(NSString*)className
 {
     return [(id)NSMapGet(classVersions, className) version];
 }

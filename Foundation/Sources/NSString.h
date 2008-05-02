@@ -91,10 +91,6 @@ typedef enum _NSStringEncoding				// O encoding defines a variable of
 	
 } NSStringEncoding;
 
-enum {
-	NSOpenStepUnicodeReservedBase = 0xF400
-};
-
 enum
 {
     NSStringEncodingConversionAllowLossy = 1,
