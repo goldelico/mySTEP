@@ -1841,7 +1841,7 @@ int index = [self columnWithIdentifier:identifier];
 #if 0
 	NSLog(@"reloadData: %@", self);
 #endif
-	// end any editing
+	// FIXME: cancel any editing
 	[self noteNumberOfRowsChanged];
 #if 0
 	NSLog(@"reloadData done.");

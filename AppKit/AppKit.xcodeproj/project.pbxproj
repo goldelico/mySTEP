@@ -6513,7 +6513,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"Sources/NS*.m Sources/Externs.m Sources/Functions.m Sources/GSBitmapImageReps.m Sources/GSServices.m\"   # all source codes\nexport LIBS=\"-ltiff -lgif -lpng -ljpeg -lz -lfreetype -lXft -lXrender -lXext -lX11\"  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=\"Sources/NS*.m Sources/Externs.m Sources/Functions.m Sources/GSBitmapImageReps.m Sources/GSServices.m\"   # all source codes\nexport LIBS=\"-ltiff -lgif -lpng -ljpeg -lz -lfreetype -lXrender -lXext -lX11\"  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EE93C7860B901DF500FBD885 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6955,7 +6955,6 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../macports-dylibs/lib\"";
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "-D__SYNCHRONIZE__";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
@@ -7244,7 +7243,6 @@
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../macports-dylibs/lib\"";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
@@ -7388,7 +7386,6 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";

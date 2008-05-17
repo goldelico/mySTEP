@@ -1806,7 +1806,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 					}
 				[(NSBitmapImageRep *) rep getBitmapDataPlanes:imagePlanes];
 				pixmap=XCreatePixmap(_display, root, width, height, 4*8);	// ARGB32
-				pa.repeat=True;	// repeat pattern
+				pa.repeat=1;
+//				pa.repeat=RepeatNormal;	// ???? repeat pattern image
 				src=XRenderCreatePicture(_display, pixmap,
 										 XRenderFindStandardFormat(_display, PictStandardARGB32),
 										 CPRepeat, &pa);
@@ -3860,7 +3861,8 @@ static NSDictionary *_x11settings;
 			XRenderColor c;
 			XRenderPictureAttributes pa;
 			pixmap=XCreatePixmap(_display, root, 1, 1, 4*8);	// ARGB32
-			pa.repeat=True;	// repeat pattern
+			pa.repeat=1;
+//			pa.repeat=RepeatNormal;	// repeat pattern
 			_picture=XRenderCreatePicture(_display, pixmap,
 										  XRenderFindStandardFormat(_display, PictStandardARGB32),
 										  CPRepeat, &pa);
@@ -4357,6 +4359,7 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 - (void) _fill:(_NSX11GraphicsContext *) context color:(_NSX11Color *) color;
 
 { // based on Seidel's algorithm e.g. http://www.cs.unc.edu/~dm/CODE/GEM/chapter.html
+	// should we correctly use Bentley-Ottman algorithm? http://geometryalgorithms.com/Archive/algorithm_0108/algorithm_0108.htm#Bentley-Ottmann%20Algorithm
 	struct edge { int from, to; } *edges=NULL;	// current edge
 	int nedges=0;
 	int edgescapacity=0;
