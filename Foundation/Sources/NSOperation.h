@@ -22,3 +22,12 @@
 }
 
 @end
+
+@interface NSInvocationOperation : NSObject
+{
+	
+}
+
+
+
+@end

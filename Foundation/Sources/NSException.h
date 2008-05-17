@@ -30,20 +30,20 @@
 	NSDictionary *e_info;
 }
 
-+ (NSException *) exceptionWithName:(NSString *)name
-							 reason:(NSString *)reason
-							 userInfo:(NSDictionary *)userInfo;
-+ (volatile void) raise:(NSString *)name
-				 format:(NSString *)format, ...;
-+ (volatile void) raise:(NSString *)name
-				  format:(NSString *)format
-				  arguments:(va_list)argList;
++ (NSException *) exceptionWithName:(NSString *) name
+							 reason:(NSString *) reason
+						   userInfo:(NSDictionary *) userInfo;
++ (volatile void) raise:(NSString *) name
+				 format:(NSString *) format, ...;
++ (volatile void) raise:(NSString *) name
+				 format:(NSString *) format
+			  arguments:(va_list) argList;
 
 - (NSArray *) callStackReturnAddresses;
-- (id) initWithName:(NSString *)name 
-			 reason:(NSString *)reason 
-			 userInfo:(NSDictionary *)userInfo;
-- (NSString *) name;									// Query Exception
+- (id) initWithName:(NSString *) name 
+			 reason:(NSString *) reason 
+		   userInfo:(NSDictionary *) userInfo;
+- (NSString *) name;
 - (/*volatile*/ void) raise;
 - (NSString *) reason;
 - (NSDictionary *) userInfo;

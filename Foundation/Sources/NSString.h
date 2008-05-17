@@ -1,17 +1,19 @@
 /* 
-   NSString.h
+    NSString.h
 
-   Interface to string class.
+    Interface to string class.
 
-   Copyright (C) 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
+    Copyright (C) 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
 
-   Author:	Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
-   Date:	1995
+    Author:	Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
+    Date:	1995
    
-   H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+ 
+    Fabian Spillner, May 2008 - API revised to be compatible to 10.5
 
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
 */ 
 
 #ifndef _mySTEP_H_NSString
@@ -314,19 +316,19 @@ extern NSString *NSParseErrorException;
 
 @interface NSMutableString : NSString
 
-+ (NSMutableString*) stringWithCapacity:(unsigned)capacity;
++ (NSMutableString *) stringWithCapacity:(NSUInteger) capacity;
 
-- (void) appendFormat:(NSString*)format, ...;
-- (void) appendString:(NSString*)aString;
-- (void) deleteCharactersInRange:(NSRange)range;
-- (id) initWithCapacity:(unsigned)capacity;
-- (void) insertString:(NSString*)aString atIndex:(unsigned)index;
-- (void) replaceCharactersInRange:(NSRange)range withString:(NSString*)aString;
-- (unsigned int) replaceOccurrencesOfString:(NSString *)replace
-								 withString:(NSString*) by
-									options:(unsigned int) opts
-									  range:(NSRange) searchRange;
-- (void) setString:(NSString*)aString;
+- (void) appendFormat:(NSString *) format, ...;
+- (void) appendString:(NSString *) aString;
+- (void) deleteCharactersInRange:(NSRange) range;
+- (id) initWithCapacity:(NSUInteger) capacity;
+- (void) insertString:(NSString *) aString atIndex:(NSUInteger) index;
+- (void) replaceCharactersInRange:(NSRange) range withString:(NSString *) aString;
+- (NSUInteger) replaceOccurrencesOfString:(NSString *) replace
+							   withString:(NSString *) by
+								  options:(unsigned int) opts
+									range:(NSRange) searchRange;
+- (void) setString:(NSString *) aString;
 
 @end
 

@@ -1,10 +1,12 @@
-//
-//  NSHTTPCookie.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
-//  Copyright (c) 2006 DSITRI. All rights reserved.
-//
+/*
+    NSHTTPCookie.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
+    Copyright (c) 2006 DSITRI. All rights reserved.
+ 
+    Fabian Spillner, May 2008 - API revised to be compatible to 10.5
+*/
 
 #import <Foundation/NSObject.h>
 
@@ -49,6 +51,6 @@ extern NSString *NSHTTPCookieVersion;
 - (NSArray *) portList;
 - (NSDictionary *) properties;
 - (NSString *) value;
-- (unsigned) version;
+- (NSUInteger) version;
 
 @end

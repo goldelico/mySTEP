@@ -11,7 +11,7 @@
     H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
     Author:	Fabian Spillner <fabian.spillner@gmail.com>
-    Date:	28. April 2008 - aligned with 10.5 (only NSDictionary)
+    Date:	28. April 2008 - aligned with 10.5
 
     This file is part of the mySTEP Library and is provided under the 
     terms of the libFoundation BSD type license (See the Readme file).
@@ -73,10 +73,10 @@
 
 @interface NSMutableDictionary : NSDictionary
 
-+ (id) dictionaryWithCapacity:(unsigned int) aNumItems;
++ (id) dictionaryWithCapacity:(NSUInteger) aNumItems;
 
 - (void) addEntriesFromDictionary:(NSDictionary *) otherDictionary;
-- (id) initWithCapacity:(unsigned int) aNumItems;
+- (id) initWithCapacity:(NSUInteger) aNumItems;
 - (void) removeAllObjects;
 - (void) removeObjectForKey:(id) theKey;
 - (void) removeObjectsForKeys:(NSArray *) keyArray;

@@ -35,4 +35,12 @@
 - (NSArray *) filteredArrayUsingPredicate:(NSPredicate *) predicate;
 @end
 
+@interface NSMutableArray (NSPredicate)
+- (void) filterUsingPredicate:(NSPredicate *) predicate;
+@end
+
+@interface NSMutableSet
+- (void) filterUsingPredicate:(NSPredicate *) predicate;
+@end
+
 #endif mySTEP_NSPREDICATE_H

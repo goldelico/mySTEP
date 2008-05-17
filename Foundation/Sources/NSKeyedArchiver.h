@@ -6,6 +6,8 @@
 
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, May 2008 - API revised to be compatible to 10.5
+ 
    Copyright (C) 1997 Free Software Foundation, Inc.
    All rights reserved.
 
@@ -33,29 +35,38 @@ extern NSString *NSInvalidUnarchiveOperationException;
 	NSPropertyListFormat _outputFormat;
 }
 
-+ (NSData *) archivedDataWithRootObject:(id)rootObject;
-+ (BOOL) archiveRootObject:(id)rootObject toFile:(NSString *)path;
-+ (NSString *) classNameForClass:(Class)cls;
-+ (void) setClassName:(NSString *)codedName forClass:(Class)cls;
++ (NSData *) archivedDataWithRootObject:(id) rootObject;
++ (BOOL) archiveRootObject:(id) rootObject toFile:(NSString *) path;
++ (NSString *) classNameForClass:(Class) cls;
++ (void) setClassName:(NSString *) codedName forClass:(Class) cls;
 
-- (NSString *) classNameForClass:(Class)cls;	// look in local then in global table
+- (NSString *) classNameForClass:(Class) cls;
 - (id) delegate;
+- (void) encodeBool:(BOOL) value forKey:(NSString *) key;
+- (void) encodeBytes:(const uint8_t *) bytes length:(NSUInteger) length forKey:(NSString *) key;
+- (void) encodeConditionalObject:(id) value forKey:(NSString *) key;
+- (void) encodeDouble:(double) value forKey:(NSString *) key;
+- (void) encodeFloat:(float) value forKey:(NSString *) key;
+- (void) encodeInt32:(int32_t) value forKey:(NSString *) key;
+- (void) encodeInt64:(int64_t) intv forKey:(NSString *) key;
+- (void) encodeInt:(int) value forKey:(NSString *) key;
+- (void) encodeObject:(id) value forKey:(NSString *) key;
 - (void) finishEncoding;
-- (id) initForWritingWithMutableData:(NSMutableData *)data;
+- (id) initForWritingWithMutableData:(NSMutableData *) data;
 - (NSPropertyListFormat) outputFormat;
-- (void) setClassName:(NSString *)codedName forClass:(Class)cls;
-- (void) setDelegate:(id)delegate;
-- (void) setOutputFormat:(NSPropertyListFormat)format;
+- (void) setClassName:(NSString *) codedName forClass:(Class) cls;
+- (void) setDelegate:(id) delegate;
+- (void) setOutputFormat:(NSPropertyListFormat) format;
 
 @end
 
 @interface NSObject (NSKeyedArchiver)
 
-- (void) archiver:(NSKeyedArchiver *)archiver didEncodeObject:(id)object;
-- (id) archiver:(NSKeyedArchiver *)archiver willEncodeObject:(id)object;
-- (void) archiver:(NSKeyedArchiver *)archiver willReplaceObject:(id)object withObject:(id)newObject;
-- (void) archiverDidFinish:(NSKeyedArchiver *)archiver;
-- (void) archiverWillFinish:(NSKeyedArchiver *)archiver;
+- (void) archiver:(NSKeyedArchiver *) archiver didEncodeObject:(id) object;
+- (id) archiver:(NSKeyedArchiver *) archiver willEncodeObject:(id) object;
+- (void) archiver:(NSKeyedArchiver *) archiver willReplaceObject:(id) object withObject:(id) newObject;
+- (void) archiverDidFinish:(NSKeyedArchiver *) archiver;
+- (void) archiverWillFinish:(NSKeyedArchiver *) archiver;
 
 @end
 
@@ -74,27 +85,36 @@ extern NSString *NSInvalidUnarchiveOperationException;
 	unsigned int _sequentialKey;
 }
 
-+ (Class) classForClassName:(NSString *)codedName;
-+ (void) setClass:(Class)cls forClassName:(NSString *)codedName;
-+ (id) unarchiveObjectWithData:(NSData *)data;
-+ (id) unarchiveObjectWithFile:(NSString *)path;
++ (Class) classForClassName:(NSString *) codedName;
++ (void) setClass:(Class) cls forClassName:(NSString *) codedName;
++ (id) unarchiveObjectWithData:(NSData *) data;
++ (id) unarchiveObjectWithFile:(NSString *) path;
 
-- (Class) classForClassName:(NSString *)codedName;
+- (Class) classForClassName:(NSString *) codedName;
+- (BOOL) containsValueForKey:(NSString *) key;
+- (BOOL) decodeBoolForKey:(NSString *) key;
+- (const uint8_t *) decodeBytesForKey:(NSString *) key returnedLength:(NSUInteger *) length;
+- (double) decodeDoubleForKey:(NSString *) key;
+- (float) decodeFloatForKey:(NSString *) key;
+- (int32_t) decodeInt32ForKey:(NSString *) key;
+- (int64_t) decodeInt64ForKey:(NSString *) key;
+- (int) decodeIntForKey:(NSString *) key;
+- (id) decodeObjectForKey:(NSString *) key;
 - (id) delegate;
 - (void) finishDecoding;
-- (id) initForReadingWithData:(NSData *)data;
-- (void) setClass:(Class)cls forClassName:(NSString *)codedName;
-- (void) setDelegate:(id)delegate;
+- (id) initForReadingWithData:(NSData *) data;
+- (void) setClass:(Class) cls forClassName:(NSString *) codedName;
+- (void) setDelegate:(id) delegate;
 
 @end
 
 @interface NSObject (NSKeyedUnarchiver)
 
-- (Class) unarchiver:(NSKeyedUnarchiver *)unarchiver cannotDecodeObjectOfClassName:(NSString *)name originalClasses:(NSArray *)classNames;
-- (id) unarchiver:(NSKeyedUnarchiver *)unarchiver didDecodeObject:(id)object;
-- (void) unarchiver:(NSKeyedUnarchiver *)unarchiver willReplaceObject:(id)object withObject:(id)newObject;
-- (void) unarchiverDidFinish:(NSKeyedUnarchiver *)unarchiver;
-- (void) unarchiverWillFinish:(NSKeyedUnarchiver *)unarchiver;
+- (Class) unarchiver:(NSKeyedUnarchiver *) unarchiver cannotDecodeObjectOfClassName:(NSString *) name originalClasses:(NSArray *) classNames;
+- (id) unarchiver:(NSKeyedUnarchiver *) unarchiver didDecodeObject:(id) object;
+- (void) unarchiver:(NSKeyedUnarchiver *) unarchiver willReplaceObject:(id) object withObject:(id) newObject;
+- (void) unarchiverDidFinish:(NSKeyedUnarchiver *) unarchiver;
+- (void) unarchiverWillFinish:(NSKeyedUnarchiver *) unarchiver;
 
 @end
 

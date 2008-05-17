@@ -1,13 +1,15 @@
 /* 
-   NSMapTable.h
+    NSMapTable.h
 
-   Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
-   All rights reserved.
+    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
+    All rights reserved.
 
-   Author: Ovidiu Predescu <ovidiu@bx.logicnet.ro>
+    Author: Ovidiu Predescu <ovidiu@bx.logicnet.ro>
+ 
+    Fabian Spillner, May 2008 - API revised to be compatible to 10.5 
 
-   This file is part of the mySTEP Library and is provided under the 
-   terms of the libFoundation BSD type license (See the Readme file).
+    This file is part of the mySTEP Library and is provided under the 
+    terms of the libFoundation BSD type license (See the Readme file).
 */
 
 #ifndef _mySTEP_H_NSMapTable
@@ -16,6 +18,45 @@
 #import <Foundation/NSObject.h>
 
 @class NSArray;
+
+enum {
+	NSMapTableStrongMemory             = 0,
+	NSMapTableZeroingWeakMemory        = NSPointerFunctionsZeroingWeakMemory,
+	NSMapTableCopyIn                   = NSPointerFunctionsCopyIn,
+	NSMapTableObjectPointerPersonality = NSPointerFunctionsObjectPointerPersonality
+};
+
+@interface NSMapTable : NSObject
+{
+}
+
++ (id) mapTableWithKeyOptions:(NSPointerFunctionsOptions) keyOptions 
+				 valueOptions:(NSPointerFunctionsOptions) valueOptions;
++ (id) mapTableWithStrongToStrongObjects;
++ (id) mapTableWithStrongToWeakObjects;
++ (id) mapTableWithWeakToStrongObjects;
++ (id) mapTableWithWeakToWeakObjects;
+
+- (NSUInteger) count;
+- (NSDictionary *) dictionaryRepresentation;
+- (id) initWithKeyOptions:(NSPointerFunctionsOptions) keyOpts 
+			 valueOptions:(NSPointerFunctionsOptions) valueOpts 
+				 capacity:(NSUInteger) cap;
+- (id) initWithKeyPointerFunctions:(NSPointerFunctions *) keyFuncts 
+			 valuePointerFunctions:(NSPointerFunctions *) valFuncts 
+						  capacity:(NSUInteger) cap;
+- (NSEnumerator *) keyEnumerator;
+- (NSPointerFunctions *) keyPointerFunctions;
+- (NSEnumerator *) objectEnumerator;
+- (id) objectForKey:(id) key;
+- (void) removeAllObjects;
+- (void) removeObjectForKey:(id) key;
+- (void) setObject:(id) obj forKey:(id) key;
+- (NSPointerFunctions *) valuePointerFunctions;
+
+@end
+
+/********************************************************************************/
 
 struct _NSMapTable;
 
@@ -58,8 +99,11 @@ typedef struct NSMapEnumerator {
 #define NSNotAnIntMapKey (NSNotFound)
 #define NSNotAPointerMapKey ((long)1)
 														// Predefined callbacks
-extern const NSMapTableKeyCallBacks   NSIntMapKeyCallBacks;
-extern const NSMapTableValueCallBacks NSIntMapValueCallBacks;
+extern const NSMapTableKeyCallBacks   NSIntMapKeyCallBacks; // deprecated since 10.5
+extern const NSMapTableValueCallBacks NSIntMapValueCallBacks; // deprecated since 10.5
+
+extern const NSMapTableKeyCallBacks   NSIntegerMapKeyCallBacks;
+extern const NSMapTableValueCallBacks NSIntegerMapValueCallBacks;
 
 extern const NSMapTableKeyCallBacks   NSOwnedPointerMapKeyCallBacks;
 extern const NSMapTableKeyCallBacks   NSNonOwnedPointerMapKeyCallBacks;

@@ -21,4 +21,11 @@ typedef void NSZone;					// simplified definition for mySTEP
 #define NSZoneMalloc(zone, size)				objc_malloc(size)
 #define NSZoneRealloc(zone, ptr, size)			objc_realloc(ptr, size)
 
+/* NSGarbageCollector.h */
+
+enum {
+	NSScannedOption = (1<<0),
+	NSCollectorDisabledOption = (2<<0),
+};
+
 /* EOF */

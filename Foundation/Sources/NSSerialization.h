@@ -52,6 +52,8 @@
 
 @interface NSMutableData (NSSerialization)
 
+/* deprecated in Mac OS X v10.2 */
+
 - (void) serializeAlignedBytesLength:(unsigned int)aLength;
 - (void) serializeDataAt:(const void*)data
 			  ofObjCType:(const char*)type

@@ -1,17 +1,19 @@
 /* 
-   NSPortNameServer.h
+    NSPortNameServer.h
 
-   Interface to the port registration service used by the DO system.
+    Interface to the port registration service used by the DO system.
 
-   Copyright (C) 1998 Free Software Foundation, Inc.
+    Copyright (C) 1998 Free Software Foundation, Inc.
 
-   Author:	Richard Frith-Macdonald <richard@brainstorm.co.uk>
-   Date:	October 1998
+    Author:	Richard Frith-Macdonald <richard@brainstorm.co.uk>
+    Date:	October 1998
 
-   H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
+    Fabian Spillner, May 2008 - API revised to be compatible to 10.5 (only NSMessagePortNameServer)
+ 
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
 */
 
 #ifndef _mySTEP_H_NSPortNameServer

@@ -20,4 +20,6 @@ extern NSString *NSURLErrorDomain;
 
 extern NSString *NSErrorFailingURLStringKey;
 
+extern NSString *NSURLErrorDataLengthExceedsMaximum;
+
 #endif // mySTEP_NSURLERROR_H

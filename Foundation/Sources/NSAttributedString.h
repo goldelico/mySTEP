@@ -62,22 +62,22 @@
 
 @interface NSMutableAttributedString : NSAttributedString
 
-- (void) addAttribute:(NSString *)name value:(id)value range:(NSRange)aRange;
-- (void) addAttributes:(NSDictionary *)attributes range:(NSRange)aRange;
-- (void) appendAttributedString:(NSAttributedString *)attributedString;
-- (void) beginEditing;								// Group changes
-- (void) deleteCharactersInRange:(NSRange)aRange;	// Change chars
+- (void) addAttribute:(NSString *) name value:(id) value range:(NSRange) aRange;
+- (void) addAttributes:(NSDictionary *) attributes range:(NSRange) aRange;
+- (void) appendAttributedString:(NSAttributedString *) attributedString;
+- (void) beginEditing;
+- (void) deleteCharactersInRange:(NSRange) aRange;
 - (void) endEditing;
-- (void) insertAttributedString:(NSAttributedString *)attributedString 
-						atIndex:(unsigned int)index;
+- (void) insertAttributedString:(NSAttributedString *) attributedString 
+						atIndex:(NSUInteger) index;
 - (NSMutableString *) mutableString;				// Retrieve char info
-- (void) removeAttribute:(NSString *)name range:(NSRange)aRange;
-- (void) replaceCharactersInRange:(NSRange)aRange 
-			 withAttributedString:(NSAttributedString *)attributedString;
-- (void) replaceCharactersInRange:(NSRange)aRange 
-					   withString:(NSString *)aString;
-- (void) setAttributedString:(NSAttributedString *)attributedString;
-- (void) setAttributes:(NSDictionary *)attributes range:(NSRange)aRange;
+- (void) removeAttribute:(NSString *) name range:(NSRange) aRange;
+- (void) replaceCharactersInRange:(NSRange) aRange 
+			 withAttributedString:(NSAttributedString *) attributedString;
+- (void) replaceCharactersInRange:(NSRange) aRange 
+					   withString:(NSString *) aString;
+- (void) setAttributedString:(NSAttributedString *) attributedString;
+- (void) setAttributes:(NSDictionary *) attributes range:(NSRange) aRange;
 
 @end
 

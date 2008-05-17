@@ -1,10 +1,12 @@
-//
-//  NSURLResponse.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Mon Jan 05 2004.
-//  Copyright (c) 2004 DSITRI. All rights reserved.
-//
+/*
+    NSURLResponse.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Mon Jan 05 2004.
+    Copyright (c) 2004 DSITRI. All rights reserved.
+
+    Fabian Spillner, May 2008 - API revised to be compatible to 10.5
+*/
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSURL.h>
@@ -37,9 +39,9 @@
 	int _statusCode;
 }
 
-+ (NSString *) localizedStringForStatusCode:(int) code;
++ (NSString *) localizedStringForStatusCode:(NSInteger) code;
 
 - (NSDictionary *) allHeaderFields;
-- (int) statusCode;
+- (NSInteger) statusCode;
 
 @end

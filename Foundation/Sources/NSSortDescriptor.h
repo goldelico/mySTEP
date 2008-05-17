@@ -40,13 +40,13 @@
 
 @interface NSArray (NSSortDecriptor)
 
-- (NSArray *) sortedArrayUsingDescriptors:(NSArray *)sortDescriptors;
+- (NSArray *) sortedArrayUsingDescriptors:(NSArray *) sortDescriptors;
 
 @end
 
 @interface NSMutableArray (NSSortDescriptor)
 
-- (void) sortUsingDescriptors:(NSArray *)sortDescriptors;
+- (void) sortUsingDescriptors:(NSArray *) sortDescriptors;
 
 @end
 

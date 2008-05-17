@@ -63,11 +63,11 @@
 
 @interface NSMutableSet : NSSet
 
-+ (id) setWithCapacity:(unsigned) numItems;
++ (id) setWithCapacity:(NSUInteger) numItems;
 
 - (void) addObject:(id) object;
 - (void) addObjectsFromArray:(NSArray *) array;
-- (id) initWithCapacity:(unsigned) numItems;
+- (id) initWithCapacity:(NSUInteger) numItems;
 - (void) intersectSet:(NSSet *) other;
 - (void) minusSet:(NSSet *) other;
 - (void) removeAllObjects;

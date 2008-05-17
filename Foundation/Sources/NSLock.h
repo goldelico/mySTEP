@@ -11,6 +11,7 @@
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
    NSConditionLock: aligned with 10.5 by Fabian Spillner 22.04.2008
+   NSLock: aligned with 10.5 by Fabian Spillner 17. May 2008
  
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.

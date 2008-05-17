@@ -1,15 +1,17 @@
-//
-//  NSIndexSet.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Tue Nov 22 2005.
-//  Copyright (c) 2005 DSITRI.
-//
-//  H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+    NSIndexSet.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Tue Nov 22 2005.
+    Copyright (c) 2005 DSITRI.
+
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+
+    Fabian Spillner, May 2008 - API revised to be compatible to 10.5
+ 
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
+*/
 
 #ifndef mySTEP_NSIndexSet_H
 #define mySTEP_NSIndexSet_H
@@ -25,29 +27,29 @@
 }
 
 + (id) indexSet;
-+ (id) indexSetWithIndex:(unsigned int) value;
++ (id) indexSetWithIndex:(NSUInteger) value;
 + (id) indexSetWithIndexesInRange:(NSRange) range;
 
-- (BOOL) containsIndex:(unsigned int) value;
+- (BOOL) containsIndex:(NSUInteger) value;
 - (BOOL) containsIndexes:(NSIndexSet *) indexSet;
 - (BOOL) containsIndexesInRange:(NSRange) range;
-- (unsigned int) count;
+- (NSUInteger) count;
 - (NSUInteger) countOfIndexesInRange:(NSRange) range;
-- (unsigned int) firstIndex;
-- (unsigned int) getIndexes:(unsigned int *) indexBuffer
-				   maxCount:(unsigned int) bufferSize
+- (NSUInteger) firstIndex;
+- (NSUInteger) getIndexes:(NSUInteger *) indexBuffer
+				 maxCount:(NSUInteger) bufferSize
 			   inIndexRange:(NSRangePointer) range;
-- (unsigned int) indexGreaterThanIndex:(unsigned int) value;
-- (unsigned int) indexGreaterThanOrEqualToIndex:(unsigned int) value;
-- (unsigned int) indexLessThanIndex:(unsigned int) value;
-- (unsigned int) indexLessThanOrEqualToIndex:(unsigned int) value;
+- (NSUInteger) indexGreaterThanIndex:(NSUInteger) value;
+- (NSUInteger) indexGreaterThanOrEqualToIndex:(NSUInteger) value;
+- (NSUInteger) indexLessThanIndex:(NSUInteger) value;
+- (NSUInteger) indexLessThanOrEqualToIndex:(NSUInteger) value;
 - (id) init;
-- (id) initWithIndex:(unsigned int) value;
+- (id) initWithIndex:(NSUInteger) value;
 - (id) initWithIndexesInRange:(NSRange) range;
 - (id) initWithIndexSet:(NSIndexSet *) indexSet;
 - (BOOL) intersectsIndexesInRange:(NSRange) range;
 - (BOOL) isEqualToIndexSet:(NSIndexSet *) indexSet;
-- (unsigned int) lastIndex;
+- (NSUInteger) lastIndex;
 
 @end
 
@@ -57,14 +59,14 @@
 	unsigned	_capacity;	// how much ranges are malloc'd/realloc'd
 }
 
-- (void) addIndex:(unsigned int) value;
+- (void) addIndex:(NSUInteger) value;
 - (void) addIndexes:(NSIndexSet *) indexSet;
 - (void) addIndexesInRange:(NSRange) range;
 - (void) removeAllIndexes;
-- (void) removeIndex:(unsigned int) value;
+- (void) removeIndex:(NSUInteger) value;
 - (void) removeIndexes:(NSIndexSet *) indexSet;
 - (void) removeIndexesInRange:(NSRange) range;
-- (void) shiftIndexesStartingAtIndex:(unsigned int) index by:(int) delta;
+- (void) shiftIndexesStartingAtIndex:(NSUInteger) index by:(NSInteger) delta;
 
 @end
 

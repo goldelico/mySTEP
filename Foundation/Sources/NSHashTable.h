@@ -1,13 +1,16 @@
 /* 
-   NSHashTable.h
+    NSHashTable.h
 
-   Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
-   All rights reserved.
+    Copyright (C) 1995, 1996 Ovidiu Predescu and Mircea Oancea.
+    All rights reserved.
 
-   Author: Ovidiu Predescu <ovidiu@bx.logicnet.ro>
+    Author: Ovidiu Predescu <ovidiu@bx.logicnet.ro>
+ 
+    Author:	Fabian Spillner <fabian.spillner@gmail.com>
+    Date:	9. May 2008 - aligned with 10.5 
 
-   This file is part of the mySTEP Library and is provided under the 
-   terms of the libFoundation BSD type license (See the Readme file).
+    This file is part of the mySTEP Library and is provided under the 
+    terms of the libFoundation BSD type license (See the Readme file).
 */
 
 #ifndef _mySTEP_H_NSHashTable
@@ -47,7 +50,8 @@ typedef struct _NSHashEnumerator {
 } NSHashEnumerator;
 
 													// Predefined callback sets
-extern const NSHashTableCallBacks NSIntHashCallBacks;
+extern const NSHashTableCallBacks NSIntHashCallBacks;  // deprecated since 10.5
+extern const NSHashTableCallBacks NSIntegerHashCallBacks;
 extern const NSHashTableCallBacks NSNonOwnedPointerHashCallBacks; 
 extern const NSHashTableCallBacks NSNonRetainedObjectHashCallBacks; 
 extern const NSHashTableCallBacks NSObjectHashCallBacks; 
@@ -107,9 +111,45 @@ NSString *__NSDescribePointers(void* table, const void* anObject);
 NSString *__NSDescribeInts(void* table, const void* anObject);
 
 #if NEW
+
+typedef NSUInteger NSHashTableOptions;
+
+enum {
+	NSHashTableStrongMemory             = 0,
+	NSHashTableZeroingWeakMemory        = NSPointerFunctionsZeroingWeakMemory,
+	NSHashTableCopyIn                   = NSPointerFunctionsCopyIn,
+	NSHashTableObjectPointerPersonality = NSPointerFunctionsObjectPointerPersonality,
+};
+
 @interface NSHashTable : Object
 {
 }
+
++ (id) hashTableWithOptions:(NSPointerFunctionsOptions) opts; 
++ (id) hashTableWithWeakObjects;
+
+- (void) addObject:(id) obj;
+- (NSArray *) allObjects;
+- (id) anyObject;
+- (BOOL) containsObject:(id) anObj;
+- (NSUInteger) count;
+- (id) initWithOptions:(NSPointerFunctionsOptions) opts capacity:(NSUInteger) cap;
+- (id) initWithPointerFunctions:(NSPointerFunctions *) functs capacity:(NSUInteger) initCap;
+- (void) intersectHashTable:(NSHashTable *) hashTable;
+- (BOOL) intersectsHashTable:(NSHashTable *) hashTable;
+- (BOOL) isEqualToHashTable:(NSHashTable *) hashTable;
+- (BOOL) isSubsetOfHashTable:(NSHashTable *) hashTable;
+- (id) member:(id) obj;
+- (void) minusHashTable:(NSHashTable *) hashTable;
+- (NSEnumerator *) objectEnumerator;
+- (NSPointerFunctions *) pointerFunctions;
+- (void) removeAllObjects;
+- (void) removeObject:(id) obj;
+- (NSSet *) setRepresentation;
+- (void) unionHashTable:(NSHashTable *) hashTable;
+
+@end
+
 #endif
 
 #endif /* _mySTEP_H_NSHashTable */

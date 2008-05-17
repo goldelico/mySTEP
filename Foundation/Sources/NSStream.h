@@ -1,15 +1,17 @@
-//
-//  NSStream.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Mon Mar 14 2005.
-//  Copyright (c) 2005 DSITRI.
-//
-//  H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+    NSStream.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Mon Mar 14 2005.
+    Copyright (c) 2005 DSITRI.
+
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+ 
+    Fabian Spillner, May 2008 - API revised to be compatible to 10.5 (NSInputStream)
+ 
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
+*/
 
 #ifndef mySTEP_NSSTREAM_H
 #define mySTEP_NSSTREAM_H
@@ -103,11 +105,11 @@ extern NSString *NSStreamSOCKSProxyVersion5;
 
 + (id) inputStreamWithData:(NSData *) data;
 + (id) inputStreamWithFileAtPath:(NSString *) path;
-- (BOOL) getBuffer:(unsigned char **) buffer length:(unsigned int *) len;
+- (BOOL) getBuffer:(unsigned char **) buffer length:(NSUInteger *) len;
 - (BOOL) hasBytesAvailable;
 - (id) initWithData:(NSData *) data;
 - (id) initWithFileAtPath:(NSString *) path;
-- (int) read:(unsigned char *) buffer maxLength:(unsigned int) len;
+- (NSInteger) read:(unsigned char *) buffer maxLength:(NSUInteger) len;
 
 @end
 

@@ -72,22 +72,22 @@ enum _NSDataOptions
 
 @interface NSMutableData :  NSData
 
-+ (id) dataWithCapacity:(unsigned int)numBytes;
-+ (id) dataWithLength:(unsigned int)length;
++ (id) dataWithCapacity:(NSUInteger) numBytes;
++ (id) dataWithLength:(NSUInteger) length;
 
-- (void) appendBytes:(const void*)bytes length:(unsigned int)length;
-- (void) appendData:(NSData*)other;
-- (void) increaseLengthBy:(unsigned int)extraLength;
-- (id) initWithCapacity:(unsigned int)capacity;
-- (id) initWithLength:(unsigned int)length;
+- (void) appendBytes:(const void *) bytes length:(NSUInteger) length;
+- (void) appendData:(NSData *) other;
+- (void) increaseLengthBy:(NSUInteger) extraLength;
+- (id) initWithCapacity:(NSUInteger) capacity;
+- (id) initWithLength:(NSUInteger) length;
 - (void *) mutableBytes;
-- (void) replaceBytesInRange:(NSRange)aRange withBytes:(const void*)bytes;
-- (void) replaceBytesInRange:(NSRange)range 
-				   withBytes:(const void *)replacementBytes
-					  length:(unsigned)replacementLength;
-- (void) resetBytesInRange:(NSRange)aRange;
-- (void) setLength:(unsigned int)length;
-- (void) setData:(NSData*)data;
+- (void) replaceBytesInRange:(NSRange) aRange withBytes:(const void *) bytes;
+- (void) replaceBytesInRange:(NSRange) range 
+				   withBytes:(const void *) replacementBytes
+					  length:(NSUInteger) replacementLength;
+- (void) resetBytesInRange:(NSRange) aRange;
+- (void) setLength:(NSUInteger) length;
+- (void) setData:(NSData *) data;
 
 @end
 

@@ -1,17 +1,20 @@
 /* 
-   NSFileHandle.h
+    NSFileHandle.h
 
-   Interface for NSFileHandle for mySTEP
+    Interface for NSFileHandle for mySTEP
 
-   Copyright (C) 1997 Free Software Foundation, Inc.
+    Copyright (C) 1997 Free Software Foundation, Inc.
 
-   Author:	Richard Frith-Macdonald <richard@brainstorm.co.uk>
-   Date:	1997
+    Author:	Richard Frith-Macdonald <richard@brainstorm.co.uk>
+    Date:	1997
 
-   H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
+    Author:	Fabian Spillner <fabian.spillner@gmail.com>
+    Date:	9. May 2008 - aligned with 10.5 
+ 
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
 */
 
 #ifndef _mySTEP_H_NSFileHandle
@@ -46,35 +49,35 @@
 	BOOL _closeOnDealloc;
 }
 
-+ (id) fileHandleForReadingAtPath:(NSString*)path;
-+ (id) fileHandleForUpdatingAtPath:(NSString*)path;
-+ (id) fileHandleForWritingAtPath:(NSString*)path;
++ (id) fileHandleForReadingAtPath:(NSString *) path;
++ (id) fileHandleForUpdatingAtPath:(NSString *) path;
++ (id) fileHandleForWritingAtPath:(NSString *) path;
 + (id) fileHandleWithNullDevice;
 + (id) fileHandleWithStandardError;
 + (id) fileHandleWithStandardInput;
 + (id) fileHandleWithStandardOutput;
 
 - (void) acceptConnectionInBackgroundAndNotify;
-- (void) acceptConnectionInBackgroundAndNotifyForModes:(NSArray*)modes;
-- (NSData*) availableData;							// Synchronous I/O ops
+- (void) acceptConnectionInBackgroundAndNotifyForModes:(NSArray *) modes;
+- (NSData *) availableData;							// Synchronous I/O ops
 - (void) closeFile;									// file operations
 - (int) fileDescriptor;								// Returning file handles
-- (id) initWithFileDescriptor:(int)desc;
-- (id) initWithFileDescriptor:(int)desc closeOnDealloc:(BOOL)flag;
+- (id) initWithFileDescriptor:(int) desc;
+- (id) initWithFileDescriptor:(int) desc closeOnDealloc:(BOOL) flag;
 - (unsigned long long) offsetInFile;				// Seek within a file
-- (NSData*) readDataOfLength:(unsigned int)len;
-- (NSData*) readDataToEndOfFile;
+- (NSData *) readDataOfLength:(NSUInteger) len;
+- (NSData *) readDataToEndOfFile;
 - (void) readInBackgroundAndNotify;
-- (void) readInBackgroundAndNotifyForModes:(NSArray*)modes;
+- (void) readInBackgroundAndNotifyForModes:(NSArray *) modes;
 - (void) readToEndOfFileInBackgroundAndNotify;
-- (void) readToEndOfFileInBackgroundAndNotifyForModes:(NSArray*)modes;
+- (void) readToEndOfFileInBackgroundAndNotifyForModes:(NSArray *) modes;
 - (unsigned long long) seekToEndOfFile;
-- (void) seekToFileOffset:(unsigned long long)pos;
+- (void) seekToFileOffset:(unsigned long long) pos;
 - (void) synchronizeFile;
-- (void) truncateFileAtOffset:(unsigned long long)pos;
+- (void) truncateFileAtOffset:(unsigned long long) pos;
 - (void) waitForDataInBackgroundAndNotify;
-- (void) waitForDataInBackgroundAndNotifyForModes:(NSArray*)modes;
-- (void) writeData:(NSData*)item;
+- (void) waitForDataInBackgroundAndNotifyForModes:(NSArray *) modes;
+- (void) writeData:(NSData *) item;
 
 @end
 

@@ -1,17 +1,19 @@
 /* 
-   NSInvocation.h
+    NSInvocation.h
 
-   Object rendering of an Obj-C message (action).
+    Object rendering of an Obj-C message (action).
 
-   Copyright (C) 1998 Free Software Foundation, Inc.
+    Copyright (C) 1998 Free Software Foundation, Inc.
 
-   Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
-   Author:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
+    Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
+    Author:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
    
-   H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
+    Fabian Spillner, May 2008 - API revised to be compatible to 10.5
+ 
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
 */ 
 
 #ifndef _mySTEP_H_NSInvocation
@@ -73,20 +75,20 @@ typedef struct
 	BOOL _validReturn;			// setReturn or invoke has been called
 }
 
-+ (NSInvocation*) invocationWithMethodSignature:(NSMethodSignature*)signature;
++ (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *) signature;
 
-- (BOOL) argumentsRetained;									// Manage arguments
-- (void) getArgument:(void *)buffer atIndex:(int)index;		// Access message
-- (void) getReturnValue:(void *)buffer;						// elements
-- (void) invoke;											// Dispatch
+- (BOOL) argumentsRetained;
+- (void) getArgument:(void *) buffer atIndex:(NSInteger) index;
+- (void) getReturnValue:(void *)buffer;
+- (void) invoke;
 - (void) invokeWithTarget:(id)target;
-- (NSMethodSignature *) methodSignature;					// Signature
+- (NSMethodSignature *) methodSignature;
 - (void) retainArguments;
 - (SEL) selector;
-- (void) setArgument:(void *)buffer atIndex:(int)index;
-- (void) setReturnValue:(void *)buffer;
-- (void) setSelector:(SEL)selector;
-- (void) setTarget:(id)target;
+- (void) setArgument:(void *) buffer atIndex:(NSInteger) index;
+- (void) setReturnValue:(void *) buffer;
+- (void) setSelector:(SEL) selector;
+- (void) setTarget:(id) target;
 - (id) target;
 
 @end

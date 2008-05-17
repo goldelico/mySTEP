@@ -1,15 +1,17 @@
-//
-//  NSIndexPath.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Tue Nov 22 2005.
-//  Copyright (c) 2005 DSITRI.
-//
-//  H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+    NSIndexPath.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Tue Nov 22 2005.
+    Copyright (c) 2005 DSITRI.
+
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+
+    Fabian Spillner, May 2008 - API revised to be compatible to 10.5
+ 
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
+*/
 
 #ifndef mySTEP_NSIndexPath_H
 #define mySTEP_NSIndexPath_H
@@ -25,17 +27,17 @@
 	unsigned _index;				// our value
 }
 
-+ (NSIndexPath *) indexPathWithIndex:(unsigned) idx;
-+ (NSIndexPath *) indexPathWithIndexes:(unsigned *) idx
-								length:(unsigned) len;
++ (NSIndexPath *) indexPathWithIndex:(NSUInteger) idx;
++ (NSIndexPath *) indexPathWithIndexes:(NSUInteger *) idx
+								length:(NSUInteger) len;
 - (NSComparisonResult) compare:(NSIndexPath *) obj;
-- (void) getIndexes:(unsigned *) idx;
-- (unsigned) indexAtPosition:(unsigned) pos;
-- (NSIndexPath *) indexPathByAddingIndex:(unsigned) idx;
+- (void) getIndexes:(NSUInteger *) idx;
+- (NSUInteger) indexAtPosition:(NSUInteger) pos;
+- (NSIndexPath *) indexPathByAddingIndex:(NSUInteger) idx;
 - (NSIndexPath *) indexPathByRemovingLastIndex;
-- (id) initWithIndex:(unsigned) index;
-- (id) initWithIndexes:(unsigned *) idx length:(unsigned) len;
-- (unsigned) length;
+- (id) initWithIndex:(NSUInteger) index;
+- (id) initWithIndexes:(NSUInteger *) idx length:(NSUInteger) len;
+- (NSUInteger) length;
 
 @end
 

@@ -102,41 +102,41 @@
 	unsigned int _capacity;
 }
 
-- (void) addObject:(id)anObject;
-- (id) initWithCapacity:(unsigned)numItems;
-- (void) insertObject:anObject atIndex:(unsigned)index;
-- (void) removeObjectAtIndex:(unsigned)index;
-- (void) replaceObjectAtIndex:(unsigned)index withObject:(id)anObject;
+- (void) addObject:(id) anObject;
+- (id) initWithCapacity:(NSUInteger) numItems;
+- (void) insertObject:anObject atIndex:(NSUInteger) index;
+- (void) removeObjectAtIndex:(NSUInteger) index;
+- (void) replaceObjectAtIndex:(NSUInteger) index withObject:(id) anObject;
 
 @end
 
 @interface NSMutableArray (NonCore)
 
-+ (id) arrayWithCapacity:(unsigned)numItems;
++ (id) arrayWithCapacity:(NSUInteger) numItems;
 
-- (void) addObjectsFromArray:(NSArray*)otherArray;
-- (void) exchangeObjectAtIndex:(int) i1 withObjectAtIndex:(int) i2;
-- (void) insertObjects:(NSArray *)objects atIndexes:(NSIndexSet *)indexes;
+- (void) addObjectsFromArray:(NSArray *) otherArray;
+- (void) exchangeObjectAtIndex:(NSUInteger) i1 withObjectAtIndex:(NSUInteger) i2;
+- (void) insertObjects:(NSArray *) objects atIndexes:(NSIndexSet *) indexes;
 - (void) removeAllObjects;
 - (void) removeLastObject;
-- (void) removeObject:(id)anObject;
-- (void) removeObject:(id)anObject inRange:(NSRange)aRange;
-- (void) removeObjectIdenticalTo:(id)anObject;
-- (void) removeObjectIdenticalTo:(id)anObject inRange:(NSRange)aRange;
-- (void)removeObjectsAtIndexes:(NSIndexSet *)indexes;
-- (void) removeObjectsFromIndices:(unsigned*)indices 
-					   numIndices:(unsigned)count;
-- (void) removeObjectsInArray:(NSArray*)otherArray;
-- (void) removeObjectsInRange:(NSRange)aRange;
-- (void) replaceObjectsAtIndexes:(NSIndexSet *)indexes withObjects:(NSArray *)objects;
-- (void) replaceObjectsInRange:(NSRange)aRange
-		  withObjectsFromArray:(NSArray*)anArray;
-- (void) replaceObjectsInRange:(NSRange)aRange
-		  withObjectsFromArray:(NSArray*)anArray
-		  range:(NSRange)anotherRange;
-- (void) setArray:(NSArray *)otherArray;
-- (void) sortUsingFunction:(int(*)(id,id,void*))compare 
-				   context:(void*)context;
+- (void) removeObject:(id) anObject;
+- (void) removeObject:(id) anObject inRange:(NSRange) aRange;
+- (void) removeObjectIdenticalTo:(id) anObject;
+- (void) removeObjectIdenticalTo:(id) anObject inRange:(NSRange) aRange;
+- (void) removeObjectsAtIndexes:(NSIndexSet *) indexes;
+- (void) removeObjectsFromIndices:(NSUInteger *) indices 
+					   numIndices:(NSUInteger) count;
+- (void) removeObjectsInArray:(NSArray *) otherArray;
+- (void) removeObjectsInRange:(NSRange) aRange;
+- (void) replaceObjectsAtIndexes:(NSIndexSet *) indexes withObjects:(NSArray *) objects;
+- (void) replaceObjectsInRange:(NSRange) aRange
+		  withObjectsFromArray:(NSArray *) anArray;
+- (void) replaceObjectsInRange:(NSRange) aRange
+		  withObjectsFromArray:(NSArray *) anArray
+		  range:(NSRange) anotherRange;
+- (void) setArray:(NSArray *) otherArray;
+- (void) sortUsingFunction:(int(*)(id,id,void*)) compare 
+				   context:(void *) context;
 - (void) sortUsingSelector:(SEL) aSelector;
 
 @end

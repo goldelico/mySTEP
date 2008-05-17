@@ -1,15 +1,18 @@
-//
-//  NSError.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Tue Oct 05 2004.
-//  Copyright (c) 2004 DSITRI.
-//
-//	H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+    NSError.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Tue Oct 05 2004.
+    Copyright (c) 2004 DSITRI.
+
+  	H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+
+    Author:	Fabian Spillner <fabian.spillner@gmail.com>
+    Date:	9. May 2008 - aligned with 10.5
+ 
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
+*/
 
 #ifndef mySTEP_NSERROR_H
 #define mySTEP_NSERROR_H
@@ -45,11 +48,11 @@ extern NSString *NSRecoveryAttempterErrorKey;
 	int _code;
 }
 
-+ (id) errorWithDomain:(NSString *) domain code:(int) code userInfo:(NSDictionary *) dict;
++ (id) errorWithDomain:(NSString *) domain code:(NSInteger) code userInfo:(NSDictionary *) dict;
 
-- (int) code;
+- (NSInteger) code;
 - (NSString *) domain;
-- (id) initWithDomain:(NSString *) domain code:(int) code userInfo:(NSDictionary *) dict;
+- (id) initWithDomain:(NSString *) domain code:(NSInteger) code userInfo:(NSDictionary *) dict;
 - (NSString *) localizedDescription;
 - (NSString *) localizedFailureReason;
 - (NSArray *) localizedRecoveryOptions;
