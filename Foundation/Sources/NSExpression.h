@@ -37,7 +37,6 @@ typedef enum _NSExpressionType
 + (NSExpression *) expressionForEvaluatedObject;				// i.e. SELF
 + (NSExpression *) expressionForFunction:(NSString *) name arguments:(NSArray *) args;	// function(args, ...)
 + (NSExpression *) expressionForFunction:(NSExpression *) exp selectorName:(NSString *) selectorName arguments:(NSArray *) params;
-+ (NSExpression *) expressionForFunction:(NSString *) name selectorName:(SEL) sel arguments:(NSArray *) args;	// function(args, ...)
 + (NSExpression *) expressionForIntersectSet:(NSExpression *) leftExp with:(NSExpression *) rightExp;
 + (NSExpression *) expressionForKeyPath:(NSString *) path;		// object.path incl. indexed expressions (?)
 + (NSExpression *) expressionForMinusSet:(NSExpression *) leftExp with:(NSExpression *) rightExp;

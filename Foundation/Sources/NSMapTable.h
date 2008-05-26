@@ -16,18 +16,61 @@
 #define _mySTEP_H_NSMapTable
 
 #import <Foundation/NSObject.h>
+#import <Foundation/NSPointerFunctions.h>
 
 @class NSArray;
+@class NSDictionary;
+@class NSEnumerator;
 
-enum {
+@class NSMapTable;
+struct _NSMapTable;
+
+enum
+{
 	NSMapTableStrongMemory             = 0,
 	NSMapTableZeroingWeakMemory        = NSPointerFunctionsZeroingWeakMemory,
 	NSMapTableCopyIn                   = NSPointerFunctionsCopyIn,
 	NSMapTableObjectPointerPersonality = NSPointerFunctionsObjectPointerPersonality
 };
 
+struct _NSMapNode {
+    void *key;
+    void *value;
+    struct _NSMapNode *next;
+};
+
+typedef struct _NSMapTableKeyCallBacks {
+    unsigned (*hash)(struct _NSMapTable *table, const void *anObject);
+    BOOL (*isEqual)(struct _NSMapTable *table, const void *anObject1, 
+					const void *anObject2);
+    void (*retain)(struct _NSMapTable *table, const void *anObject);
+    void (*release)(struct _NSMapTable *table, void *anObject);
+    NSString  *(*describe)(struct _NSMapTable *table, const void *anObject);
+    const void *notAKeyMarker;
+} NSMapTableKeyCallBacks;
+
+typedef struct _NSMapTableValueCallBacks {
+    void (*retain)(struct _NSMapTable *table, const void *anObject);
+    void (*release)(struct _NSMapTable *table, void *anObject);
+    NSString  *(*describe)(struct _NSMapTable *table, const void *anObject);
+} NSMapTableValueCallBacks;
+
+typedef struct NSMapEnumerator {
+    struct _NSMapTable *table;
+    struct _NSMapNode *node;
+    int bucket;
+} NSMapEnumerator;
+
+#define NSNotAnIntMapKey (NSNotFound)
+#define NSNotAPointerMapKey ((long)1)
+
 @interface NSMapTable : NSObject
 {
+	struct _NSMapNode **nodes;
+	unsigned int hashSize;
+	unsigned int itemsCount;
+	NSMapTableKeyCallBacks keyCallbacks;
+	NSMapTableValueCallBacks valueCallbacks;
 }
 
 + (id) mapTableWithKeyOptions:(NSPointerFunctionsOptions) keyOptions 
@@ -58,46 +101,6 @@ enum {
 
 /********************************************************************************/
 
-struct _NSMapTable;
-
-struct _NSMapNode {
-    void *key;
-    void *value;
-    struct _NSMapNode *next;
-};
-
-typedef struct _NSMapTableKeyCallBacks {
-    unsigned (*hash)(struct _NSMapTable *table, const void *anObject);
-    BOOL (*isEqual)(struct _NSMapTable *table, const void *anObject1, 
-	    const void *anObject2);
-    void (*retain)(struct _NSMapTable *table, const void *anObject);
-    void (*release)(struct _NSMapTable *table, void *anObject);
-    NSString  *(*describe)(struct _NSMapTable *table, const void *anObject);
-    const void *notAKeyMarker;
-} NSMapTableKeyCallBacks;
-
-typedef struct _NSMapTableValueCallBacks {
-    void (*retain)(struct _NSMapTable *table, const void *anObject);
-    void (*release)(struct _NSMapTable *table, void *anObject);
-    NSString  *(*describe)(struct _NSMapTable *table, const void *anObject);
-} NSMapTableValueCallBacks;
-
-typedef struct _NSMapTable {
-	struct _NSMapNode **nodes;
-	unsigned int hashSize;
-	unsigned int itemsCount;
-	NSMapTableKeyCallBacks keyCallbacks;
-	NSMapTableValueCallBacks valueCallbacks;
-} NSMapTable;
-
-typedef struct NSMapEnumerator {
-    struct _NSMapTable *table;
-    struct _NSMapNode *node;
-    int bucket;
-} NSMapEnumerator;
-
-#define NSNotAnIntMapKey (NSNotFound)
-#define NSNotAPointerMapKey ((long)1)
 														// Predefined callbacks
 extern const NSMapTableKeyCallBacks   NSIntMapKeyCallBacks; // deprecated since 10.5
 extern const NSMapTableValueCallBacks NSIntMapValueCallBacks; // deprecated since 10.5
@@ -110,7 +113,6 @@ extern const NSMapTableKeyCallBacks   NSNonOwnedPointerMapKeyCallBacks;
 extern const NSMapTableValueCallBacks NSOwnedPointerMapValueCallBacks;
 extern const NSMapTableValueCallBacks NSNonOwnedPointerMapValueCallBacks;
 
-// extern const NSMapTableKeyCallBacks   GSOwnedCStringMapKeyCallBacks;
 extern const NSMapTableKeyCallBacks   NSNonOwnedCStringMapKeyCallBacks;
 
 extern const NSMapTableKeyCallBacks   NSNonOwnedPointerOrNullMapKeyCallBacks;
@@ -165,11 +167,5 @@ void NSMapInsertKnownAbsent(NSMapTable *table,
 void NSMapRemove(NSMapTable *table, const void *key);
 
 NSString *NSStringFromMapTable(NSMapTable *table);
-
-#if NEW
-@interface NSMapTable : Object
-{
-}
-#endif
 
 #endif /* _mySTEP_H_NSMapTable */

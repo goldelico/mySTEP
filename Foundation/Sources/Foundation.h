@@ -75,6 +75,7 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSOperation.h>
 #import <Foundation/NSPathUtilities.h>
+#import <Foundation/NSPointerFunctions.h>
 #import <Foundation/NSPort.h>
 #import <Foundation/NSPortCoder.h>
 #import <Foundation/NSPortMessage.h>

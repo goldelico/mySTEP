@@ -16,6 +16,7 @@
 
 #import "Foundation/NSObject.h"
 #import "Foundation/NSArray.h"
+#import "Foundation/NSSet.h"
 
 @interface NSPredicate : NSObject <NSCoding, NSCopying>
 
@@ -39,7 +40,7 @@
 - (void) filterUsingPredicate:(NSPredicate *) predicate;
 @end
 
-@interface NSMutableSet
+@interface NSMutableSet (NSPredicate)
 - (void) filterUsingPredicate:(NSPredicate *) predicate;
 @end
 

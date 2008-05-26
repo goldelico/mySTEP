@@ -39,6 +39,11 @@
 		EE2115130CDF58F70062A8AD /* NSCondition.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2115110CDF58F70062A8AD /* NSCondition.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE2115140CDF58F70062A8AD /* NSCondition.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2115120CDF58F70062A8AD /* NSCondition.m */; };
 		EE6954260A34312B00E0C6C0 /* NSKeyValueObserving.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6954250A34312B00E0C6C0 /* NSKeyValueObserving.m */; };
+		EE6D46C40DEB1BE400399D29 /* NSXMLDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F57B0DA2C1A40007817B /* NSXMLDocument.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE6D46C50DEB1BE800399D29 /* NSXMLDTD.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F57D0DA2C1A40007817B /* NSXMLDTD.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE6D46C60DEB1BEB00399D29 /* NSXMLDTDNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F57F0DA2C1A40007817B /* NSXMLDTDNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE6D46C70DEB1BEF00399D29 /* NSXMLElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F5810DA2C1A40007817B /* NSXMLElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE6D46C80DEB1BF400399D29 /* NSXMLNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F5830DA2C1A40007817B /* NSXMLNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE79057F0BCE873C00A35703 /* NSNumberFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = EE79057E0BCE873C00A35703 /* NSNumberFormatter.m */; };
 		EEA925860C0B004500A846D2 /* alphanum.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257B0C0B004500A846D2 /* alphanum.charSet */; };
 		EEA925870C0B004500A846D2 /* control.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257C0C0B004500A846D2 /* control.charSet */; };
@@ -239,6 +244,8 @@
 		EEAA86E50A148ED200F2E5B5 /* NSPredicate.m in Sources */ = {isa = PBXBuildFile; fileRef = EE0622880975A53D00B24DDA /* NSPredicate.m */; };
 		EEAA86E60A148ED200F2E5B5 /* NSLocale.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2FDF2709770599003EA8A2 /* NSLocale.m */; };
 		EEAA86E70A148ED200F2E5B5 /* NSSpellServer.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1DF4E0098ECB8C00DDE5E0 /* NSSpellServer.m */; };
+		EEB458AA0DE48C1D007BE44E /* NSPointerFunctions.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB458A80DE48C1D007BE44E /* NSPointerFunctions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEB458AB0DE48C1D007BE44E /* NSPointerFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEB458A90DE48C1D007BE44E /* NSPointerFunctions.m */; };
 		EECAD4340B9D772A00F37A98 /* HTMLEntities.strings in Resources */ = {isa = PBXBuildFile; fileRef = EECAD4330B9D772A00F37A98 /* HTMLEntities.strings */; };
 /* End PBXBuildFile section */
 
@@ -529,6 +536,8 @@
 		EEA925840C0B004500A846D2 /* whitespace.charSet */ = {isa = PBXFileReference; lastKnownFileType = file; path = whitespace.charSet; sourceTree = "<group>"; };
 		EEA925850C0B004500A846D2 /* whitespaceandnl.charSet */ = {isa = PBXFileReference; lastKnownFileType = file; path = whitespaceandnl.charSet; sourceTree = "<group>"; };
 		EEAA86EF0A148ED200F2E5B5 /* Foundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Foundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEB458A80DE48C1D007BE44E /* NSPointerFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSPointerFunctions.h; path = Sources/NSPointerFunctions.h; sourceTree = "<group>"; };
+		EEB458A90DE48C1D007BE44E /* NSPointerFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSPointerFunctions.m; path = Sources/NSPointerFunctions.m; sourceTree = "<group>"; };
 		EEC4A9500B4D5123001C44B3 /* sys-include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "sys-include"; path = "/Developer/Xtoolchain/i386-apple-Darwin/gcc-2.95.3-glibc-2.2.2/arm-quantumstep-linux-gnu/arm-quantumstep-linux-gnu/sys-include"; sourceTree = "<absolute>"; };
 		EEC4AEE30B4D5135001C44B3 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = "/Developer/Xtoolchain/i386-apple-Darwin/gcc-2.95.3-glibc-2.2.2/arm-quantumstep-linux-gnu/arm-quantumstep-linux-gnu/include"; sourceTree = "<absolute>"; };
 		EECAD4330B9D772A00F37A98 /* HTMLEntities.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = HTMLEntities.strings; path = ../SimpleWebKit/Sources/HTMLEntities.strings; sourceTree = "<group>"; };
@@ -682,6 +691,8 @@
 				EEA32F3809537D0D001244CF /* NSPropertyList.m */,
 				EEA32F4209537D0D001244CF /* NSSet.h */,
 				EEA32F4309537D0D001244CF /* NSSet.m */,
+				EEB458A80DE48C1D007BE44E /* NSPointerFunctions.h */,
+				EEB458A90DE48C1D007BE44E /* NSPointerFunctions.m */,
 			);
 			name = Container;
 			sourceTree = "<group>";
@@ -1064,6 +1075,12 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EEAA86670A148ED200F2E5B5 /* NSXMLParser.h in Headers */,
+				EE6D46C40DEB1BE400399D29 /* NSXMLDocument.h in Headers */,
+				EE6D46C50DEB1BE800399D29 /* NSXMLDTD.h in Headers */,
+				EE6D46C60DEB1BEB00399D29 /* NSXMLDTDNode.h in Headers */,
+				EE6D46C70DEB1BEF00399D29 /* NSXMLElement.h in Headers */,
+				EE6D46C80DEB1BF400399D29 /* NSXMLNode.h in Headers */,
 				EEAA86160A148ED200F2E5B5 /* caseconv.h in Headers */,
 				EEAA86170A148ED200F2E5B5 /* cop.h in Headers */,
 				EEAA86180A148ED200F2E5B5 /* cyrillic.h in Headers */,
@@ -1142,7 +1159,6 @@
 				EEAA86640A148ED200F2E5B5 /* NSUserDefaults.h in Headers */,
 				EEAA86650A148ED200F2E5B5 /* NSValue.h in Headers */,
 				EEAA86660A148ED200F2E5B5 /* NSValueTransformer.h in Headers */,
-				EEAA86670A148ED200F2E5B5 /* NSXMLParser.h in Headers */,
 				EEAA86680A148ED200F2E5B5 /* tzfile.h in Headers */,
 				EEAA86690A148ED200F2E5B5 /* Unicode.h in Headers */,
 				EEAA866F0A148ED200F2E5B5 /* NSPrivate.h in Headers */,
@@ -1176,6 +1192,7 @@
 				EE2114DB0CDF55910062A8AD /* NSGarbageCollector.h in Headers */,
 				EE2114FA0CDF568D0062A8AD /* NSOperation.h in Headers */,
 				EE2115130CDF58F70062A8AD /* NSCondition.h in Headers */,
+				EEB458AA0DE48C1D007BE44E /* NSPointerFunctions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1361,6 +1378,7 @@
 				EE2114DC0CDF55910062A8AD /* NSGarbageCollector.m in Sources */,
 				EE2114FB0CDF568D0062A8AD /* NSOperation.m in Sources */,
 				EE2115140CDF58F70062A8AD /* NSCondition.m in Sources */,
+				EEB458AB0DE48C1D007BE44E /* NSPointerFunctions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1383,7 +1401,6 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -1474,7 +1491,6 @@
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-undefined",
