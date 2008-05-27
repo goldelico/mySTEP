@@ -54,6 +54,8 @@
 #import "NSWindow.h"
 #import "NSPasteboard.h"
 
+#define USE_XRENDER 0
+
 #if 1	// all windows are borderless, i.e. the frontend draws the title bar and manages windows directly
 #define WINDOW_MANAGER_TITLE_HEIGHT 0
 #else
@@ -78,11 +80,6 @@ static Atom _deleteWindowAtom;
 static Atom _windowDecorAtom;
 
 static NSArray *_XRunloopModes;	// runloop modes to handle X11 events
-
-#if OLD
-Window __xKeyWindowNeedsFocus = None;			// xWindow waiting to be focusd
-extern Window __xAppTileWindow;
-#endif
 
 unsigned int __modFlags = 0;		// current global modifier flags - updated every keyDown/keyUp event
 
@@ -769,6 +766,7 @@ typedef struct
 				 ColormapChangeMask | KeymapStateMask | 
 				 VisibilityChangeMask);
 	// query server for extensions
+#if USE_XRENDER
 	if(_hasRender)
 		{
 		unsigned long valuemask;
@@ -793,13 +791,16 @@ typedef struct
 			}
 #endif
 		}
+#endif
 	return self;
 }
 
 - (void) dealloc
 {
+#if USE_XRENDER
 	if(_picture)
 		XRenderFreePicture(_display, _picture);	// release picture handle
+#endif
 #if 1
 	NSLog(@"NSWindow dealloc in backend: %@", self);
 #endif
@@ -1278,6 +1279,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _renderTrapezoid:(NSPoint [4]) points color:(_NSX11Color *) color;
 { // callback from _fill
+#if USE_XRENDER
 	XTrapezoid trap;
 #if 0
 	NSLog(@"{%@, %@, %@, %@}", NSStringFromPoint(points[0]), NSStringFromPoint(points[1]), NSStringFromPoint(points[2]), NSStringFromPoint(points[3]));
@@ -1310,6 +1312,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 							   XRenderFindStandardFormat(_display, PictStandardA8),	// PictStandardA1 would give non-antialised result
 							   0, 0,	// we should properly define xSrc and ySrc if we use a pattern color
 							   &trap, 1);
+#endif
 }
 
 - (void) _fill:(NSBezierPath *) path;
@@ -1393,8 +1396,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #if 0
 	NSLog(@"         box=%@", NSStringFromXRect(_state->_clipBox));
 #endif
+#if USE_XRENDER
 	if(_hasRender)
 		XRenderSetPictureClipRegion(_display, _picture, _state->_clip);
+#endif
 }
 
 - (void) _setShadow:(NSShadow *) shadow;
@@ -1620,6 +1625,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #if 0
 	NSLog(@"NSString: _drawGlyphs:%p count:%u font:%@", glyphs, cnt, _state->_font);
 #endif
+#if USE_XRENDER
 	if(_picture)
 		{
 		NSAffineTransformStruct atms=[_textMatrix transformStruct];
@@ -1649,6 +1655,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
  */
 		return;
 		}
+#endif
 	if([_state->_font renderingMode] == NSFontIntegerAdvancementsRenderingMode)
 		{ // use the basic X11 bitmap font rendering services
 		NSAffineTransformStruct atms=[_textMatrix transformStruct];
@@ -1756,6 +1763,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (BOOL) _draw:(NSImageRep *) rep;
 { // composite into unit square using current CTM, current compositingOp & fraction etc.
+#if USE_XRENDER
 	if(_picture)
 		{
 		Picture src;
@@ -1873,6 +1881,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		return YES;
 		}
 	else
+#endif
 	{
 	/* here we know:
 	- source bitmap: rep
@@ -3117,12 +3126,14 @@ static NSDictionary *_x11settings;
     _protocolsAtom = atoms[1];
     _deleteWindowAtom = atoms[2];
     _windowDecorAtom = atoms[3];
+#if USE_XRENDER
 	_hasRender=XRenderQueryExtension(_display, &event, &error);
 #if 1
 	if(_hasRender)
 		_doubleBufferering=NO;	// needs different algorithms
 	else
 		NSLog(@"has no XRender");
+#endif
 #endif
 }
 
@@ -3846,6 +3857,7 @@ static NSDictionary *_x11settings;
 
 - (Picture) _pictureForColor;
 {
+#if USE_XRENDER
 	if(!_picture)
 		{
 		if(_colorPatternImage)
@@ -3874,6 +3886,7 @@ static NSDictionary *_x11settings;
 			XFreePixmap(_display, pixmap);	// no explicit reference required
 			}
 		}
+#endif
 	return _picture;
 }
 			 
@@ -3907,8 +3920,10 @@ static NSDictionary *_x11settings;
 
 - (void) dealloc;
 {
+#if USE_XRENDER
 	if(_picture)
 		XRenderFreePicture(_display, _picture);
+#endif
 	if(_colorData)
 		objc_free(_colorData);
 	[super dealloc];
@@ -4110,6 +4125,7 @@ static NSDictionary *_x11settings;
 
 - (GlyphSet) _glyphSet;
 { // get XRender glyph set
+#if USE_XRENDER
 	if(!_glyphSet)
 		{ // create a new glyphset for this font
 		// we must be able to dealloc a glyph set (LRU...) on the server if it needs too much memory!
@@ -4117,11 +4133,13 @@ static NSDictionary *_x11settings;
 		[self _defineGlyphs];	// render all glyphs into cache
 		}
 	// update LRU list
+#endif
 	return _glyphSet;
 }
 
 - (void) _addGlyph:(NSGlyph) glyph bitmap:(char *) buffer x:(int) left y:(int) top width:(unsigned) width height:(unsigned) rows;
 {
+#if USE_XRENDER
 	XGlyphInfo info = { width, rows,
 						left, 0,
 						width, 0 };	// should be advancement - correct for integer advancement only!!!
@@ -4166,6 +4184,7 @@ static NSDictionary *_x11settings;
 			XRenderAddGlyphs(_display, _glyphSet, &g, &info, 1, tmp, stride*rows);
 			objc_free(tmp);
 		}
+#endif
 }
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
@@ -4224,8 +4243,10 @@ static NSDictionary *_x11settings;
 
 - (void) dealloc;
 {
+#if USE_XRENDER
 	if(_glyphSet)
 		XRenderFreeGlyphSet(_display, _glyphSet);
+#endif
 	if(_fontStruct)
 		XFreeFont(_display, _fontStruct);	// no longer needed
 	if(_unscaledFontStruct)
@@ -4253,6 +4274,7 @@ static NSDictionary *_x11settings;
 		{
 		if(_image)
 			{
+#if USE_XRENDER
 			if(_hasRender)
 				{
 					// FIXME: image should be in cache-separately mode!
@@ -4265,6 +4287,7 @@ static NSDictionary *_x11settings;
 						}
 				}
 			else
+#endif
 				{
 				NSBitmapImageRep *bestRep =(NSBitmapImageRep *) [_image bestRepresentationForDevice:nil];	// where to get device description from??
 #if 0
