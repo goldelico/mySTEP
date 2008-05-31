@@ -2167,6 +2167,16 @@ unsigned int end, start = anIndex;						// Determining Composed
 
 - (float) floatValue			{ return (float) atof([self cString]); }
 - (int) intValue				{ return atoi([self cString]); }
+- (NSInteger) integerValue		{ return atoi([self cString]); }
+- (BOOL) boolValue
+{
+	char *s=[self cString];
+	while(isspace(*s))
+		s++;
+	if(*s == 't' || *s == 'T' || *s == 'y' || *s == 'Y')
+		return YES;	// yes or true
+	return atoi(s) != 0;
+}
 
 - (unsigned int) completePathIntoString:(NSString**)outputName
 						  caseSensitive:(BOOL)flag
