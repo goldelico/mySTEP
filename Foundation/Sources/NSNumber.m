@@ -21,7 +21,7 @@
 #import <Foundation/NSArchiver.h>
 
 #define PRIMITIVE_ACCESSOR_METHODS_() \
-	- (BOOL) boolValue					  { return (BOOL)data; } \
+	- (BOOL) boolValue					  { return data != NO; } \
 	- (char) charValue					  { return (char)data; } \
 	- (double) doubleValue				  { return (double)data; } \
 	- (float) floatValue				  { return (float)data; } \
