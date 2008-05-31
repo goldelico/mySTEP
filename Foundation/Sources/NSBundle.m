@@ -711,9 +711,8 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 	return [[_bundleContentPath stringByAppendingPathComponent:@"MacOS"] stringByAppendingPathComponent:name];
 #else
 	if(_bundleType == (unsigned int) NSBUNDLE_FRAMEWORK)
-//		return [_path stringByAppendingFormat:@"/Versions/Current/Linux-ARM/%@", name];
+		// ARCHITECTURE macro is defined on cc command line
 		return [_path stringByAppendingFormat:@"/Versions/Current/%@/%@", ARCHITECTURE, name];
-// return [[_bundleContentPath stringByAppendingPathComponent:@"Linux-ARM"] stringByAppendingPathComponent:name];
 	return [[_bundleContentPath stringByAppendingPathComponent:ARCHITECTURE] stringByAppendingPathComponent:name];
 #endif
 }

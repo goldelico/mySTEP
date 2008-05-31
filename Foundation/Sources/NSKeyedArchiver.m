@@ -995,7 +995,7 @@ etc.
 	return [obj floatValue];
 }
 
-- (long) decodeInt32ForKey:(NSString *)key;
+- (int) decodeInt32ForKey:(NSString *)key;
 {
 	id obj=[self decodeObjectForKey:key];
 	if(!obj) return 0;	// default

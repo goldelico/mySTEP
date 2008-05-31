@@ -902,7 +902,7 @@ id e, o;
 		  withObjectsFromArray: [anArray subarrayWithRange: anotherRange]];
 }
 
-- (void) exchangeObjectAtIndex:(int) i1 withObjectAtIndex:(int) i2;
+- (void) exchangeObjectAtIndex:(unsigned) i1 withObjectAtIndex:(unsigned) i2;
 {
 	id tmp;
 	if (i1 >= _count || i2 >= _count)
