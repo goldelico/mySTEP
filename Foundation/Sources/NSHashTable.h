@@ -17,14 +17,12 @@
 #define _mySTEP_H_NSHashTable
 
 #import <Foundation/NSObject.h>
+#import <Foundation/NSEnumerator.h>
 #import <Foundation/NSPointerFunctions.h>
 
 @class NSArray;
-@class NSEnumerator;
 @class NSSet;
-
 @class NSHashTable;
-struct _NSHashTable;
 
 typedef NSUInteger NSHashTableOptions;
 
@@ -36,12 +34,12 @@ enum {
 };
 
 typedef struct _NSHashTableCallBacks {
-    unsigned (*hash)(struct _NSHashTable *table, const void *anObject);
-    BOOL (*isEqual)(struct _NSHashTable *table, const void *anObject1, 
+    unsigned (*hash)(/*struct _*/NSHashTable *table, const void *anObject);
+    BOOL (*isEqual)(/*struct _*/NSHashTable *table, const void *anObject1, 
 					const void *anObject2);
-    void (*retain)(struct _NSHashTable *table, const void *anObject);
-    void (*release)(struct _NSHashTable *table, void *anObject);
-    NSString *(*describe)(struct _NSHashTable *table, const void *anObject);
+    void (*retain)(/*struct _*/NSHashTable *table, const void *anObject);
+    void (*release)(/*struct _*/NSHashTable *table, void *anObject);
+    NSString *(*describe)(/*struct _*/NSHashTable *table, const void *anObject);
 } NSHashTableCallBacks;
 
 struct _NSHashNode {
@@ -50,13 +48,14 @@ struct _NSHashNode {
 };
 
 typedef struct _NSHashEnumerator {
-    struct _NSHashTable *table;
+    /*struct _*/ NSHashTable *table;
     struct _NSHashNode *node;
     int bucket;
 } NSHashEnumerator;
 
-@interface NSHashTable : Object
+@interface NSHashTable : NSObject <NSCopying, NSMutableCopying, NSCoding, NSFastEnumeration>
 {
+	@public	// so that we can access the table as a struct
 	struct _NSHashNode **nodes;
 	unsigned int hashSize;
 	unsigned int itemsCount;

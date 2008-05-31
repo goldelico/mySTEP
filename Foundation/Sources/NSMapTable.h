@@ -16,14 +16,12 @@
 #define _mySTEP_H_NSMapTable
 
 #import <Foundation/NSObject.h>
+#import <Foundation/NSEnumerator.h>
 #import <Foundation/NSPointerFunctions.h>
 
 @class NSArray;
 @class NSDictionary;
-@class NSEnumerator;
-
 @class NSMapTable;
-struct _NSMapTable;
 
 enum
 {
@@ -40,23 +38,23 @@ struct _NSMapNode {
 };
 
 typedef struct _NSMapTableKeyCallBacks {
-    unsigned (*hash)(struct _NSMapTable *table, const void *anObject);
-    BOOL (*isEqual)(struct _NSMapTable *table, const void *anObject1, 
+    unsigned (*hash)(/*struct _*/NSMapTable *table, const void *anObject);
+    BOOL (*isEqual)(/*struct _*/NSMapTable *table, const void *anObject1, 
 					const void *anObject2);
-    void (*retain)(struct _NSMapTable *table, const void *anObject);
-    void (*release)(struct _NSMapTable *table, void *anObject);
-    NSString  *(*describe)(struct _NSMapTable *table, const void *anObject);
+    void (*retain)(/*struct _*/NSMapTable *table, const void *anObject);
+    void (*release)(/*struct _*/NSMapTable *table, void *anObject);
+    NSString  *(*describe)(/*struct _*/NSMapTable *table, const void *anObject);
     const void *notAKeyMarker;
 } NSMapTableKeyCallBacks;
 
 typedef struct _NSMapTableValueCallBacks {
-    void (*retain)(struct _NSMapTable *table, const void *anObject);
-    void (*release)(struct _NSMapTable *table, void *anObject);
-    NSString  *(*describe)(struct _NSMapTable *table, const void *anObject);
+    void (*retain)(/*struct _*/NSMapTable *table, const void *anObject);
+    void (*release)(/*struct _*/NSMapTable *table, void *anObject);
+    NSString  *(*describe)(/*struct _*/NSMapTable *table, const void *anObject);
 } NSMapTableValueCallBacks;
 
 typedef struct NSMapEnumerator {
-    struct _NSMapTable *table;
+    /*struct _*/ NSMapTable *table;
     struct _NSMapNode *node;
     int bucket;
 } NSMapEnumerator;
@@ -64,8 +62,9 @@ typedef struct NSMapEnumerator {
 #define NSNotAnIntMapKey (NSNotFound)
 #define NSNotAPointerMapKey ((long)1)
 
-@interface NSMapTable : NSObject
+@interface NSMapTable : NSObject <NSCopying, NSMutableCopying, NSCoding, NSFastEnumeration>
 {
+@public	// so that we can access the table as a struct
 	struct _NSMapNode **nodes;
 	unsigned int hashSize;
 	unsigned int itemsCount;

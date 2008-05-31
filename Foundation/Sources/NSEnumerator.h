@@ -20,6 +20,8 @@
 
 #import <Foundation/NSObject.h>
 
+@class NSArray;
+
 @interface NSEnumerator : NSObject
 
 - (NSArray *) allObjects;

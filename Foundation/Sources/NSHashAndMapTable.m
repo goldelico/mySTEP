@@ -5,7 +5,8 @@
    All rights reserved.
 
    Author: Ovidiu Predescu <ovidiu@bx.logicnet.ro>
-	   Mircea Oancea <mircea@jupiter.elcom.pub.ro>
+	    Mircea Oancea <mircea@jupiter.elcom.pub.ro>
+		Nikolaus Schaller <hns@computer.org> - adaptation to 10.5 made (Map and Hash tables real subclasses of NSObject)
 
    This file is part of the mySTEP Library and is provided under the 
    terms of the libFoundation BSD type license (See the Readme file).
@@ -89,10 +90,43 @@ __NSCheckMapTableFull(NSMapTable* table)
 //
 //*****************************************************************************
 
+@implementation NSHashTable
+
+- (id) initWithOptions:(NSPointerFunctionsOptions) opts capacity:(NSUInteger) capacity;
+{
+	if((self=[super init]))
+		{
+		capacity = capacity ? capacity : 13;
+		if (!is_prime(capacity))
+			capacity = nextPrime(capacity);
+		hashSize = capacity;
+		nodes = objc_calloc(hashSize, sizeof(void*));
+		itemsCount = 0;
+		}
+    return self;
+}
+
+- (id) copyWithZone:(NSZone *) z; { return NSCopyHashTable(self); }
+- (id) copy; { return NSCopyHashTable(self); }
+- (id) mutableCopyWithZone:(NSZone *) z; { return NSCopyHashTable(self); }
+- (id) mutableCopy; { return NSCopyHashTable(self); }
+
+- (void) dealloc;
+{
+	NSResetHashTable(self);
+	objc_free(nodes);
+	[super dealloc];
+}
+
+- (NSString *) description; { return NSStringFromHashTable(self); }
+
+@end
+
 NSHashTable *
 NSCreateHashTable(NSHashTableCallBacks callBacks, unsigned capacity)
 {
-	NSHashTable *table = objc_malloc(sizeof(NSHashTable));
+//	NSHashTable *table = objc_malloc(sizeof(NSHashTable));
+	NSHashTable *table = [[NSHashTable alloc] initWithOptions:0	capacity:capacity];
 
     capacity = capacity ? capacity : 13;
     if (!is_prime(capacity))
@@ -127,11 +161,14 @@ NSHashTable *new;
 struct _NSHashNode *oldnode, *newnode;
 unsigned i;
     
-    new = objc_malloc(sizeof(NSHashTable));
+	new = [[NSHashTable alloc] initWithOptions:0 capacity:table->hashSize];
+/*
+ new = objc_malloc(sizeof(NSHashTable));
     new->hashSize = table->hashSize;
     new->itemsCount = table->itemsCount;
-    new->callbacks = table->callbacks;
     new->nodes = objc_calloc(new->hashSize, sizeof(void*));
+*/
+    new->callbacks = table->callbacks;
     
     for (i = 0; i < new->hashSize; i++) 
 		{
@@ -150,9 +187,10 @@ unsigned i;
 void 
 NSFreeHashTable(NSHashTable *table)
 {																// Free a Table
-    NSResetHashTable(table);
-    objc_free(table->nodes);
-    objc_free(table);
+	[table release];
+//    NSResetHashTable(table);
+//    objc_free(table->nodes);
+//    objc_free(table);
 }
 
 void 
@@ -429,20 +467,55 @@ struct _NSHashNode *node;
 //
 //*****************************************************************************
 
+@implementation NSMapTable
+
+- (id) initWithKeyOptions:(NSPointerFunctionsOptions) keyOpts 
+			 valueOptions:(NSPointerFunctionsOptions) valueOpts 
+				 capacity:(NSUInteger) capacity;
+{
+	if((self=[super init]))
+		{
+			capacity = capacity ? capacity : 13;
+			if (!is_prime(capacity))
+				capacity = nextPrime(capacity);
+			hashSize = capacity;
+			nodes = objc_calloc(hashSize, sizeof(void*));
+			itemsCount = 0;
+		}
+    return self;
+}
+
+- (id) copyWithZone:(NSZone *) z; { return NSCopyMapTable(self); }
+- (id) copy; { return NSCopyMapTable(self); }
+- (id) mutableCopyWithZone:(NSZone *) z; { return NSCopyMapTable(self); }
+- (id) mutableCopy; { return NSCopyMapTable(self); }
+
+- (void) dealloc;
+{
+	NSResetMapTable(self);
+	objc_free(nodes);
+	[super dealloc];
+}
+
+- (NSString *) description; { return NSStringFromMapTable(self); }
+
+@end
+
 NSMapTable *
 NSCreateMapTable(NSMapTableKeyCallBacks keyCallbacks, 
 				 NSMapTableValueCallBacks valueCallbacks, 
 				 unsigned capacity)
 {
-NSMapTable *table = objc_malloc(sizeof(NSMapTable));
-    
-    capacity = capacity ? capacity : 13;
-    if (!is_prime(capacity))
-		capacity = nextPrime(capacity);
+// NSMapTable *table = objc_malloc(sizeof(NSMapTable));
+	NSMapTable *table = [[NSMapTable alloc] initWithKeyOptions:0 valueOptions:0 capacity:capacity];
+	
+//    capacity = capacity ? capacity : 13;
+//  if (!is_prime(capacity))
+//	capacity = nextPrime(capacity);
 
-    table->hashSize = capacity;
-    table->nodes = objc_calloc(table->hashSize, sizeof(void*));
-    table->itemsCount = 0;
+//    table->hashSize = capacity;
+//    table->nodes = objc_calloc(table->hashSize, sizeof(void*));
+//    table->itemsCount = 0;
     table->keyCallbacks = keyCallbacks;
     table->valueCallbacks = valueCallbacks;
     if (table->keyCallbacks.hash == NULL)
@@ -478,13 +551,15 @@ NSCopyMapTable(NSMapTable *table)
 NSMapTable *new;
 struct _NSMapNode *oldnode, *newnode;
 unsigned i;
-    
-    new = objc_malloc(sizeof(NSMapTable));
-    new->hashSize = table->hashSize;
-    new->itemsCount = table->itemsCount;
+ 
+	new = [[NSMapTable alloc] initWithKeyOptions:0 valueOptions:0 capacity:table->hashSize];
+
+//    new = objc_malloc(sizeof(NSMapTable));
+//  new->hashSize = table->hashSize;
+//    new->itemsCount = table->itemsCount;
     new->keyCallbacks = table->keyCallbacks;
     new->valueCallbacks = table->valueCallbacks;
-    new->nodes = objc_calloc(new->hashSize, sizeof(void*));
+//    new->nodes = objc_calloc(new->hashSize, sizeof(void*));
     
     for (i = 0; i < new->hashSize; i++) 
 		{
@@ -505,9 +580,10 @@ unsigned i;
 void 
 NSFreeMapTable(NSMapTable *table)
 {																// Free a Table
-    NSResetMapTable(table);
-    objc_free(table->nodes);
-    objc_free(table);
+	[table release];
+//    NSResetMapTable(table);
+//    objc_free(table->nodes);
+//    objc_free(table);
 }
 
 void 
