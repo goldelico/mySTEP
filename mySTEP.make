@@ -134,12 +134,8 @@ endif
 endif
 endif
 
-# change only if needed
 # tools
-#TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Zaurus-X-gcc/opt/Embedix/tools/arm-linux
-# TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Xtoolchain/native/gcc-2.95.3-glibc-2.2.2/arm-quantumstep-linux-gnu/arm-quantumstep-linux-gnu
 TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Xtoolchain/native/$(COMPILER)/$(ARCHITECTURE)/$(ARCHITECTURE)
-# TOOLS := $(SYSTEM_DEVELOPER_DIR)/Zaurus-X-gcc/tools
 CC := $(TOOLCHAIN)/bin/gcc
 LS := $(TOOLCHAIN)/bin/ld
 AS := $(TOOLCHAIN)/bin/as
@@ -167,9 +163,11 @@ endif
 endif
 
 LIBS := \
-		-L$(TOOLCHAIN)/../lib/gcc-lib/arm-quantumstep-linux-gnu/2.95.3/lib \
+		-L$(TOOLCHAIN)/../lib/gcc-lib/$(ARCHITECTURE)/2.95.3/lib \
 		-L$(ROOT)/usr/lib \
+		-L$(ROOT)/usr/lib/$(ARCHITECTURE) \
 		-Wl,-rpath-link,$(ROOT)/usr/lib \
+		-Wl,-rpath-link,$(ROOT)/usr/lib/$(ARCHITECTURE) \
 		-L$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		$(FMWKS) \

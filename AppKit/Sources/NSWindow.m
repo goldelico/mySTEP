@@ -137,11 +137,6 @@ static BOOL __cursorHidden = NO;
 
 @implementation NSThemeFrame
 
-/* FIXME:
-* draw icon
-* properly handle window resizing
-*/
-
 - (BOOL) isOpaque;	{ return YES; }	// only if background color has alpha==1.0
 - (BOOL) isFlipped;	{ return YES; }	// to simplify coordinate calculations: titlebar is at (0,0)
 
@@ -403,34 +398,18 @@ static BOOL __cursorHidden = NO;
 
 - (void) mouseDown:(NSEvent *)theEvent
 { // NSTheme frame
-	NSPoint p = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-#if 0
-	NSLog(@"NSThemeFrame clicked (%@)", NSStringFromPoint(p));
+	NSPoint p;
+#if 1
+	NSLog(@"NSThemeFrame clicked (%@)", NSStringFromPoint([theEvent locationInWindow]));
 #endif
 	if((_style & NSResizableWindowMask) != 0 && ([self interfaceStyle] >= NSPDAInterfaceStyle))
-		return;	// resizable window has been enlarged for full screen - don't permit to move
-	if(p.y > _height)
-		{ // check if we a have resize enabled in _style and we clicked on lower right corner
-		if((_style & NSResizableWindowMask) == 0 || p.y < _frame.size.height-10.0 || p.x < _frame.size.width-10.0)
-			return;	// ignore if not in title bar (or we ask hitTest's view if it permits for textured windows)
-		_inLiveResize=YES;
-#if 1
-		NSLog(@"liveResize started");
-#endif
-		// FIXME: should also be called exactly once if view is added/removed repeatedly to the hierarchy during life resize
-		[self _performOnAllSubviews:@selector(viewWillStartLiveResize)];
-		}
-	p=[NSEvent mouseLocation];	// get in screen coordinates
+		return;	// resizable window has been resized for full screen mode - don't permit to move
 	while(YES)
 		{ // loop until mouse goes up
-		theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask
-									  untilDate:[NSDate distantFuture]						// get next event
-										 inMode:NSEventTrackingRunLoopMode 
-										dequeue:YES];
-		
 		switch([theEvent type])
 			{
-			default: break;	// ignore
+			default:
+				break;	// ignore
 			case NSLeftMouseUp:					// If mouse went up then we are done
 				if(_inLiveResize)
 					{
@@ -439,11 +418,31 @@ static BOOL __cursorHidden = NO;
 					}
 				else
 					_inLiveResize=NO;
-				return;
+				return;	// end loop
+			case NSLeftMouseDown:
+				{
+					p=[theEvent locationInWindow];	// (0,0) is lower left corner!
+					if(p.y < _frame.size.height-_height)
+						{ // check if we a have resize enabled in _style and we clicked on lower right corner
+							if((_style & NSResizableWindowMask) == 0 || p.y > 10.0 || p.x < _frame.size.width-10.0)
+								return;	// ignore if neither in title bar nor resize area
+							_inLiveResize=YES;
+#if 1
+							NSLog(@"liveResize started");
+#endif
+							// FIXME: should also be called exactly once if view is added/removed repeatedly to the hierarchy during life resize
+							[self _performOnAllSubviews:@selector(viewWillStartLiveResize)];
+						}
+					// p=[NSEvent mouseLocation];	// get initial screen coordinates
+//					NSLog(@"%@ vs. %@", NSStringFromPoint(p), NSStringFromPoint([[self window] convertBaseToScreen:[theEvent locationInWindow]]));
+					p=[[self window] convertBaseToScreen:p];
+				break;
+				}
 			case NSLeftMouseDragged:
 				{
 					NSRect wframe=[_window frame];
-					NSPoint loc=[NSEvent mouseLocation];
+//					NSPoint loc=[NSEvent mouseLocation];
+					NSPoint loc=[[self window] convertBaseToScreen:[theEvent locationInWindow]];
 					if(_inLiveResize)
 						{ // resizing
 						wframe.size.width+=(loc.x-p.x);
@@ -457,6 +456,9 @@ static BOOL __cursorHidden = NO;
 						}
 					else
 						{ // moving
+						float mbh=[[_window screen] _menuBarFrame].origin.y;
+						if(loc.y > mbh)
+							loc.y=mbh;	// limit so that window can't be moved under the menu bar
 						wframe.origin.x+=(loc.x-p.x);
 						wframe.origin.y+=(loc.y-p.y);	// move as mouse moves
 						// FIXME: this has some issues when frame is clipped to the visible screen
@@ -469,6 +471,11 @@ static BOOL __cursorHidden = NO;
 					break;
 				}
 			}
+		theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+										untilDate:[NSDate distantFuture]						// get next event
+											inMode:NSEventTrackingRunLoopMode 
+										dequeue:YES];
+			
   		}
 }
 
