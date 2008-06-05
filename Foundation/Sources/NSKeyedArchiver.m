@@ -1080,7 +1080,7 @@ etc.
 
 - (unsigned int) systemVersion			{ return 1; }
 
-- (unsigned int) versionForClassName:(NSString*)className
+- (NSInteger) versionForClassName:(NSString*)className
 {
 	return 1;
 }
