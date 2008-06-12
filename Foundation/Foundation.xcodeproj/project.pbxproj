@@ -633,7 +633,7 @@
 				EE4C4A2A0B88B7BB0027F725 /* THREADS.MACH */,
 			);
 			name = libobjc;
-			path = "../../Developer/Zaurus-X-gcc/gcc/src-dir/gcc-2.95.3/libobjc";
+			path = "../../Xtoolchain/build/i386-apple-darwin/gcc-2.95.3-glibc-2.2.2/i386-quantumstep-linux-gnu/src/gcc-2.95.3/libobjc";
 			sourceTree = SOURCE_ROOT;
 		};
 		EE4C4A070B88B7BB0027F725 /* objc */ = {

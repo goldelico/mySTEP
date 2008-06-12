@@ -2,19 +2,19 @@
 #
 ifeq (nil,null)   ## this is to allow for the following text without special comment character considerations
 #
-# This file is part of Zaurus-X-gcc
+# This file is part of mySTEP
 #
 # Last Change: $Id$
 #
 # You should not edit this file as it affects all projects you will compile!
 #
-# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2007
+# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2008
 # This document is licenced using LGPL
 #
-# Requires Xcode 2.4
+# Requires Xcode 2.4 or later
 # And Apple X11 incl. X11 SDK
 #
-# To use this makefile in Xcode with Zaurus-X-gcc:
+# To use this makefile in Xcode with Xtoolchain:
 #
 #  1. open the xcode project
 #  2. select the intended target in the Targets group
@@ -29,12 +29,12 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 export SOURCES=*.m                  # all source codes
 export LIBS=						# add any additional libraries like -ltiff etc.
 export FRAMEWORKS=					# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)
-export INSTALL_PATH=/Applications   # override INSTALL_PATH for MacOS X for the Zaurus
+export INSTALL_PATH=/Applications   # override INSTALL_PATH for MacOS X for the embedded device
 
 # global/compile settings
 #export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
-#export SEND2ZAURUS=true			# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)
-#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
+#export SEND2ZAURUS=true			# true (or empty) will try to install on the embedded device at /$INSTALL_PATH (using ssh)
+#export RUN=true                    # true (or empty) will finally try to run on the embedded device (using X11 on host)
 export ROOT=$HOME/Documents/Projects/QuantumSTEP	# project root
 /usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
 
@@ -46,19 +46,45 @@ export ROOT=$HOME/Documents/Projects/QuantumSTEP	# project root
 #
 endif
 
-.PHONY:	clean build
+.PHONY:	clean build build_architecture
+
+build:	# call recursively for all architectures
+# arm-hardfloat-linux-gnu
+# arm-softfloat-linux-gnueabi
+	for ARCH in arm-quantumstep-linux-gnu i386-quantumstep-linux-gnu; do \
+		echo "*** building for $$ARCH ***"; \
+		export ARCHITECTURE=$$ARCH; \
+		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_architecture; \
+		done
 
 # configure Embedded System if undefined
 
-ARCHITECTURE=arm-quantumstep-linux-gnu
-# ARCHITECTURE=arm-hardfloat-linux-gnu
-# ARCHITECTURE=arm-softfloat-linux-gnueabi
+IP_ADDR$:=$(shell cat /Developer/Xtoolchain/IPaddr 2>/dev/null)
 
-COMPILER=gcc-2.95.3-glibc-2.2.2
+ifeq ($(IP_ADDR$),)
+	IP_ADDR=192.168.129.201
+endif
 
 ifeq ($(EMBEDDED_ROOT),)
 	EMBEDDED_ROOT:=/usr/share/QuantumSTEP
 endif
+
+ifeq ($(ARCHITECTURE),)
+	ARCHITECTURE := arm-quantumstep-linux-gnu
+	ARCHITECTURE := i386-quantumstep-linux-gnu
+endif
+
+COMPILER := gcc-2.95.3-glibc-2.2.2
+
+# tools
+TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Xtoolchain/native/$(COMPILER)/$(ARCHITECTURE)
+CC := $(TOOLCHAIN)/bin/gcc
+LS := $(TOOLCHAIN)/bin/ld
+AS := $(TOOLCHAIN)/bin/as
+NM := $(TOOLCHAIN)/bin/nm
+STRIP := $(TOOLCHAIN)/bin/strip
+TAR := tar
+# TAR := $(TOOLS)/gnutar-1.13.25	# use older tar that does not know about ._ resource files
 
 # override if (stripped) package is build using xcodebuild
 
@@ -86,16 +112,10 @@ ifeq ($(OPTIMIZE),)
 	endif
 endif
 
-ZAURUS:=$(shell cat /Developer/Xtoolchain/IPaddr 2>/dev/null)
-
-ifeq ($(ZAURUS),)
-	ZAURUS=192.168.129.201
-endif
-
 # check if Zaurus responds
 ifeq ($(SEND2ZAURUS),false)
 else	# check if we can reach the device
-	ifneq "$(shell ping -qc 1 $(ZAURUS) | fgrep '1 packets received' >/dev/null && echo yes)" "yes"
+	ifneq "$(shell ping -qc 1 $(IP_ADDR) | fgrep '1 packets received' >/dev/null && echo yes)" "yes"
 		SEND2ZAURUS := false
 		RUN := false
 	endif
@@ -134,19 +154,10 @@ endif
 endif
 endif
 
-# tools
-TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Xtoolchain/native/$(COMPILER)/$(ARCHITECTURE)/$(ARCHITECTURE)
-CC := $(TOOLCHAIN)/bin/gcc
-LS := $(TOOLCHAIN)/bin/ld
-AS := $(TOOLCHAIN)/bin/as
-NM := $(TOOLCHAIN)/bin/nm
-STRIP := $(TOOLCHAIN)/bin/strip
-TAR := tar
-# TAR := $(TOOLS)/gnutar-1.13.25	# use older tar that does not know about ._ resource files
-
 # system includes&libraries and locate all standard frameworks
 
 INCLUDES := \
+		-I$(TOOLCHAIN)/include \
 		-I$(ROOT)/usr/include \
 		-I$(ROOT)/usr/include/X11 \
 		-I$(ROOT)/usr/include/X11/freetype2 \
@@ -164,6 +175,7 @@ endif
 
 LIBS := \
 		-L$(TOOLCHAIN)/../lib/gcc-lib/$(ARCHITECTURE)/2.95.3/lib \
+		-L$(TOOLCHAIN)/lib \
 		-L$(ROOT)/usr/lib \
 		-L$(ROOT)/usr/lib/$(ARCHITECTURE) \
 		-Wl,-rpath-link,$(ROOT)/usr/lib \
@@ -215,7 +227,7 @@ endif
 XOBJECTS=$(wildcard $(SOURCES:%.m=$(TARGET_BUILD_DIR)$(ARCHITECTURE)/%.o))
 OBJECTS=$(SOURCES)
 
-build: "$(EXEC)" "$(BINARY)"
+build_architecture: "$(EXEC)" "$(BINARY)"
 ifeq ($(ADD_MAC_LIBRARY),true)
 	# install locally in /Library/Frameworks
 	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (cd '/Library/Frameworks' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
@@ -226,9 +238,9 @@ else
 	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)'; cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 ifeq ($(SEND2ZAURUS),false)
 else
-	# install on $(ZAURUS) at $(EMBEDDED_ROOT)/$(INSTALL_PATH) 
+	# install on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH) 
 	ls -l "$(BINARY)"
-	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(ZAURUS) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
+	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
 ifeq ($(RUN),false)
 	# dont launch
 else
@@ -236,9 +248,9 @@ else
 	if [ "$(WRAPPER_EXTENSION)" = app ] ; then \
                 defaults write com.apple.x11 nolisten_tcp false; \
 				open -a X11; \
-				export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(ZAURUS) && \
-		ssh -l root $(ZAURUS) \
-		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=zaurus; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' -NoNSBackingStoreBuffered" || echo failed to run; \
+				export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(IP_ADDR) && \
+		ssh -l root $(IP_ADDR) \
+		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' -NoNSBackingStoreBuffered" || echo failed to run; \
 	fi
 endif
 endif

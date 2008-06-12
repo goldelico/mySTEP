@@ -1647,6 +1647,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 								 atms.tX, atms.tY,	// x,y dest
 								 glyphs,
 								 cnt);
+		// FIXME: XRenderComposite(... [_state->_font _pictureForGlyph:*glyphs] using transform
+		// advance according to info from font
 /*
 	_setDirtyRect(self,
 					  cursor.x, cursor.y,
@@ -4123,6 +4125,8 @@ static NSDictionary *_x11settings;
 	NSLog(@"can't define fonts");
 }
 
+// FIXME: can be removed if we use _glyphCache
+
 - (GlyphSet) _glyphSet;
 { // get XRender glyph set
 #if USE_XRENDER
@@ -4139,6 +4143,12 @@ static NSDictionary *_x11settings;
 
 - (void) _addGlyph:(NSGlyph) glyph bitmap:(char *) buffer x:(int) left y:(int) top width:(unsigned) width height:(unsigned) rows;
 {
+	// FIXME: use private glyph cache
+	/* 1. create a Pixmap and send the bits
+	   2. create an alpha only Picture for the Pixmap
+	   3. add an entry to the _glyphCache
+	   4. throw out glyphs if too many...
+	 */
 #if USE_XRENDER
 	XGlyphInfo info = { width, rows,
 						left, 0,
@@ -4185,6 +4195,11 @@ static NSDictionary *_x11settings;
 			objc_free(tmp);
 		}
 #endif
+}
+
+- (_CachedGlyph) _pictureForGlyph:(NSGlyph) glyph;
+{ // get Picture to render
+	return NSMapGet(_glyphCache, (void *) glyph);
 }
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
