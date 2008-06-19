@@ -542,7 +542,6 @@ static NSCursor *__textCursor = nil;
 			[controlSuperView setNeedsDisplayInRect:[textObject frame]];	// make previous superview redisplay cell
 			}
 		// now set up new field editor
-		_controlView = controlView;
 		if(_c.scrollable)
 			[textObject setFrame:(NSRect){{0,1},aRect.size}];
 		else
@@ -633,7 +632,6 @@ static NSCursor *__textCursor = nil;
 				inView:(NSView*)controlView
 {
 	NSDebugLog (@"NSCell drawWithFrame:inView:");
-	_controlView = controlView;							// last view drawn in
 
 	if(_c.bezeled) 
 		{

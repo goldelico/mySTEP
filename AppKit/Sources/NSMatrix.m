@@ -105,6 +105,7 @@ typedef struct {
 			{ // generate cells
 			NSCell *cell=[_cellPrototype copy];
 			[_cells addObject:cell];
+			[cell setControlView:self];
 			[cell release];	// has been retained in _cells
 			}
 		_numRows = rows;
@@ -222,6 +223,7 @@ typedef struct {
 		aCell = (_cellClass) ? [_cellClass new] : [NSActionCell new];
 	
 	[_cells insertObject:aCell atIndex:((row * _numCols) + column)];
+	[aCell setControlView:self];
 	[aCell release];	// has been retained
 	return aCell;
 }

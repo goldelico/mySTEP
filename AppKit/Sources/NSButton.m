@@ -778,7 +778,6 @@ id __buttonCellClass = nil;
 	NSDebugLog(@"NSButtonCell drawWithFrame \n");	
 	if(_transparent)
 		return;	// don't draw
-	_controlView = controlView;						// Save as last view we have drawn to	
 	if(NSWidth(cellFrame) <= 0.0 || NSHeight(cellFrame) <= 0.0)	// do nothing if cell's frame rect is zero
 		return;	
 	if(_d.focusRingType != NSFocusRingTypeNone && [self showsFirstResponder])

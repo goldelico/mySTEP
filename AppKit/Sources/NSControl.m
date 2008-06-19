@@ -55,7 +55,7 @@ static Class __controlCellClass = Nil;
 	[super dealloc];
 }
 
-- (void) setCell:(NSCell*)aCell	{ ASSIGN(_cell, aCell); }
+- (void) setCell:(NSCell*)aCell	{ [_cell setControlView:nil]; ASSIGN(_cell, aCell); [_cell setControlView:self]; }
 - (id) cell						{ return _cell; }
 - (id) selectedCell				{ return _cell; }
 - (BOOL) isEnabled				{ return [[self selectedCell] isEnabled]; }
