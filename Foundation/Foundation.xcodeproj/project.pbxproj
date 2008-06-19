@@ -522,7 +522,7 @@
 		EEA32F8609537D0D001244CF /* tzfile.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = tzfile.h; path = Sources/tzfile.h; sourceTree = "<group>"; };
 		EEA32F8709537D0D001244CF /* Unicode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Unicode.h; sourceTree = "<group>"; };
 		EEA32F8809537D0D001244CF /* Unicode.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = Unicode.m; sourceTree = "<group>"; };
-		EEA3309109537E40001244CF /* Foundation-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "Foundation-Info.plist"; sourceTree = "<group>"; };
+		EEA3309109537E40001244CF /* Foundation-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = "Foundation-Info.plist"; sourceTree = "<group>"; };
 		EEA3CECF0954500F001244CF /* objc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objc; path = /usr/include/objc; sourceTree = "<absolute>"; };
 		EEA9257B0C0B004500A846D2 /* alphanum.charSet */ = {isa = PBXFileReference; lastKnownFileType = file; path = alphanum.charSet; sourceTree = "<group>"; };
 		EEA9257C0C0B004500A846D2 /* control.charSet */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = control.charSet; sourceTree = "<group>"; };
