@@ -52,6 +52,10 @@ ifeq ($(ARCHITECTURES),)
 	ARCHITECTURES := arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu
 endif
 
+ifeq ($(COMPILER),)
+	COMPILER := gcc-2.95.3-glibc-2.2.2
+endif
+
 build:	# call recursively for all architectures
 # arm-hardfloat-linux-gnu
 # arm-softfloat-linux-gnueabi
@@ -77,8 +81,6 @@ ifeq ($(ARCHITECTURE),)
 	ARCHITECTURE := arm-quantumstep-linux-gnu
 	ARCHITECTURE := i386-quantumstep-linux-gnu
 endif
-
-COMPILER := gcc-2.95.3-glibc-2.2.2
 
 # tools
 TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Xtoolchain/native/$(COMPILER)/$(ARCHITECTURE)
