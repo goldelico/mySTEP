@@ -48,7 +48,9 @@ endif
 
 .PHONY:	clean build build_architecture
 
-ARCHITECTURES := arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu
+ifeq ($(ARCHITECTURES),)
+	ARCHITECTURES := arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu
+endif
 
 build:	# call recursively for all architectures
 # arm-hardfloat-linux-gnu
@@ -63,7 +65,7 @@ build:	# call recursively for all architectures
 
 IP_ADDR$:=$(shell cat /Developer/Xtoolchain/IPaddr 2>/dev/null)
 
-ifeq ($(IP_ADDR$),)
+ifeq ($(IP_ADDR),)
 	IP_ADDR=192.168.129.201
 endif
 
