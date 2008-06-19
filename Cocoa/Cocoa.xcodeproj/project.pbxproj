@@ -16,7 +16,7 @@
 /* Begin PBXFileReference section */
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = /Users/hns/Documents/Projects/QuantumSTEP/System/Sources/Frameworks/mySTEP.make; sourceTree = "<absolute>"; };
 		EE6FE352076F05AF009CC969 /* Cocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Cocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEA331B90953FB0D001244CF /* Cocoa-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = "Cocoa-Info.plist"; sourceTree = "<group>"; };
+		EEA331B90953FB0D001244CF /* Cocoa-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "Cocoa-Info.plist"; sourceTree = "<group>"; };
 		EEA331BA0953FB15001244CF /* Cocoa.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Cocoa.h; sourceTree = "<group>"; };
 		EEA3708B0953FF57001244CF /* Cocoa.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = Cocoa.m; sourceTree = "<group>"; };
 		EEA370940953FFEF001244CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../Foundation/build/Development/Foundation.framework; sourceTree = SOURCE_ROOT; };
@@ -130,10 +130,12 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EEEB9C5409A74F5200626AB7 /* Build configuration list for PBXProject "Cocoa" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				EE6FE351076F05AF009CC969 /* Cocoa */,
 			);
@@ -195,7 +197,6 @@
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "Cocoa-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",

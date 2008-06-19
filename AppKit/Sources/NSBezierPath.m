@@ -145,7 +145,32 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 - (void) appendBezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
 {
-	NIMP;
+	if(xrad <= 0.0 || yrad <= 0.0)
+		xrad=yrad=0.0;	// results in rectangle
+	borderRect.size.width-=1.0;
+	borderRect.size.height-=1.0;	// draw inside
+	// CHECKME: do we have the correct sequence as documented?
+	[self appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(borderRect)+xrad, NSMinY(borderRect)+yrad)
+									  radius:radius
+								  startAngle:270.0
+									endAngle:180.0
+								   clockwise:YES];
+	[self appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(borderRect)+xrad, NSMaxY(borderRect)-yrad)
+									  radius:radius
+								  startAngle:180.0
+									endAngle:90.0
+								   clockwise:YES];
+	[self appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(borderRect)-xrad, NSMaxY(borderRect)-yrad)
+									  radius:radius
+								  startAngle:90.0
+									endAngle:0.0
+								   clockwise:YES];
+	[self appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(borderRect)-xrad, NSMinY(borderRect)+yrad)
+									  radius:radius
+								  startAngle:0.0
+									endAngle:270.0
+								   clockwise:YES];
+	[self closePath];
 }
 
 #if 1	// can be replaced by new + (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
