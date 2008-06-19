@@ -128,7 +128,7 @@ typedef enum NSBezierPathElement
 - (void) appendBezierPathWithPackedGlyphs:(const char *) glyphs;
 - (void) appendBezierPathWithPoints:(NSPointArray) pts count:(NSInteger) count;
 - (void) appendBezierPathWithRect:(NSRect) rect;
-- (void) appendBezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
+- (void) appendBezierPathWithRoundedRect:(NSRect) rect xRadius:(CGFloat) xrad yRadius:(CGFloat) yrad;
 - (NSBezierPath *) bezierPathByFlatteningPath;
 - (NSBezierPath *) bezierPathByReversingPath;
 - (NSRect) bounds;
