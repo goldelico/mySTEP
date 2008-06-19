@@ -48,10 +48,12 @@ endif
 
 .PHONY:	clean build build_architecture
 
+ARCHITECTURES := arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu
+
 build:	# call recursively for all architectures
 # arm-hardfloat-linux-gnu
 # arm-softfloat-linux-gnueabi
-	for ARCH in arm-quantumstep-linux-gnu i386-quantumstep-linux-gnu; do \
+	for ARCH in $(ARCHITECTURES); do \
 		echo "*** building for $$ARCH ***"; \
 		export ARCHITECTURE=$$ARCH; \
 		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_architecture; \
