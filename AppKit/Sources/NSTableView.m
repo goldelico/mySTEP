@@ -81,28 +81,24 @@
 - (void) drawWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 {
 	// FIXME: adjust in style and show sorting arrows/images
-	float grays[] = { NSBlack, NSBlack, NSWhite, NSWhite, NSDarkGray, NSDarkGray };
-	NSRectEdge *edges = BUTTON_EDGES_FLIPPED;
 
 	if (!NSWidth(cellFrame) || !NSHeight(cellFrame))
 		return;
-
-	_controlView = controlView;							// last view drawn in
-
-	cellFrame = NSDrawTiledRects(cellFrame, cellFrame, edges, grays, 6);
 	if(_c.highlighted)
-		[_backgroundColor set];	// is this a system constant or the background color?
+		[[NSColor selectedControlColor] set];	// selected or default button
 	else
-		[[NSColor controlHighlightColor] set];	// unselected header
+		[[NSColor controlColor] set];	// unselected header cell
 	NSRectFill(cellFrame);
 
-	cellFrame.origin.y += 1;
+//	cellFrame.origin.y += 1;
+
 	[self drawInteriorWithFrame:cellFrame inView:controlView];
+	[self drawSortIndicatorWithFrame:cellFrame inView:controlView ascending:NO priority:0];
 }
 
 - (void) drawSortIndicatorWithFrame:(NSRect) cellFrame inView:(NSView *) controlView ascending:(BOOL) ascending priority:(int) priority;
 {
-	NIMP;
+	// [self sortIndicatorRectForBounds:cellFrame];
 }
 
 - (NSRect) sortIndicatorRectForBounds:(NSRect) theRect;
@@ -175,6 +171,8 @@
 	// [_tableView release];	// not retained!
 	[super dealloc];
 }
+
+// FIXME: needs rework so that it does not lock focus etc.
 
 - (void) mouseDown:(NSEvent *)event
 {
@@ -491,22 +489,22 @@
 		if(i != _draggedColumn)
 			{
 			aRect = NSIntersectionRect(h, rect);
-			if(NSWidth(aRect) > 0)
+			if(!NSEmptyRect(aRect))
 				{
 				NSImage *img;
 				[[col headerCell] highlight:(col == hlcol) withFrame:h inView:self];
-				// FIXME: or should we call -drawSortIndicatorWithFrame?
+				// FIXME: should we call -drawSortIndicatorWithFrame?
 //				[[col headerCell] drawSortIndicatorWithFrame:h inView:self ascending:YES priority:0];
 				img=[_tableView indicatorImageInTableColumn:col];
 				if(img)
 					;	// draw indicatorImage depending on cell alignment on left or right side
 				}
 			else if(NSMinX(h) > max_X)
-				return;
+				return;	// done
 			}
 		h.origin.x += h.size.width;
+		i++;
 		}
-	i++;
 }
 
 - (NSRect) headerRectOfColumn:(int)column	  
