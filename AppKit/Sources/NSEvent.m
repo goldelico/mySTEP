@@ -324,7 +324,7 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 
 - (int) eventNumber
 {
-	if ((event_type == NSMouseEntered) || (event_type == NSMouseExited))
+	if ((event_type == NSMouseEntered) || (event_type == NSMouseExited) || (event_type == NSCursorUpdate))
 		return event_data.tracking.event_num;
 
 	if (!(NSEventMaskFromType(event_type) & GSMouseEventMask))
@@ -350,14 +350,14 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 - (int) trackingNumber									// Tracking Event Info
 {
 	if ((event_type != NSMouseEntered) && (event_type != NSMouseExited) && (event_type != NSCursorUpdate))
-		[NSException raise:NSInternalInconsistencyException format:@"trackingNumber not defined"];
+		[NSException raise:NSInternalInconsistencyException format:@"trackingNumber not defined for %@", self];
 	return event_data.tracking.tracking_num;
 }
 
 - (void *) userData
 {
-	if ((event_type != NSMouseEntered) && (event_type != NSMouseExited))
-		[NSException raise:NSInternalInconsistencyException format:@"userData not defined"];
+	if ((event_type != NSMouseEntered) && (event_type != NSMouseExited) && (event_type != NSCursorUpdate))
+		[NSException raise:NSInternalInconsistencyException format:@"userData not defined for %@", self];
 	return event_data.tracking.user_data;
 }
 
