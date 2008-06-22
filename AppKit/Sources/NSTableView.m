@@ -82,29 +82,37 @@
 {
 	// FIXME: adjust in style and show sorting arrows/images
 
-	if (!NSWidth(cellFrame) || !NSHeight(cellFrame))
-		return;
 	if(_c.highlighted)
-		[[NSColor selectedControlColor] set];	// selected or default button
-	else
-		[[NSColor controlColor] set];	// unselected header cell
-	NSRectFill(cellFrame);
-
-//	cellFrame.origin.y += 1;
-
-	[self drawInteriorWithFrame:cellFrame inView:controlView];
-	[self drawSortIndicatorWithFrame:cellFrame inView:controlView ascending:NO priority:0];
+		{
+		[[NSColor controlHighlightColor] set];	// highlight when button pressed (different in style from table column selection)
+		NSRectFill(cellFrame);
+		}
+	[[NSColor controlShadowColor] set];
+	NSFrameRect(cellFrame);	// draw frame
+	cellFrame.size.width -= [self sortIndicatorRectForBounds:cellFrame].size.width;	// reduce drawing area for sort arrow
+	[self drawInteriorWithFrame:cellFrame inView:controlView];	// default from NSTextFieldCell
+	// how do we know that we really should display a sort arrow?
+	[self drawSortIndicatorWithFrame:cellFrame inView:controlView ascending:(_c.state == NSOnState) priority:0];
 }
 
 - (void) drawSortIndicatorWithFrame:(NSRect) cellFrame inView:(NSView *) controlView ascending:(BOOL) ascending priority:(int) priority;
 {
-	// [self sortIndicatorRectForBounds:cellFrame];
+	// how do we know that we really should display a sort arrow?
+	NSImage *img;
+	cellFrame = [self sortIndicatorRectForBounds:cellFrame];
+	if(ascending)
+		img=[NSTableView _defaultTableHeaderSortImage];
+	else
+		img=[NSTableView _defaultTableHeaderReverseSortImage];
+	[img drawAtPoint:cellFrame.origin fromRect:NSZeroRect operation:NSCompositeSourceOut fraction:1.0];
 }
 
 - (NSRect) sortIndicatorRectForBounds:(NSRect) theRect;
-{
-	NIMP;
-	return NSZeroRect;
+{ // square at the right end
+	// how do we know that we really should display a sort arrow?
+	theRect.origin.x=NSMaxX(theRect)-NSHeight(theRect);
+	theRect.size.width=NSHeight(theRect);
+	return theRect;
 }
 
 @end /* NSTableHeaderCell */
@@ -162,6 +170,7 @@
 	if((self=[super initWithFrame:frameRect]))
 		{
 		_draggedColumn = -1;
+		_resizedColumn = -1;
 		}
 	return self;
 }
@@ -171,6 +180,8 @@
 	// [_tableView release];	// not retained!
 	[super dealloc];
 }
+
+#if OLD
 
 // FIXME: needs rework so that it does not lock focus etc.
 
@@ -469,6 +480,145 @@
 	[_window invalidateCursorRectsForView:self];
 }
 
+#endif
+
+/* FIXME:
+ - resizing (done by cursor rects +/- 3 px around cell borders)
+ - reordering (done by tracking mouse, generating moving overlay image, setting _draggedColumn and reordering columns etc.)
+ - selection/deselection of columns
+ - editable header cells (double click?)
+ - popup buttons as header cells (proper tracking)
+ - CHECKME: checkboxes as header cells (proper state management)
+ */
+
+- (void) mouseDown:(NSEvent *) event
+{
+	int clickCount = [event clickCount];
+	NSPoint location;	// location in view
+	BOOL inCell;		// initially in cell or in intercell spacing?
+	id aCell;			// selected cell
+	int column;			// row/col of selected cell
+	NSTableColumn *tableColumn;
+	NSRect rect;		// rect of selected cell
+	NSDate *limitDate;
+	NSWindow *dragWindow=nil;
+//	int mouseDownFlags = [event modifierFlags];
+	if(clickCount > 1)
+		{
+			// anything special on double clicks?
+		}
+	location = [self convertPoint:[event locationInWindow] fromView:nil];	// location on view
+	column = [self columnAtPoint:location];
+	inCell = column >= 0;
+	if(inCell)
+		{
+			tableColumn=[[_tableView tableColumns] objectAtIndex:column];
+			aCell = [tableColumn headerCell];		// cell (if any)
+			rect = [self headerRectOfColumn:column];								// the real cell rect
+		}
+	limitDate = [NSDate dateWithTimeIntervalSinceNow:0.8];	// timeout to switch to dragging
+	while([event type] != NSLeftMouseUp)
+		{ // loop outside until mouse finally goes up
+			if(_draggedColumn >= 0)
+				{ // dragging
+				if([event type] == NSLeftMouseDragged)
+					{
+						if(!dragWindow)
+							{
+								NSLog(@"start column dragging");
+								// [_tableView dragImageForRowsWithIndexes:(NSIndexSet *)dragRows tableColumns:(NSArray *)tableColumns event:(NSEvent *)dragEvent offset:(NSPointPointer)dragImageOffset
+								_draggedDistance=0.0;
+							}
+						else
+							{
+								// update distance and redraw
+								// and update column so tht we know on mouse up
+							}
+					}
+				}
+			else if(inCell && NSMouseInRect(location, rect, [self isFlipped]))
+				{ // track header cell while in initial cell or list mode
+					BOOL done = NO;
+					int state=[aCell state];
+					[aCell setHighlighted:YES];
+					[self setNeedsDisplayInRect:rect];
+					done = [aCell trackMouse:event
+									  inRect:rect
+									  ofView:self
+								untilMouseUp:[[aCell class] prefersTrackingUntilMouseUp]];			// YES if mouse went up in cell
+					[aCell setHighlighted:NO];
+					[self setNeedsDisplayInRect:rect];
+					if(done)
+						{
+							[aCell setState:state == NSOffState?NSOnState:NSOffState];	// toggle state of buttons
+							if([_tableView allowsColumnSelection])
+								{
+								// check for modifiers... Alt should always toggle (unless we must have a selected column)
+								if([_tableView allowsMultipleSelection])
+									{
+									[_tableView selectColumnIndexes:[NSIndexSet indexSetWithIndex:column] byExtendingSelection:YES];	// replace
+									}
+								else
+									[_tableView selectColumnIndexes:[NSIndexSet indexSetWithIndex:column] byExtendingSelection:NO];	// replace
+								}
+							else
+								[_tableView setHighlightedTableColumn:column];	// no column selection - just highlight the table column
+							if(clickCount == 2)
+								{ // notify a double click on header cell
+									if([aCell isEditable])
+										{ // cell is editable
+											[aCell selectWithFrame:rect
+															inView:self
+															editor:[_window fieldEditor:YES forObject:aCell]
+														  delegate:self	
+															 start:(int)0	 
+															length:(int)0];
+										}
+									// shouldn't we handle first responder???
+									if([_tableView doubleAction])
+										[[_tableView target] performSelector:[_tableView doubleAction] withObject:_tableView];
+								}
+							else
+								{
+									if([[_tableView delegate] respondsToSelector:@selector(tableView:didClickTableColumn:)])
+										[[_tableView delegate] tableView:_tableView didClickTableColumn:tableColumn];
+									// handle first responder???
+									if([_tableView action])
+										[[_tableView target] performSelector:[_tableView action] withObject:_tableView];
+								}
+							break;
+						}
+				}
+			event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+									   untilDate:limitDate
+										  inMode:NSEventTrackingRunLoopMode
+										 dequeue:YES];
+			if(!event)
+				{ // timeout: did stay on same position for 0.8 seconds
+				// switch cursor to draggingHand
+					_draggedColumn=column;	// force to start dragging
+				}
+			limitDate = [NSDate distantFuture];
+#if 0
+			NSLog(@"Matrix: got next event: %@", event);
+#endif
+			location = [self convertPoint:[event locationInWindow] fromView:nil];	// new location
+		}
+	if(_draggedColumn >= 0)
+		{ // end dragging
+			NSLog(@"end column dragging");
+			if(column != _draggedColumn)
+				{
+				[(NSMutableArray *) [_tableView tableColumns] exchangeObjectAtIndex:_draggedColumn withObjectAtIndex:column];
+				[_tableView setNeedsDisplay:YES];	// should limit to NSUnion(both column rects)
+				}
+			_draggedColumn=-1;
+			if([[_tableView delegate] respondsToSelector:@selector(tableView:didDragTableColumn:)])
+				[[_tableView delegate] tableView:_tableView didDragTableColumn:tableColumn];	// as in 10.5 (10.0-4 did return the column of the new position)
+			// reset cursor
+		}
+}
+
 - (void) drawRect:(NSRect)rect		
 {
 	NSArray *tableColumns = [_tableView tableColumns];
@@ -476,7 +626,7 @@
 	NSTableColumn *col;
 	NSTableColumn *hlcol=[_tableView highlightedTableColumn];
 	int i=0;
-	NSRect h = _bounds, aRect;
+	NSRect h = [self bounds];
 	float max_X = NSMaxX(rect);
 	float intercellWidth = [_tableView intercellSpacing].width;
 	
@@ -488,13 +638,20 @@
 		h.size.width = col->_width + intercellWidth;
 		if(i != _draggedColumn)
 			{
-			aRect = NSIntersectionRect(h, rect);
-			if(!NSEmptyRect(aRect))
-				{
+			if(NSIntersectsRect(h, rect))
+				{ // is visible in rect
 				NSImage *img;
-				[[col headerCell] highlight:(col == hlcol) withFrame:h inView:self];
+				NSTableHeaderCell *cell=[col headerCell];
+				if(col == hlcol || i == [_tableView selectedColumn] || [[_tableView selectedColumnIndexes] containsIndex:i])
+					[[NSColor selectedControlColor] set];	// selected header cell
+				else
+					[[NSColor controlColor] set];
+				NSRectFill(h);	// draw default background
+				[cell drawWithFrame:h inView:self];
 				// FIXME: should we call -drawSortIndicatorWithFrame?
-//				[[col headerCell] drawSortIndicatorWithFrame:h inView:self ascending:YES priority:0];
+				// or the cell?
+				// we can define the rule that only the hlcol has a sort indicator
+//				[cell drawSortIndicatorWithFrame:h inView:self ascending:YES priority:0];
 				img=[_tableView indicatorImageInTableColumn:col];
 				if(img)
 					;	// draw indicatorImage depending on cell alignment on left or right side
@@ -502,6 +659,12 @@
 			else if(NSMinX(h) > max_X)
 				return;	// done
 			}
+		else
+			{ // draw dragged column background
+				[[NSColor disabledControlTextColor] set];
+				NSRectFill(h);	// grey background
+			}
+		// handle special case of _draggedDistance so that columns are virtually reordered...
 		h.origin.x += h.size.width;
 		i++;
 		}
@@ -541,7 +704,7 @@
 - (NSTableView*) tableView					{ return _tableView; }
 - (float) draggedDistance					{ return _draggedDistance; }
 - (int) draggedColumn						{ return _draggedColumn; }
-- (int) resizedColumn						{ return -1; }
+- (int) resizedColumn						{ return _resizedColumn; }
 - (BOOL) isFlipped							{ return YES; }
 - (BOOL) isOpaque							{ return YES; }				
 - (BOOL) acceptsFirstResponder				{ return [_tableView acceptsFirstResponder]; }
@@ -1109,14 +1272,16 @@ int index = [self columnWithIdentifier:identifier];
 
 - (void) selectColumnIndexes:(NSIndexSet *) indexes byExtendingSelection:(BOOL) flag;
 { // core selection method
-	NIMP;
+	// FIXME:
+	[self selectColumn:[indexes firstIndex] byExtendingSelection:flag];
 }
 
 - (void) selectRowIndexes:(NSIndexSet *) indexes byExtendingSelection:(BOOL) flag;
 { // core selection method
 	BOOL colSelectionDidChange = NO;
 	BOOL rowSelectionDidChange = NO;
-	NIMP;
+	// FIXME:
+	[self selectRow:[indexes firstIndex] byExtendingSelection:flag];
 #if 0
 	// FIXME: check delegate to allow selection change
 	// [indexes count] == 0 is a deselection!
