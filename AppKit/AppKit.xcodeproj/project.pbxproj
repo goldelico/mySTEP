@@ -1150,11 +1150,11 @@
 		EE3196E309AB7E8A0089A9A2 /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = AppController.m; sourceTree = "<group>"; };
 		EE31970509AB7E8B0089A9A2 /* English */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		EE31970709AB7E8B0089A9A2 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
-		EE31970B09AB7E8B0089A9A2 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = Info.plist; sourceTree = "<group>"; };
+		EE31970B09AB7E8B0089A9A2 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EE31970C09AB7E8B0089A9A2 /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EE31971109AB7E8B0089A9A2 /* myView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = myView.h; sourceTree = "<group>"; };
 		EE31971209AB7E8B0089A9A2 /* myView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = myView.m; sourceTree = "<group>"; };
-		EE31971B09AB7EC60089A9A2 /* myTest.cocoa.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = myTest.cocoa.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE31971B09AB7EC60089A9A2 /* myTest.cocoa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myTest.cocoa.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE349C39097027D500CBF42C /* NSAlert.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSAlert.h; sourceTree = "<group>"; };
 		EE349C3A097027D500CBF42C /* NSAnimation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSAnimation.h; sourceTree = "<group>"; };
 		EE349C3B097027D500CBF42C /* NSAppAccessibility.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSAppAccessibility.h; sourceTree = "<group>"; };
@@ -1220,10 +1220,10 @@
 		EE8D1C330A2B4C71000632BC /* GSSearch.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSSearch.tiff; sourceTree = "<group>"; };
 		EE8D1C340A2B4C71000632BC /* GSStop.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSStop.tiff; sourceTree = "<group>"; };
 		EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myViewTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE93C79C0B901DF500FBD885 /* Info ViewTest.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Info ViewTest.plist"; sourceTree = "<group>"; };
+		EE93C79C0B901DF500FBD885 /* Info ViewTest.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info ViewTest.plist"; sourceTree = "<group>"; };
 		EE93C7A30B901E5700FBD885 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = "English.lproj/MainMenu ViewTest.nib"; sourceTree = "<group>"; };
 		EE9929C409FD233C003C308D /* NSSegmentedControl.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSegmentedControl.m; sourceTree = "<group>"; };
-		EEA331A30953FA54001244CF /* AppKit-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = "AppKit-Info.plist"; sourceTree = "<group>"; };
+		EEA331A30953FA54001244CF /* AppKit-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "AppKit-Info.plist"; sourceTree = "<group>"; };
 		EEA370FF09540065001244CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../Foundation/build/Development/Foundation.framework; sourceTree = SOURCE_ROOT; };
 		EEA3717D09540271001244CF /* AppKit.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AppKit.h; sourceTree = "<group>"; };
 		EEA3719609540271001244CF /* Externs.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = Externs.m; sourceTree = "<group>"; };
@@ -2062,7 +2062,7 @@
 		EEE6E0710DBBC48B00C71123 /* language-bindings.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = "language-bindings.html"; sourceTree = "<group>"; };
 		EEE6E0720DBBC48B00C71123 /* left.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = left.png; sourceTree = "<group>"; };
 		EEE6E0730DBBC48B00C71123 /* right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = right.png; sourceTree = "<group>"; };
-		EEE6E0740DBBC48B00C71123 /* style.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file; path = style.css; sourceTree = "<group>"; };
+		EEE6E0740DBBC48B00C71123 /* style.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = style.css; sourceTree = "<group>"; };
 		EEE6E0750DBBC48B00C71123 /* Support.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Support.html; sourceTree = "<group>"; };
 		EEE6E0760DBBC48B00C71123 /* Surfaces.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Surfaces.html; sourceTree = "<group>"; };
 		EEE6E0770DBBC48B00C71123 /* up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = up.png; sourceTree = "<group>"; };

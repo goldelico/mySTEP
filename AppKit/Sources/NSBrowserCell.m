@@ -112,9 +112,6 @@ static NSImage *__highlightBranchImage;
 	NSCompositingOperation op;
 	NSImage *image;
 
-	// FIXME: a control view should call setControlView explicitly
-
-	_controlView = controlView;							// remember last view
 	[_textColor release];
 	if (_c.highlighted || _c.state != NSOffState)
 		{
