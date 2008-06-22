@@ -143,36 +143,6 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	return p;
 }
 
-- (void) appendBezierPathWithRoundedRect:(NSRect) borderRect xRadius:(CGFloat) xrad yRadius:(CGFloat) yrad;
-{
-	if(xrad <= 0.0 || yrad <= 0.0)
-		xrad=yrad=0.0;	// results in rectangle
-	borderRect.size.width-=1.0;
-	borderRect.size.height-=1.0;	// draw inside
-	// FIXME: append arcs where we don't specify the radius and angles explicitly!
-	[self appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(borderRect)+xrad, NSMinY(borderRect)+yrad)
-									  radius:xrad
-								  startAngle:270.0
-									endAngle:180.0
-								   clockwise:YES];
-	[self appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(borderRect)+xrad, NSMaxY(borderRect)-yrad)
-									  radius:xrad
-								  startAngle:180.0
-									endAngle:90.0
-								   clockwise:YES];
-	[self appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(borderRect)-xrad, NSMaxY(borderRect)-yrad)
-									  radius:yrad
-								  startAngle:90.0
-									endAngle:0.0
-								   clockwise:YES];
-	[self appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(borderRect)-xrad, NSMinY(borderRect)+yrad)
-									  radius:yrad
-								  startAngle:0.0
-									endAngle:270.0
-								   clockwise:YES];
-	[self closePath];
-}
-
 #if 1	// can be replaced by new + (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
 
 // this is a special case of _drawRoundedBezel:
@@ -969,6 +939,38 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	[self appendBezierPath: [isa bezierPathWithOvalInRect: aRect]];
 }
 
+- (void) appendBezierPathWithRoundedRect:(NSRect) borderRect xRadius:(CGFloat) xrad yRadius:(CGFloat) yrad;
+{
+	NSPoint p, c;
+	if(xrad <= 0.0 || yrad <= 0.0)
+		xrad=yrad=0.0;	// results in rectangle
+	borderRect.size.width-=1.0;
+	borderRect.size.height-=1.0;	// draw inside
+	p=NSMakePoint(NSMinX(borderRect)+xrad, NSMinY(borderRect));	// left bottom
+	[self moveToPoint:p];
+	p=NSMakePoint(NSMaxX(borderRect)-xrad, NSMinY(borderRect));	// right bottom
+	[self lineToPoint:p];
+	p=NSMakePoint(NSMaxX(borderRect), NSMinY(borderRect)+yrad);	// right bottom after curve
+	c=NSMakePoint(NSMaxX(borderRect), NSMinY(borderRect));	// corner
+	[self curveToPoint:p controlPoint1:c controlPoint2:c];
+	p=NSMakePoint(NSMaxX(borderRect), NSMaxY(borderRect)-yrad);	// right top
+	[self lineToPoint:p];
+	p=NSMakePoint(NSMaxX(borderRect)-xrad, NSMaxY(borderRect));	// right top after curve
+	c=NSMakePoint(NSMaxX(borderRect), NSMaxY(borderRect));	// corner
+	[self curveToPoint:p controlPoint1:c controlPoint2:c];
+	p=NSMakePoint(NSMinX(borderRect)+xrad, NSMaxY(borderRect)-yrad);	// left top
+	[self lineToPoint:p];
+	p=NSMakePoint(NSMinX(borderRect), NSMaxY(borderRect)-yrad);	// left top after curve
+	c=NSMakePoint(NSMinX(borderRect), NSMaxY(borderRect));	// corner
+	[self curveToPoint:p controlPoint1:c controlPoint2:c];
+	p=NSMakePoint(NSMinX(borderRect), NSMinY(borderRect)+yrad);	// left bottom
+	[self lineToPoint:p];
+	p=NSMakePoint(NSMinX(borderRect)+xrad, NSMinY(borderRect));	// left bottom after curve
+	c=NSMakePoint(NSMinX(borderRect), NSMinY(borderRect));	// corner
+	[self curveToPoint:p controlPoint1:c controlPoint2:c];
+	[self closePath];	// close to first point of segment
+}
+
 - (void) appendBezierPathWithArcWithCenter:(NSPoint)center  
 									radius:(float)radius
 								startAngle:(float)startAngle
@@ -1105,7 +1107,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	float l, a1, a2;
 	NSPoint p;
 	if (_count == 0)
-		[self moveToPoint: point1];
+		[NSException raise:NSGenericException format:@"trying to append arc to empty path"];
 	p = [self currentPoint];
 	
 	dx1 = p.x - x1;
@@ -1116,7 +1118,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		[self lineToPoint: point1];
 		return;
 		}
-	l = 1/sqrt(l);
+	l = 1.0/sqrt(l);
 	dx1 *= l;
 	dy1 *= l;
 	
@@ -1129,7 +1131,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		return;
 		}
 	
-	l = 1/sqrt(l);
+	l = 1.0/sqrt(l);
 	dx2 *= l; 
 	dy2 *= l;
 	
@@ -1195,7 +1197,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 							  count:(int)count
 							 inFont:(NSFont *)font
 {
-	BACKEND;
+	BACKEND;	// libFreetype can provide and override this as a category
 }
 
 - (void) appendBezierPathWithPackedGlyphs:(const char *)packedGlyphs
@@ -1204,7 +1206,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 }
 
 - (BOOL) cachesBezierPath	{ return NO; }	// no effect
-- (void) setCachesBezierPath:(BOOL)flag	{ return; }	// no effect
+- (void) setCachesBezierPath:(BOOL) flag	{ return; }	// no effect
 
 - (void) encodeWithCoder:(NSCoder *)aCoder			// NSCoding protocol
 {
