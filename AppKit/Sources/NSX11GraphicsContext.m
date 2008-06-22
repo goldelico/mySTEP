@@ -4591,7 +4591,9 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 
 - (void) dealloc;
 {
+#if 0
 	NSLog(@"dealloc %p flattened %p stroked %p", self, _flattenedPath, _strokedPath);
+#endif
 	[_flattenedPath release];
 	[_strokedPath release];
 	[super dealloc];
