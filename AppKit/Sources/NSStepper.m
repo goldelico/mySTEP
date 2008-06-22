@@ -65,7 +65,6 @@
 #if 0
 	NSLog(@"drawInteriorWithFrame %@", self);
 #endif
-	_controlView = controlView;							// last view drawn in
 	NSDivideRect(cellFrame, &upper, &lower, cellFrame.size.height/2.0, NSMaxYEdge);	// split by 2
 	if(!_downCell)
 		{ // allocate button cells

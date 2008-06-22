@@ -39,7 +39,6 @@ static NSButtonCell *__knobCell = nil;
 - (void) drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
 	NSBezierPath *p=[NSBezierPath _bezierPathWithRoundedBezelInRect:cellFrame vertical:cellFrame.size.width < cellFrame.size.height];	// box with halfcircular rounded ends
-	_controlView = controlView;				// Save as last view we have drawn to
 	[[NSColor selectedControlColor] setFill];	// selected
 	[p fill];		// fill with color
 }
@@ -503,10 +502,10 @@ static NSButtonCell *__knobCell = nil;
 {
 	NSDebugLog (@"NSScroller drawRect: ((%f, %f), (%f, %f))",
 			rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-//	[[NSColor lightGrayColor] set];
-//	NSRectFill(bounds);	// draw border box
-	[[NSColor whiteColor] set];
-	NSRectFill(rect);	// draw background
+	[[NSColor controlColor] set];
+	NSRectFill(rect);		// draw background
+	[[NSColor controlShadowColor] set];
+	NSFrameRect(rect);	// draw frame
 	[self drawArrow:NSScrollerDecrementArrow highlight:NO];	
 	[self drawArrow:NSScrollerIncrementArrow highlight:NO];	
 	[self drawKnob];

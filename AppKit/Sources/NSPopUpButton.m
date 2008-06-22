@@ -86,7 +86,6 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 #if 0
 	NSLog(@"drawInteriorWithFrame %@", self);
 #endif
-	_controlView = controlView;							// last view drawn in
 
 	cellFrame.size.width -= cellFrame.size.height;		// make space for the arrow
 	

@@ -120,7 +120,6 @@
 - (void) drawInteriorWithFrame:(NSRect)cellFrame
 						inView:(NSView*)controlView
 {
-	_controlView = controlView;
 	if(_c.bezeled || _c.bordered) 
 		{
 		if(_bezelStyle == NSTextFieldRoundedBezel)

@@ -778,8 +778,6 @@ id __buttonCellClass = nil;
 	NSDebugLog(@"NSButtonCell drawWithFrame \n");	
 	if(_transparent)
 		return;	// don't draw
-	if(NSWidth(cellFrame) <= 0.0 || NSHeight(cellFrame) <= 0.0)	// do nothing if cell's frame rect is zero
-		return;	
 	if(_d.focusRingType != NSFocusRingTypeNone && [self showsFirstResponder])
 		{ // button is first responder cell - draw focus ring
 		BOOL isFlipped = [controlView isFlipped];

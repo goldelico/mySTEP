@@ -1315,6 +1315,7 @@ This method is used for selecting cells in list mode with selection by
 				{ // if mouse went up in initial cell
 				if(![aCell action] || ![aCell target])
 					{ // cell did not have a private action
+					// shouldn't we handle first responders???
 					if(clickCount == 2)			// notify a double click
 						[self sendDoubleAction];
 					else

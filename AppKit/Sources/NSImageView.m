@@ -110,11 +110,6 @@ id __imageCellClass = nil;
 - (void) drawWithFrame:(NSRect)cellFrame
 				inView:(NSView*)controlView
 {
-	if (!NSWidth(cellFrame) || !NSHeight(cellFrame))
-		return;
-
-	_controlView = controlView;						// Save last view drawn to
-
 	switch (_ic.imageFrameStyle) 
 		{												
 		case NSImageFrameNone:
