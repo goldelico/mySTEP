@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
@@ -54,5 +54,90 @@
 	</dict>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSSystemColorList</key>
+	<dict>
+	<key>controlBackgroundColor</key>
+	<string>white</string>
+			<key>controlColor</key>
+	<string>white</string>
+			<key>controlHighlightColor</key>
+			<string>0.91 0.91 0.91</string>
+			<key>controlLightHighlightColor</key>
+			<string>white</string>
+			<key>controlShadowColor</key>
+			<string>0.57 0.57 0.57</string>
+			<key>controlDarkShadowColor</key>
+			<string>black</string>
+			<key>controlTextColor</key>
+			<string>black</string>
+			<key>disabledControlTextColor</key>
+			<string>0.53 0.53 0.53</string>
+			<key>gridColor</key>
+			<string>gray</string>
+			<key>headerColor</key>
+			<string>0.60 0.75 0.98</string>
+			<key>headerTextColor</key>
+			<string>black</string>
+			<key>highlightColor</key>
+			<string>white</string>
+			<key>knobColor</key>
+			<string>0.60 0.60 0.73</string>
+			<key>scrollBarColor</key>
+			<string>white</string>
+			<key>selectedControlColor</key>
+			<key>0.60 0.75 0.98</key>
+			<key>selectedControlTextColor</key>
+			<string>black</string>
+			<key>selectedMenuItemColor</key>
+			<string>0.16 0.40 0.80</string>
+			<key>selectedMenuItemTextColor</key>
+			<string>white</string>
+			<key>selectedTextBackgroundColor</key>
+			<string>0.70 0.85 0.98</string>
+			<key>selectedTextColor</key>
+			<string>black</string>
+			<key>selectedKnobColor</key>
+			<string>0.40 0.40 0.60</string>
+			<key>shadowColor</key>
+			<string>black</string>
+			<key>textBackgroundColor</key>
+			<string>white</string>
+			<key>textColor</key>
+			<string>black</string>
+			<key>windowBackgroundColor</key>
+			<string>0.95 0.95 0.95</string>
+			<key>windowFrameColor</key>
+			<string>lightGray</string>
+			<key>windowFrameTextColor</key>
+			<string>black</string>
+			<key>black</key>
+			<string>0.0 0.0 0.0</string>
+			<key>darkGray</key>
+			<string>0.333 0.333 0.333</string>
+			<key>gray</key>
+			<string>0.5 0.5 0.5</string>
+			<key>lightGray</key>
+			<string>0.667 0.667 0.667</string>
+			<key>white</key>
+			<string>1.0 1.0 1.0</string>
+			<key>blue</key>
+			<string>0.0 0.0 1.0</string>
+			<key>brown</key>
+			<string>0.6 0.4 0.2</string>
+			<key>cyan</key>
+			<string>0.0 1.0 1.0</string>
+			<key>green</key>
+			<string>0.0 1.0 0.0</string>
+			<key>magenta</key>
+			<string>1.0 0.0 1.0</string>
+			<key>orange</key>
+			<string>1.0 0.5 0.0</string>
+			<key>purple</key>
+			<string>0.5 0.0 0.5</string>
+			<key>red</key>
+			<string>1.0 0.0 0.0</string>
+			<key>yellow</key>
+			<string>1.0 1.0 0.0</string>
+</dict>
 </dict>
 </plist>

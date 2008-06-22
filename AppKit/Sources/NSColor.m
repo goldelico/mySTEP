@@ -62,23 +62,32 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 {
 	NSColor	*color = nil;
 	NSString *rep;
+	int cnt=10;
 #if 0
 	NSLog(@"NSColor _systemColorWithName:%@", name);
 #endif
-	if ((rep = [_colorStrings objectForKey: name]) == nil)
-		NSLog(@"Request for unknown system color - '%@'\n", name);
-	else
-		{
+	rep = [_colorStrings objectForKey: name];
+	while(rep && cnt-- > 0)
+		{ // check for link/alias
+			NSString *link = [_colorStrings objectForKey:rep];	// allows to refer to a different name (but just 10 levels deep!)
+			if(link)
+				rep=link;	// replace
+			else
+				break;	// stop at last level
+		}
+	if(rep)
+		{ // look up
 		const char *str = [rep cString];
 		float r, g, b;
 
 		if(sscanf(str, "%f %f %f", &r, &g, &b) != 3)
-			NSLog(@"System color '%@' has bad string rep: '%@'\n", name, rep);
+			NSLog(@"System color '%@' has bad string rep: '%@'", name, rep);
 		else
 			if((color = [self colorWithCalibratedRed:r green:g blue:b alpha:1.0]))
 				[_systemColors setColor:color forKey:name];
 		}
-
+	else
+		NSLog(@"Request for unknown system color - '%@'", name);
 	return color;
 }
 
@@ -119,22 +128,26 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 }
 
 + (void) initialize
-{ // Set up a dictionary containing the names
+{ // Set up a dictionary containing the names and values
 #if 0
 	NSLog(@"NSColor initialize: %@", NSStringFromClass([self class]));
 #endif
 	if(self == [NSColor class])	// of all the system colors as keys with
-		{							// colors in string format as values.
+		{ // colors in string format as values.
 		NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 		NSString *white = 	  @"1.0 1.0 1.0";
-		NSString *lightGray = @".667 .667 .667";
+		NSString *lightGray = @"0.667 0.667 0.667";
+		NSString *gray =	  @"0.5 0.5 0.5";
 		NSString *black =	  @"0.0 0.0 0.0";
-		NSString *gray =	  @".5 .5 .5";
 #if 0
 		NSLog(@"NSColor initialize 00: %@", nc);
 #endif
 		// FIXME: we should read that from a resource file in AppKit.framework
-		_colorStrings = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
+			_colorStrings=[[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSSystemColorList"] retain];
+			if(!_colorStrings)
+				NSLog(@"can't initialize system color list");
+#if OLD
+			_colorStrings = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
 			white,				@"controlBackgroundColor",
 			white,				@"controlColor",
 			@"0.91 0.91 0.91",	@"controlHighlightColor",
@@ -165,7 +178,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 			
 			black,					@"black",
 			@"0.333, 0.333, 0.333",	@"darkGray",
-			@"0.5, 0.5, 0.5",		@"gray",
+			gray,					@"gray",
 			lightGray,				@"lightGray",
 			white,					@"white",
 			@"0.0, 0.0, 1.0",		@"blue",
@@ -178,6 +191,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 			@"1.0, 0.0, 0.0",		@"red",
 			@"1.0, 1.0, 0.0",		@"yellow",
 			nil] retain];			// Set up default system colors list
+#endif
 #if 0
 		NSLog(@"NSColor initialize 0: %@", _colorStrings);
 #endif
@@ -493,8 +507,6 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 {
 	// we should override for a pattern color
 	float alpha;
-	if(NSIsEmptyRect(rect))
-		return;
 	alpha=[self alphaComponent];
 	if(alpha != 1.0)
 		{ // is not completely opaque
