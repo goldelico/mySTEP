@@ -48,12 +48,12 @@ endif
 
 .PHONY:	clean build build_architecture
 
-ifeq ($(ARCHITECTURES),)
-	ARCHITECTURES := arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu
-endif
+#ifeq ($(ARCHITECTURES),x)
+ARCHITECTURES:=arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu
+#endif
 
 ifeq ($(COMPILER),)
-	COMPILER := gcc-2.95.3-glibc-2.2.2
+COMPILER:=gcc-2.95.3-glibc-2.2.2
 endif
 
 build:	# call recursively for all architectures
@@ -70,16 +70,16 @@ build:	# call recursively for all architectures
 IP_ADDR$:=$(shell cat /Developer/Xtoolchain/IPaddr 2>/dev/null)
 
 ifeq ($(IP_ADDR),)
-	IP_ADDR=192.168.129.201
+IP_ADDR:=192.168.129.201
 endif
 
 ifeq ($(EMBEDDED_ROOT),)
-	EMBEDDED_ROOT:=/usr/share/QuantumSTEP
+EMBEDDED_ROOT:=/usr/share/QuantumSTEP
 endif
 
 ifeq ($(ARCHITECTURE),)
-	ARCHITECTURE := arm-quantumstep-linux-gnu
-	ARCHITECTURE := i386-quantumstep-linux-gnu
+ARCHITECTURE:=arm-quantumstep-linux-gnu
+# ARCHITECTURE:=i386-quantumstep-linux-gnu
 endif
 
 # tools

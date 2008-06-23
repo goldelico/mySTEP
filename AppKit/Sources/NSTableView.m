@@ -181,306 +181,7 @@
 	[super dealloc];
 }
 
-#if OLD
-
-// FIXME: needs rework so that it does not lock focus etc.
-
-- (void) mouseDown:(NSEvent *)event
-{
-	NSEventType eventType;
-	NSPoint current = [event locationInWindow];
-	NSPoint p = [self convertPoint:current fromView:nil];
-	NSPoint previous = current;
-	int col = [_tableView columnAtPoint:p];
-	NSDate *distantFuture = [NSDate distantFuture];
-	NSRect c = [self visibleRect];
-	BOOL scrolled = NO;
-	BOOL resizing = (col == NSNotFound || [NSCursor currentCursor] == [NSCursor resizeLeftRightCursor]);
-	
-	if (![_tableView allowsColumnReordering])
-		return;
-	
-	if (resizing && ![_tableView allowsColumnResizing])
-		return;
-#if 1
-	NSLog(@"mouseDown headerview");
-#endif
-	[NSEvent startPeriodicEventsAfterDelay:0.05 withPeriod:0.05];
-	[self lockFocus];
-
-	if(resizing)
-		{
-		NSRect t, u, d = {{0,0},{2,1}};
-		BOOL resizable;
-		NSPoint o = p;
-		NSTableColumn *column;
-		float minWidth=0, maxWidth=0;
-		NSRect f = [_tableView visibleRect];
-
-		c.size.height = NSMaxY(c) + NSHeight(f);
-		NSRectClip(c);
-		[[NSColor lightGrayColor] set];
-		u.origin.x = -1;
-		o.x -= [_tableView intercellSpacing].width;
-		while((col = [_tableView columnAtPoint:o]) == NSNotFound && o.x > 0)
-			o.x -= 1;
-		if(col == NSNotFound)
-			{
-			[self unlockFocus];
-			[NSException raise: NSInternalInconsistencyException 
-						 format: @"Unable to determine column to be resized"];
-			}
-		column = [[_tableView tableColumns] objectAtIndex:col];
-		t = [_tableView rectOfColumn:col];
-
-		if((resizable = ([column resizingMask]&NSTableColumnUserResizingMask)))
-			{
-			minWidth = [column minWidth];
-			maxWidth = [column maxWidth];
-			}
-
-		while ((eventType = [event type]) != NSLeftMouseUp) 
-			{
-			if (eventType != NSPeriodic)
-				current = [event locationInWindow];
-			else
-				{
-				if (current.x != previous.x || scrolled) 
-					{
-					NSPoint p = [self convertPoint:current fromView:nil];
-	
-					if(resizable)
-						{
-						float delta = p.x - NSMinX(t);
-	
-						if(delta < minWidth)
-							p.x = NSMinX(t) + minWidth;
-						else
-							if(delta > maxWidth)
-								p.x = NSMinX(t) + maxWidth;
-						}
-					else
-						p.x = NSMaxX(t);
-	
-					if(NSMinX(u) >= 0)
-						NSRectFillUsingOperation(u, NSCompositeXOR);
-					d.origin.x = p.x;
-					d.origin.y = f.origin.y;
-					if((scrolled = [_tableView scrollRectToVisible:d]))
-						{
-						[self scrollRectToVisible:(NSRect){{p.x,0},d.size}];
-						[[NSColor lightGrayColor] set];
-						}
-	
-					u = (NSRect){{p.x,0},{2,NSHeight(c)}};
-					NSRectFillUsingOperation(u, NSCompositeXOR);
-					[_window flushWindow];
-					}
-				}
-	
-			event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
-									   untilDate:distantFuture 
-										  inMode:NSEventTrackingRunLoopMode
-										 dequeue:YES];
-			}
-	
-		[column setWidth:(NSMinX(u) - NSMinX(t))];
-#if 1
-		NSLog(@"col %d setWidth: %f\n", col, (NSMinX(u) - NSMinX(t)));
-#endif
-		c = [self visibleRect];
-		c.size.width = c.size.width - (NSMinX(t) - NSMinX(c));
-		c.origin.x = NSMinX(t);
-		[self drawRect:c];
-		f.origin.x = c.origin.x;
-		f.size.width = c.size.width;
-		[NSCursor pop];
-		[_tableView setNeedsDisplayInRect:f];
-		}
-	else
-		{
-		NSPoint lastPoint = p;
-		NSTableColumn *column = [[_tableView tableColumns] objectAtIndex:col];
-		NSTableHeaderCell *headerCell = [column headerCell];
-		NSRect h = [self headerRectOfColumn:col];
-		NSRect oldRect = h, u, d = {{0,0},{2,1}};
-		int cRepGState, colUnder = -1;
-		NSRect cRepBounds, f;
-		NSColor *tableBackground = [_tableView backgroundColor];
-		float intercellWidth = [_tableView intercellSpacing].width;
-		BOOL wasSelected, movedColumn = NO;
-		NSRect t = [_tableView visibleRect];
-
-		_draggedColumn = col;
-
-		if(!(wasSelected = [_tableView isColumnSelected:col]))
-			{
-			[_tableView selectColumn:col byExtendingSelection:NO];
-			[_tableView displayIfNeededInRect:t];
-			}
-		f = u = [_tableView rectOfColumn:col];
-
-		c.size.height = NSMaxY(c) + NSHeight(t);		// clip to scrollview's
-		NSRectClip(c);									// document rect 
-		u.size.height = NSHeight(c);
-
-		while ((eventType = [event type]) != NSLeftMouseUp) 
-			{
-			if (eventType != NSPeriodic)
-				current = [event locationInWindow];
-			else
-				{
-				if (current.x != previous.x || scrolled) 
-					{
-					NSPoint p = [self convertPoint:current fromView:nil];
-					float delta = p.x - lastPoint.x;
-					cRepGState = [[NSView focusView] gState];
-					if(!_headerDragImage)				// lock focus / render
-						{								// into image cache
-						NSColor *color = [headerCell backgroundColor];
-						NSAffineTransform *at;
-						cRepBounds = (NSRect){{0,0},u.size};			
-						_headerDragImage = [NSImage alloc];
-						[_headerDragImage initWithSize:u.size];
-						
-						[_headerDragImage lockFocusOnRepresentation:nil];
-						
-						u.origin.y = NSMinY(t);
-						at=[NSAffineTransform transform];
-						[at translateXBy:-NSMinX(u) yBy:NSHeight(_frame) - NSMinY(u)];
-						[at concat];
-						[_tableView drawRect:u];
-						[at translateXBy:0 yBy:-(NSHeight(_frame) - NSMinY(u))];
-						[at concat];
-						[headerCell setBackgroundColor:[NSColor blackColor]];
-						[headerCell drawWithFrame:h inView:self];
-						[headerCell setBackgroundColor:color];	// restore
-						[at translateXBy:-NSMinX(u) yBy:0];	// is this required? not if unlock restores the graphics state
-						[at concat];
-						[_headerDragImage unlockFocus];
-						[_tableView deselectColumn:col];
-						movedColumn = YES;
-						}
-	
-					previous = current;
-					h.origin.x += delta;
-					h.origin.x = MAX(0, NSMinX(h));			// limit movement
-					if(NSMaxX(h) > NSWidth(_bounds))			// to view bounds
-						h.origin.x = NSWidth(_bounds) - NSWidth(h);
-	
-					if (NSMinX(h) != NSMinX(oldRect) || scrolled) 
-						{
-						if(delta < 0)
-							{									// moving left
-							if((NSMinX(h) < NSMinX(u)) || (colUnder == -1))
-								col = [_tableView columnAtPoint:h.origin];
-							}
-						else
-							{									// moving right
-							NSPoint m = {NSMaxX(h), NSMinY(h)};
-						
-							if((m.x > NSMaxX(u)) || (colUnder == -1))
-								col = [_tableView columnAtPoint:m];
-							}
-												// move columns if needed and
-						if(col != NSNotFound)	// not in between columns
-							{
-							if(col != colUnder)
-								{
-								if(col > _draggedColumn + 1)
-									col = _draggedColumn + 1;
-								else
-									if(col < _draggedColumn - 1)
-										col = _draggedColumn - 1;
-								colUnder = col;
-								u = [self headerRectOfColumn:col];
-								}
-							
-							if(delta < 0)						// moving left
-								{
-								if(NSMinX(h) < NSMidX(u))
-									{
-									[_tableView moveColumn:_draggedColumn 
-												toColumn:col];
-									oldRect = NSUnionRect(oldRect, u);
-									oldRect = NSUnionRect(oldRect, f);
-									_draggedColumn = col;
-									f = [_tableView rectOfColumn:col];
-								}	}
-							else								// moving right
-								{
-								float maxX = NSMaxX(h);
-							
-								if(maxX > NSMidX(u))
-									{
-									[_tableView moveColumn:_draggedColumn 
-												toColumn:col];
-									oldRect = NSUnionRect(oldRect, u);
-									oldRect = NSUnionRect(oldRect, f);
-									_draggedColumn = col;
-									f = [_tableView rectOfColumn:col];
-							}	}	}
-	
-						t.origin.x = oldRect.origin.x;
-						oldRect.size.width += intercellWidth;
-						t.size.width = oldRect.size.width;
-	
-						d.origin.x = p.x;
-						d.origin.y = t.origin.y;
-						if((scrolled = [_tableView scrollRectToVisible:d]))
-						   [self scrollRectToVisible:(NSRect){{p.x,0},d.size}];
-	
-						[self drawRect:oldRect];
-	
-						[_tableView lockFocus];
-						[_tableView drawRect:t];
-						[tableBackground set];
-						NSRectFill(f);
-						[_tableView unlockFocus];
-
-						NSCopyBits(cRepGState, cRepBounds, h.origin);	// FIXME: where are we locked on?
-	
-						oldRect.origin.x = NSMinX(h);
-						oldRect.size.width = NSWidth(h);
-						[_window flushWindow];
-						lastPoint = p;
-						}
-					}
-				}
-	
-			event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
-									   untilDate:distantFuture 
-										  inMode:NSEventTrackingRunLoopMode
-										 dequeue:YES];
-			}
-	
-		if (movedColumn)
-			[[NSNotificationCenter defaultCenter] postNotificationName:NOTE(ColumnDidMove) object:_tableView];
-
-		if(!wasSelected || movedColumn)
-			[_tableView selectColumn:_draggedColumn byExtendingSelection:NO];
-		else
-			[_tableView deselectColumn:_draggedColumn];
-	
-		oldRect = NSUnionRect(oldRect, [self headerRectOfColumn:_draggedColumn]);
-		_draggedColumn = -1;
-		[self drawRect:oldRect];
-	
-		t.origin.x = oldRect.origin.x;
-		t.size.width = oldRect.size.width;
-		[_tableView setNeedsDisplayInRect:t];
-
-		[_headerDragImage release];
-		_headerDragImage = nil;
-		}
-
-	[_window flushWindow];
-	[self unlockFocus];
-	[NSEvent stopPeriodicEvents];
-	[_window invalidateCursorRectsForView:self];
-}
-
-#endif
+#define GRAB_ZONE_MARGIN 2.0
 
 /* FIXME:
  - resizing (done by cursor rects +/- 3 px around cell borders)
@@ -495,31 +196,51 @@
 {
 	int clickCount = [event clickCount];
 	NSPoint location;	// location in view
-	BOOL inCell;		// initially in cell or in intercell spacing?
 	id aCell;			// selected cell
 	int column;			// row/col of selected cell
 	NSTableColumn *tableColumn;
 	NSRect rect;		// rect of selected cell
 	NSDate *limitDate;
 	NSWindow *dragWindow=nil;
+	float oldWidth;
 //	int mouseDownFlags = [event modifierFlags];
-	if(clickCount > 1)
-		{
-			// anything special on double clicks?
-		}
 	location = [self convertPoint:[event locationInWindow] fromView:nil];	// location on view
+	_resizedColumn = -1;
 	column = [self columnAtPoint:location];
-	inCell = column >= 0;
-	if(inCell)
+	if(column >= 0)
 		{
 			tableColumn=[[_tableView tableColumns] objectAtIndex:column];
-			aCell = [tableColumn headerCell];		// cell (if any)
-			rect = [self headerRectOfColumn:column];								// the real cell rect
+			aCell = [tableColumn headerCell];			// cell (if any)
+			rect = [self headerRectOfColumn:column];	// the real cell rect
+			if(location.x >= NSMaxX(rect) - GRAB_ZONE_MARGIN && ([tableColumn resizingMask]&NSTableColumnUserResizingMask) != 0)
+				_resizedColumn=column;
+			else if(column > 0 && location.x <= NSMinX(rect) + GRAB_ZONE_MARGIN && ([[[_tableView tableColumns] objectAtIndex:column-1] resizingMask]&NSTableColumnUserResizingMask) != 0)
+				{ // resize previous column
+					column--;
+					tableColumn=[[_tableView tableColumns] objectAtIndex:column];
+					aCell = [tableColumn headerCell];
+					rect = [self headerRectOfColumn:column];	// the real cell rect
+					_resizedColumn=column;
+				}
+			if(_resizedColumn >= 0)
+				oldWidth=[tableColumn width];
+#if 1
+			NSLog(@"mouse down in col %d resize %d rect %@ cell %@", column, _resizedColumn, NSStringFromRect(rect), aCell);
+#endif
 		}
 	limitDate = [NSDate dateWithTimeIntervalSinceNow:0.8];	// timeout to switch to dragging
 	while([event type] != NSLeftMouseUp)
 		{ // loop outside until mouse finally goes up
-			if(_draggedColumn >= 0)
+			if(_resizedColumn >= 0)
+				{ // resizing
+					if([event type] == NSLeftMouseDragged)
+						{
+							// change width
+							// redraw
+							// invalidate cursor rects so that they are updated
+						}
+				}
+			else if(_draggedColumn >= 0)
 				{ // dragging
 				if([event type] == NSLeftMouseDragged)
 					{
@@ -536,7 +257,7 @@
 							}
 					}
 				}
-			else if(inCell && NSMouseInRect(location, rect, [self isFlipped]))
+			else if(column >= 0 && NSMouseInRect(location, rect, [self isFlipped]))
 				{ // track header cell while in initial cell or list mode
 					BOOL done = NO;
 					int state=[aCell state];
@@ -553,7 +274,7 @@
 							[aCell setState:state == NSOffState?NSOnState:NSOffState];	// toggle state of buttons
 							if([_tableView allowsColumnSelection])
 								{
-								// check for modifiers... Alt should always toggle (unless we must have a selected column)
+								// check for modifiers... Alt should always toggle (unless we must not have an empty selection)
 								if([_tableView allowsMultipleSelection])
 									{
 									[_tableView selectColumnIndexes:[NSIndexSet indexSetWithIndex:column] byExtendingSelection:YES];	// replace
@@ -562,7 +283,7 @@
 									[_tableView selectColumnIndexes:[NSIndexSet indexSetWithIndex:column] byExtendingSelection:NO];	// replace
 								}
 							else
-								[_tableView setHighlightedTableColumn:column];	// no column selection - just highlight the table column
+								[_tableView setHighlightedTableColumn:tableColumn];	// no column selection - just highlight the table column
 							if(clickCount == 2)
 								{ // notify a double click on header cell
 									if([aCell isEditable])
@@ -588,6 +309,8 @@
 								}
 							break;
 						}
+					// this timeout does not work since we have an inner loop to track the cell!
+					limitDate = [NSDate distantFuture];	// wait unlimited...
 				}
 			event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
 									   untilDate:limitDate
@@ -597,25 +320,35 @@
 				{ // timeout: did stay on same position for 0.8 seconds
 				// switch cursor to draggingHand
 					_draggedColumn=column;	// force to start dragging
+					limitDate = [NSDate distantFuture];	// wait unlimited...
 				}
-			limitDate = [NSDate distantFuture];
-#if 0
-			NSLog(@"Matrix: got next event: %@", event);
+#if 1
+			NSLog(@"NSTableHeaderView: got next event: %@", event);
 #endif
 			location = [self convertPoint:[event locationInWindow] fromView:nil];	// new location
 		}
 	if(_draggedColumn >= 0)
 		{ // end dragging
-			NSLog(@"end column dragging");
-			if(column != _draggedColumn)
-				{
-				[(NSMutableArray *) [_tableView tableColumns] exchangeObjectAtIndex:_draggedColumn withObjectAtIndex:column];
-				[_tableView setNeedsDisplay:YES];	// should limit to NSUnion(both column rects)
-				}
+#if 1
+			NSLog(@"end column dragging %d -> %d", _draggedColumn, column);
+#endif
+			[_tableView moveColumn:_draggedColumn toColumn:column];
 			_draggedColumn=-1;
 			if([[_tableView delegate] respondsToSelector:@selector(tableView:didDragTableColumn:)])
 				[[_tableView delegate] tableView:_tableView didDragTableColumn:tableColumn];	// as in 10.5 (10.0-4 did return the column of the new position)
 			// reset cursor
+		}
+	if(_resizedColumn >= 0)
+		{
+#if 1
+			NSLog(@"end column resizing %d", _resizedColumn);
+#endif
+			[[NSNotificationCenter defaultCenter] postNotificationName:NOTE(ColumnDidResize) object:_tableView userInfo:
+				[NSDictionary dictionaryWithObjectsAndKeys:
+				[NSNumber numberWithInt:tableColumn], @"NSTableColumn",
+				[NSNumber numberWithFloat:oldWidth], @"NSOldWidth",
+				nil]];
+			_resizedColumn=-1;
 		}
 }
 
@@ -677,20 +410,21 @@
 }
 
 - (void) resetCursorRects
-{
+{ // rebuild cursor rects for resize cursors
 	NSRange columnRange = [_tableView columnsInRect:[self visibleRect]];
 	NSArray *tableColumns = [_tableView tableColumns];
 	int i, count;
 	NSCursor *resize = [NSCursor resizeLeftRightCursor];
 	float intercellWidth = [_tableView intercellSpacing].width;
-	NSRect r = {{0,0}, {MAX(1, intercellWidth), NSHeight(_frame)}};
-	
+	NSRect r = {{-GRAB_ZONE_MARGIN, 0}, { intercellWidth+2*GRAB_ZONE_MARGIN, NSHeight(_frame)}};
 	count = NSMaxRange(columnRange);
 	for (i = 0; i < count; i++)
 		{
-		r.origin.x += ((NSTableColumn *) [tableColumns objectAtIndex:i])->_width;
-		if(i >= columnRange.location)
-			[self addCursorRect:r cursor:resize];
+		NSTableColumn *col=[tableColumns objectAtIndex:i];
+		r.origin.x += [col width];
+		if(i >= columnRange.location && ([col resizingMask]&NSTableColumnUserResizingMask) != 0)
+			// FIXME: on OSX the cursor changes depending on whether we are at min, max width or intermediate
+			[self addCursorRect:r cursor:resize];	// we are resizable
 		r.origin.x += intercellWidth;
 		}
 }
@@ -1088,13 +822,17 @@ int index = [self columnWithIdentifier:identifier];
 
 - (void) moveColumn:(int)column toColumn:(int)newIndex 
 {
-	NSTableColumn *c = [_tableColumns objectAtIndex:column];
-
-	[_tableColumns removeObjectAtIndex:column];
-	[_tableColumns insertObject:c atIndex:newIndex];
-
-	if ([_headerView draggedColumn] == -1)				// if not dragging
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTE(ColumnDidMove) object: self];
+	if(column != newIndex)
+		{
+			[_tableColumns exchangeObjectAtIndex:column withObjectAtIndex:newIndex];
+			[_window invalidateCursorRectsForView:_headerView];
+			[self setNeedsDisplay:YES];	// should limit to NSUnion(both column rects)
+		}
+	[[NSNotificationCenter defaultCenter] postNotificationName:NOTE(ColumnDidMove) object:self userInfo:
+		[NSDictionary dictionaryWithObjectsAndKeys:
+					[NSNumber numberWithInt:column], @"NSOldColumn",
+					[NSNumber numberWithInt:newIndex], @"NSNewColumn",
+					nil]];
 }
 
 - (id) target							{ return _target; }
@@ -1449,15 +1187,14 @@ int index = [self columnWithIdentifier:identifier];
 	float x = 0;
 	while((col=[e nextObject]))
 		{
-		if(point.x >= x && point.x < (x + col->_width))
+		if(point.x >= x && point.x < (x + col->_width + _intercellSpacing.width))
 			return i;
 		x += (col->_width + _intercellSpacing.width);
 		if (point.x < x)
 			break;
 		i++;
 		}
-	
-	return NSNotFound;
+	return -1;
 }
 
 - (NSRange) columnsInRect:(NSRect)rect 
@@ -1942,7 +1679,7 @@ int index = [self columnWithIdentifier:identifier];
 			NSLog(@"header view frame: %@", NSStringFromRect(r));
 #endif
 			[_headerView setFrame:h];	// adjust our header view
-										// [_headerView resetCursorRects];
+			[_window invalidateCursorRectsForView:_headerView];
 			[super setFrame:r];			// does nothing if we did not really change - otherwise notifies NSClipView
 			[sv tile];	// tile scrollview (i.e. properly layout header and our superview)
 			lheight=[self rowHeight]+[self intercellSpacing].height;

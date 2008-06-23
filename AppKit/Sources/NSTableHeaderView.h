@@ -31,12 +31,9 @@
 {
     NSTableView *_tableView;
     NSImage *_headerDragImage;
-    NSCursor *_resizeCursor;
     float _draggedDistance;
     int _resizedColumn;
     int _draggedColumn;
-    int _mayDragColumn;
-    BOOL _drawingLastColumn;
 }
 
 - (NSInteger) columnAtPoint:(NSPoint) point;

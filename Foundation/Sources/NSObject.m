@@ -442,10 +442,9 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 									 count:(NSUInteger) len;
 {
 	id *s0=stackbuf;
-	NSUInteger cnt=0;
 	if(state->state != 0x55aa5a5a)	// some safety if zeroing was forgotten
 		{ // assume we have not been initialized
-		state->itemsPtr=(id *) [[self objectEnumerator] retain];	// misuse...
+		state->itemsPtr=(id *) [[(NSArray *) self objectEnumerator] retain];	// misuse...
 		state->state=0x55aa5a5a;
 		}
 	while(len-- > 0)
