@@ -3156,15 +3156,12 @@ static NSDictionary *_x11settings;
 	static float factor=0.0;
 	if(factor <= 0.01)
 		{
-		if(_x11settings)
-			 factor=[[_x11settings objectForKey:@"userSpaceScaleFactor"] floatValue];
+		// FIXME: read from user defaults!
+//		if(_x11settings)
+//			 factor=[[_x11settings objectForKey:@"userSpaceScaleFactor"] floatValue];
 		if(factor <= 0.01) factor=1.0;	// force default
 		}
-	return factor;	// read from user settings
-#if 0	
-	NSSize dpi=[[[self deviceDescription] objectForKey:NSDeviceResolution] sizeValue];
-	return (dpi.width+dpi.height)/144;	// take average for 72dpi
-#endif
+	return factor;
 }
 
 - (NSDictionary *) deviceDescription;
@@ -3175,10 +3172,22 @@ static NSDictionary *_x11settings;
 		NSSize size, resolution;
 		if(_x11settings)
 			 _screenScale=[[_x11settings objectForKey:@"systemSpaceScaleFactor"] floatValue];
-#if 0
-		NSLog(@"system space scale factor=%lf", _screenScale);
-#endif
 		if(_screenScale <= 0.01) _screenScale=1.0;		// force default
+#if 1
+		NSLog(@"system space scale factor=%lf", _screenScale);
+			{
+				float xdpi=WidthOfScreen(_screen)/(WidthMMOfScreen(_screen)/25.4)/72.0;
+				float ydpi=HeightOfScreen(_screen)/(HeightMMOfScreen(_screen)/25.4)/72.0;
+				float avg=(xdpi+ydpi)/2.0;	// take average for 72dpi
+#if 1
+				NSLog(@"xdpi=%lf", xdpi);
+				NSLog(@"ydpi=%lf", ydpi);
+#endif
+				if(fabs(avg - rint(avg)) < 0.1)
+					avg=rint(avg);	// round to nearest integer
+				NSLog(@"calculated scale factor=%lf", avg);
+			}
+#endif
 		_xRect.width=WidthOfScreen(_screen);			// screen width in pixels
 		_xRect.height=HeightOfScreen(_screen);			// screen height in pixels
 		size.width=_xRect.width/_screenScale;					// screen width in 1/72 points
@@ -3385,6 +3394,8 @@ static NSDictionary *_x11settings;
 				default:
 					thisXWin=lastXWin;	// assume unchanged
 				}
+			if(xe.type != MotionNotify)
+				lastMotionEvent=nil;	// any other event - start a new motion notification
 			if(thisXWin != lastXWin)						
 				{ // update cached references to window and prepare for translation
 				window=NSMapGet(__WindowNumToNSWindow, (void *) thisXWin);
@@ -3405,9 +3416,9 @@ static NSDictionary *_x11settings;
 				}
 			// we could post the raw X-event as an NSNotification so that we could build a window manager...
 			switch(xe.type)
-				{										// mouse button events
+				{
 				case ButtonPress:
-					{
+					{ // mouse button events
 						float pressure=0.0;
 						NSDebugLog(@"ButtonPress: X11 time %u timeOfLastClick %u \n", 
 								   xe.xbutton.time, timeOfLastClick);

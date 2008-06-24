@@ -398,34 +398,32 @@ static BOOL __cursorHidden = NO;
 
 - (void) mouseDown:(NSEvent *)theEvent
 { // NSTheme frame
-	NSPoint p;
+	NSPoint initial;
+	NSRect initialFrame;
 #if 1
 	NSLog(@"NSThemeFrame clicked (%@)", NSStringFromPoint([theEvent locationInWindow]));
 #endif
 	if((_style & NSResizableWindowMask) != 0 && ([self interfaceStyle] >= NSPDAInterfaceStyle))
 		return;	// resizable window has been resized for full screen mode - don't permit to move
-	while(YES)
+	while([theEvent type] != NSLeftMouseUp)
 		{ // loop until mouse goes up
 		switch([theEvent type])
 			{
 			default:
 				break;	// ignore
-			case NSLeftMouseUp:					// If mouse went up then we are done
-				if(_inLiveResize)
-					{
-					_inLiveResize=NO;
-					[self _performOnAllSubviews:@selector(viewDidEndLiveResize)];
-					}
-				else
-					_inLiveResize=NO;
-				return;	// end loop
 			case NSLeftMouseDown:
 				{
-					p=[theEvent locationInWindow];	// (0,0) is lower left corner!
+					// NOTE: we can't use [event locationInWindow] if we move the window - that info is not reliable!
+					NSPoint p=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
+					initial=[_window convertBaseToScreen:p];	// convert to screen coordinates
 					if(p.y < _frame.size.height-_height)
 						{ // check if we a have resize enabled in _style and we clicked on lower right corner
 							if((_style & NSResizableWindowMask) == 0 || p.y > 10.0 || p.x < _frame.size.width-10.0)
-								return;	// ignore if neither in title bar nor resize area
+								{
+									// FIXME: we can also check if we are textured and the hit point is "background"
+									NSLog(@"inside");
+									return;	// ignore if neither in title bar nor resize area
+								}
 							_inLiveResize=YES;
 #if 1
 							NSLog(@"liveResize started");
@@ -433,22 +431,31 @@ static BOOL __cursorHidden = NO;
 							// FIXME: should also be called exactly once if view is added/removed repeatedly to the hierarchy during life resize
 							[self _performOnAllSubviews:@selector(viewWillStartLiveResize)];
 						}
-					// p=[NSEvent mouseLocation];	// get initial screen coordinates
-//					NSLog(@"%@ vs. %@", NSStringFromPoint(p), NSStringFromPoint([[self window] convertBaseToScreen:[theEvent locationInWindow]]));
-					p=[[self window] convertBaseToScreen:p];
+					initialFrame=[_window frame];
+#if 1
+					NSLog(@"initial = %@ (%@)", NSStringFromPoint(initial), NSStringFromPoint(p));
+#endif
 				break;
 				}
-			case NSLeftMouseDragged:
+				case NSLeftMouseUp:					// If mouse went up then we are done
+				case NSLeftMouseDragged:
 				{
-					NSRect wframe=[_window frame];
-//					NSPoint loc=[NSEvent mouseLocation];
-					NSPoint loc=[[self window] convertBaseToScreen:[theEvent locationInWindow]];
+					NSRect wframe=initialFrame;
+					NSPoint loc=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
+					float deltax, deltay;
+					loc=[_window convertBaseToScreen:loc];	// convert to screen coordinates
+					deltax=loc.x-initial.x;
+					deltay=loc.y-initial.y;
+#if 1
+					NSLog(@"dragged = %@", NSStringFromPoint(loc));
+#endif
 					if(_inLiveResize)
 						{ // resizing
-						wframe.size.width+=(loc.x-p.x);
-						wframe.size.height-=(loc.y-p.y);	// resize as mouse moves
-						wframe.origin.y+=(loc.y-p.y);		// keep top left corner constant
-						// FIXME: handle resizeIncrements
+							// FIXME: handle resizeIncrements
+						// FIXME: protect against empty window size...
+						wframe.size.width+=deltax;
+						wframe.size.height-=deltay;	// resize as mouse moves
+						wframe.origin.y+=deltay;		// keep top left corner constant
 #if 1
 						NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
 #endif
@@ -459,15 +466,13 @@ static BOOL __cursorHidden = NO;
 						float mbh=[[_window screen] _menuBarFrame].origin.y;
 						if(loc.y > mbh)
 							loc.y=mbh;	// limit so that window can't be moved under the menu bar
-						wframe.origin.x+=(loc.x-p.x);
-						wframe.origin.y+=(loc.y-p.y);	// move as mouse moves
-						// FIXME: this has some issues when frame is clipped to the visible screen
+						wframe.origin.x+=(loc.x-initial.x);
+						wframe.origin.y+=(loc.y-initial.y);	// move as mouse moves
 #if 0
 						NSLog(@"move window from (%@) to (%@)", NSStringFromPoint([_window frame].origin), NSStringFromPoint(wframe.origin));
 #endif
-						[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay)
+						[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay) - will clip to screen
 						}
-					p=loc;
 					break;
 				}
 			}
@@ -477,6 +482,13 @@ static BOOL __cursorHidden = NO;
 										dequeue:YES];
 			
   		}
+	if(_inLiveResize)
+		{
+			_inLiveResize=NO;
+			[self _performOnAllSubviews:@selector(viewDidEndLiveResize)];
+		}
+	else
+		_inLiveResize=NO;
 }
 
 @end

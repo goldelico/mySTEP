@@ -131,7 +131,7 @@ extern NSString *NSViewAnimationFadeOutEffect;
 
 - (id) animationForKey:(NSString *) key; 
 - (NSDictionary *) animations; 
-- (id)animator; 
+- (id) animator; 
 - (void) setAnimations:(NSDictionary *) animations; 
 
 @end
