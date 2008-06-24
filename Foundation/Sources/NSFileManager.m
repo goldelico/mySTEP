@@ -749,17 +749,19 @@ const char *npath = [self fileSystemRepresentationWithPath:otherPath];
 #endif
 }
 
-- (NSString*) pathContentOfSymbolicLinkAtPath:(NSString*)path
+- (NSString *) pathContentOfSymbolicLinkAtPath:(NSString *)path
 {
-	char lpath[PATH_MAX];
 	const char *cpath = [self fileSystemRepresentationWithPath:path];
-	int llen;
-	if(!cpath)
-		return nil;
-	llen = readlink(cpath, lpath, PATH_MAX-1);
-    if (llen > 0)
-		return [self stringWithFileSystemRepresentation:lpath length:llen];
-	return nil;
+	NSString *str=nil;
+	if(cpath)
+		{
+		char *lpath=objc_malloc(PATH_MAX+1);
+		int llen = readlink(cpath, lpath, PATH_MAX);
+		if(llen > 0)
+			str=[self stringWithFileSystemRepresentation:lpath length:llen];
+		objc_free(lpath);
+		}
+	return str;
 }
 
 - (const char*) fileSystemRepresentationWithPath:(NSString*)path
@@ -794,8 +796,8 @@ const char *npath = [self fileSystemRepresentationWithPath:otherPath];
 #if 0
 			NSLog(@"virtualRoot=%@", virtualRoot);
 #endif
-			}		   
-		if(![path hasPrefix:@"/dev"] && ![path hasPrefix:@"/proc"] && ![path hasPrefix:@"/tmp"] && ![path hasPrefix:@"/bin"])	// we could also check for upper/lower case?
+			}
+		if(![path hasPrefix:@"/dev"] && ![path hasPrefix:@"/proc"] && ![path hasPrefix:@"/tmp"] && ![path hasPrefix:@"/bin"] && ![path hasPrefix:@"/etc"])	// we could also check for upper/lower case?
 			path=[virtualRoot stringByAppendingString:path]; // virtually do a chroot("/home/myPDA")
 		}
 #if 0

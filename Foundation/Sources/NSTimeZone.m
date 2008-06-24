@@ -74,26 +74,23 @@ NSString *__zonedirs[] = {
 						   @"/usr/local/etc/zoneinfo/",
 						};
 
-static NSString *
-_getTimeZoneFile(NSString *name)
+static NSString *_getTimeZoneFile(NSString *name)
 {
 	int i;
 	NSFileManager *fm = [NSFileManager defaultManager];
 	if([name hasPrefix:@"/"])
 		return name;	// absolute name
-	if ([name length] == 0)
+	if([name length] == 0)
 		return @"";	// empty name
 	if([[name pathExtension] length] != 0)
 		return @"";	// contains a dot
-	for(i = 0;i<sizeof(__zonedirs)/sizeof(__zonedirs[0]); i++) 
-		{
+	for(i = 0; i<sizeof(__zonedirs)/sizeof(__zonedirs[0]); i++) 
+		{ // try all zone directories
 		NSString *filename = [__zonedirs[i] stringByAppendingString:name];
 	    BOOL isDir;
-
-		if ([fm fileExistsAtPath:filename isDirectory:&isDir] && !isDir) 
+		if([fm fileExistsAtPath:filename isDirectory:&isDir] && !isDir)
 			return filename;
 		}
-
 	return @"";
 }
 
@@ -446,7 +443,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 {
 	if((self=[super init]))
 		{
-		_name = [[NSString stringWithFormat:@"%d", anOffset] retain];
+		_name = [[NSString stringWithFormat:@"GMT%+d", anOffset] retain];
 		_offset = anOffset;
 		_detail = [[GSTimeZoneDetail alloc] initWithTimeZone:self 
 												  withAbbrev:_name
@@ -490,6 +487,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 {
 	if (!__zoneDictionary)
 		{
+			// should read zone directory paths from Info.plist
 		__zoneDictionary = [[NSMutableDictionary alloc] init];
 		__zone_mutex = [NSLock new];
 		[self systemTimeZone];
@@ -510,7 +508,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 		NSProcessInfo *pi = [NSProcessInfo processInfo];
 		id localZoneString = [[pi environment] objectForKey: @"TZ"];
 
-		if (localZoneString != nil)
+		if ([localZoneString length] > 0)
 			__localTimeZone = [NSTimeZone timeZoneWithName: localZoneString];
 		if (__localTimeZone == nil)
 			__localTimeZone = [NSTimeZone timeZoneWithName: LOCAL_TIME_FILE];
@@ -563,14 +561,21 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 {
 	NSTimeZone *zone;
 	NSData *data;
-
 #if 0
 	NSLog(@"NSTimeZone: __zone_mutex lock");
 #endif
 	[__zone_mutex lock];
+	if([name isEqual:LOCAL_TIME_FILE])
+		{ // try to substitute real timezone name
+			NSString *f=[[NSFileManager defaultManager] pathContentOfSymbolicLinkAtPath:@"/etc/localtime"];
+//			fprintf(stderr, "link to %s\n", f?[f cString]:"<nil>");
+			if([f hasPrefix:@"/usr/share/zoneinfo/"])
+				name=[f substringFromIndex:20];
+//			fprintf(stderr, "   name=%s\n", [name cString]);
+		}
 	if(!(zone = [__zoneDictionary objectForKey:name]))
 		{
-		if((data = _openTimeZoneFile(name)))	// is just allocated&inittialized - not autoreleased!
+		if((data = _openTimeZoneFile(name)))	// is just allocated & initialized - not autoreleased!
 			zone = [self initWithName:name data:data];
 		[data release];
 		}
