@@ -134,11 +134,12 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 #endif
 	if(self == [NSColor class])	// of all the system colors as keys with
 		{ // colors in string format as values.
-		NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-		NSString *white = 	  @"1.0 1.0 1.0";
+#if OLD
+			NSString *white = 	  @"1.0 1.0 1.0";
 		NSString *lightGray = @"0.667 0.667 0.667";
 		NSString *gray =	  @"0.5 0.5 0.5";
 		NSString *black =	  @"0.0 0.0 0.0";
+#endif
 #if 0
 		NSLog(@"NSColor initialize 00: %@", nc);
 #endif
@@ -208,10 +209,10 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 #if 0
 		NSLog(@"NSColor initialize 3");
 #endif
-		[nc addObserver:self
-			selector:@selector(_defaultsDidChange:)
-			name:NSUserDefaultsDidChangeNotification
-			object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												 selector:@selector(_defaultsDidChange:)
+													 name:NSUserDefaultsDidChangeNotification
+												   object:nil];
 		}
 #if 0
 	NSLog(@"NSColor initialize done");

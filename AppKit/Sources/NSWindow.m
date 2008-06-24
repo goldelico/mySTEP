@@ -400,7 +400,7 @@ static BOOL __cursorHidden = NO;
 { // NSTheme frame
 	NSPoint initial;
 	NSRect initialFrame;
-#if 1
+#if 0
 	NSLog(@"NSThemeFrame clicked (%@)", NSStringFromPoint([theEvent locationInWindow]));
 #endif
 	if((_style & NSResizableWindowMask) != 0 && ([self interfaceStyle] >= NSPDAInterfaceStyle))
@@ -425,14 +425,14 @@ static BOOL __cursorHidden = NO;
 									return;	// ignore if neither in title bar nor resize area
 								}
 							_inLiveResize=YES;
-#if 1
+#if 0
 							NSLog(@"liveResize started");
 #endif
 							// FIXME: should also be called exactly once if view is added/removed repeatedly to the hierarchy during life resize
 							[self _performOnAllSubviews:@selector(viewWillStartLiveResize)];
 						}
 					initialFrame=[_window frame];
-#if 1
+#if 0
 					NSLog(@"initial = %@ (%@)", NSStringFromPoint(initial), NSStringFromPoint(p));
 #endif
 				break;
@@ -446,7 +446,7 @@ static BOOL __cursorHidden = NO;
 					loc=[_window convertBaseToScreen:loc];	// convert to screen coordinates
 					deltax=loc.x-initial.x;
 					deltay=loc.y-initial.y;
-#if 1
+#if 0
 					NSLog(@"dragged = %@", NSStringFromPoint(loc));
 #endif
 					if(_inLiveResize)
@@ -456,7 +456,7 @@ static BOOL __cursorHidden = NO;
 						wframe.size.width+=deltax;
 						wframe.size.height-=deltay;	// resize as mouse moves
 						wframe.origin.y+=deltay;		// keep top left corner constant
-#if 1
+#if 0
 						NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
 #endif
 						[_window setFrame:wframe display:YES];
