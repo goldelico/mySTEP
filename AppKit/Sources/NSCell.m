@@ -1177,7 +1177,7 @@ static NSCursor *__textCursor = nil;
 		if([aDecoder containsValueForKey:@"NSState"])
 			_c.state = [aDecoder decodeIntForKey:@"NSState"];	// overwrite state
 		[aDecoder decodeObjectForKey:@"NSAccessibilityOverriddenAttributes"];	// just reference - should save and merge with superclass
-		/*_controlView=*/[aDecoder decodeObjectForKey:@"NSControlView"];		// might be a class-swapped object! - don't initialize until we draw for the first time
+		_controlView=[aDecoder decodeObjectForKey:@"NSControlView"];		// might be a class-swapped object!
 		_contents=[[aDecoder decodeObjectForKey:@"NSContents"] retain];	// contents object
 #if 0
 		NSLog(@"%@ initWithCoder:%@", self, aDecoder);
