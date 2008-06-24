@@ -205,6 +205,8 @@
 	float oldWidth;
 //	int mouseDownFlags = [event modifierFlags];
 	location = [self convertPoint:[event locationInWindow] fromView:nil];	// location on view
+	limitDate = [NSDate dateWithTimeIntervalSinceNow:0.8];	// timeout to switch to dragging
+	_draggedColumn = -1;
 	_resizedColumn = -1;
 	column = [self columnAtPoint:location];
 	if(column >= 0)
@@ -223,12 +225,14 @@
 					_resizedColumn=column;
 				}
 			if(_resizedColumn >= 0)
-				oldWidth=[tableColumn width];
+				{
+					oldWidth=[tableColumn width];
+					limitDate = [NSDate distantFuture];	// wait unlimited...
+				}
 #if 1
 			NSLog(@"mouse down in col %d resize %d rect %@ cell %@", column, _resizedColumn, NSStringFromRect(rect), aCell);
 #endif
 		}
-	limitDate = [NSDate dateWithTimeIntervalSinceNow:0.8];	// timeout to switch to dragging
 	while([event type] != NSLeftMouseUp)
 		{ // loop outside until mouse finally goes up
 			if(_resizedColumn >= 0)
@@ -333,10 +337,10 @@
 			NSLog(@"end column dragging %d -> %d", _draggedColumn, column);
 #endif
 			[_tableView moveColumn:_draggedColumn toColumn:column];
-			_draggedColumn=-1;
 			if([[_tableView delegate] respondsToSelector:@selector(tableView:didDragTableColumn:)])
 				[[_tableView delegate] tableView:_tableView didDragTableColumn:tableColumn];	// as in 10.5 (10.0-4 did return the column of the new position)
 			// reset cursor
+			_draggedColumn=-1;
 		}
 	if(_resizedColumn >= 0)
 		{
@@ -455,6 +459,7 @@
 		{
 		_tableView=[aDecoder decodeObjectForKey:@"NSTableView"];
 		_draggedColumn = -1;
+		_resizedColumn = -1;
 		return self;
 		}
 	return NIMP;
@@ -1743,6 +1748,7 @@ int index = [self columnWithIdentifier:identifier];
 #endif
 	// FIXME: cancel any editing
 	[self noteNumberOfRowsChanged];
+	[self setNeedsDisplay:YES];	// number of rows may have been unchanged so it will not have called setNeedsDisplay
 #if 0
 	NSLog(@"reloadData done.");
 #endif

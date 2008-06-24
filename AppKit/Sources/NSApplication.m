@@ -1468,17 +1468,20 @@ NSWindow *w;
 	_pendingWindow=nil;
 }
 
-- (void) updateWindows								// send an update message
-{													// to all visible windows
+- (void) updateWindows
+{ // send an update message to all visible windows
 #if 0
 	NSLog(@"updateWindows");
-	{
 #endif
+	{
 	NSArray *_windowList = [self windows];
 	int i, count = [_windowList count];
-	// an update is imminent
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillUpdate) object: self];
-	[_pendingWindow makeKeyAndOrderFront:self];
+	if(_pendingWindow)
+		{
+			[_pendingWindow makeKeyAndOrderFront:self];
+			_pendingWindow=nil;
+		}
 	_app.windowsNeedUpdate=NO;	// reset - so that an update call can set it for the next loop
 #if 1
 	if(count == 0)
@@ -1495,8 +1498,8 @@ NSWindow *w;
 		[w flushWindow];	// might have pending mapping and other events
 		}
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidUpdate) object:self];	// notify that update did occur
-#if 0
 	}
+#if 0
 	NSLog(@"updateWindows done");
 #endif
 	}
