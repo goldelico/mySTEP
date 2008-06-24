@@ -22,22 +22,9 @@ typedef struct _QTTimeRange
 } QTTimeRange; 
 
 BOOL QTEqualTimeRanges(QTTimeRange r1, QTTimeRange r2);
-BOOL QTGetTimeInterval(QTTime t, NSTimeInterval *ti);
-BOOL QTGetTimeRecord(QTTime t, TimeRecord *rec);
 QTTimeRange QTIntersectionTimeRange(QTTimeRange r1, QTTimeRange r2);
-QTTime QTMakeTime(long long t, long scale);
 QTTimeRange QTMakeTimeRange(QTTime t, QTTime dur);
-QTTime QTMakeTimeScaled(QTTime t, long scale);
-QTTime QTMakeTimeWithTimeInterval(NSTimeInterval t);
-QTTime QTMakeTimeWithTimeRecord(TimeRecord t);
-OSType QTOSTypeForString(NSString *str);
-NSString *QTStringForOSType(OSType t);
-NSString *QTStringFromTime(QTTime t);
 NSString *QTStringFromTimeRange(QTTimeRange r);
-NSComparisonResult QTTimeCompare(QTTime t1, QTTime t2);
-QTTime QTTimeDecrement(QTTime t, QTTime dec);
-QTTime QTTimeFromString(NSString *str);
-QTTime QTTimeIncrement(QTTime t, QTTime inc);
 BOOL QTTimeInTimeRange(QTTime t, QTTimeRange r);
 QTTime QTTimeRangeEnd(QTTimeRange r);
 QTTimeRange QTTimeRangeFromString(NSString *str);

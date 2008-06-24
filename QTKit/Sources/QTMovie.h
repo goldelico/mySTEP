@@ -1,5 +1,5 @@
 /* 
-QTMedia.h
+ QTMovie.h
  
  mySTEP QTKit Library
  
@@ -10,35 +10,42 @@ QTMedia.h
  under the terms of the GNU Library General Public License.
  */ 
 
-#ifndef _mySTEP_H_QTMedia
-#define _mySTEP_H_QTMedia
+#ifndef _mySTEP_H_QTMovie
+#define _mySTEP_H_QTMovie
 
 #import <Cocoa/Cocoa.h>
+#import <QTKit/QTTime.h>
+#import <QTKit/QTTimeRange.h>
 
-enum _QTMovieFileTypeOptions
-{ 
-    QTIncludeStillImageTypes  =  1 << 0, 
-    QTIncludeTranslatableTypes =  1 << 1, 
-    QTIncludeAggressiveTypes =  1 << 2, 
-    QTIncludeCommonTypes = 0, 
-    QTIncludeAllTypes = 0xffff 
-} QTMovieFileTypeOptions; 
+typedef enum _QTMovieFileTypeOptions
+	{
+		QTIncludeStillImageTypes	= 1,
+		QTIncludeTranslatableTypes	= 2,
+		QTIncludeAggressiveTypes	= 4,
+		QTIncludeCommonTypes		= 0,
+		QTIncludeAllTypes			= 0xFFFF
+	} QTMovieFileTypeOptions;
 
 typedef enum _QTMovieOperationPhase
 { 
-    QTMovieOperationBeginPhase = movieProgressOpen, 
-    QTMovieOperationUpdatePercentPhase = movieProgressUpdatePercent, 
-    QTMovieOperationEndPhase = movieProgressClose 
+    QTMovieOperationBeginPhase		= 0, 
+    QTMovieOperationUpdatePercentPhase, 
+    QTMovieOperationEndPhase 
 } QTMovieOperationPhase;
 
-@interface QTMediaovie : NSObject <NSCoding>
+@class QTDataReference;
 
-+ (BOOL) canInitWithDataReference:(QTDataReference*) ref;
+@interface QTMovie : NSObject <NSCoding>
+{
+	float _position;
+}
+
++ (BOOL) canInitWithDataReference:(QTDataReference *) ref;
 + (BOOL) canInitWithFile:(NSString *) file;
 + (BOOL) canInitWithPasteboard:(NSPasteboard *) pb;
 + (BOOL) canInitWithURL:(NSURL *) url;
 + (id) movie;
-+ (NSArray *) movieFileTypes:(QTMovieTypeOptions) types;
++ (NSArray *) movieFileTypes:(QTMovieFileTypeOptions) types;
 + (id) movieNamed:(NSString *) name error:(NSError **) err;
 + (NSArray *) movieUnfilteredFileTypes;
 + (NSArray *) movieUnfilteredPasteboardTypes;
@@ -120,6 +127,8 @@ withAttributes:(NSDictionary *) attr;
 
 @end
 
+/* to be defined
+ 
 QTMovieActiveSegmentAttribute
 QTMovieAutoAlternatesAttribute
 QTMovieCopyrightAttribute
@@ -205,5 +214,6 @@ QTMovieSizeDidChangeNotification
 QTMovieStatusStringPostedNotification
 QTMovieTimeDidChangeNotification
 QTMovieVolumeDidChangeNotification
+*/
 
-
+#endif

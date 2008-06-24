@@ -8,7 +8,7 @@
  *  licensed under the LGPL
  */
 
-#import <QTKit/NSStreamSplitter.h>
+#import "NSStreamSplitter.h"
 
 @implementation NSStreamSplitter
 
@@ -20,7 +20,7 @@
 }
 
 - (NSStream *) source; { return _source; }
-- (void) setSource:(NSStream *) source; { ASSIGN(_source, source); [source setDelegate:self]; }
+- (void) setSource:(NSStream *) source; { [_source autorelease]; _source=[source retain]; [source setDelegate:self]; }
 - (void) addDestination:(NSOutputStream *) handler; { if(!_destinations) _destinations=[[NSMutableArray alloc] initWithCapacity:5]; [_destinations addObject:handler]; }
 - (void) removeDestination:(NSOutputStream *) handler; { [_destinations removeObject:handler]; }
 

@@ -26,7 +26,7 @@
 { // position is in seconds
 	if(pos < 0.0 || pos > [self movieLength])
 		return NO;
-	position=pos;
+	_position=pos;
 	return YES;
 }
 
@@ -37,7 +37,7 @@
 
 - (float) moviePosition;					// current time stamp
 {
-	return position;
+	return _position;
 }
 
 - (float) nextMovieFrame;				// go to next frame and return time stamp
@@ -46,6 +46,8 @@
 }
 
 @end
+
+#if OTHER
 
 @implementation NSStreamSplitter
 
@@ -57,7 +59,7 @@
 }
 
 - (NSStream *) source; { return _source; }
-- (void) setSource:(NSStream *) source; { ASSIGN(_source, source); [source setDelegate:self]; }
+- (void) setSource:(NSStream *) source; { [_source autorelease]; _source=[source retain]; [source setDelegate:self]; }
 - (void) addDestination:(NSOutputStream *) handler; { if(!_destinations) _destinations=[[NSMutableArray alloc] initWithCapacity:5]; [_destinations addObject:handler]; }
 - (void) removeDestination:(NSOutputStream *) handler; { [_destinations removeObject:handler]; }
 
@@ -70,6 +72,8 @@
 }
 
 @end
+
+#endif
 
 @implementation NSMovieView
 //
