@@ -286,13 +286,24 @@ NSTimeInterval NSTimeIntervalSince1970=0.0;
 
 - (NSDate *) earlierDate:(NSDate *)otherDate
 { // nil date is taken as equivalent for distantPast
+#if 0
+	NSLog(@"earlier date (%@, %@)", self, otherDate);
+#endif
 	if (!otherDate || _secondsSinceRef > otherDate->_secondsSinceRef)
+		{
+#if 0
+			NSLog(@"-> %@", otherDate);
+#endif
 		return otherDate;
+		}
+#if 0
+	NSLog(@"-> %@", self);
+#endif
 	return self;
 }
 
 - (BOOL) isEqual:(id)other
-{ // within 1 second precision
+{ // within 1 second precision (!)
 	if ([other isKindOfClass: [NSDate class]] && ABS(_secondsSinceRef - ((NSDate *)other)->_secondsSinceRef) < 1.0)
 		return YES;
 	return NO;

@@ -256,7 +256,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 }
 
 - (BOOL) _runLoopForMode:(NSString*)mode beforeDate:(NSDate*)before limitDate:(NSDate **) limit;
-{ // this is the core runloop call that runs the loop at least once - blocking or non-blocking
+{ // this is the core runloop call that runs the loop at least once - blocking or non-blocking and may return the limit date
 	NSTimeInterval ti;					// Listen to input sources.
 	struct timeval timeout;
 	void *select_timeout;
@@ -300,12 +300,11 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		}										// the end of the array
 	
 	if((timers = NSMapGet(_mode_2_timers, mode)))									
-		{ // get all timers for this mode
+		{ // process all timers for this mode
 		i = [timers count];		
 		while(i-- > 0)
 			{ // process backwards because we might remove the timer
 			NSTimer *min_timer = [timers objectAtIndex:i];
-			NSTimeInterval timeFromNow;
 #if 0
 			NSLog(@"%d: check %@ forMode:%@", i, min_timer, mode);
 #endif
@@ -313,16 +312,25 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			NSLog(@"retainCount=%d", [min_timer retainCount]);
 #endif
 			if(min_timer->_is_valid)
-				{ // still valid (may be left over with negative interval from firing while we did run in other mode)
-				NSDate *fire=[min_timer fireDate];
-				timeFromNow=[fire timeIntervalSinceNow];
-				if(timeFromNow > 0.0)
-					{ // not yet elapsed
-					if(limit && [fire timeIntervalSinceReferenceDate] < [*limit timeIntervalSinceReferenceDate])
-						*limit=fire;	// timer with earlier trigger date found
-					continue;
+				{ // valid timer (may be left over with negative interval from firing while we did run in a different mode or did have too much to do)
+				NSTimeInterval timeFromNow=[[min_timer fireDate] timeIntervalSinceNow];
+#if 0
+				NSLog(@"timeFromNow = %lf", timeFromNow); 
+#endif
+				if(timeFromNow <= 0.0)
+					{ // fire!
+					NSLog(@"fire!");
+					[min_timer fire];	// NOTE: this might also fire an attached timed performer object, append new timers etc.; will update the fireDate for repeating timers
 					}
-				[min_timer fire];	// this might fire an attached timed performer object
+				if(limit && min_timer->_is_valid)
+					{ // if timer is still (or again) valid, include in limit date calculation
+					NSDate *fire=[min_timer fireDate];	// get (new) fire date
+#if 0
+					NSLog(@"new fire date %@", fire);
+#endif
+					if([fire timeIntervalSinceReferenceDate] < [*limit timeIntervalSinceReferenceDate])
+						*limit=fire;	// timer with earlier trigger date has been found
+					}
 				}
 			if(!min_timer->_is_valid)
 				{ // now invalid after firing (i.e. we are not a repeating timer)
@@ -335,7 +343,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		}
 	
 	if(limit)
-		[*limit retain];	// protect against being dealloc'ed when we clear up the private ARP
+		[*limit retain];	// protect against being dealloc'ed when we clear up private ARPs
 
 	if(!before || (ti = [before timeIntervalSinceNow]) <= 0.0)		// Determine time to wait and
 		{															// set SELECT_TIMEOUT.	Don't
@@ -414,7 +422,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	
 	exception_fds = read_fds;			// the file descriptors in _FDS.
 	
-	if(num_inputs == 0 && [NSNotificationQueue _runLoopMore])			// Detect if the NSRunLoop
+	if([NSNotificationQueue _runLoopMore])			// Detect if the NSRunLoop
 		{											// is idle, and if needed
 		timeout.tv_sec = 0;							// dispatch notifications
 		timeout.tv_usec = 0;						// from NSNotificationQue's
@@ -481,275 +489,15 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 }
 
 - (NSDate *) limitDateForMode:(NSString *)mode
-{  // determine the earliest timeout of all timers in this mode to end the accept loop
+{  // determine the earliest timeout of all timers in this mode to end a following accept loop
 	NSDate *limit;
-	[self _runLoopForMode:mode beforeDate:nil limitDate:&limit];	// run once, non-blocking
+	[self _runLoopForMode:mode beforeDate:nil limitDate:&limit];	// run once, non-blocking, return limit date
 	return limit;
-#if OLD
-	NSMutableArray *timers;
-	NSTimer *timerWithNearestFireDate = nil;
-	static NSDate *distFuture;
-#if 0
-	NSLog(@"limitDateForMode: %@", mode);
-#endif
-	// CHECKME: what should we return if we have performers?
-	// FIXME: check if there are any watchers for this mode - if none, return nil
-	// FIXME: find an ingenious way to avoid all those double float comparisons!
-	// ideas:
-	// - insert-sort timers when they are scheduled
-	// - keep next timer in a cache and go through list only if that timer has triggered or we have scheduled one
-	//
-	if((timers = NSMapGet(_mode_2_timers, mode)))									
-		{										
-		NSTimeInterval minTime = 0.0;
-		NSEnumerator *e=[timers objectEnumerator];
-		NSTimer *min_timer; 
-		while((min_timer=[e nextObject]))
-			{ // process backwards
-			NSTimeInterval timeFromNow;
-			if(!min_timer->_is_valid)	// if timer is not valid ignore
-				continue;
-			timeFromNow = [min_timer->_fireDate timeIntervalSinceNow];
-			if((timerWithNearestFireDate == nil || timeFromNow < minTime))
-				{ // detect the timer with the earliest fire date
-				timerWithNearestFireDate = min_timer;	// earlier one found
-				minTime = timeFromNow;
-				}
-			}
-		}					 	
-	if(timerWithNearestFireDate)
-		return [[timerWithNearestFireDate->_fireDate retain] autorelease];	// if the timer finally fires, limitDate will be released!
-	if(!distFuture) distFuture=[[NSDate distantFuture] retain];	// cache the pointer
-	return distFuture;
-#endif
 }
-
-#if OLD
-- (void) _checkPerformersAndTimersForMode:(NSString *) mode
-{ // check if any timer is to fire now
-	int count = [_performers count];
-	id saved_mode=_current_mode;
-	int i, loop;
-	NSMutableArray *timers;
-	NSAutoreleasePool *arp=[NSAutoreleasePool new];
-#if 0
-	NSLog(@"_checkPerformersAndTimersForMode:%@ count=%d", mode, count);
-#endif
-	_current_mode = mode;
-	for(loop = 0, i=0; loop < count; loop++)
-		{ // check for performers to fire
-		_NSRunLoopPerformer *item = [_performers objectAtIndex: i];
-		if([item->modes containsObject:mode])
-			{ // here we have untimed performers only - timed performers will be triggered by timer
-			[item retain];
-			[_performers removeObjectAtIndex:i];	// remove before firing - it may add a new one
-			[item fire];
-			[item release];
-			}
-		else									// inc cntr only if obj is not
-			i++;								// removed else we will run off
-		}										// the end of the array
-
-	if((timers = NSMapGet(_mode_2_timers, mode)))									
-		{ // get all timers for this mode
-		i = [timers count];		
-		while(i-- > 0)
-			{ // process backwards because we might remove the timer
-			NSTimer *min_timer = [timers objectAtIndex:i];
-			NSTimeInterval timeFromNow;
-#if 0
-			NSLog(@"%d: check %@ forMode:%@", i, min_timer, mode);
-#endif
-#if 0
-			NSLog(@"retainCount=%d", [min_timer retainCount]);
-#endif
-			if(min_timer->_is_valid)
-				{ // still valid (may be left over from firing on other mode)
-				timeFromNow = [[min_timer fireDate] timeIntervalSinceNow];
-				if(timeFromNow > 0.0)
-					continue;		// not yet elapsed
-				[min_timer fire];	// this might fire an attached timed performer object
-				}
-			if(!min_timer->_is_valid)
-				{ // now invalid after firing (i.e. not a repeating timer)
-#if 0
-				NSLog(@"%d[%d] remove %@", i, [timers count], min_timer);
-#endif
-				[timers removeObjectAtIndex:i];	// this should dealloc the timer (and a timed performer) if it is the last mode we have checked
-				}
-			}
-		}
-	_current_mode = saved_mode;
-	[arp release];
-#if 0
-	NSLog(@" checked and ARP released");
-#endif
-}
-#endif
 
 - (void) acceptInputForMode:(NSString*)mode beforeDate:(NSDate *)limit_date
 {
 	[self _runLoopForMode:mode beforeDate:limit_date limitDate:NULL];	// run blocking until limit_date
-#if OLD
-	NSTimeInterval ti;								// Listen to input sources.
-	struct timeval timeout;
-	void *select_timeout;
-	NSMutableArray *watchers;
-	// fd_set fds;							// file descriptors we will listen to. 
-	fd_set read_fds;					// Copy for listening to read-ready fds.
-	fd_set exception_fds;				// Copy for listening to exception fds.
-	fd_set write_fds;					// Copy for listening for write-ready fds.
-	int select_return;
-	int fd_index;
-	int num_inputs = 0;
-	id saved_mode=_current_mode;	// an input handler might run the same loop recursively!
-
-	NSAssert(mode, NSInvalidArgumentException);
-#if 0
-	NSLog(@"acceptInputForMode:%@ beforeDate:%@", mode, limit_date);
-#endif
-	_current_mode = mode;
-	if (!limit_date || (ti = [limit_date timeIntervalSinceNow]) <= 0.0)		// Determine time to wait and
-		{																	// set SELECT_TIMEOUT.	Don't
-		timeout.tv_sec = 0;													// wait if no limit date or it lies in the past. i.e.		
-		timeout.tv_usec = 0;												// call select() once with 0 timeout effectively polling inputs
-		select_timeout = &timeout;
-#if 0
-		NSLog(@"acceptInputForMode:%@ beforeDate:%@ - don't wait", mode, limit_date);
-#endif
-    	}
-	else if (ti < LONG_MAX)
-		{ // Wait until the LIMIT_DATE.
-		NSDebugLog(@"NSRunLoop accept input %f seconds from now %f", 						
-				   [limit_date timeIntervalSinceReferenceDate], ti);
-		timeout.tv_sec = ti;
-		timeout.tv_usec = (ti - timeout.tv_sec) * 1000000.0;
-		select_timeout = &timeout;
-		}
-#if OLD
-	else if(ti <= 0.0)					// past; return immediately
-		{ 								// without polling any inputs.
-		_current_mode = saved_mode;
-		return;
-		}
-#endif
-	else
-		{ // Wait very long, i.e. forever
-		NSDebugLog(@"NSRunLoop accept input waiting forever");
-		select_timeout = NULL;
-		}
-	
-	FD_ZERO (&read_fds);						// Initialize the set of FDS
-	FD_ZERO (&write_fds);						// we'll pass to select()
-
-	if((watchers = NSMapGet(_mode_2_inputwatchers, mode)))
-		{										// Do the pre-listening set-up
-		int	i;									// for the file descriptors of
-												// this mode.
-		for (i = [watchers count]; i > 0; i--)
-			{
-			NSObject *watcher = [watchers objectAtIndex:(i-1)];
-			int fd2=-1;
-			int fd=[watcher _readFileDescriptor:&fd2];
-#if 0
-			NSLog(@"watch fd=%d and fd2=%d for input", fd, fd2);
-#endif
-			if(fd >= 0 && fd < FD_SETSIZE)
-				{
-				FD_SET(fd, &read_fds);
-				NSMapInsert(rfd_2_object, (void*)fd, watcher);
-				num_inputs++;
-				}
-			if(fd2 >= 0 && fd2 < FD_SETSIZE)
-				{
-				FD_SET(fd2, &read_fds);
-				NSMapInsert(rfd_2_object, (void*)fd2, watcher);
-				num_inputs++;
-				}
-			}
-		}
-	if((watchers = NSMapGet(_mode_2_outputwatchers, mode)))
-		{										// Do the pre-listening set-up
-		int	i;									// for the file descriptors of
-												// this mode.
-		for (i = [watchers count]; i > 0; i--)
-			{
-			NSObject *watcher = [watchers objectAtIndex:(i-1)];
-			int fd=[watcher _writeFileDescriptor];
-#if 0
-			NSLog(@"watch fd=%d for output", fd);
-#endif
-			if(fd >= 0 && fd < FD_SETSIZE)
-				{
-				FD_SET(fd, &write_fds);
-				NSMapInsert(wfd_2_object, (void*)fd, watcher);
-				num_inputs++;
-				}
-			}
-		}
-	
-	// CHECKME: should we introduce sepatate watchers for exceptions?
-	
-	exception_fds = read_fds;			// the file descriptors in _FDS.
-	
-	if(num_inputs == 0 && [NSNotificationQueue _runLoopMore])			// Detect if the NSRunLoop
-		{											// is idle, and if needed
-		timeout.tv_sec = 0;							// dispatch notifications
-		timeout.tv_usec = 0;						// from NSNotificationQue's
-		select_timeout = &timeout;					// idle queue?
-		}
-
-	select_return = select(FD_SETSIZE, &read_fds, &write_fds, &exception_fds, select_timeout);
-#if 0
-	NSLog(@"NSRunLoop select returned %d", select_return);
-#endif
-	if(select_return < 0)
-		{
-		if(errno == EINTR)							// a signal was caught
-			select_return = 0;
-		else										// Some kind of exceptional
-			{										// condition has occurred
-			perror("NSRunLoop acceptInputForMode:beforeDate: during select()");
-			abort();
-			}
-		}
-
-	if(select_return == 0)
-		[NSNotificationQueue _runLoopIdle]; 
-	else 
-		{ // Inspect all file descriptors select() says are ready, notify the respective object for each ready fd.
-		for (fd_index = 0; fd_index < FD_SETSIZE /* FIXME:can't we limit to select_return? */; fd_index++)
-			{
-			if (FD_ISSET (fd_index, &write_fds))
-				{
-				NSObject *w = NSMapGet(wfd_2_object, (void*)fd_index);
-				NSAssert(w, NSInternalInconsistencyException);
-#if 0
-				NSLog(@"_writeFileDescriptorReady: %@", w);
-#endif
-				[w _writeFileDescriptorReady:fd_index];	// notify
-				}
-	
-			if (FD_ISSET (fd_index, &read_fds))
-				{
-				NSObject *w = NSMapGet(rfd_2_object, (void*)fd_index);
-				NSAssert(w, NSInternalInconsistencyException);
-#if 0
-				NSLog(@"_readFileDescriptorReady: %@", w);
-#endif
-				[w _readFileDescriptorReady:fd_index];	// notify
-				}
-			}
-		[NSNotificationQueue _runLoopASAP];
-		}
-
-	NSResetMapTable (rfd_2_object);					// Clean up before return.
-	NSResetMapTable (wfd_2_object);
-#if 0
-	NSLog(@"acceptInput done");
-#endif
-	_current_mode = saved_mode;	// restore
-#endif
 }
 
 - (BOOL) runMode:(NSString *)mode beforeDate:(NSDate *)date
@@ -768,15 +516,6 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	NSLog(@"  earlier date is %@", date);
 #endif
 	[self _runLoopForMode:mode beforeDate:date limitDate:NULL];	// run blocking until date
-
-//	[self acceptInputForMode:mode beforeDate:date];	// Wait, listening to our input sources.
-#if 0
-	NSLog(@"  acceptInputForMode done");
-#endif
-//	[self _checkPerformersAndTimersForMode:mode];	// check for any performers and timers to fire
-#if 0
-	NSLog(@"  _checkPerformersAndTimersForMode done");
-#endif
 	return YES;
 }
 

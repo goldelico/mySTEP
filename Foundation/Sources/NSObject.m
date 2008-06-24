@@ -435,28 +435,27 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 // inofficial default implementation
 // NSFastEnumerationState must have been zeroed before first call!
-// Note - enumerator is not deallocated if an exeption occurs while we loop
+// you should not empty the ARP within a loop!
 
 - (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *) state
 								   objects:(id *) stackbuf
 									 count:(NSUInteger) len;
 {
 	id *s0=stackbuf;
-	if(state->state != 0x55aa5a5a)	// some safety if zeroing was forgotten
+	if(state->state != 0x55aa5a5a || state->itemsPtr == nil)	// some safety if zeroing was forgotten
 		{ // assume we have not been initialized
-		state->itemsPtr=(id *) [[(NSArray *) self objectEnumerator] retain];	// misuse...
+		state->itemsPtr=(id *) [(NSArray *) self objectEnumerator];	// misuse...
 		state->state=0x55aa5a5a;
 		}
 	while(len-- > 0)
 		{
-		if(*stackbuf = [(NSEnumerator *) state->itemsPtr nextObject]) // fetch elements into array
-			stackbuf++;
-		else
+		id val=[(NSEnumerator *) state->itemsPtr nextObject];
+		if(!val) // fetch elements into array
 			break;
+		*stackbuf++ = val;
 		}
 	if(stackbuf != s0)
 		return stackbuf-s0;	// return number of elements
-	[(NSEnumerator *) state->itemsPtr release];	// enumerator is no longer needed
 	return 0;
 }
 
