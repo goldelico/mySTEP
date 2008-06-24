@@ -319,7 +319,9 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 #endif
 				if(timeFromNow <= 0.0)
 					{ // fire!
+#if 0
 					NSLog(@"fire!");
+#endif
 					[min_timer fire];	// NOTE: this might also fire an attached timed performer object, append new timers etc.; will update the fireDate for repeating timers
 					}
 				if(limit && min_timer->_is_valid)
