@@ -166,9 +166,9 @@
 		EEE16AEF0CD73D0800A85BD3 /* IOBluetoothUIUserLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOBluetoothUIUserLib.h; sourceTree = "<group>"; };
 		EEE16AF00CD73D0800A85BD3 /* IOBluetoothUIUserLib.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothUIUserLib.m; sourceTree = "<group>"; };
 		EEE16E1A0CDA36E100A85BD3 /* IOBluetoothUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IOBluetoothUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEE16E290CDA381400A85BD3 /* IOBluetoothUI-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "IOBluetoothUI-Info.plist"; sourceTree = "<group>"; };
+		EEE16E290CDA381400A85BD3 /* IOBluetoothUI-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "IOBluetoothUI-Info.plist"; sourceTree = "<group>"; };
 		EEE1772F0CDB792500A85BD3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		EEE74627095D6CD800178065 /* IOBluetooth-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = "IOBluetooth-Info.plist"; sourceTree = "<group>"; };
+		EEE74627095D6CD800178065 /* IOBluetooth-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "IOBluetooth-Info.plist"; sourceTree = "<group>"; };
 		EEE74628095D6CD800178065 /* IOBluetoothDevice.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = IOBluetoothDevice.h; sourceTree = "<group>"; };
 		EEE74629095D6CD800178065 /* IOBluetoothDevice.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = IOBluetoothDevice.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -416,7 +416,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"IOBluetoothObject.m IOBluetoothDevice*.m IOBluetooth*Channel.m IOBluetoothSDP*.m IOBluetoothUserNotification.m *OBEX*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"Cocoa SystemStatus\"\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=\"IOBluetoothObject.m IOBluetoothDevice*.m IOBluetooth*Channel.m IOBluetoothSDP*.m IOBluetoothUserNotification.m *OBEX*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"Cocoa SystemStatus\"\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n\nexport CFLAGS=-I$ROOT/System/Sources/Xtoolchain/sources/bluez-libs-3.29/include/\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EEE16C0D0CD7BC7900A85BD3 /* Create Headers-objc */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -532,7 +532,6 @@
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "IOBluetoothUI-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
@@ -670,7 +669,6 @@
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "IOBluetooth-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",

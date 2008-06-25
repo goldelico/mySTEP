@@ -19,16 +19,20 @@ This document describes the changes and additions to the mySTEP library.\
 \b0 \
 \
 * Foundation: header files updated to 10.5 compatibility\
-* AppKit: fixed bug in NSEvent which prevented assing of Expose events to NSWindow\
-* Backend: Xrender integrated (incl. NSBezierPath tesselation)\
+* Foundation: added wrapper to NSObject for handling fast enumeration protocol by calling nextObject\
+* AppKit: fixed bug in NSEvent which prevented passing of Expose events to NSWindow\
+* Backend: integration of Xrender started (incl. NSBezierPath tesselation, GlyphStore)\
 * Foundation: NSXMLNode and subclasses added\
 * AppKit: implementation of NSPathCell, NSPathControl started\
 * AppKit: optimizations in String Drawing\
 * AppKit: improved look and operation of NSTableHeader&NSTableHeader Cell\
 * AppKit: load system colors from AppKit-Info.plist\
 * Foundation: fixed handling of timezone (i.e. read /etc/localtime)\
-* Foundation: added stub to NSObject for handling fast enumeration protocol\
-* Foundation: fixed bug in getting limit date for repeating timers \
+* Foundation: fixed bug in getting limit date for repeating timers\
+* Cocoa: added include to CoreData.h\
+* ImageKit: made compile again\
+* Security: made compile again\
+* PDFKit: made compile again\
 \
 
 \b ------------------------------------

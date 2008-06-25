@@ -290,6 +290,12 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 	[super dealloc];	// make compiler happy
 }
 
+- (void) drain;
+{
+	// we should move all from dealloc here so that dealloc simply calls [self drain]; [super dealloc]
+	NIMP;
+}
+
 - (id) retain
 {
 	[NSException raise: NSGenericException

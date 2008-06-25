@@ -8,6 +8,11 @@
 
 #import "IKImageView.h"
 
+NSString *IKToolModeMove=@"IKToolModeMove";
+NSString *IKToolModeSelect=@"IKToolModeSelect";
+NSString *IKToolModeCrop=@"IKToolModeCrop";
+NSString *IKToolModeRotate=@"IKToolModeRotate";
+NSString *IKToolModeAnnotate=@"IKToolModeAnnotate";
 
 @implementation IKImageView
 
@@ -20,59 +25,64 @@
     return self;
 }
 
+- (void) dealloc;
+{
+	[super dealloc];
+}
+
 - (void) drawRect:(NSRect) rect
 {
     // Drawing code here.
 }
 
-- (BOOL) autohidesScrollers;
-- (BOOL) autoresizes;
-- (NSColor *) backgroundColor;
-- (NSString *) currentToolMode;
-- (id) delegate;
-- (BOOL) doubleClickOpensImageEditPanel;
-- (BOOL) editable;
-- (BOOL) hasHorizontalScroller;
-- (BOOL) hasVerticalScroller;
-- (CIFilter *) imageCorrection;
-- (CGFloat) rotationAngle;
-- (BOOL) supportsDragAndDrop;
-- (CGFloat) zoomFactor;
+- (BOOL) autohidesScrollers; { return _autohidesScrollers; }
+- (BOOL) autoresizes; { return _autoresizes; }
+- (NSColor *) backgroundColor; { return _backgroundColor; }
+- (NSString *) currentToolMode; { return _currentToolMode; }
+- (id) delegate; { return _delegate; }
+- (BOOL) doubleClickOpensImageEditPanel; { return _doubleClickOpensImageEditPanel; }
+- (BOOL) editable; { return _editable; }
+- (BOOL) hasHorizontalScroller; { return [_scrollView hasHorizontalScroller]; }
+- (BOOL) hasVerticalScroller; { return [_scrollView hasVerticalScroller]; }
+- (CIFilter *) imageCorrection; { return nil; }
+- (CGFloat) rotationAngle; { return _rotationAngle; }
+- (BOOL) supportsDragAndDrop; { return _supportsDragAndDrop; }
+- (CGFloat) zoomFactor; { return _zoomFactor; }
 
-- (void) setAutohidesScrollers:(BOOL) flag;
-- (void) setAutoresizes:(BOOL) flag;
-- (void) setBackgroundColor:(NSColor *) color;
-- (void) setCurrentToolMode:(NSString *) mode;
-- (void) setDelegate:(id) delegate;
-- (void) setDoubleClickOpensImageEditPanel:(BOOL) flag;
-- (void) setEditable:(BOOL) flag;
-- (void) setHasHorizontalScroller:(BOOL) flag;
-- (void) setHasVerticalScroller:(BOOL) flag;
-- (void) setImageCorrection:(CIFilter *) filter;
-- (void) setRotationAngle:(CGFloat) angle;
-- (void) setSupportsDragAndDrop:(BOOL) flag;
-- (void) setZoomFactor:(CGFloat) zoom;
+- (void) setAutohidesScrollers:(BOOL) flag; { }
+- (void) setAutoresizes:(BOOL) flag; { _autoresizes=flag; }
+- (void) setBackgroundColor:(NSColor *) color; { }
+- (void) setCurrentToolMode:(NSString *) mode; { }
+- (void) setDelegate:(id) delegate; { _delegate=delegate; }
+- (void) setDoubleClickOpensImageEditPanel:(BOOL) flag; { _doubleClickOpensImageEditPanel=flag; }
+- (void) setEditable:(BOOL) flag; { _editable=flag; }
+- (void) setHasHorizontalScroller:(BOOL) flag; { [_scrollView setHasHorizontalScroller:flag]; }
+- (void) setHasVerticalScroller:(BOOL) flag; { [_scrollView setHasVerticalScroller:flag]; }
+- (void) setImageCorrection:(CIFilter *) filter; { }
+- (void) setRotationAngle:(CGFloat) angle; { _rotationAngle=angle; }
+- (void) setSupportsDragAndDrop:(BOOL) flag; { _supportsDragAndDrop=flag; }
+- (void) setZoomFactor:(CGFloat) zoom; { _zoomFactor=zoom; }
 
-- (NSPoint) convertImagePointToViewPoint:(NSPoint) pnt;
-- (NSRect) convertImageRectToViewRect:(NSRect) pnt;
-- (NSPoint) convertViewPointToImagePoint:(NSPoint) pnt;
-- (NSRect) convertViewRectToImageRect:(NSRect) pnt;
-- (void) flipImageHorizontal:(id) sender;
-- (void) flipImageVertical:(id) sender;
-- (CGImageRef) image;
-- (NSDictionary *) imageProperties;
-- (NSSize) imageSize;
-- (LKLayer *) overlayForType:(NSString *) type;
-- (void) scrollToPoint:(NSPoint) pnt;
-- (void) scrollToRect:(NSRect) rect;
-- (void) setImage:(CGImageRef) image imageProperties:(NSDictionary *) meta;
-- (void) setImageWithURL:(NSURL *) url;
-- (void) setImageZoomFactor:(CGFloat) zoom centerPoint:(NSPoint) center;
-- (void) setOverlay:(LKLayer *) layer forType:(NSString *) type;
-- (void) setRotationAngle:(CGFloat) angle centerPoint:(NSPoint) center;
-- (void) zoomImageToActualSize:(id) sender;
-- (void) zoomImageToFit:(id) sender;
-- (void) zoomImageToRect:(NSRect) rect;
+- (NSPoint) convertImagePointToViewPoint:(NSPoint) pnt; { }
+- (NSRect) convertImageRectToViewRect:(NSRect) pnt; { }
+- (NSPoint) convertViewPointToImagePoint:(NSPoint) pnt; { }
+- (NSRect) convertViewRectToImageRect:(NSRect) pnt; { }
+- (void) flipImageHorizontal:(id) sender; { }
+- (void) flipImageVertical:(id) sender; { }
+- (CGImageRef) image; { }
+- (NSDictionary *) imageProperties; { }
+- (NSSize) imageSize; { }
+- (LKLayer *) overlayForType:(NSString *) type; { return nil; }
+- (void) scrollToPoint:(NSPoint) pnt; { }
+- (void) scrollToRect:(NSRect) rect; { }
+- (void) setImage:(CGImageRef) image imageProperties:(NSDictionary *) meta; { }
+- (void) setImageWithURL:(NSURL *) url; { }
+- (void) setImageZoomFactor:(CGFloat) zoom centerPoint:(NSPoint) center; { }
+- (void) setOverlay:(LKLayer *) layer forType:(NSString *) type; { }
+- (void) setRotationAngle:(CGFloat) angle centerPoint:(NSPoint) center; { }
+- (void) zoomImageToActualSize:(id) sender; { }
+- (void) zoomImageToFit:(id) sender; { }
+- (void) zoomImageToRect:(NSRect) rect; { }
 
 @end
 

@@ -20,46 +20,105 @@
     return self;
 }
 
+- (void) dealloc;
+{
+	[_selectionIndexes release];
+	[super dealloc];
+}
+
 - (void) drawRect:(NSRect) rect
 {
     // Drawing code here.
 }
 
-- (BOOL) allowsEmptySelection;
-- (BOOL) allowsMultipleSelection;
-- (BOOL) allowsReordering;
-- (BOOL) animates;
-- (NSSize) cellSize;
-- (NSUInteger) cellsStyleMask;
+- (BOOL) allowsEmptySelection; { return _allowsEmptySelection; }
+- (BOOL) allowsMultipleSelection; { return _allowsMultipleSelection; }
+- (BOOL) allowsReordering; { return _allowsReordering; }
+- (BOOL) animates; { return _animates; }
+- (NSSize) cellSize; { return _cellSize; }
+- (NSUInteger) cellsStyleMask; { return _cellsStyleMask; }
+
 - (void) collapseGroupAtIndex:(NSUInteger) index;
-- (BOOL) constrainsToOriginalSize;
-- (NSUInteger) contentResizingMask;
-- (id) dataSource;
-- (id) delegate;
-- (id) draggingDestinationDelegate;
+{
+}
+
+- (BOOL) constrainsToOriginalSize; { return _constrainsToOriginalSize; }
+- (NSUInteger) contentResizingMask; { return _contentResizingMask; }
+- (id) dataSource; { return _dataSource; }
+- (id) delegate; { return _delegate; }
+- (id) draggingDestinationDelegate; { return _draggingDestinationDelegate; }
+
 - (void) expandGroupAtIndex:(NSUInteger) index;
+{
+}
+
 - (NSUInteger) indexAtLocationOfDroppedItem;
+{
+	return 0;
+}
+
 - (NSInteger) indexOfItemAtPoint:(NSPoint) point;
-- (id) initWithFrame:(NSRect) frame;
+{
+	return 0;
+}
+
 - (BOOL) isGroupExpandedAtIndex:(NSUInteger) index;
+{
+}
+
 - (NSRect) itemFrameAtIndex:(NSInteger) index;
+{
+}
+
 - (void) reloadData;
+{
+}
+
 - (void) scrollIndexToVisible:(NSInteger) index;
-- (NSIndexSet *) selectionIndexes;
-- (void) setAllowsEmptySelection: (BOOL) flag;
-- (void) setAllowsMultipleSelection: (BOOL) flag;
-- (void) setAllowsReordering: (BOOL) flag;
-- (void) setAnimates: (BOOL) flag;
-- (void) setCellSize:(NSSize) size;
-- (void) setCellsStyleMask:(NSUInteger) mask;
-- (void) setConstrainsToOriginalSize: (BOOL) flag;
-- (void) setContentResizingMask:(NSUInteger) mask;
-- (void) setDataSource:(id) source;
-- (void) setDelegate:(id) delegate;
-- (void) setDraggingDestinationDelegate:(id) delegate;
+{
+}
+
+- (NSIndexSet *) selectionIndexes; { return _selectionIndexes; }
+
+- (void) setAllowsEmptySelection: (BOOL) flag; { _allowsEmptySelection=flag; }
+- (void) setAllowsMultipleSelection: (BOOL) flag; { _allowsMultipleSelection=flag; }
+- (void) setAllowsReordering: (BOOL) flag; { _allowsReordering=flag; }
+- (void) setAnimates: (BOOL) flag; { _animates=flag; }
+- (void) setCellSize:(NSSize) size; { _cellSize=size; /* redraw? */ }
+- (void) setCellsStyleMask:(NSUInteger) mask; { _cellsStyleMask=mask; }
+- (void) setConstrainsToOriginalSize: (BOOL) flag; { _constrainsToOriginalSize=flag; }
+- (void) setContentResizingMask:(NSUInteger) mask; { _contentResizingMask=mask; }
+- (void) setDataSource:(id) source; { _dataSource=source; }
+- (void) setDelegate:(id) delegate; { _delegate=delegate; }
+- (void) setDraggingDestinationDelegate:(id) delegate; { _draggingDestinationDelegate=delegate; }
+
 - (void) setSelectionIndexes:(NSIndexSet *) indexes byExtendingSelection:(BOOL) extend;
+{
+}
+
 - (void) setZoomValue:(float) zoom;
-- (float) zoomValue;
+{
+	if(_zoomValue != zoom)
+		{
+			_zoomValue=zoom;
+			// redraw
+		}
+}
+
+- (float) zoomValue; { return _zoomValue; }
+
+- (void) encodeWithCoder:(NSCoder *) coder;
+{
+}
+
+- (id) initWithCoder:(NSCoder *) coder;
+{
+	return self;
+}
+
+- (void) mouseDown:(NSEvent *) event;
+{ // tracking, selection, D&D 
+}
 
 @end
 
@@ -728,7 +787,7 @@
 
 #pragma mark -
 // Don't Mess With Texas
-#pragma mark Don't Mess With Texas
+#pragma mark Dont Mess With Texas
 // haven't tested changing these behaviors yet - there's no reason they shouldn't work... but use at your own risk.
 
 - (float)nameFieldSpacing

@@ -25,4 +25,10 @@
 //
 #import <AppKit/AppKit.h>
 
+//
+// CoreData
+//
+
+#import <CoreData/CoreData.h>
+
 #endif /* _mySTEP_H_Cocoa */

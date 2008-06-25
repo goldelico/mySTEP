@@ -30,7 +30,7 @@
 		EEA3716A095400F2001244CF /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../AppKit/build/Development/AppKit.framework; sourceTree = SOURCE_ROOT; };
 		EEA3D31709546662001244CF /* UIHardware.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = UIHardware.h; sourceTree = "<group>"; };
 		EEA3D31809546662001244CF /* UIHardware.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = UIHardware.m; sourceTree = "<group>"; };
-		EEA3D31C0954666A001244CF /* Message-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = "Message-Info.plist"; sourceTree = "<group>"; };
+		EEA3D31C0954666A001244CF /* Message-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist; path = "Message-Info.plist"; sourceTree = "<group>"; };
 		EEAF45530D7FEF36007B4990 /* UIApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIApplication.h; sourceTree = "<group>"; };
 		EEAF45540D7FEF36007B4990 /* UIApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIApplication.m; sourceTree = "<group>"; };
 		EEAF45570D7FF02A007B4990 /* UIResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIResponder.h; sourceTree = "<group>"; };
@@ -237,7 +237,6 @@
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "UIKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",

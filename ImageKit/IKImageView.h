@@ -12,23 +12,22 @@
 @class CIFilter;
 @class CGImage;
 
-typedef CGImage *CGImageRef;
+// typedef CGImage *CGImageRef;
 
 @interface IKImageView : NSView
 {
 	CGImageRef _image;
 	NSColor *_backgroundColor;
-	NSString *-currentToolMode;
+	NSString *_currentToolMode;
 	id _delegate;
 	CIFilter *_imageCorrection;
 	CGFloat _rotationAngle;
-	CGFloat _zoomFactor;	
+	CGFloat _zoomFactor;
+	NSScrollView *_scrollView;
 	BOOL _autohidesScrollers;
 	BOOL _autoresizes;
-	BOOL -doubleClickOpensImageEditPanel;
+	BOOL _doubleClickOpensImageEditPanel;
 	BOOL _editable;
-	BOOL _hasHorizontalScroller;
-	BOOL _hasVerticalScroller;
 	BOOL _supportsDragAndDrop;
 }
 

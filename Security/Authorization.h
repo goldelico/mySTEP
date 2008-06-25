@@ -6,7 +6,9 @@
 //  Copyright (c) 2007 DSITRI. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+typedef const struct AuthorizationOpaqueRef *AuthorizationRef;	// define before we import Foundation
+
+#import <Foundation/Foundation.h>
 
 // FIXME: split to AuthorizationDB.h and AuthorizationTags.h
 
@@ -53,7 +55,6 @@ enum
 #define errAuthorizationToolEnvironmentError		-60032	
 
 typedef UInt32 AuthorizationFlags;
-typedef const struct AuthorizationOpaqueRef *AuthorizationRef;
 typedef const char *AuthorizationString;
 
 typedef struct

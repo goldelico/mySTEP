@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EE51D6EA0CEDA55100BC61D5 /* ImageKit-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EE51D6E90CEDA55100BC61D5 /* ImageKit-Info.plist */; };
 		EE51D6F50CEDA58F00BC61D5 /* IKPictureTaker.h in Headers */ = {isa = PBXBuildFile; fileRef = EE51D6F30CEDA58F00BC61D5 /* IKPictureTaker.h */; };
 		EE51D6F60CEDA58F00BC61D5 /* IKPictureTaker.m in Sources */ = {isa = PBXBuildFile; fileRef = EE51D6F40CEDA58F00BC61D5 /* IKPictureTaker.m */; };
 		EE51D7000CEDA74E00BC61D5 /* IKImageBrowserView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE51D6FE0CEDA74E00BC61D5 /* IKImageBrowserView.h */; };
@@ -35,7 +34,7 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../../Frameworks/mySTEP.make; sourceTree = SOURCE_ROOT; };
-		EE51D6E90CEDA55100BC61D5 /* ImageKit-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "ImageKit-Info.plist"; sourceTree = "<group>"; };
+		EE51D6E90CEDA55100BC61D5 /* ImageKit-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ImageKit-Info.plist"; sourceTree = "<group>"; };
 		EE51D6F30CEDA58F00BC61D5 /* IKPictureTaker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IKPictureTaker.h; sourceTree = "<group>"; };
 		EE51D6F40CEDA58F00BC61D5 /* IKPictureTaker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IKPictureTaker.m; sourceTree = "<group>"; };
 		EE51D6FE0CEDA74E00BC61D5 /* IKImageBrowserView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IKImageBrowserView.h; sourceTree = "<group>"; };
@@ -43,9 +42,8 @@
 		EE51D7090CEDA8AC00BC61D5 /* IKImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IKImageView.h; sourceTree = "<group>"; };
 		EE51D70A0CEDA8AC00BC61D5 /* IKImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IKImageView.m; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* ImageKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ImageKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE7857640E122A53005FE918 /* HISTORY.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = HISTORY.rtf; path = ../HISTORY.rtf; sourceTree = SOURCE_ROOT; };
 		EE8F5C7B092F79AD00648BBF /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
-		EEF5F1030930FDA100B07552 /* ToDo */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ToDo; sourceTree = "<group>"; };
-		EEF8C2010924EC8C00767EF8 /* MainMenu.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = MainMenu.nib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,15 +78,14 @@
 		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
 			isa = PBXGroup;
 			children = (
+				EE7857640E122A53005FE918 /* HISTORY.rtf */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
-				EEF5F1030930FDA100B07552 /* ToDo */,
 				EE51D6F30CEDA58F00BC61D5 /* IKPictureTaker.h */,
 				EE51D6F40CEDA58F00BC61D5 /* IKPictureTaker.m */,
 				EE51D6FE0CEDA74E00BC61D5 /* IKImageBrowserView.h */,
 				EE51D6FF0CEDA74E00BC61D5 /* IKImageBrowserView.m */,
 				EE51D7090CEDA8AC00BC61D5 /* IKImageView.h */,
 				EE51D70A0CEDA8AC00BC61D5 /* IKImageView.m */,
-				EEF8C2010924EC8C00767EF8 /* MainMenu.nib */,
 				EE51D6E90CEDA55100BC61D5 /* ImageKit-Info.plist */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				EE29D8D8058A38830035639B /* Products */,
@@ -172,7 +169,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE51D6EA0CEDA55100BC61D5 /* ImageKit-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,7 +219,6 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				INFOPLIST_FILE = "ImageKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-framework",

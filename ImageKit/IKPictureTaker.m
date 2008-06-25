@@ -16,20 +16,36 @@
 {
 	static IKPictureTaker *taker;
 	if(!taker)
-		{ // create one
-		}
+		taker=[[self alloc] init];
 	return taker;
 }
 
 - (void) beginPictureTakerSheetForWindow:(NSWindow *) win withDelegate:(id) delegate didEndSelector:(SEL) sel contextInfo:(void *) context;
+{
+}
+
 - (void) beginPictureTakerVithDelegate:(id) delegate didEndSelector:(SEL) sel contextInfo:(void *) context;
-- (NSImage *) inputImage;
-- (BOOL) mirroring;
-- (NSImage *) outputImage;
+{
+}
+
+- (NSImage *) inputImage; { return _inputImage; }
+- (BOOL) mirroring; { return _mirroring; }
+- (NSImage *) outputImage; { return _outputImage; }
 - (void) popUpRecentsMenuForView:(NSView *) view withDelegate:(id) delegate didEndSelector:(SEL) sel contextInfo:(void *) context;
+{
+}
+
 - (NSInteger) runModal;
-- (void) setInputImage:(NSImage *) image;
-- (void) setMirroring:(BOOL) flag;
+{
+	// popup picture taker panel from NIB
+	// show camera image while running
+	// stop modal when picture is taken or dimissed
+	// set output image
+}
+
+- (void) setInputImage:(NSImage *) image; { [_inputImage autorelease], _inputImage=[image retain]; }
+
+- (void) setMirroring:(BOOL) flag; { _mirroring=flag; }
 
 - (id) valueForKey:(NSString *) key;
 {
@@ -38,6 +54,13 @@
 - (void) setValue:(id) val forKey:(NSString *) key;
 {
 	// decode keys directly and modify the panel subviews (e.g. un/hide buttons)
+}
+
+- (void) dealloc;
+{
+	[_inputImage release];
+	[_outputImage release];
+	[super dealloc];
 }
 
 @end

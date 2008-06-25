@@ -16,7 +16,9 @@
 // new version to be based on bluez
 // FIXME: add -I to project settings
 
-#include <../../Xtoolchain/sources/bluez-libs-3.29/include/bluetooth.h>
+#define id C_id
+#include <bluetooth.h>
+#undef id
 
 #else
 @interface NSSystemStatus : NSObject
