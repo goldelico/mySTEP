@@ -167,7 +167,7 @@ INCLUDES := \
 		-I$(ROOT)/usr/include \
 		-I$(ROOT)/usr/include/X11 \
 		-I$(ROOT)/usr/include/X11/freetype2 \
-		-I$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
+		-I$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 
 ifeq ($(PRODUCT_NAME),Foundation)
 		FMWKS := $(addprefix -l,$(FRAMEWORKS))
