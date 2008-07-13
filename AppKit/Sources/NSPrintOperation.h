@@ -122,6 +122,7 @@ extern NSString *NSPrintOperationExistsException;
 - (void) setPageOrder:(NSPrintingPageOrder) order;
 - (void) setPrintInfo:(NSPrintInfo *) aPrintInfo;
 - (void) setPrintPanel:(NSPrintPanel *) panel;
+- (void) setShowPanels:(BOOL) flag;
 - (void) setShowsPrintPanel:(BOOL) flag;
 - (void) setShowsProgressPanel:(BOOL) flag;
 - (BOOL) showPanels;
