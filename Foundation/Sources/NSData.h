@@ -10,7 +10,7 @@
    
     H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-    NSData - aligned with 10.5 by Fabian Spillner 23.04.2008
+    Aligned with 10.5 by Fabian Spillner 23.04.2008
  
     This file is part of the mySTEP Library and is provided
     under the terms of the GNU Library General Public License.

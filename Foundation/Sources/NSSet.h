@@ -8,7 +8,7 @@
 
     H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-    NSCountedSet - aligned with 10.5 by Fabian Spillner 22.04.2008
+    NSCountedSet, NSMutableSet - aligned with 10.5 by Fabian Spillner 22.04.2008
  
     This file is part of the mySTEP Library and is provided under the 
     terms of the libFoundation BSD type license (See the Readme file).

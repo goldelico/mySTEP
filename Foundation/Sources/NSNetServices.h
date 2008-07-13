@@ -1,15 +1,17 @@
-//
-//  NSNetServices.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Sat Aug 20 2005.
-//  Copyright (c) 2005 DSITRI.
-//
-//  H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+    NSNetServices.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Sat Aug 20 2005.
+    Copyright (c) 2005 DSITRI.
+
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+ 
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
+*/
 
 #ifndef mySTEP_NSNETSERVICES_H
 #define mySTEP_NSNETSERVICES_H
@@ -36,6 +38,11 @@ enum
 	NSNetServicesInvalidError		= -72006,
 	NSNetServicesTimeoutError		= -72007
 };
+
+enum {
+	NSNetServiceNoAutoRename = 1 << 0
+};
+typedef NSUInteger NSNetServiceOptions;
 
 @interface NSNetService : NSObject
 {
@@ -67,7 +74,9 @@ enum
 - (id) initWithDomain:(NSString *) domain type:(NSString *) type name:(NSString *) name port:(int) port;
 - (NSString *) name;
 - (NSString *) protocolSpecificInformation;	// depreaced
+- (NSInteger) port;
 - (void) publish;
+- (void) publishWithOptions:(NSNetServiceOptions) opts;
 - (void) removeFromRunLoop:(NSRunLoop *) loop forMode:(NSString *) mode;
 - (void) resolve;	// deprecated
 - (void) resolveWithTimeout:(NSTimeInterval) interval;

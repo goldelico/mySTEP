@@ -1,12 +1,14 @@
-//
-//  NSURLRequest.h
-//  mySTEP
-//
-//	H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
-//
-//  Created by Dr. H. Nikolaus Schaller on Mon Jan 05 2004.
-//  Copyright (c) 2004 DSITRI. All rights reserved.
-//
+/*
+    NSURLRequest.h
+    mySTEP
+
+  	H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+
+    Created by Dr. H. Nikolaus Schaller on Mon Jan 05 2004.
+    Copyright (c) 2004 DSITRI. All rights reserved.
+ 
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5 (NSMutableURLRequest)
+*/
 
 #import <Foundation/Foundation.h>
 

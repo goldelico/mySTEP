@@ -27,18 +27,18 @@
 
 - (id) autorelease;
 - (Class) class;
-- (BOOL) conformsToProtocol:(Protocol *)aProtocol;
+- (BOOL) conformsToProtocol:(Protocol *) aProtocol;
 - (NSString *) description;
 - (unsigned) hash;
 - (BOOL) isEqual:(id) anObject;
-- (BOOL) isKindOfClass: (Class)aClass;
-- (BOOL) isMemberOfClass: (Class)aClass;
+- (BOOL) isKindOfClass:(Class) aClass;
+- (BOOL) isMemberOfClass:(Class) aClass;
 - (BOOL) isProxy;
-- (id) performSelector:(SEL)aSelector;
-- (id) performSelector:(SEL)aSelector withObject:(id)anObject;
-- (id) performSelector:(SEL)aSelector withObject:(id)object1 withObject:(id)object2;
+- (id) performSelector:(SEL) aSelector;
+- (id) performSelector:(SEL) aSelector withObject:(id) anObject;
+- (id) performSelector:(SEL) aSelector withObject:(id) object1 withObject:(id) object2;
 - (oneway void) release;
-- (BOOL) respondsToSelector:(SEL)aSelector;
+- (BOOL) respondsToSelector:(SEL) aSelector;
 - (id) retain;
 - (unsigned) retainCount;
 - (id) self;
@@ -72,21 +72,21 @@
 + (id) alloc;
 + (id) allocWithZone:(NSZone *) z;
 + (Class) class;
-+ (BOOL) conformsToProtocol:(Protocol *)aProtocol;
++ (BOOL) conformsToProtocol:(Protocol *) aProtocol;
 + (id) copyWithZone:(NSZone *) zone;
-+ (NSString*) description;
++ (NSString *) description;
 + (void) initialize;
-+ (IMP) instanceMethodForSelector: (SEL)aSelector;
-+ (NSMethodSignature*) instanceMethodSignatureForSelector:(SEL)aSelector;	// define in NSMethodSignature.h or NSClassDescription.h?
-+ (BOOL) instancesRespondToSelector: (SEL)aSelector;
-+ (BOOL) isSubclassOfClass:(Class)aClass;
++ (IMP) instanceMethodForSelector:(SEL) aSelector;
++ (NSMethodSignature *) instanceMethodSignatureForSelector:(SEL) aSelector;	// define in NSMethodSignature.h or NSClassDescription.h?
++ (BOOL) instancesRespondToSelector:(SEL) aSelector;
++ (BOOL) isSubclassOfClass:(Class) aClass;
 + (void) load;
 + (id) mutableCopyWithZone:(NSZone *) zone;
 + (id) new;
-+ (void) poseAsClass:(Class)aClass;
++ (void) poseAsClass:(Class) aClass; // deprecated
 - (BOOL) resolveClassMethod:(SEL) sel;
 - (BOOL) resolveInstanceMethod:(SEL) sel;
-+ (void) setVersion:(int)aVersion;
++ (void) setVersion:(int) aVersion;
 + (Class) superclass;
 + (int) version;
 
@@ -94,13 +94,13 @@
 - (NSString *) className;
 - (id) copy;
 - (void) dealloc;
-- (void) doesNotRecognizeSelector: (SEL)aSelector;
+- (void) doesNotRecognizeSelector:(SEL) aSelector;
 - (void) finalize;
 - (id) forwardingTargetForSelector:(SEL) sel;
-- (void) forwardInvocation:(NSInvocation*) anInvocation;
+- (void) forwardInvocation:(NSInvocation *) anInvocation;
 - (id) init;
-- (IMP) methodForSelector: (SEL)aSelector;
-- (NSMethodSignature*) methodSignatureForSelector:(SEL)aSelector;	// -> NSMethodSignature.h?
+- (IMP) methodForSelector:(SEL) aSelector;
+- (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector;	// -> NSMethodSignature.h?
 - (id) mutableCopy;
 //- (NSDictionary *) scriptingProperties;	// -> NSScriptClassDescription
 //- (void) setScriptingProperties:(NSDictionary *) properties;	// -> NSScriptClassDescription

@@ -8,6 +8,8 @@
 
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ 
    This file is part of the mySTEP Library and is provided under the 
    terms of the libFoundation BSD type license (See the Readme file).
 */
@@ -30,21 +32,21 @@
 	id _queued;
 }
 
-+ (NSNotification*) notificationWithName:(NSString*)name
-								  object:(id)object;
-+ (NSNotification*) notificationWithName:(NSString*)aName
-								  object:(id)anObject
-								  userInfo:(NSDictionary*)userInfo;
++ (NSNotification *) notificationWithName:(NSString *) name
+								  object:(id) object;
++ (NSNotification *) notificationWithName:(NSString *) aName
+								  object:(id) anObject
+								  userInfo:(NSDictionary *) userInfo;
 
 - (NSString *) name;    
 - (id) object;
-- (NSDictionary*) userInfo;
+- (NSDictionary *) userInfo;
 
 // this is not a public method in Cocoa API but we provide it anyway
 
-- (id) initWithName:(NSString*)aName 
-			 object:(id)anObject 
-		   userInfo:(NSDictionary*)anUserInfo;
+- (id) initWithName:(NSString *) aName 
+			 object:(id) anObject 
+		   userInfo:(NSDictionary *) anUserInfo;
 
 @end /* NSNotification */
 
@@ -55,22 +57,22 @@
     id _nullNameToObjects;
 }
 
-+ (NSNotificationCenter*) defaultCenter;
++ (NSNotificationCenter *) defaultCenter;
 
-- (void) addObserver:observer
-			selector:(SEL)selector 
-				name:(NSString*)name 
-			  object:(id)object;
-- (void) postNotification:(NSNotification*)notification;
-- (void) postNotificationName:(NSString*)notificationName
-					   object:(id)object;
-- (void) postNotificationName:(NSString*)notificationName 
-					   object:(id)object
-					   userInfo:(NSDictionary*)userInfo;
-- (void) removeObserver:(id)observer;
-- (void) removeObserver:(id)observer
-				   name:(NSString*)name
-				 object:(id)object;
+- (void) addObserver: observer
+			selector:(SEL) selector 
+				name:(NSString *) name 
+			  object:(id) object;
+- (void) postNotification:(NSNotification *) notification;
+- (void) postNotificationName:(NSString *) notificationName
+					   object:(id) object;
+- (void) postNotificationName:(NSString *) notificationName 
+					   object:(id) object
+					 userInfo:(NSDictionary *) userInfo;
+- (void) removeObserver:(id) observer;
+- (void) removeObserver:(id) observer
+				   name:(NSString *) name
+				 object:(id) object;
 
 @end /* NSNotificationCenter */
 
