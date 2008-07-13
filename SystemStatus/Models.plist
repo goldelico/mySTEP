@@ -1,15 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>GTA02</key>
+	<dict>
+		<key>GPS Status</key>
+		<string></string>
+		<key>GPS Off</key>
+		<string>echo &quot;0&quot; &gt;/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/neo1973-pm-gps.0/pwron</string>
+		<key>GPS On</key>
+		<string>echo &quot;1&quot; &gt;/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/neo1973-pm-gps.0/pwron</string>
+		<key>GPS Serial</key>
+		<string>/dev/ttySAC1</string>
+	</dict>
+	<key>Nokia 770</key>
+	<dict/>
+	<key>Nokia 800</key>
+	<dict/>
+	<key>Nokia RX-44</key>
+	<dict>
+		<key> Notes</key>
+		<string>Nokia 810</string>
+	</dict>
+	<key>TI-Perseus2/OMAP730</key>
+	<dict>
+		<key> Notes</key>
+		<string>Letux 380</string>
+		<key>Inherit</key>
+		<string>Linux</string>
+	</dict>
 	<key>Acer-N30</key>
 	<dict>
 		<key> Notes</key>
-		<string>I don't know how to really switch on/off bluetooth transmitter on this device and how to detach the serial interface.</string>
+		<string>I don&apos;t know how to really switch on/off bluetooth transmitter on this device and how to detach the serial interface.</string>
 		<key>Bluetooth Off</key>
-		<string>echo "0" &gt;/sys/bus/platform/devices/s3c2410-bl/power/state</string>
+		<string>echo &quot;0&quot; &gt;/sys/bus/platform/devices/s3c2410-bl/power/state</string>
 		<key>Bluetooth On</key>
-		<string>echo "1" &gt;/sys/bus/platform/devices/s3c2410-bl/power/state ; hciattach /dev/ttySAC2 bcsp 115200 noflow</string>
+		<string>echo &quot;1&quot; &gt;/sys/bus/platform/devices/s3c2410-bl/power/state ; hciattach /dev/ttySAC2 bcsp 115200 noflow</string>
 		<key>Inherit</key>
 		<string>Linux</string>
 		<key>IrDA Discovery</key>
@@ -31,22 +58,28 @@
 	</dict>
 	<key>GTA01</key>
 	<dict>
+		<key>Bluetooth Status</key>
+		<string></string>
 		<key>Bluetooth Off</key>
-		<string>echo "0" &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
+		<string>echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
 		<key>Bluetooth On</key>
-		<string>echo "1" &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
+		<string>echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
+		<key>GPS Status</key>
+		<string></string>
 		<key>GPS Off</key>
-		<string></string>
+		<string>killall gllin</string>
 		<key>GPS On</key>
-		<string></string>
+		<string>/home/root/gllin/gllin</string>
 		<key>GPS Serial</key>
-		<string>/dev/unknown</string>
+		<string>/tmp/nmeaNP</string>
 		<key>GSM Commands</key>
 		<dict/>
+		<key>GSM Status</key>
+		<string></string>
 		<key>GSM Off</key>
-		<string>stty -F /dev/ttySAC0 -crtscts; echo "0" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 -echo; echo "1" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 crtscts; sleep 1; echo -e "AT@POFF\r" &gt;/dev/ttySAC0; sleep 1; stty -F /dev/ttySAC0 -crtscts; echo "0" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
+		<string>stty -F /dev/ttySAC0 -crtscts; echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 -echo; echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 crtscts; sleep 1; echo -e &quot;AT@POFF\r&quot; &gt;/dev/ttySAC0; sleep 1; stty -F /dev/ttySAC0 -crtscts; echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
 		<key>GSM On</key>
-		<string>stty -F /dev/ttySAC0 -echo; echo "1" &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
+		<string>stty -F /dev/ttySAC0 -echo; echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
 		<key>GSM Serial</key>
 		<string>/dev/ttySAC0</string>
 		<key>Inherit</key>
@@ -62,6 +95,16 @@
 	</dict>
 	<key>Linux</key>
 	<dict>
+		<key>Bluetooth Status Power</key>
+		<string>false</string>
+		<key>GSM Status</key>
+		<string>false</string>
+		<key>GPS Status</key>
+		<string>false</string>
+		<key>IrDA Status</key>
+		<string>false</string>
+		<key>WLAN Status</key>
+		<string>false</string>
 		<key> Notes</key>
 		<string>Generic Linux entries</string>
 		<key>Battery</key>
@@ -126,9 +169,9 @@
 		<key>GSM Commands</key>
 		<dict>
 			<key>DIAL_DATA</key>
-			<string>at d "%@"</string>
+			<string>at d &quot;%@&quot;</string>
 			<key>DIAL_VOICE</key>
-			<string>at d "%@;"</string>
+			<string>at d &quot;%@;&quot;</string>
 			<key>GET_ALL_NETWORKS</key>
 			<string>at+cops=?</string>
 			<key>GET_NETWORK</key>
@@ -138,9 +181,9 @@
 			<key>HANGUP</key>
 			<string>at+chup</string>
 			<key>SET_NETWORK</key>
-			<string>at+CGDCONT=1,'IP', '%@'</string>
+			<string>at+CGDCONT=1,&apos;IP&apos;, &apos;%@&apos;</string>
 			<key>SET_PIN</key>
-			<string>at+cpin=\"%@\"</string>
+			<string>at+cpin=\&quot;%@\&quot;</string>
 		</dict>
 		<key>GSM Off</key>
 		<string>cardctl 0 suspend</string>

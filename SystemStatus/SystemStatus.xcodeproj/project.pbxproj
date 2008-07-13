@@ -60,10 +60,10 @@
 		EEBCC47909546A23003F8519 /* SYSDevice.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SYSDevice.h; sourceTree = "<group>"; };
 		EEBCC47A09546A23003F8519 /* SYSEnvironment.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SYSEnvironment.h; sourceTree = "<group>"; };
 		EEBCC47B09546A23003F8519 /* SYSLocation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SYSLocation.h; sourceTree = "<group>"; };
-		EEBCC47C09546A23003F8519 /* SystemStatus-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = "SystemStatus-Info.plist"; sourceTree = "<group>"; };
+		EEBCC47C09546A23003F8519 /* SystemStatus-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "SystemStatus-Info.plist"; sourceTree = "<group>"; };
 		EEBCC47D09546A23003F8519 /* SYSWireless.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SYSWireless.h; sourceTree = "<group>"; };
 		EEBCC47E09546A23003F8519 /* SYSWireless.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SYSWireless.m; sourceTree = "<group>"; };
-		EEC7F84C0C61820000762819 /* Models.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = Models.plist; sourceTree = "<group>"; };
+		EEC7F84C0C61820000762819 /* Models.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Models.plist; sourceTree = "<group>"; };
 		EEDB64840A14BA8600E4CA39 /* SYSInternet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SYSInternet.h; sourceTree = "<group>"; };
 		EEDB64850A14BA8600E4CA39 /* SYSInternet.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SYSInternet.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -218,10 +218,12 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EEEB9D4B09A7561A00626AB7 /* Build configuration list for PBXProject "SystemStatus" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				EE6FE351076F05AF009CC969 /* SystemStatus */,
 			);
@@ -293,7 +295,6 @@
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "SystemStatus-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",

@@ -167,7 +167,8 @@ INCLUDES := \
 		-I$(ROOT)/usr/include \
 		-I$(ROOT)/usr/include/X11 \
 		-I$(ROOT)/usr/include/X11/freetype2 \
-		-I$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
+		-I$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
+		-I$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 
 ifeq ($(PRODUCT_NAME),Foundation)
 		FMWKS := $(addprefix -l,$(FRAMEWORKS))
@@ -179,7 +180,7 @@ else
 endif
 endif
 
-LIBS := \
+LIBRARIES := \
 		-L$(TOOLCHAIN)/../lib/gcc-lib/$(ARCHITECTURE)/2.95.3/lib \
 		-L$(TOOLCHAIN)/lib \
 		-L$(ROOT)/usr/lib \
@@ -188,6 +189,8 @@ LIBS := \
 		-Wl,-rpath-link,$(ROOT)/usr/lib/$(ARCHITECTURE) \
 		-L$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-L$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		$(FMWKS) \
 		$(LIBS)
 
@@ -274,7 +277,7 @@ clean:
 	# compile $(SOURCES) into $(BINARY)
 	#
 	@mkdir -p "$(EXEC)"
-	$(CC) $(CFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBS)
+	$(CC) $(CFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	# compiled.
 
 # link headers of framework
