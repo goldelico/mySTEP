@@ -522,6 +522,12 @@ void NSDrawWhiteBezel(NSRect aRect, NSRect clipRect)
 	NSRectFill(rect);
 }
 
+void NSDrawWindowBackground(NSRect rect)
+{
+	[[NSColor windowBackgroundColor] set];	// can be a pattern color...
+	NSRectFill(rect);
+}
+
 void NSEnableScreenUpdates(void)
 {
 	// FIXME: NIMP
