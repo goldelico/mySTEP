@@ -279,6 +279,15 @@ static BOOL __cursorHidden = NO;
 
 - (NSButton *) standardWindowButton:(NSWindowButton) button;
 {
+	/* subviews
+	 0:	close button
+	 1: miniaturize button
+	 2: zoom button
+	 3: content view
+	 (x: document icon)
+	 4: toolbar button
+	 5: toolbar view
+	 */
 	switch(button)
 		{
 		case NSWindowCloseButton: return [sub_views objectAtIndex:0];
@@ -286,6 +295,7 @@ static BOOL __cursorHidden = NO;
 		case NSWindowZoomButton: return [sub_views objectAtIndex:2];
 		case NSWindowToolbarButton: return [sub_views count] > 4?[sub_views objectAtIndex:4]:nil;
 		case NSWindowDocumentIconButton:
+				// das sollte ein eigener button sein!
 		default: return nil;
 		}
 }
@@ -348,11 +358,11 @@ static BOOL __cursorHidden = NO;
 #endif	
 }
 
-- (NSToolbar *) toolbar; { return [sub_views count] > 4?[[sub_views objectAtIndex:5] toolbar]:nil; }
+- (NSToolbar *) toolbar; { return [sub_views count] >= 6?[[sub_views objectAtIndex:5] toolbar]:nil; }
 
 - (void) setToolbar:(NSToolbar *) toolbar;
 {
-	if(toolbar && [sub_views count] < 4)
+	if(toolbar && [sub_views count] <= 4)
 		{ // we don't have a toolbar (yet)
 		NSToolbarView *tv;
 		NSButton *wb;
@@ -369,13 +379,13 @@ static BOOL __cursorHidden = NO;
 		[self addSubview:tv];
 		[tv release];
 		}
-	if(!toolbar && [sub_views count] >= 4)
-		{ // remove
+	if(!toolbar && [sub_views count] >= 6)
+		{ // remove button and toolbar
 		[[sub_views objectAtIndex:5] removeFromSuperviewWithoutNeedingDisplay];	// toolbar view
 		[[sub_views objectAtIndex:4] removeFromSuperviewWithoutNeedingDisplay];	// toolbar button
 		}
 	else if(toolbar)
-		[[sub_views objectAtIndex:5] setToolbar:toolbar];	// update
+		[[sub_views objectAtIndex:5] setToolbar:toolbar];	// just update
 	[self layout];
 }
 

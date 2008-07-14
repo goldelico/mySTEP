@@ -10,8 +10,9 @@
 
 @class NSArray; 
 
-@interface NSToolbarItemGroup : NSToolbarItem {
-
+@interface NSToolbarItemGroup : NSToolbarItem
+{
+	NSMutableArray *_subitems;
 }
 
 - (void) setSubitems:(NSArray *) items; 
