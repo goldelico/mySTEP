@@ -7,7 +7,7 @@
 
     H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-    Fabian Spillner, May 2008 - API revised to be compatible to 10.5 (NSInputStream)
+    Fabian Spillner, May 2008 - API revised to be compatible to 10.5 (NSInputStream, NSOutputStream)
  
     This file is part of the mySTEP Library and is provided
     under the terms of the GNU Library General Public License.
@@ -119,15 +119,15 @@ extern NSString *NSStreamSOCKSProxyVersion5;
 	int _fd;
 }
 
-+ (id) outputStreamToBuffer:(unsigned char *) buffer capacity:(unsigned int) len;
++ (id) outputStreamToBuffer:(unsigned char *) buffer capacity:(NSUInteger) len;
 + (id) outputStreamToFileAtPath:(NSString *) path append:(BOOL) flag;
 + (id) outputStreamToMemory;
 
 - (BOOL) hasSpaceAvailable;
-- (id) initToBuffer:(unsigned char *) buffer capacity:(unsigned int) len;
+- (id) initToBuffer:(unsigned char *) buffer capacity:(NSUInteger) len;
 - (id) initToFileAtPath:(NSString *) path append:(BOOL) flag;
 - (id) initToMemory;
-- (int) write:(const unsigned char *) buffer maxLength:(unsigned int) len;
+- (NSInteger) write:(const unsigned char *) buffer maxLength:(NSUInteger) len;
 
 @end
 

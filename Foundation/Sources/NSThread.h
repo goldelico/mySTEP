@@ -77,7 +77,7 @@
 - (void) setStackSize:(NSUInteger) size;
 - (NSUInteger) stackSize;
 - (void) start;
-- (NSMutableDictionary*) threadDictionary;
+- (NSMutableDictionary *) threadDictionary;
 
 @end
 

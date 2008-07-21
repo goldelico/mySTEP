@@ -10,7 +10,7 @@
 
     H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-    Fabian Spillner, May 2008 - API revised to be compatible to 10.5 (only NSMessagePortNameServer)
+    Fabian Spillner, May 2008 - API revised to be compatible to 10.5 (only NSMessagePortNameServer, NSPortNameServer)
  
     This file is part of the mySTEP Library and is provided
     under the terms of the GNU Library General Public License.

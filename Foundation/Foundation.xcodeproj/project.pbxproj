@@ -32,6 +32,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		1FA220050E352CF100179AC4 /* NSPointerArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FA220030E352CF100179AC4 /* NSPointerArray.h */; };
+		1FA220060E352CF100179AC4 /* NSPointerArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FA220040E352CF100179AC4 /* NSPointerArray.m */; };
 		EE2114DB0CDF55910062A8AD /* NSGarbageCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2114D90CDF55910062A8AD /* NSGarbageCollector.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE2114DC0CDF55910062A8AD /* NSGarbageCollector.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2114DA0CDF55910062A8AD /* NSGarbageCollector.m */; };
 		EE2114FA0CDF568D0062A8AD /* NSOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2114F80CDF568D0062A8AD /* NSOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -270,6 +272,8 @@
 		1F73F5820DA2C1A40007817B /* NSXMLElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSXMLElement.m; path = Sources/NSXMLElement.m; sourceTree = "<group>"; };
 		1F73F5830DA2C1A40007817B /* NSXMLNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSXMLNode.h; path = Sources/NSXMLNode.h; sourceTree = "<group>"; };
 		1F73F5840DA2C1A40007817B /* NSXMLNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSXMLNode.m; path = Sources/NSXMLNode.m; sourceTree = "<group>"; };
+		1FA220030E352CF100179AC4 /* NSPointerArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSPointerArray.h; sourceTree = "<group>"; };
+		1FA220040E352CF100179AC4 /* NSPointerArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPointerArray.m; sourceTree = "<group>"; };
 		EE0622880975A53D00B24DDA /* NSPredicate.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSPredicate.m; path = Sources/NSPredicate.m; sourceTree = "<group>"; };
 		EE0D6CB60959F6D10091A092 /* NSNetServices.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSNetServices.m; path = Sources/NSNetServices.m; sourceTree = "<group>"; };
 		EE0D6E5F095C62900091A092 /* NSPrivate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSPrivate.h; path = Sources/NSPrivate.h; sourceTree = "<group>"; };
@@ -691,6 +695,8 @@
 				EEA32F4309537D0D001244CF /* NSSet.m */,
 				EEB458A80DE48C1D007BE44E /* NSPointerFunctions.h */,
 				EEB458A90DE48C1D007BE44E /* NSPointerFunctions.m */,
+				1FA220030E352CF100179AC4 /* NSPointerArray.h */,
+				1FA220040E352CF100179AC4 /* NSPointerArray.m */,
 			);
 			name = Container;
 			sourceTree = "<group>";
@@ -1191,6 +1197,7 @@
 				EE2114FA0CDF568D0062A8AD /* NSOperation.h in Headers */,
 				EE2115130CDF58F70062A8AD /* NSCondition.h in Headers */,
 				EEB458AA0DE48C1D007BE44E /* NSPointerFunctions.h in Headers */,
+				1FA220050E352CF100179AC4 /* NSPointerArray.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1377,6 +1384,7 @@
 				EE2114FB0CDF568D0062A8AD /* NSOperation.m in Sources */,
 				EE2115140CDF58F70062A8AD /* NSCondition.m in Sources */,
 				EEB458AB0DE48C1D007BE44E /* NSPointerFunctions.m in Sources */,
+				1FA220060E352CF100179AC4 /* NSPointerArray.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

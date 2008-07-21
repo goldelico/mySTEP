@@ -10,6 +10,8 @@
 
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -32,12 +34,13 @@
 + (id) alloc;
 + (id) allocWithZone:(NSZone *) zone;
 + (Class) class;
-+ (BOOL) respondsToSelector:(SEL)aSelector;
++ (BOOL) respondsToSelector:(SEL) aSelector;
 
 - (void) dealloc;
-- (NSString*) description;
-- (void) forwardInvocation:(NSInvocation*)anInvocation;
-- (NSMethodSignature*) methodSignatureForSelector:(SEL)aSelector;
+- (NSString *) description;
+- (void) forwardInvocation:(NSInvocation *) anInvocation;
+- (void) finalize;
+- (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector;
 
 @end
 

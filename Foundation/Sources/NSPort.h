@@ -15,7 +15,7 @@
 
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-   Fabian Spillner, July 2008 - API revised to be compatible to 10.5 (only NSMachPort)
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5 (only NSMachPort, NSPort)
  
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -80,18 +80,18 @@ typedef int NSSocketNativeHandle;
 				  forMode:(NSString *) mode;
 - (void) removeFromRunLoop:(NSRunLoop *) runLoop
 				   forMode:(NSString *) mode;
-- (unsigned) reservedSpaceLength;
+- (NSUInteger) reservedSpaceLength;
 - (void) scheduleInRunLoop:(NSRunLoop *) runLoop
 				   forMode:(NSString *) mode;
 - (BOOL) sendBeforeDate:(NSDate *) limitDate
 			 components:(NSMutableArray *) components
 				   from:(NSPort *) receivePort
-			   reserved:(unsigned) headerSpaceReserved;
+			   reserved:(NSUInteger) headerSpaceReserved;
 - (BOOL) sendBeforeDate:(NSDate *) limitDate
-				  msgid:(unsigned) msg
+				  msgid:(NSUInteger) msg
 			 components:(NSMutableArray *) components
 				   from:(NSPort *) receivePort
-			   reserved:(unsigned) headerSpaceReserved;
+			   reserved:(NSUInteger) headerSpaceReserved;
 - (void) setDelegate:(id) anObject;
 
 @end

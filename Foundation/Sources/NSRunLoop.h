@@ -42,47 +42,47 @@ extern NSString *NSRunLoopCommonModes;
 	NSMapTable *wfd_2_object;
 }
 
-+ (NSRunLoop*) currentRunLoop;
++ (NSRunLoop *) currentRunLoop;
 + (NSRunLoop *) mainRunLoop;
 
-- (void) acceptInputForMode:(NSString*)mode beforeDate:(NSDate*)date;
-- (void) addPort:(NSPort *)port forMode:(NSString *)mode;
-- (void) addTimer:(NSTimer*)timer forMode:(NSString*)mode;
-- (void) cancelPerformSelectorsWithTarget:(id)target;
-- (void) cancelPerformSelector:(SEL)aSelector
-						target:(id)target
-					  argument:(id)argument;
-- (void) configureAsServer;
-- (NSString*) currentMode;
+- (void) acceptInputForMode:(NSString *) mode beforeDate:(NSDate *) date;
+- (void) addPort:(NSPort *) port forMode:(NSString *) mode;
+- (void) addTimer:(NSTimer *) timer forMode:(NSString *) mode;
+- (void) cancelPerformSelectorsWithTarget:(id) target;
+- (void) cancelPerformSelector:(SEL) aSelector
+						target:(id) target
+					  argument:(id) argument;
+- (void) configureAsServer; // deprecated
+- (NSString *) currentMode;
 // - (CFRunLoopRef) getCFRunLoop;	// we don't have CF
-- (NSDate*) limitDateForMode:(NSString*)mode;
-- (void) performSelector:(SEL)aSelector
-				  target:(id)target
-				argument:(id)argument
-				   order:(unsigned int)order
-				   modes:(NSArray*)modes;
-- (void) removePort:(NSPort *)port forMode:(NSString *)mode;
+- (NSDate *) limitDateForMode:(NSString *) mode;
+- (void) performSelector:(SEL) aSelector
+				  target:(id) target
+				argument:(id) argument
+				   order:(NSUInteger) order
+				   modes:(NSArray *) modes;
+- (void) removePort:(NSPort *) port forMode:(NSString *) mode;
 - (void) run;
-- (BOOL) runMode:(NSString*)mode beforeDate:(NSDate*)date;
-- (void) runUntilDate:(NSDate*)limit_date;
+- (BOOL) runMode:(NSString *) mode beforeDate:(NSDate *) date;
+- (void) runUntilDate:(NSDate *) limit_date;
 
 @end
 
 
 @interface NSObject (TimedPerformers)
 
-+ (void) cancelPreviousPerformRequestsWithTarget:(id)aTarget;
-+ (void) cancelPreviousPerformRequestsWithTarget:(id)obj
-										selector:(SEL)s
-										object:(id)arg;
++ (void) cancelPreviousPerformRequestsWithTarget:(id) aTarget;
++ (void) cancelPreviousPerformRequestsWithTarget:(id) obj
+										selector:(SEL) s
+										object:(id) arg;
 
-- (void) performSelector:(SEL)s
-			  withObject:(id)arg
-			  afterDelay:(NSTimeInterval)seconds;
-- (void) performSelector:(SEL)aSelector
-			  withObject:(id)argument
-			  afterDelay:(NSTimeInterval)seconds
-			  inModes:(NSArray*)modes;
+- (void) performSelector:(SEL) s
+			  withObject:(id) arg
+			  afterDelay:(NSTimeInterval) seconds;
+- (void) performSelector:(SEL) aSelector
+			  withObject:(id) argument
+			  afterDelay:(NSTimeInterval) seconds
+			  inModes:(NSArray *) modes;
 @end
 
 #endif /*_mySTEP_H_NSRunLoop */

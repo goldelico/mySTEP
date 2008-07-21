@@ -10,8 +10,7 @@
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-   NSConditionLock: aligned with 10.5 by Fabian Spillner 22.04.2008
-   NSLock: aligned with 10.5 by Fabian Spillner 17. May 2008
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
  
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -77,7 +76,7 @@
 }								// locks the mutex (n) times then that same
 								// thread must also unlock it (n) times before
 								// another thread can acquire the lock.
-- (BOOL) lockBeforeDate:(NSDate *)limit;
+- (BOOL) lockBeforeDate:(NSDate *) limit;
 - (NSString *) name;
 - (void) setName:(NSString *) name;
 - (BOOL) tryLock;	

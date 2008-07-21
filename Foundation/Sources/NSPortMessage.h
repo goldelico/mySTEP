@@ -5,6 +5,8 @@
    Created: October 1998
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+ 
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
 
    This file is part of the GNUstep Base Library.
    
@@ -47,6 +49,7 @@
 - (BOOL) sendBeforeDate:(NSDate *) when;
 - (NSPort *) sendPort;
 - (void) setMsgid:(unsigned) anId;
+
 @end
 
 #endif

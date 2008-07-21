@@ -1,10 +1,12 @@
-//
-//  NSPointerFunctions.h
-//  Foundation
-//
-//  Created by H. Nikolaus Schaller on 21.05.08.
-//  Copyright 2008 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
-//
+/*
+    NSPointerFunctions.h
+    Foundation
+
+    Created by H. Nikolaus Schaller on 21.05.08.
+    Copyright 2008 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
+ 
+	Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+*/
 
 #import <Foundation/NSObject.h>
 
@@ -30,5 +32,19 @@ typedef NSUInteger NSPointerFunctionsOptions;
 {
 
 }
+
++ (id)pointerFunctionsWithOptions:(NSPointerFunctionsOptions) opts;
+
+- (id)initWithOptions:(NSPointerFunctionsOptions) opts;
+
+@property void *(* acquireFunction) (const void * source, NSUInteger (* size)(const void * item), BOOL shouldCopyFlag);
+@property NSString *(* descriptionFunction) (const void * item);
+@property NSUInteger (* hashFunction) (const void * item, NSUInteger (* size)(const void * item));
+@property BOOL (* isEqualFunction) (const void * item1, const void * item2, NSUInteger (* size)(const void * item));
+@property void (* relinquishFunction) (const void * item, NSUInteger (* size)(const void * item));
+@property NSUInteger (* sizeFunction) (const void * item);
+@property BOOL usesStrongWriteBarrier;
+@property BOOL usesWeakReadAndWriteBarriers;
+
 
 @end

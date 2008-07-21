@@ -10,6 +10,8 @@
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -60,11 +62,11 @@
 
 
 @protocol NSCoding
-- (void) encodeWithCoder:(NSCoder*) aCoder;
-- (id) initWithCoder:(NSCoder*) aDecoder;
+- (void) encodeWithCoder:(NSCoder *) aCoder;
+- (id) initWithCoder:(NSCoder *) aDecoder;
 @end
 
-@interface NSObject  <NSObject, NSCoding>
+@interface NSObject <NSObject, NSCoding>
 {												
     Class isa;										// pointer to instance's 
 }													// class structure
@@ -86,9 +88,9 @@
 + (void) poseAsClass:(Class) aClass; // deprecated
 - (BOOL) resolveClassMethod:(SEL) sel;
 - (BOOL) resolveInstanceMethod:(SEL) sel;
-+ (void) setVersion:(int) aVersion;
++ (void) setVersion:(NSInteger) aVersion;
 + (Class) superclass;
-+ (int) version;
++ (NSInteger) version;
 
 //- (unsigned long) classCode;	// -> NSScriptClassDescription
 - (NSString *) className;

@@ -10,6 +10,8 @@
 
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -48,13 +50,15 @@
 - (id) initWithReceivePort:(NSPort *) recv sendPort:(NSPort *) send components:(NSArray *) cmp;
 - (BOOL) isBycopy;
 - (BOOL) isByref;
-	// - (void) sendBeforeTime:(NSTimeInterval) time sendReplyPort:(NSPort *) port;	// not documented private method
+// - (void) sendBeforeTime:(NSTimeInterval) time sendReplyPort:(NSPort *) port;	// not documented private method
 
 @end
 
 @interface NSObject (NSPortCoder)
+
 - (Class) classForPortCoder;
-- (id) replacementObjectForPortCoder:(NSPortCoder*) anEncoder;
+- (id) replacementObjectForPortCoder:(NSPortCoder *) anEncoder;
+
 @end
 
 #endif /* _mySTEP_H_NSPortCoder */
