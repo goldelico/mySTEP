@@ -10,7 +10,7 @@
    
     H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-    Fabian Spillner, July 2008 - API revised to be compatible to 10.5 (NSMutableString)
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
 
     This file is part of the mySTEP Library and is provided
     under the terms of the GNU Library General Public License.
@@ -46,9 +46,11 @@ enum
 	NSDiacriticInsensitiveSearch	= 128,
 	NSWidthInsensitiveSearch		= 256,
 	NSForcedOrderingSearch			= 512
-}; typedef NSUInteger NSStringCompareOptions;
+}; 
 
-typedef enum _NSStringEncoding				// O encoding defines a variable of
+typedef NSUInteger NSStringCompareOptions;
+
+typedef enum								// O encoding defines a variable of
 {											// type encoding that is undefined
 	NSASCIIStringEncoding 			= 1,	// 0...127
 	NSNEXTSTEPStringEncoding 		= 2,
@@ -91,13 +93,17 @@ typedef enum _NSStringEncoding				// O encoding defines a variable of
 	NSUTF32BigEndianStringEncoding,
 	NSUTF32LittleEndianStringEncoding
 	
-} NSStringEncoding;
+};
+
+typedef NSUInteger NSStringEncoding;
 
 enum
 {
     NSStringEncodingConversionAllowLossy = 1,
     NSStringEncodingConversionExternalRepresentation
-}; typedef NSUInteger NSStringEncodingConversionOptions;
+}; 
+
+typedef NSUInteger NSStringEncodingConversionOptions;
 
 extern NSString *NSParseErrorException;
 
@@ -114,7 +120,7 @@ extern NSString *NSParseErrorException;
 + (NSString *) localizedStringWithFormat:(NSString *) format, ...;
 + (NSString *) pathWithComponents:(NSArray *) components;
 + (id) string;
-+ (id) stringWithCharacters:(const unichar *) chars length:(unsigned int) length;
++ (id) stringWithCharacters:(const unichar *) chars length:(NSUInteger) length;
 + (id) stringWithContentsOfFile:(NSString *) path;
 + (id) stringWithContentsOfFile:(NSString *) path
 					   encoding:(NSStringEncoding) enc
@@ -142,7 +148,7 @@ extern NSString *NSParseErrorException;
 - (BOOL) canBeConvertedToEncoding:(NSStringEncoding) encoding;
 - (NSString *) capitalizedString;						// Changing Case
 - (NSComparisonResult) caseInsensitiveCompare:(NSString *) aString;
-- (unichar) characterAtIndex:(unsigned int) index;
+- (unichar) characterAtIndex:(NSUInteger) index;
 - (NSString *) commonPrefixWithString:(NSString *) aString
 							  options:(unsigned int) mask;
 - (NSComparisonResult) compare:(NSString *) aString;		// Comparing Strings
@@ -179,38 +185,38 @@ extern NSString *NSParseErrorException;
 - (void) getCharacters:(unichar *) buffer;
 - (void) getCharacters:(unichar *) buffer range:(NSRange) aRange;
 - (void) getCString:(char *) buffer;
-- (void) getCString:(char *) buffer maxLength:(unsigned int) maxLength;
-- (BOOL) getCString:(char *) buffer maxLength:(unsigned) maxLength encoding:(NSStringEncoding) enc;
+- (void) getCString:(char *) buffer maxLength:(NSUInteger) maxLength;
+- (BOOL) getCString:(char *) buffer maxLength:(NSUInteger) maxLength encoding:(NSStringEncoding) enc;
 - (void) getCString:(char *) buffer
 		  maxLength:(unsigned int) maxLength
 			  range:(NSRange) aRange
 	 remainingRange:(NSRange *) leftoverRange;
-- (void) getLineStart:(unsigned int *) startIndex
-				  end:(unsigned int *) lineEndIndex
-		  contentsEnd:(unsigned int *) contentsEndIndex
+- (void) getLineStart:(NSUInteger *) startIndex
+				  end:(NSUInteger *) lineEndIndex
+		  contentsEnd:(NSUInteger *) contentsEndIndex
 			 forRange:(NSRange) aRange;
-- (void) getParagraphStart:(unsigned *) startIndex
-					   end:(unsigned *) endIndex
-			   contentsEnd:(unsigned *) contentsEndIndex
+- (void) getParagraphStart:(NSUInteger *) startIndex
+					   end:(NSUInteger *) endIndex
+			   contentsEnd:(NSUInteger *) contentsEndIndex
 				  forRange:(NSRange) range;
-- (unsigned int) hash;
+- (NSUInteger) hash;
 - (BOOL) hasPrefix:(NSString *) aString;
 - (BOOL) hasSuffix:(NSString *) aString;
 // - (id) init;
 - (id) initWithBytes:(const void *) bytes
-			  length:(unsigned) length
+			  length:(NSUInteger) length
 			encoding:(NSStringEncoding) enc;
 - (id) initWithCharactersNoCopy:(unichar *) chars
 						 length:(unsigned int) length
 				   freeWhenDone:(BOOL) flag;
 - (id) initWithBytesNoCopy:(void *) bytes
-					length:(unsigned) length
+					length:(NSUInteger) length
 				  encoding:(NSStringEncoding) enc
 			  freeWhenDone:(BOOL) flag;
 - (id) initWithCharacters:(const unichar *) chars
-				   length:(unsigned int) length;
+				   length:(NSUInteger) length;
 - (id) initWithCharactersNoCopy:(unichar *) chars
-						 length:(unsigned) length
+						 length:(NSUInteger) length
 				   freeWhenDone:(BOOL) flag;
 - (id) initWithContentsOfFile:(NSString *) path;
 - (id) initWithContentsOfFile:(NSString *) path
@@ -246,15 +252,15 @@ extern NSString *NSParseErrorException;
 - (int) intValue;
 - (NSInteger) integerValue;
 - (BOOL) isEqualToString:(NSString *) aString;
-- (unsigned int) length;
-- (unsigned) lengthOfBytesUsingEncoding:(NSStringEncoding) enc;	// exact
+- (NSUInteger) length;
+- (NSUInteger) lengthOfBytesUsingEncoding:(NSStringEncoding) enc;	// exact
 - (NSRange) lineRangeForRange:(NSRange) aRange;
 - (NSComparisonResult) localizedCaseInsensitiveCompare:(NSString *) string;
 - (NSComparisonResult) localizedCompare:(NSString *) string;
 - (long long) longLongValue;
 - (const char *) lossyCString;
 - (NSString*) lowercaseString;
-- (unsigned) maximumLengthOfBytesUsingEncoding:(NSStringEncoding) enc;	// estimate
+- (NSUInteger) maximumLengthOfBytesUsingEncoding:(NSStringEncoding) enc;	// estimate
 - (NSRange) paragraphRangeForRange:(NSRange) range;
 - (NSString *) precomposedStringWithCanonicalMapping;
 - (NSString *) precomposedStringWithCompatibilityMapping;
@@ -266,7 +272,7 @@ extern NSString *NSParseErrorException;
 - (NSRange) rangeOfCharacterFromSet:(NSCharacterSet *) aSet
 							options:(unsigned int) mask
 							  range:(NSRange) aRange;
-- (NSRange) rangeOfComposedCharacterSequenceAtIndex:(unsigned int) anIndex;
+- (NSRange) rangeOfComposedCharacterSequenceAtIndex:(NSUInteger) anIndex;
 - (NSRange) rangeOfComposedCharacterSequencesForRange:(NSRange) range;
 - (NSRange) rangeOfString:(NSString *) string;
 - (NSRange) rangeOfString:(NSString *)string options:(unsigned int) mask;
@@ -282,7 +288,7 @@ extern NSString *NSParseErrorException;
 - (NSString *) stringByAppendingFormat:(NSString *) format,...;
 - (NSString *) stringByAppendingString:(NSString *) aString;
 - (NSString *) stringByFoldingWithOptions:(NSUInteger) options locale:(NSLocale *) locale;
-- (NSString *) stringByPaddingToLength:(unsigned) len withString:(NSString *) pad startingAtIndex:(unsigned) index;
+- (NSString *) stringByPaddingToLength:(NSUInteger) len withString:(NSString *) pad startingAtIndex:(NSUInteger) index;
 - (NSString *) stringByReplacingCharactersInRange:(NSRange) range withString:(NSString *) replacement;
 - (NSString *) stringByReplacingOccurrencesOfString:(NSString *) target
 										 withString:(NSString *) replacement
@@ -292,8 +298,8 @@ extern NSString *NSParseErrorException;
 										 withString:(NSString *) replacement;
 - (NSString *) stringByReplacingPercentEscapesUsingEncoding:(NSStringEncoding) encoding;
 - (NSString *) stringByTrimmingCharactersInSet:(NSCharacterSet *) set;
-- (NSString *) substringFromIndex:(unsigned int) index;
-- (NSString *) substringToIndex:(unsigned int) index;
+- (NSString *) substringFromIndex:(NSUInteger) index;
+- (NSString *) substringToIndex:(NSUInteger) index;
 - (NSString *) substringWithRange:(NSRange) aRange;
 - (NSString *) uppercaseString;
 - (const char *) UTF8String;

@@ -42,6 +42,10 @@
 - (void) filterUsingPredicate:(NSPredicate *) predicate;
 @end
 
+@interface NSSet (NSPredicate)
+- (NSSet *)filteredSetUsingPredicate:(NSPredicate *) predicate;
+@end
+
 @interface NSMutableSet (NSPredicate)
 - (void) filterUsingPredicate:(NSPredicate *) predicate;
 @end

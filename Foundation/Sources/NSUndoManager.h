@@ -4,6 +4,8 @@
    Written by:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+ 
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
 
    This file is part of the GNUstep Base Library.
 
@@ -67,32 +69,32 @@ extern NSString *NSUndoCloseGroupingRunLoopOrdering;
 - (void) disableUndoRegistration;
 - (void) enableUndoRegistration;
 - (void) endUndoGrouping;
-- (void) forwardInvocation:(NSInvocation*) anInvocation;
-- (int) groupingLevel;
+- (void) forwardInvocation:(NSInvocation *) anInvocation;
+- (NSInteger) groupingLevel;
 - (BOOL) groupsByEvent;
 - (BOOL) isRedoing;
 - (BOOL) isUndoing;
 - (BOOL) isUndoRegistrationEnabled;
-- (unsigned int) levelsOfUndo;
+- (NSUInteger) levelsOfUndo;
 - (id) prepareWithInvocationTarget:(id) target;
 - (void) redo;
-- (NSString*) redoActionName;
-- (NSString*) redoMenuItemTitle;
-- (NSString*) redoMenuTitleForUndoActionName: (NSString*)name;
-- (void) registerUndoWithTarget: (id)target
-					   selector: (SEL)aSelector
-						 object: (id)anObject;
+- (NSString *) redoActionName;
+- (NSString *) redoMenuItemTitle;
+- (NSString *) redoMenuTitleForUndoActionName:(NSString *) name;
+- (void) registerUndoWithTarget:(id) target
+					   selector:(SEL) aSelector
+						 object:(id) anObject;
 - (void) removeAllActions;
-- (void) removeAllActionsWithTarget: (id)target;
-- (NSArray*) runLoopModes;
-- (void) setActionName: (NSString*)name;
-- (void) setGroupsByEvent: (BOOL)flag;
-- (void) setLevelsOfUndo: (unsigned)num;
-- (void) setRunLoopModes: (NSArray*)newModes;
+- (void) removeAllActionsWithTarget:(id) target;
+- (NSArray *) runLoopModes;
+- (void) setActionName:(NSString *) name;
+- (void) setGroupsByEvent:(BOOL) flag;
+- (void) setLevelsOfUndo:(NSUInteger) num;
+- (void) setRunLoopModes:(NSArray *) newModes;
 - (void) undo;
-- (NSString*) undoActionName;
-- (NSString*) undoMenuItemTitle;
-- (NSString*) undoMenuTitleForUndoActionName: (NSString*)name;
+- (NSString *) undoActionName;
+- (NSString *) undoMenuItemTitle;
+- (NSString *) undoMenuTitleForUndoActionName:(NSString *) name;
 - (void) undoNestedGroup;
 
 @end

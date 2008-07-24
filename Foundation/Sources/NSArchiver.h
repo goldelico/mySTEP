@@ -68,24 +68,24 @@ extern NSString * NSInconsistentArchiveException;
 	
 }
 
-+ (NSString*) classNameDecodedForArchiveClassName:(NSString*)nameInArchive;
-+ (void) decodeClassName:(NSString*)nameInArchive
-			 asClassName:(NSString*)trueName;
-+ (id) unarchiveObjectWithData:(NSData*)data;			// Decoding Objects
-+ (id) unarchiveObjectWithFile:(NSString*)path;
++ (NSString *) classNameDecodedForArchiveClassName:(NSString *) nameInArchive;
++ (void) decodeClassName:(NSString *) nameInArchive
+			 asClassName:(NSString *) trueName;
++ (id) unarchiveObjectWithData:(NSData *) data;			// Decoding Objects
++ (id) unarchiveObjectWithFile:(NSString *) path;
 
-- (NSString*) classNameDecodedForArchiveClassName:(NSString*)nameInArchive;
-- (void) decodeClassName:(NSString*)nameInArchive
-			 asClassName:(NSString*)trueName;
-- (id) initForReadingWithData:(NSData*)data;
-- (void) replaceObject:(id)object withObject:(id)newObject;
+- (NSString *) classNameDecodedForArchiveClassName:(NSString *) nameInArchive;
+- (void) decodeClassName:(NSString *) nameInArchive
+			 asClassName:(NSString *) trueName;
+- (id) initForReadingWithData:(NSData *) data;
+- (void) replaceObject:(id) object withObject:(id) newObject;
 
 @end
 
 @interface NSObject (NSArchiver)
 - (Class) classForArchiver;
 - (Class) classForKeyedArchiver;
-- (id) replacementObjectForArchiver:(NSArchiver*) anEncoder;
+- (id) replacementObjectForArchiver:(NSArchiver *) anEncoder;
 @end
 
 #endif /* _mySTEP_H_NSArchiver */

@@ -1,10 +1,12 @@
-//
-//  NSURLDownload.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
-//  Copyright (c) 2006 DSITRI. All rights reserved.
-//
+/*
+    NSURLDownload.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
+    Copyright (c) 2006 DSITRI. All rights reserved.
+ 
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+*/
 
 #import <Foundation/NSObject.h>
 
@@ -45,7 +47,7 @@
 - (void) download:(NSURLDownload *) download didCreateDestination:(NSString *) path;
 - (void) download:(NSURLDownload *) download didFailWithError:(NSError *) error;
 - (void) download:(NSURLDownload *) download didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *) challenge;
-- (void) download:(NSURLDownload *) download didReceiveDataOfLength:(unsigned) len;
+- (void) download:(NSURLDownload *) download didReceiveDataOfLength:(NSUInteger) len;
 - (void) download:(NSURLDownload *) download didReceiveResponse:(NSURLResponse *) response;
 - (BOOL) download:(NSURLDownload *) download shouldDecodeSourceDataOfMIMEType:(NSString *) MIMEType;
 - (void) download:(NSURLDownload *) download willResumeWithResponse:(NSURLResponse *) response fromByte:(long long) startingByte;

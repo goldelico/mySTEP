@@ -7,19 +7,23 @@
     Created by Dr. H. Nikolaus Schaller on Mon Jan 05 2004.
     Copyright (c) 2004 DSITRI. All rights reserved.
  
-    Fabian Spillner, July 2008 - API revised to be compatible to 10.5 (NSMutableURLRequest)
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
 */
 
 #import <Foundation/Foundation.h>
 
-typedef enum _NSURLRequestCachePolicy
+enum
 {
-	NSURLRequestUseProtocolCachePolicy=0,
-	NSURLRequestReloadIgnoringCacheData,
-	NSURLRequestReturnCacheDataElseLoad,
-	NSURLRequestReturnCacheDataDontLoad
-} NSURLRequestCachePolicy;
+	NSURLRequestUseProtocolCachePolicy = 0,
+	NSURLRequestReloadIgnoringLocalCacheData = 1,
+	NSURLRequestReloadIgnoringLocalAndRemoteCacheData = 4,
+	NSURLRequestReloadIgnoringCacheData = NSURLRequestReloadIgnoringLocalCacheData,
+	NSURLRequestReturnCacheDataElseLoad = 2,
+	NSURLRequestReturnCacheDataDontLoad = 3,
+	NSURLRequestReloadRevalidatingCacheData = 5
+};
 
+typedef NSUInteger NSURLRequestCachePolicy;
 
 @interface NSURLRequest : NSObject <NSCopying, NSMutableCopying, NSCoding>
 {
@@ -34,7 +38,9 @@ typedef enum _NSURLRequestCachePolicy
 
 
 + (NSURLRequest *) requestWithURL:(NSURL *) url;	// create request
-+ (id) requestWithURL:(NSURL *) url cachePolicy:(NSURLRequestCachePolicy) policy timeoutInterval:(NSTimeInterval) timeout;
++ (id) requestWithURL:(NSURL *) url 
+		  cachePolicy:(NSURLRequestCachePolicy) policy 
+	  timeoutInterval:(NSTimeInterval) timeout;
 
 - (NSDictionary *) allHTTPHeaderFields;
 - (NSURLRequestCachePolicy) cachePolicy;

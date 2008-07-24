@@ -1,15 +1,17 @@
-//
-//  NSValueTransformer.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Mon Mar 21 2005.
-//  Copyright (c) 2005 DSITRI.
-//
-//  H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+    NSValueTransformer.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Mon Mar 21 2005.
+    Copyright (c) 2005 DSITRI.
+
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+ 
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
+*/
 
 #ifndef _mySTEP_H_NSValueTransformer
 #define _mySTEP_H_NSValueTransformer
@@ -20,6 +22,7 @@ extern NSString *NSNegateBooleanTransformerName;
 extern NSString *NSIsNilTransformerName;
 extern NSString *NSIsNotNilTransformerName; 
 extern NSString *NSUnarchiveFromDataTransformerName;
+extern NSString *NSKeyedUnarchiveFromDataTransformerName;
 
 @class NSString;
 

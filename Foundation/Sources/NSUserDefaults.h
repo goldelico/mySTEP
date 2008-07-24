@@ -10,6 +10,8 @@
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -75,40 +77,40 @@ extern NSString *NSRegistrationDomain;
 + (void) resetStandardUserDefaults;
 + (NSUserDefaults *) standardUserDefaults;
 
-- (void) addSuiteNamed:(NSString *)suiteName;
-- (NSArray *) arrayForKey:(NSString *)defaultName;		// Get / Set Defaults
-- (BOOL) boolForKey:(NSString *)defaultName;
-- (NSData *) dataForKey:(NSString *)defaultName;
-- (NSDictionary *) dictionaryForKey:(NSString *)defaultName;
+- (void) addSuiteNamed:(NSString *) suiteName;
+- (NSArray *) arrayForKey:(NSString *) defaultName;		// Get / Set Defaults
+- (BOOL) boolForKey:(NSString *) defaultName;
+- (NSData *) dataForKey:(NSString *) defaultName;
+- (NSDictionary *) dictionaryForKey:(NSString *) defaultName;
 - (NSDictionary *) dictionaryRepresentation;			// Advanced Use
-- (float) floatForKey:(NSString *)defaultName;
+- (float) floatForKey:(NSString *) defaultName;
 - (id) init;
-- (id) initWithUser:(NSString *)userName;
-- (int) integerForKey:(NSString *)defaultName;
-- (id) objectForKey:(NSString *)defaultName;
-- (BOOL) objectIsForcedForKey:(NSString *)key;
-- (BOOL) objectIsForcedForKey:(NSString *)key inDomain:(NSString *)domain;
-- (NSDictionary *) persistentDomainForName:(NSString *)domainName;
+- (id) initWithUser:(NSString *) userName;
+- (NSInteger) integerForKey:(NSString *) defaultName;
+- (id) objectForKey:(NSString *) defaultName;
+- (BOOL) objectIsForcedForKey:(NSString *) key;
+- (BOOL) objectIsForcedForKey:(NSString *) key inDomain:(NSString *) domain;
+- (NSDictionary *) persistentDomainForName:(NSString *) domainName;
 - (NSArray *) persistentDomainNames;
-- (void) registerDefaults:(NSDictionary *)dictionary;
-- (void) removeObjectForKey:(NSString *)defaultName;
-- (void) removePersistentDomainForName:(NSString *)domainName;
-- (void) removeSuiteNamed:(NSString *)suiteName;
-- (void) removeVolatileDomainForName:(NSString *)domainName;
+- (void) registerDefaults:(NSDictionary *) dictionary;
+- (void) removeObjectForKey:(NSString *) defaultName;
+- (void) removePersistentDomainForName:(NSString *) domainName;
+- (void) removeSuiteNamed:(NSString *) suiteName;
+- (void) removeVolatileDomainForName:(NSString *) domainName;
 - (NSMutableArray *) searchList;						// Search List
-- (void) setBool:(BOOL)value forKey:(NSString *)defaultName;
-- (void) setFloat:(float)value forKey:(NSString *)defaultName;
-- (void) setInteger:(int)value forKey:(NSString *)defaultName;
-- (void) setObject:(id)value forKey:(NSString *)defaultName;
-- (void) setPersistentDomain:(NSDictionary *)domain 
-					 forName:(NSString *)domainName;
-- (void) setSearchList:(NSArray*)newList;
-- (void) setVolatileDomain:(NSDictionary *)domain 
-				   forName:(NSString *)domainName;
-- (NSArray *) stringArrayForKey:(NSString *)defaultName;
-- (NSString *) stringForKey:(NSString *)defaultName;
+- (void) setBool:(BOOL) value forKey:(NSString *) defaultName;
+- (void) setFloat:(float) value forKey:(NSString *) defaultName;
+- (void) setInteger:(NSInteger) value forKey:(NSString *) defaultName;
+- (void) setObject:(id) value forKey:(NSString *) defaultName;
+- (void) setPersistentDomain:(NSDictionary *) domain 
+					 forName:(NSString *) domainName;
+- (void) setSearchList:(NSArray *) newList;
+- (void) setVolatileDomain:(NSDictionary *) domain 
+				   forName:(NSString *) domainName;
+- (NSArray *) stringArrayForKey:(NSString *) defaultName;
+- (NSString *) stringForKey:(NSString *) defaultName;
 - (BOOL) synchronize;
-- (NSDictionary *) volatileDomainForName:(NSString *)domainName;
+- (NSDictionary *) volatileDomainForName:(NSString *) domainName;
 - (NSArray *) volatileDomainNames;
 
 @end

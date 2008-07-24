@@ -5,6 +5,8 @@
    Date:	Jan 1999
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+ 
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
 
    This file is part of the GNUstep Library.
    
@@ -52,48 +54,48 @@ extern NSString *NSURLFileScheme;	// @"file"
 + (id) URLWithString:(NSString *) aUrlString;
 + (id) URLWithString:(NSString *) aUrlString relativeToURL:(NSURL *) aBaseUrl;
 
-- (NSString*) absoluteString;
-- (NSURL*) absoluteURL;
-- (NSURL*) baseURL;
-- (NSString*) fragment;
-- (NSString*) host;
+- (NSString *) absoluteString;
+- (NSURL *) absoluteURL;
+- (NSURL *) baseURL;
+- (NSString *) fragment;
+- (NSString *) host;
 - (id) initFileURLWithPath:(NSString *) aPath;
 - (id) initFileURLWithPath:(NSString *) aPath isDirectory:(BOOL) isDir;
-- (id) initWithScheme: (NSString *) aScheme
-				 host: (NSString *) aHost
-				 path: (NSString *) aPath;
-- (id) initWithString: (NSString *) aUrlString;
-- (id) initWithString: (NSString *) aUrlString
-		relativeToURL: (NSURL *) aBaseUrl;
+- (id) initWithScheme:(NSString *) aScheme
+				 host:(NSString *) aHost
+				 path:(NSString *) aPath;
+- (id) initWithString:(NSString *) aUrlString;
+- (id) initWithString:(NSString *) aUrlString
+		relativeToURL:(NSURL *) aBaseUrl;
 - (BOOL) isFileURL;
-- (void) loadResourceDataNotifyingClient: (id)client
-							  usingCache: (BOOL)shouldUseCache;
-- (NSString*) parameterString;
-- (NSString*) password;
-- (NSString*) path;
-- (NSNumber*) port;
-- (id) propertyForKey: (NSString*)propertyKey;
-- (NSString*) query;
-- (NSString*) relativePath;
-- (NSString*) relativeString;
-- (NSData*) resourceDataUsingCache: (BOOL)shouldUseCache;
-- (NSString*) resourceSpecifier;
-- (NSString*) scheme;
-- (BOOL) setProperty: (id)property
-			  forKey: (NSString*)propertyKey;
-- (BOOL) setResourceData: (NSData*)data;
-- (NSURL*) standardizedURL;
-- (NSURLHandle*) URLHandleUsingCache: (BOOL)shouldUseCache;
-- (NSString*) user;
+- (void) loadResourceDataNotifyingClient:(id) client
+							  usingCache:(BOOL) shouldUseCache;
+- (NSString *) parameterString;
+- (NSString *) password;
+- (NSString *) path;
+- (NSNumber *) port;
+- (id) propertyForKey:(NSString *) propertyKey;
+- (NSString *) query;
+- (NSString *) relativePath;
+- (NSString *) relativeString;
+- (NSData *) resourceDataUsingCache:(BOOL) shouldUseCache;
+- (NSString *) resourceSpecifier;
+- (NSString *) scheme;
+- (BOOL) setProperty:(id) property
+			  forKey:(NSString *) propertyKey;
+- (BOOL) setResourceData:(NSData *) data;
+- (NSURL *) standardizedURL;
+- (NSURLHandle *) URLHandleUsingCache:(BOOL) shouldUseCache;
+- (NSString *) user;
 
 @end
 
 @interface NSObject (NSURLClient)
 
-- (void) URL: (NSURL*)sender resourceDataDidBecomeAvailable: (NSData*)newBytes;
-- (void) URL: (NSURL*)sender resourceDidFailLoadingWithReason: (NSString*)reason;
-- (void) URLResourceDidCancelLoading: (NSURL*)sender;
-- (void) URLResourceDidFinishLoading: (NSURL*)sender;
+- (void) URL:(NSURL *) sender resourceDataDidBecomeAvailable:(NSData *) newBytes;
+- (void) URL:(NSURL *) sender resourceDidFailLoadingWithReason:(NSString *) reason;
+- (void) URLResourceDidCancelLoading:(NSURL *) sender;
+- (void) URLResourceDidFinishLoading:(NSURL *) sender;
 
 @end
 

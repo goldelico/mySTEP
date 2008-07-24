@@ -10,6 +10,8 @@
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -35,35 +37,36 @@
 	BOOL caseSensitive;
 }
 
-+ (id) localizedScannerWithString:(NSString *)aString;
-+ (id) scannerWithString:(NSString *)aString;
++ (id) localizedScannerWithString:(NSString *) aString;
++ (id) scannerWithString:(NSString *) aString;
 
 - (BOOL) caseSensitive;
 - (NSCharacterSet *) charactersToBeSkipped;
-- (id) initWithString:(NSString *)aString;
+- (id) initWithString:(NSString *) aString;
 - (BOOL) isAtEnd;
 - (NSDictionary *) locale;
-- (BOOL) scanCharactersFromSet:(NSCharacterSet *)aSet
-					intoString:(NSString **)value;
+- (BOOL) scanCharactersFromSet:(NSCharacterSet *) aSet
+					intoString:(NSString **) value;
 // - (BOOL) scanDecimal:(NSDecimal *) decimalValue;	-- defined in NSDecimalNumber.h
-- (BOOL) scanDouble:(double *)value;
-- (BOOL) scanFloat:(float *)value;
-- (BOOL) scanHexDouble:(double *)value;
-- (BOOL) scanHexFloat:(float *)value;
-- (BOOL) scanHexInt:(unsigned *)value;
+- (BOOL) scanDouble:(double *) value;
+- (BOOL) scanFloat:(float *) value;
+- (BOOL) scanHexDouble:(double *) value;
+- (BOOL) scanHexFloat:(float *) value;
+- (BOOL) scanHexInt:(unsigned *) value;
 - (BOOL) scanHexLongLong:(unsigned long long *) value;
-- (BOOL) scanInt:(int *)value;
+- (BOOL) scanInt:(int *) value;
 - (BOOL) scanInteger:(NSInteger *) value;
-- (unsigned) scanLocation;
-- (BOOL) scanLongLong:(long long *)value;
-- (BOOL) scanString:(NSString *)string intoString:(NSString **)value;
-- (BOOL) scanUpToCharactersFromSet:(NSCharacterSet *)aSet 
-						intoString:(NSString **)value;
-- (BOOL) scanUpToString:(NSString *)string intoString:(NSString **)value;
-- (void) setCaseSensitive:(BOOL)flag;
-- (void) setCharactersToBeSkipped:(NSCharacterSet *)aSet;
+- (NSUInteger) scanLocation;
+- (BOOL) scanInteger:(NSInteger *) value;
+- (BOOL) scanLongLong:(long long *) value;
+- (BOOL) scanString:(NSString *) string intoString:(NSString **) value;
+- (BOOL) scanUpToCharactersFromSet:(NSCharacterSet *) aSet 
+						intoString:(NSString **) value;
+- (BOOL) scanUpToString:(NSString *) string intoString:(NSString **) value;
+- (void) setCaseSensitive:(BOOL) flag;
+- (void) setCharactersToBeSkipped:(NSCharacterSet *) aSet;
 - (void) setLocale:(NSDictionary *) localeDictionary;
-- (void) setScanLocation:(unsigned int)anIndex;
+- (void) setScanLocation:(NSUInteger) anIndex;
 - (NSString *) string;
 
 @end

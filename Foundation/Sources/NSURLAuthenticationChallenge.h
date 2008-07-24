@@ -1,10 +1,12 @@
-//
-//  NSURLAuthenticationChallenge.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
-//  Copyright (c) 2006 DSITRI. All rights reserved.
-//
+/*
+    NSURLAuthenticationChallenge.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
+    Copyright (c) 2006 DSITRI. All rights reserved.
+ 
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+*/
 
 #import <Foundation/NSObject.h>
 
@@ -38,11 +40,11 @@
 								sender:(id <NSURLAuthenticationChallengeSender>) sender;
 - (id) initWithProtectionSpace:(NSURLProtectionSpace *) space
 			proposedCredential:(NSURLCredential *) credential
-		  previousFailureCount:(int) count
+		  previousFailureCount:(NSInteger) count
 			   failureResponse:(NSURLResponse *) response
 						 error:(NSError *) error
 						sender:(id <NSURLAuthenticationChallengeSender>) sender;
-- (unsigned) previousFailureCount;
+- (NSInteger) previousFailureCount;
 - (NSURLCredential *) proposedCredential;
 - (NSURLProtectionSpace *) protectionSpace;
 - (id <NSURLAuthenticationChallengeSender>) sender;

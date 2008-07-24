@@ -8,7 +8,7 @@
 
     H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-    NSCountedSet, NSMutableSet - aligned with 10.5 by Fabian Spillner 22.04.2008
+    Fabian Spillner - API revised to be compatible to 10.5
  
     This file is part of the mySTEP Library and is provided under the 
     terms of the libFoundation BSD type license (See the Readme file).
@@ -33,18 +33,18 @@
 + (id) setWithArray:(NSArray *) array;
 + (id) setWithObject:(id) anObject;
 + (id) setWithObjects:(id) firstObj,...;
-+ (id) setWithObjects:(id *) objects count:(unsigned int) count;
++ (id) setWithObjects:(id *) objects count:(NSUInteger) count;
 + (id) setWithSet:(NSSet *) aSet;
 
 - (NSArray *) allObjects;
 - (id) anyObject;
 - (BOOL) containsObject:(id) anObject;
-- (unsigned int) count;
+- (NSUInteger) count;
 - (NSString *) description;
 - (NSString *) descriptionWithLocale:(id) locale;
 - (id) initWithArray:(NSArray *) array;
 - (id) initWithObjects:(id) firstObj,...;
-- (id) initWithObjects:(id *) objects count:(unsigned int) count;
+- (id) initWithObjects:(id *) objects count:(NSUInteger) count;
 - (id) initWithSet:(NSSet *) anotherSet;
 - (id) initWithSet:(NSSet *) set copyItems:(BOOL) flag;
 - (BOOL) intersectsSet:(NSSet *) otherSet;

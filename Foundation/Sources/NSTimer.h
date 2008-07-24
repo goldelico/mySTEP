@@ -10,6 +10,8 @@
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -34,34 +36,34 @@
 	BOOL _is_valid;
 }
 
-+ (NSTimer*) scheduledTimerWithTimeInterval:(NSTimeInterval)ti
-								 invocation:(NSInvocation *)invocation
-								 repeats:(BOOL)f;
-+ (NSTimer*) scheduledTimerWithTimeInterval:(NSTimeInterval)ti
-									 target:(id)object
-									 selector:(SEL)selector
-									 userInfo:(id)info
-									 repeats:(BOOL)f;
-+ (NSTimer*) timerWithTimeInterval:(NSTimeInterval)ti
-						invocation:(NSInvocation *)invocation
-						repeats:(BOOL)f;
-+ (NSTimer*) timerWithTimeInterval:(NSTimeInterval)ti
-							target:(id)object
-							selector:(SEL)selector
-							userInfo:(id)info
-							repeats:(BOOL)f;
++ (NSTimer *) scheduledTimerWithTimeInterval:(NSTimeInterval) ti
+								  invocation:(NSInvocation *) invocation
+									 repeats:(BOOL) f;
++ (NSTimer *) scheduledTimerWithTimeInterval:(NSTimeInterval) ti
+									  target:(id) object
+									selector:(SEL) selector
+									userInfo:(id) info
+									 repeats:(BOOL) f;
++ (NSTimer *) timerWithTimeInterval:(NSTimeInterval) ti
+						 invocation:(NSInvocation *) invocation
+							repeats:(BOOL) f;
++ (NSTimer *) timerWithTimeInterval:(NSTimeInterval) ti
+							 target:(id) object
+						   selector:(SEL) selector
+						   userInfo:(id) info
+							repeats:(BOOL) f;
 
 - (void) fire;
 - (NSDate *) fireDate;
-- (id) initWithFireDate:(NSDate *)date
-			   interval:(NSTimeInterval)seconds
-				 target:(id)target
-			   selector:(SEL)aSelector
-			   userInfo:(id)userInfo
-				repeats:(BOOL)repeats;
+- (id) initWithFireDate:(NSDate *) date
+			   interval:(NSTimeInterval) seconds
+				 target:(id) target
+			   selector:(SEL) aSelector
+			   userInfo:(id) userInfo
+				repeats:(BOOL) repeats;
 - (void) invalidate;
 - (BOOL) isValid;
-- (void) setFireDate:(NSDate *)date;
+- (void) setFireDate:(NSDate *) date;
 - (NSTimeInterval) timeInterval;
 - (id) userInfo;
 

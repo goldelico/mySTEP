@@ -5,6 +5,8 @@
    Date: 	Jan 1999
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+ 
+   Fabian Spillner, July 2008 - API revised to be coompatible to 10.5
 
    This file is part of the GNUstep Library.
    
@@ -102,34 +104,34 @@ typedef enum _NSURLHandleStatus
 	NSURLHandleStatus	_status;
 }
 
-+ (NSURLHandle*) cachedHandleForURL: (NSURL*)url;
-+ (BOOL) canInitWithURL: (NSURL*)url;
-+ (void) registerURLHandleClass: (Class)urlHandleSubclass;
-+ (Class) URLHandleClassForURL: (NSURL*)url;
++ (NSURLHandle *) cachedHandleForURL:(NSURL *) url;
++ (BOOL) canInitWithURL:(NSURL *) url;
++ (void) registerURLHandleClass:(Class) urlHandleSubclass;
++ (Class) URLHandleClassForURL:(NSURL *) url;
 
-- (void) addClient: (id <NSURLHandleClient>)client;
-- (NSData*) availableResourceData;
-- (void) backgroundLoadDidFailWithReason: (NSString*)reason;
+- (void) addClient:(id <NSURLHandleClient>) client;
+- (NSData *) availableResourceData;
+- (void) backgroundLoadDidFailWithReason:(NSString *) reason;
 - (void) beginLoadInBackground;
 - (void) cancelLoadInBackground;
-- (void) didLoadBytes: (NSData*)newData
-		 loadComplete: (BOOL)loadComplete;
+- (void) didLoadBytes:(NSData *) newData
+		 loadComplete:(BOOL) loadComplete;
 - (void) endLoadInBackground;
 - (long long) expectedResourceDataSize;
-- (NSString*) failureReason;
+- (NSString *) failureReason;
 - (void) flushCachedData;
-- (id) initWithURL: (NSURL*)url
-			cached: (BOOL)cached;
+- (id) initWithURL:(NSURL *) url
+			cached:(BOOL) cached;
 - (void) loadInBackground;
-- (NSData*) loadInForeground;
-- (id) propertyForKey: (NSString*)propertyKey;
-- (id) propertyForKeyIfAvailable: (NSString*)propertyKey;
-- (void) removeClient: (id <NSURLHandleClient>)client;
-- (NSData*) resourceData;
+- (NSData *) loadInForeground;
+- (id) propertyForKey:(NSString *) propertyKey;
+- (id) propertyForKeyIfAvailable:(NSString *) propertyKey;
+- (void) removeClient:(id <NSURLHandleClient>) client;
+- (NSData *) resourceData;
 - (NSURLHandleStatus) status;
-- (BOOL) writeData: (NSData*)data;
-- (BOOL) writeProperty: (id)propertyValue
-		forKey: (NSString*)propertyKey;
+- (BOOL) writeData:(NSData *) data;
+- (BOOL) writeProperty:(id) propertyValue
+				forKey:(NSString *) propertyKey;
 
 @end
 

@@ -15,7 +15,7 @@
 
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-   Fabian Spillner, July 2008 - API revised to be compatible to 10.5 (only NSMachPort, NSPort)
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
  
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.

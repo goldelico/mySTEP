@@ -10,6 +10,8 @@
 
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -33,7 +35,9 @@ enum
     NSTimeZoneNameStyleShortStandard,
     NSTimeZoneNameStyleDaylightSaving,
     NSTimeZoneNameStyleShortDaylightSaving
-}; typedef NSInteger NSTimeZoneNameStyle;
+}; 
+
+typedef NSInteger NSTimeZoneNameStyle;
 
 @interface NSTimeZone : NSObject  <NSCopying, NSCoding>
 
@@ -42,12 +46,12 @@ enum
 + (NSArray *) knownTimeZoneNames;
 + (NSTimeZone *) localTimeZone;
 + (void) resetSystemTimeZone;
-+ (void) setDefaultTimeZone:(NSTimeZone *)timeZone;
++ (void) setDefaultTimeZone:(NSTimeZone *) timeZone;
 + (NSTimeZone *) systemTimeZone;
-+ (NSTimeZone *) timeZoneForSecondsFromGMT:(int)seconds;
-+ (NSTimeZone *) timeZoneWithAbbreviation:(NSString *)abbreviation;  
-+ (NSTimeZone *) timeZoneWithName:(NSString *)timeZone;
-+ (NSTimeZone *) timeZoneWithName:(NSString *)timeZone data:(NSData *) data;
++ (NSTimeZone *) timeZoneForSecondsFromGMT:(int) seconds;
++ (NSTimeZone *) timeZoneWithAbbreviation:(NSString *) abbreviation;  
++ (NSTimeZone *) timeZoneWithName:(NSString *) timeZone;
++ (NSTimeZone *) timeZoneWithName:(NSString *) timeZone data:(NSData *) data;
 
 - (NSString *) abbreviation;
 - (NSString *) abbreviationForDate:(NSDate *) date;
@@ -55,11 +59,11 @@ enum
 - (NSTimeInterval) daylightSavingTimeOffset;
 - (NSTimeInterval) daylightSavingTimeOffsetForDate:(NSDate *) date;
 - (NSString *) description;
-- (id) initWithName:(NSString *)name;
-- (id) initWithName:(NSString *)timeZoneName data:(NSData *)data;
+- (id) initWithName:(NSString *) name;
+- (id) initWithName:(NSString *) timeZoneName data:(NSData *) data;
 - (BOOL) isDaylightSavingTime;
 - (BOOL) isDaylightSavingTimeForDate:(NSDate *) date;
-- (BOOL) isEqualToTimeZone:(NSTimeZone *)timeZone;
+- (BOOL) isEqualToTimeZone:(NSTimeZone *) timeZone;
 - (NSString *) localizedName:(NSTimeZoneNameStyle) style locale:(NSLocale *) locale;
 - (NSString *) name;
 - (NSDate *) nextDaylightSavingTimeTransition;

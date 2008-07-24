@@ -7,6 +7,8 @@
 
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -51,10 +53,11 @@
 		} _autorelease_vars;
 }
 
++ (NSArray *) callStackReturnAddresses;
 + (NSThread *) currentThread;
 + (void) detachNewThreadSelector:(SEL) aSelector
 						toTarget:(id) aTarget
-						withObject:(id) anArgument;
+					  withObject:(id) anArgument;
 + (void) exit;
 + (BOOL) isMainThread;
 + (BOOL) isMultiThreaded;

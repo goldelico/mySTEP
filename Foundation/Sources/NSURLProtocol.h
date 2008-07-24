@@ -1,10 +1,12 @@
-//
-//  NSURLProtocol.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
-//  Copyright (c) 2006 DSITRI. All rights reserved.
-//
+/*
+    NSURLProtocol.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
+    Copyright (c) 2006 DSITRI. All rights reserved.
+ 
+    Fabian Spillner, July 2008 - API revised to be coompatible to 10.5
+*/
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSURLCache.h>
@@ -23,8 +25,11 @@
 - (void) URLProtocol:(NSURLProtocol *) proto didFailWithError:(NSError *) error;
 - (void) URLProtocol:(NSURLProtocol *) proto didLoadData:(NSData *) data;
 - (void) URLProtocol:(NSURLProtocol *) proto didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *) chall;
-- (void) URLProtocol:(NSURLProtocol *) proto didReceiveResponse:(NSURLResponse *) response cacheStoragePolicy:(NSURLCacheStoragePolicy) policy;
-- (void) URLProtocol:(NSURLProtocol *) proto wasRedirectedToRequest:(NSURLRequest *) request redirectResponse:(NSURLResponse *) redirectResponse;
+- (void) URLProtocol:(NSURLProtocol *) proto 
+  didReceiveResponse:(NSURLResponse *) response 
+  cacheStoragePolicy:(NSURLCacheStoragePolicy) policy;
+- (void) URLProtocol:(NSURLProtocol *) proto wasRedirectedToRequest:(NSURLRequest *) request 
+	redirectResponse:(NSURLResponse *) redirectResponse;
 - (void) URLProtocolDidFinishLoading:(NSURLProtocol *) proto;
 
 @end
@@ -40,6 +45,7 @@
 + (NSURLRequest *) canonicalRequestForRequest:(NSURLRequest *) request;
 + (id) propertyForKey:(NSString *) key inRequest:(NSURLRequest *) request;
 + (BOOL) registerClass:(Class) protocolClass;
++ (void) removePropertyForKey:((NSString *) keyinReq:(NSMutableURLRequest *) req;
 + (BOOL) requestIsCacheEquivalent:(NSURLRequest *) a toRequest:(NSURLRequest *) b;
 + (void) setProperty:(id) value forKey:(NSString *) key inRequest:(NSMutableURLRequest *) request;
 + (void) unregisterClass:(Class) protocolClass;

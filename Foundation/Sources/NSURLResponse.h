@@ -5,7 +5,7 @@
     Created by Dr. H. Nikolaus Schaller on Mon Jan 05 2004.
     Copyright (c) 2004 DSITRI. All rights reserved.
 
-    Fabian Spillner, May 2008 - API revised to be compatible to 10.5
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
 */
 
 #import <Foundation/NSObject.h>
@@ -23,9 +23,9 @@
 
 - (long long) expectedContentLength;
 - (id) initWithURL:(NSURL *) URL
-		  		 MIMEType:(NSString *) MIMEType
-	expectedContentLength:(int) length 
-		 textEncodingName:(NSString *) name;
+		  MIMEType:(NSString *) MIMEType
+expectedContentLength:(NSInteger) length 
+  textEncodingName:(NSString *) name;
 - (NSString *) MIMEType;
 - (NSString *) suggestedFilename;
 - (NSString *) textEncodingName;

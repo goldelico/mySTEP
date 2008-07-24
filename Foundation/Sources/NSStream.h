@@ -7,7 +7,7 @@
 
     H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
-    Fabian Spillner, May 2008 - API revised to be compatible to 10.5 (NSInputStream, NSOutputStream)
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
  
     This file is part of the mySTEP Library and is provided
     under the terms of the GNU Library General Public License.
@@ -28,7 +28,7 @@
 @class NSOutputStream;
 @class NSSocketPort;
 
-typedef enum _NSStreamStatus
+typedef enum
 {
 	NSStreamStatusNotOpen=0,
 	NSStreamStatusOpening,
@@ -38,9 +38,11 @@ typedef enum _NSStreamStatus
 	NSStreamStatusAtEnd,
 	NSStreamStatusClosed,
 	NSStreamStatusError
-} NSStreamStatus;
+};
 
-typedef enum _NSStreamEvent
+typedef NSUInteger NSStreamStatus;
+
+typedef enum
 {
 	NSStreamEventNone=0,
 	NSStreamEventOpenCompleted=1,
@@ -48,7 +50,9 @@ typedef enum _NSStreamEvent
 	NSStreamEventHasSpaceAvailable=4,
 	NSStreamEventErrorOccurred=8,
 	NSStreamEventEndEncountered=16
-} NSStreamEvent;
+};
+
+typedef NSUInteger NSStreamEvent;
 
 extern NSString *NSStreamDataWrittenToMemoryStreamKey;
 extern NSString *NSStreamFileCurrentOffsetKey;
@@ -81,7 +85,7 @@ extern NSString *NSStreamSOCKSProxyVersion5;
 }
 
 + (void) getStreamsToHost:(NSHost *) host
-					 port:(int) port
+					 port:(NSInteger) port
 			  inputStream:(NSInputStream **) inp
 			 outputStream:(NSOutputStream **) outp;
 - (void) close;

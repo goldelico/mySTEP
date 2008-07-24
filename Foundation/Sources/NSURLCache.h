@@ -1,15 +1,40 @@
-//
-//  NSURLCache.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
-//  Copyright (c) 2006 DSITRI. All rights reserved.
-//
+/*
+    NSURLCache.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
+    Copyright (c) 2006 DSITRI. All rights reserved.
+ 
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5 (NSURLCache)
+*/
 
 #import <Foundation/NSURLResponse.h>
 
 @class NSData;
 @class NSDictionary;
+
+@interface NSURLCache : NSObject
+{
+}
+
++ (void) setSharedURLCache:(NSURLCache *) urlCache;
++ (NSURLCache *) sharedURLCache;
+
+- (NSCachedURLResponse *) cachedResponseForRequest:(NSURLRequest *) req;
+- (NSUInteger) currentDiskUsage;
+- (NSUInteger) currentMemoryUsage;
+- (NSUInteger) diskCapacity;
+- (id) initWithMemoryCapacity:(NSUInteger) memCap 
+				 diskCapacity:(NSUInteger) diskCap 
+					 diskPath:(NSString *) p;
+- (NSUInteger) memoryCapacity;
+- (void) removeAllCachedResponses;
+- (void) removeCachedResponseForRequest:(NSURLRequest *) req;
+- (void) setDiskCapacity:(NSUInteger) diskCap;
+- (void) setMemoryCapacity:(NSUInteger) memCap;
+- (void) storeCachedResponse:(NSCachedURLResponse *) response forRequest:(NSURLRequest *) req;
+
+@end
 
 typedef enum _NSURLCacheStoragePolicy
 {
@@ -17,7 +42,6 @@ typedef enum _NSURLCacheStoragePolicy
 	NSURLCacheStorageAllowedInMemoryOnly,
 	NSURLCacheStorageNotAllowed,
 } NSURLCacheStoragePolicy;
-
 
 @interface NSCachedURLResponse : NSObject
 {

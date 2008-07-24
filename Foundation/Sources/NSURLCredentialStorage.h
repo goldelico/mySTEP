@@ -1,10 +1,12 @@
-//
-//  NSURLCredentialStorage.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
-//  Copyright (c) 2006 DSITRI. All rights reserved.
-//
+/*
+    NSURLCredentialStorage.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
+    Copyright (c) 2006 DSITRI. All rights reserved.
+ 
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+*/
 
 #import <Foundation/NSObject.h>
 

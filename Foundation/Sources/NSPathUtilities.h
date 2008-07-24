@@ -10,6 +10,8 @@
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5 (only NSString)
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -59,26 +61,26 @@ extern NSString *NSUserName(void);
 
 @interface NSString (PathUtilities)
 
-- (unsigned int) completePathIntoString:(NSString**)outputName
-						  caseSensitive:(BOOL)flag
-					   matchesIntoArray:(NSArray**)outputArray
-							filterTypes:(NSArray*)filterTypes;
-- (const char*) fileSystemRepresentation;
-- (BOOL) getFileSystemRepresentation:(char*)buffer maxLength:(unsigned int)l;
+- (NSUInteger) completePathIntoString:(NSString **) outputName
+						caseSensitive:(BOOL) flag
+					 matchesIntoArray:(NSArray **) outputArray
+						  filterTypes:(NSArray *) filterTypes;
+- (const char *) fileSystemRepresentation;
+- (BOOL) getFileSystemRepresentation:(char *) buffer maxLength:(NSUInteger) l;
 - (BOOL) isAbsolutePath;
-- (NSString*) lastPathComponent;
-- (NSArray*) pathComponents;
-- (NSString*) pathExtension;
-- (NSString*) stringByAbbreviatingWithTildeInPath;
-- (NSString*) stringByAppendingPathComponent:(NSString*)aString;
-- (NSString*) stringByAppendingPathExtension:(NSString*)aString;
-- (NSString*) stringByDeletingLastPathComponent;
-- (NSString*) stringByDeletingPathExtension;
-- (NSString*) stringByExpandingTildeInPath;
-- (NSString*) stringByResolvingSymlinksInPath;
-- (NSString*) stringByStandardizingPath;
+- (NSString *) lastPathComponent;
+- (NSArray *) pathComponents;
+- (NSString *) pathExtension;
+- (NSString *) stringByAbbreviatingWithTildeInPath;
+- (NSString *) stringByAppendingPathComponent:(NSString *) aString;
+- (NSString *) stringByAppendingPathExtension:(NSString *) aString;
+- (NSString *) stringByDeletingLastPathComponent;
+- (NSString *) stringByDeletingPathExtension;
+- (NSString *) stringByExpandingTildeInPath;
+- (NSString *) stringByResolvingSymlinksInPath;
+- (NSString *) stringByStandardizingPath;
 - (NSString *) stringByTrimmingCharactersInSet:(NSCharacterSet *) set;
-- (NSArray*) stringsByAppendingPaths:(NSArray*)paths;
+- (NSArray *) stringsByAppendingPaths:(NSArray *) paths;
 
 @end
 

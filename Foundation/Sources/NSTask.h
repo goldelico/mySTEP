@@ -8,6 +8,8 @@
 
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */
@@ -44,26 +46,26 @@
     } _task;
 }
 
-+ (NSTask*) launchedTaskWithLaunchPath:(NSString*)path 
-							 arguments:(NSArray*)args;
++ (NSTask *) launchedTaskWithLaunchPath:(NSString *) path 
+							  arguments:(NSArray*)args;
 
-- (NSArray*) arguments;
-- (NSString*) currentDirectoryPath;
-- (NSDictionary*) environment;
+- (NSArray *) arguments;
+- (NSString *) currentDirectoryPath;
+- (NSDictionary *) environment;
 - (id) init;
 - (void) interrupt;										// Task management
 - (BOOL) isRunning;										// Task state
 - (void) launch;
-- (NSString*) launchPath;
+- (NSString *) launchPath;
 - (int) processIdentifier;
 - (BOOL) resume;
-- (void) setArguments: (NSArray*)args;
-- (void) setCurrentDirectoryPath: (NSString*)path;
-- (void) setEnvironment: (NSDictionary*)env;
-- (void) setLaunchPath: (NSString*)path;
-- (void) setStandardError: (id)hdl;	// accepts NSFileHandle, NSPipe or NSNumber
-- (void) setStandardInput: (id)hdl;
-- (void) setStandardOutput: (id)hdl;
+- (void) setArguments:(NSArray *) args;
+- (void) setCurrentDirectoryPath:(NSString *) path;
+- (void) setEnvironment:(NSDictionary *) env;
+- (void) setLaunchPath:(NSString *) path;
+- (void) setStandardError:(id) hdl;	// accepts NSFileHandle, NSPipe or NSNumber
+- (void) setStandardInput:(id) hdl;
+- (void) setStandardOutput:(id) hdl;
 - (id) standardError;
 - (id) standardInput;
 - (id) standardOutput;
