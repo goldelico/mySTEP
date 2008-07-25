@@ -10,6 +10,8 @@
 
 #import <Foundation/NSXMLNode.h>
 
+@class NSXMLDTD;
+
 enum 
 {
 	NSXMLDocumentXMLKind = 0,

@@ -28,4 +28,7 @@ enum {
 	NSCollectorDisabledOption = (2<<0),
 };
 
+extern NSUInteger NSLogPageSize(void);
+extern void *__strong NSAllocateCollectable(NSUInteger size, NSUInteger opts);
+extern void * NSAllocateMemoryPages(NSUInteger bytes);
 /* EOF */

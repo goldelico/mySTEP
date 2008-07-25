@@ -8,6 +8,3 @@
     This file is part of the mySTEP Library and is provided
     under the terms of the GNU Library General Public License.
 */
-
-
-

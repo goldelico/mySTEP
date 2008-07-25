@@ -45,7 +45,7 @@
 + (NSURLRequest *) canonicalRequestForRequest:(NSURLRequest *) request;
 + (id) propertyForKey:(NSString *) key inRequest:(NSURLRequest *) request;
 + (BOOL) registerClass:(Class) protocolClass;
-+ (void) removePropertyForKey:((NSString *) keyinReq:(NSMutableURLRequest *) req;
++ (void) removePropertyForKey:(NSString *) keyinReq:(NSMutableURLRequest *) req;
 + (BOOL) requestIsCacheEquivalent:(NSURLRequest *) a toRequest:(NSURLRequest *) b;
 + (void) setProperty:(id) value forKey:(NSString *) key inRequest:(NSMutableURLRequest *) request;
 + (void) unregisterClass:(Class) protocolClass;

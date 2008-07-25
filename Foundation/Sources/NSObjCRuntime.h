@@ -332,8 +332,10 @@ typedef struct _object_layout 				// what padding if any is required
 
 extern SEL NSSelectorFromString(NSString *aSelectorName);
 extern Class NSClassFromString(NSString *aClassName);
+extern Protocol NSProtocolFromString(NSString *aProtocolName);
 extern NSString *NSStringFromSelector(SEL aSelector);
 extern NSString *NSStringFromClass(Class aClass);
+extern NSString *NSStringFromProtocol(Protocol *protocol);
 extern const char *NSGetSizeAndAlignment(const char *typePtr,
 										 unsigned int *sizep,
 										 unsigned int *alignp);

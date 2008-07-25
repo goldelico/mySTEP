@@ -31,7 +31,7 @@
 - (Class) class;
 - (BOOL) conformsToProtocol:(Protocol *) aProtocol;
 - (NSString *) description;
-- (unsigned) hash;
+- (NSUInteger) hash;
 - (BOOL) isEqual:(id) anObject;
 - (BOOL) isKindOfClass:(Class) aClass;
 - (BOOL) isMemberOfClass:(Class) aClass;
@@ -42,7 +42,7 @@
 - (oneway void) release;
 - (BOOL) respondsToSelector:(SEL) aSelector;
 - (id) retain;
-- (unsigned) retainCount;
+- (NSUInteger) retainCount;
 - (id) self;
 - (Class) superclass;
 - (NSZone *) zone;
@@ -113,7 +113,7 @@
 extern unsigned long __NSAllocatedObjects;
 #endif
 
-static inline NSObject *NSAllocateObject(Class aClass, unsigned int extra, NSZone *zone)							// object allocation
+static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)							// object allocation
 {
 	id newobject=nil;
 #ifdef __mySTEP__

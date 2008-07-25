@@ -12,6 +12,8 @@
 
 @class NSData;
 @class NSDictionary;
+@class NSURLRequest;
+@class NSCachedURLResponse;
 
 @interface NSURLCache : NSObject
 {

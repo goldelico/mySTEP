@@ -1,16 +1,18 @@
-//
-//  NSKeyValueObserving.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Tue Oct 05 2004.
-//  Copyright (c) 2004 DSITRI.
-//
-//  H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
-//  Defines only methods that are not deprecated or announced to be deprecated
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+    NSKeyValueObserving.h
+    mySTEP
+
+    Created by Dr. H. Nikolaus Schaller on Tue Oct 05 2004.
+    Copyright (c) 2004 DSITRI.
+
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+    Defines only methods that are not deprecated or announced to be deprecated
+ 
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
+*/
 
 #ifndef mySTEP_NSKEYVALUEObserving_H
 #define mySTEP_NSKEYVALUEObserving_H
@@ -23,29 +25,35 @@
 @class NSIndexSet;
 @class NSString;
 
-typedef enum
+enum
 {
 	NSKeyValueChangeSetting = 1,
 	NSKeyValueChangeInsertion,
 	NSKeyValueChangeRemoval,
 	NSKeyValueChangeReplacement
-} NSKeyValueChange;
+};
 
-typedef enum
+typedef NSUInteger NSKeyValueChange;
+
+enum
 { // bit mask
 	NSKeyValueObservingOptionNew = 1 << 0,
 	NSKeyValueObservingOptionOld = 1 << 1,
 	NSKeyValueObservingOptionInitial = 1 << 2,
 	NSKeyValueObservingOptionPrior = 1 << 3
-} NSKeyValueObservingOptions;
+};
 
-typedef enum
+typedef NSUInteger NSKeyValueObservingOptions;
+
+enum
 {
 	NSKeyValueUnionSetMutation = 1,
 	NSKeyValueMinusSetMutation,
 	NSKeyValueIntersectSetMutation,
 	NSKeyValueSetSetMutation
-} NSKeyValueSetMutationKind;
+};
+
+typedef NSUInteger NSKeyValueSetMutationKind;
 
 extern NSString *NSKeyValueChangeKindKey;
 extern NSString *NSKeyValueChangeNewKey;
@@ -56,7 +64,7 @@ extern NSString *NSKeyValueChangeIndexesKey;
 
 // class NSMutableDictionary *_dependentKeys;
 + (BOOL) automaticallyNotifiesObserversForKey:(NSString *) key;
-+ (void) setKeys:(NSArray *) keys triggerChangeNotificationsForDependentKey:(NSString *) dependentKey;
++ (void) setKeys:(NSArray *) keys triggerChangeNotificationsForDependentKey:(NSString *) dependentKey; // deprecated
 + (NSSet *) keyPathsForValuesAffectingValueForKey:(NSString *) key;
 
 - (void) addObserver:(id) obj

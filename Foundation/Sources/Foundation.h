@@ -44,7 +44,6 @@
 #import <Foundation/NSDistributedNotificationCenter.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSError.h>
-#import <Foundation/NSErrorRecoveryAttempting.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSExpression.h>
 #import <Foundation/NSFileHandle.h>

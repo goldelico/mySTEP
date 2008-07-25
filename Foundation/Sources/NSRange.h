@@ -12,6 +12,8 @@
    
    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
  
+   Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
@@ -37,7 +39,7 @@ NSMaxRange(NSRange range)
 }
 
 static inline NSRange 
-NSMakeRange(unsigned int location, unsigned int length) 
+NSMakeRange(NSUInteger location, NSUInteger length) 
 {
 	return (NSRange){location, length};
 }
@@ -49,7 +51,7 @@ NSEqualRanges(NSRange range1, NSRange range2)
 }
 
 static inline BOOL 
-NSLocationInRange(unsigned location, NSRange range) 
+NSLocationInRange(NSUInteger location, NSRange range) 
 {
 	return (location >= range.location) && (location < NSMaxRange(range));
 }

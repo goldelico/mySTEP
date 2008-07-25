@@ -143,7 +143,6 @@
 		EEAA86700A148ED200F2E5B5 /* NSPredicate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8EFA4909605809006CCB63 /* NSPredicate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEAA86710A148ED200F2E5B5 /* NSAffineTransform.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8EFA9F0960954D006CCB63 /* NSAffineTransform.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEAA86720A148ED200F2E5B5 /* NSURLError.h in Headers */ = {isa = PBXBuildFile; fileRef = EE81F7C80961BDDF00F9F896 /* NSURLError.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEAA86730A148ED200F2E5B5 /* NSErrorRecoveryAttempting.h in Headers */ = {isa = PBXBuildFile; fileRef = EE81F7CE0961BFE100F9F896 /* NSErrorRecoveryAttempting.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEAA86740A148ED200F2E5B5 /* FoundationErrors.h in Headers */ = {isa = PBXBuildFile; fileRef = EE81F9010962E72600F9F896 /* FoundationErrors.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEAA86750A148ED200F2E5B5 /* NSCalendar.h in Headers */ = {isa = PBXBuildFile; fileRef = EE81F91A0962E7CA00F9F896 /* NSCalendar.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEAA86760A148ED200F2E5B5 /* NSExpression.h in Headers */ = {isa = PBXBuildFile; fileRef = EE81F92E0962E8AD00F9F896 /* NSExpression.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -365,7 +364,6 @@
 		EE6954250A34312B00E0C6C0 /* NSKeyValueObserving.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSKeyValueObserving.m; path = Sources/NSKeyValueObserving.m; sourceTree = "<group>"; };
 		EE79057E0BCE873C00A35703 /* NSNumberFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSNumberFormatter.m; path = Sources/NSNumberFormatter.m; sourceTree = "<group>"; };
 		EE81F7C80961BDDF00F9F896 /* NSURLError.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSURLError.h; path = Sources/NSURLError.h; sourceTree = "<group>"; };
-		EE81F7CE0961BFE100F9F896 /* NSErrorRecoveryAttempting.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSErrorRecoveryAttempting.h; path = Sources/NSErrorRecoveryAttempting.h; sourceTree = "<group>"; };
 		EE81F9010962E72600F9F896 /* FoundationErrors.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = FoundationErrors.h; path = Sources/FoundationErrors.h; sourceTree = "<group>"; };
 		EE81F91A0962E7CA00F9F896 /* NSCalendar.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSCalendar.h; path = Sources/NSCalendar.h; sourceTree = "<group>"; };
 		EE81F92E0962E8AD00F9F896 /* NSExpression.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSExpression.h; path = Sources/NSExpression.h; sourceTree = "<group>"; };
@@ -712,7 +710,6 @@
 				EE81FA1F0962F0EC00F9F896 /* NSDebug.h */,
 				EEA32F0109537D0D001244CF /* NSError.h */,
 				EEA32F0209537D0D001244CF /* NSError.m */,
-				EE81F7CE0961BFE100F9F896 /* NSErrorRecoveryAttempting.h */,
 				EEA32F0309537D0D001244CF /* NSException.h */,
 				EEA32F0409537D0D001244CF /* NSException.m */,
 				EEA32F0B09537D0D001244CF /* NSGeometry.h */,
@@ -1169,7 +1166,6 @@
 				EEAA86700A148ED200F2E5B5 /* NSPredicate.h in Headers */,
 				EEAA86710A148ED200F2E5B5 /* NSAffineTransform.h in Headers */,
 				EEAA86720A148ED200F2E5B5 /* NSURLError.h in Headers */,
-				EEAA86730A148ED200F2E5B5 /* NSErrorRecoveryAttempting.h in Headers */,
 				EEAA86740A148ED200F2E5B5 /* FoundationErrors.h in Headers */,
 				EEAA86750A148ED200F2E5B5 /* NSCalendar.h in Headers */,
 				EEAA86760A148ED200F2E5B5 /* NSExpression.h in Headers */,

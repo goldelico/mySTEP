@@ -44,12 +44,12 @@ typedef enum {
 + (NSNotificationQueue *) defaultQueue;
 
 - (void) dequeueNotificationsMatching:(NSNotification *) notification
-						 coalesceMask:(UInteger) coalesceMask;
+						 coalesceMask:(NSUInteger) coalesceMask;
 - (void) enqueueNotification:(NSNotification *) notification
 				postingStyle:(NSPostingStyle) postingStyle;
 - (void) enqueueNotification:(NSNotification *) notification
 				postingStyle:(NSPostingStyle) postingStyle
-				coalesceMask:(UInteger) coalesceMask
+				coalesceMask:(NSUInteger) coalesceMask
 					forModes:(NSArray *) modes;
 - (id) initWithNotificationCenter:(NSNotificationCenter *) notificationCenter;
 

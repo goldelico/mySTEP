@@ -10,6 +10,8 @@
 
 #import <Foundation/NSObject.h>
 
+@class NSArray;
+
 typedef NSInteger NSOperationQueuePriority;
 
 enum 

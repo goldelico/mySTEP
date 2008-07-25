@@ -134,7 +134,7 @@ void NSResetMapTable(NSMapTable *table);
 														// Compare Two Tables
 BOOL NSCompareMapTables(NSMapTable *table1, NSMapTable *table2);
 
-unsigned NSCountMapTable(NSMapTable *table);			// Number of Items
+NSUInteger NSCountMapTable(NSMapTable *table);			// Number of Items
 
 BOOL NSMapMember(NSMapTable *table,						// Retrieve Items
 				 const void *key,

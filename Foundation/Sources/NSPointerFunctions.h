@@ -33,9 +33,9 @@ typedef NSUInteger NSPointerFunctionsOptions;
 
 }
 
-+ (id)pointerFunctionsWithOptions:(NSPointerFunctionsOptions) opts;
++ (id) pointerFunctionsWithOptions:(NSPointerFunctionsOptions) opts;
 
-- (id)initWithOptions:(NSPointerFunctionsOptions) opts;
+- (id) initWithOptions:(NSPointerFunctionsOptions) opts;
 
 @property void *(* acquireFunction) (const void * source, NSUInteger (* size)(const void * item), BOOL shouldCopyFlag);
 @property NSString *(* descriptionFunction) (const void * item);

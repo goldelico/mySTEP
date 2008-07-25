@@ -99,10 +99,10 @@ extern const NSHashTableCallBacks NSPointerToStructHashCallBacks;
 
 														// Hash Table Functions
 NSHashTable *											// Create a Table
-NSCreateHashTable(NSHashTableCallBacks callBacks, unsigned capacity);
+NSCreateHashTable(NSHashTableCallBacks callBacks, NSUInteger capacity);
 
 NSHashTable *
-NSCreateHashTable(NSHashTableCallBacks callBacks, unsigned capacity);
+NSCreateHashTableWithZone(NSHashTableCallBacks callBacks, NSUInteger capacity, NSZone *zone);
 
 NSHashTable *
 NSCopyHashTable(NSHashTable *table);
@@ -112,7 +112,7 @@ void NSResetHashTable(NSHashTable *table);
 														// Compare Two Tables
 BOOL NSCompareHashTables(NSHashTable *table1, NSHashTable *table2);	
 
-unsigned NSCountHashTable(NSHashTable *table);			// Get Number of Items
+NSUInteger NSCountHashTable(NSHashTable *table);			// Get Number of Items
 
 NSArray *NSAllHashTableObjects(NSHashTable *table);		// Retrieve Items
 void *NSHashGet(NSHashTable *table, const void *pointer);

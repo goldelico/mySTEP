@@ -142,7 +142,7 @@ enum {
 
 @interface NSObject (NSMachPortDelegate)
 
-- (void) handleMachMessage:(void *) machMessage
+- (void) handleMachMessage:(void *) machMessage;
 
 @end
 

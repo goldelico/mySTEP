@@ -1,16 +1,18 @@
-//
-//  NSKeyValueCoding.h
-//  mySTEP
-//
-//  Created by Dr. H. Nikolaus Schaller on Tue Oct 05 2004.
-//  Copyright (c) 2004 DSITRI.
-//
-//  H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
-//  Defines only methods that are not deprecated or announced to be deprecated
-//
-//  This file is part of the mySTEP Library and is provided
-//  under the terms of the GNU Library General Public License.
-//
+/*
+    NSKeyValueCoding.h
+    mySTEP
+ 
+    Created by Dr. H. Nikolaus Schaller on Tue Oct 05 2004.
+    Copyright (c) 2004 DSITRI.
+
+    H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+    Defines only methods that are not deprecated or announced to be deprecated
+
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ 
+    This file is part of the mySTEP Library and is provided
+    under the terms of the GNU Library General Public License.
+*/
 
 #ifndef mySTEP_NSKEYVALUECODING_H
 #define mySTEP_NSKEYVALUECODING_H

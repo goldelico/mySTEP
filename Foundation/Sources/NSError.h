@@ -6,6 +6,8 @@
     Copyright (c) 2004 DSITRI.
 
   	H.N.Schaller, Dec 2005 - API revised to be compatible to 10.4
+ 
+    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
 
     Author:	Fabian Spillner <fabian.spillner@gmail.com>
     Date:	9. May 2008 - aligned with 10.5
@@ -59,6 +61,17 @@ extern NSString *NSRecoveryAttempterErrorKey;
 - (NSString *) localizedRecoverySuggestion;
 - (id) recoveryAttempter;
 - (NSDictionary *) userInfo;
+
+@end
+
+@interface NSObject (NSErrorRecoveryAttempting)
+
+- (BOOL) attemptRecoveryFromError:(NSError *) err optionIndex:(NSUInteger) idx;
+- (void) attemptRecoveryFromError:(NSError *) err 
+					  optionIndex:(NSUInteger) idx 
+						 delegate:(id) del 
+			   didRecoverSelector:(SEL) sel 
+					  contextInfo:(void *) context;
 
 @end
 
