@@ -18,8 +18,11 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \b0 \
 \
-* AppKit: NSDrawWindowBackground() added, [NSPrintOperation -setShowPanels:] added\
 * Foundation: header files updated to 10.5 compatibility\
+* Foundation: NSXML headers and classes added\
+* AppKit: modifed NSApplication, NSWorkspace, QSLaunchServices to use files in /tmp/.QuantumSTEP for the -launchedApplications and -activeApplication database\
+* Foundation: added NSFullUserName()\
+* AppKit: added NSDrawWindowBackground(), [NSPrintOperation -setShowPanels:] to the header file\
 * Foundation: added wrapper to NSObject for handling fast enumeration protocol by calling nextObject\
 * AppKit: fixed bug in NSEvent which prevented passing of Expose events to NSWindow\
 * Backend: integration of Xrender started (incl. NSBezierPath tesselation, GlyphStore)\
