@@ -772,7 +772,7 @@ static BOOL __cursorHidden = NO;
 		_w.acceptsMouseMoved = NO;  // default
 		_w.cursorRectsEnabled = YES;
 		_w.canHide = YES;
-		_w.hidesOnDeactivate = YES;
+		_w.hidesOnDeactivate = NO;	// default
 		_frame=[NSWindow frameRectForContentRect:cRect styleMask:aStyle];		// get requested screen frame
 		_themeFrame=[[NSThemeFrame alloc] initWithFrame:(NSRect){{0, 0}, _frame.size} forStyleMask:aStyle forScreen:_screen];	// create view hierarchy
 		[_themeFrame _setWindow:self];

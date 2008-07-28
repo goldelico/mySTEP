@@ -1502,11 +1502,10 @@ This method is used for selecting cells in list mode with selection by
 		_numCols = [aDecoder decodeIntForKey:@"NSNumCols"];
 		_numRows = [aDecoder decodeIntForKey:@"NSNumRows"];
 		_cellPrototype = [[aDecoder decodeObjectForKey:@"NSProtoCell"] retain];
-		// FIXME: this must be part of the caching algorithm
-//		selectedColumn = [aDecoder decodeIntForKey:@"NSSelectedCol"];
-//		selectedRow = [aDecoder decodeIntForKey:@"NSSelectedRow"];
-//		selectedCell = [aDecoder decodeObjectForKey:@"NSSelectedCell"];	// not retained
-//		[self selectCellAtRow:selectedRow column:selectedColumn];	// set selected cell
+		if([aDecoder containsValueForKey:@"NSSelectedRow"] && [aDecoder containsValueForKey:@"NSSelectedCol"])
+			[self selectCellAtRow:[aDecoder decodeIntForKey:@"NSSelectedRow"] column:[aDecoder decodeIntForKey:@"NSSelectedCol"]];
+		else if([aDecoder containsValueForKey:@"NSSelectedCell"])
+			[self selectCell:[aDecoder decodeObjectForKey:@"NSSelectedCell"]];
 #if 0
 		NSLog(@"%@ initWithCoder:%@", self, aDecoder]);
 #endif

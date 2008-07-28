@@ -633,6 +633,8 @@
 		EE52D85E09E446140047FBB3 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D467109964C8300DDE5E0 /* AppKit.framework */; };
 		EE52D85F09E446140047FBB3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
 		EE52D86D09E4466D0047FBB3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
+		EE6156220E2B670300C9A082 /* NSToolbarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6156210E2B670300C9A082 /* NSToolbarItem.m */; };
+		EE6156230E2B670300C9A082 /* NSToolbarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6156210E2B670300C9A082 /* NSToolbarItem.m */; };
 		EE61B6A609B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
 		EE61B6A709B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
 		EE7860550D2D4E1E00B2197B /* GSArrowCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */; };
@@ -1203,6 +1205,7 @@
 		EE4CC7100B3546F300B04C5F /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PrintProgressPanel.nib; sourceTree = "<group>"; };
 		EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = GSColorWheel.jpg; sourceTree = "<group>"; };
 		EE52832F09A1FB2E00218247 /* NSCursor.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSCursor.m; sourceTree = "<group>"; };
+		EE6156210E2B670300C9A082 /* NSToolbarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSToolbarItem.m; sourceTree = "<group>"; };
 		EE61B6A509B21985005A250B /* NSColorSpace.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSColorSpace.m; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSArrowCursor.tiff; sourceTree = "<group>"; };
@@ -3386,6 +3389,7 @@
 				EE349C5D097027D600CBF42C /* NSToolbarItem.h */,
 				EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */,
 				EE469E520D1B9D4800E99DA0 /* NSToolbar.m */,
+				EE6156210E2B670300C9A082 /* NSToolbarItem.m */,
 				EEA3728709540273001244CF /* NSView.h */,
 				EEA3728809540273001244CF /* NSView.m */,
 			);
@@ -6653,6 +6657,7 @@
 				EE469E5C0D1B9D7D00E99DA0 /* NSTreeNode.m in Sources */,
 				EE469E620D1B9D9000E99DA0 /* NSViewController.m in Sources */,
 				EE3E754B0D294E8400B28288 /* NSTextList.m in Sources */,
+				EE6156230E2B670300C9A082 /* NSToolbarItem.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6776,6 +6781,7 @@
 				EE469E5A0D1B9D7D00E99DA0 /* NSTreeNode.m in Sources */,
 				EE469E600D1B9D9000E99DA0 /* NSViewController.m in Sources */,
 				EE3E754A0D294E8400B28288 /* NSTextList.m in Sources */,
+				EE6156220E2B670300C9A082 /* NSToolbarItem.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

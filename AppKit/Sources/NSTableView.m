@@ -2110,6 +2110,7 @@ int index = [self columnWithIdentifier:identifier];
 		_tv.usesAlternatingRowBackgroundColors=ALTERNATINGBACKGROUND;
 		_tv.autoResizingStyle=[aDecoder decodeIntForKey:@"NSColumnAutoresizingStyle"];
 		_tv.gridStyleMask=[aDecoder decodeIntForKey:@"NSGridStyleMask"];
+		_tv.allowsTypeSelect=[aDecoder decodeBoolForKey:@"NSAllowsTypeSelect"];
 		_intercellSpacing.height=[aDecoder decodeFloatForKey:@"NSIntercellSpacingHeight"];
 		_intercellSpacing.width=[aDecoder decodeFloatForKey:@"NSIntercellSpacingWidth"];
 		_rowHeight=[aDecoder decodeFloatForKey:@"NSRowHeight"];

@@ -59,7 +59,7 @@
 	NSLog(@"NSStatusBar +systemStatusBar");
 #endif
 	// FIXME! No longer provided by DWS server but by mySystemUIServer!
-	return [[NSWorkspace _distributedWorkspace] systemStatusBar];	// request from distributed server
+	return [[NSWorkspace _systemUIServer] systemStatusBar];	// request from distributed server
 }
 
 - (BOOL) isVertical; { return ![menuView isHorizontal]; }

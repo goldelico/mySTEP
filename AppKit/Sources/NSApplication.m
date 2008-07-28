@@ -506,8 +506,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 {
 	NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
 	NSString *mainModelFile = [infoDict objectForKey:@"NSMainNibFile"];
-	NSString *name=[infoDict objectForKey:@"CFBundleName"];
 	NSString *ident=[[NSBundle mainBundle] bundleIdentifier];
+	NSString *error;
+	NSDictionary *plist;
 #if 0
 	NSLog(@"finishLaunching - mainmodel=%@ name=%@ ident=%@", mainModelFile, name, ident);
 #endif
@@ -515,32 +516,33 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 0
 	NSLog(@"App Icon = %@", _appIcon);
 #endif
+#if 1
+		NSLog(@"writing to %@", [NSWorkspace _activeApplicationPath:nil]);
+#endif
+	[[NSFileManager defaultManager] createDirectoryAtPath:[NSWorkspace _activeApplicationPath:nil] attributes:nil];
+#if 1
+	NSLog(@"writing %@", [NSWorkspace _activeApplicationPath:ident], ident);
+#endif
+	plist=[NSDictionary dictionaryWithObjectsAndKeys:
+				 [[NSBundle mainBundle] bundlePath], @"NSApplicationPath",
+				 [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"], @"NSApplicationName",
+				 ident, @"NSApplicationBundleIdentifier",
+				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessIdentifier",
+				 [NSNumber numberWithInt:time(NULL)], @"NSApplicationProcessSerialNumberHigh",
+				 [NSNumber numberWithInt:getpid()], @"NSApplicationProcessSerialNumberLow",
+				 nil];
+	if(![[NSFileManager defaultManager] createFileAtPath:[NSWorkspace _activeApplicationPath:ident]
+																					contents:[NSPropertyListSerialization dataFromPropertyList:plist
+																																															format:NSPropertyListXMLFormat_v1_0
+																																										errorDescription:&error]
+																				attributes:nil])	// let the world know that I am launching
+		NSLog(@"could not create %@", [NSWorkspace _activeApplicationPath:ident]);
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillFinishLaunching) object:self];
 	if(!_app.disableServices)						// register services handler before any awakeFromNib calls
 		[_listener registerAsServiceProvider];
-
+	
 	// FIXME: according to Tiger docu we should already show the menu bar here - if [NSMenu menuBarVisible] is YES
-
-	// register with system UI server
-
-	NS_DURING
-		{
-			NSString *path=[[NSBundle mainBundle] bundlePath];
-#if 0
-			NSLog(@"try to registerApplication:%@ with NSSystemServer", ident);
-#endif
-			if(!name)
-				name=[[path lastPathComponent] stringByDeletingPathExtension];	// use bundle name w/o .app instead
-			[[NSWorkspace _distributedWorkspace] registerApplication:getpid()
-																name:name		// application name
-																path:path		// full path of bundle
-															   NSApp:self];		// register as newly launched application with NSSystemServer
-		}
-	NS_HANDLER
-		NSLog(@"could not register %@[%@] with NSSystemServer due to %@", name, ident, [localException reason]);
-		// ignore for now
-	NS_ENDHANDLER
-
+	
 	if([[infoDict objectForKey:@"LSGetAppDiedEvents"] boolValue])
 		{ // convert SIGCHLD
 		// find a mechanism to handle kAEApplicationDied
@@ -561,9 +563,12 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #endif
 	if(![self mainMenu])
 		[self setMainMenu:[[NSMenu alloc] initWithTitle:@"Default"]];	// could not load from a NIB, replace a default menu
+	else
+		[[NSDocumentController sharedDocumentController] _updateOpenRecentMenu];	// create/add/update Open Recent submenu
 	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];	// process command line and -application:openFile:
 	[self activateIgnoringOtherApps:NO];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
+// we should also send a distributed notification
 }
 
 - (void) dealloc
@@ -862,7 +867,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 1
 	NSLog(@"NSApp: windowWillClose - %d open windows", i);
 #endif
-	if(!_app.isHidden && _app.isActive && [aNotification object] == _keyWindow)
+	if(!_app.isHidden && [aNotification object] == _keyWindow && [self isActive])
 		{ // the key window is being closed
 		NSWindow *oldKey = _keyWindow;
 		NSWindow *w;
@@ -990,7 +995,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 					{ // this should be an inking event
 					NS_DURING
 						{ // try to handle by server which can pass back recognized characters to -sendEvent or even better postEvent:
-							id <_NSWorkspaceServerProtocol> dws=[NSWorkspace _distributedWorkspace];
+							id <_NSWorkspaceServerProtocol> dws=[NSWorkspace _systemUIServer];
 							if(dws)
 								{ // ok
 								NSPoint point=[[event window] convertBaseToScreen:[event locationInWindow]];
@@ -1002,10 +1007,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 						NSLog(@"could not send startInking message due to %@", [localException reason]);
 					NS_ENDHANDLER
 					}
-				// activate by clicking into window
-					// FIXME: check if we are a non-activating panel
-				if(!_app.isActive && ([event window] != _appIconWindow))
-					{
+				if(([event window] != _appIconWindow))
+					{ // activate by clicking into window
 					if([[event window] styleMask] & NSNonactivatingPanelMask)
 						{ // only grab the keyboard focus without activating
 						[_keyWindow becomeKeyWindow];
@@ -1037,7 +1040,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 1
 				NSLog(@"%@ keyDown: %@", NSStringFromClass(isa), event);
 #endif
-				if(_app.isActive && [[event characters] length] > 0)
+				if([[event characters] length] > 0)
 					{ // event is providing characters - i.e. not just a meta-key
 					NSEnumerator *e;
 					NSWindow *w;
@@ -1064,13 +1067,10 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		case NSCursorUpdate:
 		case NSApplicationDefined:
 			{ // send to key window only
-				if(_app.isActive)
-					{
 #if 0
 					NSLog(@"NSEvent: %@ to keyWindow %@", event, _keyWindow);
 #endif
-					[_keyWindow sendEvent:event];
-					}
+				[_keyWindow sendEvent:event];
 				break;
 			}
 		case NSSystemDefined:
@@ -1275,23 +1275,47 @@ NSEvent *event = nil;									// if queue contains
 }
 
 - (BOOL) isRunning								{ return _app.isRunning; }
-- (BOOL) isActive								{ return _app.isActive; }
 - (BOOL) isHidden								{ return _app.isHidden; }
+
+- (void) _unhideWindows:(BOOL) flag;
+{
+	NSArray *_windowList = [self windows];
+	int i, count = [_windowList count];
+	for(i = 0; i < count; i++)
+			{
+				NSWindow *w = [_windowList objectAtIndex:i];
+				if([w hidesOnDeactivate])
+						{
+							if(flag && ![w isVisible])
+								[w orderFront:nil];	// unhide
+							else if(!flag && [w isVisible])
+								[w orderOut:nil];	// hide
+						}
+			}
+}
+
+- (BOOL) isActive
+{ // if active application is defined and is our pid
+	NSDictionary *app=[[NSWorkspace sharedWorkspace] activeApplication];
+#if 1
+	NSLog(@"active app=%@", app);
+#endif
+	return [[app objectForKey:@"NSApplicationProcessIdentifier"] intValue] == getpid();
+}
 
 - (void) activateIgnoringOtherApps:(BOOL)flag
 {
 #if 1
 	NSLog(@"activateIgnoringOtherApps:%@", flag?@"YES":@"NO");
 #endif
-	if (!_app.isActive || flag)				// menu's should listen for note so
-		{									// that they are up when app active
-		_app.isActive = YES;
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillBecomeActive) object: self];
-		NS_DURING
-			[[NSWorkspace _distributedWorkspace] makeActiveApplication:getpid()];
-		NS_HANDLER
-			NSLog(@"could not notify activation due to %@", [localException reason]);
-		NS_ENDHANDLER
+	if (flag || ![self isActive])
+		{ // make application known to the public
+			NSString *active=[NSWorkspace _activeApplicationPath:@"active"];
+			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillBecomeActive) object: self];	 // menu's should listen for note so that they are up when app active
+			if(![[NSFileManager defaultManager] removeFileAtPath:active handler:nil])	// reove as active application
+				NSLog(@"remove error for activate");
+		[[NSFileManager defaultManager] createSymbolicLinkAtPath:active pathContent:[[NSBundle mainBundle] bundleIdentifier]];	// link to identifier
+			[self _unhideWindows:NO];		// hide
 		if(flag)
 			{
 			if(_mainWindow)
@@ -1307,17 +1331,18 @@ NSEvent *event = nil;									// if queue contains
 
 - (void) deactivate
 {
-	if(_app.isActive)				// in order to make themselves invisible 
-		{			 				// when the application is not active.
-		_app.isActive = NO;
+	if([self isActive])				// in order to make themselves invisible 
+		{	// when the application is not active.
+			NSString *active=[NSWorkspace _activeApplicationPath:@"active"];
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillResignActive) object:self];
 #if 1
 		NSLog(@"NSApp deactivate");
 #endif
 		[_keyWindow resignKeyWindow];
-		[_mainMenuWindow orderOut:self];	// hide our application menu (?)
-		// FIXME: we should also hide inspector panels etc.
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidResignActive) object:self];
+			if(![[NSFileManager defaultManager] removeFileAtPath:active handler:nil])	// reove as active application
+				NSLog(@"remove error for deactivate");
+			[self _unhideWindows:NO];		// hide
+			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidResignActive) object:self];
 		}
 }
 
@@ -1346,15 +1371,16 @@ NSEvent *event = nil;									// if queue contains
 - (IBAction) unhide:(id)sender
 {
 	[self unhideWithoutActivation];
-	[self activateIgnoringOtherApps: YES];
+	[self activateIgnoringOtherApps:YES];
 }
 
 - (IBAction) unhideAllApplications:(id)sender;
 {
 	NSDictionary *a;
-	NSEnumerator *e=[[[NSWorkspace _distributedWorkspace] launchedApplications] objectEnumerator];
+	NSEnumerator *e=[[[NSWorkspace sharedWorkspace] launchedApplications] objectEnumerator];
 	while((a=[e nextObject]))
 		{
+			// connect through DO
 		if([a objectForKey:@"NSApplicationNSApp"] == NSApp)
 			continue;	// compare to self - ????? does this work through object NSPortEncoding?
 		NS_DURING
@@ -1369,7 +1395,7 @@ NSEvent *event = nil;									// if queue contains
 - (int) requestUserAttention:(NSRequestUserAttentionType) requestType;
 {
 	NS_DURING
-		NS_VALUERETURN([[NSWorkspace _distributedWorkspace] requestUserAttention:requestType forApplication:self], int);
+		NS_VALUERETURN([[NSWorkspace _systemUIServer] requestUserAttention:requestType forApplication:self], int);
 	NS_HANDLER
 		NSLog(@"could not requestUserAttention due to %@", [localException reason]);
 	NS_ENDHANDLER
@@ -1381,7 +1407,7 @@ NSEvent *event = nil;									// if queue contains
 	if(request != 0)
 		{
 		NS_DURING
-			[[NSWorkspace _distributedWorkspace] cancelUserAttentionRequest:request];
+			[[NSWorkspace _systemUIServer] cancelUserAttentionRequest:request];
 		NS_HANDLER
 			NSLog(@"could not requestUserAttention due to %@", [localException reason]);
 		NS_ENDHANDLER
@@ -1513,13 +1539,13 @@ NSWindow *w;
 - (IBAction) orderFrontCharacterPalette:(id)sender
 {
 	NSLog(@"orderFrontCharacterPalette");
-	[[NSWorkspace _distributedWorkspace] enableVKBD:YES];
+	[[NSWorkspace _systemUIServer] enableVKBD:YES];
 }
 
 - (IBAction) _orderOutCharacterPalette:(id)sender
 {
 	NSLog(@"orderFrontCharacterPalette");
-	[[NSWorkspace _distributedWorkspace] enableVKBD:NO];
+	[[NSWorkspace _systemUIServer] enableVKBD:NO];
 }
 
 #if OLD
@@ -1907,16 +1933,10 @@ NSWindow *w;
 #if 0
 		NSLog(@"replyToApplicationShouldTerminate:YES");
 #endif
-		[[NSUserDefaults standardUserDefaults] synchronize]; // write all unwritten changes
+			[self deactivate];	// if we are active, remove as active application
+			[[NSFileManager defaultManager] removeFileAtPath:[NSWorkspace _activeApplicationPath:[[NSBundle mainBundle] bundleIdentifier]] handler:nil];	// remove from launched applications list
+			[[NSUserDefaults standardUserDefaults] synchronize]; // write all unwritten changes
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillTerminate) object: self];	// last chance to clean-up
-		
-		NSLog(@"try to unRegisterApplication with NSSystemServer");
-		NS_DURING
-			[[NSWorkspace _distributedWorkspace] unRegisterApplication:getpid()];	// unregister with NSSystemServer
-		NS_HANDLER
-			NSLog(@"could not unregister in launchedApplications with NSSystemServer due to %@", [localException reason]);
-			// but otherwise ignore
-		NS_ENDHANDLER
 		[[NSGraphicsContext currentContext] release];			// clean up connection to X server
 		exit(0);	
 		}

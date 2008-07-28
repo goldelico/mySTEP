@@ -62,7 +62,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 {
 	NSColor	*color = nil;
 	NSString *rep;
-	int cnt=10;
+	int cnt=10;	// break recursion if someone did make an error
 #if 0
 	NSLog(@"NSColor _systemColorWithName:%@", name);
 #endif
@@ -75,16 +75,21 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 			else
 				break;	// stop at last level
 		}
-	if(rep)
+	if([rep hasPrefix:@"/"])
+		{ // file to image which defines a pattern color
+			NSImage *img=[[[NSImage alloc] initWithContentsOfFile:rep] autorelease];
+			if(img)
+				color=[self colorWithPatternImage:img];
+		}
+	else if(rep)
 		{ // look up
 		const char *str = [rep cString];
-		float r, g, b;
-
-		if(sscanf(str, "%f %f %f", &r, &g, &b) != 3)
+		float r, g, b, a=1.0;
+		int args=sscanf(str, "%f %f %f %f", &r, &g, &b, &a);
+		if(!(args == 3 || args == 4))
 			NSLog(@"System color '%@' has bad string rep: '%@'", name, rep);
-		else
-			if((color = [self colorWithCalibratedRed:r green:g blue:b alpha:1.0]))
-				[_systemColors setColor:color forKey:name];
+		if((color = [self colorWithCalibratedRed:r green:g blue:b alpha:a]))
+			[_systemColors setColor:color forKey:name];
 		}
 	else
 		NSLog(@"Request for unknown system color - '%@'", name);
@@ -383,14 +388,14 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 
 // Predefined NSColors (cached)
 
-#define COLOR(R,G,B,A)	static NSColor *c; return c?c:(c=[[NSColor colorWithCalibratedRed:R green:G blue:B alpha:A] retain])	// simple caching system
+// #define COLOR(R,G,B,A)	static NSColor *c; return c?c:(c=[[NSColor colorWithCalibratedRed:R green:G blue:B alpha:A] retain])	// simple caching system
 #define CLR()			static NSColor *c; return c?c:(c=[[NSColor colorWithCatalogName:@"System" colorName:NSStringFromSelector(_cmd)] retain])	// simple caching system
 
+#if OLD
 + (NSColor*) blackColor					{ COLOR(0.0, 0.0, 0.0, 1.0); }
 + (NSColor*) darkGrayColor				{ COLOR(0.33, 0.33, 0.33, 1.0); }
 + (NSColor*) grayColor					{ COLOR(0.5, 0.5, 0.5, 1.0); }
 + (NSColor*) whiteColor					{ COLOR(1.0, 1.0, 1.0, 1.0); }
-+ (NSColor*) clearColor					{ COLOR(0.0, 0.0, 0.0, 0.0); }
 + (NSColor*) lightGrayColor				{ COLOR(0.67, 0.67, 0.67, 1.0); }
 + (NSColor*) blueColor					{ COLOR(0.0, 0.0, 1.0, 1.0); }
 + (NSColor*) brownColor					{ COLOR(0.6, 0.4, 0.2, 1.0); }
@@ -401,6 +406,26 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 + (NSColor*) purpleColor				{ COLOR(0.5, 0.0, 0.5, 1.0); }
 + (NSColor*) redColor					{ COLOR(1.0, 0.0, 0.0, 1.0); }
 + (NSColor*) yellowColor				{ COLOR(1.0, 1.0, 0.0, 1.0); }
+
++ (NSColor*) clearColor					{ COLOR(0.0, 0.0, 0.0, 0.0); }
+#endif
+
++ (NSColor*) blackColor					{ CLR(); }
++ (NSColor*) darkGrayColor				{ CLR(); }
++ (NSColor*) grayColor					{ CLR(); }
++ (NSColor*) whiteColor					{ CLR(); }
++ (NSColor*) lightGrayColor				{ CLR(); }
++ (NSColor*) blueColor					{ CLR(); }
++ (NSColor*) brownColor					{ CLR(); }
++ (NSColor*) cyanColor					{ CLR(); }
++ (NSColor*) greenColor					{ CLR(); }
++ (NSColor*) magentaColor				{ CLR(); }
++ (NSColor*) orangeColor				{ CLR(); }
++ (NSColor*) purpleColor				{ CLR(); }
++ (NSColor*) redColor					{ CLR(); }
++ (NSColor*) yellowColor				{ CLR(); }
+
++ (NSColor*) clearColor					{ CLR(); }
 
 + (NSColor*) controlBackgroundColor		{ CLR(); }
 + (NSColor*) controlColor				{ CLR(); }

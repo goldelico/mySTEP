@@ -115,6 +115,7 @@ typedef NSUInteger NSTableViewDropOperation;
 		UIBITFIELD(unsigned int, allowsColumnReordering, 1);
 		UIBITFIELD(unsigned int, autosaveTableColumns, 1);
 		UIBITFIELD(unsigned int, verticalMotionCanBeginDrag, 1);
+		UIBITFIELD(unsigned int, allowsTypeSelect, 1);
 		} _tv;
 }
 

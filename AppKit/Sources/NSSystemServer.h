@@ -29,13 +29,12 @@
 
 #define NSWorkspaceServerPort @"com.quantum-step.loginwindow"	// NSMessagePort to contact
 
-@protocol _NSWorkspaceServerProtocol	// communication with distributed workspace server (which should be the loginwindow process)
+@protocol _NSWorkspaceServerProtocol	// communication with system UI (which should be the loginwindow process)
 
 /* application management */
 
-- (bycopy NSArray *) launchedApplications;		// return info about all applications (array of NSDictionary)
-- (bycopy NSDictionary *) activeApplication;	// return info about active application
-- (oneway void) makeActiveApplication:(int) pid;			// make this the active application
+// FIXME - can be removed!
+
 - (oneway void) registerApplication:(int) pid
 							   name:(bycopy NSString *) name		// name
 							   path:(bycopy NSString *) path		// full path
@@ -90,6 +89,6 @@
 
 @interface NSWorkspace (NSWorkspaceServer)
 
-+ (id <_NSWorkspaceServerProtocol>) _distributedWorkspace;	// get distributed object to contact loginwindow
++ (id <_NSWorkspaceServerProtocol>) _systemUIServer;	// get distributed object to contact loginwindow
 
 @end

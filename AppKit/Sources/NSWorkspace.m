@@ -90,6 +90,10 @@ NSWorkspace.m
 - (NSDictionary *) fileTypeList;
 - (NSArray *) knownApplications;
 
+- (BOOL) launchAppWithBundle:(NSBundle *) b
+										 options:(NSWorkspaceLaunchOptions) options
+		additionalEventParamDescriptor:(id) urls
+						launchIdentifier:(NSNumber **) identifiers;
 @end
 
 // Class variables
@@ -477,6 +481,189 @@ static BOOL __fileSystemChanged = NO;
 - (NSDictionary *) fileTypeList; { if(!QSApplicationsByExtension) [self findApplications]; return QSApplicationsByExtension; }
 - (NSArray *) knownApplications; { if(!QSApplicationIdentsByName) [self findApplications]; return [QSApplicationIdentsByName allKeys]; }
 
+// this is the core application launcher method
+
+// FIXME: how are arguments/URLs from openURL really passed here (if we launch/send openApp event through DO)?
+
+- (BOOL) launchAppWithBundle:(NSBundle *) b
+										 options:(NSWorkspaceLaunchOptions) options
+	additionalEventParamDescriptor:(id) params
+						launchIdentifier:(NSNumber **) identifiers;
+{
+	NSTask *task;
+	NSDate *date;
+	NSString *executable;
+	NSMutableDictionary *dict;
+	NSString *appname;
+	NSString *appFile;	// active application file
+	NSMutableArray *args;
+	unsigned long psn_low, psn_high;
+	struct timeval tp;
+	//
+	// we keep a record (Plist) for each launched application in /tmp/.QuantumSTEP.apps/<bundleIdentifier>
+	// from that we can properly interlock application launch
+	// we have different states:
+	// a) app is not in launched applications files
+	//   => launch
+	// b) app is in launched applications files
+	//   if multiple instances => launch
+	//   try to connect through DO
+	//     if no response => remove current record and launch new instance
+	//     if response => send eventParamDescriptor and arguments
+	if(options&NSWorkspaceLaunchInhibitingBackgroundOnly)
+			{ // check if we want to launch a background only application and deny
+				if([[b objectForInfoDictionaryKey:@"LSBackgroundOnly"] boolValue])
+					return NO;	// is background only
+			}
+	appFile=[NSWorkspace _activeApplicationPath:[b bundleIdentifier]];
+	while(YES)
+			{ // try to launch exclusively
+				if((options&NSWorkspaceLaunchNewInstance) == 0 && open([appFile fileSystemRepresentation], O_CREAT|O_EXCL, 0644) < 0)
+						{ // We are not the first to write the file. This means someone else is launching or has launched the same application
+							NSDictionary *app=[NSDictionary dictionaryWithContentsOfFile:appFile];
+							pid_t pid=[[app objectForKey:@"NSApplicationProcessIdentifier"] intValue];
+							if(pid)
+									{ // if file is non-empty and defines a pid, it is up and running (DO port is initialized)
+#if 1
+										NSLog(@"App is already running with pid=%d", pid);
+#endif
+										if([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"/proc/%d", pid]])
+												{ // process exists
+													id a;
+#if 1
+													NSLog(@"process exists");
+													NSLog(@"contact by DO");
+#endif
+													NS_DURING
+													if([[b bundleIdentifier] isEqual:[[NSBundle mainBundle] bundleIdentifier]])
+														a=[NSApp delegate];			// that is myself - avoid loop through DO
+													else
+															{
+																a = [NSConnection connectionWithRegisteredName:[b bundleIdentifier] host:@""];	// Try to contact the existing instance
+																if(a)
+																		{ // ports exists (but might not respond)
+																			[a setRequestTimeout:1.0];	// should answer nearly immediately
+																			[a setReplyTimeout:2.0];
+																			a = [a rootProxy];	// get root proxy
+																		}
+															}
+#if 0
+														NSLog(@"connection to application=%@", a);
+#endif
+														[[a retain] autorelease];	// FIXME: do we really need that???
+													// if we are sending to ourselves, a is the delegate - and should respond to this method!
+														NS_VALUERETURN([a _application:a openURLs:params withOptions:options], BOOL);	// call the handler of GSListener
+													NS_HANDLER
+													NSLog(@"exception while contacting other application: %@", localException);
+														return NO;	// timeout - did not respond
+													NS_ENDHANDLER
+												}
+										else
+												{ // App has crashed: launch a new instance (which will get a different pid!)
+#if 1
+													NSLog(@"App has crashed. Launching new instance.");
+													// loop with timeout until pid changes
+#endif
+												break;
+												}
+									}
+							else
+									{ // App is not (yet) up and running
+#if 1
+										NSLog(@"app not yet started (or crashed before launching)");
+#endif
+										// get attributes of appfile
+										//    App is not yet running
+										//    if creation date is too old
+										//       App did never launch: launch a new instance
+										//    else
+										//       App is still launching, wait and then contact through DO
+									break;
+									}
+						}
+			}
+	executable=[b executablePath];	// get executable within bundle
+	if(!executable)
+		return NO;	// we have no executable to launch
+	appname=[b objectForInfoDictionaryKey:@"CFBundleName"];
+	if(!appname)
+		appname=[[[b bundlePath] lastPathComponent] stringByDeletingPathExtension];	// use bundle name w/o .app instead
+	gettimeofday(&tp, NULL);	// the unique PSN are assigned here and passed to the app by -psn_%lu_%lu
+	psn_high=tp.tv_sec;
+	psn_low=tp.tv_usec;
+	dict=[NSMutableDictionary dictionaryWithObjectsAndKeys:
+				[b bundlePath], @"NSApplicationPath",
+				appname, @"NSApplicationName",
+				[b bundleIdentifier], @"NSApplicationBundleIdentifier",
+				[NSNumber numberWithInt:0], @"NSApplicationProcessIdentifier",	// we don't know yet
+				[NSNumber numberWithInt:psn_high], @"NSApplicationProcessSerialNumberHigh",
+				[NSNumber numberWithInt:psn_low], @"NSApplicationProcessSerialNumberLow",
+				nil];
+	[[[NSWorkspace sharedWorkspace] notificationCenter] postNotificationName:WORKSPACE(WillLaunchApplication)
+																					 object:self
+																				 userInfo:dict];
+	args=[NSMutableArray arrayWithCapacity:15];
+	NS_DURING   // shield caller from exceptions
+		[args addObject:[NSString stringWithFormat:@"-psn_%lu_%lu", psn_high, psn_low]];
+		if(params)
+				{ // convert URLs to command line arguments
+					NSEnumerator *e=[params objectEnumerator];
+					NSURL *url;
+					while((url=[e nextObject]))
+							{
+								if([url isFileURL])
+									[args addObject:[url path]];	// add plain path - should we do a tilde abbreviation?
+								else
+									[args addObject:[url absoluteString]];	// full URL
+							}
+				}
+		if(options&NSWorkspaceLaunchAndPrint)
+			[args addObject:@"-NSPrint"];	// append behind files or they would become arguments to the options
+		if(options&NSWorkspaceLaunchWithoutActivation)
+			[args addObject:@"-NSNoActivation"];
+		if((options&(NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchNewInstance)) == (NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchNewInstance))
+			[args addObject:@"-NSTemp"];
+		else if(options&NSWorkspaceLaunchWithoutAddingToRecents)
+			[args addObject:@"-NSNoUI"];
+		else if(options&NSWorkspaceLaunchNewInstance)
+			[args addObject:@"-NSNew"];
+#if 0
+		NSLog(@"NSWorkspace launchApplication: '%@' $*=%@", executable, args);
+#endif
+		task=[[[NSTask alloc] init] autorelease];
+		[task setLaunchPath:executable];
+		[task setArguments:args];
+		[task setEnvironment:[b objectForInfoDictionaryKey:@"LSEnvironment"]];	// may be nil?
+		[task launch];
+	NS_HANDLER
+		NSLog(@"could not launchApplication %@ due to %@", [b bundlePath], [localException reason]);
+		return NO;  // did not launch - e.g. bad executable
+	NS_ENDHANDLER
+	if(!(options&NSWorkspaceLaunchAsync))
+			{ // synchronously, i.e. wait until launched
+				pid_t pid;
+				while(YES)
+						{
+							// FIXME: timeout? i.e. if App never launches
+							NSDictionary *app=[NSDictionary dictionaryWithContentsOfFile:appFile];
+							pid=[[app objectForKey:@"NSApplicationProcessIdentifier"] intValue];
+							if(pid > 0)
+								break;	// wait until app appears to have launched
+#if 1
+							NSLog(@"Wait until launched.");
+#endif
+							date=[NSDate dateWithTimeIntervalSinceNow:0.5];
+							[[NSRunLoop currentRunLoop] runUntilDate:date];
+						}
+				// should be a distributed notification sent by launched application!
+				[dict setObject:[NSNumber numberWithInt:pid] forKey:@"NSApplicationProcessIdentifier"];
+				[[[NSWorkspace sharedWorkspace] notificationCenter] postNotificationName:WORKSPACE(DidLaunchApplication)
+																																					object:self
+																																				userInfo:dict];
+			}
+	return YES;
+}
+
 @end
 
 @implementation	NSWorkspace
@@ -683,156 +870,47 @@ static BOOL __fileSystemChanged = NO;
 	appName=[self fullPathForApplication:appName];
 	if(!appName)
 		return NO;	// unknown application
+	
 	// FIXME: how to handle showIcon and autolaunch?
+	
 	return [self launchAppWithBundleIdentifier:appName options:NSWorkspaceLaunchDefault additionalEventParamDescriptor:nil launchIdentifier:NULL];
 }
 
 - (BOOL) launchAppWithBundleIdentifier:(NSString *) identOrApp
 							   options:(NSWorkspaceLaunchOptions) options
-		additionalEventParamDescriptor:(id) ignored
+		additionalEventParamDescriptor:(id) params
 					  launchIdentifier:(NSNumber **) identifiers;
 { // launch application (without files)
 	NSString *path;
 	NSBundle *b;
-	NSDictionary *dict;
-	NSString *appname;
-	id a;
 #if 1
-	NSLog(@"launchAppWithBundleIdentifier: %@ options: %d eventparam: %@", identOrApp, options, ignored); 
+	NSLog(@"launchAppWithBundleIdentifier: %@ options: %d eventparam: %@", identOrApp, options, params); 
 #endif
-	if (!__launchServices)
+	if(!__launchServices)
 		[QSLaunchServices sharedLaunchServices];
 	path=[__launchServices absolutePathForAppBundleWithIdentifier:identOrApp];	// returns nil if not found
 	if(!path)
-		path=[__launchServices fullPathForApplication:identOrApp];	// returns nil if not found - should be application name or absolute path
+		path=[__launchServices fullPathForApplication:identOrApp];	// returns nil if not found
 #if 0
 	NSLog(@"  resolved application path: %@", path);
 #endif
 	if(!path)
 		return NO;	// still not found
 	b=[NSBundle bundleWithPath:path];
-	
-	// FIXME: somewhere here we should move this code into __launchServices
-	
 	if(!b)
 		return NO;	// is not a valid bundle
-	if(options&NSWorkspaceLaunchInhibitingBackgroundOnly)
-		{ // check if we want to launch a background only application and deny
-		if([[b objectForInfoDictionaryKey:@"LSBackgroundOnly"] boolValue])
-			return NO;	// is background only
-		}
-	if(options&NSWorkspaceLaunchNewInstance)
-		a=nil;	// force to launch new instance
-	else
-		{
-		if([[b bundleIdentifier] isEqual:[[NSBundle mainBundle] bundleIdentifier]])
-			{
-			// a=[GSListener listener];	// handle like a remote connection
-			a=[NSApp delegate];			// that is myself
+	if([[QSLaunchServices sharedLaunchServices] launchAppWithBundle:b
+																													options:options
+																	 additionalEventParamDescriptor:params
+																								 launchIdentifier:identifiers])
+			{ // did launch as expected
+				if(options&NSWorkspaceLaunchAndHideOthers)
+					[NSApp hideOtherApplications:self];
+				if(options&NSWorkspaceLaunchAndHide)
+					[NSApp hide:self];
+				return YES;
 			}
-		else
-			{ // Try to contact an existing instance
-			NS_DURING
-				a = [NSConnection connectionWithRegisteredName:[b bundleIdentifier] host:@""];
-				if(a)
-					{ // ports exists (but might not respond
-					[a setRequestTimeout:1.0];	// should answer nearly immediately
-					[a setReplyTimeout:2.0];
-					a = [a rootProxy];
-					}
-			NS_HANDLER
-				a = nil;										// Fatal error in DO
-			NS_ENDHANDLER
-			}
-		}
-	appname=[b objectForInfoDictionaryKey:@"CFBundleName"];
-	if(!appname)
-		appname=[[path lastPathComponent] stringByDeletingPathExtension];	// use bundle name w/o .app instead
-	dict=[NSDictionary dictionaryWithObjectsAndKeys:
-		path, @"NSApplicationPath",
-		appname, @"NSApplicationName",
-		[b bundleIdentifier], @"NSApplicationBundleIdentifier",
-		[NSNumber numberWithInt:0], @"NSApplicationProcessIdentifier",
-		[NSNumber numberWithInt:0], @"NSApplicationProcessSerialNumberHigh",
-		[NSNumber numberWithInt:0], @"NSApplicationProcessSerialNumberLow",
-		nil];
-	[[self notificationCenter] postNotificationName:WORKSPACE(WillLaunchApplication)
-											 object:self
-										   userInfo:dict];
-	if(a == nil)
-		{ // fatal in DO -> try to launch new process and pass URLs to open as argument(s)
-		NSTimeInterval waitInterval;
-		NSDate *date;
-		NSString *executable=[b executablePath];	// get executable within bundle
-		NSMutableArray *args;
-		if(!executable)
-			return NO;	// invalid bundle to launch
-		args=[NSMutableArray arrayWithCapacity:15];
-	//	[args addObject:[NSString stringWithFormat:@"-psn_%lu_%lu", high, low]];
-		NS_DURING   // shield caller from exceptions
-			if(ignored)
-				{ // convert URLs to command line arguments
-				NSEnumerator *e=[ignored objectEnumerator];
-				NSURL *url;
-				while((url=[e nextObject]))
-					{
-					if([url isFileURL])
-						[args addObject:[url path]];	// plain path - might do a tilde abbreviation?
-					else
-						[args addObject:[url absoluteString]];
-					}
-				}
-			if(options&NSWorkspaceLaunchAndPrint)
-				[args addObject:@"-NSPrint"];	// append behind files or they would become arguments to the options
-			if((options&(NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchNewInstance)) == (NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchNewInstance))
-				[args addObject:@"-NSTemp"];
-			else if(options&NSWorkspaceLaunchWithoutAddingToRecents)
-				[args addObject:@"-NSNoUI"];
-			else if(options&NSWorkspaceLaunchNewInstance)
-				[args addObject:@"-NSNew"];
-#if 0
-			NSLog(@"NSWorkspace launchApplication: '%@' $*=%@", executable, args);
-#endif
-			// FIXME: set environment to [b objectForInfoDictionaryKey:@"LSEnvironment"]
-			[NSTask launchedTaskWithLaunchPath:executable arguments:args];
-			// update process ID and Serial number
-		NS_HANDLER
-			NSLog(@"could not launchApplication %@ due to %@", path, [localException reason]);
-			return NO;  // did not launch - e.g. bad executable
-		NS_ENDHANDLER
-		if(!(options&NSWorkspaceLaunchAsync))
-			{
-#if 0
-			NSLog(@"Wait until launched.");
-#endif
-			// could also wait until app appears in [NSApp launchedApplications] if that is available
-			waitInterval=1.0;
-			date=[NSDate dateWithTimeIntervalSinceNow:waitInterval];
-			[NSTimer scheduledTimerWithTimeInterval:waitInterval invocation:nil repeats:NO];	// break runloop
-			[[NSRunLoop currentRunLoop] runUntilDate:date];
-			}
-		}
-	else
-		{ // DO connection exists - just forward
-#if 0
-		NSLog(@"connection to application=%@", a);
-#endif
-		[[a retain] autorelease];	// FIXME: do we really need that???
-									// if we are sending to ourselves, a is the delegate - and should respond to this method!
-		if(![a _application:a openURLs:ignored withOptions:options])	// call the handler of GSListener
-			return NO;
-		}
-	if(options&NSWorkspaceLaunchAndHideOthers)
-		[NSApp hide:self];
-	if(options&NSWorkspaceLaunchAndHide)
-		[NSApp hideOtherApplications:self];
-	if(options&NSWorkspaceLaunchWithoutActivation)
-		[NSApp deactivate];
-	// FIXME: this should probably be postponed until application did really launch and register with DWS
-	[[self notificationCenter] postNotificationName:WORKSPACE(DidLaunchApplication)
-											 object:self
-										   userInfo:dict];
-	return YES;
+	return NO;
 }
 
 // internal for workspace file operations
@@ -1306,157 +1384,88 @@ static NSArray *prevList;
 	return hasChanged;
 }
 
-- (NSDictionary *) activeApplication;
++ (NSString *) _activeApplicationPath:(NSString *) path;	// get access to the active applications data base
 {
-	NSLog(@"NSWorkspace get activeApplication");
-	NS_DURING
-		NS_VALUERETURN([[NSWorkspace _distributedWorkspace] activeApplication], NSDictionary *);
-    NS_HANDLER
-		NSLog(@"could not get activeApplication due to %@", [localException reason]);
-	NS_ENDHANDLER
-	return [NSDictionary dictionary];
+	static NSString *lsdatabase;
+	if(!lsdatabase) lsdatabase=[[NSTemporaryDirectory() stringByAppendingPathComponent:@".QuantumSTEP.apps"] retain];
+	if(path)
+		return [lsdatabase stringByAppendingPathComponent:path];
+	return lsdatabase;
 }
 
 - (NSArray *) launchedApplications;
+{	// get list of launched applications from file system, i.e. a Plist for each app in /tmp/.QuantumSTEP - here we don't check if the app is still alive!
+	NSString *lsdatabase=[NSWorkspace _activeApplicationPath:nil];
+	NSEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:lsdatabase];
+	NSString *path;
+	NSMutableArray *list=[NSMutableArray arrayWithCapacity:10];
+	while((path=[e nextObject]))
+			{
+				NSDictionary *app;
+				if([path hasPrefix:@"."])
+					continue;	// skip
+				if([path isEqualToString:@"active"])
+					continue;	// skip
+				path=[lsdatabase stringByAppendingPathComponent:path];	// get full path
+				app=[NSDictionary dictionaryWithContentsOfFile:path];
+				if(app)
+					[list addObject:app];
+			}
+	return list;
+}
+
+- (NSDictionary *) activeApplication;
 {
-	NSLog(@"NSWorkspace get launchedApplications");
-    NS_DURING
-		NS_VALUERETURN([[NSWorkspace _distributedWorkspace] launchedApplications], NSArray *);
-    NS_HANDLER
-		NSLog(@"could not get launchedApplications due to %@", [localException reason]);
-	NS_ENDHANDLER
-	return [NSArray array];
+	return [NSDictionary dictionaryWithContentsOfFile:[NSWorkspace _activeApplicationPath:@"active"]];	// get description of active application
 }
 
 - (void) hideOtherApplications;
 {
+	// we should loop through launchedApplications
+	// and send all others a note to hide message
 	NSLog(@"hideOtherApplications");
 	NS_DURING
-		[[NSWorkspace _distributedWorkspace] hideApplicationsExcept:getpid()];
+		[[NSWorkspace _systemUIServer] hideApplicationsExcept:getpid()];
 	NS_HANDLER
 		NSLog(@"could not send hideOtherApplications: message due to %@", [localException reason]);
 	NS_ENDHANDLER
 }
 
-#ifdef OLD
-
-- (void) killApplication:(NSString *) appname;
-{ // kill named application, i.e. signal(SIGINT or SIGKILL, pid)
-	NSLog(@"syscall: %@", [NSString stringWithFormat:@"killall -SIGINT %@", appname]);
-}
-
-- (void) activateApplication:(NSString *) appname deactivateActiveApplication:(BOOL) flag;
-{ // activate named application, i.e. send Activate Apple Event
-	id a=nil;
-	NSLog(@"activate %@", appname);
-	NS_DURING									// Try to contact a running app
-		a = [NSConnection rootProxyForConnectionWithRegisteredName:appname host:@""];
-	NS_HANDLER
-		a = nil;										// Fatal error in DO
-	NS_ENDHANDLER
-	NS_DURING
-		{
-			[a retain];
-			[a activate];
-		}
-		NS_HANDLER
-			{
-				NSRunAlertPanel(nil, [NSString stringWithFormat:
-					@"Failed to contact '%@'", appname],
-								@"Continue", nil, nil);
-				return;
-			}
-			NS_ENDHANDLER
-			if(flag)
-				[NSApp deactivate];	// and deactivate myself
-}
-
-- (void) deactivateApplication:(NSString *) appname;
-{ // deactivate named application, i.e. send Deactivate Apple Event
-	id a=nil;
-	NSLog(@"deactivate %@", appname);
-	NS_DURING									// Try to contact a running app
-		a = [NSConnection rootProxyForConnectionWithRegisteredName:appname host:@""];
-	NS_HANDLER
-		a = nil;										// Fatal error in DO
-	NS_ENDHANDLER
-	NS_DURING
-		{
-			[a retain];
-			[a deactivate];
-		}
-		NS_HANDLER
-			{
-				NSRunAlertPanel(nil, [NSString stringWithFormat:
-					@"Failed to contact '%@'", appname],
-								@"Continue", nil, nil);
-				return;
-			}
-			NS_ENDHANDLER
-}
-
-- (BOOL) checkIfApplicationResponds:(NSString *) appname;
-{ // try to send Apple Event and look for response - used to detect "hanging" applications
-	id a=nil;
-	NSLog(@"checkIfApplicationResponds %@", appname);
-	NS_DURING									// Try to contact a running app
-		a = [NSConnection rootProxyForConnectionWithRegisteredName:appname host:@""];
-	NS_HANDLER
-		a = nil;										// Fatal error in DO
-	NS_ENDHANDLER
-	NSLog(@"a=%@", a);
-	if(!a)
-		return NO;	// could not connect
-	NS_DURING
-		{
-			[a retain];
-			[a echo];	// contact and wait for (positive) response
-		}
-		NS_HANDLER
-			{
-				return NO;
-			}
-			NS_ENDHANDLER
-			return YES;
-}
-
-#endif
-
-+ (id <_NSWorkspaceServerProtocol>) _distributedWorkspace;			// distributed workspace
++ (id <_NSWorkspaceServerProtocol>) _systemUIServer;			// distributed workspace
 {
-	static id _distributedWorkspace;	// distributed workspace server used for launchedApplications etc.
-	if(!_distributedWorkspace)
+	static id _systemUIServer;	// distributed workspace server used for launchedApplications etc.
+	if(!_systemUIServer)
 		{
 #if 1
-		NSLog(@"get _distributedWorkspace");
+		NSLog(@"get _systemUIServer");
 #endif
 		NS_DURING
-			_distributedWorkspace = [NSConnection rootProxyForConnectionWithRegisteredName:NSWorkspaceServerPort host:nil];
+			_systemUIServer = [NSConnection rootProxyForConnectionWithRegisteredName:NSWorkspaceServerPort host:nil];
 #if 0
-			NSLog(@"created _distributedWorkspace=%@", _distributedWorkspace);
+			NSLog(@"created _systemUIServer=%@", _systemUIServer);
 #endif
-			[_distributedWorkspace retain];
+			[_systemUIServer retain];
 #if 0
 			NSLog(@"retained");
 #endif
-			[((NSDistantObject *) _distributedWorkspace) setProtocolForProxy:@protocol(_NSWorkspaceServerProtocol)];
+			[((NSDistantObject *) _systemUIServer) setProtocolForProxy:@protocol(_NSWorkspaceServerProtocol)];
 		NS_HANDLER
 			NSLog(@"could not contact %@ due to %@ - %@", NSWorkspaceServerPort, [localException name], [localException reason]);
-			_distributedWorkspace=nil;	// no connection established
+			_systemUIServer=nil;	// no connection established
 			// we could alternatively setup ourselves as a (local) server
 		NS_ENDHANDLER
 		}
 #if 1
-	NSLog(@"_distributedWorkspace=%@", _distributedWorkspace);
+	NSLog(@"_systemUIServer=%@", _systemUIServer);
 #endif
-	return _distributedWorkspace;
+	return _systemUIServer;
 }
 
 // should be replaced by [[QSLaunchServices sharedLaunchServices] applicationList] etc.
 
-- (NSDictionary *) _applicationList; { return [__launchServices applicationList]; }
-- (NSDictionary *) _fileTypeList; { return [__launchServices fileTypeList]; }
-+ (NSArray *) _knownApplications; { return [__launchServices knownApplications]; }
+- (NSDictionary *) _applicationList; { return [[QSLaunchServices sharedLaunchServices] applicationList]; }
+- (NSDictionary *) _fileTypeList; { return [[QSLaunchServices sharedLaunchServices] fileTypeList]; }
++ (NSArray *) _knownApplications; { return [[QSLaunchServices sharedLaunchServices] knownApplications]; }
 
 + (NSDictionary *) _standardAboutOptions;
 {

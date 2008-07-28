@@ -35,7 +35,7 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 { // ask server (once)
 	static NSArray *_soundFileTypes;
 	if(!_soundFileTypes)
-		_soundFileTypes=[[[NSWorkspace _distributedWorkspace] soundFileTypes] retain];
+		_soundFileTypes=[[[NSWorkspace _systemUIServer] soundFileTypes] retain];
 	return _soundFileTypes;
 }
 
@@ -181,30 +181,30 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 
 - (BOOL) play;
 {
-	[[NSWorkspace _distributedWorkspace] playSound:self withURL:_url];
+	[[NSWorkspace _systemUIServer] playSound:self withURL:_url];
 	return YES;
 }
 
 - (BOOL) isPlaying;
 {
-	return [[NSWorkspace _distributedWorkspace] isPlayingSound:self];
+	return [[NSWorkspace _systemUIServer] isPlayingSound:self];
 }
 
 - (BOOL) pause;
 {
-	[[NSWorkspace _distributedWorkspace] pauseSound:self];
+	[[NSWorkspace _systemUIServer] pauseSound:self];
 	return YES;
 }
 
 - (BOOL) resume;
 {
-	/* return? */ [[NSWorkspace _distributedWorkspace] resumeSound:self];
+	/* return? */ [[NSWorkspace _systemUIServer] resumeSound:self];
 	return YES;
 }
 
 - (BOOL) stop;
 {
-	[[NSWorkspace _distributedWorkspace] stopSound:self];
+	[[NSWorkspace _systemUIServer] stopSound:self];
 	return YES;
 }
 

@@ -330,7 +330,6 @@ int i, count = [self numberOfRows];
 	if((self=[super initWithCoder:aDecoder]))
 		{
 		[self setTitleFont:[aDecoder decodeObjectForKey:@"NSFont"]];
-		// NSSelectedCol, NSSelectedRow
 		}
 	return self;
 }

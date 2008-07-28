@@ -137,6 +137,7 @@ typedef enum _NSRoundedBezelSegments
 - (NSDictionary *) _applicationList;	// database of known applications
 - (NSDictionary *) _fileTypeList;		// database of known file types
 + (NSDictionary *) _standardAboutOptions;   // standard about options of current application ??? move to NSApplication ???
++ (NSString *) _activeApplicationPath:(NSString *) path;	// get access to the active applications data base
 
 @end
 

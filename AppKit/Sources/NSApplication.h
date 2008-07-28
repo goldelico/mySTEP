@@ -118,7 +118,7 @@ extern id NSApp;					// NSApp global var
 			
     struct __appFlags {
 		unsigned int isRunning:1;
-        unsigned int isActive:1;
+//        unsigned int isActive:1;
         unsigned int isHidden:1;
 		unsigned int windowsNeedUpdate:1;
 		unsigned int disableServices:1;

@@ -212,18 +212,22 @@ should always use this method to get the NSDocumentController. */
 	if(![self _isDocumentBased])
 		return;	// no menu to update
 	if([[NSApp mainMenu] numberOfItems] < 2)
-		{
+		{ // this may be called if the menu has not yet been connected
+#if 0
 		NSLog(@"_updateOpenRecentMenu: invalid mainMenu %@ (has lesss than 2 items)", [[NSApp mainMenu] _longDescription]);
+#endif
 		return;
 		}
 	fileMenu=[[[NSApp mainMenu] itemAtIndex:1] submenu];	// extract the 'File' menu
-	openMenu=[fileMenu indexOfItemWithTarget:nil andAction:@selector(openDocument:)];	// is connected to FirstResponder
+	openMenu=[fileMenu indexOfItemWithTarget:nil andAction:@selector(openDocument:)];	// should be connected to FirstResponder
 #if 0
 	NSLog(@"openMenu = %d in %@", openMenu, fileMenu);
 #endif
 	if(openMenu < 0)
-		{
+		{ // this may be called if the menu has not yet been connected
+#if 0
 		NSLog(@"no Open... menu item found in %@", fileMenu);
+#endif
 		return;	// there is no Open... menu item
 		}
 	recentMenu=[[fileMenu itemAtIndex:openMenu+1] submenu];	// get next item behind Open
