@@ -412,11 +412,11 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 + (NSMethodSignature*) instanceMethodSignatureForSelector:(SEL)aSelector
 {
 	struct objc_method *m = class_get_instance_method(self, aSelector);
-#if 1
-	NSLog(@"[NSObject instanceMethodSignatureForSelector:%@]", NSStringFromSelector(aSelector));
-	NSLog(@"self=%@ m=%08x", self, m);
+#if 0
+	NSLog(@"-[NSObject instanceMethodSignatureForSelector:@selector(%@)]", NSStringFromSelector(aSelector));
+	NSLog(@"  self=%@ IMP=%p", self);
 #endif
-    return m ? [NSMethodSignature signatureWithObjCTypes:m->method_types] :nil;
+    return m ? [NSMethodSignature signatureWithObjCTypes:m->method_types] : nil;
 }
 
 - (NSMethodSignature*) methodSignatureForSelector:(SEL)aSelector

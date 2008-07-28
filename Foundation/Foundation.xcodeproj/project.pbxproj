@@ -34,6 +34,11 @@
 /* Begin PBXBuildFile section */
 		1FA220050E352CF100179AC4 /* NSPointerArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FA220030E352CF100179AC4 /* NSPointerArray.h */; };
 		1FA220060E352CF100179AC4 /* NSPointerArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FA220040E352CF100179AC4 /* NSPointerArray.m */; };
+		EE1357770E3C504F0022A452 /* NSXMLDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F73F57C0DA2C1A40007817B /* NSXMLDocument.m */; };
+		EE1357780E3C504F0022A452 /* NSXMLDTD.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F73F57E0DA2C1A40007817B /* NSXMLDTD.m */; };
+		EE1357790E3C504F0022A452 /* NSXMLDTDNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F73F5800DA2C1A40007817B /* NSXMLDTDNode.m */; };
+		EE13577A0E3C504F0022A452 /* NSXMLElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F73F5820DA2C1A40007817B /* NSXMLElement.m */; };
+		EE13577B0E3C504F0022A452 /* NSXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F73F5840DA2C1A40007817B /* NSXMLNode.m */; };
 		EE2114DB0CDF55910062A8AD /* NSGarbageCollector.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2114D90CDF55910062A8AD /* NSGarbageCollector.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE2114DC0CDF55910062A8AD /* NSGarbageCollector.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2114DA0CDF55910062A8AD /* NSGarbageCollector.m */; };
 		EE2114FA0CDF568D0062A8AD /* NSOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2114F80CDF568D0062A8AD /* NSOperation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1357,6 +1362,11 @@
 				EEAA86D30A148ED200F2E5B5 /* NSObjCUtilities.m in Sources */,
 				EEAA86D40A148ED200F2E5B5 /* NSValue.m in Sources */,
 				EEAA86D50A148ED200F2E5B5 /* NSValueTransformer.m in Sources */,
+				EE1357770E3C504F0022A452 /* NSXMLDocument.m in Sources */,
+				EE1357780E3C504F0022A452 /* NSXMLDTD.m in Sources */,
+				EE1357790E3C504F0022A452 /* NSXMLDTDNode.m in Sources */,
+				EE13577A0E3C504F0022A452 /* NSXMLElement.m in Sources */,
+				EE13577B0E3C504F0022A452 /* NSXMLNode.m in Sources */,
 				EEAA86D60A148ED200F2E5B5 /* NSXMLParser.m in Sources */,
 				EEAA86D70A148ED200F2E5B5 /* Unicode.m in Sources */,
 				EEAA86D80A148ED200F2E5B5 /* NSURLConnection.m in Sources */,

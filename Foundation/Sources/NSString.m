@@ -846,22 +846,22 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	if(!s)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
 	b=(unsigned char *) [data bytes];
+	end=b+len;
 	if(encoding == NSUnicodeStringEncoding)
 		{ // check for byte order marker
-		if((b[0] == 0xFE) & (b[1] == 0xFF))
+		if((b[0] == 0xFF) & (b[1] == 0xFE))
 			encoding=NSSwappedUnicodeStringEncoding, b+=2;
-		else if((b[0] == 0xFF) & (b[1] == 0xFE))
-			b+=2;
+		else if((b[0] == 0xFE) & (b[1] == 0xFF))
+			b+=2;	// standard unicode
 		}
 	d=decodeuni(encoding);		// get appropriate decoder function
 	if(!d)
 		{
 		objc_free(s);
-		NSLog(@"initWithData:encoding: no encoding %d", encoding);
+		NSLog(@"initWithData:encoding: encoding %d undefined", encoding);
 		[self release];
 		return nil;
 		}
-	end=b+len;
 	while(b < end)
 		*sp++=(*d)(&b);	// get characters
 	return [self initWithCharactersNoCopy:s length:sp-s freeWhenDone:YES];

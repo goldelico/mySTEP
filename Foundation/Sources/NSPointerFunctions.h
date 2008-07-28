@@ -30,21 +30,22 @@ typedef NSUInteger NSPointerFunctionsOptions;
 
 @interface NSPointerFunctions : NSObject
 {
-
+// add instance variables
 }
 
 + (id) pointerFunctionsWithOptions:(NSPointerFunctionsOptions) opts;
 
 - (id) initWithOptions:(NSPointerFunctionsOptions) opts;
 
-@property void *(* acquireFunction) (const void * source, NSUInteger (* size)(const void * item), BOOL shouldCopyFlag);
-@property NSString *(* descriptionFunction) (const void * item);
-@property NSUInteger (* hashFunction) (const void * item, NSUInteger (* size)(const void * item));
-@property BOOL (* isEqualFunction) (const void * item1, const void * item2, NSUInteger (* size)(const void * item));
-@property void (* relinquishFunction) (const void * item, NSUInteger (* size)(const void * item));
-@property NSUInteger (* sizeFunction) (const void * item);
-@property BOOL usesStrongWriteBarrier;
-@property BOOL usesWeakReadAndWriteBarriers;
+- (void *(*) (const void * source, NSUInteger (* size)(const void * item), BOOL shouldCopyFlag)) acquireFunction;
+- (NSString *(*) (const void * item)) descriptionFunction;
+- (NSUInteger (*) (const void * item, NSUInteger (* size)(const void * item))) hashFunction;
+- (BOOL (*) (const void * item1, const void * item2, NSUInteger (* size)(const void * item))) isEqualFunction;
+- (void (*) (const void * item, NSUInteger (* size)(const void * item))) relinquishFunction;
+- (NSUInteger (*) (const void * item)) sizeFunction;
+- (BOOL) usesStrongWriteBarrier;
+- (BOOL) usesWeakReadAndWriteBarriers;
 
+// add setters
 
 @end

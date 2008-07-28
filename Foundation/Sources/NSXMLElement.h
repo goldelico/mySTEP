@@ -10,10 +10,13 @@
 
 #import <Foundation/NSXMLNode.h>
 
+@class NSMutableArray;
+@class NSMutableDictionary;
 
 @interface NSXMLElement : NSXMLNode
 {
-
+	NSMutableDictionary *_attributes;	// map name to attributes (XMLNode)
+	NSMutableArray *_namespaces;
 }
 
 - (id) initWithName:(NSString *) name;

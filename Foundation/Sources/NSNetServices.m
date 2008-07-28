@@ -382,6 +382,8 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 
 - (NSString *) name; { return _name; }
 
+- (NSInteger) port; { return _port; }
+
 - (NSString *) protocolSpecificInformation;
 { // deprecated
 	NIMP;
@@ -389,6 +391,11 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 }
 
 - (void) publish;
+{
+	[self publishWithOptions:0];
+}
+
+- (void) publishWithOptions:(NSNetServiceOptions) opts;
 {
 	if(_timer)
 		return;	// should raise exception because we are resolving

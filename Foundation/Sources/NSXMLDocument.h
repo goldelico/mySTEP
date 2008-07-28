@@ -10,6 +10,8 @@
 
 #import <Foundation/NSXMLNode.h>
 
+@class NSData;
+@class NSURL;
 @class NSXMLDTD;
 
 enum 
@@ -24,7 +26,13 @@ typedef NSUInteger NSXMLDocumentContentKind;
 
 @interface NSXMLDocument : NSXMLNode
 {
-
+	NSString *_characterEncoding;
+	NSXMLDTD *_DTD;
+	NSString *_MIMEType;
+	NSXMLElement *_rootElement;
+	NSString *_version;
+	BOOL _isStandalone;
+	NSXMLDocumentContentKind _documentContentKind;
 }
 
 + (Class) replacementClassForClass:(Class) class;

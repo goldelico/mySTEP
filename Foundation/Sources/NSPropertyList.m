@@ -273,6 +273,9 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 { // first quote aready absorbed - scan until second quote; handle \n etc. - return nil on unexpected isAtEnd
 	NSString *str=@"";
 	static NSCharacterSet *stopChars;
+#if 0
+	NSLog(@"propertyListScanQuotedString");
+#endif
 	if(!stopChars) stopChars=[[NSCharacterSet characterSetWithCharactersInString:@"\\\""] retain];	// backslash or ending quote
 	while(![self isAtEnd])
 		{
@@ -309,15 +312,17 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 			str=[str stringByAppendingFormat:@"%c", val];	// splice together
 			}
 		}
-	return nil;
+	return nil;	// unterminated!
 }
 
 - (NSString *) propertyListScanUnquotedString;
 { // scan unquoted string meaning all characters not requiring being quoted
 	NSString *str;
 	if(!unquoted)
-		unquoted=[[[NSCharacterSet characterSetWithCharactersInString:
-			@",;={}()[] \"\n"] invertedSet] retain];
+		unquoted=[[[NSCharacterSet characterSetWithCharactersInString:@",;={}()[] \"\n"] invertedSet] retain];
+#if 0
+	NSLog(@"propertyListScanUnquotedString");
+#endif
 	if([self scanCharactersFromSet:unquoted intoString:&str])
 		return str;	// at least one
 	return @"";		// empty!
@@ -327,6 +332,9 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 {
 	id key, val;
 	NSMutableDictionary *d=[NSMutableDictionary dictionaryWithCapacity:10];
+#if 0
+	NSLog(@"propertyListScanPropertyListDictionary withBrace:%d", flag);
+#endif
 	while(![self isAtEnd])
 		{
 		[self propertyListSkipSpaceAndComments];
@@ -334,7 +342,12 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 			break;  // { }
 		key=[self propertyListScanPropertyListElement:opt errorDescription:err];
 		if(!key)
+			{
+#if 1
+			NSLog(@"nil key %@", *err);
+#endif
 			return nil;
+			}
 		[self propertyListSkipSpaceAndComments];
 		if(![self scanString:@"=" intoString:NULL])
 			{
@@ -343,8 +356,13 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 			}
 		val=[self propertyListScanPropertyListElement:opt errorDescription:err];
 		if(!val)
-			return nil;	// some error
-#if 0
+			{
+#if 1
+				NSLog(@"nil value %@", *err);
+#endif
+				return nil;
+			}
+#if 1
 		NSLog(@"%@:=%@", key, val);
 #endif
 		[d setObject:val forKey:key];
@@ -370,10 +388,12 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 - (id) propertyListScanPropertyListElement:(NSPropertyListMutabilityOptions) opt errorDescription:(NSString **) err;
 { // parse ASCII style element
 	id val;
-//	NSLog(@"propertyListScanPropertyListElement...");
 	[self propertyListSkipSpaceAndComments];
 	if([self isAtEnd])
 		return nil;
+#if 0
+	NSLog(@"propertyListScanPropertyListElement %@", [[self string] substringFromIndex:[self scanLocation]]);
+#endif
 	if([self scanString:@"{" intoString:NULL])
 		{ // { key=value; ... [;] } - NSDictionary
 		return [self propertyListScanPropertyListDictionary:opt errorDescription:err withBrace:YES];
@@ -439,7 +459,10 @@ static NSCharacterSet *unquoted;	// @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
 			}
 		return a;
 		}
-	val=[self scanString:@"\"" intoString:NULL] ? [self propertyListScanQuotedString] : [self propertyListScanUnquotedString];
+	if([self scanString:@"\"" intoString:NULL])
+		val=[self propertyListScanQuotedString];
+	else
+		val=[self propertyListScanUnquotedString];
 	if(!val)
 		{
 		*err=@"error in reading string - unexpected EOF";
@@ -1308,6 +1331,7 @@ next:
 	_NSXMLPropertyList *root;
 	id plist=nil;
 	char *bytes;
+	unsigned short bom;
 	unsigned len;
 	NSString *str;
 	NSScanner *sc;
@@ -1371,9 +1395,15 @@ next:
 		[root release];
 		}
 #if 0
-	NSLog(@"propertyListFromData try OpenStep/StringsFile format");
+	NSLog(@"propertyListFromData try OpenStep/StringsFile format: %@", data);
 #endif
-	str=[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+	if([data length] >= 2 && ([data getBytes:&bom length:sizeof(bom)], (bom == 0xfeff || bom == 0xfffe)))
+		str=[[[NSString alloc] initWithData:data encoding:NSUnicodeStringEncoding] autorelease];
+	else
+		str=[[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+#if 0
+	NSLog(@"  str %@", str);
+#endif
 	sc=[NSScanner scannerWithString:str];
 	[sc setCharactersToBeSkipped:nil];	// skip nothing
 	[sc propertyListSkipSpaceAndComments];
@@ -1392,6 +1422,9 @@ next:
 #endif
 		return plist;
 		}
+#if 0
+	NSLog(@"openstep error %@", *errorString);
+#endif
 	*errorString=@"unknown file format";
 	return nil;	// can't determine format / is not an OpenStep or StingsFile format
 }

@@ -370,7 +370,15 @@ NSUserName (void)							// Return user's login name as an
 	// get effective user id
 	if ((pw = getpwuid(geteuid())) && pw->pw_name && *pw->pw_name != '\0')
 		return [NSString stringWithCString: pw->pw_name];
-	return nil;
+	return [NSString stringWithFormat:@"%d", geteuid()];
+}
+
+NSString *NSFullUserName(void)
+{ // return full user name
+	struct passwd *pw;
+	if ((pw = getpwnam([NSUserName() cString])) && pw->pw_gecos && *pw->pw_gecos != '\0')
+		return [[[NSString stringWithCString: pw->pw_gecos] componentsSeparatedByString:@","] objectAtIndex:0];	
+	return @"N.N.";
 }
 
 NSString *NSOpenStepRootDirectory(void) { return @"/"; }

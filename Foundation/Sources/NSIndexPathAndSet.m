@@ -545,14 +545,14 @@ loop: ;
 		{
 		NSRange range=ranges[j];
 		NSRange inter;
-#if 1
+#if 0
 		NSLog(@"removeIndexesInRange: %@", NSStringFromRange(range));
 #endif
 		while(i<_nranges && NSMaxRange(_indexRanges[i]) <= NSMaxRange(range))
 			{
 			if(NSIntersectionRange(range, _indexRanges[i]).length == _indexRanges[i].length)
 				{ // completely falls into current range - completely delete
-#if 1
+#if 0
 				NSLog(@"memmove(%d, %d, %d) of %d", i+1, i+2, _nranges-i-2, _nranges);
 #endif
 				memmove(&_indexRanges[i], &_indexRanges[i+1], sizeof(_indexRanges[0])*(_nranges-i-1));	// delete range
@@ -567,11 +567,11 @@ loop: ;
 					{ // middle overlap -> split (i.e. delete (3-5) from (1-7) -> (1-2,6-7)
 					if(_nranges == _capacity)
 						{
-#if 1
+#if 0
 						NSLog(@"increase capacity (%d)", _capacity);
 #endif
 						_indexRanges=(NSRange *) objc_realloc(_indexRanges, sizeof(_indexRanges[0])*(_capacity+=3));	// make more room
-#if 1
+#if 0
 						NSLog(@"increased capacity (%d)", _capacity);
 #endif
 						}
@@ -590,7 +590,7 @@ loop: ;
 				i++;	// no intersection
 			}
 		}
-#if 1
+#if 0
 	NSLog(@"result: %@", self);
 #endif
 }

@@ -358,7 +358,9 @@ const char *s, *d;
 		if (unlink([path fileSystemRepresentation]) < 0)
 			{
 			BOOL result;
-	
+#if 1
+				NSLog(@"unlink(%s): %s", [path fileSystemRepresentation], strerror(errno));
+#endif
 			if (handler)
 				{
 				NSMutableDictionary	*d;
@@ -394,7 +396,9 @@ const char *s, *d;
 	if (rmdir([path fileSystemRepresentation]) < 0)
 		{
 		BOOL result;
-	
+#if 1
+			NSLog(@"rmdir(%s): %s", [path fileSystemRepresentation], strerror(errno));
+#endif
 		if (handler)
 			{
 			NSMutableDictionary	*d;
@@ -738,14 +742,21 @@ NSMutableArray *c;
 - (BOOL) createSymbolicLinkAtPath:(NSString*)path
 					  pathContent:(NSString*)otherPath
 {
-const char *lpath = [self fileSystemRepresentationWithPath:path];
-const char *npath = [self fileSystemRepresentationWithPath:otherPath];
-	if(!lpath || !npath)
+const char *linkPath = [self fileSystemRepresentationWithPath:path];
+const char *contentPath = [self fileSystemRepresentationWithPath:otherPath];
+	if(!linkPath || !contentPath)
 		return NO;
 #ifdef __WIN32__							// handle symbolic-link operations
     return NO;
 #else
-    return (symlink(lpath, npath) == 0);
+#if 0
+	NSLog(@"ln -s %s %s", contentPath, linkPath);
+#endif
+    if(symlink(contentPath, linkPath) < 0)
+				{
+					// FIXME: raise exception?
+					NSLog(@"createSymbolicLinkAtPath error: %s", strerror(errno));
+				}
 #endif
 }
 

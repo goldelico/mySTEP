@@ -10,11 +10,15 @@
 
 #import <Foundation/NSXMLNode.h>
 
+@class NSData;
+@class NSURL;
 @class NSXMLDTDNode;
 
 @interface NSXMLDTD : NSXMLNode
 {
-
+	NSString *_publicID;
+	NSString *_systemID;
+	// declarations...
 }
 
 + (NSXMLDTDNode *) predefinedEntityDeclarationForName:(NSString *) name;

@@ -28,7 +28,7 @@
 @class NSOutputStream;
 @class NSSocketPort;
 
-typedef enum
+enum
 {
 	NSStreamStatusNotOpen=0,
 	NSStreamStatusOpening,
@@ -42,7 +42,7 @@ typedef enum
 
 typedef NSUInteger NSStreamStatus;
 
-typedef enum
+enum
 {
 	NSStreamEventNone=0,
 	NSStreamEventOpenCompleted=1,

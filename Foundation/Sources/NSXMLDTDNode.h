@@ -38,7 +38,11 @@ typedef NSUInteger NSXMLDTDNodeKind;
 
 @interface NSXMLDTDNode : NSXMLNode
 {
-
+	NSString *_publicID;
+	NSString *_systemID;
+	NSString *_notationName;	
+	NSXMLDTDNodeKind _DTDKind;
+	BOOL _isExternal;
 }
 
 - (id) initWithXMLString:(NSString *) xmlStr;

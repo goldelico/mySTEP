@@ -75,6 +75,11 @@ typedef long CFIndex;
 #include <objc/objc-api.h>
 #include <objc/objc-list.h>
 
+// we don't have Obj-C 2.0 GC yet
+
+#define __strong
+#define __weak
+
 #endif
 
 #ifdef __APPLE__			

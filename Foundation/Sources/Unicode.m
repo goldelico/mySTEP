@@ -212,7 +212,7 @@ static UTF32Char standardunidecoder(unsigned char **p)
 
 static UTF32Char swappedunidecoder(unsigned char **p)
 { // 16 byte only
-	unichar c=*(*p)++;
+	unichar c=*(*p)++;	// low byte first
 	c+=(*(*p)++)<<8;
 	return c;
 }

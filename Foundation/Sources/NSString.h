@@ -50,8 +50,8 @@ enum
 
 typedef NSUInteger NSStringCompareOptions;
 
-typedef enum								// O encoding defines a variable of
-{											// type encoding that is undefined
+enum								// O encoding defines type encoding that is undefined
+{
 	NSASCIIStringEncoding 			= 1,	// 0...127
 	NSNEXTSTEPStringEncoding 		= 2,
 	NSJapaneseEUCStringEncoding 	= 3,

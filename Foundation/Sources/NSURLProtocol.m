@@ -84,6 +84,7 @@ static NSMutableArray *_registeredClasses;
 + (NSURLRequest *) canonicalRequestForRequest:(NSURLRequest *) request; { SUBCLASS; return nil; }
 + (id) propertyForKey:(NSString *) key inRequest:(NSURLRequest *) request; { SUBCLASS; return nil; }
 + (void) setProperty:(id) value forKey:(NSString *) key inRequest:(NSMutableURLRequest *) request; { SUBCLASS; }
++ (void) removePropertyForKey:(NSString *) key inReq:(NSMutableURLRequest *) req; { SUBCLASS; }
 
 + (BOOL) registerClass:(Class) protocolClass;
 {

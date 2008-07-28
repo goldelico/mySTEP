@@ -10,6 +10,10 @@
 
 #import <Foundation/NSObject.h>
 
+@class NSArray;
+@class NSMutableArray;
+@class NSDictionary;
+@class NSError;
 @class NSXMLElement;
 @class NSXMLDocument;
 
@@ -34,7 +38,15 @@ typedef NSUInteger NSXMLNodeKind;
 
 @interface NSXMLNode : NSObject <NSCopying>
 {
-
+	NSString *_name;
+	id _objectValue;
+	NSXMLDocument *_rootDocument;	// ??
+	NSXMLNode *_parent;
+	NSMutableArray *_children;
+	NSString *_localName;
+	NSString *_prefix;
+	NSString *_URI;
+	NSXMLNodeKind _kind;
 }
 
 + (id) attributeWithName:(NSString *) name stringValue:(NSString *) value;
