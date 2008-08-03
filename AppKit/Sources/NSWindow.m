@@ -40,6 +40,7 @@
 #import <AppKit/NSCursor.h>
 #import <AppKit/NSDragging.h>
 #import <AppKit/NSToolbar.h>
+#import <AppKit/NSToolbarItem.h>
 #import <AppKit/NSAnimation.h>
 #import <AppKit/NSBezierPath.h>
 
@@ -92,6 +93,7 @@ static BOOL __cursorHidden = NO;
 	unsigned int _style;
 	BOOL _inLiveResize;
 	BOOL _didSetShape;
+	BOOL _drawsResizeIndicator;
 }
 
 // handle active/inactive by dimming out everything
@@ -114,6 +116,8 @@ static BOOL __cursorHidden = NO;
 - (void) setToolbar:(NSToolbar *) toolbar;
 - (BOOL) showsToolbarButton;
 - (void) setShowsToolbarButton:(BOOL) flag;
+- (BOOL) showsResizeIndicator;
+- (void) setShowsResizeIndicator:(BOOL) flag;
 - (void) _setTexturedBackground:(BOOL)flag;
 
 @end
@@ -133,6 +137,7 @@ static BOOL __cursorHidden = NO;
 
 - (void) setToolbar:(NSToolbar *) _toolbar;
 - (NSToolbar *) toolbar;
+- (BOOL) popUpMode;	// run in popup mode
 - (float) height;
 
 @end
@@ -157,6 +162,7 @@ static BOOL __cursorHidden = NO;
 	if((self=[super initWithFrame:f]))
 		{
 		_style=aStyle;
+		_drawsResizeIndicator=(_style & NSResizableWindowMask) != 0 && !([self interfaceStyle] >= NSPDAInterfaceStyle);
 		[self setAutoresizingMask:(NSViewWidthSizable|NSViewHeightSizable)];	// resize with window
 		[self setAutoresizesSubviews:YES];
 		if((aStyle&GSAllWindowMask) != NSBorderlessWindowMask)
@@ -243,7 +249,7 @@ static BOOL __cursorHidden = NO;
 
 - (void) unlockFocus;
 { // last chance to draw anything - note that we start with the graphics state left over by the previous operations
-	if((_style & NSResizableWindowMask) != 0 && !([self interfaceStyle] >= NSPDAInterfaceStyle))
+	if(_drawsResizeIndicator)
 		{ // draw resizing handle in the lower right corner
 		[NSGraphicsContext setGraphicsState:[_window gState]];
 		[[NSBezierPath bezierPathWithRect:_bounds] setClip];
@@ -302,6 +308,7 @@ static BOOL __cursorHidden = NO;
 }
 
 - (NSView *) contentView; { return [sub_views count] > 3?[sub_views objectAtIndex:3]:nil; }
+- (NSToolbarView *) toolbarView; { return [sub_views objectAtIndex:5]; }
 
 - (void) layout;
 { // NOTE: if the window fills the screen, the content view has to be made smaller
@@ -312,7 +319,7 @@ static BOOL __cursorHidden = NO;
 	f.size.height-=_height;
 	if([sub_views count] >= 6)
 		{
-			NSToolbarView *tv=[sub_views objectAtIndex:5];
+			NSToolbarView *tv=[self toolbarView];
 			float height=[tv height];
 			NSRect tf=f;
 			f.origin.y+=height;
@@ -399,6 +406,8 @@ static BOOL __cursorHidden = NO;
 
 - (BOOL) showsToolbarButton; { return ![[self standardWindowButton:NSWindowToolbarButton] isHidden]; }
 - (void) setShowsToolbarButton:(BOOL) flag; { [[self standardWindowButton:NSWindowToolbarButton] setHidden:!flag]; }
+- (BOOL) showsResizeIndicator; { return _drawsResizeIndicator; }
+- (void) setShowsResizeIndicator:(BOOL) flag; { _drawsResizeIndicator=flag; }
 
 - (BOOL) inLiveResize	{ return _inLiveResize; }
 
@@ -621,6 +630,7 @@ static BOOL __cursorHidden = NO;
 
 - (BOOL) popUpMode
 {
+	return YES;
 	if([_toolbar displayMode] != NSToolbarDisplayModeIconOnly)
 			{
 				if([(NSThemeFrame *) [self superview] showsToolbarButton])
@@ -2316,7 +2326,7 @@ id prev;
 
 - (BOOL) showsResizeIndicator;
 {
-	return [(NSThemeFrame *) _themeFrame setShowsResizeIndicator];
+	return [(NSThemeFrame *) _themeFrame showsResizeIndicator];
 }
 
 - (BOOL) showsToolbarButton;
@@ -2428,9 +2438,60 @@ id prev;
 
 - (void) toggleToolbarShown:(id) sender
 {
-	NSToolbar *tb=[(NSThemeFrame *) _themeFrame toolbar];
-	if(tb)
-		[tb setVisible:![tb isVisible]];	// toggle visibility
+	NSToolbarView *tv=[(NSThemeFrame *) _themeFrame toolbarView];
+	NSToolbar *tb=[tv toolbar];
+	if([tv popUpMode])
+			{ // show popup menu
+				/// for proper popup, this should be the action when the button is pressed (not when released)
+				NSMenu *menu=[[NSMenu alloc] initWithTitle:@"Toolbar Menu"];
+				NSEnumerator *e=[[tb visibleItems] objectEnumerator];
+				NSToolbarItem *item;
+				NSMenuItem *mi;
+				[tb setVisible:NO];	// make toolbar invisible (unconditionally)
+				[tb validateVisibleItems];	// check if items need to be enabled
+				[menu setAutoenablesItems:NO];
+				while((item=[e nextObject]))
+						{ // build menu on the fly, copying visibility to enable the menu items
+							NSView *iv;
+							NSMenu *submenu=nil;
+							NSString *ident=[item itemIdentifier];
+							NSLog(@"ident %@", ident);
+							if([ident isEqualToString:NSToolbarSeparatorItemIdentifier] ||
+							 	 [ident isEqualToString:NSToolbarSpaceItemIdentifier] ||
+								 [ident isEqualToString:NSToolbarFlexibleSpaceItemIdentifier])
+								continue;	// skip these in our menu
+							if((iv=[item view]))
+									{ // may be a popup button
+										if([iv respondsToSelector:@selector(menu)])
+												{ // it it responds to -menu and that one is defined, make a submenu
+													submenu=[iv menu];
+												}
+									}
+							mi=[[NSMenuItem alloc] initWithTitle:[item label] action:[item action] keyEquivalent:@""];
+							if(submenu)
+								[mi setMenu:submenu];
+							else
+								[mi setTarget:[item target]];
+							[mi setImage:[item image]];
+							[mi setEnabled:[item isEnabled]];
+							[mi setTag:[item tag]];
+							[menu addItem:mi];
+						}	
+				[menu addItem:[NSMenuItem separatorItem]];
+				// add toolbar context menu (show icons only, labels only, icons&labels, small/large size)
+				if([tb allowsUserCustomization])
+						{
+							mi=[menu addItemWithTitle:@"Customize Toolbar" action:@selector(runToolbarCustomizationPalette:) keyEquivalent:@""];
+							[mi setTarget:self];	// not through first responder
+						}
+				[NSMenu popUpContextMenu:menu withEvent:[NSApp currentEvent] forView:[(NSThemeFrame *) _themeFrame standardWindowButton:NSWindowToolbarButton]];	// pop up over the toolbar button
+				[menu release];
+			}
+	else
+			{
+				if(tb)
+					[tb setVisible:![tb isVisible]];	// toggle visibility
+			}
 }
 
 - (void) runToolbarCustomizationPalette:(id)sender

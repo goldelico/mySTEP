@@ -309,7 +309,6 @@ static NSCursor *__textCursor = nil;
 
 - (void) setObjectValue:(id <NSCopying>)anObject
 {
-	id oldContents;
 #if 0
 	NSLog(@"%@ setObjectValue:%@ (_contents=%@)", self, anObject, _contents);
 #endif
@@ -323,7 +322,7 @@ static NSCursor *__textCursor = nil;
 		_contents=[anObject copyWithZone:NULL];	// save a copy (of a mutable string)
 	else
 			{ // image cell
-				if([anObject && ![anObject isKindOfClass:[NSImage clas]])
+				if(anObject && ![anObject isKindOfClass:[NSImage class]])
 					 NSLog(@"setObjectValue not an NSImage %@", anObject); 
 				_contents=[(NSObject *) anObject retain];	// copying an NSImage objectValue (e.g. the result of a TableView's dataSource) would cause a lot of trouble if it is not yet valid...
 			}
