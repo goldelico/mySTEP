@@ -25,8 +25,6 @@ static NSHashTable *_toolbars;
 	if((self=[super init]))
 			{
 				_identifier=[str retain];
-				_items=[[NSMutableArray alloc] initWithCapacity:10];
-				_visibleItemIdentifiers=[[NSMutableArray alloc] initWithCapacity:10];
 				_displayMode=NSToolbarDisplayModeDefault;
 				_sizeMode=NSToolbarSizeModeDefault;
 			}
@@ -39,18 +37,21 @@ static NSHashTable *_toolbars;
 	// remove from _toolbars (if present)
 	[_customizationPalette release];
 	[_items release];
-	[_visibleItemIdentifiers release];
+	[_visibleItems release];
 	[_selectedItemIdentifier release];
 	[super dealloc];
 }
 
 - (void) _changed;
 {
-	[_toolbarView layout];
-	if(_autosavesConfiguration)
+	if(_toolbarView)
 			{
-				NSUserDefaults *ud=[NSUserDefaults standardUserDefaults];
-				[ud setObject:[self configurationDictionary] forKey:[NSString stringWithFormat:@"NSToolbar Configuration %@", _identifier]];
+				[_toolbarView layout];
+				if(_autosavesConfiguration)
+						{
+							NSUserDefaults *ud=[NSUserDefaults standardUserDefaults];
+							[ud setObject:[self configurationDictionary] forKey:[NSString stringWithFormat:@"NSToolbar Configuration %@", _identifier]];
+						}
 			}
 }
 
@@ -58,24 +59,38 @@ static NSHashTable *_toolbars;
 { // becomes visible the first time
 	NSDictionary *dict=[[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:@"NSToolbar Configuration %@", _identifier]];
 	_toolbarView=view;	// weak reference since we are retained by the view
-	if(dict)
-		[self setConfigurationFromDictionary:dict];	// interpret the configuration
-	else
-		[_visibleItemIdentifiers setArray:[_delegate toolbarDefaultItemIdentifiers:self]];	// (re)set to default
+	[self setConfigurationFromDictionary:dict];	// interpret the configuration
 }
 
 - (NSToolbarView *) _toolbarView; { return _toolbarView; }
+
+- (NSToolbarItem *) _itemForIdentifier:(NSString *) ident;
+{
+	NSEnumerator *f=[[self items] objectEnumerator];
+	NSToolbarItem *item;
+	while((item=[f nextObject]))
+			{
+				if([[item itemIdentifier] isEqualToString:ident])
+					return item;
+			}
+	return nil;
+}
 
 - (BOOL) allowsUserCustomization; { return _allowsUserCustomization; }
 - (BOOL) autosavesConfiguration;  { return _autosavesConfiguration; }
 
 - (NSDictionary *) configurationDictionary;
 {
+	NSMutableArray *items=[NSMutableArray arrayWithCapacity:[_visibleItems count]];
+	NSEnumerator *e=[_visibleItems objectEnumerator];
+	NSToolbarItem *item;
+	while((item=[e nextObject]))
+		[items addObject:[item itemIdentifier]];
 	return [NSDictionary dictionaryWithObjectsAndKeys:
 											[NSNumber numberWithInt:_displayMode], @"TB Display Mode",
 											[NSNumber numberWithInt:_sizeMode], @"TB Icon Size Mode",
 											[NSNumber numberWithInt:_isVisible], @"TB Is Shown",
-											_visibleItemIdentifiers, @"TB Item Identifiers",
+											items, @"TB Item Identifiers",
 											[NSNumber numberWithInt:_sizeMode], @"TB Size Mode",	// oops what is the difference?
 											[NSDictionary dictionary], @"TB Visibility Priority Values",	// should be NSDictionary!
 											nil];
@@ -89,22 +104,39 @@ static NSHashTable *_toolbars;
 - (void) insertItemWithItemIdentifier:(NSString *) itemId atIndex:(NSInteger) idx;
 {
 	NSToolbarItem *item;
+	// find by identifier in all known items?
 	item=[_delegate toolbar:self itemForItemIdentifier:itemId willBeInsertedIntoToolbar:YES];	// delegate will configure the item
 	if(item)
 			{
 				// send NSToolbarWillAddItemNotification
 				[item _setToolbar:self];
 				[_items addObject:item];
+				[_visibleItems addObject:item];
 				[self _changed];
 			}
 }
 
 - (BOOL) isVisible; { return _isVisible; }
-- (NSArray *) items; { return _items; }
+
+- (NSArray *) items;
+{
+	if(!_items)
+			{ // create items array
+				NSEnumerator *e=[[_delegate toolbarAllowedItemIdentifiers:self] objectEnumerator];
+				NSString *ident;
+				_items=[[NSMutableArray alloc] initWithCapacity:10];
+				while((ident=[e nextObject]))
+						{ // create toolbar items as needed
+							NSToolbarItem *item=[_delegate toolbar:self itemForItemIdentifier:ident willBeInsertedIntoToolbar:YES];	// delegate will configure the item
+							[_items addObject:item];
+						}
+			}
+	return _items;
+}
 
 - (void) removeItemAtIndex:(NSInteger) idx;
 {
-	[_visibleItemIdentifiers removeObjectAtIndex:idx];
+	[_visibleItems removeObjectAtIndex:idx];
 	// post NSToolbarDidRemoveItemNotification
  [self _changed];
 }
@@ -123,15 +155,27 @@ static NSHashTable *_toolbars;
 - (void) setConfigurationFromDictionary:(NSDictionary *) dict;
 {
 	id val;
+	NSEnumerator *e;
+	NSString *ident;
 	if((val=[dict objectForKey:@"TB Display Mode"]))
 		_displayMode=[val intValue];
 	if((val=[dict objectForKey:@"TB Size Mode"]))
 		_sizeMode=[val intValue];
 	if((val=[dict objectForKey:@"TB Is Shown"]))
 		_isVisible=[val boolValue];	// make visible
-	if((val=[dict objectForKey:@"TB Item Identifiers"]))
-		[_visibleItemIdentifiers setArray:val];
-	[_toolbarView layout];
+	if(!(val=[dict objectForKey:@"TB Item Identifiers"]))
+			val=[_delegate toolbarDefaultItemIdentifiers:self];	// (re)set to default
+	e=[val objectEnumerator];
+	if(!_visibleItems)
+		_visibleItems=[[NSMutableArray alloc] initWithCapacity:[val count]];
+	while((ident=[e nextObject]))
+			{ // find item by identifier
+				NSToolbarItem *item=[self _itemForIdentifier:ident];
+				if(item)
+						[_visibleItems addObject:item];
+			}
+	if(!dict)
+		[self _changed];	// save default settings
 }
 
 - (void) setDelegate:(id) delegate;
@@ -156,7 +200,7 @@ static NSHashTable *_toolbars;
 - (NSArray *) visibleItems;
 { // translate from identifiers
 	// we should have separate items if we have multiple items with same identifier!
-	return _visibleItemIdentifiers;
+	return _visibleItems;
 }
 
 @end
@@ -172,7 +216,23 @@ static NSHashTable *_toolbars;
 {
 	if((self=[super init]))
 			{
+				NSDictionary *dict=[[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSBuiltinToolbarItems"] objectForKey:itemId];
 				_itemIdentifier=[itemId retain];
+				if(dict)
+						{ // initialize icon, label, action etc.
+#if 1
+							NSLog(@"init item %@ with %@", itemId, dict);
+#endif
+							_label=[[dict objectForKey:@"Label"] retain];
+							_paletteLabel=[[dict objectForKey:@"PaletteLabel"] retain];
+							_toolTip=[[dict objectForKey:@"ToolTip"] retain];
+							if([[dict objectForKey:@"MinSize"] length] > 0)
+								_minSize=NSSizeFromString([dict objectForKey:@"MinSize"]);
+							if([[dict objectForKey:@"MaxSize"] length] > 0)
+								_maxSize=NSSizeFromString([dict objectForKey:@"MaxSize"]);
+							if([[dict objectForKey:@"Action"] length] > 0)
+								_action=NSSelectorFromString([dict objectForKey:@"Action"]);	// _target is nil, i.e. firstResponder
+						}
 			}
 	return self;
 }
@@ -227,13 +287,13 @@ static NSHashTable *_toolbars;
 - (NSView *) view; { return _view; }
 - (NSInteger) visibilityPriority; { return _visibilityPriority; }
 
-NSString *NSToolbarSeparatorItemIdentifier=@"NSToolbarSeparatorItemIdentifier";
-NSString *NSToolbarSpaceItemIdentifier=@"NSToolbarSpaceItemIdentifier";
-NSString *NSToolbarFlexibleSpaceItemIdentifier=@"NSToolbarFlexibleSpaceItemIdentifier";
-NSString *NSToolbarShowColorsItemIdentifier=@"NSToolbarShowColorsItemIdentifier";
-NSString *NSToolbarShowFontsItemIdentifier=@"NSToolbarShowFontsItemIdentifier";
-NSString *NSToolbarCustomizeToolbarItemIdentifier=@"NSToolbarCustomizeToolbarItemIdentifier";
-NSString *NSToolbarPrintItemIdentifier=@"NSToolbarPrintItemIdentifier";
+NSString *NSToolbarSeparatorItemIdentifier=@"NSToolbarSeparatorItem";
+NSString *NSToolbarSpaceItemIdentifier=@"NSToolbarSpaceItem";
+NSString *NSToolbarFlexibleSpaceItemIdentifier=@"NSToolbarFlexibleSpaceItem";
+NSString *NSToolbarShowColorsItemIdentifier=@"NSToolbarShowColorsItem";
+NSString *NSToolbarShowFontsItemIdentifier=@"NSToolbarShowFontsItem";
+NSString *NSToolbarCustomizeToolbarItemIdentifier=@"NSToolbarCustomizeToolbarItem";
+NSString *NSToolbarPrintItemIdentifier=@"NSToolbarPrintItem";
 
 @end
 

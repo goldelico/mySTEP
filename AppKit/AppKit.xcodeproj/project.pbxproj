@@ -613,6 +613,16 @@
 		EE349C82097027D600CBF42C /* NSToolbarItem.h in Headers */ = {isa = PBXBuildFile; fileRef = EE349C5D097027D600CBF42C /* NSToolbarItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE3E754A0D294E8400B28288 /* NSTextList.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3E75490D294E8400B28288 /* NSTextList.m */; };
 		EE3E754B0D294E8400B28288 /* NSTextList.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3E75490D294E8400B28288 /* NSTextList.m */; };
+		EE419D770E463B02005B7EF0 /* NSToolbarCustomize.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE419D720E463B02005B7EF0 /* NSToolbarCustomize.tiff */; };
+		EE419D780E463B02005B7EF0 /* NSToolbarPrint.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE419D730E463B02005B7EF0 /* NSToolbarPrint.tiff */; };
+		EE419D790E463B02005B7EF0 /* NSToolbarShowColors.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE419D740E463B02005B7EF0 /* NSToolbarShowColors.tiff */; };
+		EE419D7A0E463B02005B7EF0 /* NSToolbarSeparator.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE419D750E463B02005B7EF0 /* NSToolbarSeparator.tiff */; };
+		EE419D7B0E463B02005B7EF0 /* NSToolbarShowFonts.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE419D760E463B02005B7EF0 /* NSToolbarShowFonts.tiff */; };
+		EE419D7C0E463B02005B7EF0 /* NSToolbarCustomize.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE419D720E463B02005B7EF0 /* NSToolbarCustomize.tiff */; };
+		EE419D7D0E463B02005B7EF0 /* NSToolbarPrint.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE419D730E463B02005B7EF0 /* NSToolbarPrint.tiff */; };
+		EE419D7E0E463B02005B7EF0 /* NSToolbarShowColors.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE419D740E463B02005B7EF0 /* NSToolbarShowColors.tiff */; };
+		EE419D7F0E463B02005B7EF0 /* NSToolbarSeparator.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE419D750E463B02005B7EF0 /* NSToolbarSeparator.tiff */; };
+		EE419D800E463B02005B7EF0 /* NSToolbarShowFonts.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE419D760E463B02005B7EF0 /* NSToolbarShowFonts.tiff */; };
 		EE469E530D1B9D4800E99DA0 /* NSToolbarItemGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE469E540D1B9D4800E99DA0 /* NSToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = EE469E520D1B9D4800E99DA0 /* NSToolbar.m */; };
 		EE469E550D1B9D4800E99DA0 /* NSToolbarItemGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1197,6 +1207,11 @@
 		EE349C5C097027D600CBF42C /* NSToolbar.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbar.h; sourceTree = "<group>"; };
 		EE349C5D097027D600CBF42C /* NSToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSToolbarItem.h; sourceTree = "<group>"; };
 		EE3E75490D294E8400B28288 /* NSTextList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextList.m; sourceTree = "<group>"; };
+		EE419D720E463B02005B7EF0 /* NSToolbarCustomize.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSToolbarCustomize.tiff; sourceTree = "<group>"; };
+		EE419D730E463B02005B7EF0 /* NSToolbarPrint.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSToolbarPrint.tiff; sourceTree = "<group>"; };
+		EE419D740E463B02005B7EF0 /* NSToolbarShowColors.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSToolbarShowColors.tiff; sourceTree = "<group>"; };
+		EE419D750E463B02005B7EF0 /* NSToolbarSeparator.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSToolbarSeparator.tiff; sourceTree = "<group>"; };
+		EE419D760E463B02005B7EF0 /* NSToolbarShowFonts.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSToolbarShowFonts.tiff; sourceTree = "<group>"; };
 		EE469E510D1B9D4800E99DA0 /* NSToolbarItemGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSToolbarItemGroup.h; sourceTree = "<group>"; };
 		EE469E520D1B9D4800E99DA0 /* NSToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSToolbar.m; sourceTree = "<group>"; };
 		EE469E570D1B9D7D00E99DA0 /* NSTreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTreeNode.h; sourceTree = "<group>"; };
@@ -3760,6 +3775,11 @@
 				EEDA089909E012AD005AA012 /* NSWindowMiniaturizeButton.tiff */,
 				EEDA089A09E012AD005AA012 /* NSWindowToolbarButton.tiff */,
 				EEDA089B09E012AD005AA012 /* NSWindowZoomButton.tiff */,
+				EE419D720E463B02005B7EF0 /* NSToolbarCustomize.tiff */,
+				EE419D730E463B02005B7EF0 /* NSToolbarPrint.tiff */,
+				EE419D740E463B02005B7EF0 /* NSToolbarShowColors.tiff */,
+				EE419D750E463B02005B7EF0 /* NSToolbarSeparator.tiff */,
+				EE419D760E463B02005B7EF0 /* NSToolbarShowFonts.tiff */,
 				EEA371DD09540272001244CF /* URL.tiff */,
 			);
 			path = Images;
@@ -6359,6 +6379,11 @@
 				EE7860780D2D4F4600B2197B /* GSResizeDownCursor.tiff in Resources */,
 				EE7860790D2D4F4600B2197B /* GSResizeUpCursor.tiff in Resources */,
 				EECFCA890D472B2E00CF498C /* GSColorWheel.icns in Resources */,
+				EE419D770E463B02005B7EF0 /* NSToolbarCustomize.tiff in Resources */,
+				EE419D780E463B02005B7EF0 /* NSToolbarPrint.tiff in Resources */,
+				EE419D790E463B02005B7EF0 /* NSToolbarShowColors.tiff in Resources */,
+				EE419D7A0E463B02005B7EF0 /* NSToolbarSeparator.tiff in Resources */,
+				EE419D7B0E463B02005B7EF0 /* NSToolbarShowFonts.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6450,6 +6475,11 @@
 				EE78606D0D2D4F4600B2197B /* GSResizeDownCursor.tiff in Resources */,
 				EE78606E0D2D4F4600B2197B /* GSResizeUpCursor.tiff in Resources */,
 				EECFCA880D472B2D00CF498C /* GSColorWheel.icns in Resources */,
+				EE419D7C0E463B02005B7EF0 /* NSToolbarCustomize.tiff in Resources */,
+				EE419D7D0E463B02005B7EF0 /* NSToolbarPrint.tiff in Resources */,
+				EE419D7E0E463B02005B7EF0 /* NSToolbarShowColors.tiff in Resources */,
+				EE419D7F0E463B02005B7EF0 /* NSToolbarSeparator.tiff in Resources */,
+				EE419D800E463B02005B7EF0 /* NSToolbarShowFonts.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
