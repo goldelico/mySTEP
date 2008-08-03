@@ -130,8 +130,10 @@ static BOOL __cursorHidden = NO;
 {
 	NSToolbar *_toolbar;
 }
+
 - (void) setToolbar:(NSToolbar *) _toolbar;
 - (NSToolbar *) toolbar;
+- (float) height;
 
 @end
 
@@ -216,9 +218,8 @@ static BOOL __cursorHidden = NO;
 	[_backgroundColor set];
 	NSRectFill(rect);	// draw window background
 	[[NSColor windowFrameColor] set];
-	NSFrameRect(_bounds);	// draw a frame
-	// FIXME: should also fill background behind a toolbar if present
-	NSRectFill((NSRect){NSZeroPoint, {_bounds.size.width, _height}});	// fill titlebar background behind buttons
+	NSFrameRect(_bounds);	// draw a frame around the window
+	NSRectFill((NSRect){NSZeroPoint, {_bounds.size.width, _height }});	// fill titlebar and toolbar background behind buttons
 	if(!_title && !_titleIcon)
 		return;
 	if(_titleIcon)
@@ -271,11 +272,11 @@ static BOOL __cursorHidden = NO;
 }
 
 - (NSString *) title; { return _title; }
-- (void) setTitle:(NSString *) title; { ASSIGN(_title, title); }
+- (void) setTitle:(NSString *) title; { ASSIGN(_title, title); [self setNeedsDisplay:YES]; }
 - (NSImage *) titleIcon; { return _titleIcon; }
-- (void) setTitleIcon:(NSImage *) img; { ASSIGN(_titleIcon, img); }
+- (void) setTitleIcon:(NSImage *) img; { ASSIGN(_titleIcon, img); [self setNeedsDisplay:YES]; }
 - (NSColor *) backgroundColor; { return _backgroundColor; }
-- (void) setBackgroundColor:(NSColor *) color; { ASSIGN(_backgroundColor, color); }
+- (void) setBackgroundColor:(NSColor *) color; { ASSIGN(_backgroundColor, color); [self setNeedsDisplay:YES]; }
 
 - (NSButton *) standardWindowButton:(NSWindowButton) button;
 {
@@ -306,13 +307,19 @@ static BOOL __cursorHidden = NO;
 { // NOTE: if the window fills the screen, the content view has to be made smaller
 	NSView *cv;
 	NSRect f=[self frame];
-	// handle userspace scaling factor
 	_height=[NSWindow _titleBarHeightForStyleMask:_style];
 	f.origin.y+=_height;		// add room for buttons
 	f.size.height-=_height;
-	if(/* toolbar exists and is visible */ NO)
+	if([sub_views count] >= 6)
 		{
-		// resize everything to have room for toolbar frame
+			NSToolbarView *tv=[sub_views objectAtIndex:5];
+			float height=[tv height];
+			NSRect tf=f;
+			f.origin.y+=height;
+			f.size.height-=height;	// make room for toolbar
+			tf.size.height=height;
+			[tv setFrame:tf];					// adjust toobar view
+			[tv setNeedsDisplay:YES];	// needs redraw
 		}
 	cv=[self contentView];
 #if 0
@@ -371,8 +378,8 @@ static BOOL __cursorHidden = NO;
 		[wb setTarget:_window];
 		f=[wb frame];		// button frame
 		wf=[_window frame];	// window frame
-		f.origin.x+=wf.size.width-f.size.width;	// flush toolbar button to the right end
-		[wb setFrameOrigin:f.origin];
+		f.origin.x=wf.size.width-f.size.width-4.0;
+		[wb setFrameOrigin:f.origin];	// flush toolbar button to the right end
 		tv=[[NSToolbarView alloc] initWithFrame:(NSRect){{0.0, wf.size.width}, {20.0, 20.0}}];	// as wide as the window
 		[tv setAutoresizingMask:NSViewMaxYMargin|NSViewWidthSizable];
 		[tv setAutoresizesSubviews:YES];
@@ -387,6 +394,7 @@ static BOOL __cursorHidden = NO;
 	else if(toolbar)
 		[[sub_views objectAtIndex:5] setToolbar:toolbar];	// just update
 	[self layout];
+	[self setNeedsDisplay:YES];
 }
 
 - (BOOL) showsToolbarButton; { return ![[self standardWindowButton:NSWindowToolbarButton] isHidden]; }
@@ -599,12 +607,59 @@ static BOOL __cursorHidden = NO;
 - (void) setToolbar:(NSToolbar *) toolbar;
 {
 	ASSIGN(_toolbar, toolbar);
-	// layout
+	[toolbar _setToolbarView:self];	// create link
 }
 
 - (NSToolbar *) toolbar; { return _toolbar; }
 
+- (void) layout;
+{
+	// if height changes, we have to layout our superview
+	// modify toolbar toggle button?
+	[self setNeedsDisplay:YES];
+}
+
+- (BOOL) popUpMode
+{
+	if([_toolbar displayMode] != NSToolbarDisplayModeIconOnly)
+			{
+				if([(NSThemeFrame *) [self superview] showsToolbarButton])
+						{
+							NSSize size=[[[NSScreen screens] objectAtIndex:0] frame].size;
+							return size.height > size.width;	// portrait mode screen
+						}
+			}
+	return NO;	// always show icons
+}
+
+- (float) height;
+{
+	if(![_toolbar isVisible] || [self popUpMode])
+		return 0.0;	// if space limited, use popup menu
+	// calculate required height when doing layout
+	return 20.0;
+}
+
+- (void) drawRect:(NSRect) rect
+{
+	[[NSColor windowFrameColor] set];
+	NSRectFill(rect);
+	if([_toolbar showsBaselineSeparator])
+		; // draw separator
+	switch([_toolbar displayMode])
+		{
+			case NSToolbarDisplayModeDefault:
+			case NSToolbarDisplayModeIconAndLabel:
+				break;
+			case NSToolbarDisplayModeLabelOnly:
+				break;
+			case NSToolbarDisplayModeIconOnly:
+				break;
+		}
+}
+
 // ADDME: handle mouse-down and tracking etc.
+// control click should pop-up a menu to modify some attributes
 
 @end
 
@@ -2217,10 +2272,11 @@ id prev;
 			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 			break;
 		case NSWindowToolbarButton:
-			b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(100.0, 0.0, button, button) forStyleMask:aStyle];	// we must adapt the origin when using this button!
+			b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(100.0, 0.0, button, button) forStyleMask:aStyle];	// we must adjust the origin when using this button!
 			[b setAction:@selector(toggleToolbarShown:)];
 			[b setEnabled:YES];
 			[b setImage:[NSImage imageNamed:@"NSWindowToolbarButton"]];
+				// set alternate image
 			[b setTitle:@""];
 			[b setAutoresizingMask:NSViewMinXMargin|NSViewMinYMargin];
 			break;
@@ -2250,22 +2306,22 @@ id prev;
 
 - (void) setShowsResizeIndicator:(BOOL) flag;
 {
-	NIMP;
+	[(NSThemeFrame *) _themeFrame setShowsResizeIndicator:flag];
 }
 
 - (void) setShowsToolbarButton:(BOOL) flag;
 {
-	NIMP;
+	[(NSThemeFrame *) _themeFrame setShowsToolbarButton:flag];
 }
 
 - (BOOL) showsResizeIndicator;
 {
-	NIMP; return NO;
+	return [(NSThemeFrame *) _themeFrame setShowsResizeIndicator];
 }
 
 - (BOOL) showsToolbarButton;
 {
-	NIMP; return NO;
+	return [(NSThemeFrame *) _themeFrame showsToolbarButton];
 }
 
 - (NSButton *) standardWindowButton:(NSWindowButton) button;
@@ -2362,7 +2418,40 @@ id prev;
 - (void) setOpaque:(BOOL) flag; { _w.isOpaque=flag; }
 - (BOOL) isOpaque; { return _w.isOpaque; }
 
-- (void) setToolbar:(NSToolbar *) toolbar; { [(NSThemeFrame *) _themeFrame setToolbar:toolbar]; }
+- (void) setToolbar:(NSToolbar *) toolbar;
+{
+	[(NSThemeFrame *) _themeFrame setToolbar:toolbar];
+	[(NSThemeFrame *) _themeFrame setShowsToolbarButton:(toolbar != nil)];
+}
+
 - (NSToolbar *) toolbar; { return [(NSThemeFrame *) _themeFrame toolbar]; }
+
+- (void) toggleToolbarShown:(id) sender
+{
+	NSToolbar *tb=[(NSThemeFrame *) _themeFrame toolbar];
+	if(tb)
+		[tb setVisible:![tb isVisible]];	// toggle visibility
+}
+
+- (void) runToolbarCustomizationPalette:(id)sender
+{
+	[[(NSThemeFrame *) _themeFrame toolbar] runCustomizationPalette:sender];
+}
+
+- (BOOL) validateMenuItem:(NSMenuItem *)menuItem
+{ // if there is no controller to handle that
+	NSString *action=NSStringFromSelector([menuItem action]);
+	if([action isEqualToString:@"runToolbarCustomizationPalette:"])
+		return [[self toolbar] allowsUserCustomization];
+	if([action isEqualToString:@"toggleToolbarShown:"])
+		return [self toolbar] != nil;	// only if we have a toolbar
+	if([action isEqualToString:@"performClose:"])
+		return YES;	// FIXME: only if we can be closed
+	if([action isEqualToString:@"miniaturize:"])
+		return YES;	// FIXME: only if we can be closed
+	if([action isEqualToString:@"zoom:"])
+		return YES;	// FIXME: only if we can be closed
+	return YES;	// default
+}
 
 @end /* NSWindow */

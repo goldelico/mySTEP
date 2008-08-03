@@ -40,14 +40,17 @@ enum {
 	NSMenuItem *_menuFormRepresentation;
 	NSString *_toolTip;
 	NSToolbar *_toolbar;
-	id _view;
-	NSView *_backView;
+	NSView *_view;
 	NSSize _maxSize;
 	NSSize _minSize;
-	int _tag;
-	BOOL _modified;
-	BOOL _selectable;
+	NSInteger _tag;
+	NSInteger _visibilityPriority;
+	id _target;
+	SEL _action;
+	BOOL _autovalidates;;
 	BOOL _allowsDuplicatesInToolbar;	
+	BOOL _isEnabled;
+	BOOL _selectable;
 }
 
 - (SEL) action; 

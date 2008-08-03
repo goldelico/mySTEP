@@ -24,7 +24,7 @@ typedef enum {
 	NSToolbarDisplayModeDefault,
 	NSToolbarDisplayModeIconAndLabel,
 	NSToolbarDisplayModeIconOnly,
-	NSToolbarDisplayModeLabelOnly
+	NSToolbarDisplayModeLabelOnly,
 } NSToolbarDisplayMode;
 
 typedef enum {
@@ -33,10 +33,25 @@ typedef enum {
 	NSToolbarSizeModeSmall
 } NSToolbarSizeMode;
 
-
+@class NSToolbarView;
+@class NSPanel;
 
 @interface NSToolbar : NSView
 {
+	NSString *_identifier; 
+	NSMutableArray *_items;										// all items we have
+	NSMutableArray *_visibleItemIdentifiers;	// identifiers only (may have duplicates!)
+	NSString *_selectedItemIdentifier;
+	NSPanel *_customizationPalette;
+	NSToolbarView *_toolbarView;
+	id _delegate; 
+	NSToolbarDisplayMode _displayMode; 
+	NSToolbarSizeMode _sizeMode; 
+	BOOL _allowsUserCustomization; 
+	BOOL _autosavesConfiguration; 
+	BOOL _customizationPaletteIsRunning; 
+	BOOL _isVisible; 
+	BOOL _showsBaselineSeparator; 
 }
 
 - (BOOL) allowsUserCustomization; 

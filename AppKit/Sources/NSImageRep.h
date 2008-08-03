@@ -18,13 +18,8 @@
 #ifndef _mySTEP_H_NSImageRep
 #define _mySTEP_H_NSImageRep
 
-#import <Foundation/NSCoder.h>
-#import <Foundation/NSGeometry.h>
-#import <Foundation/NSURL.h>
+#import <Foundation/Foundation.h>
 
-@class NSString;
-@class NSArray;
-@class NSData;
 @class NSPasteboard;
 
 enum {

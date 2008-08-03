@@ -1,406 +1,231 @@
-/* 
-   <title>NSToolbar.m</title>
-
-   <abstract>The toolbar class.</abstract>
-   
-   Copyright (C) 2002 Free Software Foundation, Inc.
-
-   Author:  Gregory John Casamento <greg_casamento@yahoo.com>,
-            Fabien Vallon <fabien.vallon@fr.alcove.com>,
-            Quentin Mathe <qmathe@club-internet.fr>
-   Date: May 2002
-   
-   This file is part of the GNUstep GUI Library.
-
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2 of the License, or (at your option) any later version.
-
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
-   Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; see the file COPYING.LIB.
-   If not, see <http://www.gnu.org/licenses/> or write to the 
-   Free Software Foundation, 51 Franklin Street, Fifth Floor, 
-   Boston, MA 02110-1301, USA.
-*/ 
-
-#if GNUstepGUI
-
-#include <Foundation/NSObject.h>
-#include <Foundation/NSArray.h>
-#include <Foundation/NSAutoreleasePool.h>
-#include <Foundation/NSDictionary.h>
-#include <Foundation/NSEnumerator.h>
-#include <Foundation/NSException.h>
-#include <Foundation/NSNotification.h>
-#include "AppKit/NSToolbarItem.h"
-#include "AppKit/NSView.h"
-#include "AppKit/NSWindow.h"
-#include "AppKit/NSWindow+Toolbar.h"
-#include "GNUstepGUI/GSToolbarView.h"
-#include "GNUstepGUI/GSToolbar.h"
-#include "AppKit/NSToolbar.h"
-
-// internal
-static NSNotificationCenter *nc = nil;
-static const int current_version = 1;
-
-
-@interface NSToolbar (GNUstepPrivate)
-
-+ (NSMutableArray *) _toolbars;
-
-// Private methods with broadcast support
-- (void) _setDisplayMode: (NSToolbarDisplayMode)displayMode 
-               broadcast: (BOOL)broadcast;
-- (void) _setSizeMode: (NSToolbarSizeMode)sizeMode 
-            broadcast: (BOOL)broadcast;
-- (void) _setVisible: (BOOL)shown broadcast: (BOOL)broadcast;
-- (void) _setDelegate: (id)delegate broadcast: (BOOL)broadcast;
-
-// Few other private methods
-- (void) _loadConfig;
-- (GSToolbar *) _toolbarModel;
-
-// Accessors
-- (void) _setWindow: (NSWindow *)window;
-- (NSWindow *) _window;
-@end
-
-@interface NSToolbarItem (GNUstepPrivate)
-- (void) _setToolbar: (GSToolbar *)toolbar;
-@end
-
-@interface GSToolbarView (GNUstepPrivate)
-- (void) _reload;
-
-// Accessors
-- (NSArray *) _visibleBackViews;
-- (void) _setSizeMode: (NSToolbarSizeMode)sizeMode;
-- (NSToolbarSizeMode) _sizeMode;
-- (void) _setWillBeVisible: (BOOL)willBeVisible;
-- (BOOL) _willBeVisible;
-@end
-
-@interface NSWindow (ToolbarPrivate)
-- (void) _adjustToolbarView;
-@end
-
-// ---
-
-@implementation NSToolbar
-
-// Class methods
-
-// Initialize the class when it is loaded
-+ (void) initialize
-{
-  if (self == [NSToolbar class])
-    {
-      [self setVersion: current_version];
-      nc = [NSNotificationCenter defaultCenter];
-    }
-}
-
-// Instance methods
-
-- (id) initWithIdentifier: (NSString *)identifier 
-              displayMode:(NSToolbarDisplayMode)displayMode 
-                 sizeMode: (NSToolbarSizeMode)sizeMode
-{
-  NSToolbar *toolbarModel = nil;
-
-  if ((self = [super initWithIdentifier: identifier 
-                            displayMode: displayMode 
-                               sizeMode: sizeMode]) == nil)
-    {
-      return nil;
-    }
-
-  toolbarModel = (NSToolbar *)[self _toolbarModel];
-    
-  if (toolbarModel != nil)
-    {
-      _displayMode = [toolbarModel displayMode];
-      _sizeMode = [toolbarModel sizeMode]; 
-      _visible = [toolbarModel isVisible];
-    }
-  else
-    {
-      _displayMode = displayMode; 
-      _sizeMode = sizeMode;
-      _visible = YES;
-    }
-
-  return self;
-}
-
-- (void) dealloc
-{
-  // NSLog(@"Dummy NSToolbar dealloc");
-  
-  [super dealloc];
-}
-
-// Accessors
-
-- (BOOL) isVisible
-{
-  return _visible;
-}
-
-
-/**
- * Sets the receivers delegate ... this is the object which will receive
- * -toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:
- * -toolbarAllowedItemIdentifiers: and -toolbarDefaultItemIdentifiers:
- * messages.
- */
- 
-- (void) setDisplayMode: (NSToolbarDisplayMode)displayMode
-{
-  [self _setDisplayMode: displayMode broadcast: YES];
-}
-
-- (void) setSizeMode: (NSToolbarSizeMode)sizeMode
-{
-  [self _setSizeMode: sizeMode broadcast: YES];
-}
-
-- (void) setVisible: (BOOL)shown
-{
-  [self _setVisible: shown broadcast: NO];
-}
-
-// Private methods
-
 /*
- *
- * The methods below handles the toolbar edition and broacasts each associated
- * event to the other toolbars with identical identifiers. 
- *
- */
-
-#define TRANSMIT(signature) \
-  NSEnumerator *e = [[[GSToolbar _toolbars] objectsWithValue: _identifier forKey: @"_identifier"] objectEnumerator]; \
-  NSToolbar *toolbar; \
-  \
-  while ((toolbar = [e nextObject]) != nil) \
-    { \
-      if (toolbar != self && [self isMemberOfClass: [self class]]) \
-        [toolbar signature]; \
-    } \
-
-- (void) _setDisplayMode: (NSToolbarDisplayMode)displayMode 
-               broadcast: (BOOL)broadcast
-{
-   _displayMode = displayMode;
-   
-   [_toolbarView _reload];
-   [_window _adjustToolbarView];
-     
-   if (broadcast) 
-     {
-       TRANSMIT(_setDisplayMode: _displayMode broadcast: NO);
-     }
-}
-
-- (void) _setSizeMode: (NSToolbarSizeMode)sizeMode 
-            broadcast: (BOOL)broadcast
-{
-   _sizeMode = sizeMode;
-   [_toolbarView _setSizeMode: _sizeMode];
-   
-   [_toolbarView _reload];
-   [_window _adjustToolbarView];
-     
-   if (broadcast) 
-     {
-       TRANSMIT(_setSizeMode: _sizeMode broadcast: NO);
-     }
-}
-
-- (void) _setVisible: (BOOL)shown broadcast: (BOOL)broadcast
-{
-  if (_visible != shown)
-    {  
-      if (_window) 
-        {
-          if (shown)
-	    [_toolbarView _setWillBeVisible: YES];
-	  
-	  [_window toggleToolbarShown: self];
-	  
-	  [_toolbarView _setWillBeVisible: NO];
-        }
-	
-       _visible = shown; 
-       // Important to set _visible after the toolbar has been toggled because
-       // NSWindow method contentViewWithoutToolbar uses [NSToolbar visible]
-       // when we toggle the toolbar
-       // example : the toolbar needs to be still known visible in order to hide
-       // it.
-    }
-    
-    if (broadcast) 
-      {
-        TRANSMIT(_setVisible: _visible broadcast: NO);
-      }
-}
-
-// Notifications
-
-- (void) handleNotification: (NSNotification *)notification
-{
-  // We currently only worry about when our window closes.
-  // It's necessary to set the _window ivar in master list to nil when it is
-  // closed, so that it doesn't cause a segmentation fault when we looks at
-  // _window ivar with KVC in -[NSWindow(Toolbar) toolbar].
-  [self _setWindow: nil];
-  
-  if ([_toolbarView superview] == nil)
-    RELEASE(_toolbarView); 
-  // We release the toolbar view in such case because NSWindow(Toolbar) retains
-  // it when its superview value is nil.
-}
-
-// Private Accessors
-
-- (void) _setWindow: (NSWindow *)window 
-{
-  if (_window != window)
-    {
-      if (_window)
-        {
-          [nc removeObserver: self];
-        }
-
-      if (window)
-        {
-          // Watch for this window closing....
-          [nc addObserver: self
-              selector: @selector(handleNotification:)
-              name: NSWindowWillCloseNotification
-              object: window];
-        }
-    }
-    
-  // We don't do an ASSIGN because the toolbar view retains us.
-  // call [NSWindow(Toolbar) setToolbar:] to set the toolbar window 
-  _window = window; 
-}
-
-- (NSWindow *) _window
-{
-  return _window;
-}
-
-@end
-
-#else
+ NSToolbar.h
+ mySTEP
+ 
+ Created by Dr. H. Nikolaus Schaller on Sat Jan 07 2006.
+ Copyright (c) 2005-2008 DSITRI.
+ 
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+*/
 
 #import "AppKit/NSToolbar.h"
 #import "AppKit/NSToolbarItem.h"
 #import "AppKit/NSToolbarItemGroup.h"
+#import "NSAppKitPrivate.h"
 
 @implementation NSToolbar
 
+static NSHashTable *_toolbars;
+
 - (id) initWithIdentifier:(NSString *) str; 
 {
-	[self release];
-	return nil;
+	// check in _toolbars if we already have one with this identifier
+	// if yes, [self release] and return the existing one (retained)
+	if((self=[super init]))
+			{
+				_identifier=[str retain];
+				_items=[[NSMutableArray alloc] initWithCapacity:10];
+				_visibleItemIdentifiers=[[NSMutableArray alloc] initWithCapacity:10];
+				_displayMode=NSToolbarDisplayModeDefault;
+				_sizeMode=NSToolbarSizeModeDefault;
+			}
+	// add to _toolbars
+	return self;
 }
 
-/*
-- (BOOL) allowsUserCustomization; 
-- (BOOL) autosavesConfiguration; 
-- (NSDictionary *) configurationDictionary; 
-- (BOOL) customizationPaletteIsRunning; 
-- (id) delegate; 
-- (NSToolbarDisplayMode) displayMode; 
-- (NSString *) identifier; 
-- (void) insertItemWithItemIdentifier:(NSString *) itemId atIndex:(NSInteger) idx; 
-- (BOOL) isVisible; 
-- (NSArray *) items; 
-- (void) removeItemAtIndex:(NSInteger) idx; 
+- (void) dealloc
+{
+	// remove from _toolbars (if present)
+	[_customizationPalette release];
+	[_items release];
+	[_visibleItemIdentifiers release];
+	[_selectedItemIdentifier release];
+	[super dealloc];
+}
+
+- (void) _changed;
+{
+	[_toolbarView layout];
+	if(_autosavesConfiguration)
+			{
+				NSUserDefaults *ud=[NSUserDefaults standardUserDefaults];
+				[ud setObject:[self configurationDictionary] forKey:[NSString stringWithFormat:@"NSToolbar Configuration %@", _identifier]];
+			}
+}
+
+- (void) _setToolbarView:(NSToolbarView *) view;
+{ // becomes visible the first time
+	NSDictionary *dict=[[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:@"NSToolbar Configuration %@", _identifier]];
+	_toolbarView=view;	// weak reference since we are retained by the view
+	if(dict)
+		[self setConfigurationFromDictionary:dict];	// interpret the configuration
+	else
+		[_visibleItemIdentifiers setArray:[_delegate toolbarDefaultItemIdentifiers:self]];	// (re)set to default
+}
+
+- (NSToolbarView *) _toolbarView; { return _toolbarView; }
+
+- (BOOL) allowsUserCustomization; { return _allowsUserCustomization; }
+- (BOOL) autosavesConfiguration;  { return _autosavesConfiguration; }
+
+- (NSDictionary *) configurationDictionary;
+{
+	return [NSDictionary dictionaryWithObjectsAndKeys:
+											[NSNumber numberWithInt:_displayMode], @"TB Display Mode",
+											[NSNumber numberWithInt:_sizeMode], @"TB Icon Size Mode",
+											[NSNumber numberWithInt:_isVisible], @"TB Is Shown",
+											_visibleItemIdentifiers, @"TB Item Identifiers",
+											[NSNumber numberWithInt:_sizeMode], @"TB Size Mode",	// oops what is the difference?
+											[NSDictionary dictionary], @"TB Visibility Priority Values",	// should be NSDictionary!
+											nil];
+}
+
+- (BOOL) customizationPaletteIsRunning; { return _customizationPalette != nil; }
+- (id) delegate; { return _delegate; }
+- (NSToolbarDisplayMode) displayMode; { return _displayMode; }
+- (NSString *) identifier; { return _identifier; }
+
+- (void) insertItemWithItemIdentifier:(NSString *) itemId atIndex:(NSInteger) idx;
+{
+	NSToolbarItem *item;
+	item=[_delegate toolbar:self itemForItemIdentifier:itemId willBeInsertedIntoToolbar:YES];	// delegate will configure the item
+	if(item)
+			{
+				// send NSToolbarWillAddItemNotification
+				[item _setToolbar:self];
+				[_items addObject:item];
+				[self _changed];
+			}
+}
+
+- (BOOL) isVisible; { return _isVisible; }
+- (NSArray *) items; { return _items; }
+
+- (void) removeItemAtIndex:(NSInteger) idx;
+{
+	[_visibleItemIdentifiers removeObjectAtIndex:idx];
+	// post NSToolbarDidRemoveItemNotification
+ [self _changed];
+}
+
 - (void) runCustomizationPalette:(id) sender; 
-- (NSString *) selectedItemIdentifier; 
-- (void) setAllowsUserCustomization:(BOOL) flag; 
-- (void) setAutosavesConfiguration:(BOOL) autosaveConfig; 
-- (void) setConfigurationFromDictionary:(NSDictionary *) dict; 
-- (void) setDelegate:(id) delegate; 
-- (void) setDisplayMode:(NSToolbarDisplayMode) mode; 
-- (void) setSelectedItemIdentifier:(NSString *) itemId; 
-- (void) setShowsBaselineSeparator:(BOOL) flag; 
-- (void) setSizeMode:(NSToolbarSizeMode) mode; 
-- (void) setVisible:(BOOL) flag; 
-- (BOOL) showsBaselineSeparator; 
-- (NSToolbarSizeMode) sizeMode; 
-- (void) validateVisibleItems; 
-- (NSArray *) visibleItems; 
-*/
+{
+	if(!_allowsUserCustomization)
+		return;	// ignore
+	// create and show palette
+}
+
+- (NSString *) selectedItemIdentifier; { return _selectedItemIdentifier; }
+- (void) setAllowsUserCustomization:(BOOL) flag; { _allowsUserCustomization=flag; }
+- (void) setAutosavesConfiguration:(BOOL) flag; { _autosavesConfiguration=flag; }
+
+- (void) setConfigurationFromDictionary:(NSDictionary *) dict;
+{
+	id val;
+	if((val=[dict objectForKey:@"TB Display Mode"]))
+		_displayMode=[val intValue];
+	if((val=[dict objectForKey:@"TB Size Mode"]))
+		_sizeMode=[val intValue];
+	if((val=[dict objectForKey:@"TB Is Shown"]))
+		_isVisible=[val boolValue];	// make visible
+	if((val=[dict objectForKey:@"TB Item Identifiers"]))
+		[_visibleItemIdentifiers setArray:val];
+	[_toolbarView layout];
+}
+
+- (void) setDelegate:(id) delegate;
+{
+	_delegate=delegate;
+	// also set as delgate for NSToolbarWillAddItemNotification and NSToolbarDidRemoveItemNotification
+}
+
+- (void) setDisplayMode:(NSToolbarDisplayMode) mode; { _displayMode=mode; [self _changed]; }
+- (void) setSelectedItemIdentifier:(NSString *) itemId; { ASSIGN(_selectedItemIdentifier, itemId); [self _changed]; }
+- (void) setShowsBaselineSeparator:(BOOL) flag; { _showsBaselineSeparator=flag; [self _changed]; }
+- (void) setSizeMode:(NSToolbarSizeMode) mode; { _sizeMode=mode; [self _changed]; }
+- (void) setVisible:(BOOL) flag; { _isVisible=flag; [self _changed]; [[_toolbarView superview] layout]; }
+- (BOOL) showsBaselineSeparator; { return _showsBaselineSeparator; }
+- (NSToolbarSizeMode) sizeMode; { return _sizeMode; }
+
+- (void) validateVisibleItems;
+{
+	[_items makeObjectsPerformSelector:@selector(validate)];
+}
+
+- (NSArray *) visibleItems;
+{ // translate from identifiers
+	// we should have separate items if we have multiple items with same identifier!
+	return _visibleItemIdentifiers;
+}
+
 @end
 
 @implementation NSToolbarItem
 
-/*
- {
-	NSString *_itemIdentifier;
-	NSString *_label;
-	NSString *_paletteLabel;
-	NSImage *_image;
-	NSMenuItem *_menuFormRepresentation;
-	NSString *_toolTip;
-	NSToolbar *_toolbar;
-	id _view;
-	NSView *_backView;
-	NSSize _maxSize;
-	NSSize _minSize;
-	int _tag;
-	BOOL _modified;
-	BOOL _selectable;
-	BOOL _allowsDuplicatesInToolbar;	
+- (SEL) action; { return _action; }
+- (BOOL) allowsDuplicatesInToolbar; { return _allowsDuplicatesInToolbar; } 
+- (BOOL) autovalidates; { return _autovalidates; }
+- (NSImage *) image; { return _image; }
+
+- (id) initWithItemIdentifier:(NSString *) itemId; 
+{
+	if((self=[super init]))
+			{
+				_itemIdentifier=[itemId retain];
+			}
+	return self;
 }
 
-- (SEL) action; 
-- (BOOL) allowsDuplicatesInToolbar; 
-- (BOOL) autovalidates; 
-- (NSImage *) image; 
-- (id) initWithItemIdentifier:(NSString *) itemId; 
-- (BOOL) isEnabled; 
-- (NSString *) itemIdentifier; 
-- (NSString *) label; 
-- (NSSize) maxSize; 
-- (NSMenuItem *) menuFormRepresentation; 
-- (NSSize) minSize; 
-- (NSString *) paletteLabel; 
-- (void) setAction:(SEL) sel; 
-- (void) setAutovalidates:(BOOL) flag; 
-- (void) setEnabled:(BOOL) flag; 
-- (void) setImage:(NSImage *) img; 
-- (void) setLabel:(NSString *) str; 
-- (void) setMaxSize:(NSSize) size; 
-- (void) setMenuFormRepresentation:(NSMenuItem *) item; 
-- (void) setMinSize:(NSSize) size; 
-- (void) setPaletteLabel:(NSString *) label; 
-- (void) setTag:(NSInteger) tag; 
-- (void) setTarget:(id) target; 
-- (void) setToolTip:(NSString *) toolTip; 
-- (void) setView:(NSView *) view; 
-- (void) setVisibilityPriority:(NSInteger) priority; 
-- (NSInteger) tag; 
-- (id) target; 
-- (NSToolbar *) toolbar; 
-- (NSString *) toolTip; 
-- (void) validate; 
-- (NSView *) view; 
-- (NSInteger) visibilityPriority; 
-*/
+- (void) dealloc;
+{
+	[_itemIdentifier release];
+	[_image release];
+	[_label release];
+	[_paletteLabel release];
+	[_toolTip release];
+	[_view release];
+	[super dealloc];
+}
+
+- (BOOL) isEnabled; { return _isEnabled; }
+- (NSString *) itemIdentifier; { return _itemIdentifier; }
+- (NSString *) label; { return _label; }
+- (NSSize) maxSize; { return _maxSize; }
+- (NSMenuItem *) menuFormRepresentation; { return _menuFormRepresentation; }
+- (NSSize) minSize; { return _minSize; }
+- (NSString *) paletteLabel; { return _paletteLabel; }
+- (void) setAction:(SEL) sel; { _action=sel; }
+- (void) setAutovalidates:(BOOL) flag; { _autovalidates=flag; }
+- (void) setEnabled:(BOOL) flag; { _isEnabled=flag; }
+- (void) setImage:(NSImage *) img; { ASSIGN(_image, img); }
+- (void) setLabel:(NSString *) str; { ASSIGN(_label, str); }
+- (void) setMaxSize:(NSSize) size; { _maxSize=size; }
+- (void) setMenuFormRepresentation:(NSMenuItem *) item; { NIMP; }
+- (void) setMinSize:(NSSize) size; { _minSize=size; }
+- (void) setPaletteLabel:(NSString *) label; { ASSIGN(_paletteLabel, label); }
+- (void) setTag:(NSInteger) tag; { _tag=tag; }
+- (void) setTarget:(id) target; { _target=target; }
+- (void) _setToolbar:(NSToolbar *) view; { _toolbar=view; }
+- (void) setToolTip:(NSString *) toolTip; { ASSIGN(_toolTip, toolTip); }
+- (void) setView:(NSView *) view; { ASSIGN(_view, view); }
+- (void) setVisibilityPriority:(NSInteger) priority; { _visibilityPriority=priority; }
+- (NSInteger) tag; { return _tag; }
+- (id) target; { return _target; }
+- (NSToolbar *) toolbar; { return _toolbar; }
+- (NSString *) toolTip; { return _toolTip; }
+
+- (void) validate;
+{
+	id target=[NSApp targetForAction:_action to:_target from:self];
+	if([target respondsToSelector:@selector(validateToolbarItem:)])
+		[self setEnabled:[target validateToolbarItem:self]];
+	else
+		[self setEnabled:YES];
+}
+
+- (NSView *) view; { return _view; }
+- (NSInteger) visibilityPriority; { return _visibilityPriority; }
 
 NSString *NSToolbarSeparatorItemIdentifier=@"NSToolbarSeparatorItemIdentifier";
 NSString *NSToolbarSpaceItemIdentifier=@"NSToolbarSpaceItemIdentifier";
@@ -418,7 +243,3 @@ NSString *NSToolbarPrintItemIdentifier=@"NSToolbarPrintItemIdentifier";
 - (NSArray *) subitems; { return _subitems; }
 
 @end
-
-
-
-#endif

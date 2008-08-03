@@ -1007,8 +1007,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 						NSLog(@"could not send startInking message due to %@", [localException reason]);
 					NS_ENDHANDLER
 					}
+				// FIXME: how does this interwork with the NSApplicationActivatedEvent?
 				if(([event window] != _appIconWindow))
-					{ // activate by clicking into window
+					{ // activated when clicking into window
 					if([[event window] styleMask] & NSNonactivatingPanelMask)
 						{ // only grab the keyboard focus without activating
 						[_keyWindow becomeKeyWindow];
@@ -1277,7 +1278,7 @@ NSEvent *event = nil;									// if queue contains
 - (BOOL) isRunning								{ return _app.isRunning; }
 - (BOOL) isHidden								{ return _app.isHidden; }
 
-- (void) _unhideWindows:(BOOL) flag;
+- (void) _setWindowsHidden:(BOOL) flag;
 {
 	NSArray *_windowList = [self windows];
 	int i, count = [_windowList count];
@@ -1286,9 +1287,9 @@ NSEvent *event = nil;									// if queue contains
 				NSWindow *w = [_windowList objectAtIndex:i];
 				if([w hidesOnDeactivate])
 						{
-							if(flag && ![w isVisible])
+							if(!flag && ![w isVisible])
 								[w orderFront:nil];	// unhide
-							else if(!flag && [w isVisible])
+							else if(flag && [w isVisible])
 								[w orderOut:nil];	// hide
 						}
 			}
@@ -1315,7 +1316,7 @@ NSEvent *event = nil;									// if queue contains
 			if(![[NSFileManager defaultManager] removeFileAtPath:active handler:nil])	// reove as active application
 				NSLog(@"remove error for activate");
 		[[NSFileManager defaultManager] createSymbolicLinkAtPath:active pathContent:[[NSBundle mainBundle] bundleIdentifier]];	// link to identifier
-			[self _unhideWindows:NO];		// hide
+			[self _setWindowsHidden:NO];		// unhide our windows
 		if(flag)
 			{
 			if(_mainWindow)
@@ -1341,7 +1342,7 @@ NSEvent *event = nil;									// if queue contains
 		[_keyWindow resignKeyWindow];
 			if(![[NSFileManager defaultManager] removeFileAtPath:active handler:nil])	// reove as active application
 				NSLog(@"remove error for deactivate");
-			[self _unhideWindows:NO];		// hide
+			[self _setWindowsHidden:YES];		// hide
 			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidResignActive) object:self];
 		}
 }

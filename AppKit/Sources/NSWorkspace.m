@@ -516,9 +516,10 @@ static BOOL __fileSystemChanged = NO;
 					return NO;	// is background only
 			}
 	appFile=[NSWorkspace _activeApplicationPath:[b bundleIdentifier]];
-	while(YES)
-			{ // try to launch exclusively
-				if((options&NSWorkspaceLaunchNewInstance) == 0 && open([appFile fileSystemRepresentation], O_CREAT|O_EXCL, 0644) < 0)
+	while((options&NSWorkspaceLaunchNewInstance) == 0)
+			{ // try to contact existing application - or launch exactly once
+				int fd;
+				if((fd=open([appFile fileSystemRepresentation], O_CREAT|O_EXCL, 0644)) < 0)
 						{ // We are not the first to write the file. This means someone else is launching or has launched the same application
 							NSDictionary *app=[NSDictionary dictionaryWithContentsOfFile:appFile];
 							pid_t pid=[[app objectForKey:@"NSApplicationProcessIdentifier"] intValue];
@@ -563,6 +564,23 @@ static BOOL __fileSystemChanged = NO;
 #if 1
 													NSLog(@"App has crashed. Launching new instance.");
 													// loop with timeout until pid changes
+													// FIXME:
+													//  this risks a race condition if two differnt apps try to launch the crashed one again!
+													//  if we simply launch, then there is no locking
+													//  if we simply delete the file and try again, we are not guaranteed that we then get an exclusive launch
+													//  so we should
+
+													// unlink([appFile fileSystemRepresentation];
+													// if((fd=open([appFile fileSystemRepresentation], O_CREAT|O_EXCL, 0644)) < 0)
+														// { // failed, i.e. someone else was faster
+													// continue;		// loop again
+														// }
+													// else break;	// now we have the lock and can launch
+													
+													// FIXME: this is still not safe
+													//        what happens if we unlink the file after someone else has just created the lock file???
+													//        unlink&open must be atomic - or we need a different mechanism
+													
 #endif
 												break;
 												}
@@ -581,6 +599,8 @@ static BOOL __fileSystemChanged = NO;
 									break;
 									}
 						}
+				else
+					close(fd);	// don't leak file handle of the newly created file
 			}
 	executable=[b executablePath];	// get executable within bundle
 	if(!executable)

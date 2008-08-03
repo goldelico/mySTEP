@@ -39,6 +39,8 @@
 #import <AppKit/NSTabView.h>
 #import <AppKit/NSTabViewItem.h>
 #import <AppKit/NSText.h>
+#import <AppKit/NSToolbar.h>
+#import <AppKit/NSToolbarItem.h>
 #import <AppKit/NSView.h>
 #import <AppKit/NSWindow.h>
 #import <AppKit/NSWindowController.h>
@@ -183,6 +185,7 @@ typedef enum _NSRoundedBezelSegments
 - (void) _setSuperview:(NSView *)superview;	
 - (void) _drawRect:(NSRect) rect;
 - (void) _setWindow:(NSWindow *) window;
+- (void) layout;	// NSThemeFrame
 @end
 
 @interface NSControl (Delegation)	// although we implement this for all subclasses in NSControl, it is not an official interface
@@ -390,4 +393,15 @@ enum _NSGlyphAttribute
 - (NSColor *) dividerColor;
 - (void) setDividerColor:(NSColor *)aColor;
 
+@end
+
+@interface NSToolbarItem (NSPrivate)
+- (void) _setToolbar:(NSToolbar *) toolbar;
+@end
+
+@class NSToolbarView;
+
+@interface NSToolbar (NSPrivate)
+- (void) _setToolbarView:(NSToolbarView *) view;
+- (NSToolbarView *) _toolbarView;
 @end
