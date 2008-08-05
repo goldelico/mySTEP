@@ -209,7 +209,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 + (BOOL) conformsToProtocol:(Protocol*)aProtocol
 {
 	struct objc_protocol_list* proto_list;
-#if 1 && !defined(__APPLE__)
+#if 0 && !defined(__APPLE__)
 	fprintf(stderr, "+[%s conformsToProtocol: %s]\n", class_get_class_name(self), [aProtocol name]);
 #endif
 	for(proto_list = ((struct objc_class*)self)->protocols;

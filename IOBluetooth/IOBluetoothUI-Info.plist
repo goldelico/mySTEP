@@ -7,7 +7,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>mySTEP; Copyright FSF 2003-2005; based on GNUstep and mGStep; licenced under LGPL</string>
 	<key>CFBundleIdentifier</key>
-	<string>de.dsitri.mySTEP. IOBluetoothUI</string>
+	<string>com.quantum-step.mySTEP.IOBluetoothUI</string>
 	<key>CFBundleName</key>
 	<string>Security</string>
 	<key>CFBundleVersion</key>

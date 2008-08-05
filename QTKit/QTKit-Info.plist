@@ -9,7 +9,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>mySTEP; Copyright H. N. Schaller; Licenced under LGPL</string>
 	<key>CFBundleIdentifier</key>
-	<string>de.dsitri.mySTEP.QTKit</string>
+	<string>com.quantum-step.mySTEP.QTKit</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

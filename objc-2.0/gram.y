@@ -1,7 +1,6 @@
 /* ObjC-2.0 scanner - based on http://www.lysator.liu.se/c/ANSI-C-grammar-y.html */
 
-%token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
-%token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
+%token SIZEOF PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
 %token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
 %token XOR_ASSIGN OR_ASSIGN TYPE_NAME
@@ -12,42 +11,45 @@
 
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
 
-%token AT_STRING_LITERAL, ID, SEL, BOOL, UNICHAR, CLASS
-%token AT_CLASS, AT_PROTOCOL, AT_INTERFACE, AT_IMPLEMENTATION, AT_END
-%token AT_PRIVATE, AT_PUBLIC, AT_PROTECTED
-%token AT_SELECTOR, AT_ENCODE
-%token AT_CATCH, AT_THROW, AT_TRY
-%token IN, OUT, INOUT, BYREF, BYCOPY, ONEWAY
+%token ID SEL BOOL UNICHAR CLASS
+%token AT_CLASS AT_PROTOCOL AT_INTERFACE AT_IMPLEMENTATION AT_END
+%token AT_PRIVATE AT_PUBLIC AT_PROTECTED
+%token AT_SELECTOR AT_ENCODE
+%token AT_CATCH AT_THROW AT_TRY
+%token IN OUT INOUT BYREF BYCOPY ONEWAY
 
-%token AT_PROPERTY, AT_SYNTHESIZE, AT_OPTIONAL, AT_REQUIRED, WEAK, STRONG
-
+%token AT_PROPERTY AT_SYNTHESIZE AT_OPTIONAL AT_REQUIRED WEAK STRONG
 
 %start translation_unit
 
 %union
 {
-	char *strval;
+	char *string;
 }
+
+%token <string> IDENTIFIER
+%token <string> CONSTANT
+%token <string> STRING_LITERAL
+%token <string> AT_STRING_LITERAL
 
 %%
 
 // define result type for each expansion
 
-// %type <strval> selector_component selector_with_arguments
-// %type <plist> decls decl_list decl
-// %type <lambda> lambda_start lambda_type
-// %type <flag> ctxorref
+// how can we do that for all to return a <string>?
+
+%type <string> selector_component selector_with_arguments
 
 selector_component
-	: IDENTIFIER ':' { $$ = strcat($1, ":"); }
+	: IDENTIFIER ':' { $$ = strdupcat($1, ":"); }
 	| ':' { $$ = ":"; }
 	;
 
 selector_with_arguments
 	: IDENTIFIER { $$ = $1; }
-	| IDENTIFIER ':' expression  { $$ = strcat($1, ":", $3); }
-	| selector_with_arguments selector_component expression
-	| selector_with_arguments ',' ELLIPSIS  { $$ = strcat($1, ",..."; }
+	| IDENTIFIER ':' expression  { $$ = strdupcat3($1, ":", $3); }
+	| selector_with_arguments selector_component expression { $$ = strdupcat($1, $2, $3); }
+	| selector_with_arguments ',' ELLIPSIS  { $$ = strdupcat($1, ", ..."); }
 	;
 
 struct_component_expression
@@ -57,7 +59,7 @@ struct_component_expression
 
 selector
 	: IDENTIFIER
-	| ':'
+	| ':' { $$ = ":"; }
 	| IDENTIFIER ':'
 	| selector ':'
 	;
@@ -321,7 +323,7 @@ init_declarator_list
 	;
 
 init_declarator
-	: declarator
+	: declarator { /* handle typedef and @class to add symbol to symbol table */ }
 	| declarator '=' initializer
 	;
 

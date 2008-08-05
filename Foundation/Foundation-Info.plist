@@ -7,7 +7,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>mySTEP; Copyright FSF 2003-2005; based on GNUstep and mGStep; licenced under LGPL</string>
 	<key>CFBundleIdentifier</key>
-	<string>de.dsitri.mySTEP.Foundation</string>
+	<string>com.quantum-step.mySTEP.Foundation</string>
 	<key>CFBundleName</key>
 	<string>Foundation</string>
 	<key>CFBundleVersion</key>

@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Quartz</string>
 	<key>CFBundleIdentifier</key>
-	<string>de.dsitri.QuantumSTEP.Frameworks.Quartz</string>
+	<string>com.quantum-step.Frameworks.Quartz</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>

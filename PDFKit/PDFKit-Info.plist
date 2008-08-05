@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>PDFKit</string>
 	<key>CFBundleIdentifier</key>
-	<string>de.dsitri.QuantumSTEP.Frameworks.PDFKit</string>
+	<string>com.quantum-step.Frameworks.PDFKit</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>

@@ -97,7 +97,7 @@ int line = 1;
  "unichar"					{ count(); return(UNICHAR); }
  "Class"					{ count(); return(CLASS); }
  
- @\"(\\.|[^\\"])*\"			{ count(); return(AT_STRING_LITERAL); }
+ @\"(\\.|[^\\"])*\"			{ count(); yylval.string=strdup(yytext); return(AT_STRING_LITERAL); }
  
  /* Obj-C 2.0 extensions */
  
@@ -108,19 +108,19 @@ int line = 1;
  "__weak"					{ count(); return(WEAK); }
  "__strong"					{ count(); return(STRONG); }
   
- L(L)*				{ count(); return(check_type()); }
- {L}({L}|{D})*		{ count(); return(check_type()); }
+ L(L)*				{ count(); yylval.string=strdup(yytext); return(IDENTIFIER); }
+ {L}({L}|{D})*		{ count(); yylval.string=strdup(yytext); return(IDENTIFIER); }
  
-0[xX]{H}+{IS}?		{ count(); return(CONSTANT); }
-0{D}+{IS}?			{ count(); return(CONSTANT); }
-{D}+{IS}?			{ count(); return(CONSTANT); }
-L?'(\\.|[^\\'])+'	{ count(); return(CONSTANT); }
+0[xX]{H}+{IS}?		{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
+0{D}+{IS}?			{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
+{D}+{IS}?			{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
+L?'(\\.|[^\\'])+'	{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
  
-{D}+{E}{FS}?		{ count(); return(CONSTANT); }
-{D}*"."{D}+({E})?{FS}?	{ count(); return(CONSTANT); }
-{D}+"."{D}*({E})?{FS}?	{ count(); return(CONSTANT); }
+{D}+{E}{FS}?		{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
+{D}*"."{D}+({E})?{FS}?	{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
+{D}+"."{D}*({E})?{FS}?	{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
  
-L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
+L?\"(\\.|[^\\"])*\"	{ count(); yylval.string=strdup(yytext); return(STRING_LITERAL); }
  
 "..."			{ count(); return(ELLIPSIS); }
 ">>="			{ count(); return(RIGHT_ASSIGN); }
@@ -176,13 +176,13 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 
 %%
  
- yywrap()
+ int yywrap()
  {
 	 return(1);
  }
  
  
- comment()
+ void comment()
  {
 	 char c;
 	 while ( 1 )
@@ -208,7 +208,7 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 		 }
  }
  
- commentplusplus()
+void commentplusplus()
  {
 	 char c;	 
 	 while ((c = input()) != '\n' && c != 0)
@@ -230,23 +230,27 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 	 
 //	 ECHO;
  }
- 
- 
- int check_type()
- {
-	 /*
-	  * pseudo code --- this is what it should check
-	  *
-	  *	if (yytext == type_name)
-	  *		return(TYPE_NAME);
-	  *
-	  *	return(IDENTIFIER);
-	  */
-	 
-	 /*
-	  *	it actually will only return IDENTIFIER
-	  */
-	 
-	 return(IDENTIFIER);
- }
- 
+
+char *strdup(char *str)
+{ // copy
+	char r=(char *) malloc(strlen(str)+1);
+	strcpy(r, str);
+	return r;
+}
+
+char *strdupcat(char *str1, char *str2)
+{ // catenate into a copy
+	char r=(char *) malloc(strlen(str1)+strlen(str2)+1);
+	strcpy(r, str1);
+	strcat(r, str2);
+	return r;
+}
+
+char *strdupcat3(char *str1, char *str2, char *str3)
+{ // catenate into a copy
+	char r=(char *) malloc(strlen(str1)+strlen(str2)+strlen(str3)+1);
+	strcpy(r, str1);
+	strcat(r, str2);
+	strcat(r, str3);
+	return r;
+}

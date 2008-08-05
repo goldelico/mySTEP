@@ -49,7 +49,7 @@ endif
 .PHONY:	clean build build_architecture
 
 #ifeq ($(ARCHITECTURES),x)
-ARCHITECTURES:=arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu
+ARCHITECTURES:=arm-quantumstep-linux-gnu i386-quantumstep-linux-gnu # arm-quantumstep-linux-gnueabi
 #endif
 
 ifeq ($(COMPILER),)
@@ -207,7 +207,7 @@ DEFINES =-DLinux_ARM \
 		-DLONG_LONG_MAX=9223372036854775807L -DLONG_LONG_MIN=-9223372036854775807L -DULONG_LONG_MAX=18446744073709551615UL
 
 CFLAGS := $(CFLAGS) \
-		-g -O$(OPTIMIZE) -fPIC -rdynamic \
+		-v -g -O$(OPTIMIZE) -fPIC -rdynamic \
 		$(WARNINGS) \
 		$(DEFINES) \
   		$(INCLUDES) \
@@ -244,11 +244,18 @@ endif
 ifeq ($(INSTALL),false)
 else
 	# install locally $(ROOT)$(INSTALL_PATH) 
+ifeq ($(WRAPPER_EXTENSION),)	# command line tool
+	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)/$(ARCHITECTURE)'; cd '$(ROOT)$(INSTALL_PATH)/$(ARCHITECTURE)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+else
 	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)'; cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+endif
 ifeq ($(SEND2ZAURUS),false)
 else
 	# install on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH) 
 	ls -l "$(BINARY)"
+ifeq ($(WRAPPER_EXTENSION),)	# command line tool
+	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && tar xpzvf -"
+else
 	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
 ifeq ($(RUN),false)
 	# dont launch
@@ -261,6 +268,7 @@ else
 		ssh -l root $(IP_ADDR) \
 		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' -NoNSBackingStoreBuffered" || echo failed to run; \
 	fi
+endif
 endif
 endif
 endif

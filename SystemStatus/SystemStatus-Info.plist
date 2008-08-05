@@ -7,7 +7,7 @@
 	<key>CFBundleName</key>
 	<string>SystemStatus</string>
 	<key>CFBundleIdentifier</key>
-	<string>de.dsitri.mySTEP.SystemStatus</string>
+	<string>com.quantum-step.mySTEP.SystemStatus</string>
 	<key>NSPrincipalClass</key>
 	<string>NSWorkspace</string>
 </dict>

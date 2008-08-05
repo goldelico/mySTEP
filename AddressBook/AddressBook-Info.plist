@@ -85,7 +85,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>mySTEP Address Book Framework; licenced under LGPL</string>
 	<key>CFBundleIdentifier</key>
-	<string>de.dsitri.mySTEP.AddressBook</string>
+	<string>com.quantum-step.mySTEP.AddressBook</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

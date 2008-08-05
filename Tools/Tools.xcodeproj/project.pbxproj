@@ -36,7 +36,6 @@
 		EE196B870D44E89E0074ED1A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
 		EE196B8F0D44E8B50074ED1A /* say.m in Sources */ = {isa = PBXBuildFile; fileRef = EE97888C0AA70E4D007ECDE1 /* say.m */; };
 		EE196B900D44E8C30074ED1A /* abook.m in Sources */ = {isa = PBXBuildFile; fileRef = EE196B7F0D44E8990074ED1A /* abook.m */; };
-		EE196C040D44EB360074ED1A /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE196BEF0D44EB360074ED1A /* AddressBook.framework */; };
 		EE291C5E0AD7BD50004A1CA6 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EE291C5F0AD7BD50004A1CA6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EE291C600AD7BD50004A1CA6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
@@ -56,6 +55,7 @@
 		EEAA878D0A14908D00F2E5B5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EEAA87900A14909000F2E5B5 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EEB5703109634D8700EAE41B /* defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA32EC409537D0C001244CF /* defaults.m */; };
+		EEC12B130E3E6024007E6996 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEC12B120E3E6024007E6996 /* AddressBook.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -115,11 +115,9 @@
 		EE144F5E0A14E79300C93F94 /* open.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = open.m; sourceTree = "<group>"; };
 		EE196B7F0D44E8990074ED1A /* abook.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = abook.m; sourceTree = "<group>"; };
 		EE196B8D0D44E89E0074ED1A /* abook */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = abook; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE196BEF0D44EB360074ED1A /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = /System/Library/Frameworks/AddressBook.framework; sourceTree = "<absolute>"; };
-		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE291C660AD7BD50004A1CA6 /* scutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scutil; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE291C6C0AD7BD6F004A1CA6 /* scutil.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = scutil.m; sourceTree = "<group>"; };
-		EE2FDDA10976F595003EA8A2 /* tools */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tools; path = /Developer/Xtoolchain/tools; sourceTree = "<absolute>"; };
+		EE2FDDA10976F595003EA8A2 /* bin */ = {isa = PBXFileReference; lastKnownFileType = folder; name = bin; path = /Users/hns/Documents/Projects/QuantumSTEP/usr/bin; sourceTree = "<absolute>"; };
 		EE3254080A531D5D0057B3B1 /* scselect.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = scselect.m; sourceTree = "<group>"; };
 		EE3254190A53225D0057B3B1 /* scselect */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scselect; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE93E77D0A239FE9008A5E48 /* plutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = plutil; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -128,6 +126,8 @@
 		EE97889A0AA70E53007ECDE1 /* say */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = say; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEA32EC409537D0C001244CF /* defaults.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = defaults.m; sourceTree = "<group>"; };
 		EEA330A709538118001244CF /* defaults */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = defaults; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEC12A310E3E5E5F007E6996 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EEC12B120E3E6024007E6996 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = /System/Library/Frameworks/AddressBook.framework; sourceTree = "<absolute>"; };
 		EEDB61250A1497F300E4CA39 /* HISTORY.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = HISTORY.rtf; path = ../HISTORY.rtf; sourceTree = SOURCE_ROOT; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -152,7 +152,7 @@
 				EE196B850D44E89E0074ED1A /* AppKit.framework in Frameworks */,
 				EE196B860D44E89E0074ED1A /* Cocoa.framework in Frameworks */,
 				EE196B870D44E89E0074ED1A /* Foundation.framework in Frameworks */,
-				EE196C040D44EB360074ED1A /* AddressBook.framework in Frameworks */,
+				EEC12B130E3E6024007E6996 /* AddressBook.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -212,10 +212,9 @@
 		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
 			isa = PBXGroup;
 			children = (
-				EE196BEF0D44EB360074ED1A /* AddressBook.framework */,
+				EEC12A310E3E5E5F007E6996 /* mySTEP.make */,
 				EEDB61250A1497F300E4CA39 /* HISTORY.rtf */,
-				EE27270005426A7F0000013C /* mySTEP.make */,
-				EE2FDDA10976F595003EA8A2 /* tools */,
+				EE2FDDA10976F595003EA8A2 /* bin */,
 				EE144F550A14E77E00C93F94 /* Sources */,
 				EEFFF241098DF160002610FC /* MacOS X Frameworks */,
 				EE29D8D8058A38830035639B /* Products */,
@@ -257,6 +256,7 @@
 				EEFFF0EB098DF148002610FC /* AppKit.framework */,
 				EEFFF0EC098DF148002610FC /* Cocoa.framework */,
 				EEFFEFE2098DF088002610FC /* Foundation.framework */,
+				EEC12B120E3E6024007E6996 /* AddressBook.framework */,
 			);
 			name = "MacOS X Frameworks";
 			sourceTree = "<group>";
@@ -389,10 +389,12 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "Tools" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				EE144F620A14E7C000C93F94 /* Tools */,
 				EE196B810D44E89E0074ED1A /* abook */,
@@ -610,7 +612,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				INSTALL_PATH = /usr/local/bin;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -714,12 +715,12 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				INSTALL_PATH = /usr/local/bin;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = abook;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -789,7 +790,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				INSTALL_PATH = /usr/local/bin;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -855,7 +855,7 @@
 		EE1A0192097304E200EAB703 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				MACOSX_DEPLOYMENT_TARGET = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Development;
@@ -888,7 +888,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				INSTALL_PATH = /usr/local/bin;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -963,7 +962,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				INSTALL_PATH = /usr/local/bin;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -1042,7 +1040,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				INSTALL_PATH = /usr/local/bin;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -1125,7 +1122,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				INSTALL_PATH = /usr/local/bin;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
