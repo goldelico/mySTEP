@@ -180,6 +180,14 @@ static NSHashTable *_toolbars;
 
 - (void) setDelegate:(id) delegate;
 {
+	if(delegate && !([delegate respondsToSelector:@selector(toolbarAllowedItemIdentifiers:)] &&
+									[delegate respondsToSelector:@selector(toolbarDefaultItemIdentifiers:)] &&
+									[delegate respondsToSelector:@selector(toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:)]
+										))
+		{
+		NSLog(@"*** delegate does not respond to required NSToolbar delegate methods: %@", delegate);
+		return;
+	}
 	_delegate=delegate;
 	// also set as delgate for NSToolbarWillAddItemNotification and NSToolbarDidRemoveItemNotification
 }
@@ -226,6 +234,7 @@ static NSHashTable *_toolbars;
 							_label=[[dict objectForKey:@"Label"] retain];
 							_paletteLabel=[[dict objectForKey:@"PaletteLabel"] retain];
 							_toolTip=[[dict objectForKey:@"ToolTip"] retain];
+							_allowsDuplicatesInToolbar=[[dict objectForKey:@"AllowsDuplicates"] boolValue];
 							if([[dict objectForKey:@"MinSize"] length] > 0)
 								_minSize=NSSizeFromString([dict objectForKey:@"MinSize"]);
 							if([[dict objectForKey:@"MaxSize"] length] > 0)

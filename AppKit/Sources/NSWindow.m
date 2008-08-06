@@ -133,12 +133,19 @@ static BOOL __cursorHidden = NO;
 @interface NSToolbarView : NSView
 {
 	NSToolbar *_toolbar;
+	NSRect *_itemRects;
+	float _toolbarHeight;
+	int _itemRectCount;
+	int _itemRectCapacity;
+	BOOL _hasOverflowMenu;
 }
 
 - (void) setToolbar:(NSToolbar *) _toolbar;
 - (NSToolbar *) toolbar;
 - (BOOL) popUpMode;	// run in popup mode
 - (float) height;
+- (NSRect) rectForToolbarItem:(int) idx;
+- (IBAction) popUpOverflowMenu:(id) sender;
 
 @end
 
@@ -613,6 +620,14 @@ static BOOL __cursorHidden = NO;
 
 @implementation NSToolbarView
 
+- (void) dealloc;
+{
+	if(_itemRects)
+		objc_free(_itemRects);
+	[_toolbar release];
+	[super dealloc];
+}
+
 - (void) setToolbar:(NSToolbar *) toolbar;
 {
 	ASSIGN(_toolbar, toolbar);
@@ -623,7 +638,7 @@ static BOOL __cursorHidden = NO;
 
 - (void) layout;
 {
-	// if height changes, we have to layout our superview
+	_itemRectCount= -1;	// clear cache
 	// modify toolbar toggle button?
 	[self setNeedsDisplay:YES];
 }
@@ -642,16 +657,49 @@ static BOOL __cursorHidden = NO;
 	return NO;	// always show icons
 }
 
+- (NSRect) rectForToolbarItem:(int) idx;
+{
+	if(_itemRectCount < 0)
+			{ // recache
+				NSEnumerator *e=[[_toolbar visibleItems] objectEnumerator];
+				NSToolbarItem *item;
+				_itemRectCount=0;
+				_toolbarHeight=0.0;
+				if([self popUpMode])
+					_hasOverflowMenu=YES;	// enforce
+				else
+						{
+							_hasOverflowMenu=NO;
+							while((item=[e nextObject]))
+									{ // allocate next item
+										// how to handle flexible space?
+										// if overflow required, break loop
+										// if(_itemRects == NULL || _itemRectCount >= _itemRectCapacity)
+										//    objc_realloc and increase capacity
+										// if [item view]
+										//   [[item view] setFrame:rect]
+										// adjust _toolbarHeight
+										// handle label&icon, label only, icon only cases
+									}
+						}
+			}
+	if(idx >= _itemRectCount)
+		return NSZeroRect;
+	return _itemRects[idx];
+}
+
 - (float) height;
 {
 	if(![_toolbar isVisible] || [self popUpMode])
 		return 0.0;	// if space limited, use popup menu
-	// calculate required height when doing layout
-	return 20.0;
+	if(_itemRectCount < 0)
+		[self rectForToolbarItem:0];	// load cache
+	return _toolbarHeight;
 }
 
 - (void) drawRect:(NSRect) rect
 {
+	int i;
 	[[NSColor windowFrameColor] set];
 	NSRectFill(rect);
 	if([_toolbar showsBaselineSeparator])
@@ -666,10 +714,91 @@ static BOOL __cursorHidden = NO;
 			case NSToolbarDisplayModeIconOnly:
 				break;
 		}
+	if(_itemRectCount < 0)
+		[self rectForToolbarItem:0];	// load cache
+	for(i=0; i<_itemRectCount; i++)
+			{
+				NSToolbarItem *item=[[_toolbar visibleItems] objectAtIndex:i];
+				if(NSIsEmptyRect(_itemRects[i]))
+					continue;
+				if(![item view] && NSIntersectsRect(_itemRects[i], rect))
+						{
+							// fill data into NSButtonCell
+							// draw cell
+						}
+				// draw label
+			}
+}
+
+- (IBAction) popUpOverflowMenu:(id) sender;
+{ // show popup menu
+	/// for proper popup, this should be the action when the button is pressed (not when released)
+	NSMenu *menu=[[NSMenu alloc] initWithTitle:@"Toolbar Menu"];
+	NSEnumerator *e=[[_toolbar visibleItems] objectEnumerator];
+	NSToolbarItem *item;
+	NSMenuItem *mi;
+	[_toolbar setVisible:NO];	// make toolbar invisible (unconditionally)
+	[_toolbar validateVisibleItems];	// check if items need to be enabled
+	[menu setAutoenablesItems:NO];
+	while((item=[e nextObject]))
+			{ // build menu on the fly, copying visibility to enable the menu items
+				NSView *iv;
+				NSMenu *submenu=nil;
+				NSString *ident=[item itemIdentifier];
+				NSLog(@"ident %@", ident);
+				if([ident isEqualToString:NSToolbarSeparatorItemIdentifier] ||
+					 [ident isEqualToString:NSToolbarSpaceItemIdentifier] ||
+					 [ident isEqualToString:NSToolbarFlexibleSpaceItemIdentifier])
+					continue;	// skip these in our menu
+				if((iv=[item view]))
+						{ // may be a popup button
+							if([iv respondsToSelector:@selector(menu)])
+									{ // it it responds to -menu and that one is defined, make a submenu
+										submenu=[iv menu];
+									}
+						}
+				mi=[[NSMenuItem alloc] initWithTitle:[item label] action:[item action] keyEquivalent:@""];
+				if(submenu)
+					[mi setMenu:submenu];
+				else
+					[mi setTarget:[item target]];
+				[mi setImage:[item image]];
+				[mi setEnabled:[item isEnabled]];
+				[mi setTag:[item tag]];
+				[menu addItem:mi];
+			}	
+	[menu addItem:[NSMenuItem separatorItem]];
+	// add toolbar context menu (show icons only, labels only, icons&labels, small/large size)
+	if([_toolbar allowsUserCustomization])
+			{
+				mi=[menu addItemWithTitle:@"Customize Toolbar" action:@selector(runCustomizationPalette:) keyEquivalent:@""];
+				[mi setImage:[NSImage imageNamed:@"NSToolbarCustomize"]];
+				[mi setTarget:_toolbar];	// not through first responder
+			}
+	mi=[menu addItemWithTitle:@"Icon and Label" action:@selector(iconAndLabel:) keyEquivalent:@""];
+	[mi setTarget:self];	// not through first responder
+	mi=[menu addItemWithTitle:@"Icon Only" action:@selector(iconOnly:) keyEquivalent:@""];
+	[mi setTarget:self];	// not through first responder
+	mi=[menu addItemWithTitle:@"Label Only" action:@selector(labelOnly:) keyEquivalent:@""];
+	[mi setTarget:self];	// not through first responder
+	if([_toolbar sizeMode] == NSToolbarSizeModeSmall)	// just show other option
+			mi=[menu addItemWithTitle:@"Regular" action:@selector(regular:) keyEquivalent:@""];
+	else
+			mi=[menu addItemWithTitle:@"Small" action:@selector(small:) keyEquivalent:@""];
+	[mi setTarget:self];	// not through first responder
+	[NSMenu popUpContextMenu:menu withEvent:[NSApp currentEvent] forView:[(NSThemeFrame *) [self superview] standardWindowButton:NSWindowToolbarButton]];	// pop up over the toolbar button
+	[menu release];
 }
 
 // ADDME: handle mouse-down and tracking etc.
 // control click should pop-up a menu to modify some attributes
+
+- (IBAction) iconOnly:(id) sender; { [_toolbar setDisplayMode:NSToolbarDisplayModeIconOnly]; }
+- (IBAction) labelOnly:(id) sender; { [_toolbar setDisplayMode:NSToolbarDisplayModeLabelOnly]; }
+- (IBAction) iconAndLabel:(id) sender; { [_toolbar setDisplayMode:NSToolbarDisplayModeIconAndLabel]; }
+
+- (IBAction) regular:(id) sender; { [_toolbar setSizeMode:NSToolbarSizeModeRegular]; }
+- (IBAction) small:(id) sender; { [_toolbar setSizeMode:NSToolbarSizeModeSmall]; }
 
 @end
 
@@ -2439,56 +2568,11 @@ id prev;
 - (void) toggleToolbarShown:(id) sender
 {
 	NSToolbarView *tv=[(NSThemeFrame *) _themeFrame toolbarView];
-	NSToolbar *tb=[tv toolbar];
 	if([tv popUpMode])
-			{ // show popup menu
-				/// for proper popup, this should be the action when the button is pressed (not when released)
-				NSMenu *menu=[[NSMenu alloc] initWithTitle:@"Toolbar Menu"];
-				NSEnumerator *e=[[tb visibleItems] objectEnumerator];
-				NSToolbarItem *item;
-				NSMenuItem *mi;
-				[tb setVisible:NO];	// make toolbar invisible (unconditionally)
-				[tb validateVisibleItems];	// check if items need to be enabled
-				[menu setAutoenablesItems:NO];
-				while((item=[e nextObject]))
-						{ // build menu on the fly, copying visibility to enable the menu items
-							NSView *iv;
-							NSMenu *submenu=nil;
-							NSString *ident=[item itemIdentifier];
-							NSLog(@"ident %@", ident);
-							if([ident isEqualToString:NSToolbarSeparatorItemIdentifier] ||
-							 	 [ident isEqualToString:NSToolbarSpaceItemIdentifier] ||
-								 [ident isEqualToString:NSToolbarFlexibleSpaceItemIdentifier])
-								continue;	// skip these in our menu
-							if((iv=[item view]))
-									{ // may be a popup button
-										if([iv respondsToSelector:@selector(menu)])
-												{ // it it responds to -menu and that one is defined, make a submenu
-													submenu=[iv menu];
-												}
-									}
-							mi=[[NSMenuItem alloc] initWithTitle:[item label] action:[item action] keyEquivalent:@""];
-							if(submenu)
-								[mi setMenu:submenu];
-							else
-								[mi setTarget:[item target]];
-							[mi setImage:[item image]];
-							[mi setEnabled:[item isEnabled]];
-							[mi setTag:[item tag]];
-							[menu addItem:mi];
-						}	
-				[menu addItem:[NSMenuItem separatorItem]];
-				// add toolbar context menu (show icons only, labels only, icons&labels, small/large size)
-				if([tb allowsUserCustomization])
-						{
-							mi=[menu addItemWithTitle:@"Customize Toolbar" action:@selector(runToolbarCustomizationPalette:) keyEquivalent:@""];
-							[mi setTarget:self];	// not through first responder
-						}
-				[NSMenu popUpContextMenu:menu withEvent:[NSApp currentEvent] forView:[(NSThemeFrame *) _themeFrame standardWindowButton:NSWindowToolbarButton]];	// pop up over the toolbar button
-				[menu release];
-			}
+		[tv popUpOverflowMenu:(id) sender];
 	else
 			{
+				NSToolbar *tb=[tv toolbar];
 				if(tb)
 					[tb setVisible:![tb isVisible]];	// toggle visibility
 			}

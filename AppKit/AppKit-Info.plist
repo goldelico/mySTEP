@@ -167,6 +167,8 @@
 			<string></string>
 			<key>ToolTip</key>
 			<string></string>
+			<key>AllowsDuplicates</key>
+			<string>1</string>
 		</dict>
 		<key>NSToolbarSpaceItem</key>
 		<dict>
@@ -184,6 +186,8 @@
 			<string></string>
 			<key>ToolTip</key>
 			<string></string>
+			<key>AllowsDuplicates</key>
+			<string>1</string>
 		</dict>
 		<key>NSToolbarFlexibleSpaceItem</key>
 		<dict>
@@ -201,6 +205,8 @@
 			<string></string>
 			<key>ToolTip</key>
 			<string></string>
+			<key>AllowsDuplicates</key>
+			<string>1</string>
 		</dict>
 		<key>NSToolbarShowColorsItem</key>
 		<dict>
@@ -218,6 +224,8 @@
 			<string>orderFrontColorPanel:</string>
 			<key>ToolTip</key>
 			<string></string>
+			<key>AllowsDuplicates</key>
+			<string>0</string>
 		</dict>
 		<key>NSToolbarShowFontsItem</key>
 		<dict>
@@ -235,6 +243,8 @@
 			<string>orderFrontFontPanel:</string>
 			<key>ToolTip</key>
 			<string></string>
+			<key>AllowsDuplicates</key>
+			<string>0</string>
 		</dict>
 		<key>NSToolbarCustomizeToolbarItem</key>
 		<dict>
@@ -252,6 +262,8 @@
 			<string>runToolbarCustomizationPalette:</string>
 			<key>ToolTip</key>
 			<string></string>
+			<key>AllowsDuplicates</key>
+			<string>0</string>
 		</dict>
 		<key>NSToolbarPrintItem</key>
 		<dict>
@@ -269,6 +281,8 @@
 			<string>print:</string>
 			<key>ToolTip</key>
 			<string></string>
+			<key>AllowsDuplicates</key>
+			<string>0</string>
 		</dict>
 	</dict>
 </dict>
