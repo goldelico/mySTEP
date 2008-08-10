@@ -112,14 +112,10 @@ NSString *NSFailedAuthenticationException = @"NSFailedAuthenticationException";
 		return;	// no response needed!
 		}
 	[(NSMutableArray *) [_coder _components] removeAllObjects];	// we simply reuse the port coder object!
-	if(exception)
-		{ // send back exception
+	if(exception)		// send back exception
 		[_coder encodeObject:exception];
-		}
-	else
-		{ // send back return value
+	else	// send back return value
 		[_coder encodeObject:_invocation];	// encode resulting invocation (i.e. result and out/inout parameters)
-		}
 	[[_coder connection] _addAuthentication:(NSMutableArray *) [_coder _components]];
 	[_coder _setMsgid:1];	// is a response
 #if 1
@@ -270,7 +266,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 - (id) initWithReceivePort:(NSPort *)receivePort
 				  sendPort:(NSPort *)sendPort;
 {
-#if 1
+#if 0
 	NSLog(@"-rootProxy disabled because it leaks one NSMessagePort even if we can't connect (check with ls -l /proc/<procid>/fd)");
 	return nil;
 #endif
@@ -584,8 +580,14 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 		if(!_proxy)
 			_proxy=[[NSDistantObject proxyWithTarget:nil connection:self] retain];	// needs to allocate only once
 		[i setTarget:_proxy];					// target the NSConnection on the other side
+#if 0
+		NSLog(@"*** get rootProxy ***");
+#endif
 		[self sendInvocation:i];				// notifies a connect request and returns a proxy for the remote rootObject
 		[i getReturnValue:&rootProxy];			// this is what should have been returned...
+#if 0
+		NSLog(@"*** got rootProxy *** %@", rootProxy);
+#endif
 		[rootProxy retain];
 		[arp release];
 		[rootProxy autorelease];	// pass to outer ARP

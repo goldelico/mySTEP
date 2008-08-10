@@ -6,7 +6,7 @@
    Complete rewrite:
    Dr. H. Nikolaus Schaller <hns@computer.org>
    Date: Jan 2006-Sep 2007
-   Some implementation expertise comes from from Crashlogs found on the Internet: Google e.g. for "NSPortCoder sendBeforeTime:"
+   Some implementation expertise comes from Crashlogs found on the Internet: Google e.g. for "NSPortCoder sendBeforeTime:"
 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -150,7 +150,7 @@
 - (void) encodeObject:(id) obj
 {
 	Class class;
-#if 0
+#if 1
 	NSLog(@"NSPortCoder encodeObject%@%@ %p", _isBycopy?@" bycopy":@"", _isByref?@" byref":@"", obj);
 	NSLog(@"  obj %@", obj);
 #endif
@@ -168,7 +168,7 @@
 		class=[obj classForPortCoder];
 // FIXME: should also be looked up in class translation table!
 		}
-#if 0
+#if 1
 	NSLog(@"  classForPortCoder %@", NSStringFromClass(class));
 #endif
 	[self encodeValueOfObjCType:@encode(Class) at:&class];

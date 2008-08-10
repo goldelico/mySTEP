@@ -330,9 +330,64 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 #endif
 }
 
-// standard methods
-
 #define NEED_INFO() if(info == NULL) [self _methodInfo]
+
+- (void) _methodInfo
+{ // collect all information from methodTypes in a platform independent way
+	if(info == NULL) 
+			{ // calculate method info
+				const char *types = methodTypes;
+				int i;
+				int allocArgs=5;
+				argFrameLength=0;
+#if 0
+				NSLog(@"methodInfo create");
+#endif
+				// should we add a struct return pointer
+				info = objc_malloc(sizeof(NSArgumentInfo) * allocArgs);
+				for(i = 0; *types != 0; i++)
+						{ // process all types
+#if 0
+							NSLog(@"%d: %s", i, types);
+#endif
+							if(i >= allocArgs)
+								allocArgs+=5, info = objc_realloc(info, sizeof(NSArgumentInfo) * allocArgs);	// we need more space
+							types = mframe_next_arg(types, &info[i]);
+							info[i].index=i;
+							if((info[i].qual & _F_INOUT) == 0)
+									{ // add default qualifiers
+										if(i == 0)
+											info[i].qual |= _F_OUT;		// default to "bycopy out" for the return value
+										else if(*info[0].type == _C_PTR || *info[0].type == _C_ATOM || *info[0].type == _C_CHARPTR)
+											info[i].qual |= _F_INOUT;	// default to "bycopy in/out"
+										else
+											info[i].qual |= _F_IN;		// default to "bycopy in"
+									}
+							if(isBigEndian && info[i].align < 4)
+									{ // adjust offset
+										info[i].offset+=4-info[i].align;	// point to the correct byte
+										info[i].align=4;					// ARM pushes all arguments as long words
+									}
+							// CHECKME!
+							if(i>0 && info[i].isReg && info[0].byRef)
+								info[i].offset += structReturnPointerLength;	// adapt offset because we have a virtual first argument
+#if 0
+							NSLog(@"%d: type=%s size=%d align=%d isreg=%d offset=%d qual=%x byRef=%d fltDbl=%d",
+										info[i].index, info[i].type, info[i].size, info[i].align,
+										info[i].isReg, info[i].offset, info[i].qual,
+										info[i].byRef, info[i].floatAsDouble);
+#endif
+							if(!info[i].isReg)	// value is on stack - counts for frameLength
+								argFrameLength += ((info[i].size+info[i].align-1)/info[i].align)*info[i].align;
+						}
+				numArgs = i-1;	// return type does not count
+#if 0
+				NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
+#endif
+    	}
+}
+
+// standard methods
 
 - (unsigned) frameLength
 {
@@ -342,10 +397,10 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 
 - (const char *) getArgumentTypeAtIndex:(unsigned)index
 {
-    if(index >= numArgs)
+	if(index >= numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index too high."];
 	NEED_INFO();
-    return info[index+1].type;
+	return info[index+1].type;
 }
 
 - (BOOL) isOneway
@@ -375,9 +430,9 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 - (void) dealloc
 {
     if(methodTypes)
-		objc_free((void*) methodTypes);
+			objc_free((void*) methodTypes);
     if(info)
-		objc_free((void*) info);
+			objc_free((void*) info);
     [super dealloc];
 }
 
@@ -400,64 +455,6 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 #endif
 		}
 	return self;
-}
-
-// still needed to be public because it is used in NSInvocation
-
-- (NSArgumentInfo *) _methodInfo
-{ // collect all information from methodTypes in a platform independent way
-    if(info == NULL) 
-		{ // calculate method info
-		const char *types = methodTypes;
-		int i;
-		int allocArgs=5;
-		argFrameLength=0;
-#if 0
-		NSLog(@"methodInfo create");
-#endif
-		// should we add a struct return pointer
-		info = objc_malloc(sizeof(NSArgumentInfo) * allocArgs);
-		for(i = 0; *types != 0; i++)
-			{ // process all types
-#if 0
-			NSLog(@"%d: %s", i, types);
-#endif
-			if(i >= allocArgs)
-				allocArgs+=5, info = objc_realloc(info, sizeof(NSArgumentInfo) * allocArgs);	// we need more space
-			types = mframe_next_arg(types, &info[i]);
-			info[i].index=i;
-			if((info[i].qual & _F_INOUT) == 0)
-				{ // add default qualifiers
-				if(i == 0)
-					info[i].qual |= _F_OUT;		// default to "bycopy out" for the return value
-				else if(*info[0].type == _C_PTR || *info[0].type == _C_ATOM || *info[0].type == _C_CHARPTR)
-					info[i].qual |= _F_INOUT;	// default to "bycopy in/out"
-				else
-					info[i].qual |= _F_IN;		// default to "bycopy in"
-				}
-			if(isBigEndian && info[i].align < 4)
-				{ // adjust offset
-				info[i].offset+=4-info[i].align;	// point to the correct byte
-				info[i].align=4;					// ARM pushes all arguments as long words
-				}
-			// CHECKME!
-			if(i>0 && info[i].isReg && info[0].byRef)
-				info[i].offset += structReturnPointerLength;	// adapt offset because we have a virtual first argument
-#if 0
-			NSLog(@"%d: type=%s size=%d align=%d isreg=%d offset=%d qual=%x byRef=%d fltDbl=%d",
-		           info[i].index, info[i].type, info[i].size, info[i].align,
-		           info[i].isReg, info[i].offset, info[i].qual,
-				   info[i].byRef, info[i].floatAsDouble);
-#endif
-			if(!info[i].isReg)	// value is on stack - counts for frameLength
-				argFrameLength += ((info[i].size+info[i].align-1)/info[i].align)*info[i].align;
-			}
-		numArgs = i-1;	// return type does not count
-#if 0
-		NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
-#endif
-    	}
-    return info;
 }
 
 - (const char*) _methodType	{ return methodTypes; }
@@ -484,9 +481,15 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d too high (%d).", index, numArgs];
 	NEED_INFO();
+	if(index == -1)
+			{ // copy return value to buffer
+				if(info[0].size > 0)
+					memcpy(buffer, _argframe, info[0].size);
+				return info[0].type;
+			}
 	addr = (info[index+1].isReg?((char *)_argframe):(*(char **)_argframe)) + info[index+1].offset;
-#if 0
-	NSLog(@"_getArgument[%d] offset=%u addr=%p", index, info[index+1].offset, addr);
+#if 1
+	NSLog(@"_getArgument[%d] offset=%u addr=%p byref=%d double=%d", index, info[index+1].offset, addr, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
 	if(info[index+1].byRef)
 		memcpy(buffer, *(void**)addr, info[index+1].size);
@@ -503,9 +506,15 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d too high (%d).", index, numArgs];
 	NEED_INFO();
+	if(index == -1)
+			{ // copy return value to buffer
+				if(info[0].size > 0)
+					memcpy(_argframe, buffer, info[0].size);
+				return;
+			}
 	addr = (info[index+1].isReg?((char *)_argframe):(*(char **)_argframe)) + info[index+1].offset;
 #if 0
-	NSLog(@"_setArgument[%d] offset=%u addr=%p", index, info[index+1].offset, addr);
+	NSLog(@"_setArgument[%d] offset=%u addr=%p byref=%d double=%d", index, info[index+1].offset, addr, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
 	if(info[index+1].byRef)
 		memcpy(*(void**)addr, buffer, info[index+1].size);
@@ -533,15 +542,71 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 	return frame;
 }
 
-static retval_t wrapped_builtin_apply(void *imp, arglist_t frame, int stack)
-{ // wrap call because it fails within a Objective-C method
-	return __builtin_apply(imp, frame, stack);	// here, we really invoke the implementation
+static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *retbuf, NSArgumentInfo *info)
+{ // wrap call because it fails if called within a Objective-C method
+#ifndef __APPLE__
+	retval_t retframe=__builtin_apply(imp, frame, stack);	// here, we really invoke the implementation
+#if 0
+	NSLog(@"retframe= %p", retframe);
+#endif
+	if(info[0].size)
+			{ // the following code fetches a typed value from retframe and makes it available through getReturnValue
+				typedef struct {
+					char val[info[0].size];
+				} block;
+#if 0
+				NSLog(@"  type:%s save:%p", info[0].type, retframe);
+#endif
+				switch(*info[0].type)
+					{
+#define RETURN(CODE, TYPE) case CODE: { /*inline*/ TYPE retframe_##CODE(void *f) { __builtin_return(f); } *(TYPE *) retbuf = retframe_##CODE(retframe); break; }
+#if 1	// debugging
+						case _C_ID:
+							{
+								static /* inline or static? */ id retframe_id(void *f)			{ __builtin_return(f); }
+								NSLog(@"retframe_id returns %p", retframe_id(retframe));
+								*(id *)retbuf = retframe_id(retframe);
+								NSLog(@"invoke returns id %p", *(id *) retbuf);
+								NSLog(@"  object: %@", *(id *) retbuf);
+								break;
+							}
+#else
+							RETURN(_C_ID, id);
+#endif
+							RETURN(_C_CLASS, Class);
+							RETURN(_C_SEL, SEL);
+							RETURN(_C_CHR, char);
+							RETURN(_C_UCHR, unsigned short);
+							RETURN(_C_SHT, char);
+							RETURN(_C_USHT, unsigned short);
+							RETURN(_C_INT, int);
+							RETURN(_C_UINT, unsigned int);
+							RETURN(_C_LNG, long);
+							RETURN(_C_ULNG, unsigned long);
+							RETURN(_C_LNG_LNG, long long);
+							RETURN(_C_ULNG_LNG, unsigned long long);
+							RETURN(_C_FLT, float);
+							RETURN(_C_DBL, double);
+							RETURN(_C_PTR, char *);
+							RETURN(_C_ATOM, char *);
+							RETURN(_C_CHARPTR, char *);
+							RETURN(_C_ARY_B, block);
+							RETURN(_C_STRUCT_B, block);
+							RETURN(_C_UNION_B, block);
+						case _C_VOID:
+							break;	// should not happen to be called since size==0
+					}
+				return YES;	// break from switch
+			}
+#endif
+	return NO;
 }
 
-- (retval_t) _call:(void *) imp frame:(arglist_t) _argframe;
+- (BOOL) _call:(void *) imp frame:(arglist_t) _argframe retbuf:(void *) retbuf;
 { // preload registers from ARM stack frame and call implementation
+	NEED_INFO();
 	((void **)_argframe)[1] = ((void **)_argframe)[2];		// copy target/self value to the register frame
-	return wrapped_builtin_apply(imp, _argframe, argFrameLength);	// here, we really invoke the implementation
+	return wrapped_builtin_apply(imp, _argframe, argFrameLength, retbuf, &info[0]);	// here, we really invoke the implementation	
 }
 
 #if AUTO_DETECT

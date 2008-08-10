@@ -65,10 +65,13 @@ typedef struct
 {
 	NSMethodSignature *_sig;
 	arglist_t _argframe;
+	const char *_rettype;
+	const char *_types;
 	void *_retval;
-	struct NSArgumentInfo *_info;	// FIXME: should be moved to NSMethodSignature!
 	int _numArgs;
-	// FIXME: use bitfields
+	unsigned int _returnLength;
+	unsigned int _maxValueLength;
+	// FIXME: should use bitfields
 	BOOL _argframeismalloc;		// _argframe has been malloc'ed locally
 	BOOL _retvalismalloc;		// _retval has been malloc'ed locally
 	BOOL _argsRetained;			// (id) arguments have been retained
