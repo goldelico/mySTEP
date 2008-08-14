@@ -1044,6 +1044,7 @@ SEL n = @selector(browser:numberOfRowsInColumn:);
 		_preferedColumnWidth=[coder decodeFloatForKey:@"NSPreferedColumnWidth"];
 		_pathSeparator=[[coder decodeObjectForKey:@"NSPathSeparator"] retain];
 		_cellPrototype=[[coder decodeObjectForKey:@"NSCellPrototype"] retain];
+		/* ?? */	[coder decodeObjectForKey:@"NSAllowsTypeSelect"];
 		if([coder containsValueForKey:@"NSDelegate"])
 			[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
 		if([coder containsValueForKey:@"NSFirstColumnTitle"])

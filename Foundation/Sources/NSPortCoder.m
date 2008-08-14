@@ -155,7 +155,7 @@
 	NSLog(@"  obj %@", obj);
 #endif
 	obj=[obj replacementObjectForPortCoder:self];	// substitute by a proxy if required
-#if 0
+#if 1
 	NSLog(@"  replacement %@", obj);
 #endif
 	if(!obj)
@@ -444,7 +444,7 @@
 			{
 				unsigned numBytes;
 				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-				// check for numBytes == sizeof(char)
+				NSAssert(numBytes == sizeof(char), @"bad byte count for char");
 				*((char *) address) = *(char *) addr;
 				break;
 			}
@@ -453,7 +453,7 @@
 			{
 				unsigned numBytes;
 				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-				// check for numBytes == sizeof(short)
+				NSAssert(numBytes == sizeof(short), @"bad byte count for short");
 				*((short *) address) = NSSwapBigShortToHost(*(short *) addr);
 				break;
 			}
@@ -462,7 +462,7 @@
 			{
 				unsigned numBytes;
 				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-				// check for numBytes == sizeof(int)
+				NSAssert(numBytes == sizeof(int), @"bad byte count for int");
 				*((int *) address) = NSSwapBigIntToHost(*(int *) addr);
 				break;
 			}
@@ -471,7 +471,7 @@
 			{
 				unsigned numBytes;
 				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-				// check for numBytes == sizeof(short)
+				NSAssert(numBytes == sizeof(short), @"bad byte count for long");
 				*((long *) address) = NSSwapBigLongToHost(*(long *) addr);
 				break;
 			}
@@ -480,7 +480,7 @@
 			{
 				unsigned numBytes;
 				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-				// check for numBytes == sizeof(long long)
+				NSAssert(numBytes == sizeof(long long), @"bad byte count for long long");
 				*((long long *) address) = NSSwapBigLongLongToHost(*(long long *) addr);
 				break;
 			}
@@ -488,7 +488,7 @@
 			{
 				unsigned numBytes;
 				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-				// check for numBytes == sizeof(float)
+				NSAssert(numBytes == sizeof(float), @"bad byte count for float");
 				*((float *) address) = NSSwapBigFloatToHost(*(float *) addr);
 				break;
 			}
@@ -496,7 +496,7 @@
 			{
 				unsigned numBytes;
 				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-				// check for numBytes == sizeof(double)
+				NSAssert(numBytes == sizeof(double), @"bad byte count for double");
 				*((double *) address) = NSSwapBigShortToHost(*(double *) addr);
 				break;
 			}
@@ -513,7 +513,7 @@
 			{
 				unsigned numBytes;
 				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-#if 1
+#if 0
 				NSLog(@"decoded %u bytes atomar string", numBytes);
 #endif
 				// FIXME: we should replace the string
@@ -549,10 +549,10 @@
 - (Class) classForPortCoder				{ return [self classForCoder]; }
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder
-{ // default is to encode a proxy
+{ // default is to encode a local proxy
 	id rep=[self replacementObjectForCoder:coder];
 	if(rep)
-		rep=[NSDistantObject proxyWithLocal:rep connection:[coder connection]];	// handles connection caching
+		rep=[NSDistantObject proxyWithLocal:rep connection:[coder connection]];	// this will be encoded and decoded into a remote proxy
 	return rep;
 }
 

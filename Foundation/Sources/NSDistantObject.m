@@ -83,7 +83,7 @@
 
 + (NSDistantObject*) proxyWithLocal:(id)anObject
 						 connection:(NSConnection*)aConnection;
-{ // this is initialization for vending objects
+{ // this is initialization for vending objects or encoding references so that they can be decoded as remote proxies
 	return [[[self alloc] initWithLocal:anObject connection:aConnection] autorelease];
 }
 
@@ -93,54 +93,31 @@
 	return [[[self alloc] initWithTarget:anObject connection:aConnection] autorelease];
 }
 
-- (NSConnection*) connectionForProxy; { return _connection; }
+- (NSConnection *) connectionForProxy; { return _connection; }
 
 - (id) initWithLocal:(id)anObject connection:(NSConnection*)aConnection;
 { // this is initialization for vending objects
-#if OLD
-	id obj=[aConnection _getLocal:anObject];
-#if 0
-	NSLog(@"NSDistantObject: initWithLocal:%p connection:%@", anObject, aConnection);
-#endif
-	if(obj)
-		{ // already known, return distant object instead
-#if 1
-		NSLog(@"  known: %@", obj);
-#endif
-		[self release];
-		return [obj retain];
-		}
-#endif
+	// we have no superclass!
 	_connection=[aConnection retain];	// keep the connection as long as we exist
-	_target=[anObject retain];
+	_target=anObject;
+	[(NSMutableArray *) [aConnection localObjects] addObject:anObject];	// add to list
+	[self retain];	// additional retain so that we keep around until remote side deallocates us
 	_isLocal=YES;
-//	[aConnection _mapLocal:self forRef:anObject];
 	return self;
 }
 
-- (id) _localObject; { return NIMP /*_object*/; }
-
 - (id) initWithTarget:(id)anObject connection:(NSConnection*)aConnection;
 { // remoteObject is an id in another thread or another application’s address space!
-#if OLD
-	id obj;
-#if 1
-	NSLog(@"NSDistantObject: initWithTarget:%p connection:%@ obj:%@", anObject, aConnection);
-#endif
-	obj=[aConnection _getRemote:anObject];
-	if(obj)
-		{ // already known, return existing distant object instead
-#if 1
-		NSLog(@"  known: %@", obj);
-#endif
-		[self release];
-		return [obj retain];
-		}
-#endif
+	NSDistantObject *p=[aConnection _getRemote:anObject];
+	if(p)
+			{ // we already have a proxy for this target
+				[self release];
+				return [p retain];
+			}
 	_connection=[aConnection retain];	// keep the connection as long as we exist
 	_target=anObject;
-//	if(anObject)
-//		[aConnection _mapRemote:self forRef:anObject];
+	if(anObject)
+		[aConnection _addRemote:self forTarget:_target];	// add to remote objects
 	_isLocal=NO;
 	return self;
 }
@@ -167,34 +144,43 @@
 - (NSString *) description
 { // we should use [_protocol name] but that appears to be broken
 	return [NSString stringWithFormat:
-		@"<%@ %p>\nconnection=%@\ntarget=%p\n%@\nprotocol=%s",
-		NSStringFromClass([self class]), self,
-		_connection,
-		_target,
+		@"<%@ %@ %p>\ntarget=%p\nprotocol=%s\nconnection=%@",
 		_isLocal?@"local":@"remote",
-		   _protocol?[_protocol name]:"<NULL>"];
-}
-
-+ (BOOL) respondsToSelector:(SEL)aSelector;
-{
-	NIMP;
-	// translate to [[target class] classRespondsToSelector]
-	return NO;
+		NSStringFromClass([self class]), self,
+		_target,
+		_protocol?[_protocol name]:"<NULL>",
+		_connection];
 }
 
 - (void) dealloc;
 {
-	if(_target)
-		{ // send a request over the connection to remove the proxy there!
-		NSLog(@"??? should we send a -dealloc to the remote side: %@", self);
-		}
-	if(_isLocal)
-		[_target release];
-//	if(_object)
-//		[_connection _mapLocal:nil forRef:_object];
-//	else
-//		[_connection _mapRemote:nil forRef:_target];
-//	[_object release];
+#if 1
+	NSLog(@"-dealloc: %@", self);
+#endif
+	if(!_isLocal && _target)
+			{ // send a release request over the connection
+				static NSInvocation *i;					// can be reused
+#if 1
+				NSLog(@"send a release request to the remote side: %@", self);
+#endif
+				if(!i)
+						{ // initialize all statically cached invocation to call -release as oneway void
+#ifndef __Apple__
+							SEL _sel=@selector(release);
+							struct objc_method *m=class_get_instance_method(isa, _sel);	// get signature of our method
+							NSMethodSignature *sig=[NSMethodSignature signatureWithObjCTypes:m->method_types];
+							[sig _makeOneWay];	// special case - we don't expect an answer
+#if 1
+							NSLog(@"signature(%@)=%@", NSStringFromSelector(_sel), sig);
+#endif
+							i=[[NSInvocation alloc] initWithMethodSignature:sig];
+							[i setSelector:_sel];			// ask to deallocate proxy
+#endif
+						}
+				[i setTarget:self];								// target the remote object
+				[self forwardInvocation:i];
+				[_connection _removeRemote:self];	// remove from remoteObjects
+			}
 	[_connection release];	// dealloc the connection if we are the last proxy
 	[super dealloc];
 }
@@ -209,6 +195,8 @@
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector;
 {
+	// FIXME: we should bulld a local Cache for method signatures of remote objects!!!
+	// might depend on server we are communicating with - so index by selector&[connection sendPort]
 	static NSInvocation *i;	// cached invocation
 	NSMethodSignature *ret;
 #if 1
@@ -220,8 +208,6 @@
 		return [NSObject instanceMethodSignatureForSelector:aSelector];	// ask NSObject
 		}
 	
-	// FIXME: use a local Cache for method signatures of remote objects!!!
-	// might depend on server we are communicating with - so index by selector&[connection sendPort]
 #if 1
 	NSLog(@"[NSDistantObject methodSignatureForSelector:] _protocol=%s", [_protocol name]);
 #endif
@@ -241,12 +227,18 @@
 	// FIXME:
 	// shouldn't we better ask the distant object for the @encode() as an NSString and
 	// convert it into a local NSMethodSignature
-	// instead of trying to encode a remote methodSignature???
+	// instead of trying to encode a remote methodSignature object??? No, if the result comes byref, then we can easily ask for [ms type] which retunrs the string
 	[i setTarget:self];
 	[i setArgument:&aSelector atIndex:2];	// set as the argument the selector we want to know about
 	[self forwardInvocation:i];				// and process
-	[i getReturnValue:&ret];				// fetch from invocation
+	[i getReturnValue:&ret];				// fetch signature from invocation
 	return ret;
+}
+
++ (BOOL) respondsToSelector:(SEL)aSelector;
+{ // CHEKCKME: is this correct? Should we ask the other side for the class? Who is our class proxy?
+//	return [[_target class] respondsToSelector:aSelector];
+	return NO;
 }
 
 - (BOOL) respondsToSelector:(SEL)aSelector
@@ -269,31 +261,61 @@
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't ever replace by another proxy
 
+/*
+ * the mechanics behind this is as follows:
+ *
+ * if we refer to a remoteObject, this is a remove proxy and we just encode it
+ * if we send a localObject byref, it is replaced through replacementObjectForPortCoder by a local NSDistantObject
+ * this local distant object is temporary and used only during encoding
+ * when decoding a local NSDistantObject, it will generate a new remoteObject proxy on the other side
+ * when decoding a remote distant object, it will be simply replaced by a reference to the real object
+ * there is a special case for the rootObject / rootProxy which is a proxy generated on the client side refering nil
+ * this is received as a local distant object at address nil
+ */
+
 - (void) encodeWithCoder:(NSCoder *) coder;
 {
-#if 0
+#if 1
 	NSLog(@"%@ encodeWithCoder (local=%@ target=%p)", NSStringFromClass(isa), _isLocal?@"YES":@"NO", _target);
 #endif
 	[coder encodeValueOfObjCType:@encode(BOOL) at:&_isLocal];
+#if SUPPORTS_64_BIT
+	if(_isLocal)
+			{ //
+				// translate from 64 bit local object address to 32 bit remote reference
+			}
+#endif
 	[coder encodeValueOfObjCType:@encode(void *) at:&_target];	// encode as a reference into the address space and not the object
 }
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
 	id ref;	// reference
-	[coder decodeValueOfObjCType:@encode(BOOL) at:&_isLocal];
+	[coder decodeValueOfObjCType:@encode(BOOL) at:&_isLocal];	// NOTE: the meaning if _isLocal is reversed since it is encoded for the proxy side!
 	[coder decodeValueOfObjCType:@encode(void *) at:&ref];
-#if 0
-	NSLog(@"%@ initWithCoder (local=%@ ref=%p)", NSStringFromClass(isa), _isLocal?@"NO":@"YES", ref);	// local has reversed interpretation when decoding
+#if 1
+	NSLog(@"%@ initWithCoder (local(on remote side)=%@ ref=%p)", NSStringFromClass(isa), _isLocal?@"YES":@"NO", ref);
 #endif
-	if(ref == nil)
-		{ // remote side asks for our connection object - substitute
-		return [[(NSPortCoder *)coder connection] retain];
-		}
-	if(_isLocal)
-		return [self initWithTarget:ref connection:[(NSPortCoder *)coder connection]];	// look up in cache or create
+	if(_isLocal) // local has reversed interpretation when decoding
+			{ // local object on remote side - use/create a proxy on our side
+				return [self initWithTarget:ref connection:[(NSPortCoder *)coder connection]];	// looks up in cache or creates a new one
+			}
 	else
-		return [ref retain];
+			{ // remote proxy on other side - reference our local object
+				if(ref == nil)
+					ref=[[(NSPortCoder *)coder connection] rootObject];	// remote side asks for our root object - substitute
+#if SUPPORTS_64_BIT
+				else
+						{
+							// translate 32 bit reference to real adress
+						}
+#endif
+#if 1
+				NSLog(@"received reference to %@", ref);
+#endif
+				[self release];
+				return [ref retain];	// return the referenced object
+			}
 }
 
 @end

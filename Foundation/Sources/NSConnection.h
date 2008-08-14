@@ -43,9 +43,6 @@ extern NSString *NSConnectionRepliesReceived;			// OPENSTEP 4.2
 extern NSString *NSConnectionRepliesSent;
 extern NSString *NSConnectionRequestsReceived;
 extern NSString *NSConnectionRequestsSent;
-// mySTEP extras
-extern NSString *NSConnectionLocalCount;				// Objects sent out
-extern NSString *NSConnectionProxyCount;				// Objects received
 
 // NSRunLoop modes, NSNotification names and NSException strings.
 
@@ -62,8 +59,8 @@ extern NSString *NSFailedAuthenticationException;
 	NSPort *_sendPort;
 	id _rootObject;					// the root object to vend
 	id _delegate;
-	NSMapTable *_localObjects;		// hash key is object, table's value is the NSDistantObject
-	NSMapTable *_remoteObjects;		// ditto
+	NSMutableArray *_localObjects;		// list of local objects
+	NSMapTable *_remoteObjects;			// list of remote proxies indexed by the remote target
 	NSMutableArray *_modes;
 	NSPortCoder *_portCoder;		// the portcoder we use for the current sendInvocation:
 	NSMutableArray *_requestQueue;	// queue of pending NSDistantObjectRequests

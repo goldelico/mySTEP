@@ -31,19 +31,6 @@
 
 @protocol _NSWorkspaceServerProtocol	// communication with system UI (which should be the loginwindow process)
 
-/* application management */
-
-// FIXME - can be removed!
-
-- (oneway void) registerApplication:(int) pid
-							   name:(bycopy NSString *) name		// name
-							   path:(bycopy NSString *) path		// full path
-							  NSApp:(byref NSApplication *) app;	// creates NSDistantObject to remotely access NSApp
-- (oneway void) unRegisterApplication:(int) mypid;	// unregister (pid should be pid of sender!)
-- (oneway void) hideApplicationsExcept:(int) mypid;	// send hide: to all other applications
-- (oneway void) hideApplication:(in byref NSApplication *) app;		// hide specific application
-- (oneway void) terminateApplication:(in byref NSApplication *) app;	// terminate specific application
-
 	/* system menu */
 
 - (oneway void) showShutdownDialog;

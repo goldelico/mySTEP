@@ -20,7 +20,7 @@
 typedef int (*uniencoder)(UTF32Char, unsigned char **);	// an encoder function pointer - converts UTF32Char and stores through char **. Returns 1 if ok, 0 if not
 typedef UTF32Char (*unidecoder)(unsigned char **);		// a decoder function pointer - fetches from char **
 
-NSStringEncoding *_availableEncodings(void);
+const NSStringEncoding *_availableEncodings(void);
 
 uniencoder encodeuni(NSStringEncoding enc);				// get appropriate encoder function
 unidecoder decodeuni(NSStringEncoding enc);				// get appropriate decoder function

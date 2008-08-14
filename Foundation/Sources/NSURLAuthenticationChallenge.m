@@ -61,7 +61,7 @@
 	[super dealloc];
 }
 
-- (unsigned) previousFailureCount; { return _previousFailureCount; }
+- (int) previousFailureCount; { return _previousFailureCount; }
 - (NSURLCredential *) proposedCredential; { return _proposedCredential; }
 - (NSURLProtectionSpace *) protectionSpace; { return _protectionSpace; }
 - (id <NSURLAuthenticationChallengeSender>) sender; { return _sender; }

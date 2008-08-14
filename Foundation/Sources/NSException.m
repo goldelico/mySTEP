@@ -60,6 +60,12 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
     [except raise];
 }
 
+- (NSArray *) callStackReturnAddresses;
+{
+	// FIXME:
+	return [NSArray array];
+}
+
 - (id) initWithName:(NSString *)name 
 			 reason:(NSString *)reason
 			 userInfo:(NSDictionary *)userInfo 

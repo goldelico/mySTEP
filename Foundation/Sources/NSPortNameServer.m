@@ -56,6 +56,11 @@ static NSPortNameServer *__systemDefaultPortNameServer;
 	return __systemDefaultPortNameServer;
 }
 
+- (NSPort *) servicePortWithName:(NSString *) name;
+{
+	return [[[self class] systemDefaultPortNameServer] portForName:name];
+}
+
 - (NSPort *) portForName:(NSString *) portName; { return [self portForName:portName host:nil]; }
 
 - (NSPort *) portForName:(NSString *) portName host:(NSString *) hostName;
@@ -135,6 +140,7 @@ static NSSocketPortNameServer *defaultServer;
 	[ns resolveWithTimeout:10.0];
 	if([[ns addresses] count] == 0)
 		return nil;	// not resolved
+	// FIXME:
 	return NIMP;
 //	return [[[NSSocketPort alloc] initRemoteWithProtocolFamily:AF_INET socketType:(int)type protocol:(int)protocol address:[[ns addresses] lastObject]] autorelease];	// create socket that will connect to resolved service on first send request
 }

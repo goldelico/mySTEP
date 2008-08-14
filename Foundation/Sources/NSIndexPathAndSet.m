@@ -421,6 +421,19 @@ static NSIndexPath *_root;
 	return c0-cnt;	// number of entries copied
 }
 
+- (NSUInteger) countOfIndexesInRange:(NSRange) value
+{
+	unsigned int i=0;
+	NSUInteger count=0;
+	while(i<_nranges)
+			{
+				NSRange isect=NSIntersectionRange(value, _indexRanges[i]);
+				count+=isect.length;
+				i++;
+			}
+	return count;
+}
+
 @end
 
 

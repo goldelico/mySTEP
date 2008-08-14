@@ -104,12 +104,14 @@ static retval_t apply_block(void *data)
 
 - (NSString*) description
 {
+	id target=[self target];
+	SEL sel=[self selector];
 	return [NSString stringWithFormat:@"%@ %p: selector=%@ signature=%s target=%@ validReturn=%@",
 		NSStringFromClass(isa),
 		self,
-		NSStringFromSelector([self selector]),
+		NSStringFromSelector(sel),
 		_types,
-		[self target],
+		target,
 		_validReturn?@"yes":@"no"
 		];
 }
@@ -221,7 +223,15 @@ static retval_t apply_block(void *data)
 
 - (retval_t) _returnValue;
 { // encode the return value so that it can be passed back to the libobjc forward:: method
-	//	NSLog(@"_returnValue");
+#if 1
+	NSLog(@"_returnValue");
+	if(_rettype[0] == _C_ID)
+			{
+				id ret;
+				[self getReturnValue:&ret];
+				NSLog(@"value = %@", ret);
+			}
+#endif
 	if(!_validReturn && *_rettype != _C_VOID)
 			{ // no valid return value
 				NSLog(@"warning - no valid return value set");
@@ -231,7 +241,7 @@ static retval_t apply_block(void *data)
 	switch(_rettype[0])
 		{
 				APPLY_VOID(_C_VOID);
-				APPLY(_C_ID, id);
+				APPLY(_C_ID, id);	// ????
 				APPLY(_C_CLASS, Class);
 				APPLY(_C_SEL, SEL);
 				APPLY(_C_CHR, char);
@@ -368,7 +378,7 @@ static retval_t apply_block(void *data)
 
 - (void) setReturnValue:(void*)buffer
 {
-#if 0
+#if 1
 	NSLog(@"setReturnValue buffer=%08x *buffer=%08x", buffer, *(long *) buffer);
 	if(*_rettype == _C_ID)
 		NSLog(@"              id=%@", *(id *) buffer);

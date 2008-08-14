@@ -45,6 +45,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 + (id) imageNamed:(NSString*)aName
 { // locate by name or load from main bundle
 	NSImage *image;
+	if([aName length] == 0)
+		return nil;	// there is no unnamed image...
 	if([aName isEqualToString:NSApplicationIcon])
 		{ // try to load application icon
 		NSString *subst=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIconFile"];	// replace from Info.plist

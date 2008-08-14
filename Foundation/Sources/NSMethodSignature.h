@@ -31,7 +31,7 @@
     const char *methodTypes;
     unsigned argFrameLength;
     unsigned numArgs;
-    struct NSArgumentInfo *info;
+    struct NSArgumentInfo *info;	// forward reference
 }
 
 + (NSMethodSignature *) signatureWithObjCTypes:(const char *) types;

@@ -46,6 +46,7 @@ typedef NSUInteger NSXMLNodeKind;
 	NSString *_localName;
 	NSString *_prefix;
 	NSString *_URI;
+	NSUInteger _options;
 	NSXMLNodeKind _kind;
 }
 

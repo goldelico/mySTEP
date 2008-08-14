@@ -26,7 +26,7 @@ struct _ucc_ { unichar from; char to; };
 
 #define ENC(encoding) NS##encoding##StringEncoding
 
-static NSStringEncoding __availableEncodings[] =
+static const NSStringEncoding __availableEncodings[] =
 {
 	NSASCIIStringEncoding,
 	NSNonLossyASCIIStringEncoding,
@@ -38,7 +38,7 @@ static NSStringEncoding __availableEncodings[] =
 	0
 };
 
-NSStringEncoding *_availableEncodings(void)	{ return __availableEncodings; }
+const NSStringEncoding *_availableEncodings(void)	{ return __availableEncodings; }
 
 static int asciiencoder(UTF32Char u, unsigned char **p)
 {

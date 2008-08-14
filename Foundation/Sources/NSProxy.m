@@ -49,6 +49,7 @@
 - (Class) superclass			{ return object_get_super_class(self);}
 - (Class) class					{ return object_get_class(self); }
 - (void) dealloc				{ NSDeallocateObject((NSObject*)self); }
+- (void) finalize			{ return; }
 
 - (id) autorelease
 {
@@ -132,12 +133,12 @@
 		return nil;
 		}
 	[self forwardInvocation:inv];
-#if 0
+#if 1
 	NSLog(@"invocation forwarded. Returning result");
 #endif
 	r=[inv _returnValue];
 	[inv release];
-#if 0
+#if 1
 	NSLog(@"returnFrame=%08x", r);
 #endif
 	return r;

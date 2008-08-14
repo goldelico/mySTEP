@@ -202,6 +202,26 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 	return [[self connectionWithRegisteredName:name host:hostName usingNameServer:server] rootProxy];
 }
 
++ (id) serviceConnectionWithName:(NSString *) name rootObject:(id) root usingNameServer:(NSPortNameServer *) server;
+{
+	NSPort *port;
+	NSConnection *connection;
+	if([server isKindOfClass:[NSMessagePortNameServer class]])
+		port=[[[NSMessagePort alloc] init] autorelease];	// assign free port
+	else
+		port=[[[NSSocketPort alloc] init] autorelease];		// assign free IP port number
+	if(!port || ![server registerPort:port name:name])	// register
+		 return nil;	// did not register
+	connection=[NSConnection connectionWithReceivePort:port sendPort:nil];	// create connection
+	[connection setRootObject:root];
+	return connection;
+}
+
++ (id) serviceConnectionWithName:(NSString *) name rootObject:(id) root;
+{
+	return [self serviceConnectionWithName:name rootObject:root usingNameServer:[NSPortNameServer systemDefaultPortNameServer]];
+}
+
 - (void) _addAuthentication:(NSMutableArray *) components;
 {
 	if([_delegate respondsToSelector:@selector(authenticationDataForComponents:)])
@@ -355,10 +375,10 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 		NSLog(@"did set valid");
 #endif
 		[nc addObserver:self selector:@selector(_portDidBecomeInvalid:) name:NSPortDidBecomeInvalidNotification object:_receivePort];
-		_localObjects=NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks, NSObjectMapValueCallBacks, 100);
-		_remoteObjects=NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks, NSObjectMapValueCallBacks, 100);
+		_localObjects=[[NSMutableArray alloc] initWithCapacity:10];
+		_remoteObjects=NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain remote objects
 		if(!_allConnections)
-			_allConnections=NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 100);	// allocate - don't retain connections in hash table
+			_allConnections=NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 10);	// allocate - don't retain connections in hash table
 		NSHashInsertKnownAbsent(_allConnections, self);	// add us to connections list
 		[_receivePort setDelegate:self];	// we want to receive NSPort notifications from receive port
 		[_receivePort scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSConnectionReplyMode];
@@ -404,16 +424,13 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 #if 0
 	NSLog(@"proxy connection: %p", _proxy);
 	NSLog(@"local objects: %p", _localObjects);
-	NSLog(@"local objects count: %u", NSCountMapTable(_localObjects));
-	NSLog(@"local objects: %@", NSAllMapTableValues(_localObjects));
-	NSLog(@"local keys: %@", NSAllMapTableKeys(_localObjects));
+	NSLog(@"local objects count: %u", [_localObjects count]);
 	NSLog(@"remote objects: %p", _remoteObjects);
 	NSLog(@"remote objects count: %u", NSCountMapTable(_remoteObjects));
-	NSLog(@"remote objects: %@", NSAllMapTableValues(_remoteObjects));
-	NSLog(@"remote keys: %@", NSAllMapTableKeys(_remoteObjects));
+	NSLog(@"remote objects: %@", NSAllHashTableValues(_remoteObjects));
 #endif
 	[_proxy release];
-	if(_localObjects) NSFreeMapTable(_localObjects);
+	[_localObjects release];
 	if(_remoteObjects) NSFreeMapTable(_remoteObjects);
 	// [_delegate release];	// not retained
 	[_receivePort release];	// we are already removed as receivePort observer by -invalidate
@@ -468,40 +485,12 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 
 - (BOOL) isValid; { return _isValid; }
 
-// FIXME: we will need a mechanism to correctly dealloc/remove objects & proxies
-
-// FIXME: how should we split between NSConnection, NSPortCoder, NSDistantObject
-// should we have the cache completely here?
-// i.e. NSDistantObject initWith... does NOT look up in the cache and always initializes a new instance?
-// but initWithCoder would?
-
-- (NSArray *) localObjects; { return NSAllMapTableKeys(_localObjects); }
-- (NSDistantObject *) _getLocal:(id) ref; { return NSMapGet(_localObjects, ref); }
-
-- (void) _mapLocal:(NSDistantObject *) obj forRef:(id) ref;
-{
-#if 1
-	NSLog(@"  mapLocal %p -> %@", ref, obj);
-#endif
-	if(!obj)
-		NSMapRemove(_localObjects, ref);
-	else
-		NSMapInsert(_localObjects, ref, obj);
-}
+- (NSArray *) localObjects; { return _localObjects; }
 
 - (NSArray *) remoteObjects; { return NSAllMapTableValues(_remoteObjects); }
-- (NSDistantObject *) _getRemote:(id) ref; { return NSMapGet(_remoteObjects, ref); }
-
-- (void) _mapRemote:(NSDistantObject *) obj forRef:(id) ref;
-{
-#if 1
-	NSLog(@"mapRemote %p -> %@", ref, obj);
-#endif
-	if(!obj)
-		NSMapRemove(_remoteObjects, ref);
-	else
-		NSMapInsert(_remoteObjects, ref, obj);
-}
+- (void) _addRemote:(NSDistantObject *) obj forTarget:(id) target; { NSMapInsert(_remoteObjects, obj, (void *) target); }
+- (void) _removeRemote:(NSDistantObject *) obj;	{ NSMapRemove(_remoteObjects, obj); }
+- (NSDistantObject *) _getRemote:(id) target;	{ return NSMapGet(_remoteObjects, (void *) target); } // get remote object for target - if known
 
 - (BOOL) multipleThreadsEnabled; { return _multipleThreadsEnabled; }
 
@@ -547,13 +536,18 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 - (NSTimeInterval) requestTimeout; { return _requestTimeout; }
 
 - (id) rootObject;
-{ 
+{
+#if 1
 	NSLog(@"*** (conn=%p) asked to return root object: %@", self, _rootObject);
+#endif
 	return _rootObject;
 }
 
 - (NSDistantObject *) rootProxy;
 { // this is the first call to establish any connection
+#if 1	// simple approach, just make a proxy - the other side will map the nil target to the rootObject
+	return [NSDistantObject proxyWithTarget:nil connection:self];
+#else
 	static SEL _sel;				// (cached) =@selector(rootObject)
 	static NSMethodSignature *_ms;	// (cached) =the method signature
 	NSAutoreleasePool *arp;
@@ -607,6 +601,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 	[arp release];
 	[i release];
 	return nil;	// wasn't able to connect
+#endif
 }
 
 - (void) _executeInNewThread;
@@ -659,13 +654,14 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 // private methods - some of them have been identified in MacOS X Core Dumps by Googling around
 
 - (void) sendInvocation:(NSInvocation *) i;
-{ // send invocation and handle result - this might be called reentrant
+{ // send invocation and handle result - this might be called reentrant!
 	BOOL isOneway=NO;
 	NSMutableArray *components;
 	NSPortCoder *portCoder;
 #if 1
 	NSLog(@"*** (conn=%p) sendInvocation:%@", self, i);
 #endif
+	NSAssert(i, @"missing invocation to send");
 	if(_isLocal)
 		{ // we have been initialized with reversed ports, i.e. local connection
 		[i invoke];
@@ -833,17 +829,6 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 		NSLog(@"*** (conn=%p) response received from %@ on %@", self, [pc _sendPort], [pc _receivePort]);
 		NSLog(@"*** send=%@, recv=%@", [self sendPort], [self receivePort]);
 #endif
-#if OLD
-		if([pc _sendPort] != _sendPort)
-			NSLog(@"we are asked to send to a different port next time");	// it is the spawned child port of the vendor object - so we have a private connection now
-		if(_receivePort != [pc _receivePort])
-			{
-			// FIXME: do we have to better secure this? Can any connection redirect?
-			NSLog(@"redirect");
-			[_receivePort release];
-			_receivePort=[pc _receivePort];
-			}
-#endif
 		[_portCoder release];
 		_portCoder=[pc retain];	// replace and pass message back to sendInvocation - this will end the runLoop in sendInvocation
 		return;
@@ -852,8 +837,16 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 	NSLog(@"*** (conn=%p) request received ***", self);
 #endif
 	NS_DURING
-		[self dispatchInvocation:[req invocation]];	// make a call to the local object(s)
-		exception=nil;	// no exception
+		{
+			NSInvocation *i=[req invocation];
+			if(SEL_EQ([i selector], @selector(release)))
+					{ // special case that we have received a release request
+						[_localObjects removeObjectIdenticalTo:[i target]];	// remove from list of local objects
+						NS_VOIDRETURN;	// no need to send a response
+					}
+			[self dispatchInvocation:i];	// make a call to the local object(s)
+			exception=nil;	// no exception
+		}
 	NS_HANDLER
 		exception=localException;	// dispatching results in an exception
 	NS_ENDHANDLER
@@ -863,11 +856,11 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 - (void) dispatchInvocation:(NSInvocation *) i;
 {
 #if 0
-	NSLog(@"--- dispatchInvcation: %@", i);
+	NSLog(@"--- dispatchInvocation: %@", i);
 #endif
 	[i invoke];
 #if 0
-	NSLog(@"--- done with dispatchInvcation: %@", i);
+	NSLog(@"--- done with dispatchInvocation: %@", i);
 #endif
 }
 

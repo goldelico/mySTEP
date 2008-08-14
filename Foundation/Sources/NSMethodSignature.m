@@ -33,6 +33,19 @@
 #import <Foundation/NSString.h>
 #import "NSPrivate.h"
 
+struct NSArgumentInfo
+	{ // Info about layout of arguments. Extended from the original OpenStep version
+		int offset;
+		unsigned size;					// let us know if the arg is passed in 
+		const char *type;				// registers or on the stack.  OS 4.0 only
+		unsigned align;					// alignment
+		unsigned qual;					// qualifier (oneway, byref, bycopy, in, inout, out)
+		unsigned index;					// argument index (to decode return=0, self=1, and _cmd=2)
+		BOOL isReg;						// is passed in a register (+)
+		BOOL byRef;						// argument is not passed by value but by pointer (i.e. structs)
+		BOOL floatAsDouble;				// its a float value that is passed as double
+	};
+
 #define AUTO_DETECT 0
 
 #if AUTO_DETECT	// to identify calling conventions automatically - EXPERIMENTAL
@@ -57,7 +70,7 @@ static int structReturnPointerLength;		// how much bytes we need for that (may b
 
 // merge this into NSMethodSignature
 
-const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
+static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *info)
 {
 	NSAssert(info, @"missing NSArgumentInfo");
 	// FIXME: NO, we should keep the flags+type but remove the offset
@@ -182,7 +195,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 				typePtr++;
 			else
 				{ // recursively
-				NSArgumentInfo local;
+				struct NSArgumentInfo local;
 				typePtr = mframe_next_arg(typePtr, &local);
 				info->isReg = local.isReg;
 				info->offset = local.offset;
@@ -197,7 +210,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 			
 		case _C_ARY_B:
 			{
-				NSArgumentInfo local;
+				struct NSArgumentInfo local;
 				int	length = atoi(typePtr);
 				
 				while (isdigit(*typePtr))
@@ -212,7 +225,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 			
 		case _C_STRUCT_B:
 			{
-				NSArgumentInfo local;
+				struct NSArgumentInfo local;
 				//	struct { int x; double y; } fooalign;
 				struct { unsigned char x; } fooalign;
 				int acc_size = 0;
@@ -251,7 +264,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 			
 		case _C_UNION_B:
 			{
-				NSArgumentInfo local;
+				struct NSArgumentInfo local;
 				int	max_size = 0;
 				int	max_align = 0;
 				
@@ -344,14 +357,14 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 				NSLog(@"methodInfo create");
 #endif
 				// should we add a struct return pointer
-				info = objc_malloc(sizeof(NSArgumentInfo) * allocArgs);
+				info = objc_malloc(sizeof(struct NSArgumentInfo) * allocArgs);
 				for(i = 0; *types != 0; i++)
 						{ // process all types
 #if 0
 							NSLog(@"%d: %s", i, types);
 #endif
 							if(i >= allocArgs)
-								allocArgs+=5, info = objc_realloc(info, sizeof(NSArgumentInfo) * allocArgs);	// we need more space
+								allocArgs+=5, info = objc_realloc(info, sizeof(struct NSArgumentInfo) * allocArgs);	// we need more space
 							types = mframe_next_arg(types, &info[i]);
 							info[i].index=i;
 							if((info[i].qual & _F_INOUT) == 0)
@@ -407,6 +420,12 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 {
 	NEED_INFO();
 	return (info[0].qual & _F_ONEWAY) ? YES : NO;
+}
+
+- (void) _makeOneWay;
+{ // special function for sending release messages oneway
+	NEED_INFO();
+	info[0].qual |= _F_ONEWAY;
 }
 
 - (unsigned) methodReturnLength
@@ -542,7 +561,7 @@ const char *mframe_next_arg(const char *typePtr, NSArgumentInfo *info)
 	return frame;
 }
 
-static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *retbuf, NSArgumentInfo *info)
+static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *retbuf, struct NSArgumentInfo *info)
 { // wrap call because it fails if called within a Objective-C method
 #ifndef __APPLE__
 	retval_t retframe=__builtin_apply(imp, frame, stack);	// here, we really invoke the implementation

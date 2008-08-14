@@ -403,22 +403,6 @@ void NSDecimalFromComponents(NSDecimal *result, unsigned long long mantissa,
 void NSDecimalFromString(NSDecimal *result, NSString *numberValue, 
 						 NSDictionary *locale);
 
-
-// FIXME: move to NSMethodSignature private implementation
-
-typedef struct NSArgumentInfo
-{ // Info about layout of arguments. Extended from the original OpenStep version
-	int offset;
-	unsigned size;					// let us know if the arg is passed in 
-	const char *type;				// registers or on the stack.  OS 4.0 only
-	unsigned align;					// alignment
-	unsigned qual;					// qualifier (oneway, byref, bycopy, in, inout, out)
-	unsigned index;					// argument index (to decode return=0, self=1, and _cmd=2)
-	BOOL isReg;						// is passed in a register (+)
-	BOOL byRef;						// argument is not passed by value but by pointer (i.e. structs)
-	BOOL floatAsDouble;				// its a float value that is passed as double
-} NSArgumentInfo;
-
 @interface NSMethodSignature (NSPrivate)
 
 - (unsigned) _getArgumentLengthAtIndex:(int)index;
@@ -429,6 +413,7 @@ typedef struct NSArgumentInfo
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe retbuf:(void *) buffer;
 - (id) _initWithObjCTypes:(const char*) t;
 - (const char *) _methodType;		// total method type
+- (void) _makeOneWay;
 
 @end
 
@@ -473,7 +458,7 @@ typedef struct NSArgumentInfo
 @end
 
 @interface NSDistantObject (NSPrivate)
-- (id) _localObject;
+- (oneway void) __;	// remote release request - keep name short to save some bytes to be sent around
 @end
 
 @interface NSConnection (NSPrivate)
@@ -487,11 +472,14 @@ typedef struct NSArgumentInfo
 - (void) sendInvocation:(NSInvocation *) i;
 
 // really private methods
++ (NSConnection *) _connectionWithReceivePort:(NSPort *)receivePort
+																		 sendPort:(NSPort *)sendPort;
+- (void) _portDidBecomeInvalid:(NSNotification *) n;
+- (void) _executeInNewThread;
 - (void) _addAuthentication:(NSMutableArray *) components;
-- (NSDistantObject *) _getLocal:(id) ref;
-- (void) _mapLocal:(NSDistantObject *) obj forRef:(id) ref;
-- (NSDistantObject *) _getRemote:(id) ref;
-- (void) _mapRemote:(NSDistantObject *) obj forRef:(id) ref;
+- (void) _addRemote:(NSDistantObject *) obj forTarget:(id) target;;	// add to list of remote objects
+- (void) _removeRemote:(NSDistantObject *) obj;	// remove from list of remote objects
+- (NSDistantObject *) _getRemote:(id) target;	// get remote object for target
 @end
 
 @interface NSStream (NSPrivate)

@@ -613,14 +613,15 @@ NSString *NSTextMovement=@"NSTextMovement";
 //		[self _startCaretBlinkTimer];
 //	reason=NSCancelTextMovement;	// set default reason
 	[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:NOTE(DidBeginEditing) object:self]];
-	// show keyboard
-	[NSApp orderFrontCharacterPalette:self];
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"NSOrderFrontCharacterPalette"])
+		[NSApp orderFrontCharacterPalette:self];	// automatically show keyboard if enabld
 	return YES;
 }
 
 - (BOOL) resignFirstResponder
 {
-	[NSApp _orderOutCharacterPalette:self];	// hide keyboard
+	if([[NSUserDefaults standardUserDefaults] boolForKey:@"NSOrderFrontCharacterPalette"])
+		[NSApp _orderOutCharacterPalette:self];	// automatically hide keyboard if enabled
 	return [super resignFirstResponder];
 }
 

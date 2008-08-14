@@ -479,10 +479,15 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return ret;
 }
 
-// + (NSString *) _stringWithFormat:(NSString*)format arguments:(va_list)args
-// {
-// 	return [[[self alloc] initWithFormat:format arguments:args] autorelease];
-// }
++ (NSString *) localizedStringWithFormat:(NSString *)format, ...
+{
+	va_list ap;
+	id ret;
+	va_start(ap, format);
+	ret = [[[self alloc] initWithFormat:format locale:[[NSUserDefaults standardUserDefaults] dictionaryRepresentation] arguments:ap] autorelease];
+	va_end(ap);
+	return ret;
+}
 
 + (NSString *) _stringWithUTF8String:(const char *) bytes length:(unsigned) len;
 {
@@ -501,9 +506,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return [ourbundle localizedStringForKey:ourname value:ourname table:nil];
 }
 
-+ (NSString*) localizedStringWithFormat:(NSString*)format, ...		{ NIMP; return nil; }
-+ (NSStringEncoding) defaultCStringEncoding		{ return __cStringEncoding; }
-+ (NSStringEncoding *) availableStringEncodings	{ return _availableEncodings(); }
++ (NSStringEncoding) defaultCStringEncoding { return __cStringEncoding; }
++ (const NSStringEncoding *) availableStringEncodings	{ return _availableEncodings(); }
 
 - (id) initWithCharactersNoCopy:(unichar*)chars
 						 length:(unsigned int)length
@@ -2168,9 +2172,10 @@ unsigned int end, start = anIndex;						// Determining Composed
 - (float) floatValue			{ return (float) atof([self cString]); }
 - (int) intValue				{ return atoi([self cString]); }
 - (NSInteger) integerValue		{ return atoi([self cString]); }
+
 - (BOOL) boolValue
 {
-	char *s=[self cString];
+	const char *s=[self cString];
 	while(isspace(*s))
 		s++;
 	if(*s == 't' || *s == 'T' || *s == 'y' || *s == 'Y')

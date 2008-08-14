@@ -742,13 +742,13 @@ NSMutableArray *c;
 - (BOOL) createSymbolicLinkAtPath:(NSString*)path
 					  pathContent:(NSString*)otherPath
 {
-const char *linkPath = [self fileSystemRepresentationWithPath:path];
-const char *contentPath = [self fileSystemRepresentationWithPath:otherPath];
-	if(!linkPath || !contentPath)
-		return NO;
-#ifdef __WIN32__							// handle symbolic-link operations
+#ifdef __WIN32__							// can't handle symbolic-link operations
     return NO;
 #else
+	const char *linkPath = [self fileSystemRepresentationWithPath:path];
+	const char *contentPath = [self fileSystemRepresentationWithPath:otherPath];
+	if(!linkPath || !contentPath)
+		return NO;
 #if 0
 	NSLog(@"ln -s %s %s", contentPath, linkPath);
 #endif
@@ -756,7 +756,9 @@ const char *contentPath = [self fileSystemRepresentationWithPath:otherPath];
 				{
 					// FIXME: raise exception?
 					NSLog(@"createSymbolicLinkAtPath error: %s", strerror(errno));
+					return NO;
 				}
+	return YES;
 #endif
 }
 

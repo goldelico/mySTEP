@@ -528,6 +528,8 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	_pullsDown=[aDecoder decodeBoolForKey:@"NSPullDown"];
 	_arrowPosition=[aDecoder decodeIntForKey:@"NSArrowPosition"];
 	_preferredEdge=[aDecoder decodeIntForKey:@"NSPreferredEdge"];
+/*	_preferredEdge= */[aDecoder decodeIntForKey:@"NSMenuItemRespectAlignment"];
+	
 	// _autoenablesItems=?
 	[self selectItemAtIndex:[aDecoder decodeIntForKey:@"NSSelectedIndex"]];	// try to select
 	return self;
