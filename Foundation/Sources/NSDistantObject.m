@@ -154,13 +154,13 @@
 
 - (void) dealloc;
 {
-#if 1
+#if 0
 	NSLog(@"-dealloc: %@", self);
 #endif
 	if(!_isLocal && _target)
 			{ // send a release request over the connection
 				static NSInvocation *i;					// can be reused
-#if 1
+#if 0
 				NSLog(@"send a release request to the remote side: %@", self);
 #endif
 				if(!i)
@@ -170,7 +170,7 @@
 							struct objc_method *m=class_get_instance_method(isa, _sel);	// get signature of our method
 							NSMethodSignature *sig=[NSMethodSignature signatureWithObjCTypes:m->method_types];
 							[sig _makeOneWay];	// special case - we don't expect an answer
-#if 1
+#if 0
 							NSLog(@"signature(%@)=%@", NSStringFromSelector(_sel), sig);
 #endif
 							i=[[NSInvocation alloc] initWithMethodSignature:sig];
@@ -179,10 +179,16 @@
 						}
 				[i setTarget:self];								// target the remote object
 				[self forwardInvocation:i];
+#if 0
+				NSLog(@"did send release request to the remote side: %@", self);
+#endif
 				[_connection _removeRemote:self];	// remove from remoteObjects
 			}
-	[_connection release];	// dealloc the connection if we are the last proxy
+	[_connection release];	// this will dealloc the connection if we are the last proxy
 	[super dealloc];
+#if 0
+	NSLog(@"dealloc done");
+#endif
 }
 
 - (void) forwardInvocation:(NSInvocation *) invocation;
@@ -275,7 +281,7 @@
 
 - (void) encodeWithCoder:(NSCoder *) coder;
 {
-#if 1
+#if 0
 	NSLog(@"%@ encodeWithCoder (local=%@ target=%p)", NSStringFromClass(isa), _isLocal?@"YES":@"NO", _target);
 #endif
 	[coder encodeValueOfObjCType:@encode(BOOL) at:&_isLocal];
@@ -293,7 +299,7 @@
 	id ref;	// reference
 	[coder decodeValueOfObjCType:@encode(BOOL) at:&_isLocal];	// NOTE: the meaning if _isLocal is reversed since it is encoded for the proxy side!
 	[coder decodeValueOfObjCType:@encode(void *) at:&ref];
-#if 1
+#if 0
 	NSLog(@"%@ initWithCoder (local(on remote side)=%@ ref=%p)", NSStringFromClass(isa), _isLocal?@"YES":@"NO", ref);
 #endif
 	if(_isLocal) // local has reversed interpretation when decoding
@@ -310,7 +316,7 @@
 							// translate 32 bit reference to real adress
 						}
 #endif
-#if 1
+#if 0
 				NSLog(@"received reference to %@", ref);
 #endif
 				[self release];

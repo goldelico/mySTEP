@@ -107,7 +107,7 @@ NSString *NSFailedAuthenticationException = @"NSFailedAuthenticationException";
 	if([[_invocation methodSignature] isOneway])
 		{
 #if 1
-		NSLog(@"replyWithException: %@ - oneway ignored", exception);
+		NSLog(@"*** replyWithException: %@ - oneway ignored", exception);
 #endif
 		return;	// no response needed!
 		}
@@ -138,7 +138,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 
 + (NSArray *) allConnections;
 {
-#if 1
+#if 0
 	NSLog(@"allConnections");
 #endif
 	return NSAllHashTableObjects(_allConnections);
@@ -544,64 +544,8 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 }
 
 - (NSDistantObject *) rootProxy;
-{ // this is the first call to establish any connection
-#if 1	// simple approach, just make a proxy - the other side will map the nil target to the rootObject
+{ // this generates a proxy but does not yet connect (this appears to be different from OSX!)
 	return [NSDistantObject proxyWithTarget:nil connection:self];
-#else
-	static SEL _sel;				// (cached) =@selector(rootObject)
-	static NSMethodSignature *_ms;	// (cached) =the method signature
-	NSAutoreleasePool *arp;
-	NSInvocation *i;
-	// NOTE: we should NOT cache since the other side might change the rootProxy
-	if(!_isValid)
-		return nil;	// rise exception?
-	if(_isLocal)
-		return _rootObject;	// we are a local connection (within this thread)
-#if 0
-	NSLog(@"*** (conn=%p) -rootProxy: ask peer for rootObject", self);
-#endif
-	arp=[NSAutoreleasePool new];	// create a local pool
-	if(!_sel)
-		{ // initialize all statically cached values
-		_sel=@selector(rootObject);
-		_ms=[[self methodSignatureForSelector:_sel] retain];
-		}
-	i=[[NSInvocation alloc] initWithMethodSignature:_ms];	// NOTE: we can't cache an invocation since setting a return value makes it unuseable to send
-	[i setSelector:_sel];									// ask for the rootObect
-	NS_DURING
-		{
-		id rootProxy;
-		if(!_proxy)
-			_proxy=[[NSDistantObject proxyWithTarget:nil connection:self] retain];	// needs to allocate only once
-		[i setTarget:_proxy];					// target the NSConnection on the other side
-#if 0
-		NSLog(@"*** get rootProxy ***");
-#endif
-		[self sendInvocation:i];				// notifies a connect request and returns a proxy for the remote rootObject
-		[i getReturnValue:&rootProxy];			// this is what should have been returned...
-#if 0
-		NSLog(@"*** got rootProxy *** %@", rootProxy);
-#endif
-		[rootProxy retain];
-		[arp release];
-		[rootProxy autorelease];	// pass to outer ARP
-		[i release];
-#if 1
-		NSLog(@"*** (conn=%p) returning rootProxy %@", self, rootProxy);
-#endif
-		NS_VALUERETURN(rootProxy, id);
-		}
-	NS_HANDLER
-		NSLog(@"exception while getting rootProxy: %@", localException);
-		; // simply ignore
-	NS_ENDHANDLER
-#if 1
-	NSLog(@"failed to get rootProxy");
-#endif
-	[arp release];
-	[i release];
-	return nil;	// wasn't able to connect
-#endif
 }
 
 - (void) _executeInNewThread;
@@ -839,10 +783,11 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 	NS_DURING
 		{
 			NSInvocation *i=[req invocation];
+			[i retainArguments];	// don't release the target and other objects earlier than the invocation
 			if(SEL_EQ([i selector], @selector(release)))
 					{ // special case that we have received a release request
 						[_localObjects removeObjectIdenticalTo:[i target]];	// remove from list of local objects
-						NS_VOIDRETURN;	// no need to send a response
+						NS_VOIDRETURN;	// no need to send a response (even if signature says so)
 					}
 			[self dispatchInvocation:i];	// make a call to the local object(s)
 			exception=nil;	// no exception

@@ -424,6 +424,7 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 - (id) _initWithMethodSignature:(NSMethodSignature*) aSignature andArgFrame:(arglist_t) argFrame;
 // - (id) _initWithSelector:(SEL) aSelector andArgFrame:(arglist_t) argFrame;
 - (retval_t) _returnValue;
+- (void) _releaseArguments;
 
 @end
 

@@ -150,12 +150,12 @@
 - (void) encodeObject:(id) obj
 {
 	Class class;
-#if 1
+#if 0
 	NSLog(@"NSPortCoder encodeObject%@%@ %p", _isBycopy?@" bycopy":@"", _isByref?@" byref":@"", obj);
 	NSLog(@"  obj %@", obj);
 #endif
 	obj=[obj replacementObjectForPortCoder:self];	// substitute by a proxy if required
-#if 1
+#if 0
 	NSLog(@"  replacement %@", obj);
 #endif
 	if(!obj)
@@ -168,7 +168,7 @@
 		class=[obj classForPortCoder];
 // FIXME: should also be looked up in class translation table!
 		}
-#if 1
+#if 0
 	NSLog(@"  classForPortCoder %@", NSStringFromClass(class));
 #endif
 	[self encodeValueOfObjCType:@encode(Class) at:&class];
@@ -367,7 +367,7 @@
 		return nil;	// was a nil object
 	// should also look up in class translation table!
 	obj=[[[class alloc] initWithCoder:self] autorelease];	// decode
-#if 1
+#if 0
 	NSLog(@"NSPortCoder decodeObject(%@) -> %@", NSStringFromClass(class), obj);
 #endif
 	return obj;

@@ -45,10 +45,11 @@ typedef enum {
 // Class variables
 //
 
-static NSBundle *__mainBundle = nil;
-static NSMapTable *__bundles = NULL;	// for bundles we can't unload, don't dealloc. true for all bundles (now).
-static NSMapTable *__releasedBundles = NULL;
-static NSMapTable *__bundlesForExecutables = NULL;	// map executable file name to bundle
+static NSBundle *__mainBundle;
+static NSMapTable *__bundles;	// for bundles we can't unload, don't dealloc. true for all bundles (now).
+static NSMapTable *__releasedBundles;
+static NSMapTable *__bundlesForExecutables;	// map executable file name to bundle
+static NSString *__launchCurrentDirectory;
 
 // When we are linking in an object file, objc_load_modules 
 // calls our callback routine for every Class and Category 
@@ -89,7 +90,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 									 NSObjectMapValueCallBacks, 0);
 		if(!virtualRoot)
 			virtualRoot=[NSString stringWithUTF8String:[@"/" fileSystemRepresentation]], vrl=[virtualRoot length]-1;
-#if 1
+#if 0
 		NSLog(@"args=%@", [pi arguments]);
 		NSLog(@"$0=%@", path);
 		NSLog(@"virtualRoot=%@", virtualRoot);
@@ -118,8 +119,9 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 					}
 				}
 			}
+		__launchCurrentDirectory=[[fm currentDirectoryPath] retain];
 		if([path hasPrefix:@"./"])
-			path=[[fm currentDirectoryPath] stringByAppendingPathComponent:path];	// denotes relative location
+			path=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// denotes relative location
 		if([path hasPrefix:@"/hdd2"])
 			path=[path substringFromIndex:5];	// strip off - just in case of C3000...
 		if([path hasPrefix:@"/home/root"])
@@ -193,6 +195,12 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 	if((bundle = (NSBundle *)NSMapGet(__bundlesForExecutables, file)))	// look up by filename
 		return bundle;
 	path=[[NSFileManager defaultManager] stringWithFileSystemRepresentation:file length:strlen(file)];
+	if([path hasPrefix:@"./"])
+		path=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// denotes relative location
+	if([path hasPrefix:@"/hdd2"])
+		path=[path substringFromIndex:5];	// strip off - just in case of C3000...
+	if([path hasPrefix:@"/home/root"])
+		path=[path substringFromIndex:10];	// strip off - just in case of gdb on Zaurus (/usr/share -> /home/root/usr/share)
 #if 0
 	NSLog(@"path=%@", path);
 #endif

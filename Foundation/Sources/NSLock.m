@@ -52,6 +52,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 	if (objc_mutex_deallocate (_mutex) == -1)	
 		[NSException raise:NSLockException format:@"NSLock invalid mutex"];
 #endif
+	[_name release];
 	[super dealloc];
 }
 
@@ -91,6 +92,9 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 					 format:@"NSLock unlock: failed to unlock mutex"];
 #endif
 }
+
+- (NSString *) name; { return _name; }
+- (void) setName:(NSString *) name; { ASSIGN(_name, name); }
 
 @end /* NSLock */
 
@@ -133,6 +137,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 		[NSException raise:NSConditionLockException
 					 format:@"NSConditionLock dealloc: invalid mutex"];
 #endif
+	[_name release];
 	[super dealloc];
 }
 									// Return the current condition of the lock
@@ -239,6 +244,9 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 #endif
 }
 
+- (NSString *) name; { return _name; }
+- (void) setName:(NSString *) name; { ASSIGN(_name, name); }
+
 @end /* NSConditionLock */
 
 //*****************************************************************************
@@ -271,6 +279,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 		[NSException raise:NSRecursiveLockException
 					 format:@"NSRecursiveLock dealloc: invalid mutex"];
 #endif
+	[_name release];
 	[super dealloc];
 }
 
@@ -305,5 +314,8 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 					 format:@"NSRecursiveLock unlock: failed to unlock mutex"];
 #endif
 }
+
+- (NSString *) name; { return _name; }
+- (void) setName:(NSString *) name; { ASSIGN(_name, name); }
 
 @end /* NSRecursiveLock */

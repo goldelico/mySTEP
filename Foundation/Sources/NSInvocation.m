@@ -72,18 +72,22 @@ static retval_t apply_block(void *data)
 #if 0
 	NSLog(@"NSInvocation setTarget: %@", anObject);
 #endif
+	[self setArgument:&anObject	atIndex:0];	// handles retain/release
+#if OLD
 	if(_argsRetained)
 		{
 		[anObject retain];	// in case we do [i setTarget:[i target]]
 		[[self target] release];	// release current target
 		}
 	[_sig _setArgument:&anObject forFrame:_argframe atIndex:0];
+#endif
 }
 
 - (id) target
 {
 	id target=nil;	// if _sig is nil
-	[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
+	if(_argframe)
+		[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
 	return target;
 }
 
@@ -95,7 +99,8 @@ static retval_t apply_block(void *data)
 - (SEL) selector
 {
 	SEL selector=NULL;	// if _sig is nil
-	[_sig _getArgument:&selector fromFrame:_argframe atIndex:1];
+	if(_argframe)
+		[_sig _getArgument:&selector fromFrame:_argframe atIndex:1];
 	return selector;
 }
 
@@ -106,14 +111,15 @@ static retval_t apply_block(void *data)
 {
 	id target=[self target];
 	SEL sel=[self selector];
-	return [NSString stringWithFormat:@"%@ %p: selector=%@ signature=%s target=%@ validReturn=%@",
-		NSStringFromClass(isa),
-		self,
-		NSStringFromSelector(sel),
-		_types,
-		target,
-		_validReturn?@"yes":@"no"
-		];
+	return [NSString stringWithFormat:@"%@ %p: selector=%@ target=%@ signature=%s validReturn=%@ argsRetained=%@",
+					NSStringFromClass(isa),
+					self,
+					NSStringFromSelector(sel),
+					target,
+					_types,
+					_validReturn?@"yes":@"no",
+					_argsRetained?@"yes":@"no"
+					];
 }
 
 - (void) _log:(NSString *) str;
@@ -123,6 +129,8 @@ static retval_t apply_block(void *data)
 	id target=[self target];
 	SEL selector=[self selector];
 	NSLog(@"%@ %@ types=%s", str, self, _types);
+	if(!_argframe)
+		return;
 	for(i=0; i<16+[_sig frameLength]/4; i++)
 		{
 		NSString *note=@"";
@@ -131,14 +139,13 @@ static retval_t apply_block(void *data)
 		else if(((void **)_argframe)[i] == (_argframe+0x28)) note=(@"argp");
 		NSLog(@"arg[%2d]:%08x %08x %ld %@", i, &(((void **)_argframe)[i]), ((void **)_argframe)[i], ((void **)_argframe)[i], note);
 		}
-#if 1
+#if 0
 	NSLog(@"allocating buffer - len=%d", _maxValueLength);
 #endif
 	buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
 	// print argframe
 	for(i = _validReturn?-1:0; i < _numArgs; i++)
 		{
-		unsigned qual=[_sig _getArgumentQualifierAtIndex:i];
 		const char *type;
 		if(i >= 0)
 			{ // normal argument
@@ -149,14 +156,17 @@ static retval_t apply_block(void *data)
 			type=[_sig methodReturnType];
 			[self getReturnValue:buffer];
 			}
-#if 1
-		if(*type == _C_ID)
-			NSLog(@"argument %d qual=%d type=%s id=%@ <%p>", i, qual, type, NSStringFromClass([*(id *) buffer class]), *(id *) buffer);
-//			NSLog(@"argument %d qual=%d type=%s %p %p", i, qual, type, *(id *) buffer, *(id *) buffer);
-		else if(*type == _C_SEL)
-			NSLog(@"argument %d qual=%d type=%s SEL=%@ <%p>", i, qual, type, NSStringFromSelector(*(SEL *) buffer), *(SEL *) buffer);
-		else
-			NSLog(@"argument %d qual=%d type=%s %08x", i, qual, type, *(long *) buffer);
+#if 0
+				{
+					unsigned qual=[_sig _getArgumentQualifierAtIndex:i];
+					if(*type == _C_ID)
+						NSLog(@"argument %d qual=%d type=%s id=%@ <%p>", i, qual, type, NSStringFromClass([*(id *) buffer class]), *(id *) buffer);
+					//			NSLog(@"argument %d qual=%d type=%s %p %p", i, qual, type, *(id *) buffer, *(id *) buffer);
+					else if(*type == _C_SEL)
+						NSLog(@"argument %d qual=%d type=%s SEL=%@ <%p>", i, qual, type, NSStringFromSelector(*(SEL *) buffer), *(SEL *) buffer);
+					else
+						NSLog(@"argument %d qual=%d type=%s %08x", i, qual, type, *(long *) buffer);
+				}
 #endif
 		}
 	objc_free(buffer);
@@ -210,14 +220,18 @@ static retval_t apply_block(void *data)
 	return self;
 }
 
+// NOTE: this approach is no sane since the retval_t from __builtin_apply_args() may be a pointer into a stack frame that becomes invalid if we return apply()
+// therefore, this mechanism is not signal()-safe (i.e. don't use NSTask)
+
 #define APPLY(NAME, TYPE)  case NAME: { \
-	static TYPE return##NAME(TYPE data) { return data; } \
-	static retval_t apply##NAME(TYPE data) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, sizeof(data)); } \
+	static TYPE return##NAME(TYPE data) { fprintf(stderr, "return"#NAME" %x\n", (unsigned)data); return data; } \
+	inline retval_t apply##NAME(TYPE data) { void *args = __builtin_apply_args(); fprintf(stderr, "apply"#NAME" args=%p %x\n", args, (unsigned)data); return __builtin_apply((apply_t)return##NAME, args, sizeof(data)); } \
+	fprintf(stderr, "case"#NAME":\n"); \
 	return apply##NAME(*(TYPE *) _retval); } 
 
 #define APPLY_VOID(NAME)  case NAME: { \
 	static void return##NAME(void) { return; } \
-	static retval_t apply##NAME(void) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, 0); } \
+	inline retval_t apply##NAME(void) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, 0); } \
 	return apply##NAME(); } 
 
 
@@ -232,6 +246,10 @@ static retval_t apply_block(void *data)
 				NSLog(@"value = %@", ret);
 			}
 #endif
+	if(_argsRetained)
+		[self _releaseArguments];
+	if(!_argframeismalloc && _argframe)
+		_argframe=NULL;	// deallocate since it was inherited from our caller
 	if(!_validReturn && *_rettype != _C_VOID)
 			{ // no valid return value
 				NSLog(@"warning - no valid return value set");
@@ -241,7 +259,7 @@ static retval_t apply_block(void *data)
 	switch(_rettype[0])
 		{
 				APPLY_VOID(_C_VOID);
-				APPLY(_C_ID, id);	// ????
+				APPLY(_C_ID, id);
 				APPLY(_C_CLASS, Class);
 				APPLY(_C_SEL, SEL);
 				APPLY(_C_CHR, char);
@@ -254,8 +272,8 @@ static retval_t apply_block(void *data)
 				APPLY(_C_ULNG, unsigned long);
 				APPLY(_C_LNG_LNG, long long);
 				APPLY(_C_ULNG_LNG, unsigned long long);
-				APPLY(_C_FLT, float);
-				APPLY(_C_DBL, double);
+//				APPLY(_C_FLT, float);
+//				APPLY(_C_DBL, double);
 				APPLY(_C_ARY_B, char *);
 				
 			case _C_UNION_B:
@@ -286,30 +304,12 @@ static retval_t apply_block(void *data)
 
 - (void) dealloc
 {
-	if(_argsRetained)
-		{
-		_argsRetained = NO;
-		if(_argframe && _sig)
-			{
-			int i;
-			for(i = 0; i < _numArgs; i++)
-				{
-				const char *type=[_sig getArgumentTypeAtIndex:i];
-				if(*type == _C_CHARPTR)
-					{
-					char *str;
-					[_sig _getArgument:&str fromFrame:_argframe atIndex:i];
-					objc_free(str);
-					}
-				else if(*type == _C_ID)
-					{
-					id obj;
-					[_sig _getArgument:&obj fromFrame:_argframe atIndex:i];
-					[obj release];
-					}
-				}
-			}
-		}	
+#if 0
+	NSLog(@"-[NSInvocation dealloc] %p", self);
+	NSLog(@"-dealloc %@", self);
+#endif
+	if(_argsRetained && _argframe && _sig)
+			[self _releaseArguments];
 	if(_argframeismalloc && _argframe)
 		objc_free(_argframe);	// deallocate incl. struct return buffer
 	if(_retvalismalloc && _retval)
@@ -322,6 +322,8 @@ static retval_t apply_block(void *data)
 
 - (void) getArgument:(void*)buffer atIndex:(int)index
 {
+	if(!_argframe)
+		return;
 	if((unsigned)index >= _numArgs)
 		[NSException raise: NSInvalidArgumentException
 					 format: @"bad invocation argument index (%d of %d)", index, _numArgs];
@@ -343,6 +345,8 @@ static retval_t apply_block(void *data)
 - (void) setArgument:(void*)buffer atIndex:(int)index
 {
 	const char *type;
+	if(!_argframe)
+		return;
 	if ((unsigned)index >= _numArgs)
 		[NSException raise: NSInvalidArgumentException
 							 format: @"bad invocation argument index (%d of %d)", index, _numArgs];
@@ -365,12 +369,15 @@ static retval_t apply_block(void *data)
 		}
 	else if(*type == _C_ID && _argsRetained)
 		{ // release/retain
-		id old;
+		id old=nil;
 		[_sig _getArgument:&old fromFrame:_argframe atIndex:index];	// get previous
 		[_sig _setArgument:buffer forFrame:_argframe atIndex:index];
-		[*(id*)buffer retain];
-		if(old != nil)
-			[old release];
+		[*(id*)buffer retain];	// retain new
+		[old release];	// release old
+#if 0
+			NSLog(@"retained arg %@", *(id*)buffer);
+			NSLog(@"released arg %@", old);
+#endif
 		}
 	else
 		[_sig _setArgument:buffer forFrame:_argframe atIndex:index];
@@ -378,7 +385,7 @@ static retval_t apply_block(void *data)
 
 - (void) setReturnValue:(void*)buffer
 {
-#if 1
+#if 0
 	NSLog(@"setReturnValue buffer=%08x *buffer=%08x", buffer, *(long *) buffer);
 	if(*_rettype == _C_ID)
 		NSLog(@"              id=%@", *(id *) buffer);
@@ -395,11 +402,12 @@ static retval_t apply_block(void *data)
 - (void) retainArguments
 {
 	int	i;
-	if(_argsRetained)
-		return;	// already retained
+	if(_argsRetained || !_argframe)
+		return;	// already retained or no need to do so
 	_argsRetained = YES;
-	if(_argframe == NULL)
-		return;
+#if 0
+	NSLog(@"retaining arguments %@", self);
+#endif
 	for(i = 0; i < _numArgs; i++)
 		{
 		const char *type=[_sig getArgumentTypeAtIndex:i];
@@ -418,9 +426,43 @@ static retval_t apply_block(void *data)
 			{ // retain object
 			id obj;
 			[_sig _getArgument:&obj fromFrame:_argframe atIndex:i];
+#if 0
+				NSLog(@"retained arg %@", obj);
+#endif
 			[obj retain];
 			}
 		}
+}
+
+- (void) _releaseArguments
+{
+	int	i;
+	if(!_argsRetained || !_argframe)
+		return;	// already released or no need to do so
+	_argsRetained = NO;
+#if 0
+	NSLog(@"releasing arguments %@", self);
+#endif
+	for(i = 0; i < _numArgs; i++)
+			{
+				const char *type=[_sig getArgumentTypeAtIndex:i];
+				if(*type == _C_CHARPTR)
+						{ // release the copy
+							char *str;
+							[_sig _getArgument:&str fromFrame:_argframe atIndex:i];
+							if(str != NULL)
+								objc_free(str);	// ??? immediately, or should we put it into the ARP?
+						}
+				else if(*type == _C_ID)
+						{ // release object
+							id obj;
+							[_sig _getArgument:&obj fromFrame:_argframe atIndex:i];
+#if 0
+							NSLog(@"release arg %@", obj);
+#endif
+							[obj release];
+						}
+			}
 }
 
 - (void) invokeWithTarget:(id)anObject
@@ -435,6 +477,11 @@ static retval_t apply_block(void *data)
 	IMP imp;			// method implementation pointer
 	id target;
 	SEL selector;
+	if(!_argframe)
+			{
+				NSLog(@"NSInvocation -invoke without argframe:%@", self);
+				return;
+			}
 	[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
 #if 0
 	NSLog(@"NSInvocation -invoke withTarget:%@", target);
@@ -460,7 +507,7 @@ static retval_t apply_block(void *data)
 #endif
 		imp = objc_msg_lookup(target, selector);
 		}
-#if 1
+#if 0
 	[self _log:@"invoke"];
 	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, [_sig frameLength]);
 //	*((long *)1)=0;
@@ -482,7 +529,7 @@ static retval_t apply_block(void *data)
 { // NOTE: only supports NSPortCoder
 	void *buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
 	int i;
-#if 1
+#if 0
 	[self _log:@"encodeWithCoder:"];
 #endif
 #if 0
@@ -507,7 +554,7 @@ static retval_t apply_block(void *data)
 				continue;	// don't encode void return value
 			[self getReturnValue:buffer];
 			}
-#if 1
+#if 0
 		NSLog(@"NSInvocation encode arg %d qual %x type %s", i, qual, type);
 #endif
 		if(_validReturn && (qual & _F_IN) != 0)
@@ -549,7 +596,6 @@ static retval_t apply_block(void *data)
 #if 0
 	NSLog(@"  validReturn=%@", _validReturn?@"YES":@"NO");
 #endif
-	[self retainArguments];
 	if(!_sig || !_validReturn)
 		{ // assume we have to decode a Request
 		self=[self _initWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:types] andArgFrame:NULL];
@@ -576,7 +622,7 @@ static retval_t apply_block(void *data)
 			if(*type == _C_VOID)
 				continue;	// we didn't encode a void return value
 			}
-#if 1
+#if 0
 		NSLog(@"  decode arg %d type %s", i, type);
 #endif
 		if(_validReturn && (qual & _F_IN) != 0)
@@ -588,7 +634,7 @@ static retval_t apply_block(void *data)
 			[self setReturnValue:buffer];
 		else
 			[self setArgument:buffer atIndex:i];
-#if 1
+#if 0
 		if(*type == _C_ID) NSLog(@"did set argument %d: id=%@ <%p>", i, NSStringFromClass([*(id *) buffer class]), *(id *) buffer);
 		if(*type == _C_SEL) NSLog(@"did set argument %d: SEL=%@", i, NSStringFromSelector(*(SEL *) buffer));
 #endif

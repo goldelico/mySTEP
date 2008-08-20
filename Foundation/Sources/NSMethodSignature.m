@@ -507,7 +507,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 				return info[0].type;
 			}
 	addr = (info[index+1].isReg?((char *)_argframe):(*(char **)_argframe)) + info[index+1].offset;
-#if 1
+#if 0
 	NSLog(@"_getArgument[%d] offset=%u addr=%p byref=%d double=%d", index, info[index+1].offset, addr, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
 	if(info[index+1].byRef)
@@ -579,7 +579,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 				switch(*info[0].type)
 					{
 #define RETURN(CODE, TYPE) case CODE: { /*inline*/ TYPE retframe_##CODE(void *f) { __builtin_return(f); } *(TYPE *) retbuf = retframe_##CODE(retframe); break; }
-#if 1	// debugging
+#if 0	// debugging
 						case _C_ID:
 							{
 								static /* inline or static? */ id retframe_id(void *f)			{ __builtin_return(f); }

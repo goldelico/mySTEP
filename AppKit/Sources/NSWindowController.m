@@ -54,6 +54,9 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 		{
 		ASSIGN(_windowNibName, windowNibName);
 		_owner = owner;
+#if 0
+			NSLog(@"initialized %@ owner=%@", self, owner);
+#endif
 		}
 	return self;
 }
@@ -77,6 +80,9 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 		{
 		ASSIGN(_windowNibPath, windowNibPath);
 		_owner = owner;
+#if 0
+			NSLog(@"initialized %@ owner=%@", self, owner);
+#endif
 		}
 	return self;
 }
@@ -117,12 +123,16 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 	[super dealloc];
 }
 
+- (NSString *) description
+{
+	return [NSString stringWithFormat:@"%@ name=%@ path=%@", [super description], [self windowNibName], [self windowNibPath]];
+}
+
 - (NSString *) windowNibName
 {
 	if ((_windowNibName == nil) && (_windowNibPath != nil))
 		{
-		return [[_windowNibPath lastPathComponent] 
-			stringByDeletingPathExtension];
+		return [[_windowNibPath lastPathComponent] stringByDeletingPathExtension];
 		}
 	
 	return _windowNibName;
@@ -132,13 +142,19 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 {
 	if ((_windowNibName != nil) && (_windowNibPath == nil))
 		{
-		NSString *path;
+		NSString *path=nil;
 		
-		// This is not fully correct as nib resources are searched different.
-		
-		path = [[NSBundle bundleForClass: [_owner class]] pathForResource: _windowNibName ofType:@"nib"];
-		if (path == nil)
+			// This is not fully correct as nib resources are searched different.
+			// How? What must be changed?
+#if 0
+			NSLog(@"owner bundle %@", [NSBundle bundleForClass: [_owner class]]);
+			NSLog(@"main bundle %@", [NSBundle mainBundle]);
+#endif
+		if(_owner)
+			path = [[NSBundle bundleForClass: [_owner class]] pathForResource: _windowNibName ofType:@"nib"];
+		if(path == nil)
 			path = [[NSBundle mainBundle] pathForResource: _windowNibName ofType:@"nib"];
+			
 		return path;
 		}
 	
