@@ -11,4 +11,21 @@
 
 @implementation NSGarbageCollector
 
++ (id) defaultCollector;
+{
+	static NSGarbageCollector *gc;
+	if(!gc) gc=[[self alloc] init];
+	return gc;
+}
+
+- (void) collectExhaustively; { NIMP; }
+- (void) collectIfNeeded; { NIMP; }
+- (void) disable; { NIMP; }
+- (void) disableCollectorForPointer:(void *) pointer; { NIMP; }
+- (void) enable; { NIMP; }
+- (void) enableCollectorForPointer:(void *) pointer; { NIMP; }
+- (BOOL) isCollecting; { return NO; }
+- (BOOL) isEnabled; { return NO; }
+- (NSZone *) zone; { return NSDefaultMallocZone(); }
+
 @end

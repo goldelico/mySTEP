@@ -24,7 +24,10 @@
    based on (id, SEL, ...)
  * so we need to create a different structure to call any existing/nonexisting method by __builtin_apply()
  * libobjc seems to use #define OBJC_MAX_STRUCT_BY_VALUE 1 (runtime-info.h) meaning that a char[1] only struct is returned in a register
- * use more support functions from libobjc
+ * we should use more support functions from libobjc...
+ 
+ ARM-Stackframe conventions are described in section 5.3-5.5, 7.2 of http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042b/IHI0042B_aapcs.pdf
+ Unfortunately, this does not cover Objective-C conventions (which appear to be different from C/C++!)
 
 */ 
 
@@ -37,13 +40,13 @@ struct NSArgumentInfo
 	{ // Info about layout of arguments. Extended from the original OpenStep version
 		int offset;
 		unsigned size;					// let us know if the arg is passed in 
-		const char *type;				// registers or on the stack.  OS 4.0 only
+		const char *type;				// registers or on the stack
 		unsigned align;					// alignment
 		unsigned qual;					// qualifier (oneway, byref, bycopy, in, inout, out)
 		unsigned index;					// argument index (to decode return=0, self=1, and _cmd=2)
-		BOOL isReg;						// is passed in a register (+)
-		BOOL byRef;						// argument is not passed by value but by pointer (i.e. structs)
-		BOOL floatAsDouble;				// its a float value that is passed as double
+		BOOL isReg;							// is passed in a register (+)
+		BOOL byRef;							// argument is not passed by value but by pointer (i.e. structs)
+		BOOL floatAsDouble;			// its a float value that is passed as double
 	};
 
 #define AUTO_DETECT 0
@@ -384,12 +387,6 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 							// CHECKME!
 							if(i>0 && info[i].isReg && info[0].byRef)
 								info[i].offset += structReturnPointerLength;	// adapt offset because we have a virtual first argument
-#if 0
-							NSLog(@"%d: type=%s size=%d align=%d isreg=%d offset=%d qual=%x byRef=%d fltDbl=%d",
-										info[i].index, info[i].type, info[i].size, info[i].align,
-										info[i].isReg, info[i].offset, info[i].qual,
-										info[i].byRef, info[i].floatAsDouble);
-#endif
 							if(!info[i].isReg)	// value is on stack - counts for frameLength
 								argFrameLength += ((info[i].size+info[i].align-1)/info[i].align)*info[i].align;
 						}
@@ -398,6 +395,27 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 				NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
 #endif
     	}
+	// FIXME: is this a general problem and not only ARM? Fixed in gcc 3.x and later? Who to handle e.g. (double) as arguments in a protocol?
+	if(numArgs < 5 && !info[numArgs].isReg && info[numArgs].offset == 0)
+			{ // fix bug in gcc 2.95.3 signature for @protocol (last argument is described as @0 instead of e.g. @+16)
+				// we may have to check that the new offset+size < 24
+				// use align instead of size?
+#if 1
+				NSLog(@"fix ARM @protocol()");
+#endif
+				info[numArgs].offset=info[numArgs-1].offset+info[numArgs-1].size;
+				info[numArgs].isReg=YES;
+			}
+#if 1
+		{
+			int i;
+			for(i=0; i<=numArgs; i++)
+				NSLog(@"%d: type=%s size=%d align=%d isreg=%d offset=%d qual=%x byRef=%d fltDbl=%d",
+							info[i].index, info[i].type, info[i].size, info[i].align,
+							info[i].isReg, info[i].offset, info[i].qual,
+							info[i].byRef, info[i].floatAsDouble);
+		}
+#endif
 }
 
 // standard methods
@@ -455,12 +473,30 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
     [super dealloc];
 }
 
-- (void) encodeWithCoder:(NSCoder*)aCoder	{ NIMP; }
-- (id) initWithCoder:(NSCoder*)aCoder		{ NIMP; return nil; }
+- (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode bycopy
+
+// NOTE: this encoding is not platform independent! And not compatible to OSX!
+
+- (void) encodeWithCoder:(NSCoder*)aCoder
+{ // encode type string - NOTE: it can't encode _makeOneWay
+	[aCoder encodeValueOfObjCType:@encode(char *) at:&methodTypes];
+}
+
+- (id) initWithCoder:(NSCoder*)aCoder
+{ // initialize from received type string
+	char *type;
+	[aCoder decodeValueOfObjCType:@encode(char *) at:&type];
+	return [self _initWithObjCTypes:type];
+}
 
 + (NSMethodSignature *) signatureWithObjCTypes:(const char*) t;
-{ // now officially made public (10.5)
+{ // now officially made public (10.5) - but not documented
 	return [[[NSMethodSignature alloc] _initWithObjCTypes:t] autorelease];
+}
+
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:@"%@ %s", [super description], methodTypes];
 }
 
 - (id) _initWithObjCTypes:(const char*) t;
@@ -496,7 +532,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
 { // extract argument from frame
-	void *addr;
+	char *addr;
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d too high (%d).", index, numArgs];
 	NEED_INFO();
@@ -506,7 +542,10 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 					memcpy(buffer, _argframe, info[0].size);
 				return info[0].type;
 			}
-	addr = (info[index+1].isReg?((char *)_argframe):(*(char **)_argframe)) + info[index+1].offset;
+	addr=(char *)_argframe;
+	if(!info[index+1].isReg)
+		addr=*(char **)addr;	// indirect through pointer
+	addr+=info[index+1].offset;
 #if 0
 	NSLog(@"_getArgument[%d] offset=%u addr=%p byref=%d double=%d", index, info[index+1].offset, addr, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
@@ -521,7 +560,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 
 - (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index;
 {
-	void *addr;
+	char *addr;
 	if(index < -1 || index >= (int)numArgs)
 		[NSException raise: NSInvalidArgumentException format: @"Index %d too high (%d).", index, numArgs];
 	NEED_INFO();
@@ -531,7 +570,10 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 					memcpy(_argframe, buffer, info[0].size);
 				return;
 			}
-	addr = (info[index+1].isReg?((char *)_argframe):(*(char **)_argframe)) + info[index+1].offset;
+	addr=(char *)_argframe;
+	if(!info[index+1].isReg)
+		addr=*(char **)addr;	// indirect through pointer
+	addr+=info[index+1].offset;
 #if 0
 	NSLog(@"_setArgument[%d] offset=%u addr=%p byref=%d double=%d", index, info[index+1].offset, addr, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif

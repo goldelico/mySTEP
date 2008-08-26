@@ -131,17 +131,17 @@ static retval_t apply_block(void *data)
 	NSLog(@"%@ %@ types=%s", str, self, _types);
 	if(!_argframe)
 		return;
-	for(i=0; i<16+[_sig frameLength]/4; i++)
-		{
+	for(i=0; i<18+[_sig frameLength]/4; i++)
+		{ // print stack
 		NSString *note=@"";
 		if(((void **)_argframe)[i] == target) note=(@"self");
 		else if(((void **)_argframe)[i] == selector) note=(@"_cmd");
 		else if(((void **)_argframe)[i] == (_argframe+0x28)) note=(@"argp");
-		NSLog(@"arg[%2d]:%08x %08x %ld %@", i, &(((void **)_argframe)[i]), ((void **)_argframe)[i], ((void **)_argframe)[i], note);
+		else if(((void **)_argframe)[i] == _argframe) note=(@"link");
+		NSLog(@"arg[%2d]:%08x %+3d %3d %08x %12ld %@", i, &(((void **)_argframe)[i]), 4*i, ((char *)&(((void **)_argframe)[i]))-(((char **)_argframe)[0]), ((void **)_argframe)[i], ((void **)_argframe)[i], note);
 		}
-#if 0
+#if 1
 	NSLog(@"allocating buffer - len=%d", _maxValueLength);
-#endif
 	buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
 	// print argframe
 	for(i = _validReturn?-1:0; i < _numArgs; i++)
@@ -156,7 +156,6 @@ static retval_t apply_block(void *data)
 			type=[_sig methodReturnType];
 			[self getReturnValue:buffer];
 			}
-#if 0
 				{
 					unsigned qual=[_sig _getArgumentQualifierAtIndex:i];
 					if(*type == _C_ID)
@@ -167,9 +166,9 @@ static retval_t apply_block(void *data)
 					else
 						NSLog(@"argument %d qual=%d type=%s %08x", i, qual, type, *(long *) buffer);
 				}
-#endif
 		}
 	objc_free(buffer);
+#endif
 }
 
 - (id) _initWithMethodSignature:(NSMethodSignature*)aSignature andArgFrame:(arglist_t) argFrame
@@ -434,6 +433,11 @@ static retval_t apply_block(void *data)
 		}
 }
 
+- (void) _releaseReturnValue;
+{ // no longer needed so that we can reuse an invocation
+	_validReturn=NO;	// invalidate - so that initWithCoder properly handles requests&responses
+}
+
 - (void) _releaseArguments
 {
 	int	i;
@@ -507,7 +511,7 @@ static retval_t apply_block(void *data)
 #endif
 		imp = objc_msg_lookup(target, selector);
 		}
-#if 0
+#if 1
 	[self _log:@"invoke"];
 	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, [_sig frameLength]);
 //	*((long *)1)=0;
@@ -516,13 +520,13 @@ static retval_t apply_block(void *data)
 #endif
 }
 
-- (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy
+- (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode bycopy
 
 /*
  * encoding of in/out/inout paramters is based on the _validReturn flag
  *
- * if validReturn, we assume we are a response and encode the result, out and inout paramters only
- * if no validReturn, we assume a request and encode in and inout parameters only
+ * if validReturn, we assume we are a response and encode the result, 'out' and 'inout' paramters only
+ * if no validReturn, we assume a request and encode no result, and 'in' and 'inout' parameters only
  */
 
 - (void) encodeWithCoder:(NSCoder*) aCoder

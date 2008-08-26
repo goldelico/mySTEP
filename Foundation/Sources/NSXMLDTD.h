@@ -29,15 +29,20 @@
 - (NSString *) publicID;
 - (void) setSystemID:(NSString *) sysId;
 - (NSString *) systemID;
+- (NSXMLDTDNode *) entityDeclarationForName:(NSString *) enityName;
+- (NSXMLDTDNode *) notationDeclarationForName:(NSString *) notationName;
+- (NSXMLDTDNode *) elementDeclarationForName:(NSString *) elementName;
+- (NSXMLDTDNode *) attributeDeclarationForName:(NSString *) attributeName elementName:(NSString *) eleName;
+
+@end
+
+@interface NSXMLDTD (NSXMLNode)
+
 - (void) insertChild:(NSXMLNode *) node atIndex:(NSUInteger) idx;
 - (void) insertChildren:(NSArray *) nodes atIndex:(NSUInteger) idx;
 - (void) removeChildAtIndex:(NSUInteger) idx;
 - (void) setChildren:(NSArray *) nodes;
 - (void) addChild:(NSXMLNode *) node;
 - (void) replaceChildAtIndex:(NSUInteger) idx withNode:(NSXMLNode *) node;
-- (NSXMLDTDNode *) entityDeclarationForName:(NSString *) enityName;
-- (NSXMLDTDNode *) notationDeclarationForName:(NSString *) notationName;
-- (NSXMLDTDNode *) elementDeclarationForName:(NSString *) elementName;
-- (NSXMLDTDNode *) attributeDeclarationForName:(NSString *) attributeName elementName:(NSString *) eleName;
 
 @end

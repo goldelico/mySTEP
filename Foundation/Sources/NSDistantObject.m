@@ -55,9 +55,12 @@
 	if((mth = [self descriptionForInstanceMethod: aSel]) == NULL)
 		return nil;
 	types = mth->types;
+#endif
+#if 1
+	NSLog(@"%@ -> %s", NSStringFromSelector(aSel), types);
+#endif
 	if(types == NULL)
 		return nil;
-#endif
 	return [NSMethodSignature signatureWithObjCTypes:types];	// convert into an NSMethodSignature
 }
 
@@ -116,14 +119,15 @@
 			}
 	_connection=[aConnection retain];	// keep the connection as long as we exist
 	_target=anObject;
-	if(anObject)
-		[aConnection _addRemote:self forTarget:_target];	// add to remote objects
+	[aConnection _addRemote:self forTarget:_target];	// add to remote objects
 	_isLocal=NO;
 	return self;
 }
 
 - (void) setProtocolForProxy:(Protocol*)aProtocol;
 {
+	// FIXME: this is currently broken!
+	// methodSignatureForSelector correctly returns the qualifiers while a remote request to the implementation doesn't
 	// HACK:
 	if(aProtocol)
 		*(Class *)aProtocol=[Protocol class];	// isa pointer of @protocol(xxx) is sometimes not properly initialized
@@ -140,6 +144,10 @@
 #endif
 	_protocol=aProtocol;	// protocols are sort of static objects so we don't have to retain
 }
+
+// NOTE: implementing this method makes problems for NSLog(@"object that returns - (byref NSString)", remoteObject)
+// since NSLog calls description which does NOT return the represented value but this string
+// returning NSString bycopy is no problem
 
 - (NSString *) description
 { // we should use [_protocol name] but that appears to be broken
@@ -179,6 +187,7 @@
 						}
 				[i setTarget:self];								// target the remote object
 				[self forwardInvocation:i];
+				[i _releaseReturnValue];				// no longer needed so that we can reuse the invocation
 #if 0
 				NSLog(@"did send release request to the remote side: %@", self);
 #endif
@@ -202,42 +211,45 @@
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector;
 {
 	// FIXME: we should bulld a local Cache for method signatures of remote objects!!!
-	// might depend on server we are communicating with - so index by selector&[connection sendPort]
-	static NSInvocation *i;	// cached invocation
+	// since it might also depend on the server we are communicating with, we have to index by aSelector AND [connection sendPort]
 	NSMethodSignature *ret;
-#if 1
+#if 0
 	NSLog(@"[NSDistantObject methodSignatureForSelector:\"%@\"]", NSStringFromSelector(aSelector));
 #endif
 	//	NSLog(@"%s %s %08x", sel_get_name(aSelector), sel_get_name(@selector(_forwardMethodSignatureForSelector:)), @selector(_forwardMethodSignatureForSelector:));
-	if(SEL_EQ(aSelector, @selector(methodSignatureForSelector:)))
-		{ // asking for my own signature! Must be a system-wide constant to avoid recursion
-		return [NSObject instanceMethodSignatureForSelector:aSelector];	// ask NSObject
-		}
-	
-#if 1
-	NSLog(@"[NSDistantObject methodSignatureForSelector:] _protocol=%s", [_protocol name]);
+	if(SEL_EQ(aSelector, _cmd))	// asking for my own signature! This must be a system-wide constant to avoid recursions
+		ret=[NSObject instanceMethodSignatureForSelector:aSelector];	// ask NSObject
+	else if(_protocol)
+			{
+#if 0
+				NSLog(@"[NSDistantObject methodSignatureForSelector:] _protocol=%s", [_protocol name]);
 #endif
-	if(_protocol)
-		return [_protocol _methodSignatureForInstanceMethod:aSelector];	// ask protocol for the signature
-	if(_isLocal && _target)
-		return [_target methodSignatureForSelector:aSelector];	// ask local object for its signature
+				ret=[_protocol _methodSignatureForInstanceMethod:aSelector];	// ask protocol for the signature
+			}
+	else if(_isLocal && _target)
+		ret=[_target methodSignatureForSelector:aSelector];	// ask local object for its signature
+	else
+			{
+				static NSInvocation *i;	// cached invocation
 #if 1
-	NSLog(@"No protocol defined for NSDistantObject - so try forwarding the message");
+				NSLog(@"No protocol defined for NSDistantObject - so try forwarding the message and ask the other side for the signature");
 #endif
-	if(!i)
-		{ // initialize cached invocation
-		i=[[NSInvocation invocationWithMethodSignature:[NSObject instanceMethodSignatureForSelector:_cmd]] retain];	// use my own signature
-		[i setSelector:_cmd];
-		// should check [[NSObject instanceMethodSignatureForSelector: _cmd] methodReturnLength] == sizeof(ret)
-		}
-	// FIXME:
-	// shouldn't we better ask the distant object for the @encode() as an NSString and
-	// convert it into a local NSMethodSignature
-	// instead of trying to encode a remote methodSignature object??? No, if the result comes byref, then we can easily ask for [ms type] which retunrs the string
-	[i setTarget:self];
-	[i setArgument:&aSelector atIndex:2];	// set as the argument the selector we want to know about
-	[self forwardInvocation:i];				// and process
-	[i getReturnValue:&ret];				// fetch signature from invocation
+				if(!i)
+						{ // initialize cached invocation
+							i=[[NSInvocation alloc] initWithMethodSignature:[NSObject instanceMethodSignatureForSelector:_cmd]];	// use my own signature
+							[i setSelector:_cmd];
+							NSAssert([[NSObject instanceMethodSignatureForSelector: _cmd] methodReturnLength] == sizeof(ret), @"return value size problem");
+						}
+				[i setTarget:self];
+				[i setArgument:&aSelector atIndex:2];	// set as the argument the selector we want to know about
+				[self forwardInvocation:i];				// and process
+				[i getReturnValue:&ret];				// fetch signature from invocation
+				[i _releaseReturnValue];				// no longer needed so that we can reuse the invocation
+			}
+	// add to cache
+#if 0
+	NSLog(@"  methodSignatureForSelector %@ -> %s", NSStringFromSelector(aSelector), ret);
+#endif
 	return ret;
 }
 

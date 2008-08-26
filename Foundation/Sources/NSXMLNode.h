@@ -40,7 +40,7 @@ typedef NSUInteger NSXMLNodeKind;
 {
 	NSString *_name;
 	id _objectValue;
-	NSXMLDocument *_rootDocument;	// ??
+	NSXMLDocument *_rootDocument;	// ?? or do we get that by recursion?
 	NSXMLNode *_parent;
 	NSMutableArray *_children;
 	NSString *_localName;

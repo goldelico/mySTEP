@@ -150,13 +150,17 @@
 
 - (void) detach; { if(_parent) [(NSMutableArray *)[_parent children] removeObjectIdenticalTo:self]; _parent=nil; }
 
-/*
- - (void) setName:(NSString *) name;
- - (void) setObjectValue:(id) value;
- - (void) setStringValue:(NSString *) str;
- - (void) setStringValue:(NSString *) str resolvingEntities:(BOOL) flag;
- - (void) setURI:(NSString *) uri;
- */
+- (void) setName:(NSString *) name; { ASSIGN(_name, name); }
+- (void) setObjectValue:(id) value; { ASSIGN(_objectValue, value); }
+- (void) setStringValue:(NSString *) str; { /* check for string */ ASSIGN(_objectValue, str); }
+- (void) setURI:(NSString *) uri; { ASSIGN(_URI, uri); }
+
+- (void) setStringValue:(NSString *) str resolvingEntities:(BOOL) flag;
+{
+	if(flag)
+		NIMP;
+	[self setStringValue:str];
+}
 
 // XPath
 
@@ -166,5 +170,16 @@
  - (NSArray *) objectsForXQuery:(NSString *) query constants:(NSDictionary *) consts error:(NSError **) err;
  - (NSArray *) objectsForXQuery:(NSString *) query error:(NSError **) err;
 */
+
+/* methods implemented here but not in header file */
+
+// FIXME: handle parent pointer!
+
+- (void) insertChild:(NSXMLNode *) node atIndex:(NSUInteger) idx; { if(!_children) _children=[[NSMutableArray alloc] initWithCapacity:5]; [_children insertObject:node atIndex:idx]; }
+- (void) insertChildren:(NSArray *) nodes atIndex:(NSUInteger) idx; { if(!_children) _children=[[NSMutableArray alloc] initWithCapacity:[nodes count]+3]; [_children insertObjects:nodes atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(idx, [nodes count])]]; }
+- (void) removeChildAtIndex:(NSUInteger) idx; { [_children removeObjectAtIndex:idx]; }
+- (void) setChildren:(NSArray *) nodes; { ASSIGN(_children, nodes); }
+- (void) addChild:(NSXMLNode *) node; { [self insertChild:node atIndex:[_children count]]; }
+- (void) replaceChildAtIndex:(NSUInteger) idx withNode:(NSXMLNode *) node; { [_children replaceObjectAtIndex:idx withObject:node]; }
 
 @end

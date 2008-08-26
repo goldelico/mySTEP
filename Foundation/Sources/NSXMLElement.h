@@ -1,5 +1,5 @@
 /*
-    NSXMLDTD.h
+    NSXMLElement.h
     Foundation
  
     Created by H. Nikolaus Schaller on 28.03.08.
@@ -37,14 +37,19 @@
 - (void) setNamespaces:(NSArray *) nspaces;
 - (NSArray *) namespaces;
 - (NSXMLNode *) namespaceForPrefix:(NSString *) prefix;
+- (void) normalizeAdjacentTextNodesPreservingCDATA:(BOOL) flag;
 - (NSXMLNode *) resolveNamespaceForName:(NSString *) name;
 - (NSString *) resolvePrefixForNamespaceURI:(NSString *) nsUri;
+
+@end
+
+@interface NSXMLElement (NSXMLNode)
+
 - (void) insertChild:(NSXMLNode *) node atIndex:(NSUInteger) idx;
 - (void) insertChildren:(NSArray *) nodes atIndex:(NSUInteger) idx;
 - (void) removeChildAtIndex:(NSUInteger) idx;
 - (void) setChildren:(NSArray *) nodes;
 - (void) addChild:(NSXMLNode *) node;
 - (void) replaceChildAtIndex:(NSUInteger) idx withNode:(NSXMLNode *) node;
-- (void) normalizeAdjacentTextNodesPreservingCDATA:(BOOL) flag;
 
 @end

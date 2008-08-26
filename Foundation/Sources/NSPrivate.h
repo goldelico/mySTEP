@@ -425,6 +425,7 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 // - (id) _initWithSelector:(SEL) aSelector andArgFrame:(arglist_t) argFrame;
 - (retval_t) _returnValue;
 - (void) _releaseArguments;
+- (void) _releaseReturnValue;			// no longer needed so that we can reuse an invocation
 
 @end
 

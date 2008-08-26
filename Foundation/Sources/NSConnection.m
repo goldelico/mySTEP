@@ -376,7 +376,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 #endif
 		[nc addObserver:self selector:@selector(_portDidBecomeInvalid:) name:NSPortDidBecomeInvalidNotification object:_receivePort];
 		_localObjects=[[NSMutableArray alloc] initWithCapacity:10];
-		_remoteObjects=NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain remote objects
+		_remoteObjects=NSCreateMapTable(NSNonOwnedPointerOrNullMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain remote objects
 		if(!_allConnections)
 			_allConnections=NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 10);	// allocate - don't retain connections in hash table
 		NSHashInsertKnownAbsent(_allConnections, self);	// add us to connections list
@@ -488,9 +488,24 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 - (NSArray *) localObjects; { return _localObjects; }
 
 - (NSArray *) remoteObjects; { return NSAllMapTableValues(_remoteObjects); }
-- (void) _addRemote:(NSDistantObject *) obj forTarget:(id) target; { NSMapInsert(_remoteObjects, obj, (void *) target); }
+
+- (NSDistantObject *) _getRemote:(id) target;
+{ // get remote object for target - if known
+#if 0
+	NSLog(@"_getRemote: %p", target);
+#endif
+	return NSMapGet(_remoteObjects, (void *) target);
+}
+
+- (void) _addRemote:(NSDistantObject *) obj forTarget:(id) target;
+{
+#if 0
+	NSLog(@"_addRemote: %p -> %@", target, obj);
+#endif
+	NSMapInsert(_remoteObjects, (void *) target, obj);
+}
+
 - (void) _removeRemote:(NSDistantObject *) obj;	{ NSMapRemove(_remoteObjects, obj); }
-- (NSDistantObject *) _getRemote:(id) target;	{ return NSMapGet(_remoteObjects, (void *) target); } // get remote object for target - if known
 
 - (BOOL) multipleThreadsEnabled; { return _multipleThreadsEnabled; }
 

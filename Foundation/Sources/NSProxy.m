@@ -44,7 +44,11 @@
 
 + (unsigned) retainCount		{ return UINT_MAX; }
 - (unsigned int) retainCount	{ return _retain_count + 1; }
+
+// NOTE: it appears that init is not defined on OSX!
+
 - (id) init						{ return self; }
+- (id) copyWithZone:(NSZone *) zone	{ return [self retain]; }
 - (id) self						{ return self; }
 - (Class) superclass			{ return object_get_super_class(self);}
 - (Class) class					{ return object_get_class(self); }

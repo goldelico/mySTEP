@@ -413,19 +413,59 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
 	struct objc_method *m = class_get_instance_method(self, aSelector);
 #if 0
-	NSLog(@"-[NSObject instanceMethodSignatureForSelector:@selector(%@)]", NSStringFromSelector(aSelector));
-	NSLog(@"  self=%@ IMP=%p", self);
+	NSLog(@"-[%@ %@@selector(%@)]", NSStringFromClass(isa), NSStringFromSelector(_cmd), NSStringFromSelector(aSelector));
+	NSLog(@" -> %s", m->method_types);
+	NSLog(@"  self=%@ IMP=%p", self, m->method_imp);
 #endif
+	// CHECKME: should we also check for Protocols?
     return m ? [NSMethodSignature signatureWithObjCTypes:m->method_types] : nil;
 }
 
-- (NSMethodSignature*) methodSignatureForSelector:(SEL)aSelector
+- (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector
 {
 	struct objc_method *m = (object_is_instance(self) 
-						? class_get_instance_method(isa, aSelector)
-						: class_get_class_method(isa, aSelector));
-
-    return m ? [NSMethodSignature signatureWithObjCTypes:m->method_types] :nil;
+													 ? class_get_instance_method(isa, aSelector)
+													 : class_get_class_method(isa, aSelector));
+	const char *types=m?m->method_types:NULL;	// default (if we have an implementation)
+	Class c = object_get_class(self);
+	struct objc_protocol_list	*protocols = c->protocols;
+	for(; protocols; protocols = protocols?protocols->next:protocols)
+			{ // loop through protocol lists to find if they define our selector with more details
+				unsigned int i = 0;
+#if 1
+				NSLog(@"trying protocol list %p (count=%d)", protocols, protocols->count);
+#endif
+				for(i=0; i < protocols->count; i++)
+						{ // loop through individual protocols
+							Protocol *p = protocols->list[i];
+							struct objc_method_description *desc= (c == (Class)self) ? [p descriptionForClassMethod: aSelector] : [p descriptionForInstanceMethod: aSelector];
+#if 1
+							NSLog(@"try protocol %s", [p name]);
+#endif
+							if(desc)
+									{ // found
+										// NOTE: here we could also do duplication and contradiction checks
+#if 1
+										NSLog(@"found");
+										if(types)
+											NSLog(@"signature %s replaced by %s from protocol %s", types, desc->types, [p name]);
+#endif
+										types = desc->types;	// overwrite
+										protocols = NULL;	// this will break the outer loop as well
+										break;	// done with both loops
+									}
+						}
+			}
+#if 1
+	NSLog(@"-[%@ %@@selector(%@)]", NSStringFromClass(isa), NSStringFromSelector(_cmd), NSStringFromSelector(aSelector));
+	if(types)
+		NSLog(@" -> %s", types);
+	else
+		NSLog(@" -> selector not found.");
+	if(m)
+		NSLog(@"  self=%@ IMP=%p", self, m->method_imp);
+#endif
+	return types ? [NSMethodSignature signatureWithObjCTypes:types] : nil;
 }
 
 - (id) forwardingTargetForSelector:(SEL) sel;
@@ -438,8 +478,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 // you should not empty the ARP within a loop!
 
 - (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *) state
-								   objects:(id *) stackbuf
-									 count:(NSUInteger) len;
+																	 objects:(id *) stackbuf
+																		 count:(NSUInteger) len;
 {
 	id *s0=stackbuf;
 	if(state->state != 0x55aa5a5a || !state->itemsPtr)	// some safety if zeroing was forgotten

@@ -37,7 +37,6 @@ typedef NSUInteger NSXMLDocumentContentKind;
 
 + (Class) replacementClassForClass:(Class) class;
 
-- (void) addChild:(NSXMLNode *) node;
 - (NSString *) characterEncoding;
 - (NSXMLDocumentContentKind) documentContentKind;
 - (NSXMLDTD *) DTD;
@@ -45,29 +44,36 @@ typedef NSUInteger NSXMLDocumentContentKind;
 - (id) initWithData:(NSData *) data options:(NSUInteger) optsMask error:(NSError **) err;
 - (id) initWithRootElement:(NSXMLElement *) rootNode;
 - (id) initWithXMLString:(NSString *) str options:(NSUInteger) optsMask error:(NSError **) err;
-- (void) insertChild:(NSXMLNode *) node atIndex:(NSUInteger) idx;
-- (void) insertChildren:(NSArray *) nodes atIndex:(NSUInteger) idx;
 - (BOOL) isStandalone;
 - (NSString *) MIMEType;
 - (id) objectByApplyingXSLT:(NSData *) data arguments:(NSDictionary *) args error:(NSError **) err;
 - (id) objectByApplyingXSLTAtURL:(NSURL *) url arguments:(NSDictionary *) args error:(NSError **) err;
 - (id) objectByApplyingXSLTString:(NSString *) str arguments:(NSDictionary *) args error:(NSError **) err;
-- (void) removeChildAtIndex:(NSUInteger) idx;
-- (void) replaceChildAtIndex:(NSUInteger) idx withNode:(NSXMLNode *) node;
 - (NSXMLElement *) rootElement;
 - (void) setCharacterEncoding:(NSString *) str;
-- (void) setChildren:(NSArray *) nodes;
 - (void) setDocumentContentKind:(NSXMLDocumentContentKind) kind;
 - (void) setDTD:(NSXMLDTD *) dtd;
 - (void) setMIMEType:(NSString *) mime;
 - (void) setRootElement:(NSXMLNode *) rootNode;
 - (void) setStandalone:(BOOL) flag;
-- (void) setURI:(NSString *) uri;
 - (void) setVersion:(NSString *) version;
-- (NSString *) URI;
 - (BOOL) validateAndReturnError:(NSError **) err;
 - (NSString *) version;
 - (NSData *) XMLData;
 - (NSData *) XMLDataWithOptions:(NSUInteger) opts;
+
+@end
+
+@interface NSXMLDocument (NSXMLNode)
+
+- (NSString *) URI;
+- (void) setURI:(NSString *) uri;
+
+- (void) insertChild:(NSXMLNode *) node atIndex:(NSUInteger) idx;
+- (void) insertChildren:(NSArray *) nodes atIndex:(NSUInteger) idx;
+- (void) removeChildAtIndex:(NSUInteger) idx;
+- (void) setChildren:(NSArray *) nodes;
+- (void) addChild:(NSXMLNode *) node;
+- (void) replaceChildAtIndex:(NSUInteger) idx withNode:(NSXMLNode *) node;
 
 @end
