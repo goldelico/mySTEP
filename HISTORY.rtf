@@ -14,10 +14,12 @@ This document describes the changes and additions to the mySTEP library.\
 \b \cf0 ------------------------------------
 \b0 \
 
-\b Versions B700..***\
+\b Versions B700..B916\
 ------------------------------------
 \b0 \
 \
+* Foundation: fixed an issue where the signature from the implementation differs from the protocols (@0@+8:12 vs. @0@+8:0) - gcc 2.95.3 bug?\
+* Foundation: fixed methodSignatureForSelector to look through @protocols\
 * Foundation: fixed NSMethodSignature and NSInvocation so that DO finally works\
 * AppKit: NSToolBar implemented (incl. loading default items from AppKit-Info.plist)\
 * Foundation: header files updated to 10.5 compatibility\
