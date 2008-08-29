@@ -1225,6 +1225,10 @@ static BOOL __cursorHidden = NO;
 			[_themeFrame displayIfNeeded];					// Draw the window view hierarchy (if changed) before mapping
 			}
 		}
+
+	// FIXME: don't move a window in front of the key window unless both are in the same application
+	// => make dependent on [self isKeyWindodow];
+	
 	if(!otherWin)
 		{ // find first/last window on same level to place in front/behind
 		int i;
@@ -1254,14 +1258,14 @@ static BOOL __cursorHidden = NO;
 #endif
 	if(_w.isKey && place != NSWindowOut)
 		[_context _makeKeyWindow];
+	if(_initialFirstResponder && !_firstResponder && ![self makeFirstResponder:_initialFirstResponder])
+		NSLog(@"refused initialFirstResponder %@", _initialFirstResponder);
+	[_firstResponder becomeFirstResponder];
 	if(!_w.menuExclude)
 		[NSApp changeWindowsItem:self title:_windowTitle filename:NO];	// update
 }
 
 // convenience calls
-
-// FIXME: don't move a window in front of the key window unless both are in the same application
-// make dependent on [self isKeyWindodow];
 
 - (void) orderFront:(id) Sender; { [self orderWindow:NSWindowAbove relativeTo:0]; }
 - (void) orderBack:(id) Sender; { [self orderWindow:NSWindowBelow relativeTo:0]; }
@@ -1827,20 +1831,28 @@ static BOOL __cursorHidden = NO;
 
 - (BOOL) makeFirstResponder:(NSResponder *)aResponder
 {
-#if 0
+#if 1
 	NSLog(@"makeFirstResponder: %@", aResponder);
 #endif
 	if (_firstResponder == aResponder)				// if responder is already
 		return YES;									// first responder return Y
 
 	if(!aResponder)
-		aResponder=self;
+		aResponder=self;	// nil makes us the first responder (e.g. if no initialFirstResponder is defined)
 	if (![aResponder isKindOfClass: __responderClass])
+			{
+#if 1
+				NSLog(@"not responder class");
+#enif
 		return NO;									// not a responder return N
-
+			}
 	if (![aResponder acceptsFirstResponder])		
+			{
+#if 1
+				NSLog(@"does not accept status");
 		return NO;									// does not accept status
-
+			}
+#endif
 	if (_firstResponder)
 		{ // resign first responder status
 		NSResponder *first = _firstResponder;
@@ -1849,6 +1861,9 @@ static BOOL __cursorHidden = NO;
 		if (![first resignFirstResponder])			// the first responder must
 			{										// agree to resign
 			_firstResponder = first;	// did not!
+#if 1
+				NSLog(@"previous did not resign");
+#endif
 			return NO;
 			}
 		}
@@ -1864,7 +1879,9 @@ static BOOL __cursorHidden = NO;
 		return YES;									// Notify responder of it's	
 													// new status, make window
 	_firstResponder = self;							// first if it refuses
-
+#if 1
+	NSLog(@"did finally refuse");
+#endif	
 	return NO;
 }
 
@@ -1932,7 +1949,6 @@ static BOOL __cursorHidden = NO;
 					case NSApplicationActivatedEventType:
 						{
 						[NSApp activateIgnoringOtherApps:YES];	// user has clicked: bring our application windows and menus to front
-						[_firstResponder becomeFirstResponder];
 						if (!_w.isKey)
 							[self makeKeyAndOrderFront:self];
 						break;

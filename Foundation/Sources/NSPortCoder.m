@@ -305,9 +305,10 @@
 		case _C_STRUCT_B:
 		case _C_UNION_B:
 			{
-				// FIXME: is that correct???
-				int len=atoi(type+1);
-				NSLog(@"encode struct/array/union of size %d", len);
+				int len=objc_sizeof_type(type);
+#if 1
+				NSLog(@"encode struct/array/union of size %d %s", len, type);
+#endif
 				[self encodeBytes:address length:len];
 				break;
 			}
@@ -516,24 +517,23 @@
 #if 0
 				NSLog(@"decoded %u bytes atomar string", numBytes);
 #endif
-				// FIXME: we should replace the string
 				*((char **) address) = addr;	// store address (storage object is an autoreleased NSData!)
 				break;
 			}
-#if 0
+#if 1
 		case _C_ARY_B:
 		case _C_STRUCT_B:
 		case _C_UNION_B:
 			{
-				// FIXME: is that correct??? NO. use objc_sizeof_type(type)
 				int len=objc_sizeof_type(type);
 				unsigned numBytes;
 				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-#if 0
-				NSLog(@"decoded %u bytes string", numBytes);
+				if(numBytes != len)
+					NSLog(@"length error");
+#if 1
+				NSLog(@"decoded %u bytes (%d expected) string %p", numBytes, len, addr);
 #endif
-				// make a copy somehow autoreleased
-				*((char **) address) = "bytes";
+				*((char **) address) = addr;	// store address (storage object is an autoreleased NSData!)
 				break;
 			}
 #endif

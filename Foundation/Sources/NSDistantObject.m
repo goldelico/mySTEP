@@ -56,7 +56,7 @@
 		return nil;
 	types = mth->types;
 #endif
-#if 1
+#if 0
 	NSLog(@"%@ -> %s", NSStringFromSelector(aSel), types);
 #endif
 	if(types == NULL)
@@ -114,8 +114,8 @@
 	NSDistantObject *p=[aConnection _getRemote:anObject];
 	if(p)
 			{ // we already have a proxy for this target
-				[self release];
-				return [p retain];
+				[self release];	// release newly allocated object
+				return [p retain];	// retain the existing proxy once
 			}
 	_connection=[aConnection retain];	// keep the connection as long as we exist
 	_target=anObject;
@@ -166,7 +166,7 @@
 	NSLog(@"-dealloc: %@", self);
 #endif
 	if(!_isLocal && _target)
-			{ // send a release request over the connection
+			{ // send a release request over the connection (except for root proxy)
 				static NSInvocation *i;					// can be reused
 #if 0
 				NSLog(@"send a release request to the remote side: %@", self);
@@ -191,7 +191,7 @@
 #if 0
 				NSLog(@"did send release request to the remote side: %@", self);
 #endif
-				[_connection _removeRemote:self];	// remove from remoteObjects
+				[_connection _removeRemote:_target];	// remove from remoteObjects
 			}
 	[_connection release];	// this will dealloc the connection if we are the last proxy
 	[super dealloc];
@@ -311,7 +311,7 @@
 	id ref;	// reference
 	[coder decodeValueOfObjCType:@encode(BOOL) at:&_isLocal];	// NOTE: the meaning if _isLocal is reversed since it is encoded for the proxy side!
 	[coder decodeValueOfObjCType:@encode(void *) at:&ref];
-#if 0
+#if 1
 	NSLog(@"%@ initWithCoder (local(on remote side)=%@ ref=%p)", NSStringFromClass(isa), _isLocal?@"YES":@"NO", ref);
 #endif
 	if(_isLocal) // local has reversed interpretation when decoding

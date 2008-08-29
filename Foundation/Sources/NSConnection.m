@@ -118,7 +118,7 @@ NSString *NSFailedAuthenticationException = @"NSFailedAuthenticationException";
 		[_coder encodeObject:_invocation];	// encode resulting invocation (i.e. result and out/inout parameters)
 	[[_coder connection] _addAuthentication:(NSMutableArray *) [_coder _components]];
 	[_coder _setMsgid:1];	// is a response
-#if 1
+#if 0
 	NSLog(@"*** (conn=%p) send reply to %@", self, [_coder _sendPort]);
 #endif
 	[_coder sendBeforeTime:[_connection requestTimeout] sendReplyPort:nil];
@@ -491,21 +491,29 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 
 - (NSDistantObject *) _getRemote:(id) target;
 { // get remote object for target - if known
-#if 0
+#if 1
 	NSLog(@"_getRemote: %p", target);
+	NSLog(@"   -> %p", NSMapGet(_remoteObjects, (void *) target));
+	NSLog(@"   -> %@", NSMapGet(_remoteObjects, (void *) target));
 #endif
 	return NSMapGet(_remoteObjects, (void *) target);
 }
 
 - (void) _addRemote:(NSDistantObject *) obj forTarget:(id) target;
 {
-#if 0
+#if 1
 	NSLog(@"_addRemote: %p -> %@", target, obj);
 #endif
 	NSMapInsert(_remoteObjects, (void *) target, obj);
 }
 
-- (void) _removeRemote:(NSDistantObject *) obj;	{ NSMapRemove(_remoteObjects, obj); }
+- (void) _removeRemote:(id) target;
+{
+#if 1
+	NSLog(@"_removeRemote: %p", target);
+#endif
+	NSMapRemove(_remoteObjects, (void *) target);
+}
 
 - (BOOL) multipleThreadsEnabled; { return _multipleThreadsEnabled; }
 
@@ -610,7 +618,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 
 - (NSDictionary *) statistics; { return [NSDictionary dictionaryWithObject:@"not implemented" forKey:@"Statistics"]; }
 
-// private methods - some of them have been identified in MacOS X Core Dumps by Googling around
+// private methods - some of them have been identified to exist in MacOS X Core Dumps by Googling for core dumps
 
 - (void) sendInvocation:(NSInvocation *) i;
 { // send invocation and handle result - this might be called reentrant!
@@ -619,6 +627,9 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 	NSPortCoder *portCoder;
 #if 1
 	NSLog(@"*** (conn=%p) sendInvocation:%@", self, i);
+#if 1
+	[i _log:@"sendInvocation"];	// log incl. stack
+#endif
 #endif
 	NSAssert(i, @"missing invocation to send");
 	if(_isLocal)
@@ -798,6 +809,9 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 	NS_DURING
 		{
 			NSInvocation *i=[req invocation];
+#if 1
+			[i _log:@"handleRequest"];
+#endif
 			[i retainArguments];	// don't release the target and other objects earlier than the invocation
 			if(SEL_EQ([i selector], @selector(release)))
 					{ // special case that we have received a release request

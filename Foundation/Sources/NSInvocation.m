@@ -124,7 +124,6 @@ static retval_t apply_block(void *data)
 
 - (void) _log:(NSString *) str;
 {
-	void *buffer;
 	int i;
 	id target=[self target];
 	SEL selector=[self selector];
@@ -140,40 +139,41 @@ static retval_t apply_block(void *data)
 		else if(((void **)_argframe)[i] == _argframe) note=(@"link");
 		NSLog(@"arg[%2d]:%08x %+3d %3d %08x %12ld %@", i, &(((void **)_argframe)[i]), 4*i, ((char *)&(((void **)_argframe)[i]))-(((char **)_argframe)[0]), ((void **)_argframe)[i], ((void **)_argframe)[i], note);
 		}
-#if 1
-	NSLog(@"allocating buffer - len=%d", _maxValueLength);
-	buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
-	// print argframe
-	for(i = _validReturn?-1:0; i < _numArgs; i++)
+#if 0
 		{
-		const char *type;
-		if(i >= 0)
-			{ // normal argument
-			type=[_sig _getArgument:buffer fromFrame:_argframe atIndex:i];
-			}
-		else
-			{ // return value
-			type=[_sig methodReturnType];
-			[self getReturnValue:buffer];
-			}
-				{
-					unsigned qual=[_sig _getArgumentQualifierAtIndex:i];
-					if(*type == _C_ID)
-						NSLog(@"argument %d qual=%d type=%s id=%@ <%p>", i, qual, type, NSStringFromClass([*(id *) buffer class]), *(id *) buffer);
-					//			NSLog(@"argument %d qual=%d type=%s %p %p", i, qual, type, *(id *) buffer, *(id *) buffer);
-					else if(*type == _C_SEL)
-						NSLog(@"argument %d qual=%d type=%s SEL=%@ <%p>", i, qual, type, NSStringFromSelector(*(SEL *) buffer), *(SEL *) buffer);
-					else
-						NSLog(@"argument %d qual=%d type=%s %08x", i, qual, type, *(long *) buffer);
-				}
+			void *buffer;
+			NSLog(@"allocating buffer - len=%d", _maxValueLength);
+			buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
+			// print argframe
+			for(i = _validReturn?-1:0; i < _numArgs; i++)
+					{
+						const char *type;
+						unsigned qual=[_sig _getArgumentQualifierAtIndex:i];
+						if(i >= 0)
+								{ // normal argument
+									type=[_sig _getArgument:buffer fromFrame:_argframe atIndex:i];
+								}
+						else
+								{ // return value
+									type=[_sig methodReturnType];
+									[self getReturnValue:buffer];
+								}
+						if(*type == _C_ID)
+							NSLog(@"argument %d qual=%d type=%s id=%@ <%p>", i, qual, type, NSStringFromClass([*(id *) buffer class]), *(id *) buffer);
+						// NSLog(@"argument %d qual=%d type=%s %p %p", i, qual, type, *(id *) buffer, *(id *) buffer);
+						else if(*type == _C_SEL)
+							NSLog(@"argument %d qual=%d type=%s SEL=%@ <%p>", i, qual, type, NSStringFromSelector(*(SEL *) buffer), *(SEL *) buffer);
+						else
+							NSLog(@"argument %d qual=%d type=%s %08x", i, qual, type, *(long *) buffer);
+					}
+			objc_free(buffer);
 		}
-	objc_free(buffer);
 #endif
 }
 
 - (id) _initWithMethodSignature:(NSMethodSignature*)aSignature andArgFrame:(arglist_t) argFrame
 {
-#if 0
+#if 1
 	NSLog(@"NSInovcation _initWithMethodSignature:%@", aSignature);
 #endif
 	if(!aSignature)
@@ -408,29 +408,37 @@ static retval_t apply_block(void *data)
 	NSLog(@"retaining arguments %@", self);
 #endif
 	for(i = 0; i < _numArgs; i++)
-		{
-		const char *type=[_sig getArgumentTypeAtIndex:i];
-		if(*type == _C_CHARPTR)
-			{ // store a copy
-			char *str;
-			[_sig _getArgument:&str fromFrame:_argframe atIndex:i];
-			if(str != 0)
-				{
-				char *tmp = objc_malloc(strlen(str)+1);
-				strcpy(tmp, str);
-				[_sig _setArgument:tmp forFrame:_argframe atIndex:i];
-				}
-			}
-		else if(*type == _C_ID)
-			{ // retain object
-			id obj;
-			[_sig _getArgument:&obj fromFrame:_argframe atIndex:i];
-#if 0
-				NSLog(@"retained arg %@", obj);
+			{
+				const char *type=[_sig getArgumentTypeAtIndex:i];
+				switch(*type)
+					{
+						case _C_CHARPTR:
+						{ // store a copy
+							char *str=NULL;
+							[_sig _getArgument:&str fromFrame:_argframe atIndex:i];
+							if(str != NULL)
+									{
+										char *tmp = objc_malloc(strlen(str)+1);
+										strcpy(tmp, str);
+										[_sig _setArgument:tmp forFrame:_argframe atIndex:i];
+									}
+							break;
+						}
+						case _C_ID:
+						{ // retain object
+							id obj;
+							[_sig _getArgument:&obj fromFrame:_argframe atIndex:i];
+#if 1
+							NSLog(@"retaining arg %p", obj);
+							NSLog(@"retaining arg %@", obj);
 #endif
-			[obj retain];
+							[obj retain];
+							break;
+						}
+						default:
+							break;
+					}
 			}
-		}
 }
 
 - (void) _releaseReturnValue;
@@ -487,7 +495,7 @@ static retval_t apply_block(void *data)
 				return;
 			}
 	[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
-#if 0
+#if 1
 	NSLog(@"NSInvocation -invoke withTarget:%@", target);
 #endif
 	if(target == nil)			// A message to a nil object returns nil
@@ -513,7 +521,6 @@ static retval_t apply_block(void *data)
 		}
 #if 1
 	[self _log:@"invoke"];
-	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, [_sig frameLength]);
 //	*((long *)1)=0;
 #endif
 	_validReturn=[_sig _call:imp frame:_argframe retbuf:_retval];	// call
@@ -589,15 +596,15 @@ static retval_t apply_block(void *data)
 	const char *types;
 	void *buffer;
 	int i;
-#if 0
+#if 1
 	NSLog(@"%@ initWithCoder: %@", self, aCoder);
 #endif
 	[aCoder decodeValueOfObjCType:@encode(char*) at:&types];
-#if 0
+#if 1
 	NSLog(@"  decoded type=%s", types);
 #endif
 	[aCoder decodeValueOfObjCType:@encode(BOOL) at:&_validReturn];
-#if 0
+#if 1
 	NSLog(@"  validReturn=%@", _validReturn?@"YES":@"NO");
 #endif
 	if(!_sig || !_validReturn)
@@ -607,10 +614,14 @@ static retval_t apply_block(void *data)
 	else
 		{ // a response - assume we already have been initialized for _sig
 			NSAssert(strcmp(types, _types) == 0, @"received different signature");		// should be the same as we have requested
-#if 0
+#if 1
 		NSLog(@"  existing type=%s", _types);
 #endif
 		}
+#if 1
+	NSLog(@"  _sig=%@", _sig);
+	NSLog(@"  _maxValueLength=%d", _maxValueLength);
+#endif
 	buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
 	for(i = _validReturn?-1:0; i < _numArgs; i++)
 		{
@@ -626,7 +637,7 @@ static retval_t apply_block(void *data)
 			if(*type == _C_VOID)
 				continue;	// we didn't encode a void return value
 			}
-#if 0
+#if 1
 		NSLog(@"  decode arg %d type %s", i, type);
 #endif
 		if(_validReturn && (qual & _F_IN) != 0)
@@ -638,14 +649,14 @@ static retval_t apply_block(void *data)
 			[self setReturnValue:buffer];
 		else
 			[self setArgument:buffer atIndex:i];
-#if 0
+#if 1
 		if(*type == _C_ID) NSLog(@"did set argument %d: id=%@ <%p>", i, NSStringFromClass([*(id *) buffer class]), *(id *) buffer);
 		if(*type == _C_SEL) NSLog(@"did set argument %d: SEL=%@", i, NSStringFromSelector(*(SEL *) buffer));
 #endif
-		}
-#if 0
-	[self _log:@"initWithCoder:"];
+#if 1
+			[self _log:@"initWithCoder:"];
 #endif
+		}
 	objc_free(buffer);
 	return self;
 }

@@ -237,8 +237,10 @@ DEFINES =-DLinux_ARM \
 		-DHAVE_MMAP \
 		-DLONG_LONG_MAX=9223372036854775807L -DLONG_LONG_MIN=-9223372036854775807L -DULONG_LONG_MAX=18446744073709551615UL
 
+# add -v to debug include search path issues
+
 CFLAGS := $(CFLAGS) \
-		-v -g -O$(OPTIMIZE) -fPIC -rdynamic \
+		-g -O$(OPTIMIZE) -fPIC -rdynamic \
 		$(WARNINGS) \
 		$(DEFINES) \
   		$(INCLUDES) \

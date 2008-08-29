@@ -296,7 +296,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		}
 	[loop _removeInputWatcher:self forMode:NSConnectionReplyMode];
 	[loop _removeOutputWatcher:self forMode:NSConnectionReplyMode];
-#if 1
+#if 0
 	if(_sendPos == NSNotFound)
 		NSLog(@"all sent");
 	else

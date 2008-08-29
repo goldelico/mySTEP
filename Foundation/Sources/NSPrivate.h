@@ -480,7 +480,7 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 - (void) _executeInNewThread;
 - (void) _addAuthentication:(NSMutableArray *) components;
 - (void) _addRemote:(NSDistantObject *) obj forTarget:(id) target;;	// add to list of remote objects
-- (void) _removeRemote:(NSDistantObject *) obj;	// remove from list of remote objects
+- (void) _removeRemote:(id) target; // remove from list of remote objects
 - (NSDistantObject *) _getRemote:(id) target;	// get remote object for target
 @end
 

@@ -1453,7 +1453,7 @@ static NSArray *prevList;
 
 + (id <_NSWorkspaceServerProtocol>) _systemUIServer;			// distributed workspace
 {
-	static id _systemUIServer;	// distributed workspace server used for launchedApplications etc.
+	static id _systemUIServer;	// system UI server used for inking, sound etc.
 	if(!_systemUIServer)
 		{
 #if 1
@@ -1461,7 +1461,7 @@ static NSArray *prevList;
 #endif
 		NS_DURING
 			_systemUIServer = [NSConnection rootProxyForConnectionWithRegisteredName:NSWorkspaceServerPort host:nil];
-#if 0
+#if 1
 			NSLog(@"created _systemUIServer=%@", _systemUIServer);
 #endif
 			[_systemUIServer retain];

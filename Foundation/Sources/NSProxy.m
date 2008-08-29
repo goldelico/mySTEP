@@ -120,7 +120,7 @@
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
 {
 	NSInvocation *inv;
-#if 1
+#if 0
 	NSLog(@"forward:@selector(%@) :... through %@", NSStringFromSelector(aSel), self);
 #endif
 	if(aSel == 0)

@@ -37,8 +37,8 @@
 #import "NSPrivate.h"
 
 struct NSArgumentInfo
-	{ // Info about layout of arguments. Extended from the original OpenStep version
-		int offset;
+	{ // Info about layout of arguments. Extended from the original OpenStep version - no longer available in OSX
+		int offset;							// can be negative (!)
 		unsigned size;					// let us know if the arg is passed in 
 		const char *type;				// registers or on the stack
 		unsigned align;					// alignment
@@ -337,7 +337,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	structReturnPointerLength=sizeof(void *);	// if we have one
 	isBigEndian=NSHostByteOrder()==NS_BigEndian;
 	floatAsDouble=YES;
-	structByRef=YES;
+//	structByRef=YES;
 #endif
 #endif
 #if 0
@@ -369,7 +369,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 							if(i >= allocArgs)
 								allocArgs+=5, info = objc_realloc(info, sizeof(struct NSArgumentInfo) * allocArgs);	// we need more space
 							types = mframe_next_arg(types, &info[i]);
-							info[i].index=i;
+							info[i].index=i-1;
 							if((info[i].qual & _F_INOUT) == 0)
 									{ // add default qualifiers
 										if(i == 0)
@@ -395,16 +395,13 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 				NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
 #endif
     	}
-	// FIXME: is this a general problem and not only ARM? Fixed in gcc 3.x and later? Who to handle e.g. (double) as arguments in a protocol?
-	if(numArgs < 5 && !info[numArgs].isReg && info[numArgs].offset == 0)
+	// FIXME: is this a general problem and not only ARM? Fixed in gcc 3.x and later? How to handle e.g. (double) as arguments in a protocol?
+	if(!info[numArgs].isReg && info[numArgs].offset == 0)
 			{ // fix bug in gcc 2.95.3 signature for @protocol (last argument is described as @0 instead of e.g. @+16)
-				// we may have to check that the new offset+size < 24
-				// use align instead of size?
 #if 1
 				NSLog(@"fix ARM @protocol()");
 #endif
-				info[numArgs].offset=info[numArgs-1].offset+info[numArgs-1].size;
-				info[numArgs].isReg=YES;
+				info[numArgs].offset=info[numArgs-1].offset-20;
 			}
 #if 1
 		{
@@ -546,8 +543,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	if(!info[index+1].isReg)
 		addr=*(char **)addr;	// indirect through pointer
 	addr+=info[index+1].offset;
-#if 0
-	NSLog(@"_getArgument[%d] offset=%u addr=%p byref=%d double=%d", index, info[index+1].offset, addr, info[index+1].byRef, info[index+1].floatAsDouble);
+#if 1
+	NSLog(@"_getArgument[%d] offset=%d addr=%p isReg=%d byref=%d double=%d", index, info[index+1].offset, addr, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
 	if(info[index+1].byRef)
 		memcpy(buffer, *(void**)addr, info[index+1].size);
@@ -565,7 +562,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 		[NSException raise: NSInvalidArgumentException format: @"Index %d too high (%d).", index, numArgs];
 	NEED_INFO();
 	if(index == -1)
-			{ // copy return value to buffer
+			{ // copy buffer to return value
 				if(info[0].size > 0)
 					memcpy(_argframe, buffer, info[0].size);
 				return;
@@ -574,8 +571,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	if(!info[index+1].isReg)
 		addr=*(char **)addr;	// indirect through pointer
 	addr+=info[index+1].offset;
-#if 0
-	NSLog(@"_setArgument[%d] offset=%u addr=%p byref=%d double=%d", index, info[index+1].offset, addr, info[index+1].byRef, info[index+1].floatAsDouble);
+#if 1
+	NSLog(@"_setArgument[%d] offset=%d addr=%p isReg=%d byref=%d double=%d", index, info[index+1].offset, addr, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
 	if(info[index+1].byRef)
 		memcpy(*(void**)addr, buffer, info[index+1].size);
@@ -591,22 +588,23 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 		{ // make a single buffer that is large enough to hold the _builtin_apply() block + space for frameLength arguments
 		int part1 = sizeof(void *) + structReturnPointerLength + registerSaveAreaSize;	// first part
 		void *args;
+		NEED_INFO();	// get valid argFrameLength
 		frame=(arglist_t) objc_calloc(part1 + argFrameLength, sizeof(char));
 		args=(char *) frame + part1;
-#if 0
+#if 1
 		NSLog(@"allocated frame=%p args=%p framelength=%d", frame, args, argFrameLength);
 #endif
 		((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
 		}
 	else
-		((char **)frame)[0]+=12;		// on ARM - forward:: returns the full stack while __builtin_apply() needs only the extra arguments
+		((char **)frame)[0]+=12;		// on ARM - forward:: returns the full stack while __builtin_apply() needs only the extra arguments (gcc bug?)
 	return frame;
 }
 
 static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *retbuf, struct NSArgumentInfo *info)
-{ // wrap call because it fails if called within a Objective-C method
+{ // wrap call because it fails if called from within a Objective-C method
 #ifndef __APPLE__
-	retval_t retframe=__builtin_apply(imp, frame, stack);	// here, we really invoke the implementation
+	retval_t retframe=__builtin_apply(imp, frame, stack);	// here, we really invoke the method implementation
 #if 0
 	NSLog(@"retframe= %p", retframe);
 #endif
@@ -665,9 +663,12 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe retbuf:(void *) retbuf;
 { // preload registers from ARM stack frame and call implementation
-	NEED_INFO();
+	NEED_INFO();	// make sure that argFrameLength is defined
+#if 1
+	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, (argFrameLength+3)&~3);
+#endif
 	((void **)_argframe)[1] = ((void **)_argframe)[2];		// copy target/self value to the register frame
-	return wrapped_builtin_apply(imp, _argframe, argFrameLength, retbuf, &info[0]);	// here, we really invoke the implementation	
+	return wrapped_builtin_apply(imp, _argframe, (argFrameLength+3)&~3, retbuf, &info[0]);	// here, we really invoke the implementation	
 }
 
 #if AUTO_DETECT
