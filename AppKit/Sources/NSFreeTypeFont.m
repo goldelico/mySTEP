@@ -105,7 +105,8 @@ static float rscale64;	// cache for 1/(64.0*screen scale)
 			}
 		else
 			{ // needs additional float operations per step
-			sz=NSMakeSize(_faceStruct->glyph->linearHoriAdvance*(1.0/65536.0), _faceStruct->glyph->linearVertAdvance*(1.0/65536.0));
+				// FIXME - appears to have both horiz&vert advancement
+			sz=NSMakeSize(_faceStruct->glyph->linearHoriAdvance*(1.0/65536.0), 0* _faceStruct->glyph->linearVertAdvance*(1.0/65536.0));
 			}
 		*advancements++=sz;
 		}
@@ -280,10 +281,12 @@ FT_Library _ftLibrary(void)
 		if(error)
 			continue;
 		delta.x += slot->advance.x;
-//		delta.y += slot->advance.y;	// we can't handle vertical rendering anyway
+//		delta.y += slot->advance.y;	// returns bad value here and we can't handle vertical rendering anyway
 		}
 	return Free2Pt(delta.x);
 }
+
+// this is used for freetype with our non-XRender based drawing
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
 { // render the string
@@ -324,6 +327,8 @@ FT_Library _ftLibrary(void)
 		}
 }
 
+// this is used when using the XRender GlyphSets
+
 - (void) _defineGlyphs;
 { // and add to GlyphSet
 	FT_ULong charcode;
@@ -351,9 +356,40 @@ FT_Library _ftLibrary(void)
 			NSLog(@"char=%04x glyph=%d", charcode, gindex);
 			error = FT_Load_Glyph(_faceStruct, gindex, FT_LOAD_RENDER);
 			if(!error && slot->bitmap.width > 0 && slot->bitmap.rows > 0)
-				[self _addGlyph:(NSGlyph) gindex bitmap:slot->bitmap.buffer x:slot->bitmap_left y:slot->bitmap_top width:slot->bitmap.width height:slot->bitmap.rows];
+				[self _addGlyph:(NSGlyph) gindex bitmap:(char *) slot->bitmap.buffer x:slot->bitmap_left y:slot->bitmap_top width:slot->bitmap.width height:slot->bitmap.rows];
 			charcode=FT_Get_Next_Char(_faceStruct, charcode, &gindex);
 		}
+}
+
+// this is used when we have our own glyph cache
+
+- (_CachedGlyph) _defineGlyph:(NSGlyph) glyph;
+{ // and add to GlyphSet
+	FT_Error error;
+	FT_GlyphSlot slot = _faceStruct->glyph;
+	FT_Matrix matrix = { 1<<16, 0, 0, 1<<16 };	// identity matrix
+	FT_Vector delta = { 0, 0 };
+	NSAffineTransform *t=[_descriptor matrix];
+#if 0
+	NSLog(@"_defineGlyph %d %p", glyph, self);
+#endif
+	if(t)
+			{ // we have a font with an explicit text transform
+				NSAffineTransformStruct m=[t transformStruct];		
+				matrix = (FT_Matrix) { m.m11*(1<<16), m.m12*(1<<16), m.m21*(1<<16), m.m22*(1<<16) };
+				delta = (FT_Vector) { m.tX*64, m.tY*64 };
+			}
+	FT_Set_Transform(_faceStruct,			// handle to face object
+									 &matrix,				// pointer to 2x2 matrix
+									 &delta);				// pointer to 2d vector
+	error = FT_Load_Glyph(_faceStruct, glyph, FT_LOAD_RENDER);
+	if(!error && slot->bitmap.width > 0 && slot->bitmap.rows > 0)
+			{
+				_CachedGlyph g=(_CachedGlyph) objc_malloc(sizeof(*g));	// create new record
+				[self _addGlyphToCache:g bitmap:(char *) slot->bitmap.buffer x:slot->bitmap_left y:slot->bitmap_top width:slot->bitmap.width height:slot->bitmap.rows];	// convert into Picture
+			return g;
+			}
+	return NULL;
 }
 
 @end

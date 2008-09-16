@@ -54,7 +54,7 @@
 #import "NSWindow.h"
 #import "NSPasteboard.h"
 
-#define USE_XRENDER 0
+#define USE_XRENDER 1
 
 #if 1	// all windows are borderless, i.e. the frontend draws the title bar and manages windows directly
 #define WINDOW_MANAGER_TITLE_HEIGHT 0
@@ -887,6 +887,7 @@ typedef struct
 #if 0
 	NSLog(@"_concatCTM -> %@", _state->_ctm);
 #endif
+	// FIXME - we must apply the CTM inverse to the source picture when using XRender!
 	if(_hasRender)
 		{
 		NSAffineTransformStruct atms=[_state->_ctm transformStruct];
@@ -1301,7 +1302,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	trap.right.p2.x=XDoubleToFixed(points[3].x);
 	trap.right.p2.y=XDoubleToFixed(points[3].y);
 	if(trap.right.p1.x < trap.left.p1.x)
-		NSLog(@"swap!");
+		NSLog(@"renderTrapezoid problem: should swap!");
 	// this requires that the edges are already extrapolated
 	trap.bottom=MAX(trap.left.p1.y, trap.left.p2.y);
 	trap.top=MIN(trap.left.p1.y, trap.left.p2.y);
@@ -1488,7 +1489,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _setTextPosition:(NSPoint) pos;
 { // PDF: x y Td
-  // FIXME: we could postpone the CTM until we really draw text
 	[_textMatrix translateXBy:pos.x yBy:pos.y];
 	ASSIGN(_textLineMatrix, _textMatrix);	// update text line matrix
 }
@@ -1531,13 +1531,14 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _newLine;
 { // PDF: T*
-	[self _setTextPosition:NSMakePoint(0.0, _leading)];
+	[self _setTextPosition:NSMakePoint(0.0, _leading)];	// FIXME - shouldn't we apply current matrix.tX?
 }
 
 // FIXME:
 // does not handle rotation
 // ignores CTM scaling (only in cursor position!)
 
+// DEPRECATED
 - (void) _drawGlyphBitmap:(unsigned char *) buffer x:(int) x y:(int) y width:(unsigned) width height:(unsigned) height;
 { // paint to screen
 	XImage *img;
@@ -1605,6 +1606,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XDestroyImage(img);
 }
 
+// DEPRECATED
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;
 {
 	BACKEND;	// overwritten in NSFreeType.m
@@ -1617,117 +1619,146 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	unsigned int i;
 	XFontStruct *font;
 #if 0
-	NSAffineTransform *trm=[NSAffineTransform transform];
-	[trm setTransformStruct:(NSAffineTransformStruct){ _horizontalScale, 0.0, 0.0, 1.0, 0.0, _rise }];
-	[trm appendTransform:_textMatrix];
-	[trm appendTransform:_state->_ctm];
-#endif
-#if 0
 	NSLog(@"NSString: _drawGlyphs:%p count:%u font:%@", glyphs, cnt, _state->_font);
 #endif
 #if USE_XRENDER
 	if(_picture)
-		{
-		NSAffineTransformStruct atms=[_textMatrix transformStruct];
+			{
 #if 0
-		NSLog(@"cnt=%u picture=%d fillColor=%d", cnt, _picture, _state->_fillColor);
+				NSLog(@"cnt=%u picture=%d fillColor=%d", cnt, _picture, _state->_fillColor);
 #endif
-		// if we want to lazily send glyphs to the server, call [_state->_font _defineGlyphs:glyphs count:cnt]
 #if 0
-		[self _setStrokeColor:[NSColor colorWithDeviceRed:0.7 green:0.3 blue:0.0 alpha:0.7]];
+				[self _setStrokeColor:[NSColor colorWithDeviceRed:0.7 green:0.3 blue:0.0 alpha:0.7]];
 #endif
-			NSLog(@"stroke color %@", _state->_strokeColor);
-		XRenderCompositeString32(_display,
-								 [self _XRenderPictOp],
-								 [_state->_strokeColor _pictureForColor],	// (src) color pattern
-								 _picture,				// (dest)
-								 XRenderFindStandardFormat(_display, PictStandardA8),	// the format of the glyph mask
-								 [_state->_font _glyphSet],	// current font
-								 0, 0,	// x,y src
-								 atms.tX, atms.tY,	// x,y dest
-								 glyphs,
-								 cnt);
-		// FIXME: XRenderComposite(... [_state->_font _pictureForGlyph:*glyphs] using transform
-		// advance according to info from font
-/*
-	_setDirtyRect(self,
-					  cursor.x, cursor.y,
-					  XTextWidth16(font, buf, cnt),
-					  font->ascent + font->descent);
- */
-		return;
-		}
+#if 0
+				NSLog(@"stroke color %@", _state->_strokeColor);
+#endif
+#if USE_XRENDER_GLYPHSTORE
+				XRenderCompositeString32(_display,
+				 [self _XRenderPictOp],
+				 [_state->_strokeColor _pictureForColor],	// (src) color pattern
+				 _picture,				// (dest)
+				 XRenderFindStandardFormat(_display, PictStandardA8),	// the format of the glyph mask
+				 [_state->_font _glyphSet],	// current font
+				 0, 0,	// x,y src
+				 atms.tX, atms.tY,	// x,y dest
+				 glyphs,
+				 cnt);
+#else
+				for(; cnt > 0; glyphs++, cnt--)
+						{
+							_CachedGlyph glyph;
+							NSSize advance;
+							NSAffineTransform *trm=[NSAffineTransform transform];
+							NSAffineTransformStruct atms;
+							[trm setTransformStruct:(NSAffineTransformStruct){ _horizontalScale, 0.0, 0.0, 1.0, 0.0, _rise }];
+							[trm appendTransform:_textMatrix];
+							[trm appendTransform:_state->_ctm];
+							atms=[trm transformStruct];
+							glyph=[_state->_font _pictureForGlyph:*glyphs];
+							if(!glyph)
+								continue;	// not found
+							// setup any transforms
+							// i.e. get glyph position from text matrix
+							// apply CTM
+							// [self renderSrc:[_state->_strokeColor _pictureForColor] mask:glyph->picture CTM:_state->ctm];
+							XRenderComposite(_display,
+															 PictOpOver /*[self _XRenderPictOp]*/,
+															 [_state->_strokeColor _pictureForColor],	// (src) color (pattern)
+															 glyph->picture,	// use glyph picture to mask the text color
+															 _picture,
+															 0, 0,
+															 0, 0,
+															 (int) atms.tX, ((int) atms.tY)-glyph->y,
+															 glyph->width, glyph->height);
+							[_state->_font getAdvancements:&advance forGlyphs:glyphs count:1];	// for current glyph
+							// if last character, apply word spacing
+							[self _setTextPosition:NSMakePoint((advance.width+_characterSpace)*_horizontalScale, 0.0)];		// advance text matrix in horizontal mode according to info from glyph
+						}
+#endif
+				/*
+				 _setDirtyRect(self,
+				 cursor.x, cursor.y,
+				 XTextWidth16(font, buf, cnt),
+				 font->ascent + font->descent);
+				 */
+				return;
+			}
 #endif
 	if([_state->_font renderingMode] == NSFontIntegerAdvancementsRenderingMode)
-		{ // use the basic X11 bitmap font rendering services
-		NSAffineTransformStruct atms=[_textMatrix transformStruct];
-		NSPoint cursor=[_state->_ctm transformPoint:NSMakePoint(atms.tX, atms.tY)];
+			{ // use the basic X11 bitmap font rendering services
+				int width;
+				NSAffineTransformStruct atms=[_textMatrix transformStruct];
+				NSPoint cursor=[_state->_ctm transformPoint:NSMakePoint(atms.tX, atms.tY)];
 #if 0
-		NSLog(@"_setTextPosition %@ -> %@", NSStringFromPoint(pos), NSStringFromPoint(cursor));
+				NSLog(@"_setTextPosition %@ -> %@", NSStringFromPoint(pos), NSStringFromPoint(cursor));
 #endif
-		[_state->_font _setScale:_scale];
-		font=[_state->_font _font];
-		XSetFont(_display, _state->_gc, font->fid);	// set font-ID in GC
-													// set any other attributes
-		[self _setCompositing];	// use X11 compositing
+				[_state->_font _setScale:_scale];
+				font=[_state->_font _font];
+				XSetFont(_display, _state->_gc, font->fid);	// set font-ID in GC
+				// set any other attributes
+				[self _setCompositing];	// use X11 compositing
 #if 0
-		{
-			XRectangle box;
-			XClipBox(_state->_clip, &box);
-			NSLog(@"draw %u glyphs at (%d,%d) clip=%@", cnt, (int) cursor.x, (int)(cursor.y-_baseline+font->ascent+1), NSStringFromXRect(box));
-		}
+					{
+						XRectangle box;
+						XClipBox(_state->_clip, &box);
+						NSLog(@"draw %u glyphs at (%d,%d) clip=%@", cnt, (int) cursor.x, (int)(cursor.y-_baseline+font->ascent+1), NSStringFromXRect(box));
+					}
 #endif
-		if(!buf || cnt > buflen)
-			buf=(XChar2b *) objc_realloc(buf, sizeof(buf[0])*(buflen=cnt+20));	// increase translation buffer if needed
-		if(sizeof(XChar2b) != 2)
-			{ // fix subtle bug when struct alignment rules of the compiler make XChar2b larger than 2 bytes
-			for(i=0; i<cnt; i++)
-				{ // we need a different encoding for XDrawString16() and XTextWidth16()
-				NSGlyph g=glyphs[i];
-				((XChar2b *) (((short *)buf)+i))->byte1=g>>8;
-				((XChar2b *) (((short *)buf)+i))->byte2=g;
-				}
+				if(!buf || cnt > buflen)
+					buf=(XChar2b *) objc_realloc(buf, sizeof(buf[0])*(buflen=cnt+20));	// increase translation buffer if needed
+				if(sizeof(XChar2b) != 2)
+						{ // fix subtle bug when struct alignment rules of the compiler make XChar2b larger than 2 bytes
+							for(i=0; i<cnt; i++)
+									{ // we need a different encoding for XDrawString16() and XTextWidth16()
+										NSGlyph g=glyphs[i];
+										((XChar2b *) (((short *)buf)+i))->byte1=g>>8;
+										((XChar2b *) (((short *)buf)+i))->byte2=g;
+									}
+						}
+				else
+						{
+							for(i=0; i<cnt; i++)
+									{
+										NSGlyph g=glyphs[i];
+										buf[i].byte1=g>>8;
+										buf[i].byte2=g;
+									}
+						}	
+				XDrawString16(_display, ((Window) _graphicsPort),
+											_state->_gc, 
+											cursor.x, (int)(cursor.y-_rise+font->ascent+1),	// X11 defines y as the character top line so we have to adjust for the ascent
+											/* NOTE:
+				 XChar2b is a struct which may be 4 bytes locally depending on struct alignment rules!
+				 But here it appears to work since Xlib appears to assume that there are 2*length bytes to send to the server
+				 */
+											buf,
+											cnt);		// Unicode drawing
+				if(sizeof(XChar2b) != 2)
+						{ // fix subtle bug when struct alignment rules of the compiler make XChar2b larger than 2 bytes
+							for(i=0; i<cnt; i++)
+									{ 
+										NSGlyph g=glyphs[i];
+										buf[i].byte1=g>>8;
+										buf[i].byte2=g;
+									}
+						}
+				width=XTextWidth16(font, buf, cnt);	// width in pixels
+				_setDirtyRect(self,
+											cursor.x, cursor.y,
+											width,
+											font->ascent + font->descent);
+				[self _setTextPosition:NSMakePoint(width, 0.0)];		// advance text matrix in horizontal mode according to info from glyph
 			}
-		else
-			{
-			for(i=0; i<cnt; i++)
-				{
-				NSGlyph g=glyphs[i];
-				buf[i].byte1=g>>8;
-				buf[i].byte2=g;
-				}
-			}	
-		XDrawString16(_display, ((Window) _graphicsPort),
-					  _state->_gc, 
-					  cursor.x, (int)(cursor.y-_rise+font->ascent+1),	// X11 defines y as the character top line so we have to adjust for the ascent
-					  /* NOTE:
-							XChar2b is a struct which may be 4 bytes locally depending on struct alignment rules!
-							But here it appears to work since Xlib appears to assume that there are 2*length bytes to send to the server
-					  */
-					  buf,
-					  cnt);		// Unicode drawing
-		if(sizeof(XChar2b) != 2)
-			{ // fix subtle bug when struct alignment rules of the compiler make XChar2b larger than 2 bytes
-			for(i=0; i<cnt; i++)
-				{ 
-				NSGlyph g=glyphs[i];
-				buf[i].byte1=g>>8;
-				buf[i].byte2=g;
-				}
-			}
-		_setDirtyRect(self,
-					  cursor.x, cursor.y,
-					  XTextWidth16(font, buf, cnt),
-					  font->ascent + font->descent);
-		}
 	else
-		{ // use Freetype
-		NSAffineTransform *trm=[NSAffineTransform transform];
-		[trm setTransformStruct:(NSAffineTransformStruct){ _horizontalScale, 0.0, 0.0, 1.0, 0.0, _rise }];
-		[trm appendTransform:_textMatrix];
-		[trm appendTransform:_state->_ctm];
-		[_state->_font _drawAntialisedGlyphs:glyphs count:cnt inContext:self matrix:trm];
-		}
+			{ // use Freetype
+				NSAffineTransform *trm=[NSAffineTransform transform];
+				[trm setTransformStruct:(NSAffineTransformStruct){ _horizontalScale, 0.0, 0.0, 1.0, 0.0, _rise }];
+				[trm appendTransform:_textMatrix];
+				[trm appendTransform:_state->_ctm];
+				[_state->_font _drawAntialisedGlyphs:glyphs count:cnt inContext:self matrix:trm];
+				// FIXME: update _textMatrix!
+			}
 }
 
 - (void) _beginPage:(NSString *) title;
@@ -1770,9 +1801,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		{
 		Picture src;
 		NSRect rect;
+		NSAffineTransformStruct atms;
 		BOOL cached=[rep isKindOfClass:[NSCachedImageRep class]];
 		if(cached)
-			{ // it is already a Picture
+			{ // it already has a Picture on the X-Server
 				_NSX11GraphicsContext *c=(_NSX11GraphicsContext *) [[(NSCachedImageRep *) rep window] graphicsContext];
 				src=c->_picture;
 				rect=[(NSCachedImageRep *) rep rect];
@@ -1780,10 +1812,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		else
 			{ // send bitmap to X Server
 				Window root=DefaultRootWindow(_display);	// first root window
-				unsigned long valuemask=0;
 				XRenderPictureAttributes pa;
-				XRenderPictFormat format;
 				Pixmap pixmap;
+//				Pixmap alphapixmap;
 				unsigned char *imagePlanes[5];
 				NSBitmapFormat bitmapFormat=[(NSBitmapImageRep *) rep bitmapFormat];
 				BOOL hasAlpha=[rep hasAlpha];
@@ -1796,95 +1827,167 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				NSString *csp=[rep colorSpaceName];
 				unsigned int buffersize;
 				int fragment;
-				char *data;
 				XImage *image;
+//				XImage *alphaimage;
 				GC gc;
+//				GC agc;
+				union
+					{
+						unsigned long pixel;
+						struct
+							{
+								unsigned char B, G, R, A;	// assumes B as MSB
+							} components;
+					} pixel;
 				XGCValues gcValues={ 0 };
 				int y;
-				if(bitmapFormat != 0)
-					{ // can't handle non-premultiplied and float pixel (but we could easily handle alphafirst)
-						NSLog(@"_draw: can't draw bitmap format %0x yet", [(NSBitmapImageRep *) rep bitmapFormat]);
-						// raise exception
-						return NO;
-					}
 				calibrated=[csp isEqualToString:NSCalibratedRGBColorSpace];
-				if(!calibrated && ![csp isEqualToString:NSDeviceRGBColorSpace])
-					{
-						NSLog(@"_draw: colorSpace %@ not supported!", csp);
-						// raise exception?
-						return NO;
-					}
 				[(NSBitmapImageRep *) rep getBitmapDataPlanes:imagePlanes];
-				pixmap=XCreatePixmap(_display, root, width, height, 4*8);	// ARGB32
+				pixmap=XCreatePixmap(_display, root, width, height, 4*8);	// ARGB32 - picture
+//				alphapixmap=XCreatePixmap(_display, root, width, height, 8);	// ARGB8 - alpha channel
+				gc=XCreateGC(_display, pixmap, 0, &gcValues);
+//				agc=XCreateGC(_display, alphapixmap, 0, &gcValues);
 				pa.repeat=1;
-//				pa.repeat=RepeatNormal;	// ???? repeat pattern image
+//				pa.repeat=RepeatNormal;	// ???? repeat pattern image by default
 				src=XRenderCreatePicture(_display, pixmap,
 										 XRenderFindStandardFormat(_display, PictStandardARGB32),
 										 CPRepeat, &pa);
-#if 1
-				{
+#if 0
+				{ // check if all pixels are filled
 					XRenderColor c;
-					c.red=c.green=c.blue=(int) rep;
-					c.alpha=(65535 * 1.0);
-					XRenderFillRectangle(_display, PictOpSrc, src, &c, 0, 0, width, height);	// fill picture with grey color
+					c.red=c.green=c.blue=(int) rep;	// virtually randomize
+					c.alpha=(65535 * 0.5);
+					XRenderFillRectangle(_display, PictOpSrc, src, &c, 0, 0, width, height);	// prefill picture with semitransparent grey color
 				}
 #endif
-				switch(_imageInterpolation)
-					{
-					case NSImageInterpolationDefault:
-						break;
-					case NSImageInterpolationNone:
-						XRenderSetPictureFilter(_display, src, FilterFast, NULL, 0);
-						break;
-					case NSImageInterpolationLow:
-						XRenderSetPictureFilter(_display, src, FilterGood, NULL, 0);
-						break;
-					case NSImageInterpolationHigh:
-						XRenderSetPictureFilter(_display, src, FilterBest, NULL, 0);
-						break;
-					}
 				buffersize=width*height*4;			// 4 bytes per pixel
 				if(buffersize > 128*128*4)
 					buffersize=128*128*4;			// limit - note: we have 3 copies of the bitmap: NSBitmapRep, this buffer and the X server so we have to take care of memory footprint for large images
 				fragment=buffersize/(4*width);
-				data=objc_malloc(buffersize);	// will be freed by Xlib
 				image=XCreateImage(_display,
 									  None,
 									  32,			// depth
 									  ZPixmap,
-									  0,            // offset
-									  data,
+									  0,      // offset
+									  objc_malloc(buffersize),
 									  width,
 									  height,
 									  8,
-									  4*width);
-				gc=XCreateGC(_display, pixmap, 0, &gcValues);
+										4*width);
+/*
+ alphaimage=XCreateImage(_display,
+													 None,
+													 8,			// depth
+													 ZPixmap,
+													 0,      // offset
+													 objc_malloc(buffersize/4),
+													 width,
+													 height,
+													 8,
+													 width);
+ */
 				for(y=0; y<height; y+=fragment)
-					{
-						// fill next stride from imageplanes
-						// convert premultiplied etc.
-						// here, we can also convert color spaces!
-						// convert float to int
-						// convert ARGB to RGBA
-						// and so on
-					XPutImage(_display, pixmap, gc, image, 0, 0, 0, y, width, fragment);
-					}
-				XFreeGC(_display, gc);
-				XDestroyImage(image);
-				XFreePixmap(_display, pixmap);	// no explicit reference required
-				rect=(NSRect) { NSZeroPoint, { width, height } };
-			}
-		if(!src)
-			return NO;
-		// handle _fraction - is this a repeating Alpha mask??? We could then simply use a transparency color as the mask
-		XRenderComposite(_display, [self _XRenderPictOp], src, None, _picture, rect.origin.x, rect.origin.y, 0, 0, 0, 0, rect.size.width, rect.size.height);
+						{ // fill next stride from imageplanes
+							int dy;	// delta
+							for(dy=0; dy < fragment; dy++)
+									{ // all scan lines of this fragment
+										int yy;
+										int x;
+										if(!isFlipped)	// ! because X11 is flipped
+											yy=height-y-dy-1;
+										else
+											yy=y+dy;
+										for(x=0; x<width; x++)
+												{ // all pixels of each scan line
+													if(bitmapFormat & NSFloatingPointSamplesBitmapFormat)
+														;	// take 4 byte float instead of 8 bit char
+													if(bitmapFormat & NSAlphaFirstBitmapFormat)
+														;	// switch byte order to ARGB (we could simply switch image planes for planar)
+													if(isPlanar)
+															{ // planar
+																int offset=x+bytesPerRow*yy;
+																pixel.components.R=imagePlanes[0][offset];
+																pixel.components.G=imagePlanes[1][offset];
+																pixel.components.B=imagePlanes[2][offset];
+																if(hasAlpha)
+																	pixel.components.A=imagePlanes[3][offset];
+																else
+																	pixel.components.A=255;	// opaque
+															}
+													else
+															{ // meshed
+																int offset=(hasAlpha?4:3)*x + bytesPerRow*yy;
+																pixel.components.R=imagePlanes[0][offset+0];	// a good compiler should be able to optimize this constant expression imagePlanes[0][offset]
+																pixel.components.G=imagePlanes[0][offset+1];
+																pixel.components.B=imagePlanes[0][offset+2];
+																if(hasAlpha)
+																	pixel.components.A=imagePlanes[0][offset+3];
+																else
+																	pixel.components.A=255;	// opaque
+															}
+													if(bitmapFormat & NSAlphaNonpremultipliedBitmapFormat)
+															{ // not premultiplied
+																pixel.components.R=(pixel.components.R*pixel.components.A)/255;
+																pixel.components.G=(pixel.components.G*pixel.components.A)/255;
+																pixel.components.B=(pixel.components.B*pixel.components.A)/255;
+															}
+													if(!calibrated)
+														;	// convert color space
+													XPutPixel(image, x, dy, pixel.pixel);
+	//												XPutPixel(alphaimage, x, dy, src.A);
+												}
+									}
+							XPutImage(_display, pixmap, gc, image, 0, 0, 0, y, width, fragment);	// send fragment to X-Server
+	//						XPutImage(_display, alphapixmap, agc, alphaimage, 0, 0, 0, y, width, fragment);	// send fragment to X-Server
+						}
+			XFreeGC(_display, gc);
+//			XFreeGC(_display, agc);
+			XDestroyImage(image);
+//			XDestroyImage(alphaimage);
+			XFreePixmap(_display, pixmap);	// no explicit reference required
+//			XFreePixmap(_display, alphapixmap);	// no explicit reference required
+			rect=(NSRect) { NSZeroPoint, { width, height } };
+		}
+	if(!src)
+		return NO;
+	switch(_imageInterpolation)
+		{
+			case NSImageInterpolationNone:
+				XRenderSetPictureFilter(_display, src, FilterFast, NULL, 0);
+				break;
+			case NSImageInterpolationDefault:
+			case NSImageInterpolationLow:
+				XRenderSetPictureFilter(_display, src, FilterGood, NULL, 0);
+				break;
+			case NSImageInterpolationHigh:
+				XRenderSetPictureFilter(_display, src, FilterBest, NULL, 0);
+				break;
+		}
+	atms=[_state->_ctm transformStruct];
+			// we need the inverse to get rotation&scaling components
+			// we should use the transform for the full CTM to allow subpixel positions !?!
+			/*
+ XTransform transform = {{
+				{XDoubleToFixed (0.3), XDoubleToFixed (1.0), XDoubleToFixed (10.0) }, 
+				{XDoubleToFixed (-1.0), XDoubleToFixed (0.3), XDoubleToFixed (0.0) }, 
+				{0, 0, XDoubleToFixed (1.0)}}}; 
+			XRenderSetPictureTransform(display, _src, &transform);
+ */
+	XRenderComposite(_display,
+										 [self _XRenderPictOp],
+										 src,				// src
+										 None,			// mask - can we handle _fraction != 1.0 as a repeating Alpha mask??? We could then simply use a transparency color as the mask
+										 _picture,	// dest
+										 rect.origin.x, rect.origin.y,		// src origin
+										 0, 0,		// mask origin
+										 (int) atms.tX, (int) atms.tY, rect.size.width, rect.size.height		// dest origin + width, height
+			);
 		if(!cached)
 			XRenderFreePicture(_display, src);
-		return YES;
 		}
 	else
 #endif
-	{
+			{ // composite into unit square using current CTM, current compositingOp & fraction etc.
 	/* here we know:
 	- source bitmap: rep
 	- source rect: defined indirectly by clipping path
@@ -2168,8 +2271,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	[[NSColor redColor] set];	// will change _gc
 	XDrawRectangle(_display, ((Window) _graphicsPort), _state->_gc, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 #endif
-	return YES;
 	}
+	return YES;
 }
 
 - (void) _copyBits:(void *) srcGstate fromRect:(NSRect) srcRect toPoint:(NSPoint) destPoint;
@@ -3079,13 +3182,13 @@ static NSDictionary *_x11settings;
 	};
 	Atom atoms[sizeof(atomNames)/sizeof(atomNames[0])];
 	NSFileHandle *fh;
-	NSUserDefaults *def=[[[NSUserDefaults alloc] initWithUser:@"root"] autorelease];
+	NSUserDefaults *def=[[[NSUserDefaults alloc] initWithUser:@"root"] autorelease];	// load /Library/Preferences
 	int error, event;
 #if 1
 	NSLog(@"NSScreen backend +initialize");
 	//	system("export;/usr/X11R6/bin/xeyes&");
 #endif
-	_x11settings=[[def persistentDomainForName:@"com.quantumstep.X11"] retain];
+	_x11settings=[[def persistentDomainForName:@"com.quantumstep.X11"] retain];	// /Library/Preferences/com.quantumstep.X11
 	if(!_x11settings)
 		NSLog(@"warning: no defaults for root/com.quantumstep.X11 found");
 	if([def boolForKey:@"NoNSBackingStoreBuffered"])
@@ -3099,11 +3202,9 @@ static NSDictionary *_x11settings;
 	if((_display=XOpenDisplay(NULL)) == NULL) 		// connect to X server based on DISPLAY variable
 		[NSException raise:NSGenericException format:@"Unable to connect to X server"];
 	XSetErrorHandler((XErrorHandler)X11ErrorHandler);
-#ifdef __SYNCHRONIZE__
 #if 0
 	XSynchronize(_display, True);
 	NSLog(@"X11 runs synchronized");
-#endif
 #endif
 	fh=[[NSFileHandle alloc] initWithFileDescriptor:XConnectionNumber(_display)];
 	[[NSNotificationCenter defaultCenter] addObserver:self
@@ -3129,7 +3230,8 @@ static NSDictionary *_x11settings;
     _deleteWindowAtom = atoms[2];
     _windowDecorAtom = atoms[3];
 #if USE_XRENDER
-	_hasRender=XRenderQueryExtension(_display, &event, &error);
+//	if([def boolForKey:@"NSXRender"])
+		_hasRender=XRenderQueryExtension(_display, &event, &error);
 #if 1
 	if(_hasRender)
 		_doubleBufferering=NO;	// needs different algorithms
@@ -3409,8 +3511,15 @@ static NSDictionary *_x11settings;
 					{
 					_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[window graphicsContext];
 					windowNumber=[window windowNumber];
-					windowHeight=ctxt->_xRect.height;
-					windowScale=ctxt->_scale;
+						if(ctxt)
+								{ // may be nil if we receive e.g. a cursor update event
+									windowHeight=ctxt->_xRect.height;
+									windowScale=ctxt->_scale;
+								}
+						else
+								{
+									// FIXME: uninitialized ?
+								}
 					}
 				lastXWin=thisXWin;
 				}
@@ -4136,7 +4245,14 @@ static NSDictionary *_x11settings;
 	NSLog(@"can't define fonts");
 }
 
-// FIXME: can be removed if we use _glyphCache
+- (_CachedGlyph) _defineGlyph:(NSGlyph) glyph;
+{ // overwritten by NSFreeTypeFont.m; call [self _addGlyph:...]
+	NSLog(@"can't define fonts");
+	return NULL;
+}
+
+#if OLD
+// FIXME: can be removed if we use our own _glyphCache
 
 - (GlyphSet) _glyphSet;
 { // get XRender glyph set
@@ -4154,12 +4270,6 @@ static NSDictionary *_x11settings;
 
 - (void) _addGlyph:(NSGlyph) glyph bitmap:(char *) buffer x:(int) left y:(int) top width:(unsigned) width height:(unsigned) rows;
 {
-	// FIXME: use private glyph cache
-	/* 1. create a Pixmap and send the bits
-	   2. create an alpha only Picture for the Pixmap
-	   3. add an entry to the _glyphCache
-	   4. throw out glyphs if too many...
-	 */
 #if USE_XRENDER
 	XGlyphInfo info = { width, rows,
 						left, 0,
@@ -4207,10 +4317,94 @@ static NSDictionary *_x11settings;
 		}
 #endif
 }
+#endif
+
+- (void) _addGlyphToCache:(_CachedGlyph) g bitmap:(char *) buffer x:(int) left y:(int) top width:(unsigned) width height:(unsigned) rows;
+{
+	Window root=DefaultRootWindow(_display);	// first root window
+	Pixmap pixmap;
+	GC gc;
+	XGCValues gcValues={ 0 };
+	XRenderPictureAttributes pa;
+	XImage *image;
+	int x, y;
+#if 0	// print as letter pattern so that we can see what libFreetype is doing
+	NSLog(@"_addGlyphToCache:%d x=%d y=%d w=%u h=%u", g, left, top, width, rows);
+		{
+			NSString *pattern=@"";
+			int x, y;
+			for(y=0; y<rows; y++)
+					{
+						for(x=0; x<width; x++)
+								{
+									char bits=buffer[y*width+x];
+									static char px[]=" .,;/+*#";
+									pattern=[pattern stringByAppendingFormat:@"%c", px[(bits>>5)&7]];
+								}
+						pattern=[pattern stringByAppendingString:@"\n"];
+					}
+			NSLog(@"\n%@", pattern);
+		}
+#endif
+	g->x=left;
+	g->y=top;
+	g->width=width;
+	g->height=rows;
+	pa.repeat=1;
+	pixmap=XCreatePixmap(_display, root, g->width, g->height, 8);	// 8 bit only
+	g->picture=XRenderCreatePicture(_display, pixmap,
+																	XRenderFindStandardFormat(_display, PictStandardA8),
+																	CPRepeat, &pa);
+	image=XCreateImage(_display,
+										 None,
+										 8,			// depth
+										 ZPixmap,
+										 0,      // offset
+										 objc_malloc(g->width*g->height),
+										 g->width,
+										 g->height,
+										 8,
+										 g->width);
+	for(y=0; y<g->height; y++)
+			{
+				for(x=0; x<g->width; x++)
+						{
+						XPutPixel(image, x, y, *buffer++);
+						}
+			}
+	gc=XCreateGC(_display, pixmap, 0, &gcValues);
+	XPutImage(_display, pixmap, gc, image, 0, 0, 0, 0, g->width, g->height);
+	XFreeGC(_display, gc);
+	XDestroyImage(image);
+	XFreePixmap(_display, pixmap);	// no explicit reference required
+}
+
+// FIXME: add LRU management
+// maybe over all NSFonts (!)
+// so that we can limit the total number of Pictures and Glyphs defined in the X Server
+// FIXME: there should be a GLOBAL cache for all X11Font objects!
+// keyed by [font fontName]+[font size], i.e. Postscript & size and maybe rotation
+// so that allocating/releasing fonts does not mean glyph operations and reserve data in the server
 
 - (_CachedGlyph) _pictureForGlyph:(NSGlyph) glyph;
 { // get Picture to render
-	return NSMapGet(_glyphCache, (void *) glyph);
+	_CachedGlyph g;
+	if(!_glyphCache || !(g=NSMapGet(_glyphCache, (void *) glyph)))
+			{ // not found
+				if(!_glyphCache)	// create map table
+					_glyphCache=NSCreateMapTable(NSIntMapKeyCallBacks,
+																 NSOwnedPointerMapValueCallBacks, 100);	// table should objc_free() on remove
+				else if(NSCountMapTable(_glyphCache) > 200)
+					; // handle LRU cleanup
+				g=[self _defineGlyph:(NSGlyph) glyph];	// overwritten in NSFreeTypeFont.m
+				if(g)
+					NSMapInsert(_glyphCache, (void *) glyph, (void *) g);
+			}
+#if 0
+	NSLog(@"font %p glyph %d -> %p", self, glyph, g);
+#endif
+	// handle LRU links
+	return g;
 }
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
@@ -4270,8 +4464,20 @@ static NSDictionary *_x11settings;
 - (void) dealloc;
 {
 #if USE_XRENDER
-	if(_glyphSet)
-		XRenderFreeGlyphSet(_display, _glyphSet);
+	if(_glyphCache)
+			{ // uncache and free all Pictures
+				NSMapEnumerator e=NSEnumerateMapTable(_glyphCache);
+				NSGlyph key;
+				_CachedGlyph value;
+				NSLog(@"should release glyph cache %@", self);
+				while(NSNextMapEnumeratorPair(&e, &key, &value))
+						{
+							// free value->picture
+							// objc_free(value);
+						}
+			}
+//	if(_glyphSet)
+	//	XRenderFreeGlyphSet(_display, _glyphSet);
 #endif
 	if(_fontStruct)
 		XFreeFont(_display, _fontStruct);	// no longer needed
@@ -4301,9 +4507,10 @@ static NSDictionary *_x11settings;
 		if(_image)
 			{
 #if USE_XRENDER
+			[_image setCacheMode:NSImageCacheAlways];	// force caching
+				[_image setCachedSeparately:YES];
 			if(_hasRender)
 				{
-					// FIXME: image should be in cache-separately mode!
 					NSCachedImageRep *rep=[_image _cachedImageRep];	// render to cache if needed
 					_NSX11GraphicsContext *c=(_NSX11GraphicsContext *) [[rep window] graphicsContext];
 					if(c)
@@ -4336,7 +4543,7 @@ static NSDictionary *_x11settings;
 - (void) set;
 {
 #if 0
-	NSLog(@"_setCursor:%@", cursor);
+	NSLog(@"_setCursor:%@", self);
 #endif
 	// should we loop for all screens?
 	// for(i=0; i<ScreenCount(_display); i++)
@@ -4580,7 +4787,8 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 		return;
 		}
 	if(!_strokedPath)
-		{
+			{
+				NSLog(@"create stroke path");
 			// generate dashed rectangles handling joins etc. for the contour
 			// Note: this is quite tricky since we have to handle any slope
 			// And, making a line of thickness 3.0 means adding 1.5 to each direction

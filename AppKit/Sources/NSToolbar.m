@@ -16,7 +16,7 @@
 
 @implementation NSToolbar
 
-static NSHashTable *_toolbars;
+static NSMapTable *_toolbars;
 
 - (id) initWithIdentifier:(NSString *) str; 
 {
@@ -84,15 +84,20 @@ static NSHashTable *_toolbars;
 	NSMutableArray *items=[NSMutableArray arrayWithCapacity:[_visibleItems count]];
 	NSEnumerator *e=[_visibleItems objectEnumerator];
 	NSToolbarItem *item;
+	NSMutableDictionary *priorities=[NSMutableDictionary dictionaryWithCapacity:[_visibleItems count]];
 	while((item=[e nextObject]))
-		[items addObject:[item itemIdentifier]];
+			{
+				[items addObject:[item itemIdentifier]];
+				if([item visibilityPriority] != NSToolbarItemVisibilityPriorityStandard)
+					[priorities setObject:[NSArray arrayWithObject:[NSNumber numberWithInt:[item visibilityPriority]]] forKey:[item itemIdentifier]];
+			}
 	return [NSDictionary dictionaryWithObjectsAndKeys:
 											[NSNumber numberWithInt:_displayMode], @"TB Display Mode",
 											[NSNumber numberWithInt:_sizeMode], @"TB Icon Size Mode",
 											[NSNumber numberWithInt:_isVisible], @"TB Is Shown",
 											items, @"TB Item Identifiers",
 											[NSNumber numberWithInt:_sizeMode], @"TB Size Mode",	// oops what is the difference?
-											[NSDictionary dictionary], @"TB Visibility Priority Values",	// should be NSDictionary!
+											priorities, @"TB Visibility Priority Values",	// must be NSDictionary!
 											nil];
 }
 
@@ -174,6 +179,13 @@ static NSHashTable *_toolbars;
 				if(item)
 						[_visibleItems addObject:item];
 			}
+	val=[dict objectForKey: @"TB Visibility Priority Values"];
+	e=[val keyEnumerator];	// should be NSDictionary...
+	while((ident=[e nextObject]))
+			{ // load priorities from user defaults
+				int prio=[[[val objectForKey:ident] lastObject] intValue];
+				[[self _itemForIdentifier:ident] setVisibilityPriority:prio];
+			}
 	if(!dict)
 		[self _changed];	// save default settings
 }
@@ -241,6 +253,7 @@ static NSHashTable *_toolbars;
 								_maxSize=NSSizeFromString([dict objectForKey:@"MaxSize"]);
 							if([[dict objectForKey:@"Action"] length] > 0)
 								_action=NSSelectorFromString([dict objectForKey:@"Action"]);	// _target is nil, i.e. firstResponder
+							// should also allow to set the view for the Separator Item which simply draws a vertical bar
 						}
 			}
 	return self;

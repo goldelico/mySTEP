@@ -137,7 +137,8 @@ static BOOL __cursorHidden = NO;
 	float _toolbarHeight;
 	int _itemRectCount;
 	int _itemRectCapacity;
-	BOOL _hasOverflowMenu;
+	int _overflowItem;	// first item in overflow menu
+	int _highlightedCell;	// used internally when clicked
 }
 
 - (void) setToolbar:(NSToolbar *) _toolbar;
@@ -145,6 +146,7 @@ static BOOL __cursorHidden = NO;
 - (BOOL) popUpMode;	// run in popup mode
 - (float) height;
 - (NSRect) rectForToolbarItem:(int) idx;
+- (int) itemIndexForPoint:(NSPoint) pnt;
 - (IBAction) popUpOverflowMenu:(id) sender;
 
 @end
@@ -620,6 +622,18 @@ static BOOL __cursorHidden = NO;
 
 @implementation NSToolbarView
 
+static NSButtonCell *sharedCell;
+
+- (id) initWithFrame:(NSRect) frame
+{
+	if((self=[super initWithFrame:frame]))
+			{
+				_highlightedCell=-1;	// none
+				_itemRectCount= -1;		// unknown
+			}
+	return self;
+}
+
 - (void) dealloc;
 {
 	if(_itemRects)
@@ -644,10 +658,9 @@ static BOOL __cursorHidden = NO;
 }
 
 - (BOOL) popUpMode
-{
-	return YES;
+{ // should we use popUpMode?
 	if([_toolbar displayMode] != NSToolbarDisplayModeIconOnly)
-			{
+			{ // unless we have IconOnly mode, make it depend on screen size
 				if([(NSThemeFrame *) [self superview] showsToolbarButton])
 						{
 							NSSize size=[[[NSScreen screens] objectAtIndex:0] frame].size;
@@ -663,29 +676,81 @@ static BOOL __cursorHidden = NO;
 			{ // recache
 				NSEnumerator *e=[[_toolbar visibleItems] objectEnumerator];
 				NSToolbarItem *item;
+				NSRect rect=NSZeroRect;
+				if(!sharedCell)
+						{
+							sharedCell=[[NSButtonCell alloc] init];
+							[sharedCell setButtonType:NSMomentaryLightButton];	// ???
+							// set other attributes if needed
+						}
+				switch([_toolbar displayMode])
+					{
+						case NSToolbarDisplayModeDefault:
+						case NSToolbarDisplayModeIconAndLabel:
+							[sharedCell setImagePosition:NSImageAbove];
+							break;
+						case NSToolbarDisplayModeLabelOnly:
+							[sharedCell setImagePosition:NSNoImage];
+							break;
+						case NSToolbarDisplayModeIconOnly:
+							[sharedCell setImagePosition:NSImageOnly];
+							break;
+					}
+				[sharedCell setControlSize:([_toolbar sizeMode] == NSToolbarSizeModeSmall)?NSSmallControlSize:NSRegularControlSize];
 				_itemRectCount=0;
 				_toolbarHeight=0.0;
-				if([self popUpMode])
-					_hasOverflowMenu=YES;	// enforce
-				else
+				_overflowItem=-1;	// no overflow
+				if(![self popUpMode])
 						{
-							_hasOverflowMenu=NO;
+							_toolbarHeight=12.0;	// minimum
 							while((item=[e nextObject]))
 									{ // allocate next item
-										// how to handle flexible space?
-										// if overflow required, break loop
-										// if(_itemRects == NULL || _itemRectCount >= _itemRectCapacity)
-										//    objc_realloc and increase capacity
-										// if [item view]
-										//   [[item view] setFrame:rect]
-										// adjust _toolbarHeight
-										// handle label&icon, label only, icon only cases
+										NSControl *iv=(NSControl *) [item view];
+										rect.size=NSZeroSize;
+										if(iv)	// item has its own view
+												{
+													[[iv cell] setControlSize:[sharedCell controlSize]];	// set like for other cells
+													rect.size=[iv frame].size;	// take as given
+													// handle min/max width for flexible cells
+													// use minSize.height to define _toolbarHeight
+													[iv setFrame:rect];	// adjust / reposition
+													[iv setTarget:[item target]];
+													[iv setAction:[item action]];
+												}
+										else
+												{ // use our button cell for geometry
+													[sharedCell setTitle:[item label]];
+													[sharedCell setImage:[item image]];
+													rect.size=[sharedCell cellSize];	// as much as needed
+												}
+										if(_toolbarHeight < rect.size.height)
+											_toolbarHeight = rect.size.height; // adjust _toolbarHeight
+										if(NSMaxX(rect) > [self frame].size.width)
+												{	// does not fit
+													_overflowItem=_itemRectCount;
+													break;
+												}
+										if(_itemRects == NULL || _itemRectCount >= _itemRectCapacity)
+											_itemRects=objc_realloc(_itemRects, sizeof(_itemRects[0])*(_itemRectCapacity=2*_itemRectCapacity+3));	// allocate more space
+										_itemRects[_itemRectCount++]=rect;	// store
+										rect.origin.y += rect.size.width + 5.0;	// advance and add some spacing (?)
 									}
 						}
 			}
 	if(idx >= _itemRectCount)
 		return NSZeroRect;
 	return _itemRects[idx];
+}
+
+- (int) itemIndexForPoint:(NSPoint) pnt;
+{
+	int i;
+	for(i=0; i<_itemRectCount; i++)
+			{
+				if(NSMouseInRect(pnt, _itemRects[i], [self isFlipped]))
+					return i;	// found
+			}
+	return -1;	// not found
 }
 
 - (float) height;
@@ -704,29 +769,20 @@ static BOOL __cursorHidden = NO;
 	NSRectFill(rect);
 	if([_toolbar showsBaselineSeparator])
 		; // draw separator
-	switch([_toolbar displayMode])
-		{
-			case NSToolbarDisplayModeDefault:
-			case NSToolbarDisplayModeIconAndLabel:
-				break;
-			case NSToolbarDisplayModeLabelOnly:
-				break;
-			case NSToolbarDisplayModeIconOnly:
-				break;
-		}
 	if(_itemRectCount < 0)
 		[self rectForToolbarItem:0];	// load cache
 	for(i=0; i<_itemRectCount; i++)
 			{
 				NSToolbarItem *item=[[_toolbar visibleItems] objectAtIndex:i];
 				if(NSIsEmptyRect(_itemRects[i]))
-					continue;
+					continue;	// entry to ignore
 				if(![item view] && NSIntersectsRect(_itemRects[i], rect))
-						{
-							// fill data into NSButtonCell
-							// draw cell
+						{ // is visible - draw
+							[sharedCell setTitle:[item label]];
+							[sharedCell setImage:[item image]];
+							[sharedCell setHighlighted:(i == _highlightedCell)];
+							[sharedCell drawWithFrame:_itemRects[i] inView:self];
 						}
-				// draw label
 			}
 }
 
@@ -737,6 +793,7 @@ static BOOL __cursorHidden = NO;
 	NSEnumerator *e=[[_toolbar visibleItems] objectEnumerator];
 	NSToolbarItem *item;
 	NSMenuItem *mi;
+	// FIXME - why???
 	[_toolbar setVisible:NO];	// make toolbar invisible (unconditionally)
 	[_toolbar validateVisibleItems];	// check if items need to be enabled
 	[menu setAutoenablesItems:NO];
@@ -753,8 +810,11 @@ static BOOL __cursorHidden = NO;
 				if((iv=[item view]))
 						{ // may be a popup button
 							if([iv respondsToSelector:@selector(menu)])
-									{ // it it responds to -menu and that one is defined, make a submenu
+									{ // if it responds to -menu (e.g. an NSPopUpButton) and that one is defined, make a submenu
 										submenu=[iv menu];
+									}
+							else
+									{
 									}
 						}
 				mi=[[NSMenuItem alloc] initWithTitle:[item label] action:[item action] keyEquivalent:@""];
@@ -785,13 +845,11 @@ static BOOL __cursorHidden = NO;
 			mi=[menu addItemWithTitle:@"Regular" action:@selector(regular:) keyEquivalent:@""];
 	else
 			mi=[menu addItemWithTitle:@"Small" action:@selector(small:) keyEquivalent:@""];
+	// handle keep visible status definiion
 	[mi setTarget:self];	// not through first responder
 	[NSMenu popUpContextMenu:menu withEvent:[NSApp currentEvent] forView:[(NSThemeFrame *) [self superview] standardWindowButton:NSWindowToolbarButton]];	// pop up over the toolbar button
 	[menu release];
 }
-
-// ADDME: handle mouse-down and tracking etc.
-// control click should pop-up a menu to modify some attributes
 
 - (IBAction) iconOnly:(id) sender; { [_toolbar setDisplayMode:NSToolbarDisplayModeIconOnly]; }
 - (IBAction) labelOnly:(id) sender; { [_toolbar setDisplayMode:NSToolbarDisplayModeLabelOnly]; }
@@ -799,6 +857,39 @@ static BOOL __cursorHidden = NO;
 
 - (IBAction) regular:(id) sender; { [_toolbar setSizeMode:NSToolbarSizeModeRegular]; }
 - (IBAction) small:(id) sender; { [_toolbar setSizeMode:NSToolbarSizeModeSmall]; }
+
+- (void) mouseDown:(NSEvent *) event
+{ // did click into toolbar
+	// check control-click and popup toolbar item config menu (may include/exclude Keep Visible item)
+	// if item has a (visible) view, pass down to the view, e.g. a NSControl
+	// otherwise highlight track and action
+	BOOL done;
+	NSRect rect;
+	NSPoint location = [self convertPoint:[event locationInWindow] fromView:nil];	// location on view
+	_highlightedCell=[self itemIndexForPoint:location];
+	if(_highlightedCell >= 0)
+		rect=[self rectForToolbarItem:_highlightedCell];
+	while([event type] != NSLeftMouseUp)
+			{ // loop outside until mouse finally goes up
+				if(NSMouseInRect(location, rect, [self isFlipped]))
+						{ // track while in initial cell
+							[self setNeedsDisplayInRect:rect];
+							done = [sharedCell trackMouse:event
+																		 inRect:rect
+																		 ofView:self
+															 untilMouseUp:NO];			// YES if mouse went up in cell
+							// [aCell setHighlighted:NO];
+							[self setNeedsDisplayInRect:rect];
+							break;
+						}
+				event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+																	 untilDate:[NSDate distantFuture]
+																			inMode:NSEventTrackingRunLoopMode
+																		 dequeue:YES];
+				location = [self convertPoint:[event locationInWindow] fromView:nil];	// new location
+			}
+	// send target/action (if mouse up occurred in cell)
+}
 
 @end
 
@@ -972,7 +1063,6 @@ static BOOL __cursorHidden = NO;
 		[_themeFrame _setWindow:self];
 		[_themeFrame setNextResponder:self];
 		[self setNextResponder:NSApp];	// NSApp is next responder
-		[[NSCursor arrowCursor] push];	// push the arrow as the default cursor	- FIXME: why are we doing that for every new window???
 		if(!defer)
 			[self orderWindow:NSWindowAbove relativeTo:0];	// insert sort relative to self; add to Window menu when being mapped
 #if 0
@@ -1843,7 +1933,7 @@ static BOOL __cursorHidden = NO;
 			{
 #if 1
 				NSLog(@"not responder class");
-#enif
+#endif
 		return NO;									// not a responder return N
 			}
 	if (![aResponder acceptsFirstResponder])		

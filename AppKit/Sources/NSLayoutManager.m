@@ -301,6 +301,7 @@
 				_glyphs[i]=[font _glyphForCharacter:[substr characterAtIndex:i]];		// translate and copy to glyph buffer
 			
 			[ctxt _drawGlyphs:[self _glyphsAtIndex:0] count:_numberOfGlyphs];	// -> (string) Tj
+			pos.x-=width;	// already advanced to next fragment
 			
 			/* FIXME:
 				should be part of - (void) underlineGlyphRange:(NSRange)glyphRange 

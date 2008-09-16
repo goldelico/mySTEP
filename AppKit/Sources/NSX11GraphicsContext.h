@@ -112,14 +112,22 @@ typedef struct _NSX11GraphicsState
 - (unsigned long) _pixelForScreen:(Screen *) scr;
 @end
 
+typedef struct _CachedGlyph
+	{ // this is one entry in our own GlyphSet using cached Pictures (so that we can rotate glyphs by the standard transforms)
+		Picture picture;
+		int x, y;
+		unsigned width, height;
+	} *_CachedGlyph;
+
 @interface _NSX11Font : NSFont
 {
 	XFontStruct *_unscaledFontStruct;	// cached font struct for scale=1.0
 	XFontStruct *_fontStruct;			// a second font struct cache if we have a different font scale
 	void *_backendPrivate;
-	GlyphSet _glyphSet;					// associated glyph set
-	float _fontScale;					// scaling factor used
+//	GlyphSet _glyphSet;					// associated glyph set
+	// GlyphCache should be a global cache based on [font name], [font size] or matrix
 	NSMapTable *_glyphCache;			// maps NSGlyph to struct _CachedGlyph
+	float _fontScale;					// scaling factor used
 }
 
 - (void) _setScale:(float) scale;		// set font scaling factor
@@ -127,15 +135,8 @@ typedef struct _NSX11GraphicsState
 
 - (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt inContext:(NSGraphicsContext *) ctxt matrix:(NSAffineTransform *) ctm;
 
-typedef struct _CachedGlyph
-	{
-		Picture picture;
-		int left, top;
-		unsigned width, height;
-	} *_CachedGlyph;
-
-- (_CachedGlyph) _pictureForGlyph:(NSGlyph) glyph;	// get Picture to render
-- (GlyphSet) _glyphSet;
+- (_CachedGlyph) _pictureForGlyph:(NSGlyph) glyph;	// get cached Picture to render
+// - (GlyphSet) _glyphSet;
 - (void) _addGlyph:(NSGlyph) glyph bitmap:(char *) buffer x:(int) left y:(int) top width:(unsigned) width height:(unsigned) rows;
 
 @end

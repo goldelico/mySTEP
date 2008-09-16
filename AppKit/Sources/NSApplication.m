@@ -566,6 +566,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	else
 		[[NSDocumentController sharedDocumentController] _updateOpenRecentMenu];	// create/add/update Open Recent submenu
 	[self _processCommandLineArguments:[[NSProcessInfo processInfo] arguments]];	// process command line and -application:openFile:
+	// FIXME - how does that interwork with cursor-rects?
+	[[NSCursor arrowCursor] push];	// push the arrow as the default cursor
 	[self activateIgnoringOtherApps:NO];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
 // we should also send a distributed notification
@@ -939,7 +941,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NSLog(@"_eventMatchingMask");
 #endif
 	if(_app.windowsNeedUpdate)		// needs to send an update message to all visible windows
-		[self updateWindows];
+		[self updateWindows];	// FIXME: should not be called during NSEventTrackingRunLoopMode!
 	if(!mask)
 		return nil;	// no event will match
 	cnt=[_eventQueue count];
@@ -1275,23 +1277,32 @@ NSEvent *event = nil;									// if queue contains
 	return [self windows];
 }
 
-- (BOOL) isRunning								{ return _app.isRunning; }
+- (BOOL) isRunning							{ return _app.isRunning; }
 - (BOOL) isHidden								{ return _app.isHidden; }
 
 - (void) _setWindowsHidden:(BOOL) flag;
-{
-	NSArray *_windowList = [self windows];
-	int i, count = [_windowList count];
-	for(i = 0; i < count; i++)
-			{
-				NSWindow *w = [_windowList objectAtIndex:i];
-				if([w hidesOnDeactivate])
+{ // used for hide on deactivate
+	if(flag)
+			{ // hide windows
+				NSArray *_windowList = [self windows];
+				int i, count = [_windowList count];
+				for(i = 0; i < count; i++)
 						{
-							if(!flag && ![w isVisible])
-								[w orderFront:nil];	// unhide
-							else if(flag && [w isVisible])
-								[w orderOut:nil];	// hide
+							NSWindow *w = [_windowList objectAtIndex:i];
+							if([w isVisible] && [w hidesOnDeactivate])
+									{ // NOTE: this appears to be different from OSX where the isVisible flag remains active while window is hidden
+									[w orderOut:nil];	// hide
+									if(!_hiddenWindows)
+										_hiddenWindows=[[NSMutableArray alloc] initWithCapacity:10];
+									[_hiddenWindows addObject:w];	// add to list of hidden windows
+									}
 						}
+			}
+	else
+			{ // unhide all currently hidden windows
+				[_hiddenWindows makeObjectsPerformSelector:@selector(orderFront:) withObject:self];
+				[_hiddenWindows release];
+				_hiddenWindows=nil;
 			}
 }
 
@@ -1357,11 +1368,11 @@ NSEvent *event = nil;									// if queue contains
 		_app.isHidden = YES;						// notify that we will hide
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillHide) object:self];
 													
-		[self deactivate];
+		[self deactivate];	// this will already hide some windows
 
 		while((w = [e nextObject]))					// Tell the windows to hide
 			{
-			if([w canHide])
+			if([w isVisible] && [w canHide])
 				[w orderOut:sender];
 			}
 													// notify that we did hide

@@ -376,6 +376,8 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if(_cache)
 		return _cache;	// found
 	bestRep=[self bestRepresentationForDevice:nil];
+	if(!bestRep)
+		return nil;	// can't cache
 	switch(_img.cacheMode)
 		{
 		case NSImageCacheDefault:
@@ -705,7 +707,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	NSEnumerator *e;
 	NSImageRep *r;
 	NSImageRep *_bestRep;		// best representation of all
-	if(!_img.isValid || ![self isValid])
+	if(!_img.isValid && ![self isValid])
 		return nil;		// Make sure we have the image reps loaded in - if possible
 #if 0
 	NSLog(@"representations: %@", _reps);

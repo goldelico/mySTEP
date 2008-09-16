@@ -157,14 +157,12 @@
 			<string></string>
 			<key>PaletteLabel</key>
 			<string>Separator</string>
-			<key>Icon</key>
-			<string>NSToolbarSeparator</string>
 			<key>MinSize</key>
-			<string>{10,10}</string>
+			<string>{5,0}</string>
 			<key>MaxSize</key>
-			<string>{10,10}</string>
-			<key>Action</key>
-			<string></string>
+			<string>{5,100000}</string>
+			<key>View</key>
+			<string>_NSToolbarSeparatorView</string>
 			<key>ToolTip</key>
 			<string></string>
 			<key>AllowsDuplicates</key>
@@ -176,14 +174,10 @@
 			<string></string>
 			<key>PaletteLabel</key>
 			<string>Space</string>
-			<key>Icon</key>
-			<string></string>
 			<key>MinSize</key>
-			<string></string>
+			<string>{15,0}</string>
 			<key>MaxSize</key>
-			<string></string>
-			<key>Action</key>
-			<string></string>
+			<string>{15,100000}</string>
 			<key>ToolTip</key>
 			<string></string>
 			<key>AllowsDuplicates</key>
@@ -195,14 +189,10 @@
 			<string></string>
 			<key>PaletteLabel</key>
 			<string>Flexible Space</string>
-			<key>Icon</key>
-			<string></string>
 			<key>MinSize</key>
 			<string>{0,0}</string>
 			<key>MaxSize</key>
 			<string>{9999999,0}</string>
-			<key>Action</key>
-			<string></string>
 			<key>ToolTip</key>
 			<string></string>
 			<key>AllowsDuplicates</key>

@@ -349,7 +349,7 @@
 #endif
 			[[NSNotificationCenter defaultCenter] postNotificationName:NOTE(ColumnDidResize) object:_tableView userInfo:
 				[NSDictionary dictionaryWithObjectsAndKeys:
-				[NSNumber numberWithInt:tableColumn], @"NSTableColumn",
+				[NSNumber numberWithInt:_resizedColumn], @"NSTableColumn",
 				[NSNumber numberWithFloat:oldWidth], @"NSOldWidth",
 				nil]];
 			_resizedColumn=-1;
@@ -1177,7 +1177,7 @@ int index = [self columnWithIdentifier:identifier];
 	if(_tv.delegateProvidesHeightOfRow)
 		{
 		float rowHeight=[_delegate tableView:self heightOfRow:row];
-		// and: we must sum up all rows up to the one asked for...
+		// FIXME: we must sum up all rows up to the one asked for...
 		// or use some tree data structure to rapidly find the row
 		}
 	y = (_rowHeight + _intercellSpacing.height) * row;

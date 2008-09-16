@@ -92,22 +92,19 @@ extern id NSApp;					// NSApp global var
 	NSMutableArray *_eventQueue;
 	NSEvent *_currentEvent;
 	NSModalSession _session;
-	id _keyWindow;
-	id _mainWindow;
-	id _listener;
+	NSWindow *_keyWindow;
+	NSWindow *_mainWindow;
 	NSPanel *_mainMenuWindow;			// the main menu window
 	NSMenuView *_mainMenuView;			// the main menu view; the main menu is the menu iVar of NSResponder
-//	NSMenuItem *_windowsMenuItem;		// the "Windows" item in the main menu
 	NSMenu *_windowsMenu;				// the windows menu
-	int _windowItems;					// counter for explicitly added/removed menu items
 	NSImage *_appIcon;
 	NSWindow *_appIconWindow;
 	NSWindow *_pendingWindow;
+	NSMutableArray *_hiddenWindows;	// list of hidden windows during deactivate
 	
+	id _listener;
 	id _delegate;
 
-// IBOutlet NSMenu *dockMenu;
-	
 	IBOutlet NSPanel *_aboutPanel;
 	IBOutlet NSTextField *_credits;
 	IBOutlet NSTextField *_applicationName;
@@ -116,14 +113,15 @@ extern id NSApp;					// NSApp global var
 	IBOutlet NSTextField *_copyright;
 	IBOutlet NSTextField *_applicationVersion;
 			
-    struct __appFlags {
+	int _windowItems;					// counter for explicitly added/removed menu items
+
+	struct __appFlags {
 		unsigned int isRunning:1;
-//        unsigned int isActive:1;
-        unsigned int isHidden:1;
+		unsigned int isHidden:1;
 		unsigned int windowsNeedUpdate:1;
 		unsigned int disableServices:1;
 		unsigned int isDeallocating:1;
-		unsigned int reserved:2;
+		unsigned int reserved:3;
     } _app;
 }
 
