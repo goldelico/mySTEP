@@ -51,6 +51,8 @@ enum {
 	BOOL _allowsDuplicatesInToolbar;	
 	BOOL _isEnabled;
 	BOOL _selectable;
+	BOOL _builtin;
+	BOOL _canKeepVisible;
 }
 
 - (SEL) action; 

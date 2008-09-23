@@ -54,7 +54,7 @@
 #import "NSWindow.h"
 #import "NSPasteboard.h"
 
-#define USE_XRENDER 1
+#define USE_XRENDER 0
 
 #if 1	// all windows are borderless, i.e. the frontend draws the title bar and manages windows directly
 #define WINDOW_MANAGER_TITLE_HEIGHT 0
@@ -1302,8 +1302,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	trap.right.p2.x=XDoubleToFixed(points[3].x);
 	trap.right.p2.y=XDoubleToFixed(points[3].y);
 	if(trap.right.p1.x < trap.left.p1.x)
-		NSLog(@"renderTrapezoid problem: should swap!");
-	// this requires that the edges are already extrapolated
+			{ // how can this happen? We sort points in ascending y and x?
+				XPointFixed h;
+				NSLog(@"renderTrapezoid problem: should swap!");
+				h=trap.left.p1; trap.left.p1=trap.right.p1; trap.right.p1=h;
+				h=trap.left.p2; trap.left.p2=trap.right.p2; trap.right.p2=h;
+			}
+	// this requires that the edges are already intra/extrapolated to the base/top lines
 	trap.bottom=MAX(trap.left.p1.y, trap.left.p2.y);
 	trap.top=MIN(trap.left.p1.y, trap.left.p2.y);
 	XRenderCompositeTrapezoids(_display,
@@ -1604,6 +1609,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, x, y, width, height);	
 	_setDirtyRect(self, x, y, width, height);
 	XDestroyImage(img);
+	[self _setTextPosition:NSMakePoint(width, 0.0)];		// advance text matrix in horizontal mode according to info from glyph
 }
 
 // DEPRECATED
@@ -1757,7 +1763,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				[trm appendTransform:_textMatrix];
 				[trm appendTransform:_state->_ctm];
 				[_state->_font _drawAntialisedGlyphs:glyphs count:cnt inContext:self matrix:trm];
-				// FIXME: update _textMatrix!
 			}
 }
 
@@ -4467,11 +4472,13 @@ static NSDictionary *_x11settings;
 	if(_glyphCache)
 			{ // uncache and free all Pictures
 				NSMapEnumerator e=NSEnumerateMapTable(_glyphCache);
-				NSGlyph key;
-				_CachedGlyph value;
+				void *key;
+				void *value;
 				NSLog(@"should release glyph cache %@", self);
 				while(NSNextMapEnumeratorPair(&e, &key, &value))
 						{
+							(NSGlyph) key;
+							(_CachedGlyph *) value;
 							// free value->picture
 							// objc_free(value);
 						}
@@ -4599,8 +4606,8 @@ extern void qsort3(void *const pbase, size_t total_elems, size_t size, int (*cmp
 static int tesselate_compare3(id idx1, id idx2, void *elements)
 {
 	int cmp;
-	int i1=*(int *) idx1;
-	int i2=*(int *) idx2;
+	int i1=(int) idx1;	// we get passed elements from the pbase array
+	int i2=(int) idx2;
 	PathElement *e1=((PathElement **)elements)[i1];
 	PathElement *e2=((PathElement **)elements)[i2];
 	cmp=compare_float(e1->points[0].y, e2->points[0].y);
@@ -4788,15 +4795,76 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 		}
 	if(!_strokedPath)
 			{
+				
+				// generate dashed rectangles handling joins etc. for the contour
+				// Note: this is quite tricky since we have to handle any slope
+				// And, making a line of thickness 3.0 means adding 1.5 to each direction
+				// perpendicular to the line
+				// So this needs some computing intense trigonometrical calculations!
+				// Handling the joins means using arcs - which itself need flattening when being filled!
+				// Dashing means summing up all lengths of line segments and to decide where to split them into disjoint segments
+				// this at least requires to sum up distances sqrt(dx*dx+dy*dy) and then scale dx and dy
+
+				NSPoint pts[3];
+				NSPoint coeff[4];
+				NSPoint p, last_p;
+				int i;
+				BOOL first = NO;
 				NSLog(@"create stroke path");
-			// generate dashed rectangles handling joins etc. for the contour
-			// Note: this is quite tricky since we have to handle any slope
-			// And, making a line of thickness 3.0 means adding 1.5 to each direction
-			// perpendicular to the line
-			// So this needs some computing intense trigonometrical calculations!
-			// Handling the joins means using arcs - which itself need flattening when being filled!
-			// Dashing means summing up all lengths of line segments and to decide where to split them into disjoint segments
-			// this at least requires to sum up distances sqrt(dx*dx+dy*dy) and then scale dx and dy
+				_strokedPath=[[NSBezierPath alloc] init];
+				for(i = 0; i < _count; i++)
+						{
+							NSBezierPathElement type=[self elementAtIndex: i associatedPoints: pts];
+							switch(type) 
+								{
+									case NSMoveToBezierPathElement:
+										[_strokedPath moveToPoint: pts[0]];
+										last_p = p = pts[0];
+										first = NO;
+										break;
+									case NSClosePathBezierPathElement:
+									case NSLineToBezierPathElement:
+										{
+											float w2=_lineWidth/2.0;
+											if(w2 <= 0.0)
+												w2 = 0.5;	// should this be "Pixels"?
+											if(type == NSClosePathBezierPathElement)
+												p = last_p;
+											else
+												p = pts[0];
+											// FIXME: this is a VERY primitive algorithm ignoring joins and miters
+											if(fabs(p.y-last_p.y) > fabs(p.x-last_p.x))
+													{ // more vertical
+														[_strokedPath moveToPoint:NSMakePoint(last_p.x-w2, last_p.y)];													
+														[_strokedPath moveToPoint:NSMakePoint(last_p.x-w2, p.y)];													
+														[_strokedPath moveToPoint:NSMakePoint(last_p.x+w2, p.y)];													
+														[_strokedPath moveToPoint:NSMakePoint(last_p.x+w2, last_p.y)];		
+														[_strokedPath closePath];
+													}
+											else
+													{ // more horizontal
+														[_strokedPath moveToPoint:NSMakePoint(last_p.x, last_p.y-w2)];													
+														[_strokedPath moveToPoint:NSMakePoint(last_p.x, p.y-w2)];													
+														[_strokedPath moveToPoint:NSMakePoint(last_p.x, p.y+w2)];													
+														[_strokedPath moveToPoint:NSMakePoint(last_p.x, last_p.y+w2)];		
+														[_strokedPath closePath];
+													}
+											if (first)
+													{
+														last_p = pts[0];
+														first = NO;
+													}
+											if(type == NSClosePathBezierPathElement)
+												first = YES;
+											break;
+										}
+									case NSCurveToBezierPathElement:
+										NSAssert(NO, @"should be flattened");
+										break;
+									default:
+										break;
+								}
+						}
 		}
 	[_strokedPath _fill:context color:color];
 }

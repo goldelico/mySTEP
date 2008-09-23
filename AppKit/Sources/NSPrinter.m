@@ -961,10 +961,14 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (void) _drawGlyphs:(NSGlyph *)glyphs count:(unsigned)cnt;	// (string) Tj
 {
+	[_pdf appendString:@" ("];
 	// convert glyphs to bytes according to encoding of this font (incl. multibyte)
-	// prefix ( and ) and \ by \
+	// prefix ( and ) and \ by \ (strsubst)
 	// reault may have all byte codes 0x00 .. 0xff
-//	[_pdf appendFormat:@" (%C) Tj", glyphs];
+	// i.e. the _pdf object should be an NSMutableData and not an NSString?
+	// or we append character fragments
+//	[_pdf appendFormat:@"%C", glyphs];
+	[_pdf appendString:@") Tj"];
 }
 
 - (void) _setBaseline:(float) shift

@@ -90,6 +90,7 @@ enum {
     float _periodicInterval;
 	NSButtonType _buttonType;	// saved internally
 	NSBezelStyle _bezelStyle;
+	NSImageScaling _imageScaling;
 	BOOL _transparent;
 	BOOL _dimsWhenDisabled;
 }

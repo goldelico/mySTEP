@@ -39,8 +39,8 @@ typedef enum {
 @interface NSToolbar : NSView
 {
 	NSString *_identifier; 
-	NSMutableArray *_items;									// all items we have defined
-	NSMutableArray *_visibleItems;					// thereof visible
+	NSMutableArray *_items;								// all items the delegate has defined
+	NSMutableArray *_activeItems;					// thereof active
 	NSString *_selectedItemIdentifier;
 	NSPanel *_customizationPalette;
 	NSToolbarView *_toolbarView;

@@ -37,7 +37,7 @@ static NSMapTable *_toolbars;
 	// remove from _toolbars (if present)
 	[_customizationPalette release];
 	[_items release];
-	[_visibleItems release];
+	[_activeItems release];
 	[_selectedItemIdentifier release];
 	[super dealloc];
 }
@@ -81,10 +81,10 @@ static NSMapTable *_toolbars;
 
 - (NSDictionary *) configurationDictionary;
 {
-	NSMutableArray *items=[NSMutableArray arrayWithCapacity:[_visibleItems count]];
-	NSEnumerator *e=[_visibleItems objectEnumerator];
+	NSMutableArray *items=[NSMutableArray arrayWithCapacity:[_activeItems count]];
+	NSEnumerator *e=[_activeItems objectEnumerator];
 	NSToolbarItem *item;
-	NSMutableDictionary *priorities=[NSMutableDictionary dictionaryWithCapacity:[_visibleItems count]];
+	NSMutableDictionary *priorities=[NSMutableDictionary dictionaryWithCapacity:[_activeItems count]];
 	while((item=[e nextObject]))
 			{
 				[items addObject:[item itemIdentifier]];
@@ -111,12 +111,16 @@ static NSMapTable *_toolbars;
 	NSToolbarItem *item;
 	// find by identifier in all known items?
 	item=[_delegate toolbar:self itemForItemIdentifier:itemId willBeInsertedIntoToolbar:YES];	// delegate will configure the item
+	// FIXME: correctly handle duplicates
 	if(item)
 			{
-				// send NSToolbarWillAddItemNotification
+				// should compare by itentifier and not by object
+				if(![item allowsDuplicatesInToolbar] && [_activeItems containsObject:item])
+					return;	// duplicate
+				// FIXME: send NSToolbarWillAddItemNotification
 				[item _setToolbar:self];
 				[_items addObject:item];
-				[_visibleItems addObject:item];
+				[_activeItems addObject:item];
 				[self _changed];
 			}
 }
@@ -141,7 +145,7 @@ static NSMapTable *_toolbars;
 
 - (void) removeItemAtIndex:(NSInteger) idx;
 {
-	[_visibleItems removeObjectAtIndex:idx];
+	[_activeItems removeObjectAtIndex:idx];
 	// post NSToolbarDidRemoveItemNotification
  [self _changed];
 }
@@ -171,13 +175,13 @@ static NSMapTable *_toolbars;
 	if(!(val=[dict objectForKey:@"TB Item Identifiers"]))
 			val=[_delegate toolbarDefaultItemIdentifiers:self];	// (re)set to default
 	e=[val objectEnumerator];
-	if(!_visibleItems)
-		_visibleItems=[[NSMutableArray alloc] initWithCapacity:[val count]];
+	if(!_activeItems)
+		_activeItems=[[NSMutableArray alloc] initWithCapacity:[val count]];
 	while((ident=[e nextObject]))
 			{ // find item by identifier
 				NSToolbarItem *item=[self _itemForIdentifier:ident];
 				if(item)
-						[_visibleItems addObject:item];
+						[_activeItems addObject:item];
 			}
 	val=[dict objectForKey: @"TB Visibility Priority Values"];
 	e=[val keyEnumerator];	// should be NSDictionary...
@@ -214,13 +218,21 @@ static NSMapTable *_toolbars;
 
 - (void) validateVisibleItems;
 {
-	[_items makeObjectsPerformSelector:@selector(validate)];
+	// FIXME: for really visible only, i.e. not for overflow menu?
+	[_activeItems makeObjectsPerformSelector:@selector(validate)];
 }
+
+- (NSArray *) _activeItems; { return _activeItems; }
 
 - (NSArray *) visibleItems;
 { // translate from identifiers
-	// we should have separate items if we have multiple items with same identifier!
-	return _visibleItems;
+	// FIXME: items in the overflow menu are NOT considered visible!
+	// This means the visibleItems method depends on the toobar to be
+	// attached to the NSToolbarView and visibleItems is probably a method of the ToolbarView
+	// and its current frame
+	// or this method asks the NSToolbarView for each one of the _activeItems if it is visible or not
+	// call NSIsEmptyRect([_toolbarView rectOfItem:idx]) to check visibility
+	return _activeItems;
 }
 
 @end
@@ -236,23 +248,30 @@ static NSMapTable *_toolbars;
 {
 	if((self=[super init]))
 			{
-				NSDictionary *dict=[[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSBuiltinToolbarItems"] objectForKey:itemId];
+				NSBundle *appKitBundle=[NSBundle bundleForClass:[self class]];
+				NSDictionary *builtinItems=[appKitBundle objectForInfoDictionaryKey:@"NSBuiltinToolbarItems"];
+				NSDictionary *dict=[builtinItems objectForKey:itemId];
 				_itemIdentifier=[itemId retain];
 				if(dict)
 						{ // initialize icon, label, action etc.
+							id val;
 #if 1
 							NSLog(@"init item %@ with %@", itemId, dict);
 #endif
+							_builtin=YES;
 							_label=[[dict objectForKey:@"Label"] retain];
 							_paletteLabel=[[dict objectForKey:@"PaletteLabel"] retain];
 							_toolTip=[[dict objectForKey:@"ToolTip"] retain];
 							_allowsDuplicatesInToolbar=[[dict objectForKey:@"AllowsDuplicates"] boolValue];
-							if([[dict objectForKey:@"MinSize"] length] > 0)
-								_minSize=NSSizeFromString([dict objectForKey:@"MinSize"]);
-							if([[dict objectForKey:@"MaxSize"] length] > 0)
-								_maxSize=NSSizeFromString([dict objectForKey:@"MaxSize"]);
-							if([[dict objectForKey:@"Action"] length] > 0)
-								_action=NSSelectorFromString([dict objectForKey:@"Action"]);	// _target is nil, i.e. firstResponder
+							_canKeepVisible=![[dict objectForKey:@"CantKeepVisible"] boolValue];
+							if([val=[dict objectForKey:@"MinSize"] length] > 0)
+								_minSize=NSSizeFromString(val);
+							if([val=[dict objectForKey:@"MaxSize"] length] > 0)
+								_maxSize=NSSizeFromString(val);
+							if([val=[dict objectForKey:@"Action"] length] > 0)
+								_action=NSSelectorFromString(val);	// _target is nil, i.e. firstResponder
+							if([val=[dict objectForKey:@"Icon"] length] > 0)
+								_image=[NSImage imageNamed:val];
 							// should also allow to set the view for the Separator Item which simply draws a vertical bar
 						}
 			}
@@ -277,20 +296,20 @@ static NSMapTable *_toolbars;
 - (NSMenuItem *) menuFormRepresentation; { return _menuFormRepresentation; }
 - (NSSize) minSize; { return _minSize; }
 - (NSString *) paletteLabel; { return _paletteLabel; }
-- (void) setAction:(SEL) sel; { _action=sel; }
+- (void) setAction:(SEL) sel; { if(!_builtin) _action=sel; }
 - (void) setAutovalidates:(BOOL) flag; { _autovalidates=flag; }
 - (void) setEnabled:(BOOL) flag; { _isEnabled=flag; }
-- (void) setImage:(NSImage *) img; { ASSIGN(_image, img); }
-- (void) setLabel:(NSString *) str; { ASSIGN(_label, str); }
-- (void) setMaxSize:(NSSize) size; { _maxSize=size; }
+- (void) setImage:(NSImage *) img; { if(!_builtin) ASSIGN(_image, img); }
+- (void) setLabel:(NSString *) str; { if(!_builtin) ASSIGN(_label, str); }
+- (void) setMaxSize:(NSSize) size; { if(!_builtin) _maxSize=size; }
 - (void) setMenuFormRepresentation:(NSMenuItem *) item; { NIMP; }
-- (void) setMinSize:(NSSize) size; { _minSize=size; }
-- (void) setPaletteLabel:(NSString *) label; { ASSIGN(_paletteLabel, label); }
+- (void) setMinSize:(NSSize) size; { if(!_builtin) _minSize=size; }
+- (void) setPaletteLabel:(NSString *) label; { if(!_builtin) ASSIGN(_paletteLabel, label); }
 - (void) setTag:(NSInteger) tag; { _tag=tag; }
-- (void) setTarget:(id) target; { _target=target; }
+- (void) setTarget:(id) target; { if(!_builtin) _target=target; }
 - (void) _setToolbar:(NSToolbar *) view; { _toolbar=view; }
 - (void) setToolTip:(NSString *) toolTip; { ASSIGN(_toolTip, toolTip); }
-- (void) setView:(NSView *) view; { ASSIGN(_view, view); }
+- (void) setView:(NSView *) view; { if(!_builtin) ASSIGN(_view, view); }
 - (void) setVisibilityPriority:(NSInteger) priority; { _visibilityPriority=priority; }
 - (NSInteger) tag; { return _tag; }
 - (id) target; { return _target; }

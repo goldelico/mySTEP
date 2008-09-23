@@ -59,6 +59,7 @@ id __buttonCellClass = nil;
 		_c.drawsBackground=NO;	// but don't draw background (CHECKME)
 		_periodicDelay = 0.4;
 		_periodicInterval = 0.075;
+		_d.imageScaling=NSScaleNone;	// (historical) default is no scaling
 		}
 #if 0
 	NSLog(@"%@ initTextCell done", self);
@@ -136,6 +137,7 @@ id __buttonCellClass = nil;
 - (void) setAlternateTitle:(NSString *)aStr	{ ASSIGN(_alternateTitle,aStr); }
 - (void) setFont:(NSFont *)fontObject		{ [super setFont:fontObject]; }
 - (NSCellImagePosition) imagePosition		{ return _c.imagePosition; }
+- (NSImageScaling) imageScaling				{ return _d.imageScaling; }
 - (NSImage *) alternateImage				{ return _alternateImage; }
 - (NSImage *) image							{ return _normalImage; }
 - (NSImage *) _mixedImage					{ return _mixedImage; }
@@ -149,6 +151,20 @@ id __buttonCellClass = nil;
 - (void) setImagePosition:(NSCellImagePosition)aPosition
 {
 	_c.imagePosition = aPosition;
+}
+
+- (void) setImageScaling:(NSImageScaling)scaling
+{
+#if 0
+	NSLog(@"setImageScaling");
+#endif
+	_d.imageScaling = scaling;
+	[_normalImage setScalesWhenResized: (_d.imageScaling != NSScaleNone)];
+	[_alternateImage setScalesWhenResized: (_d.imageScaling != NSScaleNone)];
+	[_mixedImage setScalesWhenResized: (_d.imageScaling != NSScaleNone)];
+#if 0
+	NSLog(@"setImageScaling done");
+#endif
 }
 
 - (NSSize) cellSize

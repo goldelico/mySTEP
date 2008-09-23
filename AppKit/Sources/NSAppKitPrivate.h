@@ -404,4 +404,5 @@ enum _NSGlyphAttribute
 @interface NSToolbar (NSPrivate)
 - (void) _setToolbarView:(NSToolbarView *) view;
 - (NSToolbarView *) _toolbarView;
+- (NSArray *) _activeItems;
 @end

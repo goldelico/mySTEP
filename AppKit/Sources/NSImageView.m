@@ -45,7 +45,7 @@ id __imageCellClass = nil;
 - (void) setTag:(int)anInt				{ tag = anInt; }
 - (void) setTarget:(id)anObject			{ target = anObject; }
 
-- (NSImageScaling) imageScaling				{ return _ic.imageScaling; }
+- (NSImageScaling) imageScaling				{ return _d.imageScaling; }
 - (NSImageAlignment) imageAlignment			{ return _ic.imageAlignment; }
 - (NSImageFrameStyle) imageFrameStyle		{ return _ic.imageFrameStyle; }
 
@@ -54,8 +54,8 @@ id __imageCellClass = nil;
 #if 0
 	NSLog(@"setImageScaling");
 #endif
-	_ic.imageScaling = scaling;
-	[_contents setScalesWhenResized: (_ic.imageScaling != NSScaleNone)];
+	_d.imageScaling = scaling;
+	[_contents setScalesWhenResized: (_d.imageScaling != NSScaleNone)];
 #if 0
 	NSLog(@"setImageScaling done");
 #endif
@@ -63,7 +63,7 @@ id __imageCellClass = nil;
 
 - (void) setImage:(NSImage *)image
 {
-	[image setScalesWhenResized: (_ic.imageScaling != NSScaleNone)];	// apply current scaling
+	[image setScalesWhenResized: (_d.imageScaling != NSScaleNone)];	// apply current scaling
 	[super setImage:image];
 }
 
@@ -164,7 +164,7 @@ id __imageCellClass = nil;
 	NSLog(@"NSImageCell drawInRect rect=%@", NSStringFromRect(rect));
 #endif
 	
-	switch (_ic.imageScaling)
+	switch (_d.imageScaling)
 		{
 		case NSScaleProportionally:
 			{
@@ -245,7 +245,6 @@ id __imageCellClass = nil;
 	if([aDecoder allowsKeyedCoding])
 		{
 		_ic.imageAlignment=[aDecoder decodeIntForKey:@"NSAlign"];
-		_ic.imageScaling=[aDecoder decodeIntForKey:@"NSScale"];
 		_ic.imageFrameStyle=[aDecoder decodeIntForKey:@"NSStyle"];
 		_ic.imageAnimates=[aDecoder decodeBoolForKey:@"NSAnimates"];
 		return self;

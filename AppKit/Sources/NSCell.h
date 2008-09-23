@@ -200,6 +200,7 @@ enum {
 		UIBITFIELD(unsigned int, allowsUndo, 1);
 		TYPEDBITFIELD(NSLineBreakMode, lineBreakMode, 3);
 		UIBITFIELD(unsigned int, verticallyCentered, 1);
+		TYPEDBITFIELD(NSImageScaling, imageScaling, 2);
 		} _d;
 }
 

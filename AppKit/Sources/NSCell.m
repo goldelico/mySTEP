@@ -1170,7 +1170,11 @@ static NSCursor *__textCursor = nil;
 		
 		// _c.imagePosition=?	// defined for/by ButtonCell
 		// _c.entryType=?;
-				
+		if([aDecoder containsValueForKey:@"NSScale"])
+			_d.imageScaling=[aDecoder decodeIntForKey:@"NSScale"];	// NSButtonCell
+		else
+			_d.imageScaling=NSScaleNone;
+
 		_placeholderString=[[aDecoder decodeObjectForKey:@"NSPlaceholderString"] retain];
 		_title=[[aDecoder decodeObjectForKey:@"NSTitle"] retain];		// title string
 		_font=[[aDecoder decodeObjectForKey:@"NSSupport"] retain];		// font

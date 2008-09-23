@@ -41,14 +41,12 @@
 - (NSImage *) alternateImage;
 - (NSColor *) highlightColorInView:(NSView *) view;
 - (NSImage *) image;
-- (NSImageScaling) imageScaling;
 - (BOOL) isLeaf;									// cell type in browser
 - (BOOL) isLoaded;										// cell load status
 - (void) reset;											// cell state
 - (void) set;
 - (void) setAlternateImage:(NSImage *) image;
 - (void) setImage:(NSImage *) image;
-- (void) setImageScaling:(NSImageScaling) scaling;
 - (void) setLeaf:(BOOL) flag;
 - (void) setLoaded:(BOOL) flag;
 
