@@ -73,8 +73,7 @@ typedef NSInteger NSPrintPanelOptions;
 {
 	NSView *_accessoryView;
 	NSString *_jobStyleHint;
-	BOOL pdone;
-	BOOL psuccess;
+	BOOL _returnValue;
 }
 
 + (NSPrintPanel *) printPanel; 

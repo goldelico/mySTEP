@@ -170,32 +170,76 @@ id __buttonCellClass = nil;
 - (NSSize) cellSize
 {
 	NSSize m=[super cellSize];	// get text size
-
+	
+	if(_c.bordered)	// undo frame calculation
+		m=(NSSize){m.width-10, m.height-10};
+	else if(_c.bezeled)
+		m=(NSSize){m.width-12, m.height-12};
+	else
+		m=(NSSize){m.width-8, m.height-8};					// neither
+	
+#if 1
+	NSLog(@"super size %@", NSStringFromSize(m));
+	NSLog(@"control size %d", _d.controlSize);
+#endif
 	if(_normalImage != nil)
-		{
-		switch (_c.imagePosition) 
-			{												
-			case NSImageOnly:
-				m = [_normalImage size];
-			case NSNoImage:
-				break;
-			case NSImageLeft:
-			case NSImageRight:
-				m.width += [_normalImage size].width + 8;
-				break;
-			case NSImageBelow:
-			case NSImageAbove:
-				m.height += [_normalImage size].height + 4;
-				break;
-			case NSImageOverlaps:
-				{
-				NSSize img = [_normalImage size];
-
-				m.width = MAX(img.width + 4, m.width);
-				m.height = MAX(img.height + 4, m.height);
-				break;
-		}	}	}
-
+			{
+				NSSize isz;
+				switch(_d.controlSize)
+					{
+						default:
+						case NSRegularControlSize:
+							isz=NSMakeSize(24.0, 24.0);
+							break;
+						case NSSmallControlSize:
+							isz=NSMakeSize(16.0, 16.0);
+							break;
+						case NSMiniControlSize:
+							isz=NSMakeSize(14.0, 14.0);
+							break;
+					}
+#if 1
+				NSLog(@"isz %@", NSStringFromSize(isz));
+				NSLog(@"image pos %d", _c.imagePosition);
+#endif
+				switch (_c.imagePosition) 
+					{
+						default:
+					case NSImageOnly:
+						m = isz;
+						break;
+					case NSNoImage:
+						break;
+					case NSImageLeft:
+					case NSImageRight:
+							m.width += isz.width + 8;
+							m.height = MAX(isz.height + 4, m.height);
+						break;
+					case NSImageBelow:
+					case NSImageAbove:
+							m.height += isz.height + 4;
+							m.width = MAX(isz.width + 4, m.width);
+						break;
+					case NSImageOverlaps:
+						{
+							m.width = MAX(isz.width + 4, m.width);
+							m.height = MAX(isz.height + 4, m.height);
+							break;
+						}
+				}
+			}
+	// add border
+	if(_c.bordered)
+		m=(NSSize){m.width+4, m.height+4};
+	else if(_c.bezeled)
+			{ // make depend on bezel style
+				m=(NSSize){m.width+12, m.height+12};
+			}
+	else
+		m=(NSSize){m.width+2, m.height+2};					// neither
+#if 1
+	NSLog(@"cell size %@", NSStringFromSize(m));
+#endif
 	return m;
 }
 
@@ -1103,7 +1147,7 @@ id __buttonCellClass = nil;
 
 - (void) setBordered:(BOOL)flag
 {
-	[_cell setBordered:flag];	// has a different interpretation
+	[_cell setBordered:flag];	// has a different interpretation in button cells than in NSCell
 	[self setNeedsDisplay:YES];
 }
 

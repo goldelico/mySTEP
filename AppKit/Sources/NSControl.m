@@ -329,7 +329,7 @@ static Class __controlCellClass = Nil;
 - (void) setMenu:(NSMenu *)menu				{ [_cell setMenu:menu]; }
 - (BOOL) refusesFirstResponder;				{ return _refusesFirstResponder; }
 - (void) setRefusesFirstResponder:(BOOL)flag; { _refusesFirstResponder=flag; }
-- (BOOL) acceptFirstResponder;				{ return !_refusesFirstResponder; }
+- (BOOL) acceptsFirstResponder;				{ return !_refusesFirstResponder; }
 - (NSWritingDirection) baseWritingDirection; { return [_cell baseWritingDirection]; }
 - (void) setBaseWritingDirection:(NSWritingDirection) direction; { [_cell setBaseWritingDirection:direction]; }
 - (void) performClick:(id) sender;		{ [_cell performClick:sender]; }

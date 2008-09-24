@@ -47,6 +47,7 @@ static NSMapTable *_toolbars;
 	if(_toolbarView)
 			{
 				[_toolbarView layout];
+				[[_toolbarView superview] layout];	// theme frame also needs new layout
 				if(_autosavesConfiguration)
 						{
 							NSUserDefaults *ud=[NSUserDefaults standardUserDefaults];
@@ -255,7 +256,7 @@ static NSMapTable *_toolbars;
 				if(dict)
 						{ // initialize icon, label, action etc.
 							id val;
-#if 1
+#if 0
 							NSLog(@"init item %@ with %@", itemId, dict);
 #endif
 							_builtin=YES;
@@ -273,6 +274,9 @@ static NSMapTable *_toolbars;
 							if([val=[dict objectForKey:@"Icon"] length] > 0)
 								_image=[NSImage imageNamed:val];
 							// should also allow to set the view for the Separator Item which simply draws a vertical bar
+							// should allow to initialize targets
+							if([_itemIdentifier isEqualToString:NSToolbarShowFontsItemIdentifier])
+								_target=[NSFontManager sharedFontManager];	// is not member of the responder chain (or should it be?)
 						}
 			}
 	return self;

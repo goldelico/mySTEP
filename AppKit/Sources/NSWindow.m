@@ -113,6 +113,7 @@ static BOOL __cursorHidden = NO;
 - (void) setContentView:(NSView *) view;
 - (void) layout;	// set frame of content view to fit to buttons bar and toolbar (if present)
 - (NSToolbar *) toolbar;
+- (NSToolbarView *) toolbarView;
 - (void) setToolbar:(NSToolbar *) toolbar;
 - (BOOL) showsToolbarButton;
 - (void) setShowsToolbarButton:(BOOL) flag;
@@ -317,7 +318,7 @@ static BOOL __cursorHidden = NO;
 }
 
 - (NSView *) contentView; { return [sub_views count] > 3?[sub_views objectAtIndex:3]:nil; }
-- (NSToolbarView *) toolbarView; { return [sub_views objectAtIndex:5]; }
+- (NSToolbarView *) toolbarView; { return [sub_views count] >= 5?[sub_views objectAtIndex:5]:nil; }
 
 - (void) layout;
 { // NOTE: if the window fills the screen, the content view has to be made smaller
@@ -654,7 +655,6 @@ static NSButtonCell *sharedCell;
 - (void) layout;
 {
 	_itemRectCount= -1;	// clear cache
-	// modify toolbar toggle button?
 	[self setNeedsDisplay:YES];
 }
 
@@ -735,7 +735,10 @@ static NSButtonCell *sharedCell;
 													[sharedCell setImage:[item image]];
 													rect.size=[sharedCell cellSize];	// as much as needed
 												}
-//										if([_toolbar displayMode] != NSToolbarDisplayModeIconOnly)
+#if 1
+										NSLog(@"item %@ size %@", [item paletteLabel], NSStringFromSize(rect.size));
+#endif
+										//										if([_toolbar displayMode] != NSToolbarDisplayModeIconOnly)
 										// FIXME - we need spacing around the cell, i.e. add somethin to the width/height
 										if(_toolbarHeight < rect.size.height+border)
 											_toolbarHeight = rect.size.height+border; // adjust _toolbarHeight
@@ -813,15 +816,20 @@ static NSButtonCell *sharedCell;
 							[sharedCell setImage:[item image]];
 							[sharedCell setHighlighted:(i == _highlightedCell)];
 							[sharedCell drawWithFrame:_itemRects[i] inView:self];
+							[sharedCell setAction:@selector(dummy:)];	// so that the cell calls our sendAction:to: method
 						}
 			}
 }
 
 - (void) addConfigItems:(NSMenu *) menu;
 { // add some items we need in both, the control popup menu or in the overflow menu
-	[[menu addItemWithTitle:@"Icon & Text" action:@selector(iconAndLabel:) keyEquivalent:@""] setTarget:self];
-	[[menu addItemWithTitle:@"Icon Only" action:@selector(iconOnly:) keyEquivalent:@""] setTarget:self];
-	[[menu addItemWithTitle:@"Label Only" action:@selector(labelOnly:) keyEquivalent:@""] setTarget:self];
+	NSMenuItem *item;
+	[item=[menu addItemWithTitle:@"Icon & Text" action:@selector(iconAndLabel:) keyEquivalent:@""] setTarget:self];
+	[item setState:[_toolbar displayMode] == NSToolbarDisplayModeIconAndLabel?NSOnState:NSOffState];
+	[item=[menu addItemWithTitle:@"Icon Only" action:@selector(iconOnly:) keyEquivalent:@""] setTarget:self];
+	[item setState:[_toolbar displayMode] == NSToolbarDisplayModeIconOnly?NSOnState:NSOffState];
+	[item=[menu addItemWithTitle:@"Label Only" action:@selector(labelOnly:) keyEquivalent:@""] setTarget:self];
+	[item setState:[_toolbar displayMode] == NSToolbarDisplayModeLabelOnly?NSOnState:NSOffState];
 	[menu addItem:[NSMenuItem separatorItem]];
 	if([_toolbar sizeMode] == NSToolbarSizeModeSmall)
 		[[menu addItemWithTitle:@"Use Large Size" action:@selector(regular:) keyEquivalent:@""] setTarget:self];
@@ -898,13 +906,29 @@ static NSButtonCell *sharedCell;
 
 - (IBAction) removeItem:(id) sender;
 {
-	// how do we know the item?
+	if(_clickedCell >= 0)
+			{ // send to highlighted item
+				NSToolbarItem *item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
+				// FIME: remove item and ask themeframe to re-layout
+			}
 }
 
 - (IBAction) keepItemVisible:(id) sender;
 {
-	// how do we know the item?
-	// toggle setVisibilityPriority of the item between NSToolbarItemVisibilityPriorityStandard and NSToolbarItemVisibilityPriorityUser
+	if(_clickedCell >= 0)
+			{ // send to highlighted item
+				NSToolbarItem *item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
+				[item setVisibilityPriority:([item visibilityPriority] == NSToolbarItemVisibilityPriorityUser)?NSToolbarItemVisibilityPriorityStandard:NSToolbarItemVisibilityPriorityUser];	// toggle
+			}
+}
+
+- (BOOL) acceptFirstResponder;				{ return NO; }
+- (BOOL) acceptsFirstMouse;						{ return YES; }
+
+- (BOOL) shouldBeTreatedAsInkEvent:(NSEvent *) theEvent;
+{ // don't start inking in toolbar (although it would be a nice spot...)
+	// we could allow inking in spaces (flexible and implcit)
+	return NO;
 }
 
 - (void) mouseDown:(NSEvent *) event
@@ -920,13 +944,17 @@ static NSButtonCell *sharedCell;
 	[_toolbar validateVisibleItems];	// check if items need to be enabled
 	if(_clickedCell >= 0)
 			{ // clicked into a cell, update control menu
+				NSView *iv;
+				NSMenu *controlMenu;
+				NSMenuItem *mi;
 				item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
-				NSView *iv=[item view];
-				NSMenu *controlMenu=[[[NSMenu alloc] initWithTitle:@"Toolbar Item Menu"] autorelease];
+				iv=[item view];
+				controlMenu=[[[NSMenu alloc] initWithTitle:@"Toolbar Item Menu"] autorelease];
 				[self addConfigItems:controlMenu];
 				[controlMenu addItem:[NSMenuItem separatorItem]];
 				// the next entry/entries is/are not to be shown for all items! How do we control that?
-				[[controlMenu addItemWithTitle:@"Keep Item Visible" action:@selector(keepItemVisible:) keyEquivalent:@""] setTarget:self];
+				[mi=[controlMenu addItemWithTitle:@"Keep Item Visible" action:@selector(keepItemVisible:) keyEquivalent:@""] setTarget:self];
+				[mi setState:[item visibilityPriority] == NSToolbarItemVisibilityPriorityUser?NSOnState:NSOffState];
 				[[controlMenu addItemWithTitle:@"Remove Item" action:@selector(removeItem:) keyEquivalent:@""] setTarget:self];
 				if([_toolbar allowsUserCustomization])
 						{
@@ -943,12 +971,15 @@ static NSButtonCell *sharedCell;
 				[sharedCell setEnabled:[item isEnabled]];
 				rect=[self rectForToolbarItem:_clickedCell];
 			}
-	else	// click outside of cell(s) - we still do "virtual" tracking to show the control-menu
+	else	// click outside of cell(s) - we still do "virtual" tracking to be able to show the control-menu
 			{
 				rect=NSZeroRect;
 				[sharedCell setEnabled:YES];
 			}
 	done=NO;
+#if 1
+	NSLog(@"tracking rect %@", NSStringFromRect(rect));
+#endif
 	while([event type] != NSLeftMouseUp)
 			{ // loop outside until mouse finally goes up
 				if(NSMouseInRect(location, rect, [self isFlipped]))
@@ -971,10 +1002,17 @@ static NSButtonCell *sharedCell;
 																		 dequeue:YES];
 				location = [self convertPoint:[event locationInWindow] fromView:nil];	// new location
 			}
-	if(done && [item isEnabled])
-			{ // send target/action
-				[NSApp sendAction:[item action] to:[item target] from:item];	// checkme - who is the sender?
+}
+
+- (BOOL) sendAction:(SEL) action to:(id) target
+{
+	if(_clickedCell >= 0)
+			{ // send to highlighted item
+				NSToolbarItem *item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
+				if([item isEnabled])
+					return [NSApp sendAction:[item action] to:[item target] from:item];	// checkme - who is the sender?
 			}
+	return NO;
 }
 
 @end
@@ -2441,7 +2479,7 @@ NSString *key = [NSString stringWithFormat:@"NSWindow Frame %@",name];
 - (void) print:(id) sender
 {
 	NSPrintOperation *po=[NSPrintOperation printOperationWithView:[(NSThemeFrame *) _themeFrame contentView]];
-	[po runOperationModalForWindow:self delegate:nil didRunSelector:_cmd contextInfo:NULL];
+	[po runOperationModalForWindow:self delegate:nil didRunSelector:NULL contextInfo:NULL];
 }
 
 - (NSString *) description;

@@ -908,7 +908,7 @@
 #endif
 	if(!menu || !event || !view)
 		return;
-	[menu update];					// enable/disable menu items
+//	[menu update];					// enable/disable menu items
 	win=[[[NSPanel alloc] initWithContentRect:NSMakeRect(49.0, 49.0, 49.0, 49.0)	// some initial position
 									styleMask:NSBorderlessWindowMask
 									  backing:NSBackingStoreBuffered

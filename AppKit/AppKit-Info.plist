@@ -275,5 +275,16 @@
 			<string>0</string>
 		</dict>
 	</dict>
+	<key>NSPrintInfoDefault</key>
+	<dict>
+		<key>PrintPaperName</key>
+		<string>DIN A4</string>
+		<key>PrintPaperSize</key>
+		<string>{ 595, 842 }</string>
+		<key>PrintOrientation</key>
+		<integer>0</integer>
+		<key>PrintScalingFactor</key>
+		<real>1</real>
+	</dict>
 </dict>
 </plist>

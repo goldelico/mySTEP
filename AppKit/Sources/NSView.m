@@ -423,7 +423,7 @@ printing
 			[self setUpGState];
 #endif
 		if(gState == 0)
-			gState=[_window gState];
+			gState=[_window gState];	// get from window - will be 0 if window is ordered out
 		if(!gState)
 			{
 			NSLog(@"could not get a gState to focus on %@", self);
@@ -1759,16 +1759,17 @@ printing
 - (void) scrollRect:(NSRect)src by:(NSSize)delta
 { // scroll the rect by given delta (called by scrollPoint)
 	NSRect dest;
-#if 0
+#if 1
 	NSLog(@"scrollRect:%@ by:%@ %@", NSStringFromRect(src), NSStringFromSize(delta), self);
+	NSLog(@"window %@", _window);
 #endif
-	if(src.size.width <= 0.0 || src.size.height <= 0.0 || (delta.width == 0.0 && delta.height == 0.0) || NSIsEmptyRect(src))
+	if(![_window isVisible] || (delta.width == 0.0 && delta.height == 0.0) || NSIsEmptyRect(src) || src.size.width <= 0.0 || src.size.height <= 0.0)
 		return;	// nothing to scroll
 	dest=NSOffsetRect(src, delta.width, delta.height);
 //	if(!NSIntersectsRect(dest, _bounds))
 //		return;	// no visible result
 	[self lockFocus];	// prepare for drawing
-	NSCopyBits(0, src, dest.origin);	// copy source rect in current graphics state
+	NSCopyBits(0, src, dest.origin);	// copy source rect from current graphics state (0)
 	if(_NSShowAllDrawing)
 		{ // show copy operation
 		[[NSGraphicsContext currentContext] flushGraphics];

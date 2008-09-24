@@ -3269,7 +3269,6 @@
 				EE1227260D059B63000E4BA5 /* NSPredicateEditor.m */,
 				EE1227270D059B63000E4BA5 /* NSPredicateEditorRowTemplate.h */,
 				EE1227280D059B63000E4BA5 /* NSPredicateEditorRowTemplate.m */,
-				EEA3725109540273001244CF /* NSPrintPanel.h */,
 				EE1227670D059C39000E4BA5 /* NSRuleEditor.h */,
 				EE1227680D059C39000E4BA5 /* NSRuleEditor.m */,
 				EEA3725809540273001244CF /* NSSavePanel.h */,
@@ -3644,6 +3643,7 @@
 				EEA3724E09540273001244CF /* NSPrinter.m */,
 				EEA3724F09540273001244CF /* NSPrintInfo.h */,
 				EEA3725009540273001244CF /* NSPrintOperation.h */,
+				EEA3725109540273001244CF /* NSPrintPanel.h */,
 			);
 			name = Printing;
 			sourceTree = "<group>";

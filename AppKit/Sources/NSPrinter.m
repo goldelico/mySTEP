@@ -47,6 +47,13 @@
 
 @implementation NSPrinter
 
++ (NSPrinter *) printerWithName:(NSString *) name 
+												 domain:(NSString *) domain 
+						 includeUnavailable:(BOOL) flag;
+{
+	return [[[self alloc] _initWithName:name host:@"localhost" type:@"PDF" note:@""] autorelease];
+}
+
 + (NSPrinter *) printerWithName:(NSString *)name
 {
 	return [[[self alloc] _initWithName:name host:@"localhost" type:@"PDF" note:@""] autorelease];
@@ -59,6 +66,7 @@
 
 + (NSArray *) printerNames
 {
+	// read from AppKit-Info.plist?
 	return [NSArray arrayWithObject:@"default"];
 }
 
@@ -244,11 +252,17 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 + (void) setSharedPrintInfo:(NSPrintInfo *)printInfo
 {
+	NSAssert(printInfo, @"nil printInfo");
 	ASSIGN(sharedPrintInfoObject, printInfo);
 }
 
 + (NSPrintInfo *)sharedPrintInfo
 {
+	if(!sharedPrintInfoObject)
+			{
+				NSDictionary *info=[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSPrintInfoDefault"];
+				sharedPrintInfoObject=[[self alloc] initWithDictionary:info];	// create a default object
+			}
 	return sharedPrintInfoObject;
 }
 
@@ -274,25 +288,19 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 {
 	if((self=[super init]))
 		{
+			info=[aDict mutableCopy];
 		}
 	return self;
 }
 
 - (id) copyWithZone:(NSZone *) z
 {
-	return NIMP;
-	// FIXME: shouldn't this make a mutable copy???
-#if 0
-	NSPrintInfo *c;
-	if((c=[super copyWithZone:z]))
-		{
-		}
-	return c;
-#endif
+	return [[isa alloc] initWithDictionary:info];	// return a (mutable) copy
 }
 
 - (void) dealloc;
 {
+	[info release];
 	[super dealloc];
 }
 
@@ -301,7 +309,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 //
 - (float)bottomMargin
 {
-  return 0;
+  return [(NSNumber *)[info objectForKey:NSPrintBottomMargin] floatValue];
 }
 
 - (float)leftMargin
@@ -311,22 +319,22 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (NSPrintingOrientation)orientation
 {
-  return 0;
+  return [(NSNumber *)[info objectForKey:NSPrintOrientation] intValue];
 }
 
 - (NSString *)paperName
 {
-  return nil;
+  return [info objectForKey:NSPrintPaperName];
 }
 
 - (NSSize)paperSize
 {
-  return NSMakeSize(0,0);
+  return [(NSValue *)[info objectForKey:NSPrintPaperSize] sizeValue];
 }
 
 - (float)rightMargin
 {
-  return 0;
+  return [(NSNumber *)[info objectForKey:NSPrintRightMargin] floatValue];
 }
 
 - (void)setBottomMargin:(float)value
@@ -359,7 +367,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (float)topMargin
 {
-  return 0;
+  return [(NSNumber *)[info objectForKey:NSPrintTopMargin] floatValue];
 }
 
 //
@@ -367,7 +375,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 //
 - (NSPrintingPaginationMode)horizontalPagination
 {
-	return 0;
+  return [(NSNumber *)[info objectForKey:NSPrintHorizontalPagination] intValue];
 }
 
 - (void)setHorizontalPagination:(NSPrintingPaginationMode)mode
@@ -376,6 +384,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (void)setVerticalPagination:(NSPrintingPaginationMode)mode
 {
+  return [(NSNumber *)[info objectForKey:NSPrintVerticalPagination] intValue];
 }
 
 - (NSPrintingPaginationMode) verticalPagination
@@ -386,8 +395,15 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 //
 // Positioning the Image on the Page 
 //
-- (BOOL) isHorizontallyCentered					{ return NO; }
-- (BOOL) isVerticallyCentered					{ return NO; }
+- (BOOL) isHorizontallyCentered
+{
+  return [(NSNumber *)[info objectForKey:NSPrintHorizontallyCentered] boolValue];
+}
+
+- (BOOL) isVerticallyCentered
+{
+  return [(NSNumber *)[info objectForKey:NSPrintVerticallyCentered] boolValue];
+}
 
 - (void) setHorizontallyCentered:(BOOL)flag
 {
@@ -476,33 +492,49 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 	[super dealloc];
 }
 
-- (int) runModal	
+- (void) _printPanelDidEnd:(NSPrintPanel *) panel returnCode:(int) code contextInfo:(void *) context;
 {
-	[self beginSheetWithPrintInfo:[[NSPrintOperation currentOperation] printInfo]
+	_returnValue=code;
+}
+
+- (NSInteger) runModal;
+{
+	return [self runModalWithPrintInfo:[[NSPrintOperation currentOperation] printInfo]];
+}
+
+- (NSInteger) runModalWithPrintInfo:(NSPrintInfo *) info; 
+{
+	[self beginSheetWithPrintInfo:info
 				   modalForWindow:nil
 						 delegate:self
-				   didEndSelector:@selector(_notify:end:)
-					  contextInfo:NULL];
-	while(!pdone)
-		{
-		// run modal loop
-#if 1
-		pdone=YES;
-		psuccess=YES;
-#endif
-		}
+			 didEndSelector:@selector(_printPanelDidEnd:returnCode:contextInfo:)
+					  contextInfo:NULL];	// runs modal
 	[self finalWritePrintInfo];
-	return psuccess;
+	return _returnValue;
 }
 
 - (void) beginSheetWithPrintInfo:(NSPrintInfo *) info modalForWindow:(NSWindow *) window delegate:(id) delegate didEndSelector:(SEL) sel contextInfo:(void *) context;
 {
+	int r;
+	NSPanel *panel=nil;
 	[self updateFromPrintInfo];
+	
 	// create a sheet or popup window
+	
 	if(window)
-		; // create a sheet
+			{
+				; // create a sheet
+				[NSApp beginSheet:panel modalForWindow:window modalDelegate:delegate didEndSelector:sel contextInfo:context];
+				// run modal loop
+			}
 	else
-		; // create a popup
+			{
+				void (*didend)(id, SEL, NSPrintPanel *, int, void *);
+				; // create a popup
+				r=[NSApp runModalForWindow:panel];
+				didend = (void (*)(id, SEL, NSPrintPanel *, int, void *))[delegate methodForSelector:sel];
+				(*didend)(self, sel, self, r, context); 
+			}
 }
 
 - (void)pickedButton:(id)sender
@@ -1169,7 +1201,7 @@ static NSPrintOperation *_currentOperation;
 					 didRunSelector:(SEL)didRunSelector
 						contextInfo:(void *)contextInfo;
 {
-	BOOL r=YES;	// success
+	BOOL r;
 #if 1
 	NSLog(@"run PrintOperation for %@", _view);
 #endif
@@ -1186,9 +1218,12 @@ static NSPrintOperation *_currentOperation;
 		if(!docWindow)
 			r=([_printPanel runModal] == NSOKButton);	// is ok
 		else
-//			[_printPanel beginSheetWithPrintInfo:_printInfo modalForWindow:docWindow delegate:delegate didEndSelector:@selector(_notifEndOfPrintPanel:end) contextInfo:NULL];
-			// FIXME: should run modal sheet for given window
-			r=([_printPanel runModal] == NSOKButton);	// is ok
+				[_printPanel beginSheetWithPrintInfo:_printInfo
+															modalForWindow:docWindow
+																		delegate:delegate
+															didEndSelector:didRunSelector
+																 contextInfo:contextInfo];
+		r=([_printPanel runModal] == NSOKButton);	// is ok
 		// FIXME: how does redirection to a file or mail work???
 		}
 	if(r)
@@ -1262,7 +1297,8 @@ static NSPrintOperation *_currentOperation;
 		// FIXME: may run in different thread
 	// FIXME: selector has a different signature:
 	// [delegate <didRunSelector>:self success:_cancelled?NSPrntCancelled:NSPrintSuccess contextInfo:contextInfo];
-	[delegate performSelector:didRunSelector withObject:(id)contextInfo];
+	if(didRunSelector)
+		[delegate performSelector:didRunSelector withObject:(id)contextInfo];
 	[isa setCurrentOperation:nil];
 }
 

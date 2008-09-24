@@ -156,6 +156,7 @@ static NSCursor *__textCursor = nil;
 - (NSSize) cellSize
 {
 	NSSize m;
+	// Font should depend on _d.controlSize!
 	if(_c.type == NSTextCellType && _font)
 		{
 		if([_contents isKindOfClass:[NSAttributedString class]])
@@ -593,8 +594,8 @@ static NSCursor *__textCursor = nil;
 - (BOOL) isBordered								{ return _c.bordered; }
 - (BOOL) isOpaque								{ return _c.bezeled; }  // default implementation
 // mutually exclusive
-- (void) setBezeled:(BOOL)flag					{ _c.bezeled = flag; _c.bordered=NO; }
-- (void) setBordered:(BOOL)flag					{ _c.bordered = flag; _c.bezeled=NO; }
+- (void) setBezeled:(BOOL)flag					{ if((_c.bezeled = flag)) _c.bordered=NO; }
+- (void) setBordered:(BOOL)flag					{ if((_c.bordered = flag)) _c.bezeled=NO; }
 
 - (int) cellAttribute:(NSCellAttribute)aParameter
 {
@@ -976,8 +977,8 @@ static NSCursor *__textCursor = nil;
 	NSDate *expiration;
 	// FIXME: mask should probably depend on which mouse went down in event!
 	unsigned int mask = NSLeftMouseDraggedMask | NSRightMouseDraggedMask | NSLeftMouseDownMask | NSMouseMovedMask | NSLeftMouseUpMask;
-	NSEvent *mousedown=event;
 	BOOL mouseWentUp = NO;
+	NSEvent *mouseDownEvent=event;
 	BOOL tracking;
 	if(![self isEnabled])
 		return NO;
@@ -992,6 +993,7 @@ static NSCursor *__textCursor = nil;
 	if(_c.actOnMouseDown && action)
 		[(NSControl*)controlView sendAction:action to:target];	// do this after starttracking (which may update the cell)
 	expiration=[NSDate dateWithTimeIntervalSinceNow:0.8];
+	// FIXME: ctrl-click should immediately _trackLongPress
 	while(YES)
 		{ // Get next mouse event until a mouse up is obtained
 #if 0
@@ -1006,8 +1008,8 @@ static NSCursor *__textCursor = nil;
 #endif
 		if(!event)
 			{ // no matching event, i.e. timed out
-			if([self _trackLongPress:event inRect:cellFrame ofView:controlView lastPoint:last_point atPoint:point])
-				return YES;
+			if([self _trackLongPress:mouseDownEvent inRect:cellFrame ofView:controlView lastPoint:last_point atPoint:point])
+				return YES;	// mouse went up
 			expiration=[NSDate distantFuture];
 			continue;
 			}
