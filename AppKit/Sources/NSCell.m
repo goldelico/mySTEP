@@ -162,12 +162,12 @@ static NSCursor *__textCursor = nil;
 		if([_contents isKindOfClass:[NSAttributedString class]])
 			m=[_contents size];
 		else
-			m = [_contents sizeWithAttributes:[NSDictionary dictionaryWithObjectsAndKeys:_font, NSFontAttributeName, nil]];
+			m=[_contents sizeWithAttributes:[NSDictionary dictionaryWithObjectsAndKeys:_font, NSFontAttributeName, nil]];
 		}
 	else if (_c.type == NSImageCellType && _contents != nil)
-		m = [_contents size];
+		m=[_contents size];
 	else
-		m = NSZeroSize;
+		m=NSZeroSize;
 
 	if(_c.bordered)
 		return (NSSize){m.width+10, m.height+10};

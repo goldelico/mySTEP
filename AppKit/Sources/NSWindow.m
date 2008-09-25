@@ -735,7 +735,7 @@ static NSButtonCell *sharedCell;
 													[sharedCell setImage:[item image]];
 													rect.size=[sharedCell cellSize];	// as much as needed
 												}
-#if 1
+#if 0
 										NSLog(@"item %@ size %@", [item paletteLabel], NSStringFromSize(rect.size));
 #endif
 										//										if([_toolbar displayMode] != NSToolbarDisplayModeIconOnly)
@@ -750,7 +750,7 @@ static NSButtonCell *sharedCell;
 										if(_itemRects == NULL || _itemRectCount >= _itemRectCapacity)
 											_itemRects=objc_realloc(_itemRects, sizeof(_itemRects[0])*(_itemRectCapacity=2*_itemRectCapacity+3));	// allocate more space
 										_itemRects[_itemRectCount++]=rect;	// store
-#if 1
+#if 0
 										NSLog(@"item %@ located at %@", [item paletteLabel], NSStringFromRect(rect));
 #endif
 										if(rect.size.width > 0)
@@ -854,7 +854,7 @@ static NSButtonCell *sharedCell;
 				NSView *iv;
 				NSMenu *submenu=nil;
 				NSString *ident=[item itemIdentifier];
-#if 1
+#if 0
 				NSLog(@"ident %@", ident);
 #endif
 				if(!NSIsEmptyRect(_itemRects[idx++]))
@@ -973,7 +973,7 @@ static NSButtonCell *sharedCell;
 			}
 	else	// click outside of cell(s) - we still do "virtual" tracking to be able to show the control-menu
 			{
-				rect=NSZeroRect;
+				rect=NSMakeRect(location.x-1.0, location.y+1.0, 3.0, 3.0);	// small rect around initial point
 				[sharedCell setEnabled:YES];
 			}
 	done=NO;

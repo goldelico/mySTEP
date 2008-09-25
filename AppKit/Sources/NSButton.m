@@ -169,16 +169,23 @@ id __buttonCellClass = nil;
 
 - (NSSize) cellSize
 {
-	NSSize m=[super cellSize];	// get text size
-	
-	if(_c.bordered)	// undo frame calculation
-		m=(NSSize){m.width-10, m.height-10};
-	else if(_c.bezeled)
-		m=(NSSize){m.width-12, m.height-12};
+	NSSize m;
+	if(_c.imagePosition != NSImageOnly)
+			{ // get title width
+				id savedContents=_contents;	// may be some retained object
+				_contents=_title;
+				m=[super cellSize];	// get title size
+				_contents=savedContents;
+				if(_c.bordered)	// undo frame calculation
+					m=(NSSize){m.width-10, m.height-10};
+				else if(_c.bezeled)
+					m=(NSSize){m.width-12, m.height-12};
+				else
+					m=(NSSize){m.width-8, m.height-8};					// neither
+			}
 	else
-		m=(NSSize){m.width-8, m.height-8};					// neither
-	
-#if 1
+		m=NSZeroSize;
+#if 0
 	NSLog(@"super size %@", NSStringFromSize(m));
 	NSLog(@"control size %d", _d.controlSize);
 #endif
@@ -198,7 +205,7 @@ id __buttonCellClass = nil;
 							isz=NSMakeSize(14.0, 14.0);
 							break;
 					}
-#if 1
+#if 0
 				NSLog(@"isz %@", NSStringFromSize(isz));
 				NSLog(@"image pos %d", _c.imagePosition);
 #endif
@@ -237,7 +244,7 @@ id __buttonCellClass = nil;
 			}
 	else
 		m=(NSSize){m.width+2, m.height+2};					// neither
-#if 1
+#if 0
 	NSLog(@"cell size %@", NSStringFromSize(m));
 #endif
 	return m;
@@ -706,6 +713,33 @@ id __buttonCellClass = nil;
 		img=[(NSButtonImageSource *) img buttonImageForCell:self];	// substitute
 	// shouldn't we use imageRectForBounds?
 	imageSize = [img size];
+	if(_d.imageScaling != NSScaleNone)
+			{
+				NSSize isz;
+				switch(_d.controlSize)
+					{
+						default:
+						case NSRegularControlSize:
+							isz=NSMakeSize(24.0, 24.0);
+							break;
+						case NSSmallControlSize:
+							isz=NSMakeSize(16.0, 16.0);
+							break;
+						case NSMiniControlSize:
+							isz=NSMakeSize(14.0, 14.0);
+							break;
+					}
+				if(_d.imageScaling == NSScaleToFit)
+					imageSize=isz;
+				else
+						{ // proportionally
+							float factor=MIN(isz.width/imageSize.width, isz.height/imageSize.height);
+							imageSize.width*=factor;
+							imageSize.height*=factor;
+						}
+				[img setScalesWhenResized:YES];
+				[img setSize:imageSize];	// rescale
+			}
 	switch(_c.imagePosition) 
 		{
 		case NSImageOnly:			// draw image only - centered
@@ -731,7 +765,7 @@ id __buttonCellClass = nil;
 			break;
 		}
 	if(stateOrHighlight(NSPushInCellMask))
-		{ // makes button appear pushed in
+		{ // makes button appear pushed in by moving the image by one pixel
 		cellFrame.origin.x += 1;
 		cellFrame.origin.y += 1;
 		}

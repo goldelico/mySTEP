@@ -898,7 +898,7 @@ static NSString *__fontCollections = nil;
 {
 	if ((!__fontPanel) && ![NSBundle loadNibNamed:@"FontPanel" owner:NSApp])	// looks for FontPanel in ressources of NSApp's bundle
 		[NSException raise: NSInternalInconsistencyException 
-					format: @"Unable to open font panel model file."];
+								format: @"Unable to open font panel model file."];
 	[__fontPanel center];
 	return __fontPanel;
 }

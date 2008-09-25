@@ -276,8 +276,8 @@
 		1F73F5820DA2C1A40007817B /* NSXMLElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSXMLElement.m; path = Sources/NSXMLElement.m; sourceTree = "<group>"; };
 		1F73F5830DA2C1A40007817B /* NSXMLNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSXMLNode.h; path = Sources/NSXMLNode.h; sourceTree = "<group>"; };
 		1F73F5840DA2C1A40007817B /* NSXMLNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSXMLNode.m; path = Sources/NSXMLNode.m; sourceTree = "<group>"; };
-		1FA220030E352CF100179AC4 /* NSPointerArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSPointerArray.h; sourceTree = "<group>"; };
-		1FA220040E352CF100179AC4 /* NSPointerArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPointerArray.m; sourceTree = "<group>"; };
+		1FA220030E352CF100179AC4 /* NSPointerArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSPointerArray.h; path = Sources/NSPointerArray.h; sourceTree = "<group>"; };
+		1FA220040E352CF100179AC4 /* NSPointerArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSPointerArray.m; path = Sources/NSPointerArray.m; sourceTree = "<group>"; };
 		EE0622880975A53D00B24DDA /* NSPredicate.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSPredicate.m; path = Sources/NSPredicate.m; sourceTree = "<group>"; };
 		EE0D6CB60959F6D10091A092 /* NSNetServices.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSNetServices.m; path = Sources/NSNetServices.m; sourceTree = "<group>"; };
 		EE0D6E5F095C62900091A092 /* NSPrivate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSPrivate.h; path = Sources/NSPrivate.h; sourceTree = "<group>"; };
