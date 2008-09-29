@@ -78,7 +78,7 @@ NSString *NSDrawerWillOpenNotification=@"NSDrawerWillOpenNotification";
 	// resize the content view
 }
 
-- (NSView *) contentView; { [_drawerWindow contentView]; }
+- (NSView *) contentView; { return [_drawerWindow contentView]; }
 - (id) delegate; { return _delegate; }
 
 - (void) setContentView:(NSView *) view; { [_drawerWindow setContentView:view]; }

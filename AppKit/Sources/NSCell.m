@@ -183,9 +183,9 @@ static NSCursor *__textCursor = nil;
 }
 
 - (NSRect) drawingRectForBounds:(NSRect)rect		// return rect within which
-{													// cell draws itself (Inset
-	if(_c.bordered)									// on all sides to account
-		return NSInsetRect(rect, 1, 1);				// for cell's border type)
+{ // cell draws itself (Inset on all sides to account for cell's border type)
+	if(_c.bordered)
+		return NSInsetRect(rect, 1, 1);
 	if(_c.bezeled)
 		return NSInsetRect(rect, 2, 2);
 	return rect;
@@ -193,12 +193,15 @@ static NSCursor *__textCursor = nil;
 
 - (NSRect) imageRectForBounds:(NSRect)theRect
 {
-	return NSZeroRect;
+	theRect=NSInsetRect(theRect, 2, 2);
+	return theRect;
 }
 
 - (NSRect) titleRectForBounds:(NSRect)theRect
 {
-	return NSZeroRect;
+	if(_c.type == NSTextCellType)
+		theRect=NSInsetRect(theRect, 2, 1);
+	return theRect;
 }
 
 - (void) setImage:(NSImage *)anImage

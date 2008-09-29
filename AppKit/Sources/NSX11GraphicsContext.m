@@ -1885,11 +1885,11 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 													 8,			// depth
 													 ZPixmap,
 													 0,      // offset
-													 objc_malloc(buffersize/4),
-													 width,
-													 height,
+													 objc_malloc(1),
+													 1,
+													 1,
 													 8,
-													 width);
+													 1);	// make 1x1 pixel image for fraction
  */
 				for(y=0; y<height; y+=fragment)
 						{ // fill next stride from imageplanes

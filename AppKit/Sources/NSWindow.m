@@ -397,7 +397,7 @@ static BOOL __cursorHidden = NO;
 		wf=[_window frame];	// window frame
 		f.origin.x=wf.size.width-f.size.width-4.0;
 		[wb setFrameOrigin:f.origin];	// flush toolbar button to the right end
-		tv=[[NSToolbarView alloc] initWithFrame:(NSRect){{0.0, wf.size.width}, {20.0, 20.0}}];	// as wide as the window
+		tv=[[NSToolbarView alloc] initWithFrame:(NSRect){{0.0, 0.0}, {wf.size.width, 50.0}}];	// as wide as the window
 		[tv setAutoresizingMask:NSViewMaxYMargin|NSViewWidthSizable];
 		[tv setAutoresizesSubviews:YES];
 		[self addSubview:tv];
@@ -648,6 +648,7 @@ static NSButtonCell *sharedCell;
 {
 	ASSIGN(_toolbar, toolbar);
 	[toolbar _setToolbarView:self];	// create link
+	[self layout];
 }
 
 - (NSToolbar *) toolbar; { return _toolbar; }
@@ -679,10 +680,9 @@ static NSButtonCell *sharedCell;
 	if(_itemRectCount < 0 && [_toolbar isVisible])
 			{ // recache
 				NSArray *items=[_toolbar _activeItems];
-				NSEnumerator *e=[items objectEnumerator];
+				unsigned cnt=[items count];
+				int i;
 				NSToolbarItem *item;
-				float border=3.0;
-				NSRect rect={ { border, border }, { 0, 0 } };
 				if(!sharedCell)
 						{
 							sharedCell=[[NSButtonCell alloc] init];
@@ -690,7 +690,8 @@ static NSButtonCell *sharedCell;
 							[sharedCell setBordered:NO];	// no border (i.e. ignores bezelStyle)
 							[sharedCell setImageScaling:NSScaleProportionally];
 							[sharedCell setShowsFirstResponder:NO];
-							// set other attributes if needed
+							[sharedCell setImageDimsWhenDisabled:YES];
+							[sharedCell setAction:@selector(dummy:)];	// so that the cell calls our sendAction:to: method
 						}
 				switch([_toolbar displayMode])
 					{
@@ -709,44 +710,46 @@ static NSButtonCell *sharedCell;
 				_itemRectCount=0;
 				_toolbarHeight=0.0;
 				if(![self popUpMode])
-						{ // we have a large screen, so we can layout a toolbar
-							float remainder;
+						{ // we have a large screen, so we can really layout a toolbar
+							float border=3.0;
+							NSRect rect={ { border, border }, { 0, 0 } };
 							_toolbarHeight=12.0;	// minimum height
-							while((item=[e nextObject]))
+							for(i=0; i<cnt; i++)
 									{ // allocate next item
-										NSControl *iv=(NSControl *) [item view];
-										rect.size=NSZeroSize;
+										NSView *iv;	// item view
+										NSSize min, max;
+										item=[items objectAtIndex:i];
+										iv=[item view];
+										[sharedCell setTitle:[item label]];
 										if(iv)
-												{ // item has its own view
-													[[iv cell] setControlSize:[sharedCell controlSize]];	// set like for other cells
-													rect.size=[iv frame].size;	// take as given
-													// how does it work that flexible items resize themselves?
-													// there was a note in the doc for the separator toolbar item which has always full height
-													// but does not define the height?
-													// handle min/max width for flexible cells
-													// use minSize.height to define _toolbarHeight
-													[iv setFrame:rect];	// adjust / reposition
-													[iv setTarget:[item target]];
-													[iv setAction:[item action]];
+												{ // item has its own view - use min/max algorithm
+													float labelheight;
+													[sharedCell setImage:nil];	// no image
+													labelheight=[sharedCell cellSize].height;
+													min.height+=labelheight;
+													min=[item minSize];
+													max=[item maxSize];
 												}
 										else
-												{ // use our button cell for geometry
-													[sharedCell setTitle:[item label]];
+												{
 													[sharedCell setImage:[item image]];
-													rect.size=[sharedCell cellSize];	// as much as needed
+													min=max=[sharedCell cellSize];	// use as much as needed by contents
 												}
+										rect.size.width=MIN([self frame].size.width-2*border-NSMinX(rect), max.width);	// how much space do we want or have left over to distribute
+										if(rect.size.width < min.width)
+												{ // is not enough
+														/*
+														 1. try to squeeze flexible items down to their minSize.width
+														 2. if it does not suffice, kick out items with lower priority
+														 3. if it does not suffice, kick out this element
+														 */
+													rect.size.width=0.0;
+												}
+										if(rect.size.width > 0 && _toolbarHeight < min.height)
+											_toolbarHeight = min.height; // make _toolbarHeight at least as our minimum
 #if 0
 										NSLog(@"item %@ size %@", [item paletteLabel], NSStringFromSize(rect.size));
 #endif
-										//										if([_toolbar displayMode] != NSToolbarDisplayModeIconOnly)
-										// FIXME - we need spacing around the cell, i.e. add somethin to the width/height
-										if(_toolbarHeight < rect.size.height+border)
-											_toolbarHeight = rect.size.height+border; // adjust _toolbarHeight
-										if(NSMaxX(rect)+border > [self frame].size.width)	// does not fit any more
-												{
-													// check if we can throw out a lower priority item instead
-													rect.size=NSZeroSize;	// empty, i.e. not visible
-												}
 										if(_itemRects == NULL || _itemRectCount >= _itemRectCapacity)
 											_itemRects=objc_realloc(_itemRects, sizeof(_itemRects[0])*(_itemRectCapacity=2*_itemRectCapacity+3));	// allocate more space
 										_itemRects[_itemRectCount++]=rect;	// store
@@ -756,13 +759,28 @@ static NSButtonCell *sharedCell;
 										if(rect.size.width > 0)
 											rect.origin.x += rect.size.width + 2*border;	// advance to next position
 									}
-							remainder=[self frame].size.width-NSMaxX(rect)-2*border;	// how much space do we have to distribute
-							// divide by number(?) of flexible items
-							// generally, the algorithm should be able to keep items visible that are out of sequence
-							e=[items objectEnumerator];
-							while((item=[e nextObject]))
-									{
-										// do a second run to distribute the remaining item width over the flexible items
+							_toolbarHeight+=border;
+							for(i=0; i<cnt; i++)
+									{	// adjust / reposition subviews (if iv exists)
+										NSView *iv;	// item view
+										item=[items objectAtIndex:i];
+										iv=[item view];
+										if(iv)
+												{
+													NSSize max=[item maxSize];
+													_itemRects[i].size.height=MIN(_toolbarHeight, max.height);	// limit
+													_itemRects[i].origin.y += (_toolbarHeight - _itemRects[i].size.height)/2;	// vertically centered
+													if(!NSIsEmptyRect(_itemRects[i]))
+															{ // not invisible
+																[iv setFrame:_itemRects[i]];
+																if(![sub_views containsObject:iv])
+																	[self addSubview:iv];	// not yet visible, add to view hierarchy
+															}
+													else
+														[iv removeFromSuperview];	// not visible
+												}
+										else
+											_itemRects[i].size.height=_toolbarHeight;
 									}
 						}
 			}
@@ -786,7 +804,7 @@ static NSButtonCell *sharedCell;
 {
 	if(![_toolbar isVisible] || [self popUpMode])
 		return 0.0;	// if space limited, use popup menu
-	if(_itemRectCount < 0)
+	if(_itemRectCount < 0 && _toolbar)
 		[self rectForToolbarItem:0];	// load cache
 	return _toolbarHeight;
 }
@@ -809,14 +827,16 @@ static NSButtonCell *sharedCell;
 				NSToolbarItem *item=[items objectAtIndex:i];
 				if(NSIsEmptyRect(_itemRects[i]))
 					continue;	// entry to ignore
-				if(![item view] && NSIntersectsRect(_itemRects[i], rect))
+				if(NSIntersectsRect(_itemRects[i], rect))
 						{ // is visible - draw
 							[sharedCell setEnabled:[item isEnabled]];	// grey out label/image
 							[sharedCell setTitle:[item label]];
-							[sharedCell setImage:[item image]];
+							if([item view])
+								[sharedCell setImage:nil];	// no image
+							else
+								[sharedCell setImage:[item image]];
 							[sharedCell setHighlighted:(i == _highlightedCell)];
 							[sharedCell drawWithFrame:_itemRects[i] inView:self];
-							[sharedCell setAction:@selector(dummy:)];	// so that the cell calls our sendAction:to: method
 						}
 			}
 }

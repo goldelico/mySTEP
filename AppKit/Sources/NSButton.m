@@ -302,6 +302,7 @@ id __buttonCellClass = nil;
 
 - (void) setButtonType:(NSButtonType)buttonType			// Graphic Attributes
 {
+	[self setImageDimsWhenDisabled:YES];	// default
 	switch(_buttonType=buttonType)
 		{
 		case NSMomentaryLightButton:
@@ -334,6 +335,7 @@ id __buttonCellClass = nil;
 			[self setImage:(NSImage *) [[NSButtonImageSource alloc] initWithName:@"NSSwitch"]];
 			[self setImagePosition:NSImageLeft];
 			[self setBordered:NO];
+				[self setImageDimsWhenDisabled:NO];
 			break;
 		case NSRadioButton:
 			[self setHighlightsBy:NSContentsCellMask];
@@ -341,6 +343,7 @@ id __buttonCellClass = nil;
 			[self setImage:(NSImage *) [[NSButtonImageSource alloc] initWithName:@"NSRadioButton"]];
 			[self setImagePosition:NSImageLeft];
 			[self setBordered:NO];
+				[self setImageDimsWhenDisabled:NO];
 			break;
 		}
 	[self setState:[self state]];		// update our state (to a valid value)
@@ -413,6 +416,8 @@ id __buttonCellClass = nil;
 
 - (NSRect) drawingRectForBounds:(NSRect) cellFrame
 {
+	if(!_c.bordered)
+		return cellFrame;	// borderless
 	switch(_bezelStyle & 15)	// only lower 4 bits are relevant
 		{
 		case _NSTraditionalBezelStyle:
@@ -456,6 +461,20 @@ id __buttonCellClass = nil;
 			break;
 		}
 	return cellFrame;
+}
+
+- (NSRect) imageRectForBounds:(NSRect)theRect
+{
+	theRect=[self drawingRectForBounds:theRect];
+	// handle image position
+	return theRect;
+}
+
+- (NSRect) titleRectForBounds:(NSRect)theRect
+{
+	theRect=[self drawingRectForBounds:theRect];
+	// handle text position
+	return theRect;
 }
 
 - (void) drawBezelWithFrame:(NSRect) cellFrame inView:(NSView *) controlView;
@@ -755,14 +774,30 @@ id __buttonCellClass = nil;
 			cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width) - 4;
 			cellFrame.origin.y += (NSHeight(cellFrame) - imageSize.height)/2;
 			break;
-		case NSImageAbove:						 		// draw image above the title
-			cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width)/2;
-			cellFrame.origin.y += 4;
-			break;
-		case NSImageBelow:								// draw image below the title
-			cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width)/2;
-			cellFrame.origin.y += (NSHeight(cellFrame) - imageSize.height) - 4;
-			break;
+			case NSImageAbove:						 		// draw image above the title
+				if(![controlView isFlipped])
+						{
+							cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width)/2;
+							cellFrame.origin.y += (NSHeight(cellFrame) - imageSize.height) - 4;
+						}
+				else
+						{
+							cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width)/2;
+							cellFrame.origin.y += 4;
+						}
+				break;
+			case NSImageBelow:								// draw image below the title
+				if(![controlView isFlipped])
+						{
+							cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width)/2;
+							cellFrame.origin.y += 4;
+						}
+				else
+						{
+							cellFrame.origin.x += (NSWidth(cellFrame) - imageSize.width)/2;
+							cellFrame.origin.y += (NSHeight(cellFrame) - imageSize.height) - 4;
+						}
+				break;
 		}
 	if(stateOrHighlight(NSPushInCellMask))
 		{ // makes button appear pushed in by moving the image by one pixel
@@ -774,9 +809,7 @@ id __buttonCellClass = nil;
 #if 0
 	NSLog(@"image %@ at %@", image, NSStringFromPoint(cellFrame.origin));
 #endif
-	// FIXME: handle imageDimsWhenDisabled
-	// shouldn't we drawInRect: to scale properly?
-	[img compositeToPoint:cellFrame.origin operation:op fraction:(_c.highlighted?0.6:1.0)];	
+	[img compositeToPoint:cellFrame.origin operation:op fraction:(_c.highlighted?0.6:(!_dimsWhenDisabled || _c.enabled?1.0:0.5))];	
 }
 
 - (void) drawTitle:(NSAttributedString *) title withFrame:(NSRect) cellFrame inView:(NSView *) controlView;
@@ -798,51 +831,55 @@ id __buttonCellClass = nil;
 		{ // make button appear pushed in (move text down one pixel?)
 		  // might have to depend on bezel style
 		}
-	if(_c.bordered)
-		{ // handle special Bezels
-		switch(_bezelStyle)
-			{ // special
-			case NSRoundRectBezelStyle:
-			case NSTexturedRoundBezelStyle:
-			case NSRoundedBezelStyle:
-				cellFrame=NSInsetRect(cellFrame, 10.0, 2.0+floor(cellFrame.size.height*0.1875));	// make text area smaller than enclosing frame
-				break;
-			default:
-				break;
-			}
-		}
-
-	// FIXME: do we really need to calculate this here?
-	// or should we override imageRectForBounds, drawingRectForBounds, titleRectForBounds here and in NSCell?
-	
+	cellFrame=[self titleRectForBounds:cellFrame];
 	_d.verticallyCentered=YES;	// within its box
 	textFrame=cellFrame;
 	if(_image && !(_c.imagePosition == NSNoImage || _c.imagePosition == NSImageOverlaps))
 		{ // adjust text field position for image
-		NSSize imageSize;
+			// FIXME: determine text size and position independently of image size!
+			// and draw title either at bottom or top or left or right border
+			// needed for properly drawing Toolbar buttons
+		NSSize imageSize, textSize;
 		if([_image isKindOfClass:[NSButtonImageSource class]])
 			_image=[(NSButtonImageSource *) _image buttonImageForCell:self];	// substitute
 		imageSize=[_image size];
 		switch(_c.imagePosition) 
 			{												
-			case NSImageLeft:					 			// draw image to the left of title
+			case NSImageLeft:					 			// draw title to the right of image
 				textFrame.origin.x+=imageSize.width+8;
 				textFrame.size.width-=imageSize.width+8;
 				break;
-			case NSImageRight:					 			// draw image to the right of the title
+			case NSImageRight:					 			// draw title to the left of the image
 				textFrame.origin.x+=4;
 				textFrame.size.width-=imageSize.width+8;
 				break;
-			case NSImageAbove:						 		// draw image above the title
-				_c.alignment=NSCenterTextAlignment;
-				textFrame.origin.y += imageSize.height+4;
-				textFrame.size.height-=imageSize.height+8;
+			case NSImageAbove:						 		// draw title below the image
+					_c.alignment=NSCenterTextAlignment;
+					_d.verticallyCentered=NO;
+					if(![controlView isFlipped])
+							{
+								textFrame.origin.y += 4;
+								textFrame.size.height-=imageSize.height+8;
+							}
+					else
+							{
+								textFrame.origin.y += imageSize.height+4;
+								textFrame.size.height-=imageSize.height+8;
+							}
 				break;
-			case NSImageBelow:								// draw image below the title
+			case NSImageBelow:								// draw title above the image
 				_c.alignment=NSCenterTextAlignment;
 				_d.verticallyCentered=NO;
-				textFrame.origin.y += 4;
-				textFrame.size.height-=imageSize.height+8;
+					if(![controlView isFlipped])
+							{
+								textFrame.origin.y += imageSize.height+4;
+								textFrame.size.height-=imageSize.height+8;
+							}
+					else
+							{
+								textFrame.origin.y += 4;
+								textFrame.size.height-=imageSize.height+8;
+							}
 				break;
 			default:
 				break;

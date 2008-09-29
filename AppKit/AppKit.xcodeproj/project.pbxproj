@@ -646,6 +646,9 @@
 		EE52D85E09E446140047FBB3 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D467109964C8300DDE5E0 /* AppKit.framework */; };
 		EE52D85F09E446140047FBB3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
 		EE52D86D09E4466D0047FBB3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
+		EE5B8C200E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
+		EE5B8C210E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
+		EE5B8C220E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
 		EE61B6A609B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
 		EE61B6A709B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
 		EE7860550D2D4E1E00B2197B /* GSArrowCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */; };
@@ -1223,6 +1226,7 @@
 		EE4CC7100B3546F300B04C5F /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PrintProgressPanel.nib; sourceTree = "<group>"; };
 		EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = GSColorWheel.jpg; sourceTree = "<group>"; };
 		EE52832F09A1FB2E00218247 /* NSCursor.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSCursor.m; sourceTree = "<group>"; };
+		EE5B8C1F0E9015F300264951 /* info_16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = info_16.png; path = ../../Icons/Harmony/Additions/info_16.png; sourceTree = SOURCE_ROOT; };
 		EE61B6A509B21985005A250B /* NSColorSpace.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSColorSpace.m; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSArrowCursor.tiff; sourceTree = "<group>"; };
@@ -3833,6 +3837,7 @@
 				EEDB37840ABD584F00C31F1E /* Lion.jpg */,
 				EEDB37850ABD584F00C31F1E /* myTest.icns */,
 				EEDB378F0ABD592900C31F1E /* rss.gif */,
+				EE5B8C1F0E9015F300264951 /* info_16.png */,
 				EE294BFE0E4586B100F2D481 /* Toolbar.plist */,
 				EE31970409AB7E8B0089A9A2 /* InfoPlist.strings */,
 				EE31970609AB7E8B0089A9A2 /* MainMenu.nib */,
@@ -6399,6 +6404,7 @@
 				EEDB37900ABD592900C31F1E /* rss.gif in Resources */,
 				EEEBB1DE0CF4C279003B9D6E /* 1bK Copy.png in Resources */,
 				EE294BFF0E4586B100F2D481 /* Toolbar.plist in Resources */,
+				EE5B8C220E9015F300264951 /* info_16.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6508,6 +6514,7 @@
 				EEDB37910ABD592900C31F1E /* rss.gif in Resources */,
 				EEEBB1DD0CF4C279003B9D6E /* 1bK Copy.png in Resources */,
 				EE294C000E4586B100F2D481 /* Toolbar.plist in Resources */,
+				EE5B8C210E9015F300264951 /* info_16.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6523,6 +6530,7 @@
 				EEC8035609AE4EBF006EEB03 /* MainMenu.nib in Resources */,
 				EEEBB1DF0CF4C279003B9D6E /* 1bK Copy.png in Resources */,
 				EE294C010E4586B100F2D481 /* Toolbar.plist in Resources */,
+				EE5B8C200E9015F300264951 /* info_16.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
