@@ -984,7 +984,7 @@ static NSButtonCell *sharedCell;
 				if(iv)
 						{ // implemented by subview
 							[iv setMenu:controlMenu];	// set the menu (NSResponder)
-							[iv mouseDown:event];	// pass to view and track there
+							[iv mouseDown:event];	// pass to item view and track there
 							return;
 						}
 				[sharedCell setMenu:controlMenu];	// define for control-click

@@ -446,6 +446,8 @@ inline static struct RGBA8 getPixel(int x, int y,
 									int bytesPerRow,
 									BOOL isPlanar,
 									BOOL hasAlpha, 
+									BOOL isPremultiplied,
+									BOOL isAlphaFirst,
 									unsigned char *data[5])
 { // extract RGBA8 value of given pixel from bitmap
 	int offset;
@@ -479,6 +481,12 @@ inline static struct RGBA8 getPixel(int x, int y,
 		else
 			src.A=255;	// opaque
 		}
+	if(!isPremultiplied)
+			{
+				src.R=(src.R*src.A)/255;
+				src.G=(src.G*src.A)/255;
+				src.B=(src.B*src.A)/255;
+			}
 	return src;
 }
 
@@ -2013,6 +2021,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	NSBitmapFormat bitmapFormat;
 	BOOL hasAlpha;
 	BOOL isPlanar;
+	BOOL isPremultiplied;
+	BOOL isAlphaFirst;
 	BOOL isFlipped;
 	BOOL calibrated;
 	NSAffineTransform *atm;	// projection from X11 window-relative to bitmap coordinates
@@ -2037,8 +2047,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		return NO;
 		}
 	bitmapFormat=[(NSBitmapImageRep *) rep bitmapFormat];
-	if(bitmapFormat != 0)
-		{ // can't handle non-premultiplied and float pixel (but we could easily handle alphafirst)
+	isPremultiplied=(bitmapFormat&NSAlphaNonpremultipliedBitmapFormat) == 0;
+	isAlphaFirst=(bitmapFormat&NSAlphaFirstBitmapFormat) != 0;
+	if((bitmapFormat&~NSAlphaNonpremultipliedBitmapFormat) != 0)
+		{ // can't handle alphafirst and float pixel formats
 		NSLog(@"_draw: can't draw bitmap format %0x yet", [(NSBitmapImageRep *) rep bitmapFormat]);
 		// raise exception
 		return NO;
@@ -2245,6 +2257,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 										  */
 										 bytesPerRow,
 										 isPlanar, hasAlpha,
+										 isPremultiplied, isAlphaFirst,
 										 imagePlanes);
 						}
 					}

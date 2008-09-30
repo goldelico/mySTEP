@@ -238,6 +238,24 @@ static NSMapTable *_toolbars;
 
 @end
 
+@interface _NSToolbarSeparatorItemView : NSView
+@end
+
+@implementation _NSToolbarSeparatorItemView
+
+- (BOOL) isOpaque; { return NO; }
+- (void) mouseDown:(NSEvent *) event { return; }	// ignore
+- (void) mouseDragged:(NSEvent *) event { return; }	// ignore
+- (void) mouseUp:(NSEvent *) event { return; }	// ignore
+
+- (void) drawRect:(NSRect) rect
+{ // draw a separator line as high as we need
+	// should be a dotted vertical line
+	[NSBezierPath strokeLineFromPoint:NSMakePoint(NSMidX(_bounds), NSMinY(_bounds)+1.0) toPoint:NSMakePoint(NSMidX(_bounds), NSMaxY(_bounds)-1.0)];
+}
+
+@end
+
 @implementation NSToolbarItem
 
 - (SEL) action; { return _action; }
@@ -273,7 +291,8 @@ static NSMapTable *_toolbars;
 								_action=NSSelectorFromString(val);	// _target is nil, i.e. firstResponder
 							if([val=[dict objectForKey:@"Icon"] length] > 0)
 								_image=[NSImage imageNamed:val];
-							// should also allow to set the view for the Separator Item which simply draws a vertical bar
+							if([val=[dict objectForKey:@"ViewClass"] length] > 0)
+								_view=[[NSClassFromString(val) alloc] initWithFrame:NSZeroRect];
 							// should allow to initialize targets
 							if([_itemIdentifier isEqualToString:NSToolbarShowFontsItemIdentifier])
 								_target=[NSFontManager sharedFontManager];	// is not member of the responder chain (or should it be?)

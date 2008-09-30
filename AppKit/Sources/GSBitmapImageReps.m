@@ -174,6 +174,7 @@ static void png_read(png_structp png_ptr, png_bytep data, png_size_t length)
 						 hasAlpha: alpha
 						 isPlanar: NO
 						 colorSpaceName: NSDeviceRGBColorSpace
+						 bitmapFormat:NSAlphaNonpremultipliedBitmapFormat
 						 bytesPerRow: row_bytes
 						 bitsPerPixel: read_info_ptr->pixel_depth] autorelease];
 

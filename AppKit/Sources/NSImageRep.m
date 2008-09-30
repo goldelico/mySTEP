@@ -915,6 +915,7 @@ static NSArray *__pbBitmapImageReps;
 								  hasAlpha:(info->samplesPerPixel > 3)
 								  isPlanar:(info->planarConfig == PLANARCONFIG_SEPARATE)
 							colorSpaceName: info->space
+								bitmapFormat:NSAlphaNonpremultipliedBitmapFormat
 							   bytesPerRow: 0
 							  bitsPerPixel: 0] autorelease];
 		imageRep->_compression = info->compression;
@@ -1004,9 +1005,6 @@ static NSArray *__pbBitmapImageReps;
 	if (bitsPerSample <= 0 || samplesPerPixel <= 0 || samplesPerPixel > 5 || width <= 0 || height <= 0) 
 		[NSException raise: NSInvalidArgumentException
 					format: @"initWithBitmapDataPlanes missing required arguments"];
-	if (bitmapFormat > 0)
-		[NSException raise: NSInvalidArgumentException
-					format: @"no 10.4 bitmap formats supported"];
 	/* FIXME: more consistency checks
 	 if([colorSpaceName isEqual:@"RGB"])
 		components=3;
@@ -1162,7 +1160,7 @@ static NSArray *__pbBitmapImageReps;
 {
 	int i;
 	int offset;
-	// FIXME: handle _format
+	NSAssert(_format == 0, @"No 10.4 bitmap formats supported");
 	if(_brep.isPlanar)
 		{ // planar
 		offset=x + bytesPerRow*(_pixelsHigh-1-y);
@@ -1181,9 +1179,9 @@ static NSArray *__pbBitmapImageReps;
 {
 	int i;
 	int offset;
+	NSAssert(_format == 0, @"No 10.4 bitmap formats supported");
 	if (!_imagePlanes || !_imagePlanes[0])
 		[self bitmapData];	// allocate plane memory
-	// FIXME: handle _format
 	if(_brep.isPlanar)
 		{ // planar
 		offset=x + bytesPerRow*(_pixelsHigh-1-y);

@@ -161,8 +161,8 @@
 			<string>{5,0}</string>
 			<key>MaxSize</key>
 			<string>{5,100000}</string>
-			<key>View</key>
-			<string>_NSToolbarSeparatorView</string>
+			<key>ViewClass</key>
+			<string>_NSToolbarSeparatorItemView</string>
 			<key>ToolTip</key>
 			<string></string>
 			<key>AllowsDuplicates</key>
