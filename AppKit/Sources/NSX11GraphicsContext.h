@@ -74,6 +74,7 @@ typedef struct _NSX11GraphicsState
 	float _horizontalScale;
 	float _leading;
 	float _rise;						// current baseline
+	int _textRenderMode;
  @public
 	Window _realWindow;					// may be the same or different from _graphicsPort for double buffered windows
 	XRectangle _xRect;					// X11 rectangle of the window

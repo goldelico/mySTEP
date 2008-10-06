@@ -18,5 +18,5 @@
 #import <IOBluetooth/objc/IOBluetoothSDPServiceAttribute.h>
 #import <IOBluetooth/objc/IOBluetoothSDPServiceRecord.h>
 #import <IOBluetooth/objc/IOBluetoothSDPUUID.h>
-#import <IOBluetooth/objc/IOBluetoothOBEXFileTransferServices.h>
-#import <IOBluetooth/objc/IOBluetoothOBEXSession.h>
+#import <IOBluetooth/objc/OBEXFileTransferServices.h>
+#import <IOBluetooth/objc/OBEXSession.h>

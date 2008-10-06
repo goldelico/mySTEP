@@ -1617,6 +1617,8 @@ NSWindow *w;
 #endif
 	if([aMenu numberOfItems] == 0)
 		[aMenu addItemWithTitle:@"" action:NULL keyEquivalent:@""];	// create at least one entry in main menu
+	// FIXME: should we always substitute?
+	// and should we setAttributedTitle?
 	if([[[aMenu itemAtIndex:0] title] length] == 0)
 		{ // application menu title is empty - substitute from bundle
 		NSString *applicationName=[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];

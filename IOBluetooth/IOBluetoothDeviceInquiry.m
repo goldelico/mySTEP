@@ -14,10 +14,9 @@
 #import <SystemStatus/NSSystemStatus.h>
 
 // new version to be based on bluez
-// FIXME: add -I to project settings
 
-#define id C_id
-#include <bluetooth.h>
+#define id objc_id
+// FIXME: #include <net/bluetooth/bluez.h>
 #undef id
 
 #else

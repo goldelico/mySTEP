@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EE51D6F50CEDA58F00BC61D5 /* IKPictureTaker.h in Headers */ = {isa = PBXBuildFile; fileRef = EE51D6F30CEDA58F00BC61D5 /* IKPictureTaker.h */; };
+		EE51D6F50CEDA58F00BC61D5 /* IKPictureTaker.h in Headers */ = {isa = PBXBuildFile; fileRef = EE51D6F30CEDA58F00BC61D5 /* IKPictureTaker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE51D6F60CEDA58F00BC61D5 /* IKPictureTaker.m in Sources */ = {isa = PBXBuildFile; fileRef = EE51D6F40CEDA58F00BC61D5 /* IKPictureTaker.m */; };
-		EE51D7000CEDA74E00BC61D5 /* IKImageBrowserView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE51D6FE0CEDA74E00BC61D5 /* IKImageBrowserView.h */; };
+		EE51D7000CEDA74E00BC61D5 /* IKImageBrowserView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE51D6FE0CEDA74E00BC61D5 /* IKImageBrowserView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE51D7010CEDA74E00BC61D5 /* IKImageBrowserView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE51D6FF0CEDA74E00BC61D5 /* IKImageBrowserView.m */; };
-		EE51D70B0CEDA8AC00BC61D5 /* IKImageView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE51D7090CEDA8AC00BC61D5 /* IKImageView.h */; };
+		EE51D70B0CEDA8AC00BC61D5 /* IKImageView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE51D7090CEDA8AC00BC61D5 /* IKImageView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE51D70C0CEDA8AC00BC61D5 /* IKImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE51D70A0CEDA8AC00BC61D5 /* IKImageView.m */; };
 		EEC4A68B08633B7A00309A0C /* ImageKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = EE6FE352076F05AF009CC969 /* ImageKit.framework */; };
 /* End PBXBuildFile section */
@@ -186,7 +186,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=*.m   # all source codes\n\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/PrivateFrameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=*.m   # all source codes\n\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

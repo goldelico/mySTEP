@@ -93,6 +93,7 @@
 	[printerName release];
 	[printerNote release];
 	[printerType release];
+	[printerDomain release];
 	[super dealloc];
 }
 
@@ -104,6 +105,7 @@
 - (NSString *) name						{ return printerName; }
 - (NSString *) note						{ return printerNote; }
 - (NSString *) type						{ return printerType; }
+- (NSString *) domain;				{ return printerDomain; }
 
 - (BOOL) acceptsBinary
 {
@@ -384,7 +386,6 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (void)setVerticalPagination:(NSPrintingPaginationMode)mode
 {
-  return [(NSNumber *)[info objectForKey:NSPrintVerticalPagination] intValue];
 }
 
 - (NSPrintingPaginationMode) verticalPagination
@@ -636,7 +637,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 @interface _NSPDFGraphicsContext : NSGraphicsContext
 {
 @public
-	NSOutputStream *_pdf;
+	NSOutputStream *_pdf;	// stream to write to
 	NSMutableArray *_objects;	// objects (incl. streams)
 	NSMutableArray *_references;	// objects (incl. streams)
 	NSMutableArray *_fonts;		// fonts
@@ -726,7 +727,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (void) appendString:(NSString *) string;
 {
-	const char *cstr=[string cString];
+	const char *cstr=[string UTF8String];
 	[self write:(unsigned char *)cstr maxLength:strlen(cstr)];
 #if 1
 	NSLog(@"PDF: %@", string);
@@ -1000,6 +1001,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 	// i.e. the _pdf object should be an NSMutableData and not an NSString?
 	// or we append character fragments
 //	[_pdf appendFormat:@"%C", glyphs];
+	// [_pdf write:(unsigned char *)cstr maxLength:strlen(cstr)];
 	[_pdf appendString:@") Tj"];
 }
 

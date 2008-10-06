@@ -1542,6 +1542,11 @@ printing
 			atm=[self _bounds2frame];	// goes to our superview
 			// HM - we should transform the corners individually and determine min/max dimension of the invalidated superview
 			// we can also estimate the bounding box (as long as it is at least the required size)
+				/* basic idea:
+				 NSBezierPath *r=[NSBezierPath bezierPathWithRect:rect];
+				 [rect transformUsingAffineTransform:matrix];
+				 NSRect boundingBox=[r controlPointBounds];   
+				 */				 
 			r.origin=[atm transformPoint:rect.origin];
 			r.size=[atm transformSize:rect.size];
 			if((rect.size.height < 0) != (r.size.height < 0))

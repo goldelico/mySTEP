@@ -46,9 +46,9 @@
 		EEE169920CD71F5E00A85BD3 /* IOBluetoothOBEXSession.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE169900CD71F5E00A85BD3 /* IOBluetoothOBEXSession.m */; };
 		EEE169970CD71F8500A85BD3 /* IOBluetoothSDPUUID.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE169950CD71F8500A85BD3 /* IOBluetoothSDPUUID.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEE169980CD71F8500A85BD3 /* IOBluetoothSDPUUID.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE169960CD71F8500A85BD3 /* IOBluetoothSDPUUID.m */; };
-		EEE1699D0CD71F9900A85BD3 /* OBEXSession.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE1699B0CD71F9900A85BD3 /* OBEXSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE1699D0CD71F9900A85BD3 /* OBEXSession.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE1699B0CD71F9900A85BD3 /* OBEXSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEE1699E0CD71F9900A85BD3 /* OBEXSession.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE1699C0CD71F9900A85BD3 /* OBEXSession.m */; };
-		EEE169A30CD71FAF00A85BD3 /* OBEXFileTransferServices.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE169A10CD71FAF00A85BD3 /* OBEXFileTransferServices.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE169A30CD71FAF00A85BD3 /* OBEXFileTransferServices.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE169A10CD71FAF00A85BD3 /* OBEXFileTransferServices.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEE169A40CD71FAF00A85BD3 /* OBEXFileTransferServices.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE169A20CD71FAF00A85BD3 /* OBEXFileTransferServices.m */; };
 		EEE16A110CD7225300A85BD3 /* IOBluetoothPairingController.h in Copy objc Headers */ = {isa = PBXBuildFile; fileRef = EEE16A0F0CD7225300A85BD3 /* IOBluetoothPairingController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEE16A120CD7225300A85BD3 /* IOBluetoothPairingController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE16A100CD7225300A85BD3 /* IOBluetoothPairingController.m */; };
@@ -92,6 +92,8 @@
 			dstPath = Headers/objc;
 			dstSubfolderSpec = 1;
 			files = (
+				EEE1699D0CD71F9900A85BD3 /* OBEXSession.h in Copy objc Headers */,
+				EEE169A30CD71FAF00A85BD3 /* OBEXFileTransferServices.h in Copy objc Headers */,
 				EEE169610CD71E5000A85BD3 /* IOBluetoothObject.h in Copy objc Headers */,
 				EEE169670CD71E8E00A85BD3 /* IOBluetoothL2CAPChannel.h in Copy objc Headers */,
 				EEE1696D0CD71EBF00A85BD3 /* IOBluetoothRFCOMMChannel.h in Copy objc Headers */,
@@ -305,8 +307,6 @@
 			files = (
 				EE5D9CBD0A556B47000AE53D /* Bluetooth.h in Headers */,
 				EE5D9CE10A556C5E000AE53D /* BluetoothAssignedNumbers.h in Headers */,
-				EEE1699D0CD71F9900A85BD3 /* OBEXSession.h in Headers */,
-				EEE169A30CD71FAF00A85BD3 /* OBEXFileTransferServices.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -416,7 +416,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"IOBluetoothObject.m IOBluetoothDevice*.m IOBluetooth*Channel.m IOBluetoothSDP*.m IOBluetoothUserNotification.m *OBEX*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"Cocoa SystemStatus\"\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n\nexport CFLAGS=-I$ROOT/System/Sources/Xtoolchain/sources/bluez-libs-3.29/include/\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=\"IOBluetoothObject.m IOBluetoothDevice*.m IOBluetooth*Channel.m IOBluetoothSDP*.m IOBluetoothUserNotification.m *OBEX*.m\"   # all source codes\nexport LIBS=#-lbluez\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport OTHER_CFLAGS=-I../include\nexport FRAMEWORKS=\"Cocoa SystemStatus\"\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n\nexport CFLAGS=-I$ROOT/System/Sources/Xtoolchain/sources/bluez-libs-3.29/include/\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EEE16C0D0CD7BC7900A85BD3 /* Create Headers-objc */ = {
 			isa = PBXShellScriptBuildPhase;

@@ -47,13 +47,13 @@
 - (NSRect) _draw:(BOOL) draw glyphsForGlyphRange:(NSRange)glyphsToShow 
 						 atPoint:(NSPoint)origin;		// top left of the text container (in flipped coordinates)
 { // this is the core text drawing interface and all string additions are based on this call!
-	NSGraphicsContext *ctxt=draw?[NSGraphicsContext currentContext]:[NSNull null];
+	NSGraphicsContext *ctxt=draw?[NSGraphicsContext currentContext]:(NSGraphicsContext *) [NSNull null];
 	NSTextContainer *container=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];	// this call could fill the cache if needed...
 	NSSize containerSize=[container containerSize];
 	NSString *str=[_textStorage string];				// raw characters
 	NSRange rangeLimit=glyphsToShow;					// initial limit
 	NSPoint pos;
-	NSPoint pdfPos;
+	NSAffineTransform *tm;		// text matrix
 #if 0
 	NSFont *font=(NSFont *) [NSNull null];				// check for internal errors
 #else
@@ -63,7 +63,7 @@
 	BOOL flipped=draw?[ctxt isFlipped]:NO;
 	NSRect box=NSZeroRect;
 	NSRect clipBox;
-	BOOL outside=YES;
+//	BOOL outside=YES;
 	NSAssert(glyphsToShow.location==0 && glyphsToShow.length == [str length], @"can render full glyph range only");
 	//
 	// FIXME: optimize/cache for large NSTextStorages and multiple NSTextContainers
@@ -82,7 +82,7 @@
 	// i.e.
 	// [ctxt _setFont:xxx]; 
 	// [ctxt _beginText];
-	// [ctxt _newLine:...]; or [ctxt _setTextPositions:...];
+	// [ctxt _newLine]; or [ctxt _setTextPosition:...];
 	// [ctxt _setBaseline:xxx]; 
 	// [ctxt _setHorizontalScale:xxx]; 
 	// [ctxt _drawGlyphs:(NSGlyph *)glyphs count:(unsigned)cnt;	// -> (string) Tj
@@ -108,8 +108,7 @@
 		[ctxt setCompositingOperation:NSCompositeCopy];
 		[ctxt _beginText];			// starts at position (0,0)
 		}
-	pdfPos=NSZeroPoint;			// what PDF currently thinks - FIXME: we could also make a relative position once and then work only with deltas
-	pos=origin;					// tracks current drawing position (top left of the line) - PDF needs to position to the baseline
+	pos=origin;							// tracks current drawing position (top left of the line) - Note: PDF needs to position to the baseline
 
 	while(rangeLimit.length > 0)
 		{ // parse and process white-space separated words resp. fragments with same attributes
@@ -163,6 +162,7 @@
 					if(!font)
 						font=[NSFont userFontOfSize:0.0];		// use default system font
 					tabwidth=8.0*[font widthOfString:@"x"];	// approx. 8 characters
+					// draw space glyph + characterspacing
 					pos.x=origin.x+(1+(int)((pos.x-origin.x)/tabwidth))*tabwidth;
 					if((pos.x-origin.x)+width <= containerSize.width)
 						{ // still fits into remaining line
@@ -275,20 +275,13 @@
 			if((attrib=[attr objectForKey:NSSuperscriptAttributeName]))
 				baseline+=3.0*[attrib intValue];
 			[ctxt _setBaseline:baseline];	// update baseline
-			if(flipped)
-				{
-				NSPoint newPdfPos=pos;
-				newPdfPos.y+=[font ascender];
-				[ctxt _setTextPosition:NSMakePoint(newPdfPos.x-pdfPos.x, newPdfPos.y-pdfPos.y)];	// set where to start drawing (relative move)
-				pdfPos=newPdfPos;
-				}
-			else
-				{
-				NSPoint newPdfPos=pos;
-				newPdfPos.y-=[font ascender];
-				[ctxt _setTextPosition:NSMakePoint(newPdfPos.x-pdfPos.x, newPdfPos.y-pdfPos.y)];	// set where to start drawing (relative move)
-				pdfPos=newPdfPos;
-				}
+				
+				tm=[NSAffineTransform transform];	// identity
+				if(flipped)
+					[tm translateXBy:pos.x yBy:pos.y+[font ascender]];
+				else
+					[tm translateXBy:pos.x yBy:pos.y-[font ascender]];
+				[ctxt _setTM:tm];
 			
 			// FIXME: this all should be done through the GlyphGenerator
 			
@@ -301,7 +294,6 @@
 				_glyphs[i]=[font _glyphForCharacter:[substr characterAtIndex:i]];		// translate and copy to glyph buffer
 			
 			[ctxt _drawGlyphs:[self _glyphsAtIndex:0] count:_numberOfGlyphs];	// -> (string) Tj
-			pos.x-=width;	// already advanced to next fragment
 			
 			/* FIXME:
 				should be part of - (void) underlineGlyphRange:(NSRange)glyphRange 

@@ -461,6 +461,13 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		case NSTabletProximity:
 			NIMP;
 			break;
+			case NSRotate:
+			case NSBeginGesture:
+			case NSEndGesture:
+			case NSMagnify:
+			case NSSwipe:				
+				NIMP;
+				break;
 		}
 }
 
@@ -523,6 +530,13 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		case NSTabletProximity:
 			NIMP;
 			break;
+			case NSRotate:
+			case NSBeginGesture:
+			case NSEndGesture:
+			case NSMagnify:
+			case NSSwipe:				
+				NIMP;
+				break;
 		}
 
 	return self;
@@ -625,6 +639,13 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		case NSTabletProximity:
 			// NIMP;
 			break;			
+			case NSRotate:
+			case NSBeginGesture:
+			case NSEndGesture:
+			case NSMagnify:
+			case NSSwipe:				
+//				NIMP;
+				break;
 		}
 
 	return [NSString stringWithFormat:@"NSEvent: unknown event type = %d", event_type];
@@ -658,6 +679,11 @@ NSEventMaskFromType(NSEventType type)			// Convert an NSEvent Type to
 		case NSSystemDefined:		return NSSystemDefinedMask;
 		case NSApplicationDefined:	return NSApplicationDefinedMask;
 		case NSScrollWheel:			return NSScrollWheelMask;
-		default:					return 0;
+			case NSRotate:
+			case NSBeginGesture:
+			case NSEndGesture:
+			case NSMagnify:
+			case NSSwipe:				
+			default:					return 0;
 		}
 }

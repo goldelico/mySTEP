@@ -34,7 +34,7 @@ typedef enum _NSPrinterTableStatus {
 
 @interface NSPrinter : NSObject  <NSCoding>
 {
-	NSString *printerHost, *printerName, *printerNote, *printerType;
+	NSString *printerHost, *printerName, *printerNote, *printerType, *printerDomain;
 	int cacheAcceptsBinary, cacheOutputOrder;
 	BOOL isRealPrinter;
 }

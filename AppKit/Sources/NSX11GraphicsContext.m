@@ -1502,12 +1502,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _setTextPosition:(NSPoint) pos;
 { // PDF: x y Td
-	[_textMatrix translateXBy:pos.x yBy:pos.y];
-	ASSIGN(_textLineMatrix, _textMatrix);	// update text line matrix
+	[_textLineMatrix translateXBy:pos.x yBy:pos.y];
+	ASSIGN(_textMatrix, _textLineMatrix);	// update text line matrix
 }
 
 - (void) _setTM:(NSAffineTransform *) tm;
 { // PDF: a b c d e f Tm
+	ASSIGN(_textLineMatrix, tm);
 	ASSIGN(_textMatrix, tm);
 }
 
@@ -1536,9 +1537,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	_rise=val;
 }
 
+// do we need this operator or can a good PDF context cache & optimize to use combined operators?
 - (void) _newLine:(NSPoint) pos;
 { // PDF: x y TD
-	_leading=-pos.y;
+	_leading=-pos.y;	// really a - ?
 	[self _setTextPosition:pos];
 }
 
@@ -1617,13 +1619,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, x, y, width, height);	
 	_setDirtyRect(self, x, y, width, height);
 	XDestroyImage(img);
-	[self _setTextPosition:NSMakePoint(width, 0.0)];		// advance text matrix in horizontal mode according to info from glyph
-}
-
-// DEPRECATED
-- (void) _drawAntialisedGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;
-{
-	BACKEND;	// overwritten in NSFreeType.m
+	// distinguish between character and word spacing
+	[_textMatrix translateXBy:width+_characterSpace
+												yBy:0.0];		// advance text matrix in horizontal mode according to info from glyph
 }
 
 - (void) _drawGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;	// (string) Tj
@@ -1686,7 +1684,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 															 (int) atms.tX, ((int) atms.tY)-glyph->y,
 															 glyph->width, glyph->height);
 							[_state->_font getAdvancements:&advance forGlyphs:glyphs count:1];	// for current glyph
-							// if last character, apply word spacing
+							// if it is a space character code 32, apply word spacing
+							// what exactly should be done is described on page 313 of PDF-1.4
 							[self _setTextPosition:NSMakePoint((advance.width+_characterSpace)*_horizontalScale, 0.0)];		// advance text matrix in horizontal mode according to info from glyph
 						}
 #endif
@@ -1762,7 +1761,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 											cursor.x, cursor.y,
 											width,
 											font->ascent + font->descent);
-				[self _setTextPosition:NSMakePoint(width, 0.0)];		// advance text matrix in horizontal mode according to info from glyph
+				// handle character and word space
+				[_textMatrix translateXBy:width+_characterSpace yBy:0.0];
 			}
 	else
 			{ // use Freetype
@@ -1776,6 +1776,12 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _beginPage:(NSString *) title;
 { // can we (mis-)use that as setTitle???
+	_characterSpace=0.0;	// reset text parameters to default
+	_wordSpace=0.0;
+	_scale=1.0;
+	_leading=0.0;
+	_textRenderMode=0;
+	_rise=0.0;
 	return;
 }
 

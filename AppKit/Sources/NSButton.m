@@ -169,6 +169,7 @@ id __buttonCellClass = nil;
 
 - (NSSize) cellSize
 {
+	// FIXME - base on width of title and alternateTitle! Not on contents
 	NSSize m;
 	if(_c.imagePosition != NSImageOnly)
 			{ // get title width
