@@ -963,6 +963,7 @@ static NSArray *__bitmapImageRepsICNS;
 														  isPlanar: NO
 #endif
 													colorSpaceName: NSDeviceRGBColorSpace
+														bitmapFormat: NSAlphaNonpremultipliedBitmapFormat
 													   bytesPerRow: 0
 													  bitsPerPixel: 0] autorelease];
 		bitmap=[imageRep bitmapData];	// r, g, b, a planes
@@ -1029,7 +1030,6 @@ static NSArray *__bitmapImageRepsICNS;
 #endif
 			for(off=0; off<wh; off++)
 				set_pixel(off, 3, *mb++);
-			// FIXME: we might have to premultipy the RGB channels!!!
 			}
 		[array addObject:imageRep];	// save this representation
 		}
