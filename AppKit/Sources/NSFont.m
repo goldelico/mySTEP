@@ -46,8 +46,12 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 #endif
 	if(!fontName)
 		fontName = defaultFontName;
-	if(size <= 0.0 || (size = [u floatForKey:[NSString stringWithFormat:@"%@Size", key]]) <= 0.0)	// e.g. NSBoldFontSize=12
-		size = deflt;   // substitute default
+	if(size <= 0.0)
+			{ // try to get from user defaults
+				size = [u floatForKey:[NSString stringWithFormat:@"%@Size", key]];	// e.g. NSBoldFontSize=12
+				if(size <= 0.0)
+					size = deflt;   // substitute default
+			}
 	return [NSFont fontWithName:fontName size:size];
 }
 
@@ -260,8 +264,11 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 	NSString *key;
 	NSFontDescriptor *descriptor;
 	NSFont *f;
+#if 0
+	NSLog(@"_initWithName: %@ size: %f default: %@", postscriptName, size, defaultFont); 
+#endif
 	if(size <= 0.0)
-		// FIXME: the NSUserFont entry is just the font name!
+		// FIXME: the NSUserFont entry is just the font name and not the size!
 		// size=[[[NSUserDefaults standardUserDefaults] objectForKey:@"NSUserFont"] pointSize];	// default
 		size=12.0;
 	key=[postscriptName stringByAppendingFormat:@"-%.1f", size];	// build cache key
