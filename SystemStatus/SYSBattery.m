@@ -72,10 +72,12 @@ static struct bat getbat(void)
 	r.available=((r.flag & 0x80) == 0 && r.batterystatus != 0xFF);
 	r.charging=(r.batterystatus == 3);
 	r.ac=(r.linestatus == 1);
-	if(r.percentage > 100)
-		r.percentage=100;	// C860 return 255 while charging
-	if(r.time == -1)
-		r.time=0;   // apm can't deliver value: should estimate time to charge and time to decharge yourself
+	if(r.percentage > 100 || r.percentage < 0)
+		r.percentage=-100;	// C860 returns 255 while charging, Openmoko returns -1
+	if(r.time < 0)
+			{ // apm can't deliver value: should estimate time to charge and time to decharge yourself
+				r.time=-1;
+			}
 	if(strncmp(r.units, "min", 32) == 0)
 		r.time*=60; // in minutes
 	return r;
@@ -90,7 +92,7 @@ static struct bat getbat(void)
 }
 
 - (float) batteryFillLevel;
-{ // how much filled
+{ // how much filled / -1 if unknown
 #if DEMO
 	// make a sawtooth
 #define T 60.0
@@ -113,7 +115,7 @@ static struct bat getbat(void)
 }
 
 - (NSTimeInterval) remainingBatteryTime;
-{ // estimated remaining time till empty/full
+{ // estimated remaining time till empty/full / -1 if unknown
 #if DEMO
 	// this should try to estimate the remaining time
 	return -1.0;	// unknown

@@ -3372,7 +3372,10 @@ static NSDictionary *_x11settings;
 			}
 		else
 			{
+#if 0
+				// if we display on Apple X11:
 			size.height-=[self _windowTitleHeight]/_screenScale;	// subtract menu bar of X11 server from frame
+#endif
 			}
 #endif
 		_device=[[NSMutableDictionary alloc] initWithObjectsAndKeys:
