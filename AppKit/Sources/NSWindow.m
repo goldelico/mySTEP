@@ -1970,7 +1970,7 @@ static NSButtonCell *sharedCell;
 	[NSApp removeWindowsItem:self];
 	if(_w.releasedWhenClosed)	// do so. Default is YES for windows and NO for panels
 		{
-#if 0
+#if 1
 		NSLog(@"close %@: releasedWhenClosed", _windowTitle);
 		NSLog(@"our retain count %d", [self retainCount]);
 #endif

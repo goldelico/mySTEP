@@ -1445,40 +1445,40 @@ static NSArray *prevList;
 	// and send all others a note to hide message
 	NSLog(@"hideOtherApplications");
 	NS_DURING
-		[[NSWorkspace _systemUIServer] hideApplicationsExcept:getpid()];
+		[[NSWorkspace _loginWindowServer] hideApplicationsExcept:getpid()];
 	NS_HANDLER
 		NSLog(@"could not send hideOtherApplications: message due to %@", [localException reason]);
 	NS_ENDHANDLER
 }
 
-+ (id <_NSWorkspaceServerProtocol>) _systemUIServer;			// distributed workspace
++ (id <_NSLoginWindowProtocol>) _loginWindowServer;			// distributed workspace
 {
-	static id _systemUIServer;	// system UI server used for inking, sound etc.
-	if(!_systemUIServer)
+	static id _loginWindowServer;	// system UI server used for inking, sound etc.
+	if(!_loginWindowServer)
 		{
 #if 1
-		NSLog(@"get _systemUIServer");
+		NSLog(@"get _loginWindowServer");
 #endif
 		NS_DURING
-			_systemUIServer = [NSConnection rootProxyForConnectionWithRegisteredName:NSWorkspaceServerPort host:nil];
+			_loginWindowServer = [NSConnection rootProxyForConnectionWithRegisteredName:NSLoginWindowPort host:nil];
 #if 1
-			NSLog(@"created _systemUIServer=%@", _systemUIServer);
+			NSLog(@"created _loginWindowServer=%@", _loginWindowServer);
 #endif
-			[_systemUIServer retain];
+			[_loginWindowServer retain];
 #if 0
 			NSLog(@"retained");
 #endif
-			[((NSDistantObject *) _systemUIServer) setProtocolForProxy:@protocol(_NSWorkspaceServerProtocol)];
+			[((NSDistantObject *) _loginWindowServer) setProtocolForProxy:@protocol(_NSLoginWindowProtocol)];
 		NS_HANDLER
-			NSLog(@"could not contact %@ due to %@ - %@", NSWorkspaceServerPort, [localException name], [localException reason]);
-			_systemUIServer=nil;	// no connection established
+			NSLog(@"could not contact %@ due to %@ - %@", NSLoginWindowPort, [localException name], [localException reason]);
+			_loginWindowServer=nil;	// no connection established
 			// we could alternatively setup ourselves as a (local) server
 		NS_ENDHANDLER
 		}
 #if 1
-	NSLog(@"_systemUIServer=%@", _systemUIServer);
+	NSLog(@"_loginWindowServer=%@", _loginWindowServer);
 #endif
-	return _systemUIServer;
+	return _loginWindowServer;
 }
 
 // should be replaced by [[QSLaunchServices sharedLaunchServices] applicationList] etc.

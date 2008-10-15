@@ -157,6 +157,11 @@
 		<key>Inherit</key>
 		<string>SL-C3100</string>
 	</dict>
+	<key>SHARP Shepherd</key>
+	<dict>
+		<key>Inherit</key>
+		<string>SL-C860</string>
+	</dict>
 	<key>Sharp Spitz</key>
 	<dict>
 		<key>Inherit</key>

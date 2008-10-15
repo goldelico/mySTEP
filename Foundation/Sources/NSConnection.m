@@ -567,8 +567,10 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 }
 
 - (NSDistantObject *) rootProxy;
-{ // this generates a proxy but does not yet connect (this appears to be different from OSX!)
-	return [NSDistantObject proxyWithTarget:nil connection:self];
+{ // this generates a proxy
+	NSDistantObject *proxy=[NSDistantObject proxyWithTarget:nil connection:self];
+	[proxy methodSignatureForSelector:@selector(self)];	// issue a first remote method call to set up connection
+	return proxy;
 }
 
 - (void) _executeInNewThread;

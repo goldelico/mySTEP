@@ -509,8 +509,8 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NSString *ident=[[NSBundle mainBundle] bundleIdentifier];
 	NSString *error;
 	NSDictionary *plist;
-#if 0
-	NSLog(@"finishLaunching - mainmodel=%@ name=%@ ident=%@", mainModelFile, name, ident);
+#if 1
+	NSLog(@"finishLaunching - mainmodel=%@ ident=%@", mainModelFile, ident);
 #endif
 	ASSIGN(_appIcon, [NSImage imageNamed:NSApplicationIcon]);	// try to load
 #if 0
@@ -537,6 +537,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 																																										errorDescription:&error]
 																				attributes:nil])	// let the world know that I am launching
 		NSLog(@"could not create %@", [NSWorkspace _activeApplicationPath:ident]);
+#if 1
+	NSLog(@"willFinishLaunching");
+#endif
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillFinishLaunching) object:self];
 	if(!_app.disableServices)						// register services handler before any awakeFromNib calls
 		[_listener registerAsServiceProvider];
@@ -569,6 +572,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	// FIXME - how does that interwork with cursor-rects?
 	[[NSCursor arrowCursor] push];	// push the arrow as the default cursor
 	[self activateIgnoringOtherApps:NO];
+#if 1
+	NSLog(@"didFinishLaunching");
+#endif
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
 // we should also send a distributed notification
 }
@@ -997,7 +1003,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 					{ // this should be an inking event
 					NS_DURING
 						{ // try to handle by server which can pass back recognized characters to -sendEvent or even better postEvent:
-							id <_NSWorkspaceServerProtocol> dws=[NSWorkspace _systemUIServer];
+							id <_NSLoginWindowProtocol> dws=[NSWorkspace _loginWindowServer];
 							if(dws)
 								{ // ok
 								NSPoint point=[[event window] convertBaseToScreen:[event locationInWindow]];
@@ -1282,6 +1288,9 @@ NSEvent *event = nil;									// if queue contains
 
 - (void) _setWindowsHidden:(BOOL) flag;
 { // used for hide on deactivate
+#if 1
+	NSLog(@"_setWindowsHidden: %d", flag);
+#endif
 	if(flag)
 			{ // hide windows
 				NSArray *_windowList = [self windows];
@@ -1289,7 +1298,7 @@ NSEvent *event = nil;									// if queue contains
 				for(i = 0; i < count; i++)
 						{
 							NSWindow *w = [_windowList objectAtIndex:i];
-							if([w isVisible] && [w hidesOnDeactivate])
+							if([w hidesOnDeactivate] && [w isVisible])
 									{ // NOTE: this appears to be different from OSX where the isVisible flag remains active while window is hidden
 									[w orderOut:nil];	// hide
 									if(!_hiddenWindows)
@@ -1304,6 +1313,9 @@ NSEvent *event = nil;									// if queue contains
 				[_hiddenWindows release];
 				_hiddenWindows=nil;
 			}
+#if 1
+	NSLog(@"hiddenWindows: %@", _hiddenWindows);
+#endif
 }
 
 - (BOOL) isActive
@@ -1407,7 +1419,7 @@ NSEvent *event = nil;									// if queue contains
 - (int) requestUserAttention:(NSRequestUserAttentionType) requestType;
 {
 	NS_DURING
-		NS_VALUERETURN([[NSWorkspace _systemUIServer] requestUserAttention:requestType forApplication:self], int);
+		NS_VALUERETURN([[NSWorkspace _loginWindowServer] requestUserAttention:requestType forApplication:self], int);
 	NS_HANDLER
 		NSLog(@"could not requestUserAttention due to %@", [localException reason]);
 	NS_ENDHANDLER
@@ -1419,7 +1431,7 @@ NSEvent *event = nil;									// if queue contains
 	if(request != 0)
 		{
 		NS_DURING
-			[[NSWorkspace _systemUIServer] cancelUserAttentionRequest:request];
+			[[NSWorkspace _loginWindowServer] cancelUserAttentionRequest:request];
 		NS_HANDLER
 			NSLog(@"could not requestUserAttention due to %@", [localException reason]);
 		NS_ENDHANDLER
@@ -1551,13 +1563,13 @@ NSWindow *w;
 - (IBAction) orderFrontCharacterPalette:(id)sender
 {
 	NSLog(@"orderFrontCharacterPalette");
-	[[NSWorkspace _systemUIServer] enableVKBD:YES];
+	[[NSWorkspace _loginWindowServer] enableVKBD:YES];
 }
 
 - (IBAction) _orderOutCharacterPalette:(id)sender
 {
 	NSLog(@"orderFrontCharacterPalette");
-	[[NSWorkspace _systemUIServer] enableVKBD:NO];
+	[[NSWorkspace _loginWindowServer] enableVKBD:NO];
 }
 
 #if OLD

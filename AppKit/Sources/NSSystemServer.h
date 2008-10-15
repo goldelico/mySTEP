@@ -27,9 +27,9 @@
 
 @end
 
-#define NSWorkspaceServerPort @"com.quantum-step.loginwindow"	// NSMessagePort to contact
+#define NSLoginWindowPort @"com.quantum-step.loginwindow"	// NSMessagePort to contact
 
-@protocol _NSWorkspaceServerProtocol	// communication with system UI (which should be the loginwindow process)
+@protocol _NSLoginWindowProtocol	// communication with system UI (which should be the loginwindow process)
 
 	/* system menu */
 
@@ -74,8 +74,8 @@
 
 @end
 
-@interface NSWorkspace (NSWorkspaceServer)
+@interface NSWorkspace (NSLoginWindowServer)
 
-+ (id <_NSWorkspaceServerProtocol>) _systemUIServer;	// get distributed object to contact loginwindow
++ (id <_NSLoginWindowProtocol>) _loginWindowServer;	// get distributed object to contact loginwindow
 
 @end

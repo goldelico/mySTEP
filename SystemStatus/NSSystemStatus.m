@@ -58,12 +58,18 @@ static NSMutableDictionary *sysInfo;
 			if([l count] >= 2)
 				{
 				NSString *token=[[l objectAtIndex:0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-				if([token isEqualToString:@"Hardware"])
+#if 0
+				NSLog(@"token=%@", token);
+#endif
+					if([token isEqualToString:@"Hardware"])
 					{ // found hardware model
 					NSString *model=[[l lastObject] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 					NSString *path=[[NSBundle bundleForClass:[self class]] pathForResource:@"Models" ofType:@"plist"];
 					NSDictionary *dict=[NSDictionary dictionaryWithContentsOfFile:path];	// read model dictionary
-					if(!dict)
+#if 0
+						NSLog(@"model=%@ path=%@", model, path);
+#endif
+						if(!dict)
 						NSLog(@"*** Can't read Models.plist for %@ from %@", model, path);
 					sysInfo=[[self _infoForModel:model fromDict:dict] mutableCopy];	// and make a copy
 					break;
@@ -107,7 +113,7 @@ static NSMutableDictionary *sysInfo;
 			   s_info.totalswap, s_info.freeswap,
 			   s_info.procs);
 #endif	// read memory from /proc/meminfo
-#if 0
+#if 1
 		NSLog(@"sysInfo=%@", sysInfo);
 #endif
 		}

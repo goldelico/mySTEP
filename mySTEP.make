@@ -57,8 +57,13 @@ COMPILER:=gcc-2.95.3-glibc-2.2.2
 endif
 
 # tools
-TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Xtoolchain/native/$(COMPILER)/$(ARCHITECTURE)
-CC := $(TOOLCHAIN)/bin/gcc
+ifeq ($(ARCHITECTURE),arm-quantumstep-darwin)
+	TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
+	CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
+else
+	TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Xtoolchain/native/$(COMPILER)/$(ARCHITECTURE)
+	CC := $(TOOLCHAIN)/bin/gcc
+endif
 LS := $(TOOLCHAIN)/bin/ld
 AS := $(TOOLCHAIN)/bin/as
 NM := $(TOOLCHAIN)/bin/nm
