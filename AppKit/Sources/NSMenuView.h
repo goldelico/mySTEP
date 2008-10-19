@@ -41,6 +41,7 @@
     BOOL _needsSizing;
     BOOL _isHorizontal;
     BOOL _isResizingHorizontally;
+	BOOL _isVerticallyScrolling;
 	BOOL _isStatusBar;
 	BOOL _isContextMenu;
 	BOOL _isTornOff;

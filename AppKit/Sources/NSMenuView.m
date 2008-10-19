@@ -468,18 +468,22 @@
 							preferredEdge:(NSRectEdge) edge
 						popUpSelectedItem:(int) index;
 {
-	NSRect mf;  // new menu frame in screen coordinates
-	NSRect b;	// our bounds
+	NSRect mf;  // new menu frame in content rect coordinates
 	NSRect sf=[[_window screen] visibleFrame];
-	NSRect item;
-#if 0
+	NSRect item=NSZeroRect;
+#if 1
 	NSLog(@"setWindowFrameForAttachingToRect:%@ screen:... edge:%d item:%d", NSStringFromRect(ref), edge, index);
 #endif
 	if(_needsSizing)
 		[self sizeToFit];	// this will initially resize the window and our frame/bounds to fit the full menu
 	edge &= 3;
 	mf.size=_frame.size;   // copy content size
-	item=[self rectOfItemAtIndex:index];	// get rect of item to show
+	if(index >= 0)
+		item=[self rectOfItemAtIndex:index];	// get rect of item to show
+#if 1
+	NSLog(@"screen visble frame=%@", NSStringFromRect(sf));
+	NSLog(@"item rect=%@", NSStringFromRect(item));
+#endif
 	switch(edge)
 		{ // calculate preferred location
 		case NSMinXEdge:	// to the left
@@ -505,27 +509,33 @@
 		mf.origin.x=ref.origin.x-mf.size.width+((edge==NSMinYEdge || edge==NSMaxYEdge)?ref.size.width:0.0);
 	if(mf.origin.x < 0)
 		{
-		mf.origin.x=0.0;	// still no fit - needs scrolling
+		mf.origin.x=0.0;	// still no fit - needs horizontal scrolling
 		mf.size.width=sf.size.width;	// limit to screen
 		}
 	if(mf.origin.y < 0)		// try above if it does not fit below
 		mf.origin.y=ref.origin.y+((edge==NSMinYEdge || edge==NSMaxYEdge)?ref.size.height:0.0);
 	if(mf.origin.y+mf.size.height > sf.size.height) // try below
 		mf.origin.y=ref.origin.y-mf.size.height;
-	if(mf.origin.y < 0)
+	if((_isVerticallyScrolling=(mf.origin.y < 0)))
 		{
-		mf.origin.y=0.0;	// still no fit - needs scrolling
+		mf.origin.y=0.0;	// still no fit - needs vertical scrolling
 		mf.size.height=sf.size.height;	// limit to screen
 		}
-#if 0
+#if 1
 	NSLog(@"set frame=%@", NSStringFromRect(mf));
 #endif
-	b=_bounds;	// preserve bounds size
 	[_window setFrame:[_window frameRectForContentRect:mf] display:NO];	// this will also change our frame&bounds since we are the contentView!
-	b.origin.y=b.origin.y-b.size.height+mf.size.height;
-	[self setBounds:b];
+	if(_isVerticallyScrolling && index >= 0)
+			{ // menu needs vertical scrolling
+				NSRect f=_frame;
+				if(edge == NSMinYEdge)
+					f.origin.y+=item.origin.y-3.0;	// menu below
+				else
+					;	// above
+				[self setFrameOrigin:f.origin];	// move us up/down
+			}
 	[self setNeedsDisplay:YES];	// needs display everything
-#if 0
+#if 1
 	NSLog(@"set frame done");
 #endif
 }

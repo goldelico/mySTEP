@@ -3693,6 +3693,9 @@ static NSDictionary *_x11settings;
 							{ // copy from backing store
 							_setDirtyRect(ctxt, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);	// flush at least the exposed area
 							needsFlush=YES;
+							// FIXME - should collect and merge all expose events
+							// or setDirtyRect should setup a timer to flush after a while...
+ 							[ctxt flushGraphics];	// plus anything else we need to flush anyway
 							}
 						else
 							{ // queue up an expose event
@@ -3939,8 +3942,8 @@ static NSDictionary *_x11settings;
 				}
 			}
 		}
-	if(needsFlush)
-		[ctxt flushGraphics];	// plus anything else we need to flush anyway
+//	if(needsFlush)
+//		[ctxt flushGraphics];	// plus anything else we need to flush anyway
 }
 
 - (void) _sendEvent:(NSEvent *) e;
