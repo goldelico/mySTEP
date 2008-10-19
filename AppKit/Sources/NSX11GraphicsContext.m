@@ -3458,6 +3458,7 @@ static NSDictionary *_x11settings;
 + (void) _handleNewEvents;
 {
 	int count;
+	BOOL needsFlush=NO;
 	while((count = XPending(_display)) > 0)		// while X events are pending
 		{
 #if 0
@@ -3691,8 +3692,7 @@ static NSDictionary *_x11settings;
 						if(_isDoubleBuffered(ctxt))
 							{ // copy from backing store
 							_setDirtyRect(ctxt, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);	// flush at least the exposed area
-							// FIXME: we should set up a timer or so to handle multiple expose events with a single flush!
-							[ctxt flushGraphics];	// plus anything else we need to flush anyway
+							needsFlush=YES;
 							}
 						else
 							{ // queue up an expose event
@@ -3939,6 +3939,8 @@ static NSDictionary *_x11settings;
 				}
 			}
 		}
+	if(needsFlush)
+		[ctxt flushGraphics];	// plus anything else we need to flush anyway
 }
 
 - (void) _sendEvent:(NSEvent *) e;

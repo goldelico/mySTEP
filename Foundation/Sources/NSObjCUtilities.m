@@ -800,6 +800,7 @@ if ([add_dir length] > 0 && [paths containsObject: add_dir] == NO) \
 
 void NSLogv(NSString *format, va_list args)
 {
+#if 0	// include logging
 	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	NSString *prefix;
 	NSString *message;
@@ -827,13 +828,13 @@ void NSLogv(NSString *format, va_list args)
 #if 0
 	fprintf(stderr, "<< NSRealMemoryAvailable=%u\n", NSRealMemoryAvailable ());
 #endif
+#endif
 }
 
 void 
 NSLog (NSString *format, ...)
 {
-va_list ap;
-
+	va_list ap;
 	va_start (ap, format);
 	NSLogv (format, ap);
 	va_end (ap);
