@@ -3296,6 +3296,9 @@ static NSDictionary *_x11settings;
 		{ // (re)load resolution
 		BOOL changed=NO;
 		NSSize size, resolution;
+		int major_opcode_return;
+		int first_event_return;
+		int first_error_return;
 		if(_x11settings)
 			 _screenScale=[[_x11settings objectForKey:@"systemSpaceScaleFactor"] floatValue];
 		if(_screenScale <= 0.01) _screenScale=1.0;		// force default
@@ -3324,9 +3327,6 @@ static NSDictionary *_x11settings;
 		_screen2X11=[[NSAffineTransform alloc] init];
 		[(NSAffineTransform *) _screen2X11 translateXBy:0.5 yBy:0.5+_xRect.height];		// adjust for real screen height and proper rounding
 		[(NSAffineTransform *) _screen2X11 scaleXBy:_screenScale yBy:-_screenScale];	// flip Y axis and scale
-#if __APPLE__
-		size.height-=[self _windowTitleHeight]/_screenScale;	// subtract menu bar of X11 server from frame
-#endif
 #if 0
 		NSLog(@"_screen2X11=%@", (NSAffineTransform *) _screen2X11);
 #endif
@@ -3370,14 +3370,9 @@ static NSDictionary *_x11settings;
 				}
 			// setup a timer to verify/update the deviceDescription every now and then
 			}
-		else
-			{
-#if 0
-				// if we display on Apple X11:
-			size.height-=[self _windowTitleHeight]/_screenScale;	// subtract menu bar of X11 server from frame
 #endif
-			}
-#endif
+		if(XQueryExtension(_display, "Apple-WM", &major_opcode_return, &first_event_return, &first_error_return))
+			size.height-=[self _windowTitleHeight]/_screenScale;	// if we display on Apple X11, leave room for menu bar
 		_device=[[NSMutableDictionary alloc] initWithObjectsAndKeys:
 			[NSNumber numberWithInt:PlanesOfScreen(_screen)], NSDeviceBitsPerSample,
 			@"DeviceRGBColorSpace", NSDeviceColorSpaceName,
@@ -3394,10 +3389,7 @@ static NSDictionary *_x11settings;
 		NSLog(@"  size=%@", NSStringFromSize(size));
 #endif
 		if(changed)
-			{
-			[[NSNotificationCenter defaultCenter] postNotificationName:NSApplicationDidChangeScreenParametersNotification
-																object:NSApp];
-			}
+			[[NSNotificationCenter defaultCenter] postNotificationName:NSApplicationDidChangeScreenParametersNotification object:NSApp];
 		}
 	return _device;
 }

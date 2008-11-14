@@ -356,13 +356,18 @@ static NSCursor *__textCursor = nil;
 
 // FIXME: if several texviews share the same layout manager, all views must blink the cursor!!
 
+- (NSRect) _caretRect
+{
+	NSRect r=[self firstRectForCharacterRange:_selectedRange];
+	r.origin.x+=1.0;
+	r.size.width=1.0;
+	return r;
+}
+
 - (void) _blinkCaret:(NSTimer *) timer
 { // toggle the caret and trigger redraw
-	NSRect r;
 	insertionPointIsOn = !insertionPointIsOn;	// toggle state
-	r=[self firstRectForCharacterRange:_selectedRange];	// should be cached!!!
-	r.size.width=1.0;
-	[self setNeedsDisplayInRect:r avoidAdditionalLayout:YES];	// this should redraw only the insertion point - if it is enabled		
+	[self setNeedsDisplayInRect:[self _caretRect] avoidAdditionalLayout:YES];	// this should redraw only the insertion point - if it is enabled		
 }
 
 - (void) updateInsertionPointStateAndRestartTimer:(BOOL) restartFlag
@@ -380,14 +385,14 @@ static NSCursor *__textCursor = nil;
 			}
 		if(!__caretBlinkTimer)
 			{ // no timer yet
-			NSRunLoop *c = [NSRunLoop currentRunLoop];		
+			NSRunLoop *rl = [NSRunLoop currentRunLoop];		
 			__caretBlinkTimer = [NSTimer timerWithTimeInterval: 0.7
 														target: self
 													  selector: @selector(_blinkCaret:)
 													  userInfo: nil
 													   repeats: YES];		
-			[c addTimer:__caretBlinkTimer forMode:NSDefaultRunLoopMode];
-			[c addTimer:__caretBlinkTimer forMode:NSModalPanelRunLoopMode];
+			[rl addTimer:__caretBlinkTimer forMode:NSDefaultRunLoopMode];
+			[rl addTimer:__caretBlinkTimer forMode:NSModalPanelRunLoopMode];
 			insertionPointIsOn=NO;	// (re) start with cursor being on
 			[self _blinkCaret:nil];	// and immediately show cursor
 			}
@@ -624,9 +629,10 @@ static NSCursor *__textCursor = nil;
 - (BOOL) resignFirstResponder
 {
 	// FIXME: special case if we share the layout manager
-	[__caretBlinkTimer invalidate];
+	[__caretBlinkTimer invalidate];	// stop any existing timer - there is only one globally blinking cursor!
 	__caretBlinkTimer=nil;
-	[self updateInsertionPointStateAndRestartTimer:NO];	// stop blinking
+	insertionPointIsOn=YES;		// end with cursor being off
+	[self _blinkCaret:nil];		// and switch off cursor
 	return [super resignFirstResponder];
 }
 
@@ -657,16 +663,8 @@ static NSCursor *__textCursor = nil;
 
 - (void) drawInsertionPointInRect:(NSRect) rect color:(NSColor *) color turnedOn:(BOOL) flag
 {
-	NSRect r=[self firstRectForCharacterRange:_selectedRange];
-	r.origin.x+=1.0;
-	r.size.width=1.0;
-	if(NSIntersectsRect(r, rect))
-		{
-		if(!flag)
-			color=_backgroundColor;
-		[color setFill];
-		NSRectFill(r);
-		}
+	[(flag?color:_backgroundColor) setFill];
+	NSRectFill(rect);
 }
 
 - (void) drawRect:(NSRect)rect
@@ -698,7 +696,11 @@ static NSCursor *__textCursor = nil;
 		}
 	[layoutManager drawGlyphsForGlyphRange:range atPoint:textContainerOrigin];
 	if([self shouldDrawInsertionPoint])
-		[self drawInsertionPointInRect:rect color:insertionPointColor turnedOn:insertionPointIsOn];
+			{
+				NSRect r=[self _caretRect];
+				if(NSIntersectsRect(r, rect))
+						[self drawInsertionPointInRect:r color:insertionPointColor turnedOn:insertionPointIsOn];
+			}
 }
 
 - (void) encodeWithCoder:(NSCoder *) coder;
@@ -764,6 +766,7 @@ static NSCursor *__textCursor = nil;
 - (void) mouseDown:(NSEvent *) event
 { // run a text selection tracking loop
 	NSRange rng;	// current selected range
+	unsigned int pos;
 	
 	// FIXME: characterIndexForPoint may return NSNotFound
 	// FIXME: handle _tx.selectable/_tx.editable
@@ -775,12 +778,16 @@ static NSCursor *__textCursor = nil;
 	if([event clickCount] > 1)
 		{ // depending on click count, extend selection at this position and then do standard tracking
 		NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
-		unsigned int pos=[self characterIndexForPoint:p];
+		pos=[self characterIndexForPoint:p];
+		if(pos == NSNotFound)
+			pos=[[self textStorage] length];	// last character
 		}
 	while([event type] != NSLeftMouseUp)	// loop outside until mouse goes up 
 		{
 		NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
-		unsigned int pos=[self characterIndexForPoint:p];
+		pos=[self characterIndexForPoint:p];
+		if(pos == NSNotFound)
+			pos=[[self textStorage] length];	// last character
 #if 0
 		NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p));
 #endif
@@ -806,33 +813,21 @@ static NSCursor *__textCursor = nil;
 #endif	
 }
 
-@end
 
-@implementation NSTextView (NSUserInterfaceValidation)
+// NSUserInterfaceValidation
 
 - (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>) item;
 {
 	return YES;
 }
 
-@end
-
-@implementation NSTextView (NSTextInput)
-
-/*
-Sources/NSTextView.m:512: warning: method definition for `-validAttributesForMarkedText' not found
-Sources/NSTextView.m:512: warning: method definition for `-setMarkedText:selectedRange:' not found
-Sources/NSTextView.m:512: warning: method definition for `-selectedRange' not found
-Sources/NSTextView.m:512: warning: method definition for `-insertText:' not found
-Sources/NSTextView.m:512: warning: method definition for `-firstRectForCharacterRange:' not found
-Sources/NSTextView.m:512: warning: method definition for `-doCommandBySelector:' not found
-Sources/NSTextView.m:512: warning: method definition for `-conversationIdentifier' not found
-Sources/NSTextView.m:512: warning: method definition for `-characterIndexForPoint:' not found
-Sources/NSTextView.m:512: warning: class `NSTextView' does not fully implement the `NSTextInput' protocol
-*/
+// NSTextInput protocol
 
 - (NSAttributedString *) attributedSubstringFromRange:(NSRange) range
 {
+	range=NSIntersectionRange(range, NSMakeRange(0, [[self textStorage] length]));
+	if(range.length == 0)
+		return nil;
 	return [[self textStorage] attributedSubstringFromRange:range];
 }
 
@@ -851,6 +846,17 @@ Sources/NSTextView.m:512: warning: class `NSTextView' does not fully implement t
 - (unsigned int) characterIndexForPoint:(NSPoint) pnt;
 {
 	return NSNotFound;	// i.e. outside of all characters
+}
+
+- (void) insertText:(id) str
+{
+	[super insertText:str];
+	[self updateInsertionPointStateAndRestartTimer:YES];
+}
+
+- (NSInteger) conversationIdentifier
+{
+	return [[self textStorage] hash];
 }
 
 @end

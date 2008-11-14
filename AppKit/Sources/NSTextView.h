@@ -149,7 +149,7 @@ typedef NSUInteger NSFindPanelSubstringMatchType;
 				 movement:(NSInteger) movement
 				  isFinal:(BOOL) flag;
 - (NSColor *) insertionPointColor;
-- (void) insertText:(NSString *) string;
+- (void) insertText:(id) string;
 - (void) invalidateTextContainerOrigin;
 - (BOOL) isAutomaticLinkDetectionEnabled; 
 - (BOOL) isAutomaticQuoteSubstitutionEnabled; 

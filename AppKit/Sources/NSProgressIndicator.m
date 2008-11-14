@@ -336,6 +336,11 @@ NSImage *images[maxCount];
 	return self;
 }
 
+- (void) sizeToFit	
+{
+	// based on style
+}
+
 @end
 
 @implementation NSProgressIndicator (GNUstepExtensions)

@@ -31,13 +31,14 @@
 
 #import <Foundation/NSObject.h>
 #import <AppKit/NSNibDeclarations.h>
+#import <AppKit/NSResponder.h>
 
 @class NSString;
 @class NSArray;
 @class NSWindow;
 @class NSDocument;
 
-@interface NSWindowController : NSObject <NSCoding>
+@interface NSWindowController : NSResponder <NSCoding>
 {
   @private
     NSWindow            *_window;

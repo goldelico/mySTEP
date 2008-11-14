@@ -140,6 +140,7 @@ static BOOL __cursorHidden = NO;
 	int _itemRectCapacity;
 	int _clickedCell;			// used internally when clicked
 	int _highlightedCell;	// used internally to highlight a clicked item
+	BOOL _needsOverflowMenu;
 }
 
 - (void) setToolbar:(NSToolbar *) _toolbar;
@@ -450,6 +451,8 @@ static BOOL __cursorHidden = NO;
 				break;	// ignore
 			case NSLeftMouseDown:
 				{
+					// FIXME: check for click on document icon or title cell
+					// if representedURL defined and crtl-click, call - (BOOL)window:(NSWindow *)sender shouldPopUpDocumentPathMenu:(NSMenu *)titleMenu
 					// NOTE: we can't use [event locationInWindow] if we move the window - that info is not reliable!
 					NSPoint p=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
 					initial=[_window convertBaseToScreen:p];	// convert to screen coordinates
@@ -709,10 +712,13 @@ static NSButtonCell *sharedCell;
 				[sharedCell setControlSize:([_toolbar sizeMode] == NSToolbarSizeModeSmall)?NSSmallControlSize:NSRegularControlSize];
 				_itemRectCount=0;
 				_toolbarHeight=0.0;
-				if(![self popUpMode])
+				if([self popUpMode])
+					_needsOverflowMenu=YES;
+				else
 						{ // we have a large screen, so we can really layout a toolbar
 							float border=3.0;
 							NSRect rect={ { border, border }, { 0, 0 } };
+							_needsOverflowMenu=NO;
 							_toolbarHeight=12.0;	// minimum height
 							for(i=0; i<cnt; i++)
 									{ // allocate next item
@@ -734,16 +740,53 @@ static NSButtonCell *sharedCell;
 												{
 													[sharedCell setImage:[item image]];
 													min=max=[sharedCell cellSize];	// use as much as needed by contents
+													if(min.width < 10.0)
+														min=max=NSMakeSize(10.0, 10.0);
 												}
-										rect.size.width=MIN([self frame].size.width-2*border-NSMinX(rect), max.width);	// how much space do we want or have left over to distribute
-										if(rect.size.width < min.width)
+										// how much space do we want or have left over to distribute
+										while((rect.size.width=MIN([self frame].size.width-2*border-NSMinX(rect), max.width)) < min.width)
 												{ // is not enough
-														/*
-														 1. try to squeeze flexible items down to their minSize.width
-														 2. if it does not suffice, kick out items with lower priority
-														 3. if it does not suffice, kick out this element
-														 */
-													rect.size.width=0.0;
+													float squeeze=min.width-rect.size.width;	// how much room we need
+													int j;
+													NSToolbarItem *other;
+													for(j=0; j<i; j++)
+															{ // try to squeeze flexible items down to their minSize.width
+																other=[items objectAtIndex:j];
+																if(![other view])
+																	continue;	// not variable size
+																if(_itemRects[j].size.width-squeeze >= [other minSize].width)
+																		{
+																			_itemRects[j].size.width-=squeeze;	// squeeze as needed
+																			break;
+																		}
+															}
+													if(j == i)
+															{ // if it does not suffice, kick out items with lower priority
+																int prio=[item visibilityPriority];
+																for(j=0; j<i; j++)
+																		{
+																			other=[items objectAtIndex:j];
+																			if([other visibilityPriority] < prio)
+																					{ // yes, has lower priority
+																						_itemRects[j].size.width=0.0;	// kick out
+																						break;
+																					}
+																		}
+															}
+													if(j == i)
+															{ // neither squeezing nor kicking out is sufficient - we must leave out the new element
+																rect.size.width=0.0;
+																_needsOverflowMenu=YES;
+																break;
+															}
+													for(; j < i; j++)
+															{ // reposition elements
+																rect.origin.x=NSMaxX(_itemRects[j]);	// this will update up to our current element which may now fit
+																if(j+1 < i)
+																	_itemRects[j+1].origin.x=rect.origin.x;
+																if(_itemRects[j].size.width > 0)
+																	rect.origin.x += 2*border;
+															}
 												}
 										if(rect.size.width > 0 && _toolbarHeight < min.height)
 											_toolbarHeight = min.height; // make _toolbarHeight at least as our minimum
@@ -816,7 +859,10 @@ static NSButtonCell *sharedCell;
 	[[NSColor windowFrameColor] set];
 	NSRectFill(rect);
 	if([_toolbar showsBaselineSeparator])
-		; // draw separator
+			{ // draw separator
+				[[NSColor whiteColor] set];
+				[NSBezierPath strokeLineFromPoint:NSMakePoint(0, NSMaxY(_bounds)) toPoint:NSMakePoint(NSMaxX(_bounds), NSMaxY(_bounds))];
+			}
 	if(_itemRectCount < 0)
 		[self rectForToolbarItem:0];	// load cache
 	[_toolbar validateVisibleItems];	// check if items need to be drawn enabled
@@ -838,6 +884,9 @@ static NSButtonCell *sharedCell;
 							[sharedCell setHighlighted:(i == _highlightedCell)];
 							[sharedCell drawWithFrame:_itemRects[i] inView:self];
 						}
+			}
+	if(_needsOverflowMenu)
+			{ // draw indicator
 			}
 }
 
@@ -1275,6 +1324,12 @@ static NSButtonCell *sharedCell;
 - (void) setRepresentedFilename:(NSString *)aString
 {
 	ASSIGN(_representedFilename, aString);
+}
+
+- (void) setRepresentedURL:(NSURL *) url
+{
+	//	ASSIGN(_representedFilename, aString);
+	//	[[<window> standardWindowButton:NSWindowDocumentIconButton] setImage:<image>]
 }
 
 - (void) setMiniwindowTitle:(NSString *)title

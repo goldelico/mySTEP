@@ -254,7 +254,11 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 				}
 			if ([_window windowController] == self) 
 				{
-				[_window setWindowController: nil];
+					NSResponder *responder = _window;
+					while (responder && [responder nextResponder] != self)
+							responder = [responder nextResponder];
+					[responder setNextResponder: [self nextResponder]];
+					[_window setWindowController: nil];
 				}
 			
 			/*
@@ -356,6 +360,9 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 	_wcFlags.nibIsLoaded = YES;
 	
 	[_window setWindowController: self];
+	
+	[self setNextResponder: [_window nextResponder]];	// add to responder chain
+	[_window setNextResponder: self];
 	
 	[self synchronizeWindowTitleWithDocumentName];
 	

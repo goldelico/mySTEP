@@ -73,7 +73,7 @@
 - (void) insertParagraphSeparator:(id) sender;
 - (void) insertTab:(id) sender;
 - (void) insertTabIgnoringFieldEditor:(id) sender;
-- (void) insertText:(NSString *) aString;
+- (void) insertText:(id) aString;
 - (NSInterfaceStyle) interfaceStyle;
 - (void) interpretKeyEvents:(NSArray *) eventArray;
 - (void) keyDown:(NSEvent *) event;

@@ -429,7 +429,8 @@ static BOOL __fileSystemChanged = NO;
 - (void) findApplications
 {
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
-	NSArray *path=[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSApplicationSearchPath"];
+	NSArray *path=NSSearchPathForDirectoriesInDomains(NSAllApplicationsDirectory,	NSAllDomainsMask, YES);
+//	NSArray *path=[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSApplicationSearchPath"];
 	NSEnumerator *p=[path objectEnumerator];
 	NSString *dir;
 #if 1
@@ -952,164 +953,178 @@ static BOOL __fileSystemChanged = NO;
 }
 
 - (BOOL) performFileOperation:(NSString *)operation
-					   source:(NSString *)source
-				  destination:(NSString *)destination
-						files:(NSArray *)files
-						  tag:(int *)tag
+											 source:(NSString *)source
+									destination:(NSString *)destination
+												files:(NSArray *)files
+													tag:(int *)tag
 {
 	int result=NSAlertDefaultReturn, count = [files count];
 	
 	NSLog(@"performFileOperation %@", operation);
 	
-	if(operation == NSWorkspaceMoveOperation)			 
-		{
-		*tag = 0;
-		while (count--)
+	if([operation isEqualToString:NSWorkspaceMoveOperation])
 			{
-			NSString *f = [files objectAtIndex: count];
-			NSString *s = [source stringByAppendingPathComponent:f];
-			NSString *d = [destination stringByAppendingPathComponent:f];
-			NSString *a = [[NSProcessInfo processInfo] processName];
-			result = NSRunAlertPanel(a, @"Move: %@ to: %@?", @"Move", 
-									 @"Cancel", NULL, s, d);
-			if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] movePath:s toPath:d handler:0])
-				return NO;
-			NSLog(@"not moving");
-			}	}
-	else if(operation == NSWorkspaceCopyOperation)
-		{
-		*tag = 1;
-		while (count--)
+				*tag = 0;
+				while (count--)
+						{
+							NSString *f = [files objectAtIndex: count];
+							NSString *s = [source stringByAppendingPathComponent:f];
+							NSString *d = [destination stringByAppendingPathComponent:f];
+							NSString *a = [[NSProcessInfo processInfo] processName];
+							result = NSRunAlertPanel(a, @"Move: %@ to: %@?", @"Move", 
+																			 @"Cancel", NULL, s, d);
+							if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] movePath:s toPath:d handler:0])
+								return NO;
+							NSLog(@"not moving");
+						}	
+			}
+	else if([operation isEqualToString:NSWorkspaceCopyOperation])
 			{
-			NSString *f = [files objectAtIndex: count];
-			NSString *s = [source stringByAppendingPathComponent:f];
-			NSString *d = [destination stringByAppendingPathComponent:f];
-			NSString *a = [[NSProcessInfo processInfo] processName];
-			result = NSRunAlertPanel(a, @"Copy: %@ ?", @"Copy", 
-									 @"Cancel", NULL, s);
-			if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] copyPath:s toPath:d handler:0])
-				return NO;
-			NSLog(@"not copying");
-			}	}
-	else if(operation == NSWorkspaceLinkOperation)
-		{
-		*tag = 2;
-		while (count--)
+				*tag = 1;
+				while (count--)
+						{
+							NSString *f = [files objectAtIndex: count];
+							NSString *s = [source stringByAppendingPathComponent:f];
+							NSString *d = [destination stringByAppendingPathComponent:f];
+							NSString *a = [[NSProcessInfo processInfo] processName];
+							result = NSRunAlertPanel(a, @"Copy: %@ ?", @"Copy", 
+																			 @"Cancel", NULL, s);
+							if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] copyPath:s toPath:d handler:0])
+								return NO;
+							NSLog(@"not copying");
+						}
+			}
+	else if([operation isEqualToString:NSWorkspaceLinkOperation])
 			{
-			NSString *f = [files objectAtIndex: count];
-			NSString *s = [source stringByAppendingPathComponent:f];
-			NSString *d = [destination stringByAppendingPathComponent:f];
-			NSString *a = [[NSProcessInfo processInfo] processName];
-			result = NSRunAlertPanel(a, @"Link: %@ ?", @"Link", 
-									 @"Cancel", NULL, s);
-			if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] linkPath:s toPath:d handler:0])
-				return NO;
-			NSLog(@"not linking");
-			}	}
-	else if(operation == NSWorkspaceCompressOperation)	 *tag = 3;
-	else if(operation == NSWorkspaceDecompressOperation)
-		{
-		NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-		
-		*tag = 4;
-		while (count--)
+				*tag = 2;
+				while (count--)
+						{
+							NSString *f = [files objectAtIndex: count];
+							NSString *s = [source stringByAppendingPathComponent:f];
+							NSString *d = [destination stringByAppendingPathComponent:f];
+							NSString *a = [[NSProcessInfo processInfo] processName];
+							result = NSRunAlertPanel(a, @"Link: %@ ?", @"Link", 
+																			 @"Cancel", NULL, s);
+							if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] linkPath:s toPath:d handler:0])
+								return NO;
+							NSLog(@"not linking");
+						}
+			}
+	else if([operation isEqualToString:NSWorkspaceCompressOperation])
 			{
-			BOOL tar = NO;
-			NSArray *args;
-			NSString *p, *f = [files objectAtIndex: count];
-			NSString *s = [source stringByAppendingPathComponent:f];
-			NSString *tmp, *ext = [s pathExtension];
-			NSTask *task;
-			
-			if ([ext isEqualToString: @"bz2"])
-				p = @"/usr/bin/bunzip2";
-			else if ([ext isEqualToString: @"gz"]
-					 || [ext isEqualToString: @"Z"]
-					 || [ext isEqualToString: @"z"])
-				p = @"/bin/gunzip";
-			else if ([ext isEqualToString: @"tgz"]
-					 || [ext isEqualToString: @"taz"])
-				{
-				p = @"/bin/gunzip";
-				tar = YES;
-				}
-			else
-				continue;
-			
-			tmp = [NSString stringWithFormat:@"/tmp/%@.%d.workspace", f,
-				(int)[NSDate timeIntervalSinceReferenceDate]];
-			NSLog(@"create temporary directory %@", tmp);
-			if(![[NSFileManager defaultManager] createDirectoryAtPath:tmp
-														   attributes:nil])
-				return NO;
-			
-			if (tar || [s rangeOfString: @".tar"].length > 0)
-				s = [NSString stringWithFormat:@"%@ -c %@ | tar xfpv -", p, s];
-			else
-				s = [NSString stringWithFormat:@"%@ %@", p, s];
-			args = [NSArray arrayWithObjects: @"-c", s, nil];
-			
-			NSLog(@"launching with str arg %@",s);
-			task = [NSTask new];
-			[task setCurrentDirectoryPath: tmp];
-			[task setLaunchPath: @"/bin/sh"];
-			[task setArguments: args];
-			
-			[nc addObserver: self
-				   selector: @selector(_taskDidTerminate:)
-					   name: NSTaskDidTerminateNotification
-					 object: task];
-			[task launch];
-			}	}
-	else if(operation == NSWorkspaceEncryptOperation)	 *tag = 5;
-	else if(operation == NSWorkspaceDecryptOperation)	 *tag = 6;
-	else if(operation == NSWorkspaceDestroyOperation)
-		{
-		*tag = 7;
-		while (count--)
+				*tag = 3;
+			}
+	else if([operation isEqualToString:NSWorkspaceDecompressOperation])
 			{
-			NSString *f = [files objectAtIndex: count];
-			NSString *s = [source stringByAppendingPathComponent: f];
-			NSString *a = [[NSProcessInfo processInfo] processName];
-			
-			result = NSRunAlertPanel(a, @"Destroy path: %@ ?", @"Destroy", 
-									 @"Cancel", NULL, s);
-			
-			if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] removeFileAtPath:s handler:0])
-				return NO;
-			NSLog(@"not deleting");
-			}	}
-	else if(operation == NSWorkspaceRecycleOperation)
-		{
-		*tag = 8;
-		while (count--)
+				NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+				
+				*tag = 4;
+				while (count--)
+						{
+							BOOL tar = NO;
+							NSArray *args;
+							NSString *p, *f = [files objectAtIndex: count];
+							NSString *s = [source stringByAppendingPathComponent:f];
+							NSString *tmp, *ext = [s pathExtension];
+							NSTask *task;
+							
+							if ([ext isEqualToString: @"bz2"])
+								p = @"/usr/bin/bunzip2";
+							else if ([ext isEqualToString: @"gz"]
+											 || [ext isEqualToString: @"Z"]
+											 || [ext isEqualToString: @"z"])
+								p = @"/bin/gunzip";
+							else if ([ext isEqualToString: @"tgz"]
+											 || [ext isEqualToString: @"taz"])
+									{
+										p = @"/bin/gunzip";
+										tar = YES;
+									}
+							else
+								continue;
+							
+							tmp = [NSString stringWithFormat:@"/tmp/%@.%d.workspace", f,
+										 (int)[NSDate timeIntervalSinceReferenceDate]];
+							NSLog(@"create temporary directory %@", tmp);
+							if(![[NSFileManager defaultManager] createDirectoryAtPath:tmp
+																														 attributes:nil])
+								return NO;
+							
+							if (tar || [s rangeOfString: @".tar"].length > 0)
+								s = [NSString stringWithFormat:@"%@ -c %@ | tar xfpv -", p, s];
+							else
+								s = [NSString stringWithFormat:@"%@ %@", p, s];
+							args = [NSArray arrayWithObjects: @"-c", s, nil];
+							
+							NSLog(@"launching with str arg %@",s);
+							task = [NSTask new];
+							[task setCurrentDirectoryPath: tmp];
+							[task setLaunchPath: @"/bin/sh"];
+							[task setArguments: args];
+							
+							[nc addObserver: self
+										 selector: @selector(_taskDidTerminate:)
+												 name: NSTaskDidTerminateNotification
+											 object: task];
+							[task launch];
+						}	
+			}
+	else if([operation isEqualToString:NSWorkspaceEncryptOperation])
 			{
-			NSString *f = [files objectAtIndex: count];
-			NSString *s = [source stringByAppendingPathComponent:f];
-			NSString *d = [@"/.NextTrash" stringByAppendingPathComponent:f];
-			NSString *a = [[NSProcessInfo processInfo] processName];
-			result = NSRunAlertPanel(a, @"Recycle: %@ to: %@?", @"Recycle", 
-									 @"Cancel", NULL, s, d);
-			if (result == NSAlertDefaultReturn && [[NSFileManager defaultManager] movePath:s toPath:d handler:0])
-				return NO;
-			NSLog(@"not moving");
-			}	}
-	else if(operation == NSWorkspaceDuplicateOperation)
-		{
-		*tag = 9;
-		while (count--)
+				*tag = 5;
+			}
+	else if([operation isEqualToString:NSWorkspaceDecryptOperation])
 			{
-			NSString *f = [files objectAtIndex: count];
-			NSString *n = [NSString stringWithFormat: @"CopyOf%@", f];
-			NSString *s = [source stringByAppendingPathComponent:f];
-			NSString *p = [source stringByAppendingPathComponent:n];
-			
-			if(![[NSFileManager defaultManager] copyPath:s toPath:p handler:0])
-				return NO;
-			}	}
-	
+				*tag = 6;
+			}
+	if([operation isEqualToString:NSWorkspaceDestroyOperation])
+			{
+				*tag = 7;
+				while (count--)
+						{
+							NSString *f = [files objectAtIndex: count];
+							NSString *s = [source stringByAppendingPathComponent: f];
+							NSString *a = [[NSProcessInfo processInfo] processName];
+							
+							result = NSRunAlertPanel(a, @"Destroy path: %@ ?", @"Destroy", 
+																			 @"Cancel", NULL, s);
+							
+							if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] removeFileAtPath:s handler:0])
+								return NO;
+							NSLog(@"not deleting");
+						}
+			}
+	else if([operation isEqualToString:NSWorkspaceRecycleOperation])
+			{
+				*tag = 8;
+				while (count--)
+						{
+							NSString *f = [files objectAtIndex: count];
+							NSString *s = [source stringByAppendingPathComponent:f];
+							NSString *d = [@"~/Library/Trash" stringByAppendingPathComponent:f];
+							NSString *a = [[NSProcessInfo processInfo] processName];
+							result = NSRunAlertPanel(a, @"Recycle: %@ to: %@?", @"Recycle", 
+																			 @"Cancel", NULL, s, d);
+							if (result == NSAlertDefaultReturn && [[NSFileManager defaultManager] movePath:s toPath:d handler:0])
+								return NO;
+							NSLog(@"not moving");
+						}
+			}
+	else if([operation isEqualToString:NSWorkspaceDuplicateOperation])
+			{
+				*tag = 9;
+				while (count--)
+						{
+							NSString *f = [files objectAtIndex: count];
+							NSString *n = [NSString stringWithFormat: @"CopyOf%@", f];
+							NSString *s = [source stringByAppendingPathComponent:f];
+							NSString *p = [source stringByAppendingPathComponent:n];
+							
+							if(![[NSFileManager defaultManager] copyPath:s toPath:p handler:0])
+								return NO;
+						}
+			}
 	[[self notificationCenter] postNotificationName:WORKSPACE(DidPerformFileOperation) object:self];
-	
 	return (result == NSAlertDefaultReturn) ? YES : NO;
 }
 

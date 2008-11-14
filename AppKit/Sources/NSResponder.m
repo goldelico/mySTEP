@@ -78,7 +78,7 @@
 		[self noResponderFor:_cmd];
 }
 
-- (void) insertText:(NSString *) aString
+- (void) insertText:(id) aString
 {
 	if(_nextResponder)
 		[_nextResponder insertText:aString];

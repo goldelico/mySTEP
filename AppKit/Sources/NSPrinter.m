@@ -1199,11 +1199,11 @@ static NSPrintOperation *_currentOperation;
 }
 
 - (void) runOperationModalForWindow:(NSWindow *)docWindow
-						   delegate:(id)delegate
-					 didRunSelector:(SEL)didRunSelector
-						contextInfo:(void *)contextInfo;
+													 delegate:(id)delegate
+										 didRunSelector:(SEL)didRunSelector
+												contextInfo:(void *)contextInfo;
 {
-	BOOL r;
+	BOOL r=YES;
 #if 1
 	NSLog(@"run PrintOperation for %@", _view);
 #endif
@@ -1229,7 +1229,7 @@ static NSPrintOperation *_currentOperation;
 		// FIXME: how does redirection to a file or mail work???
 		}
 	if(r)
-		{ // wasn't cancelled
+		{ // wasn't cancelled explicitly
 		NSRange pages;
 		BOOL paginated=[_view knowsPageRange:&pages];
 		if(!paginated)

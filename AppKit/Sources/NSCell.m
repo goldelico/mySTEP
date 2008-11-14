@@ -163,6 +163,7 @@ static NSCursor *__textCursor = nil;
 			m=[_contents size];
 		else
 			m=[_contents sizeWithAttributes:[NSDictionary dictionaryWithObjectsAndKeys:_font, NSFontAttributeName, nil]];
+			m.width += 4.0;
 		}
 	else if (_c.type == NSImageCellType && _contents != nil)
 		m=[_contents size];

@@ -16,7 +16,8 @@
 // new version to be based on bluez
 
 #define id objc_id
-// FIXME: #include <net/bluetooth/bluez.h>
+// FIXME: #include </Developer/.../net/bluetooth/bluez.h>
+// conflicts with Bluetooth.h
 #undef id
 
 #else

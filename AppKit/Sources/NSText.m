@@ -368,8 +368,11 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) setSelectedRange:(NSRange)range;
 {
-	_selectedRange=range;
-	[self setNeedsDisplay:YES];	// update display of selection
+	if(!NSEqualRanges(_selectedRange, range))
+			{
+				_selectedRange=range;
+				[self setNeedsDisplay:YES];	// update display of selection
+			}
 }
 
 - (void) setString:(NSString *)string;
@@ -557,8 +560,9 @@ NSString *NSTextMovement=@"NSTextMovement";
 	[self setSelectedRange:rng];
 }
 
-- (void) insertText:(NSString *) text;
+- (void) insertText:(id) text;
 {
+	// FIXME: can be an attributed string!
 	NSRange rng=[self selectedRange];
 	[self replaceCharactersInRange:rng withString:text];
 	rng.location+=[text length];
@@ -592,9 +596,44 @@ NSString *NSTextMovement=@"NSTextMovement";
 }
 
 - (void) mouseDown:(NSEvent *)event
-{
+{ // simple mouse down mechanism
+	NSRange rng;	// current selected range
+#if 1
 	NSLog(@"%@ mouseDown: %@", NSStringFromClass(isa), event);
-	// handle mouse down for selection
+#endif
+	// save modifiers of first event
+	if([event clickCount] > 1)
+			{ // depending on click count, extend selection at this position and then do standard tracking
+				NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
+				unsigned int pos=[self characterIndexForPoint:p];
+			}
+	while([event type] != NSLeftMouseUp)	// loop outside until mouse goes up 
+			{
+				NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
+				// unsigned int pos=[self characterIndexForPoint:p];
+				unsigned int pos=0;
+#if 0
+				NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p));
+#endif
+				if(NSLocationInRange(pos, _selectedRange))
+						{ // in current range we already hit the current selection it is a potential drag&drop
+							rng=_selectedRange;
+						}
+				else if(1) // no modifier
+					rng=NSMakeRange(pos, 0);	// set cursor to location where we did click
+				else if(0) // shift key
+					rng=NSUnionRange(_selectedRange, NSMakeRange(pos, 0));	// extend
+				[self setSelectedRange:rng];
+				event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+																	 untilDate:[NSDate distantFuture]						// get next event
+																			inMode:NSEventTrackingRunLoopMode 
+																		 dequeue:YES];
+				
+  		}
+	[self setSelectedRange:rng];	// finally update selection
+#if 1
+	NSLog(@"NSText mouseDown up");
+#endif	
 }
 
 - (BOOL) acceptsFirstResponder					{ return _tx.selectable; }
