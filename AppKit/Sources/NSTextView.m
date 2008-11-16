@@ -686,6 +686,7 @@ static NSCursor *__textCursor = nil;
 	
 	if(_selectedRange.length > 0)
 		{ // draw selection range background
+			// FIXME - should be done line by line
 		r=[layoutManager boundingRectForGlyphRange:_selectedRange inTextContainer:textContainer];
 		if(NSIntersectsRect(r, rect))
 			{
@@ -766,6 +767,7 @@ static NSCursor *__textCursor = nil;
 - (void) mouseDown:(NSEvent *) event
 { // run a text selection tracking loop
 	NSRange rng;	// current selected range
+	NSPoint p;
 	unsigned int pos;
 	
 	// FIXME: characterIndexForPoint may return NSNotFound
@@ -777,14 +779,16 @@ static NSCursor *__textCursor = nil;
 	// save modifiers of first event
 	if([event clickCount] > 1)
 		{ // depending on click count, extend selection at this position and then do standard tracking
-		NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
+		p=[self convertPoint:[event locationInWindow] fromView:nil];
 		pos=[self characterIndexForPoint:p];
 		if(pos == NSNotFound)
 			pos=[[self textStorage] length];	// last character
+			// if outside, get line where we clicked and set to last position
 		}
+	currentCursor=p;	// update position where we clicked
 	while([event type] != NSLeftMouseUp)	// loop outside until mouse goes up 
 		{
-		NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
+		p=[self convertPoint:[event locationInWindow] fromView:nil];
 		pos=[self characterIndexForPoint:p];
 		if(pos == NSNotFound)
 			pos=[[self textStorage] length];	// last character
@@ -792,7 +796,7 @@ static NSCursor *__textCursor = nil;
 		NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p));
 #endif
 		if(NSLocationInRange(pos, _selectedRange))
-			{ // in current range we already hit the current selection it is a potential drag&drop
+			{ // in current range; we already hit the current selection -> it is a potential drag&drop
 			rng=_selectedRange;
 			}
 		else if(1) // no modifier
@@ -805,14 +809,61 @@ static NSCursor *__textCursor = nil;
 								   untilDate:[NSDate distantFuture]						// get next event
 									  inMode:NSEventTrackingRunLoopMode 
 									 dequeue:YES];
-		
-  		}
+		[self updateInsertionPointStateAndRestartTimer:YES];
+		}
 	[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:NO];	// finally update selection
 #if 1
 	NSLog(@"NSTextView mouseDown up");
 #endif	
 }
 
+#if NEW
+
+- (void) moveDown:(id) sender
+{	
+	if(!top line)		
+		cursorPosition.y = [line-1 rect].origin.y;
+	selection=charAt(cursorPosition);
+	reduce selection to length 0
+	[self updateInsertionPointStateAndRestartTimer:YES];
+}
+
+- (void) moveDown:(id) sender
+{
+
+if(!tbottom line)
+	cursorPosition.y = [line+1 rect].origin.y;
+selection=charAt(cursorPosition);
+reduce selection to length 0
+	[self updateInsertionPointStateAndRestartTimer:YES];
+}
+
+- (void) moveBackwardAndModifySelection:(id) sender (writing direction oriented)
+
+moveLeftAndModifySelection (display oriented left)
+
+{
+if selection.length > 0)
+	reduce selection to length 0
+else if(!first char)
+	select prev (may extend)
+cursorPosition = [self _caretRect].origin;
+	[self updateInsertionPointStateAndRestartTimer:YES];
+}
+
+- (void) moveRight:(id) sender
+{
+if selection.length > 0)
+	reduce selection to length 0
+else if(!last char)
+	select next (may extend)
+cursorPosition = [self _caretRect].origin;
+	[self updateInsertionPointStateAndRestartTimer:YES];
+}
+
+#endif
+
+@end
 
 // NSUserInterfaceValidation
 

@@ -3668,16 +3668,17 @@ static NSDictionary *_x11settings;
 					break;
 				case LeaveNotify: 
 				case EnterNotify:						// when the pointer enters or leves a window, pass upwards as a first/last motion event
-					e = [NSEvent mouseEventWithType:NSMouseMoved
-										   location:X11toScreen(xe.xcrossing)
-									  modifierFlags:__modFlags
-										  timestamp:X11toTimestamp(xe.xcrossing)
-									   windowNumber:windowNumber
-											context:self
-										eventNumber:xe.xcrossing.serial
-										 clickCount:1
-										   pressure:1.0];
-					break;
+						if([window acceptsMouseMovedEvents])
+							e = [NSEvent mouseEventWithType:NSMouseMoved
+																		 location:X11toScreen(xe.xcrossing)
+																modifierFlags:__modFlags
+																		timestamp:X11toTimestamp(xe.xcrossing)
+																 windowNumber:windowNumber
+																			context:self
+																	eventNumber:xe.xcrossing.serial
+																	 clickCount:1
+																		 pressure:1.0];
+						break;
 				case Expose:
 					{
 						_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[window graphicsContext];
@@ -3813,8 +3814,10 @@ static NSDictionary *_x11settings;
 								type = NSRightMouseDragged;	
 							else if(xe.xmotion.state & Button2Mask)		
 								type = NSOtherMouseDragged;	
-							else
+							else if([window acceptsMouseMovedEvents])
 								type = NSMouseMoved;	// no button pressed
+							else
+								break;	// ignore mouse moved events unless the window really wants to see them
 #if 0
 							if(lastMotionEvent &&
 							   [NSApp _eventIsQueued:lastMotionEvent])
@@ -3823,6 +3826,7 @@ static NSDictionary *_x11settings;
 								}
 #endif
 							if(lastMotionEvent &&
+								 // FIXME - must be the first event in queue!!!
 							   [NSApp _eventIsQueued:lastMotionEvent] &&	// must come first because event may already have been relesed/deallocated
 							   [lastMotionEvent type] == type)
 								{ // replace/update if last motion event which is still unprocessed in queue

@@ -61,7 +61,6 @@ NSSplitView.h
 	if((count = [sub_views count]) < 2)		// if there are less than two  
 		return;								// subviews, there is nothing to do
 	
-//	[window setAcceptsMouseMovedEvents:YES];
 	vr = [self visibleRect];
 	// find out which divider was hit
 	p = [self convertPoint:[event locationInWindow] fromView:nil];
@@ -246,9 +245,6 @@ NSSplitView.h
 			   (int)NSMinY(r1), (int)NSWidth(r1), (int)NSHeight(r1));
 	
 	[_window invalidateCursorRectsForView:self];	
-			
-//	[window setAcceptsMouseMovedEvents:NO];
-//	[self setNeedsDisplay:YES];
 }
 
 - (void) adjustSubviews

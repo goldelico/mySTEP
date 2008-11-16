@@ -651,6 +651,7 @@
 		EE5B8C220E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
 		EE61B6A609B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
 		EE61B6A709B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
+		EE6E6CB60ECF1AE300231FD3 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = EE6E6CB50ECF1AE300231FD3 /* Makefile */; };
 		EE7860550D2D4E1E00B2197B /* GSArrowCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */; };
 		EE7860560D2D4E1E00B2197B /* GSArrowCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */; };
 		EE7860640D2D4F4600B2197B /* GSHiddenCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860590D2D4F4600B2197B /* GSHiddenCursor.tiff */; };
@@ -1228,6 +1229,7 @@
 		EE52832F09A1FB2E00218247 /* NSCursor.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSCursor.m; sourceTree = "<group>"; };
 		EE5B8C1F0E9015F300264951 /* info_16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = info_16.png; path = ../../Icons/Harmony/Additions/info_16.png; sourceTree = SOURCE_ROOT; };
 		EE61B6A509B21985005A250B /* NSColorSpace.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSColorSpace.m; sourceTree = "<group>"; };
+		EE6E6CB50ECF1AE300231FD3 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSArrowCursor.tiff; sourceTree = "<group>"; };
 		EE7860590D2D4F4600B2197B /* GSHiddenCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSHiddenCursor.tiff; sourceTree = "<group>"; };
@@ -3101,6 +3103,7 @@
 			isa = PBXGroup;
 			children = (
 				EEDB5E570A1497C600E4CA39 /* HISTORY.rtf */,
+				EE6E6CB50ECF1AE300231FD3 /* Makefile */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
 				EE46D7A20D1BF11A00E99DA0 /* ANNOUNCE */,
 				EEA3717B09540271001244CF /* Classes */,
@@ -6855,6 +6858,7 @@
 				EEC8035909AE4EBF006EEB03 /* main.m in Sources */,
 				EEC8035A09AE4EBF006EEB03 /* myView.m in Sources */,
 				EECD84000A089F8100EF3E30 /* myModel.m in Sources */,
+				EE6E6CB60ECF1AE300231FD3 /* Makefile in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

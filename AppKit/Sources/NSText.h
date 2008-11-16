@@ -90,7 +90,8 @@ enum _NSCommonlyUsedUnicodeCharacters
 {											
 	id _delegate;	// we are not a subclass of NSControl so we have to manage our own delegate!
 	NSColor *_backgroundColor;
-	NSRange _selectedRange;
+	NSRange _selectedRange;		// current selection
+	NSPoint _cursorPosition;	// current clicked cursorPositon (not the position where the cursor is shown but the one selected by last click)
 	NSTextStorage *textStorage;	// note: we don't provide accessors
 	NSMutableArray *lineLayoutInformation;	// one record for each line
 	NSMutableDictionary *typingAttributes; 

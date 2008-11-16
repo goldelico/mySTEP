@@ -19,8 +19,12 @@ enum {
 @class NSColor;
 @class NSColorSpace;
 
-@interface NSGradient : NSObject {
-
+@interface NSGradient : NSObject
+{
+	NSColorSpace *_colorSpace;
+	NSArray *_colors;
+	CGFloat *_locations;
+	NSInteger _numberOfColorStops;
 }
 
 - (NSColorSpace *) colorSpace; 
