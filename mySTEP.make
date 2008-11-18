@@ -49,7 +49,7 @@ endif
 .PHONY:	clean build build_architecture
 
 #ifeq ($(ARCHITECTURES),x)
-ARCHITECTURES:=arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu # arm-quantumstep-linux-gnueabi
+ARCHITECTURES:=arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu # arm-quantumstep-linux-gnueabi # mipsel-quantumstep-linux-gnu
 #endif
 
 ifeq ($(COMPILER),)
@@ -286,6 +286,9 @@ clean:
 	# ignored
 
 # generic bundle rule
+
+### add rules to copy the Info.plist and Resources if not done by Xcode
+### so that this makefile can be used independently of Xcode to create full bundles
 
 "$(BINARY)":: $(XOBJECTS) $(OBJECTS)
 	#

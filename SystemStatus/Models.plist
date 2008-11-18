@@ -4,7 +4,27 @@
 <dict>
 	<key>GTA02</key>
 	<dict>
-		<key>GPS Status</key>
+		<key>Bluetooth Off</key>
+		<string></string>
+		<key>Bluetooth On</key>
+		<string>false</string>
+		<key>GSM Off</key>
+		<string></string>
+		<key>GSM On</key>
+		<string>false</string>
+		<key>Product</key>
+		<string>Openmoko Neo Freerunner</string>
+		<key>Reboot</key>
+		<string>false</string>
+		<key>Shutdown</key>
+		<string>false</string>
+		<key>Sleep</key>
+		<string>false</string>
+		<key>Inherit</key>
+		<string>Linux</string>
+		<key>USB Host On</key>
+		<string></string>
+		<key>USB Host Off</key>
 		<string></string>
 		<key>GPS Off</key>
 		<string>echo &quot;0&quot; &gt;/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/neo1973-pm-gps.0/pwron</string>
@@ -26,8 +46,14 @@
 	<dict>
 		<key> Notes</key>
 		<string>Letux 380</string>
+		<key>Product</key>
+		<string>Letux 380</string>
 		<key>Inherit</key>
 		<string>Linux</string>
+		<key>Camera On</key>
+		<string>false</string>
+		<key>Camera Off</key>
+		<string>false</string>
 	</dict>
 	<key>Acer-N30</key>
 	<dict>
@@ -85,16 +111,22 @@
 		<key>Inherit</key>
 		<string>Linux</string>
 		<key>Product</key>
-		<string>OpenMoko GTA01</string>
+		<string>Openmoko Neo 1973</string>
 		<key>Reboot</key>
-		<string>?</string>
+		<string>false</string>
 		<key>Shutdown</key>
-		<string>?</string>
+		<string>false</string>
 		<key>Sleep</key>
 		<string>(sleep 1; echo mem &gt; /sys/power/state) &amp;&amp; exit</string>
 	</dict>
 	<key>Linux</key>
 	<dict>
+		<key>Product</key>
+		<string>Generic Linux</string>
+		<key>USB Host On</key>
+		<string>true</string>
+		<key>USB Host Off</key>
+		<string>true</string>
 		<key>Bluetooth Status Power</key>
 		<string>false</string>
 		<key>GSM Status</key>
@@ -104,6 +136,8 @@
 		<key>IrDA Status</key>
 		<string>false</string>
 		<key>WLAN Status</key>
+		<string>false</string>
+		<key>Camera Status</key>
 		<string>false</string>
 		<key> Notes</key>
 		<string>Generic Linux entries</string>
@@ -201,7 +235,7 @@
 		<key>IrDA Discovery</key>
 		<string>cat /proc/net/irda/discovery</string>
 		<key>IrDA Off</key>
-		<string>?</string>
+		<string>false</string>
 		<key>IrDA On</key>
 		<string>irattach /dev/ttyS2 -s 1</string>
 		<key>IrDA Serial</key>
