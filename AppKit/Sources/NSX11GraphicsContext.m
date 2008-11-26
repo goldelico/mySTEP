@@ -4827,10 +4827,32 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 				// Handling the joins means using arcs - which itself need flattening when being filled!
 				// Dashing means summing up all lengths of line segments and to decide where to split them into disjoint segments
 				// this at least requires to sum up distances sqrt(dx*dx+dy*dy) and then scale dx and dy
+				
+				/*
+				 * if N is the unit normal vector on the line through P0, P1
+				 * the four corners are P0+lineWidth/2*N, P0-lineWidth/2*N, P0+lineWidth/2*N, P0-lineWidth/2*N
+				 *
+				 * The line through the points is defined by
+				 * - dy * x + dx * y = some constant
+				 *
+				 * therefore, N = (-dy, dx) / sqrt(dx*dx + dy*dy)
+				 *
+				 * so we can easily convert a stroke into a rect with given line width
+				 *
+				 * 1) having nice looking joins is more complex since we must merge two strokes in sequence
+				 *    the outer part can be done by adding a circular segment
+				 *    well, we must simply make the rect a little smaller so that they touch on one of the edges
+				 *    and add a circle
+				 *
+				 * 2) having dashed lines is also more complex since we must split the rects into evenly distributed fragments
+				 *    this may be quite simple: if we keep some float variable that says how much of the last dash goes to the
+				 *    next fragment, we can walk along the line between P0 and P1 and define intermediate points that generate rects
+				 *    one issue is how to handle closed lines properly if the last segment does not fit
+				 */
 
 				NSPoint pts[3];
 				NSPoint coeff[4];
-				NSPoint p, last_p;
+				NSPoint first_p, last_p;
 				int i;
 				BOOL first = NO;
 				NSLog(@"create stroke path");
@@ -4842,47 +4864,46 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 								{
 									case NSMoveToBezierPathElement:
 										[_strokedPath moveToPoint: pts[0]];
-										last_p = p = pts[0];
+										first_p = last_p = pts[0];
 										first = NO;
 										break;
 									case NSClosePathBezierPathElement:
 									case NSLineToBezierPathElement:
 										{
-											float w2=_lineWidth/2.0;
-											if(w2 <= 0.0)
-												w2 = 0.5;	// should this be "Pixels"?
-											if(type == NSClosePathBezierPathElement)
-												p = last_p;
-											else
-												p = pts[0];
-											// FIXME: this is a VERY primitive algorithm ignoring joins and miters
-											if(fabs(p.y-last_p.y) > fabs(p.x-last_p.x))
-													{ // more vertical
-														[_strokedPath moveToPoint:NSMakePoint(last_p.x-w2, last_p.y)];													
-														[_strokedPath moveToPoint:NSMakePoint(last_p.x-w2, p.y)];													
-														[_strokedPath moveToPoint:NSMakePoint(last_p.x+w2, p.y)];													
-														[_strokedPath moveToPoint:NSMakePoint(last_p.x+w2, last_p.y)];		
-														[_strokedPath closePath];
-													}
-											else
-													{ // more horizontal
-														[_strokedPath moveToPoint:NSMakePoint(last_p.x, last_p.y-w2)];													
-														[_strokedPath moveToPoint:NSMakePoint(last_p.x, p.y-w2)];													
-														[_strokedPath moveToPoint:NSMakePoint(last_p.x, p.y+w2)];													
-														[_strokedPath moveToPoint:NSMakePoint(last_p.x, last_p.y+w2)];		
-														[_strokedPath closePath];
-													}
+											float dx, dy;
+											float nn;
+											NSPoint p;
 											if (first)
-													{
-														last_p = pts[0];
+													{ // NSMoveToBezierPathElement is missing
+														first_p = last_p = pts[0];
 														first = NO;
 													}
 											if(type == NSClosePathBezierPathElement)
-												first = YES;
+												p = first_p;	// go back to first of this polygon
+											else
+												p = pts[0];
+											dx=p.x-last_p.x;
+											dy=last_p.y-p.y;
+											nn=dx*dx + dy*dy;	// normalize
+											if(nn >= 0.01)
+													{ // ignore very short strokes
+														nn=2.0*sqrt(nn);	// normalize
+														if(_lineWidth > 0.0)
+															nn /= _lineWidth;
+														dx*=nn;
+														dy*=nn;
+														[_strokedPath moveToPoint:NSMakePoint(last_p.x-dy, last_p.y-dx)];													
+														[_strokedPath moveToPoint:NSMakePoint(last_p.x+dy, last_p.y+dx)];													
+														[_strokedPath moveToPoint:NSMakePoint(p.x+dy, p.y+dx)];													
+														[_strokedPath moveToPoint:NSMakePoint(p.x-dy, p.y-dy)];		
+														[_strokedPath closePath];	// make a closed rect
+													}
+											if(type == NSClosePathBezierPathElement)
+												first = YES;	// start over
 											break;
 										}
 									case NSCurveToBezierPathElement:
-										NSAssert(NO, @"should be flattened");
+										NSAssert(NO, @"should have been flattened");
 										break;
 									default:
 										break;
