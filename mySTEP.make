@@ -48,21 +48,24 @@ endif
 
 .PHONY:	clean build build_architecture
 
-#ifeq ($(ARCHITECTURES),x)
-ARCHITECTURES:=arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu # arm-quantumstep-linux-gnueabi # mipsel-quantumstep-linux-gnu
-#endif
+ifeq ($(ARCHITECTURES),)	# set default architectures
+ARCHITECTURES=mipsel-quantumstep-linux-gnu
+# arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu # arm-quantumstep-linux-gnueabi # mipsel-quantumstep-linux-gnu
+endif
 
 ifeq ($(COMPILER),)
-COMPILER:=gcc-2.95.3-glibc-2.2.2
+COMPILER=gcc-2.95.3-glibc-2.2.2
 endif
 
 # tools
 ifeq ($(ARCHITECTURE),arm-quantumstep-darwin)
-	TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
-	CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
+TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
+CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 else
-	TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Xtoolchain/native/$(COMPILER)/$(ARCHITECTURE)
-	CC := $(TOOLCHAIN)/bin/gcc
+TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Xtoolchain/native/$(COMPILER)/$(ARCHITECTURE)
+# TOOLCHAIN := /Volumes/CaseSensitive/Developer/Xtoolchain/usr/gcc-3.4.6-glibc-2.3.6/mipsel-quantumstep-linux-gnu
+TOOLCHAIN := /Developer/Xtoolchain2/native/usr/gcc-3.4.6-glibc-2.3.6/linux-gnu-2.4.20/$(ARCHITECTURE)/$(ARCHITECTURE)
+CC := $(TOOLCHAIN)/bin/gcc
 endif
 LS := $(TOOLCHAIN)/bin/ld
 AS := $(TOOLCHAIN)/bin/as
@@ -102,45 +105,14 @@ endif
 endif
 endif
 
-build:	# call recursively for all architectures
-# arm-hardfloat-linux-gnu
-# arm-softfloat-linux-gnueabi
+build:
+	# make recursively for all architectures $(ARCHITECTURES)
 	for ARCH in $(ARCHITECTURES); do \
 		echo "*** building for $$ARCH ***"; \
-		export ARCHITECTURE=$$ARCH; \
+		export ARCHITECTURE="$$ARCH"; \
+		export ARCHITECTURES="$$ARCHITECTURES"; \
 		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_architecture; \
 		done
-ifeq ($(INSTALL),false)
-else
-	# install locally $(ROOT)$(INSTALL_PATH) 
-ifeq ($(WRAPPER_EXTENSION),)	# command line tool
-	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)/$(ARCHITECTURE)'; cd '$(ROOT)$(INSTALL_PATH)/$(ARCHITECTURE)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
-else
-	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)'; cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
-endif
-ifeq ($(SEND2ZAURUS),false)
-else
-	# install on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH) 
-	ls -l "$(BINARY)"
-ifeq ($(WRAPPER_EXTENSION),)	# command line tool
-	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && tar xpzvf -"
-else
-	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
-ifeq ($(RUN),false)
-	# dont launch
-else
-	# try to launch
-	if [ "$(WRAPPER_EXTENSION)" = app ] ; then \
-                defaults write com.apple.x11 nolisten_tcp false; \
-				open -a X11; \
-				export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(IP_ADDR) && \
-		ssh -l root $(IP_ADDR) \
-		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' -NoNSBackingStoreBuffered" || echo failed to run; \
-	fi
-endif
-endif
-endif
-endif
 
 # configure Embedded System if undefined
 
@@ -154,9 +126,8 @@ ifeq ($(EMBEDDED_ROOT),)
 EMBEDDED_ROOT:=/usr/share/QuantumSTEP
 endif
 
-ifeq ($(ARCHITECTURE),)
+ifeq ($(ARCHITECTURE),)	# set default
 ARCHITECTURE:=arm-quantumstep-linux-gnu
-# ARCHITECTURE:=i386-quantumstep-linux-gnu
 endif
 
 # override if (stripped) package is build using xcodebuild
@@ -185,9 +156,8 @@ ifeq ($(OPTIMIZE),)
 	endif
 endif
 
-# check if Zaurus responds
-ifeq ($(SEND2ZAURUS),false)
-else	# check if we can reach the device
+# check if embedded device responds
+ifneq ($(SEND2ZAURUS),false) # check if we can reach the device
 	ifneq "$(shell ping -qc 1 $(IP_ADDR) | fgrep '1 packets received' >/dev/null && echo yes)" "yes"
 		SEND2ZAURUS := false
 		RUN := false
@@ -232,10 +202,10 @@ LIBRARIES := \
 
 # set up appropriate CFLAGS for $(ARCHITECTURE)
 
-WARNINGS = -Wall -Wno-shadow -Wpointer-arith -Wno-import
+# -Wall
+WARNINGS =  -Wno-shadow -Wpointer-arith -Wno-import
 
-DEFINES =-DLinux_ARM \
-		-DARCHITECTURE=@\"$(ARCHITECTURE)\" \
+DEFINES = -DARCHITECTURE=@\"$(ARCHITECTURE)\" \
 		-D__mySTEP__ \
 		-DUSE_BITFIELDS=0 \
 		-D_REENTRANT \
@@ -246,10 +216,11 @@ DEFINES =-DLinux_ARM \
 
 CFLAGS := $(CFLAGS) \
 		-g -O$(OPTIMIZE) -fPIC -rdynamic \
+		-fconstant-string-class=NSConstantString \
 		$(WARNINGS) \
 		$(DEFINES) \
-  		$(INCLUDES) \
-        $(OTHER_CFLAGS)
+		$(INCLUDES) \
+		$(OTHER_CFLAGS)
 
 ifeq ($(PROFILING),YES)
 	CFLAGS :=  -pg $(CFLAGS)
@@ -259,28 +230,68 @@ endif
 # CFLAGS :=  -Wxyz $(CFLAGS)
 # endif
 
-.SUFFIXES : .o .c .m
+#.SUFFIXES : .o .c .m
 
-.m.o::
-	- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)
-	@(echo Compiling: $*; echo cd $(TARGET_BUILD_DIR)/$(ARCHITECTURE); echo $(CC) -c -MD $(CFLAGS) $(PWD)/$< -o $*.o)
+#.m.o::
+#	- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)
+#	@(echo Compiling: $*; echo cd $(TARGET_BUILD_DIR)/$(ARCHITECTURE); echo $(CC) -c -MD $(CFLAGS) $(PWD)/$< -o $*.o)
 #	@(echo Compiling: $*; cd $(TARGET_BUILD_DIR)/$(ARCHITECTURE); $(CC) -c -MD $(CFLAGS) $(PWD)/$< -o $*.o)
 
-.c.o:: 	
-	- mkdir -p $(TARGET_BUILD_DIR)/arm-linux
-	@(echo Compiling: $*; echo cd $(TARGET_BUILD_DIR)/$(ARCHITECTURE); echo $(CC) -c -MD $(CFLAGS) $(PWD)/$< -o $*.o)
+#.c.o:: 	
+#	- mkdir -p $(TARGET_BUILD_DIR)/arm-linux
+#	@(echo Compiling: $*; echo cd $(TARGET_BUILD_DIR)/$(ARCHITECTURE); echo $(CC) -c -MD $(CFLAGS) $(PWD)/$< -o $*.o)
 #	@(echo Compiling: $*; cd $(TARGET_BUILD_DIR)/$(ARCHITECTURE); $(CC) -c -MD $(CFLAGS) $(PWD)/$< -o $*.o)
 
 XOBJECTS=$(wildcard $(SOURCES:%.m=$(TARGET_BUILD_DIR)$(ARCHITECTURE)/%.o))
 OBJECTS=$(SOURCES)
 
-build_architecture: "$(EXEC)" "$(BINARY)"
+build_architecture: make_bundle make_exec make_binary install_localy install_tool install_remote launch_remote
+	# $(BINARY) for $(ARCHITECTURE) built.
+	date
+
+make_bundle:
+
+make_exec: "$(EXEC)"
+
+make_binary: "$(BINARY)"
+
+install_localy:
 ifeq ($(ADD_MAC_LIBRARY),true)
 	# install locally in /Library/Frameworks
 	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (cd '/Library/Frameworks' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 endif
-	# $(BINARY) built.
-	date
+	
+install_tool:
+ifneq ($(INSTALL),false)
+ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)$(INSTALL_PATH)/$(ARCHITECTURE)
+		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)/$(ARCHITECTURE)'; cd '$(ROOT)$(INSTALL_PATH)/$(ARCHITECTURE)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+else
+		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)'; cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+endif
+endif
+
+install_remote:
+ifneq ($(SEND2ZAURUS),false)
+	# install on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH) 
+	ls -l "$(BINARY)"
+ifeq ($(WRAPPER_EXTENSION),)	# command line tool
+		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && tar xpzvf -"
+else
+		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
+endif
+endif
+
+launch_remote:
+ifneq ($(RUN),false)
+	# try to launch
+	if [ "$(WRAPPER_EXTENSION)" = app ] ; then \
+                defaults write com.apple.x11 nolisten_tcp false; \
+				open -a X11; \
+				export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(IP_ADDR) && \
+		ssh -l root $(IP_ADDR) \
+		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' -NoNSBackingStoreBuffered" || echo failed to run; \
+	fi
+endif
 
 clean:
 	# ignored
@@ -309,3 +320,5 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	- rm -f $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)
 	- ln -s lib$(EXECUTABLE_NAME).so $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)	# create libXXX.so entry for ldconfig
 endif
+
+# EOF

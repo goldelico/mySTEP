@@ -611,7 +611,7 @@ id classInfo = [GMClassInfo classInfoWithClassName:archiveName
 	NSMapInsert(classes, trueName, classInfo);
 }
 
-#endif NEEDS_POLISHING
+#endif // NEEDS_POLISHING
 
 @end /* NSKeyedArchiver */
 
@@ -800,7 +800,7 @@ etc.
 #if 0
 	NSLog(@"dereference objects[%u]=%@", idx, newObj);
 #endif
-	if(!([newObj isKindOfClass:[NSDictionary class]] && [newObj objectForKey:@"$class"]))
+	if(!([newObj isKindOfClass:[NSDictionary class]] && [(NSDictionary *) newObj objectForKey:@"$class"]))
 		{
 		if([newObj respondsToSelector:@selector(nibInstantiate)])
 			{ // needs to return the replacement object
@@ -907,7 +907,7 @@ etc.
 		}
 	if([obj isKindOfClass:[NSDictionary class]])
 		{
-		if((uid=[obj objectForKey:@"CF$UID"]))
+		if((uid=[(NSDictionary *) obj objectForKey:@"CF$UID"]))
 			{
 #if 0
 			NSLog(@"CF$UID = %@", uid);

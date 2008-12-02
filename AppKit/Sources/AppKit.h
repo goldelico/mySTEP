@@ -78,6 +78,7 @@
 #import <AppKit/NSForm.h>
 #import <AppKit/NSFormCell.h>
 #import <AppKit/NSGlyphGenerator.h>
+#import <AppKit/NSGradient.h>
 #import <AppKit/NSGraphics.h>
 #import <AppKit/NSGraphicsContext.h>
 #import <AppKit/NSHelpManager.h>

@@ -24,6 +24,7 @@
 
 #define NSMaximumStringLength	(INT_MAX-1)
 #define NSHashStringLength		63
+#define _NSConstantStringClassName NSConstantString // could be NXConstantString; should be passed by -fconstant-string-class= to gcc
 
 typedef unsigned short unichar;
 
@@ -252,6 +253,9 @@ extern NSString *NSParseErrorException;
 - (int) intValue;
 - (NSInteger) integerValue;
 - (BOOL) isEqualToString:(NSString *) aString;
+#if 1	// just for convenience - this should be defined in NSScriptWhoseTests.h
+- (BOOL) isEqualTo:(id) obj;
+#endif
 - (NSUInteger) length;
 - (NSUInteger) lengthOfBytesUsingEncoding:(NSStringEncoding) enc;	// exact
 - (NSRange) lineRangeForRange:(NSRange) aRange;
@@ -338,6 +342,11 @@ extern NSString *NSParseErrorException;
 
 @end
 
+///// Implementation private classes - should not be defined in public header if possible! ==> NSString.m
+
+@interface GSBaseCString : NSString 
+@end
+
 #ifdef __APPLE__	// this one is required by gcc on MacOS X
 
 extern void *_NSConstantStringClassReference;
@@ -356,14 +365,11 @@ extern void *_NSConstantStringClassReference;
 }
 @end
 
+#else
+
+@interface _NSConstantStringClassName : GSBaseCString		// compiler thinks that @"..." strings are NXConstantString
+@end
+
 #endif
-
-///// Implementation private classes - should not be defined in public header if possible! ==> NSString.m
-
-@interface GSBaseCString : NSString 
-@end
-
-@interface NXConstantString : GSBaseCString		// compiler thinks that @"..." strings are NXConstantString
-@end
 
 #endif /* _mySTEP_H_NSString */

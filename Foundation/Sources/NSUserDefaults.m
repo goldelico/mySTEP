@@ -252,7 +252,7 @@ static NSUserDefaults *__sharedDefaults = nil;
 {
 	NSEnumerator *e=[_searchList objectEnumerator];
 	NSString *domain;
-	id obj=nil;
+	NSDictionary *obj=nil;
 #if 0
 	NSLog(@"objectForKey:%@", defaultName);
 #endif

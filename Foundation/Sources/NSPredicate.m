@@ -1131,7 +1131,7 @@
 - (id) _eval__index:(id) object context:(NSMutableDictionary *) context;
 {
 	if([[_eargs objectAtIndex:0] isKindOfClass:[NSDictionary class]])
-		return [[_eargs objectAtIndex:0] objectForKey:[_eargs objectAtIndex:1]];
+		return [(NSDictionary *) [_eargs objectAtIndex:0] objectForKey:[_eargs objectAtIndex:1]];
 	return [[_eargs objectAtIndex:0] objectAtIndex:[[_eargs objectAtIndex:1] unsignedIntValue]];	// raises exception if invalid
 }
 

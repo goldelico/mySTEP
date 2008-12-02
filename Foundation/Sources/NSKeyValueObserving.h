@@ -108,4 +108,4 @@ extern NSString *NSKeyValueChangeIndexesKey;
 
 @end
 
-#endif mySTEP_NSKEYVALUEObserving_H
+#endif // mySTEP_NSKEYVALUEObserving_H

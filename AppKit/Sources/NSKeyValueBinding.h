@@ -168,4 +168,4 @@ extern NSString *NSVisibleBinding;
 extern NSString *NSWarningValueBinding;
 extern NSString *NSWidthBinding;
 
-#endif mySTEP_NSKEYVALUEBINDING_H
+#endif // mySTEP_NSKEYVALUEBINDING_H

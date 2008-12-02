@@ -374,6 +374,7 @@ int s = [self length];			// assumes that the NSRange location and length
 								// types will remain unsigned (hence the lack 
 								// of a less-than-zero check).
 	if(NSMaxRange(aRange) > s)
+		// FIXME: should we simply limit the range and don't throw an exception?
 		[NSException raise: NSRangeException
 					format: @"-[NSData getBytes:range:] Range: %@ Size: %d", NSStringFromRange(aRange), s];	// goes behind end
 	memcpy(buffer, ((char *)[self bytes]) + aRange.location, aRange.length);

@@ -81,7 +81,7 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 - (GSSequence*) order;
 - (GSSequence*) lowercase;
 - (GSSequence*) uppercase;
-- (BOOL) isEqual:(GSSequence*)aSequence;
+- (BOOL) isEqual:(id)aSequence;
 - (NSComparisonResult) compare:(GSSequence*)aSequence;
 
 @end
@@ -342,7 +342,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		__cStringEncoding = GSDefaultCStringEncoding();
 		__charIsMem = @selector(characterIsMember:);
 		_nsStringClass = self;
-  		_constantStringClass = [NXConstantString class];
+  		_constantStringClass = [_NSConstantStringClassName class];
 		_strClass = [GSString class];
 		_cStringClass = [GSCString class];
 		_mutableStringClass = [GSMutableString class];
@@ -1727,6 +1727,12 @@ unsigned int end, start = anIndex;						// Determining Composed
 
 - (BOOL) isEqual:(id)obj						{ SUBCLASS return NO; }
 - (BOOL) isEqualToString:(NSString*)aString		{ SUBCLASS return NO; }
+
+- (BOOL) isEqualTo:(id) obj;
+{
+	NSLog(@"Warning: you are using the scripting method -[NSString isEqualTo:] instead of -[NSString isEqual:] or -[NSString isEqualToString:]");
+	return [self isEqual:obj];
+}
 
 - (unsigned int) hash
 {
@@ -3298,6 +3304,7 @@ struct stat tmp_stat;
 
 - (void) getCString:(char*)buffer
 {
+//	NSAssert(buffer, @"getCString buffer is NULL");
 	memcpy(buffer, _cString, _count);
 	buffer[_count] = '\0';
 }
@@ -3856,7 +3863,7 @@ struct stat tmp_stat;
 
 #ifndef __APPLE__
 
-@implementation NXConstantString
+@implementation _NSConstantStringClassName
 
 	// If we pass an NXConstantString to another process or record it in an
 	// archive and read it back, the new copy will never be deallocated -

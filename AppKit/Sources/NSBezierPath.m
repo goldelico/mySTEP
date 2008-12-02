@@ -38,6 +38,65 @@ static NSLineJoinStyle __defaultLineJoinStyle = NSMiterLineJoinStyle;
 static NSLineCapStyle __defaultLineCapStyle = NSButtLineCapStyle;
 static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
+@interface _NSRectBezierPath : NSBezierPath
+{
+	NSRect _rect;
+}
+- (id) initWithRect:(NSRect) rect;
+@end
+
+@implementation _NSRectBezierPath
+
+// FIXME - what happens if we append to such a BezierPath!!!
+
+- (id) initWithRect:(NSRect) rect;
+{
+	if((self=[super init]))
+			{
+				_rect=rect;
+			}
+	return self;
+}
+
+- (void) transformUsingAffineTransform:(NSAffineTransform *)transform
+{
+	// !!! FIXME: this can't work since we can't convert us into a standard NSBezierPath object unless we change the isa pointer!!!
+	// check for translation only transform -> move origin
+	// otherwise transform to real path
+}
+
+- (NSPoint) currentPoint  {	return _rect.origin; }
+
+- (NSRect) controlPointBounds		{	return _rect; }
+- (NSRect) bounds		{	return _rect; }
+
+- (BOOL) isEmpty								{ return NO; }
+- (int) elementCount							{ return 5; }
+
+- (NSBezierPathElement) elementAtIndex:(int)index
+											associatedPoints:(NSPoint *)points
+{
+	if (index < 0 || index >= 5)
+		[NSException raise: NSRangeException format: @"Bad Index"];
+	if(points)
+			{
+				switch(index)
+					{
+						case 0: *points=_rect.origin; break;
+						case 1: *points=_rect.origin; points->x+=_rect.size.width; break;
+						case 2: *points=_rect.origin; points->x+=_rect.size.width; points->y+=_rect.size.height; break;
+						case 3: *points=_rect.origin; points->y+=_rect.size.height; break;
+					}
+			}
+	switch(index)
+		{
+			case 0: return NSMoveToBezierPathElement;
+			case 4: return NSClosePathBezierPathElement;
+			default: return NSLineToBezierPathElement;
+		}
+}
+
+@end
 
 @implementation NSBezierPath
 
@@ -48,6 +107,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 + (NSBezierPath *) bezierPathWithRect:(NSRect)aRect
 {
+#if 1
 	// FIXME: return instance of _NSRectBezierPath
 	// or we define a private _NSRectBezierPathElement defining two corner points
 	// PDF and X11 can use that directly do render rects
@@ -66,6 +126,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	[path closePath];
 	
 	return path;
+#else
+	return [[[_NSRectBezierPath alloc] initWithRect:aRect] autorelease];
+#endif
 }
 
 + (NSBezierPath *) bezierPathWithOvalInRect:(NSRect)rect

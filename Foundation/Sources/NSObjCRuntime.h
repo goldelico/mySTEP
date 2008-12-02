@@ -165,7 +165,7 @@ typedef void *objc_condition_t;
 
 #define _C_LNG_LNG	'1'
 #define _C_ULNG_LNG	'2'
-#define _C_ATOM		'a'
+#define _C_ATOM		'%'
 
 #define _F_CONST	0x01
 #define _F_IN		0x02

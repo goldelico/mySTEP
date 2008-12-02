@@ -413,7 +413,7 @@
 					[o setFrame:rect];
 				}	}
 #endif
-#endif OLD
+#endif // OLD
 #if 1
 		NSLog(@"panel=%@", p);
 #endif

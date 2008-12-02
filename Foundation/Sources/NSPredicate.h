@@ -50,4 +50,4 @@
 - (void) filterUsingPredicate:(NSPredicate *) predicate;
 @end
 
-#endif mySTEP_NSPREDICATE_H
+#endif // mySTEP_NSPREDICATE_H

@@ -777,6 +777,7 @@ printing
 
 - (void) rotateByAngle:(float)angle
 {
+	// FIXME: this also changes the bounds rect!
 	boundsRotation+=angle;
 	_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;
 	[self _invalidateCTM];

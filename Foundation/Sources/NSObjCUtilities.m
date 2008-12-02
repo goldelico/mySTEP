@@ -301,7 +301,7 @@ char *objc_dynamic_find_file(const void *address)
 	return NULL;
 }
 
-#endif	__linux__
+#endif	// __linux__
 
 //*****************************************************************************
 //

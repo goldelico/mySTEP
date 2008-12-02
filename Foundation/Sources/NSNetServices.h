@@ -136,4 +136,4 @@ typedef NSUInteger NSNetServiceOptions;
 
 @end
 
-#endif mySTEP_NSNETSERVICES_H
+#endif // mySTEP_NSNETSERVICES_H

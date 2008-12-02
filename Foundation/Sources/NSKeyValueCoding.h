@@ -57,4 +57,4 @@ extern NSString *NSUnionOfSetsKeyValueOperator;
 
 @end
 
-#endif mySTEP_NSKEYVALUECODING_H
+#endif // mySTEP_NSKEYVALUECODING_H

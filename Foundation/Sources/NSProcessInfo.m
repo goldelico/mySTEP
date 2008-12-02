@@ -195,7 +195,7 @@ void *malloclimit(size_t size)
 int main(int argc, char** argv, char** env)
 {
 	NSAutoreleasePool *pool;
-#if 0
+#if 1
 	{ // print when we enter the main function to find out how long framework initialization takes
 		struct timeval tp;
 		gettimeofday(&tp, NULL);
@@ -210,7 +210,7 @@ int main(int argc, char** argv, char** env)
 #endif
 	[[NSProcessInfo alloc] _initWithArguments:argv count:argc environ:env];
     [pool release];
-#if 0
+#if 1
 	{ // print when we enter the main function to find out how long framework initialization takes
 		struct timeval tp;
 		gettimeofday(&tp, NULL);

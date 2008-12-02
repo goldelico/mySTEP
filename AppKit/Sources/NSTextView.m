@@ -785,7 +785,7 @@ static NSCursor *__textCursor = nil;
 			pos=[[self textStorage] length];	// last character
 			// if outside, get line where we clicked and set to last position
 		}
-	currentCursor=p;	// update position where we clicked
+	_cursorPosition=p;	// update position where we clicked
 	while([event type] != NSLeftMouseUp)	// loop outside until mouse goes up 
 		{
 		p=[self convertPoint:[event locationInWindow] fromView:nil];
@@ -862,8 +862,6 @@ cursorPosition = [self _caretRect].origin;
 }
 
 #endif
-
-@end
 
 // NSUserInterfaceValidation
 

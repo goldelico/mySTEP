@@ -50,4 +50,4 @@ typedef enum _NSPropertyListFormat
 
 @end
 
-#endif mySTEP_NSPROPERTYLIST_H
+#endif // mySTEP_NSPROPERTYLIST_H

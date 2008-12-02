@@ -85,4 +85,4 @@ NSCalculationError NSDecimalPower(NSDecimal *result, const NSDecimal *n, unsigne
 NSCalculationError NSDecimalMultiplyByPowerOf10(NSDecimal *result, const NSDecimal *n, short power, NSRoundingMode mode);
 NSString *NSDecimalString(const NSDecimal *decimal, NSDictionary *locale);
 
-#endif __NSDecimal_h_GNUSTEP_BASE_INCLUDE
+#endif // __NSDecimal_h_GNUSTEP_BASE_INCLUDE

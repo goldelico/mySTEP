@@ -39,4 +39,3 @@ extern NSString *NSHTTPCookieStorageAcceptPolicyChangedNotification;
 - (void) setCookies:(NSArray *) cookies forURL:(NSURL *) url mainDocumentURL:(NSURL *) mainURL;
 
 @end
-

@@ -41,4 +41,4 @@
 
 @end
 
-#endif mySTEP_NSIndexPath_H
+#endif // mySTEP_NSIndexPath_H

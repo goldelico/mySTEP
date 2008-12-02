@@ -70,4 +70,4 @@
 
 @end
 
-#endif mySTEP_NSIndexSet_H
+#endif // mySTEP_NSIndexSet_H

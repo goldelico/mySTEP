@@ -1232,7 +1232,7 @@ next:
 				if(![self _appendStringTo:str fromXMLPropertyListElement:key errorDescription:errorString])
 					return NO;
 				}
-			if(![self _appendStringTo:str fromXMLPropertyListElement:[plist objectForKey:key] errorDescription:errorString])
+			if(![self _appendStringTo:str fromXMLPropertyListElement:[(NSDictionary *) plist objectForKey:key] errorDescription:errorString])
 				return NO;
 			}
 		[str appendString:@"</dict>\n"];
