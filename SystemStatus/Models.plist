@@ -30,6 +30,8 @@
 		<string>echo &quot;0&quot; &gt;/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/neo1973-pm-gps.0/pwron</string>
 		<key>GPS On</key>
 		<string>echo &quot;1&quot; &gt;/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/neo1973-pm-gps.0/pwron</string>
+		<key>GPS Status</key>
+		<string>[ &quot;$(cat /sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/neo1973-pm-gps.0/pwron)&quot; == 1]</string>
 		<key>GPS Serial</key>
 		<string>/dev/ttySAC1</string>
 	</dict>
@@ -91,7 +93,7 @@
 		<key>Bluetooth On</key>
 		<string>echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
 		<key>GPS Status</key>
-		<string></string>
+		<string>ps -ef | fgrep gllin | fgrep -v fgrep</string>
 		<key>GPS Off</key>
 		<string>killall gllin</string>
 		<key>GPS On</key>
@@ -101,7 +103,7 @@
 		<key>GSM Commands</key>
 		<dict/>
 		<key>GSM Status</key>
-		<string></string>
+		<string>[ &quot;$(cat /sys/bus/platform/devices/gta01-pm-gsm.0/power_on)&quot; == 1]</string>
 		<key>GSM Off</key>
 		<string>stty -F /dev/ttySAC0 -crtscts; echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 -echo; echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 crtscts; sleep 1; echo -e &quot;AT@POFF\r&quot; &gt;/dev/ttySAC0; sleep 1; stty -F /dev/ttySAC0 -crtscts; echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
 		<key>GSM On</key>
@@ -127,7 +129,9 @@
 		<string>true</string>
 		<key>USB Host Off</key>
 		<string>true</string>
-		<key>Bluetooth Status Power</key>
+		<key>USB Host Status</key>
+		<string>false</string>
+		<key>Bluetooth Status</key>
 		<string>false</string>
 		<key>GSM Status</key>
 		<string>false</string>
@@ -143,8 +147,6 @@
 		<string>Generic Linux entries</string>
 		<key>Battery</key>
 		<string>/proc/apm</string>
-		<key>Bluetooth Status</key>
-		<string>/bin/hciconfig</string>
 		<key>Bluetooth Tool</key>
 		<string>/bin/hcitool</string>
 	</dict>

@@ -26,7 +26,7 @@
 #define LOG_MEMORY 1	// NSLog prints real memory and number of allocated objects
 
 #if __arm__
-#define atof _atof	// rename atof in loaded header file
+#define atof _atof	// rename atof in loaded header file to handle automatic hard/softfloat
 #endif
 
 #include <sys/types.h>
@@ -515,6 +515,8 @@ if (domainMask & mask && ![paths containsObject: path] && [[NSFileManager defaul
 //
 //*****************************************************************************
 
+#define PROVIDE_LOG 1
+
 #ifndef __mySTEP__
 #undef LOG_MEMORY
 #define LOG_MEMORY 0
@@ -522,7 +524,7 @@ if (domainMask & mask && ![paths containsObject: path] && [[NSFileManager defaul
 
 void NSLogv(NSString *format, va_list args)
 {
-#if 0	// include logging
+#if PROVIDE_LOG	// include logging
 	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	NSString *prefix;
 	NSString *message;
