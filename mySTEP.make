@@ -245,7 +245,7 @@ endif
 XOBJECTS=$(wildcard $(SOURCES:%.m=$(TARGET_BUILD_DIR)$(ARCHITECTURE)/%.o))
 OBJECTS=$(SOURCES)
 
-build_architecture: make_bundle make_exec make_binary install_localy install_tool install_remote launch_remote
+build_architecture: make_bundle make_exec make_binary install_local install_tool install_remote launch_remote
 	# $(BINARY) for $(ARCHITECTURE) built.
 	date
 
@@ -255,10 +255,12 @@ make_exec: "$(EXEC)"
 
 make_binary: "$(BINARY)"
 
-install_localy:
+install_local:
 ifeq ($(ADD_MAC_LIBRARY),true)
 	# install locally in /Library/Frameworks
 	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (cd '/Library/Frameworks' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+else
+	# don't install local
 endif
 	
 install_tool:
@@ -268,6 +270,8 @@ ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)$(INSTAL
 else
 		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)'; cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 endif
+else
+	# don't install tool
 endif
 
 install_remote:
@@ -279,6 +283,8 @@ ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 else
 		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
 endif
+else
+	# don't install on $(IP_ADDR)
 endif
 
 launch_remote:
@@ -289,8 +295,10 @@ ifneq ($(RUN),false)
 				open -a X11; \
 				export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(IP_ADDR) && \
 		ssh -l root $(IP_ADDR) \
-		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' -NoNSBackingStoreBuffered" || echo failed to run; \
+		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=memory; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' -NoNSBackingStoreBuffered" || echo failed to run; \
 	fi
+else
+	# don't try to launch
 endif
 
 clean:

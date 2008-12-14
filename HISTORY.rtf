@@ -14,11 +14,13 @@ This document describes the changes and additions to the mySTEP library.\
 \b \cf0 ------------------------------------
 \b0 \
 
-\b Versions ...B1000\
+\b Versions B1000...\
 ------------------------------------
 \b0 \
 \
-* \
+* accept NSLog environment variable to control NSLog output ("empty", "yes", "memory")\
+* screen scaling from X server dimensions is default, override by local variable only if that exists\
+* made Window title bar, toolbar and scrollers dim if they are not in the key window\
 \
 
 \b ------------------------------------
@@ -28,8 +30,8 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \b0 \
 \
-* improved stroking with Xrender a little\
-* fixed all files to have a newline at the end because some compilers complain about this and have no switch to inhibit this warning\
+* improved Xrender path stroking a little\
+* fixed files to have a newline at the end because some compilers complain about this and have no switch to inhibit this warning\
 * mySTEP.make reworked to be a little easier to understand and maintain\
 * changed NXConstantString to NSConstantString\
 * simple CoreFoundation wrapper/compatibility framework started\

@@ -3299,24 +3299,26 @@ static NSDictionary *_x11settings;
 		int major_opcode_return;
 		int first_event_return;
 		int first_error_return;
-		if(_x11settings)
-			 _screenScale=[[_x11settings objectForKey:@"systemSpaceScaleFactor"] floatValue];
-		if(_screenScale <= 0.01) _screenScale=1.0;		// force default
+			id val;
+			_screenScale=1.0;	// default screen scale
 #if 1
 		NSLog(@"system space scale factor=%lf", _screenScale);
-			{
-				float xdpi=WidthOfScreen(_screen)/(WidthMMOfScreen(_screen)/25.4)/72.0;
-				float ydpi=HeightOfScreen(_screen)/(HeightMMOfScreen(_screen)/25.4)/72.0;
-				float avg=(xdpi+ydpi)/2.0;	// take average for 72dpi
+				{
+					float xdpi=WidthOfScreen(_screen)/(WidthMMOfScreen(_screen)/25.4)/72.0;
+					float ydpi=HeightOfScreen(_screen)/(HeightMMOfScreen(_screen)/25.4)/72.0;
+					float avg=(xdpi+ydpi)/2.0;	// take average for 72dpi
 #if 1
-				NSLog(@"xdpi=%lf", xdpi);
-				NSLog(@"ydpi=%lf", ydpi);
+					NSLog(@"xdpi=%lf", xdpi);
+					NSLog(@"ydpi=%lf", ydpi);
 #endif
-				if(fabs(avg - rint(avg)) < 0.1)
-					avg=rint(avg);	// round to nearest integer
-				NSLog(@"calculated scale factor=%lf", avg);
-			}
+					if(fabs(avg - rint(avg)) < 0.1)
+						avg=rint(avg);	// round to nearest integer
+					NSLog(@"calculated scale factor=%lf", avg);
+				}
 #endif
+		val=[_x11settings objectForKey:@"systemSpaceScaleFactor"];
+		if(val)
+			_screenScale=[val floatValue];	// override
 		_xRect.width=WidthOfScreen(_screen);			// screen width in pixels
 		_xRect.height=HeightOfScreen(_screen);			// screen height in pixels
 		size.width=_xRect.width/_screenScale;					// screen width in 1/72 points

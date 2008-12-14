@@ -89,7 +89,7 @@ static BOOL __cursorHidden = NO;
 	NSButton *_resizeButton;	// really here?
 	NSToolbar *_toolbar;
 	NSColor *_backgroundColor;	// window background color
-	float _height;	// title bar height
+	float _height;	// title bar height (w/o ToolbarView!)
 	unsigned int _style;
 	BOOL _inLiveResize;
 	BOOL _didSetShape;
@@ -105,6 +105,7 @@ static BOOL __cursorHidden = NO;
 - (void) setTitle:(NSString *) title;
 - (NSImage *) titleIcon;
 - (void) setTitleIcon:(NSImage *) img;
+- (NSColor *) titleBarBackgroundColor;
 - (NSColor *) backgroundColor;
 - (void) setBackgroundColor:(NSColor *) color;
 
@@ -205,6 +206,14 @@ static BOOL __cursorHidden = NO;
 	[super dealloc];
 }
 
+- (NSColor *) titleBarBackgroundColor;
+{
+	if([_window isKeyWindow] && [NSApp isActive])
+		return [NSColor /*windowFrameColor*/redColor];	// other conditions? E.g. for panels and utility panels?
+	else
+		return [NSColor /*windowFrameColor*/greenColor];
+}
+
 - (void) drawRect:(NSRect)rect
 { // draw window background
 	static NSDictionary *a;
@@ -232,30 +241,29 @@ static BOOL __cursorHidden = NO;
 			}
 		_didSetShape=YES;
 		}
+//	if(NSMinY(rect) >= _height)
 	[_backgroundColor set];
 	NSRectFill(rect);	// draw window background
+	[[self titleBarBackgroundColor] set];
+	NSRectFill((NSRect){NSZeroPoint, {_bounds.size.width, _height }});	// fill titlebar background
 	[[NSColor windowFrameColor] set];
-	NSFrameRect(_bounds);	// draw a frame around the window
-	NSRectFill((NSRect){NSZeroPoint, {_bounds.size.width, _height }});	// fill titlebar and toolbar background behind buttons
+	NSFrameRect(_bounds);	// draw a frame around the window (using current fill color)
 	if(!_title && !_titleIcon)
 		return;
 	if(_titleIcon)
 		{
 		[_titleIcon compositeToPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0-[_titleIcon size].width,
 																						 1.0+(_height-16.0)/2.0)
-											 operation:NSCompositeSourceOver];
+											 operation:NSCompositeSourceOver
+												fraction:[_window isKeyWindow]?1.0:0.8];	// should be dimmed out if we are not the main window
 		}
-	if(!a)
-		a=[[NSDictionary dictionaryWithObjectsAndKeys:		// FIXME: how does this differ from the defaults?
-			[NSColor windowFrameTextColor], NSForegroundColorAttributeName,
-			// use smaller font for NSUtilityWindowMask - we could e.g. use something like frame.size.height-10
-			// but we have only one cache! -> add instance variable _titleAttributes
-			[NSFont titleBarFontOfSize:12.0], NSFontAttributeName,
-			nil] retain];
-	// draw document icon or shouldn't we better use a document NSButton to store the window icon and title?
+	a=[NSDictionary dictionaryWithObjectsAndKeys:		// FIXME: how does this differ from the defaults?
+			[_window isKeyWindow]?[NSColor windowFrameTextColor]:[NSColor grayColor], NSForegroundColorAttributeName,
+			[NSFont titleBarFontOfSize:(_style&NSUtilityWindowMask)?9.0:12.0], NSFontAttributeName,
+			nil];
+	// draw document icon or shouldn't we better use a resizable NSButton with center alignment to store the window icon and title?
 	// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
 	[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, 1.0+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
-	// draw resize area (how to draw it in front of the subviews?) - or add another subview?
 }
 
 - (void) unlockFocus;
@@ -329,7 +337,7 @@ static BOOL __cursorHidden = NO;
 	f.origin.y+=_height;		// add room for buttons
 	f.size.height-=_height;
 	if([sub_views count] >= 6)
-		{
+		{ // has a toolbar
 			NSToolbarView *tv=[self toolbarView];
 			float height=[tv height];
 			NSRect tf=f;
@@ -415,7 +423,7 @@ static BOOL __cursorHidden = NO;
 	[self setNeedsDisplay:YES];
 }
 
-- (BOOL) showsToolbarButton; { return ![[self standardWindowButton:NSWindowToolbarButton] isHidden]; }
+- (BOOL) showsToolbarButton; { NSButton *button=[self standardWindowButton:NSWindowToolbarButton]; return button && ![button isHidden]; }
 - (void) setShowsToolbarButton:(BOOL) flag; { [[self standardWindowButton:NSWindowToolbarButton] setHidden:!flag]; }
 - (BOOL) showsResizeIndicator; { return _drawsResizeIndicator; }
 - (void) setShowsResizeIndicator:(BOOL) flag; { _drawsResizeIndicator=flag; }
@@ -579,6 +587,8 @@ static BOOL __cursorHidden = NO;
 
 @implementation _NSThemeWidget
 
+// handle graying out of buttons if our window is not main window or App is not active
+
 - (id) initWithFrame:(NSRect) f forStyleMask:(unsigned int) aStyle;
 {
 	if((self=[super initWithFrame:f]))
@@ -627,6 +637,8 @@ static BOOL __cursorHidden = NO;
 @implementation NSToolbarView
 
 static NSButtonCell *sharedCell;
+
+- (BOOL) isOpaque; { return NO; }
 
 - (id) initWithFrame:(NSRect) frame
 {
@@ -856,7 +868,7 @@ static NSButtonCell *sharedCell;
 {
 	int i;
 	NSArray *items=[_toolbar _activeItems];
-	[[NSColor windowFrameColor] set];
+	[[(NSThemeFrame *) super_view titleBarBackgroundColor] set];
 	NSRectFill(rect);
 	if([_toolbar showsBaselineSeparator])
 			{ // draw separator
@@ -886,7 +898,7 @@ static NSButtonCell *sharedCell;
 						}
 			}
 	if(_needsOverflowMenu)
-			{ // draw indicator
+			{ // draw overflow indicator
 			}
 }
 
@@ -1285,7 +1297,7 @@ static NSButtonCell *sharedCell;
 - (void) setBackgroundColor:(NSColor*)color	{ [(NSThemeFrame *) _themeFrame setBackgroundColor:color]; }
 - (void) setMiniwindowImage:(NSImage*)image	{ ASSIGN(_miniWindowImage,image); }
 - (void) setOneShot:(BOOL)flag				{ _w.isOneShot = flag; }
-- (void) _setTexturedBackground:(BOOL)flag;	{ [(NSThemeFrame *) _themeFrame _setTexturedBackground:flag]; }
+- (void) _setTexturedBackground:(BOOL)flag;	{ [(NSThemeFrame *) _themeFrame _setTexturedBackground:flag]; }	// undocumented method
 
 - (void) setTitle:(NSString*)aString
 {
@@ -1402,6 +1414,7 @@ static NSButtonCell *sharedCell;
 	if(!_w.cursorRectsValid)
 		[self resetCursorRects];	
 	[_firstResponder becomeFirstResponder];
+	[_themeFrame setNeedsDisplay:YES];	// update title bar, buttons etc.
 	[[NSNotificationCenter defaultCenter] postNotificationName: NOTE(DidBecomeKey) object: self];
 }
 
@@ -1410,6 +1423,7 @@ static NSButtonCell *sharedCell;
 	if (_w.isMain)
 		return;										
 	_w.isMain = YES;								// We are the main window
+	[_themeFrame setNeedsDisplay:YES];	// update title bar, buttons etc.
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidBecomeMainNotification object: self];
 }
 
@@ -1473,6 +1487,7 @@ static NSButtonCell *sharedCell;
 #if 0
 	NSLog(@"notified");
 #endif
+	[_themeFrame setNeedsDisplay:YES];	// update title bar, buttons etc.
 }
 
 - (void) resignMainWindow
@@ -1481,6 +1496,7 @@ static NSButtonCell *sharedCell;
 		return;
 	_w.isMain = NO;
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidResignMainNotification object:self];
+	[_themeFrame setNeedsDisplay:YES];	// update title bar and buttons
 }
 
 - (void) orderWindow:(NSWindowOrderingMode) place 
@@ -2722,7 +2738,7 @@ id prev;
 			[b setImage:[NSImage imageNamed:@"NSWindowToolbarButton"]];
 				// set alternate image
 			[b setTitle:@""];
-			[b setAutoresizingMask:NSViewMinXMargin|NSViewMinYMargin];
+			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 			break;
 		case NSWindowDocumentIconButton:
 			// make centered button

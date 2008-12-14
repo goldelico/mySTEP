@@ -39,7 +39,11 @@ static NSButtonCell *__knobCell = nil;
 - (void) drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
 	NSBezierPath *p=[NSBezierPath _bezierPathWithRoundedBezelInRect:cellFrame vertical:cellFrame.size.width < cellFrame.size.height];	// box with halfcircular rounded ends
-	[[NSColor selectedControlColor] setFill];	// selected
+	NSWindow *win=[controlView window];
+	if([win isKeyWindow] || [win isKindOfClass:[NSPanel class]])
+		[[NSColor selectedControlColor] setFill];
+	else
+		[[NSColor lightGrayColor] setFill];	// dim if it is not the key window
 	[p fill];		// fill with color
 }
 

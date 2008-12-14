@@ -23,8 +23,6 @@
  
 */ 
 
-#define LOG_MEMORY 1	// NSLog prints real memory and number of allocated objects
-
 #if __arm__
 #define atof _atof	// rename atof in loaded header file to handle automatic hard/softfloat
 #endif
@@ -56,7 +54,7 @@
 
 #import "NSPrivate.h"
 
-#ifdef __linux__	// compile on Linux only
+#ifdef __linux__	// compile this on Linux only
 
 //*****************************************************************************
 //
@@ -515,44 +513,39 @@ if (domainMask & mask && ![paths containsObject: path] && [[NSFileManager defaul
 //
 //*****************************************************************************
 
-#define PROVIDE_LOG 1
-
-#ifndef __mySTEP__
-#undef LOG_MEMORY
-#define LOG_MEMORY 0
-#endif
+// export NSLog=""   -- off
+// export NSLog="on" -- on
+// export NSLog="memory"
 
 void NSLogv(NSString *format, va_list args)
 {
-#if PROVIDE_LOG	// include logging
-	NSAutoreleasePool *pool = [NSAutoreleasePool new];
-	NSString *prefix;
-	NSString *message;
+#ifndef __mySTEP__
+	int __NSAllocatedObjects;
+#endif
+	if(getenv("NSLog") != NULL && getenv("NSLog")[0] != 0)
+			{
+				NSAutoreleasePool *pool = [NSAutoreleasePool new];
+				NSString *prefix;
+				NSString *message;
+				BOOL logMemory=strcmp(getenv("NSLog"), "memory") == 0;
 #if 0
-	fprintf(stderr, ">> NSRealMemoryAvailable=%u\n", NSRealMemoryAvailable ());
+				fprintf(stderr, ">> NSRealMemoryAvailable=%u\n", NSRealMemoryAvailable ());
 #endif
-#if LOG_MEMORY
-	prefix = [NSString stringWithFormat: @"%@ %@[%d] [%lu/%lu] ",
-#else
-	prefix = [NSString stringWithFormat: @"%@ %@[%d] ",
-#endif
-				[[NSCalendarDate calendarDate] descriptionWithCalendarFormat: @"%b %d %H:%M:%S.%F"],
-				[[[NSProcessInfo processInfo] processName] lastPathComponent],
-				getpid()
-#if LOG_MEMORY
-				, NSRealMemoryAvailable(), __NSAllocatedObjects
-#endif
-		];
-	message = [[NSString alloc] initWithFormat:format arguments:args];
-	fputs([[prefix stringByAppendingString:message] UTF8String], stderr);
-	if(![message hasSuffix:@"\n"])		// Check if there is already a newline at the end of the string
-		fputs("\n", stderr);
-	[message release];
-	[pool release];
+				prefix = [NSString stringWithFormat: logMemory?@"%@ %@[%d] [%lu/%lu] ":@"%@ %@[%d] ",
+									[[NSCalendarDate calendarDate] descriptionWithCalendarFormat: @"%b %d %H:%M:%S.%F"],
+									[[[NSProcessInfo processInfo] processName] lastPathComponent],
+									getpid(), NSRealMemoryAvailable(), __NSAllocatedObjects
+									];
+				message = [[NSString alloc] initWithFormat:format arguments:args];
+				fputs([[prefix stringByAppendingString:message] UTF8String], stderr);
+				if(![message hasSuffix:@"\n"])		// Check if there is already a newline at the end of the string
+					fputs("\n", stderr);
+				[message release];
+				[pool release];
 #if 0
-	fprintf(stderr, "<< NSRealMemoryAvailable=%u\n", NSRealMemoryAvailable ());
+				fprintf(stderr, "<< NSRealMemoryAvailable=%u\n", NSRealMemoryAvailable ());
 #endif
-#endif
+			}
 }
 
 void 
