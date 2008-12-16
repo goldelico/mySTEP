@@ -490,6 +490,10 @@ id __buttonCellClass = nil;
 	if([_title isEqualToString:@"Round Textured"])
 		NSLog(@"drawing %@", _title);
 #endif
+#if 1
+	if([_title isEqualToString:@"Toolbar"])
+		NSLog(@"drawing %@", _title);
+#endif
 	if(stateOrHighlight(NSChangeGrayCellMask | NSChangeBackgroundCellMask))
 		backgroundColor = [NSColor whiteColor];		// FIXME: make background white or light grey dependent on highlight
 	else if(_c.drawsBackground) // not bordered - e.g. Radio Button and Checkbox
@@ -524,7 +528,7 @@ id __buttonCellClass = nil;
 		case NSRoundedBezelStyle:
 			{ // standard Push Button (half-circle at both ends)
 				ctxt=[NSGraphicsContext currentContext];
-				if(_c.highlighted != ([_keyEquivalent isEqualToString:@"\r"] || [_keyEquivalent isEqualToString:@"\n"]))
+				if(_c.highlighted != ([_keyEquivalent isEqualToString:@"\r"] || [_keyEquivalent isEqualToString:@"\n"]) && [[controlView window] isKeyWindow])
 					backgroundColor=[NSColor selectedControlColor];	// selected or default button
 				else if(!backgroundColor)
 					backgroundColor=[NSColor controlColor];	// never transparent
@@ -1213,7 +1217,6 @@ id __buttonCellClass = nil;
 - (void) setBezelStyle:(NSBezelStyle) style;
 {
 	[_cell setBezelStyle:style];
-	[_cell setBezeled:YES];
 	[self setNeedsDisplay:YES];
 }
 

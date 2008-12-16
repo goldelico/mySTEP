@@ -82,6 +82,9 @@ static BOOL __cursorHidden = NO;
 - (void) setDocumentEdited:(BOOL) flag;	// changes image
 @end
 
+@interface _NSThemeDocumentIconWidget : _NSThemeWidget
+@end
+
 @interface NSThemeFrame : NSView
 {
 	NSString *_title;
@@ -209,10 +212,10 @@ static BOOL __cursorHidden = NO;
 
 - (NSColor *) titleBarBackgroundColor;
 {
-	if([_window isKeyWindow] && [NSApp isActive])
-		return [NSColor /*windowFrameColor*/redColor];	// other conditions? E.g. for panels and utility panels?
+	if([_window isKeyWindow] && [NSApp isActive])		// other conditions? E.g. for panels and utility panels?
+		return [NSColor windowFrameColor];
 	else
-		return [NSColor /*windowFrameColor*/greenColor];
+		return [NSColor windowBackgroundColor];
 }
 
 - (void) drawRect:(NSRect)rect
@@ -634,6 +637,16 @@ static BOOL __cursorHidden = NO;
 	[self setImage:[NSImage imageNamed:flag?@"NSWindowChangedButton":@"NSWindowCloseButton"]];	// change button image
 	[self setNeedsDisplay];
 	// notify backend (external window manager)
+}
+
+@end
+
+@implementation _NSThemeDocumentIconWidget
+
+- (NSView *) hitTest:(NSPoint) aPoint
+{
+	// enable only D&D for the icon
+	return nil;	// don't hit
 }
 
 @end
@@ -2736,17 +2749,18 @@ id prev;
 				[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 				break;
 			case NSWindowToolbarButton:
-				b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(100.0, 0.0, button, 2*button) forStyleMask:aStyle];	// we must adjust the origin when using this button!
+				b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(100.0, 0.125*button, 1.25*button, 0.75*button) forStyleMask:aStyle];	// we must adjust the origin when using this button!
 				[b setAction:@selector(toggleToolbarShown:)];
 				[b setEnabled:YES];
 				[b setBordered:YES];	// with bezel
 				[b setBezelStyle:NSRoundedBezelStyle];
-				[b setImage:[NSImage imageNamed:@"NSWindowToolbarButton"]];
-				[b setTitle:@"t"];
+//				[b setImage:[NSImage imageNamed:@"NSWindowToolbarButton"]];
+//				[b setTitle:@"t"];
+				[b setTitle:@""];
 				[b setAutoresizingMask:NSViewMinXMargin|NSViewMinYMargin];
 				break;
 			case NSWindowDocumentIconButton:
-				b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(2.0+3.0*button, 0.0, 100.0, button) forStyleMask:aStyle];	// we must adjust the width when using this button!
+				b=[[_NSThemeDocumentIconWidget alloc] initWithFrame:NSMakeRect(2.0+3.0*button, 0.0, 100.0, button) forStyleMask:aStyle];	// we must adjust the width when using this button!
 				[b setEnabled:NO];
 				// somehow include us in handling move by clicking into the title bar except for D&D on the icon
 				[b setImagePosition:NSImageLeft];

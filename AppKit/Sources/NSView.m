@@ -1832,7 +1832,7 @@ printing
 			return nil;		// If not within our frame then immediately return
 			}
 		}
-	aPoint=[[self _frame2bounds] transformPoint:aPoint];	// transform the dirty rect from superview's coordinates
+	aPoint=[[self _frame2bounds] transformPoint:aPoint];	// transform point from superview's coordinates
 	for(i = [sub_views count] - 1; i >= 0; i--)	
 		{ // Check our sub_views front to back
 		if((v = [[sub_views objectAtIndex:i] hitTest:aPoint]))
