@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
+		EE8D72150EF6C71000A9C09B /* UpdateLocalizedNIBs */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = EE8D721D0EF6C72F00A9C09B /* Build configuration list for PBXAggregateTarget "UpdateLocalizedNIBs" */;
+			buildPhases = (
+				EE8D72140EF6C71000A9C09B /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = UpdateLocalizedNIBs;
+			productName = UpdateLocalizedNIBs;
+		};
 		EEA3715E095400C3001244CF /* AppKit */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = EE5B0DE8098C08400017AC60 /* Build configuration list for PBXAggregateTarget "AppKit" */;
@@ -680,6 +691,12 @@
 		EE8D1C360A2B4C71000632BC /* GSStop.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C340A2B4C71000632BC /* GSStop.tiff */; };
 		EE8D1C370A2B4C71000632BC /* GSSearch.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C330A2B4C71000632BC /* GSSearch.tiff */; };
 		EE8D1C380A2B4C71000632BC /* GSStop.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C340A2B4C71000632BC /* GSStop.tiff */; };
+		EE8D72440EF6E65800A9C09B /* NSWindowZoomButtonInactive.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D72410EF6E65800A9C09B /* NSWindowZoomButtonInactive.tiff */; };
+		EE8D72450EF6E65800A9C09B /* NSWindowMiniaturizeButtonInactive.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D72420EF6E65800A9C09B /* NSWindowMiniaturizeButtonInactive.tiff */; };
+		EE8D72460EF6E65800A9C09B /* NSWindowCloseButtonInactive.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D72430EF6E65800A9C09B /* NSWindowCloseButtonInactive.tiff */; };
+		EE8D72470EF6E65800A9C09B /* NSWindowZoomButtonInactive.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D72410EF6E65800A9C09B /* NSWindowZoomButtonInactive.tiff */; };
+		EE8D72480EF6E65800A9C09B /* NSWindowMiniaturizeButtonInactive.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D72420EF6E65800A9C09B /* NSWindowMiniaturizeButtonInactive.tiff */; };
+		EE8D72490EF6E65800A9C09B /* NSWindowCloseButtonInactive.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D72430EF6E65800A9C09B /* NSWindowCloseButtonInactive.tiff */; };
 		EE93C7890B901DF500FBD885 /* 1bK.png in Resources */ = {isa = PBXBuildFile; fileRef = EEDB37820ABD584F00C31F1E /* 1bK.png */; };
 		EE93C78A0B901DF500FBD885 /* Default.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEDB37830ABD584F00C31F1E /* Default.tiff */; };
 		EE93C78B0B901DF500FBD885 /* Lion.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EEDB37840ABD584F00C31F1E /* Lion.jpg */; };
@@ -1245,6 +1262,9 @@
 		EE7860630D2D4F4600B2197B /* GSResizeUpCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSResizeUpCursor.tiff; sourceTree = "<group>"; };
 		EE8D1C330A2B4C71000632BC /* GSSearch.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSSearch.tiff; sourceTree = "<group>"; };
 		EE8D1C340A2B4C71000632BC /* GSStop.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSStop.tiff; sourceTree = "<group>"; };
+		EE8D72410EF6E65800A9C09B /* NSWindowZoomButtonInactive.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSWindowZoomButtonInactive.tiff; sourceTree = "<group>"; };
+		EE8D72420EF6E65800A9C09B /* NSWindowMiniaturizeButtonInactive.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSWindowMiniaturizeButtonInactive.tiff; sourceTree = "<group>"; };
+		EE8D72430EF6E65800A9C09B /* NSWindowCloseButtonInactive.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = NSWindowCloseButtonInactive.tiff; sourceTree = "<group>"; };
 		EE93C79A0B901DF500FBD885 /* myViewTest.mixed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myViewTest.mixed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE93C79C0B901DF500FBD885 /* Info ViewTest.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info ViewTest.plist"; sourceTree = "<group>"; };
 		EE93C7A30B901E5700FBD885 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = "English.lproj/MainMenu ViewTest.nib"; sourceTree = "<group>"; };
@@ -3778,6 +3798,9 @@
 				EEA371CD09540272001244CF /* NSRadioButton.tiff */,
 				EEA371CE09540272001244CF /* NSSwitch.tiff */,
 				EEDA089709E012AD005AA012 /* NSWindowChangedButton.tiff */,
+				EE8D72410EF6E65800A9C09B /* NSWindowZoomButtonInactive.tiff */,
+				EE8D72420EF6E65800A9C09B /* NSWindowMiniaturizeButtonInactive.tiff */,
+				EE8D72430EF6E65800A9C09B /* NSWindowCloseButtonInactive.tiff */,
 				EEDA089809E012AD005AA012 /* NSWindowCloseButton.tiff */,
 				EEDA089909E012AD005AA012 /* NSWindowMiniaturizeButton.tiff */,
 				EEDA089A09E012AD005AA012 /* NSWindowToolbarButton.tiff */,
@@ -6308,6 +6331,7 @@
 				EEC8033909AE4EB6006EEB03 /* NIB Test Mixed on X11 */,
 				EEC8035209AE4EBF006EEB03 /* NIB Test mySTEP */,
 				EE93C7830B901DF500FBD885 /* View Test Mixed on X11 */,
+				EE8D72150EF6C71000A9C09B /* UpdateLocalizedNIBs */,
 			);
 		};
 /* End PBXProject section */
@@ -6392,6 +6416,9 @@
 				EE419D790E463B02005B7EF0 /* NSToolbarShowColors.tiff in Resources */,
 				EE419D7A0E463B02005B7EF0 /* NSToolbarSeparator.tiff in Resources */,
 				EE419D7B0E463B02005B7EF0 /* NSToolbarShowFonts.tiff in Resources */,
+				EE8D72470EF6E65800A9C09B /* NSWindowZoomButtonInactive.tiff in Resources */,
+				EE8D72480EF6E65800A9C09B /* NSWindowMiniaturizeButtonInactive.tiff in Resources */,
+				EE8D72490EF6E65800A9C09B /* NSWindowCloseButtonInactive.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6489,6 +6516,9 @@
 				EE419D7E0E463B02005B7EF0 /* NSToolbarShowColors.tiff in Resources */,
 				EE419D7F0E463B02005B7EF0 /* NSToolbarSeparator.tiff in Resources */,
 				EE419D800E463B02005B7EF0 /* NSToolbarShowFonts.tiff in Resources */,
+				EE8D72440EF6E65800A9C09B /* NSWindowZoomButtonInactive.tiff in Resources */,
+				EE8D72450EF6E65800A9C09B /* NSWindowMiniaturizeButtonInactive.tiff in Resources */,
+				EE8D72460EF6E65800A9C09B /* NSWindowCloseButtonInactive.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6565,6 +6595,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export SOURCES=\"Sources/NS*.m Sources/Externs.m Sources/Functions.m Sources/GSBitmapImageReps.m Sources/GSServices.m\"   # all source codes\nexport LIBS=\"-ltiff -lgif -lpng -ljpeg -lz -lfreetype -lXrender -lXext -lX11\"  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
+		EE8D72140EF6C71000A9C09B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here\n# to use it please install Xcode 2.5 (in parallel to Xcode 3.x)\n\ncd Panels\n\nNIBTOOL=/Xcode2.5/usr/bin/nibtool\n\nNIBS=$(cd English.lproj; echo *.nib)\n\nfor NIB in $NIBS\n\tdo\n\techo \"Processing $NIB\"\n\tfor i in *.lproj\n\t\tdo\n\t\techo \"Language $i\"\n\t\tif [ ! \"$i\" = \"English.lproj\" ]\n\t\t\tthen\n\t\t\tif [ ! -x \"$i/$NIB\" ]\n\t\t\t\tthen\n\t\t\t\techo \"Creating $i/$NIB\"\n\t\t\t\tcp -R \"English.lproj/$NIB\" \"$i/\"\n\t\t\tfi\n\t\t\tif [ ! -r \"$i/$NIB.strings\" ]\n\t\t\t\tthen\n\t\t\t\techo \"Creating $i/$NIB.strings\"\n\t\t\t\techo \"/* Please keep the left side completely unchanged!!! Just translate the right side of the equations.*/\" >\"$i/$NIB.strings\"\n\t\t\t\t$NIBTOOL --utf8 -I \"$i/$NIB\" -L \"English.lproj/$NIB\" >>\"$i/$NIB.strings\"\n\t\t\tfi\n\t\t\techo \"Updating $i/$NIB\"\n\t\t\t$NIBTOOL --utf8 -I \"English.lproj/$NIB\" -W \"$i/$NIB.tmp\" -d \"$i/$NIB.strings\" \"English.lproj/$NIB\"\n\t\t\tcp \"$i/$NIB.tmp\"/* \"$i/$NIB\"\t\t# keep .svn intact\n\t\t\ttouch \"$i/$NIB\"\t\t# make changes known to Xcode\n\t\t\trm -rf \"$i/$NIB.tmp\"\n\t\telse\n\t\t\techo not touched\n\t\tfi\n\t\techo\n\tdone\n\techo\ndone\n";
+			showEnvVarsInLog = 0;
 		};
 		EE93C7860B901DF500FBD885 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -7509,6 +7553,34 @@
 			};
 			name = Default;
 		};
+		EE8D721A0EF6C71100A9C09B /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = UpdateLocalizedNIBs;
+			};
+			name = Development;
+		};
+		EE8D721B0EF6C71100A9C09B /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = UpdateLocalizedNIBs;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE8D721C0EF6C71100A9C09B /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = UpdateLocalizedNIBs;
+			};
+			name = Default;
+		};
 		EE93C7970B901DF500FBD885 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -7808,6 +7880,16 @@
 				EE5B0DF1098C08400017AC60 /* Development */,
 				EE5B0DF2098C08400017AC60 /* Deployment */,
 				EE5B0DF3098C08400017AC60 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EE8D721D0EF6C72F00A9C09B /* Build configuration list for PBXAggregateTarget "UpdateLocalizedNIBs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE8D721A0EF6C71100A9C09B /* Development */,
+				EE8D721B0EF6C71100A9C09B /* Deployment */,
+				EE8D721C0EF6C71100A9C09B /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;

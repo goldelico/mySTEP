@@ -340,6 +340,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
+	if(!aSelector) return NO;
 	if (CLS_ISCLASS(((Class)self)->class_pointer))
 		return (class_get_instance_method(isa, aSelector) != METHOD_NULL);
 	return (class_get_class_method(isa, aSelector) != METHOD_NULL);

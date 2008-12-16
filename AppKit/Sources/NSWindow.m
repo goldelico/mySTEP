@@ -178,8 +178,8 @@ static BOOL __cursorHidden = NO;
 		[self setAutoresizingMask:(NSViewWidthSizable|NSViewHeightSizable)];	// resize with window
 		[self setAutoresizesSubviews:YES];
 		if((aStyle&GSAllWindowMask) != NSBorderlessWindowMask)
-			{
-			NSButton *b0, *b1, *b2;
+			{ // not a NSNextStepFrame
+			NSButton *b0, *b1, *b2, *b3;
 			[self addSubview:b0=[NSWindow standardWindowButton:NSWindowCloseButton forStyleMask:aStyle]];
 			[self addSubview:b1=[NSWindow standardWindowButton:NSWindowMiniaturizeButton forStyleMask:aStyle]];
 			[self addSubview:b2=[NSWindow standardWindowButton:NSWindowZoomButton forStyleMask:aStyle]];
@@ -190,7 +190,8 @@ static BOOL __cursorHidden = NO;
 				{ // no visible buttons!
 				[b0 setHidden:YES], [b1 setHidden:YES], [b2 setHidden:YES];
 				}
-			// add window title button (?)
+			[self addSubview:b3=[NSWindow standardWindowButton:NSWindowDocumentIconButton forStyleMask:aStyle]];
+				[b3 setFrameSize:NSMakeSize(f.size.width - 50.0, 15.0)]; // resize to fit between buttons and toolbar button
 			}
 		[self layout];
 		ASSIGN(_backgroundColor, [NSColor windowBackgroundColor]);	// default background
@@ -309,25 +310,27 @@ static BOOL __cursorHidden = NO;
 	 0:	close button
 	 1: miniaturize button
 	 2: zoom button
-	 3: content view
+	 3: title button
+	 4: content view (0 if borderless)
 	 (x: document icon)
-	 4: toolbar button
-	 5: toolbar view
+	 5: toolbar button
+	 6: toolbar view
 	 */
 	switch(button)
 		{
 		case NSWindowCloseButton: return [sub_views objectAtIndex:0];
 		case NSWindowMiniaturizeButton: return [sub_views objectAtIndex:1];
 		case NSWindowZoomButton: return [sub_views objectAtIndex:2];
-		case NSWindowToolbarButton: return [sub_views count] > 4?[sub_views objectAtIndex:4]:nil;
-		case NSWindowDocumentIconButton:
-				// das sollte ein eigener button sein!
+		case NSWindowDocumentIconButton: return [sub_views objectAtIndex:3];
+		case NSWindowToolbarButton: return [sub_views count] > 5?[sub_views objectAtIndex:5]:nil;
 		default: return nil;
 		}
 }
 
-- (NSView *) contentView; { return [sub_views count] > 3?[sub_views objectAtIndex:3]:nil; }
-- (NSToolbarView *) toolbarView; { return [sub_views count] >= 5?[sub_views objectAtIndex:5]:nil; }
+- (NSButton *) documentIcon; { return [sub_views count] > 3?[sub_views objectAtIndex:3]:nil; }
+- (NSView *) contentView; { return [sub_views count] > 4?[sub_views objectAtIndex:4]:nil; }
+- (NSToolbarView *) toolbarView; { return [sub_views count] > 6?[sub_views objectAtIndex:6]:nil; }
+- (NSToolbar *) toolbar; { return [sub_views count] > 6?[[sub_views objectAtIndex:6] toolbar]:nil; }
 
 - (void) layout;
 { // NOTE: if the window fills the screen, the content view has to be made smaller
@@ -336,7 +339,7 @@ static BOOL __cursorHidden = NO;
 	_height=[NSWindow _titleBarHeightForStyleMask:_style];
 	f.origin.y+=_height;		// add room for buttons
 	f.size.height-=_height;
-	if([sub_views count] >= 6)
+	if([sub_views count] >= 7)
 		{ // has a toolbar
 			NSToolbarView *tv=[self toolbarView];
 			float height=[tv height];
@@ -391,34 +394,34 @@ static BOOL __cursorHidden = NO;
 #endif	
 }
 
-- (NSToolbar *) toolbar; { return [sub_views count] >= 6?[[sub_views objectAtIndex:5] toolbar]:nil; }
-
 - (void) setToolbar:(NSToolbar *) toolbar;
 {
-	if(toolbar && [sub_views count] <= 4)
+	if(toolbar && [sub_views count] <= 5)
 		{ // we don't have a toolbar (yet)
+			NSRect wf=[_window frame];	// window frame
 		NSToolbarView *tv;
 		NSButton *wb;
-		NSRect f, wf;
+			NSRect f;
 		[self addSubview:wb=[NSWindow standardWindowButton:NSWindowToolbarButton forStyleMask:_style]];
 		[wb setTarget:_window];
 		f=[wb frame];		// button frame
-		wf=[_window frame];	// window frame
 		f.origin.x=wf.size.width-f.size.width-4.0;
 		[wb setFrameOrigin:f.origin];	// flush toolbar button to the right end
 		tv=[[NSToolbarView alloc] initWithFrame:(NSRect){{0.0, 0.0}, {wf.size.width, 50.0}}];	// as wide as the window
 		[tv setAutoresizingMask:NSViewMaxYMargin|NSViewWidthSizable];
 		[tv setAutoresizesSubviews:YES];
-		[self addSubview:tv];
+		[self addSubview:tv];	// becomes #5
 		[tv release];
+			// reduce size of title bar
 		}
-	if(!toolbar && [sub_views count] >= 6)
+	if(!toolbar && [sub_views count] > 6)
 		{ // remove button and toolbar
-		[[sub_views objectAtIndex:5] removeFromSuperviewWithoutNeedingDisplay];	// toolbar view
-		[[sub_views objectAtIndex:4] removeFromSuperviewWithoutNeedingDisplay];	// toolbar button
+		[[sub_views objectAtIndex:6] removeFromSuperviewWithoutNeedingDisplay];	// toolbar view
+		[[sub_views objectAtIndex:5] removeFromSuperviewWithoutNeedingDisplay];	// toolbar button
+			// increase size of title bar
 		}
 	else if(toolbar)
-		[[sub_views objectAtIndex:5] setToolbar:toolbar];	// just update
+		[[sub_views objectAtIndex:6] setToolbar:toolbar];	// just update
 	[self layout];
 	[self setNeedsDisplay:YES];
 }
@@ -592,7 +595,7 @@ static BOOL __cursorHidden = NO;
 - (id) initWithFrame:(NSRect) f forStyleMask:(unsigned int) aStyle;
 {
 	if((self=[super initWithFrame:f]))
-		{
+		{ // set some defaults
 		[self setButtonType:NSMomentaryChangeButton];	// toggle images
 		[self setAutoresizesSubviews:YES];
 		[self setAutoresizingMask:(NSViewMaxXMargin|NSViewMinYMargin)];	// don't resize with window
@@ -600,6 +603,7 @@ static BOOL __cursorHidden = NO;
 		[_cell setImagePosition:NSImageOverlaps];
 		[_cell setBordered:NO];	// no bezel
 		[_cell setFont:[NSFont titleBarFontOfSize:0]];
+			[_cell setShowsFirstResponder:NO];	// don't show
 		}
 	return self;
 }
@@ -629,7 +633,7 @@ static BOOL __cursorHidden = NO;
 	isDocumentEdited=flag;
 	[self setImage:[NSImage imageNamed:flag?@"NSWindowChangedButton":@"NSWindowCloseButton"]];	// change button image
 	[self setNeedsDisplay];
-	// notify backend
+	// notify backend (external window manager)
 }
 
 @end
@@ -2692,7 +2696,7 @@ id prev;
 	_miniWindowImage = [aDecoder decodeObject];
 	[aDecoder decodeValueOfObjCType:@encode(int) at: &_level];
 	[aDecoder decodeValueOfObjCType:@encode(unsigned int) at: &_w];
-
+	
 	return self;
 }
 
@@ -2707,56 +2711,67 @@ id prev;
 	// set style dependent windget cell, i.e. brushed metal
 	switch(type)
 		{
-		case NSWindowCloseButton:
-			b=[[_NSThemeCloseWidget alloc] initWithFrame:NSMakeRect(4.0, 0.0, button, button) forStyleMask:aStyle];
-			[b setAction:@selector(_close:)];
-			[b setEnabled:(aStyle&NSClosableWindowMask) != 0];
-			[b setImage:[NSImage imageNamed:@"NSWindowCloseButton"]];
-			[b setTitle:@"x"];
-			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
-			break;
-		case NSWindowMiniaturizeButton:
-			b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(3.0+button, 0.0, button, button) forStyleMask:aStyle];
-			[b setAction:@selector(miniaturize:)];
-			[b setEnabled:(aStyle&NSMiniaturizableWindowMask) != 0];
-			[b setImage:[NSImage imageNamed:@"NSWindowMiniaturizeButton"]];
-			[b setTitle:@"-"];
-			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
-			break;
-		case NSWindowZoomButton:
-			b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(2.0+2.0*button, 0.0, button, button) forStyleMask:aStyle];
-			[b setAction:@selector(zoom:)];
-			[b setEnabled:(aStyle&NSResizableWindowMask) != 0];
-			[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];
-			[b setTitle:@"+"];
-			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
-			break;
-		case NSWindowToolbarButton:
-			b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(100.0, 0.0, button, button) forStyleMask:aStyle];	// we must adjust the origin when using this button!
-			[b setAction:@selector(toggleToolbarShown:)];
-			[b setEnabled:YES];
-			[b setImage:[NSImage imageNamed:@"NSWindowToolbarButton"]];
-				// set alternate image
-			[b setTitle:@""];
-			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
-			break;
-		case NSWindowDocumentIconButton:
-			// make centered button
-			// set text font as required by size
-			return nil;
+			case NSWindowCloseButton:
+				b=[[_NSThemeCloseWidget alloc] initWithFrame:NSMakeRect(4.0, 0.0, button, button) forStyleMask:aStyle];
+				[b setAction:@selector(_close:)];
+				[b setEnabled:(aStyle&NSClosableWindowMask) != 0];
+				[b setImage:[NSImage imageNamed:@"NSWindowCloseButton"]];
+				[b setTitle:@"x"];
+				[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
+				break;
+			case NSWindowMiniaturizeButton:
+				b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(3.0+button, 0.0, button, button) forStyleMask:aStyle];
+				[b setAction:@selector(miniaturize:)];
+				[b setEnabled:(aStyle&NSMiniaturizableWindowMask) != 0];
+				[b setImage:[NSImage imageNamed:@"NSWindowMiniaturizeButton"]];
+				[b setTitle:@"-"];
+				[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
+				break;
+			case NSWindowZoomButton:
+				b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(2.0+2.0*button, 0.0, button, button) forStyleMask:aStyle];
+				[b setAction:@selector(zoom:)];
+				[b setEnabled:(aStyle&NSResizableWindowMask) != 0];
+				[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];
+				[b setTitle:@"+"];
+				[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
+				break;
+			case NSWindowToolbarButton:
+				b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(100.0, 0.0, button, 2*button) forStyleMask:aStyle];	// we must adjust the origin when using this button!
+				[b setAction:@selector(toggleToolbarShown:)];
+				[b setEnabled:YES];
+				[b setBordered:YES];	// with bezel
+				[b setBezelStyle:NSRoundedBezelStyle];
+				[b setImage:[NSImage imageNamed:@"NSWindowToolbarButton"]];
+				[b setTitle:@"t"];
+				[b setAutoresizingMask:NSViewMinXMargin|NSViewMinYMargin];
+				break;
+			case NSWindowDocumentIconButton:
+				b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(2.0+3.0*button, 0.0, 100.0, button) forStyleMask:aStyle];	// we must adjust the width when using this button!
+				[b setEnabled:NO];
+				// somehow include us in handling move by clicking into the title bar except for D&D on the icon
+				[b setImagePosition:NSImageLeft];
+				[[b cell] setImageDimsWhenDisabled:NO];
+//				[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];	// FIXME: image alignment and text alignment do not work correctly for NSButtonCells
+				[b setTitle:@""];
+				// [b setTitle:@"notitle"];
+				[b setAlignment:NSCenterTextAlignment];
+				[[b cell] setLineBreakMode:NSLineBreakByTruncatingTail];
+				[b setAutoresizingMask:NSViewWidthSizable|NSViewMinYMargin];
+				break;
 		}
-	[b setImagePosition:NSImageOverlaps];
-	[[b cell] setShowsFirstResponder:NO];	// don't show
 	if(aStyle & NSUtilityWindowMask)
-		{
-		NSImage *i=[[b image] copy];
-		// [b setFrameSize:small];
-		[i setSize:smallImage];	// scale button image
-		[i setScalesWhenResized:YES];
-		[b setImage:i];	// store a copy
-		[i release];
-		[b setNeedsDisplay:YES];
-		}
+			{
+				NSImage *i=[[b image] copy];
+				if(i)
+						{
+							// [b setFrameSize:small];
+							[i setSize:smallImage];	// scale button image
+							[i setScalesWhenResized:YES];
+							[b setImage:i];	// store a copy
+							[i release];
+							[b setNeedsDisplay:YES];
+						}
+			}
 	return [b autorelease];
 }
 

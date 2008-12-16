@@ -53,8 +53,12 @@ ARCHITECTURES=mipsel-quantumstep-linux-gnu
 # arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu # arm-quantumstep-linux-gnueabi # mipsel-quantumstep-linux-gnu
 endif
 
+## FIXME: we need a better scheme to locate platform/machine specific (cross)compilers and binaries
+## several machines may share the same architecture
+## but they may differ in the linux headers/glibc version
+
 ifeq ($(COMPILER),)
-COMPILER=gcc-2.95.3-glibc-2.2.2
+COMPILER=gcc-3.4.6-glibc-2.3.6/linux-gnu-2.4.20/$(ARCHITECTURE)
 endif
 
 # tools
@@ -62,9 +66,9 @@ ifeq ($(ARCHITECTURE),arm-quantumstep-darwin)
 TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 else
-TOOLCHAIN := $(SYSTEM_DEVELOPER_DIR)/Xtoolchain/native/$(COMPILER)/$(ARCHITECTURE)
+TOOLCHAIN := $(ROOT)/Developer/native/usr/$(COMPILER)/$(ARCHITECTURE)
 # TOOLCHAIN := /Volumes/CaseSensitive/Developer/Xtoolchain/usr/gcc-3.4.6-glibc-2.3.6/mipsel-quantumstep-linux-gnu
-TOOLCHAIN := /Developer/Xtoolchain2/native/usr/gcc-3.4.6-glibc-2.3.6/linux-gnu-2.4.20/$(ARCHITECTURE)/$(ARCHITECTURE)
+# TOOLCHAIN := /Developer/Xtoolchain2/native/usr/gcc-3.4.6-glibc-2.3.6/linux-gnu-2.4.20/$(ARCHITECTURE)/$(ARCHITECTURE)
 CC := $(TOOLCHAIN)/bin/gcc
 endif
 LS := $(TOOLCHAIN)/bin/ld

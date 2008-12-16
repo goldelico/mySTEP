@@ -398,7 +398,9 @@ static NSCursor *__textCursor = nil;
 }													// if needed and set format
 
 - (NSTextAlignment) alignment					{ return _c.alignment; }
+- (NSLineBreakMode) lineBreakMode					{ return _d.lineBreakMode; }
 - (void) setAlignment:(NSTextAlignment)mode		{ _c.alignment = mode; }
+- (void) setLineBreakMode:(NSLineBreakMode) mode; { _d.lineBreakMode=mode; }
 - (void) setScrollable:(BOOL)flag				{ _c.scrollable = flag; }
 - (void) setWraps:(BOOL)flag					{ NIMP }
 - (BOOL) isScrollable							{ return _c.scrollable; }
