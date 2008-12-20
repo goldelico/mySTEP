@@ -411,7 +411,7 @@ static BOOL __cursorHidden = NO;
 		f.origin.x=wf.size.width-f.size.width-4.0;
 		[wb setFrameOrigin:f.origin];	// flush toolbar button to the right end
 		tv=[[NSToolbarView alloc] initWithFrame:(NSRect){{0.0, 0.0}, {wf.size.width, 50.0}}];	// as wide as the window
-		[tv setAutoresizingMask:NSViewMaxYMargin|NSViewWidthSizable];
+		[tv setAutoresizingMask:NSViewWidthSizable|NSViewMaxYMargin];
 		[tv setAutoresizesSubviews:YES];
 		[self addSubview:tv];	// becomes #5
 		[tv release];
@@ -448,101 +448,109 @@ static BOOL __cursorHidden = NO;
 - (BOOL) acceptsFirstMouse:(NSEvent *) event; { return YES; }	// send us the first event
 - (BOOL) acceptsFirstResponder;	{ return YES; }	// to allow selecting the window
 
+- (NSView *) hitTest:(NSPoint) aPoint
+{
+	// FIXME: we should make a triangular shape...
+	if((_style & NSResizableWindowMask) == 0 || aPoint.y > 10.0 || aPoint.x < _frame.size.width-10.0)
+		return [super hitTest:aPoint];	// normal mode
+	return self;	// handle resize handle directly
+}
+
 - (void) mouseDown:(NSEvent *)theEvent
 { // NSTheme frame
 	NSPoint initial;
-	NSRect initialFrame;
+	NSRect initialFrame=[_window frame];
 #if 0
 	NSLog(@"NSThemeFrame clicked (%@)", NSStringFromPoint([theEvent locationInWindow]));
 #endif
 	if((_style & NSResizableWindowMask) != 0 && ([self interfaceStyle] >= NSPDAInterfaceStyle))
-		return;	// resizable window has been resized for full screen mode - don't permit to move
-	while([theEvent type] != NSLeftMouseUp)
-		{ // loop until mouse goes up
-		switch([theEvent type])
-			{
-			default:
-				break;	// ignore
-			case NSLeftMouseDown:
-				{
-					// FIXME: check for click on document icon or title cell
-					// if representedURL defined and crtl-click, call - (BOOL)window:(NSWindow *)sender shouldPopUpDocumentPathMenu:(NSMenu *)titleMenu
-					// NOTE: we can't use [event locationInWindow] if we move the window - that info is not reliable!
-					NSPoint p=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
-					initial=[_window convertBaseToScreen:p];	// convert to screen coordinates
-					if(p.y < _frame.size.height-_height)
-						{ // check if we a have resize enabled in _style and we clicked on lower right corner
-							if((_style & NSResizableWindowMask) == 0 || p.y > 10.0 || p.x < _frame.size.width-10.0)
-								{
-									// FIXME: we can also check if we are textured and the hit point is "background"
-									NSLog(@"inside");
-									return;	// ignore if neither in title bar nor resize area
-								}
-							_inLiveResize=YES;
+		return;	// resizable window has already been resized for full screen mode - don't permit to move
+	while(YES)
+			{ // loop until mouse goes up
+				switch([theEvent type])
+					{
+						case NSLeftMouseDown:
+							{
+								// FIXME: check for click on document icon or title cell
+								// if representedURL defined and crtl-click, call - (BOOL)window:(NSWindow *)sender shouldPopUpDocumentPathMenu:(NSMenu *)titleMenu
+								// NOTE: we can't use [event locationInWindow] if we move the window - that info is not reliable!
+								NSPoint p=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
+								initial=[_window convertBaseToScreen:p];	// convert to screen coordinates
+								if(p.y < _frame.size.height-_height)
+										{ // check if we a have resize enabled in _style and we clicked on lower right corner
+											if((_style & NSResizableWindowMask) == 0 || p.y > 10.0 || p.x < _frame.size.width-10.0)
+													{
+														// FIXME: we can also check if we are textured and the hit point is "background"
+														NSLog(@"inside");
+														return;	// ignore if neither in title bar nor resize area
+													}
+											_inLiveResize=YES;
 #if 0
-							NSLog(@"liveResize started");
+											NSLog(@"liveResize started");
 #endif
-							// FIXME: should also be called exactly once if view is added/removed repeatedly to the hierarchy during life resize
-							[self _performOnAllSubviews:@selector(viewWillStartLiveResize)];
-						}
-					initialFrame=[_window frame];
+											// FIXME: should also be called exactly once if view is added/removed repeatedly to the hierarchy during life resize
+											[self _performOnAllSubviews:@selector(viewWillStartLiveResize)];
+										}
 #if 0
-					NSLog(@"initial = %@ (%@)", NSStringFromPoint(initial), NSStringFromPoint(p));
+								NSLog(@"initial = %@ (%@)", NSStringFromPoint(initial), NSStringFromPoint(p));
 #endif
-				break;
-				}
-				case NSLeftMouseUp:					// If mouse went up then we are done
-				case NSLeftMouseDragged:
-				{
-					NSRect wframe=initialFrame;
-					NSPoint loc=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
-					float deltax, deltay;
-					loc=[_window convertBaseToScreen:loc];	// convert to screen coordinates
-					deltax=loc.x-initial.x;
-					deltay=loc.y-initial.y;
+								break;
+							}
+						case NSLeftMouseUp:				// update to final location
+						case NSLeftMouseDragged:	// update to current location
+							{
+								NSRect wframe=initialFrame;
+								NSPoint loc=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
+								float deltax, deltay;
+								loc=[_window convertBaseToScreen:loc];	// convert to screen coordinates
+								deltax=loc.x-initial.x;
+								deltay=loc.y-initial.y;
 #if 0
-					NSLog(@"dragged = %@", NSStringFromPoint(loc));
+								NSLog(@"dragged = %@", NSStringFromPoint(loc));
 #endif
-					if(_inLiveResize)
-						{ // resizing
-							// FIXME: handle resizeIncrements
-						// FIXME: protect against empty window size...
-						wframe.size.width+=deltax;
-						wframe.size.height-=deltay;	// resize as mouse moves
-						wframe.origin.y+=deltay;		// keep top left corner constant
+								if(_inLiveResize)
+										{ // resizing
+											// FIXME: handle resizeIncrements
+											// FIXME: protect against empty or negative window size...
+											wframe.size.width+=deltax;
+											wframe.size.height-=deltay;	// resize as mouse moves
+											wframe.origin.y+=deltay;		// keep top left corner constant
 #if 0
-						NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
+											NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
 #endif
-						[_window setFrame:wframe display:YES];
-						}
-					else
-						{ // moving
-						float mbh=[[_window screen] _menuBarFrame].origin.y;
-						if(loc.y > mbh)
-							loc.y=mbh;	// limit so that window can't be moved under the menu bar
-						wframe.origin.x+=(loc.x-initial.x);
-						wframe.origin.y+=(loc.y-initial.y);	// move as mouse moves
+											[_window setFrame:wframe display:YES];
+										}
+								else
+										{ // moving
+											float mbh=[[_window screen] _menuBarFrame].origin.y;
+											// FIXME: this is not really correct
+											wframe.origin.x+=(loc.x-initial.x);
+											wframe.origin.y+=(loc.y-initial.y);	// move as mouse moves
+											if(wframe.origin.y > mbh)
+												wframe.origin.y=mbh;	// limit so that window can't be moved under the menu bar
 #if 0
-						NSLog(@"move window from (%@) to (%@)", NSStringFromPoint([_window frame].origin), NSStringFromPoint(wframe.origin));
+											NSLog(@"move window from (%@) to (%@)", NSStringFromPoint([_window frame].origin), NSStringFromPoint(wframe.origin));
 #endif
-						[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay) - will clip to screen
-						}
-					break;
-				}
-			}
-		theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask
-										untilDate:[NSDate distantFuture]						// get next event
-											inMode:NSEventTrackingRunLoopMode 
-										dequeue:YES];
-			
+											[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay) - will clip to screen
+										}
+								break;
+							}
+						default:
+							break;	// ignore other events
+					}
+				if([theEvent type] == NSLeftMouseUp)
+					break;	// done
+				theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+																			untilDate:[NSDate distantFuture]
+																				 inMode:NSEventTrackingRunLoopMode 
+																				dequeue:YES];							// get next event
+				
   		}
 	if(_inLiveResize)
-		{
-			_inLiveResize=NO;
-			[self _performOnAllSubviews:@selector(viewDidEndLiveResize)];
-		}
-	else
-		_inLiveResize=NO;
+			{
+				_inLiveResize=NO;
+				[self _performOnAllSubviews:@selector(viewDidEndLiveResize)];
+			}
 }
 
 @end
@@ -715,12 +723,13 @@ static NSButtonCell *sharedCell;
 				unsigned cnt=[items count];
 				int i;
 				NSToolbarItem *item;
+				NSControlSize csize=([_toolbar sizeMode] == NSToolbarSizeModeSmall)?NSSmallControlSize:NSRegularControlSize;
 				if(!sharedCell)
 						{
 							sharedCell=[[NSButtonCell alloc] init];
 							[sharedCell setButtonType:NSMomentaryLightButton];	// ???
 							[sharedCell setBordered:NO];	// no border (i.e. ignores bezelStyle)
-							[sharedCell setImageScaling:NSScaleProportionally];
+							[sharedCell setImageScaling:NSImageScaleProportionallyUpOrDown];
 							[sharedCell setShowsFirstResponder:NO];
 							[sharedCell setImageDimsWhenDisabled:YES];
 							[sharedCell setAction:@selector(dummy:)];	// so that the cell calls our sendAction:to: method
@@ -738,7 +747,7 @@ static NSButtonCell *sharedCell;
 							[sharedCell setImagePosition:NSImageOnly];
 							break;
 					}
-				[sharedCell setControlSize:([_toolbar sizeMode] == NSToolbarSizeModeSmall)?NSSmallControlSize:NSRegularControlSize];
+				[sharedCell setControlSize:csize];
 				_itemRectCount=0;
 				_toolbarHeight=0.0;
 				if([self popUpMode])
@@ -760,6 +769,11 @@ static NSButtonCell *sharedCell;
 												{ // item has its own view - use min/max algorithm
 													float labelheight;
 													[sharedCell setImage:nil];	// no image
+													if([iv respondsToSelector:@selector(cell)])
+														[[(NSControl *) iv cell] setControlSize:csize];	// try to adjust size of cell - this should also adjust font to systemFontSizeForControlSize:
+													else if([iv respondsToSelector:@selector(setControlSize:)])
+														[(NSScroller *) iv setControlSize:csize];	// try to adjust size of view
+													[iv setAutoresizingMask:0];	// don't autoresize
 													labelheight=[sharedCell cellSize].height;
 													min.height+=labelheight;
 													min=[item minSize];

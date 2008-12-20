@@ -31,6 +31,19 @@ static NSButtonCell *__leftCell = nil;					// instances to draw
 static NSButtonCell *__rightCell = nil;					// buttons and knob.
 static NSButtonCell *__knobCell = nil;
 
+@interface _NSScrollerButtonCell : NSButtonCell
+@end
+
+@implementation _NSScrollerButtonCell
+
+- (void) drawBezelWithFrame:(NSRect) cellFrame inView:(NSView *) controlView;
+{
+	[(_c.highlighted ? [NSColor selectedControlColor] : [NSColor controlColor]) set];
+	NSRectFill(cellFrame);
+}
+
+@end
+
 @interface _NSKnobCell : NSActionCell
 @end
 
@@ -132,17 +145,22 @@ static NSButtonCell *__knobCell = nil;
 - (void) setTarget:(id)target				{ _target = target; }	// not retained!
 
 - (void) drawParts
-{												// Create the class variable 
-	if (__knobCell)								// button cells if they do not 
-		return;									// yet exist.
+{ // Create the class variable button cells if they do not yet exist.
+	if (__knobCell)  
+		return; 
 	
-	__upCell = [NSButtonCell new];
+	__upCell = [_NSScrollerButtonCell new];
+	[__upCell setControlSize:NSMiniControlSize];	// automatic scaling of image
+	[__upCell setButtonType:NSMomentaryLightButton];	// ???
 	[__upCell setBordered:YES];
-	[__upCell setBezeled:YES];
+//	[__upCell setBezeled:NO];
 	[__upCell setBezelStyle:NSRegularSquareBezelStyle];
 	[__upCell setFocusRingType:NSFocusRingTypeNone];
 	[__upCell setHighlightsBy:NSContentsCellMask];	// no PushIn effect - just swap images
 	[__upCell setImagePosition:NSImageOnly];
+	[__upCell setImageScaling:NSImageScaleProportionallyUpOrDown];
+	[__upCell setImageDimsWhenDisabled:YES];
+	[__upCell setShowsFirstResponder:NO];
 	[__upCell setContinuous:YES];
 	[__upCell setPeriodicDelay:0.15 interval:0.05];	// for autorepeat
 	__downCell = [__upCell copy];
@@ -150,21 +168,21 @@ static NSButtonCell *__knobCell = nil;
 	__rightCell = [__upCell copy];
 
 	[__upCell setImage:[NSImage imageNamed:@"GSArrowUp"]];
-	[[__upCell image] setScalesWhenResized:YES];
+//	[[__upCell image] setScalesWhenResized:YES];
 	[__upCell setAlternateImage:[NSImage imageNamed:@"GSArrowUpH"]];
-	[[__upCell alternateImage] setScalesWhenResized:YES];
+//	[[__upCell alternateImage] setScalesWhenResized:YES];
 	[__downCell setImage:[NSImage imageNamed:@"GSArrowDown"]];
-	[[__downCell image] setScalesWhenResized:YES];
+//	[[__downCell image] setScalesWhenResized:YES];
 	[__downCell setAlternateImage:[NSImage imageNamed:@"GSArrowDownH"]];
-	[[__downCell alternateImage] setScalesWhenResized:YES];
+//	[[__downCell alternateImage] setScalesWhenResized:YES];
 	[__leftCell setImage:[NSImage imageNamed:@"GSArrowLeft"]];
-	[[__leftCell image] setScalesWhenResized:YES];
+//	[[__leftCell image] setScalesWhenResized:YES];
 	[__leftCell setAlternateImage:[NSImage imageNamed:@"GSArrowLeftH"]];
-	[[__leftCell alternateImage] setScalesWhenResized:YES];
+//	[[__leftCell alternateImage] setScalesWhenResized:YES];
 	[__rightCell setImage:[NSImage imageNamed:@"GSArrowRight"]];
-	[[__rightCell image] setScalesWhenResized:YES];
+//	[[__rightCell image] setScalesWhenResized:YES];
 	[__rightCell setAlternateImage:[NSImage imageNamed:@"GSArrowRightH"]];
-	[[__rightCell alternateImage] setScalesWhenResized:YES];
+//	[[__rightCell alternateImage] setScalesWhenResized:YES];
 
 	__knobCell = [_NSKnobCell new];
 }
@@ -510,8 +528,8 @@ static NSButtonCell *__knobCell = nil;
 	NSRectFill(rect);		// draw background
 	[[NSColor controlShadowColor] set];
 	NSFrameRect(rect);	// draw frame
-	[self drawArrow:NSScrollerDecrementArrow highlight:NO];	
-	[self drawArrow:NSScrollerIncrementArrow highlight:NO];	
+	[self drawArrow:NSScrollerDecrementArrow highlight:_hitPart == NSScrollerDecrementLine];	
+	[self drawArrow:NSScrollerIncrementArrow highlight:_hitPart == NSScrollerIncrementLine];	
 	[self drawKnob];
 }
 

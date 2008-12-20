@@ -159,9 +159,9 @@ id __buttonCellClass = nil;
 	NSLog(@"setImageScaling");
 #endif
 	_d.imageScaling = scaling;
-	[_normalImage setScalesWhenResized: (_d.imageScaling != NSScaleNone)];
-	[_alternateImage setScalesWhenResized: (_d.imageScaling != NSScaleNone)];
-	[_mixedImage setScalesWhenResized: (_d.imageScaling != NSScaleNone)];
+	[_normalImage setScalesWhenResized: (_d.imageScaling != NSImageScaleNone)];
+	[_alternateImage setScalesWhenResized: (_d.imageScaling != NSImageScaleNone)];
+	[_mixedImage setScalesWhenResized: (_d.imageScaling != NSImageScaleNone)];
 #if 0
 	NSLog(@"setImageScaling done");
 #endif
@@ -737,7 +737,7 @@ id __buttonCellClass = nil;
 		img=[(NSButtonImageSource *) img buttonImageForCell:self];	// substitute
 	// shouldn't we use imageRectForBounds?
 	imageSize = [img size];
-	if(_d.imageScaling != NSScaleNone)
+	if(_d.imageScaling != NSImageScaleNone)
 			{
 				NSSize isz;
 				switch(_d.controlSize)
@@ -753,13 +753,16 @@ id __buttonCellClass = nil;
 							isz=NSMakeSize(14.0, 14.0);
 							break;
 					}
-				if(_d.imageScaling == NSScaleToFit)
+				if(_d.imageScaling == NSImageScaleAxesIndependently)
 					imageSize=isz;
 				else
 						{ // proportionally
 							float factor=MIN(isz.width/imageSize.width, isz.height/imageSize.height);
-							imageSize.width*=factor;
-							imageSize.height*=factor;
+							if(_d.imageScaling != NSImageScaleProportionallyDown || factor < 1.0)
+									{ // scale image
+										imageSize.width*=factor;
+										imageSize.height*=factor;
+									}
 						}
 				[img setScalesWhenResized:YES];
 				[img setSize:imageSize];	// rescale
