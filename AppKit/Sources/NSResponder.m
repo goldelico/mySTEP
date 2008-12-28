@@ -297,6 +297,11 @@
 	return _interfaceStyle;
 }
 
+- (void) setInterfaceStyle:(NSInterfaceStyle) style;
+{
+	NIMP;
+}
+
 - (BOOL) shouldBeTreatedAsInkEvent:(NSEvent *) theEvent; { return NO; }	// default has no ink-anywhere
 
 - (NSMenu *) menu;	{ return _menu; }

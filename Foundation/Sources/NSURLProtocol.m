@@ -242,7 +242,7 @@ static NSMutableArray *_registeredClasses;
 		int port=[[url port] intValue];
 		if(!host) host=[NSHost hostWithAddress:[url host]];	// try dotted notation
 		if(!host) host=[NSHost hostWithAddress:@"127.0.0.1"];	// final default
-		if(!port) port=[[url scheme] isEqualToString:@"https"]?433:80;	// default if not specified
+		if(!port) port=[[url scheme] isEqualToString:@"https"]?433:80;	// default port if not specified
 		[NSStream getStreamsToHost:host
 							  port:port
 					   inputStream:&_inputStream
@@ -250,7 +250,7 @@ static NSMutableArray *_registeredClasses;
 		if(!_inputStream || !_outputStream)
 			{ // error
 #if 1
-			NSLog(@"did not create streams for %@:%u", host, [[url port] intValue]);
+			NSLog(@"could not create streams for %@:%u", host, [[url port] intValue]);
 #endif
 			[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"can't connect" code:0 userInfo:
 				[NSDictionary dictionaryWithObjectsAndKeys:
@@ -263,7 +263,7 @@ static NSMutableArray *_registeredClasses;
 #if 0
 		NSLog(@"did initialize streams for %@", self);
 #endif
-		[self _didInitializeOutputStream:_outputStream];	// a chance to update the stream properties
+		[self _didInitializeOutputStream:_outputStream];	// a chance for subclasses to update the stream properties
 		[_inputStream retain];
 		[_outputStream retain];
 		[_inputStream setDelegate:self];
@@ -318,7 +318,7 @@ static NSMutableArray *_registeredClasses;
 #if 0
 	NSLog(@"process header line len=%d", len);
 #endif
-	// if it begins with ' ' or '\t' it is a continuation line to the previous header field
+	// FIXME: if it begins with ' ' or '\t' it is a continuation line to the previous header field
 	if(!_headers)
 		{ // should be/must be the header line
 		unsigned major, minor;
@@ -343,14 +343,18 @@ static NSMutableArray *_registeredClasses;
 		NSString *loc;
 		NSHTTPURLResponse *response;
 		response=[[NSHTTPURLResponse alloc] _initWithURL:[_request URL] headerFields:_headers andStatusCode:_statusCode];
-		// [_request HTTPShouldHandleCookies];
+		if([_request HTTPShouldHandleCookies])
+			{ // auto-process cookies
+				NSArray *cookies=[NSHTTPCookie cookiesWithResponseHeaderFields:_headers forURL:[_request URL]];
+				[[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:cookies forURL:[_request URL] mainDocumentURL:[_request URL]];
+			}
 		if([[_headers objectForKey:@"content-encoding"] isEqualToString:@"gzip"])
 			{ // handle header compression
 			NSLog(@"header is gzip compressed");
 			}
 		// Connection = "Keep-Alive"; 
 		// "Keep-Alive" = "timeout=3, max=100"; 
-		[_headers objectForKey:@"last-modified"];
+		/** FIXME **/  [_headers objectForKey:@"last-modified"];
 		loc=[_headers objectForKey:@"location"];
 		[_headers release];
 		_headers=nil;
@@ -363,15 +367,11 @@ static NSMutableArray *_registeredClasses;
 			}
 		else
 			{
-			NSURLCacheStoragePolicy policy=NSURLCacheStorageAllowed;	// default
-			// read from [_request cachePolicy];
-			/*
-			 NSURLCacheStorageAllowed,
-			 NSURLCacheStorageAllowedInMemoryOnly
-			 NSURLCacheStorageNotAllowed
-			 */			 
+			NSURLCacheStoragePolicy policy;
 			if([self isKindOfClass:[_NSHTTPSURLProtocol class]])
 				policy=NSURLCacheStorageNotAllowed;	// never
+			else
+				policy=[_request cachePolicy];	// default
 			[_client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:policy];
 			}
 		return YES;
@@ -388,7 +388,10 @@ static NSMutableArray *_registeredClasses;
 	while(++c < end && (*c == ' ' || *c == '\t'))
 		;	// skip spaces
 	val=[NSString stringWithCString:(char *) c length:end-c];
-	[_headers setObject:val forKey:[key lowercaseString]];	// convert key to all lowercase
+	key=[key lowercaseString];	// convert key to all lowercase
+	if([_headers objectForKey:key])
+		val=[NSString stringWithFormat:@"%@; %@", [_headers objectForKey:key], val];	// merge multiple headers with same key into a single one
+	[_headers setObject:val forKey:key];
 	return NO;	// not yet done
 }
 
@@ -546,6 +549,13 @@ static NSMutableArray *_registeredClasses;
 #if 1
 					NSLog(@"sent %@ -> %s", url, msg);
 #endif
+					if([_request HTTPShouldHandleCookies])
+							{
+								NSHTTPCookieStorage *cs=[NSHTTPCookieStorage sharedHTTPCookieStorage];
+								[cs requestHeaderFieldsWithCookies:[cs cookiesForURL:url]];
+								// FIXME:
+								// make them being sent in addition to headers
+							}
 					_headerEnumerator=[[[_request allHTTPHeaderFields] objectEnumerator] retain];
 					return;
 				}

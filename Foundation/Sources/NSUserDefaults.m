@@ -461,7 +461,7 @@ static NSUserDefaults *__sharedDefaults = nil;
 {
 	if ([_persDomains objectForKey:domainName])
 		{
-		[_persDomains removeObjectForKey:domainName];	// win also uncache a domain we know as non-existent
+		[_persDomains removeObjectForKey:domainName];	// will also uncache a domain we know as non-existent
 //		[self _changePersistentDomain:domainName];
 		}
 }

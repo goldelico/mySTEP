@@ -27,30 +27,31 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 
 # project settings
 export SOURCES=*.m                  # all source codes
-export LIBS=						# add any additional libraries like -ltiff etc.
-export FRAMEWORKS=					# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)
+export LIBS=												# add any additional libraries like -ltiff etc.
+export FRAMEWORKS=									# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)
 export INSTALL_PATH=/Applications   # override INSTALL_PATH for MacOS X for the embedded device
 
 # global/compile settings
 #export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
-#export SEND2ZAURUS=true			# true (or empty) will try to install on the embedded device at /$INSTALL_PATH (using ssh)
+#export SEND2ZAURUS=true						# true (or empty) will try to install on the embedded device at /$INSTALL_PATH (using ssh)
 #export RUN=true                    # true (or empty) will finally try to run on the embedded device (using X11 on host)
+
 export ROOT=$HOME/Documents/Projects/QuantumSTEP	# project root
 /usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
 
 ########################### end to cut here ###########################
 
 #  7. change the SRC= line to include all required source files (e.g. main.m other/*.m)
-#  8. change the LIBS= line to add any non-standard libraries (e.g. -lAddressBook -lPreferencePane -lWebKit)
-#  9. Build the project (either in deployment or development mode - that affects only the MacOS version)
+#  8. change the LIBS= line to add any non-standard libraries (e.g. -lsqlite3)
+#  9. Build the project (either in deployment or development mode)
 #
 endif
 
 .PHONY:	clean build build_architecture
 
 ifeq ($(ARCHITECTURES),)	# set default architectures
-ARCHITECTURES=mipsel-quantumstep-linux-gnu
-# arm-quantumstep-linux-gnu # i386-quantumstep-linux-gnu # arm-quantumstep-linux-gnueabi # mipsel-quantumstep-linux-gnu
+ARCHITECTURES=mipsel-letux400-linux-gnu
+# arm-zaurus-linux-gnu # i386-debian-linux-gnu # arm-GTA02-linux-gnueabi
 endif
 
 ## FIXME: we need a better scheme to locate platform/machine specific (cross)compilers and binaries

@@ -20,7 +20,7 @@
 
 @implementation NSHTTPCookie
 
-// NSString *NSHTTPCookieCreated=@"Created";
+// NSString *NSHTTPCookieCreated=@"Created";	// this one should exist... also to help NSCookieStorage to handle merges
 NSString *NSHTTPCookieComment=@"Comment";
 NSString *NSHTTPCookieCommentURL=@"CommentURL";
 NSString *NSHTTPCookieDiscard=@"Discard";
@@ -35,11 +35,13 @@ NSString *NSHTTPCookieSecure=@"Secure";
 NSString *NSHTTPCookieValue=@"Value";
 NSString *NSHTTPCookieVersion=@"Version";
 
-+ (NSArray *) cookiesWithResponseHeaderFields:(NSDictionary *) fields
-									   forURL:(NSURL *) url;
++ (NSArray *) cookiesWithResponseHeaderFields:(NSDictionary *) fields forURL:(NSURL *) url;
 {
+	// Set-Cookie: <name>=<value>[; <name>=<value>]...	[; expires=<date>][; domain=<domain_name>] [; path=<some_path>][; secure]
 	// extract cookies from header fields (how are multiple cookies separated in the header fields???)
+	// lines without cookies are ignored
 	// how do we convert date/time cookies to NSNumber/NSDate?
+	// "DD-MMM-YYYY HH:MM:SS GMT"
 	return NIMP;
 }
 
@@ -49,7 +51,7 @@ NSString *NSHTTPCookieVersion=@"Version";
 }
 
 + (NSDictionary *) requestHeaderFieldsWithCookies:(NSArray *) cookies;
-{
+{ // create request headers
 	NSString *s=nil;
 	NSEnumerator *e=[cookies objectEnumerator];
 	NSHTTPCookie *c;
@@ -63,7 +65,7 @@ NSString *NSHTTPCookieVersion=@"Version";
 			s=ss;	// first
 		}
 	if(s)
-		return [NSDictionary dictionaryWithObject:s forKey:@"Cookie"];	// single header line
+		return [NSDictionary dictionaryWithObject:s forKey:@"Cookie"];	// put them all into a single header line
 	else
 		return [NSDictionary dictionary];	// empty
 }

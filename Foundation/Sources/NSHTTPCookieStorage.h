@@ -10,7 +10,7 @@
 
 #import <Foundation/NSHTTPCookie.h>
 
-@class NSMutableArray;
+@class NSMutableArray, NSMutableDictionary, NSDistributedLock, NSDate, NSTimer;
 
 typedef enum _NSHTTPCookieAcceptPolicy
 {
@@ -24,8 +24,12 @@ extern NSString *NSHTTPCookieStorageAcceptPolicyChangedNotification;
 
 @interface NSHTTPCookieStorage : NSObject
 {
-	NSMutableArray *_cookies;
+	NSMutableDictionary *_cookies;
+	NSDistributedLock *_lock;
+	NSDate *_lastModification;
 	NSHTTPCookieAcceptPolicy _cookieAcceptPolicy;
+	NSTimer *_timer;
+	BOOL _touched;
 }
 
 + (NSHTTPCookieStorage *) sharedHTTPCookieStorage;

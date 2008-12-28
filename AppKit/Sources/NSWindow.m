@@ -1668,12 +1668,8 @@ static NSButtonCell *sharedCell;
 		return rect;	// never constrain
 		}
 	vf=[screen visibleFrame];
-#if 0
-#if __APPLE__
-	vf=NSMakeRect(100.0, 100.0, 800.0, 500.0);	// special constraining for test purposes on the Mac
-#endif
-#endif
-	if((_w.styleMask & NSResizableWindowMask) != 0 && [self interfaceStyle] >= NSPDAInterfaceStyle)
+	// FIXME: autoresizing should be a user default or something!
+	if((_w.styleMask & NSResizableWindowMask) != 0 && (1 || [self interfaceStyle] >= NSPDAInterfaceStyle))
 		{
 #if 1
 		NSLog(@"to full screen");
