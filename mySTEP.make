@@ -50,16 +50,17 @@ endif
 .PHONY:	clean build build_architecture
 
 ifeq ($(ARCHITECTURES),)	# set default architectures
-ARCHITECTURES=mipsel-letux400-linux-gnu
+ARCHITECTURES=mipsel-letux_400-linux-gnu
 # arm-zaurus-linux-gnu # i386-debian-linux-gnu # arm-GTA02-linux-gnueabi
+# fetch from /Developer/native/models/*.def
 endif
 
-## FIXME: we need a better scheme to locate platform/machine specific (cross)compilers and binaries
-## several machines may share the same architecture
+## FIXME: we need a better scheme to locate platform/model specific (cross)compilers and binaries
+## several models may share the same architecture
 ## but they may differ in the linux headers/glibc version
 
 ifeq ($(COMPILER),)
-COMPILER=gcc-3.4.6-glibc-2.3.6/linux-gnu-2.4.20/$(ARCHITECTURE)
+COMPILER=gcc-3.4.6/$(ARCHITECTURE)
 endif
 
 # tools

@@ -59,6 +59,7 @@
 		EE0E3D450954703200CCA75A /* LGPL LICENCE.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "LGPL LICENCE.txt"; sourceTree = "<group>"; };
 		EE0E3D460954703200CCA75A /* README */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		EE0E3D470954703200CCA75A /* Version.def */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Version.def; sourceTree = "<group>"; };
+		EE408DF00F127C9E0085AA9F /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = mySTEP.make; sourceTree = "<group>"; };
 		EE40FB18066904FC00A63BAF /* Versions.def */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = Versions.def; path = ../Versions.def; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -66,6 +67,7 @@
 		EED3C1200488F87500000103 = {
 			isa = PBXGroup;
 			children = (
+				EE408DF00F127C9E0085AA9F /* mySTEP.make */,
 				EE0E3D440954703200CCA75A /* HISTORY.rtf */,
 				EE0E3D450954703200CCA75A /* LGPL LICENCE.txt */,
 				EE0E3D460954703200CCA75A /* README */,
