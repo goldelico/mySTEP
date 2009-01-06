@@ -52,23 +52,19 @@ endif
 ifeq ($(ARCHITECTURES),)	# set default architectures
 ARCHITECTURES=mipsel-letux_400-linux-gnu
 # arm-zaurus-linux-gnu # i386-debian-linux-gnu # arm-GTA02-linux-gnueabi
-# fetch from /Developer/native/models/*.def
+# fetch as (cd /models; echo *)
 endif
 
 ## FIXME: we need a better scheme to locate platform/model specific (cross)compilers and binaries
 ## several models may share the same architecture
 ## but they may differ in the linux headers/glibc version
 
-ifeq ($(COMPILER),)
-COMPILER=gcc-3.4.6/$(ARCHITECTURE)
-endif
-
 # tools
 ifeq ($(ARCHITECTURE),arm-quantumstep-darwin)
 TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 else
-TOOLCHAIN := $(ROOT)/Developer/native/usr/$(COMPILER)/$(ARCHITECTURE)
+TOOLCHAIN := $(ROOT)/models/$(ARCHITECTURE)
 # TOOLCHAIN := /Volumes/CaseSensitive/Developer/Xtoolchain/usr/gcc-3.4.6-glibc-2.3.6/mipsel-quantumstep-linux-gnu
 # TOOLCHAIN := /Developer/Xtoolchain2/native/usr/gcc-3.4.6-glibc-2.3.6/linux-gnu-2.4.20/$(ARCHITECTURE)/$(ARCHITECTURE)
 CC := $(TOOLCHAIN)/bin/gcc
@@ -271,9 +267,9 @@ endif
 	
 install_tool:
 ifneq ($(INSTALL),false)
-ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)$(INSTALL_PATH)/$(ARCHITECTURE)
-		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)/$(ARCHITECTURE)'; cd '$(ROOT)$(INSTALL_PATH)/$(ARCHITECTURE)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
-else
+ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)/models/$(ARCHITECTURE)/$(INSTALL_PATH)
+		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/models/$(ARCHITECTURE)/$(INSTALL_PATH)'; cd '$(ROOT)/models/$(ARCHITECTURE)/$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+else	# app bundle
 		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)'; cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 endif
 else
