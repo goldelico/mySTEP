@@ -10,22 +10,22 @@ ToDo
 
 Future:
 
-* PDFMutablePage
-  - addContentStream
-  - removeContentStream
-  - addFormCell
-  - removeFormCell
-  - setResources:(NSDictionary *)
-  - setGroup:(NSDictionary *)
-  - setThumbNail:(NSImage *) img;
+* PDF(Mutable)Page category with private methods
+  - _addContentStream
+  - _removeContentStream
+  - _addFormCell
+  - _removeFormCell
+  - _setResources:(NSDictionary *)
+  - _setGroup:(NSDictionary *)
+  - _setThumbNail:(NSImage *) img;
 
 * mit Printing-System kombinieren
   - NSPrintOperation: + (NSPrintOperation *)PDFOperationWithView:(NSView *)aView insideRect:(NSRect)rect toData:(NSMutableData *)data
   - erzeugt PDFDocument
-  - fügt neue PDFMutablePage an
-  - lockFocus auf Printer speichert in PDFStream
-  - alle Drawing-Methods schreiben in Stream
-  - unlockFocus macht addContentStream
-  - pagination erzeugt weitere PDFMutablePage
-  - setzt [doc dataRepresentation] in toData ein
+  - fügt neue PDFPage an
+  - lockFocus auf Printer speichert in _PDFStream
+  - alle Drawing-Methods schreiben in _PDFStream
+  - unlockFocus macht _addContentStream
+  - pagination erzeugt weitere PDFPage
+  - setzt [doc dataRepresentation] am Schluß in toData ein
 

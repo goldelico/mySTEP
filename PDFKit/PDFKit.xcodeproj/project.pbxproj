@@ -99,7 +99,7 @@
 		EEF8BF50092271F000767EF8 /* PDFPage.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFPage.m; sourceTree = "<group>"; };
 		EEF8BF85092282D500767EF8 /* PDFKitPrivate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFKitPrivate.h; sourceTree = "<group>"; };
 		EEF8BFBC0922848100767EF8 /* NSPDFImageRep.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSPDFImageRep.m; sourceTree = "<group>"; };
-		EEF8BFF50923E12000767EF8 /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = doc; sourceTree = "<group>"; };
+		EEF8BFF50923E12000767EF8 /* PDF */ = {isa = PBXFileReference; lastKnownFileType = folder; name = PDF; path = ../../Documentation/PDF; sourceTree = "<group>"; };
 		EEF8BFFD0923E35F00767EF8 /* PDFDestination.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFDestination.h; sourceTree = "<group>"; };
 		EEF8BFFE0923E35F00767EF8 /* PDFDestination.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFDestination.m; sourceTree = "<group>"; };
 		EEF8BFFF0923E35F00767EF8 /* PDFOutline.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFOutline.h; sourceTree = "<group>"; };
@@ -174,7 +174,7 @@
 			children = (
 				EE27270005426A7F0000013C /* mySTEP.make */,
 				EEF5F1030930FDA100B07552 /* ToDo */,
-				EEF8BFF50923E12000767EF8 /* doc */,
+				EEF8BFF50923E12000767EF8 /* PDF */,
 				EEF0B8F1094603630012D17E /* Quartz */,
 				EEF8C1F80924EC5000767EF8 /* PDFKit */,
 				EEF8C1FC0924EC5B00767EF8 /* PDFTest */,
@@ -204,7 +204,8 @@
 				EE030C7D092F76BE00893140 /* README.txt */,
 				EE030C72092F766200893140 /* PDFCombine-Info.plist */,
 			);
-			path = pdfcombine_source;
+			name = pdfcombine_source;
+			path = ../../Applications/Samples/pdfcombine_source;
 			sourceTree = "<group>";
 		};
 		EE030C78092F76BE00893140 /* PDFCombine.xcodeproj */ = {
@@ -214,6 +215,7 @@
 				EE030C7A092F76BE00893140 /* Mike.perspective */,
 				EE030C7B092F76BE00893140 /* project.pbxproj */,
 			);
+			includeInIndex = 1;
 			path = PDFCombine.xcodeproj;
 			sourceTree = "<group>";
 		};
