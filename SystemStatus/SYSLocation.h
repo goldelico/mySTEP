@@ -27,16 +27,18 @@ typedef struct GeoLocation
 {
 	double longitude;	// in degrees (float would give worst case precision of 1m only)
 	double latitude;	// in deg
-	double height;		// in m over sea level
+	float altitude;		// in m over sea level
+	float precision;	// in m (>1000 should be assumed to be completely invalid)
 } GeoLocation;
 
 typedef struct GeoMovement
 {
 	GeoLocation location;
-	double speed;		// in m/s
-	double direction;	// in degrees north
-	double ascent;		// in degrees/s
-	double elevation;	// in degrees
+	float speed;		// in m/s
+	float direction;	// in degrees north
+	float ascent;		// in degrees/s
+	float elevation;	// in degrees
+	float precision;	// ??
 } GeoMovement;
 
 @interface SYSLocation : NSObject
@@ -46,10 +48,10 @@ typedef struct GeoMovement
 	NSDate *timeStamp;				// timestamp (in local time) of last received signal
 	NSDate *time;					// last satellite time
 	NSFileHandle *file;
+	NSString *lastChunk;
 	GeoMovement gpsData;
 	unsigned numSatellites;			// with reception
 	unsigned numVisibleSatellites;	// basically visible
-	float precision;				// estimated precision
 	BOOL noSatellite;				// not enough satellites in reception
 }
 
@@ -59,17 +61,18 @@ typedef struct GeoMovement
 - (BOOL) isValid;					// is valid (i.e. enough satellites)
 - (unsigned) numberOfSatellites;	// number of received satellites
 - (unsigned) numberOfVisibleSatellites;  // number of visible satellites
-- (float) precision;				// estimated precision in meter
 - (GeoLocation) geoLocation;		// current location
-- (GeoMovement) geoMovement;		// current location + movement
 - (double) locationLongitude;		// in degrees (-90 .. 90)
 - (double) locationLatitude;		// in degrees (-180 .. 180)
-- (double) locationHeight;			// height in m above NN
-- (double) locationSpeed;			// speed in m/s over surface
-- (double) locationDirection;		// direction of movement in degrees (0 .. 360)
-- (double) locationAscentSpeed;		// speed in m/s of ascent/descent
-- (double) locationElevation;		// elevaton angle in degrees (-90 .. 90)
-- (double) locationOrientation;		// horizontal orientation of device (compass) in degrees (0 .. 360)
+- (float) locationAltitude;			// height in m above NN
+- (float) locationOrientation;		// horizontal orientation of device (compass) in degrees (0 .. 360)
+- (float) locationPrecision;			// 
+- (GeoMovement) geoMovement;		// current location + movement
+- (float) locationSpeed;			// speed in m/s over surface
+- (float) locationDirection;		// direction of movement in degrees (0 .. 360)
+- (float) locationAscentSpeed;		// speed in m/s of ascent/descent
+- (float) locationElevation;		// elevaton angle in degrees (-90 .. 90)
+- (float) locationSpeedPrecision;			// 
 - (NSDate *) locationTime;			// satellite time
 
 #define GeoLocationLatitude		@"Latitude"
@@ -79,7 +82,7 @@ typedef struct GeoMovement
 #define GeoLocationCountry		@"Country"		// Germany - Great Britain - USA
 #define GeoLocationState		@"State"		// Bavaria - England - Michigan
 #define GeoLocationRegion		@"Region"		// Oberbayern - % - (South East)
-#define GeoLocationDistrict		@"District"		// Landkreis MŸnchen - City of London - Wayne County
+#define GeoLocationDistrict		@"District"		// Landkreis MÃ¼nchen - City of London - Wayne County
 #define GeoLocationCity			@"City"			// Oberhaching - London - Dearborn
 #define GeoLocationVillage		@"Village"		// Deisenhofen - Notting Hill - %
 #define GeoLocationZIP			@"ZIP"			// 82041 - W11 - 48124

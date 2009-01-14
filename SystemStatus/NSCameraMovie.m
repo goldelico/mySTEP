@@ -36,7 +36,7 @@ NSString *NSCameraShutterReleasedNotification=@"NSCameraShutterReleasedNotificat
 	NSLog(@"_dataReceived %@", n);
 #endif
 	d=[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"];
-	// do we need to splice together data junks?
+	// do we need to splice together data chunks?
 	[file readInBackgroundAndNotify];	// and trigger more notifications
 }
 

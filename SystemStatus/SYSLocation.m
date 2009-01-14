@@ -13,8 +13,8 @@
  under the terms of the GNU Library General Public License.
  */
 
-#import <SystemStatus/SYSLocation.h>
-#import <SystemStatus/SYSDevice.h>
+#import "SYSLocation.h"
+#import "SYSDevice.h"
 #include <signal.h>
 
 // a GPS card is accessed through the serial_cs.o driver module
@@ -101,7 +101,7 @@
  4) ID of 2nd satellite used for fix
  ...
  14) ID of 12th satellite used for fix
- 15) PDOP in meters
+ 15) PDOP in meters (DOP = Dilution of Precision)
  16) HDOP in meters
  17) VDOP in meters
  18) checksum
@@ -174,6 +174,8 @@
  14) Differential reference station ID, 0000-1023
  15) Checksum
  
+ see also: http://www.nmea.de/nmea0183datensaetze.html#gga
+ 
  */
 
 NSString *SYSLocationInsertedNotification=@"SYSLocationInsertedNotification";	// device was inserted
@@ -192,31 +194,6 @@ NSString *SYSLocationNMEA183Notification=@"SYSLocationNMEA183Notification";		// 
 	return l; 
 }
 
-- (NSArray *) _parseNMEA183:(NSData *) line;
-{
-	NSString *s=[[[NSString alloc] initWithData:line encoding:NSASCIIStringEncoding] autorelease];
-#if 0
-	NSLog(@"data=%@", line);
-	NSLog(@"string=%@", s);
-#endif
-	if(![s hasPrefix:@"$"])
-		return nil;	// invalid start
-	if(![s hasSuffix:@"\n"])
-		return nil;	// invalid end
-	if([s characterAtIndex:[s length]-4] == '*')
-		{ // assume *hh\n
-		  // extract hh
-		s=[s substringWithRange:NSMakeRange(1, [s length]-5)];	// get relevant parts - strip off *hh
-																// get bytes and calculate checksum
-		}
-	else
-		s=[s substringWithRange:NSMakeRange(1, [s length]-2)];	// get relevant parts - no checksum
-#if 0
-	NSLog(@"string=%@", s);
-#endif
-	return [s componentsSeparatedByString:@","];
-}
-
 - (void) _processNMEA183:(NSArray *) a;
 { // process NMEA183 string
 	NSString *cmd=[a objectAtIndex:0];
@@ -226,87 +203,121 @@ NSString *SYSLocationNMEA183Notification=@"SYSLocationNMEA183Notification";		// 
 	if(!cmd)
 		return;	// no command processed
 	else if([cmd isEqualToString:@"GPRMC"])
-		{ // minimum recommended navigation info (this is mainly used by SYSLocation)
-		noSatellite=![[a objectAtIndex:2] isEqualToString:@"A"];	// A=Ok, V=receiver warning
-		if(!noSatellite)
-			{ // update time and timestamp
-			NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];
-			unsigned int h, m, s;
-			[time release];
-			time=[NSCalendarDate dateWithString:ts calendarFormat:@"%d%m%y:%H%M%S.%F"];
-			[time retain];				// keep alive
-			[timeStamp autorelease];	// release previous one
-			timeStamp=[NSDate date];	// now
-			[timeStamp retain];			// keep alive
-			sscanf([[a objectAtIndex:3] cString], "%2u%2u.%u", &h, &m, &s);
-			gpsData.location.latitude=h+(m/60.0)+(s/3600.0);
-			if([[a objectAtIndex:4] isEqualToString:@"S"])
-				gpsData.location.latitude= -gpsData.location.latitude;
-			sscanf([[a objectAtIndex:3] cString], "%3u%2u.%u", &h, &m, &s);
-			gpsData.location.longitude=h+(m/60.0)+(s/3600.0);
-			if([[a objectAtIndex:4] isEqualToString:@"E"])
-				gpsData.location.longitude= -gpsData.location.longitude;
-			gpsData.speed=[[a objectAtIndex:7] doubleValue]*(1852.0/3600.0);	// convert to m/s
-			gpsData.direction=[[a objectAtIndex:8] doubleValue];
+			{ // minimum recommended navigation info (this is mainly used by SYSLocation)
+				noSatellite=![[a objectAtIndex:2] isEqualToString:@"A"];	// A=Ok, V=receiver warning
+				if(!noSatellite)
+						{ // update time and timestamp
+							NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];
+							float pos;
+							int deg;
+							[time release];
+							time=[NSCalendarDate dateWithString:ts calendarFormat:@"%d%m%y:%H%M%S.%F"];	// parse
+							time=[NSDate dateWithTimeIntervalSinceReferenceDate:[time timeIntervalSinceReferenceDate]];	// remove formatting
+							[time retain];				// keep alive
+							[timeStamp autorelease];	// release previous one
+							timeStamp=[NSDate date];	// now
+							[timeStamp retain];			// keep alive
+							pos=[[a objectAtIndex:3] floatValue];		// ddmm.mmmmm (degrees + minutes)
+							deg=((int) pos)/100;
+							gpsData.location.latitude=deg+(pos-100.0*deg)/60.0;
+							if([[a objectAtIndex:4] isEqualToString:@"S"])
+									gpsData.location.latitude= -gpsData.location.latitude;
+							pos=[[a objectAtIndex:5] floatValue];		// ddmm.mmmmm (degrees + minutes)
+							deg=((int) pos)/100;
+							gpsData.location.longitude=deg+(pos-100.0*deg)/60.0;
+							if([[a objectAtIndex:6] isEqualToString:@"E"])
+								gpsData.location.longitude= -gpsData.location.longitude;
+							gpsData.speed=[[a objectAtIndex:7] floatValue]*(1852.0/3600.0);	// convert knots (sea miles per hour) to m/s
+							gpsData.direction=[[a objectAtIndex:8] floatValue];
+							// speed precision - only if 4 sats and more and speed > 10 km/h?
 #if 1
-			NSLog(@"ddmmyy=%@", [a objectAtIndex:9]);
-			NSLog(@"hhmmss.sss=%@", [a objectAtIndex:1]);	// hhmmss.sss
-			NSLog(@"ts=%@ -> %@", ts, time);	// satellite time
-			NSLog(@"lat=%@ %@", [a objectAtIndex:3], [a objectAtIndex:4]);	// llmm.ssssN
-			NSLog(@"long=%@ %@", [a objectAtIndex:5], [a objectAtIndex:6]);	// lllmm.ssssE
-			NSLog(@"knots=%@", [a objectAtIndex:7]);
-			NSLog(@"deg=%@", [a objectAtIndex:8]);
-			// we should convert polar coords (knots,deg) into rectangular coords and smooth velocity with a time constant > 10 seconds
-			// we can also reduce the time constant for higher speed
+							NSLog(@"ddmmyy=%@", [a objectAtIndex:9]);
+							NSLog(@"hhmmss.sss=%@", [a objectAtIndex:1]);	// hhmmss.sss
+							NSLog(@"ts=%@ -> %@", ts, time);	// satellite time
+							NSLog(@"lat=%@ %@ -> %f", [a objectAtIndex:3], [a objectAtIndex:4], gpsData.location.latitude);	// llmm.ssssN
+							NSLog(@"long=%@ %@ -> %f", [a objectAtIndex:5], [a objectAtIndex:6], gpsData.location.longitude);	// lllmm.ssssE
+							NSLog(@"knots=%@", [a objectAtIndex:7]);
+							NSLog(@"deg=%@", [a objectAtIndex:8]);
+							// we should smooth velocity with a time constant > 10 seconds
+							// we can also reduce the time constant for higher speed
 #endif
+						}
+				else
+					numSatellites=0;
 			}
-		}
 	else if([cmd isEqualToString:@"GPGSA"])
-		{ // satellite info
-		
-		}
-	else if([cmd isEqualToString:@"GPGSV"])
-		{ // satellites in view (might have several messages for full list)
-		numVisibleSatellites=[[a objectAtIndex:3] intValue];
-#if 1
-		NSLog(@"#S visible=%d", numVisibleSatellites);
-#endif
-		// we could parse the info into a NSArray or NSDictionary (indexed by Sat#)
-		}
-	else if([cmd isEqualToString:@"GPGGA"])
-		{ // more location info (e.g. altitude above geoid)
-		numSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
-#if 1
-		NSLog(@"#S received=%d", numSatellites);
-#endif
-		if(!noSatellite)
-			{ // update
-			precision=[[a objectAtIndex:8] floatValue];
-			gpsData.location.height=[[a objectAtIndex:9] doubleValue];
-#if 1
-			NSLog(@"Q=%@", [a objectAtIndex:6]);	// quality
-			NSLog(@"Hdil=%@", [a objectAtIndex:8]);	// horizontal dilution = precision?
-			NSLog(@"Alt=%@%@", [a objectAtIndex:9], [a objectAtIndex:10]);	// altitude + units (meters)
-#endif
+			{ // satellite info
+				
 			}
-		}
+	else if([cmd isEqualToString:@"GPGSV"])
+			{ // satellites in view (might have several messages for full list)
+				numVisibleSatellites=[[a objectAtIndex:3] intValue];
+#if 1
+				NSLog(@"#S visible=%d", numVisibleSatellites);
+#endif
+				// we could parse the info into a NSArray or NSDictionary (indexed by Sat#)
+			}
+	else if([cmd isEqualToString:@"GPGGA"])
+			{ // more location info (e.g. altitude above geoid)
+				numSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
+#if 1
+				NSLog(@"#S received=%d", numSatellites);
+#endif
+				if(!noSatellite)
+						{ // update
+							gpsData.location.precision=[[a objectAtIndex:8] floatValue];
+							// check for altitude units
+							gpsData.location.altitude=[[a objectAtIndex:9] floatValue];
+#if 1
+							NSLog(@"Q=%@", [a objectAtIndex:6]);	// quality
+							NSLog(@"Hdil=%@", [a objectAtIndex:8]);	// horizontal dilution = precision?
+							NSLog(@"Alt=%@%@", [a objectAtIndex:9], [a objectAtIndex:10]);	// altitude + units (meters)
+#endif
+						}
+				else
+					gpsData.location.precision=99999.0;
+			}
+}
+
+- (void) _parseNMEA183:(NSData *) line;
+{
+	NSString *s=[[[NSString alloc] initWithData:line encoding:NSASCIIStringEncoding] autorelease];
+	NSArray *lines;
+	int l;
+#if 0
+	NSLog(@"data=%@", line);
+	NSLog(@"string=%@", s);
+#endif
+	if(lastChunk)
+		s=[lastChunk stringByAppendingString:s];	// append to last chunk
+	lines=[s componentsSeparatedByString:@"\n"];	// split into lines
+	for(l=0; l<[lines count]-1; l++)
+			{ // process lines except last chunk
+				s=[[lines objectAtIndex:l] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r"]];
+				if(![s hasPrefix:@"$"])
+					continue;	// invalid start
+				if([s characterAtIndex:[s length]-3] == '*')
+						{ // assume *hh\n
+							// extract hh
+							s=[s substringWithRange:NSMakeRange(1, [s length]-3)];	// get relevant parts - strip off *hh
+							// get bytes and calculate checksum
+						}
+				[[NSNotificationCenter defaultCenter] postNotificationName:SYSLocationNMEA183Notification object:s];	// notify any listener
+				[self _processNMEA183:[s componentsSeparatedByString:@","]];
+			}
+#if 0
+	NSLog(@"string=%@", s);
+#endif
+	[lastChunk release];
+	lastChunk=[[lines lastObject] retain];
 }
 
 - (void) _dataReceived:(NSNotification *) n;
 {
-	NSData *d;
-	NSArray *cmd;
 #if 0
 	NSLog(@"_dataReceived %@", n);
 #endif
-	d=[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"];
-	// do we need to splice together data junks?
-	cmd=[self _parseNMEA183:d];	// parse data as line
-	if(cmd)
-		{
-		[self _processNMEA183:cmd];	// update internal data
-		[[NSNotificationCenter defaultCenter] postNotificationName:SYSLocationNMEA183Notification object:cmd];	// notify any listener
-		}
+	[self _parseNMEA183:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
 	[file readInBackgroundAndNotify];	// and trigger more notifications
 }
 
@@ -406,6 +417,7 @@ void sigstop(void)
 	self=[super init];
 	if(self)
 		{
+			gpsData.precision=10000000.0;	// MAX_FLT?
 		[SYSDevice addObserver:self];	// make me observe devices
 		}
 	return self;
@@ -414,37 +426,42 @@ void sigstop(void)
 - (void) dealloc;
 {
 	[SYSDevice removeObserver:self];	// remove me as observer
+	[[NSNotificationCenter defaultCenter] removeObserver:self];	// remove me as observer
 	[file release];
 	[time release];
 	[timeStamp release];
+	[lastChunk release];
 	[super dealloc];
 }
 
 - (BOOL) isAvailable;
 { // a location device is available
-	return gps != nil;
+	return file != nil;
 }
 
 - (BOOL) isValid;
 {
-	if(!gps || noSatellite || !timeStamp || [timeStamp timeIntervalSinceNow] < -10.0)
+	if(!file || noSatellite || !timeStamp || [timeStamp timeIntervalSinceNow] < -10.0)
 		return NO;	// no GPS, or last timestamp is more than 10 seconds old -> we have lost connection
 	return YES;
 }
 
-- (GeoMovement) geoMovement; { return gpsData; }
 - (unsigned) numberOfSatellites; { return numSatellites; }		// number of satellites with reception
 - (unsigned) numberOfVisibleSatellites;  { return numVisibleSatellites; }	// number of satellites in view
-- (float) precision; { return precision; }
+
 - (GeoLocation) geoLocation; { return gpsData.location; }
 - (double) locationLongitude; { return gpsData.location.longitude; }	// in degrees
 - (double) locationLatitude; { return gpsData.location.latitude; }		// in degrees
-- (double) locationHeight; { return gpsData.location.height; }			// height in m above NN
-- (double) locationSpeed; { return gpsData.speed; }				// speed in m/s over surface
-- (double) locationDirection; { return gpsData.direction; }		// compass direction in degrees
-- (double) locationAscentSpeed;	{ return gpsData.ascent; }		// speed in m/s of ascent/descent
-- (double) locationElevation; { return gpsData.elevation; }		// elevaton angle in degrees
-- (double) locationOrientation; { return 0.0; }					// horizontal orientation of device (compass)
+- (float) locationAltitude; { return gpsData.location.altitude; }			// altitude in m above NN
+- (float) locationOrientation; { return 0.0; }					// horizontal orientation of device (compass)
+- (float) locationPrecision; { return gpsData.location.precision; }
+
+- (GeoMovement) geoMovement; { return gpsData; }
+- (float) locationSpeed; { return gpsData.speed; }				// speed in m/s over surface
+- (float) locationDirection; { return gpsData.direction; }		// compass direction in degrees
+- (float) locationAscentSpeed;	{ return gpsData.ascent; }		// speed in m/s of ascent/descent
+- (float) locationElevation; { return gpsData.elevation; }		// elevaton angle in degrees
+- (float) locationSpeedPrecision; { return gpsData.precision; }
 
 - (NSDate *) locationTime;
 {
@@ -471,7 +488,7 @@ void sigstop(void)
 #define deg2rad(P) (P*(3.14159265357989/180.0))
 
 - (double) distanceBetween:(GeoLocation) p1 and:(GeoLocation) p2;
-{ // great circle distance + hypotenuse of height difference
+{ // great circle distance + hypotenuse of altitude difference
 	/*
 	 Based on description at: http://www.rainerstumpe.de/HTML/body_kurse3.html
 	 
@@ -490,9 +507,9 @@ void sigstop(void)
 	double lat2=deg2rad(p2.latitude);
 	double cosc = sin(lat1)*sin(lat2) + cos(lat1)*cos(lat2)*cos(deg2rad(p1.longitude-p2.longitude));
 	double c=acos(cosc);				// angle on great circle (0..PI)
-	double hh=p1.height-p2.height;		// height difference
+	double hh=p1.altitude-p2.altitude;		// altitude difference
 										// FIXME: improve precision of this constant
-	c*=3600000.0*(p1.height+p2.height);		// convert angle to sector of earth circumference at average height
+	c*=3600000.0*(p1.altitude+p2.altitude);		// convert angle to sector of earth circumference at average altitude
 											// FIXME: we should calculate some circular distance between the points
 	c=sqrt(c*c+hh*hh);	// add hypotenuse
 	return c;

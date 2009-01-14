@@ -159,4 +159,3 @@ static struct bat getbat(void)
 }
 
 @end
-
