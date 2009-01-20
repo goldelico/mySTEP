@@ -872,8 +872,8 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 
 static NSArray *__bitmapImageRepsICNS;
 
-+ (void) initialize				// in practice, only two of them can load in	 
-{								// data from an external source.
++ (void) initialize				// in practice, only two of them can load in data from an external source.
+{ 
 	__bitmapImageRepsICNS = [[NSArray arrayWithObjects: @"icns", nil] retain];
 	[NSImageRep registerImageRepClass:[self class]];
 }

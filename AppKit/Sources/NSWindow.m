@@ -1688,10 +1688,10 @@ static NSButtonCell *sharedCell;
 		}
 	vf=[screen visibleFrame];
 	// FIXME: autoresizing should be a user default or something!
-	if((_w.styleMask & NSResizableWindowMask) != 0 && (1 || [self interfaceStyle] >= NSPDAInterfaceStyle))
+	if((_w.styleMask & NSResizableWindowMask) != 0 && ![self isKindOfClass:[NSPanel class]] && (1 || [self interfaceStyle] >= NSPDAInterfaceStyle))
 		{
 #if 1
-		NSLog(@"to full screen");
+		NSLog(@"enlarge to full screen");
 #endif
 		return vf;	// resize to full screen for PDA styles
 		}

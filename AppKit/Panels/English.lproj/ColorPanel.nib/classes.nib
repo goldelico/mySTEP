@@ -1,44 +1,65 @@
 {
-    IBClasses = (
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
-        {
-            CLASS = GSColorWheelView; 
-            LANGUAGE = ObjC; 
-            OUTLETS = {colorPanel = NSColorPanel; }; 
-            SUPERCLASS = NSImageView; 
-        }, 
-        {
-            ACTIONS = {"_notify" = id; "_pick" = id; }; 
-            CLASS = NSColorPanel; 
-            LANGUAGE = ObjC; 
-            OUTLETS = {
-                "_alpha" = NSTextField; 
-                "_alphaSlider" = NSSlider; 
-                "_blue" = NSTextField; 
-                "_blueSlider" = NSSlider; 
-                "_brightness" = NSTextField; 
-                "_brightnessSlider" = NSSlider; 
-                "_colorTabs" = NSTabView; 
-                "_colorWell" = NSColorWell; 
-                "_colorWheel" = NSImageView; 
-                "_crayons" = NSMatrix; 
-                "_green" = NSTextField; 
-                "_greenSlider" = NSSlider; 
-                "_html" = NSTextField; 
-                "_red" = NSTextField; 
-                "_redSlider" = NSSlider; 
-            }; 
-            SUPERCLASS = NSPanel; 
-        }, 
-        {CLASS = NSObject; LANGUAGE = ObjC; }, 
-        {
-            ACTIONS = {changeColor = id; }; 
-            CLASS = NSResponder; 
-            LANGUAGE = ObjC; 
-            SUPERCLASS = NSObject; 
-        }, 
-        {CLASS = "_NSColorWheelView"; LANGUAGE = ObjC; SUPERCLASS = NSView; }, 
-        {CLASS = "java.lang.Object"; LANGUAGE = Java; }
-    ); 
-    IBVersion = 1; 
+    IBClasses =     (
+                {
+            CLASS = FirstResponder;
+            LANGUAGE = ObjC;
+            SUPERCLASS = NSObject;
+        },
+                {
+            CLASS = GSColorWheelView;
+            LANGUAGE = ObjC;
+            OUTLETS =             {
+                colorPanel = NSColorPanel;
+            };
+            SUPERCLASS = NSImageView;
+        },
+                {
+            ACTIONS =             {
+                "_notify" = id;
+                "_pick" = id;
+            };
+            CLASS = NSColorPanel;
+            LANGUAGE = ObjC;
+            OUTLETS =             {
+                "_alpha" = NSTextField;
+                "_alphaSlider" = NSSlider;
+                "_blue" = NSTextField;
+                "_blueSlider" = NSSlider;
+                "_brightness" = NSTextField;
+                "_brightnessSlider" = NSSlider;
+                "_colorTabs" = NSTabView;
+                "_colorWell" = NSColorWell;
+                "_colorWheel" = NSImageView;
+                "_crayons" = NSMatrix;
+                "_green" = NSTextField;
+                "_greenSlider" = NSSlider;
+                "_html" = NSTextField;
+                "_red" = NSTextField;
+                "_redSlider" = NSSlider;
+            };
+            SUPERCLASS = NSPanel;
+        },
+                {
+            CLASS = NSObject;
+            LANGUAGE = ObjC;
+        },
+                {
+            ACTIONS =             {
+                changeColor = id;
+            };
+            CLASS = NSResponder;
+            LANGUAGE = ObjC;
+            SUPERCLASS = NSObject;
+        },
+                {
+            CLASS = "_NSColorWheelView";
+            LANGUAGE = ObjC;
+            SUPERCLASS = NSView;
+        },
+                {
+            CLASS = "java.lang.Object";
+            LANGUAGE = Java;
+        }
+    );
+    IBVersion = 1;
 }
