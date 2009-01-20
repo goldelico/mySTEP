@@ -126,7 +126,7 @@ static NSMutableArray *_registeredClasses;
 #if 0
 	NSLog(@"%@ initWithRequest:%@ client:%@", NSStringFromClass(isa), request, client);
 #endif
-	if(isa == [NSURLProtocol class])
+	if([self class] == [NSURLProtocol class])
 		{ // not a subclass
 		[self release];
 		while((c=[e nextObject]))
@@ -168,6 +168,11 @@ static NSMutableArray *_registeredClasses;
 - (void) startLoading; { SUBCLASS; }
 - (void) stopLoading; { SUBCLASS; }
 
+// not public?
+
+- (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode; { SUBCLASS; }
+- (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode; { SUBCLASS; }
+
 @end
 
 /*
@@ -182,6 +187,8 @@ static NSMutableArray *_registeredClasses;
 	*/
 
 @implementation _NSHTTPURLProtocol
+
+// see http://www.w3.org/Protocols/rfc2616/rfc2616.html
 
 + (BOOL) canInitWithRequest:(NSURLRequest *) request;
 {
@@ -199,90 +206,105 @@ static NSMutableArray *_registeredClasses;
 	[super dealloc];
 }
 
-- (void) _schedule;
+// FIXME: is this an undocumented public method?
+
+- (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
 {
-	[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop]
-							forMode:NSDefaultRunLoopMode];
-	[_outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop]
-							 forMode:NSDefaultRunLoopMode];
+	[_inputStream scheduleInRunLoop:runLoop forMode:mode];
+	[_outputStream scheduleInRunLoop:runLoop forMode:mode];
+	// should we save this list?
+}
+
+- (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
+{
+	[_inputStream removeFromRunLoop:runLoop forMode:mode];
+	[_outputStream removeFromRunLoop:runLoop forMode:mode];
+}
+
+- (void) _unschedule;
+{
+	// should unschedule from all loops&modes?
+	[self unscheduleFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 }
 
 - (void) startLoading;
 {
 	static NSDictionary *methods;
 	if(!methods)
-		{ // initialize
-		methods=[[NSDictionary alloc] initWithObjectsAndKeys:
-			self, @"HEAD",
-			self, @"GET",
-			self, @"POST",
-			self, @"PUT",
-			self, @"DELETE",
-			self, @"TRACE",
-			self, @"OPTIONS",
-			self, @"CONNECT",
-			nil];
-		}
+			{ // initialize
+				methods=[[NSDictionary alloc] initWithObjectsAndKeys:
+								 self, @"HEAD",
+								 self, @"GET",
+								 self, @"POST",
+								 self, @"PUT",
+								 self, @"DELETE",
+								 self, @"TRACE",
+								 self, @"OPTIONS",
+								 self, @"CONNECT",
+								 nil];
+			}
 	if(![methods objectForKey:[_request HTTPMethod]])
-		{ // unknown method
-		NSLog(@"Invalid HTTP Method: %@", _request);
-		[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"Invalid HTTP Method" code:0 userInfo:nil]];
-		return;
-		}
-#if 0
+			{ // unknown method
+				NSLog(@"Invalid HTTP Method: %@", _request);
+				[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"Invalid HTTP Method" code:0 userInfo:nil]];
+				return;
+			}
+#if 1
 	NSLog(@"startLoading: %@", self);
 #endif
 	if(0 && _cachedResponse)
-		{ // handle from cache
-		}
-	else
-		{
-		NSURL *url=[_request URL];
-		NSHost *host=[NSHost hostWithName:[url host]];		// try to resolve
-		int port=[[url port] intValue];
-		if(!host) host=[NSHost hostWithAddress:[url host]];	// try dotted notation
-		if(!host) host=[NSHost hostWithAddress:@"127.0.0.1"];	// final default
-		if(!port) port=[[url scheme] isEqualToString:@"https"]?433:80;	// default port if not specified
-		[NSStream getStreamsToHost:host
-							  port:port
-					   inputStream:&_inputStream
-					  outputStream:&_outputStream];
-		if(!_inputStream || !_outputStream)
-			{ // error
-#if 1
-			NSLog(@"could not create streams for %@:%u", host, [[url port] intValue]);
-#endif
-			[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"can't connect" code:0 userInfo:
-				[NSDictionary dictionaryWithObjectsAndKeys:
-					url, @"NSErrorFailingURLKey",
-					host, @"NSErrorFailingURLStringKey",
-					@"can't find host", @"NSLocalizedDescription",
-					nil]]];
-			return;
+			{ // handle from cache
 			}
-#if 0
-		NSLog(@"did initialize streams for %@", self);
+	else
+			{
+				// KEEPALIVE allows and/or requires us to cache and reuse the sockets/streams!
+				// http://www.io.com/~maus/HttpKeepAlive.html
+				// http://java.sun.com/j2se/1.5.0/docs/guide/net/http-keepalive.html
+				// 
+				NSURL *url=[_request URL];
+				NSHost *host=[NSHost hostWithName:[url host]];		// try to resolve
+				int port=[[url port] intValue];
+				if(!host) host=[NSHost hostWithAddress:[url host]];	// try dotted notation
+				if(!host) host=[NSHost hostWithAddress:@"127.0.0.1"];	// final default
+				if(!port) port=[[url scheme] isEqualToString:@"https"]?433:80;	// default port if not specified
+				[NSStream getStreamsToHost:host
+															port:port
+											 inputStream:&_inputStream
+											outputStream:&_outputStream];
+				if(!_inputStream || !_outputStream)
+						{ // error
+#if 1
+							NSLog(@"could not create streams for %@:%u", host, [[url port] intValue]);
 #endif
-		[self _didInitializeOutputStream:_outputStream];	// a chance for subclasses to update the stream properties
-		[_inputStream retain];
-		[_outputStream retain];
-		[_inputStream setDelegate:self];
-		[_outputStream setDelegate:self];
-		[self _schedule];
-#if 0
-		NSLog(@"open streams for %@", self);
+							[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"can't connect" code:0 userInfo:
+																													[NSDictionary dictionaryWithObjectsAndKeys:
+																													 url, @"NSErrorFailingURLKey",
+																													 host, @"NSErrorFailingURLStringKey",
+																													 @"can't find host", @"NSLocalizedDescription",
+																													 nil]]];
+							return;
+						}
+#if 1
+				NSLog(@"did initialize streams for %@", self);
 #endif
-		[_inputStream open];
-		[_outputStream open];
-		}
-}
-
-- (void) _unschedule;
-{
-	[_inputStream removeFromRunLoop:[NSRunLoop currentRunLoop]
-							forMode:NSDefaultRunLoopMode];
-	[_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop]
-							 forMode:NSDefaultRunLoopMode];
+				[self _didInitializeOutputStream:_outputStream];	// a chance for subclasses to update the stream properties
+				[_inputStream retain];
+				[_outputStream retain];
+				[_inputStream setDelegate:self];
+				[_outputStream setDelegate:self];
+				[self scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+#if 1
+				NSLog(@"open input stream %@ for %@", _inputStream, self);
+#endif
+				[_inputStream open];	// automatically opens the output side!
+#if 0
+				NSLog(@"open output stream %@ for %@", _outputStream, self);
+#endif
+//				[_outputStream open];
+#if 1
+				NSLog(@"startLoading done %@", self);
+#endif
+			}
 }
 
 - (void) stopLoading;
@@ -315,7 +337,7 @@ static NSMutableArray *_registeredClasses;
 { // process header line
 	unsigned char *c, *end;
 	NSString *key, *val;
-#if 0
+#if 1
 	NSLog(@"process header line len=%d", len);
 #endif
 	// FIXME: if it begins with ' ' or '\t' it is a continuation line to the previous header field
@@ -350,9 +372,9 @@ static NSMutableArray *_registeredClasses;
 			}
 		if([[_headers objectForKey:@"content-encoding"] isEqualToString:@"gzip"])
 			{ // handle header compression
-			NSLog(@"header is gzip compressed");
+			NSLog(@"body is gzip compressed");
 			}
-		// Connection = "Keep-Alive"; 
+		// Connection = "Keep-Alive"; --- this is HTTP 1.0
 		// "Keep-Alive" = "timeout=3, max=100"; 
 		/** FIXME **/  [_headers objectForKey:@"last-modified"];
 		loc=[_headers objectForKey:@"location"];
@@ -379,9 +401,8 @@ static NSMutableArray *_registeredClasses;
 	for(c=buffer, end=c+len; *c != ':'; c++)
 		{
 		if(c == end)
-			{ // no colon found!
-			// raise bad header error or simply ignore?
-			return NO;	// keep processing header lines
+			{ // no colon found! Ignore to prevent DoS attacks...
+			return NO;	// continue processing header lines
 			}
 		}
 	key=[NSString stringWithCString:(char *) buffer length:c-buffer];
@@ -398,8 +419,8 @@ static NSMutableArray *_registeredClasses;
 - (void) _processHeader:(unsigned char *) buffer length:(int) len;
 { // next header fragment received
 	unsigned char *ptr, *end;
-#if 0
-	NSLog(@"received %d bytes", len);
+#if 1
+	NSLog(@"received %d header bytes", len);
 #endif
 	if(len <= 0)
 		return;	// ignore
@@ -464,164 +485,170 @@ static NSMutableArray *_registeredClasses;
 
 - (void) stream:(NSStream *) stream handleEvent:(NSStreamEvent) event
 {
-#if 0
+#if 1
 	NSLog(@"stream:%@ handleEvent:%x for:%@", stream, event, self);
 #endif
-    if(stream == _inputStream) 
-		{
-		switch(event)
+	if(stream == _inputStream) 
 			{
-			case NSStreamEventHasBytesAvailable:
-				{
-					unsigned char buffer[512];
-					int len=[(NSInputStream *) stream read:buffer maxLength:sizeof(buffer)];
-					if(len < 0)
-						{
 #if 1
-						NSLog(@"receive error %s", strerror(errno));
+				NSLog(@"An event %d occurred on the input stream.", event);
 #endif
-						[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"receive error" code:errno userInfo:nil]];
-						[self _unschedule];
-						return;
-						}
-					if(_readingBody)
-						[_client URLProtocol:self didLoadData:[NSData dataWithBytes:buffer length:len]];	// notify
-					else
-						[self _processHeader:buffer length:len];
-					return;
-				}
-			case NSStreamEventEndEncountered:	// can this occur in parallel to NSStreamEventHasBytesAvailable???
-				{
-#if 0
-					NSLog(@"end of response");
-#endif
-					if(!_readingBody)
-						[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"incomplete header" code:0 userInfo:nil]];
-					[_client URLProtocolDidFinishLoading:self];
-					_readingBody=NO;
-					[self _unschedule];
-					return;
-				}
-			case NSStreamEventOpenCompleted:
-				{ // prepare to receive header
-#if 0
-					NSLog(@"HTTP input stream opened");
-#endif
-					return;
-				}
-			default:
-				break;
-			}
-		}
-	else if(stream == _outputStream)
-		{
-		unsigned char *msg;
-#if 0
-		NSLog(@"An event occurred on the output stream.");
-#endif
-		/* e.g.
-		POST /wiki/Spezial:Search HTTP/1.1
-		Host: de.wikipedia.org
-		Content-Type: application/x-www-form-urlencoded
-		Content-Length: 24
-		
-		search=Katzen&go=Artikel  <- body
-		*/
-		switch(event)
-			{
-			case NSStreamEventOpenCompleted:
-				{
-					NSString *header;
-					NSURL *url=[_request URL];
-					NSString *path=[url path];
-#if 0
-					NSLog(@"HTTP output stream opened");
-#endif
-					if([path length] == 0)
-						path=@"/";	// root
-					header=[NSString stringWithFormat:@"%@ %@ HTTP/1.1\r\nHost: %@\r\n",
-						[_request HTTPMethod],
-						[path stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding],
-						[url host]
-						];
-					msg=(unsigned char *) [header cString];	// FIXME: UTF8???
-					[(NSOutputStream *) stream write:msg maxLength:strlen((char *) msg)];
-#if 1
-					NSLog(@"sent %@ -> %s", url, msg);
-#endif
-					if([_request HTTPShouldHandleCookies])
+				switch(event)
+					{
+						case NSStreamEventHasBytesAvailable:
 							{
-								NSHTTPCookieStorage *cs=[NSHTTPCookieStorage sharedHTTPCookieStorage];
-								[cs requestHeaderFieldsWithCookies:[cs cookiesForURL:url]];
-								// FIXME:
-								// make them being sent in addition to headers
-							}
-					_headerEnumerator=[[[_request allHTTPHeaderFields] objectEnumerator] retain];
-					return;
-				}
-			case NSStreamEventHasSpaceAvailable:
-				{
-					// FIXME: should also send out relevant Cookies
-					if(_headerEnumerator)
-						{ // send next header
-						NSString *key;
-						key=[_headerEnumerator nextObject];
-						if(key)
-							{ // attributes
+								unsigned char buffer[512];
+								int len=[(NSInputStream *) stream read:buffer maxLength:sizeof(buffer)];
+								if(len < 0)
+										{
 #if 1
-							NSLog(@"sending %@: %@", key, [_request valueForHTTPHeaderField:key]);
+											NSLog(@"receive error %s", strerror(errno));
 #endif
-							msg=(unsigned char *)[[NSString stringWithFormat:@"%@: %@\r\n", key, [_request valueForHTTPHeaderField:key]] stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding];
-							}
-						else
-							{ // was last header entry
-							[_headerEnumerator release];
-							_headerEnumerator=nil;
-							msg=(unsigned char *) "\r\n";				// send empty line
-							_body=[[_request HTTPBodyStream] retain];	// if present
-							if(!_body && [_request HTTPBody])
-								_body=[[NSInputStream alloc] initWithData:[_request HTTPBody]];	// prepare to send request body
-							[_body open];
-							}
-						[(NSOutputStream *) stream write:msg maxLength:strlen((char *) msg)];	// NOTE: we might block here if header value is too long
+											[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"receive error" code:errno userInfo:nil]];
+											[self _unschedule];
+											return;
+										}
 #if 1
-						NSLog(@"sent %s", msg);
+								NSLog(@"received %d bytes", len);
 #endif
-						return;
-						}
-					else if(_body)
-						{ // send (next part of) body until done
-						if([_body hasBytesAvailable])
+								if(_readingBody)
+									[_client URLProtocol:self didLoadData:[NSData dataWithBytes:buffer length:len]];	// notify
+								else
+									[self _processHeader:buffer length:len];
+								return;
+							}
+						case NSStreamEventEndEncountered:	// can this occur in parallel to NSStreamEventHasBytesAvailable???
 							{
-							unsigned char buffer[512];
-							int len=[_body read:buffer maxLength:sizeof(buffer)];	// read next block from stream
-							if(len < 0)
-								{
 #if 1
-								NSLog(@"error reading from HTTPBody stream %s", strerror(errno));
+								NSLog(@"end of response");
 #endif
+								if(!_readingBody)
+									[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"incomplete header" code:0 userInfo:nil]];
+								[_client URLProtocolDidFinishLoading:self];
+								_readingBody=NO;
 								[self _unschedule];
 								return;
-								}
-							[(NSOutputStream *) stream write:buffer maxLength:len];	// send
 							}
-						else
-							{ // done
-#if 0
-							NSLog(@"request sent");
+						case NSStreamEventOpenCompleted:
+						{ // prepare to receive header
+#if 1
+							NSLog(@"HTTP input stream opened");
 #endif
-							[self _unschedule];	// well, we should just unschedule the send stream
-							[_body close];
-							[_body release];
-							_body=nil;
-							}
+							return;
 						}
-					return;	// done
-				}
-			default:
-				break;
+						default:
+							break;
+					}
 			}
-		}
+	else if(stream == _outputStream)
+			{
+				unsigned char *msg;
+#if 1
+				NSLog(@"An event %d occurred on the output stream.", event);
+#endif
+				/* e.g.
+				 POST /wiki/Spezial:Search HTTP/1.1
+				 Host: de.wikipedia.org
+				 Content-Type: application/x-www-form-urlencoded
+				 Content-Length: 24
+				 
+				 search=Katzen&go=Artikel  <- body
+				 */
+				switch(event)
+					{
+						case NSStreamEventOpenCompleted:
+							{
+								NSString *header;
+								NSURL *url=[_request URL];
+								NSString *path=[url path];
+#if 1
+								NSLog(@"HTTP output stream opened");
+#endif
+								if([path length] == 0)
+									path=@"/";	// root
+								header=[NSString stringWithFormat:@"%@ %@ HTTP/1.1\r\nHost: %@\r\n",
+												[_request HTTPMethod],
+												[path stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding],
+												[url host]
+												];
+								msg=(unsigned char *) [header cString];	// FIXME: UTF8???
+								[(NSOutputStream *) stream write:msg maxLength:strlen((char *) msg)];
+#if 1
+								NSLog(@"sent %@ -> %s", url, msg);
+#endif
+								if([_request HTTPShouldHandleCookies])
+										{
+											NSHTTPCookieStorage *cs=[NSHTTPCookieStorage sharedHTTPCookieStorage];
+											[NSHTTPCookie requestHeaderFieldsWithCookies:[cs cookiesForURL:url]];
+											// FIXME:
+											// make them being sent in addition to headers
+										}
+								_headerEnumerator=[[[_request allHTTPHeaderFields] objectEnumerator] retain];
+								return;
+							}
+						case NSStreamEventHasSpaceAvailable:
+							{
+								// FIXME: should also send out relevant Cookies
+								if(_headerEnumerator)
+										{ // send next header
+											NSString *key;
+											key=[_headerEnumerator nextObject];
+											if(key)
+													{ // attributes
+#if 1
+														NSLog(@"sending %@: %@", key, [_request valueForHTTPHeaderField:key]);
+#endif
+														msg=(unsigned char *)[[NSString stringWithFormat:@"%@: %@\r\n", key, [_request valueForHTTPHeaderField:key]] stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding];
+													}
+											else
+													{ // was last header entry
+														[_headerEnumerator release];
+														_headerEnumerator=nil;
+														msg=(unsigned char *) "\r\n";				// send empty line
+														_body=[[_request HTTPBodyStream] retain];	// if present as a stream object
+														if(!_body && [_request HTTPBody])
+															_body=[[NSInputStream alloc] initWithData:[_request HTTPBody]];	// prepare to send request body NSData object
+														[_body open];
+													}
+											[(NSOutputStream *) stream write:msg maxLength:strlen((char *) msg)];	// NOTE: we might block here if header value is too long
+#if 1
+											NSLog(@"sent %s", msg);
+#endif
+											return;
+										}
+								else if(_body && [_body hasBytesAvailable])
+										{ // send (next part of) body until done
+										unsigned char buffer[512];
+										int len=[_body read:buffer maxLength:sizeof(buffer)];	// read next block from stream
+										if(len < 0)
+												{
+#if 1
+													NSLog(@"error reading from HTTPBody stream %s", strerror(errno));
+#endif
+												[self _unschedule];
+												}
+											else
+													{
+														[(NSOutputStream *) stream write:buffer maxLength:len];	// send
+#if 1
+														NSLog(@"%d bytes body sent", len);
+#endif
+													}
+											return;	// done
+										}
+#if 1
+								NSLog(@"request sent completely");
+#endif
+								[_body close];	// close body stream
+								[_body release];
+								_body=nil;
+//								[_outputStream close];	// how does the keep-alive mechanism work?
+								return;
+							}
+						default:
+							break;
+					}
+			}
 	NSLog(@"An error %@ occurred on the event %08x of stream %@ of %@", [stream streamError], event, stream, self);
 	[_client URLProtocol:self didFailWithError:[stream streamError]];
 }
@@ -651,6 +678,19 @@ static NSMutableArray *_registeredClasses;
 
 + (NSURLRequest *) canonicalRequestForRequest:(NSURLRequest *) request; { return request; }
 
+- (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
+{
+	[_inputStream scheduleInRunLoop:runLoop forMode:mode];
+	[_outputStream scheduleInRunLoop:runLoop forMode:mode];
+	// should we save this list?
+}
+
+- (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
+{
+	[_inputStream removeFromRunLoop:runLoop forMode:mode];
+	[_outputStream removeFromRunLoop:runLoop forMode:mode];
+}
+
 - (void) startLoading;
 {
 	if(_cachedResponse)
@@ -675,10 +715,7 @@ static NSMutableArray *_registeredClasses;
 		[_outputStream retain];
 		[_inputStream setDelegate:self];
 		[_outputStream setDelegate:self];
-		[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop]
-								forMode:NSDefaultRunLoopMode];
-		[_outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop]
-								 forMode:NSDefaultRunLoopMode];
+			[self scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 		// set socket options for ftps requests
 		[_inputStream open];
 		[_outputStream open];
@@ -774,7 +811,7 @@ static NSMutableArray *_registeredClasses;
 	[r release];
 }
 
-- (void) stopLoading; { return; }	// we do it in one large junk...
+- (void) stopLoading; { return; }	// we do it in one large chunk...
 
 @end
 
@@ -802,7 +839,7 @@ static NSMutableArray *_registeredClasses;
 	[r release];
 }
 
-- (void) stopLoading; { return; }	// we do it in one large junk...
+- (void) stopLoading; { return; }	// we do it in one large chunk...
 
 @end
 
@@ -837,6 +874,6 @@ static NSMutableArray *_registeredClasses;
 	[r release];
 }
 
-- (void) stopLoading; { return; }	// we do it in one large junk...
+- (void) stopLoading; { return; }	// we do it in one large chunk...
 
 @end

@@ -85,7 +85,7 @@ extern NSString * const GSHTTPPropertyProxyPortKey;
 
 @interface NSXMLParser (NSPrivate)
 
-- (void) _parseData:(NSData *) data;	// parse next junk for incremental parsing (use nil to denote EOF)
+- (void) _parseData:(NSData *) data;	// parse next chunk for incremental parsing (use nil to denote EOF)
 - (NSArray *) _tagPath;	// use [[parser _tagPath] componentsJoinedByString:@"."] to get a string like @"plist.dictionary.array.string"
 - (BOOL) _acceptsHTML;
 // - (void) _setAcceptHTML:(BOOL) flag;	// automatically detected

@@ -381,7 +381,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			{
 			NSObject *watcher = [watchers objectAtIndex:i];
 			int fd=[watcher _readFileDescriptor];
-#if 0
+#if 1
 			NSLog(@"watch fd=%d for input", fd);
 #endif
 			if(fd >= 0 && fd < FD_SETSIZE)
@@ -400,7 +400,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			{
 			NSObject *watcher = [watchers objectAtIndex:i];
 			int fd=[watcher _writeFileDescriptor];
-#if 0
+#if 1
 			NSLog(@"watch fd=%d for output", fd);
 #endif
 			if(fd >= 0 && fd < FD_SETSIZE)
@@ -420,12 +420,12 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		return NO;	// don't wait - we have no watchers
 		}
 
-	// CHECKME: should we introduce sepatate watchers for exceptions?
+	// CHECKME: should we introduce separate watchers for exceptions?
 	
 	exception_fds = read_fds;			// the file descriptors in _FDS.
 	
 	if([NSNotificationQueue _runLoopMore])			// Detect if the NSRunLoop
-		{											// is idle, and if needed
+		{ // is idle, and if needed
 		timeout.tv_sec = 0;							// dispatch notifications
 		timeout.tv_usec = 0;						// from NSNotificationQue's
 		select_timeout = &timeout;					// idle queue?
@@ -437,10 +437,10 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 #endif
 	if(select_return < 0)
 		{
-		if(errno == EINTR)							// a signal was caught - handle like Idle Mode
+		if(errno == EINTR)	// a signal was caught - handle like Idle Mode
 			select_return = 0;
-		else										// Some kind of exceptional
-			{										// condition has occurred
+		else	// Some kind of exceptional condition has occurred
+			{
 			perror("NSRunLoop acceptInputForMode:beforeDate: during select()");
 			abort();
 			}

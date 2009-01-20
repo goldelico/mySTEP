@@ -32,7 +32,7 @@
 + (id) commentWithStringValue:(NSString *) value; { NSXMLNode *n=[[[self alloc] initWithKind:NSXMLCommentKind] autorelease]; [n setStringValue:value]; return n; }
 + (id) DTDNodeWithXMLString:(NSString *) str; { NSXMLNode *n=[[[self alloc] initWithKind:NSXMLDTDKind] autorelease]; [n setStringValue:str]; return n; }
 + (id) document; { return [[[NSXMLDocument alloc] initWithKind:NSXMLDocumentKind] autorelease]; }
-+ (id) documentWithRootElement:(NSXMLElement *) ele; { NSXMLDocument *n=[[[NSXMLDocument alloc] initWithKind:NSXMLDocumentKind] autorelease]; [n addChild:ele]; return n; }
++ (id) documentWithRootElement:(NSXMLElement *) ele; { return [[[NSXMLDocument alloc] initWithRootElement:ele] autorelease]; }
 + (id) elementWithName:(NSString *) name; { return [[[NSXMLElement alloc] initWithName:name] autorelease]; }
 + (id) elementWithName:(NSString *) name URI:(NSString *) uri; { return [[[NSXMLElement alloc] initWithName:name URI:uri] autorelease]; }
 + (id) elementWithName:(NSString *) name stringValue:(NSString *) value; { return [[[NSXMLElement alloc] initWithName:name stringValue:value] autorelease]; }
@@ -113,7 +113,7 @@
 			case NSXMLInvalidKind:
 				break;
 			case NSXMLDocumentKind:
-				break;
+				return [NSString stringWithFormat:@"<?xml UTF-8>\n%@\n%@", [[(NSXMLDocument *) self DTD] XMLStringWithOptions:opts], [[(NSXMLDocument *) self rootElement] XMLStringWithOptions:opts]];
 			case NSXMLElementKind:
 				if([_children count])
 					return [NSString stringWithFormat:@"<%@ %@>%@</%@>", _name, [(NSXMLElement *) self attributes], [self children], _name];

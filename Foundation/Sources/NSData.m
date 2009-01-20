@@ -1334,7 +1334,7 @@ void* b;
 			}
 		}
 	else if ((c = fread(bytes, 1, length, f)) != length) 
-		{ // we know the length; read in one full junk
+		{ // we know the length; read in one full chunk
 		fclose(f);
 		objc_free(bytes);
 		return GSError(self, @"Fread of file %@ failed - %s", path, strerror(errno));

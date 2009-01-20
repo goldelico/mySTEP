@@ -215,17 +215,17 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	if([_inputStream getBuffer:&buffer length:&ulen])
 		return [NSData dataWithBytes:buffer length:MIN(ulen, length)];	// buffer is directly available
 	do
-		{ // read in junks and enlarge buffer if required
+		{ // read in chunks and enlarge buffer if required
 		if(bufpos == 0)
 			buffer=objc_malloc(bufpos+FRAGMENT);
 		else
-			buffer=objc_realloc(buffer, bufpos+FRAGMENT);	// make enough room for next junk
+			buffer=objc_realloc(buffer, bufpos+FRAGMENT);	// make enough room for next chunk
 		if(!buffer)
 			return nil;	// we can't allocate a buffer
 #if 0
 		NSLog(@"bufsize=%u read length=%u", bufpos+FRAGMENT, MIN(length, FRAGMENT));
 #endif
-		len=[_inputStream read:buffer+bufpos maxLength:MIN(length, FRAGMENT)];	// fetch as much as possible but still in junks
+		len=[_inputStream read:buffer+bufpos maxLength:MIN(length, FRAGMENT)];	// fetch as much as possible but still in chunks
 #if 0
 		NSLog(@"returned length=%u err=%s", len, strerror(errno));
 #endif

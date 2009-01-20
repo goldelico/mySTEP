@@ -32,6 +32,7 @@
 
 - (void) cancel;
 - (id) initWithRequest:(NSURLRequest *) request delegate:(id) delegate;
+- (id) initWithRequest:(NSURLRequest *) request delegate:(id) delegate startImmediately:(BOOL) flag;
 - (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
 - (void) start;
 - (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;

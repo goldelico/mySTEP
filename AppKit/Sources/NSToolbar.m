@@ -12,6 +12,7 @@
 #import "AppKit/NSToolbar.h"
 #import "AppKit/NSToolbarItem.h"
 #import "AppKit/NSToolbarItemGroup.h"
+#import "AppKit/NSView.h"
 #import "NSAppKitPrivate.h"
 
 @implementation NSToolbar
@@ -261,7 +262,7 @@ static NSMapTable *_toolbars;
 - (SEL) action; { return _action; }
 - (BOOL) allowsDuplicatesInToolbar; { return _allowsDuplicatesInToolbar; } 
 - (BOOL) autovalidates; { return _autovalidates; }
-- (NSImage *) image; { return _image; }
+- (NSImage *) image; { return [_view respondToSelector:_cmd]?[_view image]:_image; }
 
 - (id) initWithItemIdentifier:(NSString *) itemId; 
 {
@@ -319,19 +320,19 @@ static NSMapTable *_toolbars;
 - (NSMenuItem *) menuFormRepresentation; { return _menuFormRepresentation; }
 - (NSSize) minSize; { return _minSize; }
 - (NSString *) paletteLabel; { return _paletteLabel; }
-- (void) setAction:(SEL) sel; { if(!_builtin) _action=sel; }
+- (void) setAction:(SEL) sel; { if(!_builtin) _action=sel; }	// should we forward to the _view?
 - (void) setAutovalidates:(BOOL) flag; { _autovalidates=flag; }
-- (void) setEnabled:(BOOL) flag; { _isEnabled=flag; }
-- (void) setImage:(NSImage *) img; { if(!_builtin) ASSIGN(_image, img); }
-- (void) setLabel:(NSString *) str; { if(!_builtin) ASSIGN(_label, str); }
+- (void) setEnabled:(BOOL) flag; { _isEnabled=flag; }	// should we forward to the _view?
+- (void) setImage:(NSImage *) img; { if(!_builtin) { if([_view respondToSelector:_cmd]) [_view setImage:img]; else ASSIGN(_image, img); } }
+- (void) setLabel:(NSString *) str; { if(!_builtin) ASSIGN(_label, str); }	// should we forward to the _view?
 - (void) setMaxSize:(NSSize) size; { if(!_builtin) _maxSize=size; }
 - (void) setMenuFormRepresentation:(NSMenuItem *) item; { NIMP; }
 - (void) setMinSize:(NSSize) size; { if(!_builtin) _minSize=size; }
 - (void) setPaletteLabel:(NSString *) label; { if(!_builtin) ASSIGN(_paletteLabel, label); }
-- (void) setTag:(NSInteger) tag; { _tag=tag; }
-- (void) setTarget:(id) target; { if(!_builtin) _target=target; }
+- (void) setTag:(NSInteger) tag; { _tag=tag; }	// should we forward to the _view?
+- (void) setTarget:(id) target; { if(!_builtin) _target=target; }	// should we forward to the _view?
 - (void) _setToolbar:(NSToolbar *) view; { _toolbar=view; }
-- (void) setToolTip:(NSString *) toolTip; { ASSIGN(_toolTip, toolTip); }
+- (void) setToolTip:(NSString *) toolTip; { ASSIGN(_toolTip, toolTip); }	// should we forward to the _view?
 - (void) setView:(NSView *) view; { if(!_builtin) ASSIGN(_view, view); }
 - (void) setVisibilityPriority:(NSInteger) priority; { _visibilityPriority=priority; }
 - (NSInteger) tag; { return _tag; }

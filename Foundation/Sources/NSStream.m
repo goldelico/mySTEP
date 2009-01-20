@@ -170,7 +170,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@(%p) fd=%d", NSStringFromClass(isa), self, _fd];
+	return [NSString stringWithFormat:@"%@(%p) fd=%d status=%d", NSStringFromClass(isa), self, _fd, _streamStatus];
 }
 
 - (id) initWithData:(NSData *) data
@@ -182,8 +182,10 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (void) close;
 {
 	if(_streamStatus != NSStreamStatusClosed)
-		close(_fd);
-	_streamStatus=NSStreamStatusClosed;
+			{
+				close(_fd);
+				_fd=-1;
+			}
 	[super close];
 }
 
@@ -254,13 +256,16 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (void) open
 {
+#if 1
+	NSLog(@"open %@", self);
+#endif
 	if(_streamStatus != NSStreamStatusNotOpen)
 		{
 		[self _sendErrorWithDomain:@"already open" code:0];
 		return;
 		}
 	if([_output streamStatus] == NSStreamStatusNotOpen)
-		[_output open];	// open write stream
+		[_output open];	// open connected write stream
 	//	_streamStatus=NSStreamStatusOpening;
 	// listen(destination, 128);
 	[super open];
@@ -391,10 +396,10 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@(%p) fd=%d", NSStringFromClass(isa), self, _fd];
+	return [NSString stringWithFormat:@"%@(%p) fd=%d status=%d", NSStringFromClass(isa), self, _fd, _streamStatus];
 }
 
-- (int) _writeFileDescriptor; { return _fd; }
+- (int) _writeFileDescriptor; { NSLog(@"writefd=%d", _fd); return _fd; }
 
 - (id) initToFileAtPath:(NSString *) path append:(BOOL) flag
 {
@@ -416,12 +421,14 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (void) close;
 {
 	if(_streamStatus != NSStreamStatusClosed)
-		close(_fd);
-	_streamStatus=NSStreamStatusClosed;
+			{
+				close(_fd);
+				_fd=-1;
+			}
 	[super close];
 }
 
-- (BOOL) hasSpaceAvailable; { return YES; }	// how to check?
+- (BOOL) hasSpaceAvailable; { return _streamStatus != NSStreamStatusClosed; }	// how to check?
 
 - (int) write:(const unsigned char *) buffer maxLength:(unsigned int) len;
 {
@@ -458,9 +465,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (BOOL) setProperty:(id) property forKey:(NSString *) key
 {
 	if([key isEqualToString:NSStreamFileCurrentOffsetKey])
-		{
 		return lseek(_fd, [property unsignedLongValue], SEEK_SET) >= 0;
-		}
 	return NO;
 }
 
@@ -553,7 +558,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	return [super setProperty:property forKey:key];
 }
 
-- (void) _setHost:(NSHost *) host andPort:(int) port;
+- (void) _setHost:(NSHost *) host andPort:(int) port;	// called from getStreamsToHost:port:
 {
 	_host=[host retain];
 	_port=port;
@@ -570,8 +575,14 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	static BOOL sslInitialized=NO;
 	struct sockaddr_in _addr;
 	socklen_t addrlen=sizeof(_addr);
+#if 1
+	NSLog(@"open %@", self);
+#endif
 	if(_streamStatus != NSStreamStatusNotOpen)
 		{
+#if 1
+			NSLog(@"status %d for %@", _streamStatus, self);
+#endif
 		[self _sendErrorWithDomain:@"already open" code:0];
 		return;
 		}
@@ -601,8 +612,9 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	if(_securityLevel && ![_securityLevel isEqualToString:NSStreamSocketSecurityLevelNone])
 		{
 		SSL_METHOD *method;
+			// lock
 		if(!sslInitialized)
-			{
+			{ // initialize ssl library
 			SSL_library_init();
 			if (![[NSFileManager defaultManager] fileExistsAtPath: @"/dev/urandom"])
 				{ // If there is no /dev/urandom for ssl to use, we must seed the random number generator ourselves.
@@ -611,6 +623,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 				}
 			sslInitialized=YES;
 			}
+			// unlock
 		if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelSSLv2])
 			method=SSLv2_client_method();
 		else if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelSSLv3])
@@ -656,6 +669,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (void) _writeFileDescriptorReady
 {
+	// FIXME: handle ssl connection setup
 	if(_streamStatus == NSStreamStatusOpening)
 		{ // connect successfull
 		// [super open]?

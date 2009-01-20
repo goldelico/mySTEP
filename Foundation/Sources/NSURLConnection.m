@@ -107,7 +107,7 @@
 #if 0
 	NSLog(@"NSURLConnection connectionWithRequest:%@", request);
 #endif
-	return [[[self alloc] initWithRequest:request delegate:delegate] autorelease];
+	return [[[self alloc] initWithRequest:request delegate:delegate startImmediately:YES] autorelease];
 }
 
 + (NSData *) sendSynchronousRequest:(NSURLRequest *) request returningResponse:(NSURLResponse **) response error:(NSError **) error;
@@ -122,6 +122,11 @@
 
 - (id) initWithRequest:(NSURLRequest *) request delegate:(id) delegate;
 {
+	return [self initWithRequest:request delegate:delegate startImmediately:YES];
+}
+
+- (id) initWithRequest:(NSURLRequest *) request delegate:(id) delegate startImmediately:(BOOL) flag;
+{
 	self=[super init];
 #if 0
 	NSLog(@"%@ initWithRequest:%@ delegate:%@", self, request, delegate);
@@ -133,7 +138,8 @@
 #if 0
 		NSLog(@"  -> protocol %@", _protocol);
 #endif
-		[_protocol startLoading];
+			if(flag)
+				[self start];	// and start loading
 		}
 	return self;
 }
@@ -149,7 +155,22 @@
 	[_protocol stopLoading];
 }
 
-// notification handlers just forward
+- (void) start;
+{ // start loading
+	[_protocol startLoading];
+}
+
+- (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
+{
+	[_protocol scheduleInRunLoop:runLoop forMode:mode];
+}
+
+- (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
+{
+	[_protocol unscheduleFromRunLoop:runLoop forMode:mode];
+}
+
+// notification handlers just forward those our client wants to know
 
 - (void) URLProtocol:(NSURLProtocol *) proto cachedResponseIsValid:(NSCachedURLResponse *) resp;
 {
@@ -196,3 +217,17 @@
 }
 
 @end
+
+@implementation NSObject (NSURLConnectionDelegate)
+
+- (void) connection:(NSURLConnection *) conn didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *) challenge; { return; }
+- (void) connection:(NSURLConnection *) conn didFailWithError:(NSError *) error; { NIMP; }
+- (void) connection:(NSURLConnection *) conn didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *) challenge; { return; }
+- (void) connection:(NSURLConnection *) conn didReceiveData:(NSData *) data; { NIMP; }
+- (void) connection:(NSURLConnection *) conn didReceiveResponse:(NSURLResponse *) resp; { NIMP; }
+- (NSCachedURLResponse *) connection:(NSURLConnection *) conn willCacheResponse:(NSCachedURLResponse *) resp; { return resp; }
+- (NSURLRequest *) connection:(NSURLConnection *) conn willSendRequest:(NSURLRequest *) req redirectResponse:(NSURLResponse *) resp; { return req; }
+- (void) connectionDidFinishLoading:(NSURLConnection *) conn; { return; }
+
+@end
+

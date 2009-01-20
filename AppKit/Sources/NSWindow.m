@@ -333,6 +333,7 @@ static BOOL __cursorHidden = NO;
 - (NSButton *) documentIcon; { return [sub_views count] > 3?[sub_views objectAtIndex:3]:nil; }
 - (NSView *) contentView; { return [sub_views count] > 4?[sub_views objectAtIndex:4]:nil; }
 - (NSToolbarView *) toolbarView; { return [sub_views count] > 6?[sub_views objectAtIndex:6]:nil; }
+- (NSMenuView *) windowMenuView; { return nil; }	// if we have a horizontal menu inside the window
 - (NSToolbar *) toolbar; { return [sub_views count] > 6?[[sub_views objectAtIndex:6] toolbar]:nil; }
 
 - (void) layout;
@@ -342,6 +343,17 @@ static BOOL __cursorHidden = NO;
 	_height=[NSWindow _titleBarHeightForStyleMask:_style];
 	f.origin.y+=_height;		// add room for buttons
 	f.size.height-=_height;
+	if([_window canBecomeMainWindow] && [self menu])
+			{ // has a window menu
+				NSMenuView *mv=[self windowMenuView];
+				float height=[mv frame].size.height;
+				NSRect tf=f;
+				f.origin.y+=height;
+				f.size.height-=height;	// make room for menu
+				tf.size.height=height;
+				[mv setFrame:tf];					// adjust menu view
+				[mv setNeedsDisplay:YES];	// needs redraw
+			}
 	if([sub_views count] >= 7)
 		{ // has a toolbar
 			NSToolbarView *tv=[self toolbarView];
@@ -367,12 +379,6 @@ static BOOL __cursorHidden = NO;
 	_didSetShape=NO;	// and reset shape
 }
 
-- (void) resizeSubviewsWithOldSize:(NSSize)oldSize
-{
-	if(!NSEqualSizes(oldSize, _frame.size))
-		[self layout];	// resize so that the content view matches our current size
-}
-
 - (void) viewWillMoveToWindow:(NSWindow *) win;
 {
 	if(win)
@@ -395,6 +401,19 @@ static BOOL __cursorHidden = NO;
 #if 0
 	NSLog(@"self=%@", [self _descriptionWithSubviews]);
 #endif	
+}
+
+- (NSMenu *) menu { return [[self windowMenuView] menu]; }	// current window menu
+
+- (void) setMenu:(NSMenu *) menu
+{
+	if(menu && ![self windowMenuView])
+		; // allocate/deallocate a horizontal NSMenuView (subview)
+	else if(!menu && [self windowMenuView])
+		[[self windowMenuView] removeFromSuperviewWithoutNeedingDisplay];
+	else
+		[[self windowMenuView] setMenu:menu];	// just update menu
+	[self layout];	// update layout
 }
 
 - (void) setToolbar:(NSToolbar *) toolbar;
@@ -1770,7 +1789,8 @@ static NSButtonCell *sharedCell;
 	if(!NSEqualSizes(rect.size, _frame.size))
 		{ // needs to resize content view
 		_frame=rect;
-		[(NSThemeFrame *) _themeFrame setFrameSize:rect.size];	// adjust theme frame subviews and content View
+			[(NSThemeFrame *) _themeFrame setFrameSize:rect.size];	// adjust theme frame subviews and content View
+			[(NSThemeFrame *) _themeFrame layout];
 		}
 	else
 		{
@@ -2917,6 +2937,11 @@ id prev;
 
 - (void) setOpaque:(BOOL) flag; { _w.isOpaque=flag; }
 - (BOOL) isOpaque; { return _w.isOpaque; }
+
+// horizontal menu within the window frame (above the toolbar)
+
+- (void) setMenu:(NSMenu *) menu { [(NSThemeFrame *) _themeFrame setMenu:menu]; }
+- (NSMenu *) menu; { return [(NSThemeFrame *) _themeFrame menu]; }
 
 - (void) setToolbar:(NSToolbar *) toolbar;
 {

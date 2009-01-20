@@ -22,6 +22,15 @@ enum
 	NSXMLDocumentTextKind = 3
 };
 
+enum
+{
+	NSXMLDocumentTidyHTML												= 1 << 9,
+	NSXMLDocumentTidyXML												= 1 << 10,
+	NSXMLDocumentValidate												= 1 << 13,
+	NSXMLDocumentXInclude												= 1 << 16,
+	NSXMLDocumentIncludeContentTypeDeclaration	= 1 << 18
+};
+
 typedef NSUInteger NSXMLDocumentContentKind;
 
 @interface NSXMLDocument : NSXMLNode
@@ -29,10 +38,9 @@ typedef NSUInteger NSXMLDocumentContentKind;
 	NSString *_characterEncoding;
 	NSXMLDTD *_DTD;
 	NSString *_MIMEType;
-	NSXMLElement *_rootElement;
 	NSString *_version;
-	BOOL _isStandalone;
 	NSXMLDocumentContentKind _documentContentKind;
+	BOOL _isStandalone;
 }
 
 + (Class) replacementClassForClass:(Class) class;

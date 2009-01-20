@@ -50,23 +50,20 @@ endif
 .PHONY:	clean build build_architecture
 
 ifeq ($(ARCHITECTURES),)	# set default architectures
-ARCHITECTURES=mipsel-letux_400-linux-gnu
-# arm-zaurus-linux-gnu # i386-debian-linux-gnu # arm-GTA02-linux-gnueabi
-# fetch as (cd /models; echo *)
+ARCHITECTURES=$(shell cd $(ROOT)/this/xgcc && echo *-*-*)
 endif
 
-## FIXME: we need a better scheme to locate platform/model specific (cross)compilers and binaries
-## several models may share the same architecture
-## but they may differ in the linux headers/glibc version
+ifeq ($(ARCHITECTURE),)	# set default
+ARCHITECTURE:=arm-quantumstep-linux-gnu
+endif
 
 # tools
-ifeq ($(ARCHITECTURE),arm-quantumstep-darwin)
+# use platform specific cross-compiler
+ifeq ($(ARCHITECTURE),arm-iPhone-darwin)
 TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 else
-TOOLCHAIN := $(ROOT)/models/$(ARCHITECTURE)
-# TOOLCHAIN := /Volumes/CaseSensitive/Developer/Xtoolchain/usr/gcc-3.4.6-glibc-2.3.6/mipsel-quantumstep-linux-gnu
-# TOOLCHAIN := /Developer/Xtoolchain2/native/usr/gcc-3.4.6-glibc-2.3.6/linux-gnu-2.4.20/$(ARCHITECTURE)/$(ARCHITECTURE)
+TOOLCHAIN := $(ROOT)/this/xgcc/$(ARCHITECTURE)/$(ARCHITECTURE)
 CC := $(TOOLCHAIN)/bin/gcc
 endif
 LS := $(TOOLCHAIN)/bin/ld
@@ -75,6 +72,7 @@ NM := $(TOOLCHAIN)/bin/nm
 STRIP := $(TOOLCHAIN)/bin/strip
 TAR := tar
 # TAR := $(TOOLS)/gnutar-1.13.25	# use older tar that does not know about ._ resource files
+# TAR := $(ROOT)/this/bin/gnutar
 
 # define CONTENTS subdirectory as expected by the Foundation library
 
@@ -126,10 +124,6 @@ endif
 
 ifeq ($(EMBEDDED_ROOT),)
 EMBEDDED_ROOT:=/usr/share/QuantumSTEP
-endif
-
-ifeq ($(ARCHITECTURE),)	# set default
-ARCHITECTURE:=arm-quantumstep-linux-gnu
 endif
 
 # override if (stripped) package is build using xcodebuild
@@ -189,12 +183,11 @@ endif
 endif
 
 LIBRARIES := \
-		-L$(TOOLCHAIN)/../lib/gcc-lib/$(ARCHITECTURE)/2.95.3/lib \
 		-L$(TOOLCHAIN)/lib \
 		-L$(ROOT)/usr/lib \
-		-L$(ROOT)/usr/lib/$(ARCHITECTURE) \
 		-Wl,-rpath-link,$(ROOT)/usr/lib \
-		-Wl,-rpath-link,$(ROOT)/usr/lib/$(ARCHITECTURE) \
+		-L$(ROOT)/$(ARCHITECTURE)/usr/lib \
+		-Wl,-rpath-link,$(ROOT)/$(ARCHITECTURE)/usr/lib \
 		-L$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		-L$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
@@ -267,8 +260,8 @@ endif
 	
 install_tool:
 ifneq ($(INSTALL),false)
-ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)/models/$(ARCHITECTURE)/$(INSTALL_PATH)
-		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/models/$(ARCHITECTURE)/$(INSTALL_PATH)'; cd '$(ROOT)/models/$(ARCHITECTURE)/$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)
+		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)'; cd '$(ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 else	# app bundle
 		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)'; cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 endif
