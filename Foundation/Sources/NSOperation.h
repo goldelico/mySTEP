@@ -10,7 +10,7 @@
 
 #import <Foundation/NSObject.h>
 
-@class NSArray;
+@class NSArray, NSMutableArray, NSOperationQueue, NSInvocation;
 
 typedef NSInteger NSOperationQueuePriority;
 
@@ -23,9 +23,16 @@ enum
 	NSOperationQueuePriorityVeryHigh = 8
 };
 
+@class NSOperationQueue;
+
 @interface NSOperation : NSObject
 {
-	
+	NSMutableArray *_dependencies;
+	NSOperationQueuePriority _queuePriority;
+	NSOperationQueue *_queue;
+	BOOL _isCancelled;
+	BOOL _isExecuting;
+	BOOL _isFinished;
 }
 
 - (void) addDependency:(NSOperation *) op;
@@ -52,7 +59,9 @@ enum
 
 @interface NSOperationQueue : NSObject
 {
-	
+	NSMutableArray *_operations;
+	NSInteger _maxConcurrentOperationCount;
+	BOOL _isSuspended;
 }
 
 - (void) addOperation:(NSOperation *) op;
@@ -69,9 +78,9 @@ enum
 extern NSString * const NSInvocationOperationVoidResultException;
 extern NSString * const NSInvocationOperationCancelledException;
 
-@interface NSInvocationOperation : NSObject
+@interface NSInvocationOperation : NSOperation
 {
-	
+	NSInvocation *_invocation;
 }
 
 - (id) initWithInvocation:(NSInvocation *) invocation;
