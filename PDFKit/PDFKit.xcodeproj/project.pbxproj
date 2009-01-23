@@ -13,6 +13,7 @@
 		EE31789B0944DD52008B03D1 /* PDFObject.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3178980944DD52008B03D1 /* PDFObject.m */; };
 		EE31789C0944DD52008B03D1 /* PDFParser.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3178990944DD52008B03D1 /* PDFParser.m */; };
 		EE31789D0944DD52008B03D1 /* PDFStream.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31789A0944DD52008B03D1 /* PDFStream.m */; };
+		EE78C5420F29B34100CEFE54 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE78C5410F29B34100CEFE54 /* MainMenu.nib */; };
 		EE8F5C5D092F793200648BBF /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		EE8F5C7C092F79AD00648BBF /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE8F5C7B092F79AD00648BBF /* Quartz.framework */; };
 		EEE2DE500924F3E80082927B /* PDFView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE2DE4E0924F3E80082927B /* PDFView.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -34,7 +35,6 @@
 		EEF8C0C80924EBAE00767EF8 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		EEF8C1E90924EBB600767EF8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
 		EEF8C1EA0924EBB600767EF8 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97324FDCFA39411CA2CEA /* AppKit.framework */; };
-		EEF8C2020924EC8C00767EF8 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEF8C2010924EC8C00767EF8 /* MainMenu.nib */; };
 		EEF8C2080924ECB400767EF8 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF8C2070924ECB400767EF8 /* AppController.m */; };
 		EEF8C22B0924F21800767EF8 /* PDFKitPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = EEF8BF85092282D500767EF8 /* PDFKitPrivate.h */; settings = {ATTRIBUTES = (); }; };
 		EEFB6F8E092CDEBE00224E4E /* PDFAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EEFB6F8C092CDEBE00224E4E /* PDFAnnotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -106,7 +106,7 @@
 		EEF8C0000923E35F00767EF8 /* PDFOutline.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFOutline.m; sourceTree = "<group>"; };
 		EEF8C0C40924EB9300767EF8 /* PDFTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDFTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEF8C0C60924EB9300767EF8 /* PDFTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PDFTest-Info.plist"; sourceTree = "<group>"; };
-		EEF8C2010924EC8C00767EF8 /* MainMenu.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = MainMenu.nib; sourceTree = "<group>"; };
+		EEF8C2010924EC8C00767EF8 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		EEF8C2060924ECB400767EF8 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
 		EEF8C2070924ECB400767EF8 /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppController.m; sourceTree = "<group>"; };
 		EEFB6F8C092CDEBE00224E4E /* PDFAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFAnnotation.h; sourceTree = "<group>"; };
@@ -278,7 +278,7 @@
 			isa = PBXGroup;
 			children = (
 				EEF8C0C60924EB9300767EF8 /* PDFTest-Info.plist */,
-				EEF8C2010924EC8C00767EF8 /* MainMenu.nib */,
+				EE78C5410F29B34100CEFE54 /* MainMenu.nib */,
 				EEF8C2060924ECB400767EF8 /* AppController.h */,
 				EEF8C2070924ECB400767EF8 /* AppController.m */,
 			);
@@ -438,7 +438,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEF8C2020924EC8C00767EF8 /* MainMenu.nib in Resources */,
+				EE78C5420F29B34100CEFE54 /* MainMenu.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -523,6 +523,17 @@
 			targetProxy = EEF0B903094603BD0012D17E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		EE78C5410F29B34100CEFE54 /* MainMenu.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EEF8C2010924EC8C00767EF8 /* English */,
+			);
+			name = MainMenu.nib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		EED61B0109D5B06500F2B623 /* Development */ = {
