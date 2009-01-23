@@ -906,6 +906,8 @@
 				EEA32F4F09537D0D001244CF /* NSThread.m */,
 				EEA32F1B09537D0D001244CF /* NSLock.h */,
 				EEA32F1C09537D0D001244CF /* NSLock.m */,
+				EE2114F80CDF568D0062A8AD /* NSOperation.h */,
+				EE2114F90CDF568D0062A8AD /* NSOperation.m */,
 			);
 			name = "Process & Threads";
 			sourceTree = "<group>";
@@ -929,8 +931,6 @@
 				EEA32F3E09537D0D001244CF /* NSRunLoop.m */,
 				EEA32F5009537D0D001244CF /* NSTimer.h */,
 				EEA32F5109537D0D001244CF /* NSTimer.m */,
-				EE2114F80CDF568D0062A8AD /* NSOperation.h */,
-				EE2114F90CDF568D0062A8AD /* NSOperation.m */,
 			);
 			name = "Runloop & Timers";
 			sourceTree = "<group>";
