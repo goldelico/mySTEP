@@ -905,8 +905,8 @@
 
 + (void) popUpContextMenu:(NSMenu *) menu withEvent:(NSEvent *) event forView:(NSView *) view withFont:(NSFont *) font;
 {
-	NSPanel *win;
-	NSMenuView *menuView;
+	static NSPanel *win;
+	static NSMenuView *menuView;
 	NSRect r;
 	int item;	// item to pop up when scrolling
 #if 1
@@ -919,25 +919,28 @@
 	if(!menu || !event || !view)
 		return;
 //	[menu update];					// enable/disable menu items
-	win=[[[NSPanel alloc] initWithContentRect:NSMakeRect(49.0, 49.0, 49.0, 49.0)	// some initial position
+	if(!win)
+			{
+				win=[[NSPanel alloc] initWithContentRect:NSMakeRect(49.0, 49.0, 49.0, 49.0)	// some initial position
 									styleMask:NSBorderlessWindowMask
 									  backing:NSBackingStoreBuffered
-										defer:YES] retain];	// will be released on close
-	[win setWorksWhenModal:YES];
-	[win setLevel:NSSubmenuWindowLevel];
+										defer:YES];
+				[win setWorksWhenModal:YES];
+				[win setLevel:NSSubmenuWindowLevel];
 #if 0
-	[win setTitle:@"Context Menu"];
+				[win setTitle:@"Context Menu"];
 #endif
-	menuView=[[[NSMenuView class] alloc] initWithFrame:[[win contentView] frame]];	// make new NSMenuView
-	[menuView setFont:font];		// set default font
-	[menuView setHorizontal:NO];	// make popup menu vertical
-	[menuView _setContextMenu:YES];	// close on mouseUp
+				menuView=[[[NSMenuView class] alloc] initWithFrame:[[win contentView] frame]];	// make new NSMenuView
+				[menuView setFont:font];		// set default font
+				[menuView setHorizontal:NO];	// make popup menu vertical
+				[menuView _setContextMenu:YES];	// close on mouseUp
+				[[win contentView] addSubview:menuView];	// add to view hiearachy
+			}
 	[menuView setMenu:menu];		// define to manage selected menu
 #if 0
 	NSLog(@"win=%@", win);
 	NSLog(@"autodisplay=%d", [win isAutodisplay]);
 #endif
-	[[win contentView] addSubview:menuView];	// add to view hiearachy
 	r.origin=[[view window] convertBaseToScreen:[event locationInWindow]];	// to screen coordinates
 	r.size=NSMakeSize(1.0, 1.0);
 #if 1
@@ -955,7 +958,7 @@
 							 popUpSelectedItem:item];
 	[win orderFront:self];		// make visible
 	[menuView mouseDown:event];	// pass event down - runs a tracking loop
-	[win close];	// and close again
+	[win orderOut:nil];	// and close after tracking ends
 }
 
 @end

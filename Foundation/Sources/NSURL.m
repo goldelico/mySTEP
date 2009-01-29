@@ -79,7 +79,7 @@ typedef struct {
 } parsedURL;
 
 #define	myData ((parsedURL*)(self->_data))
-#define	baseData ((self->_baseURL == 0)?0:((parsedURL*)(self->_baseURL->_data)))
+#define	baseData ((parsedURL*)(self->_baseURL->_data))
 
 static NSLock	*clientsLock = nil;
 
@@ -324,7 +324,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize)
 		{
 		*ptr++ = '#';
 		strcpy(ptr, rel->fragment);
-		ptr = &ptr[strlen(ptr)];
+//		ptr = &ptr[strlen(ptr)];	// last fragment
 		}
 	
 	return buf;
@@ -647,7 +647,7 @@ static void unescape(const char *from, char * to)
 	NS_DURING
 		{
 			parsedURL	*buf;
-			parsedURL	*base = baseData;
+			parsedURL	*base = _baseURL?(parsedURL*)(_baseURL->_data):NULL;
 			unsigned	size = [_urlString cStringLength];
 			char	*end;
 			char	*start;
@@ -662,7 +662,7 @@ static void unescape(const char *from, char * to)
 
 			buf = _data = (parsedURL *) objc_malloc(size);	// allocate space for parsedURL header plus the cString
 			memset(buf, '\0', size);
-			start = end = ptr = (char*)&buf[1];
+			start = end = (char*)&buf[1];
 			[_urlString getCString:start];			// get the cString and store behind the parsedURL header
 #if 0
 			NSLog(@"NSURL [length]=%d len=%d size=%d buf=%p", [_urlString length], [_urlString cStringLength], size, buf);
@@ -696,7 +696,7 @@ static void unescape(const char *from, char * to)
 							*ptr = tolower(*ptr);
 							}
 						}
-					if (base != 0 && base->scheme != 0
+					if (base != NULL && base->scheme != 0
 						&& strcmp(base->scheme, buf->scheme) != 0)
 						{
 						[NSException raise: NSGenericException format:
@@ -706,7 +706,7 @@ static void unescape(const char *from, char * to)
 				}
 			start = end;
 			
-			if (buf->scheme == 0 && base != 0)
+			if (buf->scheme == 0 && base != NULL)
 				{
 				buf->scheme = base->scheme;
 				}
@@ -740,14 +740,14 @@ static void unescape(const char *from, char * to)
 				if (start[0] == '/' && start[1] == '/')
 					{
 					buf->isGeneric = YES;
-					start = end = &end[2];
+					start = &end[2];
 					
 					/*
 					 * Set 'end' to point to the start of the path, or just past
 					 * the 'authority' if there is no path.
 					 */
 					end = strchr(start, '/');
-					if (end == 0)
+					if (!end)
 						{
 						buf->hasNoPath = YES;
 						end = &start[strlen(start)];
@@ -1219,6 +1219,7 @@ static void unescape(const char *from, char * to)
 	
 	if (myData->password != 0)
 		{
+			// FIXME: Stack overflow???
 		char	buf[strlen(myData->password)+1];
 		
 		unescape(myData->password, buf);

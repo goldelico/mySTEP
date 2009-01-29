@@ -92,10 +92,9 @@ NSString *const NSHTTPPropertyErrorPageDataKey=@"HTTPPropertyErrorPageData";
 {
 	if((self=[super init]))
 		{
-		NSMutableURLRequest *request=[[NSMutableURLRequest alloc] requestWithURL:url cachePolicy:cached?NSURLRequestUseProtocolCachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30.0];
+		NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:url cachePolicy:cached?NSURLRequestUseProtocolCachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30.0];
 		_expectedDataLength=-1;	// not yet known
 		_protocol=[[NSURLProtocol alloc] initWithRequest:request cachedResponse:nil client:(id <NSURLProtocolClient>) self];	// we will handle that
-		[request release];
 		}
 	return self;
 }

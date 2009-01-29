@@ -1,13 +1,16 @@
 
 #include <Foundation/NSString.h>
 #include <Foundation/NSException.h>
+#include <Foundation/NSLock.h>
+#include <Foundation/NSMapTable.h>
 
 //	Global lock to be used by classes when operating on any global
 //	data that invoke other methods which also access global; thus,
 //	creating the potential for deadlock.
 //
-NSRecursiveLock *mstep_global_lock = nil;
+NSRecursiveLock *__NSGlobalLock = nil;
 unsigned long __NSAllocatedObjects;		// counter for object allocation
+NSMapTable *__NSAllocationCountTable;	// maps class records to allocation counters
 
 													// NSThread Notifications
 NSString *NSWillBecomeMultiThreadedNotification = @"NSWillBecomeMultiThreadedNotification";

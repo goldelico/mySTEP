@@ -1183,7 +1183,7 @@ This method is used for selecting cells in list mode with selection by
 	int clickCount = [event clickCount];
 	NSPoint location;	// location in view
 	BOOL inCell;		// initially in cell or in intercell spacing?
-	id aCell;			// selected cell
+	id aCell=nil;			// selected cell
 	int row, column;	// row/col of selected cell
 	NSRect rect;		// rect of selected cell
 	id previousCell = nil;			// previous cell during ListMode
@@ -1254,7 +1254,7 @@ This method is used for selecting cells in list mode with selection by
 				case NSListModeMatrix:
 					{ // List mode allows multiple cells to be selected/deselected (as used in NSBrowser)
 						unsigned modifiers = [event modifierFlags];
-						int state;
+						int state=NSOnState;	// default
 						// FIXME:
 						// wenn schon selektiert (ohne Shift) dann passiert gar nichts, v.a. wird nicht state=highlighted
 						// Alt-Click auf leere selection selektiert nicht nur den geclickten sondern auch den allerersten (Bug?)
@@ -1278,7 +1278,7 @@ This method is used for selecting cells in list mode with selection by
 								anchor = (MPoint){column, row};
 								}
 							}
-						if(aCell != previousCell)
+						else if(aCell != previousCell)
 							{ // extend/shrink selection							
 #if 1
 							NSLog(@"extend to (%d, %d)", row, column);

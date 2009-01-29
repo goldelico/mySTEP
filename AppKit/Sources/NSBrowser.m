@@ -421,13 +421,12 @@ NSScrollView *sc;
 
 - (void) setLastColumn:(int)column		
 { 
-	NSMatrix *matrix;
 #if 1
 	NSLog(@"NSBrowser setLastColumn: %d  count: %d \n", column, [_columns count]);
 #endif
 	if (column >= (int)[_columns count])
 		return;
-	if ((matrix = [[_columns objectAtIndex: column] documentView]))
+	if (([[_columns objectAtIndex: column] documentView]))
 		{
 		int i, count = [_columns count];
 

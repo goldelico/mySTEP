@@ -348,7 +348,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 			[self release];
 			return [c retain];	// use existing
 			}
-		else if((c=[isa _connectionWithReceivePort:sendPort sendPort:receivePort]))
+		else if(([isa _connectionWithReceivePort:sendPort sendPort:receivePort]))
 			{ // reverse direction exists
 #if 0
 			NSLog(@"NSConnection -init: reverse connection exists");

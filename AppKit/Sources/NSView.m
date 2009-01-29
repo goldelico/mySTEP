@@ -387,7 +387,7 @@ printing
 	if(!fstack)
 		{ // create focus stack
 		fstack=[[NSMutableArray alloc] initWithCapacity:3];
-		[context setFocusStack:fstack];
+		[context setFocusStack:fstack];	// does not retain!
 		}
 	[fstack addObject:self];
 #if 0
@@ -437,7 +437,7 @@ printing
 	if(!fstack)
 		{ // create focus stack
 		fstack=[[NSMutableArray alloc] initWithCapacity:3];
-		[context setFocusStack:fstack];
+		[context setFocusStack:fstack];	// does not retain!
 		}
 	[fstack addObject:self];
 }

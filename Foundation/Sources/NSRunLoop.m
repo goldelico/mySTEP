@@ -447,7 +447,12 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		}
 	
 	if(select_return == 0)
-		[NSNotificationQueue _runLoopIdle];			// dispatch pending notifications if we timeout (incl. task terminated)
+			{
+				[NSNotificationQueue _runLoopIdle];			// dispatch pending notifications if we timeout (incl. task terminated)
+#if 1
+				__NSPrintAllocationCount();
+#endif
+			}
 	else 
 		{ // Inspect all file descriptors where select() says they are ready, notify the respective object for each ready fd.
 		for (fd_index = 0; fd_index < FD_SETSIZE; fd_index++)

@@ -479,13 +479,13 @@ unsigned l = [self length];			// can be sure that we don't get a range
 		return NO;
 		}
 
-	if ((c = fclose(f)) != 0)					// close the file and deal with        
+	if ((fclose(f)) != 0)					// close the file and deal with        
 		{										// errors should they occur
 		NSLog(@"fclose (%s) failed - %s", p, strerror(errno));
 		return NO;
 		}								// If we used a temporary file, we need 
 										// to rename() it to be the real file
-	if (useAuxiliaryFile && ((c = rename(p, r)) != 0))
+	if (useAuxiliaryFile && (rename(p, r) != 0))
 		{
 		NSLog(@"rename (%s, %s) failed - %s", p, r, strerror(errno));
 		return NO;
@@ -1272,7 +1272,6 @@ void* b;
 {
 	const char *p;
 	FILE *f;
-	int c;
 	if(!path)
 		{ [self release]; return nil; }
 	p=[[NSFileManager defaultManager] fileSystemRepresentationWithPath:path];
@@ -1286,7 +1285,7 @@ void* b;
 		return nil; // does not exist
 		}
 	
-	if ((c = fseek(f, 0L, SEEK_END)) != 0)			// Seek to end of the file
+	if ((fseek(f, 0L, SEEK_END)) != 0)			// Seek to end of the file
 		{
 		fclose(f);
 
@@ -1303,7 +1302,7 @@ void* b;
     if ((bytes = objc_malloc(length)) == NULL) 
 		[NSException raise:NSMallocException format:@"malloc failed in NSData -initWithContentsOfFile:"];
 
-    if ((c = fseek(f, 0L, SEEK_SET)) != 0) 
+    if ((fseek(f, 0L, SEEK_SET)) != 0) 
 		{
 		fclose(f);
 		objc_free(bytes);
@@ -1319,6 +1318,7 @@ void* b;
 		 * from it ... so we try reading as much as we can.
 		 */
 		unsigned char buf[BUFSIZ];	// temporary buffer
+			int c;
 		while((c = fread(buf, 1, BUFSIZ, f)) != 0)
 			{
 			unsigned char *newBytes=objc_realloc(bytes, length+c);
@@ -1333,7 +1333,7 @@ void* b;
 			length += c;	// advance append pointer
 			}
 		}
-	else if ((c = fread(bytes, 1, length, f)) != length) 
+	else if ((fread(bytes, 1, length, f)) != length) 
 		{ // we know the length; read in one full chunk
 		fclose(f);
 		objc_free(bytes);
@@ -1798,10 +1798,11 @@ unsigned l;
 
 - (id) initWithContentsOfFile:(NSString *)path
 {
-    self = [self initWithCapacity: 0];
-    if ((self = [super initWithContentsOfFile:path]) != nil) 
-		capacity = length;
-
+    if ((self = [super initWithContentsOfFile:path]) != nil)
+				{
+					capacity = length;
+					growth = capacity / 2+1;
+				}
     return self;
 }
 

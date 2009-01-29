@@ -56,7 +56,7 @@
 				 [parser setShouldResolveExternalEntities:YES];
 				 */				 
 				if(![parser parse])
-						{ [parser release]; if(err) *err=[parser parserError]; [self release]; return nil; }
+						{ if(err) *err=[parser parserError]; [parser release]; [self release]; return nil; }
 				[parser release];
 				if((optsMask & NSXMLDocumentValidate) && ![self validateAndReturnError:err])
 						{ [self release]; return nil; }

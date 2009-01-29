@@ -687,6 +687,7 @@ NSNumberFormatter class
 										  options: 0
 											range: NSMakeRange(0, [intPartString length])];
 		}
+	[intPad release];
 	// fix the thousands separators up
 	if (displayThousandsSeparators && [intPartString length] > 3)
 		{

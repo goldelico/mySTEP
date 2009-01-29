@@ -251,7 +251,6 @@ _attributesAtIndexEffectiveRange( unsigned int index,
 		 effectiveRange:(NSRange *)aRange
 {
 	NSDictionary *tmpDictionary;
-	id attrValue;
 
 	tmpDictionary = [self attributesAtIndex:index effectiveRange:aRange];
 								// Raises exception if index is out of range
@@ -266,7 +265,7 @@ _attributesAtIndexEffectiveRange( unsigned int index,
 		return nil;
 		}
 
-	return (attrValue = [tmpDictionary objectForKey:attributeName]);
+	return [tmpDictionary objectForKey:attributeName];
 }
 
 - (id) attribute:(NSString *)attributeName 
@@ -471,7 +470,7 @@ NSString *newSubstring;
 	return newAttrString;
 }
 
-- (NSMutableString *) mutableString			{ return [_string mutableCopy]; }
+- (NSMutableString *) mutableString			{ return _string; }
 - (void) beginEditing						{ return; }
 - (void) endEditing							{ return; }
 

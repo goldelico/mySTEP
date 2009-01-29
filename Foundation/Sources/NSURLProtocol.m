@@ -189,6 +189,7 @@ static NSMutableArray *_registeredClasses;
 @implementation _NSHTTPURLProtocol
 
 // see http://www.w3.org/Protocols/rfc2616/rfc2616.html
+// and a very good tutorial: http://www.jmarshall.com/easy/http/
 
 + (BOOL) canInitWithRequest:(NSURLRequest *) request;
 {
@@ -396,6 +397,7 @@ static NSMutableArray *_registeredClasses;
 				policy=[_request cachePolicy];	// default
 			[_client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:policy];
 			}
+			[response release];
 		return YES;
 		}
 	for(c=buffer, end=c+len; *c != ':'; c++)

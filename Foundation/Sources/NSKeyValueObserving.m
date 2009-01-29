@@ -331,7 +331,7 @@ NSString *NSKeyValueChangeIndexesKey=@"NSKeyValueChangeIndexesKey";
 	
 	if (mutationKind == NSKeyValueUnionSetMutation)
 		{
-		set = [set mutableCopy];
+		set = [[set mutableCopy] autorelease];
 		[set minusSet: oldSet];
 		[change setValue: [NSNumber numberWithInt: NSKeyValueChangeInsertion]
 				  forKey: NSKeyValueChangeKindKey];
@@ -350,9 +350,9 @@ NSString *NSKeyValueChangeIndexesKey=@"NSKeyValueChangeIndexesKey";
 		NSMutableSet      *old;
 		NSMutableSet      *new;
 		
-		old = [oldSet mutableCopy];
+		old = [[oldSet mutableCopy] autorelease];
 		[old minusSet: set];
-		new = [set mutableCopy];
+		new = [[set mutableCopy] autorelease];
 		[new minusSet: oldSet];
 		[change setValue: [NSNumber numberWithInt: NSKeyValueChangeReplacement]
 				  forKey: NSKeyValueChangeKindKey];
@@ -413,7 +413,7 @@ NSString *NSKeyValueChangeIndexesKey=@"NSKeyValueChangeIndexesKey";
 	change = [NSMutableDictionary dictionary];
 	set = [self valueForKey: aKey];
 	
-	[change setValue: [set mutableCopy] forKey: @"oldSet"];
+	[change setValue: [[set mutableCopy] autorelease] forKey: @"oldSet"];
 	[info setChange: change forKey: aKey];
 	[self willChangeValueForDependentsOfKey: aKey];
 }

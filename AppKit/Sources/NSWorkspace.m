@@ -1028,6 +1028,8 @@ static BOOL __fileSystemChanged = NO;
 							NSString *tmp, *ext = [s pathExtension];
 							NSTask *task;
 							
+							/// FIXME: should open the Archiver by file extension?
+							
 							if ([ext isEqualToString: @"bz2"])
 								p = @"/usr/bin/bunzip2";
 							else if ([ext isEqualToString: @"gz"]
@@ -1067,6 +1069,7 @@ static BOOL __fileSystemChanged = NO;
 												 name: NSTaskDidTerminateNotification
 											 object: task];
 							[task launch];
+							[task release];
 						}	
 			}
 	else if([operation isEqualToString:NSWorkspaceEncryptOperation])

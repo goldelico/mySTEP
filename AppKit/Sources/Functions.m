@@ -26,6 +26,6 @@ int NSApplicationMain(int argc, const char **argv)
 {
 	id pool = [NSAutoreleasePool new];	// root ARP
 	[[NSApplication sharedApplication] run];	
-    [pool release];
-    return 0;
+	[pool release];
+	return 0;
 }

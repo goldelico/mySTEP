@@ -107,7 +107,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 		autorelease_sel = @selector(addObject:);
       	autorelease_imp =[autorelease_class methodForSelector:autorelease_sel];
 		// Create the global lock
-		mstep_global_lock = [[NSRecursiveLock alloc] init];
+		__NSGlobalLock = [[NSRecursiveLock alloc] init];
 		z=getenv("NSZombieEnabled");	// made compatible to http://developer.apple.com/technotes/tn2004/tn2124.html
 		if(z && (strcmp(z, "YES") == 0 || atoi(z) == 1))
 			NSZombieEnabled=YES;
@@ -429,7 +429,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 													 : class_get_class_method(isa, aSelector));
 	const char *types=m?m->method_types:NULL;	// default (if we have an implementation)
 	Class c = object_get_class(self);
-	struct objc_protocol_list	*protocols = c->protocols;
+	struct objc_protocol_list	*protocols = c?c->protocols:NULL;
 	for(; protocols; protocols = protocols?protocols->next:protocols)
 			{ // loop through protocol lists to find if they define our selector with more details
 				unsigned int i = 0;

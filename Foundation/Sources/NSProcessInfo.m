@@ -41,6 +41,16 @@ static id __processInfo = nil;
 
 + (NSProcessInfo*) processInfo				{ return __processInfo; }
 
+- (void) dealloc
+{ // should never be called...
+	[_hostName release];   
+	[_processName release];
+	[_operatingSystem release];				
+	[_environment release];
+	[_arguments release];
+	[super dealloc];
+}
+
 - (id) _initWithArguments:(char**)argv count:(int)argc environ:(char**)env
 {
 // BOOL mySTEPRootIsUndefined = NO;
@@ -112,7 +122,7 @@ id *argstr;
     gethostname(str, sizeof(str)-1);
     _hostName = [[NSString alloc] initWithCString:str];
 
-	return (__processInfo = self);
+	return self;
 }
 
 - (NSArray*) arguments						{ return _arguments; }
@@ -208,7 +218,7 @@ int main(int argc, char** argv, char** env)
 	saved_objc_malloc=_objc_malloc;
 	_objc_malloc=malloclimit;
 #endif
-	[[NSProcessInfo alloc] _initWithArguments:argv count:argc environ:env];
+	__processInfo = [[NSProcessInfo alloc] _initWithArguments:argv count:argc environ:env];
     [pool release];
 #if 1
 	{ // print when we enter the main function to find out how long framework initialization takes

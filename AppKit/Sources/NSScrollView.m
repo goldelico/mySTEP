@@ -97,7 +97,7 @@ static Class __rulerViewClass = nil;
 #endif
 	if((self=[super initWithFrame:rect]))
 		{
-		[self setContentView:[[NSClipView alloc] initWithFrame:rect]];	// install default content view
+		[self setContentView:[[[NSClipView alloc] initWithFrame:rect] autorelease]];	// install default content view
 		[self setLineScroll:10];
 		[self setPageScroll:40];
 		_sv.borderType = NSBezelBorder;

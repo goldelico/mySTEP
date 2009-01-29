@@ -40,6 +40,7 @@
 
 #import <Foundation/NSObjCRuntime.h>
 
+#import <Foundation/NSObject.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSBundle.h>
@@ -517,21 +518,31 @@ if (domainMask & mask && ![paths containsObject: path] && [[NSFileManager defaul
 // export NSLog="on" -- on
 // export NSLog="memory"
 
+static BOOL __printLog;
+static BOOL __logMemory;
+
 void NSLogv(NSString *format, va_list args)
 {
+	static BOOL initialized=NO;
 #ifndef __mySTEP__
-	int __NSAllocatedObjects;
+	unsigned long __NSAllocatedObjects=0;
 #endif
-	if(getenv("NSLog") != NULL && getenv("NSLog")[0] != 0)
+	if(!initialized)
+			{ // get flags
+				char *log=getenv("NSLog");
+				__printLog=log && log[0] != 0;
+				__logMemory=__printLog && strcmp(log, "memory") == 0;
+				initialized=YES;
+			}
+	if(__printLog)
 			{
 				NSAutoreleasePool *pool = [NSAutoreleasePool new];
 				NSString *prefix;
 				NSString *message;
-				BOOL logMemory=strcmp(getenv("NSLog"), "memory") == 0;
 #if 0
 				fprintf(stderr, ">> NSRealMemoryAvailable=%u\n", NSRealMemoryAvailable ());
 #endif
-				prefix = [NSString stringWithFormat: logMemory?@"%@ %@[%d] [%lu/%lu] ":@"%@ %@[%d] ",
+				prefix = [NSString stringWithFormat: __logMemory?@"%@ %@[%d] [%lu/%lu] ":@"%@ %@[%d] ",
 									[[NSCalendarDate calendarDate] descriptionWithCalendarFormat: @"%b %d %H:%M:%S.%F"],
 									[[[NSProcessInfo processInfo] processName] lastPathComponent],
 									getpid(), NSRealMemoryAvailable(), __NSAllocatedObjects
@@ -620,6 +631,38 @@ NSClassFromString(NSString *aClassName)
 		return c;
 		}
 	return (Class)0;
+}
+
+/**
+ * Returns a string object containing the name for
+ * aProtocol.  If aProtocol is 0, returns nil.
+ */
+NSString *
+NSStringFromProtocol(Protocol *aProtocol)
+{
+  if (aProtocol != (Protocol*)0)
+    return [NSString stringWithUTF8String: (const char*)[aProtocol name]];
+  return nil;
+}
+
+/**
+ * Returns the protocol whose name is supplied in the
+ * aProtocolName argument, or 0 if a nil string is supplied.
+ */
+Protocol *   
+NSProtocolFromString(NSString *aProtocolName)
+{
+  if (aProtocolName != nil)
+			{
+				int	len = [aProtocolName length];
+				char	buf[len+1];
+				
+				[aProtocolName getCString: buf
+												maxLength: len + 1
+												 encoding: NSASCIIStringEncoding];
+// FIXME:				return GSProtocolFromName (buf);
+			}
+  return (Protocol*)0;
 }
 
 //*****************************************************************************
@@ -880,6 +923,61 @@ kern_return_t r = vm_copy (mach_task_self(), source, bytes, dest);
 	memcpy (dest, source, bytes);
 #endif
 }
+
+#ifdef __mySTEP__
+void __NSCountAllocate(Class aClass)
+{
+	struct __NSAllocationCount *cnt=NULL;
+	if(!__logMemory)
+		return;
+	if(!__NSAllocationCountTable)
+			{
+				if(aClass == [NSMapTable class])
+					return;		// avoid recursion for allocating the __NSAllocationCountTable
+				__NSAllocationCountTable = NSCreateMapTable (NSNonOwnedPointerMapKeyCallBacks, NSOwnedPointerMapValueCallBacks, 0);	// create table
+			}
+	else
+		cnt=NSMapGet(__NSAllocationCountTable, aClass);
+	if(!cnt)
+			{	// not (yet) found - create new counter
+				cnt=objc_calloc(1, sizeof(*cnt));
+				NSMapInsert(__NSAllocationCountTable, aClass, cnt);
+			}
+	cnt->alloc++;	// total allocs
+	if(++cnt->instances > cnt->peak)
+		cnt->peak=cnt->instances;
+}
+
+void __NSCountDeallocate(Class aClass)
+{
+	extern NSMapTable *__NSAllocationCountTable;
+	if(__logMemory && __NSAllocationCountTable)
+			{
+				struct __NSAllocationCount *cnt=NSMapGet(__NSAllocationCountTable, aClass);
+				if(cnt)
+					cnt->instances--;
+			}
+}
+
+void __NSPrintAllocationCount(void)
+{ // make us print to stderr every 5 seconds
+	if(__logMemory && __NSAllocationCountTable)
+			{
+				NSMapEnumerator e=NSEnumerateMapTable(__NSAllocationCountTable);
+				Class key;
+				struct __NSAllocationCount *cnt;
+				fprintf(stderr, "\fCurrent Object Allocation\n");
+				while(NSNextMapEnumeratorPair(&e, (void *) &key, (void *) &cnt))
+						{ // get all key/value pairs
+							// should be sorted...
+						//	fprintf(stderr, "%p %p ", key, cnt);
+							if(cnt->instances > 0)	// ??? this does not print alloc/peak...
+								fprintf(stderr, "%s: alloc %lu instances %lu peak %lu dealloc %lu\n", class_get_class_name(key), cnt->alloc, cnt->instances, cnt->peak, cnt->alloc-cnt->instances);
+						}
+			}
+}
+
+#endif
 
 /*
  * Workaround for ARM system with softfloat libraries and hardfloat CPU (e.g. OpenMoko)

@@ -1103,164 +1103,186 @@ NSMutableArray *c;
 @implementation NSFileManager (PrivateMethods)
 
 - (BOOL) _copyFile:(NSString*)source 
-			toFile:(NSString*)destination
-			handler:handler
+						toFile:(NSString*)destination
+					 handler:handler
 {
-int i, bufsize = 2*4096;
-int sourceFd, destFd, fileSize, fileMode;
-int rbytes, wbytes;
-char buffer[bufsize];
-const char *cpath = [self fileSystemRepresentationWithPath:source];
-NSDictionary *attributes = [self fileAttributesAtPath:source traverseLink:NO];
-										// Assumes source is file and exists
-    NSAssert1([self fileExistsAtPath:source],@"source '%@' missing", source);
-    NSAssert1(attributes,@"could not get the attributes for file '%@'",source);
-
-    fileSize = [[attributes objectForKey:NSFileSize] intValue];
-    fileMode = [[attributes objectForKey:NSFilePosixPermissions] intValue];
-
-    if ((sourceFd = open(cpath, O_RDONLY)) < 0) 
-		{										// Open source file. In case
-		if (handler) 							// of error call the handler
-			{
-			NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
-								source, @"Path", 
-								@"cannot open file for reading", @"Error",nil];
-
-			return [handler fileManager:self shouldProceedAfterError:e];
-			}
-
-		return NO;
-		}									// Open destination file. In case
-											// of error call the handler.
+	int i, bufsize = 2*4096;
+	int sourceFd, destFd, fileSize, fileMode;
+	int rbytes;
+	// FIXME: needs a lot of stack!
+	char buffer[bufsize];
+	const char *cpath = [self fileSystemRepresentationWithPath:source];
+	NSDictionary *attributes = [self fileAttributesAtPath:source traverseLink:NO];
+	// Assumes source is file and exists
+	NSAssert1([self fileExistsAtPath:source],@"source '%@' missing", source);
+	NSAssert1(attributes,@"could not get the attributes for file '%@'",source);
+	
+	fileSize = [[attributes objectForKey:NSFileSize] intValue];
+	fileMode = [[attributes objectForKey:NSFilePosixPermissions] intValue];
+	
+	if ((sourceFd = open(cpath, O_RDONLY)) < 0) 
+			{										// Open source file. In case
+				if (handler) 							// of error call the handler
+						{
+							NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
+																 source, @"Path", 
+																 @"cannot open file for reading", @"Error",nil];
+							
+							return [handler fileManager:self shouldProceedAfterError:e];
+						}
+				
+				return NO;
+			}									// Open destination file. In case
+	// of error call the handler.
 	cpath = [self fileSystemRepresentationWithPath:destination];
-    if ((destFd = open(cpath, O_WRONLY|O_CREAT|O_TRUNC, fileMode)) < 0) 
-		{
-		if (handler) 
+	if ((destFd = open(cpath, O_WRONLY|O_CREAT|O_TRUNC, fileMode)) < 0) 
 			{
-			NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
-							destination, @"ToPath",
-							@"cannot open file for writing", @"Error", nil];
-			close (sourceFd);
-
-			return [handler fileManager:self shouldProceedAfterError:e];
+				if (handler) 
+						{
+							NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
+																 destination, @"ToPath",
+																 @"cannot open file for writing", @"Error", nil];
+							close (sourceFd);
+							
+							return [handler fileManager:self shouldProceedAfterError:e];
+						}
+				
+				return NO;			// Read bufsize bytes from source file and write
+			}					// them into the destination file. In case of
+	// errors call the handler and abort the operation.
+	for (i = 0; i < fileSize; i += rbytes) 
+			{
+				if ((rbytes = read(sourceFd, buffer, bufsize)) < 0) 
+						{
+							if (handler) 
+									{
+										NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys: 
+																			 source, @"Path",
+																			 @"cannot read from file", @"Error", nil];
+										close(sourceFd);
+										close(destFd);
+										
+										return [handler fileManager:self shouldProceedAfterError:e];
+									}
+							
+							return NO;
+						}
+				
+				if ((write(destFd, buffer, rbytes)) != rbytes) 
+						{
+							if (handler) 
+									{
+										NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
+																			 source, @"Path", destination, @"ToPath",
+																			 @"cannot write to file", @"Error", nil];
+										close(sourceFd);
+										close(destFd);
+										
+										return [handler fileManager:self shouldProceedAfterError:e];
+									}
+							
+							return NO;
+						}
 			}
-
-		return NO;			// Read bufsize bytes from source file and write
-		}					// them into the destination file. In case of
-							// errors call the handler and abort the operation.
-    for (i = 0; i < fileSize; i += rbytes) 
-		{
-		if ((rbytes = read(sourceFd, buffer, bufsize)) < 0) 
-			{
-			if (handler) 
-				{
-				NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys: 
-									source, @"Path",
-									@"cannot read from file", @"Error", nil];
-				close(sourceFd);
-				close(destFd);
-
-				return [handler fileManager:self shouldProceedAfterError:e];
-				}
-
-			return NO;
-			}
-
-		if ((wbytes = write(destFd, buffer, rbytes)) != rbytes) 
-			{
-			if (handler) 
-				{
-				NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
-									source, @"Path", destination, @"ToPath",
-									@"cannot write to file", @"Error", nil];
-				close(sourceFd);
-				close(destFd);
-
-				return [handler fileManager:self shouldProceedAfterError:e];
-				}
-
-			return NO;
-		}	}
-
-    close(sourceFd);
-    close(destFd);
-
-    return YES;
+	
+	close(sourceFd);
+	close(destFd);
+	
+	return YES;
 }
 
 - (BOOL) _copyPath:(NSString*)source
-			toPath:(NSString*)destination
-			handler:handler
+						toPath:(NSString*)destination
+					 handler:handler
 {
-NSAutoreleasePool *pool = [NSAutoreleasePool new];
-NSDirectoryEnumerator *en = [self enumeratorAtPath:source];
-NSString *dirEntry;
-
-    while ((dirEntry = [en nextObject])) 
-		{
-		NSDictionary *attributes = [en fileAttributes];
-		NSString *fileType = [attributes objectForKey:NSFileType];
-		NSString *sf = [source stringByAppendingPathComponent:dirEntry];
-		NSString *df = [destination stringByAppendingPathComponent:dirEntry];
-
-		[handler fileManager:self willProcessPath:sf];
-		if ([fileType isEqual:NSFileTypeDirectory]) 
+	NSAutoreleasePool *pool = [NSAutoreleasePool new];
+	NSDirectoryEnumerator *en = [self enumeratorAtPath:source];
+	NSString *dirEntry;
+	
+	while ((dirEntry = [en nextObject])) 
 			{
-			if (![self createDirectoryAtPath:df attributes:attributes]) 
-				{
-				if (handler) 
-					{
-		    		NSDictionary *e=[NSDictionary dictionaryWithObjectsAndKeys:
-									df, @"Path",
-									@"cannot create directory", @"Error", nil];
-
-					if (![handler fileManager:self shouldProceedAfterError:e])
-						return NO;
-					}
-				else
-		    		return NO;
-	    		}
-			else 
-				{
-				[en skipDescendents];
-				if (![self _copyPath:sf toPath:df handler:handler])
-					return NO;
-			}	}
-		else 
-			if ([fileType isEqual:NSFileTypeRegular]) 
-				{
-				if (![self _copyFile:sf toFile:df handler:handler])
-					return NO;
-				}
-			else 
-				if ([fileType isEqual:NSFileTypeSymbolicLink]) 
-					{
-					if (![self createSymbolicLinkAtPath:df pathContent:sf]) 
+				NSDictionary *attributes = [en fileAttributes];
+				NSString *fileType = [attributes objectForKey:NSFileType];
+				NSString *sf = [source stringByAppendingPathComponent:dirEntry];
+				NSString *df = [destination stringByAppendingPathComponent:dirEntry];
+				
+				[handler fileManager:self willProcessPath:sf];
+				if ([fileType isEqual:NSFileTypeDirectory]) 
 						{
-						if (handler) 
-							{
-		    				NSDictionary *e;
-
-		    				e = [NSDictionary dictionaryWithObjectsAndKeys:
-								sf, @"Path", df, @"ToPath",
-								@"cannot create symbolic link", @"Error", nil];
-
-							if (![handler fileManager:self
-										  shouldProceedAfterError:e])
-								return NO;
-							}
-						else
-							return NO;
-					}	}
+							if (![self createDirectoryAtPath:df attributes:attributes]) 
+									{
+										if (handler) 
+												{
+													NSDictionary *e=[NSDictionary dictionaryWithObjectsAndKeys:
+																					 df, @"Path",
+																					 @"cannot create directory", @"Error", nil];
+													
+													if (![handler fileManager:self shouldProceedAfterError:e])
+															{
+																[pool release];
+																return NO;
+															}
+												}
+										else
+												{
+													[pool release];
+													return NO;
+												}
+									}
+							else 
+									{
+										[en skipDescendents];
+										if (![self _copyPath:sf toPath:df handler:handler])
+												{
+													[pool release];
+													return NO;
+												}
+									}	
+						}
 				else 
-					NSLog(@"cannot copy file '%@' of type '%@'", sf, fileType);
-
-		[self changeFileAttributes:attributes atPath:df];
-		}
-
+					if ([fileType isEqual:NSFileTypeRegular]) 
+							{
+								if (![self _copyFile:sf toFile:df handler:handler])
+										{
+											[pool release];
+											return NO;
+										}
+							}
+					else 
+						if ([fileType isEqual:NSFileTypeSymbolicLink]) 
+								{
+									if (![self createSymbolicLinkAtPath:df pathContent:sf]) 
+											{
+												if (handler) 
+														{
+															NSDictionary *e;
+															
+															e = [NSDictionary dictionaryWithObjectsAndKeys:
+																	 sf, @"Path", df, @"ToPath",
+																	 @"cannot create symbolic link", @"Error", nil];
+															
+															if (![handler fileManager:self
+																shouldProceedAfterError:e])
+																	{
+																		[pool release];
+																		return NO;
+																	}
+														}
+												else
+														{
+															[pool release];
+															return NO;
+														}
+											}	
+								}
+						else 
+							NSLog(@"cannot copy file '%@' of type '%@'", sf, fileType);
+				
+				[self changeFileAttributes:attributes atPath:df];
+			}
+	
 	[pool release];
-
+	
 	return YES;
 }
 

@@ -102,7 +102,7 @@ NSString *NSHTTPCookieStorageAcceptPolicyChangedNotification=@"NSHTTPCookieStora
 						}
 				else if(![[url host] isEqualToString:domain])
 					continue;	// does not match exact domain
-				path==[cookie path];
+				path=[cookie path];
 				if(![path isEqualToString:@"/"] && ![[url path] isEqualToString:path])
 					continue;	// neither "all paths" nor specific path
 				if([cookie isSecure] && ![[url scheme] hasSuffix:@"s"])

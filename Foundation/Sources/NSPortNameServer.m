@@ -158,7 +158,7 @@ static NSSocketPortNameServer *defaultServer;
 #endif
 	if(s)
 		return NO;	// already known to be published
-	s=[[NSNetService alloc] initWithDomain:@"local." type:@"_nssocketport._tcp." name:name port:portNumber];
+	s=[[[NSNetService alloc] initWithDomain:@"local." type:@"_nssocketport._tcp." name:name port:portNumber] autorelease];
 	// [s setDelegate:self];
 	if(!s)
 		return NO;
@@ -204,7 +204,7 @@ static NSMessagePortNameServer *__sharedNSMessagePortNameServer;
 #endif	  
 	if([hostName length] != 0)
 		return nil; // host name must be nil or empty!
-	return [[NSMessagePort alloc] _initRemoteWithName:portName];	// connect to AF_UNIX file
+	return [[[NSMessagePort alloc] _initRemoteWithName:portName] autorelease];	// connect to AF_UNIX file
 }
 
 - (BOOL) registerPort:(NSPort *) port name:(NSString *) name;

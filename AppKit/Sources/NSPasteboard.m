@@ -56,7 +56,7 @@ NSPasteboard *pb;
 		[__pasteboards setObject:pb forKey:aName];
 		}
 
-	return pb;
+	return [pb autorelease];
 }
 
 + (NSPasteboard *) pasteboardWithUniqueName
@@ -174,7 +174,7 @@ int i = [_types indexOfObjectIdenticalTo:dataType];
 		[d setObject:s forKey:@"SourcePath"];
 		[d setObject:files forKey:@"SelectedFiles"];
 		
-		return d;
+		return [d autorelease];
 		}
 	
 	[_owner pasteboard:self provideDataForType:dt];

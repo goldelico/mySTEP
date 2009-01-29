@@ -162,7 +162,7 @@
 {
 	NSMutableArray *cells=[NSMutableArray arrayWithCapacity:10];
 	BOOL isFile=[url isFileURL];
-	// loop over path components
+	// FIXME: loop over path components
 	{
 		NSPathComponentCell *cell=[[[[self class] pathComponentCellClass] alloc] init];
 		NSURL *partialURL;
@@ -213,7 +213,7 @@
 - (void) _chooseURL:(id) sender
 { // choose specific URL from popup menu
 	NSURL *url;
-	// get URL from menu item (can we use representedObject?)
+	// FIXME: get URL from menu item (can we use representedObject?)
 	[self setURL:url];
 	// call action?
 }

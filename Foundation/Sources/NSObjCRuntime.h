@@ -337,7 +337,7 @@ typedef struct _object_layout 				// what padding if any is required
 
 extern SEL NSSelectorFromString(NSString *aSelectorName);
 extern Class NSClassFromString(NSString *aClassName);
-extern Protocol NSProtocolFromString(NSString *aProtocolName);
+extern Protocol *NSProtocolFromString(NSString *aProtocolName);
 extern NSString *NSStringFromSelector(SEL aSelector);
 extern NSString *NSStringFromClass(Class aClass);
 extern NSString *NSStringFromProtocol(Protocol *protocol);
@@ -367,7 +367,7 @@ void NSCopyMemoryPages(const void *source, void *dest, unsigned bytes);
 // global data that invoke other methods which also access 
 // global; thus, creating the potential for deadlock.
 
-extern NSRecursiveLock *mstep_global_lock;
+extern NSRecursiveLock *__NSGlobalLock;
 
 static INLINE BOOL
 _classIsKindOfClass(Class c, Class aClass)

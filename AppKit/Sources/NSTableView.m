@@ -198,7 +198,7 @@
 	NSPoint location;	// location in view
 	id aCell;			// selected cell
 	int column;			// row/col of selected cell
-	NSTableColumn *tableColumn;
+	NSTableColumn *tableColumn=nil;
 	NSRect rect;		// rect of selected cell
 	NSDate *limitDate;
 	NSWindow *dragWindow=nil;
@@ -1134,7 +1134,7 @@ int index = [self columnWithIdentifier:identifier];
 
 - (NSEnumerator*) selectedColumnEnumerator
 {
-	NSMutableArray *a = [NSMutableArray new];
+	NSMutableArray *a = [NSMutableArray arrayWithCapacity:[_selectedColumns count]];
 	int i;
 	for (i = 0; i < [_selectedColumns count]; i++)
 		if([_selectedColumns containsIndex:i])
@@ -1144,7 +1144,7 @@ int index = [self columnWithIdentifier:identifier];
 
 - (NSEnumerator*) selectedRowEnumerator
 {
-	NSMutableArray *a = [NSMutableArray new];
+	NSMutableArray *a = [NSMutableArray arrayWithCapacity:[_selectedRows count]];
 	int i;
 	for (i = 0; i < [_selectedRows count]; i++)
 		if([_selectedRows containsIndex:i])

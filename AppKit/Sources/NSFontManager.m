@@ -585,7 +585,7 @@ static NSString *__fontCollections = nil;
 		{
 		NSFontDescriptor *fd=[NSFontDescriptor fontDescriptorWithFontAttributes:[NSDictionary dictionaryWithObject:family forKey:NSFontFamilyAttribute]];
 		NSEnumerator *e=[[fd matchingFontDescriptorsWithMandatoryKeys:[NSSet setWithObject:NSFontFamilyAttribute]] objectEnumerator];
-		r=[[NSMutableArray alloc] initWithCapacity:20];
+		r=[NSMutableArray mutableArrayWithCapacity:20];
 #if 0
 		NSLog(@"NSFontManager availableMembersOfFontFamily %@", family);
 #endif
@@ -627,7 +627,7 @@ static NSString *__fontCollections = nil;
 		if(![r containsObject:family])
 			[r addObject:family];	// new family
 		}
-	return r;
+	return [r autorelease];
 }
 
 - (NSArray *) availableFonts

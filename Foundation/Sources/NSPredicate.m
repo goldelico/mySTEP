@@ -106,6 +106,13 @@
 	return self;
 }
 
+/*
+- (void) dealloc
+{
+	[super dealloc];
+}
+ */
+
 - (NSEnumerator *) _args; { return _args; }
 - (va_list) _vargs; { return _vargs; }
 
@@ -158,7 +165,7 @@
 
 + (NSPredicate *) predicateWithValue:(BOOL) value;
 {
-	return [(NSPredicate *) (value?[_NSTruePredicate alloc]:[_NSFalsePredicate alloc]) init];
+	return [[(NSPredicate *) (value?[_NSTruePredicate alloc]:[_NSFalsePredicate alloc]) init] autorelease];
 }
 
 // we don't ever instantiate NSPredicate

@@ -112,7 +112,7 @@ enum {
 
 - (id) init
 {
-    return [self initForWritingWithMutableData:[NSMutableData new]];
+    return [self initForWritingWithMutableData:[[NSMutableData new] autorelease]];
 }
 
 - (id) initForWritingWithMutableData:(NSMutableData*)_mdata
@@ -847,9 +847,9 @@ SEL readSel = @selector(deserializeDataAt:ofObjCType:atCursor:context:);
 				char *name;								// selector name
 
 				(*readIMP) (rdata, readSel, &name, @encode(char*),&cursor,nil);
-				selName = [[NSString alloc] initWithCStringNoCopy:name
+				selName = [[[NSString alloc] initWithCStringNoCopy:name
 											length:strlen(name)
-											freeWhenDone:YES];
+											freeWhenDone:YES] autorelease];
 				NSMapInsert (objects, key, selName);	// Insert selector into 
 				}										// the `objects' table
 			*(SEL*)address = NSSelectorFromString(selName);

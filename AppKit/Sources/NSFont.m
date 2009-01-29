@@ -554,6 +554,7 @@ NSString *NSFontVariationAxisNameKey=@"VariationAxisName";
 		{
 		fd->_attributes=[_attributes mutableCopy];	// current attributes
 		[(NSMutableDictionary *) fd->_attributes addEntriesFromDictionary:attributes];	// change
+			[fd autorelease];
 		}
 	return fd;
 }
@@ -749,12 +750,14 @@ static BOOL changed;
 #endif
 	if(!f)
 		{ // not found
+			[fam release];
 		NSLog(@"can't substitute %@ -> %@", font, subst);
 		return;
 		}
 	if([fam count] > 1)
 		[fam removeLastObject];	// remove last component to get the family name
 	family=[fam componentsJoinedByString:@"-"];
+	[fam release];
 	f=[f fontDescriptorByAddingAttributes:[NSDictionary dictionaryWithObjectsAndKeys:font, NSFontNameAttribute,
 														family, NSFontFamilyAttribute,
 														font, NSFontVisibleNameAttribute,

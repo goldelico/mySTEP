@@ -813,9 +813,9 @@ the user's home directory if no document has been opened before.
 - (BOOL) validateMenuItem: (NSMenuItem *)anItem
 { // objc does not allow to == compare SEL with @selector()
 	if ([NSStringFromSelector([anItem action]) isEqualToString:@"saveAllDocuments:"])
-		{
 		return [self hasEditedDocuments];
-		}
+	if ([NSStringFromSelector([anItem action]) isEqualToString:@"newDocument:"])
+		return [self defaultType] != nil;	// only if any Editor
 	return YES;
 }
 

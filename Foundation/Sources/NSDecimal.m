@@ -737,6 +737,8 @@ NSDecimalPower(NSDecimal *result, const NSDecimal *n, unsigned power, NSRounding
 		if (e & 1)
 			{
 			error = NSDecimalMultiply(result, result, &n1, mode);
+				if(error == NSCalculationNoError)
+					break;
 			}
 		// keep on squaring the number
 		error = NSDecimalMultiply(&n1, &n1, &n1, mode);

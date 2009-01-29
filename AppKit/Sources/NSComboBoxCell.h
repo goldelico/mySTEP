@@ -38,6 +38,7 @@
     id _dataSource;
     NSButtonCell *_buttonCell;
 	NSTableView *_tableView;
+	NSPanel *_popUpWindow;
     NSMutableArray *_popUpList;
     NSSize _intercellSpacing;
 	float _itemHeight;

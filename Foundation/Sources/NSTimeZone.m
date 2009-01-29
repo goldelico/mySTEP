@@ -123,7 +123,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 #endif
 	result = (result << 8) | *p++;
 	result = (result << 8) | *p++;
-	result = (result << 8) | *p++;
+	result = (result << 8) | *p/*++*/;
 
 	return result;
 #endif
@@ -529,7 +529,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 {				// We simply return the following because an existing time zone 
 				// with the given offset might not always have the same offset 
 				// (daylight savings time, change in standard time, etc.).
-	return [[GSConcreteAbsoluteTimeZone alloc] _initWithOffset:seconds];
+	return [[[GSConcreteAbsoluteTimeZone alloc] _initWithOffset:seconds] autorelease];
 }
 
 + (NSTimeZone*) timeZoneWithAbbreviation:(NSString*)abbreviation

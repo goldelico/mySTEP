@@ -196,7 +196,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 								endAngle:270.0
 							   clockwise:YES];
 	[b closePath];
-	return b;
+	return [b autorelease];
 }
 
 + (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
@@ -1226,7 +1226,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	if (dy2 < 0)
 		a2 = -a2;
 	
-	if ((l = dx1*dy2 - dx2*dy1) < 0)
+	if ((dx1*dy2 - dx2*dy1) < 0)
 		{
 		a2 = a2 - 90;
 		a1 = a1 + 90;
@@ -1475,8 +1475,8 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 			}
 		if((cy < 0 ) && !(ly < 0)) 
 			{ 
-			if (((cx * ly - lx * cy) / (ly - cy)) < 0);
-			Lcross++;		
+			if (((cx * ly - lx * cy) / (ly - cy)) < 0)
+				Lcross++;		
 			}
 		lx = cx;
 		ly = cy;

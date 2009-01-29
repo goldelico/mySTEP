@@ -55,8 +55,8 @@
       unsigned int nibIsLoaded:1;
       unsigned int RESERVED:29;
     } _wcFlags;
-    void                *_reserved1;
-    void                *_reserved2;
+//    void                *_reserved1;
+//    void                *_reserved2;
 }
 
 - (void) close;

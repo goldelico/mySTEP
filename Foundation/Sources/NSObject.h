@@ -110,7 +110,16 @@
 @end
 
 #ifdef __mySTEP__
+struct __NSAllocationCount
+{
+	unsigned long alloc;
+	unsigned long instances;
+	unsigned long peak;
+	// could also count/balance retains&releases
+};
 extern unsigned long __NSAllocatedObjects;
+@class NSMapTable;
+extern NSMapTable *__NSAllocationCountTable;
 #endif
 
 static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone *zone)							// object allocation
@@ -122,13 +131,17 @@ static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone 
 		int size = aClass->instance_size + sizeof(struct _object_layout);
 		if ((newobject = NSZoneMalloc(zone, size)) != nil)
 			{
-			memset (newobject, 0, size);
+#if 1	// if we trace object allocation
+				extern void __NSCountAllocate(Class aClass);
+				__NSCountAllocate(aClass);
+#endif
+				memset (newobject, 0, size);
 			newobject = (id)&((_object_layout)newobject)[1];
 			newobject->class_pointer = aClass;
 			}
 		//		fprintf(stderr, "%08x [%s alloc:%d]\n", new, aClass->name, size);
-		}
-	__NSAllocatedObjects++;	// one more
+			__NSAllocatedObjects++;	// one more
+	}
 #endif
 	return newobject;
 }
@@ -138,14 +151,18 @@ static inline void NSDeallocateObject(NSObject *anObject)					// object dealloca
 #ifdef __mySTEP__
 	if (anObject != nil)
 		{
-		_object_layout o = &((_object_layout)anObject)[-1];
+#if 1	// if we trace object allocation
+			extern void __NSCountDeallocate(Class aClass);
+			__NSCountDeallocate([anObject class]);
+#endif
+			_object_layout o = &((_object_layout)anObject)[-1];
 		
 		//	fprintf(stderr, "%08x [%s dealloc]\n", anObject, anObject->isa->name);
 		((id)anObject)->class_pointer = (void*)0xdeadface;
 		
 		objc_free(o);
+			__NSAllocatedObjects--;	// one less
 		}
-	__NSAllocatedObjects--;	// one less
 #endif
 }
 

@@ -171,8 +171,8 @@ BOOL changed = NO;
 		mod = [attr objectForKey: NSFileModificationDate];
 		if (servicesStamp == nil || [servicesStamp laterDate: mod] == mod)
 			{
-			NSString *s = [NSString alloc];
-			id plist = [[s initWithContentsOfFile: servicesPath] propertyList];
+			NSString *s = [NSString stringWithContentsOfFile: servicesPath];
+			id plist = [s propertyList];
 
 			if (plist)
 				{

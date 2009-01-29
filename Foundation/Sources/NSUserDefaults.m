@@ -51,28 +51,29 @@ static NSUserDefaults *__sharedDefaults = nil;
 	NSArray *args = [[NSProcessInfo processInfo] arguments];
 	NSEnumerator *e = [args objectEnumerator];
 	NSMutableDictionary *argDict = [NSMutableDictionary dictionaryWithCapacity:2];
-	id key, val;
-
-	while ((key = [e nextObject]))
-		{ // a leading '-' indicates a defaults key.
-		if ([key hasPrefix:@"-"]) 
-			{
-			key = [key substringFromIndex: 1];			// strip '-'
-			if (!(val = [e nextObject]))
-				{										// No more args
-				[argDict setObject:@"" forKey:key];		// arg is empty.
-				break;
-				}
-			else if ([val hasPrefix:@"-"])
-				{  										// another argument follows
-				[argDict setObject:@"" forKey:key];		// arg is empty.
-				key = val;
-				continue;
-				}
-			else
-				[argDict setObject:val forKey:key];		// Real parameter
+	id key=nil, val;
+	
+	while (key || (key = [e nextObject]))
+			{ // a leading '-' indicates a defaults key.
+				if ([key hasPrefix:@"-"]) 
+						{
+							key = [key substringFromIndex: 1];			// strip '-'
+							if (!(val = [e nextObject]))
+									{ // No more args
+										[argDict setObject:@"" forKey:key];		// arg is empty.
+										break;
+									}
+							else if ([val hasPrefix:@"-"])
+									{ // another argument follows directly
+										[argDict setObject:@"" forKey:key];		// arg is empty.
+										key = val;
+										continue;	// inner loop
+									}
+							else
+								[argDict setObject:val forKey:key];		// Real parameter
+						}
+				key=nil;	// fetch next one
 			}
-		}
 
 	return argDict;
 }
@@ -302,7 +303,7 @@ static NSUserDefaults *__sharedDefaults = nil;
 		dict = obj;
 	else
 		{
-		dict = [obj mutableCopy];
+		dict = [[obj mutableCopy] autorelease];
 		[_persDomains setObject: dict forKey: domain];  // store in persistent domains
 		}
 	[dict removeObjectForKey:defaultName];

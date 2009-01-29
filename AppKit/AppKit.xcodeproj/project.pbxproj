@@ -18,6 +18,17 @@
 			name = UpdateLocalizedNIBs;
 			productName = UpdateLocalizedNIBs;
 		};
+		EE95CDC60F31FFF000D1D07B /* Clang */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = EE95CDCD0F32002E00D1D07B /* Build configuration list for PBXAggregateTarget "Clang" */;
+			buildPhases = (
+				EE95CDC50F31FFF000D1D07B /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = Clang;
+			productName = Clang;
+		};
 		EEA3715E095400C3001244CF /* AppKit */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = EE5B0DE8098C08400017AC60 /* Build configuration list for PBXAggregateTarget "AppKit" */;
@@ -6324,6 +6335,7 @@
 				EEC8035209AE4EBF006EEB03 /* NIB Test mySTEP */,
 				EE93C7830B901DF500FBD885 /* View Test Mixed on X11 */,
 				EE8D72150EF6C71000A9C09B /* UpdateLocalizedNIBs */,
+				EE95CDC60F31FFF000D1D07B /* Clang */,
 			);
 		};
 /* End PBXProject section */
@@ -6610,6 +6622,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "open /Applications/Utilities/X11.app";
+		};
+		EE95CDC50F31FFF000D1D07B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here\n# http://clang.llvm.org/StaticAnalysisUsage.html\n# project must be in Debug build mode\n\nPATH=../checker-0.146:$PATH\n\nxcodebuild -target 'AppKit for Mixed.framework' clean\nscan-build -V xcodebuild -target 'AppKit for Mixed.framework' -configuration Development\n\nexit 0";
 		};
 		EEC8058009AE4F3F006EEB03 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -7645,6 +7670,34 @@
 			};
 			name = Default;
 		};
+		EE95CDC70F31FFF000D1D07B /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = Clang;
+			};
+			name = Development;
+		};
+		EE95CDC80F31FFF000D1D07B /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = Clang;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE95CDC90F31FFF000D1D07B /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = Clang;
+			};
+			name = Default;
+		};
 		EEC8034609AE4EB6006EEB03 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -7888,6 +7941,16 @@
 				EE93C7970B901DF500FBD885 /* Development */,
 				EE93C7980B901DF500FBD885 /* Deployment */,
 				EE93C7990B901DF500FBD885 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EE95CDCD0F32002E00D1D07B /* Build configuration list for PBXAggregateTarget "Clang" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE95CDC70F31FFF000D1D07B /* Development */,
+				EE95CDC80F31FFF000D1D07B /* Deployment */,
+				EE95CDC90F31FFF000D1D07B /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;

@@ -352,6 +352,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #endif
 	if(!NSApp)
 		{
+			NSAutoreleasePool *arp=[NSAutoreleasePool new];
 		if(!(class = [[NSBundle mainBundle] principalClass]))
 			{
 			NSLog(@"Main bundle does not define an existing principal class: %@", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPrincipalClass"]);
@@ -364,6 +365,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		if(![class isSubclassOfClass:[self class]])
 		   NSLog(@"principal class (%@) of main bundle is not subclass of NSApplication", NSStringFromClass(class));
 		[class new];	// create instance -init will set NSApp
+			[arp release];
 		}
 #if 0
 	NSLog(@"NSApp = %@", NSApp);
@@ -504,6 +506,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (void) finishLaunching
 {
+	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
 	NSString *mainModelFile = [infoDict objectForKey:@"NSMainNibFile"];
 	NSString *ident=[[NSBundle mainBundle] bundleIdentifier];
@@ -577,6 +580,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #endif
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
 // we should also send a distributed notification
+	[arp release];
 }
 
 - (void) dealloc
@@ -668,13 +672,37 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 				contextInfo:(void *) context;
 {
 	int r;
-	NSModalSession s;
+	NSModalSession s = 0;
 	void (*didend)(id, SEL, NSWindow *, int, void *);
 	didend = (void (*)(id, SEL, NSWindow *, int, void *))[delegate methodForSelector:selector];
-	// make the sheet a child window of the doc
+	// make the sheet a child window of the doc window
 	// animate sheet to show up as a sliding 'sheet'
 	// run modal session
-	r=[self runModalSession:s];
+	
+	NS_DURING
+		{
+			s = [self beginModalSessionForWindow:sheet];
+			while((r = [self runModalSession: s]) == NSRunContinuesResponse)
+					{
+						NSAutoreleasePool *arp=[NSAutoreleasePool new];
+						[self nextEventMatchingMask:NSAnyEventMask
+															untilDate:[NSDate distantFuture]
+																 inMode:NSModalPanelRunLoopMode
+																dequeue:NO];	// wait for but don't process events
+						[arp release];
+					}
+			[self endModalSession: s];
+		}
+	NS_HANDLER
+		{
+			if (s)
+				[self endModalSession: s];
+			if ([[localException name] isEqualToString: NSAbortModalException] == NO)
+				[localException raise];
+			r = NSRunAbortedResponse;
+		}
+	NS_ENDHANDLER
+	return r;
 	if(didend)
 		didend(delegate, selector, sheet, r, context);	// send result to modal delegate
 }

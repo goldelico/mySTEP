@@ -17,9 +17,26 @@
 
 - (id) initWithXMLString:(NSString *) string error:(NSError **) err;
 { // this calls the XML parser...
-	*err=nil;
-	[self release];
-	return nil;
+	NSXMLParser *parser=[[NSXMLParser alloc] initWithData:[string dataUsingEncoding:NSUTF8StringEncoding]];
+	if(err) *err=nil;
+	[parser setDelegate:self];
+		if(![parser parse])
+				{
+					if(err)
+						*err=[parser parserError];
+					[parser release];
+					[self release];
+					return nil;
+				}
+	[parser release];
+	return self;
+}
+
+- (void) dealloc
+{
+	[_children release];
+	[_namespaces release];
+	[super dealloc];
 }
 
 // FIXME: handle parent pointer!

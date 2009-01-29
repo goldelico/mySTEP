@@ -629,7 +629,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	char *format_cp_copy = objc_malloc(format_len+1);	// buffer for a mutable copy of the format string
 	char *format_to_go = format_cp_copy;				// pointer into the format string while processing
 	NSMutableString *result=[[NSMutableString alloc] initWithCapacity:2*format_len+20];	// this assumes some minimum result size
-	[self release];	// we return a (mutable!) replacement object - to be correct, we should autorelease the result and return [self initWithString:result];
+	[self release];	// we return a (mutable!) replacement object - to be really correct, we should autorelease the result and return [self initWithString:result];
 	if(!format_cp_copy)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
     strcpy(format_cp_copy, format_cp);		// make local copy for tmp editing
@@ -674,7 +674,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				[result appendString:[[[GSCString alloc] initWithCStringNoCopy:buffer length:len freeWhenDone:YES] autorelease]];
 			else if(len < 0)
 				{ // error
-				objc_free(format_cp_copy);
+					[result release];
+					objc_free(format_cp_copy);
 				return nil;
 				}
 			}
@@ -1840,13 +1841,10 @@ unsigned int end, start = anIndex;						// Determining Composed
 		unichar *a2=objc_malloc(sizeof(unichar)*([aString length]+1));
 		unichar *s2 = a2;
 
-		u = s1;
 		[self getCharacters:s1];
 		s1[_count] = (unichar)0;
 		[aString getCharacters:s2];
 		s2[[aString length]] = (unichar)0;
-		u = s1;
-		w = s2;
 
 		if(mask & NSCaseInsensitiveSearch)
 			{
@@ -1993,107 +1991,109 @@ unsigned int end, start = anIndex;						// Determining Composed
 }
 
 - (void) getLineStart:(unsigned int *)startIndex
-				  end:(unsigned int *)lineEndIndex
+									end:(unsigned int *)lineEndIndex
 				  contentsEnd:(unsigned int *)contentsEndIndex
-				  forRange:(NSRange)aRange
+						 forRange:(NSRange)aRange
 {
 	unichar thischar;
 	unsigned int start, end, len;
-
+	
 	if (NSMaxRange(aRange) > _count)
 		[NSException raise:NSRangeException format:@"Invalid location+length"];
-
+	
 	len = _count;
 	start = aRange.location;
-
+	
 	if(startIndex)
-		{
-		if(start == 0)
-			*startIndex = 0;
-		}
-    else
-		{
-		start--;
-		while(start > 0)
 			{
-			BOOL done = NO;
-
-			switch((thischar = [self characterAtIndex:start]))
-				{
-				case (unichar)0x000A:
-				case (unichar)0x000D:
-				case (unichar)0x2028:
-				case (unichar)0x2029:
-					done = YES;
-					break;
-				default:
-					start--;
-					break;
-				}
-			if(done)
-				break;
+				if(start > 0)
+						{
+							start--;
+							while(start > 0)
+									{
+										BOOL done = NO;
+										
+										switch(([self characterAtIndex:start]))
+											{
+												case (unichar)0x000A:
+												case (unichar)0x000D:
+												case (unichar)0x2028:
+												case (unichar)0x2029:
+													done = YES;
+													break;
+												default:
+													start--;
+													break;
+											}
+										if(done)
+											break;
+									}
+							
+							if(start == 0)
+									{
+										thischar = [self characterAtIndex:start];
+										
+										switch(thischar)
+											{
+												case (unichar)0x000A:
+												case (unichar)0x000D:
+												case (unichar)0x2028:
+												case (unichar)0x2029:
+													start++;
+													break;
+												default:
+													break;
+											}
+									}
+							else
+								start++;
+						}
+				*startIndex = start;
 			}
-
-		if(start == 0)
-			{
-			thischar = [self characterAtIndex:start];
-
-			switch(thischar)
-				{
-				case (unichar)0x000A:
-				case (unichar)0x000D:
-				case (unichar)0x2028:
-				case (unichar)0x2029:
-					start++;
-					break;
-				default:
-					break;
-			}	}
-		else
-			start++;
-		*startIndex = start;
-		}
 	if(lineEndIndex || contentsEndIndex)
-		{
-		end = aRange.location+aRange.length;
-		while(end < len)
 			{
-			BOOL done = NO;
-
-			thischar = [self characterAtIndex:end];
-			switch(thischar)
-				{
-				case (unichar)0x000A:
-				case (unichar)0x000D:
-				case (unichar)0x2028:
-				case (unichar)0x2029:
-					done = YES;
-					break;
-				default:
-					break;
-				};
-			end++;
-			if(done)
-				break;
-			};
-		if(end < len)
-			{
-			if([self characterAtIndex:end] == (unichar)0x000D)
-				if([self characterAtIndex:end+1] == (unichar)0x000A)
-					*lineEndIndex = end+1;
-				else  
-					*lineEndIndex = end;
-			else  
-				*lineEndIndex = end;
+				end = aRange.location+aRange.length;
+				while(end < len)
+						{
+							BOOL done = NO;
+							
+							thischar = [self characterAtIndex:end];
+							switch(thischar)
+								{
+									case (unichar)0x000A:
+									case (unichar)0x000D:
+									case (unichar)0x2028:
+									case (unichar)0x2029:
+										done = YES;
+										break;
+									default:
+										break;
+								};
+							end++;
+							if(done)
+								break;
+						};
+				if(lineEndIndex)
+						{
+							if(end < len)
+									{
+										if([self characterAtIndex:end] == (unichar)0x000D)
+											if([self characterAtIndex:end+1] == (unichar)0x000A)
+												*lineEndIndex = end+1;
+											else  
+												*lineEndIndex = end;
+											else  
+												*lineEndIndex = end;
+									}
+							else
+								*lineEndIndex = end;
+						}
+				// Assume last line is terminated
+				if(contentsEndIndex)					// as OS docs do not specify.
+					*contentsEndIndex = (end < len) ? end-1 : end;
 			}
-		else
-			*lineEndIndex = end;
-		// Assume last line is terminated
-		if(contentsEndIndex)					// as OS docs do not specify.
-			*contentsEndIndex = (end < len) ? end-1 : end;
-		}
 }
-											// FIX ME There is more than this 
+// FIX ME There is more than this 
 - (NSString*) capitalizedString				// to Unicode word capitalization 
 {											// but this will work in most cases
 	unichar *s = objc_malloc(sizeof(unichar)*(_count+1));
@@ -2487,7 +2487,7 @@ struct stat tmp_stat;
 		found = [s rangeOfString:@"/../" options:0 range:search];
 		}
 	
-	return s;
+	return [s autorelease];
 }
 
 - (NSString *) stringByTrimmingCharactersInSet:(NSCharacterSet *) set

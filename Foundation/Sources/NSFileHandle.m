@@ -409,6 +409,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 																			  newfh, NSFileHandleNotificationFileHandleItem,
 																			  error, NSFileHandleError,
 																			  nil]];
+							[newfh release];
 						return;
 						}
 					if(!(_readMode & kIsWaiting))

@@ -76,7 +76,7 @@
 - (void) dealloc
 {
 	[self _popDown];
-	[[_tableView window] release];
+	[_popUpWindow release];
 	[_tableView release];
 	[_buttonCell release];
 	[_popUpList release];
@@ -263,14 +263,14 @@
 		[_tableView setDataSource:self];	// and data source
 		[tc release];
 		}
-	if(![_tableView window])
+	if(!_popUpWindow)
 		{ // create a new window
-		NSPanel *popUpWindow = [[NSPanel alloc] initWithContentRect:f
+		_popUpWindow = [[NSPanel alloc] initWithContentRect:f
 												   styleMask:NSBorderlessWindowMask
 													 backing:NSBackingStoreRetained
 													   defer:YES
-													  screen:nil];
-		[popUpWindow setLevel:NSModalPanelWindowLevel];
+																												 screen:nil];
+		[_popUpWindow setLevel:NSModalPanelWindowLevel];
 		scrollView = [[NSScrollView alloc] initWithFrame:(NSRect) { NSZeroPoint, f.size }];
 		[scrollView setHasHorizontalScroller:NO];
 		[scrollView setHasVerticalScroller:[self hasVerticalScroller]];
@@ -279,16 +279,17 @@
 #if 0
 		NSLog(@"scroll view: %@", [scrollView _descriptionWithSubviews]);
 #endif
-		[[popUpWindow contentView] addSubview:scrollView];
+		[[_popUpWindow contentView] addSubview:scrollView];
+		[scrollView release];
 		[scrollView setNeedsDisplay:YES];
 		}
 	else
 		{ // adjust
 #if 1
-		NSLog(@"popup content view: %@", [[[_tableView window] contentView] _descriptionWithSubviews]);
+		NSLog(@"popup content view: %@", [[_popUpWindow contentView] _descriptionWithSubviews]);
 		NSLog(@"table columns: %@", [_tableView tableColumns]);
 #endif
-		[[_tableView window] setFrame:f display:NO];	// reposition the window and resize the table
+		[_popUpWindow setFrame:f display:NO];	// reposition the window and resize the table
 		}
 #if 1
 	NSLog(@"dataSource=%@", [_tableView dataSource]);
@@ -297,7 +298,7 @@
 #endif
 	[[[_tableView tableColumns] objectAtIndex:0] setWidth:NSWidth(f)];	// make as wide as the text field
 	[_tableView reloadData];
-	[[_tableView window] makeKeyAndOrderFront:self];
+	[_popUpWindow makeKeyAndOrderFront:self];
 	[_buttonCell setState:NSOnState];
 }
 
@@ -308,7 +309,7 @@
 #if 1
 	NSLog(@"pop down");
 #endif
-	[[_tableView window] orderOut:self];
+	[_popUpWindow orderOut:self];
 	[_buttonCell setState:NSOffState];
 }
 
@@ -325,7 +326,7 @@
 
 - (BOOL) _isPoppedUp;
 {
-	return [[_tableView window] isVisible];
+	return [_popUpWindow isVisible];
 }
 
 - (BOOL) trackMouse:(NSEvent *)event
@@ -349,7 +350,7 @@
 		{ // dispatch events until user clicks somewhere outside of our popup window
 		NSEvent *nextEvent = [win nextEventMatchingMask:NSAnyEventMask];
 		NSWindow *ew=[nextEvent window];
-		if(ew == [_tableView window])
+		if(ew == _popUpWindow)
 			[ew sendEvent:nextEvent];	// dispatch to _popUpWindow to track mouse movements and selections
 		else if(ew == win)
 			{ // the window where we have popped up the table

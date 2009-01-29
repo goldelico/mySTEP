@@ -90,12 +90,12 @@ typedef enum _NSThreadPriority
 {
 	NSThread *t = [NSThread currentThread];
 #if 0
-	NSLog(@"NSThread: mstep_global_lock lock");
+	NSLog(@"NSThread: __NSGlobalLock lock");
 #endif
-	[mstep_global_lock lock];
+	[__NSGlobalLock lock];
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSThreadWillExitNotification object:t];
 	[t release];										// Release thread obj
-	[mstep_global_lock unlock];
+	[__NSGlobalLock unlock];
 
 	objc_thread_exit();									// Ask the runtime to
 }														// exit the thread

@@ -755,9 +755,10 @@ int ch, cNibble = 2, b = 0;
 - (id) initWithRTF:(NSData *)data documentAttributes:(NSDictionary **)dict
 {
 	const void *bytes = [data bytes];
-	int ec, len = [data length];
+	int len = [data length];
 	__buf = objc_calloc(len , sizeof(__buf)+1);
-	if ((ec = GSParseRTF(bytes)) != ecOK)
+	if ((GSParseRTF(bytes)) != ecOK)
+		// FIXME: should do more specific error handling
 		NSLog(@"error parsing RTF");
 	return [[NSString alloc] initWithCStringNoCopy:__buf 
 											length:strlen(__buf)
@@ -813,6 +814,7 @@ static BOOL done;
 	// check for HTML like header before trying
 	if(!didLoadWebKit)
 		[[NSBundle bundleWithPath:@"/System/Library/Frameworks/WebKit.framework"] load], didLoadWebKit=YES;	// dynamically load
+	// CHECKME: do we really need to create a WebView or is creating a webFrame sufficient?
 	if(!webView)
 		{
 		webView=[[NSClassFromString(@"WebView") alloc] initWithFrame:NSMakeRect(0.0, 0.0, 100.0, 100.0)];

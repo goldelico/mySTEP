@@ -242,6 +242,7 @@ static BOOL __cursorHidden = NO;
 			[b lineToPoint:NSMakePoint(0.0, NSMaxY(_frame))];	// bottom left
 			[b closePath];
 			[ctxt _setShape:b];
+				[b release];
 			}
 		_didSetShape=YES;
 		}
@@ -1013,6 +1014,7 @@ static NSButtonCell *sharedCell;
 				[mi setEnabled:[item isEnabled]];
 				[mi setTag:[item tag]];
 				[menu addItem:mi];
+				[mi release];
 			}	
 	[menu addItem:[NSMenuItem separatorItem]];
 	[self addConfigItems:menu];	// standard items
