@@ -116,9 +116,9 @@ build:
 
 # configure Embedded System if undefined
 
-IP_ADDR$:=$(shell cat /Developer/Xtoolchain/IPaddr 2>/dev/null)
+IP_ADDR$:=$(shell defaults read de.dsitri.ZMacSync SelectedDevice 2>/dev/null)
 
-ifeq ($(IP_ADDR),)
+ifeq ($(IP_ADDR),)	# set a default
 IP_ADDR:=192.168.129.201
 endif
 
@@ -261,9 +261,9 @@ endif
 install_tool:
 ifneq ($(INSTALL),false)
 ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)
-		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)'; cd '$(ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && cd '$(ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 else	# app bundle
-		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)'; cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)' && cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 endif
 else
 	# don't install tool
@@ -283,8 +283,9 @@ else
 endif
 
 launch_remote:
+ifneq ($(SEND2ZAURUS),false)
 ifneq ($(RUN),false)
-	# try to launch
+	# try to launch $(RUN)
 	if [ "$(WRAPPER_EXTENSION)" = app ] ; then \
                 defaults write com.apple.x11 nolisten_tcp false; \
 				open -a X11; \
@@ -294,6 +295,7 @@ ifneq ($(RUN),false)
 	fi
 else
 	# don't try to launch
+endif
 endif
 
 clean:
