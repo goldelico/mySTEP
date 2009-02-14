@@ -168,6 +168,7 @@
 - (void) encodePoint:(NSPoint) point forKey:(NSString *) key; { SUBCLASS }
 - (void) encodeObject:(id) object forKey:(NSString *) key; { SUBCLASS }
 - (void) encodeInt:(int) value forKey:(NSString *) key; { SUBCLASS }
+- (void) encodeInteger:(NSInteger) value forKey:(NSString *) key; { SUBCLASS }
 - (void) encodeInt64:(long long) value forKey:(NSString *) key; { SUBCLASS }
 - (void) encodeInt32:(int32_t) value forKey:(NSString *) key; { SUBCLASS }
 - (void) encodeFloat:(float) value forKey:(NSString *) key; { SUBCLASS }
@@ -183,6 +184,7 @@
 - (NSPoint) decodePointForKey:(NSString *) key; { SUBCLASS; return NSZeroPoint; }
 - (id) decodeObjectForKey:(NSString *) key; { return SUBCLASS; }
 - (int) decodeIntForKey:(NSString *) key; { SUBCLASS; return 0; }
+- (NSInteger) decodeIntegerForKey:(NSString *) key; { SUBCLASS; return 0; }
 - (long long) decodeInt64ForKey:(NSString *) key; { SUBCLASS; return 0; }
 - (int32_t) decodeInt32ForKey:(NSString *) key; { SUBCLASS; return 0; }
 - (float) decodeFloatForKey:(NSString *) key; { SUBCLASS; return 0.0; }

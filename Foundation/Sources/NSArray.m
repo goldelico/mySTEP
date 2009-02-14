@@ -67,7 +67,7 @@ static Class __stringClass = Nil;
 	[super dealloc];
 }
 
-- (NSArray *) allObjects	{ NSArray *all=[_array subarrayWithRange:NSMakeRange(0, _index)]; _index=-1; return all; }
+- (NSArray *) allObjects	{ NSArray *all=[_array subarrayWithRange:NSMakeRange(0, _index)]; _index= -1; return all; }
 
 - (id) nextObject
 {

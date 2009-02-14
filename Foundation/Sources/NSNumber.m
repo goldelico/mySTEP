@@ -208,6 +208,26 @@ static NSNumber *__sharedNum = nil;
     return [[[GSIntNumber alloc] initWithInt:ival] autorelease];
 }
 
++ (NSNumber *) numberWithInteger:(NSInteger)ival
+{
+#if 0
+	NSLog(@"NSNumber numberWithInt:%d", ival);
+#endif
+#define LOWER_LIMIT	0
+#define UPPER_LIMIT	15
+	if(ival >= LOWER_LIMIT && ival < UPPER_LIMIT) 
+			{ 
+				static NSNumber *cache[UPPER_LIMIT-LOWER_LIMIT]; 
+				NSNumber *num=cache[ival-LOWER_LIMIT]; 
+				if(!num) 
+					num=cache[ival-LOWER_LIMIT]=[[GSIntNumber alloc] initWithInteger:ival]; // cache (never release)
+				return num;
+			}
+#undef LOWER_LIMIT
+#undef UPPER_LIMIT
+	return [[[GSIntNumber alloc] initWithInteger:ival] autorelease];
+}
+
 + (NSNumber *) numberWithLong:(long)value
 {
     return [[[GSLongNumber alloc] initWithLong:value] autorelease];
@@ -231,6 +251,11 @@ static NSNumber *__sharedNum = nil;
 + (NSNumber *) numberWithUnsignedInt:(unsigned int)value
 {
     return [[[GSUIntNumber alloc] initWithUnsignedInt:value] autorelease];
+}
+
++ (NSNumber *) numberWithUnsignedInteger:(NSUInteger)value
+{
+	return [[[GSUIntNumber alloc] initWithUnsignedInteger:value] autorelease];
 }
 
 + (NSNumber *) numberWithUnsignedShort:(unsigned short)value
@@ -261,6 +286,7 @@ static NSNumber *__sharedNum = nil;
 
 - (id) initWithBool:(BOOL)value
 {
+	// FIXME: we should release self or not?
     return [[GSBoolNumber alloc] initWithBool:value];
 }
 
@@ -282,6 +308,11 @@ static NSNumber *__sharedNum = nil;
 - (id) initWithInt:(int)value
 {
     return [[GSIntNumber alloc] initWithInt:value];
+}
+
+- (id) initWithInteger:(NSInteger)value
+{
+	return [[GSIntNumber alloc] initWithInt:value];
 }
 
 - (id) initWithLong:(long)value
@@ -307,6 +338,11 @@ static NSNumber *__sharedNum = nil;
 - (id) initWithUnsignedInt:(unsigned int)value
 {
     return [[GSUIntNumber alloc] initWithUnsignedInt:value];
+}
+
+- (id) initWithUnsignedInteger:(NSUInteger)value
+{
+	return [[GSUIntNumber alloc] initWithUnsignedInt:value];
 }
 
 - (id) initWithUnsignedShort:(unsigned short)value
@@ -367,11 +403,13 @@ int i;
 - (double) doubleValue				  { SUBCLASS; return 0; }
 - (float) floatValue				  { SUBCLASS; return 0; }
 - (int) intValue					  { SUBCLASS; return 0; }
+- (NSInteger) integerValue					  { SUBCLASS; return 0; }
 - (long long) longLongValue			  { SUBCLASS; return 0; }
 - (long) longValue					  { SUBCLASS; return 0; }
 - (short) shortValue				  { SUBCLASS; return 0; }
 - (unsigned char) unsignedCharValue	  { SUBCLASS; return 0; }
 - (unsigned int) unsignedIntValue	  { SUBCLASS; return 0; }
+- (NSUInteger) unsignedIntegerValue	  { SUBCLASS; return 0; }
 - (unsigned long) unsignedLongValue   { SUBCLASS; return 0; }
 - (unsigned short) unsignedShortValue { SUBCLASS; return 0; }
 - (unsigned long long) unsignedLongLongValue { SUBCLASS; return 0; }

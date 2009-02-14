@@ -79,7 +79,10 @@ typedef struct {
 } parsedURL;
 
 #define	myData ((parsedURL*)(self->_data))
-#define	baseData ((parsedURL*)(self->_baseURL->_data))
+
+// FIXME: this is seen as a problem by Clang since it may derefence baseData->something as NULL->something
+
+#define	baseData ((self->_baseURL)?((parsedURL*)(self->_baseURL->_data)):NULL)
 
 static NSLock	*clientsLock = nil;
 
@@ -89,7 +92,7 @@ static NSLock	*clientsLock = nil;
 static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize);
 static id clientForHandle(void *data, NSURLHandle *hdl);
 static char *findUp(char *str);
-static void unescape(const char *from, char * to);
+static NSString *unescape(const char *from);
 
 /**
 * Build an absolute URL as a C string
@@ -191,9 +194,9 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize)
 	 */
 	
 	tmp = ptr;
-	if (rel->pathIsAbsolute == YES)
+	if (rel->pathIsAbsolute )
 		{
-		if (rel->hasNoPath == NO)
+		if (!rel->hasNoPath)
 			{
 			*tmp++ = '/';
 			}
@@ -205,7 +208,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize)
 		}
 	else if (rel->path[0] == 0)
 		{
-		if (base->hasNoPath == NO)
+		if (!base->hasNoPath)
 			{
 			*tmp++ = '/';
 			}
@@ -226,7 +229,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize)
 		strcpy(tmp, rel->path);
 		}
 	
-	if (standardize == YES)
+	if (standardize)
 		{
 		/*
 		 * Compact '/./'  to '/' and strip any trailing '/.'
@@ -404,12 +407,18 @@ static BOOL legal(const char *str, const char *extras)
  * Convert percent escape sequences to individual characters.
  * FIXME: what about UTF-8 character???
  */
-static void unescape(const char *from, char * to)
+
+static NSString *unescape(const char *from)
 {
+	NSString *result;
+	char *to, *bfr;
+	if(!from)
+		return nil;
+	to = bfr = objc_malloc(strlen(from)+1);	// result will not become longer
 	while (*from != '\0')
 		{
 		if (*from == '%')
-			{
+			{ // process 2 hex digits
 			unsigned char	c;
 			
 			from++;
@@ -431,8 +440,9 @@ static void unescape(const char *from, char * to)
 				}
 			else
 				{
-				[NSException raise: NSGenericException
-							format: @"Bad percent escape sequence in URL string"];
+					NSLog(@"Bad percent escape sequence in URL string");
+	//			[NSException raise: NSGenericException
+	//						format: @"Bad percent escape sequence in URL string"];
 				c=0;	// avoid compiler warning
 				}
 			c <<= 4;
@@ -455,16 +465,24 @@ static void unescape(const char *from, char * to)
 				}
 			else
 				{
-				[NSException raise: NSGenericException
-							format: @"Bad percent escape sequence in URL string"];
+					NSLog(@"Bad percent escape sequence in URL string");
+					// raise exception or simply ignore???
+	//			[NSException raise: NSGenericException
+		//					format: @"Bad percent escape sequence in URL string"];
 				}
 			}
 		else
-			{
+			{ // unchanged
 			*to++ = *from++;
 			}
 		}
 	*to = '\0';
+	result=[NSString stringWithUTF8String: bfr];
+#if 1
+	NSLog(@"unescaped = %@", result);
+#endif
+	objc_free(bfr);
+	return result;
 }
 
 
@@ -536,7 +554,7 @@ static void unescape(const char *from, char * to)
 				 path: (NSString*)aPath
 {
 	NSString	*aUrlString = [NSString alloc];
-#if 0
+#if 1
 	NSLog(@"initWithScheme:%@ host:%@ path:%@", aScheme, aHost, aPath);
 #endif
 	if ([aHost length] > 0)
@@ -548,7 +566,7 @@ static void unescape(const char *from, char * to)
 			 * a leading slash is intended to have that slash separating
 			 * the host from the path as specified in the RFC1738
 			 */
-			if ([aPath hasPrefix: @"/"] == YES)
+			if ([aPath hasPrefix: @"/"])
 				{ // absolute path
 				aUrlString = [aUrlString initWithFormat: @"%@://%@%@",
 					aScheme, aHost, aPath];
@@ -579,7 +597,7 @@ static void unescape(const char *from, char * to)
 			}
 		}
 	self = [self initWithString: aUrlString relativeToURL: nil];
-#if 0
+#if 1
 	NSLog(@"aUrlString=%@", aUrlString);
 #endif
 	RELEASE(aUrlString);
@@ -664,7 +682,8 @@ static void unescape(const char *from, char * to)
 			memset(buf, '\0', size);
 			start = end = (char*)&buf[1];
 			[_urlString getCString:start];			// get the cString and store behind the parsedURL header
-#if 0
+#if 1
+			NSLog(@"NSURL initWithString");
 			NSLog(@"NSURL [length]=%d len=%d size=%d buf=%p", [_urlString length], [_urlString cStringLength], size, buf);
 			NSLog(@"NSURL aUrlString: %@ %@", NSStringFromClass([aUrlString class]), aUrlString);
 			NSLog(@"NSURL _urlString: %@ %@", NSStringFromClass([_urlString class]), _urlString);
@@ -731,7 +750,7 @@ static void unescape(const char *from, char * to)
 					}
 				}
 			
-			if (canBeGeneric == YES)
+			if (canBeGeneric)
 				{
 				/*
 				 * Parse the 'authority'
@@ -766,7 +785,7 @@ static void unescape(const char *from, char * to)
 						buf->user = start;
 						*ptr++ = '\0';
 						start = ptr;
-						if (legal(buf->user, ";:&=+$,") == NO)
+						if (!legal(buf->user, ";:&=+$,"))
 							{
 							[NSException raise: NSGenericException format:
 								@"illegal character in user/password part"];
@@ -847,7 +866,7 @@ static void unescape(const char *from, char * to)
 							}
 						}
 					start = end;
-					if (legal(buf->host, "-") == NO)
+					if (!legal(buf->host, "-"))
 						{
 						[NSException raise: NSGenericException format:
 							@"illegal character in user/password part"];
@@ -873,7 +892,7 @@ static void unescape(const char *from, char * to)
 						}
 					}
 				
-				if (usesFragments == YES)
+				if (usesFragments)
 					{
 					/*
 					 * Strip fragment string from end of url.
@@ -893,7 +912,7 @@ static void unescape(const char *from, char * to)
 						}
 					}
 				
-				if (usesQueries == YES)
+				if (usesQueries)
 					{
 					/*
 					 * Strip query string from end of url.
@@ -913,7 +932,7 @@ static void unescape(const char *from, char * to)
 						}
 					}
 				
-				if (usesParameters == YES)
+				if (usesParameters)
 					{
 					/*
 					 * Strip parameters string from end of url.
@@ -933,7 +952,7 @@ static void unescape(const char *from, char * to)
 						}
 					}
 				
-				if (buf->isFile == YES)
+				if (buf->isFile)
 					{
 					buf->user = 0;
 					buf->password = 0;
@@ -963,6 +982,9 @@ static void unescape(const char *from, char * to)
 			self=nil;
 		}
 	NS_ENDHANDLER
+#if 1
+	NSLog(@"url=%@", self);
+#endif
 	return self;
 }
 
@@ -1022,7 +1044,7 @@ static void unescape(const char *from, char * to)
 
 - (BOOL) isEqual: (id)other
 {
-	if (other == nil || [other isKindOfClass: [NSURL class]] == NO)
+	if (other == nil || ![other isKindOfClass: [NSURL class]])
 		{
 		return NO;
 		}
@@ -1034,19 +1056,16 @@ static void unescape(const char *from, char * to)
  */
 - (NSString*) absoluteString
 {
-	NSString	*absString = myData->absolute;
-	
-	if (absString == nil)
+#if 1
+	NSLog(@"absoluteString: %@", self);
+#endif
+	if (myData->absolute == nil)
 		{
 		char	*url = buildURL(baseData, myData, NO);
 		unsigned	len = strlen(url);
-		
-		absString = [[NSString alloc] initWithCStringNoCopy: url
-													 length: len
-											   freeWhenDone: YES];
-		myData->absolute = absString;
+		myData->absolute = [[NSString alloc] initWithCStringNoCopy: url length: len freeWhenDone: YES];
 		}
-	return absString;
+	return myData->absolute;
 }
 
 /**
@@ -1099,16 +1118,7 @@ static void unescape(const char *from, char * to)
  */
 - (NSString*) host
 {
-	NSString	*host = nil;
-	
-	if (myData->host != 0)
-		{
-		char	buf[strlen(myData->host)+1];
-		
-		unescape(myData->host, buf);
-		host = [NSString stringWithUTF8String: buf];
-		}
-	return host;
+	return unescape(myData->host);
 }
 
 /**
@@ -1215,17 +1225,7 @@ static void unescape(const char *from, char * to)
  */
 - (NSString*) password
 {
-	NSString	*password = nil;
-	
-	if (myData->password != 0)
-		{
-			// FIXME: Stack overflow???
-		char	buf[strlen(myData->password)+1];
-		
-		unescape(myData->password, buf);
-		password = [NSString stringWithUTF8String: buf];
-		}
-	return password;
+	return unescape(myData->password);
 }
 
 /**
@@ -1246,36 +1246,35 @@ static void unescape(const char *from, char * to)
 	/*
 	 * If this scheme is from a URL without generic format, there is no path.
 	 */
-	if (myData->isGeneric == YES)
+	if (myData->isGeneric)
 		{
-		unsigned int	len = (_baseURL ? strlen(baseData->path) : 0)
-		+ strlen(myData->path) + 3;
-		char		buf[len];
+		unsigned int	len = (_baseURL ? strlen(((parsedURL*)_baseURL->_data)->path) : 0) + strlen(myData->path) + 3;
+		char		buf[len];	// FIXME: risk of STACK overflow
 		char		*tmp = buf;
 		
-		if (myData->pathIsAbsolute == YES)
+		if (myData->pathIsAbsolute)
 			{
-			if (myData->hasNoPath == NO)
+			if (!myData->hasNoPath)
 				{
 				*tmp++ = '/';
 				}
 			strcpy(tmp, myData->path);
 			}
-		else if (_baseURL == nil)
+		else if (_baseURL == NULL)
 			{
 			strcpy(tmp, myData->path);
 			}
 		else if (*myData->path == 0)
 			{
-			if (baseData->hasNoPath == NO)
+			if (!((parsedURL*)_baseURL->_data)->hasNoPath)
 				{
 				*tmp++ = '/';
 				}
-			strcpy(tmp, baseData->path);
+			strcpy(tmp, ((parsedURL*)_baseURL->_data)->path);
 			}
 		else
 			{ // merge with baseData
-			char	*start = baseData->path;
+			char	*start = ((parsedURL*)_baseURL->_data)->path;
 			char	*end = strrchr(start, '/');
 			
 			if (end != 0)
@@ -1290,8 +1289,7 @@ static void unescape(const char *from, char * to)
 		tmp=&buf[strlen(buf)-1];	// position of last character
 		if(tmp > buf && *tmp == '/')
 			*tmp=0;	// strip off trailing / (directory) - unless it is root
-		unescape(buf, buf);
-		path = [NSString stringWithUTF8String: buf];
+		path=unescape(buf);
 		}
 	return path;
 }
@@ -1302,18 +1300,10 @@ static void unescape(const char *from, char * to)
  * Percent escape sequences in the user string are translated in GNUstep
  * but this appears to be broken in MacOS-X.
  */
+
 - (NSNumber*) port
 {
-	NSNumber	*port = nil;
-	
-	if (myData->port != 0)
-		{
-		char	buf[strlen(myData->port)+1];
-		
-		unescape(myData->port, buf);
-		port = [NSNumber numberWithUnsignedShort: atol(buf)];
-		}
-	return port;
+	return [NSNumber numberWithUnsignedShort:[unescape(myData->port) intValue]];
 }
 
 /**
@@ -1380,7 +1370,7 @@ static void unescape(const char *from, char * to)
 	NSURLHandle	*handle = [self URLHandleUsingCache: shouldUseCache];
 	NSData	*data;
 	
-	if (shouldUseCache == NO || [handle status] != NSURLHandleLoadSucceeded)
+	if (!shouldUseCache || [handle status] != NSURLHandleLoadSucceeded)
 		{
 		[self loadResourceDataNotifyingClient: self
 								   usingCache: shouldUseCache];
@@ -1456,7 +1446,7 @@ static void unescape(const char *from, char * to)
 		{
 		return NO;
 		}
-	if ([handle writeData: data] == NO)
+	if (![handle writeData: data])
 		{
 		return NO;
 		}
@@ -1524,16 +1514,7 @@ static void unescape(const char *from, char * to)
  */
 - (NSString*) user
 {
-	NSString	*user = nil;
-	
-	if (myData->user != 0)
-		{
-		char	buf[strlen(myData->user)+1];
-		
-		unescape(myData->user, buf);
-		user = [NSString stringWithUTF8String: buf];
-		}
-	return user;
+	return unescape(myData->user);
 }
 
 - (void) URLHandle: (NSURLHandle*)sender

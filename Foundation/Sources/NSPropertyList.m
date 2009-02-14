@@ -1389,6 +1389,16 @@ next:
 #endif
 			[p release];
 			[root autorelease];
+#if 0
+				// TEST to check if we can read this data into a NSXMLDocument
+				NSError *err=nil;
+				NS_DURING
+				NSLog(@"NSXMLDocument = %@ err = %@", [[[NSXMLDocument	alloc] initWithData:data options:0 error:&err] autorelease], err);
+				NS_HANDLER
+				NSLog(@"NSXMLDocument exception %@", localException);
+				NS_ENDHANDLER
+				abort();
+#endif
 			return [root objectValue];
 			}
 		[p release];

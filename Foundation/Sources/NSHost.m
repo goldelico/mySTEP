@@ -113,6 +113,8 @@ static NSMutableDictionary *__hostCache = nil;
 	if (name == nil)
 		return GSError(nil, @"nil host name sent to +[NSHost hostWithName]");
 
+	// handle Punycode: http://www.heise.de/netze/Punycode-Umlaute-und-Sonderzeichen-in-Domainnamen--/artikel/119723
+
 	if ((h = gethostbyname((char *)[name UTF8String])) == NULL)
 		return GSError(nil, @"Host '%@' not found via gethostbyname()", name);
 	
@@ -134,6 +136,7 @@ static NSMutableDictionary *__hostCache = nil;
 		return GSError(nil, @"Unable to determine host via gethostbyaddr()");
 
 	return [self _hostWithHostEntry:h 
+					// decode Punycode: http://www.heise.de/netze/Punycode-Umlaute-und-Sonderzeichen-in-Domainnamen--/artikel/119723
 				 name:[NSString stringWithUTF8String:h->h_name]];
 }
 

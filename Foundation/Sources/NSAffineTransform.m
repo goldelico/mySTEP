@@ -158,7 +158,7 @@ static const float pi = 3.1415926535897932384626433;
 			return;	// no scaling
 		if(sy == -1.0)
 			{ // A=1.0, B=C=0.0
-			D=-1.0;
+			D= -1.0;
 			_isFlipY=YES;
 			_isIdentity=NO;
 			check();

@@ -960,7 +960,7 @@ void __NSCountDeallocate(Class aClass)
 }
 
 void __NSPrintAllocationCount(void)
-{ // make us print to stderr every 5 seconds
+{ // print current object allocation to stderr plus a trace in /tmp
 	if(__logMemory && __NSAllocationCountTable)
 			{
 				NSMapEnumerator e=NSEnumerateMapTable(__NSAllocationCountTable);
@@ -969,10 +969,17 @@ void __NSPrintAllocationCount(void)
 				fprintf(stderr, "\fCurrent Object Allocation\n");
 				while(NSNextMapEnumeratorPair(&e, (void *) &key, (void *) &cnt))
 						{ // get all key/value pairs
-							// should be sorted...
-						//	fprintf(stderr, "%p %p ", key, cnt);
+							FILE *file;
+							char name[200];
 							if(cnt->instances > 0)	// ??? this does not print alloc/peak...
 								fprintf(stderr, "%s: alloc %lu instances %lu peak %lu dealloc %lu\n", class_get_class_name(key), cnt->alloc, cnt->instances, cnt->peak, cnt->alloc-cnt->instances);
+							sprintf(name, "/tmp/%u/%s", getpid(), class_get_class_name(key));
+							file=fopen(name, "a");
+							if(file)
+									{
+										fprintf(file, "%s: alloc %lu instances %lu peak %lu dealloc %lu\n", class_get_class_name(key), cnt->alloc, cnt->instances, cnt->peak, cnt->alloc-cnt->instances);
+										fclose(file);
+									}
 						}
 			}
 }

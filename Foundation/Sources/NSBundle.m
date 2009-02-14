@@ -421,8 +421,8 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 					NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 					NSDictionary *dict;
 					
-					dict = [NSDictionary dictionaryWithObjects: &_bundleClasses
-													   forKeys: &NSLoadedClasses 
+					dict = [NSDictionary dictionaryWithObjects: (id *) &_bundleClasses
+													   forKeys: (id *) &NSLoadedClasses 
 														 count: 1];
 					_codeLoaded = YES;
 					__loadingBundle = nil;
