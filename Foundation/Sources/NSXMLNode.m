@@ -30,15 +30,18 @@
 + (id) attributeWithName:(NSString *) name stringValue:(NSString *) value; { NSXMLNode *n=[[[self alloc] initWithKind:NSXMLAttributeKind] autorelease]; [n setStringValue:value]; return n; }
 + (id) attributeWithName:(NSString *) name URI:(NSString *) uri stringValue:(NSString *) value;  { NSXMLNode *n=[[[self alloc] initWithKind:NSXMLAttributeKind] autorelease]; [n setURI:uri]; [n setStringValue:value]; return n; }
 + (id) commentWithStringValue:(NSString *) value; { NSXMLNode *n=[[[self alloc] initWithKind:NSXMLCommentKind] autorelease]; [n setStringValue:value]; return n; }
-+ (id) DTDNodeWithXMLString:(NSString *) str; { NSXMLNode *n=[[[self alloc] initWithKind:NSXMLDTDKind] autorelease]; [n setStringValue:str]; return n; }
++ (id) DTDNodeWithXMLString:(NSString *) str; { return [[[NSXMLDTDNode alloc] initWithXMLString:str] autorelease]; }
 + (id) document; { return [[[NSXMLDocument alloc] initWithKind:NSXMLDocumentKind] autorelease]; }
 + (id) documentWithRootElement:(NSXMLElement *) ele; { return [[[NSXMLDocument alloc] initWithRootElement:ele] autorelease]; }
 + (id) elementWithName:(NSString *) name; { return [[[NSXMLElement alloc] initWithName:name] autorelease]; }
 + (id) elementWithName:(NSString *) name URI:(NSString *) uri; { return [[[NSXMLElement alloc] initWithName:name URI:uri] autorelease]; }
 + (id) elementWithName:(NSString *) name stringValue:(NSString *) value; { return [[[NSXMLElement alloc] initWithName:name stringValue:value] autorelease]; }
 + (id) namespaceWithName:(NSString *) name stringValue:(NSString *) value; { NSXMLNode *n=[[[self alloc] initWithKind:NSXMLNamespaceKind] autorelease]; [n setStringValue:value]; return n; }
-+ (id) processingInstructionWithName:(NSString *) name stringValue:(NSString *) value; { NSXMLNode *n=[[[self alloc] initWithKind:NSXMLProcessingInstructionKind] autorelease]; [n setStringValue:value]; return n; }
++ (id) processingInstructionWithName:(NSString *) name stringValue:(NSString *) value; { NSXMLNode *n=[self predefinedNamespaceForPrefix:@"xmlns"]; [n setStringValue:value]; return n; }
 + (id) textWithStringValue:(NSString *) value; { NSXMLNode *n=[[[self alloc] initWithKind:NSXMLTextKind] autorelease]; [n setStringValue:value]; return n; }
++ (NSString *) localNameForName:(NSString *) name; { NSArray *c=[name componentsSeparatedByString:@":"]; if([c count] > 1) return [c objectAtIndex:1]; return @""; }
++ (NSXMLNode *) predefinedNamespaceForPrefix:(NSString *) prefix; { /* FIXME: check prefix */NSXMLNode *n=[[[self alloc] initWithKind:NSXMLProcessingInstructionKind] autorelease]; [n setName:prefix]; return n; }
++ (NSString *) prefixForName:(NSString *) prefix; { NSArray *c=[prefix componentsSeparatedByString:@":"]; if([c count] > 1) return [c objectAtIndex:0]; return @""; }
 
 - (id) initWithKind:(NSXMLNodeKind) kind;
 {
@@ -98,9 +101,32 @@
 
 // formatters
 
+- (NSString *) _descriptionTag;
+{
+	if(_name)
+		return [NSString stringWithFormat:@"<%@ %@ %d>%@\n", _name, NSStringFromClass([self class]), _kind, _objectValue?_objectValue:@""];
+	return [NSString stringWithFormat:@"<%@ %d>%@\n", NSStringFromClass([self class]), _kind, _objectValue?_objectValue:@""];
+}
+
+- (NSString *) _descriptionWithLevel:(int) n;
+{
+	NSAutoreleasePool *arp=[NSAutoreleasePool new];
+	NSString *indent=[@"" stringByPaddingToLength:2*n withString:@" " startingAtIndex:0];
+	NSString *s=[indent stringByAppendingString:[self _descriptionTag]];
+	NSEnumerator *e=[_children objectEnumerator];
+	NSXMLNode *child;
+	while((child=[e nextObject]))
+		s=[s stringByAppendingString:[child	_descriptionWithLevel:n+1]];
+	if(_name)
+		s=[s stringByAppendingFormat:@"%@</%@>\n", indent, _name];
+	[s retain];
+	[arp release];
+	return [s autorelease];
+}
+
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@ %@ %d", NSStringFromClass([self class]), _name, _kind];
+	return [self _descriptionWithLevel:0];
 }
 
 - (NSString *) XMLString; { return [self XMLStringWithOptions:0]; }
@@ -150,6 +176,7 @@
 
 - (void) detach; { if(_parent) [(NSMutableArray *)[_parent children] removeObjectIdenticalTo:self]; _parent=nil; }
 
+- (void) _setParent:(NSXMLNode *) p; { _parent=p; }
 - (void) setName:(NSString *) name; { ASSIGN(_name, name); }
 - (void) setObjectValue:(id) value; { ASSIGN(_objectValue, value); }
 - (void) setStringValue:(NSString *) str; { /* check for string */ ASSIGN(_objectValue, str); }
@@ -164,22 +191,115 @@
 
 // XPath
 
-/*
- - (NSString *) XPath; { return NIMP; }
- - (NSArray *) nodesForXPath:(NSString *) path error:(NSError **) err;
- - (NSArray *) objectsForXQuery:(NSString *) query constants:(NSDictionary *) consts error:(NSError **) err;
- - (NSArray *) objectsForXQuery:(NSString *) query error:(NSError **) err;
-*/
+- (NSString *) XPath; { return NIMP; }
+- (NSArray *) nodesForXPath:(NSString *) path error:(NSError **) err; { return NIMP; }
+- (NSArray *) objectsForXQuery:(NSString *) query constants:(NSDictionary *) consts error:(NSError **) err; { return NIMP; }
+- (NSArray *) objectsForXQuery:(NSString *) query error:(NSError **) err; { return NIMP; }
 
-/* methods implemented here but not in header file */
+/* abstract methods implemented here but not visible in header file */
 
-// FIXME: handle parent pointer!
+- (void) insertChild:(NSXMLNode *) node atIndex:(NSUInteger) idx;
+{
+	if(!_children)
+		_children=[[NSMutableArray alloc] initWithCapacity:5];
+	[_children insertObject:node atIndex:idx];
+	[node _setParent:self];
+}
 
-- (void) insertChild:(NSXMLNode *) node atIndex:(NSUInteger) idx; { if(!_children) _children=[[NSMutableArray alloc] initWithCapacity:5]; [_children insertObject:node atIndex:idx]; }
-- (void) insertChildren:(NSArray *) nodes atIndex:(NSUInteger) idx; { if(!_children) _children=[[NSMutableArray alloc] initWithCapacity:[nodes count]+3]; [_children insertObjects:nodes atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(idx, [nodes count])]]; }
-- (void) removeChildAtIndex:(NSUInteger) idx; { [_children removeObjectAtIndex:idx]; }
-- (void) setChildren:(NSArray *) nodes; { ASSIGN(_children, nodes); }
-- (void) addChild:(NSXMLNode *) node; { [self insertChild:node atIndex:[_children count]]; }
-- (void) replaceChildAtIndex:(NSUInteger) idx withNode:(NSXMLNode *) node; { [_children replaceObjectAtIndex:idx withObject:node]; }
+- (void) insertChildren:(NSArray *) nodes atIndex:(NSUInteger) idx;
+{
+	if(!_children)
+		_children=[[NSMutableArray alloc] initWithCapacity:[nodes count]+3];
+	[_children insertObjects:nodes atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(idx, [nodes count])]];
+	[nodes makeObjectsPerformSelector:@selector(_setParent:) withObject:self];
+}
+
+- (void) removeChildAtIndex:(NSUInteger) idx;
+{
+	[[_children objectAtIndex:idx] _setParent:nil];
+	[_children removeObjectAtIndex:idx];
+}
+
+- (void) setChildren:(NSArray *) nodes;
+{
+	ASSIGN(_children, nodes);
+	[nodes makeObjectsPerformSelector:@selector(_setParent:) withObject:self];
+}
+
+- (void) addChild:(NSXMLNode *) node;
+{
+	[self insertChild:node atIndex:[_children count]];
+}
+
+- (void) replaceChildAtIndex:(NSUInteger) idx withNode:(NSXMLNode *) node;
+{
+	[[_children objectAtIndex:idx] _setParent:nil];
+	[_children replaceObjectAtIndex:idx withObject:node];
+	[node _setParent:self];
+}
+
+// XML parsing
+
+- (void) parser:(NSXMLParser *) parser foundCharacters:(NSString *) string
+{
+	// we may want to add individual text nodes depending on parse options!
+	if(!_objectValue)
+		_objectValue = [[NSMutableString alloc] initWithCapacity:50];
+	[_objectValue appendString:string];    
+}
+
+- (void) parser:(NSXMLParser *) parser foundIgnorableWhitespace:(NSString *) string
+{
+	// we may want to add individual text nodes or completely ignore - depending on parse options!
+	if(!_objectValue)
+		_objectValue = [[NSMutableString alloc] initWithCapacity:50];
+	[_objectValue appendString:string];    
+}
+
+- (void) parser:(NSXMLParser *) parser foundCDATA:(NSData *) data
+{
+	NSXMLNode *n=[[NSXMLNode alloc] initWithKind:NSXMLTextKind options:NSXMLNodeIsCDATA];
+	[n setObjectValue:data];
+	[self addChild:n];
+	[n release];
+}
+
+- (void) parser:(NSXMLParser *) parser foundComment:(NSString *) comment
+{
+	[self addChild:[NSXMLNode commentWithStringValue:comment]];
+}
+
+- (void) parser:(NSXMLParser *) parser didStartElement:(NSString *) elementName namespaceURI:(NSString *) namespaceURI qualifiedName:(NSString *) qualifiedName attributes:(NSDictionary *) attributeDict
+{
+	NSXMLElement *subNode=[NSXMLElement elementWithName:elementName URI:namespaceURI];
+	// what shall we do with the qualified name?
+	[subNode setAttributesAsDictionary:attributeDict];
+#if 1
+	NSLog(@"didStartElement: %@ <%@ %@>", _objectValue, elementName, attributeDict);
+	NSLog(@"subNode=%@", subNode);
+#endif
+	if(_objectValue)
+			{ // add any text coming before this subelement
+				[self addChild:[NSXMLNode textWithStringValue:_objectValue]];
+				[_objectValue release];  
+				_objectValue=nil;
+			}
+	[self addChild:subNode];
+	[parser setDelegate:subNode];
+}
+
+- (void) parser:(NSXMLParser *) parser didEndElement:(NSString *) elementName namespaceURI:(NSString *) namespaceURI qualifiedName:(NSString *) qName
+{
+#if 1
+	NSLog(@"didEndElement: %@ </%@>", _objectValue, elementName);
+#endif
+	if(_objectValue)
+			{ // add any text coming after this subelement
+				[self addChild:[NSXMLNode textWithStringValue:_objectValue]];
+				[_objectValue release];  
+				_objectValue=nil;
+			}
+	[parser setDelegate:[self parent]];
+}
 
 @end

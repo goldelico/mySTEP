@@ -12,8 +12,8 @@
 @implementation NSXMLElement
 
 - (id) initWithName:(NSString *) name; { return [self initWithName:name URI:nil]; } 
-- (id) initWithName:(NSString *) name URI:(NSString *) uri; { self=[self initWithKind:NSXMLElementKind]; [self setURI:uri]; return self; }
-- (id) initWithName:(NSString *) name stringValue:(NSString *) value; { self=[self initWithName:name]; if(self) [self addChild:[NSXMLNode textWithStringValue:value]]; return self; }
+- (id) initWithName:(NSString *) name URI:(NSString *) uri; { if((self=[self initWithKind:NSXMLElementKind])) { [self setName:name]; [self setURI:uri]; } return self; }
+- (id) initWithName:(NSString *) name stringValue:(NSString *) value; { if((self=[self initWithName:name])) [self addChild:[NSXMLNode textWithStringValue:value]]; return self; }
 
 - (id) initWithXMLString:(NSString *) string error:(NSError **) err;
 { // this calls the XML parser...
@@ -39,36 +39,69 @@
 	[super dealloc];
 }
 
-// FIXME: handle parent pointer!
+- (NSString *) _descriptionTag;
+{
+	// show attributes
+	if(_name)
+		return [NSString stringWithFormat:@"<%@ %@ %d>%@\n", _name, NSStringFromClass([self class]), _kind, _objectValue?_objectValue:@""];
+	return [NSString stringWithFormat:@"<%@ %d>%@\n", NSStringFromClass([self class]), _kind, _objectValue?_objectValue:@""];
+}
 
-// implemented in superclass
+// should we have mutable dicts for children and attributes?
 
-- (void) insertChild:(NSXMLNode *) node atIndex:(NSUInteger) idx; { if(!_children) _children=[[NSMutableArray alloc] initWithCapacity:5]; [_children insertObject:node atIndex:idx]; }
-- (void) insertChildren:(NSArray *) nodes atIndex:(NSUInteger) idx; { if(!_children) _children=[[NSMutableArray alloc] initWithCapacity:[nodes count]+3]; [_children insertObjects:nodes atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(idx, [nodes count])]]; }
-- (void) removeChildAtIndex:(NSUInteger) idx; { [_children removeObjectAtIndex:idx]; }
-- (void) setChildren:(NSArray *) nodes; { ASSIGN(_children, nodes); }
-- (void) addChild:(NSXMLNode *) node; { [self insertChild:node atIndex:[_children count]]; }
-- (void) replaceChildAtIndex:(NSUInteger) idx withNode:(NSXMLNode *) node; { [_children replaceObjectAtIndex:idx withObject:node]; }
+- (NSArray *) elementsForName:(NSString *) name; { return NIMP; }	// search child by name
+- (NSArray *) elementsForLocalName:(NSString *) name URI:(NSString *) uri; { return NIMP; }
+- (void) addAttribute:(NSXMLNode *) attr; { [_attributes setObject:attr forKey:[attr name]]; } // FIXME: check for duplicates and handle NSXMLPreserveAttributeOrder (needs an NSArray to store the attribute order!)
+- (void) removeAttributeForName:(NSString *) name; { [_attributes removeObjectForKey:name]; }
 
-/* NIMP
- 
-- (NSArray *) elementsForName:(NSString *) name;
-- (NSArray *) elementsForLocalName:(NSString *) name URI:(NSString *) uri;
-- (void) addAttribute:(NSXMLNode *) attr;
-- (void) removeAttributeForName:(NSString *) name;
 - (void) setAttributes:(NSArray *) attrs;
+{
+	NSEnumerator *e=[attrs objectEnumerator];
+	NSXMLNode *node;
+	// remove all attributes
+	while((node=[e nextObject]))
+		[self addAttribute:node];	// does not need to check for duplicates!
+}
+
 - (void) setAttributesAsDictionary:(NSDictionary *) attrs;
-- (NSArray *) attributes;
-- (NSXMLNode *) attributeForName:(NSString *) name;
-- (NSXMLNode *) attributeForLocalName:(NSString *) name URI:(NSString *) uri;
-- (void) addNamespace:(NSXMLNode *) ns;
-- (void) removeNamespaceForPrefix:(NSString *) prefix;
-- (void) setNamespaces:(NSArray *) nspaces;
-- (NSArray *) namespaces;
-- (NSXMLNode *) namespaceForPrefix:(NSString *) prefix;
-- (NSXMLNode *) resolveNamespaceForName:(NSString *) name;
-- (NSString *) resolvePrefixForNamespaceURI:(NSString *) nsUri;
+{
+	NSEnumerator *e=[attrs keyEnumerator];
+	NSString *key;
+	// remove all attributes
+	while((key=[e nextObject]))
+			{
+				NSXMLNode *attr=[[NSXMLNode alloc] initWithKind:NSXMLAttributeKind];
+				[attr setName:key];
+				[attr setObjectValue:[attrs objectForKey:key]];
+				[self addAttribute:attr];
+				[attr release];
+			}
+}
+
+- (NSArray *) attributes; { return [_attributes allValues]; }
+- (NSXMLNode *) attributeForName:(NSString *) name; { return [_attributes objectForKey:name]; }	// search attribute by name
+- (NSXMLNode *) attributeForLocalName:(NSString *) name URI:(NSString *) uri; { return NIMP; }
+- (void) addNamespace:(NSXMLNode *) ns; { [_namespaces addObject:ns]; }	// FIXME: check for NSXMLNameSpaceKind and duplicates
+- (void) removeNamespaceForPrefix:(NSString *) prefix; { NIMP; }
+- (void) setNamespaces:(NSArray *) nspaces; { ASSIGN(_namespaces, nspaces); }	// FIXME: mutable copy?
+- (NSArray *) namespaces; { return _namespaces; }
+- (NSXMLNode *) namespaceForPrefix:(NSString *) prefix; { return NIMP; }
+- (NSXMLNode *) resolveNamespaceForName:(NSString *) name; { return NIMP; }
+- (NSString *) resolvePrefixForNamespaceURI:(NSString *) nsUri; { return NIMP; }
+
 - (void) normalizeAdjacentTextNodesPreservingCDATA:(BOOL) flag;
+{
+	NIMP;
+}
+
+/* implemented in superclass
+
+- (void) insertChild:(NSXMLNode *) node atIndex:(NSUInteger) idx; {}
+- (void) insertChildren:(NSArray *) nodes atIndex:(NSUInteger) idx; {}
+  (void) removeChildAtIndex:(NSUInteger) idx; {}
+- (void) setChildren:(NSArray *) nodes; {}
+- (void) addChild:(NSXMLNode *) node; {}
+- (void) replaceChildAtIndex:(NSUInteger) idx withNode:(NSXMLNode *) node; {}
 */
 
 @end

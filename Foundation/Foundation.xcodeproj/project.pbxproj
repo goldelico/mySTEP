@@ -63,6 +63,7 @@
 		EE6D46C70DEB1BEF00399D29 /* NSXMLElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F5810DA2C1A40007817B /* NSXMLElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE6D46C80DEB1BF400399D29 /* NSXMLNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F5830DA2C1A40007817B /* NSXMLNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE79057F0BCE873C00A35703 /* NSNumberFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = EE79057E0BCE873C00A35703 /* NSNumberFormatter.m */; };
+		EE8CDDE50F404B0600790C18 /* NSXMLNodeOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8CDDE40F404B0600790C18 /* NSXMLNodeOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEA925860C0B004500A846D2 /* alphanum.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257B0C0B004500A846D2 /* alphanum.charSet */; };
 		EEA925870C0B004500A846D2 /* control.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257C0C0B004500A846D2 /* control.charSet */; };
 		EEA925880C0B004500A846D2 /* decimal.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257D0C0B004500A846D2 /* decimal.charSet */; };
@@ -391,6 +392,7 @@
 		EE81F9780962EBEC00F9F896 /* NSCompoundPredicate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSCompoundPredicate.h; path = Sources/NSCompoundPredicate.h; sourceTree = "<group>"; };
 		EE81F9F40962EFD200F9F896 /* NSCompatibility.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSCompatibility.h; path = Sources/NSCompatibility.h; sourceTree = "<group>"; };
 		EE81FA1F0962F0EC00F9F896 /* NSDebug.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSDebug.h; path = Sources/NSDebug.h; sourceTree = "<group>"; };
+		EE8CDDE40F404B0600790C18 /* NSXMLNodeOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSXMLNodeOptions.h; path = Sources/NSXMLNodeOptions.h; sourceTree = "<group>"; };
 		EE8EFA4909605809006CCB63 /* NSPredicate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSPredicate.h; path = Sources/NSPredicate.h; sourceTree = "<group>"; };
 		EE8EFA9F0960954D006CCB63 /* NSAffineTransform.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSAffineTransform.h; path = Sources/NSAffineTransform.h; sourceTree = "<group>"; };
 		EE8EFAA00960954D006CCB63 /* NSAffineTransform.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSAffineTransform.m; path = Sources/NSAffineTransform.m; sourceTree = "<group>"; };
@@ -957,6 +959,7 @@
 				1F73F5800DA2C1A40007817B /* NSXMLDTDNode.m */,
 				1F73F5810DA2C1A40007817B /* NSXMLElement.h */,
 				1F73F5820DA2C1A40007817B /* NSXMLElement.m */,
+				EE8CDDE40F404B0600790C18 /* NSXMLNodeOptions.h */,
 				1F73F5830DA2C1A40007817B /* NSXMLNode.h */,
 				1F73F5840DA2C1A40007817B /* NSXMLNode.m */,
 				EECAD4330B9D772A00F37A98 /* HTMLEntities.strings */,
@@ -1210,6 +1213,7 @@
 				EE2115130CDF58F70062A8AD /* NSCondition.h in Headers */,
 				EEB458AA0DE48C1D007BE44E /* NSPointerFunctions.h in Headers */,
 				1FA220050E352CF100179AC4 /* NSPointerArray.h in Headers */,
+				EE8CDDE50F404B0600790C18 /* NSXMLNodeOptions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

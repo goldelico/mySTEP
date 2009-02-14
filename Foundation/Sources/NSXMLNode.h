@@ -9,6 +9,7 @@
 */
 
 #import <Foundation/NSObject.h>
+#import <Foundation/NSXMLNodeOptions.h>
 
 @class NSArray;
 @class NSMutableArray;

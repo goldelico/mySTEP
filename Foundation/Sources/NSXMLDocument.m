@@ -34,7 +34,10 @@
 {
 	NSData *data=[NSData dataWithContentsOfURL:url options:optsMask error:err];
 	if(!data)
-			{ [self release]; return nil; }
+			{
+			[self release];
+			return nil;
+			}
 	return [self initWithData:data options:optsMask	error:err];
 }
 
@@ -49,27 +52,40 @@
 	// set encoding if defined
 	// etc.
 				parser=[[NSXMLParser alloc] initWithData:data];
+#if 1
+				NSLog(@"parser=%@", parser);
+#endif
 				[parser setDelegate:self];
-				/*
 				[parser setShouldProcessNamespaces:YES];
-				 [parser setShouldReportNamespacePrefixes:YES];
-				 [parser setShouldResolveExternalEntities:YES];
-				 */				 
+				[parser setShouldReportNamespacePrefixes:YES];
+				[parser setShouldResolveExternalEntities:YES];
 				if(![parser parse])
-						{ if(err) *err=[parser parserError]; [parser release]; [self release]; return nil; }
+						{
+						if(err)
+								*err=[parser parserError];
+						[self release]; 
+						self=nil;
+						}
 				[parser release];
-				if((optsMask & NSXMLDocumentValidate) && ![self validateAndReturnError:err])
-						{ [self release]; return nil; }
+				if((optsMask & NSXMLDocumentValidate) && self && ![self validateAndReturnError:err])
+						{
+						[self release];
+						self=nil;
+						}
 			}
+#if 1
+	NSLog(@"parsed XML document: %@", self);
+#endif
 	return self;
 }
 
 - (id) initWithRootElement:(NSXMLElement *) rootNode;
 {
-	// raise exception or release, nil if not a root node
+	// raise [self release], self=nil; if not a valid root node
 	if((self=[super initWithKind:NSXMLDocumentKind]))
 			{
-				[self addChild:rootNode];
+				if(rootNode)
+					[self addChild:rootNode];
 			}
 	return self;
 }
@@ -79,6 +95,11 @@
 	// FIXME - we must set the encoding to UTF-8 *before* we try to parse!
 	// i.e. should we check the <?xml tag that it contains UTF-8 or add that if it is missing/different?
 	return [self initWithData:[str dataUsingEncoding:NSUTF8StringEncoding] options:optsMask error:err];
+}
+
+- (NSString *) _descriptionTag;
+{
+	return [super _descriptionTag];
 }
 
 - (BOOL) isStandalone; { return _isStandalone; }

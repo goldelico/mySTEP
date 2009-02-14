@@ -42,7 +42,6 @@ typedef NSUInteger NSXMLDTDNodeKind;
 	NSString *_systemID;
 	NSString *_notationName;	
 	NSXMLDTDNodeKind _DTDKind;
-	BOOL _isExternal;
 }
 
 - (id) initWithXMLString:(NSString *) xmlStr;
