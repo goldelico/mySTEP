@@ -374,7 +374,7 @@ void sigstop(void)
 		NSLog(@"was not able to open device file %@", dev);
 		return;
 		}
-	// we might send some commands here to set up the data format
+	// we might want to send some commands here to set up the requested data format
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(_dataReceived:)
 												 name:NSFileHandleReadCompletionNotification 
@@ -511,12 +511,13 @@ void sigstop(void)
 										// FIXME: improve precision of this constant
 	c*=3600000.0*(p1.altitude+p2.altitude);		// convert angle to sector of earth circumference at average altitude
 											// FIXME: we should calculate some circular distance between the points
-	c=sqrt(c*c+hh*hh);	// add hypotenuse
+	if(hh > 0.1 || hh < -0.1)
+		c=sqrt(c*c+hh*hh);	// add hypotenuse
 	return c;
 }
 
 - (float) routeBetween:(GeoLocation) p1 and:(GeoLocation) p2;
-{ // determine north-pointing angle for navigate from p1 to p2 on shortest distance
+{ // determine north-pointing angle to navigate from p1 to p2 on shortest distance
 	return 0.0;
 }
 

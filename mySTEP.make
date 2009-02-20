@@ -50,7 +50,7 @@ endif
 .PHONY:	clean build build_architecture
 
 ifeq ($(ARCHITECTURES),)	# set default architectures
-ARCHITECTURES=$(shell cd $(ROOT)/this/xgcc && echo *-*-*)
+ARCHITECTURES=$(shell cd $(ROOT)/this/gcc && echo *-*-*)
 endif
 
 ifeq ($(ARCHITECTURE),)	# set default
@@ -63,7 +63,7 @@ ifeq ($(ARCHITECTURE),arm-iPhone-darwin)
 TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 else
-TOOLCHAIN := $(ROOT)/this/xgcc/$(ARCHITECTURE)/$(ARCHITECTURE)
+TOOLCHAIN := $(ROOT)/this/gcc/$(ARCHITECTURE)/$(ARCHITECTURE)
 CC := $(TOOLCHAIN)/bin/gcc
 endif
 LS := $(TOOLCHAIN)/bin/ld
@@ -261,7 +261,7 @@ endif
 install_tool:
 ifneq ($(INSTALL),false)
 ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)
-		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && cd '$(ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && cd '$(ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 else	# app bundle
 		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)' && cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 endif
@@ -274,7 +274,7 @@ ifneq ($(SEND2ZAURUS),false)
 	# install on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH) 
 	ls -l "$(BINARY)"
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
-		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && tar xpzvf -"
+		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && cd '$(EMBEDDED_ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && tar xpzvf -"
 else
 		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
 endif

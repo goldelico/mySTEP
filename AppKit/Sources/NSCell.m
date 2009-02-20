@@ -327,7 +327,7 @@ static NSCursor *__textCursor = nil;
 		_contents=[anObject copyWithZone:NULL];	// save a copy (of a mutable string)
 	else
 			{ // image cell
-				if(anObject && ![anObject isKindOfClass:[NSImage class]])
+				if(anObject && ![(id <NSObject>) anObject isKindOfClass:[NSImage class]])
 					 NSLog(@"setObjectValue not an NSImage %@", anObject); 
 				_contents=[(NSObject *) anObject retain];	// copying an NSImage objectValue (e.g. the result of a TableView's dataSource) would cause a lot of trouble if it is not yet valid...
 			}
@@ -847,10 +847,15 @@ static NSCursor *__textCursor = nil;
 	return previousMask;
 }
 
+- (BOOL) _sendActionFrom:(NSView *) from
+{ // based on stack trace
+	if([from respondsToSelector:@selector(sendAction:to:)])
+		return [(NSControl *) from sendAction:[self action] to:[self target]];
+	return [NSApp sendAction:[self action] to:[self target] from:from];
+}
+
 - (void) performClick:(id)sender
 {
-	id target;
-	SEL action;
 	NSView *v=_controlView?_controlView:sender;
 	NSRect b=[v bounds];	// we should have a better algorithm - i.e. ask the control for our exact rect
 	NSDate *limit=[NSDate dateWithTimeIntervalSinceNow:0.3];
@@ -859,15 +864,10 @@ static NSCursor *__textCursor = nil;
 #if 0
 	NSLog(@"%@ performClick for view %@", self, v);
 #endif
-	if((action = [self action]))
+	if([self action])
 		{
 		NS_DURING
-			target = [self target];	// might go to first responder (target=nil)
-#if 0
-			NSLog(@"action=%@", NSStringFromSelector(action));
-			NSLog(@"target=%@", target);
-#endif
-			[(NSControl *) v sendAction:action to:target];
+			[self _sendActionFrom:v];
 		NS_HANDLER
 			{
 #if 0
@@ -977,7 +977,6 @@ static NSCursor *__textCursor = nil;
 	NSPoint point=[controlView convertPoint:[event locationInWindow] fromView:nil];
 	NSPoint first_point=point;
 	NSPoint last_point=point;
-	id target = [self target];
 	SEL action = [self action];
 	// FIXME: shouldn't we use [controlView menuForEvent:event]; and have that overriden in NSControl/NSMatrix (but not NSTableView!)
 	NSDate *expiration;
@@ -997,7 +996,7 @@ static NSCursor *__textCursor = nil;
 		}
 	tracking=[self startTrackingAt:point inView:controlView];
 	if(_c.actOnMouseDown && action)
-		[(NSControl*)controlView sendAction:action to:target];	// do this after starttracking (which may update the cell)
+		[self _sendActionFrom:controlView];	// do this after starttracking (which may update the cell)
 	expiration=[NSDate dateWithTimeIntervalSinceNow:0.8];
 	// FIXME: ctrl-click should immediately _trackLongPress
 	while(YES)
@@ -1027,7 +1026,7 @@ static NSCursor *__textCursor = nil;
 			case NSPeriodic:
 				{ // send periodic action while tracking (e.g. for a slider)
 					if(action)
-						[(NSControl*)controlView sendAction:action to:target];
+						[self _sendActionFrom:controlView];
 					continue;
 				}
 			case NSLeftMouseUp:					// Did mouse go up?
@@ -1049,7 +1048,7 @@ static NSCursor *__textCursor = nil;
 					if(_c.actOnMouseDragged)
 						{ // send action while tracking (e.g. for a slider)
 						if(action)
-							[(NSControl*)controlView sendAction:action to:target];
+							[self _sendActionFrom:controlView];
 						}
 					if(tracking && ![self continueTracking:last_point at:point inView:controlView])
 						tracking=NO;	// cell no longer wants to receive any more tracking calls
@@ -1068,7 +1067,7 @@ static NSCursor *__textCursor = nil;
 				inView:controlView
 			 mouseIsUp:mouseWentUp];
 	if(_c.actOnMouseUp && action && mouseWentUp)
-		[(NSControl*)controlView sendAction:action to:target];
+		[self _sendActionFrom:controlView];
 	return mouseWentUp;
 }													
 

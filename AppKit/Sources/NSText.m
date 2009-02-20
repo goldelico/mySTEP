@@ -615,6 +615,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 #if 0
 				NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p));
 #endif
+				// handle click on NSTextAttachments
 				if(NSLocationInRange(pos, _selectedRange))
 						{ // in current range we already hit the current selection it is a potential drag&drop
 							rng=_selectedRange;

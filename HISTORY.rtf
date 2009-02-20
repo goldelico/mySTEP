@@ -18,7 +18,9 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \b0 \
 \
-* checked Foundation and AppKit with clang and fixed several issues (most of them: memory leaks, some potential NULL pointers and unitialized variables)\
+* provided basic parsing fro NSXMLDocument and implemented many missing methods\
+* added some minor missing methods (e.g. decodeIntegerForKey:)\
+* checked Foundation and AppKit with Clang and fixed several issues (most of them: memory leaks, some potential NULL pointers and unitialized variables)\
 * class specific allocation counters added to better trace down memory leaks (enable by NSLog=memory)\
 * NSProtocolFromString() copied from GNUstep\
 * made mySTEP.make identify all existing compilers to build multi-architecture binaries\

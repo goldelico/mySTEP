@@ -679,7 +679,7 @@ containerOrigin:(NSPoint)containerOrigin;
 {
 	[_textContainers insertObject:container atIndex:index];
 	if(index == 0)
-		_firstTextView=container;	// has changed
+		_firstTextView=self;	// has changed
 }
 
 - (int) intAttribute:(int)attributeTag forGlyphAtIndex:(unsigned)glyphIndex;

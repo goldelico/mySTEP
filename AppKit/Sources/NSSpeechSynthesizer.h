@@ -32,7 +32,9 @@ typedef NSUInteger NSSpeechBoundary;
 @interface NSSpeechSynthesizer : NSObject  <NSCoding>
 {
 	NSDistantObject *_server;
+	NSString *_voice;
 	id _delegate;
+	BOOL _usesFeedbackWindow;
 }
 
 + (NSDictionary *) attributesForVoice:(NSString *) voice;

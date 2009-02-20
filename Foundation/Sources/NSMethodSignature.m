@@ -331,13 +331,15 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	[NSMethodSignature __call_me:self :sel :self];
 	passStructByPointer=NO;
 	returnStructByVirtualArgument=YES;
+#elif defined(__arm__)	// for ARM
+#if defined(__ARM_EABI__)
 #else
-#if defined(__arm__)	// for ARM
 	registerSaveAreaSize=4*sizeof(long);		// for ARM processor
 	structReturnPointerLength=sizeof(void *);	// if we have one
 	floatAsDouble=YES;
 //	structByRef=YES;
-#elseif defined(__mips__)	// for MIPS
+#endif
+#elif defined(__mips__)	// for MIPS
 	registerSaveAreaSize=4*sizeof(long);		// for ARM processor
 	structReturnPointerLength=sizeof(void *);	// if we have one
 	floatAsDouble=YES;
@@ -345,9 +347,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 #else
 	// check for others
 #endif
-#endif
 	isBigEndian=(NSHostByteOrder()==NS_BigEndian);
-#if 0
+#if 1
 	NSLog(@"NSMethodSignature +initialize: processor is %@", isBigEndian?@"Big Endian":@"Little Endian");
 	NSLog(@"NSMethodSignature +initialize: register save area %d bytes", registerSaveAreaSize);
 #endif

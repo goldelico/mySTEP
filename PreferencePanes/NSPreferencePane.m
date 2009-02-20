@@ -178,9 +178,9 @@ NSString *NSPreferencePaneCancelUnselectNotification=@"NSPreferencePaneCancelUns
 	[current didUnselect];
 }
 
-- (void) orderFrontStandardPreferencePane:(id)sender;   // could connect Preferences... button
+- (void) orderFrontStandardPreferencePane:(id)sender;   // could connect Preferences... button or menu item
 {
-	[self orderFrontPreferencePane:@"myApp.prefPane"];
+	[self orderFrontPreferencePane:@"myApp.prefPane"];	// ? use main bundle identifier ?
 }
 
 @end

@@ -25,41 +25,52 @@ NSString *NSVoiceGenderFemale=@"GenderFemale";
 @implementation NSSpeechSynthesizer
 
 + (NSDictionary *) attributesForVoice:(NSString *) voice; { return nil; }
-+ (NSArray *) availableVoices; { return nil; }
-+ (NSString *) defaultVoice; { return nil; }
++ (NSArray *) availableVoices; { return [NSArray arrayWithObject:[self defaultVoice]]; }
++ (NSString *) defaultVoice; { return @"default"; }
 + (BOOL) isAnyApplicationSpeaking; { return NO; }
 
 - (id) delegate; { return _delegate; }
 
 - (id) initWithVoice:(NSString *) voice;
 {
-	// should open connection to speech server
-	// speech server should link with flite library
+	if((self=[super init]))
+			{
+				_voice=[voice retain];
+			}
 	return nil;
 }
 
-- (id) copyWithZone:(NSZone *) z; { return [self retain]; }
+- (void) dealloc
+{
+	[_voice release];
+	[super dealloc];
+}
+
+- (id) copyWithZone:(NSZone *) z; { return [[NSSpeechSynthesizer alloc] initWithVoice:_voice]; }
 
 - (BOOL) isSpeaking; { return NO; }
 - (void) setDelegate:(id) delegate; { _delegate=delegate; }
-- (void) setUsesFeedbackWindow:(BOOL) flag; { }
-- (BOOL) setVoice:(NSString *) voice; { return NO; }
+- (void) setUsesFeedbackWindow:(BOOL) flag; { _usesFeedbackWindow=flag; }
+- (BOOL) setVoice:(NSString *) voice; { ASSIGN(_voice, voice); return YES; }
 
 - (BOOL) startSpeakingString:(NSString *) text;
 {
-	NSLog(@"say: %@", text);
-	return YES;
+	return [self startSpeakingString:text toURL:nil];
 }
 
 - (BOOL) startSpeakingString:(NSString *) text toURL:(NSURL *) url;
 {
-	NSLog(@"say: %@", text);
+	// send message to voice server daemon
+	NSLog(@"say [%@]: %@", _voice, text);
+	// split into words and phonemes
+	// and call appropriate delegate methods
+	[_delegate speechSynthesizer:self didFinishSpeaking:YES];
 	return YES;
 }
 
 - (void) stopSpeaking; { }
-- (BOOL) usesFeedbackWindow; { return NO; }
-- (NSString *) voice; { return nil; }
+- (BOOL) usesFeedbackWindow; { return _usesFeedbackWindow; }
+- (NSString *) voice; { return _voice; }
 
 - (void) encodeWithCoder:(NSCoder *)aCoder				// NSCoding protocol
 {

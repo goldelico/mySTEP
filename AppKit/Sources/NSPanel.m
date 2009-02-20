@@ -1179,6 +1179,8 @@ static NSOpenPanel *__openPanel;
 //
 //*****************************************************************************
 
+// FIXME: this should be a ColorPicker bundle!
+
 @interface GSColorWheelView : NSImageView
 {
 	IBOutlet NSColorPanel *_colorPanel;	// connected in NIB file
@@ -1456,14 +1458,13 @@ static NSColorPanel *__colorPanel;
 
 - (NSColorPanel *) colorPanel						{ return __colorPanel; }
 
-- (void) insertNewButtonImage:(NSImage *)newImage
-						   in:(NSButtonCell *)newButtonCell	{}
+- (void) insertNewButtonImage:(NSImage *)newImage in:(NSButtonCell *)newButtonCell	{ SUBCLASS; }
 
 - (NSImage *) provideNewButtonImage					{ return nil; }
-- (void) setMode:(int)mode							{}
-- (void) attachColorList:(NSColorList *)colorList	{}
-- (void) detachColorList:(NSColorList *)colorList	{}
-- (void) alphaControlAddedOrRemoved:(id)sender		{}
-- (void) viewSizeChanged:(id)sender					{}
+- (void) setMode:(int)mode							{ SUBCLASS; }
+- (void) attachColorList:(NSColorList *)colorList	{ SUBCLASS; }
+- (void) detachColorList:(NSColorList *)colorList	{ SUBCLASS; }
+- (void) alphaControlAddedOrRemoved:(id)sender		{ SUBCLASS; }
+- (void) viewSizeChanged:(id)sender					{ return; }
 
 @end

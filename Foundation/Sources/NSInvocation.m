@@ -219,17 +219,17 @@ static retval_t apply_block(void *data)
 	return self;
 }
 
-// NOTE: this approach is no sane since the retval_t from __builtin_apply_args() may be a pointer into a stack frame that becomes invalid if we return apply()
+// NOTE: this approach is not sane since the retval_t from __builtin_apply_args() may be a pointer into a stack frame that becomes invalid if we return apply()
 // therefore, this mechanism is not signal()-safe (i.e. don't use NSTask)
 
 #define APPLY(NAME, TYPE)  case NAME: { \
-	static TYPE return##NAME(TYPE data) { fprintf(stderr, "return"#NAME" %x\n", (unsigned)data); return data; } \
+	/*static*/ TYPE return##NAME(TYPE data) { fprintf(stderr, "return"#NAME" %x\n", (unsigned)data); return data; } \
 	inline retval_t apply##NAME(TYPE data) { void *args = __builtin_apply_args(); fprintf(stderr, "apply"#NAME" args=%p %x\n", args, (unsigned)data); return __builtin_apply((apply_t)return##NAME, args, sizeof(data)); } \
 	fprintf(stderr, "case"#NAME":\n"); \
 	return apply##NAME(*(TYPE *) _retval); } 
 
 #define APPLY_VOID(NAME)  case NAME: { \
-	static void return##NAME(void) { return; } \
+	/*static*/ void return##NAME(void) { return; } \
 	inline retval_t apply##NAME(void) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, 0); } \
 	return apply##NAME(); } 
 

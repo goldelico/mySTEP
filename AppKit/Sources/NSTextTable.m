@@ -53,6 +53,7 @@
 - (void) setWidth:(float) val type:(NSTextBlockValueType) type forLayer:(NSTextBlockLayer) layer;
 {
 	int i;
+	// FIXME: don't use NSAssert but NSException!
 	NSAssert(layer <= NSTextBlockMargin, @"invalid layer");
 	for(i=0; i<=NSMaxYEdge; i++)
 		{
