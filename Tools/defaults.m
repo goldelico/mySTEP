@@ -60,6 +60,13 @@ int main(int argc, const char *argv[])
 	
 	args = [proc arguments];
 	
+	if ([args count] <= 1)
+			{
+				NSLog(@"defaults: use --help for command list\n");
+				[pool release];
+				exit(1);
+			}
+
 	for (i = 1; i < [args count]; i++)
 		{
 		if ([[args objectAtIndex: i] isEqual: @"--help"] ||
@@ -173,13 +180,6 @@ int main(int argc, const char *argv[])
 			}
 		}
 	
-	i = 1;
-	if ([args count] <= i)
-		{
-		NSLog(@"defaults: use --help for command list\n");
-		[pool release];
-		exit(1);
-		}
 	if ([[args objectAtIndex: i] isEqual: @"-u"])
 		{
 		if ([args count] > ++i)
@@ -208,10 +208,6 @@ int main(int argc, const char *argv[])
 		[pool release];
 		exit(1);
 		}
-#if 0   // isn't included by mySTEP anyway
-	/* We don't want this tool in the defaults database - so remove it. */
-	[defs removePersistentDomainForName: [proc processName]];
-#endif
 	if ([args count] <= i)
 		{
 		NSLog(@"defaults: too few arguments supplied!\n");
