@@ -107,6 +107,7 @@
 #include <netinet/if_ether.h>
 #include <arpa/inet.h>
 #ifdef __mySTEP__
+#include <linux/if.h>
 #include <linux/wireless.h>
 #endif
 
