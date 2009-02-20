@@ -180,12 +180,14 @@
 
 @implementation NSUserDefaultsController
 
-+ (id) sharedUserDefaultsController; { static id _obj; if(!_obj) _obj=[[self alloc] initWithDefaults:nil initialValues:nil]; return _obj; }
+static id sharedDefaultsController;
+
++ (id) sharedUserDefaultsController; { if(!sharedDefaultsController) sharedDefaultsController=[[self alloc] initWithDefaults:nil initialValues:nil]; return sharedDefaultsController; }
 - (BOOL) appliesImmediately; { return _appliesImmediately; }
 - (NSUserDefaults *) defaults; { return _defaults; }
 - (NSDictionary *) initialValues; { return _initialValues; }
 - (id) initWithDefaults:(NSUserDefaults *) defaults
-		  initialValues:(NSDictionary *) values; { return NIMP; }
+			initialValues:(NSDictionary *) values; { return NIMP; }
 - (void) revert:(id) sender; { NIMP; }
 - (void) revertToInitialValues:(id) sender; { NIMP; }
 - (void) save:(id) sender; { NIMP; }
@@ -194,7 +196,15 @@
 - (id) values; { return _values; }
 
 - (id) copyWithZone:(NSZone *) zone { return [self retain]; }
+
 - (void) encodeWithCoder:(NSCoder *) aCoder	{ return; }
-- (id) initWithCoder:(NSCoder *) aDecoder { return self; }
+
+- (id) initWithCoder:(NSCoder *) aDecoder
+{
+	if([aDecoder decodeBoolForKey:@"NSSharedInstance"] && !sharedDefaultsController)
+			sharedDefaultsController=self;
+	_appliesImmediately=[aDecoder decodeBoolForKey:@"NSAppliesImmediately"];
+	return self;
+}
 
 @end
