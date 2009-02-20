@@ -1,5 +1,5 @@
 /*
- the manual page: http://developer.apple.com/documentation/Darwin/Reference/ManPages/man8/scselect.8.html
+ the man page: http://developer.apple.com/documentation/Darwin/Reference/ManPages/man8/scselect.8.html
  a description how configd works: http://www.afp548.com/article.php?story=20041015131913324
 */
 
