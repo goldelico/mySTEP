@@ -6,8 +6,6 @@
 //  Copyright (c) 2006 DSITRI. All rights reserved.
 //
 
-// CODE NOT TESTED
-
 #import <Foundation/NSURLCache.h>
 #import <Foundation/NSData.h>
 #import <Foundation/NSDictionary.h>

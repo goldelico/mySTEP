@@ -818,6 +818,8 @@ static NSCursor *__textCursor = nil;
 }
 
 #if NEW
+// should this also be implemented in NSText???
+// i.e. we should update the insertion point not here but if any selection change occurs!
 
 - (void) moveDown:(id) sender
 {	

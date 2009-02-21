@@ -6,69 +6,60 @@
 //  Copyright (c) 2004 DSITRI. All rights reserved.
 //
 
-// CODE NOT TESTED
-
 #import <Foundation/NSURLConnection.h>
+#import <Foundation/NSURLProtocol.h>
 
-@interface _NSURLConnectionDataCollector : NSObject <NSURLProtocolClient>
+@interface _NSURLConnectionDataCollector : NSObject // used as internal delegate for synchronous requests
 {
-	NSURLConnection *_connection;
-	NSMutableData *_data;
+	NSMutableData **_data;
 	NSError **_error;
 	NSURLResponse **_response;
 	BOOL _done;
 }
 
-- (void) _setConnection:(NSURLConnection *) c;
-- (BOOL) _done;
-- (NSData *) _getDataAndRelease;
+- (id) initWithDataPointer:(NSMutableData **) data responsePointer:(NSURLResponse **) response errorPointer:(NSError **) error;
+- (void) run;
 
 @end
 
 @implementation _NSURLConnectionDataCollector
 
-- (id) initWithResponsePointer:(NSURLResponse **) response andErrorPointer:(NSError **) error;
+- (id) initWithDataPointer:(NSMutableData **) data responsePointer:(NSURLResponse **) response errorPointer:(NSError **) error;
 {
 	if((self=[super init]))
 		{
-		_response=response;
-		_error=error;
+			_response=response;
+			*response=nil;
+			_error=error;
+			*error=nil;
+			_data=data;
+			*data=nil;
+			_done=NO;
 		}
 	return self;
 }
 
-- (void) dealloc;
+- (void) run;
 {
-	[_data release];
-	[super dealloc];
+		while(!_done)
+			[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]; // run loop until we are finished (or we could introduce some timeout!)
 }
-
-- (void) _setConnection:(NSURLConnection *) c; { _connection=c; }
-- (BOOL) _done; { return _done; }
-- (NSData *) _getDataAndRelease; { NSData *d=_data; [self release]; return d; }
 
 // notification handler
 
-- (void) URLProtocol:(NSURLProtocol *) proto cachedResponseIsValid:(NSCachedURLResponse *) resp;
+- (void) connection:(NSURLConnection *) conn didReceiveResponse:(NSURLResponse *) resp; { *_response=resp; }
+- (void) connection:(NSURLConnection *) conn didFailWithError:(NSError *) error; { *_error=error; *_data=nil; _done=YES; }
+- (void) connectionDidFinishLoading:(NSURLConnection *) conn; { _done=YES; }
+
+- (void) connection:(NSURLConnection *) conn didReceiveData:(NSData *) data;
 {
-	return;
+	if(!*_data)
+		*_data=[[data mutableCopy] autorelease];
+	else
+		[*_data appendData:data];
 }
 
-- (void) URLProtocol:(NSURLProtocol *) proto didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *) chall;
-{
-	return;
-}
-
-- (void) URLProtocol:(NSURLProtocol *) proto didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *) chall;
-{
-	return;
-}
-
-- (void) URLProtocol:(NSURLProtocol *) proto wasRedirectedToRequest:(NSURLRequest *) request redirectResponse:(NSURLResponse *) redirectResponse;
-{
-	return;
-}
-
+#if 0	// not required!!!
 - (void) URLProtocol:(NSURLProtocol *) proto didFailWithError:(NSError *) error;
 {
 	*_error=error;
@@ -92,6 +83,7 @@
 	else
 		[_data appendData:data];
 }
+#endif
 
 @end
 
@@ -112,12 +104,13 @@
 
 + (NSData *) sendSynchronousRequest:(NSURLRequest *) request returningResponse:(NSURLResponse **) response error:(NSError **) error;
 {
-	_NSURLConnectionDataCollector *dc=[[_NSURLConnectionDataCollector alloc] initWithResponsePointer:response andErrorPointer:error];
+	NSMutableData *data;
+	NSError *dummy;
+	_NSURLConnectionDataCollector *dc=[[_NSURLConnectionDataCollector alloc] initWithDataPointer:&data responsePointer:response errorPointer:error?error:&dummy];
 	NSURLConnection *c=[self connectionWithRequest:request delegate:dc];
-	[dc _setConnection:c];
-	while(![dc _done])
-		; // run loop until we are finished
-	return [dc _getDataAndRelease];
+	[dc run];
+	[dc release];
+	return data;
 }
 
 - (id) initWithRequest:(NSURLRequest *) request delegate:(id) delegate;
@@ -171,6 +164,7 @@
 }
 
 // notification handlers just forward those our client wants to know
+// do we really need this?
 
 - (void) URLProtocol:(NSURLProtocol *) proto cachedResponseIsValid:(NSCachedURLResponse *) resp;
 {
@@ -179,12 +173,12 @@
 
 - (void) URLProtocol:(NSURLProtocol *) proto didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *) chall;
 {
-	return;
+	[_delegate connection:self didReceiveAuthenticationChallenge:chall];
 }
 
 - (void) URLProtocol:(NSURLProtocol *) proto didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *) chall;
 {
-	return;
+	[_delegate connection:self didCancelAuthenticationChallenge:chall];
 }
 
 - (void) URLProtocol:(NSURLProtocol *) proto wasRedirectedToRequest:(NSURLRequest *) request redirectResponse:(NSURLResponse *) redirectResponse;

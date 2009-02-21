@@ -6,7 +6,6 @@
 //  Copyright (c) 2006 DSITRI. All rights reserved.
 //
 
-// CODE NOT TESTED
 
 #import <Foundation/Foundation.h>
 

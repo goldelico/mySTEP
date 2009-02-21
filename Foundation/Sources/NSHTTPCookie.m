@@ -6,8 +6,6 @@
 //  Copyright (c) 2006 DSITRI. All rights reserved.
 //
 
-// CODE NOT TESTED
-
 #import <Foundation/NSHTTPCookie.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>

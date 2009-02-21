@@ -6,8 +6,6 @@
 //  Copyright (c) 2006 DSITRI. All rights reserved.
 //
 
-// CODE NOT TESTED
-
 #import <Foundation/NSURLAuthenticationChallenge.h>
 #import <Foundation/NSURLCredential.h>
 #import <Foundation/NSURLResponse.h>

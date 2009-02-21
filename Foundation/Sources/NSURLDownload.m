@@ -6,9 +6,8 @@
 //  Copyright (c) 2006 DSITRI. All rights reserved.
 //
 
-// CODE NOT TESTED
-
 #import <Foundation/NSURLDownload.h>
+#import <Foundation/NSURLProtocol.h>
 #import <Foundation/NSString.h>
 
 // code is similar to what we do for NSURLConnection
@@ -23,7 +22,7 @@
 
 - (void) cancel;
 {
-	NIMP;
+	[_protocol stopLoading];
 }
 
 - (BOOL) deletesFileUponFailure; { return _deletesFileUponFailure; }
@@ -31,16 +30,34 @@
 
 - (id) initWithRequest:(NSURLRequest *) request delegate:(id) delegate;
 {
-	return NIMP;
+	self=[super init];
+#if 0
+	NSLog(@"%@ initWithRequest:%@ delegate:%@", self, request, delegate);
+#endif
+	if(self)
+			{
+				_delegate=delegate;
+				_protocol=[[NSURLProtocol alloc] initWithRequest:request cachedResponse:nil client:(id <NSURLProtocolClient>) self];
+#if 1
+				NSLog(@"  -> protocol %@", _protocol);
+#endif
+				[_protocol startLoading];
+				[_delegate downloadDidBegin:self];
+			}
+	return self;
 }
 
 - (id) initWithResumeData:(NSData *) resumeData delegate:(id) delegate path:(NSString *) path;
 {
+	// resumeData is minimal state information
+	// i.e. should encode the URL
+	// and the file position
 	return NIMP;
 }
 
 - (void) dealloc;
 {
+	[_protocol release];
 	[super dealloc];
 }
 
@@ -55,6 +72,52 @@
 	ASSIGN(_destination, path);
 }
 
+// notification handlers just forward those our client wants to know
+
+- (void) URLProtocol:(NSURLProtocol *) proto cachedResponseIsValid:(NSCachedURLResponse *) resp;
+{
+	return;
+}
+
+- (void) URLProtocol:(NSURLProtocol *) proto didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *) chall;
+{
+	[_delegate download:self didReceiveAuthenticationChallenge:chall];
+}
+
+- (void) URLProtocol:(NSURLProtocol *) proto didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *) chall;
+{
+	[_delegate download:self didCancelAuthenticationChallenge:chall];
+}
+
+- (void) URLProtocol:(NSURLProtocol *) proto wasRedirectedToRequest:(NSURLRequest *) request redirectResponse:(NSURLResponse *) redirectResponse;
+{
+	NSURLRequest *r=[_delegate download:self willSendRequest:request redirectResponse:redirectResponse];
+	if(!r)
+		[proto stopLoading];
+	NSLog(@"wasRedirectedToRequest:%@", request);
+	// send new request for r
+}
+
+- (void) URLProtocol:(NSURLProtocol *) proto didFailWithError:(NSError *) error;
+{
+	[_delegate download:self didFailWithError:error];
+}
+
+- (void) URLProtocol:(NSURLProtocol *) proto didReceiveResponse:(NSURLResponse *) response cacheStoragePolicy:(NSURLCacheStoragePolicy) policy;
+{
+	[_delegate download:self didReceiveResponse:response];
+}
+
+- (void) URLProtocolDidFinishLoading:(NSURLProtocol *) proto;
+{
+	[_delegate downloadDidFinish:self];
+}
+
+- (void) URLProtocol:(NSURLProtocol *) proto didLoadData:(NSData *) data;
+{
+	// append to file
+	[_delegate download:self didReceiveDataOfLength:[data length]];
+}
 
 @end
 

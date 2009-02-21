@@ -16,6 +16,7 @@
 @class NSURLAuthenticationChallenge;
 @class NSURLResponse;
 @class NSURLRequest;
+@class NSURLProtocol;
 
 @interface NSURLDownload : NSObject
 {
@@ -23,6 +24,8 @@
 	NSString *_destination;
 	NSURLRequest *_request;
 	NSData *_resumeData;
+	NSURLProtocol *_protocol;
+	BOOL _done;
 	BOOL _deletesFileUponFailure;
 }
 

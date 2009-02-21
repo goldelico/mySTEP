@@ -6,8 +6,6 @@
 //  Copyright (c) 2006 DSITRI. All rights reserved.
 //
 
-// CODE NOT TESTED
-
 #import <Foundation/NSURLProtocol.h>
 #import <Foundation/NSURLRequest.h>
 #import <Foundation/NSObject.h>
