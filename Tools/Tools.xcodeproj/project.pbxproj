@@ -15,6 +15,7 @@
 			dependencies = (
 				EE196B960D44E9230074ED1A /* PBXTargetDependency */,
 				EE144F640A14E7C700C93F94 /* PBXTargetDependency */,
+				EECF94990F529FA5003AF020 /* PBXTargetDependency */,
 				EE144F660A14E7CE00C93F94 /* PBXTargetDependency */,
 				EE3254220A5322B40057B3B1 /* PBXTargetDependency */,
 				EE9788A50AA70F5E007ECDE1 /* PBXTargetDependency */,
@@ -56,6 +57,10 @@
 		EEAA87900A14909000F2E5B5 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EEB5703109634D8700EAE41B /* defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA32EC409537D0C001244CF /* defaults.m */; };
 		EEC12B130E3E6024007E6996 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEC12B120E3E6024007E6996 /* AddressBook.framework */; };
+		EECF948C0F529F75003AF020 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
+		EECF948D0F529F75003AF020 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
+		EECF948E0F529F75003AF020 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
+		EECF94960F529F85003AF020 /* ibtool.m in Sources */ = {isa = PBXBuildFile; fileRef = EECF94870F529F6E003AF020 /* ibtool.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,6 +113,13 @@
 			remoteGlobalIDString = EE97888E0AA70E53007ECDE1;
 			remoteInfo = say;
 		};
+		EECF94980F529FA5003AF020 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EECF94880F529F75003AF020;
+			remoteInfo = ibtool;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -117,7 +129,6 @@
 		EE196B8D0D44E89E0074ED1A /* abook */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = abook; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE291C660AD7BD50004A1CA6 /* scutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scutil; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE291C6C0AD7BD6F004A1CA6 /* scutil.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = scutil.m; sourceTree = "<group>"; };
-		EE2FDDA10976F595003EA8A2 /* bin */ = {isa = PBXFileReference; lastKnownFileType = folder; name = bin; path = /Users/hns/Documents/Projects/QuantumSTEP/usr/bin; sourceTree = "<absolute>"; };
 		EE3254080A531D5D0057B3B1 /* scselect.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = scselect.m; sourceTree = "<group>"; };
 		EE3254190A53225D0057B3B1 /* scselect */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scselect; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE93E77D0A239FE9008A5E48 /* plutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = plutil; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -128,6 +139,8 @@
 		EEA330A709538118001244CF /* defaults */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = defaults; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEC12A310E3E5E5F007E6996 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEC12B120E3E6024007E6996 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = /System/Library/Frameworks/AddressBook.framework; sourceTree = "<absolute>"; };
+		EECF94870F529F6E003AF020 /* ibtool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ibtool.m; sourceTree = "<group>"; };
+		EECF94940F529F75003AF020 /* plutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = plutil; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEDB61250A1497F300E4CA39 /* HISTORY.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = HISTORY.rtf; path = ../HISTORY.rtf; sourceTree = SOURCE_ROOT; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -206,6 +219,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EECF948B0F529F75003AF020 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EECF948C0F529F75003AF020 /* AppKit.framework in Frameworks */,
+				EECF948D0F529F75003AF020 /* Cocoa.framework in Frameworks */,
+				EECF948E0F529F75003AF020 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -214,7 +237,6 @@
 			children = (
 				EEC12A310E3E5E5F007E6996 /* mySTEP.make */,
 				EEDB61250A1497F300E4CA39 /* HISTORY.rtf */,
-				EE2FDDA10976F595003EA8A2 /* bin */,
 				EE144F550A14E77E00C93F94 /* Sources */,
 				EEFFF241098DF160002610FC /* MacOS X Frameworks */,
 				EE29D8D8058A38830035639B /* Products */,
@@ -227,6 +249,7 @@
 			children = (
 				EE196B7F0D44E8990074ED1A /* abook.m */,
 				EEA32EC409537D0C001244CF /* defaults.m */,
+				EECF94870F529F6E003AF020 /* ibtool.m */,
 				EE144F5E0A14E79300C93F94 /* open.m */,
 				EE93E7820A239FFC008A5E48 /* plutil.m */,
 				EE97888C0AA70E4D007ECDE1 /* say.m */,
@@ -246,6 +269,7 @@
 				EE97889A0AA70E53007ECDE1 /* say */,
 				EE3254190A53225D0057B3B1 /* scselect */,
 				EE291C660AD7BD50004A1CA6 /* scutil */,
+				EECF94940F529F75003AF020 /* plutil */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -383,6 +407,23 @@
 			productReference = EEA330A709538118001244CF /* defaults */;
 			productType = "com.apple.product-type.tool";
 		};
+		EECF94880F529F75003AF020 /* ibtool */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EECF94900F529F75003AF020 /* Build configuration list for PBXNativeTarget "ibtool" */;
+			buildPhases = (
+				EECF94890F529F75003AF020 /* Sources */,
+				EECF948B0F529F75003AF020 /* Frameworks */,
+				EECF948F0F529F75003AF020 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ibtool;
+			productName = defaults;
+			productReference = EECF94940F529F75003AF020 /* plutil */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -399,6 +440,7 @@
 				EE144F620A14E7C000C93F94 /* Tools */,
 				EE196B810D44E89E0074ED1A /* abook */,
 				EEA330A609538118001244CF /* defaults */,
+				EECF94880F529F75003AF020 /* ibtool */,
 				EE144F280A14E6C300C93F94 /* open */,
 				EE93E7710A239FE8008A5E48 /* plutil */,
 				EE97888E0AA70E53007ECDE1 /* say */,
@@ -500,6 +542,19 @@
 			shellPath = /bin/sh;
 			shellScript = "export SOURCES=\"say.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
+		EECF948F0F529F75003AF020 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SOURCES=\"ibtool.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -559,6 +614,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EECF94890F529F75003AF020 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EECF94960F529F85003AF020 /* ibtool.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -596,6 +659,11 @@
 			isa = PBXTargetDependency;
 			target = EE97888E0AA70E53007ECDE1 /* say */;
 			targetProxy = EE9788A40AA70F5E007ECDE1 /* PBXContainerItemProxy */;
+		};
+		EECF94990F529FA5003AF020 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EECF94880F529F75003AF020 /* ibtool */;
+			targetProxy = EECF94980F529FA5003AF020 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1184,6 +1252,92 @@
 			};
 			name = Default;
 		};
+		EECF94910F529F75003AF020 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = plutil;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		EECF94920F529F75003AF020 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = plutil;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EECF94930F529F75003AF020 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = plutil;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Default;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1273,6 +1427,16 @@
 				EE9788970AA70E53007ECDE1 /* Development */,
 				EE9788980AA70E53007ECDE1 /* Deployment */,
 				EE9788990AA70E53007ECDE1 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EECF94900F529F75003AF020 /* Build configuration list for PBXNativeTarget "ibtool" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EECF94910F529F75003AF020 /* Development */,
+				EECF94920F529F75003AF020 /* Deployment */,
+				EECF94930F529F75003AF020 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
