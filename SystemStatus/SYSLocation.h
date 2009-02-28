@@ -37,8 +37,8 @@ typedef struct GeoMovement
 	float speed;		// in m/s
 	float direction;	// in degrees north
 	float ascent;		// in degrees/s
-	float elevation;	// in degrees
-	float precision;	// ??
+	float elevation;	// in degrees upwards
+	float precision;	// speed precision
 } GeoMovement;
 
 @interface SYSLocation : NSObject
