@@ -1268,15 +1268,13 @@ next:
 		}
 	if([plist isKindOfClass:[NSData class]])
 		{
-		[str appendString:@"<data>\n"];
-		// FIXME: encode data as base64
-		[str appendString:@"</data>\n"];
+			[str appendString:@"<data>\n"];
+			[str appendString:[(NSData *) data _base64String]];
+			[str appendString:@"</data>\n"];
 		}
 	if([plist isKindOfClass:[NSDate class]])
 		{
-		[str appendString:@"<date>\n"];
-		// FIXME: encode date (which format?)
-		[str appendString:@"</date>\n"];
+			[str appendFormat:@"<date>%@</date>\n", [(NSDate *) plist description]];
 		}
 	if(errorString)
 		*errorString=[NSString stringWithFormat:@"Can't encode object of class %@ as property list", NSStringFromClass([plist class])];

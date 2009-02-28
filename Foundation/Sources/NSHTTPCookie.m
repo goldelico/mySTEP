@@ -14,6 +14,7 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSURL.h>
 #import <Foundation/NSValue.h>
+#import <Foundation/NSDate.h>
 
 
 @implementation NSHTTPCookie
@@ -85,6 +86,7 @@ NSString *NSHTTPCookieVersion=@"Version";
 {
 	if((self=[super init]))
 		{
+			// FIXME: check and set defaults according to definition of the properties contants
 		if([[properties objectForKey:NSHTTPCookieName] length] < 1 ||
 		   ![properties objectForKey:NSHTTPCookieValue] ||
 		   (![properties objectForKey:NSHTTPCookieOriginURL] && ![properties objectForKey:NSHTTPCookieDomain]))
@@ -92,7 +94,14 @@ NSString *NSHTTPCookieVersion=@"Version";
 			[self release];
 			return nil;
 			}
-		_properties=[properties retain];
+		_properties=[properties mutableCopy];
+			[(NSMutableDictionary *) _properties setObject:[NSNumber numberWithDouble:[NSDate timeIntervalSinceReferenceDate]] forKey:@"Created"];
+			if(![_properties objectForKey:NSHTTPCookieDiscard])
+				[(NSMutableDictionary *) _properties setObject:([[_properties objectForKey:NSHTTPCookieVersion] intValue] >= 1 && ![_properties objectForKey:NSHTTPCookieMaximumAge])?@"TRUE":@"FALSE" forKey:NSHTTPCookieDiscard];
+			if(![_properties objectForKey:NSHTTPCookieDomain])
+				[(NSMutableDictionary *) _properties setObject:[[_properties objectForKey:NSHTTPCookieOriginURL] host] forKey:NSHTTPCookieDomain];
+			if(![_properties objectForKey:NSHTTPCookiePath])
+				[(NSMutableDictionary *) _properties setObject:@"/" forKey:NSHTTPCookiePath];
 		}
 	return self;
 }

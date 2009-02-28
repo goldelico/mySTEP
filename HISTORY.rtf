@@ -1,6 +1,6 @@
 {\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
-{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Monaco;}
-{\colortbl;\red255\green255\blue255;\red118\green15\blue80;}
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset238 Monaco;}
+{\colortbl;\red255\green255\blue255;\red0\green116\blue0;\red118\green15\blue80;}
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
 
 \f0\b\fs36 \cf0 mySTEP History\
@@ -18,6 +18,11 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \b0 \
 \
+* added some default properties to NSHTTPCookie\
+* fixed handling of "data://" scheme (
+\f1\fs20 \cf2 \CocoaLigature0 RFC2397
+\f0\fs24 \cf0 \CocoaLigature1 )\
+* reworked NSHTTPURLProtocol and NSSocketStream to be compatible to Cocoa and made basically working\
 * provided basic parsing fro NSXMLDocument and implemented many missing methods\
 * added some minor missing methods (e.g. decodeIntegerForKey:)\
 * checked Foundation and AppKit with Clang and fixed several issues (most of them: memory leaks, some potential NULL pointers and unitialized variables)\
@@ -2650,7 +2655,7 @@ NSApplication\
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
 
 \b0 \cf0 * 
-\f1\fs20 \CocoaLigature0 - (\cf2 id\cf0 ) targetForAction:(\cf2 SEL\cf0 )aSelector to:(\cf2 id\cf0 )aTarget from:(\cf2 id\cf0 )sender 
+\f1\fs20 \CocoaLigature0 - (\cf3 id\cf0 ) targetForAction:(\cf3 SEL\cf0 )aSelector to:(\cf3 id\cf0 )aTarget from:(\cf3 id\cf0 )sender 
 \f0\fs24 \CocoaLigature1 added\
 * made send application:openFile: to delegate for command line arguments in the proper instant\
 * synchronize user defaults when terminating\
@@ -2754,7 +2759,7 @@ NSMovie\
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
 
 \b0 \cf0 * 
-\f1\fs20 \CocoaLigature0 - (\cf2 unsigned\cf0  \cf2 int\cf0 ) replaceOccurrencesOfString: 
+\f1\fs20 \CocoaLigature0 - (\cf3 unsigned\cf0  \cf3 int\cf0 ) replaceOccurrencesOfString: 
 \f0\fs24 \CocoaLigature1 added\
 \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
@@ -2866,7 +2871,7 @@ The most important changes are the inclusion of image scaling and fixing of many
 \b0 \
 * made working\
 * added NSApplication category methods: 
-\f1\fs20 \CocoaLigature0 - (\cf2 void\cf0 ) orderFrontStandardPreferencePane:(\cf2 id\cf0 )sender; - (\cf2 void\cf0 ) orderFrontPreferencePane:(\cf2 NSString *\cf0 )name;
+\f1\fs20 \CocoaLigature0 - (\cf3 void\cf0 ) orderFrontStandardPreferencePane:(\cf3 id\cf0 )sender; - (\cf3 void\cf0 ) orderFrontPreferencePane:(\cf3 NSString *\cf0 )name;
 \f0\fs24 \CocoaLigature1 \
 \
 

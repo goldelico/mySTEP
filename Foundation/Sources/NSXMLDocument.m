@@ -156,7 +156,7 @@
 
 - (NSString *) version; { return _version; }
 
-- (NSData *) XMLData; { return [self XMLDataWithOptions:0]; }
+- (NSData *) XMLData; { return [self XMLDataWithOptions:NSXMLNodeOptionsNone]; }
 
 - (NSData *) XMLDataWithOptions:(NSUInteger) opts;
 {
@@ -164,7 +164,7 @@
 	switch(_documentContentKind)
 		{
 			case NSXMLDocumentTextKind:
-				// collect all nodes into text string
+				// collect all nodes into single text string
 				break;
 			case NSXMLDocumentXMLKind:
 			case NSXMLDocumentXHTMLKind:
@@ -173,7 +173,7 @@
 				// documentKind can be requested from any node by going through the parents until we find self
 				str=[[self rootElement] XMLStringWithOptions:opts];
 		}
-	// handle characterEncoding
+	// handle characterEncoding - use UTF8 if unknown
 	return [str dataUsingEncoding:NSUTF8StringEncoding];
 }
 

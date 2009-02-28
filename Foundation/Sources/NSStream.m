@@ -61,7 +61,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	*inp=[[[_NSSocketInputStream alloc] _initWithFileDescriptor:s] autorelease];
 	*outp=[[[_NSSocketOutputStream alloc] _initWithFileDescriptor:s] autorelease];
 	((_NSSocketInputStream *) *inp)->_output=((_NSSocketOutputStream *) *outp);		// establish cross-link
-	[((_NSSocketOutputStream *) *outp) _setHost:host andPort:port];
+	[((_NSSocketOutputStream *) *outp) _setHost:host andPort:port];	// set host and port
 #if 0
 	NSLog(@"inp=%@", *inp);
 	NSLog(@"outp=%@", *outp);
@@ -183,6 +183,8 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 {
 	if(_streamStatus != NSStreamStatusClosed)
 			{
+				// FIXME: how can we be removed from ALL runloops?
+				[[NSRunLoop currentRunLoop] _removeWatcher:self];
 				close(_fd);
 				_fd=-1;
 			}
@@ -254,7 +256,8 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	return [_output setProperty:property forKey:key];
 }
 
-- (void) open
+/*
+ - (void) open
 {
 #if 1
 	NSLog(@"open %@", self);
@@ -264,18 +267,16 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		[self _sendErrorWithDomain:@"already open" code:0];
 		return;
 		}
-	if([_output streamStatus] == NSStreamStatusNotOpen)
-		[_output open];	// open connected write stream
 	//	_streamStatus=NSStreamStatusOpening;
 	// listen(destination, 128);
 	[super open];
 }
 
-- (void) close;
+ - (void) close;
 {
-	[_output close];
 	[super close];
 }
+ */
 
 - (int) read:(unsigned char *) buffer maxLength:(unsigned int) len;
 {
@@ -422,6 +423,8 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 {
 	if(_streamStatus != NSStreamStatusClosed)
 			{
+				// FIXME: how can we be removed from ALL runloops?
+				[[NSRunLoop currentRunLoop] _removeWatcher:self];
 				close(_fd);
 				_fd=-1;
 			}
@@ -669,11 +672,10 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (void) _writeFileDescriptorReady
 {
-	// FIXME: handle ssl connection setup
 	if(_streamStatus == NSStreamStatusOpening)
-		{ // connect successfull
-		// [super open]?
+		{ // connect is successfull
 		// cancel timeout
+		// FIXME: handle ssl connection setup
 		_streamStatus=NSStreamStatusOpen;
 		[self _sendEvent:NSStreamEventOpenCompleted];
 		}

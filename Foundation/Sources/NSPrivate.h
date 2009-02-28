@@ -47,7 +47,7 @@
 
 /* Because openssl uses `id' as variable name sometime, while it is an Objective-C reserved keyword. */
 
-#define id id_x_
+#define id ssl_id
 #include <openssl/ssl.h>
 #include <openssl/rand.h>
 #include <openssl/err.h>

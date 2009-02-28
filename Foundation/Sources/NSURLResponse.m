@@ -122,16 +122,16 @@ static NSDictionary *_mimeExtensions;
 #if 1
 	NSLog(@"content-length=%@", len);
 	NSLog(@"content-type=%@", content);
-	NSLog(@"arra=%@", a);
+	NSLog(@"content-type array=%@", a);
 	NSLog(@"mime=%@", mime);
 	NSLog(@"encoding=%@", encoding);
 #endif
 	if((self=[super initWithURL:url
 					   MIMEType:mime
-		  expectedContentLength:([len length] > 0?[len intValue]:-1)
+		  expectedContentLength:0
 			   textEncodingName:encoding]))
 		{
-		// if we really understand longLongValue: _expectedContentLength=[len length] > 0?[len longLongValue]:-1;
+		_expectedContentLength=[len length] > 0?[len longLongValue]:-1;
 		_headerFields=[headers retain];
 		_statusCode=code;
 		}

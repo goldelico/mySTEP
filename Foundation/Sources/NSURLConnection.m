@@ -28,62 +28,44 @@
 {
 	if((self=[super init]))
 		{
-			_response=response;
-			*response=nil;
-			_error=error;
-			*error=nil;
-			_data=data;
-			*data=nil;
+			*(_response=response)=nil;
+			*(_error=error)=nil;
+			*(_data=data)=nil;
 			_done=NO;
 		}
 	return self;
 }
 
-- (void) run;
+- (void) dealloc
 {
-		while(!_done)
-			[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]; // run loop until we are finished (or we could introduce some timeout!)
+#if 1
+	NSLog(@"dealloc %@", self);
+#endif
+	[*_data autorelease];	// put in ARP that is active when we dealloc this object
+	[*_error autorelease];
+	[*_response autorelease];
+	[super dealloc];
+}
+
+- (void) run;
+{ // NOTE: runMode may have an internal ARP. Therefore, objects allocated in callbacks are already autoreleased when runMode returns
+	while(!_done)
+		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]; // run loop until we are finished (or we could introduce some timeout!)
 }
 
 // notification handler
 
-- (void) connection:(NSURLConnection *) conn didReceiveResponse:(NSURLResponse *) resp; { *_response=resp; }
-- (void) connection:(NSURLConnection *) conn didFailWithError:(NSError *) error; { *_error=error; *_data=nil; _done=YES; }
+- (void) connection:(NSURLConnection *) conn didReceiveResponse:(NSURLResponse *) resp; { *_response=[resp retain]; }
+- (void) connection:(NSURLConnection *) conn didFailWithError:(NSError *) error; { *_error=[error retain]; *_data=nil; _done=YES; }
 - (void) connectionDidFinishLoading:(NSURLConnection *) conn; { _done=YES; }
 
 - (void) connection:(NSURLConnection *) conn didReceiveData:(NSData *) data;
 {
 	if(!*_data)
-		*_data=[[data mutableCopy] autorelease];
+		*_data=[data mutableCopy];
 	else
 		[*_data appendData:data];
 }
-
-#if 0	// not required!!!
-- (void) URLProtocol:(NSURLProtocol *) proto didFailWithError:(NSError *) error;
-{
-	*_error=error;
-	_done=YES;
-}
-
-- (void) URLProtocol:(NSURLProtocol *) proto didReceiveResponse:(NSURLResponse *) response cacheStoragePolicy:(NSURLCacheStoragePolicy) policy;
-{
-	*_response=response;
-}
-
-- (void) URLProtocolDidFinishLoading:(NSURLProtocol *) proto;
-{
-	_done=YES;
-}
-
-- (void) URLProtocol:(NSURLProtocol *) proto didLoadData:(NSData *) data;
-{
-	if(!_data)
-		_data=[data mutableCopy];
-	else
-		[_data appendData:data];
-}
-#endif
 
 @end
 
@@ -155,16 +137,15 @@
 
 - (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
 {
+	NSLog(@"warning: -[NSURLConnection scheduleInRunLoop:forMode:] is not recommended unless you know what you do!");
 	[_protocol scheduleInRunLoop:runLoop forMode:mode];
 }
 
 - (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
 {
+	NSLog(@"warning: -[NSURLConnection unscheduleFromRunLoop:forMode:] is not recommended unless you know what you do!");
 	[_protocol unscheduleFromRunLoop:runLoop forMode:mode];
 }
-
-// notification handlers just forward those our client wants to know
-// do we really need this?
 
 - (void) URLProtocol:(NSURLProtocol *) proto cachedResponseIsValid:(NSCachedURLResponse *) resp;
 {

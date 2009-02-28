@@ -328,6 +328,48 @@ static IMP appendImp;
 	return [self initWithBytesNoCopy:bytes length:(bp-bytes)]; // take ownership
 }
 
+- (NSString *) _base64String
+{ // convert into base64 string
+	NSMutableString *result=[NSMutableString stringWithCapacity:3*([self length]/4+1)];
+	char *src = [self bytes];
+	int length = [self length];
+	long bytes;
+	while(length > 0)
+			{
+				for(i=0; i<length && i<3; i++)
+					bytes=bytes<<8+(*src++);
+				for(i=0; i<4; i++)
+						{
+							int bits=bytes&0x3f;
+							bytes >>= 6;
+							if(bits < 26)
+								bits += 'A';
+							else if(bits < 2*26)
+								bits += 'a'-26;
+							else if(bits < 2*26+10)
+								bits += '0'-2*26;
+							else if(bits == 62)
+								bits='+';
+							else
+								bits='/';
+							[result appendFormat:@"%c", bits];
+							// FIXME: handle padding
+							if(i == 2 && length == 2)
+									{
+										[result appendString:@"="];
+										break;
+									}
+							if(i == 1 && length == 1)
+									{
+										[result appendString:@"=="];
+										break;
+									}
+						}
+				length-=4;
+			}
+	return result;
+}
+
 - (const void*) bytes	{ SUBCLASS return NULL; }
 
 - (NSString *) description
