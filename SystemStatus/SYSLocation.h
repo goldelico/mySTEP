@@ -93,7 +93,7 @@ typedef struct GeoMovement
 
 - (NSDictionary *) geoDataForLocation:(GeoLocation) location;			// ask Geodatabase for nearest geo-location
 - (GeoLocation) geoLocationForData:(NSDictionary *) pattern;			// search for nearest known location
-- (double) distanceBetween:(GeoLocation) loc1 and:(GeoLocation) loc2;	// distance in meter on earth surface
+- (double) distanceBetween:(GeoLocation) p1 and:(GeoLocation) p2 includingAltitude:(BOOL) altFlag;	// distance in meter on earth surface
 - (float) routeBetween:(GeoLocation) loc1 and:(GeoLocation) loc2;		// north-pointing angle for navigation
 
 @end

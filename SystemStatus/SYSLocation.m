@@ -485,9 +485,9 @@ void sigstop(void)
 	return loc;
 }
 
-#define deg2rad(P) (P*(3.14159265357989/180.0))
+#define deg2rad(P) ((P)*(M_PI/180.0))
 
-- (double) distanceBetween:(GeoLocation) p1 and:(GeoLocation) p2;
+- (double) distanceBetween:(GeoLocation) p1 and:(GeoLocation) p2 includingAltitude:(BOOL) altFlag;
 { // great circle distance + hypotenuse of altitude difference
 	/*
 	 Based on description at: http://www.rainerstumpe.de/HTML/body_kurse3.html
@@ -507,12 +507,14 @@ void sigstop(void)
 	double lat2=deg2rad(p2.latitude);
 	double cosc = sin(lat1)*sin(lat2) + cos(lat1)*cos(lat2)*cos(deg2rad(p1.longitude-p2.longitude));
 	double c=acos(cosc);				// angle on great circle (0..PI)
-	double hh=p1.altitude-p2.altitude;		// altitude difference
-										// FIXME: improve precision of this constant
-	c*=3600000.0*(p1.altitude+p2.altitude);		// convert angle to sector of earth circumference at average altitude
-											// FIXME: we should calculate some circular distance between the points
-	if(hh > 0.1 || hh < -0.1)
-		c=sqrt(c*c+hh*hh);	// add hypotenuse
+	// FIXME: we sould do a correction for latitude (ellipsoid)
+	c*=(M_PI)*(2.0*6378137+p1.altitude+p2.altitude);		// convert angle to sector of earth circumference at average altitude
+	if(altFlag)
+			{ // calculate hypotenuse approximation
+				double hh=p1.altitude-p2.altitude;		// altitude difference
+				if(hh > 0.1 || hh < -0.1)
+					c=sqrt(c*c+hh*hh);	// add hypotenuse
+			}
 	return c;
 }
 
