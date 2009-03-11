@@ -331,11 +331,12 @@ static IMP appendImp;
 - (NSString *) _base64String
 { // convert into base64 string
 	NSMutableString *result=[NSMutableString stringWithCapacity:3*([self length]/4+1)];
-	char *src = [self bytes];
+	const char *src = [self bytes];
 	int length = [self length];
 	long bytes;
 	while(length > 0)
 			{
+				int i;
 				for(i=0; i<length && i<3; i++)
 					bytes=bytes<<8+(*src++);
 				for(i=0; i<4; i++)
@@ -353,7 +354,7 @@ static IMP appendImp;
 							else
 								bits='/';
 							[result appendFormat:@"%c", bits];
-							// FIXME: handle padding
+							// CHECKME: handle padding
 							if(i == 2 && length == 2)
 									{
 										[result appendString:@"="];

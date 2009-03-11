@@ -351,8 +351,6 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 
 @interface NSData (NSPrivate)
 
-- (id) _initWithBase64String:(NSString *) str;
-
 // mySTEP Extensions
 
 + (id) dataWithShmID:(int)anID length:(unsigned) length;
@@ -360,6 +358,9 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 + (id) dataWithStaticBytes:(const void*)sbytes length:(unsigned) length;
 
 - (void *) _autoFreeBytesWith0:(BOOL) flag;		// return a "autofreed" copy - optionally with a trailing 0
+
+- (id) _initWithBase64String:(NSString *) str;
+- (NSString *) _base64String;
 
 - (unsigned char) _deserializeTypeTagAtCursor:(unsigned*)cursor;
 - (unsigned) _deserializeCrossRefAtCursor:(unsigned*)cursor;

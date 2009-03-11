@@ -1269,7 +1269,7 @@ next:
 	if([plist isKindOfClass:[NSData class]])
 		{
 			[str appendString:@"<data>\n"];
-			[str appendString:[(NSData *) data _base64String]];
+			[str appendString:[(NSData *) plist _base64String]];
 			[str appendString:@"</data>\n"];
 		}
 	if([plist isKindOfClass:[NSDate class]])
