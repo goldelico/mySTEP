@@ -151,11 +151,11 @@ static inline void NSDeallocateObject(NSObject *anObject)					// object dealloca
 #ifdef __mySTEP__
 	if (anObject != nil)
 		{
+			_object_layout o = &((_object_layout)anObject)[-1];
 #if 1	// if we trace object allocation
 			extern void __NSCountDeallocate(Class aClass);
 			__NSCountDeallocate([anObject class]);
 #endif
-			_object_layout o = &((_object_layout)anObject)[-1];
 		
 		//	fprintf(stderr, "%08x [%s dealloc]\n", anObject, anObject->isa->name);
 		((id)anObject)->class_pointer = (void*)0xdeadface;

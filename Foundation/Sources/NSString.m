@@ -342,7 +342,11 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		__cStringEncoding = GSDefaultCStringEncoding();
 		__charIsMem = @selector(characterIsMember:);
 		_nsStringClass = self;
+#if __APPLE__
+//  		_constantStringClass = [NSConstantStringClassName class];
+#else
   		_constantStringClass = [_NSConstantStringClassName class];
+#endif
 		_strClass = [GSString class];
 		_cStringClass = [GSCString class];
 		_mutableStringClass = [GSMutableString class];

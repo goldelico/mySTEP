@@ -134,6 +134,10 @@ static id _currentConversation;
 NSString *NSConnectionDidDieNotification=@"NSConnectionDidDieNotification";
 NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotification";
 
+@interface NSInvocation (private)
+- (void) _log:(NSString *) str;
+@end
+
 @implementation NSConnection
 
 + (NSArray *) allConnections;

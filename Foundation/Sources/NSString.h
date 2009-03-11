@@ -24,7 +24,11 @@
 
 #define NSMaximumStringLength	(INT_MAX-1)
 #define NSHashStringLength		63
-#define _NSConstantStringClassName NSConstantString // could be NXConstantString; should be passed by -fconstant-string-class= to gcc
+
+#if __GNUC__ == 2
+#undef _NSConstantStringClassName
+#define _NSConstantStringClassName NXConstantString // gcc 2.95.3 has no NSConstantString
+#endif
 
 typedef unsigned short unichar;
 

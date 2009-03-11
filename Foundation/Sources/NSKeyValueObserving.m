@@ -43,7 +43,7 @@ NSString *NSKeyValueChangeIndexesKey=@"NSKeyValueChangeIndexesKey";
 		{ // unknown to system
 		[NSException raise:NSInvalidArgumentException
 					format:@"NSProxy forward:: [%@ -%@]: selector not recognized", 
-			NSStringFromClass([self class]), 
+			NSStringFromClass([(NSObject *) self class]), 
 			NSStringFromSelector(aSel)];
 		return nil;
 		}
