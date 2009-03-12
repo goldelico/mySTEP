@@ -154,6 +154,7 @@ extern NSString *const NSImageNameFlowViewTemplate;
 		UIBITFIELD(unsigned int, unboundedCacheDepth, 1);
 		UIBITFIELD(unsigned int, isValid, 1);
 		UIBITFIELD(unsigned int, usesEPSOnResolutionMismatch, 1);
+		UIBITFIELD(unsigned int, isTemplate, 1);
 		} _img;
 }
 

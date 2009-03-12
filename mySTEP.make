@@ -211,14 +211,18 @@ DEFINES = -DARCHITECTURE=@\"$(ARCHITECTURE)\" \
 
 CFLAGS := $(CFLAGS) \
 		-g -O$(OPTIMIZE) -fPIC -rdynamic \
-		-fconstant-string-class=NSConstantString \
 		$(WARNINGS) \
 		$(DEFINES) \
 		$(INCLUDES) \
 		$(OTHER_CFLAGS)
 
+# should be solved differently
+ifneq ($(ARCHITECTURE),arm-zaurus-linux-gnu)
+CFLAGS := $(CFLAGS) -fconstant-string-class=NSConstantString -D_NSConstantStringClassName=NSConstantString
+endif
+
 ifeq ($(PROFILING),YES)
-	CFLAGS :=  -pg $(CFLAGS)
+CFLAGS := -pg $(CFLAGS)
 endif
 
 # ifeq ($(GCC_WARN_ABOUT_MISSING_PROTOTYPES),YES)

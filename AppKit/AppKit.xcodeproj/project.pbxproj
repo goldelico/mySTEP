@@ -1180,7 +1180,7 @@
 		EE1D48310996A68B00DDE5E0 /* NSX11GraphicsContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSX11GraphicsContext.m; sourceTree = "<group>"; };
 		EE1D48710997962600DDE5E0 /* NSFont.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSFont.m; sourceTree = "<group>"; };
 		EE1D90250A921A71003988F3 /* NSSound.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSound.m; sourceTree = "<group>"; };
-		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.make; };
 		EE291C7A0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSSpeechRecognizer.h; sourceTree = "<group>"; };
 		EE291C7B0AD7C0EE004A1CA6 /* NSSpeechSynthesizer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSSpeechSynthesizer.h; sourceTree = "<group>"; };
 		EE291CD60AD7EA40004A1CA6 /* NSSpeechSynthesizer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSpeechSynthesizer.m; sourceTree = "<group>"; };

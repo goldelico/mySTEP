@@ -752,10 +752,12 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	return NIMP;
 }
 
-- (NSImageCacheMode) cacheMode;						{ return _img.cacheMode; }
-- (BOOL) usesEPSOnResolutionMismatch;				{ return _img.usesEPSOnResolutionMismatch; }
+- (NSImageCacheMode) cacheMode;											{ return _img.cacheMode; }
+- (BOOL) isTemplate;																{ return _img.isTemplate; }
+- (BOOL) usesEPSOnResolutionMismatch;								{ return _img.usesEPSOnResolutionMismatch; }
+- (void) setCacheMode:(NSImageCacheMode) mode;			{ _img.cacheMode=mode; }
+- (void) setTemplate:(BOOL) flag;										{ _img.isTemplate=flag; }
 - (void) setUsesEPSOnResolutionMismatch:(BOOL)flag;	{ _img.usesEPSOnResolutionMismatch=flag; }
-- (void) setCacheMode:(NSImageCacheMode) mode;		{ _img.cacheMode=mode; }
 
 - (id) initByReferencingURL:(NSURL*)url;
 {
