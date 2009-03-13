@@ -36,7 +36,7 @@ export INSTALL_PATH=/Applications   # override INSTALL_PATH for MacOS X for the 
 #export SEND2ZAURUS=true						# true (or empty) will try to install on the embedded device at /$INSTALL_PATH (using ssh)
 #export RUN=true                    # true (or empty) will finally try to run on the embedded device (using X11 on host)
 
-export ROOT=$HOME/Documents/Projects/QuantumSTEP	# project root
+export ROOT=/usr/share/QuantumSTEP	# project root
 /usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
 
 ########################### end to cut here ###########################
@@ -49,7 +49,7 @@ endif
 
 .PHONY:	clean build build_architecture
 
-ifeq ($(ARCHITECTURES),)	# set default architectures
+ifeq ($(ARCHITECTURES),)	# set default architectures (should check that we have a libobjc.so for this architecture!)
 ARCHITECTURES=$(shell cd $(ROOT)/this/gcc && echo *-*-*)
 endif
 
@@ -63,13 +63,13 @@ ifeq ($(ARCHITECTURE),arm-iPhone-darwin)
 TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 else
-TOOLCHAIN := $(ROOT)/this/gcc/$(ARCHITECTURE)/$(ARCHITECTURE)
-CC := $(TOOLCHAIN)/bin/gcc
+TOOLCHAIN := $(ROOT)/this/gcc/$(ARCHITECTURE)
+CC := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-gcc
 endif
-LS := $(TOOLCHAIN)/bin/ld
-AS := $(TOOLCHAIN)/bin/as
-NM := $(TOOLCHAIN)/bin/nm
-STRIP := $(TOOLCHAIN)/bin/strip
+LS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-ld
+AS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-as
+NM := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-nm
+STRIP := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-strip
 TAR := tar
 # TAR := $(TOOLS)/gnutar-1.13.25	# use older tar that does not know about ._ resource files
 # TAR := $(ROOT)/this/bin/gnutar
@@ -128,7 +128,9 @@ endif
 
 # override if (stripped) package is build using xcodebuild
 
-ifeq ($(BUILD_FOR_DEPLOYMENT),true)
+# ifeq ($(BUILD_FOR_DEPLOYMENT),true)
+
+ifneq ($(BUILD_STYLE),Development)
 	# optimize for speed
 	OPTIMIZE := 2
 	# should also remove headers and symbols
@@ -165,10 +167,9 @@ endif
 # system includes&libraries and locate all standard frameworks
 
 INCLUDES := \
-		-I$(TOOLCHAIN)/include \
-		-I$(ROOT)/usr/include \
-		-I$(ROOT)/usr/include/X11 \
-		-I$(ROOT)/usr/include/X11/freetype2 \
+		-I$(ROOT)/$(ARCHITECTURE)/usr/include \
+		-I$(ROOT)/$(ARCHITECTURE)/usr/include/X11 \
+		-I$(ROOT)/$(ARCHITECTURE)/usr/include/freetype2 \
 		-I$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
 		-I$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 
