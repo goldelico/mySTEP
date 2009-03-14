@@ -128,9 +128,8 @@ endif
 
 # override if (stripped) package is build using xcodebuild
 
-# ifeq ($(BUILD_FOR_DEPLOYMENT),true)
-
-ifneq ($(BUILD_STYLE),Development)
+ifeq ($(BUILD_FOR_DEPLOYMENT),true)
+# ifneq ($(BUILD_STYLE),Development)
 	# optimize for speed
 	OPTIMIZE := 2
 	# should also remove headers and symbols
