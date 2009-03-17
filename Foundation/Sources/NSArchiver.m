@@ -585,9 +585,9 @@ SEL writeSel = @selector(serializeDataAt:ofObjCType:context:);
 
 - (NSString*) classNameEncodedForTrueClassName:(NSString*)trueName
 {
-id inArchiveName = [(id)NSMapGet(classes, trueName) className];
+	NSString * inArchiveName = [(id)NSMapGet(classes, trueName) className];
 
-    return inArchiveName ? inArchiveName : trueName;
+  return inArchiveName ? inArchiveName : trueName;
 }
 
 /* In the following method the version of class named trueName is written as

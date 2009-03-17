@@ -787,7 +787,7 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 	if([self length] < sizeof(type))
 		return 0;	// file too short
 	[self getBytes:&type length:sizeof(type)];	// first 4 bytes
-	type=NSSwapBigLongToHost(type);	// is stored in big endian order (i.e. PowerPC) and needs to be swapped for the ARM processor
+	type=NSSwapBigLongToHost(type);	// is stored in big endian order (i.e. PowerPC) and may need to be swapped
 #if 0
 	NSLog(@"resource type=%4c %08x", type, type);
 #endif
@@ -865,6 +865,8 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 //
 //*****************************************************************************
 
+#define RES(A, B, C, D) (((A)<<24)+((B)<<16)+((C)<<8)+(D))
+
 @interface GSBitmapImageRepICNS : NSBitmapImageRep
 @end
 
@@ -883,6 +885,7 @@ static NSArray *__bitmapImageRepsICNS;
 #if 0
 	NSLog(@"GSBitmapImageRepICNS canInitWithData");
 #endif
+	// FIXME: replace by RES('i', 'c', 'n', 's')
 	return [data resourceType] == 'icns';
 }
 
@@ -913,6 +916,7 @@ static NSArray *__bitmapImageRepsICNS;
 			int depth;
 		} reps[]=
 		{
+			// FIXME: replace by RES('i', 'c', 'n', 's')
 	//		{ 'ics#', '????', 16, 16, 1 },
 			{ 'is32', 's8mk', 16, 16, 8 },
 			{ 'il32', 'l8mk', 32, 32, 8 },

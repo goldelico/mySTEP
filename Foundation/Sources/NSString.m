@@ -76,11 +76,13 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 + (GSSequence*) sequenceWithString:(NSString*)aString range:(NSRange)aRange;
 - (id) initWithString:(NSString*)string range:(NSRange)aRange;
 
-- (NSString*) description;
-- (GSSequence*) decompose;
-- (GSSequence*) order;
-- (GSSequence*) lowercase;
-- (GSSequence*) uppercase;
+- (NSString *) description;
+- (NSString *) string;
+- (GSSequence *) decompose;
+- (GSSequence *) order;
+- (unsigned int) hash;
+- (GSSequence *) lowercase;
+- (GSSequence *) uppercase;
 - (BOOL) isEqual:(id)aSequence;
 - (NSComparisonResult) compare:(GSSequence*)aSequence;
 
@@ -88,15 +90,9 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 
 @implementation GSSequence
 
-+ (GSSequence*) sequenceWithString:(NSString*)aString range:(NSRange)aRange
++ (GSSequence *) sequenceWithString:(NSString*)aString range:(NSRange)aRange
 {
-	return [[[self alloc] initWithString: aString range: aRange] autorelease];
-}
-
-- (void) dealloc
-{
-	OBJC_FREE(_uniChars);
-	[super dealloc];
+	return [[[self allocWithZone:NSDefaultMallocZone()] initWithString: aString range: aRange] autorelease];
 }
 
 - (id) initWithString:(NSString*)string range:(NSRange)aRange
@@ -113,7 +109,13 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 	return self;
 }
 
-- (NSString*) description											// debug
+- (void) dealloc
+{
+	OBJC_FREE(_uniChars);
+	[super dealloc];
+}
+
+- (NSString *) description											// debug
 {
 #if 0
 	unichar *point = _uniChars;
@@ -127,56 +129,66 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 	return @"GSSequence";
 }
 
-- (GSSequence*) decompose
+- (NSString *) string
 {
-unichar *source, *target;
-unichar *spoint, *tpoint, *dpoint;
-BOOL notdone;
-int len;
+	return [NSString stringWithCharacters:_uniChars length:_count];
+}
 
-	if (_count)
-		{
-		OBJC_MALLOC(source, unichar, _count * MAXDEC +1);
-		OBJC_MALLOC(target, unichar, _count * MAXDEC +1);
-		spoint = source;
-		tpoint = target;
-		memcpy(source, _uniChars, sizeof(unichar)*_count);
-		source[_count] = (unichar)(0);
-
-		do {
-			notdone = NO;
-			do {
-				if(!(dpoint = uni_is_decomp(*spoint)))
-					*tpoint++ = *spoint;
-				else
-					{
-					while(*dpoint)
-						*tpoint++ = *dpoint++;
-					notdone = YES;
+- (GSSequence *) decompose
+{
+	unichar *buffer[2], *sbuf;
+	unichar *spoint, *tpoint;
+	BOOL done;
+	int slen;
+	int tBuf=0;
+	
+	if (_count == 0)
+		return self;	// nothing to decompose
+	// FIXME: we could make the decomposition buffers static and resize if needed
+	// to avoid alloc/dealloc
+	OBJC_MALLOC(buffer[0], unichar, _count * MAXDEC);
+	OBJC_MALLOC(buffer[1], unichar, _count * MAXDEC);
+	spoint = sbuf = _uniChars;
+	slen = _count;	// source length
+	tpoint = buffer[tBuf];
+	
+	while(YES) { // copy until we have nothing more to decompose
+		unichar *send = sbuf + slen;
+		done = YES;
+		while(spoint < send)
+				{
+					unichar *dpoint = uni_is_decomp(*spoint);
+					if(!dpoint)
+						*tpoint++ = *spoint;	// can't decompose
+					else
+							{ // replace by decomposed sequence
+								while(*dpoint)
+									*tpoint++ = *dpoint++;
+								done = NO;
+							}
+					spoint++;
 				}
+		slen = tpoint - buffer[tBuf];	// how much did we write?
+		if(done)
+			break;
+		spoint = sbuf = buffer[tBuf];	// take current target buffer as new source
+		tBuf = 1-tBuf;	// swap buffers
+		tpoint = buffer[tBuf];	// and write to new target buffer
+	} 
+	
+	if(sbuf != _uniChars)
+			{ // did decompose anything
+				OBJC_REALLOC(_uniChars, unichar, slen+1);	// reallocate to real length
+				_count = slen;
+				memcpy(_uniChars, buffer[tBuf], sizeof(unichar)*_count);
+				_uniChars[_count] = (unichar)0;
 			}
-			while(*spoint++);
-		
-			*tpoint = (unichar)0;  								// needed ?
-			memcpy(source, target, sizeof(unichar) * (_count * MAXDEC +1));
-			tpoint = target;
-			spoint = source;
-			} 
-		while(notdone);
-
-		len = uslen(source);
-		OBJC_REALLOC(_uniChars, unichar, len+1);
-		memcpy(_uniChars, source, sizeof(unichar)*(len+1));
-		_uniChars[len] = (unichar)0;
-		_count = len;
-		OBJC_FREE(target);
-		OBJC_FREE(source);
-		}
-
+	OBJC_FREE(buffer[0]);
+	OBJC_FREE(buffer[1]);
 	return self;
 }
 
-- (GSSequence*) order
+- (GSSequence *) order
 {
 unichar *first, *second,tmp;
 int count;
@@ -219,36 +231,43 @@ BOOL notdone;
 	return self;
 }
 
-- (GSSequence*) lowercase
+- (unsigned int) hash
 {
-unichar *s;
-int count;
-GSSequence *seq;
+	int count;
+	unsigned int ret=0;
+	for(count=0; count<_count; count++)
+		ret = (ret << 5) + ret + _uniChars[count];
+	return ret;
+}
+
+- (GSSequence *) lowercase
+{
+	unichar *s;
+	int count;
+	GSSequence *seq = [GSSequence alloc];
 
 	OBJC_MALLOC(s, unichar, _count+1);
 	for(count = 0; count < _count; count++)
 		s[count] = uni_tolower(_uniChars[count]);
 	s[_count] = (unichar)0;
 
-	seq = [GSSequence alloc];
 	seq->_count = _count;
 	seq->_uniChars = s;
 
 	return [seq autorelease];
 }
 
-- (GSSequence*) uppercase
+- (GSSequence *) uppercase
 {
-unichar *s;
-int count;
-GSSequence *seq;
+	unichar *s;
+	int count;
+	GSSequence *seq = [GSSequence alloc];
 
 	OBJC_MALLOC(s, unichar, _count+1);
 	for(count = 0; count < _count; count++)
 		s[count] = uni_toupper(_uniChars[count]);
 	s[_count] = (unichar)0;
 
-	seq = [GSSequence alloc];
 	seq->_count = _count;
 	seq->_uniChars = s;
 
@@ -262,7 +281,7 @@ GSSequence *seq;
 
 - (NSComparisonResult) compare:(GSSequence*)aSequence
 {
-int i, end;													// Inefficient
+	int i, end;													// Inefficient
  
 	if(!_normalized)
 		{
@@ -817,8 +836,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 					encoding:(NSStringEncoding)enc
 					   error:(NSError **)error;   
 {
-	// load if specified encoding fits
-	return NIMP;
+	*error=nil;
+	return [self initWithData:[NSData dataWithContentsOfURL: url] encoding:enc];	// deduct encoding from contents
 }
 
 - (id) initWithContentsOfURL:(NSURL *)url
@@ -873,13 +892,14 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		}
 	while(b < end)
 		*sp++=(*d)(&b);	// get characters
+	NSAssert(sp-s <= sizeof(*s)*len, @"buffer overflow");
 	return [self initWithCharactersNoCopy:s length:sp-s freeWhenDone:YES];
 }
 
 - (unsigned) maximumLengthOfBytesUsingEncoding:(NSStringEncoding)enc;
 { // estimate depending on encoding (long enough for all cases) in O(1) time
 	if(enc == NSUnicodeStringEncoding)
-		return 2*[self length]+1;
+		return 2*[self length]+2+1;
 	if(enc == NSUTF8StringEncoding)
 		return 6*[self length];
 	return [self length];
@@ -913,6 +933,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			return nil;
 			}
 		}
+	NSAssert(bp-buff <= len, @"buffer overflow");
 	return [NSData dataWithBytesNoCopy:buff length:bp-buff];	// become owner
 }
 
@@ -1748,7 +1769,7 @@ unsigned int end, start = anIndex;						// Determining Composed
 		unsigned ret = 0, char_count = 0;
 		int count, len2, len;
 		BOOL notdone;
-
+			
 		len = (_count > NSHashStringLength) ? NSHashStringLength : _count;
 
 		source = objc_malloc(sizeof(unichar) * (len * MAXDEC +1));
@@ -1811,14 +1832,21 @@ unsigned int end, start = anIndex;						// Determining Composed
 
 		while (*p && char_count++ < NSHashStringLength)
 			ret = (ret << 5) + ret + *p++;
-		if (ret == 0)				// The hash caching in our concrete string
-			ret = 0xffffffff;		// classes uses zero to denote an empty
+			
+			// 		len = (_count > NSHashStringLength) ? NSHashStringLength : _count;
+			// GSSequence *seq=[GSSequence sequenceWithString:self range:NSMakeRange(0, len)];
+			// NSAssert([[[seq decompose] order] hash] == ret, @"hash mismatch");
+			// ret = [[[[GSSequence sequenceWithString:self range:NSMakeRange(0, len)] decompose] order] hash];
+			// 
+			
+		if (ret == 0)				// The hash caching in our concrete string classes uses zero to denote an empty cache value, so we MUST NOT return a hash of zero.
+			ret = (unsigned int) -1; 
 		objc_free(source);
 		objc_free(target);
-		return ret;					// cache value, so we MUST NOT return a 
-		}							// hash of zero.
+		return ret;  
+		} 
 	else
-		return 0xfffffffe;						// Hash for an empty string.
+		return (unsigned int) -2;						// Hash for an empty string.
 }
 
 - (BOOL) hasPrefix:(NSString*)aString
@@ -2097,7 +2125,9 @@ unsigned int end, start = anIndex;						// Determining Composed
 					*contentsEndIndex = (end < len) ? end-1 : end;
 			}
 }
+
 // FIX ME There is more than this 
+
 - (NSString*) capitalizedString				// to Unicode word capitalization 
 {											// but this will work in most cases
 	unichar *s = objc_malloc(sizeof(unichar)*(_count+1));
@@ -2399,7 +2429,7 @@ NSString *newstring;	// exception if aString starts with a '.'.  Checks the
 NSString *first_half = self, * second_half = @"";
 const char * tmp_cpath;
 const int MAX_PATH_LEN = 1024;
-char *tmp_buf=objc_malloc(MAX_PATH_LEN);
+char *tmp_buf=objc_malloc(MAX_PATH_LEN+1);
 int syscall_result;
 struct stat tmp_stat;  
 
@@ -2759,9 +2789,11 @@ struct stat tmp_stat;
 	return [[[NSString alloc] initWithData:data encoding:encoding] autorelease];	// and try to decode
 }
 
-- (NSString *) decomposedStringWithCanonicalMapping; { return NIMP; }
+// FIXME: distringuish form "D" and "KD" - see http://en.wikipedia.org/wiki/Unicode_normalization#Canonical_Equivalence
+
+- (NSString *) decomposedStringWithCanonicalMapping; { return [[[GSSequence sequenceWithString:self range:NSMakeRange(0, [self length])] decompose] string]; }	// decompose Ÿ into u and ..
 - (NSString *) precomposedStringWithCanonicalMapping; { return NIMP; }
-- (NSString *) decomposedStringWithCompatibilityMapping; { return NIMP; }
+- (NSString *) decomposedStringWithCompatibilityMapping; { return [[[GSSequence sequenceWithString:self range:NSMakeRange(0, [self length])] decompose] string]; }	// map super/subscript to digits, map wide/narrow katakana
 - (NSString *) precomposedStringWithCompatibilityMapping; { return NIMP; }
 
 @end /* NSString */
@@ -3026,12 +3058,14 @@ struct stat tmp_stat;
 { // convert to a C-String and cache in _cString
 	uniencoder e=encodeuni(__cStringEncoding);		// get appropriate encoder function
 	unsigned char *bp;
+	int len;
 	int i;
 	if(!e)
 		return NULL;
 	if(_cString)
 		objc_free(_cString);
-	_cString=(char*) objc_malloc([self maximumLengthOfBytesUsingEncoding:__cStringEncoding]+1);
+	len=[self maximumLengthOfBytesUsingEncoding:__cStringEncoding]+1;
+	_cString=(char*) objc_malloc(len);
 	if(!_cString)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
 	bp=(unsigned char *) _cString;
@@ -3047,6 +3081,7 @@ struct stat tmp_stat;
 			}
 		}
 	*bp=0;
+	NSAssert(bp-((unsigned char *) _cString) < len, @"buffer overflow");
 	return _cString;
 }
 

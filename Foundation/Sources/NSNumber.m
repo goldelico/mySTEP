@@ -77,10 +77,10 @@ PRIVATE_NUMBER_CLASS_INTERFACE_(GSULongLongNumber,unsigned long long)
 }
 
 - (void) dealloc
-{
+{ // we can't call [super delloc] because NSNumber is a singleton class
 	NSDeallocateObject(self);
 	return;
-	[super dealloc] /* make the compiler happy */;
+	[super dealloc]; /* make the compiler happy */
 }
 
 @end
@@ -160,22 +160,19 @@ static NSNumber *__sharedNum = nil;
 	return num; 
 }
 
+#define CACHE(TYPE, LOWER_LIMIT, UPPER_LIMIT, INIT, VALUE)  { int i=VALUE; 	if(i >= LOWER_LIMIT && i < UPPER_LIMIT) { \
+	static NSNumber *cache[UPPER_LIMIT-LOWER_LIMIT]; \
+	NSNumber *num=cache[i-LOWER_LIMIT]; \
+	if(!num) \
+		num=cache[i-LOWER_LIMIT]=[[TYPE alloc] INIT:VALUE]; \
+	return num; \
+} \
+return [[[TYPE alloc] INIT:VALUE] autorelease]; }
+
+
 + (NSNumber *) numberWithChar:(char) value
 {
-	int ival=value;
-#define LOWER_LIMIT	-2
-#define UPPER_LIMIT	3
-	if(ival >= LOWER_LIMIT && ival < UPPER_LIMIT)
-		{ 
-		static NSNumber *cache[UPPER_LIMIT-LOWER_LIMIT]; 
-		NSNumber *num=cache[ival-LOWER_LIMIT]; 
-		if(!num) 
-			num=cache[ival-LOWER_LIMIT]=[[GSCharNumber alloc] initWithChar:ival]; // cache (never release)
-		return num; 
-		}
-#undef LOWER_LIMIT
-#undef UPPER_LIMIT
-    return [[[GSCharNumber alloc] initWithChar:ival] autorelease];
+	CACHE(GSCharNumber, -2, 3, initWithChar, value);
 }
 
 + (NSNumber *) numberWithDouble:(double)value
@@ -190,42 +187,12 @@ static NSNumber *__sharedNum = nil;
 
 + (NSNumber *) numberWithInt:(int)ival
 {
-#if 0
-	NSLog(@"NSNumber numberWithInt:%d", ival);
-#endif
-#define LOWER_LIMIT	-2
-#define UPPER_LIMIT	11
-	if(ival >= LOWER_LIMIT && ival < UPPER_LIMIT) 
-		{ 
-		static NSNumber *cache[UPPER_LIMIT-LOWER_LIMIT]; 
-		NSNumber *num=cache[ival-LOWER_LIMIT]; 
-		if(!num) 
-			num=cache[ival-LOWER_LIMIT]=[[GSIntNumber alloc] initWithInt:ival]; // cache (never release)
-		return num;
-		}
-#undef LOWER_LIMIT
-#undef UPPER_LIMIT
-    return [[[GSIntNumber alloc] initWithInt:ival] autorelease];
+	CACHE(GSIntNumber, -2, 15, initWithInt, ival);
 }
 
 + (NSNumber *) numberWithInteger:(NSInteger)ival
 {
-#if 0
-	NSLog(@"NSNumber numberWithInt:%d", ival);
-#endif
-#define LOWER_LIMIT	0
-#define UPPER_LIMIT	15
-	if(ival >= LOWER_LIMIT && ival < UPPER_LIMIT) 
-			{ 
-				static NSNumber *cache[UPPER_LIMIT-LOWER_LIMIT]; 
-				NSNumber *num=cache[ival-LOWER_LIMIT]; 
-				if(!num) 
-					num=cache[ival-LOWER_LIMIT]=[[GSIntNumber alloc] initWithInteger:ival]; // cache (never release)
-				return num;
-			}
-#undef LOWER_LIMIT
-#undef UPPER_LIMIT
-	return [[[GSIntNumber alloc] initWithInteger:ival] autorelease];
+	CACHE(GSIntNumber, -2, 15, initWithInteger, ival);
 }
 
 + (NSNumber *) numberWithLong:(long)value
@@ -250,12 +217,12 @@ static NSNumber *__sharedNum = nil;
 
 + (NSNumber *) numberWithUnsignedInt:(unsigned int)value
 {
-    return [[[GSUIntNumber alloc] initWithUnsignedInt:value] autorelease];
+	CACHE(GSUIntNumber, 0, 15, initWithUnsignedInt, value);
 }
 
 + (NSNumber *) numberWithUnsignedInteger:(NSUInteger)value
 {
-	return [[[GSUIntNumber alloc] initWithUnsignedInteger:value] autorelease];
+	CACHE(GSUIntNumber, 0, 15, initWithUnsignedInteger, value);
 }
 
 + (NSNumber *) numberWithUnsignedShort:(unsigned short)value
@@ -270,8 +237,7 @@ static NSNumber *__sharedNum = nil;
 
 + (NSNumber *) numberWithUnsignedLongLong:(unsigned long long)value
 {
-	NSNumber *n = [[GSULongLongNumber alloc] initWithUnsignedLongLong:value];
-	return [n autorelease];
+	return [[[GSULongLongNumber alloc] initWithUnsignedLongLong:value] autorelease];
 }
 
 + (id) valueFromString:(NSString *)string
@@ -286,7 +252,6 @@ static NSNumber *__sharedNum = nil;
 
 - (id) initWithBool:(BOOL)value
 {
-	// FIXME: we should release self or not?
     return [[GSBoolNumber alloc] initWithBool:value];
 }
 

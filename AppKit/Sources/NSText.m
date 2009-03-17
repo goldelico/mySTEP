@@ -565,7 +565,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 	// FIXME: can be an attributed string!
 	NSRange rng=[self selectedRange];
 	[self replaceCharactersInRange:rng withString:text];
-	rng.location+=[text length];
+	rng.location+=[(NSString *) text length];
 	rng.length=0;
 	[self setSelectedRange:rng];
 }

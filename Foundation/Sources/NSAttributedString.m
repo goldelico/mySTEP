@@ -38,10 +38,10 @@ _setAttributesFrom( NSAttributedString *attributedString,
 					NSRange aRange,
 					NSMutableArray *attributeArray,
 					NSMutableArray *locateArray)
-{ // always called immediately after -initWithString:attributes:
-NSRange effectiveRange;
-NSDictionary *attributeDict;
-unsigned m;
+{ // always called immediately after -initWithString:attributes: or by setAttributedString:
+	NSRange effectiveRange;
+	NSDictionary *attributeDict;
+	unsigned m;
 
 	if(aRange.length == 0)
 		return;										// No attributes
@@ -60,7 +60,7 @@ unsigned m;
 }
 
 NSDictionary *
-_attributesAtIndexEffectiveRange( unsigned int index,
+_attributesAtIndexEffectiveRange(unsigned int index,
 								  NSRange *aRange,  // may be NULL
 								  unsigned int tmpLength,
 								  NSMutableArray *attributeArray,
@@ -74,7 +74,7 @@ _attributesAtIndexEffectiveRange( unsigned int index,
 		[NSException raise:NSRangeException
 					 format: @"index out of range in \
 							_attributesAtIndexEffectiveRange(%d, %@, %d, ...)",
-			index, aRange?NSStringFromRange(*aRange):@"NULL", tmpLength];
+			index, aRange?NSStringFromRange(*aRange):(NSString *)@"NULL", tmpLength];
 
 				// Binary search for efficiency in huge attributed strings
 	used = [attributeArray count];
@@ -154,16 +154,14 @@ _attributesAtIndexEffectiveRange( unsigned int index,
 
 - (id) initWithAttributedString:(NSAttributedString *)attributedString
 {
-	NSString *tmpStr;
 
 	if(!attributedString)
 		self=[self initWithString:nil attributes:nil];
 	else
 		{
-		tmpStr = [attributedString string];
-		self=[self initWithString:tmpStr attributes:nil];
-		if(self)
-			_setAttributesFrom(attributedString, NSMakeRange(0,[tmpStr length]), _attributes, _locations);
+			NSString *tmpStr = [attributedString string];
+		if((self=[self initWithString:tmpStr attributes:nil]))
+			_setAttributesFrom(attributedString, NSMakeRange(0, [tmpStr length]), _attributes, _locations);
 		}
 
 	return self;
@@ -438,15 +436,10 @@ NSAttributedString *newAttrString;						// Extract a substring
 
 - (id) initWithString:(NSString *)aString attributes:(NSDictionary *)attributes
 {
-//		if((self=[super init])) -- does not work!
-	_string = [[NSMutableString alloc] initWithString: aString];
-	_attributes = [[NSMutableArray alloc] init];
-	_locations = [[NSMutableArray alloc] init];
-	if(!attributes)
-		attributes = [[[NSDictionary alloc] init] autorelease];
-	[_attributes addObject:attributes];
-	[_locations addObject:[NSNumber numberWithUnsignedInt:0]];
-
+	if((self=[super initWithString:nil attributes:attributes]))
+			{
+				_string = [aString mutableCopy];
+			}
 	return self;
 }
 
@@ -575,8 +568,7 @@ NSDictionary *attrs;
 		
 		if(NSMaxRange(effectiveRange) >= NSMaxRange(aRange))
 			effectiveRange.location = NSMaxRange(aRange);	// stops the loop
-		else
-			if(NSMaxRange(effectiveRange) < tmpLength)
+		else if(NSMaxRange(effectiveRange) < tmpLength)
 				attrDict = [self attributesAtIndex:NSMaxRange(effectiveRange)
 								 effectiveRange:&effectiveRange];
 		}
@@ -613,8 +605,7 @@ unsigned int tmpLength;
 		
 		if(NSMaxRange(effectiveRange) >= NSMaxRange(aRange))
 			effectiveRange.location = NSMaxRange(aRange); // stops the loop...
-		else
-			if(NSMaxRange(effectiveRange) < tmpLength)
+		else if(NSMaxRange(effectiveRange) < tmpLength)
 				attrDict = [self attributesAtIndex:NSMaxRange(effectiveRange)
 								 effectiveRange:&effectiveRange];
 		}
@@ -645,8 +636,7 @@ unsigned int tmpLength = [self length];
 		
 		if(NSMaxRange(effectiveRange) >= NSMaxRange(aRange))
 			effectiveRange.location = NSMaxRange(aRange); // stops the loop...
-		else
-			if(NSMaxRange(effectiveRange) < tmpLength)
+		else if(NSMaxRange(effectiveRange) < tmpLength)
 				attrDict = [self attributesAtIndex:NSMaxRange(effectiveRange)
 								 effectiveRange:&effectiveRange];
 		}
@@ -709,12 +699,10 @@ NSString *tmpStr = [attributedString string];
 	arraySize = [_locations count];
 	if(NSMaxRange(range) < tmpLength)
 		{
-		attrs = _attributesAtIndexEffectiveRange( NSMaxRange(range),
-			&effectiveRange,tmpLength,_attributes,_locations,&arrayIndex);
+		attrs = _attributesAtIndexEffectiveRange( NSMaxRange(range), &effectiveRange, tmpLength, _attributes, _locations, &arrayIndex);
     
 		moveLocations = [aString length] - range.length;
-		afterRangeLocation =
-			[NSNumber numberWithUnsignedInt:NSMaxRange(range)+moveLocations];
+		afterRangeLocation = [NSNumber numberWithUnsignedInt:NSMaxRange(range)+moveLocations];
     
 		if(effectiveRange.location > range.location)
 			[_locations replaceObjectAtIndex:arrayIndex
@@ -728,18 +716,15 @@ NSString *tmpStr = [attributedString string];
     
 		for(cnt = arrayIndex + 1; cnt < arraySize; cnt++)
 			{
-			location = [[_locations objectAtIndex:cnt] unsignedIntValue]
-					+ moveLocations;
-			[_locations replaceObjectAtIndex:cnt
-						 withObject:[NSNumber numberWithUnsignedInt:location]];
+			location = [[_locations objectAtIndex:cnt] unsignedIntValue] + moveLocations;
+			[_locations replaceObjectAtIndex:cnt withObject:[NSNumber numberWithUnsignedInt:location]];
 			}
 		arrayIndex--;
 		}
 	else
 		arrayIndex = arraySize - 1;
 
-	while(arrayIndex > 0 &&
-    [[_locations objectAtIndex:arrayIndex] unsignedIntValue] > range.location)
+	while(arrayIndex > 0 && [[_locations objectAtIndex:arrayIndex] unsignedIntValue] > range.location)
 		{
 		[_locations removeObjectAtIndex:arrayIndex];
 		[_attributes removeObjectAtIndex:arrayIndex];
@@ -750,13 +735,12 @@ NSString *tmpStr = [attributedString string];
 
 - (void) setAttributedString:(NSAttributedString *)attributedString
 {
-	NSString *tmpStr = [attributedString string];
-	[_string setString: tmpStr];
-	[_attributes removeAllObjects];
+	[_string setString: [attributedString string]];
+	[_attributes removeAllObjects];	// remove all existing attributes
 	[_locations removeAllObjects];
 	[_attributes addObject:[NSDictionary dictionary]];
-	[_locations addObject:[NSNumber numberWithUnsignedInt:0]];	// remove all existing attributes
-	_setAttributesFrom(attributedString, NSMakeRange(0, [tmpStr length]), _attributes, _locations);
+	[_locations addObject:[NSNumber numberWithUnsignedInt:0]];
+	_setAttributesFrom(attributedString, NSMakeRange(0, [attributedString length]), _attributes, _locations);
 }
 
 @end /* NSMutableAttributedString */

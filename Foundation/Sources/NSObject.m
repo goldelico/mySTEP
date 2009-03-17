@@ -29,7 +29,7 @@
 #import <Foundation/NSDebug.h>
 
 BOOL NSZombieEnabled=NO;
-BOOL NSDeallocateZombies=NO;
+BOOL NSDeallocateZombies=NO;	// FIXME - not used
 BOOL NSDebugEnabled=NO;
 BOOL NSHangOnUncaughtException=NO;
 BOOL NSEnableAutoreleasePool=YES;
@@ -289,6 +289,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 		{
 		if(NSZombieEnabled)
 			{
+				static Class zombieClass;
 			NSAutoreleasePool *arp=[NSAutoreleasePool new];
 			NSZombieEnabled=NO;	// don't Zombie temporaries while we get the description
 			if(!__zombieMap)
@@ -298,8 +299,17 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 			if([self isKindOfClass:[NSTask class]])
 				NSLog(@"zombiing %p: %@", self, [self description]);
 #endif
-			NSMapInsert(__zombieMap, (void *) self, [self description]);		// save last object description before making it a zombie
-			isa=objc_lookup_class("_NSZombie");		// _NSZombie does fail for all method calls, especially a second release after dealloc
+#if 1
+			fprintf(stderr, "zombiing %p\n", self);	// NSLog() would recursively call -[NSObject release]
+#endif
+#if 1
+			NSMapInsert(__zombieMap, (void *) self, [self description]);		// retain last object description before making it a zombie
+#else
+				NSMapInsert(__zombieMap, (void *) self, @"?");		// don't fetch description
+#endif
+			if(!zombieClass)
+				zombieClass=objc_lookup_class("_NSZombie");
+			isa=zombieClass;	// _NSZombie does fail for all method calls, especially a second release after dealloc
 			[arp release];
 			NSZombieEnabled=YES;
 			}
@@ -307,7 +317,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 			{
 #if 0
 			if([self isKindOfClass:[NSData class]])
-				NSLog(@"dealloc %p", self);
+				fprintf(stderr, "dealloc %p\n", self);	// NSLog() would recursively call -[NSObject release]
 #endif
 			((_object_layout)(self))[-1].retained--;
 			[self dealloc];				// dealloc

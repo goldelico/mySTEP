@@ -668,7 +668,7 @@ static NSCursor *__textCursor = nil;
 	[self drawInteriorWithFrame:cellFrame inView:controlView];
 }
 
-// FIXME: the formatter should be applied when setting the object - not when drawing!???
+// FIXME: the formatter should be applied once when setting the object - not when drawing!???
 
 - (void) _getFormattedString:(NSString **) string withAttribs:(NSDictionary **) attribs orAttributedString:(NSAttributedString **) astring ignorePlaceholder:(BOOL) flag;	// whichever is more convenient
 { // get whatever you have
@@ -680,6 +680,7 @@ static NSCursor *__textCursor = nil;
 	*attribs=[NSMutableDictionary dictionaryWithObjectsAndKeys:
 		(_c.enabled ? _textColor : [NSColor disabledControlTextColor]),	NSForegroundColorAttributeName,
 		_font, NSFontAttributeName,
+						// should we include paragraph alignment? _c.alignment
 		nil];
 	*string=nil;
 	*astring=nil;
@@ -690,7 +691,7 @@ static NSCursor *__textCursor = nil;
 	NSLog(@"_formatter=%@", _formatter);
 	NSLog(@"_contents=%@", _contents);
 	NSLog(@"_contents class=%@", [_contents class]);
-#endif	
+#endif
 	if(_formatter)
 		{
 		if([_formatter respondsToSelector:@selector(attributedStringForObjectValue:withDefaultAttributes:)])
@@ -702,15 +703,16 @@ static NSCursor *__textCursor = nil;
 		*astring=_contents;   // as is
 	else
 		*string=[_contents description];
-#if 0
+#if 1
 	NSLog(@"attribs=%@", *attribs);
 	NSLog(@"string=%@", *string);
 	NSLog(@"astring=%@", *astring);
-#endif	
+#endif
 	if(_c.secure)   // set by NSSecureTextField
 		{
 		if(*astring)
 			{
+				// should we keep attributes?
 			*string=[@"" stringByPaddingToLength:[*astring length] withString:@"*" startingAtIndex:0]; // replace with sequence of *
 			*astring=nil;
 			}
@@ -755,19 +757,21 @@ static NSCursor *__textCursor = nil;
 	if(_c.type == NSTextCellType)
 		{
 		NSString *string;				// string
-		NSMutableDictionary *_attribs;
+		NSMutableDictionary *attribs;
 		NSAttributedString *astring;	// or attributed string to draw
 		NSSize size;
-		[self _getFormattedString:&string withAttribs:&_attribs orAttributedString:&astring ignorePlaceholder:NO];
+		[self _getFormattedString:&string withAttribs:&attribs orAttributedString:&astring ignorePlaceholder:NO];
 #if 0
-		NSLog(@"NSCell drawInterior string=%@ astring=%@ attribs=%@ _textColor=%@", string, astring, _attribs, _textColor);
+		NSLog(@"NSCell drawInterior string=%@ astring=%@ attribs=%@ _textColor=%@", string, astring, attribs, _textColor);
 #endif	
 		if(astring)
 			size=[astring size]; // determine bounding box of text
 		else
-			size=[string sizeWithAttributes:_attribs];
+			size=[string sizeWithAttributes:attribs];
 		frame.origin.x += 2;	// add left&right spacing
 		frame.size.width -= 4;
+			// shouldn't this be based on the paragraph attributes of the string?
+			// or shouldn't NSString drawInRect: take care of it
 		switch(_c.alignment) 					// Determine x position of text
 			{
 			case NSJustifiedTextAlignment:
@@ -795,7 +799,7 @@ static NSCursor *__textCursor = nil;
 		if(astring)
 			[astring drawInRect:frame];
 		else
-			[string drawInRect:frame withAttributes:_attribs];
+			[string drawInRect:frame withAttributes:attribs];
 		return;
 		}
 	

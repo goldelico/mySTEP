@@ -419,8 +419,8 @@ NSArray *NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory directory, NS
 	NSMutableArray  *paths = [NSMutableArray arrayWithCapacity:10];
 	
 #define ADD_PATH(mask, path) \
-if (domainMask & mask && ![paths containsObject: path] && [[NSFileManager defaultManager] fileExistsAtPath:path]) \
-[paths addObject: expandTilde?[path stringByExpandingTildeInPath]:path];
+if ((domainMask & mask) && ![paths containsObject: path] && [[NSFileManager defaultManager] fileExistsAtPath:path]) \
+[paths addObject: expandTilde?(NSString *) [path stringByExpandingTildeInPath]:(NSString *) path];
 	
 	// we could read this from an NSDictionary in Info.plist ...
 	
@@ -523,17 +523,9 @@ static BOOL __logMemory;
 
 void NSLogv(NSString *format, va_list args)
 {
-	static BOOL initialized=NO;
 #ifndef __mySTEP__
 	unsigned long __NSAllocatedObjects=0;
 #endif
-	if(!initialized)
-			{ // get flags
-				char *log=getenv("NSLog");
-				__printLog=log && log[0] != 0;
-				__logMemory=__printLog && strcmp(log, "memory") == 0;
-				initialized=YES;
-			}
 	if(__printLog)
 			{
 				NSAutoreleasePool *pool = [NSAutoreleasePool new];
@@ -542,11 +534,15 @@ void NSLogv(NSString *format, va_list args)
 #if 0
 				fprintf(stderr, ">> NSRealMemoryAvailable=%u\n", NSRealMemoryAvailable ());
 #endif
+#if 0
 				prefix = [NSString stringWithFormat: __logMemory?@"%@ %@[%d] [%lu/%lu] ":@"%@ %@[%d] ",
 									[[NSCalendarDate calendarDate] descriptionWithCalendarFormat: @"%b %d %H:%M:%S.%F"],
 									[[[NSProcessInfo processInfo] processName] lastPathComponent],
 									getpid(), NSRealMemoryAvailable(), __NSAllocatedObjects
 									];
+#else
+				prefix=@"";
+#endif
 				message = [[NSString alloc] initWithFormat:format arguments:args];
 				fputs([[prefix stringByAppendingString:message] UTF8String], stderr);
 				if(![message hasSuffix:@"\n"])		// Check if there is already a newline at the end of the string
@@ -925,9 +921,20 @@ kern_return_t r = vm_copy (mach_task_self(), source, bytes, dest);
 }
 
 #ifdef __mySTEP__
+// @class NSDataStatic;
+
 void __NSCountAllocate(Class aClass)
 {
 	struct __NSAllocationCount *cnt=NULL;
+	static BOOL initialized=NO;
+//	fprintf(stderr, "__NSCountAllocate %s\n", aClass->name);
+	if(!initialized)
+			{ // get flags from environment
+				char *log=getenv("NSLog");
+				__printLog=log && log[0] != 0;
+				__logMemory=__printLog && strcmp(log, "memory") == 0;
+				initialized=YES;
+			}
 	if(!__logMemory)
 		return;
 	if(!__NSAllocationCountTable)
@@ -946,16 +953,27 @@ void __NSCountAllocate(Class aClass)
 	cnt->alloc++;	// total allocs
 	if(++cnt->instances > cnt->peak)
 		cnt->peak=cnt->instances;
+//	fprintf(stderr, "%s %d\n", aClass->name, cnt->instances);
+//	cnt=NSMapGet(__NSAllocationCountTable, [NSDataStatic class]);
+//	if(cnt)
+//		fprintf(stderr, "NSDataStatic %d\n", cnt->instances);
 }
 
 void __NSCountDeallocate(Class aClass)
 {
 	extern NSMapTable *__NSAllocationCountTable;
+//	fprintf(stderr, "__NSCountDeallocate %s\n", aClass->name);
 	if(__logMemory && __NSAllocationCountTable)
 			{
 				struct __NSAllocationCount *cnt=NSMapGet(__NSAllocationCountTable, aClass);
 				if(cnt)
-					cnt->instances--;
+						{
+							NSAssert(cnt->instances > 0, @"never allocated!");
+							cnt->instances--;
+						}
+//				cnt=NSMapGet(__NSAllocationCountTable, [NSDataStatic class]);
+//				if(cnt)
+//					fprintf(stderr, "NSDataStatic %d\n", cnt->instances);
 			}
 }
 
@@ -963,23 +981,38 @@ void __NSPrintAllocationCount(void)
 { // print current object allocation to stderr plus a trace in /tmp
 	if(__logMemory && __NSAllocationCountTable)
 			{
-				NSMapEnumerator e=NSEnumerateMapTable(__NSAllocationCountTable);
-				Class key;
-				struct __NSAllocationCount *cnt;
+				int cntLevel=1;	// cnt-Level to print next
 				fprintf(stderr, "\fCurrent Object Allocation\n");
-				while(NSNextMapEnumeratorPair(&e, (void *) &key, (void *) &cnt))
-						{ // get all key/value pairs
-							FILE *file;
-							char name[200];
-							if(cnt->instances > 0)	// ??? this does not print alloc/peak...
-								fprintf(stderr, "%s: alloc %lu instances %lu peak %lu dealloc %lu\n", class_get_class_name(key), cnt->alloc, cnt->instances, cnt->peak, cnt->alloc-cnt->instances);
-							sprintf(name, "/tmp/%u/%s", getpid(), class_get_class_name(key));
-							file=fopen(name, "a");
-							if(file)
-									{
-										fprintf(file, "%s: alloc %lu instances %lu peak %lu dealloc %lu\n", class_get_class_name(key), cnt->alloc, cnt->instances, cnt->peak, cnt->alloc-cnt->instances);
-										fclose(file);
+				while(YES)
+						{
+							NSMapEnumerator e=NSEnumerateMapTable(__NSAllocationCountTable);
+							Class key;
+							struct __NSAllocationCount *cnt;
+							int nextLevel=99999999;
+							while(NSNextMapEnumeratorPair(&e, (void *) &key, (void *) &cnt))
+									{ // get all key/value pairs
+										FILE *file;
+										char name[200];
+										if(cnt->instances != cntLevel)
+												{	// don't print this level
+													if(cnt->instances > cntLevel)
+														nextLevel=MIN(nextLevel, cnt->instances);	// next level to print
+													continue;
+												}
+										if(cnt->instances > 0)	// ??? this does not print alloc/peak...
+											fprintf(stderr, "%c %9lu %s: alloc %lu peak %lu dealloc %lu\n", ((cnt->instances>cnt->linstances)?'+':((cnt->instances<cnt->linstances)?'-':' ')), cnt->instances, class_get_class_name(key), cnt->alloc, cnt->peak, cnt->alloc-cnt->instances);
+										sprintf(name, "/tmp/%u/%s", getpid(), class_get_class_name(key));
+										file=fopen(name, "a");
+										if(file)
+												{
+													fprintf(file, "%s: alloc %lu instances %lu peak %lu dealloc %lu\n", class_get_class_name(key), cnt->alloc, cnt->instances, cnt->peak, cnt->alloc-cnt->instances);
+													fclose(file);
+												}
+										cnt->linstances=cnt->instances;	// to allow to compare to last print
 									}
+							if(nextLevel == cntLevel)
+								break;	// done (i.e. we did run with maximum level)
+							cntLevel=nextLevel;
 						}
 			}
 }

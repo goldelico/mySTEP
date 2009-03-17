@@ -81,7 +81,7 @@ NSStringDrawing.m
 
 @implementation NSAttributedString (NSAttributedStringDrawingAdditions)
 
-// FIXME: make this thread-safe by locking (in setup) and unlocking (afterwards)
+// FIXME: make this thread-safe by locking (in setup) and unlocking (after use)
 
 static NSTextStorage *_textStorage;
 static NSLayoutManager *_layoutManager;
@@ -133,7 +133,7 @@ static NSAttributedString *_currentString;
 	if([self length] == 0)
 		return NSZeroRect;	// empty string
 	[self _setupWithRect:(NSRect) { NSZeroPoint, size } options:options];	// create a text container from given size
-	return [_layoutManager boundingRectForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [self length])
+	return [_layoutManager boundingRectForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
 																			actualCharacterRange:NULL]
 									 inTextContainer:_textContainer];
 	// FIXME: handle oneshot option...
@@ -165,7 +165,7 @@ static NSAttributedString *_currentString;
 #if 0
 	NSLog(@"drawWithRect:options: %@", self);
 #endif
-	[_layoutManager drawGlyphsForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [self length])
+	[_layoutManager drawGlyphsForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
 																   actualCharacterRange:NULL]
 									atPoint:rect.origin];
 	// underline...
@@ -185,7 +185,7 @@ static NSAttributedString *_currentString;
 	if([self length] == 0)
 		return NSZeroSize;	// empty string
 	[self _setupWithRect:(NSRect) { NSZeroPoint, { 16000.0, 16000.0 } } options:0];	// start with a very large text container
-	return [_layoutManager boundingRectForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [self length])
+	return [_layoutManager boundingRectForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
 																			actualCharacterRange:NULL]
 									 inTextContainer:_textContainer].size;	// get really required bounding box
 }

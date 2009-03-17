@@ -833,8 +833,6 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 - (void) insertObject:(id)anObject atIndex:(unsigned)idx
 {
-	unsigned i;
-
 	if (!anObject)
 		[NSException raise: NSInvalidArgumentException
 					 format: @"Tried to insert nil into %@", self];
@@ -844,7 +842,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 			format: @"insertObject:atIndex:, index %d is out of range", idx];
 
 	if (_count == _capacity)
-		{
+		{ // needs more space
 		id *ptr;
 		size_t size;
 
@@ -852,19 +850,14 @@ unsigned i = range.location, j;				// beyond end of array then return
 		size = _capacity * sizeof(id);
 		if ((ptr = objc_realloc(_contents, size)) == 0)
 			[NSException raise: NSMallocException format: @"Unable to grow %@", self];
-
 		_contents = ptr;
 		}
 
-	// FIXME: imporve by using memcpy
-	
-	for (i = _count; i > idx; i--)
-		_contents[i] = _contents[i - 1];
-											// Make sure the array is 'sane' so   
-	_contents[idx] = nil;					// that it can be dealloc'd safely
-	_count++;								// by an autorelease pool if the 
-	_contents[idx] = [anObject retain];	// retain of anObject causes an
-}											// exception.
+	memmove(&_contents[idx+1], &_contents[idx], sizeof(_contents[0])*(_count-idx));
+	_contents[idx] = nil;		// Make sure the array is 'sane' so that it can be dealloc'd safely by an autorelease pool if the retain of anObject causes an exception.
+	_count++;
+	_contents[idx] = [anObject retain]; 
+}
 
 - (void) replaceObjectAtIndex:(unsigned)idx withObject:(id)anObject
 {
@@ -936,7 +929,7 @@ id e, o;
 
 - (void) removeObjectIdenticalTo:(id) anObject inRange:(NSRange)aRange
 {
-	unsigned j, i = MIN(NSMaxRange(aRange), _count);
+	unsigned i = MIN(NSMaxRange(aRange), _count);
 	id o;
 
 	while (i-- > aRange.location)
@@ -944,9 +937,7 @@ id e, o;
 		if ((o = _contents[i]) == anObject)
 			{
 			_count--;
-			// FIXME: improve this by using memcpy!
-			for (j = i; j < _count; j++)
-				_contents[j] = _contents[j + 1];
+				memmove(&_contents[i], &_contents[i+1], sizeof(_contents[0])*(_count-i));
 			[o release];
 			}
 		}
@@ -954,7 +945,7 @@ id e, o;
 
 - (void) removeObjectIdenticalTo:(id) anObject
 { // remove all occurrences!
-	unsigned j, i = _count;
+	unsigned i = _count;
 	id o;
 
 	while (i-- > 0)
@@ -962,9 +953,7 @@ id e, o;
 		if ((o = _contents[i]) == anObject)
 			{
 			_count--;
-			// FIXME: improve this by using memcpy!
-			for (j = i; j < _count; j++)
-				_contents[j] = _contents[j + 1];
+				memmove(&_contents[i], &_contents[i+1], sizeof(_contents[0])*(_count-i));
 #if 0
 			NSLog(@"removeObjectIdenticalTo: releasing %@", o);
 #endif
@@ -975,7 +964,7 @@ id e, o;
 
 - (void) removeObject:(id) anObject inRange:(NSRange)aRange
 {
-	unsigned j, i = MIN(NSMaxRange(aRange), _count);
+	unsigned i = MIN(NSMaxRange(aRange), _count);
 	id o;
 
 	while (i-- > aRange.location)
@@ -983,9 +972,7 @@ id e, o;
 		if ((o = _contents[i]) == anObject || [o isEqual: anObject])
 			{
 			_count--;
-			// FIXME: improve this by using memcpy!
-			for (j = i; j < _count; j++)
-				_contents[j] = _contents[j + 1];
+				memmove(&_contents[i], &_contents[i+1], sizeof(_contents[0])*(_count-i));
 			[o release];
 			}
 		}
@@ -993,7 +980,7 @@ id e, o;
 
 - (void) removeObject:(id) anObject
 { // removes all occurrences!
-	unsigned j, i = _count;
+	unsigned i = _count;
 	id o;
 
 	while (i-- > 0)
@@ -1001,9 +988,7 @@ id e, o;
 		if ((o = _contents[i]) == anObject || [o isEqual: anObject])
 			{
 			_count--;
-			// FIXME: improve this by using memcpy!
-			for (j = i; j < _count; j++)
-				_contents[j] = _contents[j + 1];
+			memmove(&_contents[i], &_contents[i+1], sizeof(_contents[0])*(_count-i));
 #if 0
 			NSLog(@"removeObject: releasing %@", o);
 #endif
@@ -1022,17 +1007,14 @@ id e, o;
 
 	o = _contents[idx];
 	_count--;
-	// FIXME: improve this by using memcpy!
-	for (; idx < _count; idx++)
-		_contents[idx] = _contents[idx + 1];
+	memmove(&_contents[idx], &_contents[idx+1], sizeof(_contents[0])*(_count-idx));
 	[o release];
 }
 
 - (void) removeAllObjects
 {
-	unsigned i = 0, c = (_count <= 0) ? 0 : _count - 1;
-
-	while(i++ < c)
+	unsigned i;
+	for(i=0; i < _count; i++)
 		[_contents[i] release];
 	_count = 0;
 }
@@ -1046,13 +1028,13 @@ id e, o;
 
 - (void) setArray:(NSArray *)otherArray
 {
-	// FIXME: can be improved!
+	// FIXME: can be improved by allocating new _contents once and copying the references
 	[self removeAllObjects];
 	[self addObjectsFromArray: otherArray];
 }
 
-- (void) removeObjectsFromIndices:(unsigned*)indices 
-					   numIndices:(unsigned)count
+- (void) removeObjectsFromIndices:(unsigned *) indices 
+					   numIndices:(unsigned) count
 {
 	while (count--)
 		[self removeObjectAtIndex:indices[count]];

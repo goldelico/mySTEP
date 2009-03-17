@@ -262,7 +262,7 @@ static NSMapTable *_toolbars;
 - (SEL) action; { return _action; }
 - (BOOL) allowsDuplicatesInToolbar; { return _allowsDuplicatesInToolbar; } 
 - (BOOL) autovalidates; { return _autovalidates; }
-- (NSImage *) image; { return [_view respondToSelector:_cmd]?[_view image]:_image; }
+- (NSImage *) image; { return [_view respondsToSelector:_cmd]?[(NSImageView *) _view image]:_image; }
 
 - (id) initWithItemIdentifier:(NSString *) itemId; 
 {
@@ -323,7 +323,7 @@ static NSMapTable *_toolbars;
 - (void) setAction:(SEL) sel; { if(!_builtin) _action=sel; }	// should we forward to the _view?
 - (void) setAutovalidates:(BOOL) flag; { _autovalidates=flag; }
 - (void) setEnabled:(BOOL) flag; { _isEnabled=flag; }	// should we forward to the _view?
-- (void) setImage:(NSImage *) img; { if(!_builtin) { if([_view respondToSelector:_cmd]) [_view setImage:img]; else ASSIGN(_image, img); } }
+- (void) setImage:(NSImage *) img; { if(!_builtin) { if([_view respondsToSelector:_cmd]) [(NSImageView *) _view setImage:img]; else ASSIGN(_image, img); } }
 - (void) setLabel:(NSString *) str; { if(!_builtin) ASSIGN(_label, str); }	// should we forward to the _view?
 - (void) setMaxSize:(NSSize) size; { if(!_builtin) _maxSize=size; }
 - (void) setMenuFormRepresentation:(NSMenuItem *) item; { NIMP; }

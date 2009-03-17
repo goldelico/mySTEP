@@ -112,10 +112,11 @@
 #ifdef __mySTEP__
 struct __NSAllocationCount
 {
-	unsigned long alloc;
-	unsigned long instances;
-	unsigned long peak;
-	// could also count/balance retains&releases
+	unsigned long alloc;				// number of +alloc
+	unsigned long instances;		// number of instances (balance of +alloc and -dealloc)
+	unsigned long linstances;		// last number of instances (when we did print the last time)
+	unsigned long peak;					// maximum instances
+	// could also count/balance retains&releases ??
 };
 extern unsigned long __NSAllocatedObjects;
 @class NSMapTable;
@@ -128,18 +129,19 @@ static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone 
 #ifdef __mySTEP__
 	if (CLS_ISCLASS (aClass))
 		{
-		int size = aClass->instance_size + sizeof(struct _object_layout);
+		unsigned size = aClass->instance_size + sizeof(struct _object_layout);
 		if ((newobject = NSZoneMalloc(zone, size)) != nil)
 			{
 #if 1	// if we trace object allocation
 				extern void __NSCountAllocate(Class aClass);
+//				fprintf(stderr, "NSAllocateObject -> %p [%s alloc]\n", &((_object_layout)newobject)[1], aClass->name);
 				__NSCountAllocate(aClass);
 #endif
 				memset (newobject, 0, size);
 			newobject = (id)&((_object_layout)newobject)[1];
 			newobject->class_pointer = aClass;
 			}
-		//		fprintf(stderr, "%08x [%s alloc:%d]\n", new, aClass->name, size);
+//				fprintf(stderr, "%08x [%s alloc:%d]\n", newobject, aClass->name, size);
 			__NSAllocatedObjects++;	// one more
 	}
 #endif
@@ -152,14 +154,16 @@ static inline void NSDeallocateObject(NSObject *anObject)					// object dealloca
 	if (anObject != nil)
 		{
 			_object_layout o = &((_object_layout)anObject)[-1];
-#if 1	// if we trace object allocation
-			extern void __NSCountDeallocate(Class aClass);
-			__NSCountDeallocate([anObject class]);
+#if 0
+			fprintf(stderr, "NSDeallocateObject: %p [%s dealloc]\n", anObject, anObject->isa->name);
 #endif
-		
-		//	fprintf(stderr, "%08x [%s dealloc]\n", anObject, anObject->isa->name);
-		((id)anObject)->class_pointer = (void*)0xdeadface;
-		
+#if 1	// if we trace object allocation
+			{
+				extern void __NSCountDeallocate(Class aClass);
+				__NSCountDeallocate([anObject class]);
+			}
+#endif
+		((id)anObject)->class_pointer = (void *)0xdeadface;	// destroy
 		objc_free(o);
 			__NSAllocatedObjects--;	// one less
 		}

@@ -120,12 +120,14 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 - (void) setValue:(id) val forKey:(NSString *) str;
 {
 	const char *varName=[str cString];
-	char *selName=objc_malloc(3+strlen(varName)+1+1);	// check if a matching setter exists (incl. room for "set" or "_is" and a ":")
+	int len=3+strlen(varName)+1+1;	// check if a matching setter exists (incl. room for "set" or "_is" and a ":")
+	char *selName=objc_malloc(len);
 	SEL s;
 	strcpy(selName, "set");
 	strcpy(selName+3, varName);	// append
 	selName[3]=toupper(selName[3]);	// capitalize the letter following "set"
 	strcat(selName+3, ":");	// append a :
+	NSAssert(strlen(selName) < len, @"buffer overflow");
 	s=sel_get_any_uid(selName);
 #if 0
 	NSLog(@"%p %@: setValue:forKey:%@ val=%@", self, self, str, val);

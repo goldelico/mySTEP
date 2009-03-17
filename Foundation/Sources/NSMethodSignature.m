@@ -344,7 +344,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	structReturnPointerLength=sizeof(void *);	// if we have one
 	floatAsDouble=YES;
 	//	structByRef=YES;
-#else
+#elif defined(__x86__)	// for Intel
 	// check for others
 #endif
 	isBigEndian=(NSHostByteOrder()==NS_BigEndian);

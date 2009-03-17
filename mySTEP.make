@@ -11,8 +11,8 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 # Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2008
 # This document is licenced using LGPL
 #
-# Requires Xcode 2.4 or later
-# And Apple X11 incl. X11 SDK
+# Requires Xcode 2.5 or later
+# and Apple X11 incl. X11 SDK
 #
 # To use this makefile in Xcode with Xtoolchain:
 #
@@ -49,12 +49,30 @@ endif
 
 .PHONY:	clean build build_architecture
 
-ifeq ($(ARCHITECTURES),)	# set default architectures (should check that we have a libobjc.so for this architecture!)
+ifeq ($(ARCHITECTURES),)
+ifeq ($(BUILD_FOR_DEPLOYMENT),true)
+# set all architectures for which we know a compiler (should check that we have a libobjc.so for this architecture!)
 ARCHITECTURES=$(shell cd $(ROOT)/this/gcc && echo *-*-*)
+else
+# set default architecture for development only
+ARCHITECTURES=i486-debianetch-linux-gnu
+endif
 endif
 
 ifeq ($(ARCHITECTURE),)	# set default
 ARCHITECTURE:=arm-quantumstep-linux-gnu
+endif
+
+# configure Embedded System if undefined
+
+IP_ADDR$:=$(shell defaults read de.dsitri.ZMacSync SelectedDevice 2>/dev/null)
+
+ifeq ($(IP_ADDR),)	# set a default
+IP_ADDR:=192.168.129.201
+endif
+
+ifeq ($(EMBEDDED_ROOT),)
+EMBEDDED_ROOT:=/usr/share/QuantumSTEP
 endif
 
 # tools
@@ -114,51 +132,39 @@ build:
 		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_architecture; \
 		done
 
-# configure Embedded System if undefined
-
-IP_ADDR$:=$(shell defaults read de.dsitri.ZMacSync SelectedDevice 2>/dev/null)
-
-ifeq ($(IP_ADDR),)	# set a default
-IP_ADDR:=192.168.129.201
-endif
-
-ifeq ($(EMBEDDED_ROOT),)
-EMBEDDED_ROOT:=/usr/share/QuantumSTEP
-endif
-
 # override if (stripped) package is build using xcodebuild
 
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 # ifneq ($(BUILD_STYLE),Development)
 	# optimize for speed
-	OPTIMIZE := 2
+OPTIMIZE := 2
 	# should also remove headers and symbols
 #	STRIP_Framework := true
 	# remove MacOS X code
 #	STRIP_MacOS := true
 	# install in our file system so that we can build the package
-	INSTALL := true
+INSTALL := true
 	# don't send to the device
-	SEND2ZAURUS := false
+SEND2ZAURUS := false
 	# and don't run
-	RUN := false
+RUN := false
 endif
 
 ifeq ($(OPTIMIZE),)
 	# default to optimize depending on BUILD_STYLE
-	ifeq ($(BUILD_STYLE),Development)
-		OPTIMIZE := s
-	else
-		OPTIMIZE := $(GCC_OPTIMIZATION_LEVEL)
-	endif
+ifeq ($(BUILD_STYLE),Development)
+OPTIMIZE := s
+else
+OPTIMIZE := $(GCC_OPTIMIZATION_LEVEL)
+endif
 endif
 
 # check if embedded device responds
 ifneq ($(SEND2ZAURUS),false) # check if we can reach the device
-	ifneq "$(shell ping -qc 1 $(IP_ADDR) | fgrep '1 packets received' >/dev/null && echo yes)" "yes"
-		SEND2ZAURUS := false
-		RUN := false
-	endif
+ifneq "$(shell ping -qc 1 $(IP_ADDR) | fgrep '1 packets received' >/dev/null && echo yes)" "yes"
+SEND2ZAURUS := false
+RUN := false
+endif
 endif
 
 # could better check ifeq ($(PRODUCT_TYPE),com.apple.product-type.framework)
@@ -173,12 +179,12 @@ INCLUDES := \
 		-I$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 
 ifeq ($(PRODUCT_NAME),Foundation)
-		FMWKS := $(addprefix -l,$(FRAMEWORKS))
+FMWKS := $(addprefix -l,$(FRAMEWORKS))
 else
 ifeq ($(PRODUCT_NAME),AppKit)
-		FMWKS := $(addprefix -l,Foundation $(FRAMEWORKS))
+FMWKS := $(addprefix -l,Foundation $(FRAMEWORKS))
 else
-		FMWKS := $(addprefix -l,Foundation AppKit $(FRAMEWORKS))
+FMWKS := $(addprefix -l,Foundation AppKit $(FRAMEWORKS))
 endif
 endif
 
@@ -253,6 +259,7 @@ make_bundle:
 make_exec: "$(EXEC)"
 
 make_binary: "$(BINARY)"
+	ls -l "$(BINARY)"
 
 install_local:
 ifeq ($(ADD_MAC_LIBRARY),true)

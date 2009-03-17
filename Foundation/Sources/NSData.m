@@ -19,7 +19,7 @@
 
     NB. In our implementaion we require an extra primitive for the
         NSMutableData subclasses.  This new primitive method is the
-        [-setCapacity:] method, and it differs from [-setLength:]
+        [-_setCapacity:] method, and it differs from [-setLength:]
         as follows -
 
     	[-setLength:]
@@ -147,6 +147,11 @@ static IMP appendImp;
 
 + (id) allocWithZone:(NSZone *) z
 {
+#if 1
+	id p=NSAllocateObject(dataMalloc, 0, z);
+	NSLog(@"allocated %@: %p", NSStringFromClass(self), p);
+	return p;
+#endif
 	return NSAllocateObject(dataMalloc, 0, z);
 }
 
@@ -230,6 +235,7 @@ static IMP appendImp;
 	if(![url isFileURL])
 		{
 		[self release];
+			// use synchronous NSURLConnection
 		return NIMP;	// can't read
 		}
 	return [self initWithContentsOfMappedFile:[url path]];	// default to a mapped file
@@ -242,9 +248,9 @@ static IMP appendImp;
 
 - (id) _initWithBase64String:(NSString *) string;
 { // we need that for unarchiving NSData objects in XML format (and somewhere else)
-	unsigned int len=[string length];
+	unsigned int len=(3*[string length])/4+2;
 	const char *str=[string UTF8String];
-	char *bytes=objc_malloc((3*len)/4+2);	// at least as much as we really need (this does not exclude skipped padding and whitespace)
+	char *bytes=objc_malloc(len);	// at least as much as we really need (this does not exclude skipped padding and whitespace)
 	char *bp=bytes;
 	int b;
 	int cnt=0;
@@ -324,6 +330,7 @@ static IMP appendImp;
 		objc_free(bytes);	// not used...
 		return [self initWithBytesNoCopy:NULL length:0];	// empty data
 		}
+	NSAssert(bp-bytes <= len, @"buffer overflow");
 	bytes=objc_realloc(bytes, (bp-bytes));	// shrink as needed
 	return [self initWithBytesNoCopy:bytes length:(bp-bytes)]; // take ownership
 }
@@ -376,9 +383,9 @@ static IMP appendImp;
 - (NSString *) description
 {
 	const char *src = [self bytes];
-	int i, length = [self length], l=2 * length + length / 4+3;
+	int i, length = [self length], l=2 * length + (length+3) / 4+3;
 	char *dest, *bp;	// build a cString and convert it to an NSString
-#if 0
+#if 1
 	NSLog(@"NSData description length=%d l=%d", length, l);
 #endif
 	if ((bp=dest=(char *) objc_malloc(l)) == NULL)
@@ -389,15 +396,17 @@ static IMP appendImp;
 		sprintf(bp, "%02x", src[i]);
 		bp+=2;
 		if((i&0x3) == 3 && i != length-1)
-			*bp++ = ' ';					// if we've just finished a 
-		if(bp >= dest+l)
+			*bp++ = ' ';					// if we've just finished a block
+		NSAssert(bp-dest < l, @"buffer overflow");
+/*		if(bp >= dest+l)
 			{
 			NSLog(@"data overflow in NSData -description (j=%d l=%d length=%d)", bp-dest, l, length);
 			[NSException raise: NSMallocException format: @"data overflow in NSData -description (j=%d l=%d length=%d)", bp-dest, l, length];
-			}
+			} */
 		}										// 32-bit int, print a space
 	*bp++ = '>';
 	*bp = 0;	// 0-terminate
+	NSAssert(bp-dest < l, @"buffer overflow");
 	return [[[NSString alloc] initWithCStringNoCopy:dest length:bp-dest freeWhenDone:YES] autorelease];
 }
 
@@ -1628,7 +1637,7 @@ struct shmid_ds	buf;
 	return [[[mutableDataMalloc alloc] initWithLength: length] autorelease];
 }
 
-- (const void*) bytes						 { return [self mutableBytes]; }
+- (const void *) bytes						 { return [self mutableBytes]; }
 - (id) initWithCapacity:(unsigned)capacity			{ SUBCLASS return nil; }
 - (id) initWithLength:(unsigned)length				{ SUBCLASS return nil; }
 
@@ -1749,10 +1758,10 @@ struct shmid_ds	buf;
 	return self;
 }
 
-- (id) setCapacity:(unsigned)size
+- (id) _setCapacity:(unsigned)size
 {
 #if 0
-	NSLog(@"setCapacity:%u for %@", size, self);
+	NSLog(@"_setCapacity:%u for %@", size, self);
 #endif
 	if (size != capacity) 
 		{
@@ -1780,7 +1789,7 @@ struct shmid_ds	buf;
 - (void) setLength:(unsigned)size
 {
 	if (size > capacity) 
-		[self setCapacity: size];
+		[self _setCapacity: size];
     if (size > length) 
 		memset(((char *) bytes) + length, '\0', size - length);
     length = size;
@@ -1871,7 +1880,9 @@ unsigned l;
 	unsigned oldLength = length;
 	unsigned minimum = length + bufferSize;
 
-    if (minimum > capacity) 
+	NSAssert(minimum >= length && minimum >= bufferSize, @"too many bytes to append");
+	
+   if (minimum > capacity) 
 		[self _grow: minimum];
 
     memcpy(((char *) bytes) + oldLength, aBuffer, bufferSize);
@@ -1895,7 +1906,7 @@ unsigned l;
 			nextGrowth = nextCapacity;
 			nextCapacity = tmp;
 			}
-		[self setCapacity: nextCapacity];
+		[self _setCapacity: nextCapacity];
 		growth = nextGrowth;
 		}
 }
@@ -2153,7 +2164,9 @@ unsigned l;
 {
 	[self appendBytes:[other bytes] length:[other length]];
 }
-															// Modifying Data
+
+// Modifying Data
+
 - (void) resetBytesInRange:(NSRange)aRange					
 {					  
 	int	size = [self length];			 
@@ -2169,7 +2182,7 @@ unsigned l;
 - (void) setData:(NSData*)data
 {
 	NSRange	r = NSMakeRange(0, [data length]);
-	[self setCapacity:r.length];
+	[self _setCapacity:r.length];
 	[self replaceBytesInRange:r withBytes:[data bytes]];
 }
 
@@ -2324,7 +2337,7 @@ struct shmid_ds	buf;
 	return self;
 }
 
-- (id) setCapacity:(unsigned)size
+- (id) _setCapacity:(unsigned)size
 {
 	if (size != capacity)
 		{

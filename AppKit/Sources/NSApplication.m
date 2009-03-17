@@ -365,7 +365,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		if(![class isSubclassOfClass:[self class]])
 		   NSLog(@"principal class (%@) of main bundle is not subclass of NSApplication", NSStringFromClass(class));
 		[class new];	// create instance -init will set NSApp
-			[arp release];
+		[arp release];
 		}
 #if 0
 	NSLog(@"NSApp = %@", NSApp);
@@ -702,7 +702,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 			r = NSRunAbortedResponse;
 		}
 	NS_ENDHANDLER
-	return r;
 	if(didend)
 		didend(delegate, selector, sheet, r, context);	// send result to modal delegate
 }

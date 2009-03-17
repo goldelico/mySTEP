@@ -14,10 +14,12 @@ NSFontManager.m
 
 #import <Foundation/NSException.h>
 #import <Foundation/NSArray.h>
+#import <Foundation/NSDictionary.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSSet.h>
 
 #import <AppKit/AppKit.h>
+#import "NSAppKitPrivate.h"
 
 //
 // Class variables
@@ -585,7 +587,7 @@ static NSString *__fontCollections = nil;
 		{
 		NSFontDescriptor *fd=[NSFontDescriptor fontDescriptorWithFontAttributes:[NSDictionary dictionaryWithObject:family forKey:NSFontFamilyAttribute]];
 		NSEnumerator *e=[[fd matchingFontDescriptorsWithMandatoryKeys:[NSSet setWithObject:NSFontFamilyAttribute]] objectEnumerator];
-		r=[NSMutableArray mutableArrayWithCapacity:20];
+		r=[NSMutableArray arrayWithCapacity:20];
 #if 0
 		NSLog(@"NSFontManager availableMembersOfFontFamily %@", family);
 #endif

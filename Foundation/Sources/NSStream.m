@@ -58,7 +58,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		*outp=nil;
 		return;	// ignore
 		}
-	*inp=[[[_NSSocketInputStream alloc] _initWithFileDescriptor:s] autorelease];
+	*inp=[[[_NSSocketInputStream alloc] _initWithFileDescriptor:dup(s)] autorelease];	// provide two independent file descriptors so that we can close() separately
 	*outp=[[[_NSSocketOutputStream alloc] _initWithFileDescriptor:s] autorelease];
 	((_NSSocketInputStream *) *inp)->_output=((_NSSocketOutputStream *) *outp);		// establish cross-link
 	[((_NSSocketOutputStream *) *outp) _setHost:host andPort:port];	// set host and port
@@ -88,6 +88,12 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (void) setDelegate:(id) delegate { _delegate=delegate; }
 - (void) _sendEvent:(NSStreamEvent) event; { [_delegate stream:self handleEvent:event]; }
 
+- (void) _sendDidOpenEvent
+{
+	_streamStatus=NSStreamStatusOpen;
+	[self _sendEvent:NSStreamEventOpenCompleted];
+}
+
 - (void) close
 {
 	_streamStatus=NSStreamStatusClosed;
@@ -100,9 +106,9 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		[self _sendErrorWithDomain:@"already open" code:0];
 		return;
 		}
-	// if(_streamStatus != NSStreamStatusNotOpening) exception
-	//	_streamStatus=NSStreamStatusOpen;
-	[self _sendEvent:NSStreamEventOpenCompleted];
+	_streamStatus=NSStreamStatusOpening;	// until we really handle the event in the runloop
+	// FIXME: handle mode(s)
+	[self performSelector:@selector(_sendDidOpenEvent) withObject:nil afterDelay:0.0];	// send from runloop
 }
 
 - (id) propertyForKey:(NSString *) key { return SUBCLASS; }
@@ -676,8 +682,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		{ // connect is successfull
 		// cancel timeout
 		// FIXME: handle ssl connection setup
-		_streamStatus=NSStreamStatusOpen;
-		[self _sendEvent:NSStreamEventOpenCompleted];
+		[self _sendDidOpenEvent];
 		}
 	else
 		[super _writeFileDescriptorReady];

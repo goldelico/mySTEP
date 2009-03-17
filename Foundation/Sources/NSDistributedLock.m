@@ -48,7 +48,7 @@
 	[super dealloc];
 }
 
-- (NSDistributedLock*) initWithPath:(NSString*)aPath
+- (id) initWithPath:(NSString*)aPath
 {
 	NSFileManager *fm = [NSFileManager defaultManager];
 	NSString *lockDir = [aPath stringByDeletingLastPathComponent];

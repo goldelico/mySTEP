@@ -53,75 +53,57 @@ static id __processInfo = nil;
 
 - (id) _initWithArguments:(char**)argv count:(int)argc environ:(char**)env
 {
-// BOOL mySTEPRootIsUndefined = NO;
-int i, count;
-char str[1024];
-id *argstr;
-
-//	if (!env)
-//		env = environ;
-														// Get the process name
-    _processName = [[NSString alloc] initWithCString:argv[0]];
-    _processName = [[_processName lastPathComponent] retain];
+	int i, count;
+	char hostName[1024];
+	id *argstr;
+	
+	_processName = [[NSString alloc] initWithCString:argv[0]];
+	_processName = [[_processName lastPathComponent] retain];
 	_pid=getpid();
-
+	
 	argstr = malloc (argc * sizeof(id));				// Copy argument list
 	for (i = 0; i < argc; i++) 
-		{
-	    argstr[i] = [[[NSString alloc] initWithCString:argv[i]] autorelease];
+			{
+				argstr[i] = [[[NSString alloc] initWithCString:argv[i]] autorelease];
 #if 0
-		NSLog(@"%@: %@ - %s", NSStringFromClass([argstr[i] class]), argstr[i], argv[i]);
+				NSLog(@"%@: %@ - %s", NSStringFromClass([argstr[i] class]), argstr[i], argv[i]);
 #endif
-		}
-
+			}
+	
 	_arguments = [[NSArray alloc] initWithObjects:argstr count:argc];
 	free (argstr);
-														// Count the evironment 
-    for (count = 0; env[count]; count++);				// variables.
 
-//	if (!getenv("MYSTEP_ROOT"))
-//		{
-//		mySTEPRootIsUndefined = YES;
-//		count++;
-//		}
-    {													// Copy the environment 
-	id *keys = malloc (count * sizeof(id));				// variables				
-	id *vals = malloc (count * sizeof(id));									
+	for (count = 0; env[count]; count++);				// Count the evironment variables.
 	
-//	if (mySTEPRootIsUndefined)
-//		count--;
-
-	for (i = 0; i < count; i++) 
-		{
-	    char *cp, *p;
-
-	    p = strdup (env[i]);
-	    for (cp = p; *cp != '=' && *cp; cp++);
-	    	*cp = '\0';
-	    vals[i] = [[NSString alloc] initWithCString:(cp + 1)];
-	    keys[i] = [[NSString alloc] initWithCString:p];
-	    free (p);
-		}
-
-//	if (mySTEPRootIsUndefined)
-//		{
-//		vals[i] = [self _tryToDefineWithArguments:argv count:argc];
-//		keys[i] = [[NSString alloc] initWithCString:"MYSTEP_ROOT"];
-//		count++;
-//		}
-
-	_environment = [NSDictionary alloc];
-	[_environment initWithObjects:vals forKeys:keys count:count];
-
-	free (keys);
-	free (vals);
-    }
-
+	{
+		id *keys = malloc (count * sizeof(id));				// Copy the environment variables				
+		id *vals = malloc (count * sizeof(id));									
+		
+		for (i = 0; i < count; i++) 
+				{
+					char *cp, *p;
+					
+					p = strdup (env[i]);
+					for (cp = p; *cp != '=' && *cp; cp++);
+					*cp = '\0';
+					vals[i] = [[NSString alloc] initWithCString:(cp + 1)];
+					keys[i] = [[NSString alloc] initWithCString:p];
+					free (p);
+				}
+		
+		_environment = [NSDictionary alloc];
+		[_environment initWithObjects:vals forKeys:keys count:count];
+		
+		free (keys);
+		free (vals);
+	}
+	
 	// should we use [[NSHost currentHost] name]?
-
-    gethostname(str, sizeof(str)-1);
-    _hostName = [[NSString alloc] initWithCString:str];
-
+	
+	gethostname(hostName, sizeof(hostName)-1);
+	hostName[sizeof(hostName)-1]=0;
+	_hostName = [[NSString alloc] initWithCString:hostName];
+	
 	return self;
 }
 
@@ -145,7 +127,6 @@ id *argstr;
 {
 	static int sequence=12345;
 	return [NSString stringWithFormat:@"%04X-%.0lf-%04x@%@", 
-				//		(int)getpid(), [[[NSDate date] description] cString]];
 						(int)getpid(), [[NSDate date] timeIntervalSince1970],
 						sequence++, _hostName];
 }

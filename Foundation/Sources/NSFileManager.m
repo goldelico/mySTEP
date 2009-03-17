@@ -777,15 +777,16 @@ NSMutableArray *c;
 	return str;
 }
 
-- (const char*) fileSystemRepresentationWithPath:(NSString*)path
+- (const char *) fileSystemRepresentationWithPath:(NSString*)path
 {
-	static NSString *virtualRoot;
-	BOOL uflag;
+//	fprintf(stderr, "fileSystemRepresentation path=%p\n", path);
 #if 0
 	NSLog(@"fileSystemRepresentationWithPath:%@", path);
 #endif
 	if([path hasPrefix:@"/"])
 		{ // adapt absolute paths
+			static NSString *virtualRoot;
+			BOOL uflag;
 		if((uflag=[path hasPrefix:@"/Users/"]) || [path isEqualToString:@"/Users"])
 			{ // do search on /mnt/card for virtual home!
 			NSString *alternatePath=[@"/mnt/card" stringByAppendingString:path];
@@ -804,6 +805,7 @@ NSMutableArray *c;
 			{
 			NSProcessInfo *pi = [NSProcessInfo processInfo];
 			virtualRoot = [[[pi environment] objectForKey:@"QuantumSTEP"] retain];
+//			fprintf(stderr, "virtualRoot=%p\n", virtualRoot);
 			if(!virtualRoot)
 				virtualRoot=@"/usr/share/QuantumSTEP";		// default
 #if 0
@@ -816,7 +818,12 @@ NSMutableArray *c;
 #if 0
 	NSLog(@" -> %@", path);
 #endif
-	return [path UTF8String];
+//	fprintf(stderr, "fileSystemRepresentation path=%p\n", path);
+	{
+		char *s=[path UTF8String];
+//		fprintf(stderr, " -> %p\n", s);
+		return s;
+	}
 }
 
 - (NSString *) stringWithFileSystemRepresentation:(const char*)string

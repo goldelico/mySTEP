@@ -75,21 +75,23 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 #if 0
 	NSLog(@"NSBundle +initialize");
 #endif
+//	fprintf(stderr, "NSBundle +initialize\n");
     if ((!__mainBundle) && self == [NSBundle class]) 
 		{ // initialize for mainBundle
 		NSProcessInfo *pi = [NSProcessInfo processInfo];
 		NSFileManager *fm = [NSFileManager defaultManager];
 		NSString *path = [[pi arguments] objectAtIndex:0];
-		static NSString *virtualRoot;
-		static int vrl;
+		NSString *virtualRoot;
+		int vrl;
 		__bundles = NSCreateMapTable(NSObjectMapKeyCallBacks,
 									 NSNonOwnedPointerMapValueCallBacks, 0);
 		__releasedBundles = NSCreateMapTable(NSObjectMapKeyCallBacks,
 									 NSNonOwnedPointerMapValueCallBacks, 0);
 		__bundlesForExecutables = NSCreateMapTable(NSNonOwnedCStringMapKeyCallBacks,
 									 NSObjectMapValueCallBacks, 0);
-		if(!virtualRoot)
-			virtualRoot=[NSString stringWithUTF8String:[@"/" fileSystemRepresentation]], vrl=[virtualRoot length]-1;
+			virtualRoot=[NSString stringWithUTF8String:[@"/" fileSystemRepresentation]];
+			vrl=[virtualRoot length]-1;
+//			fprintf(stderr, " vRoot=%p\n", virtualRoot);
 #if 0
 		NSLog(@"args=%@", [pi arguments]);
 		NSLog(@"$0=%@", path);

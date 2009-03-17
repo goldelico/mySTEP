@@ -329,6 +329,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize)
 		strcpy(ptr, rel->fragment);
 //		ptr = &ptr[strlen(ptr)];	// last fragment
 		}
+	NSAssert(ptr-buf <= len, @"buffer overflow");
 	
 	return buf;
 }
@@ -411,10 +412,11 @@ static BOOL legal(const char *str, const char *extras)
 static NSString *unescape(const char *from)
 {
 	NSString *result;
+	int len=strlen(from)+1;
 	char *to, *bfr;
 	if(!from)
 		return nil;
-	to = bfr = objc_malloc(strlen(from)+1);	// result will not become longer
+	to = bfr = objc_malloc(len);	// result will not become longer
 	while (*from != '\0')
 		{
 		if (*from == '%')
@@ -478,6 +480,7 @@ static NSString *unescape(const char *from)
 		}
 	*to = '\0';
 	result=[NSString stringWithUTF8String: bfr];
+	NSAssert(to-bfr < len, @"buffer overflow");
 #if 1
 	NSLog(@"unescaped = %@", result);
 #endif
