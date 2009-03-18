@@ -534,7 +534,7 @@ void NSLogv(NSString *format, va_list args)
 #if 0
 				fprintf(stderr, ">> NSRealMemoryAvailable=%u\n", NSRealMemoryAvailable ());
 #endif
-#if 0
+#if 1
 				prefix = [NSString stringWithFormat: __logMemory?@"%@ %@[%d] [%lu/%lu] ":@"%@ %@[%d] ",
 									[[NSCalendarDate calendarDate] descriptionWithCalendarFormat: @"%b %d %H:%M:%S.%F"],
 									[[[NSProcessInfo processInfo] processName] lastPathComponent],

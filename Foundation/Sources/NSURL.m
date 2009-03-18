@@ -481,7 +481,7 @@ static NSString *unescape(const char *from)
 	*to = '\0';
 	result=[NSString stringWithUTF8String: bfr];
 	NSAssert(to-bfr < len, @"buffer overflow");
-#if 1
+#if 0
 	NSLog(@"unescaped = %@", result);
 #endif
 	objc_free(bfr);
@@ -557,7 +557,7 @@ static NSString *unescape(const char *from)
 				 path: (NSString*)aPath
 {
 	NSString	*aUrlString = [NSString alloc];
-#if 1
+#if 0
 	NSLog(@"initWithScheme:%@ host:%@ path:%@", aScheme, aHost, aPath);
 #endif
 	if ([aHost length] > 0)
@@ -600,7 +600,7 @@ static NSString *unescape(const char *from)
 			}
 		}
 	self = [self initWithString: aUrlString relativeToURL: nil];
-#if 1
+#if 0
 	NSLog(@"aUrlString=%@", aUrlString);
 #endif
 	RELEASE(aUrlString);
@@ -624,7 +624,7 @@ static NSString *unescape(const char *from)
 
 - (id) initFileURLWithPath: (NSString*)aPath isDirectory:(BOOL) isDir
 {
-#if 1
+#if 0
 	NSLog(@"initFileURLWithPath %@", aPath);
 #endif
 	NSAssert([aPath isAbsolutePath], @"fileURL must be absolute path");
@@ -685,7 +685,7 @@ static NSString *unescape(const char *from)
 			memset(buf, '\0', size);
 			start = end = (char*)&buf[1];
 			[_urlString getCString:start];			// get the cString and store behind the parsedURL header
-#if 1
+#if 0
 			NSLog(@"NSURL initWithString");
 			NSLog(@"NSURL [length]=%d len=%d size=%d buf=%p", [_urlString length], [_urlString cStringLength], size, buf);
 			NSLog(@"NSURL aUrlString: %@ %@", NSStringFromClass([aUrlString class]), aUrlString);
@@ -985,7 +985,7 @@ static NSString *unescape(const char *from)
 			self=nil;
 		}
 	NS_ENDHANDLER
-#if 1
+#if 0
 	NSLog(@"url=%@", self);
 #endif
 	return self;
@@ -1059,7 +1059,7 @@ static NSString *unescape(const char *from)
  */
 - (NSString*) absoluteString
 {
-#if 1
+#if 0
 	NSLog(@"absoluteString: %@", self);
 #endif
 	if (myData->absolute == nil)

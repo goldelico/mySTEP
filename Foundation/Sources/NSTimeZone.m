@@ -37,10 +37,11 @@
 
 #define HOUR_SECS (60*60)
 #define DAY_SECS  (HOUR_SECS*24)
-								// System file that defines local time zone
+
+// System file that defines local time zone
+
 #define LOCAL_TIME_FILE  @"localtime"
-// #define POSIX_TZONES     @"posix/"
-#define POSIX_TZONES     @""	// Zaurus has no posix time zone suffix
+#define POSIX_TZONES     @""
 
 								// Temporary structure for holding 
 struct ttinfo					// time zone details
@@ -50,8 +51,8 @@ struct ttinfo					// time zone details
 	char abbr_idx; 				// Index into time zone abbreviations string
 };
 
-static id __localTimeZone;		// Local time zone
-static id __defaultTimeZone;	// App defined default time zone
+static NSTimeZone *__localTimeZone;		// Local time zone
+static NSTimeZone *__defaultTimeZone;	// App defined default time zone
 static NSLock *__zone_mutex;	// Lock for creating time zones.
 
 								// Dictionary for time zones.  Each time 
@@ -100,8 +101,9 @@ static NSData *_openTimeZoneFile(NSString *name)
 	NSString *filename = _getTimeZoneFile(name);	// relative file name
 
 	if (!(data = [[NSData alloc] initWithContentsOfFile: filename]))
-		NSLog(@"Unable to obtain time zone `%@'.", name);
-
+			{
+			NSLog(@"Unable to obtain time zone `%@'.", name);	// this will try to print the current date...
+			}
 	return data;	// warning! not autoreleased
 }
 
@@ -304,43 +306,6 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 					NSLog(@"invalid abbr_idx %d", abbr_idx);
 				offset += 6;
 				}
-#if DON_T_UNDERSTAND
-		/**** don't understand all the following complexity ****
-			for (j = 0; j < i; j++)
-				if (types[j].abbr_idx == types[i].abbr_idx
-						&& types[j].isdst == types[i].isdst
-						&& types[j].offset == types[i].offset)
-					types[i].abbr_idx = -1;
-			}
-
-		zone_abbrevs = bytes+offset;			// Read abbreviation strings
-		i = 0;
-		memset(abbrevs, 0, sizeof(id) * names_size);
-		while (i < names_size)
-			{
-			if (*(zone_abbrevs+i) >= 'A' && *(zone_abbrevs+i) <= 'z')	// must begin with a letter
-				abbrevs[i] = [NSString stringWithCString: zone_abbrevs+i];
-			i = strlen(zone_abbrevs+i) + 1;	// next string
-#if 1
-			NSLog(@"abbrevs[%d]=%@", i, abbrevs[i]);
-#endif
-			}
-												// Create time zone details
-		detailsArray = [[NSMutableArray alloc] initWithCapacity: n_types];
-
-		for (i = 0; i < n_types; i++)
-			{
-			int index = MIN(types[i].abbr_idx, names_size);
-
-			if (index >= 0 && (abbrevs[index]))
-				[detailsArray addObject: [[GSTimeZoneDetail alloc]
-											initWithTimeZone: self
-											withAbbrev: abbrevs[index]
-											withOffset: types[i].offset
-											withDST: (types[i].isdst > 0)]];
-			}
-*****/
-#endif
 		[__zoneDictionary setObject:self forKey:timeZoneName];	// (replace any conflicting definition!)
 		}
 	return self;
@@ -358,6 +323,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 - (NSString*) name										{ return _name; }
 - (NSData*) data										{ return _data; }
 - (NSArray*) _timeZoneDetailArray						{ return _details; }
+
 - (NSArray*) _determineTransitions
 {
 	id transitions = nil;
@@ -367,25 +333,30 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 	NSData *data;
 	
 	if ((data = _openTimeZoneFile(_name)) && (bytes = [data bytes])
-		&& (len = [data length]) > sizeof(struct tzhead)
-		&& memcpy(&header, bytes, sizeof(struct tzhead)))
-		{
-		unsigned int n_trans = decode(header.tzh_timecnt);
-		char trans[4 * n_trans];
-		char type_idxs[n_trans];					// Read transitions
-		int i, offset = sizeof(struct tzhead);
-		
-		if (bytes+offset+((4*n_trans)+n_trans) > bytes+len)
-			[NSException raise:NSGenericException
-						format:@"range error in timezone transitions"];
-		memcpy(&trans, bytes+offset, (i = (4*n_trans)));
-		memcpy(&type_idxs, bytes+offset+i, (n_trans));
-		transitions = [[NSMutableArray alloc] initWithCapacity: n_trans];
-		for (i = 0; i < n_trans; i++)
-			[transitions addObject: [[GSTimeTransition alloc]
-										initWithTime: decode(trans+(i*4))
-										   withIndex: type_idxs[i]]];
-		}
+			&& (len = [data length]) > sizeof(struct tzhead)
+			&& memcpy(&header, bytes, sizeof(struct tzhead)))
+			{
+				unsigned int n_trans = decode(header.tzh_timecnt);
+				char *trans;
+				char *type_idxs;
+				int i, offset = sizeof(struct tzhead);
+				
+				fprintf(stderr, "ntrans=%d\n", n_trans);
+				
+				if (bytes+offset+((4*n_trans)+n_trans) > bytes+len)
+						[NSException raise:NSGenericException format:@"range error in timezone transitions"];
+				transitions = [[NSMutableArray alloc] initWithCapacity: n_trans];
+				trans = objc_malloc(4 * n_trans);
+				type_idxs = objc_malloc(n_trans);
+				memcpy(trans, bytes+offset, (i = (4*n_trans)));	// copy to adapt alignment (bytes+offset may be unaligned)
+				memcpy(type_idxs, bytes+offset+i, (n_trans));
+				for (i = 0; i < n_trans; i++)
+					[transitions addObject: [[GSTimeTransition alloc]
+																	 initWithTime: decode(trans+(i*4))
+																	 withIndex: type_idxs[i]]];
+				objc_free(trans);
+				objc_free(type_idxs);
+			}
 	[data release];
 	
 	return transitions;
@@ -514,7 +485,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 			__localTimeZone = [NSTimeZone timeZoneWithName: LOCAL_TIME_FILE];
 	
 		if (__localTimeZone == nil)
-			{					// Worst case alloc something sure to succeed 
+			{ // Worst case alloc something sure to succeed 
 			NSLog(@"Using time zone with absolute offset 0.");
 			__localTimeZone = [NSTimeZone timeZoneForSecondsFromGMT: 0];
 			}
@@ -549,7 +520,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 
 + (id) allocWithZone:(NSZone *) z
 {
-	return NSAllocateObject(self == [NSTimeZone class]?[GSConcreteTimeZone class]:self, 0, z);
+	return NSAllocateObject(self == [NSTimeZone class]?[GSConcreteTimeZone class]:(Class) self, 0, z);
 }
 
 - (void) dealloc;

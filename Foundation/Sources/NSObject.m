@@ -520,7 +520,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 { // called by runtime
 	retval_t r;
 	NSInvocation *inv;
-#if 0
+#if 1
 	int i;
 	NSLog(@"NSObject -forward:@selector(%@):", NSStringFromSelector(aSel));
 	NSLog(@"Object=%@", self);
@@ -543,12 +543,12 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 		}
 	[inv setTarget:[self forwardingTargetForSelector:aSel]];
 	[self forwardInvocation:inv];
-#if 0
+#if 1
 	NSLog(@"invocation forwarded. Returning result");
 #endif
 	r=[inv _returnValue];
 	[inv release];
-#if 0
+#if 1
 	NSLog(@"returnFrame=%08x", r);
 #endif
 	return r;

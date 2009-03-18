@@ -1601,14 +1601,12 @@ unichar strFirstCharacter;
 
 - (NSRange) rangeOfComposedCharacterSequenceAtIndex:(unsigned int)anIndex
 {								
-unsigned int end, start = anIndex;						// Determining Composed 
-														// Character Sequences
+	unsigned int end, start = anIndex;						// Determining Composed Character Sequences
 	while (uni_isnonsp([self characterAtIndex: start]) && start > 0)
 		start--;
 	end = start+1;
-	if (end < _count)
-		while((end < _count) && uni_isnonsp([self characterAtIndex:end]))
-			end++;
+	while((end < _count) && uni_isnonsp([self characterAtIndex:end]))
+		end++;
 
 	return (NSRange){start, end - start};
 }

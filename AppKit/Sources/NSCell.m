@@ -703,7 +703,7 @@ static NSCursor *__textCursor = nil;
 		*astring=_contents;   // as is
 	else
 		*string=[_contents description];
-#if 1
+#if 0
 	NSLog(@"attribs=%@", *attribs);
 	NSLog(@"string=%@", *string);
 	NSLog(@"astring=%@", *astring);

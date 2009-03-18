@@ -285,7 +285,7 @@ ifneq ($(SEND2ZAURUS),false)
 	# install on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH) 
 	ls -l "$(BINARY)"
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
-		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)/$(ARCHITECTURE)' && cd '$(EMBEDDED_ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && tar xpzvf -"
+		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && tar xpzvf -"
 else
 		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
 endif

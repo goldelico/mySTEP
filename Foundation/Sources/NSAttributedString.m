@@ -154,16 +154,10 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 
 - (id) initWithAttributedString:(NSAttributedString *)attributedString
 {
-
-	if(!attributedString)
-		self=[self initWithString:nil attributes:nil];
-	else
-		{
-			NSString *tmpStr = [attributedString string];
-		if((self=[self initWithString:tmpStr attributes:nil]))
-			_setAttributesFrom(attributedString, NSMakeRange(0, [tmpStr length]), _attributes, _locations);
+		if((self=[self initWithString:[attributedString string] attributes:nil]))
+				{
+			_setAttributesFrom(attributedString, NSMakeRange(0, [attributedString length]), _attributes, _locations);
 		}
-
 	return self;
 }
 
@@ -404,6 +398,7 @@ NSAttributedString *newAttrString;						// Extract a substring
 	if([aCoder allowsKeyedCoding])
 		{
 		// FIXME!!!
+			// may be a int [] of the locations
 		NSLog(@"NSAttributeInfo=%@", [aCoder decodeObjectForKey:@"NSAttributeInfo"]);	// NSData(!)
 		// how are mixed attribs decoded, i.e. what do we do with NSAttributeInfo? 
 		return [self initWithString:[aCoder decodeObjectForKey:@"NSString"]
@@ -474,17 +469,18 @@ NSString *newSubstring;
 
 - (void) setAttributes:(NSDictionary *)attributes range:(NSRange)range
 {
-unsigned int tmpLength, arrayIndex, arraySize, location;
-NSRange effectiveRange;
-NSNumber *afterRangeLocation, *beginRangeLocation;
-NSDictionary *attrs;
+	unsigned int tmpLength, arrayIndex, arraySize, location;
+	NSRange effectiveRange;
+	NSNumber *afterRangeLocation, *beginRangeLocation;
+	NSDictionary *attrs;
   
 	if(!attributes)
 		attributes = [NSDictionary dictionary];
 	tmpLength = [self length];
 	if(NSMaxRange(range) > tmpLength)
+		abort(),
 		[NSException raise:NSRangeException
-					 format:@"Range Error in setAttributes:... range:%@", NSStringFromRange(range)];
+					 format:@"Range Error in setAttributes:... range:%@ larger than {0, %u}", NSStringFromRange(range), tmpLength];
 
 	arraySize = [_locations count];
 	if(NSMaxRange(range) < tmpLength)
@@ -644,40 +640,34 @@ unsigned int tmpLength = [self length];
 										// Changing characters and attributes
 - (void) appendAttributedString:(NSAttributedString *)attributedString
 {
-	[self replaceCharactersInRange:NSMakeRange([self length],0)
-		  withAttributedString:attributedString];
+	[self replaceCharactersInRange:NSMakeRange([self length],0) withAttributedString:attributedString];
 }
 
 - (void) insertAttributedString:(NSAttributedString *)attributedString 
 					   atIndex:(unsigned int)index
 {
-	[self replaceCharactersInRange:NSMakeRange(index,0)
-		  withAttributedString:attributedString];
+	[self replaceCharactersInRange:NSMakeRange(index,0) withAttributedString:attributedString];
 }
 
-- (void) replaceCharactersInRange:(NSRange)aRange 
-			 withAttributedString:(NSAttributedString *)attributedString
+- (void) replaceCharactersInRange:(NSRange)aRange withAttributedString:(NSAttributedString *)attributedString
 {
-NSRange effectiveRange, clipRange, ownRange;
-NSDictionary *attrDict;
-NSString *tmpStr = [attributedString string];
+	NSRange effectiveRange, clipRange, ownRange;
+	NSDictionary *attrDict;
   
-	[self replaceCharactersInRange:aRange withString:tmpStr];
+	[self replaceCharactersInRange:aRange withString:[attributedString string]];
 	effectiveRange = NSMakeRange(0,0);
-	clipRange = NSMakeRange(0,[tmpStr length]);
+	clipRange = NSMakeRange(0,[attributedString length]);
 
 	while(NSMaxRange(effectiveRange) < NSMaxRange(clipRange))
 		{
-		attrDict = [attributedString attributesAtIndex:effectiveRange.location
-									 effectiveRange:&effectiveRange];
+		attrDict = [attributedString attributesAtIndex:effectiveRange.location effectiveRange:&effectiveRange];
 		ownRange = NSIntersectionRange(clipRange,effectiveRange);
 		ownRange.location += aRange.location;
 		[self setAttributes:attrDict range:ownRange];
 		}
 }
 
-- (void) replaceCharactersInRange:(NSRange)range
-		 			   withString:(NSString *)aString
+- (void) replaceCharactersInRange:(NSRange)range withString:(NSString *)aString
 {
 	unsigned int tmpLength, arrayIndex, arraySize, cnt, location, moveLocations;
 	NSRange effectiveRange;
@@ -705,8 +695,7 @@ NSString *tmpStr = [attributedString string];
 		afterRangeLocation = [NSNumber numberWithUnsignedInt:NSMaxRange(range)+moveLocations];
     
 		if(effectiveRange.location > range.location)
-			[_locations replaceObjectAtIndex:arrayIndex
-						 withObject:afterRangeLocation];
+			[_locations replaceObjectAtIndex:arrayIndex withObject:afterRangeLocation];
 		else
 			{
 			arrayIndex++;
@@ -730,11 +719,21 @@ NSString *tmpStr = [attributedString string];
 		[_attributes removeObjectAtIndex:arrayIndex];
 		arrayIndex--;
 		}
-	[_string replaceCharactersInRange:range withString:aString];
+//	NSLog(@"_string=%@ aString=%@", _string, aString);
+//	NSLog(@"len=%d + %d rng=%@", [_string length], [aString length], NSStringFromRange(range));
+	if(!_string)
+		_string=[aString mutableCopy];
+	else
+		[_string replaceCharactersInRange:range withString:aString];
+//	NSLog(@"len=%d", [_string length]);
+//	NSLog(@"_string=%@", _string);
 }
 
 - (void) setAttributedString:(NSAttributedString *)attributedString
 {
+	if(!attributedString)
+		[NSException raise:NSInvalidArgumentException
+								format:@"-setAttributedString:nil"];
 	[_string setString: [attributedString string]];
 	[_attributes removeAllObjects];	// remove all existing attributes
 	[_locations removeAllObjects];

@@ -870,6 +870,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 					 index %d is out of range: %@", idx, self];
 
     [_contents[idx] release];
+	_contents[idx] = nil;		// Make sure the array is 'sane' so that it can be dealloc'd safely by an autorelease pool if the retain of anObject causes an exception.
     _contents[idx] = [anObject retain];
 }
 

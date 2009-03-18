@@ -450,7 +450,10 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			{
 				[NSNotificationQueue _runLoopIdle];			// dispatch pending notifications if we timeout (incl. task terminated)
 #if 1
-				__NSPrintAllocationCount();
+					{
+						extern void __NSPrintAllocationCount(void);
+					__NSPrintAllocationCount();
+					}
 #endif
 			}
 	else 

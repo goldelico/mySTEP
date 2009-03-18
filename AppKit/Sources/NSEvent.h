@@ -212,6 +212,9 @@ enum
 					  trackingNumber:(NSInteger) trackingNum
 							userData:(void *) userData; 
 
+typedef void *CGEventRef;
+
++ (NSEvent *) eventWithCGEvent:(CGEventRef) ref;
 + (NSEvent *) eventWithEventRef:(const void *) ref;
 
 + (NSEvent *) keyEventWithType:(NSEventType) type

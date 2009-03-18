@@ -1348,7 +1348,7 @@ NSEvent *event = nil;									// if queue contains
 - (BOOL) isActive
 { // if active application is defined and is our pid
 	NSDictionary *app=[[NSWorkspace sharedWorkspace] activeApplication];
-#if 1
+#if 0
 	NSLog(@"active app=%@", app);
 #endif
 	return [[app objectForKey:@"NSApplicationProcessIdentifier"] intValue] == getpid();

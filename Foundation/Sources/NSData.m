@@ -147,9 +147,9 @@ static IMP appendImp;
 
 + (id) allocWithZone:(NSZone *) z
 {
-#if 1
+#if 0
 	id p=NSAllocateObject(dataMalloc, 0, z);
-	NSLog(@"allocated %@: %p", NSStringFromClass(self), p);
+	NSLog(@"allocated %@: %p", NSStringFromClass(self), p);	// warning: this leads to recursion in NSConcreteDate
 	return p;
 #endif
 	return NSAllocateObject(dataMalloc, 0, z);
@@ -385,7 +385,7 @@ static IMP appendImp;
 	const char *src = [self bytes];
 	int i, length = [self length], l=2 * length + (length+3) / 4+3;
 	char *dest, *bp;	// build a cString and convert it to an NSString
-#if 1
+#if 0
 	NSLog(@"NSData description length=%d l=%d", length, l);
 #endif
 	if ((bp=dest=(char *) objc_malloc(l)) == NULL)
