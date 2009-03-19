@@ -31,7 +31,7 @@ If not, write to the Free Software Foundation,
 @implementation NSProgressIndicator
 
 NSColor *fillColour = nil;
-#define maxCount 1
+#define maxCount 2
 NSImage *images[maxCount];
 
 + (void) initialize
@@ -67,9 +67,10 @@ NSImage *images[maxCount];
 	[super dealloc];
 }
 
-- (BOOL) isFlipped							{ return YES; }
+- (BOOL) isFlipped						{ return YES; }
+- (BOOL) isOpaque							{ return NO; }
 
-- (void)animate:(id)sender
+- (void) animate:(id)sender
 {
 	if (!_isIndeterminate)
 		return;
@@ -87,52 +88,44 @@ NSImage *images[maxCount];
 	_animationDelay = delay;
 }
 
-- (void)startAnimation:(id)sender
+- (void) startAnimation:(id)sender
 {
-	if (!_isIndeterminate)
-		return;
-	
-	if (!_usesThreadedAnimation)
+	if (!_isIndeterminate || _isRunning)
+		return;	// already running
+	if (_usesThreadedAnimation)
 		{
-		ASSIGN(_timer, [NSTimer scheduledTimerWithTimeInterval: _animationDelay 
+			// Not implemented
+		}
+	ASSIGN(_timer, [NSTimer scheduledTimerWithTimeInterval: _animationDelay 
 														target: self 
 													  selector: @selector(animate:)
 													  userInfo: nil
 													   repeats: YES]);
-		}
-	else
-		{
-		// Not implemented
-		}
-	
 	_isRunning = YES;
+	[self setNeedsDisplay:YES];
 }
 
-- (void)stopAnimation:(id)sender
+- (void) stopAnimation:(id)sender
 {
 	if (!_isIndeterminate || !_isRunning)
-		return;
-	
-	if (!_usesThreadedAnimation)
+		return;	
+	if (_usesThreadedAnimation)
 		{
-		[_timer invalidate];
-		[_timer release];
-		_timer=nil;
+			// Not implemented
 		}
-	else
-		{
-		// Not implemented
-		}
-	
-	_isRunning = NO;
+	[_timer invalidate];
+	[_timer release];
+	_timer=nil;
+	_isRunning=NO;
+	[self setNeedsDisplay:YES];
 }
 
-- (BOOL)usesThreadedAnimation
+- (BOOL) usesThreadedAnimation
 {
 	return _usesThreadedAnimation;
 }
 
-- (void)setUsesThreadedAnimation:(BOOL)flag
+- (void) setUsesThreadedAnimation:(BOOL)flag
 {
 	if (_usesThreadedAnimation != flag)
 		{
@@ -148,14 +141,15 @@ NSImage *images[maxCount];
 		}
 }
 
-- (void)incrementBy:(double)delta
+- (void) incrementBy:(double)delta
 {
 	_doubleValue += delta;
-	[self setNeedsDisplay:YES];
+	if(delta != 0.0)
+		[self setNeedsDisplay:YES];
 }
 
-- (double)doubleValue { return _doubleValue; }
-- (void)setDoubleValue:(double)aValue
+- (double) doubleValue { return _doubleValue; }
+- (void) setDoubleValue:(double)aValue
 {
 	if (_doubleValue != aValue)
 		{
@@ -164,8 +158,8 @@ NSImage *images[maxCount];
 		}
 }
 
-- (double)minValue { return _minValue; }
-- (void)setMinValue:(double)newMinimum
+- (double) minValue { return _minValue; }
+- (void) setMinValue:(double) newMinimum
 {
 	if (_minValue != newMinimum)
 		{
@@ -198,16 +192,14 @@ NSImage *images[maxCount];
 - (void)setIndeterminate:(BOOL)flag
 {
 	_isIndeterminate = flag;
-	// Maybe we need more functionality here when we implement indeterminate
 	if (flag == NO && _isRunning)
 		[self stopAnimation: self];
 }
 
-// FIXME: these attributes are currently ignored!
-- (BOOL)isDisplayedWhenStopped; { return _isDisplayedWhenStopped; }
-- (void)setDisplayedWhenStopped:(BOOL)flag; { _style=_isDisplayedWhenStopped; }
+- (BOOL) isDisplayedWhenStopped; { return _isDisplayedWhenStopped; }
+- (void) setDisplayedWhenStopped:(BOOL)flag; { _style=_isDisplayedWhenStopped; }
 - (NSProgressIndicatorStyle) style; { return _style; }
-- (void)setStyle:(NSProgressIndicatorStyle)flag; { _style=flag; }
+- (void) setStyle:(NSProgressIndicatorStyle)flag; { _style=flag; }
 
 - (NSControlSize)controlSize
 {
@@ -231,9 +223,11 @@ NSImage *images[maxCount];
 	// FIXME 
 }
 
-- (void)drawRect:(NSRect)rect
+- (void) drawRect:(NSRect)rect
 {
 	NSRect	r;
+	if(!_isRunning && !_isDisplayedWhenStopped)
+		return;
 #define _bounds rect
 	// Draw the Bezel
 #if 0	// FIXME: these functions are not available in mySTEP!!!
@@ -249,12 +243,20 @@ NSImage *images[maxCount];
 #endif
 		r = _bounds;
 	
-	if (_isIndeterminate)		// Draw indeterminate
-		{
-		// FIXME: Do nothing at this stage
+	if (_isIndeterminate)
+		{ // Draw indeterminate
+			// if spinning style, draw some circular thing
+			if(!_isRunning)
+				[[NSColor greenColor] set];
+			// should draw by using _count / maxcount
+			else if(_count & 1)
+				[[NSColor redColor] set];
+			else
+				[[NSColor yellowColor] set];
+			NSRectFill(rect);
 		}
-	else				// Draw determinate 
-		{
+	else 
+		{ // Draw determinate
 		if (_doubleValue > _minValue)
 			{
 			double val;
@@ -278,27 +280,6 @@ NSImage *images[maxCount];
 		}
 }
 
-// It does not seem that Gnustep has a copyWithZone: on NSView, it is private
-// under openstep
-
-// NSCopying
-/* - (id)copyWithZone:(NSZone *)zone
-{
-	NSProgressIndicator	*newInd;
-	
-	newInd = [super copyWithZone:zone];
-	[newInd setIndeterminate:_isIndeterminate];
-	[newInd setBezeled:_isBezeled];
-	[newInd setUsesThreadedAnimation:_usesThreadedAnimation];
-	[newInd setAnimimationDelay:_animationDelay];
-	[newInd setDoubleValue:_doubleValue];
-	[newInd setMinValue:_minValue];
-	[newInd setMaxValue:_maxValue];
-	[newInd setVertical:_isVertical];
-	return newInd;
-}
-*/
-
 // NSCoding
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
@@ -319,6 +300,8 @@ NSImage *images[maxCount];
 	if([aDecoder allowsKeyedCoding])
 		{
 		int piFlags=[aDecoder decodeIntForKey:@"NSpiFlags"];
+			// decode into appropriate flags
+			
 		_minValue=[aDecoder decodeFloatForKey:@"NSMinValue"];
 		_maxValue=[aDecoder decodeFloatForKey:@"NSMaxValue"];
 		// what is this: NSDrawMatrix

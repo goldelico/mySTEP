@@ -201,7 +201,7 @@
 
 - (void) setObjectValue:(id <NSCopying>)anObject
 { // don't abort editing but update field editor
-#if 1
+#if 0
 	NSLog(@"%@ setObjectValue: %@", self, anObject);
 #endif
 	if(_c.editing)
