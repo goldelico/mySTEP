@@ -35,6 +35,7 @@ export INSTALL_PATH=/Applications   # override INSTALL_PATH for MacOS X for the 
 #export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
 #export SEND2ZAURUS=true						# true (or empty) will try to install on the embedded device at /$INSTALL_PATH (using ssh)
 #export RUN=true                    # true (or empty) will finally try to run on the embedded device (using X11 on host)
+#export RUN_OPTIONS=-NoNSBackingStoreBuffered
 
 export ROOT=/usr/share/QuantumSTEP	# project root
 /usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
@@ -302,7 +303,7 @@ ifneq ($(RUN),false)
 				open -a X11; \
 				export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(IP_ADDR) && \
 		ssh -l root $(IP_ADDR) \
-		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=memory; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' -NoNSBackingStoreBuffered" || echo failed to run; \
+		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=memory; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" || echo failed to run; \
 	fi
 else
 	# don't try to launch

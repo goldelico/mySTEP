@@ -982,6 +982,7 @@ void __NSPrintAllocationCount(void)
 	if(__logMemory && __NSAllocationCountTable)
 			{
 				int cntLevel=1;	// cnt-Level to print next
+				unsigned long total=0;
 				fprintf(stderr, "\fCurrent Object Allocation\n");
 				while(YES)
 						{
@@ -999,8 +1000,9 @@ void __NSPrintAllocationCount(void)
 														nextLevel=MIN(nextLevel, cnt->instances);	// next level to print
 													continue;
 												}
-										if(cnt->instances > 0)	// ??? this does not print alloc/peak...
+										if(cnt->instances > 0)	// this does not print alloc/peak but we don't want to see it on the screen - just in the files
 											fprintf(stderr, "%c %9lu %s: alloc %lu peak %lu dealloc %lu\n", ((cnt->instances>cnt->linstances)?'+':((cnt->instances<cnt->linstances)?'-':' ')), cnt->instances, class_get_class_name(key), cnt->alloc, cnt->peak, cnt->alloc-cnt->instances);
+										total += cnt->instances;
 										sprintf(name, "/tmp/%u/%s", getpid(), class_get_class_name(key));
 										file=fopen(name, "a");
 										if(file)
@@ -1014,6 +1016,7 @@ void __NSPrintAllocationCount(void)
 								break;	// done (i.e. we did run with maximum level)
 							cntLevel=nextLevel;
 						}
+				fprintf(stderr, "total: %lu\n", total);
 			}
 }
 

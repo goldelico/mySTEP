@@ -521,15 +521,17 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	retval_t r;
 	NSInvocation *inv;
 #if 1
+	{ 	// show stack
 	int i;
 	NSLog(@"NSObject -forward:@selector(%@):", NSStringFromSelector(aSel));
 	NSLog(@"Object=%@", self);
 	NSLog(@"frame=%p", argFrame);
+	NSLog(@"target=%p sel=%p", self, aSel);
 	for(i=0; i<24; i++)
 		{
 		NSLog(@"frame[%2d]:%p %08x", i, &((void **)argFrame)[i], ((void **)argFrame)[i]);
 		}
-	// addresses on stack
+	}
 #endif
 	if(aSel == 0)
 		[NSException raise:NSInvalidArgumentException

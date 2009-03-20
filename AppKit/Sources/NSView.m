@@ -2221,7 +2221,7 @@ GSTrackingRect *m = [GSTrackingRect alloc];
 #if 0
 	NSLog(@"NSView: %@ initWithCoder:%@", NSStringFromClass([self class]), aDecoder);
 //	NSLog(@"nslog worked");
-	NSLog(@"viewflags=%08x", [aDecoder decodeIntForKey:@"NSvFlags"]);
+	NSLog(@"1. viewflags=%x", [aDecoder decodeIntForKey:@"NSvFlags"]);
 #endif
 	if(![aDecoder allowsKeyedCoding])
 		{
@@ -2252,6 +2252,7 @@ GSTrackingRect *m = [GSTrackingRect alloc];
 #if 0
 		NSLog(@"super initwithcoder done");
 		NSLog(@"self=%@", self);
+			NSLog(@"2. viewflags=%x", [aDecoder decodeIntForKey:@"NSvFlags"]);
 #endif
 		
 #define RESIZINGMASK ((viewflags>>0)&0x3f)	// 6 bit
@@ -2263,7 +2264,7 @@ GSTrackingRect *m = [GSTrackingRect alloc];
 		_v.autoSizeSubviews=RESIZESUBVIEWS;
 #if 0
 		if(_v.autoresizingMask != 0 && !_v.autoSizeSubviews)
-			NSLog(@"autoresizesSubviews=NO and mask=%x: %@", _v.autoresizingMask, self);
+			NSLog(@"viewflags=%x viewflags>>8=%x (viewflags>>8)&1=%u autoresizesSubviews=NO and mask=%x: %@", viewflags, viewflags>>8, (viewflags>>8)&1, _v.autoresizingMask, self);
 #endif
 #define HIDDEN (((viewflags>>31)&1)!=0)
 		_v.hidden=HIDDEN;

@@ -70,6 +70,7 @@ static BOOL structByRef;
 static BOOL floatAsDouble;
 static int registerSaveAreaSize;			// how much bytes we need for that (may be 0)
 static int structReturnPointerLength;		// how much bytes we need for that (may be 0)
+static int pointerAdjust;							// if we must adjust the frame pointer in _allocArgFrame
 
 // merge this into NSMethodSignature
 
@@ -333,10 +334,14 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	returnStructByVirtualArgument=YES;
 #elif defined(__arm__)	// for ARM
 #if defined(__ARM_EABI__)
+	// don't know
 #else
 	registerSaveAreaSize=4*sizeof(long);		// for ARM processor
 	structReturnPointerLength=sizeof(void *);	// if we have one
 	floatAsDouble=YES;
+	// FIXME: check for gcc version and/or EABI
+	// on ARM - forward:: returns the full stack while __builtin_apply() needs only the extra arguments (gcc bug?)
+	pointerAdjust=12;
 //	structByRef=YES;
 #endif
 #elif defined(__mips__)	// for MIPS
@@ -604,8 +609,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 #endif
 		((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
 		}
-	else
-		((char **)frame)[0]+=12;		// on ARM - forward:: returns the full stack while __builtin_apply() needs only the extra arguments (gcc bug?)
+	else if(pointerAdjust)
+		((char **)frame)[0]+=pointerAdjust;
 	return frame;
 }
 
@@ -613,7 +618,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 { // wrap call because it fails if called from within a Objective-C method
 #ifndef __APPLE__
 	retval_t retframe=__builtin_apply(imp, frame, stack);	// here, we really invoke the method implementation
-#if 0
+#if 1
 	NSLog(@"retframe= %p", retframe);
 #endif
 	if(info[0].size)
@@ -675,7 +680,8 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 #if 1
 	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, (argFrameLength+3)&~3);
 #endif
-	((void **)_argframe)[1] = ((void **)_argframe)[2];		// copy target/self value to the register frame
+	if(pointerAdjust)
+		((void **)_argframe)[1] = ((void **)_argframe)[2];		// copy target/self value to the register frame
 	return wrapped_builtin_apply(imp, _argframe, (argFrameLength+3)&~3, retbuf, &info[0]);	// here, we really invoke the implementation	
 }
 

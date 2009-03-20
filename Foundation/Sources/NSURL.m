@@ -412,11 +412,12 @@ static BOOL legal(const char *str, const char *extras)
 static NSString *unescape(const char *from)
 {
 	NSString *result;
-	int len=strlen(from)+1;
+	int len;
 	char *to, *bfr;
 	if(!from)
-		return nil;
-	to = bfr = objc_malloc(len);	// result will not become longer
+		return nil;	// nothing to unescape...
+	len=strlen(from)+1;
+	to = bfr = objc_malloc(len);	// result will not become longer by unescaping
 	while (*from != '\0')
 		{
 		if (*from == '%')
@@ -571,32 +572,27 @@ static NSString *unescape(const char *from)
 			 */
 			if ([aPath hasPrefix: @"/"])
 				{ // absolute path
-				aUrlString = [aUrlString initWithFormat: @"%@://%@%@",
-					aScheme, aHost, aPath];
+				aUrlString = [aUrlString initWithFormat: @"%@://%@%@", aScheme, aHost, aPath];
 				}
 			else
 				{ // relative path
-				aUrlString = [aUrlString initWithFormat: @"%@://%@/%@",
-					aScheme, aHost, aPath];
+				aUrlString = [aUrlString initWithFormat: @"%@://%@/%@", aScheme, aHost, aPath];
 				}
 			}
 		else
 			{ // no path
-			aUrlString = [aUrlString initWithFormat: @"%@://%@/",
-				aScheme, aHost];
+			aUrlString = [aUrlString initWithFormat: @"%@://%@/", aScheme, aHost];
 			}
 		}
 	else
 		{ // no host
 		if ([aPath length] > 0)
 			{
-			aUrlString = [aUrlString initWithFormat: @"%@:%@",
-				aScheme, aPath];
+			aUrlString = [aUrlString initWithFormat: @"%@:%@", aScheme, aPath];
 			}
 		else
 			{ // no host and no path
-			aUrlString = [aUrlString initWithFormat: @"%@:",
-				aScheme];
+			aUrlString = [aUrlString initWithFormat: @"%@:", aScheme];
 			}
 		}
 	self = [self initWithString: aUrlString relativeToURL: nil];
@@ -680,12 +676,11 @@ static NSString *unescape(const char *from)
 			
 			size = (sizeof(parsedURL) + __alignof__(parsedURL)) + (size+1);
 
-
 			buf = _data = (parsedURL *) objc_malloc(size);	// allocate space for parsedURL header plus the cString
 			memset(buf, '\0', size);
 			start = end = (char*)&buf[1];
 			[_urlString getCString:start];			// get the cString and store behind the parsedURL header
-#if 0
+#if 1
 			NSLog(@"NSURL initWithString");
 			NSLog(@"NSURL [length]=%d len=%d size=%d buf=%p", [_urlString length], [_urlString cStringLength], size, buf);
 			NSLog(@"NSURL aUrlString: %@ %@", NSStringFromClass([aUrlString class]), aUrlString);
@@ -749,6 +744,7 @@ static NSString *unescape(const char *from)
 					{
 					usesFragments = NO;
 					usesParameters = NO;
+						// CHECKME: really???
 					usesQueries = NO;
 					}
 				}
@@ -790,6 +786,7 @@ static NSString *unescape(const char *from)
 						start = ptr;
 						if (!legal(buf->user, ";:&=+$,"))
 							{
+								// CHECKME - should we raise exceptions?
 							[NSException raise: NSGenericException format:
 								@"illegal character in user/password part"];
 							}
@@ -1040,7 +1037,7 @@ static NSString *unescape(const char *from)
 	[aCoder decodeValueOfObjCType: @encode(id) at: &rel];
 	[aCoder decodeValueOfObjCType: @encode(id) at: &base];
 	self = [self initWithString: rel relativeToURL: base];
-	RELEASE(rel);
+	RELEASE(rel);	// client is responsible for releasing
 	RELEASE(base);
 	return self;
 }
@@ -1150,8 +1147,7 @@ static NSString *unescape(const char *from)
  *   notifications of the progress of the background load process.
  * </p>
  */
-- (void) loadResourceDataNotifyingClient: (id)client
-							  usingCache: (BOOL)shouldUseCache
+- (void) loadResourceDataNotifyingClient: (id)client usingCache: (BOOL)shouldUseCache
 {
 	NSURLHandle	*handle = [self URLHandleUsingCache: shouldUseCache];
 	NSRunLoop	*loop;
@@ -1252,7 +1248,7 @@ static NSString *unescape(const char *from)
 	if (myData->isGeneric)
 		{
 		unsigned int	len = (_baseURL ? strlen(((parsedURL*)_baseURL->_data)->path) : 0) + strlen(myData->path) + 3;
-		char		buf[len];	// FIXME: risk of STACK overflow
+		char		*buf = (char *) objc_malloc(len);
 		char		*tmp = buf;
 		
 		if (myData->pathIsAbsolute)
@@ -1293,6 +1289,7 @@ static NSString *unescape(const char *from)
 		if(tmp > buf && *tmp == '/')
 			*tmp=0;	// strip off trailing / (directory) - unless it is root
 		path=unescape(buf);
+			objc_free(buf);
 		}
 	return path;
 }
@@ -1358,7 +1355,7 @@ static NSString *unescape(const char *from)
 * Returns the relative portion of the URL string.  If the receiver is not
  * a relative URL, this returns the same as absoluteString.
  */
-- (NSString*) relativeString
+- (NSString *) relativeString
 {
 	return _urlString;
 }
@@ -1375,8 +1372,7 @@ static NSString *unescape(const char *from)
 	
 	if (!shouldUseCache || [handle status] != NSURLHandleLoadSucceeded)
 		{
-		[self loadResourceDataNotifyingClient: self
-								   usingCache: shouldUseCache];
+		[self loadResourceDataNotifyingClient: self usingCache: shouldUseCache];
 		}
 	data = [handle resourceData];
 	return data;
@@ -1426,7 +1422,7 @@ static NSString *unescape(const char *from)
 }
 
 /**
-* Calls [NSURLHandle-writeProperty:forKey:] to set the named property.
+* Calls -[NSURLHandle writeProperty:forKey:] to set the named property.
  */
 - (BOOL) setProperty: (id)property
 			  forKey: (NSString*)propertyKey
@@ -1437,7 +1433,7 @@ static NSString *unescape(const char *from)
 }
 
 /**
-* Calls [NSURLHandle-writeData:] to write the specified data object
+* Calls -[NSURLHandle writeData:] to write the specified data object
  * to the resource identified by the receiver URL.<br />
  * Returns the result.
  */
@@ -1515,7 +1511,7 @@ static NSString *unescape(const char *from)
  * NB. because of its security implications it is recommended that you
  * do not use URLs with users and passwords unless necessary.
  */
-- (NSString*) user
+- (NSString *) user
 {
 	return unescape(myData->user);
 }
@@ -1562,19 +1558,23 @@ static NSString *unescape(const char *from)
 - (void) URL: (NSURL*)sender
   resourceDataDidBecomeAvailable: (NSData*)newBytes
 {
+	return;
 }
 
 - (void) URL: (NSURL*)sender
   resourceDidFailLoadingWithReason: (NSString*)reason
 {
+	return;
 }
 
 - (void) URLResourceDidCancelLoading: (NSURL*)sender
 {
+	return;
 }
 
 - (void) URLResourceDidFinishLoading: (NSURL*)sender
 {
+	return;
 }
 
 @end

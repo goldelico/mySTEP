@@ -204,8 +204,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 
 - (id) init											// designated initializer
 {
-	self=[super init];
-	if(self)
+	if((self=[super init]))
 		{
 		_mode_2_timers = NSCreateMapTable (NSNonRetainedObjectMapKeyCallBacks,
 										   NSObjectMapValueCallBacks, 0);
@@ -219,6 +218,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 										 NSObjectMapValueCallBacks, 0);
 		_performers = [[NSMutableArray alloc] initWithCapacity:8];
 		_timedPerformers = [[NSMutableArray alloc] initWithCapacity:8];
+			// we should have a list of ALL runloops so that we can remove watchers for any of them
 		}
 	return self;
 }
@@ -706,6 +706,12 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	e=[NSAllMapTableKeys(_mode_2_outputwatchers) objectEnumerator];
 	while((mode=[e nextObject]))
 		[(NSMutableArray *) NSMapGet(_mode_2_outputwatchers, mode) removeObjectIdenticalTo:watcher];	// removes all occurrences
+}
+
++ (void) _removeWatcher:(id) watcher
+{
+	// FIXME: remove from all runloops
+	[__mainRunLoop _removeWatcher:watcher];
 }
 
 - (void) removePort:(NSPort *)aPort forMode:(NSString *)mode;

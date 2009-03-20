@@ -159,7 +159,10 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	NSLog(@"%@ _initWithFileDescriptor:%d", NSStringFromClass(isa), fd);
 #endif
 	if(fd < 0)
-		{ [self release]; return nil; }
+		{
+		[self release];
+		return nil;
+		}
 	if((self=[super init]))
 		{
 		_fd=fd;
@@ -187,10 +190,14 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (void) close;
 {
-	if(_streamStatus != NSStreamStatusClosed)
+	if(_streamStatus != NSStreamStatusNotOpen && _streamStatus != NSStreamStatusClosed)
 			{
 				// FIXME: how can we be removed from ALL runloops?
+				// _removeWatcher should be a class method of NSRunLoop!
 				[[NSRunLoop currentRunLoop] _removeWatcher:self];
+#if 1
+				NSLog(@"close(%d) %@", _fd, self);
+#endif
 				close(_fd);
 				_fd=-1;
 			}
@@ -306,8 +313,11 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 {
 	if((self=[super init]))
 		{
-		_buffer=[data bytes];	// shouldn't we copy???
-		_capacity=[data length];
+			if([data isKindOfClass:[NSMutableData class]])
+				data=[[data copy] autorelease];
+			_buffer=[data bytes];	// shouldn't we copy???
+			_capacity=[data length];
+			_fd=-1;
 		}
 	return self;
 }
@@ -427,10 +437,13 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (void) close;
 {
-	if(_streamStatus != NSStreamStatusClosed)
+	if(_streamStatus != NSStreamStatusNotOpen && _streamStatus != NSStreamStatusClosed)
 			{
 				// FIXME: how can we be removed from ALL runloops?
 				[[NSRunLoop currentRunLoop] _removeWatcher:self];
+#if 1
+				NSLog(@"close(%d) %@", _fd, self);
+#endif
 				close(_fd);
 				_fd=-1;
 			}
@@ -486,9 +499,27 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 {
 	if((self=[super init]))
 		{
-		_capacityLimit=LONG_MAX;
+			_capacityLimit=LONG_MAX;	// i.e. unlimited
+			_fd=-1;
 		}
 	return self;
+}
+
+- (id) initToBuffer:(unsigned char *) buffer capacity:(unsigned int) len;
+{
+	if((self=[super init]))
+			{
+				_buffer=buffer;
+				_currentCapacity=_capacityLimit=len;
+				_fd=-1;
+			}
+	return self;
+}
+
+- (void) dealloc
+{
+	// dealloc _buffer if it is a private one
+	[super dealloc];
 }
 
 - (NSString *) description;
@@ -607,7 +638,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	_addr.sin_family=AF_INET;
 	inet_aton([[_host address] cString], &_addr.sin_addr);
 	_addr.sin_port=htons(_port);
-#if DONTBLOCK_ON_CONNECT
+#if 1	// DONTBLOCK_ON_CONNECT
 	fcntl(_fd, F_SETFL, O_NONBLOCK);	// don't block but run in the background
 #endif
 	if(connect(_fd, (struct sockaddr *) &_addr, addrlen) < 0 && errno != EINPROGRESS)

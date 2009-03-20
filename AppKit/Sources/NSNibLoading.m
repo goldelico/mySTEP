@@ -429,6 +429,9 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	className=[[coder decodeObjectForKey:@"NSClassName"] retain];
 	extension=[[coder decodeObjectForKey:@"NSExtension"] retain];	// is a NSString
 	vFlags=[coder decodeIntForKey:@"NSvFlags"];
+#if 0
+	NSLog(@"vflags for custom view=%x", vFlags);
+#endif
 	_frame=[coder decodeRectForKey:@"NSFrame"];	// defaults to NSZeroRect if undefined
 	if([coder containsValueForKey:@"NSFrameSize"])
 		_frame.size=[coder decodeSizeForKey:@"NSFrameSize"];
@@ -515,9 +518,13 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 		[subviews release];
 		subviews=nil;
 		}
+#if 0
+	NSLog(@"set custom view vFlags=%x", vFlags);
+#endif
 #define RESIZINGMASK ((vFlags>>0)&0x3f)	// 6 bit
 	[view setAutoresizingMask:RESIZINGMASK];
-#define RESIZESUBVIEWS (((vFlags>>8)&1) != 0)
+//#define RESIZESUBVIEWS (((vFlags>>8)&1) != 0)
+#define RESIZESUBVIEWS (RESIZINGMASK != 0)	// it appears that a custom view has no special bit for this case
 	[view setAutoresizesSubviews:RESIZESUBVIEWS];
 #define HIDDEN (((vFlags>>31)&1)!=0)
 	[view setHidden:HIDDEN];

@@ -340,9 +340,9 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 				char *trans;
 				char *type_idxs;
 				int i, offset = sizeof(struct tzhead);
-				
+#if 0			
 				fprintf(stderr, "ntrans=%d\n", n_trans);
-				
+#endif		
 				if (bytes+offset+((4*n_trans)+n_trans) > bytes+len)
 						[NSException raise:NSGenericException format:@"range error in timezone transitions"];
 				transitions = [[NSMutableArray alloc] initWithCapacity: n_trans];

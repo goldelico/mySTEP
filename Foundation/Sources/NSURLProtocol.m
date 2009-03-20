@@ -240,6 +240,9 @@ static NSMutableArray *keptAliveConnections;
 
 - (void) dealloc;
 {
+#if 1
+	NSLog(@"dealloc %@", self);
+#endif
 	[self stopLoading];		// if still running
 	[_headerLine release];	// if left over
 	[_headers release];		// received headers
@@ -282,11 +285,13 @@ static NSMutableArray *keptAliveConnections;
 	// http://java.sun.com/j2se/1.5.0/docs/guide/net/http-keepalive.html
 	// 
 	NSURL *url=[_request URL];
+	NSString *method=[_request HTTPMethod];
 	NSString *path=[url path];
 	NSMutableData *headerData;
 	NSMutableDictionary *requestHeaders;
 	NSEnumerator *e;
 	NSString *key;
+	NSString *header;
 	static NSDictionary *methods;
 	if(_isLoading)
 		return;	// already runing
@@ -303,7 +308,7 @@ static NSMutableArray *keptAliveConnections;
 								 self, @"CONNECT",
 								 nil];
 			}
-	if(![methods objectForKey:[_request HTTPMethod]])
+	if(![methods objectForKey:method])
 			{ // unknown method
 				NSLog(@"Invalid HTTP Method: %@", _request);
 				[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"Invalid HTTP Method" code:0 userInfo:nil]];
@@ -350,12 +355,8 @@ static NSMutableArray *keptAliveConnections;
 	if([path length] == 0)
 		path=@"/";	// root
 	headerData=[[NSMutableData alloc] initWithCapacity:200];
-	_headerStream=[[NSInputStream alloc] initWithData:headerData];
-	[headerData release];
-	[headerData appendData:[[NSString stringWithFormat:@"%@ %@ HTTP/1.1\r\n",
-												[_request HTTPMethod],
-												[path stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]
-												] dataUsingEncoding:NSUTF8StringEncoding]];
+	header=[NSString stringWithFormat:@"%@ %@ HTTP/1.1\r\n", method, [path stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]];
+	[headerData appendData:[header dataUsingEncoding:NSUTF8StringEncoding]];
 	requestHeaders=[[NSMutableDictionary alloc] initWithObjectsAndKeys:[url host], @"Host", nil];
 	[requestHeaders addEntriesFromDictionary:[_request allHTTPHeaderFields]];	// add to headers
 	if([_request HTTPShouldHandleCookies])
@@ -364,12 +365,15 @@ static NSMutableArray *keptAliveConnections;
 				NSDictionary *cdict=[NSHTTPCookie requestHeaderFieldsWithCookies:[cs cookiesForURL:url]];
 				[requestHeaders addEntriesFromDictionary:cdict];	// add to headers
 			}
-	_canKeepAlive=[_request HTTPBody] != nil;
-	if(_canKeepAlive)
-			{ // we should know the body length
+	// check which method permits to use a body
+	_canKeepAlive=[_request HTTPBodyStream] == nil;	// we don't know the length in advance
+	_canKeepAlive=NO;	// FIXME: does not correctly work
+	if(_canKeepAlive && [_request HTTPBody])
+			{ // we should know the body length so that we can keep the connection alive
 				unsigned long bodyLength=[[_request HTTPBody] length];
-				[requestHeaders setObject:[NSNumber numberWithUnsignedLong:bodyLength] forKey:@"Content-Length"];
+				[requestHeaders setObject:[NSString stringWithFormat:@"%lu", bodyLength] forKey:@"Content-Length"];
 			}
+	// if(!_canKeepAlive) add 'Connection: close'
 #if 1
 	NSLog(@"headers to send: %@", requestHeaders);
 #endif
@@ -384,6 +388,11 @@ static NSMutableArray *keptAliveConnections;
 				[headerData appendData:[[NSString stringWithFormat:@"%@: %@\r\n", key, val] dataUsingEncoding:NSUTF8StringEncoding]];
 			}
 	[headerData appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+#if 1
+	NSLog(@"header=%@\n", headerData, [[[NSString alloc] initWithData:headerData encoding:NSUTF8StringEncoding] autorelease]);
+#endif
+	_headerStream=[[NSInputStream alloc] initWithData:headerData];	// convert into a stream
+	[headerData release];
 	[_headerStream open];
 	_bodyStream=[[_request HTTPBodyStream] retain];	// if provided as a stream object
 	if(!_bodyStream && [_request HTTPBody])
@@ -746,7 +755,10 @@ static NSMutableArray *keptAliveConnections;
 											_bodyStream=nil;
 										}
 								if(!_canKeepAlive)
-									[_outputStream close];
+										{
+											NSLog(@"can't keep alive because we did not send content-length");
+											[_outputStream close];
+										}
 								else
 									; // unschedule output stream
 								return;
@@ -759,7 +771,7 @@ static NSMutableArray *keptAliveConnections;
 							else
 									{
 #if 1
-										NSLog(@"can't keep alive: %@", self);
+										NSLog(@"server has disconnected - can't keep alive: %@", self);
 #endif
 										[keptAliveConnections removeObjectIdenticalTo:self];	// server has disconnected
 									}
@@ -777,6 +789,18 @@ static NSMutableArray *keptAliveConnections;
 	NSLog(@"An error %@ occurred on the event %08x of stream %@ of %@", [stream streamError], event, stream, self);
 	[_client URLProtocol:self didFailWithError:[stream streamError]];
 	_client=nil;
+	[_headerStream close];
+	[_headerStream release];	// done sending header
+	_headerStream=nil;
+	[_bodyStream close];	// close body stream (if open)
+	[_bodyStream release];
+	_bodyStream=nil;
+	[_inputStream close];
+	[_outputStream close];
+	[_inputStream release];
+	[_outputStream release];
+	_inputStream=nil;
+	_outputStream=nil;
 }
 
 @end

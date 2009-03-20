@@ -868,7 +868,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 	if(!paths)
 		{
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];
-		NSArray *languages=[locale length]?[NSArray arrayWithObject:locale]:[self preferredLocalizations];	// search specific or all
+		NSArray *languages=[locale length]?(NSArray *)[NSArray arrayWithObject:locale]:[self preferredLocalizations];	// search specific or all
 		NSEnumerator *e;
 		NSString *language;
 		NSString *primary;

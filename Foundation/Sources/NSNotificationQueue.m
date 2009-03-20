@@ -105,12 +105,12 @@ static void
 GSRemoveFromQueue(NSNotificationQueueList *queue, GSQueueRegistration *item)
 {
     if (item->prev)
-		item->prev->next = item->next;
+			item->prev->next = item->next;
     else if ((queue->tail = item->next))
 	    item->next->prev = NULL;
 
     if (item->next)
-		item->next->prev = item->prev;
+			item->next->prev = item->prev;
     else if ((queue->head = item->prev))
 	    item->prev->next = NULL;
 
@@ -172,11 +172,12 @@ InstanceList *queues = __notificationQueues;			// remove from class
 		}		}
 															// release self
     for (item = _asapQueue->head; item; item = item->prev)
-		GSRemoveFromQueue(_asapQueue, item);
+			// FIXME: do we leak here? But see also http://savannah.gnu.org/bugs/?25915
+			GSRemoveFromQueue(_asapQueue, item);
     objc_free(_asapQueue);
 
     for (item = _idleQueue->head; item; item=item->prev)
-		GSRemoveFromQueue(_idleQueue, item);
+			GSRemoveFromQueue(_idleQueue, item);
     objc_free(_idleQueue);
 
     [_center release];

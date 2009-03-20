@@ -56,8 +56,7 @@ NSString *NSHTTPCookieVersion=@"Version";
 	NSHTTPCookie *c;
 	while((c=[e nextObject]))
 		{
-		// fixme: handle embedded ; characters
-		NSString *ss=[NSString stringWithFormat:@"%@=%@", [c name], [c value]];
+		NSString *ss=[NSString stringWithFormat:@"%@=%@", [c name], [c value]];	// On MacOS this method is not protected against = and ; characters in cookie name or value - only \n can't occur
 		if(s)
 			s=[s stringByAppendingFormat:@"; %@", ss];
 		else
@@ -68,6 +67,13 @@ NSString *NSHTTPCookieVersion=@"Version";
 	else
 		return [NSDictionary dictionary];	// empty
 }
+
+/*
+ - (NSString *) description
+ {
+			version:0 name:@"name with" value:@"cookie value with ;" expiresDate:@"(null)" created:@"259183734.953839" sessionOnly:TRUE domain:@"www.origin.org" path:@"/path" secure:FALSE comment:@"(null)" commentURL:@"(null)" portList:(null)
+ }
+ */
 
 - (NSString *) comment; { return [_properties objectForKey:NSHTTPCookieComment]; }
 - (NSURL *) commentURL; { return [_properties objectForKey:NSHTTPCookieCommentURL]; }
@@ -89,8 +95,12 @@ NSString *NSHTTPCookieVersion=@"Version";
 			// FIXME: check and set defaults according to definition of the properties contants
 		if([[properties objectForKey:NSHTTPCookieName] length] < 1 ||
 		   ![properties objectForKey:NSHTTPCookieValue] ||
-		   (![properties objectForKey:NSHTTPCookieOriginURL] && ![properties objectForKey:NSHTTPCookieDomain]))
-			{ // this is a minimalistic check
+		   ![properties objectForKey:NSHTTPCookiePath] ||
+		   ![properties objectForKey:NSHTTPCookieDomain] ||
+			// WARNING: this does not forbit = and ; characters in name and value!
+			[[properties objectForKey:NSHTTPCookieName] rangeOfString:@"\n"].length > 0 ||	// does not allow embedded newline characters
+			[[properties objectForKey:NSHTTPCookieValue] rangeOfString:@"\n"].length > 0)
+			{ // these are mandatory
 			[self release];
 			return nil;
 			}
@@ -100,8 +110,6 @@ NSString *NSHTTPCookieVersion=@"Version";
 				[(NSMutableDictionary *) _properties setObject:([[_properties objectForKey:NSHTTPCookieVersion] intValue] >= 1 && ![_properties objectForKey:NSHTTPCookieMaximumAge])?@"TRUE":@"FALSE" forKey:NSHTTPCookieDiscard];
 			if(![_properties objectForKey:NSHTTPCookieDomain])
 				[(NSMutableDictionary *) _properties setObject:[[_properties objectForKey:NSHTTPCookieOriginURL] host] forKey:NSHTTPCookieDomain];
-			if(![_properties objectForKey:NSHTTPCookiePath])
-				[(NSMutableDictionary *) _properties setObject:@"/" forKey:NSHTTPCookiePath];
 		}
 	return self;
 }
