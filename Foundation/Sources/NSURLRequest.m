@@ -138,6 +138,7 @@
 
 - (void) setValue:(NSString *) value forHTTPHeaderField:(NSString *) field;
 {
+	// FIXME: trim \n characters
 	[_headerFields setObject:value forKey:[field lowercaseString]];
 }
 

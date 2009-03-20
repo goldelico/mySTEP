@@ -37,7 +37,7 @@
 	if(self)
 			{
 				_delegate=delegate;
-				_protocol=[[NSURLProtocol alloc] initWithRequest:request cachedResponse:nil client:(id <NSURLProtocolClient>) self];
+				_protocol=[[NSURLProtocol alloc] initWithRequest:request cachedResponse:[[NSURLCache sharedURLCache] cachedResponseForRequest:request] client:(id <NSURLProtocolClient>) self];
 #if 1
 				NSLog(@"  -> protocol %@", _protocol);
 #endif
