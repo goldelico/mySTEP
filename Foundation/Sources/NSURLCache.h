@@ -17,6 +17,9 @@
 
 @interface NSURLCache : NSObject
 {
+	NSUInteger _memoryCapacity; 
+	NSUInteger _diskCapacity; 
+	NSString *_diskPath;
 }
 
 + (void) setSharedURLCache:(NSURLCache *) urlCache;
