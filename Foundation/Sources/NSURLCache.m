@@ -25,7 +25,7 @@ static NSURLCache *_sharedURLCache;
 + (NSURLCache *) sharedURLCache;
 {
 	if(!_sharedURLCache)
-		_sharedURLCache=[[self alloc] initWithMemoryCapacity:100000 diskCapacity:500000 diskPath:[NSString stringWithFormat:@"%@/Library/Caches/%@", NSHomeDirectory(), [[NSProcessInfo processInfo] processName]]];
+		_sharedURLCache=[[self alloc] initWithMemoryCapacity:1*(1024*1024) diskCapacity:20*(1024*1024) diskPath:[NSString stringWithFormat:@"%@/Library/Caches/%@", NSHomeDirectory(), [[NSProcessInfo processInfo] processName]]];
 	return _sharedURLCache;
 }
 
@@ -58,6 +58,7 @@ static NSURLCache *_sharedURLCache;
 	/*
 	 * use [NSURLProtocol requestIsCacheEquivalent: toRequest: ]
 	 * to locate a cached entry
+	 * note: we must call the subclass implementation!
 	 */
 	
 	return nil;	// not available
@@ -75,6 +76,13 @@ static NSURLCache *_sharedURLCache;
 - (void) storeCachedResponse:(NSCachedURLResponse *) response forRequest:(NSURLRequest *) req;
 {
 	// NIMP
+  switch([response storagePolicy])
+		{
+			case NSURLCacheStorageAllowed:
+			case NSURLCacheStorageAllowedInMemoryOnly:
+			case NSURLCacheStorageNotAllowed:
+				break;
+		}
 	return;
 }
 

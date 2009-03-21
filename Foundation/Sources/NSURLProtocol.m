@@ -17,28 +17,48 @@
 #import <Foundation/NSValue.h>
 #import "NSPrivate.h"
 
-@interface _NSHTTPURLProtocol : NSURLProtocol
-{
+@class _NSHTTPURLProtocol;
+
+@interface _NSHTTPSerialization : NSObject
+{ // http://www.faqs.org/ftp/rfc/rfc2616.pdf
+	NSMutableArray *_requestQueue;		// all queued requests
+	NSTimer *_timeout;								// automatic connection close
+	
+	NSMutableArray *_runLoopsAndModes;	// runloops and modes to schedule (currently not implemented)
+		
 	// sending
+	_NSHTTPURLProtocol *_currentRequest;
 	NSOutputStream *_outputStream;
-	NSInputStream *_headerStream;						// headers while sending
-	NSInputStream *_bodyStream;							// for sending the body
-	BOOL _canKeepAlive;								// if we did determine and send the Content-Length: header
+	NSInputStream *_headerStream;			// header while sending
+	NSInputStream *_bodyStream;				// for sending the body
 	// receiving
 	NSInputStream *_inputStream;
 	NSMutableDictionary *_headers;		// received headers
 	NSMutableString *_headerLine;
 	unsigned _statusCode;
-	unsigned long long _contentLength;		// if explicitly specified by header (in that case, we can leave the connection open)
+	unsigned long long _contentLength;		// if explicitly specified by header
 	int _eol;													// end of line status
 	BOOL _readingBody;								// done with reading header
 	BOOL _hasContentLength;						// server did specify a content-length
 	BOOL _isLoading;									// startLoading called
+	
+	BOOL _shouldClose;		// server will close after current request - we must requeue other requests on a new connection
 }
+
++ (_NSHTTPSerialization *) serializerForProtocol:(_NSHTTPURLProtocol *) protocol;	// get connection queue for handling this request (may create a new one)
+- (void) startLoading:(_NSHTTPURLProtocol *) proto;		// add to queue
+- (void) stopLoading:(_NSHTTPURLProtocol *) proto;		// remove from queue - may cancel/close connection if it is current request or simply stop notifications
 
 @end
 
-@interface _NSHTTPSURLProtocol : _NSHTTPURLProtocol
+@interface _NSHTTPURLProtocol : NSURLProtocol
+{
+	_NSHTTPSerialization /* nonretained */ *_connection;	// where we have been queued up
+}
+
+- (void) _setConnection:(_NSHTTPSerialization *) connection;
+- (_NSHTTPSerialization *) _connection;
+
 @end
 
 @interface _NSFTPURLProtocol : NSURLProtocol
@@ -79,7 +99,6 @@ static NSMutableArray *_registeredClasses;
 {
 	_registeredClasses=[[NSMutableArray alloc] initWithCapacity:10];
 	[self registerClass:[_NSHTTPURLProtocol class]];
-	[self registerClass:[_NSHTTPSURLProtocol class]];
 	[self registerClass:[_NSFTPURLProtocol class]];
 	[self registerClass:[_NSFileURLProtocol class]];
 	[self registerClass:[_NSAboutURLProtocol class]];
@@ -101,9 +120,7 @@ static NSMutableArray *_registeredClasses;
 }
 
 + (BOOL) requestIsCacheEquivalent:(NSURLRequest *) a toRequest:(NSURLRequest *) b;
-{
-	// ???
-	// return [[a URL] isEqual:[b URL]]; ???
+{ // default equivalence check
 	a=[self canonicalRequestForRequest:a];
 	b=[self canonicalRequestForRequest:b];
 	return [a isEqual:b];
@@ -174,10 +191,10 @@ static NSMutableArray *_registeredClasses;
 - (void) startLoading; { SUBCLASS; }
 - (void) stopLoading; { SUBCLASS; }
 
-// not public?
+// such undocumented methods must exist since NSURLConnection can be scheduled on several runloops and modes in parallel
 
-- (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode; { SUBCLASS; }
-- (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode; { SUBCLASS; }
+- (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode; { NIMP; }
+- (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode; { NIMP; }
 
 @end
 
@@ -192,187 +209,164 @@ static NSMutableArray *_registeredClasses;
  - (void) URLProtocolDidFinishLoading:(NSURLProtocol *) proto;
  */
 
-@implementation _NSHTTPURLProtocol
+@implementation _NSHTTPSerialization
 
 // see http://www.w3.org/Protocols/rfc2616/rfc2616.html
+// or http://www.faqs.org/ftp/rfc/rfc2616.pdf
 // and a very good tutorial: http://www.jmarshall.com/easy/http/
+// http://www.io.com/~maus/HttpKeepAlive.html
+// http://java.sun.com/j2se/1.5.0/docs/guide/net/http-keepalive.html
 
-static NSMutableArray *keptAliveConnections;
+static NSMutableArray *_httpConnections;
 
-+ (BOOL) canInitWithRequest:(NSURLRequest *) request;
-{
-	return [[[request URL] scheme] isEqualToString:@"http"];
++ (_NSHTTPSerialization *) serializerForProtocol:(_NSHTTPURLProtocol *) protocol;
+{ // get connection queue for handling this request (may create a new one)
+	// check if we have a known connection to the server:port(protocol) and matching runloop modes
+	// if not, create a new one
+	// FIXME: we create a new connection for each request
+	return [self new];
 }
 
-+ (NSURLRequest *) canonicalRequestForRequest:(NSURLRequest *) request; { return request; }
-
-- (id) initWithRequest:(NSURLRequest *) request
-				cachedResponse:(NSCachedURLResponse *) cachedResponse
-								client:(id <NSURLProtocolClient>) client
+- (id) init
 {
-	NSEnumerator *e=[keptAliveConnections objectEnumerator];
-	_NSHTTPURLProtocol *p;
-	NSString *host=[[request URL] host];
-	NSNumber *port=[[request URL] port];
-	while((p=[e nextObject]))
+	if((self=[super init]))
 			{
-				NSURL *other=[[p request] URL];
-				if([[other host] isEqualToString:host] && [[other port] isEqual:port])
-						{ // found - reuse existing object
-							[self release];
-							self=[p retain];
-#if 1
-							NSLog(@"initialized for re-use");
-#endif
-							[keptAliveConnections removeObjectIdenticalTo:p];	// remove
-							[_request release];
-							_request=[request copy];	// save a copy of the request
-							[_cachedResponse release];
-							_cachedResponse=[cachedResponse retain];
-							_client=client;
-							_isLoading=NO;
-							_eol=0;
-							return self;
-						}
+				_requestQueue=[NSMutableArray new];
 			}
-	return [super initWithRequest:request cachedResponse:cachedResponse client:client];
+	return self;
 }
 
 - (void) dealloc;
 {
+	[_requestQueue release];
 #if 1
 	NSLog(@"dealloc %@", self);
 #endif
-	[self stopLoading];		// if still running
 	[_headerLine release];	// if left over
 	[_headers release];		// received headers
 	[_headerStream release];			// for sending the header
 	[_bodyStream release];			// for sending the body
+	[_inputStream release];
+	[_outputStream release];
 	[super dealloc];
 }
 
-- (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
-{
-	[_inputStream scheduleInRunLoop:runLoop forMode:mode];
-	[_outputStream scheduleInRunLoop:runLoop forMode:mode];
+- (void) endOfUseability
+{ // we can't use this connection any more
+	[_inputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+	[_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+	// remove us from the list of known serializers
+	// reschedule current and all other requests on a (new) serializer object
+	[_headerStream close];
+	[_headerStream release];	// done sending header
+	_headerStream=nil;
+	[_bodyStream close];	// close body stream (if open)
+	[_bodyStream release];
+	_bodyStream=nil;
+	[_inputStream close];
+	[_outputStream close];
+	[_inputStream release];
+	[_outputStream release];
+	_inputStream=nil;
+	_outputStream=nil;
 }
 
-- (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
-{
-	[_inputStream removeFromRunLoop:runLoop forMode:mode];
-	[_outputStream removeFromRunLoop:runLoop forMode:mode];
-}
-
-- (void) _unschedule;
-{
-	[self unscheduleFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-}
-
-- (void) _getStreamsToHost:(NSHost *)host port:(NSInteger)port inputStream:(NSInputStream **)inputStream outputStream:(NSOutputStream **)outputStream
-{
-	[NSStream getStreamsToHost:host port:port inputStream:inputStream outputStream:outputStream];
+- (void) connectToServer
+	{ // we have no open connection yet
+		NSURLRequest *request=[_currentRequest request];
+		NSURL *url=[request URL];
+		BOOL isHttps=[[url scheme] isEqualToString:@"https"];	// we assume that ther can't be a http and a https connection in parallel on the same host:port pair
+		NSHost *host=[NSHost hostWithName:[url host]];		// try to resolve (NOTE: this may block for some seconds! Therefore, the resolver should be run in a separate thread!
+		int port=[[url port] intValue];
+		if(!host) host=[NSHost hostWithAddress:[url host]];	// try dotted notation
+//		if(!host) host=[NSHost hostWithAddress:@"127.0.0.1"];	// final default (???)
+		if(!host)
+				{
+					[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[NSError errorWithDomain:@"can't connect" code:0 userInfo:
+																																			 [NSDictionary dictionaryWithObjectsAndKeys:
+																																				url, @"NSErrorFailingURLKey",
+																																				[url absoluteString], @"NSErrorFailingURLStringKey",
+																																				@"can't resolve host name", @"NSLocalizedDescription",
+																																				nil]]];
+					return;
+				}
+		if(!port) port=isHttps?433:80;	// default port if none is specified
+		[NSStream getStreamsToHost:host port:port inputStream:&_inputStream outputStream:&_outputStream];
+		[_inputStream retain];
+		[_outputStream retain];	// dealloc will do a release
+		if(!_inputStream || !_outputStream)
+				{ // error opening the streams
 #if 1
-	NSLog(@"did initialize streams for %@", self);
-	NSLog(@"  input %@", *inputStream);
-	NSLog(@" output %@", *outputStream);
+					NSLog(@"could not create streams for %@:%u", host, [[url port] intValue]);
 #endif
-}
+					[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[NSError errorWithDomain:@"can't connect" code:0 userInfo:
+																																[NSDictionary dictionaryWithObjectsAndKeys:
+																																 url, @"NSErrorFailingURLKey",
+																																 host, @"NSErrorFailingURLStringKey",
+																																 @"can't open connections to host", @"NSLocalizedDescription",
+																																 nil]]];
+					return;
+				}
+		[_inputStream setDelegate:self];
+		[_outputStream setDelegate:self];
+		if(isHttps)
+				{ // use SSL
+					[_inputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL forKey:NSStreamSocketSecurityLevelKey];
+					[_outputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL forKey:NSStreamSocketSecurityLevelKey];
+				}
+#if 1
+		NSLog(@"did initialize streams for %@", self);
+		NSLog(@"  input %@", _inputStream);
+		NSLog(@" output %@", _outputStream);
+#endif
+		[_inputStream open];
+		[_outputStream open];
+		[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];	// and schedule for reception
+		// we should also set a timeout if the connection can't be established within some time
+	}		
 
-- (void) startLoading;
+- (void) startLoadingNext
 {
-	// KEEPALIVE allows and/or requires us to cache and reuse the sockets/streams!
-	// http://www.io.com/~maus/HttpKeepAlive.html
-	// http://java.sun.com/j2se/1.5.0/docs/guide/net/http-keepalive.html
-	// 
-	NSURL *url=[_request URL];
-	NSString *method=[_request HTTPMethod];
+	// FIXME: find next non-stopped request (if any)
+	NSURLProtocol *protocol=[_requestQueue objectAtIndex:0];
+	NSURLRequest *request=[protocol request];
+	NSURL *url=[request URL];
+	NSString *method=[request HTTPMethod];
 	NSString *path=[url path];
 	NSMutableData *headerData;
 	NSMutableDictionary *requestHeaders;
 	NSEnumerator *e;
 	NSString *key;
 	NSString *header;
-	static NSDictionary *methods;
-	if(_isLoading)
-		return;	// already runing
-	if(!methods)
-			{ // initialize
-				methods=[[NSDictionary alloc] initWithObjectsAndKeys:
-								 self, @"HEAD",
-								 self, @"GET",
-								 self, @"POST",
-								 self, @"PUT",
-								 self, @"DELETE",
-								 self, @"TRACE",
-								 self, @"OPTIONS",
-								 self, @"CONNECT",
-								 nil];
-			}
-	if(![methods objectForKey:method])
-			{ // unknown method
-				NSLog(@"Invalid HTTP Method: %@", _request);
-				[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"Invalid HTTP Method" code:0 userInfo:nil]];
-				return;
-			}
-#if 1
-	NSLog(@"startLoading: %@", self);
-#endif
+	_currentRequest=[protocol retain];
+	[_requestQueue removeObjectAtIndex:0];	// remove first
 	if(!_outputStream)
-			{ // we must connect first (we are not reusing the connection)
-				NSHost *host=[NSHost hostWithName:[url host]];		// try to resolve
-				int port=[[url port] intValue];
-				if(!host) host=[NSHost hostWithAddress:[url host]];	// try dotted notation
-				if(!host) host=[NSHost hostWithAddress:@"127.0.0.1"];	// final default
-				if(!port) port=[[url scheme] isEqualToString:@"https"]?433:80;	// default port if not specified
-				[self _getStreamsToHost:host
-													 port:port
-										inputStream:&_inputStream
-									 outputStream:&_outputStream];
-				if(!_inputStream || !_outputStream)
-						{ // error opening the streams
+		[self connectToServer];
 #if 1
-							NSLog(@"could not create streams for %@:%u", host, [[url port] intValue]);
+	NSLog(@"startLoading: %@ on %@", _currentRequest, self);
 #endif
-							[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"can't connect" code:0 userInfo:
-																													[NSDictionary dictionaryWithObjectsAndKeys:
-																													 url, @"NSErrorFailingURLKey",
-																													 host, @"NSErrorFailingURLStringKey",
-																													 @"can't find host", @"NSLocalizedDescription",
-																													 nil]]];
-							return;
-						}
-#if 1
-				NSLog(@"open input stream %@ for %@", _inputStream, self);
-				NSLog(@"open output stream %@ for %@", _outputStream, self);
-#endif
-				[_inputStream retain];
-				[_outputStream retain];
-				[_inputStream setDelegate:self];
-				[_outputStream setDelegate:self];
-				[_inputStream open];
-				[_outputStream open];
-			}
 	if([path length] == 0)
 		path=@"/";	// root
 	headerData=[[NSMutableData alloc] initWithCapacity:200];
 	header=[NSString stringWithFormat:@"%@ %@ HTTP/1.1\r\n", method, [path stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]];
 	[headerData appendData:[header dataUsingEncoding:NSUTF8StringEncoding]];
 	requestHeaders=[[NSMutableDictionary alloc] initWithObjectsAndKeys:[url host], @"Host", nil];
-	[requestHeaders addEntriesFromDictionary:[_request allHTTPHeaderFields]];	// add to headers
-	if([_request HTTPShouldHandleCookies])
+	[requestHeaders addEntriesFromDictionary:[request allHTTPHeaderFields]];	// add to headers
+	if([request HTTPShouldHandleCookies])
 			{
 				NSHTTPCookieStorage *cs=[NSHTTPCookieStorage sharedHTTPCookieStorage];
 				NSDictionary *cdict=[NSHTTPCookie requestHeaderFieldsWithCookies:[cs cookiesForURL:url]];
 				[requestHeaders addEntriesFromDictionary:cdict];	// add to headers
 			}
 	// check which method permits to use a body
-	_canKeepAlive=[_request HTTPBodyStream] == nil;	// we don't know the length in advance
+	_canKeepAlive=[request HTTPBodyStream] == nil;	// we don't know the length in advance
 	_canKeepAlive=NO;	// FIXME: does not correctly work
-	if(_canKeepAlive && [_request HTTPBody])
+	if(_canKeepAlive && [request HTTPBody])
 			{ // we should know the body length so that we can keep the connection alive
-				unsigned long bodyLength=[[_request HTTPBody] length];
+				unsigned long bodyLength=[[request HTTPBody] length];
 				[requestHeaders setObject:[NSString stringWithFormat:@"%lu", bodyLength] forKey:@"Content-Length"];
 			}
+	//	[requestHeaders setObject:@"identity" forKey:@"Accept-Encoding"];	// set depending on what we can uncompress
 	// if(!_canKeepAlive) add 'Connection: close'
 #if 1
 	NSLog(@"headers to send: %@", requestHeaders);
@@ -394,41 +388,31 @@ static NSMutableArray *keptAliveConnections;
 	_headerStream=[[NSInputStream alloc] initWithData:headerData];	// convert into a stream
 	[headerData release];
 	[_headerStream open];
-	_bodyStream=[[_request HTTPBodyStream] retain];	// if provided as a stream object
-	if(!_bodyStream && [_request HTTPBody])
-		_bodyStream=[[NSInputStream alloc] initWithData:[_request HTTPBody]];	// prepare to send request body NSData object
+	_bodyStream=[[[_currentRequest request] HTTPBodyStream] retain];	// if provided as a stream object
+	if(!_bodyStream && [[_currentRequest request] HTTPBody])
+		_bodyStream=[[NSInputStream alloc] initWithData:[[_currentRequest request] HTTPBody]];	// prepare to send request body NSData object
 	[_bodyStream open];
-	[self scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 #if 1
 	NSLog(@"ready to send");
 #endif
-	_isLoading=YES;
+	[_outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];	// start handling output
 }
 
-- (void) stopLoading;
-{
-#if 1
-	NSLog(@"stopLoading: %@", self);
-#endif
-	if(_outputStream)
-			{ // communication is running - close connection
-				[self _unschedule];
-				[_inputStream close];
-				[_outputStream close];
-				[_inputStream release];
-				[_outputStream release];
-				_inputStream=nil;
-				_outputStream=nil;
-#if 0
-				// CHECKME - or does this come if the other side rejects the request?
-				[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"cancelled" code:0 userInfo:
-																										[NSDictionary dictionaryWithObjectsAndKeys:
-																										 url, @"NSErrorFailingURLKey",
-																										 host, @"NSErrorFailingURLStringKey",
-																										 @"cancelled", @"NSLocalizedDescription",
-																										 nil]]];
-#endif
+- (void) startLoading:(_NSHTTPURLProtocol *) proto;
+{ // add to queue
+	[[proto _connection] stopLoading:proto];	// remove from other queue (if any)
+	[_requestQueue addObject:proto];	// append
+	if(!_currentRequest)
+			[self startLoadingNext];
+}
+
+- (void) stopLoading:(_NSHTTPURLProtocol *) proto;
+{ // remove from queue - may cancel/close connection if it is current request or simply stop notifications
+	if(_currentRequest == proto)
+			{
+				// really cancel
 			}
+	[_requestQueue removeObject:proto];
 }
 
 - (void) _headersReceived
@@ -436,51 +420,65 @@ static NSMutableArray *keptAliveConnections;
 	NSHTTPURLResponse *response;
 	NSString *loc;	// redirect location
 	NSString *clen;	// content length
-	if([_request HTTPShouldHandleCookies])
+	NSURL *url=[[_currentRequest request] URL];
+	if([[_currentRequest request] HTTPShouldHandleCookies])
 			{ // auto-process cookies
-				NSArray *cookies=[NSHTTPCookie cookiesWithResponseHeaderFields:_headers forURL:[_request URL]];
-				[[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:cookies forURL:[_request URL] mainDocumentURL:[_request URL]];
+				NSArray *cookies=[NSHTTPCookie cookiesWithResponseHeaderFields:_headers forURL:url];
+				[[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:cookies forURL:url mainDocumentURL:url];
 			}
+	
+	// decide if we expect to receive a body
+
 	if([[_headers objectForKey:@"content-encoding"] isEqualToString:@"gzip"])
 			{ // handle header compression
 				// we should simply add _zip / _unzip / _inflate / _deflate for GZIP to NSData
+				// we must do that here since we receive the stream here
 				NSLog(@"body is gzip compressed");
 			}
+	
 	/*
 	 * HTTP 1.0 defines (but we ignore!)
 	 * Connection = "Keep-Alive";
 	 * "Keep-Alive" = "timeout=3, max=100";
 	 */
-	/** FIXME: check with cachedResponse **/  [_headers objectForKey:@"last-modified"];
 	clen=[_headers objectForKey:@"content-length"];
 	_hasContentLength=(clen != nil);
 	_contentLength = [clen longLongValue];
-	loc=[_headers objectForKey:@"location"];
-	response=[[NSHTTPURLResponse alloc] _initWithURL:[_request URL] headerFields:_headers andStatusCode:_statusCode];
+	// should update the url if there is a Content-Location (absolute or relative)
+	response=[[[NSHTTPURLResponse alloc] _initWithURL:url headerFields:_headers andStatusCode:_statusCode] autorelease];
 	[_headers release];	// have been stored in NSHTTPURLResponse
 	_headers=nil;
+	
+	// move this logic to the NSHTTPURLProtocol AFTER we have received the complete response
+	
 	// decide here if we want to read the body or get the value from the _cachedResponse
+	/** FIXME: check with cachedResponse **/  [_headers objectForKey:@"last-modified"];
+	// NO - we can't decide here. The server either sends a body or does not
 	// if we don't want to receive the body, [_inputStream close] and remove us from being reuseable
+	loc=[_headers objectForKey:@"location"];
 	if([loc length])
 			{ // Location: entry exists
 				NSURLRequest *request=[NSURLRequest requestWithURL:[NSURL URLWithString:loc]];
 				if(!request)
 						{
-							[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"Invalid redirect request" code:0 userInfo:nil]]; // error
-							_client=nil;
+							[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[NSError errorWithDomain:@"Invalid redirect request" code:0 userInfo:nil]]; // error
 						}
-				[_client URLProtocol:self wasRedirectedToRequest:request redirectResponse:response];
+				[[_currentRequest client] URLProtocol:_currentRequest wasRedirectedToRequest:request redirectResponse:response];
+				// update the request and retry
+				// what do we do with a body that has not been received yet???
+				// and, we should not do that here but the NSHTTPURLProtocol
 			}
 	else
 			{
 				NSURLCacheStoragePolicy policy;
+/* FIXME
 				if([self isKindOfClass:[_NSHTTPSURLProtocol class]])
 					policy=NSURLCacheStorageNotAllowed;	// never
 				else
 					policy=[_request cachePolicy];	// default
-				[_client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:policy];
+ */
+				[[_currentRequest client] URLProtocol:_currentRequest didReceiveResponse:response cacheStoragePolicy:policy];
 			}
-	[response release];
 	_readingBody=YES;	// start reading body
 }
 
@@ -498,8 +496,7 @@ static NSMutableArray *keptAliveConnections;
 						{ // response header line
 							if(major != 1 || minor > 1)
 									{
-										[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"Bad HTTP version" code:0 userInfo:nil]];
-										_client=nil;
+										[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[NSError errorWithDomain:@"Bad HTTP version" code:0 userInfo:nil]];
 									}
 							_headers=[[NSMutableDictionary alloc] initWithCapacity:10];	// start collecting headers
 							// if(_statusCode >= 400 && _statusCode <= 499)
@@ -510,8 +507,7 @@ static NSMutableArray *keptAliveConnections;
 						}
 				else
 						{
-							[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"Invalid HTTP response" code:0 userInfo:nil]];
-							_client=nil;
+							[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[NSError errorWithDomain:@"Invalid HTTP response" code:0 userInfo:nil]];
 						}
 				return;	// process next line
 			}
@@ -570,253 +566,297 @@ static NSMutableArray *keptAliveConnections;
 #endif
 }
 
+- (void) handleInputEvent:(NSStreamEvent) event
+{
+	switch(event)
+		{
+			case NSStreamEventOpenCompleted:
+			{ // ready to receive header
+#if 1
+				NSLog(@"HTTP input stream opened");
+#endif
+				return;
+			}
+			case NSStreamEventHasBytesAvailable:
+				{
+					unsigned char buffer[512];
+					unsigned maxLength=sizeof(buffer);
+					int len;
+					if(_readingBody)
+							{
+								if(_contentLength > 0 && _contentLength < maxLength)
+									maxLength=_contentLength;	// limit to expected size
+							}
+					else
+						maxLength=1;	// so that we don't miss the Content-Length: header entry even if it directly precedes the \r\n\r\nbody
+					len=[_inputStream read:buffer maxLength:maxLength];
+					if(len == 0)
+						break;	// ignore (or when does this occur?)
+					if(len <= 0)
+							{
+#if 1
+								NSLog(@"receive error %s", strerror(errno));
+#endif
+								[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[NSError errorWithDomain:@"receive error" code:errno userInfo:nil]];
+								return;
+							}
+#if 0
+					NSLog(@"received %d bytes", len);
+#endif
+					if(_readingBody)
+							{
+								[[_currentRequest client] URLProtocol:_currentRequest didLoadData:[NSData dataWithBytes:buffer length:len]];	// notify
+								if(_contentLength > 0)
+										{
+											_contentLength -= len;
+											if(_contentLength == 0)
+													{ // we have received as much as expected
+														[[_currentRequest client] URLProtocolDidFinishLoading:_currentRequest];
+														_readingBody=NO;	// start over reading headers
+#if 1
+														NSLog(@"keeping alive: %@", self);
+#endif
+													}
+										}
+								return;
+							}
+					[self _processHeaderChar:buffer[0]];	// process the received character
+					return;
+				}
+			case NSStreamEventEndEncountered:
+				{
+#if 1
+					NSLog(@"input connection closed by server");
+#endif
+					if(!_readingBody)
+							{
+								[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[NSError errorWithDomain:@"incomplete header received" code:0 userInfo:nil]];
+							}
+					if(_hasContentLength)
+							{
+								if(_contentLength > 0)
+										{
+											[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[NSError errorWithDomain:@"connection closed by server while receiving body" code:0 userInfo:nil]];	// we did not receive the announced contentLength
+										}
+							}
+					else
+						[[_currentRequest client] URLProtocolDidFinishLoading:_currentRequest];	// implicit content length defined by EOF
+#if 1
+					NSLog(@"can't keep alive: %@", self);
+#endif
+					[_inputStream close];
+					return;
+				}
+			default:
+				break;
+		}
+	NSLog(@"An error %@ occurred on the event %08x of stream %@ of %@", [_inputStream streamError], event, _inputStream, self);
+	[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[_inputStream streamError]];
+	[self endOfUseability];
+}
+
+- (void) handleOutputEvent:(NSStreamEvent) event
+{ // send header & body of current request (if any)
+	/* e.g.
+	 POST /wiki/Spezial:Search HTTP/1.1
+	 Host: de.wikipedia.org
+	 Content-Type: application/x-www-form-urlencoded
+	 Content-Length: 24
+	 
+	 search=Katzen&go=Artikel  <- body
+	 */
+	switch(event)
+		{
+			case NSStreamEventOpenCompleted:
+				{ // ready to send header
+#if 1
+				NSLog(@"HTTP output stream opened");
+#endif
+				return;
+				}
+			case NSStreamEventHasSpaceAvailable:
+				{
+					unsigned char buffer[512];	// max size of chunks to send to TCP subsystem to avoid blocking
+					if(_headerStream)
+							{ // we are still sending the header
+								if([_headerStream hasBytesAvailable])
+										{ // send next part until done
+											int len=[_headerStream read:buffer maxLength:sizeof(buffer)];	// read next block from stream
+											if(len < 0)
+													{
+#if 1
+														NSLog(@"error while reading from HTTPHeader stream %s", strerror(errno));
+#endif
+														[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[NSError errorWithDomain:@"HTTPHeaderStream" code:errno userInfo:nil]];
+													}
+											else
+													{
+														[_outputStream write:buffer maxLength:len];	// send
+#if 1
+														NSLog(@"%d bytes header sent", len);
+#endif
+													}
+											return;	// done sending next chunk
+										}
+								[_headerStream close];
+								[_headerStream release];	// done sending header
+								_headerStream=nil;
+							}
+					if(_bodyStream)
+							{ // we are still sending the body
+								if([_bodyStream hasBytesAvailable])
+										{ // send next part until done
+											int len=[_bodyStream read:buffer maxLength:sizeof(buffer)];	// read next block from stream
+											if(len < 0)
+													{
+#if 1
+														NSLog(@"error while reading from HTTPBody stream %s", strerror(errno));
+#endif
+														[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[NSError errorWithDomain:@"HTTPBodyStream" code:errno userInfo:nil]];
+													}
+											else
+													{
+														[_outputStream write:buffer maxLength:len];	// send
+#if 1
+														NSLog(@"%d bytes body sent", len);
+#endif
+													}
+											return;	// done
+										}
+#if 1
+								NSLog(@"request sent completely");
+#endif
+								[_bodyStream close];	// close body stream (if open)
+								[_bodyStream release];
+								_bodyStream=nil;
+							}
+					if(!_canKeepAlive)
+							{
+								NSLog(@"can't keep alive because we did not send content-length");
+								[_outputStream close];
+							}
+					else
+						; // unschedule output stream
+					return;
+				}
+			case NSStreamEventEndEncountered:
+				if([_headerStream hasBytesAvailable])
+					[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[NSError errorWithDomain:@"connection closed by server while sending header" code:errno userInfo:nil]];
+				else if([_bodyStream hasBytesAvailable])
+					[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[NSError errorWithDomain:@"connection closed by server while sending body" code:errno userInfo:nil]];
+				else
+						{
+#if 1
+							NSLog(@"server has disconnected - can't keep alive: %@", self);
+#endif
+							[keptAliveConnections removeObjectIdenticalTo:self];	// server has disconnected
+						}
+				[_headerStream close];
+				[_headerStream release];	// done sending header
+				_headerStream=nil;
+				[_bodyStream close];	// close body stream (if open)
+				[_bodyStream release];
+				_bodyStream=nil;
+				return;
+			default:
+				break;
+		}
+	NSLog(@"An error %@ occurred on the event %08x of stream %@ of %@", [_outputStream streamError], event, _outputStream, self);
+	[[_currentRequest client] URLProtocol:_currentRequest didFailWithError:[_outputStream streamError]];
+	[self endOfUseability];
+}
+
 - (void) stream:(NSStream *) stream handleEvent:(NSStreamEvent) event
 {
 #if 0
 	NSLog(@"stream:%@ handleEvent:%x for:%@", stream, event, self);
 #endif
 	if(stream == _inputStream) 
-			{
-#if 0
-				NSLog(@"An event %d occurred on the input stream.", event);
-#endif
-				switch(event)
-					{
-						case NSStreamEventOpenCompleted:
-						{ // ready to receive header
-#if 1
-							NSLog(@"HTTP input stream opened");
-#endif
-							return;
-						}
-						case NSStreamEventHasBytesAvailable:
-							{
-								unsigned char buffer[512];
-								unsigned maxLength=sizeof(buffer);
-								int len;
-								if(_readingBody)
-										{
-											if(_contentLength > 0 && _contentLength < maxLength)
-												maxLength=_contentLength;	// limit to expected size
-										}
-								else
-									maxLength=1;	// so that we don't miss the Content-Length: header entry even if it directly precedes the \r\n\r\nbody
-								len=[(NSInputStream *) stream read:buffer maxLength:maxLength];
-								if(len == 0)
-									break;	// ignore (or when does this occur?)
-								if(len <= 0)
-										{
-#if 1
-											NSLog(@"receive error %s", strerror(errno));
-#endif
-											[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"receive error" code:errno userInfo:nil]];
-											_client=nil;
-											[self _unschedule];
-											return;
-										}
-#if 0
-								NSLog(@"received %d bytes", len);
-#endif
-								if(_readingBody)
-										{
-											[_client URLProtocol:self didLoadData:[NSData dataWithBytes:buffer length:len]];	// notify
-											if(_contentLength > 0)
-													{
-														_contentLength -= len;
-														if(_contentLength == 0)
-																{ // we have received as much as expected
-																	[_client URLProtocolDidFinishLoading:self];
-																	_readingBody=NO;	// start over reading headers
-#if 1
-																	NSLog(@"keeping alive: %@", self);
-#endif
-																	if(!keptAliveConnections)
-																		keptAliveConnections=[[NSMutableArray alloc] initWithCapacity:5];
-																	[keptAliveConnections addObject:self];	// allow to reuse our connection
-																}
-													}
-											return;
-										}
-								[self _processHeaderChar:buffer[0]];	// process the received character
-								return;
-							}
-						case NSStreamEventEndEncountered:
-							{
-#if 1
-								NSLog(@"input connection closed by server");
-#endif
-								if(!_readingBody)
-										{
-									[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"incomplete header received" code:0 userInfo:nil]];
-											_client=nil;
-										}
-								if(_hasContentLength)
-										{
-											if(_contentLength > 0)
-													{
-														[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"connection closed by server while receiving body" code:0 userInfo:nil]];	// we did not receive the announced contentLength
-														_client=nil;
-													}
-										}
-								else
-									[_client URLProtocolDidFinishLoading:self];	// implicit content length defined by EOF
-#if 1
-								NSLog(@"can't keep alive: %@", self);
-#endif
-								[keptAliveConnections removeObject:self];	// no longer available for reuse (this event may come before we are trying to reuse)
-								[self _unschedule];
-								[_inputStream close];
-								return;
-							}
-						default:
-							break;
-					}
-			}
+		[self handleInputEvent:event];
 	else if(stream == _outputStream)
-			{
-#if 0
-				NSLog(@"An event %d occurred on the output stream.", event);
-#endif
-				/* e.g.
-				 POST /wiki/Spezial:Search HTTP/1.1
-				 Host: de.wikipedia.org
-				 Content-Type: application/x-www-form-urlencoded
-				 Content-Length: 24
-				 
-				 search=Katzen&go=Artikel  <- body
-				 */
-				switch(event)
-					{
-						case NSStreamEventOpenCompleted:
-						{ // ready to send header
-#if 1
-							NSLog(@"HTTP output stream opened");
-#endif
-							return;
-						}
-						case NSStreamEventHasSpaceAvailable:
-							{
-								unsigned char buffer[512];	// max size of chunks to send to TCP subsystem to avoid blocking
-								if(_headerStream)
-										{ // we are still sending the header
-											if([_headerStream hasBytesAvailable])
-													{ // send next part until done
-														int len=[_headerStream read:buffer maxLength:sizeof(buffer)];	// read next block from stream
-														if(len < 0)
-																{
-#if 1
-																	NSLog(@"error while reading from HTTPHeader stream %s", strerror(errno));
-#endif
-																	[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"HTTPHeaderStream" code:errno userInfo:nil]];
-																	_client=nil;
-																	[self _unschedule];
-																}
-														else
-																{
-																	[(NSOutputStream *) stream write:buffer maxLength:len];	// send
-#if 1
-																	NSLog(@"%d bytes header sent", len);
-#endif
-																}
-														return;	// done sending next chunk
-													}
-											[_headerStream close];
-											[_headerStream release];	// done sending header
-											_headerStream=nil;
-										}
-								if(_bodyStream)
-										{ // we are still sending the body
-											if([_bodyStream hasBytesAvailable])
-													{ // send next part until done
-														int len=[_bodyStream read:buffer maxLength:sizeof(buffer)];	// read next block from stream
-														if(len < 0)
-																{
-#if 1
-																	NSLog(@"error while reading from HTTPBody stream %s", strerror(errno));
-#endif
-																	[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"HTTPBodyStream" code:errno userInfo:nil]];
-																	_client=nil;
-																	[self _unschedule];
-																}
-														else
-																{
-																	[(NSOutputStream *) stream write:buffer maxLength:len];	// send
-#if 1
-																	NSLog(@"%d bytes body sent", len);
-#endif
-																}
-														return;	// done
-													}
-#if 1
-											NSLog(@"request sent completely");
-#endif
-											[_bodyStream close];	// close body stream (if open)
-											[_bodyStream release];
-											_bodyStream=nil;
-										}
-								if(!_canKeepAlive)
-										{
-											NSLog(@"can't keep alive because we did not send content-length");
-											[_outputStream close];
-										}
-								else
-									; // unschedule output stream
-								return;
-							}
-						case NSStreamEventEndEncountered:
-							if([_headerStream hasBytesAvailable])
-								[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"connection closed by server while sending header" code:errno userInfo:nil]], _client=nil;
-							else if([_bodyStream hasBytesAvailable])
-								[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"connection closed by server while sending body" code:errno userInfo:nil]], _client=nil;
-							else
-									{
-#if 1
-										NSLog(@"server has disconnected - can't keep alive: %@", self);
-#endif
-										[keptAliveConnections removeObjectIdenticalTo:self];	// server has disconnected
-									}
-							[_headerStream close];
-							[_headerStream release];	// done sending header
-							_headerStream=nil;
-							[_bodyStream close];	// close body stream (if open)
-							[_bodyStream release];
-							_bodyStream=nil;
-							return;
-						default:
-							break;
-					}
-			}
-	NSLog(@"An error %@ occurred on the event %08x of stream %@ of %@", [stream streamError], event, stream, self);
-	[_client URLProtocol:self didFailWithError:[stream streamError]];
-	_client=nil;
-	[_headerStream close];
-	[_headerStream release];	// done sending header
-	_headerStream=nil;
-	[_bodyStream close];	// close body stream (if open)
-	[_bodyStream release];
-	_bodyStream=nil;
-	[_inputStream close];
-	[_outputStream close];
-	[_inputStream release];
-	[_outputStream release];
-	_inputStream=nil;
-	_outputStream=nil;
+		[self handleInputEvent:event];
 }
 
 @end
 
-@implementation _NSHTTPSURLProtocol
+@implementation _NSHTTPURLProtocol
 
 + (BOOL) canInitWithRequest:(NSURLRequest *) request;
 {
-	return [[[request URL] scheme] isEqualToString:@"https"];
+	NSString *scheme = [[request URL] scheme];
+	return [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"];;
 }
 
-- (void) _getStreamsToHost:(NSHost *)host port:(NSInteger)port inputStream:(NSInputStream **)inputStream outputStream:(NSOutputStream **)outputStream
++ (NSURLRequest *) canonicalRequestForRequest:(NSURLRequest *) request; { return request; }
+
+- (void) dealloc;
 {
-	[super _getStreamsToHost:host port:port inputStream:inputStream outputStream:outputStream];
-	[*inputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL forKey:NSStreamSocketSecurityLevelKey];
-	[*outputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL forKey:NSStreamSocketSecurityLevelKey];
+#if 1
+	NSLog(@"dealloc %@", self);
+#endif
+	[self stopLoading];		// if still running
+	[super dealloc];
+}
+
+- (void) _setConnection:(_NSHTTPSerialization *) c; { _connection=c; }	// our shared connection
+- (_NSHTTPSerialization *) _connection; { return _connection; }
+
+- (void) startLoading;
+{
+	static NSDictionary *methods;
+	NSString *method=[_request HTTPMethod];
+	if(!methods)
+			{ // initialize
+				methods=[[NSDictionary alloc] initWithObjectsAndKeys:
+								 self, @"HEAD",
+								 self, @"GET",
+								 self, @"POST",
+								 self, @"PUT",
+								 self, @"DELETE",
+								 self, @"TRACE",
+								 self, @"OPTIONS",
+								 self, @"CONNECT",
+								 nil];
+			}
+	if(![methods objectForKey:method])
+			{ // unknown method
+				NSLog(@"Invalid HTTP Method: %@", _request);
+				[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"Invalid HTTP Method" code:0 userInfo:nil]];
+				return;
+			}
+	if(!_connection)
+		[[_NSHTTPSerialization serializerForProtocol:self] startLoading:self];	// add our request to (new) queue
+}
+
+- (void) stopLoading;
+{
+	[_connection stopLoading:self];	// interrupt and/or remove us from the queue
+}
+
+// we should move cache handling, authentication, retry etc. here so that the serializer does never interpret the status code and header fields beyond transfer-encoding
+
+- (void) _reportResponse;
+{
+	// 100 continue - ignore
+	// 401, 407 - redo after adding the appropriate authentication information
+	// 503 retry - check for time to be within reasonable timeframe
+	// timeouts
+	// check for redirects
+	// decide to requeue
+	// or report data
+	// or report error
+	
+	/*
+	 - (void) URLProtocol:(NSURLProtocol *) proto cachedResponseIsValid:(NSCachedURLResponse *) resp;
+	 - (void) URLProtocol:(NSURLProtocol *) proto didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *) chall;
+	 - (void) URLProtocol:(NSURLProtocol *) proto didFailWithError:(NSError *) error;
+	 - (void) URLProtocol:(NSURLProtocol *) proto didLoadData:(NSData *) data;
+	 - (void) URLProtocol:(NSURLProtocol *) proto didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *) chall;
+	 - (void) URLProtocol:(NSURLProtocol *) proto didReceiveResponse:(NSURLResponse *) response cacheStoragePolicy:(NSURLCacheStoragePolicy) policy;
+	 - (void) URLProtocol:(NSURLProtocol *) proto wasRedirectedToRequest:(NSURLRequest *) request redirectResponse:(NSURLResponse *) redirectResponse;
+	 - (void) URLProtocolDidFinishLoading:(NSURLProtocol *) proto;
+	 */
+	
 }
 
 @end
