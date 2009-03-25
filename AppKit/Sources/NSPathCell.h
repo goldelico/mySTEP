@@ -2,7 +2,7 @@
 //  NSPathCell.h
 //  AppKit
 //
-//  Created by Fabian Spillner on 27.11.07.
+//  Created by Fabian Spillner on 27.11.07. Further Developement by Jens Idelberger on 09.03.09
 //  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 

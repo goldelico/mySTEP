@@ -13,7 +13,7 @@
 @class NSColor, NSPathComponentCell;
 
 @interface NSPathControl : NSControl {
-//	id _delegate;	// special for mySTEP: NSControl defines _delegate
+	// id _delegate;	// special for mySTEP: NSControl already defines _delegate
 	NSDragOperation _localDraggingMask;
 	NSDragOperation _remoteDraggingMask;
 }

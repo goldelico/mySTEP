@@ -26,10 +26,11 @@
 
 - (id) initTextCell:(NSString *) title
 {
-	if((self=[super initTextCell:title]))
-		{
-			_needsSizing=YES;
-		}
+	if(self=[super initTextCell:title])
+	{
+		[self setStringValue:title];
+		_needsSizing=YES;
+	}
 	return self;
 }
 
@@ -49,13 +50,24 @@
 	if(_pathStyle != NSPathStylePopUp)
 		; // draw popup icon
 	if([_pathComponentCells count] > 0 && _pathStyle != NSPathStylePopUp)
-		{ // draw cells
-			NSEnumerator *e=[_pathComponentCells objectEnumerator];
-			NSPathComponentCell *cell;
-			while((cell = [e nextObject]))
-				[cell drawWithFrame:[self rectOfPathComponentCell:cell withFrame:cellFrame inView:controlView] inView:controlView];
+	{ // draw cells
+		NSEnumerator *e=[_pathComponentCells objectEnumerator];
+		NSPathComponentCell *cell;
+		while((cell = [e nextObject]))
+		{
+			NSRect m = [self rectOfPathComponentCell:cell withFrame:cellFrame inView:controlView];
+			[cell drawWithFrame:m inView:controlView];
 			// draw item separator(s)
+			if (cell != nil){
+				//draw the separator...
+				[[NSColor grayColor] setFill];
+				NSSize cellSize = [cell cellSize];
+				
+				NSRect sepRect = NSMakeRect(m.origin.x+cellSize.width, m.origin.y, 8.0, cellSize.height);
+				[[NSBezierPath bezierPathWithOvalInRect:sepRect] fill];
+			}
 		}
+	}
 	else if(_placeholderAttributedString)
 		; // draw
 	else if(_placeholderString)
@@ -97,24 +109,24 @@
 	if(idx == NSNotFound)
 		return NSZeroRect;
 	if(_needsSizing)
-		{ // (re)calculate cell positions
-			unsigned int i;
-			unsigned int cnt=[_pathComponentCells count];
-			NSRect r=rect;
-			_rects=(NSRect *) objc_realloc(_rects, sizeof(_rects[0])*MAX(cnt, 1));
-			for(i=0; i<cnt; i++)
-				{
-					NSPathComponentCell *cell=[_pathComponentCells objectAtIndex:i];
-					
-					r.size=[cell cellSize];	// make as wide as the cell content defines
-					_rects[idx]=r;
-					r.origin.x += NSWidth(r);	// advance
-				}
-			if(cnt && NSMaxX(_rects[cnt-1]) > NSMaxX(rect))
-				{ // total width of cells is wider than our cell frame
-				// truncate in the middle
-				}
+	{ // (re)calculate cell positions
+		unsigned int i;
+		unsigned int cnt=[_pathComponentCells count];
+		NSRect r=rect;
+		_rects=(NSRect *) objc_realloc(_rects, sizeof(_rects[0])*MAX(cnt, 1));
+		for(i=0; i<cnt; i++)
+		{
+			NSPathComponentCell *cell=[_pathComponentCells objectAtIndex:i];
+			
+			r.size=[cell cellSize];	// make as wide as the cell content defines
+			_rects[idx]=r;
+			r.origin.x += NSWidth(r);	// advance
 		}
+		if(cnt && NSMaxX(_rects[cnt-1]) > NSMaxX(rect))
+		{ // total width of cells is wider than our cell frame
+			// truncate in the middle
+		}
+	}
 	return _rects[idx];
 }
 
@@ -139,10 +151,10 @@
 	if([(NSObject *) obj isKindOfClass:[NSString class]])
 		[self setURL:[NSURL fileURLWithPath:(NSString *) obj]];	// convert to file URL
 	else
-		{
+	{
 		NSAssert([(id) obj isKindOfClass:[NSURL class]], @"setObjectValue expects NSURL or NSString");
 		[self setURL:(NSURL *) obj];
-		}
+	}
 }
 
 - (void) setPathComponentCells:(NSArray *) cells; { ASSIGN(_pathComponentCells, cells); _needsSizing=YES; }
@@ -160,31 +172,41 @@
 
 - (void) setURL:(NSURL *) url;
 {
-	NSMutableArray *cells=[NSMutableArray arrayWithCapacity:10];
-	BOOL isFile=[url isFileURL];
-	// FIXME: loop over path components
-	{
-		NSPathComponentCell *cell=[[[[self class] pathComponentCellClass] alloc] init];
-		NSURL *partialURL;
-		[cell setURL:partialURL];
-		if(isFile)
+	int i;
+	if (url != nil) {
+		NSMutableArray *cells=[NSMutableArray arrayWithCapacity:10];
+		NSArray *partialURLStrings = [[url path] pathComponents]; //get Array of Path parts
+		
+		// loop over path components
+		for(i =0;i<[partialURLStrings count];i++){
+			NSPathComponentCell *cell=[[[[self class] pathComponentCellClass] alloc] init];
+			NSURL *partialURL = [[NSURL alloc] initWithString:[partialURLStrings objectAtIndex:i]];
+			[cell setURL:partialURL];
+			if([partialURL isFileURL]) 
 			{
+				//Get the icon of the file
 				NSImage *icon=[[NSWorkspace sharedWorkspace] iconForFile:[partialURL path]];
 				if(icon)
-					{
-						// copy???
+				{
+					
 					if(_pathStyle == NSPathStyleNavigationBar)
 						[icon setSize:NSMakeSize(14.0, 14.0)];
 					else
 						[icon setSize:NSMakeSize(16.0, 16.0)];
 					[cell setImage:icon];
-					}
+				}
 			}
-		[cells addObject:cell];
-		[cell release];
+			[cells addObject:cell];
+			[cell release];
+			[partialURL release];
+		}
+		[self setPathComponentCells:cells];
+		[super setObjectValue:url];
+		[cells release];
+		[partialURLStrings release];
+		
 	}
-	[self setPathComponentCells:cells];
-	[super setObjectValue:url];
+	
 }
 
 - (NSURL *) URL; { return [self objectValue]; }
@@ -195,25 +217,28 @@
 	if(![self isEnabled])
 		return NO;
 	if(_pathStyle == NSPathStylePopUp)
-		{
-			// build Menu
-			// if[self isEditable], add separator&Choose...
-			// popup menu
-			return YES;
-		}
+	{
+		NSMenu *menu=nil;
+		// build Menu
+		// if[self isEditable], add separator&Choose...
+		[_delegate pathCell:self willPopUpMenu:menu];
+		[_controlView pathCell:self willPopUpMenu:menu];	// so that it can translate into a pathControl: willPopUpMenu:
+		// popup menu
+		return YES;
+	}
 	_clickedPathComponentCell=[self pathComponentCellAtPoint:point withFrame:cellFrame inView:controlView];
 	if(_clickedPathComponentCell)
-		{
-			NSRect rect=[self rectOfPathComponentCell:_clickedPathComponentCell withFrame:cellFrame inView:controlView];
-			return [_clickedPathComponentCell trackMouse:event inRect:rect ofView:controlView untilMouseUp:flag];	// forward tracking to clicked cell
-		}
+	{
+		NSRect rect=[self rectOfPathComponentCell:_clickedPathComponentCell withFrame:cellFrame inView:controlView];
+		return [_clickedPathComponentCell trackMouse:event inRect:rect ofView:controlView untilMouseUp:flag];	// forward tracking to clicked cell
+	}
 	return [super trackMouse:event inRect:cellFrame ofView:controlView untilMouseUp:flag];	// standard tracking
 }													
 
 - (void) _chooseURL:(id) sender
 { // choose specific URL from popup menu
 	NSURL *url;
-	// FIXME: get URL from menu item (can we use representedObject?)
+	// get URL from menu item (can we use representedObject?)
 	[self setURL:url];
 	// call action?
 }
@@ -225,16 +250,26 @@
 	[openPanel setCanChooseDirectories:YES];
 	[openPanel setCanChooseFiles:YES];
 	[openPanel setResolvesAliases:YES];
+	[_delegate pathCell:self willDisplayOpenPanel:openPanel];
+	[_controlView pathCell:self willDisplayOpenPanel:openPanel];	// so that it can translate into a pathControl: willDisplayOpenPanel:
 	if([openPanel runModalForTypes:[self allowedTypes]] == NSOKButton)
 		[self setURL:[openPanel URL]];	// change
 }
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
-	return NIMP;
+	if([super init]) {
+		[self setAllowedTypes:[coder decodeObjectForKey:@"allowedTypes"]];
+		[self setBackgroundColor:[coder decodeObjectForKey:@"backgroundColor"]];
+		[self setPathComponentCells:[coder decodeObjectForKey:@"componentCells"]];
+		[self setPlaceholderAttributedString:[coder decodeObjectForKey:@"placeholderAttributedString"]];
+		
+	}
+	return self;
 }
 
 @end
+
 @implementation NSObject (NSPathCellDelegate)
 
 - (void) pathCell:(NSPathCell *) sender willDisplayOpenPanel:(NSOpenPanel *) openPanel; { return; }

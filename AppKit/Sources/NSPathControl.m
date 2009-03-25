@@ -11,18 +11,27 @@
 #import <AppKit/AppKit.h>
 
 
+static Class __controlCellClass = Nil;
+
 @implementation NSPathControl
+
++ (void) initialize
+{
+	if (self == [NSPathControl class])
+		__controlCellClass = [NSPathCell pathComponentCellClass];
+}
+
++ (Class) cellClass						{ return __controlCellClass; }
++ (void) setCellClass:(Class)aClass		{ __controlCellClass = aClass; }
 
 - (id) initWithFrame:(NSRect) frame
 {
 	if((self=[super initWithFrame:frame]))
-		{
-			// create and add Cell
-			_localDraggingMask=NSDragOperationEvery;
-			_remoteDraggingMask=NSDragOperationNone;
-			[_cell setDelegate:self];
-			// define tracking rects to call [cell _mouseEntered: and [cell _mouseExited:
-		}
+	{
+		_localDraggingMask=NSDragOperationEvery;
+		_remoteDraggingMask=NSDragOperationNone;
+		// define tracking rects to call [cell _mouseEntered: and [cell _mouseExited:
+	}
 	return self;
 }
 
@@ -54,7 +63,7 @@
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
-	return NIMP;
+	return self;
 }
 
 @end
@@ -64,27 +73,27 @@
 - (BOOL) pathControl:(NSPathControl *) sender acceptDrop:(id <NSDraggingInfo>) draggingInfo;
 {
 	if([[sender cell] isEditable])
-		{
-			// accept if it contains NSURLPboardType or NSFilenamesPboardType which conforms to the cell allowed types.
-		}
+	{
+		// accept if it contains NSURLPboardType or NSFilenamesPboardType which conforms to the cell allowed types.
+	}
 	return NO;	// refuse any drop
 }
 
 - (BOOL) pathControl:(NSPathControl *) sender shouldDragPathComponentCell:(NSPathComponentCell *) cell withPasteboard:(NSPasteboard *) pboard;
 {
 	if([[sender cell] isEditable])
-		{
-			// accept if it contains NSURLPboardType or NSFilenamesPboardType which conforms to the cell allowed types.
-		}
+	{
+		// accept if it contains NSURLPboardType or NSFilenamesPboardType which conforms to the cell allowed types.
+	}
 	return NO;	// refuse any drop
 }
 
 - (NSDragOperation) pathControl:(NSPathControl *) sender validateDrop:(id <NSDraggingInfo>) draggingInfo;
 {
 	if([[sender cell] isEditable])
-		{
-			// accept if it contains NSURLPboardType or NSFilenamesPboardType which conforms to the cell allowed types.
-		}
+	{
+		// accept if it contains NSURLPboardType or NSFilenamesPboardType which conforms to the cell allowed types.
+	}
 	return NSDragOperationNone;	// refuse any drop
 }
 
@@ -92,3 +101,4 @@
 - (void) pathControl:(NSPathControl *) sender willPopUpMenu:(NSMenu *) menu; { return; }
 
 @end
+
