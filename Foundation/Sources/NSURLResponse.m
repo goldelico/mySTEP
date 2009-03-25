@@ -111,7 +111,7 @@ static NSDictionary *_mimeExtensions;
 {
 	NSString *len=[headers objectForKey:@"content-length"];
 	NSString *content=[headers objectForKey:@"content-type"];
-	// FIXME: make more robust to missing components
+	// FIXME: make more robust to missing components and whitespace
 	NSArray *a=[content componentsSeparatedByString:@"; charset="];
 	NSString *mime=nil;
 	NSString *encoding=nil;

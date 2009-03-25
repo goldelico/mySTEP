@@ -89,8 +89,13 @@
 	NSMutableData *data;
 	NSError *dummy;
 	_NSURLConnectionDataCollector *dc=[[_NSURLConnectionDataCollector alloc] initWithDataPointer:&data responsePointer:response errorPointer:error?error:&dummy];
+#if 1
 	NSURLConnection *c=[self connectionWithRequest:request delegate:dc];
-	[dc run];
+	[c start];	// start loading
+#else
+	[self connectionWithRequest:request delegate:dc];	// autostarts and will not be released before we exit
+#endif
+	[dc run];		// collect
 	[dc release];
 	return data;
 }
@@ -107,15 +112,15 @@
 	NSLog(@"%@ initWithRequest:%@ delegate:%@", self, request, delegate);
 #endif
 	if(self)
-		{
-		_delegate=delegate;
-		_protocol=[[NSURLProtocol alloc] initWithRequest:request cachedResponse:[[NSURLCache sharedURLCache] cachedResponseForRequest:request] client:(id <NSURLProtocolClient>) self];
+			{
+				_delegate=delegate;
+				_protocol=[[NSURLProtocol alloc] initWithRequest:request cachedResponse:[[NSURLCache sharedURLCache] cachedResponseForRequest:request] client:(id <NSURLProtocolClient>) self];
 #if 0
-		NSLog(@"  -> protocol %@", _protocol);
+				NSLog(@"  -> protocol %@", _protocol);
 #endif
-			if(flag)
-				[self start];	// and start loading
-		}
+				if(flag)
+					[self start];	// and start loading
+			}
 	return self;
 }
 
@@ -164,11 +169,17 @@
 
 - (void) URLProtocol:(NSURLProtocol *) proto wasRedirectedToRequest:(NSURLRequest *) request redirectResponse:(NSURLResponse *) redirectResponse;
 {
-	NSURLRequest *r=[_delegate connection:self willSendRequest:request redirectResponse:redirectResponse];
-	if(!r)
-		[proto stopLoading];
-	NSLog(@"wasRedirectedToRequest:%@", request);
-	// send new request for r
+	NSURLRequest *r=[_delegate connection:self willSendRequest:request redirectResponse:redirectResponse];	// allow to modify
+	if(r)
+			{
+				[_protocol autorelease];	// release previous protocol handler and start a new one
+				_protocol=[[NSURLProtocol alloc] initWithRequest:r cachedResponse:[[NSURLCache sharedURLCache] cachedResponseForRequest:r] client:(id <NSURLProtocolClient>) self];
+#if 1
+				NSLog(@"redirected to protocol %@", _protocol);
+#endif
+				// check in redirect response if we should wait some time ("retry-after")
+				[_protocol startLoading];
+			}
 }
 
 - (void) URLProtocol:(NSURLProtocol *) proto didFailWithError:(NSError *) error;
@@ -178,6 +189,15 @@
 
 - (void) URLProtocol:(NSURLProtocol *) proto didReceiveResponse:(NSURLResponse *) response cacheStoragePolicy:(NSURLCacheStoragePolicy) policy;
 {
+#if 0	// FIXME
+	if(policy != NSURLCacheStorageNotAllowed)
+		{ // create a cached response and try to store
+			NSData *data=nil;	// where do we get that from unless we collect all data???
+			NSCachedURLResponse *cachedResponse=[[NSCachedURLResponse alloc] initWithResponse:response data:data userInfo:nil storagePolicy:policy];
+			[[NSURLCache sharedURLCache] storeCachedResponse:cachedResponse forRequest:[_protocol request]];
+			[cachedResponse release];
+		}
+#endif
 	[_delegate connection:self didReceiveResponse:response];
 }
 

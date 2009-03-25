@@ -12,6 +12,7 @@
 
 #import <Foundation/NSURLRequest.h>
 #import <Foundation/NSURLResponse.h>
+#import <Foundation/NSURLProtocol.h>
 
 @class NSError;
 @class NSCachedURLResponse;
@@ -19,7 +20,7 @@
 @class NSURLRequest;
 @class NSURLResponse;
 
-@interface NSURLConnection : NSObject
+@interface NSURLConnection : NSObject  <NSURLProtocolClient>
 {
 	id _delegate;
 	NSURLProtocol *_protocol;

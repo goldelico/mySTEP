@@ -10,8 +10,6 @@
 #import <Foundation/NSURLProtocol.h>
 #import <Foundation/NSString.h>
 
-// code is similar to what we do for NSURLConnection
-
 @implementation NSURLDownload
 
 + (BOOL) canResumeDownloadDecodedWithEncodingMIMEType:(NSString *) MIMEType;
@@ -49,6 +47,7 @@
 
 - (id) initWithResumeData:(NSData *) resumeData delegate:(id) delegate path:(NSString *) path;
 {
+	_resumeData=[resumeData retain];
 	// resumeData is minimal state information
 	// i.e. should encode the URL
 	// and the file position
@@ -92,46 +91,77 @@
 - (void) URLProtocol:(NSURLProtocol *) proto wasRedirectedToRequest:(NSURLRequest *) request redirectResponse:(NSURLResponse *) redirectResponse;
 {
 	NSURLRequest *r=[_delegate download:self willSendRequest:request redirectResponse:redirectResponse];
-	if(!r)
-		[proto stopLoading];
-	NSLog(@"wasRedirectedToRequest:%@", request);
-	// send new request for r
+	if(r)
+			{
+				[proto autorelease];
+				_protocol=[[NSURLProtocol alloc] initWithRequest:r cachedResponse:[[NSURLCache sharedURLCache] cachedResponseForRequest:r] client:(id <NSURLProtocolClient>) self];
+#if 1
+				NSLog(@"redirected to protocol %@", _protocol);
+#endif
+				// check redirect response if we should wait some time ("retry-after")
+				[_protocol startLoading];
+			}
 }
 
 - (void) URLProtocol:(NSURLProtocol *) proto didFailWithError:(NSError *) error;
 {
 	[_delegate download:self didFailWithError:error];
+	if(_deletesFileUponFailure)
+		; // delete file
 }
 
 - (void) URLProtocol:(NSURLProtocol *) proto didReceiveResponse:(NSURLResponse *) response cacheStoragePolicy:(NSURLCacheStoragePolicy) policy;
 {
+#if 0	// FIXME
+	if(policy != NSURLCacheStorageNotAllowed)
+			{ // create a cached response and try to store
+				NSData *data=nil;	// where do we get that from unless we collect all data???
+				NSCachedURLResponse *cachedResponse=[[NSCachedURLResponse alloc] initWithResponse:response data:data userInfo:nil storagePolicy:policy];
+				[[NSURLCache sharedURLCache] storeCachedResponse:cachedResponse forRequest:[_protocol request]];
+				[cachedResponse release];
+			}
+#endif
 	[_delegate download:self didReceiveResponse:response];
+	// if no destination yet: - (void) download:(NSURLDownload *) download decideDestinationWithSuggestedFilename:(NSString *) filename;
+	// if first data: - (void) download:(NSURLDownload *) download didCreateDestination:(NSString *) path;
 }
 
 - (void) URLProtocolDidFinishLoading:(NSURLProtocol *) proto;
 {
 	[_delegate downloadDidFinish:self];
+	// check for response mime type
+	// MacBinary ("application/macbinary"), Binhex ("application/mac-binhex40") and gzip ("application/gzip").
+	// ask download:(NSURLDownload *) download shouldDecodeSourceDataOfMIMEType:
 }
 
 - (void) URLProtocol:(NSURLProtocol *) proto didLoadData:(NSData *) data;
 {
 	// append to file
+	//	[_destination appendData:data];
 	[_delegate download:self didReceiveDataOfLength:[data length]];
 }
 
+/* delegate methods not yet called
+ - (void) download:(NSURLDownload *) download decideDestinationWithSuggestedFilename:(NSString *) filename;
+ - (BOOL) download:(NSURLDownload *) download shouldDecodeSourceDataOfMIMEType:(NSString *) MIMEType;
+ - (void) download:(NSURLDownload *) download willResumeWithResponse:(NSURLResponse *) response fromByte:(long long) startingByte;
+ */
+
 @end
 
-/*
-- (void) download:(NSURLDownload *) download decideDestinationWithSuggestedFilename:(NSString *) filename;
-- (void) download:(NSURLDownload *) download didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *) challenge;
-- (void) download:(NSURLDownload *) download didCreateDestination:(NSString *) path;
-- (void) download:(NSURLDownload *) download didFailWithError:(NSError *) error;
-- (void) download:(NSURLDownload *) download didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *) challenge;
-- (void) download:(NSURLDownload *) download didReceiveDataOfLength:(unsigned) len;
-- (void) download:(NSURLDownload *) download didReceiveResponse:(NSURLResponse *) response;
-- (BOOL) download:(NSURLDownload *) download shouldDecodeSourceDataOfMIMEType:(NSString *) MIMEType;
-- (void) download:(NSURLDownload *) download willResumeWithResponse:(NSURLResponse *) response fromByte:(long long) startingByte;
-- (NSURLRequest *) download:(NSURLDownload *) download willSendRequest:(NSURLRequest *) request redirectResponse:(NSURLResponse *) redirectResponse;
-- (void) downloadDidBegin:(NSURLDownload *) download;
-- (void) downloadDidFinish:(NSURLDownload *) download;
-*/
+@implementation NSObject (NSURLDownloadDelegate)
+
+- (void) download:(NSURLDownload *) download decideDestinationWithSuggestedFilename:(NSString *) filename; { return; }
+- (void) download:(NSURLDownload *) download didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *) challenge; { return; }
+- (void) download:(NSURLDownload *) download didCreateDestination:(NSString *) path; { return; }
+- (void) download:(NSURLDownload *) download didFailWithError:(NSError *) error; { return; }
+- (void) download:(NSURLDownload *) download didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *) challenge; { return; }
+- (void) download:(NSURLDownload *) download didReceiveDataOfLength:(NSUInteger) len; { return; }
+- (void) download:(NSURLDownload *) download didReceiveResponse:(NSURLResponse *) response; { return; }
+- (BOOL) download:(NSURLDownload *) download shouldDecodeSourceDataOfMIMEType:(NSString *) MIMEType; { return NO; }
+- (void) download:(NSURLDownload *) download willResumeWithResponse:(NSURLResponse *) response fromByte:(long long) startingByte;  { return; }
+- (NSURLRequest *) download:(NSURLDownload *) download willSendRequest:(NSURLRequest *) request redirectResponse:(NSURLResponse *) redirectResponse; { return request; }
+- (void) downloadDidBegin:(NSURLDownload *) download; { return; }
+- (void) downloadDidFinish:(NSURLDownload *) download; { return; }
+
+@end

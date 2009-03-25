@@ -9,6 +9,7 @@
 */
 
 #import <Foundation/NSObject.h>
+#import <Foundation/NSURLProtocol.h>
 
 @class NSData;
 @class NSError;
@@ -18,7 +19,7 @@
 @class NSURLRequest;
 @class NSURLProtocol;
 
-@interface NSURLDownload : NSObject
+@interface NSURLDownload : NSObject <NSURLProtocolClient>
 {
 	id _delegate;
 	NSString *_destination;

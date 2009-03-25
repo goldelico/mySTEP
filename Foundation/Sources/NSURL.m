@@ -680,7 +680,7 @@ static NSString *unescape(const char *from)
 			memset(buf, '\0', size);
 			start = end = (char*)&buf[1];
 			[_urlString getCString:start];			// get the cString and store behind the parsedURL header
-#if 1
+#if 0
 			NSLog(@"NSURL initWithString");
 			NSLog(@"NSURL [length]=%d len=%d size=%d buf=%p", [_urlString length], [_urlString cStringLength], size, buf);
 			NSLog(@"NSURL aUrlString: %@ %@", NSStringFromClass([aUrlString class]), aUrlString);

@@ -25,11 +25,8 @@
 - (void) URLProtocol:(NSURLProtocol *) proto didFailWithError:(NSError *) error;
 - (void) URLProtocol:(NSURLProtocol *) proto didLoadData:(NSData *) data;
 - (void) URLProtocol:(NSURLProtocol *) proto didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *) chall;
-- (void) URLProtocol:(NSURLProtocol *) proto 
-  didReceiveResponse:(NSURLResponse *) response 
-  cacheStoragePolicy:(NSURLCacheStoragePolicy) policy;
-- (void) URLProtocol:(NSURLProtocol *) proto wasRedirectedToRequest:(NSURLRequest *) request 
-	redirectResponse:(NSURLResponse *) redirectResponse;
+- (void) URLProtocol:(NSURLProtocol *) proto didReceiveResponse:(NSURLResponse *) response cacheStoragePolicy:(NSURLCacheStoragePolicy) policy;
+- (void) URLProtocol:(NSURLProtocol *) proto wasRedirectedToRequest:(NSURLRequest *) request redirectResponse:(NSURLResponse *) redirectResponse;
 - (void) URLProtocolDidFinishLoading:(NSURLProtocol *) proto;
 
 @end
