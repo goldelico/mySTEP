@@ -82,6 +82,7 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 #endif
 	location=[coder decodeFloatForKey:@"NSLocation"];
 	// FIXME: type?
+	// NSLineBreakMode
 	return self;
 }
 

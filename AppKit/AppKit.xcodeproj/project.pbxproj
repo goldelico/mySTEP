@@ -671,7 +671,6 @@
 		EE5B8C220E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
 		EE61B6A609B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
 		EE61B6A709B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
-		EE6E6CB60ECF1AE300231FD3 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = EE6E6CB50ECF1AE300231FD3 /* Makefile */; };
 		EE7860550D2D4E1E00B2197B /* GSArrowCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */; };
 		EE7860560D2D4E1E00B2197B /* GSArrowCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860540D2D4E1E00B2197B /* GSArrowCursor.tiff */; };
 		EE7860640D2D4F4600B2197B /* GSHiddenCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE7860590D2D4F4600B2197B /* GSHiddenCursor.tiff */; };
@@ -6915,7 +6914,6 @@
 				EEC8035909AE4EBF006EEB03 /* main.m in Sources */,
 				EEC8035A09AE4EBF006EEB03 /* myView.m in Sources */,
 				EECD84000A089F8100EF3E30 /* myModel.m in Sources */,
-				EE6E6CB60ECF1AE300231FD3 /* Makefile in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7799,7 +7797,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = /System/Library/Frameworks;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -7808,13 +7806,15 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
-				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = myTest.mySTEP;
+				SDKROOT = "";
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = YES;
 			};

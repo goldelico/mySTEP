@@ -27,6 +27,7 @@
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSGeometry.h>
 #import <Foundation/NSDate.h>
+#import <Foundation/NSObjCRuntime.h>
 
 @class NSString;
 @class NSWindow;
@@ -212,9 +213,7 @@ enum
 					  trackingNumber:(NSInteger) trackingNum
 							userData:(void *) userData; 
 
-typedef void *CGEventRef;
-
-+ (NSEvent *) eventWithCGEvent:(CGEventRef) ref;
+// + (NSEvent *) eventWithCGEvent:(CGEventRef) ref;
 + (NSEvent *) eventWithEventRef:(const void *) ref;
 
 + (NSEvent *) keyEventWithType:(NSEventType) type

@@ -168,6 +168,13 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	return path;
 }
 
++ (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
+{
+	NSBezierPath *p=[self new];
+	[p appendBezierPathWithRoundedRect:rect xRadius:xrad yRadius:yrad];
+	return p;
+}
+
 // this is a special case of _drawRoundedBezel:
 
 + (NSBezierPath *) _bezierPathWithBoxBezelInRect:(NSRect) borderRect radius:(float) radius
@@ -176,34 +183,27 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	borderRect.size.width-=1.0;
 	borderRect.size.height-=1.0;	// draw inside
 	[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(borderRect)+radius, NSMinY(borderRect)+radius)
-								  radius:radius
-							  startAngle:270.0
-								endAngle:180.0
-							   clockwise:YES];
+																radius:radius
+														startAngle:270.0
+															endAngle:180.0
+														 clockwise:YES];
 	[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(borderRect)+radius, NSMaxY(borderRect)-radius)
-								  radius:radius
-							  startAngle:180.0
-								endAngle:90.0
-							   clockwise:YES];
+																radius:radius
+														startAngle:180.0
+															endAngle:90.0
+														 clockwise:YES];
 	[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(borderRect)-radius, NSMaxY(borderRect)-radius)
-								  radius:radius
-							  startAngle:90.0
-								endAngle:0.0
-							   clockwise:YES];
+																radius:radius
+														startAngle:90.0
+															endAngle:0.0
+														 clockwise:YES];
 	[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(borderRect)-radius, NSMinY(borderRect)+radius)
-								  radius:radius
-							  startAngle:0.0
-								endAngle:270.0
-							   clockwise:YES];
+																radius:radius
+														startAngle:0.0
+															endAngle:270.0
+														 clockwise:YES];
 	[b closePath];
 	return [b autorelease];
-}
-
-+ (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
-{
-	NSBezierPath *p=[self new];
-	[p appendBezierPathWithRoundedRect:rect xRadius:xrad yRadius:yrad];
-	return p;
 }
 
 #if 1	// can be replaced by new + (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
@@ -288,6 +288,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		[b lineToPoint:NSMakePoint(NSMaxX(frame), NSMinY(frame))];
 		}
 	[b closePath];
+	// setting colors should be done by the caller
 	if(enabled)
 		{
 		if(selected)
@@ -381,12 +382,18 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 			return nil;
 			}
 		_bz.flat = YES;	// default is flat and first curve makes it non-flat
+#if 0
+			NSLog(@"NSBezierPath init %p", self);
+#endif
 		}
 	return self;
 }
 
 - (void) dealloc
 {
+#if 0
+	NSLog(@"dealloc %p: %@", self, self);
+#endif
 	[self removeAllPoints];
 	objc_free(_bPath);
 	if (_dashPattern != NULL)

@@ -166,7 +166,9 @@
 
 - (void) dealloc;
 {
-	NSLog(@"dealloc %p: %@", self, self);
+#if 1
+	NSLog(@"dealloc NSTextStorage %p: %@", self, self);
+#endif
 #if __APPLE__
 	[_concreteString release];
 #endif

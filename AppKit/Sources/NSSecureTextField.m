@@ -52,6 +52,9 @@
 
 // overwrite drawWithFrame:inView: to show Shift-Lock status
 
+- (void) setEchosBullets:(BOOL) flag; { _c.secure = flag; }
+- (BOOL) echosBullets; { return _c.secure; }
+
 @end /* NSSecureTextFieldCell */
 
 //*****************************************************************************

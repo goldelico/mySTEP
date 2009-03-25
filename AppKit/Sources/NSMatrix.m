@@ -1502,6 +1502,7 @@ This method is used for selecting cells in list mode with selection by
 		_numCols = [aDecoder decodeIntForKey:@"NSNumCols"];
 		_numRows = [aDecoder decodeIntForKey:@"NSNumRows"];
 		_cellPrototype = [[aDecoder decodeObjectForKey:@"NSProtoCell"] retain];
+			// FIXME: I have seen the case that there is only a NSSelectedRow and a NSSelectedCell but no NSSelectedCol
 		if([aDecoder containsValueForKey:@"NSSelectedRow"] && [aDecoder containsValueForKey:@"NSSelectedCol"])
 			[self selectCellAtRow:[aDecoder decodeIntForKey:@"NSSelectedRow"] column:[aDecoder decodeIntForKey:@"NSSelectedCol"]];
 		else if([aDecoder containsValueForKey:@"NSSelectedCell"])

@@ -122,6 +122,7 @@
 	_label = [[aDecoder decodeObjectForKey:@"NSSegmentItemLabel"] retain];
 	_image = [[aDecoder decodeObjectForKey:@"NSSegmentItemImage"] retain];
 	_menu = [[aDecoder decodeObjectForKey:@"NSSegmentItemMenu"] retain];
+	// NSSegmentItemImageScaling
 	if([aDecoder containsValueForKey:@"NSSegmentItemEnabled"])
 		_enabled = [aDecoder decodeBoolForKey:@"NSSegmentItemEnabled"];
 	else

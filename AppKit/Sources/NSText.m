@@ -530,7 +530,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 - (BOOL) isOpaque							{ return _tx.drawsBackground; }
 
 - (void) drawRect:(NSRect)rect
-{ // default drawing within frame bounds using string drawing additions (and no typesetter/layout manager)
+{ // default drawing within frame bounds using string drawing additions (and no typesetter/layout manager) - overridden in NSTextView
 	if(_tx.drawsBackground)
 		{
 		[_backgroundColor set];

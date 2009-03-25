@@ -671,6 +671,18 @@ void NSSetFocusRingStyle(NSFocusRingPlacement placement)
 {
 	// FIXME: NIMP
 	NSLog(@"*** NSSetFocusRingStyle not implemented ***");
+	// what should it do?
+	// according to http://lists.apple.com/archives/cocoa-de...t/msg01602.html
+	// it should draw the focus ring around the current clipping rect
+	// or does it only set the colors and patterns
+	// and change the clippingRect so that one can draw around?
+	switch(placement)
+		{
+			case NSFocusRingOnly:
+			case NSFocusRingBelow:
+			case NSFocusRingAbove:
+				break;
+		}
 }
 
 void NSWindowList(int size, int list[])

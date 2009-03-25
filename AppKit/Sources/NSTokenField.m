@@ -25,6 +25,20 @@
 
 @implementation NSTokenAttachment
 
+- (void) encodeWithCoder:(NSCoder *) coder;
+{
+	NIMP;
+}
+
+- (id) initWithCoder:(NSCoder *) coder;
+{
+	if((self=[super initWithCoder:coder]))
+			{
+				// NS.delegate
+			}
+	return self;
+}
+
 @end
 
 @interface NSTokenAttachmentCell : NSTextAttachmentCell <NSCoding>
@@ -50,6 +64,7 @@
 		{
 //	_fileWrapper=[[coder decodeObjectForKey:@"NSFileWrapper"] retain];
 //	_cell=[[coder decodeObjectForKey:@"NSCell"] retain];
+//	NSRepresentedObject
 		}
 	return self;
 }
@@ -105,6 +120,7 @@
 		_tokenizingCharacterSet=[[coder decodeObjectForKey:@"NSTokenizingCharacterSet"] retain];
 		_completionDelay=[coder decodeDoubleForKey:@"NSCompletionDelay"];
 		_tokenStyle=[coder decodeIntForKey:@"NSTokenStyle"];
+			// NS.representedObjects
 #if 0
 		NSLog(@"%@ initWithCoder done:%@", self, coder);
 #endif
@@ -115,5 +131,20 @@
 @end /* NSTokenFieldCell */
 
 @implementation NSTokenField
+
+- (id) initWithCoder:(NSCoder *) coder;
+{
+	if((self=[super initWithCoder:coder]))
+			{
+#if 0
+				NSLog(@"%@ initWithCoder:%@", self, coder);
+#endif
+				// NSTokenFieldVersion
+#if 0
+				NSLog(@"%@ initWithCoder done:%@", self, coder);
+#endif
+			}
+	return self;
+}
 
 @end /* NSTokenField */

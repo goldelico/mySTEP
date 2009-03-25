@@ -261,21 +261,13 @@ static Class __controlCellClass = Nil;
 - (void) drawCell:(NSCell*)aCell
 {
 	if (_cell == aCell)
-		{
-		[self lockFocus];
 		[_cell drawWithFrame:_bounds inView:self];
-		[self unlockFocus];
-		}
 }
 
 - (void) drawCellInside:(NSCell*)aCell
 {
 	if (_cell == aCell)
-		{
-		[self lockFocus];
 		[_cell drawInteriorWithFrame:_bounds inView:self];
-		[self unlockFocus];
-		}
 }
 
 - (void) selectCell:(NSCell*)aCell			

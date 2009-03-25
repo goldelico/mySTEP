@@ -304,7 +304,6 @@
 							}
 						[[NSColor lightGrayColor] set];
 						[b stroke];	// stroke border line
-						[b release];
 					}
 				case NSNoBorder:
 					break;
