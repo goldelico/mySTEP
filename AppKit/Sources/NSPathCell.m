@@ -45,7 +45,7 @@
 
 - (void) drawWithFrame:(NSRect) cellFrame inView:(NSView *) controlView
 {
-	[_backgroundColor set];
+	[(_backgroundColor?_backgroundColor:[NSColor controlHighlightColor]) set];
 	NSRectFill(cellFrame);
 	if(_pathStyle != NSPathStylePopUp)
 		; // draw popup icon
@@ -58,12 +58,10 @@
 			NSRect m = [self rectOfPathComponentCell:cell withFrame:cellFrame inView:controlView];
 			[cell drawWithFrame:m inView:controlView];
 			// draw item separator(s)
-			if (cell != nil){
-				//draw the separator...
-				[[NSColor grayColor] setFill];
-				NSSize cellSize = [cell cellSize];
-				
+			if (cell != nil) { // draw the separator...
+				NSSize cellSize = [cell cellSize];				
 				NSRect sepRect = NSMakeRect(m.origin.x+cellSize.width, m.origin.y, 8.0, cellSize.height);
+				[[NSColor grayColor] setFill];
 				[[NSBezierPath bezierPathWithOvalInRect:sepRect] fill];
 			}
 		}
@@ -149,11 +147,11 @@
 - (void) setObjectValue:(id <NSCopying>) obj;
 {
 	if([(NSObject *) obj isKindOfClass:[NSString class]])
-		[self setURL:[NSURL fileURLWithPath:(NSString *) obj]];	// convert to file URL
+		[self setURL:[NSURL fileURLWithPath:(NSString *) obj]];	// convert to file URL and calls [super setObjectValue]
 	else
 	{
 		NSAssert([(id) obj isKindOfClass:[NSURL class]], @"setObjectValue expects NSURL or NSString");
-		[self setURL:(NSURL *) obj];
+		[self setURL:(NSURL *) obj];	// calls [super setObjectValue]
 	}
 }
 
@@ -174,39 +172,38 @@
 {
 	int i;
 	if (url != nil) {
-		NSMutableArray *cells=[NSMutableArray arrayWithCapacity:10];
-		NSArray *partialURLStrings = [[url path] pathComponents]; //get Array of Path parts
-		
-		// loop over path components
-		for(i =0;i<[partialURLStrings count];i++){
-			NSPathComponentCell *cell=[[[[self class] pathComponentCellClass] alloc] init];
-			NSURL *partialURL = [[NSURL alloc] initWithString:[partialURLStrings objectAtIndex:i]];
-			[cell setURL:partialURL];
-			if([partialURL isFileURL]) 
-			{
-				//Get the icon of the file
-				NSImage *icon=[[NSWorkspace sharedWorkspace] iconForFile:[partialURL path]];
-				if(icon)
-				{
-					
-					if(_pathStyle == NSPathStyleNavigationBar)
-						[icon setSize:NSMakeSize(14.0, 14.0)];
-					else
-						[icon setSize:NSMakeSize(16.0, 16.0)];
-					[cell setImage:icon];
+		BOOL isFile=[url isFileURL];
+		NSArray *pathComponents = [[url path] pathComponents]; // get Array of Path parts
+		unsigned cnt = [pathComponents count];
+		NSMutableArray *cells=[NSMutableArray arrayWithCapacity:cnt];
+		NSString *partialURLString=@"/";
+		for(i=0; i<cnt; i++)
+				{ // loop over all path components and create a cell for each one
+					NSPathComponentCell *cell = [[[[self class] pathComponentCellClass] alloc] init];
+					NSURL *partialURL;
+					partialURLString = [partialURLString stringByAppendingPathComponent:[pathComponents objectAtIndex:i]];	// add next component
+					partialURL = [[NSURL alloc] initWithString:partialURLString];	// should include scheme, host etc.
+					[cell setURL:partialURL];
+					if(isFile) 
+							{
+								// Get the icon of the file
+								NSImage *icon=[[NSWorkspace sharedWorkspace] iconForFile:[partialURL path]];
+								if(icon)
+										{
+											if(_pathStyle == NSPathStyleNavigationBar)
+												[icon setSize:NSMakeSize(14.0, 14.0)];
+											else
+												[icon setSize:NSMakeSize(16.0, 16.0)];
+											[cell setImage:icon];
+										}
+							}
+					[cells addObject:cell];
+					[cell release];
+					[partialURL release];
 				}
-			}
-			[cells addObject:cell];
-			[cell release];
-			[partialURL release];
-		}
 		[self setPathComponentCells:cells];
-		[super setObjectValue:url];
-		[cells release];
-		[partialURLStrings release];
-		
+		[super setObjectValue:url];	// store URL as object value
 	}
-	
 }
 
 - (NSURL *) URL; { return [self objectValue]; }
@@ -258,12 +255,12 @@
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
-	if([super init]) {
-		[self setAllowedTypes:[coder decodeObjectForKey:@"allowedTypes"]];
-		[self setBackgroundColor:[coder decodeObjectForKey:@"backgroundColor"]];
-		[self setPathComponentCells:[coder decodeObjectForKey:@"componentCells"]];
-		[self setPlaceholderAttributedString:[coder decodeObjectForKey:@"placeholderAttributedString"]];
-		
+	if((self = [super initWithCoder:coder]))
+			{
+				[self setAllowedTypes:[coder decodeObjectForKey:@"allowedTypes"]];
+				[self setBackgroundColor:[coder decodeObjectForKey:@"backgroundColor"]];
+				[self setPathComponentCells:[coder decodeObjectForKey:@"componentCells"]];
+				[self setPlaceholderAttributedString:[coder decodeObjectForKey:@"placeholderAttributedString"]];
 	}
 	return self;
 }

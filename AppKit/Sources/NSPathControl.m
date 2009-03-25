@@ -18,7 +18,7 @@ static Class __controlCellClass = Nil;
 + (void) initialize
 {
 	if (self == [NSPathControl class])
-		__controlCellClass = [NSPathCell pathComponentCellClass];
+		__controlCellClass = [NSPathCell class];
 }
 
 + (Class) cellClass						{ return __controlCellClass; }
@@ -63,7 +63,7 @@ static Class __controlCellClass = Nil;
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
-	return self;
+	return [super initWithCoder:coder];
 }
 
 @end
