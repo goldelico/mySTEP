@@ -146,7 +146,7 @@ static NSDictionary *_mimeExtensions;
 
 - (NSString *) description;
 {
-#if 1
+#if 0
 	NSLog(@"super descr=%@", [super description]);
 	NSLog(@"headers=%@", _headerFields);
 #endif

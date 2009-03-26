@@ -3,7 +3,7 @@
 //  mySTEP
 //
 //  Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
-//  Copyright (c) 2006 DSITRI. All rights reserved.
+//			Copyright (c) 2006-2009 Golden Delicous Computers. All rights reserved.
 //
 
 #import <Foundation/NSURLProtocol.h>
@@ -19,15 +19,11 @@
 
 @class _NSHTTPURLProtocol;
 
-#define USE_GZIP 0
+#define CAN_GZIP 0
 
 @interface _NSHTTPSerialization : NSObject
-{ // http://www.faqs.org/ftp/rfc/rfc2616.pdf
-	NSMutableArray *_requestQueue;		// all queued requests
-	NSTimer *_timeout;								// automatic connection close
-	
-	NSMutableArray *_runLoopsAndModes;	// runloops and modes to schedule (currently not implemented)
-		
+{ // for handling a single protocol entity according to http://www.faqs.org/ftp/rfc/rfc2616.pdf
+	NSMutableArray *_requestQueue;		// all queued requests		
 	_NSHTTPURLProtocol *_currentRequest;	// current request
 	// sending
 	NSOutputStream *_outputStream;
@@ -57,7 +53,11 @@
 @interface _NSHTTPURLProtocol : NSURLProtocol
 {
 	_NSHTTPSerialization /* nonretained */ *_connection;	// where we have been queued up
+	NSMutableArray *_runLoops;				// additional runloops to schedule
+	NSMutableArray *_modes;						// additional modes to schedule
 }
+
+- (NSString *) _uniqueKey;	// a key to identify the same server connection
 
 - (void) _setConnection:(_NSHTTPSerialization *) connection;
 - (_NSHTTPSerialization *) _connection;
@@ -191,7 +191,7 @@ static NSMutableArray *_registeredClasses;
 				[self stopLoading];
 				[_request release];
 				[_cachedResponse release];
-				//	[(NSObject *) _client release];
+				// [(NSObject *) _client release];
 			}
 	[super dealloc];
 }
@@ -225,15 +225,31 @@ static NSMutableArray *_registeredClasses;
 // http://www.io.com/~maus/HttpKeepAlive.html
 // http://java.sun.com/j2se/1.5.0/docs/guide/net/http-keepalive.html
 
-static NSMutableArray *_httpConnections;
+static NSMutableDictionary *_httpConnections;
 
 + (_NSHTTPSerialization *) serializerForProtocol:(_NSHTTPURLProtocol *) protocol;
 { // get connection queue for handling this request (may create a new one)
-	// check if we have a known connection to the server:port(protocol) and matching runloop modes
-	// if not, create a new one
-	// we should skip serializer where the _shouldClose or _willClose flag is set!
-	// FIXME: we create a new connection for each request
-	return [self new];
+	NSString *key=[protocol _uniqueKey];
+	_NSHTTPSerialization *ser=[_httpConnections objectForKey:key];	// could also store an array!
+	if(!ser)
+			{ // not found
+				ser=[self new];
+#if 1
+				NSLog(@"%@: new serializer %@", key, ser);
+#endif
+				if(!_httpConnections)
+					_httpConnections=[[NSMutableDictionary alloc] initWithCapacity:10];
+				// we also may open several serializers for the same combination but HTTP 1.1 recommends to use no more than 2 in parallel
+				[_httpConnections setObject:ser forKey:key];
+				[ser release];
+			}
+#if 1
+		else
+				{
+					NSLog(@"%@: reuse serializer %@", key, ser);
+				}
+#endif
+	return ser;
 }
 
 - (id) init
@@ -248,6 +264,7 @@ static NSMutableArray *_httpConnections;
 
 - (void) dealloc;
 {
+	NSAssert([_requestQueue count] == 0, @"unprocessed requests left over!");	// otherwise we loose requests
 	[_requestQueue release];
 #if 1
 	NSLog(@"dealloc %@", self);
@@ -263,14 +280,17 @@ static NSMutableArray *_httpConnections;
 
 - (void) endOfUseability
 {
+#if 1
+	NSLog(@"endOfUseability %@", self);
+#endif
 	[_inputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 	[_inputStream close];
 	[_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 	[_outputStream close];
 	_inputStream=nil;
 	_outputStream=nil;
-	// remove us from the list of active connections
-	// requeue all waiting requests
+	[_httpConnections removeObjectForKey:[_currentRequest _uniqueKey]];	// remove us from the list of active connections
+	[_requestQueue makeObjectsPerformSelector:@selector(_restartLoading)];	// this removes them from the queue and reschedules in a new queue
 }	
 
 - (void) connectToServer
@@ -325,11 +345,11 @@ static NSMutableArray *_httpConnections;
 		[_outputStream open];
 		[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];	// and schedule for reception
 		// we should also set a timeout if the connection can't be established within some time
+		// well, the underlaying _outputStream should already timeout after 60 seconds
 	}		
 
-- (void) startLoadingNext
+- (void) startLoadingNextRequest
 {
-	// FIXME: find next non-stopped request (if any)
 	NSURLProtocol *protocol=[_requestQueue objectAtIndex:0];
 	NSURLRequest *request=[protocol request];
 	NSURL *url=[request URL];
@@ -341,16 +361,20 @@ static NSMutableArray *_httpConnections;
 	NSString *key;
 	NSString *header;
 	NSCachedURLResponse *cachedResponse;
+	[_currentRequest release];	// release any done request
 	_currentRequest=[protocol retain];
-	[_requestQueue removeObjectAtIndex:0];	// remove first
+	[_requestQueue removeObjectAtIndex:0];	// remove from queue
 	if(!_outputStream)
-		[self connectToServer];
+		[self connectToServer];	// connect to server
 #if 1
 	NSLog(@"startLoading: %@ on %@", _currentRequest, self);
 #endif
 	headerData=[[NSMutableData alloc] initWithCapacity:200];
 	header=[NSString stringWithFormat:@"%@ %@ HTTP/1.1\r\n", method, [path length] > 0?[path stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]:@"/"];
-	[headerData appendData:[header dataUsingEncoding:NSUTF8StringEncoding]];
+#if 1
+	NSLog(@"request: %@", header);
+#endif
+	[headerData appendData:[header dataUsingEncoding:NSUTF8StringEncoding]];	// CHECKME:
 	// CHECKME: what about lower/uppercase in the user provided header fields???
 	requestHeaders=[[request allHTTPHeaderFields] mutableCopy];		// start with the provided headers first so that we can overwrite and remove spurious headers
 	if(!requestHeaders) requestHeaders=[[NSMutableDictionary alloc] initWithCapacity:5];	// no headers provided by request
@@ -375,31 +399,20 @@ static NSMutableArray *_httpConnections;
 				if(lastModified)
 					[requestHeaders setObject:lastModified forKey:@"If-Modified-Since"];	// copy into the new request
 			}
-	// remove headers we should NEVER send if we want to conform to HTTP 1.1
-	// ...
-	
-	/*
-	 * HTTP 1.0 also defines (but we ignore!)
-	 * Connection = "Keep-Alive";
-	 * "Keep-Alive" = "timeout=3, max=100";
-	 */
-	
-#if OLD
-	_canKeepAlive=[request HTTPBodyStream] == nil;	// we don't know the length in advance
-	_canKeepAlive=NO;	// FIXME: does not correctly work
-	if(_canKeepAlive && [request HTTPBody])
-			{ // we should know the body length so that we can keep the connection alive
-				unsigned long bodyLength=[[request HTTPBody] length];
-				[requestHeaders setObject:[NSString stringWithFormat:@"%lu", bodyLength] forKey:@"Content-Length"];
-			}
-#endif
-#if USE_GZIP
+#if CAN_GZIP
 	[requestHeaders setObject:@"identity, gzip" forKey:@"Accept-Encoding"];	// set what we can uncompress
 #else
 	[requestHeaders setObject:@"identity" forKey:@"Accept-Encoding"];
 #endif
-	[requestHeaders setObject:@"chunked" forKey:@"Transfer-Encoding"];	// how we encode (gzip, compress, deflate)
+	if([request HTTPBodyStream])
+		[requestHeaders setObject:@"chunked" forKey:@"Transfer-Encoding"];	// we must send chunked because we don't know the length in advance
+	else if([request HTTPBody])
+			{ // fixed NSData object
+				unsigned long bodyLength=[[request HTTPBody] length];
+				[requestHeaders setObject:[NSString stringWithFormat:@"%lu", bodyLength] forKey:@"Content-Length"];
+			}
 //	[requestHeaders setObject:@"identity" forKey:@"TE"];	// what we accept in responses
+	[requestHeaders removeObjectForKey:@"Keep-Alive"];	// HHTP 1.0 feature
 #if 1
 	NSLog(@"headers to send: %@", requestHeaders);
 #endif
@@ -427,6 +440,7 @@ static NSMutableArray *_httpConnections;
 	if(!_bodyStream && [request HTTPBody])
 		_bodyStream=[[NSInputStream alloc] initWithData:[request HTTPBody]];	// prepare to send request body NSData object
 	[_bodyStream open];
+	[requestHeaders release];	// dictionary no more needed
 #if 1
 	NSLog(@"ready to send");
 #endif
@@ -438,10 +452,10 @@ static NSMutableArray *_httpConnections;
 - (void) startLoading:(_NSHTTPURLProtocol *) proto;
 { // add to queue
 	[[proto _connection] stopLoading:proto];	// remove from other queue (if any)
-	[_requestQueue addObject:proto];	// append
+	[_requestQueue addObject:proto];	// append to our queue
 	[proto _setConnection:self];
 	if(!_currentRequest)
-			[self startLoadingNext];
+			[self startLoadingNextRequest];	// is the first request we are waiting for
 }
 
 - (void) stopLoading:(_NSHTTPURLProtocol *) proto;
@@ -449,7 +463,8 @@ static NSMutableArray *_httpConnections;
 	[proto _setConnection:nil];
 	if(_currentRequest == proto)
 			{
-				// really cancel
+				// FIXME: really cancel
+				// at least stop from delivering any notifications to the client
 			}
 	[_requestQueue removeObject:proto];
 }
@@ -520,7 +535,7 @@ static NSMutableArray *_httpConnections;
 									}
 							_headers=[[NSMutableDictionary alloc] initWithCapacity:10];	// start collecting headers
 #if 1
-							NSLog(@"Received header: %@", line);
+							NSLog(@"Received response: %@", line);
 #endif
 							return;	// process next line
 						}
@@ -786,13 +801,22 @@ static NSMutableArray *_httpConnections;
 	[super dealloc];
 }
 
+- (NSString *) _uniqueKey;
+{ // all requests with the same uniqueKey *can* be multiplexed over a kept-alive HTTP 1.1 channel
+	NSURL *url=[_request URL];
+	return [NSString stringWithFormat:@"%@://%@:%@", [url scheme], [url host], [url port]];	// we can ignore user&password since HTTP does
+}
+
 - (void) _setConnection:(_NSHTTPSerialization *) c; { _connection=c; }	// our shared connection
 - (_NSHTTPSerialization *) _connection; { return _connection; }
 
 - (void) _restartLoading
 {
+#if 1
+	NSLog(@"_restartLoading %@", self);
+#endif
 	[_connection stopLoading:self];	// remove from current queue
-	[[_NSHTTPSerialization serializerForProtocol:self] startLoading:self];	// and reschedule (on same or other queue)
+	[[_NSHTTPSerialization serializerForProtocol:self] startLoading:self];	// and reschedule (on same or other some other queue)
 }
 
 - (void) startLoading;
@@ -819,18 +843,22 @@ static NSMutableArray *_httpConnections;
 				[_client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"Invalid HTTP Method" code:0 userInfo:nil]];
 				return;
 			}
+	if(_cachedResponse)
+			{
 	/*
 	 if we have a cached response
-	 and that one has an "Expires" date or a Cache-Control with max-age
+	 and that one has an "Expires" date or a "Cache-Control" with a max-age parameter
 	 and it is still valid,
-	 directly respond from the cached response without askin the server
+	 directly respond from the cached response without contacting the server
 	 */
+			}
 	[[_NSHTTPSerialization serializerForProtocol:self] startLoading:self];	// add our request to (new) queue
 }
 
 - (void) stopLoading;
 {
 	[_connection stopLoading:self];	// interrupt and/or remove us from the queue
+	// _client=nil?
 }
 
 - (void) didFailWithError:(NSError *) error;
@@ -858,7 +886,7 @@ static NSMutableArray *_httpConnections;
 				return;	// continue - ignore
 			case 401:
 				{
-					// FIXME: get challenge from headers
+					// FIXME: read auth challenge from HTTP headers
 					NSURLAuthenticationChallenge *chall=nil;
 					[_client URLProtocol:self didReceiveAuthenticationChallenge:chall];
 					// retry or abort?
@@ -868,8 +896,7 @@ static NSMutableArray *_httpConnections;
 				// notify client and add authentication info + repeat
 				break;
 			case 503:	// retry
-				// check if within reasonable time and then repeat
-				// retry-after
+				// check if within reasonable future (retry-after) and then repeat
 				break;
 			case 304:
 				[_client URLProtocol:self cachedResponseIsValid:_cachedResponse];	// will get data from cache
@@ -884,11 +911,8 @@ static NSMutableArray *_httpConnections;
 			}
 	[_client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:0];	// notify client
 	
-	/*
+	/* how do we generate these:
 	 - (void) URLProtocol:(NSURLProtocol *) proto didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *) chall;
-	 - (void) URLProtocol:(NSURLProtocol *) proto didReceiveResponse:(NSURLResponse *) response cacheStoragePolicy:(NSURLCacheStoragePolicy) policy;
-	 - (void) URLProtocol:(NSURLProtocol *) proto wasRedirectedToRequest:(NSURLRequest *) request redirectResponse:(NSURLResponse *) redirectResponse;
-	 - (void) URLProtocolDidFinishLoading:(NSURLProtocol *) proto;
 	 */
 	
 }

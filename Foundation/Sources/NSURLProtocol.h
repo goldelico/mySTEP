@@ -3,7 +3,7 @@
     mySTEP
 
     Created by Dr. H. Nikolaus Schaller on Wed Jan 04 2006.
-    Copyright (c) 2006 DSITRI. All rights reserved.
+    Copyright (c) 2006-2009 Golden Delicous Computers. All rights reserved.
  
     Fabian Spillner, July 2008 - API revised to be coompatible to 10.5
 */
