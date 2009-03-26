@@ -269,11 +269,11 @@ static NSMutableDictionary *_httpConnections;
 #if 1
 	NSLog(@"dealloc %@", self);
 #endif
-	[_headerLine release];	// if left over
-	[_headers release];		// received headers
-	[_headerStream release];			// for sending the header
+	[_headerLine release];			// if left over
+	[_headers release];					// received headers
+	[_headerStream release];		// for sending the header
 	[_bodyStream release];			// for sending the body
-	[_inputStream release];
+	[_inputStream release];			// if still sitting around
 	[_outputStream release];
 	[super dealloc];
 }
@@ -284,16 +284,18 @@ static NSMutableDictionary *_httpConnections;
 	NSLog(@"endOfUseability %@", self);
 #endif
 	[_inputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-	[_inputStream close];
-	[_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-	[_outputStream close];
+	[_inputStream release];
 	_inputStream=nil;
+	[_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+	[_outputStream release];
 	_outputStream=nil;
+	[self retain];	// the next line would otherwise -dealloc
 	[_httpConnections removeObjectForKey:[_currentRequest _uniqueKey]];	// remove us from the list of active connections
 	[_requestQueue makeObjectsPerformSelector:@selector(_restartLoading)];	// this removes them from the queue and reschedules in a new queue
+	[self autorelease];
 }	
 
-- (void) connectToServer
+- (BOOL) connectToServer
 	{ // we have no open connection yet
 		NSURLRequest *request=[_currentRequest request];
 		NSURL *url=[request URL];
@@ -301,21 +303,18 @@ static NSMutableDictionary *_httpConnections;
 		NSHost *host=[NSHost hostWithName:[url host]];		// try to resolve (NOTE: this may block for some seconds! Therefore, the resolver should be run in a separate thread!
 		int port=[[url port] intValue];
 		if(!host) host=[NSHost hostWithAddress:[url host]];	// try dotted notation
-//		if(!host) host=[NSHost hostWithAddress:@"127.0.0.1"];	// final default (???)
 		if(!host)
-				{
+				{ // still not resolved
 					[_currentRequest didFailWithError:[NSError errorWithDomain:@"can't connect" code:0 userInfo:
 																																			 [NSDictionary dictionaryWithObjectsAndKeys:
 																																				url, @"NSErrorFailingURLKey",
 																																				[url absoluteString], @"NSErrorFailingURLStringKey",
 																																				@"can't resolve host name", @"NSLocalizedDescription",
 																																				nil]]];
-					return;
+					return NO;
 				}
 		if(!port) port=isHttps?433:80;	// default port if none is specified
 		[NSStream getStreamsToHost:host port:port inputStream:&_inputStream outputStream:&_outputStream];
-		[_inputStream retain];
-		[_outputStream retain];	// dealloc will do a release
 		if(!_inputStream || !_outputStream)
 				{ // error opening the streams
 #if 1
@@ -327,8 +326,12 @@ static NSMutableDictionary *_httpConnections;
 																																 host, @"NSErrorFailingURLStringKey",
 																																 @"can't open connections to host", @"NSLocalizedDescription",
 																																 nil]]];
-					return;
+					_inputStream=nil;
+					_outputStream=nil;
+					return NO;
 				}
+		[_inputStream retain];
+		[_outputStream retain];	// endOfUseability will do a release
 		[_inputStream setDelegate:self];
 		[_outputStream setDelegate:self];
 		if(isHttps)
@@ -344,8 +347,7 @@ static NSMutableDictionary *_httpConnections;
 		[_inputStream open];
 		[_outputStream open];
 		[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];	// and schedule for reception
-		// we should also set a timeout if the connection can't be established within some time
-		// well, the underlaying _outputStream should already timeout after 60 seconds
+		return YES;
 	}		
 
 - (void) startLoadingNextRequest
@@ -364,8 +366,11 @@ static NSMutableDictionary *_httpConnections;
 	[_currentRequest release];	// release any done request
 	_currentRequest=[protocol retain];
 	[_requestQueue removeObjectAtIndex:0];	// remove from queue
-	if(!_outputStream)
-		[self connectToServer];	// connect to server
+	if(!_outputStream && ![self connectToServer])	// connect to server
+			{
+				[self endOfUseability];
+				return;	// we can't connect
+			}
 #if 1
 	NSLog(@"startLoading: %@ on %@", _currentRequest, self);
 #endif
@@ -433,9 +438,8 @@ static NSMutableDictionary *_httpConnections;
 	_headerStream=[[NSInputStream alloc] initWithData:headerData];	// convert into a stream
 	[headerData release];
 	[_headerStream open];
-	_shouldClose=[[requestHeaders objectForKey:@"Connection"] caseInsensitiveCompare:@"close"] == NSOrderedSame;	// close after sending the request
-	_sendChunked=[[_headers objectForKey:@"Transfer-Encoding"] caseInsensitiveCompare:@"chunked"] == NSOrderedSame;
-	
+	_shouldClose=(header=[requestHeaders objectForKey:@"Connection"]) && [header caseInsensitiveCompare:@"close"] == NSOrderedSame;	// close after sending the request
+	_sendChunked=(header=[requestHeaders objectForKey:@"Transfer-Encoding"]) && [header caseInsensitiveCompare:@"chunked"] == NSOrderedSame;
 	_bodyStream=[[request HTTPBodyStream] retain];	// if provided as a stream object
 	if(!_bodyStream && [request HTTPBody])
 		_bodyStream=[[NSInputStream alloc] initWithData:[request HTTPBody]];	// prepare to send request body NSData object
@@ -475,15 +479,15 @@ static NSMutableDictionary *_httpConnections;
 	NSString *clen;	// content length
 	NSURLRequest *request=[_currentRequest request];
 	NSURL *url=[request URL];
-	NSString *encoding;
+	NSString *header;
 	if([request HTTPShouldHandleCookies])
 			{ // auto-process cookies if requested
 				NSArray *cookies=[NSHTTPCookie cookiesWithResponseHeaderFields:_headers forURL:url];
 				[[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:cookies forURL:url mainDocumentURL:url];
 			}
-	if((encoding=[_headers objectForKey:@"content-encoding"]))
+	if((header=[_headers objectForKey:@"content-encoding"]))
 			{ // handle header compression
-				if([encoding  isEqualToString:@"gzip"])
+				if([header isEqualToString:@"gzip"])
 					NSLog(@"body is gzip compressed");
 				// we should simply add _zip / _unzip / _inflate / _deflate for GZIP to NSData
 				// we must do that here since we receive the stream here
@@ -493,8 +497,8 @@ static NSMutableDictionary *_httpConnections;
 	clen=[_headers objectForKey:@"content-length"];
 	_hasContentLength=(clen != nil);
 	_contentLength = [clen longLongValue];
-	_isChunked=[[_headers objectForKey:@"transfer-encoding"] caseInsensitiveCompare:@"chunked"] == NSOrderedSame;
-	_shouldClose=[[_headers objectForKey:@"Connection"] caseInsensitiveCompare:@"close"] == NSOrderedSame;	// will close after completing the request
+	_isChunked=(header=[_headers objectForKey:@"transfer-encoding"]) && [header caseInsensitiveCompare:@"chunked"] == NSOrderedSame;
+	_shouldClose=(header=[_headers objectForKey:@"Connection"]) && [header caseInsensitiveCompare:@"close"] == NSOrderedSame;	// will close after completing the request
 	response=[[[NSHTTPURLResponse alloc] _initWithURL:url headerFields:_headers andStatusCode:_statusCode] autorelease];
 	[_currentRequest didReceiveResponse:response];
 	_readingBody = !(_statusCode/100 == 1 || _statusCode == 204 || _statusCode == 304 || [[request HTTPMethod] isEqualToString:@"HEAD"]);		// decide if we expect to receive a body
@@ -509,6 +513,10 @@ static NSMutableDictionary *_httpConnections;
 	[_currentRequest didFinishLoading];
 	[_headers release];	// have been stored in NSHTTPURLResponse
 	_headers=nil;
+	[_currentRequest release];
+	_currentRequest=nil;
+	if([_requestQueue count] > 0)
+		[self startLoadingNextRequest];	// and send next request from queue
 }
 
 - (void) processHeaderLine:(NSString *) line;
@@ -701,6 +709,9 @@ static NSMutableDictionary *_httpConnections;
 													}
 											return;	// done sending next chunk
 										}
+#if 1
+								NSLog(@"header completely sent");
+#endif
 								[_headerStream close];
 								[_headerStream release];	// done sending header
 								_headerStream=nil;
@@ -727,20 +738,23 @@ static NSMutableDictionary *_httpConnections;
 											return;	// done
 										}
 #if 1
-								NSLog(@"request sent completely");
+								NSLog(@"body completely sent");
 #endif
 								[_bodyStream close];	// close body stream (if open)
 								[_bodyStream release];
 								_bodyStream=nil;
 							}
-					if(!_shouldClose)	// we have announced Connection: close
-							{
-								NSLog(@"can't keep alive because we announced Connection: close");
+					if(_shouldClose)
+							{	// we have announced Connection: close
+#if 1
+								NSLog(@"can't keep connection alive because we announced Connection: close");
+#endif
 								[_outputStream close];
+								[_outputStream release];
+								_outputStream=nil;
 							}
 					else
-						// Timer aufziehen oder warten wir auf den Server-Timeout?
-					[_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];	// unschedule
+						[_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];	// unschedule until we send the next request
 					return;
 				}
 			case NSStreamEventEndEncountered:
