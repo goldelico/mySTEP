@@ -182,12 +182,14 @@
 					NSPathComponentCell *cell = [[[[self class] pathComponentCellClass] alloc] init];
 					NSURL *partialURL;
 					partialURLString = [partialURLString stringByAppendingPathComponent:[pathComponents objectAtIndex:i]];	// add next component
-					partialURL = [[NSURL alloc] initWithString:partialURLString];	// should include scheme, host etc.
-					[cell setURL:partialURL];
+					if(isFile)
+						partialURL = [NSURL fileURLWithPath:partialURLString];
+					else
+						// FIXME: this does not cover all legal cases, e.g. user&password included, empty host name etc.
+						partialURL = [[NSURL alloc] initWithString:[NSString stringWithFormant:@"%@://%@%@", [url scheme], [url host] /* FIXME: , [url port] */, partialURLString];	// should include scheme, host etc.
 					if(isFile) 
-							{
-								// Get the icon of the file
-								NSImage *icon=[[NSWorkspace sharedWorkspace] iconForFile:[partialURL path]];
+							{ // Get the icon of the file
+								NSImage *icon=[[NSWorkspace sharedWorkspace] iconForFile:partialURLString]];
 								if(icon)
 										{
 											if(_pathStyle == NSPathStyleNavigationBar)
@@ -197,6 +199,7 @@
 											[cell setImage:icon];
 										}
 							}
+					[cell setURL:partialURL];
 					[cells addObject:cell];
 					[cell release];
 					[partialURL release];
