@@ -305,8 +305,8 @@ static NSMutableDictionary *_httpConnections;
 		if(!host) host=[NSHost hostWithAddress:[url host]];	// try dotted notation
 		if(!host)
 				{ // still not resolved
-					[_currentRequest didFailWithError:[NSError errorWithDomain:@"can't connect" code:0 userInfo:
-																																			 [NSDictionary dictionaryWithObjectsAndKeys:
+					[_currentRequest didFailWithError:[NSError errorWithDomain:@"NSURLErrorDomain" code:-1003
+																														userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
 																																				url, @"NSErrorFailingURLKey",
 																																				[url absoluteString], @"NSErrorFailingURLStringKey",
 																																				@"can't resolve host name", @"NSLocalizedDescription",
@@ -320,8 +320,8 @@ static NSMutableDictionary *_httpConnections;
 #if 1
 					NSLog(@"could not create streams for %@:%u", host, [[url port] intValue]);
 #endif
-					[_currentRequest didFailWithError:[NSError errorWithDomain:@"can't connect" code:0 userInfo:
-																																[NSDictionary dictionaryWithObjectsAndKeys:
+					[_currentRequest didFailWithError:[NSError errorWithDomain:@"NSURLErrorDomain" code:-1004
+																														userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
 																																 url, @"NSErrorFailingURLKey",
 																																 host, @"NSErrorFailingURLStringKey",
 																																 @"can't open connections to host", @"NSLocalizedDescription",
