@@ -36,7 +36,7 @@ static NSURLCache *_sharedURLCache;
 				NSError *error;
 				if(![[NSFileManager defaultManager] createDirectoryAtPath:p withIntermediateDirectories:YES attributes:nil error:&error])
 						{ // create directory at path (check for errors)
-							NSLog(@"can't ccreate NSURLCache at %@: %@", p, error);
+							NSLog(@"can't create NSURLCache at %@: %@", p, error);
 							[self release];
 							return nil;
 						}
