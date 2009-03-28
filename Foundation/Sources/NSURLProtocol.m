@@ -264,11 +264,14 @@ static NSMutableDictionary *_httpConnections;
 
 - (void) dealloc;
 {
-	NSAssert([_requestQueue count] == 0, @"unprocessed requests left over!");	// otherwise we loose requests
-	[_requestQueue release];
 #if 1
 	NSLog(@"dealloc %@", self);
+	NSLog(@"  %d", [_httpConnections count]);
 #endif
+	NSAssert([_requestQueue count] == 0, @"unprocessed requests left over!");	// otherwise we loose requests
+	[_currentRequest _setConnection:nil];	// has been processed
+	[_currentRequest release];	// if still stored
+	[_requestQueue release];
 	[_headerLine release];			// if left over
 	[_headers release];					// received headers
 	[_headerStream release];		// for sending the header
@@ -280,6 +283,7 @@ static NSMutableDictionary *_httpConnections;
 
 - (void) endOfUseability
 {
+	NSArray *keys;
 #if 1
 	NSLog(@"endOfUseability %@", self);
 #endif
@@ -290,8 +294,9 @@ static NSMutableDictionary *_httpConnections;
 	[_outputStream release];
 	_outputStream=nil;
 	[self retain];	// the next line would otherwise -dealloc
-	[_httpConnections removeObjectForKey:[_currentRequest _uniqueKey]];	// remove us from the list of active connections
-	[_requestQueue makeObjectsPerformSelector:@selector(_restartLoading)];	// this removes them from the queue and reschedules in a new queue
+	keys=[_httpConnections allKeysForObject:self];	// get all my keys
+	[_httpConnections removeObjectsForKeys:keys];		// remove us from the list of active connections if we are still there
+	[_requestQueue makeObjectsPerformSelector:@selector(_restartLoading)];	// this removes them from the queue and reschedules in a new/different serializer queue
 	[self autorelease];
 }	
 
@@ -368,7 +373,7 @@ static NSMutableDictionary *_httpConnections;
 	[_requestQueue removeObjectAtIndex:0];	// remove from queue
 	if(!_outputStream && ![self connectToServer])	// connect to server
 			{
-				[self endOfUseability];
+				[self endOfUseability];	// current request will be lost
 				return;	// we can't connect
 			}
 #if 1
@@ -513,6 +518,7 @@ static NSMutableDictionary *_httpConnections;
 	[_currentRequest didFinishLoading];
 	[_headers release];	// have been stored in NSHTTPURLResponse
 	_headers=nil;
+	[_currentRequest _setConnection:nil];	// has been processed
 	[_currentRequest release];
 	_currentRequest=nil;
 	if([_requestQueue count] > 0)
