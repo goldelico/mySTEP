@@ -746,18 +746,11 @@ id key, keys = [dictionary keyEnumerator];
     return [[[self alloc] initWithCapacity:aNumItems] autorelease];
 }
 
-- (void) removeObjectsForKeys:(NSArray *)keyArray;
-{
-	NSEnumerator *e=[keyArray objectEnumerator];
-	id key;
-	while((key=[e nextObject]))
-		[self removeObjectForKey:key];
-}
-	
 - (void) addEntriesFromDictionary:(NSDictionary*)otherDictionary; { SUBCLASS; }
 - (id) initWithCapacity:(unsigned int)aNumItems; { return SUBCLASS; }
 - (void) removeAllObjects; { SUBCLASS; }
 - (void) removeObjectForKey:(id)theKey; { SUBCLASS; }
+- (void) removeObjectsForKeys:(NSArray *)keyArray; { SUBCLASS; }
 - (void) setDictionary:(NSDictionary *)otherDictionary; { SUBCLASS; }
 - (void) setObject:(id)anObject forKey:(id)aKey; { SUBCLASS; }
 - (void) setValue:(id)anObject forKey:(NSString *)aKey; { SUBCLASS; }
@@ -826,6 +819,14 @@ id key, keys = [dictionary keyEnumerator];
 
 - (void) removeObjectForKey:(id)aKey	{ NSMapRemove(table, aKey); }
 - (void) removeAllObjects				{ NSResetMapTable(table); }
+
+- (void) removeObjectsForKeys:(NSArray *)keyArray;
+{
+	NSEnumerator *e=[keyArray objectEnumerator];
+	id key;
+	while((key=[e nextObject]))
+		[self removeObjectForKey:key];
+}
 
 - (void) setDictionary:(NSDictionary*)otherDictionary
 {
