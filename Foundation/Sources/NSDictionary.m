@@ -388,45 +388,46 @@ id *mkeys, *mobjs;
 
 - (NSArray*) allKeys
 {
-NSMapEnumerator e = [(NSConcreteDictionary*)self _keyEnumerator];
-int i = 0, count = [self count];
-id key, value, keys[count];
+	NSMapEnumerator e = [(NSConcreteDictionary*)self _keyEnumerator];
+	int count = [self count];
+	id key, value;
+	NSMutableArray *keys=[NSMutableArray arrayWithCapacity:count];
 
     while (NSNextMapEnumeratorPair(&e, (void**)&key, (void**)&value))
-		keys[i++] = key;
+			[keys addObject:key];
 
-    return [[[NSArray alloc] initWithObjects:keys count:i] autorelease];
+   return keys;	// should be made immutable
 }
 
 - (NSArray *) keysSortedByValueUsingSelector:(SEL) comp
 {
-	// FIXME: optimize
+	// FIXME: optimize if possible
 	return [[self allKeys] sortedArrayUsingSelector:comp];
 }
 
 - (NSArray*) allKeysForObject:(id)object
 {
-NSMapEnumerator e = [(NSConcreteDictionary*)self _keyEnumerator];
-int i = 0, count = [self count];
-id key, value, k[count];
-
-    while (NSNextMapEnumeratorPair(&e, (void**)&key, (void**)&value))
+	NSMapEnumerator e = [(NSConcreteDictionary*)self _keyEnumerator];
+	int count = [self count];
+	id key, value;
+	NSMutableArray *keys=[NSMutableArray arrayWithCapacity:count];
+	while (NSNextMapEnumeratorPair(&e, (void**)&key, (void**)&value))
 		if ([value isEqual:object])
-			k[i++] = key;
-
-    return i ? [[[NSArray alloc] initWithObjects:k count:i] autorelease] : nil;
+			[keys addObject:key];
+    return keys;
 }
 
 - (NSArray*) allValues
 {
-NSMapEnumerator e = [(NSConcreteDictionary*)self _keyEnumerator];
-int i = 0, count = [self count];
-id key, value, values[count];
+	NSMapEnumerator e = [(NSConcreteDictionary*)self _keyEnumerator];
+	int count = [self count];
+	id key, value;
+	NSMutableArray *values=[NSMutableArray arrayWithCapacity:count];
 
     while (NSNextMapEnumeratorPair(&e, (void**)&key, (void**)&value))
-		values[i++] = value;
+			[values addObject:value];
 
-    return [[[NSArray alloc] initWithObjects:values count:i] autorelease];
+    return values;
 }
 
 - (NSEnumerator*) objectEnumerator
@@ -434,22 +435,30 @@ id key, value, values[count];
     return [NSDictionaryObjectEnumerator enumeratorWithDictionary:self];
 }
 
+- (void) getObjects:(id *) objects andKeys:(id *) keys;
+{
+	NSMapEnumerator e = [(NSConcreteDictionary*)self _keyEnumerator];
+	id key, value;
+	while (NSNextMapEnumeratorPair(&e, (void**)&key, (void**)&value))
+		*objects++=value, *keys++=key;
+}
+
 - (NSArray*) objectsForKeys:(NSArray*)keys notFoundMarker:notFoundObj
 {
-int count = [keys count];
-id *objs = objc_malloc(sizeof(id)*count);
-id ret;
-    
-    for (count--; count >= 0; count--) 
-		{
-		id ret = [self objectForKey:[keys objectAtIndex:count]];
-		objs[count] = ret ? ret : notFoundObj;
-		}
-    
-    ret = [[[NSArray alloc] initWithObjects:objs count:count] autorelease];
-    objc_free(objs);
-
-    return ret;
+	int count = [keys count];
+	id *objs = objc_malloc(sizeof(id)*count);
+	id ret;
+	
+	for (count--; count >= 0; count--) 
+			{
+				id ret = [self objectForKey:[keys objectAtIndex:count]];
+				objs[count] = ret ? ret : notFoundObj;
+			}
+	
+	ret = [[[NSArray alloc] initWithObjects:objs count:count] autorelease];
+	objc_free(objs);
+	
+	return ret;
 }
 
 - (BOOL) isEqualToDictionary:(NSDictionary*)other
@@ -737,11 +746,18 @@ id key, keys = [dictionary keyEnumerator];
     return [[[self alloc] initWithCapacity:aNumItems] autorelease];
 }
 
+- (void) removeObjectsForKeys:(NSArray *)keyArray;
+{
+	NSEnumerator *e=[keyArray objectEnumerator];
+	id key;
+	while((key=[e nextObject]))
+		[self removeObjectForKey:key];
+}
+	
 - (void) addEntriesFromDictionary:(NSDictionary*)otherDictionary; { SUBCLASS; }
 - (id) initWithCapacity:(unsigned int)aNumItems; { return SUBCLASS; }
 - (void) removeAllObjects; { SUBCLASS; }
 - (void) removeObjectForKey:(id)theKey; { SUBCLASS; }
-- (void) removeObjectsForKeys:(NSArray *)keyArray; { SUBCLASS; }
 - (void) setDictionary:(NSDictionary *)otherDictionary; { SUBCLASS; }
 - (void) setObject:(id)anObject forKey:(id)aKey; { SUBCLASS; }
 - (void) setValue:(id)anObject forKey:(NSString *)aKey; { SUBCLASS; }
