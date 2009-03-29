@@ -133,7 +133,10 @@ build:
 		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_architecture; \
 		done
 
-# override if (stripped) package is build using xcodebuild
+__dummy__:
+	# dummy target to allow for some comments
+	
+	# override if (stripped) package is build using xcodebuild
 
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 # ifneq ($(BUILD_STYLE),Development)
@@ -151,8 +154,8 @@ SEND2ZAURUS := false
 RUN := false
 endif
 
-ifeq ($(OPTIMIZE),)
 	# default to optimize depending on BUILD_STYLE
+ifeq ($(OPTIMIZE),)
 ifeq ($(BUILD_STYLE),Development)
 OPTIMIZE := s
 else
@@ -283,13 +286,13 @@ endif
 
 install_remote:
 ifneq ($(SEND2ZAURUS),false)
-	# install on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH) 
 	ls -l "$(BINARY)"
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && tar xpzvf -"
 else
 		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
 endif
+	# installed on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH)
 else
 	# don't install on $(IP_ADDR)
 endif
@@ -297,16 +300,14 @@ endif
 launch_remote:
 ifneq ($(SEND2ZAURUS),false)
 ifneq ($(RUN),false)
-	# try to launch $(RUN)
-	if [ "$(WRAPPER_EXTENSION)" = app ] ; then \
-                defaults write com.apple.x11 nolisten_tcp false; \
-				open -a X11; \
-				export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(IP_ADDR) && \
-		ssh -l root $(IP_ADDR) \
-		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=memory; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" || echo failed to run; \
-	fi
-else
-	# don't try to launch
+ifeq ($(WRAPPER_EXTENSION),app)
+	# try to launch $(RUN) Application
+	defaults write com.apple.x11 nolisten_tcp false; \
+	open -a X11; \
+	export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(IP_ADDR) && \
+	ssh -l root $(IP_ADDR) \
+		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=memory; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" || echo failed to run;
+endif		
 endif
 endif
 

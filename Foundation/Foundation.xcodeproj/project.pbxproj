@@ -867,7 +867,7 @@
 			name = "Distributed Objects";
 			sourceTree = "<group>";
 		};
-		EE52D6F30B8EEFEC0093595A /* Files & Paths */ = {
+		EE52D6F30B8EEFEC0093595A /* Files & Paths & Streams */ = {
 			isa = PBXGroup;
 			children = (
 				EEA32ED809537D0C001244CF /* NSBundle.h */,
@@ -879,7 +879,7 @@
 				EEA32F4809537D0D001244CF /* NSStream.h */,
 				EEA32F4909537D0D001244CF /* NSStream.m */,
 			);
-			name = "Files & Paths";
+			name = "Files & Paths & Streams";
 			sourceTree = "<group>";
 		};
 		EE52D6F40B8EEFF40093595A /* Formatters */ = {
@@ -1099,7 +1099,7 @@
 				EE52D6EE0B8EEF280093595A /* Container */,
 				EE52D6F00B8EEF540093595A /* Data&Strings */,
 				EE52D6F20B8EEF870093595A /* Distributed Objects */,
-				EE52D6F30B8EEFEC0093595A /* Files & Paths */,
+				EE52D6F30B8EEFEC0093595A /* Files & Paths & Streams */,
 				EE52D6F40B8EEFF40093595A /* Formatters */,
 				EE52D6F80B8EF08A0093595A /* KVC & KVO */,
 				EE52D6FB0B8EF1A30093595A /* Notifications */,

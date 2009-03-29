@@ -368,7 +368,7 @@ static NSUserDefaults *__sharedDefaults = nil;
 	id obj = [self objectForKey:defaultName];
 	if(!obj)
 		return nil;
-	return [obj isKindOfClass:[NSString class]] ? obj : [obj description];
+	return [obj description];
 }
 
 - (void) addSuiteNamed:(NSString *) domain;

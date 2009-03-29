@@ -43,8 +43,8 @@
 {
 	// show attributes
 	if(_name)
-		return [NSString stringWithFormat:@"<%@ %@ %d>%@\n", _name, NSStringFromClass([self class]), _kind, _objectValue?_objectValue:@""];
-	return [NSString stringWithFormat:@"<%@ %d>%@\n", NSStringFromClass([self class]), _kind, _objectValue?_objectValue:@""];
+		return [NSString stringWithFormat:@"<%@ %@ %d>%@\n", _name, NSStringFromClass([self class]), _kind, _objectValue?_objectValue:(id)@""];
+	return [NSString stringWithFormat:@"<%@ %d>%@\n", NSStringFromClass([self class]), _kind, _objectValue?_objectValue:(id)@""];
 }
 
 // should we have mutable dicts for children and attributes?

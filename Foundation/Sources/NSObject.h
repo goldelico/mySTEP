@@ -86,8 +86,6 @@
 + (id) mutableCopyWithZone:(NSZone *) zone;
 + (id) new;
 + (void) poseAsClass:(Class) aClass; // deprecated
-- (BOOL) resolveClassMethod:(SEL) sel;
-- (BOOL) resolveInstanceMethod:(SEL) sel;
 + (void) setVersion:(NSInteger) aVersion;
 + (Class) superclass;
 + (NSInteger) version;
@@ -104,6 +102,8 @@
 - (IMP) methodForSelector:(SEL) aSelector;
 - (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector;	// -> NSMethodSignature.h?
 - (id) mutableCopy;
+- (BOOL) resolveClassMethod:(SEL) sel;
+- (BOOL) resolveInstanceMethod:(SEL) sel;
 //- (NSDictionary *) scriptingProperties;	// -> NSScriptClassDescription
 //- (void) setScriptingProperties:(NSDictionary *) properties;	// -> NSScriptClassDescription
 

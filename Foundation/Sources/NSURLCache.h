@@ -12,14 +12,18 @@
 
 @class NSData;
 @class NSDictionary;
+@class NSMutableDictionary;
 @class NSURLRequest;
 @class NSCachedURLResponse;
 
 @interface NSURLCache : NSObject
 {
-	NSUInteger _memoryCapacity; 
-	NSUInteger _diskCapacity; 
+	NSUInteger _memoryCapacity;
+	NSUInteger _memoryUseage;
+	NSUInteger _diskCapacity;
+	NSUInteger _diskUseage;
 	NSString *_diskPath;
+	NSMutableDictionary *_cachedEntries;	// either NSCachedURLResponse or NSString (file path)
 }
 
 + (void) setSharedURLCache:(NSURLCache *) urlCache;

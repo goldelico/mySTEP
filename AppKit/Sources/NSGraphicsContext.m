@@ -668,7 +668,7 @@ void NSRectFillUsingOperation(NSRect aRect, NSCompositingOperation op)
 }
 
 void NSSetFocusRingStyle(NSFocusRingPlacement placement)
-{
+{ // callee must save the current context if it sould not be changed permanently
 	// FIXME: NIMP
 	NSLog(@"*** NSSetFocusRingStyle not implemented ***");
 	// what should it do?
@@ -676,6 +676,10 @@ void NSSetFocusRingStyle(NSFocusRingPlacement placement)
 	// it should draw the focus ring around the current clipping rect
 	// or does it only set the colors and patterns
 	// and change the clippingRect so that one can draw around?
+	// yes, we can remove clipping if we use [NSBezierPath clipRect:NSMakeRect(0.0, 0.0, 16000.0, 16000.0)];
+	// but does it really draw or just set the style?
+	// how can it modify 'below/above' ==> [nsaffinetransform concat];
+	// can also set fill&stroke colors
 	switch(placement)
 		{
 			case NSFocusRingOnly:

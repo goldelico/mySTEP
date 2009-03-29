@@ -624,7 +624,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 								untilDate:[NSDate distantFuture]
 								   inMode:NSDefaultRunLoopMode
 								  dequeue:YES];
-			[self sendEvent:e];	// this can set as a side effect isRunning=NO to break the loop
+			[self sendEvent:e];	// this can set isRunning=NO as a side effect to break the loop
 		NS_HANDLER
 			NSLog(@"Exception %@ - %@", [localException name], [localException reason]);
 		NS_ENDHANDLER

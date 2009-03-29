@@ -93,8 +93,8 @@
 - (NSUInteger) level; { NSUInteger level=0; while(_parent) level++, self=_parent; return level; }
 - (NSUInteger) index; { return [[_parent children] indexOfObjectIdenticalTo:self]; }
 - (NSXMLNode *) childAtIndex:(NSUInteger) idx; { return [_children objectAtIndex:idx]; }
-- (NSXMLNode *) previousSibling; { NSUInteger idx=[self index]; return idx > 0?[_parent childAtIndex:idx-1]:nil; }
-- (NSXMLNode *) nextSibling; { NSUInteger idx=[self index]; return idx < [[_parent children] count]-1?[_parent childAtIndex:[self index]+1]:nil; }
+- (NSXMLNode *) previousSibling; { NSUInteger idx=[self index]; return idx > 0?[_parent childAtIndex:idx-1]:(NSXMLNode *)nil; }
+- (NSXMLNode *) nextSibling; { NSUInteger idx=[self index]; return idx < [[_parent children] count]-1?[_parent childAtIndex:[self index]+1]:(NSXMLNode *)nil; }
 - (NSXMLNode *) previousNode; { /* if we have children, take last child; take previousSibling - if nil, go up one level and find last node by walking down */ return NIMP; }
 - (NSXMLNode *) nextNode; { /* if we have children, take first child; take nextSibling - if nil, go up one level and find first node by walking down */ return NIMP; }
 - (NSString *) localName; { return _localName; }
@@ -104,8 +104,8 @@
 - (NSString *) _descriptionTag;
 {
 	if(_name)
-		return [NSString stringWithFormat:@"<%@ %@ %d>%@\n", _name, NSStringFromClass([self class]), _kind, _objectValue?_objectValue:@""];
-	return [NSString stringWithFormat:@"<%@ %d>%@\n", NSStringFromClass([self class]), _kind, _objectValue?_objectValue:@""];
+		return [NSString stringWithFormat:@"<%@ %@ %d>%@\n", _name, NSStringFromClass([self class]), _kind, _objectValue?_objectValue:(id)@""];
+	return [NSString stringWithFormat:@"<%@ %d>%@\n", NSStringFromClass([self class]), _kind, _objectValue?_objectValue:(id)@""];
 }
 
 - (NSString *) _descriptionWithLevel:(int) n;

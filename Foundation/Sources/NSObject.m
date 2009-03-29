@@ -429,7 +429,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	NSLog(@"  self=%@ IMP=%p", self, m->method_imp);
 #endif
 	// CHECKME: should we also check for Protocols?
-    return m ? [NSMethodSignature signatureWithObjCTypes:m->method_types] : nil;
+    return m ? [NSMethodSignature signatureWithObjCTypes:m->method_types] : (NSMethodSignature *) nil;
 }
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector
@@ -476,7 +476,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	if(m)
 		NSLog(@"  self=%@ IMP=%p", self, m->method_imp);
 #endif
-	return types ? [NSMethodSignature signatureWithObjCTypes:types] : nil;
+	return types ? [NSMethodSignature signatureWithObjCTypes:types] : (NSMethodSignature *) nil;
 }
 
 - (id) forwardingTargetForSelector:(SEL) sel;
@@ -514,6 +514,9 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 @implementation NSObject (NSObjCRuntime)					// special
 
+- (BOOL) resolveClassMethod:(SEL) sel; { return NO; }
+- (BOOL) resolveInstanceMethod:(SEL) sel; { return NO; }
+
 // convert runtime forwarding arguments into NSInvocation
 
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
@@ -536,6 +539,9 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	if(aSel == 0)
 		[NSException raise:NSInvalidArgumentException
 					format:@"NSObject forward:: %@ NULL selector", NSStringFromSelector(_cmd)];
+	// FIXME: class or instance?
+	if([self resolveInstanceMethod:aSel])	// give a chance to add to runtime methods before invoking
+		/* call and return result */;
 	inv=[[NSInvocation alloc] _initWithMethodSignature:[self methodSignatureForSelector:aSel] andArgFrame:argFrame];
 //	inv=[[NSInvocation alloc] _initWithSelector:aSel andArgFrame:argFrame];
 	if(!inv)

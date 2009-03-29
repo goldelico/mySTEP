@@ -62,7 +62,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	*outp=[[[_NSSocketOutputStream alloc] _initWithFileDescriptor:s] autorelease];
 	((_NSSocketInputStream *) *inp)->_output=((_NSSocketOutputStream *) *outp);		// establish cross-link
 	[((_NSSocketOutputStream *) *outp) _setHost:host andPort:port];	// set host and port
-#if 0
+#if 1
 	NSLog(@"inp=%@", *inp);
 	NSLog(@"outp=%@", *outp);
 #endif
@@ -78,6 +78,9 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (void) dealloc;
 {
+#if 1
+	NSLog(@"dealloc %@", self);
+#endif
 	if(_streamStatus != NSStreamStatusClosed)
 		[self close];	// if not yet...
 	// [_delegate release];

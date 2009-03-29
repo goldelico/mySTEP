@@ -155,7 +155,30 @@ static NSDictionary *_mimeExtensions;
 		_statusCode];
 }
 
-- (NSString *) suggestedFilename; { return @"filename"; }	// FIXME - make it based on MIMEType
+- (NSString *) suggestedFilename;
+{ // suggest a file name
+	NSString *disp=[_headerFields objectForKey:@"Content-Disposition"];
+	if(disp)
+			{ // Content-Disposition: attachment; filename="fname.ext"
+				NSArray *components=[disp componentsSeparatedByString:@";"];
+				if([components count] == 2 && [[[components objectAtIndex:0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] isEqualToString:@"attachment"])
+						{
+							NSArray *fname=[[components objectAtIndex:1] componentsSeparatedByString:@"\""];
+							if([fname count] == 3)
+									{
+										NSString *name=[[fname objectAtIndex:1] lastPathComponent];	// strip off any relative file name
+										if(![name hasPrefix:@"."])
+											return name;	// appears safe to return to user
+									}
+						}
+			}
+	disp=[_headerFields objectForKey:@"Content-Type"];
+	if(disp)
+			{ // Content-Type: text/html; charset=ISO-8859-4
+				// get a guess for the file suffix
+			}
+	return [[_URL path] lastPathComponent];	// no better suggestion (CHECKME: can this be ..?)
+}
 
 - (NSDictionary *) allHeaderFields;
 {
@@ -165,6 +188,20 @@ static NSDictionary *_mimeExtensions;
 - (int) statusCode;
 {
 	return _statusCode;
+}
+
+- (void) encodeWithCoder:(NSCoder *) coder;
+{
+	[super encodeWithCoder:coder];
+	NIMP;
+}
+
+- (id) initWithCoder:(NSCoder *) coder;
+{
+	if((self=[super initWithCoder:coder]))
+			{
+			}
+	return self;
 }
 
 @end

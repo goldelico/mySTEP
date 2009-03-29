@@ -276,7 +276,7 @@ static NSMutableDictionary *_httpConnections;
 	[_headers release];					// received headers
 	[_headerStream release];		// for sending the header
 	[_bodyStream release];			// for sending the body
-	[_inputStream release];			// if still sitting around
+	[_inputStream release];			// if still sitting around for any reason
 	[_outputStream release];
 	[super dealloc];
 }
@@ -287,9 +287,11 @@ static NSMutableDictionary *_httpConnections;
 #if 1
 	NSLog(@"endOfUseability %@", self);
 #endif
+	[_inputStream close];
 	[_inputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 	[_inputStream release];
 	_inputStream=nil;
+	[_outputStream close];
 	[_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 	[_outputStream release];
 	_outputStream=nil;
@@ -364,6 +366,7 @@ static NSMutableDictionary *_httpConnections;
 	NSString *path=[url path];
 	NSMutableData *headerData;
 	NSMutableDictionary *requestHeaders;
+	NSData *body;
 	NSEnumerator *e;
 	NSString *key;
 	NSString *header;
@@ -380,7 +383,7 @@ static NSMutableDictionary *_httpConnections;
 	NSLog(@"startLoading: %@ on %@", _currentRequest, self);
 #endif
 	headerData=[[NSMutableData alloc] initWithCapacity:200];
-	header=[NSString stringWithFormat:@"%@ %@ HTTP/1.1\r\n", method, [path length] > 0?[path stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]:@"/"];
+	header=[NSString stringWithFormat:@"%@ %@ HTTP/1.1\r\n", method, [path length] > 0?[path stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]:(NSString *)@"/"];
 #if 1
 	NSLog(@"request: %@", header);
 #endif
@@ -414,13 +417,20 @@ static NSMutableDictionary *_httpConnections;
 #else
 	[requestHeaders setObject:@"identity" forKey:@"Accept-Encoding"];
 #endif
-	if([request HTTPBodyStream])
-		[requestHeaders setObject:@"chunked" forKey:@"Transfer-Encoding"];	// we must send chunked because we don't know the length in advance
-	else if([request HTTPBody])
-			{ // fixed NSData object
-				unsigned long bodyLength=[[request HTTPBody] length];
-				[requestHeaders setObject:[NSString stringWithFormat:@"%lu", bodyLength] forKey:@"Content-Length"];
+	if((_bodyStream=[request HTTPBodyStream]))
+			{	// is provided by a stream object
+				[_bodyStream retain];
+				[_bodyStream setProperty:[NSNumber numberWithInt:0] forKey:NSStreamFileCurrentOffsetKey];	// rewind (if possible)
+				[requestHeaders setObject:@"chunked" forKey:@"Transfer-Encoding"];	// we must send chunked because we don't know the length in advance
 			}
+	else if((body=[request HTTPBody]))
+			{ // fixed NSData object
+				unsigned long bodyLength=[body length];
+				[requestHeaders setObject:[NSString stringWithFormat:@"%lu", bodyLength] forKey:@"Content-Length"];
+				_bodyStream=[[NSInputStream alloc] initWithData:body];	// prepare to send request body from NSData object
+			}
+	else
+		[requestHeaders removeObjectForKey:@"Date"];	// must not send a Date: header if we have no body
 //	[requestHeaders setObject:@"identity" forKey:@"TE"];	// what we accept in responses
 	[requestHeaders removeObjectForKey:@"Keep-Alive"];	// HHTP 1.0 feature
 #if 1
@@ -445,11 +455,8 @@ static NSMutableDictionary *_httpConnections;
 	[_headerStream open];
 	_shouldClose=(header=[requestHeaders objectForKey:@"Connection"]) && [header caseInsensitiveCompare:@"close"] == NSOrderedSame;	// close after sending the request
 	_sendChunked=(header=[requestHeaders objectForKey:@"Transfer-Encoding"]) && [header caseInsensitiveCompare:@"chunked"] == NSOrderedSame;
-	_bodyStream=[[request HTTPBodyStream] retain];	// if provided as a stream object
-	if(!_bodyStream && [request HTTPBody])
-		_bodyStream=[[NSInputStream alloc] initWithData:[request HTTPBody]];	// prepare to send request body NSData object
-	[_bodyStream open];
 	[requestHeaders release];	// dictionary no more needed
+	[_bodyStream open];				// if any
 #if 1
 	NSLog(@"ready to send");
 #endif
@@ -606,6 +613,7 @@ static NSMutableDictionary *_httpConnections;
 								NSLog(@"receive error %s", strerror(errno));
 #endif
 								[_currentRequest didFailWithError:[NSError errorWithDomain:@"receive error" code:errno userInfo:nil]];
+								[self endOfUseability];
 								return;
 							}
 #if 0
@@ -705,6 +713,7 @@ static NSMutableDictionary *_httpConnections;
 														NSLog(@"error while reading from HTTPHeader stream %s", strerror(errno));
 #endif
 														[_currentRequest didFailWithError:[NSError errorWithDomain:@"HTTPHeaderStream" code:errno userInfo:nil]];
+														[self endOfUseability];
 													}
 											else
 													{
@@ -733,6 +742,7 @@ static NSMutableDictionary *_httpConnections;
 														NSLog(@"error while reading from HTTPBody stream %s", strerror(errno));
 #endif
 														[_currentRequest didFailWithError:[NSError errorWithDomain:@"HTTPBodyStream" code:errno userInfo:nil]];
+														[self endOfUseability];
 													}
 											else
 													{
@@ -780,6 +790,7 @@ static NSMutableDictionary *_httpConnections;
 				[_bodyStream close];	// close body stream (if open)
 				[_bodyStream release];
 				_bodyStream=nil;
+				[self endOfUseability];
 				return;
 			default:
 				break;
