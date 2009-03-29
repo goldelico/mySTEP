@@ -117,7 +117,7 @@
 			NSPathComponentCell *cell=[_pathComponentCells objectAtIndex:i];
 			
 			r.size=[cell cellSize];	// make as wide as the cell content defines
-			_rects[idx]=r;
+			_rects[i]=r;
 			r.origin.x += NSWidth(r);	// advance
 		}
 		if(cnt && NSMaxX(_rects[cnt-1]) > NSMaxX(rect))
