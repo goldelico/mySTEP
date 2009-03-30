@@ -45,7 +45,7 @@
 {
 	NSRect imageRect = [self imageRectForBounds:cellFrame];	// draw image on right part
 	NSRect titleRect = [self titleRectForBounds:cellFrame];	// call [super drawWithFrame:left	
-	[_image drawInRect:cellFrame fromRect:imageRect operation:NSCompositeSourceOver fraction:1.0];	// first the image
+	[_image drawInRect:imageRect fromRect:imageRect operation:NSCompositeSourceOver fraction:1.0];	// first the image
 	[[self title] drawInRect:titleRect withAttributes:nil];	// then the text
 }
 

@@ -52,17 +52,23 @@
 	if([_pathComponentCells count] > 0 && _pathStyle != NSPathStylePopUp)
 	{ // draw cells
 		NSEnumerator *e=[_pathComponentCells objectEnumerator];
-		NSPathComponentCell *cell;
+		MWPathComponentCell *cell;
 		while((cell = [e nextObject]))
 		{
 			NSRect m = [self rectOfPathComponentCell:cell withFrame:cellFrame inView:controlView];
 			[cell drawWithFrame:m inView:controlView];
 			// draw item separator(s)
 			if (cell != nil) { // draw the separator...
+				NSBezierPath *theSeparator = [NSBezierPath bezierPath];
 				NSSize cellSize = [cell cellSize];				
-				NSRect sepRect = NSMakeRect(m.origin.x+cellSize.width, m.origin.y, 8.0, cellSize.height);
+				NSRect sepRect = NSMakeRect(m.origin.x+cellSize.width, (cellFrame.size.height/2)-3.0, 6.0,6.0);
 				[[NSColor grayColor] setFill];
-				[[NSBezierPath bezierPathWithOvalInRect:sepRect] fill];
+				[theSeparator moveToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y)];
+				[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y + sepRect.size.height)];
+				[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x + sepRect.size.width, sepRect.origin.y +(sepRect.size.height /2))];
+				[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y)];
+				[theSeparator closePath];
+				[theSeparator fill];
 			}
 		}
 	}
@@ -71,7 +77,6 @@
 	else if(_placeholderString)
 		; // draw placeholderString (with default attributes)
 }
-
 - (NSArray *) allowedTypes; { return _allowedTypes; }
 - (NSColor *) backgroundColor; { return _backgroundColor; }
 - (NSPathComponentCell *) clickedPathComponentCell; { return _clickedPathComponentCell; }
@@ -118,7 +123,7 @@
 			
 			r.size=[cell cellSize];	// make as wide as the cell content defines
 			_rects[i]=r;
-			r.origin.x += NSWidth(r);	// advance
+			r.origin.x += NSWidth(r)+8.0;	// advance
 		}
 		if(cnt && NSMaxX(_rects[cnt-1]) > NSMaxX(rect))
 		{ // total width of cells is wider than our cell frame
@@ -178,32 +183,38 @@
 		NSMutableArray *cells=[NSMutableArray arrayWithCapacity:cnt];
 		NSString *partialURLString=@"/";
 		for(i=0; i<cnt; i++)
-				{ // loop over all path components and create a cell for each one
-					NSPathComponentCell *cell = [[[[self class] pathComponentCellClass] alloc] init];
-					NSURL *partialURL;
-					partialURLString = [partialURLString stringByAppendingPathComponent:[pathComponents objectAtIndex:i]];	// add next component
-					if(isFile)
-						partialURL = [NSURL fileURLWithPath:partialURLString];
+		{ // loop over all path components and create a cell for each one
+			NSPathComponentCell *cell = [[[[self class] pathComponentCellClass] alloc] init];
+			NSURL *partialURL;
+			partialURLString = [partialURLString stringByAppendingPathComponent:[pathComponents objectAtIndex:i]];	// add next component
+			if(isFile) {
+				partialURL = [NSURL fileURLWithPath:partialURLString];
+			} else {
+				// FIXME: this does not cover all legal cases, e.g. user&password included, empty host name etc.
+				partialURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://%@%@", [url scheme], [url host] /* FIXME: , [url port] */, partialURLString]];	// should include scheme, host etc.
+			}
+			[cell setTitle:[[partialURL path] lastPathComponent]];
+			if (isFile && i==0) {
+				[cell setTitle:[[NSFileManager defaultManager] displayNameAtPath:[pathComponents objectAtIndex:i]]];
+			}
+			if(isFile) 
+			{ // Get the icon of the file
+				NSImage *icon=[[NSWorkspace sharedWorkspace] iconForFile:partialURLString];
+				if(icon)
+				{
+					[icon setScalesWhenResized:YES];
+					if(_pathStyle == NSPathStyleNavigationBar)
+						[icon setSize:NSMakeSize(14.0, 14.0)];
 					else
-						// FIXME: this does not cover all legal cases, e.g. user&password included, empty host name etc.
-						partialURL = [[NSURL alloc] initWithString:[NSString stringWithFormant:@"%@://%@%@", [url scheme], [url host] /* FIXME: , [url port] */, partialURLString];	// should include scheme, host etc.
-					if(isFile) 
-							{ // Get the icon of the file
-								NSImage *icon=[[NSWorkspace sharedWorkspace] iconForFile:partialURLString]];
-								if(icon)
-										{
-											if(_pathStyle == NSPathStyleNavigationBar)
-												[icon setSize:NSMakeSize(14.0, 14.0)];
-											else
-												[icon setSize:NSMakeSize(16.0, 16.0)];
-											[cell setImage:icon];
-										}
-							}
-					[cell setURL:partialURL];
-					[cells addObject:cell];
-					[cell release];
-					[partialURL release];
+						[icon setSize:NSMakeSize(16.0, 16.0)];
+					[cell setImage:icon];
 				}
+			}
+			[cell setURL:partialURL];
+			[cells addObject:cell];
+			[cell release];
+			[partialURL release];
+		}
 		[self setPathComponentCells:cells];
 		[super setObjectValue:url];	// store URL as object value
 	}
