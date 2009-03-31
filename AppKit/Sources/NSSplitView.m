@@ -111,6 +111,7 @@ NSSplitView.h
 	if(maxCoord == -1)
 		return;
 	// find out what the dragging limit is 
+	// FIXME: Cocoa has TWO separate callbacks!
 	if(_delegate && [_delegate respondsToSelector:@selector
 		(splitView:constrainMinCoordinate:maxCoordinate:ofSubviewAt:)])
 		{	
@@ -142,9 +143,10 @@ NSSplitView.h
 			}
 		}
 	
+	// FIXME: we should NOT lockFocus in a mouseDown...
+	
 	[self lockFocus];
 	NSRectClip(_bounds);
-//	[NSEvent startPeriodicEventsAfterDelay:0.1 withPeriod:0.1];
 	[dividerColor set];
 	r.size = (NSSize){divHorizontal, divVertical};
 	
@@ -191,7 +193,6 @@ NSSplitView.h
 		}
 	
 	[self unlockFocus];
-//	[NSEvent stopPeriodicEvents];
 	r = [prev frame];
 	r1 = [v frame];
 #if 1
@@ -318,10 +319,7 @@ NSSplitView.h
 - (void) setIsPaneSplitter:(BOOL) flag;		{ _isPaneSplitter=flag; }
 - (BOOL) isVertical							{ return _isVertical; }
 - (void) setVertical:(BOOL)flag				{ _isVertical = flag; }
-- (void) setDividerThickNess:(float)newWidth{ _dividerThickness = newWidth; }
 - (float) dividerThickness 					{ return _dividerThickness; }
-- (float) draggedBarWidth 					{ return _draggedBarWidth; }
-- (void) setDraggedBarWidth:(float)newWidth	{ _draggedBarWidth = newWidth; }
 
 - (void) drawDividerInRect:(NSRect)aRect
 {
@@ -338,20 +336,6 @@ NSSplitView.h
 //	if([self isFlipped]) 
 //		dimpleOrg.y += dimpleSize.height;
 	[dimpleImage compositeToPoint:dimpleOrg operation:NSCompositeSourceOver];
-}
-
-- (void) setDimpleImage:(NSImage *)anImage resetDividerThickness:(BOOL)flag
-{
-	ASSIGN(dimpleImage, anImage);
-	
-	if(flag)
-		{
-		NSSize s = {8.,8.};
-		
-		if(dimpleImage) 
-			s = [dimpleImage size];
-		[self setDividerThickNess: _isVertical ? s.width : s.height];
-		}
 }
 
 - (void) drawRect:(NSRect)r
@@ -393,10 +377,6 @@ NSSplitView.h
 
 - (NSImage *) dimpleImage					{ return dimpleImage; }
 - (BOOL) isOpaque							{ return backgroundColor != nil; }
-- (void) setDividerColor:(NSColor *)aColor	{ ASSIGN(dividerColor, aColor); }
-- (void) setBackgroundColor:(NSColor*)aColor{ ASSIGN(backgroundColor,aColor); }
-- (NSColor *) dividerColor					{ return dividerColor; }
-- (NSColor *) backgroundColor				{ return backgroundColor; }
 - (id) delegate								{ return _delegate; }
 
 - (void) setDelegate:(id)anObject
@@ -452,7 +432,7 @@ NSSplitView.h
 	self = [super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
 		{
-		// NSIsPaneSplitter
+		// NSIsPaneSplitter?
 		_isVertical = [aDecoder decodeBoolForKey:@"NSIsVertical"];
 		/*
 		 id _delegate;
@@ -480,5 +460,29 @@ NSSplitView.h
 	
 	return self;
 }
+
+// PRIVATE: these methods are private!
+
+- (void) setDimpleImage:(NSImage *)anImage resetDividerThickness:(BOOL)flag
+{
+	ASSIGN(dimpleImage, anImage);
+	
+	if(flag)
+			{
+				NSSize s = {8.,8.};
+				
+				if(dimpleImage) 
+					s = [dimpleImage size];
+				[self setDividerThickNess: _isVertical ? s.width : s.height];
+			}
+}
+
+- (void) setDividerThickNess:(float)newWidth{ _dividerThickness = newWidth; }
+- (float) draggedBarWidth 					{ return _draggedBarWidth; }
+- (void) setDraggedBarWidth:(float)newWidth	{ _draggedBarWidth = newWidth; }
+- (void) setDividerColor:(NSColor *)aColor	{ ASSIGN(dividerColor, aColor); }
+- (void) setBackgroundColor:(NSColor*)aColor{ ASSIGN(backgroundColor,aColor); }
+- (NSColor *) dividerColor					{ return dividerColor; }
+- (NSColor *) backgroundColor				{ return backgroundColor; }
 
 @end

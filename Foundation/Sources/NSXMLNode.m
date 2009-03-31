@@ -69,7 +69,7 @@
 	[_name release];
 	[_objectValue release];
 	// _rootDocument;	// weak pointer
-	[self detach];
+	[_children makeObjectsPerformSelector:@selector(_orphanize)];	// detach our children nodes from us
 	[_children release];
 	[_localName release];
 	[_prefix release];
@@ -177,6 +177,7 @@
 - (void) detach; { if(_parent) [(NSMutableArray *)[_parent children] removeObjectIdenticalTo:self]; _parent=nil; }
 
 - (void) _setParent:(NSXMLNode *) p; { _parent=p; }
+- (void) _orphanize; { _parent=nil; }
 - (void) setName:(NSString *) name; { ASSIGN(_name, name); }
 - (void) setObjectValue:(id) value; { ASSIGN(_objectValue, value); }
 - (void) setStringValue:(NSString *) str; { /* check for string */ ASSIGN(_objectValue, str); }

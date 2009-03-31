@@ -20,6 +20,21 @@
 // test(@"lowercase", lowercaseString, @"lowercase");
 // test(@"", lowercaseString, @"");
 
+// test(@"/tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");
+// test(@"tmp/scratch.tiff", stringByDeletingLastPathComponent, @"tmp");
+// test(@"/tmp/lock/", stringByDeletingLastPathComponent, @"/tmp");
+// test(@"/tmp/", stringByDeletingLastPathComponent, @"/");
+// test(@"/tmp", stringByDeletingLastPathComponent, @"/");
+// test(@"/", stringByDeletingLastPathComponent, @"/");
+// test(@"scratch.tiff", stringByDeletingLastPathComponent, @"");
+
+// test(@"//tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");
+// test(@"//", stringByDeletingLastPathComponent, @"/");
+// test(nil, stringByDeletingLastPathComponent, nil);	// this tests Obj-C-Runtime...
+// test([NSNull null], stringByDeletingLastPathComponent, exception...);
+
+
+
 // add many more such tests
 
 // test convertion, add, mutability
