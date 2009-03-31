@@ -52,7 +52,7 @@
 	if([_pathComponentCells count] > 0 && _pathStyle != NSPathStylePopUp)
 	{ // draw cells
 		NSEnumerator *e=[_pathComponentCells objectEnumerator];
-		MWPathComponentCell *cell;
+		NSPathComponentCell *cell;
 		while((cell = [e nextObject]))
 		{
 			NSRect m = [self rectOfPathComponentCell:cell withFrame:cellFrame inView:controlView];

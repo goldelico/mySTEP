@@ -63,7 +63,7 @@ typedef float CGFloat;
 typedef long CFIndex; 
 #endif
 
-typedef void *CGEventRef;
+typedef struct __CGEvent *CGEventRef;
 
 #define NSIntegerMax   LONG_MAX
 #define NSIntegerMin   LONG_MIN

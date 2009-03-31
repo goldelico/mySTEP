@@ -523,6 +523,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 { // called by runtime
 	retval_t r;
 	NSInvocation *inv;
+	BOOL resolved;
 #if 1
 	{ 	// show stack
 	int i;
@@ -540,8 +541,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 		[NSException raise:NSInvalidArgumentException
 					format:@"NSObject forward:: %@ NULL selector", NSStringFromSelector(_cmd)];
 	// FIXME: class or instance?
-	if([self resolveInstanceMethod:aSel])	// give a chance to add to runtime methods before invoking
-		/* call and return result */;
+	resolved=[self resolveInstanceMethod:aSel];	// give a chance to add to runtime methods before invoking
 	inv=[[NSInvocation alloc] _initWithMethodSignature:[self methodSignatureForSelector:aSel] andArgFrame:argFrame];
 //	inv=[[NSInvocation alloc] _initWithSelector:aSel andArgFrame:argFrame];
 	if(!inv)
@@ -549,11 +549,18 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 		[self doesNotRecognizeSelector:aSel];
 		return nil;
 		}
-	[inv setTarget:[self forwardingTargetForSelector:aSel]];
-	[self forwardInvocation:inv];
+	if(resolved)
+			{ // was resolved
+				[inv invoke];
+			}
+	else
+			{
+				[inv setTarget:[self forwardingTargetForSelector:aSel]];
+				[self forwardInvocation:inv];
 #if 1
 	NSLog(@"invocation forwarded. Returning result");
 #endif
+			}
 	r=[inv _returnValue];
 	[inv release];
 #if 1

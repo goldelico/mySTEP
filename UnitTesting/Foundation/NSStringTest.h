@@ -6,10 +6,10 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <SenTestingKit/SenTestingKit.h>
 
 
-@interface NSStringTest : NSObject {
+@interface NSStringTest : SenTestCase {
 
 }
 

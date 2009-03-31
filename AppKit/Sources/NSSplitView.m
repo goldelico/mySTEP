@@ -252,10 +252,8 @@ NSSplitView.h
 {
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillResizeSubviews) object: self];
 	
-	if((_delegate) && [_delegate respondsToSelector: @selector(splitView:resizeSubviewsWithOldSize:)])
-      	[_delegate splitView:self resizeSubviewsWithOldSize:_frame.size];
-	else
 		{ // split the area up evenly 
+			// FIXME: should be scaled proportionally!
 		int i, count = [sub_views count];
 		int div = (int)(_dividerThickness * (count - 1));
 		int w = (int)ceil((NSWidth(_bounds) - div) / count);
@@ -267,7 +265,7 @@ NSSplitView.h
 			NSRect rect, r = [v frame];
 			
 			if(!_isVertical)
-				{					// calc divider thickness not accounted for
+				{ // calc divider thickness not accounted for
 				divRemainder = div - (_dividerThickness * i);
 				maxSize = total + NSHeight(r) + divRemainder;
 				rect = (NSRect){{NSMinX(r),total}, _bounds.size};
@@ -371,7 +369,10 @@ NSSplitView.h
 {
 	if(NSEqualSizes(oldSize, _frame.size))
 		return;	// ignore unchanged size
-	[self adjustSubviews];
+	if((_delegate) && [_delegate respondsToSelector: @selector(splitView:resizeSubviewsWithOldSize:)])
+		[_delegate splitView:self resizeSubviewsWithOldSize:oldSize];
+	else
+		[self adjustSubviews];	// default behaviour
 	[_window invalidateCursorRectsForView:self];
 }
 

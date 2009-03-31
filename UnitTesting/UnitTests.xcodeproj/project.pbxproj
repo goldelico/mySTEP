@@ -1,0 +1,325 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		EE0C72090F7E733F008B94EE /* NSStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE0C71F80F7E7278008B94EE /* NSStringTest.m */; };
+		EE0C72180F7E7423008B94EE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
+		EED109C90F82540300E9AEC6 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		EE0C71F70F7E7278008B94EE /* NSStringTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSStringTest.h; sourceTree = "<group>"; };
+		EE0C71F80F7E7278008B94EE /* NSStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringTest.m; sourceTree = "<group>"; };
+		EE0C72030F7E7328008B94EE /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE0C72040F7E7328008B94EE /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
+		EED109C80F82540300E9AEC6 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		EEFFF0EC098DF148002610FC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EE0C72000F7E7328008B94EE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE0C72180F7E7423008B94EE /* Foundation.framework in Frameworks */,
+				EED109C90F82540300E9AEC6 /* SenTestingKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		29B97314FDCFA39411CA2CEA /* BrowserTester */ = {
+			isa = PBXGroup;
+			children = (
+				EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */,
+				EE0C70D20F7E7174008B94EE /* Foundation */,
+				EEFFF241098DF160002610FC /* MacOS X Frameworks */,
+				EE29D8D8058A38830035639B /* Products */,
+				EE0C72040F7E7328008B94EE /* Tests-Info.plist */,
+			);
+			name = BrowserTester;
+			sourceTree = "<group>";
+		};
+		EE0C70D20F7E7174008B94EE /* Foundation */ = {
+			isa = PBXGroup;
+			children = (
+				EE0C70D50F7E71AD008B94EE /* Container */,
+				EE0C70D80F7E71C1008B94EE /* Data&String */,
+			);
+			path = Foundation;
+			sourceTree = "<group>";
+		};
+		EE0C70D50F7E71AD008B94EE /* Container */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Container;
+			sourceTree = "<group>";
+		};
+		EE0C70D80F7E71C1008B94EE /* Data&String */ = {
+			isa = PBXGroup;
+			children = (
+				EE0C71F70F7E7278008B94EE /* NSStringTest.h */,
+				EE0C71F80F7E7278008B94EE /* NSStringTest.m */,
+			);
+			name = "Data&String";
+			sourceTree = "<group>";
+		};
+		EE29D8D8058A38830035639B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EE0C72030F7E7328008B94EE /* Tests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EEFFF241098DF160002610FC /* MacOS X Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				EEFFF0EB098DF148002610FC /* AppKit.framework */,
+				EEFFF0EC098DF148002610FC /* Cocoa.framework */,
+				EEFFEFE2098DF088002610FC /* Foundation.framework */,
+				EED109C80F82540300E9AEC6 /* SenTestingKit.framework */,
+			);
+			name = "MacOS X Frameworks";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EE0C72020F7E7328008B94EE /* Foundation */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE0C72080F7E732A008B94EE /* Build configuration list for PBXNativeTarget "Foundation" */;
+			buildPhases = (
+				EE0C71FE0F7E7328008B94EE /* Resources */,
+				EE0C71FF0F7E7328008B94EE /* Sources */,
+				EE0C72000F7E7328008B94EE /* Frameworks */,
+				EED10A120F82590100E9AEC6 /* ShellScript */,
+				EE0C72010F7E7328008B94EE /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Foundation;
+			productName = Tests;
+			productReference = EE0C72030F7E7328008B94EE /* Tests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		29B97313FDCFA39411CA2CEA /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "UnitTests" */;
+			compatibilityVersion = "Xcode 2.4";
+			hasScannedForEncodings = 1;
+			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
+			productRefGroup = EE29D8D8058A38830035639B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EE0C72020F7E7328008B94EE /* Foundation */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EE0C71FE0F7E7328008B94EE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		EE0C72010F7E7328008B94EE /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+		EED10A120F82590100E9AEC6 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# project settings\nexport SOURCES=\"Foundation/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/Frameworks   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EE0C71FF0F7E7328008B94EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE0C72090F7E733F008B94EE /* NSStringTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		EE0C72050F7E7329008B94EE /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks",
+					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_ENABLE_SYMBOL_SEPARATION = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
+				INFOPLIST_FILE = "Tests-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				LIBRARY_SEARCH_PATHS = /Developer/Library;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = Tests;
+				SDKROOT = "";
+				USER_HEADER_SEARCH_PATHS = "";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Development;
+		};
+		EE0C72060F7E7329008B94EE /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				INFOPLIST_FILE = "Tests-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Tests;
+				WRAPPER_EXTENSION = octest;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE0C72070F7E7329008B94EE /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				INFOPLIST_FILE = "Tests-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Tests;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Default;
+		};
+		EE1A0192097304E200EAB703 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = "";
+				SDKROOT = macosx10.4;
+			};
+			name = Development;
+		};
+		EE1A0193097304E200EAB703 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = "";
+				SDKROOT = macosx10.4;
+			};
+			name = Deployment;
+		};
+		EE1A0194097304E200EAB703 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = "";
+				SDKROOT = macosx10.4;
+			};
+			name = Default;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EE0C72080F7E732A008B94EE /* Build configuration list for PBXNativeTarget "Foundation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE0C72050F7E7329008B94EE /* Development */,
+				EE0C72060F7E7329008B94EE /* Deployment */,
+				EE0C72070F7E7329008B94EE /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "UnitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE1A0192097304E200EAB703 /* Development */,
+				EE1A0193097304E200EAB703 /* Deployment */,
+				EE1A0194097304E200EAB703 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
+}
