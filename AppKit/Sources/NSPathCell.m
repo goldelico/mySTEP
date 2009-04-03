@@ -77,6 +77,7 @@
 	else if(_placeholderString)
 		; // draw placeholderString (with default attributes)
 }
+
 - (NSArray *) allowedTypes; { return _allowedTypes; }
 - (NSColor *) backgroundColor; { return _backgroundColor; }
 - (NSPathComponentCell *) clickedPathComponentCell; { return _clickedPathComponentCell; }

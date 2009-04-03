@@ -35,6 +35,8 @@ static Class __controlCellClass = Nil;
 	return self;
 }
 
+- (BOOL) isFlipped; { return YES; }
+
 - (NSColor *) backgroundColor; { return [(NSPathCell *)_cell backgroundColor]; }
 - (NSPathComponentCell *) clickedPathComponentCell; { return [(NSPathCell *)_cell clickedPathComponentCell]; }
 - (id) delegate; { return _delegate; }

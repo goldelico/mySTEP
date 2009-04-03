@@ -747,6 +747,8 @@ typedef struct
 	return self;
 }
 
+// _nsscreen must be pre-initialized here
+
 - (id) _initWithGraphicsPort:(void *) port;
 { // port should be the X11 Window *
 #if 0
@@ -3042,6 +3044,7 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 
 + (NSGraphicsContext *) graphicsContextWithGraphicsPort:(void *) port flipped:(BOOL) flipped;
 {
+	// FIXME: _nsscreen?
 	NSGraphicsContext *gc=[[(_NSX11GraphicsContext *)NSAllocateObject([_NSX11GraphicsContext class], 0, NSDefaultMallocZone()) _initWithGraphicsPort:port] autorelease];
 	if(gc)
 		gc->_isFlipped=flipped;
@@ -4554,16 +4557,45 @@ static NSDictionary *_x11settings;
 			else
 #endif
 				{
-				NSBitmapImageRep *bestRep =(NSBitmapImageRep *) [_image bestRepresentationForDevice:nil];	// where to get device description from??
+					NSBitmapImageRep *bestRep =(NSBitmapImageRep *) [_image bestRepresentationForDevice:nil];	// where to get device description from??
+					if(bestRep)
+							{
 #if 0
-				NSLog(@"convert %@ to PixmapCursor", bestRep);
+								NSLog(@"convert %@ to PixmapCursor", bestRep);
 #endif
-#if FIXME
-			// we should lockFocus on a Pixmap and call _draw:bestRep
-			Pixmap mask = (Pixmap)[bestRep xPixmapMask];
-			Pixmap bits = (Pixmap)[bestRep xPixmapBitmap];
-			_cursor = XCreatePixmapCursor(_display, bits, mask, &fg, &bg, _hotSpot.x, _hotSpot.y);
-#endif
+								Drawable root=RootWindowOfScreen(XScreenOfDisplay(_display, 0));
+								int width=[bestRep pixelsWide];
+								int height=[bestRep pixelsHigh];
+								int x, y;
+								XColor fg, bg;	// color for 1 and 0 bits resp. Should be some average over the bitmap - or black&white pixel?
+								XGCValues attribs;
+								Pixmap mask = XCreatePixmap(_display, root, width, height, 1);	// 1 bit draw/no draw (alpha)
+								Pixmap bits = XCreatePixmap(_display, root, width, height, 1);	// 1 bit choose fg or bg;
+								GC gc=XCreateGC(_display, mask, 0, &attribs);
+								for(x=0; x<width; x++)
+										{ // this loop is quite slow but we shouldn't change cursors very often
+											for(y=0; y<height; y++)
+													{ // fill pixmaps with cursor image
+														unsigned int planes[5]; // we assume RGBA
+														[bestRep getPixel:planes atX:x y:(height-y-1)];
+														XSetForeground(_display, gc, planes[3] > 128);
+														XDrawPoint(_display, mask, gc, x, y);
+														XSetForeground(_display, gc, planes[0]+planes[1]+planes[2] > 128);
+														XDrawPoint(_display, bits, gc, x, y);
+													}
+										}
+								// best color should perhaps be calculated from bitmap...
+								fg.red=65535;
+								fg.green=65535;
+								fg.blue=65535;
+								bg.red=0;
+								bg.green=0;
+								bg.blue=0;
+								_cursor = XCreatePixmapCursor(_display, bits, mask, &fg, &bg, _hotSpot.x, _hotSpot.y);
+								XFreeGC(_display, gc);
+								XFreePixmap(_display, mask);
+								XFreePixmap(_display, bits);
+							}
 				}
 			}
 		if(!_cursor)

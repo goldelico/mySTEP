@@ -1160,7 +1160,6 @@ static NSArray *__pbBitmapImageReps;
 {
 	int i;
 	int offset;
-	NSAssert(_format == 0, @"No 10.4 bitmap formats supported");
 	if(_brep.isPlanar)
 		{ // planar
 		offset=x + bytesPerRow*(_pixelsHigh-1-y);
@@ -1179,7 +1178,6 @@ static NSArray *__pbBitmapImageReps;
 {
 	int i;
 	int offset;
-	NSAssert(_format == 0, @"No 10.4 bitmap formats supported");
 	if (!_imagePlanes || !_imagePlanes[0])
 		[self bitmapData];	// allocate plane memory
 	if(_brep.isPlanar)

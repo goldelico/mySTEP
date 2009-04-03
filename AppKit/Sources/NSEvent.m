@@ -107,7 +107,7 @@ NSEvent *e = [[NSEvent new] autorelease];
 						clickCount:(int)clickNum	
 						pressure:(float)pressureValue
 {
-NSEvent *e = [[NSEvent new] autorelease];
+	NSEvent *e = [[NSEvent new] autorelease];
 
 	if (!(NSEventMaskFromType(t) & GSMouseEventMask))
 		[NSException raise:NSInvalidArgumentException 

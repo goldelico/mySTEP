@@ -686,7 +686,7 @@
 	NSNotificationCenter *n;
 	SEL sel;
 	if(_delegate == anObject)
-		return;
+		return;	// no change
 #define IGNORE_(notif_name) [n removeObserver:_delegate \
 							   name:NSTableView##notif_name##Notification \
 							   object:self]
@@ -700,7 +700,6 @@
 		IGNORE_(SelectionIsChanging);
 		}
 	[super setDelegate:anObject];
-//	ASSIGN(_delegate, anObject);
 	if(!anObject)
 		return;
 

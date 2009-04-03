@@ -34,8 +34,7 @@ static NSCursor *__blankCursor, *__hiddenCursor, *__currentCursor;
 	static NSCursor *c; \
 	if(!c) \
 		NSLog(@"load cursor %@", name); \
-		c=[[NSCursor alloc] initWithImage:[NSImage imageNamed:name] \
-								  hotSpot:(NSPoint){8,8}]; \
+		c=[[NSCursor alloc] initWithImage:[NSImage imageNamed:name] hotSpot:(NSPoint){3, 2}]; \
 	return c; \
 }
 
@@ -78,7 +77,7 @@ static NSCursor *__blankCursor, *__hiddenCursor, *__currentCursor;
 		return;
 	__hiddenCursor = __currentCursor;				// Save the current cursor
 	if(!__blankCursor)
-		__blankCursor=[[self alloc] initWithImage:nil hotSpot:NSZeroPoint];	// will create a "None" cursor
+		__blankCursor=[[self alloc] initWithImage:[NSImage imageNamed:@"GSHiddenCursor"] hotSpot:NSZeroPoint];	// will create a "None" cursor
 	[__blankCursor set];							// and set the blank cursor
 	__currentCursor = __blankCursor;
 }
@@ -87,7 +86,7 @@ static NSCursor *__blankCursor, *__hiddenCursor, *__currentCursor;
 + (NSCursor *) closedHandCursor; { CURSOR(@"GSClosedHandCursor"); }	
 + (NSCursor *) crosshairCursor; { CURSOR(@"GSCrosshairCursor"); }	
 + (NSCursor *) disappearingItemCursor; { CURSOR(@"GSDisappearingItemCursor"); }	
-+ (NSCursor *) IBeamCursor; { CURSOR(@"iBeamCursor"); }				// Create standard I beam
++ (NSCursor *) IBeamCursor; { CURSOR(@"GSIBeamCursor"); }				// Create standard I beam
 + (NSCursor *) openHandCursor; { CURSOR(@"GSOpenHandCursor"); }	
 + (NSCursor *) pointingHandCursor; { CURSOR(@"GSPointingHandCursor"); }	
 + (NSCursor *) resizeDownCursor; { CURSOR(@"GSResizeDownCursor"); }	

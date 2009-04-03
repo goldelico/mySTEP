@@ -82,7 +82,7 @@ static BOOL __cursorHidden = NO;
 - (void) setDocumentEdited:(BOOL) flag;	// changes image
 @end
 
-@interface _NSThemeDocumentIconWidget : _NSThemeWidget
+@interface NSThemeDocumentButton : _NSThemeWidget
 @end
 
 @interface NSThemeFrame : NSView
@@ -669,7 +669,7 @@ static BOOL __cursorHidden = NO;
 
 @end
 
-@implementation _NSThemeDocumentIconWidget
+@implementation NSThemeDocumentButton
 
 - (NSView *) hitTest:(NSPoint) aPoint
 {
@@ -2792,7 +2792,7 @@ id prev;
 				[b setAutoresizingMask:NSViewMinXMargin|NSViewMinYMargin];
 				break;
 			case NSWindowDocumentIconButton:
-				b=[[_NSThemeDocumentIconWidget alloc] initWithFrame:NSMakeRect(2.0+3.0*button, 0.0, 100.0, button) forStyleMask:aStyle];	// we must adjust the width when using this button!
+				b=[[NSThemeDocumentButton alloc] initWithFrame:NSMakeRect(2.0+3.0*button, 0.0, 100.0, button) forStyleMask:aStyle];	// we must adjust the width when using this button!
 				[b setEnabled:NO];
 				// somehow include us in handling move by clicking into the title bar except for D&D on the icon
 				[b setImagePosition:NSImageLeft];

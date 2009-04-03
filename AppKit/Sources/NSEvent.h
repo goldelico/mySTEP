@@ -106,7 +106,7 @@ enum
 	
 	GSTrackingLoopMask			= (NSLeftMouseDownMask|NSLeftMouseUpMask|NSMouseMovedMask|NSLeftMouseDraggedMask|NSPeriodicMask),		// tracking loops, t's above 
 	GSMouseEventMask			= (NSLeftMouseDownMask|NSLeftMouseUpMask|NSRightMouseDownMask|NSRightMouseUpMask|NSMouseMovedMask|
-								   NSLeftMouseDraggedMask|NSRightMouseDraggedMask|NSScrollWheelMask),	// mouse events, m's above 
+								   NSLeftMouseDraggedMask|NSRightMouseDraggedMask|NSOtherMouseDownMask|NSOtherMouseUpMask|NSOtherMouseDraggedMask|NSScrollWheelMask),	// mouse events, m's above 
 	GSOtherEventMask			= (NSFlagsChangedMask|NSAppKitDefinedMask|NSSystemDefinedMask|NSApplicationDefinedMask|NSPeriodicMask)	// other events, o's above 
 };
 
