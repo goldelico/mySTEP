@@ -65,7 +65,7 @@
 				[[NSColor grayColor] setFill];
 				[theSeparator moveToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y)];
 				[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y + sepRect.size.height)];
-				[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x + sepRect.size.width, sepRect.origin.y +(sepRect.size.height /2))];
+				[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x + sepRect.size.width, sepRect.origin.y + (sepRect.size.height /2))];
 				[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y)];
 				[theSeparator closePath];
 				[theSeparator fill];
@@ -121,14 +121,15 @@
 		for(i=0; i<cnt; i++)
 		{
 			NSPathComponentCell *cell=[_pathComponentCells objectAtIndex:i];
-			
 			r.size=[cell cellSize];	// make as wide as the cell content defines
+			r.size.height=rect.size.height;	// and as high as the NSPathCell
 			_rects[i]=r;
 			r.origin.x += NSWidth(r)+8.0;	// advance
 		}
-		if(cnt && NSMaxX(_rects[cnt-1]) > NSMaxX(rect))
+		if(cnt > 0 && NSMaxX(_rects[cnt-1]) > NSMaxX(rect))
 		{ // total width of cells is wider than our cell frame
 			// truncate in the middle
+			// loop over all rects and make them smaller
 		}
 	}
 	return _rects[idx];
@@ -168,8 +169,7 @@
 	_pathStyle=pathStyle;
 	if(pathStyle == NSPathStyleNavigationBar)
 		[self setControlSize:NSSmallControlSize];	// enforce
-	else
-		_needsSizing=YES;
+	_needsSizing=YES;	// resize for new content
 }
 
 - (void) setPlaceholderAttributedString:(NSAttributedString *) attrStr; { ASSIGN(_placeholderAttributedString, attrStr); }

@@ -31,19 +31,24 @@
 
 @protocol _NSLoginWindowProtocol	// communication with system UI (which should be the loginwindow process)
 
-	/* system menu */
+	/* system menu activities */
 
-- (oneway void) showShutdownDialog;
-- (oneway void) showRestartDialog;
+// UI level
+- (oneway void) showShutdownDialog;		// ask for shutdown
+- (oneway void) showRestartDialog;		// ask for restart
 - (oneway void) showForceQuitDialog;	// show the force-quit dialog
-- (oneway void) reallyLogout;			// immediately log out
+- (oneway void) chooseUser;			// allow to choose a different user
 - (oneway void) logout;					// request a logout
+
+- (oneway void) showAboutPanel;				// show About panel
+- (oneway void) showSoftwareUpdater;
+- (oneway void) showKillApplications;	// show Applications list panel
+
+// basic functions (without UI)
+- (oneway void) reallyLogout;			// immediately log out
 - (oneway void) shutdown;				// request a shutdown
 - (oneway void) restart;				// request a restart
 - (oneway void) sleep;					// request to sleep
-- (oneway void) showAboutPanel;			// show About panel
-- (oneway void) showSoftwareUpdater;
-- (oneway void) showKillApplications;	// show Applications list panel
 
 	/* system wide sound generator */
 
@@ -56,8 +61,8 @@
 
 	/* global window list / window levels */
 
-- (int []) windowList;
-- (int []) windowsAtLevel:(int) level;
+// - (int []) windowList;
+// - (int []) windowsAtLevel:(int) level;
 
 	/* request&cancel user attention for a given application */
 
