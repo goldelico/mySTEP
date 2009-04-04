@@ -160,7 +160,6 @@ enum {
 	NSColor *_textColor;
 	NSFont *_font;
 	NSFormatter *_formatter;
-	NSString *_title;
 	NSMenu *_menu;
 	id _placeholderString;
 	struct __CellFlags {

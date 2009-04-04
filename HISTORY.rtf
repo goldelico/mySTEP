@@ -18,6 +18,10 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \b0 \
 \
+* added missing Cursor icons and moved cursors to separate subdirectory\
+* made -[NSCursor set] really work on X11\
+* improved NSPathControl/Cell/ComponentCell\
+* made -[NSCell title/setTitle] synonyms for -[NSCell stringValue/setStringValue] (except NSButtonCell), i.e. removed _title iVar from NSCell and introduced in NSButtonCell\
 * improved NSMutableArray operations by using memmove()\
 * stuffed some memory leaks\
 * improved performance of GSSequence decompose (reduced number of memcpy calls)\

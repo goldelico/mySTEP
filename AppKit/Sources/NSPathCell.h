@@ -26,7 +26,6 @@ typedef NSInteger NSPathStyle;
 	NSPathComponentCell *_clickedPathComponentCell; 
 	id _delegate; 
 	NSArray *_pathComponentCells; 
-	NSAttributedString *_placeholderAttributedString;
 	NSRect *_rects;
 	SEL _doubleAction; 
 	NSPathStyle _pathStyle;

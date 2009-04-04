@@ -44,7 +44,6 @@ static Class __formCellClass = Nil;
 		[self setAlignment:NSLeftTextAlignment];
 		_titleWidth = -1;
 		_titleCell = [[NSCell alloc] initTextCell:aString];
-		_titleCell->_d.verticallyCentered=YES;
 		[_titleCell setBordered:NO];
 		[_titleCell setBezeled:NO];
 		[_titleCell setEditable:NO];

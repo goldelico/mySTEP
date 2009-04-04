@@ -72,10 +72,8 @@
 			}
 		}
 	}
-	else if(_placeholderAttributedString)
-		; // draw
-	else if(_placeholderString)
-		; // draw placeholderString (with default attributes)
+	else
+		[self drawWithFrame:cellFrame inView:controlView];	// should handle placeholder string
 }
 
 - (NSArray *) allowedTypes; { return _allowedTypes; }
@@ -104,8 +102,10 @@
 
 - (NSArray *) pathComponentCells; { return _pathComponentCells; }
 - (NSPathStyle) pathStyle; { return _pathStyle; }
-- (NSAttributedString *) placeholderAttributedString; { return _placeholderAttributedString; }
-- (NSString *) placeholderString; { return _placeholderString; }
+- (NSString *) placeholderString;			{ return ([_placeholderString isKindOfClass:[NSString class]])?_placeholderString:nil; }
+- (void) setPlaceholderString:(NSString *) string; { ASSIGN(_placeholderString, string); }
+- (NSAttributedString *) placeholderAttributedString;	{ return ([_placeholderString isKindOfClass:[NSAttributedString class]])?_placeholderString:nil; }
+- (void) setPlaceholderAttributedString:(NSAttributedString *) string; { ASSIGN(_placeholderString, string); }
 
 - (NSRect) rectOfPathComponentCell:(NSPathComponentCell *) c withFrame:(NSRect) rect inView:(NSView *) view;
 {
@@ -167,12 +167,10 @@
 - (void) setPathStyle:(NSPathStyle) pathStyle;
 {
 	_pathStyle=pathStyle;
+	_needsSizing=YES;	// resize for new style
 	if(pathStyle == NSPathStyleNavigationBar)
 		[self setControlSize:NSSmallControlSize];	// enforce
-	_needsSizing=YES;	// resize for new content
 }
-
-- (void) setPlaceholderAttributedString:(NSAttributedString *) attrStr; { ASSIGN(_placeholderAttributedString, attrStr); }
 
 - (void) setURL:(NSURL *) url;
 {
@@ -272,6 +270,7 @@
 {
 	if((self = [super initWithCoder:coder]))
 			{
+				// FIXME: check what IB writes into NIB/XIB files
 				[self setAllowedTypes:[coder decodeObjectForKey:@"allowedTypes"]];
 				[self setBackgroundColor:[coder decodeObjectForKey:@"backgroundColor"]];
 				[self setPathComponentCells:[coder decodeObjectForKey:@"componentCells"]];

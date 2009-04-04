@@ -83,6 +83,7 @@ enum {
 	NSFont *_keyEquivalentFont;
 	NSColor *_backgroundColor;
 	NSImage *_image;	// image that is currently drawn (FIXME: should not be an iVar)
+	NSString *_title;
 	unsigned int _keyEquivalentModifierMask;
 	unsigned int _highlightMask;
 	unsigned int _stateMask;
@@ -143,7 +144,7 @@ enum {
 - (void) setShowsBorderOnlyWhileMouseInside:(BOOL) flag;
 - (void) setShowsStateBy:(NSInteger) aType;
 - (void) setSound:(NSSound *) aSound;
-// inherited - (void) setTitle:(NSString *)aString;					// -> NSCell
+- (void) setTitle:(NSString *) aString;
 // inherited - (void) setTitleWithMnemonic:(NSString *)aString;		// -> NSCell
 - (void) setTransparent:(BOOL) flag;
 - (BOOL) showsBorderOnlyWhileMouseInside;

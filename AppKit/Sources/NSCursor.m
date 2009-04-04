@@ -29,15 +29,6 @@ static BOOL __cursorIsHiddenUntilMouseMoved = YES;
 
 static NSCursor *__blankCursor, *__hiddenCursor, *__currentCursor;
 
-#define CURSOR(name) \
-{ \
-	static NSCursor *c; \
-	if(!c) \
-		NSLog(@"load cursor %@", name); \
-		c=[[NSCursor alloc] initWithImage:[NSImage imageNamed:name] hotSpot:(NSPoint){3, 2}]; \
-	return c; \
-}
-
 
 @implementation NSCursor
 
@@ -64,12 +55,34 @@ static NSCursor *__blankCursor, *__hiddenCursor, *__currentCursor;
 		}
 }													
 													// blank cursor must exist
-+ (void) unhide										// and be current cursor in
-{													// order to unhide
-	if(!__blankCursor || __currentCursor != __blankCursor)								
-		return;
-	[__hiddenCursor set];							// Revert to current cursor
+#define CURSOR(name, x, y) \
+{ \
+static NSCursor *c; \
+if(!c) \
+c=[[NSCursor alloc] initWithImage:[NSImage imageNamed:name] hotSpot:(NSPoint){x, y}]; \
+return c; \
 }
+
++ (NSCursor *) arrowCursor; { CURSOR(@"GSArrowCursor", 3, 2); }	
++ (NSCursor *) closedHandCursor; { CURSOR(@"GSClosedHandCursor", 8, 8); }	
++ (NSCursor *) crosshairCursor; { CURSOR(@"GSCrosshairCursor", 8, 8); }	
++ (NSCursor *) disappearingItemCursor; { CURSOR(@"GSDisappearingItemCursor", 8, 8); }	
++ (NSCursor *) IBeamCursor; { CURSOR(@"GSIBeamCursor", 8, 8); }				// Create standard I beam
++ (NSCursor *) openHandCursor; { CURSOR(@"GSOpenHandCursor", 8, 8); }	
++ (NSCursor *) pointingHandCursor; { CURSOR(@"GSPointingHandCursor", 8, 8); }	
++ (NSCursor *) resizeDownCursor; { CURSOR(@"GSResizeDownCursor", 8, 8); }	
++ (NSCursor *) resizeLeftCursor; { CURSOR(@"GSResizeLeftCursor", 8, 8); }	
++ (NSCursor *) resizeLeftRightCursor; { CURSOR(@"GSResizeCursor", 8, 8); }
++ (NSCursor *) resizeRightCursor; { CURSOR(@"GSResizeRightCursor", 8, 8); }	
++ (NSCursor *) resizeUpCursor; { CURSOR(@"GSResizeUpCursor", 8, 8); }	
++ (NSCursor *) resizeUpDownCursor; { CURSOR(@"GSResizeUpDownCursor", 8, 8); }
+
++ (NSCursor *) _copyCursor; { CURSOR(@"GSCopyCursor", 8, 8); }				// mySTEP extension
++ (NSCursor *) _linkCursor; { CURSOR(@"GSLinkCursor", 8, 8); }				// mySTEP extension
++ (NSCursor *) _hiddenCursor; { CURSOR(@"GSHiddenCursor", 8, 8); }		// mySTEP extension
+
++ (NSCursor *) currentCursor		{ return __currentCursor; }
++ (BOOL) isHiddenUntilMouseMoves	{ return __cursorIsHiddenUntilMouseMoved; }
 
 + (void) hide
 {
@@ -77,30 +90,17 @@ static NSCursor *__blankCursor, *__hiddenCursor, *__currentCursor;
 		return;
 	__hiddenCursor = __currentCursor;				// Save the current cursor
 	if(!__blankCursor)
-		__blankCursor=[[self alloc] initWithImage:[NSImage imageNamed:@"GSHiddenCursor"] hotSpot:NSZeroPoint];	// will create a "None" cursor
+		__blankCursor=[self _hiddenCursor];
 	[__blankCursor set];							// and set the blank cursor
 	__currentCursor = __blankCursor;
 }
 
-+ (NSCursor *) arrowCursor; { CURSOR(@"GSArrowCursor"); }	
-+ (NSCursor *) closedHandCursor; { CURSOR(@"GSClosedHandCursor"); }	
-+ (NSCursor *) crosshairCursor; { CURSOR(@"GSCrosshairCursor"); }	
-+ (NSCursor *) disappearingItemCursor; { CURSOR(@"GSDisappearingItemCursor"); }	
-+ (NSCursor *) IBeamCursor; { CURSOR(@"GSIBeamCursor"); }				// Create standard I beam
-+ (NSCursor *) openHandCursor; { CURSOR(@"GSOpenHandCursor"); }	
-+ (NSCursor *) pointingHandCursor; { CURSOR(@"GSPointingHandCursor"); }	
-+ (NSCursor *) resizeDownCursor; { CURSOR(@"GSResizeDownCursor"); }	
-+ (NSCursor *) resizeLeftCursor; { CURSOR(@"GSResizeLeftCursor"); }	
-+ (NSCursor *) resizeLeftRightCursor; { CURSOR(@"GSResizeCursor"); }
-+ (NSCursor *) resizeRightCursor; { CURSOR(@"GSResizeRightCursor"); }	
-+ (NSCursor *) resizeUpCursor; { CURSOR(@"GSResizeUpCursor"); }	
-+ (NSCursor *) resizeUpDownCursor; { CURSOR(@"GSResizeUpDownCursor"); }
-
-+ (NSCursor *) _copyCursor; { CURSOR(@"GSCopyCursor"); }				// mySTEP extension
-+ (NSCursor *) _linkCursor; { CURSOR(@"GSLinkCursor"); }				// mySTEP extension
-
-+ (NSCursor *) currentCursor		{ return __currentCursor; }
-+ (BOOL) isHiddenUntilMouseMoves	{ return __cursorIsHiddenUntilMouseMoved; }
++ (void) unhide										// and be current cursor in
+{													// order to unhide
+	if(!__blankCursor || __currentCursor != __blankCursor)								
+		return;
+	[__hiddenCursor set];							// Revert to current cursor
+}
 
 - (id) initWithImage:(NSImage *) image
  foregroundColorHint:(NSColor *) fg

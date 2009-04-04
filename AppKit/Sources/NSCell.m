@@ -89,6 +89,7 @@ static NSCursor *__textCursor = nil;
 		_c.type = NSNullCellType;		// force initialization as NSTextCellType (incl. font & textColor)
 		[self setType:NSTextCellType];	// make us a text cell which should assign default font and color
 		ASSIGN(_contents, aString);
+		_d.verticallyCentered=YES;	// default
 		}
 	return self;
 }
@@ -100,7 +101,6 @@ static NSCursor *__textCursor = nil;
 	[_textColor release];
 	[self setFont:nil];
 	[self setFormatter:nil];
-	[self setTitle:nil];	
 	[self setMenu:nil];	
 	[super dealloc];
 }
@@ -115,7 +115,6 @@ static NSCursor *__textCursor = nil;
 	c->_textColor = [_textColor retain];
 	c->_font = [_font retain];
 	c->_formatter = [_formatter retain];
-	c->_title = [_title retain];
 	c->_menu = [_menu retain];
 	c->_placeholderString = [_placeholderString retain];	
 	c->_c = _c;
@@ -141,7 +140,6 @@ static NSCursor *__textCursor = nil;
 	if(_c.secure) [a appendString:@"secure\n"];
 	if(_c.drawsBackground) [a appendString:@"drawsBackground\n"];
 	if(_c.allowsMixed) [a appendString:@"allowsMixed\n"];
-	[a appendFormat:@"title=%@\n", _title];
 	[a appendFormat:@"font=%@\n", _font];
 	[a appendFormat:@"textColor=%@\n", _textColor];
 	[a appendFormat:@"controlView=%@\n", _controlView];
@@ -151,7 +149,7 @@ static NSCursor *__textCursor = nil;
 	return a;
 }
 
-- (void) calcDrawInfo:(NSRect)aRect			{ SUBCLASS }		// implemented by subclass
+- (void) calcDrawInfo:(NSRect)aRect			{ SUBCLASS; }		// implemented by subclass
 
 - (NSSize) cellSize
 {
@@ -232,7 +230,6 @@ static NSCursor *__textCursor = nil;
 			[self setImage:nil];
 			break;
 		case NSTextCellType:
-			[self setTitle:@"Button"];
 			if(!_textColor)
 				_textColor = [[NSColor controlTextColor] retain];	// default
 			if(!_font)
@@ -268,12 +265,11 @@ static NSCursor *__textCursor = nil;
 - (id) formatter							{ return _formatter; }
 - (id) representedObject					{ return _representedObject; }
 - (void) setRepresentedObject:(id)o			{ ASSIGN(_representedObject, o); }
-- (NSString *) title						{ return _title; }
-- (void) setTitle:(NSString *)title			{ ASSIGN(_title, title); }
+- (NSString *) title						{ return [self stringValue]; }
+- (void) setTitle:(NSString *)title			{ [self setStringValue:title]; }
 + (NSMenu *) defaultMenu;					{ return nil; }
 - (NSMenu *) menu							{ return _menu; }
 - (void) setMenu:(NSMenu *)menu				{ ASSIGN(_menu, menu); }
-- (void) setTitleWithMnemonic:(NSString *)aString; { [self setTitle:aString]; }
 - (id) objectValue							{ return _contents; }
 
 - (NSMenu *) menuForEvent:(NSEvent *) event inRect:(NSRect) rect ofView:(NSView *) view
@@ -283,6 +279,10 @@ static NSCursor *__textCursor = nil;
 		m=[view menuForEvent:event];
 	return m;
 }
+
+// CHECKME/FIXME - according to documentation this is NOT the formatted value but documentation is a little inconsistent here
+
+- (void) setTitleWithMnemonic:(NSString *)aString; { [self setTitle:aString]; }
 
 - (NSString *) stringValue;
 { // try to format as NSString
@@ -1187,16 +1187,16 @@ static NSCursor *__textCursor = nil;
 			_d.imageScaling=NSScaleNone;
 
 		_placeholderString=[[aDecoder decodeObjectForKey:@"NSPlaceholderString"] retain];
-		_title=[[aDecoder decodeObjectForKey:@"NSTitle"] retain];		// title string
 		_font=[[aDecoder decodeObjectForKey:@"NSSupport"] retain];		// font
 		_menu=[[aDecoder decodeObjectForKey:@"NSMenu"] retain];
 		_textColor=[[aDecoder decodeObjectForKey:@"NSTextColor"] retain];
 		_formatter=[[aDecoder decodeObjectForKey:@"NSFormatter"] retain];
 		if([aDecoder containsValueForKey:@"NSState"])
 			_c.state = [aDecoder decodeIntForKey:@"NSState"];	// overwrite state
+		if([aDecoder containsValueForKey:@"NSContents"])
+			[self setTitle:[aDecoder decodeObjectForKey:@"NSContents"]];		// define sets title for buttons and stringValue for standard cells
 		[aDecoder decodeObjectForKey:@"NSAccessibilityOverriddenAttributes"];	// just reference - should save and merge with superclass
 		_controlView=[aDecoder decodeObjectForKey:@"NSControlView"];		// might be a class-swapped object!
-		_contents=[[aDecoder decodeObjectForKey:@"NSContents"] retain];	// contents object
 #if 0
 		NSLog(@"%@ initWithCoder:%@", self, aDecoder);
 		NSLog(@"  NSCellFlags=%08x", [aDecoder decodeIntForKey:@"NSCellFlags"]);

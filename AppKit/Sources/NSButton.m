@@ -93,6 +93,7 @@ id __buttonCellClass = nil;
 {
 	NSButtonCell *c = [super copyWithZone:zone];
 
+	c->_title = [_title retain];
 	c->_alternateTitle = [_alternateTitle copyWithZone:zone];
 	if(_alternateImage)
 		c->_alternateImage = [_alternateImage retain];
@@ -120,6 +121,7 @@ id __buttonCellClass = nil;
 - (NSString *) description;
 {
 	return [NSString stringWithFormat:@"%@\n"
+					@"title=%@\n", 
 		@"stateMask=%02x\n"
 		@"highlightMask=%02x\n" 
 		@"buttonType=%d\n" 
@@ -127,7 +129,7 @@ id __buttonCellClass = nil;
 		@"transparent=%d\n"
 		@"dimsWhenDisabled=%d\n" 
 		@"bgcolor=%@\n", 
-		[super description], _stateMask, _highlightMask, _buttonType, _bezelStyle, _transparent, _dimsWhenDisabled, _backgroundColor
+		[super description], _title, _stateMask, _highlightMask, _buttonType, _bezelStyle, _transparent, _dimsWhenDisabled, _backgroundColor
 		];
 }
 
@@ -146,6 +148,8 @@ id __buttonCellClass = nil;
 - (void) _setMixedImage:(NSImage *)anImage	{ ASSIGN(_mixedImage, anImage); }
 - (NSAttributedString *) attributedTitle	{ return [_title isKindOfClass:[NSAttributedString class]]?(NSAttributedString *) _title:[[[NSAttributedString alloc] initWithString:_title] autorelease]; }
 - (NSString *) title						{ return [_title isKindOfClass:[NSAttributedString class]]?[(NSAttributedString *) _title string]:_title; }
+- (void) setTitle:(NSString *)title			{ ASSIGN(_title, title); }
+- (void) setTitleWithMnemonic:(NSString *)aString; { [self setTitle:aString]; }
 - (void) setAttributedTitle:(NSAttributedString *)aStr	{ ASSIGN(_title, aStr); }
 
 - (void) setImagePosition:(NSCellImagePosition)aPosition
@@ -840,7 +844,7 @@ id __buttonCellClass = nil;
 		  // might have to depend on bezel style
 		}
 	cellFrame=[self titleRectForBounds:cellFrame];
-	_d.verticallyCentered=YES;	// within its box
+	_d.verticallyCentered=YES;	// default is vertically centered within its box
 	textFrame=cellFrame;
 	if(_image && !(_c.imagePosition == NSNoImage || _c.imagePosition == NSImageOverlaps))
 		{ // adjust text field position for image
@@ -1059,14 +1063,13 @@ id __buttonCellClass = nil;
 			else if([name isEqualToString:@"NSSwitch"])
 				_buttonType=NSSwitchButton;
 			}
-		ASSIGN(_title, [aDecoder decodeObjectForKey:@"NSContents"]);		// define as title string and not really _contents
-		if([aDecoder containsValueForKey:@"NSAttributedTitle"])
-			ASSIGN(_title, [aDecoder decodeObjectForKey:@"NSAttributedTitle"]);	// overwrite
 		ASSIGN(_keyEquivalent, [aDecoder decodeObjectForKey:@"NSKeyEquivalent"]);
 		if([aDecoder containsValueForKey:@"NSKeyEquiv"])
 			ASSIGN(_keyEquivalent, [aDecoder decodeObjectForKey:@"NSKeyEquiv"]);
 		if([aDecoder containsValueForKey:@"NSKeyEquivModMask"])
 			_keyEquivalentModifierMask = [aDecoder decodeIntForKey:@"NSKeyEquivModMask"];
+		if([aDecoder containsValueForKey:@"NSAttributedTitle"])
+			[self setAttributedTitle:[aDecoder decodeObjectForKey:@"NSAttributedTitle"]];	// overwrite
 		_periodicDelay = 0.001*[aDecoder decodeIntForKey:@"NSPeriodicDelay"];
 		_periodicInterval = 0.001*[aDecoder decodeIntForKey:@"NSPeriodicInterval"];
 #if 0

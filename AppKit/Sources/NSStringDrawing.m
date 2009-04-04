@@ -44,8 +44,7 @@ NSStringDrawing.m
 	[self drawWithRect:r options:0 attributes:attrs];
 }
 
-- (void) drawInRect:(NSRect)rect
-	 withAttributes:(NSDictionary *)attrs;
+- (void) drawInRect:(NSRect)rect withAttributes:(NSDictionary *)attrs;
 {
 	[self drawWithRect:rect options:0 attributes:attrs];
 }

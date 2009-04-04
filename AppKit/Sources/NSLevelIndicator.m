@@ -29,7 +29,6 @@
 {
 	if((self=[super init]))
 		{
-		_d.verticallyCentered=YES;
 		_c.alignment=NSCenterTextAlignment;
 		_style=style;
 		_maxValue=10.0;

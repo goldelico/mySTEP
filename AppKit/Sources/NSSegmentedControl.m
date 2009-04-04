@@ -147,7 +147,6 @@
 {
 	if((self=[super initTextCell:aString]))
 		{
-		_d.verticallyCentered=YES;
 		_c.alignment=NSCenterTextAlignment;
 		_lastSelected=-1;	// none
 		_segments=[[NSMutableArray alloc] initWithCapacity:10];
@@ -326,7 +325,6 @@
 	if(![aDecoder allowsKeyedCoding])
 		{ [self release]; return nil; }
 	_c.enabled=YES;
-	_d.verticallyCentered=YES;
 	_c.alignment=NSCenterTextAlignment;
 	_lastSelected=-1;	// none
 	_segments = [[aDecoder decodeObjectForKey:@"NSSegmentImages"] retain];	// array of segments
