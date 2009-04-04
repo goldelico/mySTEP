@@ -6,6 +6,7 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
+#import <Cocoa/Cocoa.h>
 #import "NSStringTest.h"
 
 // see http://developer.apple.com/tools/unittest.html

@@ -10,6 +10,9 @@
 		EE0C72090F7E733F008B94EE /* NSStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE0C71F80F7E7278008B94EE /* NSStringTest.m */; };
 		EE0C72180F7E7423008B94EE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
 		EED109C90F82540300E9AEC6 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
+		EED980320F875953002E4AD5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
+		EED980330F875953002E4AD5 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
+		EED9803E0F875962002E4AD5 /* NSTextFieldCellTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +22,10 @@
 		EE0C72040F7E7328008B94EE /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		EED109C80F82540300E9AEC6 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EED980280F87594E002E4AD5 /* NSTextFieldCellTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextFieldCellTest.h; sourceTree = "<group>"; };
+		EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextFieldCellTest.m; sourceTree = "<group>"; };
+		EED9803A0F875953002E4AD5 /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EED9803B0F875953002E4AD5 /* Tests-Info copy.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info copy.plist"; sourceTree = "<group>"; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		EEFFF0EC098DF148002610FC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -34,6 +41,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EED980310F875953002E4AD5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EED980320F875953002E4AD5 /* Foundation.framework in Frameworks */,
+				EED980330F875953002E4AD5 /* SenTestingKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -42,9 +58,11 @@
 			children = (
 				EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */,
 				EE0C70D20F7E7174008B94EE /* Foundation */,
+				EED980270F87594E002E4AD5 /* AppKit */,
 				EEFFF241098DF160002610FC /* MacOS X Frameworks */,
 				EE29D8D8058A38830035639B /* Products */,
 				EE0C72040F7E7328008B94EE /* Tests-Info.plist */,
+				EED9803B0F875953002E4AD5 /* Tests-Info copy.plist */,
 			);
 			name = BrowserTester;
 			sourceTree = "<group>";
@@ -78,8 +96,18 @@
 			isa = PBXGroup;
 			children = (
 				EE0C72030F7E7328008B94EE /* Tests.octest */,
+				EED9803A0F875953002E4AD5 /* Tests.octest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		EED980270F87594E002E4AD5 /* AppKit */ = {
+			isa = PBXGroup;
+			children = (
+				EED980280F87594E002E4AD5 /* NSTextFieldCellTest.h */,
+				EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */,
+			);
+			path = AppKit;
 			sourceTree = "<group>";
 		};
 		EEFFF241098DF160002610FC /* MacOS X Frameworks */ = {
@@ -103,8 +131,8 @@
 				EE0C71FE0F7E7328008B94EE /* Resources */,
 				EE0C71FF0F7E7328008B94EE /* Sources */,
 				EE0C72000F7E7328008B94EE /* Frameworks */,
-				EED10A120F82590100E9AEC6 /* ShellScript */,
-				EE0C72010F7E7328008B94EE /* ShellScript */,
+				EE0C72010F7E7328008B94EE /* Run Tests */,
+				EED10A120F82590100E9AEC6 /* Cross Compile */,
 			);
 			buildRules = (
 			);
@@ -113,6 +141,25 @@
 			name = Foundation;
 			productName = Tests;
 			productReference = EE0C72030F7E7328008B94EE /* Tests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+		EED9802D0F875953002E4AD5 /* AppKit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EED980360F875953002E4AD5 /* Build configuration list for PBXNativeTarget "AppKit" */;
+			buildPhases = (
+				EED9802E0F875953002E4AD5 /* Resources */,
+				EED9802F0F875953002E4AD5 /* Sources */,
+				EED980310F875953002E4AD5 /* Frameworks */,
+				EED980350F875953002E4AD5 /* Run Tests */,
+				EED980340F875953002E4AD5 /* Cross Compile */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AppKit;
+			productName = Tests;
+			productReference = EED9803A0F875953002E4AD5 /* Tests.octest */;
 			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
@@ -129,6 +176,7 @@
 			projectRoot = "";
 			targets = (
 				EE0C72020F7E7328008B94EE /* Foundation */,
+				EED9802D0F875953002E4AD5 /* AppKit */,
 			);
 		};
 /* End PBXProject section */
@@ -141,34 +189,71 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EED9802E0F875953002E4AD5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		EE0C72010F7E7328008B94EE /* ShellScript */ = {
+		EE0C72010F7E7328008B94EE /* Run Tests */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Run Tests";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
 		};
-		EED10A120F82590100E9AEC6 /* ShellScript */ = {
+		EED10A120F82590100E9AEC6 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Cross Compile";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# project settings\nexport SOURCES=\"Foundation/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/Frameworks   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
+		EED980340F875953002E4AD5 /* Cross Compile */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Cross Compile";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# project settings\nexport SOURCES=\"Foundation/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/Frameworks   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
+		EED980350F875953002E4AD5 /* Run Tests */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Tests";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -178,6 +263,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE0C72090F7E733F008B94EE /* NSStringTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EED9802F0F875953002E4AD5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EED9803E0F875962002E4AD5 /* NSTextFieldCellTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,7 +284,7 @@
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SYSTEM_LIBRARY_DIR)/Frameworks",
-					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
@@ -296,6 +389,94 @@
 			};
 			name = Default;
 		};
+		EED980370F875953002E4AD5 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_ENABLE_SYMBOL_SEPARATION = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
+				INFOPLIST_FILE = "/usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/Tests-Info copy.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				LIBRARY_SEARCH_PATHS = /Developer/Library;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = Tests;
+				SDKROOT = "";
+				USER_HEADER_SEARCH_PATHS = "";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Development;
+		};
+		EED980380F875953002E4AD5 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				INFOPLIST_FILE = "/usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/Tests-Info copy.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Tests;
+				WRAPPER_EXTENSION = octest;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EED980390F875953002E4AD5 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				INFOPLIST_FILE = "/usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/Tests-Info copy.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Tests;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Default;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -315,6 +496,16 @@
 				EE1A0192097304E200EAB703 /* Development */,
 				EE1A0193097304E200EAB703 /* Deployment */,
 				EE1A0194097304E200EAB703 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EED980360F875953002E4AD5 /* Build configuration list for PBXNativeTarget "AppKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EED980370F875953002E4AD5 /* Development */,
+				EED980380F875953002E4AD5 /* Deployment */,
+				EED980390F875953002E4AD5 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
