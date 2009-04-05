@@ -157,8 +157,11 @@ enum {
 	id _contents;
 	id _controlView;
 	id _representedObject;
-	NSColor *_textColor;
-	NSFont *_font;
+	NSMutableDictionary *_attribs;	// attribute dict
+	// FIXME: the next 3 are stored in the attribs dict
+	NSColor *_textColor;	// NSForegroundColorAttributeName
+	NSFont *_font;	// NSFontAttributeName
+	NSMutableParagraphStyle *_style;	// NSParagraphStyleAttributeName
 	NSFormatter *_formatter;
 	NSMenu *_menu;
 	id _placeholderString;
@@ -177,8 +180,8 @@ enum {
 		UIBITFIELD(unsigned int, actOnMouseDragged, 1);
 		UIBITFIELD(unsigned int, actOnMouseUp, 1);
 		UIBITFIELD(unsigned int, floatAutorange, 1);
-		TYPEDBITFIELD(NSCellType, type, 2);		
-		TYPEDBITFIELD(NSTextAlignment, alignment, 3);
+		TYPEDBITFIELD(NSCellType, type, 2);	
+		TYPEDBITFIELD(NSTextAlignment, alignment, 3);		// FIXME: move to _style
 		TYPEDBITFIELD(NSCellImagePosition, imagePosition, 3);
 		UIBITFIELD(unsigned int, editing, 1);
 		UIBITFIELD(unsigned int, secure, 1);
@@ -197,7 +200,7 @@ enum {
 		UIBITFIELD(unsigned int, importsGraphics, 1);
 		UIBITFIELD(unsigned int, allowsEditingTextAttributes, 1);
 		UIBITFIELD(unsigned int, allowsUndo, 1);
-		TYPEDBITFIELD(NSLineBreakMode, lineBreakMode, 3);
+		TYPEDBITFIELD(NSLineBreakMode, lineBreakMode, 3);		// FIXME: move to _style
 		UIBITFIELD(unsigned int, verticallyCentered, 1);
 		TYPEDBITFIELD(NSImageScaling, imageScaling, 2);
 		} _d;
