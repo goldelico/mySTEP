@@ -69,7 +69,9 @@
 - (void) drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 { // draw components
 	[super drawInteriorWithFrame:[self searchTextRectForBounds:cellFrame] inView:controlView];
+	[_searchButtonCell setTransparent:NO];
 	[_searchButtonCell drawInteriorWithFrame:[self searchButtonRectForBounds:cellFrame] inView:controlView];
+	[_cancelButtonCell setTransparent:[[self stringValue] length] == 0];
 	[_cancelButtonCell drawInteriorWithFrame:[self cancelButtonRectForBounds:cellFrame] inView:controlView];
 }
 
@@ -87,6 +89,8 @@
 	[[NSColor blackColor] set];
 	[p stroke];		// fill border
 	[p addClip];	// clip to contour
+	if(!_c.editing)
+		[self drawInteriorWithFrame:cellFrame inView:controlView];
 	[ctxt restoreGraphicsState];
 }
 
@@ -109,14 +113,6 @@
 - (NSMenu *) searchMenuTemplate; { return _menuTemplate; }
 - (void) setSearchMenuTemplate:(NSMenu *) menu; { ASSIGN(_menuTemplate, menu); }
 
-- (void) _searchFieldCancel:(id) sender;
-{
-}
-
-- (void) _searchFieldSearch:(id) sender;
-{
-}
-
 - (NSButtonCell *) cancelButtonCell; { return _cancelButtonCell; }
 - (void) setCancelButtonCell:(NSButtonCell *) cell; { ASSIGN(_cancelButtonCell, cell); }
 - (NSButtonCell *) searchButtonCell; { return _searchButtonCell; }
@@ -129,12 +125,14 @@
 	[c setBezelStyle:NSRegularSquareBezelStyle];	// configure the button
 	[c setBordered:NO];
 	[c setBezeled:NO];
-	[c setTransparent:YES];
 	[c setEditable:NO];
 	[c setImagePosition:NSImageOnly];
 //	[c setAlignment:NSRightTextAlignment];
 	[c setImage:[NSImage imageNamed:@"GSStop"]];
+	[c setTarget:self];
+	[c setAction:@selector(_cancel:)];
 	[self setCancelButtonCell:c];
+	[c release];
 }
 
 - (void) resetSearchButtonCell;
@@ -144,11 +142,13 @@
 	[c setBezelStyle:NSRegularSquareBezelStyle];	// configure the button
 	[c setBordered:NO];
 	[c setBezeled:NO];
-	[c setTransparent:YES];
 	[c setEditable:NO];
 	[c setImagePosition:NSImageOnly];
 	[c setImage:[NSImage imageNamed:@"GSSearch"]];
+	[c setTarget:self];
+	[c setAction:@selector(_search:)];
 	[self setSearchButtonCell:c];
+	[c release];
 }
 
 #define ICON_WIDTH	16
@@ -196,13 +196,31 @@
 // make search button send action to target (or responder chain)
 // make search button menu working
 
-- (void) _textDidChange:(NSText *) text
-{ // make textChanged send action (unless disabled)
-	NSLog(@"NSSearchField _textDidChange:%@", text);
+- (void) textDidChange:(NSText *) text
+{ // make textChanged send action (unless disabled or too fast)
+	NSLog(@"NSSearchField textDidChange:%@", text);
 	if(sendsWholeSearchString)
 		return;	// ignore
 	NSLog(@"current text: %@", [text string]);
 	[self setStringValue:[text string]]; // copy the current NSTextEdit string so that it can be read from the NSSearchFieldCell!
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(performClick:) object:_controlView];	// cancel previous performer so that we collect several key events
+	[self performSelector:@selector(performClick:) withObject:_controlView afterDelay:0.5];	// start a new timeout
+}
+
+- (void) _cancel:(id) sender;
+{ // user did choose the cancel button
+	// how does this influence the fieldEditor?
+	[self setStringValue:@""];
+}
+
+- (void) textDidEnd:(NSText *) text
+{
+	[self setStringValue:[text string]]; // copy the current NSTextEdit string so that it can be read from the NSSearchFieldCell!
+	[self performClick:_controlView];
+}
+
+- (void) _search:(id) sender;
+{ // did choose the search button (or typed enter)
 	[self performClick:_controlView];
 }
 
@@ -237,13 +255,11 @@
 #define FLAG (sfFlags[0] != 0)
 		sendsWholeSearchString=FLAG;	// ????
 		}
-	_cancelButtonCell = [[aDecoder decodeObjectForKey:@"NSCancelButtonCell"] retain];
-	_searchButtonCell = [[aDecoder decodeObjectForKey:@"NSSearchButtonCell"] retain];
+/*	_cancelButtonCell = */ [[aDecoder decodeObjectForKey:@"NSCancelButtonCell"] retain];
+/*	_searchButtonCell = */ [[aDecoder decodeObjectForKey:@"NSSearchButtonCell"] retain];
 	maxRecents = [aDecoder decodeIntForKey:@"NSMaximumRecents"];
 	sendsWholeSearchString = [aDecoder decodeBoolForKey:@"NSSendsWholeSearchString"];
 	// NSSearchFieldFlags - NSData (?)
-	[self resetCancelButtonCell];
-	[self resetSearchButtonCell];
 #if 0
 	NSLog(@"%@ initWithCoder:%@", self, aDecoder);
 #endif

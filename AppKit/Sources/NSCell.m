@@ -38,7 +38,6 @@
 // Class variables
 static NSFont *__defaultFont = nil;
 static NSColor *__borderedBackgroundColor = nil;
-static NSCursor *__textCursor = nil;
 
 @implementation NSCell
 
@@ -48,7 +47,6 @@ static NSCursor *__textCursor = nil;
 		{
 		__defaultFont = [[NSFont userFontOfSize:0] retain];
 		__borderedBackgroundColor = [[NSColor controlBackgroundColor] retain];
-		__textCursor = [[NSCursor IBeamCursor] retain];
 		}
 }
 
@@ -82,8 +80,10 @@ static NSCursor *__textCursor = nil;
 	if((self=[super init]))
 		{
 		_c.enabled = YES;
-		_c.alignment = NSCenterTextAlignment;
 		_c.floatAutorange = YES;
+		_attribs=[[NSMutableDictionary alloc] initWithCapacity:5];
+		[_attribs setObject:[[[NSParagraphStyle defaultParagraphStyle] mutableCopy] autorelease] forKey:NSParagraphStyleAttributeName];
+		[self setAlignment:NSCenterTextAlignment];
 		[self sendActionOn:NSLeftMouseUpMask];
 		ASSIGN(_menu, [isa defaultMenu]);	// set default context menu
 		_c.type = NSNullCellType;		// force initialization as NSTextCellType (incl. font & textColor)
@@ -98,10 +98,9 @@ static NSCursor *__textCursor = nil;
 {
 	[self setObjectValue:nil];
 	[self setRepresentedObject:nil];
-	[_textColor release];
-	[self setFont:nil];
 	[self setFormatter:nil];
 	[self setMenu:nil];	
+	[_attribs release];
 	[super dealloc];
 }
 
@@ -112,8 +111,7 @@ static NSCursor *__textCursor = nil;
 	c->_contents = [_contents copyWithZone:zone];
 	c->_controlView = _controlView;
 	c->_representedObject = [_representedObject retain];
-	c->_textColor = [_textColor retain];
-	c->_font = [_font retain];
+	c->_attribs = [_attribs copyWithZone:zone];
 	c->_formatter = [_formatter retain];
 	c->_menu = [_menu retain];
 	c->_placeholderString = [_placeholderString retain];	
@@ -140,8 +138,7 @@ static NSCursor *__textCursor = nil;
 	if(_c.secure) [a appendString:@"secure\n"];
 	if(_c.drawsBackground) [a appendString:@"drawsBackground\n"];
 	if(_c.allowsMixed) [a appendString:@"allowsMixed\n"];
-	[a appendFormat:@"font=%@\n", _font];
-	[a appendFormat:@"textColor=%@\n", _textColor];
+	[a appendFormat:@"attribs=%@\n", _attribs];
 	[a appendFormat:@"controlView=%@\n", _controlView];
 	[a appendFormat:@"formatter=%@\n", _formatter];
 	[a appendFormat:@"representedObject=%@\n", _representedObject];
@@ -155,12 +152,12 @@ static NSCursor *__textCursor = nil;
 {
 	NSSize m;
 	// Font should depend on _d.controlSize!
-	if(_c.type == NSTextCellType && _font)
+	if(_c.type == NSTextCellType && _attribs)
 		{
 		if([_contents isKindOfClass:[NSAttributedString class]])
 			m=[_contents size];
 		else
-			m=[_contents sizeWithAttributes:[NSDictionary dictionaryWithObjectsAndKeys:_font, NSFontAttributeName, nil]];
+			m=[_contents sizeWithAttributes:_attribs];
 			m.width += 4.0;
 		}
 	else if (_c.type == NSImageCellType && _contents != nil)
@@ -230,13 +227,8 @@ static NSCursor *__textCursor = nil;
 			[self setImage:nil];
 			break;
 		case NSTextCellType:
-			if(!_textColor)
-				_textColor = [[NSColor controlTextColor] retain];	// default
-			if(!_font)
-				_font = [__defaultFont retain];
-#if 0
-			NSLog(@"textColor=%@ font=%@", _textColor, _font);
-#endif
+				[_attribs setObject:[NSColor controlTextColor] forKey:NSForegroundColorAttributeName];
+				[_attribs setObject:__defaultFont forKey:NSFontAttributeName];
 			break;
 	// default: raise exception?
 		}
@@ -286,24 +278,12 @@ static NSCursor *__textCursor = nil;
 
 - (NSString *) stringValue;
 { // try to format as NSString
-	NSString *string;				// string
-	NSDictionary *attribs;
-	NSAttributedString *astring;	// or attributed string to draw
-	[self _getFormattedString:&string withAttribs:&attribs orAttributedString:&astring ignorePlaceholder:YES];
-	if(astring)
-		return [astring string];
-	return string;
+	return [[self _getFormattedStringIgnorePlaceholder:YES] string];
 }
 
 - (NSAttributedString *) attributedStringValue
 { // try to format as NSAttributedString
-	NSString *string;				// string
-	NSDictionary *attribs;
-	NSAttributedString *astring;	// or attributed string to draw
-	[self _getFormattedString:&string withAttribs:&attribs orAttributedString:&astring ignorePlaceholder:YES];
-	if(astring)
-		return astring;	// directly returns an attributed string
-	return [[[NSAttributedString alloc] initWithString:string attributes:attribs] autorelease];
+	return [self _getFormattedStringIgnorePlaceholder:YES];
 }
 
 - (double) doubleValue						{ return [_contents doubleValue]; }
@@ -397,19 +377,25 @@ static NSCursor *__textCursor = nil;
 	_c.floatAutorange = autoRange;					// FIX ME create formatter 
 }													// if needed and set format
 
-- (NSTextAlignment) alignment					{ return _c.alignment; }
-- (NSLineBreakMode) lineBreakMode					{ return _d.lineBreakMode; }
-- (void) setAlignment:(NSTextAlignment)mode		{ _c.alignment = mode; }
-- (void) setLineBreakMode:(NSLineBreakMode) mode; { _d.lineBreakMode=mode; }
+- (NSTextAlignment) alignment					{ return [[_attribs objectForKey:NSParagraphStyleAttributeName] alignment]; }
+- (NSLineBreakMode) lineBreakMode					{ return [[_attribs objectForKey:NSParagraphStyleAttributeName] lineBreakMode]; }
+- (void) setAlignment:(NSTextAlignment)mode		{ [[_attribs objectForKey:NSParagraphStyleAttributeName] setAlignment:mode]; }
+- (void) setLineBreakMode:(NSLineBreakMode) mode; { [[_attribs objectForKey:NSParagraphStyleAttributeName] setLineBreakMode:mode]; }
 - (void) setScrollable:(BOOL)flag				{ _c.scrollable = flag; }
 - (void) setWraps:(BOOL)flag					{ NIMP }
 - (BOOL) isScrollable							{ return _c.scrollable; }
 - (BOOL) wraps									{ return NO; }
-- (NSFont*) font								{ return _font; }
+- (NSColor *) _textColor;						{ return [_attribs objectForKey:NSForegroundColorAttributeName]; }
+- (void) _setTextColor:(NSColor *) textColor; { [_attribs setObject:textColor forKey:NSForegroundColorAttributeName]; }
+
+- (NSFont*) font								{ return [_attribs objectForKey:NSFontAttributeName]; }
 
 - (void) setFont:(NSFont*)fontObject
 {
-	ASSIGN(_font, ((fontObject) ? fontObject : __defaultFont));
+	if(fontObject)
+		[_attribs setObject:fontObject forKey:NSFontAttributeName];
+	else
+		[_attribs removeObjectForKey:NSFontAttributeName];
 }
 
 - (BOOL) isEditable						{ return _c.editable && !_c.editing; }
@@ -429,40 +415,49 @@ static NSCursor *__textCursor = nil;
 
 - (NSText*) setUpFieldEditorAttributes:(NSText*)textObject
 { // make the field editor imitate the cell as good as possible - note: the field editor is shared for all cells in a window
-	NSString *str;
-	if(_c.enabled && _textColor)
-		[textObject setTextColor:_textColor];
+	if(NO /* cell has no rich text */)
+			{
+				NSString *str;
+				if(_c.enabled && [_attribs objectForKey:NSForegroundColorAttributeName])
+					[textObject setTextColor:[_attribs objectForKey:NSForegroundColorAttributeName]];
+				else
+					[textObject setTextColor:[NSColor disabledControlTextColor]];
+				[textObject setEditable:_c.editable];	// editable always sets selectable
+				[textObject setFont:[self font]];
+				[textObject setAlignment:[self alignment]];
+				// FIXME: we should check if the cell has an attributed string value and set rich text...
+				[textObject setRichText:NO];
+#if 0
+				NSLog(@"textObject setString:%@", [self stringValue]);
+#endif
+				str=[self stringValue];
+				if(str)
+					[textObject setString:str];
+			}
 	else
-		[textObject setTextColor:[NSColor disabledControlTextColor]];
-	[textObject setEditable:_c.editable];	// editable always sets selectable
+			{
+				// set attributed string
+				[textObject setRichText:YES];
+			}
 	if(!_c.editable)
 		[textObject setSelectable:_c.selectable];	// pass on selectable flag
-	[textObject setFont:_font];
-	[textObject setAlignment:_c.alignment];
-	// FIXME: we should check if the cell has an attributed string value and set rich text...
-	[textObject setRichText:NO];
-#if 0
-	NSLog(@"textObject setString:%@", [self stringValue]);
-#endif
-	str=[self stringValue];
-	if(str) [textObject setString:str];
 	[textObject setFocusRingType:NSFocusRingTypeExterior];
-
+	
 	if(_c.drawsBackground)
-		{
-		[textObject setBackgroundColor:[(id)self backgroundColor]];
-		[textObject setDrawsBackground:YES];
-		}
+			{
+				[textObject setBackgroundColor:[(id)self backgroundColor]];
+				[textObject setDrawsBackground:YES];
+			}
 	else if(_c.bezeled)
-		{
-		[textObject setBackgroundColor:[NSColor controlBackgroundColor]];
-		[textObject setDrawsBackground:YES];
-		}
+			{
+				[textObject setBackgroundColor:[NSColor controlBackgroundColor]];
+				[textObject setDrawsBackground:YES];
+			}
 	else if(_c.bordered && __borderedBackgroundColor)
-		{
-		[textObject setBackgroundColor:__borderedBackgroundColor];
-		[textObject setDrawsBackground:YES];
-		}
+			{
+				[textObject setBackgroundColor:__borderedBackgroundColor];
+				[textObject setDrawsBackground:YES];
+			}
 	else
 		[textObject setDrawsBackground:NO];
 	return textObject;
@@ -484,21 +479,23 @@ static NSCursor *__textCursor = nil;
 		  start:(int)0	 
 		  length:(int)0];
 
-	[textObject mouseDown:event];
+	[textObject mouseDown:event];	// NOTE: this will track until mouse goes up!
 }
-											// editing is complete, remove the
-- (void) endEditing:(NSText*)textObject		// text obj	acting as field	editor	
-{											// from window's view heirarchy
+
+- (void) endEditing:(NSText*)textObject
+{ // editing is complete, remove the text obj	acting as field	editor from window's view heirarchy
 	NSView *v;
 	NSRect r;
-
+#if 1
 	NSLog(@"endEditing %@", self);
-
-	[textObject retain];	// we still need it later - but doesn't this leak???
+#endif
+	
+	// FIXME: shouldn't we copy the text value back to the cell here?
+	
+	[textObject setDelegate:nil];	// no longer create notifications
 	if(_c.scrollable)
-		{
+		{ // we did have an encapsulating clip view
 		NSClipView *c = (NSClipView *) [textObject superview];
-
 		v = [c superview];
 		r = [c frame];
 		[c retain];	
@@ -510,11 +507,6 @@ static NSCursor *__textCursor = nil;
 		r = [textObject frame];
 		[textObject removeFromSuperview];	
 		}				
-	[textObject setDelegate:nil];	// no longer create notifications
-	
-// FIXME: shouldn't we copy the text value back to the cell here?
-	
-//	[textObject release];	// can we release here?
 	_c.editing = NO;
 	[v displayRect:r];
 }
@@ -526,7 +518,7 @@ static NSCursor *__textCursor = nil;
 				  start:(int)selStart	 
 				  length:(int)selLength
 {
-	if(controlView && textObject && _font && _c.type == NSTextCellType)
+	if(controlView && textObject && _c.type == NSTextCellType)
 		{
 		NSWindow *w;
 		NSClipView *controlSuperView;
@@ -535,45 +527,29 @@ static NSCursor *__textCursor = nil;
 		NSLog(@"	current window=%@", [textObject window]);
 		NSLog(@"	current firstResponder=%@", [[textObject window] firstResponder]);
 #endif
-		// make sure previous field edit is not in use
+		// make sure previous field editor is not in use
 		if((w = [textObject window]))
 			[w makeFirstResponder:w];
 #if 0
 		NSLog(@"	new firstResponder=%@", [[textObject window] firstResponder]);
-#endif		
+#endif	
 		controlSuperView = (NSClipView *)[textObject superview];
 		if(controlSuperView && (![controlSuperView isKindOfClass:[NSClipView class]]))
 			controlSuperView = nil;	// text object is not embedded in a clip view
-		if(controlSuperView)
-			{
-#if 1
-			NSLog(@"	%@ setNeedsDisplayInRect:%@", controlSuperView, NSStringFromRect([textObject frame]));
-#endif
-			[controlSuperView setNeedsDisplayInRect:[textObject frame]];	// make previous superview redisplay cell
-			}
-		// now set up new field editor
-		if(_c.scrollable)
-			[textObject setFrame:(NSRect){{0,1},aRect.size}];
-		else
-			{
-			if(controlSuperView)
-				[controlSuperView setDocumentView:nil];
-			[textObject setFrame:NSOffsetRect(aRect, 1.0, -1.0)];	// adjust so that it really overlaps
-			}
-	
 		[textObject setDelegate:anObject];
 		[self setUpFieldEditorAttributes:textObject];
 		[textObject setSelectedRange:(NSRange){selStart, selLength}];
 	
 		if(_c.scrollable)
 			{ // if we are scrollable, put us in a clipview
+			[textObject setFrame:(NSRect){{0,1},aRect.size}];
 			if(!controlSuperView)
-				{
+				{ // insert into new clipview
 				controlSuperView = [[[NSClipView alloc] initWithFrame:aRect] autorelease];
 				[controlSuperView setDocumentView:textObject];
 				}
 			else
-				{
+				{ // update the clipview
 				[controlSuperView setBoundsOrigin:NSZeroPoint];
 				[controlSuperView setFrame:aRect];
 				}
@@ -581,7 +557,15 @@ static NSCursor *__textCursor = nil;
 			[textObject sizeToFit];
 			}
 		else
-			[controlView addSubview:textObject];
+				{ // remove us from any clip view
+					if(controlSuperView)
+							{
+								[controlSuperView setDocumentView:nil];	// if we had been scrollable
+								[controlSuperView removeFromSuperview];	// give up the clipview
+							}
+					[textObject setFrame:NSOffsetRect(aRect, 1.0, -1.0)];	// adjust so that it really overlaps
+					[controlView addSubview:textObject];
+				}
 		[[controlView window] makeFirstResponder:textObject];	// make the field editor the first responder
 		_c.editing = YES;	// now consider the cell as editing
 		[controlView setNeedsDisplayInRect:aRect];	// and redisplay new NSText (over the cell)
@@ -670,77 +654,63 @@ static NSCursor *__textCursor = nil;
 
 // FIXME: the formatter should be applied once when setting the object - not when drawing!???
 
-- (void) _getFormattedString:(NSString **) string withAttribs:(NSDictionary **) attribs orAttributedString:(NSAttributedString **) astring ignorePlaceholder:(BOOL) flag;	// whichever is more convenient
+- (NSAttributedString *) _getFormattedStringIgnorePlaceholder:(BOOL) flag;	// whichever is more convenient
 { // get whatever you have
+	int length;
+	NSAttributedString *string=nil;
 #if 0
 	NSLog(@"_getFormattedString...");
 #endif
-	if(!_textColor)
-		_textColor=[[NSColor textColor] retain];	// enforce system default
-	*attribs=[NSMutableDictionary dictionaryWithObjectsAndKeys:
-		(_c.enabled ? _textColor : [NSColor disabledControlTextColor]),	NSForegroundColorAttributeName,
-		_font, NSFontAttributeName,
-						// should we include paragraph alignment? _c.alignment
-		nil];
-	*string=nil;
-	*astring=nil;
+	NSDictionary *attribs=_attribs;	// set default
+	if(!_c.enabled)
+			{ // replace by disabledControlTextColor
+				attribs=[[_attribs mutableCopy] autorelease];	// copy attributes
+				[(NSMutableDictionary *) attribs setObject:[NSColor disabledControlTextColor] forKey:NSForegroundColorAttributeName];
+			}
 #if 0
-	NSLog(@"attribs=%@", *attribs);
-	NSLog(@"string=%@", *string);
-	NSLog(@"astring=%@", *astring);
+	NSLog(@"attribs=%@", attribs);
 	NSLog(@"_formatter=%@", _formatter);
 	NSLog(@"_contents=%@", _contents);
 	NSLog(@"_contents class=%@", [_contents class]);
 #endif
 	if(_formatter)
-		{
-		if([_formatter respondsToSelector:@selector(attributedStringForObjectValue:withDefaultAttributes:)])
-			*astring=[_formatter attributedStringForObjectValue:_contents withDefaultAttributes:*attribs];
-		if(*astring == nil)
-			*string=[_formatter stringForObjectValue:_contents];
-		}
+			{
+				if([_formatter respondsToSelector:@selector(attributedStringForObjectValue:withDefaultAttributes:)])
+					string=[_formatter attributedStringForObjectValue:_contents withDefaultAttributes:attribs];
+				if(string == nil)
+					string=[[[NSAttributedString alloc] initWithString:[_formatter stringForObjectValue:_contents] attributes:attribs] autorelease];
+			}
 	else if([_contents isKindOfClass:[NSAttributedString class]])
-		*astring=_contents;   // as is
+		string=_contents;   // is already an attributed string
 	else
-		*string=[_contents description];
+		string=[[[NSAttributedString alloc] initWithString:[_contents description] attributes:attribs] autorelease];
 #if 0
-	NSLog(@"attribs=%@", *attribs);
-	NSLog(@"string=%@", *string);
-	NSLog(@"astring=%@", *astring);
+	NSLog(@"string=%@", string);
 #endif
-	if(_c.secure)   // set by NSSecureTextField
-		{
-		if(*astring)
+	length=[string length];
+	if(length > 0)
 			{
-				// should we keep attributes?
-			*string=[@"" stringByPaddingToLength:[*astring length] withString:@"*" startingAtIndex:0]; // replace with sequence of *
-			*astring=nil;
+				if(_c.secure)   // set by NSSecureTextField
+						{
+							string=[string mutableCopy];
+							[(NSMutableAttributedString *) string replaceCharactersInRange:NSMakeRange(0, length) withString:[@"" stringByPaddingToLength:length withString:@"*" startingAtIndex:0]];	// replace with sequence of *
+							[string autorelease];
+						}
 			}
-		else
-			*string=[@"" stringByPaddingToLength:[*string length] withString:@"*" startingAtIndex:0]; // replace with sequence of *
-		}
+	else if(!flag && _placeholderString)
+			{ // substitute placeholder
+				if([_placeholderString isKindOfClass:[NSAttributedString class]])
+					string=_placeholderString;	// we already have an attributed placeholder
+				else
+						{
+							string=[[[NSMutableAttributedString alloc] initWithString:_placeholderString attributes:attribs] autorelease];
+							[(NSMutableAttributedString *) string addAttribute:NSForegroundColorAttributeName value:[NSColor disabledControlTextColor] range:NSMakeRange(0, [string length])];
+						}
+			}
 #if 0
-	NSLog(@"attribs=%@", *attribs);
-	NSLog(@"string=%@", *string);
-	NSLog(@"astring=%@", *astring);
-#endif	
-	if(!flag && _placeholderString && [*astring length] == 0 && [*string length] == 0)
-		{ // substitute placeholder
-		if([_placeholderString isKindOfClass:[NSAttributedString class]])
-			{ // we have an attributed placeholder
-			*astring=_placeholderString;
-			*string=nil;
-			}
-		else
-			{
-			*string=_placeholderString;
-			*astring=nil;
-			[(NSMutableDictionary *)(*attribs) setObject:[NSColor lightGrayColor] forKey:NSForegroundColorAttributeName];
-			}
-		}
-#if 0
-	NSLog(@"string=%@ attribs=%@ astring=%@", *string, *attribs, *astring);
+	NSLog(@"string=%@", string);
 #endif
+	return string;
 }
 
 - (void) drawInteriorWithFrame:(NSRect)frame inView:(NSView*)controlView
@@ -756,38 +726,13 @@ static NSCursor *__textCursor = nil;
 		frame=NSInsetRect(frame, 1, 1);	// fit within border
 	if(_c.type == NSTextCellType)
 		{
-		NSString *string;				// string
-		NSMutableDictionary *attribs;
-		NSAttributedString *astring;	// or attributed string to draw
-		NSSize size;
-		[self _getFormattedString:&string withAttribs:&attribs orAttributedString:&astring ignorePlaceholder:NO];
+		NSAttributedString *astring=[self _getFormattedStringIgnorePlaceholder:NO];
 #if 0
-		NSLog(@"NSCell drawInterior string=%@ astring=%@ attribs=%@ _textColor=%@", string, astring, attribs, _textColor);
-#endif	
-		if(astring)
-			size=[astring size]; // determine bounding box of text
-		else
-			size=[string sizeWithAttributes:attribs];
-		frame.origin.x += 2;	// add left&right spacing
-		frame.size.width -= 4;
-			// shouldn't this be based on the paragraph attributes of the string?
-			// or shouldn't NSString drawInRect: take care of it
-		switch(_c.alignment) 					// Determine x position of text
-			{
-			case NSJustifiedTextAlignment:
-				// set required kerning/spacing
-			case NSLeftTextAlignment:
-			case NSNaturalTextAlignment:
-				break;
-			case NSRightTextAlignment:
-				frame.origin.x += NSWidth(frame) - size.width;
-				break;
-			case NSCenterTextAlignment:
-				frame.origin.x += (NSWidth(frame) - size.width) / 2;
-				break;
-			}
+		NSLog(@"NSCell drawInterior astring=%@", astring);
+#endif
 		if(_d.verticallyCentered)
-			{
+			{ // vertically center
+			NSSize size=[astring size]; // determine bounding box of text
 			if([controlView isFlipped])
 				frame.origin.y += (NSHeight(frame) - size.height) / 2;
 			else
@@ -796,10 +741,7 @@ static NSCursor *__textCursor = nil;
 #if 0
 		NSLog(@"inFrame %@", NSStringFromRect(frame));
 #endif
-		if(astring)
-			[astring drawInRect:frame];
-		else
-			[string drawInRect:frame withAttributes:attribs];
+		[astring drawInRect:frame];
 		return;
 		}
 	
@@ -1079,7 +1021,7 @@ static NSCursor *__textCursor = nil;
 				  inView:(NSView *)controlView
 {
 	if(_c.type == NSTextCellType && _c.selectable&& !_c.editing)
-		[controlView addCursorRect:cellFrame cursor:__textCursor];
+		[controlView addCursorRect:cellFrame cursor:[NSCursor IBeamCursor]];
 }
 
 - (void) setShowsFirstResponder:(BOOL)flag;	{ _c.showsFirstResponder = flag; }
@@ -1097,7 +1039,7 @@ static NSCursor *__textCursor = nil;
 - (void) encodeWithCoder:(NSCoder *) aCoder						// NSCoding protocol
 {
 	[aCoder encodeObject:_contents];
-	[aCoder encodeObject:_font];
+	[aCoder encodeObject:[self font]];
 	[aCoder encodeValueOfObjCType:@encode(unsigned int) at:&_c];   // warning!! works with real bitfields only!!
 	[aCoder encodeValueOfObjCType:@encode(unsigned int) at:&_d];
 	[aCoder encodeConditionalObject:_controlView];
@@ -1139,7 +1081,7 @@ static NSCursor *__textCursor = nil;
 #define LEAF ((cellflags&0x00020000)!=0)
 		_d.isLeaf=LEAF;
 #define LINEBREAKMODE ((cellflags&0x00007000)>>12)
-		_d.lineBreakMode=LINEBREAKMODE;
+			[self setLineBreakMode:LINEBREAKMODE];
 #define ACTDRAG ((cellflags&0x00000100)!=0)
 		_c.actOnMouseDragged=ACTDRAG;
 #define LOADED ((cellflags&0x00000080)!=0)
@@ -1156,7 +1098,7 @@ static NSCursor *__textCursor = nil;
 #define IMPORTSGRAPHICS ((cellflags2&0x10000000)!=0)	// does not match bitfield definitions but works
 		_d.importsGraphics=IMPORTSGRAPHICS;
 #define ALIGNMENT ((cellflags2&0x1c000000)>>26)
-		_c.alignment=ALIGNMENT;
+			[self setAlignment:ALIGNMENT];
 #define REFUSESFIRSTRESPONDER ((cellflags2&0x00010000)!=0)
 		_c.refusesFirstResponder=REFUSESFIRSTRESPONDER;
 #define ALLOWSUNDO ((cellflags2&0x00004000)==0)
@@ -1187,9 +1129,10 @@ static NSCursor *__textCursor = nil;
 			_d.imageScaling=NSScaleNone;
 
 		_placeholderString=[[aDecoder decodeObjectForKey:@"NSPlaceholderString"] retain];
-		_font=[[aDecoder decodeObjectForKey:@"NSSupport"] retain];		// font
+		[self setFont:[aDecoder decodeObjectForKey:@"NSSupport"]];		// font
 		_menu=[[aDecoder decodeObjectForKey:@"NSMenu"] retain];
-		_textColor=[[aDecoder decodeObjectForKey:@"NSTextColor"] retain];
+		if([aDecoder containsValueForKey:@"NSTextColor"])
+			[self _setTextColor:[aDecoder decodeObjectForKey:@"NSTextColor"]];
 		_formatter=[[aDecoder decodeObjectForKey:@"NSFormatter"] retain];
 		if([aDecoder containsValueForKey:@"NSState"])
 			_c.state = [aDecoder decodeIntForKey:@"NSState"];	// overwrite state
@@ -1210,7 +1153,7 @@ static NSCursor *__textCursor = nil;
 		return self;
 		}
 	_contents = [[aDecoder decodeObject] retain];
-	_font = [[aDecoder decodeObject] retain];
+	[self setFont:[aDecoder decodeObject]];
 	[aDecoder decodeValueOfObjCType:@encode(unsigned int) at: &_c];
 	[aDecoder decodeValueOfObjCType:@encode(unsigned int) at: &_d];
 	_controlView = [aDecoder decodeObject];

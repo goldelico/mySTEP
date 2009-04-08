@@ -164,19 +164,41 @@ static NSAttributedString *_currentString;
 #if 0
 	NSLog(@"drawWithRect:options: %@", self);
 #endif
+	
+	{	// FIXME: should be processed by layoutManager
+		NSParagraphStyle *para=[[self attributesAtIndex:0 effectiveRange:NULL] objectForKey:NSParagraphStyleAttributeName];
+		switch([para alignment])
+			{
+				case NSLeftTextAlignment:
+				case NSNaturalTextAlignment:
+					break;
+				case NSRightTextAlignment:
+				case NSCenterTextAlignment:
+				case NSJustifiedTextAlignment:
+					{
+						NSSize size=[_layoutManager boundingRectForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
+																																												 actualCharacterRange:NULL]
+																									inTextContainer:_textContainer].size;
+						if([para alignment] == NSRightTextAlignment)
+							rect.origin.x = NSMaxX(rect)-size.width-2.0;	// start at right edge
+						else
+							rect.origin.x += (rect.size.width-size.width)/2-1.0;	// center
+					}
+			}
+	}
 	[_layoutManager drawGlyphsForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
-																   actualCharacterRange:NULL]
-									atPoint:rect.origin];
+																																 actualCharacterRange:NULL]
+																	atPoint:rect.origin];
 	// underline...
 	// strikethrough...
 	[ctxt restoreGraphicsState];
 	if(options&NSStringDrawingOneShot)
-		{ // remove
-		[_textStorage release];
-		_textStorage=nil;
-		_layoutManager=nil;
-		_textContainer=nil;
-		}
+			{ // remove
+				[_textStorage release];
+				_textStorage=nil;
+				_layoutManager=nil;
+				_textContainer=nil;
+			}
 }
 
 - (NSSize) size;

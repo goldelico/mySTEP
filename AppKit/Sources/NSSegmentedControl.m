@@ -147,9 +147,9 @@
 {
 	if((self=[super initTextCell:aString]))
 		{
-		_c.alignment=NSCenterTextAlignment;
-		_lastSelected=-1;	// none
-		_segments=[[NSMutableArray alloc] initWithCapacity:10];
+			[self setAlignment:NSCenterTextAlignment];
+			_lastSelected=-1;	// none
+			_segments=[[NSMutableArray alloc] initWithCapacity:10];
 		}
 	return self;
 }
@@ -203,7 +203,7 @@
 	NSSegmentItem *s=[_segments objectAtIndex:i];
 	int border=(i==0?1:0)+(i==[_segments count]-1?2:0);
 	NSImage *img;
-	_c.enabled=[s enabled];
+	_c.enabled=[s enabled];	// copy status of current cell
 	[NSBezierPath _drawRoundedBezel:border inFrame:frame enabled:[(NSSegmentedControl *) controlView isEnabled] && _c.enabled selected:[s selected] highlighted:_c.highlighted radius:5.0];
 	if((img=[s image]))
 		{ // composite segment image
@@ -325,7 +325,7 @@
 	if(![aDecoder allowsKeyedCoding])
 		{ [self release]; return nil; }
 	_c.enabled=YES;
-	_c.alignment=NSCenterTextAlignment;
+	[self setAlignment:NSCenterTextAlignment];
 	_lastSelected=-1;	// none
 	_segments = [[aDecoder decodeObjectForKey:@"NSSegmentImages"] retain];	// array of segments
 	count=[_segments count];
@@ -334,7 +334,6 @@
 		if([[_segments objectAtIndex:i] selected])
 			_selectedCount++;	// count them to track
 		}
-	_textColor = [[NSColor controlTextColor] retain];	// default
 	return self;
 }
 

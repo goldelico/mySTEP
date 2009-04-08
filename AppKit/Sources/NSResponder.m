@@ -92,14 +92,16 @@
 	NSEvent *event;
 	while((event=[e nextObject]))
 		{
+			// if userDefaults "NSQuotedKeystrokeBinding" found (default ctl-q) -> pass next character unbound
 		unsigned int flags=[event modifierFlags];
+			// the order of these flags appears to be fixed: http://www.erasetotheleft.com/post/mac-os-x-key-bindings/
 		NSString *chars=[NSString stringWithFormat:@"%@%@%@%@%@%@%@",
-					   flags&NSCommandKeyMask?@"@":@"",
-						 flags&NSShiftKeyMask?@"$":@"",
-					flags&NSNumericPadKeyMask?@"#":@"",
-					   flags&NSControlKeyMask?@"^":@"",
-					 flags&NSAlternateKeyMask?@"~":@"",
-					   flags&NSFunctionKeyMask?@"":@"",
+										 flags&NSControlKeyMask?@"^":@"",
+										 flags&NSShiftKeyMask?@"$":@"",
+										 flags&NSAlternateKeyMask?@"~":@"",
+										 flags&NSCommandKeyMask?@"@":@"",
+										 flags&NSNumericPadKeyMask?@"#":@"",
+										 flags&NSFunctionKeyMask?@"*":@"",	// unknown if this is compatible
 							[event charactersIgnoringModifiers]];
 		id sel;
 		NSEnumerator *f;
@@ -108,18 +110,22 @@
 			sel=[NSArray arrayWithObjects:@"insertText:", chars, nil];	// default
 		else if([sel isKindOfClass:[NSDictionary class]])
 			{ // submapping
-		// [self _interpretKeyEvents:eventArray-1st entry inMappingTable:sel];
-			continue;
+				// FIXME: what do we do if we have not received enough events, i.e. [[e allObjects] length] == 0
+			[self _interpretKeyEvents:[e allObjects] inMappingTable:sel];	// recursively try to interpret with remaining events
+			break;	// done
 			}
 		else if([sel isKindOfClass:[NSString class]])
 			sel=[NSArray arrayWithObject:sel];
 		f=[sel objectEnumerator];
 		while((sel=[f nextObject]))
-			{ // process all array components
-			if([sel isEqualToString:@"insertText:"])
-				[self insertText:[f nextObject]]; // special case
-			else
-				[self doCommandBySelector:NSSelectorFromString(sel)];
+			{ // process all array components in sequence
+				if([sel hasSuffix:@":"])
+						{ // appears to be a valid entry
+							if([sel isEqualToString:@"insertText:"])
+								[self insertText:[f nextObject]]; // handle special case
+							else
+								[self doCommandBySelector:NSSelectorFromString(sel)];
+						}
 			}
 		}
 }
@@ -128,19 +134,16 @@
 {
 	static NSDictionary *_keyMapping;
 	if(!_keyMapping)
-		{ // initialize table
-		  /* try to load from DefaultKeyMappings.dict
-			search in:
-		/System/Library/Frameworks/AppKit.framework/Resources/StandardKeyBinding.dict 
-		/Library/KeyBindings/DefaultKeyBinding.dict 
-		~/Library/KeyBindings/DefaultKeyBinding.dict 
-*/		
-		_keyMapping=[[NSDictionary alloc] initWithObjectsAndKeys:
-														   @"cut:", @"~c",
-														   @"cut:", @"\027",
-												 @"performAction:", @"\r",
-													@"endEditing:", @"\t",
-			nil];
+		{ // initialize table - according to http://www.erasetotheleft.com/post/mac-os-x-key-bindings/
+			NSDictionary *dict;
+			_keyMapping=[[NSMutableDictionary alloc] initWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:@"StandardKeyBinding" ofType:@"dict"]];	// load standard binding
+			// FIXME: use system method to get file path(s) to search through
+			dict=[NSDictionary dictionaryWithContentsOfFile:@"/Library/KeyBindings/DefaultKeyBinding.dict"];
+			if(dict)
+				[(NSMutableDictionary *) _keyMapping addEntriesFromDictionary:dict];
+			dict=[NSDictionary dictionaryWithContentsOfFile:@"/Library/KeyBindings/DefaultKeyBinding.dict"];
+			if(dict)
+				[(NSMutableDictionary *) _keyMapping addEntriesFromDictionary:dict];
 		}
 	[self _interpretKeyEvents:eventArray inMappingTable:_keyMapping];
 }

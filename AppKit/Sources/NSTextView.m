@@ -324,7 +324,8 @@ static NSCursor *__textCursor = nil;
 				 affinity:(NSSelectionAffinity)affinity 
 				 stillSelecting:(BOOL)stillSelectingFlag
 {
-	[self setSelectedRange:charRange];
+	if(stillSelectingFlag)
+		[self setSelectedRange:charRange];
 }
 
 - (NSSelectionAffinity) selectionAffinity		{ return selectionAffinity; }
@@ -386,7 +387,7 @@ static NSCursor *__textCursor = nil;
 		if(!__caretBlinkTimer)
 			{ // no timer yet
 			NSRunLoop *rl = [NSRunLoop currentRunLoop];		
-			__caretBlinkTimer = [NSTimer timerWithTimeInterval: 0.7
+			__caretBlinkTimer = [NSTimer timerWithTimeInterval: 0.6
 														target: self
 													  selector: @selector(_blinkCaret:)
 													  userInfo: nil
@@ -556,9 +557,7 @@ static NSCursor *__textCursor = nil;
  Sources/NSTextView.m:512: warning: method definition for `-shouldDrawInsertionPoint' not found
  Sources/NSTextView.m:512: warning: method definition for `-shouldChangeTextInRanges:replacementStrings:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setUsesFindPanel:' not found
- Sources/NSTextView.m:512: warning: method definition for `-setSelectedRanges:affinity:stillSelecting:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setSelectedRanges:' not found
- Sources/NSTextView.m:512: warning: method definition for `-setSelectedRange:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setLinkTextAttributes:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setDefaultParagraphStyle:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setContinuousSpellCheckingEnabled:' not found
@@ -621,14 +620,14 @@ static NSCursor *__textCursor = nil;
 	
 	if(![super becomeFirstResponder])
 		return NO;
-	[self updateInsertionPointStateAndRestartTimer:YES];	// start blinking
 	//	reason=NSCancelTextMovement;	// set default reason
 	return YES;
 }
 
 - (BOOL) resignFirstResponder
 {
-	// FIXME: special case if we share the layout manager
+	// FIXME: handle special case if we share the layout manager...
+	// in fact we should blink as long as there are any layoutmnagers with first responder textviews
 	[__caretBlinkTimer invalidate];	// stop any existing timer - there is only one globally blinking cursor!
 	__caretBlinkTimer=nil;
 	insertionPointIsOn=YES;		// end with cursor being off
@@ -809,7 +808,6 @@ static NSCursor *__textCursor = nil;
 								   untilDate:[NSDate distantFuture]						// get next event
 									  inMode:NSEventTrackingRunLoopMode 
 									 dequeue:YES];
-		[self updateInsertionPointStateAndRestartTimer:YES];
 		}
 	[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:NO];	// finally update selection
 #if 1
@@ -817,53 +815,11 @@ static NSCursor *__textCursor = nil;
 #endif	
 }
 
-#if NEW
-// should this also be implemented in NSText???
-// i.e. we should update the insertion point not here but if any selection change occurs!
-
-- (void) moveDown:(id) sender
-{	
-	if(!top line)		
-		cursorPosition.y = [line-1 rect].origin.y;
-	selection=charAt(cursorPosition);
-	reduce selection to length 0
-	[self updateInsertionPointStateAndRestartTimer:YES];
-}
-
-- (void) moveDown:(id) sender
+- (void) setSelectedRange:(NSRange)range;
 {
-
-if(!tbottom line)
-	cursorPosition.y = [line+1 rect].origin.y;
-selection=charAt(cursorPosition);
-reduce selection to length 0
+	[super setSelectedRange:range];
 	[self updateInsertionPointStateAndRestartTimer:YES];
 }
-
-- (void) moveBackwardAndModifySelection:(id) sender (writing direction oriented)
-
-moveLeftAndModifySelection (display oriented left)
-
-{
-if selection.length > 0)
-	reduce selection to length 0
-else if(!first char)
-	select prev (may extend)
-cursorPosition = [self _caretRect].origin;
-	[self updateInsertionPointStateAndRestartTimer:YES];
-}
-
-- (void) moveRight:(id) sender
-{
-if selection.length > 0)
-	reduce selection to length 0
-else if(!last char)
-	select next (may extend)
-cursorPosition = [self _caretRect].origin;
-	[self updateInsertionPointStateAndRestartTimer:YES];
-}
-
-#endif
 
 // NSUserInterfaceValidation
 
@@ -893,17 +849,6 @@ cursorPosition = [self _caretRect].origin;
 - (NSRange) markedRange { return _markedRange; }
 - (NSRange) selectedRange { return _selectedRange; }
 - (void) unmarkText; { _markedRange=NSMakeRange(0, 0); /* redisplay */ }
-
-- (unsigned int) characterIndexForPoint:(NSPoint) pnt;
-{
-	return NSNotFound;	// i.e. outside of all characters
-}
-
-- (void) insertText:(id) str
-{
-	[super insertText:str];
-	[self updateInsertionPointStateAndRestartTimer:YES];
-}
 
 - (NSInteger) conversationIdentifier
 {

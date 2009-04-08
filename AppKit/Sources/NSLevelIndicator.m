@@ -29,9 +29,9 @@
 {
 	if((self=[super init]))
 		{
-		_c.alignment=NSCenterTextAlignment;
-		_style=style;
-		_maxValue=10.0;
+			[self setAlignment:NSCenterTextAlignment];
+			_style=style;
+			_maxValue=10.0;
 		}
 	return self;
 }

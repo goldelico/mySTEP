@@ -56,9 +56,9 @@ static NSImage *__highlightBranchImage;
 #if 0
 		if([self isEnabled])
 			NSLog(@"NSBrowserCell isEnabled");
-		NSLog(@"NSBrowserCell initTextCell _textColor=%@", _textColor);
+		NSLog(@"NSBrowserCell initTextCell _textColor=%@", [self _textColor]);
 #endif
-		_c.alignment = NSLeftTextAlignment;
+		[self setAlignment:NSLeftTextAlignment];
 		_c.selectable = YES;
 		_c.bezeled = NO;
 		_c.bordered = NO;
@@ -72,7 +72,6 @@ static NSImage *__highlightBranchImage;
 {
 	[_branchImage release];
 	[_highlightBranchImage release];
-	
 	[super dealloc];
 }
 
@@ -112,20 +111,18 @@ static NSImage *__highlightBranchImage;
 	NSCompositingOperation op;
 	NSImage *image;
 
-	[_textColor release];
 	if (_c.highlighted || _c.state != NSOffState)
 		{
 		image = _highlightBranchImage;
 		op = NSCompositeHighlight;
-		_textColor = [NSColor selectedMenuItemTextColor];
+			[_attribs setObject:[NSColor selectedMenuItemTextColor] forKey:NSForegroundColorAttributeName];
 		}									
 	else
 		{	
 		image = _branchImage;
 		op = NSCompositeSourceOver;
-		_textColor = [NSColor controlTextColor];
+			[_attribs setObject:[NSColor controlTextColor] forKey:NSForegroundColorAttributeName];
 		}
-	[_textColor retain];
 	if(image)
 		{ // make square room for arrow
 		NSRect imageRect = cellFrame;
@@ -182,7 +179,7 @@ static NSImage *__highlightBranchImage;
 	self=[super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
 		{
-		_c.alignment = NSLeftTextAlignment;
+//		_c.alignment = NSLeftTextAlignment;
 		_c.selectable = YES;
 		_c.bezeled = NO;
 		_c.bordered = NO;

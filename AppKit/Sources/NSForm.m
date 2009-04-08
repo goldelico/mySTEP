@@ -17,6 +17,7 @@
 #import <AppKit/NSFont.h>
 #import <AppKit/NSTextFieldCell.h>
 #import <AppKit/NSColor.h>
+#import "NSAppKitPrivate.h"
 
 
 // Class variables
@@ -154,10 +155,8 @@ static Class __formCellClass = Nil;
 		// alternativ NSName und NSTitle?
 		_titleWidth=[aDecoder decodeFloatForKey:@"NSTitleWidth"];
 		_titleCell=[[aDecoder decodeObjectForKey:@"NSTitleCell"] retain];
-		if(!_textColor)
-			_textColor=[[NSColor controlTextColor] retain];
-		if(!_titleCell->_textColor)
-			_titleCell->_textColor=[[NSColor controlTextColor] retain];
+			[self _setTextColor:[NSColor controlTextColor]];
+			[_titleCell _setTextColor:[NSColor controlTextColor]];
 		return self;
 		}
 	_titleCell = [aDecoder decodeObject];

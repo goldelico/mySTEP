@@ -95,7 +95,9 @@ typedef enum _NSRoundedBezelSegments
 @end
 
 @interface NSCell (NSPrivate)
-- (void) _getFormattedString:(NSString **) string withAttribs:(NSDictionary **) attribs orAttributedString:(NSAttributedString **) astring ignorePlaceholder:(BOOL) flag;	// whichever is more convenient
+- (NSAttributedString *) _getFormattedStringIgnorePlaceholder:(BOOL) flag;
+- (void) _setTextColor:(NSColor *) textColor;
+- (NSColor *) _textColor;
 @end
 
 @interface NSApplication (NSPrivate)

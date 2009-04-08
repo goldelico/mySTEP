@@ -208,15 +208,13 @@ static Class __controlCellClass = Nil;
 
 - (BOOL) abortEditing
 {
-	NSText *t=[_window fieldEditor:NO forObject:_cell];
 #if 1
-	NSLog(@"abort editing %@ - %@", self, t);
+	NSLog(@"abort editing %@ - fieldEditor = %@", self, [_window fieldEditor:NO forObject:_cell]);
 #endif
-	if(!t)
-		return NO;
-	if([t delegate] != self)
-		return NO;	// someone else owns...
-	[[self selectedCell] endEditing:t];
+	if(![_window fieldEditor:NO forObject:_cell])
+		return NO;	// we are not editing
+	if(![self resignFirstResponder])
+		return NO;	// didn't want to...
 	[_window makeFirstResponder:self];
 	return YES;
 }
@@ -319,12 +317,33 @@ static Class __controlCellClass = Nil;
 - (void) setTarget:(id)anObject				{ [_cell setTarget:anObject]; }
 - (NSMenu *) menu							{ return [_cell menu]; }
 - (void) setMenu:(NSMenu *)menu				{ [_cell setMenu:menu]; }
-- (BOOL) refusesFirstResponder;				{ return _refusesFirstResponder; }
-- (void) setRefusesFirstResponder:(BOOL)flag; { _refusesFirstResponder=flag; }
-- (BOOL) acceptsFirstResponder;				{ return !_refusesFirstResponder; }
+- (BOOL) refusesFirstResponder;				{ return [_cell refusesFirstResponder]; }
+- (void) setRefusesFirstResponder:(BOOL)flag; { [_cell setRefusesFirstResponder:flag]; }
 - (NSWritingDirection) baseWritingDirection; { return [_cell baseWritingDirection]; }
 - (void) setBaseWritingDirection:(NSWritingDirection) direction; { [_cell setBaseWritingDirection:direction]; }
 - (void) performClick:(id) sender;		{ [_cell performClick:sender]; }
+
+- (BOOL) acceptsFirstResponder;				{ return ![_cell refusesFirstResponder]; }
+
+- (BOOL) becomeFirstResponder
+{ // become first responder - the cell is activated for editing through a mouseDown
+#if 0
+	NSLog(@"NSTextField %@ becomeFirstResponder", [self stringValue]);
+#endif
+	if([_cell showsFirstResponder])
+		[self setNeedsDisplay];
+	return [super becomeFirstResponder];
+}
+
+- (BOOL) resignFirstResponder;
+{
+#if 0
+	NSLog(@"NSTextField %@ resignFirstResponder", [self stringValue]);
+#endif
+	if([_cell showsFirstResponder])
+		[self setNeedsDisplay];
+	return [super resignFirstResponder];
+}
 
 - (void) mouseDown:(NSEvent*)event
 {

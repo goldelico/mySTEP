@@ -71,8 +71,8 @@
 		{
 		_c.editable = NO;
 		_c.selectable = NO;
-		_c.alignment = NSCenterTextAlignment;
-		ASSIGN(_textColor, [NSColor headerTextColor]);
+		[self setAlignment:NSCenterTextAlignment];
+			[self _setTextColor:[NSColor headerTextColor]];
 		ASSIGN(_backgroundColor, [NSColor headerColor]);
 		}
 	return self;

@@ -29,7 +29,7 @@
 - (NSDatePickerMode) datePickerMode;
 - (NSDatePickerStyle) datePickerStyle;
 - (NSDate *) dateValue;
-- (id) delegate; /* DOESNT EXIST IN API */
+- (id) delegate;
 - (BOOL) drawsBackground;
 - (BOOL) isBezeled;
 - (BOOL) isBordered;

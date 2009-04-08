@@ -2213,7 +2213,7 @@ static NSButtonCell *sharedCell;
 
 		_firstResponder = nil;
 		if (![first resignFirstResponder])			// the first responder must
-			{										// agree to resign
+			{ // agree to resign
 			_firstResponder = first;	// did not!
 #if 1
 				NSLog(@"previous did not resign");

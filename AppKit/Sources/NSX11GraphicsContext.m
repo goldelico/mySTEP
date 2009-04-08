@@ -2653,7 +2653,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		{ // copy dirty area (if any) from back to front buffer
 		static GC neutralGC;	// this is a GC with neutral image processing options
 #if 1
-		NSLog(@"flushing backing store buffer: %@", NSStringFromXRect(_dirty));
+		NSLog(@"flushing backing store buffer: %@ of %@", NSStringFromXRect(_dirty), self);
 #endif
 		if(!neutralGC)
 			neutralGC=XCreateGC(_display, (Window) _graphicsPort, 0, NULL);	// create a default GC

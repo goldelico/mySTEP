@@ -545,54 +545,22 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (BOOL) shouldBeTreatedAsInkEvent:(NSEvent *) theEvent; { return (id)self == (id)[[self window] firstResponder]; }
 
-- (void) deleteBackward:(id) sender;
-{
-	NSRange rng=[self selectedRange];
-	if(rng.length == 0)
-		{
-		if(rng.location == 0)
-			return;	// ignore at beginning of text
-		rng.location--;
-		rng.length=1;
-		}
-	[self replaceCharactersInRange:rng withString:@""];	// remove
-	rng.length=0;
-	[self setSelectedRange:rng];
-}
-
 - (void) insertText:(id) text;
 {
-	// FIXME: can be an attributed string!
+	// FIXME: text can be an attributed string!
 	NSRange rng=[self selectedRange];
-	[self replaceCharactersInRange:rng withString:text];
+	if([text isKindOfClass:[NSString class]])
+		[self replaceCharactersInRange:rng withString:text];
+	else
+		[textStorage replaceCharactersInRange:rng withAttributedString:text];
 	rng.location+=[(NSString *) text length];
 	rng.length=0;
 	[self setSelectedRange:rng];
 }
 
-- (void) insertNewline:(id) sender
+- (unsigned int) characterIndexForPoint:(NSPoint) pnt;
 {
-	NSEvent *event = [NSApp currentEvent];
-	if([event keyCode] == 76)
-		[self insertText:@"\n"];	// new paragraph
-	else
-		[self insertText:@"\n"];	// new line
-}
-
-- (void) keyDown:(NSEvent *)event
-{ // default action (last responder) - here we should interpret keyboard shortcuts
-	NSLog(@"%@ keyDown: %@", NSStringFromClass(isa), event);
-	// we could try to de-queue sequences of key events
-	[self interpretKeyEvents:[NSArray arrayWithObject:event]];
-}
-
-- (void) interpretKeyEvents:(NSArray *) events;
-{
-	if(_tx.fieldEditor)
-		{
-		// handle return, escape, tab, arrow keys differently
-		}
-	[super interpretKeyEvents:events];
+	return NSNotFound;	// i.e. outside of all characters
 }
 
 - (void) mouseDown:(NSEvent *)event
@@ -637,6 +605,102 @@ NSString *NSTextMovement=@"NSTextMovement";
 #endif	
 }
 
+- (void) keyDown:(NSEvent *)event
+{ // default action (last responder) - here we should interpret keyboard shortcuts
+	NSLog(@"%@ keyDown: %@", NSStringFromClass(isa), event);
+	// we could try to queue/dequeue sequences of key events
+	[self interpretKeyEvents:[NSArray arrayWithObject:event]];
+}
+
+// keyboard actions
+
+- (void) deleteBackward:(id) sender;
+{
+	NSRange rng=[self selectedRange];
+	if(rng.length == 0)
+			{
+				if(rng.location == 0)
+					return;	// ignore at beginning of text
+				rng.location--;
+				rng.length=1;
+			}
+	[self replaceCharactersInRange:rng withString:@""];	// remove
+	rng.length=0;
+	[self setSelectedRange:rng];
+}
+
+- (void) insertNewlineIgnoringFieldEditor:(id) sender
+{
+	[self insertText:@"\n"];	// new paragraph
+}
+
+- (void) insertNewline:(id) sender
+{
+	if(_tx.fieldEditor)
+			{
+				// handle return, escape, tab, arrow keys differently
+			}
+	[self insertNewlineIgnoringFieldEditor:sender];
+}
+
+- (void) insertTabIgnoringFieldEditor:(id) sender
+{
+	[self insertText:@"\t"];	// new paragraph
+}
+
+- (void) insertTab:(id) sender
+{
+	if(_tx.fieldEditor)
+			{
+				// handle return, escape, tab, arrow keys differently
+			}
+	[self insertTabIgnoringFieldEditor:sender];
+}
+
+#if NEW
+// shouldn't this be implemented in NSText???
+// i.e. we should update the insertion point not here but if any selection change occurs!
+
+- (void) moveUp:(id) sender
+{	
+	if(!top line)		
+		cursorPosition.y = [line-1 rect].origin.y;
+	selection=charAt(cursorPosition);
+	reduce selection to length 0
+}
+
+- (void) moveDown:(id) sender
+{
+	
+	if(!tbottom line)
+		cursorPosition.y = [line+1 rect].origin.y;
+	selection=charAt(cursorPosition);
+	reduce selection to length 0
+}
+
+- (void) moveBackwardAndModifySelection:(id) sender (writing direction oriented)
+
+moveLeftAndModifySelection (display oriented left)
+
+{
+	if selection.length > 0)
+		reduce selection to length 0
+		else if(!first char)
+			select prev (may extend)
+			cursorPosition = [self _caretRect].origin;
+}
+
+- (void) moveRight:(id) sender
+{
+	if selection.length > 0)
+		reduce selection to length 0
+		else if(!last char)
+			select next (may extend)
+			cursorPosition = [self _caretRect].origin;
+}
+
+#endif
+
 - (BOOL) acceptsFirstResponder					{ return _tx.selectable; }
 - (BOOL) needsPanelToBecomeKey					{ return _tx.editable; }
 - (BOOL) acceptsFirstMouse:(NSEvent *)event		{ return _tx.fieldEditor; }
@@ -648,9 +712,6 @@ NSString *NSTextMovement=@"NSTextMovement";
 	if(_delegate && [_delegate respondsToSelector:@selector(textShouldBeginEditing:)]
 		&& ![_delegate textShouldBeginEditing:self])
 		return NO;	// delegate did a veto
-//	
-//	if((__caretBlinkTimer == nil) && (_selectedRange.length == 0))
-//		[self _startCaretBlinkTimer];
 //	reason=NSCancelTextMovement;	// set default reason
 	[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:NOTE(DidBeginEditing) object:self]];
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"NSOrderFrontCharacterPalette"])
@@ -660,6 +721,8 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (BOOL) resignFirstResponder
 {
+	//	reason=NSCancelTextMovement;	// set reason
+	[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:NOTE(DidEndEditing) object:self]];
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"NSOrderFrontCharacterPalette"])
 		[NSApp _orderOutCharacterPalette:self];	// automatically hide keyboard if enabled
 	return [super resignFirstResponder];

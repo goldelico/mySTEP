@@ -30,6 +30,8 @@ static Class __controlClass;
 
 - (void) setAlignment:(NSTextAlignment)mode
 {
+	if([super alignment] == mode)
+		return;	// unchanged
 	[super setAlignment:mode];
 	if (_controlView && ([_controlView isKindOfClass: __controlClass]))
 		[(NSControl *)_controlView updateCell: self];
@@ -37,6 +39,8 @@ static Class __controlClass;
 
 - (void) setBezeled:(BOOL)flag
 {
+	if([super isBezeled] == flag)
+		return;	// unchanged
 	[super setBezeled:flag];
 	if (_controlView && ([_controlView isKindOfClass: __controlClass]))
 		[(NSControl *)_controlView updateCell: self];
@@ -44,6 +48,8 @@ static Class __controlClass;
 
 - (void) setBordered:(BOOL)flag
 {
+	if([super isBordered] == flag)
+		return;	// unchanged
 	[super setBordered:flag];
 	if (_controlView && ([_controlView isKindOfClass: __controlClass]))
 		[(NSControl *)_controlView updateCell: self];
@@ -51,6 +57,8 @@ static Class __controlClass;
 
 - (void) setEnabled:(BOOL)flag
 {
+	if([super isEnabled] == flag)
+		return;	// unchanged
 	[super setEnabled:flag];
 	if (_controlView && ([_controlView isKindOfClass: __controlClass]))
 		[(NSControl *)_controlView updateCell: self];
@@ -67,6 +75,8 @@ static Class __controlClass;
 
 - (void) setFont:(NSFont *)fontObject
 {
+	if([super font] == fontObject)
+		return;	// unchanged
 	[super setFont:fontObject];
 	if (_controlView && ([_controlView isKindOfClass: __controlClass]))
 		[(NSControl *)_controlView updateCell:self];
@@ -75,7 +85,7 @@ static Class __controlClass;
 - (void) setImage:(NSImage *)image
 {
 	if(_contents == image)
-		return;
+		return;	// unchanged
 	[super setImage:image];
 	if (_controlView && ([_controlView isKindOfClass: __controlClass]))
 		[(NSControl *)_controlView updateCell:self];
@@ -83,6 +93,8 @@ static Class __controlClass;
 
 - (void) setStringValue:(NSString *)aString
 {
+	if(_contents == aString)
+		return;	// unchanged
 #if 0
 	NSLog(@"%@: setStringValue:%@", self, aString);
 #endif
@@ -129,8 +141,15 @@ static Class __controlClass;
 - (int) tag								{ return tag; }
 - (id) target							{ return target; }
 - (void) setAction:(SEL)aSelector		{ action = aSelector; }
+- (void) setControlView:(NSView*) controlView; { [super setControlView:controlView]; }
 - (void) setTag:(int)anInt				{ tag = anInt; }
 - (void) setTarget:(id)anObject			{ target = anObject; }
+
+- (NSString *) stringValue;
+{
+	// validate editing
+	return [super stringValue];
+}
 
 - (id) copyWithZone:(NSZone *) zone;
 {

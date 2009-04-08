@@ -193,8 +193,9 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		_reps = [NSMutableArray new];
 		if(aSize.width && aSize.height)
 			{
-			_size = aSize;
-			_img.sizeWasExplicitlySet = YES;
+				_size = aSize;
+				_alignmentRect = (NSRect) { NSZeroPoint, _size };
+				_img.sizeWasExplicitlySet = YES;
 			}
 		_img.prefersColorMatch = YES;
 		_img.multipleResolutionMatching = YES;
@@ -285,6 +286,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	copy->_cache = [_cache mutableCopy];
 	copy->_backgroundColor = [_backgroundColor retain];
 	copy->_size = _size;
+	copy->_alignmentRect = _alignmentRect;
 	copy->_delegate = [_delegate retain];
 	copy->_img = _img;	// copy all image flags
 	[copy recache];
@@ -416,6 +418,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if(NSEqualSizes(_size, aSize))
 		return;	// effectively unchanged
 	_size = aSize;
+	_alignmentRect = (NSRect) { NSZeroPoint, _size };
 	_img.sizeWasExplicitlySet = YES;
 	if(_data)
 		_img.isValid=NO;	// reload from data since it is still available
@@ -432,7 +435,10 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		// FIXME: we should determine from all reps not only the best for an unknown device
 		best=[self bestRepresentationForDevice: nil];
 		if(best)
-			_size = [best size];
+				{
+					_size = [best size];
+					_alignmentRect = (NSRect) { NSZeroPoint, _size };
+				}
 		else
 			NSLog(@"there is no best representation");
 #if 0
@@ -725,7 +731,10 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			}
 		}
 	if (!_img.sizeWasExplicitlySet && _bestRep) 
-		_size = [_bestRep size];
+			{
+				_size = [_bestRep size];
+				_alignmentRect = (NSRect) { NSZeroPoint, _size };
+			}
 #if 0
 	NSLog(@"_bestRep: %@ size:%@", _bestRep, NSStringFromSize(_size));
 #endif
@@ -752,9 +761,11 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	return NIMP;
 }
 
+- (NSRect) alignmentRect;														{ return _alignmentRect; }
 - (NSImageCacheMode) cacheMode;											{ return _img.cacheMode; }
 - (BOOL) isTemplate;																{ return _img.isTemplate; }
 - (BOOL) usesEPSOnResolutionMismatch;								{ return _img.usesEPSOnResolutionMismatch; }
+- (void) setAlignmentRect:(NSRect) rect;						{ _alignmentRect=rect; }
 - (void) setCacheMode:(NSImageCacheMode) mode;			{ _img.cacheMode=mode; }
 - (void) setTemplate:(BOOL) flag;										{ _img.isTemplate=flag; }
 - (void) setUsesEPSOnResolutionMismatch:(BOOL)flag;	{ _img.usesEPSOnResolutionMismatch=flag; }
@@ -805,6 +816,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 #define CACHEMODE ((iflags&0x0001800) >> 11)
 		_img.cacheMode=CACHEMODE;
 		_size=[coder decodeSizeForKey:@"NSSize"];
+			_alignmentRect = (NSRect) { NSZeroPoint, _size };
 		_backgroundColor=[[coder decodeObjectForKey:@"NSColor"] retain];
 		if([coder containsValueForKey:@"NSReps"])
 			{

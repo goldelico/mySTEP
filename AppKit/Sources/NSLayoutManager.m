@@ -239,6 +239,13 @@
 					advance+=[p paragraphSpacing];
 				switch([p lineBreakMode])
 					{
+						case NSLineBreakByWordWrapping:
+						case NSLineBreakByCharWrapping:
+						case NSLineBreakByClipping:
+						case NSLineBreakByTruncatingHead:
+						case NSLineBreakByTruncatingMiddle:
+						case NSLineBreakByTruncatingTail:
+							break;
 					}
 				pos.x=origin.x;
 				if(flipped)
@@ -255,6 +262,7 @@
 			}
 		if(draw)
 			{ // we want to draw really
+				float alignment;
 			if([ctxt isDrawingToScreen])
 				font=[self substituteFontForFont:font];
 			if(!font)
@@ -276,11 +284,23 @@
 				baseline+=3.0*[attrib intValue];
 			[ctxt _setBaseline:baseline];	// update baseline
 				
+				switch([[attr objectForKey:NSParagraphStyleAttributeName] alignment])
+						{
+							case NSLeftTextAlignment:
+							case NSNaturalTextAlignment:
+								alignment=0.0;
+								break;
+							case NSRightTextAlignment:
+							case NSCenterTextAlignment:
+							case NSJustifiedTextAlignment:
+								alignment=0.0;
+								break;
+						}
 				tm=[NSAffineTransform transform];	// identity
 				if(flipped)
-					[tm translateXBy:pos.x yBy:pos.y+[font ascender]];
+					[tm translateXBy:pos.x+alignment yBy:pos.y+[font ascender]];
 				else
-					[tm translateXBy:pos.x yBy:pos.y-[font ascender]];
+					[tm translateXBy:pos.x+alignment yBy:pos.y-[font ascender]];
 				[ctxt _setTM:tm];
 			
 			// FIXME: this all should be done through the GlyphGenerator

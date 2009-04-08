@@ -132,6 +132,7 @@ extern NSString *const NSImageNameFlowViewTemplate;
 	NSMutableArray *_reps;		// representations
 	NSCachedImageRep *_cache;	// cached representation
 	NSColor *_backgroundColor;	// used when caching
+	NSRect _alignmentRect;
 	NSSize _size;
 	id _delegate;
 

@@ -58,10 +58,10 @@
 		_c.bordered = NO;
 		_c.bezeled = YES;
 		_c.scrollable = YES;
-		_c.alignment = NSLeftTextAlignment;
-		_c.drawsBackground = NO;	// default to no background
-		ASSIGN(_backgroundColor, [NSColor textBackgroundColor]); 
-		ASSIGN(_textColor, [NSColor textColor]);
+			[self setAlignment:NSLeftTextAlignment];
+			_c.drawsBackground = NO;	// default to no background
+			ASSIGN(_backgroundColor, [NSColor textBackgroundColor]); 
+			[self _setTextColor:[NSColor textColor]];
 		}
 	return self;
 }
@@ -79,7 +79,7 @@
 
 	[c setBackgroundColor: _backgroundColor];
 	[c setPlaceholderString: _placeholderString];
-	[c setTextColor: _textColor];
+	[c _setTextColor: [self _textColor]];
 	
 	return c;
 }
@@ -109,9 +109,9 @@
 - (void) setDrawsBackground:(BOOL)flag		{ _c.drawsBackground = flag; }
 - (void) setBackgroundColor:(NSColor*)color { ASSIGN(_backgroundColor, color); }
 - (void) setBezelStyle:(NSTextFieldBezelStyle)style;	{ _bezelStyle=style; }
-- (void) setTextColor:(NSColor*)aColor		{ ASSIGN(_textColor, aColor); }
-- (NSColor*) backgroundColor				{ return _backgroundColor; }
-- (NSColor*) textColor						{ return _textColor; }
+- (void) setTextColor:(NSColor*)aColor		{ [super _setTextColor:aColor]; }
+- (NSColor *) backgroundColor				{ return _backgroundColor; }
+- (NSColor *) textColor						{ return [super _textColor]; }
 - (NSString *) placeholderString;			{ return ([_placeholderString isKindOfClass:[NSString class]])?_placeholderString:nil; }
 - (void) setPlaceholderString:(NSString *) string; { ASSIGN(_placeholderString, string); }
 - (NSAttributedString *) placeholderAttributedString;	{ return ([_placeholderString isKindOfClass:[NSAttributedString class]])?_placeholderString:nil; }
@@ -142,11 +142,13 @@
 	NSLog(@"_backgroundColor=%@", _backgroundColor);
 #endif
 	if([self showsFirstResponder])
-		{ // button is first responder cell
+		{ // button is a first responder cell
 		NSColor *y = [NSColor selectedControlColor];
 		NSColor *c[] = {y, y, y, y};
 		NSRect cellRing=NSInsetRect(cellFrame, -1, -1);	// draw around
 		NSDrawColorTiledRects(cellRing,cellRing,[controlView isFlipped] ? BEZEL_EDGES_FLIPPED : BEZEL_EDGES_NORMAL,c,4);
+			// NSSetFocusRingStyle();	// enlarges clipping area and sets focus ring style
+			// NSFrameRect(cellFrame);	// fill
 		}
 	if(_c.bezeled) 
 		{
@@ -231,13 +233,13 @@
 	NSLog(@"NSTextField trackMouse:");
 #endif
 	if([self isSelectable])
-		{
+		{ // start editing
 		[self editWithFrame:[self drawingRectForBounds:cellFrame] 			
 					  inView:controlView				
 					  editor:[[controlView window] fieldEditor:YES forObject:self]	
 					delegate:controlView	// receive notifications
 					   event:event];
-		return NO;
+		return YES;	// done
 		}
 	return [super trackMouse:event inRect:cellFrame ofView:controlView untilMouseUp:untilMouseUp];	// standard tracking
 }
@@ -247,7 +249,7 @@
 	[super encodeWithCoder:aCoder];
 	
 	[aCoder encodeObject: _backgroundColor];
-	[aCoder encodeObject: _textColor];
+	[aCoder encodeObject: [self textColor]];
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder
@@ -258,8 +260,8 @@
 	self=[super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
 		{
-		// done in NSCell:	_textColor = [[aDecoder decodeObjectForKey:@"NSTextColor"] retain];
-		// done in NSCell:	_c.drawsBackground = [aDecoder decodeBoolObjectForKey:@"NSDrawsBackground"];
+			// done in NSCell:	_c.drawsBackground = [aDecoder decodeBoolObjectForKey:@"NSDrawsBackground"];
+			[self setTextColor:[aDecoder decodeObjectForKey:@"NSTextColor"]];
 		_backgroundColor = [[aDecoder decodeObjectForKey:@"NSBackgroundColor"] retain];
 		_bezelStyle = [aDecoder decodeIntForKey:@"NSTextBezelStyle"];
 		_delegate = [aDecoder decodeObjectForKey:@"NSDelegate"];
@@ -274,7 +276,7 @@
 		return self;
 		}
 	_backgroundColor = [[aDecoder decodeObject] retain];
-	_textColor = [[aDecoder decodeObject] retain];
+	[self setTextColor:[aDecoder decodeObject]];
 	return self;
 }
 
@@ -305,38 +307,16 @@ static Class __textFieldCellClass = Nil;
 	if(self)
 		{
 //		[self setCell:[[[[self class] cellClass] new] autorelease]];	// allows to redefine cellClass in subclasses
-		[_cell setState:1];	// FIXME: what is this for???
+		[_cell setState:1];	// FIXME: what is this good for???
 		}
 	return self;
 }
 
 - (BOOL) acceptsFirstMouse:(NSEvent *)theEvent { return [_cell isEditable]; } // yes, respond immediately on activation
 
-- (BOOL) acceptsFirstResponder				{ return [_cell isSelectable]; }
+- (BOOL) acceptsFirstResponder				{ return [_cell isSelectable] && [super acceptsFirstResponder]; }
 
 - (BOOL) needsPanelToBecomeKey				{ return [_cell isEditable]; }
-
-- (BOOL) becomeFirstResponder
-{ // become first responder - the cell is activated for editing through a mouseDown
-#if 0
-	NSLog(@"NSTextField %@ becomeFirstResponder", [self stringValue]);
-#endif
-	if(![_cell isSelectable])
-		return NO;
-	[_cell setShowsFirstResponder:YES];	// draw keyboard focus ring
-	[self setNeedsDisplay];
-	return YES;
-}
-
-- (BOOL) resignFirstResponder;
-{
-#if 0
-	NSLog(@"NSTextField %@ resignFirstResponder", [self stringValue]);
-#endif
-	[_cell setShowsFirstResponder:NO];
-	[self setNeedsDisplay];
-	return YES;
-}
 
 - (BOOL) isFlipped							{ return YES; }
 - (BOOL) isEditable							{ return [_cell isEditable]; }
@@ -477,8 +457,8 @@ static Class __textFieldCellClass = Nil;
 
 - (void) resetCursorRects								// Manage the cursor
 {
-//	if([isSelectable])
-//		[self addCursorRect:bounds cursor:[NSCursor IBeamCursor]];
+	if([self isSelectable])
+		[self addCursorRect:_bounds cursor:[NSCursor IBeamCursor]];
 }
 
 - (void) encodeWithCoder:(NSCoder *)aCoder						// NSCoding protocol

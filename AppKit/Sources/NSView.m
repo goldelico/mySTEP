@@ -254,9 +254,6 @@ printing
 
 	drawing
 
--cacheDisplayInRect:toBitmapImageRep:' not found
--bitmapImageRepForCachingDisplayInRect:' not found
-
 	*/
 
 + (void) initialize;
@@ -273,6 +270,23 @@ printing
 
 + (NSMenu *) defaultMenu; { return nil; }	// override in subclasses
 + (NSFocusRingType) defaultFocusRingType; { return NSFocusRingTypeExterior; }	// override in subclasses
+
+- (void) cacheDisplayInRect:(NSRect) rect toBitmapImageRep:(NSBitmapImageRep *) bitmapImageRep
+{ // draw into bitmap
+	[NSGraphicsContext saveGraphicsState];
+	[NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:bitmapImageRep]];
+	[NSBezierPath clipRect:rect];
+	[[NSColor clearColor] set];	// make transparent
+	NSRectFill(rect);
+	[self drawRect:rect];
+	[NSGraphicsContext restoreGraphicsState];
+}
+
+- (NSBitmapImageRep *) bitmapImageRepForCachingDisplayInRect:(NSRect) rect
+{
+	// create a new bitmap with appropriate width, height, depth and color space
+	return nil;
+}
 
 - (void) print:(id) sender
 {
@@ -2126,14 +2140,14 @@ NSEvent *e = (NSEvent *)[sender userInfo];
 - (void) addCursorRect:(NSRect)aRect					// Cursor rectangles
 				cursor:(NSCursor *)anObject
 {
-GSTrackingRect *m = [GSTrackingRect alloc];
-
+	GSTrackingRect *m = [GSTrackingRect new];
 	m->rect = [self convertRect:aRect toView:nil];
 	m->tag = 0;
 	m->owner = [anObject retain];
 	m->userData = self;
 	m->inside = YES;
-	[[_window _cursorRects] addObject:[m autorelease]];
+	[[_window _cursorRects] addObject:m];
+	[m release];
 }
 
 - (void) discardCursorRects
@@ -2191,15 +2205,15 @@ int i, j = [trackingRects count];
 								assumeInside:(BOOL)flag
 {
 NSMutableArray *trackingRects = [_window _trackingRects];
-GSTrackingRect *m = [GSTrackingRect alloc];
+	GSTrackingRect *m = [GSTrackingRect new];
 
 	m->rect = [self convertRect:aRect toView:nil];
 	m->tag = (++_trackRectTag);
 	m->owner = [anObject retain];
 	m->userData = data;
 	m->inside = flag;
-	[trackingRects addObject: [m autorelease]];
-
+	[trackingRects addObject:m];
+	[m release];	// m is still retained by trackingRects
 	return m->tag;
 }
 

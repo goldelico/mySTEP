@@ -422,7 +422,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	//	[[NSMenuView _currentOpen_controlView] detachSubmenu];	// close if any other menu is open
 	[_menu update];		// enable/disable menu items
 	menuView=[[[NSMenuView class] alloc] initWithFrame:(NSRect) { NSZeroPoint, cellFrame.size }];	// make new NSMenuView
-	[menuView setFont:_font];			// same font as the popup button
+	[menuView setFont:[self font]];			// same font as the popup button
 	[menuView setHorizontal:NO];		// make popup menu vertical
 	[menuView _setHorizontalResize:NO];		// don't resize width!
 	[menuView _setContextMenu:YES];			// close on selection

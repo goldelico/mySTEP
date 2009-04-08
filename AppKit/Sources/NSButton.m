@@ -851,7 +851,7 @@ id __buttonCellClass = nil;
 			// FIXME: determine text size and position independently of image size!
 			// and draw title either at bottom or top or left or right border
 			// needed for properly drawing Toolbar buttons
-		NSSize imageSize, textSize;
+		NSSize imageSize;
 		if([_image isKindOfClass:[NSButtonImageSource class]])
 			_image=[(NSButtonImageSource *) _image buttonImageForCell:self];	// substitute
 		imageSize=[_image size];
@@ -866,7 +866,7 @@ id __buttonCellClass = nil;
 				textFrame.size.width-=imageSize.width+8;
 				break;
 			case NSImageAbove:						 		// draw title below the image
-					_c.alignment=NSCenterTextAlignment;
+					[self setAlignment:NSCenterTextAlignment];
 					_d.verticallyCentered=NO;
 					if(![controlView isFlipped])
 							{
@@ -880,7 +880,7 @@ id __buttonCellClass = nil;
 							}
 				break;
 			case NSImageBelow:								// draw title above the image
-				_c.alignment=NSCenterTextAlignment;
+					[self setAlignment:NSCenterTextAlignment];
 				_d.verticallyCentered=NO;
 					if(![controlView isFlipped])
 							{
@@ -898,7 +898,7 @@ id __buttonCellClass = nil;
 			}
 		}
 	savedContents=_contents;	// FIXME: do we really need to save? We don't use it otherwise
-	ASSIGN(_textColor, titleColor);	// change color as needed
+	[_attribs setObject:titleColor forKey:NSForegroundColorAttributeName];	// change color as needed
 	/* NOTE:
 		this code will also work if title is a NSString or an NSAttributedString or if a NSFormatter is attached
 		i.e. we can easily implement attributedTitle, attributedAlternateTitle etc.
@@ -1263,28 +1263,8 @@ id __buttonCellClass = nil;
 
 - (BOOL) acceptsFirstResponder
 {														
-	return [_cell acceptsFirstResponder] || ([self keyEquivalent] != nil);				
+	return [super acceptsFirstResponder] || ([self keyEquivalent] != nil);				
 }														
-
-- (BOOL) resignFirstResponder						// NSResponder overrides
-{	
-	if(_nextKeyView && [_cell showsFirstResponder])
-		{
-		[_cell setShowsFirstResponder:NO];
-		[self setNeedsDisplay:YES];
-		}
-	return YES;
-}
-
-- (BOOL) becomeFirstResponder
-{
-	if(_nextKeyView && ![_cell showsFirstResponder])
-		{
-		[_cell setShowsFirstResponder:YES];
-		[self setNeedsDisplay:YES];
-		}
-	return YES;
-}
 
 - (void) keyDown:(NSEvent*)event
 {
