@@ -84,10 +84,17 @@
 
 - (void) mouseEntered:(NSEvent *) evt withFrame:(NSRect) frame inView:(NSView *) view;
 {
+	//If the ComponentCell is truncated, then "detruncate"
+	NSLog(@"Mouse entered!");
+	MWPathComponentCell *cell = [self pathComponentCellAtPoint: [evt locationInWindow] withFrame:frame inView:view];
+	if (cell) {
+		NSLog(@"Cell gefunden");
+	}
 }
 
 - (void) mouseExited:(NSEvent *) evt withFrame:(NSRect) frame inView:(NSView *) view;
 {
+	NSLog(@"Mouse exited!");
 }
 
 - (NSPathComponentCell *) pathComponentCellAtPoint:(NSPoint) pt withFrame:(NSRect) rect inView:(NSView *) view;
@@ -110,31 +117,29 @@
 - (NSRect) rectOfPathComponentCell:(NSPathComponentCell *) c withFrame:(NSRect) rect inView:(NSView *) view;
 {
 	unsigned idx=[_pathComponentCells indexOfObjectIdenticalTo:c];
+	NSRect r = rect;
 	if(idx == NSNotFound)
 		return NSZeroRect;
 	if(_needsSizing)
 	{ // (re)calculate cell positions
 		unsigned int i;
-		unsigned int cnt=[_pathComponentCells count];
-		NSRect r=rect;
-		_rects=(NSRect *) objc_realloc(_rects, sizeof(_rects[0])*MAX(cnt, 1));
-		for(i=0; i<cnt; i++)
-		{
-			NSPathComponentCell *cell=[_pathComponentCells objectAtIndex:i];
-			r.size=[cell cellSize];	// make as wide as the cell content defines
-			r.size.height=rect.size.height;	// and as high as the NSPathCell
-			_rects[i]=r;
-			r.origin.x += NSWidth(r)+8.0;	// advance
+		CGFloat basicX=r.origin.x;
+		CGFloat deltaX = basicX;
+		r.size = [[_pathComponentCells objectAtIndex:0] cellSize];
+		r.size.width += 8.0;
+		for (i=0;i<(idx+1);i++) {
+			NSPathComponentCell *cell = [_pathComponentCells objectAtIndex:i];
+			r.size = [cell cellSize];
+			basicX += deltaX;
+			deltaX = NSWidth(r)+8.0;
 		}
-		if(cnt > 0 && NSMaxX(_rects[cnt-1]) > NSMaxX(rect))
-		{ // total width of cells is wider than our cell frame
-			// truncate in the middle
-			// loop over all rects and make them smaller
-		}
+		r.origin.x = basicX;
+		r.size.height = rect.size.height;
+		
+		
 	}
-	return _rects[idx];
+	return r;
 }
-
 - (void) setAllowedTypes:(NSArray *) types; { ASSIGN(_allowedTypes, types); }
 - (void) setBackgroundColor:(NSColor *) col; { ASSIGN(_backgroundColor, col); }
 

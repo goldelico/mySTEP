@@ -67,6 +67,10 @@
 - (void) setImage:(NSImage *) image; { ASSIGN(_image, image); }
 - (void) setURL:(NSURL *) url; { ASSIGN(_URL, url); }
 - (NSURL *) URL; { return _URL; }
+- (void) truncate:(BOOL) b {
+	//shorten the text
+	_truncated = b
+}
 
 - (id) initWithCoder:(NSCoder *) coder;
 {

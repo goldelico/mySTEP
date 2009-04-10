@@ -14,11 +14,12 @@
 {
 	NSImage *_image;
 	NSURL *_URL;
+	BOOL _Truncated;
 }
 
 - (NSImage *) image;
 - (void) setImage:(NSImage *) image;
 - (void) setURL:(NSURL *) url;
 - (NSURL *) URL; 
-
+- (void) truncate:(BOOL) b;
 @end

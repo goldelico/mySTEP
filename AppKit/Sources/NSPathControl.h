@@ -16,6 +16,7 @@
 	// id _delegate;	// special for mySTEP: NSControl already defines _delegate
 	NSDragOperation _localDraggingMask;
 	NSDragOperation _remoteDraggingMask;
+	NSTrackingArea *_trackingArea;
 }
 
 - (NSColor *) backgroundColor; 

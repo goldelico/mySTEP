@@ -63,6 +63,14 @@ static Class __controlCellClass = Nil;
 	[_delegate pathControl:self willPopUpMenu:menu]; 
 }
 
+- (void)mouseEntered:(NSEvent *)theEvent {
+	[[self cell] mouseEntered:theEvent withFrame:[self frame] inView:self];
+}
+-(void)mouseExited:(NSEvent *)theEvent {
+	[_cell mouseExited:theEvent withFrame:_frame inView:self];
+}
+
+
 - (id) initWithCoder:(NSCoder *) coder;
 {
 	return [super initWithCoder:coder];
