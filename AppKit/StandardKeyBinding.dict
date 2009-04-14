@@ -2,133 +2,133 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>\UF700</key>
+	<key>&#xF700;</key>
 	<string>moveUp:</string>
-	<key>$\UF700</key>
+	<key>$&#xF700;</key>
 	<string>moveUpAndModifySelection:</string>
-	<key>@\UF700</key>
+	<key>@&#xF700;</key>
 	<string>moveToBeginningOfDocument:</string>
-	<key>~$\UF700</key>
+	<key>~$&#xF700;</key>
 	<string>moveParagraphBackwardAndModifySelection:</string>
-	<key>~\UF700</key>
+	<key>~&#xF700;</key>
 	<array>
 		<string>moveBackward:</string>
 		<string>moveToBeginningOfParagraph:</string>
 	</array>
-	<key>^\UF700</key>
+	<key>^&#xF700;</key>
 	<string>scrollPageUp:</string>
-	<key>\UF701</key>
+	<key>&#xF701;</key>
 	<string>moveDown:</string>
-	<key>$\UF701</key>
+	<key>$&#xF701;</key>
 	<string>moveDownAndModifySelection:</string>
-	<key>@\UF701</key>
+	<key>@&#xF701;</key>
 	<string>moveToEndOfDocument:</string>
-	<key>~$\UF701</key>
+	<key>~$&#xF701;</key>
 	<string>moveParagraphForwardAndModifySelection:</string>
-	<key>~\UF701</key>
+	<key>~&#xF701;</key>
 	<array>
 		<string>moveForward:</string>
 		<string>moveToEndOfParagraph:</string>
 	</array>
-	<key>^\UF701</key>
+	<key>^&#xF701;</key>
 	<string>scrollPageDown:</string>
-	<key>\UF702</key>
+	<key>&#xF702;</key>
 	<string>moveLeft:</string>
-	<key>$\UF702</key>
+	<key>$&#xF702;</key>
 	<string>moveLeftAndModifySelection:</string>
-	<key>@\UF702</key>
+	<key>@&#xF702;</key>
 	<string>moveToBeginningOfLine:</string>
-	<key>~$\UF702</key>
+	<key>~$&#xF702;</key>
 	<string>moveWordLeftAndModifySelection:</string>
-	<key>~\UF702</key>
+	<key>~&#xF702;</key>
 	<string>moveWordLeft:</string>
-	<key>^\UF702</key>
+	<key>^&#xF702;</key>
 	<string>moveToBeginningOfLine:</string>
-	<key>\UF703</key>
+	<key>&#xF703;</key>
 	<string>moveRight:</string>
-	<key>$\UF703</key>
+	<key>$&#xF703;</key>
 	<string>moveRightAndModifySelection:</string>
-	<key>@\UF703</key>
+	<key>@&#xF703;</key>
 	<string>moveToEndOfLine:</string>
-	<key>~$\UF703</key>
+	<key>~$&#xF703;</key>
 	<string>moveWordRightAndModifySelection:</string>
-	<key>~\UF703</key>
+	<key>~&#xF703;</key>
 	<string>moveWordRight:</string>
-	<key>^\UF703</key>
+	<key>^&#xF703;</key>
 	<string>moveToEndOfLine:</string>
-	<key>\UF708</key>
+	<key>&#xF708;</key>
 	<string>complete:</string>
-	<key>\UF728</key>
+	<key>&#xF728;</key>
 	<string>deleteForward:</string>
-	<key>~\UF728</key>
+	<key>~&#xF728;</key>
 	<string>deleteWordForward:</string>
-	<key>\UF729</key>
+	<key>&#xF729;</key>
 	<string>scrollToBeginningOfDocument:</string>
-	<key>$\UF729</key>
+	<key>$&#xF729;</key>
 	<string>moveToBeginningOfDocument:</string>
-	<key>\UF72B</key>
+	<key>&#xF72B;</key>
 	<string>scrollToEndOfDocument:</string>
-	<key>$\UF72B</key>
+	<key>$&#xF72B;</key>
 	<string>moveToEndOfDocument:</string>
-	<key>\UF72C</key>
+	<key>&#xF72C;</key>
 	<string>scrollPageUp:</string>
-	<key>$\UF72C</key>
+	<key>$&#xF72C;</key>
 	<string>pageUpAndModifySelection:</string>
-	<key>~\UF72C</key>
+	<key>~&#xF72C;</key>
 	<string>pageUp:</string>
-	<key>\UF72D</key>
+	<key>&#xF72D;</key>
 	<string>scrollPageDown:</string>
-	<key>$\UF72D</key>
+	<key>$&#xF72D;</key>
 	<string>pageDownAndModifySelection:</string>
-	<key>~\UF72D</key>
+	<key>~&#xF72D;</key>
 	<string>pageDown:</string>
-	<key>\UF72E</key>
+	<key>&#xF72E;</key>
 	<string>print:</string>
-	<key>\U0003</key>
+	<key>&#x0003;</key>
 	<string>insertNewline:</string>
-	<key>~\U0003</key>
+	<key>~&#x0003;</key>
 	<string>insertNewlineIgnoringFieldEditor:</string>
-	<key>^\U0003</key>
+	<key>^&#x0003;</key>
 	<string>insertLineBreak:</string>
-	<key>\U0008</key>
+	<key>&#x0008;</key>
 	<string>deleteBackward:</string>
-	<key>~\U0008</key>
+	<key>~&#x0008;</key>
 	<string>deleteWordBackward:</string>
-	<key>\U0009</key>
+	<key>&#x0009;</key>
 	<string>insertTab:</string>
-	<key>~\U0009</key>
+	<key>~&#x0009;</key>
 	<string>insertTabIgnoringFieldEditor:</string>
-	<key>^\U0009</key>
+	<key>^&#x0009;</key>
 	<string>selectNextKeyView:</string>
-	<key>\U000A</key>
+	<key>&#x000A;</key>
 	<string>insertNewline:</string>
-	<key>~\U000A</key>
+	<key>~&#x000A;</key>
 	<string>insertNewlineIgnoringFieldEditor:</string>
-	<key>^\U000A</key>
+	<key>^&#x000A;</key>
 	<string>insertLineBreak:</string>
-	<key>\U000D</key>
+	<key>&#x000D;</key>
 	<string>insertNewline:</string>
-	<key>~\U000D</key>
+	<key>~&#x000D;</key>
 	<string>insertNewlineIgnoringFieldEditor:</string>
-	<key>^\U000D</key>
+	<key>^&#x000D;</key>
 	<string>insertLineBreak:</string>
-	<key>\U0019</key>
+	<key>&#x0019;</key>
 	<string>insertBacktab:</string>
-	<key>^\U0019</key>
+	<key>^&#x0019;</key>
 	<string>selectPreviousKeyView:</string>
-	<key>\U001B</key>
+	<key>&#x001B;</key>
 	<string>cancelOperation:</string>
-	<key>~\U001B</key>
+	<key>~&#x001B;</key>
 	<string>complete:</string>
-	<key>\177</key>
+	<key>&#x7f;</key>
 	<string>deleteToBeginningOfLine:</string>
-	<key>@\177</key>
+	<key>@&#x7f;</key>
 	<string>deleteToBeginningOfLine:</string>
-	<key>^~\177</key>
+	<key>^~&#x7f;</key>
 	<string>deleteWordBackward:</string>
-	<key>\UF746</key>
+	<key>&#xF746;</key>
 	<string>openHelpPanel:</string>
-	<key>^\UF72B</key>
+	<key>^&#xF72B;</key>
 	<string>moveToEndOfDocument:</string>
 	<key>@C</key>
 	<string>copy:</string>

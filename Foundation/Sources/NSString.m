@@ -2018,6 +2018,7 @@ unichar strFirstCharacter;
 			   contentsEnd:(unsigned int *)contentsEndIndex
 				  forRange:(NSRange)aRange
 {
+	NIMP;
 }
 
 - (void) getLineStart:(unsigned int *)startIndex
@@ -2042,7 +2043,6 @@ unichar strFirstCharacter;
 							while(start > 0)
 									{
 										BOOL done = NO;
-										
 										switch(([self characterAtIndex:start]))
 											{
 												case (unichar)0x000A:
@@ -2098,11 +2098,11 @@ unichar strFirstCharacter;
 										break;
 									default:
 										break;
-								};
+								}
 							end++;
 							if(done)
 								break;
-						};
+						}
 				if(lineEndIndex)
 						{
 							if(end < len)
@@ -2124,10 +2124,10 @@ unichar strFirstCharacter;
 			}
 }
 
-// FIX ME There is more than this 
+// FIX ME There is more than this to Unicode word capitalization but this will work in most cases
 
-- (NSString*) capitalizedString				// to Unicode word capitalization 
-{											// but this will work in most cases
+- (NSString*) capitalizedString
+{
 	unichar *s = objc_malloc(sizeof(unichar)*(_count+1));
 	int count = 0;
 	BOOL found = YES;
@@ -2218,7 +2218,7 @@ unichar strFirstCharacter;
 		s++;
 	if(*s == 't' || *s == 'T' || *s == 'y' || *s == 'Y')
 		return YES;	// yes or true
-	return atoi(s) != 0;
+	return atoi(s) != 0;	// also accept 0 and 1
 }
 
 - (unsigned int) completePathIntoString:(NSString**)outputName

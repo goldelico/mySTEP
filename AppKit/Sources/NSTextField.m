@@ -93,8 +93,8 @@
 		borderSize = ([self isBezeled]) ? (NSSize){2,2} : (NSSize){1,1};
 	else
 		borderSize = NSZeroSize;
-													// Get size of text with a
-	f = [self font];							 	// little buffer space
+
+	f = [self font];							 	//  Get size of text with a little buffer space
 	
 	s=[[self stringValue] sizeWithAttributes:[NSDictionary dictionaryWithObjectsAndKeys:f, NSFontAttributeName, nil]];
 	s.width += 4 + 2 * borderSize.width;				// Add in border size

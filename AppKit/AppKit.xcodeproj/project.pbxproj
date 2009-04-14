@@ -2127,6 +2127,8 @@
 				EE0B25800A51B3E8002E1464 /* NSGlyphGenerator.h */,
 				EE12278B0D059CCC000E4BA5 /* NSGlyphInfo.h */,
 				EE12278C0D059CCC000E4BA5 /* NSGlyphInfo.m */,
+				EE349C46097027D500CBF42C /* NSInputManager.h */,
+				EE349C47097027D500CBF42C /* NSInputServer.h */,
 				EEA3723009540273001244CF /* NSLayoutManager.h */,
 				EE0B257D0A51B0DD002E1464 /* NSLayoutManager.m */,
 				EEA3727A09540273001244CF /* NSText.h */,
@@ -2146,13 +2148,11 @@
 			name = Text;
 			sourceTree = "<group>";
 		};
-		EE52F2170B8F306B0093595A /* Events & Input & Menu & Responder */ = {
+		EE52F2170B8F306B0093595A /* Events & Menu & Responder */ = {
 			isa = PBXGroup;
 			children = (
 				EEA3721909540273001244CF /* NSEvent.h */,
 				EEA3721A09540273001244CF /* NSEvent.m */,
-				EE349C46097027D500CBF42C /* NSInputManager.h */,
-				EE349C47097027D500CBF42C /* NSInputServer.h */,
 				EEA3723309540273001244CF /* NSMenu.h */,
 				EEA3723409540273001244CF /* NSMenu.m */,
 				EEA3723509540273001244CF /* NSMenuItem.h */,
@@ -2167,7 +2167,7 @@
 				EEA3726F09540273001244CF /* NSStatusItem.h */,
 				EEA3727009540273001244CF /* NSStatusItem.m */,
 			);
-			name = "Events & Input & Menu & Responder";
+			name = "Events & Menu & Responder";
 			sourceTree = "<group>";
 		};
 		EE52F2180B8F30BE0093595A /* NIB */ = {
@@ -2249,7 +2249,7 @@
 				EE52F2100B8F2F480093595A /* Drawing */,
 				EE52F2150B8F2FF50093595A /* Font */,
 				EE52F2110B8F2F5A0093595A /* Images & Movies & Sound */,
-				EE52F2170B8F306B0093595A /* Events & Input & Menu & Responder */,
+				EE52F2170B8F306B0093595A /* Events & Menu & Responder */,
 				EE52F2180B8F30BE0093595A /* NIB */,
 				EE52F2190B8F30F60093595A /* Printing */,
 				EE52F2160B8F30210093595A /* Text */,
@@ -3988,6 +3988,7 @@
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.cocoa;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				SECTORDER_FLAGS = "";
 				SHARED_PRECOMPS_DIR = "$(CACHE_ROOT)/SharedPrecompiledHeaders";
 				SYMROOT = build/Cocoa;
@@ -4020,6 +4021,7 @@
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.cocoa;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				SECTORDER_FLAGS = "";
 				SYMROOT = build/Cocoa;
 				WRAPPER_EXTENSION = app;
@@ -4049,6 +4051,7 @@
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = myTest.cocoa;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				SECTORDER_FLAGS = "";
 				SYMROOT = build/Cocoa;
 				WRAPPER_EXTENSION = app;

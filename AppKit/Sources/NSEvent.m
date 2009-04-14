@@ -286,7 +286,6 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 {
 	if ((event_type != NSKeyUp) && (event_type != NSKeyDown))
 		return nil;
-
 	return event_data.key.char_keys;
 }
 
@@ -294,7 +293,6 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 {
 	if ((event_type != NSKeyUp) && (event_type != NSKeyDown))
 		return nil;
-
 	return event_data.key.unmodified_keys;
 }
 
@@ -302,7 +300,6 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 {
 	if ((event_type != NSKeyUp) && (event_type != NSKeyDown))
 		return NO;
-
 	return event_data.key.repeat;
 }
 
@@ -310,7 +307,6 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 {
 	if ((event_type != NSKeyUp) && (event_type != NSKeyDown))
 		return 0;
-
 	return event_data.key.key_code;
 }
 
@@ -318,7 +314,6 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 {
 	if (!(NSEventMaskFromType(event_type) & GSMouseEventMask))
 		return 0;										// must be mouse event
-
 	return event_data.mouse.click;
 }
 
@@ -326,10 +321,8 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 {
 	if ((event_type == NSMouseEntered) || (event_type == NSMouseExited) || (event_type == NSCursorUpdate))
 		return event_data.tracking.event_num;
-
 	if (!(NSEventMaskFromType(event_type) & GSMouseEventMask))
 		return 0;
-
 	return event_data.mouse.event_num;
 }
 

@@ -3,8 +3,7 @@
 
    The text class. It is directly working on its NSTextStorage and does not use a NSLayoutManager and/or NSTextContainer.
    Therefore, it has limited functionality compared to its subclass NSTextView. E.g.
-   - does not handle most NSParagraphStyle attributes
-   - less text manipulating methods
+	 - less precise text manipulating methods
  
    NSTextView adds a text network and adds more sophisticated editing commands. Note: Interface Builder can be create NSTextView only.
 
@@ -46,13 +45,17 @@
 #import <AppKit/NSStringDrawing.h>
 #import <AppKit/NSAttributedString.h>
 #import <AppKit/NSTextStorage.h>
-#import <AppKit/NSTextView.h>	// to define NSSelectionGranularity
+#import <AppKit/NSTextView.h>	// defines NSSelectionGranularity
 
 #import "NSAppKitPrivate.h"
 
 #define NOTE(notice_name) NSText##notice_name##Notification
 
 NSString *NSTextMovement=@"NSTextMovement";
+
+#if JUST_AN_IDEA
+
+// FIXME: this is not yet used!!!
 
 @interface _NSTextLineLayoutInformation
 { // there is one record per text line
@@ -115,7 +118,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 }
 
 - (void) drawInRect:(NSRect) rect;
-{ // draw relevant lines
+{ // draw relevant lines that intersect the rect
 	_NSTextLineLayoutInformation *i=self;
 	// clip to rect
 	while(prev)
@@ -144,32 +147,61 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 @end
 
+#endif
+
 @implementation NSText
+
+- (NSParagraphStyle *) defaultParagraphStyle { return [NSParagraphStyle defaultParagraphStyle]; }	// inofficial - overwritten in NSTextView
 
 - (void) alignCenter:(id)sender;
 {
-	// change paragraph style for selection
+	[self setAlignment:NSCenterTextAlignment];
 }
 
 - (void) alignLeft:(id)sender;
 {
-	// change paragraph style for selection
+	[self setAlignment:NSLeftTextAlignment];
 }
 
 - (void) alignRight:(id)sender;
 {
-	// change paragraph style for selection
+	[self setAlignment:NSRightTextAlignment];
 }
 
-- (NSTextAlignment) alignment				{ return _tx.alignment; }
+- (NSTextAlignment) alignment
+{
+	if(_tx.isRichText)
+		return [[textStorage attribute:NSParagraphStyleAttributeName atIndex:0 effectiveRange:NULL] alignment];	// first paragraph
+	return _tx.alignment;
+}
+
 - (NSColor*) backgroundColor				{ return _backgroundColor; }
+
 - (NSWritingDirection) baseWritingDirection;{ return _baseWritingDirection; }
 
+- (void) changeColor:(id)sender;
+{ // color panel
+	// how can we change the background color?
+	[self setTextColor:[sender color]];
+}
+
 - (void) changeFont:(id)sender;
-{
+{ // font panel
+	NSRange rng=_tx.isRichText?_selectedRange:NSMakeRange(0, [textStorage length]);
+	NSRange effectiveRange=rng;
 	if(!_tx.usesFontPanel)
 		return;
-	// [self setFont: ];
+	while(effectiveRange.location < NSMaxRange(rng))
+			{ // loop over all segments we get
+				NSFont *font=[textStorage attribute:NSFontAttributeName atIndex:effectiveRange.location effectiveRange:&effectiveRange];
+				if(font)
+						{
+							font=[sender convertFont:font];	// convert through font panel
+							if(font)
+								[textStorage addAttribute:NSFontAttributeName value:font range:effectiveRange];
+						}
+				effectiveRange.location=NSMaxRange(effectiveRange);	// go to next range
+			}
 }
 
 - (void) changeSpelling:(id)sender;
@@ -181,7 +213,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 {
 	int wordCount;
     NSRange range=[[NSSpellChecker sharedSpellChecker]
-				checkSpellingOfString:[self string]
+				checkSpellingOfString:[textStorage string]
 						   startingAt:NSMaxRange(_selectedRange)
 							 language:nil
 								 wrap:NO
@@ -222,9 +254,9 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (BOOL) drawsBackground					{ return _tx.drawsBackground; }
 
-- (NSFont*) font;
+- (NSFont *) font;
 {
-	return NIMP;
+	return _font;	// should be the font of the insertion point
 }
 
 - (void) ignoreSpelling:(id)sender
@@ -289,8 +321,9 @@ NSString *NSTextMovement=@"NSTextMovement";
 {
 	if(_tx.isRichText)
 		{
-		// convert to attributed string with current typing attributed and ... withAttributedString
-		[textStorage replaceCharactersInRange:range withString:aString];
+			NSAttributedString *a=[[NSAttributedString alloc] initWithString:aString attributes:[NSDictionary dictionaryWithObject:_font forKey:NSFontAttributeName]];
+			[textStorage replaceCharactersInRange:range withAttributedString:a];
+			[a release];
 		}
 	else
 		[textStorage replaceCharactersInRange:range withString:aString];
@@ -305,11 +338,32 @@ NSString *NSTextMovement=@"NSTextMovement";
 	NIMP;
 }
 
-- (void) selectAll:(id)sender;				{ _selectedRange=NSMakeRange(0, [[self string] length]); }
+- (void) selectAll:(id)sender;				{ _selectedRange=NSMakeRange(0, [textStorage length]); }
 - (NSRange) selectedRange					{ return _selectedRange; }
-- (void) setAlignment:(NSTextAlignment)mode	{ _tx.alignment = mode; }
+
+- (void) setAlignment:(NSTextAlignment)mode
+{
+	// range should be full document if we are not richt text
+	NSRange rng=_selectedRange;
+	NSMutableParagraphStyle *p=[textStorage attribute:NSParagraphStyleAttributeName atIndex:rng.location effectiveRange:NULL];
+	if(!p) p=[[[self defaultParagraphStyle] mutableCopy] autorelease];
+	[p setAlignment:mode];
+	[textStorage addAttribute:NSParagraphStyleAttributeName value:p range:rng];
+	_tx.alignment = mode; 
+}
+
 - (void) setBackgroundColor:(NSColor*)color { ASSIGN(_backgroundColor,color); }
-- (void) setBaseWritingDirection:(NSWritingDirection) direct; { _baseWritingDirection=direct; }
+
+- (void) setBaseWritingDirection:(NSWritingDirection) direct;
+{
+	// range should be full document if we are not richt text
+	NSRange rng=_selectedRange;
+	NSMutableParagraphStyle *p=[textStorage attribute:NSParagraphStyleAttributeName atIndex:rng.location effectiveRange:NULL];
+	if(!p) p=[[[self defaultParagraphStyle] mutableCopy] autorelease];
+	[p setBaseWritingDirection:direct];
+	[textStorage addAttribute:NSParagraphStyleAttributeName value:p range:rng];
+	_baseWritingDirection=direct;
+}
 
 - (void) setDelegate:(id)anObject;
 {
@@ -321,8 +375,8 @@ NSString *NSTextMovement=@"NSTextMovement";
 - (void) setEditable:(BOOL)flag
 {	
 	if ((_tx.editable = flag)) 
-		_tx.selectable = YES;					// If we are editable then 
-}												// we are selectable
+		_tx.selectable = YES;					// If we are editable then we are selectable
+}
 
 - (void) setFieldEditor:(BOOL)flag;
 {
@@ -333,9 +387,16 @@ NSString *NSTextMovement=@"NSTextMovement";
 		}
 }
 
-- (void) setFont:(NSFont*)obj;				{ [self setFont:obj range:NSMakeRange(0, [[self string] length])]; }
+- (void) setFont:(NSFont *)obj;
+{
+	ASSIGN(_font, obj);
+	if(!_tx.isRichText)
+		[self setFont:obj range:NSMakeRange(0, [textStorage length])];	// change for whole document
+	else
+		[self setFont:obj range:_selectedRange];	// change for selection
+}
 
-- (void) setFont:(NSFont*)font range:(NSRange)range;
+- (void) setFont:(NSFont *)font range:(NSRange)range;
 {
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:font forKey:NSFontAttributeName] range:range];
 	[self setNeedsDisplay:YES];
@@ -370,26 +431,35 @@ NSString *NSTextMovement=@"NSTextMovement";
 {
 	if(!NSEqualRanges(_selectedRange, range))
 			{
+				// FIXME: setNeedsDisplayInRect: of previous selection
 				_selectedRange=range;
+				// setNeedsDisplayInRect: of new selection
 				[self setNeedsDisplay:YES];	// update display of selection
 			}
+	_tx.moveLeftRightEnd=0;
+	_tx.moveUpDownEnd=0;
 }
 
 - (void) setString:(NSString *)string;
 {
-	// FIXME: shouldn't this reset the richText flag?
+	_tx.isRichText=NO;
 	// make sure to keep the formatting of the old first character
 	[textStorage replaceCharactersInRange:NSMakeRange(0, [textStorage length]) withString:string];
 	[self setSelectedRange:NSMakeRange([string length], 0)];	// to end of string
 	_string=nil;	// clear cache
 }
 
-- (void) setTextColor:(NSColor*)color;		{ [self setTextColor:color range:NSMakeRange(0, [[self string] length])]; }
+- (void) setTextColor:(NSColor*)color;
+{
+	[self setTextColor:color range:NSMakeRange(0, [textStorage length])];
+}
 
 - (void) setTextColor:(NSColor*)color range:(NSRange)range;
 {
-	[textStorage setAttributes:[NSDictionary dictionaryWithObject:color forKey:NSForegroundColorAttributeName]
-				  range:range];
+	if(color)
+		[textStorage addAttribute:NSForegroundColorAttributeName value:color range:range];
+	else
+		[textStorage removeAttribute:NSForegroundColorAttributeName range:range];
 	[self setNeedsDisplay:YES];
 }
 
@@ -479,7 +549,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (BOOL) writeRTFDToFile:(NSString *)path atomically:(BOOL)flag;
 {
-	return [[self RTFDFromRange:NSMakeRange(0, [[self string] length])] writeToFile:path atomically:flag]; 
+	return [[self RTFDFromRange:NSMakeRange(0, [textStorage length])] writeToFile:path atomically:flag]; 
 }
 
 // overridden methods
@@ -512,8 +582,9 @@ NSString *NSTextMovement=@"NSTextMovement";
 		_tx.drawsBackground = YES;
 		_backgroundColor=[[NSColor textBackgroundColor] retain];
 		_minSize = (NSSize){5, 15};
-		_maxSize = (NSSize){HUGE,HUGE};		
-		[self setString:@""];	// will set rich text to NO
+		_maxSize = (NSSize){HUGE,HUGE};
+			_font=[[NSFont userFontOfSize:12] retain];
+		[self setString:@""];	// this will set rich text to NO
 		[self setSelectedRange:NSMakeRange(0,0)];
 		}
 	return self;
@@ -523,6 +594,9 @@ NSString *NSTextMovement=@"NSTextMovement";
 {
 	if(_tx.ownsTextStorage)
 		[textStorage release];
+	[_backgroundColor release];
+	[_font release];
+//	[_string release];
 	[super dealloc];
 }
 
@@ -547,13 +621,12 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) insertText:(id) text;
 {
-	// FIXME: text can be an attributed string!
 	NSRange rng=[self selectedRange];
 	if([text isKindOfClass:[NSString class]])
 		[self replaceCharactersInRange:rng withString:text];
 	else
 		[textStorage replaceCharactersInRange:rng withAttributedString:text];
-	rng.location+=[(NSString *) text length];
+	rng.location+=[(NSString *) text length];	// advance selection
 	rng.length=0;
 	[self setSelectedRange:rng];
 }
@@ -606,10 +679,38 @@ NSString *NSTextMovement=@"NSTextMovement";
 }
 
 - (void) keyDown:(NSEvent *)event
-{ // default action (last responder) - here we should interpret keyboard shortcuts
-	NSLog(@"%@ keyDown: %@", NSStringFromClass(isa), event);
-	// we could try to queue/dequeue sequences of key events
-	[self interpretKeyEvents:[NSArray arrayWithObject:event]];
+{ // default action (last responder)
+	if(_tx.editable)
+			{
+				// FIXME: shouldn't this be done in NSWindow?
+				// and handle keyboard shortcuts there?
+				NSMutableArray *events=[NSMutableArray arrayWithObject:event];
+#if 1
+				NSLog(@"%@ keyDown: %@", NSStringFromClass(isa), event);
+#endif
+				while((event = [NSApp nextEventMatchingMask:NSAnyEventMask
+																					untilDate:nil	// don't wait
+																						 inMode:NSEventTrackingRunLoopMode 
+																						dequeue:YES]))
+						{ // collect all queued keyboard events - and stop collecting if any other event is found
+							switch([event type])
+								{
+									case NSKeyDown:
+										[events addObject:event];	// queue them up
+										continue;
+									case NSKeyUp:
+									case NSFlagsChanged:
+										continue;
+									default:	// any other event
+										[NSApp postEvent:event atStart:YES];	// requeue
+										break;
+								}
+							break;
+						}
+				[self interpretKeyEvents:events];
+			}
+	else
+		[super keyDown:event];
 }
 
 // keyboard actions
@@ -629,6 +730,13 @@ NSString *NSTextMovement=@"NSTextMovement";
 	[self setSelectedRange:rng];
 }
 
+- (void) cancelOperation:(id) sender
+{
+	if(_tx.fieldEditor)
+		; // [self _handleFieldEditorMovement:NSCancelTextMovement];
+	;	// ignore
+}
+
 - (void) insertNewlineIgnoringFieldEditor:(id) sender
 {
 	[self insertText:@"\n"];	// new paragraph
@@ -637,9 +745,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 - (void) insertNewline:(id) sender
 {
 	if(_tx.fieldEditor)
-			{
-				// handle return, escape, tab, arrow keys differently
-			}
+		; // [self _handleFieldEditorMovement:NSReturnTextMovement];
 	[self insertNewlineIgnoringFieldEditor:sender];
 }
 
@@ -651,55 +757,116 @@ NSString *NSTextMovement=@"NSTextMovement";
 - (void) insertTab:(id) sender
 {
 	if(_tx.fieldEditor)
-			{
-				// handle return, escape, tab, arrow keys differently
-			}
+		; // [self _handleFieldEditorMovement:NSTabTextMovement];
 	[self insertTabIgnoringFieldEditor:sender];
 }
 
-#if NEW
-// shouldn't this be implemented in NSText???
-// i.e. we should update the insertion point not here but if any selection change occurs!
+- (void) insertBackTab:(id) sender
+{
+	if(_tx.fieldEditor)
+		; // [self _handleFieldEditorMovement:NSBacktabTextMovement];
+}
 
 - (void) moveUp:(id) sender
-{	
-	if(!top line)		
-		cursorPosition.y = [line-1 rect].origin.y;
-	selection=charAt(cursorPosition);
-	reduce selection to length 0
+{
+	// should go up one line in same column
+	NIMP;
 }
 
 - (void) moveDown:(id) sender
 {
-	
-	if(!tbottom line)
-		cursorPosition.y = [line+1 rect].origin.y;
-	selection=charAt(cursorPosition);
-	reduce selection to length 0
-}
-
-- (void) moveBackwardAndModifySelection:(id) sender (writing direction oriented)
-
-moveLeftAndModifySelection (display oriented left)
-
-{
-	if selection.length > 0)
-		reduce selection to length 0
-		else if(!first char)
-			select prev (may extend)
-			cursorPosition = [self _caretRect].origin;
+	// should go down one line in same column
+	NIMP;
 }
 
 - (void) moveRight:(id) sender
 {
-	if selection.length > 0)
-		reduce selection to length 0
-		else if(!last char)
-			select next (may extend)
-			cursorPosition = [self _caretRect].origin;
+	if(NSMaxRange(_selectedRange) < [textStorage length])
+			[self setSelectedRange:NSMakeRange(NSMaxRange(_selectedRange)+1, 0)];
 }
 
-#endif
+// same for top&down but use separate flags - can share left&right
+
+- (void) moveRightAndModifySelection:(id) sender
+{
+	int saved;
+	if(_tx.moveLeftRightEnd == 0)
+			{
+				modifySelection[0]=_selectedRange.location;
+				modifySelection[1]=NSMaxRange(_selectedRange);
+				_tx.moveLeftRightEnd=2;	// modify right end...
+			}
+	if(modifySelection[_tx.moveLeftRightEnd-1] < [textStorage length])
+		(modifySelection[_tx.moveLeftRightEnd-1])++;
+	saved=_tx.moveLeftRightEnd;
+	[self setSelectedRange:NSUnionRange(NSMakeRange(modifySelection[0], 0), NSMakeRange(modifySelection[1], 0))];	// sets _tx.moveLeftRightEnd=0;
+	_tx.moveLeftRightEnd=saved;
+}
+
+- (void) moveForwardAndModifySelection:(id) sender
+{
+	// check for writing direction
+	[self moveRightAndModifySelection:sender];
+}
+
+- (void) moveLeft:(id) sender
+{
+	if(_selectedRange.location > 0)
+		[self setSelectedRange:NSMakeRange(_selectedRange.location-1, 0)];
+}
+
+- (void) moveLeftAndModifySelection:(id) sender
+{
+	int saved;
+	if(_tx.moveLeftRightEnd == 0)
+		{
+				modifySelection[0]=_selectedRange.location;
+				modifySelection[1]=NSMaxRange(_selectedRange);
+				_tx.moveLeftRightEnd=1;	// modify left end
+		}
+	if(modifySelection[_tx.moveLeftRightEnd-1] > 0)
+		(modifySelection[_tx.moveLeftRightEnd-1])--;
+	saved=_tx.moveLeftRightEnd;
+	[self setSelectedRange:NSUnionRange(NSMakeRange(modifySelection[0], 0), NSMakeRange(modifySelection[1], 0))];	// sets _tx.moveLeftRightEnd=0;
+	_tx.moveLeftRightEnd=saved;
+}
+
+- (void) moveBackwardAndModifySelection:(id) sender
+{
+	[self moveLeftAndModifySelection:sender];
+}
+
+- (void) moveDownAndModifySelection:(id) sender
+{
+	int saved;
+	if(_tx.moveUpDownEnd == 0)
+			{
+				modifySelection[0]=_selectedRange.location;
+				modifySelection[1]=NSMaxRange(_selectedRange);
+				_tx.moveUpDownEnd=2;	// modify bottom end
+			}
+	if(modifySelection[_tx.moveUpDownEnd-1] < [textStorage length])
+		(modifySelection[_tx.moveUpDownEnd-1])++;	// should move one line down!
+	saved=_tx.moveUpDownEnd;
+	[self setSelectedRange:NSUnionRange(NSMakeRange(modifySelection[0], 0), NSMakeRange(modifySelection[1], 0))];	// sets _tx.moveUpDownEnd=0;
+	_tx.moveUpDownEnd=saved;
+}
+
+- (void) moveUpAndModifySelection:(id) sender
+{
+	int saved;
+	if(_tx.moveUpDownEnd == 0)
+			{
+				modifySelection[0]=_selectedRange.location;
+				modifySelection[1]=NSMaxRange(_selectedRange);
+				_tx.moveUpDownEnd=1;	// modify top end
+			}
+	if(modifySelection[_tx.moveUpDownEnd-1] > 0)
+		(modifySelection[_tx.moveUpDownEnd-1])--;	// should move one line up
+	saved=_tx.moveUpDownEnd;
+	[self setSelectedRange:NSUnionRange(NSMakeRange(modifySelection[0], 0), NSMakeRange(modifySelection[1], 0))];	// sets _tx.moveLeftRightEnd=0;
+	_tx.moveUpDownEnd=saved;
+}
 
 - (BOOL) acceptsFirstResponder					{ return _tx.selectable; }
 - (BOOL) needsPanelToBecomeKey					{ return _tx.editable; }
@@ -715,7 +882,7 @@ moveLeftAndModifySelection (display oriented left)
 //	reason=NSCancelTextMovement;	// set default reason
 	[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:NOTE(DidBeginEditing) object:self]];
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"NSOrderFrontCharacterPalette"])
-		[NSApp orderFrontCharacterPalette:self];	// automatically show keyboard if enabld
+		[NSApp orderFrontCharacterPalette:self];	// automatically show keyboard if automatism is enabld
 	return YES;
 }
 
@@ -724,7 +891,7 @@ moveLeftAndModifySelection (display oriented left)
 	//	reason=NSCancelTextMovement;	// set reason
 	[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:NOTE(DidEndEditing) object:self]];
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"NSOrderFrontCharacterPalette"])
-		[NSApp _orderOutCharacterPalette:self];	// automatically hide keyboard if enabled
+		[NSApp _orderOutCharacterPalette:self];	// automatically hide keyboard if automatism is enabled
 	return [super resignFirstResponder];
 }
 

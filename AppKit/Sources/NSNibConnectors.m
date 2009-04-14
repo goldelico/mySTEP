@@ -17,7 +17,7 @@
 @implementation NSNibConnector
 
 - (id) destination; { return _destination; }
-- (void) establishConnection; { return SUBCLASS; }
+- (void) establishConnection; { SUBCLASS; }
 - (NSString *) label; { return _label; }
 
 - (void) dealloc;

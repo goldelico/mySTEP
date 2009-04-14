@@ -44,14 +44,114 @@
 	return &_glyphs[idx];
 }
 
-- (NSRect) _draw:(BOOL) draw glyphsForGlyphRange:(NSRange)glyphsToShow 
-						 atPoint:(NSPoint)origin;		// top left of the text container (in flipped coordinates)
+#if 0
+
+- (void) _layout
+{ // calculate layout
+	NSTextContainer *container=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];
+	NSSize containerSize=[container containerSize];
+	NSString *str=[_textStorage string];								// raw characters
+	unsigned length=[str length];
+	NSPoint pos=NSZeroPoint;
+	unsigned lastLine=0;
+	_numberOfGlyphs=0;
+	while(_numberOfGlyphs < length)
+			{
+				NSGlyph glyph=NSNullGlyph;
+				NSRect box={ pos, NSZeroSize };
+				NSParagraphStyle *style=[textStorage attribute:NSParagraphStyleAttributeName atIndex:_numberOfGlyphs effectiveRange:NULL];
+				NSFont *font=[textStorage attribute:NSFontAttributeName atIndex:_numberOfGlyphs effectiveRange:NULL];
+				switch([str characterAtIndex:_numberOfGlyphs])
+					{
+						case NSAttachmentCharacter:
+							{
+							}
+						case '\t':
+							{
+								pos = 
+								glyph = space
+							}
+						default:
+							{
+							// check if we need to hyphenate/wrap
+							}
+						case '\n':
+							{
+								// get paragraph style
+								// adjust left/right etc. in a second pass starting at lastLine
+								// advance to next line - get max height of any character
+								// check for default advancements etc.
+								pos.y+=12;
+								box.size.height=12;
+							}
+						case '\r':
+							pos.x=0;
+							break;
+					}
+				_glyphs[_numberOfGlyphs].glyph=glyph;
+				_glyphs[_numberOfGlyphs].box=box;
+				_numberOfGlyphs++;	// one more
+			}
+}
+
+// draw: get other atributes (color, underlining) from string and just draw at given positions
+// boundingBox for range: build union of all boxes (except NSNullGlyph)
+// locate point: find first box
+
+#endif
+
+/*
+ * this is currently our core layout and drawing method
+ * it works quite well but has 3 limitations
+ *
+ * 1. it reclculates the layout for each call since there is no caching
+ * 2. it can't properly align vertically if font size is variable
+ * 3. it can't handle horizontal alignment
+ *
+ * some minor limitations
+ * 4. can't handle more than one text container
+ * 5. recalculates for invisible ranges
+ * 6. may line-break words at attribute run sections instead of hyphenation positions
+ *
+ * all this can be easily solved by separating the layout and the drawing phases
+ * and by caching the glyph positions
+ *
+ * [_glyphGenerator generateGlyphsForGlyphStorage:self desiredNumberOfCharacters:attribRange.length glyphIndex:0 characterIndex:attribRange.location];
+ */
+
+//
+// FIXME: optimize/cache for large NSTextStorages and multiple NSTextContainers
+//
+// FIXME: use and update glyph cache if needed
+// well, we should move that to the shared NSGlyphGenerator which does the layout
+// and make it run in the background
+//
+// 1. split into paragraphs
+// 2. split into lines
+// 3. split into words and try to fill line and hyphenate / line break
+// 4. split words into attribute ranges
+//
+// drawing should look like
+// [ctxt _setFont:xxx]; 
+// [ctxt _beginText];
+// [ctxt _newLine]; or [ctxt _setTextPosition:...];
+// [ctxt _setBaseline:xxx]; 
+// [ctxt _setHorizontalScale:xxx]; 
+// [ctxt _drawGlyphs:(NSGlyph *)glyphs count:(unsigned)cnt;	// -> (string) Tj
+// [ctxt _endText];
+//
+
+- (NSRect) _draw:(BOOL) draw 
+						glyphsForGlyphRange:(NSRange)glyphsToShow 
+						atPoint:(NSPoint)origin		// top left of the text container (in flipped coordinates)
+						findPoint:(NSPoint) find
+						foundAtPos:(unsigned int *) foundAtPos
 { // this is the core text drawing interface and all string additions are based on this call!
 	NSGraphicsContext *ctxt=draw?[NSGraphicsContext currentContext]:(NSGraphicsContext *) [NSNull null];
 	NSTextContainer *container=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];	// this call could fill the cache if needed...
 	NSSize containerSize=[container containerSize];
-	NSString *str=[_textStorage string];				// raw characters
-	NSRange rangeLimit=glyphsToShow;					// initial limit
+	NSString *str=[_textStorage string];								// raw characters
+	NSRange rangeLimit=NSMakeRange(0, [str length]);		// all
 	NSPoint pos;
 	NSAffineTransform *tm;		// text matrix
 #if 0
@@ -64,36 +164,12 @@
 	NSRect box=NSZeroRect;
 	NSRect clipBox;
 //	BOOL outside=YES;
-	NSAssert(glyphsToShow.location==0 && glyphsToShow.length == [str length], @"can render full glyph range only");
-	//
-	// FIXME: optimize/cache for large NSTextStorages and multiple NSTextContainers
-	//
-	// FIXME: use and update glyph cache if needed
-	// well, we should move that to the shared NSGlyphGenerator which does the layout
-	// and make it run in the background
-	//
-	// 1. split into paragraphs
-	// 2. split into lines
-	// 3. split into words and try to fill line and hyphenate / line break
-	// 4. split into attribute ranges
-	//
-	// either generate (glyphs) " in PDF context or do raw drawing of the glyphs by libfreetype
-	// emit positioning command(s) only if new lines and/or different containers are generated
-	// i.e.
-	// [ctxt _setFont:xxx]; 
-	// [ctxt _beginText];
-	// [ctxt _newLine]; or [ctxt _setTextPosition:...];
-	// [ctxt _setBaseline:xxx]; 
-	// [ctxt _setHorizontalScale:xxx]; 
-	// [ctxt _drawGlyphs:(NSGlyph *)glyphs count:(unsigned)cnt;	// -> (string) Tj
-	// [ctxt _endText];
-	//
-	// glyphranges could be handled in string + font + position fragments
-	//
+	if(foundAtPos)
+		*foundAtPos=NSMaxRange(glyphsToShow);	// default to maximum
 	if(draw)
 		{
 		clipBox=[ctxt _clipBox];
-#if 0
+#if 0	// testing
 		[[NSColor redColor] set];
 		if(flipped)
 			NSRectFill((NSRect) { origin, containerSize });
@@ -110,7 +186,7 @@
 		}
 	pos=origin;							// tracks current drawing position (top left of the line) - Note: PDF needs to position to the baseline
 
-	while(rangeLimit.length > 0)
+	while(rangeLimit.location < NSMaxRange(glyphsToShow))
 		{ // parse and process white-space separated words resp. fragments with same attributes
 		NSRange attribRange;	// range with constant attributes
 		NSString *substr;		// substring (without attributes)
@@ -121,6 +197,11 @@
 		NSRange wordRange;		// to find word that fits into line
 		float width;			// width of the substr with given font
 		float baseline;
+		if(foundAtPos && rangeLimit.location > 0 && pos.y > find.y)
+				{ // was before current position (i.e. end of line)
+					*foundAtPos=rangeLimit.location-1;
+					foundAtPos=NULL;	// we have found it, so don't update again 
+				}
 		switch([str characterAtIndex:rangeLimit.location])
 			{
 			case NSAttachmentCharacter:
@@ -135,7 +216,9 @@
 												 characterIndex:rangeLimit.location];
 					if(flipped)
 						;
-					if(draw)
+					if(pos.x+rect.size.width > origin.x+containerSize.width)
+						; // FIXME: needs to start on a new line
+					if(draw && NSLocationInRange(rangeLimit.location, glyphsToShow))
 						{
 #if 0
 						NSLog(@"drawing attachment (%@): %@ %@", NSStringFromRect(rect), att, cell);
@@ -145,11 +228,14 @@
 							 characterIndex:rangeLimit.location
 							  layoutManager:self];
 						}
-					else
+					else if(NSLocationInRange(rangeLimit.location, glyphsToShow))
 						box=NSUnionRect(box, rect);
 					pos.x += rect.size.width;
-					if(pos.x > containerSize.width)
-						; // FIXME: need to start on a new line
+					if(foundAtPos && pos.y+rect.size.height >= find.y && pos.x >= find.x)
+							{ // was the attachment
+								*foundAtPos=rangeLimit.location;
+								foundAtPos=NULL;	// we have found it, so don't update again 
+							}
 					}
 				rangeLimit.location++;
 				rangeLimit.length--;
@@ -163,13 +249,19 @@
 						font=[NSFont userFontOfSize:0.0];		// use default system font
 					tabwidth=8.0*[font widthOfString:@"x"];	// approx. 8 characters
 					// draw space glyph + characterspacing
-					pos.x=origin.x+(1+(int)((pos.x-origin.x)/tabwidth))*tabwidth;
-					if((pos.x-origin.x)+width <= containerSize.width)
+					tabwidth=origin.x+(1+(int)((pos.x-origin.x)/tabwidth))*tabwidth-pos.x;	// width of complete tab
+					if(pos.x+tabwidth <= origin.x+containerSize.width)
 						{ // still fits into remaining line
+							if(!draw && NSLocationInRange(rangeLimit.location, glyphsToShow))
+								box=NSUnionRect(box, NSMakeRect(pos.x, pos.y, tabwidth, [self defaultLineHeightForFont:font]));
+							pos.x+=tabwidth;
+							if(foundAtPos && pos.y+[self defaultLineHeightForFont:font] >= find.y && pos.x >= find.x)
+									{ // was in last fragment
+										*foundAtPos=rangeLimit.location;
+										foundAtPos=NULL;	// we have found it, so don't update again 
+									}
 						rangeLimit.location++;
 						rangeLimit.length--;
-						if(!draw)
-							box.size.width=MAX(box.size.width, pos.x);
 						continue;
 						}
 					// treat as a newline
@@ -178,18 +270,23 @@
 				{ // go to a new line
 					NSParagraphStyle *p=[_textStorage attribute:NSParagraphStyleAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
 					float advance;
+					float nlwidth;	// "width" of newline
 					font=[_textStorage attribute:NSFontAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
 					if(!font)
 						font=[NSFont userFontOfSize:0.0];		// use default system font
+					nlwidth=origin.x+containerSize.width-pos.x;
 					advance=[self defaultLineHeightForFont:font];
 					if(p)
 						advance+=[p paragraphSpacing];
-					if(flipped)
-						pos.y+=advance;		// go down one line
-					else
-						pos.y-=advance;		// go down one line
-					if(!draw)
-						box.size.height=MAX(box.size.height, -pos.y);
+					if(!draw && NSLocationInRange(rangeLimit.location, glyphsToShow))
+						box=NSUnionRect(box, NSMakeRect(pos.x, pos.y, nlwidth, [self defaultLineHeightForFont:font]));
+					pos.x+=20.0;
+					pos.y+=advance;		// go down one line
+					if(foundAtPos && pos.y >= find.y && pos.x >= find.x)
+							{ // was in last fragment
+								*foundAtPos=rangeLimit.location;
+								foundAtPos=NULL;	// we have found it, so don't update again 
+							}
 				}
 			case '\r':
 				{ // start over at beginning of line but not a new line
@@ -200,14 +297,21 @@
 				}
 			case ' ':
 				{ // advance to next character position but don't draw a glyph
+					float spacewidth;
 					font=[_textStorage attribute:NSFontAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
 					if(!font)
 						font=[NSFont userFontOfSize:0.0];		// use default system font
-					pos.x+=[font widthOfString:@" "];		// width of space
+					spacewidth=[font widthOfString:@" "];		// width of space
+					if(!draw && NSLocationInRange(rangeLimit.location, glyphsToShow))
+						box=NSUnionRect(box, NSMakeRect(pos.x, pos.y, spacewidth, [self defaultLineHeightForFont:font]));
+					pos.x+=spacewidth;
+					if(foundAtPos && pos.y+[self defaultLineHeightForFont:font] >= find.y && pos.x >= find.x)
+							{ // was in last fragment
+								*foundAtPos=rangeLimit.location;
+								foundAtPos=NULL;	// we have found it, so don't update again 
+							}
 					rangeLimit.location++;
 					rangeLimit.length--;
-					if(!draw)
-						box.size.width=MAX(box.size.width, pos.x);
 					continue;
 				}
 			}
@@ -220,13 +324,17 @@
 			else
 				attribRange.length=1;	// limit to the whitespace character itself
 			}
+		if(attribRange.location < glyphsToShow.location && NSMaxRange(attribRange) > glyphsToShow.location)
+			attribRange.length=glyphsToShow.location-attribRange.location;	// vountarily stop at glyphsToShow.location
+		else if(NSMaxRange(attribRange) > NSMaxRange(glyphsToShow))
+			attribRange.length=NSMaxRange(glyphsToShow)-attribRange.location;	// voluntarily stop at NSMaxRange(glyphsToShow)
 		// FIXME: this algorithm does not really word-wrap (only) if attributes change within a word
 		substr=[str substringWithRange:attribRange];
 		font=[attr objectForKey:NSFontAttributeName];
 		if(!font)
 			font=[NSFont userFontOfSize:0.0];		// use default system font
 		width=[font widthOfString:substr];			// use metrics of unsubstituted font
-		if((pos.x-origin.x)+width > containerSize.width)
+		if(pos.x+width > origin.x+containerSize.width)
 			{ // new word fragment does not fit into remaining line
 			if(pos.x > origin.x)
 				{ // we didn't just start on a newline, so insert another newline
@@ -245,13 +353,11 @@
 						case NSLineBreakByTruncatingHead:
 						case NSLineBreakByTruncatingMiddle:
 						case NSLineBreakByTruncatingTail:
+							// FIXME: we can't handle that here because it is too late
 							break;
 					}
 				pos.x=origin.x;
-				if(flipped)
-					pos.y+=advance;
-				else
-					pos.y-=advance;
+				pos.y+=advance;
 				}
 			while(width > containerSize.width && attribRange.length > 1)
 				{ // does still not fit into box at all - we must truncate
@@ -260,7 +366,7 @@
 				width=[font widthOfString:substr]; // get new width
 				}
 			}
-		if(draw)
+		if(draw && NSLocationInRange(rangeLimit.location, glyphsToShow))
 			{ // we want to draw really
 				float alignment;
 			if([ctxt isDrawingToScreen])
@@ -293,6 +399,7 @@
 							case NSRightTextAlignment:
 							case NSCenterTextAlignment:
 							case NSJustifiedTextAlignment:
+								// FIXME: we can't handle that here because it is too late
 								alignment=0.0;
 								break;
 						}
@@ -302,11 +409,6 @@
 				else
 					[tm translateXBy:pos.x+alignment yBy:pos.y-[font ascender]];
 				[ctxt _setTM:tm];
-			
-			// FIXME: this all should be done through the GlyphGenerator
-			
-			// [_glyphGenerator generateGlyphsForGlyphStorage:self desiredNumberOfCharacters:attribRange.length glyphIndex:0 characterIndex:attribRange.location];
-			// here, we should already have laid out
 			_numberOfGlyphs=[substr length];
 			if(!_glyphs || _numberOfGlyphs >= _glyphBufferCapacity)
 				_glyphs=(NSGlyph *) objc_realloc(_glyphs, sizeof(_glyphs[0])*(_glyphBufferCapacity=_numberOfGlyphs+20));
@@ -366,19 +468,30 @@ containerOrigin:(NSPoint)containerOrigin;
 				[NSBezierPath strokeLineFromPoint:NSMakePoint(pos.x, posy) toPoint:NSMakePoint(pos.x+width, posy)];
 				}
 			}
+		if(!draw && NSLocationInRange(rangeLimit.location, glyphsToShow))
+			box=NSUnionRect(box, NSMakeRect(pos.x, pos.y, width, [self defaultLineHeightForFont:font])); // increase bounding box
+		pos.x+=width;	// advance to next fragment
+		if(foundAtPos && pos.y+[self defaultLineHeightForFont:font] >= find.y && pos.x >= find.x)
+				{ // was in last fragment
+					float posx=pos.x-width;
+					*foundAtPos=rangeLimit.location;
+					while(YES)
+							{ // find exact position
+								substr=[str substringWithRange:NSMakeRange(*foundAtPos, 1)];	// get character
+								posx+=[font widthOfString:substr];			// use metrics of current font
+								if(posx >= find.x)
+									break;
+								(*foundAtPos)++;	// try next
+							}
+					foundAtPos=NULL;	// we have found it, so don't update again 
+				}
 		rangeLimit.location=NSMaxRange(attribRange);	// handle next fragment
 		rangeLimit.length-=attribRange.length;
-		pos.x+=width;	// advance to next fragment
-		if(!draw)
-			{
-			box.size.width=MAX(box.size.width, pos.x);
-			box.size.height=MAX(box.size.height, -pos.y+[self defaultLineHeightForFont:font]);
-			}
 		}
 	if(draw)
 		{
 		[ctxt _endText];
-#if 0
+#if 0		// testing
 		[[NSColor redColor] set];
 		if(flipped)
 			NSFrameRect((NSRect) { origin, containerSize });
@@ -410,33 +523,8 @@ containerOrigin:(NSPoint)containerOrigin;
 - (NSRect) boundingRectForGlyphRange:(NSRange) glyphRange 
 					 inTextContainer:(NSTextContainer *) container;
 {
-#if 1
-	return [self _draw:NO glyphsForGlyphRange:glyphRange atPoint:NSZeroPoint];
-#else
-	// FIXME: we should run the glyph generator system here...
-	NSRange attribRange;
-	NSFont *font=nil;
-	NSDictionary *attrs=nil;
-	NSRect r=NSZeroRect;
-	unsigned int len=[_textStorage length];
-	int lines=1;
-#if 0
-	NSLog(@"boundingRectForGlyphRange %@", NSStringFromRange(glyphRange));
-	NSLog(@"text storage range %@", NSStringFromRange(NSMakeRange(0, len)));
-#endif
-	NSAssert((glyphRange.location == 0 && glyphRange.length == len), @"can render full glyph range only");
-	if(len)
-		{
-		attrs=[_textStorage attributesAtIndex:0 longestEffectiveRange:&attribRange inRange:NSMakeRange(0, len)];
-		font=[attrs objectForKey:NSFontAttributeName];
-		}
-	if(!font)
-		font=[NSFont systemFontOfSize:12];
-	// FIXME - limit width to container size!
-	r.size=NSMakeSize([font widthOfString:[_textStorage string]], lines*[font defaultLineHeightForFont]+(lines-1)*[font leading]);
-	r=NSIntersectionRect(r, (NSRect) { NSZeroPoint, [container containerSize] });	// limit to given container (if any)
-	return r;
-#endif
+	glyphRange=NSIntersectionRange(glyphRange, [self glyphRangeForTextContainer:container]);	// only the range drawn in this container
+	return [self _draw:NO glyphsForGlyphRange:glyphRange atPoint:NSZeroPoint findPoint:NSZeroPoint foundAtPos:NULL];
 }
 
 - (NSRect) boundsRectForTextBlock:(NSTextBlock *)block atIndex:(unsigned)index effectiveRange:(NSRangePointer)range;
@@ -453,14 +541,14 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (unsigned) characterIndexForGlyphAtIndex:(unsigned)glyphIndex;
 {
-	NIMP;
-	return 0;
+	// FIXME:
+	return glyphIndex;
 }
 
 - (NSRange) characterRangeForGlyphRange:(NSRange)glyphRange actualGlyphRange:(NSRangePointer)actualGlyphRange;
 {
-	NIMP;
-	return NSMakeRange(0, 0);
+	// FIXME:
+	return glyphRange;
 }
 
 - (NSImageScaling) defaultAttachmentScaling; { return _defaultAttachmentScaling; }
@@ -489,7 +577,7 @@ containerOrigin:(NSPoint)containerOrigin;
 - (void) drawGlyphsForGlyphRange:(NSRange)glyphsToShow 
 						 atPoint:(NSPoint)origin;		// top left of the text container (in flipped coordinates)
 {
-	[self _draw:YES glyphsForGlyphRange:glyphsToShow atPoint:origin];
+	[self _draw:YES glyphsForGlyphRange:glyphsToShow atPoint:origin findPoint:NSZeroPoint foundAtPos:NULL];
 }
 
 - (BOOL) drawsOutsideLineFragmentForGlyphAtIndex:(unsigned)index;
@@ -553,14 +641,12 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (unsigned) firstUnlaidCharacterIndex;
 {
-	NIMP;
-	return 0;
+	return _firstUnlaidCharacterIndex;
 }
 
 - (unsigned) firstUnlaidGlyphIndex;
 {
-	NIMP;
-	return 0;
+	return _firstUnlaidGlyphIndex;
 }
 
 - (float) fractionOfDistanceThroughGlyphForPoint:(NSPoint)aPoint inTextContainer:(NSTextContainer *)aTextContainer;
@@ -572,13 +658,15 @@ containerOrigin:(NSPoint)containerOrigin;
 - (void) getFirstUnlaidCharacterIndex:(unsigned *)charIndex 
 						   glyphIndex:(unsigned *)glyphIndex;
 {
-	NIMP;
+	*charIndex=_firstUnlaidCharacterIndex;
+	*glyphIndex=_firstUnlaidGlyphIndex;
 }
 
 - (unsigned) getGlyphs:(NSGlyph *)glyphArray range:(NSRange)glyphRange;
 {
 	NSAssert(NSMaxRange(glyphRange) <= _numberOfGlyphs, @"invalid glyph range");
-	// do layout!
+	// if(NSMaxRange(glyphRange) > _firstUnlaidGlyphIndex)
+	//   do layout
 	// don't copy non-printing glyphs (newline)
 	memcpy(glyphArray, &_glyphs[glyphRange.location], sizeof(*glyphArray)*glyphRange.length);
 	glyphArray[glyphRange.length]=0;	// adds 0-termination (buffer must have enough capacity!)
@@ -608,14 +696,20 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (NSGlyph) glyphAtIndex:(unsigned)glyphIndex;
 {
-	NIMP;
-	return 0;
+	if(glyphIndex < _numberOfGlyphs)
+		return _glyphs[glyphIndex];
+	// raise NSRangeException
+	return NSNullGlyph;
 }
 
 - (NSGlyph) glyphAtIndex:(unsigned)glyphIndex isValidIndex:(BOOL *)isValidIndex;
 {
-	NIMP;
-	return 0;
+	BOOL isValid=glyphIndex < _numberOfGlyphs;
+	if(isValidIndex)
+		*isValidIndex=isValid;
+	if(isValid)
+		return _glyphs[glyphIndex];
+	return NSNullGlyph;
 }
 
 - (NSGlyphGenerator *) glyphGenerator;
@@ -625,35 +719,41 @@ containerOrigin:(NSPoint)containerOrigin;
 	return _glyphGenerator;
 }
 
-- (unsigned) glyphIndexForPoint:(NSPoint)aPoint inTextContainer:(NSTextContainer *)aTextContainer;
+- (unsigned int) glyphIndexForPoint:(NSPoint)aPoint inTextContainer:(NSTextContainer *)aTextContainer;
 {
-	NIMP; return 0;
+	return [self glyphIndexForPoint:aPoint inTextContainer:aTextContainer fractionOfDistanceThroughGlyph:NULL];
 }
 
-- (unsigned) glyphIndexForPoint:(NSPoint)aPoint
-				inTextContainer:(NSTextContainer *)aTextContainer
+- (unsigned int) glyphIndexForPoint:(NSPoint)aPoint
+				inTextContainer:(NSTextContainer *)textContainer
  fractionOfDistanceThroughGlyph:(float *)partialFraction;
 {
-	NIMP; return 0;
+	unsigned int pos;
+	[self _draw:NO glyphsForGlyphRange:[self glyphRangeForTextContainer:textContainer] atPoint:NSZeroPoint findPoint:aPoint foundAtPos:&pos];
+	if(partialFraction)
+		*partialFraction=0.0;
+	return pos;
 }
 
 - (NSRange) glyphRangeForBoundingRect:(NSRect)bounds 
 					  inTextContainer:(NSTextContainer *)container;
 {
-	NSRange rng=[self glyphRangeForTextContainer:container];
-	// reduce range for first and last character as needed
-	return rng;
+	// if needs layout...
+	return [self glyphRangeForBoundingRectWithoutAdditionalLayout:bounds inTextContainer:container];
 }
 
 - (NSRange) glyphRangeForBoundingRectWithoutAdditionalLayout:(NSRect)bounds 
 											 inTextContainer:(NSTextContainer *)container;
 {
-	NIMP;
-	return NSMakeRange(0, 0);
+	// FIXME:
+	NSRange rng=[self glyphRangeForTextContainer:container];
+	// reduce range for first and last character as needed
+	return rng;
 }
 
 - (NSRange) glyphRangeForCharacterRange:(NSRange)charRange actualCharacterRange:(NSRange *)actualCharRange;
 {
+	// FIXME:
 	if(actualCharRange)
 		*actualCharRange=charRange;
 #if 0
@@ -664,7 +764,10 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (NSRange) glyphRangeForTextContainer:(NSTextContainer *)container;
 {
+	// FIXME:
 	// is this a basic or a derived method?
+	// I guess it is a quite basic mapping from text containers to glyph ranges
+	// it may be based on glyphRangeForBoundingRectWithoutAdditionalLayout?
 	return NSMakeRange(0, [_textStorage length]);	// assume we have only one text container
 }
 
@@ -699,7 +802,7 @@ containerOrigin:(NSPoint)containerOrigin;
 {
 	[_textContainers insertObject:container atIndex:index];
 	if(index == 0)
-		_firstTextView=self;	// has changed
+		_firstTextView=[container textView];	// has changed
 }
 
 - (int) intAttribute:(int)attributeTag forGlyphAtIndex:(unsigned)glyphIndex;
@@ -735,9 +838,10 @@ containerOrigin:(NSPoint)containerOrigin;
 }
 
 - (BOOL) layoutManagerOwnsFirstResponderInWindow:(NSWindow *)aWindow;
-{
-	NIMP;
-	// check if firstResponder is a NSTextView and we are the layoutManager
+{ // check if firstResponder is a NSTextView and we are the layoutManager
+	NSResponder *f=[aWindow firstResponder];
+	if([f respondsToSelector:@selector(layoutManager)])
+		return [(NSTextView *) f layoutManager] == self;
 	return NO;
 }
 
@@ -782,7 +886,7 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (unsigned) numberOfGlyphs;
 {
-	// generate any glyphs
+	// generate all glyphs
 	return _numberOfGlyphs;
 }
 
@@ -1075,7 +1179,8 @@ containerOrigin:(NSPoint)containerOrigin;
 	return self;
 }
 
-#pragma mark NSGlyphGenerator
+#pragma mark NSGlyphStorage
+// methods for @protocol NSGlyphStorage
 
 - (NSAttributedString *) attributedString; { return _textStorage; }
 

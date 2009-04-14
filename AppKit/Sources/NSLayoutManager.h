@@ -96,10 +96,22 @@ typedef NSInteger NSTypesetterBehavior;
 	NSImageScaling _defaultAttachmentScaling;
 	NSTypesetterBehavior _typesetterBehavior;
 
-	NSGlyph *_glyphs;
+	NSGlyph *_glyphs;	// glyph array
+	
+/*	
+	struct
+		{
+			NSGlyph glyph;
+			NSRect box;			// bounding box where to draw this glyph
+		} *_glyphs;				// one for each string position
+	*/
+
 	unsigned int _numberOfGlyphs;
 	unsigned int _glyphBufferCapacity;
 	
+	unsigned _firstUnlaidCharacterIndex;
+	unsigned _firstUnlaidGlyphIndex;
+
 	unsigned int _layoutOptions;
 	
 	BOOL _backgroundLayoutEnabled;
@@ -107,6 +119,31 @@ typedef NSInteger NSTypesetterBehavior;
 
 	BOOL _textStorageChanged;
 
+	// what we need to store:
+
+	// a (reverse) mapping from character ranges to glyph ranges
+	// a (reverse) mapping from glyph ranges to TextContainers
+	// glyph rects for individual glyphs
+	// glyph fragmens - with rects (i.e. corresponding to a PDF draw operation)
+	// attributes (font, color, underlining etc.) etc. for these glyph ranges (but we can use the mapping to character ranges ans ask the textStorage attributes)
+	// line rects
+	//    should we start with a mapping of character and glyph ranges to Text Containers (one record per container?)
+	//   NSMutableArray *lineFragments;	// map line numbers to text container and position
+	//      -> NSTextLineFragment
+	//					 covered characterRange - sorted so that we can do a binary search on lineFragments; union of all glyphRuns
+	//					 covered glyphRange - union of all glyphRuns
+	//           rect of line in text container - union of all glyphRuns
+	//           NSTextContainer (a line belongs to a single and specific container!)
+	//					 NSParagraphStyle reference
+	//           NSMutableArray *glyphRun;
+	//              -> NSGlyphRun
+	//									 total characterRange
+	//									 total glyphRange (defines #glpyhs)
+	//                   the glyphs
+	//									 mapping of glyphs <-> characters
+	//                   total rect dimensions
+	//                   relative position within fragment
+	
 #if 0
 	// GNUstep headers
 	

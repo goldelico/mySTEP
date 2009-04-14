@@ -42,11 +42,15 @@
 }
 - (int) flags;
 - (NSColor *) backgroundColor;
+- (NSColor *) insertionPointColor;
+- (NSParagraphStyle *) defaultParagraphStyle;
+- (NSDictionary *) linkTextAttributes;
+- (NSDictionary *) markedTextAttributes;
+- (NSDictionary *) selectedTextAttributes;
 @end
 
 // classes needed are: NSRulerView NSTextContainer NSLayoutManager
 
-static NSCursor *__textCursor;
 static NSTimer *__caretBlinkTimer = nil;
 static NSCursor *__textCursor = nil;
 
@@ -60,9 +64,14 @@ static NSCursor *__textCursor = nil;
 	return; // does nothing for now
 }
 
++ (void) initialize
+{
+	__textCursor = [[NSCursor IBeamCursor] retain];
+}
+
 - (id) initWithFrame:(NSRect)frameRect textContainer:(NSTextContainer *)container
 {
-	// FIXME: can we call [self initWithFrame] and still release everything?
+	// FIXME: can we call [self initWithFrame] and then still release everything or do we leak?
 	if((self=[super initWithFrame:frameRect]))	// this will create an owned textStorage
 		{
 		[textStorage release];
@@ -89,17 +98,23 @@ static NSCursor *__textCursor = nil;
 		textContainer=[[NSTextContainer alloc] initWithContainerSize:frameRect.size];
 		[textContainer replaceLayoutManager:layoutManager];
 		[textContainer setTextView:self];
-		// FIXME: who reatins the textContainer?
+		// FIXME: who reatains the textContainer?
 // ???		[layoutManager release];
 // ???		[textContainer release];
 		// other initialization
 		insertionPointColor=[[NSColor blackColor] retain];
+			defaultParagraphStyle=[[NSParagraphStyle defaultParagraphStyle] retain];
 		}
 	return self;
 }
 
 - (void) dealloc;
 {
+	[insertionPointColor release];
+	[defaultParagraphStyle release];
+	[linkTextAttributes release];
+	[markedTextAttributes release];
+	[selectedTextAttributes release];
 	[super dealloc];
 }
 
@@ -320,14 +335,6 @@ static NSCursor *__textCursor = nil;
 
 // Selected/Marked range
 
-- (void) setSelectedRange:(NSRange)charRange 
-				 affinity:(NSSelectionAffinity)affinity 
-				 stillSelecting:(BOOL)stillSelectingFlag
-{
-	if(stillSelectingFlag)
-		[self setSelectedRange:charRange];
-}
-
 - (NSSelectionAffinity) selectionAffinity		{ return selectionAffinity; }
 - (NSSelectionGranularity) selectionGranularity	{ return selectionGranularity;}
 
@@ -336,12 +343,14 @@ static NSCursor *__textCursor = nil;
 	selectionGranularity = granularity;
 }
 
+- (void) setDefaultParagraphStyle:(NSParagraphStyle *) style { ASSIGN(defaultParagraphStyle, style); }
+- (NSParagraphStyle *) defaultParagraphStyle { return defaultParagraphStyle; }
 - (void) setSelectedTextAttributes:(NSDictionary *) attribs { ASSIGN(selectedTextAttributes, attribs); }
-- (NSDictionary*) selectedTextAttributes { return selectedTextAttributes; }
+- (NSDictionary *) selectedTextAttributes { return selectedTextAttributes; }
 - (void) setLinkTextAttributes:(NSDictionary*) attribs { ASSIGN(linkTextAttributes, attribs); }
-- (NSDictionary*) linkTextAttributes { return linkTextAttributes; }
+- (NSDictionary *) linkTextAttributes { return linkTextAttributes; }
 - (void) setMarkedTextAttributes:(NSDictionary*) attribs { ASSIGN(markedTextAttributes, attribs); }
-- (NSDictionary*) markedTextAttributes { return markedTextAttributes; }
+- (NSDictionary *) markedTextAttributes { return markedTextAttributes; }
 
 - (BOOL) shouldDrawInsertionPoint;
 {
@@ -356,13 +365,17 @@ static NSCursor *__textCursor = nil;
 - (NSColor *)insertionPointColor				{ return insertionPointColor; }
 
 // FIXME: if several texviews share the same layout manager, all views must blink the cursor!!
+// use -NSWindow cacheImageInRect and restoreCachedImage to handle cursor blinking
 
 - (NSRect) _caretRect
 {
-	NSRect r=[self firstRectForCharacterRange:_selectedRange];
-	r.origin.x+=1.0;
-	r.size.width=1.0;
-	return r;
+	if(NSIsEmptyRect(_caretRect))
+			{
+				_caretRect=[self firstRectForCharacterRange:_selectedRange];
+				_caretRect.origin.x+=1.0;
+				_caretRect.size.width=1.0;
+			}
+	return _caretRect;
 }
 
 - (void) _blinkCaret:(NSTimer *) timer
@@ -377,6 +390,9 @@ static NSCursor *__textCursor = nil;
 #if 0
 	NSLog(@"updateInsertionPointStateAndRestartTimer");
 #endif
+	if(!NSIsEmptyRect(_caretRect))
+		[self setNeedsDisplayInRect:_caretRect avoidAdditionalLayout:YES];	// update previous rect
+	_caretRect=NSZeroRect;	// determine new rect as soon as needed
 	if([self shouldDrawInsertionPoint])
 		{ // add to list
 		if(restartFlag)
@@ -402,8 +418,6 @@ static NSCursor *__textCursor = nil;
 		{ // stop timer
 		[__caretBlinkTimer invalidate];	// stop any existing timer - there is only one globally blinking cursor!
 		__caretBlinkTimer=nil;
-		insertionPointIsOn=YES;		// end with cursor being off
-		[self _blinkCaret:nil];	// and switch off cursor
 		}
 }
 
@@ -455,7 +469,7 @@ static NSCursor *__textCursor = nil;
 - (NSRange) rangeForUserTextChange
 {
 	if(![self isRichText])
-		return NSMakeRange(0, 123);	// full range
+		return NSMakeRange(0, [textStorage length]);	// full range
 	return [self selectedRange];
 }
 
@@ -557,11 +571,7 @@ static NSCursor *__textCursor = nil;
  Sources/NSTextView.m:512: warning: method definition for `-shouldDrawInsertionPoint' not found
  Sources/NSTextView.m:512: warning: method definition for `-shouldChangeTextInRanges:replacementStrings:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setUsesFindPanel:' not found
- Sources/NSTextView.m:512: warning: method definition for `-setSelectedRanges:' not found
- Sources/NSTextView.m:512: warning: method definition for `-setLinkTextAttributes:' not found
- Sources/NSTextView.m:512: warning: method definition for `-setDefaultParagraphStyle:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setContinuousSpellCheckingEnabled:' not found
- Sources/NSTextView.m:512: warning: method definition for `-setBackgroundColor:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setAllowsUndo:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setAllowsDocumentBackgroundColorChange:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setAcceptsGlyphInfo:' not found
@@ -583,12 +593,10 @@ static NSCursor *__textCursor = nil;
  Sources/NSTextView.m:512: warning: method definition for `-orderFrontLinkPanel:' not found
  Sources/NSTextView.m:512: warning: method definition for `-linkTextAttributes' not found
  Sources/NSTextView.m:512: warning: method definition for `-isContinuousSpellCheckingEnabled' not found
- Sources/NSTextView.m:512: warning: method definition for `-insertText:' not found
  Sources/NSTextView.m:512: warning: method definition for `-insertCompletion:forPartialWordRange:movement:isFinal:' not found
  Sources/NSTextView.m:512: warning: method definition for `-dragSelectionWithEvent:offset:slideBack:' not found
  Sources/NSTextView.m:512: warning: method definition for `-dragOperationForDraggingInfo:type:' not found
  Sources/NSTextView.m:512: warning: method definition for `-dragImageForSelectionWithEvent:origin:' not found
- Sources/NSTextView.m:512: warning: method definition for `-defaultParagraphStyle' not found
  Sources/NSTextView.m:512: warning: method definition for `-completionsForPartialWordRange:indexOfSelectedItem:' not found
  Sources/NSTextView.m:512: warning: method definition for `-complete:' not found
  Sources/NSTextView.m:512: warning: method definition for `-clickedOnLink:atIndex:' not found
@@ -609,11 +617,6 @@ static NSCursor *__textCursor = nil;
 
 // overridden superclass(es) methods
 
-+ (void) initialize
-{
-	__textCursor = [[NSCursor IBeamCursor] retain];
-}
-
 - (BOOL) becomeFirstResponder
 {	
 	// FIXME: check if we change the layout manager from previous
@@ -626,13 +629,12 @@ static NSCursor *__textCursor = nil;
 
 - (BOOL) resignFirstResponder
 {
+	BOOL flag;
 	// FIXME: handle special case if we share the layout manager...
 	// in fact we should blink as long as there are any layoutmnagers with first responder textviews
-	[__caretBlinkTimer invalidate];	// stop any existing timer - there is only one globally blinking cursor!
-	__caretBlinkTimer=nil;
-	insertionPointIsOn=YES;		// end with cursor being off
-	[self _blinkCaret:nil];		// and switch off cursor
-	return [super resignFirstResponder];
+	flag=[super resignFirstResponder];
+	[self updateInsertionPointStateAndRestartTimer:NO];	// will switch off cursor if we did have one
+	return flag;
 }
 
 - (void) sizeToFit;
@@ -661,9 +663,11 @@ static NSCursor *__textCursor = nil;
 }
 
 - (void) drawInsertionPointInRect:(NSRect) rect color:(NSColor *) color turnedOn:(BOOL) flag
-{
-	[(flag?color:_backgroundColor) setFill];
-	NSRectFill(rect);
+{ // rect is 1 pixel wide and max. font size high
+	if(!flag)
+		return;	// default cursor draws transparent background
+	[color setFill];
+	NSRectFill(rect);	// or color
 }
 
 - (void) drawRect:(NSRect)rect
@@ -672,20 +676,19 @@ static NSCursor *__textCursor = nil;
 	NSRect r;
 	if(!layoutManager)
 		return;
-
-	// FIXME: we should ask the backend for for the current clipped rect so that we draw only glyphs we really need to draw
-	
 	[self drawViewBackgroundInRect:rect];
 	range=[layoutManager glyphRangeForTextContainer:textContainer];
+	// range=[layoutManager glyphRangeForBoundingRect:rect inTextContainer:textContainer]
 #if 0
 	NSLog(@"NSTextView drawRect %@", NSStringFromRect(rect));
+	NSLog(@"         glyphRange %@", NSStringFromRange(range));
 #endif
-	
+
 	[layoutManager drawBackgroundForGlyphRange:range atPoint:textContainerOrigin];
 	
 	if(_selectedRange.length > 0)
 		{ // draw selection range background
-			// FIXME - should be done line by line
+			// FIXME - should be done line by line!
 		r=[layoutManager boundingRectForGlyphRange:_selectedRange inTextContainer:textContainer];
 		if(NSIntersectsRect(r, rect))
 			{
@@ -706,6 +709,7 @@ static NSCursor *__textCursor = nil;
 - (void) encodeWithCoder:(NSCoder *) coder;
 {
 	[super encodeWithCoder:coder];
+	NIMP;
 }
 
 - (id) initWithCoder:(NSCoder *) coder;
@@ -748,14 +752,13 @@ static NSCursor *__textCursor = nil;
 			_tx.drawsBackground = ((0x800 & flags) != 0);
 			smartInsertDeleteEnabled = ((0x2000000 & flags) != 0);
 				//		  _tf.allows_undo = ((0x40000000 & flags) > 0);	  
-				/*	[dest setInsertionPointColor:insertionColor];
-				[dest setDefaultParagraphStyle:defaultParagraphStyle];
-				[dest setLinkTextAttributes:linkAttributes];
-				[dest setMarkedTextAttributes:markedAttributes];
-				[dest setSelectedTextAttributes:selectedAttributes];
-				*/
+			[self setInsertionPointColor:[shared insertionPointColor]];
+			[self setDefaultParagraphStyle:[shared defaultParagraphStyle]];
+			[self setLinkTextAttributes:[shared linkTextAttributes]];
+			[self setMarkedTextAttributes:[shared markedTextAttributes]];
+			[self setSelectedTextAttributes:[shared selectedTextAttributes]];
 			}
-		// probably from tvFlags...
+		// probably coming from tvFlags...
 		//	[dest setVerticallyResizable:YES];
 		//	[dest setHorizontallyResizable:YES];
 
@@ -763,64 +766,160 @@ static NSCursor *__textCursor = nil;
 	return self;
 }
 
+// FIXME: this method should expect SCREEN coordinates!!!
+
+- (unsigned int) characterIndexForPoint:(NSPoint) pnt;
+{
+	float fraction;
+	unsigned int gindex=[layoutManager glyphIndexForPoint:pnt inTextContainer:textContainer fractionOfDistanceThroughGlyph:&fraction];
+	if(fraction > 0.5)
+		gindex++;
+	return [layoutManager characterIndexForGlyphAtIndex:gindex];	// convert to character index
+}
+
 - (void) mouseDown:(NSEvent *) event
 { // run a text selection tracking loop
-	NSRange rng;	// current selected range
-	NSPoint p;
-	unsigned int pos;
-	
-	// FIXME: characterIndexForPoint may return NSNotFound
-	// FIXME: handle _tx.selectable/_tx.editable
+	NSRange initialRange;	// initial range (for extending selection)
+	NSRange rng;					// current selected range
+	unsigned int modifiers=[event modifierFlags];
+	if(!_tx.selectable)
+		return;	// ignore
+
+	// handle ruler view
 
 #if 1
 	NSLog(@"NSTextView mouseDown");
 #endif
-	// save modifiers of first event
-	if([event clickCount] > 1)
-		{ // depending on click count, extend selection at this position and then do standard tracking
-		p=[self convertPoint:[event locationInWindow] fromView:nil];
-		pos=[self characterIndexForPoint:p];
-		if(pos == NSNotFound)
-			pos=[[self textStorage] length];	// last character
-			// if outside, get line where we clicked and set to last position
-		}
-	_cursorPosition=p;	// update position where we clicked
-	while([event type] != NSLeftMouseUp)	// loop outside until mouse goes up 
-		{
-		p=[self convertPoint:[event locationInWindow] fromView:nil];
-		pos=[self characterIndexForPoint:p];
-		if(pos == NSNotFound)
-			pos=[[self textStorage] length];	// last character
-#if 0
-		NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p));
+	while(YES)	// loop outside until mouse goes up 
+			{
+				NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
+				// FIXME: this method expects SCREEN coordinates!
+				unsigned int pos=[self characterIndexForPoint:p];	// convert to character index
+#if 1
+				NSLog(@"NSControl mouseDown point=%@ pos=%d", NSStringFromPoint(p), pos);
 #endif
-		if(NSLocationInRange(pos, _selectedRange))
-			{ // in current range; we already hit the current selection -> it is a potential drag&drop
-			rng=_selectedRange;
+				if([event type] == NSLeftMouseDown)
+						{
+							if([event clickCount] > 1 && NSLocationInRange(pos, _selectedRange))
+									{ // in current range; we already hit the current selection -> it is a potential drag&drop
+										// extend selection
+										[self setSelectionGranularity:NSSelectByWord];
+										rng=_selectedRange;	// default: unchanged
+										switch([event clickCount])
+											{
+												case 2:	// select word
+														rng=[textStorage doubleClickAtIndex:pos];
+														break;
+												case 3:	// select line
+													{
+														NSString *str=[textStorage string];
+														unsigned length=[str length];
+														rng.location=[textStorage lineBreakBeforeIndex:pos withinRange:NSMakeRange(0, length)];
+														rng.length=[str rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"\n"] options:0 range:NSMakeRange(pos, length-pos)].location;
+														if(rng.length == NSNotFound)
+															rng.length = length-rng.location;
+														else
+															rng.length = rng.length-rng.location;
+													}
+												case 4: // select paragraph
+												default:
+													break;
+											}
+									}
+							else if(modifiers&NSCommandKeyMask) // shift key
+								rng=_selectedRange;
+							else if(modifiers&NSShiftKeyMask) // shift key
+								rng=NSUnionRange(_selectedRange, NSMakeRange(pos, 0));	// extend selection
+							else
+									{
+										rng=NSMakeRange(pos, 0);	// default: set cursor to location where we did click
+										if(pos < [textStorage length] && [[textStorage string] characterAtIndex:pos] == NSAttachmentCharacter)
+												{ // click on text attachment
+													NSTextAttachment *attachment=[textStorage attribute:NSAttachmentAttributeName atIndex:pos effectiveRange:NULL];
+													id <NSTextAttachmentCell> cell=[attachment attachmentCell];
+													if([cell wantsToTrackMouse])
+															{
+																NSRect rect=NSZeroRect;	// determine cell rect
+																if([cell wantsToTrackMouseForEvent:event inRect:rect ofView:self atCharacterIndex:pos])
+																		{
+																			while([event type] != NSLeftMouseUp)
+																					{ // loop until mouse goes up
+																						if([cell trackMouse:event inRect:rect ofView:self atCharacterIndex:pos untilMouseUp:NO])
+																							break;	// tracking is done
+																						event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+																																			 untilDate:[NSDate distantFuture]						// get next event
+																																					inMode:NSEventTrackingRunLoopMode 
+																																				 dequeue:YES];
+																					}
+																			return;
+																		}
+															}
+												}
+									}
+							initialRange=rng;
+						}
+				else
+						{ // moved
+							rng=NSUnionRange(initialRange, NSMakeRange(pos, 0));	// extend initial selection
+						}
+				if([event type] == NSLeftMouseUp)
+					break;	// done with loop
+				// FIXME: handle [self selectionGranularity]
+				[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:YES];	// this should call setNeedsDisplay!
+				event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+																	 untilDate:[NSDate distantFuture]						// get next event
+																			inMode:NSEventTrackingRunLoopMode 
+																		 dequeue:YES];
 			}
-		else if(1) // no modifier
-			rng=NSMakeRange(pos, 0);	// set cursor to location where we did click
-		else if(0) // shift key
-			rng=NSUnionRange(_selectedRange, NSMakeRange(pos, 0));	// extend
-		// FIXME: handle [self selectionGranularity]
-		[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:YES];	// this should call setNeedsDisplay!
-		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
-								   untilDate:[NSDate distantFuture]						// get next event
-									  inMode:NSEventTrackingRunLoopMode 
-									 dequeue:YES];
-		}
 	[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:NO];	// finally update selection
 #if 1
 	NSLog(@"NSTextView mouseDown up");
 #endif	
 }
 
-- (void) setSelectedRange:(NSRange)range;
+- (void) setSelectedRange:(NSRange) range affinity:(NSSelectionAffinity) affinity stillSelecting:(BOOL) flag;
 {
 	[super setSelectedRange:range];
-	[self updateInsertionPointStateAndRestartTimer:YES];
+	if(!flag && layoutManager)
+			{
+				[self updateInsertionPointStateAndRestartTimer:YES];	// will call _caretRect
+				// font=[textStorage attribute:NSFontAttributeName atIndex:range.location effectiveRange:NULL];	// set
+				//	[self setTypingAttributes:];	// reset from first selected character
+				_stableCursorColumn=_caretRect.origin.x;
+				// send NSTextViewDidChangeSelectionNotification
+		}
 }
 
+- (void) setSelectedRange:(NSRange)range;
+{
+	[self setSelectedRange:range affinity:NSSelectByCharacter stillSelecting:NO];
+}
+
+// override to guarantee stable cursor columns
+
+- (void) moveUp:(id) sender
+{
+	float cx=_stableCursorColumn;	// save for cursor stability
+	NSPoint p=NSMakePoint(cx, NSMinY([self _caretRect])-1.0);	// get new cursor position
+	// FIXME: this method expects SCREEN coordinates!
+	unsigned int pos=[self characterIndexForPoint:p];		// will go to start of document of p.y is negative
+	if(pos != NSNotFound)
+		[self setSelectedRange:NSMakeRange(pos, 0)];
+	_stableCursorColumn=cx;	// restore for a sequence of moveUp/moveDown
+}
+
+- (void) moveDown:(id) sender
+{
+	float cx=_stableCursorColumn;	// save for cursor stability
+	NSPoint p=NSMakePoint(cx, NSMaxY([self _caretRect])+1.0);	// get new cursor position
+	// FIXME: this method expects SCREEN coordinates!
+	unsigned int pos=[self characterIndexForPoint:p];		// will go to end of document if p.y is beyond end of document
+	if(pos != NSNotFound)
+		[self setSelectedRange:NSMakeRange(pos, 0)];
+	_stableCursorColumn=cx;	// restore for a sequence of moveUp/moveDown
+}
+
+#pragma mark NSUserInterfaceValidation
 // NSUserInterfaceValidation
 
 - (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>) item;
@@ -828,6 +927,7 @@ static NSCursor *__textCursor = nil;
 	return YES;
 }
 
+#pragma mark NSTextInput
 // NSTextInput protocol
 
 - (NSAttributedString *) attributedSubstringFromRange:(NSRange) range
@@ -840,8 +940,27 @@ static NSCursor *__textCursor = nil;
 
 - (NSRect) firstRectForCharacterRange:(NSRange) range
 {
-	// FIXME
-	range=NSMakeRange(0, [[self textStorage] length]);
+	if(range.length == 0)
+			{ // width 0 - we must get a correct height
+				NSRect r=NSZeroRect;	// default position
+				if([textStorage length] > 0)
+						{
+							range.length=1;	// take rect of first character behind given location
+							if(NSMaxRange(range) >= [textStorage length])
+									{	// take last known character
+										range.location=[textStorage length]-1;
+										r=[layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
+										r.origin.x+=r.size.width;
+										r.size.width=0.0;
+									}
+							else
+								r=[layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
+						}
+				else
+					// FIXME: should come from typingAttributes
+					r.size.height=[layoutManager defaultLineHeightForFont:[self font]];	// get from default insertion point font
+				return r;
+			}
 	return [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
 }
 
@@ -877,7 +996,12 @@ static NSCursor *__textCursor = nil;
 			insertionColor=[[coder decodeObjectForKey:@"NSInsertionColor"] retain];
 			defaultParagraphStyle=[[coder decodeObjectForKey:@"NSDefaultParagraphStyle"] retain];
 			// FIXME: appears to have problems with decoding components of NSDictionary (returning nil)
+			// linkAttributes components are
+			// NSUnderline -> NSNumber
+			// NSCursor -> NSCursor (NSCursorType -> NSNumber, NSHotSpot -> NSString {8,-8})
+			// NSColor -> NSColor
 			linkAttributes=[[coder decodeObjectForKey:@"NSLinkAttributes"] retain];
+			// NSBackgroundColor -> NSColor, NSColor -> NSColor
 			markedAttributes=[[coder decodeObjectForKey:@"NSMarkedAttributes"] retain];
 			selectedAttributes=[[coder decodeObjectForKey:@"NSSelectedAttributes"] retain];
 		}
@@ -897,5 +1021,10 @@ static NSCursor *__textCursor = nil;
 
 - (int) flags; { return flags; }
 - (NSColor *) backgroundColor { return backgroundColor; }
+- (NSColor *) insertionPointColor { return insertionColor; }
+- (NSParagraphStyle *) defaultParagraphStyle { return defaultParagraphStyle; }
+- (NSDictionary *) linkTextAttributes { return linkAttributes; }
+- (NSDictionary *) markedTextAttributes { return markedAttributes; }
+- (NSDictionary *) selectedTextAttributes { return selectedAttributes; }
 
 @end

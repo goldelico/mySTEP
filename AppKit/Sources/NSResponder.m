@@ -90,12 +90,11 @@
 {
 	NSEnumerator *e=[events objectEnumerator];
 	NSEvent *event;
+	// FIXME: if userDefaults "NSQuotedKeystrokeBinding" found (default = ctl-q) -> pass next character unbound
 	while((event=[e nextObject]))
 		{
-			// if userDefaults "NSQuotedKeystrokeBinding" found (default ctl-q) -> pass next character unbound
-		unsigned int flags=[event modifierFlags];
-			// the order of these flags appears to be fixed: http://www.erasetotheleft.com/post/mac-os-x-key-bindings/
-		NSString *chars=[NSString stringWithFormat:@"%@%@%@%@%@%@%@",
+			unsigned int flags=[event modifierFlags];
+			NSString *chars=[NSString stringWithFormat:@"%@%@%@%@%@%@%@",	// the order of these flags appears to be required: http://www.erasetotheleft.com/post/mac-os-x-key-bindings/
 										 flags&NSControlKeyMask?@"^":@"",
 										 flags&NSShiftKeyMask?@"$":@"",
 										 flags&NSAlternateKeyMask?@"~":@"",
@@ -107,10 +106,11 @@
 		NSEnumerator *f;
 		sel=[mapping objectForKey:chars];
 		if(!sel)
-			sel=[NSArray arrayWithObjects:@"insertText:", chars, nil];	// default
+			sel=[NSArray arrayWithObjects:@"insertText:", [event characters], nil];	// default
 		else if([sel isKindOfClass:[NSDictionary class]])
 			{ // submapping
 				// FIXME: what do we do if we have not received enough events, i.e. [[e allObjects] length] == 0
+				// push back to event queue?
 			[self _interpretKeyEvents:[e allObjects] inMappingTable:sel];	// recursively try to interpret with remaining events
 			break;	// done
 			}
@@ -124,10 +124,12 @@
 							if([sel isEqualToString:@"insertText:"])
 								[self insertText:[f nextObject]]; // handle special case
 							else
+								// FIXME: what happens if the selector is not defined? Ignore or raise exception?
 								[self doCommandBySelector:NSSelectorFromString(sel)];
 						}
 			}
 		}
+	// FIXME: send key event up in responder chain
 }
 
 - (void) interpretKeyEvents:(NSArray *) eventArray
@@ -136,12 +138,14 @@
 	if(!_keyMapping)
 		{ // initialize table - according to http://www.erasetotheleft.com/post/mac-os-x-key-bindings/
 			NSDictionary *dict;
-			_keyMapping=[[NSMutableDictionary alloc] initWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:@"StandardKeyBinding" ofType:@"dict"]];	// load standard binding
+			NSBundle *bundle=[NSBundle bundleForClass:[NSResponder class]];
+			NSString *path=[bundle pathForResource:@"StandardKeyBinding" ofType:@"dict"];
+			_keyMapping=[[NSMutableDictionary alloc] initWithContentsOfFile:path];	// load standard binding
 			// FIXME: use system method to get file path(s) to search through
 			dict=[NSDictionary dictionaryWithContentsOfFile:@"/Library/KeyBindings/DefaultKeyBinding.dict"];
 			if(dict)
 				[(NSMutableDictionary *) _keyMapping addEntriesFromDictionary:dict];
-			dict=[NSDictionary dictionaryWithContentsOfFile:@"/Library/KeyBindings/DefaultKeyBinding.dict"];
+			dict=[NSDictionary dictionaryWithContentsOfFile:@"~/Library/KeyBindings/DefaultKeyBinding.dict"];
 			if(dict)
 				[(NSMutableDictionary *) _keyMapping addEntriesFromDictionary:dict];
 		}

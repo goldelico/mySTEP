@@ -1067,37 +1067,12 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		case NSScrollWheel:
 		case NSTabletPoint:
 		case NSTabletProximity:
-			{ // send all mouse related events to the window specified in the event
+			{ // send all mouse related events to the window specified in the event (i.e. key window)
+				// CHECKME: what if app has NOT windows? Which window?
 				[[event window] sendEvent:event];
 				break;
 			}
 		case NSKeyDown:
-			{
-#if 1
-				NSLog(@"%@ keyDown: %@", NSStringFromClass(isa), event);
-#endif
-				if([[event characters] length] > 0)
-					{ // event is providing characters - i.e. not just a meta-key
-					NSEnumerator *e;
-					NSWindow *w;
-					if([_keyWindow performKeyEquivalent:event])
-						return;	// has been processed
-					if([_mainWindow performKeyEquivalent:event])
-						return;	// has been processed
-					e = [[self windows] objectEnumerator];	// all windows incl. menu windows
-					while((w = [e nextObject]))
-						{ // Try all other windows
-						if(w == _keyWindow || w == _mainWindow)
-							continue;	// already tried
-						if([w performKeyEquivalent:event])
-							return;	// has been processed by window
-						}
-					// FIXME: also try popup and contextual menus!
-					// FIXME: do we really need this? A Menu window is also an "other" window...
-//					if([[self mainMenu] performKeyEquivalent:event])	// finally try main menu (not menu window)
-//						return;
-					}
-			}
 		case NSKeyUp:
 		case NSFlagsChanged:
 		case NSCursorUpdate:
@@ -1122,6 +1097,35 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		case NSSwipe:
 			[self _handleGestureEvent:event];
 		}
+}
+
+- (void) keyDown:(NSEvent *)event
+{
+#if 1
+	NSLog(@"%@ keyDown: %@", NSStringFromClass(isa), event);
+#endif
+	if([[event characters] length] > 0)
+			{ // event is providing characters - i.e. not just a meta-key
+				NSEnumerator *e;
+				NSWindow *w;
+				if([_keyWindow performKeyEquivalent:event])
+					return;	// has been processed
+				if([_mainWindow performKeyEquivalent:event])
+					return;	// has been processed
+				e = [[self windows] objectEnumerator];	// all windows incl. menu windows
+				while((w = [e nextObject]))
+						{ // Try all other windows
+							if(w == _keyWindow || w == _mainWindow)
+								continue;	// already tried
+							if([w performKeyEquivalent:event])
+								return;	// has been processed by window
+						}
+				// FIXME: also try open popup and contextual menus!
+				// FIXME: do we really need this? A Menu window is also an "other" window...
+				//					if([[self mainMenu] performKeyEquivalent:event])	// finally try main menu (not menu window)
+				//						return;
+			}
+	[super keyDown:event];	// we may have our own next responder (i.e. the App delegate)
 }
 
 - (void) discardEventsMatchingMask:(unsigned int)mask

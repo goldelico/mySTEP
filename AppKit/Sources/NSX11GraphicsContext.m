@@ -2702,13 +2702,14 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 #if 1
 	NSLog(@"xkeycode: %d", xEvent->xkey.keycode);
 #endif
+#if TRASH	// this is only on Neo...
 	switch(xEvent->xkey.keycode)
 		{ // specials
 		case 8:	// AUX button on Neo1973
 			*eventModFlags |= NSFunctionKeyMask; 
 			return NSF1FunctionKey;
 		}
-
+#endif
 	switch(keysym)
 		{
 		case XK_Return:
@@ -2721,8 +2722,8 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 		case XK_space:
 			return ' ';
 		}
-	if ((keysym >= XK_F1) && (keysym <= XK_F35)) 			// if a function
-		{													// key was pressed
+	if ((keysym >= XK_F1) && (keysym <= XK_F35))
+		{ // if a function key was pressed
 		*eventModFlags |= NSFunctionKeyMask; 
 		switch(keysym)	// FIXME: why not use keysym here??
 			{
@@ -2764,6 +2765,31 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 			default:								 break;
 			}
 		}
+	else if ((keysym > XK_KP_Space) && (keysym < XK_KP_9)) 		// If the key press
+			{													// originated from
+				*eventModFlags |= NSNumericPadKeyMask;				// the key pad
+				
+				switch(keysym) 
+					{
+						case XK_KP_F1:        keyCode = NSF1FunctionKey;         break;
+						case XK_KP_F2:        keyCode = NSF2FunctionKey;         break;
+						case XK_KP_F3:        keyCode = NSF3FunctionKey;         break;
+						case XK_KP_F4:        keyCode = NSF4FunctionKey;         break;
+						case XK_KP_Home:      keyCode = NSHomeFunctionKey;       break;
+						case XK_KP_Left:      keyCode = NSLeftArrowFunctionKey;  break;
+						case XK_KP_Up:        keyCode = NSUpArrowFunctionKey;    break;
+						case XK_KP_Right:     keyCode = NSRightArrowFunctionKey; break;
+						case XK_KP_Down:      keyCode = NSDownArrowFunctionKey;  break;
+						case XK_KP_Page_Up:   keyCode = NSPageUpFunctionKey;     break;
+						case XK_KP_Page_Down: keyCode = NSPageDownFunctionKey;   break;
+						case XK_KP_End:       keyCode = NSEndFunctionKey;        break;
+						case XK_KP_Begin:     keyCode = NSBeginFunctionKey;      break;
+						case XK_KP_Insert:    keyCode = NSInsertFunctionKey;     break;
+						case XK_KP_Delete:    keyCode = NSDeleteFunctionKey;     break;
+						default:												 break;
+					}
+			}
+	
 	else 
 		{
 		switch(keysym) 
@@ -2803,45 +2829,18 @@ static unsigned short xKeyCode(XEvent *xEvent, KeySym keysym, unsigned int *even
 			default:												break;
 			}
 		
-		if(keyCode)
-			*eventModFlags |= NSFunctionKeyMask;
-		else
-			{ // no keycode - other keys to handle
+		if(!keyCode)
+			{ // no keycode - flag keys to handle
 			if ((keysym == XK_Shift_L) || (keysym == XK_Shift_R))
-				*eventModFlags |= NSFunctionKeyMask | NSShiftKeyMask; 
+				*eventModFlags |= NSShiftKeyMask; 
 			else if ((keysym == XK_Control_L) || (keysym == XK_Control_R))
-				*eventModFlags |= NSFunctionKeyMask | NSControlKeyMask; 
+				*eventModFlags |= NSControlKeyMask; 
 			else if ((keysym == XK_Alt_R) || (keysym == XK_Meta_R))
 				*eventModFlags |= NSAlternateKeyMask;
 			else if ((keysym == XK_Alt_L) || (keysym == XK_Meta_L))
 				*eventModFlags |= NSCommandKeyMask | NSAlternateKeyMask; 
 			else if ((keysym == XK_Mode_switch))
 				*eventModFlags |= NSCommandKeyMask | NSAlternateKeyMask; 
-			}
-		}
-	
-	if ((keysym > XK_KP_Space) && (keysym < XK_KP_9)) 		// If the key press
-		{													// originated from
-		*eventModFlags |= NSNumericPadKeyMask;				// the key pad
-		
-		switch(keysym) 
-			{
-			case XK_KP_F1:        keyCode = NSF1FunctionKey;         break;
-			case XK_KP_F2:        keyCode = NSF2FunctionKey;         break;
-			case XK_KP_F3:        keyCode = NSF3FunctionKey;         break;
-			case XK_KP_F4:        keyCode = NSF4FunctionKey;         break;
-			case XK_KP_Home:      keyCode = NSHomeFunctionKey;       break;
-			case XK_KP_Left:      keyCode = NSLeftArrowFunctionKey;  break;
-			case XK_KP_Up:        keyCode = NSUpArrowFunctionKey;    break;
-			case XK_KP_Right:     keyCode = NSRightArrowFunctionKey; break;
-			case XK_KP_Down:      keyCode = NSDownArrowFunctionKey;  break;
-			case XK_KP_Page_Up:   keyCode = NSPageUpFunctionKey;     break;
-			case XK_KP_Page_Down: keyCode = NSPageDownFunctionKey;   break;
-			case XK_KP_End:       keyCode = NSEndFunctionKey;        break;
-			case XK_KP_Begin:     keyCode = NSBeginFunctionKey;      break;
-			case XK_KP_Insert:    keyCode = NSInsertFunctionKey;     break;
-			case XK_KP_Delete:    keyCode = NSDeleteFunctionKey;     break;
-			default:												 break;
 			}
 		}
 	
@@ -3748,18 +3747,33 @@ static NSDictionary *_x11settings;
 						NSString *keys = @"";
 						unsigned short keyCode = 0;
 						unsigned mflags;
-						unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);						
+						// FIXME: if we want to get not only ISO-Latin 1 we should use XLookupKeysym()
+						unsigned int count = XLookupString(&xe.xkey, buf, sizeof(buf), &ksym, NULL);
+#if 1
+							{
+								int idx;
+								NSLog(@"xKeyEvent: xkey.state=%d keycode=%d keysym=%d:%s", xe.xkey.state, xe.xkey.keycode, ksym, XKeysymToString(ksym));
+								for(idx=0; idx < 8; idx++)
+									NSLog(@"%d: %08x", idx, XLookupKeysym(&xe.xkey, idx));
+								/* it looks as if Apple X11 delivers
+								 idx=0: lower case - or base keycode (0xff7e)
+								 idx=1: upper case
+								 idx=2: Unicode lower case
+								 idx=3: Unicode upper case
+								 */
+							}
+#endif
 						buf[MIN(count, sizeof(buf)-1)] = '\0'; // Terminate string properly
 #if 1
 						NSLog(@"Process key event");
 #endif
-#if 1
-						NSLog(@"xKeyEvent: xkey.state=%d keycode=%d keysym=%d:%s", xe.xkey.state, xe.xkey.keycode, ksym, XKeysymToString(ksym));
-#endif						
 						mflags = xKeyModifierFlags(xe.xkey.state);		// decode (initial) modifier flags
 						if((keyCode = xKeyCode(&xe, ksym, &mflags)) != 0 || count != 0)
 							{
-							keys = [NSString stringWithCString:buf];	// key has a code or a string
+							if(count == 0)
+								keys = [NSString stringWithFormat:@"%C", keyCode];	// unicode key code
+							else
+								keys = [NSString stringWithCString:buf encoding:NSISOLatin1StringEncoding];	// key has a code or a string
 							__modFlags=mflags;							// may also be modified
 							}
 						else
@@ -3808,6 +3822,7 @@ static NSDictionary *_x11settings;
 						
 					case MappingNotify:						// keyboard or mouse   
 						NSDebugLog(@"MappingNotify\n");		// mapping has been changed
+					//	XRefreshKeyboardMapping(<#XMappingEvent * #>);
 						break;								// by another client
 						
 					case MotionNotify:

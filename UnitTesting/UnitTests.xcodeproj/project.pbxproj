@@ -9,6 +9,13 @@
 /* Begin PBXBuildFile section */
 		EE0C72090F7E733F008B94EE /* NSStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE0C71F80F7E7278008B94EE /* NSStringTest.m */; };
 		EE0C72180F7E7423008B94EE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
+		EE488A950F90FBC300B3E56F /* NSAttributedStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */; };
+		EE488AF50F9102C000B3E56F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
+		EE488BAA0F9102C600B3E56F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
+		EE488BAB0F9102CC00B3E56F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
+		EE488BAC0F9102D000B3E56F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
+		EE488BAD0F9102D500B3E56F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
+		EE488C3F0F91030800B3E56F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE488C3E0F91030800B3E56F /* main.m */; };
 		EED109C90F82540300E9AEC6 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
 		EED980320F875953002E4AD5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
 		EED980330F875953002E4AD5 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
@@ -20,6 +27,11 @@
 		EE0C71F80F7E7278008B94EE /* NSStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringTest.m; sourceTree = "<group>"; };
 		EE0C72030F7E7328008B94EE /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE0C72040F7E7328008B94EE /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
+		EE488A930F90FBC300B3E56F /* NSAttributedStringTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSAttributedStringTest.h; sourceTree = "<group>"; };
+		EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAttributedStringTest.m; sourceTree = "<group>"; };
+		EE488AEA0F91025400B3E56F /* Special.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Special.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE488AEC0F91025500B3E56F /* Special-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Special-Info.plist"; sourceTree = "<group>"; };
+		EE488C3E0F91030800B3E56F /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EED109C80F82540300E9AEC6 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EED980280F87594E002E4AD5 /* NSTextFieldCellTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextFieldCellTest.h; sourceTree = "<group>"; };
@@ -41,11 +53,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EE488AE80F91025400B3E56F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE488BAB0F9102CC00B3E56F /* Cocoa.framework in Frameworks */,
+				EE488BAC0F9102D000B3E56F /* AppKit.framework in Frameworks */,
+				EE488BAD0F9102D500B3E56F /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EED980310F875953002E4AD5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				EED980320F875953002E4AD5 /* Foundation.framework in Frameworks */,
+				EE488AF50F9102C000B3E56F /* AppKit.framework in Frameworks */,
+				EE488BAA0F9102C600B3E56F /* Cocoa.framework in Frameworks */,
 				EED980330F875953002E4AD5 /* SenTestingKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -63,6 +87,8 @@
 				EE29D8D8058A38830035639B /* Products */,
 				EE0C72040F7E7328008B94EE /* Tests-Info.plist */,
 				EED9803B0F875953002E4AD5 /* Tests-Info copy.plist */,
+				EE488C3E0F91030800B3E56F /* main.m */,
+				EE488AEC0F91025500B3E56F /* Special-Info.plist */,
 			);
 			name = BrowserTester;
 			sourceTree = "<group>";
@@ -88,6 +114,8 @@
 			children = (
 				EE0C71F70F7E7278008B94EE /* NSStringTest.h */,
 				EE0C71F80F7E7278008B94EE /* NSStringTest.m */,
+				EE488A930F90FBC300B3E56F /* NSAttributedStringTest.h */,
+				EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */,
 			);
 			name = "Data&String";
 			sourceTree = "<group>";
@@ -97,6 +125,7 @@
 			children = (
 				EE0C72030F7E7328008B94EE /* Tests.octest */,
 				EED9803A0F875953002E4AD5 /* Tests.octest */,
+				EE488AEA0F91025400B3E56F /* Special.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -143,6 +172,23 @@
 			productReference = EE0C72030F7E7328008B94EE /* Tests.octest */;
 			productType = "com.apple.product-type.bundle";
 		};
+		EE488AE90F91025400B3E56F /* Special */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE488AF00F91025600B3E56F /* Build configuration list for PBXNativeTarget "Special" */;
+			buildPhases = (
+				EE488AE60F91025400B3E56F /* Resources */,
+				EE488AE70F91025400B3E56F /* Sources */,
+				EE488AE80F91025400B3E56F /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Special;
+			productName = Special;
+			productReference = EE488AEA0F91025400B3E56F /* Special.app */;
+			productType = "com.apple.product-type.application";
+		};
 		EED9802D0F875953002E4AD5 /* AppKit */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EED980360F875953002E4AD5 /* Build configuration list for PBXNativeTarget "AppKit" */;
@@ -177,12 +223,20 @@
 			targets = (
 				EE0C72020F7E7328008B94EE /* Foundation */,
 				EED9802D0F875953002E4AD5 /* AppKit */,
+				EE488AE90F91025400B3E56F /* Special */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		EE0C71FE0F7E7328008B94EE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE488AE60F91025400B3E56F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -263,6 +317,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE0C72090F7E733F008B94EE /* NSStringTest.m in Sources */,
+				EE488A950F90FBC300B3E56F /* NSAttributedStringTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE488AE70F91025400B3E56F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE488C3F0F91030800B3E56F /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -368,6 +431,7 @@
 		EE1A0192097304E200EAB703 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				MACOSX_DEPLOYMENT_TARGET = "";
 				SDKROOT = macosx10.4;
 			};
@@ -376,6 +440,7 @@
 		EE1A0193097304E200EAB703 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				MACOSX_DEPLOYMENT_TARGET = "";
 				SDKROOT = macosx10.4;
 			};
@@ -384,8 +449,93 @@
 		EE1A0194097304E200EAB703 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				MACOSX_DEPLOYMENT_TARGET = "";
 				SDKROOT = macosx10.4;
+			};
+			name = Default;
+		};
+		EE488AED0F91025600B3E56F /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "Special-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Special;
+				SDKROOT = "";
+			};
+			name = Development;
+		};
+		EE488AEE0F91025600B3E56F /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+				);
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "Special-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Special;
+				SDKROOT = "";
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE488AEF0F91025600B3E56F /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(DEVELOPER_FRAMEWORKS_DIR)\"",
+				);
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "Special-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = Special;
+				SDKROOT = "";
 			};
 			name = Default;
 		};
@@ -496,6 +646,16 @@
 				EE1A0192097304E200EAB703 /* Development */,
 				EE1A0193097304E200EAB703 /* Deployment */,
 				EE1A0194097304E200EAB703 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EE488AF00F91025600B3E56F /* Build configuration list for PBXNativeTarget "Special" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE488AED0F91025600B3E56F /* Development */,
+				EE488AEE0F91025600B3E56F /* Deployment */,
+				EE488AEF0F91025600B3E56F /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;

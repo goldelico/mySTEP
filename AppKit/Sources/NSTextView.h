@@ -87,9 +87,12 @@ typedef NSUInteger NSFindPanelSubstringMatchType;
 //	NSDictionary *typingAttributes;
 	NSParagraphStyle *defaultParagraphStyle;
 	NSMutableArray *selectedRanges;	// ?
+	NSRect _caretRect;
 	NSRange _markedRange;
 	NSSize textContainerInset;
 	NSPoint textContainerOrigin;
+	float _stableCursorColumn;			// current cursor x positon (used for moveDown: and moveUp:)
+
 //	int spellCheckerDocumentTag;
 	// the following should be a bitfield struct - but that saves only some 10 bytes per NSTextView...
 	NSSelectionAffinity selectionAffinity;

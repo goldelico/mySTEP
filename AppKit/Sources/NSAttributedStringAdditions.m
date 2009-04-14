@@ -682,7 +682,7 @@ int ch, cNibble = 2, b = 0;
 #define TWIPSperPOINT	20.0		// points are 20 twips
 #define POINTperMETER	2660.0
 
-// some useful unit converters (FIXME: define macros instead of methods)
+// some useful unit converters
 
 + (float) _pt2mm:(float) val
 {
@@ -713,7 +713,7 @@ int ch, cNibble = 2, b = 0;
 		return nil;
 		}
 	// what to do with options?
-	// we should also be more intelligen to decide about document format since trying to load as HTML is really heavy
+	// we should also be more intelligent to decide about document format since simply trying to load as HTML and failing is really heavy
 	o=[self initWithRTF:d documentAttributes:dict];			// try RTF
 	if(!o)
 		o=[self initWithDocFormat:d documentAttributes:dict];		// no, try MS Word
@@ -731,12 +731,12 @@ int ch, cNibble = 2, b = 0;
 
 - (id) initWithURL:(NSURL *)url options:(NSDictionary *)options documentAttributes:(NSDictionary **)dict error:(NSError **)error;
 {
-	NSData *data=[NSData dataWithContentsOfURL:url];
+	NSData *data=[NSData dataWithContentsOfURL:url options:0 error:error];
 	if(!data)
-		{ // can't read
-		// set error
-		return nil;
-		}
+			{
+				[self release];
+				return nil;	// can't read
+			}
 	return [self initWithData:data options:options documentAttributes:dict error:error];
 }
 
@@ -769,7 +769,10 @@ int ch, cNibble = 2, b = 0;
 {
 	NSFileWrapper *w = [[[NSFileWrapper alloc] initWithSerializedRepresentation:data] autorelease];
 	if(!w)
-		return nil;
+			{
+				[self release];
+				return nil;
+			}
 	return [self initWithRTFDFileWrapper:w documentAttributes:dict];
 }
 
@@ -811,7 +814,7 @@ static BOOL done;
 
 - (id) initWithHTML:(NSData *)data options:(NSDictionary *)options documentAttributes:(NSDictionary **)dict;
 {
-	// check for HTML like header before trying
+	// check if header looks reasonable like HTML or XHTML before even trying
 	if(!didLoadWebKit)
 		[[NSBundle bundleWithPath:@"/System/Library/Frameworks/WebKit.framework"] load], didLoadWebKit=YES;	// dynamically load
 	// CHECKME: do we really need to create a WebView or is creating a webFrame sufficient?
@@ -819,7 +822,10 @@ static BOOL done;
 		{
 		webView=[[NSClassFromString(@"WebView") alloc] initWithFrame:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
 		if(!webView)
+				{
+			[self release];
 			return nil;	// can't initialize
+				}
 		}
 	[[webView mainFrame] loadData:data MIMEType:@"text/html" textEncodingName:@"utf-8" baseURL:[options objectForKey:NSBaseURLDocumentOption]];
 	[webView setFrameLoadDelegate:self];
@@ -839,6 +845,7 @@ static BOOL done;
 
 - (id) initWithDocFormat:(NSData *)data documentAttributes:(NSDictionary **)dict;
 {
+	// read Word format
 	return NIMP;
 }
 
@@ -922,10 +929,13 @@ static BOOL done;
 		[rtf appendString:@"};\n"];	// close color table
 		}
 	// stylesheet (paragraph formats) - optional
+	// ...
 	// listtable - optional
+	// ...
 	// revtbl - optional
+	// ...
 	for(i=0; i<cnt; )
-		{ // second pass: emit contents
+		{ // second pass: write contents
 		NSRange rng;
 		NSDictionary *attr=[self attributesAtIndex:i longestEffectiveRange:&rng inRange:NSMakeRange(i, cnt-i)];
 		NSFont *font=[attr objectForKey:NSFontAttributeName];
@@ -996,11 +1006,11 @@ static BOOL done;
 
 #if example_how_to_use_this_class_for_great_things
 
-- (NSString*) attributedStringToHTML:(NSAttributedString*)aString
+- (NSString *) attributedStringToHTML:(NSAttributedString*)aString
 {
-	NSArray*        excluded = [NSArray arrayWithObjects: @"doctype", @"html",  
+	NSArray *excluded = [NSArray arrayWithObjects: @"doctype", @"html",  
 		@"head", @"body", @"xml", @"p", nil];
-	NSDictionary*    attr = [NSDictionary dictionaryWithObjectsAndKeys:
+	NSDictionary *attr = [NSDictionary dictionaryWithObjectsAndKeys:
 		NSHTMLTextDocumentType, NSDocumentTypeDocumentAttribute,
 		//aTitle, NSTitleDocumentAttribute,
 		excluded, NSExcludedElementsDocumentAttribute,
@@ -1028,23 +1038,23 @@ static BOOL done;
 - (BOOL) containsAttachments
 {
 	NIMP;
-	return NO;	// look for attachment attributes
+	return NO;	// look for attachment character(s)
 }
-					// return first char to go on the next line or NSNotFound
-					// if the speciefied range does not contain a line break
 
 // FIXME: this and e.g. nextWordFromIndex: should be used in the string drawing algorithm to determine line breaks and wrapping!
 
 - (unsigned) lineBreakBeforeIndex:(unsigned)location
 					  withinRange:(NSRange)aRange
 {
+	// return first char to go on the next line or NSNotFound
+	// if the speciefied range does not contain a line break	
 	unsigned len=[self length];
 	NSString *s=[self string];
 	static NSCharacterSet *c;
 	if(!c)
-		c=[[NSCharacterSet whitespaceAndNewlineCharacterSet] retain];
+		c=[[NSCharacterSet characterSetWithCharactersInString:@"\n"] retain];
 	if(aRange.location+aRange.length > len || location > len)
-		;	// raise exception
+		[NSException raise:NSRangeException format:@"Invalid location %u and range %@", location, NSStringFromRange(aRange)];	// raise exception
 	while(aRange.length-- > 0 && aRange.location < len && aRange.location < location)
 		{
 		if([c characterIsMember:[s characterAtIndex:aRange.location]])
@@ -1054,9 +1064,19 @@ static BOOL done;
 	return NSNotFound;
 }
 
-- (NSRange) doubleClickAtIndex:(unsigned)location
+- (unsigned) lineBreakByHyphenatingBeforeIndex:(unsigned)location
+											withinRange:(NSRange)aRange
 {
-	return (NSRange){0,0};
+	// we should know about hyphenation rules and a language attribute
+	return [self lineBreakBeforeIndex:location withinRange:aRange];
+}
+
+- (NSRange) doubleClickAtIndex:(unsigned)location
+{ // FIXME: should be linguistically correct
+	NSRange rng;
+	rng.location=[self nextWordFromIndex:location forward:NO];
+	rng.length=[self nextWordFromIndex:location forward:YES]-rng.location;
+	return rng;
 }
 
 - (unsigned) nextWordFromIndex:(unsigned)location forward:(BOOL)flag
@@ -1068,14 +1088,14 @@ static BOOL done;
 	if(!c)
 		c=[[[NSCharacterSet whitespaceAndNewlineCharacterSet] invertedSet] retain];
 	if(location >= len)
-		;	// raise exception
+		[NSException raise:NSRangeException format:@"Invalid location %u", location];	// raise exception
 	if(flag)
 		r=[s rangeOfCharacterFromSet:c options:0 range:NSMakeRange(location+1, len-location-1)];
 	else
 		r=[s rangeOfCharacterFromSet:c options:NSBackwardsSearch range:NSMakeRange(0, location-1)];
 	if(r.location != NSNotFound)
 		return r.location;	// location of first whitespace
-	return location;
+	return location;	// unchanged
 }
 
 /*

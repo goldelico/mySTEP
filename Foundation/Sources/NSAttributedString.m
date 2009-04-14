@@ -118,6 +118,34 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 	return nil;
 }
 
+@interface _NSMutableAttributedStringProxy : NSMutableString
+{ // returned by [astring mutableString]
+	NSMutableAttributedString *_astring;	// original
+}
+- (id) initWithAttributedString:(NSMutableAttributedString *) astring;
+@end
+
+@implementation _NSMutableAttributedStringProxy
+
+- (id) initWithAttributedString:(NSMutableAttributedString *) astring;
+{
+	// we don't call super init!
+	_astring=[astring retain];
+	return self;
+}
+
+- (void) dealloc
+{
+	[_astring release];
+	[super dealloc];	// this is NSMutableString's dealloc
+}
+
+// FIXME: make all changes update attributes in _astring
+// i.e. setString
+// etc.
+
+@end
+
 @implementation NSAttributedString
 
 + (void) initialize
@@ -154,10 +182,10 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 
 - (id) initWithAttributedString:(NSAttributedString *)attributedString
 {
-		if((self=[self initWithString:[attributedString string] attributes:nil]))
-				{
-			_setAttributesFrom(attributedString, NSMakeRange(0, [attributedString length]), _attributes, _locations);
-		}
+	if((self=[self initWithString:[attributedString string] attributes:nil]))
+			{
+				_setAttributesFrom(attributedString, NSMakeRange(0, [attributedString length]), _attributes, _locations);
+			}
 	return self;
 }
 
@@ -392,17 +420,37 @@ NSAttributedString *newAttrString;						// Extract a substring
 	NSLog(@"NSAttributes=%@", [coder decodeObjectForKey:@"NSAttributes"]);
 	NSLog(@"NSString=%@", [coder decodeObjectForKey:@"NSString"]);
 	NSLog(@"NSAttributeInfo=%@", [coder decodeObjectForKey:@"NSAttributeInfo"]);	// NSData(!)
-	NSLog(@"NSDelegate=%@", [coder decodeObjectForKey:@"NSDelegate"]);
+	NSLog(@"NSDelegate=%@", [coder decodeObjectForKey:@"NSDelegate"]);	// NSTextStorage only
 #endif
 	self = [super initWithCoder:aCoder];
 	if([aCoder allowsKeyedCoding])
 		{
-		// FIXME!!!
-			// may be a int [] of the locations
-		NSLog(@"NSAttributeInfo=%@", [aCoder decodeObjectForKey:@"NSAttributeInfo"]);	// NSData(!)
-		// how are mixed attribs decoded, i.e. what do we do with NSAttributeInfo? 
-		return [self initWithString:[aCoder decodeObjectForKey:@"NSString"]
-						 attributes:[aCoder decodeObjectForKey:@"NSAttributes"]];
+			if([aCoder containsValueForKey:@"NSAttributeInfo"])
+					{ // we have several attribute runs and NSAttributes is an Array of the attributes
+						const unsigned char *p, *end;
+						unsigned int pos;
+						NSArray *attribs=[aCoder decodeObjectForKey:@"NSAttributes"];	// array of unique attributes
+						NSData *info=[aCoder decodeObjectForKey:@"NSAttributeInfo"];
+						self=[self initWithString:[aCoder decodeObjectForKey:@"NSString"] attributes:nil];
+						p=[info bytes];
+						end=p+[info length];
+						pos=0;
+						while(p < end)
+								{ // process encoded runs
+									unsigned len, idx;
+									len=*p++;
+									if(len >= 128)
+										; // handle multibyte value
+									idx=*p++;
+									// handle multibyte value
+									[_attributes addObject:[attribs objectAtIndex:idx]];
+									[_locations addObject:[NSNumber numberWithUnsignedInt:pos]];
+									pos+=len;
+								}
+					}
+			else
+				return [self initWithString:[aCoder decodeObjectForKey:@"NSString"]
+												 attributes:[aCoder decodeObjectForKey:@"NSAttributes"]];	// single attribute run
 		}
 	[aCoder decodeValueOfObjCType: @encode(id) at: &_string];
 	[aCoder decodeValueOfObjCType: @encode(id) at: &_attributes];
@@ -458,7 +506,7 @@ NSString *newSubstring;
 	return newAttrString;
 }
 
-- (NSMutableString *) mutableString			{ return _string; }
+- (NSMutableString *) mutableString			{ return [[[_NSMutableAttributedStringProxy alloc] initWithAttributedString:self] autorelease]; }
 - (void) beginEditing						{ return; }
 - (void) endEditing							{ return; }
 

@@ -90,12 +90,13 @@ enum _NSCommonlyUsedUnicodeCharacters
 {											
 	id _delegate;	// we are not a subclass of NSControl so we have to manage our own delegate!
 	NSColor *_backgroundColor;
+	NSFont *_font;	// insertion cursor font
 	NSRange _selectedRange;		// current selection
-	NSPoint _cursorPosition;	// current clicked cursorPositon (not the position where the cursor is shown but the one selected by last click)
 	NSTextStorage *textStorage;	// note: we don't provide accessors
 	NSMutableArray *lineLayoutInformation;	// one record for each line
 	NSMutableDictionary *typingAttributes; 
 	int spellCheckerDocumentTag;
+	unsigned int modifySelection[2];
 //	int reason;	// reason for TextDidEndEditing
 	
 	NSSize _minSize;
@@ -119,7 +120,9 @@ enum _NSCommonlyUsedUnicodeCharacters
 		UIBITFIELD(unsigned int, secure, 1);	// used by NSSecureTextField
 		TYPEDBITFIELD(NSTextAlignment, alignment, 3);
 		UIBITFIELD(unsigned int, ownsTextStorage, 1);
-		UIBITFIELD(unsigned int, reserved, 18);
+		TYPEDBITFIELD(int, moveLeftRightEnd, 2);
+		TYPEDBITFIELD(int, moveUpDownEnd, 2);
+		UIBITFIELD(unsigned int, reserved, 14);
 	} _tx;
 }
 

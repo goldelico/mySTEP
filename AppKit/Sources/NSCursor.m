@@ -169,6 +169,8 @@ return c; \
 #endif
 	switch(type)
 		{
+				// FIXME: can we check the list of cursor types?
+				// it appears from analyzing NIBs that cursor #13 should be the pointingHandCursor
 		default:
 		case 1:	c=[isa arrowCursor]; break;
 		case 2:	c=[isa IBeamCursor]; break;
@@ -189,7 +191,7 @@ return c; \
 		NSLog(@"unknown cursor type %d", type);
 		c=[isa IBeamCursor];
 		}
-	[c retain];
+	[c retain];	// should copy or we overwrite the original NSHotSpot of the cached cursor singleton!
 	[self autorelease];
 	c->_hotSpot=[aDecoder decodePointForKey:@"NSHotSpot"];
 	return c;

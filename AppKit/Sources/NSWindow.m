@@ -246,29 +246,31 @@ static BOOL __cursorHidden = NO;
 			}
 		_didSetShape=YES;
 		}
-//	if(NSMinY(rect) >= _height)
 	[_backgroundColor set];
 	NSRectFill(rect);	// draw window background
-	[[self titleBarBackgroundColor] set];
-	NSRectFill((NSRect){NSZeroPoint, {_bounds.size.width, _height }});	// fill titlebar background
-	[[NSColor windowFrameColor] set];
-	NSFrameRect(_bounds);	// draw a frame around the window (using current fill color)
-	if(!_title && !_titleIcon)
-		return;
-	if(_titleIcon)
-		{
-		[_titleIcon compositeToPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0-[_titleIcon size].width,
-																						 1.0+(_height-16.0)/2.0)
+	if(NSMinY(rect) < _height)
+			{ // needs to redraw the titlebar
+				[[self titleBarBackgroundColor] set];
+				NSRectFill((NSRect){NSZeroPoint, {_bounds.size.width, _height }});	// fill titlebar background
+				[[NSColor windowFrameColor] set];
+				NSFrameRect(_bounds);	// draw a frame around the window (using current fill color)
+				if(!_title && !_titleIcon)
+					return;
+				if(_titleIcon)
+						{
+							[_titleIcon compositeToPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0-[_titleIcon size].width,
+																											 1.0+(_height-16.0)/2.0)
 											 operation:NSCompositeSourceOver
 												fraction:[_window isKeyWindow]?1.0:0.8];	// should be dimmed out if we are not the main window
-		}
-	a=[NSDictionary dictionaryWithObjectsAndKeys:		// FIXME: how does this differ from the defaults?
-			[_window isKeyWindow]?[NSColor windowFrameTextColor]:[NSColor grayColor], NSForegroundColorAttributeName,
-			[NSFont titleBarFontOfSize:(_style&NSUtilityWindowMask)?9.0:12.0], NSFontAttributeName,
-			nil];
-	// draw document icon or shouldn't we better use a resizable NSButton with center alignment to store the window icon and title?
-	// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
-	[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, 1.0+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
+						}
+				a=[NSDictionary dictionaryWithObjectsAndKeys:		// FIXME: how does this differ from the defaults?
+					 [_window isKeyWindow]?[NSColor windowFrameTextColor]:[NSColor grayColor], NSForegroundColorAttributeName,
+					 [NSFont titleBarFontOfSize:(_style&NSUtilityWindowMask)?9.0:12.0], NSFontAttributeName,
+					 nil];
+				// draw document icon or shouldn't we better use a resizable NSButton with center alignment to store the window icon and title?
+				// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
+				[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, 1.0+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
+			}
 }
 
 - (void) unlockFocus;
@@ -2166,20 +2168,6 @@ static NSButtonCell *sharedCell;
 		[self noResponderFor:sel];	// Beep
 }
 
-#if 0	// FIX ME should provide default handling per NSResponder docs
-- (void) keyDown:(NSEvent *)event					
-{											
-	switch([event keyCode])
-		{
-		case '\t':			// Tab
-			[self selectNextKeyView:self];
-			break;
-		default:								// FIX ME should provide default
-			NSBeep();							// handling per NSResponder docs
-		}
-}													
-#endif
-
 - (NSResponder *) firstResponder			{ return _firstResponder; }
 - (BOOL) acceptsFirstResponder				{ return YES; }
 
@@ -2903,14 +2891,11 @@ id prev;
 
 - (void) cacheImageInRect:(NSRect) rect;
 {
-	NIMP;
 	[self discardCachedImage];
-	_cachedRep=[[NSCachedImageRep alloc] initWithWindow:nil rect:rect];
-//	[_cachedRep lockFocus];
+	_cachedRep=[[NSCachedImageRep alloc] initWithWindow:nil rect:rect];	// create a new caching window
 	[NSGraphicsContext saveGraphicsState];
 	[NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:(NSBitmapImageRep *)_cachedRep]];
 	NSCopyBits(_gState, rect, NSZeroPoint);	// copy from our window to the cached window
-//	[_cachedRep unlockFocus];
 	[NSGraphicsContext restoreGraphicsState];
 }
 

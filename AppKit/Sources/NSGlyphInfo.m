@@ -60,6 +60,7 @@
 
 - (void) encodeWithCoder:(NSCoder *) coder;
 {
+	NIMP;
 }
 
 - (id) initWithCoder:(NSCoder *) coder;

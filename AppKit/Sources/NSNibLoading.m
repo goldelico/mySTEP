@@ -406,6 +406,17 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	return realObject;
 }
 
+- (NSMethodSignature *) methodSignatureForSelector:(SEL) sel
+{
+	return [realObject methodSignatureForSelector:sel];
+}
+
+- (void) forwardInvocation:(NSInvocation *) i
+{
+	[i setTarget:realObject];
+	[i invoke];
+}
+
 @end
 
 @implementation NSCustomView

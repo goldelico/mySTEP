@@ -18,6 +18,14 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \b0 \
 \
+* fixed translation of X11 keycodes to ISO-Latin1\
+* fixed handling of key equivalents\
+* prepared -[NSMutableAttributedString mutableString] return a proxy that updates the attributes of the original string\
+* added NIB compatible keyed decoding of NSAttributedString\
+* added text selection by mouse-dragging\
+* improved handling of keyEquivalents (handle at the END of the responder chain so that they can be overridden by the firstResponder)\
+* fixed NSThemeFrame to avoid redrawing the title bar if the redraw rect does not include it (did increase the drawing time and backing store flush-rect largely)\
+* added a hack to easily locate a character position that has been clicked in NSTextView\
 * improved keyboard mapping table\
 * worked on NSSearchField to correctly display all components\
 * improved the NSTextField editing handler (fieldEditor, callbacks, becomeFirstResponder etc.)\
