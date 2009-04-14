@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <IOBluetooth/OBEXSession.h>
+#import <IOBluetooth/objc/OBEXSession.h>
 
 @interface IOBluetoothOBEXSession : OBEXSession
 {
