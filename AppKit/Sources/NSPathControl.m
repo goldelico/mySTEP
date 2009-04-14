@@ -30,7 +30,11 @@ static Class __controlCellClass = Nil;
 	{
 		_localDraggingMask=NSDragOperationEvery;
 		_remoteDraggingMask=NSDragOperationNone;
+		// is it correct to add it here?
 		// define tracking rects to call [cell _mouseEntered: and [cell _mouseExited:
+		// [self addTrackingRect:frame owner:self userData:NULL assumeInside:NO];
+		// we must store the tag so that we can remove the tracking rect
+		// FIXME: where do we remove?
 	}
 	return self;
 }
@@ -63,13 +67,15 @@ static Class __controlCellClass = Nil;
 	[_delegate pathControl:self willPopUpMenu:menu]; 
 }
 
-- (void)mouseEntered:(NSEvent *)theEvent {
+- (void) mouseEntered:(NSEvent *)theEvent
+{
 	[[self cell] mouseEntered:theEvent withFrame:[self frame] inView:self];
 }
--(void)mouseExited:(NSEvent *)theEvent {
+
+- (void) mouseExited:(NSEvent *)theEvent
+{
 	[_cell mouseExited:theEvent withFrame:_frame inView:self];
 }
-
 
 - (id) initWithCoder:(NSCoder *) coder;
 {

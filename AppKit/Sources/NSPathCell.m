@@ -84,16 +84,20 @@
 
 - (void) mouseEntered:(NSEvent *) evt withFrame:(NSRect) frame inView:(NSView *) view;
 {
-	//If the ComponentCell is truncated, then "detruncate"
+	_dontTruncateCell = [self pathComponentCellAtPoint: [evt locationInWindow] withFrame:frame inView:view];
+	_needsSizing=YES;	// recalculate cell positions
+	[[self controlView] updateCell:self];
 	NSLog(@"Mouse entered!");
-	MWPathComponentCell *cell = [self pathComponentCellAtPoint: [evt locationInWindow] withFrame:frame inView:view];
-	if (cell) {
+	if (_dontTruncateCell) {
 		NSLog(@"Cell gefunden");
 	}
 }
 
 - (void) mouseExited:(NSEvent *) evt withFrame:(NSRect) frame inView:(NSView *) view;
 {
+	_dontTruncateCell=nil;
+	_needsSizing=YES;	
+	[[self controlView] updateCell:self];
 	NSLog(@"Mouse exited!");
 }
 
@@ -117,29 +121,45 @@
 - (NSRect) rectOfPathComponentCell:(NSPathComponentCell *) c withFrame:(NSRect) rect inView:(NSView *) view;
 {
 	unsigned idx=[_pathComponentCells indexOfObjectIdenticalTo:c];
-	NSRect r = rect;
 	if(idx == NSNotFound)
 		return NSZeroRect;
 	if(_needsSizing)
-	{ // (re)calculate cell positions
-		unsigned int i;
-		CGFloat basicX=r.origin.x;
-		CGFloat deltaX = basicX;
-		r.size = [[_pathComponentCells objectAtIndex:0] cellSize];
-		r.size.width += 8.0;
-		for (i=0;i<(idx+1);i++) {
-			NSPathComponentCell *cell = [_pathComponentCells objectAtIndex:i];
-			r.size = [cell cellSize];
-			basicX += deltaX;
-			deltaX = NSWidth(r)+8.0;
-		}
-		r.origin.x = basicX;
-		r.size.height = rect.size.height;
-		
-		
-	}
-	return r;
+			{ // (re)calculate cell positions
+				unsigned int i;
+				unsigned int cnt=[_pathComponentCells count];
+				NSRect r=rect;
+				_rects=(NSRect *) objc_realloc(_rects, sizeof(_rects[0])*MAX(cnt, 1));
+				for(i=0; i<cnt; i++)
+						{
+							NSPathComponentCell *cell=[_pathComponentCells objectAtIndex:i];
+							r.size=[cell cellSize];	// make as wide as the cell content defines
+							r.size.height=rect.size.height;	// and as high as the NSPathCell
+							_rects[i]=r;
+							r.origin.x += NSWidth(r)+8.0;	// advance
+						}
+				if(cnt > 0 && NSMaxX(_rects[cnt-1]) > NSMaxX(rect))
+						{ // total width of cells is wider than our cell frame
+							float oversize=NSMaxX(_rects[cnt-1]) - NSMaxX(rect);
+							if(cnt > 1 && _dontTruncateCell)
+								oversize /= (cnt-2);	// how much we have to reduce each cell except the cell where the mouse is currently over
+							else
+								oversize /= (cnt-1);	// how much we have to reduce each cell
+							for(i=0; i<cnt; i++)
+									{
+										if([_pathComponentCells objectAtIndex:i] == _dontTruncateCell)
+											continue;	// exclude from truncating this cell
+										_rects[i].size.width -= oversize;	// reduce total width
+										if(_rects[i].size.width < _rects[i].size.height)
+											_rects[i].size.width = _rects[i].size.height;	// must be at least a square to show the icon
+//										[[_pathComponentCells objectAtIndex:i] setLineBreakMode:NSLineBreakByTruncatingTail];
+										if(i+1 < cnt)
+											_rects[i+1].origin.x = NSMaxX(_rects[i])+8.0;	// define start of next cell
+									}
+						}
+			}
+	return _rects[idx];
 }
+
 - (void) setAllowedTypes:(NSArray *) types; { ASSIGN(_allowedTypes, types); }
 - (void) setBackgroundColor:(NSColor *) col; { ASSIGN(_backgroundColor, col); }
 
@@ -151,6 +171,7 @@
 	while((cell = [e nextObject]))
 		[cell setControlSize:controlSize];
 	_needsSizing=YES;
+	[[self controlView] updateCell:self];
 }
 
 - (void) setDelegate:(id) delegate; { _delegate=delegate; }
@@ -167,7 +188,7 @@
 	}
 }
 
-- (void) setPathComponentCells:(NSArray *) cells; { ASSIGN(_pathComponentCells, cells); _needsSizing=YES; }
+- (void) setPathComponentCells:(NSArray *) cells; { ASSIGN(_pathComponentCells, cells); _needsSizing=YES; [[self controlView] updateCell:self]; }
 
 - (void) setPathStyle:(NSPathStyle) pathStyle;
 {
@@ -175,6 +196,7 @@
 	_needsSizing=YES;	// resize for new style
 	if(pathStyle == NSPathStyleNavigationBar)
 		[self setControlSize:NSSmallControlSize];	// enforce
+	[[self controlView] updateCell:self];
 }
 
 - (void) setURL:(NSURL *) url;

@@ -30,7 +30,10 @@ enum
 
 @interface NSTrackingArea : NSObject 
 {
-
+	NSRect _rect;
+	NSTrackingAreaOptions _options;
+	id _owner;
+	NSDictionary *_userInfo;
 }
 
 - (NSTrackingArea *) initWithRect:(NSRect) rect 
