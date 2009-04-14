@@ -2366,12 +2366,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (int) _windowNumber; { return _windowNum; }
 
 - (void) _orderWindow:(NSWindowOrderingMode) place relativeTo:(int) otherWin;
-{ // NSWindow frontend should have identified the otherWin number from the global window list or pass 0
+{ // NSWindow frontend should have identified the otherWin number from the global window list or pass 0 if unknown
 	XWindowChanges values;
+	NSWindow *win=[NSApp windowWithWindowNumber:_windowNum];
 #if 0
 	NSLog(@"_orderWindow:%02x relativeTo:%d", place, otherWin);
 #endif
-	if([[NSApp windowWithWindowNumber:_windowNum] isMiniaturized])	// FIXME: used as special trick not to really map the window during init
+	if([win isMiniaturized])	// FIXME: used as special trick not to really map the window during init
 		return;
 	switch(place)
 		{
@@ -2391,6 +2392,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			XConfigureWindow(_display, _realWindow, CWStackMode, &values);
 			break;
 		}
+	XFlush(_display);	// directly send unmap/configure request to the server
 	// save (new) level in global window list so that we can order other windows accordingly
 	// maybe we should use a (root) window property to store the level?
 	// or at least a shared file with fast access (FILE * and fread() based)
@@ -2401,6 +2403,11 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		[self _renderTrapezoid:points];
 	}
 #endif
+	// could also use XMaskEvent(_display, SubstructureNotifyMask, _realWindow) to wait for a MapNotify!
+	while((place == NSWindowOut)?[win isVisible]:![win isVisible])
+			{ // process incoming events until window becomes (in)visible
+				[[NSRunLoop currentRunLoop] runMode:NSEventTrackingRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];	// wait some fractions of a second...
+			}
 }
 
 - (void) _miniaturize;
@@ -3228,7 +3235,7 @@ static NSDictionary *_x11settings;
 	if((_display=XOpenDisplay(NULL)) == NULL) 		// connect to X server based on DISPLAY variable
 		[NSException raise:NSGenericException format:@"Unable to connect to X server"];
 	XSetErrorHandler((XErrorHandler)X11ErrorHandler);
-#if 0
+#if 0	// enable to debug X11 errors - will be notified immediately and not after other actions
 	XSynchronize(_display, True);
 	NSLog(@"X11 runs synchronized");
 #endif
@@ -3529,7 +3536,7 @@ static NSDictionary *_x11settings;
 					{ // FIXME: if a window is closed, it might be removed from this list but events might be pending!
 					NSLog(@"*** event from unknown Window (%d). Ignored.", (long) thisXWin);
 					NSLog(@"Window list: %@", NSAllMapTableValues(__WindowNumToNSWindow));
-					continue;	// ignore events
+					continue;	// ignore such events
 					}
 				else
 					{
@@ -3542,12 +3549,13 @@ static NSDictionary *_x11settings;
 								}
 						else
 								{
-									// FIXME: uninitialized ?
+									windowHeight=0;
+									windowScale=1.0;
 								}
 					}
 				lastXWin=thisXWin;
 				}
-			// we could post the raw X-event as an NSNotification so that we could build a window manager...
+			// we could post the raw X-event as a NSNotification so that we could build a window managerin Obj-C...
 			switch(xe.type)
 				{
 				case ButtonPress:
@@ -3805,15 +3813,21 @@ static NSDictionary *_x11settings;
 						break;								// focus enters a window
 						
 					case MapNotify:							// when a window changes
-						NSDebugLog(@"MapNotify");			// state from ummapped to
-															// mapped or vice versa
+#if 1
+						NSLog(@"MapNotify");			// state from ummapped to mapped
+#endif
 						[window _setIsVisible:YES];
 						break;								 
 						
 					case UnmapNotify:						// find the NSWindow and
-						NSDebugLog(@"UnmapNotify\n");		// inform it that it is no
-															// longer visible
+#if 1
+						NSLog(@"UnmapNotify\n");		// inform it that it is no longer visible
+#endif
 						[window _setIsVisible:NO];
+						break;
+
+					case VisibilityNotify:						// window's visibility 
+						NSDebugLog(@"VisibilityNotify");		// has changed
 						break;
 						
 					case MapRequest:						// like MapNotify but
@@ -3943,9 +3957,6 @@ static NSDictionary *_x11settings;
 #if FIXME
 							xHandleSelectionRequest((XSelectionRequestEvent *)&xe);
 #endif
-							break;
-						case VisibilityNotify:						// window's visibility 
-							NSDebugLog(@"VisibilityNotify");		// has changed
 							break;
 						default:									// should not get here
 							NSLog(@"Received an untrapped event");
@@ -4572,17 +4583,18 @@ static NSDictionary *_x11settings;
 			else
 #endif
 				{
-					NSBitmapImageRep *bestRep =(NSBitmapImageRep *) [_image bestRepresentationForDevice:nil];	// where to get device description from??
+					NSBitmapImageRep *bestRep =(NSBitmapImageRep *) [_image bestRepresentationForDevice:nil];	// where should we get the device description from??
 					if(bestRep)
 							{
-#if 0
-								NSLog(@"convert %@ to PixmapCursor", bestRep);
+#if 1
+								NSLog(@"convert to PixmapCursor: %@", self);
+								NSLog(@"  bestRep = ", bestRep);
 #endif
 								Drawable root=RootWindowOfScreen(XScreenOfDisplay(_display, 0));
 								int width=[bestRep pixelsWide];
 								int height=[bestRep pixelsHigh];
 								int x, y;
-								XColor fg, bg;	// color for 1 and 0 bits resp. Should be some average over the bitmap - or black&white pixel?
+								XColor fg, bg;	// color for 1 and 0 bits resp.
 								XGCValues attribs;
 								Pixmap mask = XCreatePixmap(_display, root, width, height, 1);	// 1 bit draw/no draw (alpha)
 								Pixmap bits = XCreatePixmap(_display, root, width, height, 1);	// 1 bit choose fg or bg;
@@ -4592,21 +4604,28 @@ static NSDictionary *_x11settings;
 											for(y=0; y<height; y++)
 													{ // fill pixmaps with cursor image
 														unsigned int planes[5]; // we assume RGBA
+														BOOL alpha=planes[3] > 128;
+														BOOL white=planes[0]+planes[1]+planes[2] > 128;		// could be based on weighted intensity
 														[bestRep getPixel:planes atX:x y:(height-y-1)];
-														XSetForeground(_display, gc, planes[3] > 128);
+														XSetForeground(_display, gc, alpha?1:0);
 														XDrawPoint(_display, mask, gc, x, y);
-														XSetForeground(_display, gc, planes[0]+planes[1]+planes[2] > 128);
+														XSetForeground(_display, gc, white?1:0);
 														XDrawPoint(_display, bits, gc, x, y);
+														if(white)
+															; // average real color into fg color
+														else
+															; // average real color into bg color
 													}
 										}
-								// best color should perhaps be calculated from bitmap...
+								// best color should perhaps be calculated from averaging the bitmap...
 								fg.red=65535;
 								fg.green=65535;
 								fg.blue=65535;
 								bg.red=0;
 								bg.green=0;
 								bg.blue=0;
-								_cursor = XCreatePixmapCursor(_display, bits, mask, &fg, &bg, _hotSpot.x, _hotSpot.y);
+								// check _hotSpot to be >= 0 and <width/height
+								_cursor = XCreatePixmapCursor(_display, bits, mask, &fg, &bg, _hotSpot.x, -_hotSpot.y);
 								XFreeGC(_display, gc);
 								XFreePixmap(_display, mask);
 								XFreePixmap(_display, bits);

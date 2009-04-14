@@ -63,23 +63,23 @@ c=[[NSCursor alloc] initWithImage:[NSImage imageNamed:name] hotSpot:(NSPoint){x,
 return c; \
 }
 
-+ (NSCursor *) arrowCursor; { CURSOR(@"GSArrowCursor", 3, 2); }	
-+ (NSCursor *) closedHandCursor; { CURSOR(@"GSClosedHandCursor", 8, 8); }	
-+ (NSCursor *) crosshairCursor; { CURSOR(@"GSCrosshairCursor", 8, 8); }	
-+ (NSCursor *) disappearingItemCursor; { CURSOR(@"GSDisappearingItemCursor", 8, 8); }	
-+ (NSCursor *) IBeamCursor; { CURSOR(@"GSIBeamCursor", 8, 8); }				// Create standard I beam
-+ (NSCursor *) openHandCursor; { CURSOR(@"GSOpenHandCursor", 8, 8); }	
-+ (NSCursor *) pointingHandCursor; { CURSOR(@"GSPointingHandCursor", 8, 8); }	
-+ (NSCursor *) resizeDownCursor; { CURSOR(@"GSResizeDownCursor", 8, 8); }	
-+ (NSCursor *) resizeLeftCursor; { CURSOR(@"GSResizeLeftCursor", 8, 8); }	
-+ (NSCursor *) resizeLeftRightCursor; { CURSOR(@"GSResizeCursor", 8, 8); }
-+ (NSCursor *) resizeRightCursor; { CURSOR(@"GSResizeRightCursor", 8, 8); }	
-+ (NSCursor *) resizeUpCursor; { CURSOR(@"GSResizeUpCursor", 8, 8); }	
-+ (NSCursor *) resizeUpDownCursor; { CURSOR(@"GSResizeUpDownCursor", 8, 8); }
++ (NSCursor *) arrowCursor; { CURSOR(@"GSArrowCursor", 3, -2); }	
++ (NSCursor *) closedHandCursor; { CURSOR(@"GSClosedHandCursor", 8, -8); }	
++ (NSCursor *) crosshairCursor; { CURSOR(@"GSCrosshairCursor", 8, -8); }	
++ (NSCursor *) disappearingItemCursor; { CURSOR(@"GSDisappearingItemCursor", 8, -8); }	
++ (NSCursor *) IBeamCursor; { CURSOR(@"GSIBeamCursor", 8, -8); }				// Create standard I beam
++ (NSCursor *) openHandCursor; { CURSOR(@"GSOpenHandCursor", 8, -8); }	
++ (NSCursor *) pointingHandCursor; { CURSOR(@"GSPointingHandCursor", 8, -8); }	
++ (NSCursor *) resizeDownCursor; { CURSOR(@"GSResizeDownCursor", 8, -8); }	
++ (NSCursor *) resizeLeftCursor; { CURSOR(@"GSResizeLeftCursor", 8, -8); }	
++ (NSCursor *) resizeLeftRightCursor; { CURSOR(@"GSResizeCursor", 8, -8); }
++ (NSCursor *) resizeRightCursor; { CURSOR(@"GSResizeRightCursor", 8, -8); }	
++ (NSCursor *) resizeUpCursor; { CURSOR(@"GSResizeUpCursor", 8, -8); }	
++ (NSCursor *) resizeUpDownCursor; { CURSOR(@"GSResizeUpDownCursor", 8, -8); }
 
-+ (NSCursor *) _copyCursor; { CURSOR(@"GSCopyCursor", 8, 8); }				// mySTEP extension
-+ (NSCursor *) _linkCursor; { CURSOR(@"GSLinkCursor", 8, 8); }				// mySTEP extension
-+ (NSCursor *) _hiddenCursor; { CURSOR(@"GSHiddenCursor", 8, 8); }		// mySTEP extension
++ (NSCursor *) _copyCursor; { CURSOR(@"GSCopyCursor", 8, -8); }				// mySTEP extension
++ (NSCursor *) _linkCursor; { CURSOR(@"GSLinkCursor", 8, -8); }				// mySTEP extension
++ (NSCursor *) _hiddenCursor; { CURSOR(@"GSHiddenCursor", 8, -8); }		// mySTEP extension
 
 + (NSCursor *) currentCursor		{ return __currentCursor; }
 + (BOOL) isHiddenUntilMouseMoves	{ return __cursorIsHiddenUntilMouseMoved; }
@@ -105,8 +105,9 @@ return c; \
 - (id) initWithImage:(NSImage *) image
  foregroundColorHint:(NSColor *) fg
  backgroundColorHint:(NSColor *) bg
-			 hotSpot:(NSPoint) spot;
+			 hotSpot:(NSPoint) spot;	// y axis is negative
 {
+	// FIXME: should be exception - not assertion
 	NSAssert(image, @"image for NSCursor");
 	if((self=[super init]))
 		{
@@ -126,6 +127,11 @@ return c; \
 {
 	[_image release];
 	[super dealloc];
+}
+
+- (NSString *) description
+{
+	return [NSString stringWithFormat:@"%@: %@ - %@", NSStringFromClass([self class]), _image, NSStringFromPoint(_hotSpot)];
 }
 
 - (void) mouseEntered:(NSEvent *)event
@@ -164,7 +170,7 @@ return c; \
 {
 	int type = [aDecoder decodeIntForKey:@"NSCursorType"];
 	NSCursor *c=nil;
-#if 0
+#if 1
 	NSLog(@"%@ initWithCoder:%@ type=%d", NSStringFromClass([self class]), aDecoder, type);
 #endif
 	switch(type)
@@ -193,7 +199,11 @@ return c; \
 		}
 	[c retain];	// should copy or we overwrite the original NSHotSpot of the cached cursor singleton!
 	[self autorelease];
-	c->_hotSpot=[aDecoder decodePointForKey:@"NSHotSpot"];
+#if 1
+	NSLog(@"cursor = %@", c);
+	NSLog(@"hotSpot from NIB: %@", [aDecoder decodeObjectForKey:@"NSHotSpot"]);
+#endif
+//	c->_hotSpot=[aDecoder decodePointForKey:@"NSHotSpot"];	// don't read from NIB unless we create a copy
 	return c;
 }
 

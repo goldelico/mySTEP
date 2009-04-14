@@ -1606,11 +1606,6 @@ static NSButtonCell *sharedCell;
 		objc_free(list);
 		}
 	[_context _orderWindow:place relativeTo:otherWin];	// request map/umap/restack from backend
-	[_context flushGraphics];							// and directly send to the server
-	while(place == NSWindowOut?_w.visible:!_w.visible)
-		{ // queue events until window becomes (in)visible
-		[[NSRunLoop currentRunLoop] runMode:NSEventTrackingRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];	// wait some fractions of a second...
-		}
 #if 0
 	if(_w.isKey && place != NSWindowOut)
 		NSLog(@"orderWindow XSetInputFocus");
