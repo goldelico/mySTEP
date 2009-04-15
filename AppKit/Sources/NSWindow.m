@@ -1554,69 +1554,73 @@ static NSButtonCell *sharedCell;
 }
 
 - (void) orderWindow:(NSWindowOrderingMode) place 
-		  relativeTo:(int) otherWin
+					relativeTo:(int) otherWin
 { // main interface call
 #if 1
 	NSString *str[]={ @"Below", @"Out", @"Above" };
 	NSLog(@"orderWindow:NSWindow%@ relativeTo:%d - %@", str[place+1], otherWin, self);
 #endif
 	if(place == NSWindowOut)
-		{ // close window
-		if(_w.isOneShot)
-			{ // also close screen representation
-			[_context release];
-			_context=nil;
-			_gState=0;
-			return;
+			{ // close window
+				if(!_context)
+					return;	// wasn't ordered in
 			}
-		}
 	else
-		{
-		if(!_context)
-			{ // allocate context (had been temporarily deallocated if we are a oneshot window)
-			_context=[[NSGraphicsContext graphicsContextWithWindow:self] retain];	// now, create window
-			_gState=[_context _currentGState];			// save gState
-			}
-		[self setFrame:[self constrainFrameRect:_frame toScreen:_screen] display:_w.visible animate:_w.visible];	// constrain window frame if needed
-		if(!_w.visible)
 			{
-			_w.needsDisplay = NO;							// reset first - display may result in callbacks that will set this flag again
-			[_themeFrame displayIfNeeded];					// Draw the window view hierarchy (if changed) before mapping
+				if(!_context)
+						{ // allocate context (had been temporarily deallocated if we are a oneshot window)
+							_context=[[NSGraphicsContext graphicsContextWithWindow:self] retain];	// now, create window
+							_gState=[_context _currentGState];			// save gState
+						}
+				[self setFrame:[self constrainFrameRect:_frame toScreen:_screen] display:_w.visible animate:_w.visible];	// constrain window frame if needed
+				if(!_w.visible)
+						{ // wasn't visible yet
+							_w.needsDisplay = NO;										// reset first -display may result in callbacks that will set this flag again
+							[_themeFrame displayIfNeeded];					// Draw the window view hierarchy (if changed) before mapping
+						}
+				
+				// FIXME: don't move a window in front of the key window unless both are in the same application
+				// => make dependent on [self isKeyWindodow];
+				
+				if(!otherWin)
+						{ // find first/last window on same level to place in front/behind
+							int i;
+							int n=[NSScreen _systemWindowListForContext:0 size:99999 list:NULL];	// get number of windows
+							int *list=(int *) objc_malloc(n*sizeof(int));	// allocate buffer
+							[NSScreen _systemWindowListForContext:0 size:n list:list];	// fetch window list (must be front to back stacking order)
+							for(i=n-1; i>0; i--)
+									{
+										int level=[NSWindow _getLevelOfWindowNumber:list[i]];
+										if(place == NSWindowBelow && level < _level)
+											break;	// window has a lower level as ours, i.e. the previous was the last of our level
+										otherWin=list[i];
+										if(place == NSWindowAbove && level == _level)
+											break;	// window is first with same level as ours, i.e. the current front window
+									} // otherwin may remain 0!
+							objc_free(list);
+						}
 			}
-		}
-
-	// FIXME: don't move a window in front of the key window unless both are in the same application
-	// => make dependent on [self isKeyWindodow];
-	
-	if(!otherWin)
-		{ // find first/last window on same level to place in front/behind
-		int i;
-		int n=[NSScreen _systemWindowListForContext:0 size:99999 list:NULL];	// get number of windows
-		int *list=(int *) objc_malloc(n*sizeof(int));	// allocate buffer
-		[NSScreen _systemWindowListForContext:0 size:n list:list];	// fetch window list (must be front to back stacking order)
-		for(i=n-1; i>0; i--)
-			{
-			int level=[NSWindow _getLevelOfWindowNumber:list[i]];
-			if(place == NSWindowBelow && level < _level)
-				break;	// window has a lower level as ours, i.e. the previous was the last of our level
-			otherWin=list[i];
-			if(place == NSWindowAbove && level == _level)
-				break;	// window is first with same level as ours, i.e. the current front window
-			} // otherwin may remain 0!
-		objc_free(list);
-		}
 	[_context _orderWindow:place relativeTo:otherWin];	// request map/umap/restack from backend
+	if(place != NSWindowOut)
+			{
+				if(!_w.menuExclude)
+					[NSApp changeWindowsItem:self title:_windowTitle filename:NO];	// update
 #if 0
-	if(_w.isKey && place != NSWindowOut)
-		NSLog(@"orderWindow XSetInputFocus");
+				if(_w.isKey)
+					NSLog(@"orderWindow XSetInputFocus");
 #endif
-	if(_w.isKey && place != NSWindowOut)
-		[_context _makeKeyWindow];
-	if(_initialFirstResponder && !_firstResponder && ![self makeFirstResponder:_initialFirstResponder])
-		NSLog(@"refused initialFirstResponder %@", _initialFirstResponder);
-	[_firstResponder becomeFirstResponder];
-	if(!_w.menuExclude)
-		[NSApp changeWindowsItem:self title:_windowTitle filename:NO];	// update
+				if(_w.isKey)
+					[_context _makeKeyWindow];
+				if(_initialFirstResponder && !_firstResponder && ![self makeFirstResponder:_initialFirstResponder])
+					NSLog(@"refused initialFirstResponder %@", _initialFirstResponder);
+				[_firstResponder becomeFirstResponder];
+			}
+	else if(_w.isOneShot)
+			{ // also close the screen representation
+				[_context release];
+				_context=nil;
+				_gState=0;
+			}
 }
 
 // convenience calls
