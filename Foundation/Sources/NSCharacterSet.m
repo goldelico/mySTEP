@@ -23,8 +23,7 @@
 #import "NSPrivate.h"
 
 							// A simple array for caching standard bitmap sets 
-static NSCharacterSet *cache_set[] = {nil, nil, nil, nil, nil, nil,
-									  nil, nil, nil, nil, nil, nil};
+static NSCharacterSet *cache_set[12];
 static NSLock *__cacheLock = nil;
 static NSString *__charSetPath /*= @"CS"*/;
 
@@ -63,6 +62,7 @@ static NSString *__charSetPath /*= @"CS"*/;
 {
 	NSCharacterSet *set=nil;				// Creating standard character sets
 	NSString *systemPath;
+	NSAssert(number >= 0 && number < sizeof(cache_set)/sizeof(cache_set[0]), @"NSCharacterSet cache is too small");
 #if 0
 	NSLog(@"NSCharacterSet _bitmapForSet:%@", setname);
 #endif
@@ -107,7 +107,7 @@ static NSString *__charSetPath /*= @"CS"*/;
 						setname, systemPath, [[NSBundle bundleForClass:[self class]] bundlePath], __charSetPath];
 					}
 				else
-					cache_set[number] = [set retain];		// Else cache the set
+					cache_set[number] = [set retain];		// else cache the set
 			}
 		NS_HANDLER
 			[__cacheLock unlock];
@@ -162,6 +162,12 @@ static NSString *__charSetPath /*= @"CS"*/;
 + (id) lowercaseLetterCharacterSet
 {
 	return [self _bitmapForSet:@"lowercase" number: 6];
+}
+
++ (id) newlineCharacterSet
+{
+//	return [self _bitmapForSet:@"newline" number: 11];
+	return [self characterSetWithCharactersInString:@"\n\r"];	// should also include \U0085
 }
 
 + (id) nonBaseCharacterSet

@@ -326,14 +326,14 @@ static Class _constantStringClass;
 static Class _strClass;									// For unichar strings.
 static Class _mutableStringClass;
 static Class _cStringClass;								// For cString's 
-static Class _mutableCStringClass;
+// static Class _mutableCStringClass;		// we can't have mutable C-Strings since there is no way to expand them to Unicode...
 static NSStringEncoding __cStringEncoding=NSASCIIStringEncoding;	// default encoding
 
 static unsigned (*_strHashImp)();
 static SEL csInitSel;
 static SEL msInitSel;
 static IMP csInitImp;					// designated initialiser for cString	
-static IMP msInitImp;					// designated initialiser for mutable
+// static IMP msInitImp;					// designated initialiser for mutable
 
 //	Cache commonly used character sets along with methods to check membership.
 static unichar pathSepChar = (unichar)'/';
@@ -369,7 +369,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		_strClass = [GSString class];
 		_cStringClass = [GSCString class];
 		_mutableStringClass = [GSMutableString class];
-		_mutableCStringClass = [GSMutableCString class];
+//		_mutableCStringClass = [GSMutableCString class];
 
 				// Cache some method implementations for quick access later.
 		_strHashImp = (unsigned (*)())
@@ -379,7 +379,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		csInitSel = @selector(initWithCStringNoCopy:length:freeWhenDone:);
 		msInitSel = @selector(initWithCapacity:);
 		csInitImp = [GSCString instanceMethodForSelector: csInitSel];
-		msInitImp = [GSMutableCString instanceMethodForSelector: msInitSel];
+//		msInitImp = [GSMutableCString instanceMethodForSelector: msInitSel];
 
 		__hexDgts = [NSCharacterSet characterSetWithCharactersInString:
 					@"0123456789abcdef"];
@@ -609,14 +609,14 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 // - (id) init; { SUPERCLASS; }
 
-- (id) initWithString:(NSString*)string
+- (id) initWithString:(NSString *) string
 {
 	unsigned l = [string length];
 	unichar	*s = objc_malloc(sizeof(unichar) * l);
 	if(!s)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
-    [string getCharacters:s];
-    return [self initWithCharactersNoCopy:s length:l freeWhenDone:YES];
+  [string getCharacters:s];
+  return [self initWithCharactersNoCopy:s length:l freeWhenDone:YES];
 }
 
 - (id) initWithFormat:(NSString*)format, ...
@@ -1067,6 +1067,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	va_end(ap);
 	return s;
 }
+
+- (NSString *) _unicharString { return self; }	// default
 
 - (NSString*) stringByAppendingString:(NSString*)aString
 {
@@ -2816,12 +2818,15 @@ struct stat tmp_stat;
 
 + (id) stringWithCString:(const char*)byteString
 {
-	return [[[GSMutableCString alloc] initWithCString:byteString] autorelease];
+//	return [[[GSMutableCString alloc] initWithCString:byteString] autorelease];
+	return [[[GSMutableString alloc] initWithCString:byteString] autorelease];
 }
 
 + (id) stringWithCString:(const char*)byteString length:(unsigned int)length
 {
-	return [[[GSMutableCString alloc] initWithCString:byteString
+	//	return [[[GSMutableCString alloc] initWithCString:byteString
+	//																						 length:length] autorelease];
+	return [[[_mutableStringClass alloc] initWithCString:byteString
 									  length:length] autorelease];
 }
 
@@ -2906,8 +2911,7 @@ struct stat tmp_stat;
 		if (_hash != ((GSString*)obj)->_hash)
 			return NO;
 		}
-	else if (c == _cStringClass || c == _mutableCStringClass
-			 || c == _constantStringClass)
+	else if (c == _cStringClass || c == _constantStringClass)
 		{ // c is a C-String
 		if (_hash == 0)
 			_hash = _strHashImp(self, @selector(hash));
@@ -3160,14 +3164,18 @@ struct stat tmp_stat;
 					  freeWhenDone:(BOOL)flag
 {
 	[self release];
-	return [[GSMutableCString alloc] initWithCStringNoCopy: byteString
-									 length: length
-									 freeWhenDone: flag];
+	return [[[[NSString alloc] initWithCStringNoCopy: byteString
+																					 length: length
+																		 freeWhenDone: flag] autorelease] mutableCopy];
+//	[self release];
+//	return [[GSMutableCString alloc] initWithCStringNoCopy: byteString
+//									 length: length
+//									 freeWhenDone: flag];
 }
 
 - (id) copyWithZone:(NSZone *) z
 {
-	return [[GSMutableString alloc] initWithString:self];
+	return [[_mutableStringClass alloc] initWithString:self];
 }
 
 - (void) deleteCharactersInRange:(NSRange)range
@@ -3431,6 +3439,17 @@ struct stat tmp_stat;
 		*buffer++ = (*d)(&p);
 }
 
+- (NSString *) _unicharString
+{ // get as Unicode string
+	unichar *s = objc_malloc(_count * sizeof(unichar));
+	if(!s)
+		[NSException raise: NSMallocException format: @"Unable to allocate"];
+	[self getCharacters:s];
+	return [[[NSString alloc] initWithCharactersNoCopy: s
+																							length: _count 
+																				freeWhenDone: YES] autorelease];
+}
+
 - (NSString*) substringWithRange:(NSRange)aRange
 {
 	if (NSMaxRange(aRange) > _count)
@@ -3529,20 +3548,13 @@ struct stat tmp_stat;
 
 - (id) mutableCopyWithZone:(NSZone *) z
 {
-	GSMutableCString *obj;
-
-	if ((obj = (GSMutableCString*)NSAllocateObject(_mutableCStringClass, 0, NSDefaultMallocZone())))
-		{
-		if ((obj = (*msInitImp)(obj, msInitSel, _count)))
-			{
-			GSCString *tmp = (GSCString*)obj;
-			memcpy(tmp->_cString, _cString, _count+1);
-			tmp->_count = _count;
-			tmp->_hash = _hash;
-			tmp->_cString[_count] = '\0';
-		}	}
-
-	return obj;
+	unichar *s = objc_malloc(_count * sizeof(unichar));
+	if(!s)
+		[NSException raise: NSMallocException format: @"Unable to allocate"];
+	[self getCharacters:s];
+	return [[_mutableStringClass alloc] initWithCharactersNoCopy: s
+																										length: _count 
+																							freeWhenDone: YES];
 }
 
 - (unsigned int) hash
@@ -3560,7 +3572,7 @@ struct stat tmp_stat;
 		{
 		Class c = ((Class)obj)->class_pointer;
 
-		if (c == _cStringClass || c == _mutableCStringClass)
+		if (c == _cStringClass)
 			{ // compare two C strings
 			if (_count != ((NSString*)obj)->_count)
 				return NO;
@@ -3619,7 +3631,7 @@ struct stat tmp_stat;
 
 		Class c = ((Class)aString)->class_pointer;
 
-		if (c == _cStringClass || c == _mutableCStringClass) 
+		if (c == _cStringClass) 
 			{
 			GSCString *other = (GSCString*)aString;
 
@@ -3677,6 +3689,8 @@ struct stat tmp_stat;
 
 @end /* GSCString */
 
+#if OLD
+
 //*****************************************************************************
 //
 // 		GSMutableCString
@@ -3686,7 +3700,7 @@ struct stat tmp_stat;
 @implementation GSMutableCString
 
 - (id) initWithCapacity:(unsigned)capacity
-{													// designated initializer 
+{ // designated initializer 
 	_count = 0;										// for this class
 	_capacity = capacity + 1;
 	_cString = objc_malloc(_capacity);
@@ -3856,6 +3870,8 @@ struct stat tmp_stat;
 	[tmp release];
 }
 
+// FIXME: this is fundamentally flawed - we can't set a Unicode string into a GSMutableCString
+
 - (void) setString:(NSString*)aString
 {
 	unsigned length = [aString cStringLength];
@@ -3892,6 +3908,8 @@ struct stat tmp_stat;
 
 @end /* GSMutableCString */
 
+#endif
+
 //*****************************************************************************
 //
 // 		NXConstantString 
@@ -3916,19 +3934,6 @@ struct stat tmp_stat;
 - (NSStringEncoding) fastestEncoding	{ return NSASCIIStringEncoding; }
 - (NSStringEncoding) smallestEncoding	{ return NSASCIIStringEncoding; }
 
-- (id) mutableCopyWithZone:(NSZone *) z
-{
-	GSMutableCString *obj = [GSMutableCString alloc];
-
-	if (obj && (obj = (*msInitImp)(obj, msInitSel, _count)))
-		{
-		memcpy(obj->_cString, _cString, _count + 1);
-		obj->_count = _count;
-		}
-
-	return obj;
-}
-
 - (BOOL) isEqual:(id)obj
 {
 	if (obj == self)
@@ -3939,8 +3944,7 @@ struct stat tmp_stat;
 		{
 		Class c = ((Class)obj)->class_pointer;
 
-		if (c == _cStringClass || c == _mutableCStringClass
-				|| c == _constantStringClass) 
+		if (c == _cStringClass || c == _constantStringClass) 
 			{
 			if(_count != ((NSString*)obj)->_count)
 				return NO;

@@ -135,12 +135,13 @@ extern NSString * const GSHTTPPropertyProxyPortKey;
 }
 @end
 
-
+/* OLD
 @interface GSMutableCString : GSCString
 {
 	int _capacity;
 }
 @end
+ */
 
 
 @interface GSString : NSString 
@@ -154,7 +155,7 @@ extern NSString * const GSHTTPPropertyProxyPortKey;
 
 @interface GSMutableString : GSString
 {
-	int _capacity;
+	unsigned int _capacity;
 }
 @end
 
