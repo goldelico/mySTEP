@@ -2676,6 +2676,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XFlush(_display);
 }
 
+#if OLD
 - (NSPoint) _mouseLocationOutsideOfEventStream;
 { // Return mouse location in receiver's base coords ignoring the event loop
 	Window root, child;
@@ -2687,6 +2688,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		return NSMakePoint(window_x/_scale, (_xRect.height-window_y)/_scale);
 	return NSMakePoint(window_x, _xRect.height-window_y);
 }
+#endif
 
 - (void) _grabKey:(int) keycode;
 {
@@ -3453,6 +3455,19 @@ static NSDictionary *_x11settings;
 	return 22;
 }
 
+- (NSPoint) _mouseLocation
+{
+	Window root, child;
+	int root_x, root_y, window_x, window_y;
+	unsigned int mask;	// modifier and mouse keys
+	if(!XQueryPointer(_display, XDefaultRootWindow(_display), &root, &child, &root_x, &root_y, &window_x, &window_y, &mask))
+		return NSZeroPoint;
+	root_y=HeightOfScreen(_screen)-root_y-1;
+	if(_screenScale != 1.0)
+		return NSMakePoint(root_x/_screenScale, root_y/_screenScale+1);
+	return NSMakePoint(root_x, root_y+1);
+}
+
 // FIXME: should translate mouse locations by CTM to account for screen rotation through CTM!
 
 #define X11toScreen(record) (windowScale != 1.0?NSMakePoint(record.x/windowScale, (windowHeight-record.y)/windowScale):NSMakePoint(record.x, windowHeight-record.y))
@@ -3680,6 +3695,7 @@ static NSDictionary *_x11settings;
 					break;
 				case LeaveNotify: 
 				case EnterNotify:						// when the pointer enters or leves a window, pass upwards as a first/last motion event
+						// FIXME: this may collide with lastMotionEvent
 						if([window acceptsMouseMovedEvents])
 							e = [NSEvent mouseEventWithType:NSMouseMoved
 																		 location:X11toScreen(xe.xcrossing)
@@ -3859,8 +3875,9 @@ static NSDictionary *_x11settings;
 								NSLog(@"motion event still in queue: %@", lastMotionEvent);
 								}
 #endif
-							if(lastMotionEvent &&
-								 // FIXME - must be the first event in queue!!!
+							// FIXME:
+							if(NO && lastMotionEvent &&
+								 // FIXME - must also be the first event in queue!!!
 							   [NSApp _eventIsQueued:lastMotionEvent] &&	// must come first because event may already have been relesed/deallocated
 							   [lastMotionEvent type] == type)
 								{ // replace/update if last motion event which is still unprocessed in queue
@@ -4604,9 +4621,10 @@ static NSDictionary *_x11settings;
 											for(y=0; y<height; y++)
 													{ // fill pixmaps with cursor image
 														unsigned int planes[5]; // we assume RGBA
-														BOOL alpha=planes[3] > 128;
-														BOOL white=planes[0]+planes[1]+planes[2] > 128;		// could be based on weighted intensity
+														BOOL alpha, white;
 														[bestRep getPixel:planes atX:x y:(height-y-1)];
+														alpha=planes[3] > 128;
+														white=299*planes[0]+587*planes[1]+114*planes[2] > 500*255;		// based on weighted intensity
 														XSetForeground(_display, gc, alpha?1:0);
 														XDrawPoint(_display, mask, gc, x, y);
 														XSetForeground(_display, gc, white?1:0);
