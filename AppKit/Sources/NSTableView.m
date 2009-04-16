@@ -1885,8 +1885,8 @@ int index = [self columnWithIdentifier:identifier];
 	BOOL vert=((_tv.gridStyleMask&NSTableViewSolidVerticalGridLineMask) != 0);
 	if(horz || vert)
 		[_gridColor set];
-	if(horz)
-		{
+	if(vert)
+		{ // draw column separators
 		int col=[self columnAtPoint:rect.origin];	// determine first row
 		int maxcol=[_tableColumns count];
 		float right=NSMaxX(rect);
@@ -1900,8 +1900,8 @@ int index = [self columnWithIdentifier:identifier];
 			col++;
 			}
 		}
-	if(vert)
-		{
+	if(horz)
+		{ // draw row separators
 		int row=[self _rowAtPoint:rect.origin];	// determine first row
 		float bottom=NSMaxY(rect);
 		while(YES)
