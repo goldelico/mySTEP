@@ -214,6 +214,7 @@
 
 - (void) setFrameSize:(NSSize)aSize
 {
+	_v.customBounds=NO;
 	[super setFrameSize:aSize];
 	[super_view reflectScrolledClipView:self];
 }
@@ -226,9 +227,16 @@
 
 - (void) setFrame:(NSRect)rect
 {
+	_v.customBounds=NO;
 	[super setFrame:rect];
 	[super_view reflectScrolledClipView:self];
 }
+
+// Disable rotation of clipview
+
+- (void) rotateByAngle:(float)angle				{ NIMP; }
+- (void) setBoundsRotation:(float)angle			{ NIMP; }
+- (void) setFrameRotation:(float)angle			{ NIMP; }
 
 - (void) resizeSubviewsWithOldSize:(NSSize)oldSize
 {
@@ -267,12 +275,6 @@ because this reverses the writing direction within the text container
 {
 	ASSIGN(_backgroundColor, aColor);
 }
-
-// Disable rotation of clipview
-
-- (void) rotateByAngle:(float)angle				{ NIMP; }
-- (void) setBoundsRotation:(float)angle			{ NIMP; }
-- (void) setFrameRotation:(float)angle			{ NIMP; }
 
 - (void) scrollPoint:(NSPoint) point
 { // finish recursion from NSView's default implementation
