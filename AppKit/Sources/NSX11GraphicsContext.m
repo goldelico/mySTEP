@@ -3323,8 +3323,11 @@ static NSDictionary *_x11settings;
 					NSLog(@"ydpi=%lf", ydpi);
 #endif
 					if(fabs(avg - rint(avg)) < 0.1)
-						avg=rint(avg);	// round to nearest integer
+						avg=rint(avg);	// round to nearest integer if near enough
 					NSLog(@"calculated scale factor=%lf", avg);
+#if 1
+					_screenScale=avg;
+#endif
 				}
 #endif
 		val=[_x11settings objectForKey:@"systemSpaceScaleFactor"];
@@ -3819,7 +3822,7 @@ static NSDictionary *_x11settings;
 										   isARepeat:NO	// any idea how to FIXME? - maybe comparing time stamp and keycode with previous key event
 											 keyCode:keyCode];
 #if 1
-						NSLog(@"xKeyEvent: %@", e);
+						NSLog(@"xKeyEvent -> %@", e);
 #endif
 						break;
 					}
@@ -4622,9 +4625,9 @@ static NSDictionary *_x11settings;
 													{ // fill pixmaps with cursor image
 														unsigned int planes[5]; // we assume RGBA
 														BOOL alpha, white;
-														[bestRep getPixel:planes atX:x y:(height-y-1)];
-														alpha=planes[3] > 128;
+														[bestRep getPixel:planes atX:x y:(height-1)-y];
 														white=299*planes[0]+587*planes[1]+114*planes[2] > 500*255;		// based on weighted intensity
+														alpha=planes[3] > 128;
 														XSetForeground(_display, gc, alpha?1:0);
 														XDrawPoint(_display, mask, gc, x, y);
 														XSetForeground(_display, gc, white?1:0);
@@ -4635,7 +4638,6 @@ static NSDictionary *_x11settings;
 															; // average real color into bg color
 													}
 										}
-								// best color should perhaps be calculated from averaging the bitmap...
 								fg.red=65535;
 								fg.green=65535;
 								fg.blue=65535;

@@ -24,6 +24,7 @@
 #import <AppKit/NSMenu.h>
 
 #import "NSAppKitPrivate.h"
+#import "NSBackendPrivate.h"
 
 // Class variables
 static NSString	*__timers = @"NSEventTimersKey";
@@ -242,6 +243,8 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		NSLog(@"mouseLocation: there is no key/main/mainMenu window");
 		return NSZeroPoint;
 		}
+	return [[win screen] _mouseLocation];	// query mouse location on screen
+#if OLD
 	p=[win mouseLocationOutsideOfEventStream];	// get within window base coordinates
 #if 0
 	NSLog(@"NSEvent mouseLocationOutsideOfEventStream mainWindow=%@", win);
@@ -252,6 +255,7 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 	NSLog(@"  screen coords: %@", NSStringFromPoint(p));
 #endif
 	return p;
+#endif
 }
 
 - (id) copyWithZone:(NSZone *) zone;
@@ -535,7 +539,29 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 	return self;
 }
 
-- (NSString*) description
+- (NSString *) _modifier_flags
+{
+	NSMutableString *str=[NSMutableString string];
+	if(modifier_flags&NSAlphaShiftKeyMask)
+		[str appendString:@" ash"];
+	if(modifier_flags&NSShiftKeyMask)
+		[str appendString:@" sh"];
+	if(modifier_flags&NSControlKeyMask)
+		[str appendString:@" ctl"];
+	if(modifier_flags&NSAlternateKeyMask)
+		[str appendString:@" alt"];
+	if(modifier_flags&NSCommandKeyMask)
+		[str appendString:@" cmd"];
+	if(modifier_flags&NSNumericPadKeyMask)
+		[str appendString:@" num"];
+	if(modifier_flags&NSHelpKeyMask)
+		[str appendString:@" help"];
+	if(modifier_flags&NSFunctionKeyMask)
+		[str appendString:@" fn"];
+	return str;
+}
+
+- (NSString *) description
 {	
 	const char *types[] = {
 		"NSLeftMouseDown",	// 1
@@ -582,22 +608,22 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		case NSMouseMoved:
 		case NSScrollWheel:
 			return [NSString stringWithFormat:
-				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers = 0x%x,"
+				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
 				@" time = %f, window = %d, Context = %p,"
 				@" event number = %d, click = %d, pressure = %f",
 				types[event_type - 1], location_point.x, location_point.y,
-				modifier_flags, event_time, _windowNum, event_context,
+				[self _modifier_flags], event_time, _windowNum, event_context,
 				event_data.mouse.event_num, event_data.mouse.click,
 				event_data.mouse.pressure];
 	
 		case NSMouseEntered:
 		case NSMouseExited:
 			return [NSString stringWithFormat:
-				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers = 0x%x,"
+				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
 				@" time = %f, window = %d, Context = %p, "
 				@" event number = %d, tracking number = %d, user data = %p",
 				types[event_type - 1], location_point.x, location_point.y,
-				modifier_flags, event_time, _windowNum, event_context,
+				[self _modifier_flags], event_time, _windowNum, event_context,
 				event_data.tracking.event_num,
 				event_data.tracking.tracking_num,
 				event_data.tracking.user_data];
@@ -606,11 +632,11 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		case NSKeyUp:
 		case NSFlagsChanged:
 			return [NSString stringWithFormat:
-				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers = 0x%x,"
+				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
 				@" time = %f, window = %d, Context = %p, "
 				@" repeat = %s, keys = %@, ukeys = %@, keyCode = 0x%x",
 				types[event_type - 1], location_point.x, location_point.y,
-				modifier_flags, event_time, _windowNum, event_context,
+				[self _modifier_flags], event_time, _windowNum, event_context,
 				(event_data.key.repeat ? "YES" : "NO"),
 				event_data.key.char_keys, event_data.key.unmodified_keys,
 				event_data.key.key_code];
@@ -621,11 +647,11 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		case NSSystemDefined:
 		case NSApplicationDefined:
 			return [NSString stringWithFormat:
-				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers = 0x%x,"
+				@"NSEvent: eventType = %s, point = { %f, %f }, modifiers =%@,"
 				@" time = %f, window = %d, Context = %p, "
 				@" subtype = %d, data1 = %p, data2 = %p",
 				types[event_type - 1], location_point.x, location_point.y,
-				modifier_flags, event_time, _windowNum, event_context,
+				[self _modifier_flags], event_time, _windowNum, event_context,
 				event_data.misc.sub_type, event_data.misc.data1,
 				event_data.misc.data2];
 		case NSTabletPoint:

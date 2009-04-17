@@ -125,6 +125,7 @@ extern NSString * const GSHTTPPropertyProxyPortKey;
 + (id) _initWithUTF8String:(const char *) bytes length:(unsigned) len;
 - (int) _baseLength;			// methods for working with decomposed strings
 - (NSString *) _stringByExpandingXMLEntities;
+- (NSString *) _unicharString;	// convert CString into unichar string
 
 @end
 
@@ -134,15 +135,6 @@ extern NSString * const GSHTTPPropertyProxyPortKey;
 	unsigned _hash;
 }
 @end
-
-/* OLD
-@interface GSMutableCString : GSCString
-{
-	int _capacity;
-}
-@end
- */
-
 
 @interface GSString : NSString 
 {

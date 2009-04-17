@@ -1473,6 +1473,8 @@ printing
 - (void) _removeRectNeedingDisplay:(NSRect) rect;
 { // FIXME: could be better optimized to shrink the invalidRect and split up intersecting parts
 	int i;
+	if(NSIsEmptyRect(rect))
+		return;	// ignore
 	for(i=0; i<nInvalidRects; i++)
 		{ // remove/cut down all invalidRects that intersect with aRect
 		if(NSContainsRect(rect, invalidRects[i]))
@@ -1527,6 +1529,8 @@ printing
 	NSLog(@"-setNeedsDisplayInRect:%@ of %@", NSStringFromRect(rect), self);
 #endif
 	rect=NSIntersectionRect(_bounds, rect);	// limit to bounds
+	if(NSIsEmptyRect(rect))
+		return;	// ignore
 #if 0
 	if(!NSContainsRect(_bounds, rect))
 		NSLog(@"setNeedsDisplayInRect:%@ beyond bounds %@", NSStringFromRect(rect), NSStringFromRect(_bounds));
@@ -1559,7 +1563,7 @@ printing
 			// we can also estimate the bounding box (as long as it is at least the required size)
 				/* basic idea:
 				 NSBezierPath *r=[NSBezierPath bezierPathWithRect:rect];
-				 [rect transformUsingAffineTransform:matrix];
+				 [rect transformUsingAffineTransform:atm];
 				 NSRect boundingBox=[r controlPointBounds];   
 				 */				 
 			r.origin=[atm transformPoint:rect.origin];

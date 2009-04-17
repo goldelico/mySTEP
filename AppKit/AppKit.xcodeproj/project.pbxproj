@@ -903,6 +903,8 @@
 		EEA3F8950BEDD66A00E39682 /* FontPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEA3F8920BEDD66A00E39682 /* FontPanel.nib */; };
 		EEA3F8960BEDD66A00E39682 /* FindPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEA3F8900BEDD66A00E39682 /* FindPanel.nib */; };
 		EEA3F8970BEDD66A00E39682 /* FontPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEA3F8920BEDD66A00E39682 /* FontPanel.nib */; };
+		EEAA6C4F0F96315C00B5BA72 /* NSTextInputClient.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAA6C4E0F96315C00B5BA72 /* NSTextInputClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEAA6C500F96315C00B5BA72 /* NSTextInputClient.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAA6C4E0F96315C00B5BA72 /* NSTextInputClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEACF8A509ED3A9F0085F56E /* NSDrawer.m in Sources */ = {isa = PBXBuildFile; fileRef = EEACF8A409ED3A9F0085F56E /* NSDrawer.m */; };
 		EEACF8A609ED3A9F0085F56E /* NSDrawer.m in Sources */ = {isa = PBXBuildFile; fileRef = EEACF8A409ED3A9F0085F56E /* NSDrawer.m */; };
 		EEB143C50D1260A2001212B5 /* NSTrackingArea.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB143C30D1260A2001212B5 /* NSTrackingArea.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1493,6 +1495,7 @@
 		EEA3F88D0BEDD65400E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/ColorPanel.nib; sourceTree = "<group>"; };
 		EEA3F8910BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FindPanel.nib; sourceTree = "<group>"; };
 		EEA3F8930BEDD66A00E39682 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/FontPanel.nib; sourceTree = "<group>"; };
+		EEAA6C4E0F96315C00B5BA72 /* NSTextInputClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextInputClient.h; sourceTree = "<group>"; };
 		EEACF8A409ED3A9F0085F56E /* NSDrawer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSDrawer.m; sourceTree = "<group>"; };
 		EEB143C30D1260A2001212B5 /* NSTrackingArea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTrackingArea.h; sourceTree = "<group>"; };
 		EEB143C40D1260A2001212B5 /* NSTrackingArea.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTrackingArea.m; sourceTree = "<group>"; };
@@ -2129,6 +2132,7 @@
 				EE12278C0D059CCC000E4BA5 /* NSGlyphInfo.m */,
 				EE349C46097027D500CBF42C /* NSInputManager.h */,
 				EE349C47097027D500CBF42C /* NSInputServer.h */,
+				EEAA6C4E0F96315C00B5BA72 /* NSTextInputClient.h */,
 				EEA3723009540273001244CF /* NSLayoutManager.h */,
 				EE0B257D0A51B0DD002E1464 /* NSLayoutManager.m */,
 				EEA3727A09540273001244CF /* NSText.h */,
@@ -2675,6 +2679,7 @@
 				EE0E66C80DBC828600564003 /* png.h in Headers */,
 				EE0E66C90DBC828600564003 /* tiff.h in Headers */,
 				EE0E66CA0DBC828600564003 /* zlib.h in Headers */,
+				EEAA6C500F96315C00B5BA72 /* NSTextInputClient.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2930,6 +2935,7 @@
 				EE0E66640DBC828600564003 /* png.h in Headers */,
 				EE0E66650DBC828600564003 /* tiff.h in Headers */,
 				EE0E66660DBC828600564003 /* zlib.h in Headers */,
+				EEAA6C4F0F96315C00B5BA72 /* NSTextInputClient.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

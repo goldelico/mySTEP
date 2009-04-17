@@ -522,6 +522,7 @@ static BOOL __cursorHidden = NO;
 						case NSLeftMouseDragged:	// update to current location
 							{
 								NSRect wframe=initialFrame;
+								// FIXME: [NSEvent mouseLocation] - but which screen?
 								NSPoint loc=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
 								float deltax, deltay;
 								loc=[_window convertBaseToScreen:loc];	// convert to screen coordinates
@@ -532,11 +533,15 @@ static BOOL __cursorHidden = NO;
 #endif
 								if(_inLiveResize)
 										{ // resizing
+											float oldh=wframe.size.height;
 											// FIXME: handle resizeIncrements
 											// FIXME: protect against empty or negative window size...
 											wframe.size.width+=deltax;
 											wframe.size.height-=deltay;	// resize as mouse moves
-											wframe.origin.y+=deltay;		// keep top left corner constant
+											// FIXME - should be moved to setFrame:
+											wframe.size.width = MIN(MAX(wframe.size.width, [_window minSize].width), [_window maxSize].width);
+											wframe.size.height = MIN(MAX(wframe.size.height, [_window minSize].height), [_window maxSize].height);
+											wframe.origin.y+=oldh-wframe.size.height;		// keep top left corner constant
 #if 0
 											NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
 #endif
@@ -1624,6 +1629,8 @@ static NSButtonCell *sharedCell;
 }
 
 // convenience calls
+// FIXME: if([[NSUserDefaults standardUserDefaults] boolValueForKey:@"animatedWindowOrdering"]
+// then slide the windows in/out
 
 - (void) orderFront:(id) Sender; { [self orderWindow:NSWindowAbove relativeTo:0]; }
 - (void) orderBack:(id) Sender; { [self orderWindow:NSWindowBelow relativeTo:0]; }
@@ -1678,6 +1685,7 @@ static NSButtonCell *sharedCell;
 
 - (NSRect) constrainFrameRect:(NSRect)rect toScreen:(NSScreen *)screen
 {
+	BOOL autoEnlarge=[[NSUserDefaults standardUserDefaults] boolForKey:@"autoZoomResizableWindowsToScreen"];	// should be set in global user defaults
 	NSRect vf;
 #if 1
 	NSLog(@"constrain rect %@ forscreen %@ mask %0x", NSStringFromRect(rect), NSStringFromRect([screen visibleFrame]), _w.styleMask);
@@ -1690,11 +1698,10 @@ static NSButtonCell *sharedCell;
 		return rect;	// never constrain
 		}
 	vf=[screen visibleFrame];
-	// FIXME: autoresizing should be a user default or something!
-	if((_w.styleMask & NSResizableWindowMask) != 0 && ![self isKindOfClass:[NSPanel class]] && (1 || [self interfaceStyle] >= NSPDAInterfaceStyle))
+	if((autoEnlarge && (_w.styleMask & NSResizableWindowMask) != 0 && ![self isKindOfClass:[NSPanel class]]) || [self interfaceStyle] >= NSPDAInterfaceStyle)
 		{
 #if 1
-		NSLog(@"enlarge to full screen");
+		NSLog(@"autoZoomResizableWindowsToScreen to full screen");
 #endif
 		return vf;	// resize to full screen for PDA styles
 		}
@@ -2069,8 +2076,14 @@ static NSButtonCell *sharedCell;
 - (void) zoom:(id)sender
 {
 	NSLog(@"Zoom");
-	if(_w.isZoomed)
-		{
+	// if !resizable and zoomable, return;
+	if(_w.isZoomed = !_w.isZoomed)
+			{ // not yet zoomed
+				// add the auto-resize mechanism here
+				//			- (BOOL)windowShouldZoom:(NSWindow *)window toFrame:(NSRect)proposedFrame
+				//			- (NSRect)windowWillUseStandardFrame:(NSWindow *)window defaultFrame:(NSRect)defaultFrame
+				// use user-defined sizes
+				// override
 		}
 	else
 		{
@@ -2299,7 +2312,7 @@ static NSButtonCell *sharedCell;
 			}
 
 		case NSLeftMouseDown:								// Left mouse down
-			if(!_w.visible)
+			if(!_w.visible || _w.ignoresMouseEvents)
 				break;			// we check if we are still visible (user may have clicked while we were ordering out)
 			if (__cursorHidden)
 				{ 
@@ -2337,6 +2350,8 @@ static NSButtonCell *sharedCell;
 			break;
 
 		case NSLeftMouseUp:									// Left mouse up
+					if(_w.ignoresMouseEvents)
+						break;
 #if 0
 			NSLog(@"NSLeftMouseUp %@", _lastLeftHit);
 #endif
@@ -2349,6 +2364,8 @@ static NSButtonCell *sharedCell;
 			break;
 
 		case NSRightMouseDown:								// Right mouse down
+					if(_w.ignoresMouseEvents)
+						break;
 			if (__cursorHidden)
 				{ [NSCursor unhide]; __cursorHidden = NO; }
 			_lastRightHit = [_themeFrame hitTest:[event locationInWindow]];
@@ -2356,12 +2373,16 @@ static NSButtonCell *sharedCell;
 			break;
 
 		case NSRightMouseUp:								// Right mouse up
+					if(_w.ignoresMouseEvents)
+						break;
 			if (__cursorHidden)
 				{ [NSCursor unhide]; __cursorHidden = NO; }
 			[_lastRightHit rightMouseUp:event];
 			break;
 
 		case NSMouseMoved:									// Mouse moved
+					if(_w.ignoresMouseEvents)
+						break;
 			if (__cursorHidden)
 				{ [NSCursor unhide]; __cursorHidden = NO; }
 			if(_w.acceptsMouseMoved)
@@ -2375,6 +2396,8 @@ static NSButtonCell *sharedCell;
 			break;
 
 		case NSLeftMouseDragged:									// Mouse moved
+					if(_w.ignoresMouseEvents)
+						break;
 #if 0
 			NSLog(@"NSLeftMouseDragged %@", _lastLeftHit);
 #endif
@@ -2409,6 +2432,8 @@ static NSButtonCell *sharedCell;
 			break;
 
 		case NSScrollWheel:
+					if(_w.ignoresMouseEvents)
+						break;
 		    [[_themeFrame hitTest:[event locationInWindow]] scrollWheel:event];
 			break;
 
@@ -2858,7 +2883,9 @@ id prev;
 
 - (NSPoint) mouseLocationOutsideOfEventStream
 { // ask backend for relative mouse position (might be outside of the Window!)
-	return [_context _mouseLocationOutsideOfEventStream];
+	NSPoint pnt=[NSEvent mouseLocation];
+	pnt.y-=1.0;
+	return [self convertScreenToBase:pnt];
 }
 
 + (void) menuChanged:(NSMenu *)aMenu; { return; } // does nothing for backward compatibility

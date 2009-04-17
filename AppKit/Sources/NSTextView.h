@@ -27,6 +27,7 @@
 
 #import <AppKit/NSText.h>
 #import <AppKit/NSTextAttachment.h>
+#import <AppKit/NSTextInputClient.h>
 #import <AppKit/NSInputManager.h>
 #import <AppKit/NSUserInterfaceValidation.h>
 #import <AppKit/NSDragging.h>
@@ -76,7 +77,7 @@ enum {
 };
 typedef NSUInteger NSFindPanelSubstringMatchType;
 
-@interface NSTextView : NSText <NSTextInput,NSUserInterfaceValidations>
+@interface NSTextView : NSText <NSTextInput,NSTextInputClient,NSUserInterfaceValidations>
 {	
 	NSTextContainer *textContainer;
 	NSColor *insertionPointColor;
@@ -84,7 +85,7 @@ typedef NSUInteger NSFindPanelSubstringMatchType;
 	NSDictionary *linkTextAttributes;
 	NSDictionary *markedTextAttributes;
 	NSDictionary *selectedTextAttributes;
-//	NSDictionary *typingAttributes;
+	NSMutableDictionary *typingAttributes; 
 	NSParagraphStyle *defaultParagraphStyle;
 	NSMutableArray *selectedRanges;	// ?
 	NSRect _caretRect;
@@ -94,7 +95,7 @@ typedef NSUInteger NSFindPanelSubstringMatchType;
 	float _stableCursorColumn;			// current cursor x positon (used for moveDown: and moveUp:)
 
 //	int spellCheckerDocumentTag;
-	// the following should be a bitfield struct - but that saves only some 10 bytes per NSTextView...
+	// the following should be a bitfield struct - but that saves only approx. 10 bytes per NSTextView...
 	NSSelectionAffinity selectionAffinity;
 	NSSelectionGranularity selectionGranularity;
 	BOOL acceptsGlyphInfo;

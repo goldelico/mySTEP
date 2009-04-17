@@ -326,14 +326,12 @@ static Class _constantStringClass;
 static Class _strClass;									// For unichar strings.
 static Class _mutableStringClass;
 static Class _cStringClass;								// For cString's 
-// static Class _mutableCStringClass;		// we can't have mutable C-Strings since there is no way to expand them to Unicode...
 static NSStringEncoding __cStringEncoding=NSASCIIStringEncoding;	// default encoding
 
 static unsigned (*_strHashImp)();
 static SEL csInitSel;
 static SEL msInitSel;
 static IMP csInitImp;					// designated initialiser for cString	
-// static IMP msInitImp;					// designated initialiser for mutable
 
 //	Cache commonly used character sets along with methods to check membership.
 static unichar pathSepChar = (unichar)'/';
@@ -369,7 +367,6 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		_strClass = [GSString class];
 		_cStringClass = [GSCString class];
 		_mutableStringClass = [GSMutableString class];
-//		_mutableCStringClass = [GSMutableCString class];
 
 				// Cache some method implementations for quick access later.
 		_strHashImp = (unsigned (*)())
@@ -379,7 +376,6 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		csInitSel = @selector(initWithCStringNoCopy:length:freeWhenDone:);
 		msInitSel = @selector(initWithCapacity:);
 		csInitImp = [GSCString instanceMethodForSelector: csInitSel];
-//		msInitImp = [GSMutableCString instanceMethodForSelector: msInitSel];
 
 		__hexDgts = [NSCharacterSet characterSetWithCharactersInString:
 					@"0123456789abcdef"];
@@ -2818,14 +2814,11 @@ struct stat tmp_stat;
 
 + (id) stringWithCString:(const char*)byteString
 {
-//	return [[[GSMutableCString alloc] initWithCString:byteString] autorelease];
 	return [[[GSMutableString alloc] initWithCString:byteString] autorelease];
 }
 
 + (id) stringWithCString:(const char*)byteString length:(unsigned int)length
 {
-	//	return [[[GSMutableCString alloc] initWithCString:byteString
-	//																						 length:length] autorelease];
 	return [[[_mutableStringClass alloc] initWithCString:byteString
 									  length:length] autorelease];
 }
@@ -3167,10 +3160,6 @@ struct stat tmp_stat;
 	return [[[[NSString alloc] initWithCStringNoCopy: byteString
 																					 length: length
 																		 freeWhenDone: flag] autorelease] mutableCopy];
-//	[self release];
-//	return [[GSMutableCString alloc] initWithCStringNoCopy: byteString
-//									 length: length
-//									 freeWhenDone: flag];
 }
 
 - (id) copyWithZone:(NSZone *) z
@@ -3688,227 +3677,6 @@ struct stat tmp_stat;
 - (int) _baseLength							{ return _count; } 
 
 @end /* GSCString */
-
-#if OLD
-
-//*****************************************************************************
-//
-// 		GSMutableCString
-//
-//*****************************************************************************
-
-@implementation GSMutableCString
-
-- (id) initWithCapacity:(unsigned)capacity
-{ // designated initializer 
-	_count = 0;										// for this class
-	_capacity = capacity + 1;
-	_cString = objc_malloc(_capacity);
-	if(!_cString)
-		[NSException raise: NSMallocException format: @"Unable to allocate"];
-	_freeWhenDone = YES;
-
-	return self;
-}
-
-- (id) initWithCharactersNoCopy:(unichar*)chars
-						 length:(unsigned int)length
-						 freeWhenDone:(BOOL)flag
-{
-	[self release];
-
-	return [[GSMutableString alloc] initWithCharactersNoCopy: chars
-									length: length												
-									freeWhenDone: flag];
-}
-
-- (id) copyWithZone:(NSZone *) z
-{
-	GSCString *obj = (GSCString*)NSAllocateObject(_cStringClass, 0, NSDefaultMallocZone());
-	char *tmp = objc_malloc(_count + 1);
-	memcpy(tmp, _cString, _count);
-	tmp[_count]=0;	// 0-terminate copy
-	obj = (*csInitImp)(obj, csInitSel, tmp, _count, YES);
-	if (_hash && obj)
-		{
-		GSMutableCString *tmp = (GSMutableCString*)obj;		// Same ivar layout
-		tmp->_hash = _hash;
-		}
-
-	return obj;
-}
-
-- (void) deleteCharactersInRange:(NSRange)range
-{
-	_count -= range.length;
-	memcpy(_cString + range.location, _cString + NSMaxRange(range), 
-			_count - (range.location - 1));
-	_hash = 0;
-}
-
-- (void) replaceCharactersInRange:(NSRange)range withString:(NSString*)aString
-{
-	// FIXME: convert to unichar string if needed
-	unsigned c = [aString cStringLength];
-	unsigned s = (_count - range.length) + c;
-	unsigned mr = NSMaxRange(range);
-	char *t = objc_malloc(s + 1);
-	if(!t)
-		[NSException raise: NSMallocException format: @"Unable to allocate"];
-#if 0
-	NSLog(@"GSMutableCString %@ replaceCharactersInRange:%@ withString:\"%@\"", self, NSStringFromRange(range), aString);
-#endif
-	if(range.location > 0)									// copy self upto
-		memcpy(t, _cString, range.location);				// index if needed
-	[aString getCString: t + range.location];
-	memcpy(t + range.location + c, _cString + mr, (_count - mr) + 1);
-	objc_free(_cString);
-	_cString = t;
-	_hash = 0;
-	_count = s;
-	_cString[_count] = '\0';
-#if 0
-	NSLog(@"   -> \"%@\"", self);
-#endif
-}
-
-/**
-* Replaces all occurrences of the replace string with the by string,
- * for those cases where the entire replace string lies within the
- * specified searchRange value.<br />
- * The value of opts determines the direction of the search is and
- * whether only leading/trailing occurrances (anchored search) of
- * replace are substituted.<br />
- * Raises NSInvalidArgumentException if either string argument is nil.<br />
- * Raises NSRangeException if part of searchRange is beyond the end
- * of the receiver.
- */
-- (unsigned int) replaceOccurrencesOfString: (NSString*)replace
-								 withString: (NSString*)by
-									options: (unsigned int)opts
-									  range: (NSRange)searchRange
-{
-	NSRange	range;
-	unsigned int	count = 0;
-	
-	if (replace == nil)
-		{
-		[NSException raise: NSInvalidArgumentException
-					format: @"%@ nil search string (%@)", NSStringFromSelector(_cmd), self];
-		}
-	if (by == nil)
-		{
-		[NSException raise: NSInvalidArgumentException
-					format: @"%@ nil replace string (%@)", NSStringFromSelector(_cmd), self];
-		}
-	range = [self rangeOfString: replace options: opts range: searchRange];
-	
-	if (range.length > 0)
-		{
-		unsigned	byLen = [by length];
-		
-		do
-			{
-				count++;
-				[self replaceCharactersInRange: range
-									withString: by];
-				if ((opts & NSBackwardsSearch) == NSBackwardsSearch)
-					{
-					searchRange.length = range.location - searchRange.location;
-					}
-				else
-					{
-					unsigned int	newEnd;
-					
-					newEnd = NSMaxRange(searchRange) + byLen - range.length;
-					searchRange.location = range.location + byLen;
-					searchRange.length = newEnd - searchRange.location;
-					}
-				
-				range = [self rangeOfString: replace
-									options: opts
-									  range: searchRange];
-			}
-		while (range.length > 0);
-		}
-	return count;
-}
-
-- (void) insertString:(NSString*)aString atIndex:(unsigned)index
-{
-	// FIXME: convert to unichar string if needed
-	unsigned c = [aString cStringLength];
-	char *t = objc_malloc(_count + c + 1);
-	if(!t)
-		[NSException raise: NSMallocException format: @"Unable to allocate"];
-
-	if(index > 0)											// copy self upto
-		memcpy(t, _cString, index);							// index if needed
-	[aString getCString: t + index];
-	memcpy(t + index + c, _cString + index, (_count - index) + 1);
-	objc_free(_cString);
-	_cString = t;
-	_hash = 0;
-	_count += c;
-	_cString[_count] = '\0';
-}
-
-- (void) appendString:(NSString*)aString
-{
-	[self replaceCharactersInRange:(NSRange){_count, 0} withString:aString];
-}
-
-- (void) appendFormat:(NSString*)format, ...
-{
-	va_list ap;
-	id tmp;
-	va_start(ap, format);
-	// FIXME: convert to unichar string if needed
-	tmp = [[GSCString alloc] initWithFormat:format arguments:ap];
-	va_end(ap);
-	[self appendString:tmp];
-	[tmp release];
-}
-
-// FIXME: this is fundamentally flawed - we can't set a Unicode string into a GSMutableCString
-
-- (void) setString:(NSString*)aString
-{
-	unsigned length = [aString cStringLength];
-
-	if (_capacity <= length)
-		{
-		_capacity = length + 1;
-		_cString = objc_realloc(_cString, _capacity);
-		}
-	[aString getCString: _cString];
-	_count = length;
-	_hash = 0;
-}
-
-- (id) initWithCoder:(id)aCoder
-{
-	unsigned cap;
-  
-	if([aCoder allowsKeyedCoding])
-		{
-		[self release];
-		return [[aCoder decodeObjectForKey:@"NS.string"] mutableCopy];
-		}
-	[aCoder decodeValueOfObjCType:@encode(unsigned) at:&cap];
-	[self initWithCapacity:cap];
-	if ((_count = cap) > 0)
-		[aCoder decodeArrayOfObjCType: @encode(unsigned char) 
-				count: _count
-				at: _cString];
-	_cString[_count] = '\0';
-
-	return self;
-}
-
-@end /* GSMutableCString */
-
-#endif
 
 //*****************************************************************************
 //

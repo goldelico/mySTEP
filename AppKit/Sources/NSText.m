@@ -5,7 +5,7 @@
    Therefore, it has limited functionality compared to its subclass NSTextView. E.g.
 	 - less precise text manipulating methods
  
-   NSTextView adds a text network and adds more sophisticated editing commands. Note: Interface Builder can be create NSTextView only.
+   NSTextView adds a text network and adds more sophisticated editing commands. Note: Interface Builder can create NSTextView only.
 
    Author:	H. N. Schaller <hns@computer.org>
    Date:	Jun 2006 - aligned with 10.4
@@ -407,7 +407,6 @@ NSString *NSTextMovement=@"NSTextMovement";
 - (void) setImportsGraphics:(BOOL)flag
 {	
 	_tx.importsGraphics = flag;
-	[self updateDragTypeRegistration];
 }
 
 - (void) setMaxSize:(NSSize)newMaxSize;		{ _maxSize=newMaxSize; }
@@ -418,7 +417,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 	if(_tx.isRichText == flag)
 		return;
 	_tx.isRichText=flag;
-	[self updateDragTypeRegistration];
+	// do other modifications
 }
 
 - (void) setSelectable:(BOOL)flag
@@ -438,6 +437,10 @@ NSString *NSTextMovement=@"NSTextMovement";
 			}
 	_tx.moveLeftRightEnd=0;
 	_tx.moveUpDownEnd=0;
+#if 1
+	NSLog(@"setSelectedRange=%@", NSStringFromRange(_selectedRange));
+	NSLog(@"  text=%@", textStorage);
+#endif
 }
 
 - (void) setString:(NSString *)string;
@@ -622,6 +625,9 @@ NSString *NSTextMovement=@"NSTextMovement";
 - (void) insertText:(id) text;
 {
 	NSRange rng=[self selectedRange];
+#if 1
+	NSLog(@"insertText: %@", text);
+#endif
 	if([text isKindOfClass:[NSString class]])
 		[self replaceCharactersInRange:rng withString:text];
 	else
@@ -782,7 +788,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 - (void) moveRight:(id) sender
 {
 	if(NSMaxRange(_selectedRange) < [textStorage length])
-			[self setSelectedRange:NSMakeRange(NSMaxRange(_selectedRange)+1, 0)];
+		[self setSelectedRange:NSMakeRange(NSMaxRange(_selectedRange)+1, 0)];
 }
 
 // same for top&down but use separate flags - can share left&right

@@ -277,12 +277,6 @@
 	_concreteString=[[NSMutableAttributedString alloc] initWithCoder:coder];
 #else
 	self=[super initWithCoder:coder];	// we are a real subclass of NSMutableAttributedString
-#if 1
-	NSLog(@"FIXME: doesn't unarchive textStorage's attributes properly");
-	// FIXME: these should be decoded in NSAttributedString!
-	[coder decodeObjectForKey:@"NSAttributes"];	// this is an array of attribute runs
-	[coder decodeObjectForKey:@"NSAttributeInfo"];	// NSAttributeInfo is most probably a list of ranges where the attributes apply (unless it is for the full range)
-#endif
 #endif
 	[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
 #if 0

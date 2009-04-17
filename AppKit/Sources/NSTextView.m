@@ -318,6 +318,9 @@ static NSCursor *__textCursor = nil;
 		{
 		// do additional layout if needed
 		}
+#if 1
+	NSLog(@"NSTextView setNeedsDisplayInRect:%@", NSStringFromRect(rect));
+#endif
 	[super setNeedsDisplayInRect:rect];
 }
 
@@ -380,6 +383,9 @@ static NSCursor *__textCursor = nil;
 
 - (void) _blinkCaret:(NSTimer *) timer
 { // toggle the caret and trigger redraw
+#if 1
+	NSLog(@"_blinkCaret %@", NSStringFromRect([self _caretRect]));
+#endif
 	insertionPointIsOn = !insertionPointIsOn;	// toggle state
 	[self setNeedsDisplayInRect:[self _caretRect] avoidAdditionalLayout:YES];	// this should redraw only the insertion point - if it is enabled		
 }
@@ -554,6 +560,19 @@ static NSCursor *__textCursor = nil;
 	[self registerForDraggedTypes:[self acceptableDragTypes]];
 }
 
+- (void) setImportsGraphics:(BOOL)flag
+{	
+	[super setImportsGraphics:flag];
+	[self updateDragTypeRegistration];
+}
+
+- (void) setRichText:(BOOL)flag
+{	
+	[super setRichText:flag];
+	[self updateDragTypeRegistration];
+}
+
+
 /*
  Sources/NSTextView.m:512: warning: method definition for `-writeSelectionToPasteboard:types:' not found
  Sources/NSTextView.m:512: warning: method definition for `-writeSelectionToPasteboard:type:' not found
@@ -676,13 +695,13 @@ static NSCursor *__textCursor = nil;
 	NSRect r;
 	if(!layoutManager)
 		return;
-	[self drawViewBackgroundInRect:rect];
 	range=[layoutManager glyphRangeForTextContainer:textContainer];
 	// range=[layoutManager glyphRangeForBoundingRect:rect inTextContainer:textContainer]
-#if 0
+#if 1
 	NSLog(@"NSTextView drawRect %@", NSStringFromRect(rect));
 	NSLog(@"         glyphRange %@", NSStringFromRange(range));
 #endif
+	[self drawViewBackgroundInRect:rect];
 
 	[layoutManager drawBackgroundForGlyphRange:range atPoint:textContainerOrigin];
 	
@@ -796,7 +815,7 @@ static NSCursor *__textCursor = nil;
 				// FIXME: this method expects SCREEN coordinates!
 				unsigned int pos=[self characterIndexForPoint:p];	// convert to character index
 #if 1
-				NSLog(@"NSControl mouseDown point=%@ pos=%d", NSStringFromPoint(p), pos);
+				NSLog(@"NSTextView mouseDown point=%@ pos=%d", NSStringFromPoint(p), pos);
 #endif
 				if([event type] == NSLeftMouseDown)
 						{
@@ -927,8 +946,8 @@ static NSCursor *__textCursor = nil;
 	return YES;
 }
 
-#pragma mark NSTextInput
-// NSTextInput protocol
+#pragma mark NSTextInputClient
+// NSTextInputClient protocol
 
 - (NSAttributedString *) attributedSubstringFromRange:(NSRange) range
 {

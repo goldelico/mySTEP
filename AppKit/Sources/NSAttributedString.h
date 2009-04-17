@@ -179,14 +179,10 @@ extern const unsigned NSUnderlineByWordMask;
 + (NSArray *) textUnfilteredPasteboardTypes;
 + (NSArray *) textUnfilteredTypes;
 
-- (NSRect)boundingRectWithSize:(NSSize)size options:(NSStringDrawingOptions)opts;
 - (BOOL) containsAttachments;
 - (NSData *) dataFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs error:(NSError **) error;
 - (NSData *) docFormatFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs;
 - (NSRange) doubleClickAtIndex:(unsigned) location;
-- (void)drawAtPoint:(NSPoint) pt;
-- (void)drawInRect:(NSRect) rect;
-- (void)drawWithRect:(NSRect) rect options:(NSStringDrawingOptions) opts;
 - (NSFileWrapper *) fileWrapperFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs error:(NSError **) error;
 - (NSDictionary *) fontAttributesInRange:(NSRange) range;	// filter attribs
 - (id) initWithData:(NSData *) data options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs error:(NSError **) error;
@@ -211,7 +207,6 @@ extern const unsigned NSUnderlineByWordMask;
 - (NSData *) RTFDFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs;
 - (NSData *) RTFFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs;
 - (NSDictionary *) rulerAttributesInRange:(NSRange) range;
-- (NSSize)size;
 - (NSURL *) URLAtIndex:(NSUInteger) loc effectiveRange:(NSRangePointer) range; 
 
 @end
@@ -243,7 +238,6 @@ extern NSString *NSTextSizeMultiplierDocumentOption;
 - (void) subscriptRange:(NSRange) range;
 - (void) superscriptRange:(NSRange) range;
 - (void) unscriptRange:(NSRange) range; 			// Undo previous superscripting
-- (void) updateAttachmentsFromPath:(NSString *) path;
 
 @end
 

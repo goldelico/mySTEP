@@ -104,6 +104,9 @@
 							[event charactersIgnoringModifiers]];
 		id sel;
 		NSEnumerator *f;
+#if 1
+			NSLog(@"keybinding for %@ -> %@", chars, [mapping objectForKey:chars]);
+#endif
 		sel=[mapping objectForKey:chars];
 		if(!sel)
 			sel=[NSArray arrayWithObjects:@"insertText:", [event characters], nil];	// default
@@ -121,6 +124,9 @@
 			{ // process all array components in sequence
 				if([sel hasSuffix:@":"])
 						{ // appears to be a valid entry
+#if 1
+							NSLog(@"doCommand: %@", sel);
+#endif
 							if([sel isEqualToString:@"insertText:"])
 								[self insertText:[f nextObject]]; // handle special case
 							else

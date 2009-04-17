@@ -18,6 +18,9 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \b0 \
 \
+* horizontal and vertical grid flags were swapped in NSTableView\
+* fixed issue with window resizing and NSClipView (because the clipView has customBounds)\
+* removed GSMutableCString from the NSString class cluster since it was fundamentally flawed (could not do a -setString: to a full unicode string)\
 * fixed an issue with proper sequence of releasing the graphics context and ordering out during -close\
 * fixed translation of X11 keycodes to ISO-Latin1\
 * fixed handling of key equivalents\

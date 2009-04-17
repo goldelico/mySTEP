@@ -67,7 +67,8 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 								  NSMutableArray *locateArray,
 								  unsigned int *foundIndex)
 {
-	unsigned int low, high, used, cnt, foundLoc, nextLoc;
+	int low, high, cnt;
+	unsigned int used, foundLoc, nextLoc;
 	NSDictionary *foundDict;
 
 	if(tmpLength > 0 && index >= tmpLength)
@@ -96,7 +97,7 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 				nextLoc = [[locateArray objectAtIndex:cnt+1] unsignedIntValue];
 
 			if(foundLoc == index || index < nextLoc)
-				{											// Found
+				{ // found
 				if(aRange)
 					{
 					aRange->location = foundLoc;

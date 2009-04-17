@@ -123,7 +123,7 @@
 
 // handling input devices
 
-- (NSPoint) _mouseLocationOutsideOfEventStream;
+// - (NSPoint) _mouseLocationOutsideOfEventStream;
 
 @end
 
@@ -134,6 +134,7 @@
 - (void) _sendEvent:(NSEvent *) event;
 - (void) _grabKey:(int) keycode;
 - (int) _keyWindowNumber;
+- (NSPoint) _mouseLocation;
 @end
 
 @interface NSWindow (NSBackend)
