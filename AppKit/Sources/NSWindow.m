@@ -1685,25 +1685,20 @@ static NSButtonCell *sharedCell;
 
 - (NSRect) constrainFrameRect:(NSRect)rect toScreen:(NSScreen *)screen
 {
-	BOOL autoEnlarge=[self interfaceStyle] >= NSPDAInterfaceStyle || [[NSUserDefaults standardUserDefaults] boolForKey:@"autoZoomResizableWindowsToScreen"];	// should be set in global user defaults
-	NSRect vf=[screen visibleFrame];
-#if 1
-	NSLog(@"visibleFrame %@", NSStringFromRect(vf));
-#endif
+	BOOL autoEnlarge=[[NSUserDefaults standardUserDefaults] boolForKey:@"autoZoomResizableWindowsToScreen"];	// should be set in global user defaults
+	NSRect vf;
 #if 1
 	NSLog(@"constrain rect %@ forscreen %@ mask %0x", NSStringFromRect(rect), NSStringFromRect([screen visibleFrame]), _w.styleMask);
 #endif
-	if((_w.styleMask & GSAllWindowMask) == NSBorderlessWindowMask || (_w.styleMask & NSResizableWindowMask) == 0 || [self isKindOfClass:[NSPanel class]])
-		autoEnlarge=NO;
-/*
- {
+	if((_w.styleMask & GSAllWindowMask) == NSBorderlessWindowMask)
+		{
 #if 1
 		NSLog(@"borderless");
 #endif
 		return rect;	// never constrain
 		}
- */
-	if(autoEnlarge)
+	vf=[screen visibleFrame];
+	if((autoEnlarge && (_w.styleMask & NSResizableWindowMask) != 0 && ![self isKindOfClass:[NSPanel class]]) || [self interfaceStyle] >= NSPDAInterfaceStyle)
 		{
 #if 1
 		NSLog(@"autoZoomResizableWindowsToScreen to full screen");
