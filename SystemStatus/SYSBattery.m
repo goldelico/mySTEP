@@ -55,6 +55,7 @@ static struct bat getbat(void)
 		memset(&r, 0, sizeof(r));
 		return r;
 		}
+	// FIXME: either use UTF8String or fileSystemRepresentation
 	f=fopen([tool cString], "r");
 	if(!f)
 		{ // apm can't be opened

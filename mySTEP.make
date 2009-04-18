@@ -52,21 +52,22 @@ endif
 
 ifeq ($(ARCHITECTURES),)
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
-# set all architectures for which we know a compiler (should check that we have a libobjc.so for this architecture!)
+# set all architectures for which we know a compiler (should also check that we have a libobjc.so for this architecture!)
 ARCHITECTURES=$(shell cd $(ROOT)/this/gcc && echo *-*-*)
 else
 # set default architecture for development only
-ARCHITECTURES=i486-debianetch-linux-gnu
+ARCHITECTURES:=$(shell defaults read de.dsitri.ZMacSync DefaultArchitecture 2>/dev/null)
 endif
 endif
 
-ifeq ($(ARCHITECTURE),)	# set default
-ARCHITECTURE:=arm-quantumstep-linux-gnu
+ifeq ($(ARCHITECTURES),)
+# still not defined
+ARCHITECTURES=i486-debianetch-linux-gnu
 endif
 
 # configure Embedded System if undefined
 
-IP_ADDR$:=$(shell defaults read de.dsitri.ZMacSync SelectedDevice 2>/dev/null)
+IP_ADDR:=$(shell defaults read de.dsitri.ZMacSync SelectedDevice 2>/dev/null)
 
 ifeq ($(IP_ADDR),)	# set a default
 IP_ADDR:=192.168.129.201
@@ -288,9 +289,9 @@ install_remote:
 ifneq ($(SEND2ZAURUS),false)
 	ls -l "$(BINARY)"
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
-		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && tar xpzvf -"
+		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && gunzip | tar xpvf -"
 else
-		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && tar xpzvf -"
+		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && gunzip | tar xpvf -"
 endif
 	# installed on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH)
 else
