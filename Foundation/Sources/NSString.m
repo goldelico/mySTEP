@@ -643,7 +643,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			   locale:(NSDictionary*)locale
 			arguments:(va_list)arg_list
 {
-	const char *format_cp = [format UTF8String];		// FIXME: change this (?)
+	const char *format_cp = [format UTF8String];
 	int format_len = strlen (format_cp);
 	char *format_cp_copy = objc_malloc(format_len+1);	// buffer for a mutable copy of the format string
 	char *format_to_go = format_cp_copy;				// pointer into the format string while processing
@@ -651,11 +651,11 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	[self release];	// we return a (mutable!) replacement object - to be really correct, we should autorelease the result and return [self initWithString:result];
 	if(!format_cp_copy)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
-    strcpy(format_cp_copy, format_cp);		// make local copy for tmp editing
+	strcpy(format_cp_copy, format_cp);		// make local copy for tmp editing
 //	fprintf(stderr, "fmtcopy=%p\n", format_cp_copy);
 //	fprintf(stderr, "result=%p\n", result);
 
-	// FIXME: somehow handle %C, %S and other specifiers!
+	// FIXME: somehow handle %S and other specifiers!
 	
 	while(YES)
 		{ // Loop once for each `%@' in the format string
@@ -690,13 +690,15 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			len=vasprintf(&buffer, format_to_go, arg_list);	// Print the part before the '%@' - will be malloc'ed
 //			fprintf(stderr, "buffer=%p\n", buffer);
 			if(len > 0)
-				[result appendString:[[[GSCString alloc] initWithCStringNoCopy:buffer length:len freeWhenDone:YES] autorelease]];
+				[result appendString:[NSString _stringWithUTF8String:buffer length:len]];
 			else if(len < 0)
 				{ // error
-					[result release];
-					objc_free(format_cp_copy);
+				free(buffer);
+				objc_free(format_cp_copy);
+				[result release];
 				return nil;
 				}
+			free(buffer);
 			}
 		if(!mode)
 			return result;	// we return a (mutable!) replacement object - to be correct, autorelease the result and return [self initWithString:result];
@@ -1016,7 +1018,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			if(bp >= end)
 				[NSException raise:NSCharacterConversionException format:@"can't convert due to missing buffer space: %@", self];	// conversion error
 			if(!(*e)([self characterAtIndex:i++], &bp))
-				[NSException raise:NSCharacterConversionException format:@"can't convert: %@", self];	// conversion error
+				[NSException raise:NSCharacterConversionException format:@"can't getCString dur do non-ASCII characters: %@", self];	// conversion error
 			}
 		}
 	else
@@ -3069,10 +3071,10 @@ struct stat tmp_stat;
 		if(!(*e)(_uniChars[i], &bp))
 			{
 #if 0
-			NSLog(@"can't convert due to non-ASCII characters: %@", self);
+			NSLog(@"-cString: can't convert due to non-ASCII characters: %@", self);
 			abort();
 #endif
-			[NSException raise:NSCharacterConversionException format:@"can't convert due to non-ASCII characters: %@", self];	// conversion error
+			[NSException raise:NSCharacterConversionException format:@"-cString can't convert: %@", self];	// conversion error
 			}
 		}
 	*bp=0;
@@ -3085,7 +3087,7 @@ struct stat tmp_stat;
 - (NSStringEncoding) smallestEncoding	{ return NSUnicodeStringEncoding; }
 
 - (int) _baseLength
-{						// private method for Unicode level 3 implementation
+{ // private method for Unicode level 3 implementation
 	int count = 0;
 	int blen = 0;
 	while(count < _count)

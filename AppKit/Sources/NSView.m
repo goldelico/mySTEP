@@ -1673,7 +1673,7 @@ printing
 					[context restoreGraphicsState];	// we must restore the clipping path!
 			}
 		NS_HANDLER
-			NSLog(@"%@ -drawRect: %@", NSStringFromClass(isa), [localException reason]);
+			NSLog(@"%@ -drawRect: NSException %@", NSStringFromClass(isa), [localException reason]);
 		NS_ENDHANDLER
 		if(context == [_window graphicsContext])		// NOTE: remove after drawing!
 			[self _removeRectNeedingDisplay:rect];	// should end up with empty list i.e. no more needsDrawing

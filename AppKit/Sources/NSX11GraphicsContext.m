@@ -3311,9 +3311,9 @@ static NSDictionary *_x11settings;
 		int first_event_return;
 		int first_error_return;
 		id val;
-		float xdpi=WidthOfScreen(_screen)/(WidthMMOfScreen(_screen)/25.4)/72.0;
-		float ydpi=HeightOfScreen(_screen)/(HeightMMOfScreen(_screen)/25.4)/72.0;
-		float avg=(xdpi+ydpi)/2.0;	// take average for 72dpi
+		float xdpi=(25.4*WidthOfScreen(_screen))/(72.0*WidthMMOfScreen(_screen));
+		float ydpi=(25.4*HeightOfScreen(_screen))/(72.0*HeightMMOfScreen(_screen));
+		float avg=(xdpi+ydpi)*0.5;	// take average for 72dpi
 		if(fabs(avg - rint(avg)) < 0.1)
 			avg=rint(avg);	// round to nearest integer if near enough
 		_screenScale=avg;

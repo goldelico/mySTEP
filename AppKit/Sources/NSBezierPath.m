@@ -22,8 +22,8 @@
 
 #import "NSBackendPrivate.h"
 
-#ifndef PI
-#define PI 3.1415926535897932384626433
+#ifndef M_PI
+#define M_PI 3.1415926535897932384626433
 #endif
 
 #define PMAX  10000
@@ -47,7 +47,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 @implementation _NSRectBezierPath
 
-// FIXME - what happens if we append to such a BezierPath!!!
+// FIXME - what happens if we want to append to such a BezierPath!!!
+// if we design it well, append means copying the elements in a loop
+// and the rectBezierPath can generate all elements
 
 - (id) initWithRect:(NSRect) rect;
 {
@@ -219,7 +221,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	borderRect.size.height-=1.0;
 	if(flag)
 		{ // vertical
-		radius=borderRect.size.width/2.0;
+		radius=borderRect.size.width*0.5;
 		point.x+=radius;
 		point.y+=radius;
 		radius-=1.0;
@@ -229,7 +231,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		}
 	else
 		{ // horizontal
-		radius=borderRect.size.height/2.0;
+		radius=borderRect.size.height*0.5;
 		point.x+=radius;
 		point.y+=radius;
 		radius-=1.0;
@@ -1062,7 +1064,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		circumference.  By adding diff at the starting angle of the
 		quarter, we get the ending angle.  diff is negative because
 		we draw clockwise. */
-		diff = - PI / 2;
+		diff = - M_PI_2;
 		}
 	else
 		{	// This modification of the angles is the postscript prescription.
@@ -1073,12 +1075,12 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		circumference.  By adding diff at the starting angle of the
 		quarter, we get the ending angle.  diff is positive because
 		we draw counterclockwise. */
-		diff = PI / 2;
+		diff = M_PI_2;
 		}
 	
 	/* Convert the angles to radians */
-	startAngle_rad = PI * startAngle / 180;
-	endAngle_rad = PI * endAngle / 180;
+	startAngle_rad = (M_PI/180) * startAngle;
+	endAngle_rad = (M_PI/180) * endAngle;
 	
 	/* Start point */
 	p0 = NSMakePoint (center.x + radius * cos (startAngle_rad), 
@@ -1220,7 +1222,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	else if (dx1 > 1)
 		a1 = 0;
 	else
-		a1 = acos(dx1)/PI*180;
+		a1 = acos(dx1)*(180/M_PI);
 	if (dy1 < 0)
 		a1 = -a1;
 	
@@ -1229,7 +1231,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	else if (dx2 > 1)
 		a2 = 0;
 	else
-		a2 = acos(dx2)/PI*180;
+		a2 = acos(dx2)*(180/M_PI);
 	if (dy2 < 0)
 		a2 = -a2;
 	
