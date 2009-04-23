@@ -417,7 +417,9 @@ NSString *NSHomeDirectoryForUser (NSString *login_name)
 NSArray *NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory directory, NSSearchPathDomainMask domainMask, BOOL expandTilde)
 {
 	NSMutableArray  *paths = [NSMutableArray arrayWithCapacity:10];
-	
+#if 0
+	NSLog(@"NSSearchPathForDirectoriesInDomains %d mask %d", directory, domainMask);
+#endif
 #define ADD_PATH(mask, path) \
 if ((domainMask & mask) && ![paths containsObject: path] && [[NSFileManager defaultManager] fileExistsAtPath:path]) \
 [paths addObject: expandTilde?(NSString *) [path stringByExpandingTildeInPath]:(NSString *) path];

@@ -525,7 +525,6 @@ struct trailer
 + (id) _plistFromBinaryData:(NSData *) data mutabilityOption:(NSPropertyListMutabilityOptions) opt;
 - (id) initWithData:(NSData *) d mutabilityOption:(NSPropertyListMutabilityOptions) opt;
 - (id) _parse;
-- (id) _parseObjectWithNumber:(unsigned) num;
 
 - (BOOL) _addObject:(id) obj;
 - (void) _addChar:(char) c;
@@ -640,11 +639,11 @@ inline static unsigned _binaryLen(_NSBinaryPropertyList *self)
 	return _binaryInt(self);
 }
 
-static id _binaryObject(_NSBinaryPropertyList *self, unsigned long off)
+static id _binaryObject(_NSBinaryPropertyList *self, unsigned long off, NSPropertyListMutabilityOptions isMutable)
 { // read object
 	unsigned char byte;
 	int len;
-#if 0
+#if 1
 	NSLog(@"_binaryObject offset=%lu", off);
 #endif
 	if(off == 0)
@@ -656,7 +655,7 @@ static id _binaryObject(_NSBinaryPropertyList *self, unsigned long off)
 	self->bp=self->bytes+off;
 next:
 	byte=*self->bp;
-#if 0
+#if 1
 	NSLog(@"byte=%02x", byte);
 #endif
 	switch(byte&0xf0)
@@ -709,17 +708,21 @@ next:
 		case 0x40:	// NSData
 			{
 				len=_binaryLen(self);
-				return [NSMutableData dataWithBytes:(void *) self->bp length:len];	// return a copy
+				if(isMutable&NSPropertyListMutableContainersAndLeaves)
+					return [NSMutableData dataWithBytes:(void *) self->bp length:len];	// return a mutable copy
+				return [NSData dataWithBytes:(void *) self->bp length:len];	// return a copy
 			}
 		case 0x50:	// ASCII NSString
 			{
 				len=_binaryLen(self);
-				return [NSMutableString stringWithCString:(char *) self->bp length:len];	// return a copy
+				if(isMutable&NSPropertyListMutableContainersAndLeaves)
+					return [NSMutableString stringWithCString:(char *) self->bp length:len];	// return a copy
+				return [NSString stringWithCString:(char *) self->bp length:len];	// return a copy
 			}
 		case 0x60:	// UNICODE NSString
 			{
 				len=_binaryLen(self);
-#if 0
+#if 1
 				NSLog(@"unicode len=%d", len);
 #endif
 				if(NSHostByteOrder() != NS_BigEndian)
@@ -728,9 +731,13 @@ next:
 					unichar *bfr=(unichar *) objc_malloc(len*sizeof(bfr));
 					for(i=0; i<len; i++)
 						bfr[i]=NSSwapShort(((unichar *)(self->bp))[i]);	// swap bytes
-					return [[[NSMutableString alloc] initWithCharactersNoCopy:bfr length:len freeWhenDone:YES] autorelease];	// take ownership
+					if(isMutable&NSPropertyListMutableContainersAndLeaves)
+						return [[[NSMutableString alloc] initWithCharactersNoCopy:bfr length:len freeWhenDone:YES] autorelease];	// take ownership
+					return [[[NSString alloc] initWithCharactersNoCopy:bfr length:len freeWhenDone:YES] autorelease];	// take ownership
 					}
-				return [NSMutableString stringWithCharacters:(unichar *) self->bp length:len];	// return a copy
+				if(isMutable&NSPropertyListMutableContainersAndLeaves)
+					return [NSMutableString stringWithCharacters:(unichar *) self->bp length:len];	// return a copy
+				return [NSString stringWithCharacters:(unichar *) self->bp length:len];	// return a copy
 			}
 		case 0x80:	// CF$UID
 			{
@@ -744,7 +751,7 @@ next:
 		case 0xa0:	// NSArray
 			{
 			NSMutableArray *a;
-				unsigned char *savedbp;
+			unsigned char *savedbp;
 			len=_binaryLen(self);
 			a=[NSMutableArray arrayWithCapacity:len];
 			while(len-- > 0)
@@ -755,10 +762,12 @@ next:
 				for(i=0; i<self->trailer.refSize; i++)
 					onum=(onum<<8)+(*self->bp++);
 				savedbp=self->bp;
-				obj=_binaryObject(self, _binaryObjectPos(self, onum));
+				obj=_binaryObject(self, _binaryObjectPos(self, onum), isMutable);
 				[a addObject:obj];
 				self->bp=savedbp;
 				}
+			if((isMutable&(NSPropertyListMutableContainersAndLeaves|NSPropertyListMutableContainers)) == 0)
+				; // make immutable
 			return a;
 			}
 		case 0xd0:	// NSDictionary
@@ -789,14 +798,16 @@ next:
 				NSLog(@"knum=%lu onum=%lu", knum, onum);
 #endif				
 				savedbp=self->bp;
-				key=_binaryObject(self, _binaryObjectPos(self, knum));
-				obj=_binaryObject(self, _binaryObjectPos(self, onum));
+				key=_binaryObject(self, _binaryObjectPos(self, knum), NSPropertyListImmutable);
+				obj=_binaryObject(self, _binaryObjectPos(self, onum), isMutable);
 #if 0
 				NSLog(@"<key>%@</key>: %@", key, obj);
 #endif
 				[d setObject:obj forKey:key];
 				self->bp=savedbp;
 				}
+			if((isMutable&(NSPropertyListMutableContainersAndLeaves|NSPropertyListMutableContainers)) == 0)
+				; // make immutable
 			return d;
 			}
 		}
@@ -809,6 +820,7 @@ next:
 		{
 		bytes=(unsigned char *) [d bytes];
 		length=[d length];
+		isMutable=opt;
 		}
 	return self;
 }
@@ -869,12 +881,7 @@ next:
 #if 0
 	NSLog(@"object table ok");
 #endif
-	return [self _parseObjectWithNumber:trailer.topObject];
-}
-
-- (id) _parseObjectWithNumber:(unsigned) num;
-{
-	return _binaryObject(self, _binaryObjectPos(self, num));
+	return _binaryObject(self, _binaryObjectPos(self, trailer.topObject), isMutable);
 }
 
 + (id) _plistFromBinaryData:(NSData *) d mutabilityOption:(NSPropertyListMutabilityOptions) opt;
