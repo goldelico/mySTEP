@@ -263,7 +263,7 @@ NSSwapShort(unsigned short in)
 static inline NSSwappedDouble
 NSSwapDouble(NSSwappedDouble num)						
 {
-#ifdef __arm__		// appears to be a special case: swap within lower and higher long
+#if defined(__arm__) && !defined(__ARM_EABI__)		// appears to be a special case for ARM OABI: swap within lower and higher long
     union swap {
 		NSSwappedDouble num;
 		unsigned char byt[8];

@@ -590,6 +590,18 @@ see also: http://rixstep.com/2/20050503,01.shtml about plutil
 
 */
 
+#if 1
++ (void) initialize
+{
+	// test some internal methods for correctness
+	NSAssert(NSSwapShort(0x1234) == 0x3412, @"NSSwapShort failed");
+	NSAssert(NSSwapLong(0x12345678L) == 0x78563412L, @"NSSwapLong failed");
+	NSAssert(NSSwapLongLong(0x123456789abcdef0LL) == 0xf0debc9a78563412LL, @"NSSwapLongLong failed");
+//	if(NSHostByteOrder() == NS_LittleEndian) NSAssert(NSSwapBigFloatToHost(3.1415) == 123456, @"NSSwapLong failed");
+	//	if(NSHostByteOrder() == NS_LittleEndian) NSAssert(NSSwapLittleFloatToHost(3.1415) == 3.1415, @"NSSwapLong failed");
+}
+#endif
+
 // decoding
 
 inline static unsigned int _binaryObjectPos(_NSBinaryPropertyList *self, unsigned int oid);
@@ -639,23 +651,24 @@ inline static unsigned _binaryLen(_NSBinaryPropertyList *self)
 	return _binaryInt(self);
 }
 
-static id _binaryObject(_NSBinaryPropertyList *self, unsigned long off, NSPropertyListMutabilityOptions isMutable)
+static id _binaryObject(_NSBinaryPropertyList *self, unsigned long off)
 { // read object
 	unsigned char byte;
 	int len;
-#if 1
+#if 0
 	NSLog(@"_binaryObject offset=%lu", off);
 #endif
-	if(off == 0)
-		{
-		NSLog(@"off=0");
+	if(off < sizeof(BPMAGIC)-1 || off >= self->length)
+		{ // not precise but clearly invalid
+		NSLog(@"_binaryObject(..., invalid off=%lu) length=%ld", off, self->length);
 		return nil;	// some error
 		}
-	// here, we should check if we already have loaded this object and don't need to create a new copy
+	// here, we should check if we already have loaded this object and don't need to create a new instance
+	// but this would require a cache for all loaded objects: NSMapTable(int offset, id object)
 	self->bp=self->bytes+off;
 next:
 	byte=*self->bp;
-#if 1
+#if 0
 	NSLog(@"byte=%02x", byte);
 #endif
 	switch(byte&0xf0)
@@ -683,7 +696,7 @@ next:
 #endif
 			if(len > sizeof(bytes)) len=sizeof(bytes);	// limit
 			memcpy(bytes, self->bp, len);
-			self->bp+=len;
+//			self->bp+=len;
 #if 0
 			NSLog(@"bytes=%@", [NSData dataWithBytesNoCopy:bytes length:len freeWhenDone:NO]);
 #endif
@@ -708,34 +721,48 @@ next:
 		case 0x40:	// NSData
 			{
 				len=_binaryLen(self);
-				if(isMutable&NSPropertyListMutableContainersAndLeaves)
+				if(self->isMutable&NSPropertyListMutableContainersAndLeaves)
 					return [NSMutableData dataWithBytes:(void *) self->bp length:len];	// return a mutable copy
 				return [NSData dataWithBytes:(void *) self->bp length:len];	// return a copy
 			}
 		case 0x50:	// ASCII NSString
 			{
 				len=_binaryLen(self);
-				if(isMutable&NSPropertyListMutableContainersAndLeaves)
+				if(self->isMutable&NSPropertyListMutableContainersAndLeaves)
 					return [NSMutableString stringWithCString:(char *) self->bp length:len];	// return a copy
 				return [NSString stringWithCString:(char *) self->bp length:len];	// return a copy
 			}
 		case 0x60:	// UNICODE NSString
 			{
+#if 0
+				NSLog(@"offset=%lu", off);
+				NSLog(@"byte=%02x", byte);
+				NSLog(@"record: %@", [NSData dataWithBytes:self->bp length:20]);
+#endif
 				len=_binaryLen(self);
-#if 1
+#if 0
 				NSLog(@"unicode len=%d", len);
+				NSLog(@"NS_BigEndian =%d", NS_BigEndian);
+				NSLog(@"NS_LittleEndian =%d", NS_LittleEndian);
+				NSLog(@"hostbyteorder =%d", NSHostByteOrder());
 #endif
 				if(NSHostByteOrder() != NS_BigEndian)
 					{ // we need to swap bytes
 					int i;
 					unichar *bfr=(unichar *) objc_malloc(len*sizeof(bfr));
+#if 0
+						NSLog(@"swapping bytes: %@", [NSData dataWithBytes:self->bp length:MIN(2*len, 10)]);
+#endif
 					for(i=0; i<len; i++)
 						bfr[i]=NSSwapShort(((unichar *)(self->bp))[i]);	// swap bytes
-					if(isMutable&NSPropertyListMutableContainersAndLeaves)
+#if 0
+						NSLog(@"result: %@", [[[NSString alloc] initWithCharactersNoCopy:bfr length:len freeWhenDone:YES] autorelease]);
+#endif
+						if(self->isMutable&NSPropertyListMutableContainersAndLeaves)
 						return [[[NSMutableString alloc] initWithCharactersNoCopy:bfr length:len freeWhenDone:YES] autorelease];	// take ownership
 					return [[[NSString alloc] initWithCharactersNoCopy:bfr length:len freeWhenDone:YES] autorelease];	// take ownership
 					}
-				if(isMutable&NSPropertyListMutableContainersAndLeaves)
+				if(self->isMutable&NSPropertyListMutableContainersAndLeaves)
 					return [NSMutableString stringWithCharacters:(unichar *) self->bp length:len];	// return a copy
 				return [NSString stringWithCharacters:(unichar *) self->bp length:len];	// return a copy
 			}
@@ -762,11 +789,11 @@ next:
 				for(i=0; i<self->trailer.refSize; i++)
 					onum=(onum<<8)+(*self->bp++);
 				savedbp=self->bp;
-				obj=_binaryObject(self, _binaryObjectPos(self, onum), isMutable);
+				obj=_binaryObject(self, _binaryObjectPos(self, onum));
 				[a addObject:obj];
 				self->bp=savedbp;
 				}
-			if((isMutable&(NSPropertyListMutableContainersAndLeaves|NSPropertyListMutableContainers)) == 0)
+			if((self->isMutable&(NSPropertyListMutableContainersAndLeaves|NSPropertyListMutableContainers)) == 0)
 				; // make immutable
 			return a;
 			}
@@ -798,15 +825,15 @@ next:
 				NSLog(@"knum=%lu onum=%lu", knum, onum);
 #endif				
 				savedbp=self->bp;
-				key=_binaryObject(self, _binaryObjectPos(self, knum), NSPropertyListImmutable);
-				obj=_binaryObject(self, _binaryObjectPos(self, onum), isMutable);
+				key=_binaryObject(self, _binaryObjectPos(self, knum));
+				obj=_binaryObject(self, _binaryObjectPos(self, onum));
 #if 0
 				NSLog(@"<key>%@</key>: %@", key, obj);
 #endif
 				[d setObject:obj forKey:key];
 				self->bp=savedbp;
 				}
-			if((isMutable&(NSPropertyListMutableContainersAndLeaves|NSPropertyListMutableContainers)) == 0)
+			if((self->isMutable&(NSPropertyListMutableContainersAndLeaves|NSPropertyListMutableContainers)) == 0)
 				; // make immutable
 			return d;
 			}
@@ -833,12 +860,12 @@ next:
 #endif
 	if(length > sizeof(BPMAGIC)-1 && memcmp(bytes, BPMAGIC, sizeof(BPMAGIC)-1) != 0)
 		return nil;	// bad header
-    if(length < sizeof(trailer) + sizeof(BPMAGIC) + 1)
+	if(length < sizeof(trailer) + sizeof(BPMAGIC) + 1)
 		return nil;	// missing trailer
 #if 0
 	NSLog(@"header, length=%lu, and trailer ok", length);
 #endif
-    memcpy(&trailer, bytes + length - sizeof(trailer), sizeof(trailer));
+	memcpy(&trailer, bytes + length - sizeof(trailer), sizeof(trailer));
 #if 0
 	NSLog(@"byte order = %@", NSHostByteOrder() == NS_BigEndian?@"Host is Big Endian":@"Host is Little Endian");
 	NSLog(@"object count =%lu", (unsigned long) trailer.objectCount);
@@ -850,8 +877,8 @@ next:
 		printf("\n");
 	}
 #endif
-    trailer.objectCount=NSSwapBigLongLongToHost(trailer.objectCount);	// number of objects
-    trailer.topObject=NSSwapBigLongLongToHost(trailer.topObject);
+	trailer.objectCount=NSSwapBigLongLongToHost(trailer.objectCount);	// number of objects
+	trailer.topObject=NSSwapBigLongLongToHost(trailer.topObject);
 #if 0
 	NSLog(@"swapped");
 	NSLog(@"object count =%lu", (unsigned long) trailer.objectCount);
@@ -863,12 +890,12 @@ next:
 		printf("\n");
 	}
 #endif
-    if(trailer.topObject >= trailer.objectCount)
+	if(trailer.topObject >= trailer.objectCount)
 		return nil;	// bad
 #if 0
 	NSLog(@"top object ok");
 #endif
-    trailer.objectsOffset=NSSwapBigLongLongToHost(trailer.objectsOffset);
+	trailer.objectsOffset=NSSwapBigLongLongToHost(trailer.objectsOffset);
 	objectTableSize=((unsigned long) trailer.objectCount)*trailer.offsetSize;	// don't need to do a long long multiply on a 32 bit processor...
 #if 0
 	NSLog(@"offsetSize=%lu", trailer.offsetSize);
@@ -876,12 +903,12 @@ next:
 	NSLog(@"objectsOffset=%lu", (unsigned long) trailer.objectsOffset);
 	NSLog(@"refSize =%lu", (unsigned long) trailer.refSize);
 #endif
-    if(trailer.objectsOffset+objectTableSize+sizeof(trailer) != length)
+	if(trailer.objectsOffset+objectTableSize+sizeof(trailer) != length)
 		return nil;	// bad offset table size
 #if 0
 	NSLog(@"object table ok");
 #endif
-	return _binaryObject(self, _binaryObjectPos(self, trailer.topObject), isMutable);
+	return _binaryObject(self, _binaryObjectPos(self, trailer.topObject));
 }
 
 + (id) _plistFromBinaryData:(NSData *) d mutabilityOption:(NSPropertyListMutabilityOptions) opt;
@@ -992,7 +1019,7 @@ next:
 	else if([obj isKindOfClass:[NSString class]])
 		{
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];
-		NSData *s=[obj dataUsingEncoding:NSASCIIStringEncoding];	// try...
+		NSData *s=[obj dataUsingEncoding:NSASCIIStringEncoding];	// try as ASCII first...
 		int len;
 		if(s)
 			{ // we can encode as ASCII
@@ -1003,7 +1030,18 @@ next:
 			{ // encode Unicode
 			s=[obj dataUsingEncoding:NSUnicodeStringEncoding];
 			len=[s length];
-			// we need byte swapping!
+			if(NSHostByteOrder() != NS_BigEndian)
+					{ // swap for little endian encoding
+						unichar *b;
+						int i;
+#if 0
+						NSLog(@"swap on write: %@", obj);
+#endif
+						s=[[s mutableCopy] autorelease];
+						b=[(NSMutableData *) s mutableBytes];
+						for(i=0; i<len/2; i++)
+							b[i]=NSSwapShort(b[i]);
+					}
 			[self _addTag:0x60 withLen:len];
 			}
 		[data appendData:s];
@@ -1148,26 +1186,34 @@ next:
 			trailer.objectCount=[objects count];
 			trailer.objectsOffset=[data length];	// offset of objectTable
 			trailer.topObject=[objects indexOfObject:plist];
-			if(trailer.objectCount < 65536)
-				{ // reduce offsets to words
-				if(trailer.objectCount < 256)
-					{ // reduce offset table to bytes
+			if(trailer.objectsOffset < 65536)
+				{ // can reduce offsets to words
+				if(trailer.objectsOffset < 256)
+					{ // can reduce offset table to bytes
+						trailer.offsetSize=1;
 					for(i=0; i<trailer.objectCount; i++)
 						((unsigned char *)offtable)[i]=offtable[i];
-					trailer.offsetSize=1;
 					}
 				else
 					{ // reduce to words
-					for(i=0; i<trailer.objectCount; i++)
-						((unsigned short *)offtable)[i]=NSSwapHostShortToBig((unsigned short) offtable[i]);
-					trailer.offsetSize=2;
+						trailer.offsetSize=2;
+					 if(NSHostByteOrder() != NS_BigEndian)
+							 {
+								 for(i=0; i<trailer.objectCount; i++)
+									 ((unsigned short *)offtable)[i]=NSSwapHostShortToBig((unsigned short) offtable[i]);
+							 }
+						else
+								{
+									for(i=0; i<trailer.objectCount; i++)
+										((unsigned short *)offtable)[i]=offtable[i];
+								}
 					}
 				}
-			else /* if needs conversion at all, i.e. NSHostByteOrder() != NS_BIGENDIAN */
+			else if(NSHostByteOrder() != NS_BigEndian)
 				{ // convert to bigendian
+					trailer.offsetSize=4;
 				for(i=0; i<trailer.objectCount; i++)
 					offtable[i]=NSSwapHostLongToBig(offtable[i]);
-				trailer.offsetSize=4;
 				}
 			[data appendBytes:offtable length:[objects count]*trailer.offsetSize];	// append complete offset table
 			objc_free(offtable);
@@ -1191,7 +1237,7 @@ next:
 			[objects release];
 			return nil;	// other error
 			}
-#if 1
+#if 0
 		NSLog(@"start over");
 #endif
 		[objects release];	// there wasn't enough room here
