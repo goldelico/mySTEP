@@ -17,6 +17,7 @@
 	NSDragOperation _localDraggingMask;
 	NSDragOperation _remoteDraggingMask;
 //	NSTrackingArea *_trackingArea;
+	NSInteger *_trackingTag;
 }
 
 - (NSColor *) backgroundColor; 
