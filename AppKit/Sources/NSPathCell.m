@@ -60,7 +60,7 @@
 			// draw item separator(s)
 			if (cell != nil) { // draw the separator...
 				NSBezierPath *theSeparator = [NSBezierPath bezierPath];
-				NSSize cellSize = [cell cellSize];				
+				NSSize cellSize = m.size; //the size calculated before.				
 				NSRect sepRect = NSMakeRect(m.origin.x+cellSize.width, (cellFrame.size.height/2)-3.0, 6.0,6.0);
 				[[NSColor grayColor] setFill];
 				[theSeparator moveToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y)];
