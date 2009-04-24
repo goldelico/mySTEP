@@ -32,12 +32,17 @@ static Class __controlCellClass = Nil;
 		_remoteDraggingMask=NSDragOperationNone;
 		// is it correct to add it here?
 		// define tracking rects to call [cell _mouseEntered: and [cell _mouseExited:
-		// [self addTrackingRect:frame owner:self userData:NULL assumeInside:NO];
+		 _trackingTag = [self addTrackingRect:frame owner:self userData:NULL assumeInside:NO];
 		// we must store the tag so that we can remove the tracking rect
-		// FIXME: where do we remove?
+		// JI: new ivar _trackingTag
+		// FIXME: where do we remove? We need to implement - willMoveToWindow, acceptsFirstResponder and becomeFirstResponder
 	}
 	return self;
 }
+
+-(BOOL)acceptsFirstResponder { return YES; } //for the tracking rect
+
+-(BOOL)becomeFirstResponder { return YES; } // for the tracking rect.
 
 - (BOOL) isFlipped; { return YES; }
 
@@ -75,6 +80,11 @@ static Class __controlCellClass = Nil;
 - (void) mouseExited:(NSEvent *)theEvent
 {
 	[_cell mouseExited:theEvent withFrame:_frame inView:self];
+}
+
+- (void)viewWillMoveToWindow:(NSWindow *)win { //removes the trackingrect
+    if (!win && [self window]) [self removeTrackingRect:_trackingTag];
+    [super viewWillMoveToWindow:win];
 }
 
 - (id) initWithCoder:(NSCoder *) coder;
