@@ -241,6 +241,9 @@ static BOOL __cursorHidden = NO;
 			[b lineToPoint:NSMakePoint(NSMaxX(_frame), NSMaxY(_frame))];	// bottom right
 			[b lineToPoint:NSMakePoint(0.0, NSMaxY(_frame))];	// bottom left
 			[b closePath];
+#if 1
+				NSLog(@"set window shape %@", b);
+#endif
 			[ctxt _setShape:b];
 				[b release];
 			}

@@ -1036,15 +1036,19 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	pnt.y=point.y;
 	if(state->npoints == 0 || pnt.x != state->lastpoint.x || pnt.y != state->lastpoint.y)
 		{ // first or really different
+#if 0
+			if(state->npoints == 0)
+				NSLog(@"first point");
+#endif
 		state->lastpoint=pnt;
 		state->points[state->npoints++]=pnt;	// store point
+#if 0
+			NSLog(@"addPoint:(%d, %d)", (int) point.x, (int) point.y);
+#endif
 		}
 #if 0
 	else
 		NSLog(@"addPoint duplicate ignored:(%d, %d)", pnt.x, pnt.y);
-#endif
-#if 0
-	NSLog(@"addPoint:(%d, %d)", (int) point.x, (int) point.y);
 #endif
 }
 
@@ -1163,11 +1167,12 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 					float t;
 #if 0
 					NSLog(@"pointsForPath: curved element");
+					NSLog(@"p0=%@ p1=%@ p2=%@ p3=%@", NSStringFromPoint(p0), NSStringFromPoint(p1), NSStringFromPoint(p2), NSStringFromPoint(p3));
 #endif
 					
 					/* here is DeCasteljau Algorithm avoiding sqares and cubes
 					
-					 uses 6 multiplications, 6 additions, 6 subtractions per arbitrary point
+					 uses 12 multiplications, 12 additions, 12 subtractions per arbitrary point
 					 					
 					 // simple linear interpolation between two points
 					 void lerp (point &dest, point &a, point &b, float t)
@@ -1244,7 +1249,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (void) _stroke:(NSBezierPath *) path;
 {
 	if(_picture)
-		{
+		{ // stroke to XRender Picture
 			[(_NSX11BezierPath *) path _stroke:self color:_state->_strokeColor];
 			return;
 		}

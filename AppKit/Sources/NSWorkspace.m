@@ -127,15 +127,18 @@ static BOOL __fileSystemChanged = NO;
 												   mutabilityOption:NSPropertyListMutableContainers 
 															 format:&format
 												   errorDescription:&error];
-#if 0
+#if 1
 		NSLog(@"LS database=%@", defaults);
 #endif
-		if(data && !defaults)
+		if(data && ![defaults isKindOfClass:[NSDictionary class]])
 			NSLog(@"QSLaunchServices did not load %@ due to: %@", APPDATABASE, error);
-		QSApplicationIdentsByName = [[defaults objectForKey:@"QSApplicationIdentsByName"] retain];
-		QSApplicationPathsByIdent = [[defaults objectForKey:@"QSApplicationPathsByIdent"] retain];
-		QSApplicationsByExtension = [[defaults objectForKey:@"QSApplicationsByExtension"] retain];
-		QSFilePackageExtensions = [[defaults objectForKey:@"QSFilePackageExtensions"] retain];
+		else
+				{
+					QSApplicationIdentsByName = [[defaults objectForKey:@"QSApplicationIdentsByName"] retain];
+					QSApplicationPathsByIdent = [[defaults objectForKey:@"QSApplicationPathsByIdent"] retain];
+					QSApplicationsByExtension = [[defaults objectForKey:@"QSApplicationsByExtension"] retain];
+					QSFilePackageExtensions = [[defaults objectForKey:@"QSFilePackageExtensions"] retain];
+				}
 		}
 	return self;
 }

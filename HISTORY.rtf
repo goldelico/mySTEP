@@ -18,6 +18,9 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \b0 \
 \
+* added internal tests for correct byte swapping to binary property list class\
+* fixed a severe bug when writing binary property lists (offset table size must depend on total size of object data and not number of objects)\
+* made screen scaling an additional factor to what the Xserver tells\
 * horizontal and vertical grid flags were swapped in NSTableView\
 * fixed issue with window resizing and NSClipView (because the clipView has customBounds)\
 * removed GSMutableCString from the NSString class cluster since it was fundamentally flawed (could not do a -setString: to a full unicode string)\

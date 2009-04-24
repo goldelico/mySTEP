@@ -1025,10 +1025,10 @@ void __NSPrintAllocationCount(void)
 #endif
 
 /*
- * Workaround for ARM system with softfloat libraries and hardfloat CPU (e.g. OpenMoko)
+ * Workaround for ARM-OABI systems with softfloat libraries and hardfloat CPU (e.g. OpenMoko Neo 1973)
 */
 
-#if __arm__
+#if defined(__arm__) && !defined(__ARM_EABI__)
 
 static void *_libc;
 static void *_libm;

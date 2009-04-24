@@ -65,6 +65,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	// !!! FIXME: this can't work since we can't convert us into a standard NSBezierPath object unless we change the isa pointer!!!
 	// check for translation only transform -> move origin
 	// otherwise transform to real path
+	NIMP;
 }
 
 - (NSPoint) currentPoint  {	return _rect.origin; }
@@ -109,10 +110,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 + (NSBezierPath *) bezierPathWithRect:(NSRect)aRect
 {
-#if 1
-	// FIXME: return instance of _NSRectBezierPath
-	// or we define a private _NSRectBezierPathElement defining two corner points
-	// PDF and X11 can use that directly do render rects
+#if 1	// use 4 lines instead of _NSRectBezierPath
 	
 	NSBezierPath *path = [[self new] autorelease];
 	NSPoint p;
@@ -129,6 +127,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	
 	return path;
 #else
+	// FIXME: return instance of _NSRectBezierPath
+	// or we define a private _NSRectBezierPathElement defining two corner points
+	// PDF and X11 can use that directly do render rects
 	return [[[_NSRectBezierPath alloc] initWithRect:aRect] autorelease];
 #endif
 }
@@ -208,12 +209,14 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	return [b autorelease];
 }
 
-#if 1	// can be replaced by new + (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
+#if 1	// should be replaced by 10.5 method + (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
 
 // this is a special case of _drawRoundedBezel:
 
 + (NSBezierPath *) _bezierPathWithRoundedBezelInRect:(NSRect) borderRect vertical:(BOOL) flag;	// box with halfcircular rounded ends
 {
+//	return [self bezierPathWithRoundedRect:borderRect xRadius:flag? :borderRect.size.width/2.0 yRadius:flag?borderRect.size.height/2.0: ];
+#if 1
 	NSBezierPath *p=[NSBezierPath bezierPath];
 	NSPoint point=borderRect.origin;
 	float radius;
@@ -241,6 +244,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		}
 	[p closePath];
 	return p;
+#endif
 }
 
 #endif
@@ -1051,6 +1055,11 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 {											// startAngle and endAngle are in 
 	float startAngle_rad, endAngle_rad, diff;	// degrees, counterclockwise, from 
 	NSPoint p0, p1, p2, p3;						// the x axis
+#if 0
+	NSLog(@"appendBezierPathWithArcWithCenter:%@ radius:%f startAngle:%f endAngle:%f %@",
+				NSStringFromPoint(center), radius, startAngle, endAngle, clockwise?@"clockwise":@"counter-clockwise");
+	NSLog(@"  %@", self);
+#endif
 	
 	/* We use the Postscript prescription for managing the angles and
 		drawing the arc.  See the documentation for `arc' and `arcn' in
@@ -1105,8 +1114,13 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 			float sin_start = sin (startAngle_rad);
 			float cos_start = cos (startAngle_rad);
 			float sign = (clockwise) ? -1.0 : 1.0;
-			
-			p1 = NSMakePoint (center.x 
+#if 0
+				NSLog(@"start=%f end=%f sign=%f", startAngle_rad, endAngle_rad, sign);
+				NSLog(@"sin=%f cos=%f", sin_start, cos_start);
+				NSLog(@"sin=%lf cos=%lf", sin_start, cos_start);
+				NSLog(@"sin=%lf cos=%lf", sin (startAngle_rad), cos (startAngle_rad));
+#endif
+				p1 = NSMakePoint (center.x 
 							  + radius * (cos_start - KAPPA * sin_start * sign), 
 							  center.y 
 							  + radius * (sin_start + KAPPA * cos_start * sign));
@@ -1147,7 +1161,10 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 				(trad/radius)^2, which is simply tangent^2 */
 			float f = (4.0 / 3.0) / (1.0 + sqrt (1.0 +  (tangent * tangent)));
 			
-			p1 = NSMakePoint (ps.x + (pt.x - ps.x) * f, ps.y + (pt.y - ps.y) * f);
+#if 0
+				NSLog(@"ps=%@ tan=%f trad=%f pt=%@ f=%f", NSStringFromPoint(ps), tangent, trad, NSStringFromPoint(pt), f);
+#endif
+				p1 = NSMakePoint (ps.x + (pt.x - ps.x) * f, ps.y + (pt.y - ps.y) * f);
 			p3 = NSMakePoint(center.x + radius * cos (endAngle_rad),
 							 center.y + radius * sin (endAngle_rad));
 			p2 = NSMakePoint (p3.x + (pt.x - p3.x) * f, p3.y + (pt.y - p3.y) * f);
@@ -1155,6 +1172,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 			break;
 			}
 		}
+#if 0
+	NSLog(@"-> %@", self);
+#endif
 }
 
 - (void) appendBezierPathWithArcWithCenter:(NSPoint)center  
