@@ -248,8 +248,8 @@ static Class __controlCellClass = Nil;
 	[_cell setStringValue:[t string]];
 }
 
-- (void) calcSize	{ return; }	// may override in subclass
-- (void) sizeToFit	{ return; }
+- (void) calcSize	{ [_cell calcDrawInfo:_bounds]; }
+- (void) sizeToFit	{ [self setFrameSize:[_cell cellSize]]; }
 
 - (void) drawRect:(NSRect)rect
 {

@@ -3223,7 +3223,6 @@ static NSDictionary *_x11settings;
 	Atom atoms[sizeof(atomNames)/sizeof(atomNames[0])];
 	NSFileHandle *fh;
 	NSUserDefaults *def=[[[NSUserDefaults alloc] initWithUser:@"root"] autorelease];	// load /Library/Preferences
-	int error, event;
 #if 1
 	NSLog(@"NSScreen backend +initialize");
 	//	system("export;/usr/X11R6/bin/xeyes&");
@@ -3271,7 +3270,10 @@ static NSDictionary *_x11settings;
     _windowDecorAtom = atoms[3];
 #if USE_XRENDER
 //	if([def boolForKey:@"NSXRender"])
+	{
+		int error, event;
 		_hasRender=XRenderQueryExtension(_display, &event, &error);
+	}
 #if 1
 	if(_hasRender)
 		_doubleBufferering=NO;	// needs different algorithms

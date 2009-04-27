@@ -97,7 +97,6 @@ enum _NSCommonlyUsedUnicodeCharacters
 //	NSMutableDictionary *typingAttributes; 
 	int spellCheckerDocumentTag;
 	unsigned int modifySelection[2];
-//	int reason;	// reason for TextDidEndEditing
 	
 	NSSize _minSize;
 	NSSize _maxSize;

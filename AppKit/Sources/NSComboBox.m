@@ -340,7 +340,7 @@
 	NSDivideRect(cellFrame, &b, &t, cellFrame.size.height-4.0, NSMaxXEdge);
 	if((NSMouseInRect(startPoint, t, YES)))
 		{ // forward click event to the field editor
-		return [super startTrackingAt:startPoint inView:controlView];
+			return [super trackMouse:event inRect:cellFrame ofView:controlView untilMouseUp:flag];
 		}
 #if 1
 	NSLog(@"pop up");
@@ -377,7 +377,7 @@
 	return cellFrame;
 }
 
-// FIXME: improve sizing calculations - we could copy controlSize to the button cell and ask for its height and ake a square
+// FIXME: improve sizing calculations - we could copy controlSize to the button cell and ask for its height and make it a square
 
 - (void) drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView
 {

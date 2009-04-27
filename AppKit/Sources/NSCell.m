@@ -32,6 +32,7 @@
 #import <AppKit/NSEvent.h>
 #import <AppKit/NSColor.h>
 #import <AppKit/NSMenu.h>
+#import <AppKit/NSTextView.h>
 
 #import "NSAppKitPrivate.h"
 
@@ -146,7 +147,7 @@ static NSColor *__borderedBackgroundColor = nil;
 	return a;
 }
 
-- (void) calcDrawInfo:(NSRect)aRect			{ SUBCLASS; }		// implemented by subclass
+- (void) calcDrawInfo:(NSRect)aRect			{ return; }		// can be overridden by subclass
 
 - (NSSize) cellSize
 {
@@ -297,8 +298,6 @@ static NSColor *__borderedBackgroundColor = nil;
 #if 0
 	NSLog(@"%@ setObjectValue:%@ (_contents=%@)", self, anObject, _contents);
 #endif
-	if(_c.editing)
-		[_controlView abortEditing];
 	if(anObject == _contents)
 		return;	// needn't do anything
 	[_contents release];	// we can release
@@ -314,6 +313,13 @@ static NSColor *__borderedBackgroundColor = nil;
 #if 0
 	NSLog(@"%@ setObjectValue done:", self);
 #endif
+	if(_c.editing)
+			{ // update field editor to new value
+				NSTextView *textObject=(NSTextView *) [[[self controlView] window] fieldEditor:NO forObject:[self controlView]];
+				[[textObject textStorage] setAttributedString:[self attributedStringValue]];	// copy attributed string from cell to be edited
+				//		[textObject setSelectedRange:(NSRange){selStart, selLength}];
+				return;
+			}
 }
 
 - (void) setDoubleValue:(double)aDouble
@@ -378,8 +384,10 @@ static NSColor *__borderedBackgroundColor = nil;
 }													// if needed and set format
 
 - (NSTextAlignment) alignment					{ return [[_attribs objectForKey:NSParagraphStyleAttributeName] alignment]; }
+- (NSWritingDirection) baseWritingDirection				{ return [[_attribs objectForKey:NSParagraphStyleAttributeName] baseWritingDirection]; }
 - (NSLineBreakMode) lineBreakMode					{ return [[_attribs objectForKey:NSParagraphStyleAttributeName] lineBreakMode]; }
 - (void) setAlignment:(NSTextAlignment)mode		{ [[_attribs objectForKey:NSParagraphStyleAttributeName] setAlignment:mode]; }
+- (void) setBaseWritingDirection:(NSWritingDirection)dir		{ [[_attribs objectForKey:NSParagraphStyleAttributeName] setBaseWritingDirection:dir]; }
 - (void) setLineBreakMode:(NSLineBreakMode) mode; { [[_attribs objectForKey:NSParagraphStyleAttributeName] setLineBreakMode:mode]; }
 - (void) setScrollable:(BOOL)flag				{ _c.scrollable = flag; }
 - (void) setWraps:(BOOL)flag					{ NIMP }
@@ -388,7 +396,7 @@ static NSColor *__borderedBackgroundColor = nil;
 - (NSColor *) _textColor;						{ return [_attribs objectForKey:NSForegroundColorAttributeName]; }
 - (void) _setTextColor:(NSColor *) textColor; { [_attribs setObject:textColor forKey:NSForegroundColorAttributeName]; }
 
-- (NSFont*) font								{ return [_attribs objectForKey:NSFontAttributeName]; }
+- (NSFont *) font								{ return [_attribs objectForKey:NSFontAttributeName]; }
 
 - (void) setFont:(NSFont*)fontObject
 {
@@ -409,38 +417,24 @@ static NSColor *__borderedBackgroundColor = nil;
 
 - (void) setSelectable:(BOOL)flag
 {
-	if (!(_c.selectable = flag))						// If cell is not 
-		_c.editable = NO;								// selectable then it's 
-}														// not editable
+	if (!(_c.selectable = flag))
+		_c.editable = NO;								// If cell is not selectable then it's not editable
+}
 
-- (NSText*) setUpFieldEditorAttributes:(NSText*)textObject
+- (NSText *) setUpFieldEditorAttributes:(NSText *)textObject
 { // make the field editor imitate the cell as good as possible - note: the field editor is shared for all cells in a window
-	if(NO /* cell has no rich text */)
-			{
-				NSString *str;
-				if(_c.enabled && [_attribs objectForKey:NSForegroundColorAttributeName])
-					[textObject setTextColor:[_attribs objectForKey:NSForegroundColorAttributeName]];
-				else
-					[textObject setTextColor:[NSColor disabledControlTextColor]];
-				[textObject setEditable:_c.editable];	// editable always sets selectable
-				[textObject setFont:[self font]];
-				[textObject setAlignment:[self alignment]];
-				// FIXME: we should check if the cell has an attributed string value and set rich text...
-				[textObject setRichText:NO];
-#if 0
-				NSLog(@"textObject setString:%@", [self stringValue]);
-#endif
-				str=[self stringValue];
-				if(str)
-					[textObject setString:str];
-			}
+	if([self isEditable])
+		[textObject setEditable:YES];	// editable always sets selectable
 	else
-			{
-				// set attributed string
-				[textObject setRichText:YES];
-			}
-	if(!_c.editable)
-		[textObject setSelectable:_c.selectable];	// pass on selectable flag
+		[textObject setSelectable:[self isSelectable]];	// pass along selectable flag
+	[textObject setBaseWritingDirection:[self baseWritingDirection]];
+	[textObject setAlignment:[self alignment]];
+	[textObject setHorizontallyResizable:YES];
+	[textObject setVerticallyResizable:NO];
+	[textObject setImportsGraphics:NO];
+	[textObject setRichText:YES];	// ? only if the object has an attributedStringValue!
+	[textObject setUsesFontPanel:[textObject isRichText]];
+	// set other attributes of NSTextView
 	[textObject setFocusRingType:NSFocusRingTypeExterior];
 	
 	if(_c.drawsBackground)
@@ -482,7 +476,7 @@ static NSColor *__borderedBackgroundColor = nil;
 	[textObject mouseDown:event];	// NOTE: this will track until mouse goes up!
 }
 
-- (void) endEditing:(NSText*)textObject
+- (void) endEditing:(NSText *) textObject
 { // editing is complete, remove the text obj	acting as field	editor from window's view heirarchy
 	NSView *v;
 	NSRect r;
@@ -493,6 +487,7 @@ static NSColor *__borderedBackgroundColor = nil;
 	// FIXME: shouldn't we copy the text value back to the cell here?
 	
 	[textObject setDelegate:nil];	// no longer create notifications
+	_c.editing = NO;	// we may still be first responder - so suppress sending field editor notifications during resignFirstResponder
 	if(_c.scrollable)
 		{ // we did have an encapsulating clip view
 		NSClipView *c = (NSClipView *) [textObject superview];
@@ -507,8 +502,7 @@ static NSColor *__borderedBackgroundColor = nil;
 		r = [textObject frame];
 		[textObject removeFromSuperview];	
 		}				
-	_c.editing = NO;
-	[v displayRect:r];
+	[v setNeedsDisplayInRect:r];
 }
 
 - (void) selectWithFrame:(NSRect)aRect					// similar to editWith-
@@ -538,6 +532,7 @@ static NSColor *__borderedBackgroundColor = nil;
 			controlSuperView = nil;	// text object is not embedded in a clip view
 		[textObject setDelegate:anObject];
 		[self setUpFieldEditorAttributes:textObject];
+		[[(NSTextView *) textObject textStorage] setAttributedString:[self attributedStringValue]];	// copy attributed string from cell to be edited
 		[textObject setSelectedRange:(NSRange){selStart, selLength}];
 	
 		if(_c.scrollable)

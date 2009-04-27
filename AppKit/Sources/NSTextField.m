@@ -201,32 +201,6 @@
 	[self drawInteriorWithFrame:cellFrame inView:controlView];
 }
 
-- (void) setObjectValue:(id <NSCopying>)anObject
-{ // don't abort editing but update field editor
-#if 0
-	NSLog(@"%@ setObjectValue: %@", self, anObject);
-#endif
-	if(_c.editing)
-		{ // update field editor while we are editing - if it exists
-		NSString *string;				// string
-		NSDictionary *attribs;
-		NSAttributedString *astring;	// or attributed string to draw
-		_c.editing=NO;	// temporarily clear
-		[super setObjectValue:anObject];
-		_c.editing=YES;
-		[self _getFormattedString:&string withAttribs:&attribs orAttributedString:&astring ignorePlaceholder:YES];
-		if(astring)
-			[[[[_controlView window] fieldEditor:YES forObject:self] _textStorage] setAttributedString:astring];
-		else if(string)
-			{
-			// could also set up default attributes
-			[[[_controlView window] fieldEditor:YES forObject:self] setString:string];
-			}
-		}
-	else
-		[super setObjectValue:anObject];
-}
-
 - (BOOL) trackMouse:(NSEvent *)event inRect:(NSRect)cellFrame ofView:(NSView *)controlView untilMouseUp:(BOOL)untilMouseUp
 {
 #if 1
@@ -237,7 +211,7 @@
 		[self editWithFrame:[self drawingRectForBounds:cellFrame] 			
 					  inView:controlView				
 					  editor:[[controlView window] fieldEditor:YES forObject:self]	
-					delegate:controlView	// receive notifications
+					delegate:controlView	// make our controlView receive text notifications
 					   event:event];
 		return YES;	// done
 		}
@@ -359,36 +333,47 @@ static Class __textFieldCellClass = Nil;
 
 - (void) textDidBeginEditing:(NSNotification *)aNotification
 {
+#if 1
 	NSLog(@" NSTextField %@ %@", NSStringFromSelector(_cmd), aNotification);
-
+#endif
 	[[NSNotificationCenter defaultCenter] postNotificationName:CONTROL(TextDidBeginEditing) object: self];
+#if 1
 	NSLog(@" NSTextField %@ posted", CONTROL(TextDidBeginEditing));			
+#endif
 }
 
 - (void) textDidChange:(NSNotification *)aNotification
 {
+#if 1
 	NSLog(@" NSTextField %@ %@", NSStringFromSelector(_cmd), aNotification);
-
+#endif
 	[[NSNotificationCenter defaultCenter] postNotificationName:CONTROL(TextDidChange) object: self];
+#if 1
 	NSLog(@" NSTextField %@ posted", CONTROL(TextDidChange));
+#endif
 	if(_cell && [_cell respondsToSelector:@selector(_textDidChange:)])
 		[_cell _textDidChange:[aNotification object]];	// inform cell (needed for NSSearchFieldCell)
 }
 
 - (void) textDidEndEditing:(NSNotification *)aNotification
 {
+	// FIXME: do the left/right arrow keys always send this notification with NSLeftTextMovement etc.
+	// FIXME: can it be ignored? i.e. by NOT calling endEditing? And does the cursor move in this case?
+	
 	NSNumber *code;
-
+#if 1
 	NSLog(@" NSTextField %@ %@", NSStringFromSelector(_cmd), aNotification);
-
+#endif
 //	if(![_cell isEntryAcceptable: [aTextObject string]])
 //		return;	// ignore
-	// post a notification first
-	[_cell setStringValue:[[aNotification object] string]];	// copy value to cell
+#if 1
 	NSLog(@" NSTextField will post %@", CONTROL(TextDidEndEditing));
+#endif
 	[[NSNotificationCenter defaultCenter] postNotificationName:CONTROL(TextDidEndEditing) object: self];
+#if 1
 	NSLog(@" NSTextField %@ posted", CONTROL(TextDidEndEditing));
-	// end editing of cell
+#endif
+	// end editing of cell (should validate and new set cell value)
 	[_cell endEditing:[aNotification object]];
 	
 	if((code = [[aNotification userInfo] objectForKey:NSTextMovement]))
@@ -408,6 +393,7 @@ static Class __textFieldCellClass = Nil;
 				break;
 			case NSBacktabTextMovement:
 				[_window selectKeyViewPrecedingView:self];
+					break;
 			case NSIllegalTextMovement:
 				break;
 			}
@@ -416,22 +402,29 @@ static Class __textFieldCellClass = Nil;
 
 - (BOOL) textShouldBeginEditing:(NSText *)textObject
 {
+#if 1
 	NSLog(@" NSTextField %@ %@", NSStringFromSelector(_cmd), textObject);
+#endif
 	if(![self isEditable])
 		return NO;
+#if 1
 	NSLog(@" NSTextField delegate=%@", _delegate);
+#endif
 	if([_delegate respondsToSelector:@selector(control:textShouldBeginEditing:)])
 		{
+#if 1
 		NSLog(@" NSTextField delegate responds to control:textShouldBeginEditing:");
+#endif
 		return [_delegate control:self textShouldBeginEditing:textObject];
 		}
 	return YES;
 }
 
 - (BOOL) textShouldEndEditing:(NSText*)aTextObject
-{
+{ // handle validation
+#if 1
 	NSLog(@" NSTextField %@ %@", NSStringFromSelector(_cmd), aTextObject);
-
+#endif
 	if(![_window isKeyWindow])
 		return NO;
 

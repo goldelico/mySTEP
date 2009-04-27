@@ -1418,12 +1418,15 @@ static NSButtonCell *sharedCell;
 	NSLog(@"NSWindow endEditingFor: %@", anObject);
 #endif
 	if(![_fieldEditor resignFirstResponder] && _fieldEditor == _firstResponder)
-		{ // if not force resignation
+		{ // if not then force resignation
 		NSLog(@" NSWindow endEditingFor: current field editor did not resign voluntarily.");
 		[[NSNotificationCenter defaultCenter] postNotificationName:NSTextDidEndEditingNotification
 							object:_fieldEditor];
 		[(_firstResponder = self) becomeFirstResponder];
 		}
+	[anObject removeFromSuperview];
+	[anObject setDelegate:nil];
+	[anObject setString:@""];	// emtpy any text
 }
 
 - (NSText *) fieldEditor:(BOOL)createFlag forObject:(id)anObject
@@ -1679,6 +1682,7 @@ static NSButtonCell *sharedCell;
 
 - (void) center
 { // center the window within it's screen
+	// FIXME: check if we have a menu bar
 	NSSize screenSize = [_screen visibleFrame].size;
 	NSPoint origin = _frame.origin;
 	origin.x = (screenSize.width - _frame.size.width) / 2;

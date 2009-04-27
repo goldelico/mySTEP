@@ -375,7 +375,7 @@
 	if(_concreteString == str)
 		return;	// no change
 	[_concreteString release];
-	_concreteString=[str retain];
+	_concreteString=[str mutableCopy];	// may be immutable...
 #else
 	[super setAttributedString:str];
 #endif

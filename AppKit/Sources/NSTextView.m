@@ -642,7 +642,6 @@ static NSCursor *__textCursor = nil;
 	
 	if(![super becomeFirstResponder])
 		return NO;
-	//	reason=NSCancelTextMovement;	// set default reason
 	return YES;
 }
 
@@ -918,24 +917,34 @@ static NSCursor *__textCursor = nil;
 
 - (void) moveUp:(id) sender
 {
-	float cx=_stableCursorColumn;	// save for cursor stability
-	NSPoint p=NSMakePoint(cx, NSMinY([self _caretRect])-1.0);	// get new cursor position
-	// FIXME: this method expects SCREEN coordinates!
-	unsigned int pos=[self characterIndexForPoint:p];		// will go to start of document of p.y is negative
-	if(pos != NSNotFound)
-		[self setSelectedRange:NSMakeRange(pos, 0)];
-	_stableCursorColumn=cx;	// restore for a sequence of moveUp/moveDown
+	if(_tx.fieldEditor)
+		[super moveUp:sender];	// specific handling defined there
+	else
+			{
+				float cx=_stableCursorColumn;	// save for cursor stability
+				NSPoint p=NSMakePoint(cx, NSMinY([self _caretRect])-1.0);	// get new cursor position
+				// FIXME: this method expects SCREEN coordinates!
+				unsigned int pos=[self characterIndexForPoint:p];		// will go to start of document of p.y is negative
+				if(pos != NSNotFound)
+					[self setSelectedRange:NSMakeRange(pos, 0)];
+				_stableCursorColumn=cx;	// restore for a sequence of moveUp/moveDown
+			}
 }
 
 - (void) moveDown:(id) sender
 {
-	float cx=_stableCursorColumn;	// save for cursor stability
+	if(_tx.fieldEditor)
+		[super moveUp:sender];	// specific handling defined there
+	else
+			{
+				float cx=_stableCursorColumn;	// save for cursor stability
 	NSPoint p=NSMakePoint(cx, NSMaxY([self _caretRect])+1.0);	// get new cursor position
 	// FIXME: this method expects SCREEN coordinates!
 	unsigned int pos=[self characterIndexForPoint:p];		// will go to end of document if p.y is beyond end of document
 	if(pos != NSNotFound)
 		[self setSelectedRange:NSMakeRange(pos, 0)];
 	_stableCursorColumn=cx;	// restore for a sequence of moveUp/moveDown
+			}
 }
 
 #pragma mark NSUserInterfaceValidation

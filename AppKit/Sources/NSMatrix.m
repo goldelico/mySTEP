@@ -970,7 +970,6 @@ This method is used for selecting cells in list mode with selection by
 
 	NSLog(@" NSMatrix textDidEndEditing ");
 	
-	// FIXME: add NSFieldEditor to the userInfo
 	[[NSNotificationCenter defaultCenter] postNotificationName:CONTROL(TextDidEndEditing) object: self];
 	
 	[selectedCell endEditing:[aNotification object]];			
@@ -985,6 +984,9 @@ This method is used for selecting cells in list mode with selection by
 					break;
 			case NSTabTextMovement:					// FIX ME select next cell
 			case NSBacktabTextMovement:
+				case NSUpTextMovement:
+				case NSDownTextMovement:
+					break;
 				
 			case NSIllegalTextMovement:
 			default:

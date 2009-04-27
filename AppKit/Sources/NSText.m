@@ -330,10 +330,10 @@ NSString *NSTextMovement=@"NSTextMovement";
 	[self setNeedsDisplay:YES];
 }
 
-- (NSData*) RTFDFromRange:(NSRange)range; { return [textStorage RTFDFromRange:range documentAttributes:nil]; }
-- (NSData*) RTFFromRange:(NSRange)range; { return [textStorage RTFFromRange:range documentAttributes:nil]; }
+- (NSData*) RTFDFromRange:(NSRange) range; { return [textStorage RTFDFromRange:range documentAttributes:nil]; }
+- (NSData*) RTFFromRange:(NSRange) range; { return [textStorage RTFFromRange:range documentAttributes:nil]; }
 
-- (void) scrollRangeToVisible:(NSRange)range;
+- (void) scrollRangeToVisible:(NSRange) range;
 {
 	NIMP;
 }
@@ -343,6 +343,8 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) setAlignment:(NSTextAlignment)mode
 {
+	if([textStorage length] == 0)
+		return;
 	// range should be full document if we are not richt text
 	NSRange rng=_selectedRange;
 	NSMutableParagraphStyle *p=[textStorage attribute:NSParagraphStyleAttributeName atIndex:rng.location effectiveRange:NULL];
@@ -356,6 +358,8 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) setBaseWritingDirection:(NSWritingDirection) direct;
 {
+	if([textStorage length] == 0)
+		return;
 	// range should be full document if we are not richt text
 	NSRange rng=_selectedRange;
 	NSMutableParagraphStyle *p=[textStorage attribute:NSParagraphStyleAttributeName atIndex:rng.location effectiveRange:NULL];
@@ -366,8 +370,38 @@ NSString *NSTextMovement=@"NSTextMovement";
 }
 
 - (void) setDelegate:(id)anObject;
-{
-	_delegate=anObject;
+{ // make the delegate observe our notifications
+	NSNotificationCenter *n;
+	
+	if(_delegate == anObject)
+		return;	// unchanged
+	
+#define IGNORE_(notif_name) [n removeObserver:_delegate \
+name:NSText##notif_name##Notification \
+object:self]
+	
+	n = [NSNotificationCenter defaultCenter];
+	if (_delegate)
+			{
+				IGNORE_(DidEndEditing);
+				IGNORE_(DidBeginEditing);
+				IGNORE_(DidChange);
+			}
+	
+	ASSIGN(_delegate, anObject);
+	if(anObject)
+			{
+#define OBSERVE_(notif_name) \
+if ([_delegate respondsToSelector:@selector(text##notif_name:)]) \
+[n addObserver:_delegate \
+selector:@selector(text##notif_name:) \
+name:NSText##notif_name##Notification \
+object:self]
+				
+				OBSERVE_(DidEndEditing);
+				OBSERVE_(DidBeginEditing);
+				OBSERVE_(DidChange);
+			}
 }
 
 - (void) setDrawsBackground:(BOOL)flag		{ _tx.drawsBackground = flag; }
@@ -573,13 +607,13 @@ NSString *NSTextMovement=@"NSTextMovement";
 	NSLog(@"%@ initWithFrame:%@", NSStringFromClass([self class]), NSStringFromRect(f));
 #endif
 	if((self=[super initWithFrame:f]))
-		{
+		{ // this initialization will be used for a Field Editor
 		_spellCheckerDocumentTag=[NSSpellChecker uniqueSpellDocumentTag];
 		textStorage=[NSTextStorage new];	// provide empty default text storage
 		_tx.ownsTextStorage=YES;			// that we own
 		_tx.alignment = NSLeftTextAlignment;
 		_tx.editable = YES;
-		_tx.isRichText = NO;				// default
+//		_tx.isRichText = NO;				// default
 		_tx.selectable = YES;
 		_tx.vertResizable = YES;
 		_tx.drawsBackground = YES;
@@ -599,6 +633,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 		[textStorage release];
 	[_backgroundColor release];
 	[_font release];
+	[_delegate release];	// has been ASSIGNed
 //	[_string release];
 	[super dealloc];
 }
@@ -736,11 +771,19 @@ NSString *NSTextMovement=@"NSTextMovement";
 	[self setSelectedRange:rng];
 }
 
+- (void) _handleFieldEditorMovement:(int) move
+{ // post field editor notification
+	[[NSNotificationCenter defaultCenter] postNotification:
+		[NSNotification notificationWithName:NOTE(DidEndEditing) 
+																	object:self
+																userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:move] forKey:NSTextMovement]]];
+}
+
 - (void) cancelOperation:(id) sender
-{
+{ // bound to ESC key?
 	if(_tx.fieldEditor)
-		; // [self _handleFieldEditorMovement:NSCancelTextMovement];
-	;	// ignore
+		[self _handleFieldEditorMovement:NSCancelTextMovement];
+	// insert ESC?
 }
 
 - (void) insertNewlineIgnoringFieldEditor:(id) sender
@@ -751,42 +794,57 @@ NSString *NSTextMovement=@"NSTextMovement";
 - (void) insertNewline:(id) sender
 {
 	if(_tx.fieldEditor)
-		; // [self _handleFieldEditorMovement:NSReturnTextMovement];
-	[self insertNewlineIgnoringFieldEditor:sender];
+		[self _handleFieldEditorMovement:NSReturnTextMovement];
+	else
+		[self insertNewlineIgnoringFieldEditor:sender];
 }
 
 - (void) insertTabIgnoringFieldEditor:(id) sender
 {
-	[self insertText:@"\t"];	// new paragraph
+	[self insertText:@"\t"];	// new tab
 }
 
 - (void) insertTab:(id) sender
 {
 	if(_tx.fieldEditor)
-		; // [self _handleFieldEditorMovement:NSTabTextMovement];
-	[self insertTabIgnoringFieldEditor:sender];
+		[self _handleFieldEditorMovement:NSTabTextMovement];
+	else
+		[self insertTabIgnoringFieldEditor:sender];
 }
 
 - (void) insertBackTab:(id) sender
 {
 	if(_tx.fieldEditor)
-		; // [self _handleFieldEditorMovement:NSBacktabTextMovement];
+		[self _handleFieldEditorMovement:NSBacktabTextMovement];
+	else
+		[self insertText:@">back tab<"];	// new backtab
 }
 
 - (void) moveUp:(id) sender
 {
+	if(_tx.fieldEditor)
+		[self _handleFieldEditorMovement:NSUpTextMovement];
+	else
 	// should go up one line in same column
-	NIMP;
+		NIMP;
 }
 
 - (void) moveDown:(id) sender
 {
+	if(_tx.fieldEditor)
+		[self _handleFieldEditorMovement:NSDownTextMovement];
+	else
 	// should go down one line in same column
-	NIMP;
+		NIMP;
 }
 
 - (void) moveRight:(id) sender
 {
+	if(NO && _tx.fieldEditor)
+			{
+				[self _handleFieldEditorMovement:NSRightTextMovement];
+				return;
+			}
 	if(NSMaxRange(_selectedRange) < [textStorage length])
 		[self setSelectedRange:NSMakeRange(NSMaxRange(_selectedRange)+1, 0)];
 }
@@ -817,6 +875,11 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) moveLeft:(id) sender
 {
+	if(NO && _tx.fieldEditor)
+			{
+				[self _handleFieldEditorMovement:NSLeftTextMovement];
+				return;
+			}
 	if(_selectedRange.location > 0)
 		[self setSelectedRange:NSMakeRange(_selectedRange.location-1, 0)];
 }
@@ -885,7 +948,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 	if(_delegate && [_delegate respondsToSelector:@selector(textShouldBeginEditing:)]
 		&& ![_delegate textShouldBeginEditing:self])
 		return NO;	// delegate did a veto
-//	reason=NSCancelTextMovement;	// set default reason
+	// FIXME: doc says that it should only be sent if there is the first change!
 	[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:NOTE(DidBeginEditing) object:self]];
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"NSOrderFrontCharacterPalette"])
 		[NSApp orderFrontCharacterPalette:self];	// automatically show keyboard if automatism is enabld
@@ -894,8 +957,8 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (BOOL) resignFirstResponder
 {
-	//	reason=NSCancelTextMovement;	// set reason
-	[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:NOTE(DidEndEditing) object:self]];
+	if(_tx.fieldEditor)
+		[self _handleFieldEditorMovement:NSCancelTextMovement];
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"NSOrderFrontCharacterPalette"])
 		[NSApp _orderOutCharacterPalette:self];	// automatically hide keyboard if automatism is enabled
 	return [super resignFirstResponder];

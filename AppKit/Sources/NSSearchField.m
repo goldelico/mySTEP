@@ -34,12 +34,14 @@
 		[self resetCancelButtonCell];
 		[self resetSearchButtonCell];
 		maxRecents=254;
+			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_textDidChange:) name:NSTextDidChangeNotification object:nil];	// field editor
 		}
 	return self;
 }
 
 - (void) dealloc
 {
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	[_cancelButtonCell release];
 	[_searchButtonCell release];
 	[recentSearches release];
@@ -196,12 +198,17 @@
 // make search button send action to target (or responder chain)
 // make search button menu working
 
-- (void) textDidChange:(NSText *) text
+- (void) _textDidChange:(NSNotification *)aNotification
 { // make textChanged send action (unless disabled or too fast)
+	NSTextView *text=[aNotification object];
+#if 1
 	NSLog(@"NSSearchField textDidChange:%@", text);
+#endif
 	if(sendsWholeSearchString)
 		return;	// ignore
+#if 1
 	NSLog(@"current text: %@", [text string]);
+#endif
 	[self setStringValue:[text string]]; // copy the current NSTextEdit string so that it can be read from the NSSearchFieldCell!
 	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(performClick:) object:_controlView];	// cancel previous performer so that we collect several key events
 	[self performSelector:@selector(performClick:) withObject:_controlView afterDelay:0.5];	// start a new timeout
@@ -211,12 +218,6 @@
 { // user did choose the cancel button
 	// how does this influence the fieldEditor?
 	[self setStringValue:@""];
-}
-
-- (void) textDidEnd:(NSText *) text
-{
-	[self setStringValue:[text string]]; // copy the current NSTextEdit string so that it can be read from the NSSearchFieldCell!
-	[self performClick:_controlView];
 }
 
 - (void) _search:(id) sender;
@@ -248,21 +249,22 @@
 	unsigned int len;
 	self=[super initWithCoder:aDecoder];
 	if(![aDecoder allowsKeyedCoding])
-		{ [self release]; return nil; }
+			{ [self release]; return nil; }
 	if([aDecoder containsValueForKey:@"NSSearchFieldFlags"])
-		{
-		sfFlags=[aDecoder decodeBytesForKey:@"NSSearchFieldFlags" returnedLength:&len];
+			{
+				sfFlags=[aDecoder decodeBytesForKey:@"NSSearchFieldFlags" returnedLength:&len];
 #define FLAG (sfFlags[0] != 0)
-		sendsWholeSearchString=FLAG;	// ????
-		}
-/*	_cancelButtonCell = */ [[aDecoder decodeObjectForKey:@"NSCancelButtonCell"] retain];
-/*	_searchButtonCell = */ [[aDecoder decodeObjectForKey:@"NSSearchButtonCell"] retain];
+				sendsWholeSearchString=FLAG;	// ????
+			}
+	/*	_cancelButtonCell = */ [[aDecoder decodeObjectForKey:@"NSCancelButtonCell"] retain];
+	/*	_searchButtonCell = */ [[aDecoder decodeObjectForKey:@"NSSearchButtonCell"] retain];
 	maxRecents = [aDecoder decodeIntForKey:@"NSMaximumRecents"];
 	sendsWholeSearchString = [aDecoder decodeBoolForKey:@"NSSendsWholeSearchString"];
 	// NSSearchFieldFlags - NSData (?)
 #if 0
 	NSLog(@"%@ initWithCoder:%@", self, aDecoder);
 #endif
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_textDidChange:) name:NSTextDidChangeNotification object:nil];	// field editor
 	return self;
 }
 
