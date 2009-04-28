@@ -90,14 +90,14 @@ static NSCursor *__textCursor = nil;
 
 - (id) initWithFrame:(NSRect)frameRect
 {
-	if((self=[super initWithFrame:frameRect]))	// this will create an owned textStorage
+	if((self=[super initWithFrame:frameRect]))	// this will already create an owned textStorage
 		{ // create simple text network
 		layoutManager=[NSLayoutManager new];
 		[layoutManager setTextStorage:textStorage];	// attach our text storage
 		[textStorage addLayoutManager:layoutManager];	// this retains the layout manager
 		textContainer=[[NSTextContainer alloc] initWithContainerSize:frameRect.size];
 		[textContainer replaceLayoutManager:layoutManager];
-		[textContainer setTextView:self];
+		[textContainer setTextView:self];	// this tries to track container size...
 		// FIXME: who reatains the textContainer?
 // ???		[layoutManager release];
 // ???		[textContainer release];
@@ -120,7 +120,7 @@ static NSCursor *__textCursor = nil;
 
 // The set method should not be called directly, but you might want to override it.
 // Gets or sets the text container for this view.  Setting the text container marks the view as needing display.
-// The text container calls the set method from its setTextView: method.
+// The text container calls this set method from its setTextView: method.
 
 - (void) setTextContainer:(NSTextContainer *)container
 {	
@@ -169,23 +169,48 @@ static NSCursor *__textCursor = nil;
 - (NSLayoutManager*) layoutManager				{ return layoutManager; }
 - (NSTextStorage*) textStorage					{ return textStorage; }
 
+// New miscellaneous API beyond NSText
+
 // Sets the frame size of the view to desiredSize 
 // constrained within min and max size.
 // this one is probably called when the layout manager needs more or less space in its text container
+// or by sizeToFit
 
-- (void) setConstrainedFrameSize:(NSSize)desiredSize		// Sizing methods
-{
+- (void) setConstrainedFrameSize:(NSSize) desiredSize
+{ // size to desired size if within limits and resizable
 	NSSize newSize=_frame.size;
-	newSize.width=MIN(MAX(desiredSize.width, _minSize.width), _maxSize.width);
-	newSize.height=MIN(MAX(desiredSize.height, _minSize.height), _maxSize.height);
-	if(!NSEqualSizes(_frame.size, newSize))
-		{ // adjust to be between min and max size - may adjust the container depending on its tracking flags
-		[self setFrameSize:newSize];
-		[self setNeedsDisplay:YES];
-		}
+	if(!_tx.horzResizable)
+		newSize.width=_frame.size.width;	// don't fit to text, i.e. keep frame as it is
+	else
+		newSize.width=MAX(MIN(desiredSize.width, _maxSize.width), _minSize.width);
+	if(!_tx.vertResizable)
+		newSize.height=_frame.size.height;	// don't fit to text, i.e. keep frame as it is
+	else
+		newSize.height=MAX(MIN(desiredSize.height, _maxSize.height), _minSize.height);
+	[self setFrameSize:newSize];	// this should adjust the container depending on its tracking flags
+	[self setBoundsSize:newSize];	// will not be updated automatically if we are enclosed in a NSClipView (custom bounds)
+	[self setNeedsDisplay:YES];
 }
 
-// New miscellaneous API above and beyond NSText
+- (void) sizeToFit;
+{
+	NSSize size=NSZeroSize;
+	if([textStorage length] > 0)
+			{ // get bounding box assuming given or unlimited size
+				[textContainer setContainerSize:NSMakeSize((_tx.horzResizable?16000.0:_frame.size.width), (_tx.vertResizable?16000.0:_frame.size.height))];
+				size=[layoutManager boundingRectForGlyphRange:[layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [textStorage length])
+																																						actualCharacterRange:NULL]
+																			inTextContainer:textContainer].size;
+			}
+	[self setConstrainedFrameSize:size];	// try to adjust
+#if 0
+	if(!NSEqualSizes([textContainer containerSize], size))
+			{
+				NSLog(@"fit %@ is %@", NSStringFromSize(size), textContainer);
+				NSLog(@"different sizes");
+			}
+#endif
+}
 
 - (void) setAlignment:(NSTextAlignment)alignment range:(NSRange)range
 {
@@ -194,34 +219,26 @@ static NSCursor *__textCursor = nil;
 										 range:range];
 }
 
-- (void) pasteAsPlainText:sender
+- (void) pasteAsPlainText:(id) sender
 {
 	NIMP
 }
 
-- (void) pasteAsRichText:sender
+- (void) pasteAsRichText:(id) sender
 {
 	NIMP
 }
 
 // New Font menu commands 
 
-- (void) turnOffKerning:(id)sender
+- (void) turnOffKerning:(id) sender
 {
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.0]
 																		   forKey:NSKernAttributeName]
 										 range:[self rangeForUserCharacterAttributeChange]];
 }
 
-- (void) tightenKerning:(id)sender
-{
-	// FIXME: accumulate?
-	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.0]
-																		   forKey:NSKernAttributeName]
-										 range:[self rangeForUserCharacterAttributeChange]];
-}
-
-- (void) loosenKerning:(id)sender
+- (void) tightenKerning:(id) sender
 {
 	// FIXME: accumulate?
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.0]
@@ -229,35 +246,43 @@ static NSCursor *__textCursor = nil;
 										 range:[self rangeForUserCharacterAttributeChange]];
 }
 
-- (void) useStandardKerning:(id)sender
+- (void) loosenKerning:(id) sender
+{
+	// FIXME: accumulate?
+	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.0]
+																		   forKey:NSKernAttributeName]
+										 range:[self rangeForUserCharacterAttributeChange]];
+}
+
+- (void) useStandardKerning:(id) sender
 {
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.0]
 																		   forKey:NSKernAttributeName]
 										 range:[self rangeForUserCharacterAttributeChange]];
 }
 
-- (void) turnOffLigatures:(id)sender
+- (void) turnOffLigatures:(id) sender
 {
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:0]
 																		   forKey:NSLigatureAttributeName]
 										 range:[self rangeForUserCharacterAttributeChange]];
 }
 
-- (void) useStandardLigatures:(id)sender
+- (void) useStandardLigatures:(id) sender
 {
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:1]
 																		   forKey:NSLigatureAttributeName]
 										 range:[self rangeForUserCharacterAttributeChange]];
 }
 
-- (void) useAllLigatures:(id)sender
+- (void) useAllLigatures:(id) sender
 {
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:1]
 																		   forKey:NSLigatureAttributeName]
 										 range:[self rangeForUserCharacterAttributeChange]];
 }
 
-- (void) raiseBaseline:(id)sender
+- (void) raiseBaseline:(id) sender
 {
 	// FIXME: accumulate?
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:3.0]
@@ -276,19 +301,24 @@ static NSCursor *__textCursor = nil;
 - (void) rulerView:(NSRulerView *)ruler didMoveMarker:(NSRulerMarker *)marker
 { NIMP
 }
+
 - (void) rulerView:(NSRulerView *)ruler didRemoveMarker:(NSRulerMarker *)marker
 { NIMP
 }
+
 - (void) rulerView:(NSRulerView *)ruler didAddMarker:(NSRulerMarker *)marker
 { NIMP
 }
+
 - (BOOL) rulerView:(NSRulerView *)ruler 
 		 shouldMoveMarker:(NSRulerMarker *)marker
 { NIMP; return NO;
 }
+
 - (BOOL) rulerView:(NSRulerView *)ruler shouldAddMarker:(NSRulerMarker *)marker
 { NIMP; return NO;
 }
+
 - (float) rulerView:(NSRulerView *)ruler 
 		  willMoveMarker:(NSRulerMarker *)marker 
 		  toLocation:(float)location
@@ -318,8 +348,10 @@ static NSCursor *__textCursor = nil;
 		{
 		// do additional layout if needed
 		}
-#if 1
+#if 0
 	NSLog(@"NSTextView setNeedsDisplayInRect:%@", NSStringFromRect(rect));
+	if([[self superview] isKindOfClass:[NSClipView class]])
+		NSLog(@"child of clipView: %@", textStorage);
 #endif
 	[super setNeedsDisplayInRect:rect];
 }
@@ -383,7 +415,7 @@ static NSCursor *__textCursor = nil;
 
 - (void) _blinkCaret:(NSTimer *) timer
 { // toggle the caret and trigger redraw
-#if 1
+#if 0
 	NSLog(@"_blinkCaret %@", NSStringFromRect([self _caretRect]));
 #endif
 	insertionPointIsOn = !insertionPointIsOn;	// toggle state
@@ -433,7 +465,11 @@ static NSCursor *__textCursor = nil;
 		{
 		[_backgroundColor set];
 		NSRectFill(rect);
-		}	
+		}
+#if 1	// show container outline
+	[[NSColor redColor] set];
+	NSFrameRect((NSRect) { textContainerOrigin, [textContainer containerSize] } );
+#endif
 }
 
 	// Other NSTextView methods
@@ -465,6 +501,8 @@ static NSCursor *__textCursor = nil;
 		 replacementString:(NSString *)replacementString
 { NIMP; return NO;
 }
+
+// FIXME: make use of this method...
 
 - (void) didChangeText
 {
@@ -655,21 +693,6 @@ static NSCursor *__textCursor = nil;
 	return flag;
 }
 
-- (void) sizeToFit;
-{
-	NSSize size=[textStorage size];	// get bounding box with unlimited size
-	if(!_tx.horzResizable)
-		size.width=_frame.size.width;	// don't fit to text, i.e. keep frame
-	if(!_tx.vertResizable)
-		size.height=_frame.size.height;	// don't fit to text, i.e. keep frame
-	if(!NSEqualSizes(size, _frame.size))
-		{ // really resizing
-		[self setConstrainedFrameSize:size];	// may also resize the text container
-		size=[layoutManager usedRectForTextContainer:textContainer].size;	// get bounding box with resized text container
-		[textContainer setContainerSize:size];
-		}
-}
-
 // initial sizing after initWithCoder
 
 - (void) viewDidMoveToSuperview; { [self sizeToFit]; }
@@ -696,25 +719,14 @@ static NSCursor *__textCursor = nil;
 		return;
 	range=[layoutManager glyphRangeForTextContainer:textContainer];
 	// range=[layoutManager glyphRangeForBoundingRect:rect inTextContainer:textContainer]
-#if 1
+#if 0
 	NSLog(@"NSTextView drawRect %@", NSStringFromRect(rect));
 	NSLog(@"         glyphRange %@", NSStringFromRange(range));
 #endif
 	[self drawViewBackgroundInRect:rect];
 
-	[layoutManager drawBackgroundForGlyphRange:range atPoint:textContainerOrigin];
-	
-	if(_selectedRange.length > 0)
-		{ // draw selection range background
-			// FIXME - should be done line by line!
-		r=[layoutManager boundingRectForGlyphRange:_selectedRange inTextContainer:textContainer];
-		if(NSIntersectsRect(r, rect))
-			{
-			[[NSColor selectedTextBackgroundColor] set];
-			// FIXME: this is correct only for single lines...
-			NSRectFill(r);
-			}
-		}
+	[layoutManager drawBackgroundForGlyphRange:_selectedRange atPoint:textContainerOrigin];
+
 	[layoutManager drawGlyphsForGlyphRange:range atPoint:textContainerOrigin];
 	if([self shouldDrawInsertionPoint])
 			{
@@ -722,6 +734,10 @@ static NSCursor *__textCursor = nil;
 				if(NSIntersectsRect(r, rect))
 						[self drawInsertionPointInRect:r color:insertionPointColor turnedOn:insertionPointIsOn];
 			}
+#if 0
+	if(!NSEqualSizes(_bounds.size, _frame.size))
+		NSLog(@"bound/frame error");
+#endif
 }
 
 - (void) encodeWithCoder:(NSCoder *) coder;
@@ -738,10 +754,9 @@ static NSCursor *__textCursor = nil;
 	if((self=[super initWithCoder:coder]))
 		{ // this will have called initWithFrame: so we have to replace the text system
 		NSTextViewSharedData *shared;
-		int tvFlags=[coder decodeInt32ForKey:@"NSTVFlags"];
-#if 0
-		NSLog(@"TVFlags=%d", tvFlags);
-#endif
+		int tvFlags=[coder decodeInt32ForKey:@"NSTVFlags"];	// do we have these in NSText or NSTextView?
+			
+			
 		[self replaceTextContainer:[coder decodeObjectForKey:@"NSTextContainer"]];	// this decodes the layoutManager and the textStorage
 #if 0
 		NSLog(@"textContainer=%@", textContainer);
@@ -751,8 +766,14 @@ static NSCursor *__textCursor = nil;
 		NSLog(@"layoutManager=%@", layoutManager);
 #endif
 		ASSIGN(textStorage, [layoutManager textStorage]);	// an empty one had already been assigned by superclass
+		[textStorage addLayoutManager:layoutManager];	// this also retains the layout manager
 #if 0
-		NSLog(@"textStorage=%@", textStorage);
+			NSLog(@"NSTVFlags=%08x", tvFlags);
+			_tx.horzResizable=NO;
+			_tx.vertResizable=YES;
+			NSLog(@"textStorage=%@", textStorage);
+			if([[textStorage string] hasPrefix:@"This"])
+				NSLog(@"This");
 #endif
 		shared=[coder decodeObjectForKey:@"NSSharedData"];
 		if(shared)
@@ -776,10 +797,6 @@ static NSCursor *__textCursor = nil;
 			[self setMarkedTextAttributes:[shared markedTextAttributes]];
 			[self setSelectedTextAttributes:[shared selectedTextAttributes]];
 			}
-		// probably coming from tvFlags...
-		//	[dest setVerticallyResizable:YES];
-		//	[dest setHorizontallyResizable:YES];
-
 		}
 	return self;
 }

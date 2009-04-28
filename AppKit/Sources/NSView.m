@@ -828,10 +828,11 @@ printing
 
 - (void) setFrameOrigin:(NSPoint)newOrigin
 {
-	if(NSEqualPoints(_frame.origin, newOrigin))
-		return;	// no change
-	_frame.origin = newOrigin;
-	[self _invalidateCTM];
+	if(!NSEqualPoints(_frame.origin, newOrigin))
+			{
+				_frame.origin = newOrigin;
+				[self _invalidateCTM];
+			}
 	if(_v.postFrameChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
 }
@@ -839,24 +840,26 @@ printing
 - (void) setFrameSize:(NSSize)newSize
 {
 	NSSize o = _frame.size;
-	if(NSEqualSizes(o, newSize))
-		return;	// no change
-	_frame.size = newSize;
-	if(!_v.customBounds)
-		_bounds.size = newSize;	// always adjust
-	[self _invalidateCTM];
-	[self resizeSubviewsWithOldSize:o];	// Resize subviews if needed
+	if(!NSEqualSizes(o, newSize))
+			{
+				_frame.size = newSize;
+				if(!_v.customBounds)
+					_bounds.size = newSize;	// always adjust
+				[self _invalidateCTM];
+				[self resizeSubviewsWithOldSize:o];	// Resize subviews if needed
+			}
 	if(_v.postFrameChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
 }
 
 - (void) setFrameRotation:(float)angle
 {
-	if(frameRotation == angle)
-		return;
-	frameRotation=angle;
-	[self _invalidateCTM];
-	_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;	// FIXME should also be set for superviews
+	if(frameRotation != angle)
+			{
+				frameRotation=angle;
+				[self _invalidateCTM];
+				_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;	// FIXME should also be set for superviews
+			}
 	if(_v.postFrameChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
 }
@@ -895,45 +898,49 @@ printing
 
 - (void) setBounds:(NSRect)aRect
 {
-	if(NSEqualRects(_bounds, aRect))
-		return;	// no change
-	_v.customBounds=YES;
-	_bounds = aRect;
-	[self _invalidateCTM];
+	if(!NSEqualRects(_bounds, aRect))
+			{
+				_v.customBounds=YES;
+				_bounds = aRect;
+				[self _invalidateCTM];
+			}
 	if (_v.postBoundsChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }
 
 - (void) setBoundsOrigin:(NSPoint)newOrigin			// translate bounds origin
 {													// in opposite direction so that newOrigin becomes the origin when viewed.
-	if(NSEqualPoints(_bounds.origin, newOrigin))
-		return;	// no change
-	_v.customBounds=YES;
-	_bounds.origin = newOrigin;
-	[self _invalidateCTM];
+	if(!NSEqualPoints(_bounds.origin, newOrigin))
+			{
+				_v.customBounds=YES;
+				_bounds.origin = newOrigin;
+				[self _invalidateCTM];
+			}
 	if(_v.postBoundsChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }
 
 - (void) setBoundsSize:(NSSize)newSize
 {
-	if(NSEqualSizes(_bounds.size, newSize))
-		return;	// no change
-	_v.customBounds=YES;
-	_bounds.size = newSize;
-	[self _invalidateCTM];
+	if(!NSEqualSizes(_bounds.size, newSize))
+			{
+				_v.customBounds=YES;
+				_bounds.size = newSize;
+				[self _invalidateCTM];
+			}
 	if (_v.postBoundsChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }
 
 - (void) setBoundsRotation:(float)angle
 {
-	if(boundsRotation == angle)
-		return;	// no change
-	_v.customBounds=YES;
-	boundsRotation=angle;
-	[self _invalidateCTM];
-	_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;
+	if(boundsRotation != angle)
+			{
+				_v.customBounds=YES;
+				boundsRotation=angle;
+				[self _invalidateCTM];
+				_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;
+			}
 	if (_v.postBoundsChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }

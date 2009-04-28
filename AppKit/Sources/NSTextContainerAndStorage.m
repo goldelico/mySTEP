@@ -41,6 +41,18 @@
 	return [NSString stringWithFormat:@"%@: size %@", NSStringFromClass(isa), NSStringFromSize(size)];
 }
 
+- (void) _track:(NSNotification *) n;
+{
+	NSRect frame=[textView frame];
+	NSSize inset=[textView textContainerInset];
+	NSSize newSize=size;
+	if(widthTracksTextView)
+		newSize.width=frame.size.width-2.0*inset.width;
+	if(heightTracksTextView)
+		newSize.height=frame.size.height-2.0*inset.height;
+	[self setContainerSize:newSize];
+}
+
 - (BOOL) isSimpleRectangularTextContainer; { return YES; }
 - (NSLayoutManager *) layoutManager; { return layoutManager; }
 - (float) lineFragmentPadding; { return lineFragmentPadding; }
@@ -66,26 +78,21 @@
 	[self release];
 }
 
-- (void) setContainerSize:(NSSize) sz; { size=sz; }
+- (void) setContainerSize:(NSSize) sz;
+{
+	if(!NSEqualSizes(size, sz))
+			{
+				size=sz;
+#if 0
+				NSLog(@"adjusted %@", self);
+#endif
+				// notify layout manager to invalidate the glyph layout
+			}
+}
+
 - (void) setHeightTracksTextView:(BOOL) flag; { heightTracksTextView=flag; }
 - (void) setLayoutManager:(NSLayoutManager *) lm; { layoutManager=lm; }
 - (void) setLineFragmentPadding:(float) pad; { lineFragmentPadding=pad; }
-
-- (void) _track:(NSNotification *) n;
-{
-	NSRect frame=[textView frame];
-	NSSize inset=[textView textContainerInset];
-	NSSize newSize=size;
-	if(widthTracksTextView)
-		newSize.width=frame.size.width-2.0*inset.width;
-	if(heightTracksTextView)
-		newSize.height=frame.size.height-2.0*inset.height;
-	if(!NSEqualSizes(size, newSize))
-		{
-		size=newSize;
-		// notify layout manager to invalidate the glyph layout
-		}
-}
 
 - (void) setTextView:(NSTextView *) tv;
 {
@@ -93,13 +100,22 @@
 	if(textView == tv)
 		return;
 	nc=[NSNotificationCenter defaultCenter];
-	[nc removeObserver:self name:NSViewFrameDidChangeNotification object:textView];
-	[textView setTextContainer:nil];
-	ASSIGN(textView, tv);
-	[textView setTextContainer:self];
-	[nc addObserver:self selector:@selector(_track:) name:NSViewFrameDidChangeNotification object:textView];
 	if(textView)
-		[self _track:nil];
+			{ // disconnect from text view
+				[textView setPostsFrameChangedNotifications:NO];	// no need to notify any more...
+				[textView setTextContainer:nil];
+				[nc removeObserver:self name:NSViewFrameDidChangeNotification object:textView];
+				[textView release];
+				textView=nil;
+			}
+	if(tv)
+			{ // connect to text view
+				textView=[tv retain];
+				[textView setTextContainer:self];
+				[textView setPostsFrameChangedNotifications:YES];	// should notify...
+				[nc addObserver:self selector:@selector(_track:) name:NSViewFrameDidChangeNotification object:textView];
+				[self _track:nil];	// initial "notification"
+			}
 }
 
 - (void) setWidthTracksTextView:(BOOL) flag; { widthTracksTextView=flag; }
@@ -278,7 +294,11 @@
 #else
 	self=[super initWithCoder:coder];	// we are a real subclass of NSMutableAttributedString
 #endif
-	[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
+	if(self)
+			{
+				_layoutManagers=[NSMutableArray new];
+				[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
+			}
 #if 0
 	NSLog(@"%@ done", self);
 #endif
@@ -342,34 +362,39 @@
 {
 	NSEnumerator *e;
 	NSLayoutManager *lm;
+	NSRange irng;
 #if __APPLE__
 	[_concreteString replaceCharactersInRange:rng withAttributedString:str];
 #else
 	[super replaceCharactersInRange:rng withAttributedString:str];
 #endif
 	e=[_layoutManagers objectEnumerator];
+	irng=NSMakeRange(0, [str length]);
 	while((lm=[e nextObject]))
-		[lm textStorage:self edited:0 range:rng changeInLength:0 invalidatedRange:NSMakeRange(0, [str length])];
+		[lm textStorage:self edited:0 range:rng changeInLength:0 invalidatedRange:irng];
 }
 
 - (void) replaceCharactersInRange:(NSRange) rng withString:(NSString *) str
 {
 	NSEnumerator *e;
 	NSLayoutManager *lm;
+	NSRange irng;
 #if __APPLE__
 	[_concreteString replaceCharactersInRange:rng withString:str];
 #else
 	[super replaceCharactersInRange:rng withString:str];
 #endif
 	e=[_layoutManagers objectEnumerator];
+	irng=NSMakeRange(0, [str length]);
 	while((lm=[e nextObject]))
-		[lm textStorage:self edited:0 range:rng changeInLength:0 invalidatedRange:NSMakeRange(0, [str length])];
+		[lm textStorage:self edited:0 range:rng changeInLength:0 invalidatedRange:irng];
 }
 
 - (void) setAttributedString:(NSAttributedString *) str;
 {
 	NSEnumerator *e;
 	NSLayoutManager *lm;
+	NSRange irng;
 	unsigned prevLen=[self length];
 #if __APPLE__
 	if(_concreteString == str)
@@ -380,22 +405,25 @@
 	[super setAttributedString:str];
 #endif
 	e=[_layoutManagers objectEnumerator];
+	irng=NSMakeRange(0, [self length]);
 	while((lm=[e nextObject]))
-		[lm textStorage:self edited:0 range:NSMakeRange(0, prevLen) changeInLength:0 invalidatedRange:NSMakeRange(0, [str length])];
+		[lm textStorage:self edited:0 range:irng changeInLength:0 invalidatedRange:irng];
 }
 
 - (void) setAttributes:(NSDictionary *)attributes range:(NSRange)aRange
 {
 	NSEnumerator *e;
 	NSLayoutManager *lm;
+	NSRange irng;
 #if __APPLE__
 	[_concreteString setAttributes:attributes range:aRange];
 #else
 	[super setAttributes:attributes range:aRange];
 #endif
 	e=[_layoutManagers objectEnumerator];
+	irng=NSMakeRange(0, [self length]);
 	while((lm=[e nextObject]))
-		[lm textStorage:self edited:0 range:aRange changeInLength:0 invalidatedRange:aRange];
+		[lm textStorage:self edited:0 range:aRange changeInLength:0 invalidatedRange:irng];
 }
 
 @end

@@ -418,11 +418,11 @@ because this reverses the writing direction within the text container
 }
 
 - (void) setNeedsDisplayInRect:(NSRect) rect;
-{ // limit dirty area to our frame rect
+{ // limit dirty area to our visible rect
 #if 0
 	NSLog(@"NSClipView setNeedsDisplayInRect:%@", NSStringFromRect(rect));
-	NSLog(@"  frame:%@", NSStringFromRect(frame));
-	NSLog(@"  bounds:%@", NSStringFromRect(bounds));
+	NSLog(@"  frame:%@", NSStringFromRect(_frame));
+	NSLog(@"  bounds:%@", NSStringFromRect(_bounds));
 	NSLog(@"  visible:%@", NSStringFromRect([self visibleRect]));
 	NSLog(@"  docview:%@", [self documentView]);
 	NSLog(@"  docrect:%@", NSStringFromRect([self documentRect]));
@@ -436,8 +436,8 @@ because this reverses the writing direction within the text container
 { // never draw outside our frame rect
 #if 0
 	NSLog(@"NSClipView displayRectIgnoringOpacity:%@", NSStringFromRect(rect));
-	NSLog(@"  frame:%@", NSStringFromRect(frame));
-	NSLog(@"  bounds:%@", NSStringFromRect(bounds));
+	NSLog(@"  frame:%@", NSStringFromRect(_frame));
+	NSLog(@"  bounds:%@", NSStringFromRect(_bounds));
 	NSLog(@"  visible:%@", NSStringFromRect([self visibleRect]));
 	NSLog(@"  docview:%@", [self documentView]);
 	NSLog(@"  docrect:%@", NSStringFromRect([self documentRect]));

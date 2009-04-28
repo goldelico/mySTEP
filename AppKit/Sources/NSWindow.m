@@ -481,11 +481,11 @@ static BOOL __cursorHidden = NO;
 	return self;	// handle resize handle directly
 }
 
-- (void) mouseDown:(NSEvent *)theEvent
+- (void) mouseDown:(NSEvent *) theEvent
 { // NSTheme frame
 	NSPoint initial;
 	NSRect initialFrame=[_window frame];
-#if 0
+#if 1
 	NSLog(@"NSThemeFrame clicked (%@)", NSStringFromPoint([theEvent locationInWindow]));
 #endif
 	if((_style & NSResizableWindowMask) != 0 && ([self interfaceStyle] >= NSPDAInterfaceStyle))
@@ -498,7 +498,6 @@ static BOOL __cursorHidden = NO;
 							{
 								// FIXME: check for click on document icon or title cell
 								// if representedURL defined and crtl-click, call - (BOOL)window:(NSWindow *)sender shouldPopUpDocumentPathMenu:(NSMenu *)titleMenu
-								// NOTE: we can't use [event locationInWindow] if we move the window - that info is not reliable!
 								NSPoint p=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
 								initial=[_window convertBaseToScreen:p];	// convert to screen coordinates
 								if(p.y < _frame.size.height-_height)
@@ -525,14 +524,17 @@ static BOOL __cursorHidden = NO;
 						case NSLeftMouseDragged:	// update to current location
 							{
 								NSRect wframe=initialFrame;
-								// FIXME: [NSEvent mouseLocation] - but which screen?
+								// NOTE: we can't use [event locationInWindow] if we move the window - that info is not reliable because it is not synchronized with moving the window!
 								NSPoint loc=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
 								float deltax, deltay;
+#if 0
+								loc=[theEvent locationInWindow];	// this may be relative to the old position...
+#endif
 								loc=[_window convertBaseToScreen:loc];	// convert to screen coordinates
 								deltax=loc.x-initial.x;
 								deltay=loc.y-initial.y;
 #if 0
-								NSLog(@"dragged = %@", NSStringFromPoint(loc));
+								NSLog(@"window dragged loc=%@ mouse=%@", NSStringFromPoint(loc), NSStringFromPoint([theEvent locationInWindow]));
 #endif
 								if(_inLiveResize)
 										{ // resizing
@@ -548,7 +550,8 @@ static BOOL __cursorHidden = NO;
 #if 0
 											NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
 #endif
-											[_window setFrame:wframe display:YES];
+											[_window setFrame:wframe display:NO];	// resize and redraw asap
+											[self setNeedsDisplay:YES];
 										}
 								else
 										{ // moving
@@ -574,13 +577,15 @@ static BOOL __cursorHidden = NO;
 																			untilDate:[NSDate distantFuture]
 																				 inMode:NSEventTrackingRunLoopMode 
 																				dequeue:YES];							// get next event
-				
   		}
 	if(_inLiveResize)
 			{
 				_inLiveResize=NO;
 				[self _performOnAllSubviews:@selector(viewDidEndLiveResize)];
 			}
+#if 1
+	NSLog(@"NSThemeFrame tracking done");
+#endif
 }
 
 @end
@@ -1567,7 +1572,7 @@ static NSButtonCell *sharedCell;
 - (void) orderWindow:(NSWindowOrderingMode) place 
 					relativeTo:(int) otherWin
 { // main interface call
-#if 1
+#if 0
 	NSString *str[]={ @"Below", @"Out", @"Above" };
 	NSLog(@"orderWindow:NSWindow%@ relativeTo:%d - %@", str[place+1], otherWin, self);
 #endif
@@ -1694,12 +1699,12 @@ static NSButtonCell *sharedCell;
 {
 	BOOL autoEnlarge=[[NSUserDefaults standardUserDefaults] boolForKey:@"autoZoomResizableWindowsToScreen"];	// should be set in global user defaults
 	NSRect vf;
-#if 1
+#if 0
 	NSLog(@"constrain rect %@ forscreen %@ mask %0x", NSStringFromRect(rect), NSStringFromRect([screen visibleFrame]), _w.styleMask);
 #endif
 	if((_w.styleMask & GSAllWindowMask) == NSBorderlessWindowMask)
 		{
-#if 1
+#if 0
 		NSLog(@"borderless");
 #endif
 		return rect;	// never constrain
@@ -1720,11 +1725,11 @@ static NSButtonCell *sharedCell;
 		rect.origin.y=NSMaxY(vf)-NSHeight(rect);	// goes beyond top edge - move down
 	if(NSMinY(rect) < NSMinY(vf))
 		rect.origin.y=NSMinY(vf);	// goes beyond bottom edge - move up
-#if 1
+#if 0
 	NSLog(@"shifted frameRect %@", NSStringFromRect(rect));
 #endif
 	rect=NSIntersectionRect(vf, rect);	// reduce to visible frame if still too large
-#if 1
+#if 0
 	NSLog(@"constrained frameRect %@", NSStringFromRect(rect));
 #endif
 	return rect;

@@ -102,7 +102,6 @@ enum _NSCommonlyUsedUnicodeCharacters
 	NSSize _maxSize;
 	NSWritingDirection _baseWritingDirection;
 	
-	NSString *_string;	// cache
 	int _spellCheckerDocumentTag;
 
 	struct __TextFlags {

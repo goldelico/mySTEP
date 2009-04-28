@@ -390,9 +390,20 @@ static NSColor *__borderedBackgroundColor = nil;
 - (void) setBaseWritingDirection:(NSWritingDirection)dir		{ [[_attribs objectForKey:NSParagraphStyleAttributeName] setBaseWritingDirection:dir]; }
 - (void) setLineBreakMode:(NSLineBreakMode) mode; { [[_attribs objectForKey:NSParagraphStyleAttributeName] setLineBreakMode:mode]; }
 - (void) setScrollable:(BOOL)flag				{ _c.scrollable = flag; }
-- (void) setWraps:(BOOL)flag					{ NIMP }
+
+- (void) setWraps:(BOOL)flag
+{
+	if(flag)
+			{
+			[self setLineBreakMode:flag?NSLineBreakByWordWrapping];
+			[self setScrollable:NO];
+			}
+	else  
+		[self setLineBreakMode:flag?NSLineBreakByClipping];
+}
+
 - (BOOL) isScrollable							{ return _c.scrollable; }
-- (BOOL) wraps									{ return NO; }
+- (BOOL) wraps									{ switch([self lineBreakMode]) { case NSLineBreakByWordWrapping: case NSLineBreakByCharWrapping: return YES; default: return NO; } }
 - (NSColor *) _textColor;						{ return [_attribs objectForKey:NSForegroundColorAttributeName]; }
 - (void) _setTextColor:(NSColor *) textColor; { [_attribs setObject:textColor forKey:NSForegroundColorAttributeName]; }
 
@@ -429,8 +440,6 @@ static NSColor *__borderedBackgroundColor = nil;
 		[textObject setSelectable:[self isSelectable]];	// pass along selectable flag
 	[textObject setBaseWritingDirection:[self baseWritingDirection]];
 	[textObject setAlignment:[self alignment]];
-	[textObject setHorizontallyResizable:YES];
-	[textObject setVerticallyResizable:NO];
 	[textObject setImportsGraphics:NO];
 	[textObject setRichText:YES];	// ? only if the object has an attributedStringValue!
 	[textObject setUsesFontPanel:[textObject isRichText]];
@@ -483,9 +492,6 @@ static NSColor *__borderedBackgroundColor = nil;
 #if 1
 	NSLog(@"endEditing %@", self);
 #endif
-	
-	// FIXME: shouldn't we copy the text value back to the cell here?
-	
 	[textObject setDelegate:nil];	// no longer create notifications
 	_c.editing = NO;	// we may still be first responder - so suppress sending field editor notifications during resignFirstResponder
 	if(_c.scrollable)
@@ -518,7 +524,8 @@ static NSColor *__borderedBackgroundColor = nil;
 		NSClipView *controlSuperView;
 #if 1
 		NSLog(@"NSCell -selectWithFrame: %@", self);
-		NSLog(@"	current window=%@", [textObject window]);
+			NSLog(@"	current window=%@", [textObject window]);
+		NSLog(@"	current superview=%@", [textObject superview]);
 		NSLog(@"	current firstResponder=%@", [[textObject window] firstResponder]);
 #endif
 		// make sure previous field editor is not in use
@@ -531,25 +538,27 @@ static NSColor *__borderedBackgroundColor = nil;
 		if(controlSuperView && (![controlSuperView isKindOfClass:[NSClipView class]]))
 			controlSuperView = nil;	// text object is not embedded in a clip view
 		[textObject setDelegate:anObject];
-		[self setUpFieldEditorAttributes:textObject];
 		[[(NSTextView *) textObject textStorage] setAttributedString:[self attributedStringValue]];	// copy attributed string from cell to be edited
 		[textObject setSelectedRange:(NSRange){selStart, selLength}];
+		[self setUpFieldEditorAttributes:textObject];
 	
 		if(_c.scrollable)
 			{ // if we are scrollable, put us in a clipview
+			[textObject setHorizontallyResizable:YES];	// don't adjust width to content rect
+			[textObject setVerticallyResizable:NO];	// and not for height (i.e. keep as large as the cell we are editing)
 			[textObject setFrame:(NSRect){{0,1},aRect.size}];
 			if(!controlSuperView)
 				{ // insert into new clipview
 				controlSuperView = [[[NSClipView alloc] initWithFrame:aRect] autorelease];
-				[controlSuperView setDocumentView:textObject];
+				[controlSuperView setDocumentView:textObject];	// indirectly does [textObject sizeToFit]
 				}
 			else
 				{ // update the clipview
 				[controlSuperView setBoundsOrigin:NSZeroPoint];
 				[controlSuperView setFrame:aRect];
+					[textObject sizeToFit];
 				}
 			[controlView addSubview:controlSuperView];
-			[textObject sizeToFit];
 			}
 		else
 				{ // remove us from any clip view
@@ -558,6 +567,8 @@ static NSColor *__borderedBackgroundColor = nil;
 								[controlSuperView setDocumentView:nil];	// if we had been scrollable
 								[controlSuperView removeFromSuperview];	// give up the clipview
 							}
+					[textObject setHorizontallyResizable:NO];	// keep as wide as the cell
+					[textObject setVerticallyResizable:YES];	// adjust height if needed
 					[textObject setFrame:NSOffsetRect(aRect, 1.0, -1.0)];	// adjust so that it really overlaps
 					[controlView addSubview:textObject];
 				}

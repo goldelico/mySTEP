@@ -569,9 +569,16 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (void) drawBackgroundForGlyphRange:(NSRange)glyphsToShow 
 							 atPoint:(NSPoint)origin;
-{
-	// draw selection indicator
-	;
+{ // draw selection range background
+	if(glyphsToShow.length > 0)
+			{
+				NSTextContainer *textContainer=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];	// this call could fill the cache if needed...
+			// FIXME - should be done line by line!
+				NSRect r=[self boundingRectForGlyphRange:glyphsToShow inTextContainer:textContainer];
+				[[NSColor selectedTextBackgroundColor] set];
+				// FIXME: this is correct only for single lines...
+				NSRectFill(r);
+			}
 }
 
 - (void) drawGlyphsForGlyphRange:(NSRange)glyphsToShow 
@@ -1105,7 +1112,8 @@ containerOrigin:(NSPoint)containerOrigin;
 #if 0
 		NSLog(@"sizing text view to changed textStorage");
 #endif
-		[tv sizeToFit];	// size...
+		[tv didChangeText];	// let others know...
+		[tv sizeToFit];	// size... - warning: this may be recursive!
 		}
 	return container;
 }
@@ -1120,13 +1128,16 @@ containerOrigin:(NSPoint)containerOrigin;
 
 - (void) textStorage:(NSTextStorage *)str edited:(unsigned)editedMask range:(NSRange)newCharRange changeInLength:(int)delta invalidatedRange:(NSRange)invalidatedCharRange;
 {
-	NSRange glyphsToShow=NSMakeRange(0, [str length]);	// all...
-	NSTextContainer *container=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];
-	NSTextView *tv=[container textView];
+	if(!_textStorageChanged)
+			{ // first call
+//				NSRange glyphsToShow=NSMakeRange(0, [str length]);	// all...
+//				NSTextContainer *container=[self textContainerForGlyphAtIndex:newCharRange.location effectiveRange:NULL];
+//				NSTextView *tv=[container textView];
 #if 0
-	NSLog(@"textStorage edited");
+				NSLog(@"textStorage edited");
 #endif
-	_textStorageChanged=YES;
+				_textStorageChanged=YES;
+			}
 }
 
 - (NSTextView *) textViewForBeginningOfSelection;

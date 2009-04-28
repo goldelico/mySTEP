@@ -34,7 +34,6 @@
 		[self resetCancelButtonCell];
 		[self resetSearchButtonCell];
 		maxRecents=254;
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_textDidChange:) name:NSTextDidChangeNotification object:nil];	// field editor
 		}
 	return self;
 }
@@ -190,7 +189,14 @@
 					editor:textObject
 				  delegate:anObject
 					 start:selStart
-					length:selLength];
+					length:selLength];	// this will already post a NSTextDidChangeNotification notification!
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_textDidChange:) name:NSTextDidChangeNotification object:textObject];	// intercept text changes
+}
+
+- (void) endEditing:(NSText *) textObject
+{
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSTextDidChangeNotification object:textObject];
+	[super endEditing:textObject];
 }
 
 // FIXME:
@@ -198,9 +204,11 @@
 // make search button send action to target (or responder chain)
 // make search button menu working
 
-- (void) _textDidChange:(NSNotification *)aNotification
+// called by special logic in NSTextField
+
+- (void) _textDidChange:(NSNotification *) n
 { // make textChanged send action (unless disabled or too fast)
-	NSTextView *text=[aNotification object];
+	NSText *text=[n object];
 #if 1
 	NSLog(@"NSSearchField textDidChange:%@", text);
 #endif
@@ -264,7 +272,6 @@
 #if 0
 	NSLog(@"%@ initWithCoder:%@", self, aDecoder);
 #endif
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_textDidChange:) name:NSTextDidChangeNotification object:nil];	// field editor
 	return self;
 }
 

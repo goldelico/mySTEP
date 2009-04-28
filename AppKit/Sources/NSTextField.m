@@ -33,11 +33,6 @@
 
 #import "NSAppKitPrivate.h"
 
-@interface NSCell (NSTextFieldCell)
-- (void) _textDidChange:(NSText *) text;
-- (void) _textDidEndEditing:(NSText *) text;
-@end
-
 #define CONTROL(notif_name) NSControl##notif_name##Notification
 
 //*****************************************************************************
@@ -351,8 +346,6 @@ static Class __textFieldCellClass = Nil;
 #if 1
 	NSLog(@" NSTextField %@ posted", CONTROL(TextDidChange));
 #endif
-	if(_cell && [_cell respondsToSelector:@selector(_textDidChange:)])
-		[_cell _textDidChange:[aNotification object]];	// inform cell (needed for NSSearchFieldCell)
 }
 
 - (void) textDidEndEditing:(NSNotification *)aNotification

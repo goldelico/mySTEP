@@ -512,8 +512,9 @@ static BOOL __fileSystemChanged = NO;
 	// b) app is in launched applications files
 	//   if multiple instances => launch
 	//   try to connect through DO
-	//     if no response => remove current record and launch new instance
+	//     if no response => remove current record and launch new instance (wasn't cleaned up by crash reporter)
 	//     if response => send eventParamDescriptor and arguments
+	//
 	if(options&NSWorkspaceLaunchInhibitingBackgroundOnly)
 			{ // check if we want to launch a background only application and deny
 				if([[b objectForInfoDictionaryKey:@"LSBackgroundOnly"] boolValue])
@@ -521,7 +522,7 @@ static BOOL __fileSystemChanged = NO;
 			}
 	appFile=[NSWorkspace _activeApplicationPath:[b bundleIdentifier]];
 	while((options&NSWorkspaceLaunchNewInstance) == 0)
-			{ // try to contact existing application - or launch exactly once
+			{ // try to contact existing application - and launch exactly once
 				int fd;
 				if((fd=open([appFile fileSystemRepresentation], O_CREAT|O_EXCL, 0644)) < 0)
 						{ // We are not the first to write the file. This means someone else is launching or has launched the same application
@@ -612,7 +613,7 @@ static BOOL __fileSystemChanged = NO;
 	appname=[b objectForInfoDictionaryKey:@"CFBundleName"];
 	if(!appname)
 		appname=[[[b bundlePath] lastPathComponent] stringByDeletingPathExtension];	// use bundle name w/o .app instead
-	gettimeofday(&tp, NULL);	// the unique PSN are assigned here and passed to the app by -psn_%lu_%lu
+	gettimeofday(&tp, NULL);	// the unique PSNs are assigned here and passed to the app by -psn_%lu_%lu
 	psn_high=tp.tv_sec;
 	psn_low=tp.tv_usec;
 	dict=[NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -626,7 +627,7 @@ static BOOL __fileSystemChanged = NO;
 	[[[NSWorkspace sharedWorkspace] notificationCenter] postNotificationName:WORKSPACE(WillLaunchApplication)
 																					 object:self
 																				 userInfo:dict];
-	args=[NSMutableArray arrayWithCapacity:15];
+	args=[NSMutableArray arrayWithCapacity:[params count]+6];
 	NS_DURING   // shield caller from exceptions
 		[args addObject:[NSString stringWithFormat:@"-psn_%lu_%lu", psn_high, psn_low]];
 		if(params)

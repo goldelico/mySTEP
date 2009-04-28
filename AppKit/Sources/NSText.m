@@ -53,102 +53,6 @@
 
 NSString *NSTextMovement=@"NSTextMovement";
 
-#if JUST_AN_IDEA
-
-// FIXME: this is not yet used!!!
-
-@interface _NSTextLineLayoutInformation
-{ // there is one record per text line
-	_NSTextLineLayoutInformation *prev, *next;	// linked list
-	NSTextStorage *textStorage;
-	NSParagraphStyle *paragraphStyle;	// paragraph style (e.g. left/right alignment etc.)
-	NSRect lineFrame;					// frame rect
-	NSRange characterRange;				// range of characters of this line
-	BOOL isValid;
-}
-
-- (NSTextStorage *) textStorage;
-- (NSParagraphStyle *) paragraphStyle;
-- (NSRect) lineFrame;
-- (NSRange) characterRange;
-- (BOOL) isValid;
-- (void) sizeToFit;
-
-- (NSRange) charactersForRect:(NSRect) rect;	// find relevant character positions
-- (void) drawInRect:(NSRect) rect;	// draw relevant lines
-- (void) invalidateCharactersInRange:(NSRange) range;	// invalidate line info
-
-@end
-
-@implementation _NSTextLineLayoutInformation
-
-- (NSTextStorage *) textStorage; { return textStorage; }
-- (NSParagraphStyle *) paragraphStyle; { return paragraphStyle; }
-- (NSRect) lineFrame; { return lineFrame; }
-- (NSRange) characterRange; { return characterRange; }
-- (BOOL) isValid; { return isValid; }
-
-- (void) sizeToFit;
-{ // determine size and adjust lines above/below as needed
-}
-
-- (NSRange) charactersForRect:(NSRect) rect;
-{ // find relevant character positions in array of _NSTextLineLayoutInformation records
-	_NSTextLineLayoutInformation *i=self;
-	NSRange rng;
-	while(prev)
-		{ // find first intersecting lines in rect above myself
-		if(!i->isValid)
-			[i sizeToFit];
-		if(!NSIntersectsRect(i->lineFrame, rect))
-			break;
-		i=i->prev;
-		}
-	rng.location=i->characterRange.location;	// account for horizontal position!
-	while(i)
-		{
-		if(!i->isValid)
-			[i sizeToFit];
-		if(!NSIntersectsRect(i->lineFrame, rect))
-			break;
-		i=i->next;
-		}
-	// set rng.length based on horiz. position
-	return rng;
-}
-
-- (void) drawInRect:(NSRect) rect;
-{ // draw relevant lines that intersect the rect
-	_NSTextLineLayoutInformation *i=self;
-	// clip to rect
-	while(prev)
-		{ // find first intersecting lines in rect above myself
-		if(!i->isValid)
-			[i sizeToFit];
-		if(!NSIntersectsRect(i->lineFrame, rect))
-			break;
-		i=i->prev;
-		}
-	while(i)
-		{ // draw lines as long as they are within rect
-		if(!i->isValid)
-			[i sizeToFit];
-		if(!NSIntersectsRect(i->lineFrame, rect))
-			break;
-		[[textStorage attributedSubstringFromRange:i->characterRange] drawInRect:i->lineFrame];
-		i=i->next;
-		}
-}
-
-- (void) invalidateCharactersInRange:(NSRange) range;
-{ // invalidate line info
-	// find first relevant line
-}
-
-@end
-
-#endif
-
 @implementation NSText
 
 - (NSParagraphStyle *) defaultParagraphStyle { return [NSParagraphStyle defaultParagraphStyle]; }	// inofficial - overwritten in NSTextView
@@ -338,7 +242,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 	NIMP;
 }
 
-- (void) selectAll:(id)sender;				{ _selectedRange=NSMakeRange(0, [textStorage length]); }
+- (void) selectAll:(id)sender;				{ [self setSelectedRange:NSMakeRange(0, [textStorage length])]; }
 - (NSRange) selectedRange					{ return _selectedRange; }
 
 - (void) setAlignment:(NSTextAlignment)mode
@@ -471,7 +375,7 @@ object:self]
 			}
 	_tx.moveLeftRightEnd=0;
 	_tx.moveUpDownEnd=0;
-#if 1
+#if 0
 	NSLog(@"setSelectedRange=%@", NSStringFromRange(_selectedRange));
 	NSLog(@"  text=%@", textStorage);
 #endif
@@ -483,7 +387,6 @@ object:self]
 	// make sure to keep the formatting of the old first character
 	[textStorage replaceCharactersInRange:NSMakeRange(0, [textStorage length]) withString:string];
 	[self setSelectedRange:NSMakeRange([string length], 0)];	// to end of string
-	_string=nil;	// clear cache
 }
 
 - (void) setTextColor:(NSColor*)color;
@@ -510,7 +413,7 @@ object:self]
 
 - (void) sizeToFit;
 {
-	NSRect rect=(NSRect) { NSZeroPoint, [textStorage size] };	// ask the text storage for the size
+	NSRect rect=(NSRect) { NSZeroPoint, [textStorage size] };	// ask the text storage for the unbound size
 	if(!_tx.horzResizable)
 		rect.size.width=_bounds.size.width;	// don't resize horizontally
 	if(!_tx.vertResizable)
@@ -522,12 +425,7 @@ object:self]
 
 - (NSString *) string;
 {
-	if(!_string)
-		{
-		_string=[textStorage string];
-		// strip out any text attachment characters!
-		}
-	return _string;
+	return [textStorage string];
 }
 
 - (void) subscript:(id)sender;
@@ -607,13 +505,12 @@ object:self]
 	NSLog(@"%@ initWithFrame:%@", NSStringFromClass([self class]), NSStringFromRect(f));
 #endif
 	if((self=[super initWithFrame:f]))
-		{ // this initialization will be used for a Field Editor
+		{ // this initialization will be used for a Field Editor but is also called from initWithCoder!
 		_spellCheckerDocumentTag=[NSSpellChecker uniqueSpellDocumentTag];
 		textStorage=[NSTextStorage new];	// provide empty default text storage
 		_tx.ownsTextStorage=YES;			// that we own
 		_tx.alignment = NSLeftTextAlignment;
 		_tx.editable = YES;
-//		_tx.isRichText = NO;				// default
 		_tx.selectable = YES;
 		_tx.vertResizable = YES;
 		_tx.drawsBackground = YES;
@@ -634,7 +531,6 @@ object:self]
 	[_backgroundColor release];
 	[_font release];
 	[_delegate release];	// has been ASSIGNed
-//	[_string release];
 	[super dealloc];
 }
 
@@ -964,6 +860,16 @@ object:self]
 	return [super resignFirstResponder];
 }
 
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
+{
+	NSString *sel=NSStringFromSelector([menuItem action]);
+	if([sel isEqualToString:@"paste:"])
+		return YES;	// if anything to paste
+	if([sel isEqualToString:@"copy:"] || [sel isEqualToString:@"cut:"])
+		return _selectedRange.length > 0;	// if anything to copy
+	return YES;
+}
+
 - (void) encodeWithCoder:(NSCoder *) coder;
 {
 	[super encodeWithCoder:coder];
@@ -976,23 +882,17 @@ object:self]
 #endif
 	if((self=[super initWithCoder:coder]))
 		{
-		int tvFlags=[coder decodeInt32ForKey:@"NSTVFlags"];	// do we have these in NSText or NSTextView?
-
-		
-		_spellCheckerDocumentTag=[NSSpellChecker uniqueSpellDocumentTag];
-		textStorage=[NSTextStorage new];	// provide empty default text storage
-		
-		// FIXME: decode from tvFlags!
-		
-		_tx.ownsTextStorage=YES;			// that we own
-		_tx.alignment = NSLeftTextAlignment;
-		_tx.editable = YES;
-		_tx.isRichText = NO;				// default
-		_tx.selectable = YES;
-		_tx.vertResizable = YES;
-		_tx.drawsBackground = YES;
-		_backgroundColor=[[NSColor textBackgroundColor] retain];
-		[self setString:@""];	// will set rich text to NO
+//		_spellCheckerDocumentTag=[NSSpellChecker uniqueSpellDocumentTag];
+//		textStorage=[NSTextStorage new];	// provide empty default text storage without layout manager connection
+//		_tx.ownsTextStorage=YES;			// that we own
+//		_tx.alignment = NSLeftTextAlignment;
+//		_tx.editable = YES;
+//		_tx.isRichText = NO;				// default
+//		_tx.selectable = YES;
+//		_tx.drawsBackground = YES;
+//		_tx.vertResizable = YES;	// default			
+//			_backgroundColor=[[NSColor textBackgroundColor] retain];
+//		[self setString:@""];	// will set rich text to NO
 		[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
 		_minSize=[coder decodeSizeForKey:@"NSMinize"];	// NB: this is a bug in Apple IB: key should be @"NSMinSize" - beware of changes by Apple
 		_maxSize=[coder decodeSizeForKey:@"NSMaxSize"];

@@ -756,7 +756,7 @@ static Class __rulerViewClass = nil;
 			if(len != sizeof(*amts))
 				NSLog(@"scroll amts=%p[%u]", amts, len);
 			else
-				{ // byte swap from bigendian to host byte order
+				{ // byte swap from bigendian to host byte order // FIXME: really?
 #if 0
 				_horizontalLineScroll=NSSwapBigFloatToHost(amts->hline);
 				_verticalLineScroll=NSSwapBigFloatToHost(amts->vline);
