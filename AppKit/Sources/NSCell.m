@@ -395,11 +395,11 @@ static NSColor *__borderedBackgroundColor = nil;
 {
 	if(flag)
 			{
-			[self setLineBreakMode:flag?NSLineBreakByWordWrapping];
+			[self setLineBreakMode:NSLineBreakByWordWrapping];
 			[self setScrollable:NO];
 			}
 	else  
-		[self setLineBreakMode:flag?NSLineBreakByClipping];
+		[self setLineBreakMode:NSLineBreakByClipping];
 }
 
 - (BOOL) isScrollable							{ return _c.scrollable; }
