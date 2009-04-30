@@ -73,7 +73,7 @@
 		}
 	}
 	else
-		[self drawWithFrame:cellFrame inView:controlView];	// should handle placeholder string
+		[super drawWithFrame:cellFrame inView:controlView];	// should handle placeholder string
 }
 
 - (NSArray *) allowedTypes; { return _allowedTypes; }

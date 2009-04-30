@@ -67,12 +67,12 @@ enum
 	NSFloatingWindowLevel = 5,
 	NSSubmenuWindowLevel  = 6,
 	NSTornOffMenuWindowLevel = NSSubmenuWindowLevel,
-	//	NSDockWindowLevel	  = 7,		// disappeared in 10.4
+	NSDockWindowLevel	  = 7,		// disappeared in 10.4
 	NSMainMenuWindowLevel = 8,
 	NSStatusWindowLevel   = 9,
 	NSModalPanelWindowLevel = 10,
 	NSPopUpMenuWindowLevel = 11,
-	NSScreenSaverWindowLevel = 12
+	NSScreenSaverWindowLevel = 13
 };
 
 enum

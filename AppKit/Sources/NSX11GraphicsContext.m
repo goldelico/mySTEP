@@ -634,7 +634,6 @@ typedef struct
 	unsigned long valuemask = 0;
 	XSetWindowAttributes winattrs;
 	XWMHints *wm_hints;
-	GSAttributes attrs;
 	NSRect frame;
 	int styleMask;
 	NSBackingStoreType backingType;
@@ -714,9 +713,9 @@ typedef struct
 	self=[self _initWithGraphicsPort:(void *) win];
 	if(backingType ==  NSBackingStoreBuffered && _doubleBufferering)
 		{ // allocate a backing store buffer pixmap for our window
-		XWindowAttributes attrs;
-		XGetWindowAttributes(_display, win, &attrs);
-		_graphicsPort=(void *) XCreatePixmap(_display, _realWindow, _xRect.width, _xRect.height, attrs.depth);
+		XWindowAttributes xwattrs;
+		XGetWindowAttributes(_display, win, &xwattrs);
+		_graphicsPort=(void *) XCreatePixmap(_display, _realWindow, _xRect.width, _xRect.height, xwattrs.depth);
 #if 0
 		XCopyArea(_display,
 				  _realWindow,
@@ -735,15 +734,10 @@ typedef struct
 	wm_hints->input = True;								
 	wm_hints->flags = StateHint | InputHint;		// WindowMaker ignores the
 	XSetWMHints(_display, _realWindow, wm_hints);	// frame origin unless it's also specified as a hint 
+	XFree(wm_hints);
+	[self _setLevel:[window level] andStyle:styleMask];
 	if((styleMask & NSClosableWindowMask))			// if window has close, button inform WM 
 		XSetWMProtocols(_display, _realWindow, &_deleteWindowAtom, 1);
-	attrs.window_level = [window level];
-	attrs.flags = GSWindowStyleAttr|GSWindowLevelAttr;
-	attrs.window_style = (styleMask & GSAllWindowMask);		// set WindowMaker WM
-	XChangeProperty(_display, _realWindow, _windowDecorAtom, _windowDecorAtom,		// window style hints
-					32, PropModeReplace, (unsigned char *)&attrs,
-					sizeof(GSAttributes)/sizeof(CARD32));
-	XFree(wm_hints);
 	return self;
 }
 
@@ -763,7 +757,6 @@ typedef struct
 #endif
 	_graphicsPort=port;	// _window is a typed alias for _graphicsPort
 	_realWindow=(Window) port;	// default is unbuffered
-	_windowNum=(int) (_graphicsPort);	// we should get a system-wide unique integer (slot #) from the window list/level manager
 	_scale=_nsscreen->_screenScale; 
 	[self saveGraphicsState];	// initialize graphics state with transformations, GC etc. - don't use anything which depends on graphics state before here!
 	XSelectInput(_display, _realWindow,
@@ -818,7 +811,7 @@ typedef struct
 		XFreePixmap(_display, (Pixmap) _graphicsPort);
 	if(_realWindow)
 		{
-		NSMapRemove(__WindowNumToNSWindow, (void *) _windowNum);	// Remove X11 Window to NSWindows mapping
+		NSMapRemove(__WindowNumToNSWindow, (void *) _realWindow);	// Remove X11 Window to NSWindows mapping
 		XDestroyWindow(_display, _realWindow);						// Destroy the X Window
 		XFlush(_display);
 		}
@@ -2089,8 +2082,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #if 0
 	NSLog(@"_draw: %@", rep);
 	NSLog(@"context %@", self);
-	NSLog(@"window number %d", _windowNum);
-	NSLog(@"window %@", [NSWindow _windowForNumber:_windowNum]);
+	NSLog(@"window number %d", _realWindow);
+	NSLog(@"window %@", [NSWindow _windowForNumber:_realWindow]);
 	NSLog(@"focusview %@", [NSView focusView]);
 	NSLog(@"scan rect=%@", NSStringFromRect(scanRect));
 #endif
@@ -2368,39 +2361,54 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 #pragma mark WindowControl
 
-- (int) _windowNumber; { return _windowNum; }
+- (int) _windowNumber; { return _realWindow; }
 
 - (void) _orderWindow:(NSWindowOrderingMode) place relativeTo:(int) otherWin;
-{ // NSWindow frontend should have identified the otherWin number from the global window list or pass 0 if unknown
+{ // NSWindow frontend should have identified the otherWin number from the global window list or pass 0 if global front/back
 	XWindowChanges values;
-	NSWindow *win=[NSApp windowWithWindowNumber:_windowNum];
+	NSWindow *win=[NSApp windowWithWindowNumber:_realWindow];
 #if 0
-	NSLog(@"_orderWindow:%02x relativeTo:%d", place, otherWin);
+	NSLog(@"_orderWindow: %d %@ %d", (int)_realWindow, (place==NSWindowOut?@"out":(place==NSWindowAbove?@"above":@"below")), otherWin);
+#if 1
+		{
+			char bfr[256];
+			sprintf(bfr, "/usr/X11/bin/xprop -id %d", (int) _realWindow);
+			system(bfr);
+			sprintf(bfr, "/usr/X11/bin/xprop -id %d", otherWin);
+			if(otherWin)
+				system(bfr);
+		}
+#endif
 #endif
 	if([win isMiniaturized])	// FIXME: used as special trick not to really map the window during init
 		return;
+	if(_realWindow == otherWin)
+			{
+				NSLog(@"can't order relative to self");	// already total front or back
+				return;
+			}
 	switch(place)
 		{
-		case NSWindowOut:
-			XUnmapWindow(_display, _realWindow);
-			break;
-		case NSWindowAbove:
-			XMapWindow(_display, _realWindow);	// if not yet
-			values.sibling=otherWin;		// 0 will order front
-			values.stack_mode=Above;
-			XConfigureWindow(_display, _realWindow, CWStackMode, &values);
-			break;
-		case NSWindowBelow:
-			XMapWindow(_display, _realWindow);	// if not yet
-			values.sibling=otherWin;		// 0 will order back
-			values.stack_mode=Below;
-			XConfigureWindow(_display, _realWindow, CWStackMode, &values);
-			break;
+			case NSWindowOut:
+				if([win isVisible])
+					XUnmapWindow(_display, _realWindow);
+				break;
+			case NSWindowAbove:
+				if(![win isVisible])
+					XMapWindow(_display, _realWindow);	// if not yet
+				values.sibling=(Window) otherWin;		// 0 will order front
+				values.stack_mode=Above;
+				XConfigureWindow(_display, _realWindow, (otherWin?(CWStackMode|CWSibling):CWStackMode), &values);
+				break;
+			case NSWindowBelow:
+				if(![win isVisible])
+					XMapWindow(_display, _realWindow);	// if not yet
+				values.sibling=(Window) otherWin;		// 0 will order back
+				values.stack_mode=Below;
+				XConfigureWindow(_display, _realWindow, (otherWin?(CWStackMode|CWSibling):CWStackMode), &values);
+				break;
 		}
 	XFlush(_display);	// directly send unmap/configure request to the server
-	// save (new) level in global window list so that we can order other windows accordingly
-	// maybe we should use a (root) window property to store the level?
-	// or at least a shared file with fast access (FILE * and fread() based)
 #if 0
 	{ // test code
 		NSPoint points[4] = { { 10.0, 10.0 } , { 20.0, 50.0 } , { 100.0, 0.0 } , { 80.0, 50.0 } };
@@ -2458,14 +2466,14 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 						 _xRect.width=newWidth,
 						 _xRect.height=newHeight);
 		if(_isDoubleBuffered(self))
-			{
-			XWindowAttributes attrs;
+			{ // resize backing store buffer
+			XWindowAttributes xwattrs;
 	#if 1
 			NSLog(@"resize backing store buffer");
 	#endif
-			XGetWindowAttributes(_display, _realWindow, &attrs);
+			XGetWindowAttributes(_display, _realWindow, &xwattrs);
 			XFreePixmap(_display, (Pixmap) _graphicsPort);
-			_graphicsPort=(void *) XCreatePixmap(_display, _realWindow, _xRect.width, _xRect.height, attrs.depth);
+			_graphicsPort=(void *) XCreatePixmap(_display, _realWindow, _xRect.width, _xRect.height, xwattrs.depth);
 	#if 0
 			XCopyArea(_display,
 					  win,	// should be old pixmap...
@@ -2492,17 +2500,18 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	// XStoreName???
 }
 
-- (void) _setLevel:(int) level;
+- (void) _setLevel:(int) level andStyle:(int) mask;
 { // note: it is the optimization task of NSWindow to call this only if setLevel really changes the level
-	GSAttributes attrs;
-#if 1
-	NSLog(@"setLevel of window %d", level);
+	GSAttributes wmattrs;
+#if 0
+	NSLog(@"setLevel %d of window %d (%d)", level, _realWindow, _realWindow);
 #endif
-	 attrs.window_level = level;
-	 attrs.flags = GSWindowLevelAttr;
-	 XChangeProperty(_display, _realWindow, _windowDecorAtom, _windowDecorAtom,		// window style hints
-					 32, PropModeReplace, (unsigned char *)&attrs,
-					 sizeof(GSAttributes)/sizeof(CARD32));
+		wmattrs.window_level = level;
+		wmattrs.flags = GSWindowStyleAttr|GSWindowLevelAttr;
+		wmattrs.window_style = (mask & GSAllWindowMask);		// set WindowMaker WM window style hints
+	XChangeProperty(_display, _realWindow, _windowDecorAtom, _windowDecorAtom,
+									32, PropModeReplace, (unsigned char *)&wmattrs,
+									sizeof(GSAttributes)/sizeof(CARD32));
 }
 
 - (void) _makeKeyWindow;
@@ -3082,17 +3091,33 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 	unsigned long bytes_after_return;
 	unsigned char *prop_return;
 	int level;
-	Display *_display;
-#if 1
+	NSWindow *win=[NSApp windowWithWindowNumber:windowNum];
+	if(win)
+		return [win level];	// it is our window so we don't have to ask the windows server
+#if 0
 	NSLog(@"getLevel of window %d", windowNum);
+#if 1
+		{
+			char bfr[256];
+			sprintf(bfr, "/usr/X11/bin/xprop -id %d", windowNum);
+			system(bfr);
+		}
 #endif
-	if(!XGetWindowProperty(_display, (Window) windowNum, _windowDecorAtom, 0, 0, False, _windowDecorAtom, 
-						   &actual_type_return, &actual_format_return, &nitems_return, &bytes_after_return, &prop_return))
-		return 0;	// level information is not available
+#endif
+	if(XGetWindowProperty(_display, (Window) windowNum,
+												 _windowDecorAtom,
+												 0, sizeof(GSAttributes)/sizeof(CARD32),
+												 False, AnyPropertyType, 
+												 &actual_type_return, &actual_format_return,
+												 &nitems_return, &bytes_after_return, &prop_return) != Success)
+		return -1;	// some error
+	if(actual_type_return == None)
+		return -1;	// no level for this window number available
+	// should check if nitems_return matches size of GSAttributes
 	level=((GSAttributes *) prop_return)->window_level;
 	XFree(prop_return);
-#if 1
-	NSLog(@"  = %d", level);
+#if 0
+	NSLog(@"got of window %d = %d", windowNum, level);
 #endif
 	return level;
 }
@@ -3133,56 +3158,62 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 	return screens;
 }
 
-// FIXME: can we cache the window list and catch mapping and restacking notifications from all other windows?
-// at least we should apply a trick to fetch the windows only once by checking for list == NULL followed by call with list != NULL
-// FIXME: what is the context?
+// FIXME: handle the context
+// according to latest documentation: Provides an ordered list of onscreen windows for a particular application, identified by context, which is a window server connection ID
+// so is it equivalent to a client ID
+// FIXME: how is the stacking order defined for multiple screens?
 
-/* this must be
- a) fast, 
- b) front2back, 
- c) allow for easy access to the window level,
- d) returns internal window numbers and not NSWindows
- e) for potentially ALL applications
- */
-
-+ (int) _systemWindowListForContext:(int) context size:(int) size list:(int *) list;	// list may be NULL, return # of entries copied
-{ // get window numbers from front to back
++ (int) _systemWindowListForContext:(int) context size:(int) size list:(int *) list;	// list may be NULL. Then, return # of entries copied
+{ // get window numbers of visible windows from front to back
 	int i, j, s;
 	static Window *children;	// list of children (cached)
 	static unsigned int nchildren; // number of entries (cached)
 	j=0;
 	for(s=0; s<ScreenCount(_display) && j<size; s++)
-		{
+			{ // loop over all screens (this mixes up the stacking order!)
 #if 1
-		NSLog(@"XQueryTree");
+				NSLog(@"XQueryTree for screen %d", s);
 #endif
-		if(!list || !children)
-			{ // asking for number of windows only or not yet cached
-			nchildren=size;
-// FIXME: XQueryTree approach must fail since it does not return appropriate stacking order for child windows with different parent!!!
-#if CRASHES
-				if(!XQueryTree(_display, RootWindowOfScreen(XScreenOfDisplay(_display, s)), NULL, NULL, &children, &nchildren))
-				 return 0;	// failed
-#else
-				nchildren=0;
+				if(!list || !children)
+						{ // asking for number of windows only or not yet cached
+							Window root, parent;
+							nchildren=size;
+							// NOTE: XQueryTree could fail since it does not return appropriate stacking order for child windows with different parent!
+							// but all our windows are children of the root window
+							if(!XQueryTree(_display, RootWindowOfScreen(XScreenOfDisplay(_display, s)), &root, &parent, &children, &nchildren))
+								return 0;	// failed
+#if 0
+							NSLog(@"  nchildren= %d", nchildren);
 #endif
-#if 1
-			NSLog(@"  nchildren= %d", nchildren);
-#endif
+						}
+				for(i=nchildren-1; i >= 0 && j < size; i--)
+						{ // process and count or append windows
+							NSWindow *win;
+							if(context != 0 && 0 /* not equal */)
+									{
+										// context is a client ID
+										// FIXME: remove from children list cache
+										continue;	// skip since it is owned by a different application
+									}
+							win=[NSApp windowWithWindowNumber:children[i]];
+							if(!win)
+									{ // get visibility from Server
+										XWindowAttributes xwattrs;
+										XGetWindowAttributes(_display, children[i], &xwattrs);
+										if(xwattrs.map_state != IsViewable)
+											// FIXME: remove from children list cache
+											continue;	// Server says this window is not visible
+									}
+							else if(![win isVisible])	// ask local state
+								// FIXME: remove from children list cache
+								continue;	// skip windows that are not visible
+							if(list)
+								list[j]=(int) children[i];	// get windows in front2back order and translate to window numbers
+							j++;
+						}
+				if(list)
+					XFree(children), children=NULL;	// recache once we have really used the list
 			}
-		for(i=nchildren-1; i >= 0 && j < size; i--, j++)
-			{ // process and count windows
-			if(context != 0 && 0 /* not equal */)
-				{
-				// what is context? A client ID? A process ID?
-				continue;	// skip since it is owned by a different application
-				}
-			if(list)
-				list[j]=(int) children[i];	// get windows in front2back order and translate to window numbers
-			}
-		if(list)
-			XFree(children), children=NULL;	// recache once we have really used the list
-		}
 	return j;
 }
 
@@ -4019,11 +4050,12 @@ static NSDictionary *_x11settings;
 		}
 	event.window=[e windowNumber];	// use 1 == InputFocus
 	win=[NSApp windowWithWindowNumber:event.window];	// try to find
-	ctxt=(_NSX11GraphicsContext *) [win graphicsContext];
 	if(!win)
-		{ // we don't know the window...
+		{ // we don't know this window...
 		// ???
+			return;
 		}
+	ctxt=(_NSX11GraphicsContext *) [win graphicsContext];
 	event.display = _display;
 	event.root = RootWindowOfScreen(_screen);
 	event.subwindow = None;

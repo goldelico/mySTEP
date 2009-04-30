@@ -110,7 +110,7 @@
 - (BOOL) _isKeyWindow;		// if we have keyboard focus
 - (NSRect) _frame;			// get current frame as on screen (might have been moved by window manager)
 - (NSRect) _clipBox;		// get current clipbox
-- (void) _setLevel:(int) level;				// set level property
+- (void) _setLevel:(int) level andStyle:(int) mask;				// set window level and style mask property
 - (void) _setOrigin:(NSPoint) point;		// just move
 - (void) _setOriginAndSize:(NSRect) frame;	// usually, this means moving and resizing
 - (void) _setTitle:(NSString *) string;		// same as _beginPage???

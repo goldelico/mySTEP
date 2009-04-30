@@ -241,7 +241,7 @@ static BOOL __cursorHidden = NO;
 			[b lineToPoint:NSMakePoint(NSMaxX(_frame), NSMaxY(_frame))];	// bottom right
 			[b lineToPoint:NSMakePoint(0.0, NSMaxY(_frame))];	// bottom left
 			[b closePath];
-#if 1
+#if 0
 				NSLog(@"set window shape %@", b);
 #endif
 			[ctxt _setShape:b];
@@ -504,7 +504,7 @@ static BOOL __cursorHidden = NO;
 										{ // check if we a have resize enabled in _style and we clicked on lower right corner
 											if((_style & NSResizableWindowMask) == 0 || p.y > 10.0 || p.x < _frame.size.width-10.0)
 													{
-														// FIXME: we can also check if we are textured and the hit point is "background"
+														// FIXME: we can also check if we are textured and the point we did hit is considered "background"
 														NSLog(@"inside");
 														return;	// ignore if neither in title bar nor resize area
 													}
@@ -1215,7 +1215,7 @@ static NSButtonCell *sharedCell;
 #endif
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSApplicationDidChangeScreenParametersNotification object:nil];
 	[self resignKeyWindow];
-#if 1
+#if 0
 	NSLog(@"a");
 #endif
 	[self resignMainWindow];
@@ -1311,10 +1311,7 @@ static NSButtonCell *sharedCell;
 			[NSException raise:NSGenericException format:@"Unable to find a default NSScreen"];
 		_screen=aScreen;	// screens are never released
 		_w.menuExclude = [self isKindOfClass:[NSPanel class]];
-		if(_w.menuExclude)
-			_level=NSModalPanelWindowLevel;	// default for NSPanels
-		else
-			_level=NSNormalWindowLevel;	// default for NSWindows
+		_level=NSNormalWindowLevel;	// default for NSWindows
 		if(aStyle&NSUnscaledWindowMask)
 			_userSpaceScaleFactor=1.0;
 		else
@@ -1585,7 +1582,7 @@ static NSButtonCell *sharedCell;
 			{
 				if(!_context)
 						{ // allocate context (had been temporarily deallocated if we are a oneshot window)
-							_context=[[NSGraphicsContext graphicsContextWithWindow:self] retain];	// now, create window
+							_context=[[NSGraphicsContext graphicsContextWithWindow:self] retain];	// now, create window (will set level)
 							_gState=[_context _currentGState];			// save gState
 						}
 				[self setFrame:[self constrainFrameRect:_frame toScreen:_screen] display:_w.visible animate:_w.visible];	// constrain window frame if needed
@@ -1601,18 +1598,48 @@ static NSButtonCell *sharedCell;
 				if(!otherWin)
 						{ // find first/last window on same level to place in front/behind
 							int i;
+							int thisWin=[self windowNumber];
 							int n=[NSScreen _systemWindowListForContext:0 size:99999 list:NULL];	// get number of windows
 							int *list=(int *) objc_malloc(n*sizeof(int));	// allocate buffer
-							[NSScreen _systemWindowListForContext:0 size:n list:list];	// fetch window list (must be front to back stacking order)
-							for(i=n-1; i>0; i--)
-									{
-										int level=[NSWindow _getLevelOfWindowNumber:list[i]];
+							[NSScreen _systemWindowListForContext:0 size:n list:list];	// fetch window list (must be front to back stacking order, i.e. highest to lowest levels)
+#if 0
+							{
+								int prevlevel=999999;
+								for(i=0; i<n; i++)
+										{
+											int level=[NSWindow _getLevelOfWindowNumber:list[i]];
+											NSLog(@"[%02d]: %d %d %@", i, list[i], level, [NSApp windowWithWindowNumber:list[i]]);
+											if(level >= 0)
+													{
+														if(level > prevlevel)
+															NSLog(@"window stacking problem!");
+														prevlevel=level;
+													}
+										}
+							}
+#endif
+							for(i=0; i<n; i++)
+									{ // go from front to back to find insertion position
+										int level;
+										if(list[i] == thisWin)
+											continue;	// skip ourselves in calculating new position
+										level=[NSWindow _getLevelOfWindowNumber:list[i]];	// BACKEND extension
+#if 0
+										NSLog(@"win %d level %d", list[i], level);
+#endif
+			//							if(level < 0)
+			//								continue;	// we don't know - so ignore
 										if(place == NSWindowBelow && level < _level)
 											break;	// window has a lower level as ours, i.e. the previous was the last of our level
 										otherWin=list[i];
-										if(place == NSWindowAbove && level == _level)
-											break;	// window is first with same level as ours, i.e. the current front window
-									} // otherwin may remain 0!
+										if(place == NSWindowAbove && level <= _level)
+											break;	// window is first with same or lower level as ours, i.e. the current front window on this level
+									} // otherwin may remain 0 which means total front or back!
+							if(i == n && place == NSWindowAbove)	// did not find an appropriate level (all others have higher level)
+								place=NSWindowBelow, otherWin=0;	// move behind all levels
+#if 0
+							NSLog(@"otherwin = %d", otherWin);
+#endif
 							objc_free(list);
 						}
 			}
@@ -1653,9 +1680,8 @@ static NSButtonCell *sharedCell;
 	if(_level == newLevel)
 		return;	// unchanged
 	_level=newLevel;
-	[_context _setLevel:newLevel];	// save in window list
 	if(_w.visible)
-		[self orderWindow:NSWindowAbove relativeTo:0];	// and immediately rearrange
+		[self orderWindow:NSWindowAbove relativeTo:0];	// if visible - order front
 }
 
 - (void) setCanHide:(BOOL)flag				{ _w.canHide = flag; }
@@ -2742,31 +2768,8 @@ id prev;
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder
-{
-	// FIXME: we can only decode a NSWindowTemplate from NIBs
-	// and doc says that this call should create an error message!
-	int _windowNum;
-	self=[super initWithCoder:aDecoder];
-	if([aDecoder allowsKeyedCoding])
-		return NIMP;
-	
-	NSDebugLog(@"NSWindow: start decoding\n");
-	_frame = [aDecoder decodeRect];
-	_themeFrame = [aDecoder decodeObject];
-	_initialFirstResponder = [aDecoder decodeObject];
-//  [aDecoder decodeObjectAt: &_delegate withName:NULL];
-	[aDecoder decodeValueOfObjCType:"i" at:&_windowNum];
-	[self setBackgroundColor:[aDecoder decodeObject]];
-	_representedFilename = [aDecoder decodeObject];
-	_miniWindowTitle = [aDecoder decodeObject];
-	_windowTitle = [aDecoder decodeObject];
-	_minSize = [aDecoder decodeSize];
-	_maxSize = [aDecoder decodeSize];
-	_miniWindowImage = [aDecoder decodeObject];
-	[aDecoder decodeValueOfObjCType:@encode(int) at: &_level];
-	[aDecoder decodeValueOfObjCType:@encode(unsigned int) at: &_w];
-	
-	return self;
+{ // we can only decode a NSWindowTemplate from NIBs and doc says that this call should create an error message!
+	return NIMP;
 }
 
 - (void) setWindowController:(NSWindowController *)windowController; { ASSIGN(_windowController, windowController); }

@@ -66,10 +66,13 @@
 							backing:bufferingType
 							  defer:flag
 							 screen:aScreen];
+	// FIXME: NSHUDWindowMask
+	// FIXME: NSDocModalWindowMask
 	if(self)
 		{
 		_w.releasedWhenClosed = NO;	// panels need explicit release
 		_w.hidesOnDeactivate = YES;
+			[self setFloatingPanel:aStyle&NSUtilityWindowMask];	// other mask bits are handled in NSWindow
 		[self setTitle: @""];
 		}
 	NSDebugLog(@"NSPanel end of init\n");

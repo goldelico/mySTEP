@@ -81,7 +81,6 @@ typedef struct _NSX11GraphicsState
 #define _state ((_NSX11GraphicsState *) _graphicsState)		// our graphics state
 	float _scale;						// our scaling factor
 	float _fraction;					// compositing fraction
-	int _windowNum;						// window number
 	Picture _picture;					// window supports render extension
 }
 
