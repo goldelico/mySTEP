@@ -1337,6 +1337,12 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 - (id) initWithCoder:(NSCoder *)aCoder
 {
+	/*
+	 NSSegments
+	 NSLineWidth
+	 NSFlatness
+	*/
+	
 	NSBezierPathElement type;
 	NSPoint pts[3];
 	int i, count;
