@@ -11,7 +11,17 @@
 @class NSCollectionViewItem; 
 
 @interface NSCollectionView : NSView <NSCoding> {
-
+	BOOL _allowsMultipleSelection;
+	NSArray *_backgroundColors;
+	NSArray *_content;
+	BOOL _firstResponder;
+	BOOL _selectable;
+	NSCollectionViewItem *_itemPrototype;
+	NSSize _maxItemSize;
+	NSSize _minItemSize;
+	NSUInteger _maxNumberOfColumns;
+	NSUInteger _maxNumberOfRows;
+	NSIndexSet *_selectionIndexes;
 }
 
 - (BOOL) allowsMultipleSelection; 
