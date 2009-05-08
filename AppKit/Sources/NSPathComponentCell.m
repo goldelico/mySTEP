@@ -2,14 +2,13 @@
 //  NSPathComponentCell.m
 //  AppKit
 //
-//  Created by Fabian Spillner on 29.11.07.
+//  Created by Fabian Spillner on 29.11.07. Reworked by Jens Idelberger
 //  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 //  Implemented by Nikolaus Schaller on 03.03.08.
 //
 
 #import <AppKit/AppKit.h>
-
 
 @implementation NSPathComponentCell
 
@@ -60,6 +59,7 @@
 	NSRect titleRect = [self titleRectForBounds:cellFrame];	// call [super drawWithFrame:left
 	[_image drawInRect:imageRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];	// first the image
 	[super drawWithFrame:titleRect inView:controlView];	// we are a NSTextFieldCell
+	
 }
 
 - (void) dealloc; { [_image release]; [_URL release]; [super dealloc]; }
@@ -67,6 +67,8 @@
 - (void) setImage:(NSImage *) image; { ASSIGN(_image, image); }
 - (void) setURL:(NSURL *) url; { ASSIGN(_URL, url); }
 - (NSURL *) URL; { return _URL; }
+
+
 
 - (id) initWithCoder:(NSCoder *) coder;
 {

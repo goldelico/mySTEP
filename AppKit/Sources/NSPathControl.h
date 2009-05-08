@@ -8,16 +8,18 @@
 
 #import <AppKit/NSControl.h>
 #import <AppKit/NSDragging.h>
-#import "NSPathCell.h"
+#import <AppKit/NSPathCell.h>
 
 @class NSColor, NSPathComponentCell;
 
 @interface NSPathControl : NSControl {
-	// id _delegate;	// special for mySTEP: NSControl already defines _delegate
 	NSDragOperation _localDraggingMask;
 	NSDragOperation _remoteDraggingMask;
-//	NSTrackingArea *_trackingArea;
-	NSInteger *_trackingTag;
+	//NSTrackingArea *_trackingArea; für 10.5
+	NSInteger _trackingTag;
+#ifdef TESTING
+	NSString *_delegate;
+#endif
 }
 
 - (NSColor *) backgroundColor; 
@@ -45,5 +47,4 @@
 - (NSDragOperation) pathControl:(NSPathControl *) sender validateDrop:(id <NSDraggingInfo>) draggingInfo; 
 - (void) pathControl:(NSPathControl *) sender willDisplayOpenPanel:(NSOpenPanel *) openPanel; 
 - (void) pathControl:(NSPathControl *) sender willPopUpMenu:(NSMenu *) menu; 
-
 @end

@@ -10,6 +10,8 @@
 
 #import <AppKit/AppKit.h>
 
+#import <AppKit/NSPathCell.h>
+#import <AppKit/NSPathControl.h>
 
 static Class __controlCellClass = Nil;
 

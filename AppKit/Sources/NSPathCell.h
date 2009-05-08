@@ -6,31 +6,38 @@
 //  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
+
 #import <AppKit/NSActionCell.h>
 
-@class NSPathComponentCell; 
-@class NSOpenPanel; 
-@class NSMenu; 
+@class NSMenu;
+@class NSString, NSImage, NSMutableArray, NSArray, NSAnimation, NSPathCell, NSPathComponentCell, NSURL, NSPopUpButtonCell, NSNotification, NSOpenPanel;
 
 enum {
 	NSPathStyleStandard,
 	NSPathStyleNavigationBar,
 	NSPathStylePopUp,
 };
+
 typedef NSInteger NSPathStyle;
 
-@interface NSPathCell : NSActionCell 
-{
+@interface NSPathCell : NSActionCell {
+@private
+
 	NSArray *_allowedTypes;
 	NSColor *_backgroundColor;
 	NSPathComponentCell *_clickedPathComponentCell; 
 	id _delegate; 
 	NSArray *_pathComponentCells; 
+	NSAttributedString *_placeholderAttributedString;
 	NSRect *_rects;
+	NSCell *_dontTruncateCell;
 	SEL _doubleAction; 
 	NSPathStyle _pathStyle;
-	NSCell *_dontTruncateCell;
 	BOOL _needsSizing;
+	NSString *_title;
+#ifdef TESTING
+	NSString *_placeholderString;
+#endif
 }
 
 + (Class) pathComponentCellClass;

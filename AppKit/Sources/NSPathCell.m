@@ -10,6 +10,7 @@
 
 #import <AppKit/AppKit.h>
 
+
 @implementation NSPathCell
 
 + (Class) pathComponentCellClass;
@@ -49,7 +50,7 @@
 	NSRectFill(cellFrame);
 	if(_pathStyle != NSPathStylePopUp)
 		; // draw popup icon
-	if([_pathComponentCells count] > 0 && _pathStyle != NSPathStylePopUp)
+	if([_pathComponentCells count] > 0 && _pathStyle == NSPathStyleStandard)
 	{ // draw cells
 		NSEnumerator *e=[_pathComponentCells objectEnumerator];
 		NSPathComponentCell *cell;
@@ -60,7 +61,7 @@
 			// draw item separator(s)
 			if (cell != nil) { // draw the separator...
 				NSBezierPath *theSeparator = [NSBezierPath bezierPath];
-				NSSize cellSize = m.size; //the size calculated before.				
+				NSSize cellSize = m.size;				
 				NSRect sepRect = NSMakeRect(m.origin.x+cellSize.width, (cellFrame.size.height/2)-3.0, 6.0,6.0);
 				[[NSColor grayColor] setFill];
 				[theSeparator moveToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y)];
@@ -72,8 +73,34 @@
 			}
 		}
 	}
-	else
-		[super drawWithFrame:cellFrame inView:controlView];	// should handle placeholder string
+	
+	if([_pathComponentCells count] > 0 && _pathStyle == NSPathStyleNavigationBar)
+	{ // draw cells
+		NSEnumerator *e=[_pathComponentCells objectEnumerator];
+		NSPathComponentCell *cell;
+		while((cell = [e nextObject]))
+		{
+			NSRect m = [self rectOfPathComponentCell:cell withFrame:cellFrame inView:controlView];
+			[cell drawWithFrame:m inView:controlView];
+			// draw item separator(s)
+			//draw first separator
+			[[NSColor yellowColor] setFill];
+			[[NSColor blackColor] setStroke];
+			NSBezierPath * MyBezierPath = [NSBezierPath bezierPath];
+			NSGradient *MyGradient = [[NSGradient alloc] initWithStartingColor:[NSColor blueColor] endingColor:[NSColor whiteColor]];
+			[MyBezierPath moveToPoint:m.origin];
+			[MyBezierPath lineToPoint:NSMakePoint(m.origin.x, (m.origin.y+m.size.height))];
+			[MyBezierPath lineToPoint:NSMakePoint(m.origin.x+(m.size.width - 20), (m.origin.y+m.size.height))];
+			[MyBezierPath lineToPoint:NSMakePoint(m.origin.x+m.size.width, (m.origin.y+m.size.height)/2)];
+			[MyBezierPath lineToPoint:NSMakePoint(m.origin.x+(m.size.width - 20), m.origin.y)];
+			[MyBezierPath lineToPoint:m.origin];
+			[MyBezierPath closePath];
+			[MyGradient drawInBezierPath:MyBezierPath angle:90];
+			[MyBezierPath stroke];	
+		}
+	}
+	//else
+	//	[self drawWithFrame:cellFrame inView:controlView];	// should handle placeholder string
 }
 
 - (NSArray *) allowedTypes; { return _allowedTypes; }
@@ -84,20 +111,36 @@
 
 - (void) mouseEntered:(NSEvent *) evt withFrame:(NSRect) frame inView:(NSView *) view;
 {
-	_dontTruncateCell = [self pathComponentCellAtPoint: [evt locationInWindow] withFrame:frame inView:view];
-	_needsSizing=YES;	// recalculate cell positions
-	[[self controlView] updateCell:self];
 	NSLog(@"Mouse entered!");
-	if (_dontTruncateCell) {
-		NSLog(@"Cell gefunden");
-	}
+	BOOL state=[[view window] acceptsMouseMovedEvents];
+	[[view window] setAcceptsMouseMovedEvents:YES];
+	while(YES)
+			{
+				NSPoint event_location = [evt locationInWindow];
+				NSPoint local_point = [view convertPoint:event_location fromView:nil];
+				_dontTruncateCell = [self pathComponentCellAtPoint: local_point withFrame:frame inView:view];
+				_needsSizing=YES;	// must recalculate cell positions
+				[view setNeedsDisplay:YES];
+				if (_dontTruncateCell) {
+					NSLog(@"Cell gefunden");
+				}
+				evt = [NSApp nextEventMatchingMask:NSAnyEventMask 
+																 untilDate:[NSDate distantFuture]
+																		inMode:NSEventTrackingRunLoopMode 
+																	 dequeue:YES];
+				[NSApp sendEvent:evt];	// dispatch event
+				if([evt type] == NSMouseExited)
+					break;
+			}
+	if(!state)
+		[[view window] setAcceptsMouseMovedEvents:NO];
 }
 
 - (void) mouseExited:(NSEvent *) evt withFrame:(NSRect) frame inView:(NSView *) view;
 {
 	_dontTruncateCell=nil;
 	_needsSizing=YES;	
-	[[self controlView] updateCell:self];
+	[view setNeedsDisplay:YES];
 	NSLog(@"Mouse exited!");
 }
 
@@ -124,41 +167,43 @@
 	if(idx == NSNotFound)
 		return NSZeroRect;
 	if(_needsSizing)
-			{ // (re)calculate cell positions
-				unsigned int i;
-				unsigned int cnt=[_pathComponentCells count];
-				NSRect r=rect;
-				_rects=(NSRect *) objc_realloc(_rects, sizeof(_rects[0])*MAX(cnt, 1));
-				for(i=0; i<cnt; i++)
-						{
-							NSPathComponentCell *cell=[_pathComponentCells objectAtIndex:i];
-							r.size=[cell cellSize];	// make as wide as the cell content defines
-							r.size.height=rect.size.height;	// and as high as the NSPathCell
-							_rects[i]=r;
-							r.origin.x += NSWidth(r)+8.0;	// advance
-						}
-				if(cnt > 0 && NSMaxX(_rects[cnt-1]) > NSMaxX(rect))
-						{ // total width of cells is wider than our cell frame
-							float oversize=NSMaxX(_rects[cnt-1]) - NSMaxX(rect);
-							if(cnt > 1 && _dontTruncateCell)
-								oversize /= (cnt-2);	// how much we have to reduce each cell except the cell where the mouse is currently over
-							else
-								oversize /= (cnt-1);	// how much we have to reduce each cell
-							for(i=0; i<cnt; i++)
-									{
-										if([_pathComponentCells objectAtIndex:i] == _dontTruncateCell)
-											continue;	// exclude from truncating this cell
-										_rects[i].size.width -= oversize;	// reduce total width
-										if(_rects[i].size.width < _rects[i].size.height)
-											_rects[i].size.width = _rects[i].size.height;	// must be at least a square to show the icon
-//										[[_pathComponentCells objectAtIndex:i] setLineBreakMode:NSLineBreakByTruncatingTail];
-										if(i+1 < cnt)
-											_rects[i+1].origin.x = NSMaxX(_rects[i])+8.0;	// define start of next cell
-									}
-						}
+	{ // (re)calculate cell positions
+		unsigned int i;
+		unsigned int cnt=[_pathComponentCells count];
+		NSRect r=rect;
+		_rects=(NSRect *) objc_realloc(_rects, sizeof(_rects[0])*MAX(cnt, 1));
+		for(i=0; i<cnt; i++)
+		{
+			NSPathComponentCell *cell=[_pathComponentCells objectAtIndex:i];
+			r.size=[cell cellSize];	// make as wide as the cell content defines
+			r.size.height=rect.size.height;	// and as high as the NSPathCell
+			_rects[i]=r;
+			r.origin.x += NSWidth(r)+8.0;	// advance
+		}
+		if(cnt > 0 && NSMaxX(_rects[cnt-1]) > NSMaxX(rect))
+		{ // total width of cells is wider than our cell frame
+			float oversize=NSMaxX(_rects[cnt-1]) - NSMaxX(rect);
+			if(cnt > 1 && _dontTruncateCell)
+				oversize /= (cnt-2);	// how much we have to reduce each cell except the cell where the mouse is currently over
+			else
+				oversize /= (cnt-1);	// how much we have to reduce each cell
+			for(i=0; i<cnt; i++)
+			{
+				if([_pathComponentCells objectAtIndex:i] == _dontTruncateCell)
+					continue;	// exclude from truncating this cell
+				_rects[i].size.width -= oversize;	// reduce total width
+				if(_rects[i].size.width < _rects[i].size.height)
+					_rects[i].size.width = _rects[i].size.height;	// must be at least a square to show the icon
+				//										[[_pathComponentCells objectAtIndex:i] setLineBreakMode:NSLineBreakByTruncatingTail];
+				if(i+1 < cnt)
+					_rects[i+1].origin.x = NSMaxX(_rects[i])+8.0;	// define start of next cell
 			}
+		}
+		_needsSizing=NO;
+	}
 	return _rects[idx];
 }
+
 
 - (void) setAllowedTypes:(NSArray *) types; { ASSIGN(_allowedTypes, types); }
 - (void) setBackgroundColor:(NSColor *) col; { ASSIGN(_backgroundColor, col); }
@@ -171,7 +216,6 @@
 	while((cell = [e nextObject]))
 		[cell setControlSize:controlSize];
 	_needsSizing=YES;
-	[[self controlView] updateCell:self];
 }
 
 - (void) setDelegate:(id) delegate; { _delegate=delegate; }
@@ -188,7 +232,7 @@
 	}
 }
 
-- (void) setPathComponentCells:(NSArray *) cells; { ASSIGN(_pathComponentCells, cells); _needsSizing=YES; [[self controlView] updateCell:self]; }
+- (void) setPathComponentCells:(NSArray *) cells; { ASSIGN(_pathComponentCells, cells); _needsSizing=YES; }
 
 - (void) setPathStyle:(NSPathStyle) pathStyle;
 {
@@ -196,7 +240,6 @@
 	_needsSizing=YES;	// resize for new style
 	if(pathStyle == NSPathStyleNavigationBar)
 		[self setControlSize:NSSmallControlSize];	// enforce
-	[[self controlView] updateCell:self];
 }
 
 - (void) setURL:(NSURL *) url;
@@ -217,7 +260,7 @@
 				partialURL = [NSURL fileURLWithPath:partialURLString];
 			} else {
 				// FIXME: this does not cover all legal cases, e.g. user&password included, empty host name etc.
-				partialURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://%@%@", [url scheme], [url host] /* FIXME: , [url port] */, partialURLString]];	// should include scheme, host etc.
+				partialURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://%@%@", [url scheme], [url host], partialURLString]];	// should include scheme, host etc.
 			}
 			[cell setTitle:[[partialURL path] lastPathComponent]];
 			if (isFile && i==0) {
@@ -237,6 +280,7 @@
 				}
 			}
 			[cell setURL:partialURL];
+			//[cell truncate:NO];
 			[cells addObject:cell];
 			[cell release];
 			[partialURL release];
@@ -296,15 +340,17 @@
 - (id) initWithCoder:(NSCoder *) coder;
 {
 	if((self = [super initWithCoder:coder]))
-			{
-				// FIXME: check what IB writes into NIB/XIB files
-				[self setAllowedTypes:[coder decodeObjectForKey:@"allowedTypes"]];
-				[self setBackgroundColor:[coder decodeObjectForKey:@"backgroundColor"]];
-				[self setPathComponentCells:[coder decodeObjectForKey:@"componentCells"]];
-				[self setPlaceholderAttributedString:[coder decodeObjectForKey:@"placeholderAttributedString"]];
+	{
+		// FIXME: check what IB writes into NIB/XIB files
+		[self setAllowedTypes:[coder decodeObjectForKey:@"allowedTypes"]];
+		[self setBackgroundColor:[coder decodeObjectForKey:@"backgroundColor"]];
+		[self setPathComponentCells:[coder decodeObjectForKey:@"componentCells"]];
+		[self setPlaceholderAttributedString:[coder decodeObjectForKey:@"placeholderAttributedString"]];
 	}
 	return self;
 }
+
+
 
 @end
 
