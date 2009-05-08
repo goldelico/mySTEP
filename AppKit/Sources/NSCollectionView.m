@@ -7,9 +7,11 @@
 //
 
 #import "NSCollectionView.h"
+#import "NSCollectionViewItem.h"
 
 
 @implementation NSCollectionView
+
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
@@ -21,6 +23,7 @@
 - (void)drawRect:(NSRect)rect {
     
 }
+
 - (BOOL) allowsMultipleSelection {return _allowsMultipleSelection;} 
 - (NSArray *) backgroundColors {return _backgroundColors;} 
 - (NSArray *) content {return _content;} 
@@ -62,7 +65,7 @@
 - (void) setContent:(NSArray *) newContent{
 	ASSIGN(_content, newContent);
 }
-- (void) setItemPrototype:(MWCollectionViewItem *) itemPrototype{
+- (void) setItemPrototype:(NSCollectionViewItem *) itemPrototype{
 	ASSIGN(_itemPrototype,itemPrototype);
 }
 - (void) setMaxItemSize:(NSSize) size{

@@ -10,11 +10,12 @@
 
 
 @implementation NSCollectionViewItem
+
 - (id) init
 {
 	self = [super init];
 	if (self != nil) {
-		_selected = NO;
+		_isSelected = NO;
 		
 	}
 	return self;
@@ -26,7 +27,7 @@
 }
 
 - (BOOL) isSelected {
-	return _selected;
+	return _isSelected;
 }
 - (id) representedObject{
 	return _representedObject;
@@ -35,7 +36,7 @@
 	ASSIGN(_representedObject,obj);
 }
 - (void) setSelected:(BOOL) flag {
-	_selected = flag;
+	_isSelected = flag;
 }
 - (void) setView:(NSView *) view {
 	ASSIGN(_view,view);
