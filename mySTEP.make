@@ -53,6 +53,8 @@ endif
 ifeq ($(ARCHITECTURES),)
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 # set all architectures for which we know a compiler (should also check that we have a libobjc.so for this architecture!)
+# and that other libraries and include directories are available...
+
 ARCHITECTURES=$(shell cd $(ROOT)/this/gcc && echo *-*-*)
 else
 # set default architecture for development only
