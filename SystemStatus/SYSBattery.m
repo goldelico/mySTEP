@@ -15,29 +15,47 @@
 
 @implementation SYSBattery
 
-// OS X seems to provide something like
-// ioreg -l | grep -i IOBatteryInfo
-// | |   |   |     "IOBatteryInfo" = ({"Capacity"=1644,"Amperage"=932,"Current"=1638,"Voltage"=16388,"Flags"=838860805})
-// should we return such an NSDictionary?
-// what does the Flags mean?
+/*
+ OS X seems to provide something like
+ ioreg -l | grep -i IOBatteryInfo
+ | |   |   |     "IOBatteryInfo" = ({"Capacity"=1644,"Amperage"=932,"Current"=1638,"Voltage"=16388,"Flags"=838860805})
+ should we return such an NSDictionary?
+ what does the Flags mean?
 
-// Linux apparently provides:
-//
-// /proc/apm - primitive info; single battery only - provided as string for sscanf()
-// /proc/acpi/ac_adapter/#/info
-// /proc/acpi/battery
-// /proc/acpi/info
-//
-// Zaurus ROM 3.10 provides /proc/apm (only)
-//
-// an example how to use can be found in Kismet: panelfront.cc/int PanelFront::Tick()
+ Linux apparently provides:
+
+ /proc/apm - primitive info; single battery only - provided as string for sscanf()
+
+ or alternatively
+ /proc/acpi/ac_adapter/#/info
+ /proc/acpi/battery/#/status
+ /proc/acpi/battery/#/info
+
+ e.g.
+cat /proc/acpi/battery/BAT0/state
+present:                 yes
+capacity state:          ok
+charging state:          charged
+present rate:            unknown
+remaining capacity:      90 mAh
+present voltage:         8262 mV
+ 
+ cat /proc/acpi/battery/BAT0/info
+...
+ last full capacity:      100 mAh
+
+=> read both /proc/acpi/battery/BAT0/info & /proc/acpi/battery/BAT0/status to derive a % indicator
+ 
+ Zaurus ROM 3.10 provides /proc/apm (only)
+
+*/
 
 struct bat 
-{
+{ // apm record
 	int available;		// battery status is available
 	int ac;				// connected to AC
 	int percentage;		// % charged (during charging/discharging)
-	int time;			// remaining time to charge/discharge)
+	int time;			// remaining time (to charge/discharge)
 	int charging;		// is (still) charging
 	int linestatus;		// AC power line status
 	int batterystatus;  // battery status flag
@@ -56,7 +74,7 @@ static struct bat getbat(void)
 		return r;
 		}
 	// FIXME: either use UTF8String or fileSystemRepresentation
-	f=fopen([tool cString], "r");
+	f=fopen([tool UTF8String], "r");
 	if(!f)
 		{ // apm can't be opened
 		memset(&r, 0, sizeof(r));
@@ -92,6 +110,16 @@ static struct bat getbat(void)
 	return b; 
 }
 
+- (void) _update
+{
+	if(!lastUpdate || ([lastUpdate timeIntervalSinceNow] < -2.0))
+			{ // more than 2 seconds ago
+				// read and translate file (either /proc/apm or /proc/acpi/battery/BAT0/info & /proc/acpi/battery/BAT0/status)
+				[lastUpdate release];
+				lastUpdate=[[NSDate alloc] init];
+			}
+}
+
 - (float) batteryFillLevel;
 { // how much filled / -1 if unknown
 #if DEMO
@@ -103,6 +131,11 @@ static struct bat getbat(void)
 #else
 	return getbat().percentage/100.0;
 #endif
+}
+
+- (BOOL) batteryIsInstalled;
+{
+	return getbat().available;
 }
 
 - (BOOL) batteryIsCharging;
@@ -130,31 +163,33 @@ static struct bat getbat(void)
 	return 0.0;
 }
 
-- (void) sleep;
+// power mode
+
++ (void) sleep;
 {
-	system([[NSSystemStatus sysInfoForKey:@"Sleep"] cString]);
+	system([[NSSystemStatus sysInfoForKey:@"Sleep"] UTF8String]);
 }
 
-- (void) shutdown;
++ (void) shutdown;
 {
-	system([[NSSystemStatus sysInfoForKey:@"Shutdown"] cString]);
+	system([[NSSystemStatus sysInfoForKey:@"Shutdown"] UTF8String]);
 }
 
-- (void) reboot;
++ (void) reboot;
 {
-	system([[NSSystemStatus sysInfoForKey:@"Reboot"] cString]);
+	system([[NSSystemStatus sysInfoForKey:@"Reboot"] UTF8String]);
 }
 
-- (void) keepAlive;
++ (void) keepAlive;
 { // trigger watchdog to prevent automatic sleep
 }
 
-- (void) setBackLightLevel:(float) level;
++ (void) setBackLightLevel:(float) level;
 { // 0..1
 	
 }
 
-- (void) backLight:(BOOL) flag;
++ (void) backLight:(BOOL) flag;
 { // switch excplicitly on/off
 	[self setBackLightLevel:flag?1.0:0.0];
 }

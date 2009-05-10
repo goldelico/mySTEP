@@ -54,16 +54,15 @@ ifeq ($(ARCHITECTURES),)
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 # set all architectures for which we know a compiler (should also check that we have a libobjc.so for this architecture!)
 # and that other libraries and include directories are available...
-
 ARCHITECTURES=$(shell cd $(ROOT)/this/gcc && echo *-*-*)
-else
-# set default architecture for development only
-ARCHITECTURES:=$(shell defaults read de.dsitri.ZMacSync DefaultArchitecture 2>/dev/null)
 endif
 endif
 
-ifeq ($(ARCHITECTURES),)
-# still not defined
+ifeq ($(ARCHITECTURES),)	# try to read from ZMacSync
+ARCHITECTURES:=$(shell defaults read de.dsitri.ZMacSync SelectedArchitecture 2>/dev/null)
+endif
+
+ifeq ($(ARCHITECTURES),)	# still not defined
 ARCHITECTURES=i486-debianetch-linux-gnu
 endif
 

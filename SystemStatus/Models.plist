@@ -31,7 +31,7 @@
 		<key>GPS On</key>
 		<string>echo &quot;1&quot; &gt;/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/neo1973-pm-gps.0/pwron</string>
 		<key>GPS Status</key>
-		<string>[ &quot;$(cat /sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/neo1973-pm-gps.0/pwron)&quot; == 1]</string>
+		<string>[ &quot;$(cat /sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/neo1973-pm-gps.0/pwron)&quot; == 1 ]</string>
 		<key>GPS Serial</key>
 		<string>/dev/ttySAC1</string>
 	</dict>
@@ -103,7 +103,7 @@
 		<key>GSM Commands</key>
 		<dict/>
 		<key>GSM Status</key>
-		<string>[ &quot;$(cat /sys/bus/platform/devices/gta01-pm-gsm.0/power_on)&quot; == 1]</string>
+		<string>[ &quot;$(cat /sys/bus/platform/devices/gta01-pm-gsm.0/power_on)&quot; == 1 ]</string>
 		<key>GSM Off</key>
 		<string>stty -F /dev/ttySAC0 -crtscts; echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 -echo; echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 crtscts; sleep 1; echo -e &quot;AT@POFF\r&quot; &gt;/dev/ttySAC0; sleep 1; stty -F /dev/ttySAC0 -crtscts; echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
 		<key>GSM On</key>
