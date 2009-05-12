@@ -60,12 +60,12 @@
 	NSColor *fillColor;
 	double val=(_value-_minValue)/(_maxValue-_minValue);
 	BOOL vertical=(cellFrame.size.height > cellFrame.size.width);
-	if(_value < _warningValue)
-		fillColor=[NSColor greenColor];
-	else if(_value < _criticalValue)
+	if(_value < _criticalValue)
+		fillColor=[NSColor redColor];
+	else if(_value < _warningValue)
 		fillColor=[NSColor yellowColor];
 	else
-		fillColor=[NSColor redColor];
+		fillColor=[NSColor greenColor];
 	if(_numberOfTickMarks != 0)
 		{
 		float x;
@@ -269,6 +269,11 @@
 @end
 
 @implementation NSLevelIndicator
+
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:@"%@ %lf in [%lf .. %lf .. %lf .. %lf]", [super description], [self doubleValue], [self minValue], [self criticalValue], [self warningValue], [self maxValue]];
+}
 
 - (double) criticalValue; { return [_cell criticalValue]; }
 - (double) maxValue; { return [_cell maxValue]; }

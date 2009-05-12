@@ -19,8 +19,12 @@
 
 @interface SYSBattery : NSObject
 {
-	NSDictionary *data;	// current data (updated every now and then)
+	NSTimeInterval _remainingBatteryTime;
 	NSDate *lastUpdate;
+	float _batteryFillLevel;
+	float _batteryTemperature;
+	BOOL _batteryIsInstalled;
+	BOOL _batteryIsCharging;
 }
 
 + (SYSBattery *) defaultBattery;			// default battery manager
@@ -31,6 +35,7 @@
 - (float) batteryTemperature;				// in Kelvin if available (0 or negative meaning that we don't know)
 - (NSTimeInterval) remainingBatteryTime;	// estimated remaining time until empty/full - negative value means: unknown
 
++ (BOOL) isOnExternalPower;					// is on AC power supply
 + (void) sleep;
 + (void) shutdown;
 + (void) reboot;

@@ -50,58 +50,6 @@ present voltage:         8262 mV
 
 */
 
-struct bat 
-{ // apm record
-	int available;		// battery status is available
-	int ac;				// connected to AC
-	int percentage;		// % charged (during charging/discharging)
-	int time;			// remaining time (to charge/discharge)
-	int charging;		// is (still) charging
-	int linestatus;		// AC power line status
-	int batterystatus;  // battery status flag
-	int flag;			// other flags
-	char units[32];
-};
-
-static struct bat getbat(void)
-{ // fetch battery data
-	struct bat r;
-	NSString *tool=[NSSystemStatus sysInfoForKey:@"Battery"];
-	FILE *f;
-	if(!tool)
-		{
-		memset(&r, 0, sizeof(r));
-		return r;
-		}
-	// FIXME: either use UTF8String or fileSystemRepresentation
-	f=fopen([tool UTF8String], "r");
-	if(!f)
-		{ // apm can't be opened
-		memset(&r, 0, sizeof(r));
-		return r;
-		}
-	fscanf(f, "%*s %*d.%*d %*x %x %x %x %d%% %d %31s\n",
-			   &r.linestatus,
-			   &r.batterystatus, 
-			   &r.flag, 
-			   &r.percentage, 
-			   &r.time, 
-			   r.units);
-	fclose(f);
-	r.available=((r.flag & 0x80) == 0 && r.batterystatus != 0xFF);
-	r.charging=(r.batterystatus == 3);
-	r.ac=(r.linestatus == 1);
-	if(r.percentage > 100 || r.percentage < 0)
-		r.percentage=-100;	// C860 returns 255 while charging, Openmoko returns -1
-	if(r.time < 0)
-			{ // apm can't deliver value: should estimate time to charge and time to decharge yourself
-				r.time=-1;
-			}
-	if(strncmp(r.units, "min", 32) == 0)
-		r.time*=60; // in minutes
-	return r;
-	}
-
 + (SYSBattery *) defaultBattery;
 {
 	static SYSBattery *b;
@@ -110,14 +58,66 @@ static struct bat getbat(void)
 	return b; 
 }
 
+static BOOL _isOnExternalPower;
+
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:@"%@%@%@ %.0f%% %.0lf %.0f",
+					_isOnExternalPower?@"on AC ":@"",
+					_batteryIsInstalled?@"installed":@"no battery",
+					_batteryIsCharging?@" charging":@" not charging",
+					100*_batteryFillLevel,
+					_remainingBatteryTime,
+					_batteryTemperature];
+}
+
 - (void) _update
 {
-	if(!lastUpdate || ([lastUpdate timeIntervalSinceNow] < -2.0))
-			{ // more than 2 seconds ago
-				// read and translate file (either /proc/apm or /proc/acpi/battery/BAT0/info & /proc/acpi/battery/BAT0/status)
+#if 0
+	NSLog(@"SYSBattery _update");
+#endif
+	if(!lastUpdate || ([lastUpdate timeIntervalSinceNow] < -5.0))
+			{ // more than 5 seconds ago
+				FILE *f;
+				f=fopen("/proc/apm", "r");
+				if(f)
+						{ // apm is available
+							int linestatus;
+							int batterystatus;
+							int flag;
+							int percentage;
+							int time;
+							char units[32];
+							fscanf(f, "%*s %*d.%*d %*x %x %x %x %d%% %d %31s\n",
+										 &linestatus,
+										 &batterystatus, 
+										 &flag, 
+										 &percentage, 
+										 &time, 
+										 units);
+							fclose(f);
+							_batteryIsInstalled=((flag & 0x80) == 0 && batterystatus != 0xFF);
+							_batteryIsCharging=(batterystatus == 3);
+							_isOnExternalPower=(linestatus == 1);
+							if(percentage > 100 || percentage < 0)
+								percentage=-100;	// C860 returns 255 while charging, Openmoko returns -1
+							_batteryFillLevel=percentage/100.0;
+							if(time < 0)
+									{ // apm can't deliver value: should estimate time to charge and time to decharge yourself
+										time=-1;
+									}
+							if(strncmp(units, "min", 32) == 0)
+								time*=60; // in minutes
+							_remainingBatteryTime=time;
+						}
+				// else try /proc/acpi/battery/BAT0
 				[lastUpdate release];
 				lastUpdate=[[NSDate alloc] init];
-			}
+#if 0
+				NSLog(@"battery status updated: %@", self);
+				system("cat /proc/apm");
+#endif
+			}				
 }
 
 - (float) batteryFillLevel;
@@ -129,13 +129,18 @@ static struct bat getbat(void)
 	NSLog(@"now = %lf mod=%lf", i, fmod(i, T));
 	return fabsf(fmod(i, T)-(T/2.0))/(T/2.0);	// bring to range 1..0..1
 #else
-	return getbat().percentage/100.0;
+	[self _update];
+	return _batteryFillLevel;
 #endif
 }
 
 - (BOOL) batteryIsInstalled;
 {
-	return getbat().available;
+#if 0
+	NSLog(@"batteryIsInstalled?");
+#endif
+	[self _update];
+	return _batteryIsInstalled;
 }
 
 - (BOOL) batteryIsCharging;
@@ -144,7 +149,8 @@ static struct bat getbat(void)
 	double i = [[NSDate date] timeIntervalSinceReferenceDate];
 	return (30.0-fmod(i, 60.0))<0.0;	// bring to range 30..-30
 #else
-	return getbat().charging;
+	[self _update];
+	return _batteryIsCharging;
 #endif
 }
 
@@ -154,16 +160,18 @@ static struct bat getbat(void)
 	// this should try to estimate the remaining time
 	return -1.0;	// unknown
 #else
-	return getbat().time;
+	[self _update];
+	return _remainingBatteryTime;
 #endif
 }
 
 - (float) batteryTemperature;
 { // in Kelvin if available (0 or negative meaning that we don't know)
-	return 0.0;
+	[self _update];
+	return _batteryTemperature;
 }
 
-// power mode
+// power control
 
 + (void) sleep;
 {
@@ -180,8 +188,14 @@ static struct bat getbat(void)
 	system([[NSSystemStatus sysInfoForKey:@"Reboot"] UTF8String]);
 }
 
++ (BOOL) isOnExternalPower;
+{ // is on AC power supply
+	return _isOnExternalPower;
+}
+
 + (void) keepAlive;
 { // trigger watchdog to prevent automatic sleep
+	
 }
 
 + (void) setBackLightLevel:(float) level;

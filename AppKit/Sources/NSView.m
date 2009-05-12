@@ -1999,7 +1999,7 @@ NSView *p = nil;
 #if 0
 	NSLog(@"after setHidden:%d %@", flag, self);
 #endif
-	// FIXME: handle nextResponder
+	// FIXME: handle moving firstResponder to nextResponder
 		// handle cursor rects
 		// etc.
 }
@@ -2007,7 +2007,7 @@ NSView *p = nil;
 - (void) setPreservesContentDuringLiveResize:(BOOL)flag	{ _v.preservesContentDuringLiveResize = flag; }
 - (BOOL) autoresizesSubviews					{ return _v.autoSizeSubviews; }
 - (BOOL) canBecomeKeyView;						{ return NO; }
-- (BOOL) isHidden								{ return _v.hidden != 0; }
+- (BOOL) isHidden								{ return _v.hidden; }
 - (BOOL) isOpaque								{ return (super_view == nil); }	// only if I represent the NSWindow
 - (BOOL) inLiveResize							{ return super_view?[super_view inLiveResize]:NO; }
 - (BOOL) shouldDrawColor						{ return YES; }

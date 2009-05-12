@@ -2,6 +2,70 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>Linux</key>
+	<dict>
+		<key>Product</key>
+		<string>Generic Linux</string>
+		<key>USB Host On</key>
+		<string>true</string>
+		<key>USB Host Off</key>
+		<string>true</string>
+		<key>USB Host Status</key>
+		<string>false</string>
+		<key>Bluetooth Status</key>
+		<string>false</string>
+		<key>GSM Status</key>
+		<string>false</string>
+		<key>GPS Status</key>
+		<string>false</string>
+		<key>IrDA Status</key>
+		<string>false</string>
+		<key>WLAN Status</key>
+		<string>false</string>
+		<key>Camera Status</key>
+		<string>false</string>
+		<key> Notes</key>
+		<string>Generic Linux entries</string>
+		<key>Bluetooth Tool</key>
+		<string>/bin/hcitool</string>
+	</dict>
+	<key>GTA01</key>
+	<dict>
+		<key>Bluetooth Status</key>
+		<string></string>
+		<key>Bluetooth Off</key>
+		<string>echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
+		<key>Bluetooth On</key>
+		<string>echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
+		<key>GPS Status</key>
+		<string>ps -ef | fgrep gllin | fgrep -v fgrep</string>
+		<key>GPS Off</key>
+		<string>killall gllin</string>
+		<key>GPS On</key>
+		<string>/home/root/gllin/gllin</string>
+		<key>GPS Serial</key>
+		<string>/tmp/nmeaNP</string>
+		<key>GSM Commands</key>
+		<dict/>
+		<key>GSM Status</key>
+		<string>[ &quot;$(cat /sys/bus/platform/devices/gta01-pm-gsm.0/power_on)&quot; == 1 ]</string>
+		<key>GSM Off</key>
+		<string>stty -F /dev/ttySAC0 -crtscts; echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 -echo; echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 crtscts; sleep 1; echo -e &quot;AT@POFF\r&quot; &gt;/dev/ttySAC0; sleep 1; stty -F /dev/ttySAC0 -crtscts; echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
+		<key>GSM On</key>
+		<string>stty -F /dev/ttySAC0 -echo; echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
+		<key>GSM Serial</key>
+		<string>/dev/ttySAC0</string>
+		<key>Inherit</key>
+		<string>Linux</string>
+		<key>Product</key>
+		<string>Openmoko Neo 1973</string>
+		<key>Reboot</key>
+		<string>false</string>
+		<key>Shutdown</key>
+		<string>false</string>
+		<key>Sleep</key>
+		<string>(sleep 1; echo mem &gt; /sys/power/state) &amp;&amp; exit</string>
+	</dict>
 	<key>GTA02</key>
 	<dict>
 		<key>Bluetooth Off</key>
@@ -84,125 +148,6 @@
 		<key>Sleep</key>
 		<string>?</string>
 	</dict>
-	<key>GTA01</key>
-	<dict>
-		<key>Bluetooth Status</key>
-		<string></string>
-		<key>Bluetooth Off</key>
-		<string>echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
-		<key>Bluetooth On</key>
-		<string>echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-bt.0/power_on</string>
-		<key>GPS Status</key>
-		<string>ps -ef | fgrep gllin | fgrep -v fgrep</string>
-		<key>GPS Off</key>
-		<string>killall gllin</string>
-		<key>GPS On</key>
-		<string>/home/root/gllin/gllin</string>
-		<key>GPS Serial</key>
-		<string>/tmp/nmeaNP</string>
-		<key>GSM Commands</key>
-		<dict/>
-		<key>GSM Status</key>
-		<string>[ &quot;$(cat /sys/bus/platform/devices/gta01-pm-gsm.0/power_on)&quot; == 1 ]</string>
-		<key>GSM Off</key>
-		<string>stty -F /dev/ttySAC0 -crtscts; echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 -echo; echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 crtscts; sleep 1; echo -e &quot;AT@POFF\r&quot; &gt;/dev/ttySAC0; sleep 1; stty -F /dev/ttySAC0 -crtscts; echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
-		<key>GSM On</key>
-		<string>stty -F /dev/ttySAC0 -echo; echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
-		<key>GSM Serial</key>
-		<string>/dev/ttySAC0</string>
-		<key>Inherit</key>
-		<string>Linux</string>
-		<key>Product</key>
-		<string>Openmoko Neo 1973</string>
-		<key>Reboot</key>
-		<string>false</string>
-		<key>Shutdown</key>
-		<string>false</string>
-		<key>Sleep</key>
-		<string>(sleep 1; echo mem &gt; /sys/power/state) &amp;&amp; exit</string>
-	</dict>
-	<key>Linux</key>
-	<dict>
-		<key>Product</key>
-		<string>Generic Linux</string>
-		<key>USB Host On</key>
-		<string>true</string>
-		<key>USB Host Off</key>
-		<string>true</string>
-		<key>USB Host Status</key>
-		<string>false</string>
-		<key>Bluetooth Status</key>
-		<string>false</string>
-		<key>GSM Status</key>
-		<string>false</string>
-		<key>GPS Status</key>
-		<string>false</string>
-		<key>IrDA Status</key>
-		<string>false</string>
-		<key>WLAN Status</key>
-		<string>false</string>
-		<key>Camera Status</key>
-		<string>false</string>
-		<key> Notes</key>
-		<string>Generic Linux entries</string>
-		<key>Battery</key>
-		<string>/proc/apm</string>
-		<key>Bluetooth Tool</key>
-		<string>/bin/hcitool</string>
-	</dict>
-	<key>SL-C1000</key>
-	<dict>
-		<key>Inherit</key>
-		<string>Zaurus</string>
-	</dict>
-	<key>SL-C3000</key>
-	<dict>
-		<key> Notes</key>
-		<string>We must exclude the internal hard drive</string>
-		<key>Inherit</key>
-		<string>Zaurus</string>
-	</dict>
-	<key>SL-C3100</key>
-	<dict>
-		<key> Notes</key>
-		<string>We must exclude the internal hard drive</string>
-		<key>Inherit</key>
-		<string>Zaurus</string>
-	</dict>
-	<key>SL-C3200</key>
-	<dict>
-		<key> Notes</key>
-		<string>We must exclude the internal hard drive</string>
-		<key>Alias</key>
-		<string>Zaurus</string>
-		<key>PCMCIA Exclude</key>
-		<string>1</string>
-	</dict>
-	<key>SL-C860</key>
-	<dict>
-		<key>Inherit</key>
-		<string>Zaurus</string>
-	</dict>
-	<key>Sharp Akita</key>
-	<dict>
-		<key>Inherit</key>
-		<string>SL-C1000</string>
-	</dict>
-	<key>SHARP Borzoi</key>
-	<dict>
-		<key>Inherit</key>
-		<string>SL-C3100</string>
-	</dict>
-	<key>SHARP Shepherd</key>
-	<dict>
-		<key>Inherit</key>
-		<string>SL-C860</string>
-	</dict>
-	<key>Sharp Spitz</key>
-	<dict>
-		<key>Inherit</key>
-		<string>SL-C3000</string>
-	</dict>
 	<key>Zaurus</key>
 	<dict>
 		<key> Notes</key>
@@ -258,6 +203,59 @@
 		<string>echo suspend &gt; /dev/zapmd &amp;</string>
 		<key>apm</key>
 		<string>/proc/apm</string>
+	</dict>
+	<key>SL-C1000</key>
+	<dict>
+		<key>Inherit</key>
+		<string>Zaurus</string>
+	</dict>
+	<key>SL-C3000</key>
+	<dict>
+		<key> Notes</key>
+		<string>We must exclude the internal hard drive</string>
+		<key>Inherit</key>
+		<string>Zaurus</string>
+	</dict>
+	<key>SL-C3100</key>
+	<dict>
+		<key> Notes</key>
+		<string>We must exclude the internal hard drive</string>
+		<key>Inherit</key>
+		<string>Zaurus</string>
+	</dict>
+	<key>SL-C3200</key>
+	<dict>
+		<key> Notes</key>
+		<string>We must exclude the internal hard drive</string>
+		<key>Alias</key>
+		<string>Zaurus</string>
+		<key>PCMCIA Exclude</key>
+		<string>1</string>
+	</dict>
+	<key>Sharp Akita</key>
+	<dict>
+		<key>Inherit</key>
+		<string>SL-C1000</string>
+	</dict>
+	<key>SHARP Borzoi</key>
+	<dict>
+		<key>Inherit</key>
+		<string>SL-C3100</string>
+	</dict>
+	<key>SHARP Shepherd</key>
+	<dict>
+		<key>Inherit</key>
+		<string>SL-C860</string>
+	</dict>
+	<key>Sharp Spitz</key>
+	<dict>
+		<key>Inherit</key>
+		<string>SL-C3000</string>
+	</dict>
+	<key>SL-C860</key>
+	<dict>
+		<key>Inherit</key>
+		<string>Zaurus</string>
 	</dict>
 </dict>
 </plist>
