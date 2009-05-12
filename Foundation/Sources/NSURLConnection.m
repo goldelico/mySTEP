@@ -55,16 +55,16 @@
 
 // notification handler
 
-- (void) connection:(NSURLConnection *) conn didReceiveResponse:(NSURLResponse *) resp; { *_response=[resp retain]; }
+- (void) connection:(NSURLConnection *) conn didReceiveResponse:(NSURLResponse *) resp; { [*_data release]; *_data=nil; *_response=[resp retain]; }
 - (void) connection:(NSURLConnection *) conn didFailWithError:(NSError *) error; { *_error=[error retain]; *_data=nil; _done=YES; }
 - (void) connectionDidFinishLoading:(NSURLConnection *) conn; { _done=YES; }
 
 - (void) connection:(NSURLConnection *) conn didReceiveData:(NSData *) data;
 {
 	if(!*_data)
-		*_data=[data mutableCopy];
+		*_data=[data mutableCopy];	// first data block
 	else
-		[*_data appendData:data];
+		[*_data appendData:data];	// n-th
 }
 
 @end
