@@ -81,7 +81,7 @@
 	r.origin.y=0;									// system menu bar is at bottom of screen
 	r.size.height=[NSMenuView menuBarHeight];
 	r.size.width/=2.0;								// width is half of the screen
-	r.origin.x=w.size.width;						// right half of the screen
+	r.origin.x=ceil(w.size.width);						// right half of the screen
 #else
 	r=[self frame];	// screen frame
 	h=[NSMenuView menuBarHeight];

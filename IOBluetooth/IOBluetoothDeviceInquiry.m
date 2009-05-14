@@ -402,7 +402,7 @@ Inquiring ...
 #if 1
 	NSLog(@"command=%@", cmd);
 #endif
-	return system([cmd cString]) == 0;
+	return system([cmd UTF8String]) == 0;
 }
 
 + (BOOL) _bluetoothHardwareIsActive;
@@ -412,7 +412,7 @@ Inquiring ...
 	NSString *cmd=[NSSystemStatus sysInfoForKey:@"Bluetooth Status"];
 	if(!cmd)
 		return NO;
-	file=popen([cmd cString], "r");	// check status
+	file=popen([cmd UTF8String], "r");	// check status
 	/* result looks like
 		hci0:   Type: USB				<- we may have more than one Bluetooth interface
         BD Address: 00:06:6E:14:4B:5A ACL MTU: 384:8 SCO MTU: 64:8    <- this is our own address (if we need it)

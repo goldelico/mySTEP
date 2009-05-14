@@ -1712,13 +1712,20 @@ static NSButtonCell *sharedCell;
 }
 
 - (void) center
-{ // center the window within it's screen
-	// FIXME: check if we have a menu bar
-	NSSize screenSize = [_screen visibleFrame].size;
+{ // center the window within it's screen (not within visibleFrame)
+	NSSize screenSize = [_screen frame].size;
 	NSPoint origin = _frame.origin;
 	origin.x = (screenSize.width - _frame.size.width) / 2;
 	origin.y = (screenSize.height - _frame.size.height) / 2;
+#if 0
+	NSLog(@"screenSize = %@", NSStringFromSize(screenSize));
+	NSLog(@"frame = %@", NSStringFromRect(_frame));
+	NSLog(@"origin = %@", NSStringFromPoint(origin));
+#endif
 	[self setFrameOrigin:origin];
+#if 0
+	NSLog(@"new frame = %@", NSStringFromRect(_frame));
+#endif
 }
 
 - (NSRect) constrainFrameRect:(NSRect)rect toScreen:(NSScreen *)screen
@@ -1736,10 +1743,10 @@ static NSButtonCell *sharedCell;
 		return rect;	// never constrain
 		}
 	vf=[screen visibleFrame];
-	if((autoEnlarge && (_w.styleMask & NSResizableWindowMask) != 0 && ![self isKindOfClass:[NSPanel class]]) || [self interfaceStyle] >= NSPDAInterfaceStyle)
+	if((_w.styleMask & NSResizableWindowMask) != 0 && ((autoEnlarge && ![self isKindOfClass:[NSPanel class]]) || [self interfaceStyle] >= NSPDAInterfaceStyle))
 		{
 #if 1
-		NSLog(@"autoZoomResizableWindowsToScreen to full screen");
+		NSLog(@"autoZoomResizableWindowsToScreen to full screen %@", self);
 #endif
 		return vf;	// resize to full screen for PDA styles
 		}
@@ -1754,7 +1761,7 @@ static NSButtonCell *sharedCell;
 #if 0
 	NSLog(@"shifted frameRect %@", NSStringFromRect(rect));
 #endif
-	rect=NSIntersectionRect(vf, rect);	// reduce to visible frame if still too large
+	rect=NSIntersectionRect(vf, rect);	// too large - reduce to visible frame if still too large
 #if 0
 	NSLog(@"constrained frameRect %@", NSStringFromRect(rect));
 #endif

@@ -38,7 +38,7 @@
 - (oneway void) showRestartDialog;		// ask for restart
 - (oneway void) showForceQuitDialog;	// show the force-quit dialog
 - (oneway void) chooseUser;			// allow to choose a different user
-- (oneway void) logout;					// request a logout
+- (oneway void) logout;					// request a logout (may timeout)
 
 - (oneway void) showAboutPanel;				// show About panel
 - (oneway void) showSoftwareUpdater;

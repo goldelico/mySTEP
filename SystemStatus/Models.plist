@@ -76,6 +76,8 @@
 		<string></string>
 		<key>GSM On</key>
 		<string>false</string>
+		<key>GSM Status</key>
+		<string>[ &quot;$(cat /sys/bus/platform/devices/gta01-pm-gsm.0/power_on)&quot; == 1 ]</string>
 		<key>Product</key>
 		<string>Openmoko Neo Freerunner</string>
 		<key>Reboot</key>
