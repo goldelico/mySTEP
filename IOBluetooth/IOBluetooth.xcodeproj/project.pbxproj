@@ -22,6 +22,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		EE27BEEE0FC17A1300A48A1E /* BluetoothPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = EE27BEED0FC17A1300A48A1E /* BluetoothPrivate.h */; };
 		EE5D9CBD0A556B47000AE53D /* Bluetooth.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5D9CBC0A556B47000AE53D /* Bluetooth.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE5D9CE10A556C5E000AE53D /* BluetoothAssignedNumbers.h in Headers */ = {isa = PBXBuildFile; fileRef = EE5D9CE00A556C5E000AE53D /* BluetoothAssignedNumbers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEA370950953FFEF001244CF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA370940953FFEF001244CF /* Foundation.framework */; };
@@ -128,6 +129,8 @@
 
 /* Begin PBXFileReference section */
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EE27BEED0FC17A1300A48A1E /* BluetoothPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BluetoothPrivate.h; sourceTree = "<group>"; };
+		EE27BEF60FC17A7A00A48A1E /* net */ = {isa = PBXFileReference; lastKnownFileType = folder; path = net; sourceTree = "<group>"; };
 		EE5D9CBC0A556B47000AE53D /* Bluetooth.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Bluetooth.h; sourceTree = "<group>"; };
 		EE5D9CE00A556C5E000AE53D /* BluetoothAssignedNumbers.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = BluetoothAssignedNumbers.h; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* IOBluetooth.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IOBluetooth.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -223,6 +226,8 @@
 		EEA3306C09537DB5001244CF /* Private */ = {
 			isa = PBXGroup;
 			children = (
+				EE27BEED0FC17A1300A48A1E /* BluetoothPrivate.h */,
+				EE27BEF60FC17A7A00A48A1E /* net */,
 			);
 			name = Private;
 			sourceTree = "<group>";
@@ -307,6 +312,7 @@
 			files = (
 				EE5D9CBD0A556B47000AE53D /* Bluetooth.h in Headers */,
 				EE5D9CE10A556C5E000AE53D /* BluetoothAssignedNumbers.h in Headers */,
+				EE27BEEE0FC17A1300A48A1E /* BluetoothPrivate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -14,9 +14,9 @@
 @interface IOBluetoothDeviceInquiry : NSObject
 {
 	NSMutableArray *_devices;
-	NSTask *_task;		// scanning task
 	id _delegate;
 	uint8_t _timeout;	// in seconds up to 255
+	int _socket;
 	BOOL _bluetoothAvailable;
 	BOOL _updateNewDeviceNames;
 	BOOL _aborted;
@@ -24,7 +24,7 @@
 
 + (BOOL) _activateBluetoothHardware:(BOOL) flag;
 + (BOOL) _bluetoothHardwareIsActive;
-+ (NSTask *) _hcitool:(NSArray *) cmds handler:(id) handler done:(SEL) sel;	// registers handler as observer!
+// + (NSTask *) _hcitool:(NSArray *) cmds handler:(id) handler done:(SEL) sel;	// registers handler as observer!
 
 + (IOBluetoothDeviceInquiry *) inquiryWithDelegate:(id) delegate; 
 
