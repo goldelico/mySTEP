@@ -93,7 +93,7 @@
 							[bezierPath lineToPoint:NSMakePoint(m.origin.x+(m.size.width - 20), m.origin.y)];
 							[bezierPath lineToPoint:m.origin];
 							[bezierPath closePath];
-							[gradient drawInBezierPath:MyBezierPath angle:90];
+							[gradient drawInBezierPath:bezierPath angle:90];
 							[bezierPath stroke];
 							[gradient release];
 						}
@@ -323,8 +323,8 @@
 
 - (void) _chooseURL:(id) sender
 { // choose specific URL from popup menu
-	NSURL *url;
-	// get URL from menu item (can we use representedObject?)
+	NSURL *url=nil;
+	// FIXME: get URL from menu item (can we use representedObject?)
 	[self setURL:url];
 	// call action?
 }

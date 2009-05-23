@@ -28,13 +28,11 @@ typedef NSInteger NSPathStyle;
 	NSPathComponentCell *_clickedPathComponentCell; 
 	id _delegate; 
 	NSArray *_pathComponentCells; 
-	NSAttributedString *_placeholderAttributedString;
 	NSRect *_rects;
 	NSCell *_dontTruncateCell;
 	SEL _doubleAction; 
 	NSPathStyle _pathStyle;
 	BOOL _needsSizing;
-	NSString *_title;
 #ifdef TESTING
 	NSString *_placeholderString;
 #endif
