@@ -51,56 +51,55 @@
 	if(_pathStyle != NSPathStylePopUp)
 		; // draw popup icon
 	if([_pathComponentCells count] > 0 && _pathStyle == NSPathStyleStandard)
-	{ // draw cells
-		NSEnumerator *e=[_pathComponentCells objectEnumerator];
-		NSPathComponentCell *cell;
-		while((cell = [e nextObject]))
-		{
-			NSRect m = [self rectOfPathComponentCell:cell withFrame:cellFrame inView:controlView];
-			[cell drawWithFrame:m inView:controlView];
-			// draw item separator(s)
-			if (cell != nil) { // draw the separator...
-				NSBezierPath *theSeparator = [NSBezierPath bezierPath];
-				NSSize cellSize = m.size;				
-				NSRect sepRect = NSMakeRect(m.origin.x+cellSize.width, (cellFrame.size.height/2)-3.0, 6.0,6.0);
-				[[NSColor grayColor] setFill];
-				[theSeparator moveToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y)];
-				[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y + sepRect.size.height)];
-				[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x + sepRect.size.width, sepRect.origin.y + (sepRect.size.height /2))];
-				[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y)];
-				[theSeparator closePath];
-				[theSeparator fill];
+			{ // draw cells
+				NSEnumerator *e=[_pathComponentCells objectEnumerator];
+				NSPathComponentCell *cell;
+				while((cell = [e nextObject]))
+						{
+							NSRect m = [self rectOfPathComponentCell:cell withFrame:cellFrame inView:controlView];
+							[cell drawWithFrame:m inView:controlView];
+							// draw item separator(s)
+							if (cell != nil) { // draw the separator...
+								NSBezierPath *theSeparator = [NSBezierPath bezierPath];
+								NSSize cellSize = m.size;				
+								NSRect sepRect = NSMakeRect(m.origin.x+cellSize.width, (cellFrame.size.height/2)-3.0, 6.0,6.0);
+								[[NSColor grayColor] setFill];
+								[theSeparator moveToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y)];
+								[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y + sepRect.size.height)];
+								[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x + sepRect.size.width, sepRect.origin.y + (sepRect.size.height /2))];
+								[theSeparator lineToPoint:NSMakePoint(sepRect.origin.x, sepRect.origin.y)];
+								[theSeparator closePath];
+								[theSeparator fill];
+							}
+						}
 			}
-		}
-	}
 	
 	if([_pathComponentCells count] > 0 && _pathStyle == NSPathStyleNavigationBar)
-	{ // draw cells
-		NSEnumerator *e=[_pathComponentCells objectEnumerator];
-		NSPathComponentCell *cell;
-		while((cell = [e nextObject]))
-		{
-			NSRect m = [self rectOfPathComponentCell:cell withFrame:cellFrame inView:controlView];
-			[cell drawWithFrame:m inView:controlView];
-			// draw item separator(s)
-			//draw first separator
-			[[NSColor yellowColor] setFill];
-			[[NSColor blackColor] setStroke];
-			NSBezierPath * MyBezierPath = [NSBezierPath bezierPath];
-			NSGradient *MyGradient = [[NSGradient alloc] initWithStartingColor:[NSColor blueColor] endingColor:[NSColor whiteColor]];
-			[MyBezierPath moveToPoint:m.origin];
-			[MyBezierPath lineToPoint:NSMakePoint(m.origin.x, (m.origin.y+m.size.height))];
-			[MyBezierPath lineToPoint:NSMakePoint(m.origin.x+(m.size.width - 20), (m.origin.y+m.size.height))];
-			[MyBezierPath lineToPoint:NSMakePoint(m.origin.x+m.size.width, (m.origin.y+m.size.height)/2)];
-			[MyBezierPath lineToPoint:NSMakePoint(m.origin.x+(m.size.width - 20), m.origin.y)];
-			[MyBezierPath lineToPoint:m.origin];
-			[MyBezierPath closePath];
-			[MyGradient drawInBezierPath:MyBezierPath angle:90];
-			[MyBezierPath stroke];	
-		}
-	}
-	//else
-	//	[self drawWithFrame:cellFrame inView:controlView];	// should handle placeholder string
+			{ // draw cells
+				NSEnumerator *e=[_pathComponentCells objectEnumerator];
+				NSPathComponentCell *cell;
+				while((cell = [e nextObject]))
+						{
+							NSRect m = [self rectOfPathComponentCell:cell withFrame:cellFrame inView:controlView];
+							NSBezierPath *bezierPath = [NSBezierPath bezierPath];
+							NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:[NSColor blueColor] endingColor:[NSColor whiteColor]];
+							[cell drawWithFrame:m inView:controlView];
+							[[NSColor yellowColor] setFill];
+							[[NSColor blackColor] setStroke];
+							[bezierPath moveToPoint:m.origin];
+							[bezierPath lineToPoint:NSMakePoint(m.origin.x, (m.origin.y+m.size.height))];
+							[bezierPath lineToPoint:NSMakePoint(m.origin.x+(m.size.width - 20), (m.origin.y+m.size.height))];
+							[bezierPath lineToPoint:NSMakePoint(m.origin.x+m.size.width, (m.origin.y+m.size.height)/2)];
+							[bezierPath lineToPoint:NSMakePoint(m.origin.x+(m.size.width - 20), m.origin.y)];
+							[bezierPath lineToPoint:m.origin];
+							[bezierPath closePath];
+							[gradient drawInBezierPath:MyBezierPath angle:90];
+							[bezierPath stroke];
+							[gradient release];
+						}
+			}
+	else
+		[self drawWithFrame:cellFrame inView:controlView];	// should automatically handle placeholder string
 }
 
 - (NSArray *) allowedTypes; { return _allowedTypes; }
@@ -111,7 +110,9 @@
 
 - (void) mouseEntered:(NSEvent *) evt withFrame:(NSRect) frame inView:(NSView *) view;
 {
+#if 1
 	NSLog(@"Mouse entered!");
+#endif
 	BOOL state=[[view window] acceptsMouseMovedEvents];
 	[[view window] setAcceptsMouseMovedEvents:YES];
 	while(YES)
@@ -121,9 +122,11 @@
 				_dontTruncateCell = [self pathComponentCellAtPoint: local_point withFrame:frame inView:view];
 				_needsSizing=YES;	// must recalculate cell positions
 				[view setNeedsDisplay:YES];
+#if 1
 				if (_dontTruncateCell) {
 					NSLog(@"Cell gefunden");
 				}
+#endif
 				evt = [NSApp nextEventMatchingMask:NSAnyEventMask 
 																 untilDate:[NSDate distantFuture]
 																		inMode:NSEventTrackingRunLoopMode 
@@ -141,7 +144,9 @@
 	_dontTruncateCell=nil;
 	_needsSizing=YES;	
 	[view setNeedsDisplay:YES];
+#if 1
 	NSLog(@"Mouse exited!");
+#endif
 }
 
 - (NSPathComponentCell *) pathComponentCellAtPoint:(NSPoint) pt withFrame:(NSRect) rect inView:(NSView *) view;
