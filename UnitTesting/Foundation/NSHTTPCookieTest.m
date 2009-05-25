@@ -15,11 +15,11 @@
 
 @implementation NSHTTPCookieTest
 
+static NSHTTPCookie *c1, *c2;
+
 - (void) test1
 {
-	STAssertEqualObjects(OUTPUT, [p predicateFormat], nil);
-	// FIXME: move this to UnitTesting
-	NSHTTPCookie *c1=[NSHTTPCookie cookieWithProperties:[NSDictionary dictionaryWithObjectsAndKeys:
+	c1=[NSHTTPCookie cookieWithProperties:[NSDictionary dictionaryWithObjectsAndKeys:
 																													 // mandatory
 																													 @"name with", NSHTTPCookieName,
 																													 @"cookie value with ;", NSHTTPCookieValue,
@@ -31,8 +31,12 @@
 																													 //		 @"FALSE", NSHTTPCookieDiscard,
 																													 //		 @"FALSE", NSHTTPCookieSecure,
 																													 nil]];
-	// assert that cookie exists
-	NSHTTPCookie *c2=[NSHTTPCookie cookieWithProperties:[NSDictionary dictionaryWithObjectsAndKeys:
+	STAssertTrue(c1 != nil, nil);		// assert that cookie exists
+}
+
+- (void) test2
+{
+	c2=[NSHTTPCookie cookieWithProperties:[NSDictionary dictionaryWithObjectsAndKeys:
 																													 @"0", NSHTTPCookieVersion,
 																													 @"name;2", NSHTTPCookieName,		// may not contain \n
 																													 @"cookie;%value2", NSHTTPCookieValue,	// may not contain \n
@@ -42,10 +46,15 @@
 																													 @"FALSE", NSHTTPCookieSecure,
 																													 //	 @"http://www.origin.org", NSHTTPCookieOriginURL,
 																													 nil]];
-	// assert that cookie exists
+	STAssertTrue(c2 != nil, nil);		// assert that cookie exists
+}
 
-	STAssertEqualObjects(OUTPUT, [NSHTTPCookie requestHeaderFieldsWithCookies:
-																[NSArray arrayWithObjects:c1, c2, nil]], nil);
+- (void) test3
+{
+	NSDictionary *have=[NSHTTPCookie requestHeaderFieldsWithCookies:
+											[NSArray arrayWithObjects:c1, c2, nil]];
+	NSDictionary *want=nil;
+	STAssertEqualObjects(want, have, nil);
 
 	// WARNING: a cookie name or value with a ; is NOT encoded here!
 	

@@ -295,10 +295,10 @@ static NSMutableDictionary *_httpConnections;
 	[_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 	[_outputStream release];
 	_outputStream=nil;
-	[self retain];	// the next line would otherwise -dealloc
+	[self retain];	// the next two lines would otherwise -dealloc
 	keys=[_httpConnections allKeysForObject:self];	// get all my keys
 	[_httpConnections removeObjectsForKeys:keys];		// remove us from the list of active connections if we are still there
-	[_requestQueue makeObjectsPerformSelector:@selector(_restartLoading)];	// this removes them from the queue and reschedules in a new/different serializer queue
+	[_requestQueue makeObjectsPerformSelector:@selector(_restartLoading)];	// this removes any pending requests from the queue and reschedules in a new/different serializer queue
 	[self autorelease];
 }	
 
@@ -637,7 +637,7 @@ static NSMutableDictionary *_httpConnections;
 								if(buffer[0] != ' ' && buffer[0] != '\t')
 										{ // process what we have (even if empty)
 											[self processHeaderLine:_headerLine];
-											[_headerLine setString:@""];	// process
+											[_headerLine setString:@""];	// has been processed
 										}
 							}
 					if(buffer[0] == '\r')
@@ -648,7 +648,6 @@ static NSMutableDictionary *_httpConnections;
 #if 0
 					NSLog(@"did process %02x _lastChr=%02x", buffer[0], _lastChr);
 #endif
-					
 					return;
 				}
 			case NSStreamEventEndEncountered:
@@ -657,9 +656,7 @@ static NSMutableDictionary *_httpConnections;
 					NSLog(@"input connection closed by server");
 #endif
 					if(!_readingBody)
-							{
-								[_currentRequest didFailWithError:[NSError errorWithDomain:@"incomplete header received" code:0 userInfo:nil]];
-							}
+							[_currentRequest didFailWithError:[NSError errorWithDomain:@"incomplete header received" code:0 userInfo:nil]];
 					if(_hasContentLength)
 							{
 								if(_contentLength > 0)
