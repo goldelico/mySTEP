@@ -123,15 +123,17 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 { // returned by [astring mutableString]
 	NSMutableAttributedString *_astring;	// original
 }
-- (id) initWithAttributedString:(NSMutableAttributedString *) astring;
+
+- (id) initWithAttributedString:(NSAttributedString *) astring;
+
 @end
 
 @implementation _NSMutableAttributedStringProxy
 
-- (id) initWithAttributedString:(NSMutableAttributedString *) astring;
+- (id) initWithAttributedString:(NSAttributedString *) astring;
 {
 	// we don't call super init!
-	_astring=[astring retain];
+	_astring=(NSMutableAttributedString *) [astring retain];
 	return self;
 }
 
@@ -144,6 +146,11 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 // FIXME: make all changes update attributes in _astring
 // i.e. setString
 // etc.
+
+- (void) setString:(NSString *) str
+{
+	[_astring setString:str];
+}
 
 @end
 

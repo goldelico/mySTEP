@@ -2795,7 +2795,8 @@ id prev;
 				[b setAction:@selector(_close:)];
 				[b setEnabled:(aStyle&NSClosableWindowMask) != 0];
 				[b setImage:[NSImage imageNamed:@"NSWindowCloseButton"]];
-				[b setTitle:@"x"];
+//				[b setTitle:@"x"];
+				[b setTitle:@""];
 				[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 				break;
 			case NSWindowMiniaturizeButton:
@@ -2803,7 +2804,8 @@ id prev;
 				[b setAction:@selector(miniaturize:)];
 				[b setEnabled:(aStyle&NSMiniaturizableWindowMask) != 0];
 				[b setImage:[NSImage imageNamed:@"NSWindowMiniaturizeButton"]];
-				[b setTitle:@"-"];
+//				[b setTitle:@"-"];
+				[b setTitle:@""];
 				[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 				break;
 			case NSWindowZoomButton:
@@ -2811,11 +2813,12 @@ id prev;
 				[b setAction:@selector(zoom:)];
 				[b setEnabled:(aStyle&NSResizableWindowMask) != 0];
 				[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];
-				[b setTitle:@"+"];
+//				[b setTitle:@"+"];
+				[b setTitle:@""];
 				[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
 				break;
 			case NSWindowToolbarButton:
-				b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(100.0, 0.125*button, 1.25*button, 0.75*button) forStyleMask:aStyle];	// we must adjust the origin when using this button!
+				b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(0.0, 0.125*button, 1.25*button, 0.75*button) forStyleMask:aStyle];	// we must adjust the origin when using this button!
 				[b setAction:@selector(toggleToolbarShown:)];
 				[b setEnabled:YES];
 				[b setBordered:YES];	// with bezel

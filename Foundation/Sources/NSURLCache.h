@@ -23,7 +23,7 @@
 	NSUInteger _diskCapacity;
 	NSUInteger _diskUseage;
 	NSString *_diskPath;
-	NSMutableDictionary *_cachedEntries;	// either NSCachedURLResponse or NSString (file path)
+	NSMutableDictionary *_memoryCache;	// stores NSCachedURLResponse
 }
 
 + (void) setSharedURLCache:(NSURLCache *) urlCache;

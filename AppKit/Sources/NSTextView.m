@@ -1009,6 +1009,11 @@ static NSCursor *__textCursor = nil;
 	return [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
 }
 
+- (void) scrollRangeToVisible:(NSRange) range;
+{
+	[self scrollRectToVisible:[self firstRectForCharacterRange:range]];
+}
+
 - (BOOL) hasMarkedText; { return _markedRange.length > 0; }
 - (NSRange) markedRange { return _markedRange; }
 - (NSRange) selectedRange { return _selectedRange; }

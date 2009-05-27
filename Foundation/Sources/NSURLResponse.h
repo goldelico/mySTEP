@@ -13,6 +13,8 @@
 
 @class NSDictionary, NSString, NSURL;
 
+#define NSURLResponseUnknownLength ((long long)-1)
+
 @interface NSURLResponse : NSObject <NSCopying, NSCoding>
 {
 	long long _expectedContentLength;

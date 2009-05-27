@@ -318,11 +318,18 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		{
 			if([data isKindOfClass:[NSMutableData class]])
 				data=[[data copy] autorelease];
+			_data=[data retain];	// protect from being deallocated
 			_buffer=[data bytes];	// shouldn't we copy???
 			_capacity=[data length];
 			_fd=-1;
 		}
 	return self;
+}
+
+- (void) dealloc
+{
+	[_data release];
+	[super dealloc];
 }
 
 - (NSString *) description;
@@ -435,7 +442,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (id) initToBuffer:(unsigned char *) buffer capacity:(unsigned int) len;
 {
 	[self release];
-	return [[_NSMemoryOutputStream alloc] initToBuffer:buffer capacity:len];
+	return [[_NSBufferOutputStream alloc] initToBuffer:buffer capacity:len];
 }
 
 - (void) close;
@@ -459,7 +466,11 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 {
 	unsigned n=write(_fd, buffer, len);
 	if(n < 0)
-		return n;	// error
+			{
+#if 1
+				NSLog(@"write error %s", strerror(errno));
+#endif
+			}
 	return n;
 }
 
@@ -496,53 +507,29 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 @end
 
-@implementation _NSMemoryOutputStream
-
-- (id) initToMemory;
-{
-	if((self=[super init]))
-		{
-			_capacityLimit=LONG_MAX;	// i.e. unlimited
-			_fd=-1;
-		}
-	return self;
-}
+@implementation _NSBufferOutputStream
 
 - (id) initToBuffer:(unsigned char *) buffer capacity:(unsigned int) len;
 {
 	if((self=[super init]))
 			{
 				_buffer=buffer;
-				_currentCapacity=_capacityLimit=len;
+				_capacity=len;
 				_fd=-1;
 			}
 	return self;
 }
 
-- (void) dealloc
-{
-	// dealloc _buffer if it is a private one
-	[super dealloc];
-}
-
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@(%p) buffer=%p[%d:%d]", NSStringFromClass(isa), self, _buffer, _position, _capacityLimit];
+	return [NSString stringWithFormat:@"%@(%p) buffer=%p[%d:%d]", NSStringFromClass(isa), self, _buffer, _position, _capacity];
 }
 
-- (BOOL) hasSpaceAvailable; { return _position < _capacityLimit; }
+- (BOOL) hasSpaceAvailable; { return _position < _capacity; }
 
 - (int) write:(const unsigned char *) buffer maxLength:(unsigned int) len;
 {
-	unsigned room;
-	if(_position > _currentCapacity)
-		{
-		if(_currentCapacity >= _capacityLimit)
-			return 0;	// don't allocate any more
-		_currentCapacity=_position+5*len;	// increase capacity
-		_buffer=objc_realloc(_buffer, _currentCapacity=_position+5*len);
-		}
-	room=_currentCapacity-_position;
+	unsigned room=_capacity-_position;
 	if(room > len)
 		room=len;	// limit to request
 	memcpy(_buffer+_position, buffer, room);
@@ -562,16 +549,43 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (BOOL) setProperty:(id) property forKey:(NSString *) key
 {
 	if([key isEqualToString:NSStreamFileCurrentOffsetKey])
-		{
-		int pos=[property unsignedLongValue];
-		if(pos > _capacityLimit)
-			return NO;
-		_position=pos;
-		if(pos > _currentCapacity)
-			; // must we expand here to fill with 0 if someone wants to look at NSStreamDataWrittenToMemoryStreamKey?
-		return YES;
-		}
+			{
+				int pos=[property unsignedLongValue];
+				if(pos > _capacity)
+					return NO;
+				_position=pos;
+				if(pos > _capacity)
+					; // must we expand here to fill with 0 if someone wants to look at NSStreamDataWrittenToMemoryStreamKey?
+				return YES;
+			}
 	return NO;
+}
+
+- (void) scheduleInRunLoop:(NSRunLoop *) aRunLoop forMode:(NSString *) mode { NIMP; }
+
+@end
+
+@implementation _NSMemoryOutputStream
+
+- (id) initToMemory;
+{
+	return [self initToBuffer:NULL capacity:0];
+}
+
+- (void) dealloc
+{
+	if(_buffer)
+		objc_free(_buffer);
+	[super dealloc];
+}
+
+- (BOOL) hasSpaceAvailable; { return YES; }	// grows as long as we can get memory...
+
+- (int) write:(const unsigned char *) buffer maxLength:(unsigned int) len;
+{
+	if(_position + len > _capacity)
+		_buffer=objc_realloc(_buffer, _capacity=2*_capacity+len);	// enlarge buffer
+	return [super write:buffer maxLength:len];
 }
 
 - (void) scheduleInRunLoop:(NSRunLoop *) aRunLoop forMode:(NSString *) mode { NIMP; }
@@ -724,14 +738,14 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (int) write:(const unsigned char *) buffer maxLength:(unsigned int) len;
 {
-	unsigned n;
 	if(ssl)
-		n=SSL_write(ssl, buffer, len);	// SSL
+			{
+				unsigned n;
+				n=SSL_write(ssl, buffer, len);	// SSL
+				return n;
+			}
 	else
-		n=write(_fd, buffer, len);
-	if(n < 0)
-		return n;	// error
-	return n;
+		return [super write:buffer maxLength:len];
 }
 
 @end

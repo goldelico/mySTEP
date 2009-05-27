@@ -31,13 +31,14 @@
 {
 	if((self=[super init]))
 		{ // should read from external storage...
+			// FIXME
 		}
 	return self;
 }
 
 - (NSDictionary *) allCredentials;
 {
-	// merge all
+	// FIXME: merge all
 	return NIMP;
 }
 

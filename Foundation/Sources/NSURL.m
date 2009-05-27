@@ -1303,7 +1303,9 @@ static NSString *unescape(const char *from)
 
 - (NSNumber*) port
 {
-	return [NSNumber numberWithUnsignedShort:[unescape(myData->port) intValue]];
+	if(myData->port)
+		return [NSNumber numberWithUnsignedShort:[unescape(myData->port) intValue]];
+	return nil;
 }
 
 /**
@@ -1313,7 +1315,6 @@ static NSString *unescape(const char *from)
 - (id) propertyForKey: (NSString*)propertyKey
 {
 	NSURLHandle	*handle = [self URLHandleUsingCache: YES];
-	
 	return [handle propertyForKey: propertyKey];
 }
 
@@ -1326,13 +1327,9 @@ static NSString *unescape(const char *from)
  */
 - (NSString*) query
 {
-	NSString	*query = nil;
-	
-	if (myData->query != 0)
-		{
-		query = [NSString stringWithUTF8String: myData->query];
-		}
-	return query;
+	if (myData->query)
+			return [NSString stringWithUTF8String: myData->query];
+	return nil;
 }
 
 /**

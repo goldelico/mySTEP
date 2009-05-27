@@ -216,10 +216,10 @@
 @implementation NSObject (NSURLConnectionDelegate)
 
 - (void) connection:(NSURLConnection *) conn didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *) challenge; { return; }
-- (void) connection:(NSURLConnection *) conn didFailWithError:(NSError *) error; { NIMP; }
+- (void) connection:(NSURLConnection *) conn didFailWithError:(NSError *) error; { NIMP; }	// otherwise the delegate can't work properly
 - (void) connection:(NSURLConnection *) conn didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *) challenge; { return; }
-- (void) connection:(NSURLConnection *) conn didReceiveData:(NSData *) data; { NIMP; }
-- (void) connection:(NSURLConnection *) conn didReceiveResponse:(NSURLResponse *) resp; { NIMP; }
+- (void) connection:(NSURLConnection *) conn didReceiveData:(NSData *) data; { NIMP; }	// otherwise the delegate can't work properly
+- (void) connection:(NSURLConnection *) conn didReceiveResponse:(NSURLResponse *) resp; { return; }
 - (NSCachedURLResponse *) connection:(NSURLConnection *) conn willCacheResponse:(NSCachedURLResponse *) resp; { return resp; }
 - (NSURLRequest *) connection:(NSURLConnection *) conn willSendRequest:(NSURLRequest *) req redirectResponse:(NSURLResponse *) resp; { return req; }
 - (void) connectionDidFinishLoading:(NSURLConnection *) conn; { return; }

@@ -19,10 +19,6 @@
 
 static NSURLCache *_sharedURLCache;
 
-// FIXME: the caching mechanism does not clear the disk if the app terminates
-// and it does not read cached responses from the last time the application did run
-// i.e. we should better organize memory and disk caches as two cache levels (LRU)
-
 + (void) setSharedURLCache:(NSURLCache *) urlCache;
 {
 	ASSIGN(_sharedURLCache, urlCache);
@@ -49,76 +45,98 @@ static NSURLCache *_sharedURLCache;
 						}
 				_memoryCapacity=memCap;
 				_diskCapacity=diskCap;
+				_diskUseage=0;	// read disk file size
 				_diskPath=[p retain];
-				_cachedEntries=[[NSMutableDictionary alloc] initWithCapacity:10];
+				_memoryCache=[[NSMutableDictionary alloc] initWithCapacity:10];
 			}
 	return self;
 }
 
 - (void) dealloc;
 {
-	[_cachedEntries release];
+	[_memoryCache release];
 	[_diskPath release];
 	[super dealloc];
 }
 
-- (NSCachedURLResponse *) cachedResponseForRequest:(NSURLRequest *) req;
+- (NSString *) _diskFileNameForRequest:(NSURLRequest *) req;
 {
-	id resp=[_cachedEntries objectForKey:req];
-	if([resp isKindOfClass:[NSString class]])
-			resp=[NSKeyedUnarchiver unarchiveObjectWithFile:(NSString *) resp];	// has been saved on disk
-	return (NSCachedURLResponse *) resp;	// not available
+	NSString *file=[NSString stringWithFormat:@"%@/%lu", _diskPath, [[[req URL] absoluteString] hash]];	// should we use a MD5 hash?
+#if 1
+	NSLog(@"disk file %@", file);
+#endif
+	return file;
 }
 
-- (NSUInteger) currentDiskUsage; { return _diskUseage; }
+- (NSCachedURLResponse *) cachedResponseForRequest:(NSURLRequest *) req;
+{
+	NSCachedURLResponse *resp=[_memoryCache objectForKey:req];
+	if(!resp)
+			{
+				resp=[NSKeyedUnarchiver unarchiveObjectWithFile:[self _diskFileNameForRequest:req]];	// may have been saved on disk
+				// check if that what we have found is really compatible (hash conflict)
+				// if we have enough room in the memory cache, we could also save a copy here so that we read from disk only once...
+			}
+	return resp;	// not available
+}
+
+- (NSUInteger) currentDiskUsage;
+{
+	if(_diskCapacity > 0 && _diskUseage == 0)
+			{
+				// sum up size of all disk files
+			}
+	return _diskUseage;
+}
+
 - (NSUInteger) currentMemoryUsage;	{ return _memoryUseage; }
 - (NSUInteger) diskCapacity;	{ return _diskCapacity; }
 - (NSUInteger) memoryCapacity; { return _memoryCapacity; }
 
-- (void) removeAllCachedResponses; { NSEnumerator *e=[_cachedEntries keyEnumerator]; NSURLRequest *req; while((req=[e nextObject])) [self removeCachedResponseForRequest:req]; }
+- (void) removeAllCachedResponses;
+{
+	[_memoryCache removeAllObjects];
+	// wipe out disk cache
+	_memoryUseage=0;
+	_diskUseage=0;
+}
 
 - (void) removeCachedResponseForRequest:(NSURLRequest *) req;
 {
-	id resp=[_cachedEntries objectForKey:req];
-	if(resp)
-			{ // is cached
-				if([resp isKindOfClass:[NSString class]])
-						{ // delete from disk
-							// we may save the unarchiving step if we use size of the archive file and not of the contents
-							NSCachedURLResponse *r = [NSKeyedUnarchiver unarchiveObjectWithFile:(NSString *) resp];
-							[[NSFileManager defaultManager] removeFileAtPath:(NSString *) resp handler:nil];
-							_diskUseage -= [[(NSCachedURLResponse *) r data] length];	// reduce
-						}
-				else
-					_memoryUseage -= [[(NSCachedURLResponse *) resp data] length];	// reduce
-			}
-	[_cachedEntries removeObjectForKey:req];	// remove from memory or remove link to file name
+	NSCachedURLResponse *resp=[_memoryCache objectForKey:req];
+	_memoryUseage -= [[resp data] length];	// reduce
+	// remove from disk 
+	_diskUseage=0;	// recalculate
 }
 
 - (void) setDiskCapacity:(NSUInteger) diskCap; { _diskCapacity=diskCap; }
 - (void) setMemoryCapacity:(NSUInteger) memCap; { _memoryCapacity=memCap; }
 
 - (void) storeCachedResponse:(NSCachedURLResponse *) response forRequest:(NSURLRequest *) req;
-{
+{ // store to both caches as long as we have room
 	NSUInteger size=[[response data] length];	// approximate (does not cover other iVars of NSCachedURLResponse and NSKeyedArchiver headers)
   switch([response storagePolicy])
 		{
 			case NSURLCacheStorageAllowed:
-				if(_memoryUseage + size >= _memoryCapacity)
-						{ // must save on disk
-							if(_diskUseage + size < _diskCapacity)
-									{ // can save on disk
-										NSString *name=[_diskPath stringByAppendingString:@"cachedfilename"];	// FIXME: build unique file name for fast file access
-										[NSKeyedArchiver archiveRootObject:response toFile:name];
-										[_cachedEntries setObject:name forKey:req];	// store file name
-										// FIXME: should be size of the archive
-										_diskUseage += size;
-									}
-							return;
+				if(size <= _diskCapacity)
+						{ // if we have enough space on disk
+							NSString *name=[self _diskFileNameForRequest:req];
+							while([self currentDiskUsage] + size > _diskCapacity)
+								{ // remove other entries to make room (largest first? smallest first? oldest first?)
+								}
+							// this should be delayed + but already included in the real disk useage
+							[NSKeyedArchiver archiveRootObject:response toFile:name];
+							_diskUseage=0;	// recalculate
 						}
 			case NSURLCacheStorageAllowedInMemoryOnly:
-				[_cachedEntries setObject:response forKey:req];
-				_memoryUseage += size;
+				if(size <= _memoryCapacity)
+						{
+							while(_memoryUseage + size > _memoryCapacity)
+								{	// remove entries (largest first? smallest first? oldest first?)
+								}
+							[_memoryCache setObject:response forKey:req];
+							_memoryUseage += size;
+						}
 				break;
 			case NSURLCacheStorageNotAllowed:
 				return;
@@ -131,13 +149,15 @@ static NSURLCache *_sharedURLCache;
 
 @implementation NSCachedURLResponse
 
+// FIXME: we handle Responses here and not NSURLRequests!
+
 - (BOOL) isEqual:(id) other
 {
 	return [NSURLProtocol requestIsCacheEquivalent:_response toRequest:[other response]];
 }
 
 - (NSUInteger) hash;
-{ // FIXME: this must me the same for two cache-equivalent responses...
+{ // FIXME: this must be the same for two cache-equivalent responses...
 	[NSURLProtocol canonicalRequestForRequest:_response];
 	// [NSURLRequest canonicalRequest]
 	// so it must be the same request URL but not the same response header

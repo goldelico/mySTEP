@@ -204,6 +204,7 @@ static id sharedDefaultsController;
 	if([aDecoder decodeBoolForKey:@"NSSharedInstance"] && !sharedDefaultsController)
 			sharedDefaultsController=self;
 	_appliesImmediately=[aDecoder decodeBoolForKey:@"NSAppliesImmediately"];
+	NSLog(@"NSDeclaredKeys=%@", [aDecoder decodeObjectForKey:@"NSDeclaredKeys"]);
 	return self;
 }
 

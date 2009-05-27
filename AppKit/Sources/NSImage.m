@@ -303,8 +303,17 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	NSCachedImageRep *irep=[self _cachedImageRep];
 	[self isValid];	// load or create cached image rep if needed
 	[NSGraphicsContext saveGraphicsState];
-	[NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithWindow:[irep window]]];
-	// define CTM so that we really draw into the irep
+	if(irep)
+			{
+				NSRect rect=[irep rect];
+				NSGraphicsContext *ctxt=[NSGraphicsContext graphicsContextWithWindow:[irep window]];
+				[NSGraphicsContext setCurrentContext:ctxt];
+				// define CTM so that we really draw into the irep tile, i.e. move the origin - any maybe we need to flip
+	//			[ctxt _setCTM:
+				[ctxt _addClip:[NSBezierPath bezierPathWithRect:rect] reset:YES];
+			}
+	else
+		NSLog(@"can't get cached image representation");
 }
 
 - (void) unlockFocus

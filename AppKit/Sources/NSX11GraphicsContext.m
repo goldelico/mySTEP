@@ -1579,6 +1579,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		{ // we must really fetch the current image from our context
 		// FIXME: this is quite slow even if we have double buffering!
 		// restrict to window/screen
+#if 1
+			NSLog(@"fetch %ld pixels text", width*height);
+#endif			
 		img=XGetImage(_display, ((Window) _graphicsPort),
 						x, y, width, height,
 						AllPlanes, ZPixmap);
@@ -1616,6 +1619,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	values.function=GXcopy;
 	XChangeGC(_display, _state->_gc, GCFunction, &values);	// use X11 copy compositing
+#if 1
+	NSLog(@"put %ld pixels text", width*height);
+#endif
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, x, y, width, height);	
 	_setDirtyRect(self, x, y, width, height);
 	XDestroyImage(img);
@@ -1823,7 +1829,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		NSAffineTransformStruct atms;
 		BOOL cached=[rep isKindOfClass:[NSCachedImageRep class]];
 		if(cached)
-			{ // it already has a Picture on the X-Server
+			{ // we already have a Picture on the X-Server
 				_NSX11GraphicsContext *c=(_NSX11GraphicsContext *) [[(NSCachedImageRep *) rep window] graphicsContext];
 				src=c->_picture;
 				rect=[(NSCachedImageRep *) rep rect];
@@ -2161,6 +2167,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #if 0
 			NSLog(@"XGetImage(%d, %d, %u, %u)", xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 #endif
+#if 1
+			NSLog(@"get %ld pixels image", xScanRect.width*xScanRect.height);
+#endif
 			img=XGetImage(_display, ((Window) _graphicsPort),
 						  xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height,
 						  AllPlanes, ZPixmap);
@@ -2288,6 +2297,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #endif	
 	values.function=GXcopy;
 	XChangeGC(_display, _state->_gc, GCFunction, &values);	// use X11 copy compositing
+#if 1
+	NSLog(@"put %ld pixels image", xScanRect.width*xScanRect.height);
+#endif
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 	XDestroyImage(img);
 	_setDirtyRect(self, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);

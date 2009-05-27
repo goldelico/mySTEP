@@ -4,6 +4,7 @@
    The text class. It is directly working on its NSTextStorage and does not use a NSLayoutManager and/or NSTextContainer.
    Therefore, it has limited functionality compared to its subclass NSTextView. E.g.
 	 - less precise text manipulating methods
+   - can't format and handle lines of different font
  
    NSTextView adds a text network and adds more sophisticated editing commands. Note: Interface Builder can create NSTextView only.
 
@@ -84,8 +85,9 @@ NSString *NSTextMovement=@"NSTextMovement";
 - (NSWritingDirection) baseWritingDirection;{ return _baseWritingDirection; }
 
 - (void) changeColor:(id)sender;
-{ // color panel
+{ // called by color panel
 	// how can we change the background color?
+	// probably we can decode the sender
 	[self setTextColor:[sender color]];
 }
 
@@ -131,6 +133,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) copy:(id)sender;
 {
+	// copy selected characters to Text pasteboard
 	NIMP;
 }
 
@@ -146,14 +149,15 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) cut:(id)sender;
 {
-	NIMP;
+	[self copy:sender];
+	[self deleteBackward:sender];
 }
 
 - (id) delegate;							{ return _delegate; }
 
 - (void) delete:(id)sender;
 {
-	NIMP;
+	[self deleteBackward:sender];
 }
 
 - (BOOL) drawsBackground					{ return _tx.drawsBackground; }
@@ -183,6 +187,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) paste:(id)sender;
 {
+	// insertText from pasteboard
 	NIMP;
 }
 
@@ -240,6 +245,7 @@ NSString *NSTextMovement=@"NSTextMovement";
 - (void) scrollRangeToVisible:(NSRange) range;
 {
 	NIMP;
+	[self scrollRectToVisible:NSZeroRect];	// should be the line rect
 }
 
 - (void) selectAll:(id)sender;				{ [self setSelectedRange:NSMakeRange(0, [textStorage length])]; }

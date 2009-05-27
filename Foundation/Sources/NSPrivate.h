@@ -503,19 +503,22 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 
 @interface _NSMemoryInputStream : NSInputStream
 {
+	NSData *_data;
 	unsigned const char *_buffer;
 	unsigned long _position;
 	unsigned long _capacity;
 }
 @end
 
-@interface _NSMemoryOutputStream : NSOutputStream
+@interface _NSBufferOutputStream : NSOutputStream
 {
 	unsigned char *_buffer;
 	unsigned long _position;
-	unsigned long _currentCapacity;	// current buffer capacity
-	unsigned long _capacityLimit;
+	unsigned long _capacity;
 }
+@end
+
+@interface _NSMemoryOutputStream : _NSBufferOutputStream
 @end
 
 @interface _NSSocketOutputStream : NSOutputStream

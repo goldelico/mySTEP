@@ -52,7 +52,7 @@ static NSDictionary *_mimeExtensions;
 			}
 		_MIMEType=[MIMEType retain];
 		_textEncodingName=[name retain];
-		if(length < -1) length=-1;	// ignore heavily negative values
+		if(length < 0) length=NSURLResponseUnknownLength;	// ignore heavily negative values
 		_expectedContentLength=length;
 		}
 	return self;
@@ -131,7 +131,7 @@ static NSDictionary *_mimeExtensions;
 		  expectedContentLength:0
 			   textEncodingName:encoding]))
 		{
-		_expectedContentLength=[len length] > 0?[len longLongValue]:-1;
+		_expectedContentLength=[len length] > 0?[len longLongValue]:NSURLResponseUnknownLength;
 		_headerFields=[headers retain];
 		_statusCode=code;
 		}

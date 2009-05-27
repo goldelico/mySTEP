@@ -340,7 +340,7 @@ static IMP appendImp;
 	NSMutableString *result=[NSMutableString stringWithCapacity:3*([self length]/4+1)];
 	const char *src = [self bytes];
 	int length = [self length];
-	long bytes;
+	long bytes = 0;
 	while(length > 0)
 			{
 				int i;
@@ -1916,8 +1916,7 @@ unsigned l;
 {
     if (aRange.location > length || NSMaxRange(aRange) > length)
 		[NSException raise: NSRangeException
-		    		 format: @"replaceBytesInRange Range: (%u, %u) Size: %u", aRange.location, 
-								aRange.length, length];
+		    		 format: @"replaceBytesInRange Range: (%u, %u) Size: %u", aRange.location, aRange.length, length];
 
     memcpy(((char *) bytes) + aRange.location, moreBytes, aRange.length);
 }
@@ -1926,14 +1925,16 @@ unsigned l;
 				   withBytes:(const void*)moreBytes
 					  length:(unsigned)len
 {
-	NIMP;
-	// resize to make room for len bytes! Then replace - we might need to use memmove!
-    if (aRange.location > length || NSMaxRange(aRange) > length)
+	if (aRange.location > length || NSMaxRange(aRange) > length)
 		[NSException raise: NSRangeException
-					format: @"replaceBytesInRange Range: (%u, %u) Size: %u", aRange.location, 
-			aRange.length, length];
-	
-    memcpy(((char *) bytes) + aRange.location, moreBytes, aRange.length);
+								format: @"replaceBytesInRange Range: (%u, %u) Length: %u Size: %u", aRange.location, aRange.length, len, length];
+	if(len > aRange.length)
+			{ // must grow
+				NSAssert((length+len)-aRange.length > length, @"too many bytes to replace");	// protect against integer overflow
+				[self _grow:(length+len)-aRange.length];
+			}
+	memmove(((char *) bytes) + aRange.location + len, ((char *) bytes) + NSMaxRange(aRange), length-NSMaxRange(aRange));
+  memcpy(((char *) bytes) + aRange.location, moreBytes, len);
 }
 
 - (void) serializeInt:(int)value

@@ -326,13 +326,11 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 
 - (NSArray*) _determineTransitions
 {
-	id transitions = nil;
 	struct tzhead header;
 	const char *bytes;
 	unsigned int len;
-	NSData *data;
-	
-	if ((data = _openTimeZoneFile(_name)) && (bytes = [data bytes])
+	NSData *data = _openTimeZoneFile(_name);
+	if (data && (bytes = [data bytes])
 			&& (len = [data length]) > sizeof(struct tzhead)
 			&& memcpy(&header, bytes, sizeof(struct tzhead)))
 			{
@@ -345,21 +343,23 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 #endif		
 				if (bytes+offset+((4*n_trans)+n_trans) > bytes+len)
 						[NSException raise:NSGenericException format:@"range error in timezone transitions"];
-				transitions = [[NSMutableArray alloc] initWithCapacity: n_trans];
+				_transitions = [[NSMutableArray alloc] initWithCapacity: n_trans];
 				trans = objc_malloc(4 * n_trans);
 				type_idxs = objc_malloc(n_trans);
 				memcpy(trans, bytes+offset, (i = (4*n_trans)));	// copy to adapt alignment (bytes+offset may be unaligned)
 				memcpy(type_idxs, bytes+offset+i, (n_trans));
+				[data release];
 				for (i = 0; i < n_trans; i++)
-					[transitions addObject: [[GSTimeTransition alloc]
-																	 initWithTime: decode(trans+(i*4))
-																	 withIndex: type_idxs[i]]];
+						{
+							GSTimeTransition *t=[[GSTimeTransition alloc] initWithTime: decode(trans+(i*4)) withIndex: type_idxs[i]];
+							[(NSMutableArray *) _transitions addObject:t];
+							[t release];
+						}
 				objc_free(trans);
 				objc_free(type_idxs);
 			}
-	[data release];
 	
-	return transitions;
+	return _transitions;
 }
 
 - (GSTimeZoneDetail*) _timeZoneDetailForDate:(NSDate*)date
@@ -367,7 +367,7 @@ decode (const void *ptr)			// code included in the GNU C Library 2.0.3
 	unsigned index, count;
 	int the_time = (int)[date timeIntervalSince1970];
 	
-	if (!_transitions && !(_transitions = [self _determineTransitions]))
+	if (!_transitions && ![self _determineTransitions])
 		return nil;
 	
 	count = [_transitions count];

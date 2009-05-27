@@ -83,8 +83,8 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 - (unsigned int) hash;
 - (GSSequence *) lowercase;
 - (GSSequence *) uppercase;
-- (BOOL) isEqual:(id)aSequence;
-- (NSComparisonResult) compare:(GSSequence*)aSequence;
+- (BOOL) isEqual:(GSSequence *)aSequence;
+- (NSComparisonResult) compare:(GSSequence *)aSequence;
 
 @end
 
@@ -834,7 +834,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 					encoding:(NSStringEncoding)enc
 					   error:(NSError **)error;   
 {
-	*error=nil;
+	if(error)
+		*error=nil;
 	return [self initWithData:[NSData dataWithContentsOfURL: url] encoding:enc];	// deduct encoding from contents
 }
 
@@ -2210,6 +2211,7 @@ unichar strFirstCharacter;
 - (float) floatValue			{ return (float) atof([self cString]); }
 - (int) intValue				{ return atoi([self cString]); }
 - (NSInteger) integerValue		{ return atoi([self cString]); }
+- (long long) longLongValue				{ return atoll([self cString]); }
 
 - (BOOL) boolValue
 {
