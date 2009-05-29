@@ -21,6 +21,9 @@
 
 extern NSString *NSUndefinedKeyException;
 
+extern NSString *NSTargetObjectUserInfoKey;
+extern NSString *NSUnknownUserInfoKey;
+
 extern NSString *NSAverageKeyValueOperator;
 extern NSString *NSCountKeyValueOperator;
 extern NSString *NSDistinctUnionOfArraysKeyValueOperator;

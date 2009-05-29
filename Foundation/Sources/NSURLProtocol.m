@@ -235,12 +235,17 @@ static NSMutableArray *_registeredClasses;
 
 static NSMutableDictionary *_httpConnections;
 
+- (BOOL) willClose;
+{ // we have announced (in request "Connection: close") to close or server has announced (in reply) - i.e. don't queue up more requests
+	return _shouldClose || _willClose;
+}
+
 + (_NSHTTPSerialization *) serializerForProtocol:(_NSHTTPURLProtocol *) protocol;
 { // get connection queue for handling this request (may create a new one)
 	NSString *key=[protocol _uniqueKey];
 	_NSHTTPSerialization *ser=[_httpConnections objectForKey:key];	// could also store an array!
-	if(!ser)
-			{ // not found
+	if(!ser || [ser willClose])
+			{ // not found or server has announced to close connection: we need a new connection
 				ser=[self new];
 #if 1
 				NSLog(@"%@: new serializer %@", key, ser);
@@ -522,7 +527,7 @@ static NSMutableDictionary *_httpConnections;
 			}
 	_contentLength = [[_headers objectForKey:@"content-length"] longLongValue];
 	_isChunked=(header=[_headers objectForKey:@"transfer-encoding"]) && [header caseInsensitiveCompare:@"chunked"] == NSOrderedSame;
-	_shouldClose=(header=[_headers objectForKey:@"Connection"]) && [header caseInsensitiveCompare:@"close"] == NSOrderedSame;	// will close after completing the request
+	_willClose=(header=[_headers objectForKey:@"Connection"]) && [header caseInsensitiveCompare:@"close"] == NSOrderedSame;	// will close after completing the request
 	if(!_isChunked)	// ??? must we notify (partial) response before we send any data ???
 			{
 				NSHTTPURLResponse *response=[[[NSHTTPURLResponse alloc] _initWithURL:url headerFields:_headers andStatusCode:_statusCode] autorelease];
@@ -1026,6 +1031,7 @@ static NSMutableDictionary *_httpConnections;
 			case 503:	// retry
 				// check if within reasonable future (retry-after) and then repeat
 				break;
+				// case 206:	// optional
 			case 304:
 				[_client URLProtocol:self cachedResponseIsValid:_cachedResponse];	// will get data from cache
 				[_client URLProtocol:self didLoadData:[_cachedResponse data]];	// and pass data from cache

@@ -11,6 +11,9 @@
 
 #import <Foundation/NSKeyValueCoding.h>
 
+NSString *NSTargetObjectUserInfoKey=@"NSTargetObjectUserInfoKey";
+NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
+
 @implementation NSObject (NSKeyValueCoding)
 
 + (BOOL) accessInstanceVariablesDirectly;
@@ -84,6 +87,8 @@
 	return [self valueForUndefinedKey:str];
 }
 
+#if NEW
+
 /*
  use as
  if((ivar=_findIvar(isa, "_", 1, name)) == NULL)
@@ -116,7 +121,9 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 		}
 	return NULL;	// not found
 }
-		
+
+#endif
+
 - (void) setValue:(id) val forKey:(NSString *) str;
 {
 	const char *varName=[str cString];
@@ -125,7 +132,7 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 	SEL s;
 	strcpy(selName, "set");
 	strcpy(selName+3, varName);	// append
-	selName[3]=toupper(selName[3]);	// capitalize the letter following "set"
+	selName[3]=toupper(selName[3]);	// capitalize the first letter following "set"
 	strcat(selName+3, ":");	// append a :
 	NSAssert(strlen(selName) < len, @"buffer overflow");
 	s=sel_get_any_uid(selName);
@@ -135,14 +142,18 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 #endif
 	if(s && [self respondsToSelector:s])
 		{
-		// check for NSNumber/NSValue compatible argument
-		// either call setNilValueForKey: or use [val intValue] etc. to fetch the argument
+		// get method signature
+		// if necessary, use [val intValue] etc. to fetch the argument with the correct type
 		objc_free(selName);
 		if(!val)
 			[self setNilValueForKey:str];
-		[self performSelector:s withObject:val];
+		else
+			[self performSelector:s withObject:val];
 		return;
 		}
+#if 0
+	NSLog(@"object does not respond to setter");
+#endif
 	if([isa accessInstanceVariablesDirectly])
 		{
 		// FIXME: we should walk the tree for each variant!
@@ -221,7 +232,8 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 
 - (void) setValue:(id)value forUndefinedKey:(NSString *)key
 {
-	[NSException raise:NSUndefinedKeyException format:@"%@ setValue:%@ forKey:%@ is undefined: %@", self, value, key, self];
+	[[NSException exceptionWithName:NSUndefinedKeyException reason:[NSString stringWithFormat:@"setValue:%@ forKey:%@ is undefined: %@", value, key, self]
+												 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:self, NSTargetObjectUserInfoKey, key, NSUnknownUserInfoKey, nil]] raise];
 }
 
 - (void) setNilValueForKey:(NSString *)key
@@ -231,7 +243,8 @@ static struct objc_ivar *_findIvar(struct objc_class *class, char *prefix, int p
 
 - (id) valueForUndefinedKey:(NSString *)key
 {
-	[NSException raise:NSUndefinedKeyException format:@"%@ value: for key %@ is undefined: %@", self, key, self];
+	[[NSException exceptionWithName:NSUndefinedKeyException reason:[NSString stringWithFormat:@"valueForKey:%@ is undefined: %@", key, self]
+												 userInfo:[NSDictionary dictionaryWithObjectsAndKeys:self, NSTargetObjectUserInfoKey, key, NSUnknownUserInfoKey, nil]] raise];
 	return nil;
 }
 
