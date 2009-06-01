@@ -26,6 +26,10 @@
 	return _collectionView;
 }
 
+- (void) _setCollectionView:(NSCollectionView *)newView {
+	ASSIGN(_collectionView,newView);
+}
+
 - (BOOL) isSelected {
 	return _isSelected;
 }
