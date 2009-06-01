@@ -21,7 +21,22 @@
 }
 
 - (void)drawRect:(NSRect)rect {
-    
+    int i;
+	int j; //counter for the viewItems
+	int k;
+	for (i=0;i<_maxNumberOfRows;i++) {
+		for (j=0;j<_maxNumberOfColumns;j++) {
+			//draw j column
+			k = i+j;
+			NSCollectionViewItem *aktItem = [_content objectAtIndex:k];
+			NSView *v = [aktItem view];
+			NSRect m = v.frame;
+			//draw view
+			NSRect newOrigin = NSMakeRect((j*m.size.width)+5, (i*m.size.height)+5, m.size.width, m.size.height);
+			[v setBounds:newOrigin];
+			[self addSubview:v];
+		}
+	}
 }
 
 - (BOOL) allowsMultipleSelection {return _allowsMultipleSelection;} 
@@ -48,6 +63,7 @@
 }
 - (NSCollectionViewItem *) newItemForRepresentedObject:(id) obj{
 	NSCollectionViewItem *item = [_itemPrototype copy];
+	[item performSelector:@selector(_setCollectionView:) withObject:self];
 	[item setRepresentedObject:obj];
 	return item;
 }
@@ -90,14 +106,33 @@
 {
 	if ((self=[super initWithCoder:coder]))
 	{
-		
+		[self setBackgroundColors:[coder decodeObjectForKey:@"backgroundColors"]];
+		[self setItemPrototype:[coder decodeObjectForKey:@"itemPrototype"]];
+		[self setSelectionIndexes:[coder decodeObjectForKey:@"selectionIndexes"]];
+		[self setContent:[coder decodeObjectForKey:@"content"]];
+		[self setAllowsMultipleSelection:[coder decodeBoolForKey:@"allowsMultipleSelection"]];
+		[self setMaxItemSize:[coder decodeSizeForKey:@"maxItemSize"]];
+		[self setMaxNumberOfColumns:[coder decodeIntForKey:@"maxNumberOfColumns"]];
+		[self setMaxNumberOfRows:[coder decodeIntForKey:@"maxNumberOfRows"]];
+		[self setMinItemSize:[coder decodeSizeForKey:@"minItemSize"]];
+		[self setSelectable:[coder decodeBoolForKey:@"selectable"]];
 	}
 	return self;
 }
 
 - (void) encodeWithCoder:(NSCoder *) coder
 {
-	
+	[coder encodeObject:_backgroundColors forKey:@"backgroundColors"];
+	[coder encodeObject:_itemPrototype forKey:@"itemPrototype"];
+	[coder encodeObject:_selectionIndexes forKey:@"selectionIndexes"];
+	[coder encodeObject:_content forKey:@"content"];
+	[coder encodeBool:_allowsMultipleSelection forKey:@"allowedMultipleSelection"];
+	[coder encodeSize:_maxItemSize forKey:@"maxItemSize"];
+	[coder encodeInt:_maxNumberOfColumns forKey:@"maxNumberOfColumns"];
+	[coder encodeInt:_maxNumberOfRows forKey:@"maxNumberOfRows"];
+	[coder encodeSize:_minItemSize forKey:@"minItemSize"];
+	[coder encodeBool:_selectable forKey:@"selectable"];
+	[super encodeWithCoder:coder];
 }
 
 @end
