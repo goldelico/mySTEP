@@ -49,22 +49,34 @@
 
 - (void) run;
 { // NOTE: runMode may have an internal ARP. Therefore, objects allocated in callbacks are already autoreleased when runMode returns
+#if 1
+	NSLog(@"loop for data %@", self);
+#endif
 	while(!_done)
 		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]; // run loop until we are finished (or we could introduce some timeout!)
+#if 1
+	NSLog(@"data received %@", self);
+#endif
 }
 
 // notification handler
 
-- (void) connection:(NSURLConnection *) conn didReceiveResponse:(NSURLResponse *) resp; { [*_data release]; *_data=nil; *_response=[resp retain]; }
-- (void) connection:(NSURLConnection *) conn didFailWithError:(NSError *) error; { *_error=[error retain]; *_data=nil; _done=YES; }
+- (void) connection:(NSURLConnection *) conn didReceiveResponse:(NSURLResponse *) resp; { [*_response release]; *_response=[resp retain]; }
+- (void) connection:(NSURLConnection *) conn didFailWithError:(NSError *) error; { *_error=[error retain]; [*_data release]; *_data=nil; _done=YES; }
 - (void) connectionDidFinishLoading:(NSURLConnection *) conn; { _done=YES; }
 
 - (void) connection:(NSURLConnection *) conn didReceiveData:(NSData *) data;
 {
+#if 1
+	NSLog(@"did receive %lu bytes %@", [data length], self);
+#endif
 	if(!*_data)
 		*_data=[data mutableCopy];	// first data block
 	else
 		[*_data appendData:data];	// n-th
+#if 1
+	NSLog(@"  have now %lu bytes in %p", [*_data length], *_data);
+#endif
 }
 
 @end
@@ -89,14 +101,13 @@
 	NSMutableData *data;
 	NSError *dummy;
 	_NSURLConnectionDataCollector *dc=[[_NSURLConnectionDataCollector alloc] initWithDataPointer:&data responsePointer:response errorPointer:error?error:&dummy];
-#if 1
 	NSURLConnection *c=[self connectionWithRequest:request delegate:dc];
 	[c start];	// start loading
-#else
-	[self connectionWithRequest:request delegate:dc];	// autostarts and will not be released before we exit
-#endif
 	[dc run];		// collect
 	[dc release];
+#if 1
+	NSLog(@"received data: %p (%lu bytes)", data, [data length]);
+#endif
 	return data;
 }
 

@@ -836,15 +836,18 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 {
 	if(error)
 		*error=nil;
-	return [self initWithData:[NSData dataWithContentsOfURL: url] encoding:enc];	// deduct encoding from contents
+	return [self initWithData:[NSData dataWithContentsOfURL: url] encoding:enc];	// take encoding from arguments
 }
 
 - (id) initWithContentsOfURL:(NSURL *)url
 				usedEncoding:(NSStringEncoding *)enc
 					   error:(NSError **)error;
 {
-	// try different encodings
-	return NIMP;
+	NSURLRequest *request=[NSURLRequest requestWithURL:url];
+	NSURLResponse *response;
+	NSData *data=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:error];
+	// analyse response for content-type, content-encoding...
+	return [self initWithData:data encoding:*enc];	// deduct encoding from content header
 }
 
 - (id) mutableCopyWithZone:(NSZone *) z

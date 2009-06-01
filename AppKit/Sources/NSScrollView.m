@@ -304,22 +304,31 @@ static Class __rulerViewClass = nil;
 	float knobProportion;
 	id documentView;
 	BOOL hide;
-															// do nothing if 
-	if(aClipView != _contentView)							// aClipView is not 
-		return;												// our content view
+	if(_sv.autohidingScrollers)
+		return;	// recursive call
+	if(aClipView != _contentView)	// do nothing if aClipView is not our content view
+		return;
 #if 0
-	NSLog(@"%@ reflectScrolledClipView:%@", self, aClipView);
+	NSLog(@"reflectScrolledClipView: %@", self);
 #endif
 	clipViewBounds = [_contentView bounds];
 	if((documentView = [_contentView documentView]))
 		documentFrame = [documentView frame];
+#if 0
+	NSLog(@"  clipView %@", aClipView);
+	NSLog(@"  documentView %@", documentView);
+#endif
 	if(_sv.hasVertScroller) 
 		{
 		hide = (_sv.autohidesScrollers && documentFrame.size.height <= clipViewBounds.size.height);
 		if([_vertScroller isHidden] != hide)
 			{ // needs to change
+#if 0
+				NSLog(@"vertScroller hidden: %d", hide);
+#endif
 			[_vertScroller setHidden:hide];
-			[self tile];
+			_sv.autohidingScrollers=YES;
+			[self tile];	// this will recurse!
 			}
 		if(!hide)
 			{ // update scroller size
@@ -336,8 +345,12 @@ static Class __rulerViewClass = nil;
 		hide = (_sv.autohidesScrollers && documentFrame.size.width <= clipViewBounds.size.width);
 		if([_horizScroller isHidden] != hide)
 			{ // needs to change
-			[_horizScroller setHidden:hide];
-			[self tile];
+#if 0
+				NSLog(@"horizScroller hidden: %d", hide);
+#endif
+				[_horizScroller setHidden:hide];
+				_sv.autohidingScrollers=YES;
+			[self tile];	// this may recurse!
 			}
 		if(!hide) 
 			{ // update scroller size
@@ -347,6 +360,7 @@ static Class __rulerViewClass = nil;
 							knobProportion:knobProportion];
 			}
 		}
+	_sv.autohidingScrollers=NO;
 }
 
 - (void) setHorizontalRulerView:(NSRulerView*)aRulerView			// FIX ME
@@ -454,21 +468,23 @@ static Class __rulerViewClass = nil;
 		headerRect = NSMakeRect(NSMinX(contentRect), NSMinY(contentRect), NSWidth(contentRect), h);
 		contentRect.origin.y += h;	// move down
 		vertScrollerRect.origin.y += h;	// move down
-		[_headerContentView setFrame:headerRect];
+			if(_headerContentView && !NSEqualRects([_headerContentView frame], headerRect))
+				[_headerContentView setFrame:headerRect];
 		[_headerContentView setNeedsDisplay:YES];
 		if(_cornerView)
 			{ // adjust corner view to be above the vertical scroller
 			cornerRect=NSMakeRect(NSMinX(vertScrollerRect), NSMinY(vertScrollerRect), NSWidth(vertScrollerRect), h);	// may result in zero size
-			[_cornerView setFrame:cornerRect];
+			if(!NSEqualRects([_cornerView frame], cornerRect))
+				[_cornerView setFrame:cornerRect];
 			[_cornerView setNeedsDisplay:YES];
 			}
 		}
-	if(_sv.hasHorizScroller && _horizScroller)
+	if(_sv.hasHorizScroller && _horizScroller && !NSEqualRects([_horizScroller frame], horizScrollerRect))
 		{
 		[_horizScroller setFrame:horizScrollerRect];
 		[_horizScroller setNeedsDisplay:YES];
 		}
-	if(_sv.hasVertScroller && _vertScroller)
+	if(_sv.hasVertScroller && _vertScroller && !NSEqualRects([_vertScroller frame], vertScrollerRect))
 		{
 		[_vertScroller setFrame:vertScrollerRect];
 		[_vertScroller setNeedsDisplay:YES];
@@ -476,7 +492,8 @@ static Class __rulerViewClass = nil;
 #if 0
 	NSLog(@"resizing contentView to frame %@", NSStringFromRect(contentRect));
 #endif
-	[_contentView setFrame:contentRect];	// this may recurse if scrollers are auto-hidden/unhidden
+	if(!NSEqualRects([_contentView frame], contentRect))
+		[_contentView setFrame:contentRect];	// this may recurse if scrollers are auto-hidden/unhidden
 	[_contentView setNeedsDisplay:YES];		// mark as dirty
 }
 

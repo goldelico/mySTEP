@@ -49,6 +49,7 @@
 		UIBITFIELD(unsigned int, hasVertRuler, 1);
 		UIBITFIELD(unsigned int, scrollsDynamically, 1);
 		UIBITFIELD(unsigned int, autohidesScrollers, 1);
+		UIBITFIELD(unsigned int, autohidingScrollers, 1);
 		UIBITFIELD(unsigned int, doubleLongClick, 1);
 		UIBITFIELD(NSBorderType, borderType, 2);
 	} _sv;

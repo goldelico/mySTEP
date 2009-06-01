@@ -295,4 +295,9 @@
 - (void) setRecentSearches:(NSArray *) searches; { [[self cell] setRecentSearches:searches]; }
 - (void) setRecentsAutosaveName:(NSString *) name; { [[self cell] setRecentsAutosaveName:name]; }
 
+// undocumented but needed to handle IB connections
+
+- (NSMenu *) searchMenuTemplate; { return [[self cell] searchMenuTemplate]; }
+- (void) setSearchMenuTemplate:(NSMenu *) menu; {  [[self cell] setSearchMenuTemplate:menu]; }
+
 @end /* NSSearchField */

@@ -233,11 +233,7 @@ static IMP appendImp;
 - (id) initWithContentsOfURL:(NSURL *)url
 {
 	if(![url isFileURL])
-		{
-		[self release];
-			// use synchronous NSURLConnection
-		return NIMP;	// can't read
-		}
+		return [self initWithContentsOfURL:url options:0 error:NULL];
 	return [self initWithContentsOfMappedFile:[url path]];	// default to a mapped file
 }
 
@@ -842,7 +838,7 @@ unsigned l = [self length];			// can be sure that we don't get a range
 												// NSCopying, NSMutableCopying
 - (id) copyWithZone:(NSZone *) zone
 {
-    if(![self isKindOfClass: [NSMutableData class]])
+	if(![self isKindOfClass: [NSMutableData class]])
 		return [self retain];
 	return [[dataMalloc alloc] initWithBytes:[self bytes]
 							   length:[self length]];
@@ -865,6 +861,8 @@ unsigned l = [self length];			// can be sure that we don't get a range
 		}
 	return NIMP;
 }
+
+#if OLD
 
 //*****************************************************************************
 //
@@ -900,6 +898,8 @@ unsigned l = [self length];			// can be sure that we don't get a range
 								  length: length] autorelease];
 }
 
+#endif
+
 - (id) initWithBytesNoCopy:(void*)bytes
 								   length:(unsigned)length			{ SUBCLASS return nil; }
 
@@ -913,7 +913,7 @@ unsigned l = [self length];			// can be sure that we don't get a range
 
 - (unsigned char) _deserializeTypeTagAtCursor:(unsigned*)cursor
 {
-unsigned char result;
+	unsigned char result;
 
 	[self deserializeDataAt: (void*)&result
 		  ofObjCType: @encode(unsigned char) 
@@ -925,7 +925,7 @@ unsigned char result;
 
 - (unsigned) _deserializeCrossRefAtCursor:(unsigned*)cursor
 {
-unsigned result;
+	unsigned result;
 
 	[self deserializeDataAt: (void*)&result
 		  ofObjCType: @encode(unsigned) 
@@ -940,9 +940,20 @@ unsigned result;
 	return [self initWithContentsOfURL:[NSURL fileURLWithPath:path] options:mask error:errorPtr];
 }
 
-- (id) initWithContentsOfURL:(NSURL *)aURL options:(unsigned int)mask error:(NSError **)errorPtr;
+- (id) initWithContentsOfURL:(NSURL *)url options:(unsigned int)mask error:(NSError **)errorPtr;
 {
-	return NIMP;
+	NSURLRequest *request=[NSURLRequest requestWithURL:url];
+	NSURLResponse *response;
+	NSData *data=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:errorPtr];
+#if 1
+	NSLog(@"initWithContentsOfURL: %@ done data=%p error=%@", url, data, *errorPtr);
+#endif
+	// could analyse response for content-type, content-encoding...
+	[self release];
+#if 1
+	NSLog(@"received data length=%lu", [data length]);
+#endif
+	return [data retain];
 }
 
 - (BOOL) writeToFile:(NSString *)path options:(unsigned int)mask error:(NSError **)errorPtr;

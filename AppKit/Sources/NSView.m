@@ -820,10 +820,12 @@ printing
 	NSLog(@"autosized");
 #endif
 	if(_v.postFrameChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
-#if 0
-	NSLog(@"notified");
+			{
+#if 1
+				NSLog(@"notify FrameDidChange");
 #endif
+				[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
+			}
 }
 
 - (void) setFrameOrigin:(NSPoint)newOrigin

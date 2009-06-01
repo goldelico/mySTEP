@@ -304,7 +304,7 @@ NSImage *images[maxCount];
 			
 		_minValue=[aDecoder decodeFloatForKey:@"NSMinValue"];
 		_maxValue=[aDecoder decodeFloatForKey:@"NSMaxValue"];
-		// what is this: NSDrawMatrix
+		(void) [aDecoder decodeObjectForKey:@"NSDrawMatrix"];
 		return self;
 		}
 	[aDecoder decodeValueOfObjCType: @encode(BOOL) at:&_isIndeterminate];

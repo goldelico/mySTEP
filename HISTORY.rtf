@@ -18,6 +18,8 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \b0 \
 \
+* fixed recursion when autohiding scrollers allows them to be unhidden and vice versa (did lead to recursion in reflectScrolledClipView)\
+* fixed missing userInfo in Exceptions from KVC\
 * made chunked decoding work for HTTP NSURLProtocol\
 * separated _NSMemoryOutputStream and _NSBufferOutputStream\
 * fixed a bug in _NSMemoryInputStream that did not retain the underlaying data object\
@@ -30,7 +32,7 @@ This document describes the changes and additions to the mySTEP library.\
 * send NSBoundsChangedNotification and NSFrameChangedNotification independently of any internal optimizations\
 * fixed sizing of NSTextViews, especially if used as Field Editor\
 * added internal tests for correct byte swapping to binary property list class\
-* -calcDrawInfo: -sizeToFit -calcSize fixed\
+* -calcDrawInfo: -sizeToFit & -calcSize fixed\
 * fixed a severe bug when writing binary property lists (offset table size must depend on total size of object data and not number of objects)\
 * made screen scaling an additional factor to what the Xserver tells\
 * horizontal and vertical grid flags were swapped in NSTableView\
