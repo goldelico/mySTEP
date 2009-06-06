@@ -18,6 +18,14 @@ typedef enum
 } SFAuthorizationViewState; 
 
 @interface SFAuthorizationView : NSView
+{
+	SFAuthorization *_authorization; 
+	AuthorizationRights *_authorizationRights; 
+	id _delegate; 
+	NSTimer *_autoupdate;
+	SFAuthorizationViewState _authorizationState; 
+	BOOL _isEnabled;
+}
 
 - (SFAuthorization *) authorization; 
 - (AuthorizationRights *) authorizationRights; 

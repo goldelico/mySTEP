@@ -52,6 +52,7 @@
 - (OSStatus) permitWithRight:(AuthorizationString) name
 					   flags:(AuthorizationFlags) flags; 
 {
+	NIMP;
 	return -1;
 }
 
@@ -60,6 +61,7 @@
 				  environment:(AuthorizationEnvironment *) env 
 			 authorizedRights:(AuthorizationRights *) arights; 
 {
+	NIMP;
 	return -1;
 }
 

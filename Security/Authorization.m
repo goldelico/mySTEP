@@ -16,12 +16,13 @@ OSStatus AuthorizationExecuteWithPrivileges(AuthorizationRef authorization,
 											 FILE **communicationsPipe
 											)
 {
-	// run as root (or suid of the tool) in a subprocess
+	// run 'pathToTool' as root (or whatever suid of the tool) in a subprocess
 	
 	// How can we make this open source without compromizing integrity?
 
 	// can we use sudo or do we need to use a special executor tool that is part of this framework (use [NSBundle bundleForClass:[SFAuthorization class]] to find the executable)
-	return -60031;
+	
+	return errAuthorizationToolExecuteFailure;
 }
 
 /* EOF */
