@@ -4,6 +4,8 @@ Copyright (C) 1999 Free Software Foundation, Inc.
 
 Author:  Gerrit van Dyk <gerritvd@decimax.com>
 Date: 1999
+ 
+ Adapted: H. Nikolaus Schaller
 
 This file is part of the GNUstep GUI Library.
 
@@ -31,8 +33,8 @@ If not, write to the Free Software Foundation,
 @implementation NSProgressIndicator
 
 NSColor *fillColour = nil;
-#define maxCount 2
-NSImage *images[maxCount];
+#define maxCount 20
+// NSImage *images[maxCount];
 
 + (void) initialize
 {
@@ -57,6 +59,7 @@ NSImage *images[maxCount];
 		_doubleValue = 0.0;
 		_minValue = 0.0;
 		_maxValue = 100.0;
+		_isDisplayedWhenStopped = YES;
 		}
 	return self;
 }
@@ -75,8 +78,7 @@ NSImage *images[maxCount];
 	if (!_isIndeterminate)
 		return;
 	
-	_count++;
-	if (_count == maxCount)
+	if (++_count >= maxCount)
 		_count = 0;
 	
 	[self setNeedsDisplay:YES];
@@ -91,7 +93,7 @@ NSImage *images[maxCount];
 - (void) startAnimation:(id)sender
 {
 	if (!_isIndeterminate || _isRunning)
-		return;	// already running
+		return;	// already determinate or already running
 	if (_usesThreadedAnimation)
 		{
 			// Not implemented
@@ -225,58 +227,37 @@ NSImage *images[maxCount];
 
 - (void) drawRect:(NSRect)rect
 {
-	NSRect	r;
 	if(!_isRunning && !_isDisplayedWhenStopped)
 		return;
-#define _bounds rect
-	// Draw the Bezel
-#if 0	// FIXME: these functions are not available in mySTEP!!!
 	if (_isBezeled)
-		{
-		NSSize borderSize = _sizeForBorderType (NSBezelBorder);
-		
 		NSDrawGrayBezel(_bounds, rect);
-		// Calc the inside rect to be drawn
-		r = NSInsetRect(_bounds, borderSize.width, borderSize.height);
-		}
-	else
-#endif
-		r = _bounds;
-	
 	if (_isIndeterminate)
 		{ // Draw indeterminate
-			// if spinning style, draw some circular thing
-			if(!_isRunning)
-				[[NSColor greenColor] set];
-			// should draw by using _count / maxcount
-			else if(_count & 1)
-				[[NSColor redColor] set];
+			float phi=(_count*2*M_PI)/maxCount;
+			if(_isRunning)
+				[[NSColor colorWithCalibratedRed:0.5+0.5*sin(phi) green:0.5+0.5*sin(phi+2*M_PI/3) blue:0.5+0.5*sin(phi+4*M_PI/3) alpha:1.0] set];
 			else
-				[[NSColor yellowColor] set];
+				[[NSColor grayColor] set];
 			NSRectFill(rect);
 		}
 	else 
 		{ // Draw determinate
-		if (_doubleValue > _minValue)
-			{
-			double val;
-			
-			if (_doubleValue > _maxValue)
-				val = _maxValue - _minValue;
-			else 
-				val = _doubleValue - _minValue;
-			
+			double val= (_doubleValue - _minValue) / (_maxValue - _minValue);
+			NSRect r = NSInsetRect(_bounds, 1.0, 1.0);
+			if(val < 0.0)
+				val=0.0;
+			else if(val>1.0)
+				val=1.0;	// clamp
 			if (_isVertical)
-				r.size.height = NSHeight(r) * (val / (_maxValue - _minValue));
+				r.size.height = NSHeight(r) * val;
 			else
-				r.size.width = NSWidth(r) * (val / (_maxValue - _minValue));
+				r.size.width = NSWidth(r) * val;
 			r = NSIntersectionRect(r,rect);
 			if (!NSIsEmptyRect(r))
 				{
 				[fillColour set];
 				NSRectFill(r);
 				}
-			}
 		}
 }
 
@@ -302,9 +283,13 @@ NSImage *images[maxCount];
 		int piFlags=[aDecoder decodeIntForKey:@"NSpiFlags"];
 			// decode into appropriate flags
 			
+			_animationDelay = 5.0 / 60.0;	// 1 twelfth a a second
+			_isDisplayedWhenStopped = YES;
+			_isBezeled = YES;
+			
 		_minValue=[aDecoder decodeFloatForKey:@"NSMinValue"];
 		_maxValue=[aDecoder decodeFloatForKey:@"NSMaxValue"];
-		(void) [aDecoder decodeObjectForKey:@"NSDrawMatrix"];
+		(void) [aDecoder decodeObjectForKey:@"NSDrawMatrix"];	// ignore
 		return self;
 		}
 	[aDecoder decodeValueOfObjCType: @encode(BOOL) at:&_isIndeterminate];
@@ -316,6 +301,7 @@ NSImage *images[maxCount];
 	[aDecoder decodeValueOfObjCType: @encode(double) at:&_minValue];
 	[aDecoder decodeValueOfObjCType: @encode(double) at:&_maxValue];
 	[aDecoder decodeValueOfObjCType: @encode(BOOL) at:&_isVertical];
+	[aDecoder decodeValueOfObjCType: @encode(BOOL) at:&_isDisplayedWhenStopped];
 	return self;
 }
 
