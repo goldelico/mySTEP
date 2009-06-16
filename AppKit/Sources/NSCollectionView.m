@@ -21,20 +21,28 @@
 }
 
 - (void)drawRect:(NSRect)rect {
+	
+	// hier sollte gar nichts gemalt werden
+	
+	// das Grid wird vermutlich in setContent: berechnet
+	// alle Items sind Subviews und malen sich selbst
+	// CollectionView steuert vermutlich nur das Layout und malt selber gar nichts
+	
     int i;
 	int j; //counter for the viewItems
 	int k;
 	for (i=0;i<_maxNumberOfRows;i++) {
 		for (j=0;j<_maxNumberOfColumns;j++) {
 			//draw j column
-			k = i+j;
+			k = i * _maxNumberOfColumns + j;
 			NSCollectionViewItem *aktItem = [_content objectAtIndex:k];
 			NSView *v = [aktItem view];
-			NSRect m = v.frame;
+			NSRect m = [v frame];
 			//draw view
 			NSRect newOrigin = NSMakeRect((j*m.size.width)+5, (i*m.size.height)+5, m.size.width, m.size.height);
-			[v setBounds:newOrigin];
-			[self addSubview:v];
+			// das hier ist nicht sinnvoll!
+			// [v setBounds:newOrigin];
+			// [self addSubview:v];
 		}
 	}
 }

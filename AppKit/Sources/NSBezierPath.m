@@ -112,7 +112,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 {
 #if 1	// use 4 lines instead of _NSRectBezierPath
 	
-	NSBezierPath *path = [[self new] autorelease];
+	NSBezierPath *path = [self new];
 	NSPoint p;
 	
 	[path moveToPoint: aRect.origin];
@@ -125,7 +125,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	[path lineToPoint: p];
 	[path closePath];
 	
-	return path;
+	return [path autorelease];
 #else
 	// FIXME: return instance of _NSRectBezierPath
 	// or we define a private _NSRectBezierPathElement defining two corner points
@@ -136,7 +136,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 + (NSBezierPath *) bezierPathWithOvalInRect:(NSRect)rect
 {
-	NSBezierPath *path = [NSBezierPath bezierPath];
+	NSBezierPath *path = [self new];
 	NSPoint p, p1, p2;
 	double originx = rect.origin.x;
 	double originy = rect.origin.y;
@@ -168,21 +168,21 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	p2 = NSMakePoint(originx + width / 2 + hdiff, originy + height);
 	[path curveToPoint: p controlPoint1: p1 controlPoint2: p2];	
 	
-	return path;
+	return [path autorelease];
 }
 
 + (NSBezierPath *) bezierPathWithRoundedRect:(NSRect)rect xRadius:(CGFloat)xrad yRadius:(CGFloat)yrad;
 {
 	NSBezierPath *p=[self new];
 	[p appendBezierPathWithRoundedRect:rect xRadius:xrad yRadius:yrad];
-	return p;
+	return [p autorelease];
 }
 
 // this is a special case of _drawRoundedBezel:
 
 + (NSBezierPath *) _bezierPathWithBoxBezelInRect:(NSRect) borderRect radius:(float) radius
 {
-	NSBezierPath *b=[NSBezierPath new];
+	NSBezierPath *b=[self new];
 	borderRect.size.width-=1.0;
 	borderRect.size.height-=1.0;	// draw inside
 	[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(borderRect)+radius, NSMinY(borderRect)+radius)
@@ -217,7 +217,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 {
 //	return [self bezierPathWithRoundedRect:borderRect xRadius:flag? :borderRect.size.width/2.0 yRadius:flag?borderRect.size.height/2.0: ];
 #if 1
-	NSBezierPath *p=[NSBezierPath bezierPath];
+	NSBezierPath *p=[self new];
 	NSPoint point=borderRect.origin;
 	float radius;
 	borderRect.size.width-=1.0;
@@ -243,7 +243,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		[p appendBezierPathWithArcWithCenter:point radius:radius startAngle:270.0 endAngle:90.0];	// line to first point and right halfcircle
 		}
 	[p closePath];
-	return p;
+	return [p autorelease];
 #endif
 }
 
@@ -256,7 +256,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 + (void) _drawRoundedBezel:(NSRoundedBezelSegments) border inFrame:(NSRect) frame enabled:(BOOL) enabled selected:(BOOL) selected highlighted:(BOOL) highlighted radius:(float) radius;
 {
 	NSColor *background;
-	NSBezierPath *b=[NSBezierPath new];
+	NSBezierPath *b=[self new];
 	if(border&NSRoundedBezelLeftSegment)
 		{ // left side shaped
 		[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(frame)+radius, NSMinY(frame)+radius)
@@ -342,19 +342,21 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 + (void) strokeLineFromPoint:(NSPoint)point1 toPoint:(NSPoint)point2
 {
-	NSBezierPath *path = [NSBezierPath bezierPath];
+	NSBezierPath *path = [self new];
 	
 	[path moveToPoint: point1];
 	[path lineToPoint: point2];
 	[path stroke];
+	[path release];
 }
 
 + (void) drawPackedGlyphs:(const char *)packedGlyphs  atPoint:(NSPoint)aPoint
 {
-	NSBezierPath *path = [NSBezierPath bezierPath];	
+	NSBezierPath *path = [self new];	
 	[path moveToPoint: aPoint];
 	[path appendBezierPathWithPackedGlyphs: packedGlyphs];
 	[path stroke];  
+	[path release];
 }
 
 + (void) setDefaultFlatness:(float)flatness	{ __defaultFlatness = flatness; }

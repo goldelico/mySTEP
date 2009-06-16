@@ -67,7 +67,6 @@ typedef enum _NSProgressIndicatorStyle
 	BOOL						_isIndeterminate;
 	BOOL						_isBezeled;
 	BOOL						_usesThreadedAnimation;
-	BOOL						_isVertical;
 	BOOL						_isDisplayedWhenStopped;
 	BOOL						_isRunning;
 }

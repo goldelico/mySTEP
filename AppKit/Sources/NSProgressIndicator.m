@@ -29,6 +29,7 @@ If not, write to the Free Software Foundation,
 #import <AppKit/NSProgressIndicator.h>
 #import <AppKit/NSGraphics.h>
 #import <AppKit/NSWindow.h>
+#import <AppKit/NSBezierPath.h>
 
 @implementation NSProgressIndicator
 
@@ -53,9 +54,8 @@ NSColor *fillColour = nil;
 		{
 		_isIndeterminate = YES;
 		_isBezeled = YES;
-		_isVertical = NO;
 		_usesThreadedAnimation = NO;
-		_animationDelay = 5.0 / 60.0;	// 1 twelfth a a second
+		_animationDelay = 5.0 / 60.0;	// 1 twelfth of a second
 		_doubleValue = 0.0;
 		_minValue = 0.0;
 		_maxValue = 100.0;
@@ -230,35 +230,56 @@ NSColor *fillColour = nil;
 	if(!_isRunning && !_isDisplayedWhenStopped)
 		return;
 	if (_isBezeled)
-		NSDrawGrayBezel(_bounds, rect);
+			{
+				if(_style == NSProgressIndicatorSpinningStyle)
+					/*NSDrawGrayBezel(_bounds, rect)*/;
+				else
+					NSDrawGrayBezel(_bounds, rect);
+			}
 	if (_isIndeterminate)
-		{ // Draw indeterminate
-			float phi=(_count*2*M_PI)/maxCount;
-			if(_isRunning)
-				[[NSColor colorWithCalibratedRed:0.5+0.5*sin(phi) green:0.5+0.5*sin(phi+2*M_PI/3) blue:0.5+0.5*sin(phi+4*M_PI/3) alpha:1.0] set];
-			else
-				[[NSColor grayColor] set];
-			NSRectFill(rect);
-		}
+			{ // Draw indeterminate
+				float phi=(_count*2*M_PI)/maxCount;
+				if(_isRunning)
+					[[NSColor colorWithCalibratedRed:0.5+0.5*sin(phi) green:0.5+0.5*sin(phi+2*M_PI/3) blue:0.5+0.5*sin(phi+4*M_PI/3) alpha:1.0] set];
+				else
+					[[NSColor grayColor] set];
+				if(_style == NSProgressIndicatorSpinningStyle)
+					[[NSBezierPath bezierPathWithOvalInRect:_bounds] fill];	// oval (not spinning...)
+				else
+					NSRectFill(rect);	// rectangular (draw updated parts only)
+			}
 	else 
-		{ // Draw determinate
-			double val= (_doubleValue - _minValue) / (_maxValue - _minValue);
-			NSRect r = NSInsetRect(_bounds, 1.0, 1.0);
-			if(val < 0.0)
-				val=0.0;
-			else if(val>1.0)
-				val=1.0;	// clamp
-			if (_isVertical)
-				r.size.height = NSHeight(r) * val;
-			else
-				r.size.width = NSWidth(r) * val;
-			r = NSIntersectionRect(r,rect);
-			if (!NSIsEmptyRect(r))
-				{
-				[fillColour set];
-				NSRectFill(r);
-				}
-		}
+			{ // Draw determinate
+				double val=(_doubleValue - _minValue) / (_maxValue - _minValue);
+				NSRect r = NSInsetRect(_bounds, 1.0, 1.0);
+				if(val < 0.0)
+					val=0.0;
+				else if(val>1.0)
+					val=1.0;	// clamp
+				if(_style == NSProgressIndicatorSpinningStyle)
+						{ // draw "clock"
+							NSBezierPath *progress=[NSBezierPath bezierPath];
+							NSPoint center=(NSPoint){ NSMidX(r), NSMidY(r) };
+							[progress moveToPoint:center];
+							[progress appendBezierPathWithArcWithCenter:center
+																									 radius:0.25*(NSWidth(r)+NSHeight(r))
+																							 startAngle:-90.0
+																								 endAngle:360*val-90.0];	// flipped
+							[progress closePath];
+							[[NSColor blueColor] set];
+							[progress fill];
+							[[NSBezierPath bezierPathWithOvalInRect:r] stroke];							// draw circle around
+						}
+				else
+						{ // rectangular
+							if (NSHeight(r) > NSWidth(r))
+								r.size.height = NSHeight(r) * val;
+							else
+								r.size.width = NSWidth(r) * val;
+							[fillColour set];
+							NSRectFill(r);
+						}
+			}
 }
 
 // NSCoding
@@ -272,7 +293,6 @@ NSColor *fillColour = nil;
 	[aCoder encodeValueOfObjCType: @encode(double) at:&_doubleValue];
 	[aCoder encodeValueOfObjCType: @encode(double) at:&_minValue];
 	[aCoder encodeValueOfObjCType: @encode(double) at:&_maxValue];
-	[aCoder encodeValueOfObjCType: @encode(BOOL) at:&_isVertical];
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder
@@ -281,14 +301,23 @@ NSColor *fillColour = nil;
 	if([aDecoder allowsKeyedCoding])
 		{
 		int piFlags=[aDecoder decodeIntForKey:@"NSpiFlags"];
-			// decode into appropriate flags
 			
-			_animationDelay = 5.0 / 60.0;	// 1 twelfth a a second
-			_isDisplayedWhenStopped = YES;
+#if 1
+			NSLog(@"piFlags = %08x", piFlags);
+#endif
+#define STYLE ((piFlags&0x1000) >> 12)
+#define DISPLAYED_WHEN_STOPPED ((piFlags&0x2000) == 0)
+#define INDETERMINATE ((piFlags&0x0002) != 0)
+			
+			_animationDelay = 5.0 / 60.0;	// 1 twelfth of a second
+			_style = STYLE;
+			_isDisplayedWhenStopped = DISPLAYED_WHEN_STOPPED;
+			_isIndeterminate = INDETERMINATE;
 			_isBezeled = YES;
 			
 		_minValue=[aDecoder decodeFloatForKey:@"NSMinValue"];
 		_maxValue=[aDecoder decodeFloatForKey:@"NSMaxValue"];
+			_doubleValue=[aDecoder decodeFloatForKey:@"NSValue"];
 		(void) [aDecoder decodeObjectForKey:@"NSDrawMatrix"];	// ignore
 		return self;
 		}
@@ -300,7 +329,6 @@ NSColor *fillColour = nil;
 	[aDecoder decodeValueOfObjCType: @encode(double) at:&_doubleValue];
 	[aDecoder decodeValueOfObjCType: @encode(double) at:&_minValue];
 	[aDecoder decodeValueOfObjCType: @encode(double) at:&_maxValue];
-	[aDecoder decodeValueOfObjCType: @encode(BOOL) at:&_isVertical];
 	[aDecoder decodeValueOfObjCType: @encode(BOOL) at:&_isDisplayedWhenStopped];
 	return self;
 }
@@ -308,20 +336,6 @@ NSColor *fillColour = nil;
 - (void) sizeToFit	
 {
 	// based on style
-}
-
-@end
-
-@implementation NSProgressIndicator (GNUstepExtensions)
-
-- (BOOL)isVertical { return _isVertical; }
-- (void)setVertical:(BOOL)flag
-{
-	if (_isVertical != flag)
-		{
-		_isVertical = flag;
-		[self setNeedsDisplay:YES];
-		}
 }
 
 @end
