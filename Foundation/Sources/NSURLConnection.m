@@ -67,14 +67,14 @@
 
 - (void) connection:(NSURLConnection *) conn didReceiveData:(NSData *) data;
 {
-#if 1
+#if 0
 	NSLog(@"did receive %lu bytes %@", [data length], self);
 #endif
 	if(!*_data)
 		*_data=[data mutableCopy];	// first data block
 	else
 		[*_data appendData:data];	// n-th
-#if 1
+#if 0
 	NSLog(@"  have now %lu bytes in %p", [*_data length], *_data);
 #endif
 }

@@ -303,29 +303,39 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		{ // process all timers for this mode
 		i = [timers count];		
 		while(i-- > 0)
-			{ // process backwards because we might remove the timer
+			{ // process backwards because we might remove the timer (or add new ones at the end)
 			NSTimer *min_timer = [timers objectAtIndex:i];
 #if 0
-			NSLog(@"%d: check %@ forMode:%@", i, min_timer, mode);
+			NSLog(@"%d: check %p: %@ forMode:%@", i, min_timer, min_timer, mode);
 #endif
 #if 0
 			NSLog(@"retainCount=%d", [min_timer retainCount]);
 #endif
+			[min_timer retain];	// note: we may reenter this run-loop through -fire - where the timer may already be invalid; the inner run-loop will remove the timer from the array
 			if(min_timer->_is_valid)
 				{ // valid timer (may be left over with negative interval from firing while we did run in a different mode or did have too much to do)
-				NSTimeInterval timeFromNow=[[min_timer fireDate] timeIntervalSinceNow];
 #if 0
-				NSLog(@"timeFromNow = %lf", timeFromNow); 
+				NSLog(@"timeFromNow = %lf", [[min_timer fireDate] timeIntervalSinceNow]); 
 #endif
-				if(timeFromNow <= 0.0)
+				if([[min_timer fireDate] timeIntervalSinceNow] <= 0.0)
 					{ // fire!
 #if 0
-					NSLog(@"fire!");
+					NSLog(@"fire %p!", min_timer);
 #endif
-					[min_timer fire];	// NOTE: this might also fire an attached timed performer object, append new timers etc.; will update the fireDate for repeating timers
+						/* NOTEs:
+						 * this might also fire an attached timed performer object
+						 * append new timers etc.
+						 * and even re-enter this run-loop!
+						 * will update the fireDate for repeating timers
+						 */
+					[min_timer fire];
+#if 0
+						NSLog(@"fire %p done.", min_timer);
+						NSLog(@"retainCount=%d", [min_timer retainCount]);
+#endif
 					}
 				if(limit && min_timer->_is_valid)
-					{ // if timer is still (or again) valid, include in limit date calculation
+					{ // if timer is still (or again) valid - include in limit date calculation
 					NSDate *fire=[min_timer fireDate];	// get (new) fire date
 #if 0
 					NSLog(@"new fire date %@", fire);
@@ -335,12 +345,13 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 					}
 				}
 			if(!min_timer->_is_valid)
-				{ // now invalid after firing (i.e. we are not a repeating timer)
+				{ // now invalid after firing (i.e. we are not a repeating timer or did invalidate)
 #if 0
 				NSLog(@"%d[%d] remove %@", i, [timers count], min_timer);
 #endif
-				[timers removeObjectAtIndex:i];	// this should dealloc the timer (and a timed performer) if it is the last mode we have checked
+				[timers removeObjectAtIndex:i];
 				}
+			[min_timer release];	// this should finally dealloc an invalid timer (and a timed performer) if it is the last mode we have checked
 			}
 		}
 	
@@ -381,7 +392,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			{
 			NSObject *watcher = [watchers objectAtIndex:i];
 			int fd=[watcher _readFileDescriptor];
-#if 1
+#if 0
 			NSLog(@"watch fd=%d for input", fd);
 #endif
 			if(fd >= 0 && fd < FD_SETSIZE)
@@ -400,7 +411,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			{
 			NSObject *watcher = [watchers objectAtIndex:i];
 			int fd=[watcher _writeFileDescriptor];
-#if 1
+#if 0
 			NSLog(@"watch fd=%d for output", fd);
 #endif
 			if(fd >= 0 && fd < FD_SETSIZE)

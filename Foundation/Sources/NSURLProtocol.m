@@ -37,7 +37,7 @@
 	NSMutableDictionary *_headers;		// received headers
 	unsigned long long _contentLength;		// if explicitly specified by header
 	NSMutableString *_headerLine;			// current header line
-	unsigned long _chunkLength;				// current chunk length for receiver
+	unsigned int _chunkLength;				// current chunk length for receiver
 	char _lastChr;										// previouds character while reading header
 	BOOL _readingBody;								// done with reading header
 	BOOL _isChunked;									// transfer-encoding: chunked
@@ -51,7 +51,7 @@
 // internal methods
 
 - (BOOL) connectToServer;	// connect to server
-- (void) headerReceived;
+- (void) headersReceived;
 - (void) bodyReceived;
 - (void) trailerReceived;
 - (void) endOfUseability;	// connection became invalid
@@ -504,7 +504,6 @@ static NSMutableDictionary *_httpConnections;
 
 - (void) headersReceived
 { // end of header block received
-	NSString *clen;	// content length
 	NSURLRequest *request=[_currentRequest request];
 	NSURL *url=[request URL];
 	NSString *header;
@@ -686,7 +685,7 @@ static NSMutableDictionary *_httpConnections;
 																	NSLog(@"chunk length=%@", _headerLine);
 #endif
 																	_chunkLength=0;
-																	if(![sc scanHexInt:&_chunkLength])	// is hex coded
+																	if(![sc scanHexInt:&_chunkLength])	// is hex coded (we even ignore an optional 0x)
 																			{
 																				NSLog(@"invalid chunk length %@", _headerLine);
 																				[_currentRequest didFailWithError:[NSError errorWithDomain:@"invalid chunk length" code:0 userInfo:0]];

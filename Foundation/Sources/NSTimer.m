@@ -106,8 +106,11 @@
 #if 0
 	NSLog(@"%p dealloc %@", self, self);
 #endif
+	if(_is_valid)
+		NSLog(@"timer wasn't invalidated before dealloc: %@", self);	// can occur if we never schedule the timer
 	[_target release];
 	[_fireDate release];
+	_fireDate=nil;
 	[_info release];
 	[super dealloc];
 }
@@ -125,7 +128,7 @@
 - (void) fire
 {
 #if 0
-	NSLog(@"fire %@", self);
+	NSLog(@"fire %p: %@", self, self);
 #endif
 	if(!_repeats)
 		_is_valid = NO;	// has fired once
@@ -147,10 +150,14 @@
 		NSLog(@"fire 3 [%d] %@", [_fireDate retainCount], _fireDate);
 #endif
 		}
-	if(_selector)
-		[_target performSelector:_selector withObject:self];
-	else
-		[_target invoke];	
+	NS_DURING
+		if(_selector)
+			[_target performSelector:_selector withObject:self];
+		else
+			[_target invoke];	
+	NS_HANDLER
+		NSLog(@"exception during -fire of timer: %@", localException);
+	NS_ENDHANDLER
 #if 0
 	NSLog(@"fired");
 #endif
@@ -159,12 +166,16 @@
 - (void) invalidate
 {
 #if 0
-	NSLog(@"invalidate %@", self);
+	NSLog(@"invalidate %p: %@", self, self);
 #endif
-	_is_valid = NO;
+	if(_is_valid)
+			{
+				NSAssert(_fireDate != nil, @"invalidate a deallocated timer");
+				_is_valid = NO;
+			}
 }
 
-- (BOOL) isValid						{ return _is_valid; }
+- (BOOL) isValid						{ return _is_valid; }	// CHECKME (unit test): does a timer become valid after -init or after -schedule?
 - (NSDate *) fireDate					{ return _fireDate; }
 - (NSTimeInterval) timeInterval			{ return _interval; }
 - (id) userInfo							{ return _info; }
