@@ -866,15 +866,15 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 - (NSBundle *) _bundle; { return _bundle; }	// the bundle we load the nib file from (required to locate Custom Resources)
 - (void) _setBundle:(NSBundle *) b { ASSIGN(_bundle, b); }
 
-- (id) initWithNibNamed:(NSString *) name bundle:(NSBundle *) bundle;
+- (id) initWithNibNamed:(NSString *) name bundle:(NSBundle *) referencingBundle;
 {
 	NSString *path;
-	if(!bundle) bundle=[NSBundle mainBundle];
+	if(!referencingBundle) referencingBundle=[NSBundle mainBundle];
 #if 0
-	NSLog(@"NSNib initWithNibNamed:%@ bundle:%@", name, [bundle bundlePath]);
+	NSLog(@"NSNib initWithNibNamed:%@ bundle:%@", name, [referencingBundle bundlePath]);
 #endif
 	if([name hasSuffix:@".nib"]) name=[name stringByDeletingPathExtension];
-	if(!(path=[bundle pathForResource:name ofType:@"nib" inDirectory:nil]))
+	if((path=[referencingBundle pathForResource:name ofType:@"nib" inDirectory:nil]))
 		{ [self release]; return nil; }
 #if 0
 	NSLog(@"bundle=%@", bundle);
@@ -883,7 +883,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	if(![path isAbsolutePath])
 		NSLog(@"??? NOT ABSOLUTE ???");
 #endif
-	return [self _initWithContentsOfURL:[NSURL fileURLWithPath:path] bundle:bundle];	// FIXME: what is the filename: NIB bundle oder keyedobjects.nib filename?
+	return [self _initWithContentsOfURL:[NSURL fileURLWithPath:path] bundle:referencingBundle];	// FIXME: what is the filename: NIB bundle oder keyedobjects.nib filename?
 }
 
 - (id) initWithContentsOfURL:(NSURL *) url;
@@ -898,6 +898,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	NSString *path=[url path];
 	NSString *nib;
+		BOOL isDir;
 #if 0
 	NSLog(@"NSNib initWithContentsOfURL:%@", url);
 #endif
@@ -926,9 +927,12 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 		}
 	if(![path hasSuffix:@".nib"])
 		path=[path stringByAppendingPathExtension:@"nib"];
-	nib=[path stringByAppendingPathComponent:@"keyedobjects.nib"];
+	if([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir] && isDir)	// file.nib is itself a bundle (IB 1.x - 2.x)
+		nib=[path stringByAppendingPathComponent:@"keyedobjects.nib"];
+	else
+		nib=path;	// it should be the keyed archive itself (compiled by IB 3.x from XIB)
 #if 0
-	NSLog(@"loading model file %@", path);
+	NSLog(@"loading model file %@", nib);
 #endif
 	data=[[NSData alloc] initWithContentsOfMappedFile:nib];
 	if(!data) { [arp release]; [self release]; return nil; }
