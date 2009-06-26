@@ -625,6 +625,23 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 								   inMode:NSDefaultRunLoopMode
 								  dequeue:YES];
 			[self sendEvent:e];	// this can set isRunning=NO as a side effect to break the loop
+			if(_windowItems == 0)
+					{ // no window items (left over) after processing last event
+						if(!_delegate && ![NSApp mainMenu])
+								{	// we are a menu-less daemon and have no delegate - default to terminate after initialization
+									NSLog(@"terminating daemon without menu");
+									_app.isRunning=NO;
+								}
+						else if(_delegate && [_delegate respondsToSelector:@selector(applicationShouldTerminateAfterLastWindowClosed:)] &&
+										[_delegate applicationShouldTerminateAfterLastWindowClosed:self])
+								{ // delegate allows us to end
+#if 1
+									NSLog(@"last windows item removed - terminate");
+#endif
+									_app.isRunning=NO;
+								}
+					}
+				}
 		NS_HANDLER
 			NSLog(@"Exception %@ - %@", [localException name], [localException reason]);
 		NS_ENDHANDLER
@@ -632,6 +649,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		}
 	while(_app.isRunning);
 	NSDebugLog(@"NSApplication end of run loop\n");	
+	[self terminate:self];
 }
 
 - (int) runModalForWindow:(NSWindow*)aWindow
@@ -1856,19 +1874,6 @@ NSWindow *w;
 				if([last isSeparatorItem])
 					[_windowsMenu removeItem:last];	// remove the separator if present
 				_windowItems=0;
-				if(!_delegate && ![NSApp mainMenu])
-					{
-					NSLog(@"terminating daemon without menu");
-					[self terminate:self];	// we are a menu-less daemon and have no delegate - default to terminate
-					}
-				else if(_delegate && [_delegate respondsToSelector:@selector(applicationShouldTerminateAfterLastWindowClosed:)] &&
-						[_delegate applicationShouldTerminateAfterLastWindowClosed:self])
-					{
-#if 1
-					NSLog(@"last windows item removed - terminate");
-#endif
-					[self terminate:self];	// we are the last one and are allowed by delegate to terminate
-					}
 				}
 			}
 		}

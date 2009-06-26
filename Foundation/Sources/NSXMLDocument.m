@@ -158,7 +158,7 @@
 
 - (NSData *) XMLData; { return [self XMLDataWithOptions:NSXMLNodeOptionsNone]; }
 
-- (NSData *) XMLDataWithOptions:(NSUInteger) opts;
+- (NSData *) _XMLDataWithOptions:(NSUInteger) opts format:(NSUInteger) fmt
 {
 	NSString *str=nil;
 	switch(_documentContentKind)
@@ -175,6 +175,11 @@
 		}
 	// handle characterEncoding - use UTF8 if unknown
 	return [str dataUsingEncoding:NSUTF8StringEncoding];
+}
+
+- (NSData *) XMLDataWithOptions:(NSUInteger) opts;
+{
+	return [self _XMLDataWithOptions:opts format:_documentContentKind];
 }
 
 @end
