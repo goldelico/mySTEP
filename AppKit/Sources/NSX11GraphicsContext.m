@@ -1579,7 +1579,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		{ // we must really fetch the current image from our context
 		// FIXME: this is quite slow even if we have double buffering!
 		// restrict to window/screen
-#if 1
+#if 0
 			NSLog(@"fetch %ld pixels text", width*height);
 #endif			
 		img=XGetImage(_display, ((Window) _graphicsPort),
@@ -1619,7 +1619,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	values.function=GXcopy;
 	XChangeGC(_display, _state->_gc, GCFunction, &values);	// use X11 copy compositing
-#if 1
+#if 0
 	NSLog(@"put %ld pixels text", width*height);
 #endif
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, x, y, width, height);	
@@ -2167,7 +2167,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #if 0
 			NSLog(@"XGetImage(%d, %d, %u, %u)", xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);
 #endif
-#if 1
+#if 0
 			NSLog(@"get %ld pixels image", xScanRect.width*xScanRect.height);
 #endif
 			img=XGetImage(_display, ((Window) _graphicsPort),
@@ -2297,7 +2297,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #endif	
 	values.function=GXcopy;
 	XChangeGC(_display, _state->_gc, GCFunction, &values);	// use X11 copy compositing
-#if 1
+#if 0
 	NSLog(@"put %ld pixels image", xScanRect.width*xScanRect.height);
 #endif
 	XPutImage(_display, ((Window) _graphicsPort), _state->_gc, img, 0, 0, xScanRect.x, xScanRect.y, xScanRect.width, xScanRect.height);

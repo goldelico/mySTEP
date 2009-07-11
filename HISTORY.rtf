@@ -18,6 +18,7 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \b0 \
 \
+* fixed a retain/release problem when a timer's fire handler did re-enter the same run-loop\
 * fixed recursion when autohiding scrollers allows them to be unhidden and vice versa (did lead to recursion in reflectScrolledClipView)\
 * fixed missing userInfo in Exceptions from KVC\
 * made chunked decoding work for HTTP NSURLProtocol\

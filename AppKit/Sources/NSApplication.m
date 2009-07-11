@@ -578,8 +578,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 1
 	NSLog(@"didFinishLaunching");
 #endif
+	// this should be posted from the runloop!!!
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidFinishLaunching) object:self]; // notify that launch has finally finished
-// we should also send a distributed notification
+	// we should also send a distributed notification
 	[arp release];
 }
 

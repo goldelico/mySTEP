@@ -944,7 +944,11 @@ unsigned l = [self length];			// can be sure that we don't get a range
 {
 	NSURLRequest *request=[NSURLRequest requestWithURL:url];
 	NSURLResponse *response;
-	NSData *data=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:errorPtr];
+	NSData *data;
+	NSError *localError;
+	if(!errorPtr)
+		errorPtr=&localError;
+	data=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:errorPtr];
 #if 1
 	NSLog(@"initWithContentsOfURL: %@ done data=%p error=%@", url, data, *errorPtr);
 #endif

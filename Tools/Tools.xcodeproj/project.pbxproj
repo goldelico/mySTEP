@@ -55,6 +55,10 @@
 		EEAA87080A148FD600F2E5B5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
 		EEAA878D0A14908D00F2E5B5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EEAA87900A14909000F2E5B5 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
+		EEACC95A0FFFE045007DA855 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
+		EEACC95B0FFFE045007DA855 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
+		EEACC95C0FFFE045007DA855 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
+		EEACC96C0FFFE49D007DA855 /* mdo.m in Sources */ = {isa = PBXBuildFile; fileRef = EEACC94E0FFFE03C007DA855 /* mdo.m */; };
 		EEB5703109634D8700EAE41B /* defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = EEA32EC409537D0C001244CF /* defaults.m */; };
 		EEC12B130E3E6024007E6996 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEC12B120E3E6024007E6996 /* AddressBook.framework */; };
 		EECF948C0F529F75003AF020 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
@@ -137,10 +141,12 @@
 		EE97889A0AA70E53007ECDE1 /* say */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = say; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEA32EC409537D0C001244CF /* defaults.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = defaults.m; sourceTree = "<group>"; };
 		EEA330A709538118001244CF /* defaults */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = defaults; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEACC94E0FFFE03C007DA855 /* mdo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mdo.m; sourceTree = "<group>"; };
+		EEACC9620FFFE045007DA855 /* mdo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = mdo; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEC12A310E3E5E5F007E6996 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEC12B120E3E6024007E6996 /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = /System/Library/Frameworks/AddressBook.framework; sourceTree = "<absolute>"; };
 		EECF94870F529F6E003AF020 /* ibtool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ibtool.m; sourceTree = "<group>"; };
-		EECF94940F529F75003AF020 /* plutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = plutil; sourceTree = BUILT_PRODUCTS_DIR; };
+		EECF94940F529F75003AF020 /* ibtool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ibtool; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEDB61250A1497F300E4CA39 /* HISTORY.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = HISTORY.rtf; path = ../HISTORY.rtf; sourceTree = SOURCE_ROOT; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -219,6 +225,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEACC9590FFFE045007DA855 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEACC95A0FFFE045007DA855 /* AppKit.framework in Frameworks */,
+				EEACC95B0FFFE045007DA855 /* Cocoa.framework in Frameworks */,
+				EEACC95C0FFFE045007DA855 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EECF948B0F529F75003AF020 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -250,6 +266,7 @@
 				EE196B7F0D44E8990074ED1A /* abook.m */,
 				EEA32EC409537D0C001244CF /* defaults.m */,
 				EECF94870F529F6E003AF020 /* ibtool.m */,
+				EEACC94E0FFFE03C007DA855 /* mdo.m */,
 				EE144F5E0A14E79300C93F94 /* open.m */,
 				EE93E7820A239FFC008A5E48 /* plutil.m */,
 				EE97888C0AA70E4D007ECDE1 /* say.m */,
@@ -264,12 +281,13 @@
 			children = (
 				EE196B8D0D44E89E0074ED1A /* abook */,
 				EEA330A709538118001244CF /* defaults */,
+				EECF94940F529F75003AF020 /* ibtool */,
+				EEACC9620FFFE045007DA855 /* mdo */,
 				EE144F340A14E6C300C93F94 /* open */,
 				EE93E77D0A239FE9008A5E48 /* plutil */,
 				EE97889A0AA70E53007ECDE1 /* say */,
 				EE3254190A53225D0057B3B1 /* scselect */,
 				EE291C660AD7BD50004A1CA6 /* scutil */,
-				EECF94940F529F75003AF020 /* plutil */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -407,6 +425,23 @@
 			productReference = EEA330A709538118001244CF /* defaults */;
 			productType = "com.apple.product-type.tool";
 		};
+		EEACC9560FFFE045007DA855 /* mdo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEACC95E0FFFE045007DA855 /* Build configuration list for PBXNativeTarget "mdo" */;
+			buildPhases = (
+				EEACC9570FFFE045007DA855 /* Sources */,
+				EEACC9590FFFE045007DA855 /* Frameworks */,
+				EEACC95D0FFFE045007DA855 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = mdo;
+			productName = defaults;
+			productReference = EEACC9620FFFE045007DA855 /* mdo */;
+			productType = "com.apple.product-type.tool";
+		};
 		EECF94880F529F75003AF020 /* ibtool */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EECF94900F529F75003AF020 /* Build configuration list for PBXNativeTarget "ibtool" */;
@@ -421,7 +456,7 @@
 			);
 			name = ibtool;
 			productName = defaults;
-			productReference = EECF94940F529F75003AF020 /* plutil */;
+			productReference = EECF94940F529F75003AF020 /* ibtool */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -440,6 +475,7 @@
 				EE144F620A14E7C000C93F94 /* Tools */,
 				EE196B810D44E89E0074ED1A /* abook */,
 				EEA330A609538118001244CF /* defaults */,
+				EEACC9560FFFE045007DA855 /* mdo */,
 				EECF94880F529F75003AF020 /* ibtool */,
 				EE144F280A14E6C300C93F94 /* open */,
 				EE93E7710A239FE8008A5E48 /* plutil */,
@@ -542,6 +578,19 @@
 			shellPath = /bin/sh;
 			shellScript = "export SOURCES=\"say.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
+		EEACC95D0FFFE045007DA855 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SOURCES=\"mdo.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
 		EECF948F0F529F75003AF020 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -611,6 +660,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				EEB5703109634D8700EAE41B /* defaults.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEACC9570FFFE045007DA855 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEACC96C0FFFE49D007DA855 /* mdo.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1252,6 +1309,80 @@
 			};
 			name = Default;
 		};
+		EEACC95F0FFFE045007DA855 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = mdo;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		EEACC9600FFFE045007DA855 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = defaults;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EEACC9610FFFE045007DA855 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = defaults;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Default;
+		};
 		EECF94910F529F75003AF020 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1272,7 +1403,7 @@
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
-				PRODUCT_NAME = plutil;
+				PRODUCT_NAME = ibtool;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -1427,6 +1558,16 @@
 				EE9788970AA70E53007ECDE1 /* Development */,
 				EE9788980AA70E53007ECDE1 /* Deployment */,
 				EE9788990AA70E53007ECDE1 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EEACC95E0FFFE045007DA855 /* Build configuration list for PBXNativeTarget "mdo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEACC95F0FFFE045007DA855 /* Development */,
+				EEACC9600FFFE045007DA855 /* Deployment */,
+				EEACC9610FFFE045007DA855 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
