@@ -12,7 +12,8 @@
 // new version to be based on bluez
 
 #define id objc_id
-#include <net/bluetooth/bluez.h>
+//#include <new/bluetooth/bluez.h>
+#include <bluetooth/bluetooth.h>	// from usr/bluetooth
 // conflicts with Bluetooth.h
 #undef id
 
