@@ -10,6 +10,7 @@
 */ 
 
 #import <Foundation/Foundation.h>
+#import <Foundation/NSException.h>
 #import <Foundation/NSObjCRuntime.h>
 #import <AppKit/NSApplication.h>
 #import <AppKit/NSBezierPath.h>
@@ -642,7 +643,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 									_app.isRunning=NO;
 								}
 					}
-				}
 		NS_HANDLER
 			NSLog(@"Exception %@ - %@", [localException name], [localException reason]);
 		NS_ENDHANDLER

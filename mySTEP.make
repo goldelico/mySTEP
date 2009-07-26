@@ -54,7 +54,7 @@ ifeq ($(ARCHITECTURES),)
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 # set all architectures for which we know a compiler (should also check that we have a libobjc.so for this architecture!)
 # and that other libraries and include directories are available...
-ARCHITECTURES=$(shell cd $(ROOT)/this/gcc && echo *-*-*)
+ARCHITECTURES=$(shell cd $(ROOT)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
 endif
 endif
 
@@ -84,7 +84,7 @@ ifeq ($(ARCHITECTURE),arm-iPhone-darwin)
 TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 else
-TOOLCHAIN := $(ROOT)/this/gcc/$(ARCHITECTURE)
+TOOLCHAIN := $(ROOT)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(ARCHITECTURE)
 CC := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-gcc
 endif
 LS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-ld
@@ -178,9 +178,9 @@ endif
 # system includes&libraries and locate all standard frameworks
 
 INCLUDES := \
-		-I$(ROOT)/$(ARCHITECTURE)/usr/include \
-		-I$(ROOT)/$(ARCHITECTURE)/usr/include/X11 \
-		-I$(ROOT)/$(ARCHITECTURE)/usr/include/freetype2 \
+		-I$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include \
+		-I$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/X11 \
+		-I$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/freetype2 \
 		-I$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
 		-I$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 
@@ -198,8 +198,8 @@ LIBRARIES := \
 		-L$(TOOLCHAIN)/lib \
 		-L$(ROOT)/usr/lib \
 		-Wl,-rpath-link,$(ROOT)/usr/lib \
-		-L$(ROOT)/$(ARCHITECTURE)/usr/lib \
-		-Wl,-rpath-link,$(ROOT)/$(ARCHITECTURE)/usr/lib \
+		-L$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
+		-Wl,-rpath-link,$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
 		-L$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		-L$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \

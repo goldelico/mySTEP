@@ -2,6 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>Letux400</key>
+	<dict>
+		<key>WLAN On</key>
+		<string>echo 1 &gt; /proc/jz/iwifi</string>
+		<key>WLAN Status</key>
+		<string>[ &quot;$(cat /proc/jz/iwifi)&quot; == 1 ]</string>
+		<key>WLAN Off</key>
+		<string>echo 0 &gt; /proc/jz/wifi</string>
+		<key>Inherit</key>
+		<string>Linux</string>
+	</dict>
 	<key>Linux</key>
 	<dict>
 		<key>Product</key>
@@ -62,7 +73,7 @@
 		<key>Reboot</key>
 		<string>false</string>
 		<key>Shutdown</key>
-		<string>false</string>
+		<string>#shutdown -h now</string>
 		<key>Sleep</key>
 		<string>(sleep 1; echo mem &gt; /sys/power/state) &amp;&amp; exit</string>
 	</dict>
@@ -73,25 +84,25 @@
 		<key>Bluetooth On</key>
 		<string>false</string>
 		<key>GSM Off</key>
-		<string></string>
+		<string>stty -F /dev/ttySAC0 -crtscts; echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 -echo; echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on; stty -F /dev/ttySAC0 crtscts; sleep 1; echo -e &quot;AT@POFF\r&quot; &gt;/dev/ttySAC0; sleep 1; stty -F /dev/ttySAC0 -crtscts; echo &quot;0&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
 		<key>GSM On</key>
-		<string>false</string>
+		<string>stty -F /dev/ttySAC0 -echo; echo &quot;1&quot; &gt;/sys/bus/platform/devices/gta01-pm-gsm.0/power_on</string>
 		<key>GSM Status</key>
-		<string>[ &quot;$(cat /sys/bus/platform/devices/gta01-pm-gsm.0/power_on)&quot; == 1 ]</string>
+		<string>[ &quot;$(cat /sys/bus/platform/devices/neo1973-pm-gsm.0/power_on)&quot; == 1 ]</string>
 		<key>Product</key>
 		<string>Openmoko Neo Freerunner</string>
 		<key>Reboot</key>
 		<string>false</string>
 		<key>Shutdown</key>
-		<string>false</string>
+		<string>#shutdown -h now</string>
 		<key>Sleep</key>
 		<string>false</string>
 		<key>Inherit</key>
 		<string>Linux</string>
 		<key>USB Host On</key>
-		<string></string>
+		<string>echo &quot;host&quot; &gt; /sys/devices/platform/s3c2410-ohci/usb_fmode &amp;&amp; echo &quot;1&quot; &gt; /sys/devices/platform/neo1973-pm-host.0/hostmode</string>
 		<key>USB Host Off</key>
-		<string></string>
+		<string>echo &quot;device&quot; &gt; /sys/devices/platform/s3c2410-ohci/usb_fmode &amp;&amp; echo &quot;0&quot; &gt; /sys/devices/platform/neo1973-pm-host.0/hostmode</string>
 		<key>GPS Off</key>
 		<string>echo &quot;0&quot; &gt;/sys/devices/platform/s3c2440-i2c/i2c-adapter/i2c-0/0-0073/neo1973-pm-gps.0/pwron</string>
 		<key>GPS On</key>
