@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
+		EE023B87101CB1C500A52273 /* myFrameworks + Send */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = EE023B89101CB1C500A52273 /* Build configuration list for PBXAggregateTarget "myFrameworks + Send" */;
+			buildPhases = (
+				EE023B88101CB1C500A52273 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = "myFrameworks + Send";
+			productName = All;
+		};
 		EE87B8F90CBDFFA7000A2B66 /* SDK */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = EE87B8FB0CBDFFA7000A2B66 /* Build configuration list for PBXAggregateTarget "SDK" */;
@@ -94,11 +105,25 @@
 				EEA3B528095422CF001244CF /* src */,
 				EE87B8F90CBDFFA7000A2B66 /* SDK */,
 				EEA30E900CC7D77D0046EFB1 /* copy MacPorts dylibs */,
+				EE023B87101CB1C500A52273 /* myFrameworks + Send */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		EE023B88101CB1C500A52273 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here\n\nexport BUILD_FOR_PACKAGE=false\nexport SEND2ZAURUS=true\nexport RUN=false\n \necho ## Frameworks ##\nfor i in Foundation AppKit CoreData CoreFoundation Cocoa AddressBook Message PreferencePanes SystemUIPlugin Security SimpleWebKit SystemStatus IOBluetooth Tools ImageKit PDFKit QTKit\n\tdo\n\t(cd $i && xcodebuild -configuration 'Development' -target \"$i\" )\n\tdone\necho ## done. ##\n\nfalse && (i=UIKit; cd $i && xcodebuild -configuration 'Development' -target \"$i\" )\necho ## done. ##\n\necho ## Tools ##\n(cd CoreData/DataBuilder && xcodebuild -configuration 'Development' -target \"DataBuilder\" )\n\necho ## TestApps ##\nfor i in NSImageRep NSTextTable NSURLConnection ZeroConfDistributedObjects\n\tdo\n\t(cd TestApplications/$i && xcodebuild -configuration 'Development' -target \"Test\" )\n\tdone\necho ## done. ##";
+		};
 		EE87B8FA0CBDFFA7000A2B66 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -154,6 +179,63 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		EE023B8A101CB1C500A52273 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = All;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		EE023B8B101CB1C500A52273 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = All;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE023B8C101CB1C500A52273 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = All;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Default;
+		};
 		EE2F830A0983F176003EA8A2 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -375,6 +457,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		EE023B89101CB1C500A52273 /* Build configuration list for PBXAggregateTarget "myFrameworks + Send" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE023B8A101CB1C500A52273 /* Development */,
+				EE023B8B101CB1C500A52273 /* Deployment */,
+				EE023B8C101CB1C500A52273 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
 		EE2F83090983F176003EA8A2 /* Build configuration list for PBXAggregateTarget "myFrameworks" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

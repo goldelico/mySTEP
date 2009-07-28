@@ -277,8 +277,8 @@ endif
 	
 install_tool:
 ifneq ($(INSTALL),false)
-ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)
-		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && cd '$(ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin ignore $(INSTALL_PATH)
+		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && cd '$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 else	# app bundle
 		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)' && cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
 endif
@@ -290,7 +290,7 @@ install_remote:
 ifneq ($(SEND2ZAURUS),false)
 	ls -l "$(BINARY)"
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
-		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(ARCHITECTURE)/$(INSTALL_PATH)' && gunzip | tar xpvf -"
+		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)//System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && cd '$(EMBEDDED_ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && gunzip | tar xpvf -"
 else
 		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && gunzip | tar xpvf -"
 endif

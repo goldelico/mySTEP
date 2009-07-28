@@ -46,8 +46,9 @@ static NSColor *__borderedBackgroundColor = nil;
 {
 	if (self == [NSCell class])
 		{
-		__defaultFont = [[NSFont userFontOfSize:0] retain];
-		__borderedBackgroundColor = [[NSColor controlBackgroundColor] retain];
+			__defaultFont = [[NSFont userFontOfSize:0] retain];
+			NSAssert(__defaultFont, @"get default font");	// we can't operate without one
+			__borderedBackgroundColor = [[NSColor controlBackgroundColor] retain];
 		}
 }
 
