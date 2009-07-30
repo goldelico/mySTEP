@@ -870,21 +870,21 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 {
 	NSString *path;
 	if(!referencingBundle) referencingBundle=[NSBundle mainBundle];
-#if 1
+#if 0
 	NSLog(@"NSNib initWithNibNamed:%@ bundle:%@", name, [referencingBundle bundlePath]);
 #endif
 	if([name hasSuffix:@".nib"]) name=[name stringByDeletingPathExtension];
-#if 1
+#if 0
 	NSLog(@"name: %@", name);
 #endif
-	if((path=[referencingBundle pathForResource:name ofType:@"nib" inDirectory:nil]))
+	if(!(path=[referencingBundle pathForResource:name ofType:@"nib" inDirectory:nil]))
 		{
-#if 1
+#if 0
 			NSLog(@"not found in referencing bundle: %@", name);
 #endif
 			[self release]; return nil;
 		}
-#if 1
+#if 0
 	NSLog(@"bundle=%@", referencingBundle);
 	NSLog(@"bundlePath=%@", [referencingBundle bundlePath]);
 	NSLog(@"path=%@", path);

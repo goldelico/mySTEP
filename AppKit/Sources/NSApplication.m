@@ -627,11 +627,13 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 								   inMode:NSDefaultRunLoopMode
 								  dequeue:YES];
 			[self sendEvent:e];	// this can set isRunning=NO as a side effect to break the loop
-			if(_windowItems == 0)
+			if(_windowItems == 0 && !_mainWindow)
 					{ // no window items (left over) after processing last event
 						if(!_delegate && ![NSApp mainMenu])
 								{	// we are a menu-less daemon and have no delegate - default to terminate after initialization
-									NSLog(@"terminating daemon without menu");
+#if 1
+									NSLog(@"terminating pure daemon without menu and windows");
+#endif
 									_app.isRunning=NO;
 								}
 						else if(_delegate && [_delegate respondsToSelector:@selector(applicationShouldTerminateAfterLastWindowClosed:)] &&
@@ -1150,20 +1152,30 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 - (void) discardEventsMatchingMask:(unsigned int)mask
 					   beforeEvent:(NSEvent *)lastEvent
 {
-int i = 0, loop;
-int count = [_eventQueue count];
-NSEvent *event = nil;									// if queue contains
-														// events check them
-	for (loop = 0; ((event != lastEvent) && (loop < count)); loop++) 
+	int i = 0, loop;
+	int count = [_eventQueue count];
+	NSEvent *event;
+#if 0
+	NSLog(@"discardEventsMatchingMask %x", mask);
+	NSLog(@"before %u", [_eventQueue count]);
+#endif
+	for (loop = 0; loop < count; loop++) 
 		{											
-		event = [_eventQueue objectAtIndex:i];			// remove event from
-														// the queue if it 
-		if ((mask & NSEventMaskFromType([event type]))) // matches the mask
+		event = [_eventQueue objectAtIndex:i];
+			if(event == lastEvent)
+				break;	// all before lastEvent (which may be nil)
+#if 0
+			NSLog(@"event %x", NSEventMaskFromType([event type]));
+#endif
+		if ((mask & NSEventMaskFromType([event type]))) // remove event from the queue if it matches the mask
 			[_eventQueue removeObjectAtIndex:i];
-		else											// inc queue cntr only
-			i++;										// if not a match else
-		}												// we will run off the
-}														// end of the queue
+		else
+			i++;	// inc queue cntr only if not a match else we will run off the end of the queue
+		}	
+#if 0
+	NSLog(@"after %u", [_eventQueue count]);
+#endif
+}
 
 - (NSEvent *) nextEventMatchingMask:(unsigned int)mask
 						  untilDate:(NSDate *)expiration
@@ -1782,10 +1794,10 @@ NSWindow *w;
 {
 	[self changeWindowsItem:aWindow title:aString filename:isFilename];
 	
-	if(!_mainWindow)							// if the window is being added
-		{										// to the app's window menu it
-		_mainWindow = aWindow;					// can become main so ask it to
-		[aWindow becomeMainWindow];				// be main if no other win is.
+	if(!_mainWindow) 
+		{ // if the window is being added to the app's window menu it can become main so ask it to be main if no other win is.
+		_mainWindow = aWindow;
+		[aWindow becomeMainWindow];
 		}
 }
 

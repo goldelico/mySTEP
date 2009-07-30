@@ -630,7 +630,7 @@ NSString *NSFontVariationAxisNameKey=@"VariationAxisName";
 
 #if 1	// default implementation using a Property List
 
-#define FONT_CACHE	[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Caches/com.quantum-step.mySTEP.NSFonts.plist"]
+#define FONT_CACHE	[NSHomeDirectory() stringByAppendingPathComponent:@"Library/Caches/com.quantum-step.AppKit.NSFonts.plist"]
 
 static NSMutableDictionary *cache;	// we simply index by fontName (only): cache.fontName.index -> attribute dictionary
 static BOOL changed;
@@ -718,6 +718,7 @@ static BOOL changed;
 #if 0
 		NSLog(@"write font cache %@", cache);
 #endif
+			[[NSFileManager defaultManager] createDirectoryAtPath:[FONT_CACHE stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:NULL];	// create Cache directory
 		if(![[NSPropertyListSerialization dataFromPropertyList:cache format:NSPropertyListBinaryFormat_v1_0 errorDescription:&error] writeToFile:FONT_CACHE atomically:YES])
 			NSLog(@"*** Can't write font cache: %@ error: %@", FONT_CACHE, error);
 		changed=NO;

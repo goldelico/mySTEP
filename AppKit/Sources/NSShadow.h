@@ -15,10 +15,13 @@
 #ifndef _mySTEP_H_NSShadow
 #define _mySTEP_H_NSShadow
 
-#import "AppKit/NSController.h"
+#import "AppKit/NSColor.h"
 
 @interface NSShadow : NSObject <NSCoding>
 {
+	CGFloat _shadowBlurRadius; 
+	NSColor *_shadowColor; 
+	NSSize _shadowOffset; 
 }
 
 - (void) set; 

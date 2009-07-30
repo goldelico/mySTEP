@@ -998,6 +998,8 @@
 		EEF529900A554ABB0049AF3C /* GSComboBoxH.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEF5298E0A554ABB0049AF3C /* GSComboBoxH.tiff */; };
 		EEF529950A554AF50049AF3C /* GSDiscloseH.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEF529940A554AF50049AF3C /* GSDiscloseH.tiff */; };
 		EEF529960A554AF50049AF3C /* GSDiscloseH.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEF529940A554AF50049AF3C /* GSDiscloseH.tiff */; };
+		EEF6E6FB1021A3E600764AC3 /* NSShadow.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF6E6FA1021A3E600764AC3 /* NSShadow.m */; };
+		EEF6E6FC1021A3E600764AC3 /* NSShadow.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF6E6FA1021A3E600764AC3 /* NSShadow.m */; };
 		EEF77A330CAE980000C71DD2 /* NSSystemServer.h in Headers */ = {isa = PBXBuildFile; fileRef = EEF77A320CAE980000C71DD2 /* NSSystemServer.h */; };
 		EEF77A340CAE980000C71DD2 /* NSSystemServer.h in Headers */ = {isa = PBXBuildFile; fileRef = EEF77A320CAE980000C71DD2 /* NSSystemServer.h */; };
 		EEFE7DD909BCE6DF00084E78 /* NSAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = EEFE7DD809BCE6DF00084E78 /* NSAnimation.m */; };
@@ -1542,6 +1544,7 @@
 		EEF5292D0A55355E0049AF3C /* NSTypesetter.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSTypesetter.h; sourceTree = "<group>"; };
 		EEF5298E0A554ABB0049AF3C /* GSComboBoxH.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSComboBoxH.tiff; sourceTree = "<group>"; };
 		EEF529940A554AF50049AF3C /* GSDiscloseH.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSDiscloseH.tiff; sourceTree = "<group>"; };
+		EEF6E6FA1021A3E600764AC3 /* NSShadow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSShadow.m; sourceTree = "<group>"; };
 		EEF77A320CAE980000C71DD2 /* NSSystemServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSSystemServer.h; sourceTree = "<group>"; };
 		EEFE7DD809BCE6DF00084E78 /* NSAnimation.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSAnimation.m; sourceTree = "<group>"; };
 		EEFF5E3B096DA4BD00DD100F /* NSBackendPrivate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSBackendPrivate.h; sourceTree = "<group>"; };
@@ -2028,6 +2031,7 @@
 				EEA3727109540273001244CF /* NSStringDrawing.h */,
 				EEA3727209540273001244CF /* NSStringDrawing.m */,
 				EE349C53097027D600CBF42C /* NSShadow.h */,
+				EEF6E6FA1021A3E600764AC3 /* NSShadow.m */,
 				EEB143C30D1260A2001212B5 /* NSTrackingArea.h */,
 				EEB143C40D1260A2001212B5 /* NSTrackingArea.m */,
 			);
@@ -3502,6 +3506,7 @@
 				EE469E5C0D1B9D7D00E99DA0 /* NSTreeNode.m in Sources */,
 				EE469E620D1B9D9000E99DA0 /* NSViewController.m in Sources */,
 				EE3E754B0D294E8400B28288 /* NSTextList.m in Sources */,
+				EEF6E6FC1021A3E600764AC3 /* NSShadow.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3625,6 +3630,7 @@
 				EE469E5A0D1B9D7D00E99DA0 /* NSTreeNode.m in Sources */,
 				EE469E600D1B9D9000E99DA0 /* NSViewController.m in Sources */,
 				EE3E754A0D294E8400B28288 /* NSTextList.m in Sources */,
+				EEF6E6FB1021A3E600764AC3 /* NSShadow.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

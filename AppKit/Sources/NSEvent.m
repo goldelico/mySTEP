@@ -229,9 +229,6 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 
 + (NSPoint) mouseLocation
 { // ask main window (if present)
-	// NOTE: why have we done it this way and not made mouseLocation a BACKEND method and based NSWindow's mouseLocationOutsideOfEventStream on this?
-	// 1. X11 allows to query the mouse pointer relative to a window
-	// 2. if we have multiple screens, which screen do we address? We could not really make mouseLocationOutsideOfEventStream work on the screen of the specified window
 	NSPoint p;
 	NSWindow *win=[NSApp keyWindow];	// try key window
 	if(!win)
@@ -244,18 +241,6 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 		return NSZeroPoint;
 		}
 	return [[win screen] _mouseLocation];	// query mouse location on screen
-#if OLD
-	p=[win mouseLocationOutsideOfEventStream];	// get within window base coordinates
-#if 0
-	NSLog(@"NSEvent mouseLocationOutsideOfEventStream mainWindow=%@", win);
-	NSLog(@"    base coords: %@", NSStringFromPoint(p));
-#endif
-	p=[win convertBaseToScreen:p];
-#if 0
-	NSLog(@"  screen coords: %@", NSStringFromPoint(p));
-#endif
-	return p;
-#endif
 }
 
 - (id) copyWithZone:(NSZone *) zone;

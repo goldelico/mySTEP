@@ -3699,7 +3699,9 @@ static NSDictionary *_x11settings;
 					break;
 				case ConfigureNotify:					// window has been moved or resized by window manager
 					NSDebugLog(@"ConfigureNotify\n");
+						[[window _themeFrame] setNeedsDisplay:YES];	// make us redraw content
 #if FIXME
+						// we should at least redisplay the window
 					if(!xe.xconfigure.override_redirect || 
 					   xe.xconfigure.window == _wAppTileWindow)
 						{
@@ -3727,8 +3729,8 @@ static NSDictionary *_x11settings;
 								{(float)xe.xconfigure.width,
 									(float)xe.xconfigure.height}};
 							}
-						break;								
 #endif
+					break;								
 				case ConfigureRequest:					// same as ConfigureNotify but we get this event
 					NSDebugLog(@"ConfigureRequest\n");	// before the change has 
 					break;								// actually occurred 					
@@ -5059,6 +5061,15 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 	[_flattenedPath release];
 	[_strokedPath release];
 	[super dealloc];
+}
+
+@end
+
+@implementation NSShadow (NSBackendOverride)
+
+- (void) set;
+{
+	// ignore
 }
 
 @end

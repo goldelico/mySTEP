@@ -340,7 +340,7 @@ static BOOL __cursorHidden = NO;
 - (NSView *) contentView; { return [sub_views count] > 4?[sub_views objectAtIndex:4]:nil; }
 - (NSToolbarView *) toolbarView; { return [sub_views count] > 6?[sub_views objectAtIndex:6]:nil; }
 - (NSMenuView *) windowMenuView; { return nil; }	// if we have a horizontal menu inside the window
-- (NSToolbar *) toolbar; { return [sub_views count] > 6?[[sub_views objectAtIndex:6] toolbar]:nil; }
+- (NSToolbar *) toolbar; { return [sub_views count] > 6?[[sub_views objectAtIndex:6] toolbar]:(NSToolbar *) nil; }
 
 - (void) layout;
 { // NOTE: if the window fills the screen, the content view has to be made smaller
@@ -485,6 +485,7 @@ static BOOL __cursorHidden = NO;
 { // NSTheme frame
 	NSPoint initial;
 	NSRect initialFrame=[_window frame];
+	NSRect visibleRect=[[_window screen] visibleFrame];
 #if 1
 	NSLog(@"NSThemeFrame clicked (%@)", NSStringFromPoint([theEvent locationInWindow]));
 #endif
@@ -492,6 +493,9 @@ static BOOL __cursorHidden = NO;
 		return;	// resizable window has already been resized for full screen mode - don't permit to move
 	while(YES)
 			{ // loop until mouse goes up
+#if 1
+				NSLog(@"NSThemeFrame event %@", theEvent);
+#endif
 				switch([theEvent type])
 					{
 						case NSLeftMouseDown:
@@ -499,13 +503,19 @@ static BOOL __cursorHidden = NO;
 								// FIXME: check for click on document icon or title cell
 								// if representedURL defined and crtl-click, call - (BOOL)window:(NSWindow *)sender shouldPopUpDocumentPathMenu:(NSMenu *)titleMenu
 								NSPoint p=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
+#if 0
 								initial=[_window convertBaseToScreen:p];	// convert to screen coordinates
+#else
+								initial=[NSEvent mouseLocation];
+#endif
 								if(p.y < _frame.size.height-_height)
 										{ // check if we a have resize enabled in _style and we clicked on lower right corner
 											if((_style & NSResizableWindowMask) == 0 || p.y > 10.0 || p.x < _frame.size.width-10.0)
 													{
 														// FIXME: we can also check if we are textured and the point we did hit is considered "background"
+#if 1
 														NSLog(@"inside");
+#endif
 														return;	// ignore if neither in title bar nor resize area
 													}
 											_inLiveResize=YES;
@@ -523,48 +533,72 @@ static BOOL __cursorHidden = NO;
 						case NSLeftMouseUp:				// update to final location
 						case NSLeftMouseDragged:	// update to current location
 							{
-								NSRect wframe=initialFrame;
-								// NOTE: we can't use [event locationInWindow] if we move the window - that info is not reliable because it is not synchronized with moving the window!
-								NSPoint loc=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
+								// NOTE: we can't use [event locationInWindow] if we move the window - is not reliable because it is not synchronized with really moving the window!
 								float deltax, deltay;
+								NSRect wframe=initialFrame;
+#if 0
+								NSPoint loc=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
 #if 0
 								loc=[theEvent locationInWindow];	// this may be relative to the old position...
 #endif
 								loc=[_window convertBaseToScreen:loc];	// convert to screen coordinates
-								deltax=loc.x-initial.x;
+#else
+								NSPoint loc=[NSEvent mouseLocation];
+#endif
+								deltax=loc.x-initial.x;	// how much we have moved
 								deltay=loc.y-initial.y;
 #if 0
 								NSLog(@"window dragged loc=%@ mouse=%@", NSStringFromPoint(loc), NSStringFromPoint([theEvent locationInWindow]));
 #endif
 								if(_inLiveResize)
 										{ // resizing
-											float oldh=wframe.size.height;
+											wframe.origin.y+=wframe.size.height;		// keep top left corner stable
 											// FIXME: handle resizeIncrements
 											// FIXME: protect against empty or negative window size...
 											wframe.size.width+=deltax;
+											if(wframe.size.width < 0)
+												wframe.size.width = 0;
 											wframe.size.height-=deltay;	// resize as mouse moves
-											// FIXME - should be moved to setFrame:
+											if(wframe.size.height < 0)
+												wframe.size.height = 0;
+											if(wframe.origin.y - wframe.size.height < NSMinY(visibleRect))
+												;	// limit height
+											// FIXME: should this be part of setFrame: ?
 											wframe.size.width = MIN(MAX(wframe.size.width, [_window minSize].width), [_window maxSize].width);
 											wframe.size.height = MIN(MAX(wframe.size.height, [_window minSize].height), [_window maxSize].height);
-											wframe.origin.y+=oldh-wframe.size.height;		// keep top left corner constant
+											wframe.origin.y-=wframe.size.height;		// calculate new bottom left corner
 #if 0
 											NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
 #endif
-											[_window setFrame:wframe display:NO];	// resize and redraw asap
-											[self setNeedsDisplay:YES];
+											[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
+											[_window setFrame:wframe display:NO];	// resize and redisplay
+											// called by ConfigureNotify event
+											// [self setNeedsDisplay:YES];
 										}
 								else
 										{ // moving
-											float mbh=[[_window screen] _menuBarFrame].origin.y;
-											// FIXME: this is not really correct
 											wframe.origin.x+=(loc.x-initial.x);
 											wframe.origin.y+=(loc.y-initial.y);	// move as mouse moves
-											if(wframe.origin.y > mbh)
-												wframe.origin.y=mbh;	// limit so that window can't be moved under the menu bar
+											
+											// limit title bar to stay below menu
+											
+											// can we use [window constrainFrameRect:wframe toScreen:[window screen]];
+											
+											if(NSMaxY(wframe) > NSMaxY(visibleRect))
+												wframe.origin.y-=NSMaxY(wframe)-NSMaxY(visibleRect);	// limit so that window can't be moved under the menu bar
+											if(YES)
+													{ // in PDA mode/style: clamp window to [screen visibleFrame]
+														if(NSMinY(wframe) < NSMinY(visibleRect))
+															wframe.origin.y+=NSMinY(visibleRect)-NSMinY(wframe);	// limit so that window can't be moved under the bottom menu bar
+														if(NSMaxX(wframe) > NSMaxX(visibleRect))
+															wframe.origin.x-=NSMaxX(wframe)-NSMaxX(visibleRect);
+														if(NSMinX(wframe) < NSMinX(visibleRect))
+															wframe.origin.x+=NSMinX(visibleRect)-NSMinX(wframe);
+													}
 #if 0
 											NSLog(@"move window from (%@) to (%@)", NSStringFromPoint([_window frame].origin), NSStringFromPoint(wframe.origin));
 #endif
-											[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay) - will clip to screen
+											[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay)
 										}
 								break;
 							}
@@ -1388,6 +1422,7 @@ static NSButtonCell *sharedCell;
 
 - (BOOL) isOneShot							{ return _w.isOneShot; }
 - (id) contentView							{ return [(NSThemeFrame *) _themeFrame contentView]; }
+- (NSView *) _themeFrame				{ return _themeFrame; }
 
 - (void) setContentView:(NSView *)aView				
 {
