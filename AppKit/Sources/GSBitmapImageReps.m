@@ -475,8 +475,8 @@ ReadGIFToBuf(GifFileType *GifFile, GIF *handle, char *data)
 				buffer = objc_malloc(Width * sizeof(GifColorType));
 				[NSData dataWithBytesNoCopy:buffer length:Width * sizeof(GifColorType) freeWhenDone:YES];	// free on autorelease
 				
-				if (GifFile->Image.Interlace)		// Need to perform 4 passes
-					{								// on interlaced images
+				if (GifFile->Image.Interlace) 
+					{ // Need to perform 4 passes on interlaced images
 					unsigned char *GifRow = buffer;
 					int offset[] = { 0, 4, 2, 1 };
 					int jump[] = { 8, 8, 4, 2 };
@@ -492,14 +492,24 @@ ReadGIFToBuf(GifFileType *GifFile, GIF *handle, char *data)
 							if (DGifGetLine(GifFile, buffer, Width) == GIF_ERROR)
 								return 2;
 							
-							p = (unsigned char *)data + (k * Width * 3);		// assume RGB for now
+							p = (unsigned char *)data + (k * Width * 4);		// assume RGBA
 							for (j = 0; j < Width; j++)
 								{
-								ColorMapEntry = &ColorMap->Colors[GifRow[j]];
-								
-								*p++ = ColorMapEntry->Red;
-								*p++ = ColorMapEntry->Green;
-								*p++ = ColorMapEntry->Blue;
+									if(GifRow[j] == GifFile->SBackGroundColor)
+											{ // transparent
+												*p++ = 0;
+												*p++ = 0;
+												*p++ = 0;
+												*p++ = 0;
+											}
+									else
+											{	// opaque
+												ColorMapEntry = &ColorMap->Colors[GifRow[j]];
+												*p++ = ColorMapEntry->Red;
+												*p++ = ColorMapEntry->Green;
+												*p++ = ColorMapEntry->Blue;
+												*p++ = 255;
+											}
 								}
 							}
 						}
@@ -514,14 +524,24 @@ ReadGIFToBuf(GifFileType *GifFile, GIF *handle, char *data)
 							if (DGifGetLine(GifFile, buffer, Width) == GIF_ERROR)
 								return 3;
 							
-							p = (unsigned char *)data + (i * Width * 3);		// assume RGB for now
+							p = (unsigned char *)data + (i * Width * 4);		// assume RGBA
 							for (j = 0; j < Width; j++)
 								{
-								ColorMapEntry = &ColorMap->Colors[GifRow[j]];
-								
-								*p++ = ColorMapEntry->Red;
-								*p++ = ColorMapEntry->Green;
-								*p++ = ColorMapEntry->Blue;
+									if(GifRow[j] == GifFile->SBackGroundColor)
+											{ // transparent color
+												*p++ = 0;
+												*p++ = 0;
+												*p++ = 0;
+												*p++ = 0;
+											}
+									else
+											{	// opaque
+												ColorMapEntry = &ColorMap->Colors[GifRow[j]];
+												*p++ = ColorMapEntry->Red;
+												*p++ = ColorMapEntry->Green;
+												*p++ = ColorMapEntry->Blue;
+												*p++ = 255;
+											}
 								}
 							}
 						}
@@ -556,21 +576,21 @@ ReadGIFToBuf(GifFileType *GifFile, GIF *handle, char *data)
 	handle = GIFOpenData((char *)[data bytes], [data length]);
 	GifFile = DGifOpen(handle, ReadGIF);
 	
-#if 0
+#if 1
 	NSLog(@"GifFile->SWidth=%d", GifFile->SWidth);
 	NSLog(@"GifFile->SHeight=%d", GifFile->SHeight);
-	NSLog(@"GifFile->SColorResolution=%d", GifFile->SColorResolution);
+	NSLog(@"GifFile->SBackGroundColor=%d", GifFile->SBackGroundColor);	// should define the transparent one... (which one if we have none?)
+	NSLog(@"GifFile->SColorResolution=%d", GifFile->SColorResolution);	// number of colors per primary color in original -> this is the number of bits per pixel and has nothing to do with the number of planes!
 	NSLog(@"GifFile->SWidth * sizeof(GifPixelType)=%d", GifFile->SWidth * sizeof(GifPixelType));
-	NSLog(@"GifFile->SColorMap->BitsPerPixel=%d", GifFile->SColorMap->BitsPerPixel);
+	NSLog(@"GifFile->SColorMap->BitsPerPixel=%d", GifFile->SColorMap->BitsPerPixel);	// should be the same as GifFile->SColorResolution
 #endif
 	
 	imageRep = [[[self alloc] initWithBitmapDataPlanes: NULL
 						 pixelsWide: GifFile->SWidth
 						 pixelsHigh: GifFile->SHeight
-						 bitsPerSample: (1<<GifFile->SColorMap->BitsPerPixel)
-						 samplesPerPixel: GifFile->SColorResolution
-		// FIXME: we should also use 4 planes if we have a transparent color
-						 hasAlpha: (GifFile->SColorResolution > 3)	// if we have more than 3 planes
+						 bitsPerSample: GifFile->SColorResolution
+						 samplesPerPixel: 4
+						 hasAlpha: YES	
 						 isPlanar: NO
 						 colorSpaceName: NSCalibratedRGBColorSpace
 						 bytesPerRow: 0
@@ -585,9 +605,9 @@ ReadGIFToBuf(GifFileType *GifFile, GIF *handle, char *data)
 	// FIXME: expand background color to alpha
 	return [NSArray arrayWithObject:imageRep];
 }
-												// Loads only the default image
-- (id) initWithData:(NSData *)data				// (first) from TIFF contained
-{										 		// in data.
+
+- (id) initWithData:(NSData *)data
+{
 	return self;
 }
 
@@ -766,6 +786,11 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 	return self;
 }
 
++ (NSData *) representationOfImageRepsInArray:(NSArray *)imageReps usingType:(NSBitmapImageFileType)storageType properties:(NSDictionary *)properties
+{
+	return nil;
+}
+
 @end /* GSBitmapImageRepJPEG */
 
 
@@ -847,11 +872,11 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 		if(type == t)
 			{ // found!
 			if(len)
-				*len=size-sizeof(type)-sizeof(size);
+				*len=size-sizeof(type)-sizeof(size);	// payload length
 #if 0
 			NSLog(@"offset=%u len=%u", off, size);
 #endif
-			return [self subdataWithRange:NSMakeRange(off, size)];	// cut out resource
+			return [self subdataWithRange:NSMakeRange(off, size)];	// cut out resource (incl. type&size)
 			}
 		}
 	return nil; // not found
@@ -864,6 +889,10 @@ my_src_ptr src = (my_src_ptr) cinfo->src;
 // 		GSBitmapImageRepICNS
 //
 //*****************************************************************************
+
+// don't use 'icns' etc.
+
+// does this need to depend on endianness?
 
 #define RES(A, B, C, D) (((A)<<24)+((B)<<16)+((C)<<8)+(D))
 
@@ -885,22 +914,22 @@ static NSArray *__bitmapImageRepsICNS;
 #if 0
 	NSLog(@"GSBitmapImageRepICNS canInitWithData");
 #endif
-	// FIXME: replace by RES('i', 'c', 'n', 's')
-	return [data resourceType] == 'icns';
+	return [data resourceType] == RES('i', 'c', 'n', 's');
 }
 
 + (NSArray *) imageFileTypes				{ return __bitmapImageRepsICNS; }
 + (NSArray *) imageUnfilteredFileTypes		{ return __bitmapImageRepsICNS; }
 
-// based on description at http://www.macdisc.com/maciconen.php3
+// based on description at http://www.macdisk.com/maciconen.php3
 // and Python code found on the net
+// and http://ezix.org/project/wiki/MacOSXIcons
 
-#if SUPPORTSPLANAR
-#define set_pixel(offset, plane, val)		bitmap[(offset)+wh*(plane)]=(val)				// for planar bitmap
+#if SUPPORTSPLANAR	// should be faster...
+#define set_pixel(offset, plane, val)		bitmap[(offset)+bytesPerRow*(plane)]=(val)				// for planar bitmap
 #else
-#define set_pixel(offset, plane, val)		bitmap[samplesPerPixel*(offset)+(plane)]=(val)	// for meshed bitmap
+#define set_pixel(offset, plane, val)		bitmap[samplesPerPixel*(offset)+(plane)]=(val)		// for meshed bitmap
 #endif
-#define set_pixel_xy(x, y, p, val)	setpixel((x)+width*(y), (p), val)
+// #define set_pixel_xy(x, y, plane, val)	set_pixel((x)+width*(y), (plane), (val))		// not used
 
 + (NSArray *) imageRepsWithData:(NSData *)data
 {
@@ -914,24 +943,32 @@ static NSArray *__bitmapImageRepsICNS;
 			int width;
 			int height;
 			int depth;
+			int skip;		// ... In some icon sizes, there is a 32bit integer at the beginning of the run, whose role remains unknown.
+			BOOL isJPEG2000;
 		} reps[]=
 		{
-			// FIXME: replace by RES('i', 'c', 'n', 's')
-	//		{ 'ics#', '????', 16, 16, 1 },
-			{ 'is32', 's8mk', 16, 16, 8 },
-			{ 'il32', 'l8mk', 32, 32, 8 },
-			{ 'ih32', 'h8mk', 48, 48, 8 },
-			{ 'it32', 't8mk', 128, 128, 8 },
+			//		{ RES('i', 'c', 's', '#'), RES('?', '?', '?', '?'), 16, 16, 1 },
+			//		{ RES('I', 'C', 'N', '#'), RES('?', '?', '?', '?'), 32, 32, 1 },
+			{ RES('i', 's', '3', '2'), RES('s', '8', 'm', 'k'), 16, 16, 8, 0 },
+			{ RES('i', 'l', '3', '2'), RES('l', '8', 'm', 'k'), 32, 32, 8, 0 },
+			{ RES('i', 'h', '3', '2'), RES('h', '8', 'm', 'k'), 48, 48, 8, 0 },
+			{ RES('i', 't', '3', '2'), RES('t', '8', 'm', 'k'), 128, 128, 8, 4 },
+			{ RES('i', 'c', '0', '8'), RES('?', '?', '?', '?'), 256, 256, 8, 0, YES },
+			{ RES('i', 'c', '0', '9'), RES('?', '?', '?', '?'), 512, 512, 8, 0, YES },
+//			{ RES('i', 'c', 'n', 'V'), RES('?', '?', '?', '?'), 128, 128, 8, 4 },	// version???
 		};
 #if 0
 	NSLog(@"GSBitmapImageRepICNS imageRepsWithData:");
 #endif
 	NSAssert(data, @"ICNS imageRep data is nil");
-	data=[[data subResourceWithType:'icns' len:NULL] resourceData];	// get contents
+	data=[[data subResourceWithType:RES('i', 'c', 'n', 's') len:NULL] resourceData];	// get contents
 	if(!data)
 		return nil;	// is not an icns resource
 #if 0
 	NSLog(@"contents=%@ %4c %d", data, [data resourceType], [data resourceSize]);
+#endif
+#if 0
+	[data subResourceWithType:0 len:NULL];	// we won't find and therefore may print all resources in the container
 #endif
 	for(i=0; i<sizeof(reps)/sizeof(reps[0]); i++)
 		{ // get representations
@@ -942,19 +979,33 @@ static NSArray *__bitmapImageRepsICNS;
 		unsigned long wh=width*height;
 		unsigned long wh2=wh+wh;
 		unsigned long wh3=wh2+wh;
-		unsigned long rgblen;
+		unsigned long bytesPerRow;
+		unsigned long rgblen;	// size of RGB resource (incl. header!)
 		unsigned char *bitmap;
 		NSData *rgb=[[data subResourceWithType:reps[i].rgb len:&rgblen] resourceData];
+		unsigned long masklen;	// size of mask resource (incl. header!)
 		NSData *mask;
 		unsigned char *b;	// byte stream from rgb resource
-		unsigned char *mb;	// byte stream from mask resource
 		unsigned long off;
 		if(!rgb)
 			continue;	// not found
-		mask=[[data subResourceWithType:reps[i].mask len:NULL] resourceData];	// might be nil if not existent
-		b=(unsigned char *) [rgb bytes];
-		mb=(unsigned char *) [mask bytes];	// if it exists
+		if(reps[i].isJPEG2000)
+				{
+					// read as JPEG2000 from rgb data (which allows for alpha channel)
+					// [array addObject:imageRep];	// save this representation
+					continue;
+				}
+		mask=[[data subResourceWithType:reps[i].mask len:&masklen] resourceData];	// nil if not existent
+		b=(unsigned char *) [rgb bytes]+reps[i].skip;
+#if 0
+			NSLog(@"rgb=%@", [data subResourceWithType:reps[i].rgb len:&rgblen]);
+			NSLog(@"rgb=%@", [[data subResourceWithType:reps[i].rgb len:&rgblen] resourceData]);
+			NSLog(@"mask=%@", [data subResourceWithType:reps[i].mask len:&masklen]);
+#endif
 		samplesPerPixel=(mask != nil)?4:3;	// 4 channels if mask exists
+#if 0
+			NSLog(@"samplesPerPixel=%d", samplesPerPixel);
+#endif
 		imageRep = [[[self alloc] initWithBitmapDataPlanes: NULL
 														pixelsWide: width
 														pixelsHigh: height
@@ -970,17 +1021,18 @@ static NSArray *__bitmapImageRepsICNS;
 														bitmapFormat: NSAlphaNonpremultipliedBitmapFormat
 													   bytesPerRow: 0
 													  bitsPerPixel: 0] autorelease];
+			bytesPerRow=[imageRep bytesPerRow];
 		bitmap=[imageRep bitmapData];	// r, g, b, a planes
 		if(rgblen == wh3)
-			{ // uncompressed - convert 3 streams to mesh
+			{ // uncompressed - convert 3 streams to mesh or plane
 			int plane;
 #if 0
-			NSLog(@"uncompressed, len=%u", wh3);
+			NSLog(@"uncompressed, len=%u, bpr=%u", wh3, bytesPerRow);
 #endif
 			for(plane=0; plane<3; plane++)
 				{ // streams contain one plane after the other
 #if SUPPORTSPLANAR
-				memcpy(bitmap+plane*wh, b, wh);
+				memcpy(bitmap+bytesPerRow*plane, b, wh);
 				b+=wh;
 #else
 				for(off=0; off<wh; off++)
@@ -989,58 +1041,98 @@ static NSArray *__bitmapImageRepsICNS;
 				}
 			}
 		else
-			{ // decompress - 3 streams to mesh
+			{ // decompress - 3 streams to mesh or plane
 			int plane;
 #if 0
-			NSLog(@"compressed, len=%u rgblen=%u", wh3, rgblen);
+			NSLog(@"compressed, len=%u, rgblen=%u, bpr=%u", wh3, rgblen, bytesPerRow);
 #endif
-			for(plane=0; plane<3; plane++)
-				{
-				off=0;
-				while(off<wh)
+			off=0;
+			plane=0;
+			while(plane < 3)
 					{
-					int cnt;
-					if((*b) & 0x80)
-						{ // fill a block with next byte
-						int pix;
-						cnt=(*b++)-125;
-						pix=*b++;
+						int cnt;
+						if((*b) & 0x80)
+								{ // fill a block with next byte
+									int pix;
+									cnt=(*b++)-125;
+									pix=*b++;
 #if SUPPORTSPLANAR
-						// memset
+									memset(&bitmap[(off)+bytesPerRow*(plane)], cnt, pix);	// copy to plane
+									off+=cnt;
 #else
-						while(off < wh && cnt-- > 0)
-							set_pixel(off++, plane, pix);
-#endif
-						}
-					else
-						{ // copy a block
-						cnt=(*b++)+1;
-#if SUPPORTSPLANAR
-#else
-						while(off < wh && cnt-- > 0)
-							set_pixel(off++, plane, *b++);
-#endif
-						}
-					}
-				}
+									while(cnt-- > 0)
+											{
+												set_pixel(off, plane, pix);
 #if 0
-			NSLog(@"bytes read from stream %u", (char *) b-(char *) [rgb bytes]);
+												NSLog(@"(%d, %d, %d) := %d [%d]", off%width, (off%wh)/width, plane, pix, cnt);
 #endif
+												if(++off >= wh)
+														{ // start with next plane
+															off=0;
+															if(++plane >= 3)
+																break;
+														}
+											}
+#endif
+								}
+						else
+								{ // copy a block of given size
+									cnt=(*b++)+1;
+#if SUPPORTSPLANAR
+									memcpy(&bitmap[(off)+bytesPerRow*(plane)], b, cnt);	// copy to plane
+									off+=cnt;
+#else
+									while(cnt-- > 0)
+											{
+												int pix=*b++;
+												set_pixel(off, plane, pix);
+#if 0
+												NSLog(@"(%d, %d, %d) := %d", off%width, (off%wh)/width, plane, pix);
+#endif
+												if(++off >= wh)
+														{ // start with next plane
+															off=0;
+															if(++plane >= 3)
+																break;
+														}
+											}
+#endif
+								}
+					}
+#if 0
+				NSLog(@"bytes read from stream %u (rgblen=%u)", b-(unsigned char *) [rgb bytes], rgblen);
+#endif
+				if(b-((unsigned char *) [rgb bytes]+reps[i].skip) != rgblen)
+						{
+							NSLog(@"invalid icns rgb - length error");
+							// return nil;
+						}
 			}
 		if(mask)
 			{ // mask exists, copy to next plane
+				unsigned char *mb;	// byte stream from mask resource
+				if(masklen != wh)
+						{
+							NSLog(@"invalid icns mask - length error");
+							return nil;
+						}
+				mb=(unsigned char *) [mask bytes];	// if it exists
 #if 0
 			NSLog(@"mask, len=%u", wh);
 #endif
-			for(off=0; off<wh; off++)
-				set_pixel(off, 3, *mb++);
+#if SUPPORTSPLANAR
+				memcpy(&bitmap[(0)+bytesPerRow*(3)], mb, wh);	// copy to plane 3
+#else
+				for(off=0; off<wh; off++)
+					set_pixel(off, 3, *mb++);
+#endif
 			}
 		[array addObject:imageRep];	// save this representation
 		}
 #if 0
 	NSLog(@"incs imageReps = %@", array);
 #endif
-	return [array count]?array:nil;	// no representation...
+	return [array count]?array:(NSMutableArray *) nil;	// no representation...
 }
 
 // Loads only the default image
@@ -1048,6 +1140,11 @@ static NSArray *__bitmapImageRepsICNS;
 - (id) initWithData:(NSData *)data
 {
 	return self;
+}
+
++ (NSData *) representationOfImageRepsInArray:(NSArray *)imageReps usingType:(NSBitmapImageFileType)storageType properties:(NSDictionary *)properties
+{
+	return nil;
 }
 
 @end /* GSBitmapImageRepICNS */

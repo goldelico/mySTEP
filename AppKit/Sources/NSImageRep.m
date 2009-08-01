@@ -1002,9 +1002,10 @@ static NSArray *__pbBitmapImageReps;
 					bytesPerRow:(int)rowBytes
 				   bitsPerPixel:(int)pixelBits;
 {
-	if (bitsPerSample <= 0 || samplesPerPixel <= 0 || samplesPerPixel > 5 || width <= 0 || height <= 0) 
-		[NSException raise: NSInvalidArgumentException
-					format: @"initWithBitmapDataPlanes missing required arguments"];
+	if (bitsPerSample <= 0) [NSException raise: NSInvalidArgumentException format: @"bitsPerSample (%d) must be > 0", bitsPerSample];
+	if (samplesPerPixel <= 0 || samplesPerPixel > 5) [NSException raise: NSInvalidArgumentException format: @"samplesPerPixel (%d) must be between 1 and 5", samplesPerPixel];
+	if (width <= 0 || height <= 0) [NSException raise: NSInvalidArgumentException format: @"width (%d) and heigh (%d) must be > 0", width, height];
+	// NOTE: GIF uses 8 spp
 	/* FIXME: more consistency checks
 	 if([colorSpaceName isEqual:@"RGB"])
 		components=3;
@@ -1019,7 +1020,7 @@ static NSArray *__pbBitmapImageReps;
 	 if(alpha)
 		components++;
 	 if(components != samplesPerPixel)
-		error;
+			[NSException raise: NSInvalidArgumentException format: @"samplesPerPixel (%d) does not match color space name %@", samplesPerPixel, colorSpaceName];
 	 */
 	if((self=[super init]))
 		{

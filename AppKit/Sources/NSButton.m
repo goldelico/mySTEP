@@ -1057,7 +1057,9 @@ id __buttonCellClass = nil;
 			}
 		if(_normalImage)
 			{ // try to deduce the button type from the image name
-			NSString *name=[_normalImage name];
+				NSString *name;
+				NSLog(@"normalImage=%@", _normalImage);
+			name=[_normalImage name];
 			if([name isEqualToString:@"NSRadioButton"])
 				_buttonType=NSRadioButton;
 			else if([name isEqualToString:@"NSSwitch"])

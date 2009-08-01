@@ -119,7 +119,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 - (id) nibInstantiate;	// instantiates if neccessary and returns a non-retained reference
 @end
 
-@interface NSCustomResource : NSObject
+@interface NSCustomResource : NSObject	// NSImage?
 {
 	NSString *_className;
 	NSString *_resourceName;
@@ -642,14 +642,14 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #if 0
 - (NSSize) size;
 {
-	NSLog(@"!!! someone is asking for -size of %@", self);
+	NSLog(@"!!! someone is asking for -size of %@", self); // this happens if we simply take it as an NSImage...
 	abort();
 	return NSMakeSize(10.0, 10.0);
 }
 #endif
 
 - (NSString *) className; { return _className; }
-- (NSString *) resourceName; { return _resourceName; }
+- (NSString *) name; { return _resourceName; }
 
 - (NSString *) description;
 {

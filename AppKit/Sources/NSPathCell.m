@@ -99,7 +99,7 @@
 						}
 			}
 	else
-		[self drawWithFrame:cellFrame inView:controlView];	// should automatically handle placeholder string
+		[super drawWithFrame:cellFrame inView:controlView];	// this should automatically handle placeholder string
 }
 
 - (NSArray *) allowedTypes; { return _allowedTypes; }
