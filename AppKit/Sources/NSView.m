@@ -516,26 +516,26 @@ printing
 	if((self=[super init]))										// super is NSResponder
 		{
 #if 0
-		NSLog(@"NSView: initWithFrame 1 %@", self);
+		NSLog(@"NSView: initWithFrame 1 %@", [self _descriptionWithSubviews]);
 #endif
 		_frame = frameRect;
 		_bounds = (NSRect){ NSZeroPoint, _frame.size };
 //		unitSquareSize = NSMakeSize(1.0, 1.0);		// FIXME???
 		sub_views = [NSMutableArray new];
 #if 0
-		NSLog(@"NSView: initWithFrame 2a %@", self);
+		NSLog(@"NSView: initWithFrame 2a %@", [self _descriptionWithSubviews]);
 #endif
 		_v.autoSizeSubviews = YES;
 #if 0
-		NSLog(@"NSView: initWithFrame 2b %@", self);
+		NSLog(@"NSView: initWithFrame 2b %@", [self _descriptionWithSubviews]);
 #endif
 		[self setMenu:[isa defaultMenu]];	// initialize with default menu
 #if 0
-		NSLog(@"NSView: initWithFrame 3 %@", self);
+		NSLog(@"NSView: initWithFrame 3 %@", [self _descriptionWithSubviews]);
 #endif
 		}
 #if 0
-	NSLog(@"NSView: initWithFrame -> %@", self);
+	NSLog(@"NSView: initWithFrame -> %@", [self _descriptionWithSubviews]);
 #endif
 	return self;
 }

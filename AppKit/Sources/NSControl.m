@@ -482,4 +482,9 @@ static Class __controlCellClass = Nil;
 		}
 }
 
+- (NSString *) description
+{
+	return [NSString stringWithFormat:@"%@ action=%@ target=%@", [super description], NSStringFromSelector([self action]), [self target]];
+}
+
 @end

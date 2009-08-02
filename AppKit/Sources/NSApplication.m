@@ -622,13 +622,17 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		NSEvent *e;
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];
 		NS_DURING // protect against exceptions
+		int windowitemsbefore=_windowItems;
 			e=[self nextEventMatchingMask:NSAnyEventMask
 								untilDate:[NSDate distantFuture]
 								   inMode:NSDefaultRunLoopMode
 								  dequeue:YES];
 			[self sendEvent:e];	// this can set isRunning=NO as a side effect to break the loop
-			if(_windowItems == 0 && !_mainWindow)
+			if(windowitemsbefore > 0 && _windowItems == 0)
 					{ // no window items (left over) after processing last event
+#if 1
+						NSLog(@"windowitems %d -> 0", windowitemsbefore);
+#endif
 						if(!_delegate && ![NSApp mainMenu])
 								{	// we are a menu-less daemon and have no delegate - default to terminate after initialization
 #if 1

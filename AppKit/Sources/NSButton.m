@@ -1277,6 +1277,7 @@ id __buttonCellClass = nil;
 		[super keyDown: event];
 }
 
+// NOTE: already defined in NSControl...
 - (void) performClick:(id)sender							// Handle Events
 {
 #if 0

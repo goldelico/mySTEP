@@ -142,6 +142,7 @@ typedef NSUInteger NSWindowCollectionBehavior;
 @interface NSWindow : NSResponder  <NSCoding>
 {
 	NSRect _frame;		// window frame rect in NSScreen coordinates
+	NSRect _oldFrame;	// when zoom was applied
 	NSSize _minSize;
 	NSSize _maxSize;
 	NSSize _resizeIncrements;

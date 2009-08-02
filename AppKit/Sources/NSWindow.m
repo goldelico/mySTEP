@@ -164,6 +164,9 @@ static BOOL __cursorHidden = NO;
 
 - (id) initWithFrame:(NSRect) f forStyleMask:(unsigned int) aStyle forScreen:(NSScreen *) screen;
 {
+#if 1
+	NSLog(@"init theme frame 1: subviews=%@", sub_views);
+#endif
 	if((aStyle&GSAllWindowMask) == NSBorderlessWindowMask)
 		{
 		[self release];
@@ -174,15 +177,21 @@ static BOOL __cursorHidden = NO;
 		[self release];
 		self=[NSGrayFrame alloc];
 		}
-	if((self=[super initWithFrame:f]))
+	if((self=[super initWithFrame:f]))	// NOTE: this calls -setMenu with class.defaultMenu
 		{
-		_style=aStyle;
+#if 0
+			NSLog(@"init theme frame 2: subviews=%@", sub_views);
+#endif
+			_style=aStyle;
 		_drawsResizeIndicator=(_style & NSResizableWindowMask) != 0 && !([self interfaceStyle] >= NSPDAInterfaceStyle);
 		[self setAutoresizingMask:(NSViewWidthSizable|NSViewHeightSizable)];	// resize with window
 		[self setAutoresizesSubviews:YES];
 		if((aStyle&GSAllWindowMask) != NSBorderlessWindowMask)
 			{ // not a NSNextStepFrame
 			NSButton *b0, *b1, *b2, *b3;
+#if 0
+				NSLog(@"init theme frame 3: subviews=%@", sub_views);
+#endif
 			[self addSubview:b0=[NSWindow standardWindowButton:NSWindowCloseButton forStyleMask:aStyle]];
 			[self addSubview:b1=[NSWindow standardWindowButton:NSWindowMiniaturizeButton forStyleMask:aStyle]];
 			[self addSubview:b2=[NSWindow standardWindowButton:NSWindowZoomButton forStyleMask:aStyle]];
@@ -319,12 +328,15 @@ static BOOL __cursorHidden = NO;
 	 0:	close button
 	 1: miniaturize button
 	 2: zoom button
-	 3: title button
+	 3: title/document icon button
 	 4: content view (0 if borderless)
-	 (x: document icon)
 	 5: toolbar button
 	 6: toolbar view
 	 */
+#if 1
+	NSLog(@"standardWindowButton %d", button);
+	NSLog(@"subviews %@", sub_views);
+#endif
 	switch(button)
 		{
 		case NSWindowCloseButton: return [sub_views objectAtIndex:0];
@@ -413,6 +425,8 @@ static BOOL __cursorHidden = NO;
 
 - (void) setMenu:(NSMenu *) menu
 {
+	if([sub_views count] == 0)
+		return;	// ignore when called from -initWithFrame:
 	if(menu && ![self windowMenuView])
 		; // allocate/deallocate a horizontal NSMenuView (subview)
 	else if(!menu && [self windowMenuView])
@@ -1852,6 +1866,7 @@ static NSButtonCell *sharedCell;
 		[_context _setOriginAndSize:r];	// set origin since we must "move" in X11 coordinates even if we resize only
 		[self _setFrame:r];	// update content view size etc.
 		// FIXME: must also update window title shape!
+		_w.isZoomed=NO;	// no longer remember old size
 		}
 	else if(!NSEqualPoints(r.origin, _frame.origin))
 		{ // move only
@@ -2155,19 +2170,34 @@ static NSButtonCell *sharedCell;
 
 - (void) zoom:(id)sender
 {
-	NSLog(@"Zoom");
-	// if !resizable and zoomable, return;
-	if(_w.isZoomed = !_w.isZoomed)
+#if 1
+	NSLog(@"Zoom %d", _w.isZoomed);
+#endif
+	if(!(_w.styleMask&NSResizableWindowMask))
+		return;	// can't zoom
+	if(!_w.isZoomed)
 			{ // not yet zoomed
-				// add the auto-resize mechanism here
-				//			- (BOOL)windowShouldZoom:(NSWindow *)window toFrame:(NSRect)proposedFrame
-				//			- (NSRect)windowWillUseStandardFrame:(NSWindow *)window defaultFrame:(NSRect)defaultFrame
-				// use user-defined sizes
-				// override
-		}
+				NSRect defaultFrame=[_screen visibleFrame];
+				NSRect proposedFrame=_delegate?[_delegate windowWillUseStandardFrame:self defaultFrame:defaultFrame]:defaultFrame;	// allow delegate to modify
+#if 1
+				NSLog(@"default frame %@", NSStringFromRect(defaultFrame));
+				NSLog(@"delegate's frame %@", NSStringFromRect(proposedFrame));
+#endif
+				proposedFrame=NSIntersectionRect(proposedFrame, defaultFrame);	// limit to screen
+#if 1
+				NSLog(@"proposed frame %@", NSStringFromRect(proposedFrame));
+#endif
+				if(_delegate && ![_delegate windowShouldZoom:self toFrame:proposedFrame])
+					return;	// delegate did veto
+				_oldFrame=[self frame];	// remember current frame
+#if 1
+				NSLog(@"old frame %@", NSStringFromRect(_oldFrame));
+#endif
+				[self setFrame:proposedFrame display:YES animate:YES];
+				_w.isZoomed=YES;	// setFrame did reset
+			}
 	else
-		{
-		}
+		[self setFrame:_oldFrame display:YES animate:YES];	// this will also reset _w.isZoomed flag
 }
 
 - (void) close
@@ -2226,20 +2256,26 @@ static NSButtonCell *sharedCell;
 
 - (void) performClose:(id)sender									
 {
-	// FIXME: should highlight miniaturize button temporarily
-	[self _close:sender];
+#if 1
+	NSLog(@"%@ %@", NSStringFromSelector(_cmd), [self standardWindowButton:NSWindowCloseButton]);
+#endif
+	[[self standardWindowButton:NSWindowCloseButton] performClick:sender];
 }
 
 - (void) performMiniaturize:(id)sender									
 {
-	// FIXME: should highlight miniaturize button temporarily
-	[self miniaturize:sender];
+#if 1
+	NSLog(@"%@ %@", NSStringFromSelector(_cmd), [self standardWindowButton:NSWindowMiniaturizeButton]);
+#endif
+	[[self standardWindowButton:NSWindowMiniaturizeButton] performClick:sender];
 }
 
 - (void) performZoom:(id)sender									
 {
-	// FIXME: should highlight zoom button temporarily
-	[self zoom:sender];
+#if 1
+	NSLog(@"%@ %@", NSStringFromSelector(_cmd), [self standardWindowButton:NSWindowZoomButton]);
+#endif
+	[[self standardWindowButton:NSWindowZoomButton] performClick:sender];
 }
 
 - (void) discardEventsMatchingMask:(unsigned int)mask
@@ -2883,7 +2919,7 @@ id prev;
 				if(i)
 						{
 							// [b setFrameSize:small];
-							[i setSize:smallImage];	// scale button image
+							[i setSize:smallImage];	// scale copy of button image
 							[i setScalesWhenResized:YES];
 							[b setImage:i];	// store a copy
 							[i release];
@@ -3049,13 +3085,27 @@ id prev;
 		return [[self toolbar] allowsUserCustomization];
 	if([action isEqualToString:@"toggleToolbarShown:"])
 		return [self toolbar] != nil;	// only if we have a toolbar
-	if([action isEqualToString:@"performClose:"])
-		return YES;	// FIXME: only if we can be closed
+	if([action isEqualToString:@"close:"])
+		return (_w.styleMask&NSClosableWindowMask) != 0;
 	if([action isEqualToString:@"miniaturize:"])
-		return YES;	// FIXME: only if we can be closed
+		return (_w.styleMask&NSMiniaturizableWindowMask) != 0;
 	if([action isEqualToString:@"zoom:"])
-		return YES;	// FIXME: only if we can be closed
+		return (_w.styleMask&NSResizableWindowMask) != 0;
 	return YES;	// default
 }
 
 @end /* NSWindow */
+
+@implementation NSObject (NSWindowDelegate)
+
+- (BOOL) window:(NSWindow *) sender shouldDragDocumentWithEvent:(NSEvent *) evt from:(NSPoint) pt withPasteboard:(NSPasteboard *) pboard; { return YES; }
+- (BOOL) window:(NSWindow *) sender shouldPopUpDocumentPathMenu:(NSMenu *) menu; { return YES; }
+- (NSRect) window:(NSWindow *) sender willPositionSheet:(NSWindow *) sheet usingRect:(NSRect) rect; { return rect; }
+- (BOOL) windowShouldClose:(id) sender; { return YES; }
+- (BOOL) windowShouldZoom:(NSWindow *) sender toFrame:(NSRect) frame; { return YES; }
+- (NSSize) windowWillResize:(NSWindow *) sender toSize:(NSSize) size; { return size; }
+- (id) windowWillReturnFieldEditor:(NSWindow *) sender toObject:(id) object; { return nil; }
+- (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *) sender; { return nil; }
+- (NSRect) windowWillUseStandardFrame:(NSWindow *) sender defaultFrame:(NSRect) frame; { return frame; }
+
+@end
