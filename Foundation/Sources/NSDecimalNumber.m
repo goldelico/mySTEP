@@ -734,12 +734,11 @@ static NSDecimalNumber *one;
 		decimal.exponent=[coder decodeIntForKey:@"NS.exponent"];
 		decimal.isNegative=[coder decodeBoolForKey:@"NS.negative"];
 		decimal.validNumber=YES;
-		decimal.length=[coder decodeIntForKey:@"NS.exponent"];
+		decimal.length=[coder decodeIntForKey:@"NS.length"];
 		if(![coder decodeBoolForKey:@"NS.compact"])
 			{
 			int i=0;
 			const char *bytes=[mantissa bytes];
-			decimal.exponent=[coder decodeIntForKey:@"NS.length"];
 			if(decimal.length == 0)
 				decimal.length=2*[mantissa length];	// 2 digits per byte
 			// CHECKME and handle different endian values
@@ -751,7 +750,9 @@ static NSDecimalNumber *one;
 				}
 			}
 		else
-			{
+			{ // compact
+				// FIXME!!!
+				decimal.validNumber=NO;
 			}
 		[self release];
 		return [[NSDecimalNumber alloc] initWithDecimal:decimal];

@@ -18,6 +18,15 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \b0 \
 \
+* implemented zoom:\
+* fixed a bug in creating the subviews of the NSThemeFrame\
+* fixed bugs in reading GIFs and ICNS\
+* fixed bug in decoding Attributed Strings\
+* NSShadow implemented (ingored in X11 backend)\
+* fixed a bug in 
+\f1\fs20 \CocoaLigature0 discardEventsMatchingMask
+\f0\fs24 \CocoaLigature1  (which did not delete before but up to the given event and deleted nothing if before was nil)\
+* added limitation of window frame to visibleFrame when resizing or moving windows\
 * fixed a retain/release problem when a timer's fire handler did re-enter the same run-loop\
 * fixed recursion when autohiding scrollers allows them to be unhidden and vice versa (did lead to recursion in reflectScrolledClipView)\
 * fixed missing userInfo in Exceptions from KVC\
@@ -1990,12 +1999,10 @@ NSData
 * properly 
 \f1\fs20 \CocoaLigature0 initWithContentsOfFile:
 \f0\fs24 \CocoaLigature1  for device files, /proc and named pipes where a seek fails\
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
 
-\f1\fs20 \cf0 \CocoaLigature0 \
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+\f1\fs20 \CocoaLigature0 \
 
-\f0\b\fs24 \cf0 \CocoaLigature1 NSDate
+\f0\b\fs24 \CocoaLigature1 NSDate
 \b0 \
 * 
 \f1\fs20 \CocoaLigature0 descriptionWithCalendarFormat:timeZone:locale: 

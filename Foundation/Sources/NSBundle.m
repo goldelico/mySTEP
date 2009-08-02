@@ -489,6 +489,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 	int extLength;
 	NSAutoreleasePool *arp;
 	NSString *fullpath = nil;
+	NSFileManager *fm=[NSFileManager defaultManager];
 #if 0
 	NSLog(@"%@ pathForResource:%@ ofType:%@ inDirectory:%@ forLocalization:%@", [self bundlePath], name, ext, bundlePath, locale);
 #endif
@@ -506,25 +507,27 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 #if 0
 			NSLog(@"try1: %@", fullpath);
 #endif
-			if([[NSFileManager defaultManager] fileExistsAtPath:fullpath]) 
-				break;
+			if([fm fileExistsAtPath:fullpath]) 
+				break;	// found
 			}
-		if(!path) fullpath=nil;
+		if(!path)
+			fullpath=nil;	// not found
 		}
 	else
-		{
+		{ // no extension given
 		while((path = [e nextObject]))
 			{
 			fullpath = [NSString stringWithFormat: @"%@/%@", path, name];
 #if 0
 			NSLog(@"try2: %@", fullpath);
 #endif
-			if([[NSFileManager defaultManager] fileExistsAtPath:fullpath]) 
+			if([fm fileExistsAtPath:fullpath]) 
 				break;
 			if((fullpath = [isa _findFileInPath:path andName:name]))
 				break;
 			}
-		if(!path) fullpath=nil;
+		if(!path)
+			fullpath=nil;	// not found
 		}
 #if 0
 	NSLog(@"found: %@", fullpath);

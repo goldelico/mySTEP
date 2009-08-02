@@ -111,7 +111,8 @@ NSString *NSParseErrorException=@"NSParseErrorException";
 
 - (void) dealloc
 {
-	OBJC_FREE(_uniChars);
+	if(_uniChars)
+		OBJC_FREE(_uniChars);
 	[super dealloc];
 }
 

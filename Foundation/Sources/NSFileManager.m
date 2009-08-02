@@ -465,9 +465,17 @@ const char *s, *d;
 	struct stat statbuf;
 	if(!cpath)
 		return NO;
-    if (stat(cpath, &statbuf) != 0)
-		return NO;
-    if (isDirectory)
+#if 0
+	fprintf(stderr, "fileExistsAtPath %s -> %s\n", [path UTF8String], cpath);
+#endif
+  if (stat(cpath, &statbuf) != 0)
+			{
+#if 0
+				fprintf(stderr, "stat error=%s\n", strerror(errno));
+#endif
+				return NO;
+			}
+  if (isDirectory)
 		*isDirectory = ((statbuf.st_mode & S_IFMT) == S_IFDIR);
 	return YES;
 }

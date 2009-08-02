@@ -379,30 +379,31 @@ static IMP appendImp;
 - (NSString *) description
 {
 	const char *src = [self bytes];
-	int i, length = [self length], l=2 * length + (length+3) / 4+3;
+	int i;
+	int length = [self length];
+	int l=2 * length + (length+3)/4 + 3;	// 2 hext digits, 1 space every 4 bytes, < > and '\0'
 	char *dest, *bp;	// build a cString and convert it to an NSString
 #if 0
-	NSLog(@"NSData description length=%d l=%d", length, l);
+	fprintf(stderr, "NSData description length=%d l=%d\n", length, l);
 #endif
 	if ((bp=dest=(char *) objc_malloc(l)) == NULL)
 		[NSException raise: NSMallocException format: @"malloc failed in NSData -description (length=%d l=%d)", length, l];
 	*bp++ = '<';
 	for (i = 0; i < length; i++)
 		{
-		sprintf(bp, "%02x", src[i]);
+		sprintf(bp, "%02x", src[i]&0xff);
 		bp+=2;
 		if((i&0x3) == 3 && i != length-1)
 			*bp++ = ' ';					// if we've just finished a block
 		NSAssert(bp-dest < l, @"buffer overflow");
-/*		if(bp >= dest+l)
-			{
-			NSLog(@"data overflow in NSData -description (j=%d l=%d length=%d)", bp-dest, l, length);
-			[NSException raise: NSMallocException format: @"data overflow in NSData -description (j=%d l=%d length=%d)", bp-dest, l, length];
-			} */
-		}										// 32-bit int, print a space
+		}
 	*bp++ = '>';
 	*bp = 0;	// 0-terminate
 	NSAssert(bp-dest < l, @"buffer overflow");
+#if 0
+	fprintf(stderr, "   bp-dest=%d\n", bp-dest);
+#endif
+	
 	return [[[NSString alloc] initWithCStringNoCopy:dest length:bp-dest freeWhenDone:YES] autorelease];
 }
 
@@ -417,10 +418,8 @@ static IMP appendImp;
 }
 
 - (void) getBytes:(void*)buffer range:(NSRange)aRange
-{								// Check for 'out of range' errors.  This code 
-int s = [self length];			// assumes that the NSRange location and length 
-								// types will remain unsigned (hence the lack 
-								// of a less-than-zero check).
+{ // Check for 'out of range' errors.  This code assumes that the NSRange location and length types will remain unsigned (hence the lack of a less-than-zero check).
+	int s = [self length];
 	if(NSMaxRange(aRange) > s)
 		// FIXME: should we simply limit the range and don't throw an exception?
 		[NSException raise: NSRangeException
@@ -446,12 +445,12 @@ int s = [self length];			// assumes that the NSRange location and length
 	return [super replacementObjectForPortCoder:coder];
 }
 
+// could be optimized to avoid copying if we know that we don't have mutable data and handle responsibility of the buffer
+
 - (NSData*) subdataWithRange:(NSRange)aRange
-{									// Check for 'out of range' errors before
-void *buffer;						// calling [-getBytes:range:] so that we
-unsigned l = [self length];			// can be sure that we don't get a range 
-									// exception after we have alloc'd memory.
-	if (aRange.location > l || aRange.length > l || NSMaxRange(aRange) > l)
+{ // Check for 'out of range' errors before calling [-getBytes:range:] so that we can be sure that we don't get a range exception after we have alloc'd memory.
+	void *buffer;	
+	unsigned l = [self length];	if (aRange.location > l || aRange.length > l || NSMaxRange(aRange) > l)
 		[NSException raise: NSRangeException
 					 format: @"-[NSData subdataWithRange:] Range: (%u, %u) Size: %d",
 							aRange.location, aRange.length, l];

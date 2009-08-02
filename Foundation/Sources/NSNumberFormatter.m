@@ -340,6 +340,11 @@ NSNumberFormatter class
 			[self setAttributedStringForZero:
 				[decoder decodeObjectForKey: @"NS.zero"]];
 			}
+			if ([decoder containsValueForKey: @"NS.attributes"])
+					{
+						// what is this? a NSDIct with textAttributes?
+						[decoder decodeObjectForKey: @"NS.attributes"];
+					}
 		}
 	else
 		{

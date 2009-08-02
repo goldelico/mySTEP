@@ -152,6 +152,8 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 	[_astring setString:str];
 }
 
+/// implement other wrapper methods
+
 @end
 
 @implementation NSAttributedString
@@ -455,6 +457,7 @@ NSAttributedString *newAttrString;						// Extract a substring
 									[_locations addObject:[NSNumber numberWithUnsignedInt:pos]];
 									pos+=len;
 								}
+						return self;
 					}
 			else
 				return [self initWithString:[aCoder decodeObjectForKey:@"NSString"]
