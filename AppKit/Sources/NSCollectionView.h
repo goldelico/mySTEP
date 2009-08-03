@@ -46,5 +46,6 @@
 - (void) setMinItemSize:(NSSize) size; 
 - (void) setSelectable:(BOOL) flag; 
 - (void) setSelectionIndexes:(NSIndexSet *) ids; 
+- (void)_computeTargetGridGeometry;
 
 @end

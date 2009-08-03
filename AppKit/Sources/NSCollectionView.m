@@ -16,35 +16,18 @@
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code here.
+		if(!_itemPrototype) { //makeup one itemPrototype
+			NSCollectionViewItem *item = [[NSCollectionViewItem alloc] init];
+			[item setView:[[NSView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)]];
+			[self setItemPrototype:item];
+		}
     }
     return self;
 }
 
-- (void)drawRect:(NSRect)rect {
-	
-	// hier sollte gar nichts gemalt werden
-	
-	// das Grid wird vermutlich in setContent: berechnet
-	// alle Items sind Subviews und malen sich selbst
-	// CollectionView steuert vermutlich nur das Layout und malt selber gar nichts
-	
-    int i;
-	int j; //counter for the viewItems
-	int k;
-	for (i=0;i<_maxNumberOfRows;i++) {
-		for (j=0;j<_maxNumberOfColumns;j++) {
-			//draw j column
-			k = i * _maxNumberOfColumns + j;
-			NSCollectionViewItem *aktItem = [_content objectAtIndex:k];
-			NSView *v = [aktItem view];
-			NSRect m = [v frame];
-			//draw view
-			NSRect newOrigin = NSMakeRect((j*m.size.width)+5, (i*m.size.height)+5, m.size.width, m.size.height);
-			// das hier ist nicht sinnvoll!
-			// [v setBounds:newOrigin];
-			// [self addSubview:v];
-		}
-	}
+- (void) drawRect:(NSRect) rect {
+	//Layout für die ViewItems
+	[self _computeGridGeometry];
 }
 
 - (BOOL) allowsMultipleSelection {return _allowsMultipleSelection;} 
@@ -109,6 +92,24 @@
 }
 - (void) setSelectionIndexes:(NSIndexSet *) ids{
 	ASSIGN(_selectionIndexes, ids);
+}
+- (void)_computeTargetGridGeometry{
+	//wie viele Zeilen und Spalten haben wir?
+	NSView *protoView = [_itemPrototype view];
+	NSRect protoRect = [protoView bounds];
+	NSSize protoSize = protoRect.size;
+	NSSize cvSize = [self frame].size;
+	if (_maxNumberOfRows == 0) { //berechne maximale Zeilennummer aus den vorhandenen Items
+		int numberOfRows =  cvSize.height /  protoSize.height;
+		NSLog(@"Number of Rows: %d",numberOfRows);
+	}
+	if(_maxNumberOfColumns==0) { //das gleiche mit den Spalten...
+		int numberofColums =  cvSize.width / protoSize.width;
+		NSLog(@"Number of Columns: %d", numberofColums);
+		
+	} else {
+		
+	}
 }
 - (id) initWithCoder:(NSCoder *) coder;
 {

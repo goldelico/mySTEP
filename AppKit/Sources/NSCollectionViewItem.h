@@ -23,6 +23,7 @@
 - (id) representedObject; 
 - (void) setRepresentedObject:(id) obj; 
 - (void) setSelected:(BOOL) flag; 
+- (void) toggleSelected:(BOOL) flag;
 - (void) setView:(NSView *) view; 
 - (NSView *) view; 
 

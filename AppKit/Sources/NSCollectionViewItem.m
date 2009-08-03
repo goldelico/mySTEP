@@ -15,12 +15,14 @@
 {
 	self = [super init];
 	if (self != nil) {
-		_isSelected = NO;
+		[self setSelected:NO];
+		_collectionView = nil;
+		_representedObject = nil;
+		_view = [[NSView alloc] init];
 		
 	}
 	return self;
 }
-
 
 - (NSCollectionView *) collectionView {
 	return _collectionView;
@@ -29,6 +31,8 @@
 - (void) _setCollectionView:(NSCollectionView *)newView {
 	ASSIGN(_collectionView,newView);
 }
+
+
 
 - (BOOL) isSelected {
 	return _isSelected;
@@ -42,6 +46,14 @@
 - (void) setSelected:(BOOL) flag {
 	_isSelected = flag;
 }
+- (void) toggleSelected:(BOOL) flag {
+	if (_isSelected == NO) {
+		_isSelected = YES;
+	} else {
+		_isSelected = NO;
+	}
+}
+
 - (void) setView:(NSView *) view {
 	ASSIGN(_view,view);
 }
@@ -51,12 +63,22 @@
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
-	
+	if ((self=[super initWithCoder:coder]))
+	{
+		[self setView:[coder decodeObjectForKey:@"view"]];
+		[self setRepresentedObject:[coder decodeObjectForKey:@"representedObject"]];
+		[self setSelected:[coder decodeBoolForKey:@"selected"]];
+	}
 	return self;
 }
 
+
+
 - (void) encodeWithCoder:(NSCoder *) coder
 {
+	[coder encodeObject:_view forKey:@"view"];
+	[coder encodeObject:_representedObject forKey:@"representedObject"];
+	[coder encodeBool:_isSelected forKey:@"selected"];
 	
 }
 - (id) copyWithZone:(NSZone *) zone
