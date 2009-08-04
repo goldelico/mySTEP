@@ -3533,7 +3533,6 @@ static NSDictionary *_x11settings;
 			static int windowNumber;			// number of lastXWin
 			static int windowHeight;			// attributes of lastXWin (signed so that we can calculate windowHeight-y and return negative coordinates)
 			static float windowScale;			// scaling factor
-			static NSWindow *window=nil;		// associated NSWindow of lastXWin
 			static NSEvent *lastMotionEvent=nil;
 			static Time timeOfLastClick = 0;
 			static int clickCount = 1;
@@ -3591,27 +3590,18 @@ static NSDictionary *_x11settings;
 				lastMotionEvent=nil;	// any other event - start a new motion notification
 			if(thisXWin != lastXWin)						
 				{ // update cached references to window and prepare for translation
-				window=NSMapGet(__WindowNumToNSWindow, (void *) thisXWin);
-				if(!window)
-					{ // FIXME: if a window is closed, it might be removed from this list but events might be pending!
-					NSLog(@"*** event from unknown Window (%d). Ignored.", (long) thisXWin);
-					NSLog(@"Window list: %@", NSAllMapTableValues(__WindowNumToNSWindow));
-					continue;	// ignore such events
-					}
+					NSWindow *lastWindow=NSMapGet(__WindowNumToNSWindow, (void *) thisXWin);
+				_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[lastWindow graphicsContext];
+				windowNumber=[lastWindow windowNumber];
+				if(ctxt)
+						{ // may be nil if we receive e.g. a cursor update event
+							windowHeight=ctxt->_xRect.height;
+							windowScale=ctxt->_scale;
+						}
 				else
-					{
-					_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[window graphicsContext];
-					windowNumber=[window windowNumber];
-						if(ctxt)
-								{ // may be nil if we receive e.g. a cursor update event
-									windowHeight=ctxt->_xRect.height;
-									windowScale=ctxt->_scale;
-								}
-						else
-								{
-									windowHeight=0;
-									windowScale=1.0;
-								}
+						{
+							windowHeight=0;
+							windowScale=1.0;
 					}
 				lastXWin=thisXWin;
 				}
@@ -3687,7 +3677,7 @@ static NSDictionary *_x11settings;
 					if(xe.xclient.message_type == _protocolsAtom &&
 					   xe.xclient.data.l[0] == _deleteWindowAtom) 
 						{ // WM is asking us to close
-						[window performClose:self];
+						[NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) performClose:self];
 						}									// to close window
 #if DND
 						else
@@ -3699,7 +3689,7 @@ static NSDictionary *_x11settings;
 					break;
 				case ConfigureNotify:					// window has been moved or resized by window manager
 					NSDebugLog(@"ConfigureNotify\n");
-						[[window _themeFrame] setNeedsDisplay:YES];	// make us redraw content
+						[[NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _themeFrame] setNeedsDisplay:YES];	// make us redraw content
 #if FIXME
 						// we should at least redisplay the window
 					if(!xe.xconfigure.override_redirect || 
@@ -3719,7 +3709,7 @@ static NSDictionary *_x11settings;
 								   f.origin.x, f.origin.y,
 								   f.size.width, f.size.height);
 						// FIXME: shouldn't this be an NSNotification that a window can catch?
-						[window _setFrame:f];
+						[NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setFrame:f];
 						}
 						if(xe.xconfigure.window == lastXWin)
 							{
@@ -3743,7 +3733,7 @@ static NSDictionary *_x11settings;
 				case LeaveNotify: 
 				case EnterNotify:						// when the pointer enters or leves a window, pass upwards as a first/last motion event
 						// FIXME: this may collide with lastMotionEvent
-						if([window acceptsMouseMovedEvents])
+						if([NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) acceptsMouseMovedEvents])
 							e = [NSEvent mouseEventWithType:NSMouseMoved
 																		 location:X11toScreen(xe.xcrossing)
 																modifierFlags:__modFlags
@@ -3756,7 +3746,7 @@ static NSDictionary *_x11settings;
 						break;
 				case Expose:
 					{
-						_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[window graphicsContext];
+						_NSX11GraphicsContext *ctxt=(_NSX11GraphicsContext *)[NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) graphicsContext];
 						if(_isDoubleBuffered(ctxt))
 							{ // copy from backing store
 							_setDirtyRect(ctxt, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);	// flush at least the exposed area
@@ -3773,7 +3763,7 @@ static NSDictionary *_x11settings;
 							else
 								sz=NSMakeSize(xe.xexpose.width, xe.xexpose.height);
 #if 1
-							NSLog(@"not double buffered expose %@ -> %@", window,
+							NSLog(@"not double buffered expose %@ -> %@", NSMapGet(__WindowNumToNSWindow, (void *) thisXWin),
 								//  NSStringFromXRect(xe.xexpose),
 								  NSStringFromSize(sz));
 #endif
@@ -3879,14 +3869,14 @@ static NSDictionary *_x11settings;
 #if 1
 						NSLog(@"MapNotify");			// state from ummapped to mapped
 #endif
-						[window _setIsVisible:YES];
+						[NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setIsVisible:YES];
 						break;								 
 						
 					case UnmapNotify:						// find the NSWindow and
 #if 1
 						NSLog(@"UnmapNotify\n");		// inform it that it is no longer visible
 #endif
-						[window _setIsVisible:NO];
+						[NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setIsVisible:NO];
 						break;
 
 					case VisibilityNotify:						// window's visibility 
@@ -3911,7 +3901,7 @@ static NSDictionary *_x11settings;
 								type = NSRightMouseDragged;	
 							else if(xe.xmotion.state & Button2Mask)		
 								type = NSOtherMouseDragged;	
-							else if([window acceptsMouseMovedEvents])
+							else if([NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) acceptsMouseMovedEvents])
 								type = NSMouseMoved;	// no button pressed
 							else
 								break;	// ignore mouse moved events unless the window really wants to see them
@@ -3973,9 +3963,9 @@ static NSDictionary *_x11settings;
 								if(status != Success || !data) 
 									break;
 								if(*data == IconicState)
-									[window miniaturize:self];
+									[NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) miniaturize:self];
 								else if(*data == NormalState)
-									[window deminiaturize:self];
+									[NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) deminiaturize:self];
 								if(number_items > 0)
 									XFree(data);
 								}
