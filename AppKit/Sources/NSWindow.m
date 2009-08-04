@@ -3085,11 +3085,11 @@ id prev;
 		return [[self toolbar] allowsUserCustomization];
 	if([action isEqualToString:@"toggleToolbarShown:"])
 		return [self toolbar] != nil;	// only if we have a toolbar
-	if([action isEqualToString:@"close:"])
+	if([action isEqualToString:@"performClose:"] || [action isEqualToString:@"close:"])
 		return (_w.styleMask&NSClosableWindowMask) != 0;
-	if([action isEqualToString:@"miniaturize:"])
+	if([action isEqualToString:@"performMiniaturize:"] || [action isEqualToString:@"miniaturize:"])
 		return (_w.styleMask&NSMiniaturizableWindowMask) != 0;
-	if([action isEqualToString:@"zoom:"])
+	if([action isEqualToString:@"performZoom:"] || [action isEqualToString:@"zoom:"])
 		return (_w.styleMask&NSResizableWindowMask) != 0;
 	return YES;	// default
 }
