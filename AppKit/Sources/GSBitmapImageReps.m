@@ -581,15 +581,14 @@ ReadGIFToBuf(GifFileType *GifFile, GIF *handle, char *data)
 	NSLog(@"GifFile->SHeight=%d", GifFile->SHeight);
 	NSLog(@"GifFile->SBackGroundColor=%d", GifFile->SBackGroundColor);	// should define the transparent one... (which one if we have none?)
 	NSLog(@"GifFile->SColorResolution=%d", GifFile->SColorResolution);	// number of colors per primary color in original -> this is the number of bits per pixel and has nothing to do with the number of planes!
-	NSLog(@"GifFile->SWidth * sizeof(GifPixelType)=%d", GifFile->SWidth * sizeof(GifPixelType));
 	NSLog(@"GifFile->SColorMap->BitsPerPixel=%d", GifFile->SColorMap->BitsPerPixel);	// should be the same as GifFile->SColorResolution
 #endif
 	
 	imageRep = [[[self alloc] initWithBitmapDataPlanes: NULL
 						 pixelsWide: GifFile->SWidth
 						 pixelsHigh: GifFile->SHeight
-						 bitsPerSample: GifFile->SColorResolution
-						 samplesPerPixel: 4
+						 bitsPerSample: 8		// we always convert into 8 bit per pixel
+						 samplesPerPixel: 4	// we always have RGBA
 						 hasAlpha: YES	
 						 isPlanar: NO
 						 colorSpaceName: NSCalibratedRGBColorSpace
