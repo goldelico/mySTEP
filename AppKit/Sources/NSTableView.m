@@ -239,6 +239,7 @@
 				{ // resizing
 					if([event type] == NSLeftMouseDragged)
 						{
+							[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
 							// change width
 							// redraw
 							// invalidate cursor rects so that they are updated
@@ -248,6 +249,7 @@
 				{ // dragging
 				if([event type] == NSLeftMouseDragged)
 					{
+						[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
 						if(!dragWindow)
 							{
 								NSLog(@"start column dragging");

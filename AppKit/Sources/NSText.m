@@ -599,6 +599,8 @@ object:self]
 #if 0
 				NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p));
 #endif
+				if([event type] == NSLeftMouseDragged)
+					[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
 				// handle click on NSTextAttachments
 				if(NSLocationInRange(pos, _selectedRange))
 						{ // in current range we already hit the current selection it is a potential drag&drop

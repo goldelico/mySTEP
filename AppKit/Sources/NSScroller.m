@@ -430,6 +430,7 @@ static NSButtonCell *__knobCell = nil;
 			{ // mouse has moved
 			float v;
 			NSPoint point = [self convertPoint:[event locationInWindow] fromView:nil];
+			[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
 			if(_isHorizontal)
 				v=(point.x-offset.width-slotRect.origin.x)/(slotRect.size.width-knobRect.size.width);
 			else

@@ -158,7 +158,10 @@ NSSplitView.h
 	while([e type] != NSLeftMouseUp)				// user is moving the knob
 		{ 											// loop until left mouse up
 		if ([e type] == NSLeftMouseDragged)
-			p = [self convertPoint:[e locationInWindow] fromView:nil];	// we have a new divider position
+				{
+					[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
+					p = [self convertPoint:[e locationInWindow] fromView:nil];	// we have a new divider position
+				}
 		if(!_isVertical)
 			{
 			if(p.y < minCoord) 
