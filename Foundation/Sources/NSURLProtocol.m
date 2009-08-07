@@ -818,10 +818,7 @@ static NSMutableDictionary *_httpConnections;
 							}
 					if(_bodyStream)
 							{ // we are still sending the body
-								if(_sendChunked)
-										{ // FIXME: handle sending of chunked data
-										}
-								if([_bodyStream hasBytesAvailable])
+								if([_bodyStream hasBytesAvailable])	// FIXME: if we send chunked this is not the correct indication and we should stall sending until new data becomes available
 										{ // send next part until done
 											int len=[_bodyStream read:buffer maxLength:sizeof(buffer)];	// read next block from stream
 											if(len < 0)
@@ -833,15 +830,32 @@ static NSMutableDictionary *_httpConnections;
 #endif
 														[_currentRequest didFailWithError:[NSError errorWithDomain:@"HTTPBodyStream" code:errno userInfo:info]];
 														[self endOfUseability];
+														return;	// done
 													}
 											else
 													{
-														[_outputStream write:buffer maxLength:len];	// send
+														if(_sendChunked)
+																{
+																	char chunkLen[32];
+																	sprintf(chunkLen, "%x\r\n", len);
+																	[_outputStream write:chunkLen maxLength:strlen(chunkLen)];	// send length
+																	[_outputStream write:buffer maxLength:len];	// send what we have
+																	[_outputStream write:"\r\n" maxLength:2];	// and a CRLF
 #if 1
-														NSLog(@"%d bytes body sent", len);
+																	NSLog(@"chunk with %d bytes sent\nHeader: %s", len, chunkLen);
 #endif
+																	if(len != 0)
+																		return;	// more to send (at least a 0-length header)
+																}
+														else
+																{
+																	[_outputStream write:buffer maxLength:len];	// send what we have
+#if 1
+																	NSLog(@"%d bytes body sent", len);
+#endif
+																	return;	// done
+																}
 													}
-											return;	// done
 										}
 #if 1
 								NSLog(@"body completely sent");
@@ -849,6 +863,9 @@ static NSMutableDictionary *_httpConnections;
 								[_bodyStream close];	// close body stream (if open)
 								[_bodyStream release];
 								_bodyStream=nil;
+								// we might send additional headers according to the protocol - but we have already sent them
+								// this would only be useful if we want to allow the client to add/modify headers while generating the body stram
+								// in that case we would have to mark all headers if they are sent before or after the chunked body and send only the minimum headers before
 							}
 					if(_shouldClose)
 							{	// we have announced Connection: close
