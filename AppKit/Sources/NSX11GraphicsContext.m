@@ -757,6 +757,7 @@ typedef struct
 #endif
 	_graphicsPort=port;	// _window is a typed alias for _graphicsPort
 	_realWindow=(Window) port;	// default is unbuffered
+	// FIXME: apply [_X112screen transformPoint:NSMakePoint(root_x, root_y)]
 	_scale=_nsscreen->_screenScale; 
 	[self saveGraphicsState];	// initialize graphics state with transformations, GC etc. - don't use anything which depends on graphics state before here!
 	XSelectInput(_display, _realWindow,
@@ -3430,6 +3431,7 @@ static NSDictionary *_x11settings;
 			}
 #endif
 		if(XQueryExtension(_display, "Apple-WM", &major_opcode_return, &first_event_return, &first_error_return))
+			// FIXME: apply [_X112screen transformPoint:NSMakePoint(root_x, root_y)]
 			size.height-=[self _windowTitleHeight]/_screenScale;	// if we display on Apple X11, leave room for menu bar
 		_device=[[NSMutableDictionary alloc] initWithObjectsAndKeys:
 			[NSNumber numberWithInt:PlanesOfScreen(_screen)], NSDeviceBitsPerSample,
@@ -3507,6 +3509,7 @@ static NSDictionary *_x11settings;
 	unsigned int mask;	// modifier and mouse keys
 	if(!XQueryPointer(_display, XDefaultRootWindow(_display), &root, &child, &root_x, &root_y, &window_x, &window_y, &mask))
 		return NSZeroPoint;
+	// FIXME: apply [_X112screen transformPoint:NSMakePoint(root_x, root_y)]
 	root_y=HeightOfScreen(_screen)-root_y-1;
 	if(_screenScale != 1.0)
 		return NSMakePoint(root_x/_screenScale, root_y/_screenScale+1);
@@ -3752,6 +3755,7 @@ static NSDictionary *_x11settings;
 							_setDirtyRect(ctxt, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);	// flush at least the exposed area
 							needsFlush=YES;
 							// FIXME - should collect and merge all expose events
+								// we should also be able to postpone expose events after resizing the window
 							// or setDirtyRect should setup a timer to flush after a while...
  							[ctxt flushGraphics];	// plus anything else we need to flush anyway
 							}

@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <Security/SFAuthorization.h>
+#import <SecurityFoundation/SFAuthorization.h>
 
 typedef enum 
 { 
@@ -23,6 +23,8 @@ typedef enum
 	AuthorizationRights *_authorizationRights; 
 	id _delegate; 
 	NSTimer *_autoupdate;
+	IBOutlet NSBox *box;
+	IBOutlet NSImageView *lock;
 	SFAuthorizationViewState _authorizationState; 
 	BOOL _isEnabled;
 }
@@ -30,7 +32,7 @@ typedef enum
 - (SFAuthorization *) authorization; 
 - (AuthorizationRights *) authorizationRights; 
 - (SFAuthorizationViewState) authorizationState; 
-- (BOOL) authorize: (id) Sender; 
+- (BOOL) authorize:(id) Sender; 
 - (BOOL) deauthorize:(id) Sender; 
 - (id) delegate; 
 - (BOOL) isEnabled; 

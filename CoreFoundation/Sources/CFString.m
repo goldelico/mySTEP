@@ -6,5 +6,13 @@
 //  Copyright 2008 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "CFString.h"
+#import <CoreFoundation/CFString.h>
 
+#ifdef __mySTEP__
+
+#define CFIndex _CFIndex
+#import <Foundation/Foundation.h>
+
+CFStringRef CFSTR(char *str) { return (CFStringRef) [[NSString alloc] initWithCString:str]; }
+
+#endif

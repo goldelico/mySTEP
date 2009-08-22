@@ -6,7 +6,7 @@
 //  Copyright (c) 2005 DSITRI. All rights reserved.
 //
 
-#import <Security/SFAuthorization.h>
+#import <SecurityFoundation/SFAuthorization.h>
 
 @implementation SFAuthorization
 
@@ -47,6 +47,22 @@
 	_auth.flags=0;
 	_auth.rights=NULL;
 	_auth.env=NULL;
+}
+
+- (BOOL) obtainWithRight:(AuthorizationString) rightName
+									 flags:(AuthorizationFlags) flags
+									 error:(NSError **) error;
+{
+	return NO;
+}
+
+- (BOOL) obtainWithRights:(const AuthorizationRights *) rights
+										flags:(AuthorizationFlags) flags
+							environment:(const AuthorizationEnvironment *) environment
+				 authorizedRights:(AuthorizationRights **) authorizedRights
+										error:(NSError **) error;
+{
+	return NO;
 }
 
 - (OSStatus) permitWithRight:(AuthorizationString) name

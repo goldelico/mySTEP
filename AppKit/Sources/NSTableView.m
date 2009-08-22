@@ -1495,9 +1495,11 @@ int index = [self columnWithIdentifier:identifier];
 		// 
 		// we should make periodic events after some delay simply call [self autoscroll:lastmouse] while the mouse is outside of a certain inner frame
 		//
-		if (eventType != NSPeriodic)
+		if (eventType == NSPeriodic)
+			; // [self autoscroll:lastmouse];
+		else
 			current = [event locationInWindow];	// update location
-		if (eventType == NSLeftMouseDown || eventType == NSPeriodic || current.x != previous.x || current.y != previous.y || scrolled) 
+		if (eventType == NSLeftMouseDown || current.x != previous.x || current.y != previous.y || scrolled) 
 			{ // something changed
 			previous = current;
 			p = [self convertPoint:current fromView:nil];

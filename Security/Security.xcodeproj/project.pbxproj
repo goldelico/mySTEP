@@ -7,29 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EE32C4820A1094CA00E985BA /* SFAuthorizationView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE32C4810A1094CA00E985BA /* SFAuthorizationView.m */; };
 		EE7857090E12236E005FE918 /* SecBase.h in Headers */ = {isa = PBXBuildFile; fileRef = EE7857080E12236E005FE918 /* SecBase.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE78570F0E1223F6005FE918 /* Security.h in Headers */ = {isa = PBXBuildFile; fileRef = EE78570E0E1223F6005FE918 /* Security.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE9F32370CF99C9C0087380F /* lock_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EE9F32360CF99C9C0087380F /* lock_32.png */; };
-		EE9F32390CF99CAA0087380F /* ulock_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EE9F32380CF99CAA0087380F /* ulock_32.png */; };
 		EE9F32420CF9A0F30087380F /* Authorization.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9F323F0CF9A0F30087380F /* Authorization.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE9F32430CF9A0F30087380F /* AuthorizationDB.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9F32400CF9A0F30087380F /* AuthorizationDB.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE9F32440CF9A0F30087380F /* AuthorizationTags.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9F32410CF9A0F30087380F /* AuthorizationTags.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEA370950953FFEF001244CF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA370940953FFEF001244CF /* Foundation.framework */; };
 		EEA3716B095400F2001244CF /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3716A095400F2001244CF /* AppKit.framework */; };
-		EEE7462C095D6CD800178065 /* SFAuthorization.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE74628095D6CD800178065 /* SFAuthorization.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEE7462D095D6CD800178065 /* SFAuthorization.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE74629095D6CD800178065 /* SFAuthorization.m */; };
-		EEE7462E095D6CD800178065 /* SFAuthorizationView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE7462A095D6CD800178065 /* SFAuthorizationView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
-		EE32C4810A1094CA00E985BA /* SFAuthorizationView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SFAuthorizationView.m; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* Security.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Security.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE7857080E12236E005FE918 /* SecBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecBase.h; sourceTree = "<group>"; };
 		EE78570E0E1223F6005FE918 /* Security.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Security.h; sourceTree = "<group>"; };
-		EE9F32360CF99C9C0087380F /* lock_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = lock_32.png; path = ../../Icons/Harmony/PNG/lock_32.png; sourceTree = SOURCE_ROOT; };
-		EE9F32380CF99CAA0087380F /* ulock_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ulock_32.png; path = ../../Icons/Harmony/PNG/ulock_32.png; sourceTree = SOURCE_ROOT; };
 		EE9F323F0CF9A0F30087380F /* Authorization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Authorization.h; sourceTree = "<group>"; };
 		EE9F32400CF9A0F30087380F /* AuthorizationDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthorizationDB.h; sourceTree = "<group>"; };
 		EE9F32410CF9A0F30087380F /* AuthorizationTags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthorizationTags.h; sourceTree = "<group>"; };
@@ -37,9 +28,6 @@
 		EEA370940953FFEF001244CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../Foundation/build/Development/Foundation.framework; sourceTree = SOURCE_ROOT; };
 		EEA3716A095400F2001244CF /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../AppKit/build/Development/AppKit.framework; sourceTree = SOURCE_ROOT; };
 		EEE74627095D6CD800178065 /* Security-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "Security-Info.plist"; sourceTree = "<group>"; };
-		EEE74628095D6CD800178065 /* SFAuthorization.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SFAuthorization.h; sourceTree = "<group>"; };
-		EEE74629095D6CD800178065 /* SFAuthorization.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SFAuthorization.m; sourceTree = "<group>"; };
-		EEE7462A095D6CD800178065 /* SFAuthorizationView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SFAuthorizationView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,8 +74,6 @@
 		EEA3309609537E48001244CF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				EE9F32360CF99C9C0087380F /* lock_32.png */,
-				EE9F32380CF99CAA0087380F /* ulock_32.png */,
 				EEE74627095D6CD800178065 /* Security-Info.plist */,
 			);
 			name = Resources;
@@ -100,10 +86,6 @@
 				EE9F32460CF9A1BB0087380F /* Authorization.m */,
 				EE9F32400CF9A0F30087380F /* AuthorizationDB.h */,
 				EE9F32410CF9A0F30087380F /* AuthorizationTags.h */,
-				EEE74628095D6CD800178065 /* SFAuthorization.h */,
-				EEE74629095D6CD800178065 /* SFAuthorization.m */,
-				EEE7462A095D6CD800178065 /* SFAuthorizationView.h */,
-				EE32C4810A1094CA00E985BA /* SFAuthorizationView.m */,
 				EE7857080E12236E005FE918 /* SecBase.h */,
 				EE78570E0E1223F6005FE918 /* Security.h */,
 			);
@@ -126,8 +108,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEE7462C095D6CD800178065 /* SFAuthorization.h in Headers */,
-				EEE7462E095D6CD800178065 /* SFAuthorizationView.h in Headers */,
 				EE9F32420CF9A0F30087380F /* Authorization.h in Headers */,
 				EE9F32430CF9A0F30087380F /* AuthorizationDB.h in Headers */,
 				EE9F32440CF9A0F30087380F /* AuthorizationTags.h in Headers */,
@@ -182,8 +162,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE9F32370CF99C9C0087380F /* lock_32.png in Resources */,
-				EE9F32390CF99CAA0087380F /* ulock_32.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -210,8 +188,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEE7462D095D6CD800178065 /* SFAuthorization.m in Sources */,
-				EE32C4820A1094CA00E985BA /* SFAuthorizationView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

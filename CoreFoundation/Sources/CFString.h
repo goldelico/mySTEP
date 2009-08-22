@@ -9,9 +9,14 @@
 #ifndef _mySTEP_H_CFString
 #define _mySTEP_H_CFString
 
-@class NSString;
-typedef NSString *CFStringRef;
+#import <CoreFoundation/CFBase.h>
 
-inline CFStringRef CFSTR(char *str) { return [[NSString alloc] initWithCString:str]; }
+// already defined in CFBase.h
+// typedef NSString *CFStringRef;
+
+typedef CFOptionFlags CFStringCompareFlags;
+typedef UInt32 CFStringEncoding;
+typedef CFIndex CFStringEncodings;
+
 
 #endif

@@ -1273,7 +1273,7 @@ printing
 		return;	// how can this happen? We are called as [[sub_views objectAtIndex:i] resizeWithOldSuperviewSize: oldSize]
 	superViewFrameSize = [super_view frame].size;	// super_view should not be nil!
 	if(NSEqualSizes(oldSize, superViewFrameSize))
-		return;	// ignore unchanged size
+		return;	// ignore unchanged superview size
 #if 0
 	NSLog(@"resizeWithOldSuperviewSize %x: %@ -> %@ %@", _v.autoresizingMask, NSStringFromSize(oldSize), NSStringFromSize(superViewFrameSize), self);
 #endif
@@ -1293,7 +1293,7 @@ printing
 		change = superViewFrameSize.width - oldSize.width;
 		if(change != 0.0)
 			{
-			changePerOption = floor(change / options);		
+			changePerOption = change / options;		
 			
 			if(_v.autoresizingMask & NSViewWidthSizable)		
 				{		
@@ -1337,7 +1337,7 @@ printing
 		change = superViewFrameSize.height - oldSize.height;
 		if(change != 0.0)
 			{
-			changePerOption = floor(change/options);		
+			changePerOption = change/options;		
 			
 			if(_v.autoresizingMask & NSViewHeightSizable)		
 				{											

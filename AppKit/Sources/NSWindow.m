@@ -517,11 +517,7 @@ static BOOL __cursorHidden = NO;
 								// FIXME: check for click on document icon or title cell
 								// if representedURL defined and crtl-click, call - (BOOL)window:(NSWindow *)sender shouldPopUpDocumentPathMenu:(NSMenu *)titleMenu
 								NSPoint p=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
-#if 0
-								initial=[_window convertBaseToScreen:p];	// convert to screen coordinates
-#else
 								initial=[NSEvent mouseLocation];
-#endif
 								if(p.y < _frame.size.height-_height)
 										{ // check if we a have resize enabled in _style and we clicked on lower right corner
 											if((_style & NSResizableWindowMask) == 0 || p.y > 10.0 || p.x < _frame.size.width-10.0)
@@ -550,15 +546,7 @@ static BOOL __cursorHidden = NO;
 								// NOTE: we can't use [event locationInWindow] if we move the window - is not reliable because it is not synchronized with really moving the window!
 								float deltax, deltay;
 								NSRect wframe=initialFrame;
-#if 0
-								NSPoint loc=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
-#if 0
-								loc=[theEvent locationInWindow];	// this may be relative to the old position...
-#endif
-								loc=[_window convertBaseToScreen:loc];	// convert to screen coordinates
-#else
 								NSPoint loc=[NSEvent mouseLocation];
-#endif
 								deltax=loc.x-initial.x;	// how much we have moved
 								deltay=loc.y-initial.y;
 #if 0
@@ -585,7 +573,7 @@ static BOOL __cursorHidden = NO;
 											NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
 #endif
 											[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
-											[_window setFrame:wframe display:NO];	// resize and redisplay
+											[_window setFrame:wframe display:NO];	// resize - will redisplay by ConfigureNotify event
 											// called by ConfigureNotify event
 											// [self setNeedsDisplay:YES];
 										}
@@ -1865,7 +1853,6 @@ static NSButtonCell *sharedCell;
 		{ // resize (and move)
 		[_context _setOriginAndSize:r];	// set origin since we must "move" in X11 coordinates even if we resize only
 		[self _setFrame:r];	// update content view size etc.
-		// FIXME: must also update window title shape!
 		_w.isZoomed=NO;	// no longer remember old size
 		}
 	else if(!NSEqualPoints(r.origin, _frame.origin))
@@ -1885,7 +1872,7 @@ static NSButtonCell *sharedCell;
 }
 
 - (void) _setFrame:(NSRect) rect
-{ // this is also a callback from window manager
+{ // this is also used as a callback from window manager
 #if 0
 	NSLog(@"_setFrame:%@", NSStringFromRect(rect));
 #endif

@@ -504,6 +504,7 @@ static NSButtonCell *__knobCell = nil;
 			[self setNeedsDisplayInRect:rect];
 
 			// FIXME: what is this good for?
+				// _target is the ScrollView and mouseUp invalidates some cursor rects
 
 			if (done)
 				{
@@ -611,7 +612,7 @@ static NSButtonCell *__knobCell = nil;
 					_knobProportion = (float)(knobHeight / slotHeight);
 					}
 				knobPosition = _floatValue * (slotHeight - knobHeight);	// calc knob's position (left/top end)
-				knobPosition = (float)floor(knobPosition);	// avoid (why?) rounding error
+//			knobPosition = (float)floor(knobPosition);	// avoid (why?) rounding error
 				
 				y += knobPosition;	// move knob
 				if(_arrowsPosition == NSScrollerArrowsMinEnd)

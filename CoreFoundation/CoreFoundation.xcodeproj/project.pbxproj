@@ -244,10 +244,10 @@
 			isa = PBXGroup;
 			children = (
 				EEA32EC709537D0C001244CF /* CoreFoundation.h */,
-				EEB3F1F30E96002900CDF83A /* CFString.h */,
-				EEB3F1F40E96002900CDF83A /* CFString.m */,
 				EEB3F1ED0E96002000CDF83A /* CFBase.h */,
 				EEB3F1EE0E96002000CDF83A /* CFBase.m */,
+				EEB3F1F30E96002900CDF83A /* CFString.h */,
+				EEB3F1F40E96002900CDF83A /* CFString.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";

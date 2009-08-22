@@ -23,14 +23,24 @@ struct AuthorizationOpaqueRef
 }
 
 + (id) authorization; 
-- (AuthorizationRef) authorizationRef;
 + (id) authorizationWithFlags:(AuthorizationFlags) flags
 					   rights:(AuthorizationRights *) rights
 				  environment:(AuthorizationEnvironment *) env;
+
+- (AuthorizationRef) authorizationRef;
 - (id) initWithFlags:(AuthorizationFlags) flags 
 			  rights:(AuthorizationRights *) rights
 		 environment:(AuthorizationEnvironment *) env;
 - (void) invalidateCredentials; 
+- (BOOL) obtainWithRight:(AuthorizationString) rightName
+									 flags:(AuthorizationFlags) flags
+									 error:(NSError **) error;
+
+- (BOOL) obtainWithRights:(const AuthorizationRights *) rights
+										flags:(AuthorizationFlags) flags
+							environment:(const AuthorizationEnvironment *) environment
+				 authorizedRights:(AuthorizationRights **) authorizedRights
+										error:(NSError **) error;
 - (OSStatus) permitWithRight:(AuthorizationString) name
 					   flags:(AuthorizationFlags) flags; 
 - (OSStatus) permitWithRights:(AuthorizationRights *) rights

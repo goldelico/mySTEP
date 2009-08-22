@@ -478,7 +478,7 @@
 		[self sizeToFit];	// this will initially resize the window and our frame/bounds to fit the full menu
 	edge &= 3;
 	mf.size=_frame.size;   // copy content size
-	if(index >= 0)
+	if(index >= 0 && index < [_cells count])
 		item=[self rectOfItemAtIndex:index];	// get rect of item to show
 #if 1
 	NSLog(@"screen visble frame=%@", NSStringFromRect(sf));

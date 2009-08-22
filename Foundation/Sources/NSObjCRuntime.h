@@ -55,12 +55,12 @@
 typedef long NSInteger;
 typedef unsigned long NSUInteger;
 typedef double CGFloat;
-typedef long CFIndex; 
+typedef signed long CFIndex; 
 #else	// 32 bit processor
 typedef int NSInteger;
 typedef unsigned int NSUInteger;
 typedef float CGFloat;
-typedef long CFIndex; 
+typedef signed long CFIndex; 
 #endif
 
 typedef struct __CGEvent *CGEventRef;

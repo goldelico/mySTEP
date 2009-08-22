@@ -7,30 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EE163154102F559A0005F487 /* SecurityFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE163153102F559A0005F487 /* SecurityFoundation.framework */; };
-		EE16315B102F55AE0005F487 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE16315A102F55AE0005F487 /* Security.framework */; };
-		EE163315102F5E5C0005F487 /* Authorization.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE163313102F5E5C0005F487 /* Authorization.nib */; };
-		EE32C4820A1094CA00E985BA /* SFAuthorizationView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE32C4810A1094CA00E985BA /* SFAuthorizationView.m */; };
-		EE9F32370CF99C9C0087380F /* lock_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EE9F32360CF99C9C0087380F /* lock_32.png */; };
-		EE9F32390CF99CAA0087380F /* ulock_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EE9F32380CF99CAA0087380F /* ulock_32.png */; };
+		EE163105102F55710005F487 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE163104102F55710005F487 /* Security.framework */; };
 		EEA370950953FFEF001244CF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA370940953FFEF001244CF /* Foundation.framework */; };
 		EEA3716B095400F2001244CF /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA3716A095400F2001244CF /* AppKit.framework */; };
-		EEE7462E095D6CD800178065 /* SFAuthorizationView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE7462A095D6CD800178065 /* SFAuthorizationView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE7462C095D6CD800178065 /* SFAuthorization.h in Headers */ = {isa = PBXBuildFile; fileRef = EEE74628095D6CD800178065 /* SFAuthorization.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEE7462D095D6CD800178065 /* SFAuthorization.m in Sources */ = {isa = PBXBuildFile; fileRef = EEE74629095D6CD800178065 /* SFAuthorization.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		EE163153102F559A0005F487 /* SecurityFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityFoundation.framework; path = /System/Library/Frameworks/SecurityFoundation.framework; sourceTree = "<absolute>"; };
-		EE16315A102F55AE0005F487 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
-		EE163314102F5E5C0005F487 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/Authorization.nib; sourceTree = "<group>"; };
+		EE163104102F55710005F487 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
-		EE32C4810A1094CA00E985BA /* SFAuthorizationView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SFAuthorizationView.m; sourceTree = "<group>"; };
-		EE6FE352076F05AF009CC969 /* SecurityInterface.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SecurityInterface.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE9F32360CF99C9C0087380F /* lock_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = lock_32.png; path = ../../Icons/Harmony/PNG/lock_32.png; sourceTree = SOURCE_ROOT; };
-		EE9F32380CF99CAA0087380F /* ulock_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ulock_32.png; path = ../../Icons/Harmony/PNG/ulock_32.png; sourceTree = SOURCE_ROOT; };
+		EE6FE352076F05AF009CC969 /* SecurityFoundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SecurityFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEA370940953FFEF001244CF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = ../Foundation/build/Development/Foundation.framework; sourceTree = SOURCE_ROOT; };
 		EEA3716A095400F2001244CF /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../AppKit/build/Development/AppKit.framework; sourceTree = SOURCE_ROOT; };
-		EEE74627095D6CD800178065 /* SecurityInterface-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "SecurityInterface-Info.plist"; sourceTree = "<group>"; };
-		EEE7462A095D6CD800178065 /* SFAuthorizationView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SFAuthorizationView.h; sourceTree = "<group>"; };
+		EEE74627095D6CD800178065 /* SecurityFoundation-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "SecurityFoundation-Info.plist"; sourceTree = "<group>"; };
+		EEE74628095D6CD800178065 /* SFAuthorization.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SFAuthorization.h; sourceTree = "<group>"; };
+		EEE74629095D6CD800178065 /* SFAuthorization.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SFAuthorization.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,8 +32,7 @@
 			files = (
 				EEA370950953FFEF001244CF /* Foundation.framework in Frameworks */,
 				EEA3716B095400F2001244CF /* AppKit.framework in Frameworks */,
-				EE163154102F559A0005F487 /* SecurityFoundation.framework in Frameworks */,
-				EE16315B102F55AE0005F487 /* Security.framework in Frameworks */,
+				EE163105102F55710005F487 /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -64,7 +55,7 @@
 		EE29D8D8058A38830035639B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				EE6FE352076F05AF009CC969 /* SecurityInterface.framework */,
+				EE6FE352076F05AF009CC969 /* SecurityFoundation.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -79,10 +70,7 @@
 		EEA3309609537E48001244CF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				EE9F32360CF99C9C0087380F /* lock_32.png */,
-				EE9F32380CF99CAA0087380F /* ulock_32.png */,
-				EEE74627095D6CD800178065 /* SecurityInterface-Info.plist */,
-				EE163313102F5E5C0005F487 /* Authorization.nib */,
+				EEE74627095D6CD800178065 /* SecurityFoundation-Info.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -90,8 +78,8 @@
 		EEA3309A09537E58001244CF /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				EEE7462A095D6CD800178065 /* SFAuthorizationView.h */,
-				EE32C4810A1094CA00E985BA /* SFAuthorizationView.m */,
+				EEE74628095D6CD800178065 /* SFAuthorization.h */,
+				EEE74629095D6CD800178065 /* SFAuthorization.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -101,8 +89,7 @@
 			children = (
 				EEA370940953FFEF001244CF /* Foundation.framework */,
 				EEA3716A095400F2001244CF /* AppKit.framework */,
-				EE16315A102F55AE0005F487 /* Security.framework */,
-				EE163153102F559A0005F487 /* SecurityFoundation.framework */,
+				EE163104102F55710005F487 /* Security.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -114,16 +101,16 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEE7462E095D6CD800178065 /* SFAuthorizationView.h in Headers */,
+				EEE7462C095D6CD800178065 /* SFAuthorization.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		EE6FE351076F05AF009CC969 /* SecurityInterface */ = {
+		EE6FE351076F05AF009CC969 /* SecurityFoundation */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "SecurityInterface" */;
+			buildConfigurationList = EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "SecurityFoundation" */;
 			buildPhases = (
 				EE6FE34D076F05AF009CC969 /* Headers */,
 				EE6FE34E076F05AF009CC969 /* Resources */,
@@ -136,9 +123,9 @@
 			comments = "Todo:\n\nDistribute System-Info.plist to AB-Framework and AppKit-Framework\n";
 			dependencies = (
 			);
-			name = SecurityInterface;
+			name = SecurityFoundation;
 			productName = Calendar;
-			productReference = EE6FE352076F05AF009CC969 /* SecurityInterface.framework */;
+			productReference = EE6FE352076F05AF009CC969 /* SecurityFoundation.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -146,7 +133,7 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "SecurityInterface" */;
+			buildConfigurationList = EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "SecurityFoundation" */;
 			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
@@ -154,7 +141,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				EE6FE351076F05AF009CC969 /* SecurityInterface */,
+				EE6FE351076F05AF009CC969 /* SecurityFoundation */,
 			);
 		};
 /* End PBXProject section */
@@ -164,9 +151,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE9F32370CF99C9C0087380F /* lock_32.png in Resources */,
-				EE9F32390CF99CAA0087380F /* ulock_32.png in Resources */,
-				EE163315102F5E5C0005F487 /* Authorization.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,7 +168,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"\"   # all source codes\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"Security SecurityFoundation\"\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=\"\"   # all source codes\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"Security\"\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -193,22 +177,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE32C4820A1094CA00E985BA /* SFAuthorizationView.m in Sources */,
+				EEE7462D095D6CD800178065 /* SFAuthorization.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		EE163313102F5E5C0005F487 /* Authorization.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				EE163314102F5E5C0005F487 /* English */,
-			);
-			name = Authorization.nib;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		EEEB9CF409A7542900626AB7 /* Development */ = {
@@ -225,7 +198,9 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(FRAMEWORK_SEARCH_PATHS)",
 					"$(SRCROOT)/../SystemUIPlugin/build/Development",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../Security/build/Development\"";
 				FRAMEWORK_VERSION = A;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -233,7 +208,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
-				INFOPLIST_FILE = "SecurityInterface-Info.plist";
+				INFOPLIST_FILE = "SecurityFoundation-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
@@ -242,7 +217,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
-				PRODUCT_NAME = SecurityInterface;
+				PRODUCT_NAME = SecurityFoundation;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -267,12 +242,14 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(FRAMEWORK_SEARCH_PATHS)",
 					"$(SRCROOT)/../SystemUIPlugin/build/Development",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../Security/build/Development\"";
 				FRAMEWORK_VERSION = A;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
-				INFOPLIST_FILE = "SecurityInterface-Info.plist";
+				INFOPLIST_FILE = "SecurityFoundation-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
@@ -281,7 +258,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
-				PRODUCT_NAME = SecurityInterface;
+				PRODUCT_NAME = SecurityFoundation;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -302,11 +279,15 @@
 				);
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../Security/build/Development\"";
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
-				INFOPLIST_FILE = "SecurityInterface-Info.plist";
+				INFOPLIST_FILE = "SecurityFoundation-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
@@ -315,7 +296,7 @@
 				);
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
-				PRODUCT_NAME = SecurityInterface;
+				PRODUCT_NAME = SecurityFoundation;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -346,7 +327,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "SecurityInterface" */ = {
+		EEEB9CF309A7542900626AB7 /* Build configuration list for PBXNativeTarget "SecurityFoundation" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EEEB9CF409A7542900626AB7 /* Development */,
@@ -356,7 +337,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "SecurityInterface" */ = {
+		EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "SecurityFoundation" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EEEB9CF809A7542900626AB7 /* Development */,
