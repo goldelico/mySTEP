@@ -19,8 +19,8 @@
 {
 	NSURL *url=[NSURL URLWithString:@"file%20name.htm;param1;param2?something=other&andmore=more#fragments"
 										relativeToURL:[NSURL URLWithString:@"scheme://user:password@host.domain.org:888/path/absfile.htm"]];
-	STAssertEqualObjects(@"%K like $single+$b+$c", [url description], nil);
-	STAssertEqualObjects(@"%K like $single+$b+$c", [url absoulteString], nil);
+	STAssertEqualObjects(@"description", [url description], nil);
+	STAssertEqualObjects(@"absoluteString", [url absoluteString], nil);
 	STAssertEqualObjects(@"scheme://user:password@host.domain.org:888/path/file%20name.htm;param1;param2?something=other&andmore=more#fragments", [url absoulteURL], nil);
 	STAssertEqualObjects(@"scheme://user:password@host.domain.org:888/path/absfile.htm", [url baseURL], nil);
 	STAssertEqualObjects(@"fragments", [url fragment], nil);
@@ -63,12 +63,22 @@
 - (void) test2
 {
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note"];
+	STAssertEqualObjects(@"URLWithString:", [url absoluteString], @"data:,A%20brief%20note");
 }
 
 - (void) test3
 {
 	NSURL *url=[NSURL URLWithString:@"data:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7"];
 }
+
+- (void) test4
+{
+	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"data:other"]];
+	STAssertEqualObjects(@"URLWithString:relativeToString:", [url absoluteString], @"data:,A%20brief%20note");
+	url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"file://localhost/"]];
+	STAssertEqualObjects(@"URLWithString:relativeToString:", [url absoluteString], @"data:,A%20brief%20note");
+}
+
 
 // add many more such tests
 
