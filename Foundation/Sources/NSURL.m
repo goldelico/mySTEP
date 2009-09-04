@@ -329,7 +329,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize)
 		strcpy(ptr, rel->fragment);
 //		ptr = &ptr[strlen(ptr)];	// last fragment
 		}
-	NSAssert(ptr-buf <= len, @"buffer overflow");
+	NSCAssert(ptr-buf <= len, @"buffer overflow");
 	
 	return buf;
 }
@@ -481,7 +481,7 @@ static NSString *unescape(const char *from)
 		}
 	*to = '\0';
 	result=[NSString stringWithUTF8String: bfr];
-	NSAssert(to-bfr < len, @"buffer overflow");
+	NSCAssert(to-bfr < len, @"buffer overflow");
 #if 0
 	NSLog(@"unescaped = %@", result);
 #endif

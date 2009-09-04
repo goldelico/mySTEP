@@ -28,6 +28,42 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
     abort();
 }
 
+// these should notify the thread-specific NSAssertionHandler object
+
+void _NSAssert(id self, char *file, int line, char *condition, NSString *desc, ...)
+{
+	NSString *userInfo;
+	va_list args;
+    va_start(args, desc);
+	userInfo = [[[NSString alloc] initWithFormat:desc arguments:args] autorelease];
+    va_end(args);
+	[userInfo release];
+#if 1
+	NSLog(@"desc=%@", desc);
+	NSLog(@"userInfo=%@", userInfo);
+	NSLog(@"file=%s", file);
+	NSLog(@"line=%d", line);
+	NSLog(@"condition=%s", condition);
+#endif
+	[NSException raise:NSInternalInconsistencyException format:@"Assertion %s failed: %@ file: %s line: %d object: %@", condition, userInfo, file, line, nil /*self*/];
+}
+
+void _NSCAssert(char *file, int line, char *condition, NSString *desc, ...)
+{
+	NSString *userInfo;
+	va_list args;
+    va_start(args, desc);
+	userInfo = [[[NSString alloc] initWithFormat:desc arguments:args] autorelease];
+    va_end(args);
+#if 1
+	NSLog(@"desc=%@", desc);
+	NSLog(@"userInfo=%@", userInfo);
+	NSLog(@"file=%s", file);
+	NSLog(@"line=%d", line);
+	NSLog(@"condition=%s", condition);
+#endif
+	[NSException raise:NSInternalInconsistencyException format:@"Assertion %s failed: %@ file: %s line: %d function: %@", condition, userInfo, file, line, nil];
+}
 
 @implementation NSException
 

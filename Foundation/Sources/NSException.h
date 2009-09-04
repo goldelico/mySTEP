@@ -129,23 +129,28 @@ extern void _NSRemoveHandler2( NSHandler2 *handler );
 //
 //	Asserts are not compiled in if NS_BLOCK_ASSERTIONS
 //
+#define NSParameterAssert(condition) NSAssert(condition, @"Parameter")	
+#define NSCParameterAssert(condition) NSCAssert(condition, @"Parameter")
+
 #ifndef NS_BLOCK_ASSERTIONS
 
-#define NSAssert(condition, desc) assert(condition)
-#define NSAssert5(condition,desc,arg1,arg2,arg3,arg4,arg5) assert(condition)
-#define NSAssert4(condition, desc, arg1, arg2, arg3, arg4)	assert(condition)
-#define NSAssert3(condition, desc, arg1, arg2, arg3) assert(condition)
-#define NSAssert2(condition, desc, arg1, arg2) assert(condition)
-#define NSAssert1(condition, desc, arg1) assert(condition)
-#define NSParameterAssert(condition) assert(condition)	
+extern void _NSAssert(id self, char *file, int line, char *condition, NSString *desc, ...);
 
-#define NSCAssert5(condition,desc,arg1,arg2,arg3,arg4,arg5) assert(condition)
-#define NSCAssert4(condition, desc, arg1, arg2, arg3, arg4)	assert(condition)
-#define NSCAssert3(condition, desc, arg1, arg2, arg3) assert(condition)
-#define NSCAssert2(condition, desc, arg1, arg2)	assert(condition)
-#define NSCAssert1(condition, desc, arg1) assert(condition)
-#define NSCAssert(condition, desc) assert(condition)
-#define NSCParameterAssert(condition) assert(condition)
+#define NSAssert(condition, desc) if(!(condition))_NSAssert(self, __FILE__, __LINE__, #condition, desc)
+#define NSAssert5(condition,desc,arg1,arg2,arg3,arg4,arg5) if(!(condition))_NSAssert(self, __FILE__, __LINE__,#condition,desc,arg1,arg2,arg3,arg4,arg5)
+#define NSAssert4(condition, desc, arg1, arg2, arg3, arg4) if(!(condition))_NSAssert(self, __FILE__, __LINE__,#condition, desc, arg1, arg2, arg3, arg4)
+#define NSAssert3(condition, desc, arg1, arg2, arg3) if(!(condition))_NSAssert(self, __FILE__, __LINE__,#condition, desc, arg1, arg2, arg3)
+#define NSAssert2(condition, desc, arg1, arg2) if(!(condition))_NSAssert(self, __FILE__, __LINE__,#condition, desc, arg1, arg2)
+#define NSAssert1(condition, desc, arg1) if(!(condition))_NSAssert(self, __FILE__, __LINE__,#condition, desc, arg1)
+
+extern void _NSCAssert(char *file, int line, char *condition, NSString *desc, ...);
+
+#define NSCAssert(condition, desc) if(!(condition))_NSCAssert(__FILE__, __LINE__,#condition, desc)
+#define NSCAssert5(condition,desc,arg1,arg2,arg3,arg4,arg5) if(!(condition))_NSCAssert(__FILE__, __LINE__,#condition,desc,arg1,arg2,arg3,arg4,arg5)
+#define NSCAssert4(condition, desc, arg1, arg2, arg3, arg4)	if(!(condition))_NSCAssert(__FILE__, __LINE__,#condition, desc, arg1, arg2, arg3, arg4)
+#define NSCAssert3(condition, desc, arg1, arg2, arg3) if(!(condition))_NSCAssert(__FILE__, __LINE__,#condition, desc, arg1, arg2, arg4)
+#define NSCAssert2(condition, desc, arg1, arg2)	if(!(condition))_NSCAssert(__FILE__, __LINE__,#condition, desc, arg1, arg2)
+#define NSCAssert1(condition, desc, arg1) if(!(condition))_NSCAssert(__FILE__, __LINE__,#condition, desc, arg1)
 
 #else
 
@@ -155,7 +160,6 @@ extern void _NSRemoveHandler2( NSHandler2 *handler );
 #define NSAssert3(condition, desc, arg1, arg2, arg3) //
 #define NSAssert2(condition, desc, arg1, arg2) //
 #define NSAssert1(condition, desc, arg1) //
-#define NSParameterAssert(condition) //	
 
 #define NSCAssert5(condition, desc, arg1, arg2, arg3, arg4, arg5) //
 #define NSCAssert4(condition, desc, arg1, arg2, arg3, arg4)	//
@@ -163,7 +167,6 @@ extern void _NSRemoveHandler2( NSHandler2 *handler );
 #define NSCAssert2(condition, desc, arg1, arg2)	//
 #define NSCAssert1(condition, desc, arg1) //
 #define NSCAssert(condition, desc) //
-#define NSCParameterAssert(condition) //
 
 #endif /* NS_BLOCK_ASSERTIONS */
 

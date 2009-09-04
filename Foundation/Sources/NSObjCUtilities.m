@@ -337,7 +337,7 @@ NSRange range;
 NSString *
 NSStringFromRange(NSRange range)
 {
-    return [NSString stringWithFormat:@"{ %d, %d }", range.location, range.length];
+    return [NSString stringWithFormat:@"{ %u, %u }", range.location, range.length];
 }
 
 NSRange NSRangeFromString(NSString *string)
@@ -970,7 +970,7 @@ void __NSCountDeallocate(Class aClass)
 				struct __NSAllocationCount *cnt=NSMapGet(__NSAllocationCountTable, aClass);
 				if(cnt)
 						{
-							NSAssert(cnt->instances > 0, @"never allocated!");
+							NSCAssert(cnt->instances > 0, @"never allocated!");
 							cnt->instances--;
 						}
 //				cnt=NSMapGet(__NSAllocationCountTable, [NSDataStatic class]);

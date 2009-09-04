@@ -184,7 +184,7 @@ static NSMutableArray *_registeredClasses;
 			{ // here we are called for a subclass
 				_request=[request copy];	// save a copy of the request
 				_cachedResponse=[cachedResponse retain];
-				_client=client;
+				_client=[client retain];	// we must retain the client (or it may disappear while we still receive data)
 			}
 #if 0
 	NSLog(@"  -> %@", self);
@@ -199,7 +199,7 @@ static NSMutableArray *_registeredClasses;
 				[self stopLoading];
 				[_request release];
 				[_cachedResponse release];
-				// [(NSObject *) _client release];
+				[(NSObject *) _client release];
 			}
 	[super dealloc];
 }
@@ -1007,12 +1007,13 @@ static NSMutableDictionary *_httpConnections;
 - (void) stopLoading;
 {
 	[_connection stopLoading:self];	// interrupt and/or remove us from the queue
-	// _client=nil?
 }
 
 - (void) didFailWithError:(NSError *) error;
-{ // forward to client
+{ // forward to client as last message...
 	[_client URLProtocol:self didFailWithError:error];
+	[_client release];
+	_client=nil;
 }
 
 - (void) didLoadData:(NSData *) data;
@@ -1021,8 +1022,10 @@ static NSMutableDictionary *_httpConnections;
 }
 
 - (void) didFinishLoading;
-{ // forward to client
+{ // forward to client as last message...
 	[_client URLProtocolDidFinishLoading:self];
+	[_client release];
+	_client=nil;
 }
 
 - (void) didReceiveResponse:(NSHTTPURLResponse *) response;

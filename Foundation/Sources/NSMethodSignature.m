@@ -76,7 +76,7 @@ static int pointerAdjust;							// if we must adjust the frame pointer in _alloc
 
 static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *info)
 {
-	NSAssert(info, @"missing NSArgumentInfo");
+	NSCAssert(info, @"missing NSArgumentInfo");
 	// FIXME: NO, we should keep the flags+type but remove the offset
 	info->qual = 0;	// start with no qualifier
 	info->floatAsDouble = NO;

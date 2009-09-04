@@ -35,7 +35,10 @@ typedef struct _NSRange
 static inline unsigned
 NSMaxRange(NSRange range) 
 {
-	return range.location + range.length;
+	unsigned int r=range.location + range.length;
+	if(r < range.location || r < range.length)
+		return UINT_MAX;	// range overflow
+	return r;
 }
 
 static inline NSRange 
