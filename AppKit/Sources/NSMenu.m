@@ -64,6 +64,7 @@ static BOOL __userKeyEquivalents = YES;
 	NSImage *_onStateImage;
 	NSImage *_mixedStateImage;
 	NSAttributedString *_attributedTitle;
+	NSString *_toolTip;
 	unsigned _mnemonicLocation;
 	BOOL _isAlternate;
 }
@@ -169,6 +170,7 @@ static BOOL __userKeyEquivalents = YES;
 	[self setOffStateImage:nil];
 	[self setOnStateImage:nil];
 	[self setMixedStateImage:nil];
+	[_toolTip release];
 #if 0
 	NSLog (@"NSMenuItem '%@' [super dealloc]", [self title]);
 #endif
@@ -304,6 +306,7 @@ static BOOL __userKeyEquivalents = YES;
 		_keyEquivalentModifierMask=[coder decodeIntForKey:@"NSKeyEquivModMask"];
 		_mixedStateImage=[[coder decodeObjectForKey:@"NSMixedImage"] retain];
 		_mnemonicLocation=[coder decodeIntForKey:@"NSMnemonicLoc"]; // position of the underlined character
+		_toolTip=[[coder decodeObjectForKey:@"NSToolTip"] retain];
 		_onStateImage=[[coder decodeObjectForKey:@"NSOnImage"] retain];
 		_isAlternate=[coder decodeIntForKey:@"NSIsAlternate"];
 		_attributedTitle=[[coder decodeObjectForKey:@"NSAttributedTitle"] retain];

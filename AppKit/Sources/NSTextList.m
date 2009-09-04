@@ -79,4 +79,9 @@
 	return NIMP;
 }
 
+// 10.6 addition
+
+- (void) setStartingItemNumber:(NSInteger) item; { _startingItemNumber=item; }
+- (NSInteger) startingItemNumber; { return _startingItemNumber; }
+
 @end

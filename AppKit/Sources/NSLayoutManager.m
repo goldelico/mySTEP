@@ -192,6 +192,7 @@
 		NSString *substr;		// substring (without attributes)
 		unsigned int i;
 		NSDictionary *attr;		// the attributes
+		NSParagraphStyle *para;
 		id attrib;				// some individual attribute
 		unsigned style;			// underline and strike-through mask
 		NSRange wordRange;		// to find word that fits into line
@@ -268,7 +269,7 @@
 				}
 			case '\n':
 				{ // go to a new line
-					NSParagraphStyle *p=[_textStorage attribute:NSParagraphStyleAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
+					para=[_textStorage attribute:NSParagraphStyleAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
 					float advance;
 					float nlwidth;	// "width" of newline
 					font=[_textStorage attribute:NSFontAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
@@ -277,7 +278,7 @@
 					nlwidth=origin.x+containerSize.width-pos.x;
 					advance=[self defaultLineHeightForFont:font];
 					if(p)
-						advance+=[p paragraphSpacing];
+						advance+=[para paragraphSpacing];
 					if(!draw && NSLocationInRange(rangeLimit.location, glyphsToShow))
 						box=NSUnionRect(box, NSMakeRect(pos.x, pos.y, nlwidth, [self defaultLineHeightForFont:font]));
 					pos.x+=20.0;
@@ -316,6 +317,10 @@
 				}
 			}
 		attr=[_textStorage attributesAtIndex:rangeLimit.location longestEffectiveRange:&attribRange inRange:rangeLimit];
+		para=[attr objectForKey:NSParagraphStyleAttributeName];
+		if([para textBlocks])
+			{ // table layout
+			}
 		wordRange=[str rangeOfCharacterFromSet:[NSCharacterSet whitespaceAndNewlineCharacterSet] options:0 range:attribRange];	// embedded space in this range?
 		if(wordRange.length != 0)
 			{ // any whitespace found within attribute range - reduce attribute range to this word
@@ -338,13 +343,12 @@
 			{ // new word fragment does not fit into remaining line
 			if(pos.x > origin.x)
 				{ // we didn't just start on a newline, so insert another newline
-				NSParagraphStyle *p=[_textStorage attribute:NSParagraphStyleAttributeName atIndex:rangeLimit.location effectiveRange:NULL];
 				float advance=[self defaultLineHeightForFont:font];
 #if 0
 				NSLog(@"more");
 #endif
 				if(p)
-					advance+=[p paragraphSpacing];
+					advance+=[para paragraphSpacing];
 				switch([p lineBreakMode])
 					{
 						case NSLineBreakByWordWrapping:
@@ -390,7 +394,7 @@
 				baseline+=3.0*[attrib intValue];
 			[ctxt _setBaseline:baseline];	// update baseline
 				
-				switch([[attr objectForKey:NSParagraphStyleAttributeName] alignment])
+				switch([para alignment])
 						{
 							case NSLeftTextAlignment:
 							case NSNaturalTextAlignment:
@@ -575,9 +579,10 @@ containerOrigin:(NSPoint)containerOrigin;
 				NSTextContainer *textContainer=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];	// this call could fill the cache if needed...
 			// FIXME - should be done line by line!
 				NSRect r=[self boundingRectForGlyphRange:glyphsToShow inTextContainer:textContainer];
-				[[NSColor selectedTextBackgroundColor] set];
+				NSColor *color=[NSColor selectedTextBackgroundColor];
+				[color set];
 				// FIXME: this is correct only for single lines...
-				NSRectFill(r);
+				[self fillBackgroundRectArray:&r count:1 forCharacterRange:glyphsToShow color:color];
 			}
 }
 
@@ -634,6 +639,11 @@ containerOrigin:(NSPoint)containerOrigin;
 - (NSRect) extraLineFragmentRect; { return _extraLineFragmentRect; }
 - (NSTextContainer *) extraLineFragmentTextContainer; { return _extraLineFragmentContainer; }
 - (NSRect) extraLineFragmentUsedRect; { return _extraLineFragmentUsedRect; }
+
+- (void) fillBackgroundRectArray:(NSRectArray) rectArray count:(NSUInteger) rectCount forCharacterRange:(NSRange) charRange color:(NSColor *) color;
+{ // charRange and color are for informational purposes - color must already be set
+	NSRectFillList(rectArray, rectCount);
+}
 
 - (NSTextView *) firstTextView;
 {
@@ -1044,13 +1054,15 @@ containerOrigin:(NSPoint)containerOrigin;
 	NIMP;
 }
 
-- (void) showPackedGlyphs:(char *)glyphs
-				   length:(unsigned)glyphLen
-			   glyphRange:(NSRange)glyphRange atPoint:(NSPoint)point
-					 font:(NSFont *)font
-					color:(NSColor *)color
-	   printingAdjustment:(NSSize)adjust;
+- (void) showPackedGlyphs:(char *) glyphs
+									 length:(unsigned) glyphLen
+							 glyphRange:(NSRange) glyphRange
+									atPoint:(NSPoint) point
+										 font:(NSFont *) font
+										color:(NSColor *) color
+			 printingAdjustment:(NSSize) adjust;
 {
+	// color and font should already be set
 	NIMP;
 }
 

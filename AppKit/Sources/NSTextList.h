@@ -26,12 +26,15 @@ enum _NSTextListOptions
 {
 	NSString *_markerFormat;
 	unsigned _listOptions;
+	int _startingItemNumber;
 }
 
 - (id) initWithMarkerFormat:(NSString *) format options:(NSUInteger) mask;
 - (NSUInteger) listOptions;
 - (NSString *) markerForItemNumber:(NSInteger) item;
 - (NSString *) markerFormat;
+- (void) setStartingItemNumber:(NSInteger) item;
+- (NSInteger) startingItemNumber;
 
 @end
 

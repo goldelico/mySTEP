@@ -1592,6 +1592,7 @@ NSWindow *w;
 	{
 	NSArray *_windowList = [self windows];
 	int i, count = [_windowList count];
+		// FIXME: check when we did the last update and apply throttle
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillUpdate) object: self];
 	if(_pendingWindow)
 		{

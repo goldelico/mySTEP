@@ -293,11 +293,17 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	return copy;
 }
 
+// FIXME:
+
 - (void) lockFocus
 { // draw into cache
 	[self lockFocusOnRepresentation:nil];
 }
 
+// FIXME: this is completely wrong according to the Release notes of 10.6
+// it should do:
+// [self lockFocus]; [imageRep drawInRect:(NSRect) { NSZeroPoint, [self size]}];
+ 
 - (void) lockFocusOnRepresentation:(NSImageRep *) imageRep;
 {
 	NSCachedImageRep *irep=[self _cachedImageRep];

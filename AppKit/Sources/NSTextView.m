@@ -894,10 +894,12 @@ static NSCursor *__textCursor = nil;
 							initialRange=rng;
 						}
 				else
-						{ // moved
+						{ // moved or up
 						[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
 						rng=NSUnionRange(initialRange, NSMakeRange(pos, 0));	// extend initial selection
 						}
+				if([event type] == NSLeftMouseUp)
+					break;	// done with loop
 				// FIXME: handle [self selectionGranularity]
 				[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:YES];	// this should call setNeedsDisplay!
 				event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
