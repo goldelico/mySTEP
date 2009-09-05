@@ -28,42 +28,62 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
     abort();
 }
 
-// these should notify the thread-specific NSAssertionHandler object
+@implementation NSAssertionHandler
 
-void _NSAssert(id self, char *file, int line, char *condition, NSString *desc, ...)
++ (NSAssertionHandler *) currentHandler;
 {
-	NSString *userInfo;
-	va_list args;
-    va_start(args, desc);
-	userInfo = [[[NSString alloc] initWithFormat:desc arguments:args] autorelease];
-    va_end(args);
-	[userInfo release];
-#if 1
-	NSLog(@"desc=%@", desc);
-	NSLog(@"userInfo=%@", userInfo);
-	NSLog(@"file=%s", file);
-	NSLog(@"line=%d", line);
-	NSLog(@"condition=%s", condition);
-#endif
-	[NSException raise:NSInternalInconsistencyException format:@"Assertion %s failed: %@ file: %s line: %d object: %@", condition, userInfo, file, line, nil /*self*/];
+	NSMutableDictionary *ct=[[NSThread currentThread] threadDictionary];
+	NSAssertionHandler *handler=[ct objectForKey:@"NSAssertionHandler"];
+	if(!handler)
+		{
+			handler=[self new];
+			[ct setObject:handler forKey:@"NSAssertionHandler"];	// retain in thread dictionary
+			[handler release];
+		}
+	return handler;
 }
 
-void _NSCAssert(char *file, int line, char *condition, NSString *desc, ...)
+- (void) handleFailureInMethod:(SEL) sel object:(id) object file:(NSString *) file lineNumber:(NSInteger) line description:(NSString *) desc, ...
 {
-	NSString *userInfo;
+	NSString *description;
 	va_list args;
     va_start(args, desc);
-	userInfo = [[[NSString alloc] initWithFormat:desc arguments:args] autorelease];
+	description = [[[NSString alloc] initWithFormat:desc arguments:args] autorelease];
     va_end(args);
-#if 1
+#if 0
 	NSLog(@"desc=%@", desc);
-	NSLog(@"userInfo=%@", userInfo);
-	NSLog(@"file=%s", file);
+	NSLog(@"description=%@", description);
+	NSLog(@"file=%@", file);
 	NSLog(@"line=%d", line);
-	NSLog(@"condition=%s", condition);
 #endif
-	[NSException raise:NSInternalInconsistencyException format:@"Assertion %s failed: %@ file: %s line: %d function: %@", condition, userInfo, file, line, nil];
+	NSLog(@"Assertion failed: %@ method: %@ file: %@ line: %d", description, NSStringFromSelector(_cmd), file, line);
+#if 1
+    abort();
+#endif
+	[NSException raise:NSInternalInconsistencyException format:@"Assertion failed: %@ method: %@ file: %@ line: %d", description, NSStringFromSelector(_cmd), file, line];
 }
+
+- (void) handleFailureInFunction:(NSString *) name file:(NSString *) file lineNumber:(NSInteger) line description:(NSString *) desc, ...
+{
+	NSString *description;
+	va_list args;
+    va_start(args, desc);
+	description = [[[NSString alloc] initWithFormat:desc arguments:args] autorelease];
+    va_end(args);
+#if 0
+	NSLog(@"desc=%@", desc);
+	NSLog(@"description=%@", description);
+	NSLog(@"file=%@", file);
+	NSLog(@"line=%d", line);
+#endif
+	NSLog(@"Assertion failed: %@ function: %@ file: %@ line: %d", description, name, file, line);
+#if 1
+    abort();
+#endif
+	[NSException raise:NSInternalInconsistencyException format:@"Assertion failed: %@ function: %@ file: %@ line: %d", description, name, file, line];
+}
+
+@end
 
 @implementation NSException
 

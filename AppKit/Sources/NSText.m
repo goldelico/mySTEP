@@ -684,7 +684,7 @@ object:self]
 }
 
 - (void) cancelOperation:(id) sender
-{ // bound to ESC key?
+{ // should be bound to ESC key?
 	if(_tx.fieldEditor)
 		[self _handleFieldEditorMovement:NSCancelTextMovement];
 	// insert ESC?
@@ -847,13 +847,16 @@ object:self]
 
 - (BOOL) becomeFirstResponder
 {	
-	if(!_tx.editable) 
-		return NO;	
-	if(_delegate && [_delegate respondsToSelector:@selector(textShouldBeginEditing:)]
-		&& ![_delegate textShouldBeginEditing:self])
-		return NO;	// delegate did a veto
-	// FIXME: doc says that it should only be sent if there is the first change!
-	[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:NOTE(DidBeginEditing) object:self]];
+	if(!_tx.selectable) 
+		return NO;	// if not selectable
+	if(_tx.editable)
+		{ // really editing - not only selecting
+			if(_delegate && [_delegate respondsToSelector:@selector(textShouldBeginEditing:)]
+			   && ![_delegate textShouldBeginEditing:self])
+				return NO;	// delegate did a veto
+			// FIXME: doc says that it should only be sent by the first change to distinguish click from change!
+			[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:NOTE(DidBeginEditing) object:self]];
+		}
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"NSOrderFrontCharacterPalette"])
 		[NSApp orderFrontCharacterPalette:self];	// automatically show keyboard if automatism is enabld
 	return YES;
@@ -861,20 +864,28 @@ object:self]
 
 - (BOOL) resignFirstResponder
 {
-	if(_tx.fieldEditor)
+	if(_tx.editable)
 		[self _handleFieldEditorMovement:NSCancelTextMovement];
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"NSOrderFrontCharacterPalette"])
 		[NSApp _orderOutCharacterPalette:self];	// automatically hide keyboard if automatism is enabled
 	return [super resignFirstResponder];
 }
 
-- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
+- (BOOL) validateMenuItem:(NSMenuItem *)menuItem
 {
 	NSString *sel=NSStringFromSelector([menuItem action]);
 	if([sel isEqualToString:@"paste:"])
-		return YES;	// if anything to paste
-	if([sel isEqualToString:@"copy:"] || [sel isEqualToString:@"cut:"])
-		return _selectedRange.length > 0;	// if anything to copy
+		return [self isEditable] && NO /* anything to paste */;
+	if([sel isEqualToString:@"pasteAsPlainText:"])
+		return [self isEditable] && NO /* anything to paste */;
+	if([sel isEqualToString:@"pasteAsRichText:"])
+		return [self isEditable] && NO /* anything to paste */;
+	if([sel isEqualToString:@"cut:"])
+		return [self isEditable] && _selectedRange.length > 0;
+	if([sel isEqualToString:@"delete:"])
+		return [self isEditable] && _selectedRange.length > 0;
+	if([sel isEqualToString:@"copy:"])
+		return _selectedRange.length > 0;	// if there anything to copy
 	return YES;
 }
 

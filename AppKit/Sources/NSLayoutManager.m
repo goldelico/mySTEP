@@ -277,7 +277,7 @@
 						font=[NSFont userFontOfSize:0.0];		// use default system font
 					nlwidth=origin.x+containerSize.width-pos.x;
 					advance=[self defaultLineHeightForFont:font];
-					if(p)
+					if(para)
 						advance+=[para paragraphSpacing];
 					if(!draw && NSLocationInRange(rangeLimit.location, glyphsToShow))
 						box=NSUnionRect(box, NSMakeRect(pos.x, pos.y, nlwidth, [self defaultLineHeightForFont:font]));
@@ -320,6 +320,9 @@
 		para=[attr objectForKey:NSParagraphStyleAttributeName];
 		if([para textBlocks])
 			{ // table layout
+				// get table
+				// draw border&backgrounds
+				// etc...
 			}
 		wordRange=[str rangeOfCharacterFromSet:[NSCharacterSet whitespaceAndNewlineCharacterSet] options:0 range:attribRange];	// embedded space in this range?
 		if(wordRange.length != 0)
@@ -347,9 +350,9 @@
 #if 0
 				NSLog(@"more");
 #endif
-				if(p)
+				if(para)
 					advance+=[para paragraphSpacing];
-				switch([p lineBreakMode])
+				switch([para lineBreakMode])
 					{
 						case NSLineBreakByWordWrapping:
 						case NSLineBreakByCharWrapping:

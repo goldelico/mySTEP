@@ -99,10 +99,12 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 		else
 			{
 			if(cnt >= used - 1)
-				nextLoc = strLength;
+				nextLoc = strLength;	// applies to all characters up to end of string
 			else
-				nextLoc = [[locateArray objectAtIndex:cnt+1] unsignedIntValue];
-			NSCAssert1(nextLoc > foundLoc, @"locateArray must be ascending (%@)", locateArray);
+				{
+					nextLoc = [[locateArray objectAtIndex:cnt+1] unsignedIntValue];
+					NSCAssert1(nextLoc > foundLoc, @"locateArray must be ascending (%@)", locateArray);
+				}
 			if(foundLoc == index || index < nextLoc)
 				{ // found
 				if(aRange)

@@ -418,8 +418,8 @@ static NSColor *__borderedBackgroundColor = nil;
 		[_attribs removeObjectForKey:NSFontAttributeName];
 }
 
-- (BOOL) isEditable						{ return _c.editable && !_c.editing; }
-- (BOOL) isSelectable					{ return _c.selectable && !_c.editing;}
+- (BOOL) isEditable						{ return _c.editable; }
+- (BOOL) isSelectable					{ return _c.selectable; }
 
 - (void) setEditable:(BOOL)flag
 {
@@ -435,10 +435,8 @@ static NSColor *__borderedBackgroundColor = nil;
 
 - (NSText *) setUpFieldEditorAttributes:(NSText *)textObject
 { // make the field editor imitate the cell as good as possible - note: the field editor is shared for all cells in a window
-	if([self isEditable])
-		[textObject setEditable:YES];	// editable always sets selectable
-	else
-		[textObject setSelectable:[self isSelectable]];	// pass along selectable flag
+	[textObject setEditable:[self isEditable]];		// copy editable/selectable status to field editor
+	[textObject setSelectable:[self isSelectable]];
 	[textObject setBaseWritingDirection:[self baseWritingDirection]];
 	[textObject setAlignment:[self alignment]];
 	[textObject setImportsGraphics:NO];
@@ -1027,7 +1025,7 @@ static NSColor *__borderedBackgroundColor = nil;
 - (void) resetCursorRect:(NSRect)cellFrame				// Managing the Cursor
 				  inView:(NSView *)controlView
 {
-	if(_c.type == NSTextCellType && _c.selectable&& !_c.editing)
+	if(_c.type == NSTextCellType && _c.selectable && !_c.editing)
 		[controlView addCursorRect:cellFrame cursor:[NSCursor IBeamCursor]];
 }
 

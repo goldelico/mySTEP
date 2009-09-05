@@ -129,28 +129,35 @@ extern void _NSRemoveHandler2( NSHandler2 *handler );
 //
 //	Asserts are not compiled in if NS_BLOCK_ASSERTIONS
 //
-#define NSParameterAssert(condition) NSAssert(condition, @"Parameter")	
-#define NSCParameterAssert(condition) NSCAssert(condition, @"Parameter")
+
+@interface NSAssertionHandler : NSObject
+{
+}
+
++ (NSAssertionHandler *) currentHandler;
+- (void) handleFailureInMethod:(SEL) sel object:(id) object file:(NSString *) file lineNumber:(NSInteger) line description:(NSString *) desc, ...;
+- (void) handleFailureInFunction:(NSString *) name file:(NSString *) file lineNumber:(NSInteger) line description:(NSString *) desc, ...;
+
+@end
+
+#define NSParameterAssert(condition) do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd object:self file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:@"Invalid parameter not satisfying: %s", #condition];}while(0)
+#define NSCParameterAssert(condition) do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInFunction:[NSString stringWithUTF8String:__PRETTY_FUNCTION__] file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:@"Invalid parameter not satisfying: %s", #condition];}while(0)
 
 #ifndef NS_BLOCK_ASSERTIONS
 
-extern void _NSAssert(id self, char *file, int line, char *condition, NSString *desc, ...);
+#define NSAssert(condition, desc) do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd object:self file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:desc];}while(0)
+#define NSAssert5(condition,desc,arg1,arg2,arg3,arg4,arg5) do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd object:self file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:desc,arg1,arg2,arg3,arg4,arg5];}while(0)
+#define NSAssert4(condition, desc, arg1, arg2, arg3, arg4) do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd object:self file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:desc, arg1, arg2, arg3, arg4];}while(0)
+#define NSAssert3(condition, desc, arg1, arg2, arg3) do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd object:self file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:desc, arg1, arg2, arg3];}while(0)
+#define NSAssert2(condition, desc, arg1, arg2) do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd object:self file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:desc, arg1, arg2];}while(0)
+#define NSAssert1(condition, desc, arg1) do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInMethod:_cmd object:self file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:desc, arg1];}while(0)
 
-#define NSAssert(condition, desc) if(!(condition))_NSAssert(self, __FILE__, __LINE__, #condition, desc)
-#define NSAssert5(condition,desc,arg1,arg2,arg3,arg4,arg5) if(!(condition))_NSAssert(self, __FILE__, __LINE__,#condition,desc,arg1,arg2,arg3,arg4,arg5)
-#define NSAssert4(condition, desc, arg1, arg2, arg3, arg4) if(!(condition))_NSAssert(self, __FILE__, __LINE__,#condition, desc, arg1, arg2, arg3, arg4)
-#define NSAssert3(condition, desc, arg1, arg2, arg3) if(!(condition))_NSAssert(self, __FILE__, __LINE__,#condition, desc, arg1, arg2, arg3)
-#define NSAssert2(condition, desc, arg1, arg2) if(!(condition))_NSAssert(self, __FILE__, __LINE__,#condition, desc, arg1, arg2)
-#define NSAssert1(condition, desc, arg1) if(!(condition))_NSAssert(self, __FILE__, __LINE__,#condition, desc, arg1)
-
-extern void _NSCAssert(char *file, int line, char *condition, NSString *desc, ...);
-
-#define NSCAssert(condition, desc) if(!(condition))_NSCAssert(__FILE__, __LINE__,#condition, desc)
-#define NSCAssert5(condition,desc,arg1,arg2,arg3,arg4,arg5) if(!(condition))_NSCAssert(__FILE__, __LINE__,#condition,desc,arg1,arg2,arg3,arg4,arg5)
-#define NSCAssert4(condition, desc, arg1, arg2, arg3, arg4)	if(!(condition))_NSCAssert(__FILE__, __LINE__,#condition, desc, arg1, arg2, arg3, arg4)
-#define NSCAssert3(condition, desc, arg1, arg2, arg3) if(!(condition))_NSCAssert(__FILE__, __LINE__,#condition, desc, arg1, arg2, arg4)
-#define NSCAssert2(condition, desc, arg1, arg2)	if(!(condition))_NSCAssert(__FILE__, __LINE__,#condition, desc, arg1, arg2)
-#define NSCAssert1(condition, desc, arg1) if(!(condition))_NSCAssert(__FILE__, __LINE__,#condition, desc, arg1)
+#define NSCAssert(condition, desc) do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInFunction:[NSString stringWithUTF8String:__PRETTY_FUNCTION__] file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:desc];}while(0)
+#define NSCAssert5(condition,desc,arg1,arg2,arg3,arg4,arg5) do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInFunction:[NSString stringWithUTF8String:__PRETTY_FUNCTION__] file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:desc,arg1,arg2,arg3,arg4,arg5];}while(0)
+#define NSCAssert4(condition, desc, arg1, arg2, arg3, arg4)	do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInFunction:[NSString stringWithUTF8String:__PRETTY_FUNCTION__] file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:desc, arg1, arg2, arg3, arg4];}while(0)
+#define NSCAssert3(condition, desc, arg1, arg2, arg3) do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInFunction:[NSString stringWithUTF8String:__PRETTY_FUNCTION__] file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:desc, arg1, arg2, arg4];}while(0)
+#define NSCAssert2(condition, desc, arg1, arg2)	do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInFunction:[NSString stringWithUTF8String:__PRETTY_FUNCTION__] file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:desc, arg1, arg2];}while(0)
+#define NSCAssert1(condition, desc, arg1) do{if(!(condition))[[NSAssertionHandler currentHandler] handleFailureInFunction:[NSString stringWithUTF8String:__PRETTY_FUNCTION__] file:[NSString stringWithUTF8String:__FILE__] lineNumber:__LINE__ description:desc, arg1];}while(0)
 
 #else
 

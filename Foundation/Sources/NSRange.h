@@ -36,8 +36,10 @@ static inline unsigned
 NSMaxRange(NSRange range) 
 {
 	unsigned int r=range.location + range.length;
+#if LIMITED_NSMaxRange
 	if(r < range.location || r < range.length)
 		return UINT_MAX;	// range overflow
+#endif
 	return r;
 }
 

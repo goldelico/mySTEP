@@ -576,7 +576,7 @@ ReadGIFToBuf(GifFileType *GifFile, GIF *handle, char *data)
 	handle = GIFOpenData((char *)[data bytes], [data length]);
 	GifFile = DGifOpen(handle, ReadGIF);
 	
-#if 1
+#if 0
 	NSLog(@"GifFile->SWidth=%d", GifFile->SWidth);
 	NSLog(@"GifFile->SHeight=%d", GifFile->SHeight);
 	NSLog(@"GifFile->SBackGroundColor=%d", GifFile->SBackGroundColor);	// should define the transparent one... (which one if we have none?)
