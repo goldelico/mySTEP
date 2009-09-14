@@ -949,9 +949,10 @@ static NSButtonCell *sharedCell;
 - (int) itemIndexForPoint:(NSPoint) pnt;
 {
 	int i;
+	float border = -3.0;	// don't leave an unresponsive space between items
 	for(i=0; i<_itemRectCount; i++)
 			{
-				if(NSMouseInRect(pnt, _itemRects[i], [self isFlipped]))
+				if(NSMouseInRect(pnt, NSInsetRect(_itemRects[i], border, border), [self isFlipped]))	// include border
 					return i;	// found
 			}
 	return -1;	// not found

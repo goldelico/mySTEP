@@ -517,10 +517,10 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 - (void) beginSheetWithPrintInfo:(NSPrintInfo *) info modalForWindow:(NSWindow *) window delegate:(id) delegate didEndSelector:(SEL) sel contextInfo:(void *) context;
 {
 	int r;
-	NSPanel *panel=nil;
+	NSPanel *panel;
 	[self updateFromPrintInfo];
 	
-	// create a sheet or popup window
+	panel=NIMP;		// create a sheet or popup window
 	
 	if(window)
 			{
