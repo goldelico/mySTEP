@@ -1,10 +1,10 @@
 /* 
    NSSortDescriptor.h
 
-   Secure Text field control class for data entry
+   NSSortDescriptor to specify complex ORDER BY rules
 
    Author: H. Nikolaus Schaller <hns@computer.org>
-   Date: Dec 2004
+   Date: Dec 2004, Sept 2009 (completed)
    
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
@@ -12,15 +12,26 @@
 
 #import "Foundation/Foundation.h"
 
+NSInteger _descriptorComparator(id val1, id val2, void *context)
+{ // sort using descriptors
+	NSEnumerator *e=[(NSArray *) context objectEnumerator];
+	NSSortDescriptor *desc;
+	while((desc=[e nextObject]))
+		{
+			NSComparisonResult r=[desc compareObject:val1 toObject:val2];
+			if(r != NSOrderedSame)
+				return r;	// decided
+		}
+	return NSOrderedSame;
+}
+
 @implementation NSSortDescriptor 
 
 - (BOOL) ascending; { return ascending; }
 
-	/// FIXME: we should probably use IMP!
-
 - (NSComparisonResult) compareObject:(id) a toObject:(id) b;
 {
-	return (NSComparisonResult) [a performSelector:selector withObject:b];
+	return (NSComparisonResult) [[a valueForKeyPath:key] performSelector:selector withObject:[b valueForKeyPath:key]];
 }
 
 - (id) initWithKey:(NSString *) k ascending:(BOOL) a;
@@ -92,5 +103,23 @@
 	return self;
 }
 
+
+@end
+
+@implementation NSArray (NSSortDecriptor)
+
+- (NSArray *) sortedArrayUsingDescriptors:(NSArray *) sortDescriptors;
+{
+	return [self sortedArrayUsingFunction:_descriptorComparator context:(void *)sortDescriptors];
+}
+
+@end
+
+@implementation NSMutableArray (NSSortDescriptor)
+
+- (void) sortUsingDescriptors:(NSArray *) sortDescriptors;
+{
+	return [self sortUsingFunction:_descriptorComparator context:(void *)sortDescriptors];
+}
 
 @end
