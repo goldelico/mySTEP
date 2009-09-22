@@ -31,7 +31,8 @@ NSInteger _descriptorComparator(id val1, id val2, void *context)
 
 - (NSComparisonResult) compareObject:(id) a toObject:(id) b;
 {
-	return (NSComparisonResult) [[a valueForKeyPath:key] performSelector:selector withObject:[b valueForKeyPath:key]];
+	NSComparisonResult r = (NSComparisonResult) [[a valueForKeyPath:key] performSelector:selector withObject:[b valueForKeyPath:key]];
+	return ascending?r:-r;	// assuming NSComparisonResult is signed...
 }
 
 - (id) initWithKey:(NSString *) k ascending:(BOOL) a;
@@ -61,13 +62,13 @@ NSInteger _descriptorComparator(id val1, id val2, void *context)
 }
 
 - (id) reversedSortDescriptor;
-{
+{ // same key and selector but ascending reversed
 	return [[[NSSortDescriptor alloc] initWithKey:key ascending:!ascending selector:selector] autorelease];
 }
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@: key=%@ direction=%@ selector=%@", NSStringFromClass([self class]), key, ascending?@"ascending":@"descnending", NSStringFromSelector(selector)];
+	return [NSString stringWithFormat:@"%@: key=%@ direction=%@ selector=%@", NSStringFromClass([self class]), key, ascending?@"ascending":@"descending", NSStringFromSelector(selector)];
 }
 
 - (id) copyWithZone:(NSZone *) z;

@@ -18,6 +18,7 @@
 {
 	NSLog(@"%@ data", NSStringFromClass([self class]));
 	_source=[_previous data];
+	NIMP;
 	// decode
 	// return decoded data
 	return _source;
@@ -41,6 +42,7 @@
 {
 	NSLog(@"%@ data", NSStringFromClass([self class]));
 	_source=[_previous data];
+	NIMP;
 	// decode
 	// return decoded data
 	return _source;
@@ -62,7 +64,7 @@
 
 - (NSData *) decode;
 {
-	static z_stream strm;
+	z_stream strm;
 	int err;
 	NSMutableData *result=[NSMutableData dataWithCapacity:[self length]];	// estimate required length
 	unsigned char buf[512];
