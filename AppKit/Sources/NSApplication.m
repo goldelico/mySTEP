@@ -994,15 +994,23 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (NSEvent*) _eventMatchingMask:(unsigned int)mask dequeue:(BOOL)dequeue
 {
-	int i, cnt;
+	int i, cnt=[_eventQueue count];
 #if 0
 	NSLog(@"_eventMatchingMask");
 #endif
 	if(_app.windowsNeedUpdate)		// needs to send an update message to all visible windows
-		[self updateWindows];	// FIXME: should not be called during NSEventTrackingRunLoopMode!
+		{
+			static long skipped=0;	// remember when the first redraw request was skipped
+			if(cnt <= 1 || (skipped != 0 && (time(NULL) > skipped+1)))
+				{ // queue is empty or we didn't redraw for more than one second
+					skipped=0;
+					[self updateWindows];	// FIXME: should not be called during NSEventTrackingRunLoopMode!
+				}
+			else if(skipped == 0)
+				skipped=time(NULL);	// remember that we did skip
+		}
 	if(!mask)
 		return nil;	// no event will match
-	cnt=[_eventQueue count];
 	for (i = 0; i < cnt; i++)							// return next event
 		{												// in the queue which
 		NSEvent *e = [_eventQueue objectAtIndex:i];		// matches mask
@@ -1592,7 +1600,6 @@ NSWindow *w;
 	{
 	NSArray *_windowList = [self windows];
 	int i, count = [_windowList count];
-		// FIXME: check when we did the last update and apply throttle
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillUpdate) object: self];
 	if(_pendingWindow)
 		{
