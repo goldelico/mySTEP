@@ -18,6 +18,9 @@ This document describes the changes and additions to the mySTEP library.\
 ------------------------------------
 \b0 \
 \
+* NSViewAnimation made working\
+* fixed a memory management bug in NSPasteBoard\
+* user experience greatly improved on slow graphics systems by generally coalescing events until the queue becomes empty before doing a pending (time-consuming) redraw\
 * sorting with NSSortDescriptor added\
 * NSAssert macros and internal handler fixed and improved\
 * optimized algorithm for determining the longestEffectiveRange of attributed strings\

@@ -236,7 +236,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 			if(errno == EWOULDBLOCK)
 				{ // there is currently no more data available
 #if 1
-				NSLog(@"EWOULDBLOCK - no more data available");
+				NSLog(@"NSFileHandle: EWOULDBLOCK - no more data available");
 #endif
 				break;
 				}

@@ -2431,8 +2431,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 #endif
 	// could also use XMaskEvent(_display, SubstructureNotifyMask, _realWindow) to wait for a MapNotify!
 	while((place == NSWindowOut)?[win isVisible]:![win isVisible])
-			{ // process incoming events until window becomes (in)visible
-				[[NSRunLoop currentRunLoop] runMode:NSEventTrackingRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];	// wait some fractions of a second...
+			{ // process incoming events until window becomes (in)visible - but prevent timers and other delegates to modify the window or recursively call orderFront
+				[[NSRunLoop currentRunLoop] runMode:/*NSEventTrackingRunLoopMode*/@"NSX11GraphicsContextMode" beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];	// wait some fractions of a second...
 			}
 }
 
@@ -3304,6 +3304,7 @@ static NSDictionary *_x11settings;
 #endif
 		NSModalPanelRunLoopMode,
 		NSEventTrackingRunLoopMode,
+		@"NSX11GraphicsContextMode",	// private mode
 		nil];
 	[fh waitForDataInBackgroundAndNotifyForModes:_XRunloopModes];
     if(XInternAtoms(_display, atomNames, sizeof(atomNames)/sizeof(atomNames[0]), False, atoms) == 0)
@@ -3628,11 +3629,11 @@ static NSDictionary *_x11settings;
 							{
 							case Button4:
 								type = NSScrollWheel;
-								pressure = (float)clickCount;
+								pressure = -(float)clickCount;
 								break;								
 							case Button5:
 								type = NSScrollWheel;
-								pressure = -(float)clickCount;
+								pressure = (float)clickCount;
 								break;
 							case Button1:	type = NSLeftMouseDown;		break;
 							case Button3:	type = NSRightMouseDown;	break;
@@ -3754,7 +3755,7 @@ static NSDictionary *_x11settings;
 							{ // copy from backing store
 							_setDirtyRect(ctxt, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);	// flush at least the exposed area
 							needsFlush=YES;
-							// FIXME - should collect and merge all expose events
+							// FIXME - we should collect and merge all expose events
 								// we should also be able to postpone expose events after resizing the window
 							// or setDirtyRect should setup a timer to flush after a while...
  							[ctxt flushGraphics];	// plus anything else we need to flush anyway
@@ -4027,6 +4028,7 @@ static NSDictionary *_x11settings;
 				}
 			}
 		}
+	// FIXME: we have no specific window/context here!
 //	if(needsFlush)
 //		[ctxt flushGraphics];	// plus anything else we need to flush anyway
 }

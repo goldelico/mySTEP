@@ -756,7 +756,7 @@ struct _NSMapNode *node;
 
 	if (key == table->keyCallbacks.notAKeyMarker)
 		[NSException raise: NSInvalidArgumentException
-        			 format: @"Invalid key to be added in NSMapTable."];
+        			 format: @"Invalid key (%p) to be added in NSMapTable.", key];
 
     h = table->keyCallbacks.hash(table, key) % table->hashSize;
     for(node = table->nodes[h]; node; node = node->next)
@@ -800,7 +800,7 @@ struct _NSMapNode *node;
 
     if (key == table->keyCallbacks.notAKeyMarker)
 		[NSException raise: NSInvalidArgumentException
-        			 format: @"Invalid key to be added in NSMapTable."];
+        			 format: @"Invalid key (%p) to be added in NSMapTable.", key];
 
     h = table->keyCallbacks.hash(table, key) % table->hashSize;
     for(node = table->nodes[h]; node; node = node->next)
@@ -830,7 +830,7 @@ struct _NSMapNode *node;
 
     if (key == table->keyCallbacks.notAKeyMarker)
 		[NSException raise: NSInvalidArgumentException
-        			 format: @"Invalid key to be added in NSMapTable."];
+        			 format: @"Invalid key (%p) to be added in NSMapTable.", key];
 
     h = table->keyCallbacks.hash(table, key) % table->hashSize;
     for(node = table->nodes[h]; node; node = node->next)

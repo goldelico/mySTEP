@@ -1014,7 +1014,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	for (i = 0; i < cnt; i++)							// return next event
 		{												// in the queue which
 		NSEvent *e = [_eventQueue objectAtIndex:i];		// matches mask
-		if((mask == NSAnyEventMask) || mask & NSEventMaskFromType([e type])) 
+		if((mask == NSAnyEventMask) || (mask & NSEventMaskFromType([e type]))) 
 			{
 			[e retain];	// save across removeObjectAtIndex
 			if(dequeue)

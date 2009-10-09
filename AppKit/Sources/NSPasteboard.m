@@ -44,51 +44,49 @@ static NSString *_namePrefix = @"NSTypedFilenamesPboardType:";
 
 + (NSPasteboard *) pasteboardWithName:(NSString *)aName
 {
-NSPasteboard *pb;
-
+	NSPasteboard *pb;
 	if(!(pb = [__pasteboards objectForKey: aName]))
 		{
-		pb = [NSPasteboard new];
-		pb->_name = aName;
-
-		if(!__pasteboards)
-			__pasteboards = [[NSMutableDictionary alloc] initWithCapacity:8];
-		[__pasteboards setObject:pb forKey:aName];
+			pb = [NSPasteboard new];
+			pb->_name = aName;
+			if(!__pasteboards)
+				__pasteboards = [[NSMutableDictionary alloc] initWithCapacity:8];
+			[__pasteboards setObject:pb forKey:aName];
+			[pb release];
 		}
-
-	return [pb autorelease];
+	return pb;
 }
 
 + (NSPasteboard *) pasteboardWithUniqueName
 {
-NSProcessInfo *p = [NSProcessInfo processInfo];
-
+	NSProcessInfo *p = [NSProcessInfo processInfo];
 	return [self pasteboardWithName:[p globallyUniqueString]];
 }
 															// Filter contents
 + (NSPasteboard *) pasteboardByFilteringData:(NSData *)data
 									  ofType:(NSString *)type
 {
+	// create a unique name from data and type
+	NIMP;
 	return nil;
 }
 
 + (NSPasteboard *) pasteboardByFilteringFile:(NSString *)filename
 {
-	// NSData *data = [NSData dataWithContentsOfFile:filename];
-	// NSString *type = NSCreateFileContentsPboardType([filename pathExtension]);
-
-	return nil;
+	NSData *data = [NSData dataWithContentsOfFile:filename];
+	NSString *type = NSCreateFileContentsPboardType([filename pathExtension]);
+	return [self pasteboardByFilteringData:data ofType:type];
 }
 
 + (NSPasteboard *) pasteboardByFilteringTypesInPasteboard:(NSPasteboard *)pb
 {
+	NIMP;
 	return nil;
 }
 
 + (NSArray *) typesFilterableTo:(NSString *)type
 {
-NSArray *types = nil;
-
+	NSArray *types = [NSMutableArray array];
 	return types;
 }
 
@@ -115,7 +113,6 @@ NSArray *types = nil;
 	ASSIGN(_owner, newOwner);
 	ASSIGN(_types, [_types arrayByAddingObjectsFromArray: newTypes]);
 	[_typesProvided addObjectsFromArray: newTypes];
-
 	return _changeCount++;
 }
 
@@ -124,22 +121,23 @@ NSArray *types = nil;
 	ASSIGN(_types, newTypes);
 	ASSIGN(_typesProvided, [_types mutableCopy]);
 	ASSIGN(_owner, newOwner);
-
 	return _changeCount++;
 }
 
 - (BOOL) setData:(NSData *)data forType:(NSString *)dataType
 {
-	return NO;
+	// return NO if owner has changed
+	// communication error: NSPasteboardCommunicationException
+	return [self setPropertyList:data forType:dataType];
 }
 
 - (BOOL) setPropertyList:(id)propertyList forType:(NSString *)dataType
 {
-int i = [_types indexOfObjectIdenticalTo:dataType];
-
-	[_typesProvided replaceObjectAtIndex:i withObject:propertyList];
-
-	return YES;
+	NSString *error;
+	NSData *data=[NSPropertyListSerialization dataFromPropertyList:propertyList format:NSPropertyListBinaryFormat_v1_0 errorDescription:&error];
+	if(!data)
+		return NO;
+	return [self setData:data forType:dataType];
 }
 
 - (BOOL) setString:(NSString *)string forType:(NSString *)dataType
@@ -151,62 +149,71 @@ int i = [_types indexOfObjectIdenticalTo:dataType];
 {
 	if (!_types)		// FIX ME hack for paste in app that did not copy/cut
 		_types = [[NSArray arrayWithObjects: NSStringPboardType, nil] retain];
-
 	return [_types firstObjectCommonWithArray:types];
 }
 
 - (NSData *) dataForType:(NSString *)dataType
 {
+	NIMP; // read from server
+#if FRAGMENT
+	if (!_owner)
+		{
+			NSMutableDictionary *d = [NSMutableDictionary new];
+			NSMutableArray *files = [NSMutableArray new];
+			NSString *s = [self stringForType:dt];
+#if 1
+			NSLog(@"********* propertyListForType: %@\n",dt);
+#endif	
+			[files addObject:s];
+			[d setObject:s forKey:@"SourcePath"];
+			[d setObject:files forKey:@"SelectedFiles"];
+			
+			return [d autorelease];
+		}
+	
+	[_owner pasteboard:self provideDataForType:dt];
+#endif
 	return nil;
 }
 
 - (id) propertyListForType:(NSString *)dt
 {
-	if (!_owner)
-		{
-		NSMutableDictionary *d = [NSMutableDictionary new];
-		NSMutableArray *files = [NSMutableArray new];
-		NSString *s = [self stringForType:dt];
-		
-		NSLog(@"********* propertyListForType: %@\n",dt);
-		
-		[files addObject:s];
-		[d setObject:s forKey:@"SourcePath"];
-		[d setObject:files forKey:@"SelectedFiles"];
-		
-		return [d autorelease];
-		}
-	
-	[_owner pasteboard:self provideDataForType:dt];
-	
-	return [_typesProvided objectAtIndex:[_types indexOfObjectIdenticalTo:dt]];
+	NSPropertyListFormat format;
+	NSString *error;
+	NSData *data=[self dataForType:dt];
+	if(!data)
+		return NO;
+	return [NSPropertyListSerialization propertyListFromData:data mutabilityOption:0 format:&format errorDescription:&error];
 }
 
 - (NSString *) stringForType:(NSString *)dataType
 {
-	return [self propertyListForType: dataType];
+	NSString *s=[self propertyListForType: dataType];
+	if(![s isKindOfClass:[NSString class]])
+		return NO;
+	return s;
 }
 
 - (BOOL) writeFileContents:(NSString *)filename
 {
-// NSData *data = [NSData dataWithContentsOfFile:filename];
-// NSString *type = NSCreateFileContentsPboardType([filename pathExtension]);
-
-	return NO;
+	NSData *data = [NSData dataWithContentsOfFile:filename];
+	NSString *type = NSCreateFileContentsPboardType([filename pathExtension]);
+	if(type && ![self setData:data forType:type])
+		return NO;
+	return [self setData:data forType:NSFileContentsPboardType];
 }
 
 - (NSString *) readFileContentsType:(NSString *)type
 							 toFile:(NSString *)filename
 {
-NSData *d;
-
+	NSData *d;
 	if (type == nil) 
 		type = NSCreateFileContentsPboardType([filename pathExtension]);
-
 	d = [self dataForType: type];
-	if ([d writeToFile: filename atomically: NO] == NO) 
+	if(!d)
+		d=[self dataForType:NSFileContentsPboardType];
+	if (![d writeToFile: filename atomically: NO]) 
 		return nil;
-
 	return filename;
 }
 
@@ -240,8 +247,8 @@ NSGetFileType(NSString *pboardType)
 NSArray *
 NSGetFileTypes(NSArray *pboardTypes)
 {
-NSMutableArray *a = [NSMutableArray arrayWithCapacity: [pboardTypes count]];
-unsigned int i;
+	NSMutableArray *a = [NSMutableArray arrayWithCapacity: [pboardTypes count]];
+	unsigned int i;
 
 	for (i = 0; i < [pboardTypes count]; i++) 
 		{

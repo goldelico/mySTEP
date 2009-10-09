@@ -49,18 +49,19 @@ extern NSString *NSAnimationProgressMark;
 
 @interface NSAnimation : NSObject <NSCopying, NSCoding>
 {
-	NSAnimationBlockingMode _animationBlockingMode;
-	NSAnimationCurve _animationCurve;
-	NSAnimationProgress _currentProgress;
 	NSMutableArray *_progressMarks;
 	NSDate *_startDate;
-	NSTimer *_timer;
+	NSTimer *_timer;	// if we are animating
 	id _delegate;
+	NSAnimation *_startAnimation;	// linkage
+	NSAnimation *_stopAnimation;
 	NSTimeInterval _duration;
-	float _progress;
-	float _currentValue;
 	float _frameRate;
-	BOOL _isAnimating;	// ?or the NSThread *
+	NSAnimationProgress _currentProgress;	// current progress
+	NSAnimationProgress _startAnimationProgress;
+	NSAnimationProgress _stopAnimationProgress;
+	NSAnimationBlockingMode _animationBlockingMode;
+	NSAnimationCurve _animationCurve;
 }
 
 - (void) addProgressMark:(NSAnimationProgress) progress;
@@ -96,13 +97,15 @@ extern NSString *NSAnimationProgressMark;
 @interface NSObject (NSAnimation)
 
 - (void) animation:(NSAnimation *) ani didReachProgressMark:(NSAnimationProgress) progressMark;
-- (float) animation:(NSAnimation *) ani valueForProgress:(NSAnimationProgress) progressValue;
 - (void) animationDidEnd:(NSAnimation *) ani;
 - (void) animationDidStop:(NSAnimation *) ani;
 - (BOOL) animationShouldStart:(NSAnimation *) ani;
 
 @end
 
+@interface NSObject (NSAnimationNoDefaultImplementation)
+- (float) animation:(NSAnimation *) ani valueForProgress:(NSAnimationProgress) progressValue;
+@end
 
 extern NSString *NSViewAnimationTargetKey;
 extern NSString *NSViewAnimationStartFrameKey;

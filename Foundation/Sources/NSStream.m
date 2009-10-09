@@ -382,6 +382,15 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 @implementation NSOutputStream
 
++ (void) initialize;
+{  
+	if(self == [NSStream class])
+		{
+			signal(SIGPIPE, SIG_IGN);	// If SIGPIPE is not ignored, we will abort on any attempt to write to a pipe/socket that has been closed by the other end!
+			signal(SIGSTOP, SIG_IGN);	// some devices might send a SIGSTOP if they become inactive
+		}
+}
+
 + (id) outputStreamToBuffer:(unsigned char *) buffer capacity:(unsigned int) len;
 {
 	return [[[self alloc] initToBuffer:buffer capacity:len] autorelease];

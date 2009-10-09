@@ -12,8 +12,10 @@
 #import <AppKit/NSAnimation.h>
 #import <AppKit/NSWindow.h>
 #import <AppKit/NSView.h>
+#import <AppKit/NSApplication.h>
 
 NSString *NSAnimationProgressMarkNotification=@"NSAnimationProgressMarkNotification";
+NSString *NSAnimationProgressMark=@"NSAnimationProgressMark";
 
 NSString *NSViewAnimationTargetKey=@"NSViewAnimationTargetKey";
 NSString *NSViewAnimationStartFrameKey=@"NSViewAnimationStartFrameKey";
@@ -38,16 +40,49 @@ NSString *NSViewAnimationFadeOutEffect=@"NSViewAnimationFadeOutEffect";
 
 - (void) clearStartAnimation;
 {
-	NIMP;
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSAnimationProgressMarkNotification object:_startAnimation];
+	[_startAnimation removeProgressMark:_startAnimationProgress];
+	[_startAnimation release];
+	_startAnimation=nil;
 }
 
 - (void) clearStopAnimation;
 {
-	NIMP;
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSAnimationProgressMarkNotification object:_stopAnimation];
+	[_stopAnimation removeProgressMark:_stopAnimationProgress];
+	[_stopAnimation release];
+	_stopAnimation=nil;
 }
 
 - (NSAnimationProgress) currentProgress; { return _currentProgress; }
-- (float) currentValue; { return _currentValue; }
+
+- (float) currentValue;
+{ // transform [0..1] -> [0..1]
+	if([_delegate respondsToSelector:@selector(animation:valueForProgress:)])
+		return [_delegate animation:self valueForProgress:_currentProgress];
+#if 0
+	NSLog(@"currentValue from progress %f with curve %d", _currentProgress, _animationCurve);
+#endif
+	switch(_animationCurve)
+	{
+		case NSAnimationEaseInOut:
+			if(_currentProgress < 0.5)
+				return 2.0*_currentProgress*_currentProgress;	// slowly speed up from start
+			else
+				return 1.0-2.0*((1.0-_currentProgress)*(1.0-_currentProgress));	// slow down at end
+		case NSAnimationEaseIn:
+			return 1.0-((1.0-_currentProgress)*(1.0-_currentProgress));	// slow down at end
+		case NSAnimationEaseOut:
+			return _currentProgress*_currentProgress;	// slowly speed up from start
+		case NSAnimationLinear:
+			return _currentProgress;					
+	}
+#if 1
+	NSLog(@"undefined curve %d", _animationCurve);
+#endif
+	return 0.0;
+}
+
 - (id) delegate; { return _delegate; }
 - (NSTimeInterval) duration; { return _duration; }
 - (float) frameRate; { return _frameRate; }
@@ -73,6 +108,8 @@ NSString *NSViewAnimationFadeOutEffect=@"NSViewAnimationFadeOutEffect";
 
 - (void) dealloc;
 {
+	[_timer release];
+	[_startDate release];
 	[_progressMarks release];
 	[super dealloc];
 }
@@ -106,86 +143,134 @@ NSString *NSViewAnimationFadeOutEffect=@"NSViewAnimationFadeOutEffect";
 - (void) _animate:(NSTimer *) timer;
 { // called every 1/fps seconds from NSTimer
 	float progress=[[NSDate date] timeIntervalSinceDate:_startDate]/_duration;
-#if 1
+	NSEnumerator *e;
+	NSNumber *mark;
+#if 0
 	NSLog(@"_animate progress=%f", progress);
 #endif
+	e=[_progressMarks objectEnumerator];
 	if(progress > 1.0)
-		{ // done
-		[_timer invalidate];
-		[_timer release];
-		_timer=nil;
-		[_startDate release];
-		[_delegate animationDidEnd:self];
-		return;
+		progress=1.0;	// limit
+	while((mark=[e nextObject]))
+		{ // send any intermediate marks
+			float m=[mark floatValue];
+			if(m > _currentProgress && m <= progress)
+				{
+					// send NSAnimationProgressMarkNotification where the delegate should be registered
+					[_delegate animation:self didReachProgressMark:progress];	// WARNING: this is not necessarily ascending order!
+				}
 		}
-	// check if we have reached any progress mark(s)
-	// call for any progress mark between _progress and newprogress
-	// [_delegate animation:self didReachProgressMark:progress];
-	_progress=progress;
-	if([_delegate respondsToSelector:@selector(animation:valueForProgress:)])
-		 [self setCurrentProgress:[_delegate animation:self valueForProgress:progress]];
-	else
-		; // use built-in curve
+	[self setCurrentProgress:progress];
+	if(_currentProgress >= 1.0)	// test iVar if setCurrentProgress was redefined in subclass...
+		{ // done
+			[_timer invalidate];	// this will auto-remove the timer from runloops
+			[_timer release];
+			_timer=nil;
+			[_startDate release];
+			_startDate=nil;
+			[_delegate animationDidEnd:self];
+#if 1
+			NSLog(@"animationDidEnd");
+#endif
+			[self release];
+		}
 }
 
 - (void) startAnimation;
 {
-	if(!_timer && [_delegate animationShouldStart:self])
+#if 1
+	NSLog(@"startAnimation");
+#endif
+	if(!_timer && (!_delegate || [_delegate animationShouldStart:self]))
 		{
-		NSRunLoop *loop=[NSRunLoop currentRunLoop];
-		NSString *mode=[loop currentMode];
-		_startDate=[NSDate new];
-		_timer=[[NSTimer timerWithTimeInterval:1.0/_frameRate target:self selector:@selector(_animate:) userInfo:nil repeats:YES] retain];
-		switch(_animationBlockingMode)
+			NSRunLoop *loop=[NSRunLoop currentRunLoop];
+			[self retain];	// protect us from being deallocated while the timer is running (or does a notification registration retain its target?)
+			_startDate=[NSDate new];
+			_timer=[[NSTimer timerWithTimeInterval:_frameRate>0?(1.0/_frameRate):(1/50.0) target:self selector:@selector(_animate:) userInfo:nil repeats:YES] retain];
+			[self setCurrentProgress:0.0];	// we can't have marks at 0.0
+#if 0
+			NSLog(@"animation started with timer %@", _timer);
+#endif
+			switch(_animationBlockingMode)
 			{
-			case NSAnimationBlocking:
-				{
-					[loop addTimer:_timer forMode:mode];
+				case NSAnimationBlocking:
+				{ // run in custom mode blocking user interaction
+					[loop addTimer:_timer forMode:@"NSAnimation"];
 					while(_timer)	// stopAnimation should break this loop
-						[loop runMode:mode beforeDate:[NSDate distantFuture]];
+						[loop runMode:@"NSAnimation" beforeDate:[NSDate distantFuture]];
 					break;
 				}
-			case NSAnimationNonblockingThreaded:
-				NSLog(@"can't schedule threaded: %@", self);
-			case NSAnimationNonblocking:
+				case NSAnimationNonblockingThreaded:
+					NSLog(@"can't schedule NSAnimationNonblockingThreaded: %@", self);
+				case NSAnimationNonblocking:
 				{ // schedule in all specified modes
 					NSArray *modes=[self runLoopModesForAnimating];	// schedule only in specified modes
 					if(modes)
 						{ // schedule in all specified modes
-						NSEnumerator *e=[modes objectEnumerator];
-						while((mode=[e nextObject]))
-							[loop addTimer:_timer forMode:mode];
+							NSEnumerator *e=[modes objectEnumerator];
+							NSString *mode;
+							while((mode=[e nextObject]))
+								[loop addTimer:_timer forMode:mode];
 						}
 					else
-						[loop addTimer:_timer forMode:mode];	// schedule in current mode
+						{ // schedule in default modes
+							[loop addTimer:_timer forMode:NSDefaultRunLoopMode];
+							[loop addTimer:_timer forMode:NSModalPanelRunLoopMode];
+							[loop addTimer:_timer forMode:NSEventTrackingRunLoopMode];
+						}
 					break;
 				}
 			}
+#if 1
+			NSLog(@"timer scheduled: %@", _timer);
+#endif
 		}
+}
+
+- (void) _startAnimation:(NSNotification *) n
+{ // conditional start of animation
+	if([n object] == _startAnimation && [[[n userInfo] objectForKey:NSAnimationProgressMark] floatValue] == _startAnimationProgress)
+		[self startAnimation];	// yeah!
 }
 
 - (void) startWhenAnimation:(NSAnimation *) animation reachesProgress:(NSAnimationProgress) start;
 { // make us observe the other animation
 	[self clearStartAnimation];
-	// save the start progress value
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startAnimation) name:NSAnimationProgressMarkNotification object:animation];
+	[animation addProgressMark:start];
+	_startAnimation=[animation retain];	// remember
+	_startAnimationProgress=start;
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_startAnimation:) name:NSAnimationProgressMarkNotification object:animation];
 }
 
 - (void) stopAnimation;
 {
-	// if blocking - break runloop
-	[_timer invalidate];
-	[_timer release];
-	_timer=nil;
-	[_startDate release];
+#if 1
+	NSLog(@"stopAnimation");
+#endif
+	if(_timer)
+		{ // was started
+			[self autorelease];
+			[_timer invalidate];
+			[_timer release];
+			_timer=nil;	// if blocking, this also breaks runloop
+			[_startDate release];
+			_startDate=nil;
+		}
 	[_delegate animationDidStop:self];
 }
 
+- (void) _stopAnimation:(NSNotification *) n
+{ // conditional start of animation
+	if([n object] == _stopAnimation && [[[n userInfo] objectForKey:NSAnimationProgressMark] floatValue] == _stopAnimationProgress)
+		[self startAnimation];	// yeah!
+}
+
 - (void) stopWhenAnimation:(NSAnimation *) animation reachesProgress:(NSAnimationProgress) stop;
-{
-	// save the stop progress value
+{ // make us observe the other animation
 	[self clearStartAnimation];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startAnimation) name:NSAnimationProgressMarkNotification object:animation];
+	_stopAnimation=[animation retain];	// remember
+	_stopAnimationProgress=stop;
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_stopAnimation:) name:NSAnimationProgressMarkNotification object:animation];
 }
 
 - (void) encodeWithCoder:(NSCoder *) coder;
@@ -211,109 +296,153 @@ struct _NSViewAnimation
 	BOOL windowTarget;
 };
 
-- (void) animation:(NSAnimation *) animation didReachProgressMark:(NSAnimationProgress) progress;
-{
+- (void) setCurrentProgress:(NSAnimationProgress) progress;
+{ // overwrite this method so that we don't modify the progress marks and delegate mechanisms
 	int i;
+	float percentage;
 	struct _NSViewAnimation *record=_private;
+#if 0
+	NSLog(@"NSViewAnimation setCurrentProgress %f", progress);
+#endif
+	[super setCurrentProgress:progress];
+	percentage=[self currentValue];	// get percentage (using curve)
+#if 0
+	NSLog(@"  progress=%f percentage=%f for %d targets", _currentProgress, percentage, _count);
+#endif
 	for(i=0; i<_count; i++)
 		{ // process all animations
-		NSRect pos;
-#if 1
-	NSLog(@"NSViewAnimation didReachProgressMark:%f", progress);
+			NSRect pos;
+#if 0
+			NSLog(@"NSViewAnimation setCurrentProgress:%f with value: %f", progress, percentage);
 #endif
-		pos.origin.x = record->start.origin.x + progress*record->delta.origin.x;
-		pos.origin.y = record->start.origin.y + progress*record->delta.origin.y;
-		pos.size.width = record->start.size.width + progress*record->delta.size.width;
-		pos.size.height = record->start.size.height + progress*record->delta.size.height;
-		// handle effect
 #if 1
-		NSLog(@"new frame %@", NSStringFromRect(pos));
+			NSLog(@"effect=%d", record->effect);
 #endif
-		if(record->windowTarget)
-			[record->target setFrame:pos display:YES];
-		else
-			[record->target setFrame:pos];
-		record++;
+			if(!record->target)
+				continue;	// ignore nil target
+			pos.origin.x = record->start.origin.x + percentage*record->delta.origin.x;
+			pos.origin.y = record->start.origin.y + percentage*record->delta.origin.y;
+			pos.size.width = record->start.size.width + percentage*record->delta.size.width;
+			pos.size.height = record->start.size.height + percentage*record->delta.size.height;
+#if 1
+			NSLog(@"new frame %@", NSStringFromRect(pos));
+#endif
+			if(record->windowTarget)
+				[record->target setFrame:pos display:YES];	// NSWindow
+			else
+				{ // NSView
+					[record->target setFrame:pos];
+					[record->target setNeedsDisplay:YES];
+				}
+			if(record->effect)
+				{
+					if(progress == 0.0 && record->effect > 0)
+						{ // start of fade in
+#if 1
+							NSLog(@"start of fade in");
+#endif
+							if(record->windowTarget)
+								[record->target orderFront:self];
+							else
+								[record->target setHidden:NO];	// unhide
+						}
+					else if(progress == 1.0 && record->effect < 0)
+						{ // end of fade out
+#if 1
+							NSLog(@"end of fade out");
+#endif
+							if(record->windowTarget)
+								[record->target orderOut:self];
+							else
+								[record->target setHidden:YES];	// hide view
+						}
+					// set alpha of window or view based on percentage (fade in) or 1-percentage (fade out)
+				}
+			record++;
 		}
+#if 1
+	NSLog(@"NSViewAnimation setCurrentProgress done");
+#endif
+}
+
+- (void) startAnimation
+{ // create internal tables
+	NSEnumerator *e=[_viewAnimations objectEnumerator];
+	NSDictionary *dict;
+	struct _NSViewAnimation *record=_private=objc_realloc(_private, (_count=[_viewAnimations count])*sizeof(struct _NSViewAnimation));	// adjust size if necessary/allocate
+	while((dict=[e nextObject]))
+		{ // translate into internal data
+			id val;
+			record->target=[dict objectForKey:NSViewAnimationTargetKey];
+			if(record->target)
+				{
+					//
+					// kill from any other animation active for this target since they may interfere!!!
+					//
+					record->windowTarget=[record->target isKindOfClass:[NSWindow class]];
+					val=[dict objectForKey:NSViewAnimationStartFrameKey];
+					if(val)
+						record->start=[val rectValue];
+					else
+						record->start=[record->target frame];
+					val=[dict objectForKey:NSViewAnimationEndFrameKey];
+					if(val)
+						record->delta=[val rectValue];
+					else
+						record->delta=[record->target frame];
+					record->delta.origin.x-=record->start.origin.x;
+					record->delta.origin.y-=record->start.origin.y;
+					record->delta.size.width-=record->start.size.width;
+					record->delta.size.height-=record->start.size.height;
+					val=[dict objectForKey:NSViewAnimationEffectKey];
+					if([val isEqualToString:NSViewAnimationFadeInEffect])
+						record->effect=1;
+					else if([val isEqualToString:NSViewAnimationFadeOutEffect])
+						record->effect=-1;
+					else
+						record->effect=0;
+				}
+			record++;
+		}
+#if 0
+	// This is from NSWindow
+	// should be used to calculate the optimal duration
+	- (NSTimeInterval) animationResizeTime:(NSRect) rect
+	{
+		static float t=0.0;
+		float chg;	// pixels of change
+		if(t == 0.0)
+			{
+				// replace by NSWindowResizeTime from NSUserDefaults if defined
+				t=0.2;	// default
+				t/=150.0;	// time per 150 pixels movement
+			}
+		chg = fabs(rect.origin.x-frame.origin.x);
+		chg += fabs(rect.origin.y-frame.origin.y);
+		chg += fabs(rect.size.width-frame.size.width);
+		chg += fabs(rect.size.height-frame.size.height);
+		return chg*t;
+	}
+#endif
+	[super startAnimation];
 }
 
 - (id) initWithViewAnimations:(NSArray *) animations;
 {
 	if((self=[super initWithDuration:0.5 animationCurve:NSAnimationEaseInOut]))
 		{
-		NSEnumerator *e=[animations objectEnumerator];
-		NSDictionary *dict;
-		struct _NSViewAnimation *record;
 		_viewAnimations=[animations retain];
-		_count=[animations count];
-		record=_private=objc_malloc(_count*sizeof(struct _NSViewAnimation));
-		while((dict=[e nextObject]))
-			{ // translate into internal data
-			id val;
-			record->target=[dict objectForKey:NSViewAnimationTargetKey];
-			if(!record->target)
-				{ // missing
-				[self release];
-				return nil;
-				}
-			//
-			// kill from any other animation using this target!!!
-			//
-			record->windowTarget=[record->target isKindOfClass:[NSWindow class]];
-			val=[dict objectForKey:NSViewAnimationStartFrameKey];
-			if(val)
-				record->start=[val rectValue];
-			else
-				record->start=[record->target frame];
-			val=[dict objectForKey:NSViewAnimationEndFrameKey];
-			if(val)
-				record->delta=[val rectValue];
-			else
-				record->delta=[record->target frame];
-			record->delta.origin.x-=record->start.origin.x;
-			record->delta.origin.y-=record->start.origin.y;
-			record->delta.size.width-=record->start.size.width;
-			record->delta.size.height-=record->start.size.height;
-			val=[dict objectForKey:NSViewAnimationEffectKey];
-			// store effect
-			record++;
-			}
 		[self setAnimationBlockingMode:NSAnimationNonblocking];
-		[self setDelegate:self];
-#if 0
-		- (NSTimeInterval) animationResizeTime:(NSRect) rect
-			{
-				static float t=0.0;
-				float chg;	// pixels of change
-				if(t == 0.0)
-					{
-					// replace by NSWindowResizeTime from NSUserDefaults if defined
-					t=0.2;	// default
-					t/=150.0;	// time per 150 pixels movement
-					}
-				chg = fabs(rect.origin.x-frame.origin.x);
-				chg += fabs(rect.origin.y-frame.origin.y);
-				chg += fabs(rect.size.width-frame.size.width);
-				chg += fabs(rect.size.height-frame.size.height);
-				return chg*t;
-			}
-#endif
 		}
 	return self;
 }
 
 - (void) dealloc;
 {
-	if(_private);
+	if(_private)
 		objc_free(_private);
 	[_viewAnimations release];
 	[super dealloc];
-}
-
-- (void) setCurrentProgress:(NSAnimationProgress) progress;
-{
-	// go through dict and adjust view parameters
-	[super setCurrentProgress:progress];
 }
 
 - (void) setWithViewAnimations:(NSArray *) animations; { ASSIGN(_viewAnimations, animations); }
@@ -324,7 +453,6 @@ struct _NSViewAnimation
 @implementation NSObject (NSAnimation)
 
 - (void) animation:(NSAnimation *) ani didReachProgressMark:(NSAnimationProgress) progressMark; { return; }
-- (float) animation:(NSAnimation *) ani valueForProgress:(NSAnimationProgress) progressValue; { return progressValue; }
 - (void) animationDidEnd:(NSAnimation *) ani; { return; }
 - (void) animationDidStop:(NSAnimation *) ani; { return; }
 - (BOOL) animationShouldStart:(NSAnimation *) ani; { return NO; }	// delegate must override
