@@ -16,6 +16,8 @@
 
 #import "NSPrivate.h"
 
+#include <signal.h>
+
 NSString *NSStreamDataWrittenToMemoryStreamKey=@"NSStreamDataWrittenToMemoryStreamKey";
 NSString *NSStreamFileCurrentOffsetKey=@"NSStreamFileCurrentOffsetKey";
 NSString *NSStreamSocketSecurityLevelKey=@"NSStreamSocketSecurityLevelKey";
