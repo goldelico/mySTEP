@@ -92,6 +92,7 @@
 
 @end
 
+// NOTE: Cocoa has this without _
 @interface _NSAboutURLProtocol : NSURLProtocol
 {
 	BOOL _stopLoading;

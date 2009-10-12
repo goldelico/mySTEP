@@ -210,10 +210,18 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 {
 	NSPort *port;
 	NSConnection *connection;
-	if([server isKindOfClass:[NSMessagePortNameServer class]])
-		port=[[[NSMessagePort alloc] init] autorelease];	// assign free port
+#if 1
+	NSLog(@"portNameServer=%@", server);
+#endif
+#if __APPLE__
+	if([server isKindOfClass:[NSMachBootstrapServer class]])
+		port=[[[NSMachPort alloc] init] autorelease];		// assign free port
 	else
+#endif
+	if([server isKindOfClass:[NSSocketPortNameServer class]])
 		port=[[[NSSocketPort alloc] init] autorelease];		// assign free IP port number
+	else
+		port=[[[NSMessagePort alloc] init] autorelease];	// assign free port
 	if(!port || ![server registerPort:port name:name])	// register
 		 return nil;	// did not register
 	connection=[NSConnection connectionWithReceivePort:port sendPort:nil];	// create connection
@@ -225,6 +233,8 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 {
 	return [self serviceConnectionWithName:name rootObject:root usingNameServer:[NSPortNameServer systemDefaultPortNameServer]];
 }
+
+// - (BOOL)_cleanupAndAuthenticate:(id)arg1 sequence:(unsigned int)arg2 conversation:(id *)arg3 invocation:(id)arg4 raise:(BOOL)arg5;
 
 - (void) _addAuthentication:(NSMutableArray *) components;
 {
@@ -261,6 +271,9 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 - (void) enableMultipleThreads; { _multipleThreadsEnabled=YES; }
 - (BOOL) independentConversationQueueing; { return _independentConversationQueueing; }
 
+// from class-dump:
+// + (id)lookUpConnectionWithReceivePort:(id)arg1 sendPort:(id)arg2;
+
 + (NSConnection *) _connectionWithReceivePort:(NSPort *)receivePort
 									 sendPort:(NSPort *)sendPort;
 { // look up if we already know this connection
@@ -278,6 +291,9 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 		}
 	return nil;	// not found
 }
+
+// from class-dump:
+// + (void)_portInvalidated:(id)arg1;
 
 - (void) _portDidBecomeInvalid:(NSNotification *) n;
 {
