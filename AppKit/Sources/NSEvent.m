@@ -229,7 +229,6 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 
 + (NSPoint) mouseLocation
 { // ask main window (if present)
-	NSPoint p;
 	NSWindow *win=[NSApp keyWindow];	// try key window
 	if(!win)
 		win=[NSApp mainWindow];			// try main window

@@ -86,7 +86,7 @@ typedef struct __CGEvent *CGEventRef;
 #endif
 
 #ifdef __APPLE__			
-// MacOS X - translate libobjc to MacOS X calling conventions
+// MacOS X - translate libobjc to MacOS X calling conventions (if possible?)
 
 #include <objc/objc-class.h>
 #include <objc/objc-load.h>

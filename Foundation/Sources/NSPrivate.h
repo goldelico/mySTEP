@@ -72,12 +72,14 @@ extern NSString * const GSHTTPPropertyMethodKey;
 extern NSString * const GSHTTPPropertyProxyHostKey;
 extern NSString * const GSHTTPPropertyProxyPortKey;
 
+#ifndef __APPLE__
 @interface Protocol (NSPrivate)
 
 - (NSMethodSignature *) _methodSignatureForInstanceMethod:(SEL)aSel;
 - (NSMethodSignature *) _methodSignatureForClassMethod:(SEL)aSel;
 
 @end
+#endif
 
 @interface NSBundle (NSPrivate)
 - (NSEnumerator *) _resourcePathEnumeratorFor:(NSString*) path subPath:(NSString *) subpath localization:(NSString *)locale;

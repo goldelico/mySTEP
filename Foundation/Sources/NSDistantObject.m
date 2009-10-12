@@ -40,9 +40,11 @@
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSInvocation.h>
 #import <Foundation/NSMethodSignature.h>
+#import <Foundation/NSObjCRuntime.h>
 
 #import "NSPrivate.h"
 
+#ifndef __APPLE__
 // should be moved to runtime specific classes
 
 @implementation Protocol (NSPrivate)
@@ -79,6 +81,7 @@
 }
 
 @end
+#endif
 
 @implementation NSDistantObject
 
@@ -92,7 +95,7 @@
 
 + (NSDistantObject*) proxyWithTarget:(id)anObject
 						  connection:(NSConnection*)aConnection;
-{ // remoteObject is an id in another thread or another applicationÕs address space!
+{ // remoteObject is an id in another thread or another applicationâ€™s address space!
 	return [[[self alloc] initWithTarget:anObject connection:aConnection] autorelease];
 }
 
@@ -110,7 +113,7 @@
 }
 
 - (id) initWithTarget:(id)anObject connection:(NSConnection*)aConnection;
-{ // remoteObject is an id in another thread or another applicationÕs address space!
+{ // remoteObject is an id in another thread or another applicationâ€™s address space!
 	NSDistantObject *p=[aConnection _getRemote:anObject];
 	if(p)
 			{ // we already have a proxy for this target
@@ -173,17 +176,19 @@
 #endif
 				if(!i)
 						{ // initialize all statically cached invocation to call -release as oneway void
-#ifndef __Apple__
 							SEL _sel=@selector(release);
 							struct objc_method *m=class_get_instance_method(isa, _sel);	// get signature of our method
+#ifdef __APPLE__
+							NSMethodSignature *sig=nil;
+#else
 							NSMethodSignature *sig=[NSMethodSignature signatureWithObjCTypes:m->method_types];
+#endif
 							[sig _makeOneWay];	// special case - we don't expect an answer
 #if 0
 							NSLog(@"signature(%@)=%@", NSStringFromSelector(_sel), sig);
 #endif
 							i=[[NSInvocation alloc] initWithMethodSignature:sig];
 							[i setSelector:_sel];			// ask to deallocate proxy
-#endif
 						}
 				[i setTarget:self];								// target the remote object
 				[self forwardInvocation:i];
@@ -230,6 +235,19 @@
 		ret=[_target methodSignatureForSelector:aSelector];	// ask local object for its signature
 	else
 			{
+#if __APPLE__
+				NSInvocation *i;	// cached invocation
+#if 1
+				NSLog(@"No protocol defined for NSDistantObject - so try forwarding the message and ask the other side for the signature");
+#endif
+				i=[NSInvocation invocationWithMethodSignature:[NSObject instanceMethodSignatureForSelector:_cmd]];	// use my own signature
+				[i setSelector:_cmd];
+				NSAssert([[NSObject instanceMethodSignatureForSelector: _cmd] methodReturnLength] == sizeof(ret), @"return value size problem");
+				[i setTarget:self];
+				[i setArgument:&aSelector atIndex:2];	// set as the argument the selector we want to know about
+				[self forwardInvocation:i];				// and process
+				[i getReturnValue:&ret];				// fetch signature from invocation
+#else
 				static NSInvocation *i;	// cached invocation
 #if 1
 				NSLog(@"No protocol defined for NSDistantObject - so try forwarding the message and ask the other side for the signature");
@@ -245,6 +263,7 @@
 				[self forwardInvocation:i];				// and process
 				[i getReturnValue:&ret];				// fetch signature from invocation
 				[i _releaseReturnValue];				// no longer needed so that we can reuse the invocation
+#endif
 			}
 	// add to cache
 #if 0

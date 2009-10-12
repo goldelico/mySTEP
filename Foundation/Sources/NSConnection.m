@@ -65,7 +65,7 @@ NSString *NSConnectionRequestsSent = @"NSConnectionRequestsSent";
 NSString *NSConnectionLocalCount = @"NSConnectionLocalCount";
 NSString *NSConnectionProxyCount = @"NSConnectionProxyCount";
 
-NSString *NSFailedAuthenticationException = @"NSFailedAuthenticationException";
+NSString *const NSFailedAuthenticationException = @"NSFailedAuthenticationException";
 
 @implementation NSDistantObjectRequest
 
@@ -131,8 +131,8 @@ NSString *NSFailedAuthenticationException = @"NSFailedAuthenticationException";
 static NSHashTable *_allConnections;	// used as a cache
 static id _currentConversation;
 
-NSString *NSConnectionDidDieNotification=@"NSConnectionDidDieNotification";
-NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotification";
+NSString *const NSConnectionDidDieNotification=@"NSConnectionDidDieNotification";
+NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotification";
 
 @interface NSInvocation (private)
 - (void) _log:(NSString *) str;
@@ -374,7 +374,8 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 		_receivePort=[receivePort retain];
 		_sendPort=[sendPort retain];
 		_isValid=YES;
-		[self retain];	// make us persistent until we are invaldated
+			// or sould we be retained by all proxy objects???
+		[self retain];	// make us persistent until we are invalidated
 #if 0
 		NSLog(@"did set valid");
 #endif
@@ -633,7 +634,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 	NSPortCoder *portCoder;
 #if 1
 	NSLog(@"*** (conn=%p) sendInvocation:%@", self, i);
-#if 1
+#if 0
 	[i _log:@"sendInvocation"];	// log incl. stack
 #endif
 #endif
@@ -815,7 +816,7 @@ NSString *NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotif
 	NS_DURING
 		{
 			NSInvocation *i=[req invocation];
-#if 1
+#if 0
 			[i _log:@"handleRequest"];
 #endif
 			[i retainArguments];	// don't release the target and other objects earlier than the invocation

@@ -15,6 +15,7 @@
 #import <AppKit/NSPasteboard.h>
 #import <AppKit/NSApplication.h>
 #import <AppKit/NSWorkspace.h>
+#import <AppKit/NSFileWrapper.h>
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSData.h>
@@ -26,6 +27,9 @@
 #import <Foundation/NSUserDefaults.h>
 #import <Foundation/NSRunLoop.h>
 #import <Foundation/NSTimer.h>
+
+#import "NSAppKitPrivate.h"
+#import "NSBackendPrivate.h"
 
 //
 // Class variables
@@ -124,11 +128,25 @@ static NSString *_namePrefix = @"NSTypedFilenamesPboardType:";
 	return _changeCount++;
 }
 
+- (NSGraphicsContext *) _context
+{
+	NSWindow *win=[NSApp keyWindow];	// try key window
+	if(!win)
+		win=[NSApp mainWindow];			// try main window
+	if(!win)
+		win=[NSApp _mainMenuWindow];	// try main menu window
+	if(!win)
+		{
+			NSLog(@"NSPasteboard: there is no key/main/mainMenu window");
+			return nil;
+		}
+	return [win graphicsContext];	// get graphics context
+}
+
 - (BOOL) setData:(NSData *)data forType:(NSString *)dataType
 {
-	// return NO if owner has changed
-	// communication error: NSPasteboardCommunicationException
-	return [self setPropertyList:data forType:dataType];
+	// http://tronche.com/gui/x/xlib/window-information/XConvertSelection.html
+	return [[self _context] _setPasteBoard:[self name] data:data forType:dataType];
 }
 
 - (BOOL) setPropertyList:(id)propertyList forType:(NSString *)dataType
@@ -154,7 +172,7 @@ static NSString *_namePrefix = @"NSTypedFilenamesPboardType:";
 
 - (NSData *) dataForType:(NSString *)dataType
 {
-	NIMP; // read from server
+	return [[self _context] _pasteBoard:[self name] dataForType:dataType];
 #if FRAGMENT
 	if (!_owner)
 		{
@@ -173,7 +191,6 @@ static NSString *_namePrefix = @"NSTypedFilenamesPboardType:";
 	
 	[_owner pasteboard:self provideDataForType:dt];
 #endif
-	return nil;
 }
 
 - (id) propertyListForType:(NSString *)dt
@@ -215,6 +232,20 @@ static NSString *_namePrefix = @"NSTypedFilenamesPboardType:";
 	if (![d writeToFile: filename atomically: NO]) 
 		return nil;
 	return filename;
+}
+
+- (NSFileWrapper *) readFileWrapper; 
+{
+	NSData *data=[self dataForType:NSFileContentsPboardType];
+	if(data)
+		return [[[NSFileWrapper alloc] initWithSerializedRepresentation:data] autorelease];
+	return nil;
+}
+
+- (BOOL) writeFileWrapper:(NSFileWrapper *) fileWrapper; 
+{
+	// FIXME: dies not exactly match description - which additionally saves a type based on the file extension and that it must have a file name
+	return [self setData:[fileWrapper serializedRepresentation] forType:NSFileContentsPboardType];
 }
 
 @end /* NSPasteboard */

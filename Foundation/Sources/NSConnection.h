@@ -46,12 +46,12 @@ extern NSString *NSConnectionRequestsSent;
 
 // NSRunLoop modes, NSNotification names and NSException strings.
 
-extern NSString	*NSConnectionReplyMode;
+extern NSString	*const NSConnectionReplyMode;
 
-extern NSString *NSConnectionDidDieNotification;
-extern NSString *NSConnectionDidInitializeNotification;
+extern NSString *const NSConnectionDidDieNotification;
+extern NSString *const NSConnectionDidInitializeNotification;
 
-extern NSString *NSFailedAuthenticationException;
+extern NSString *const NSFailedAuthenticationException;
 
 @interface NSConnection : NSObject
 {
