@@ -2841,15 +2841,19 @@ id prev;
 - (void) setWindowController:(NSWindowController *)windowController; { ASSIGN(_windowController, windowController); }
 - (id) windowController; { return _windowController; }
 
+// FIXME: buttons should be returned with (0,0) origin!
+// must call [button setFrameOrigin] to place it in its superview
+
 + (NSButton *) standardWindowButton:(NSWindowButton) type forStyleMask:(unsigned int) aStyle;
-{
+{ // caller is responsible for setting the target
 	NSButton *b=nil;
 	static NSSize smallImage={ 15.0, 15.0 };
-	float button=[self _titleBarHeightForStyleMask:aStyle];
+	float button=[self _titleBarHeightForStyleMask:aStyle];	// adjust size
 	// set style dependent windget cell, i.e. brushed metal
 	switch(type)
 		{
 			case NSWindowCloseButton:
+				// CHECKME: do we already position the buttons here or have they all an NSZeroPoint origin?
 				b=[[_NSThemeCloseWidget alloc] initWithFrame:NSMakeRect(4.0, 0.0, button, button) forStyleMask:aStyle];
 				[b setAction:@selector(_close:)];
 				[b setEnabled:(aStyle&NSClosableWindowMask) != 0];
