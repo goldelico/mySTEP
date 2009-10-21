@@ -691,7 +691,7 @@ static BOOL __userKeyEquivalents = YES;
 			{ // warning!!! a validator might change the menu cells array by adding/removing cells - therefore compare dynamically to numberOfItems
 			NSMenuItem *item = [_menuItems objectAtIndex:i];
 			SEL action = [item action];
-			id <NSObject, NSMenuValidation> validator = nil;
+			NSObject *validator = nil;
 			BOOL wasEnabled;
 			BOOL shouldBeEnabled;		
 			if([item hasSubmenu])					// recursively update submenu items if any

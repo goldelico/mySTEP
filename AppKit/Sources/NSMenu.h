@@ -177,7 +177,7 @@
 
 @end
 
-@protocol NSMenuValidation
+@interface NSObject (NSMenuValidation)
 
 - (BOOL) validateMenuItem:(NSMenuItem *) menuItem;
 
