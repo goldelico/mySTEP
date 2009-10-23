@@ -193,13 +193,13 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 #endif
 #if __APPLE__
 	if([server isKindOfClass:[NSMachBootstrapServer class]])
-		port=[[[NSMachPort alloc] init] autorelease];		// assign free port
+		port=[NSMachPort port];		// assign free port
 	else
 #endif
 	if([server isKindOfClass:[NSSocketPortNameServer class]])
-		port=[[[NSSocketPort alloc] init] autorelease];		// assign free IP port number
+		port=[NSSocketPort port];		// assign free IP port number
 	else
-		port=[[[NSMessagePort alloc] init] autorelease];	// assign free port
+		port=[NSMessagePort port];	// assign free port
 	if(!port || ![server registerPort:port name:name])	// register
 		 return nil;	// did not register
 	connection=[NSConnection connectionWithReceivePort:port sendPort:nil];	// create connection
