@@ -324,7 +324,7 @@
 	return [super respondsToSelector:aSelector];	// we must ask the remote side
 }
 
-- (Class) classForPortCoder; { return isa; }
+- (Class) classForPortCoder; { return /*isa*/ NSClassFromString(@"NSDistantObject"); }
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't ever replace by another proxy
 

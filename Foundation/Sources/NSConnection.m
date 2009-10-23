@@ -146,7 +146,12 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	NSLog(@"connectionWithRegisteredName:%@ host:%@ usingNameServer:%@", name, hostName, server);
 #endif
 	if(!server)
-		server=[NSPortNameServer systemDefaultPortNameServer];
+			{
+				if(hostName)
+					server=[NSSocketPortNameServer sharedInstance];
+				else
+					server=[NSPortNameServer systemDefaultPortNameServer];
+			}
 #if 0
 	NSLog(@"  ->server:%@", server);
 #endif
@@ -655,19 +660,21 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	[portCoder encodeValueOfObjCType:@encode(unsigned long) at:&_sequence];
 	[portCoder encodeObject:i];		// encode invocation
 	// what else to encode?
-	[self finishEncoding:portCoder];
+	[self finishEncoding:portCoder];	// should add authentication
 
 	NS_DURING
 #if 0
 		NSLog(@"*** (conn=%p) send request to %@", self, [portCoder _sendPort]);
-#endif		
-		[portCoder sendBeforeTime:_requestTimeout sendReplyPort:_receivePort];		// encode and send - raises exception on timeout
+#endif
+	NSLog(@"timeIntervalSinceReferenceDate=%f", [NSDate timeIntervalSinceReferenceDate]);
+	NSLog(@"time=%f", [NSDate timeIntervalSinceReferenceDate]+_requestTimeout);
+		[portCoder sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+500.0 sendReplyPort:YES];		// encode and send - raises exception on timeout
 		[portCoder invalidate];	// release internal memory immediately
 		[portCoder autorelease];
 	
 	// runloop containsPort:forMode: ...
 	
-		if(!isOneway && !internal)
+		if(!isOneway)
 			{ // wait for response to arrive
 			NSDate *until=[NSDate dateWithTimeIntervalSinceNow:_replyTimeout];
 			NSRunLoop *rl=[NSRunLoop currentRunLoop];
@@ -695,6 +702,9 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 					[NSException raise:NSPortReceiveException format:@"sendInvocation: receive port became invalid"];
 				if(![rl runMode:NSConnectionReplyMode beforeDate:until])
 					[NSException raise:NSPortReceiveException format:@"sendInvocation: receive runloop error"];
+#if 1
+					NSLog(@"responses %@", NSAllMapTableValues(_responses));
+#endif
 				if([until timeIntervalSinceNow] < 0)
 					[NSException raise:NSPortTimeoutException format:@"did not receive response within %.0f seconds", _replyTimeout];
 				}
@@ -808,7 +818,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	id imports=nil;
 	NSMethodSignature *sig=nil;
 	id conversation=nil;
-	BOOL isOneway;
+	BOOL isOneway=NO;
 #if 1
 	NSLog(@"handleRequest (seq=%d): %@", seq, coder);
 #endif	
@@ -835,9 +845,9 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 				if(![sig isEqual:[[inv target] methodSignatureForSelector:[inv selector]]])
 					; // exception local method signature is different from remote
 				[self _cleanupAndAuthenticate:coder sequence:seq conversation:&conversation invocation:inv raise:YES];
+				sig=[inv methodSignature];
+				isOneway=[sig isOneway];
 			}
-	sig=[inv methodSignature];
-	isOneway=[sig isOneway];
 	if([self _shouldDispatch:&conversation invocation:inv sequence:seq coder:coder])	// this will allocate the conversation if needed
 		;;;;
 	[coder invalidate];	// no longer needed
@@ -940,24 +950,42 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 				[pc encodeValueOfObjCType:@encode(unsigned int) at:&seq];
 				[pc encodeObject:nil];
 				[pc encodeReturnValue:result];	// encode resulting invocation (i.e. result and out/inout parameters)
-				//	[pc encodeObject:exception];
-				//	[pc encodeObject:imports];
+				[pc encodeObject:exception];
+//				[pc encodeObject:imports];
 				[self finishEncoding:pc];
 				// CHECKME: is this timeout correct? We are sending a reply...
-				[pc sendBeforeTime:[self requestTimeout] sendReplyPort:nil];	// send response
+				NSLog(@"replyTimeout=%f", _replyTimeout);
+				NSLog(@"timeIntervalSince1970=%f", [[NSDate date] timeIntervalSince1970]);
+				NSLog(@"timeIntervalSinceRefDate=%f", [[NSDate date] timeIntervalSinceReferenceDate]);
+				NSLog(@"time=%f", [NSDate timeIntervalSinceReferenceDate]+_replyTimeout);
+				// flags must be YES or we get a timeout (!) exception
+				[pc sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_replyTimeout sendReplyPort:YES];	// send response
 				[pc invalidate];
 			}
 }
 
 - (void) finishEncoding:(NSPortCoder *) coder;
 {
+#if 1
+	NSLog(@"delegate %@", _delegate);
+	NSLog(@"coder %@", coder);
+	NSLog(@"components %@", [coder components]);
+#endif
 	[coder authenticateWithDelegate:_delegate];
-	// [somearray addObject:coder];
+	// [somearray addObject:something];
+#if 1
+	NSLog(@"components %@", [coder components]);
+#endif
 }
 
 - (BOOL) _cleanupAndAuthenticate:(NSPortCoder *) coder sequence:(unsigned int) seq conversation:(id *) conversation invocation:(NSInvocation *) inv raise:(BOOL) raise;
 {
 	BOOL r=[coder verifyWithDelegate:_delegate];
+#if 1
+	NSLog(@"components %@", [coder components]);
+	NSLog(@"result = %@ delegate = %@", r?@"YES":@"NO", _delegate);
+	r=YES;
+#endif
 	if(!r && raise)
 		[NSException raise:NSFailedAuthenticationException format:@"authentication of request failed for connection %@ sequence %u on selector %@", self, seq, NSStringFromSelector([inv selector])];	// who receives this exception and/or is it ignored?
 	// ...
@@ -973,11 +1001,13 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	if(conversation && !*conversation)
 		*conversation=[self newConversation];
 	// what else?
+	return YES;
 }
 
 - (BOOL) hasRunloop:(id) obj
 {
 //	return [somearray containsObjectIdenticalTo:obj];
+	return YES;
 }
 
 @end

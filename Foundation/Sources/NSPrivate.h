@@ -441,7 +441,7 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 @end
 
 @interface NSPortCoder (NSPrivate)
-- (void) sendBeforeTime:(NSTimeInterval) time sendReplyPort:(NSPort *) port;
+- (void) sendBeforeTime:(NSTimeInterval) time sendReplyPort:(BOOL) flag;
 @end
 
 @interface NSPortCoder (NSConcretePortCoder)

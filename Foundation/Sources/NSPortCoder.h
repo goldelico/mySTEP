@@ -33,7 +33,7 @@
 	NSPort *_recv;
 	NSPort *_send;
 	NSArray *_components;
-	unsigned _nextComponent;	// used for decoding
+	unsigned _nextComponentPointer;	// used for decoding
 	BOOL _isByref;
 	BOOL _isBycopy;
 }
