@@ -33,8 +33,7 @@
 	NSPort *_recv;
 	NSPort *_send;
 	NSArray *_components;
-	unsigned _msgid;			// for encoding the NSPortMessage
-	unsigned _nextComponent;	// for decoding
+	unsigned _nextComponent;	// used for decoding
 	BOOL _isByref;
 	BOOL _isBycopy;
 }
@@ -50,7 +49,7 @@
 - (id) initWithReceivePort:(NSPort *) recv sendPort:(NSPort *) send components:(NSArray *) cmp;
 - (BOOL) isBycopy;
 - (BOOL) isByref;
-// - (void) sendBeforeTime:(NSTimeInterval) time sendReplyPort:(NSPort *) port;	// not documented private method
+// - (void) sendBeforeTime:(NSTimeInterval) time sendReplyPort:(NSPort *) port;	// undocumented private method
 
 @end
 

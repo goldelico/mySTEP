@@ -45,7 +45,29 @@
  
  NOTE: our NSPortCoder is NOT compatible!!!
 
+ You should set a breakpoint on -[NSPort sendBeforeDate:msgid:components:from:reserved:] to see what is going on
 */
+
+@interface NSPortCoder (NSConcretePortCoder)	// private methods neither from NSPortCoder nor <NSCoding>
++ (void)_enableLogging:(BOOL)arg1;
+- (id)debugDescription;
+- (void)invalidate;
+- (void)dealloc;
+- (id)components;
+- (void)sendBeforeTime:(double)arg1 sendReplyPort:(BOOL)arg2;
+- (void)authenticateWithDelegate:(id)arg1;
+- (BOOL)verifyWithDelegate:(id)arg1;
+- (void)encryptWithDelegate:(id)arg1;
+- (void)decryptWithDelegate:(id)arg1;
+- (id)importedObjects;
+- (void)importObject:(id)arg1;
+- (void)encodeInvocation:(id)arg1;
+- (id)decodeInvocation;
+- (void)encodeReturnValue:(id)arg1;
+- (void)decodeReturnValue:(id)arg1;
+- (void)encodeObject:(id)arg1 isBycopy:(BOOL)arg2 isByref:(BOOL)arg3;
+- (id)decodeRetainedObject;
+@end
 
 @implementation NSPortCoder
 
@@ -57,7 +79,7 @@
 }
 
 - (void) sendBeforeTime:(NSTimeInterval) time sendReplyPort:(NSPort *) port;
-{ // this method is not documented but exists!
+{ // this method is not documented but exists (or at least did exist)!
 	NSPortMessage *pm=[[NSPortMessage alloc] initWithSendPort:_send
 												  receivePort:port?port:_recv	// override recv port
 												   components:_components];
@@ -75,35 +97,49 @@
 
 - (void) dispatch;
 { // handle components either passed during initialization or received while sending
-	[_connection handlePortCoder:self];	// forward to connection
+	NS_DURING
+		[[self connection] handlePortCoder:self];	// locate real connection and forward
+	NS_HANDLER
+		NSLog(@"-[NSPortCoder dispatch]: %@", localException);
+	NS_ENDHANDLER
 }
 
-- (NSConnection *) connection; { return _connection; }
+- (NSConnection *) connection;
+{
+	if(!_connection)
+		_connection=[NSConnection connectionWithReceivePort:_recv sendPort:_send];	// get our connection object
+	return _connection;
+}
 
+// welche davon brauchen wir wirklich irgendwo?
 - (NSPort *) _receivePort; { return _recv; }
 - (NSPort *) _sendPort; { return _send; }
 - (NSArray *) _components; { return _components; }
-- (void) _setConnection:(NSConnection *) connection; { _connection=connection; }	// not retained!
 - (void) _setMsgid:(unsigned) msgid; { _msgid=msgid; }
 - (unsigned) _msgid; { return _msgid; }
 
 - (id) initWithReceivePort:(NSPort *) recv sendPort:(NSPort *) send components:(NSArray *) cmp;
 {
+	// stack traces show that Cocoa appears to allocate a NSConcretePortCoder and calls -[NSConcretePortCoder initWithPorts... components:]
+	// it then analyses [[components objectAtIndex:0] bytes]
+	// we do not follow the class cluster pattern...
 	if((self=[super init]))
 		{
 		_recv=[recv retain];
 		_send=[send retain];
-		_components=[cmp retain];	// for sending, pass in an empty NSMutableArray
+			if(!cmp)
+				cmp=[NSMutableArray arrayWithObject:[NSMutableData dataWithCapacity:50]];	// allocate one component for encoding
+			else
+				_components=[cmp retain];	// for sending, pass in an empty NSMutableArray
+			// [[components objectAtIndex:0] bytes]
+			// do something...
 		}
 	return self;
 }
 
 - (void) dealloc;
 {
-	// [_connection release];	// not retained
-	[_recv release];
-	[_send release];
-	[_components release];
+	[self invalidate];
 	[super dealloc];
 }
 
@@ -159,20 +195,17 @@
 	NSLog(@"  replacement %@", obj);
 #endif
 	if(!obj)
-		{
-		NSLog(@"trying to encode nil object");
-		class=Nil;	// encode nil object as Nil class
-		}
-	else
-		{
-		class=[obj classForPortCoder];
+		; // encode as 0 byte
+	class=[obj classForPortCoder];
 // FIXME: should also be looked up in class translation table!
-		}
 #if 0
 	NSLog(@"  classForPortCoder %@", NSStringFromClass(class));
 #endif
-	[self encodeValueOfObjCType:@encode(Class) at:&class];
-	[obj encodeWithCoder:self];	// translate and encode
+	// encode Class name as C-String
+	if(class == [NSInvocation class])
+		[self encodeInvocation:obj];
+	else
+		[obj encodeWithCoder:self];	// translate and encode
 	_isBycopy=_isByref=NO;	// reset flags for next encoder call
 }
 
@@ -190,6 +223,7 @@
 
 - (void) encodeBytes:(const void *)address length:(unsigned)numBytes;
 {
+	// should append to first component!
 	NSData *d=[NSData dataWithBytes:address length:numBytes];
 #if 0
 	NSLog(@"encodeBytes -> %@", d);
@@ -199,8 +233,8 @@
 
 - (void) encodeDataObject:(NSData *)data
 {
-	NSAssert([data isKindOfClass:[NSData class]], @"NSData expected");
-	[(NSMutableArray *) _components addObject:data];	// as it is...
+	// write length
+	// write bytes
 }
 
 - (void) encodeValueOfObjCType:(const char *)type at:(const void *)address
@@ -358,24 +392,12 @@
 
 - (id) decodeObject
 {
-	Class class;
-	id obj;
-	[self decodeValueOfObjCType:@encode(Class) at:&class];
-#if 0
-	NSLog(@"NSPortCoder decodeObject of class %@", NSStringFromClass(class));
-#endif
-	if(class == Nil)
-		return nil;	// was a nil object
-	// should also look up in class translation table!
-	obj=[[[class alloc] initWithCoder:self] autorelease];	// decode
-#if 0
-	NSLog(@"NSPortCoder decodeObject(%@) -> %@", NSStringFromClass(class), obj);
-#endif
-	return obj;
+	return [[self decodeRetainedObject] autorelease];
 }
 
 - (void *) decodeBytesWithReturnedLength:(unsigned *)numBytes;
 {
+	// should get from first component
 	NSData *d=[self decodeDataObject];
 #if 0
 	NSLog(@"decodeBytesWithReturnedLength: %@", d);
@@ -544,12 +566,105 @@
 
 @end
 
+@implementation NSPortCoder (NSConcretePortCoder)
+
+- (void) invalidate
+{ // release internal data and references to _send and _recv ports
+	[_recv release];
+	_recv=nil;
+	[_send release];
+	_send=nil;
+	[_components release];
+	_components=nil;
+}
+
+- (NSArray *) components
+{
+	return _components;
+}
+
+- (void) encodeReturnValue:(NSInvocation *) i
+{
+}
+
+- (NSInvocation *) decodeReturnValue;
+{
+}
+
+- (void) encodeInvocation:(NSInvocation *) i
+{
+	// encode target
+	// encode arguments
+	// type info string (?)
+	// arginfo array (?)
+}
+
+- (NSInvocation *) decodeInvocation;
+{
+	char *types;	// UTF8 string??
+	// decode retained objects
+	// decode method signature string
+	NSInvocation *i=[[NSInvocation alloc] initWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:types]];
+	// set arguments
+	// adds something to arrays
+	return [i autorelease];
+}
+
+- (id) decodeRetainedObject;
+{
+	Class class;
+	id obj;
+	[self decodeValueOfObjCType:@encode(Class) at:&class];
+#if 0
+	NSLog(@"NSPortCoder decodeObject of class %@", NSStringFromClass(class));
+#endif
+	if(class == Nil)
+		return nil;	// was a nil object
+	// should also look up in class translation table!
+	obj=[[class alloc] initWithCoder:self];	// decode
+#if 0
+	NSLog(@"NSPortCoder decodeRetainedObject(%@) -> %@", NSStringFromClass(class), obj);
+#endif
+	return obj;
+}
+
+- (void) encodeObject:(id) obj isBycopy:(BOOL) isBycopy isByref:(BOOL) isByref;
+{
+	_isBycopy=isBycopy;
+	_isByref=isByref;
+	[self encodeObject:obj];
+}
+
+- (void) authenticateWithDelegate:(id) delegate;
+{
+	if(delegate)
+			{
+				NSData *data=[delegate authenticationDataForComponents:[self components]];
+				if(!data)
+					[NSException raise:NSGenericException format:@"authenticationDataForComponents did return nil"];
+				[components addObject:data];
+			}
+}
+
+- (BOOL) verifyWithDelegate:(id) delegate;
+{
+	if(delegate)
+			{
+				// split components into first part (subarray) and lastObject
+				return [delegate authenticateComponents:[self components] withData:data];
+			}
+	return YES;
+}
+
+@end
+
 @implementation NSObject (NSPortCoder)
 
 - (Class) classForPortCoder				{ return [self classForCoder]; }
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder
 { // default is to encode a local proxy
+	// FIXME: should return the same distant object for a given local object
 	id rep=[self replacementObjectForCoder:coder];
 	if(rep)
 		rep=[NSDistantObject proxyWithLocal:rep connection:[coder connection]];	// this will be encoded and decoded into a remote proxy

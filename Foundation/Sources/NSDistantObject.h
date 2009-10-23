@@ -27,9 +27,11 @@
 
 @interface NSDistantObject : NSProxy  <NSCoding>
 {
+	unsigned long long _refCount;
 	NSConnection *_connection;
-	id _target;	// remote reference - shouldn't we provide for a 64bit remote address?
+	id _target;	// mis-used as wire-id (should be int...)
 	Protocol *_protocol;
+	NSMapTable *_selectorCache;	// cache the method signatures we have asked for
 	BOOL _isLocal;
 }
 

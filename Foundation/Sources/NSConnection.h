@@ -62,16 +62,17 @@ extern NSString *const NSFailedAuthenticationException;
 	NSMutableArray *_localObjects;		// list of local objects
 	NSMapTable *_remoteObjects;			// list of remote proxies indexed by the remote target
 	NSMutableArray *_modes;
-	NSPortCoder *_portCoder;		// the portcoder we use for the current sendInvocation:
 	NSMutableArray *_requestQueue;	// queue of pending NSDistantObjectRequests
+	NSMapTable *_responses;	// responses indexed by sequence number
 	NSTimeInterval _requestTimeout;
 	NSTimeInterval _replyTimeout;
-	NSDistantObject *_proxy;		// (cached) the proxy that represents the remote NSConnection object
+	unsigned _localProxyCount;
+//	NSDistantObject *_proxy;		// (cached) the proxy that represents the remote NSConnection object
 	unsigned int _sequence;
 	BOOL _multipleThreadsEnabled;
 	BOOL _isValid;
 	BOOL _independentConversationQueueing;
-	BOOL _isLocal;
+//	BOOL _isLocal;
 }
 
 + (NSArray *) allConnections;
@@ -130,8 +131,12 @@ extern NSString *const NSFailedAuthenticationException;
 	NSConnection *_connection;
 	NSInvocation *_invocation;
 	id _conversation;
-	NSPortCoder *_coder;
+	NSMutableArray *_imports;
+	unsigned int _sequence;
 }
+
+// private initializer:
+- (id) initWithInvocation:(NSInvocation *) inv conversation:(NSObject *) conv sequence:(unsigned int) seq importedObjects:(NSMutableArray *) obj connection:(NSConnection *) conn;
 
 - (NSConnection *) connection;
 - (id) conversation;
@@ -146,7 +151,7 @@ extern NSString *const NSFailedAuthenticationException;
 - (NSData *) authenticationDataForComponents:(NSArray *) components;
 - (BOOL) connection:(NSConnection *) conn handleRequest:(NSDistantObjectRequest *) doReq;
 - (BOOL) connection:(NSConnection *) parentConnection shouldMakeNewConnection:(NSConnection *) conn;
-- (id) createConversationForConnection:(NSConnection *) conn;
+- (id) createConversationForConnection:(NSConnection *) conn;	// do not autorelease this new object!
 - (BOOL) makeNewConnection:(NSConnection *) newConnection sender:(NSConnection *) conn;
 
 @end

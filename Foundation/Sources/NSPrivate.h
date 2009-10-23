@@ -442,42 +442,50 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 
 @interface NSPortCoder (NSPrivate)
 - (void) sendBeforeTime:(NSTimeInterval) time sendReplyPort:(NSPort *) port;
-- (unsigned) _msgid;
-- (void) _setMsgid:(unsigned) msgid;	// msgid to use when sending a NSPortMessage
-- (void) _setConnection:(NSConnection *) connection;
-- (NSArray *) _components;
-- (NSPort *) _receivePort;
-- (NSPort *) _sendPort;
+@end
+
+@interface NSPortCoder (NSConcretePortCoder)
+- (void) invalidate;
+- (NSArray *) components;
+- (void) encodeInvocation:(NSInvocation *) i;
+- (NSInvocation *) decodeInvocation;
+- (void) encodeReturnValue:(NSInvocation *) i;
+- (NSInvocation *) decodeReturnValue;
+- (id) decodeRetainedObject;
+- (void) encodeObject:(id) obj isBycopy:(BOOL) isBycopy isByref:(BOOL) isByref;
+- (void) authenticateWithDelegate:(id) delegate;
+- (BOOL) verifyWithDelegate:(id) delegate;
+@end
+
+@interface NSConcreteDistantObjectRequest : NSDistantObjectRequest
 @end
 
 @interface NSDistantObjectRequest (NSPrivate)
-- (id) _initWithPortCoder:(NSPortCoder *) coder;
-- (NSPortCoder *) _portCoder;
-@end
-
-@interface NSDistantObject (NSPrivate)
-- (oneway void) __;	// remote release request - keep name short to save some bytes to be sent around
+- (id) initWithInvocation:(NSInvocation *) inv conversation:(NSObject *) conv sequence:(unsigned int) seq importedObjects:(NSMutableArray *) obj connection:(NSConnection *) conn;
 @end
 
 @interface NSConnection (NSPrivate)
 
 // these methods exist in Cocoa but are not documented
 
-- (void) dispatchInvocation:(NSInvocation *) i;
-- (void) handlePortCoder:(NSPortCoder *) coder;
-- (void) handlePortMessage:(NSPortMessage *) message;
-- (void) handleRequest:(NSDistantObjectRequest *) req sequence:(int) seq;
-- (void) sendInvocation:(NSInvocation *) i;
-
-// really private methods
-+ (NSConnection *) _connectionWithReceivePort:(NSPort *)receivePort
-																		 sendPort:(NSPort *)sendPort;
-- (void) _portDidBecomeInvalid:(NSNotification *) n;
++ (NSConnection *) lookUpConnectionWithReceivePort:(NSPort *) receivePort
+																					sendPort:(NSPort *) sendPort;
+- (void) _portInvalidated:(NSNotification *) n;
 - (void) _executeInNewThread;
-- (void) _addAuthentication:(NSMutableArray *) components;
-- (void) _addRemote:(NSDistantObject *) obj forTarget:(id) target;;	// add to list of remote objects
-- (void) _removeRemote:(id) target; // remove from list of remote objects
-- (NSDistantObject *) _getRemote:(id) target;	// get remote object for target
+- (id) newConversation;
+- (NSPortCoder *) portCoderWithComponents:(NSArray *) components;
+- (void) sendInvocation:(NSInvocation *) i internal:(BOOL) internal;
+- (void) sendInvocation:(NSInvocation *) i;
+- (void) handlePortMessage:(NSPortMessage *) message;
+- (void) handlePortCoder:(NSPortCoder *) coder;
+- (void) handleRequest:(NSPortCoder *) coder sequence:(int) seq;
+- (void) dispatchInvocation:(NSInvocation *) i;
+- (void) returnResult:(NSInvocation *) result exception:(NSException *) exception sequence:(int) seq imports:(NSArray *) imports;
+- (void) finishEncoding:(NSPortCoder *) coder;
+- (BOOL) _cleanupAndAuthenticate:(NSPortCoder *) coder sequence:(unsigned int) seq conversation:(id *) conversation invocation:(NSInvocation *) inv raise:(BOOL) raise;
+- (BOOL) _shouldDispatch:(id *) conversation invocation:(NSInvocation *) invocation sequence:(unsigned int) seq coder:(NSCoder *) coder;
+- (BOOL) hasRunloop:(id) obj;
+
 @end
 
 @interface NSStream (NSPrivate)

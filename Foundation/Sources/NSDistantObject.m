@@ -47,6 +47,23 @@
 #ifndef __APPLE__
 // should be moved to runtime specific classes
 
+@interface NSDistantObject (Private)
+
++ (void) _enableLogging:(BOOL) arg1;
++ (id) newDistantObjectWithCoder:(id) arg1;
+- (id) initWithTarget:(id) arg1 connection:(id) arg2;
+- (id) initWithLocal:(id) arg1 connection:(id) arg2;
+- (id) protocolForProxy;
++ (void) _enableLogging:(BOOL) arg1;
+- (void) _releaseWireCount:(unsigned long long) arg1;
+- (void) retainWireCount;
+- (Class) classForCoder;
+- (id) stringByAppendingFormat:(id) arg1;
+- (void) appendFormat:(id) arg1;
+
+@end
+
+
 @implementation Protocol (NSPrivate)
 
 - (NSMethodSignature *) _methodSignatureForInstanceMethod:(SEL)aSel;
@@ -87,6 +104,10 @@
 
 // this object forwards messages to the peer
 
+// more private methods
+// + (void)_enableLogging:(BOOL)arg1;
+// - (void)_releaseWireCount:(unsigned long long)arg1;
+
 + (NSDistantObject*) proxyWithLocal:(id)anObject
 						 connection:(NSConnection*)aConnection;
 { // this is initialization for vending objects or encoding references so that they can be decoded as remote proxies
@@ -106,22 +127,25 @@
 	// we have no superclass!
 	_connection=[aConnection retain];	// keep the connection as long as we exist
 	_target=anObject;
-	[(NSMutableArray *) [aConnection localObjects] addObject:anObject];	// add to list
 	[self retain];	// additional retain so that we keep around until remote side deallocates us
+	// predefine NSMethodSignature cache 
+	// with code like:
+	// [cache setObject:[NSMethodSignature signatureFoR...] forKey:NSStringFromSelector(@selector(xxx))];
+	[(NSMutableArray *) [aConnection localObjects] addObject:anObject];	// add to list
 	_isLocal=YES;
 	return self;
 }
 
-- (id) initWithTarget:(id)anObject connection:(NSConnection*)aConnection;
+- (id) initWithTarget:(id)remoteObject connection:(NSConnection*)aConnection;
 { // remoteObject is an id in another thread or another application’s address space!
-	NSDistantObject *p=[aConnection _getRemote:anObject];
+	NSDistantObject *p=[aConnection _getRemote:remoteObject];
 	if(p)
 			{ // we already have a proxy for this target
 				[self release];	// release newly allocated object
 				return [p retain];	// retain the existing proxy once
 			}
 	_connection=[aConnection retain];	// keep the connection as long as we exist
-	_target=anObject;
+	_target=remoteObject;
 	[aConnection _addRemote:self forTarget:_target];	// add to remote objects
 	_isLocal=NO;
 	return self;
@@ -165,6 +189,7 @@
 
 - (void) dealloc;
 {
+	// invalidateProxy
 #if 0
 	NSLog(@"-dealloc: %@", self);
 #endif
@@ -210,14 +235,19 @@
 #if 0
 	NSLog(@"NSDistantObject -forwardInvocation: %@ though %@", invocation, _connection);
 #endif
-	[_connection sendInvocation:invocation];
+	// look up connection for this distant object
+	[_connection sendInvocation:invocation internal:NO];
 }
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector;
 {
-	// FIXME: we should bulld a local Cache for method signatures of remote objects!!!
-	// since it might also depend on the server we are communicating with, we have to index by aSelector AND [connection sendPort]
 	NSMethodSignature *ret;
+	/* FIXME: we should bulld a local Cache for method signatures of this remote object!
+	 // we can predefine some well known method signatures...
+	 ret=[signatureCache objectForKey:NStringFromSelector(aSelector)];
+	 if(ret)
+		return ret;	// found
+	 */
 #if 0
 	NSLog(@"[NSDistantObject methodSignatureForSelector:\"%@\"]", NSStringFromSelector(aSelector));
 #endif
@@ -244,8 +274,8 @@
 				[i setSelector:_cmd];
 				NSAssert([[NSObject instanceMethodSignatureForSelector: _cmd] methodReturnLength] == sizeof(ret), @"return value size problem");
 				[i setTarget:self];
-				[i setArgument:&aSelector atIndex:2];	// set as the argument the selector we want to know about
-				[self forwardInvocation:i];				// and process
+				[i setArgument:&aSelector atIndex:2];	// set the selector we want to know about as the argument
+				[_connection sendInvocation:i internal:YES];
 				[i getReturnValue:&ret];				// fetch signature from invocation
 #else
 				static NSInvocation *i;	// cached invocation
@@ -312,6 +342,9 @@
 
 - (void) encodeWithCoder:(NSCoder *) coder;
 {
+	NSConnection *c=[(NSPortCoder *) coder connection];
+	// lookUpConnectionForProxy
+	// lookUpWireIDForProxy
 #if 0
 	NSLog(@"%@ encodeWithCoder (local=%@ target=%p)", NSStringFromClass(isa), _isLocal?@"YES":@"NO", _target);
 #endif
@@ -323,6 +356,11 @@
 			}
 #endif
 	[coder encodeValueOfObjCType:@encode(void *) at:&_target];	// encode as a reference into the address space and not the object
+}
+
++ (id) newDistantObjectWithCoder:(NSCoder *) coder;
+{
+	return [[self alloc] initWithCoder:coder];
 }
 
 - (id) initWithCoder:(NSCoder *) coder;
@@ -382,6 +420,8 @@
 
 - (Protocol *) protocol; { return _protocol; }
 - (NSObject *) target; { return _target; }
+
+// CHECKME:
 
 - (BOOL) respondsToSelector:(SEL)aSelector;
 {

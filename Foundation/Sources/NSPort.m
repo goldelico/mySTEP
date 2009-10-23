@@ -117,6 +117,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 {
 	if((self=[super init]))
 		{
+			_delegate=self;	// appears to be initialized to be its own delegate
 		_isValid = YES;
 		_fd=-1;
 		_sendfd=-1;
@@ -554,18 +555,20 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		}
 	else
 		{
-		NSPortMessage *msg=[[NSPortMessage alloc] initWithMachMessage:_recvBuffer];
-		[msg _setReceivePort:recv];		// we (or our parent) is the receive port
-		objc_free(_recvBuffer);			// done
-		_recvBuffer=NULL;
+			NSAutoreleasePool *arp=[NSAutoreleasePool new];
+			NSPortMessage *msg=[[NSPortMessage alloc] initWithMachMessage:_recvBuffer];
+			[msg _setReceivePort:recv];		// we (or our parent) is the receive port
+			objc_free(_recvBuffer);			// done
+			_recvBuffer=NULL;
 #if 0
-		NSLog(@"handlePortMessage:%@ by delegate %@", msg, d);
+			NSLog(@"handlePortMessage:%@ by delegate %@", msg, d);
 #endif
-		[d handlePortMessage:msg];	// process by delegate
-		[msg release];
+			[d handlePortMessage:msg];	// process by delegate
+			[msg release];
 #if 0
-		NSLog(@"msg released");
+			NSLog(@"msg released");
 #endif
+			[arp release];
 		}
 	_current_inaddr.s_addr=INADDR_ANY;	// restore
 }

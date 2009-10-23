@@ -154,6 +154,8 @@
 	return nil;
 }
 
+// which of these should be forwarded...
+
 - (unsigned int) hash						{ return (unsigned int)self; }
 - (BOOL) isEqual:(id)anObject				{ return (self == anObject); }
 - (BOOL) isMemberOfClass:(Class)aClass		{ return (isa == aClass); }
@@ -173,6 +175,8 @@
 {
 	return [self _nimp:_cmd];
 }
+
+// FIXME: this does not properly forward!
 
 - (id) performSelector:(SEL)aSelector
 {
@@ -217,11 +221,13 @@
 	return (*msg)(self, aSelector, anObject, anotherObject);
 }
 
+// FIXME: we simply could have this as 'not implemented' - then, standard forwarding occurs
+
 - (BOOL) respondsToSelector:(SEL)aSelector
 { // pack request into an NSInvocation and forward
 	// we should have a cache of results!!!
 	NSInvocation* inv;
-	BOOL result;	
+	BOOL result;
 	inv = [NSInvocation invocationWithMethodSignature:[NSObject instanceMethodSignatureForSelector:_cmd]];	// local signature
 	[inv setSelector:_cmd];
 	[inv setArgument:(void*)aSelector atIndex:2];
