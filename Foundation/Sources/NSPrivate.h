@@ -72,15 +72,6 @@ extern NSString * const GSHTTPPropertyMethodKey;
 extern NSString * const GSHTTPPropertyProxyHostKey;
 extern NSString * const GSHTTPPropertyProxyPortKey;
 
-#ifndef __APPLE__
-@interface Protocol (NSPrivate)
-
-- (NSMethodSignature *) _methodSignatureForInstanceMethod:(SEL)aSel;
-- (NSMethodSignature *) _methodSignatureForClassMethod:(SEL)aSel;
-
-@end
-#endif
-
 @interface NSBundle (NSPrivate)
 - (NSEnumerator *) _resourcePathEnumeratorFor:(NSString*) path subPath:(NSString *) subpath localization:(NSString *)locale;
 @end
@@ -438,6 +429,30 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 
 @interface NSProxy (NSObjCRuntime)					// special
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame;	// private method called by runtime
+@end
+
+/* the following methods appear to originate in libobjc (Object and Protocol) and not by Foundation (NSObject)
+ struct objc_method_description
+	{
+	SEL name;                   // this is a selector, not a string
+	char *types;                // type encoding
+	};
+*/
+
+@interface NSObject (NSDOAdditions)
++ (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
+- (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
++ (const char *) _localClassNameForClass;
+- (const char *) _localClassNameForClass;
+@end
+
+@interface NSProxy (NSDOAdditions)
+- (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
+@end
+
+@interface NSProtocolChecker (NSDOAdditions)
+- (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
+- (const char *) _localClassNameForClass;
 @end
 
 @interface NSPortCoder (NSPrivate)

@@ -100,6 +100,30 @@
 @end
 #endif
 
+@implementation NSObject (NSDOAdditions)
+
++ (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
+{
+	return [self descriptionForClassMethod:sel];	// as defined in GNU objc runtime
+}
+
+- (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
+{
+	return [self descriptionForInstanceMethod:sel];	// as defined in GNU objc runtime
+}
+
++ (const char *) _localClassNameForClass;
+{
+	return "_localClassNameForClass";
+}
+
+- (const char *) _localClassNameForClass;
+{
+	return "_localClassNameForClass";
+}
+
+@end
+
 @implementation NSDistantObject
 
 // this object forwards messages to the peer

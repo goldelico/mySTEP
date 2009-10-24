@@ -686,7 +686,7 @@
 							NSData *data=[components objectAtIndex:len-1];	// split
 							return [delegate authenticateComponents:components withData:data];
 						}
-				[NSException raise:NSGenericException format:@"did receive message without authentication"];
+				[NSException raise:NSFailedAuthenticationException format:@"did receive message without authentication"];
 			}
 	return YES;
 }

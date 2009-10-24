@@ -686,7 +686,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 			// loop until we can extract a matching response for our sequence number from the receive queue...
 			while(YES)
 				{ // not yet timed out and current conversation is not yet completed
-#if 1
+#if 0
 				NSLog(@"*** (Conn=%p) loop for response %u in %@ at %@: %@", self, _sequence, NSConnectionReplyMode, _receivePort, rl);
 #endif
 					// if sequence response received, break loop
@@ -996,6 +996,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 {
 	SEL sel=[invocation selector];
 	// es sieht nach Sonderbehandlung von 2 Selektoren aus...
+	// a guess is that we process methodDescriptionForSelector: and _localClassNameForClass here
 	// lastConversationInfo ()
 	// there is at least one other condition involved. seq > 0?
 	if(conversation && !*conversation)

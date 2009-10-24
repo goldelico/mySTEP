@@ -171,6 +171,11 @@
 	return [self _nimp:aSel];
 }
 
+- (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
+{
+	return NULL;
+}
+
 - (NSMethodSignature*) methodSignatureForSelector:(SEL)aSelector
 {
 	return [self _nimp:_cmd];
