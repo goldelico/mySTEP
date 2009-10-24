@@ -328,6 +328,7 @@
 		EE2115120CDF58F70062A8AD /* NSCondition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSCondition.m; path = Sources/NSCondition.m; sourceTree = "<group>"; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.make; };
 		EE2FDF2709770599003EA8A2 /* NSLocale.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSLocale.m; path = Sources/NSLocale.m; sourceTree = "<group>"; };
+		EE3381F01092506400DCB4A8 /* objc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objc; path = "../../../Library/Frameworks/System.framework/Versions/i386-apple-darwin/gcc/i486-debianetch-linux-gnu/lib/gcc/i486-debianetch-linux-gnu/4.2.4/include/objc"; sourceTree = SOURCE_ROOT; };
 		EE4C49F60B88B7BB0027F725 /* archive.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = archive.c; sourceTree = "<group>"; };
 		EE4C49F70B88B7BB0027F725 /* ChangeLog */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ChangeLog; sourceTree = "<group>"; };
 		EE4C49F80B88B7BB0027F725 /* class.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = class.c; sourceTree = "<group>"; };
@@ -399,7 +400,6 @@
 		EE8EFA9F0960954D006CCB63 /* NSAffineTransform.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSAffineTransform.h; path = Sources/NSAffineTransform.h; sourceTree = "<group>"; };
 		EE8EFAA00960954D006CCB63 /* NSAffineTransform.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSAffineTransform.m; path = Sources/NSAffineTransform.m; sourceTree = "<group>"; };
 		EE8F689E0D76A0200096A370 /* trunk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = trunk; path = ../GNUstep/base/trunk; sourceTree = SOURCE_ROOT; };
-		EE93E8030A24CFA3008A5E48 /* objc */ = {isa = PBXFileReference; explicitFileType = folder; name = objc; path = "Xtoolchain/i386-apple-darwin/gcc-2.95.3-glibc-2.2.2/lib/gcc-lib/arm-quantumstep-linux-gnu/2.95.3/include/objc"; sourceTree = SYSTEM_DEVELOPER_DIR; };
 		EEA32EC009537D0C001244CF /* caseconv.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = caseconv.h; sourceTree = "<group>"; };
 		EEA32EC109537D0C001244CF /* cop.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cop.h; sourceTree = "<group>"; };
 		EEA32EC209537D0C001244CF /* cyrillic.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cyrillic.h; sourceTree = "<group>"; };
@@ -584,7 +584,7 @@
 			children = (
 				EEDB61250A1497F300E4CA39 /* HISTORY.rtf */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
-				EE93E8030A24CFA3008A5E48 /* objc */,
+				EE3381F01092506400DCB4A8 /* objc */,
 				EE4C49F50B88B7BB0027F725 /* libobjc */,
 				EEC4AEE30B4D5135001C44B3 /* include */,
 				EEC4A9500B4D5123001C44B3 /* sys-include */,
