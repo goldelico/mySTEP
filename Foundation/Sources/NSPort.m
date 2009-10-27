@@ -49,7 +49,7 @@
 
 #import "NSPrivate.h"
 
-NSString *NSPortDidBecomeInvalidNotification = @"NSPortDidBecomeInvalidNotification";
+NSString *const NSPortDidBecomeInvalidNotification = @"NSPortDidBecomeInvalidNotification";
 
 NSString *NSObjectInaccessibleException=@"NSObjectInaccessibleException";
 NSString *NSObjectNotAvailableException=@"NSObjectNotAvailableException";

@@ -5,7 +5,7 @@
 
    Complete rewrite:
    Dr. H. Nikolaus Schaller <hns@computer.org>
-   Date: Jan 2006-Sep 2007
+   Date: Jan 2006-Oct 2009
    Some implementation expertise comes from Crashlogs found on the Internet: Google e.g. for "NSPortCoder sendBeforeTime:"
 
    This file is part of the mySTEP Library and is provided
@@ -27,49 +27,37 @@
 /*
  this is how an Apple Cocoa request for [connection rootProxy] arrives in the first component of a NSPortMessage (with msgid=0)
  
- 04edfe1f 0e01 0101 0101			?
+ 04									4 byte integer follows
+ edfe1f 0e					0e1ffeed - appears to be some Byte-Order-mark and flags
+ 01 01							sequence number 1
+ 01 01							some unknown value 1
+ 01									1 byte integer follows
  0d									string len (incl. 00)
  4e53496e766f636174696f6e00			"NSInvocation"		class	- this payload encodes an NSInvocation
- 0001 0101							?
+ 00									value 00 (nil?)
+ 01 01							Integer 1
+ 01									1 byte integer follows
  10									string len (incl. 00)
  4e5344697374616e744f626a65637400	"NSDistantObject"	self	- appears to be the 'target' component
- 0000 0101 0101 020101				?
+ 00
+ 00
+ 0101
+ 0101
+ 0201
+ 01									1 byte length follows
  0b									string len (incl. 00)
  726f6f744f626a65637400				"rootObject			_cmd	- appears to be the 'selector' component
- 0101								?
+ 01
+ 01									1 byte length follows
  04									len (incl. 00)
  40403a00							"@@:"				signature (return type=id, self=id, _cmd=SEL)
- 0140010000							?
+ 0140								@
+ 0100
+ 00									?
  
  The encoding is not exactly clear
  
- NOTE: our NSPortCoder is NOT compatible!!!
-
  You should set a breakpoint on -[NSPort sendBeforeDate:msgid:components:from:reserved:] to see what is going on
-*/
-
-/* private methods neither from NSPortCoder nor <NSCoding>
-
-@interface NSPortCoder (NSConcretePortCoder)
-+ (void) _enableLogging:(BOOL) flag;
-- (NSString *) debugDescription;
-- (void) invalidate;
-- (void) dealloc;
-- (NSArray *) components;
-- (void) sendBeforeTime:(NSTimeInterval) time sendReplyPort:(BOOL) flag;
-- (void) authenticateWithDelegate:(id) delegate;
-- (BOOL) verifyWithDelegate:(id) delegate;
-- (void) encryptWithDelegate:(id) delegate;
-- (void) decryptWithDelegate:(id) delegate;
-- (id) importedObjects;
-- (void) importObject:(id) obj;
-- (void) encodeInvocation:(NSInvocation *) inv;
-- (id) decodeInvocation;
-- (void) encodeReturnValue:(NSInvocation *) inv;
-- (void) decodeReturnValue:(NSInvocation *) inv;
-- (void) encodeObject:(id) obj isBycopy:(BOOL) byCopy isByref:(BOOL) byRef;
-- (id) decodeRetainedObject;
-@end
 */
 
 @implementation NSPortCoder
@@ -88,9 +76,9 @@
 												   components:_components];
 	NSDate *due=[NSDate dateWithTimeIntervalSinceReferenceDate:time];
 	BOOL r;
-	[pm setMsgid:_msgid];
+//	[pm setMsgid:0];
 	if(flag)
-			[components addObject:_recv];	// send our reply port
+			[self encodePortObject:_recv];	// send our reply port
 #if 0
 	NSLog(@"sendBeforeTime %@ msgid=%d replyPort:%d _send:%@ _recv:%@", due, _msgid, flag, _send, _recv);
 #endif
@@ -116,28 +104,19 @@
 	return _connection;
 }
 
-// welche davon brauchen wir wirklich irgendwo?
-- (NSPort *) _receivePort; { return _recv; }
-- (NSPort *) _sendPort; { return _send; }
-- (NSArray *) _components; { return _components; }
-- (void) _setMsgid:(unsigned) msgid; { _msgid=msgid; }
-- (unsigned) _msgid; { return _msgid; }
-
 - (id) initWithReceivePort:(NSPort *) recv sendPort:(NSPort *) send components:(NSArray *) cmp;
 {
-	// stack traces show that Cocoa appears to allocate a NSConcretePortCoder and calls -[NSConcretePortCoder initWithPorts... components:]
-	// it then analyses [[components objectAtIndex:0] bytes]
-	// we do not follow the class cluster pattern...
 	if((self=[super init]))
 		{
+			NSData *first;
 			_recv=[recv retain];
 			_send=[send retain];
 			if(!cmp)
 				cmp=[NSMutableArray arrayWithObject:[NSMutableData dataWithCapacity:50]];	// allocate a single component for encoding
-			else
-				_components=[cmp retain];
-			// [[components objectAtIndex:0] bytes]
-			// do something...
+			_components=[cmp retain];
+			first=[_components objectAtIndex:0];
+			_pointer=[first bytes];	// set read pointer
+			_eod=[first bytes] + [first length];
 		}
 	return self;
 }
@@ -153,9 +132,24 @@
 
 // core encoding
 
+- (void) _encodeInteger:(long long) val
+{
+	union
+		{
+			long long val;
+			unsigned char data[8];
+		} d;
+	int len=8;
+	d.val=NSSwapHostLongLongToLittle(val);
+	while(len > 0 && d.data[len-1] == 0)
+		len--;	// get first non-0 byte which determines length
+	[self encodeBytes:&d.data length:len];
+}
+
 - (void) encodePortObject:(NSPort *) port;
 {
-	NSAssert([port isKindOfClass:[NSPort class]], @"NSPort expected");
+	if(![port isKindOfClass:[NSPort class]])
+		[NSException raise:NSInvalidArgumentException format:@"NSPort expected"];
 	[(NSMutableArray *) _components addObject:port];
 }
 
@@ -183,11 +177,6 @@
 	[self encodeBytes:array length:count*objc_sizeof_type(type)];
 }
 
-// CHECKME:
-// shouldn't we be able to handle conditional objects and two passes? why? when?
-// Well, if we want to send byCopy a dictionary or NSView tree with self/parent-references.
-// But sending byRef shouldn't be a problem.
-
 - (void) encodeObject:(id) obj
 {
 	Class class;
@@ -200,15 +189,19 @@
 	NSLog(@"  replacement %@", obj);
 #endif
 	if(!obj)
-		; // encode as 0 byte
+			{
+				[self _encodeInteger:0]; // encode as 0x00 byte
+				return;
+			}
 	class=[obj classForPortCoder];
 // FIXME: should also be looked up in class translation table!
 #if 0
 	NSLog(@"  classForPortCoder %@", NSStringFromClass(class));
 #endif
-	// encode Class name as 0-terminated UTF8-String
+	[self encodeValueOfObjCType:@encode(Class) at:&class];
 	if(class == [NSInvocation class])
 		[self encodeInvocation:obj];
+	// special handling for NSData or NSPort needed?
 	else
 		[obj encodeWithCoder:self];	// translate and encode
 	_isBycopy=_isByref=NO;	// reset flags for next encoder call
@@ -228,41 +221,17 @@
 
 - (void) encodeBytes:(const void *) address length:(unsigned) numBytes;
 {
-	NSMutableData *d=[_components objectAtIndex:0];
-	if(numBytes < 256)
-		[d appendBytes:&numBytes length:1];	// encode length as 1 byte
-	else
-			{
-			}
-	[d appendBytes:address length:numBytes];
+	[self _encodeInteger:numBytes];
+	[[_components objectAtIndex:0] appendBytes:[_components objectAtIndex:0] length:numBytes];	// encode data
 }
 
 - (void) encodeDataObject:(NSData *) data
-{ // should we encode NSData?
-	// write length
-	// write bytes
-}
-
-- (void) _encodeInteger:(long long) val
 {
-	int len=8;
-	while(len > 0 && (val & 0xff00000000000000) == 0)
-		val <<= 8, len--;	// get first non-0 byte
-	[self encodeBytes:&val length:len];
-}
-
-- (long long) _decodeInteger
-{
-	long long val=0;
-	unsigned int len;
-	char *bytes=[self decodeBytesWithReturnedLength:&len];
-	memcpy((&val)+(8-len), bytes, len);
-	return val;
+	[self encodeBytes:[data bytes] length:[data length]];
 }
 
 - (void) encodeValueOfObjCType:(const char *)type at:(const void *)address
 { // must encode in network byte order (i.e. bigendian)
-	long long val;
 #if 0
 	NSLog(@"NSPortCoder encodeValueOfObjCType:%s", type);
 #endif
@@ -285,39 +254,39 @@
 			}
 		case _C_SEL:
 			{
-				SEL=*((SEL *) address);
-				char *sel=[NSStringFromSelector(sel) UTF8String];
+				SEL s=*((SEL *) address);
+				char *sel=[NSStringFromSelector(s) UTF8String];
 				[self encodeBytes:sel length:strlen(sel)+1];	// include terminating 0 byte
 				break;
 			}
 		case _C_CHR:
 		case _C_UCHR:
 			{
-				val=*((char *) address);
+				[self _encodeInteger:*((char *) address)];
 				break;
 			}
 		case _C_SHT:
 		case _C_USHT:
 			{
-				val=NSSwapHostShortToBig(*(short *)address);
+				[self _encodeInteger:*((short *) address)];
 				break;
 			}
 		case _C_INT:
 		case _C_UINT:
 			{
-				val=NSSwapHostIntToBig(*(int *)address);
+				[self _encodeInteger:*((int *) address)];
 				break;
 			}
 		case _C_LNG:
 		case _C_ULNG:
 			{
-				val=NSSwapHostLongToBig(*(long *)address);
+				[self _encodeInteger:*((long *) address)];
 				break;
 			}
 		case _C_LNG_LNG:
 		case _C_ULNG_LNG:
 			{
-				val=NSSwapHostLongLongToBig(*(long long *)address);
+				[self _encodeInteger:*((long long *) address)];
 				break;
 			}
 		case _C_FLT:
@@ -334,6 +303,7 @@
 			}
 		case _C_PTR:
 			{
+				// hm...
 				void *val=(*(void **)address);
 				[self encodeBytes:&val length:sizeof(val)];
 				break;
@@ -353,6 +323,7 @@
 		case _C_UNION_B:
 			{
 				int len=objc_sizeof_type(type);
+				// should recursively encode components?!
 #if 1
 				NSLog(@"encode struct/array/union of size %d %s", len, type);
 #endif
@@ -366,9 +337,30 @@
 
 // core decoding
 
+- (long long) _decodeInteger
+{
+	union
+		{
+			long long val;
+			unsigned char data[8];
+		} d;
+	unsigned int len;
+	if(_pointer >= _eod)
+		[NSException raise:NSPortReceiveException format:@"no more data to decode"];
+	len=*_pointer++;
+	if(len > 8)
+		[NSException raise:NSPortReceiveException format:@"invalid integer length to decode"];
+	if(_pointer+len >= _eod)
+		[NSException raise:NSPortReceiveException format:@"not enough data to decode integer"];
+	d.val=0;
+	memcpy(d.data, _pointer, len);
+	_pointer+=len;
+	return NSSwapLittleLongLongToHost(d.val);
+}
+
 - (NSPort *) decodePortObject;
 {
-	return [_components objectAtIndex:_nextComponent++];	// will raise exception if we decode beyond end
+	return NIMP;
 }
 
 - (void) decodeArrayOfObjCType:(const char*)type
@@ -408,20 +400,23 @@
 	return [[self decodeRetainedObject] autorelease];
 }
 
-- (void *) decodeBytesWithReturnedLength:(unsigned *)numBytes;
+- (void *) decodeBytesWithReturnedLength:(unsigned *) numBytes;
 {
-	// should get from first component
-	NSData *d=[self decodeDataObject];
-#if 0
-	NSLog(@"decodeBytesWithReturnedLength: %@", d);
-#endif
-	*numBytes=[d length];
+	NSData *d=[self decodeDataObject];	// will be autoreleased
+	if(numBytes)
+		*numBytes=[d length];
 	return (void *) [d bytes];
 }
 
 - (NSData *) decodeDataObject;
 { // get next object as it is
-	return [_components objectAtIndex:_nextComponent++];	// will raise exception if we decode beyond end
+	unsigned long len=[self _decodeInteger];
+	NSData *d;
+	if(_pointer+len >= _eod)
+		[NSException raise:NSPortReceiveException format:@"not enough data to decode data"];
+	d=[NSData dataWithBytes:_pointer length:len];	// retained copy...
+	_pointer+=len;
+	return d;
 }
 
 - (void) decodeValueOfObjCType:(const char *) type at:(void *) address
@@ -432,8 +427,9 @@
 	switch(*type)
 		{
 		default:
-			NSLog(@"%@ can't decodeValueOfObjCType:%s", self, type);
-			return;
+				NSLog(@"%@ can't decodeValueOfObjCType:%s", self, type);
+				[NSException raise:NSPortReceiveException format:@"can't decodeValueOfObjCType:%s", type];
+				return;
 		case _C_ID:
 			{
 				*((id *)address)=[self decodeObject];
@@ -441,11 +437,16 @@
 			}
 		case _C_CLASS:
 			{
+				// FIXME: contains 0-termination character
 				NSString *class=[[NSString alloc] initWithData:[self decodeDataObject] encoding:NSUTF8StringEncoding];
 				if(!class)
 					{
-					NSLog(@"could not decode Class");
-					*((Class *)address)=Nil;
+						NSLog(@"could not decode Class");
+							{
+								[NSException raise:NSPortReceiveException format:@"class %@ not loaded", class];
+								return nil;
+								}
+						*((Class *)address)=Nil;
 					}
 				else
 					{
@@ -453,17 +454,19 @@
 						*((Class *)address)=Nil;		// Nil class was encoded
 					else
 						*((Class *)address)=NSClassFromString(class);		// decode class by name
+									// raise exception if unknown
 					[class release];
 					}
 				return;
 			}
 		case _C_SEL:
 			{
+				// FIXME: contains 0-termination character
 				NSString *selector=[[NSString alloc] initWithData:[self decodeDataObject] encoding:NSUTF8StringEncoding];
 				if(!selector)
 					{
-					NSLog(@"could not decode SEL");
-					*((SEL *)address)=NULL;
+						[NSException raise:NSPortReceiveException format:@"could not decode SEL"];
+						*((SEL *)address)=NULL;
 					}
 				else
 					{
@@ -478,52 +481,38 @@
 		case _C_CHR:
 		case _C_UCHR:
 			{
-				unsigned numBytes;
-				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-				NSAssert(numBytes == sizeof(char), @"bad byte count for char");
-				*((char *) address) = *(char *) addr;
+				*((char *) address) = [self _decodeInteger];
 				break;
 			}
 		case _C_SHT:
 		case _C_USHT:
 			{
-				unsigned numBytes;
-				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-				NSAssert(numBytes == sizeof(short), @"bad byte count for short");
-				*((short *) address) = NSSwapBigShortToHost(*(short *) addr);
+				*((short *) address) = [self _decodeInteger];
 				break;
 			}
 		case _C_INT:
 		case _C_UINT:
 			{
-				unsigned numBytes;
-				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-				NSAssert(numBytes == sizeof(int), @"bad byte count for int");
-				*((int *) address) = NSSwapBigIntToHost(*(int *) addr);
+				*((int *) address) = [self _decodeInteger];
 				break;
 			}
 		case _C_LNG:
 		case _C_ULNG:
 			{
-				unsigned numBytes;
-				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-				NSAssert(numBytes == sizeof(short), @"bad byte count for long");
-				*((long *) address) = NSSwapBigLongToHost(*(long *) addr);
+				*((long *) address) = [self _decodeInteger];
 				break;
 			}
 		case _C_LNG_LNG:
 		case _C_ULNG_LNG:
 			{
-				unsigned numBytes;
-				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-				NSAssert(numBytes == sizeof(long long), @"bad byte count for long long");
-				*((long long *) address) = NSSwapBigLongLongToHost(*(long long *) addr);
+				*((long long *) address) = [self _decodeInteger];
 				break;
 			}
 		case _C_FLT:
 			{
 				unsigned numBytes;
 				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
+				// FIXME: should be exception
 				NSAssert(numBytes == sizeof(float), @"bad byte count for float");
 				*((float *) address) = NSSwapBigFloatToHost(*(float *) addr);
 				break;
@@ -532,6 +521,7 @@
 			{
 				unsigned numBytes;
 				void *addr=[self decodeBytesWithReturnedLength:&numBytes];
+				// FIXME: should be exception
 				NSAssert(numBytes == sizeof(double), @"bad byte count for double");
 				*((double *) address) = NSSwapBigShortToHost(*(double *) addr);
 				break;
@@ -589,6 +579,8 @@
 	_send=nil;
 	[_components release];
 	_components=nil;
+	[_imports release];
+	_imports=nil;
 }
 
 - (NSArray *) components
@@ -598,18 +590,37 @@
 
 - (void) encodeReturnValue:(NSInvocation *) i
 {
+	NSMethodSignature *sig=[i methodSignature];
+	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
+	[i getReturnValue:buffer];	// get value
+	[self encodeValuesOfObjCType:[sig methodReturnType] at:buffer];
+	objc_free(buffer);
 }
 
 - (NSInvocation *) decodeReturnValue;
 {
+	NSInvocation *i=nil;	// where to get this from???
+	NSMethodSignature *sig=[i methodSignature];
+	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
+	[self decodeValueOfObjCType:[sig methodReturnType] at:buffer];
+	[i setReturnValue:buffer];	// set value
+	objc_free(buffer);
 }
 
 - (void) encodeInvocation:(NSInvocation *) i
 {
-	// encode target
-	// encode arguments
+	NSMethodSignature *sig=[i methodSignature];
+	void *buffer=objc_malloc([sig frameLength]);	// allocate a buffer
+	int cnt=[sig numberOfArguments];	// encode arguments
+	int j;
+	for(j=0; j<cnt; j++)
+			{ // encode arguments
+				[i getArgument:buffer atIndex:j];	// get value
+				[self encodeValuesOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
+			}
 	// type info string (?)
 	// arginfo array (?)
+	objc_free(buffer);
 }
 
 - (NSInvocation *) decodeInvocation;
@@ -623,17 +634,22 @@
 	return [i autorelease];
 }
 
+- (id) importedObjects; { return _imports; }
+
+- (void) importObject:(id) obj;
+{
+	if(!_imports)
+		_imports=[[NSMutableArray alloc] initWithCapacity:5];
+	[_imports addObject:obj];
+}
+
 - (id) decodeRetainedObject;
 {
 	NSString *name;
 	Class class;
-	// decode class name as 0 terminated UTF8-String
-	class=NSClassFromString(name);
+	[self decodeValueOfObjCType:@encode(Class) at:&class];
 	if(!class)
-			{
-				NSLog(@"decodeRetainedObject: class %@ not loaded", name);
-				return nil;
-			}
+		return nil;
 	if(class == [NSInvocation class])
 		return [[self decodeInvocation] retain];	// special handling
 	return [[class alloc] initWithCoder:self];	// allocate and load new instance
@@ -669,7 +685,7 @@
 				NSData *data=[delegate authenticationDataForComponents:[self components]];
 				if(!data)
 					[NSException raise:NSGenericException format:@"authenticationDataForComponents did return nil"];
-				[components addObject:data];	// append
+				[_components addObject:data];	// append
 			}
 }
 
@@ -804,9 +820,9 @@ struct PortFlags {
 
 /*
  FIXME:
- because we receive from untrustworthy sources here, we must protect against malformed headers trying to create buffer overflows.
- This might also be some very lage constant for record length which wraps around the 32bit address limit (e.g. a negative record length).
- Ending up in infinite loops blocking the system.
+ because we receive from untrustworthy sources here, we must protect against malformed headers trying to create buffer overflows and Denial of Service.
+ This might also be some very lage constant for record length which wraps around the 32bit address limit (e.g. a negative record length). This would
+ end up in infinite loops blocking the application or service.
  */
  
 - (id) initWithMachMessage:(void *) buffer;

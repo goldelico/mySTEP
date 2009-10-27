@@ -24,6 +24,7 @@
 #import <Foundation/NSMapTable.h>
 
 @class NSArray;
+@class NSMutableArray;
 @class NSConnection;
 @class NSPort;
 
@@ -33,7 +34,9 @@
 	NSPort *_recv;
 	NSPort *_send;
 	NSArray *_components;
-	unsigned _nextComponentPointer;	// used for decoding
+	NSMutableArray *_imports;
+	const unsigned char *_pointer;	// used for decoding
+	const unsigned char *_eod;	// used for decoding
 	BOOL _isByref;
 	BOOL _isBycopy;
 }

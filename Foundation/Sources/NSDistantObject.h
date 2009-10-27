@@ -24,6 +24,8 @@
 #import <Foundation/NSProxy.h>
 
 @class NSConnection;
+@class NSMutableDictionary;
+@class Protocol;
 
 @interface NSDistantObject : NSProxy  <NSCoding>
 {
@@ -31,7 +33,7 @@
 	NSConnection *_connection;
 	id _target;	// mis-used as wire-id (should be int...)
 	Protocol *_protocol;
-	NSMapTable *_selectorCache;	// cache the method signatures we have asked for
+	NSMutableDictionary *_selectorCache;	// cache the method signatures we have asked for
 	BOOL _isLocal;
 }
 

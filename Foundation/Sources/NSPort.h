@@ -41,7 +41,7 @@
 @class NSString;
 @class NSEnumerator;
 
-extern NSString *NSPortDidBecomeInvalidNotification;
+extern NSString *const NSPortDidBecomeInvalidNotification;
 
 typedef int NSSocketNativeHandle;
 

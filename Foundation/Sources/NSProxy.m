@@ -173,12 +173,14 @@
 
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
 {
+	[self _nimp:sel];
 	return NULL;
 }
 
-- (NSMethodSignature*) methodSignatureForSelector:(SEL)aSelector
-{
-	return [self _nimp:_cmd];
+- (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector
+{ // default implementation
+	struct objc_method_description *md=[self methodDescriptionForSelector:aSelector];
+	return [NSMethodSignature signatureWithObjCTypes:md->types];
 }
 
 // FIXME: this does not properly forward!

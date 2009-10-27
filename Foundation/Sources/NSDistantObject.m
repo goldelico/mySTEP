@@ -114,12 +114,20 @@
 
 + (const char *) _localClassNameForClass;
 {
-	return "_localClassNameForClass";
+#ifdef __APPLE__
+	return object_getClassName(self);
+#else
+	return class_get_class_name(self);
+#endif
 }
 
 - (const char *) _localClassNameForClass;
 {
-	return "_localClassNameForClass";
+#ifdef __APPLE__
+	return object_getClassName(self);
+#else
+	return class_get_class_name(isa);
+#endif
 }
 
 @end
@@ -152,9 +160,8 @@
 	_connection=[aConnection retain];	// keep the connection as long as we exist
 	_target=anObject;
 	[self retain];	// additional retain so that we keep around until remote side deallocates us
-	// predefine NSMethodSignature cache 
-	// with code like:
-	// [cache setObject:[NSMethodSignature signatureFoR...] forKey:NSStringFromSelector(@selector(xxx))];
+	_selectorCache=[NSMutableDictionary dictionaryWithCapacity:10];
+	[_selectorCache setObject:[NSObject instanceMethodForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache 
 	[(NSMutableArray *) [aConnection localObjects] addObject:anObject];	// add to list
 	_isLocal=YES;
 	return self;
@@ -248,6 +255,7 @@
 				[_connection _removeRemote:_target];	// remove from remoteObjects
 			}
 	[_connection release];	// this will dealloc the connection if we are the last proxy
+	[_selectorCache release];
 	[super dealloc];
 #if 0
 	NSLog(@"dealloc done");
@@ -265,25 +273,21 @@
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector;
 {
-	NSMethodSignature *ret;
-	/* FIXME: we should bulld a local Cache for method signatures of this remote object!
-	 // we can predefine some well known method signatures...
-	 ret=[signatureCache objectForKey:NStringFromSelector(aSelector)];
-	 if(ret)
-		return ret;	// found
-	 */
+	NSMethodSignature *ret=[_selectorCache objectForKey:NSStringFromSelector(aSelector)];
+	if(ret)
+		return ret;	// known
 #if 0
 	NSLog(@"[NSDistantObject methodSignatureForSelector:\"%@\"]", NSStringFromSelector(aSelector));
 #endif
-	//	NSLog(@"%s %s %08x", sel_get_name(aSelector), sel_get_name(@selector(_forwardMethodSignatureForSelector:)), @selector(_forwardMethodSignatureForSelector:));
-	if(SEL_EQ(aSelector, _cmd))	// asking for my own signature! This must be a system-wide constant to avoid recursions
-		ret=[NSObject instanceMethodSignatureForSelector:aSelector];	// ask NSObject
-	else if(_protocol)
+	if(_protocol)
 			{
+				struct objc_method_description *md;
 #if 0
 				NSLog(@"[NSDistantObject methodSignatureForSelector:] _protocol=%s", [_protocol name]);
 #endif
-				ret=[_protocol _methodSignatureForInstanceMethod:aSelector];	// ask protocol for the signature
+				md=[_protocol descriptionForInstanceMethod:aSelector];	// ask protocol for the signature
+//				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
+				ret=nil;
 			}
 	else if(_isLocal && _target)
 		ret=[_target methodSignatureForSelector:aSelector];	// ask local object for its signature
@@ -319,7 +323,7 @@
 				[i _releaseReturnValue];				// no longer needed so that we can reuse the invocation
 #endif
 			}
-	// add to cache
+	[_selectorCache addObject:ret forKey:NSStringFromSelector(aSelector)];	// add to cache
 #if 0
 	NSLog(@"  methodSignatureForSelector %@ -> %s", NSStringFromSelector(aSelector), ret);
 #endif
