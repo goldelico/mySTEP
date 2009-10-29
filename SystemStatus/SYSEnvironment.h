@@ -23,6 +23,9 @@
 - (float) environmentPressure;		// air pressure in Pascal
 - (float) environmentHumidity;		// air humidity in %
 
+- (float) temperatureForSensor:(NSString *) sensor;   // temperature in Kelvin for given sensor (e.g. CPU, RF device, Touch screen controller, Barometer, ...)
+- (NSArray *) temperatureSensors;	// list of sensors
+
 @end
 
 #endif
