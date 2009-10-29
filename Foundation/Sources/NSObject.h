@@ -68,8 +68,8 @@
 
 @interface NSObject <NSObject, NSCoding>
 {												
-    Class isa;										// pointer to instance's 
-}													// class structure
+    Class isa;	// pointer to instance's class structure
+}
 
 + (id) alloc;
 + (id) allocWithZone:(NSZone *) z;

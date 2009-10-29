@@ -161,7 +161,7 @@
 	_target=anObject;
 	[self retain];	// additional retain so that we keep around until remote side deallocates us
 	_selectorCache=[NSMutableDictionary dictionaryWithCapacity:10];
-	[_selectorCache setObject:[NSObject instanceMethodForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache 
+	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache 
 	[(NSMutableArray *) [aConnection localObjects] addObject:anObject];	// add to list
 	_isLocal=YES;
 	return self;
@@ -273,6 +273,7 @@
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector;
 {
+	// FIXME
 	NSMethodSignature *ret=[_selectorCache objectForKey:NSStringFromSelector(aSelector)];
 	if(ret)
 		return ret;	// known

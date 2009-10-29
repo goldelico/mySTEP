@@ -853,12 +853,8 @@ static IMP appendImp;
 
 - (id) initWithCoder:(NSCoder*)coder
 {
-	if([coder allowsKeyedCoding])
-		{
-		[self release];
-		return [[coder decodeObjectForKey:@"NS.data"] retain];
-		}
-	return NIMP;
+	[self release];
+	return [[coder decodeDataObject] retain];
 }
 
 #if OLD
@@ -1002,17 +998,6 @@ static IMP appendImp;
 - (Class) classForArchiver			{ return dataMalloc; }		// Not static 
 - (Class) classForCoder				{ return dataMalloc; }		// when decoded 
 - (Class) classForPortCoder			{ return dataMalloc; }	
-
-#if CODER_RESPONSIBILITY
-- (void) encodeWithCoder:(NSCoder*)aCoder
-{
-	[aCoder encodeValueOfObjCType: @encode(unsigned long) at: &length];
-	if (length)
-		[aCoder encodeArrayOfObjCType: @encode(unsigned char)
-				count: length
-				at: bytes];
-}
-#endif
 
 - (const void *) bytes				{ return bytes; }
 - (unsigned) length					{ return length; }

@@ -25,14 +25,14 @@
 + (id) allocWithZone:(NSZone *) z;	{ return NSAllocateObject(self, 0, z?z:NSDefaultMallocZone()); }
 + (id) alloc					{ return [self allocWithZone:NSDefaultMallocZone()]; }
 - (NSZone *) zone;				{ return NSDefaultMallocZone(); }	// no zones implemented
-+ (void) release				{}
++ (void) release				{ return; }
 + (id) autorelease				{ return self; }
 + (id) retain					{ return self; }
 + (Class) superclass			{ return class_get_super_class(self); }
 + (Class) class					{ return self; }
-+ (void) load					{}
++ (void) load					{ return; }
 
-+ (NSString*) description
++ (NSString *) description
 {
 	return [NSString stringWithFormat: @"<@class %s>", object_get_class_name(self)];
 }
@@ -43,7 +43,7 @@
 }
 
 + (unsigned) retainCount		{ return UINT_MAX; }
-- (unsigned int) retainCount	{ return _retain_count + 1; }
+- (unsigned int) retainCount	{ return (((_object_layout)(self))[-1].retained)+1; }
 
 // NOTE: it appears that init is not defined on OSX!
 
@@ -63,13 +63,18 @@
 
 - (void) release
 {
-	if (_retain_count-- == 0)
-		[self dealloc];
+	if (((_object_layout)(self))[-1].retained == 0)				// if ref count becomes zero (was 1)
+			{
+				((_object_layout)(self))[-1].retained--;
+				[self dealloc];
+			}
+	else
+		((_object_layout)(self))[-1].retained--;
 }
 
 - (id) retain
 {
-	_retain_count++;
+	((_object_layout)(self))[-1].retained++;
 	return self;
 }
 

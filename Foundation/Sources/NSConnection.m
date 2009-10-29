@@ -197,7 +197,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	NSLog(@"portNameServer=%@", server);
 #endif
 #if __APPLE__
-	if([server isKindOfClass:[NSMachBootstrapServer class]])
+	if([server isKindOfClass:NSClassFromString(@"NSMachBootstrapServer")])
 		port=[NSMachPort port];		// assign free port
 	else
 #endif

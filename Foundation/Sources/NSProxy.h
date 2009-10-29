@@ -25,10 +25,7 @@
 
 @interface NSProxy <NSObject>	// is a root class
 {
-@public
     Class isa;
-@private
-    unsigned int _retain_count;
 }
 
 + (id) alloc;

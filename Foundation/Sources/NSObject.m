@@ -266,8 +266,8 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 + (id) autorelease					{ return self; }
 + (id) retain						{ return self; }
 + (oneway void) release				{ return; }
-+ (unsigned) retainCount			{ return UINT_MAX; }
-- (unsigned) retainCount			{ return (((_object_layout)(self))[-1].retained)+1; }
++ (unsigned int) retainCount			{ return UINT_MAX; }
+- (unsigned int) retainCount			{ return (((_object_layout)(self))[-1].retained)+1; }
 
 - (id) autorelease
 {

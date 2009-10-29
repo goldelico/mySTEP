@@ -246,6 +246,11 @@ NSString *NSInvalidUnarchiveOperationException=@"NSInvalidUnarchiveOperationExce
 	return nil;
 }
 
+- (void) encodeDataObject:(NSData *) data;
+{
+	[self encodeObject:data forKey:@"NS.data"];
+}
+
 - (id) encodeObject:(id)anObject forKey:(NSString*)name
 { // name is nil for array and dictionary entries
 	id upperObjectRepresentation;
@@ -938,6 +943,11 @@ etc.
 - (id) decodeObject;
 {
 	return [self decodeObjectForKey:[NSString stringWithFormat:@"$%d", ++_sequentialKey]];
+}
+
+- (id) decodeDataObject;
+{
+	return [self decodeObjectForKey:@"NS.data"];
 }
 
 - (BOOL) decodeBoolForKey:(NSString *)key;

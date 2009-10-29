@@ -310,9 +310,9 @@ if (temp) \
 //
 //*****************************************************************************
 
-typedef struct obj_layout_unpadded			// Define a structure to hold data
-{											// locally before the start of each
-    unsigned retained;						// object
+typedef struct obj_layout_unpadded			// Define a structure to hold data locally before the start of each object
+{
+    unsigned retained;
 } unp;
 
 #define	UNP sizeof(unp)
@@ -321,12 +321,12 @@ typedef struct obj_layout_unpadded			// Define a structure to hold data
 #endif
 #define	ALIGN __alignof__(double)	
 
-// Now do the REAL version - using
-											// the other version to determine
-typedef struct _object_layout 				// what padding if any is required
-{											// to get the alignment of the
-    unsigned retained;						// structure correct.
-    char padding[ALIGN - ((UNP % ALIGN) ? (UNP % ALIGN) : ALIGN)];
+// Now do the REAL version - using the other version to determine what padding if any is required to get the alignment of the structure correct.
+
+typedef struct _object_layout 
+{
+	unsigned retained;
+	char padding[ALIGN - ((UNP % ALIGN) ? (UNP % ALIGN) : ALIGN)];
 	// the bytes defined by NSObject follow here
 } *_object_layout;
 

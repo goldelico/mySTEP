@@ -2655,6 +2655,7 @@ struct stat tmp_stat;
 
 - (Class) classForArchiver							{ return [self class]; }
 - (Class) classForCoder								{ return [self class]; }
+- (Class) classForPortCoder								{ return [NSString class]; }	// even for subclasses
 
 - (id) replacementObjectForPortCoder:(NSPortCoder *)coder
 { // default is to encode by copy
@@ -2842,6 +2843,8 @@ struct stat tmp_stat;
 									options: (unsigned int)opts
 									  range: (NSRange)searchRange				{ SUBCLASS; return 0; }
 - (void) setString:(NSString*)aString;											{ SUBCLASS; }
+
+- (Class) classForPortCoder								{ return [NSMutableString class]; }	// even for subclasses
 
 @end /* NSMutableString */
 
@@ -3107,6 +3110,7 @@ struct stat tmp_stat;
 {
 //	NSLog(@"@encode(unichar)='%s'", @encode(unichar));
 	[aCoder encodeValueOfObjCType: @encode(unsigned) at: &_count];
+	// FIXME: should we encode/decode UTF8 to become compatible with NSPortCoder?
 	if(_count > 0)
 		[aCoder encodeArrayOfObjCType: @encode(unichar)
 				count: _count
@@ -3259,6 +3263,7 @@ struct stat tmp_stat;
 		}
 	[aCoder decodeValueOfObjCType: @encode(unsigned) at: &cap];
 	[self initWithCapacity:cap];
+	// FIXME: should we encode as UTF8?
 	if ((_count = cap) > 0)
 		[aCoder decodeArrayOfObjCType: @encode(unichar)
 				count: _count
@@ -3476,9 +3481,10 @@ struct stat tmp_stat;
 	[aCoder decodeValueOfObjCType:@encode(unsigned) at:&_count];
 	if (_count > 0)
 		{
+		_cString = objc_malloc(_count + 1);
 		[aCoder decodeArrayOfObjCType:@encode(unsigned char) 
 				count:_count
-				at:(_cString = objc_malloc(_count + 1))];
+				at:_cString];
 		_cString[_count] = '\0';
 		}
 

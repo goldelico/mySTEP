@@ -134,16 +134,18 @@
 
 - (void) _encodeInteger:(long long) val
 {
+	NSMutableData *data=[_components objectAtIndex:0];
 	union
 		{
 			long long val;
 			unsigned char data[8];
 		} d;
-	int len=8;
+	char len=8;
 	d.val=NSSwapHostLongLongToLittle(val);
 	while(len > 0 && d.data[len-1] == 0)
 		len--;	// get first non-0 byte which determines length
-	[self encodeBytes:&d.data length:len];
+	[data appendBytes:&len length:1];	// encode length of int
+	[data appendBytes:&d.data length:len];	// encode integer
 }
 
 - (void) encodePortObject:(NSPort *) port;
@@ -226,7 +228,7 @@
 }
 
 - (void) encodeDataObject:(NSData *) data
-{
+{ // called by NSData encodeWithCoder
 	[self encodeBytes:[data bytes] length:[data length]];
 }
 
@@ -289,6 +291,7 @@
 				[self _encodeInteger:*((long long *) address)];
 				break;
 			}
+#if FIXME
 		case _C_FLT:
 			{
 				float val=NSSwapHostFloatToBig(*(float *)address);
@@ -301,6 +304,7 @@
 				[self encodeBytes:&val length:sizeof(val)];
 				break;
 			}
+#endif
 		case _C_PTR:
 			{
 				// hm...
@@ -444,7 +448,7 @@
 						NSLog(@"could not decode Class");
 							{
 								[NSException raise:NSPortReceiveException format:@"class %@ not loaded", class];
-								return nil;
+								return;
 								}
 						*((Class *)address)=Nil;
 					}
@@ -508,6 +512,7 @@
 				*((long long *) address) = [self _decodeInteger];
 				break;
 			}
+#if FIXME
 		case _C_FLT:
 			{
 				unsigned numBytes;
@@ -526,6 +531,7 @@
 				*((double *) address) = NSSwapBigShortToHost(*(double *) addr);
 				break;
 			}
+#endif
 		case _C_PTR:
 			{
 				unsigned numBytes;
@@ -593,7 +599,7 @@
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
 	[i getReturnValue:buffer];	// get value
-	[self encodeValuesOfObjCType:[sig methodReturnType] at:buffer];
+	[self encodeValueOfObjCType:[sig methodReturnType] at:buffer];
 	objc_free(buffer);
 }
 
@@ -616,7 +622,7 @@
 	for(j=0; j<cnt; j++)
 			{ // encode arguments
 				[i getArgument:buffer atIndex:j];	// get value
-				[self encodeValuesOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
+				[self encodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
 			}
 	// type info string (?)
 	// arginfo array (?)
@@ -628,7 +634,7 @@
 	char *types;	// UTF8 string
 	// decode retained objects
 	// decode method signature string
-	NSInvocation *i=[[NSInvocation alloc] initWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:types]];
+	NSInvocation *i=[[NSInvocation alloc] initWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:types]];	// official method since 10.5
 	// set arguments
 	// adds something to arrays
 	return [i autorelease];
@@ -685,7 +691,7 @@
 				NSData *data=[delegate authenticationDataForComponents:[self components]];
 				if(!data)
 					[NSException raise:NSGenericException format:@"authenticationDataForComponents did return nil"];
-				[_components addObject:data];	// append
+				[(NSMutableArray *) _components addObject:data];	// append
 			}
 }
 
