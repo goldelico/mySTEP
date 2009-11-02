@@ -15,8 +15,6 @@
 
 @implementation NSHTTPCookieTest
 
-static NSHTTPCookie *c1, *c2;
-
 - (void) test1
 {
 	c1=[NSHTTPCookie cookieWithProperties:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -49,11 +47,13 @@ static NSHTTPCookie *c1, *c2;
 	STAssertTrue(c2 != nil, nil);		// assert that cookie exists
 }
 
+// well, tests should NOT depend on the results of previous tests (c1, c2)...
+
 - (void) test3
 {
 	NSDictionary *have=[NSHTTPCookie requestHeaderFieldsWithCookies:
 											[NSArray arrayWithObjects:c1, c2, nil]];
-	NSDictionary *want=nil;
+	NSDictionary *want=@"{\n}";
 	STAssertEqualObjects(want, have, nil);
 
 	// WARNING: a cookie name or value with a ; is NOT encoded here!

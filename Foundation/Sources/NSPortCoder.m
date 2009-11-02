@@ -132,6 +132,8 @@
 
 // core encoding
 
+// FIXME: _encodeIntegerAt:addr size:
+
 - (void) _encodeInteger:(long long) val
 {
 	NSMutableData *data=[_components objectAtIndex:0];
@@ -142,8 +144,17 @@
 		} d;
 	char len=8;
 	d.val=NSSwapHostLongLongToLittle(val);
-	while(len > 0 && d.data[len-1] == 0)
-		len--;	// get first non-0 byte which determines length
+	if(val < 0)
+			{
+				while(len > 0 && d.data[len-1] == 0xff)
+					len--;	// get first non-0xff byte which determines length
+				len=-len;	// encode by negative length
+			}
+	else
+			{
+				while(len > 0 && d.data[len-1] == 0)
+					len--;	// get first non-0 byte which determines length
+			}
 	[data appendBytes:&len length:1];	// encode length of int
 	[data appendBytes:&d.data length:len];	// encode integer
 }
@@ -181,32 +192,39 @@
 
 - (void) encodeObject:(id) obj
 {
-	Class class;
+	Class class=[obj class];
 #if 0
 	NSLog(@"NSPortCoder encodeObject%@%@ %p", _isBycopy?@" bycopy":@"", _isByref?@" byref":@"", obj);
 	NSLog(@"  obj %@", obj);
 #endif
-	obj=[obj replacementObjectForPortCoder:self];	// substitute by a proxy if required
-#if 0
-	NSLog(@"  replacement %@", obj);
-#endif
-	if(!obj)
-			{
-				[self _encodeInteger:0]; // encode as 0x00 byte
-				return;
-			}
-	class=[obj classForPortCoder];
-// FIXME: should also be looked up in class translation table!
-#if 0
-	NSLog(@"  classForPortCoder %@", NSStringFromClass(class));
-#endif
-	[self encodeValueOfObjCType:@encode(Class) at:&class];
+	[self _encodeInteger:1];	// always
 	if(class == [NSInvocation class])
-		[self encodeInvocation:obj];
-	// special handling for NSData or NSPort needed?
+			{
+				[self encodeValueOfObjCType:@encode(Class) at:&class];
+				[self encodeInvocation:obj];
+			}
 	else
-		[obj encodeWithCoder:self];	// translate and encode
+		// special handling for NSData or NSPort needed?
+			{
+				obj=[obj replacementObjectForPortCoder:self];	// substitute by a proxy if required
+#if 0
+				NSLog(@"  replacement %@", obj);
+#endif
+				if(!obj)
+					[self _encodeInteger:0]; // encode as 0x00 byte
+				else
+						{
+							class=[obj classForPortCoder];
+							// FIXME: should also look up in class translation table!
+#if 0
+							NSLog(@"  classForPortCoder %@", NSStringFromClass(class));
+#endif
+							[self encodeValueOfObjCType:@encode(Class) at:&class];
+							[obj encodeWithCoder:self];	// translate and encode
+						}
+			}
 	_isBycopy=_isByref=NO;	// reset flags for next encoder call
+	[self _encodeInteger:0];	// always
 }
 
 - (void) encodeBycopyObject:(id) obj
@@ -224,7 +242,7 @@
 - (void) encodeBytes:(const void *) address length:(unsigned) numBytes;
 {
 	[self _encodeInteger:numBytes];
-	[[_components objectAtIndex:0] appendBytes:[_components objectAtIndex:0] length:numBytes];	// encode data
+	[[_components objectAtIndex:0] appendBytes:address length:numBytes];	// encode data
 }
 
 - (void) encodeDataObject:(NSData *) data
@@ -264,7 +282,7 @@
 		case _C_CHR:
 		case _C_UCHR:
 			{
-				[self _encodeInteger:*((char *) address)];
+				[data appendBytes:address length:1];	// encode character as it is
 				break;
 			}
 		case _C_SHT:
@@ -337,6 +355,9 @@
 		case _C_VOID:
 			break;
 		}
+#if 1
+	NSLog(@"encoded: %@", [_components objectAtIndex:0]);
+#endif
 }
 
 // core decoding
@@ -348,15 +369,21 @@
 			long long val;
 			unsigned char data[8];
 		} d;
-	unsigned int len;
+	int len;
 	if(_pointer >= _eod)
 		[NSException raise:NSPortReceiveException format:@"no more data to decode"];
 	len=*_pointer++;
+	if(len < 0)
+			{ // fill with 1 bits
+				len=-len;
+				d.val=-1;	// initialize
+			}
+	else
+		d.val=0;
 	if(len > 8)
 		[NSException raise:NSPortReceiveException format:@"invalid integer length to decode"];
 	if(_pointer+len >= _eod)
 		[NSException raise:NSPortReceiveException format:@"not enough data to decode integer"];
-	d.val=0;
 	memcpy(d.data, _pointer, len);
 	_pointer+=len;
 	return NSSwapLittleLongLongToHost(d.val);
@@ -485,7 +512,9 @@
 		case _C_CHR:
 		case _C_UCHR:
 			{
-				*((char *) address) = [self _decodeInteger];
+				if(_pointer+len >= _eod)
+					[NSException raise:NSPortReceiveException format:@"not enough data to decode data"];
+				*((char *) address) = *_pointer++;	// single byte
 				break;
 			}
 		case _C_SHT:
@@ -619,12 +648,14 @@
 	void *buffer=objc_malloc([sig frameLength]);	// allocate a buffer
 	int cnt=[sig numberOfArguments];	// encode arguments
 	int j;
+	char *str="@@:";	// we should collect the type arguments while we process them...
+//	NSLog(@"sig=%@", [sig _typeString]);	// private getter - returns NSString
 	for(j=0; j<cnt; j++)
 			{ // encode arguments
 				[i getArgument:buffer atIndex:j];	// get value
 				[self encodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
 			}
-	// type info string (?)
+	[self encodeValueOfObjCType:@encode(char *) at:&str];
 	// arginfo array (?)
 	objc_free(buffer);
 }
@@ -715,13 +746,13 @@
 
 @end
 
+#if 0
 @implementation NSObject (NSPortCoder)
 
 - (Class) classForPortCoder				{ return [self classForCoder]; }
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder
 { // default is to encode a local proxy
-	// FIXME: should return the same distant object for a given local object
 	id rep=[self replacementObjectForCoder:coder];
 	if(rep)
 		rep=[NSDistantObject proxyWithLocal:rep connection:[coder connection]];	// this will be encoded and decoded into a remote proxy
@@ -729,6 +760,7 @@
 }
 
 @end
+#endif
 
 @implementation NSPortMessage
 
@@ -1006,6 +1038,7 @@ struct PortFlags {
 - (NSArray*) components; { return _components; }
 - (unsigned) msgid; { return _msgid; }
 - (NSPort *) receivePort; { return _recv; }
+// CHEKCME: do we need the private setters?
 - (void) _setReceivePort:(NSPort *) p; { ASSIGN(_recv, p); }
 - (NSPort *) sendPort; { return _send; }
 - (void) _setSendPort:(NSPort *) p; { ASSIGN(_send, p); }

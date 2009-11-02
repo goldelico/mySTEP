@@ -19,23 +19,23 @@
 {
 	NSURL *url=[NSURL URLWithString:@"file%20name.htm;param1;param2?something=other&andmore=more#fragments"
 										relativeToURL:[NSURL URLWithString:@"scheme://user:password@host.domain.org:888/path/absfile.htm"]];
-	STAssertEqualObjects(@"description", [url description], nil);
-	STAssertEqualObjects(@"absoluteString", [url absoluteString], nil);
-	STAssertEqualObjects(@"scheme://user:password@host.domain.org:888/path/file%20name.htm;param1;param2?something=other&andmore=more#fragments", [url absoulteURL], nil);
-	STAssertEqualObjects(@"scheme://user:password@host.domain.org:888/path/absfile.htm", [url baseURL], nil);
+	STAssertEqualObjects(@"file%20name.htm;param1;param2?something=other&andmore=more#fragments -- scheme://user:password@host.domain.org:888/path/absfile.htm", [url description], nil);
+	STAssertEqualObjects(@"scheme://user:password@host.domain.org:888/path/file%20name.htm;param1;param2?something=other&andmore=more#fragments", [url absoluteString], nil);
+	STAssertEqualObjects(@"scheme://user:password@host.domain.org:888/path/file%20name.htm;param1;param2?something=other&andmore=more#fragments", [[url absoluteURL] description], nil);
+	STAssertEqualObjects(@"scheme://user:password@host.domain.org:888/path/absfile.htm", [[url baseURL] description], nil);
 	STAssertEqualObjects(@"fragments", [url fragment], nil);
 	STAssertEqualObjects(@"host.domain.org", [url host], nil);
 //	STAssertTrue([url isFileURL], nil);
-	STAssertEqualObjects(@"scheme://user:password@host.domain.org:888/path/absfile.htm", [url parameterString], nil);
+	STAssertEqualObjects(@"param1;param2", [url parameterString], nil);
 	STAssertEqualObjects(@"password", [url password], nil);
-	STAssertEqualObjects(@"path", [url path], nil);
-	STAssertEqualObjects(@"888", [url port], nil);
+	STAssertEqualObjects(@"/path/file name.htm", [url path], nil);
+	STAssertEqualObjects([NSNumber numberWithInt:888], [url port], nil);
 	STAssertEqualObjects(@"something=other&andmore=more", [url query], nil);
-	STAssertEqualObjects(@"888", [url relativePath], nil);
-	STAssertEqualObjects(@"888", [url relativeString], nil);
-	STAssertEqualObjects(@"888", [url resourceSpecifier], nil);
+	STAssertEqualObjects(@"file name.htm", [url relativePath], nil);
+	STAssertEqualObjects(@"file%20name.htm;param1;param2?something=other&andmore=more#fragments", [url relativeString], nil);
+	STAssertEqualObjects(@"file%20name.htm;param1;param2?something=other&andmore=more#fragments", [url resourceSpecifier], nil);
 	STAssertEqualObjects(@"scheme", [url scheme], nil);
-	STAssertEqualObjects(@"scheme", [url standardizedURL], nil);
+	STAssertEqualObjects(@"file%20name.htm;param1;param2?something=other&andmore=more#fragments -- scheme://user:password@host.domain.org:888/path/absfile.htm", [[url standardizedURL] description], nil);
 	STAssertEqualObjects(@"user", [url user], nil);
 #if 0
 	NSLog(@"*** NSURL demo ***");
@@ -63,7 +63,7 @@
 - (void) test2
 {
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note"];
-	STAssertEqualObjects(@"URLWithString:", [url absoluteString], @"data:,A%20brief%20note");
+	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"data:,A%20brief%20note");
 }
 
 - (void) test3
@@ -74,9 +74,9 @@
 - (void) test4
 {
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"data:other"]];
-	STAssertEqualObjects(@"URLWithString:relativeToString:", [url absoluteString], @"data:,A%20brief%20note");
+	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"data:,A%20brief%20note");
 	url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"file://localhost/"]];
-	STAssertEqualObjects(@"URLWithString:relativeToString:", [url absoluteString], @"data:,A%20brief%20note");
+	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"data:,A%20brief%20note");
 }
 
 

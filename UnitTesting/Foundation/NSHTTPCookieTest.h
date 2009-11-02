@@ -9,8 +9,9 @@
 #import <SenTestingKit/SenTestingKit.h>
 
 
-@interface NSHTTPCookieTest : SenTestCase {
-
+@interface NSHTTPCookieTest : SenTestCase
+{
+	NSHTTPCookie *c1, *c2;
 }
 
 @end

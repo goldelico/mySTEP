@@ -450,12 +450,6 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	return (info[0].qual & _F_ONEWAY) ? YES : NO;
 }
 
-- (void) _makeOneWay;
-{ // special function for sending release messages oneway
-	NEED_INFO();
-	info[0].qual |= _F_ONEWAY;
-}
-
 - (unsigned) methodReturnLength
 {
 	NEED_INFO();
@@ -522,7 +516,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	return self;
 }
 
-- (const char*) _methodType	{ return methodTypes; }
+- (const char *) _methodType	{ return methodTypes; }
+- (NSString) _type	{ return [NSString stringWithUTF8String:methodTypes]; }
 
 - (unsigned) _getArgumentLengthAtIndex:(int) index;
 {
@@ -684,6 +679,10 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 		((void **)_argframe)[1] = ((void **)_argframe)[2];		// copy target/self value to the register frame
 	return wrapped_builtin_apply(imp, _argframe, (argFrameLength+3)&~3, retbuf, &info[0]);	// here, we really invoke the implementation	
 }
+
+@end
+
+@implementation NSMethodSignature (Autodetect)
 
 #if AUTO_DETECT
 

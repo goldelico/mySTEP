@@ -156,12 +156,14 @@
 
 - (id) initWithLocal:(id)anObject connection:(NSConnection*)aConnection;
 { // this is initialization for vending objects
+	// check if we already know a NSDistantObject for our local object (may be required to correctly handle -replacementObjectForPortCoder:)
 	// we have no superclass!
 	_connection=[aConnection retain];	// keep the connection as long as we exist
 	_target=anObject;
 	[self retain];	// additional retain so that we keep around until remote side deallocates us
 	_selectorCache=[NSMutableDictionary dictionaryWithCapacity:10];
 	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache 
+	[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache 
 	[(NSMutableArray *) [aConnection localObjects] addObject:anObject];	// add to list
 	_isLocal=YES;
 	return self;
@@ -177,6 +179,9 @@
 			}
 	_connection=[aConnection retain];	// keep the connection as long as we exist
 	_target=remoteObject;
+	_selectorCache=[NSMutableDictionary dictionaryWithCapacity:10];
+	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache 
+	[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache 
 	[aConnection _addRemote:self forTarget:_target];	// add to remote objects
 	_isLocal=NO;
 	return self;
@@ -371,20 +376,16 @@
 
 - (void) encodeWithCoder:(NSCoder *) coder;
 {
+#if maybeneeded
 	NSConnection *c=[(NSPortCoder *) coder connection];
 	// lookUpConnectionForProxy
 	// lookUpWireIDForProxy
+#endif
 #if 0
 	NSLog(@"%@ encodeWithCoder (local=%@ target=%p)", NSStringFromClass(isa), _isLocal?@"YES":@"NO", _target);
 #endif
+	[coder encodeValueOfObjCType:@encode(int) at:&_target];	// encode as a reference into the address space and not the real object
 	[coder encodeValueOfObjCType:@encode(BOOL) at:&_isLocal];
-#if SUPPORTS_64_BIT
-	if(_isLocal)
-			{ //
-				// translate from 64 bit local object address to 32 bit remote reference
-			}
-#endif
-	[coder encodeValueOfObjCType:@encode(void *) at:&_target];	// encode as a reference into the address space and not the object
 }
 
 + (id) newDistantObjectWithCoder:(NSCoder *) coder;
@@ -395,8 +396,8 @@
 - (id) initWithCoder:(NSCoder *) coder;
 {
 	id ref;	// reference
-	[coder decodeValueOfObjCType:@encode(BOOL) at:&_isLocal];	// NOTE: the meaning if _isLocal is reversed since it is encoded for the proxy side!
 	[coder decodeValueOfObjCType:@encode(void *) at:&ref];
+	[coder decodeValueOfObjCType:@encode(BOOL) at:&_isLocal];	// NOTE: the meaning if _isLocal is reversed since it is encoded for the proxy side!
 #if 1
 	NSLog(@"%@ initWithCoder (local(on remote side)=%@ ref=%p)", NSStringFromClass(isa), _isLocal?@"YES":@"NO", ref);
 #endif
