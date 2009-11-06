@@ -9,9 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import "NSByteSwappingTest.h"
 
-// see http://developer.apple.com/tools/unittest.html
-// and http://www.cocoadev.com/index.pl?OCUnit
-
 
 @implementation NSByteSwappingTest
 

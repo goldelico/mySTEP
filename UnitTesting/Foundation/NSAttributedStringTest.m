@@ -53,7 +53,7 @@
 - (void) analyse:(NSData *) d
 {
 	NSPropertyListFormat format;
-	NSError *error;
+	NSString *error;
 	id obj=[NSPropertyListSerialization propertyListFromData:d mutabilityOption:NSPropertyListImmutable format:&format errorDescription:&error];
 	[self searchData:obj];
 }

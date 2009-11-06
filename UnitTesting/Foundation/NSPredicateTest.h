@@ -9,7 +9,7 @@
 #import <SenTestingKit/SenTestingKit.h>
 
 
-@interface NSByteSwappingTest : SenTestCase {
+@interface NSPredicateTest : SenTestCase {
 
 }
 

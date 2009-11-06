@@ -9,9 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import "NSURLTest.h"
 
-// see http://developer.apple.com/tools/unittest.html
-// and http://www.cocoadev.com/index.pl?OCUnit
-
 
 @implementation NSURLTest
 
@@ -25,7 +22,7 @@
 	STAssertEqualObjects(@"scheme://user:password@host.domain.org:888/path/absfile.htm", [[url baseURL] description], nil);
 	STAssertEqualObjects(@"fragments", [url fragment], nil);
 	STAssertEqualObjects(@"host.domain.org", [url host], nil);
-//	STAssertTrue([url isFileURL], nil);
+	STAssertTrue(![url isFileURL], nil);
 	STAssertEqualObjects(@"param1;param2", [url parameterString], nil);
 	STAssertEqualObjects(@"password", [url password], nil);
 	STAssertEqualObjects(@"/path/file name.htm", [url path], nil);

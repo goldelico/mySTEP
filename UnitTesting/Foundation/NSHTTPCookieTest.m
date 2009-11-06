@@ -9,9 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import "NSHTTPCookieTest.h"
 
-// see http://developer.apple.com/tools/unittest.html
-// and http://www.cocoadev.com/index.pl?OCUnit
-
 
 @implementation NSHTTPCookieTest
 
@@ -53,7 +50,7 @@
 {
 	NSDictionary *have=[NSHTTPCookie requestHeaderFieldsWithCookies:
 											[NSArray arrayWithObjects:c1, c2, nil]];
-	NSDictionary *want=@"{\n}";
+	NSDictionary *want=[NSDictionary dictionary];
 	STAssertEqualObjects(want, have, nil);
 
 	// WARNING: a cookie name or value with a ; is NOT encoded here!
