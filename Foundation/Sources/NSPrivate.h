@@ -339,9 +339,11 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 
 // mySTEP Extensions
 
+#if 0
 + (id) dataWithShmID:(int)anID length:(unsigned) length;
 + (id) dataWithSharedBytes:(const void*)sbytes length:(unsigned) length;
 + (id) dataWithStaticBytes:(const void*)sbytes length:(unsigned) length;
+#endif
 
 - (void *) _autoFreeBytesWith0:(BOOL) flag;		// return a "autofreed" copy - optionally with a trailing 0
 
@@ -400,6 +402,7 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe retbuf:(void *) buffer;
 - (id) _initWithObjCTypes:(const char*) t;
 - (const char *) _methodType;		// total method type
+- (NSString *) _typeString;		// total method type
 - (void) _makeOneWay;
 
 @end
@@ -416,8 +419,8 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 
 @end
 
-@interface NSObject (NSObjCRuntime)					// special
-- (retval_t) forward:(SEL)aSel :(arglist_t)argFrame;	// private method called by runtime
+@interface NSObject (NSObjCRuntime)		// special private method called by runtime
+- (retval_t) forward:(SEL)aSel :(arglist_t)argFrame;
 @end
 
 @interface NSProxy (NSPrivate)
@@ -465,7 +468,7 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 - (void) encodeInvocation:(NSInvocation *) i;
 - (NSInvocation *) decodeInvocation;
 - (void) encodeReturnValue:(NSInvocation *) i;
-- (NSInvocation *) decodeReturnValue;
+- (void) decodeReturnValue:(NSInvocation *) i;
 - (id) decodeRetainedObject;
 - (void) encodeObject:(id) obj isBycopy:(BOOL) isBycopy isByref:(BOOL) isByref;
 - (void) authenticateWithDelegate:(id) delegate;

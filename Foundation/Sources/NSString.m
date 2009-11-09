@@ -3110,7 +3110,7 @@ struct stat tmp_stat;
 {
 //	NSLog(@"@encode(unichar)='%s'", @encode(unichar));
 	[aCoder encodeValueOfObjCType: @encode(unsigned) at: &_count];
-	// FIXME: should we encode/decode UTF8 to become compatible with NSPortCoder?
+	// FIXME: should we always encode/decode UTF8 to become compatible with NSPortCoder?
 	if(_count > 0)
 		[aCoder encodeArrayOfObjCType: @encode(unichar)
 				count: _count

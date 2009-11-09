@@ -44,9 +44,9 @@
 		EE27BF6B0FCAB32000A48A1E /* NSURLTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSURLTest.h; sourceTree = "<group>"; };
 		EE488A930F90FBC300B3E56F /* NSAttributedStringTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSAttributedStringTest.h; sourceTree = "<group>"; };
 		EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAttributedStringTest.m; sourceTree = "<group>"; };
-		EE488AEA0F91025400B3E56F /* Special.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = Special.app; path = /usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/build/Development/Special.app; sourceTree = "<absolute>"; };
 		EE488AEC0F91025500B3E56F /* Special-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Special-Info.plist"; sourceTree = "<group>"; };
 		EE488C3E0F91030800B3E56F /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		EE5DAEF010A61BD200910F0B /* Special.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Special.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEBB6D93109CBEE500B67699 /* NSPortCoderTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSPortCoderTest.h; sourceTree = "<group>"; };
 		EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPortCoderTest.m; sourceTree = "<group>"; };
 		EED109C80F82540300E9AEC6 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -138,6 +138,7 @@
 			children = (
 				EE0C72030F7E7328008B94EE /* Tests.octest */,
 				EED9803A0F875953002E4AD5 /* Tests.octest */,
+				EE5DAEF010A61BD200910F0B /* Special.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -200,7 +201,7 @@
 			);
 			name = Special;
 			productName = Special;
-			productReference = EE488AEA0F91025400B3E56F /* Special.app */;
+			productReference = EE5DAEF010A61BD200910F0B /* Special.app */;
 			productType = "com.apple.product-type.application";
 		};
 		EED9802D0F875953002E4AD5 /* AppKit */ = {

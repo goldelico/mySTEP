@@ -293,6 +293,7 @@ const char *objc_skip_typespec (const char *type)
 - (void) encodeObject:(id) obj
 {
 	Class class=[obj classForPortCoder];
+	// FIXME: should also look up in class translation table!
 	BOOL isInvocation=(class == [NSInvocation class]);
 	id robj=obj;
 	BOOL flag;
@@ -300,17 +301,19 @@ const char *objc_skip_typespec (const char *type)
 	NSLog(@"NSPortCoder encodeObject%@%@ %p", _isBycopy?@" bycopy":@"", _isByref?@" byref":@"", obj);
 	NSLog(@"  obj %@", obj);
 #endif
-	if(!isInvocation)	// (NSInvocation does return nil)
+	if(!isInvocation)	// (calling -[NSInvocation replacementObjectForPortCoder:] does return nil)
 		robj=[obj replacementObjectForPortCoder:self];	// substitute by a proxy if required
 	flag=(robj != nil);
 #if 1
 	if(robj != obj)
 		NSLog(@"different replacement object %@", robj);
 	NSLog(@"obj.class=%@", NSStringFromClass([obj class]));
+	NSLog(@"obj.class.version=%u", [[obj class] version]);
 //	NSLog(@"obj.classForCoder=%@", NSStringFromClass([obj classForCoder]));
 	NSLog(@"obj.classForPortCoder=%@", NSStringFromClass([obj classForPortCoder]));
 	NSLog(@"obj.superclass=%@", NSStringFromClass([obj superclass]));
 	NSLog(@"repobj.class=%@", NSStringFromClass([robj class]));
+	NSLog(@"obj.class.version=%u", [[robj class] version]);
 //	NSLog(@"repobj.classForCoder=%@", NSStringFromClass([robj classForCoder]));
 	NSLog(@"repobj.classForPortCoder=%@", NSStringFromClass([robj classForPortCoder]));
 	NSLog(@"repobj.superclass=%@", NSStringFromClass([robj superclass]));
@@ -319,24 +322,29 @@ const char *objc_skip_typespec (const char *type)
 	[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// the first byte is the non-nil/nil flag
 	if(flag)
 		{ // handle special cases and encode class/object
-			// FIXME: should also look up in class translation table!
+			// FIXME: it appears as if the [class version] is encoded somewhere
 			[self encodeValueOfObjCType:@encode(Class) at:&class];
+			flag=[class isSubclassOfClass:[NSString class]];	// what is this flag really used for? So far I have seen it only for NSString/NSMutableString but I don't know on what it really depends
+			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
+			if(flag)
+				{
+					[self _encodeInteger:1];
+					if([class isSubclassOfClass:[NSMutableString class]])	// when is a second class encoded and when not
+						{
+							class=[NSString class];
+							[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// the first byte is the non-nil/nil flag
+							[self encodeValueOfObjCType:@encode(Class) at:&class];	// encode again
+							[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// two more flags
+							[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
+						}
+					flag=NO;
+					[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// what is this flag used for?
+				}
 			if(isInvocation)
 				[self encodeInvocation:obj];
 			else
-				{
-					// it appears as if we encode the real class if it is different and 0x00 otherwise
-					flag=[class isSubclassOfClass:[NSString class]];
-					[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// what is this flag used for?
-					if(flag)
-						{
-							[self _encodeInteger:1];	// sometimes there the flag is YES and an int (?) follows
-							flag=NO;
-							[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// what is this flag used for?
-						}
-					[robj encodeWithCoder:self];	// translate and encode
-				}
-			flag=YES;	// hm - what is this flag? It appears as if it is always YES
+				[robj encodeWithCoder:self];	// translate and encode
+			flag=YES;	// It appears as if this is always YES
 			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
 		}
 	_isBycopy=_isByref=NO;	// reset flags for next encoder call
@@ -534,7 +542,7 @@ const char *objc_skip_typespec (const char *type)
 		d.val=0;
 	if(len > 8)
 		[NSException raise:NSPortReceiveException format:@"invalid integer length to decode"];
-	if(_pointer+len >= _eod)
+	if(_pointer+len > _eod)
 		[NSException raise:NSPortReceiveException format:@"not enough data to decode integer"];
 	memcpy(d.data, _pointer, len);
 	_pointer+=len;
@@ -595,7 +603,7 @@ const char *objc_skip_typespec (const char *type)
 { // get next object as it is
 	unsigned long len=[self _decodeInteger];
 	NSData *d;
-	if(_pointer+len >= _eod)
+	if(_pointer+len > _eod)
 		[NSException raise:NSPortReceiveException format:@"not enough data to decode data"];
 	d=[NSData dataWithBytes:_pointer length:len];	// retained copy...
 	_pointer+=len;
@@ -620,45 +628,35 @@ const char *objc_skip_typespec (const char *type)
 		}
 		case _C_CLASS:
 		{
-			// FIXME: contains 0-termination character
-			NSString *class=[[NSString alloc] initWithData:[self decodeDataObject] encoding:NSUTF8StringEncoding];
-			if(!class)
+			BOOL flag;
+			Class class=nil;
+			[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
+			if(flag)
 				{
-					NSLog(@"could not decode Class");
-					{
-						[NSException raise:NSPortReceiveException format:@"class %@ not loaded", class];
-						return;
-					}
-					*((Class *)address)=Nil;
+					unsigned int len;
+					char *str=[self decodeBytesWithReturnedLength:&len];	// include terminating 0 byte
+					// check if last byte is 00
+					NSString *s=[NSString stringWithUTF8String:str];
+					if(![s isEqualToString:@"Nil"])	// may not really be needed unless someone defines a class named "Nil"
+						class=NSClassFromString(s);
 				}
-			else
-				{
-					if([class isEqualToString:@"Nil"])
-						*((Class *)address)=Nil;		// Nil class was encoded
-					else
-						*((Class *)address)=NSClassFromString(class);		// decode class by name
-					// raise exception if unknown
-					[class release];
-				}
+			*((Class *)address)=class;
 			return;
 		}
 		case _C_SEL:
 		{
-			// FIXME: contains 0-termination character
-			NSString *selector=[[NSString alloc] initWithData:[self decodeDataObject] encoding:NSUTF8StringEncoding];
-			if(!selector)
+			BOOL flag;
+			SEL sel=NULL;
+			[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
+			if(flag)
 				{
-					[NSException raise:NSPortReceiveException format:@"could not decode SEL"];
-					*((SEL *)address)=NULL;
+					unsigned int len;
+					char *str=[self decodeBytesWithReturnedLength:&len];	// include terminating 0 byte
+					// check if last byte is 00
+					NSString *s=[NSString stringWithUTF8String:str];
+					sel=NSSelectorFromString(s);
 				}
-			else
-				{
-					if([selector isEqualToString:@"NULL"])
-						*((SEL *)address)=NULL;	// NULL selector (e.g. an [target action])
-					else
-						*((SEL *)address)=NSSelectorFromString(selector);		// decode selector by name
-					[selector release];
-				}
+			*((SEL *)address)=sel;
 			return;
 		}
 		case _C_CHR:
@@ -784,9 +782,8 @@ const char *objc_skip_typespec (const char *type)
 	objc_free(buffer);
 }
 
-- (NSInvocation *) decodeReturnValue;
-{
-	NSInvocation *i=nil;	// where to get this from???
+- (void) decodeReturnValue:(NSInvocation *) i
+{ // decode value into existing invocation
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
 	[self decodeValueOfObjCType:[sig methodReturnType] at:buffer];
@@ -800,27 +797,49 @@ const char *objc_skip_typespec (const char *type)
 	void *buffer=objc_malloc([sig frameLength]);	// allocate a buffer
 	int cnt=[sig numberOfArguments];	// encode arguments
 	int j;
-	char *str="@@:";	// we should collect the type arguments while we process them...
-	//	NSLog(@"sig=%@", [sig _typeString]);	// private getter - returns NSString
-	for(j=0; j<cnt; j++)
+	const char *type=[[sig _typeString] UTF8String];	// private method to get the type string
+	SEL selector=[i selector];
+	id target=[i target];
+	[self encodeValueOfObjCType:@encode(id) at:&target];
+	[self encodeValueOfObjCType:@encode(int) at:&cnt];
+	[self encodeValueOfObjCType:@encode(SEL) at:&selector];
+	[self encodeValueOfObjCType:@encode(char *) at:&type];	// method type
+	j=64;
+	[self encodeValueOfObjCType:@encode(int) at:&j];
+	for(j=2; j<cnt; j++)
 		{ // encode arguments
 			// set byRef & byCopy flags here
 			[i getArgument:buffer atIndex:j];	// get value
 			[self encodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
 		}
-	[self encodeValueOfObjCType:@encode(char *) at:&str];
-	// arginfo array (?)
-	objc_free(buffer);
 }
 
 - (NSInvocation *) decodeInvocation;
 {
-	char *types;	// UTF8 string
-	// decode retained objects
-	// decode method signature string
-	NSInvocation *i=[[NSInvocation alloc] initWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:types]];	// official method since 10.5
-	// set arguments
-	// adds something to arrays
+	NSInvocation *i;
+	NSMethodSignature *sig;
+	void *buffer;
+	char *type;
+	int cnt;
+	id target;
+	SEL selector;
+	int j;
+	[self decodeValueOfObjCType:@encode(id) at:&target];
+	[self decodeValueOfObjCType:@encode(int) at:&cnt];
+	[self decodeValueOfObjCType:@encode(SEL) at:&selector];
+	[self decodeValueOfObjCType:@encode(char *) at:&type];
+	sig=[NSMethodSignature signatureWithObjCTypes:type];
+	[self decodeValueOfObjCType:@encode(int) at:&j];
+	buffer=objc_malloc([sig frameLength]);	// allocate a buffer
+	i=[[NSInvocation alloc] initWithMethodSignature:sig];	// official method since 10.5
+	[i setTarget:target];
+	[i setSelector:selector];
+	for(j=2; j<cnt; j++)
+		{
+			[self decodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
+			[i setArgument:buffer atIndex:j];	// set value
+		}
+	objc_free(buffer);
 	return [i autorelease];
 }
 
