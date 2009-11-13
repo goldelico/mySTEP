@@ -273,12 +273,11 @@ const char *objc_skip_typespec (const char *type)
 	[(NSMutableArray *) _components addObject:port];
 }
 
-// FIXME: can't we simply inherit this from NSCoder?
+#if 1	// should be inherited!
 - (void) encodeArrayOfObjCType:(const char*) type
 						 count:(unsigned int) count
 							at:(const void*) array
 {
-	NSMutableData *data=[_components objectAtIndex:0];
 	int size=objc_aligned_size(type);
 #if 1
 	NSLog(@"encodeArrayOfObjCType %s count %d size %d", type, count, size);
@@ -289,31 +288,34 @@ const char *objc_skip_typespec (const char *type)
 			array+=size;
 		}
 }
+#endif
 
 - (void) encodeObject:(id) obj
 {
-	Class class=[obj classForPortCoder];
+	Class class;
 	// FIXME: should also look up in class translation table!
-	BOOL isInvocation=(class == [NSInvocation class]);
 	id robj=obj;
 	BOOL flag;
 #if 0
 	NSLog(@"NSPortCoder encodeObject%@%@ %p", _isBycopy?@" bycopy":@"", _isByref?@" byref":@"", obj);
 	NSLog(@"  obj %@", obj);
 #endif
-	if(!isInvocation)	// (calling -[NSInvocation replacementObjectForPortCoder:] does return nil)
+	if([obj respondsToSelector:@selector(replacementObjectForPortCoder:)])	// (calling -[NSInvocation replacementObjectForPortCoder:] would return nil)
 		robj=[obj replacementObjectForPortCoder:self];	// substitute by a proxy if required
 	flag=(robj != nil);
+	class=[robj class];	// classForPortCoder would return the class of the represented object
+	if(class != [NSDistantObject class])
+		class=[robj classForPortCoder];
 #if 1
 	if(robj != obj)
-		NSLog(@"different replacement object %@", robj);
+		NSLog(@"different replacement object: %@", robj);
 	NSLog(@"obj.class=%@", NSStringFromClass([obj class]));
 	NSLog(@"obj.class.version=%u", [[obj class] version]);
 //	NSLog(@"obj.classForCoder=%@", NSStringFromClass([obj classForCoder]));
 	NSLog(@"obj.classForPortCoder=%@", NSStringFromClass([obj classForPortCoder]));
 	NSLog(@"obj.superclass=%@", NSStringFromClass([obj superclass]));
 	NSLog(@"repobj.class=%@", NSStringFromClass([robj class]));
-	NSLog(@"obj.class.version=%u", [[robj class] version]);
+//	NSLog(@"repobj.class.version=%u", [[robj class] version]);	<-- calls methodSignatureForSelector?
 //	NSLog(@"repobj.classForCoder=%@", NSStringFromClass([robj classForCoder]));
 	NSLog(@"repobj.classForPortCoder=%@", NSStringFromClass([robj classForPortCoder]));
 	NSLog(@"repobj.superclass=%@", NSStringFromClass([robj superclass]));
@@ -325,14 +327,16 @@ const char *objc_skip_typespec (const char *type)
 			// FIXME: it appears as if the [class version] is encoded somewhere
 			[self encodeValueOfObjCType:@encode(Class) at:&class];
 			flag=[class isSubclassOfClass:[NSString class]];	// what is this flag really used for? So far I have seen it only for NSString/NSMutableString but I don't know on what it really depends
+			if(!flag)
+				flag=[class isSubclassOfClass:[NSTimeZone class]];	// and NSTimZone
 			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
 			if(flag)
 				{
-					[self _encodeInteger:1];
+					[self _encodeInteger:1];	// what does this "1" mean? Class version??
 					if([class isSubclassOfClass:[NSMutableString class]])	// when is a second class encoded and when not
 						{
 							class=[NSString class];
-							[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// the first byte is the non-nil/nil flag
+							[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
 							[self encodeValueOfObjCType:@encode(Class) at:&class];	// encode again
 							[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// two more flags
 							[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
@@ -340,8 +344,8 @@ const char *objc_skip_typespec (const char *type)
 					flag=NO;
 					[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// what is this flag used for?
 				}
-			if(isInvocation)
-				[self encodeInvocation:obj];
+			if(class == [NSInvocation class])
+				[self encodeInvocation:robj];
 			else
 				[robj encodeWithCoder:self];	// translate and encode
 			flag=YES;	// It appears as if this is always YES
@@ -401,6 +405,9 @@ const char *objc_skip_typespec (const char *type)
 			Class c=*((Class *)address);
 			BOOL flag=YES;
 			const char *class=c?[NSStringFromClass(c) UTF8String]:"nil";
+#if 1
+			NSLog(@"encoding class %s", class);
+#endif
 			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
 			[self encodeBytes:class length:strlen(class)+1];	// include terminating 0 byte
 			break;
@@ -477,9 +484,8 @@ const char *objc_skip_typespec (const char *type)
 			void *ptr=*((void **) address);
 			BOOL flag=(ptr != NULL);
 			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
-			type++;
 			if(flag)
-				[self encodeArrayOfObjCType:type count:1 at:ptr];	// dereference pointer
+				[self encodeArrayOfObjCType:type+1 count:1 at:ptr];	// dereference pointer
 			break;
 		}
 		case _C_ARY_B:
@@ -554,37 +560,22 @@ const char *objc_skip_typespec (const char *type)
 	return NIMP;
 }
 
+#if 1	// should be inherited!
 - (void) decodeArrayOfObjCType:(const char*)type
 						 count:(unsigned)count
-							at:(void*)address
-{ // try to decode as a single component
-	unsigned size;
-	char *bytes;
-#if 0
-	NSLog(@"decodeArrayOfObjCType %s count %d", type, count);
+							at:(void*)array
+{
+	int size=objc_aligned_size(type);
+#if 1
+	NSLog(@"decodeArrayOfObjCType %s count %d size %d", type, count, size);
 #endif
-	switch(*type)
-	{
-		case _C_ID:
-		case _C_CLASS:
-		case _C_SEL:
-		case _C_PTR:
-		case _C_ATOM:
-		case _C_CHARPTR:
-		case _C_ARY_B:
-		case _C_STRUCT_B:
-		case _C_UNION_B:
-			[super decodeArrayOfObjCType:type count:count at:address];	// default implementation
-			return;
-	}
-	bytes=[self decodeBytesWithReturnedLength:&size];
-	if(size != count*objc_sizeof_type(type))
-		{
-			NSLog(@"NSPortCoder decodeArrayOfObjCType size error (found=%u expected=%u)", size, count*objc_sizeof_type(type));
-			return;	// error
-		}
-	memcpy(address, bytes, size);
+	while(count-- > 0)
+			{
+				[self decodeValueOfObjCType:type at:array];
+				array+=size;
+			}
 }
+#endif
 
 - (id) decodeObject
 {
@@ -612,11 +603,13 @@ const char *objc_skip_typespec (const char *type)
 
 - (void) decodeValueOfObjCType:(const char *) type at:(void *) address
 { // must encode in network byte order (i.e. bigendian)
-#if 0
+#if 1
 	NSLog(@"NSPortCoder decodeValueOfObjCType:%s", type);
 #endif
 	switch(*type)
 	{
+		case _C_VOID:
+		case _C_UNION_B:
 		default:
 			NSLog(@"%@ can't decodeValueOfObjCType:%s", self, type);
 			[NSException raise:NSPortReceiveException format:@"can't decodeValueOfObjCType:%s", type];
@@ -662,8 +655,8 @@ const char *objc_skip_typespec (const char *type)
 		case _C_CHR:
 		case _C_UCHR:
 		{
-			if(_pointer+1 >= _eod)
-				[NSException raise:NSPortReceiveException format:@"not enough data to decode data"];
+			if(_pointer >= _eod)
+				[NSException raise:NSPortReceiveException format:@"not enough data to decode char"];
 			*((char *) address) = *_pointer++;	// single byte
 			break;
 		}
@@ -691,65 +684,96 @@ const char *objc_skip_typespec (const char *type)
 			*((long long *) address) = [self _decodeInteger];
 			break;
 		}
-#if FIXME
 		case _C_FLT:
-		{
-			unsigned numBytes;
-			void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-			// FIXME: should be exception
-			NSAssert(numBytes == sizeof(float), @"bad byte count for float");
-			*((float *) address) = NSSwapBigFloatToHost(*(float *) addr);
-			break;
+			{
+				NSSwappedFloat val;
+				if(_pointer+sizeof(float) >= _eod)
+					[NSException raise:NSPortReceiveException format:@"not enough data to decode float"];
+				if(*_pointer != sizeof(float))
+					[NSException raise:NSPortReceiveException format:@"invalid length to decode float"];
+				memcpy(&val, ++_pointer, sizeof(float));
+				_pointer+=sizeof(float);
+				*((float *) address) = NSSwapLittleFloatToHost(val);	
+				break;
 		}
 		case _C_DBL:
 		{
-			unsigned numBytes;
-			void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-			// FIXME: should be exception
-			NSAssert(numBytes == sizeof(double), @"bad byte count for double");
-			*((double *) address) = NSSwapBigShortToHost(*(double *) addr);
-			break;
-		}
-#endif
-		case _C_PTR:
-		{
-			unsigned numBytes;
-			void **addr=[self decodeBytesWithReturnedLength:&numBytes];
-			// check for numBytes == sizeof(void *)
-			*((void **) address) = (*(void **) addr);
+			NSSwappedDouble val;
+			if(_pointer+sizeof(double) >= _eod)
+				[NSException raise:NSPortReceiveException format:@"not enough data to decode double"];
+			if(*_pointer != sizeof(double))
+				[NSException raise:NSPortReceiveException format:@"invalid length to decode double"];
+			memcpy(&val, ++_pointer, sizeof(double));
+			_pointer+=sizeof(double);
+			*((double *) address) = NSSwapLittleDoubleToHost(val);	
 			break;
 		}
 		case _C_ATOM:
 		case _C_CHARPTR:
 		{
+			BOOL flag;
 			unsigned numBytes;
-			void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-#if 0
-			NSLog(@"decoded %u bytes atomar string", numBytes);
+			void *addr;
+			[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
+			if(flag)
+					{
+					addr=[self decodeBytesWithReturnedLength:&numBytes];
+#if 1
+						NSLog(@"decoded %u bytes atomar string", numBytes);
 #endif
+						// should check if the last byte is 00
+					}
+			else
+				addr=NULL;
 			*((char **) address) = addr;	// store address (storage object is an autoreleased NSData!)
 			break;
 		}
-#if 1
+		case _C_PTR:
+			{
+				BOOL flag;
+				unsigned numBytes;
+				void *addr;
+				[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
+				if(flag)
+					[self decodeArrayOfObjCType:type+1 count:1 at:&addr];
+				else
+					addr=NULL;
+				*((void **) address) = (*(void **) addr);
+				break;
+			}
 		case _C_ARY_B:
+				{ // get number of entries from type encoding
+					int cnt=0;
+					type++;
+					while(*type >= '0' && *type <= '9')
+						cnt=10*cnt+(*type++)-'0';
+					[self decodeArrayOfObjCType:type count:cnt at:address];
+					break;
+				}				
 		case _C_STRUCT_B:
-		case _C_UNION_B:
-		{
-			int len=objc_sizeof_type(type);
-			unsigned numBytes;
-			void *addr=[self decodeBytesWithReturnedLength:&numBytes];
-			if(numBytes != len)
-				NSLog(@"length error");
+			{ // recursively decode components! type is e.g. "{testStruct=c*}"
+				while(*type != 0 && *type != '=')
+					type++;
+				if(*type++ == 0)
+					break;	// invalid
+				while(*type != 0 && *type != '}')
+						{
 #if 1
-			NSLog(@"decoded %u bytes (%d expected) string %p", numBytes, len, addr);
+							NSLog(@"addr %p struct component %s", address, type);
 #endif
-			*((char **) address) = addr;	// store address (storage object is an autoreleased NSData!)
-			break;
+							[self decodeValueOfObjCType:type at:address];
+							address+=objc_aligned_size(type);
+							type=objc_skip_typespec(type);	// next
+						}
+				break;
 		}
-#endif
-		case _C_VOID:
-			break;
 	}
+}
+
+- (NSInteger) versionForClassName:(NSString *) className
+{
+	NSLog(@"versionForClassName: %@", className);
+	return 1;
 }
 
 @end
@@ -856,28 +880,53 @@ const char *objc_skip_typespec (const char *type)
 {
 	NSString *name;
 	Class class;
+	id obj;
+	BOOL flag;
+#if 1
+	NSLog(@"decodeRetainedObject");
+#endif
+	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// the first byte is the non-nil/nil flag
+	if(!flag)
+		return nil;
 	[self decodeValueOfObjCType:@encode(Class) at:&class];
+#if 1
+	NSLog(@"class=%@", NSStringFromClass(class));
+#endif
 	if(!class)
 		return nil;
-	if(class == [NSInvocation class])
-		return [[self decodeInvocation] retain];	// special handling
-	return [[class alloc] initWithCoder:self];	// allocate and load new instance
-#if OLDPIXMAPSTRUCT
-	Class class;
-	id obj;
-	[self decodeValueOfObjCType:@encode(Class) at:&class];
-#if 0
-	NSLog(@"NSPortCoder decodeObject of class %@", NSStringFromClass(class));
+	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// version flag (?)
+#if 1
+	NSLog(@"flag1=%d", flag);
 #endif
-	if(class == Nil)
-		return nil;	// was a nil object
-	// should also look up in class translation table!
-	obj=[[class alloc] initWithCoder:self];	// decode
-#if 0
-	NSLog(@"NSPortCoder decodeRetainedObject(%@) -> %@", NSStringFromClass(class), obj);
+	if(flag)
+			{ // special case(s)
+				int i=[self _decodeInteger];	// we should use [self decodeValueOfObjCType:@encode(int) at:&i]
+				[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// more-class flag
+#if 1
+				NSLog(@"i=%d", i);
+				NSLog(@"flag2=%d", flag);
+#endif
+				if(flag)
+						{
+							Class otherClass;
+							[self decodeValueOfObjCType:@encode(Class) at:&otherClass];	// encode again
+#if 1
+							NSLog(@"otherClass=%@", NSStringFromClass(class));
+#endif
+							[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// more flags
+							[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
+							[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
+						}
+			}
+	if(class == [NSInvocation class])
+		obj=[[self decodeInvocation] retain];	// special handling
+	else
+		obj=[[class alloc] initWithCoder:self];	// allocate and load new instance
+	[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// always 0x01 (?)
+#if 1
+	NSLog(@"flag3=%d", flag);
 #endif
 	return obj;
-#endif
 }
 
 - (void) encodeObject:(id) obj isBycopy:(BOOL) isBycopy isByref:(BOOL) isByref;

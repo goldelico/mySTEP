@@ -23,7 +23,7 @@
 
 - (unsigned int) systemVersion					{ return 104; }
 
-- (NSInteger) versionForClassName:(NSString*)className 	
+- (NSInteger) versionForClassName:(NSString *) className 	
 { 
 	SUBCLASS return NSNotFound; 
 }
