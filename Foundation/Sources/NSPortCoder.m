@@ -239,8 +239,6 @@ const char *objc_skip_typespec (const char *type)
 
 // core encoding
 
-// FIXME?: _encodeIntegerAt:addr size:
-
 - (void) _encodeInteger:(long long) val
 {
 	NSMutableData *data=[_components objectAtIndex:0];
@@ -250,7 +248,7 @@ const char *objc_skip_typespec (const char *type)
 		unsigned char data[8];
 	} d;
 	char len=8;
-	d.val=NSSwapHostLongLongToLittle(val);
+	d.val=NSSwapHostLongLongToLittle(val);	// unit-tested to be on on i386 and ppc machines
 	if(val < 0)
 		{
 			while(len > 1 && d.data[len-1] == 0xff)
