@@ -35,6 +35,7 @@
 	NSPort *_send;
 	NSArray *_components;
 	NSMutableArray *_imports;
+	NSMutableDictionary *_classVersions;
 	const unsigned char *_pointer;	// used for decoding
 	const unsigned char *_eod;	// used for decoding
 	BOOL _isByref;

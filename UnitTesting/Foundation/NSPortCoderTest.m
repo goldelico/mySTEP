@@ -10,12 +10,6 @@
 #import "NSPortCoderTest.h"
 
 
-@interface NSPortCoder (NSConcretePortCoder)
-- (NSArray *) components;
-- (void) encodeInvocation:(NSInvocation *) i;
-- (void) encodeReturnValue:(NSInvocation *) r;
-@end
-
 #if 1	// test our mySTEP implementation
 
 // make NSPrivate.h compile on Cocoa Foundation
@@ -54,6 +48,28 @@
 #import "../../Foundation/Sources/NSPortMessage.h"
 #import "../../Foundation/Sources/NSPortCoder.m"
 #endif
+
+@interface NSPortCoder (NSConcretePortCoder)
+- (NSArray *) components;
+- (void) encodeInvocation:(NSInvocation *) i;
+- (void) encodeReturnValue:(NSInvocation *) r;
+@end
+
+@interface MyClass : NSObject <NSCoding>
+@end
+
+@implementation MyClass
+
++ (void) initialize; { [self setVersion:5]; }
++ (int) version { NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super version]; }
+- (Class) classForCoder { NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super classForCoder]; }
+- (Class) classForPortCoder { NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super classForPortCoder]; }
+- (id) replacementObjectForPortCoder:(NSCoder *) class { NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return self; }	// bycopy...
+- (void) encodeWithCoder:(NSCoder *) c; { NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); }
+- (id) initWithCoder:(NSCoder *) c; { NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return self; }
+
+@end
+
 
 @implementation NSPortCoderTest
 
@@ -532,6 +548,11 @@
 	[pc encodeObject:[NSMutableString stringWithString:@"String"]];
 	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
 	STAssertEqualObjects(have, want,  nil);
+	pc=[self portCoderForDecode:want];
+	have=[[[pc components] objectAtIndex:0] description];	// get new NSData object
+	STAssertEqualObjects(have, want,  nil);	// this tests portCoderForDecode:
+	[pc decodeValueOfObjCType:@encode(id) at:&have];
+	STAssertEqualObjects(have, @"String",  nil);	// error: NSString cannot decode class version 0
 }
 
 - (void) testMutableString2
@@ -539,7 +560,7 @@
 	NSPortCoder *pc=[self portCoderForEncode];
 	id have;
 	NSString *code=@"01010110 4e534d75 7461626c 65537472 696e6700 01010101 0101094e 53537472 696e6700 01010001 06537472 696e6701";
-	id want=[NSString stringWithFormat:@"<%@ %@>", code, code];	// exactly 2 repetitions of Class(NSMutableString) + Class(NSString) + contents
+	id want=[NSString stringWithFormat:@"<%@ %@>", code, code];	// exactly 2 repetitions of Class(NSMutableString) + Class(NSString) + contents - so there is no optimization or encoding cache
 	[pc encodeObject:[NSMutableString stringWithString:@"String"]];
 	[pc encodeObject:[NSMutableString stringWithString:@"String"]];
 	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
@@ -733,6 +754,17 @@
 	id have;
 	id want=@"<00>";
 	[pc encodeBycopyObject:obj];
+	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
+	STAssertEqualObjects(have, want,  nil);
+}
+
+- (void) testMyClass
+{
+	NSPortCoder *pc=[self portCoderForEncode];
+	MyClass *obj=[[[MyClass alloc] init] autorelease];
+	id have;
+	id want=@"<01010108 4d79436c 61737300 01010500 01>";	// 0x01 prefix + Class(MyObject) + 1 byte 00 (uninitialized?) + 0x01 suffix
+	[pc encodeObject:obj];
 	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
 	STAssertEqualObjects(have, want,  nil);
 }

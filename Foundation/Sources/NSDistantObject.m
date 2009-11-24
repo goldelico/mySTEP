@@ -358,7 +358,7 @@
 	return [super respondsToSelector:aSelector];	// we must ask the remote side
 }
 
-- (Class) classForPortCoder; { return /*isa*/ NSClassFromString(@"NSDistantObject"); }
+- (Class) classForCoder; { return /*isa*/ NSClassFromString(@"NSDistantObject"); }
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't ever replace by another proxy
 
@@ -385,7 +385,7 @@
 	NSLog(@"%@ encodeWithCoder (local=%@ target=%p)", NSStringFromClass(isa), _isLocal?@"YES":@"NO", _target);
 #endif
 	[coder encodeValueOfObjCType:@encode(int) at:&_target];	// encode as a reference into the address space and not the real object
-	[coder encodeValueOfObjCType:@encode(BOOL) at:&_isLocal];
+//	[coder encodeValueOfObjCType:@encode(BOOL) at:&_isLocal];
 }
 
 + (id) newDistantObjectWithCoder:(NSCoder *) coder;

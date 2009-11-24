@@ -12,7 +12,7 @@
  under the terms of the GNU Library General Public License.
  */
 
-#import <sys/socket.h>
+#import <sys/socket.h>	// needed for handling MachMessages on TCP/IP
 
 #import <Foundation/NSPortCoder.h>
 #import <Foundation/NSArray.h>
@@ -167,6 +167,16 @@ const char *objc_skip_typespec (const char *type)
  You should set a breakpoint on -[NSPort sendBeforeDate:msgid:components:from:reserved:] to see what is going on
  */
 
+@interface NSObject (NSPortCoding) // this allows to override encoding/decoding independently to become Cocoa compatible
+- (void) _encodeWithPortCoder:(NSPortCoder *) coder;
+- (id) _initWithPortCoder:(NSPortCoder *) coder;
+@end
+
+@interface NSProxy (NSPortCoding) // this allows to override encoding/decoding independently to become Cocoa compatible
+- (void) _encodeWithPortCoder:(NSPortCoder *) coder;
+- (id) _initWithPortCoder:(NSPortCoder *) coder;
+@end
+
 @implementation NSPortCoder
 
 + (NSPortCoder *) portCoderWithReceivePort:(NSPort *) recv
@@ -276,7 +286,7 @@ const char *objc_skip_typespec (const char *type)
 						 count:(unsigned int) count
 							at:(const void*) array
 {
-	int size=objc_aligned_size(type);
+	int size=objc_sizeof_type(type);
 #if 1
 	NSLog(@"encodeArrayOfObjCType %s count %d size %d", type, count, size);
 #endif
@@ -298,17 +308,20 @@ const char *objc_skip_typespec (const char *type)
 	NSLog(@"NSPortCoder encodeObject%@%@ %p", _isBycopy?@" bycopy":@"", _isByref?@" byref":@"", obj);
 	NSLog(@"  obj %@", obj);
 #endif
-	if([obj respondsToSelector:@selector(replacementObjectForPortCoder:)])	// (calling -[NSInvocation replacementObjectForPortCoder:] would return nil)
+	if(class != [NSInvocation class] && [obj respondsToSelector:@selector(replacementObjectForPortCoder:)])	// (calling -[NSInvocation replacementObjectForPortCoder:] would return nil)
 		robj=[obj replacementObjectForPortCoder:self];	// substitute by a proxy if required
 	flag=(robj != nil);
 	class=[robj class];	// classForPortCoder would return the class of the represented object
 	if(class != [NSDistantObject class])
-		class=[robj classForPortCoder];
+		class=[robj classForPortCoder];	// only available for NSObject and not for NSProxy (?)
+	else
+		class=[robj classForCoder];
 #if 1
 	if(robj != obj)
 		NSLog(@"different replacement object: %@", robj);
 	NSLog(@"obj.class=%@", NSStringFromClass([obj class]));
-	NSLog(@"obj.class.version=%u", [[obj class] version]);
+	if([obj class] != [NSDistantObject class])
+		NSLog(@"obj.class.version=%u", [[obj class] version]);
 //	NSLog(@"obj.classForCoder=%@", NSStringFromClass([obj classForCoder]));
 	NSLog(@"obj.classForPortCoder=%@", NSStringFromClass([obj classForPortCoder]));
 	NSLog(@"obj.superclass=%@", NSStringFromClass([obj superclass]));
@@ -321,9 +334,32 @@ const char *objc_skip_typespec (const char *type)
 #endif
 	[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// the first byte is the non-nil/nil flag
 	if(flag)
-		{ // handle special cases and encode class/object
-			// FIXME: it appears as if the [class version] is encoded somewhere
+		{ // encode class and version info
+			int version=[class version];
+			Class superclass;
 			[self encodeValueOfObjCType:@encode(Class) at:&class];
+			flag=(version != 0);
+			if(flag)
+					{ // main class is not version 0
+						[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// version is not 0
+						[self encodeValueOfObjCType:@encode(int) at:&version];
+					}
+			superclass=[class superclass];
+			while(superclass != Nil)
+					{ // check
+						int version=[superclass version];
+						flag=(version != 0);
+						if(flag)
+								{ // receiver must be notified about version != 0
+									[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// version is not 0
+									[self encodeValueOfObjCType:@encode(Class) at:&superclass];
+									[self encodeValueOfObjCType:@encode(int) at:&version];
+								}
+						superclass=[superclass superclass];	// go up one level
+					}
+			flag=NO;
+			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// no more class version info follows
+#if OLD			
 			flag=[class isSubclassOfClass:[NSString class]];	// what is this flag really used for? So far I have seen it only for NSString/NSMutableString but I don't know on what it really depends
 			if(!flag)
 				flag=[class isSubclassOfClass:[NSTimeZone class]];	// and NSTimZone
@@ -342,10 +378,11 @@ const char *objc_skip_typespec (const char *type)
 					flag=NO;
 					[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// what is this flag used for?
 				}
+#endif
 			if(class == [NSInvocation class])
 				[self encodeInvocation:robj];
 			else
-				[robj encodeWithCoder:self];	// translate and encode
+				[robj _encodeWithPortCoder:self];	// translate and encode
 			flag=YES;	// It appears as if this is always YES
 			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
 		}
@@ -384,7 +421,7 @@ const char *objc_skip_typespec (const char *type)
 - (void) encodeValueOfObjCType:(const char *)type at:(const void *)address
 { // must encode in network byte order (i.e. bigendian)
 #if 1
-	NSLog(@"NSPortCoder encodeValueOfObjCType:%s", type);
+	NSLog(@"NSPortCoder encodeValueOfObjCType:'%s' at:%p", type, address);
 #endif
 	switch(*type)
 	{
@@ -563,7 +600,7 @@ const char *objc_skip_typespec (const char *type)
 						 count:(unsigned)count
 							at:(void*)array
 {
-	int size=objc_aligned_size(type);
+	int size=objc_sizeof_type(type);
 #if 1
 	NSLog(@"decodeArrayOfObjCType %s count %d size %d", type, count, size);
 #endif
@@ -602,7 +639,7 @@ const char *objc_skip_typespec (const char *type)
 - (void) decodeValueOfObjCType:(const char *) type at:(void *) address
 { // must encode in network byte order (i.e. bigendian)
 #if 1
-	NSLog(@"NSPortCoder decodeValueOfObjCType:%s", type);
+	NSLog(@"NSPortCoder decodeValueOfObjCType:%s at:%p", type, address);
 #endif
 	switch(*type)
 	{
@@ -768,10 +805,18 @@ const char *objc_skip_typespec (const char *type)
 	}
 }
 
-- (NSInteger) versionForClassName:(NSString *) className
+- (int) versionForClassName:(NSString *) className
 {
+	Class class;
+	NSNumber *version;
 	NSLog(@"versionForClassName: %@", className);
-	return 1;
+	version=[_classVersions objectForKey:className];
+	if(version)
+		return [version intValue];
+	class=NSClassFromString(className);
+	if(!class)
+		return NSNotFound;
+	return [class version];
 }
 
 @end
@@ -877,9 +922,10 @@ const char *objc_skip_typespec (const char *type)
 - (id) decodeRetainedObject;
 {
 	NSString *name;
-	Class class;
+	Class class, otherClass;
 	id obj;
 	BOOL flag;
+	NSMutableDictionary *savedClassVersions;
 #if 1
 	NSLog(@"decodeRetainedObject");
 #endif
@@ -892,38 +938,44 @@ const char *objc_skip_typespec (const char *type)
 #endif
 	if(!class)
 		return nil;
-	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// version flag (?)
+	otherClass=class;
+	savedClassVersions=_classVersions;
+	if(_classVersions)
+		_classVersions=[_classVersions mutableCopy];
+	else
+		_classVersions=[[NSMutableDictionary alloc] initWithCapacity:5];
+	while(YES)
+			{
+				int version;
+				[self decodeValueOfObjCType:@encode(int) at:&version];
 #if 1
-	NSLog(@"flag1=%d", flag);
+				NSLog(@"versionForClass: %@ -> %d", NSStringFromClass(otherClass), version);
 #endif
-	if(flag)
-			{ // special case(s)
-				int i=[self _decodeInteger];	// we should use [self decodeValueOfObjCType:@encode(int) at:&i]
+				[_classVersions setObject:[NSNumber numberWithInt:version] forKey:NSStringFromClass(otherClass)];	// save class version
 				[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// more-class flag
 #if 1
-				NSLog(@"i=%d", i);
+				NSLog(@"flag1=%d", flag);
+#endif
+				if(!flag)
+					break;
+				[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// more-class flag
+#if 1
 				NSLog(@"flag2=%d", flag);
 #endif
-				if(flag)
-						{
-							Class otherClass;
-							[self decodeValueOfObjCType:@encode(Class) at:&otherClass];	// encode again
-#if 1
-							NSLog(@"otherClass=%@", NSStringFromClass(class));
-#endif
-							[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// more flags
-							[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
-							[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
-						}
+				if(!flag)
+					break;	// no more classes
+				[self decodeValueOfObjCType:@encode(Class) at:&otherClass];	// another class folows
 			}
 	if(class == [NSInvocation class])
 		obj=[[self decodeInvocation] retain];	// special handling
 	else
-		obj=[[class alloc] initWithCoder:self];	// allocate and load new instance
-	[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// always 0x01 (?)
+		obj=[[class alloc] _initWithPortCoder:self];	// allocate and load new instance
+	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// always 0x01 (?)
 #if 1
 	NSLog(@"flag3=%d", flag);
 #endif
+	[_classVersions release];
+	_classVersions=savedClassVersions;
 	return obj;
 }
 
@@ -965,10 +1017,10 @@ const char *objc_skip_typespec (const char *type)
 
 @end
 
-#if 0
+#if 0	// must be disabled if we try to run on Cocoa Foundation because proxyWithLocal does not work well
 @implementation NSObject (NSPortCoder)
 
-- (Class) classForPortCoder				{ return [self classForCoder]; }
+- (Class) classForPortCoder { return [self classForCoder]; }
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder
 { // default is to encode a local proxy
@@ -980,6 +1032,47 @@ const char *objc_skip_typespec (const char *type)
 
 @end
 #endif
+
+@implementation NSObject (NSPortCoding) 	// default is standard encoding/decoding
+- (void) _encodeWithPortCoder:(NSPortCoder *) coder; { [(id <NSCoding>) self encodeWithCoder:coder]; }
+- (id) _initWithPortCoder:(NSPortCoder *) coder; { return [(id <NSCoding>) self initWithCoder:coder]; }
+@end
+
+@implementation NSProxy (NSPortCoding) 	// default is standard encoding/decoding
+- (void) _encodeWithPortCoder:(NSPortCoder *) coder; { [(id <NSCoding>) self encodeWithCoder:coder]; }
+- (id) _initWithPortCoder:(NSPortCoder *) coder; { return [(id <NSCoding>) self initWithCoder:coder]; }
+@end
+
+@implementation NSString (NSPortCoding) 	// needs universal encoding as UTF8-String (with length out without trailing 0!)
+
+- (void) _encodeWithPortCoder:(NSPortCoder *) coder;
+{
+	const char *str=[self UTF8String];
+	unsigned int len=strlen(str);
+	[coder encodeValueOfObjCType:@encode(unsigned int) at:&len];
+	[coder encodeArrayOfObjCType:@encode(char) count:len at:str];
+}
+
+- (id) _initWithPortCoder:(NSPortCoder *) coder;
+{
+	char *str;
+	unsigned int len;
+	[coder decodeValueOfObjCType:@encode(unsigned int) at:&len];
+#if 1
+	NSLog(@"NSString _initWithPortCoder len=%d", len);
+#endif
+	str=objc_malloc(len+1);
+	[coder decodeArrayOfObjCType:@encode(char) count:len at:str];
+	str[len]=0;
+#if 1
+	NSLog(@"UTF8=%s", str);
+#endif
+	self=[self initWithUTF8String:str];
+	objc_free(str);
+	return self;
+}
+
+@end
 
 @implementation NSPortMessage
 
@@ -1076,10 +1169,10 @@ struct PortFlags {
 }
 
 /*
- FIXME:
+ FIXME/CHECKME:
  because we receive from untrustworthy sources here, we must protect against malformed headers trying to create buffer overflows and Denial of Service.
- This might also be some very lage constant for record length which wraps around the 32bit address limit (e.g. a negative record length). This would
- end up in infinite loops blocking the application or service.
+ This might also be some very large constant for record length which wraps around the 32bit address limit (e.g. a negative record length). This would
+ end up in infinite loops blocking or crashing the application or service.
  */
 
 - (id) initWithMachMessage:(void *) buffer;
