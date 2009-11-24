@@ -137,15 +137,16 @@ const char *objc_skip_typespec (const char *type)
  04									4 byte integer follows
  edfe1f 0e					0e1ffeed - appears to be some Byte-Order-mark and flags
  01 01							sequence number 1
- 01 01							some unknown value 1
+ 01									flag that value is not nil
+ 01									more classes follow
  01									1 byte integer follows
  0d									string len (incl. 00)
  4e53496e766f636174696f6e00			"NSInvocation"		class	- this payload encodes an NSInvocation
- 00									value 00 (nil?)
+ 00									flag that we don't encode version information
  01 01							Integer 1
  01									1 byte integer follows
  10									string len (incl. 00)
- 4e5344697374616e744f626a65637400	"NSDistantObject"	self	- appears to be the 'target' component
+ 4e5344697374616e744f626a65637400	"NSDistantObject"	self	- represents the 'target' component
  00
  00
  0101
@@ -160,21 +161,16 @@ const char *objc_skip_typespec (const char *type)
  40403a00							"@@:"				signature (return type=id, self=id, _cmd=SEL)
  0140								@
  0100
- 00									?
+ 00									end of record
  
- The encoding is not exactly clear
- 
- You should set a breakpoint on -[NSPort sendBeforeDate:msgid:components:from:reserved:] to see what is going on
+ You can set a breakpoint on -[NSPort sendBeforeDate:msgid:components:from:reserved:] to see what is going on
  */
 
-@interface NSObject (NSPortCoding) // this allows to override encoding/decoding independently to become Cocoa compatible
-- (void) _encodeWithPortCoder:(NSPortCoder *) coder;
-- (id) _initWithPortCoder:(NSPortCoder *) coder;
-@end
+@interface NSObject (NSPortCoding) 	// allows to define specific port-coding without changing the standard encoding (keyed/non-keyed)
 
-@interface NSProxy (NSPortCoding) // this allows to override encoding/decoding independently to become Cocoa compatible
-- (void) _encodeWithPortCoder:(NSPortCoder *) coder;
-- (id) _initWithPortCoder:(NSPortCoder *) coder;
+- (void) _encodeWithPortCoder:(NSCoder *) coder;
+- (id) _initWithPortCoder:(NSCoder *) coder;
+
 @end
 
 @implementation NSPortCoder
@@ -381,8 +377,10 @@ const char *objc_skip_typespec (const char *type)
 #endif
 			if(class == [NSInvocation class])
 				[self encodeInvocation:robj];
+			else if([class instancesRespondToSelector:@selector(_encodeWithPortCoder:)])
+				[robj _encodeWithPortCoder:self];	// this allows to define different encoding
 			else
-				[robj _encodeWithPortCoder:self];	// translate and encode
+				[robj encodeWithCoder:self];	// translate and encode
 			flag=YES;	// It appears as if this is always YES
 			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
 		}
@@ -968,8 +966,10 @@ const char *objc_skip_typespec (const char *type)
 			}
 	if(class == [NSInvocation class])
 		obj=[[self decodeInvocation] retain];	// special handling
+	else if([class instancesRespondToSelector:@selector(_initWithPortCoder:)])
+		obj=[[class alloc] _initWithPortCoder:self];	// this allows to define different encoding
 	else
-		obj=[[class alloc] _initWithPortCoder:self];	// allocate and load new instance
+		obj=[[class alloc] initWithCoder:self];	// allocate and load new instance
 	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// always 0x01 (?)
 #if 1
 	NSLog(@"flag3=%d", flag);
@@ -1033,19 +1033,9 @@ const char *objc_skip_typespec (const char *type)
 @end
 #endif
 
-@implementation NSObject (NSPortCoding) 	// default is standard encoding/decoding
-- (void) _encodeWithPortCoder:(NSPortCoder *) coder; { [(id <NSCoding>) self encodeWithCoder:coder]; }
-- (id) _initWithPortCoder:(NSPortCoder *) coder; { return [(id <NSCoding>) self initWithCoder:coder]; }
-@end
-
-@implementation NSProxy (NSPortCoding) 	// default is standard encoding/decoding
-- (void) _encodeWithPortCoder:(NSPortCoder *) coder; { [(id <NSCoding>) self encodeWithCoder:coder]; }
-- (id) _initWithPortCoder:(NSPortCoder *) coder; { return [(id <NSCoding>) self initWithCoder:coder]; }
-@end
-
 @implementation NSString (NSPortCoding) 	// needs universal encoding as UTF8-String (with length out without trailing 0!)
 
-- (void) _encodeWithPortCoder:(NSPortCoder *) coder;
+- (void) _encodeWithPortCoder:(NSCoder *) coder;
 {
 	const char *str=[self UTF8String];
 	unsigned int len=strlen(str);
@@ -1053,13 +1043,15 @@ const char *objc_skip_typespec (const char *type)
 	[coder encodeArrayOfObjCType:@encode(char) count:len at:str];
 }
 
-- (id) _initWithPortCoder:(NSPortCoder *) coder;
+- (id) _initWithPortCoder:(NSCoder *) coder;
 {
 	char *str;
 	unsigned int len;
+	if([coder versionForClassName:@"NSString"] != 1)
+		[NSException raise:NSInvalidArgumentException format:@"Can't decode version %d of NSString", [coder versionForClassName:@"NSString"]];
 	[coder decodeValueOfObjCType:@encode(unsigned int) at:&len];
 #if 1
-	NSLog(@"NSString _initWithPortCoder len=%d", len);
+	NSLog(@"NSString initWithCoder len=%d", len);
 #endif
 	str=objc_malloc(len+1);
 	[coder decodeArrayOfObjCType:@encode(char) count:len at:str];

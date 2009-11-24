@@ -47,6 +47,13 @@
 #import "../../Foundation/Sources/NSPortCoder.h"
 #import "../../Foundation/Sources/NSPortMessage.h"
 #import "../../Foundation/Sources/NSPortCoder.m"
+#if 0
+
+#define NSDistantObject myNSDistantObject
+#import "../../Foundation/Sources/NSDistantObject.m"
+
+#endif
+
 #endif
 
 @interface NSPortCoder (NSConcretePortCoder)

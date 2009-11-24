@@ -132,9 +132,7 @@
 
 @end
 
-@implementation NSDistantObject
-
-// this object forwards messages to the peer
+@implementation NSDistantObject		// this object forwards messages to the peer
 
 // more private methods
 // + (void)_enableLogging:(BOOL)arg1;
@@ -156,7 +154,25 @@
 
 - (id) initWithLocal:(id)anObject connection:(NSConnection*)aConnection;
 { // this is initialization for vending objects
+	NSDistantObject *proxy;
+	_connection=[aConnection retain];	// keep the connection as long as we exist
+	proxy=[_connection _getLocal:anObject];
+	if(proxy)
+			{ // already known
+				[self release];
+				return proxy;
+			}
+	// assign a fresh wire-id
+	[_connection _addLocal:self forObject:anObject];
+	_selectorCache=[NSMutableDictionary dictionaryWithCapacity:10];
+	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache 
+	[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache
+	
+#if OLD
 	// check if we already know a NSDistantObject for our local object (may be required to correctly handle -replacementObjectForPortCoder:)
+	
+	// if new, create a new remote object
+	
 	// we have no superclass!
 	_connection=[aConnection retain];	// keep the connection as long as we exist
 	_target=anObject;
@@ -166,6 +182,7 @@
 	[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache 
 	[(NSMutableArray *) [aConnection localObjects] addObject:anObject];	// add to list
 	_isLocal=YES;
+#endif
 	return self;
 }
 
@@ -362,18 +379,6 @@
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't ever replace by another proxy
 
-/*
- * the mechanics behind this is as follows:
- *
- * if we refer to a remoteObject, this is a remove proxy and we just encode it
- * if we send a localObject byref, it is replaced through replacementObjectForPortCoder by a local NSDistantObject
- * this local distant object is temporary and used only during encoding
- * when decoding a local NSDistantObject, it will generate a new remoteObject proxy on the other side
- * when decoding a remote distant object, it will be simply replaced by a reference to the real object
- * there is a special case for the rootObject / rootProxy which is a proxy generated on the client side refering nil
- * this is received as a local distant object at address nil
- */
-
 - (void) encodeWithCoder:(NSCoder *) coder;
 {
 #if maybeneeded
@@ -386,11 +391,6 @@
 #endif
 	[coder encodeValueOfObjCType:@encode(int) at:&_target];	// encode as a reference into the address space and not the real object
 //	[coder encodeValueOfObjCType:@encode(BOOL) at:&_isLocal];
-}
-
-+ (id) newDistantObjectWithCoder:(NSCoder *) coder;
-{
-	return [[self alloc] initWithCoder:coder];
 }
 
 - (id) initWithCoder:(NSCoder *) coder;
@@ -421,6 +421,11 @@
 				[self release];
 				return [ref retain];	// return the referenced object
 			}
+}
+
++ (id) newDistantObjectWithCoder:(NSCoder *) coder;
+{
+	return [[self alloc] initWithCoder:coder];
 }
 
 @end
