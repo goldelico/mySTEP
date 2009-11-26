@@ -59,8 +59,9 @@ extern NSString *const NSFailedAuthenticationException;
 	NSPort *_sendPort;
 	id _rootObject;					// the root object to vend
 	id _delegate;
-	NSMutableArray *_localObjects;		// list of local objects
-	NSMapTable *_remoteObjects;			// list of remote proxies indexed by the remote target
+	NSMapTable *_localObjects;			// map of local objects -> proxy
+	NSMapTable *_remoteObjects;			// map of remote target (reference number) -> proxy
+	unsigned int _nextReference;		// next reference id
 	NSMutableArray *_modes;
 	NSMutableArray *_requestQueue;	// queue of pending NSDistantObjectRequests
 	NSMapTable *_responses;	// responses indexed by sequence number

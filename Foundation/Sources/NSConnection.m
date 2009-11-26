@@ -330,8 +330,8 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 				NSLog(@"did set valid");
 #endif
 				[nc addObserver:self selector:@selector(_portInvalidated:) name:NSPortDidBecomeInvalidNotification object:_receivePort];
-				_localObjects=[[NSMutableArray alloc] initWithCapacity:10];
-				_remoteObjects=NSCreateMapTable(NSNonOwnedPointerOrNullMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain remote objects
+				_localObjects=NSCreateMapTable(NSNonOwnedPointerOrNullMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain proxies
+				_remoteObjects=NSCreateMapTable(NSNonOwnedPointerOrNullMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain proxies
 				_responses=NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 10);	// map sequence number to response portcoder
 				if(!_allConnections)
 					_allConnections=NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 10);	// allocate - don't retain connections in hash table
@@ -380,14 +380,16 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 #if 0
 	NSLog(@"proxy connection: %p", _proxy);
 	NSLog(@"local objects: %p", _localObjects);
-	NSLog(@"local objects count: %u", [_localObjects count]);
+	NSLog(@"local objects: %p", NSAllHashTableValues(_localObjects));
+	NSLog(@"local objects count: %u", NSCountMapTable(_localObjects));
 	NSLog(@"remote objects: %p", _remoteObjects);
 	NSLog(@"remote objects count: %u", NSCountMapTable(_remoteObjects));
 	NSLog(@"remote objects: %@", NSAllHashTableValues(_remoteObjects));
 #endif
 	//	[_proxy release];
-	[_localObjects release];
+	NSAssert(NSCountMapTable(_localObjects) == 0, @"local objects still use this connection"); // should be empty before we can be released...
 	NSAssert(NSCountMapTable(_remoteObjects) == 0, @"remote objects still use this connection"); // should be empty before we can be released...
+	if(_localObjects) NSFreeMapTable(_localObjects);
 	if(_remoteObjects) NSFreeMapTable(_remoteObjects);
 	if(_responses) NSFreeMapTable(_responses);
 	// [_delegate release];	// not retained
@@ -434,7 +436,8 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	_receivePort=nil;		// we don't need it any more
 	[_sendPort release];
 	_sendPort=nil;
-	if(_allConnections) NSHashRemove(_allConnections, self);	// remove us from the connections table
+	if(_allConnections)
+		NSHashRemove(_allConnections, self);	// remove us from the connections table
 #if 0
 	NSLog(@"did invalidate %p", self);
 #endif
@@ -443,38 +446,9 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 
 - (BOOL) isValid; { return _isValid; }
 
-- (NSArray *) localObjects; { return _localObjects; }
+- (NSArray *) localObjects; { return NSAllMapTableKeys(_localObjects); }	// the objects and not the proxies
 
 - (NSArray *) remoteObjects; { return NSAllMapTableValues(_remoteObjects); }
-
-// map target id's (my be casted from int) to the distant objects
-// note that the distant object retains this connection, but not vice versa!
-
-- (NSDistantObject *) _getRemote:(id) target;
-{ // get remote object for target - if known
-#if 1
-	NSLog(@"_getRemote: %p", target);
-	NSLog(@"   -> %p", NSMapGet(_remoteObjects, (void *) target));
-	NSLog(@"   -> %@", NSMapGet(_remoteObjects, (void *) target));
-#endif
-	return NSMapGet(_remoteObjects, (void *) target);
-}
-
-- (void) _addRemote:(NSDistantObject *) obj forTarget:(id) target;
-{
-#if 1
-	NSLog(@"_addRemote: %p", target);
-#endif
-	NSMapInsert(_remoteObjects, (void *) target, obj);
-}
-
-- (void) _removeRemote:(id) target;
-{
-#if 1
-	NSLog(@"_removeRemote: %p", target);
-#endif
-	NSMapRemove(_remoteObjects, (void *) target);
-}
 
 - (BOOL) multipleThreadsEnabled; { return _multipleThreadsEnabled; }
 
@@ -567,6 +541,73 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 
 - (void) _incrementLocalProxyCount { _localProxyCount++; }
 - (void) _decrementLocalProxyCount { _localProxyCount--; }
+
+- (NSDistantObject *) _getLocal:(id) target;
+{ // get proxy object for local object - if known
+#if 1
+	NSLog(@"_getLocal: %p", target);
+	NSLog(@"   -> %p", NSMapGet(_localObjects, (void *) target));
+	NSLog(@"   -> %@", NSMapGet(_localObjects, (void *) target));
+#endif
+	return NSMapGet(_localObjects, (void *) target);
+}
+
+- (void) _addDistantObject:(NSDistantObject *) obj forLocal:(id) target;
+{
+#if 1
+	NSLog(@"_addLocal: %p", target);
+#endif
+	NSMapInsert(_localObjects, (void *) target, obj);
+}
+
+- (void) _removeLocal:(id) target;
+{
+#if 1
+	NSLog(@"_removeLocal: %p", target);
+#endif
+	NSMapRemove(_localObjects, (void *) target);
+}
+
+// map target id's (my be casted from int) to the distant objects
+// note that the distant object retains this connection, but not vice versa!
+
+- (NSDistantObject *) _getRemote:(id) target;
+{ // get proxy for remote target - if known
+#if 1
+	NSLog(@"_getRemote: %p", target);
+	NSLog(@"   -> %p", NSMapGet(_remoteObjects, (void *) target));
+//	NSLog(@"   -> %@", NSMapGet(_remoteObjects, (void *) target));
+#endif
+	return NSMapGet(_remoteObjects, (void *) target);
+}
+
+- (id) _freshRemote
+{ // get a fresh, still unused remote reference id
+	while(NSMapGet(_remoteObjects, (void *) _nextReference) != nil)
+		_nextReference++;	// already esists
+#if 1
+	NSLog(@"fresh remote assigned: %lu", _nextReference);
+#endif
+	return (id) _nextReference;
+}
+
+- (void) _addDistantObject:(NSDistantObject *) obj forRemote:(id) target;
+{
+#if 1
+	NSLog(@"_addRemote: %p", target);
+#endif
+	NSMapInsert(_remoteObjects, (void *) target, obj);
+	if((unsigned int) target >= _nextReference)
+		_nextReference=((unsigned int) target)+1;
+}
+
+- (void) _removeRemote:(id) target;
+{
+#if 1
+	NSLog(@"_removeRemote: %p", target);
+#endif
+	NSMapRemove(_remoteObjects, (void *) target);
+}
 
 + (NSConnection *) lookUpConnectionWithReceivePort:(NSPort *) receivePort
 																					sendPort:(NSPort *) sendPort;
@@ -800,6 +841,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	BOOL isOneway=NO;
 #if 1
 	NSLog(@"handleRequest (seq=%d): %@", seq, coder);
+	NSLog(@"message=%@", [[coder components] objectAtIndex:0]);
 #endif	
 	inv=[coder decodeObject];	// the first remote call for [client rootProxy] passes nil here (to establish the connection?)
 	if(inv)

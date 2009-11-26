@@ -899,6 +899,19 @@
 	STAssertEqualObjects(have, want,  nil);
 }
 
+- (void) testInvocation6
+{
+	NSPortCoder *pc=[self portCoderForEncode];
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:"@@:@"]];
+	id have;
+	id want=@"<0101010d 4e53496e 766f6361 74696f6e 00000101 01094e53 53747269 6e670001 01010001 06737472 696e6701 01030101 0673656c 663a0001 01054040 3a400001 400001>";
+	[i setTarget:@"string"];
+	[i setSelector:@selector(self:)];
+	[pc encodeObject:i];
+	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
+	STAssertEqualObjects(have, want,  nil);
+}
+
 - (void) testReturnInvocation
 {
 	NSPortCoder *pc=[self portCoderForEncode];

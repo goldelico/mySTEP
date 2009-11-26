@@ -31,10 +31,10 @@
 {
 	unsigned long long _refCount;
 	NSConnection *_connection;
-	id _target;	// mis-used as wire-id (should be int...)
+	id _target;	// dependent object if we are a local proxy
 	Protocol *_protocol;
 	NSMutableDictionary *_selectorCache;	// cache the method signatures we have asked for
-	BOOL _isLocal;
+	unsigned long _reference;	// reference number (same on both sides)
 }
 
 + (NSDistantObject *) proxyWithLocal:(id) anObject
