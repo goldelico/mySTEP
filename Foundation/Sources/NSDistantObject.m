@@ -176,8 +176,10 @@
 			}
 	_connection=[aConnection retain];	// keep the connection as long as we exist
 	_selectorCache=[NSMutableDictionary dictionaryWithCapacity:10];
-	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache 
-	[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache 
+	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache
+	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(respondsToSelector:)] forKey:@"respondsToSelector:"]; 	// predefine NSMethodSignature cache
+	if(remoteObject == nil)
+		[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache
 	[aConnection _addDistantObject:self forRemote:remoteObject];	// add to remote objects
 	return self;
 }
@@ -246,54 +248,30 @@
 	NSMethodSignature *ret=[_selectorCache objectForKey:NSStringFromSelector(aSelector)];
 	if(ret)
 		return ret;	// known from cache
-#if 0
+#if 1
 	NSLog(@"[NSDistantObject methodSignatureForSelector:\"%@\"]", NSStringFromSelector(aSelector));
 #endif
-	if(_protocol)
-			{
+	if(_target)
+		ret=[_target methodSignatureForSelector:aSelector];	// ask local object for its signature
+	else if(_protocol)
+			{ // ask protocol
 				struct objc_method_description *md;
 #if 0
 				NSLog(@"[NSDistantObject methodSignatureForSelector:] _protocol=%s", [_protocol name]);
 #endif
 				md=[_protocol descriptionForInstanceMethod:aSelector];	// ask protocol for the signature
-//				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
+// FIXME:				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
 				ret=nil;
 			}
-	else if(_target)
-		ret=[_target methodSignatureForSelector:aSelector];	// ask local object for its signature
+	// FIXME: what about mehtodSignature of builtin methods?
 	else
-			{ // we must forward this request to the peer
-				// ret=[super methodSignatureForSelector:aSelector];	// we must ask the remote side
-
-#if __APPLE__
-				NSInvocation *i;	// cached invocation
-#if 1
-				NSLog(@"No protocol defined for NSDistantObject - so try forwarding the message and ask the other side for the signature");
-#endif
-				i=[NSInvocation invocationWithMethodSignature:[NSObject instanceMethodSignatureForSelector:_cmd]];	// use my own signature
+			{	// we must cast this call into an NSInvocation and forward to the peer
+				NSInvocation *i=[NSInvocation invocationWithMethodSignature:[_selectorCache objectForKey:@"methodSignatureForSelector:"]];
+				[i setTarget:self];
 				[i setSelector:_cmd];
-				NSAssert([[NSObject instanceMethodSignatureForSelector: _cmd] methodReturnLength] == sizeof(ret), @"return value size problem");
-				[i setTarget:self];
-				[i setArgument:&aSelector atIndex:2];	// set the selector we want to know about as the argument
+				[i setArgument:&aSelector atIndex:2];
 				[_connection sendInvocation:i internal:YES];
-				[i getReturnValue:&ret];				// fetch signature from invocation
-#else
-				static NSInvocation *i;	// cached invocation
-#if 1
-				NSLog(@"No protocol defined for NSDistantObject - so try forwarding the message and ask the other side for the signature");
-#endif
-				if(!i)
-						{ // initialize cached invocation
-							i=[[NSInvocation alloc] initWithMethodSignature:[NSObject instanceMethodSignatureForSelector:_cmd]];	// use my own signature
-							[i setSelector:_cmd];
-							NSAssert([[NSObject instanceMethodSignatureForSelector: _cmd] methodReturnLength] == sizeof(ret), @"return value size problem");
-						}
-				[i setTarget:self];
-				[i setArgument:&aSelector atIndex:2];	// set as the argument the selector we want to know about
-				[self forwardInvocation:i];				// and process
-				[i getReturnValue:&ret];				// fetch signature from invocation
-				[i _releaseReturnValue];				// no longer needed so that we can reuse the invocation
-#endif
+				[i getReturnValue:&ret];
 			}
 	[_selectorCache setObject:ret forKey:NSStringFromSelector(aSelector)];	// add to cache
 #if 0
@@ -304,24 +282,14 @@
 
 + (BOOL) respondsToSelector:(SEL)aSelector;
 { // CHEKCKME: is this correct? Should we ask the other side for the class? Who is our class proxy?
-//	return [[_target class] respondsToSelector:aSelector];
-	return NO;
+	return [self methodSignatureForSelector:aSelector] != nil;
 }
 
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
 	if(class_get_instance_method([NSDistantObject class], aSelector) != METHOD_NULL)
-		return YES;	// it is a method of NSDistantObject
-	if(_protocol)
-		{ // check if protocol responds
-		if([_protocol descriptionForInstanceMethod:aSelector])
-			return YES;
-		if([_protocol descriptionForClassMethod:aSelector])
-			return YES;
-		}
-	if(_target && [_target respondsToSelector:aSelector])
-		return YES;	// yes, the local object responds
-	return [super respondsToSelector:aSelector];	// we must ask the remote side
+		return YES;	// this is a method of NSDistantObject
+	return [self methodSignatureForSelector:aSelector] != nil;
 }
 
 - (Class) classForCoder; { return /*isa*/ NSClassFromString(@"NSDistantObject"); }

@@ -356,6 +356,17 @@
 	STAssertEqualObjects(have, want,  nil);
 }
 
+- (void) testSelectorNULL
+{
+	NSPortCoder *pc=[self portCoderForEncode];
+	SEL val=NULL;
+	id have;
+	id want=@"<00>";	// NULL flag
+	[pc encodeValueOfObjCType:@encode(SEL) at:&val];
+	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
+	STAssertEqualObjects(have, want,  nil);
+}
+
 - (void) testCharString
 {
 	NSPortCoder *pc=[self portCoderForEncode];
@@ -776,6 +787,7 @@
 	STAssertEqualObjects(have, want,  nil);
 }
 
+#if 0
 - (void) testPort
 {
 	NSPortCoder *pc=[self portCoderForEncode];
@@ -786,6 +798,7 @@
 	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
 	STAssertEqualObjects(have, want,  nil);
 }
+#endif
 
 - (void) testEncodePort
 {
@@ -829,6 +842,19 @@
 	id have;
 	id want=@"<0101010c 4e534578 63657074 696f6e00 00010101 094e5353 7472696e 67000101 01000104 6e616d65 01010101 094e5353 7472696e 67000101 01000106 72656173 6f6e0101 01010d4e 53446963 74696f6e 61727900 00010101 0101094e 53537472 696e6700 01010100 01036b65 79010101 01094e53 53747269 6e670001 01010001 066f626a 65637401 0101>";
 	[pc encodeObject:e];
+	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
+	STAssertEqualObjects(have, want,  nil);
+}
+
+- (void) testInvocation0
+{ // ask remote side for rootProxy
+	NSPortCoder *pc=[self portCoderForEncode];
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:"@@:"]];
+	id have;
+	id want=@"<0101010d 4e53496e 766f6361 74696f6e 00000001 0201010b 726f6f74 4f626a65 63740001 01044040 3a000140 01>";
+	[i setTarget:[NSDistantObject proxyWithTarget:0 connection:connection]];
+	[i setSelector:@selector(rootObject)];
+	[pc encodeObject:i];
 	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
 	STAssertEqualObjects(have, want,  nil);
 }
@@ -907,7 +933,37 @@
 	id want=@"<0101010d 4e53496e 766f6361 74696f6e 00000101 01094e53 53747269 6e670001 01010001 06737472 696e6701 01030101 0673656c 663a0001 01054040 3a400001 400001>";
 	[i setTarget:@"string"];
 	[i setSelector:@selector(self:)];
+	// argument is nil
 	[pc encodeObject:i];
+	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
+	STAssertEqualObjects(have, want,  nil);
+}
+
+- (void) testInvocation7
+{
+	NSPortCoder *pc=[self portCoderForEncode];
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:"@@:@"]];
+	id have;
+	id want=@"<0101010d 4e53496e 766f6361 74696f6e 00000101 01094e53 53747269 6e670001 01010001 06737472 696e6701 01030101 11746573 74496e76 6f636174 696f6e37 3a000101 0540403a 40000140 01010109 4e535374 72696e67 00010101 00010461 72673201 01>";
+	[i setTarget:@"string"];
+	[i setSelector:@selector(testInvocation7:)];
+	have=@"arg2";	// encode [@"string" testInvocation7:@"args"]
+	[i setArgument:&have atIndex:2];
+	[pc encodeObject:i];
+	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
+	STAssertEqualObjects(have, want,  nil);
+}
+
+- (void) testInvocation8
+{
+	NSPortCoder *pc=[self portCoderForEncode];
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:"@@::"]];
+	id have;
+	id want=@"<0101010d 4e53496e 766f6361 74696f6e 00000101 01094e53 53747269 6e670001 01010001 06737472 696e6701 01030101 11746573 74496e76 6f636174 696f6e38 3a000101 0540403a 3a000140 01011074 65737449 6e766f63 6174696f 6e380001>";
+	[i setTarget:@"string"];
+	[i setSelector:@selector(testInvocation8:)];
+	[i setArgument:&_cmd atIndex:2];
+	[pc encodeObject:i];	// encode [@"string" testInvocation8:@selector(testInvocation8)]
 	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
 	STAssertEqualObjects(have, want,  nil);
 }

@@ -439,7 +439,8 @@ const char *objc_skip_typespec (const char *type)
 				class="NSDistantObject";
 #endif
 			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
-			[self encodeBytes:class length:strlen(class)+1];	// include terminating 0 byte
+			if(class)
+				[self encodeBytes:class length:strlen(class)+1];	// include terminating 0 byte
 			break;
 		}
 		case _C_SEL:
@@ -448,7 +449,8 @@ const char *objc_skip_typespec (const char *type)
 			BOOL flag=(s != NULL);
 			const char *sel=[NSStringFromSelector(s) UTF8String];
 			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
-			[self encodeBytes:sel length:strlen(sel)+1];	// include terminating 0 byte
+			if(sel)
+				[self encodeBytes:sel length:strlen(sel)+1];	// include terminating 0 byte
 			break;
 		}
 		case _C_CHR:
@@ -865,11 +867,13 @@ const char *objc_skip_typespec (const char *type)
 	SEL selector=[i selector];
 	id target=[i target];
 	[self encodeValueOfObjCType:@encode(id) at:&target];
-	[self encodeValueOfObjCType:@encode(int) at:&cnt];
-		{
-			BOOL dummy=NO;
-			[self encodeValueOfObjCType:@encode(char) at:&dummy];
+	[self encodeValueOfObjCType:@encode(int) at:&cnt];	// argument count
+#if 1
+		{ // FIXME: sending our invocation appears to need to insert this byte but Unit-Tests don't
+			BOOL fillByte=NO;
+			[self encodeValueOfObjCType:@encode(char) at:&fillByte];
 		}
+#endif
 	[self encodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self encodeValueOfObjCType:@encode(char *) at:&type];	// method type
 	j=64;
@@ -877,6 +881,12 @@ const char *objc_skip_typespec (const char *type)
 	for(j=2; j<cnt; j++)
 		{ // encode arguments
 			// set byRef & byCopy flags here
+#if 1
+			{ // FIXME: really sending our invocation appears to need to insert this byte but Unit-Tests don't
+				BOOL fillByte=NO;
+				[self encodeValueOfObjCType:@encode(char) at:&fillByte];
+			}
+#endif
 			[i getArgument:buffer atIndex:j];	// get value
 			[self encodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
 		}
@@ -894,10 +904,6 @@ const char *objc_skip_typespec (const char *type)
 	int j;
 	[self decodeValueOfObjCType:@encode(id) at:&target];
 	[self decodeValueOfObjCType:@encode(int) at:&cnt];
-		{
-			BOOL dummy;
-			[self encodeValueOfObjCType:@encode(char) at:&dummy];
-		}
 	[self decodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self decodeValueOfObjCType:@encode(char *) at:&type];
 	sig=[NSMethodSignature signatureWithObjCTypes:type];
@@ -982,7 +988,7 @@ const char *objc_skip_typespec (const char *type)
 		obj=[[class alloc] _initWithPortCoder:self];	// this allows to define different encoding
 	else
 		obj=[[class alloc] initWithCoder:self];	// allocate and load new instance
-	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// always 0x01 (?)
+	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// always 0x01 (?) - appears to be 0x00 for a reply
 #if 1
 	NSLog(@"flag3=%d", flag);
 #endif
@@ -1024,7 +1030,8 @@ const char *objc_skip_typespec (const char *type)
 					NSData *data=[components objectAtIndex:len-1];	// split
 					return [delegate authenticateComponents:components withData:data];
 				}
-			[NSException raise:NSFailedAuthenticationException format:@"did receive message without authentication"];
+			NSLog(@"no authentication data received");
+//			[NSException raise:NSFailedAuthenticationException format:@"did receive message without authentication"];
 		}
 	return YES;
 }

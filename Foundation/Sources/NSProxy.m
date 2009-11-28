@@ -178,14 +178,14 @@
 
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
 {
-	[self _nimp:sel];
+	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];
 	return NULL;
 }
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector
-{ // default implementation
-	struct objc_method_description *md=[self methodDescriptionForSelector:aSelector];
-	return [NSMethodSignature signatureWithObjCTypes:md->types];
+{ // default implementation raises exception
+	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];
+	return nil;
 }
 
 // FIXME: this does not properly forward!
@@ -233,19 +233,10 @@
 	return (*msg)(self, aSelector, anObject, anotherObject);
 }
 
-// FIXME: we simply could have this as 'not implemented' - then, standard forwarding occurs
-
 - (BOOL) respondsToSelector:(SEL)aSelector
-{ // pack request into an NSInvocation and forward
-	// we should have a cache of results!!!
-	NSInvocation* inv;
-	BOOL result;
-	inv = [NSInvocation invocationWithMethodSignature:[NSObject instanceMethodSignatureForSelector:_cmd]];	// local signature
-	[inv setSelector:_cmd];
-	[inv setArgument:(void*)aSelector atIndex:2];
-	[self forwardInvocation:inv];
-	[inv getReturnValue:&result];
-	return result;
+{
+	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];
+	return NO;
 }
 
 @end
