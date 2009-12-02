@@ -167,7 +167,7 @@ static int intValue(NSString *str)
 		return;
 		}
 	// pipes everything we can find into a single FILE * - we will fiddle out by detecting the format
-	stab=popen([discovery cString], "r");  // open subprocess
+	stab=popen([discovery UTF8String], "r");  // open subprocess
 	if(!stab)
 		{ // can't read
 		NSLog(@"can't read device status");
@@ -408,24 +408,25 @@ static int observers;
 	return cards;
 }
 
+static NSTimer *timer;
+
 + (void) updateDeviceList:(BOOL) flag;   // enable/disable device polling loop - default is NO
 {
 	static BOOL status=NO;
-	static NSTimer *timer;
 	if(status == flag)
 		return; // don't change
 	if(!(status=flag))
-		[timer release], timer=nil;		// disabled
+		[timer invalidate], timer=nil;		// disable (if timer exists)
 	else
 		{
 #if 1
 		NSLog(@"updateDeviceList enabled");
 #endif
-		timer=[[NSTimer scheduledTimerWithTimeInterval:4.0
-												target:self
-											  selector:@selector(_updateCardStatus)
-											  userInfo:nil
-											   repeats:YES] retain];
+		timer=[NSTimer scheduledTimerWithTimeInterval:4.0
+											   target:self
+											 selector:@selector(_updateCardStatus)
+											 userInfo:nil
+											  repeats:YES];
 		}
 }
 
@@ -501,7 +502,7 @@ static int observers;
 #if 1
 	NSLog(@"%@", c);
 #endif
-	return system([c cString]) == 0;
+	return system([c UTF8String]) == 0;
 }
 
 - (BOOL) eject;

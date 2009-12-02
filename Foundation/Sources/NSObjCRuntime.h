@@ -104,9 +104,9 @@ typedef struct __CGEvent *CGEventRef;
 #define objc_msg_lookup(OBJECT, SELECTOR) (class_getInstanceMethod(objc_get_class(OBJECT), SELECTOR)->method_imp)
 #define objc_lookup_class(CLASS) ((Class)objc_lookUpClass((const char *) CLASS))
 
-#define objc_sizeof_type(A) 1
-#define objc_alignof_type(A) 1
-#define objc_skip_typespec(A) (A)
+int objc_alignof_type(const char *type);
+int objc_sizeof_type(const char *type);
+const char *objc_skip_typespec (const char *type);
 
 #define objc_verror(OBJECT, CODE, FORMAT, ...)
 

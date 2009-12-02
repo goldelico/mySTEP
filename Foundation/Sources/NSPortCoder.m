@@ -25,10 +25,7 @@
 #ifdef __APPLE__
 // make us work on Apple objc-runtime
 
-const int objc_sizeof_type(const char *type);
-const char *objc_skip_typespec (const char *type);
-
-const int objc_alignof_type(const char *type)
+int objc_alignof_type(const char *type)
 {
 	if(*type == _C_CHR)
 		return 1;
@@ -36,15 +33,7 @@ const int objc_alignof_type(const char *type)
 		return 4;
 }
 
-const int objc_aligned_size(const char *type)
-{
-	int sz=objc_sizeof_type(type);
-	if(sz%4 != 0)
-		sz+=4-(sz%4);
-	return sz;
-}
-
-const int objc_sizeof_type(const char *type)
+int objc_sizeof_type(const char *type)
 {
 	switch(*type)
 	{
@@ -93,6 +82,14 @@ const int objc_sizeof_type(const char *type)
 			NSLog(@"can't determine size of %s", type);
 			return 0;
 	}
+}
+
+int objc_aligned_size(const char *type)
+{
+	int sz=objc_sizeof_type(type);
+	if(sz%4 != 0)
+		sz+=4-(sz%4);
+	return sz;
 }
 
 const char *objc_skip_offset (const char *type)

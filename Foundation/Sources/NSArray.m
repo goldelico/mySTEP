@@ -816,7 +816,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 		[NSException raise: NSInvalidArgumentException
 					 format: @"NSMutableArray addObject: Tried to add nil to %@", self];
 		}
-
+	[anObject retain];
 	if (_count >= _capacity)
 		{
 		id *ptr;
@@ -827,8 +827,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 		_contents = ptr;
 		}
 
-	_contents[_count] = [anObject retain];
-	_count++;					// Do this AFTER we have retained the object.
+	_contents[_count++] = anObject;
 }
 
 - (void) insertObject:(id)anObject atIndex:(unsigned)idx
@@ -852,11 +851,10 @@ unsigned i = range.location, j;				// beyond end of array then return
 			[NSException raise: NSMallocException format: @"Unable to grow %@", self];
 		_contents = ptr;
 		}
-
+	[anObject retain];
 	memmove(&_contents[idx+1], &_contents[idx], sizeof(_contents[0])*(_count-idx));
-	_contents[idx] = nil;		// Make sure the array is 'sane' so that it can be dealloc'd safely by an autorelease pool if the retain of anObject causes an exception.
 	_count++;
-	_contents[idx] = [anObject retain]; 
+	_contents[idx] = anObject; 
 }
 
 - (void) replaceObjectAtIndex:(unsigned)idx withObject:(id)anObject
@@ -869,23 +867,26 @@ unsigned i = range.location, j;				// beyond end of array then return
 					 format: @"in replaceObjectAtIndex:withObject:, \
 					 index %d is out of range: %@", idx, self];
 
+	if(_contents[idx] == anObject)
+		return;	// already the same object
+	[anObject retain];
     [_contents[idx] release];
-	_contents[idx] = nil;		// Make sure the array is 'sane' so that it can be dealloc'd safely by an autorelease pool if the retain of anObject causes an exception.
-    _contents[idx] = [anObject retain];
+    _contents[idx] = anObject;
 }
 
 - (void) replaceObjectsInRange:(NSRange)aRange
 		  withObjectsFromArray:(NSArray*)anArray
 {
-id e, o;
-
+	NSEnumerator *e;
+	id o;
 	if (_count < NSMaxRange(aRange))
 		[NSException raise: NSRangeException
 					 format: @"replaceObjectsInRange: Replacing objects beyond end of array."];
-	[self removeObjectsInRange: aRange];
 	e = [anArray reverseObjectEnumerator];
 	while ((o = [e nextObject]))
 		[self insertObject: o atIndex: aRange.location];
+	aRange.location += aRange.length;
+	[self removeObjectsInRange: aRange];
 }
 
 - (void) replaceObjectsInRange:(NSRange)aRange

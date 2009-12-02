@@ -82,6 +82,7 @@ id __buttonCellClass = nil;
 {
 	[_alternateTitle release];
 	[_alternateImage release];
+	[_mixedImage release];
 	[_normalImage release];
 	[_keyEquivalent release];
 	[_keyEquivalentFont release];
@@ -99,6 +100,8 @@ id __buttonCellClass = nil;
 		c->_alternateImage = [_alternateImage retain];
 	if(_normalImage)
 		c->_normalImage = [_normalImage retain];
+	if(_mixedImage)
+		c->_mixedImage = [_mixedImage retain];
 	if(_keyEquivalent)
 		{
 		c->_keyEquivalent = [_keyEquivalent copyWithZone:zone];
@@ -121,16 +124,16 @@ id __buttonCellClass = nil;
 - (NSString *) description;
 {
 	return [NSString stringWithFormat:@"%@\n"
-					@"title=%@\n", 
-		@"stateMask=%02x\n"
-		@"highlightMask=%02x\n" 
-		@"buttonType=%d\n" 
-		@"bezelStyle=%d\n"
-		@"transparent=%d\n"
-		@"dimsWhenDisabled=%d\n" 
-		@"bgcolor=%@\n", 
-		[super description], _title, _stateMask, _highlightMask, _buttonType, _bezelStyle, _transparent, _dimsWhenDisabled, _backgroundColor
-		];
+			@"title=%@\n"
+			@"stateMask=%02x\n"
+			@"highlightMask=%02x\n" 
+			@"buttonType=%d\n" 
+			@"bezelStyle=%d\n"
+			@"transparent=%d\n"
+			@"dimsWhenDisabled=%d\n" 
+			@"bgcolor=%@\n", 
+			[super description], _title, _stateMask, _highlightMask, _buttonType, _bezelStyle, _transparent, _dimsWhenDisabled, _backgroundColor
+			];
 }
 
 - (NSColor *) backgroundColor				{ return _backgroundColor; }
@@ -163,9 +166,9 @@ id __buttonCellClass = nil;
 	NSLog(@"setImageScaling");
 #endif
 	_d.imageScaling = scaling;
-	[_normalImage setScalesWhenResized: (_d.imageScaling != NSImageScaleNone)];
-	[_alternateImage setScalesWhenResized: (_d.imageScaling != NSImageScaleNone)];
-	[_mixedImage setScalesWhenResized: (_d.imageScaling != NSImageScaleNone)];
+//	[_normalImage setScalesWhenResized: (_d.imageScaling != NSImageScaleNone)];
+//	[_alternateImage setScalesWhenResized: (_d.imageScaling != NSImageScaleNone)];
+//	[_mixedImage setScalesWhenResized: (_d.imageScaling != NSImageScaleNone)];
 #if 0
 	NSLog(@"setImageScaling done");
 #endif
@@ -341,6 +344,7 @@ id __buttonCellClass = nil;
 			[self setImagePosition:NSImageLeft];
 			[self setBordered:NO];
 				[self setImageDimsWhenDisabled:NO];
+				[self setImageScaling:NSImageScaleProportionallyDown];
 			break;
 		case NSRadioButton:
 			[self setHighlightsBy:NSContentsCellMask];
@@ -349,6 +353,7 @@ id __buttonCellClass = nil;
 			[self setImagePosition:NSImageLeft];
 			[self setBordered:NO];
 				[self setImageDimsWhenDisabled:NO];
+				[self setImageScaling:NSImageScaleProportionallyDown];
 			break;
 		}
 	[self setState:[self state]];		// update our state (to a valid value)
@@ -494,7 +499,7 @@ id __buttonCellClass = nil;
 	if([_title isEqualToString:@"Round Textured"])
 		NSLog(@"drawing %@", _title);
 #endif
-#if 1
+#if 0
 	if([_title isEqualToString:@"Toolbar"])
 		NSLog(@"drawing %@", _title);
 #endif
@@ -739,7 +744,7 @@ id __buttonCellClass = nil;
 		op = NSCompositeSourceOver;	// default composition
 	if([img isKindOfClass:[NSButtonImageSource class]])
 		img=[(NSButtonImageSource *) img buttonImageForCell:self];	// substitute
-	// shouldn't we use imageRectForBounds?
+	// all this should be moved to -imageRectForBounds
 	imageSize = [img size];
 	if(_d.imageScaling != NSImageScaleNone)
 			{
@@ -748,13 +753,13 @@ id __buttonCellClass = nil;
 					{
 						default:
 						case NSRegularControlSize:
-							isz=NSMakeSize(24.0, 24.0);
+							isz=NSMakeSize(18.0, 18.0);
 							break;
 						case NSSmallControlSize:
-							isz=NSMakeSize(16.0, 16.0);
+							isz=NSMakeSize(13.0, 13.0);
 							break;
 						case NSMiniControlSize:
-							isz=NSMakeSize(14.0, 14.0);
+							isz=NSMakeSize(10.0, 10.0);
 							break;
 					}
 				if(_d.imageScaling == NSImageScaleAxesIndependently)
@@ -768,8 +773,8 @@ id __buttonCellClass = nil;
 										imageSize.height*=factor;
 									}
 						}
-				[img setScalesWhenResized:YES];
-				[img setSize:imageSize];	// rescale
+//				[img setScalesWhenResized:YES];
+//				[img setSize:imageSize];	// rescale
 			}
 	switch(_c.imagePosition) 
 		{
@@ -819,9 +824,10 @@ id __buttonCellClass = nil;
 //	if([controlView isFlipped])
 //		cellFrame.origin.y += imageSize.height;
 #if 0
-	NSLog(@"image %@ at %@", image, NSStringFromPoint(cellFrame.origin));
+	NSLog(@"drawImage: %@ at %@", img, NSStringFromPoint(cellFrame.origin));
 #endif
-	[img compositeToPoint:cellFrame.origin operation:op fraction:(_c.highlighted?0.6:(!_dimsWhenDisabled || _c.enabled?1.0:0.5))];	
+	[img drawInRect:(NSRect){ cellFrame.origin, imageSize } fromRect:NSZeroRect operation:op fraction:(_c.highlighted?0.6:(!_dimsWhenDisabled || _c.enabled?1.0:0.5))];
+//	[img compositeToPoint:cellFrame.origin operation:op fraction:(_c.highlighted?0.6:(!_dimsWhenDisabled || _c.enabled?1.0:0.5))];	
 }
 
 - (void) drawTitle:(NSAttributedString *) title withFrame:(NSRect) cellFrame inView:(NSView *) controlView;
@@ -1048,8 +1054,8 @@ id __buttonCellClass = nil;
 #endif
 			[_normalImage release], _normalImage=nil;
 			}
-		if(!_normalImage && _alternateImage)
-			{ // no normal image but alternate
+		if([_alternateImage isKindOfClass:[NSButtonImageSource class]] || (!_normalImage && _alternateImage))
+			{ // no (relevant) normal image but alternate
 #if 0
 			NSLog(@"no NSNormalImage %@ substituting alternate %@", _normalImage, _alternateImage);
 #endif
@@ -1061,9 +1067,9 @@ id __buttonCellClass = nil;
 				NSLog(@"normalImage=%@", _normalImage);
 			name=[_normalImage name];
 			if([name isEqualToString:@"NSRadioButton"])
-				_buttonType=NSRadioButton;
+				_buttonType=NSRadioButton, _d.imageScaling=NSImageScaleProportionallyDown;
 			else if([name isEqualToString:@"NSSwitch"])
-				_buttonType=NSSwitchButton;
+				_buttonType=NSSwitchButton, _d.imageScaling=NSImageScaleProportionallyDown;
 			}
 		ASSIGN(_keyEquivalent, [aDecoder decodeObjectForKey:@"NSKeyEquivalent"]);
 		if([aDecoder containsValueForKey:@"NSKeyEquiv"])

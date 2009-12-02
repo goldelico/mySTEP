@@ -1,5 +1,7 @@
 #include <Foundation/Foundation.h>
 
+// FIXME: split into plain plutil and PlistBuddy
+
 void usage(char *str)
 {
 	if(str)

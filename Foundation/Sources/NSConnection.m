@@ -66,10 +66,6 @@ NSString *const NSFailedAuthenticationException = @"NSFailedAuthenticationExcept
 #define FLAGS_REQUEST 0x0e1ffeed
 #define FLAGS_RESPONSE 0x0e2ffece
 
-// how does this object become initialized?
-// it appears that it is created by -[NSConnection handlePortCoder:]
-
-#if 0
 @implementation NSDistantObjectRequest
 
 // private initializer:
@@ -102,10 +98,10 @@ NSString *const NSFailedAuthenticationException = @"NSFailedAuthenticationExcept
 }
 
 @end
-#endif
 
-// FIXME: _allConnections should use a NSMapTable with struct { NSPort *recv, *send; } as key/hash
-// but as long as we just have 2-3 connection objects this does not really matter
+// FIXME: _allConnections could/should use a NSMapTable keyed by a combination of receivePort and sendPort (e.g. string catenation)
+// but as long as we just have a handful of connections, a linear search is faster than string operations
+
 static NSHashTable *_allConnections;	// used as a cache
 static id _currentConversation;
 
@@ -889,7 +885,11 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	
 	if([_delegate respondsToSelector:@selector(connection:handleRequest:)])
 			{
+#if __APPLE__
 				NSDistantObjectRequest *req=[[NSConcreteDistantObjectRequest alloc] initWithInvocation:inv conversation:conversation sequence:seq importedObjects:imports connection:self];
+#else
+				NSDistantObjectRequest *req=[[NSDistantObjectRequest alloc] initWithInvocation:inv conversation:conversation sequence:seq importedObjects:imports connection:self];
+#endif
 				if([_delegate connection:self handleRequest:req])
 						{ // done by handler
 							[req release];	// should call [req replyWithException:exception];	// try to reply

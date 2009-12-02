@@ -517,7 +517,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 }
 
 - (const char *) _methodType	{ return methodTypes; }
-- (NSString) _type	{ return [NSString stringWithUTF8String:methodTypes]; }
+- (NSString *) _type	{ return [NSString stringWithUTF8String:methodTypes]; }
 
 - (unsigned) _getArgumentLengthAtIndex:(int) index;
 {

@@ -796,6 +796,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 				break;
 			}
 		}
+#if OLD
 	if(!img)
 		{ // FIXME: raise exception
 #if 0
@@ -803,7 +804,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #endif
 		return nil;
 		}
-	
+
 // FIXME: we could better use drawInRect: to scale the image during drawing!
 	
 	[img setScalesWhenResized:YES];
@@ -820,6 +821,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 			[img setSize:NSMakeSize(10.0, 10.0)];
 			break;
 		}
+#endif
 #if 0
 	NSLog(@"image=%@", img);
 #endif
@@ -841,6 +843,11 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #if 0
 	NSLog(@"unarchiver:%@ didDecodeObject:%@", unarchiver, object);
 #endif
+	if([decodedObjects indexOfObjectIdenticalTo:object] != NSNotFound)
+		{
+			NSLog(@"duplicate - already unarchived: %@", object);
+			return object;
+		}
 	if(![decodedObjects containsObject:object])
 		[decodedObjects addObject:object];	// keep it unique (should we use a NSMutableSet?)
 	return object;
@@ -1023,10 +1030,15 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 		{
 		if(o == rootObject)
 			o=owner;	// replace
+		if([t indexOfObjectIdenticalTo:o])
+			{
+				NSLog(@"instantiateNibWithExternalNameTable: duplicate object: %@", o);
+				continue;
+			}
 		[t addObject:o];
 		if([o respondsToSelector:@selector(awakeFromNib)])
 			{
-#if 0
+#if 1
 			NSLog(@"awakeFromNib: %@", o);
 #endif
 			[o awakeFromNib];							// Send awakeFromNib

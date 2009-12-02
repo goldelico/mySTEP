@@ -283,7 +283,6 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	copy->_name = [_name retain];
 	copy->_imageFilePath = [_imageFilePath retain];
 	copy->_reps = [_reps mutableCopy];
-	copy->_cache = [_cache mutableCopy];
 	copy->_backgroundColor = [_backgroundColor retain];
 	copy->_size = _size;
 	copy->_alignmentRect = _alignmentRect;
@@ -293,33 +292,31 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	return copy;
 }
 
-// FIXME:
-
 - (void) lockFocus
-{ // draw into cache
-	[self lockFocusOnRepresentation:nil];
+{ // lock focus on cache
+	NSGraphicsContext *ctxt;
+#if 1
+	NSLog(@"lockFocus: %@", self);
+#endif
+	// here we should also check the caching mode settings
+	if(!_cache)
+		{ // create cache
+			_cache=[[NSCachedImageRep alloc] initWithSize:_size depth:0 separate:_img.cacheSeparately alpha:YES];
+			if(!_cache)
+				[NSException raise:NSImageCacheException format:@"can't create cached image representation"];
+			[[_cache window] _allocateGraphicsContext];
+		}
+	[NSGraphicsContext saveGraphicsState];
+	ctxt=[[_cache window] graphicsContext];
+	[NSGraphicsContext setCurrentContext:ctxt];
+	// [ctxt _setCTM: ...] define CTM so that we really draw into the cache tile, i.e. move the origin - any maybe we need to flip
+	[ctxt _addClip:[NSBezierPath bezierPathWithRect:[_cache rect]] reset:YES];
 }
 
-// FIXME: this is completely wrong according to the Release notes of 10.6
-// it should do:
-// [self lockFocus]; [imageRep drawInRect:(NSRect) { NSZeroPoint, [self size]}];
- 
 - (void) lockFocusOnRepresentation:(NSImageRep *) imageRep;
-{
-	NSCachedImageRep *irep=[self _cachedImageRep];
-	[self isValid];	// load or create cached image rep if needed
-	[NSGraphicsContext saveGraphicsState];
-	if(irep)
-			{
-				NSRect rect=[irep rect];
-				NSGraphicsContext *ctxt=[NSGraphicsContext graphicsContextWithWindow:[irep window]];
-				[NSGraphicsContext setCurrentContext:ctxt];
-				// define CTM so that we really draw into the irep tile, i.e. move the origin - any maybe we need to flip
-	//			[ctxt _setCTM:
-				[ctxt _addClip:[NSBezierPath bezierPathWithRect:rect] reset:YES];
-			}
-	else
-		NSLog(@"can't get cached image representation");
+{ // this method should have been called -lockFocusAndDrawRepresentation:
+	[self lockFocus];
+	[imageRep drawInRect:(NSRect) { NSZeroPoint, [self size]}];	// draw (if specified)
 }
 
 - (void) unlockFocus
@@ -363,7 +360,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 {
 	return [NSString stringWithFormat:@"NSImage: name=%@ size=%@ %@%@%@", 
 		_name, 
-		NSStringFromSize([self size]),
+		NSStringFromSize(_size),
 		_img.scalable?@" scalable":@"",
 		_img.isValid?@" valid":@"",
 		_img.flipDraw?@" flipped":@"",
@@ -385,13 +382,11 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	_cache=nil;
 }
 
-// CHECKME: shouldn't we return NSImageRep *
-
-- (NSCachedImageRep *) _cachedImageRep;
-{ // return cached image rep - create one if there is none yet
+- (NSImageRep *) _cachedOrBestRep;
+{ // return the image rep - cached if necessary
 	NSImageRep *bestRep;
 	if(_cache)
-		return _cache;	// found
+		return _cache;	// we have a cached rep
 	bestRep=[self bestRepresentationForDevice:nil];
 	if(!bestRep)
 		return nil;	// can't cache
@@ -408,12 +403,10 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			break;
 		}
 	if([bestRep isKindOfClass:[NSCachedImageRep class]])
-		_cache=[bestRep retain];
+		_cache=[bestRep retain];	// just save the reference
 	else
 		{ // draw into new cache
-		_cache=[[NSCachedImageRep alloc] initWithSize:_size depth:0 separate:_img.cacheSeparately alpha:YES];
-		[self lockFocusOnRepresentation:_cache];
-		[self drawRepresentation:bestRep inRect:[_cache rect]];	// render into cache window
+		[self lockFocusOnRepresentation:bestRep];	// render into cache window
 		[self unlockFocus];
 		}
 	return _cache;
@@ -506,7 +499,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		unitSquare=[[NSBezierPath bezierPathWithRect:NSMakeRect(0.0, 0.0, 1.0, 1.0)] retain];
 	[ctx _addClip:unitSquare reset:NO];	// set CTM as needed
 //	[ctx _draw:[self bestRepresentationForDevice:nil]];
-	[ctx _draw:[self _cachedImageRep]];
+	[ctx _draw:[self _cachedOrBestRep]];
 	[ctx setCompositingOperation:co];
 	[ctx restoreGraphicsState];
 }
@@ -573,7 +566,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		unitSquare=[[NSBezierPath bezierPathWithRect:NSMakeRect(0.0, 0.0, 1.0, 1.0)] retain];
 	[ctx _addClip:unitSquare reset:NO];	// set CTM as needed
 //	[ctx _draw:[self bestRepresentationForDevice:nil]];
-	[ctx _draw:[self _cachedImageRep]];
+	[ctx _draw:[self _cachedOrBestRep]];
 	[ctx setCompositingOperation:co];	// restore
 	[ctx restoreGraphicsState];
 }
@@ -731,21 +724,24 @@ static NSMutableDictionary *__nameToImageDict = nil;
 	if(!_img.isValid && ![self isValid])
 		return nil;		// Make sure we have the image reps loaded in - if possible
 #if 0
-	NSLog(@"representations: %@", _reps);
+	NSLog(@"representations: %@ %@", self, _reps);
 #endif
 	_bestRep=nil;
-	highScore=-1;
+	highScore=-1;	// use any -1 score if no other is found
 	e=[_reps reverseObjectEnumerator];
 	while((r=[e nextObject]))
 		{
 		int newScore=[self _scoreRepresentation:r forDevice:deviceDescription];
+#if 0
+		NSLog(@"score %d for %@", newScore, r);
+#endif
 		if(newScore > highScore)
 			{ // found a better one than before
 			_bestRep=r;
 			highScore=newScore;
 			}
 		}
-	if (!_img.sizeWasExplicitlySet && _bestRep) 
+	if(!_img.sizeWasExplicitlySet && _bestRep) 
 			{
 				_size = [_bestRep size];
 				_alignmentRect = (NSRect) { NSZeroPoint, _size };
@@ -760,8 +756,6 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (NSData *) TIFFRepresentation
 {
-	// simply forward to best rep?
-
 	return [self TIFFRepresentationUsingCompression:NSTIFFCompressionLZW factor:0.0];
 }
 
@@ -770,7 +764,7 @@ static NSMutableDictionary *__nameToImageDict = nil;
 {
 	// forward to best rep?
 	
-	// check if we have a bitmap rep
+	// check if we have any bitmap rep
 	// then, get TIFF from there
 	// else get TIFF from cached rep
 	return NIMP;
@@ -836,12 +830,16 @@ static NSMutableDictionary *__nameToImageDict = nil;
 		if([coder containsValueForKey:@"NSReps"])
 			{
 			_reps=[[coder decodeObjectForKey:@"NSReps"] retain];	// load array of reps
-#if 1
-			NSLog(@"NSImage initWithCoder igores archived reps _reps=%@", _reps);
+				// FIXME: we should only ignore cached image reps
+				// sometimes a NIB encodes a TIFFRepresentation
+#if 0
+			NSLog(@"NSImage initWithCoder ignores archived reps _reps=%@", _reps);
 #endif
-			_img.isValid=YES;
-			[self release];
-			return nil;		// IB stores the Image Reps of Checkbox icons explicitly
+				[_reps release];
+				_reps = [NSMutableArray new];
+//			_img.isValid=YES;
+//			[self release];
+//			return nil;		// IB stores the Image Reps of Checkbox icons explicitly
 			}
 		else
 			_reps = [NSMutableArray new];

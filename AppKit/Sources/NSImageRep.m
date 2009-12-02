@@ -383,6 +383,9 @@ static NSCountedSet *__pb;
 												  styleMask: NSBorderlessWindowMask
 													backing: NSBackingStoreRetained
 													  defer: YES];	// dont't draw or orderFront
+#if 1
+			[_window orderFront:nil];
+#endif
 		}
 	return self;
 }

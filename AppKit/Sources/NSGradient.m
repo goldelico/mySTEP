@@ -51,7 +51,7 @@
                  radius: (CGFloat)endRadius
                 options: (NSGradientDrawingOptions)options
 {
-	[[NSGraphicsContext currentContext] drawGradient: self
+	[[NSGraphicsContext currentContext] _drawGradient: self
 										  fromCenter: startCenter
 											  radius: startRadius
 											toCenter: endCenter 
@@ -63,7 +63,7 @@
                toPoint: (NSPoint)endPoint
                options: (NSGradientDrawingOptions)options
 {
-	[[NSGraphicsContext currentContext] drawGradient: self
+	[[NSGraphicsContext currentContext] _drawGradient: self
 										   fromPoint: startPoint
 											 toPoint: endPoint
 											 options: options];
@@ -267,7 +267,7 @@ relativeCenterPosition: (NSPoint)relativeCenterPoint
 					atLocations: locations
 					 colorSpace: nil];
 	
-	RELEASE(colorArray);
+	[colorArray release];
 	objc_free(locations);
 	return self;
 }
@@ -279,8 +279,8 @@ relativeCenterPosition: (NSPoint)relativeCenterPoint
 
 - (void) dealloc
 {
-	RELEASE(_colorSpace);
-	RELEASE(_colors);
+	[_colorSpace release];
+	[_colors release];
 	objc_free(_locations);
 	[super dealloc];
 }
@@ -328,8 +328,8 @@ relativeCenterPosition: (NSPoint)relativeCenterPoint
 {
 	NSGradient *g = (NSGradient*)NSCopyObject(self, 0, zone);
 	
-	RETAIN(g->_colorSpace);
-	RETAIN(g->_colors);
+	[g->_colorSpace retain];
+	[g->_colors retain];
 	g->_locations = objc_malloc(sizeof(CGFloat) * _numberOfColorStops);
 	memcpy(g->_locations, _locations, sizeof(CGFloat) * _numberOfColorStops);
 	

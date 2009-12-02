@@ -1382,6 +1382,15 @@ static NSButtonCell *sharedCell;
 	return self;
 }
 
+- (void) _allocateGraphicsContext
+{
+	if(!_context)
+		{ // allocate context (had been temporarily deallocated if we are a oneshot window)
+			_context=[[NSGraphicsContext graphicsContextWithWindow:self] retain];	// now, create window on server (will set level)
+			_gState=[_context _currentGState];			// save gState
+		}
+}
+
 - (NSString *) title						{ return _windowTitle; }
 - (NSString *) miniwindowTitle				{ return _miniWindowTitle; }
 - (NSString *) representedFilename			{ return _representedFilename; }
@@ -1618,11 +1627,7 @@ static NSButtonCell *sharedCell;
 			}
 	else
 			{
-				if(!_context)
-						{ // allocate context (had been temporarily deallocated if we are a oneshot window)
-							_context=[[NSGraphicsContext graphicsContextWithWindow:self] retain];	// now, create window (will set level)
-							_gState=[_context _currentGState];			// save gState
-						}
+				[self _allocateGraphicsContext];
 				[self setFrame:[self constrainFrameRect:_frame toScreen:_screen] display:_w.visible animate:_w.visible];	// constrain window frame if needed
 				if(!_w.visible)
 						{ // wasn't visible yet

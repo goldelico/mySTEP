@@ -185,7 +185,7 @@ static NSMutableArray *_registeredClasses;
 			{ // here we are called for a subclass
 				_request=[request copy];	// save a copy of the request
 				_cachedResponse=[cachedResponse retain];
-				_client=[client retain];	// we must retain the client (or it may disappear while we still receive data)
+				_client=[(NSObject *) client retain];	// we must retain the client (or it may disappear while we still receive data)
 			}
 #if 0
 	NSLog(@"  -> %@", self);
@@ -1013,7 +1013,7 @@ static NSMutableDictionary *_httpConnections;
 - (void) didFailWithError:(NSError *) error;
 { // forward to client as last message...
 	[_client URLProtocol:self didFailWithError:error];
-	[_client release];
+	[(NSObject *)_client release];
 	_client=nil;
 }
 
@@ -1025,7 +1025,7 @@ static NSMutableDictionary *_httpConnections;
 - (void) didFinishLoading;
 { // forward to client as last message...
 	[_client URLProtocolDidFinishLoading:self];
-	[_client release];
+	[(NSObject *)_client release];
 	_client=nil;
 }
 

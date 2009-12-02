@@ -510,6 +510,16 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	return 0;
 }
 
++ (BOOL) resolveInstanceMethod:(SEL) sel
+{
+	return NO;
+}
+
++ (BOOL) resolveClassMethod:(SEL) sel
+{
+	return NO;
+}
+
 @end
 
 @implementation NSObject (NSObjCRuntime)					// special

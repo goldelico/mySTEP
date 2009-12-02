@@ -1822,13 +1822,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (BOOL) _draw:(NSImageRep *) rep;
 { // composite into unit square using current CTM, current compositingOp & fraction etc.
+	BOOL cached=[rep isKindOfClass:[NSCachedImageRep class]];
 #if USE_XRENDER
 	if(_picture)
 		{
 		Picture src;
 		NSRect rect;
 		NSAffineTransformStruct atms;
-		BOOL cached=[rep isKindOfClass:[NSCachedImageRep class]];
 		if(cached)
 			{ // we already have a Picture on the X-Server
 				_NSX11GraphicsContext *c=(_NSX11GraphicsContext *) [[(NSCachedImageRep *) rep window] graphicsContext];
@@ -2013,6 +2013,19 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	else
 #endif
+		if(cached)
+			{ // draw from cache (can't handle alpha in this case!)
+				NSGraphicsContext *ctxt=[[(NSCachedImageRep *) rep window] graphicsContext];
+				if(ctxt)
+					{
+						_NSGraphicsState *state=(_NSGraphicsState *) (ctxt->_graphicsState);	// cache window
+						[self _copyBits:state fromRect:[(NSCachedImageRep *) rep rect] toPoint:NSZeroPoint];
+						return YES;
+					}
+				return NO;
+			}
+	
+	
 			{ // composite into unit square using current CTM, current compositingOp & fraction etc.
 	/* here we know:
 	- source bitmap: rep
