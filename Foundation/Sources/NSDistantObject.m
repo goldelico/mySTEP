@@ -265,13 +265,9 @@
 			}
 	// FIXME: what about mehtodSignature of builtin methods?
 	else
-			{	// we must cast this call into an NSInvocation and forward to the peer
-				NSInvocation *i=[NSInvocation invocationWithMethodSignature:[_selectorCache objectForKey:@"methodSignatureForSelector:"]];
-				[i setTarget:self];
-				[i setSelector:_cmd];
-				[i setArgument:&aSelector atIndex:2];
-				[_connection sendInvocation:i internal:YES];
-				[i getReturnValue:&ret];
+			{	// we must forward this call to the peer
+				struct objc_method_description *md=[self methodDescriptionForSelector:aSelector];	// will be forwarded since we don't implement it
+				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
 			}
 	[_selectorCache setObject:ret forKey:NSStringFromSelector(aSelector)];	// add to cache
 #if 0
@@ -287,9 +283,36 @@
 
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
+	BOOL ret;
 	if(class_get_instance_method([NSDistantObject class], aSelector) != METHOD_NULL)
 		return YES;	// this is a method of NSDistantObject
-	return [self methodSignatureForSelector:aSelector] != nil;
+	if([_selectorCache objectForKey:NSStringFromSelector(aSelector)])
+		return YES;	// known from cache
+#if 1
+	NSLog(@"[NSDistantObject respondsToSelector:\"%@\"]", NSStringFromSelector(aSelector));
+#endif
+	if(_target)
+		return [_target respondsToSelector:aSelector];	// ask local object if it responds
+	else if(_protocol)
+			{ // ask protocol
+				struct objc_method_description *md;
+#if 0
+				NSLog(@"[NSDistantObject respondsToSelector:] _protocol=%s", [_protocol name]);
+#endif
+				md=[_protocol descriptionForInstanceMethod:aSelector];	// ask protocol for the signature
+				// FIXME:				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
+				return md != nil;
+			}
+	else
+			{	// we must cast this call into an NSInvocation and forward to the peer
+				NSInvocation *i=[NSInvocation invocationWithMethodSignature:[_selectorCache objectForKey:@"respondsToSelector:"]];
+				[i setTarget:self];
+				[i setSelector:_cmd];
+				[i setArgument:&aSelector atIndex:2];
+				[_connection sendInvocation:i internal:YES];
+				[i getReturnValue:&ret];
+			}
+	return ret;
 }
 
 - (Class) classForCoder; { return /*isa*/ NSClassFromString(@"NSDistantObject"); }
@@ -298,7 +321,9 @@
 
 - (void) encodeWithCoder:(NSCoder *) coder;
 { // just send the reference number
+	int flag=1;
 	[coder encodeValueOfObjCType:@encode(int) at:&_reference];	// encode as a reference into the address space and not the real object
+	[coder encodeValueOfObjCType:@encode(int) at:&flag];
 }
 
 - (id) initWithCoder:(NSCoder *) coder;

@@ -25,6 +25,8 @@
 #ifdef __APPLE__
 // make us work on Apple objc-runtime
 
+const char *objc_skip_typespec (const char *type);
+
 int objc_alignof_type(const char *type)
 {
 	if(*type == _C_CHR)
@@ -859,26 +861,28 @@ const char *objc_skip_typespec (const char *type)
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig frameLength]);	// allocate a buffer
 	int cnt=[sig numberOfArguments];	// encode arguments
-	int j;
 	const char *type=[[sig _typeString] UTF8String];	// private method to get the type string
+	const char *ret=[sig methodReturnType];
+	char retlen=strlen(ret);
 	SEL selector=[i selector];
 	id target=[i target];
+	int j;
 	[self encodeValueOfObjCType:@encode(id) at:&target];
-	[self encodeValueOfObjCType:@encode(int) at:&cnt];	// argument count
-#if 1
-		{ // FIXME: sending our invocation appears to need to insert this byte but Unit-Tests don't
-			BOOL fillByte=NO;
-			[self encodeValueOfObjCType:@encode(char) at:&fillByte];
-		}
+#if 0
+	{ // FIXME: sending our invocation appears to need to insert this byte but Unit-Tests don't
+		int fill=NO;	// 0 or 1
+		[self encodeValueOfObjCType:@encode(int) at:&fill];
+	}
 #endif
+	[self encodeValueOfObjCType:@encode(int) at:&cnt];	// argument count
 	[self encodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self encodeValueOfObjCType:@encode(char *) at:&type];	// method type
-	j=64;
-	[self encodeValueOfObjCType:@encode(int) at:&j];
+	[self encodeValueOfObjCType:@encode(char) at:&retlen];	// length (in most cases 1 sometimes more characters)
+	[self encodeArrayOfObjCType:@encode(char) count:retlen at:ret];	// no final 0-byte
 	for(j=2; j<cnt; j++)
 		{ // encode arguments
 			// set byRef & byCopy flags here
-#if 1
+#if 0
 			{ // FIXME: really sending our invocation appears to need to insert this byte but Unit-Tests don't
 				BOOL fillByte=NO;
 				[self encodeValueOfObjCType:@encode(char) at:&fillByte];
@@ -1005,7 +1009,7 @@ const char *objc_skip_typespec (const char *type)
 
 - (void) authenticateWithDelegate:(id) delegate;
 {
-	if(delegate)
+	if(delegate && [delegate respondsToSelector:@selector(authenticationDataForComponents:)])
 		{
 			NSData *data=[delegate authenticationDataForComponents:[self components]];
 			if(!data)

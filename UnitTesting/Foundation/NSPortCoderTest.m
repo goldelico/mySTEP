@@ -10,7 +10,7 @@
 #import "NSPortCoderTest.h"
 
 
-#if 1	// test our mySTEP implementation
+#if 1	// 1: test our mySTEP implementation - 0: test our test patterns against Cocoa
 
 // make NSPrivate.h compile on Cocoa Foundation
 
@@ -818,8 +818,8 @@
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	id have;
-	id want=@"<01010110 4e534469 7374616e 744f626a 65637400 00010500 01>";	// encoded as NSDistantObject - gets its own unique serial number!
-	[pc encodeObject:connection];
+	id want=@"<01010110 4e534469 7374616e 744f626a 65637400 00010600 01>";
+	[pc encodeObject:connection];		// encoded as NSDistantObject - gets its own unique serial number!
 	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
 	STAssertEqualObjects(have, want,  nil);
 }
@@ -963,6 +963,21 @@
 	[i setTarget:@"string"];
 	[i setSelector:@selector(testInvocation8:)];
 	[i setArgument:&_cmd atIndex:2];
+	[pc encodeObject:i];	// encode [@"string" testInvocation8:@selector(testInvocation8)]
+	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
+	STAssertEqualObjects(have, want,  nil);
+}
+
+- (void) testInvocation9
+{
+	NSPortCoder *pc=[self portCoderForEncode];
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:"c@::"]];
+	SEL sel=@selector(descriptionWithLocale:);
+	id have;
+	id want=@"<0101010d 4e53496e 766f6361 74696f6e 00000101 01104e53 44697374 616e744f 626a6563 74000001 05000101 03010114 72657370 6f6e6473 546f5365 6c656374 6f723a00 01010563 403a3a00 01630101 17646573 63726970 74696f6e 57697468 4c6f6361 6c653a00 01>";
+	[i setTarget:[NSDistantObject proxyWithLocal:self connection:[pc connection]]];
+	[i setSelector:@selector(respondsToSelector:)];
+	[i setArgument:&sel atIndex:2];
 	[pc encodeObject:i];	// encode [@"string" testInvocation8:@selector(testInvocation8)]
 	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
 	STAssertEqualObjects(have, want,  nil);

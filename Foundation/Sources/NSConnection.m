@@ -500,7 +500,12 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 - (NSDistantObject *) rootProxy;
 { // this generates a proxy
 	NSConnection *conn=(NSConnection *) [NSDistantObject proxyWithTarget:(id) 0 connection:self];	// get first remote object (id == 0) which represents the NSConnection
-	return [conn rootObject];	// ask other side for a reference to their root object
+	NSDistantObject *proxy=[conn rootObject];	// ask other side for a reference to their root object
+#if 0	// for unknown reasons this may also ask _localClassNameForClass from the result
+	// this may also be a side-effect of actively using the proxy the first time by NSLog(@"proxy=%@", proxy);
+	[proxy _localClassNameForClass];
+#endif
+	return proxy;
 }
 
 - (void) runInNewThread;
@@ -696,7 +701,8 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	++_sequence;	// we will wait for a response to appear...
 	[portCoder encodeValueOfObjCType:@encode(unsigned long) at:&_sequence];
 	[portCoder encodeObject:i];		// encode invocation
-	// what else to encode?
+	[portCoder encodeObject:nil];
+	[portCoder encodeObject:nil];
 	[self finishEncoding:portCoder];	// should add authentication
 	
 	NS_DURING

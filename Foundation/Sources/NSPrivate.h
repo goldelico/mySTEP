@@ -43,6 +43,8 @@
 #import <Foundation/NSValue.h>
 #import <Foundation/NSXMLParser.h>
 
+#import <objc/Protocol.h>
+
 #include <unistd.h>
 
 /* Because openssl uses `id' as variable name sometime, while it is an Objective-C reserved keyword. */
