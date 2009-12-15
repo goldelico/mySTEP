@@ -39,202 +39,193 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     IDENTIFIER = 258,
-     CONSTANT = 259,
-     STRING_LITERAL = 260,
-     SIZEOF = 261,
-     PTR_OP = 262,
-     INC_OP = 263,
-     DEC_OP = 264,
-     LEFT_OP = 265,
-     RIGHT_OP = 266,
-     LE_OP = 267,
-     GE_OP = 268,
-     EQ_OP = 269,
-     NE_OP = 270,
-     AND_OP = 271,
-     OR_OP = 272,
-     MUL_ASSIGN = 273,
-     DIV_ASSIGN = 274,
-     MOD_ASSIGN = 275,
-     ADD_ASSIGN = 276,
-     SUB_ASSIGN = 277,
-     LEFT_ASSIGN = 278,
-     RIGHT_ASSIGN = 279,
-     AND_ASSIGN = 280,
-     XOR_ASSIGN = 281,
-     OR_ASSIGN = 282,
-     TYPE_NAME = 283,
-     TYPEDEF = 284,
-     EXTERN = 285,
-     STATIC = 286,
-     AUTO = 287,
-     REGISTER = 288,
-     CHAR = 289,
-     SHORT = 290,
-     INT = 291,
-     LONG = 292,
-     SIGNED = 293,
-     UNSIGNED = 294,
-     FLOAT = 295,
-     DOUBLE = 296,
-     CONST = 297,
-     VOLATILE = 298,
-     VOID = 299,
-     STRUCT = 300,
-     UNION = 301,
-     ENUM = 302,
-     ELLIPSIS = 303,
-     CASE = 304,
-     DEFAULT = 305,
-     IF = 306,
-     ELSE = 307,
-     SWITCH = 308,
-     WHILE = 309,
-     DO = 310,
-     FOR = 311,
-     GOTO = 312,
-     CONTINUE = 313,
-     BREAK = 314,
-     RETURN = 315,
-     AT_STRING_LITERAL = 316,
-     ID = 317,
-     SEL = 318,
-     BOOL = 319,
-     UNICHAR = 320,
-     CLASS = 321,
-     AT_CLASS = 322,
-     AT_PROTOCOL = 323,
-     AT_INTERFACE = 324,
-     AT_IMPLEMENTATION = 325,
-     AT_END = 326,
-     AT_PRIVATE = 327,
-     AT_PUBLIC = 328,
-     AT_PROTECTED = 329,
-     AT_SELECTOR = 330,
-     AT_ENCODE = 331,
-     AT_CATCH = 332,
-     AT_THROW = 333,
-     AT_TRY = 334,
-     IN = 335,
-     OUT = 336,
-     INOUT = 337,
-     BYREF = 338,
-     BYCOPY = 339,
-     ONEWAY = 340,
-     AT_PROPERTY = 341,
-     AT_SYNTHESIZE = 342,
-     AT_OPTIONAL = 343,
-     AT_REQUIRED = 344,
-     WEAK = 345,
-     STRONG = 346
+     SIZEOF = 258,
+     PTR_OP = 259,
+     INC_OP = 260,
+     DEC_OP = 261,
+     LEFT_OP = 262,
+     RIGHT_OP = 263,
+     LE_OP = 264,
+     GE_OP = 265,
+     EQ_OP = 266,
+     NE_OP = 267,
+     AND_OP = 268,
+     OR_OP = 269,
+     MUL_ASSIGN = 270,
+     DIV_ASSIGN = 271,
+     MOD_ASSIGN = 272,
+     ADD_ASSIGN = 273,
+     SUB_ASSIGN = 274,
+     LEFT_ASSIGN = 275,
+     RIGHT_ASSIGN = 276,
+     AND_ASSIGN = 277,
+     XOR_ASSIGN = 278,
+     OR_ASSIGN = 279,
+     TYPEDEF = 280,
+     EXTERN = 281,
+     STATIC = 282,
+     AUTO = 283,
+     REGISTER = 284,
+     CHAR = 285,
+     SHORT = 286,
+     INT = 287,
+     LONG = 288,
+     SIGNED = 289,
+     UNSIGNED = 290,
+     FLOAT = 291,
+     DOUBLE = 292,
+     CONST = 293,
+     VOLATILE = 294,
+     VOID = 295,
+     STRUCT = 296,
+     UNION = 297,
+     ENUM = 298,
+     ELLIPSIS = 299,
+     CASE = 300,
+     DEFAULT = 301,
+     IF = 302,
+     ELSE = 303,
+     SWITCH = 304,
+     WHILE = 305,
+     DO = 306,
+     FOR = 307,
+     GOTO = 308,
+     CONTINUE = 309,
+     BREAK = 310,
+     RETURN = 311,
+     ID = 312,
+     SEL = 313,
+     BOOL = 314,
+     UNICHAR = 315,
+     CLASS = 316,
+     AT_CLASS = 317,
+     AT_PROTOCOL = 318,
+     AT_INTERFACE = 319,
+     AT_IMPLEMENTATION = 320,
+     AT_END = 321,
+     AT_PRIVATE = 322,
+     AT_PUBLIC = 323,
+     AT_PROTECTED = 324,
+     AT_SELECTOR = 325,
+     AT_ENCODE = 326,
+     AT_CATCH = 327,
+     AT_THROW = 328,
+     AT_TRY = 329,
+     IN = 330,
+     OUT = 331,
+     INOUT = 332,
+     BYREF = 333,
+     BYCOPY = 334,
+     ONEWAY = 335,
+     AT_PROPERTY = 336,
+     AT_SYNTHESIZE = 337,
+     AT_OPTIONAL = 338,
+     AT_REQUIRED = 339,
+     WEAK = 340,
+     STRONG = 341,
+     IDENTIFIER = 342,
+     TYPE_NAME = 343,
+     CONSTANT = 344,
+     STRING_LITERAL = 345,
+     AT_STRING_LITERAL = 346
    };
 #endif
 /* Tokens.  */
-#define IDENTIFIER 258
-#define CONSTANT 259
-#define STRING_LITERAL 260
-#define SIZEOF 261
-#define PTR_OP 262
-#define INC_OP 263
-#define DEC_OP 264
-#define LEFT_OP 265
-#define RIGHT_OP 266
-#define LE_OP 267
-#define GE_OP 268
-#define EQ_OP 269
-#define NE_OP 270
-#define AND_OP 271
-#define OR_OP 272
-#define MUL_ASSIGN 273
-#define DIV_ASSIGN 274
-#define MOD_ASSIGN 275
-#define ADD_ASSIGN 276
-#define SUB_ASSIGN 277
-#define LEFT_ASSIGN 278
-#define RIGHT_ASSIGN 279
-#define AND_ASSIGN 280
-#define XOR_ASSIGN 281
-#define OR_ASSIGN 282
-#define TYPE_NAME 283
-#define TYPEDEF 284
-#define EXTERN 285
-#define STATIC 286
-#define AUTO 287
-#define REGISTER 288
-#define CHAR 289
-#define SHORT 290
-#define INT 291
-#define LONG 292
-#define SIGNED 293
-#define UNSIGNED 294
-#define FLOAT 295
-#define DOUBLE 296
-#define CONST 297
-#define VOLATILE 298
-#define VOID 299
-#define STRUCT 300
-#define UNION 301
-#define ENUM 302
-#define ELLIPSIS 303
-#define CASE 304
-#define DEFAULT 305
-#define IF 306
-#define ELSE 307
-#define SWITCH 308
-#define WHILE 309
-#define DO 310
-#define FOR 311
-#define GOTO 312
-#define CONTINUE 313
-#define BREAK 314
-#define RETURN 315
-#define AT_STRING_LITERAL 316
-#define ID 317
-#define SEL 318
-#define BOOL 319
-#define UNICHAR 320
-#define CLASS 321
-#define AT_CLASS 322
-#define AT_PROTOCOL 323
-#define AT_INTERFACE 324
-#define AT_IMPLEMENTATION 325
-#define AT_END 326
-#define AT_PRIVATE 327
-#define AT_PUBLIC 328
-#define AT_PROTECTED 329
-#define AT_SELECTOR 330
-#define AT_ENCODE 331
-#define AT_CATCH 332
-#define AT_THROW 333
-#define AT_TRY 334
-#define IN 335
-#define OUT 336
-#define INOUT 337
-#define BYREF 338
-#define BYCOPY 339
-#define ONEWAY 340
-#define AT_PROPERTY 341
-#define AT_SYNTHESIZE 342
-#define AT_OPTIONAL 343
-#define AT_REQUIRED 344
-#define WEAK 345
-#define STRONG 346
+#define SIZEOF 258
+#define PTR_OP 259
+#define INC_OP 260
+#define DEC_OP 261
+#define LEFT_OP 262
+#define RIGHT_OP 263
+#define LE_OP 264
+#define GE_OP 265
+#define EQ_OP 266
+#define NE_OP 267
+#define AND_OP 268
+#define OR_OP 269
+#define MUL_ASSIGN 270
+#define DIV_ASSIGN 271
+#define MOD_ASSIGN 272
+#define ADD_ASSIGN 273
+#define SUB_ASSIGN 274
+#define LEFT_ASSIGN 275
+#define RIGHT_ASSIGN 276
+#define AND_ASSIGN 277
+#define XOR_ASSIGN 278
+#define OR_ASSIGN 279
+#define TYPEDEF 280
+#define EXTERN 281
+#define STATIC 282
+#define AUTO 283
+#define REGISTER 284
+#define CHAR 285
+#define SHORT 286
+#define INT 287
+#define LONG 288
+#define SIGNED 289
+#define UNSIGNED 290
+#define FLOAT 291
+#define DOUBLE 292
+#define CONST 293
+#define VOLATILE 294
+#define VOID 295
+#define STRUCT 296
+#define UNION 297
+#define ENUM 298
+#define ELLIPSIS 299
+#define CASE 300
+#define DEFAULT 301
+#define IF 302
+#define ELSE 303
+#define SWITCH 304
+#define WHILE 305
+#define DO 306
+#define FOR 307
+#define GOTO 308
+#define CONTINUE 309
+#define BREAK 310
+#define RETURN 311
+#define ID 312
+#define SEL 313
+#define BOOL 314
+#define UNICHAR 315
+#define CLASS 316
+#define AT_CLASS 317
+#define AT_PROTOCOL 318
+#define AT_INTERFACE 319
+#define AT_IMPLEMENTATION 320
+#define AT_END 321
+#define AT_PRIVATE 322
+#define AT_PUBLIC 323
+#define AT_PROTECTED 324
+#define AT_SELECTOR 325
+#define AT_ENCODE 326
+#define AT_CATCH 327
+#define AT_THROW 328
+#define AT_TRY 329
+#define IN 330
+#define OUT 331
+#define INOUT 332
+#define BYREF 333
+#define BYCOPY 334
+#define ONEWAY 335
+#define AT_PROPERTY 336
+#define AT_SYNTHESIZE 337
+#define AT_OPTIONAL 338
+#define AT_REQUIRED 339
+#define WEAK 340
+#define STRONG 341
+#define IDENTIFIER 342
+#define TYPE_NAME 343
+#define CONSTANT 344
+#define STRING_LITERAL 345
+#define AT_STRING_LITERAL 346
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE
-#line 28 "gram.y"
-{
-	int ival;
-	double dval;
-	void *symbol;
-}
-/* Line 1529 of yacc.c.  */
-#line 237 "y.tab.h"
-	YYSTYPE;
+typedef int YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1

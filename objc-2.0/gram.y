@@ -3,7 +3,7 @@
 %token SIZEOF PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
 %token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
-%token XOR_ASSIGN OR_ASSIGN TYPE_NAME
+%token XOR_ASSIGN OR_ASSIGN 
 
 %token TYPEDEF EXTERN STATIC AUTO REGISTER
 %token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID
@@ -20,36 +20,28 @@
 
 %token AT_PROPERTY AT_SYNTHESIZE AT_OPTIONAL AT_REQUIRED WEAK STRONG
 
+%token IDENTIFIER
+%token TYPE_NAME
+%token CONSTANT
+%token STRING_LITERAL
+%token AT_STRING_LITERAL
+
 %start translation_unit
-
-%union
-{
-	char *string;
-}
-
-%token <string> IDENTIFIER
-%token <string> CONSTANT
-%token <string> STRING_LITERAL
-%token <string> AT_STRING_LITERAL
 
 %%
 
 // define result type for each expansion
 
-// how can we do that for all to return a <string>?
-
-%type <string> selector_component selector_with_arguments
-
 selector_component
-	: IDENTIFIER ':' { $$ = strdupcat($1, ":"); }
-	| ':' { $$ = ":"; }
+	: IDENTIFIER ':' {  }
+	| ':' {  }
 	;
 
 selector_with_arguments
 	: IDENTIFIER { $$ = $1; }
-	| IDENTIFIER ':' expression  { $$ = strdupcat3($1, ":", $3); }
-	| selector_with_arguments selector_component expression { $$ = strdupcat($1, $2, $3); }
-	| selector_with_arguments ',' ELLIPSIS  { $$ = strdupcat($1, ", ..."); }
+	| IDENTIFIER ':' expression  {  }
+	| selector_with_arguments selector_component expression {  }
+	| selector_with_arguments ',' ELLIPSIS  {  }
 	;
 
 struct_component_expression
@@ -59,7 +51,7 @@ struct_component_expression
 
 selector
 	: IDENTIFIER
-	| ':' { $$ = ":"; }
+	| ':' { }
 	| IDENTIFIER ':'
 	| selector ':'
 	;
@@ -323,7 +315,8 @@ init_declarator_list
 	;
 
 init_declarator
-	: declarator { /* handle typedef and @class to add symbol to symbol table */ }
+	: AT_CLASS IDENTIFIER ';' { /* handle typedef and @class to add symbol to symbol table */ }
+	| declarator
 	| declarator '=' initializer
 	;
 
@@ -529,6 +522,8 @@ statement
 	| jump_statement
 	| AT_CATCH
 	| AT_TRY
+	| error ';' 
+	| error '}' 
 	;
 
 labeled_statement
@@ -611,6 +606,9 @@ function_definition
 
 %%
 #include <stdio.h>
+#include <string.h>
+
+#include "node.h"
 
 extern char *yytext;
 extern int line, column;
@@ -623,3 +621,14 @@ char *s;
 	printf("%s\n%*s\n%*s\n", yytext, column, "^", column, s);
 	fflush(stdout);
 }
+
+int node(int type, const char *name)
+{ // create a node
+	struct Node *n=malloc(sizeof(struct Node));
+	n->type=type;
+	n->name=strdup(name);
+	n->left=n->right=NULL;
+	n->next=NULL;
+	return (int) n;
+}
+

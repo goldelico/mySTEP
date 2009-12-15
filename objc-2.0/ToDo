@@ -49,3 +49,15 @@ Ideas how translation could work:
 
 - what if somebody implements countByEnumeratingWithState:objects:count: for a private collection class?
 - well, it would simply not be used
+
+Material
+--------
+YACC tutorial:
+	http://epaperpress.com/lexandyacc/download/lexyacc.pdf
+
+MiniC sample:
+	http://tinf2.vub.ac.be/~dvermeir/courses/compilers/minic/
+
+Code of objc-2.0 in mySTEP:
+	http://www.quantum-step.com/download/sources/mySTEP/objc-2.0/
+

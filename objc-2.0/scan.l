@@ -3,7 +3,7 @@
 	/* digit */
 D			[0-9]
 	/* letter */
-L			[a-zA-Z_]
+L			[a-zA-Z_$]
 	/* hex letter */
 H			[a-fA-F0-9]
 	/* exponent */
@@ -16,112 +16,157 @@ IS			(u|U|l|L)*
 %{
 #include <stdio.h>
 #include "y.tab.h"
+#include "node.h"
 	
 #define error(X)
 	
-void count();
+void count(void);
+void comment(int cxx);
 
 int column = 0;
 int line = 1;	
+	
+struct RESERVED
+	{
+		char *word;
+		int token;
+	} reserved[]={
+	"auto", AUTO, 
+	"break", BREAK, 
+	"case", CASE, 
+	"char", CHAR, 
+	"const", CONST, 
+	"continue", CONTINUE, 
+	"default", DEFAULT, 
+	"do", DO, 
+	"double", DOUBLE, 
+	"else", ELSE, 
+	"enum", ENUM, 
+	"extern", EXTERN, 
+	"float", FLOAT, 
+	"for", FOR, 
+	"goto", GOTO, 
+	"if", IF, 
+	"int", INT, 
+	"long", LONG, 
+	"register", REGISTER, 
+	"return", RETURN, 
+	"short", SHORT, 
+	"signed", SIGNED, 
+	"sizeof", SIZEOF, 
+	"static", STATIC, 
+	"struct", STRUCT, 
+	"switch", SWITCH, 
+	"typedef", TYPEDEF, 
+	"union", UNION, 
+	"unsigned", UNSIGNED, 
+	"void", VOID, 
+	"volatile", VOLATILE, 
+	"while", WHILE, 
+	
+	/* Obj-C 1.0 extensions */
+	
+	"@interface", AT_INTERFACE, 
+	"@implementation", AT_IMPLEMENTATION, 
+	"@end", AT_END, 
+	"@class", AT_CLASS, 
+	"@protocol", AT_PROTOCOL, 
+	"@selector", AT_SELECTOR, 
+	"@encode", AT_ENCODE, 
+	"@catch", AT_CATCH, 
+	"@try", AT_TRY, 
+	"@protected", AT_PROTECTED, 
+	"@private", AT_PRIVATE, 
+	"@public", AT_PUBLIC, 
+	"inout", INOUT, 
+	"in", IN, 
+	"out", OUT, 
+	"byref", BYREF, 
+	"bycopy", BYCOPY, 
+	"oneway", ONEWAY, 
+	
+	"id", ID, 
+	"SEL", SEL, 
+	"BOOL", BOOL, 
+	"unichar", UNICHAR, 
+	"Class", CLASS, 
+	
+	/* Obj-C 2.0 extensions */
+	
+	"@property", AT_PROPERTY, 
+	"@synthesize", AT_SYNTHESIZE, 
+	"@optional", AT_OPTIONAL, 
+	"@required", AT_REQUIRED, 
+	"__weak", WEAK, 
+	"__strong", STRONG
+	};
+	
+struct Node *symtab[11*19];	// hash table
+	
+struct Node *lookup(char *word)
+	{ // look up identifier
+		int hash=0;
+		char *h=word;
+		struct Node *s;
+		while(*h)
+			hash=2*hash+(*h++);
+		hash%=sizeof(symtab)/sizeof(symtab[0]);
+		s=symtab[hash];	// get first entry
+		while(s != NULL)
+			{
+				if(strcmp(s->name, word) == 0)
+					return s;	// found
+				s=s->next;	// go to next symtab node
+			}
+		s=(struct Node *) node(IDENTIFIER, word);
+		s->next=symtab[hash];
+		symtab[hash]=s;	// prepend new entry
+		return s;
+	}
+
+void scaninit(void)
+	{
+		int i;
+		for(i=0; i<sizeof(reserved)/sizeof(reserved[0]); i++)
+			lookup(reserved[i].word)->type=reserved[i].token;	// initialize all reserved words in symbol table
+	}
 	
 %}
 
 %%
 
-"/*"			{ comment(); }
- 
- /* note: we should recognize as keyword, i.e. autobreak is a single IDENTIFIER and not 2 keywords */
- 
- "auto"			{ count(); return(AUTO); }
- "break"		{ count(); return(BREAK); }
- "case"			{ count(); return(CASE); }
- "char"			{ count(); return(CHAR); }
- "const"		{ count(); return(CONST); }
- "continue"		{ count(); return(CONTINUE); }
- "default"		{ count(); return(DEFAULT); }
- "do"			{ count(); return(DO); }
- "double"		{ count(); return(DOUBLE); }
- "else"			{ count(); return(ELSE); }
- "enum"			{ count(); return(ENUM); }
- "extern"		{ count(); return(EXTERN); }
- "float"		{ count(); return(FLOAT); }
- "for"			{ count(); return(FOR); }
- "goto"			{ count(); return(GOTO); }
- "if"			{ count(); return(IF); }
- "int"			{ count(); return(INT); }
- "long"			{ count(); return(LONG); }
- "register"		{ count(); return(REGISTER); }
- "return"		{ count(); return(RETURN); }
- "short"		{ count(); return(SHORT); }
- "signed"		{ count(); return(SIGNED); }
- "sizeof"		{ count(); return(SIZEOF); }
- "static"		{ count(); return(STATIC); }
- "struct"		{ count(); return(STRUCT); }
- "switch"		{ count(); return(SWITCH); }
- "typedef"		{ count(); return(TYPEDEF); }
- "union"		{ count(); return(UNION); }
- "unsigned"		{ count(); return(UNSIGNED); }
- "void"			{ count(); return(VOID); }
- "volatile"		{ count(); return(VOLATILE); }
- "while"			{ count(); return(WHILE); }
- 
- /* gcc extensions */
- 
- /* Obj-C 1.0 extensions */
- 
- "//"						{ commentplusplus(); }
- "@interface"				{ count(); return(AT_INTERFACE); }
- "@implementation"			{ count(); return(AT_IMPLEMENTATION); }
- "@end"						{ count(); return(AT_END); }
- "@class"					{ count(); return(AT_CLASS); }
- "@protocol"				{ count(); return(AT_PROTOCOL); }
- "@selector"				{ count(); return(AT_SELECTOR); }
- "@encode"					{ count(); return(AT_ENCODE); }
- "@catch"					{ count(); return(AT_CATCH); }
- "@try"						{ count(); return(AT_TRY); }
- "@protected"				{ count(); return(AT_PROTECTED); }
- "@private"					{ count(); return(AT_PRIVATE); }
- "@public"					{ count(); return(AT_PUBLIC); }
- "inout"					{ count(); return(INOUT); }
- "in"						{ count(); return(IN); }
- "out"						{ count(); return(OUT); }
- "byref"					{ count(); return(BYREF); }
- "bycopy"					{ count(); return(BYCOPY); }
- "oneway"					{ count(); return(ONEWAY); }
- 
- /* fixme - we should know how to distinguish identifiers from types */
+"/*"			{ comment(0); }
+"//"			{ comment(1); }
 
- "id"						{ count(); return(ID); }
- "SEL"						{ count(); return(SEL); }
- "BOOL"						{ count(); return(BOOL); }
- "unichar"					{ count(); return(UNICHAR); }
- "Class"					{ count(); return(CLASS); }
- 
- @\"(\\.|[^\\"])*\"			{ count(); yylval.string=strdup(yytext); return(AT_STRING_LITERAL); }
- 
- /* Obj-C 2.0 extensions */
- 
- "@property"				{ count(); return(AT_PROPERTY); }
- "@synthesize"				{ count(); return(AT_SYNTHESIZE); }
- "@optional"				{ count(); return(AT_OPTIONAL); }
- "@required"				{ count(); return(AT_REQUIRED); }
- "__weak"					{ count(); return(WEAK); }
- "__strong"					{ count(); return(STRONG); }
-  
- L(L)*				{ count(); yylval.string=strdup(yytext); return(IDENTIFIER); }
- {L}({L}|{D})*		{ count(); yylval.string=strdup(yytext); return(IDENTIFIER); }
- 
-0[xX]{H}+{IS}?		{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
-0{D}+{IS}?			{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
-{D}+{IS}?			{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
-L?'(\\.|[^\\'])+'	{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
- 
-{D}+{E}{FS}?		{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
-{D}*"."{D}+({E})?{FS}?	{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
-{D}+"."{D}*({E})?{FS}?	{ count(); yylval.string=strdup(yytext); return(CONSTANT); }
- 
-L?\"(\\.|[^\\"])*\"	{ count(); yylval.string=strdup(yytext); return(STRING_LITERAL); }
- 
+	/* identifiers and keywords */
+
+{L}({L}|{D})*  { 
+	struct Node *s;
+	count();
+	s=lookup(yytext); 
+	yylval=(int) s;
+	if(s->right)
+		return TYPE_NAME;	// syntactically we are a type name
+	return s->type; 
+} 
+
+	/* numeral CONSTANTs */
+0[xX]{H}+{IS}?		{ count(); yylval=cons(yytext); return(CONSTANT); }
+0{D}+{IS}?			{ count(); yylval=cons(yytext); return(CONSTANT); }
+{D}+{IS}?			{ count(); yylval=cons(yytext); return(CONSTANT); }
+L?'(\\.|[^\\'])+'	{ count(); yylval=cons(yytext); return(CONSTANT); }
+
+{D}+{E}{FS}?		{ count(); yylval=cons(yytext); return(CONSTANT); }
+{D}*"."{D}+({E})?{FS}?	{ count(); yylval=cons(yytext); return(CONSTANT); }
+{D}+"."{D}*({E})?{FS}?	{ count(); yylval=cons(yytext); return(CONSTANT); }
+
+	/* string CONSTANTs */
+
+L?\"(\\.|[^\\"])*\"	{ count(); yylval=cons(yytext); return(STRING_LITERAL); }
+@\"(\\.|[^\\"])*\"			{ count(); yylval=cons(yytext); return(AT_STRING_LITERAL); }
+
+	/* standard operators */
+
 "..."			{ count(); return(ELLIPSIS); }
 ">>="			{ count(); return(RIGHT_ASSIGN); }
 "<<="			{ count(); return(LEFT_ASSIGN); }
@@ -131,48 +176,48 @@ L?\"(\\.|[^\\"])*\"	{ count(); yylval.string=strdup(yytext); return(STRING_LITER
 "/="			{ count(); return(DIV_ASSIGN); }
 "%="			{ count(); return(MOD_ASSIGN); }
 "&="			{ count(); return(AND_ASSIGN); }
- "^="			{ count(); return(XOR_ASSIGN); }
- "|="			{ count(); return(OR_ASSIGN); }
- ">>"			{ count(); return(RIGHT_OP); }
- "<<"			{ count(); return(LEFT_OP); }
- "++"			{ count(); return(INC_OP); }
- "--"			{ count(); return(DEC_OP); }
- "->"			{ count(); return(PTR_OP); }
- "&&"			{ count(); return(AND_OP); }
- "||"			{ count(); return(OR_OP); }
- "<="			{ count(); return(LE_OP); }
- ">="			{ count(); return(GE_OP); }
- "=="			{ count(); return(EQ_OP); }
- "!="			{ count(); return(NE_OP); }
- ";"			{ count(); return(';'); }
- ("{"|"<%")		{ count(); return('{'); }
- ("}"|"%>")		{ count(); return('}'); }
- ","			{ count(); return(','); }
- ":"			{ count(); return(':'); }
- "="			{ count(); return('='); }
- "("			{ count(); return('('); }
- ")"			{ count(); return(')'); }
- ("["|"<:")		{ count(); return('['); }
- ("]"|":>")		{ count(); return(']'); }
- "."			{ count(); return('.'); }
- "&"			{ count(); return('&'); }
- "!"			{ count(); return('!'); }
- "~"			{ count(); return('~'); }
- "-"			{ count(); return('-'); }
- "+"			{ count(); return('+'); }
- "*"			{ count(); return('*'); }
- "/"			{ count(); return('/'); }
- "%"			{ count(); return('%'); }
- "<"			{ count(); return('<'); }
- ">"			{ count(); return('>'); }
- "^"			{ count(); return('^'); }
- "|"			{ count(); return('|'); }
- "?"			{ count(); return('?'); }
+"^="			{ count(); return(XOR_ASSIGN); }
+"|="			{ count(); return(OR_ASSIGN); }
+">>"			{ count(); return(RIGHT_OP); }
+"<<"			{ count(); return(LEFT_OP); }
+"++"			{ count(); return(INC_OP); }
+"--"			{ count(); return(DEC_OP); }
+"->"			{ count(); return(PTR_OP); }
+"&&"			{ count(); return(AND_OP); }
+"||"			{ count(); return(OR_OP); }
+"<="			{ count(); return(LE_OP); }
+">="			{ count(); return(GE_OP); }
+"=="			{ count(); return(EQ_OP); }
+"!="			{ count(); return(NE_OP); }
+";"				{ count(); return(';'); }
+("{"|"<%")		{ count(); return('{'); }
+("}"|"%>")		{ count(); return('}'); }
+","				{ count(); return(','); }
+":"				{ count(); return(':'); }
+"="				{ count(); return('='); }
+"("				{ count(); return('('); }
+")"				{ count(); return(')'); }
+("["|"<:")		{ count(); return('['); }
+("]"|":>")		{ count(); return(']'); }
+"."				{ count(); return('.'); }
+"&"				{ count(); return('&'); }
+"!"				{ count(); return('!'); }
+"~"				{ count(); return('~'); }
+"-"				{ count(); return('-'); }
+"+"				{ count(); return('+'); }
+"*"				{ count(); return('*'); }
+"/"				{ count(); return('/'); }
+"%"				{ count(); return('%'); }
+"<"				{ count(); return('<'); }
+">"				{ count(); return('>'); }
+"^"				{ count(); return('^'); }
+"|"				{ count(); return('|'); }
+"?"				{ count(); return('?'); }
  
- [\n]			{ line++, column=0; }
- [ \t\v\f]		{ count(); }
+[\n]			{ line++, column=0; }
+[ \t\v\f]		{ count(); }
  
- .				{ count(); error( "bad character" ); }
+.				{ count(); error( "bad character" ); }
 
 %%
  
@@ -182,9 +227,16 @@ L?\"(\\.|[^\\"])*\"	{ count(); yylval.string=strdup(yytext); return(STRING_LITER
  }
  
  
- void comment()
+ void comment(int cxx)
  {
 	 char c;
+	if(cxx)
+		{ // C++ comment
+		while ((c = input()) != '\n' && c != EOF)
+			/*putchar(c)*/;
+		line++;
+		return;
+		}
 	 while ( 1 )
 		 {
 		 while ( (c = input()) != '*' && c != EOF )
@@ -208,16 +260,8 @@ L?\"(\\.|[^\\"])*\"	{ count(); yylval.string=strdup(yytext); return(STRING_LITER
 		 }
  }
  
-void commentplusplus()
- {
-	 char c;	 
-	 while ((c = input()) != '\n' && c != 0)
-		 /*putchar(c)*/;
- }
- 
- 
- void count()
- {
+ void count(void)
+ { // cound characters so that we know the column position
 	 int i;
 	 
 	 for (i = 0; yytext[i] != '\0'; i++)
@@ -231,26 +275,7 @@ void commentplusplus()
 //	 ECHO;
  }
 
-char *strdup(char *str)
-{ // copy
-	char r=(char *) malloc(strlen(str)+1);
-	strcpy(r, str);
-	return r;
-}
-
-char *strdupcat(char *str1, char *str2)
-{ // catenate into a copy
-	char r=(char *) malloc(strlen(str1)+strlen(str2)+1);
-	strcpy(r, str1);
-	strcat(r, str2);
-	return r;
-}
-
-char *strdupcat3(char *str1, char *str2, char *str3)
-{ // catenate into a copy
-	char r=(char *) malloc(strlen(str1)+strlen(str2)+strlen(str3)+1);
-	strcpy(r, str1);
-	strcat(r, str2);
-	strcat(r, str3);
-	return r;
+int cons(char *str)
+{
+	return node(CONSTANT, str);
 }
