@@ -88,11 +88,11 @@ argument_expression_list
 
 unary_expression
 	: postfix_expression
-	| INC_OP unary_expression
-	| DEC_OP unary_expression
+	| INC_OP unary_expression { $$=node1(INC_OP, $2); }
+	| DEC_OP unary_expression { $$=node1(DEC_OP, $2); }
 	| unary_operator cast_expression
-	| SIZEOF unary_expression
-	| SIZEOF '(' type_name ')'
+	| SIZEOF unary_expression { $$=node1(SIZEOF, $2); }
+	| SIZEOF '(' type_name ')' { $$=node1(SIZEOF, $2); }
 	;
 
 unary_operator
@@ -106,71 +106,71 @@ unary_operator
 
 cast_expression
 	: unary_expression
-	| '(' type_name ')' cast_expression
+	| '(' type_name ')' cast_expression { $$=node1('(', $2, $4); }
 	| '(' type_name ')' '{' struct_component_expression '}'	/* gcc extension to create a temporary struct */
 	;
 
 multiplicative_expression
 	: cast_expression
-	| multiplicative_expression '*' cast_expression
-	| multiplicative_expression '/' cast_expression
-	| multiplicative_expression '%' cast_expression
+	| multiplicative_expression '*' cast_expression { $$=node1('*', $1, $3); }
+	| multiplicative_expression '/' cast_expression { $$=node1('/', $1, $3); }
+	| multiplicative_expression '%' cast_expression { $$=node1('%', $1, $3); }
 	;
 
 additive_expression
 	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression
-	| additive_expression '-' multiplicative_expression
+	| additive_expression '+' multiplicative_expression { $$=node1('+', $1, $3); }
+	| additive_expression '-' multiplicative_expression { $$=node1('-', $1, $3); }
 	;
 
 shift_expression
 	: additive_expression
-	| shift_expression LEFT_OP additive_expression
-	| shift_expression RIGHT_OP additive_expression
+	| shift_expression LEFT_OP additive_expression { $$=node1(LEFT_OP, $1, $3); }
+	| shift_expression RIGHT_OP additive_expression { $$=node1(RIGHT_OP, $1, $3); }
 	;
 
 relational_expression
 	: shift_expression
-	| relational_expression '<' shift_expression
-	| relational_expression '>' shift_expression
-	| relational_expression LE_OP shift_expression
-	| relational_expression GE_OP shift_expression
+	| relational_expression '<' shift_expression { $$=node1('<', $1, $3); }
+	| relational_expression '>' shift_expression { $$=node1('>', $1, $3); }
+	| relational_expression LE_OP shift_expression { $$=node1(LE_OP, $1, $3); }
+	| relational_expression GE_OP shift_expression { $$=node1(GE_OP, $1, $3); }
 	;
 
 equality_expression
 	: relational_expression
-	| equality_expression EQ_OP relational_expression
-	| equality_expression NE_OP relational_expression
+	| equality_expression EQ_OP relational_expression { $$=node1(EQ_OP, $1, $3); }
+	| equality_expression NE_OP relational_expression { $$=node1(NE_OP, $1, $3); }
 	;
 
 and_expression
 	: equality_expression
-	| and_expression '&' equality_expression
+	| and_expression '&' equality_expression { $$=node1('&', $1, $3); }
 	;
 
 exclusive_or_expression
 	: and_expression
-	| exclusive_or_expression '^' and_expression
+	| exclusive_or_expression '^' and_expression { $$=node1('^', $1, $3); }
 	;
 
 inclusive_or_expression
 	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression
+	| inclusive_or_expression '|' exclusive_or_expression { $$=node1('|', $1, $3); }
 	;
 
 logical_and_expression
 	: inclusive_or_expression
-	| logical_and_expression AND_OP inclusive_or_expression
+	| logical_and_expression AND_OP inclusive_or_expression { $$=node1(AND_OP, $1, $3); }
 	;
 
 logical_or_expression
 	: logical_and_expression
-	| logical_or_expression OR_OP logical_and_expression
+	| logical_or_expression OR_OP logical_and_expression { $$=node1(OR_OP, $1, $3); }
 	;
 
 conditional_expression
 	: logical_or_expression
-	| logical_or_expression '?' expression ':' conditional_expression
+	| logical_or_expression '?' expression ':' conditional_expression { $$=node1('?', $1, node1(':', $3, $5)); }
 	;
 
 assignment_expression
@@ -194,7 +194,7 @@ assignment_operator
 
 expression
 	: assignment_expression
-	| expression ',' assignment_expression
+	| expression ',' assignment_expression { $$=node1(',', $1, $3); }
 	;
 
 constant_expression
@@ -376,12 +376,20 @@ property_attributes_list
 
 struct_declaration
 	: specifier_qualifier_list struct_declarator_list ';'
-	| AT_PRIVATE specifier_qualifier_list struct_declarator_list ';'
-	| AT_PUBLIC specifier_qualifier_list struct_declarator_list ';'
-	| AT_PROTECTED specifier_qualifier_list struct_declarator_list ';'
-	| AT_PROPERTY '(' property_attributes_list ')' specifier_qualifier_list struct_declarator_list ';'
-	| AT_PROPERTY specifier_qualifier_list struct_declarator_list ';'
+	| protection_qualifier specifier_qualifier_list struct_declarator_list ';'
+	| property_qualifier specifier_qualifier_list struct_declarator_list ';'
 	| AT_SYNTHESIZE ivar_list ';'
+	;
+
+protection_qualifier
+	: AT_PRIVATE
+	| AT_PUBLIC
+	| AT_PROTECTED
+	;
+
+property_qualifier
+	: AT_PROPERTY '(' property_attributes_list ')'
+	| AT_PROPERTY
 	;
 
 ivar_list
@@ -460,12 +468,12 @@ type_qualifier_list
 
 parameter_type_list
 	: parameter_list
-	| parameter_list ',' ELLIPSIS
+	| parameter_list ',' ELLIPSIS  { $$=node1(',', $1, node1(ELLIPSIS, NULL, NULL)); }
 	;
 
 parameter_list
 	: parameter_declaration
-	| parameter_list ',' parameter_declaration
+	| parameter_list ',' parameter_declaration  { $$=node1(',', $1, $3); }
 	;
 
 parameter_declaration
@@ -476,7 +484,7 @@ parameter_declaration
 
 identifier_list
 	: IDENTIFIER
-	| identifier_list ',' IDENTIFIER
+	| identifier_list ',' IDENTIFIER  { $$=node1(',', $1, $3); }
 	;
 
 type_name
@@ -491,9 +499,9 @@ abstract_declarator
 	;
 
 direct_abstract_declarator
-	: '(' abstract_declarator ')'
-	| '[' ']'
-	| '[' constant_expression ']'
+	: '(' abstract_declarator ')' { $$ = $2 }
+	| '[' ']'  { $$=node1('[', NULL, NULL); }
+	| '[' constant_expression ']'  { $$=node1('[', $2); }
 	| direct_abstract_declarator '[' ']'
 	| direct_abstract_declarator '[' constant_expression ']'
 	| '(' ')'
@@ -510,7 +518,7 @@ initializer
 
 initializer_list
 	: initializer
-	| initializer_list ',' initializer
+	| initializer_list ',' initializer  { $$=node1(',', $1, $3); }
 	;
 
 statement
@@ -527,43 +535,36 @@ statement
 	;
 
 labeled_statement
-	: IDENTIFIER ':' statement
-	| CASE constant_expression ':' statement
-	| DEFAULT ':' statement
+	: IDENTIFIER ':' statement  { $$=node1('$', $1, $3); }
+	| CASE constant_expression ':' statement  { $$=node1(CASE, $2, $4); }
+	| DEFAULT ':' statement  { $$=node1(DEFAULT, $3, NULL); }
 	;
 
 compound_statement
-	: '{' '}'
-	| '{' statement_list '}'
-	| '{' declaration_list '}'
-	| '{' declaration_list statement_list '}'
-/* add embedded declarations and tranlate to { declaration_list statement_list } */
-	;
-
-declaration_list
-	: declaration
-	| declaration_list declaration
+	: '{' '}'  { $$=node1('{', NULL, NULL); }
+	| '{' statement_list '}'  { $$=node1('{', $2, NULL); }
 	;
 
 statement_list
-	: statement
-	| statement_list statement
+	: declaration
+	| statement
+	| statement_list statement  { $$=node1(';', $1, $2); }
 	;
 
 expression_statement
-	: ';'
-	| expression ';'
+	: ';'  { $$=node1('e', NULL, NULL); }
+	| expression ';'  { $$=node1('e', $1, NULL); }
 	;
 
 selection_statement
-	: IF '(' expression ')' statement
-	| IF '(' expression ')' statement ELSE statement
-	| SWITCH '(' expression ')' statement
+	: IF '(' expression ')' statement  { $$=node1(IF, $3, $5); }
+	| IF '(' expression ')' statement ELSE statement  { $$=node1(IF, $3, node1(ELSE, $5, $7)); }
+	| SWITCH '(' expression ')' statement  { $$=node1(SWITCH, $3, $5); }
 	;
 
 iteration_statement
-	: WHILE '(' expression ')' statement
-	| DO statement WHILE '(' expression ')' ';'
+	: WHILE '(' expression ')' statement  { $$=node1(WHILE, $3, $5); }
+	| DO statement WHILE '(' expression ')' ';'  { $$=node1(DO, $5, $3); }
 	| FOR '(' expression_statement expression_statement ')' statement
 	| FOR '(' expression_statement expression_statement expression ')' statement
 		{
@@ -580,16 +581,11 @@ iteration_statement
 	;
 
 jump_statement
-	: GOTO IDENTIFIER ';'
-	| CONTINUE ';'
-	| BREAK ';'
-	| RETURN ';'
-	| RETURN expression ';'
-	;
-
-translation_unit
-	: external_declaration
-	| translation_unit external_declaration
+	: GOTO IDENTIFIER ';'  { $$=node1(GOTO, $2, NULL); }
+	| CONTINUE ';'  { $$=node1(CONTINUE, NULL, NULL); }
+	| BREAK ';' { $$=node1(BREAK, NULL, NULL); }
+	| RETURN ';' { $$=node1(RETURN, NULL, NULL); }
+	| RETURN expression ';' { $$=node1(RETURN, $2, NULL); }
 	;
 
 external_declaration
@@ -598,10 +594,13 @@ external_declaration
 	;
 
 function_definition
-	: declaration_specifiers declarator declaration_list compound_statement
-	| declaration_specifiers declarator compound_statement
-	| declarator declaration_list compound_statement
+	: declaration_specifiers declarator compound_statement
 	| declarator compound_statement
+	;
+
+translation_unit
+	: external_declaration { translate((struct Node *) $1); }
+	| translation_unit external_declaration
 	;
 
 %%
@@ -632,3 +631,31 @@ int node(int type, const char *name)
 	return (int) n;
 }
 
+int node1(int type, int left, int right)
+{ // create a node
+	struct Node *n=(struct Node *) node(type, NULL);
+	n->left=(struct Node *) left;
+	n->right=(struct Node *) right;
+	return (int) n;
+}
+
+int translate(struct Node *n)
+{
+	if(n != 0)
+		{
+			switch(n->type)
+			{
+				case IDENTIFIER:	printf(" %s", n->name); break;
+				case CONSTANT:	printf(" %s", n->name); break;
+				case '{':	printf("{"); translate(n->left); printf("}\n"); break;
+				case '(':	printf("("); translate(n->left); printf(")"); break;
+				case ';':	translate(n->left); printf(";\n"); translate(n->right); break;
+				case ',':	translate(n->left); printf(", "); translate(n->right); break;
+				case '?':	translate(n->left); printf(" ? "); translate(n->right); break;
+				case ':':	translate(n->left); printf(" : "); translate(n->right); break;
+				case IF:	printf("if ("); translate(n->left); printf("\n"); translate(n->right); printf("\n"); break;
+				case ELSE:	translate(n->left); printf("\nelse\n"); translate(n->right); printf("\n"); break;
+			}
+	}
+
+}

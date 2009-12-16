@@ -25,6 +25,7 @@
 
 @class NSArray;
 @class NSMutableArray;
+@class NSMutableDictionary;
 @class NSConnection;
 @class NSPort;
 

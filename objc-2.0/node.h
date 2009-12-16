@@ -8,3 +8,4 @@ struct Node
 };
 
 int node(int type, const char *name);
+int node1(int type, int left, int right);
