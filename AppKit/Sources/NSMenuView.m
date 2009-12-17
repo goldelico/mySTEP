@@ -532,9 +532,9 @@
 			{ // menu needs scrolling
 				NSRect f=_frame;
 				if(edge == NSMinYEdge)
-					f.origin.y+=item.origin.y-3.0;	// menu below
+					f.origin.y+=item.origin.y-VERTICAL_PADDING;	// menu below
 				if(edge == NSMinXEdge)
-					f.origin.x+=item.origin.x-3.0;	// menu left
+					f.origin.x+=item.origin.x-HORIZONTAL_PADDING;	// menu left
 				else
 					;	// above or right
 				[self setFrameOrigin:f.origin];	// move content up/down as needed
@@ -703,15 +703,14 @@
 #endif
 }
 
-// overridden methods
+// behaviour
 
 - (BOOL) isFlipped; { return YES; }
-
-- (BOOL) mouseDownCanMoveWindow; { return NO; }	// no click-move
-
-- (BOOL) shouldBeTreatedAsInkEvent:(NSEvent *) theEvent; { return NO; }	// no inking in menus...
-
 - (BOOL) isOpaque; { return YES; }	// completely fills its background
+- (BOOL) mouseDownCanMoveWindow; { return NO; }	// no click-move
+- (BOOL) shouldBeTreatedAsInkEvent:(NSEvent *) theEvent; { return NO; }	// no inking in menus...
+- (BOOL) shouldDelayWindowOrderingForEvent:(NSEvent *)anEvent; { return YES; }	// don't become key or main window
+- (BOOL) acceptsFirstMouse:(NSEvent *)theEvent { return YES; } // yes, respond immediately on activation
 
 - (void) dealloc;
 {
@@ -732,6 +731,7 @@
 	int i;
 	int nc=[_cells count];
 	BOOL any=NO;
+	NSRect bounds=[self bounds];
 	if(nc > 50)
 		NSLog(@"drawing large menu with %d entries", nc);
 	if(_needsSizing)
@@ -740,21 +740,9 @@
 	NSLog(@"NSMenuView - %@ (nc=%d) drawRect:%@", [[_menumenu itemAtIndex:0] title], nc, NSStringFromRect(rect));
 #endif
 	//// FIXME: the following code deletes all menu items in the drawing rectangle which may be the union of 2 non-adjacent cells!
-	//// so this greys out the cells in between unless we draw them all...
+	//// so this greys out the cells in between unless we redraw them all...
 	[[NSColor windowBackgroundColor] set];	// draw white/light grey lines
 	NSRectFill(rect);	// draw background
-	if(_needsScrolling)
-		{
-		 // draw arrows
-			NSRect frame=[self frame];
-			if(!_isHorizontal && frame.origin.y > 0)
-				{ // draw up-arrow
-				}
-			if(_isHorizontal && frame.origin.x > 0)
-				{
-				}
-				
-		}
 #if 0	// draw box around menu for testing
 	if(!_isHorizontal)
 		{ // draw box
@@ -777,17 +765,8 @@
 		NSLog(@"%@ cell:%@%@", [[_menumenu itemAtIndex:0] title], NSStringFromRect(cRect), NSIntersectsRect(rect, cRect)?@" intersects":@"");
 #endif
 		// FIXME: check needsDisplay - the following code enforces all cells to display!
-		// clip to rect
-		if(NSMinY(_bounds) < NSMinY(_frame))
-			{
-			NSLog(@"up arrow");
-			}
-		if(NSMaxY(_bounds) > NSMaxY(_frame))
-			{
-			NSLog(@"down arrow");
-			}
 		if(NSIntersectsRect(cRect, rect))
-			{
+			{ // clip to rect
 			NSMenuItemCell *cell=[_cells objectAtIndex:i];
 			// FIXME - this is to avoid the grey rects
 			[cell setNeedsDisplay:YES];	// so that we really (re)draw...
@@ -796,6 +775,51 @@
 			}
 		else if(any)
 			break;	// we did leave the rect
+		}
+	// FIXME: we could draw the arrows first and set a clipping rect to avoid drawing over the arrows
+	if(_needsScrolling)
+		{ // draw arrows
+			[[NSColor blackColor] set];
+			NSBezierPath *path=[[NSBezierPath new] autorelease];
+#define ARROW 6.0
+			if(!_isHorizontal)
+				{ // draw vertical arrows
+					if(NSMinY(bounds) > 0.0)
+						{ // up arrow
+							[path moveToPoint:NSMakePoint(NSMidX(bounds), NSMinY(bounds))];
+							[path lineToPoint:NSMakePoint(NSMidX(bounds)-ARROW, NSMinY(bounds)+ARROW)];
+							[path lineToPoint:NSMakePoint(NSMidX(bounds)+ARROW, NSMinY(bounds)+ARROW)];
+							[path closePath];
+							[path fill];
+						}
+					if(NSMinY(bounds) < _neededSize-NSHeight(bounds))
+						{ // down arrow
+							[path moveToPoint:NSMakePoint(NSMidX(bounds), NSMaxY(bounds))];
+							[path lineToPoint:NSMakePoint(NSMidX(bounds)-ARROW, NSMaxY(bounds)-ARROW)];
+							[path lineToPoint:NSMakePoint(NSMidX(bounds)+ARROW, NSMaxY(bounds)-ARROW)];
+							[path closePath];
+							[path fill];
+						}
+				}
+			else
+				{
+					if(NSMinX(bounds) > 0.0)
+						{ // left arrow
+							[path moveToPoint:NSMakePoint(NSMinX(bounds), NSMidY(bounds))];
+							[path lineToPoint:NSMakePoint(NSMinX(bounds)+ARROW, NSMidY(bounds)+ARROW)];
+							[path lineToPoint:NSMakePoint(NSMinX(bounds)+ARROW, NSMidY(bounds)-ARROW)];
+							[path closePath];
+							[path fill];
+						}
+					if(NSMinX(bounds) < _neededSize-NSWidth(bounds))
+						{ // right arrow
+							[path moveToPoint:NSMakePoint(NSMaxX(bounds), NSMidY(bounds))];
+							[path lineToPoint:NSMakePoint(NSMaxX(bounds)-ARROW, NSMidY(bounds)+ARROW)];
+							[path lineToPoint:NSMakePoint(NSMaxX(bounds)-ARROW, NSMidY(bounds)-ARROW)];
+							[path closePath];
+							[path fill];
+						}
+				}
 		}
 }
 
@@ -819,9 +843,6 @@
 		];
 }
 
-- (BOOL) shouldDelayWindowOrderingForEvent:(NSEvent *)anEvent; { return YES; }	// don't become key or main window
-- (BOOL) acceptsFirstMouse:(NSEvent *)theEvent { return YES; } // yes, respond immediately on activation
-
 - (BOOL) trackWithEvent:(NSEvent *) event;
 {
 	NSPoint p;
@@ -832,18 +853,28 @@
 		{
 			NSRect rect=[self bounds];
 			BOOL change=YES;
-			NSLog(@"autoscroll menu");
 #define SCROLLAREA	30.0
-#define SCROLLSTEP	21.0	// should be typical item height
-			// FIXME: we can even use two different speeds by finer defining the active areas
+#define SCROLLSTEP	(16.0+VERTICAL_PADDING)	// should be typical item height
+#if 0
+			NSLog(@"autoscroll menu");
 			NSLog(@"p: %@", NSStringFromPoint(p));
 			NSLog(@"nededSize: %f", _neededSize);
+#endif
+			// FIXME: scrolling a Popup Menu should resize the whole window and there might be just one arrow!
 			if(_isHorizontal)
 				{
-					if(p.x <= NSMinX(rect) + SCROLLAREA)	// in left corner
-						rect.origin.x=MAX(0.0, NSMinX(rect)-SCROLLSTEP);	// scroll left
-					else if(p.x >= NSMaxX(rect) - SCROLLAREA)
-						rect.origin.x=MIN(_neededSize-NSWidth(rect), NSMinX(rect)+SCROLLSTEP);	// scroll right
+					if(p.x < 0.0)
+						;	// in parent menu
+					else if(p.x <= NSMinX(rect) + SCROLLAREA)	// in top arrow area
+						rect.origin.x=MAX(0.0, NSMinX(rect)-5*SCROLLSTEP);
+					else if(p.x <= NSMinY(rect) + 3*SCROLLAREA)	// in top arrow area
+						rect.origin.x=MAX(0.0, NSMinX(rect)-SCROLLSTEP);
+					else if(p.x > NSMaxY(rect))
+						;	// below menu
+					else if(p.x >= NSMaxY(rect) - SCROLLAREA)	// in bottom arrow area
+						rect.origin.x=MIN(_neededSize-NSWidth(rect), NSMinX(rect)+5*SCROLLSTEP);
+					else if(p.x >= NSMaxY(rect) - 3*SCROLLAREA)	// in bottom arrow area
+						rect.origin.x=MIN(_neededSize-NSWidth(rect), NSMinX(rect)+SCROLLSTEP);
 					else
 						change=NO;
 				}
@@ -866,7 +897,9 @@
 				}
 			if(change)
 				{
+#if 0
 					NSLog(@"new bounds: %@", NSStringFromRect(rect));
+#endif
 					[self setBoundsOrigin:rect.origin];	// scroll
 					[self setNeedsDisplay:YES];
 					p=[self convertPoint:[_window mouseLocationOutsideOfEventStream] fromView:nil];	// get coordinates relative to our window (we might have a different one as the event!)
