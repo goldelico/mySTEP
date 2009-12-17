@@ -235,6 +235,8 @@ NSTimer *t = [NSTimer timerWithTimeInterval:[[timer userInfo] doubleValue]
 	if(!win)
 		win=[NSApp _mainMenuWindow];	// try main menu window
 	if(!win)
+		win=[[NSApp windows] lastObject];	// try any other window
+	if(!win)
 		{
 		NSLog(@"mouseLocation: there is no key/main/mainMenu window");
 		return NSZeroPoint;

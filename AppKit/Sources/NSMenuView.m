@@ -439,7 +439,7 @@
 			[self setMenuItemCell:cell forItemAtIndex:i];		// to add all cell connections and updates
 			}
 		if(cnt > 50)
-			NSLog(@"set large menu");
+			NSLog(@"set large menu with %d emtries", cnt);
 		_needsSizing=YES;		// even if we have no cells...
 		[_menumenu update];		// auto-enable and resize if needed
 		}
@@ -507,32 +507,37 @@
 		mf.origin.x=ref.origin.x+ref.size.width;
 	if(mf.origin.x+mf.size.width > sf.size.width)   // does (still) not fit to the right - try (again) to the left but align right border on horizontal menus
 		mf.origin.x=ref.origin.x-mf.size.width+((edge==NSMinYEdge || edge==NSMaxYEdge)?ref.size.width:0.0);
-	if(mf.origin.x < 0)
+	if((_needsScrolling=(mf.origin.x < 0)))
 		{
-		mf.origin.x=0.0;	// still no fit - needs horizontal scrolling
-		mf.size.width=sf.size.width;	// limit to screen
+			_neededSize=mf.size.width;
+			mf.origin.x=0.0;	// still no fit - needs horizontal scrolling
+			mf.size.width=sf.size.width;	// limit to screen
 		}
 	if(mf.origin.y < 0)		// try above if it does not fit below
 		mf.origin.y=ref.origin.y+((edge==NSMinYEdge || edge==NSMaxYEdge)?ref.size.height:0.0);
 	if(mf.origin.y+mf.size.height > sf.size.height) // try below
 		mf.origin.y=ref.origin.y-mf.size.height;
-	if((_isVerticallyScrolling=(mf.origin.y < 0)))
+	if(mf.origin.y < 0)
 		{
-		mf.origin.y=0.0;	// still no fit - needs vertical scrolling
-		mf.size.height=sf.size.height;	// limit to screen
+			_needsScrolling=YES;
+			_neededSize=mf.size.height;
+			mf.origin.y=0.0;	// still no fit - needs vertical scrolling
+			mf.size.height=sf.size.height;	// limit to screen
 		}
 #if 1
 	NSLog(@"set frame=%@", NSStringFromRect(mf));
 #endif
 	[_window setFrame:[_window frameRectForContentRect:mf] display:NO];	// this will also change our frame&bounds since we are the contentView!
-	if(_isVerticallyScrolling && index >= 0)
-			{ // menu needs vertical scrolling
+	if(_needsScrolling && index >= 0)
+			{ // menu needs scrolling
 				NSRect f=_frame;
 				if(edge == NSMinYEdge)
 					f.origin.y+=item.origin.y-3.0;	// menu below
+				if(edge == NSMinXEdge)
+					f.origin.x+=item.origin.x-3.0;	// menu left
 				else
-					;	// above
-				[self setFrameOrigin:f.origin];	// move us up/down
+					;	// above or right
+				[self setFrameOrigin:f.origin];	// move content up/down as needed
 			}
 	[self setNeedsDisplay:YES];	// needs display everything
 #if 1
@@ -607,7 +612,7 @@
 #endif
 	nc=[_cells count];
 	if(nc > 50)
-		NSLog(@"sizing large");
+		NSLog(@"sizing large menu with %d entries", nc);
 	if(_isHorizontal)
 		{ // horizontal menu
 		_imageAndTitleWidth=0.0;	// we don't know for a horizontal menu
@@ -728,7 +733,7 @@
 	int nc=[_cells count];
 	BOOL any=NO;
 	if(nc > 50)
-		NSLog(@"drawing large menu");
+		NSLog(@"drawing large menu with %d entries", nc);
 	if(_needsSizing)
 		NSLog(@"NSMenuView drawRect: please call sizeToFit explicitly before calling display");	// rect is most probably inaccurate
 #if 0
@@ -738,6 +743,18 @@
 	//// so this greys out the cells in between unless we draw them all...
 	[[NSColor windowBackgroundColor] set];	// draw white/light grey lines
 	NSRectFill(rect);	// draw background
+	if(_needsScrolling)
+		{
+		 // draw arrows
+			NSRect frame=[self frame];
+			if(!_isHorizontal && frame.origin.y > 0)
+				{ // draw up-arrow
+				}
+			if(_isHorizontal && frame.origin.x > 0)
+				{
+				}
+				
+		}
 #if 0	// draw box around menu for testing
 	if(!_isHorizontal)
 		{ // draw box
@@ -806,36 +823,73 @@
 - (BOOL) acceptsFirstMouse:(NSEvent *)theEvent { return YES; } // yes, respond immediately on activation
 
 - (BOOL) trackWithEvent:(NSEvent *) event;
-{ // FIXME: should we runloop here?
+{
 	NSPoint p;
 	if(_attachedMenuView && [_attachedMenuView trackWithEvent:event])
 		return YES;	// yes, it has been successfully handled by the submenu(s)
 	p=[self convertPoint:[_window mouseLocationOutsideOfEventStream] fromView:nil];	// get coordinates relative to our window (we might have a different one as the event!)
+	if([event type] == NSPeriodic && _needsScrolling)
+		{
+			NSRect rect=[self bounds];
+			BOOL change=YES;
+			NSLog(@"autoscroll menu");
+#define SCROLLAREA	30.0
+#define SCROLLSTEP	21.0	// should be typical item height
+			// FIXME: we can even use two different speeds by finer defining the active areas
+			NSLog(@"p: %@", NSStringFromPoint(p));
+			NSLog(@"nededSize: %f", _neededSize);
+			if(_isHorizontal)
+				{
+					if(p.x <= NSMinX(rect) + SCROLLAREA)	// in left corner
+						rect.origin.x=MAX(0.0, NSMinX(rect)-SCROLLSTEP);	// scroll left
+					else if(p.x >= NSMaxX(rect) - SCROLLAREA)
+						rect.origin.x=MIN(_neededSize-NSWidth(rect), NSMinX(rect)+SCROLLSTEP);	// scroll right
+					else
+						change=NO;
+				}
+			else
+				{ // we are flipped...
+					if(p.y < 0.0)
+						;	// in parent menu
+					else if(p.y <= NSMinY(rect) + SCROLLAREA)	// in top arrow area
+						rect.origin.y=MAX(0.0, NSMinY(rect)-5*SCROLLSTEP);
+					else if(p.y <= NSMinY(rect) + 3*SCROLLAREA)	// in top arrow area
+						rect.origin.y=MAX(0.0, NSMinY(rect)-SCROLLSTEP);
+					else if(p.y > NSMaxY(rect))
+						;	// below menu
+					else if(p.y >= NSMaxY(rect) - SCROLLAREA)	// in bottom arrow area
+						rect.origin.y=MIN(_neededSize-NSHeight(rect), NSMinY(rect)+5*SCROLLSTEP);
+					else if(p.y >= NSMaxY(rect) - 3*SCROLLAREA)	// in bottom arrow area
+						rect.origin.y=MIN(_neededSize-NSHeight(rect), NSMinY(rect)+SCROLLSTEP);
+					else
+						change=NO;
+				}
+			if(change)
+				{
+					NSLog(@"new bounds: %@", NSStringFromRect(rect));
+					[self setBoundsOrigin:rect.origin];	// scroll
+					[self setNeedsDisplay:YES];
+					p=[self convertPoint:[_window mouseLocationOutsideOfEventStream] fromView:nil];	// get coordinates relative to our window (we might have a different one as the event!)
+				}
+		}
 	if(NSMouseInRect(p, _bounds, [self isFlipped]))
 		{ // highlight (new) cell
-		int item=[self indexOfItemAtPoint:p];	// get selected item
+			int item=[self indexOfItemAtPoint:p];	// get selected item
 #if 0
-		NSLog(@"item=%d", item);
+			NSLog(@"item=%d", item);
 #endif
-		if(item != _highlightedItemIndex)
-			{ // has changed
-			[self setHighlightedItemIndex:item];	// highlight new item (which will initiate redisplay)
-			if(!NSEqualRects(_bounds, _frame))
-				{ // check how we have to move the bounds to keep the current item visible
-				NSLog(@"autoscroll menu");
+			if(item != _highlightedItemIndex)
+				{ // has changed
+					[self setHighlightedItemIndex:item];	// highlight new item (which will initiate redisplay)
+					if(item >= 0 && [[_menumenu itemAtIndex:item] hasSubmenu])
+						[self attachSubmenuForItemAtIndex:item];	// and open submenu if available
+					else
+						[self detachSubmenu];						// detach any open submenu hierarchy
 				}
-			if(item >= 0 && [[_menumenu itemAtIndex:item] hasSubmenu])
-				[self attachSubmenuForItemAtIndex:item];	// and open submenu if available
-			else
-				[self detachSubmenu];						// detach any open submenu hierarchy
-			}
-		return YES;
+			return YES;
 		}
 	if(!_attachedMenuView)
-		{
 		[self setHighlightedItemIndex:-1];	// unhighligt item if we leave the menu
-		return NO;
-		}
 	return NO;
 }
 
@@ -845,11 +899,12 @@
 	NSMenuView *mv;
 	int idx;
 	BOOL stayOpen=NO;
-	[NSApp preventWindowOrdering];
 #if 1
 	NSLog(@"mouseDown:%@", theEvent);
 #endif
+	[NSApp preventWindowOrdering];
 	[self update];	// update/enable menu(s)
+	[NSEvent startPeriodicEventsAfterDelay:0.3 withPeriod:0.05];
 	while(YES)
 		{ // loop until mouse goes up
 		NSEventType type=[theEvent type];
@@ -873,16 +928,14 @@
 				break;	// wasn't hold down long enough
 			stayOpen=YES;
 			}
-		else if(type == NSMouseMoved || type == NSLeftMouseDragged)
-			{
-			if(![self trackWithEvent:theEvent])
-				[self detachSubmenu];	// outside of top level
-			}
-		theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+		else if(type == NSMouseMoved || type == NSLeftMouseDragged || type == NSPeriodic)
+			[self trackWithEvent:theEvent];
+		theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask | NSPeriodicMask
 									  untilDate:[NSDate distantFuture]			// get next event
 										 inMode:NSEventTrackingRunLoopMode 
 										dequeue:YES];
 		}
+	[NSEvent stopPeriodicEvents];	// was generating scroll events
 	mv=self;
 	while([mv attachedMenuView])
 		mv=[mv attachedMenuView];	// go down to lowest open submenu level

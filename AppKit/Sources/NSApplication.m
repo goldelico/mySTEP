@@ -1412,16 +1412,16 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillBecomeActive) object: self];	 // menu's should listen for note so that they are up when app active
 			if(![[NSFileManager defaultManager] removeFileAtPath:active handler:nil])	// reove as active application
 				NSLog(@"remove error for activate");
-		[[NSFileManager defaultManager] createSymbolicLinkAtPath:active pathContent:[[NSBundle mainBundle] bundleIdentifier]];	// link to identifier
+			[[NSFileManager defaultManager] createSymbolicLinkAtPath:active pathContent:[[NSBundle mainBundle] bundleIdentifier]];	// link to identifier
 			[self _setWindowsHidden:NO];		// unhide our windows
-		if(flag)
-			{
-			if(_mainWindow)
-				[_mainWindow becomeMainWindow];
-			if(_keyWindow)
-				[_keyWindow becomeKeyWindow];
-			}
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidBecomeActive) object: self];
+			if(flag)
+				{
+					if(_mainWindow)
+						[_mainWindow becomeMainWindow];
+					if(_keyWindow)
+						[_keyWindow becomeKeyWindow];
+				}
+			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidBecomeActive) object: self];
 		}
 	if(flag)
 		[_mainMenuWindow orderFront:self];	// order front our application menu
@@ -1788,6 +1788,7 @@ NSWindow *w;
 
 - (void) _setAppleMenu:(NSMenu *)aMenu
 { // set first item
+	// NO - this is the menu item to the left of the menu bar
 	// what if the mainMenu is not yet defined?
 	[[[self mainMenu] itemAtIndex:0] setSubmenu:aMenu];
 #if 0
@@ -1795,10 +1796,10 @@ NSWindow *w;
 #endif
 }
 
-- (NSMenu *) mainMenu					{ return [super menu]; } // remove Window Close menu item
+- (NSMenu *) mainMenu					{ return [super menu]; }
 - (NSMenu *) windowsMenu				{ return _windowsMenu; }
 
-// FIXME: we should observe the windowDidBecome(In)visible notifications and handle the menu
+// FIXME: we should observe the windowDidBecome(In)visible notifications and handle the menu by that
 
 - (void) addWindowsItem:(NSWindow *)aWindow								// Windows submenu
 				 title:(NSString *)aString

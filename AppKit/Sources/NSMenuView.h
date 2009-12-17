@@ -38,10 +38,11 @@
     float _keyEquivalentWidth;
     float _stateImageOffset;
     float _stateImageWidth;
+	float _neededSize;
     BOOL _needsSizing;
     BOOL _isHorizontal;
     BOOL _isResizingHorizontally;
-	BOOL _isVerticallyScrolling;
+	BOOL _needsScrolling;
 	BOOL _isStatusBar;
 	BOOL _isContextMenu;
 	BOOL _isTornOff;
