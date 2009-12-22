@@ -553,7 +553,6 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	// FIXME: class or instance?
 	resolved=[self resolveInstanceMethod:aSel];	// give a chance to add to runtime methods before invoking
 	inv=[[NSInvocation alloc] _initWithMethodSignature:[self methodSignatureForSelector:aSel] andArgFrame:argFrame];
-//	inv=[[NSInvocation alloc] _initWithSelector:aSel andArgFrame:argFrame];
 	if(!inv)
 		{ // unknown to system
 		[self doesNotRecognizeSelector:aSel];

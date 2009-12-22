@@ -328,59 +328,6 @@
 		EE2115120CDF58F70062A8AD /* NSCondition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSCondition.m; path = Sources/NSCondition.m; sourceTree = "<group>"; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.make; };
 		EE2FDF2709770599003EA8A2 /* NSLocale.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSLocale.m; path = Sources/NSLocale.m; sourceTree = "<group>"; };
-		EE3381F01092506400DCB4A8 /* objc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objc; path = "../../../Library/Frameworks/System.framework/Versions/i386-apple-darwin/gcc/i486-debianetch-linux-gnu/lib/gcc/i486-debianetch-linux-gnu/4.2.4/include/objc"; sourceTree = SOURCE_ROOT; };
-		EE4C49F60B88B7BB0027F725 /* archive.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = archive.c; sourceTree = "<group>"; };
-		EE4C49F70B88B7BB0027F725 /* ChangeLog */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ChangeLog; sourceTree = "<group>"; };
-		EE4C49F80B88B7BB0027F725 /* class.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = class.c; sourceTree = "<group>"; };
-		EE4C49F90B88B7BB0027F725 /* configure */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.sh; path = configure; sourceTree = "<group>"; };
-		EE4C49FA0B88B7BB0027F725 /* configure.in */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = configure.in; sourceTree = "<group>"; };
-		EE4C49FB0B88B7BB0027F725 /* encoding.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = encoding.c; sourceTree = "<group>"; };
-		EE4C49FC0B88B7BB0027F725 /* gc.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = gc.c; sourceTree = "<group>"; };
-		EE4C49FD0B88B7BB0027F725 /* hash.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = hash.c; sourceTree = "<group>"; };
-		EE4C49FE0B88B7BB0027F725 /* init.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = init.c; sourceTree = "<group>"; };
-		EE4C49FF0B88B7BB0027F725 /* libobjc.def */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = libobjc.def; sourceTree = "<group>"; };
-		EE4C4A000B88B7BB0027F725 /* libobjc_entry.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = libobjc_entry.c; sourceTree = "<group>"; };
-		EE4C4A010B88B7BB0027F725 /* linking.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = linking.m; sourceTree = "<group>"; };
-		EE4C4A020B88B7BB0027F725 /* makefile.dos */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = makefile.dos; sourceTree = "<group>"; };
-		EE4C4A030B88B7BB0027F725 /* Makefile.in */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Makefile.in; sourceTree = "<group>"; };
-		EE4C4A040B88B7BB0027F725 /* misc.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = misc.c; sourceTree = "<group>"; };
-		EE4C4A050B88B7BB0027F725 /* nil_method.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = nil_method.c; sourceTree = "<group>"; };
-		EE4C4A060B88B7BB0027F725 /* NXConstStr.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NXConstStr.m; sourceTree = "<group>"; };
-		EE4C4A080B88B7BB0027F725 /* encoding.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = encoding.h; sourceTree = "<group>"; };
-		EE4C4A090B88B7BB0027F725 /* hash.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
-		EE4C4A0A0B88B7BB0027F725 /* NXConstStr.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NXConstStr.h; sourceTree = "<group>"; };
-		EE4C4A0B0B88B7BB0027F725 /* objc-api.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "objc-api.h"; sourceTree = "<group>"; };
-		EE4C4A0C0B88B7BB0027F725 /* objc-list.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = "objc-list.h"; sourceTree = "<group>"; };
-		EE4C4A0D0B88B7BB0027F725 /* objc.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = objc.h; sourceTree = "<group>"; };
-		EE4C4A0E0B88B7BB0027F725 /* Object.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Object.h; sourceTree = "<group>"; };
-		EE4C4A0F0B88B7BB0027F725 /* Protocol.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Protocol.h; sourceTree = "<group>"; };
-		EE4C4A100B88B7BB0027F725 /* runtime.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = runtime.h; sourceTree = "<group>"; };
-		EE4C4A110B88B7BB0027F725 /* sarray.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = sarray.h; sourceTree = "<group>"; };
-		EE4C4A120B88B7BB0027F725 /* thr.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = thr.h; sourceTree = "<group>"; };
-		EE4C4A130B88B7BB0027F725 /* typedstream.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = typedstream.h; sourceTree = "<group>"; };
-		EE4C4A140B88B7BB0027F725 /* objc-features.texi */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "objc-features.texi"; sourceTree = "<group>"; };
-		EE4C4A150B88B7BB0027F725 /* Object.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = Object.m; sourceTree = "<group>"; };
-		EE4C4A160B88B7BB0027F725 /* objects.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = objects.c; sourceTree = "<group>"; };
-		EE4C4A170B88B7BB0027F725 /* Protocol.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = Protocol.m; sourceTree = "<group>"; };
-		EE4C4A180B88B7BB0027F725 /* README */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		EE4C4A190B88B7BB0027F725 /* README.threads */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README.threads; sourceTree = "<group>"; };
-		EE4C4A1A0B88B7BB0027F725 /* sarray.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = sarray.c; sourceTree = "<group>"; };
-		EE4C4A1B0B88B7BB0027F725 /* selector.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = selector.c; sourceTree = "<group>"; };
-		EE4C4A1C0B88B7BB0027F725 /* sendmsg.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = sendmsg.c; sourceTree = "<group>"; };
-		EE4C4A1D0B88B7BB0027F725 /* thr-dce.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "thr-dce.c"; sourceTree = "<group>"; };
-		EE4C4A1E0B88B7BB0027F725 /* thr-decosf1.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "thr-decosf1.c"; sourceTree = "<group>"; };
-		EE4C4A1F0B88B7BB0027F725 /* thr-irix.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "thr-irix.c"; sourceTree = "<group>"; };
-		EE4C4A200B88B7BB0027F725 /* thr-mach.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "thr-mach.c"; sourceTree = "<group>"; };
-		EE4C4A210B88B7BB0027F725 /* thr-os2.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "thr-os2.c"; sourceTree = "<group>"; };
-		EE4C4A220B88B7BB0027F725 /* thr-posix.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "thr-posix.c"; sourceTree = "<group>"; };
-		EE4C4A230B88B7BB0027F725 /* thr-pthreads.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "thr-pthreads.c"; sourceTree = "<group>"; };
-		EE4C4A240B88B7BB0027F725 /* thr-single.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "thr-single.c"; sourceTree = "<group>"; };
-		EE4C4A250B88B7BB0027F725 /* thr-solaris.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "thr-solaris.c"; sourceTree = "<group>"; };
-		EE4C4A260B88B7BB0027F725 /* thr-vxworks.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "thr-vxworks.c"; sourceTree = "<group>"; };
-		EE4C4A270B88B7BB0027F725 /* thr-win32.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "thr-win32.c"; sourceTree = "<group>"; };
-		EE4C4A280B88B7BB0027F725 /* thr.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = thr.c; sourceTree = "<group>"; };
-		EE4C4A290B88B7BB0027F725 /* THREADS */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = THREADS; sourceTree = "<group>"; };
-		EE4C4A2A0B88B7BB0027F725 /* THREADS.MACH */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = THREADS.MACH; sourceTree = "<group>"; };
 		EE6954250A34312B00E0C6C0 /* NSKeyValueObserving.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSKeyValueObserving.m; path = Sources/NSKeyValueObserving.m; sourceTree = "<group>"; };
 		EE79057E0BCE873C00A35703 /* NSNumberFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSNumberFormatter.m; path = Sources/NSNumberFormatter.m; sourceTree = "<group>"; };
 		EE81F7C80961BDDF00F9F896 /* NSURLError.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSURLError.h; path = Sources/NSURLError.h; sourceTree = "<group>"; };
@@ -395,6 +342,8 @@
 		EE81F9780962EBEC00F9F896 /* NSCompoundPredicate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSCompoundPredicate.h; path = Sources/NSCompoundPredicate.h; sourceTree = "<group>"; };
 		EE81F9F40962EFD200F9F896 /* NSCompatibility.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSCompatibility.h; path = Sources/NSCompatibility.h; sourceTree = "<group>"; };
 		EE81FA1F0962F0EC00F9F896 /* NSDebug.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSDebug.h; path = Sources/NSDebug.h; sourceTree = "<group>"; };
+		EE84E10910DBC29F00BD95A6 /* libobjc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = libobjc; path = ../libobjc; sourceTree = SOURCE_ROOT; };
+		EE84E14710DBC2BC00BD95A6 /* objc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objc; path = ../libobjc/objc; sourceTree = SOURCE_ROOT; };
 		EE8CDDE40F404B0600790C18 /* NSXMLNodeOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSXMLNodeOptions.h; path = Sources/NSXMLNodeOptions.h; sourceTree = "<group>"; };
 		EE8EFA4909605809006CCB63 /* NSPredicate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSPredicate.h; path = Sources/NSPredicate.h; sourceTree = "<group>"; };
 		EE8EFA9F0960954D006CCB63 /* NSAffineTransform.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSAffineTransform.h; path = Sources/NSAffineTransform.h; sourceTree = "<group>"; };
@@ -559,8 +508,6 @@
 		EEAA86EF0A148ED200F2E5B5 /* Foundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Foundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEB458A80DE48C1D007BE44E /* NSPointerFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSPointerFunctions.h; path = Sources/NSPointerFunctions.h; sourceTree = "<group>"; };
 		EEB458A90DE48C1D007BE44E /* NSPointerFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSPointerFunctions.m; path = Sources/NSPointerFunctions.m; sourceTree = "<group>"; };
-		EEC4A9500B4D5123001C44B3 /* sys-include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "sys-include"; path = "Xtoolchain/i386-apple-darwin/gcc-2.95.3-glibc-2.2.2/arm-quantumstep-linux-gnu/sys-include"; sourceTree = SYSTEM_DEVELOPER_DIR; };
-		EEC4AEE30B4D5135001C44B3 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = "Xtoolchain/i386-apple-darwin/gcc-2.95.3-glibc-2.2.2/arm-quantumstep-linux-gnu/include"; sourceTree = SYSTEM_DEVELOPER_DIR; };
 		EECAD4330B9D772A00F37A98 /* HTMLEntities.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = HTMLEntities.strings; path = ../SimpleWebKit/Sources/HTMLEntities.strings; sourceTree = "<group>"; };
 		EEDB61250A1497F300E4CA39 /* HISTORY.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = HISTORY.rtf; path = ../HISTORY.rtf; sourceTree = SOURCE_ROOT; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
@@ -584,10 +531,8 @@
 			children = (
 				EEDB61250A1497F300E4CA39 /* HISTORY.rtf */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
-				EE3381F01092506400DCB4A8 /* objc */,
-				EE4C49F50B88B7BB0027F725 /* libobjc */,
-				EEC4AEE30B4D5135001C44B3 /* include */,
-				EEC4A9500B4D5123001C44B3 /* sys-include */,
+				EE84E10910DBC29F00BD95A6 /* libobjc */,
+				EE84E14710DBC2BC00BD95A6 /* objc */,
 				EEA3309A09537E58001244CF /* Classes */,
 				EEA3306C09537DB5001244CF /* Private */,
 				EEA3309609537E48001244CF /* Resources */,
@@ -606,74 +551,6 @@
 				EEAA86EF0A148ED200F2E5B5 /* Foundation.framework */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		EE4C49F50B88B7BB0027F725 /* libobjc */ = {
-			isa = PBXGroup;
-			children = (
-				EE4C49F60B88B7BB0027F725 /* archive.c */,
-				EE4C49F70B88B7BB0027F725 /* ChangeLog */,
-				EE4C49F80B88B7BB0027F725 /* class.c */,
-				EE4C49F90B88B7BB0027F725 /* configure */,
-				EE4C49FA0B88B7BB0027F725 /* configure.in */,
-				EE4C49FB0B88B7BB0027F725 /* encoding.c */,
-				EE4C49FC0B88B7BB0027F725 /* gc.c */,
-				EE4C49FD0B88B7BB0027F725 /* hash.c */,
-				EE4C49FE0B88B7BB0027F725 /* init.c */,
-				EE4C49FF0B88B7BB0027F725 /* libobjc.def */,
-				EE4C4A000B88B7BB0027F725 /* libobjc_entry.c */,
-				EE4C4A010B88B7BB0027F725 /* linking.m */,
-				EE4C4A020B88B7BB0027F725 /* makefile.dos */,
-				EE4C4A030B88B7BB0027F725 /* Makefile.in */,
-				EE4C4A040B88B7BB0027F725 /* misc.c */,
-				EE4C4A050B88B7BB0027F725 /* nil_method.c */,
-				EE4C4A060B88B7BB0027F725 /* NXConstStr.m */,
-				EE4C4A070B88B7BB0027F725 /* objc */,
-				EE4C4A140B88B7BB0027F725 /* objc-features.texi */,
-				EE4C4A150B88B7BB0027F725 /* Object.m */,
-				EE4C4A160B88B7BB0027F725 /* objects.c */,
-				EE4C4A170B88B7BB0027F725 /* Protocol.m */,
-				EE4C4A180B88B7BB0027F725 /* README */,
-				EE4C4A190B88B7BB0027F725 /* README.threads */,
-				EE4C4A1A0B88B7BB0027F725 /* sarray.c */,
-				EE4C4A1B0B88B7BB0027F725 /* selector.c */,
-				EE4C4A1C0B88B7BB0027F725 /* sendmsg.c */,
-				EE4C4A1D0B88B7BB0027F725 /* thr-dce.c */,
-				EE4C4A1E0B88B7BB0027F725 /* thr-decosf1.c */,
-				EE4C4A1F0B88B7BB0027F725 /* thr-irix.c */,
-				EE4C4A200B88B7BB0027F725 /* thr-mach.c */,
-				EE4C4A210B88B7BB0027F725 /* thr-os2.c */,
-				EE4C4A220B88B7BB0027F725 /* thr-posix.c */,
-				EE4C4A230B88B7BB0027F725 /* thr-pthreads.c */,
-				EE4C4A240B88B7BB0027F725 /* thr-single.c */,
-				EE4C4A250B88B7BB0027F725 /* thr-solaris.c */,
-				EE4C4A260B88B7BB0027F725 /* thr-vxworks.c */,
-				EE4C4A270B88B7BB0027F725 /* thr-win32.c */,
-				EE4C4A280B88B7BB0027F725 /* thr.c */,
-				EE4C4A290B88B7BB0027F725 /* THREADS */,
-				EE4C4A2A0B88B7BB0027F725 /* THREADS.MACH */,
-			);
-			name = libobjc;
-			path = "/Volumes/Xtoolchain-CaseSensitive/gcc-3.4.6-glibc-2.3.6/mipsel-quantumstep-linux-gnu/gcc-3.4.6/libobjc";
-			sourceTree = "<absolute>";
-		};
-		EE4C4A070B88B7BB0027F725 /* objc */ = {
-			isa = PBXGroup;
-			children = (
-				EE4C4A080B88B7BB0027F725 /* encoding.h */,
-				EE4C4A090B88B7BB0027F725 /* hash.h */,
-				EE4C4A0A0B88B7BB0027F725 /* NXConstStr.h */,
-				EE4C4A0B0B88B7BB0027F725 /* objc-api.h */,
-				EE4C4A0C0B88B7BB0027F725 /* objc-list.h */,
-				EE4C4A0D0B88B7BB0027F725 /* objc.h */,
-				EE4C4A0E0B88B7BB0027F725 /* Object.h */,
-				EE4C4A0F0B88B7BB0027F725 /* Protocol.h */,
-				EE4C4A100B88B7BB0027F725 /* runtime.h */,
-				EE4C4A110B88B7BB0027F725 /* sarray.h */,
-				EE4C4A120B88B7BB0027F725 /* thr.h */,
-				EE4C4A130B88B7BB0027F725 /* typedstream.h */,
-			);
-			path = objc;
 			sourceTree = "<group>";
 		};
 		EE52D6ED0B8EEF1B0093595A /* Coding & Serialization */ = {

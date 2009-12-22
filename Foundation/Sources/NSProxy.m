@@ -125,7 +125,7 @@
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
 {
 	NSInvocation *inv;
-#if 0
+#if 1
 	NSLog(@"forward:@selector(%@) :... through %@", NSStringFromSelector(aSel), self);
 #endif
 	if(aSel == 0)
@@ -140,7 +140,6 @@
 					NSStringFromSelector(aSel)];
 		return nil;
 		}
-	[inv retainArguments];	// don't release them while we are processing the invocation
 	[self forwardInvocation:inv];
 #if 0	// WARNING: this will destroy the stack and the return value! So, we have to fetch it twice in debugging mode.
 	NSLog(@"invocation forwarded. Returning result");

@@ -47,19 +47,20 @@
 #ifndef __APPLE__
 // should be moved to runtime specific classes
 
-@interface NSDistantObject (Private)
+@interface NSDistantObject (Private)	// derived from classdumps found on the net
 
-+ (void) _enableLogging:(BOOL) arg1;
-+ (id) newDistantObjectWithCoder:(id) arg1;
-- (id) initWithTarget:(id) arg1 connection:(id) arg2;
-- (id) initWithLocal:(id) arg1 connection:(id) arg2;
++ (void) _enableLogging:(BOOL) flag;
++ (id) newDistantObjectWithCoder:(NSCoder *) arg1;
+- (id) initWithTarget:(id) arg1 connection:(NSConnection *) arg2;
+- (id) initWithLocal:(id) arg1 connection:(NSConnection *) arg2;
 - (id) protocolForProxy;
-+ (void) _enableLogging:(BOOL) arg1;
-- (void) _releaseWireCount:(unsigned long long) arg1;
+- (void) _releaseWireCount:(unsigned long long) cnt;
 - (void) retainWireCount;
 - (Class) classForCoder;
-- (id) stringByAppendingFormat:(id) arg1;
-- (void) appendFormat:(id) arg1;
+
+// obviously varargs need special handling on DO
+- (NSString *) stringByAppendingFormat:(NSString *) arg1, ...;
+- (void) appendFormat:(NSString *) arg1, ...;
 
 @end
 
@@ -102,14 +103,16 @@
 
 @implementation NSObject (NSDOAdditions)
 
+// FIXME: the methods methodDescriptionForSelector are only defined for Object and not NSObject !?!
+
 + (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
 {
-	return [self descriptionForClassMethod:sel];	// as defined in GNU objc runtime
+	return ((struct objc_method_description *) class_get_instance_method(self, sel));
 }
 
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
 {
-	return [self descriptionForInstanceMethod:sel];	// as defined in GNU objc runtime
+	return ((struct objc_method_description *) class_get_instance_method(self->isa, sel));
 }
 
 + (const char *) _localClassNameForClass;
@@ -160,7 +163,7 @@
 				[self release];	// release newly allocated object
 				return [proxy retain];	// retain the existing proxy once
 			}
-	self=[self initWithRemote:[aConnection _freshRemote] connection:aConnection];	// will be a fresh initialization since the reference is new
+	self=[self initWithTarget:[aConnection _freshRemote] connection:aConnection];	// will be a fresh initialization since the reference is new
 	[aConnection _addDistantObject:self forLocal:anObject];	// add to local objects
 	_target=[anObject retain];	// retain the local object as long as we exist
 	return self;
@@ -175,7 +178,7 @@
 				return [proxy retain];	// retain the existing proxy once
 			}
 	_connection=[aConnection retain];	// keep the connection as long as we exist
-	_selectorCache=[NSMutableDictionary dictionaryWithCapacity:10];
+	_selectorCache=[[NSMutableDictionary alloc] initWithCapacity:10];
 	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache
 	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(respondsToSelector:)] forKey:@"respondsToSelector:"]; 	// predefine NSMethodSignature cache
 	if(remoteObject == nil)
@@ -237,10 +240,17 @@
 #if 0
 	NSLog(@"NSDistantObject -forwardInvocation: %@ though %@", invocation, _connection);
 #endif
+#if !defined(__arm__)	// FIXME: NSInvocation is currenty broken on Freerunner
 	if(_target)
 		[invocation invokeWithTarget:_target];	// have our local target receive the message for which we are the original target
 	else
 		[_connection sendInvocation:invocation internal:NO];
+#else
+	{ // most likely used for getting rootObject
+		id val=nil;
+		[invocation setReturnValue:&val];
+	}
+#endif
 }
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector;
@@ -301,7 +311,7 @@
 #endif
 				md=[_protocol descriptionForInstanceMethod:aSelector];	// ask protocol for the signature
 				// FIXME:				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
-				return md != nil;
+				return (md != NULL);
 			}
 	else
 			{	// we must cast this call into an NSInvocation and forward to the peer
@@ -336,7 +346,7 @@
 #if 1
 	NSLog(@"reference %u", _reference);
 #endif
-	return [self initWithTarget:(int) _reference connection:[(NSPortCoder *)coder connection]];	// looks up in cache or creates a new one
+	return [self initWithTarget:(id) _reference connection:[(NSPortCoder *)coder connection]];	// looks up in cache or creates a new one
 }
 
 + (id) newDistantObjectWithCoder:(NSCoder *) coder;

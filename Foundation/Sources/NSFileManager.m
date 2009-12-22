@@ -828,7 +828,7 @@ NSMutableArray *c;
 #endif
 //	fprintf(stderr, "fileSystemRepresentation path=%p\n", path);
 	{
-		char *s=[path UTF8String];
+		const char *s=[path UTF8String];
 //		fprintf(stderr, " -> %p\n", s);
 		return s;
 	}
@@ -844,7 +844,7 @@ NSMutableArray *c;
 		static int clen;
 		if(!virtualCRoot)
 			{
-			char *str=[@"/" fileSystemRepresentation];
+			const char *str=[@"/" fileSystemRepresentation];
 #if 0
 			NSLog(@"virtualCRoot=%s", str);
 #endif

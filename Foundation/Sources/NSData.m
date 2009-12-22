@@ -1339,14 +1339,12 @@ void* b;
 	if ((fseek(f, 0L, SEEK_END)) != 0)			// Seek to end of the file
 		{
 		fclose(f);
-
 		return GSError(self,@"Seek end of file failed - %s",strerror(errno));
 		}
 
     if ((length = ftell(f)) == -1)					// Determine length of file
 		{
 		fclose(f);
-
 		return GSError(self, @"Ftell failed - %s", strerror(errno));
 		}
 
@@ -1356,9 +1354,7 @@ void* b;
     if ((fseek(f, 0L, SEEK_SET)) != 0) 
 		{
 		fclose(f);
-		objc_free(bytes);
-
-		return GSError(self, @"fseek SEEK_SET failed - %s", strerror(errno));
+		return GSError(self, @"fseek SEEK_SET failed - %s", strerror(errno));	// does a [self release] which does objc_free(bytes)
 		}
 
 	if(length == 0)
@@ -1369,25 +1365,23 @@ void* b;
 		 * from it ... so we try reading as much as we can.
 		 */
 		unsigned char buf[BUFSIZ];	// temporary buffer
-			int c;
-		while((c = fread(buf, 1, BUFSIZ, f)) != 0)
+		int l;
+		while((l = fread(buf, 1, BUFSIZ, f)) != 0)
 			{
-			unsigned char *newBytes=objc_realloc(bytes, length+c);
+			unsigned char *newBytes=objc_realloc(bytes, length+l);	// increase buffer size
 			if (newBytes == NULL)
 				{
-				objc_free(bytes);
 				fclose(f);
 				return GSError(self, @"realloc failed for %s - %s", p, strerror(errno));
 				}
 			bytes=newBytes;
-			memcpy(((char *) bytes) + length, buf, c);	// append new block
-			length += c;	// advance append pointer
+			memcpy(((char *) bytes) + length, buf, l);	// append new block
+			length += l;	// advance append pointer
 			}
 		}
-	else if ((fread(bytes, 1, length, f)) != length) 
-		{ // we know the length; read in one full chunk
+	else if ((fread(bytes, 1, length, f)) != length)  // we know the length; read in one full chunk
+		{ // did not read the full file
 		fclose(f);
-		objc_free(bytes);
 		return GSError(self, @"Fread of file %@ failed - %s", path, strerror(errno));
 		}
     fclose(f);
