@@ -167,6 +167,7 @@ const char *objc_skip_typespec (const char *type)
 
 @interface NSObject (NSPortCoding) 	// allows to define specific port-coding without changing the standard encoding (keyed/non-keyed)
 
++ (int) _versionForPortCoder;	// return version to be provided during encoding - defaults to 0
 - (void) _encodeWithPortCoder:(NSCoder *) coder;
 - (id) _initWithPortCoder:(NSCoder *) coder;
 
@@ -343,9 +344,9 @@ const char *objc_skip_typespec (const char *type)
 			int version;
 			Class superclass;
 			[self encodeValueOfObjCType:@encode(Class) at:&class];
-			if(![robj isProxy])	// for some reason we can't call version on NSProxy...
+			if(![robj isProxy])	// for some reason we can't call +version on NSProxy...
 					{
-						flag=(version=[class version]) != 0;
+						flag=(version=[class _versionForPortCoder]) != 0;
 						if(flag)
 								{ // main class is not version 0
 									[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// version is not 0
@@ -354,7 +355,7 @@ const char *objc_skip_typespec (const char *type)
 						superclass=[class superclass];
 						while(superclass != Nil)
 								{ // check
-									version=[superclass version];
+									version=[superclass _versionForPortCoder];
 									flag=(version != 0);
 									if(flag)
 											{ // receiver must be notified about version != 0
@@ -1039,9 +1040,11 @@ const char *objc_skip_typespec (const char *type)
 
 @end
 
-#if 0	// must be disabled if we try to run on Cocoa Foundation because proxyWithLocal does not work well
 @implementation NSObject (NSPortCoder)
 
++ (int) _versionForPortCoder; { return 0; }	// default version
+
+#if 0	// must be disabled if we try to run on Cocoa Foundation because proxyWithLocal does not work well
 - (Class) classForPortCoder { return [self classForCoder]; }
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder
@@ -1051,11 +1054,19 @@ const char *objc_skip_typespec (const char *type)
 		rep=[NSDistantObject proxyWithLocal:rep connection:[coder connection]];	// this will be encoded and decoded into a remote proxy
 	return rep;
 }
-
-@end
 #endif
 
-@implementation NSString (NSPortCoding) 	// needs universal encoding as UTF8-String (with length out without trailing 0!)
+@end
+
+@implementation NSTimeZone (NSPortCoding) 
+
++ (int) _versionForPortCoder; { return 1; }
+
+@end
+
+@implementation NSString (NSPortCoding) 
+
++ (int) _versionForPortCoder; { return 1; }	// we use the encoding version #1 as UTF8-String (with length out without trailing 0!)
 
 - (void) _encodeWithPortCoder:(NSCoder *) coder;
 {
@@ -1097,7 +1108,7 @@ const char *objc_skip_typespec (const char *type)
  MSG_TYPE_CHAR	
  MSG_TYPE_INTEGER_32	
  
- According to experiments and descriptios in Amit Singhs book, a message appears to look like this:
+ According to experiments and descriptions in Amit Singh´s book, a message appears to look like this:
  
  msgid=17, components=([NSData dataWithBytes:"1" length:1], [NSData data], [NSData dataWithBytes:"1" length:1]) result on a Mac in:
  d0cf50c0 0000003a 00000011 02010610 100211c7 00000000 00000000 00000000 00000001 00000001 31000000 01000000 00000000 01000000 0132
@@ -1276,7 +1287,7 @@ struct PortFlags {
 					bp+=sizeof(record);
 					if(record.len > end-bp)
 						{ // goes beyond available data
-#if 0
+#if 1
 							NSLog(@"length error: pos=%u len=%u remaining=%u", bp-(char *) buffer, record.len, end-bp);
 #endif
 							[self release];
@@ -1313,8 +1324,8 @@ struct PortFlags {
 						}
 						default:
 						{
-#if 0
-							NSLog(@"unecpected record type %u at pos=%u", record.type, bp-(char *) buffer);
+#if 1
+							NSLog(@"unexpected record type %u at pos=%u", record.type, bp-(char *) buffer);
 #endif
 							[self release];
 							return nil;
@@ -1327,7 +1338,7 @@ struct PortFlags {
 				}
 			if(bp != end)
 				{
-#if 0
+#if 1
 					NSLog(@"length error bp=%p end=%p", bp, end);
 #endif
 					[self release];

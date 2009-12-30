@@ -253,11 +253,32 @@
 #endif
 }
 
+// FIXME: which of the following methods is 'basic' and forwarded to the peers and which is 'derived'
+
+- (struct objc_method_description *) methodDescriptionForSelector:(SEL)aSelector;
+{
+	NIMP;
+#if 0
+	NSMethodSignature *ret=[_selectorCache objectForKey:NSStringFromSelector(aSelector)];
+	if(ret)
+		return ret;	// known from cache
+	struct objc_method_description *md;
+	NSInvocation *i=[NSInvocation invocationWithMethodSignature:[_selectorCache objectForKey:_cmd]];
+	[i setTarget:self];
+	[i setSelector:_cmd];
+	[i setArgument:&aSelector atIndex:2];
+	[_connection sendInvocation:i internal:YES];
+	[i getReturnValue:&md];
+	return md;
+#endif
+}
+
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector;
 {
 	NSMethodSignature *ret=[_selectorCache objectForKey:NSStringFromSelector(aSelector)];
 	if(ret)
 		return ret;	// known from cache
+	// FIXME: what about methodSignature of builtin methods?
 #if 1
 	NSLog(@"[NSDistantObject methodSignatureForSelector:\"%@\"]", NSStringFromSelector(aSelector));
 #endif
@@ -273,10 +294,15 @@
 // FIXME:				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
 				ret=nil;
 			}
-	// FIXME: what about mehtodSignature of builtin methods?
 	else
 			{	// we must forward this call to the peer
-				struct objc_method_description *md=[self methodDescriptionForSelector:aSelector];	// will be forwarded since we don't implement it
+				struct objc_method_description *md;
+				NSInvocation *i=[NSInvocation invocationWithMethodSignature:[_selectorCache objectForKey:@"methodDescriptionForSelector:"]];
+				[i setTarget:self];
+				[i setSelector:@selector(methodDescriptionForSelector:)];
+				[i setArgument:&aSelector atIndex:2];
+				[_connection sendInvocation:i internal:YES];
+				[i getReturnValue:&md];
 				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
 			}
 	[_selectorCache setObject:ret forKey:NSStringFromSelector(aSelector)];	// add to cache
@@ -325,24 +351,30 @@
 	return ret;
 }
 
-- (Class) classForCoder; { return /*isa*/ NSClassFromString(@"NSDistantObject"); }
+- (Class) classForCoder; { return /*isa*/ NSClassFromString(@"NSDistantObject"); }	// for compatibility
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't ever replace by another proxy
 
 - (void) encodeWithCoder:(NSCoder *) coder;
 { // just send the reference number
-	int flag=1;
+	BOOL flag;
 	[coder encodeValueOfObjCType:@encode(int) at:&_reference];	// encode as a reference into the address space and not the real object
-	[coder encodeValueOfObjCType:@encode(int) at:&flag];
+	flag=YES;	// sometimes 0 sometimes 1
+	[coder encodeValueOfObjCType:@encode(char) at:&flag];
+	flag=YES;	// always 1
+	[coder encodeValueOfObjCType:@encode(char) at:&flag];
 }
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
+	BOOL flag;
 	NSConnection *c=[(NSPortCoder *) coder connection];
 #if 1
 	NSLog(@"NSDistantObject initWithCoder:%@", coder);
 #endif
 	[coder decodeValueOfObjCType:@encode(int) at:&_reference];
+	[coder decodeValueOfObjCType:@encode(char) at:&flag];
+	[coder decodeValueOfObjCType:@encode(char) at:&flag];
 #if 1
 	NSLog(@"reference %u", _reference);
 #endif
