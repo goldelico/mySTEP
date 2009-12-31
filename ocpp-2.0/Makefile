@@ -6,7 +6,7 @@ YACC	= bison
 
 SRC     = gram.y scan.l main.c
 OBJ     = gram.o scan.o main.o
-BIN		= /opt/local/bin/objc20
+BIN		= /usr/share/QuantumSTEP/Developer/bin/ocpp20
 
 all:	$(BIN) test
 

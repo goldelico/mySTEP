@@ -1,4 +1,5 @@
 /* ObjC-2.0 scanner - based on http://www.lysator.liu.se/c/ANSI-C-grammar-l.html */
+/* part of ocpp - an obj-c preprocessor */
 
 	/* digit */
 D			[0-9]

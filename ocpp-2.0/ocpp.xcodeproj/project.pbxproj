@@ -55,7 +55,7 @@
 /* Begin PBXProject section */
 		EED3C1240488F87500000103 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ObjC-2.0" */;
+			buildConfigurationList = EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ocpp" */;
 			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = EED3C1200488F87500000103;
@@ -129,7 +129,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ObjC-2.0" */ = {
+		EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ocpp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE772D2F0A10C27000F73E78 /* Development */,

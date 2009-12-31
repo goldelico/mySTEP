@@ -1,4 +1,4 @@
-Objective-C 2.0 will add some new features to the language
+Objective-C Preprocessor (ocpp) 2.0 will add some new features to the language
 
 Assumptions are based on
 * http://www.quepublishing.com/articles/article.asp?p=665128&seqNum=3&rl=1
@@ -8,7 +8,6 @@ ToDos:
 
 - add __strong and __weak keywords/attributes for pointers and somehow pass to the GC
 - add a global/local symbol table and track if identifiers are declared as types by typedef, @interface/@protocol/@implementation, or @class
-- method names/selector components can be identical to type names... this makes parsing even more complex
 - add real translator functions. Most of the code can be echoed 1:1
 - add __attribute__
 
@@ -33,10 +32,13 @@ Ideas how translation could work:
 
 4) @property (ivar = anInstanceVariable, copies, setter = aSetMethod:) int aProperty;
 - generates a simple ivar
-- but remembers the attribtes and the setter method name in the ivar symbol table
-- object.path.path would translate to [object valueForKey:@"path.path"] or a getter or a setter call
+- but remembers the attribtes and the setter method name in the ivar symbol table for that class (so we need a class table)
+- object.path.path would translate to e.g. [object valueForKey:@"path.path"] or a getter or a setter call if such exists
 - when reading a @property in a @interface context, the code for the setter method should be prepared
   and be added to the @implementation of the class
+
+4b) @synthesisze
+- generate getter/setter code
 
 5) for(NSString * string in anArray) { NSLog(@"%@", string); }
 - translate to
@@ -49,6 +51,7 @@ Ideas how translation could work:
 
 - what if somebody implements countByEnumeratingWithState:objects:count: for a private collection class?
 - well, it would simply not be used
+- or we add an if([class respondsToSelector:@selector(countByEnumeratingWithState:objects:count:)])
 
 Material
 --------
@@ -58,6 +61,6 @@ YACC tutorial:
 MiniC sample:
 	http://tinf2.vub.ac.be/~dvermeir/courses/compilers/minic/
 
-Code of objc-2.0 in mySTEP:
-	http://www.quantum-step.com/download/sources/mySTEP/objc-2.0/
+Code of ocpp-2.0 in mySTEP:
+	http://www.quantum-step.com/download/sources/mySTEP/ocpp-2.0/
 

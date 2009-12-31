@@ -1,3 +1,5 @@
+/* part of ocpp - an obj-c preprocessor */
+
 main()
 {
 	extern int yyparse();
