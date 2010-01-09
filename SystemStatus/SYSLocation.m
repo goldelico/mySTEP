@@ -215,8 +215,11 @@ NSString *SYSLocationNMEA183Notification=@"SYSLocationNMEA183Notification";		// 
 							time=[NSDate dateWithTimeIntervalSinceReferenceDate:[time timeIntervalSinceReferenceDate]];	// remove formatting
 							[time retain];				// keep alive
 							[timeStamp autorelease];	// release previous one
-							timeStamp=[NSDate date];	// now
+							timeStamp=[NSDate date];	// now (as seen by system time)
 							[timeStamp retain];			// keep alive
+							// if enabled we could sync the clock...
+							//   sudo(@"date -u '%@'", [c description]);
+							//   /sbin/hwclock --systohc
 							pos=[[a objectAtIndex:3] floatValue];		// ddmm.mmmmm (degrees + minutes)
 							deg=((int) pos)/100;
 							gpsData.location.latitude=deg+(pos-100.0*deg)/60.0;
