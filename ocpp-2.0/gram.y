@@ -577,7 +577,7 @@ iteration_statement
 		}
 	| FOR '(' declaration IN expression ')' statement
 		{
-		/* translate to { NSEnumerator *e=[array objectEnumerator]; while((obj=[e nextObject])) statement } */
+			/* translate to { NSEnumerator *e=[expression objectEnumerator]; <type> *obj; while((obj=[e nextObject])) statement } */
 		}
 	;
 
