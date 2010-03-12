@@ -1,6 +1,7 @@
 #include <Foundation/Foundation.h>
 
-// FIXME: split into plain plutil and PlistBuddy
+// FIXME: split into plain plutil to convert formats
+// and a PlistBuddy clone
 
 void usage(char *str)
 {

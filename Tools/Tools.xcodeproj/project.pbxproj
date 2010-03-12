@@ -17,6 +17,7 @@
 				EE144F640A14E7C700C93F94 /* PBXTargetDependency */,
 				EECF94990F529FA5003AF020 /* PBXTargetDependency */,
 				EE144F660A14E7CE00C93F94 /* PBXTargetDependency */,
+				EE2BCBC511479152006D06ED /* PBXTargetDependency */,
 				EE3254220A5322B40057B3B1 /* PBXTargetDependency */,
 				EE9788A50AA70F5E007ECDE1 /* PBXTargetDependency */,
 				EE3254200A5322A40057B3B1 /* PBXTargetDependency */,
@@ -41,6 +42,10 @@
 		EE291C5F0AD7BD50004A1CA6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EE291C600AD7BD50004A1CA6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
 		EE291C6D0AD7BD6F004A1CA6 /* scutil.m in Sources */ = {isa = PBXBuildFile; fileRef = EE291C6C0AD7BD6F004A1CA6 /* scutil.m */; };
+		EE2BCBB4114790C1006D06ED /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
+		EE2BCBB5114790C1006D06ED /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
+		EE2BCBB6114790C1006D06ED /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
+		EE2BCBC0114790D5006D06ED /* PlistBuddy.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2BCBAE114790B7006D06ED /* PlistBuddy.m */; };
 		EE3254110A53225D0057B3B1 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EE3254120A53225D0057B3B1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EE3254130A53225D0057B3B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
@@ -96,6 +101,13 @@
 			remoteGlobalIDString = EE291C5A0AD7BD50004A1CA6;
 			remoteInfo = scutil;
 		};
+		EE2BCBC411479152006D06ED /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EE2BCBB0114790C1006D06ED /* PlistBuddy */;
+			remoteInfo = PlistBuddy;
+		};
 		EE32541F0A5322A40057B3B1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
@@ -133,6 +145,8 @@
 		EE196B8D0D44E89E0074ED1A /* abook */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = abook; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE291C660AD7BD50004A1CA6 /* scutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scutil; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE291C6C0AD7BD6F004A1CA6 /* scutil.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = scutil.m; sourceTree = "<group>"; };
+		EE2BCBAE114790B7006D06ED /* PlistBuddy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlistBuddy.m; sourceTree = "<group>"; };
+		EE2BCBBC114790C1006D06ED /* PlistBuddy */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PlistBuddy; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE3254080A531D5D0057B3B1 /* scselect.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = scselect.m; sourceTree = "<group>"; };
 		EE3254190A53225D0057B3B1 /* scselect */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = scselect; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE93E77D0A239FE9008A5E48 /* plutil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = plutil; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -182,6 +196,16 @@
 				EE291C5E0AD7BD50004A1CA6 /* AppKit.framework in Frameworks */,
 				EE291C5F0AD7BD50004A1CA6 /* Cocoa.framework in Frameworks */,
 				EE291C600AD7BD50004A1CA6 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE2BCBB3114790C1006D06ED /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE2BCBB4114790C1006D06ED /* AppKit.framework in Frameworks */,
+				EE2BCBB5114790C1006D06ED /* Cocoa.framework in Frameworks */,
+				EE2BCBB6114790C1006D06ED /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,6 +292,7 @@
 				EECF94870F529F6E003AF020 /* ibtool.m */,
 				EEACC94E0FFFE03C007DA855 /* mdo.m */,
 				EE144F5E0A14E79300C93F94 /* open.m */,
+				EE2BCBAE114790B7006D06ED /* PlistBuddy.m */,
 				EE93E7820A239FFC008A5E48 /* plutil.m */,
 				EE97888C0AA70E4D007ECDE1 /* say.m */,
 				EE3254080A531D5D0057B3B1 /* scselect.m */,
@@ -284,6 +309,7 @@
 				EECF94940F529F75003AF020 /* ibtool */,
 				EEACC9620FFFE045007DA855 /* mdo */,
 				EE144F340A14E6C300C93F94 /* open */,
+				EE2BCBBC114790C1006D06ED /* PlistBuddy */,
 				EE93E77D0A239FE9008A5E48 /* plutil */,
 				EE97889A0AA70E53007ECDE1 /* say */,
 				EE3254190A53225D0057B3B1 /* scselect */,
@@ -355,6 +381,23 @@
 			name = scutil;
 			productName = defaults;
 			productReference = EE291C660AD7BD50004A1CA6 /* scutil */;
+			productType = "com.apple.product-type.tool";
+		};
+		EE2BCBB0114790C1006D06ED /* PlistBuddy */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE2BCBB8114790C1006D06ED /* Build configuration list for PBXNativeTarget "PlistBuddy" */;
+			buildPhases = (
+				EE2BCBB1114790C1006D06ED /* Sources */,
+				EE2BCBB3114790C1006D06ED /* Frameworks */,
+				EE2BCBB7114790C1006D06ED /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PlistBuddy;
+			productName = defaults;
+			productReference = EE2BCBBC114790C1006D06ED /* PlistBuddy */;
 			productType = "com.apple.product-type.tool";
 		};
 		EE32540C0A53225D0057B3B1 /* scselect */ = {
@@ -478,6 +521,7 @@
 				EEACC9560FFFE045007DA855 /* mdo */,
 				EECF94880F529F75003AF020 /* ibtool */,
 				EE144F280A14E6C300C93F94 /* open */,
+				EE2BCBB0114790C1006D06ED /* PlistBuddy */,
 				EE93E7710A239FE8008A5E48 /* plutil */,
 				EE97888E0AA70E53007ECDE1 /* say */,
 				EE32540C0A53225D0057B3B1 /* scselect */,
@@ -538,6 +582,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export SOURCES=\"scutil.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=SystemStatus\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
+		EE2BCBB7114790C1006D06ED /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SOURCES=\"PlistBuddy.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EE3254140A53225D0057B3B1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -631,6 +688,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EE2BCBB1114790C1006D06ED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE2BCBC0114790D5006D06ED /* PlistBuddy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EE32540D0A53225D0057B3B1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -701,6 +766,11 @@
 			isa = PBXTargetDependency;
 			target = EE291C5A0AD7BD50004A1CA6 /* scutil */;
 			targetProxy = EE291C6E0AD7BD76004A1CA6 /* PBXContainerItemProxy */;
+		};
+		EE2BCBC511479152006D06ED /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EE2BCBB0114790C1006D06ED /* PlistBuddy */;
+			targetProxy = EE2BCBC411479152006D06ED /* PBXContainerItemProxy */;
 		};
 		EE3254200A5322A40057B3B1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1066,6 +1136,92 @@
 				OTHER_REZFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = scutil;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Default;
+		};
+		EE2BCBB9114790C1006D06ED /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = PlistBuddy;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		EE2BCBBA114790C1006D06ED /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = PlistBuddy;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE2BCBBB114790C1006D06ED /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = PlistBuddy;
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -1528,6 +1684,16 @@
 				EE291C630AD7BD50004A1CA6 /* Development */,
 				EE291C640AD7BD50004A1CA6 /* Deployment */,
 				EE291C650AD7BD50004A1CA6 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EE2BCBB8114790C1006D06ED /* Build configuration list for PBXNativeTarget "PlistBuddy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE2BCBB9114790C1006D06ED /* Development */,
+				EE2BCBBA114790C1006D06ED /* Deployment */,
+				EE2BCBBB114790C1006D06ED /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
