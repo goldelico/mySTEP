@@ -1386,7 +1386,7 @@ struct PortFlags {
 	if(!_send)
 		[NSException raise:NSInvalidSendPortException format:@"no send port for message %@", self];
 	if(!_recv)
-		[NSException raise:NSInvalidReceivePortException format:@"no send port for message %@", self];
+		[NSException raise:NSInvalidReceivePortException format:@"no receive port for message %@", self];
 #if 0
 	NSLog(@"send NSPortMessage: %@ on %@", _components, _send);
 #endif
