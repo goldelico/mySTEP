@@ -17,7 +17,7 @@
 /* Begin PBXFileReference section */
 		EE0EFFA909546C9200CCA75A /* NSMenuExtra.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSMenuExtra.h; sourceTree = "<group>"; };
 		EE0EFFAA09546C9200CCA75A /* NSMenuExtra.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSMenuExtra.m; sourceTree = "<group>"; };
-		EE0EFFAB09546C9200CCA75A /* SystemUIPlugin-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = "SystemUIPlugin-Info.plist"; sourceTree = "<group>"; };
+		EE0EFFAB09546C9200CCA75A /* SystemUIPlugin-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "SystemUIPlugin-Info.plist"; sourceTree = "<group>"; };
 		EE0EFFB009546C9D00CCA75A /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = doc; sourceTree = "<group>"; };
 		EE0EFFCD09546D2E00CCA75A /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = ../Cocoa/build/Development/Cocoa.framework; sourceTree = SOURCE_ROOT; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
@@ -136,10 +136,12 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EEEB9D2009A754EA00626AB7 /* Build configuration list for PBXProject "SystemUIPlugin" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				EE6FE351076F05AF009CC969 /* SystemUIPlugin */,
 			);
@@ -200,9 +202,9 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "SystemUIPlugin-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
@@ -234,6 +236,7 @@
 				GCC_FAST_OBJC_DISPATCH = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "SystemUIPlugin-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
@@ -265,6 +268,7 @@
 				GCC_FAST_OBJC_DISPATCH = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "SystemUIPlugin-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";

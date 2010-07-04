@@ -91,7 +91,8 @@ LS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-ld
 AS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-as
 NM := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-nm
 STRIP := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-strip
-TAR := tar
+# TAR := tar
+TAR := /usr/bin/gnutar
 # TAR := $(TOOLS)/gnutar-1.13.25	# use older tar that does not know about ._ resource files
 # TAR := $(ROOT)/this/bin/gnutar
 
@@ -270,7 +271,7 @@ make_binary: "$(BINARY)"
 install_local:
 ifeq ($(ADD_MAC_LIBRARY),true)
 	# install locally in /Library/Frameworks
-	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (cd '/Library/Frameworks' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+	- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (cd '/Library/Frameworks' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
 else
 	# don't install local
 endif
@@ -278,9 +279,9 @@ endif
 install_tool:
 ifneq ($(INSTALL),false)
 ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin ignore $(INSTALL_PATH)
-		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && cd '$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && cd '$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
 else	# app bundle
-		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)' && cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; tar xpzvf -))
+		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)' && cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
 endif
 else
 	# don't install tool
@@ -290,9 +291,9 @@ install_remote:
 ifneq ($(SEND2ZAURUS),false)
 	ls -l "$(BINARY)"
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
-		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)//System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && cd '$(EMBEDDED_ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && gunzip | tar xpvf -"
+		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)//System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && cd '$(EMBEDDED_ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && gunzip | $(TAR) xpvf -"
 else
-		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && gunzip | tar xpvf -"
+		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && gunzip | $(TAR) xpvf -"
 endif
 	# installed on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH)
 else

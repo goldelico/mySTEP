@@ -293,6 +293,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "SystemStatus-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
@@ -324,6 +325,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "SystemStatus-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
@@ -353,6 +355,7 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "SystemStatus-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";

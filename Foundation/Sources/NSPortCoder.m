@@ -62,6 +62,7 @@ int objc_sizeof_type(const char *type)
 				type++;
 			while(*type != 0 && *type != _C_STRUCT_E)
 				{
+					int objc_aligned_size(const char *type);
 					cnt+=objc_aligned_size(type);
 					type=(char *) objc_skip_typespec(type);
 				}
@@ -229,7 +230,7 @@ const char *objc_skip_typespec (const char *type)
 			_components=[cmp retain];
 			first=[_components objectAtIndex:0];
 			_pointer=[first bytes];	// set read pointer
-			_eod=[first bytes] + [first length];
+			_eod=(unsigned char *) [first bytes] + [first length];
 		}
 	return self;
 }
@@ -263,7 +264,7 @@ const char *objc_skip_typespec (const char *type)
 	d.val=NSSwapHostLongLongToLittle(val);	// NOTE: this has been unit-tested to be correct on big and little endian machines
 	if(val < 0)
 		{
-			while(len > 1 && d.data[len-1] == 0xff)
+			while(len > 1 && d.data[len-1] == (unsigned char) 0xff)
 				len--;	// get first non-0xff byte which determines length
 			len=-len;	// encode by negative length
 		}
@@ -295,7 +296,7 @@ const char *objc_skip_typespec (const char *type)
 	while(count-- > 0)
 		{
 			[self encodeValueOfObjCType:type at:array];
-			array+=size;
+			array=size + (char *) array;
 		}
 }
 #endif
@@ -544,7 +545,7 @@ const char *objc_skip_typespec (const char *type)
 					NSLog(@"addr %p struct component %s", address, type);
 #endif
 					[self encodeValueOfObjCType:type at:address];
-					address+=objc_aligned_size(type);
+					address=objc_aligned_size(type) + (char *)address;
 					type=objc_skip_typespec(type);	// next
 				}
 #if 1
@@ -602,10 +603,10 @@ const char *objc_skip_typespec (const char *type)
 	NSLog(@"decodeArrayOfObjCType %s count %d size %d", type, count, size);
 #endif
 	while(count-- > 0)
-			{
-				[self decodeValueOfObjCType:type at:array];
-				array+=size;
-			}
+		{
+		[self decodeValueOfObjCType:type at:array];
+		array=size + (char *) array;
+		}
 }
 #endif
 
@@ -763,7 +764,7 @@ const char *objc_skip_typespec (const char *type)
 		case _C_PTR:
 			{
 				BOOL flag;
-				unsigned numBytes;
+				// unsigned numBytes;
 				void *addr;
 				[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
 				if(flag)
@@ -794,7 +795,7 @@ const char *objc_skip_typespec (const char *type)
 							NSLog(@"addr %p struct component %s", address, type);
 #endif
 							[self decodeValueOfObjCType:type at:address];
-							address+=objc_aligned_size(type);
+						address=objc_aligned_size(type) + (char *)address;
 							type=objc_skip_typespec(type);	// next
 						}
 				break;
@@ -934,7 +935,7 @@ const char *objc_skip_typespec (const char *type)
 
 - (id) decodeRetainedObject;
 {
-	NSString *name;
+//	NSString *name;
 	Class class;
 	id obj;
 	BOOL flag;
@@ -1029,6 +1030,7 @@ const char *objc_skip_typespec (const char *type)
 			if(len >= 2)
 				{
 					NSArray *subarray=[components subarrayWithRange:NSMakeRange(0, len-1)];
+				// shat do we do with the other components?
 					NSData *data=[components objectAtIndex:len-1];	// split
 					return [delegate authenticateComponents:components withData:data];
 				}

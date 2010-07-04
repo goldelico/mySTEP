@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EE030C7E092F76BE00893140 /* license.txt in Resources */ = {isa = PBXBuildFile; fileRef = EE030C76092F76BE00893140 /* license.txt */; };
-		EE030C7F092F76BE00893140 /* PDFCombine.m in Sources */ = {isa = PBXBuildFile; fileRef = EE030C77092F76BE00893140 /* PDFCombine.m */; };
-		EE030C83092F76BE00893140 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = EE030C7D092F76BE00893140 /* README.txt */; };
 		EE31789B0944DD52008B03D1 /* PDFObject.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3178980944DD52008B03D1 /* PDFObject.m */; };
 		EE31789C0944DD52008B03D1 /* PDFParser.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3178990944DD52008B03D1 /* PDFParser.m */; };
 		EE31789D0944DD52008B03D1 /* PDFStream.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31789A0944DD52008B03D1 /* PDFStream.m */; };
@@ -34,7 +31,7 @@
 		EEF8C0C80924EBAE00767EF8 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		EEF8C1E90924EBB600767EF8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97325FDCFA39411CA2CEA /* Foundation.framework */; };
 		EEF8C1EA0924EBB600767EF8 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B97324FDCFA39411CA2CEA /* AppKit.framework */; };
-		EEF8C2020924EC8C00767EF8 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = EEF8C2010924EC8C00767EF8 /* MainMenu.nib */; };
+		EEF8C2020924EC8C00767EF8 /* English.lproj in Resources */ = {isa = PBXBuildFile; fileRef = EEF8C2010924EC8C00767EF8 /* English.lproj */; };
 		EEF8C2080924ECB400767EF8 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF8C2070924ECB400767EF8 /* AppController.m */; };
 		EEF8C22B0924F21800767EF8 /* PDFKitPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = EEF8BF85092282D500767EF8 /* PDFKitPrivate.h */; settings = {ATTRIBUTES = (); }; };
 		EEFB6F8E092CDEBE00224E4E /* PDFAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EEFB6F8C092CDEBE00224E4E /* PDFAnnotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -70,14 +67,6 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EE030C6E092F766200893140 /* PDFCombine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDFCombine.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE030C72092F766200893140 /* PDFCombine-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PDFCombine-Info.plist"; sourceTree = SOURCE_ROOT; };
-		EE030C76092F76BE00893140 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
-		EE030C77092F76BE00893140 /* PDFCombine.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFCombine.m; sourceTree = "<group>"; };
-		EE030C79092F76BE00893140 /* Mike.pbxuser */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Mike.pbxuser; sourceTree = "<group>"; };
-		EE030C7A092F76BE00893140 /* Mike.perspective */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = Mike.perspective; sourceTree = "<group>"; };
-		EE030C7B092F76BE00893140 /* project.pbxproj */ = {isa = PBXFileReference; lastKnownFileType = text.pbxproject; path = project.pbxproj; sourceTree = "<group>"; };
-		EE030C7C092F76BE00893140 /* PDFCombine_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFCombine_Prefix.pch; sourceTree = "<group>"; };
-		EE030C7D092F76BE00893140 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../../Frameworks/mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE31775A0940B25E008B03D1 /* zlib.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = zlib.h; path = /usr/include/zlib.h; sourceTree = "<absolute>"; };
 		EE3178980944DD52008B03D1 /* PDFObject.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFObject.m; sourceTree = "<group>"; };
@@ -88,9 +77,8 @@
 		EEE2DE4E0924F3E80082927B /* PDFView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFView.h; sourceTree = "<group>"; };
 		EEE2DE4F0924F3E80082927B /* PDFView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFView.m; sourceTree = "<group>"; };
 		EEF0B85E094602820012D17E /* Quartz.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Quartz.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEF0B860094602820012D17E /* Quartz-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Quartz-Info.plist"; sourceTree = "<group>"; };
-		EEF0B8FF094603940012D17E /* Quartz.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Quartz.h; sourceTree = "<group>"; };
-		EEF5F1030930FDA100B07552 /* ToDo */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ToDo; sourceTree = "<group>"; };
+		EEF0B860094602820012D17E /* Quartz-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Quartz-Info.plist"; path = "../PDFKit/Quartz-Info.plist"; sourceTree = "<group>"; };
+		EEF0B8FF094603940012D17E /* Quartz.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Quartz.h; path = ../PDFKit/Quartz.h; sourceTree = "<group>"; };
 		EEF8BF4B092271F000767EF8 /* PDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFDocument.h; sourceTree = "<group>"; };
 		EEF8BF4C092271F000767EF8 /* PDFDocument.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFDocument.m; sourceTree = "<group>"; };
 		EEF8BF4D092271F000767EF8 /* PDFKit-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "PDFKit-Info.plist"; sourceTree = "<group>"; };
@@ -99,14 +87,13 @@
 		EEF8BF50092271F000767EF8 /* PDFPage.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFPage.m; sourceTree = "<group>"; };
 		EEF8BF85092282D500767EF8 /* PDFKitPrivate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFKitPrivate.h; sourceTree = "<group>"; };
 		EEF8BFBC0922848100767EF8 /* NSPDFImageRep.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSPDFImageRep.m; sourceTree = "<group>"; };
-		EEF8BFF50923E12000767EF8 /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = doc; sourceTree = "<group>"; };
 		EEF8BFFD0923E35F00767EF8 /* PDFDestination.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFDestination.h; sourceTree = "<group>"; };
 		EEF8BFFE0923E35F00767EF8 /* PDFDestination.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFDestination.m; sourceTree = "<group>"; };
 		EEF8BFFF0923E35F00767EF8 /* PDFOutline.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFOutline.h; sourceTree = "<group>"; };
 		EEF8C0000923E35F00767EF8 /* PDFOutline.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFOutline.m; sourceTree = "<group>"; };
 		EEF8C0C40924EB9300767EF8 /* PDFTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDFTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEF8C0C60924EB9300767EF8 /* PDFTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PDFTest-Info.plist"; sourceTree = "<group>"; };
-		EEF8C2010924EC8C00767EF8 /* MainMenu.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = MainMenu.nib; sourceTree = "<group>"; };
+		EEF8C2010924EC8C00767EF8 /* English.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = English.lproj; sourceTree = "<group>"; };
 		EEF8C2060924ECB400767EF8 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
 		EEF8C2070924ECB400767EF8 /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppController.m; sourceTree = "<group>"; };
 		EEFB6F8C092CDEBE00224E4E /* PDFAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFAnnotation.h; sourceTree = "<group>"; };
@@ -173,12 +160,9 @@
 			isa = PBXGroup;
 			children = (
 				EE27270005426A7F0000013C /* mySTEP.make */,
-				EEF5F1030930FDA100B07552 /* ToDo */,
-				EEF8BFF50923E12000767EF8 /* doc */,
 				EEF0B8F1094603630012D17E /* Quartz */,
 				EEF8C1F80924EC5000767EF8 /* PDFKit */,
-				EEF8C1FC0924EC5B00767EF8 /* PDFTest */,
-				EE030C75092F76BE00893140 /* pdfcombine_source */,
+				EEF8C1FC0924EC5B00767EF8 /* PDFKit */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				EE29D8D8058A38830035639B /* Products */,
 			);
@@ -192,29 +176,6 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		EE030C75092F76BE00893140 /* pdfcombine_source */ = {
-			isa = PBXGroup;
-			children = (
-				EE030C76092F76BE00893140 /* license.txt */,
-				EE030C77092F76BE00893140 /* PDFCombine.m */,
-				EE030C78092F76BE00893140 /* PDFCombine.xcodeproj */,
-				EE030C7C092F76BE00893140 /* PDFCombine_Prefix.pch */,
-				EE030C7D092F76BE00893140 /* README.txt */,
-				EE030C72092F766200893140 /* PDFCombine-Info.plist */,
-			);
-			path = pdfcombine_source;
-			sourceTree = "<group>";
-		};
-		EE030C78092F76BE00893140 /* PDFCombine.xcodeproj */ = {
-			isa = PBXGroup;
-			children = (
-				EE030C79092F76BE00893140 /* Mike.pbxuser */,
-				EE030C7A092F76BE00893140 /* Mike.perspective */,
-				EE030C7B092F76BE00893140 /* project.pbxproj */,
-			);
-			path = PDFCombine.xcodeproj;
 			sourceTree = "<group>";
 		};
 		EE29D8D8058A38830035639B /* Products */ = {
@@ -270,17 +231,19 @@
 				EEF8BF4D092271F000767EF8 /* PDFKit-Info.plist */,
 			);
 			name = PDFKit;
+			path = ../PDFKit;
 			sourceTree = "<group>";
 		};
-		EEF8C1FC0924EC5B00767EF8 /* PDFTest */ = {
+		EEF8C1FC0924EC5B00767EF8 /* PDFKit */ = {
 			isa = PBXGroup;
 			children = (
 				EEF8C0C60924EB9300767EF8 /* PDFTest-Info.plist */,
-				EEF8C2010924EC8C00767EF8 /* MainMenu.nib */,
+				EEF8C2010924EC8C00767EF8 /* English.lproj */,
 				EEF8C2060924ECB400767EF8 /* AppController.h */,
 				EEF8C2070924ECB400767EF8 /* AppController.m */,
 			);
-			name = PDFTest;
+			name = PDFKit;
+			path = ../PDFKit;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -412,8 +375,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE030C7E092F76BE00893140 /* license.txt in Resources */,
-				EE030C83092F76BE00893140 /* README.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -436,7 +397,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEF8C2020924EC8C00767EF8 /* MainMenu.nib in Resources */,
+				EEF8C2020924EC8C00767EF8 /* English.lproj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -476,7 +437,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE030C7F092F76BE00893140 /* PDFCombine.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -536,6 +496,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "PDFKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
@@ -570,6 +531,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "PDFKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
@@ -602,6 +564,7 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "PDFKit-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
@@ -638,6 +601,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "Quartz-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
@@ -672,6 +636,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "Quartz-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
@@ -704,6 +669,7 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "Quartz-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";

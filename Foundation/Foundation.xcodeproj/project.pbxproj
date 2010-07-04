@@ -328,7 +328,6 @@
 		EE2115120CDF58F70062A8AD /* NSCondition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSCondition.m; path = Sources/NSCondition.m; sourceTree = "<group>"; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.make; };
 		EE2FDF2709770599003EA8A2 /* NSLocale.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSLocale.m; path = Sources/NSLocale.m; sourceTree = "<group>"; };
-		EE3A07EF1133B86C00DE40A8 /* myke */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = myke; sourceTree = "<group>"; };
 		EE6954250A34312B00E0C6C0 /* NSKeyValueObserving.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSKeyValueObserving.m; path = Sources/NSKeyValueObserving.m; sourceTree = "<group>"; };
 		EE79057E0BCE873C00A35703 /* NSNumberFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSNumberFormatter.m; path = Sources/NSNumberFormatter.m; sourceTree = "<group>"; };
 		EE81F7C80961BDDF00F9F896 /* NSURLError.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSURLError.h; path = Sources/NSURLError.h; sourceTree = "<group>"; };
@@ -532,7 +531,6 @@
 			children = (
 				EEDB61250A1497F300E4CA39 /* HISTORY.rtf */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
-				EE3A07EF1133B86C00DE40A8 /* myke */,
 				EE84E10910DBC29F00BD95A6 /* libobjc */,
 				EE84E14710DBC2BC00BD95A6 /* objc */,
 				EEA3309A09537E58001244CF /* Classes */,
@@ -1190,7 +1188,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = ./myke;
+			shellScript = "# project settings\nexport SOURCES=\"Sources/NS*.m Sources/Externs.m Sources/Unicode.m ../SimpleWebKit/Sources/NSXMLParser.m\"   # all source codes\n# export SOURCES=\"Sources/NSString.m Sources/Externs.m Sources/Unicode.m\"   # all source codes\nexport LIBS=\"-Uobjc_main -lm -ldl -lpthread -lssl -lcrypto -lobjc\"   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EEBAEEC90C94803F00596D9C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1439,6 +1437,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
@@ -1478,6 +1477,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
@@ -1515,6 +1515,7 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				GENERATE_MASTER_OBJECT_FILE = NO;
 				INFOPLIST_FILE = "Foundation-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;

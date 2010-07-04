@@ -127,7 +127,7 @@ static NSFileManager *__fm = nil;
 
 + (NSFileManager*) defaultManager
 {
-	return (__fm) ? __fm : [self new];
+	return (__fm) ? __fm : (NSFileManager*) [self new];
 }
 
 - (id) init

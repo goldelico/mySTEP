@@ -378,6 +378,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				LIBRARY_SEARCH_PATHS = /Developer/Library;
@@ -391,7 +392,7 @@
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = Tests;
-				SDKROOT = "";
+				SDKROOT = macosx10.4;
 				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = octest;
 			};
@@ -409,8 +410,10 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Cocoa,
@@ -419,6 +422,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = Tests;
+				SDKROOT = macosx10.4;
 				WRAPPER_EXTENSION = octest;
 				ZERO_LINK = NO;
 			};
@@ -434,8 +438,10 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Cocoa,
@@ -444,6 +450,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = Tests;
+				SDKROOT = macosx10.4;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Default;
@@ -490,8 +497,10 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "Special-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -500,7 +509,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = Special;
-				SDKROOT = "";
+				SDKROOT = macosx10.4;
 			};
 			name = Development;
 		};
@@ -518,8 +527,10 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "Special-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -528,7 +539,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = Special;
-				SDKROOT = "";
+				SDKROOT = macosx10.4;
 				ZERO_LINK = NO;
 			};
 			name = Deployment;
@@ -545,8 +556,10 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "Special-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -555,7 +568,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = Special;
-				SDKROOT = "";
+				SDKROOT = macosx10.4;
 			};
 			name = Default;
 		};
@@ -577,6 +590,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "/usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/Tests-Info copy.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				LIBRARY_SEARCH_PATHS = /Developer/Library;
@@ -590,7 +604,7 @@
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = Tests;
-				SDKROOT = "";
+				SDKROOT = macosx10.4;
 				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = octest;
 			};
@@ -608,8 +622,10 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "/usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/Tests-Info copy.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Cocoa,
@@ -618,6 +634,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = Tests;
+				SDKROOT = macosx10.4;
 				WRAPPER_EXTENSION = octest;
 				ZERO_LINK = NO;
 			};
@@ -633,8 +650,10 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "/usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/Tests-Info copy.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Cocoa,
@@ -643,6 +662,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = Tests;
+				SDKROOT = macosx10.4;
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Default;

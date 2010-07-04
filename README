@@ -1,6 +1,6 @@
 VERSION
 
-  This is version 2.0 of the mySTEP libraries.
+  This is version 2.5 of the mySTEP libraries.
   
   The code is based on mGstep-0.536. Many thanks to Felipe A. Rodriguez for providing the source codes!!!
   
@@ -10,7 +10,8 @@ VERSION
 	
 SUPPORTED PLATFORMS
 
-  Currently, this package has been built on ARM-Linux for the Sharp Zaurus PDA.
+  Currently, this package has been built on ARM-Linux for the Sharp Zaurus PDA,
+  for the Openmoko and Beagle Board as well as the Letux 400 (MIPS).
 
 HOW TO BUILD
 

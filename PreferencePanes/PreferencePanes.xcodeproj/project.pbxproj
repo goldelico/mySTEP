@@ -22,7 +22,7 @@
 		EEA3D33A09546793001244CF /* NSPreferencePane.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSPreferencePane.h; sourceTree = "<group>"; };
 		EEA3D33B09546793001244CF /* NSPreferencePane.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSPreferencePane.m; sourceTree = "<group>"; };
 		EEA3D33C09546793001244CF /* PreferencePanes.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PreferencePanes.h; sourceTree = "<group>"; };
-		EEA3D3410954679C001244CF /* PreferencePanes-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = "PreferencePanes-Info.plist"; sourceTree = "<group>"; };
+		EEA3D3410954679C001244CF /* PreferencePanes-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "PreferencePanes-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,10 +134,12 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EEEB9CBC09A7534E00626AB7 /* Build configuration list for PBXProject "PreferencePanes" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				EE6FE351076F05AF009CC969 /* PreferencePanes */,
 			);
@@ -197,9 +199,9 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "PreferencePanes-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
-				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-seg1addr",
@@ -229,6 +231,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "PreferencePanes-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";
@@ -258,6 +261,7 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "PreferencePanes-Info.plist";
 				INSTALL_PATH = /Library/Frameworks;
 				OTHER_CFLAGS = "";

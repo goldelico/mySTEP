@@ -3766,6 +3766,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2 = "NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_3 = "\"NSUInteger=unsigned int\"";
+				GCC_VERSION = 4.0;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../macports-dylibs/include",
 					/usr/include/X11/..,
@@ -3835,6 +3836,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2 = "NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_3 = "\"NSUInteger=unsigned int\"";
+				GCC_VERSION = 4.0;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../macports-dylibs/include",
 					/usr/include/X11/..,
@@ -3902,6 +3904,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_1 = "ASSIGN(O,V)=[(O)\\ autorelease],O=[(V)\\ retain]";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2 = "NIMP=([NSException\\ raise:NSGenericException\\ format:@\\\"%@\\ method\\ %@\\ not\\ implemented\\\",\\ NSStringFromClass([self\\ class]),\\ NSStringFromSelector(_cmd)],\\ (id)nil);";
 				GCC_PREPROCESSOR_DEFINITIONS_QUOTED_3 = "\"NSUInteger=unsigned int\"";
+				GCC_VERSION = 4.0;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../macports-dylibs/include",
 					/usr/include/X11/..,
@@ -4058,6 +4061,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_VERSION = 4.0;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../macports-dylibs/include",
 					/usr/include/X11/..,
@@ -4115,6 +4119,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../macports-dylibs/include",
 					/usr/include/X11/..,
@@ -4168,6 +4173,7 @@
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "";
+				GCC_VERSION = 4.0;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../macports-dylibs/include",
 					/usr/include/X11/..,
