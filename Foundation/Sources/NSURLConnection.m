@@ -28,10 +28,10 @@
 {
 	if((self=[super init]))
 		{
-			*(_response=response)=nil;
-			*(_error=error)=nil;
-			*(_data=data)=nil;
-			_done=NO;
+		*(_response=response)=nil;
+		*(_error=error)=nil;
+		*(_data=data)=nil;
+		_done=NO;
 		}
 	return self;
 }
@@ -123,15 +123,18 @@
 	NSLog(@"%@ initWithRequest:%@ delegate:%@", self, request, delegate);
 #endif
 	if(self)
-			{
-				_delegate=delegate;
-				_protocol=[[NSURLProtocol alloc] initWithRequest:request cachedResponse:[[NSURLCache sharedURLCache] cachedResponseForRequest:request] client:(id <NSURLProtocolClient>) self];
+		{
+		NSURLResponse *cachedResponse=[[NSURLCache sharedURLCache] cachedResponseForRequest:request];
+		if(!cachedResponse && [request cachePolicy] == NSURLRequestReturnCacheDataDontLoad)
+			{ [self release]; return nil; }
+		_delegate=delegate;
+		_protocol=[[NSURLProtocol alloc] initWithRequest:request cachedResponse:cachedResponse client:(id <NSURLProtocolClient>) self];
 #if 0
-				NSLog(@"  -> protocol %@", _protocol);
+		NSLog(@"  -> protocol %@", _protocol);
 #endif
-				if(flag)
-					[self start];	// and start loading
-			}
+		if(flag)
+			[self start];	// and start loading
+		}
 	return self;
 }
 
@@ -182,15 +185,15 @@
 {
 	NSURLRequest *r=[_delegate connection:self willSendRequest:request redirectResponse:redirectResponse];	// allow to modify
 	if(r)
-			{
-				[_protocol autorelease];	// release previous protocol handler and start a new one
-				_protocol=[[NSURLProtocol alloc] initWithRequest:r cachedResponse:[[NSURLCache sharedURLCache] cachedResponseForRequest:r] client:(id <NSURLProtocolClient>) self];
+		{
+		[_protocol autorelease];	// release previous protocol handler and start a new one
+		_protocol=[[NSURLProtocol alloc] initWithRequest:r cachedResponse:[[NSURLCache sharedURLCache] cachedResponseForRequest:r] client:(id <NSURLProtocolClient>) self];
 #if 1
-				NSLog(@"redirected to protocol %@", _protocol);
+		NSLog(@"redirected to protocol %@", _protocol);
 #endif
-				// check in redirect response if we should wait some time ("retry-after")
-				[_protocol startLoading];
-			}
+		// check in redirect response if we should wait some time ("retry-after")
+		[_protocol startLoading];
+		}
 }
 
 - (void) URLProtocol:(NSURLProtocol *) proto didFailWithError:(NSError *) error;

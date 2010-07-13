@@ -332,14 +332,18 @@ clean:
 
 # link headers of framework
 
-"$(EXEC)"::
+headers:
+ifeq ($(WRAPPER_EXTENSION),framework)
+# fixme: copy only public headers and recognize changes!
+	- [ -r "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" ] || (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && cp Sources/*.h "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" )	# copy headers (FIXME: only public!)
+	- [ -r "$(HEADERS)" ] || (mkdir -p "$(EXEC)/Headers" && ln -s ../../Headers "$(HEADERS)")	# link to headers to find <Framework/File.h>
+endif
+
+"$(EXEC)":: headers
 	# make directory for Linux executable
 	echo ".o objects" $(XOBJECTS)
 	@mkdir -p "$(EXEC)"
-ifeq ($(WRAPPER_EXTENSION),framework)
-	- [ -r "$(HEADERS)" ] || (mkdir -p "$(EXEC)/Headers" && ln -s ../../Headers "$(HEADERS)")	# link to headers to find <Framework/File.h>
 	- rm -f $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)
 	- ln -s lib$(EXECUTABLE_NAME).so $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)	# create libXXX.so entry for ldconfig
-endif
 
 # EOF
