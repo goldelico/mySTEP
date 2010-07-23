@@ -48,6 +48,8 @@ export ROOT=/usr/share/QuantumSTEP	# project root
 #
 endif
 
+include $(ROOT)/System/Sources/Frameworks/Version.def
+
 .PHONY:	clean build build_architecture
 
 ifeq ($(ARCHITECTURES),)
@@ -129,6 +131,18 @@ endif
 
 build:
 	# make recursively for all architectures $(ARCHITECTURES)
+	for DEBARCH in i386 armel mipsel; do \
+		case "$$DEBARCH" in \
+			i386 ) export ARCHITECTURE=i486-debianetch-linux-gnu;; \
+			arm ) export ARCHITECTURE=arm-zaurus-linux-gnu;; \
+			armel ) export ARCHITECTURE=armv4t-angstrom-linux-gnueabi;; \
+			mipsel ) export ARCHITECTURE=mipsel-debianetch-linux-gnu;; \
+			? ) export ARCHITECTURE=unknown-debian-linux-gnu;; \
+		esac; \
+		echo "*** building for $$DEBARCH using cross-tools $$ARCHITECTURE ***"; \
+		export DEBARCH="$$DEBARCH"; \
+		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_deb; \
+		done		
 	for ARCH in $(ARCHITECTURES); do \
 		echo "*** building for $$ARCH ***"; \
 		export ARCHITECTURE="$$ARCH"; \
@@ -268,6 +282,30 @@ make_exec: "$(EXEC)"
 make_binary: "$(BINARY)"
 	ls -l "$(BINARY)"
 
+# also make "$(ROOT)/System/Installation/Debian/$(PRODUCT_NAME)-dev_$(VERSION)_$(DEBARCH).deb"
+build_deb: make_bundle make_exec make_binary "$(ROOT)/System/Installation/Debian/$(PRODUCT_NAME)_$(BUILD_NUMBER)_$(DEBARCH).deb" 
+
+"$(ROOT)/System/Installation/Debian/$(PRODUCT_NAME)_$(BUILD_NUMBER)_$(DEBARCH).deb":
+	# make debian package
+	echo "2.0" >/tmp/debian-binary
+	( echo "Package: $(PRODUCT_NAME)"; \
+	  echo "Version: $(BUILD_NUMBER)"; \
+	  echo "Architecture: $(DEBARCH)"; \
+	  echo "Maintainer: info@goldelico.com"; \
+	  [ "$$DEPENDS" ] && echo "Depends: $$DEPENDS"; \
+	  echo "Section: x11"; \
+	  echo "Priority: optional"; \
+	  echo "Description: this is part of mySTEP/QuantumSTEP"; \
+	) >/tmp/control
+	$(TAR) czf /tmp/control.tar.gz -C /tmp control
+	# FIXME: make sure that we only pack this architecture
+	# and include Headers only for -dev version
+	# strip binary unless -dbg version
+	$(TAR) czf /tmp/data.tar.gz  --exclude .svn --exclude MacOS --owner 0 --group 0 -C "$(PKG)" "$(NAME_EXT)"
+	- rm -rf $@
+	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
+	ls -l $@
+
 install_local:
 ifeq ($(ADD_MAC_LIBRARY),true)
 	# install locally in /Library/Frameworks
@@ -291,9 +329,9 @@ install_remote:
 ifneq ($(SEND2ZAURUS),false)
 	ls -l "$(BINARY)"
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
-		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)//System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && cd '$(EMBEDDED_ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && gunzip | $(TAR) xpvf -"
+		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)//System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && cd '$(EMBEDDED_ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && gunzip | tar xpvf -"
 else
-		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && gunzip | $(TAR) xpvf -"
+		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && gunzip | tar xpvf -"
 endif
 	# installed on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH)
 else
