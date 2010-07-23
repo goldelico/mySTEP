@@ -1732,11 +1732,12 @@ NSWindow *w;
 		[_mainMenuWindow setTitle:@"Main Menu Window"];
 		_mainMenuView=[[NSMenuView alloc] initWithFrame:[[_mainMenuWindow contentView] bounds]];	// make new NSMenuView
 		[_mainMenuWindow setContentView:_mainMenuView];		// make content view
-		if(0 && [menuScreen _menuBarFrame].origin.x != 0.0)
+		if([menuScreen _menuBarFrame].origin.y == 0.0 && [menuScreen _menuBarFrame].origin.x != 0.0)
 			{ // Smartphone menu layout
 #if 0
 			NSLog(@"Smartphone layout");
 #endif
+				// make a single "current app" menu entry
 			[_mainMenuView _setHorizontalResize:NO]; // keep full width of enclosing window
 			[_mainMenuView setHorizontal:YES];		// make horizontal
 			[_mainMenuView _setStatusBar:YES];		// i.e. flush right

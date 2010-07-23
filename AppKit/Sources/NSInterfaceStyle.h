@@ -25,7 +25,6 @@ typedef enum _NSInterfaceStyle
 	NSMacintoshInterfaceStyle,
 	// mySTEP extensions
 	NSPDAInterfaceStyle=256,
-	NSSmartPhoneInterfaceStyle=257,
 } NSInterfaceStyle;
 
 #endif /* _mySTEP_H_NSInterfaceStyle */

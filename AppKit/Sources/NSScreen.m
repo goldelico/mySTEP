@@ -70,26 +70,21 @@
 	return vFrame;
 }
 
-#define __SMARTPHONE_EDITION__ 0
 #define SYSTEM_MENU_WIDTH 1.2
 
 - (NSRect) _statusBarFrame;
 { // the system status menu bar (accessed by NSStatusBar)
 	NSRect r;
 	float h;
-#if __SMARTPHONE_EDITION__
-	r.origin.y=0;									// system menu bar is at bottom of screen
-	r.size.height=[NSMenuView menuBarHeight];
-	r.size.width/=2.0;								// width is half of the screen
-	r.origin.x=ceil(w.size.width);						// right half of the screen
-#else
 	r=[self frame];	// screen frame
 	h=[NSMenuView menuBarHeight];
 	r.origin.y=r.size.height-h;
 	r.size.height=h;
-	r.origin.x=ceil(SYSTEM_MENU_WIDTH*r.size.height);	// leave room for systemMenu
-	r.size.width-=r.origin.x;
-#endif
+	if(r.size.width > 240.0)
+		{ // not a very small screen
+		r.origin.x=ceil(SYSTEM_MENU_WIDTH*r.size.height);	// leave room for systemMenu
+		r.size.width-=r.origin.x;
+		}
 #if 0
 	NSLog(@"statusBarFrame=%@", NSStringFromRect(r));
 #endif
@@ -99,8 +94,17 @@
 - (NSRect) _systemMenuBarFrame;
 { // the system menu bar (not accessible directly by applications) - fills space to the left of the statusBar
 	NSRect r=[self _statusBarFrame];
-	r.size.width=r.origin.x;						// fill up to beginning of statusBarFrame
-	r.origin.x=0.0;									// starts at upper left corner
+	if(r.origin.x == 0)
+		{ // bottom left half
+		r.origin.y=0;									// system menu bar is at bottom of screen
+		r.size.height=[NSMenuView menuBarHeight];
+		r.size.width/=2.0;								// width is half of the screen
+		}
+	else
+		{
+		r.size.width=r.origin.x;						// fill up room to beginning of statusBarFrame
+		r.origin.x=0.0;									// starts at upper left corner
+		}
 #if 0
 	NSLog(@"systemMenuBarFrame=%@", NSStringFromRect(r));
 #endif
@@ -110,10 +114,15 @@
 - (NSRect) _menuBarFrame;
 { // the application main menu bar (accessed by NSApp setMainMenu)
 	NSRect r=[self frame];
-	if(r.size.width < r.size.height)
+	if(r.size.width < r.size.height || r.size.width <= 240.0)
 		{ // portrait mode: application menu bar at bottom of screen
 		r.origin.x=0.0;
 		r.origin.y=0.0;
+		if(r.size.width <= 240.0)
+			{
+			r.size.width/=2.0;								// width is half of the screen
+			r.origin.x=ceil(r.size.width);					// right half of the screen
+			}
 		}
 	else
 		{ // landscape mode: at same position as system/status bar
@@ -122,10 +131,6 @@
 		r.size.width=[self frame].size.width-r.origin.x;		// remainder - will be sized to fit
 		}
 	r.size.height=[NSMenuView menuBarHeight];	// standard height
-#if __SMARTPHONE_EDITION__
-	r.size.width/=2.0;			// half of screen
-	r.origin.x=r.size.width;	// starts in the middle
-#endif
 #if 0
 	NSLog(@"menuBarFrame=%@", NSStringFromRect(r));
 #endif
