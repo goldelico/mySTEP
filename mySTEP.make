@@ -25,18 +25,38 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 
 ########################### start cut here ############################
 
-# project settings
-export SOURCES=*.m                  # all source codes
-export LIBS=												# add any additional libraries like -ltiff etc.
-export FRAMEWORKS=									# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)
+# variables inherited from Xcode environment (or version.def)
+# PROJECT_NAME
+# PRODUCT_NAME						# e.g. Foundation
+# WRAPPER_EXTENSION					# e.g. .framework
+# EXECUTABLE_NAME
+# BUILT_PRODUCTS_DIR
+# TARGET_BUILD_DIR
+# BUILD_NUMBER						# used for package versioning
+
+# project settings for cross-compiler (that can't be derived from the Xcode project)
+export SOURCES=*.m                  # all source codes (no cross-compilation if empty)
+export LIBS=						# add any additional libraries like -ltiff etc. (space separated list)
+export FRAMEWORKS=					# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)
 export INSTALL_PATH=/Applications   # override INSTALL_PATH for MacOS X for the embedded device
+#export ADD_MAC_LIBRARY=			# true to store a copy in /Library/Frameworks on the build host (needed for demo apps)
 
 # global/compile settings
 #export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
-#export SEND2ZAURUS=true						# true (or empty) will try to install on the embedded device at /$INSTALL_PATH (using ssh)
+#export SEND2ZAURUS=true			# true (or empty) will try to install on the embedded device at /$INSTALL_PATH (using ssh)
 #export RUN=true                    # true (or empty) will finally try to run on the embedded device (using X11 on host)
 #export RUN_OPTIONS=-NoNSBackingStoreBuffered
+#export BUILD_FOR_DEPLOYMENT=		# true to generate optimized code and strip binaries
+#export	PREINST=./preinst			# preinst file
+#export	POSTRM=./postrm				# preinst file
 
+# Debian packages
+export DEPENDS="quantumstep-cocoa-framework"	# debian package dependencies (, separated list)
+# export DEBIAN_PACKAGE_NAME="quantumstep"	# manually define package name
+# export FILES=""					# list of other files to be added to the package (relative to $ROOT)
+# export DATA=""					# list of other files to be added to the package (relative to /)
+
+# start make script
 export ROOT=/usr/share/QuantumSTEP	# project root
 /usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
 
@@ -76,6 +96,8 @@ ifeq ($(IP_ADDR),)	# set a default
 IP_ADDR:=192.168.129.201
 endif
 
+ROOT:=/usr/share/QuantumSTEP
+
 ifeq ($(EMBEDDED_ROOT),)
 EMBEDDED_ROOT:=/usr/share/QuantumSTEP
 endif
@@ -94,9 +116,19 @@ AS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-as
 NM := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-nm
 STRIP := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-strip
 # TAR := tar
-TAR := /usr/bin/gnutar
+
+# disable special MacOS X stuff for tar
+TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true /usr/bin/gnutar
 # TAR := $(TOOLS)/gnutar-1.13.25	# use older tar that does not know about ._ resource files
 # TAR := $(ROOT)/this/bin/gnutar
+
+# aggregate target
+ifeq ($(PRODUCT_NAME),All)
+PRODUCT_NAME=$(PROJECT_NAME)
+endif
+
+## FIXME: handle meta packages without WRAPPER_EXTENSION; PRODUCT_NAME = "All" ?
+## i.e. target type Aggregate
 
 # define CONTENTS subdirectory as expected by the Foundation library
 
@@ -130,17 +162,24 @@ endif
 endif
 
 build:
-	# make recursively for all architectures $(ARCHITECTURES)
-	for DEBARCH in i386 armel mipsel; do \
-		case "$$DEBARCH" in \
+### check if meta package
+### copy/install $DATA and $FILES
+### use ARCHITECTURE=all
+### build_deb (only)
+### architecture all-packages are part of machine specific Packages.gz (!)
+### there is not necessarily a special binary-all directory but we can do that
+
+	# make for all architectures $(ARCHITECTURES)
+	for DEBIAN_ARCH in i386 armel mipsel; do \
+		case "$$DEBIAN_ARCH" in \
 			i386 ) export ARCHITECTURE=i486-debianetch-linux-gnu;; \
 			arm ) export ARCHITECTURE=arm-zaurus-linux-gnu;; \
 			armel ) export ARCHITECTURE=armv4t-angstrom-linux-gnueabi;; \
 			mipsel ) export ARCHITECTURE=mipsel-debianetch-linux-gnu;; \
 			? ) export ARCHITECTURE=unknown-debian-linux-gnu;; \
 		esac; \
-		echo "*** building for $$DEBARCH using cross-tools $$ARCHITECTURE ***"; \
-		export DEBARCH="$$DEBARCH"; \
+		echo "*** building for $$DEBIAN_ARCH using cross-tools $$ARCHITECTURE ***"; \
+		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
 		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		done		
 	for ARCH in $(ARCHITECTURES); do \
@@ -151,7 +190,7 @@ build:
 		done
 
 __dummy__:
-	# dummy target to allow for some comments
+	# dummy target to allow for comments while setting more make variables
 	
 	# override if (stripped) package is build using xcodebuild
 
@@ -279,32 +318,116 @@ make_bundle:
 
 make_exec: "$(EXEC)"
 
+ifneq ($(SOURCES),)
 make_binary: "$(BINARY)"
 	ls -l "$(BINARY)"
+else
+make_binary:
+endif
 
-# also make "$(ROOT)/System/Installation/Debian/$(PRODUCT_NAME)-dev_$(VERSION)_$(DEBARCH).deb"
-build_deb: make_bundle make_exec make_binary "$(ROOT)/System/Installation/Debian/$(PRODUCT_NAME)_$(BUILD_NUMBER)_$(DEBARCH).deb" 
+#
+# Debian package builder
+# see http://www.debian.org/doc/debian-policy/ch-controlfields.html
+#
 
-"$(ROOT)/System/Installation/Debian/$(PRODUCT_NAME)_$(BUILD_NUMBER)_$(DEBARCH).deb":
-	# make debian package
+# add default dependency
+
+ifeq ($(DEPENDS),)
+DEPENDS := "quantumstep-cocoa-framework"
+endif
+
+# FIXME: eigentlich sollte zu jedem mit mystep-/quantumstep- beginnenden Eintrag von "DEPENDS" ein >= $(VERSION) zugefügt werden
+# damit auch abhängige Pakete einen Versions-Upgrade bekommen
+
+ifeq ($(DEBIAN_PACKAGE_NAME),)
+ifeq ($(WRAPPER_EXTENSION),)
+DEBIAN_PACKAGE_NAME = $(shell echo "QuantumSTEP-$(PRODUCT_NAME)" | tr "[:upper:]" "[:lower:]")
+else
+DEBIAN_PACKAGE_NAME = $(shell echo "QuantumSTEP-$(PRODUCT_NAME)-$(WRAPPER_EXTENSION)" | tr "[:upper:]" "[:lower:]")
+endif
+endif
+
+DEBIAN_VERSION = 0.$(BUILD_NUMBER)
+
+# FIXME: allow to disable -dev and -dbg if we are marked "private"
+build_deb: make_bundle make_exec make_binary install_tool \
+	"$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
+	"$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" 
+
+"$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
+	# make debian package $(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
+	mkdir -p "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)"
+	- rm -rf /tmp/data
+	- mkdir -p "/tmp/data/$(ROOT)$(INSTALL_PATH)"
+ifneq ($(SOURCES),)
+	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(ROOT)$(INSTALL_PATH)" $(NAME_EXT) | (mkdir -p "/tmp/data/$(ROOT)$(INSTALL_PATH)" && cd "/tmp/data/$(ROOT)$(INSTALL_PATH)" && tar xvzf -)
+endif
+ifneq ($(FILES),)
+	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/data/$(ROOT)$(INSTALL_PATH)" && cd "/tmp/data/$(ROOT)$(INSTALL_PATH)" && tar xvzf -)
+endif
+ifneq ($(DATA),)
+	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/data/" && tar xvzf -)
+endif
+	# strip all executables down to the minimum
+	find /tmp/data "(" -name '*-*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
+ifeq ($(WRAPPER_EXTENSION),framework)
+	# strip MacOS X binary for frameworks
+	rm -rf /tmp/data/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
+	rm -rf /tmp/data/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
+endif
+	find /tmp/data -type f -perm +a+x -exec $(STRIP) {} \;
+	$(TAR) czf /tmp/data.tar.gz --owner 0 --group 0 -C /tmp/data .
+	ls -l /tmp/data.tar.gz
 	echo "2.0" >/tmp/debian-binary
-	( echo "Package: $(PRODUCT_NAME)"; \
-	  echo "Version: $(BUILD_NUMBER)"; \
-	  echo "Architecture: $(DEBARCH)"; \
+	( echo "Package: $(DEBIAN_PACKAGE_NAME)"; \
+	  echo "Version: $(DEBIAN_VERSION)"; \
+	  echo "Architecture: $(DEBIAN_ARCH)"; \
 	  echo "Maintainer: info@goldelico.com"; \
-	  [ "$$DEPENDS" ] && echo "Depends: $$DEPENDS"; \
+	  echo "Depends: $(DEPENDS)"; \
 	  echo "Section: x11"; \
+	  echo "Installed-Size: `du -kHs /tmp/data | cut -f1`"; \
 	  echo "Priority: optional"; \
 	  echo "Description: this is part of mySTEP/QuantumSTEP"; \
 	) >/tmp/control
-	$(TAR) czf /tmp/control.tar.gz -C /tmp control
-	# FIXME: make sure that we only pack this architecture
-	# and include Headers only for -dev version
-	# strip binary unless -dbg version
-	$(TAR) czf /tmp/data.tar.gz  --exclude .svn --exclude MacOS --owner 0 --group 0 -C "$(PKG)" "$(NAME_EXT)"
+	$(TAR) czf /tmp/control.tar.gz -C /tmp ./control
 	- rm -rf $@
 	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
 	ls -l $@
+
+"$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
+	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
+ifeq ($(WRAPPER_EXTENSION),framework)
+	# make debian development package
+	mkdir -p "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)"
+	- rm -rf /tmp/data
+	- mkdir -p "/tmp/data/$(ROOT)$(INSTALL_PATH)"
+	# explicitly include Headers
+	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(ROOT)$(INSTALL_PATH)" $(NAME_EXT) | (mkdir -p "/tmp/data/$(ROOT)$(INSTALL_PATH)" && cd "/tmp/data/$(ROOT)$(INSTALL_PATH)" && tar xvzf -)
+	# strip all executables down so that they can be linked
+	find /tmp/data -name '*-*-linux-gnu*' ! -name $(ARCHITECTURE) -exec rm -rf {} ";" -prune
+	rm -rf /tmp/data/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
+	rm -rf /tmp/data/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
+	find /tmp/data -type f -perm +a+x -exec $(STRIP) {} \;
+	$(TAR) czf /tmp/data.tar.gz --owner 0 --group 0 -C /tmp/data .
+	ls -l /tmp/data.tar.gz
+	echo "2.0" >/tmp/debian-binary
+	( echo "Package: $(DEBIAN_PACKAGE_NAME)-dev"; \
+	  echo "Version: $(DEBIAN_VERSION)"; \
+	  echo "Architecture: $(DEBIAN_ARCH)"; \
+	  echo "Maintainer: info@goldelico.com"; \
+	  echo "Depends: $(DEPENDS)"; \
+	  echo "Section: x11"; \
+	  echo "Installed-Size: `du -kHs /tmp/data | cut -f1`"; \
+	  echo "Priority: optional"; \
+	  echo "Description: this is part of mySTEP/QuantumSTEP"; \
+	) >/tmp/control
+	$(TAR) czf /tmp/control.tar.gz -C /tmp ./control
+	- rm -rf $@
+	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
+	ls -l $@
+else
+	# no development version
+endif
 
 install_local:
 ifeq ($(ADD_MAC_LIBRARY),true)
@@ -315,17 +438,20 @@ else
 endif
 	
 install_tool:
+ifneq ($(SOURCES),)
 ifneq ($(INSTALL),false)
 ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin ignore $(INSTALL_PATH)
-		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && cd '$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
+		$(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && cd '$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
 else	# app bundle
 		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)' && cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
 endif
 else
 	# don't install tool
 endif
+endif
 
 install_remote:
+ifneq ($(SOURCES),)
 ifneq ($(SEND2ZAURUS),false)
 	ls -l "$(BINARY)"
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
@@ -337,8 +463,10 @@ endif
 else
 	# don't install on $(IP_ADDR)
 endif
+endif
 
 launch_remote:
+ifneq ($(SOURCES),)
 ifneq ($(SEND2ZAURUS),false)
 ifneq ($(RUN),false)
 ifeq ($(WRAPPER_EXTENSION),app)
@@ -349,6 +477,7 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	ssh -l root $(IP_ADDR) \
 		"cd; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=memory; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" || echo failed to run;
 endif		
+endif
 endif
 endif
 
@@ -379,9 +508,12 @@ endif
 
 "$(EXEC)":: headers
 	# make directory for Linux executable
-	echo ".o objects" $(XOBJECTS)
+	# echo ".o objects: " $(XOBJECTS)
 	@mkdir -p "$(EXEC)"
+ifeq ($(WRAPPER_EXTENSION),framework)
+	# link shared library for frameworks
 	- rm -f $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)
 	- ln -s lib$(EXECUTABLE_NAME).so $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)	# create libXXX.so entry for ldconfig
+endif
 
 # EOF
