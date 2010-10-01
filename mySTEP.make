@@ -138,6 +138,7 @@ ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	PKG=$(BUILT_PRODUCTS_DIR)/$(NAME_EXT).tool
 	EXEC=$(PKG)
 	BINARY=$(EXEC)/$(NAME_EXT)
+	INSTALL_PATH := /System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)$(INSTALL_PATH)
 else
 ifeq ($(WRAPPER_EXTENSION),framework)	# framework
 	CONTENTS=Versions/Current
@@ -440,11 +441,7 @@ endif
 install_tool:
 ifneq ($(SOURCES),)
 ifneq ($(INSTALL),false)
-ifeq ($(WRAPPER_EXTENSION),)	# install command line tool locally $(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin ignore $(INSTALL_PATH)
-		$(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && cd '$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
-else	# app bundle
-		- $(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)' && cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
-endif
+	$(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)' && cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
 else
 	# don't install tool
 endif
@@ -454,11 +451,7 @@ install_remote:
 ifneq ($(SOURCES),)
 ifneq ($(SEND2ZAURUS),false)
 	ls -l "$(BINARY)"
-ifeq ($(WRAPPER_EXTENSION),)	# command line tool
-		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)//System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && cd '$(EMBEDDED_ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/bin' && gunzip | tar xpvf -"
-else
-		- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && gunzip | tar xpvf -"
-endif
+	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | ssh -l root $(IP_ADDR) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && gunzip | tar xpvf -"
 	# installed on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH)
 else
 	# don't install on $(IP_ADDR)

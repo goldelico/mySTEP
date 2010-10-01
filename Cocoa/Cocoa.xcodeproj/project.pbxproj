@@ -166,7 +166,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"*.m\"   # all source codes\nexport LIBS=  \t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"Foundation AppKit\"\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-foundation, quantumstep-appkit\"\t# debian package dependencies (, separated list)\n\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=\"*.m\"   # all source codes\nexport LIBS=  \t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"Foundation AppKit\"\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-foundation-framework, quantumstep-appkit-framework\"\t# debian package dependencies (, separated list)\n\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
