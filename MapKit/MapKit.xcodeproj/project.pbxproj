@@ -9,6 +9,27 @@
 /* Begin PBXBuildFile section */
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
+		EE31DEED125A350A00DF3C91 /* MKAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDB125A350A00DF3C91 /* MKAnnotation.h */; };
+		EE31DEEE125A350A00DF3C91 /* MKAnnotationView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDC125A350A00DF3C91 /* MKAnnotationView.h */; };
+		EE31DEEF125A350A00DF3C91 /* MKCircle.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDD125A350A00DF3C91 /* MKCircle.h */; };
+		EE31DEF0125A350A00DF3C91 /* MKCircleView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDE125A350A00DF3C91 /* MKCircleView.h */; };
+		EE31DEF1125A350A00DF3C91 /* MKMultiPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDF125A350A00DF3C91 /* MKMultiPoint.h */; };
+		EE31DEF2125A350A00DF3C91 /* MKOverlay.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE0125A350A00DF3C91 /* MKOverlay.h */; };
+		EE31DEF3125A350A00DF3C91 /* MKOverlayPathView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE1125A350A00DF3C91 /* MKOverlayPathView.h */; };
+		EE31DEF4125A350A00DF3C91 /* MKOverlayView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE2125A350A00DF3C91 /* MKOverlayView.h */; };
+		EE31DEF5125A350A00DF3C91 /* MKPinAnnotationView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE3125A350A00DF3C91 /* MKPinAnnotationView.h */; };
+		EE31DEF6125A350A00DF3C91 /* MKPlacemark.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE4125A350A00DF3C91 /* MKPlacemark.h */; };
+		EE31DEF8125A350A00DF3C91 /* MKPolygon.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE6125A350A00DF3C91 /* MKPolygon.h */; };
+		EE31DEF9125A350A00DF3C91 /* MKPolygonView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE7125A350A00DF3C91 /* MKPolygonView.h */; };
+		EE31DEFA125A350A00DF3C91 /* MKPolyline.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE8125A350A00DF3C91 /* MKPolyline.h */; };
+		EE31DEFB125A350A00DF3C91 /* MKPolylineView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE9125A350A00DF3C91 /* MKPolylineView.h */; };
+		EE31DEFC125A350A00DF3C91 /* MKReverseGeocoder.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEEA125A350A00DF3C91 /* MKReverseGeocoder.h */; };
+		EE31DEFD125A350A00DF3C91 /* MKShape.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEEB125A350A00DF3C91 /* MKShape.h */; };
+		EE31DEFE125A350A00DF3C91 /* MKUserLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEEC125A350A00DF3C91 /* MKUserLocation.h */; };
+		EE31DF13125A359000DF3C91 /* MKAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF12125A359000DF3C91 /* MKAnnotationView.m */; };
+		EE31DF15125A359D00DF3C91 /* MKOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF14125A359D00DF3C91 /* MKOverlayView.m */; };
+		EE31DF21125A36A600DF3C91 /* MKGeometry.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF20125A36A600DF3C91 /* MKGeometry.m */; };
+		EE31DF23125A385600DF3C91 /* MKPointAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */; };
 		EEB23D5812589D3E0018A9F3 /* MapKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D5512589D3E0018A9F3 /* MapKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D5912589D3E0018A9F3 /* MKMapView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D5612589D3E0018A9F3 /* MKMapView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D5A12589D3E0018A9F3 /* MKMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEB23D5712589D3E0018A9F3 /* MKMapView.m */; };
@@ -25,6 +46,27 @@
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* MapKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MapKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE31DEDB125A350A00DF3C91 /* MKAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKAnnotation.h; sourceTree = "<group>"; };
+		EE31DEDC125A350A00DF3C91 /* MKAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKAnnotationView.h; sourceTree = "<group>"; };
+		EE31DEDD125A350A00DF3C91 /* MKCircle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKCircle.h; sourceTree = "<group>"; };
+		EE31DEDE125A350A00DF3C91 /* MKCircleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKCircleView.h; sourceTree = "<group>"; };
+		EE31DEDF125A350A00DF3C91 /* MKMultiPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKMultiPoint.h; sourceTree = "<group>"; };
+		EE31DEE0125A350A00DF3C91 /* MKOverlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKOverlay.h; sourceTree = "<group>"; };
+		EE31DEE1125A350A00DF3C91 /* MKOverlayPathView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKOverlayPathView.h; sourceTree = "<group>"; };
+		EE31DEE2125A350A00DF3C91 /* MKOverlayView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKOverlayView.h; sourceTree = "<group>"; };
+		EE31DEE3125A350A00DF3C91 /* MKPinAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPinAnnotationView.h; sourceTree = "<group>"; };
+		EE31DEE4125A350A00DF3C91 /* MKPlacemark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPlacemark.h; sourceTree = "<group>"; };
+		EE31DEE6125A350A00DF3C91 /* MKPolygon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPolygon.h; sourceTree = "<group>"; };
+		EE31DEE7125A350A00DF3C91 /* MKPolygonView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPolygonView.h; sourceTree = "<group>"; };
+		EE31DEE8125A350A00DF3C91 /* MKPolyline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPolyline.h; sourceTree = "<group>"; };
+		EE31DEE9125A350A00DF3C91 /* MKPolylineView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPolylineView.h; sourceTree = "<group>"; };
+		EE31DEEA125A350A00DF3C91 /* MKReverseGeocoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKReverseGeocoder.h; sourceTree = "<group>"; };
+		EE31DEEB125A350A00DF3C91 /* MKShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKShape.h; sourceTree = "<group>"; };
+		EE31DEEC125A350A00DF3C91 /* MKUserLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKUserLocation.h; sourceTree = "<group>"; };
+		EE31DF12125A359000DF3C91 /* MKAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKAnnotationView.m; sourceTree = "<group>"; };
+		EE31DF14125A359D00DF3C91 /* MKOverlayView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKOverlayView.m; sourceTree = "<group>"; };
+		EE31DF20125A36A600DF3C91 /* MKGeometry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKGeometry.m; sourceTree = "<group>"; };
+		EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPointAnnotation.h; sourceTree = "<group>"; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEB23D5512589D3E0018A9F3 /* MapKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapKit.h; sourceTree = "<group>"; };
 		EEB23D5612589D3E0018A9F3 /* MKMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKMapView.h; sourceTree = "<group>"; };
@@ -91,10 +133,31 @@
 			isa = PBXGroup;
 			children = (
 				EEB23D5512589D3E0018A9F3 /* MapKit.h */,
-				EEB23D7D1258B1F80018A9F3 /* MKTypes.h */,
+				EE31DEDB125A350A00DF3C91 /* MKAnnotation.h */,
+				EE31DEDC125A350A00DF3C91 /* MKAnnotationView.h */,
+				EE31DF12125A359000DF3C91 /* MKAnnotationView.m */,
+				EE31DEDD125A350A00DF3C91 /* MKCircle.h */,
+				EE31DEDE125A350A00DF3C91 /* MKCircleView.h */,
 				EEB23D8F1258B5850018A9F3 /* MKGeometry.h */,
+				EE31DF20125A36A600DF3C91 /* MKGeometry.m */,
 				EEB23D5612589D3E0018A9F3 /* MKMapView.h */,
 				EEB23D5712589D3E0018A9F3 /* MKMapView.m */,
+				EE31DEDF125A350A00DF3C91 /* MKMultiPoint.h */,
+				EE31DEE0125A350A00DF3C91 /* MKOverlay.h */,
+				EE31DEE1125A350A00DF3C91 /* MKOverlayPathView.h */,
+				EE31DEE2125A350A00DF3C91 /* MKOverlayView.h */,
+				EE31DF14125A359D00DF3C91 /* MKOverlayView.m */,
+				EE31DEE3125A350A00DF3C91 /* MKPinAnnotationView.h */,
+				EE31DEE4125A350A00DF3C91 /* MKPlacemark.h */,
+				EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */,
+				EE31DEE6125A350A00DF3C91 /* MKPolygon.h */,
+				EE31DEE7125A350A00DF3C91 /* MKPolygonView.h */,
+				EE31DEE8125A350A00DF3C91 /* MKPolyline.h */,
+				EE31DEE9125A350A00DF3C91 /* MKPolylineView.h */,
+				EE31DEEA125A350A00DF3C91 /* MKReverseGeocoder.h */,
+				EE31DEEB125A350A00DF3C91 /* MKShape.h */,
+				EEB23D7D1258B1F80018A9F3 /* MKTypes.h */,
+				EE31DEEC125A350A00DF3C91 /* MKUserLocation.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -137,6 +200,24 @@
 				EEB23D7E1258B1F80018A9F3 /* MKTypes.h in Headers */,
 				EEB23D5C12589D4B0018A9F3 /* MapKit_Prefix.pch in Headers */,
 				EEB23D901258B5850018A9F3 /* MKGeometry.h in Headers */,
+				EE31DEED125A350A00DF3C91 /* MKAnnotation.h in Headers */,
+				EE31DEEE125A350A00DF3C91 /* MKAnnotationView.h in Headers */,
+				EE31DEEF125A350A00DF3C91 /* MKCircle.h in Headers */,
+				EE31DEF0125A350A00DF3C91 /* MKCircleView.h in Headers */,
+				EE31DEF1125A350A00DF3C91 /* MKMultiPoint.h in Headers */,
+				EE31DEF2125A350A00DF3C91 /* MKOverlay.h in Headers */,
+				EE31DEF3125A350A00DF3C91 /* MKOverlayPathView.h in Headers */,
+				EE31DEF4125A350A00DF3C91 /* MKOverlayView.h in Headers */,
+				EE31DEF5125A350A00DF3C91 /* MKPinAnnotationView.h in Headers */,
+				EE31DEF6125A350A00DF3C91 /* MKPlacemark.h in Headers */,
+				EE31DEF8125A350A00DF3C91 /* MKPolygon.h in Headers */,
+				EE31DEF9125A350A00DF3C91 /* MKPolygonView.h in Headers */,
+				EE31DEFA125A350A00DF3C91 /* MKPolyline.h in Headers */,
+				EE31DEFB125A350A00DF3C91 /* MKPolylineView.h in Headers */,
+				EE31DEFC125A350A00DF3C91 /* MKReverseGeocoder.h in Headers */,
+				EE31DEFD125A350A00DF3C91 /* MKShape.h in Headers */,
+				EE31DEFE125A350A00DF3C91 /* MKUserLocation.h in Headers */,
+				EE31DF23125A385600DF3C91 /* MKPointAnnotation.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -170,7 +251,14 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "MapKit" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 0867D691FE84028FC02AAC07 /* ScreenSaver */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
 			projectDirPath = "";
@@ -214,6 +302,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				EEB23D5A12589D3E0018A9F3 /* MKMapView.m in Sources */,
+				EE31DF13125A359000DF3C91 /* MKAnnotationView.m in Sources */,
+				EE31DF15125A359D00DF3C91 /* MKOverlayView.m in Sources */,
+				EE31DF21125A36A600DF3C91 /* MKGeometry.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

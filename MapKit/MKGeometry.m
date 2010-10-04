@@ -1,45 +1,14 @@
 //
-//  MKGeometry.h
+//  MKGeometry.m
 //  MapKit
 //
 //  Created by H. Nikolaus Schaller on 20.10.09.
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
-#import <CoreLocation/CoreLocation.h>
+#import <CoreLocation/MKGeometry.h>
 
-typedef struct _MKCoordinateSpan
-{
-	CLLocationDegrees latitudeDelta;
-	CLLocationDegrees longitudeDelta;
-} MKCoordinateSpan;
-
-typedef struct _MKCoordinateRegion
-{
-	CLLocationCoordinate2D center;
-	MKCoordinateSpan span;
-} MKCoordinateRegion;
-
-typedef struct _MKMapPoint
-{
-	double x;
-	double y;
-} MKMapPoint;
-
-typedef struct _MKMapSize
-{
-	double width;
-	double height;
-} MKMapSize;
-
-typedef struct _MKMapRect
-{
-	MKMapPoint origin;
-	MKMapSize size;
-} MKMapRect;
-
-typedef CGFloat MKZoomScale;
+#if TODO
 
 CLLocationCoordinate2D MKCoordinateForMapPoint(MKMapPoint mapPoint);
 MKCoordinateRegion MKCoordinateRegionForMapRect(MKMapRect rect);
@@ -81,6 +50,6 @@ CLLocationDistance MKMetersPerMapPointAtLatitude(CLLocationDegrees latitude);
 NSString *MKStringFromMapPoint(MKMapPoint point);
 NSString *MKStringFromMapRect(MKMapRect rect);
 NSString *MKStringFromMapSize(MKMapSize size);
-
+#endif
 
 // EOF
