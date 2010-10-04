@@ -6,7 +6,7 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <CoreLocation/MKGeometry.h>
+#import <MapKit/MKGeometry.h>
 
 #if TODO
 

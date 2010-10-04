@@ -8,18 +8,35 @@
 
 #ifndef __UIKit__
 #define UIView NSView
+typedef struct UIEdgeInsets
+{
+	CGFloat top, left, bottom, right;
+} UIEdgeInsets;
 #endif
 
 #import <Cocoa/Cocoa.h>
 #import <MapKit/MKGeometry.h>
+#import <MapKit/MKAnnotation.h>
 #import <MapKit/MKOverlay.h>
 #import <MapKit/MKTypes.h>
+
+@class MKAnnotationView;
+@class MKOverlayView;
+@class MKUserLocation;
+
+@protocol MKMapViewDelegate <NSObject>
+
+// mapView:viewForAnnotation:
+// mapView:viewForOverlay:
+
+@end
+
 
 @interface MKMapView : UIView
 {
 	NSMutableArray *_annotations;
 	NSMutableArray *_overlays;
-	id <MKMapViewDelegate>) _delegate;
+	id <MKMapViewDelegate> _delegate;
 	CLLocationCoordinate2D _centerCoordinate;
 	MKCoordinateRegion _region;
 	MKMapRect _visibleMapRect;
@@ -52,7 +69,7 @@
 - (BOOL) isUserLocationVisible;
 - (BOOL) isZoomEnabled;
 - (MKMapRect) mapRectThatFits:(MKMapRect) rect;
-- (MKMapRect) mapRectThatFits:(MKMapRect) rect edgePadding:(NSEdgeInsets) insets;
+- (MKMapRect) mapRectThatFits:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets;
 - (MKMapType) mapType;
 - (NSArray *) overlays;
 - (MKCoordinateRegion) region;
@@ -75,7 +92,7 @@
 - (void) setUserLocationVisible:(BOOL) flag;
 - (void) setVisibleMapRect:(MKMapRect) rect;
 - (void) setVisibleMapRect:(MKMapRect) rect animated:(BOOL) flag;
-- (void) setVisibleMapRect:(MKMapRect) rect edgePadding:(NSEdgeInsets) insets animated:(BOOL) flag;
+- (void) setVisibleMapRect:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets animated:(BOOL) flag;
 - (void) setZoomEnabled:(BOOL) flag;
 - (BOOL) showsUserLocation;
 - (MKUserLocation *) userLocation;
@@ -83,53 +100,6 @@
 - (MKOverlayView *) viewForOverlay:(id <MKOverlay>) o;
 - (MKMapRect) visibleMapRect;
 
-@end
-
-#else
-
-@interface MKMapView : UIView
-
-@end
-
-#endif
-
-@protocol MKMapViewDelegate
-mapView:viewForAnnotation:
-mapView:viewForOverlay:
-
-@end
-
-// FIXME (korrekt aufteilen):
-@interface MKAnnotationView : UIView
-{
-	BOOL dragabble
-	callout
-	canShowCallout
-}
-@end
-@interface MKPinAnnotationView : MKAnnotationView
-@end
-
-
-@interface MKOverlayView : UIView
-- drawMapRect:zoomScale:inContext:	// muß Multithreaded sein
-@end
-
-@interface MKOverlayPathView : MKOverlayView
-@end
-
-@interface MKPlacemark : NSObject <MKAnnotation>
-@end
-@interface MKUserLocation : MKPlacemark
-@end
-
-@protocol MKAnnotation
-@end
-
-@protocol MKOverlay <MKAnnotation>
-@end
-
-@interface MKCircle, MKShape, MKMultiPoint, ...
 @end
 
 // EOF

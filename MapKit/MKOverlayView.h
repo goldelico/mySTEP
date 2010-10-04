@@ -19,6 +19,8 @@
 {
 }
 
+@end
+
 CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoom);
 
 // EOF

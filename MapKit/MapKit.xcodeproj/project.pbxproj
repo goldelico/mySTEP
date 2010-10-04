@@ -9,27 +9,27 @@
 /* Begin PBXBuildFile section */
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
-		EE31DEED125A350A00DF3C91 /* MKAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDB125A350A00DF3C91 /* MKAnnotation.h */; };
-		EE31DEEE125A350A00DF3C91 /* MKAnnotationView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDC125A350A00DF3C91 /* MKAnnotationView.h */; };
-		EE31DEEF125A350A00DF3C91 /* MKCircle.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDD125A350A00DF3C91 /* MKCircle.h */; };
-		EE31DEF0125A350A00DF3C91 /* MKCircleView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDE125A350A00DF3C91 /* MKCircleView.h */; };
-		EE31DEF1125A350A00DF3C91 /* MKMultiPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDF125A350A00DF3C91 /* MKMultiPoint.h */; };
-		EE31DEF2125A350A00DF3C91 /* MKOverlay.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE0125A350A00DF3C91 /* MKOverlay.h */; };
-		EE31DEF3125A350A00DF3C91 /* MKOverlayPathView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE1125A350A00DF3C91 /* MKOverlayPathView.h */; };
-		EE31DEF4125A350A00DF3C91 /* MKOverlayView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE2125A350A00DF3C91 /* MKOverlayView.h */; };
-		EE31DEF5125A350A00DF3C91 /* MKPinAnnotationView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE3125A350A00DF3C91 /* MKPinAnnotationView.h */; };
-		EE31DEF6125A350A00DF3C91 /* MKPlacemark.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE4125A350A00DF3C91 /* MKPlacemark.h */; };
-		EE31DEF8125A350A00DF3C91 /* MKPolygon.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE6125A350A00DF3C91 /* MKPolygon.h */; };
-		EE31DEF9125A350A00DF3C91 /* MKPolygonView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE7125A350A00DF3C91 /* MKPolygonView.h */; };
-		EE31DEFA125A350A00DF3C91 /* MKPolyline.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE8125A350A00DF3C91 /* MKPolyline.h */; };
-		EE31DEFB125A350A00DF3C91 /* MKPolylineView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE9125A350A00DF3C91 /* MKPolylineView.h */; };
-		EE31DEFC125A350A00DF3C91 /* MKReverseGeocoder.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEEA125A350A00DF3C91 /* MKReverseGeocoder.h */; };
-		EE31DEFD125A350A00DF3C91 /* MKShape.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEEB125A350A00DF3C91 /* MKShape.h */; };
-		EE31DEFE125A350A00DF3C91 /* MKUserLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEEC125A350A00DF3C91 /* MKUserLocation.h */; };
+		EE31DEED125A350A00DF3C91 /* MKAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDB125A350A00DF3C91 /* MKAnnotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEEE125A350A00DF3C91 /* MKAnnotationView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDC125A350A00DF3C91 /* MKAnnotationView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEEF125A350A00DF3C91 /* MKCircle.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDD125A350A00DF3C91 /* MKCircle.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEF0125A350A00DF3C91 /* MKCircleView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDE125A350A00DF3C91 /* MKCircleView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEF1125A350A00DF3C91 /* MKMultiPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDF125A350A00DF3C91 /* MKMultiPoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEF2125A350A00DF3C91 /* MKOverlay.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE0125A350A00DF3C91 /* MKOverlay.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEF3125A350A00DF3C91 /* MKOverlayPathView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE1125A350A00DF3C91 /* MKOverlayPathView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEF4125A350A00DF3C91 /* MKOverlayView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE2125A350A00DF3C91 /* MKOverlayView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEF5125A350A00DF3C91 /* MKPinAnnotationView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE3125A350A00DF3C91 /* MKPinAnnotationView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEF6125A350A00DF3C91 /* MKPlacemark.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE4125A350A00DF3C91 /* MKPlacemark.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEF8125A350A00DF3C91 /* MKPolygon.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE6125A350A00DF3C91 /* MKPolygon.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEF9125A350A00DF3C91 /* MKPolygonView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE7125A350A00DF3C91 /* MKPolygonView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEFA125A350A00DF3C91 /* MKPolyline.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE8125A350A00DF3C91 /* MKPolyline.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEFB125A350A00DF3C91 /* MKPolylineView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEE9125A350A00DF3C91 /* MKPolylineView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEFC125A350A00DF3C91 /* MKReverseGeocoder.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEEA125A350A00DF3C91 /* MKReverseGeocoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEFD125A350A00DF3C91 /* MKShape.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEEB125A350A00DF3C91 /* MKShape.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31DEFE125A350A00DF3C91 /* MKUserLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEEC125A350A00DF3C91 /* MKUserLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE31DF13125A359000DF3C91 /* MKAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF12125A359000DF3C91 /* MKAnnotationView.m */; };
 		EE31DF15125A359D00DF3C91 /* MKOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF14125A359D00DF3C91 /* MKOverlayView.m */; };
 		EE31DF21125A36A600DF3C91 /* MKGeometry.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF20125A36A600DF3C91 /* MKGeometry.m */; };
-		EE31DF23125A385600DF3C91 /* MKPointAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */; };
+		EE31DF23125A385600DF3C91 /* MKPointAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D5812589D3E0018A9F3 /* MapKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D5512589D3E0018A9F3 /* MapKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D5912589D3E0018A9F3 /* MKMapView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D5612589D3E0018A9F3 /* MKMapView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D5A12589D3E0018A9F3 /* MKMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEB23D5712589D3E0018A9F3 /* MKMapView.m */; };
@@ -165,6 +165,7 @@
 		1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EEB23DB41258B6410018A9F3 /* CoreLocation.framework */,
 				1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
@@ -175,7 +176,6 @@
 			children = (
 				0867D6A5FE840307C02AAC07 /* AppKit.framework */,
 				0867D69BFE84028FC02AAC07 /* Foundation.framework */,
-				EEB23DB41258B6410018A9F3 /* CoreLocation.framework */,
 			);
 			name = "Other Frameworks";
 			sourceTree = "<group>";
@@ -251,6 +251,7 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "MapKit" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -291,7 +292,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "exit\n\nexport SOURCES=*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=CoreLocation\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=CoreLocation\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -325,6 +326,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -335,7 +337,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = MapKit_Prefix.pch;
-				GCC_VERSION = 4.0;
+				GCC_VERSION = "";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
 				PRODUCT_NAME = MapKit;
@@ -347,6 +349,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -354,7 +357,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = ScreenSaver_Prefix.pch;
-				GCC_VERSION = 4.0;
+				GCC_VERSION = "";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
 				PRODUCT_NAME = ScreenSaver;

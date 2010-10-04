@@ -17,9 +17,10 @@
 
 @interface MKAnnotationView : UIView
 {
-	BOOL dragabble
+/*	BOOL dragabble
 	callout
 	canShowCallout
+ */
 }
 
 @end
