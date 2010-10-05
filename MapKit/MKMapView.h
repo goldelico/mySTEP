@@ -6,6 +6,8 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
+#import <Cocoa/Cocoa.h>
+
 #ifndef __UIKit__
 #define UIView NSView
 typedef struct UIEdgeInsets
@@ -14,7 +16,6 @@ typedef struct UIEdgeInsets
 } UIEdgeInsets;
 #endif
 
-#import <Cocoa/Cocoa.h>
 #import <MapKit/MKGeometry.h>
 #import <MapKit/MKAnnotation.h>
 #import <MapKit/MKOverlay.h>

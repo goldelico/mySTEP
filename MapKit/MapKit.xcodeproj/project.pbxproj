@@ -356,11 +356,11 @@
 				FRAMEWORK_VERSION = A;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = ScreenSaver_Prefix.pch;
+				GCC_PREFIX_HEADER = MapKit_Prefix.pch;
 				GCC_VERSION = "";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
-				PRODUCT_NAME = ScreenSaver;
+				PRODUCT_NAME = MapKit;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
