@@ -10,9 +10,10 @@
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		EE31DFC8125A4EE200DF3C91 /* CoreLocation_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFC7125A4EE200DF3C91 /* CoreLocation_Prefix.pch */; };
-		EE31DFD2125A4F1900DF3C91 /* CoreLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */; };
+		EE31DFD2125A4F1900DF3C91 /* CoreLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE31DFD9125A4F7F00DF3C91 /* SYSLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFD7125A4F7F00DF3C91 /* SYSLocation.h */; };
 		EE31DFDA125A4F7F00DF3C91 /* SYSLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DFD8125A4F7F00DF3C91 /* SYSLocation.m */; };
+		EE31E020125AF0EB00DF3C91 /* CoreLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */; };
 		EEB23DB51258B6410018A9F3 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
 /* End PBXBuildFile section */
 
@@ -27,6 +28,7 @@
 		EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreLocation.h; sourceTree = "<group>"; };
 		EE31DFD7125A4F7F00DF3C91 /* SYSLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SYSLocation.h; sourceTree = "<group>"; };
 		EE31DFD8125A4F7F00DF3C91 /* SYSLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SYSLocation.m; sourceTree = "<group>"; };
+		EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreLocation.m; sourceTree = "<group>"; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEB23DB41258B6410018A9F3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
@@ -87,8 +89,8 @@
 			isa = PBXGroup;
 			children = (
 				EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */,
-				EE31DFD7125A4F7F00DF3C91 /* SYSLocation.h */,
-				EE31DFD8125A4F7F00DF3C91 /* SYSLocation.m */,
+				EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */,
+				EE31E021125AF0F100DF3C91 /* Old */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -117,6 +119,15 @@
 				EE31DFC7125A4EE200DF3C91 /* CoreLocation_Prefix.pch */,
 			);
 			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		EE31E021125AF0F100DF3C91 /* Old */ = {
+			isa = PBXGroup;
+			children = (
+				EE31DFD7125A4F7F00DF3C91 /* SYSLocation.h */,
+				EE31DFD8125A4F7F00DF3C91 /* SYSLocation.m */,
+			);
+			name = Old;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -203,7 +214,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=CoreLocation\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n# export DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -213,6 +224,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE31DFDA125A4F7F00DF3C91 /* SYSLocation.m in Sources */,
+				EE31E020125AF0EB00DF3C91 /* CoreLocation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

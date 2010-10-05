@@ -10,6 +10,8 @@
  under the terms of the GNU Library General Public License.
  */ 
 
+#if OLD
+
 #ifndef _mySTEP_H_SYSLocationStatus
 #define _mySTEP_H_SYSLocationStatus
 
@@ -105,5 +107,7 @@ typedef struct GeoMovement
 - (void) locationSuspended:(NSNotification *) n;
 - (void) locationNMEA183:(NSNotification *) n;	// n.object=SysLocation n.userInfo.nmea=NSArray with NMEA record
 @end
+
+#endif
 
 #endif

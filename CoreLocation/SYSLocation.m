@@ -13,6 +13,8 @@
  under the terms of the GNU Library General Public License.
  */
 
+#if OLD
+
 #import "SYSLocation.h"
 #import "SYSDevice.h"
 #include <signal.h>
@@ -527,3 +529,5 @@ void sigstop(void)
 }
 
 @end
+
+#endif
