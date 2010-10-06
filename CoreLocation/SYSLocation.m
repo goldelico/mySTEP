@@ -304,7 +304,7 @@ NSString *SYSLocationNMEA183Notification=@"SYSLocationNMEA183Notification";		// 
 				if([s characterAtIndex:[s length]-3] == '*')
 						{ // assume *hh\n
 							// extract hh
-							s=[s substringWithRange:NSMakeRange(1, [s length]-3)];	// get relevant parts - strip off *hh
+							s=[s substringWithRange:NSMakeRange(0, [s length]-3)];	// get relevant parts - strip off *hh
 							// get bytes and calculate checksum
 						}
 				[[NSNotificationCenter defaultCenter] postNotificationName:SYSLocationNMEA183Notification object:s];	// notify any listener
