@@ -270,6 +270,9 @@
 
 - (void) dealloc
 {
+	[self stopMonitoringSignificantLocationChanges];
+	[self stopUpdatingHeading];
+	[self stopUpdatingLocation];
 	[heading release];
 	[location release];
 	[super dealloc];
@@ -298,6 +301,10 @@
 
 - (void) startUpdatingLocation;
 {
+	// if first call or not permanently enabled, ask user in a nonmodal window "<App> wants to use your current location"
+	// there is a checkbox to disable this message (probably stored in the User Defaults of the current process?)
+	// it also asks for command line tools (w/o Info.plist!)
+	// postpone the registration until user confirms
 	[CLLocationManager registerLocationManager:self];
 }
 

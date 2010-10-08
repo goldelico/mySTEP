@@ -48,7 +48,8 @@ int main(int argc, char *argv[])
 {
 	NSAutoreleasePool *arp=[[NSAutoreleasePool alloc] init];
 	CLLocationManager *mgr=[CLLocationManager new];
-	[mgr setPurpose:@"cltest"];
+	if([mgr respondsToSelector:@selector(setPurpose:)])
+		[mgr setPurpose:@"cltest"];
 	[mgr setDelegate:[[Delegate new] autorelease]];
 	[mgr startUpdatingLocation];
 	while(YES)

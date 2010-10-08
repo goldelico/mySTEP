@@ -32,26 +32,26 @@ typedef struct UIEdgeInsets
 
 @end
 
-
 @interface MKMapView : UIView
 {
-	NSMutableArray *_annotations;
-	NSMutableArray *_overlays;
-	id <MKMapViewDelegate> _delegate;
-	CLLocationCoordinate2D _centerCoordinate;
-	MKCoordinateRegion _region;
-	MKMapRect _visibleMapRect;
-	MKMapType _mapType;
-	BOOL _isScrollEnabled;
-	BOOL _isUserLocationVisible;
-	BOOL _isZoomEnabled;
-	BOOL _showsUserLocation;
+	CLLocationCoordinate2D centerCoordinate;
+	MKCoordinateRegion region;
+	MKMapRect visibleMapRect;
+	NSMutableArray *annotations;
+	NSMutableArray *overlays;	// back to front
+	id <MKMapViewDelegate> delegate;
+	MKUserLocation *userLocation;
+	MKMapType mapType;
+	BOOL scrollEnabled;
+	BOOL userLocationVisible;
+	BOOL zoomEnabled;
+	BOOL showsUserLocation;
 }
 
 - (void) addAnnotation:(id <MKAnnotation>) a;
 - (void) addAnnotations:(NSArray *) a;
 - (void) addOverlay:(id <MKOverlay>) o;
-- (void) addOverlayss:(NSArray *) o;
+- (void) addOverlays:(NSArray *) o;
 - (NSArray *) annotations;
 - (NSRect) annotationVisibleRect;
 - (CLLocationCoordinate2D) centerCoordinate;

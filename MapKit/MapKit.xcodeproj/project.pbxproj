@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
+		EE310665125E2F1C00DF3C91 /* MKUserLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE310664125E2F1C00DF3C91 /* MKUserLocation.m */; };
 		EE31DEED125A350A00DF3C91 /* MKAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDB125A350A00DF3C91 /* MKAnnotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE31DEEE125A350A00DF3C91 /* MKAnnotationView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDC125A350A00DF3C91 /* MKAnnotationView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE31DEEF125A350A00DF3C91 /* MKCircle.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DEDD125A350A00DF3C91 /* MKCircle.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -46,6 +47,7 @@
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* MapKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MapKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE310664125E2F1C00DF3C91 /* MKUserLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKUserLocation.m; sourceTree = "<group>"; };
 		EE31DEDB125A350A00DF3C91 /* MKAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKAnnotation.h; sourceTree = "<group>"; };
 		EE31DEDC125A350A00DF3C91 /* MKAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKAnnotationView.h; sourceTree = "<group>"; };
 		EE31DEDD125A350A00DF3C91 /* MKCircle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKCircle.h; sourceTree = "<group>"; };
@@ -158,6 +160,7 @@
 				EE31DEEB125A350A00DF3C91 /* MKShape.h */,
 				EEB23D7D1258B1F80018A9F3 /* MKTypes.h */,
 				EE31DEEC125A350A00DF3C91 /* MKUserLocation.h */,
+				EE310664125E2F1C00DF3C91 /* MKUserLocation.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -305,6 +308,7 @@
 				EE31DF13125A359000DF3C91 /* MKAnnotationView.m in Sources */,
 				EE31DF15125A359D00DF3C91 /* MKOverlayView.m in Sources */,
 				EE31DF21125A36A600DF3C91 /* MKGeometry.m in Sources */,
+				EE310665125E2F1C00DF3C91 /* MKUserLocation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

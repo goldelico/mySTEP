@@ -384,6 +384,7 @@ endif
 	  echo "Version: $(DEBIAN_VERSION)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
 	  echo "Maintainer: info@goldelico.com"; \
+	  echo "Homepage: http://www.quantum-step.com"; \
 	  echo "Depends: $(DEPENDS)"; \
 	  echo "Section: x11"; \
 	  echo "Installed-Size: `du -kHs /tmp/data | cut -f1`"; \
@@ -416,6 +417,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  echo "Version: $(DEBIAN_VERSION)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
 	  echo "Maintainer: info@goldelico.com"; \
+	  echo "Homepage: http://www.quantum-step.com"; \
 	  echo "Depends: $(DEPENDS)"; \
 	  echo "Section: x11"; \
 	  echo "Installed-Size: `du -kHs /tmp/data | cut -f1`"; \

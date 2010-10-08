@@ -6,10 +6,118 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "MKMapView.h"
+#import <MapKit/MapKit.h>
 
 
 @implementation MKMapView
+
+- (id) initWithFrame:(NSRect) frameRect
+{
+	if((self=[super initWithFrame:frameRect]))
+		{
+		annotations=[[NSMutableArray alloc] initWithCapacity:50];
+		overlays=[[NSMutableArray alloc] initWithCapacity:20];
+		}
+	return self;
+}
+
+- (void) dealloc;
+{
+	[annotations release];
+	[overlays release];
+	[userLocation release];
+	[super dealloc];
+}
+
+- (BOOL) isOpaque; { return YES; }
+- (BOOL) isFlipped; { return YES; }
+
+- (void) drawRect:(NSRect) rect
+{
+	[@"I am the MKMapView" drawInRect:NSMakeRect(10.0, 10.0, 100.0, 100.0) withAttributes:nil];
+}
+
+- (void) addAnnotation:(id <MKAnnotation>) a; { [annotations addObject:a]; [self setNeedsDisplay:YES]; }	// could optimize drawing rect?
+- (void) addAnnotations:(NSArray *) a; { [annotations addObjectsFromArray:a]; [self setNeedsDisplay:YES]; }
+- (void) addOverlay:(id <MKOverlay>) o; { [overlays addObject:o]; [self setNeedsDisplay:YES]; }
+- (void) addOverlays:(NSArray *) o; { [overlays addObjectsFromArray:o]; [self setNeedsDisplay:YES]; }
+- (NSArray *) annotations;{ return annotations; }
+//- (NSRect) annotationVisibleRect;{ return annotationVisibleRect; }
+- (CLLocationCoordinate2D) centerCoordinate; { return centerCoordinate; }
+//- (NSPoint) convertCoordinate:(CLLocationCoordinate2D) coord toPointToView:(UIView *) view;
+//- (CLLocationCoordinate2D) convertPoint:(NSPoint) point toCoordinateFromView:(UIView *) view;
+//- (MKCoordinateRegion) convertRect:(NSRect) coord toRegionFromView:(UIView *) view;
+//- (NSRect) convertRegion:(MKCoordinateRegion) region toRectToView:(UIView *) view;
+- (id <MKMapViewDelegate>) delegate; { return delegate; }
+//- (MKAnnotationView *) equeueReusableAnnotationViewWithIdentifier:(NSString *) ident;
+//- (void) deselectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
+- (void) exchangeOverlayAtIndex:(NSUInteger) idx1 withOverlayAtIndex:(NSUInteger) idx2; { [overlays exchangeObjectAtIndex:idx1 withObjectAtIndex:idx2]; [self setNeedsDisplay:YES]; }
+//- (void) insertOverlay:(id <MKOverlay>) o aboveOverlay:(id <MKOverlay>) sibling; // search and [self insertOverlay:o atIndex: i+1
+- (void) insertOverlay:(id <MKOverlay>) o atIndex:(NSUInteger) idx; { [overlays insertObject:o atIndex:idx]; [self setNeedsDisplay:YES]; }
+//- (void) insertOverlay:(id <MKOverlay>) o belowOverlay:(id <MKOverlay>) sibling; // search and [self insertOverlay:o atIndex: i
+- (BOOL) isScrollEnabled; { return scrollEnabled; }
+
+- (BOOL) isUserLocationVisible;
+{
+	if(!userLocation)
+		return NO;
+	// use horizontal accuracy and current location to check if the user location is (at least) partially on screen
+	return YES;
+}
+
+- (BOOL) isZoomEnabled; { return zoomEnabled; }
+//- (MKMapRect) mapRectThatFits:(MKMapRect) rect;
+//- (MKMapRect) mapRectThatFits:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets;
+- (MKMapType) mapType; { return mapType; }
+- (NSArray *) overlays; { return overlays; }
+- (MKCoordinateRegion) region; { return region; }
+//- (MKCoordinateRegion) regionThatFits:(MKCoordinateRegion) region;
+- (void) removeAnnotation:(id <MKAnnotation>) a; { [annotations removeObjectIdenticalTo:a]; [self setNeedsDisplay:YES]; }
+- (void) removeAnnotations:(NSArray *) a; { return ; }
+- (void) removeOverlay:(id <MKOverlay>) a; { [overlays removeObjectIdenticalTo:a]; [self setNeedsDisplay:YES]; }
+- (void) removeOverlays:(NSArray *) a; { return ; }
+//- (void) selectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
+//- (NSArray *) selectedAnnotations; { return ; }
+- (void) setCenterCoordinate:(CLLocationCoordinate2D) center; { centerCoordinate=center; [self setNeedsDisplay:YES]; }
+//- (void) setCenterCoordinate:(CLLocationCoordinate2D) center animated:(BOOL) flag;
+- (void) setDelegate:(id <MKMapViewDelegate>) d; { delegate=d; }
+- (void) setMapType:(MKMapType) type; { mapType=type; [self setNeedsDisplay:YES]; }
+- (void) setRegion:(MKCoordinateRegion) r; { region=r; }
+//- (void) setRegion:(MKCoordinateRegion) region animated:(BOOL) flag;
+- (void) setScrollEnabled:(BOOL) flag; { scrollEnabled=flag; }
+//- (void) setSelectedAnnotation:(NSArray *) a; 	// copy property
+
+- (void) setShowsUserLocation:(BOOL) flag;
+{
+	flag = (flag != 0);
+	if(showsUserLocation != flag)
+		{ // changes
+			if((showsUserLocation=flag))
+				{
+				userLocation=[MKUserLocation new];	// create
+				[self addAnnotation:userLocation];
+				}
+			else
+				{
+				[self removeAnnotation:userLocation];
+				[userLocation release];
+				userLocation=nil;				
+				}
+		}
+}
+
+- (void) setUserLocationVisible:(BOOL) flag; { userLocationVisible=flag; [self setNeedsDisplay:YES]; }
+- (void) setVisibleMapRect:(MKMapRect) rect; { visibleMapRect=rect; [self setNeedsDisplay:YES]; }
+//- (void) setVisibleMapRect:(MKMapRect) rect animated:(BOOL) flag;
+//- (void) setVisibleMapRect:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets animated:(BOOL) flag;
+- (void) setZoomEnabled:(BOOL) flag; { zoomEnabled=flag; }
+- (BOOL) showsUserLocation; { return showsUserLocation; }
+- (MKUserLocation *) userLocation; { return userLocation; }
+//- (MKAnnotationView *) viewForAnnotation:(id <MKAnnotation>) a;
+//- (MKOverlayView *) viewForOverlay:(id <MKOverlay>) o;
+- (MKMapRect) visibleMapRect; { return visibleMapRect; }	// use region and convert!!!
+
+@end
 
 #if OLD // initial Code taken from Navigator.app
 
@@ -536,8 +644,7 @@ static int alreadyLoading=0;
 	[super unlockFocus];
 }
 
+@end
 
 #endif
-
-@end
 

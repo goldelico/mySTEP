@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
+		EE31070D125F025C00DF3C91 /* cltest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31E297125CD78F00DF3C91 /* cltest.m */; };
+		EE31071E125F027D00DF3C91 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
 		EE31DFC8125A4EE200DF3C91 /* CoreLocation_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFC7125A4EE200DF3C91 /* CoreLocation_Prefix.pch */; };
 		EE31DFD2125A4F1900DF3C91 /* CoreLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE31DFD9125A4F7F00DF3C91 /* SYSLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFD7125A4F7F00DF3C91 /* SYSLocation.h */; };
@@ -58,6 +60,7 @@
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* CoreLocation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CoreLocation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE310713125F025C00DF3C91 /* cltestsys */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cltestsys; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE31DFC7125A4EE200DF3C91 /* CoreLocation_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreLocation_Prefix.pch; sourceTree = "<group>"; };
 		EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreLocation.h; sourceTree = "<group>"; };
 		EE31DFD7125A4F7F00DF3C91 /* SYSLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SYSLocation.h; sourceTree = "<group>"; };
@@ -88,6 +91,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EE31070E125F025C00DF3C91 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE31071E125F027D00DF3C91 /* CoreLocation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EE31E27B125CD76C00DF3C91 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -114,6 +125,7 @@
 				8DC2EF5B0486A6940098B216 /* CoreLocation.framework */,
 				EE31E27D125CD76C00DF3C91 /* cltest */,
 				EE31E2D3125CDC2500DF3C91 /* CLTestFramework.framework */,
+				EE310713125F025C00DF3C91 /* cltestsys */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -263,6 +275,22 @@
 			productReference = 8DC2EF5B0486A6940098B216 /* CoreLocation.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		EE310709125F025C00DF3C91 /* cltestsys */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE310710125F025C00DF3C91 /* Build configuration list for PBXNativeTarget "cltestsys" */;
+			buildPhases = (
+				EE31070C125F025C00DF3C91 /* Sources */,
+				EE31070E125F025C00DF3C91 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = cltestsys;
+			productName = cltest;
+			productReference = EE310713125F025C00DF3C91 /* cltestsys */;
+			productType = "com.apple.product-type.tool";
+		};
 		EE31E27C125CD76C00DF3C91 /* cltest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EE31E296125CD77C00DF3C91 /* Build configuration list for PBXNativeTarget "cltest" */;
@@ -323,6 +351,7 @@
 				8DC2EF4F0486A6940098B216 /* CoreLocation */,
 				EE31E2BB125CDC2500DF3C91 /* CLTestFramework */,
 				EE31E27C125CD76C00DF3C91 /* cltest */,
+				EE310709125F025C00DF3C91 /* cltestsys */,
 			);
 		};
 /* End PBXProject section */
@@ -382,6 +411,14 @@
 			files = (
 				EE31DFDA125A4F7F00DF3C91 /* SYSLocation.m in Sources */,
 				EE31E020125AF0EB00DF3C91 /* CoreLocation.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE31070C125F025C00DF3C91 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE31070D125F025C00DF3C91 /* cltest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -493,6 +530,54 @@
 			};
 			name = Release;
 		};
+		EE310711125F025C00DF3C91 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = cltestsys;
+			};
+			name = Debug;
+		};
+		EE310712125F025C00DF3C91 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = cltest;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		EE31E27F125CD76C00DF3C91 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -601,6 +686,15 @@
 			buildConfigurations = (
 				1DEB91B208733DA50010E9CD /* Debug */,
 				1DEB91B308733DA50010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EE310710125F025C00DF3C91 /* Build configuration list for PBXNativeTarget "cltestsys" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE310711125F025C00DF3C91 /* Debug */,
+				EE310712125F025C00DF3C91 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
