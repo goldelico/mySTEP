@@ -54,7 +54,7 @@ export INSTALL_PATH=/Applications   # override INSTALL_PATH for MacOS X for the 
 export DEPENDS="quantumstep-cocoa-framework"	# debian package dependencies (, separated list)
 # export DEBIAN_PACKAGE_NAME="quantumstep"	# manually define package name
 # export FILES=""					# list of other files to be added to the package (relative to $ROOT)
-# export DATA=""					# list of other files to be added to the package (relative to /)
+# export DATA=""					# directory of other files to be added to the package (relative to /)
 
 # start make script
 export ROOT=/usr/share/QuantumSTEP	# project root
@@ -367,7 +367,7 @@ ifneq ($(FILES),)
 	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/data/$(ROOT)$(INSTALL_PATH)" && cd "/tmp/data/$(ROOT)$(INSTALL_PATH)" && tar xvzf -)
 endif
 ifneq ($(DATA),)
-	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/data/" && tar xvzf -)
+	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)/$(DATA)" . | (cd "/tmp/data/" && tar xvzf -)
 endif
 	# strip all executables down to the minimum
 	find /tmp/data "(" -name '*-*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
@@ -377,6 +377,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	rm -rf /tmp/data/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
 endif
 	find /tmp/data -type f -perm +a+x -exec $(STRIP) {} \;
+	mkdir -p /tmp/data/$(ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/data/$(ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb
 	$(TAR) czf /tmp/data.tar.gz --owner 0 --group 0 -C /tmp/data .
 	ls -l /tmp/data.tar.gz
 	echo "2.0" >/tmp/debian-binary
@@ -410,6 +411,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	rm -rf /tmp/data/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
 	rm -rf /tmp/data/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
 	find /tmp/data -type f -perm +a+x -exec $(STRIP) {} \;
+	mkdir -p /tmp/data/$(ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/data/$(ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
 	$(TAR) czf /tmp/data.tar.gz --owner 0 --group 0 -C /tmp/data .
 	ls -l /tmp/data.tar.gz
 	echo "2.0" >/tmp/debian-binary
