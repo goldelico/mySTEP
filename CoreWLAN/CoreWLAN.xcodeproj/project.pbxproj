@@ -9,11 +9,14 @@
 /* Begin PBXBuildFile section */
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
-		EE69CFE0108DD5CA00486DB1 /* ScreenSaverView.h in Headers */ = {isa = PBXBuildFile; fileRef = EE69CFDE108DD5CA00486DB1 /* ScreenSaverView.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE69CFE1108DD5CA00486DB1 /* ScreenSaverView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE69CFDF108DD5CA00486DB1 /* ScreenSaverView.m */; };
-		EE69CFE4108DD5DB00486DB1 /* ScreenSaverDefaults.h in Headers */ = {isa = PBXBuildFile; fileRef = EE69CFE2108DD5DB00486DB1 /* ScreenSaverDefaults.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE69CFE5108DD5DB00486DB1 /* ScreenSaverDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = EE69CFE3108DD5DB00486DB1 /* ScreenSaverDefaults.m */; };
-		EE69D0CE108E06B500486DB1 /* ScreenSaver.h in Headers */ = {isa = PBXBuildFile; fileRef = EE69D0CC108E06B500486DB1 /* ScreenSaver.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE31114F125F68DB00DF3C91 /* CoreWLAN.h in Headers */ = {isa = PBXBuildFile; fileRef = EE311148125F68DB00DF3C91 /* CoreWLAN.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE311150125F68DB00DF3C91 /* CW8021XProfile.h in Headers */ = {isa = PBXBuildFile; fileRef = EE311149125F68DB00DF3C91 /* CW8021XProfile.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE311151125F68DB00DF3C91 /* CWConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114A125F68DB00DF3C91 /* CWConfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE311152125F68DB00DF3C91 /* CWGlobals.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114B125F68DB00DF3C91 /* CWGlobals.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE311153125F68DB00DF3C91 /* CWInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114C125F68DB00DF3C91 /* CWInterface.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE311154125F68DB00DF3C91 /* CWNetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114D125F68DB00DF3C91 /* CWNetwork.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE311155125F68DB00DF3C91 /* CWWirelessProfile.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31114E125F68DB00DF3C91 /* CWWirelessProfile.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE311169125F69C100DF3C91 /* CoreWLAN.m in Sources */ = {isa = PBXBuildFile; fileRef = EE311168125F69C100DF3C91 /* CoreWLAN.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,16 +24,19 @@
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		32DBCF5E0370ADEE00C91783 /* ScreenSaver_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSaver_Prefix.pch; sourceTree = "<group>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		8DC2EF5B0486A6940098B216 /* ScreenSaver.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ScreenSaver.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DC2EF5B0486A6940098B216 /* CoreWLAN.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CoreWLAN.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2F7E79907B2D74100F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+		EE311148125F68DB00DF3C91 /* CoreWLAN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreWLAN.h; sourceTree = "<group>"; };
+		EE311149125F68DB00DF3C91 /* CW8021XProfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CW8021XProfile.h; sourceTree = "<group>"; };
+		EE31114A125F68DB00DF3C91 /* CWConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWConfiguration.h; sourceTree = "<group>"; };
+		EE31114B125F68DB00DF3C91 /* CWGlobals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWGlobals.h; sourceTree = "<group>"; };
+		EE31114C125F68DB00DF3C91 /* CWInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWInterface.h; sourceTree = "<group>"; };
+		EE31114D125F68DB00DF3C91 /* CWNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWNetwork.h; sourceTree = "<group>"; };
+		EE31114E125F68DB00DF3C91 /* CWWirelessProfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWWirelessProfile.h; sourceTree = "<group>"; };
+		EE311168125F69C100DF3C91 /* CoreWLAN.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreWLAN.m; sourceTree = "<group>"; };
+		EE311181125F73FB00DF3C91 /* CoreWLAN_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreWLAN_Prefix.pch; sourceTree = "<group>"; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
-		EE69CFDE108DD5CA00486DB1 /* ScreenSaverView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSaverView.h; sourceTree = "<group>"; };
-		EE69CFDF108DD5CA00486DB1 /* ScreenSaverView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenSaverView.m; sourceTree = "<group>"; };
-		EE69CFE2108DD5DB00486DB1 /* ScreenSaverDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSaverDefaults.h; sourceTree = "<group>"; };
-		EE69CFE3108DD5DB00486DB1 /* ScreenSaverDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenSaverDefaults.m; sourceTree = "<group>"; };
-		EE69D0CC108E06B500486DB1 /* ScreenSaver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSaver.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,7 +54,7 @@
 		034768DFFF38A50411DB9C8B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8DC2EF5B0486A6940098B216 /* ScreenSaver.framework */,
+				8DC2EF5B0486A6940098B216 /* CoreWLAN.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -87,11 +93,14 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				EE69CFDE108DD5CA00486DB1 /* ScreenSaverView.h */,
-				EE69CFDF108DD5CA00486DB1 /* ScreenSaverView.m */,
-				EE69CFE2108DD5DB00486DB1 /* ScreenSaverDefaults.h */,
-				EE69CFE3108DD5DB00486DB1 /* ScreenSaverDefaults.m */,
-				EE69D0CC108E06B500486DB1 /* ScreenSaver.h */,
+				EE311148125F68DB00DF3C91 /* CoreWLAN.h */,
+				EE311168125F69C100DF3C91 /* CoreWLAN.m */,
+				EE311149125F68DB00DF3C91 /* CW8021XProfile.h */,
+				EE31114A125F68DB00DF3C91 /* CWConfiguration.h */,
+				EE31114B125F68DB00DF3C91 /* CWGlobals.h */,
+				EE31114C125F68DB00DF3C91 /* CWInterface.h */,
+				EE31114D125F68DB00DF3C91 /* CWNetwork.h */,
+				EE31114E125F68DB00DF3C91 /* CWWirelessProfile.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -117,7 +126,7 @@
 		32C88DFF0371C24200C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				32DBCF5E0370ADEE00C91783 /* ScreenSaver_Prefix.pch */,
+				EE311181125F73FB00DF3C91 /* CoreWLAN_Prefix.pch */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -129,18 +138,22 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE69CFE0108DD5CA00486DB1 /* ScreenSaverView.h in Headers */,
-				EE69CFE4108DD5DB00486DB1 /* ScreenSaverDefaults.h in Headers */,
-				EE69D0CE108E06B500486DB1 /* ScreenSaver.h in Headers */,
+				EE31114F125F68DB00DF3C91 /* CoreWLAN.h in Headers */,
+				EE311150125F68DB00DF3C91 /* CW8021XProfile.h in Headers */,
+				EE311151125F68DB00DF3C91 /* CWConfiguration.h in Headers */,
+				EE311152125F68DB00DF3C91 /* CWGlobals.h in Headers */,
+				EE311153125F68DB00DF3C91 /* CWInterface.h in Headers */,
+				EE311154125F68DB00DF3C91 /* CWNetwork.h in Headers */,
+				EE311155125F68DB00DF3C91 /* CWWirelessProfile.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		8DC2EF4F0486A6940098B216 /* ScreenSaver */ = {
+		8DC2EF4F0486A6940098B216 /* CoreWLAN */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "ScreenSaver" */;
+			buildConfigurationList = 1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "CoreWLAN" */;
 			buildPhases = (
 				8DC2EF500486A6940098B216 /* Headers */,
 				8DC2EF520486A6940098B216 /* Resources */,
@@ -152,10 +165,10 @@
 			);
 			dependencies = (
 			);
-			name = ScreenSaver;
+			name = CoreWLAN;
 			productInstallPath = "$(HOME)/Library/Frameworks";
 			productName = ScreenSaver;
-			productReference = 8DC2EF5B0486A6940098B216 /* ScreenSaver.framework */;
+			productReference = 8DC2EF5B0486A6940098B216 /* CoreWLAN.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -163,15 +176,22 @@
 /* Begin PBXProject section */
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "ScreenSaver" */;
+			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "CoreWLAN" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 0867D691FE84028FC02AAC07 /* ScreenSaver */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8DC2EF4F0486A6940098B216 /* ScreenSaver */,
+				8DC2EF4F0486A6940098B216 /* CoreWLAN */,
 			);
 		};
 /* End PBXProject section */
@@ -208,8 +228,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE69CFE1108DD5CA00486DB1 /* ScreenSaverView.m in Sources */,
-				EE69CFE5108DD5DB00486DB1 /* ScreenSaverDefaults.m in Sources */,
+				EE311169125F69C100DF3C91 /* CoreWLAN.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,11 +259,11 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = ScreenSaver_Prefix.pch;
+				GCC_PREFIX_HEADER = CoreWLAN_Prefix.pch;
 				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
-				PRODUCT_NAME = ScreenSaver;
+				PRODUCT_NAME = CoreWLAN;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -259,11 +278,11 @@
 				FRAMEWORK_VERSION = A;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = ScreenSaver_Prefix.pch;
+				GCC_PREFIX_HEADER = CoreWLAN_Prefix.pch;
 				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Frameworks";
-				PRODUCT_NAME = ScreenSaver;
+				PRODUCT_NAME = CoreWLAN;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
@@ -297,7 +316,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "ScreenSaver" */ = {
+		1DEB91AD08733DA50010E9CD /* Build configuration list for PBXNativeTarget "CoreWLAN" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91AE08733DA50010E9CD /* Debug */,
@@ -306,7 +325,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "ScreenSaver" */ = {
+		1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "CoreWLAN" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91B208733DA50010E9CD /* Debug */,
