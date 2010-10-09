@@ -231,7 +231,7 @@
 - (NSSet *) monitoredRegions; { return [[NSUserDefaults standardUserDefaults] objectForKey:@"_CoreLocationManagerRegions"]; }	// persistent by application (!)
 - (NSString *) purpose; { return purpose; }
 
-- (void) setDelegate:(id <CLLocationManagerDelegate>) d; { [delegate autorelease]; delegate=[d retain]; }
+- (void) setDelegate:(id <CLLocationManagerDelegate>) d; { delegate=d; }
 - (void) setDesiredAccuracy:(CLLocationAccuracy) acc; { desiredAccuracy=acc; }
 - (void) setDistanceFilter:(CLLocationDistance) filter; { distanceFilter=filter; }
 - (void) setHeadingFilter:(CLLocationDegrees) filter; { headingFilter=filter; }
@@ -305,7 +305,7 @@
 	// there is a checkbox to disable this message (probably stored in the User Defaults of the current process?)
 	// it also asks for command line tools (w/o Info.plist!)
 	// postpone the registration until user confirms
-	[CLLocationManager registerLocationManager:self];
+	[CLLocationManager registerManager:self];
 }
 
 - (void) stopMonitoringForRegion:(CLRegion *) region;
@@ -325,7 +325,7 @@
 
 - (void) stopUpdatingLocation;
 {
-	[CLLocationManager deregisterLocationManager:self];
+	[CLLocationManager unregisterManager:self];
 }
 
 @end
@@ -350,7 +350,7 @@ static int numVisibleSatellites;
 static BOOL noSatellite;
 static NSFileHandle *file;
 
-+ (void) registerLocationManager:(CLLocationManager *) m
++ (void) registerManager:(CLLocationManager *) m
 {
 	if(![self locationServicesEnabled])
 		return;	// ignore
@@ -382,7 +382,7 @@ static NSFileHandle *file;
 	[managers addObject:m];
 }
 
-+ (void) deregisterLocationManager:(CLLocationManager *) m
++ (void) unregisterManager:(CLLocationManager *) m
 {
 	[managers removeObjectIdenticalTo:m];
 	if([managers count] == 0)
@@ -402,10 +402,11 @@ static NSFileHandle *file;
 		}
 }
 
-+ (void) _processNMEA183:(NSArray *) a;
++ (void) _processNMEA183:(NSString *) line;
 { // process NMEA183 record (components separated by ",")
+	NSArray *a=[line componentsSeparatedByString:@","];
 	NSString *cmd=[a objectAtIndex:0];
-	CLLocation *newLocation=[CLLocation new];
+	CLLocation *newLocation=nil;
 #if 0
 	NSLog(@"a=%@", a);
 #endif
@@ -417,12 +418,14 @@ static NSFileHandle *file;
 					NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];
 					float pos;
 					int deg;
+#if 0
 					NSDate *time=nil;	// satellite time...
 					[time release];
 					time=[NSCalendarDate dateWithString:ts calendarFormat:@"%d%m%y:%H%M%S.%F"];	// parse
 					time=[NSDate dateWithTimeIntervalSinceReferenceDate:[time timeIntervalSinceReferenceDate]];	// remove formatting
 					[time retain];				// keep alive
-					[newLocation->timestamp release];	// release previous one
+#endif
+					newLocation=[CLLocation new];
 					newLocation->timestamp=[NSDate new];		// now (as seen by system time)
 					// if enabled we could sync the clock...
 					//   sudo(@"date -u '%@'", [c description]);
@@ -476,6 +479,8 @@ static NSFileHandle *file;
 #endif
 			if(!noSatellite)
 				{ // update
+					newLocation=[CLLocation new];
+					// Hm... we must collect several records until we notify the delegates!!!
 					newLocation->horizontalAccuracy=[[a objectAtIndex:8] floatValue];
 					// check for altitude units
 					newLocation->altitude=[[a objectAtIndex:9] floatValue];
@@ -497,7 +502,7 @@ static NSFileHandle *file;
 #if 1
 		NSLog(@"unrecognized %@", cmd);
 #endif
-		return;	// unrecognized
+		return;	// unrecognized command
 		}
 	if(!noSatellite)
 		{
@@ -541,7 +546,7 @@ static NSFileHandle *file;
 #if 1
 			NSLog(@"NEMA: %@", s);
 #endif
-			[self _processNMEA183:[s componentsSeparatedByString:@","]];
+			[self _processNMEA183:s];
 		}
 #if 0
 	NSLog(@"string=%@", s);

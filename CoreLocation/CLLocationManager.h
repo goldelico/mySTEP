@@ -30,15 +30,25 @@ typedef enum _CLDeviceOrientation
 
 @interface CLLocationManager : NSObject
 {
+//	@property(assign, nonatomic) CLLocationAccuracy desiredAccuracy;
 	CLLocationAccuracy desiredAccuracy;
+//	@property(assign, nonatomic) CLLocationDistance distanceFilter;
 	CLLocationDistance distanceFilter;
+//	@property(assign, nonatomic) CLLocationDegrees headingFilter;
 	CLLocationDegrees headingFilter;
+//	@property(assign, nonatomic) CLDeviceOrientation headingOrientation;
 	CLDeviceOrientation headingOrientation;
+//	@property(readonly, nonatomic) CLLocationDistance maximumRegionMonitoringDistance;
 	CLLocationDistance maximumRegionMonitoringDistance;
+// @property(assign, nonatomic) id<CLLocationManagerDelegate> delegate;
 	id <CLLocationManagerDelegate> delegate;
+//	@property(readonly, nonatomic) CLLocation *location;
 	CLLocation *location;
+//	@property(readonly, nonatomic) CLHeading *heading;
 	CLHeading *heading;
+//	@property(readonly, nonatomic) NSSet *monitoredRegions;
 	// NSSet *monitoredRegions;	// persistent by application (!) i.e. we may store in UserDefaults
+//	@property(copy, nonatomic) NSString *purpose;
 	NSString *purpose;
 }
 
