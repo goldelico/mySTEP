@@ -138,7 +138,10 @@ ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	PKG=$(BUILT_PRODUCTS_DIR)/$(NAME_EXT).tool
 	EXEC=$(PKG)
 	BINARY=$(EXEC)/$(NAME_EXT)
+	# architecture specific version (only if it does not yet have the prefix
+ifneq (,$(findstring ///System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE),//$(INSTALL_PATH)))
 	INSTALL_PATH := /System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)$(INSTALL_PATH)
+endif
 else
 ifeq ($(WRAPPER_EXTENSION),framework)	# framework
 	CONTENTS=Versions/Current

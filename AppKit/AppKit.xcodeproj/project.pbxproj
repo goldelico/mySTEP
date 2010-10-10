@@ -3034,7 +3034,14 @@
 			isa = PBXProject;
 			buildConfigurationList = EE5B0DF0098C08400017AC60 /* Build configuration list for PBXProject "AppKit" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";

@@ -447,7 +447,7 @@ static NSFileHandle *file;
 #if 1
 					NSLog(@"ddmmyy=%@", [a objectAtIndex:9]);
 					NSLog(@"hhmmss.sss=%@", [a objectAtIndex:1]);	// hhmmss.sss
-					NSLog(@"ts=%@ -> %@", ts, time);	// satellite time
+//					NSLog(@"ts=%@ -> %@", ts, time);	// satellite time
 					NSLog(@"lat=%@ %@ -> %f", [a objectAtIndex:3], [a objectAtIndex:4], [newLocation coordinate].latitude);	// llmm.ssssN
 					NSLog(@"long=%@ %@ -> %f", [a objectAtIndex:5], [a objectAtIndex:6], [newLocation coordinate].longitude);	// lllmm.ssssE
 					NSLog(@"knots=%@", [a objectAtIndex:7]);

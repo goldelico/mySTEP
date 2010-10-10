@@ -1,7 +1,6 @@
 {\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf320
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Monaco;}
 {\colortbl;\red255\green255\blue255;\red0\green116\blue0;\red118\green15\blue80;}
-\vieww26920\viewh19200\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
 
 \f0\b\fs36 \cf0 mySTEP History\
@@ -21,6 +20,7 @@ This document describes the changes and additions to the mySTEP library.\
 \
 * made CoreLocation.framework read NMEA records from external Bluetooth GPS mouse\
 * removed Accelerate.framework (replaxced by OpenCL.framework - but still empty :)\
+* started to user more modern APIs (e.g. CoreWLAN, CoreLocation) to replace our own SystemStatus.framework\
 * build system extended to build Debian packages for each project that uses mySTEP.make\
 * prepared to add CoreLocation.framework and MapKit.framework\
 * NSData: fixed a double-free() bug in -[NSData initWithContentsOfFile:]\

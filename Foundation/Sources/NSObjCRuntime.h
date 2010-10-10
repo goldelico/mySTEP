@@ -55,11 +55,27 @@
 typedef long NSInteger;
 typedef unsigned long NSUInteger;
 typedef double CGFloat;
+enum CGRectEdge
+{
+	CGRectMinXEdge,
+	CGRectMinYEdge,
+	CGRectMaxXEdge,
+	CGRectMaxYEdge
+};
+typedef enum CGRectEdge CGRectEdge;
 typedef signed long CFIndex; 
 #else	// 32 bit processor
 typedef int NSInteger;
 typedef unsigned int NSUInteger;
 typedef float CGFloat;
+enum CGRectEdge
+{
+	CGRectMinXEdge,
+	CGRectMinYEdge,
+	CGRectMaxXEdge,
+	CGRectMaxYEdge
+};
+typedef enum CGRectEdge CGRectEdge;
 typedef signed long CFIndex; 
 #endif
 
