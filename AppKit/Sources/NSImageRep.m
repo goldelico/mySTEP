@@ -1250,6 +1250,11 @@ static NSArray *__pbBitmapImageReps;
 	[self setPixel:pixelData atX:x y:y];
 }
 
+// FIXME: if we use XRender we can also copy the bitmap to offscreen memory
+// and just return a reference, i.e. a NSCachedImageRep
+// if we draw it again it will be done localy in the server
+// we read the data only if someone wants to see the pixels.
+
 - (id) initWithFocusedViewRect:(NSRect)rect
 {
 	if((self=[self initWithBitmapDataPlanes:NULL

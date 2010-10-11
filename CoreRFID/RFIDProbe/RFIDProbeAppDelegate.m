@@ -36,7 +36,7 @@
 - (void) tagManager:(CRTagManager *) mngr didFailWithError:(NSError *) err;
 {
 	// e.g. we have no RFID device
-	// show alert and exit application
+	// show alert and exit application or try-again mode
 }
 
 - (void) tagManager:(CRTagManager *) mngr didFindTag:(CRTag *) err;
