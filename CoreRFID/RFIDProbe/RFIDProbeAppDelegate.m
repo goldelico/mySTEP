@@ -10,6 +10,11 @@
 
 @implementation RFIDProbeAppDelegate
 
+- (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender
+{
+	return YES;
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 	// Insert code here to initialize your application
 	manager=[CRTagManager new];
@@ -23,14 +28,27 @@
 	return [[manager tags] count];
 }
 
-- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
+- (id) tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
 	NSString *ident=[aTableColumn identifier];
 	if([ident isEqualToString:@"name"])
 		return [NSString stringWithFormat:@"%d", rowIndex+1];
 	if([ident isEqualToString:@"description"])
-		return [[[manager tags] objectAtIndex:rowIndex] description];
+		return [(CRTag *) [[manager tags] objectAtIndex:rowIndex] description];
 	return @"?";
+}
+
+- (void) tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
+{
+	NSString *ident=[aTableColumn identifier];
+	if([ident isEqualToString:@"name"])
+		{		
+			int hash=[[(CRTag *) [[manager tags] objectAtIndex:rowIndex] tagUID] hash];
+			[aCell setBackgroundColor:[NSColor colorWithCalibratedRed:((hash >> 16)%255)/255.0
+																green:((hash >> 8)%255)/255.0
+																 blue:((hash >> 0)%255)/255.0
+																alpha:1.0]];
+		}
 }
 
 - (void) tagManager:(CRTagManager *) mngr didFailWithError:(NSError *) err;

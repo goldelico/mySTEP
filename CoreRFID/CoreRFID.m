@@ -185,25 +185,38 @@
 // here, we handle a Ubisys 13.56 MHz RFID USB CDC/ACM USB-key
 
 static NSMutableArray *managers;	// list of all managers
-static NSMutableArray *tags;
+static NSMutableDictionary *tags;	// keyed by UID
 static NSFileHandle *file;
 static NSString *lastChunk;
 
 + (NSArray *) tags; {
-	return tags;
+	return [tags allObjects];
 }
 
 + (NSString *) readerUID; {
 	return @"Reader S/N";
 }
 
++ (void) _writeCommand:(NSString *) str
+{
+#if 1
+	NSLog(@"RFID w: %@", str);
+#endif
+	str=[str stringByAppendingString:@"\r"];
+	[file writeData:[str dataUsingEncoding:NSASCIIStringEncoding]];	
+}
+
 + (void) registerManager:(CRTagManager *) m
 {
 	if(!managers)
-		{ // set up GPS receiver and wait for first fix
-			NSString *dev=@"/dev/cu.BT-348_GPS-Serialport-1";	//serial interface for USB receiver
-			// use /dev/ttyS2 on Openmoko Beagle Hybrid
-			file=[[NSFileHandle fileHandleForReadingAtPath:dev] retain];
+		{ // set up RFID receiver and wait for first fix
+#if __mySTEP__
+			// running on Linux
+			NSString *dev=@"/dev/ttyACM0";	//serial interface for USB receiver
+#else
+			NSString *dev=@"/dev/cu.usbmodemfd111";	//serial interface for USB receiver
+#endif
+			file=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
 			if(!file)
 				{
 				NSLog(@"was not able to open device file %@", dev);
@@ -212,16 +225,22 @@ static NSString *lastChunk;
 				return;
 				}
 			managers=[[NSMutableArray arrayWithObject:m] retain];
+			tags=[[NSMutableDictionary alloc] initWithCapacity:10];
 			[[NSNotificationCenter defaultCenter] addObserver:self
 													 selector:@selector(_dataReceived:)
 														 name:NSFileHandleReadCompletionNotification 
 													   object:file];	// make us see notifications
-			// write initialzation (power up)
-			// read READER-ID etc.
 #if 1
 			NSLog(@"waiting for data on %@", dev);
 #endif
 			[file readInBackgroundAndNotify];	// and trigger notifications
+			// state=0;
+			[self _writeCommand:@"ATE0"];
+			[self _writeCommand:@"ATI"];
+			[self _writeCommand:@"AT+RF1"];
+			[self _writeCommand:@"AT+SCAN2"];
+			[self _writeCommand:@"AT+I"];
+			[self _writeCommand:@"AT+S"];
 			return;
 		}
 	if([managers indexOfObjectIdenticalTo:m] != NSNotFound)
@@ -237,10 +256,11 @@ static NSString *lastChunk;
 			[[NSNotificationCenter defaultCenter] removeObserver:self
 															name:NSFileHandleReadCompletionNotification
 														  object:file];	// don't observe any more
-			// send power down command
+			[self _writeCommand:@"AT+RF=0"];	// power down
+			// could loop and wait for AT+RF? return 0...
 			[file closeFile];
 #if 1
-			NSLog(@"Location: file closed");
+			NSLog(@"RFID: file closed");
 #endif
 			[file release];
 			[tags release];
@@ -252,12 +272,57 @@ static NSString *lastChunk;
 
 + (void) _processLine:(NSString *) line
 {
-	// check for state and response
+#if 1
+	NSLog(@"RFID r: %@", line);
+#endif
+	// check for state and divert response
 	// notify changes in tag list
-	// e.g.
-	// SCAN:UID=
-	// UID=
+	// e.g.:
+	// SCAN:+UID=E00401001C2017BD,+RSSI=0/2
+	// SCAN:-UID=E0022C1395900204
+	// ubisys 13.56MHz RFID (CDC) 1.08 Apr  7 2010
+	// S/N 0000000000
+	// +UID=E00401001C2017BD,+RSSI=0/2
+	// +UID=E00401001C2017BD,DSFID=00,AFI=00,BC=28,BS=4,IC=01
 	// OK
+	// ERROR
+	if([line hasPrefix:@"SCAN:+UID"])
+		{ // tag added
+			NSString *uid=[[[line substringFromIndex:10] componentsSeparatedByString:@","] objectAtIndex:0];
+			CRTag *tag=[tags objectForKey:uid];
+			if(!tag)
+				{ // not yet known
+				NSEnumerator *e=[managers objectEnumerator];
+				CRTagManager *m;
+				tag=[[CRTag alloc] initWithUID:uid];
+				[tags setObject:tag forKey:uid];
+				[tag release];
+				while((m=[e nextObject]))
+					[[m delegate] tagManager:m didFindTag:tag];
+				}
+#if 1
+			NSLog(@"found %@: %@", uid, tag); 
+#endif
+			// update RSI
+		}
+	else if([line hasPrefix:@"SCAN:-UID"])
+		{ // tag added
+			NSString *uid=[[[line substringFromIndex:10] componentsSeparatedByString:@","] objectAtIndex:0];
+			CRTag *tag=[tags objectForKey:uid];
+#if 1
+			NSLog(@"lost %@: %@", uid, tag); 
+#endif
+			if(tag)
+				{
+				NSEnumerator *e=[managers objectEnumerator];
+				CRTagManager *m;
+				[tag retain];
+				[tags removeObjectForKey:uid];
+				while((m=[e nextObject]))
+					[[m delegate] tagManager:m didLooseTag:tag];
+				[tag release];
+				}
+		}
 }
 
 + (void) _processData:(NSData *) line;

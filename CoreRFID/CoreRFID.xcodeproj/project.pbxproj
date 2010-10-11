@@ -37,7 +37,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 8DC2EF4F0486A6940098B216 /* CoreRFID.framework */;
+			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
 			remoteInfo = CoreRFID.framework;
 		};
 /* End PBXContainerItemProxy section */
@@ -177,8 +177,8 @@
 				8DC2EF520486A6940098B216 /* Resources */,
 				8DC2EF540486A6940098B216 /* Sources */,
 				8DC2EF560486A6940098B216 /* Frameworks */,
-				EE69CFE7108DD93100486DB1 /* ShellScript */,
 				EEE59D541260DA84001E3A11 /* ShellScript */,
+				EE69CFE7108DD93100486DB1 /* ShellScript */,
 			);
 			buildRules = (
 			);

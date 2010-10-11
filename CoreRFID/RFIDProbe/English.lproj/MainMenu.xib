@@ -12,8 +12,8 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="538"/>
 			<integer value="29"/>
-			<integer value="539"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1356,6 +1356,7 @@
 											<object class="NSMutableArray" key="NSTableColumns">
 												<bool key="EncodedWithXMLCoder">YES</bool>
 												<object class="NSTableColumn" id="48067514">
+													<string key="NSIdentifier">name</string>
 													<double key="NSWidth">72</double>
 													<double key="NSMinWidth">40</double>
 													<double key="NSMaxWidth">1000</double>
@@ -1382,21 +1383,21 @@
 															</object>
 														</object>
 													</object>
-													<object class="NSTextFieldCell" key="NSDataCell" id="411688806">
-														<int key="NSCellFlags">337772096</int>
-														<int key="NSCellFlags2">2048</int>
-														<string key="NSContents">Text Cell</string>
+													<object class="NSTextFieldCell" key="NSDataCell" id="544942321">
+														<int key="NSCellFlags">67239488</int>
+														<int key="NSCellFlags2">272630784</int>
+														<string key="NSContents">Text</string>
 														<object class="NSFont" key="NSSupport" id="245506541">
 															<string key="NSName">LucidaGrande</string>
 															<double key="NSSize">13</double>
 															<int key="NSfFlags">1044</int>
 														</object>
 														<reference key="NSControlView" ref="531552085"/>
-														<object class="NSColor" key="NSBackgroundColor" id="701269717">
+														<object class="NSColor" key="NSBackgroundColor">
 															<int key="NSColorSpace">6</int>
 															<string key="NSCatalogName">System</string>
-															<string key="NSColorName">controlBackgroundColor</string>
-															<object class="NSColor" key="NSColor">
+															<string key="NSColorName">controlColor</string>
+															<object class="NSColor" key="NSColor" id="166518756">
 																<int key="NSColorSpace">3</int>
 																<bytes key="NSWhite">MC42NjY2NjY2NjY3AA</bytes>
 															</object>
@@ -1414,6 +1415,7 @@
 													<reference key="NSTableView" ref="531552085"/>
 												</object>
 												<object class="NSTableColumn" id="440033838">
+													<string key="NSIdentifier">description</string>
 													<double key="NSWidth">402</double>
 													<double key="NSMinWidth">40</double>
 													<double key="NSMaxWidth">1000</double>
@@ -1431,7 +1433,12 @@
 														<string key="NSContents">Text Cell</string>
 														<reference key="NSSupport" ref="245506541"/>
 														<reference key="NSControlView" ref="531552085"/>
-														<reference key="NSBackgroundColor" ref="701269717"/>
+														<object class="NSColor" key="NSBackgroundColor" id="701269717">
+															<int key="NSColorSpace">6</int>
+															<string key="NSCatalogName">System</string>
+															<string key="NSColorName">controlBackgroundColor</string>
+															<reference key="NSColor" ref="166518756"/>
+														</object>
 														<reference key="NSTextColor" ref="620469552"/>
 													</object>
 													<int key="NSResizingMask">3</int>
@@ -3330,10 +3337,9 @@
 						<reference key="object" ref="48067514"/>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="411688806"/>
+							<reference ref="544942321"/>
 						</object>
 						<reference key="parent" ref="531552085"/>
-						<string key="objectName">name</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">539</int>
@@ -3343,7 +3349,6 @@
 							<reference ref="74144470"/>
 						</object>
 						<reference key="parent" ref="531552085"/>
-						<string key="objectName">description</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">540</int>
@@ -3351,8 +3356,8 @@
 						<reference key="parent" ref="440033838"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">541</int>
-						<reference key="object" ref="411688806"/>
+						<int key="objectID">548</int>
+						<reference key="object" ref="544942321"/>
 						<reference key="parent" ref="48067514"/>
 					</object>
 				</object>
@@ -3585,7 +3590,7 @@
 					<string>538.IBPluginDependency</string>
 					<string>539.IBPluginDependency</string>
 					<string>540.IBPluginDependency</string>
-					<string>541.IBPluginDependency</string>
+					<string>548.IBPluginDependency</string>
 					<string>56.IBPluginDependency</string>
 					<string>56.ImportedFromIB2</string>
 					<string>57.IBEditorWindowLastContentRect</string>
@@ -3900,7 +3905,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">546</int>
+			<int key="maxID">548</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
