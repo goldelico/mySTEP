@@ -70,11 +70,41 @@
 }
 
 - (void) test4
-{
+{ // data: and file: URLs
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"data:other"]];
-	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"data:,A%20brief%20note");
+	STAssertEqualObjects(@"data", [url scheme], @"scheme");
+	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"absoluteString");
 	url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"file://localhost/"]];
-	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"data:,A%20brief%20note");
+	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"absoluteString");
+	url=[NSURL fileURLWithPath:@"/this#is a Path with % < > ?"];
+	STAssertEqualObjects(@"file", [url scheme], @"scheme");
+	STAssertEqualObjects(@"localhost", [url host], @"host");
+	STAssertNil([url user], @"user");
+	STAssertNil([url password], @"password");
+	STAssertEqualObjects(@"//localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", [url resourceSpecifier], @"resourceSpecifier");
+	STAssertEqualObjects(@"/this#is a Path with % < > ?", [url path], @"path");
+	STAssertNil([url query], @"query");
+	STAssertNil([url parameterString], @"parameterString");
+	STAssertNil([url fragment], @"fragment");
+	STAssertEqualObjects(@"file://localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", [url absoluteString], @"absoluteString");
+	STAssertEqualObjects(@"/this#is a Path with % < > ?", [url relativePath], @"relativePath");
+	STAssertEqualObjects(@"file://localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", [url description], @"description");
+	url=[NSURL URLWithString:@"file:///pathtofile;parameters?query#anchor"];
+	STAssertNil([url host], @"host");
+	STAssertNil([url user], @"user");
+	STAssertNil([url password], @"password");
+	STAssertEqualObjects(@"/pathtofile;parameters?query#anchor", [url resourceSpecifier], @"resourceSpecifier");
+	STAssertEqualObjects(@"/pathtofile", [url path], @"path");
+	STAssertEqualObjects(@"query", [url query], @"query");
+	STAssertEqualObjects(@"parameters", [url parameterString], @"parameterString");
+	STAssertEqualObjects(@"anchor", [url fragment], @"fragment");
+	STAssertEqualObjects(@"file:///pathtofile;parameters?query#anchor", [url absoluteString], @"absoluteString");
+	STAssertEqualObjects(@"/pathtofile", [url relativePath], @"relativePath");
+	STAssertEqualObjects(@"file:///pathtofile;parameters?query#anchor", [url description], @"description");
+	url=[NSURL URLWithString:@"file:///pathtofile; parameters? query #anchor"];	// can't initialize with spaces (must be %20)
+	STAssertNil(url, @"url");
+	url=[NSURL URLWithString:@"file:///pathtofile;%20parameters?%20query%20#anchor"];
+	STAssertNotNil(url, @"url");
 }
 
 - (void) test5

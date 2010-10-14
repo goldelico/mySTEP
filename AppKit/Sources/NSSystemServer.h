@@ -37,15 +37,15 @@
 - (oneway void) showShutdownDialog;		// ask for shutdown
 - (oneway void) showRestartDialog;		// ask for restart
 - (oneway void) showForceQuitDialog;	// show the force-quit dialog
-- (oneway void) chooseUser;			// allow to choose a different user
-- (oneway void) logout;					// request a logout (may timeout)
+- (oneway void) chooseUser;				// allow to choose a different user
+- (oneway void) logout;					// request logout with GUI interaction (may timeout)
 
-- (oneway void) showAboutPanel;				// show About panel
+- (oneway void) showAboutPanel;			// show About panel
 - (oneway void) showSoftwareUpdater;
 - (oneway void) showKillApplications;	// show Applications list panel
 
 // basic functions (without UI)
-- (oneway void) reallyLogout;			// immediately log out
+- (oneway void) terminateProcesses;		// terminate processes and immediately log out
 - (oneway void) shutdown;				// request a shutdown
 - (oneway void) restart;				// request a restart
 - (oneway void) sleep;					// request to sleep
