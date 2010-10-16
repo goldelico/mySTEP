@@ -365,7 +365,7 @@ build_deb: make_bundle make_exec make_binary install_tool \
 
 "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
 	# make debian package $(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
-	mkdir -p "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)"
+	mkdir -p "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)" "$(ROOT)/System/Installation/Debian/archive"
 	- rm -rf /tmp/data
 	- mkdir -p "/tmp/data/$(ROOT)$(INSTALL_PATH)"
 ifneq ($(SOURCES),)
@@ -401,6 +401,7 @@ endif
 	  echo "Description: this is part of mySTEP/QuantumSTEP"; \
 	) >/tmp/control
 	$(TAR) czf /tmp/control.tar.gz -C /tmp ./control
+	- mv -f "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" "$(ROOT)/System/Installation/Debian/archive" 2>/dev/null
 	- rm -rf $@
 	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
 	ls -l $@
@@ -409,7 +410,7 @@ endif
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian development package
-	mkdir -p "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)"
+	mkdir -p "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)" "$(ROOT)/System/Installation/Debian/archive"
 	- rm -rf /tmp/data
 	- mkdir -p "/tmp/data/$(ROOT)$(INSTALL_PATH)"
 	# explicitly include Headers
@@ -424,6 +425,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	ls -l /tmp/data.tar.gz
 	echo "2.0" >/tmp/debian-binary
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)-dev"; \
+	  echo "Replaces: $(DEBIAN_PACKAGE_NAME)"; \
 	  echo "Version: $(DEBIAN_VERSION)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
 	  echo "Maintainer: info@goldelico.com"; \
@@ -436,6 +438,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	) >/tmp/control
 	$(TAR) czf /tmp/control.tar.gz -C /tmp ./control
 	- rm -rf $@
+	- mv -f "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_"*"_$(DEBIAN_ARCH).deb" "$(ROOT)/System/Installation/Debian/archive" 2>/dev/null
 	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
 	ls -l $@
 else
