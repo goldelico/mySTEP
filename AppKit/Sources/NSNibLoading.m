@@ -450,6 +450,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	superView=[[coder decodeObjectForKey:@"NSSuperview"] retain];
 	view=[[coder decodeObjectForKey:@"NSView"] retain];
 	subviews=[[coder decodeObjectForKey:@"NSSubviews"] retain];	// this will indirectly ask us to nibInstantiate for each superview link!
+	[coder decodeObjectForKey:@"NSWindow"];
 #if 0
 	NSLog(@"className=%@", className);
 	NSLog(@"view=%@", view);
@@ -566,6 +567,8 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	windowTitle=[coder decodeObjectForKey:@"NSWindowTitle"];
 	windowView=[coder decodeObjectForKey:@"NSWindowView"];
 	autosaveName=[coder decodeObjectForKey:@"NSFrameAutosaveName"];
+	[coder decodeObjectForKey:@"NSWindowContentMinSize"];
+	[coder decodeObjectForKey:@"NSWindowContentMaxSize"];
 #if 0
 	NSLog (@"  screenRect = %@", NSStringFromRect(screenRect));
 	NSLog (@"  windowRect = %@", NSStringFromRect(windowRect));

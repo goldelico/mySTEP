@@ -1504,6 +1504,8 @@ static NSButtonCell *sharedCell;
 	if(_w.visible == flag)
 		return;
 	_w.visible=flag;
+	if(flag)
+		[_themeFrame setNeedsDisplay];
 }
 
 - (BOOL) isKeyWindow						{ return [_context _windowNumber] == [_screen _keyWindowNumber]; }	// this asks the backend if we are really the key window!
@@ -1680,7 +1682,7 @@ static NSButtonCell *sharedCell;
 									} // otherwin may remain 0 which means total front or back!
 							if(i == n && place == NSWindowAbove)	// did not find an appropriate level (all others have higher level)
 								place=NSWindowBelow, otherWin=0;	// move behind all levels
-#if 0
+#if 1
 							NSLog(@"otherwin = %d", otherWin);
 #endif
 							objc_free(list);

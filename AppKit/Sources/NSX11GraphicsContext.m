@@ -67,7 +67,7 @@
 #define SCRCTL_GET_ROTATION 0x413c
 #endif
 
-static BOOL _doubleBufferering=YES;	// DISABLED until we have solved all the setNeedsDisplay issues...
+static BOOL _doubleBufferering=YES;
 
 #pragma mark Class variables
 
@@ -723,7 +723,7 @@ typedef struct
 				  _state->_gc,
 				  0, 0,
 				  _xRect.width, _xRect.height,
-				  0, 0);			// copy window background
+				  0, 0);			// copy initial window background
 #endif
 		}
 	if(styleMask&NSUnscaledWindowMask)
@@ -2409,10 +2409,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	if([win isMiniaturized])	// FIXME: used as special trick not to really map the window during init
 		return;
 	if(_realWindow == otherWin)
-			{
-				NSLog(@"can't order relative to self");	// already total front or back
-				return;
-			}
+		{
+			NSLog(@"can't order relative to self");	// already total front or back
+			return;
+		}
 	switch(place)
 		{
 			case NSWindowOut:
@@ -2434,7 +2434,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				XConfigureWindow(_display, _realWindow, (otherWin?(CWStackMode|CWSibling):CWStackMode), &values);
 				break;
 		}
-	XFlush(_display);	// directly send unmap/configure request to the server
 #if 0
 	{ // test code
 		NSPoint points[4] = { { 10.0, 10.0 } , { 20.0, 50.0 } , { 100.0, 0.0 } , { 80.0, 50.0 } };
@@ -2442,11 +2441,14 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		[self _renderTrapezoid:points];
 	}
 #endif
-	// could also use XMaskEvent(_display, SubstructureNotifyMask, _realWindow) to wait for a MapNotify!
-	while((place == NSWindowOut)?[win isVisible]:![win isVisible])
-			{ // process incoming events until window becomes (in)visible - but prevent timers and other delegates to modify the window or recursively call orderFront
-				[[NSRunLoop currentRunLoop] runMode:/*NSEventTrackingRunLoopMode*/@"NSX11GraphicsContextMode" beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];	// wait some fractions of a second...
-			}
+	// could also use XMaskEvent(_display, SubstructureNotifyMask, _realWindow) and wait for a MapNotify!
+	while([self flushGraphics], (place == NSWindowOut)?[win isVisible]:![win isVisible])
+		{ // process incoming events until window becomes (in)visible - but prevent timers and other delegates to modify the window or recursively call orderFront
+			[[NSRunLoop currentRunLoop] runMode:/*NSEventTrackingRunLoopMode*/@"NSX11GraphicsContextMode" beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];	// wait some fractions of a second...
+		}
+#if 1
+	NSLog(@"_orderWindow done");
+#endif
 }
 
 - (void) _miniaturize;
@@ -2714,6 +2716,10 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		_dirty=(XRectangle){ 0, 0, 0, 0 };	// clear
 		}
 	XFlush(_display);
+#if 1
+	NSLog(@"events %d", XPending(_display));
+#endif	
+	[_NSX11Screen _handleNewEvents];	// flush and process any pending events
 }
 
 #if OLD
@@ -3198,7 +3204,7 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 	for(s=0; s<ScreenCount(_display) && j<size; s++)
 			{ // loop over all screens (this mixes up the stacking order!)
 #if 1
-				NSLog(@"XQueryTree for screen %d", s);
+				NSLog(@"XQueryTree for screen %d (size=%d list=%p)", s, size, list);
 #endif
 				if(!list || !children)
 						{ // asking for number of windows only or not yet cached
@@ -3542,7 +3548,7 @@ static NSDictionary *_x11settings;
 	while((count = XPending(_display)) > 0)		// while X events are pending
 		{
 #if 0
-		fprintf(stderr,"_NSX11GraphicsContext ((XPending count = %d): \n", count);
+		fprintf(stderr,"_NSX11Screen ((XPending count = %d): \n", count);
 #endif
 		while(count-- > 0)
 			{	// loop and grab all events
@@ -3564,7 +3570,7 @@ static NSDictionary *_x11settings;
 				case ButtonRelease:
 					thisXWin=xe.xbutton.window;
 					break;
-				case EnterNotify:						// when the pointer enters or leves a window, pass upwards as a motion event
+				case EnterNotify:						// when the pointer enters or leaves a window, pass upwards as a motion event
 				case LeaveNotify: 
 					thisXWin=xe.xcrossing.window;
 					break;
@@ -3768,10 +3774,10 @@ static NSDictionary *_x11settings;
 							{ // copy from backing store
 							_setDirtyRect(ctxt, xe.xexpose.x, xe.xexpose.y, xe.xexpose.width, xe.xexpose.height);	// flush at least the exposed area
 							needsFlush=YES;
-							// FIXME - we should collect and merge all expose events
+							// FIXME - we should collect and merge all expose events into a single one
 								// we should also be able to postpone expose events after resizing the window
 							// or setDirtyRect should setup a timer to flush after a while...
- 							[ctxt flushGraphics];	// plus anything else we need to flush anyway
+ 				//			[ctxt flushGraphics];	// plus anything else we need to flush anyway
 							}
 						else
 							{ // queue up an expose event

@@ -994,7 +994,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (NSEvent*) _eventMatchingMask:(unsigned int)mask dequeue:(BOOL)dequeue
 {
-	int i, cnt=[_eventQueue count];
+	int i, cnt;
+	[_mainWindow flushWindow];	// this will enqueue any pending events
+	cnt=[_eventQueue count];
 #if 0
 	NSLog(@"_eventMatchingMask");
 #endif

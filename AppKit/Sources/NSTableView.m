@@ -2124,6 +2124,7 @@ int index = [self columnWithIdentifier:identifier];
 		_tableColumns = [[aDecoder decodeObjectForKey:@"NSTableColumns"] retain];
 		_draggingSourceOperationMaskForLocal=[aDecoder decodeIntForKey:@"NSDraggingSourceMaskForLocal"];
 		_draggingSourceOperationMaskForRemote=[aDecoder decodeIntForKey:@"NSDraggingSourceMaskForNonLocal"];
+		[aDecoder decodeIntForKey:@"NSTableViewDraggingDestinationStyle"];
 		_indicatorImages = [NSMutableArray new];
 		i=[_tableColumns count];
 		while(i-- > 0)
