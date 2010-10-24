@@ -1066,11 +1066,14 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 					NS_DURING
 						{ // try to handle by server which can pass back recognized characters to -sendEvent or even better postEvent:
 							id <_NSLoginWindowProtocol> dws=[NSWorkspace _loginWindowServer];
+							NSPoint point=[[event window] convertBaseToScreen:[event locationInWindow]];
+#if 1
+							NSLog(@"start inking at %@ (%@ in window)", NSStringFromPoint(point), NSStringFromPoint([event locationInWindow]));
+#endif
 							if(dws)
 								{ // ok
-								NSPoint point=[[event window] convertBaseToScreen:[event locationInWindow]];
-								[dws startInkingForApplication:self atScreenPosition:point];
-								NS_VOIDRETURN;
+									[dws startInkingAtScreenPosition:point pressure:[event pressure]];
+									NS_VOIDRETURN;	// don't forward inking event to application
 								}
 						}
 					NS_HANDLER

@@ -237,17 +237,22 @@
 	NSRect f = { { l.x, l.y - height + 2.0 }, { NSWidth(cellFrame) - 1.0, height } };	// list frame
     NSScrollView *scrollView;
 #if 1
-	NSLog(@"pop up");
+	NSLog(@"_popUpCellFrame: %@", _tableView);
+	NSLog(@"   f= %@", NSStringFromRect(f));
 #endif
 	if(!_tableView)
 		{ // table view (not yet loaded from NIB)
-		NSTableColumn *tc;		
+		NSTableColumn *tc;
+#if 1
+		NSLog(@"create new tableView: %@", NSStringFromRect((NSRect) { NSZeroPoint, f.size }));
+#endif
 		_tableView = [[NSComboTableView alloc] initWithFrame:(NSRect) { NSZeroPoint, f.size }];
 		[_tableView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 		[_tableView setAutoresizesSubviews:YES];
 		[_tableView setBackgroundColor:[NSColor whiteColor]];
 		[_tableView setAllowsColumnReordering:NO];
 		[_tableView setAllowsColumnResizing:NO];
+		[_tableView setUsesAlternatingRowBackgroundColors:YES];
 		[_tableView setColumnAutoresizingStyle:NSTableViewUniformColumnAutoresizingStyle];
 #if 0
 		NSLog(@"table view: %@", [_tableView _descriptionWithSubviews]);
@@ -261,15 +266,19 @@
 		[_tableView setTarget:self];	// make us the target
 		[_tableView setAction:@selector(tableViewAction:)];
 		[_tableView setDataSource:self];	// and data source
+		[_tableView setDelegate:self];	// and delegate
 		[tc release];
 		}
 	if(!_popUpWindow)
 		{ // create a new window
+#if 1
+		NSLog(@"create new panel: %@", NSStringFromRect(f));
+#endif
 		_popUpWindow = [[NSPanel alloc] initWithContentRect:f
-												   styleMask:NSBorderlessWindowMask
-													 backing:NSBackingStoreRetained
-													   defer:YES
-																												 screen:nil];
+												  styleMask:NSBorderlessWindowMask
+													backing:NSBackingStoreRetained
+													  defer:YES
+													 screen:nil];
 		[_popUpWindow setLevel:NSModalPanelWindowLevel];
 		scrollView = [[NSScrollView alloc] initWithFrame:(NSRect) { NSZeroPoint, f.size }];
 		[scrollView setHasHorizontalScroller:NO];
@@ -313,9 +322,12 @@
 	[_buttonCell setState:NSOffState];
 }
 
-- (IBAction) tableViewAction:(NSTableView *) sender
+- (IBAction) tableViewAction:(NSComboTableView *) sender
 { // undocumented method
 	int row=[sender selectedRow];
+#if 1
+	NSLog(@"tableViewAction");
+#endif
 	if(row >= 0)
 		{
 		[self setObjectValue:[self itemObjectValueAtIndex:row]];	// take object value
@@ -339,11 +351,11 @@
 	NSWindow *win=[controlView window];
 	NSDivideRect(cellFrame, &b, &t, cellFrame.size.height-4.0, NSMaxXEdge);
 	if((NSMouseInRect(startPoint, t, YES)))
-		{ // forward click event to the field editor
+		{ // forward the click event to the field editor
 			return [super trackMouse:event inRect:cellFrame ofView:controlView untilMouseUp:flag];
 		}
 #if 1
-	NSLog(@"pop up");
+	NSLog(@"trackMouse");
 #endif
 	[self _popUpCellFrame:cellFrame controlView:controlView];
 	while ([self _isPoppedUp])
@@ -355,7 +367,7 @@
 		else if(ew == win)
 			{ // the window where we have popped up the table
 			if([nextEvent type] == NSLeftMouseDown)
-				{ // mouse down anywhere outside
+				{ // mouse down anywhere outside but within parent window
 				[self _popDown];
 				[NSApp postEvent:nextEvent atStart:YES];	// process again
 				break;
@@ -364,6 +376,9 @@
 				;	// ignore other events (e.g. right mouse down) while popped up
 			}
 		else
+#if 1
+			NSLog(@"event for unrelated window %@", ew);
+#endif
 			;	// ignore all (?) events for other windows
 		}
 	return YES;	// break mouseDown tracking loop

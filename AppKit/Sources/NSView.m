@@ -1301,9 +1301,9 @@ printing
 				
 				_frame.size.width += changePerOption;
 				// NSWidth(frame) = MAX(0, NSWidth(frame) + changePerOption);
-				if (NSWidth(_frame) <= 0)
+				if (NSWidth(_frame) < 0)
 					{
-					NSAssert((NSWidth(_frame) <= 0), @"View frame width <= 0!");
+			//		NSAssert((NSWidth(_frame) <= 0), @"View frame width <= 0!");
 					NSLog(@"resizeWithOldSuperviewSize: View frame width <= 0!");
 					_frame.size.width = 0;
 					}
@@ -1344,7 +1344,7 @@ printing
 				float oldFrameHeight = _frame.size.height;
 				
 				_frame.size.height += changePerOption;
-				if(NSHeight(_frame) <= 0)
+				if(NSHeight(_frame) < 0)
 					{
 					NSLog(@"resizeWithOldSuperviewSize: View frame height <= 0!");
 					_frame.size.height = 0;

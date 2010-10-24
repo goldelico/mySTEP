@@ -1505,7 +1505,7 @@ static NSButtonCell *sharedCell;
 		return;
 	_w.visible=flag;
 	if(flag)
-		[_themeFrame setNeedsDisplay];
+		[_themeFrame setNeedsDisplay:YES];
 }
 
 - (BOOL) isKeyWindow						{ return [_context _windowNumber] == [_screen _keyWindowNumber]; }	// this asks the backend if we are really the key window!

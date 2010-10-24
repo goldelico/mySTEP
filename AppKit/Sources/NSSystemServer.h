@@ -71,7 +71,7 @@
 
 	/* system wide inking service */
 
-- (oneway void) startInkingForApplication:(byref NSApplication *) app atScreenPosition:(NSPoint) point;	// calls back [app postEvent:] with keyboard events
+- (oneway void) startInkingAtScreenPosition:(NSPoint) point pressure:(float) pressure;	// calls back [app postEvent:] with keyboard events
 
 - (oneway void) enableASR:(BOOL) flag;	// enable/disable automatic speech recognition
 - (oneway void) enableOCR:(BOOL) flag;	// enable/disable OCR

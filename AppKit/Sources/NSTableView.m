@@ -631,8 +631,6 @@
 		{
 		_intercellSpacing = (NSSize){2,2};
 		_rowHeight = 17;
-		_headerView = [[NSTableHeaderView alloc] initWithFrame:h];
-		[_headerView setTableView:self];
 		_tableColumns = [NSMutableArray new];
 		_indicatorImages = [NSMutableArray new];
 		_selectedColumns = [NSMutableIndexSet new];
@@ -676,12 +674,12 @@
 	[self reloadData];
 }
 
-- (id) dataSource							{ return _dataSource; }
-- (NSView*) cornerView						{ return _cornerView; }
-- (NSTableHeaderView*) headerView			{ return _headerView; }
-- (void) setHeaderView:(NSTableHeaderView*)h{ ASSIGN(_headerView, h); }
-- (void) setCornerView:(NSView*)cornerView	{ ASSIGN(_cornerView,cornerView); }
-- (id) delegate								{ return _delegate; }
+- (id) dataSource								{ return _dataSource; }
+- (NSView*) cornerView							{ return _cornerView; }
+- (NSTableHeaderView*) headerView				{ return _headerView; }
+- (void) setHeaderView:(NSTableHeaderView*)h	{ ASSIGN(_headerView, h); [_headerView setTableView:self]; }
+- (void) setCornerView:(NSView*)c				{ ASSIGN(_cornerView, c); }
+- (id) delegate									{ return _delegate; }
 
 - (void) setDelegate:(id)anObject
 {
@@ -1654,13 +1652,17 @@ int index = [self columnWithIdentifier:identifier];
 			// FIXME: handle resizing policy - if resize last column to fit and minsize allows, use [[sv contentView] documentVisibleRect] as the reference
 			NSScrollView *sv=[self enclosingScrollView];
 			NSRect c = [self rectOfColumn: cols - 1];	// last column (c.size.height comes from current frame height and may be 0!)
-			NSRect h = [_headerView frame];
 			float minH = super_view?[super_view bounds].size.height:10;
 			NSRect r;
 			float lheight;
-			if(!sv || !_headerView || !super_view)
+			if(!sv)
 				{
-				NSLog(@"can't tile %@", self);
+				NSLog(@"not enclosed in scrollview %@", self);
+				return;
+				}
+			if(!super_view)
+				{
+				NSLog(@"no superview %@", self);
 				return;
 				}
 			if(_numberOfRows > 0)
@@ -1682,12 +1684,16 @@ int index = [self columnWithIdentifier:identifier];
 #if 0
 			NSLog(@"union r=%@", NSStringFromRect(r));
 #endif
-			h.size.width = NSMaxX(c);	// resize header to total width
+			if(_headerView)
+				{ // resize headerview if present
+				NSRect h = [_headerView frame];
+				h.size.width = NSMaxX(c);	// resize header to total width
 #if 0
-			NSLog(@"header view frame: %@", NSStringFromRect(r));
+				NSLog(@"header view frame: %@", NSStringFromRect(r));
 #endif
-			[_headerView setFrame:h];	// adjust our header view
-			[_window invalidateCursorRectsForView:_headerView];
+				[_headerView setFrame:h];	// adjust our header view
+				[_window invalidateCursorRectsForView:_headerView];
+				}
 			[super setFrame:r];			// does nothing if we did not really change - otherwise notifies NSClipView
 			[sv tile];	// tile scrollview (i.e. properly layout header and our superview)
 			lheight=[self rowHeight]+[self intercellSpacing].height;
