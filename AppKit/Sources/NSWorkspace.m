@@ -127,7 +127,7 @@ static BOOL __fileSystemChanged = NO;
 												   mutabilityOption:NSPropertyListMutableContainers 
 															 format:&format
 												   errorDescription:&error];
-#if 1
+#if 0
 		NSLog(@"LS database=%@", defaults);
 #endif
 		if(data && ![defaults isKindOfClass:[NSDictionary class]])
@@ -397,7 +397,7 @@ static BOOL __fileSystemChanged = NO;
 	NSString *fp=[path stringByExpandingTildeInPath];
 	NSDirectoryEnumerator *de=[[NSFileManager defaultManager] enumeratorAtPath:fp];
 	NSString *dp;
-#if 1
+#if 0
 	NSLog(@"findApplications in %@", fp);
 #endif
 	while((dp=[de nextObject]))

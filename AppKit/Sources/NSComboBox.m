@@ -276,7 +276,7 @@
 #endif
 		_popUpWindow = [[NSPanel alloc] initWithContentRect:f
 												  styleMask:NSBorderlessWindowMask
-													backing:NSBackingStoreRetained
+													backing:/*NSBackingStoreRetained*/ NSBackingStoreBuffered
 													  defer:YES
 													 screen:nil];
 		[_popUpWindow setLevel:NSModalPanelWindowLevel];
@@ -389,6 +389,9 @@
 	cellFrame.size.width -= 3.0;	// IB specifies 3 px spacing on the right hand side
 	cellFrame.origin.y += 2.0;		// IB specifies 4px vertical (transparent!) spacing
 	cellFrame.size.height -= 4.0;
+#if 1
+	NSLog(@"drawingRectForBounds: %@", NSStringFromRect(cellFrame));
+#endif
 	return cellFrame;
 }
 
@@ -400,7 +403,7 @@
 	if(_d.controlSize ==  NSSmallControlSize) sz=NSMakeSize(16.0, 16.0);
 	else if(_d.controlSize ==  NSMiniControlSize) sz=NSMakeSize(10.0, 10.0);
 	cellFrame=[self drawingRectForBounds:cellFrame];
-	cellFrame.size.width -= sz.width+3.0;								// we have to leave space for the button
+	cellFrame.size.width -= sz.width+3.0;							// we have to leave space for the button
 	[super drawInteriorWithFrame:cellFrame inView:controlView];		// draw text field
 }
 

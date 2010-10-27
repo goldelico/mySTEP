@@ -268,6 +268,8 @@ id __buttonCellClass = nil;
 
 - (void) setPeriodicDelay:(float)delay interval:(float)interval
 {
+	if(delay > 60.0) delay=60.0;
+	if(interval > 60.0) interval=60.0;
 	_periodicDelay = delay;
 	_periodicInterval = interval;						// Set Repeat Interval
 }

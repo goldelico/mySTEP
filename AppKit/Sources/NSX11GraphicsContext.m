@@ -2716,7 +2716,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		_dirty=(XRectangle){ 0, 0, 0, 0 };	// clear
 		}
 	XFlush(_display);
-#if 1
+#if 0
 	NSLog(@"events %d", XPending(_display));
 #endif	
 	[_NSX11Screen _handleNewEvents];	// flush and process any pending events
@@ -3806,12 +3806,16 @@ static NSDictionary *_x11settings;
 					}
 				case FocusIn:							
 					{ // keyboard focus entered one of our windows - take this a a hint from the WindowManager to bring us to the front
+#if 0
 						NSLog(@"FocusIn 1: %d\n", xe.xfocus.detail);
+#endif
 						break;
 					}
 				case FocusOut:
 					{ // keyboard focus has left one of our windows
+#if 0
 						NSDebugLog(@"FocusOut");
+#endif
 						break;
 					}
 				case GraphicsExpose:
@@ -4077,7 +4081,7 @@ static NSDictionary *_x11settings;
 			// raise exception or ignore
 			return;
 		}
-	event.window=[e windowNumber];	// use 1 == InputFocus
+	event.window=[e windowNumber];
 	win=[NSApp windowWithWindowNumber:event.window];	// try to find
 	if(!win)
 		{ // we don't know this window...
