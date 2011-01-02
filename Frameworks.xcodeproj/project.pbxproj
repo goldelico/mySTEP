@@ -72,6 +72,7 @@
 		EE0E3D470954703200CCA75A /* Version.def */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Version.def; sourceTree = "<group>"; };
 		EE408DF00F127C9E0085AA9F /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = mySTEP.make; sourceTree = "<group>"; };
 		EE40FB18066904FC00A63BAF /* Versions.def */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = Versions.def; path = ../Versions.def; sourceTree = SOURCE_ROOT; };
+		EE8BA1FB12A2652D00224CBA /* build.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -83,6 +84,7 @@
 				EE0E3D450954703200CCA75A /* LGPL LICENCE.txt */,
 				EE0E3D460954703200CCA75A /* README */,
 				EE0E3D470954703200CCA75A /* Version.def */,
+				EE8BA1FB12A2652D00224CBA /* build.sh */,
 				EE03AFBA0673B814001FB59D /* Frameworks */,
 				EE40FB18066904FC00A63BAF /* Versions.def */,
 			);
