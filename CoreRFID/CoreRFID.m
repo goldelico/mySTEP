@@ -215,6 +215,7 @@ static NSString *lastChunk;
 			NSString *dev=@"/dev/ttyACM0";	//serial interface for USB receiver
 #else
 			NSString *dev=@"/dev/cu.usbmodemfd111";	//serial interface for USB receiver
+			dev=@"/dev/cu.usbmodem1d11";	//serial interface for USB receiver
 #endif
 			file=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
 			if(!file)
