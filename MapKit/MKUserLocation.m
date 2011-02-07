@@ -39,8 +39,8 @@
 
 - (void) dealloc
 {
-//	[manager stopUpdatingLocation];
-//	[manager setDelegate:nil];
+	[manager stopUpdatingLocation];
+	[manager setDelegate:nil];
 	[manager release];
 	[subtitle release];
 	[title release];
@@ -55,7 +55,7 @@
 - (CLLocation *) location; { return location; }
 - (BOOL) isUpdating; { return YES; }
 - (void) setSubtitle:(NSString *) str; { [subtitle autorelease]; subtitle=[str retain]; }
-- (void) setTitle:(NSString *) str; { [title autorelease]; title=[str retain];  }
+- (void) setTitle:(NSString *) str; { [title autorelease]; title=[str retain]; }
 
 @end
 
