@@ -173,6 +173,8 @@ build:
 ### architecture all-packages are part of machine specific Packages.gz (!)
 ### there is not necessarily a special binary-all directory but we can do that
 
+### FIXME: directly use the DEBIAN_ARCH names for everything
+
 	# make for all architectures $(ARCHITECTURES)
 	for DEBIAN_ARCH in i386 armel mipsel; do \
 		case "$$DEBIAN_ARCH" in \
@@ -521,7 +523,7 @@ endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
 	- rm -f $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)
-	- ln -s lib$(EXECUTABLE_NAME).so $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)	# create libXXX.so entry for ldconfig
+	- ln -sf lib$(EXECUTABLE_NAME).so $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)	# create libXXX.so entry for ldconfig
 endif
 
 # EOF
