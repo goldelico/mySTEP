@@ -24,7 +24,7 @@ false && for i in UIKit
 echo ## done. ##
 
 echo ## Tools ##
-for i in Tools CoreData/DataBuilder CoreRFID/RFIDProber
+for i in Tools CoreData/DataBuilder CoreRFID/RFIDProbe
 	do
 	(cd $i && ./build.sh) )
 	done
