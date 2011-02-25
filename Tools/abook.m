@@ -2,7 +2,8 @@
 // abook.m
 // QuantumSTEP
 //
-// speaks
+// modify address book
+//
 //    abook [-?dtxgmp]
 //		-?		print help
 //		--help	print help
@@ -67,7 +68,23 @@ int main(int argc, const char *argv[])
 		if (i == 1 && ([[args objectAtIndex: i] isEqual: @"--help"] ||
 			[[args objectAtIndex: i] isEqual: @"-?"]))
 			{
-			printf("help...\n\n");
+			printf(
+"abook [-?dtxgmp]\n"
+"  -?		print help\n"
+"  --help	print help\n"
+"  -d uid	delete\n"
+"  -t uid	list all attributes\n"
+"  -l uid attrib list attribute\n"
+"  -x uid attrib value	change attribute\n"
+"  -ag uid Group	add to (existing) or new group\n"
+"  -me uid	set the 'me' record\n"
+"      .    as uid refers to the last one created by -cg or -cp or explicitly specified\n"
+"  -cg		create group\n"
+"  -cp		create person\n"
+"  -m		show 'me' record\n"
+"  -g		show groups\n"
+"  -p		show people\n"
+				   );
 			break;
 			}
 		else if ([[args objectAtIndex: i] isEqual: @"-g"])

@@ -11,6 +11,7 @@
 			isa = PBXAggregateTarget;
 			buildConfigurationList = EE144F6B0A14E81200C93F94 /* Build configuration list for PBXAggregateTarget "Tools" */;
 			buildPhases = (
+				EE11145A13181958005DFDD2 /* ShellScript */,
 			);
 			dependencies = (
 				EE196B960D44E9230074ED1A /* PBXTargetDependency */,
@@ -509,7 +510,14 @@
 			isa = PBXProject;
 			buildConfigurationList = EE1A0191097304E200EAB703 /* Build configuration list for PBXProject "Tools" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";
@@ -531,6 +539,19 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		EE11145A13181958005DFDD2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# project settings\nexport SOURCES=   \t\t\t  \t # no sources\nexport LIBS=  \t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t   # add any additional Frameworks etc.\nexport FILES=\"\"\t\t\t\t\t# additional files to include in package (relative to project working directory)\nexport DATA=\"\"\t\t\t\t\t# additional files to include in package (relativ to root)\nexport INSTALL_PATH=/\t\t\t   # override INSTALL_PATH for MacOS X\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\n\nexport DEBIAN_PACKAGE_NAME=\"quantumstep-tools\"\t# binary tools\nexport DEPENDS=\"quantumstep-abook, quantumstep-defaults, quantumstep-ibtool, quantumstep-open, quantumstep-plistbuddy, quantumstep-plutil, quantumstep-say, quantumstep-scselect, quantumstep-scutil\"   # debian package dependencies\n\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n\necho \"### done ###\"";
+		};
 		EE144F2F0A14E6C300C93F94 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

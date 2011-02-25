@@ -53,7 +53,7 @@ export INSTALL_PATH=/			   # override INSTALL_PATH for MacOS X
 # debian package dependencies (, separated)
 # this excludes the Tools and TestApps!
 
-export DEPENDS="quantumstep-addressbook-framework, quantumstep-corefoundation-framework, quantumstep-iobluetooth-framework, quantumstep-iobluetoothui-framework, quantumstep-imagekit-framework, quantumstep-message-framework, quantumstep-qtkit-framework, quantumstep-preferencepanes-framework, quantumstep-screensaver-framework, quantumstep-securityinterface-framework, quantumstep-webkit-framework, quantumstep-systemstatus-framework, quantumstep-systemuiplugin-framework, quantumstep-corelocation-framework, quantumstep-mapkit-framework, quantumstep-corewlan-framework, quantumstep-corerfid-framework"
+export DEPENDS="quantumstep-addressbook-framework, quantumstep-corefoundation-framework, quantumstep-iobluetooth-framework, quantumstep-iobluetoothui-framework, quantumstep-imagekit-framework, quantumstep-message-framework, quantumstep-qtkit-framework, quantumstep-preferencepanes-framework, quantumstep-screensaver-framework, quantumstep-securityinterface-framework, quantumstep-webkit-framework, quantumstep-systemstatus-framework, quantumstep-systemuiplugin-framework, quantumstep-corelocation-framework, quantumstep-mapkit-framework, quantumstep-corewlan-framework, quantumstep-corerfid-framework, quantumstep-tools"
 
 [ "$ROOT" ] || export ROOT=/usr/share/QuantumSTEP	# project root
 /usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
