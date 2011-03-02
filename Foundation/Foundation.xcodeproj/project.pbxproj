@@ -45,6 +45,8 @@
 /* Begin PBXBuildFile section */
 		1FA220050E352CF100179AC4 /* NSPointerArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FA220030E352CF100179AC4 /* NSPointerArray.h */; };
 		1FA220060E352CF100179AC4 /* NSPointerArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FA220040E352CF100179AC4 /* NSPointerArray.m */; };
+		EE11484E131A432B005DFDD2 /* NSBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = EE11484C131A432B005DFDD2 /* NSBlock.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE11484F131A432B005DFDD2 /* NSBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = EE11484D131A432B005DFDD2 /* NSBlock.m */; };
 		EE1357770E3C504F0022A452 /* NSXMLDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F73F57C0DA2C1A40007817B /* NSXMLDocument.m */; };
 		EE1357780E3C504F0022A452 /* NSXMLDTD.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F73F57E0DA2C1A40007817B /* NSXMLDTD.m */; };
 		EE1357790E3C504F0022A452 /* NSXMLDTDNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F73F5800DA2C1A40007817B /* NSXMLDTDNode.m */; };
@@ -298,6 +300,8 @@
 		EE0FE22D09742963001E54D2 /* NSHTTPCookie.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSHTTPCookie.m; path = Sources/NSHTTPCookie.m; sourceTree = "<group>"; };
 		EE0FE234097429C4001E54D2 /* NSHTTPCookieStorage.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSHTTPCookieStorage.h; path = Sources/NSHTTPCookieStorage.h; sourceTree = "<group>"; };
 		EE0FE235097429C4001E54D2 /* NSHTTPCookieStorage.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSHTTPCookieStorage.m; path = Sources/NSHTTPCookieStorage.m; sourceTree = "<group>"; };
+		EE11484C131A432B005DFDD2 /* NSBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSBlock.h; path = Sources/NSBlock.h; sourceTree = "<group>"; };
+		EE11484D131A432B005DFDD2 /* NSBlock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSBlock.m; path = Sources/NSBlock.m; sourceTree = "<group>"; };
 		EE1D7828096C52BF0063CE1F /* NSURLConnection.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSURLConnection.h; path = Sources/NSURLConnection.h; sourceTree = "<group>"; };
 		EE1D7829096C52BF0063CE1F /* NSURLConnection.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSURLConnection.m; path = Sources/NSURLConnection.m; sourceTree = "<group>"; };
 		EE1D782A096C52BF0063CE1F /* NSURLRequest.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSURLRequest.h; path = Sources/NSURLRequest.h; sourceTree = "<group>"; };
@@ -801,6 +805,8 @@
 				EEA32F1C09537D0D001244CF /* NSLock.m */,
 				EE2114F80CDF568D0062A8AD /* NSOperation.h */,
 				EE2114F90CDF568D0062A8AD /* NSOperation.m */,
+				EE11484C131A432B005DFDD2 /* NSBlock.h */,
+				EE11484D131A432B005DFDD2 /* NSBlock.m */,
 			);
 			name = "Process & Threads";
 			sourceTree = "<group>";
@@ -992,6 +998,7 @@
 				EEAA86200A148ED200F2E5B5 /* NSArray.h in Headers */,
 				EEAA86210A148ED200F2E5B5 /* NSAttributedString.h in Headers */,
 				EEAA86220A148ED200F2E5B5 /* NSAutoreleasePool.h in Headers */,
+				EE11484E131A432B005DFDD2 /* NSBlock.h in Headers */,
 				EEAA86230A148ED200F2E5B5 /* NSBundle.h in Headers */,
 				EEAA86240A148ED200F2E5B5 /* NSByteOrder.h in Headers */,
 				EEAA86250A148ED200F2E5B5 /* NSCalendarDate.h in Headers */,
@@ -1308,6 +1315,7 @@
 				EE2115140CDF58F70062A8AD /* NSCondition.m in Sources */,
 				EEB458AB0DE48C1D007BE44E /* NSPointerFunctions.m in Sources */,
 				1FA220060E352CF100179AC4 /* NSPointerArray.m in Sources */,
+				EE11484F131A432B005DFDD2 /* NSBlock.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
