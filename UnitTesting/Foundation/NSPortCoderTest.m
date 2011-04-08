@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import <Foundation/NSMethodSignature.h>
 #import "NSPortCoderTest.h"
 
 

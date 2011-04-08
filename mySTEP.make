@@ -76,6 +76,7 @@ ifeq ($(ARCHITECTURES),)
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 # set all architectures for which we know a compiler (should also check that we have a libobjc.so for this architecture!)
 # and that other libraries and include directories are available...
+# should exclude i386-apple-darwin
 ARCHITECTURES=$(shell cd $(ROOT)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
 endif
 endif
@@ -189,6 +190,7 @@ build:
 		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		done		
 	for ARCH in $(ARCHITECTURES); do \
+		if [ "$$ARCH" = "i386-apple-darwin" ] ; then continue; fi; \
 		echo "*** building for $$ARCH ***"; \
 		export ARCHITECTURE="$$ARCH"; \
 		export ARCHITECTURES="$$ARCHITECTURES"; \

@@ -175,8 +175,8 @@
 				EE0C71FE0F7E7328008B94EE /* Resources */,
 				EE0C71FF0F7E7328008B94EE /* Sources */,
 				EE0C72000F7E7328008B94EE /* Frameworks */,
-				EE0C72010F7E7328008B94EE /* Run Tests */,
 				EED10A120F82590100E9AEC6 /* Cross Compile */,
+				EE0C72010F7E7328008B94EE /* Run Tests */,
 			);
 			buildRules = (
 			);
@@ -211,8 +211,8 @@
 				EED9802E0F875953002E4AD5 /* Resources */,
 				EED9802F0F875953002E4AD5 /* Sources */,
 				EED980310F875953002E4AD5 /* Frameworks */,
-				EED980350F875953002E4AD5 /* Run Tests */,
 				EED980340F875953002E4AD5 /* Cross Compile */,
+				EED980350F875953002E4AD5 /* Run Tests */,
 			);
 			buildRules = (
 			);
@@ -301,7 +301,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "exit\n\n# project settings\nexport SOURCES=\"Foundation/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/Frameworks   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "exit\n\n# project settings\nexport SOURCES=\"Foundation/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=SenTestingKit\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/Frameworks   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EED980340F875953002E4AD5 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -315,7 +315,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "exit\n\n# project settings\nexport SOURCES=\"Foundation/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/Frameworks   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "exit\n\n# project settings\nexport SOURCES=\"Foundation/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=SenTestingKit\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/Frameworks   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EED980350F875953002E4AD5 /* Run Tests */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -484,7 +484,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
-				MACOSX_DEPLOYMENT_TARGET = "";
+				GCC_VERSION = 4.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				SDKROOT = macosx10.4;
 			};
 			name = Default;
