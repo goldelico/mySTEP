@@ -55,3 +55,21 @@
 }
 	
 @end /* NSAffineTransform */
+
+@interface NSPSMatrix : NSObject
+@end
+
+@implementation NSPSMatrix	/* used by drawing system (unarchived from e.g. NSProgressIndicator) */
+
+- (void) encodeWithCoder:(NSCoder *) coder
+{
+	NIMP;
+}
+
+- (id) initWithCoder:(NSCoder *) coder
+{
+	return self;
+}
+
+@end
+

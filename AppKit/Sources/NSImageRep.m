@@ -384,7 +384,16 @@ static NSCountedSet *__pb;
 													backing: NSBackingStoreRetained
 													  defer: YES];	// dont't draw or orderFront
 #if 1
+		{ // show cache window */
+			[_window close];
+			[_window release];
+			_window = [[NSWindow alloc] initWithContentRect: rect
+												  styleMask: NSTitledWindowMask
+													backing: NSBackingStoreRetained
+													  defer: YES];	// dont't draw or orderFront
+			[_window setTitle:@"CachedImageRep"];
 			[_window orderFront:nil];
+		}
 #endif
 		}
 	return self;

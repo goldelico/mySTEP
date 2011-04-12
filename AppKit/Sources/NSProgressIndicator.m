@@ -318,7 +318,7 @@ NSColor *fillColour = nil;
 		_minValue=[aDecoder decodeFloatForKey:@"NSMinValue"];
 		_maxValue=[aDecoder decodeFloatForKey:@"NSMaxValue"];
 			_doubleValue=[aDecoder decodeFloatForKey:@"NSValue"];
-		(void) [aDecoder decodeObjectForKey:@"NSDrawMatrix"];	// ignore
+		(void) [aDecoder decodeObjectForKey:@"NSDrawMatrix"];	// ignore - may be of class NSPSMatrix
 		return self;
 		}
 	[aDecoder decodeValueOfObjCType: @encode(BOOL) at:&_isIndeterminate];

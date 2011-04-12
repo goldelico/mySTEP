@@ -845,8 +845,7 @@ static BOOL done;
 
 - (id) initWithDocFormat:(NSData *)data documentAttributes:(NSDictionary **)dict;
 {
-	// read Word format
-	return NIMP;
+	return [self initWithString:@"Can't read DOC format yet"];
 }
 
 // RTF/D create methods which can take an optional dict

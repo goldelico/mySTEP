@@ -2131,6 +2131,7 @@ int index = [self columnWithIdentifier:identifier];
 		_draggingSourceOperationMaskForLocal=[aDecoder decodeIntForKey:@"NSDraggingSourceMaskForLocal"];
 		_draggingSourceOperationMaskForRemote=[aDecoder decodeIntForKey:@"NSDraggingSourceMaskForNonLocal"];
 		[aDecoder decodeIntForKey:@"NSTableViewDraggingDestinationStyle"];
+		// [aDecoder decodeObject:@"NSSortDescriptors"]; --- isn't this stored in the table column?
 		_indicatorImages = [NSMutableArray new];
 		i=[_tableColumns count];
 		while(i-- > 0)

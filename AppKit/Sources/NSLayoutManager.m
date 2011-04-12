@@ -1047,7 +1047,7 @@ containerOrigin:(NSPoint)containerOrigin;
 	NIMP;
 }
 
-- (void) setTextStorage:(NSTextStorage *)ts; { _textStorage=ts; /*ASSIGN(textStorage, ts);*/ }	// CHECKME: is this correct? the textStorage owns the layout manager(s)
+- (void) setTextStorage:(NSTextStorage *)ts; { _textStorage=ts; }	// The textStorage owns the layout manager(s)
 - (void) setTypesetter:(NSTypesetter *)ts; { ASSIGN(_typesetter, ts); }
 - (void) setTypesetterBehavior:(NSTypesetterBehavior)behavior; { _typesetterBehavior=behavior; }
 - (void) setUsesScreenFonts:(BOOL)flag; { _usesScreenFonts=flag; }

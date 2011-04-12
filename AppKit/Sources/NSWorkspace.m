@@ -1363,7 +1363,7 @@ static BOOL __fileSystemChanged = NO;
 - (BOOL) unmountAndEjectDeviceAtPath:(NSString *)path		// Unmount device
 {
 	// FIXME: unsafe for file names containing a ' -> use NSTask instead
-	if(system([[NSString stringWithFormat:@"/bin/umount '%s'", [path fileSystemRepresentation]] cString]) != 0)
+	if(system([[NSString stringWithFormat:@"/bin/umount '%s'", [path fileSystemRepresentation]] UTF8String]) != 0)
 		return NO;	// some error
 	// check if we are a memory card that can be ejected
 	// -> cardctl eject %d

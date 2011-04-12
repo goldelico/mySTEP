@@ -91,6 +91,16 @@
 
 @interface NSMenu : NSObject  <NSCoding, NSCopying>
 {
+	NSString *_title;
+	NSMutableArray *_menuItems;
+	NSMenu *_supermenu;	// not retained
+	NSMenu *_attachedMenu;
+	NSMenu *tornOffMenu;
+	NSFont *menuFont;
+	id _delegate;
+	id _contextMenuRepresentation;  // link to NSMenuView
+	id _menuRepresentation;			// link to NSMenuView
+	id _tearOffMenuRepresentation;
 	struct __MenuFlags {
 		unsigned int autoenablesItems:1;
 		unsigned int menuChangedMessagesEnabled:1;
@@ -98,17 +108,7 @@
 		unsigned int isTornOff:1;
 		unsigned int hasTornOffMenu:1;
 		unsigned int reserved:3;
-		} _mn;
-
-	NSString *_title;
-	NSMutableArray *_menuItems;
-	NSMenu *_supermenu;	// not retained
-	NSMenu *_attachedMenu;
-	NSMenu *tornOffMenu;
-	id _delegate;
-	id _contextMenuRepresentation;  // link to NSMenuView
-	id _menuRepresentation;			// link to NSMenuView
-	id _tearOffMenuRepresentation;
+	} _mn;
 }
 
 + (BOOL) menuBarVisible;

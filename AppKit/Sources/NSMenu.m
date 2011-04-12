@@ -288,7 +288,7 @@ static BOOL __userKeyEquivalents = YES;
 }
 
 - (id) initWithCoder:(NSCoder*) coder
-{ // NOTE: we are implemented as a subclass of NSButtonCell but archived as subclass of NSObject - therefore we should not call [super initWithCoder]
+{ // NOTE: we are implemented as a subclass of NSButtonCell but archived as subclass of NSObject - therefore we should not call [super initWithCoder] and have to decode all keys directly
 #if 0
 	NSLog(@"%@ initWithCoder", NSStringFromClass([self class]));
 #if 0
@@ -304,10 +304,11 @@ static BOOL __userKeyEquivalents = YES;
 		if([coder decodeBoolForKey:@"NSIsSeparator"])
 			[self setTitle:nil];   // has nil title (there is an empty one in the NIB)
 		_keyEquivalentModifierMask=[coder decodeIntForKey:@"NSKeyEquivModMask"];
-		_mixedStateImage=[[coder decodeObjectForKey:@"NSMixedImage"] retain];
 		_mnemonicLocation=[coder decodeIntForKey:@"NSMnemonicLoc"]; // position of the underlined character
 		_toolTip=[[coder decodeObjectForKey:@"NSToolTip"] retain];
 		_onStateImage=[[coder decodeObjectForKey:@"NSOnImage"] retain];
+		_mixedStateImage=[[coder decodeObjectForKey:@"NSMixedImage"] retain];
+		_offStateImage=[[coder decodeObjectForKey:@"NSImage"] retain];	// try NSImage
 		_isAlternate=[coder decodeIntForKey:@"NSIsAlternate"];
 		_attributedTitle=[[coder decodeObjectForKey:@"NSAttributedTitle"] retain];
 		// FIXME
@@ -865,6 +866,7 @@ static BOOL __userKeyEquivalents = YES;
 		NSEnumerator *e;
 		NSMenuItem *i;
 		self=[self initWithTitle:[coder decodeObjectForKey:@"NSTitle"]];
+		menuFont=[coder decodeObjectForKey:@"NSMenuFont"];	// new in 10.6
 		name=[coder decodeObjectForKey:@"NSName"];
 		e=[[coder decodeObjectForKey:@"NSMenuItems"] objectEnumerator];	// decode items
 		while((i=[e nextObject]))

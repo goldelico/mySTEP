@@ -80,7 +80,7 @@ typedef NSInteger NSTypesetterBehavior;
 
 @interface NSLayoutManager : NSObject <NSGlyphStorage>
 {	
-	NSTextStorage *_textStorage;
+	NSTextStorage /*nonretained*/ *_textStorage;	// The textStorage owns the layout manager(s)
     NSMutableArray *_textContainers;
     NSGlyphGenerator *_glyphGenerator;
     NSTypesetter *_typesetter;

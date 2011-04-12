@@ -236,6 +236,7 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 #endif
 	alignment=[coder decodeIntForKey:@"NSAlignment"];
 	tabStops=[[coder decodeObjectForKey:@"NSTabStops"] retain];
+	paragraphSpacing=[coder decodeFloatForKey:@"NSParagraphSpacing"];
 	return self;
 }
 
