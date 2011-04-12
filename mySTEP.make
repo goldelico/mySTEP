@@ -103,7 +103,7 @@ endif
 
 # FIXME: zaurusconnect (rename to zrsh) should simply know how to access the currently selected device
 
-DOWNLOAD := $(EMBEDDED_ROOT)/System/Sources/System/Tools/ZMacSync/ZMacSync/build/Development/ZMacSync.app/Contents/MacOS/zaurusconnect -l
+DOWNLOAD := $(EMBEDDED_ROOT)/System/Sources/System/Tools/ZMacSync/ZMacSync/build/Development/ZMacSync.app/Contents/MacOS/zaurusconnect -l 
 
 ROOT:=/usr/share/QuantumSTEP
 
@@ -489,7 +489,7 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	# try to launch $(RUN) Application
 	: defaults write com.apple.x11 nolisten_tcp false; \
 	defaults write org.x.X11 nolisten_tcp 0; \
-	open -a X11; \
+	rm -f /tmp/.X0-lock; open -a X11; sleep 5; \
 	export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(IP_ADDR) && \
 	$(DOWNLOAD) \
 		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=memory; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" || echo failed to run;
