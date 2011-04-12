@@ -18,11 +18,11 @@
 }
 
 - (NSData *) readAt:(NSUInteger) block; {
-	return [CRTagManager readAt:(NSUInteger) block forTag:self];	
+	return [CRTagManager readBlockForTag:self at:(NSUInteger) block];	
 }
 
 - (BOOL) write:(NSData *) data at:(NSUInteger) block; {
-	return [CRTagManager write:(NSData *) data at:(NSUInteger) block forTag:self];	
+	return [CRTagManager writeBlockForTag:self at:(NSUInteger) block data:(NSData *) data];	
 }
 
 - (id) initWithUID:(NSString *) uid;
@@ -190,7 +190,7 @@ static NSFileHandle *file;
 static NSString *lastChunk;
 
 + (NSArray *) tags; {
-	return [tags allObjects];
+	return [tags allValues];
 }
 
 + (NSString *) readerUID; {
