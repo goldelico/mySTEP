@@ -153,13 +153,28 @@
 
 - (id) init;
 {
+	return [self initWithString:@""];
+}
+
+- (id) initWithString:(NSString *) str
+{
+	return [self initWithString:str attributes:nil];
+}
+
+- (id) initWithString:(NSString *) str attributes:(NSDictionary *) attr
+{
+#if __APPLE__
 	if((self=[super init]))
 		{
-#if __APPLE__
-		_concreteString=[NSMutableAttributedString new];
-#endif
+		_concreteString=[[NSMutableAttributedString alloc] initWithString:str attributes:attr];
 		_layoutManagers=[NSMutableArray new];
 		}
+#else
+	if((self=[super initWithString:str attributes:attr]))
+		{
+		_layoutManagers=[NSMutableArray new];
+		}
+#endif
 	return self;
 }
 
@@ -185,11 +200,11 @@
 #if 1
 	NSLog(@"dealloc NSTextStorage %p: %@", self, self);
 #endif
+	[self setDelegate:nil];
 #if __APPLE__
 	[_concreteString release];
 #endif
 	[_layoutManagers release];
-	[self setDelegate:nil];
 	[super dealloc];
 }
 
