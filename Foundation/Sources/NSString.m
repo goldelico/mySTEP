@@ -50,8 +50,8 @@ void *_NXConstantStringClassReference;
 @implementation NSSimpleCString
 @end
 
-@implementation NXConstantString
-@end
+//@implementation NXConstantString
+//@end
 
 #endif
 
@@ -1090,7 +1090,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 {														// Dividing a String 
 	NSRange search = {0, _count};							// into Substrings
 	NSMutableArray *array = [NSMutableArray array];
-	NSRange found = [self rangeOfString:separator options:2 range:search];
+	NSRange found = [self rangeOfString:separator options:NSLiteralSearch range:search];
 
 	while (found.length)
 		{
@@ -1100,7 +1100,28 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		search.length = _count - search.location;
 		found = [self rangeOfString:separator options:0 range:search];
 		}
-														// Add the last search 
+														// Add the last search (if any)
+	if (search.length)									// string range
+		[array addObject: [self substringWithRange: search]];
+	
+	return array;
+}
+
+- (NSArray*) componentsSeparatedByCharactersInSet:(NSCharacterSet*)separator
+{														// Dividing a String 
+	NSRange search = {0, _count};							// into Substrings
+	NSMutableArray *array = [NSMutableArray array];
+	NSRange found = [self rangeOfCharacterFromSet:separator options:NSLiteralSearch range:search];
+	
+	while (found.length)
+		{
+		search.length = found.location - search.location;
+		[array addObject: [self substringWithRange: search]];
+		search.location = NSMaxRange(found);
+		search.length = _count - search.location;
+		found = [self rangeOfCharacterFromSet:separator options:0 range:search];
+		}
+	// Add the last search (if any)
 	if (search.length)									// string range
 		[array addObject: [self substringWithRange: search]];
 	
@@ -1870,7 +1891,6 @@ unichar strFirstCharacter;
 	if(mask & NSLiteralSearch)
 		{
 		int prefix_len = 0;
-		unichar *u,*w;
 		unichar *a1=objc_malloc(sizeof(unichar)*(_count+1));
 		unichar *s1 = a1;
 		unichar *a2=objc_malloc(sizeof(unichar)*([aString length]+1));
@@ -2486,7 +2506,7 @@ struct stat tmp_stat;
 {
 	NSMutableString *s = [[self stringByExpandingTildeInPath] mutableCopy]; // Expand `~' in path
 	NSRange search = {0, [s length]};
-	NSRange found = [s rangeOfString:@"//" options:2 range:search];
+	NSRange found = [s rangeOfString:@"//" options:NSLiteralSearch range:search];
 		
 	if ([s hasPrefix: @"/private"])						// Remove `/private' - not useful but according to documentation
 		[s deleteCharactersInRange:((NSRange){0,7})];
@@ -2498,7 +2518,7 @@ struct stat tmp_stat;
 		found = [s rangeOfString:@"//" options:0 range:search];
 		}
 	// Condense `/./' 
-	found = [s rangeOfString:@"/./" options:2 range:search];
+	found = [s rangeOfString:@"/./" options:NSLiteralSearch range:search];
 	while (found.length)
 		{
 		[s deleteCharactersInRange: (NSRange){found.location, 2}];
@@ -2506,7 +2526,7 @@ struct stat tmp_stat;
 		found = [s rangeOfString:@"/./" options:0 range:search];
 		}
 	// Condense `/../' 
-	found = [s rangeOfString:@"/../" options:2 range:search];
+	found = [s rangeOfString:@"/../" options:NSLiteralSearch range:search];
 	while (found.length)
 		{
 		if (found.location > 0)
@@ -2794,7 +2814,7 @@ struct stat tmp_stat;
 	return [[[NSString alloc] initWithData:data encoding:encoding] autorelease];	// and try to decode
 }
 
-// FIXME: distringuish form "D" and "KD" - see http://en.wikipedia.org/wiki/Unicode_normalization#Canonical_Equivalence
+// FIXME: distinguish form "D" and "KD" - see http://en.wikipedia.org/wiki/Unicode_normalization#Canonical_Equivalence
 
 - (NSString *) decomposedStringWithCanonicalMapping; { return [[[GSSequence sequenceWithString:self range:NSMakeRange(0, [self length])] decompose] string]; }	// decompose Ÿ into u and ..
 - (NSString *) precomposedStringWithCanonicalMapping; { return NIMP; }
@@ -2895,7 +2915,7 @@ struct stat tmp_stat;
 }
 
 - (BOOL) isEqual:(id)obj
-{
+{ // self is a Unicode string
 	Class c;
 	if (obj == self)
 		return YES;
@@ -2925,7 +2945,7 @@ struct stat tmp_stat;
 			return NO;
 		NS_DURING
 			if(!_cString)
-				[self cString];	// may fail with character conversion error!
+				[self cString];	// may fail with character conversion error - then we can't be equal to the other string
 			NS_VALUERETURN((memcmp(_cString, ((NSString*)obj)->_cString, _count) == 0), BOOL);
 		NS_HANDLER
 			; // ignore
@@ -2976,7 +2996,7 @@ struct stat tmp_stat;
 		NS_HANDLER
 			; // ignore
 		NS_ENDHANDLER
-			return NO;
+			return NO;	// failed - i.e. we have some non-convertible characters
 		}
 
 	if((!_count) && (!aString->_count))
@@ -3083,6 +3103,7 @@ struct stat tmp_stat;
 			NSLog(@"-cString: can't convert due to non-ASCII characters: %@", self);
 			abort();
 #endif
+			*bp=0;
 			[NSException raise:NSCharacterConversionException format:@"-cString can't convert: %@", self];	// conversion error
 			}
 		}
@@ -3566,7 +3587,7 @@ struct stat tmp_stat;
 }
 
 - (BOOL) isEqual:(id)obj
-{
+{ // self is a C string (other side must be convertible)
 	if (obj == self)
 		return YES;
 #ifndef __APPLE__
@@ -3605,9 +3626,9 @@ struct stat tmp_stat;
 				if(((NSString*)obj)->_count > 0)
 					{
 					NS_DURING
-						[obj cString];				// if an object is a unichar
+						[obj cString];				// convert to a C str (if possible)
 					NS_HANDLER
-						return NO;	// we were not able to convert the other string to a C string - so it can't be equal
+						return NO;	// we were not able to convert the other string to a C string - so they can't be equal
 					NS_ENDHANDLER
 					}
 				else							// str but does not yet have a
@@ -3717,7 +3738,7 @@ struct stat tmp_stat;
 - (NSStringEncoding) smallestEncoding	{ return NSASCIIStringEncoding; }
 
 - (BOOL) isEqual:(id)obj
-{
+{ // self is a constant C string
 	if (obj == self)
 		return YES;
 #ifndef __APPLE__

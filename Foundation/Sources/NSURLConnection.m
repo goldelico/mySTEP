@@ -124,7 +124,7 @@
 #endif
 	if(self)
 		{
-		NSURLResponse *cachedResponse=[[NSURLCache sharedURLCache] cachedResponseForRequest:request];
+		NSCachedURLResponse *cachedResponse=[[NSURLCache sharedURLCache] cachedResponseForRequest:request];
 		if(!cachedResponse && [request cachePolicy] == NSURLRequestReturnCacheDataDontLoad)
 			{ [self release]; return nil; }
 		_delegate=delegate;
@@ -153,6 +153,8 @@
 { // start loading
 	[_protocol startLoading];
 }
+
+// FIXME: this is a lot of private hack
 
 - (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
 {

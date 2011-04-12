@@ -89,6 +89,9 @@
 
 
 @interface NSFileManager : NSObject
+{
+	id _delegate;
+}
 
 + (NSFileManager *) defaultManager;
 

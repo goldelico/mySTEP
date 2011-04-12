@@ -839,9 +839,9 @@ static NSMutableDictionary *_httpConnections;
 								{
 								char chunkLen[32];
 								sprintf(chunkLen, "%x\r\n", len);
-								[_outputStream write:chunkLen maxLength:strlen(chunkLen)];	// send length
+								[_outputStream write:(unsigned char *) chunkLen maxLength:strlen(chunkLen)];	// send length
 								[_outputStream write:buffer maxLength:len];	// send what we have
-								[_outputStream write:"\r\n" maxLength:2];	// and a CRLF
+								[_outputStream write:(unsigned char *) "\r\n" maxLength:2];	// and a CRLF
 #if 1
 								NSLog(@"chunk with %d bytes sent\nHeader: %s", len, chunkLen);
 #endif

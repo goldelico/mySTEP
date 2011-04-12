@@ -384,7 +384,21 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 	[_bundleClasses addObject:(id)aClass];
 }
 
-- (BOOL) load
+- (BOOL) preflightAndReturnError:(NSError **) error;
+{
+	if (!_codeLoaded) 
+		{
+		NSString *obj=[self executablePath];
+		if(!obj)
+			{
+			if(error) *error=[NSError errorWithDomain:@"NSBundleLoading" code:0 userInfo:nil];
+			return NO;
+			}
+		}
+	return YES;	// we don't know better...
+}
+
+- (BOOL) loadAndReturnError:(NSError **) error;
 {
 #if 0
 	NSLog(@"-load %@", self);
@@ -394,7 +408,10 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		{
 		NSString *obj=[self executablePath];
 		if(!obj)
-			[NSException raise:NSInvalidArgumentException format:@"Undefined executable for bundle %@", _path];
+			{
+			if(error) *error=[NSError errorWithDomain:@"NSBundleLoading" code:0 userInfo:nil];
+			return NO;
+			}
 		_bundleClasses = [[NSMutableArray arrayWithCapacity:2] retain];
 		__loadingBundle = self;
 		
@@ -407,40 +424,51 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 #endif /* NeXT_RUNTIME */
 				{ // could not properly load
 #if 0
-				NSLog(@"NSBundle: before loadunlock 2");
+					NSLog(@"NSBundle: before loadunlock 2");
 #endif
-				[__loadLock unlock];
+					[__loadLock unlock];
 #if 0
-				NSLog(@"NSBundle: after loadunlock 2");
+					NSLog(@"NSBundle: after loadunlock 2");
 #endif
 #if 0
-				fprintf(stderr, "could not properly load\n");
+					fprintf(stderr, "could not properly load\n");
 #endif
-				return NO;
+					if(error) *error=[NSError errorWithDomain:@"NSBundleLoading" code:1 userInfo:nil];
+					return NO;
 				}
-				else
-					{
-					NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-					NSDictionary *dict;
-					
-					dict = [NSDictionary dictionaryWithObjects: (id *) &_bundleClasses
-													   forKeys: (id *) &NSLoadedClasses 
-														 count: 1];
-					_codeLoaded = YES;
-					__loadingBundle = nil;
-					[nc postNotificationName: NSBundleDidLoadNotification 
-									  object: self
-									userInfo: dict];
-					}	
+			else
+				{
+				NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+				NSDictionary *dict;
+				
+				dict = [NSDictionary dictionaryWithObjects: (id *) &_bundleClasses
+												   forKeys: (id *) &NSLoadedClasses 
+													 count: 1];
+				_codeLoaded = YES;
+				__loadingBundle = nil;
+				[nc postNotificationName: NSBundleDidLoadNotification 
+								  object: self
+								userInfo: dict];
+				}	
 		}
 #if 0
-		NSLog(@"NSBundle: before loadunlock 3");
+	NSLog(@"NSBundle: before loadunlock 3");
 #endif
-		[__loadLock unlock];
+	[__loadLock unlock];
 #if 0
-		NSLog(@"NSBundle: after loadunlock 3");
+	NSLog(@"NSBundle: after loadunlock 3");
 #endif
-		return YES;
+	return YES;
+}
+
+- (BOOL) load
+{
+	return [self loadAndReturnError:NULL];
+}
+
+- (BOOL) unload;
+{
+	return NO;	// we can't unload bundles
 }
 
 + (NSString *) _findFileInPath:(NSString *) path andName:(NSString *)name
@@ -666,7 +694,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 	NSBundle *bundle;
 	NSMapEnumerator e;
 	e=NSEnumerateMapTable(__bundles);
-	while(NSNextMapEnumeratorPair(&e, &key, (void **)&bundle))
+	while(NSNextMapEnumeratorPair(&e, &key, (void **)&bundle))	// key is the path
 		{
 		if([[bundle bundleIdentifier] isEqualToString:ident])
 			return bundle;
@@ -675,7 +703,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 }
 
 + (NSArray *) allBundles;
-{
+{ // MapTable has a function to get all values...
 	void *key; 
 	NSBundle *bundle;
 	NSMapEnumerator e;
@@ -738,6 +766,11 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 	if(!name)
 		return nil;	// no executable defined
 	return [self pathForAuxiliaryExecutable:name];
+}
+
+- (NSArray *) executableArchitectures;
+{ // should return an array of NSNumbers with architecture numbers...
+	return NIMP;
 }
 
 - (NSString *) resourcePath { return [_bundleContentPath stringByAppendingPathComponent:@"Resources"]; }

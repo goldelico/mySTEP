@@ -135,6 +135,16 @@ static NSFileManager *__fm = nil;
 	return (__fm) ? __fm : (__fm = self);
 }
 
+- (id) delegate;
+{
+	return _delegate;
+}
+
+- (void) setDelegate:(id)delegate
+{
+	_delegate=delegate;
+}
+
 - (BOOL) changeCurrentDirectoryPath:(NSString*)path	
 {														// Directory operations
 	const char *cpath = [self fileSystemRepresentationWithPath:path];
@@ -150,40 +160,30 @@ static NSFileManager *__fm = nil;
 - (BOOL) createDirectoryAtPath:(NSString*)path
 					attributes:(NSDictionary*)attributes
 { // superdirectory must exist!
-	struct stat statbuf;
-	const char *cpath = [self fileSystemRepresentationWithPath:path];
-	if(!cpath)
-		return NO;
-	if(stat(cpath, &statbuf) == 0) 		// file or directory already exists!
-		return NO;
-	if(mkdir(cpath, 0777) != 0)			// will be reduced by umask
-		return NO;							// was not able to create file
-	if(attributes)
-		return [self changeFileAttributes:attributes atPath:path];
-	return YES;
+	return [self createDirectoryAtPath:path withIntermediateDirectories:NO attributes:attributes error:NULL];
 }
 
-- (BOOL)createDirectoryAtPath:(NSString *)path
-  withIntermediateDirectories:(BOOL)flag
-				   attributes:(NSDictionary *)attributes
-						error:(NSError **)error;
+- (BOOL) createDirectoryAtPath:(NSString *)path
+   withIntermediateDirectories:(BOOL)flag
+			 	    attributes:(NSDictionary *)attributes
+						 error:(NSError **)error;
 {
 	struct stat statbuf;
 	const char *cpath = [self fileSystemRepresentationWithPath:path];
 	if(!cpath)
-		{
+		{ // bad path
 		if(error)
 			*error=[NSError errorWithDomain:@"FileManager" code:1 userInfo:nil];
 		return NO;
 		}
-	if(stat(cpath, &statbuf) == 0) 		// file or directory already exists!
-		{
+	if(stat(cpath, &statbuf) == 0)
+		{ // file or directory already exists!
 		if(error)
 			*error=[NSError errorWithDomain:@"FileManager" code:2 userInfo:nil];
 		return NO;
 		}
 	if(flag)
-		{ // create intermediates first
+		{ // recursively create intermediates first
 		[self createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:attributes error:NULL];
 		}
 	if(mkdir(cpath, 0777) != 0)			// will be reduced by umask
@@ -194,6 +194,7 @@ static NSFileManager *__fm = nil;
 		}
 	if(attributes)
 		{
+		// call setAttributes:ofItemAtPath:error:
 		if(![self changeFileAttributes:attributes atPath:path])
 			{
 			if(error)
@@ -890,6 +891,53 @@ NSMutableArray *c;
 	return [path pathComponents];
 	// should translate components to localized version
 	// i.e. Applications -> Programme, Users -> Benutzer
+}
+
+// FIXME: make these the core implementation and the older variants a wrapper with error:NULL
+
+- (NSDictionary *) attributesOfFileSystemForPath:(NSString *) path error:(NSError **) error;
+{
+	return NIMP;
+}
+- (NSDictionary *) attributesOfItemAtPath:(NSString *) path error:(NSError **) error;
+{
+	return NIMP;
+}
+- (NSArray *) contentsOfDirectoryAtPath:(NSString *) path error:(NSError **) error;
+{
+	return NIMP;
+}
+- (BOOL) copyItemAtPath:(NSString *) src toPath:(NSString *) dst error:(NSError **) error;
+{
+	NIMP; return NO;
+}
+- (BOOL) createSymbolicLinkAtPath:(NSString *) path withDestinationPath:(NSString *) destPath error:(NSError **) error;
+{
+	NIMP; return NO;
+}
+- (NSString *) destinationOfSymbolicLinkAtPath:(NSString *) path error:(NSError **) error;
+{
+	return NIMP;
+}
+- (BOOL) linkItemAtPath:(NSString *) src toPath:(NSString *) dst error:(NSError **) error;
+{
+	NIMP; return NO;
+}
+- (BOOL) moveItemAtPath:(NSString *) src toPath:(NSString *) dst error:(NSError **) error;
+{
+	NIMP; return NO;
+}
+- (BOOL) removeItemAtPath:(NSString *) src error:(NSError **) error;
+{
+	NIMP; return NO;
+}
+- (BOOL) setAttributes:(NSDictionary *) attribs ofItemAtPath:(NSString *) path error:(NSError **) error;
+{
+	NIMP; return NO;
+}
+- (NSArray *) subpathsOfDirectoryAtPath:(NSString *) path error:(NSError **) error;
+{
+	return NIMP;
 }
 
 @end /* NSFileManager */

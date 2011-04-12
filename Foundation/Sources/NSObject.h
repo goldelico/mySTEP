@@ -102,8 +102,6 @@
 - (IMP) methodForSelector:(SEL) aSelector;
 - (NSMethodSignature *) methodSignatureForSelector:(SEL) aSelector;	// -> NSMethodSignature.h?
 - (id) mutableCopy;
-- (BOOL) resolveClassMethod:(SEL) sel;
-- (BOOL) resolveInstanceMethod:(SEL) sel;
 //- (NSDictionary *) scriptingProperties;	// -> NSScriptClassDescription
 //- (void) setScriptingProperties:(NSDictionary *) properties;	// -> NSScriptClassDescription
 
@@ -203,5 +201,12 @@ enum { NSNotFound = NSIntegerMax };
 - (id) _subclass:(SEL) cmd;
 - (id) _error:(const char *)aString, ...;
 @end
+
+#if 0
+@interface NSObject (Old)
+- (BOOL) resolveClassMethod:(SEL) sel;
+- (BOOL) resolveInstanceMethod:(SEL) sel;
+@end
+#endif
 
 #endif /* _mySTEP_H_NSObject */

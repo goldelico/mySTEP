@@ -109,7 +109,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 		// Create the global lock
 		__NSGlobalLock = [[NSRecursiveLock alloc] init];
 		z=getenv("NSZombieEnabled");	// made compatible to http://developer.apple.com/technotes/tn2004/tn2124.html
-		if(z && (strcmp(z, "YES") == 0 || atoi(z) == 1))
+		if(z && (strcmp(z, "YES") == 0 || strcmp(z, "yes") == 0 || atoi(z) == 1))
 			NSZombieEnabled=YES;
 		if(NSZombieEnabled)
 			fprintf(stderr, "### NSZombieEnabled == YES! This disables memory deallocation ###\n");
@@ -395,7 +395,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	IMP msg = objc_msg_lookup(self, aSelector);
 
 	if (!msg)
-		return [self _error:"invalid selector passed to %s",sel_get_name(_cmd)];
+		return [self _error:"invalid selector passed to %s", sel_get_name(_cmd)];
 
 	return (*msg)(self, aSelector);
 }

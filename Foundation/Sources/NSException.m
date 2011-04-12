@@ -158,7 +158,7 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 	NSThread *thread;
 	NSHandler2 *handler;
 #if 1
-	NSLog(@"raise %@", self);
+	NSLog(@"-[NSException raise] %@", self);
 #endif
     if (_NSUncaughtExceptionHandler == NULL)
         _NSUncaughtExceptionHandler = _NSFoundationUncaughtExceptionHandler;

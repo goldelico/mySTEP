@@ -1046,7 +1046,7 @@ const char *objc_skip_typespec (const char *type)
 
 + (int) _versionForPortCoder; { return 0; }	// default version
 
-#if 0	// must be disabled if we try to run on Cocoa Foundation because proxyWithLocal does not work well
+#ifndef __APPLE__	// must be disabled if we try to run on Cocoa Foundation because proxyWithLocal does not work well
 - (Class) classForPortCoder { return [self classForCoder]; }
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder

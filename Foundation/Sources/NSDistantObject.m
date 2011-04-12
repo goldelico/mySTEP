@@ -257,7 +257,7 @@
 
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL)aSelector;
 {
-	NIMP;
+	return NIMP;
 #if 0
 	NSMethodSignature *ret=[_selectorCache objectForKey:NSStringFromSelector(aSelector)];
 	if(ret)

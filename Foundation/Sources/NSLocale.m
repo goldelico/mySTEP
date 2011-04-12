@@ -35,6 +35,11 @@ NSString *NSLocaleCurrencyCode;
 
 @implementation NSLocale
 
++ (id) autoupdatingCurrentLocale;
+{
+	return [[[self alloc] init] autorelease];
+}
+
 + (NSArray *) availableLocaleIdentifiers;
 {
 	// or should we get that from the Foundation Info.plist???
@@ -71,6 +76,11 @@ NSString *NSLocaleCurrencyCode;
 	return NIMP;
 }
 
++ (NSArray *) commonISOCurrencyCodes;
+{
+	return NIMP;
+}
+
 + (NSDictionary *) componentsFromLocaleIdentifier:(NSString *) string;
 {
 	return NIMP;
@@ -97,6 +107,11 @@ NSString *NSLocaleCurrencyCode;
 }
 
 + (NSString *) localeIdentifierFromComponents:(NSDictionary *) dict;
+{
+	return NIMP;
+}
+
++ (NSArray *) preferredLanguages;
 {
 	return NIMP;
 }

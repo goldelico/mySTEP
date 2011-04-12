@@ -175,6 +175,12 @@
 
 - (BOOL) evaluateWithObject:(id) object; { SUBCLASS; return NO; }
 
+- (BOOL) evaluateWithObject:(id) object substitutionVariables:(NSDictionary *) variables;
+{ // substitute variables and evaluate
+	// can/should optimize (i.e. parse into internal representation) if possible
+	return [[self predicateWithSubstitutionVariables:variables] evaluateWithObject:object];
+}
+
 - (NSString *) description; { return [self predicateFormat]; }
 
 - (NSString *) predicateFormat; { return SUBCLASS; }
@@ -894,6 +900,11 @@
 		}
 }
 
++ (NSExpression *) expressionForAggregate:(NSArray *) elements;
+{
+	return NIMP;
+}
+
 + (NSExpression *) expressionForConstantValue:(id) obj;
 {
 	_NSConstantValueExpression *e=[[[_NSConstantValueExpression alloc] init] autorelease];
@@ -906,16 +917,31 @@
 	return [[[_NSEvaluatedObjectExpression alloc] init] autorelease];
 }
 
-+ (NSExpression *) expressionForFunction:(NSString *) name arguments:(NSArray *) args;
++ (NSExpression *) expressionForFunction:(NSExpression *) target selectorName:(NSString *) selector arguments:(NSArray *) args;
 {
 	_NSFunctionExpression *e=[[[_NSFunctionExpression alloc] init] autorelease];
-	e->_selector=NSSelectorFromString([NSString stringWithFormat:@"_eval_%@:context:", name]);
+	e->_selector=NSSelectorFromString(selector);
 	if(![e respondsToSelector:e->_selector])
-		[NSException raise:NSInvalidArgumentException format:@"Unknown function implementation: %@", name];
+		[NSException raise:NSInvalidArgumentException format:@"Unknown selector: %@", selector];
 	e->_argc=[args count];
 	e->_args=[args retain];
 	e->_eargs=[args mutableCopy];	// make space for evaluated arguments - this is not a deep copy!
 	return e;
+}
+
++ (NSExpression *) expressionForFunction:(NSString *) name arguments:(NSArray *) args;
+{ // translate built-in function
+	return [self expressionForFunction:[[_NSEvaluatedObjectExpression new] autorelease] selectorName:[NSString stringWithFormat:@"_eval_%@:context:", name] arguments:args];
+}
+
++ (NSExpression *) expressionForIntersectSet:(NSExpression *) leftExp with:(NSExpression *) rightExp;
+{
+	return NIMP;
+}
+
++ (NSExpression *) expressionForMinusSet:(NSExpression *) leftExp with:(NSExpression *) rightExp;
+{
+	return NIMP;
 }
 
 + (NSExpression *) expressionForKeyPath:(NSString *) path;
@@ -927,6 +953,16 @@
 	return e;
 }
 
++ (NSExpression *) expressionForSubquery:(NSExpression *) exp usingIteratorVariable:(NSString *) var predicate:(id) pred;
+{
+	return NIMP;
+}
+
++ (NSExpression *) expressionForUnionSet:(NSExpression *) leftExp with:(NSExpression *) rightExp;
+{
+	return NIMP;
+}
+
 + (NSExpression *) expressionForVariable:(NSString *) string;
 {
 	_NSVariableExpression *e=[[[_NSVariableExpression alloc] init] autorelease];
@@ -934,16 +970,20 @@
 	return e;
 }
 
-- (NSExpression *) _expressionWithSubstitutionVariables:(NSDictionary *)variables;	{ return SUBCLASS; }
+- (NSExpression *) _expressionWithSubstitutionVariables:(NSDictionary *) variables;	{ return SUBCLASS; }
 
 - (NSArray *) arguments; { return SUBCLASS; }
 - (id) constantValue; { return SUBCLASS; }
+- (id) collection; { return SUBCLASS; }
 - (NSString *) description; { return SUBCLASS; }
 - (NSExpressionType) expressionType; { SUBCLASS; return 0; }
 - (id) expressionValueWithObject:(id) object context:(NSMutableDictionary *) context; { return SUBCLASS; }
 - (NSString *) function; { return SUBCLASS; }
 - (NSString *) keyPath; { return SUBCLASS; }
+- (NSExpression *) leftExpression; { return SUBCLASS; }
 - (NSExpression *) operand; { return SUBCLASS; }
+- (NSPredicate *) predicate; { return SUBCLASS; }
+- (NSExpression *) rightExpression; { return SUBCLASS; }
 - (NSString *) variable; { return SUBCLASS; }
 
 - (id) initWithExpressionType:(NSExpressionType) type;
@@ -961,6 +1001,12 @@
 			return [[_NSKeyPathExpression alloc] init];
 		case NSFunctionExpressionType:
 			return [[_NSFunctionExpression alloc] init];
+		case NSSubqueryExpressionType:
+		case NSAggregateExpressionType:
+		case NSUnionExpressionType:
+		case NSIntersectExpressionType:
+		case NSMinusExpressionType:
+			NIMP;
 		default:
 			return nil;
 		}

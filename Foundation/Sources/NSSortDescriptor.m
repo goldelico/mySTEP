@@ -31,7 +31,13 @@ NSInteger _descriptorComparator(id val1, id val2, void *context)
 
 - (NSComparisonResult) compareObject:(id) a toObject:(id) b;
 {
-	NSComparisonResult r = (NSComparisonResult) [[a valueForKeyPath:key] performSelector:selector withObject:[b valueForKeyPath:key]];
+	NSComparisonResult r;
+#if 0
+	NSLog(@"compare %@ to %@ at path: %@ withSelector: %@", a, b, key, NSStringFromSelector(selector));
+	NSLog(@"a.%@=%@", key, [a valueForKeyPath:key]);
+	NSLog(@"b.%@=%@", key, [b valueForKeyPath:key]);
+#endif
+	r = (NSComparisonResult) [[a valueForKeyPath:key] performSelector:selector withObject:[b valueForKeyPath:key]];
 	return ascending?r:-r;	// assuming NSComparisonResult is signed...
 }
 

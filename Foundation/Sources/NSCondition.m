@@ -11,4 +11,28 @@
 
 @implementation NSCondition
 
+- (void) broadcast;
+{
+	NIMP;
+}
+
+- (NSString *) name; { return _name; }
+- (void) setName:(NSString *) newName; { ASSIGN(_name, newName); }
+
+- (void) signal;
+{
+	NIMP;
+}
+
+- (void) wait;
+{
+	NIMP;
+}
+
+- (BOOL) waitUntilDate:(NSDate *) limit;
+{
+	NIMP;
+	return NO;
+}
+
 @end

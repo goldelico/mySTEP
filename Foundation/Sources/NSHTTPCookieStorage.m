@@ -6,6 +6,8 @@
 //  Copyright (c) 2006 DSITRI. All rights reserved.
 //
 
+#include <unistd.h>
+
 #import <Foundation/NSHTTPCookieStorage.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSEnumerator.h>

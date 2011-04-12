@@ -18,7 +18,7 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 
 + (BOOL) accessInstanceVariablesDirectly;
 {
-	return YES;
+	return YES;	// default is YES
 }
 
 - (id) valueForKeyPath:(NSString *) str;
@@ -26,7 +26,9 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 	id o=self;
 	NSEnumerator *e=[[str componentsSeparatedByString:@"."] objectEnumerator];
 	NSString *key;
+//	NSLog(@"path=%@", str);
 	while(o && (key=[e nextObject]))
+//		NSLog(@"key=%@", str);
 		// raise exception if !o?
 		o=[o valueForKey:key];	// go down key path
 	return o;	// return result
@@ -53,13 +55,47 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 	// exception?
 }
 
+// FIXME: we should define a cache to map the key to the IMP/relative address and necessary type conversions
+
 - (id) valueForKey:(NSString *) str;
 {
-	SEL s=NSSelectorFromString(str);
-	// FIXME: should look for getters like key, _key, isKey, getKey etc.
-	if(s && [self respondsToSelector:s])
-		return [self performSelector:s];
-	if([isa accessInstanceVariablesDirectly])
+	SEL s;
+	IMP msg;
+	const char *type;
+	void *addr;	// address of return value
+	// FIXME: should also try to look for getter methods like <key>, _<key>, is<Key>, get<Key> etc.
+//	NSLog(@"valueForKey: %@", str);
+//	NSLog(@"selector: %@", NSStringFromSelector(s));
+	/* if(found in cache)
+	 get msg, type, addr from cache
+	 else {
+	 ...
+	 add to cache
+	 -> handle valueForUndefinedKey key special case so that we don't search again if we know
+	 }*/
+	if((s=NSSelectorFromString(str)) && [self respondsToSelector:s])
+		{
+#if 0
+		NSMethodSignature *sig=[self methodSignatureForSelector:s];	// FIXME: this can be pretty slow!
+		type=[sig methodReturnType];
+		msg = objc_msg_lookup(self, s);
+#else
+		struct objc_method *m = (object_is_instance(self) 
+								 ? class_get_instance_method(isa, s)
+								 : class_get_class_method(isa, s));
+		Class c = object_get_class(self);
+		struct objc_protocol_list *protocols = c?c->protocols:NULL;
+		msg=m?m->method_imp:NULL;
+		type=m?m->method_types:NULL;	// default (if we have an implementation)
+		if(protocols)
+			// do we need to scan through protocols?
+			NSLog(@"not scanning protocols for valueForKey:%@", str);
+#endif
+//		NSLog(@"IMP = %p", msg);
+		if (!msg)
+			return [self _error:"unknown getter %s", sel_get_name(s)];
+		}
+	else if([isa accessInstanceVariablesDirectly])
 		{ // not disabled: try to access instance variable directly
 		struct objc_class *class;
 		const char *varName=[str UTF8String];
@@ -76,15 +112,50 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 						continue;	// no name - skip
 					if(strcmp(ivar.ivar_name, varName) == 0 || (ivar.ivar_name[0]=='_' && strcmp(ivar.ivar_name+1, varName) == 0)) 
 						{
-						// FIXME: should take a look at ivar_type to be an id
-						id *vp=(id *) (((char *)self) + ivar.ivar_offset);
-						return *vp;	// get object
+						msg=NULL;
+						type=ivar.ivar_type;
+						addr=((char *)self) + ivar.ivar_offset;
+						break;	// found
 						}
 					}
+				if(i < ivars->ivar_count)
+					break;	// fall through
 				}
 			}
+		if(class == Nil)
+			return [self valueForUndefinedKey:str];	// was not found
 		}
-	return [self valueForUndefinedKey:str];
+//	NSLog(@"valueForKey type %s", type);
+	switch(*type)
+		{
+			case _C_ID:
+			case _C_CLASS:
+				return msg ? (*(id (*)(id, SEL)) msg)(self, s) : *(id *) addr;	// get object value
+			case _C_CHR:
+			case _C_UCHR:
+				{
+				char ret=msg ? (*(char (*)(id, SEL)) msg)(self, s) :  *(char *) addr;
+#if 0
+				NSLog(@"valueForKey boxing char");
+#endif
+				// FIXME: separate signed and unsigned
+				return [NSNumber numberWithChar:ret];
+				}
+			case _C_INT:
+			case _C_UINT:
+				{
+				int ret=msg ? (*(int (*)(id, SEL)) msg)(self, s) :  *(int *) addr;
+#if 0
+				NSLog(@"valueForKey boxing int");
+#endif
+				// FIXME: separate signed and unsigned
+				return [NSNumber numberWithInt:ret];
+				}
+			// FIXME: handle other types
+		}
+	NSLog(@"valueForKey:%@ does not return an object (type=%s)", str, type);
+	return nil;
+	
 }
 
 #if NEW

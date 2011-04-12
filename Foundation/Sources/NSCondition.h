@@ -18,7 +18,7 @@
 
 @interface NSCondition : NSObject
 {
-
+	NSString *_name;
 }
 
 - (void) broadcast;

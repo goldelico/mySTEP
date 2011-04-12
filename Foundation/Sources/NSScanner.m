@@ -175,6 +175,17 @@ unsigned int saveScanLocation = scanRange.location;
 	return NO;
 }
 
+- (BOOL) scanInteger: (NSInteger *)value						// Scan an int into value.
+{
+	unsigned int saveScanLocation = scanRange.location;
+	
+	if ([self _skipToNextField] && [self _scanInt: value])
+		return YES;
+	scanRange.location = saveScanLocation;
+	
+	return NO;
+}
+
 - (BOOL) scanHexInt:(unsigned *) value;
 {												// Scan an unsigned int of the 
 unsigned int num = 0;							// given radix into value.
@@ -270,6 +281,21 @@ unsigned int saveScanLocation = scanRange.location;
 		}
 
 	return YES;
+}
+
+- (BOOL) scanHexDouble:(double *) value;
+{
+	NIMP; return NO;
+}
+
+- (BOOL) scanHexFloat:(float *) value;
+{
+	NIMP; return NO;
+}
+
+- (BOOL) scanHexLongLong:(unsigned long long *) value;
+{
+	NIMP; return NO;
 }
 
 // FIXME: we seem to know long long at other locations - where should LONG_LONG_MAX be defined? <limits.h>?

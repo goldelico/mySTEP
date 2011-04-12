@@ -93,7 +93,7 @@ typedef enum {setEnumHash, setEnumMap} SetEnumMode;
 
 + (id) allocWithZone:(NSZone *) z
 {
-	return NSAllocateObject((self==[NSSet class]) ? [NSConcreteSet class] : self,
+	return NSAllocateObject((self==[NSSet class]) ? (id) [NSConcreteSet class] : (id) self,
 							0, z);
 }
 
@@ -393,11 +393,34 @@ IMP imp = [description methodForSelector:sel];
 - (id) mutableCopyWithZone:(NSZone *) z			{ return [[NSMutableSet alloc] initWithSet:self]; }
 - (Class) classForCoder		{ return [NSSet class]; }
 
+// there may be room for optimizations here...
+
+- (NSSet *) setByAddingObject:(id) anObject;
+{
+	NSMutableSet *r=[[self mutableCopy] autorelease];
+	[r addObject:anObject];
+	return r;
+}
+
+- (NSSet *) setByAddingObjectsFromSet:(NSSet *) other;
+{
+	NSMutableSet *r=[[self mutableCopy] autorelease];
+	[r unionSet:other];
+	return r;	
+}
+
+- (NSSet *) setByAddingObjectsFromArray:(NSArray *) other;
+{
+	NSMutableSet *r=[[self mutableCopy] autorelease];
+	[r addObjectsFromArray:other];
+	return r;	
+}
+
 - (void) encodeWithCoder:(NSCoder*)aCoder
 {
-NSEnumerator *enumerator = [self objectEnumerator];
-int count = [self count];
-id object;
+	NSEnumerator *enumerator = [self objectEnumerator];
+	int count = [self count];
+	id object;
 
     [aCoder encodeValueOfObjCType:@encode(int) at:&count];
     while((object = [enumerator nextObject]))
@@ -439,7 +462,7 @@ id object;
 
 + (id) allocWithZone:(NSZone *) z
 {
-    return NSAllocateObject((self == [NSMutableSet class]) ? [NSConcreteMutableSet class] : self,
+    return NSAllocateObject((self == [NSMutableSet class]) ? (id) [NSConcreteMutableSet class] : (id) self,
 							0, z);
 }
 

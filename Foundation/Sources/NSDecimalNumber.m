@@ -140,7 +140,13 @@ static NSDecimalNumberHandler *handler;
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
-	return NIMP;
+	_roundingMode=[coder decodeIntForKey:@"NS.roundingmode"];
+	_raiseOnDivideByZero=[coder decodeIntForKey:@"NS.raise.dividebyzero"];
+	_raiseOnUnderflow=[coder decodeIntForKey:@"NS.raise.underflow"];
+	_raiseOnOverflow=[coder decodeIntForKey:@"NS.raise.overflow"];
+	_raiseOnExactness=[coder decodeIntForKey:@"NS.raise.exactness"];
+	// _scale=?
+	return self;
 }
 
 @end

@@ -153,15 +153,13 @@ static NSURLCache *_sharedURLCache;
 
 - (BOOL) isEqual:(id) other
 {
-	return [NSURLProtocol requestIsCacheEquivalent:_response toRequest:[other response]];
+	// when are two responses equal???
+	return [super isEqual:other];
 }
 
 - (NSUInteger) hash;
 { // FIXME: this must be the same for two cache-equivalent responses...
-	[NSURLProtocol canonicalRequestForRequest:_response];
-	// [NSURLRequest canonicalRequest]
-	// so it must be the same request URL but not the same response header
-	return (NSUInteger) self;
+	return [super hash];
 }
 
 - (NSData *) data; { return _data; }
