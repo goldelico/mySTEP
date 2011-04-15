@@ -178,7 +178,7 @@ static retval_t apply_block(void *data)
 #endif
 	if(!aSignature)
 		{ // missing signature
-		[self dealloc];
+		[self release];
 		return nil;
 		}
 	if((self=[super init]))
@@ -190,7 +190,7 @@ static retval_t apply_block(void *data)
 #if 1
 			NSLog(@"_initWithMethodSignature:andArgFrame: could not allocate _argframe");
 #endif
-			[self dealloc];
+			[self release];
 			return nil;
 			}
 		_argframeismalloc=(_argframe != argFrame);	// was re-allocated if different
@@ -207,7 +207,7 @@ static retval_t apply_block(void *data)
 #if 1
 				NSLog(@"_initWithMethodSignature:andArgFrame: could not allocate _retval");
 #endif
-				[self dealloc];
+				[self release];
 				return nil;
 				}
 			_retvalismalloc=YES;	// always...

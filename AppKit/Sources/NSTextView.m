@@ -839,18 +839,23 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 				{
 					if([event clickCount] > 1 && NSLocationInRange(pos, _selectedRange))
 						{ // in current range; we already hit the current selection -> it is a potential drag&drop
-							// extend selection
+#if 1
+							NSLog(@"multiclick %d", [event clickCount]);
+#endif
 							[self setSelectionGranularity:NSSelectByWord];
 							rng=_selectedRange;	// default: unchanged
-							switch([event clickCount])
-							{
-							  case 2:	// select word
+							switch([event clickCount]) {
+								case 2:	// select word
 								  rng=[textStorage doubleClickAtIndex:pos];
 								  break;
-							  case 3:	// select line
+								case 3: // select line
+								case 4:	// select paragraph
 								{
 									NSString *str=[textStorage string];
 									unsigned length=[str length];
+								
+								// FIXME: this is *wrong* lineBreakBeforeIndex returns a proposed position where a line break could be inserted (e.g. a space or puncuation).
+								
 									rng.location=[textStorage lineBreakBeforeIndex:pos withinRange:NSMakeRange(0, length)];
 									rng.length=[str rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"\n"] options:0 range:NSMakeRange(pos, length-pos)].location;
 									if(rng.length == NSNotFound)
@@ -858,8 +863,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 									else
 										rng.length = rng.length-rng.location;
 								}
-							  case 4: // select paragraph
-							  default:
+								default:
 								  break;
 							}
 						}
@@ -1059,6 +1063,8 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		// NSBackgroundColor -> NSColor, NSColor -> NSColor
 		markedAttributes=[[coder decodeObjectForKey:@"NSMarkedAttributes"] retain];
 		selectedAttributes=[[coder decodeObjectForKey:@"NSSelectedAttributes"] retain];
+		// FIXME:
+		[coder decodeInt32ForKey:@"NSTextCheckingTypes"];
 	}
 	return self;
 }

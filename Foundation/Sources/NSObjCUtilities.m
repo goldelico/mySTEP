@@ -581,6 +581,11 @@ va_list ap;
 	return nil;
 }
 
+const char *_NSPrintForDebugger(id object)
+{
+	return [[object description] cString];
+}
+
 //*****************************************************************************
 //
 // 		NSObjCRuntime 

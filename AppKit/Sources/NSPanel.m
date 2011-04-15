@@ -742,10 +742,10 @@ static NSSavePanel *__savePanel;
 {	
 	NSString *path = [browser path];
 	
-	if([[browser selectedCell] isLeaf])		// remove file component of path
-		path = [path stringByDeletingLastPathComponent];	
+//	if([[browser selectedCell] isLeaf])		// remove file component of path (this is the rightmost lowest cell)
+	path = [path stringByDeletingLastPathComponent];	
 	
-	return (![path length]) ? lastValidPath : path;
+	return ([path length] == 0) ? lastValidPath : path;
 }
 
 - (NSString *) filename
@@ -769,10 +769,11 @@ static NSSavePanel *__savePanel;
 	if (![f isEqualToString:[[browser path] lastPathComponent]] && [f isAbsolutePath])
 		{ // user has typed some new absolute path
 		if (![browser setPath:[fileName stringValue]])
-			{
+			{ // unreadable
+				// FIXME: better restore the previous path? Or just as far as it works?
 			NSString *a = [[NSProcessInfo processInfo] processName];
 			// what should we do here? Ignore?
-			NSRunAlertPanel(a,@"Invalid path: '%@'",@"Continue",nil,nil,f);
+			NSRunAlertPanel(a, @"Invalid path: '%@'",@"Continue",nil,nil,f);
 			return;
 			}		
 		}
@@ -874,18 +875,19 @@ static NSSavePanel *__savePanel;
 		{
 		if([file hasPrefix:@"."])
 			continue;	// skip
+		// check for hidden files
 		[files addObject:file];
 		}
 	sortedFiles=[files sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];	// sort alphabetically
+#if 1
+	NSLog(@"sortedFiles=%@", sortedFiles);
+#endif
 	count = [sortedFiles count];
-#if 0	
+#if 1
     NSLog(@"createRowsForColumn");
 #endif
 	[matrix renewRows:count columns:1];				// create necessary cells
 	[matrix sizeToCells];	
-	
-	if (count == 0)
-		return;
 	
     for (i = 0; i < count; ++i) 
 		{
@@ -896,7 +898,12 @@ static NSSavePanel *__savePanel;
 		[cell setStringValue:filename];
 		[fm fileExistsAtPath:path isDirectory: &is_dir];
 		[cell setEnabled:(is_dir || [self _isAllowedFile:filename])]; // disable cell if file extension is not allowed
-																	  // FIXME: handle 
+#if 1
+		NSLog(@"path=%@", path);
+		NSLog(@"is_dir=%@", is_dir?@"yes":@"no");
+		NSLog(@"treatsFilePackagesAsDirectories=%@", treatsFilePackagesAsDirectories?@"yes":@"no");
+		NSLog(@"isFilePackageAtPath=%@", [[NSWorkspace sharedWorkspace] isFilePackageAtPath:path]?@"yes":@"no");
+#endif
 		[cell setLeaf: (!(is_dir) || (!treatsFilePackagesAsDirectories && [[NSWorkspace sharedWorkspace] isFilePackageAtPath:path]))];
 		}
 }
@@ -1111,48 +1118,16 @@ static NSOpenPanel *__openPanel;
 {
 	NSFileManager *fm = [NSFileManager defaultManager];
 	NSString *ptc = [sender pathToColumn: column];
-	NSArray *f = [fm directoryContentsAtPath: ptc];
 	int i, count;
-	NSMutableArray *files = [NSMutableArray arrayWithCapacity:[f count]];
-	NSArray *sortedFiles;
-	NSEnumerator *e=[f objectEnumerator];
-	NSString *file;
-	while((file=[e nextObject]))
-		{
-		if([file hasPrefix:@"."])
-			continue;	// skip
-		[files addObject:file];
-		}
-	sortedFiles=[files sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];	// sort alphabetically
-	count = [sortedFiles count];
-#if 0	
-    NSLog(@"createRowsForColumn");
-#endif
-	[matrix renewRows:count columns:1];				// create necessary cells
-	[matrix sizeToCells];	
-	
-	if (count == 0)
-		return;
-	
+	[super browser:sender createRowsForColumn:column inMatrix:matrix];	// standard
     for (i = 0; i < count; ++i) 
-		{
+		{ // loop a second time and update the setEnabled flag
 		id cell = [matrix cellAtRow: i column: 0];
 		BOOL is_dir = NO;
-		NSString *filename=[sortedFiles objectAtIndex: i];
+		NSString *filename=[cell stringValue];
 		NSString *path=[NSString stringWithFormat:@"%@/%@", ptc, filename];
-		[cell setStringValue:filename];
 		[fm fileExistsAtPath:path isDirectory: &is_dir];
-		if(is_dir)
-			{
-			[cell setEnabled:_op.canChooseDirectories];
-			// FIXME: but we should be able to traverse the directory structure!
-			[cell setEnabled:YES];
-			}
-		else
-			{
-			[cell setEnabled:(_op.canChooseFiles && [self _isAllowedFile:filename])]; // disable cell if file extension is not allowed
-			}
-		[cell setLeaf: (!(is_dir) || (!treatsFilePackagesAsDirectories && [[NSWorkspace sharedWorkspace] isFilePackageAtPath:path]))];
+		[cell setEnabled:(is_dir && _op.canChooseDirectories) || (_op.canChooseFiles && [self _isAllowedFile:filename])]; // disable cell if file extension is not allowed
 		}
 }
 

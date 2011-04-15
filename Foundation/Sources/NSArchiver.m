@@ -700,7 +700,7 @@ id object = [unarchiver decodeObject];
     NSFreeMapTable(classAlias);
     NSFreeMapTable(classVersions);
 
-    return [super dealloc];
+    [super dealloc];
 }
 
 + (id) unarchiveObjectWithFile:(NSString*)path

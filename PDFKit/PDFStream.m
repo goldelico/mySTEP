@@ -6,7 +6,7 @@
 //  Copyright (c) 2005 DSITRI. All rights reserved.
 //
 
-#include <zlib.h>
+// #include <zlib.h>
 #import "PDFKitPrivate.h"
 
 @interface PDFASCIIHexStream : PDFStream
@@ -57,6 +57,10 @@
 
 @end
 
+@interface NSData (Zip)
+- (NSData *) inflate;
+@end
+
 @interface PDFFlateStream : PDFStream
 @end
 
@@ -64,6 +68,8 @@
 
 - (NSData *) decode;
 {
+	return [[_previous data] inflate];
+#if OLD
 	z_stream strm;
 	int err;
 	NSMutableData *result=[NSMutableData dataWithCapacity:[self length]];	// estimate required length
@@ -108,6 +114,7 @@
 		return nil;
 		}
 	return result;
+#endif
 }
 
 - (NSString *) description;

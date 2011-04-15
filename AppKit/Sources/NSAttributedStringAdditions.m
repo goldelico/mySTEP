@@ -1075,6 +1075,9 @@ static BOOL done;
 	NSRange rng;
 	rng.location=[self nextWordFromIndex:location forward:NO];
 	rng.length=[self nextWordFromIndex:location forward:YES]-rng.location;
+#if 1
+	NSLog(@"doubleClickAtIndex:%u -> %@", location, NSStringFromRange(rng));
+#endif
 	return rng;
 }
 
@@ -1084,9 +1087,12 @@ static BOOL done;
 	NSString *s=[self string];
 	static NSCharacterSet *c;
 	NSRange r;
+#if 1
+	NSLog(@"nextWordFromIndex:%u forward:%d", location, flag);
+#endif
 	if(!c)
 		c=[[[NSCharacterSet whitespaceAndNewlineCharacterSet] invertedSet] retain];
-	if(location >= len)
+	if(location > len || (location == len && flag) || (location == 0 && !flag))
 		[NSException raise:NSRangeException format:@"Invalid location %u", location];	// raise exception
 	if(flag)
 		r=[s rangeOfCharacterFromSet:c options:0 range:NSMakeRange(location+1, len-location-1)];

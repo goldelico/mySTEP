@@ -46,9 +46,8 @@ typedef enum {
 //
 
 static NSBundle *__mainBundle;
-static NSMapTable *__bundles;	// for bundles we can't unload, don't dealloc. true for all bundles (now).
-static NSMapTable *__releasedBundles;
-static NSMapTable *__bundlesForExecutables;	// map executable file name to bundle
+static NSMapTable *__bundles;	// map bundle path to NSBundle
+static NSMapTable *__bundlesForExecutables;	// map C file name to NSBundle
 static NSString *__launchCurrentDirectory;
 
 // When we are linking in an object file, objc_load_modules 
@@ -84,14 +83,12 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		NSString *virtualRoot;
 		int vrl;
 		__bundles = NSCreateMapTable(NSObjectMapKeyCallBacks,
-									 NSNonOwnedPointerMapValueCallBacks, 0);
-		__releasedBundles = NSCreateMapTable(NSObjectMapKeyCallBacks,
-									 NSNonOwnedPointerMapValueCallBacks, 0);
+									 NSObjectMapValueCallBacks, 0);	// retains...
 		__bundlesForExecutables = NSCreateMapTable(NSNonOwnedCStringMapKeyCallBacks,
-									 NSObjectMapValueCallBacks, 0);
-			virtualRoot=[NSString stringWithUTF8String:[@"/" fileSystemRepresentation]];
-			vrl=[virtualRoot length]-1;
-//			fprintf(stderr, " vRoot=%p\n", virtualRoot);
+									NSObjectMapValueCallBacks, 0);
+		virtualRoot=[NSString stringWithUTF8String:[@"/" fileSystemRepresentation]];
+		vrl=[virtualRoot length]-1;
+//		fprintf(stderr, " vRoot=%p\n", virtualRoot);
 #if 0
 		NSLog(@"args=%@", [pi arguments]);
 		NSLog(@"$0=%@", path);
@@ -124,10 +121,12 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		__launchCurrentDirectory=[[fm currentDirectoryPath] retain];
 		if([path hasPrefix:@"./"])
 			path=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// denotes relative location
+#if OLD
 		if([path hasPrefix:@"/hdd2"])
 			path=[path substringFromIndex:5];	// strip off - just in case of C3000...
 		if([path hasPrefix:@"/home/root"])
 			path=[path substringFromIndex:10];	// strip off - just in case of gdb on Zaurus (/usr/share -> /home/root/usr/share)
+#endif
 		if([path hasPrefix:virtualRoot])
 			path=[path substringFromIndex:vrl];	// strip off - just in case...
 #if 0
@@ -194,32 +193,32 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 //					format:@"No executable found for class %@", NSStringFromClass(aClass)];
 		return __mainBundle;	// if nowhere defined
 		}
-	if((bundle = (NSBundle *)NSMapGet(__bundlesForExecutables, file)))	// look up by filename
+	if((bundle = (NSBundle *)NSMapGet(__bundlesForExecutables, file)))	// look up by filename - if already known
 		return bundle;
 	path=[[NSFileManager defaultManager] stringWithFileSystemRepresentation:file length:strlen(file)];
 	if([path hasPrefix:@"./"])
 		path=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// denotes relative location
+#if OLD
 	if([path hasPrefix:@"/hdd2"])
 		path=[path substringFromIndex:5];	// strip off - just in case of C3000...
 	if([path hasPrefix:@"/home/root"])
 		path=[path substringFromIndex:10];	// strip off - just in case of gdb on Zaurus (/usr/share -> /home/root/usr/share)
+#endif
 #if 0
 	NSLog(@"path=%@", path);
 #endif
 	bpath=path;
 	while([bpath length] > 1)
-		{
+		{ // search upwards until we have found the anchor point
 		bpath=[bpath stringByDeletingLastPathComponent];	// remove executable name etc.
-		bundle=[self bundleWithPath:bpath];
+		bundle=[self bundleWithPath:bpath];	// try to open
 #if 0
 		NSLog(@"try %@: %@", bundle, [bundle executablePath]);
 #endif
 		if(bundle && [[bundle executablePath] isEqualToString:path])
 			{ // found!
-			NSMapInsert(__bundlesForExecutables, file, bundle);	// save in cache!
-#if 0
+			NSMapInsert(__bundlesForExecutables, file, bundle); // save in cache!
 			NSLog(@"found %@", bundle, [bundle executablePath]);
-#endif
 			return bundle;
 			}
 		}
@@ -234,43 +233,37 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 
 - (id) initWithPath:(NSString *)path;
 {
-	NSBundle *bundle, *loaded;
+	NSBundle *bundle;
+	NSString *exec;
+	BOOL isdir;
 
 	if (!path || [path length] == 0)
 		{
 		NSLog(@"No path specified for bundle");
+		[self release];
 		return nil;
 		}
 
-	if ((bundle = (NSBundle *)NSMapGet(__bundles, path)))
-		{										// Check if we were already
-		[self dealloc];							// init'd for this directory.
-		return [bundle retain]; 				// retain and return if so 
+	if ((bundle = (NSBundle *) NSMapGet(__bundles, path)))
+		{ // Check if we were already init'd for this directory
+		[self release];
+		return [bundle retain];
 		}
 
-	if ((loaded = (NSBundle *)NSMapGet(__releasedBundles, path)))
-		{										// Check if path corresponds
-		NSMapInsert(__bundles, path, loaded);	// to a released bundle 
-		NSMapRemove(__releasedBundles, path);
-		[self dealloc];
-		return [loaded retain]; 				// retain and return if so 
-		}
-
-	if (![[NSFileManager defaultManager] fileExistsAtPath:path])
+	if (![[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isdir] || !isdir)
 		{
 #if 0
 		NSLog(@"Could not access path %@ for bundle", path);
 #endif
-		[self dealloc];
+		[self release];
 		return nil;
 		}
+
 	if([path hasSuffix:@".framework"])
 		_bundleType = (unsigned int) NSBUNDLE_FRAMEWORK;
 	else
 		_bundleType = (unsigned int) NSBUNDLE_BUNDLE;
 	
-	// should check for proper structure, i.e. has Contents subdirectory
-
 	_searchPaths = [[NSMutableDictionary alloc] initWithCapacity: 4];
 	_path = [path copy];
 	if(_bundleType == (unsigned int) NSBUNDLE_FRAMEWORK)
@@ -278,19 +271,41 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 	else
 		_bundleContentPath=[_path stringByAppendingPathComponent:@"Contents"];
 	[_bundleContentPath retain];
+
+#if 0	// does not work for Framework bundles because the default Info.plist is in _bundleContentPath/Resources
+	if (![[NSFileManager defaultManager] fileExistsAtPath:[_bundleContentPath stringByAppendingPathComponent:@"Info.plist"]])
+		{
+#if 0
+		NSLog(@"Could not find Info.plist for bundle %@", path);
+#endif
+		[self release];
+		return nil;
+		}
+#endif
+
 #if 0
 	NSLog(@"_bundleContentPath=%@", _bundleContentPath);
 #endif
-	NSMapInsert(__bundles, _path, self);
-
+	NSMapInsert(__bundles, _path, self);	// map by bundle path (retains!)
+	
+	// CHECKME: __bundlesForExecutables uses a C string (absolute file name) as the key
+	// we may have to use the fileSystemRepresentation
+	
+#if 0
+	if((exec=[self executablePath]))
+		{ // we have a executable
+#if 0
+			NSLog(@"info dict=%@", [self infoDictionary]);
+			NSLog(@"[bundle executablePath]=%@", exec);
+#endif
+			NSMapInsert(__bundlesForExecutables, exec, self);	// map by executable path (retains!)			
+		}
+#endif
 	return self;
 }
 
 - (void) dealloc
 {
-#if 0
-	NSLog(@"can't unload and dealloc bundles!");
-#endif
 	NSMapRemove(__bundles, _path);
 	NSMapRemove(__bundlesForExecutables, NULL);
 	[_localizations release];
@@ -300,13 +315,9 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 	[_path release];
 	[_bundleContentPath release];
 	[_searchPaths release];
-	[super dealloc];							// Currently, the objc runtime 
-}												// can't unload modules so 
-												// disable dealloc of bundles
-- (id) retain 							{ return self; }
-- (id) autorelease 						{ return self; }
-- (void) release						{}
-- (unsigned int) retainCount 			{ return 1; }
+	[super dealloc];
+}
+
 - (NSString *) bundlePath				{ return _path; }
 
 - (NSString *) description

@@ -32,6 +32,7 @@
 
 @interface NSArray : NSObject  <NSCoding, NSCopying, NSMutableCopying>
 {
+	@public
 	id *_contents;
 	unsigned int _count;
 }
@@ -100,13 +101,23 @@
 @interface NSMutableArray : NSArray
 {
 	unsigned int _capacity;
+//	unsigned int _mutationSequence;	// used to detect mutation in enumerator
 }
 
 - (void) addObject:(id) anObject;
 - (id) initWithCapacity:(NSUInteger) numItems;
 - (void) insertObject:anObject atIndex:(NSUInteger) index;
+- (void) exchangeObjectAtIndex:(NSUInteger) i1 withObjectAtIndex:(NSUInteger) i2;
 - (void) removeObjectAtIndex:(NSUInteger) index;
+- (void) removeObject:(id) anObject inRange:(NSRange) aRange;
+- (void) removeObjectIdenticalTo:(id) anObject;
+- (void) removeObjectIdenticalTo:(id) anObject inRange:(NSRange) aRange;
 - (void) replaceObjectAtIndex:(NSUInteger) index withObject:(id) anObject;
+- (void) replaceObjectsInRange:(NSRange) aRange
+		  withObjectsFromArray:(NSArray *) anArray;
+- (void) replaceObjectsInRange:(NSRange) aRange
+		  withObjectsFromArray:(NSArray *) anArray
+						 range:(NSRange) anotherRange;
 
 @end
 
@@ -115,25 +126,17 @@
 + (id) arrayWithCapacity:(NSUInteger) numItems;
 
 - (void) addObjectsFromArray:(NSArray *) otherArray;
-- (void) exchangeObjectAtIndex:(NSUInteger) i1 withObjectAtIndex:(NSUInteger) i2;
 - (void) insertObjects:(NSArray *) objects atIndexes:(NSIndexSet *) indexes;
 - (void) removeAllObjects;
 - (void) removeLastObject;
 - (void) removeObject:(id) anObject;
 - (void) removeObject:(id) anObject inRange:(NSRange) aRange;
-- (void) removeObjectIdenticalTo:(id) anObject;
-- (void) removeObjectIdenticalTo:(id) anObject inRange:(NSRange) aRange;
 - (void) removeObjectsAtIndexes:(NSIndexSet *) indexes;
 - (void) removeObjectsFromIndices:(NSUInteger *) indices 
 					   numIndices:(NSUInteger) count;
 - (void) removeObjectsInArray:(NSArray *) otherArray;
 - (void) removeObjectsInRange:(NSRange) aRange;
 - (void) replaceObjectsAtIndexes:(NSIndexSet *) indexes withObjects:(NSArray *) objects;
-- (void) replaceObjectsInRange:(NSRange) aRange
-		  withObjectsFromArray:(NSArray *) anArray;
-- (void) replaceObjectsInRange:(NSRange) aRange
-		  withObjectsFromArray:(NSArray *) anArray
-		  range:(NSRange) anotherRange;
 - (void) setArray:(NSArray *) otherArray;
 - (void) sortUsingFunction:(int(*)(id,id,void*)) compare 
 				   context:(void *) context;

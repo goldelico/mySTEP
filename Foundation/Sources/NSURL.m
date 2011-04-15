@@ -620,7 +620,7 @@ static NSString *unescape(const char *from)
 
 - (id) initFileURLWithPath: (NSString*)aPath isDirectory:(BOOL) isDir
 {
-#if 0
+#if 1
 	NSLog(@"initFileURLWithPath %@", aPath);
 #endif
 	NSAssert([aPath isAbsolutePath], @"fileURL must be absolute path");

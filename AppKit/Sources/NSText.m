@@ -677,10 +677,13 @@ object:self]
 
 - (void) _handleFieldEditorMovement:(int) move
 { // post field editor notification
+	if(_delegate && [_delegate respondsToSelector:@selector(textShouldEndEditing:)]
+	   && ![_delegate textShouldEndEditing:self])
+		return NO;	// not accepted
 	[[NSNotificationCenter defaultCenter] postNotification:
-		[NSNotification notificationWithName:NOTE(DidEndEditing) 
-																	object:self
-																userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:move] forKey:NSTextMovement]]];
+	 [NSNotification notificationWithName:NOTE(DidEndEditing) 
+								   object:self
+								 userInfo:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:move] forKey:NSTextMovement]]];
 }
 
 - (void) cancelOperation:(id) sender

@@ -298,7 +298,7 @@ static BOOL __fileSystemChanged = NO;
     BOOL isDir = NO;
     BOOL exists = [fm fileExistsAtPath:path isDirectory:&isDir];
     if(!(exists && isDir))
-		return NO;	// must be a directory
+		return NO;	// must be a directory to be a package
 	if([QSFilePackageExtensions objectForKey:[path pathExtension]])
 		return YES;	// file extension is in list of Document bundles
 	// otherwise we must have a subdirectory named "Contents"

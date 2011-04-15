@@ -58,6 +58,7 @@
 #import <Foundation/NSFileManager.h>
 #import <Foundation/NSURL.h>
 #import "NSPrivate.h"
+#include <zlib.h>
 
 #if	HAVE_MMAP
 #include <sys/mman.h>
@@ -967,6 +968,58 @@ static IMP appendImp;
 }
 
 @end
+
+@implementation NSData (Zip)
+
+- (NSData *) inflate;
+{
+	z_stream strm;
+	int err;
+	NSMutableData *result=[NSMutableData dataWithCapacity:[self length]];	// estimate required length
+	unsigned char buf[512];
+#if 0
+	NSLog(@"%@ raw=%@", NSStringFromClass([self class]), _source);
+#endif
+	//	[_source writeToFile:@"stream.zip" atomically:NO];
+	strm.zalloc=Z_NULL;	// use internal memory allocator
+	strm.zfree=Z_NULL;
+	strm.opaque=NULL;
+	strm.next_in=(unsigned char *) [self bytes];
+	strm.avail_in=[self length];
+	strm.next_out=buf;
+	strm.avail_out=sizeof(buf);
+	if(inflateInit(&strm) != Z_OK)
+		{ // some error
+			return nil;
+		}
+	while(YES)
+		{
+		err=inflate(&strm, Z_NO_FLUSH);
+		if(err == Z_OK || err == Z_STREAM_END)
+			{
+#if 0
+			NSLog(@"Z_OK (%d bytes)", sizeof(buf)-strm.avail_out);
+#endif
+			[result appendBytes:buf length:sizeof(buf)-strm.avail_out];
+			if(err == Z_STREAM_END)
+				break;
+			strm.next_out=buf;
+			strm.avail_out=sizeof(buf);
+			continue;
+			}
+		NSLog(@"Z_ERROR %d: %s", err, strm.msg);
+		inflateEnd(&strm);
+		return nil;
+		}
+	if(inflateEnd(&strm) != Z_OK)
+		{ // some error
+			return nil;
+		}
+	return result;
+}
+
+@end
+
 										// Top of concrete implementations of
 										// hierarchy. Contains efficient
 @implementation	NSDataStatic			// implementations of most methods.

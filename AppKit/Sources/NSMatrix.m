@@ -847,6 +847,9 @@ This method is used for selecting cells in list mode with selection by
 { // returns the rightmost bottommost selected cell
 	int row, column;
 	// FIXME: this should be cached and rebuilt only if a cell state changes (how can we know that? KVO?)
+	// the problem is that we can externally change the cell state
+	// a simple solution would be to cache the result cell and return it as long as it is still selected
+	// search for a different only if it is off (or the last cell pointer is removed by a friendly setter)
 	for(row=_numRows-1; row >= 0; row--)
 		{
 		for(column=_numCols-1; column >= 0; column--)
@@ -926,7 +929,7 @@ This method is used for selecting cells in list mode with selection by
 {
 	NSCell *selectedCell=[self selectedCell];
 #if 1
-	NSLog(@" NSMatrix: selectText --- ");
+	NSLog(@" NSMatrix: selectText cell=%@", selectedCell);
 #endif
 	if (selectedCell && [selectedCell isEditable] && [selectedCell isEnabled])
 		{
@@ -940,8 +943,7 @@ This method is used for selecting cells in list mode with selection by
 							   editor:t	
 							 delegate:self	
 								start:(int)0	 
-							   length:(int)0];
-		
+							   length:(int)0];		
 		//		[window makeFirstResponder: t];
 		}
 }
@@ -968,7 +970,7 @@ This method is used for selecting cells in list mode with selection by
 	NSNumber *code;
 	NSCell *selectedCell=[self selectedCell];
 
-	NSLog(@" NSMatrix textDidEndEditing ");
+	NSLog(@" NSMatrix textDidEndEditing for cell %@", selectedCell);
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:CONTROL(TextDidEndEditing) object: self];
 	
@@ -978,10 +980,12 @@ This method is used for selecting cells in list mode with selection by
 		switch([code intValue])
 			{
 			case NSReturnTextMovement:
+#if 1
+				NSLog(@"enter key");
+#endif
 				[_window makeFirstResponder:self];
-				if(![self sendAction])
-					[self sendAction:[self action] to:[self target]];
-					break;
+				[self sendAction];
+				break;
 			case NSTabTextMovement:					// FIX ME select next cell
 			case NSBacktabTextMovement:
 				case NSUpTextMovement:
@@ -1004,11 +1008,14 @@ This method is used for selecting cells in list mode with selection by
 - (BOOL) textShouldEndEditing:(NSText*)aTextObject
 {															// delegate method
 	NSCell *selectedCell=[self selectedCell];
-	NSLog(@" NSMatrix textShouldEndEditing ");
+	NSLog(@" NSMatrix textShouldEndEditing (text=%@)", aTextObject);
+	NSLog(@" storage=%@", [aTextObject textStorage]);
+	NSLog(@" string=%@", [aTextObject string]);
+	NSLog(@" cell=%@", selectedCell);
 	
 	if(![_window isKeyWindow])
 		return NO;
-	
+
 	if(selectedCell && [selectedCell isEntryAcceptable: [aTextObject string]])
 		{
 		if (_delegate && [_delegate respondsToSelector:@selector(control:textShouldEndEditing:)])
@@ -1018,14 +1025,14 @@ This method is used for selecting cells in list mode with selection by
 				
 				return NO;
 				}
-				
+
 		[selectedCell setStringValue:[aTextObject string]];
-		
+
 		return YES;
 		}
 	
 	NSBeep();												// entry not valid
-															//	[[selectedCell target] performSelector:_errorAction withObject:self];
+															//	[self sendAction:_errorAction toTarget:[selectedCell target]];
 	[aTextObject setString:[selectedCell stringValue]];
 	
 	return NO;
@@ -1117,35 +1124,17 @@ This method is used for selecting cells in list mode with selection by
 {
 	SEL cellAction;
 	NSCell *selectedCell=[self selectedCell];
-	
+#if 1
+	NSLog(@"sendAction selected=%@", selectedCell);
+	NSLog(@"cell action=%@ target=%@", NSStringFromSelector([selectedCell action]), [selectedCell target]);
+	NSLog(@"self action=%@ target=%@", NSStringFromSelector([self action]), [self target]);
+#endif
 	if (!selectedCell || ![selectedCell isEnabled])
 		return NO;
 	
-	if ((cellAction = [selectedCell action])) 
-		{
-		id cellTarget = [selectedCell target];
-		
-		if (cellTarget)
-			{
-			if ((_m.mode != NSTrackModeMatrix) && (_m.mode != NSHighlightModeMatrix))
-				[cellTarget performSelector:cellAction withObject:self];
-			else
-				return NO;
-			}
-		else
-			{
-			if(!_target)
-				return NO;
-			[_target performSelector:cellAction withObject:self];	// ??? is this like Cocoa?
-			}	}
-	else
-		{
-		if(!_target || !_action)
-			return NO;
-		[_target performSelector:_action withObject:self];
-		}
-	
-	return YES;
+	if ((cellAction = [selectedCell action]) && [self sendAction:cellAction to:[selectedCell target]])
+		return YES;
+	return [self sendAction:_action toTarget:_target];
 }
 
 - (void) sendDoubleAction
@@ -1154,7 +1143,7 @@ This method is used for selecting cells in list mode with selection by
 	if (!selectedCell || ![selectedCell isEnabled])
 		return;
 	if (_target && _doubleAction)
-		[_target performSelector:_doubleAction withObject:self];
+		[self sendAction:_doubleAction toTarget:_target];
 	else
 		[self sendAction];
 }
@@ -1324,7 +1313,10 @@ This method is used for selecting cells in list mode with selection by
 						[self sendAction];
 					}
 				if([aCell isEditable])			// if cell is editable
+					{
+					[self selectCell:aCell];	// select the cell so that the action methods get called
 					[self selectText:self];		// begin editing
+					}
 				break;	// break loop
 				}
 			}
@@ -1505,9 +1497,9 @@ This method is used for selecting cells in list mode with selection by
 		_numRows = [aDecoder decodeIntForKey:@"NSNumRows"];
 		_cellPrototype = [[aDecoder decodeObjectForKey:@"NSProtoCell"] retain];
 			// FIXME: I have seen the case that there is only a NSSelectedRow and a NSSelectedCell but no NSSelectedCol
-		if([aDecoder containsValueForKey:@"NSSelectedRow"] && [aDecoder containsValueForKey:@"NSSelectedCol"])
+		if([aDecoder containsValueForKey:@"NSSelectedRow"] || [aDecoder containsValueForKey:@"NSSelectedCol"])
 			[self selectCellAtRow:[aDecoder decodeIntForKey:@"NSSelectedRow"] column:[aDecoder decodeIntForKey:@"NSSelectedCol"]];
-		else if([aDecoder containsValueForKey:@"NSSelectedCell"])
+		if([aDecoder containsValueForKey:@"NSSelectedCell"])
 			[self selectCell:[aDecoder decodeObjectForKey:@"NSSelectedCell"]];
 #if 0
 		NSLog(@"%@ initWithCoder:%@", self, aDecoder]);

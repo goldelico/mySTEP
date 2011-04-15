@@ -413,9 +413,7 @@ becomes the shared instance.
 	DEPRECATED;
 	
 	if (document == nil) 
-		{
 		return nil;
-		}
 	
 	[self addDocument:document];
 	if ([self shouldCreateUI])
@@ -435,28 +433,22 @@ becomes the shared instance.
 	DEPRECATED;
 	
 	if (document == nil)
-		{
+		{ // not yet open
 		NSString *type = [self typeFromFileExtension: [fileName pathExtension]];
-		
-		if ((document = [self makeDocumentWithContentsOfFile: fileName 
-													  ofType: type]))
-			{
-			[self addDocument: document];
-			}
+		document = [self makeDocumentWithContentsOfFile: fileName ofType: type];
+		if (!document)
+			return nil;	// failed to open the document
+
+		[self addDocument: document];
 		
 		if ([self shouldCreateUI])
-			{
 			[document makeWindowControllers];
-			}
 		}
 	
-	// remember this document as opened
-	[self noteNewRecentDocument: document];
-	
+	[self noteNewRecentDocument: document];		// remember this document as successfully (re) opened
+
 	if (display && [self shouldCreateUI])
-		{
 		[document showWindows];
-		}
 	
 	return document;
 }
@@ -474,25 +466,18 @@ becomes the shared instance.
 		document = [self makeDocumentWithContentsOfURL: url ofType: type];
 		
 		if (document == nil)
-			{
 			return nil;
-			}
 		
 		[self addDocument: document];
 		
 		if ([self shouldCreateUI])
-			{
 			[document makeWindowControllers];
-			}
 		}
 	
-	// remember this document as opened
-	[self noteNewRecentDocumentURL: url];
+	[self noteNewRecentDocumentURL: url];	// remember this document as opened
 	
 	if (display && [self shouldCreateUI])
-		{
 		[document showWindows];
-		}
 	
 	return document;
 }
@@ -537,14 +522,13 @@ list of files that the user has selected.
 {
 	NSArray *types = [self _openableFileExtensions];
 	NSOpenPanel *openPanel = [self _setupOpenPanel];
-	DEPRECATED;
 	
-	if ([self runModalOpenPanel: openPanel  forTypes: types])
-		{
-		return [openPanel filenames];
-		}
-	
-	return nil;
+	if ([self runModalOpenPanel: openPanel  forTypes: types] != NSOKButton)
+		return nil;	// cancelled
+#if 1
+	NSLog(@"open %@", [openPanel filenames]);
+#endif
+	return [openPanel filenames];	
 }
 
 /** Uses -runModalOpenPanel:forTypes: to allow the user to select
@@ -556,12 +540,9 @@ list of files as URLs that the user has selected.
 	NSArray *types = [self _openableFileExtensions];
 	NSOpenPanel *openPanel = [self _setupOpenPanel];
 	
-	if ([self runModalOpenPanel: openPanel  forTypes: types])
-		{
-		return [openPanel URLs];
-		}
-	
-	return nil;
+	if ([self runModalOpenPanel: openPanel  forTypes: types] != NSOKButton)
+		return nil;
+	return [openPanel URLs];
 }
 
 

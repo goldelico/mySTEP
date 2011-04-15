@@ -75,33 +75,18 @@ If not, write to the Free Software Foundation,
 
 - (id) initWithContentsOfFile:(NSString *)fileName ofType:(NSString *)fileType
 {
-#if 0
-	NSLog(@"initWithContentsOfFile: %@", fileName);
-#endif
-	self=[self init];
-	if ([self readFromFile:fileName ofType:fileType])
-		{
-		[self setFileType:fileType];
-		[self setFileName:fileName];
-		}
-	else
-		{
-		NSRunAlertPanel (@"Load failed",
-						 @"Could not load file %@.",
-						 nil, nil, nil, fileName);
-		[self release];
-		return nil;
-		}
-	return self;
+	DEPRECATED;
+	return [self initWithContentsOfURL:[NSURL fileURLWithPath:fileName] ofType:fileType];
 }
 
 - (id) initWithContentsOfURL:(NSURL *)url ofType:(NSString *)fileType
 {
+	NSError *error;
 #if 0
 	NSLog(@"initWithContentsOfURL: %@", url);
 #endif
 	self=[self init];
-	if([self readFromURL:url ofType:fileType])
+	if([self readFromURL:url ofType:fileType error:&error])
 		{
 		[self setFileType:fileType];
 		[self setFileName:[url path]];
@@ -109,7 +94,7 @@ If not, write to the Free Software Foundation,
 	else
 		{
 		NSRunAlertPanel(@"Load failed",
-						@"Could not load URL %@.",
+						@"Could not load %@.",
 						nil, nil, nil, [url absoluteString]);
 		[self release];
 		return nil;
@@ -375,43 +360,55 @@ If not, write to the Free Software Foundation,
 - (BOOL) loadFileWrapperRepresentation:(NSFileWrapper *)wrapper ofType:(NSString *)type
 {
 	if ([wrapper isRegularFile])
-		{
 		return [self loadDataRepresentation:[wrapper regularFileContents] ofType:type];
-		}
 	
     /*
      * This even happens on a symlink.  May want to use
      * -stringByResolvingAllSymlinksInPath somewhere, but Apple doesn't.
      */
-	NSLog(@"%@ must be overridden if your document deals with file packages.",
-		  NSStringFromSelector(_cmd));
-	
+	NSLog(@"Warning: %@ must be overridden if your document deals with file packages.", NSStringFromSelector(_cmd));
 	return NO;
 }
 
 - (BOOL) writeToFile:(NSString *)fileName ofType:(NSString *)type
 {
+	DEPRECATED;
 	return [[self fileWrapperRepresentationOfType:type]
 	   writeToFile:fileName atomically:YES updateFilenames:YES];
 }
 
 - (BOOL) readFromFile:(NSString *)fileName ofType:(NSString *)type
+{ // default load - can/should be overwritten
+	DEPRECATED;
+	return [self loadDataRepresentation:[NSData dataWithContentsOfFile:fileName] ofType:type];
+}
+
+#define isoverridden(SEL) YES	// somehow detect if selector is overridden
+
+- (BOOL) readFromFileWrapper:(NSFileWrapper *) wrapper ofType:(NSString *) type error:(NSError **) error;
 {
-	NSFileWrapper *wrapper = [[[NSFileWrapper alloc] initWithPath:fileName] autorelease];
-	return [self loadFileWrapperRepresentation:wrapper ofType:type];
+	if(isoverridden(@selector(loadFileWrapperRepresentation:ofType:)))
+		return [self loadFileWrapperRepresentation:wrapper ofType:type];
+	return [self readFromData:[wrapper regularFileContents] ofType:type error:error];
 }
 
 - (BOOL) readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError
+{ // default load - can/should be overwritten
+	NSFileWrapper *wrapper;
+	if([absoluteURL isFileURL] && isoverridden(@selector(readFromFile:ofType:)))	// according to documentation we should check if readFromFile has really been overwritten
+		return [self readFromFile:[absoluteURL path] ofType:typeName];	// default
+	// FIXME: this is a 10.6 method - what did we call before???
+	wrapper=[[[NSFileWrapper alloc] initWithURL:absoluteURL options:0 error:outError] autorelease];
+	if(!wrapper) return nil;	// outError has been set
+	return [self readFromFileWrapper:wrapper ofType:typeName error:outError];
+}
+
+- (BOOL) readFromURL:(NSURL *)absoluteURL ofType:(NSString *)type
 {
-	if([absoluteURL isFileURL])
-		{ // use default
-		if(outError)
-			*outError=nil;
-		return [self readFromFile:[absoluteURL path] ofType:typeName];
-		}
-	NSLog(@"%@ must be overridden if your document deals with files.",
-		  NSStringFromSelector(_cmd));
-	return NO;
+	DEPRECATED;
+	if(![absoluteURL isFileURL])
+		return NO;	// supports file: URLs only
+	return [self readFromFile:[absoluteURL path] ofType:type];
 }
 
 - (BOOL) revertToSavedFromFile:(NSString *)fileName ofType:(NSString *)type
@@ -427,16 +424,6 @@ If not, write to the Free Software Foundation,
 		return NO;
 	
 	return [url setResourceData: data];
-}
-
-- (BOOL) readFromURL:(NSURL *)url ofType:(NSString *)type
-{
-	NSData *data = [url resourceDataUsingCache: YES];
-	
-	if (data == nil) 
-		return NO;
-	
-	return [self loadDataRepresentation: data ofType: type];
 }
 
 - (BOOL) revertToSavedFromURL:(NSURL *)url ofType:(NSString *)type

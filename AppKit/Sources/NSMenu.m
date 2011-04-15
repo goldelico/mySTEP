@@ -316,6 +316,7 @@ static BOOL __userKeyEquivalents = YES;
 		[coder decodeObjectForKey:@"NSAlternateAttributedTitle"];
 		// END_FIXME
 		tag=[coder decodeIntForKey:@"NSTag"];
+		[self setFont:[coder decodeObjectForKey:@"NSFont"]];
 		[super setEnabled:[coder decodeBoolForKey:@"NSIsDisabled"]];
 		[self setState:[coder decodeIntForKey:@"NSState"]];
 		[self setTarget:[coder decodeObjectForKey:@"NSTarget"]];	// not all menus are connected by connectors...

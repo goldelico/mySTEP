@@ -104,7 +104,7 @@ typedef enum _NSThreadPriority
 {
 	_autorelease_vars.thread_in_dealloc = YES;
 	while((_autorelease_vars.current_pool))
-		[_autorelease_vars.current_pool dealloc];
+		[_autorelease_vars.current_pool release];
 	[_dictionary release];
 	[super dealloc];
 }

@@ -61,11 +61,13 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 {
 	SEL s;
 	IMP msg;
-	const char *type;
+	const char *type=NULL;
 	void *addr;	// address of return value
 	// FIXME: should also try to look for getter methods like <key>, _<key>, is<Key>, get<Key> etc.
-//	NSLog(@"valueForKey: %@", str);
-//	NSLog(@"selector: %@", NSStringFromSelector(s));
+#if 1
+	NSLog(@"valueForKey: %@", str);
+	NSLog(@"selector: %@", NSStringFromSelector(s));
+#endif
 	/* if(found in cache)
 	 get msg, type, addr from cache
 	 else {
@@ -122,10 +124,10 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 					break;	// fall through
 				}
 			}
-		if(class == Nil)
-			return [self valueForUndefinedKey:str];	// was not found
 		}
-//	NSLog(@"valueForKey type %s", type);
+//	NSLog(@"valueForKey type %s", type?type:"not found");
+	if(!type)
+		return [self valueForUndefinedKey:str];	// was not found
 	switch(*type)
 		{
 			case _C_ID:
@@ -153,9 +155,8 @@ NSString *NSUnknownUserInfoKey=@"NSUnknownUserInfoKey";
 				}
 			// FIXME: handle other types
 		}
-	NSLog(@"valueForKey:%@ does not return an object (type=%s)", str, type);
-	return nil;
-	
+	NSLog(@"valueForKey:%@ does not return an object that we can convert (type=%s)", str, type);
+	return [self valueForUndefinedKey:str];	// was not found	
 }
 
 #if NEW

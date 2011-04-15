@@ -42,27 +42,56 @@ static Class __stringClass = Nil;
 // 		NSArrayEnumeratorReverse, NSArrayEnumerator 
 //
 //*****************************************************************************
-
+
+// CHECKME: what is with mutable arrays? adding objects may change the _contents reference!
+// if we don't cache anArray->_contents but use _array->_contents and _array->_count we can even protect against problems
+
 @interface NSArrayEnumeratorReverse : NSEnumerator
 {
-	id *_contents;
-	id _array;
+	NSArray *_array;
 	int _index;
 }
 @end
 
 @implementation NSArrayEnumeratorReverse
 
-- (id) initWithArray:(NSArray*)anArray and:(id*)contents
++ (id) allocWithZone:(NSZone *)z
 {
-	_contents = contents;
+	id o=[super allocWithZone:z];
+#if 0
+	NSLog(@"NSArrayEnumeratorReverse %p alloc", o);
+#endif
+	return o;
+}
+
+- (id) _initWithArray:(NSArray*)anArray
+{
 	_array = [anArray retain];
-	_index = [_array count] - 1;
+	_index = _array->_count - 1;
+#if 0
+	NSLog(@"NSArrayEnumeratorReverse %p initWithArray array: %p %@", self, _array, _array);
+#endif
 	return self;
+}
+
+- (void) _reset
+{
+	_index = _array->_count - 1;	
 }
 
 - (void) dealloc
 {
+#if 0
+	NSLog(@"NSArrayEnumeratorReverse %p dealloc", self);
+	NSLog(@"  array: %p", _array);
+	NSLog(@"  contents: %p", _contents);
+	NSLog(@"  a->contents: %p", _array->_contents);
+	NSLog(@"  array->isa: %@", NSStringFromClass(*(Class *) _array));
+	NSLog(@"  array: %@", [_array description]);
+	NSLog(@"  again: %p %@", _array, _array);
+	NSLog(@"  retainCount=%u", [_array retainCount]);
+	NSLog(@"  class=%@", NSStringFromClass([_array class]));
+#endif
 	[_array release];
 	[super dealloc];
 }
@@ -71,7 +100,11 @@ static Class __stringClass = Nil;
 
 - (id) nextObject
 {
-	return (_index < 0) ? nil : _contents[_index--];
+	if(_index < 0)
+		return nil;	// done
+	if(_index >= _array->_count)
+		[NSException raise:NSInternalInconsistencyException format:@"Mutable NSArray changed during enumeration"];
+	return _array->_contents[_index--];
 }
 
 @end /* NSArrayEnumeratorReverse */
@@ -85,25 +118,36 @@ static Class __stringClass = Nil;
 
 @implementation NSArrayEnumerator
 
-- (id) initWithArray:(NSArray*)anArray and:(id*)contents
+- (id) _initWithArray:(NSArray*)anArray
 {
-	_contents = contents;
 	_array = [anArray retain];
-	_count = [_array count];
+	_count = _array->_count;
+#if 0
+	NSLog(@"NSArrayEnumerator %p initWithArray array: %p %@", self, _array, _array);
+	NSLog(@"  contents: %p", _contents);
+	NSLog(@"  a->contents: %p", _array->_contents);
+#endif
 	return self;
+}
+
+- (void) _reset
+{
+	_index = 0;	
 }
 
 - (id) nextObject
 {
-	return (_index >= _count) ? nil : _contents[_index++];
+	if(_index > _array->_count)
+		[NSException raise:NSInternalInconsistencyException format:@"Mutable NSArray changed during enumeration"];
+	return (_index >= _array->_count) ? nil : _array->_contents[_index++];
 }
 
 - (id) _previousObject	// inofficial!
 {
-	return (_index < 0) ? nil : _contents[_index--];
+	return (_index < 0) ? nil : _array->_contents[_index--];
 }
 
-- (NSArray *) allObjects	{ NSArray *all=[_array subarrayWithRange:NSMakeRange(_index, _count-_index)]; _index=_count; return all; }
+- (NSArray *) allObjects	{ NSArray *all=[_array subarrayWithRange:NSMakeRange(_index, _array->_count-_index)]; _index=_array->_count; return all; }
 
 @end /* NSArrayEnumerator */
 
@@ -275,6 +319,9 @@ int count;
 
 - (void) dealloc
 {
+#if 0
+	NSLog(@"NSArray dealloc %p", self);
+#endif
 	while(_count--)
 		[_contents[_count] release];
 	if (_contents)
@@ -284,19 +331,22 @@ int count;
 }
 
 - (unsigned) count					{ return _count; }
-- (unsigned) hash					{ return _count; }
+- (unsigned) hash					{ return _count; }	// different size means different
+- (id *) _contents					{ return _contents; }
 
 - (id) lastObject
 {
-	return (_count <= 0) ? nil : _contents[_count-1];
+	return (_count == 0) ? nil : _contents[_count-1];
 }
 
 - (id) objectAtIndex:(unsigned)idx
 {
 	if (idx >= _count)
 		{
+#if 0	// empty array also raises exceptions
 		if(idx == 0 && _count == 0)
-			return nil;	// CHECKME!
+			return nil;
+#endif
 #if 1	// useful for debugging...
 		NSLog(@"index %u out of bounds (%u) of %@", idx, _count, self);
 #endif
@@ -348,6 +398,8 @@ int count;
 	return self;
 }
 
+// FIXME: is this correct? And how big is the stack???
+
 - (id) copyWithZone:(NSZone *) zone														// NSCopying
 {
 id oldObjects[_count], newObjects[_count], newArray;
@@ -378,15 +430,15 @@ unsigned i;
 	return newArray;
 }
 
-- (id) mutableCopyWithZone:(NSZone *) zone											// NSMutableCopying
-{															// a shallow copy 
+- (id) mutableCopyWithZone:(NSZone *) zone 
+{ // NSMutableCopying a shallow copy 
 	return [[__mutableArrayClass alloc] initWithArray:self];
 }
 
 - (NSArray*) arrayByAddingObject:(id)anObject
 {
-unsigned c = _count + 1;
-id objects[c];
+	unsigned c = _count + 1;
+	id objects[c];
 
 	[self getObjects: objects];
 	objects[_count] = anObject;
@@ -396,8 +448,8 @@ id objects[c];
 
 - (NSArray*) arrayByAddingObjectsFromArray:(NSArray*)anotherArray
 {
-unsigned c = _count + [anotherArray count];
-id objects[c];
+	unsigned c = _count + [anotherArray count];
+	id objects[c];
 
 	[self getObjects: objects];
 	[anotherArray getObjects: &objects[_count]];
@@ -419,7 +471,7 @@ id objects[c];
 
 - (unsigned) indexOfObjectIdenticalTo:(id)anObject
 {
-unsigned i;
+	unsigned i;
 
 	for (i = 0; i < _count; i++)
 		if (anObject == _contents[i])
@@ -430,7 +482,7 @@ unsigned i;
 
 - (unsigned) indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)aRange
 {
-unsigned i, e = MIN(NSMaxRange(aRange), _count);
+	unsigned i, e = MIN(NSMaxRange(aRange), _count);
 
 	for (i = aRange.location; i < e; i++)
 		if (anObject == _contents[i])
@@ -441,7 +493,7 @@ unsigned i, e = MIN(NSMaxRange(aRange), _count);
 
 - (unsigned) indexOfObject:(id)anObject
 {
-unsigned i;
+	unsigned i;
 
 	if (anObject == nil)
 		return NSNotFound;
@@ -469,7 +521,7 @@ unsigned i;
 
 - (unsigned) indexOfObject:(id)anObject inRange:(NSRange)aRange
 {
-unsigned i, e = MIN(NSMaxRange(aRange), _count);
+	unsigned i, e = MIN(NSMaxRange(aRange), _count);
 
 	for (i = aRange.location; i < e; i++)
 		{
@@ -615,12 +667,14 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 - (NSEnumerator*) objectEnumerator
 {
-	return [[[NSArrayEnumerator alloc] initWithArray:self and:_contents] autorelease];
+	// cache if array is large enough
+	return [[[NSArrayEnumerator alloc] _initWithArray:self] autorelease];
 }
 
 - (NSEnumerator*) reverseObjectEnumerator
 {
-	return [[[NSArrayEnumeratorReverse alloc] initWithArray:self and:_contents] autorelease];
+	// cache
+	return [[[NSArrayEnumeratorReverse alloc] _initWithArray:self] autorelease];
 }
 
 - (NSString*) description
@@ -749,18 +803,14 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 @implementation NSMutableArray
 
-+ (id) arrayWithCapacity:(unsigned)numItems
-{
-	return [[[self alloc] initWithCapacity:numItems] autorelease];
-}
-
-- (id) init							{ return [self initWithCapacity:2]; }
-
 - (id) initWithCapacity:(unsigned)cap
 {
 	_capacity = (cap == 0) ? 1 : cap;
 	if ((_contents = objc_malloc(sizeof(id) * _capacity)) == 0)
-		[NSException raise:NSMallocException format:@"malloc failed in NSMutableArray -initWIthCapacity:"];
+		{
+		[self release];
+		[NSException raise:NSMallocException format:@"malloc failed in NSMutableArray -initWithCapacity:"];		
+		}
 	return self;
 }
 
@@ -769,18 +819,16 @@ unsigned i = range.location, j;				// beyond end of array then return
 	unsigned i;
 	_capacity = (count == 0) ? 1 : count;
 	if ((_contents = objc_malloc(sizeof(id) * _capacity)) == 0)
+		{
 		[NSException raise:NSMallocException format:@"malloc failed in NSMutableArray -initWithObjects:count:"];
+		[self release];
+		}
 	for (i = 0; i < count; i++)
 		{
 		if ((_contents[i] = [objects[i] retain]) == nil)
 			{
-#if 0
-			_contents[i]=[NSNull null];	// substitute
-#else
 			[self release];
-			[NSException raise: NSInvalidArgumentException
-						 format: @"NSMutableArray initWithObjects: Tried to add nil"];
-#endif
+			[NSException raise: NSInvalidArgumentException format: @"NSMutableArray initWithObjects: Tried to add nil"];
 			}
 		}
 	_count = i;
@@ -794,9 +842,8 @@ unsigned i = range.location, j;				// beyond end of array then return
 #if 0
 		NSLog(@"%@ initWithKeyedCoder", NSStringFromClass([self class]));
 #endif
-		// FIXME: this is probably pretty slow...
-		[self setArray:[aCoder decodeObjectForKey:@"NS.objects"]];
-		return self;
+		[self release];
+		return [[aCoder decodeObjectForKey:@"NS.objects"] mutableCopy];
 		}
 	self=[super initWithCoder: aCoder];
 	_capacity = _count;
@@ -816,18 +863,17 @@ unsigned i = range.location, j;				// beyond end of array then return
 		[NSException raise: NSInvalidArgumentException
 					 format: @"NSMutableArray addObject: Tried to add nil to %@", self];
 		}
-	[anObject retain];
 	if (_count >= _capacity)
 		{
 		id *ptr;
-		_capacity = 2*_count+2;	// exponentially grow
-		if ((ptr = objc_realloc(_contents, _capacity * sizeof(id))) == 0)
+		unsigned newcapacity = 2*_count+2;	// exponentially grow
+		if ((ptr = objc_realloc(_contents, newcapacity * sizeof(id))) == 0)
 			[NSException raise: NSMallocException format: @"Unable to grow %@", self];
-
+		_capacity = newcapacity;
 		_contents = ptr;
 		}
 
-	_contents[_count++] = anObject;
+	_contents[_count++] = [anObject retain];
 }
 
 - (void) insertObject:(id)anObject atIndex:(unsigned)idx
@@ -843,18 +889,15 @@ unsigned i = range.location, j;				// beyond end of array then return
 	if (_count == _capacity)
 		{ // needs more space
 		id *ptr;
-		size_t size;
-
-		_capacity = 2*_count+2;
-		size = _capacity * sizeof(id);
-		if ((ptr = objc_realloc(_contents, size)) == 0)
+		unsigned newcapacity = 2*_count+2;	// exponentially grow
+		if ((ptr = objc_realloc(_contents, newcapacity * sizeof(id))) == 0)
 			[NSException raise: NSMallocException format: @"Unable to grow %@", self];
+		_capacity = newcapacity;
 		_contents = ptr;
 		}
-	[anObject retain];
 	memmove(&_contents[idx+1], &_contents[idx], sizeof(_contents[0])*(_count-idx));
 	_count++;
-	_contents[idx] = anObject; 
+	_contents[idx] = [anObject retain]; 
 }
 
 - (void) replaceObjectAtIndex:(unsigned)idx withObject:(id)anObject
@@ -874,29 +917,6 @@ unsigned i = range.location, j;				// beyond end of array then return
     _contents[idx] = anObject;
 }
 
-- (void) replaceObjectsInRange:(NSRange)aRange
-		  withObjectsFromArray:(NSArray*)anArray
-{
-	NSEnumerator *e;
-	id o;
-	if (_count < NSMaxRange(aRange))
-		[NSException raise: NSRangeException
-					 format: @"replaceObjectsInRange: Replacing objects beyond end of array."];
-	e = [anArray reverseObjectEnumerator];
-	while ((o = [e nextObject]))
-		[self insertObject: o atIndex: aRange.location];
-	aRange.location += aRange.length;
-	[self removeObjectsInRange: aRange];
-}
-
-- (void) replaceObjectsInRange:(NSRange)aRange
-		  withObjectsFromArray:(NSArray*)anArray
-		  range:(NSRange)anotherRange
-{
-	[self replaceObjectsInRange: aRange
-		  withObjectsFromArray: [anArray subarrayWithRange: anotherRange]];
-}
-
 - (void) exchangeObjectAtIndex:(unsigned) i1 withObjectAtIndex:(unsigned) i2;
 {
 	id tmp;
@@ -909,22 +929,11 @@ unsigned i = range.location, j;				// beyond end of array then return
     _contents[i2] = tmp;
 }
 
-- (BOOL) writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile
-{
-	NSString *error;
-	// optionally use NSPropertyListBinaryFormat_v1_0
-	NSData *desc=[NSPropertyListSerialization dataFromPropertyList:self format:NSPropertyListXMLFormat_v1_0 errorDescription:&error];
-#if 0
-	NSLog(@"writeToFile:%@ %@", path, desc);
-#endif
-	return [desc writeToFile:path atomically:useAuxiliaryFile];
-}
-
 - (void) removeLastObject
 {
 	if (_count == 0)
 		[NSException raise: NSRangeException
-					 format: @"Trying to removeLastObject from an empty array."];
+					format: @"Trying to removeLastObject from an empty array."];
 	_count--;
 	[_contents[_count] release];
 }
@@ -933,13 +942,13 @@ unsigned i = range.location, j;				// beyond end of array then return
 {
 	unsigned i = MIN(NSMaxRange(aRange), _count);
 	id o;
-
+	
 	while (i-- > aRange.location)
 		{
 		if ((o = _contents[i]) == anObject)
 			{
 			_count--;
-				memmove(&_contents[i], &_contents[i+1], sizeof(_contents[0])*(_count-i));
+			memmove(&_contents[i], &_contents[i+1], sizeof(_contents[0])*(_count-i));
 			[o release];
 			}
 		}
@@ -949,13 +958,13 @@ unsigned i = range.location, j;				// beyond end of array then return
 { // remove all occurrences!
 	unsigned i = _count;
 	id o;
-
+	
 	while (i-- > 0)
 		{
 		if ((o = _contents[i]) == anObject)
 			{
 			_count--;
-				memmove(&_contents[i], &_contents[i+1], sizeof(_contents[0])*(_count-i));
+			memmove(&_contents[i], &_contents[i+1], sizeof(_contents[0])*(_count-i));
 #if 0
 			NSLog(@"removeObjectIdenticalTo: releasing %@", o);
 #endif
@@ -968,13 +977,13 @@ unsigned i = range.location, j;				// beyond end of array then return
 {
 	unsigned i = MIN(NSMaxRange(aRange), _count);
 	id o;
-
+	
 	while (i-- > aRange.location)
 		{
 		if ((o = _contents[i]) == anObject || [o isEqual: anObject])
 			{
 			_count--;
-				memmove(&_contents[i], &_contents[i+1], sizeof(_contents[0])*(_count-i));
+			memmove(&_contents[i], &_contents[i+1], sizeof(_contents[0])*(_count-i));
 			[o release];
 			}
 		}
@@ -984,7 +993,7 @@ unsigned i = range.location, j;				// beyond end of array then return
 { // removes all occurrences!
 	unsigned i = _count;
 	id o;
-
+	
 	while (i-- > 0)
 		{
 		if ((o = _contents[i]) == anObject || [o isEqual: anObject])
@@ -1002,11 +1011,11 @@ unsigned i = range.location, j;				// beyond end of array then return
 - (void) removeObjectAtIndex:(unsigned)idx
 {
 	id o;
-
+	
 	if (idx >= _count)
 		[NSException raise: NSRangeException
-					 format:@"removeObjectAtIndex: %d is out of range", idx];
-
+					format:@"removeObjectAtIndex: %d is out of range", idx];
+	
 	o = _contents[idx];
 	_count--;
 	memmove(&_contents[idx], &_contents[idx+1], sizeof(_contents[0])*(_count-idx));
@@ -1021,6 +1030,51 @@ unsigned i = range.location, j;				// beyond end of array then return
 	_count = 0;
 }
 
+@end
+
+@implementation NSMutableArray (NonCore)
+
++ (id) arrayWithCapacity:(unsigned)numItems
+{
+	return [[[self alloc] initWithCapacity:numItems] autorelease];
+}
+
+- (id) init							{ return [self initWithCapacity:2]; }
+
+- (void) replaceObjectsInRange:(NSRange)aRange
+		  withObjectsFromArray:(NSArray*)anArray
+{
+	NSEnumerator *e;
+	id o;
+	if ([self count] < NSMaxRange(aRange))
+		[NSException raise: NSRangeException
+					 format: @"replaceObjectsInRange: Replacing objects beyond end of array."];
+	e = [anArray reverseObjectEnumerator];
+	while ((o = [e nextObject]))
+		[self insertObject: o atIndex: aRange.location];
+	aRange.location += aRange.length;
+	[self removeObjectsInRange: aRange];
+}
+
+- (void) replaceObjectsInRange:(NSRange)aRange
+		  withObjectsFromArray:(NSArray*)anArray
+		  range:(NSRange)anotherRange
+{
+	[self replaceObjectsInRange: aRange
+		  withObjectsFromArray: [anArray subarrayWithRange: anotherRange]];
+}
+
+- (BOOL) writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile
+{
+	NSString *error;
+	// optionally use NSPropertyListBinaryFormat_v1_0
+	NSData *desc=[NSPropertyListSerialization dataFromPropertyList:self format:NSPropertyListXMLFormat_v1_0 errorDescription:&error];
+#if 0
+	NSLog(@"writeToFile:%@ %@", path, desc);
+#endif
+	return [desc writeToFile:path atomically:useAuxiliaryFile];
+}
+
 - (void) addObjectsFromArray:(NSArray*)otherArray
 {
 	unsigned i, c = [otherArray count];
@@ -1030,7 +1084,6 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 - (void) setArray:(NSArray *)otherArray
 {
-	// FIXME: can be improved by allocating new _contents once and copying the references
 	[self removeAllObjects];
 	[self addObjectsFromArray: otherArray];
 }
@@ -1051,12 +1104,10 @@ unsigned i = range.location, j;				// beyond end of array then return
 
 - (void) removeObjectsInRange:(NSRange)aRange
 {
-	unsigned i = MIN(NSMaxRange(aRange), _count);
+	unsigned i = MIN(NSMaxRange(aRange), [self count]);
 	while (i-- > aRange.location)
 		[self removeObjectAtIndex: i];
 }
-
-// FIXME: can we use qsort_r now?
 
 /*
 qsort is taken from GNU C Library (also LGPL)

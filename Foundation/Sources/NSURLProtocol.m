@@ -520,7 +520,7 @@ static NSMutableDictionary *_httpConnections;
 		{ // handle header compression
 			if([header isEqualToString:@"gzip"])
 				NSLog(@"body is gzip compressed");
-			// we should simply add _zip / _unzip / _inflate / _deflate for GZIP to NSData
+			// we have the private method [NSData inflate]
 			// we must do that here since we receive the stream here
 			// NOTE: this may be a , separated list of encodings to be applied in sequence!
 			// so we have to loop over [encoding componentsSeparatedByString:@","] - trimmed and compared case-insensitive

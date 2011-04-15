@@ -44,12 +44,12 @@ static NSMapTable *__zombieMap;	// map object addresses to object descriptions
 
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
 { // called by runtime
-	NSString *s=NSMapGet(__zombieMap, (void *) self);
+	NSString *s=__zombieMap?NSMapGet(__zombieMap, (void *) self):@"--";
 //	fprintf(stderr, "obj=%p sel=%s\n", s, sel_get_name(aSel));
 	NSLog(@"Trying to send selector -%@ to deallocated object: %@", NSStringFromSelector(aSel), s);
 	abort();
 	return NULL;
-}	
+}
 
 #if 0
 - (BOOL) isKindOfClass:(Class)aClass
@@ -277,6 +277,11 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (void) dealloc
 {
+	if(((_object_layout)(self))[-1].retained != -1)
+		{
+		NSLog(@"[obj dealloc] called instead of [obj release] or [super dealloc]");
+		abort();	// that is a severe bug
+		}
 #if 0
 	fprintf(stderr, "dealloc %p\n", self);
 #endif
@@ -287,9 +292,9 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
 	if (((_object_layout)(self))[-1].retained == 0)				// if ref count becomes zero (was 1)
 		{
+		static Class zombieClass;
 		if(NSZombieEnabled)
-			{
-				static Class zombieClass;
+			{ // enabling this keeps the object in memory and remembers the object description
 			NSAutoreleasePool *arp=[NSAutoreleasePool new];
 			NSZombieEnabled=NO;	// don't Zombie temporaries while we get the description
 			if(!__zombieMap)
@@ -305,11 +310,10 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #if 1
 			NSMapInsert(__zombieMap, (void *) self, [self description]);		// retain last object description before making it a zombie
 #else
-				NSMapInsert(__zombieMap, (void *) self, @"?");		// don't fetch description
+			NSMapInsert(__zombieMap, (void *) self, @"?");		// don't fetch description
 #endif
 			if(!zombieClass)
 				zombieClass=objc_lookup_class("_NSZombie");
-			isa=zombieClass;	// _NSZombie does fail for all method calls, especially a second release after dealloc
 			[arp release];
 			NSZombieEnabled=YES;
 			}
@@ -320,8 +324,11 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 				fprintf(stderr, "dealloc %p\n", self);	// NSLog() would recursively call -[NSObject release]
 #endif
 			((_object_layout)(self))[-1].retained--;
-			[self dealloc];				// dealloc
+			[self dealloc];		// go through the dealloc hierarchy
 			}
+		if(!zombieClass)
+			zombieClass=objc_lookup_class("_NSZombie");
+		isa=zombieClass;	// _NSZombie does fail for all method calls, especially a second release after dealloc
 		}
 	else
 		((_object_layout)(self))[-1].retained--;
