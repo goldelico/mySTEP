@@ -218,7 +218,9 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		if(bundle && [[bundle executablePath] isEqualToString:path])
 			{ // found!
 			NSMapInsert(__bundlesForExecutables, file, bundle); // save in cache!
-			NSLog(@"found %@", bundle, [bundle executablePath]);
+#if 0
+			NSLog(@"found %@ -> %@", bundle, [bundle executablePath]);
+#endif
 			return bundle;
 			}
 		}
