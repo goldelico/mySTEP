@@ -57,6 +57,12 @@
 - (void) setSubtitle:(NSString *) str; { [subtitle autorelease]; subtitle=[str retain]; }
 - (void) setTitle:(NSString *) str; { [title autorelease]; title=[str retain]; }
 
+- (NSString *) description;
+{
+	CLLocationCoordinate2D l=[location coordinate];
+	return [NSString stringWithFormat:@"MKUserLocation (%lf %lf)", l.latitude, l.longitude];
+}
+
 @end
 
 // EOF

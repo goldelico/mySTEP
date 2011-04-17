@@ -34,9 +34,7 @@ typedef struct UIEdgeInsets
 
 @interface MKMapView : UIView
 {
-	CLLocationCoordinate2D centerCoordinate;
-	MKCoordinateRegion region;
-	MKMapRect visibleMapRect;
+	MKMapRect visibleMapRect;	
 	NSMutableArray *annotations;
 	NSMutableArray *overlays;	// back to front
 	id <MKMapViewDelegate> delegate;

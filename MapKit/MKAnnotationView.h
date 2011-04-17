@@ -20,6 +20,7 @@
 /*	BOOL dragabble
 	callout
 	canShowCallout
+ ? selected
  */
 }
 

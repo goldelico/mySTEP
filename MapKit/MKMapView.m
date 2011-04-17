@@ -35,6 +35,15 @@
 - (void) drawRect:(NSRect) rect
 {
 	[@"I am the MKMapView" drawInRect:NSMakeRect(10.0, 10.0, 100.0, 100.0) withAttributes:nil];
+	[[annotations description] drawInRect:NSMakeRect(10.0, 50.0, 100.0, 100.0) withAttributes:nil];
+	
+	// draw all relevant tiles in the visibleMapRect
+	
+	/*
+	 1. draw background
+	 2. darw relevant tiles
+	 3. draw annotations and overlays
+	 */
 }
 
 - (void) addAnnotation:(id <MKAnnotation>) a; { [annotations addObject:a]; [self setNeedsDisplay:YES]; }	// could optimize drawing rect?
@@ -43,7 +52,7 @@
 - (void) addOverlays:(NSArray *) o; { [overlays addObjectsFromArray:o]; [self setNeedsDisplay:YES]; }
 - (NSArray *) annotations;{ return annotations; }
 //- (NSRect) annotationVisibleRect;{ return annotationVisibleRect; }
-- (CLLocationCoordinate2D) centerCoordinate; { return centerCoordinate; }
+- (CLLocationCoordinate2D) centerCoordinate; { return MKCoordinateRegionForMapRect(visibleMapRect).center; }
 //- (NSPoint) convertCoordinate:(CLLocationCoordinate2D) coord toPointToView:(UIView *) view;
 //- (CLLocationCoordinate2D) convertPoint:(NSPoint) point toCoordinateFromView:(UIView *) view;
 //- (MKCoordinateRegion) convertRect:(NSRect) coord toRegionFromView:(UIView *) view;
@@ -52,9 +61,25 @@
 //- (MKAnnotationView *) equeueReusableAnnotationViewWithIdentifier:(NSString *) ident;
 //- (void) deselectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
 - (void) exchangeOverlayAtIndex:(NSUInteger) idx1 withOverlayAtIndex:(NSUInteger) idx2; { [overlays exchangeObjectAtIndex:idx1 withObjectAtIndex:idx2]; [self setNeedsDisplay:YES]; }
-//- (void) insertOverlay:(id <MKOverlay>) o aboveOverlay:(id <MKOverlay>) sibling; // search and [self insertOverlay:o atIndex: i+1
+
+- (void) insertOverlay:(id <MKOverlay>) o aboveOverlay:(id <MKOverlay>) sibling;
+{ // search 
+	NSUInteger idx=[overlays indexOfObject:sibling];
+	if(idx == NSNotFound)
+		; // raise exception
+	[self insertOverlay:o atIndex:idx+1];
+}
+
 - (void) insertOverlay:(id <MKOverlay>) o atIndex:(NSUInteger) idx; { [overlays insertObject:o atIndex:idx]; [self setNeedsDisplay:YES]; }
-//- (void) insertOverlay:(id <MKOverlay>) o belowOverlay:(id <MKOverlay>) sibling; // search and [self insertOverlay:o atIndex: i
+
+- (void) insertOverlay:(id <MKOverlay>) o belowOverlay:(id <MKOverlay>) sibling;
+{ // search  
+	NSUInteger idx=[overlays indexOfObject:sibling];
+	if(idx == NSNotFound)
+		; // raise exception
+	[self insertOverlay:o atIndex:idx];
+}
+
 - (BOOL) isScrollEnabled; { return scrollEnabled; }
 
 - (BOOL) isUserLocationVisible;
@@ -70,7 +95,7 @@
 //- (MKMapRect) mapRectThatFits:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets;
 - (MKMapType) mapType; { return mapType; }
 - (NSArray *) overlays; { return overlays; }
-- (MKCoordinateRegion) region; { return region; }
+- (MKCoordinateRegion) region; { return MKCoordinateRegionForMapRect(visibleMapRect); }
 //- (MKCoordinateRegion) regionThatFits:(MKCoordinateRegion) region;
 - (void) removeAnnotation:(id <MKAnnotation>) a; { [annotations removeObjectIdenticalTo:a]; [self setNeedsDisplay:YES]; }
 - (void) removeAnnotations:(NSArray *) a; { return ; }
@@ -78,12 +103,38 @@
 - (void) removeOverlays:(NSArray *) a; { return ; }
 //- (void) selectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
 //- (NSArray *) selectedAnnotations; { return ; }
-- (void) setCenterCoordinate:(CLLocationCoordinate2D) center; { centerCoordinate=center; [self setNeedsDisplay:YES]; }
-//- (void) setCenterCoordinate:(CLLocationCoordinate2D) center animated:(BOOL) flag;
+
+- (void) setCenterCoordinate:(CLLocationCoordinate2D) center;
+{
+	[self setCenterCoordinate:center animated:NO];
+}
+
+- (void) setCenterCoordinate:(CLLocationCoordinate2D) center animated:(BOOL) flag;
+{ // keep zoom constand andjust move centetr
+	MKMapRect visible=visibleMapRect;
+	// set new center=MKMapPointForCoordinate(center)
+	[self setVisibleMapRect:visible animated:flag];	// show new map rect
+}
+
 - (void) setDelegate:(id <MKMapViewDelegate>) d; { delegate=d; }
 - (void) setMapType:(MKMapType) type; { mapType=type; [self setNeedsDisplay:YES]; }
-- (void) setRegion:(MKCoordinateRegion) r; { region=r; }
-//- (void) setRegion:(MKCoordinateRegion) region animated:(BOOL) flag;
+
+- (void) setRegion:(MKCoordinateRegion) reg;
+{
+	[self setRegion:reg animated:NO];
+}
+
+- (void) setRegion:(MKCoordinateRegion) reg animated:(BOOL) flag;
+{
+	MKMapRect visible;
+	reg=[self regionThatFits:reg];	// adjust to aspect ratio
+	
+	MKMapPointForCoordinate(reg.center);	// get center
+	
+	// convert span to map rect
+	[self setVisibleMapRect:visible animated:flag];
+}
+
 - (void) setScrollEnabled:(BOOL) flag; { scrollEnabled=flag; }
 //- (void) setSelectedAnnotation:(NSArray *) a; 	// copy property
 
@@ -107,17 +158,38 @@
 }
 
 - (void) setUserLocationVisible:(BOOL) flag; { userLocationVisible=flag; [self setNeedsDisplay:YES]; }
-- (void) setVisibleMapRect:(MKMapRect) rect; { visibleMapRect=rect; [self setNeedsDisplay:YES]; }
-//- (void) setVisibleMapRect:(MKMapRect) rect animated:(BOOL) flag;
-//- (void) setVisibleMapRect:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets animated:(BOOL) flag;
+
+- (void) setVisibleMapRect:(MKMapRect) rect;
+{
+	visibleMapRect=rect;
+	[self setNeedsDisplay:YES];
+}
+
+- (void) setVisibleMapRect:(MKMapRect) rect animated:(BOOL) flag;
+{
+	if(flag)
+		{
+		// animate by defining a timer and the delta
+		}
+	[self setVisibleMapRect:rect];
+}
+
+- (void) setVisibleMapRect:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets animated:(BOOL) flag;
+{
+	rect=[self mapRectThatFits:rect edgePadding:insets];
+	[self setVisibleMapRect:rect animated:flag];
+}
+
 - (void) setZoomEnabled:(BOOL) flag; { zoomEnabled=flag; }
 - (BOOL) showsUserLocation; { return showsUserLocation; }
 - (MKUserLocation *) userLocation; { return userLocation; }
 //- (MKAnnotationView *) viewForAnnotation:(id <MKAnnotation>) a;
 //- (MKOverlayView *) viewForOverlay:(id <MKOverlay>) o;
-- (MKMapRect) visibleMapRect; { return visibleMapRect; }	// use region and convert!!!
+- (MKMapRect) visibleMapRect; { return visibleMapRect; }
 
 @end
+
+
 
 #if OLD // initial Code taken from Navigator.app
 
