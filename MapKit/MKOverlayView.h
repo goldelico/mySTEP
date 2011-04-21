@@ -8,9 +8,9 @@
 
 #ifndef __UIKit__
 #define UIView NSView
-// CGContextRef
-// CGPoint
-// CGRect
+#define CGContextRef NSGraphicsContext *
+#define CGPoint NSPoint
+#define CGRect NSRect
 #endif
 
 #import <Cocoa/Cocoa.h>
@@ -22,11 +22,8 @@
 {
 }
 
-@end
-
 CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoom);
 
-#if 0	// this API uses a lot of low level types...
 - (void) drawMapRect:(MKMapRect) rect zoomScale:(MKZoomScale) scale inContext:(CGContextRef) context;
 - (id) initWithOverlay:(id <MKOverlay>) overlay;
 - (MKMapPoint) mapPointForPoint:(CGPoint) point;
@@ -35,6 +32,7 @@ CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoom);
 - (CGRect) rectForMapRect:(MKMapRect) rect;
 - (void) setNeedsDisplayInMapRect:(MKMapRect) rect;
 - (void) setNeedsDisplayInMapRect:(MKMapRect) rect zoomScale:(MKZoomScale) scale;
-#endif
+
+@end
 
 // EOF
