@@ -32,12 +32,20 @@
 - (BOOL) isOpaque; { return YES; }
 - (BOOL) isFlipped; { return YES; }
 
+// FIXME: how does resizing modify the visibleMapRect?
+
 - (void) drawRect:(NSRect) rect
 {
+	MKZoomScale scale;
+	
+	// scale is defined by visibleMapRect relative to bounds
+	
 	[@"I am the MKMapView" drawInRect:NSMakeRect(10.0, 10.0, 100.0, 100.0) withAttributes:nil];
 	[[annotations description] drawInRect:NSMakeRect(10.0, 50.0, 100.0, 100.0) withAttributes:nil];
 	
 	// draw all relevant tiles in the visibleMapRect
+	// i.e. we have to map the rect/bounds to visibleMapRect coordinates to get the mapRect to redraw
+	// then, we search tiles
 	
 	/*
 	 1. draw background
@@ -59,7 +67,12 @@
 //- (NSRect) convertRegion:(MKCoordinateRegion) region toRectToView:(UIView *) view;
 - (id <MKMapViewDelegate>) delegate; { return delegate; }
 //- (MKAnnotationView *) equeueReusableAnnotationViewWithIdentifier:(NSString *) ident;
-//- (void) deselectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
+
+- (void) deselectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
+{
+	[[self viewForAnnotation:a] setSelected:NO animated:flag];
+}
+
 - (void) exchangeOverlayAtIndex:(NSUInteger) idx1 withOverlayAtIndex:(NSUInteger) idx2; { [overlays exchangeObjectAtIndex:idx1 withObjectAtIndex:idx2]; [self setNeedsDisplay:YES]; }
 
 - (void) insertOverlay:(id <MKOverlay>) o aboveOverlay:(id <MKOverlay>) sibling;
@@ -91,18 +104,49 @@
 }
 
 - (BOOL) isZoomEnabled; { return zoomEnabled; }
-//- (MKMapRect) mapRectThatFits:(MKMapRect) rect;
-//- (MKMapRect) mapRectThatFits:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets;
+
+- (MKMapRect) mapRectThatFits:(MKMapRect) rect;
+{
+	return rect;
+}
+
+
+- (MKMapRect) mapRectThatFits:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets;
+{
+	return rect;
+}
+
 - (MKMapType) mapType; { return mapType; }
 - (NSArray *) overlays; { return overlays; }
 - (MKCoordinateRegion) region; { return MKCoordinateRegionForMapRect(visibleMapRect); }
-//- (MKCoordinateRegion) regionThatFits:(MKCoordinateRegion) region;
+
+- (MKCoordinateRegion) regionThatFits:(MKCoordinateRegion) region;
+{
+	return region;
+}
+
 - (void) removeAnnotation:(id <MKAnnotation>) a; { [annotations removeObjectIdenticalTo:a]; [self setNeedsDisplay:YES]; }
-- (void) removeAnnotations:(NSArray *) a; { return ; }
+- (void) removeAnnotations:(NSArray *) a; { [annotations removeObjectsInArray:a]; [self setNeedsDisplay:YES]; }
 - (void) removeOverlay:(id <MKOverlay>) a; { [overlays removeObjectIdenticalTo:a]; [self setNeedsDisplay:YES]; }
-- (void) removeOverlays:(NSArray *) a; { return ; }
-//- (void) selectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
-//- (NSArray *) selectedAnnotations; { return ; }
+- (void) removeOverlays:(NSArray *) a; { [overlays removeObjectsInArray:a]; [self setNeedsDisplay:YES]; }
+
+- (void) selectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
+{
+	[[self viewForAnnotation:a] setSelected:YES animated:flag];
+}
+
+- (NSArray *) selectedAnnotations;
+{
+	NSMutableArray *r=[NSMutableArray arrayWithCapacity:10];
+	NSEnumerator *e=[annotations objectEnumerator];
+	id <MKAnnotation> a;
+	while((a=[e nextObject]))
+		  { // go through annotation views and check isSelected
+		  if([[self viewForAnnotation:a] isSelected])
+			  [r addObject:a];
+		  }
+	return r;
+}
 
 - (void) setCenterCoordinate:(CLLocationCoordinate2D) center;
 {
@@ -136,7 +180,13 @@
 }
 
 - (void) setScrollEnabled:(BOOL) flag; { scrollEnabled=flag; }
-//- (void) setSelectedAnnotation:(NSArray *) a; 	// copy property
+
+- (void) setSelectedAnnotation:(NSArray *) a;
+{ // copy property
+	[annotations autorelease];
+	annotations=[a copy];
+	// select them all
+}
 
 - (void) setShowsUserLocation:(BOOL) flag;
 {
@@ -145,6 +195,7 @@
 		{ // changes
 			if((showsUserLocation=flag))
 				{
+				[delegate mapViewWillStartLocatingUser:self];
 				userLocation=[MKUserLocation new];	// create
 				[self addAnnotation:userLocation];
 				}
@@ -153,6 +204,7 @@
 				[self removeAnnotation:userLocation];
 				[userLocation release];
 				userLocation=nil;				
+				[delegate mapViewDidStopLocatingUser:self];
 				}
 		}
 }
@@ -183,9 +235,95 @@
 - (void) setZoomEnabled:(BOOL) flag; { zoomEnabled=flag; }
 - (BOOL) showsUserLocation; { return showsUserLocation; }
 - (MKUserLocation *) userLocation; { return userLocation; }
-//- (MKAnnotationView *) viewForAnnotation:(id <MKAnnotation>) a;
-//- (MKOverlayView *) viewForOverlay:(id <MKOverlay>) o;
+
+- (MKAnnotationView *) viewForAnnotation:(id <MKAnnotation>) a;
+{
+	// check queue/cache
+	MKAnnotationView *v=[delegate mapView:self viewForAnnotation:a];
+	if(!v)
+		{ // use default view
+		
+		}
+	return v;
+}
+
+- (MKOverlayView *) viewForOverlay:(id <MKOverlay>) o;
+{
+	// check queue/cache
+	MKOverlayView *v=[delegate mapView:self viewForOverlay:o];
+	return v;	
+}
+
 - (MKMapRect) visibleMapRect; { return visibleMapRect; }
+
+- (void) _scaleBy:(float) factor
+{
+	MKMapRect v=[self visibleMapRect];
+	v.origin.x += 0.5*v.size.width;		// center
+	v.origin.y += 0.5*v.size.height;	// center
+	v.size.width *= factor;
+	v.size.height *= factor;
+	v.origin.x -= 0.5*v.size.width;		// left corner
+	v.origin.y -= 0.5*v.size.height;	// bottom corner
+	[self setVisibleMapRect:v animated:YES];	
+}
+
+- (void) zoomIn:(id) sender;
+{
+	[self _scaleBy:0.5];
+}
+
+- (void) zoomOut:(id) sender;
+{
+	[self _scaleBy:2.0];
+}
+
+- (void) moveLeft:(id) sender;
+{
+	MKMapRect v=[self visibleMapRect];
+	v.origin.x -= 0.1*v.size.width;
+	[self setVisibleMapRect:v animated:YES];
+}
+
+- (void) moveRight:(id) sender;
+{
+	MKMapRect v=[self visibleMapRect];
+	v.origin.x += 0.1*v.size.width;
+	[self setVisibleMapRect:v animated:YES];
+}
+
+- (void) moveUp:(id) sender;
+{
+	MKMapRect v=[self visibleMapRect];
+	v.origin.y += 0.1*v.size.height;
+	[self setVisibleMapRect:v animated:YES];
+}
+
+- (void) moveDown:(id) sender;
+{
+	MKMapRect v=[self visibleMapRect];
+	v.origin.y -= 0.1*v.size.height;
+	[self setVisibleMapRect:v animated:YES];
+}
+
+- (void) mouseDown:(NSEvent *)theEvent;
+{
+	NSPoint p0 = [[self superview] convertPoint:[theEvent locationInWindow] fromView:nil];	// initial point
+}
+
+- (void) scrollWheel:(NSEvent *) event;
+{ // scroll or zoom
+	MKMapRect v=[self visibleMapRect];
+	if(([event modifierFlags] & NSAlternateKeyMask) != 0)
+		{ // zoom
+			[self _scaleBy:pow(1.1, [event deltaY])];
+			return;
+		}
+	// convert pixels into MKMapRect coordinates so that we scroll by 1 px
+	v.origin.x += 0.1*[event deltaX]*v.size.width;
+	v.origin.y += 0.1*[event deltaY]*v.size.height;
+	[self setVisibleMapRect:v animated:YES];
+}
 
 @end
 

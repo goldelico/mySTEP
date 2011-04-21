@@ -10,6 +10,8 @@
 
 @implementation MKUserLocation
 
+// FIXME: make the MKMapView the delegate and forward these messages
+
 - (void) locationManager:(CLLocationManager *) mngr didFailWithError:(NSError *) err;
 {
 	

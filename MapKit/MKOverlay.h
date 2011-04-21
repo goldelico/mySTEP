@@ -9,6 +9,9 @@
 #import <MapKit/MKAnnotation.h>
 
 @protocol MKOverlay <MKAnnotation>
+- (MKMapRect) boundingMapRect;
+- (CLLocationCoordinate2D) coordinate;
+- (BOOL) intersectsMapRect:(MKMapRect) rect;
 @end
 
 // EOF
