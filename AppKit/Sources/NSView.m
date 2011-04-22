@@ -682,30 +682,13 @@ printing
 		}
 	else
 		NSLog(@"trying to remove subview without superview: %@", self);
-	[self release];	// postponed dealloc
+	[self release];	// postpone any dealloc
 }
 
 - (void) removeFromSuperview
 {
-	[self retain];	// postpone release
-	if(_window)
-		{
-		if([_window firstResponder] == self)
-			[_window makeFirstResponder:_window];
-		[self _setWindow:nil];
-		}
-	if(super_view)
-		{
-		[super_view willRemoveSubview:self];
-		[super_view setNeedsDisplay:YES];	// we could restrict to our own frame rect
-		[[super_view subviews] removeObjectIdenticalTo:self];	// this is the extra release mentioned in the documentation
-		[self viewWillMoveToSuperview:nil];
-		super_view = nil;
-		[self viewDidMoveToSuperview];
-		}
-	else
-		NSLog(@"trying to remove subview without superview: %@", self);
-	[self release];	// may be our final release!
+	[super_view setNeedsDisplay:YES];	// we could restrict to our own frame rect
+	[self removeFromSuperviewWithoutNeedingDisplay];
 }
 
 - (void) replaceSubview:(NSView *)oldView with:(NSView *)newView
