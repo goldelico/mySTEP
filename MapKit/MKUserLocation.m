@@ -25,6 +25,7 @@
 #if 1
 //	NSLog(@"old location: %@", old);
 	NSLog(@"new location: %@", newloc);
+	// prints e.g. new location: <+48.01499810, +11.58788030> +/- 161.00m (speed 0.00 mps / course -1.00) @ 2011-04-22 11:01:22 +0200
 #endif
 }
 

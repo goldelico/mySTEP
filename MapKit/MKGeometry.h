@@ -15,6 +15,14 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreLocation/CoreLocation.h>
 
+// FIXME: do we need these as public constants?
+
+#define POINTS_PER_METER (72/0.0254)
+#define EQUATOR_RADIUS	6378127.0	// WGS84 in meters
+#define POLE_RADIUS 6356752.314
+#define MKMapWidth (2*M_PI*EQUATOR_RADIUS*POINTS_PER_METER)	// total width of map expressed in typographic points
+#define MKMapHeight (M_PI*POLE_RADIUS*POINTS_PER_METER)		// total height of map
+
 typedef struct _MKCoordinateSpan
 {
 	CLLocationDegrees latitudeDelta;
@@ -49,14 +57,14 @@ typedef CGFloat MKZoomScale;
 
 CLLocationCoordinate2D MKCoordinateForMapPoint(MKMapPoint mapPoint);
 MKCoordinateRegion MKCoordinateRegionForMapRect(MKMapRect rect);
-inline MKCoordinateRegion MKCoordinateRegionMake(CLLocationCoordinate2D center, MKCoordinateSpan span)
+static inline MKCoordinateRegion MKCoordinateRegionMake(CLLocationCoordinate2D center, MKCoordinateSpan span)
 {
 	return (MKCoordinateRegion) { center, span };
 }
 MKCoordinateRegion MKCoordinateRegionMakeWithDistance(CLLocationCoordinate2D center,
 													  CLLocationDistance lat,
 													  CLLocationDistance lng);
-inline MKCoordinateSpan MKCoordinateSpanMake(CLLocationDegrees lat, CLLocationDegrees lng)
+static inline MKCoordinateSpan MKCoordinateSpanMake(CLLocationDegrees lat, CLLocationDegrees lng)
 {
 	return (MKCoordinateSpan) { lat, lng };
 }

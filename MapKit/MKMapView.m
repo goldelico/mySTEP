@@ -11,12 +11,40 @@
 
 @implementation MKMapView
 
+static MKMapRect worldMap;	// visible map rect at z=0 (topmost tile)
+
+#define TILEPIXELS	256.0
+
+#define CACHESIZE 100
+
+static NSMutableDictionary *imageCache;
+static NSMutableArray *imageLRU;
+
++ (void) initialize
+{
+	if(self == [MKMapView class])
+		{
+		MKMapPoint topRight=MKMapPointForCoordinate((CLLocationCoordinate2D) { 85.0, 180.0 });	// CLLocationCoordinate2D is (latitude, longigude) which corresponds to (y, x)
+#if 1	// for testing...
+		CLLocationCoordinate2D test=MKCoordinateForMapPoint(topRight);
+		if(test.latitude != 85.0 || test.longitude != 180.0)
+			NSLog(@"conversion error");
+#endif
+		worldMap.origin=MKMapPointForCoordinate((CLLocationCoordinate2D) { -85.0, -180.0  });
+		worldMap.size.width=topRight.x - worldMap.origin.x;
+		worldMap.size.height=topRight.y - worldMap.origin.y;
+		imageCache=[[NSMutableDictionary alloc] initWithCapacity:CACHESIZE];
+		imageLRU=[[NSMutableArray alloc] initWithCapacity:CACHESIZE];
+		}
+}
+
 - (id) initWithFrame:(NSRect) frameRect
 {
 	if((self=[super initWithFrame:frameRect]))
 		{
 		annotations=[[NSMutableArray alloc] initWithCapacity:50];
 		overlays=[[NSMutableArray alloc] initWithCapacity:20];
+		visibleMapRect=[self mapRectThatFits:worldMap];	// start with world map
 		}
 	return self;
 }
@@ -33,25 +61,118 @@
 - (BOOL) isFlipped; { return YES; }
 
 // FIXME: how does resizing modify the visibleMapRect?
+// we must overwrite setFrame(Size) and adjust the visibleRect
+
+- (NSString *) tileURLForZ:(int) z x:(int) x y:(int) y;
+{
+	if(z < 0 || z > 20)
+		return nil;
+	return [NSString stringWithFormat:@"http://tile.openstreetmap.org/%d/%d/%d.png", z, x, y];
+}
+
+- (BOOL) drawTileForZ:(int) z x:(int) x y:(int) y intoRect:(NSRect) rect load:(BOOL) flag;
+{
+	NSString *url;
+	NSRect bounds = [self bounds];
+	MKZoomScale scale = MIN(bounds.size.width / TILEPIXELS * worldMap.size.width / visibleMapRect.size.width, bounds.size.height / TILEPIXELS * worldMap.size.height / visibleMapRect.size.height);
+	float lscale=log10(scale);	// gives z-Factor
+	int z=ceil(lscale);
+	int iscale = 1<<z;
+	MKMapSize tileSize = (MKMapSize) { worldMap.size.width / iscale, worldMap.size.height / iscale };	// size of single tile (at nominal scale)
+	int x, y;
+	
+	int minx=floor(MKMapRectGetMinX(visibleMapRect) / worldMap.size.width);
+	int maxx=ceil(MKMapRectGetMaxX(visibleMapRect) / worldMap.size.width);
+	int miny=floor(MKMapRectGetMinY(visibleMapRect) / worldMap.size.height);
+	int maxy=ceil(MKMapRectGetMaxY(visibleMapRect) / worldMap.size.height);
+	
+	NSRect drawRect;
+	// draw rect is determined by x, y, z, bounds, worldMap, visibleMapRect
+	if(!NSIntersectsRect(drawRect, rect))
+		return YES;	// does not fall into drawing rect
+	url=[self tileURLForZ:z x:x y:y];
+	if(url)
+		{
+		NSImage *img=[imageCache objectForKey:url];
+		if(!img)
+			{ // not in cache
+				BOOL r=NO;
+				if(flag)
+					{
+					// start tile loader
+					// if we add the first tile to load, call [delegate didStartLoading]
+					// for each tile that arrives, call setNeedsDisplayInRect:
+					// when the last tile arrives, call [delegate didFinishLoading]
+					img=[[[NSImage alloc] initByReferencingURL:[NSURL URLWithString:url]] autorelease];
+					[imageCache setObject:img forKey:url];
+					if([imageLRU count] > CACHESIZE)
+						[imageLRU removeLastObject];	// remove least recently used tile
+					}
+#if 0 // recursion does not work!!!
+				// look for a replacement (in z+1 or z-1 direction)
+				if(z > 0)
+					{ // try covering tile at lower zoom factor
+						// double size of rect
+						// FIXME: we should be able to move the rect origin but how? Depends on the lsb of x and y
+						r |= [self drawTileForZ:z-1 x:x/2 y:y/2 intoRect:rect load:NO];
+					}
+				if(z < 20)
+					{ // try tiles at higher zoom factor
+						// split rect into 4 parts
+						r |= [self drawTileForZ:z+1 x:2*x y:2*y intoRect:rect load:NO];
+						r |= [self drawTileForZ:z+1 x:2*x+1 y:2*y intoRect:rect load:NO];
+						r |= [self drawTileForZ:z+1 x:2*x y:2*y+1 intoRect:rect load:NO];
+						r |= [self drawTileForZ:z+1 x:2*x+1 y:2*y+1 intoRect:rect load:NO];
+					}
+				return r;
+#endif
+			}
+		else
+			[imageLRU removeObject:img];
+		[imageLRU insertObject:img atIndex:0];  // move to beginning of LRU list
+
+		[img drawInRect:drawRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+		return YES;
+		}
+	return NO;
+}
 
 - (void) drawRect:(NSRect) rect
 {
-	MKZoomScale scale;
+	NSRect bounds = [self bounds];
+	MKZoomScale scale = MIN(bounds.size.width / TILEPIXELS * worldMap.size.width / visibleMapRect.size.width, bounds.size.height / TILEPIXELS * worldMap.size.height / visibleMapRect.size.height);
+	float lscale=log10(scale);	// gives z-Factor
+	int z=ceil(lscale);
+	int iscale = 1<<z;
+	MKMapSize tileSize = (MKMapSize) { worldMap.size.width / iscale, worldMap.size.height / iscale };	// size of single tile (at nominal scale)
+	int x, y;
 	
-	// scale is defined by visibleMapRect relative to bounds
-	
+	int minx=floor(MKMapRectGetMinX(visibleMapRect) / worldMap.size.width);
+	int maxx=ceil(MKMapRectGetMaxX(visibleMapRect) / worldMap.size.width);
+	int miny=floor(MKMapRectGetMinY(visibleMapRect) / worldMap.size.height);
+	int maxy=ceil(MKMapRectGetMaxY(visibleMapRect) / worldMap.size.height);
+	// draw background
+#if 1
 	[@"I am the MKMapView" drawInRect:NSMakeRect(10.0, 10.0, 100.0, 100.0) withAttributes:nil];
 	[[annotations description] drawInRect:NSMakeRect(10.0, 50.0, 100.0, 100.0) withAttributes:nil];
-	
-	// draw all relevant tiles in the visibleMapRect
-	// i.e. we have to map the rect/bounds to visibleMapRect coordinates to get the mapRect to redraw
-	// then, we search tiles
-	
-	/*
-	 1. draw background
-	 2. darw relevant tiles
-	 3. draw annotations and overlays
-	 */
+#endif	
+	minx += floor((NSMinX(rect)) / TILEPIXELS);	// we can skip the first tiles for partial redraw
+	maxx -= floor((NSMaxX(bounds) - NSMaxX(rect)) / TILEPIXELS);	// we can skip the last tiles for partial redraw
+	miny += floor((NSMinY(rect)) / TILEPIXELS);	// we can skip the first tiles for partial redraw
+	maxy -= floor((NSMaxY(bounds) - NSMaxY(rect)) / TILEPIXELS);	// we can skip the last tiles for partial redraw
+
+	for(y = miny; y < maxy; y++)
+		{
+		for(x = minx; x < maxx; x++)
+			{
+			NSRect rect = { { 0, 0 }, { TILEPIXELS, TILEPIXELS } };
+			rect.origin=bounds.origin;
+			rect.origin.x = bounds.origin.x + x*TILEPIXELS;
+			rect.origin.y = bounds.origin.y + y*TILEPIXELS;
+			[self drawTileForZ:z x:x y:y intoRect:rect load:YES];
+			}
+		}
+	/* draw annotations and overlays (not here - they are handled through subviews) */
 }
 
 - (void) addAnnotation:(id <MKAnnotation>) a; { [annotations addObject:a]; [self setNeedsDisplay:YES]; }	// could optimize drawing rect?

@@ -31,6 +31,13 @@
 		EE31DF15125A359D00DF3C91 /* MKOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF14125A359D00DF3C91 /* MKOverlayView.m */; };
 		EE31DF21125A36A600DF3C91 /* MKGeometry.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF20125A36A600DF3C91 /* MKGeometry.m */; };
 		EE31DF23125A385600DF3C91 /* MKPointAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE92251713617A000010C76C /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = EE922504136179DD0010C76C /* Credits.rtf */; };
+		EE92251813617A000010C76C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EE922506136179DD0010C76C /* InfoPlist.strings */; };
+		EE92251913617A000010C76C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = EE922508136179DD0010C76C /* MainMenu.xib */; };
+		EE92251A13617A000010C76C /* MyDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = EE92250A136179DD0010C76C /* MyDocument.xib */; };
+		EE92251B13617A0A0010C76C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE92250C136179DD0010C76C /* main.m */; };
+		EE92251C13617A0A0010C76C /* MyDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = EE922513136179DD0010C76C /* MyDocument.m */; };
+		EE92252013617A2D0010C76C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* MapKit.framework */; };
 		EEB23D5812589D3E0018A9F3 /* MapKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D5512589D3E0018A9F3 /* MapKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D5912589D3E0018A9F3 /* MKMapView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D5612589D3E0018A9F3 /* MKMapView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D5A12589D3E0018A9F3 /* MKMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEB23D5712589D3E0018A9F3 /* MKMapView.m */; };
@@ -70,6 +77,16 @@
 		EE31DF20125A36A600DF3C91 /* MKGeometry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKGeometry.m; sourceTree = "<group>"; };
 		EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPointAnnotation.h; sourceTree = "<group>"; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EE9224C7136179BD0010C76C /* MapKitTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapKitTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE922505136179DD0010C76C /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
+		EE922507136179DD0010C76C /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		EE922509136179DD0010C76C /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		EE92250B136179DD0010C76C /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MyDocument.xib; sourceTree = "<group>"; };
+		EE92250C136179DD0010C76C /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		EE92250D136179DD0010C76C /* MapKitTest-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MapKitTest-Info.plist"; sourceTree = "<group>"; };
+		EE922511136179DD0010C76C /* MapKitTest_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapKitTest_Prefix.pch; sourceTree = "<group>"; };
+		EE922512136179DD0010C76C /* MyDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocument.h; sourceTree = "<group>"; };
+		EE922513136179DD0010C76C /* MyDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyDocument.m; sourceTree = "<group>"; };
 		EEB23D5512589D3E0018A9F3 /* MapKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapKit.h; sourceTree = "<group>"; };
 		EEB23D5612589D3E0018A9F3 /* MKMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKMapView.h; sourceTree = "<group>"; };
 		EEB23D5712589D3E0018A9F3 /* MKMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKMapView.m; sourceTree = "<group>"; };
@@ -89,6 +106,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EE9224C5136179BD0010C76C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE92252013617A2D0010C76C /* MapKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -96,6 +121,7 @@
 			isa = PBXGroup;
 			children = (
 				8DC2EF5B0486A6940098B216 /* MapKit.framework */,
+				EE9224C7136179BD0010C76C /* MapKitTest.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,6 +134,7 @@
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				089C1665FE841158C02AAC07 /* Resources */,
 				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
+				EE9224DF136179DD0010C76C /* MapKitTest */,
 				034768DFFF38A50411DB9C8B /* Products */,
 			);
 			name = ScreenSaver;
@@ -191,6 +218,22 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
+		EE9224DF136179DD0010C76C /* MapKitTest */ = {
+			isa = PBXGroup;
+			children = (
+				EE922504136179DD0010C76C /* Credits.rtf */,
+				EE922506136179DD0010C76C /* InfoPlist.strings */,
+				EE922508136179DD0010C76C /* MainMenu.xib */,
+				EE92250A136179DD0010C76C /* MyDocument.xib */,
+				EE92250C136179DD0010C76C /* main.m */,
+				EE92250D136179DD0010C76C /* MapKitTest-Info.plist */,
+				EE922511136179DD0010C76C /* MapKitTest_Prefix.pch */,
+				EE922512136179DD0010C76C /* MyDocument.h */,
+				EE922513136179DD0010C76C /* MyDocument.m */,
+			);
+			path = MapKitTest;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -247,6 +290,24 @@
 			productReference = 8DC2EF5B0486A6940098B216 /* MapKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		EE9224C6136179BD0010C76C /* MapKitTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE9224CC136179BE0010C76C /* Build configuration list for PBXNativeTarget "MapKitTest" */;
+			buildPhases = (
+				EE9224C3136179BD0010C76C /* Resources */,
+				EE9224C4136179BD0010C76C /* Sources */,
+				EE9224C5136179BD0010C76C /* Frameworks */,
+				EE92258013617BB00010C76C /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MapKitTest;
+			productName = MapKitTest;
+			productReference = EE9224C7136179BD0010C76C /* MapKitTest.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -268,6 +329,7 @@
 			projectRoot = "";
 			targets = (
 				8DC2EF4F0486A6940098B216 /* MapKit */,
+				EE9224C6136179BD0010C76C /* MapKitTest */,
 			);
 		};
 /* End PBXProject section */
@@ -278,6 +340,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE9224C3136179BD0010C76C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE92251713617A000010C76C /* Credits.rtf in Resources */,
+				EE92251813617A000010C76C /* InfoPlist.strings in Resources */,
+				EE92251913617A000010C76C /* MainMenu.xib in Resources */,
+				EE92251A13617A000010C76C /* MyDocument.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,6 +370,19 @@
 			shellPath = /bin/sh;
 			shellScript = "export SOURCES=*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=CoreLocation\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
+		EE92258013617BB00010C76C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SOURCES=*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"CoreLocation MapKit\"\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/Applications/Test   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=true                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-mapkit-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -312,6 +398,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EE9224C4136179BD0010C76C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE92251B13617A0A0010C76C /* main.m in Sources */,
+				EE92251C13617A0A0010C76C /* MyDocument.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
@@ -321,6 +416,38 @@
 				089C1667FE841158C02AAC07 /* English */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		EE922504136179DD0010C76C /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EE922505136179DD0010C76C /* English */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		EE922506136179DD0010C76C /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EE922507136179DD0010C76C /* English */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		EE922508136179DD0010C76C /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EE922509136179DD0010C76C /* English */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		EE92250A136179DD0010C76C /* MyDocument.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EE92250B136179DD0010C76C /* English */,
+			);
+			name = MyDocument.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -395,6 +522,56 @@
 			};
 			name = Release;
 		};
+		EE9224CA136179BD0010C76C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "MapKitTest/MapKitTest-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = MapKitTest;
+			};
+			name = Debug;
+		};
+		EE9224CB136179BD0010C76C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "MapKitTest/MapKitTest-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = MapKitTest;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -412,6 +589,15 @@
 			buildConfigurations = (
 				1DEB91B208733DA50010E9CD /* Debug */,
 				1DEB91B308733DA50010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EE9224CC136179BE0010C76C /* Build configuration list for PBXNativeTarget "MapKitTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE9224CA136179BD0010C76C /* Debug */,
+				EE9224CB136179BD0010C76C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
