@@ -149,14 +149,14 @@
 		EE0E66700DBC828600564003 /* libpng12.0.15.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E660C0DBC828600564003 /* libpng12.0.15.0.dylib */; };
 		EE0E66710DBC828600564003 /* libpng12.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E660D0DBC828600564003 /* libpng12.0.dylib */; };
 		EE0E66720DBC828600564003 /* libpng12.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E660E0DBC828600564003 /* libpng12.dylib */; };
-		EE0E66730DBC828600564003 /* libssl.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E660F0DBC828600564003 /* libssl.0.9.8.dylib */; };
+		EE0E66730DBC828600564003 /* libssl.1.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E660F0DBC828600564003 /* libssl.1.0.0.dylib */; };
 		EE0E66740DBC828600564003 /* libssl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66100DBC828600564003 /* libssl.dylib */; };
 		EE0E66750DBC828600564003 /* libtiff.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66110DBC828600564003 /* libtiff.3.dylib */; };
 		EE0E66760DBC828600564003 /* libtiff.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66120DBC828600564003 /* libtiff.dylib */; };
 		EE0E66790DBC828600564003 /* libungif.4.1.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66150DBC828600564003 /* libungif.4.1.4.dylib */; };
 		EE0E667A0DBC828600564003 /* libungif.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66160DBC828600564003 /* libungif.4.dylib */; };
 		EE0E667B0DBC828600564003 /* libungif.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66170DBC828600564003 /* libungif.dylib */; };
-		EE0E667C0DBC828600564003 /* libz.1.2.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66180DBC828600564003 /* libz.1.2.3.dylib */; };
+		EE0E667C0DBC828600564003 /* libz.1.2.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66180DBC828600564003 /* libz.1.2.5.dylib */; };
 		EE0E667D0DBC828600564003 /* libz.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66190DBC828600564003 /* libz.1.dylib */; };
 		EE0E667E0DBC828600564003 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E661A0DBC828600564003 /* libz.dylib */; };
 		EE0E667F0DBC828600564003 /* gif_lib.h in Headers */ = {isa = PBXBuildFile; fileRef = EE0E65B40DBC828600564003 /* gif_lib.h */; };
@@ -247,14 +247,14 @@
 		EE0E66D40DBC828700564003 /* libpng12.0.15.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E660C0DBC828600564003 /* libpng12.0.15.0.dylib */; };
 		EE0E66D50DBC828700564003 /* libpng12.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E660D0DBC828600564003 /* libpng12.0.dylib */; };
 		EE0E66D60DBC828700564003 /* libpng12.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E660E0DBC828600564003 /* libpng12.dylib */; };
-		EE0E66D70DBC828700564003 /* libssl.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E660F0DBC828600564003 /* libssl.0.9.8.dylib */; };
+		EE0E66D70DBC828700564003 /* libssl.1.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E660F0DBC828600564003 /* libssl.1.0.0.dylib */; };
 		EE0E66D80DBC828700564003 /* libssl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66100DBC828600564003 /* libssl.dylib */; };
 		EE0E66D90DBC828700564003 /* libtiff.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66110DBC828600564003 /* libtiff.3.dylib */; };
 		EE0E66DA0DBC828700564003 /* libtiff.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66120DBC828600564003 /* libtiff.dylib */; };
 		EE0E66DD0DBC828700564003 /* libungif.4.1.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66150DBC828600564003 /* libungif.4.1.4.dylib */; };
 		EE0E66DE0DBC828700564003 /* libungif.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66160DBC828600564003 /* libungif.4.dylib */; };
 		EE0E66DF0DBC828700564003 /* libungif.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66170DBC828600564003 /* libungif.dylib */; };
-		EE0E66E00DBC828700564003 /* libz.1.2.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66180DBC828600564003 /* libz.1.2.3.dylib */; };
+		EE0E66E00DBC828700564003 /* libz.1.2.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66180DBC828600564003 /* libz.1.2.5.dylib */; };
 		EE0E66E10DBC828700564003 /* libz.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E66190DBC828600564003 /* libz.1.dylib */; };
 		EE0E66E20DBC828700564003 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EE0E661A0DBC828600564003 /* libz.dylib */; };
 		EE1227290D059B63000E4BA5 /* NSPredicateEditor.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1227250D059B63000E4BA5 /* NSPredicateEditor.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1134,14 +1134,14 @@
 		EE0E660C0DBC828600564003 /* libpng12.0.15.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libpng12.0.15.0.dylib; sourceTree = "<group>"; };
 		EE0E660D0DBC828600564003 /* libpng12.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libpng12.0.dylib; sourceTree = "<group>"; };
 		EE0E660E0DBC828600564003 /* libpng12.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libpng12.dylib; sourceTree = "<group>"; };
-		EE0E660F0DBC828600564003 /* libssl.0.9.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libssl.0.9.8.dylib; sourceTree = "<group>"; };
+		EE0E660F0DBC828600564003 /* libssl.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libssl.1.0.0.dylib; sourceTree = "<group>"; };
 		EE0E66100DBC828600564003 /* libssl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libssl.dylib; sourceTree = "<group>"; };
 		EE0E66110DBC828600564003 /* libtiff.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libtiff.3.dylib; sourceTree = "<group>"; };
 		EE0E66120DBC828600564003 /* libtiff.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libtiff.dylib; sourceTree = "<group>"; };
 		EE0E66150DBC828600564003 /* libungif.4.1.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libungif.4.1.4.dylib; sourceTree = "<group>"; };
 		EE0E66160DBC828600564003 /* libungif.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libungif.4.dylib; sourceTree = "<group>"; };
 		EE0E66170DBC828600564003 /* libungif.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libungif.dylib; sourceTree = "<group>"; };
-		EE0E66180DBC828600564003 /* libz.1.2.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libz.1.2.3.dylib; sourceTree = "<group>"; };
+		EE0E66180DBC828600564003 /* libz.1.2.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libz.1.2.5.dylib; sourceTree = "<group>"; };
 		EE0E66190DBC828600564003 /* libz.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libz.1.dylib; sourceTree = "<group>"; };
 		EE0E661A0DBC828600564003 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libz.dylib; sourceTree = "<group>"; };
 		EE1227250D059B63000E4BA5 /* NSPredicateEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSPredicateEditor.h; sourceTree = "<group>"; };
@@ -1552,14 +1552,14 @@
 				EE0E66D40DBC828700564003 /* libpng12.0.15.0.dylib in Frameworks */,
 				EE0E66D50DBC828700564003 /* libpng12.0.dylib in Frameworks */,
 				EE0E66D60DBC828700564003 /* libpng12.dylib in Frameworks */,
-				EE0E66D70DBC828700564003 /* libssl.0.9.8.dylib in Frameworks */,
+				EE0E66D70DBC828700564003 /* libssl.1.0.0.dylib in Frameworks */,
 				EE0E66D80DBC828700564003 /* libssl.dylib in Frameworks */,
 				EE0E66D90DBC828700564003 /* libtiff.3.dylib in Frameworks */,
 				EE0E66DA0DBC828700564003 /* libtiff.dylib in Frameworks */,
 				EE0E66DD0DBC828700564003 /* libungif.4.1.4.dylib in Frameworks */,
 				EE0E66DE0DBC828700564003 /* libungif.4.dylib in Frameworks */,
 				EE0E66DF0DBC828700564003 /* libungif.dylib in Frameworks */,
-				EE0E66E00DBC828700564003 /* libz.1.2.3.dylib in Frameworks */,
+				EE0E66E00DBC828700564003 /* libz.1.2.5.dylib in Frameworks */,
 				EE0E66E10DBC828700564003 /* libz.1.dylib in Frameworks */,
 				EE0E66E20DBC828700564003 /* libz.dylib in Frameworks */,
 			);
@@ -1591,14 +1591,14 @@
 				EE0E66700DBC828600564003 /* libpng12.0.15.0.dylib in Frameworks */,
 				EE0E66710DBC828600564003 /* libpng12.0.dylib in Frameworks */,
 				EE0E66720DBC828600564003 /* libpng12.dylib in Frameworks */,
-				EE0E66730DBC828600564003 /* libssl.0.9.8.dylib in Frameworks */,
+				EE0E66730DBC828600564003 /* libssl.1.0.0.dylib in Frameworks */,
 				EE0E66740DBC828600564003 /* libssl.dylib in Frameworks */,
 				EE0E66750DBC828600564003 /* libtiff.3.dylib in Frameworks */,
 				EE0E66760DBC828600564003 /* libtiff.dylib in Frameworks */,
 				EE0E66790DBC828600564003 /* libungif.4.1.4.dylib in Frameworks */,
 				EE0E667A0DBC828600564003 /* libungif.4.dylib in Frameworks */,
 				EE0E667B0DBC828600564003 /* libungif.dylib in Frameworks */,
-				EE0E667C0DBC828600564003 /* libz.1.2.3.dylib in Frameworks */,
+				EE0E667C0DBC828600564003 /* libz.1.2.5.dylib in Frameworks */,
 				EE0E667D0DBC828600564003 /* libz.1.dylib in Frameworks */,
 				EE0E667E0DBC828600564003 /* libz.dylib in Frameworks */,
 			);
@@ -1779,14 +1779,14 @@
 				EE0E660C0DBC828600564003 /* libpng12.0.15.0.dylib */,
 				EE0E660D0DBC828600564003 /* libpng12.0.dylib */,
 				EE0E660E0DBC828600564003 /* libpng12.dylib */,
-				EE0E660F0DBC828600564003 /* libssl.0.9.8.dylib */,
+				EE0E660F0DBC828600564003 /* libssl.1.0.0.dylib */,
 				EE0E66100DBC828600564003 /* libssl.dylib */,
 				EE0E66110DBC828600564003 /* libtiff.3.dylib */,
 				EE0E66120DBC828600564003 /* libtiff.dylib */,
 				EE0E66150DBC828600564003 /* libungif.4.1.4.dylib */,
 				EE0E66160DBC828600564003 /* libungif.4.dylib */,
 				EE0E66170DBC828600564003 /* libungif.dylib */,
-				EE0E66180DBC828600564003 /* libz.1.2.3.dylib */,
+				EE0E66180DBC828600564003 /* libz.1.2.5.dylib */,
 				EE0E66190DBC828600564003 /* libz.1.dylib */,
 				EE0E661A0DBC828600564003 /* libz.dylib */,
 			);
@@ -4455,7 +4455,10 @@
 				HEADER_SEARCH_PATHS = /opt/local/include;
 				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"../macports-dylibs/lib",
+					/opt/local/lib,
+				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
@@ -4487,7 +4490,10 @@
 				HEADER_SEARCH_PATHS = /opt/local/include;
 				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"../macports-dylibs/lib",
+					/opt/local/lib,
+				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
@@ -4517,7 +4523,10 @@
 				HEADER_SEARCH_PATHS = /opt/local/include;
 				INFOPLIST_FILE = ../TestApplications/NIB/Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"../macports-dylibs/lib",
+					/opt/local/lib,
+				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
