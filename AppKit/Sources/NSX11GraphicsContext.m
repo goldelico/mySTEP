@@ -2271,12 +2271,72 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 					{
 					case NSImageInterpolationDefault:	// default is same as low
 					case NSImageInterpolationLow:
-						// FIXME: here we should inter/extrapolate adjacent source points
 					case NSImageInterpolationHigh:
-						// FIXME: here we should inter/extrapolate adjacent source points
+						{ // here we interpolate adjacent source points
+							struct RGBA8 src00, src01, src10, src11;	// 4 sample points
+							int xx=pnt.x;	// get integer part
+							int yy=pnt.y;
+							// FIXME: this weighting is not correct
+							int w00=256*(pnt.x-xx);	// weight
+							int w01=256-w00;		// weight
+							int w10=256*(pnt.y-yy);	// weight
+							int w11=256-w10;		// weight
+							if(w00 != 0)
+								src00=getPixel(xx, yy, width, height,
+										 /*
+										  bitsPerSample,
+										  samplesPerPixel,
+										  bitsPerPixel,
+										  bitmapFormat
+										  */
+										 bytesPerRow,
+										 isPlanar, hasAlpha,
+										 isPremultiplied, isAlphaFirst,
+										 imagePlanes);
+							if(w01 != 0)
+								src01=getPixel(xx, yy+1, width, height,
+										   /*
+											bitsPerSample,
+											samplesPerPixel,
+											bitsPerPixel,
+											bitmapFormat
+											*/
+										   bytesPerRow,
+										   isPlanar, hasAlpha,
+										   isPremultiplied, isAlphaFirst,
+										   imagePlanes);
+							if(w10 != 0)
+								src10=getPixel(xx+1, yy, width, height,
+										   /*
+											bitsPerSample,
+											samplesPerPixel,
+											bitsPerPixel,
+											bitmapFormat
+											*/
+										   bytesPerRow,
+										   isPlanar, hasAlpha,
+										   isPremultiplied, isAlphaFirst,
+										   imagePlanes);
+							if(w11 != 0)
+								src11=getPixel(xx+1, yy+1, width, height,
+										   /*
+											bitsPerSample,
+											samplesPerPixel,
+											bitsPerPixel,
+											bitmapFormat
+											*/
+										   bytesPerRow,
+										   isPlanar, hasAlpha,
+										   isPremultiplied, isAlphaFirst,
+										   imagePlanes);
+							// FIXME! contribution is a mix of all 4 values
+							src.R=(w00*src00.R+w10*src10.R+w01*src01.R+w11*src11.R)/512;	// weighted interpolation
+							src.G=(w00*src00.G+w10*src10.G+w01*src01.G+w11*src11.G)/512;
+							src.B=(w00*src00.B+w10*src10.B+w01*src01.B+w11*src11.B)/512;
+							src.A=(w00*src00.A+w10*src10.A+w01*src01.A+w11*src11.A)/512;
+						}
 					case NSImageInterpolationNone:
-						{
-							// should interpolate several pixels
+						{ // no interpolation
 							src=getPixel((int) pnt.x, (int) pnt.y, width, height,
 										 /*
 										  bitsPerSample,
