@@ -2,7 +2,7 @@
 //  MKUserLocation.m
 //  MapKit
 //
-//  Created by H. Nikolaus Schaller on 20.10.09.
+//  Created by H. Nikolaus Schaller on 04.10.10.
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
@@ -21,7 +21,8 @@
 {
 	[location release];
 	location=[newloc retain];
-	// notify change according to MKAnnotation protocol?
+	// make us redraw - what is the protocol how a MKAnnotation can notify changes? KVO?
+	// [[mapview delegate] mapView:mapView didUpdateUserLocation:self]
 #if 1
 //	NSLog(@"old location: %@", old);
 	NSLog(@"new location: %@", newloc);

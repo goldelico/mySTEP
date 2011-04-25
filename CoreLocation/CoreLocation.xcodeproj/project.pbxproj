@@ -60,7 +60,7 @@
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* CoreLocation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CoreLocation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE310713125F025C00DF3C91 /* cltest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cltest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE310713125F025C00DF3C91 /* cltestsys */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cltestsys; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE31DFC7125A4EE200DF3C91 /* CoreLocation_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreLocation_Prefix.pch; sourceTree = "<group>"; };
 		EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreLocation.h; sourceTree = "<group>"; };
 		EE31DFD7125A4F7F00DF3C91 /* SYSLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SYSLocation.h; sourceTree = "<group>"; };
@@ -125,7 +125,7 @@
 				8DC2EF5B0486A6940098B216 /* CoreLocation.framework */,
 				EE31E27D125CD76C00DF3C91 /* cltest */,
 				EE31E2D3125CDC2500DF3C91 /* CLTestFramework.framework */,
-				EE310713125F025C00DF3C91 /* cltest */,
+				EE310713125F025C00DF3C91 /* cltestsys */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -288,7 +288,7 @@
 			);
 			name = cltestsys;
 			productName = cltest;
-			productReference = EE310713125F025C00DF3C91 /* cltest */;
+			productReference = EE310713125F025C00DF3C91 /* cltestsys */;
 			productType = "com.apple.product-type.tool";
 		};
 		EE31E27C125CD76C00DF3C91 /* cltest */ = {

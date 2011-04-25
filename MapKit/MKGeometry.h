@@ -2,7 +2,7 @@
 //  MKGeometry.h
 //  MapKit
 //
-//  Created by H. Nikolaus Schaller on 20.10.09.
+//  Created by H. Nikolaus Schaller on 04.10.10.
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 //  for understanding the coordinate systems
@@ -15,13 +15,9 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreLocation/CoreLocation.h>
 
-// FIXME: do we need these as public constants?
-
-#define POINTS_PER_METER (72/0.0254)
-#define EQUATOR_RADIUS	6378127.0	// WGS84 in meters
-#define POLE_RADIUS 6356752.314
-#define MKMapWidth (2*M_PI*EQUATOR_RADIUS*POINTS_PER_METER)	// total width of map expressed in typographic points
-#define MKMapHeight (M_PI*POLE_RADIUS*POINTS_PER_METER)		// total height of map
+#ifndef __UIKit__
+#define CGRectEdge NSRectEdge
+#endif
 
 typedef struct _MKCoordinateSpan
 {
@@ -97,7 +93,7 @@ MKMapRect MKMapRectUnion(MKMapRect r1, MKMapRect r2);
 BOOL MKMapSizeEqualToSize(MKMapSize r1, MKMapSize r2);
 MKMapSize MKMapSizeMake(double w, double h);
 CLLocationDistance MKMetersBetweenMapPoints(MKMapPoint a, MKMapPoint b);
-CLLocationDistance MKMetersPerMapPointAtLatitude(CLLocationDegrees latitude);
+CLLocationDistance MKMetersPerMapPointAtLatitude(CLLocationDegrees lat);
 NSString *MKStringFromMapPoint(MKMapPoint point);
 NSString *MKStringFromMapRect(MKMapRect rect);
 NSString *MKStringFromMapSize(MKMapSize size);

@@ -8,17 +8,139 @@
 
 #import <MapKit/MapKit.h>
 
+#define TILEPIXELS	256.0
+
+@interface _MKTile : NSObject
+{
+	NSURL *_url;
+	NSURLConnection *_connection;
+	NSMutableData *_data;
+	NSImage *_image;
+	MKMapView *_delegate;
+}
+
+// FIXME: what about multiple MapViews?
+
+- (id) initWithContentsOFURL:(NSURL *) url forView:(NSView *) delegate;
+- (void) load;
+- (NSImage *) image;
+@end
+
+@implementation _MKTile
+
+static NSMutableArray *loadQueue;	// TileLoaders to be started
+static int alreadyLoading=0;
+
+- (id) initWithContentsOFURL:(NSURL *) url forView:(MKMapView *) delegate;
+{
+	if((self=[super init]))
+		{
+		_delegate=delegate;
+		_url=[url retain];
+		if(alreadyLoading == 0)
+			[[_delegate delegate] mapViewWillStartLoadingMap:_delegate];
+		if(alreadyLoading < 5)
+			[self load];
+		else
+			{ // enqueue
+				if(!loadQueue)
+					loadQueue=[[NSMutableArray alloc] initWithCapacity:20];
+				[loadQueue addObject:self];	// put into queue
+			}
+		}
+	return self;
+}
+
+- (void) load
+{
+	if(!_connection)
+		{
+		_connection=[[NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:_url] delegate:self] retain];
+		[_url release];
+		_url=nil;
+		[_connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSEventTrackingRunLoopMode];
+		alreadyLoading++;
+		[loadQueue removeObjectIdenticalTo:self];	// and remove (if we are in the queue)
+		}
+}
+
+- (void) connection:(NSURLConnection *) connection didReceiveData:(NSData *) data
+{
+	if(!_data)
+		_data=[data mutableCopy];
+	else
+		[_data appendData:data];
+}
+
+- (void) connection:(NSURLConnection *) connection didFailWithError:(NSError *) error
+{
+#if 1
+	NSLog(@"didFailWithError: %@", error);
+#endif
+	_image=[[NSImage alloc] initWithSize:NSMakeSize(TILEPIXELS, TILEPIXELS)];	// write error message into a tile
+	[_image setFlipped:NO];
+	[_image lockFocus];
+	[[error localizedDescription] drawInRect:[_image alignmentRect] withAttributes:nil];
+	[_image unlockFocus];
+	[self connectionDidFinishLoading:connection];
+}
+
+- (void) connectionDidFinishLoading:(NSURLConnection *) connection
+{
+	[_connection release];
+	_connection=nil;
+	if(!_image && _data)
+		{ // get image from data (unless we show an error message)
+		_image=[[NSImage alloc] initWithData:_data];
+		[_image setFlipped:YES];
+		}
+	[_data release];
+	_data=nil;
+	[_delegate setNeedsDisplay:YES];	// and redisplay (we should specify a rect where we want to be updated)
+	alreadyLoading--;
+	NSAssert(alreadyLoading >= 0, @"never become negative");
+	if([loadQueue count] > 0)
+		[[loadQueue lastObject] load];	// will remove self
+	else if(alreadyLoading == 0)
+		[[_delegate delegate] mapViewDidFinishLoadingMap:_delegate];
+}
+
+- (NSImage *) image;
+{
+	if(_url)
+		{
+		if([loadQueue lastObject] != self)
+			{ // LRU handling
+				[loadQueue removeObjectIdenticalTo:self];
+				[loadQueue addObject:self];
+			}
+		return nil;
+		}
+	if(_connection)
+		return nil;	// already/still loading
+	return _image;
+}
+
+- (void) dealloc
+{
+	[_connection cancel];
+	[_connection release];
+	[_data release];
+	[_image release];
+	[_url release];
+	[super dealloc];
+}
+
+@end
 
 @implementation MKMapView
 
 static MKMapRect worldMap;	// visible map rect at z=0 (topmost tile)
 
-#define TILEPIXELS	256.0
-
 #define CACHESIZE 100
 
 static NSMutableDictionary *imageCache;
-static NSMutableArray *imageLRU;
+static NSMutableArray *tileLRU;
 
 + (void) initialize
 {
@@ -34,7 +156,7 @@ static NSMutableArray *imageLRU;
 		worldMap.size.width=topRight.x - worldMap.origin.x;
 		worldMap.size.height=topRight.y - worldMap.origin.y;
 		imageCache=[[NSMutableDictionary alloc] initWithCapacity:CACHESIZE];
-		imageLRU=[[NSMutableArray alloc] initWithCapacity:CACHESIZE];
+		tileLRU=[[NSMutableArray alloc] initWithCapacity:CACHESIZE];
 		}
 }
 
@@ -45,7 +167,21 @@ static NSMutableArray *imageLRU;
 		annotations=[[NSMutableArray alloc] initWithCapacity:50];
 		overlays=[[NSMutableArray alloc] initWithCapacity:20];
 		visibleMapRect=[self mapRectThatFits:worldMap];	// start with world map
+		scrollEnabled=YES;
+		zoomEnabled=YES;
+		[self setShowsUserLocation:YES];
 		}
+	return self;
+}
+
+- (id) initWithCoder:(NSCoder *) aDecoder;
+{
+	self=[super initWithCoder:aDecoder];
+	// delegate?
+	// visibleMapRect?
+	// scrollEnabled
+	// [self setShowsUserLocation:[aDecoder boolForKey:@"key"]];
+	// zoomEnabled
 	return self;
 }
 
@@ -60,117 +196,150 @@ static NSMutableArray *imageLRU;
 - (BOOL) isOpaque; { return YES; }
 - (BOOL) isFlipped; { return YES; }
 
+// FIXME: we could define a NSAffineTransform that we update parallel to changes of bounds and visibleMapRect
+
+- (NSPoint) _pointForMapPoint:(MKMapPoint) pnt
+{ // convert map point to bounds point (using visibleMapRect)
+	NSRect bounds=[self bounds];
+	MKMapRect visible=[self visibleMapRect];
+	return NSMakePoint(NSMinX(bounds)+NSWidth(bounds)*(pnt.x-MKMapRectGetMinX(visible))/MKMapRectGetWidth(visible),
+					   NSMinY(bounds)+NSHeight(bounds)*(pnt.y-MKMapRectGetMinY(visible))/MKMapRectGetHeight(visible));
+}
+
+- (NSRect) _rectForMapRect:(MKMapRect) rect
+{ // convert map rect to bounds rect (using visibleMapRect)
+	NSRect bounds=[self bounds];
+	MKMapRect visible=[self visibleMapRect];
+	return NSMakeRect(NSMinX(bounds)+NSWidth(bounds)*(MKMapRectGetMinX(rect)-MKMapRectGetMinX(visible))/MKMapRectGetWidth(visible),
+					  NSMinY(bounds)+NSHeight(bounds)*(MKMapRectGetMinY(rect)-MKMapRectGetMinY(visible))/MKMapRectGetHeight(visible),
+					  NSWidth(bounds)*MKMapRectGetWidth(rect)/MKMapRectGetWidth(visible),
+					  NSHeight(bounds)*MKMapRectGetHeight(rect)/MKMapRectGetWidth(visible)
+					  );
+}
+
+- (MKMapPoint) _mapPointForPoint:(NSPoint) pnt
+{ // convert map point to bounds point (using visibleMapRect)
+	NSRect bounds=[self bounds];
+	MKMapRect visible=[self visibleMapRect];
+	return MKMapPointMake(MKMapRectGetMinX(visible)+MKMapRectGetWidth(visible)*(pnt.x-NSMinX(bounds))/NSWidth(bounds),
+						  MKMapRectGetMinY(visible)+MKMapRectGetHeight(visible)*(pnt.y-NSMinY(bounds))/NSHeight(bounds));
+}
+
+- (MKMapRect) _mapRectForRect:(NSRect) rect
+{ // convert map rect to bounds rect (using visibleMapRect)
+	NSRect bounds=[self bounds];
+	MKMapRect visible=[self visibleMapRect];
+	return MKMapRectMake(MKMapRectGetMinX(visible)+MKMapRectGetWidth(visible)*(NSMinX(rect)-NSMinX(bounds))/NSWidth(bounds),
+						 MKMapRectGetMinY(visible)+MKMapRectGetHeight(visible)*(NSMinY(rect)-NSMinY(bounds))/NSHeight(bounds),
+						 NSWidth(rect)*MKMapRectGetWidth(visible)/NSWidth(bounds),
+						 NSHeight(rect)*MKMapRectGetHeight(visible)/NSHeight(bounds)
+						 );
+}
+
 // FIXME: how does resizing modify the visibleMapRect?
 // we must overwrite setFrame(Size) and adjust the visibleRect
 
 - (NSString *) tileURLForZ:(int) z x:(int) x y:(int) y;
-{
+{ // conversion of geo location and zoom into Mapnik tile path: http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
+
 	if(z < 0 || z > 20)
 		return nil;
+	switch(mapType) {
+		// ignored
+	}
 	return [NSString stringWithFormat:@"http://tile.openstreetmap.org/%d/%d/%d.png", z, x, y];
 }
 
 - (BOOL) drawTileForZ:(int) z x:(int) x y:(int) y intoRect:(NSRect) rect load:(BOOL) flag;
-{
+{ // draw tile in required zoom if it intersects the rect
 	NSString *url;
-	NSRect bounds = [self bounds];
-	MKZoomScale scale = MIN(bounds.size.width / TILEPIXELS * worldMap.size.width / visibleMapRect.size.width, bounds.size.height / TILEPIXELS * worldMap.size.height / visibleMapRect.size.height);
-	float lscale=log10(scale);	// gives z-Factor
-	int z=ceil(lscale);
-	int iscale = 1<<z;
-	MKMapSize tileSize = (MKMapSize) { worldMap.size.width / iscale, worldMap.size.height / iscale };	// size of single tile (at nominal scale)
-	int x, y;
-	
-	int minx=floor(MKMapRectGetMinX(visibleMapRect) / worldMap.size.width);
-	int maxx=ceil(MKMapRectGetMaxX(visibleMapRect) / worldMap.size.width);
-	int miny=floor(MKMapRectGetMinY(visibleMapRect) / worldMap.size.height);
-	int maxy=ceil(MKMapRectGetMaxY(visibleMapRect) / worldMap.size.height);
-	
-	NSRect drawRect;
+	_MKTile *tile;
+	MKMapRect visible = [self visibleMapRect];
+	MKZoomScale scale = MIN(worldMap.size.width / visible.size.width, worldMap.size.height / visible.size.height);
+	int iscale = 1<<(int) ceil(log2(scale));
+	MKMapSize tileSize = (MKMapSize) { worldMap.size.width / iscale, worldMap.size.height / iscale };	// size of single tile (at scale z)
+	// this zooms the map if the window is enlarged!!! Otherwise we must scale to TILEPIXELS (!)
+	NSRect drawRect = [self _rectForMapRect:MKMapRectMake(x*tileSize.width, y*tileSize.height, tileSize.width, tileSize.height)];	// transform tile
+	// FIXME: we may want to draw/repeat the worldMap several times
 	// draw rect is determined by x, y, z, bounds, worldMap, visibleMapRect
 	if(!NSIntersectsRect(drawRect, rect))
-		return YES;	// does not fall into drawing rect
+		return NO;	// does not fall into drawing rect
 	url=[self tileURLForZ:z x:x y:y];
-	if(url)
-		{
-		NSImage *img=[imageCache objectForKey:url];
-		if(!img)
-			{ // not in cache
-				BOOL r=NO;
-				if(flag)
-					{
-					// start tile loader
-					// if we add the first tile to load, call [delegate didStartLoading]
-					// for each tile that arrives, call setNeedsDisplayInRect:
-					// when the last tile arrives, call [delegate didFinishLoading]
-					img=[[[NSImage alloc] initByReferencingURL:[NSURL URLWithString:url]] autorelease];
-					[imageCache setObject:img forKey:url];
-					if([imageLRU count] > CACHESIZE)
-						[imageLRU removeLastObject];	// remove least recently used tile
-					}
+	if(!url)
+		return NO;
+	tile=[imageCache objectForKey:url];	// check if we know this tile
+	if(!tile)
+		{ // not in cache - try larger or smaller tiles and trigger tile loader
+			// problem with larger tiles: must be drawn before we draw any other smaller one!
+			// i.e. we must sort according to z and draw any lower z before this z!
+			if(!flag)
+				return NO;	// and don't load
+				// start tile loader
+				// if we add the first tile to load, call [delegate didStartLoading]
+				// for each tile that arrives, call setNeedsDisplayInRect:
+				// when the last tile arrives, call [delegate didFinishLoading]
+			NSLog(@"loading %@", url);
+			tile=[[[_MKTile alloc] initWithContentsOFURL:[NSURL URLWithString:url] forView:self] autorelease];
+			[imageCache setObject:tile forKey:url];
+			if([tileLRU count] > CACHESIZE)
+				[tileLRU removeLastObject];	// remove least recently used tile
 #if 0 // recursion does not work!!!
-				// look for a replacement (in z+1 or z-1 direction)
-				if(z > 0)
-					{ // try covering tile at lower zoom factor
-						// double size of rect
-						// FIXME: we should be able to move the rect origin but how? Depends on the lsb of x and y
-						r |= [self drawTileForZ:z-1 x:x/2 y:y/2 intoRect:rect load:NO];
-					}
-				if(z < 20)
-					{ // try tiles at higher zoom factor
-						// split rect into 4 parts
-						r |= [self drawTileForZ:z+1 x:2*x y:2*y intoRect:rect load:NO];
-						r |= [self drawTileForZ:z+1 x:2*x+1 y:2*y intoRect:rect load:NO];
-						r |= [self drawTileForZ:z+1 x:2*x y:2*y+1 intoRect:rect load:NO];
-						r |= [self drawTileForZ:z+1 x:2*x+1 y:2*y+1 intoRect:rect load:NO];
-					}
-				return r;
+			// look for a replacement (in z+1 or z-1 direction)
+			if(z > 0)
+				{ // try covering tile at lower zoom factor
+					// double size of rect
+					// FIXME: we should be able to move the rect origin but how? Depends on the lsb of x and y
+					r |= [self drawTileForZ:z-1 x:x/2 y:y/2 intoRect:rect load:NO];
+				}
+			if(z < 20)
+				{ // try tiles at higher zoom factor
+					// split rect into 4 parts
+					r |= [self drawTileForZ:z+1 x:2*x y:2*y intoRect:rect load:NO];
+					r |= [self drawTileForZ:z+1 x:2*x+1 y:2*y intoRect:rect load:NO];
+					r |= [self drawTileForZ:z+1 x:2*x y:2*y+1 intoRect:rect load:NO];
+					r |= [self drawTileForZ:z+1 x:2*x+1 y:2*y+1 intoRect:rect load:NO];
+				}
+			return r;
 #endif
-			}
-		else
-			[imageLRU removeObject:img];
-		[imageLRU insertObject:img atIndex:0];  // move to beginning of LRU list
-
-		[img drawInRect:drawRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
-		return YES;
 		}
-	return NO;
+	else
+		[tileLRU removeObject:tile];
+	[tileLRU insertObject:tile atIndex:0];  // move to beginning of LRU list
+	[[tile image] drawInRect:drawRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+	return YES;
 }
 
 - (void) drawRect:(NSRect) rect
 {
-	NSRect bounds = [self bounds];
-	MKZoomScale scale = MIN(bounds.size.width / TILEPIXELS * worldMap.size.width / visibleMapRect.size.width, bounds.size.height / TILEPIXELS * worldMap.size.height / visibleMapRect.size.height);
-	float lscale=log10(scale);	// gives z-Factor
+	MKZoomScale scale = MIN(worldMap.size.width / visibleMapRect.size.width, worldMap.size.height / visibleMapRect.size.height);
+	float lscale=log2(scale);	// gives z-Factor
 	int z=ceil(lscale);
 	int iscale = 1<<z;
-	MKMapSize tileSize = (MKMapSize) { worldMap.size.width / iscale, worldMap.size.height / iscale };	// size of single tile (at nominal scale)
+	MKMapRect r=MKMapRectIntersection([self _mapRectForRect:rect], visibleMapRect);	// get intersection of request and visibile map
+	
+	int minx=floor(iscale*MKMapRectGetMinX(r) / worldMap.size.width);	// get tile index range at zoom z
+	int maxx=ceil(iscale*MKMapRectGetMaxX(r) / worldMap.size.width);
+	int miny=floor(iscale*MKMapRectGetMinY(r) / worldMap.size.height);
+	int maxy=ceil(iscale*MKMapRectGetMaxY(r) / worldMap.size.height);
+
+	// FIXME: limit to iscale i.e. minx=minx%iscale;
+	
 	int x, y;
 	
-	int minx=floor(MKMapRectGetMinX(visibleMapRect) / worldMap.size.width);
-	int maxx=ceil(MKMapRectGetMaxX(visibleMapRect) / worldMap.size.width);
-	int miny=floor(MKMapRectGetMinY(visibleMapRect) / worldMap.size.height);
-	int maxy=ceil(MKMapRectGetMaxY(visibleMapRect) / worldMap.size.height);
-	// draw background
+	[[NSColor controlColor] set];
+	NSRectFill(rect);	// draw grey background
+	
+	// optionally draw a meridian or tile grid?
+	
 #if 1
 	[@"I am the MKMapView" drawInRect:NSMakeRect(10.0, 10.0, 100.0, 100.0) withAttributes:nil];
 	[[annotations description] drawInRect:NSMakeRect(10.0, 50.0, 100.0, 100.0) withAttributes:nil];
 #endif	
-	minx += floor((NSMinX(rect)) / TILEPIXELS);	// we can skip the first tiles for partial redraw
-	maxx -= floor((NSMaxX(bounds) - NSMaxX(rect)) / TILEPIXELS);	// we can skip the last tiles for partial redraw
-	miny += floor((NSMinY(rect)) / TILEPIXELS);	// we can skip the first tiles for partial redraw
-	maxy -= floor((NSMaxY(bounds) - NSMaxY(rect)) / TILEPIXELS);	// we can skip the last tiles for partial redraw
 
 	for(y = miny; y < maxy; y++)
 		{
 		for(x = minx; x < maxx; x++)
-			{
-			NSRect rect = { { 0, 0 }, { TILEPIXELS, TILEPIXELS } };
-			rect.origin=bounds.origin;
-			rect.origin.x = bounds.origin.x + x*TILEPIXELS;
-			rect.origin.y = bounds.origin.y + y*TILEPIXELS;
 			[self drawTileForZ:z x:x y:y intoRect:rect load:YES];
-			}
 		}
 	/* draw annotations and overlays (not here - they are handled through subviews) */
 }
@@ -180,14 +349,51 @@ static NSMutableArray *imageLRU;
 - (void) addOverlay:(id <MKOverlay>) o; { [overlays addObject:o]; [self setNeedsDisplay:YES]; }
 - (void) addOverlays:(NSArray *) o; { [overlays addObjectsFromArray:o]; [self setNeedsDisplay:YES]; }
 - (NSArray *) annotations;{ return annotations; }
-//- (NSRect) annotationVisibleRect;{ return annotationVisibleRect; }
+
+- (NSRect) annotationVisibleRect;
+{
+	NSRect r=NSZeroRect;
+	// loop over all visible annotations and r=NSUnionRect(r, [annotation frame]);
+	return r;
+}
+
 - (CLLocationCoordinate2D) centerCoordinate; { return MKCoordinateRegionForMapRect(visibleMapRect).center; }
-//- (NSPoint) convertCoordinate:(CLLocationCoordinate2D) coord toPointToView:(UIView *) view;
-//- (CLLocationCoordinate2D) convertPoint:(NSPoint) point toCoordinateFromView:(UIView *) view;
-//- (MKCoordinateRegion) convertRect:(NSRect) coord toRegionFromView:(UIView *) view;
-//- (NSRect) convertRegion:(MKCoordinateRegion) region toRectToView:(UIView *) view;
+
+- (NSPoint) convertCoordinate:(CLLocationCoordinate2D) coord toPointToView:(UIView *) view;
+{
+	MKMapPoint pnt=MKMapPointForCoordinate(coord);
+	NSPoint p=[self _pointForMapPoint:pnt];	// map to point
+	return [self convertPoint:p toView:view];
+}
+
+- (CLLocationCoordinate2D) convertPoint:(NSPoint) point toCoordinateFromView:(UIView *) view;
+{
+	NSPoint pnt=[self convertPoint:point fromView:view];
+	MKMapPoint p=[self _mapPointForPoint:pnt];
+	return MKCoordinateForMapPoint(p);
+}
+
+- (MKCoordinateRegion) convertRect:(NSRect) coord toRegionFromView:(UIView *) view;
+{
+	NSRect rect=[self convertRect:coord fromView:view];
+	MKMapRect r=[self _mapRectForRect:rect];
+	return MKCoordinateRegionForMapRect(r);	// FIXME: this function is not completely implemented
+}
+
+/* FIXME: this is not well defined since there is no MKMapRectForCoordinateRegion function - and the rect becomes distorted
+ We may have to take the center of the region and apply the span uniformly
+ 
+- (NSRect) convertRegion:(MKCoordinateRegion) region toRectToView:(UIView *) view;
+{
+	MKMapRect rect=MKMapRectForCoordinateRegion(region);
+	NSRect r=[self _rectForMapRect:rect];	// map to point
+	return [self convertRect:r toView:view];	
+}
+*/
+
 - (id <MKMapViewDelegate>) delegate; { return delegate; }
-//- (MKAnnotationView *) equeueReusableAnnotationViewWithIdentifier:(NSString *) ident;
+
+- (MKAnnotationView *) dequeueReusableAnnotationViewWithIdentifier:(NSString *) ident; { return nil; }	// not yet implemented
 
 - (void) deselectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
 {
@@ -275,9 +481,10 @@ static NSMutableArray *imageLRU;
 }
 
 - (void) setCenterCoordinate:(CLLocationCoordinate2D) center animated:(BOOL) flag;
-{ // keep zoom constand andjust move centetr
-	MKMapRect visible=visibleMapRect;
-	// set new center=MKMapPointForCoordinate(center)
+{ // keep zoom constant and just move center
+	MKMapRect visible=[self visibleMapRect];
+	MKMapPoint newCenter=MKMapPointForCoordinate(center);
+	visible=MKMapRectMake(newCenter.x-MKMapRectGetWidth(visible), newCenter.x-MKMapRectGetHeight(visible), MKMapRectGetWidth(visible), MKMapRectGetHeight(visible));
 	[self setVisibleMapRect:visible animated:flag];	// show new map rect
 }
 
@@ -335,6 +542,7 @@ static NSMutableArray *imageLRU;
 - (void) setVisibleMapRect:(MKMapRect) rect;
 {
 	visibleMapRect=rect;
+	// update annotation an overlay views
 	[self setNeedsDisplay:YES];
 }
 
@@ -379,14 +587,17 @@ static NSMutableArray *imageLRU;
 
 - (void) _scaleBy:(float) factor
 {
-	MKMapRect v=[self visibleMapRect];
-	v.origin.x += 0.5*v.size.width;		// center
-	v.origin.y += 0.5*v.size.height;	// center
-	v.size.width *= factor;
-	v.size.height *= factor;
-	v.origin.x -= 0.5*v.size.width;		// left corner
-	v.origin.y -= 0.5*v.size.height;	// bottom corner
-	[self setVisibleMapRect:v animated:YES];	
+	if(zoomEnabled)
+		{
+		MKMapRect v=[self visibleMapRect];
+		v.origin.x += 0.5*v.size.width;		// old center
+		v.origin.y += 0.5*v.size.height;
+		v.size.width *= factor;
+		v.size.height *= factor;
+		v.origin.x -= 0.5*v.size.width;		// new left corner
+		v.origin.y -= 0.5*v.size.height;	// new bottom corner
+		[self setVisibleMapRect:v animated:YES];			
+		}
 }
 
 - (void) zoomIn:(id) sender;
@@ -401,49 +612,96 @@ static NSMutableArray *imageLRU;
 
 - (void) moveLeft:(id) sender;
 {
-	MKMapRect v=[self visibleMapRect];
-	v.origin.x -= 0.1*v.size.width;
-	[self setVisibleMapRect:v animated:YES];
+	if(scrollEnabled)
+		{
+		MKMapRect v=[self visibleMapRect];
+		v.origin.x -= 0.1*v.size.width;
+		[self setVisibleMapRect:v animated:YES];		
+		}
 }
 
 - (void) moveRight:(id) sender;
 {
-	MKMapRect v=[self visibleMapRect];
-	v.origin.x += 0.1*v.size.width;
-	[self setVisibleMapRect:v animated:YES];
+	if(scrollEnabled)
+		{
+		MKMapRect v=[self visibleMapRect];
+		v.origin.x += 0.1*v.size.width;
+		[self setVisibleMapRect:v animated:YES];
+		}
 }
 
 - (void) moveUp:(id) sender;
 {
-	MKMapRect v=[self visibleMapRect];
-	v.origin.y += 0.1*v.size.height;
-	[self setVisibleMapRect:v animated:YES];
+	if(scrollEnabled)
+		{
+		MKMapRect v=[self visibleMapRect];
+		v.origin.y += 0.1*v.size.height;
+		[self setVisibleMapRect:v animated:YES];
+		}
 }
 
 - (void) moveDown:(id) sender;
 {
-	MKMapRect v=[self visibleMapRect];
-	v.origin.y -= 0.1*v.size.height;
-	[self setVisibleMapRect:v animated:YES];
-}
-
-- (void) mouseDown:(NSEvent *)theEvent;
-{
-	NSPoint p0 = [[self superview] convertPoint:[theEvent locationInWindow] fromView:nil];	// initial point
+	if(scrollEnabled)
+		{
+		MKMapRect v=[self visibleMapRect];
+		v.origin.y -= 0.1*v.size.height;
+		[self setVisibleMapRect:v animated:YES];
+		}
 }
 
 - (void) scrollWheel:(NSEvent *) event;
 { // scroll or zoom
 	MKMapRect v=[self visibleMapRect];
+	NSRect r;
+	MKMapRect m;	// movement
 	if(([event modifierFlags] & NSAlternateKeyMask) != 0)
-		{ // zoom
-			[self _scaleBy:pow(1.1, [event deltaY])];
+		{ // zoom in/out
+			if(zoomEnabled)
+				[self _scaleBy:pow(1.1, [event deltaY])];
 			return;
 		}
-	// convert pixels into MKMapRect coordinates so that we scroll by 1 px
-	v.origin.x += 0.1*[event deltaX]*v.size.width;
-	v.origin.y += 0.1*[event deltaY]*v.size.height;
-	[self setVisibleMapRect:v animated:YES];
+	if(scrollEnabled)
+		{
+		r=(NSRect) { NSZeroPoint, { [event deltaX], [event deltaY] } };	// rect with 1x1 px
+		m=[self _mapRectForRect:r];	// get offset
+		v.origin.x += m.size.width;
+		v.origin.y += m.size.height;
+		[self setVisibleMapRect:v animated:YES];		
+		}
+}
+
+- (void) mouseDown:(NSEvent *)theEvent;
+{ // we come here only if hitTest of MKAnnotationViews and MKOverlayViews did fail
+	NSPoint p0 = [[self superview] convertPoint:[theEvent locationInWindow] fromView:nil];	// initial point
+	MKMapPoint pnt = [self _mapPointForPoint:p0];	// where did we click on the Mercator map?
+#if 1
+	NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p0));
+#endif
+	if([theEvent clickCount] > 1)
+		{ // was a double click - center + zoom
+#if 0
+			NSLog(@"event modifier %d", [theEvent modifierFlags]);
+#endif
+			if([theEvent modifierFlags] & NSControlKeyMask)
+				[self zoomOut:nil];
+			else
+				{ // move to clicked position
+					[self setCenterCoordinate:MKCoordinateForMapPoint(pnt)];
+					[self zoomIn:nil];
+				}
+			return;
+		}
+	while([theEvent type] != NSLeftMouseDragged)
+		{
+		// NSMouseDragged
+//		[self scrollBy:NSMakeSize(p0.x - p.x, p0.y - p.y)];	// follow mouse
+//		p0 = p;
+		theEvent = [NSApp nextEventMatchingMask:(NSLeftMouseUpMask|NSLeftMouseDraggedMask)
+									  untilDate:[NSDate distantFuture]						// get next event
+										 inMode:NSEventTrackingRunLoopMode 
+										dequeue:YES];
+		}
 }
 
 @end
@@ -454,125 +712,6 @@ static NSMutableArray *imageLRU;
 
 #define WORLD_ZOOM (40077000.0/(0.0254/72))	// earth circumference (40077 km) in pixels (72 per inch)
 
-@interface TileLoader : NSObject
-{
-	NSURL *_url;
-	NSURLConnection *_connection;
-	NSMutableData *_data;
-	NSImage *_image;
-	NSView *_delegate;
-}
-- (id) initWithContentsOFURL:(NSURL *) url forView:(NSView *) delegate;
-- (void) start;
-- (NSImage *) image;
-@end
-
-@implementation TileLoader
-
-static NSMutableArray *loadQueue;	// TileLoaders to be started
-static int alreadyLoading=0;
-
-- (id) initWithContentsOFURL:(NSURL *) url forView:(NSView *) delegate;
-{
-	if((self=[super init]))
-		{
-		_delegate=delegate;
-		_url=[url retain];
-		if(alreadyLoading < 5)
-			[self start];
-		else
-			{ // enqueue
-				if(!loadQueue)
-					loadQueue=[[NSMutableArray alloc] initWithCapacity:20];
-				[loadQueue addObject:self];	// put into queue
-			}
-		}
-	return self;
-}
-
-- (void) start
-{
-	if(!_connection)
-		{
-		_connection=[[NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:_url] delegate:self] retain];
-		[_url release];
-		_url=nil;
-		[_connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSEventTrackingRunLoopMode];
-		alreadyLoading++;
-		[loadQueue removeObjectIdenticalTo:self];	// and remove (if we are in the queue)
-		}
-}
-
-- (void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
-{
-	if(!_data)
-		_data=[data mutableCopy];
-	else
-		[_data appendData:data];
-}
-
-- (void) connection:(NSURLConnection *) connection didFailWithError:(NSError *)error
-{
-#if 1
-	NSLog(@"didFailWithError: %@", error);
-#endif
-	_image=[[NSImage alloc] initWithSize:NSMakeSize(256.0, 256.0)];	// write error message into a tile
-	[_image setFlipped:NO];
-	[_image lockFocus];
-	[[error localizedDescription] drawInRect:[_image alignmentRect] withAttributes:nil];
-	[_image unlockFocus];
-	[self connectionDidFinishLoading:connection];
-}
-
-- (void) connectionDidFinishLoading:(NSURLConnection *)connection
-{
-	[_connection release];
-	_connection=nil;
-	if(!_image && _data)
-		{
-		_image=[[NSImage alloc] initWithData:_data];
-		[_image setFlipped:YES];
-		[_data release];
-		_data=nil;
-		}
-	[_delegate setNeedsDisplay:YES];
-	alreadyLoading--;
-	NSAssert(alreadyLoading >= 0, @"never become negative");
-	if([loadQueue count] > 0)
-		{ // start next one
-			[[loadQueue lastObject] start];	// will remove self
-		}
-}
-
-// if we don't have the correct zoom but can get it by zooming...
-
-- (NSImage *) image;
-{
-	if(_url)
-		{
-		if([loadQueue lastObject] != self)
-			{ // LRU handling
-				[loadQueue removeObjectIdenticalTo:self];
-				[loadQueue addObject:self];
-			}
-		return nil;
-		}
-	if(_connection)
-		return nil;	// already loading
-	return _image;
-}
-
-- (void) dealloc
-{
-	[_connection cancel];
-	[_connection release];
-	[_data release];
-	[_image release];
-	[_url release];
-	[super dealloc];
-}
-
-@end
 
 /*
  conversion of geo location and zoom into Mapnik tile path

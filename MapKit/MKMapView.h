@@ -2,7 +2,7 @@
 //  MKMapView.h
 //  MapKit
 //
-//  Created by H. Nikolaus Schaller on 20.10.09.
+//  Created by H. Nikolaus Schaller on 04.10.10.
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
@@ -10,6 +10,7 @@
 
 #ifndef __UIKit__
 #define UIView NSView
+#define UIControl NSControl
 typedef struct UIEdgeInsets
 {
 	CGFloat top, left, bottom, right;
@@ -24,12 +25,26 @@ typedef struct UIEdgeInsets
 @class MKAnnotationView;
 @class MKOverlayView;
 @class MKUserLocation;
+@class MKMapView;
 
 @protocol MKMapViewDelegate <NSObject>
-
-// mapView:viewForAnnotation:
-// mapView:viewForOverlay:
-
+- (void) mapView:(MKMapView *) mapView annotationView:(MKAnnotationView *) view calloutAccessoryControlTapped:(UIControl *) control;
+- (void) mapView:(MKMapView *) mapView annotationView:(MKAnnotationView *) view didChangeDragState:(MKAnnotationViewDragState) state fromOldState:(MKAnnotationViewDragState) oldState;
+- (void) mapView:(MKMapView *) mapView didAddAnnotationViews:(NSArray *) views;
+- (void) mapView:(MKMapView *) mapView didAddOverlayViews:(NSArray *) views;
+- (void) mapView:(MKMapView *) mapView didDeselectAnnotationView:(MKAnnotationView *) view;
+- (void) mapView:(MKMapView *) mapView didFailToLocateUserWithError:(NSError *) error;
+- (void) mapView:(MKMapView *) mapView didSelectAnnotationView:(MKAnnotationView *) view;
+- (void) mapView:(MKMapView *) mapView didUpdateUserLocation:(MKUserLocation *) location;
+- (void) mapView:(MKMapView *) mapView regionDidChangeAnimated:(BOOL) flag;
+- (void) mapView:(MKMapView *) mapView regionWillChangeAnimated:(BOOL) flag;
+- (MKAnnotationView *) mapView:(MKMapView *) mapView viewForAnnotation:(id <MKAnnotation>) annotation;
+- (MKOverlayView *) mapView:(MKMapView *) mapView viewForOverlay:(id <MKOverlay>) overlay;
+- (void) mapViewDidFailLoadingMap:(MKMapView *) mapView withError:(NSError *) error;
+- (void) mapViewDidFinishLoadingMap:(MKMapView *) mapView;
+- (void) mapViewDidStopLocatingUser:(MKMapView *) mapView;
+- (void) mapViewWillStartLoadingMap:(MKMapView *) mapView;
+- (void) mapViewWillStartLocatingUser:(MKMapView *) mapView;
 @end
 
 @interface MKMapView : UIView
@@ -58,7 +73,7 @@ typedef struct UIEdgeInsets
 - (MKCoordinateRegion) convertRect:(NSRect) coord toRegionFromView:(UIView *) view;
 - (NSRect) convertRegion:(MKCoordinateRegion) region toRectToView:(UIView *) view;
 - (id <MKMapViewDelegate>) delegate;
-- (MKAnnotationView *) equeueReusableAnnotationViewWithIdentifier:(NSString *) ident;
+- (MKAnnotationView *) dequeueReusableAnnotationViewWithIdentifier:(NSString *) ident;
 - (void) deselectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
 - (void) exchangeOverlayAtIndex:(NSUInteger) idx1 withOverlayAtIndex:(NSUInteger) idx2;
 - (void) insertOverlay:(id <MKOverlay>) o aboveOverlay:(id <MKOverlay>) sibling;
