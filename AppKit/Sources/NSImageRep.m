@@ -385,6 +385,7 @@ static NSCountedSet *__pb;
 													  defer: YES];	// dont't draw or orderFront
 #if 1
 		{ // show cache window */
+			[_window setReleasedWhenClosed:NO];	// just be sure...
 			[_window close];
 			[_window release];
 			_window = [[NSWindow alloc] initWithContentRect: rect

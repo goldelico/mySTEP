@@ -1245,6 +1245,12 @@ static NSButtonCell *sharedCell;
 		return (mask&NSUtilityWindowMask)?16.0:23.0;
 }
 
+- (void) release
+{
+	NSLog(@"release %@", self);
+	[super release];
+}
+
 - (void) dealloc
 {
 #if 0
