@@ -22,7 +22,7 @@
 // FIXME: what about multiple MapViews?
 
 - (id) initWithContentsOFURL:(NSURL *) url forView:(NSView *) delegate;
-- (void) load;
+- (void) start;
 - (NSImage *) image;
 @end
 
@@ -40,7 +40,7 @@ static int alreadyLoading=0;
 		if(alreadyLoading == 0)
 			[[_delegate delegate] mapViewWillStartLoadingMap:_delegate];
 		if(alreadyLoading < 5)
-			[self load];
+			[self start];
 		else
 			{ // enqueue
 				if(!loadQueue)
@@ -51,7 +51,7 @@ static int alreadyLoading=0;
 	return self;
 }
 
-- (void) load
+- (void) start
 {
 	if(!_connection)
 		{
@@ -100,7 +100,7 @@ static int alreadyLoading=0;
 	alreadyLoading--;
 	NSAssert(alreadyLoading >= 0, @"never become negative");
 	if([loadQueue count] > 0)
-		[[loadQueue lastObject] load];	// will remove self
+		[[loadQueue lastObject] start];	// will remove self
 	else if(alreadyLoading == 0)
 		[[_delegate delegate] mapViewDidFinishLoadingMap:_delegate];
 }

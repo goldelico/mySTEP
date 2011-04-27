@@ -18,8 +18,7 @@ typedef struct UIEdgeInsets
 #endif
 
 #import <MapKit/MKGeometry.h>
-#import <MapKit/MKAnnotation.h>
-#import <MapKit/MKOverlay.h>
+#import <MapKit/MKAnnotationView.h>
 #import <MapKit/MKTypes.h>
 
 @class MKAnnotationView;
