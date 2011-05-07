@@ -1,6 +1,6 @@
 # debug:
-# YFLAGS  = -dv -t -b y
-YFLAGS  = -b y
+# YFLAGS  = -v -t -d -b y
+YFLAGS  = -d -b y
 
 CFLAGS  = -O
 LFLAGS  =
@@ -18,7 +18,15 @@ all:	$(BIN) test
 $(BIN): $(OBJ)
 	cc $(CFLAGS) -o $(BIN) $(OBJ)
 
-scan.o:	y.tab.h
+scan.o:	scan.l y.tab.h
+	flex  -t $< > scan.c
+	cc $(CFLAGS) -c -o $@ scan.c
+	rm scan.c
+
+y.tab.h gram.o:	gram.y
+	bison -d -b y $< 
+	cc $(CFLAGS) -c -o gram.o y.tab.c
+	rm y.tab.c
 
 test:
 	@echo "*** test 1 ***"
