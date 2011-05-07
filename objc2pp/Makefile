@@ -11,7 +11,9 @@ SRC		= gram.y scan.l main.c
 OBJ		= gram.o scan.o main.o
 BIN		= /usr/share/QuantumSTEP/Developer/bin/objc2pp
 
-OCPP	= cpp -P
+# OCPP	= cpp -P
+OCPP	= cc -E -P
+# OCPP	= cc -E -v -H 
 
 all:	$(BIN) test
 
@@ -28,16 +30,22 @@ y.tab.h gram.o:	gram.y
 	cc $(CFLAGS) -c -o gram.o y.tab.c
 	rm y.tab.c
 
+MYSTEP_SYSROOT :=  -std=c99 -isysroot/usr/share/QuantumSTEP \
+	-I/Developer/usr/bin/../lib/gcc/i686-apple-darwin10/4.2.1/include \
+	-I/usr/local/include \
+	-I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include \
+	-I/usr/include
+
 test:
 	@echo "*** test 1 ***"
-	$(OCPP) -xc simple.m | tee test1.i | $(BIN) | tee test1.c
+	$(OCPP) simple.m | tee test1.i | $(BIN) | tee test1.c
 	@echo "*** test 2 ***"
-	$(OCPP) -xc main.c | tee test2.i | $(BIN) | tee test2.c
+	$(OCPP) main.c | tee test2.i | $(BIN) | tee test2.c
 	@echo "*** test 3 ***"
-	$(OCPP) -xobjective-c test.m | tee test3.i | $(BIN) | tee test3.c
+	$(OCPP) test.m | tee test3.i | $(BIN) | tee test3.c
 	@echo "*** test 4 ***"
-	# fixme - disable standard Cocoa framework include paths!
-	$(OCPP) -nostdinc -xobjective-c -isysroot=../../../.. -I/include -I/usr/include -I../Foundation/Headers ../Foundation/Sources/NSArray.m | tee test4.i | $(BIN) | tee test4.c
+	# disable standard Cocoa framework include paths so that we can (pre)process mySTEP sources
+	$(OCPP) $(MYSTEP_SYSROOT) ../Foundation/Sources/NSArray.m | tee test4.i | $(BIN) | tee test4.c
 	@echo "*** tests done ***"
 
 clean:
