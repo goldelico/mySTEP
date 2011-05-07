@@ -12,7 +12,7 @@
 }
 @property Object1 *location;
 - (oneway void) doSomething:(id) val;
-
+- (void) for:(Object1 <protocol> *) val;
 @end
 
 @implementation Object1
@@ -23,7 +23,9 @@
 {
 	NSLog(@"awake");
 	self.location = self;
+	self.location.location = self;
 	NSLog(@"Bill's location: %@", self.location);
+	[self for:self];
 }
 
 @end

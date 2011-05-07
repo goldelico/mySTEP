@@ -10,6 +10,7 @@ ToDos:
 - add a global/local symbol table and track if identifiers are declared as types by typedef, @interface/@protocol/@implementation, or @class
 - add real translator functions. Most of the code can be echoed 1:1
 - add __attribute__
+- handle using keywords in method selectors i.e. - (void) for:(NSString *) str; is an allowed method name
 
 Ideas how translation could work:
 
@@ -52,6 +53,7 @@ Ideas how translation could work:
 - what if somebody implements countByEnumeratingWithState:objects:count: for a private collection class?
 - well, it would simply not be used
 - or we add an if([class respondsToSelector:@selector(countByEnumeratingWithState:objects:count:)])
+- or we make a loop using this method and require NSObject to have a default implementation that falls back to nextObject
 
 Material
 --------

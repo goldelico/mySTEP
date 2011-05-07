@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#ifndef __UIKit__
+#if !TARGET_OS_IPHONE
 #define UIView NSView
 #define UIControl NSControl
 typedef struct UIEdgeInsets

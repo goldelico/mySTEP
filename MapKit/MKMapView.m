@@ -706,6 +706,122 @@ static NSMutableArray *tileLRU;
 
 @end
 
+@implementation MKPlacemark
+
+// for a description see http://www.icodeblog.com/2009/12/22/introduction-to-mapkit-in-iphone-os-3-0-part-2/
+
+- (NSDictionary *) addressDictionary; { return addressDictionary; }
+
+- (CLLocationCoordinate2D) coordinate; { return coordinate; }
+- (void) setCoordinate:(CLLocationCoordinate2D) pos;
+{ // checkme: does this exist?
+	coordinate=pos;
+}
+
+- (NSString *) thoroughfare; { return [addressDictionary objectForKey:@"Throughfare"]; }
+- (NSString *) subThoroughfare; { return [addressDictionary objectForKey:@"SubThroughfare"]; }
+- (NSString *) locality; { return [addressDictionary objectForKey:@"?"]; }
+- (NSString *) subLocality; { return [addressDictionary objectForKey:@"?"]; }
+- (NSString *) administrativeArea; { return [addressDictionary objectForKey:@"?"]; }
+- (NSString *) subAdministrativeArea; { return [addressDictionary objectForKey:@"SubAdministrativeArea"]; }
+- (NSString *) postalCode; { return [addressDictionary objectForKey:@"ZIP"]; }
+- (NSString *) country; { return [addressDictionary objectForKey:@"Country"]; }
+- (NSString *) countryCode; { return [addressDictionary objectForKey:@"CountryCode"]; }
+
+- (id) initWithCoordinate:(CLLocationCoordinate2D) coord addressDictionary:(NSDictionary *) addr;
+{
+	if((self=[super init]))
+		{
+		coordinate=coord;
+		addressDictionary=[addr retain];	// FIXME: or copy?
+		}
+	return self;
+}
+
+- (void) dealloc
+{
+	[addressDictionary release];
+	[super dealloc];
+}
+
+@end
+
+@implementation MKReverseGeocoder
+
+- (void) cancel;
+{
+	if(connection)
+		[connection cancel];
+	[connection release];
+	connection=nil;
+}
+
+- (CLLocationCoordinate2D) coordinate;
+{
+	return coordinate;
+}
+
+- (id <MKReverseGeocoderDelegate>) delegate;
+{
+	return delegate;
+}
+
+- (void) setDelegate:(id <MKReverseGeocoderDelegate>) d;
+{
+	delegate=d;
+}
+
+- (id) initWithCoordinate:(CLLocationCoordinate2D) coord;
+{
+	if((self=[super init]))
+		{
+		coordinate=coord;
+		}
+	return self;
+}
+
+- (void) dealloc
+{
+	[self cancel];
+	[placemark release];
+	[super dealloc];
+}
+
+- (BOOL) isQuerying;
+{
+	return connection != nil;
+}
+
+- (MKPlacemark *) placemark;
+{
+	return placemark;
+}
+
+- (void) start;
+{
+	if(!connection)
+		{ // build query and start
+		// use reverse geocoding api:
+		//	http://developers.cloudmade.com/wiki/geocoding-http-api/Documentation#Reverse-Geocoding-httpcm-redmine01-datas3amazonawscomfiles101117091610_icon_beta_orangepng
+		}
+}
+
+// or should we provide a subclass that implements initWithQuery:
+
+- (void) _lookFor:(NSString *) query
+{ // http://developers.cloudmade.com/projects/show/geocoding-http-api
+	// FIXME: encode blanks as + and + as %25 etc.
+	query=@"133+Fleet+street,+London,+UK";
+	NSString *url=[NSString stringWithFormat:@"http://geocoding.cloudmade.com/%@/geocoding/v2/find.plist?query=%@", @"8ee2a50541944fb9bcedded5165f09d9", query];
+	// we should do this asynchronously
+	NSDictionary *dict=[NSDictionary dictionaryWithContentsOfURL:[NSURL URLWithString:url]];
+	// convert into a MKPlacemark
+	// notify through delegate protocol
+}
+
+@end
+
+
 
 
 #if OLD // initial Code taken from Navigator.app

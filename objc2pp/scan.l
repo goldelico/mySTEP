@@ -102,25 +102,25 @@ struct RESERVED
 	"__strong", STRONG
 	};
 	
-struct Node *symtab[11*19];	// hash table
+int symtab[11*19];	// hash table
 	
-struct Node *lookup(char *word)
+int lookup(char *word)
 	{ // look up identifier
 		int hash=0;
 		char *h=word;
-		struct Node *s;
+		int s;
 		while(*h)
 			hash=2*hash+(*h++);
 		hash%=sizeof(symtab)/sizeof(symtab[0]);
 		s=symtab[hash];	// get first entry
 		while(s != NULL)
 			{
-				if(strcmp(s->name, word) == 0)
+				if(strcmp(name(s), word) == 0)
 					return s;	// found
-				s=s->next;	// go to next symtab node
+				s=next(s);	// go to next symtab node
 			}
-		s=(struct Node *) node(IDENTIFIER, word);
-		s->next=symtab[hash];
+		s=leaf(IDENTIFIER, word);
+		setNext(s, symtab[hash]);
 		symtab[hash]=s;	// prepend new entry
 		return s;
 	}
@@ -129,7 +129,7 @@ void scaninit(void)
 	{
 		int i;
 		for(i=0; i<sizeof(reserved)/sizeof(reserved[0]); i++)
-			lookup(reserved[i].word)->type=reserved[i].token;	// initialize all reserved words in symbol table
+			setType(lookup(reserved[i].word), reserved[i].token);	// initialize all reserved words in symbol table
 	}
 	
 %}
@@ -278,5 +278,5 @@ L?\"(\\.|[^\\"])*\"	{ count(); yylval=cons(yytext); return(STRING_LITERAL); }
 
 int cons(char *str)
 {
-	return node(CONSTANT, str);
+	return leaf(CONSTANT, str);
 }

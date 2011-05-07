@@ -33,6 +33,8 @@
 
 // define result type for each expansion
 
+// FIXME: it is not oly an IDENTIFIER but any keyword is allowed!
+
 selector_component
 	: IDENTIFIER ':' {  }
 	| ':' {  }
@@ -89,11 +91,11 @@ argument_expression_list
 
 unary_expression
 	: postfix_expression
-	| INC_OP unary_expression { $$=node1(INC_OP, $2); }
-	| DEC_OP unary_expression { $$=node1(DEC_OP, $2); }
+	| INC_OP unary_expression { $$=node(INC_OP, $2); }
+	| DEC_OP unary_expression { $$=node(DEC_OP, $2); }
 	| unary_operator cast_expression
-	| SIZEOF unary_expression { $$=node1(SIZEOF, $2); }
-	| SIZEOF '(' type_name ')' { $$=node1(SIZEOF, $2); }
+	| SIZEOF unary_expression { $$=node(SIZEOF, $2); }
+	| SIZEOF '(' type_name ')' { $$=node(SIZEOF, $2); }
 	;
 
 unary_operator
@@ -107,71 +109,71 @@ unary_operator
 
 cast_expression
 	: unary_expression
-	| '(' type_name ')' cast_expression { $$=node1('(', $2, $4); }
+	| '(' type_name ')' cast_expression { $$=node('(', $2, $4); }
 	| '(' type_name ')' '{' struct_component_expression '}'	/* gcc extension to create a temporary struct */
 	;
 
 multiplicative_expression
 	: cast_expression
-	| multiplicative_expression '*' cast_expression { $$=node1('*', $1, $3); }
-	| multiplicative_expression '/' cast_expression { $$=node1('/', $1, $3); }
-	| multiplicative_expression '%' cast_expression { $$=node1('%', $1, $3); }
+	| multiplicative_expression '*' cast_expression { $$=node('*', $1, $3); }
+	| multiplicative_expression '/' cast_expression { $$=node('/', $1, $3); }
+	| multiplicative_expression '%' cast_expression { $$=node('%', $1, $3); }
 	;
 
 additive_expression
 	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression { $$=node1('+', $1, $3); }
-	| additive_expression '-' multiplicative_expression { $$=node1('-', $1, $3); }
+	| additive_expression '+' multiplicative_expression { $$=node('+', $1, $3); }
+	| additive_expression '-' multiplicative_expression { $$=node('-', $1, $3); }
 	;
 
 shift_expression
 	: additive_expression
-	| shift_expression LEFT_OP additive_expression { $$=node1(LEFT_OP, $1, $3); }
-	| shift_expression RIGHT_OP additive_expression { $$=node1(RIGHT_OP, $1, $3); }
+	| shift_expression LEFT_OP additive_expression { $$=node(LEFT_OP, $1, $3); }
+	| shift_expression RIGHT_OP additive_expression { $$=node(RIGHT_OP, $1, $3); }
 	;
 
 relational_expression
 	: shift_expression
-	| relational_expression '<' shift_expression { $$=node1('<', $1, $3); }
-	| relational_expression '>' shift_expression { $$=node1('>', $1, $3); }
-	| relational_expression LE_OP shift_expression { $$=node1(LE_OP, $1, $3); }
-	| relational_expression GE_OP shift_expression { $$=node1(GE_OP, $1, $3); }
+	| relational_expression '<' shift_expression { $$=node('<', $1, $3); }
+	| relational_expression '>' shift_expression { $$=node('>', $1, $3); }
+	| relational_expression LE_OP shift_expression { $$=node(LE_OP, $1, $3); }
+	| relational_expression GE_OP shift_expression { $$=node(GE_OP, $1, $3); }
 	;
 
 equality_expression
 	: relational_expression
-	| equality_expression EQ_OP relational_expression { $$=node1(EQ_OP, $1, $3); }
-	| equality_expression NE_OP relational_expression { $$=node1(NE_OP, $1, $3); }
+	| equality_expression EQ_OP relational_expression { $$=node(EQ_OP, $1, $3); }
+	| equality_expression NE_OP relational_expression { $$=node(NE_OP, $1, $3); }
 	;
 
 and_expression
 	: equality_expression
-	| and_expression '&' equality_expression { $$=node1('&', $1, $3); }
+	| and_expression '&' equality_expression { $$=node('&', $1, $3); }
 	;
 
 exclusive_or_expression
 	: and_expression
-	| exclusive_or_expression '^' and_expression { $$=node1('^', $1, $3); }
+	| exclusive_or_expression '^' and_expression { $$=node('^', $1, $3); }
 	;
 
 inclusive_or_expression
 	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression { $$=node1('|', $1, $3); }
+	| inclusive_or_expression '|' exclusive_or_expression { $$=node('|', $1, $3); }
 	;
 
 logical_and_expression
 	: inclusive_or_expression
-	| logical_and_expression AND_OP inclusive_or_expression { $$=node1(AND_OP, $1, $3); }
+	| logical_and_expression AND_OP inclusive_or_expression { $$=node(AND_OP, $1, $3); }
 	;
 
 logical_or_expression
 	: logical_and_expression
-	| logical_or_expression OR_OP logical_and_expression { $$=node1(OR_OP, $1, $3); }
+	| logical_or_expression OR_OP logical_and_expression { $$=node(OR_OP, $1, $3); }
 	;
 
 conditional_expression
 	: logical_or_expression
-	| logical_or_expression '?' expression ':' conditional_expression { $$=node1('?', $1, node1(':', $3, $5)); }
+	| logical_or_expression '?' expression ':' conditional_expression { $$=node('?', $1, node(':', $3, $5)); }
 	;
 
 assignment_expression
@@ -195,7 +197,7 @@ assignment_operator
 
 expression
 	: assignment_expression
-	| expression ',' assignment_expression { $$=node1(',', $1, $3); }
+	| expression ',' assignment_expression { $$=node(',', $1, $3); }
 	;
 
 constant_expression
@@ -469,12 +471,12 @@ type_qualifier_list
 
 parameter_type_list
 	: parameter_list
-	| parameter_list ',' ELLIPSIS  { $$=node1(',', $1, node1(ELLIPSIS, NULL, NULL)); }
+	| parameter_list ',' ELLIPSIS  { $$=node(',', $1, node(ELLIPSIS, NULL, NULL)); }
 	;
 
 parameter_list
 	: parameter_declaration
-	| parameter_list ',' parameter_declaration  { $$=node1(',', $1, $3); }
+	| parameter_list ',' parameter_declaration  { $$=node(',', $1, $3); }
 	;
 
 parameter_declaration
@@ -485,7 +487,7 @@ parameter_declaration
 
 identifier_list
 	: IDENTIFIER
-	| identifier_list ',' IDENTIFIER  { $$=node1(',', $1, $3); }
+	| identifier_list ',' IDENTIFIER  { $$=node(',', $1, $3); }
 	;
 
 type_name
@@ -501,8 +503,8 @@ abstract_declarator
 
 direct_abstract_declarator
 	: '(' abstract_declarator ')' { $$ = $2 }
-	| '[' ']'  { $$=node1('[', NULL, NULL); }
-	| '[' constant_expression ']'  { $$=node1('[', $2); }
+	| '[' ']'  { $$=node('[', NULL, NULL); }
+	| '[' constant_expression ']'  { $$=node('[', $2); }
 	| direct_abstract_declarator '[' ']'
 	| direct_abstract_declarator '[' constant_expression ']'
 	| '(' ')'
@@ -519,7 +521,7 @@ initializer
 
 initializer_list
 	: initializer
-	| initializer_list ',' initializer  { $$=node1(',', $1, $3); }
+	| initializer_list ',' initializer  { $$=node(',', $1, $3); }
 	;
 
 statement
@@ -536,36 +538,36 @@ statement
 	;
 
 labeled_statement
-	: IDENTIFIER ':' statement  { $$=node1('$', $1, $3); }
-	| CASE constant_expression ':' statement  { $$=node1(CASE, $2, $4); }
-	| DEFAULT ':' statement  { $$=node1(DEFAULT, $3, NULL); }
+	: IDENTIFIER ':' statement  { $$=node('$', $1, $3); }
+	| CASE constant_expression ':' statement  { $$=node(CASE, $2, $4); }
+	| DEFAULT ':' statement  { $$=node(DEFAULT, $3, NULL); }
 	;
 
 compound_statement
-	: '{' '}'  { $$=node1('{', NULL, NULL); }
-	| '{' statement_list '}'  { $$=node1('{', $2, NULL); }
+	: '{' '}'  { $$=node('{', NULL, NULL); }
+	| '{' statement_list '}'  { $$=node('{', $2, NULL); }
 	;
 
 statement_list
 	: declaration
 	| statement
-	| statement_list statement  { $$=node1(';', $1, $2); }
+	| statement_list statement  { $$=node(';', $1, $2); }
 	;
 
 expression_statement
-	: ';'  { $$=node1('e', NULL, NULL); }
-	| expression ';'  { $$=node1('e', $1, NULL); }
+	: ';'  { $$=node('e', NULL, NULL); }
+	| expression ';'  { $$=node('e', $1, NULL); }
 	;
 
 selection_statement
-	: IF '(' expression ')' statement  { $$=node1(IF, $3, $5); }
-	| IF '(' expression ')' statement ELSE statement  { $$=node1(IF, $3, node1(ELSE, $5, $7)); }
-	| SWITCH '(' expression ')' statement  { $$=node1(SWITCH, $3, $5); }
+	: IF '(' expression ')' statement  { $$=node(IF, $3, $5); }
+	| IF '(' expression ')' statement ELSE statement  { $$=node(IF, $3, node(ELSE, $5, $7)); }
+	| SWITCH '(' expression ')' statement  { $$=node(SWITCH, $3, $5); }
 	;
 
 iteration_statement
-	: WHILE '(' expression ')' statement  { $$=node1(WHILE, $3, $5); }
-	| DO statement WHILE '(' expression ')' ';'  { $$=node1(DO, $5, $3); }
+	: WHILE '(' expression ')' statement  { $$=node(WHILE, $3, $5); }
+	| DO statement WHILE '(' expression ')' ';'  { $$=node(DO, $5, $3); }
 	| FOR '(' expression_statement expression_statement ')' statement
 	| FOR '(' expression_statement expression_statement expression ')' statement
 		{
@@ -582,11 +584,11 @@ iteration_statement
 	;
 
 jump_statement
-	: GOTO IDENTIFIER ';'  { $$=node1(GOTO, $2, NULL); }
-	| CONTINUE ';'  { $$=node1(CONTINUE, NULL, NULL); }
-	| BREAK ';' { $$=node1(BREAK, NULL, NULL); }
-	| RETURN ';' { $$=node1(RETURN, NULL, NULL); }
-	| RETURN expression ';' { $$=node1(RETURN, $2, NULL); }
+	: GOTO IDENTIFIER ';'  { $$=node(GOTO, $2, NULL); }
+	| CONTINUE ';'  { $$=node(CONTINUE, NULL, NULL); }
+	| BREAK ';' { $$=node(BREAK, NULL, NULL); }
+	| RETURN ';' { $$=node(RETURN, NULL, NULL); }
+	| RETURN expression ';' { $$=node(RETURN, $2, NULL); }
 	;
 
 external_declaration
@@ -606,6 +608,7 @@ translation_unit
 
 %%
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "node.h"
@@ -622,40 +625,97 @@ char *s;
 	fflush(stdout);
 }
 
-int node(int type, const char *name)
-{ // create a node
-	struct Node *n=malloc(sizeof(struct Node));
-	n->type=type;
-	n->name=strdup(name);
-	n->left=n->right=NULL;
-	n->next=NULL;
-	return (int) n;
-}
+struct Node 
+{ // internal structure
+	int type;
+	char *name;
+	int left;
+	int right;
+	struct Node *next;
+} *nodes;
 
-int node1(int type, int left, int right)
-{ // create a node
-	struct Node *n=(struct Node *) node(type, NULL);
-	n->left=(struct Node *) left;
-	n->right=(struct Node *) right;
-	return (int) n;
-}
+int nodecount, nodecapacity;
 
-int translate(struct Node *n)
+static struct Node *get(int node)
 {
-	if(n != 0)
+	if(node <= 0 || node > nodecount)
+		return NULL; // error
+	return &nodes[node-1];	// nodes start counting at 1
+}
+
+int leaf(int type, const char *name)
+{ // create a leaf node
+	int n;
+	struct Node *node;
+	if(nodecount >= nodecapacity)
+		{ // (re)alloc
+			if(nodecapacity == 0)
+				{ // first allocation
+					nodecapacity=100;
+					nodes=calloc(nodecapacity, sizeof(struct Node));
+				}
+			else
+				{
+				nodecapacity=2*nodecapacity+10;	// increase capacity
+					nodes=realloc(nodes, nodecapacity*sizeof(struct Node));
+				}
+		}
+	node=&nodes[nodecount++];	// next free node
+	node->type=type;
+	if(name)
+		node->name=strdup(name);
+	else
+		node->name=NULL;
+	node->left=node->right=0;
+	node->next=NULL;
+	return nodecount;	// returns node index + 1
+}
+
+int node(int type, int left, int right)
+{ // create a binary node
+	int n=leaf(type, NULL);
+	struct Node *node = get(n);
+	node->left=left;
+	node->right=right;
+	return n;
+}
+
+int left(int node)
+{
+	return get(node)->left;
+}
+
+int right(int node)
+{
+	return get(node)->right;
+}
+
+int type(int node)
+{
+	return get(node)->type;
+}
+
+char *name(int node)
+{
+	return get(node)->name;
+}
+
+int translate(int node)
+{
+	if(node != 0)
 		{
-			switch(n->type)
+			switch(type(node))
 			{
-				case IDENTIFIER:	printf(" %s", n->name); break;
-				case CONSTANT:	printf(" %s", n->name); break;
-				case '{':	printf("{"); translate(n->left); printf("}\n"); break;
-				case '(':	printf("("); translate(n->left); printf(")"); break;
-				case ';':	translate(n->left); printf(";\n"); translate(n->right); break;
-				case ',':	translate(n->left); printf(", "); translate(n->right); break;
-				case '?':	translate(n->left); printf(" ? "); translate(n->right); break;
-				case ':':	translate(n->left); printf(" : "); translate(n->right); break;
-				case IF:	printf("if ("); translate(n->left); printf("\n"); translate(n->right); printf("\n"); break;
-				case ELSE:	translate(n->left); printf("\nelse\n"); translate(n->right); printf("\n"); break;
+				case IDENTIFIER:	printf(" %s", name(node)); break;
+				case CONSTANT:	printf(" %s", name(node)); break;
+				case '{':	printf("{"); translate(left(node)); printf("}\n"); break;
+				case '(':	printf("("); translate(left(node)); printf(")"); break;
+				case ';':	translate(left(node)); printf(";\n"); translate(right(node)); break;
+				case ',':	translate(left(node)); printf(", "); translate(right(node)); break;
+				case '?':	translate(left(node)); printf(" ? "); translate(right(node)); break;
+				case ':':	translate(left(node)); printf(" : "); translate(right(node)); break;
+				case IF:	printf("if ("); translate(left(node)); printf("\n"); translate(right(node)); printf("\n"); break;
+				case ELSE:	translate(left(node)); printf("\nelse\n"); translate(right(node)); printf("\n"); break;
 			}
 	}
 

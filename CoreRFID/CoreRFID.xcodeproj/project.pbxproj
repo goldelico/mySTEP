@@ -250,7 +250,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "(cd $BUILT_PRODUCTS_DIR; tar czf - $PRODUCT_NAME.$WRAPPER_EXTENSION ) | ( cd $INSTALL_PATH; tar xvzf -) \n";
+			shellScript = "(cd $BUILT_PRODUCTS_DIR; tar czf - $PRODUCT_NAME.$WRAPPER_EXTENSION ) | ( cd /Library/Frameworks; tar xvzf -) \n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

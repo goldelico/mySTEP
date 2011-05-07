@@ -6,7 +6,7 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#ifndef __UIKit__
+#if !TARGET_OS_IPHONE
 #define UIView NSView
 #endif
 

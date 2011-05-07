@@ -15,7 +15,7 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreLocation/CoreLocation.h>
 
-#ifndef __UIKit__
+#if !TARGET_OS_IPHONE
 #define CGRectEdge NSRectEdge
 #endif
 

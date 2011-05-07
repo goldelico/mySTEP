@@ -57,7 +57,14 @@
 			isa = PBXProject;
 			buildConfigurationList = EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ocpp" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = EED3C1200488F87500000103;
 			productRefGroup = EED3C1200488F87500000103;
 			projectDirPath = "";

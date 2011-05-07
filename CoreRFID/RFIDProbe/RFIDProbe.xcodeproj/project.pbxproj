@@ -12,8 +12,7 @@
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
-		EEE261AA1350D5C100D52567 /* CoreRFID.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEE261A91350D5C100D52567 /* CoreRFID.framework */; };
-		EEE261B11350D5CB00D52567 /* CoreRFID.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA96F7B1350D17200B6FED4 /* CoreRFID.framework */; };
+		EEAA84CE13688E81000E2336 /* CoreRFID.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEAA84CD13688E81000E2336 /* CoreRFID.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,8 +28,7 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* RFIDProbe-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "RFIDProbe-Info.plist"; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* RFIDProbe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RFIDProbe.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEA96F7B1350D17200B6FED4 /* CoreRFID.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreRFID.framework; path = ../build/Release/CoreRFID.framework; sourceTree = SOURCE_ROOT; };
-		EEE261A91350D5C100D52567 /* CoreRFID.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreRFID.framework; path = ../build/Debug/CoreRFID.framework; sourceTree = SOURCE_ROOT; };
+		EEAA84CD13688E81000E2336 /* CoreRFID.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreRFID.framework; path = /Library/Frameworks/CoreRFID.framework; sourceTree = "<absolute>"; };
 		EEE59CF11260D29C001E3A11 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../../mySTEP.make; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -40,8 +38,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
-				EEE261B11350D5CB00D52567 /* CoreRFID.framework in Frameworks */,
-				EEE261AA1350D5C100D52567 /* CoreRFID.framework in Frameworks */,
+				EEAA84CE13688E81000E2336 /* CoreRFID.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,9 +57,8 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				EEE261A91350D5C100D52567 /* CoreRFID.framework */,
-				EEA96F7B1350D17200B6FED4 /* CoreRFID.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
+				EEAA84CD13688E81000E2336 /* CoreRFID.framework */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";

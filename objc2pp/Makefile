@@ -6,7 +6,7 @@ YACC	= bison
 
 SRC		= gram.y scan.l main.c
 OBJ		= gram.o scan.o main.o
-BIN		= /usr/share/QuantumSTEP/Developer/bin/ocpp20
+BIN		= /usr/share/QuantumSTEP/Developer/bin/objc2pp
 
 all:	$(BIN) test
 
@@ -29,5 +29,5 @@ clean:
 	rm -rf build y.tab.h y.output *.o
 	
 src:	clean
-	tar cvzf ocpp20.tgz Makefile *.m *.y *.c *.l *.xcodeproj ToDo
+	tar cvzf objc2pp.tgz Makefile *.m *.y *.c *.l *.xcodeproj ToDo
 

@@ -189,7 +189,14 @@ NSString *MKStringFromMapSize(MKMapSize size) { return [NSString stringWithForma
 #if TODO
 
 void MKMapRectDivide(MKMapRect rect, MKMapRect *slice, MKMapRect *remainder, double amount, CGRectEdge edge);
+{
+	
+}
+
 MKMapRect MKMapRectRemainder(MKMapRect rect);
+{
+	For a rectangle that lies on the 180th meridian, this function isolates the portion that lies outside the boundary, wraps it to the opposite side of the map, and returns that rectangle.
+}
 
 CLLocationDistance MKMetersBetweenMapPoints(MKMapPoint a, MKMapPoint b)	// convert to CLLocation and ask CL for distance (?)
 {

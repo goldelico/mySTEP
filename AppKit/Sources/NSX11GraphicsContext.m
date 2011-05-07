@@ -2276,11 +2276,12 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 							struct RGBA8 src00, src01, src10, src11;	// 4 sample points
 							int xx=pnt.x;	// get integer part
 							int yy=pnt.y;
-							// FIXME: this weighting is not correct
-							int w00=256*(pnt.x-xx);	// weight
-							int w01=256-w00;		// weight
-							int w10=256*(pnt.y-yy);	// weight
-							int w11=256-w10;		// weight
+							int wx=256*(pnt.x-xx);	// weight based on fractional part
+							int wy=256*(pnt.y-yy);
+							int w00=(256-wx)*(256-wy);
+							int w01=(256-wx)*wy;
+							int w10=wx*(256-wy);
+							int w11=wx*wy;
 							if(w00 != 0)
 								src00=getPixel(xx, yy, width, height,
 										 /*
@@ -2330,10 +2331,11 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 										   isPremultiplied, isAlphaFirst,
 										   imagePlanes);
 							// FIXME! contribution is a mix of all 4 values
-							src.R=(w00*src00.R+w10*src10.R+w01*src01.R+w11*src11.R)/512;	// weighted interpolation
-							src.G=(w00*src00.G+w10*src10.G+w01*src01.G+w11*src11.G)/512;
-							src.B=(w00*src00.B+w10*src10.B+w01*src01.B+w11*src11.B)/512;
-							src.A=(w00*src00.A+w10*src10.A+w01*src01.A+w11*src11.A)/512;
+							src.R=(w00*src00.R+w10*src10.R+w01*src01.R+w11*src11.R)/65536;	// weighted interpolation
+							src.G=(w00*src00.G+w10*src10.G+w01*src01.G+w11*src11.G)/65536;
+							src.B=(w00*src00.B+w10*src10.B+w01*src01.B+w11*src11.B)/65536;
+							src.A=(w00*src00.A+w10*src10.A+w01*src01.A+w11*src11.A)/65536;
+							break;
 						}
 					case NSImageInterpolationNone:
 						{ // no interpolation
@@ -2348,6 +2350,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 										 isPlanar, hasAlpha,
 										 isPremultiplied, isAlphaFirst,
 										 imagePlanes);
+							break;
 						}
 					}
 				if(fract != 256)

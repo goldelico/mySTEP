@@ -218,6 +218,14 @@
 
 @end
 
+@interface CLLocationManager (GPSNMEA)
++ (void) registerManager:(CLLocationManager *) m;
++ (void) unregisterManager:(CLLocationManager *) m;
++ (void) _processNMEA183:(NSString *) line;	// process complete line
++ (void) _parseNMEA183:(NSData *) line;	// process data fragment
++ (void) _dataReceived:(NSNotification *) n;
+@end
+
 @implementation CLLocationManager
 
 - (id <CLLocationManagerDelegate>) delegate; { return delegate; }
@@ -356,6 +364,7 @@ static NSFileHandle *file;
 		return;	// ignore
 	if(!managers)
 		{ // set up GPS receiver and wait for first fix
+			// get this from some system wide user default
 			NSString *dev=@"/dev/cu.BT-348_GPS-Serialport-1";	//serial interface for NMEA receiver
 			// use /dev/ttyS2 on Openmoko Beagle Hybrid
 			file=[[NSFileHandle fileHandleForReadingAtPath:dev] retain];
@@ -410,6 +419,7 @@ static NSFileHandle *file;
 #if 0
 	NSLog(@"a=%@", a);
 #endif
+	[[NSNotificationCenter defaultCenter] postNotificationName:@"CLLocation.NMEA183" object:self userInfo:[NSDictionary dictionaryWithObject:line forKey:@"CLLocation.NMEA183.String"]];
 	if([cmd isEqualToString:@"$GPRMC"])
 		{ // minimum recommended navigation info (this is mainly used by SYSLocation)
 			noSatellite=![[a objectAtIndex:2] isEqualToString:@"A"];	// A=Ok, V=receiver warning
