@@ -1,4 +1,4 @@
-/* part of ocpp - an obj-c preprocessor */
+/* part of objc2pp - an obj-c 2 preprocessor */
 
 int leaf(int type, const char *name);
 int node(int type, int left, int right);

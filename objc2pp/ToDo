@@ -1,4 +1,4 @@
-Objective-C Preprocessor (ocpp) 2.0 will add some new features to the language
+Objective-C 2 Preprocessor (objc2pp) will add some new features to the language
 
 Assumptions are based on
 * http://www.quepublishing.com/articles/article.asp?p=665128&seqNum=3&rl=1
@@ -11,8 +11,12 @@ ToDos:
 - add real translator functions. Most of the code can be echoed 1:1
 - add __attribute__
 - handle using keywords in method selectors i.e. - (void) for:(NSString *) str; is an allowed method name
+- fix syntax
+- complete building and echoing of AST (pretty printed?)
+- handle/pass through original line numbers so that source code debugging works with gdb
 
-Ideas how translation could work:
+
+Ideas how translation of the new keywords could work:
 
 1) __weak and __strong pointers
 - if we use the libobjc GC, do we need that?
@@ -20,7 +24,7 @@ Ideas how translation could work:
 
 2) @optional, @required
 - does only compile time flagging of a method table created for that class
-- checks if all @implementations of a class using this protocol implement them all
+- checks if all @implementations of a class using this protocol implement them all (if required)
 - and copy the default implementation from the @protocol if not
 - this means that the symbol table tracks all @implementations and their method names and compares with the @protocols
 - or we simply remove all @optional methods from the output - objc-1.0 does then check all remaining @required methods
@@ -33,7 +37,7 @@ Ideas how translation could work:
 
 4) @property (ivar = anInstanceVariable, copies, setter = aSetMethod:) int aProperty;
 - generates a simple ivar
-- but remembers the attribtes and the setter method name in the ivar symbol table for that class (so we need a class table)
+- but remembers the attribtes and the getter/setter method name in the ivar symbol table for that class (so we need a class table)
 - object.path.path would translate to e.g. [object valueForKey:@"path.path"] or a getter or a setter call if such exists
 - when reading a @property in a @interface context, the code for the setter method should be prepared
   and be added to the @implementation of the class
@@ -55,6 +59,10 @@ Ideas how translation could work:
 - or we add an if([class respondsToSelector:@selector(countByEnumeratingWithState:objects:count:)])
 - or we make a loop using this method and require NSObject to have a default implementation that falls back to nextObject
 
+6) Blocks
+- add ^syntax
+- somehow translate into private functions and set up NSBlock objects
+
 Material
 --------
 YACC tutorial:
@@ -63,6 +71,6 @@ YACC tutorial:
 MiniC sample:
 	http://tinf2.vub.ac.be/~dvermeir/courses/compilers/minic/
 
-Code of ocpp-2.0 in mySTEP:
-	http://www.quantum-step.com/download/sources/mySTEP/ocpp-2.0/
+Code of objc2pp in mySTEP:
+	http://www.quantum-step.com/download/sources/mySTEP/objc2pp/
 
