@@ -1,6 +1,13 @@
 /* ObjC-2.0 scanner - based on http://www.lysator.liu.se/c/ANSI-C-grammar-y.html */
 /* part of ocpp - an obj-c preprocessor */
 
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "node.h"
+%}
+
 %token SIZEOF PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
 %token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
@@ -91,11 +98,11 @@ argument_expression_list
 
 unary_expression
 	: postfix_expression
-	| INC_OP unary_expression { $$=node(INC_OP, $2); }
-	| DEC_OP unary_expression { $$=node(DEC_OP, $2); }
-	| unary_operator cast_expression
-	| SIZEOF unary_expression { $$=node(SIZEOF, $2); }
-	| SIZEOF '(' type_name ')' { $$=node(SIZEOF, $2); }
+	| INC_OP unary_expression { $$=node(INC_OP, $2, 0); }
+	| DEC_OP unary_expression { $$=node(DEC_OP, $2, 0); }
+	| unary_operator cast_expression { $$=node(' ', $2, 0); }
+	| SIZEOF unary_expression { $$=node(SIZEOF, $2, 0); }
+	| SIZEOF '(' type_name ')' { $$=node(SIZEOF, $2, 0); }
 	;
 
 unary_operator
@@ -471,7 +478,7 @@ type_qualifier_list
 
 parameter_type_list
 	: parameter_list
-	| parameter_list ',' ELLIPSIS  { $$=node(',', $1, node(ELLIPSIS, NULL, NULL)); }
+	| parameter_list ',' ELLIPSIS  { $$=node(',', $1, node(ELLIPSIS, 0, 0)); }
 	;
 
 parameter_list
@@ -503,8 +510,8 @@ abstract_declarator
 
 direct_abstract_declarator
 	: '(' abstract_declarator ')' { $$ = $2 }
-	| '[' ']'  { $$=node('[', NULL, NULL); }
-	| '[' constant_expression ']'  { $$=node('[', $2); }
+	| '[' ']'  { $$=node('[', 0, 0); }
+	| '[' constant_expression ']'  { $$=node('[', $2, 0); }
 	| direct_abstract_declarator '[' ']'
 	| direct_abstract_declarator '[' constant_expression ']'
 	| '(' ')'
@@ -540,12 +547,12 @@ statement
 labeled_statement
 	: IDENTIFIER ':' statement  { $$=node('$', $1, $3); }
 	| CASE constant_expression ':' statement  { $$=node(CASE, $2, $4); }
-	| DEFAULT ':' statement  { $$=node(DEFAULT, $3, NULL); }
+	| DEFAULT ':' statement  { $$=node(DEFAULT, $3, 0); }
 	;
 
 compound_statement
-	: '{' '}'  { $$=node('{', NULL, NULL); }
-	| '{' statement_list '}'  { $$=node('{', $2, NULL); }
+	: '{' '}'  { $$=node('{', 0, 0); }
+	| '{' statement_list '}'  { $$=node('{', $2, 0); }
 	;
 
 statement_list
@@ -555,13 +562,22 @@ statement_list
 	;
 
 expression_statement
-	: ';'  { $$=node('e', NULL, NULL); }
-	| expression ';'  { $$=node('e', $1, NULL); }
+	: ';'  { $$=node('e', 0, 0); }
+	| expression ';'  { $$=node('e', $1, 0); }
 	;
 
 selection_statement
-	: IF '(' expression ')' statement  { $$=node(IF, $3, $5); }
-	| IF '(' expression ')' statement ELSE statement  { $$=node(IF, $3, node(ELSE, $5, $7)); }
+	: IF '(' expression ')' statement
+		{
+		$$=node(IF, $3, $5);
+		}
+	| IF '(' expression ')' statement ELSE statement
+		{
+		$$=node(IF,
+				$3,
+				node(ELSE, $5, $7)
+				);
+		}
 	| SWITCH '(' expression ')' statement  { $$=node(SWITCH, $3, $5); }
 	;
 
@@ -569,26 +585,44 @@ iteration_statement
 	: WHILE '(' expression ')' statement  { $$=node(WHILE, $3, $5); }
 	| DO statement WHILE '(' expression ')' ';'  { $$=node(DO, $5, $3); }
 	| FOR '(' expression_statement expression_statement ')' statement
+		{
+		$$=node(FOR,
+				node(';', $3, $4),
+				$6);
+		}
 	| FOR '(' expression_statement expression_statement expression ')' statement
 		{
-		/* $$=print("for(%s; %s; %s) %s", $3, $4, $5, $7) */
+		$$=node(FOR,
+				node(';',
+					 $3,
+					 node(';', $4, $5)
+					 ), 
+				$7);
 		}
 	| FOR '(' declaration expression_statement expression ')' statement	
 		{
-		/* translate to { declaration; for(; statement; statement) statement } */
+		$$=node('{',
+				$3,
+				node(FOR,
+					 node(';',
+						  0,
+						  node(';', $4, $5)
+						  ),
+					 $7)
+				);
 		}
 	| FOR '(' declaration IN expression ')' statement
 		{
-			/* translate to { NSEnumerator *e=[expression objectEnumerator]; <type> *obj; while((obj=[e nextObject])) statement } */
+			/* emit to { NSEnumerator *e=[expression objectEnumerator]; <type> *obj; while((obj=[e nextObject])) statement } */
 		}
 	;
 
 jump_statement
-	: GOTO IDENTIFIER ';'  { $$=node(GOTO, $2, NULL); }
-	| CONTINUE ';'  { $$=node(CONTINUE, NULL, NULL); }
-	| BREAK ';' { $$=node(BREAK, NULL, NULL); }
-	| RETURN ';' { $$=node(RETURN, NULL, NULL); }
-	| RETURN expression ';' { $$=node(RETURN, $2, NULL); }
+	: GOTO IDENTIFIER ';'  { $$=node(GOTO, $2, 0); }
+	| CONTINUE ';'  { $$=node(CONTINUE, 0, 0); }
+	| BREAK ';' { $$=node(BREAK, 0, 0); }
+	| RETURN ';' { $$=node(RETURN, 0, 0); }
+	| RETURN expression ';' { $$=node(RETURN, $2, 0); }
 	;
 
 external_declaration
@@ -597,21 +631,16 @@ external_declaration
 	;
 
 function_definition
-	: declaration_specifiers declarator compound_statement
-	| declarator compound_statement
+	: declaration_specifiers declarator compound_statement { $$=node(' ', node(' ', $1, $2), $3); }
+	| declarator compound_statement { $$=node(' ', $1, $2); }
 	;
 
 translation_unit
-	: external_declaration { translate((struct Node *) $1); }
+	: external_declaration { printf("#message result\n\n"); emit($1); printf("\n\n"); }
 	| translation_unit external_declaration
 	;
 
 %%
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "node.h"
 
 extern char *yytext;
 extern int line, column;
@@ -620,8 +649,8 @@ yyerror(s)
 char *s;
 {
 	fflush(stdout);
-	printf("line %d column %d\n", line, column);
-	printf("%s\n%*s\n%*s\n", yytext, column, "^", column, s);
+	printf("#error line %d column %d\n", line, column);
+	printf("/* %s\n * %*s\n * %*s\n*/\n", yytext, column, "^", column, s);
 	fflush(stdout);
 }
 
@@ -631,7 +660,7 @@ struct Node
 	char *name;
 	int left;
 	int right;
-	struct Node *next;
+	int next;
 } *nodes;
 
 int nodecount, nodecapacity;
@@ -667,7 +696,7 @@ int leaf(int type, const char *name)
 	else
 		node->name=NULL;
 	node->left=node->right=0;
-	node->next=NULL;
+	node->next=0;
 	return nodecount;	// returns node index + 1
 }
 
@@ -695,27 +724,52 @@ int type(int node)
 	return get(node)->type;
 }
 
+void setType(int node, int type)
+{
+	get(node)->type=type;
+}
+
 char *name(int node)
 {
 	return get(node)->name;
 }
 
-int translate(int node)
+int next(int node)
 {
+	return get(node)->next;
+}
+
+void setNext(int node, int next)
+{
+	get(node)->next=next;
+}
+
+int emit(int node)
+{ // print tree (as standard C)
 	if(node != 0)
 		{
 			switch(type(node))
 			{
 				case IDENTIFIER:	printf(" %s", name(node)); break;
 				case CONSTANT:	printf(" %s", name(node)); break;
-				case '{':	printf("{"); translate(left(node)); printf("}\n"); break;
-				case '(':	printf("("); translate(left(node)); printf(")"); break;
-				case ';':	translate(left(node)); printf(";\n"); translate(right(node)); break;
-				case ',':	translate(left(node)); printf(", "); translate(right(node)); break;
-				case '?':	translate(left(node)); printf(" ? "); translate(right(node)); break;
-				case ':':	translate(left(node)); printf(" : "); translate(right(node)); break;
-				case IF:	printf("if ("); translate(left(node)); printf("\n"); translate(right(node)); printf("\n"); break;
-				case ELSE:	translate(left(node)); printf("\nelse\n"); translate(right(node)); printf("\n"); break;
+				case ' ':	emit(left(node)); printf(" "); emit(right(node)); break;
+				case '{':	printf("{\n"); emit(left(node)); printf("\n}\n"); break;
+				case '(':	printf("("); emit(left(node)); printf(")"); break;
+				case ';':	emit(left(node)); printf(";\n"); emit(right(node)); break;
+				case ',':	emit(left(node)); printf(", "); emit(right(node)); break;
+				case '?':	emit(left(node)); printf(" ? "); emit(right(node)); break;
+				case ':':	emit(left(node)); printf(" : "); emit(right(node)); break;
+				case WHILE:	printf("while ("); emit(left(node)); printf(")\n"); emit(right(node)); printf("\n"); break;
+				case DO:	printf("do\n"); emit(left(node)); printf("\nwhile("); emit(right(node)); printf(")\n"); break;
+				case IF:	printf("if ("); emit(left(node)); printf("\n"); emit(right(node)); printf("\n"); break;
+				case ELSE:	emit(left(node)); printf("\nelse\n"); emit(right(node)); printf("\n"); break;
+				default:
+					printf("$%d(", type(node));
+					emit(left(node));
+					printf(", ");
+					emit(right(node));
+					printf("\n");
+					break;
 			}
 	}
 

@@ -1,4 +1,7 @@
-YFLAGS  = -dv -t -b y
+# debug:
+# YFLAGS  = -dv -t -b y
+YFLAGS  = -b y
+
 CFLAGS  = -O
 LFLAGS  =
 LEX		= flex
@@ -7,6 +10,8 @@ YACC	= bison
 SRC		= gram.y scan.l main.c
 OBJ		= gram.o scan.o main.o
 BIN		= /usr/share/QuantumSTEP/Developer/bin/objc2pp
+
+OCPP	= cpp -P
 
 all:	$(BIN) test
 
@@ -17,12 +22,14 @@ scan.o:	y.tab.h
 
 test:
 	@echo "*** test 1 ***"
-	cpp -P -xc main.c | tee test1.i | $(BIN)
+	$(OCPP) -xc simple.m | tee test1.i | $(BIN) | tee test1.c
 	@echo "*** test 2 ***"
-	cpp -P -xobjective-c test.m | tee test2.i | $(BIN)
+	$(OCPP) -xc main.c | tee test2.i | $(BIN) | tee test2.c
 	@echo "*** test 3 ***"
+	$(OCPP) -xobjective-c test.m | tee test3.i | $(BIN) | tee test3.c
+	@echo "*** test 4 ***"
 	# fixme - disable standard Cocoa framework include paths!
-	cpp -P -I../Foundation/Headers -xobjective-c ../Foundation/Sources/NSArray.m | tee test3.i | $(BIN)
+	$(OCPP) -nostdinc -xobjective-c -isysroot=../../../.. -I/include -I/usr/include -I../Foundation/Headers ../Foundation/Sources/NSArray.m | tee test4.i | $(BIN) | tee test4.c
 	@echo "*** tests done ***"
 
 clean:

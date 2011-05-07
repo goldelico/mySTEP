@@ -113,7 +113,7 @@ int lookup(char *word)
 			hash=2*hash+(*h++);
 		hash%=sizeof(symtab)/sizeof(symtab[0]);
 		s=symtab[hash];	// get first entry
-		while(s != NULL)
+		while(s)
 			{
 				if(strcmp(name(s), word) == 0)
 					return s;	// found
@@ -142,13 +142,13 @@ void scaninit(void)
 	/* identifiers and keywords */
 
 {L}({L}|{D})*  { 
-	struct Node *s;
+	int s;
 	count();
 	s=lookup(yytext); 
-	yylval=(int) s;
-	if(s->right)
+	yylval=s;
+	if(right(s))
 		return TYPE_NAME;	// syntactically we are a type name
-	return s->type; 
+	return type(s); 
 } 
 
 	/* numeral CONSTANTs */

@@ -14,12 +14,31 @@
 		EE4108540B956BA30065DD36 /* scan.l */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.lex; path = scan.l; sourceTree = "<group>"; };
 		EE4108550B956BA30065DD36 /* y.output */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = y.output; sourceTree = "<group>"; };
 		EE4108560B956BA30065DD36 /* y.tab.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = y.tab.h; sourceTree = "<group>"; };
+		EE6D3DDD137553CE003D5863 /* simple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = simple.m; sourceTree = "<group>"; };
+		EE6D3DF613755463003D5863 /* test1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test1.c; sourceTree = "<group>"; };
+		EE6D3DF713755463003D5863 /* test1.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = test1.i; sourceTree = "<group>"; };
+		EE6D3DF813755463003D5863 /* test2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test2.c; sourceTree = "<group>"; };
+		EE6D3DF913755463003D5863 /* test2.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = test2.i; sourceTree = "<group>"; };
+		EE6D3DFA13755463003D5863 /* test3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test3.c; sourceTree = "<group>"; };
+		EE6D3DFB13755463003D5863 /* test3.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = test3.i; sourceTree = "<group>"; };
+		EE6D3DFC13755463003D5863 /* test4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test4.c; sourceTree = "<group>"; };
+		EE6D3DFD13755463003D5863 /* test4.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = test4.i; sourceTree = "<group>"; };
+		EE6D3E0513755497003D5863 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		EEFD77D40B957C83002EA6A8 /* test.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = test.m; sourceTree = "<group>"; };
 		EEFD871D0B95DA5B002EA6A8 /* ToDo */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ToDo; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		EED3C1200488F87500000103 = {
+		EE6D3DE0137553DE003D5863 /* Testing */ = {
+			isa = PBXGroup;
+			children = (
+				EE6D3E0013755472003D5863 /* Input */,
+				EE6D3DE713755422003D5863 /* Output */,
+			);
+			name = Testing;
+			sourceTree = "<group>";
+		};
+		EE6D3DE3137553ED003D5863 /* Source */ = {
 			isa = PBXGroup;
 			children = (
 				EE4108510B956BA30065DD36 /* gram.y */,
@@ -27,10 +46,51 @@
 				EE4108520B956BA30065DD36 /* main.c */,
 				EE4108530B956BA30065DD36 /* Makefile */,
 				EE08E5A110D7CE3200684837 /* node.h */,
-				EEFD77D40B957C83002EA6A8 /* test.m */,
-				EEFD871D0B95DA5B002EA6A8 /* ToDo */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		EE6D3DE613755416003D5863 /* Derived */ = {
+			isa = PBXGroup;
+			children = (
 				EE4108550B956BA30065DD36 /* y.output */,
 				EE4108560B956BA30065DD36 /* y.tab.h */,
+			);
+			name = Derived;
+			sourceTree = "<group>";
+		};
+		EE6D3DE713755422003D5863 /* Output */ = {
+			isa = PBXGroup;
+			children = (
+				EE6D3DF613755463003D5863 /* test1.c */,
+				EE6D3DF713755463003D5863 /* test1.i */,
+				EE6D3DF813755463003D5863 /* test2.c */,
+				EE6D3DF913755463003D5863 /* test2.i */,
+				EE6D3DFA13755463003D5863 /* test3.c */,
+				EE6D3DFB13755463003D5863 /* test3.i */,
+				EE6D3DFC13755463003D5863 /* test4.c */,
+				EE6D3DFD13755463003D5863 /* test4.i */,
+			);
+			name = Output;
+			sourceTree = "<group>";
+		};
+		EE6D3E0013755472003D5863 /* Input */ = {
+			isa = PBXGroup;
+			children = (
+				EE6D3E0513755497003D5863 /* main.c */,
+				EE6D3DDD137553CE003D5863 /* simple.m */,
+				EEFD77D40B957C83002EA6A8 /* test.m */,
+			);
+			name = Input;
+			sourceTree = "<group>";
+		};
+		EED3C1200488F87500000103 = {
+			isa = PBXGroup;
+			children = (
+				EEFD871D0B95DA5B002EA6A8 /* ToDo */,
+				EE6D3DE3137553ED003D5863 /* Source */,
+				EE6D3DE0137553DE003D5863 /* Testing */,
+				EE6D3DE613755416003D5863 /* Derived */,
 			);
 			sourceTree = "<group>";
 		};
@@ -55,7 +115,7 @@
 /* Begin PBXProject section */
 		EED3C1240488F87500000103 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ocpp" */;
+			buildConfigurationList = EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "objc2pp" */;
 			compatibilityVersion = "Xcode 2.4";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
@@ -136,7 +196,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
 		};
-		EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "ocpp" */ = {
+		EE772D2E0A10C27000F73E78 /* Build configuration list for PBXProject "objc2pp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE772D2F0A10C27000F73E78 /* Development */,
