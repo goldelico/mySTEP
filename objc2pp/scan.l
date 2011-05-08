@@ -99,10 +99,36 @@ struct RESERVED
 	"@optional", AT_OPTIONAL, 
 	"@required", AT_REQUIRED, 
 	"__weak", WEAK, 
-	"__strong", STRONG
+	"__strong", STRONG,
+		
+		/* used for reverse lookup */
+		
+		"...", ELLIPSIS,
+		">>=", RIGHT_ASSIGN,
+		"<<=", LEFT_ASSIGN,
+		"+=", ADD_ASSIGN,
+		"-=", SUB_ASSIGN,
+		"*=", MUL_ASSIGN,
+		"/=", DIV_ASSIGN,
+		"%=", MOD_ASSIGN,
+		"&=", AND_ASSIGN,
+		"^=", XOR_ASSIGN,
+		"|=", OR_ASSIGN,
+		">>", RIGHT_OP,
+		"<<", LEFT_OP,
+		"++", INC_OP,
+		"--", DEC_OP,
+		"->", PTR_OP,
+		"&&", AND_OP,
+		"||", OR_OP,
+		"<=", LE_OP,
+		">=", GE_OP,
+		"==", EQ_OP,
+		"!=", NE_OP,
+		
 	};
 	
-int symtab[11*19];	// hash table
+static int symtab[11*19];	// hashed start into linked lists
 	
 int lookup(char *word)
 	{ // look up identifier
@@ -123,6 +149,29 @@ int lookup(char *word)
 		setNext(s, symtab[hash]);
 		symtab[hash]=s;	// prepend new entry
 		return s;
+	}
+
+char *keyword(int t)
+	{ // look up keyword for given type
+		int i;
+		static char c[2];
+		if(t >= ' ' && t <= '~')
+			{
+			c[0]=t;
+			c[1]=0;
+			return c;
+			}
+		for(i=0; i<sizeof(symtab)/sizeof(symtab[0]); i++)
+			{
+			int s=symtab[i];
+			while(s)
+				{
+				if(type(s) == t)
+					return name(s);	// type code found - print symbol
+				s=next(s);	// go to next symtab node
+				}
+			}
+		return NULL;
 	}
 
 void scaninit(void)
@@ -148,7 +197,7 @@ void scaninit(void)
 	s=lookup(yytext); 
 	yylval=s;
 	if(right(s))
-		return TYPE_NAME;	// syntactically we are a type name
+		return TYPE_NAME;	// typedef'd type name
 	return type(s); 
 } 
 

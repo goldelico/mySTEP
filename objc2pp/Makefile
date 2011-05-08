@@ -37,20 +37,21 @@ MYSTEP_SYSROOT :=  -std=c99 -isysroot/usr/share/QuantumSTEP \
 	-I/usr/include
 
 test:
+	@mkdir -p test
 	@echo "*** test 1 ***"
-	$(OBJC2PP) simple.m | tee test1.i | $(BIN) | tee test1.c
+	$(OBJC2PP) simple.m | tee test/test1.i | $(BIN) | tee test/test1.c
 	@echo "*** test 2 ***"
-	$(OBJC2PP) main.c | tee test2.i | $(BIN) | tee test2.c
+	$(OBJC2PP) main.c | tee test/test2.i | $(BIN) | tee test/test2.c
 	@echo "*** test 3 ***"
-	$(OBJC2PP) test.m | tee test3.i | $(BIN) | tee test3.c
+	$(OBJC2PP) test.m | tee test/test3.i | $(BIN) | tee test/test3.c
 	@echo "*** test 4 ***"
 	# disable standard Cocoa framework include paths so that we can (pre)process mySTEP sources
-	$(OBJC2PP) $(MYSTEP_SYSROOT) ../Foundation/Sources/NSArray.m | tee test4.i | $(BIN) | tee test4.c
+	$(OBJC2PP) $(MYSTEP_SYSROOT) ../Foundation/Sources/NSArray.m | tee test/test4.i | $(BIN) | tee test/test4.c
 	@echo "*** tests done ***"
 
 clean:
-	rm -rf build y.tab.h y.output *.o
+	rm -rf build y.tab.h y.output *.o test
 	
 src:	clean
-	tar cvzf objc2pp.tgz Makefile *.m *.y *.c *.l *.xcodeproj ToDo
+	COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true tar cvzf objc2pp.tgz --exclude .svn --exclude '*.pbxuser' --exclude '*.perspective*' --exclude '*.mode1*' Makefile *.m *.y *.c *.l *.xcodeproj ToDo
 
