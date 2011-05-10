@@ -34,6 +34,9 @@
     [super windowControllerDidLoadNib:aController];
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
 	[map setShowsUserLocation:YES];
+	// add code to rotate the map view once a second
+	// either: map.userLocation.location.course
+	// or: magneticHeading (base on Compass)
 }
 
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError

@@ -21,7 +21,7 @@
 
 // FIXME: what about multiple MapViews?
 
-- (id) initWithContentsOFURL:(NSURL *) url forView:(NSView *) delegate;
+- (id) initWithContentsOFURL:(NSURL *) url forView:(MKMapView *) delegate;
 - (void) start;
 - (NSImage *) image;
 @end
@@ -380,16 +380,17 @@ static NSMutableArray *tileLRU;
 	return MKCoordinateRegionForMapRect(r);	// FIXME: this function is not completely implemented
 }
 
+- (NSRect) convertRegion:(MKCoordinateRegion) region toRectToView:(UIView *) view;
+{
 /* FIXME: this is not well defined since there is no MKMapRectForCoordinateRegion function - and the rect becomes distorted
  We may have to take the center of the region and apply the span uniformly
  
-- (NSRect) convertRegion:(MKCoordinateRegion) region toRectToView:(UIView *) view;
-{
 	MKMapRect rect=MKMapRectForCoordinateRegion(region);
 	NSRect r=[self _rectForMapRect:rect];	// map to point
 	return [self convertRect:r toView:view];	
+ */
+	return NSZeroRect;
 }
-*/
 
 - (id <MKMapViewDelegate>) delegate; { return delegate; }
 
