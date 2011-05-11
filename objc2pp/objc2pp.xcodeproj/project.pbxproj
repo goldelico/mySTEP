@@ -24,6 +24,7 @@
 		EE6D3DFC13755463003D5863 /* test4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test4.c; path = test/test4.c; sourceTree = "<group>"; };
 		EE6D3DFD13755463003D5863 /* test4.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = test4.i; path = test/test4.i; sourceTree = "<group>"; };
 		EE6D3E0513755497003D5863 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		EE6D6105137AF9E5007F7BD7 /* node.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = node.c; sourceTree = "<group>"; };
 		EEFD77D40B957C83002EA6A8 /* test.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = test.m; sourceTree = "<group>"; };
 		EEFD871D0B95DA5B002EA6A8 /* ToDo */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ToDo; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -41,11 +42,12 @@
 		EE6D3DE3137553ED003D5863 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				EE4108530B956BA30065DD36 /* Makefile */,
 				EE4108510B956BA30065DD36 /* gram.y */,
 				EE4108540B956BA30065DD36 /* scan.l */,
 				EE4108520B956BA30065DD36 /* main.c */,
-				EE4108530B956BA30065DD36 /* Makefile */,
 				EE08E5A110D7CE3200684837 /* node.h */,
+				EE6D6105137AF9E5007F7BD7 /* node.c */,
 			);
 			name = Source;
 			sourceTree = "<group>";

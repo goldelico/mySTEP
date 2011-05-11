@@ -7,8 +7,8 @@ LFLAGS  =
 LEX		= flex
 YACC	= bison
 
-SRC		= gram.y scan.l main.c
-OBJ		= gram.o scan.o main.o
+SRC		= gram.y scan.l main.c node.c
+OBJ		= gram.o scan.o main.o node.o
 BIN		= /usr/share/QuantumSTEP/Developer/bin/objc2pp
 
 # OBJC2PP	= cpp -P

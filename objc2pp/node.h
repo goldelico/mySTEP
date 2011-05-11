@@ -14,11 +14,20 @@ void setLeft(int node, int left);
 int right(int node);
 void setRight(int node, int right);
 
-// hash table management for symbols
-int next(int node);
-void setNext(int node, int next);
+// symbol table objects
 
-// symbol table (defined in scan.l)
+int dictionary(void);
+int lifo(void);
 
-char *keyword(int t);
-int lookup(char *word);
+int first(int table);	// get first entry
+int next(int node);		// het next entry (if available)
+// void setNext(int node, int next); -- not public!
+
+int push(int lifo, int node);	// add to lifo
+int pop(int lifo);		// pop
+
+// symbol table lookup
+
+char *keyword(int symtab, int t);	// look up name for object with type t (NULL if not found)
+int lookup(int symtab, char *word);	// look up word and return (optionally fresh) node
+

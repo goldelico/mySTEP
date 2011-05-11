@@ -128,57 +128,17 @@ struct RESERVED
 		
 	};
 	
-static int symtab[11*19];	// hashed start into linked lists
+int symtab;	/* global symbol table */
 	
-int lookup(char *word)
-	{ // look up identifier
-		int hash=0;
-		char *h=word;
-		int s;
-		while(*h)
-			hash=2*hash+(*h++);
-		hash%=sizeof(symtab)/sizeof(symtab[0]);
-		s=symtab[hash];	// get first entry
-		while(s)
-			{
-				if(strcmp(name(s), word) == 0)
-					return s;	// found
-				s=next(s);	// go to next symtab node
-			}
-		s=leaf(IDENTIFIER, word);
-		setNext(s, symtab[hash]);
-		symtab[hash]=s;	// prepend new entry
-		return s;
-	}
-
-char *keyword(int t)
-	{ // look up keyword for given type
-		int i;
-		static char c[2];
-		if(t >= ' ' && t <= '~')
-			{
-			c[0]=t;
-			c[1]=0;
-			return c;
-			}
-		for(i=0; i<sizeof(symtab)/sizeof(symtab[0]); i++)
-			{
-			int s=symtab[i];
-			while(s)
-				{
-				if(type(s) == t)
-					return name(s);	// type code found - print symbol
-				s=next(s);	// go to next symtab node
-				}
-			}
-		return NULL;
-	}
-
 void scaninit(void)
 	{
 		int i;
+		symtab=dictionary();
 		for(i=0; i<sizeof(reserved)/sizeof(reserved[0]); i++)
-			setType(lookup(reserved[i].word), reserved[i].token);	// initialize all reserved words in symbol table
+			{ // initialize all reserved words in symbol table
+			int n=lookup(symtab, reserved[i].word);
+			setType(n, reserved[i].token);
+			}
 	}
 	
 %}
@@ -194,10 +154,12 @@ void scaninit(void)
 {L}({L}|{D})*  { 
 	int s;
 	count();
-	s=lookup(yytext); 
+	s=lookup(symtab, yytext);
+	if(type(s) == 0)
+		setType(s, IDENTIFIER);	/* new entry */
 	yylval=s;
 	if(right(s))
-		return TYPE_NAME;	// typedef'd type name
+		return TYPE_NAME;	/* typedef'd type name */
 	return type(s); 
 } 
 
