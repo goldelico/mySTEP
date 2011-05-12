@@ -11,9 +11,9 @@
 
 @implementation MKOverlayView
 
-- (BOOL) hitTest:(NSPoint)aPoint
+- (NSView *) hitTest:(NSPoint)aPoint
 {
-	return NO;	// always fail
+	return nil;	// always fail
 }
 
 - (void) drawRect:(NSRect) rect

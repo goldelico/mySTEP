@@ -69,12 +69,12 @@
 	
 }
 
-- (BOOL) hitTest:(NSPoint)aPoint
+- (NSView *) hitTest:(NSPoint)aPoint
 {
 	if(!enabled)
-		return NO;
+		return nil;
 	// check aPoint with shape
-	return YES;
+	return self;
 }
 
 - (void) mouseDown:(NSEvent *) event

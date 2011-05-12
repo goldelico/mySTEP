@@ -22,6 +22,13 @@
     return self;
 }
 
+- (void) dealloc
+{
+	[loc stopUpdatingLocation];
+	[loc release];
+	[super dealloc];
+}
+
 - (NSString *)windowNibName
 {
     // Override returning the nib file name of the document
@@ -34,9 +41,9 @@
     [super windowControllerDidLoadNib:aController];
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
 	[map setShowsUserLocation:YES];
-	// add code to rotate the map view once a second
-	// either: map.userLocation.location.course
-	// or: magneticHeading (base on Compass)
+	loc=[[CLLocationManager alloc] init];
+	[loc setDelegate:self];
+	[loc startUpdatingLocation];
 }
 
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError
@@ -65,6 +72,25 @@
 		*outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:0 userInfo:NULL];
 	}
     return YES;
+}
+
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
+{
+	NSLog(@"error: %@", error);	
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
+{
+	NSLog(@"new location: %@", newLocation);
+	// rotate the mapview
+	// this method may not be implemented!
+	// if(enabled && [newLocation respondsToSelector:@selector(magneticHeading)])
+	//		rad = (-(newLocation.magneticHeading) *M_PI / 180.0);	// rotate north
+	// else
+	//		rad = (-(newLocation.course) *M_PI / 180.0);			// rotate in movement direction
+	
+	// if(newLocation.course < 0) -> ignore
+	
 }
 
 @end

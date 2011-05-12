@@ -31,6 +31,8 @@
 		EE31DF15125A359D00DF3C91 /* MKOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF14125A359D00DF3C91 /* MKOverlayView.m */; };
 		EE31DF21125A36A600DF3C91 /* MKGeometry.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF20125A36A600DF3C91 /* MKGeometry.m */; };
 		EE31DF23125A385600DF3C91 /* MKPointAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE6D4082137BB5EF003D5863 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
+		EE6D4087137BB5F2003D5863 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		EE92251713617A000010C76C /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = EE922504136179DD0010C76C /* Credits.rtf */; };
 		EE92251813617A000010C76C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EE922506136179DD0010C76C /* InfoPlist.strings */; };
 		EE92251913617A000010C76C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = EE922508136179DD0010C76C /* MainMenu.xib */; };
@@ -110,6 +112,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE6D4087137BB5F2003D5863 /* Cocoa.framework in Frameworks */,
+				EE6D4082137BB5EF003D5863 /* CoreLocation.framework in Frameworks */,
 				EE92252013617A2D0010C76C /* MapKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

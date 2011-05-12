@@ -251,23 +251,25 @@ static NSMutableArray *tileLRU;
 }
 
 - (BOOL) drawTileForZ:(int) z x:(int) x y:(int) y intoRect:(NSRect) rect load:(BOOL) flag;
-{ // draw tile in required zoom if it intersects the rect
+{ // draw tile in required zoom at given position if it intersects the rect
 	NSString *url;
 	_MKTile *tile;
 	MKMapRect visible = [self visibleMapRect];
 	MKZoomScale scale = MIN(worldMap.size.width / visible.size.width, worldMap.size.height / visible.size.height);
 	int iscale = 1<<(int) ceil(log2(scale));
+	// how does iscale relate to z?
 	MKMapSize tileSize = (MKMapSize) { worldMap.size.width / iscale, worldMap.size.height / iscale };	// size of single tile (at scale z)
 	// this zooms the map if the window is enlarged!!! Otherwise we must scale to TILEPIXELS (!)
 	NSRect drawRect = [self _rectForMapRect:MKMapRectMake(x*tileSize.width, y*tileSize.height, tileSize.width, tileSize.height)];	// transform tile
 	// FIXME: we may want to draw/repeat the worldMap several times
 	// draw rect is determined by x, y, z, bounds, worldMap, visibleMapRect
 	if(!NSIntersectsRect(drawRect, rect))
-		return NO;	// does not fall into drawing rect
-	url=[self tileURLForZ:z x:x y:y];
+		return NO;	// tile does not fall into drawing rect
+	url=[self tileURLForZ:z x:x%(1<<z) y:y%(1<<z)];	// repeat tiles if necessary
 	if(!url)
-		return NO;
-	tile=[imageCache objectForKey:url];	// check if we know this tile
+		return NO;	// invalid
+	// if(z > 0) try recursion for less zoom
+	tile=[imageCache objectForKey:url];	// check if we already cache this tile
 	if(!tile)
 		{ // not in cache - try larger or smaller tiles and trigger tile loader
 			// problem with larger tiles: must be drawn before we draw any other smaller one!
@@ -283,17 +285,16 @@ static NSMutableArray *tileLRU;
 			[imageCache setObject:tile forKey:url];
 			if([tileLRU count] > CACHESIZE)
 				[tileLRU removeLastObject];	// remove least recently used tile
-#if 0 // recursion does not work!!!
+#if 0 // this recursion does not work!!! We should do z-- recursion first before we draw our tile and z++ recursion afterwards
+			// this also may generate a lot of overhead if we do z-- recursion for every tile
+			// z++ recursion should be done only if we can't draw the tile
 			// look for a replacement (in z+1 or z-1 direction)
 			if(z > 0)
 				{ // try covering tile at lower zoom factor
-					// double size of rect
-					// FIXME: we should be able to move the rect origin but how? Depends on the lsb of x and y
 					r |= [self drawTileForZ:z-1 x:x/2 y:y/2 intoRect:rect load:NO];
 				}
 			if(z < 20)
 				{ // try tiles at higher zoom factor
-					// split rect into 4 parts
 					r |= [self drawTileForZ:z+1 x:2*x y:2*y intoRect:rect load:NO];
 					r |= [self drawTileForZ:z+1 x:2*x+1 y:2*y intoRect:rect load:NO];
 					r |= [self drawTileForZ:z+1 x:2*x y:2*y+1 intoRect:rect load:NO];
@@ -305,6 +306,9 @@ static NSMutableArray *tileLRU;
 	else
 		[tileLRU removeObject:tile];
 	[tileLRU insertObject:tile atIndex:0];  // move to beginning of LRU list
+#if 1
+	NSLog(@"draw into %@", NSStringFromRect(drawRect));
+#endif
 	[[tile image] drawInRect:drawRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 	return YES;
 }
@@ -677,12 +681,15 @@ static NSMutableArray *tileLRU;
 	NSPoint p0 = [[self superview] convertPoint:[theEvent locationInWindow] fromView:nil];	// initial point
 	MKMapPoint pnt = [self _mapPointForPoint:p0];	// where did we click on the Mercator map?
 #if 1
+	CLLocationCoordinate2D latlong=MKCoordinateForMapPoint(pnt);
 	NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p0));
+	NSLog(@"  MKMapPoint %@", MKStringFromMapPoint(pnt));
+	NSLog(@"  MKCoordinate %@", [NSString stringWithFormat:@"{lat=%g,lng=%g}", latlong.latitude, latlong.longitude]);
 #endif
 	if([theEvent clickCount] > 1)
 		{ // was a double click - center + zoom
-#if 0
-			NSLog(@"event modifier %d", [theEvent modifierFlags]);
+#if 1
+			NSLog(@"dbl click event modifier %d", [theEvent modifierFlags]);
 #endif
 			if([theEvent modifierFlags] & NSControlKeyMask)
 				[self zoomOut:nil];
@@ -693,9 +700,10 @@ static NSMutableArray *tileLRU;
 				}
 			return;
 		}
-	while([theEvent type] != NSLeftMouseDragged)
+	while([theEvent type] != NSLeftMouseUp)
 		{
-		// NSMouseDragged
+		if([theEvent type] == NSLeftMouseDragged)
+			; // NSMouseDragged
 //		[self scrollBy:NSMakeSize(p0.x - p.x, p0.y - p.y)];	// follow mouse
 //		p0 = p;
 		theEvent = [NSApp nextEventMatchingMask:(NSLeftMouseUpMask|NSLeftMouseDraggedMask)
@@ -714,9 +722,20 @@ static NSMutableArray *tileLRU;
 - (NSDictionary *) addressDictionary; { return addressDictionary; }
 
 - (CLLocationCoordinate2D) coordinate; { return coordinate; }
+
 - (void) setCoordinate:(CLLocationCoordinate2D) pos;
-{ // checkme: does this exist?
+{ // checkme: does this method exist?
 	coordinate=pos;
+}
+
+- (NSString *) subtitle;
+{
+	return @"Subtitle";	
+}
+
+- (NSString *) title;
+{
+	return @"Placemmark";
 }
 
 - (NSString *) thoroughfare; { return [addressDictionary objectForKey:@"Throughfare"]; }
