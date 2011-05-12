@@ -2,7 +2,10 @@
 // other comment
 
 @protocol protocol
-- (double) gotme;
+@required
+	- (double) gotme;
+@optional
+	- (double) didhide;
 @end
 
 @interface Object1 <protocol> (category)
@@ -11,8 +14,10 @@
 	Object1 *location;
 }
 @property Object1 *location;
+
 - (oneway void) doSomething:(id) val;
 - (void) for:(Object1 <protocol> *) val;
+
 @end
 
 @implementation Object1
@@ -25,7 +30,16 @@
 	self.location = self;
 	self.location.location = self;
 	NSLog(@"Bill's location: %@", self.location);
-	[self for:self];
+	@try {
+		[self for:self];		
+	}
+	@catch (NSException * e) {
+		NSLog(@"%@", e);
+	}
+	@finally {
+		NSLog(@"finally cleanup");
+	}
 }
 
+// -gotme is missing, -for: is missing
 @end

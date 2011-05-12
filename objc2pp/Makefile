@@ -1,6 +1,6 @@
-# debug:
-# YFLAGS  = -v -t -d -b y
 YFLAGS  = -d -b y
+# enable debug:
+YFLAGS  = -v -t -d -b y
 
 CFLAGS  = -O
 LFLAGS  =
@@ -15,6 +15,8 @@ BIN		= /usr/share/QuantumSTEP/Developer/bin/objc2pp
 OBJC2PP	= cc -E -P
 # OBJC2PP	= cc -E -v -H 
 
+.PHONY : all clean src test
+
 all:	$(BIN) test
 
 $(BIN): $(OBJ)
@@ -26,7 +28,7 @@ scan.o:	scan.l y.tab.h
 	rm scan.c
 
 y.tab.h gram.o:	gram.y
-	bison -d -b y $< 
+	bison $(YFLAGS) $< 
 	cc $(CFLAGS) -c -o gram.o y.tab.c
 	rm y.tab.c
 

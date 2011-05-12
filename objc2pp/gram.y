@@ -38,7 +38,7 @@
 %token AT_CLASS AT_PROTOCOL AT_INTERFACE AT_IMPLEMENTATION AT_END
 %token AT_PRIVATE AT_PUBLIC AT_PROTECTED
 %token AT_SELECTOR AT_ENCODE
-%token AT_CATCH AT_THROW AT_TRY
+%token AT_THROW AT_TRY AT_CATCH AT_FINALLY
 %token IN OUT INOUT BYREF BYCOPY ONEWAY
 
 %token AT_PROPERTY AT_SYNTHESIZE AT_OPTIONAL AT_REQUIRED WEAK STRONG
@@ -194,11 +194,12 @@ logical_or_expression
 
 conditional_expression
 	: logical_or_expression
-| logical_or_expression '?' expression ':' conditional_expression { $$=node('?', $1, node(':', $3, $5)); }
+	| logical_or_expression '?' expression ':' conditional_expression { $$=node('?', $1, node(':', $3, $5)); }
 	;
 
 assignment_expression
 	: conditional_expression
+	| unary_expression '.' IDENTIFIER assignment_operator assignment_expression /* check for calling Obj-C 2 setters */
 	| unary_expression assignment_operator assignment_expression  { $$=node(type($2), $1, $3); dealloc($2); }
 	;
 
@@ -587,10 +588,20 @@ statement
 	| selection_statement
 	| iteration_statement
 	| jump_statement
-	| AT_CATCH  { $$=node(AT_CATCH, 0, 0); }
-	| AT_TRY  { $$=node(AT_TRY, 0, 0); }
+	| AT_TRY compound_statement catch_sequence finally
+	| AT_THROW ';'	// rethrow within @catch block
+	| AT_THROW expression ';'
 	| error ';' 
-	| error '}' 
+	| error '}'
+	;
+
+catch_sequence
+	: AT_CATCH compound_statement{ $$=node(AT_CATCH, 0, 0); }
+	| catch_sequence AT_CATCH compound_statement{ $$=node(AT_CATCH, 0, 0); }
+	;
+
+finally
+	: AT_FINALLY compound_statement
 	;
 
 labeled_statement
@@ -712,6 +723,8 @@ char *indent(int level)
 	return &indent[level];	
 }
 
+#define STYLE1
+
 int emit(int node)
 { /* print tree (as standard C) */
 	static int level=0;
@@ -723,7 +736,7 @@ int emit(int node)
 				case IDENTIFIER:	printf("%s", name(node)); break;
 				case CONSTANT:	printf("%s", name(node)); break;
 				case ' ':	emit(left(node)); if(left(node) || right(node)) printf(" "); emit(right(node)); break;
-#if STYLE1
+#ifdef STYLE1
 				case '{':	emit(left(node)); if(right(node)) { printf(" {\n%s", indent(++level)); emit(right(node)); printf("\n%s}\n", indent(level--)); } break;
 #else
 				case '{':	emit(left(node)); if(right(node)) { level++; printf("\n%s{\n%s", indent(level), indent(level)); emit(right(node)); printf("\n%s}\n", indent(level)); level--; } break;
@@ -744,10 +757,20 @@ int emit(int node)
 					if(w)
 						{
 						emit(left(node));
-#if STYLE1
+#ifdef STYLE1
 						printf(" %s ", w);
 #else
 						printf("%s", w);
+#endif
+						emit(right(node));
+						}
+					else if(t >= ' ' && t <= '~')
+						{ // standard single character operator
+						emit(left(node));
+#ifdef STYLE1
+						printf(" %c ", t);
+#else
+						printf("%c", t);
 #endif
 						emit(right(node));
 						}

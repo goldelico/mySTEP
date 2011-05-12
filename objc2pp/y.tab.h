@@ -108,26 +108,27 @@
      AT_PROTECTED = 324,
      AT_SELECTOR = 325,
      AT_ENCODE = 326,
-     AT_CATCH = 327,
-     AT_THROW = 328,
-     AT_TRY = 329,
-     IN = 330,
-     OUT = 331,
-     INOUT = 332,
-     BYREF = 333,
-     BYCOPY = 334,
-     ONEWAY = 335,
-     AT_PROPERTY = 336,
-     AT_SYNTHESIZE = 337,
-     AT_OPTIONAL = 338,
-     AT_REQUIRED = 339,
-     WEAK = 340,
-     STRONG = 341,
-     IDENTIFIER = 342,
-     TYPE_NAME = 343,
-     CONSTANT = 344,
-     STRING_LITERAL = 345,
-     AT_STRING_LITERAL = 346
+     AT_THROW = 327,
+     AT_TRY = 328,
+     AT_CATCH = 329,
+     AT_FINALLY = 330,
+     IN = 331,
+     OUT = 332,
+     INOUT = 333,
+     BYREF = 334,
+     BYCOPY = 335,
+     ONEWAY = 336,
+     AT_PROPERTY = 337,
+     AT_SYNTHESIZE = 338,
+     AT_OPTIONAL = 339,
+     AT_REQUIRED = 340,
+     WEAK = 341,
+     STRONG = 342,
+     IDENTIFIER = 343,
+     TYPE_NAME = 344,
+     CONSTANT = 345,
+     STRING_LITERAL = 346,
+     AT_STRING_LITERAL = 347
    };
 #endif
 /* Tokens.  */
@@ -200,26 +201,27 @@
 #define AT_PROTECTED 324
 #define AT_SELECTOR 325
 #define AT_ENCODE 326
-#define AT_CATCH 327
-#define AT_THROW 328
-#define AT_TRY 329
-#define IN 330
-#define OUT 331
-#define INOUT 332
-#define BYREF 333
-#define BYCOPY 334
-#define ONEWAY 335
-#define AT_PROPERTY 336
-#define AT_SYNTHESIZE 337
-#define AT_OPTIONAL 338
-#define AT_REQUIRED 339
-#define WEAK 340
-#define STRONG 341
-#define IDENTIFIER 342
-#define TYPE_NAME 343
-#define CONSTANT 344
-#define STRING_LITERAL 345
-#define AT_STRING_LITERAL 346
+#define AT_THROW 327
+#define AT_TRY 328
+#define AT_CATCH 329
+#define AT_FINALLY 330
+#define IN 331
+#define OUT 332
+#define INOUT 333
+#define BYREF 334
+#define BYCOPY 335
+#define ONEWAY 336
+#define AT_PROPERTY 337
+#define AT_SYNTHESIZE 338
+#define AT_OPTIONAL 339
+#define AT_REQUIRED 340
+#define WEAK 341
+#define STRONG 342
+#define IDENTIFIER 343
+#define TYPE_NAME 344
+#define CONSTANT 345
+#define STRING_LITERAL 346
+#define AT_STRING_LITERAL 347
 
 
 

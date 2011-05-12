@@ -37,7 +37,7 @@ int leaf(int type, const char *name)
 			else
 				{
 				nodecapacity=2*nodecapacity+10;	/* exponentially increase available capacity */
-					nodes=realloc(nodes, nodecapacity*sizeof(struct Node));
+				nodes=realloc(nodes, nodecapacity*sizeof(struct Node));
 				}
 		}
 	node=&nodes[nodecount++];	/* next free node */
@@ -67,10 +67,10 @@ void dealloc(int n)
 		struct Node *node = get(n);
 		dealloc(node->left);
 		dealloc(node->right);
-/*
- free(node->name);
- free(node);
-*/		
+		/*
+		 free(node->name);
+		 free(node);
+		 */		
 		}
 }
 
@@ -83,7 +83,7 @@ void setLeft(int node, int left)
 {
 	get(node)->left=left;
 }
-		
+
 int right(int node)
 {
 	return get(node)->right;
@@ -100,7 +100,7 @@ void setRight(int node, int right)
 #endif
 	get(node)->right=right;
 }
-		
+
 int type(int node)
 {
 	return get(node)->type;
@@ -116,24 +116,69 @@ char *name(int node)
 	return get(node)->name;
 }
 
+/* list */
+
+int list(void)
+{ // create a list object
+	return leaf(0, NULL);	// dummy...
+}
+
+int first(int list)
+{ // get first entry of a list
+	return get(list)->next;
+}
+
 int next(int node)
 {
 	return get(node)->next;
 }
 
-void setNext(int node, int next)
+/* static? */ void setNext(int node, int next)
 {
 	get(node)->next=next;
 }
 
-/* FIXME: allow to generate/store multiple independent hashed dictionaries */
+int nth(int list, int n)
+{ // get n-th entry of a list
+	int r=first(list);
+	while(n-- > 0)
+		r=next(r);
+	return r;
+}
 
-static int symtab[11*19];	// hashed start into linked lists
+int count(int list)
+{ // count elements in a list
+	int r=first(list);
+	int c=0;
+	while(r != 0)
+		c++, r=next(r);
+	return c;	
+}
+
+int push(int lifo, int node)
+{ // add to lifo (first entry)
+	setNext(node, first(lifo));	// attach current first object
+	setNext(lifo, node);	// make it the new first
+}
+
+int pop(int lifo)
+{ // pop first entry
+	int r=first(lifo);
+	if(r)
+		setNext(lifo, next(r));	// remove from LIFO
+	return r;
+}
+
+/* dictionary */
 
 int dictionary(void)
 {
 	return leaf(0, NULL);	// dummy...
 }
+
+/* FIXME: somehow attach the hash table and linked lists to the dictionary object */
+
+static int symtab[11*19];	// hashed start into linked lists
 
 int lookup(int table, char *word)
 { // look up identifier
@@ -159,13 +204,6 @@ int lookup(int table, char *word)
 char *keyword(int table, int t)
 { // look up keyword for given type
 	int i;
-	static char c[2];
-	if(t >= ' ' && t <= '~')
-		{
-		c[0]=t;
-		c[1]=0;
-		return c;
-		}
 	for(i=0; i<sizeof(symtab)/sizeof(symtab[0]); i++)
 		{
 		int s=symtab[i];

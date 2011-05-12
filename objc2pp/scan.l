@@ -21,7 +21,7 @@ IS			(u|U|l|L)*
 	
 #define error(X)
 	
-void count(void);
+void charCount(void);
 void comment(int cxx);
 
 int column = 0;
@@ -64,44 +64,8 @@ struct RESERVED
 	"void", VOID, 
 	"volatile", VOLATILE, 
 	"while", WHILE, 
-	
-	/* Obj-C 1.0 extensions */
-	
-	"@interface", AT_INTERFACE, 
-	"@implementation", AT_IMPLEMENTATION, 
-	"@end", AT_END, 
-	"@class", AT_CLASS, 
-	"@protocol", AT_PROTOCOL, 
-	"@selector", AT_SELECTOR, 
-	"@encode", AT_ENCODE, 
-	"@catch", AT_CATCH, 
-	"@try", AT_TRY, 
-	"@protected", AT_PROTECTED, 
-	"@private", AT_PRIVATE, 
-	"@public", AT_PUBLIC, 
-	"inout", INOUT, 
-	"in", IN, 
-	"out", OUT, 
-	"byref", BYREF, 
-	"bycopy", BYCOPY, 
-	"oneway", ONEWAY, 
-	
-	"id", ID, 
-	"SEL", SEL, 
-	"BOOL", BOOL, 
-	"unichar", UNICHAR, 
-	"Class", CLASS, 
-	
-	/* Obj-C 2.0 extensions */
-	
-	"@property", AT_PROPERTY, 
-	"@synthesize", AT_SYNTHESIZE, 
-	"@optional", AT_OPTIONAL, 
-	"@required", AT_REQUIRED, 
-	"__weak", WEAK, 
-	"__strong", STRONG,
-		
-		/* used for reverse lookup */
+
+		/* operators - only used for reverse lookup since they are not keywords */
 		
 		"...", ELLIPSIS,
 		">>=", RIGHT_ASSIGN,
@@ -125,6 +89,48 @@ struct RESERVED
 		">=", GE_OP,
 		"==", EQ_OP,
 		"!=", NE_OP,
+		
+	/* Obj-C 1.0 extensions */
+	
+	"@interface", AT_INTERFACE, 
+	"@implementation", AT_IMPLEMENTATION, 
+	"@end", AT_END, 
+	"@class", AT_CLASS, 
+	"@protocol", AT_PROTOCOL, 
+	"@selector", AT_SELECTOR, 
+	"@encode", AT_ENCODE, 
+	"@protected", AT_PROTECTED, 
+	"@private", AT_PRIVATE, 
+	"@public", AT_PUBLIC, 
+	"inout", INOUT, 
+	"in", IN, 
+	"out", OUT, 
+	"byref", BYREF, 
+	"bycopy", BYCOPY, 
+	"oneway", ONEWAY, 
+	
+	"id", ID, 
+	"SEL", SEL, 
+	"BOOL", BOOL, 
+	"unichar", UNICHAR, 
+	"Class", CLASS, 
+	
+	/* Obj-C 2.0 extensions */
+	
+	"@try", AT_TRY, 
+	"@catch", AT_CATCH, 
+	"@finally", AT_FINALLY, 
+	"@throw", AT_TRY, 
+
+	/* Obj-C 1.5 extensions */
+	
+	"@property", AT_PROPERTY, 
+	"@synthesize", AT_SYNTHESIZE, 
+	"@optional", AT_OPTIONAL, 
+	"@required", AT_REQUIRED, 
+	"__weak", WEAK, 
+	"__strong", STRONG,
+		
 		
 	};
 	
@@ -153,7 +159,7 @@ void scaninit(void)
 
 {L}({L}|{D})*  { 
 	int s;
-	count();
+	charCount();
 	s=lookup(symtab, yytext);
 	if(type(s) == 0)
 		setType(s, IDENTIFIER);	/* new entry */
@@ -164,73 +170,73 @@ void scaninit(void)
 } 
 
 	/* numeral CONSTANTs */
-0[xX]{H}+{IS}?		{ count(); yylval=cons(yytext); return(CONSTANT); }
-0{D}+{IS}?			{ count(); yylval=cons(yytext); return(CONSTANT); }
-{D}+{IS}?			{ count(); yylval=cons(yytext); return(CONSTANT); }
-L?'(\\.|[^\\'])+'	{ count(); yylval=cons(yytext); return(CONSTANT); }
+0[xX]{H}+{IS}?		{ charCount(); yylval=cons(yytext); return(CONSTANT); }
+0{D}+{IS}?			{ charCount(); yylval=cons(yytext); return(CONSTANT); }
+{D}+{IS}?			{ charCount(); yylval=cons(yytext); return(CONSTANT); }
+L?'(\\.|[^\\'])+'	{ charCount(); yylval=cons(yytext); return(CONSTANT); }
 
-{D}+{E}{FS}?		{ count(); yylval=cons(yytext); return(CONSTANT); }
-{D}*"."{D}+({E})?{FS}?	{ count(); yylval=cons(yytext); return(CONSTANT); }
-{D}+"."{D}*({E})?{FS}?	{ count(); yylval=cons(yytext); return(CONSTANT); }
+{D}+{E}{FS}?		{ charCount(); yylval=cons(yytext); return(CONSTANT); }
+{D}*"."{D}+({E})?{FS}?	{ charCount(); yylval=cons(yytext); return(CONSTANT); }
+{D}+"."{D}*({E})?{FS}?	{ charCount(); yylval=cons(yytext); return(CONSTANT); }
 
 	/* string CONSTANTs */
 
-L?\"(\\.|[^\\"])*\"	{ count(); yylval=cons(yytext); return(STRING_LITERAL); }
-@\"(\\.|[^\\"])*\"			{ count(); yylval=cons(yytext); return(AT_STRING_LITERAL); }
+L?\"(\\.|[^\\"])*\"	{ charCount(); yylval=cons(yytext); return(STRING_LITERAL); }
+@\"(\\.|[^\\"])*\"			{ charCount(); yylval=cons(yytext); return(AT_STRING_LITERAL); }
 
 	/* standard operators */
 
-"..."			{ count(); return(ELLIPSIS); }
-">>="			{ count(); return(RIGHT_ASSIGN); }
-"<<="			{ count(); return(LEFT_ASSIGN); }
-"+="			{ count(); return(ADD_ASSIGN); }
-"-="			{ count(); return(SUB_ASSIGN); }
-"*="			{ count(); return(MUL_ASSIGN); }
-"/="			{ count(); return(DIV_ASSIGN); }
-"%="			{ count(); return(MOD_ASSIGN); }
-"&="			{ count(); return(AND_ASSIGN); }
-"^="			{ count(); return(XOR_ASSIGN); }
-"|="			{ count(); return(OR_ASSIGN); }
-">>"			{ count(); return(RIGHT_OP); }
-"<<"			{ count(); return(LEFT_OP); }
-"++"			{ count(); return(INC_OP); }
-"--"			{ count(); return(DEC_OP); }
-"->"			{ count(); return(PTR_OP); }
-"&&"			{ count(); return(AND_OP); }
-"||"			{ count(); return(OR_OP); }
-"<="			{ count(); return(LE_OP); }
-">="			{ count(); return(GE_OP); }
-"=="			{ count(); return(EQ_OP); }
-"!="			{ count(); return(NE_OP); }
-";"				{ count(); return(';'); }
-("{"|"<%")		{ count(); return('{'); }
-("}"|"%>")		{ count(); return('}'); }
-","				{ count(); return(','); }
-":"				{ count(); return(':'); }
-"="				{ count(); return('='); }
-"("				{ count(); return('('); }
-")"				{ count(); return(')'); }
-("["|"<:")		{ count(); return('['); }
-("]"|":>")		{ count(); return(']'); }
-"."				{ count(); return('.'); }
-"&"				{ count(); return('&'); }
-"!"				{ count(); return('!'); }
-"~"				{ count(); return('~'); }
-"-"				{ count(); return('-'); }
-"+"				{ count(); return('+'); }
-"*"				{ count(); return('*'); }
-"/"				{ count(); return('/'); }
-"%"				{ count(); return('%'); }
-"<"				{ count(); return('<'); }
-">"				{ count(); return('>'); }
-"^"				{ count(); return('^'); }
-"|"				{ count(); return('|'); }
-"?"				{ count(); return('?'); }
+"..."			{ charCount(); return(ELLIPSIS); }
+">>="			{ charCount(); return(RIGHT_ASSIGN); }
+"<<="			{ charCount(); return(LEFT_ASSIGN); }
+"+="			{ charCount(); return(ADD_ASSIGN); }
+"-="			{ charCount(); return(SUB_ASSIGN); }
+"*="			{ charCount(); return(MUL_ASSIGN); }
+"/="			{ charCount(); return(DIV_ASSIGN); }
+"%="			{ charCount(); return(MOD_ASSIGN); }
+"&="			{ charCount(); return(AND_ASSIGN); }
+"^="			{ charCount(); return(XOR_ASSIGN); }
+"|="			{ charCount(); return(OR_ASSIGN); }
+">>"			{ charCount(); return(RIGHT_OP); }
+"<<"			{ charCount(); return(LEFT_OP); }
+"++"			{ charCount(); return(INC_OP); }
+"--"			{ charCount(); return(DEC_OP); }
+"->"			{ charCount(); return(PTR_OP); }
+"&&"			{ charCount(); return(AND_OP); }
+"||"			{ charCount(); return(OR_OP); }
+"<="			{ charCount(); return(LE_OP); }
+">="			{ charCount(); return(GE_OP); }
+"=="			{ charCount(); return(EQ_OP); }
+"!="			{ charCount(); return(NE_OP); }
+";"				{ charCount(); return(';'); }
+("{"|"<%")		{ charCount(); return('{'); }
+("}"|"%>")		{ charCount(); return('}'); }
+","				{ charCount(); return(','); }
+":"				{ charCount(); return(':'); }
+"="				{ charCount(); return('='); }
+"("				{ charCount(); return('('); }
+")"				{ charCount(); return(')'); }
+("["|"<:")		{ charCount(); return('['); }
+("]"|":>")		{ charCount(); return(']'); }
+"."				{ charCount(); return('.'); }
+"&"				{ charCount(); return('&'); }
+"!"				{ charCount(); return('!'); }
+"~"				{ charCount(); return('~'); }
+"-"				{ charCount(); return('-'); }
+"+"				{ charCount(); return('+'); }
+"*"				{ charCount(); return('*'); }
+"/"				{ charCount(); return('/'); }
+"%"				{ charCount(); return('%'); }
+"<"				{ charCount(); return('<'); }
+">"				{ charCount(); return('>'); }
+"^"				{ charCount(); return('^'); }
+"|"				{ charCount(); return('|'); }
+"?"				{ charCount(); return('?'); }
  
 [\n]			{ line++, column=0; }
-[ \t\v\f]		{ count(); }
+[ \t\v\f]		{ charCount(); }
  
-.				{ count(); error( "bad character" ); }
+.				{ charCount(); error( "bad character" ); }
 
 %%
  
@@ -273,7 +279,7 @@ L?\"(\\.|[^\\"])*\"	{ count(); yylval=cons(yytext); return(STRING_LITERAL); }
 		 }
  }
  
- void count(void)
+ void charCount(void)
  { // cound characters so that we know the column position
 	 int i;
 	 
