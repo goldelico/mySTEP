@@ -101,7 +101,15 @@ struct RESERVED
 	"@encode", AT_ENCODE, 
 	"@protected", AT_PROTECTED, 
 	"@private", AT_PRIVATE, 
-	"@public", AT_PUBLIC, 
+	"@public", AT_PUBLIC,
+		
+	// FIXME: these are not really keywords!
+	// it is 100% legal to write 'int id' or 'NSString *Class;'
+	// they behave like preinitialized global typedefs that can be overwritten.
+	// but aren't. I.e. typedef int SEL; int SEL; only gives an error on the second definition.
+	// or typedef BOOL SEL; SEL x; defines x to be a BOOL
+	// or 	int x, BOOL; BOOL *x; compiles fine
+		
 	"inout", INOUT, 
 	"in", IN, 
 	"out", OUT, 
@@ -128,6 +136,7 @@ struct RESERVED
 	"@synthesize", AT_SYNTHESIZE, 
 	"@optional", AT_OPTIONAL, 
 	"@required", AT_REQUIRED, 
+		// these two are real keywords and only allowed in type specifiers
 	"__weak", WEAK, 
 	"__strong", STRONG,
 		
