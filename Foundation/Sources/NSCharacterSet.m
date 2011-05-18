@@ -166,8 +166,15 @@ static NSString *__charSetPath /*= @"CS"*/;
 
 + (id) newlineCharacterSet
 {
+#if 1
+	fprintf(stderr, "newlineCharacterSet\n");
+#endif
+//	return [self characterSetWithCharactersInString:@"\n\r"];	// makes some problem
 //	return [self _bitmapForSet:@"newline" number: 11];
-	return [self characterSetWithCharactersInString:@"\n\r"];	// should also include \U0085
+	static NSCharacterSet *nl;	// cache
+	if(!nl)
+		nl=[[self characterSetWithCharactersInString:@"\n\r"] retain];	// should also include \U0085
+	return nl;
 }
 
 + (id) nonBaseCharacterSet
@@ -226,7 +233,10 @@ static NSString *__charSetPath /*= @"CS"*/;
 	for (i = 0; i < length; i++)
 		{
 		unichar letter = [aString characterAtIndex:i];
-		SETBIT(bytes[letter/8], letter % 8);
+		if (letter >= UNICODE_SIZE)
+			[NSException raise:NSInvalidArgumentException
+						format:@"Specified string exceeds character set"];
+		SETBIT(bytes[letter/8], letter%8);
 		}
 	
 	return [self characterSetWithBitmapRepresentation:bitmap];
@@ -274,6 +284,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 		int	i;
 	
 		for (i = 0; i <= 0xffff; i++)
+			// FIXME: we should directly compare the bytes by memcmp()
 			if ([self characterIsMember: (unichar)i] !=
 					[anObject characterIsMember: (unichar)i])
 				return NO;
@@ -292,9 +303,9 @@ char *bytes = (char *)[bitmap mutableBytes];
 
 - (NSCharacterSet *) invertedSet
 {
-NSMutableData *bitmap =[[[self bitmapRepresentation] mutableCopy] autorelease];
-int i, length = [bitmap length];
-char *bytes = [bitmap mutableBytes];
+	NSMutableData *bitmap =[[[self bitmapRepresentation] mutableCopy] autorelease];
+	int i, length = [bitmap length];
+	char *bytes = [bitmap mutableBytes];
 
 	for (i = 0; i < length; i++)
 		bytes[i] = ~bytes[i];
@@ -376,7 +387,7 @@ char *bytes = [bitmap mutableBytes];
 
 - (BOOL) characterIsMember:(unichar)aCharacter
 {
-	return ISSET(data[aCharacter/8], aCharacter % 8);
+	return ISSET(data[aCharacter/8], aCharacter%8);
 }
 
 - (void) encodeWithCoder: (NSCoder*)aCoder
@@ -451,7 +462,7 @@ char *bytes = [bitmap mutableBytes];
 
 - (BOOL) characterIsMember:(unichar)aCharacter
 {
-	return ISSET(data[aCharacter/8], aCharacter % 8);
+	return ISSET(data[aCharacter/8], aCharacter%8);
 }
 
 - (void) addCharactersInRange:(NSRange)aRange
@@ -478,7 +489,10 @@ char *bytes = [bitmap mutableBytes];
 	for (i = 0; i < length; i++)
 		{
 		unichar letter = [aString characterAtIndex:i];
-		SETBIT(data[letter/8], letter % 8);
+		if (letter >= UNICODE_SIZE)
+			[NSException raise:NSInvalidArgumentException
+						format:@"Specified string exceeds character set"];
+		SETBIT(data[letter/8], letter%8);
 		}
 }
 
@@ -524,7 +538,10 @@ char *bytes = [bitmap mutableBytes];
 	for (i = 0; i < length; i++)
 		{
 		unichar letter = [aString characterAtIndex:i];
-		CLRBIT(data[letter/8], letter % 8);
+		if (letter >= UNICODE_SIZE)
+			[NSException raise:NSInvalidArgumentException
+						format:@"Specified string exceeds character set"];
+		CLRBIT(data[letter/8], letter%8);
 		}
 }
 

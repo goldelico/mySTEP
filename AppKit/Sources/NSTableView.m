@@ -625,7 +625,7 @@
 
 - (id) initWithFrame:(NSRect)frameRect
 {
-	NSRect h = {{NSMinX(frameRect),0},{NSWidth(frameRect),20}};
+//	NSRect h = {{NSMinX(frameRect),0},{NSWidth(frameRect),20}};
 	self=[super initWithFrame:frameRect];
 	if(self)
 		{

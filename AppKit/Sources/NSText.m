@@ -590,6 +590,7 @@ object:self]
 			{ // depending on click count, extend selection at this position and then do standard tracking
 				NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
 				unsigned int pos=[self characterIndexForPoint:p];
+				// FIXME
 			}
 	while([event type] != NSLeftMouseUp)	// loop outside until mouse goes up 
 			{

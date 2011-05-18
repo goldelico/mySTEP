@@ -4301,7 +4301,6 @@ static NSDictionary *_x11settings;
 			[self _setScale:1.0];
 			if(![self _font])
 				{ // we can't find a matching X11 font
-				[self release];
 				return nil;
 				}
 			}

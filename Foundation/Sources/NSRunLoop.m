@@ -484,6 +484,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			if (FD_ISSET (fd_index, &read_fds))
 				{
 				NSObject *w = NSMapGet(rfd_2_object, (void*)fd_index);
+				// FIXME: is it possible that some other handler or _runLoopASAP has removed this watcher while we did wait/select?
 				NSAssert(w, NSInternalInconsistencyException);
 #if 0
 				NSLog(@"_readFileDescriptorReady: %@", w);

@@ -618,6 +618,7 @@ static void GSTiffWarningHandler(const char* module, const char* fmt, va_list ap
 {
 	NSString *str=[[NSString alloc] initWithFormat:[NSString stringWithUTF8String:fmt] arguments:ap];
 	NSLog(@"NSBitmapImageRep TIFF: %@", str);
+	[str release];
 }
 
 TIFF * 
@@ -903,7 +904,7 @@ static NSArray *__pbBitmapImageReps;
 
 + (id) imageRepWithData:(NSData *)data
 {
-	return [[self alloc] initWithData:data];
+	return [[[self alloc] initWithData:data] autorelease];
 }
 
 + (NSArray *) imageRepsWithData:(NSData *)data
@@ -1391,7 +1392,7 @@ static NSArray *__pbBitmapImageReps;
 		{
 		NSData *data=[coder decodeObjectForKey:@"NSTIFFRepresentation"];
 		[self release];
-		return [NSBitmapImageRep imageRepWithData:data];	// should be TIFF
+		return [[NSBitmapImageRep imageRepWithData:data] retain];	// should be TIFF
 		}
 	NSLog(@"NSBitmapImageRep: can't initWithCoder");
 	return nil;

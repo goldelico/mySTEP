@@ -440,9 +440,9 @@ static NSColor *__borderedBackgroundColor = nil;
 	[textObject setBaseWritingDirection:[self baseWritingDirection]];
 	[textObject setAlignment:[self alignment]];
 	[textObject setImportsGraphics:NO];
-	[textObject setRichText:YES];	// ? only if the object has an attributedStringValue!
+	[textObject setRichText:YES];	// ? only if the object has an attributedStringValue! and if the NSText responds to -textStorage
 	[textObject setUsesFontPanel:[textObject isRichText]];
-	// set other attributes of NSTextView
+	// FIXME: set other attributes of NSTextView
 	[textObject setFocusRingType:NSFocusRingTypeExterior];
 	
 	if(_c.drawsBackground)
@@ -485,12 +485,16 @@ static NSColor *__borderedBackgroundColor = nil;
 }
 
 - (void) endEditing:(NSText *) textObject
-{ // editing is complete, remove the text obj	acting as field	editor from window's view heirarchy
+{ // editing is complete, remove the text obj acting as field editor from window's view hierarchy
 	NSView *v;
 	NSRect r;
 #if 1
 	NSLog(@"endEditing %@", self);
 #endif
+	if([textObject respondsToSelector:@"textStorage"])
+		[self setAttributedStringValue:[(NSTextView *) textObject textStorage]];
+	else
+		[self setStringValue:[textObject string]];
 	[textObject setDelegate:nil];	// no longer create notifications
 	_c.editing = NO;	// we may still be first responder - so suppress sending field editor notifications during resignFirstResponder
 	if(_c.scrollable)
@@ -537,7 +541,10 @@ static NSColor *__borderedBackgroundColor = nil;
 		if(controlSuperView && (![controlSuperView isKindOfClass:[NSClipView class]]))
 			controlSuperView = nil;	// text object is not embedded in a clip view
 		[textObject setDelegate:anObject];
-		[[(NSTextView *) textObject textStorage] setAttributedString:[self attributedStringValue]];	// copy attributed string from cell to be edited
+		if([textObject respondsToSelector:@selector(textStorage)])
+			[[(NSTextView *) textObject textStorage] setAttributedString:[self attributedStringValue]];	// copy attributed string from cell to be edited
+		else
+			[textObject setString:[self stringValue]];	// copy simple string from cell to be edited
 		[textObject setSelectedRange:(NSRange){selStart, selLength}];
 		[self setUpFieldEditorAttributes:textObject];
 	

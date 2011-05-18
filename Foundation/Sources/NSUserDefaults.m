@@ -138,7 +138,7 @@ static NSUserDefaults *__sharedDefaults = nil;
 		 * but as we already have set __sharedDefaults with an empty search list,
 		 * all objectForKey: calls will return nil
 		 */
-		NSApplicationDomain = [[b objectForInfoDictionaryKey:@"CFBundleIdentifier"] retain];  // use if available (might be nil)
+		NSApplicationDomain = [b objectForInfoDictionaryKey:@"CFBundleIdentifier"];  // use if available (might be nil)
 #if 0
 		NSLog(@"mainBundle=%@", b);
 		NSLog(@"  Info.plist=%@", [b infoDictionary]);

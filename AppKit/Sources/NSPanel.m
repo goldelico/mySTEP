@@ -1118,7 +1118,7 @@ static NSOpenPanel *__openPanel;
 {
 	NSFileManager *fm = [NSFileManager defaultManager];
 	NSString *ptc = [sender pathToColumn: column];
-	int i, count;
+	int i, count=[matrix numberOfRows];
 	[super browser:sender createRowsForColumn:column inMatrix:matrix];	// standard
     for (i = 0; i < count; ++i) 
 		{ // loop a second time and update the setEnabled flag

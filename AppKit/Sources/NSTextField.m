@@ -369,7 +369,7 @@ static Class __textFieldCellClass = Nil;
 #if 1
 	NSLog(@" NSTextField %@ posted", CONTROL(TextDidEndEditing));
 #endif
-	// end editing of cell (should validate and new set cell value)
+	// end editing of cell (should validate and set new cell value)
 	[_cell endEditing:[aNotification object]];
 	
 	if((code = [[aNotification userInfo] objectForKey:NSTextMovement]))

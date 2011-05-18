@@ -9,7 +9,7 @@
 //  under the terms of the GNU Library General Public License.
 //
 
-#import "AppKit/NSTextList.h"
+#import "AppKit/AppKit.h"
 #import <Foundation/Foundation.h>
 
 @implementation NSTextList

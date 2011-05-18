@@ -634,6 +634,9 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 
 - (void) dealloc;
 {
+#if 0 && defined(__mySTEP__)
+	free(malloc(8192));
+#endif	
 	[realObject release];
 	[super dealloc];
 }
@@ -991,6 +994,9 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 		return nil;
 		}
 	[decoded retain];	// keep decoded object
+#if 0 && defined(__mySTEP__)
+	free(malloc(8192));
+#endif	
 	[arp release]; 
 	return self;
 }

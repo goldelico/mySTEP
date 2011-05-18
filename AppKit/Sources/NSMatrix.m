@@ -1008,11 +1008,12 @@ This method is used for selecting cells in list mode with selection by
 - (BOOL) textShouldEndEditing:(NSText*)aTextObject
 {															// delegate method
 	NSCell *selectedCell=[self selectedCell];
+#if 0
 	NSLog(@" NSMatrix textShouldEndEditing (text=%@)", aTextObject);
 	NSLog(@" storage=%@", [aTextObject textStorage]);
 	NSLog(@" string=%@", [aTextObject string]);
 	NSLog(@" cell=%@", selectedCell);
-	
+#endif	
 	if(![_window isKeyWindow])
 		return NO;
 
@@ -1032,7 +1033,7 @@ This method is used for selecting cells in list mode with selection by
 		}
 	
 	NSBeep();												// entry not valid
-															//	[self sendAction:_errorAction toTarget:[selectedCell target]];
+															//	[self sendAction:_errorAction to:[selectedCell target]];
 	[aTextObject setString:[selectedCell stringValue]];
 	
 	return NO;
@@ -1124,7 +1125,7 @@ This method is used for selecting cells in list mode with selection by
 {
 	SEL cellAction;
 	NSCell *selectedCell=[self selectedCell];
-#if 1
+#if 0
 	NSLog(@"sendAction selected=%@", selectedCell);
 	NSLog(@"cell action=%@ target=%@", NSStringFromSelector([selectedCell action]), [selectedCell target]);
 	NSLog(@"self action=%@ target=%@", NSStringFromSelector([self action]), [self target]);
@@ -1134,7 +1135,7 @@ This method is used for selecting cells in list mode with selection by
 	
 	if ((cellAction = [selectedCell action]) && [self sendAction:cellAction to:[selectedCell target]])
 		return YES;
-	return [self sendAction:_action toTarget:_target];
+	return [self sendAction:_action to:_target];
 }
 
 - (void) sendDoubleAction
@@ -1143,7 +1144,7 @@ This method is used for selecting cells in list mode with selection by
 	if (!selectedCell || ![selectedCell isEnabled])
 		return;
 	if (_target && _doubleAction)
-		[self sendAction:_doubleAction toTarget:_target];
+		[self sendAction:_doubleAction to:_target];
 	else
 		[self sendAction];
 }

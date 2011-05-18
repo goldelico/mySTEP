@@ -18,7 +18,7 @@
         // Initialization code here.
 		if(!_itemPrototype) { //makeup one itemPrototype
 			NSCollectionViewItem *item = [[NSCollectionViewItem alloc] init];
-			[item setView:[[NSView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)]];
+			[item setView:[[[NSView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)] autorelease]];
 			[self setItemPrototype:item];
 		}
     }

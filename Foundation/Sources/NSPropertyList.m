@@ -1388,12 +1388,13 @@ next:
 	NSString *err;
 	id o;
 	NSPropertyListFormat fmt=format;	// copy
+	NSAutoreleasePool *arp=[NSAutoreleasePool new];	// creates any temporary objects
 	// could also/better check first handful characteres...
 	o=[self propertyListFromData:plist mutabilityOption:NSPropertyListImmutable format:&fmt errorDescription:&err];
 	[err autorelease];
+	[arp release];	// and release
 	if(!o)
 		return NO;  // no - does not load
-	[o release];
 	return YES;
 }
 

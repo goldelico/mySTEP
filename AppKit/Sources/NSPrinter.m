@@ -627,7 +627,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 @implementation _NSPDFReference
 + (_NSPDFReference *) referenceWithObject:(id) object;
 {
-	_NSPDFReference *r=[self new];
+	_NSPDFReference *r=[[self new] autorelease];
 	if(r)
 		r->_object=object;
 	return r;
@@ -1225,7 +1225,6 @@ static NSPrintOperation *_currentOperation;
 																		delegate:delegate
 															didEndSelector:didRunSelector
 																 contextInfo:contextInfo];
-		r=([_printPanel runModal] == NSOKButton);	// is ok
 		// FIXME: how does redirection to a file or mail work???
 		}
 	if(r)
@@ -1251,7 +1250,7 @@ static NSPrintOperation *_currentOperation;
 			}
 		if(_canSpawnSeparateThread)
 			;
-		if((r=([self createContext] != nil)))
+		if([self createContext])
 			{
 			[_view beginDocument];
 			_currentPage=_pageOrder != NSDescendingPageOrder?1:pages.length;	// first/last
@@ -1291,7 +1290,7 @@ static NSPrintOperation *_currentOperation;
 				}
 			[_view endDocument];	// unlocks focus
 			[self destroyContext];
-			if((r=[self deliverResult]))
+			if([self deliverResult])
 				[self cleanUpOperation];
 			}
 		[_progressPanel close];

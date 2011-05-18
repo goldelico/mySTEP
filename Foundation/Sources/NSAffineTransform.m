@@ -267,7 +267,7 @@ static const float pi = 3.1415926535897932384626433;
 	A = newA; C = newC;
 	B = newB; D = newD;
 	TX = newTX; TY = newTY;
-	_isIdentity=_isFlipY=NO;
+	/*_isIdentity=*/_isFlipY=NO;
 	check();
 }
 
@@ -307,7 +307,7 @@ static const float pi = 3.1415926535897932384626433;
 	A = newA; C = newC;
 	B = newB; D = newD;
 	TX = newTX; TY = newTY;
-	_isIdentity=_isFlipY=NO;
+	/*_isIdentity=*/_isFlipY=NO;
 	check();
 }
 

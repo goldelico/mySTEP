@@ -1116,9 +1116,7 @@ id cl;										// path s/b absolute, name s/b file
 	[color_list initWithDictionary: [cl _colorListDictionary]];
 	color_list_keys = [NSMutableArray alloc];
 	[color_list_keys initWithArray: [cl allKeys]];
-	
-	[cl release];
-	
+		
 	[_colorListLock lock];								// Add to global list 
 	[_availableColorLists  addObject: self];			// of colors
 	[_colorListLock unlock];

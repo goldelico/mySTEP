@@ -657,9 +657,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 
 	if (tableName)
 		{
-		NSDictionary *dict = [NSDictionary alloc];
-
-		[[dict initWithContentsOfFile: tableName] autorelease];
+		NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile: tableName];
 		ls = [dict objectForKey: key];
 		}
 	if(ls == nil)			// OS spec calls for [key uppercaseString] not key

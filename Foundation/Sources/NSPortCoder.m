@@ -57,7 +57,7 @@ int objc_sizeof_type(const char *type)
 			// should get maximum size of all components
 		case _C_STRUCT_B:
 		{
-			int cnt;
+			int cnt=0;
 			while(*type != 0 && *type != '=')
 				type++;
 			while(*type != 0 && *type != _C_STRUCT_E)
@@ -770,7 +770,7 @@ const char *objc_skip_typespec (const char *type)
 				if(flag)
 					[self decodeArrayOfObjCType:type+1 count:1 at:&addr];
 				else
-					addr=NULL;
+					addr=NULL;	// FIXME - what does this mean???
 				*((void **) address) = (*(void **) addr);
 				break;
 			}

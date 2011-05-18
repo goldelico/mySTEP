@@ -440,6 +440,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	[_menuWindow setTitle:@"PopUpButton Menu"];
 #endif
 	[[_menuWindow contentView] addSubview:menuView];	// add to view hiearachy
+	[menuView release];	// now retained by view hierarchy
 	[menuView setMenu:_menu];			// define to manage selected menu
 #if 0
 	NSLog(@"cellFrame=%@", NSStringFromRect(cellFrame));

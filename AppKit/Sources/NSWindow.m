@@ -1247,6 +1247,9 @@ static NSButtonCell *sharedCell;
 
 - (void) release
 {
+#if 0 && defined(__mySTEP__)
+	free(malloc(8192));
+#endif	
 	NSLog(@"release %@", self);
 	[super release];
 }

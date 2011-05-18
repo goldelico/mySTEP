@@ -55,16 +55,19 @@ static id __processInfo = nil;
 {
 	int i, count;
 	char hostName[1024];
-	id *argstr;
+	NSString **argstr;
 	
 	_processName = [[NSString alloc] initWithCString:argv[0]];
 	_processName = [[_processName lastPathComponent] retain];
 	_pid=getpid();
 	
-	argstr = malloc (argc * sizeof(id));				// Copy argument list
-	for (i = 0; i < argc; i++) 
+	argstr = malloc (argc * sizeof(argstr[0]));				// Copy argument list
+	for (i = 0; i < argc; i++)
 			{
 				argstr[i] = [[[NSString alloc] initWithCString:argv[i]] autorelease];
+#if 0 && defined(__mySTEP__)
+			free(malloc(8192));	// segfaults???
+#endif
 #if 0
 				NSLog(@"%@: %@ - %s", NSStringFromClass([argstr[i] class]), argstr[i], argv[i]);
 #endif
@@ -72,12 +75,15 @@ static id __processInfo = nil;
 	
 	_arguments = [[NSArray alloc] initWithObjects:argstr count:argc];
 	free (argstr);
-
+#if 0 && defined(__mySTEP__)
+	free(malloc(8192));	// segfaults???
+#endif
+	
 	for (count = 0; env[count]; count++);				// Count the evironment variables.
 	
 	{
-		id *keys = malloc (count * sizeof(id));				// Copy the environment variables				
-		id *vals = malloc (count * sizeof(id));									
+		NSString **keys = malloc (count * sizeof(keys[0]));				// Copy the environment variables				
+		NSString **vals = malloc (count * sizeof(vals[0]));									
 		
 		for (i = 0; i < count; i++) 
 				{
@@ -93,7 +99,10 @@ static id __processInfo = nil;
 		
 		_environment = [NSDictionary alloc];
 		[_environment initWithObjects:vals forKeys:keys count:count];
-		
+#if 0 && defined(__mySTEP__)
+	free(malloc(8192));	// segfaults???
+#endif
+	
 		free (keys);
 		free (vals);
 	}
@@ -103,6 +112,9 @@ static id __processInfo = nil;
 	gethostname(hostName, sizeof(hostName)-1);
 	hostName[sizeof(hostName)-1]=0;
 	_hostName = [[NSString alloc] initWithCString:hostName];
+#if 0 && defined(__mySTEP__)
+	free(malloc(8192));	// segfaults???
+#endif
 	
 	return self;
 }
@@ -186,6 +198,9 @@ void *malloclimit(size_t size)
 int main(int argc, char** argv, char** env)
 {
 	NSAutoreleasePool *pool;
+#if 0 && defined(__mySTEP__)
+	free(malloc(8192));	// segfaults???
+#endif
 #if 1
 	{ // print when we enter the main function to find out how long framework initialization takes
 		struct timeval tp;

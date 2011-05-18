@@ -258,11 +258,11 @@
 		NSString *partialURLString=@"/";
 		for(i=0; i<cnt; i++)
 		{ // loop over all path components and create a cell for each one
-			NSPathComponentCell *cell = [[[[self class] pathComponentCellClass] alloc] init];
+			NSPathComponentCell *cell = [[[self class] pathComponentCellClass] new];
 			NSURL *partialURL;
 			partialURLString = [partialURLString stringByAppendingPathComponent:[pathComponents objectAtIndex:i]];	// add next component
 			if(isFile) {
-				partialURL = [NSURL fileURLWithPath:partialURLString];
+				partialURL = [[NSURL alloc] initFileURLWithPath:partialURLString];
 			} else {
 				// FIXME: this does not cover all legal cases, e.g. user&password included, empty host name etc.
 				partialURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://%@%@", [url scheme], [url host], partialURLString]];	// should include scheme, host etc.

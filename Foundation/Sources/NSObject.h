@@ -149,6 +149,7 @@ static inline NSObject *NSAllocateObject(Class aClass, NSUInteger extra, NSZone 
 static inline void NSDeallocateObject(NSObject *anObject)					// object deallocation
 {
 #ifdef __mySTEP__
+	extern Class __zombieClass;
 	if (anObject != nil)
 		{
 		_object_layout o = &((_object_layout)anObject)[-1];
@@ -161,7 +162,7 @@ static inline void NSDeallocateObject(NSObject *anObject)					// object dealloca
 			__NSCountDeallocate([anObject class]);
 			}
 #endif
-		//		((id)anObject)->class_pointer = (void *)0xdeadface;	// destroy
+		((id)anObject)->class_pointer = (void *)__zombieClass;	// destroy class pointer
 		objc_free(o);
 		__NSAllocatedObjects--;	// one less
 		}

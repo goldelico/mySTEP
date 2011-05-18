@@ -59,6 +59,7 @@
 #import <Foundation/NSURL.h>
 #import "NSPrivate.h"
 #include <zlib.h>
+#include <stdlib.h>
 
 #if	HAVE_MMAP
 #include <sys/mman.h>
@@ -109,6 +110,7 @@ static IMP appendImp;
 @end
 
 #if	HAVE_MMAP
+// FIXME: why is this a NSDataMalloc subclass?
 @interface	NSDataMappedFile : NSDataMalloc
 @end
 #endif
@@ -1320,10 +1322,31 @@ getBytes(void* dst, void* src, unsigned len, unsigned limit, unsigned *pos)
 
 @implementation	NSDataMalloc
 
+#if 0
++ (id) alloc
+{
+	id r=[super alloc];
+	extern BOOL __doingNSLog;
+	if(!__doingNSLog)
+		fprintf(stderr, "alloc NSDataMalloc: %p\n", r);
+	return r;
+}
+#endif
+
 - (id) copyWithZone:(NSZone *) zone							{ return [self retain]; }
 
 - (void) dealloc
 {
+#if 0
+	extern BOOL __doingNSLog;
+	if(!__doingNSLog)
+		fprintf(stderr, "dealloc NSDataMalloc: %p %p %u\n", self, bytes, length);
+	if(!bytes && length > 0)
+		abort();	// should not happen
+#if defined(__mySTEP__)
+	free(malloc(8192));	// segfaults???
+#endif
+#endif
 	if(bytes)
 		objc_free(bytes);
 	[super dealloc];
@@ -1348,6 +1371,9 @@ getBytes(void* dst, void* src, unsigned len, unsigned limit, unsigned *pos)
 {
 	bytes = aBuffer;
 	length = bufferSize;
+#if 0 && defined(__mySTEP__)
+	free(malloc(8192));
+#endif	
 	return self;
 }
 
@@ -1463,7 +1489,7 @@ void* b;
 - (id) initWithData:(NSData *)anObject
 {
 	if(anObject == nil)
-		return [self initWithBytesNoCopy:NULL length: 0];	// raise exception?
+		return [self initWithBytesNoCopy:NULL length: 0];	// better raise exception?
 	if([anObject isKindOfClass: [NSData class]] == NO)
 		return GSError(self, @"-initWithData: passed a non-data object");
 	return [self initWithBytes: [anObject bytes] length: [anObject length]];
@@ -1485,6 +1511,7 @@ void* b;
 		{
 		munmap(bytes, length);
 		bytes=NULL;	// don't try to objc_free()
+		length=0;
 		}
 	[super dealloc];
 }
@@ -1768,6 +1795,16 @@ struct shmid_ds	buf;
 	return NSAllocateObject(mutableDataMalloc, 0, z);
 }
 
+#if 0
+- (void) dealloc
+{
+	extern BOOL __doingNSLog;
+	if(!__doingNSLog)
+		fprintf(stderr, "dealloc NSMutableData: %p %p %u %u %u\n", self, bytes, length, capacity, growth);
+	[super dealloc];
+}
+#endif
+
 - (Class) classForArchiver			{ return mutableDataMalloc; }
 - (Class) classForCoder				{ return mutableDataMalloc; }
 - (Class) classForPortCoder			{ return mutableDataMalloc; }
@@ -1820,7 +1857,7 @@ struct shmid_ds	buf;
 
 		if (tmp == 0) 
 			[NSException raise: NSMallocException
-						 format: @"Unable to set data capacity to '%d'", size];
+						 format: @"Unable to set data capacity to '%u'", size];
 		bytes = tmp;
 		capacity = size;
 		if ((growth = (capacity/2)) == 0) 

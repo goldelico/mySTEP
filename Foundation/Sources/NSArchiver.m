@@ -784,8 +784,8 @@ SEL readSel = @selector(deserializeDataAt:ofObjCType:atCursor:context:);
 
 - (void) decodeValueOfObjCType:(const char*)type at:(void*)address
 {
-char tag;
-SEL readSel = @selector(deserializeDataAt:ofObjCType:atCursor:context:);
+	char tag;
+	SEL readSel = @selector(deserializeDataAt:ofObjCType:atCursor:context:);
 
 				// This statement, by taking the address of `type', forces the 
 				// compiler to not allocate `type' into a register
@@ -814,7 +814,7 @@ SEL readSel = @selector(deserializeDataAt:ofObjCType:atCursor:context:);
 				{
 				id classInfo = [ArchiverClassInfo new];
 		
-				[classInfo initWithCoder:self];
+				classInfo=[classInfo initWithCoder:self];
 				NSMapInsert(classes, key, classInfo);
 				NSMapInsert(classVersions, [classInfo className], classInfo);
 				[classInfo release];

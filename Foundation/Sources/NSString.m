@@ -900,7 +900,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 }
 
 - (unsigned) maximumLengthOfBytesUsingEncoding:(NSStringEncoding)enc;
-{ // estimate depending on encoding (long enough for all cases) in O(1) time
+{ // estimate depending on encoding (make it long enough for all cases) in O(1) time
 	if(enc == NSUnicodeStringEncoding)
 		return 2*[self length]+2+1;
 	if(enc == NSUTF8StringEncoding)
@@ -918,10 +918,16 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		return nil;
 	if(_count == 0)
 		return [NSData data];	// encode empty string
+#if 0 && defined(__mySTEP__)
+	free(malloc(8192));
+#endif
 	len=[self maximumLengthOfBytesUsingEncoding:encoding];
+#if 0 && defined(__mySTEP__)
+	free(malloc(8192));
+#endif
 	bp=buff=(unsigned char*) objc_malloc(len);
 	if(!buff)
-		[NSException raise: NSMallocException format: @"Unable to allocate"];
+		[NSException raise: NSMallocException format: @"Unable to allocate buffer"];
 	if(encoding == NSUnicodeStringEncoding)
 		{ // write our default byte order mark
 		*bp++=0xFE;
@@ -936,7 +942,10 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			return nil;
 			}
 		}
-	NSAssert(bp-buff <= len, @"buffer overflow");
+	NSAssert(bp <= buff+len, @"buffer overflow");
+#if 0 && defined(__mySTEP__)
+	free(malloc(8192));
+#endif	
 	return [NSData dataWithBytesNoCopy:buff length:bp-buff];	// become owner
 }
 
@@ -1056,7 +1065,11 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 // a little slow because we malloc and copy twice
 
-- (const char *) UTF8String;	{ return [[self dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES] _autoFreeBytesWith0:YES]; }
+- (const char *) UTF8String;	{
+#if 0 && defined(__mySTEP__)
+	free(malloc(8192));
+#endif
+	return [[self dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES] _autoFreeBytesWith0:YES]; }
 - (const char *) lossyCString;	{ return [[self dataUsingEncoding:__cStringEncoding allowLossyConversion:YES] _autoFreeBytesWith0:YES]; }
 
 - (NSString*) stringByAppendingFormat:(NSString*)format,...

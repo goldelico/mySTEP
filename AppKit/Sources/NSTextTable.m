@@ -9,8 +9,7 @@
 //  under the terms of the GNU Library General Public License.
 //
 
-#import "AppKit/NSTextTable.h"
-#import "AppKit/NSColor.h"
+#import "AppKit/AppKit.h"
 
 @implementation NSTextBlock
 

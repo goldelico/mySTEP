@@ -38,13 +38,14 @@ BOOL NSAutoreleaseFreedObjectCheckEnabled=NO;
 @interface _NSZombie	// root class wich does not recognize any method
 @end
 
+Class __zombieClass;
 static NSMapTable *__zombieMap;	// map object addresses to object descriptions
 
 @implementation _NSZombie
 
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
 { // called by runtime
-	NSString *s=__zombieMap?NSMapGet(__zombieMap, (void *) self):@"--";
+	NSString *s=__zombieMap?NSMapGet(__zombieMap, (void *) self):@"??";
 //	fprintf(stderr, "obj=%p sel=%s\n", s, sel_get_name(aSel));
 	NSLog(@"Trying to send selector -%@ to deallocated object: %@", NSStringFromSelector(aSel), s);
 	abort();
@@ -108,6 +109,7 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
       	autorelease_imp =[autorelease_class methodForSelector:autorelease_sel];
 		// Create the global lock
 		__NSGlobalLock = [[NSRecursiveLock alloc] init];
+		__zombieClass=objc_lookup_class("_NSZombie");
 		z=getenv("NSZombieEnabled");	// made compatible to http://developer.apple.com/technotes/tn2004/tn2124.html
 		if(z && (strcmp(z, "YES") == 0 || strcmp(z, "yes") == 0 || atoi(z) == 1))
 			NSZombieEnabled=YES;
@@ -277,6 +279,9 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 
 - (void) dealloc
 {
+#if 0 && defined(__mySTEP__)
+	free(malloc(128));	// segfaults???
+#endif
 	if(((_object_layout)(self))[-1].retained != -1)
 		{
 		NSLog(@"[obj dealloc] called instead of [obj release] or [super dealloc]");
@@ -292,7 +297,6 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 {
 	if (((_object_layout)(self))[-1].retained == 0)				// if ref count becomes zero (was 1)
 		{
-		static Class zombieClass;
 		if(NSZombieEnabled)
 			{ // enabling this keeps the object in memory and remembers the object description
 			NSAutoreleasePool *arp=[NSAutoreleasePool new];
@@ -300,7 +304,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 			if(!__zombieMap)
 				__zombieMap=NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
 											 NSObjectMapValueCallBacks, 200);
-#if 0
+#if 0	// debugging some issue
 			if([self isKindOfClass:[NSTask class]])
 				NSLog(@"zombiing %p: %@", self, [self description]);
 #endif
@@ -312,23 +316,19 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 #else
 			NSMapInsert(__zombieMap, (void *) self, @"?");		// don't fetch description
 #endif
-			if(!zombieClass)
-				zombieClass=objc_lookup_class("_NSZombie");
+			isa=__zombieClass;	// make us a zombie object
 			[arp release];
 			NSZombieEnabled=YES;
 			}
 		else
 			{
-#if 0
+#if 0	// debugging some issue
 			if([self isKindOfClass:[NSData class]])
 				fprintf(stderr, "dealloc %p\n", self);	// NSLog() would recursively call -[NSObject release]
 #endif
 			((_object_layout)(self))[-1].retained--;
 			[self dealloc];		// go through the dealloc hierarchy
 			}
-		if(!zombieClass)
-			zombieClass=objc_lookup_class("_NSZombie");
-		isa=zombieClass;	// _NSZombie does fail for all method calls, especially a second release after dealloc
 		}
 	else
 		((_object_layout)(self))[-1].retained--;

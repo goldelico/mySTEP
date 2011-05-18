@@ -107,6 +107,7 @@ typedef struct __CGEvent *CGEventRef;
 #include <objc/objc-class.h>
 #include <objc/objc-load.h>
 #include <objc/objc-runtime.h>
+#include <sys/malloc.h>
 
 #define arglist_t marg_list
 #define retval_t void *
@@ -195,6 +196,8 @@ typedef void *objc_condition_t;
 #define _F_BYREF	0x40
 
 #else
+
+#include <malloc.h>
 
 int objc_check_undefineds(FILE *errorStream);
 void objc_invalidate_dtable(Class class);

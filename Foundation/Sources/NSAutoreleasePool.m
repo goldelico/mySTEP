@@ -95,7 +95,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 {				
 	struct autorelease_thread_vars *tv = THREAD_VARS;
 												// if an existing autorelease  
-	if (tv->pool_cache_count)					// pool is available return it
+	if (tv && tv->pool_cache_count)					// pool is available return it
 		return pop_pool_from_cache (tv);		// instead of alloc'ing a new
 
 	return NSAllocateObject(self, 0, z);
@@ -169,6 +169,9 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 
 - (void) addObject:(id)anObj
 {
+#if 0
+	[anObj class];	// objects put into the ARP should be able to respond to messages
+#endif
 	if (!__autoreleaseEnabled)		// do nothing if global, static variable 
 		return;						// AUTORELEASE_ENABLED is not set
 #if 0
@@ -191,14 +194,15 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 	 		unsigned new_size = _released->size * 2;
 	  
 	  		new_released = (struct autorelease_array_list*)
-	    	objc_malloc(sizeof(struct autorelease_array_list) 
-						+ (new_size * sizeof(id)));
+					objc_malloc(sizeof(struct autorelease_array_list) 
+									+ (new_size * sizeof(id)));
 			new_released->next = NULL;
 			new_released->size = new_size;
 			new_released->count = 0;
 			_released->next = new_released;
 			_released = new_released;
-		}	}
+			}
+		}
 											// Put object at end of the list
 	_released->objects[_released->count] = anObj;
 	(_released->count)++;					// Keep track of the total number  
