@@ -508,7 +508,7 @@ static NSMutableArray *tileLRU;
 	
 	MKMapPointForCoordinate(reg.center);	// get center
 	
-	// convert span to map rect
+	// FIXME: convert span to map rect
 	[self setVisibleMapRect:visible animated:flag];
 }
 
@@ -823,10 +823,12 @@ static NSMutableArray *tileLRU;
 		{ // build query and start
 		// use reverse geocoding api:
 		//	http://developers.cloudmade.com/wiki/geocoding-http-api/Documentation#Reverse-Geocoding-httpcm-redmine01-datas3amazonawscomfiles101117091610_icon_beta_orangepng
+			// read resulting property list
+			// make asynchronous fetch and report result through delegate protocol
 		}
 }
 
-// or should we provide a subclass that implements initWithQuery:
+// or should we provide a subclass "MKGeocoder" that implements initWithQuery:
 
 - (void) _lookFor:(NSString *) query
 { // http://developers.cloudmade.com/projects/show/geocoding-http-api
@@ -835,8 +837,8 @@ static NSMutableArray *tileLRU;
 	NSString *url=[NSString stringWithFormat:@"http://geocoding.cloudmade.com/%@/geocoding/v2/find.plist?query=%@", @"8ee2a50541944fb9bcedded5165f09d9", query];
 	// we should do this asynchronously
 	NSDictionary *dict=[NSDictionary dictionaryWithContentsOfURL:[NSURL URLWithString:url]];
-	// convert into a MKPlacemark
-	// notify through delegate protocol
+	// convert resulting property list into a MKPlacemark
+	// make asynchronous fetch and report result through delegate protocol
 }
 
 @end
