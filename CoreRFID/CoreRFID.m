@@ -210,13 +210,17 @@ static NSString *lastChunk;
 {
 	if(!managers)
 		{ // set up RFID receiver and wait for first fix
+			NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"RFIDReaderSerialDevice"];	// e.g. /dev/ttyACM0 or /dev/cu.usbmodem1d11
+			if(!dev)
+				{ // set some default
 #if __mySTEP__
 			// running on Linux
-			NSString *dev=@"/dev/ttyACM0";	//serial interface for USB receiver
+				NSString *dev=@"";	//serial interface for USB receiver
 #else
-			NSString *dev=@"/dev/cu.usbmodemfd111";	//serial interface for USB receiver
-			dev=@"/dev/cu.usbmodem1d11";	//serial interface for USB receiver
+				NSString *dev=@"/dev/cu.usbmodemfd111";	//serial interface for USB receiver
+				dev=@"/dev/cu.usbmodem1d11";	//serial interface for USB receiver
 #endif
+				}			
 			file=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
 			if(!file)
 				{

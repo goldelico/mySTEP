@@ -13,8 +13,12 @@
 {
 	IBOutlet NSWindow *window;
 	IBOutlet NSTableView *tagTable;
+	IBOutlet NSTableView *devicesTable;
 	CRTagManager *manager;
+	NSArray *devices;
 }
 
+- (IBAction) openPreferencesPanel:(id) Sender;
+- (IBAction) chooseDevice:(id) Sender;
 
 @end
