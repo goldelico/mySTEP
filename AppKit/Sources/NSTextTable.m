@@ -22,19 +22,45 @@
 	[super dealloc];
 }
 
+/* this function is optimized so that the compiler can highly optimize if layer and edge are constants */
+ 
+static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEdge edge, NSSize size)
+{
+	if(self->_widthType[layer-NSTextBlockPadding][edge] == NSTextBlockPercentageValueType)
+		{ // relative to size
+		if(edge == NSMinXEdge || edge == NSMaxXEdge)
+			return self->_width[layer-NSTextBlockPadding][edge]*size.width;
+		else
+			return self->_width[layer-NSTextBlockPadding][edge]*size.height;
+		}
+	return self->_width[layer-NSTextBlockPadding][edge];	// absolute
+}
+
 - (NSColor *) backgroundColor; { return _backgroundColor; }
 - (NSColor *) borderColorForEdge:(NSRectEdge) edge; { NSAssert(edge <= NSMaxYEdge, @"invalid edge"); return _borderColorForEdge[edge]; }
 
-- (NSRect) boundsRectForContentRect:(NSRect) cont
-							 inRect:(NSRect) rect
+- (NSRect) boundsRectForContentRect:(NSRect) cont	/* content rectangle returned by rectForLayoutAtPoint: */
+							 inRect:(NSRect) rect	/* text container rectangle */
 					  textContainer:(NSTextContainer *) container
 					 characterRange:(NSRange) range;
-{
-	// bounds may differ on left&right side
-	// [self widthForLayer:NSTextBlockPadding edge:NSMinXEdge]; -- defines space between border and content
-	// [self widthForLayer:NSTextBlockBorder edge:NSMinXEdge]; -- defines border width
-	// [self widthForLayer:NSTextBlockMargin edge:NSMinXEdge]; -- inset where border starts
-	cont=NSInsetRect(cont, -5.0, -5.0);	// add margins
+{ // called once per layout action (after rectForLayoutAtPoint:) by -[NSTypeSetter layoutCharactersInRange:forLayoutManager:maximumNumberOfLineFragments:]
+	float d;	// delta
+	d	= getWidth(self, NSTextBlockPadding, NSMinXEdge, rect.size)		// defines space between border and content
+		+ getWidth(self, NSTextBlockBorder, NSMinXEdge, rect.size)	// defines border width
+		+ getWidth(self, NSTextBlockMargin, NSMinXEdge, rect.size);	// inset where border starts
+	cont.origin.x -= d;
+	cont.size.width += d
+		+ getWidth(self, NSTextBlockPadding, NSMaxXEdge, rect.size)
+		+ getWidth(self, NSTextBlockBorder, NSMaxXEdge, rect.size)
+		+ getWidth(self, NSTextBlockMargin, NSMaxXEdge, rect.size);
+	d	= getWidth(self, NSTextBlockPadding, NSMinYEdge, rect.size)		// defines space between border and content
+		+ getWidth(self, NSTextBlockBorder, NSMinYEdge, rect.size)	// defines border width
+		+ getWidth(self, NSTextBlockMargin, NSMinYEdge, rect.size);	// inset where border starts
+	cont.origin.y -= d;
+	cont.size.height += d
+		+ getWidth(self, NSTextBlockPadding, NSMaxYEdge, rect.size)
+		+ getWidth(self, NSTextBlockBorder, NSMaxYEdge, rect.size)
+		+ getWidth(self, NSTextBlockMargin, NSMaxYEdge, rect.size);
 	return cont;
 }
 
@@ -46,27 +72,90 @@
 				  characterRange:(NSRange) range
 				   layoutManager:(NSLayoutManager *) lm;
 {
+	NSBezierPath *p;
+	NSColor *color;
+	float width;
+	NSRect outer, inner;	// outer box and inner box of border
+	outer=rect;
+	width=getWidth(self, NSTextBlockPadding, NSMinXEdge, rect.size);
+	outer.origin.x+=width;
+	outer.size.width-=width + getWidth(self, NSTextBlockPadding, NSMaxXEdge, rect.size);
+	width=getWidth(self, NSTextBlockPadding, NSMinYEdge, rect.size);
+	outer.origin.y+=width;
+	outer.size.height-=width + getWidth(self, NSTextBlockPadding, NSMaxYEdge, rect.size);
+	inner=outer;
+	width=getWidth(self, NSTextBlockBorder, NSMinXEdge, rect.size);
+	inner.origin.x+=width;
+	inner.size.width-=width + getWidth(self, NSTextBlockBorder, NSMaxXEdge, rect.size);
+	width=getWidth(self, NSTextBlockBorder, NSMinYEdge, rect.size);
+	inner.origin.y+=width;
+	inner.size.height-=width + getWidth(self, NSTextBlockBorder, NSMaxYEdge, rect.size);
+	color=[self borderColorForEdge:NSMinXEdge];
+	if(color)
+		{ // left
+		p=[NSBezierPath new];
+		[p moveToPoint:(NSPoint) { NSMinX(outer), NSMinY(outer) }];
+		[p lineToPoint:(NSPoint) { NSMinX(inner), NSMinY(inner) }];
+		[p lineToPoint:(NSPoint) { NSMinX(inner), NSMaxY(inner) }];
+		[p lineToPoint:(NSPoint) { NSMinX(outer), NSMaxY(outer) }];
+		[p closePath];
+		[color set];
+		[p fill];	// fill left border trapezoid
+		[p release];		
+		}
+	[[self borderColorForEdge:NSMaxXEdge] set];	// right
+	color=[self borderColorForEdge:NSMaxXEdge];
+	width=getWidth(self, NSTextBlockBorder, NSMaxXEdge, rect.size);	// border width
+	if(color && width > 0)
+		{ // right
+		p=[NSBezierPath new];
+			[p moveToPoint:(NSPoint) { NSMaxX(outer), NSMinY(outer) }];
+			[p lineToPoint:(NSPoint) { NSMaxX(inner), NSMinY(inner) }];
+			[p lineToPoint:(NSPoint) { NSMaxX(inner), NSMaxY(inner) }];
+			[p lineToPoint:(NSPoint) { NSMaxX(outer), NSMaxY(outer) }];
+			[p closePath];
+		[color set];
+		[p fill];	// fill right border trapezoid
+		[p release];		
+		}
+	color=[self borderColorForEdge:NSMinYEdge];
+	width=getWidth(self, NSTextBlockBorder, NSMinYEdge, rect.size);	// border width
+	if(color && width > 0)
+		{ // bottom
+		p=[NSBezierPath new];
+			[p moveToPoint:(NSPoint) { NSMinX(outer), NSMinY(outer) }];
+			[p lineToPoint:(NSPoint) { NSMinX(inner), NSMinY(inner) }];
+			[p lineToPoint:(NSPoint) { NSMaxX(inner), NSMinY(inner) }];
+			[p lineToPoint:(NSPoint) { NSMaxX(outer), NSMinY(outer) }];
+			[p closePath];
+		[color set];
+		[p fill];	// fill left border trapezoid
+		[p release];		
+		}
+	[[self borderColorForEdge:NSMaxYEdge] set];	// right
+	color=[self borderColorForEdge:NSMaxYEdge];
+	width=getWidth(self, NSTextBlockBorder, NSMaxYEdge, rect.size);	// border width
+	if(color && width > 0)
+		{ // top
+		p=[NSBezierPath new];
+			[p moveToPoint:(NSPoint) { NSMinX(outer), NSMaxY(outer) }];
+			[p lineToPoint:(NSPoint) { NSMinX(inner), NSMaxY(inner) }];
+			[p lineToPoint:(NSPoint) { NSMaxX(inner), NSMaxY(inner) }];
+			[p lineToPoint:(NSPoint) { NSMaxX(outer), NSMaxY(outer) }];
+			[p closePath];
+		[color set];
+		[p fill];	// fill right border trapezoid
+		[p release];		
+		}
 	[[self backgroundColor] set];
-	NSRectFill(rect);	// fill complete background
-	[[self borderColorForEdge:NSMinXEdge] set];
-	// define trapezoid by:
-	// [self widthForLayer:NSTextBlockBorder edge:NSMinXEdge]; -- defines border width
-	// [self widthForLayer:NSTextBlockMargin edge:NSMinXEdge]; -- inset where border starts
-	// fill left border trapezoid
-	[[self borderColorForEdge:NSMaxXEdge] set];
-	// fill right border trapezoid
-	[[self borderColorForEdge:NSMinYEdge] set];
-	// fill bottom border trapezoid
-	[[self borderColorForEdge:NSMaxYEdge] set];
-	// fill bottom border trapezoid	
+	NSRectFill(inner);	// fill background behind text
 }
 
 - (NSRect) rectForLayoutAtPoint:(NSPoint) point
-						 inRect:(NSRect) rect
+						 inRect:(NSRect) rect	/* text container rect */
 				  textContainer:(NSTextContainer *) cont
 				 characterRange:(NSRange) range;
-{
-	// called by -[NSTypeSetter getLineFragmentRect:(NSRectPointer)lineFragmentRect usedRect:(NSRectPointer)lineFragmentUsedRect remainingRect:(NSRectPointer)remainingRect forStartingGlyphAtIndex:(NSUInteger)startingGlyphIndex proposedRect:(NSRect)proposedRect lineSpacing:(CGFloat)lineSpacing paragraphSpacingBefore:(CGFloat)paragraphSpacingBefore paragraphSpacingAfter:(CGFloat)paragraphSpacingAfter]
+{ // called by -[NSTypeSetter getLineFragmentRect:(NSRectPointer)lineFragmentRect usedRect:(NSRectPointer)lineFragmentUsedRect remainingRect:(NSRectPointer)remainingRect forStartingGlyphAtIndex:(NSUInteger)startingGlyphIndex proposedRect:(NSRect)proposedRect lineSpacing:(CGFloat)lineSpacing paragraphSpacingBefore:(CGFloat)paragraphSpacingBefore paragraphSpacingAfter:(CGFloat)paragraphSpacingAfter]
 	
 	// we probably should determine recursively how much space we need
 	// constrain rect.width by _contentWidth;
@@ -76,22 +165,42 @@
 	NSLayoutManager *lm=[cont layoutManager];
 	NSTextStorage *ts=[lm textStorage];
 	NSAttributedString *contents = [ts attributedSubstringFromRange:range];
+	NSRect r;
+
+	float li, ri, ti, bi;	// inset from bounds to content
+	li	= getWidth(self, NSTextBlockPadding, NSMinXEdge, rect.size)		// defines space between border and content
+		+ getWidth(self, NSTextBlockBorder, NSMinXEdge, rect.size)	// defines border width
+		+ getWidth(self, NSTextBlockMargin, NSMinXEdge, rect.size);	// inset where border starts
+	ri	= getWidth(self, NSTextBlockPadding, NSMaxXEdge, rect.size)
+		+ getWidth(self, NSTextBlockBorder, NSMaxXEdge, rect.size)
+		+ getWidth(self, NSTextBlockMargin, NSMaxXEdge, rect.size);
+	bi	= getWidth(self, NSTextBlockPadding, NSMinYEdge, rect.size)		// defines space between border and content
+		+ getWidth(self, NSTextBlockBorder, NSMinYEdge, rect.size)	// defines border width
+		+ getWidth(self, NSTextBlockMargin, NSMinYEdge, rect.size);	// inset where border starts
+	ti	= getWidth(self, NSTextBlockPadding, NSMaxYEdge, rect.size)
+		+ getWidth(self, NSTextBlockBorder, NSMaxYEdge, rect.size)
+		+ getWidth(self, NSTextBlockMargin, NSMaxYEdge, rect.size);
 	
 	// FIXME: do we do column breakdown and alignment here?
 	
 	// we should ask the layout manager!;
 	// or how else does it depend on contents dimensions?
-	NSRect r=[contents boundingRectWithSize:rect.size options:0];
+	
+	// we may simply split the content rect by columns into cells
+
+	r=[contents boundingRectWithSize:(NSSize) {	rect.size.width-li-ri, rect.size.height-ti-bi } options:0];
+/// TEST: r.size.width=20;
+	/// FIXME: contentWidth is 0.0 !?!
 	float wmax=_contentWidthValueType == NSTextBlockPercentageValueType?_contentWidth*rect.size.width:_contentWidth;
-	if(r.size.width > wmax)
-		r.size.width=wmax;	// limit to content width
-	r.origin.x+=point.x;
-	r.origin.y+=point.y;
+//	if(r.size.width > wmax)
+//		r.size.width=wmax;	// limit to content width
+	r.origin.x+=point.x+li;
+	r.origin.y+=point.y+ti;
 	return r; 
 }
 
 - (void) setBackgroundColor:(NSColor *) color; { ASSIGN(_backgroundColor, color); }
-- (void) setBorderColor:(NSColor *) color; { int i; for(i=0; i<=NSMaxYEdge; i++)  ASSIGN(_borderColorForEdge[i], color); }
+- (void) setBorderColor:(NSColor *) color; { int i; for(i=0; i<=NSMaxYEdge; i++) ASSIGN(_borderColorForEdge[i], color); }
 - (void) setBorderColor:(NSColor *) color forEdge:(NSRectEdge) edge; { NSAssert(edge <= NSMaxYEdge, @"invalid edge"); ASSIGN(_borderColorForEdge[edge], color); }
 - (void) setContentWidth:(float) val type:(NSTextBlockValueType) type; { _contentWidth=val; _contentWidthValueType=type; }
 - (void) setValue:(float) val type:(NSTextBlockValueType) type forDimension:(NSTextBlockDimension) dimension;
@@ -104,35 +213,35 @@
 - (void) setWidth:(float) val type:(NSTextBlockValueType) type forLayer:(NSTextBlockLayer) layer;
 { // set width for all edges
 	int i;
-	// FIXME: don't use NSAssert but NSException!
-	NSAssert(layer <= NSTextBlockMargin, @"invalid layer");
+	// FIXME: don't use NSAssert but raise NSException!
+	NSAssert(layer >= NSTextBlockPadding && layer <= NSTextBlockMargin, @"invalid layer");
 	for(i=0; i<=NSMaxYEdge; i++)
 		{
-		_width[layer][i]=val;
-		_widthType[layer][i]=type;
+		_width[layer-NSTextBlockPadding][i]=val;
+		_widthType[layer-NSTextBlockPadding][i]=type;
 		}
 }
 - (void) setWidth:(float) val type:(NSTextBlockValueType) type forLayer:(NSTextBlockLayer) layer edge:(NSRectEdge) edge;
 {
-	NSAssert(layer <= NSTextBlockMargin, @"invalid layer");
+	NSAssert(layer >= NSTextBlockPadding && layer <= NSTextBlockMargin, @"invalid layer");
 	NSAssert(edge <= NSMaxYEdge, @"invalid edge");
-	_width[layer][edge]=val;
-	_widthType[layer][edge]=type;
+	_width[layer-NSTextBlockPadding][edge]=val;
+	_widthType[layer-NSTextBlockPadding][edge]=type;
 }
 - (float) valueForDimension:(NSTextBlockDimension) dimension; { NSAssert(dimension <= NSTextBlockMaximumHeight, @"invalid dimension"); return _value[dimension]; }
 - (NSTextBlockValueType) valueTypeForDimension:(NSTextBlockDimension) dimension; { NSAssert(dimension <= NSTextBlockMaximumHeight, @"invalid dimension"); return _valueType[dimension]; }
 - (NSTextBlockVerticalAlignment) verticalAlignment; { return _verticalAlignment; }
 - (float) widthForLayer:(NSTextBlockLayer) layer edge:(NSRectEdge) edge;
 {
-	NSAssert(layer <= NSTextBlockMargin, @"invalid layer");
+	NSAssert(layer >= NSTextBlockPadding && layer <= NSTextBlockMargin, @"invalid layer");
 	NSAssert(edge <= NSMaxYEdge, @"invalid edge");
-	return _width[layer][edge];
+	return _width[layer-NSTextBlockPadding][edge];
 }
 - (NSTextBlockValueType) widthValueTypeForLayer:(NSTextBlockLayer) layer edge:(NSRectEdge) edge;
 {
-	NSAssert(layer <= NSTextBlockMargin, @"invalid layer");
+	NSAssert(layer >= NSTextBlockPadding && layer <= NSTextBlockMargin, @"invalid layer");
 	NSAssert(edge <= NSMaxYEdge, @"invalid edge");
-	return _widthType[layer][edge];
+	return _widthType[layer-NSTextBlockPadding][edge];
 }
 
 - (void) encodeWithCoder:(NSCoder *)aCoder				// NSCoding protocol
@@ -217,6 +326,20 @@
 		}
 	return self;
 }
+
+/* FIXME:
+ we may have to override
+ 
+ - (NSRect) rectForLayoutAtPoint:(NSPoint) point
+	inRect:(NSRect) rect	// text container rect
+		textContainer:(NSTextContainer *) cont
+	characterRange:(NSRange) range;
+ 
+ and consult [table numberOfColumns]
+ 
+ to determine the right position of the cells
+ */
+
 
 - (int) columnSpan; { return _cspan; }
 - (int) rowSpan; { return _rspan; }

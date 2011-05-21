@@ -41,9 +41,9 @@ typedef enum _NSTextBlockDimension
 
 typedef enum _NSTextBlockLayer
 {
-	NSTextBlockPadding,	
-	NSTextBlockBorder,
-	NSTextBlockMargin
+	NSTextBlockPadding=-1,	// space around border (transparent)
+	NSTextBlockBorder,	// colored border
+	NSTextBlockMargin	// space between text and border (background color)
 } NSTextBlockLayer;
 
 typedef enum _NSTextBlockVerticalAlignment
@@ -56,15 +56,16 @@ typedef enum _NSTextBlockVerticalAlignment
 
 @interface NSTextBlock : NSObject <NSCoding, NSCopying>
 {
+	// CHECKME: are the arrays dimensioned correctly?
+	float _width[NSTextBlockMargin-NSTextBlockPadding+1][NSMaxYEdge+1];
+	float _value[NSTextBlockMaximumHeight+1];
+	float _contentWidth;
 	NSColor *_backgroundColor;
 	NSColor *_borderColorForEdge[NSMaxYEdge+1];
-	float _contentWidth;
-	NSTextBlockValueType _contentWidthValueType;
-	float _value[NSTextBlockMaximumHeight+1];
+	NSTextBlockValueType _widthType[NSTextBlockMargin-NSTextBlockPadding+1][NSMaxYEdge+1];
 	NSTextBlockValueType _valueType[NSTextBlockMaximumHeight+1];
+	NSTextBlockValueType _contentWidthValueType;
 	NSTextBlockVerticalAlignment _verticalAlignment;
-	float _width[NSTextBlockMargin+1][NSMaxYEdge+1];
-	NSTextBlockValueType _widthType[NSTextBlockMargin+1][NSMaxYEdge+1];
 }
 
 - (NSColor *) backgroundColor;
