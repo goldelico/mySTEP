@@ -71,7 +71,7 @@ static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEd
 						  inView:(NSView *) view
 				  characterRange:(NSRange) range
 				   layoutManager:(NSLayoutManager *) lm;
-{
+{ // called from -[NSLayoutManager drawBackgroundForGlyphRange:atPoint:]
 	NSBezierPath *p;
 	NSColor *color;
 	float width;
@@ -151,7 +151,7 @@ static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEd
 	NSRectFill(inner);	// fill background behind text
 }
 
-- (NSRect) rectForLayoutAtPoint:(NSPoint) point
+- (NSRect) rectForLayoutAtPoint:(NSPoint) point	/* relative position within text container rect */
 						 inRect:(NSRect) rect	/* text container rect */
 				  textContainer:(NSTextContainer *) cont
 				 characterRange:(NSRange) range;
@@ -168,15 +168,15 @@ static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEd
 	NSRect r;
 
 	float li, ri, ti, bi;	// inset from bounds to content
-	li	= getWidth(self, NSTextBlockPadding, NSMinXEdge, rect.size)		// defines space between border and content
-		+ getWidth(self, NSTextBlockBorder, NSMinXEdge, rect.size)	// defines border width
-		+ getWidth(self, NSTextBlockMargin, NSMinXEdge, rect.size);	// inset where border starts
+	li	= getWidth(self, NSTextBlockPadding, NSMinXEdge, rect.size)		// space between cells
+		+ getWidth(self, NSTextBlockBorder, NSMinXEdge, rect.size)		// border width
+		+ getWidth(self, NSTextBlockMargin, NSMinXEdge, rect.size);		// space (inset) between border and text
 	ri	= getWidth(self, NSTextBlockPadding, NSMaxXEdge, rect.size)
 		+ getWidth(self, NSTextBlockBorder, NSMaxXEdge, rect.size)
 		+ getWidth(self, NSTextBlockMargin, NSMaxXEdge, rect.size);
-	bi	= getWidth(self, NSTextBlockPadding, NSMinYEdge, rect.size)		// defines space between border and content
-		+ getWidth(self, NSTextBlockBorder, NSMinYEdge, rect.size)	// defines border width
-		+ getWidth(self, NSTextBlockMargin, NSMinYEdge, rect.size);	// inset where border starts
+	bi	= getWidth(self, NSTextBlockPadding, NSMinYEdge, rect.size)
+		+ getWidth(self, NSTextBlockBorder, NSMinYEdge, rect.size)
+		+ getWidth(self, NSTextBlockMargin, NSMinYEdge, rect.size);
 	ti	= getWidth(self, NSTextBlockPadding, NSMaxYEdge, rect.size)
 		+ getWidth(self, NSTextBlockBorder, NSMaxYEdge, rect.size)
 		+ getWidth(self, NSTextBlockMargin, NSMaxYEdge, rect.size);
@@ -194,8 +194,8 @@ static inline float getWidth(NSTextBlock *self, NSTextBlockLayer layer, NSRectEd
 	float wmax=_contentWidthValueType == NSTextBlockPercentageValueType?_contentWidth*rect.size.width:_contentWidth;
 //	if(r.size.width > wmax)
 //		r.size.width=wmax;	// limit to content width
-	r.origin.x+=point.x+li;
-	r.origin.y+=point.y+ti;
+	r.origin.x+=rect.origin.x+point.x+li;
+	r.origin.y+=rect.origin.y+point.y+ti;
 	return r; 
 }
 
