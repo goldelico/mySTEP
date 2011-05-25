@@ -29,14 +29,14 @@
 	[super dealloc];
 }
 
-- (NSString *)windowNibName
+- (NSString *) windowNibName
 {
     // Override returning the nib file name of the document
     // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
     return @"MyDocument";
 }
 
-- (void)windowControllerDidLoadNib:(NSWindowController *) aController
+- (void) windowControllerDidLoadNib:(NSWindowController *) aController
 {
     [super windowControllerDidLoadNib:aController];
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
@@ -46,7 +46,7 @@
 	[loc startUpdatingLocation];
 }
 
-- (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError
+- (NSData *) dataOfType:(NSString *)typeName error:(NSError **)outError
 {
     // Insert code here to write your document to data of the specified type. If the given outError != NULL, ensure that you set *outError when returning nil.
 
@@ -60,7 +60,7 @@
 	return nil;
 }
 
-- (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError
+- (BOOL) readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError
 {
     // Insert code here to read your document from the given data of the specified type.  If the given outError != NULL, ensure that you set *outError when returning NO.
 
@@ -74,12 +74,12 @@
     return YES;
 }
 
-- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
+- (void) locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
 	NSLog(@"error: %@", error);	
 }
 
-- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
+- (void) locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
 	NSLog(@"new location: %@", newLocation);
 	// rotate the mapview
@@ -90,7 +90,7 @@
 	//		rad = (-(newLocation.course) *M_PI / 180.0);			// rotate in movement direction
 	
 	// if(newLocation.course < 0) -> ignore
-	
+	[map setCenterCoordinate:newLocation.coordinate];	// center
 }
 
 @end
