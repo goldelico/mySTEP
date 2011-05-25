@@ -346,17 +346,21 @@
 @implementation CLLocationManager (GPSNMEA)
 
 // this should be a system-wide service i.e. access through DO!
+// the first user process launches the service which stops itself if the last
+// user process stops
 
-// FIXME: send location updates
 // FIXME: send heading updates
 
 static NSMutableArray *managers;	// list of all managers
 static CLLocation *oldLocation;		// previous location
 static NSString *lastChunk;
+static NSFileHandle *file;
+
+// some global interesting status notes...
+
 static int numSatellites;
 static int numVisibleSatellites;
 static BOOL noSatellite;
-static NSFileHandle *file;
 
 + (void) registerManager:(CLLocationManager *) m
 {
@@ -365,8 +369,15 @@ static NSFileHandle *file;
 	if(!managers)
 		{ // set up GPS receiver and wait for first fix
 			// get this from some system wide user default
-			NSString *dev=@"/dev/cu.BT-348_GPS-Serialport-1";	//serial interface for NMEA receiver
-			// use /dev/ttyS2 on Openmoko Beagle Hybrid
+			NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"NMEAGPSSerialDevice"];	// e.g. /dev/ttyS2 or /dev/cu.usbmodem1d11
+			if(!dev)
+				{
+#if __mySTEP__
+				dev=@"/dev/ttyS2";	// Linux: serial interface for USB receiver
+#else
+				dev=@"/dev/cu.BT-348_GPS-Serialport-1";	// Mac OS X: serial interface for NMEA receiver
+#endif
+				}
 			file=[[NSFileHandle fileHandleForReadingAtPath:dev] retain];
 			if(!file)
 				{
@@ -415,13 +426,16 @@ static NSFileHandle *file;
 { // process NMEA183 record (components separated by ",")
 	NSArray *a=[line componentsSeparatedByString:@","];
 	NSString *cmd=[a objectAtIndex:0];
+	CLLocationManager *m;
+	NSEnumerator *e;
 	CLLocation *newLocation=nil;
 #if 0
 	NSLog(@"a=%@", a);
 #endif
+	// we may add some more info to this notification!
 	[[NSNotificationCenter defaultCenter] postNotificationName:@"CLLocation.NMEA183" object:self userInfo:[NSDictionary dictionaryWithObject:line forKey:@"CLLocation.NMEA183.String"]];
 	if([cmd isEqualToString:@"$GPRMC"])
-		{ // minimum recommended navigation info (this is mainly used by SYSLocation)
+		{ // minimum recommended navigation info (this is mainly used by CLLocation)
 			noSatellite=![[a objectAtIndex:2] isEqualToString:@"A"];	// A=Ok, V=receiver warning
 			if(!noSatellite)
 				{ // update time and timestamp
@@ -467,7 +481,10 @@ static NSFileHandle *file;
 #endif
 				}
 			else
-				numSatellites=0;
+				{
+				newLocation->horizontalAccuracy=-1.0;
+				newLocation->verticalAccuracy=-1.0;					
+				}
 		}
 	else if([cmd isEqualToString:@"$GPGSA"])
 		{ // satellite info
@@ -514,16 +531,12 @@ static NSFileHandle *file;
 #endif
 		return;	// unrecognized command
 		}
-	if(!noSatellite)
-		{
-		CLLocationManager *m;
-		NSEnumerator *e=[managers objectEnumerator];
-		while((m=[e nextObject]))
-			{ // notify all CLLocationManager instances
-			// check for desiredAccuracy
-			// check for distanceFilter
-				[[m delegate] locationManager:self didUpdateToLocation:newLocation fromLocation:oldLocation];
-			}
+	e=[managers objectEnumerator];
+	while((m=[e nextObject]))
+		{ // notify all CLLocationManager instances
+		// check for desiredAccuracy
+		// check for distanceFilter
+			[[m delegate] locationManager:self didUpdateToLocation:newLocation fromLocation:oldLocation];
 		}
 	[oldLocation release];
 	oldLocation=newLocation;	// was freshly allocated
@@ -551,8 +564,8 @@ static NSFileHandle *file;
 					// extract hh and calculate/verify checksum
 					s=[s substringWithRange:NSMakeRange(0, [s length]-3)];	// get relevant parts - strip off *hh
 					// get bytes and calculate checksum
+					// check checksum
 				}
-//			[[NSNotificationCenter defaultCenter] postNotificationName:SYSLocationNMEA183Notification object:s];	// notify any listener
 #if 1
 			NSLog(@"NEMA: %@", s);
 #endif

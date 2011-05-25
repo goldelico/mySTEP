@@ -115,9 +115,12 @@
 	if(row >= 0)
 		{
 		NSString *fullname=[@"/dev" stringByAppendingPathComponent:[devices objectAtIndex:row]];
+		NSMutableDictionary *values=[[[NSUserDefaults standardUserDefaults] persistentDomainForName:NSGlobalDomain] mutableCopy];
+		[values setObject:fullname forKey:@"RFIDReaderSerialDevice"];
+		[[NSUserDefaults standardUserDefaults] setPersistentDomain:values forName:NSGlobalDomain];
+		[values release];
 		[manager stopMonitoringTags];
 		[[devicesTable window] close];
-		[[NSUserDefaults standardUserDefaults] setObject:fullname forKey:@"RFIDReaderSerialDevice"];
 		[[NSUserDefaults standardUserDefaults] synchronize];	// publish to other apps
 		[manager startMonitoringTags];	// open new device
 		}

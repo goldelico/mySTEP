@@ -214,11 +214,9 @@ static NSString *lastChunk;
 			if(!dev)
 				{ // set some default
 #if __mySTEP__
-			// running on Linux
-				NSString *dev=@"";	//serial interface for USB receiver
+				dev=@"/dev/rfid";	// Linux: serial interface for USB receiver
 #else
-				NSString *dev=@"/dev/cu.usbmodemfd111";	//serial interface for USB receiver
-				dev=@"/dev/cu.usbmodem1d11";	//serial interface for USB receiver
+				dev=@"/dev/cu.usbmodem1d11";	// MacOS X: serial interface for USB receiver
 #endif
 				}			
 			file=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
