@@ -35,7 +35,7 @@ static int alreadyLoading=0;
 {
 	if((self=[super init]))
 		{
-		_delegate=delegate;
+		_delegate=[delegate retain];
 		_url=[url retain];
 		if(alreadyLoading == 0)
 			[[_delegate delegate] mapViewWillStartLoadingMap:_delegate];
@@ -77,11 +77,13 @@ static int alreadyLoading=0;
 #if 1
 	NSLog(@"didFailWithError: %@", error);
 #endif
+#if 0
 	_image=[[NSImage alloc] initWithSize:NSMakeSize(TILEPIXELS, TILEPIXELS)];	// write error message into a tile
 	[_image setFlipped:NO];
 	[_image lockFocus];
 	[[error localizedDescription] drawInRect:[_image alignmentRect] withAttributes:nil];
 	[_image unlockFocus];
+#endif
 	[self connectionDidFinishLoading:connection];
 }
 
@@ -125,6 +127,7 @@ static int alreadyLoading=0;
 {
 	[_connection cancel];
 	[_connection release];
+	[_delegate release];
 	[_data release];
 	[_image release];
 	[_url release];
@@ -174,6 +177,45 @@ static NSMutableArray *tileLRU;
 	return self;
 }
 
+- (void) setFrame:(NSRect) frameRect
+{ // adjust aspect ratio
+#if 1
+	NSRect frame=[self frame];
+	float fx=frameRect.size.width / frame.size.width;
+	float fy=frameRect.size.height / frame.size.height;
+	// adjust for movement of frame.origin!
+	visibleMapRect.origin.x += 0.5*visibleMapRect.size.width;	// keep center stable
+//	visibleMapRect.origin.x *= fx;
+	visibleMapRect.size.width *= fx;
+	visibleMapRect.origin.x -= 0.5*visibleMapRect.size.width;	// new left edge
+	visibleMapRect.origin.y -= 0.5*visibleMapRect.size.height;
+//	visibleMapRect.origin.y *= fy;
+	visibleMapRect.size.height *= fy;
+	visibleMapRect.origin.y += 0.5*visibleMapRect.size.height;
+#endif
+	[super setFrame:frameRect];
+	[self setNeedsDisplay:YES];
+}
+
+- (void) setFrameSize:(NSSize) newSize
+{
+#if 1
+	NSRect frame=[self frame];
+	float fx=newSize.width / frame.size.width;
+	float fy=newSize.height / frame.size.height;
+	visibleMapRect.origin.x += 0.5*visibleMapRect.size.width;	// keep center stable
+//	visibleMapRect.origin.x *= fx;
+	visibleMapRect.size.width *= fx;
+	visibleMapRect.origin.x -= 0.5*visibleMapRect.size.width;	// new left edge
+	visibleMapRect.origin.y -= 0.5*visibleMapRect.size.height;
+//	visibleMapRect.origin.y *= fy;
+	visibleMapRect.size.height *= fy;
+	visibleMapRect.origin.y += 0.5*visibleMapRect.size.height;
+#endif
+	[super setFrameSize:newSize];
+	[self setNeedsDisplay:YES];
+}
+
 - (id) initWithCoder:(NSCoder *) aDecoder;
 {
 	self=[super initWithCoder:aDecoder];
@@ -213,7 +255,7 @@ static NSMutableArray *tileLRU;
 	return NSMakeRect(NSMinX(bounds)+NSWidth(bounds)*(MKMapRectGetMinX(rect)-MKMapRectGetMinX(visible))/MKMapRectGetWidth(visible),
 					  NSMinY(bounds)+NSHeight(bounds)*(MKMapRectGetMinY(rect)-MKMapRectGetMinY(visible))/MKMapRectGetHeight(visible),
 					  NSWidth(bounds)*MKMapRectGetWidth(rect)/MKMapRectGetWidth(visible),
-					  NSHeight(bounds)*MKMapRectGetHeight(rect)/MKMapRectGetWidth(visible)
+					  NSHeight(bounds)*MKMapRectGetHeight(rect)/MKMapRectGetHeight(visible)
 					  );
 }
 
@@ -241,9 +283,12 @@ static NSMutableArray *tileLRU;
 
 - (NSString *) tileURLForZ:(int) z x:(int) x y:(int) y;
 { // conversion of geo location and zoom into Mapnik tile path: http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
-
+	long iscale;
 	if(z < 0 || z > 20)
 		return nil;
+	iscale = 1<<z;
+	x %= iscale;
+	y %= iscale;	// repeat
 	switch(mapType) {
 		// ignored
 	}
@@ -252,49 +297,51 @@ static NSMutableArray *tileLRU;
 
 - (BOOL) drawTileForZ:(int) z x:(int) x y:(int) y intoRect:(NSRect) rect load:(BOOL) flag;
 { // draw tile in required zoom at given position if it intersects the rect
+	float iscale = exp2(-z);
+	MKMapSize tileSize = (MKMapSize) { worldMap.size.width * iscale, worldMap.size.height * iscale };	// size of single tile (at scale z)
+	MKMapRect mapRect = MKMapRectMake(x*tileSize.width, y*tileSize.height, tileSize.width, tileSize.height);
+	NSRect drawRect = [self _rectForMapRect:mapRect];	// transform tile
 	NSString *url;
 	_MKTile *tile;
-	MKMapRect visible = [self visibleMapRect];
-	MKZoomScale scale = MIN(worldMap.size.width / visible.size.width, worldMap.size.height / visible.size.height);
-	int iscale = 1<<(int) ceil(log2(scale));
-	// how does iscale relate to z?
-	MKMapSize tileSize = (MKMapSize) { worldMap.size.width / iscale, worldMap.size.height / iscale };	// size of single tile (at scale z)
-	// this zooms the map if the window is enlarged!!! Otherwise we must scale to TILEPIXELS (!)
-	NSRect drawRect = [self _rectForMapRect:MKMapRectMake(x*tileSize.width, y*tileSize.height, tileSize.width, tileSize.height)];	// transform tile
-	// FIXME: we may want to draw/repeat the worldMap several times
-	// draw rect is determined by x, y, z, bounds, worldMap, visibleMapRect
+#if 1
+	NSLog(@"drawTile z=%d x=%d y=%d into %@", z, x, y, NSStringFromRect(drawRect));
+#endif
 	if(!NSIntersectsRect(drawRect, rect))
 		return NO;	// tile does not fall into drawing rect
-	url=[self tileURLForZ:z x:x%(1<<z) y:y%(1<<z)];	// repeat tiles if necessary
-	if(!url)
-		return NO;	// invalid
-	// if(z > 0) try recursion for less zoom
-	tile=[imageCache objectForKey:url];	// check if we already cache this tile
-	if(!tile)
+	if(z > 0)
+		{ // try recursion for less zoom
+		// but how do we guarantee that we draw the larger tiles only once???	
+		// r |= [self drawTileForZ:z-1 x:x/2 y:y/2 intoRect:rect load:NO];
+		}
+	if(z < 0)
+		;
+	url=[self tileURLForZ:z x:x y:y];	// repeat tiles if necessary
+	if(!url || !(tile=[imageCache objectForKey:url]))	// check if we already cache this tile
 		{ // not in cache - try larger or smaller tiles and trigger tile loader
 			// problem with larger tiles: must be drawn before we draw any other smaller one!
 			// i.e. we must sort according to z and draw any lower z before this z!
 			if(!flag)
 				return NO;	// and don't load
+			if(url)
+				{
 				// start tile loader
 				// if we add the first tile to load, call [delegate didStartLoading]
 				// for each tile that arrives, call setNeedsDisplayInRect:
 				// when the last tile arrives, call [delegate didFinishLoading]
-			NSLog(@"loading %@", url);
-			tile=[[[_MKTile alloc] initWithContentsOFURL:[NSURL URLWithString:url] forView:self] autorelease];
-			[imageCache setObject:tile forKey:url];
-			if([tileLRU count] > CACHESIZE)
-				[tileLRU removeLastObject];	// remove least recently used tile
+				NSLog(@"loading %@", url);
+				tile=[[[_MKTile alloc] initWithContentsOFURL:[NSURL URLWithString:url] forView:self] autorelease];
+				[imageCache setObject:tile forKey:url];
+				if([tileLRU count] > CACHESIZE)
+					[tileLRU removeLastObject];	// remove least recently used tile
+				}
+			else
+				tile=nil;
 #if 0 // this recursion does not work!!! We should do z-- recursion first before we draw our tile and z++ recursion afterwards
 			// this also may generate a lot of overhead if we do z-- recursion for every tile
 			// z++ recursion should be done only if we can't draw the tile
 			// look for a replacement (in z+1 or z-1 direction)
-			if(z > 0)
-				{ // try covering tile at lower zoom factor
-					r |= [self drawTileForZ:z-1 x:x/2 y:y/2 intoRect:rect load:NO];
-				}
 			if(z < 20)
-				{ // try tiles at higher zoom factor
+				{ // try tiles at higher zoom factor but don't load
 					r |= [self drawTileForZ:z+1 x:2*x y:2*y intoRect:rect load:NO];
 					r |= [self drawTileForZ:z+1 x:2*x+1 y:2*y intoRect:rect load:NO];
 					r |= [self drawTileForZ:z+1 x:2*x y:2*y+1 intoRect:rect load:NO];
@@ -305,21 +352,26 @@ static NSMutableArray *tileLRU;
 		}
 	else
 		[tileLRU removeObject:tile];
-	[tileLRU insertObject:tile atIndex:0];  // move to beginning of LRU list
-#if 1
-	NSLog(@"draw into %@", NSStringFromRect(drawRect));
-#endif
+	if(tile)
+		[tileLRU insertObject:tile atIndex:0];  // move to beginning of LRU list
 	[[tile image] drawInRect:drawRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+#if 1
+	if([tile image])
+		[[NSColor greenColor] set];
+	else
+		[[NSColor redColor] set];
+	NSFrameRect(drawRect);	// draw a box around the tile
+#endif
 	return YES;
 }
 
 - (void) drawRect:(NSRect) rect
 {
 	MKZoomScale scale = MIN(worldMap.size.width / visibleMapRect.size.width, worldMap.size.height / visibleMapRect.size.height);
-	float lscale=log2(scale);	// gives z-Factor
-	int z=ceil(lscale);
-	int iscale = 1<<z;
-	MKMapRect r=MKMapRectIntersection([self _mapRectForRect:rect], visibleMapRect);	// get intersection of request and visibile map
+	float lscale=log2(scale);
+	int z=ceil(lscale);	// basic scale
+	float iscale = exp2(z);	// scale factor
+	MKMapRect r=[self _mapRectForRect:rect];
 	
 	int minx=floor(iscale*MKMapRectGetMinX(r) / worldMap.size.width);	// get tile index range at zoom z
 	int maxx=ceil(iscale*MKMapRectGetMaxX(r) / worldMap.size.width);
@@ -336,14 +388,21 @@ static NSMutableArray *tileLRU;
 	// optionally draw a meridian or tile grid?
 	
 #if 1
-	[@"I am the MKMapView" drawInRect:NSMakeRect(10.0, 10.0, 100.0, 100.0) withAttributes:nil];
-	[[annotations description] drawInRect:NSMakeRect(10.0, 50.0, 100.0, 100.0) withAttributes:nil];
+	{
+	NSString *str=@"I am the MKMapView\n";
+	str=[str stringByAppendingFormat:@"%@\n", [annotations description]];
+	str=[str stringByAppendingFormat:@"%@\n", MKStringFromMapRect(visibleMapRect)];
+	str=[str stringByAppendingFormat:@"%@\n", MKStringFromMapRect(worldMap)];
+	[str drawInRect:NSMakeRect(10.0, 10.0, 1000.0, 300.0) withAttributes:nil];
+	}
 #endif	
 
 	for(y = miny; y < maxy; y++)
 		{
 		for(x = minx; x < maxx; x++)
-			[self drawTileForZ:z x:x y:y intoRect:rect load:YES];
+			{
+			[self drawTileForZ:z x:x y:y intoRect:rect load:YES];			
+			}
 		}
 	/* draw annotations and overlays (not here - they are handled through subviews) */
 }
@@ -439,6 +498,23 @@ static NSMutableArray *tileLRU;
 
 - (MKMapRect) mapRectThatFits:(MKMapRect) rect;
 {
+	NSRect frame=[self frame];
+	float fx=rect.size.width / frame.size.width;
+	float fy=rect.size.height / frame.size.height;
+	if(fx > fy)
+		{ // wider than screen - cut left&right
+			rect.origin.x += 0.5*rect.size.width;	// keep center stable
+			rect.origin.x *= fy/fx;
+			rect.size.width *= fy/fx;
+			rect.origin.x -= 0.5*rect.size.width;	// new left edge			
+		}
+	else
+		{ // higher than screen - cut top&bottom
+			rect.origin.y -= 0.5*rect.size.height;
+			rect.origin.y *= fx/fy;
+			rect.size.height *= fx/fy;
+			rect.origin.y += 0.5*rect.size.height;			
+		}
 	return rect;
 }
 
@@ -489,7 +565,7 @@ static NSMutableArray *tileLRU;
 { // keep zoom constant and just move center
 	MKMapRect visible=[self visibleMapRect];
 	MKMapPoint newCenter=MKMapPointForCoordinate(center);
-	visible=MKMapRectMake(newCenter.x-MKMapRectGetWidth(visible), newCenter.x-MKMapRectGetHeight(visible), MKMapRectGetWidth(visible), MKMapRectGetHeight(visible));
+	visible=MKMapRectMake(newCenter.x-0.5*MKMapRectGetWidth(visible), newCenter.x-0.5*MKMapRectGetHeight(visible), MKMapRectGetWidth(visible), MKMapRectGetHeight(visible));
 	[self setVisibleMapRect:visible animated:flag];	// show new map rect
 }
 
@@ -605,17 +681,17 @@ static NSMutableArray *tileLRU;
 		}
 }
 
-- (void) zoomIn:(id) sender;
+- (IBAction) zoomIn:(id) sender;
 {
 	[self _scaleBy:0.5];
 }
 
-- (void) zoomOut:(id) sender;
+- (IBAction) zoomOut:(id) sender;
 {
 	[self _scaleBy:2.0];
 }
 
-- (void) moveLeft:(id) sender;
+- (IBAction) moveLeft:(id) sender;
 {
 	if(scrollEnabled)
 		{
@@ -625,7 +701,7 @@ static NSMutableArray *tileLRU;
 		}
 }
 
-- (void) moveRight:(id) sender;
+- (IBAction) moveRight:(id) sender;
 {
 	if(scrollEnabled)
 		{
@@ -635,7 +711,7 @@ static NSMutableArray *tileLRU;
 		}
 }
 
-- (void) moveUp:(id) sender;
+- (IBAction) moveUp:(id) sender;
 {
 	if(scrollEnabled)
 		{
@@ -645,7 +721,7 @@ static NSMutableArray *tileLRU;
 		}
 }
 
-- (void) moveDown:(id) sender;
+- (IBAction) moveDown:(id) sender;
 {
 	if(scrollEnabled)
 		{
@@ -703,9 +779,18 @@ static NSMutableArray *tileLRU;
 	while([theEvent type] != NSLeftMouseUp)
 		{
 		if([theEvent type] == NSLeftMouseDragged)
-			; // NSMouseDragged
-//		[self scrollBy:NSMakeSize(p0.x - p.x, p0.y - p.y)];	// follow mouse
-//		p0 = p;
+			{ // NSMouseDragged
+				NSPoint p = [[self superview] convertPoint:[theEvent locationInWindow] fromView:nil];	// initial point
+				if(scrollEnabled)
+					{
+					MKMapPoint p2 = [self _mapPointForPoint:p];	// where did we drag to on the Mercator map?
+					MKMapRect v=[self visibleMapRect];
+					v.origin.x += p2.x - pnt.x;	// move origin
+					v.origin.y += p2.y - pnt.y;
+					[self setVisibleMapRect:v animated:YES];
+					pnt=p2;
+					}
+			}
 		theEvent = [NSApp nextEventMatchingMask:(NSLeftMouseUpMask|NSLeftMouseDraggedMask)
 									  untilDate:[NSDate distantFuture]						// get next event
 										 inMode:NSEventTrackingRunLoopMode 
