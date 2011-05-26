@@ -113,6 +113,13 @@ typedef struct UIEdgeInsets
 - (MKOverlayView *) viewForOverlay:(id <MKOverlay>) o;
 - (MKMapRect) visibleMapRect;
 
+- (IBAction) zoomIn:(id) sender;
+- (IBAction) zoomOut:(id) sender;
+- (IBAction) moveLeft:(id) sender;
+- (IBAction) moveRight:(id) sender;
+- (IBAction) moveUp:(id) sender;
+- (IBAction) moveDown:(id) sender;
+
 @end
 
 // EOF

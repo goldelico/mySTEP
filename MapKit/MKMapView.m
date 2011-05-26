@@ -136,6 +136,13 @@ static int alreadyLoading=0;
 
 @end
 
+static MKMapRect _MKMapRectForCoordinateRegion(MKCoordinateRegion reg)
+{ // convert corner points (may have different center!)
+	MKMapPoint sw=MKMapPointForCoordinate((CLLocationCoordinate2D) { reg.center.latitude-0.5*reg.span.latitudeDelta, reg.center.longitude-0.5*reg.span.longitudeDelta });
+	MKMapPoint ne=MKMapPointForCoordinate((CLLocationCoordinate2D) { reg.center.latitude+0.5*reg.span.latitudeDelta, reg.center.longitude+0.5*reg.span.longitudeDelta });
+	return (MKMapRect) { sw, (MKMapSize) { ne.x-sw.x, ne.y-sw.y }};
+}
+
 @implementation MKMapView
 
 static MKMapRect worldMap;	// visible map rect at z=0 (topmost tile)
@@ -237,6 +244,8 @@ static NSMutableArray *tileLRU;
 
 - (BOOL) isOpaque; { return YES; }
 - (BOOL) isFlipped; { return YES; }
+- (BOOL) acceptsFirstResponder { return YES; }	// otherwise we don't receive keyboard and arrow key events/actions
+
 
 // FIXME: we could define a NSAffineTransform that we update parallel to changes of bounds and visibleMapRect
 
@@ -287,8 +296,10 @@ static NSMutableArray *tileLRU;
 	if(z < 0 || z > 20)
 		return nil;
 	iscale = 1<<z;
-	x %= iscale;
-	y %= iscale;	// repeat
+	x %= iscale;	// repeat tile pattern if we wrap around the map
+	if(x < 0) x += iscale;	// c99 defines negative return value for negative dividend and we need the modulus
+	y %= iscale;
+	if(y < 0) y += iscale;
 	switch(mapType) {
 		// ignored
 	}
@@ -303,18 +314,9 @@ static NSMutableArray *tileLRU;
 	NSRect drawRect = [self _rectForMapRect:mapRect];	// transform tile
 	NSString *url;
 	_MKTile *tile;
-#if 1
-	NSLog(@"drawTile z=%d x=%d y=%d into %@", z, x, y, NSStringFromRect(drawRect));
-#endif
+	NSImage *img;	
 	if(!NSIntersectsRect(drawRect, rect))
 		return NO;	// tile does not fall into drawing rect
-	if(z > 0)
-		{ // try recursion for less zoom
-		// but how do we guarantee that we draw the larger tiles only once???	
-		// r |= [self drawTileForZ:z-1 x:x/2 y:y/2 intoRect:rect load:NO];
-		}
-	if(z < 0)
-		;
 	url=[self tileURLForZ:z x:x y:y];	// repeat tiles if necessary
 	if(!url || !(tile=[imageCache objectForKey:url]))	// check if we already cache this tile
 		{ // not in cache - try larger or smaller tiles and trigger tile loader
@@ -336,33 +338,24 @@ static NSMutableArray *tileLRU;
 				}
 			else
 				tile=nil;
-#if 0 // this recursion does not work!!! We should do z-- recursion first before we draw our tile and z++ recursion afterwards
-			// this also may generate a lot of overhead if we do z-- recursion for every tile
-			// z++ recursion should be done only if we can't draw the tile
-			// look for a replacement (in z+1 or z-1 direction)
-			if(z < 20)
-				{ // try tiles at higher zoom factor but don't load
-					r |= [self drawTileForZ:z+1 x:2*x y:2*y intoRect:rect load:NO];
-					r |= [self drawTileForZ:z+1 x:2*x+1 y:2*y intoRect:rect load:NO];
-					r |= [self drawTileForZ:z+1 x:2*x y:2*y+1 intoRect:rect load:NO];
-					r |= [self drawTileForZ:z+1 x:2*x+1 y:2*y+1 intoRect:rect load:NO];
-				}
-			return r;
-#endif
 		}
 	else
 		[tileLRU removeObject:tile];
-	if(tile)
+	img=[tile image];
+	if(img)
 		[tileLRU insertObject:tile atIndex:0];  // move to beginning of LRU list
-	[[tile image] drawInRect:drawRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 #if 1
-	if([tile image])
+	NSLog(@"drawTile z=%d x=%d y=%d into %@ %@", z, x, y, NSStringFromRect(drawRect), [tile image]);
+#endif
+	[img drawInRect:drawRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+#if 1
+	if(img)
 		[[NSColor greenColor] set];
 	else
 		[[NSColor redColor] set];
 	NSFrameRect(drawRect);	// draw a box around the tile
 #endif
-	return YES;
+	return img != nil;
 }
 
 - (void) drawRect:(NSRect) rect
@@ -372,14 +365,10 @@ static NSMutableArray *tileLRU;
 	int z=ceil(lscale);	// basic scale
 	float iscale = exp2(z);	// scale factor
 	MKMapRect r=[self _mapRectForRect:rect];
-	
 	int minx=floor(iscale*MKMapRectGetMinX(r) / worldMap.size.width);	// get tile index range at zoom z
 	int maxx=ceil(iscale*MKMapRectGetMaxX(r) / worldMap.size.width);
 	int miny=floor(iscale*MKMapRectGetMinY(r) / worldMap.size.height);
 	int maxy=ceil(iscale*MKMapRectGetMaxY(r) / worldMap.size.height);
-
-	// FIXME: limit to iscale i.e. minx=minx%iscale;
-	
 	int x, y;
 	
 	[[NSColor controlColor] set];
@@ -401,10 +390,21 @@ static NSMutableArray *tileLRU;
 		{
 		for(x = minx; x < maxx; x++)
 			{
-			[self drawTileForZ:z x:x y:y intoRect:rect load:YES];			
+			// draw lower resolution background if available
+			// but make sure we draw each z-value only once!
+			if(![self drawTileForZ:z x:x y:y intoRect:rect load:YES])
+				{ // did not draw - stich together from higher resolution
+					// FIXME: should this go recursively?
+					[self drawTileForZ:z+1 x:2*x y:2*y intoRect:rect load:NO];
+					[self drawTileForZ:z+1 x:2*x+1 y:2*y intoRect:rect load:NO];
+					[self drawTileForZ:z+1 x:2*x y:2*y+1 intoRect:rect load:NO];
+					[self drawTileForZ:z+1 x:2*x+1 y:2*y+1 intoRect:rect load:NO];					
+				}
 			}
 		}
 	/* draw annotations and overlays (not here - they are handled through subviews) */
+	// we should check annotation views if they are still visible
+	//
 }
 
 - (void) addAnnotation:(id <MKAnnotation>) a; { [annotations addObject:a]; [self setNeedsDisplay:YES]; }	// could optimize drawing rect?
@@ -457,7 +457,22 @@ static NSMutableArray *tileLRU;
 
 - (id <MKMapViewDelegate>) delegate; { return delegate; }
 
-- (MKAnnotationView *) dequeueReusableAnnotationViewWithIdentifier:(NSString *) ident; { return nil; }	// not yet implemented
+- (MKAnnotationView *) dequeueReusableAnnotationViewWithIdentifier:(NSString *) ident;
+{ // not yet implemented
+	// can we have multiple views with same ident?
+	// if yes, we need a NSDictionary with NSMutableArray entries
+	// this method looks if we have such an identifier
+	return nil;
+}
+
+- (void) _enqueueReusableAnnotationView:(MKAnnotationView *) view
+{ // has moved off-screen
+	NSString *ident=[view reuseIdentifier];
+	if(ident)
+		{ // put into queue
+		
+		}
+}
 
 - (void) deselectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
 {
@@ -498,7 +513,14 @@ static NSMutableArray *tileLRU;
 
 - (MKMapRect) mapRectThatFits:(MKMapRect) rect;
 {
+	UIEdgeInsets insets = { 0, 0, 0, 0 };
+	return [self mapRectThatFits:rect edgePadding:insets];
+}
+
+- (MKMapRect) mapRectThatFits:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets;
+{
 	NSRect frame=[self frame];
+	// adjust frame by insets
 	float fx=rect.size.width / frame.size.width;
 	float fy=rect.size.height / frame.size.height;
 	if(fx > fy)
@@ -518,19 +540,13 @@ static NSMutableArray *tileLRU;
 	return rect;
 }
 
-
-- (MKMapRect) mapRectThatFits:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets;
-{
-	return rect;
-}
-
 - (MKMapType) mapType; { return mapType; }
 - (NSArray *) overlays; { return overlays; }
 - (MKCoordinateRegion) region; { return MKCoordinateRegionForMapRect(visibleMapRect); }
 
 - (MKCoordinateRegion) regionThatFits:(MKCoordinateRegion) region;
 {
-	return region;
+	return MKCoordinateRegionForMapRect([self mapRectThatFits:_MKMapRectForCoordinateRegion(region)]);
 }
 
 - (void) removeAnnotation:(id <MKAnnotation>) a; { [annotations removeObjectIdenticalTo:a]; [self setNeedsDisplay:YES]; }
@@ -579,12 +595,7 @@ static NSMutableArray *tileLRU;
 
 - (void) setRegion:(MKCoordinateRegion) reg animated:(BOOL) flag;
 {
-	MKMapRect visible;
-	reg=[self regionThatFits:reg];	// adjust to aspect ratio
-	
-	MKMapPointForCoordinate(reg.center);	// get center
-	
-	// FIXME: convert span to map rect
+	MKMapRect visible=[self mapRectThatFits:_MKMapRectForCoordinateRegion(reg)];
 	[self setVisibleMapRect:visible animated:flag];
 }
 
@@ -622,6 +633,7 @@ static NSMutableArray *tileLRU;
 
 - (void) setVisibleMapRect:(MKMapRect) rect;
 {
+//	rect=[self mapRectThatFits:rect edgePadding:insets];
 	visibleMapRect=rect;
 	// update annotation an overlay views
 	[self setNeedsDisplay:YES];
@@ -681,6 +693,17 @@ static NSMutableArray *tileLRU;
 		}
 }
 
+- (void) _moveByX:(double) x Y:(double) y;
+{
+	if(scrollEnabled)
+		{
+		MKMapRect v=[self visibleMapRect];
+		v.origin.x += x;
+		v.origin.y += y;
+		[self setVisibleMapRect:v animated:YES];		
+		}
+}
+
 - (IBAction) zoomIn:(id) sender;
 {
 	[self _scaleBy:0.5];
@@ -693,69 +716,45 @@ static NSMutableArray *tileLRU;
 
 - (IBAction) moveLeft:(id) sender;
 {
-	if(scrollEnabled)
-		{
-		MKMapRect v=[self visibleMapRect];
-		v.origin.x -= 0.1*v.size.width;
-		[self setVisibleMapRect:v animated:YES];		
-		}
+	[self _moveByX:-0.1*[self visibleMapRect].size.width Y:0.0];
 }
 
 - (IBAction) moveRight:(id) sender;
 {
-	if(scrollEnabled)
-		{
-		MKMapRect v=[self visibleMapRect];
-		v.origin.x += 0.1*v.size.width;
-		[self setVisibleMapRect:v animated:YES];
-		}
+	[self _moveByX:+0.1*[self visibleMapRect].size.width Y:0.0];
 }
+
+// FIXME: up and down appear to be flipped!?!
 
 - (IBAction) moveUp:(id) sender;
 {
-	if(scrollEnabled)
-		{
-		MKMapRect v=[self visibleMapRect];
-		v.origin.y += 0.1*v.size.height;
-		[self setVisibleMapRect:v animated:YES];
-		}
+	[self _moveByX:0.0 Y:+0.1*[self visibleMapRect].size.width];
 }
 
 - (IBAction) moveDown:(id) sender;
 {
-	if(scrollEnabled)
-		{
-		MKMapRect v=[self visibleMapRect];
-		v.origin.y -= 0.1*v.size.height;
-		[self setVisibleMapRect:v animated:YES];
-		}
+	[self _moveByX:0.0 Y:-0.1*[self visibleMapRect].size.width];
 }
 
 - (void) scrollWheel:(NSEvent *) event;
 { // scroll or zoom
-	MKMapRect v=[self visibleMapRect];
-	NSRect r;
-	MKMapRect m;	// movement
 	if(([event modifierFlags] & NSAlternateKeyMask) != 0)
-		{ // zoom in/out
-			if(zoomEnabled)
-				[self _scaleBy:pow(1.1, [event deltaY])];
-			return;
+		{ // soft zoom in/out
+			[self _scaleBy:pow(1.1, [event deltaY])];
 		}
-	if(scrollEnabled)
+	else
 		{
-		r=(NSRect) { NSZeroPoint, { [event deltaX], [event deltaY] } };	// rect with 1x1 px
-		m=[self _mapRectForRect:r];	// get offset
-		v.origin.x += m.size.width;
-		v.origin.y += m.size.height;
-		[self setVisibleMapRect:v animated:YES];		
+		NSRect r=(NSRect) { NSZeroPoint, { [event deltaX], [event deltaY] } };	// rect with 1x1 px
+		MKMapRect m=[self _mapRectForRect:r];	// get offset
+		[self _moveByX:m.size.width Y:m.size.height];
 		}
 }
 
 - (void) mouseDown:(NSEvent *)theEvent;
 { // we come here only if hitTest of MKAnnotationViews and MKOverlayViews did fail
-	NSPoint p0 = [[self superview] convertPoint:[theEvent locationInWindow] fromView:nil];	// initial point
+	NSPoint p0 = [self convertPoint:[theEvent locationInWindow] fromView:nil];	// initial point
 	MKMapPoint pnt = [self _mapPointForPoint:p0];	// where did we click on the Mercator map?
+	MKMapPoint speed = { 0.0, 0.0 };
 #if 1
 	CLLocationCoordinate2D latlong=MKCoordinateForMapPoint(pnt);
 	NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p0));
@@ -767,29 +766,40 @@ static NSMutableArray *tileLRU;
 #if 1
 			NSLog(@"dbl click event modifier %d", [theEvent modifierFlags]);
 #endif
-			if([theEvent modifierFlags] & NSControlKeyMask)
-				[self zoomOut:nil];
-			else
-				{ // move to clicked position
-					[self setCenterCoordinate:MKCoordinateForMapPoint(pnt)];
-					[self zoomIn:nil];
+				{
+				if([theEvent modifierFlags] & NSControlKeyMask)
+					[self zoomOut:nil];
+				else
+					{ // move to clicked position
+						[self setCenterCoordinate:MKCoordinateForMapPoint(pnt)];
+						[self zoomIn:nil];
+					}
 				}
 			return;
 		}
-	while([theEvent type] != NSLeftMouseUp)
+	while(YES)
 		{
+		if([theEvent type] == NSLeftMouseUp)
+			{
+			if(speed.x || speed.y)
+				{
+				// if we have speed, continue to roll...
+				// but we should set up a timer
+				// and make the speed an iVar
+				// and stop the timer if the mouse is clicked
+				// speed must decrease (linearly?)
+				}
+			break;
+			}
 		if([theEvent type] == NSLeftMouseDragged)
 			{ // NSMouseDragged
-				NSPoint p = [[self superview] convertPoint:[theEvent locationInWindow] fromView:nil];	// initial point
-				if(scrollEnabled)
-					{
-					MKMapPoint p2 = [self _mapPointForPoint:p];	// where did we drag to on the Mercator map?
-					MKMapRect v=[self visibleMapRect];
-					v.origin.x += p2.x - pnt.x;	// move origin
-					v.origin.y += p2.y - pnt.y;
-					[self setVisibleMapRect:v animated:YES];
-					pnt=p2;
-					}
+				NSPoint p = [self convertPoint:[theEvent locationInWindow] fromView:nil];	// initial point
+				MKMapPoint p2 = [self _mapPointForPoint:p];	// where did we drag to on the Mercator map?
+				pnt = [self _mapPointForPoint:p0];	// last click on Mercator map (which has been moved!)
+				speed.x = pnt.x - p2.x;	// movement vector
+				speed.y = pnt.y - p2.y;
+				[self _moveByX:speed.x Y:speed.y];
+				p0=p;	// remember screen coordinates since the mercator position changes
 			}
 		theEvent = [NSApp nextEventMatchingMask:(NSLeftMouseUpMask|NSLeftMouseDraggedMask)
 									  untilDate:[NSDate distantFuture]						// get next event
