@@ -94,7 +94,7 @@ static int alreadyLoading=0;
 	if(!_image && _data)
 		{ // get image from data (unless we show an error message)
 		_image=[[NSImage alloc] initWithData:_data];
-		[_image setFlipped:YES];
+//		[_image setFlipped:YES];
 		}
 	[_data release];
 	_data=nil;
@@ -156,11 +156,15 @@ static NSMutableArray *tileLRU;
 {
 	if(self == [MKMapView class])
 		{
-		MKMapPoint topRight=MKMapPointForCoordinate((CLLocationCoordinate2D) { 85.0, 180.0 });	// CLLocationCoordinate2D is (latitude, longigude) which corresponds to (y, x)
+		MKMapPoint topRight=MKMapPointForCoordinate((CLLocationCoordinate2D) { 85.0, 180.0-1e-12 });	// CLLocationCoordinate2D is (latitude, longigude) which corresponds to (y, x)
 #if 1	// for testing...
 		CLLocationCoordinate2D test=MKCoordinateForMapPoint(topRight);
-		if(test.latitude != 85.0 || test.longitude != 180.0)
+		if(test.latitude != 85.0 || test.longitude != 180.0-1e-12)
+			{
 			NSLog(@"conversion error");
+			topRight=MKMapPointForCoordinate((CLLocationCoordinate2D) { 85.0, 180.0 });	// CLLocationCoordinate2D is (latitude, longigude) which corresponds to (y, x)
+			test=MKCoordinateForMapPoint(topRight);
+			}
 #endif
 		worldMap.origin=MKMapPointForCoordinate((CLLocationCoordinate2D) { -85.0, -180.0  });
 		worldMap.size.width=topRight.x - worldMap.origin.x;
@@ -243,7 +247,7 @@ static NSMutableArray *tileLRU;
 }
 
 - (BOOL) isOpaque; { return YES; }
-- (BOOL) isFlipped; { return YES; }
+// - (BOOL) isFlipped; { return YES; }
 - (BOOL) acceptsFirstResponder { return YES; }	// otherwise we don't receive keyboard and arrow key events/actions
 
 
@@ -394,11 +398,14 @@ static NSMutableArray *tileLRU;
 			// but make sure we draw each z-value only once!
 			if(![self drawTileForZ:z x:x y:y intoRect:rect load:YES])
 				{ // did not draw - stich together from higher resolution
+#if 0
 					// FIXME: should this go recursively?
+					// to a defined number of levels? Or just be limited by tile size?
 					[self drawTileForZ:z+1 x:2*x y:2*y intoRect:rect load:NO];
 					[self drawTileForZ:z+1 x:2*x+1 y:2*y intoRect:rect load:NO];
 					[self drawTileForZ:z+1 x:2*x y:2*y+1 intoRect:rect load:NO];
-					[self drawTileForZ:z+1 x:2*x+1 y:2*y+1 intoRect:rect load:NO];					
+					[self drawTileForZ:z+1 x:2*x+1 y:2*y+1 intoRect:rect load:NO];
+#endif
 				}
 			}
 		}
@@ -716,24 +723,34 @@ static NSMutableArray *tileLRU;
 
 - (IBAction) moveLeft:(id) sender;
 {
-	[self _moveByX:-0.1*[self visibleMapRect].size.width Y:0.0];
+	if(([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask) != 0)
+		[self _scaleBy:1.0/0.9];
+	else
+		[self _moveByX:-0.1*[self visibleMapRect].size.width Y:0.0];
 }
 
 - (IBAction) moveRight:(id) sender;
 {
-	[self _moveByX:+0.1*[self visibleMapRect].size.width Y:0.0];
+	if(([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask) != 0)
+		[self _scaleBy:0.9];
+	else
+		[self _moveByX:+0.1*[self visibleMapRect].size.width Y:0.0];
 }
-
-// FIXME: up and down appear to be flipped!?!
 
 - (IBAction) moveUp:(id) sender;
 {
-	[self _moveByX:0.0 Y:+0.1*[self visibleMapRect].size.width];
+	if(([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask) != 0)
+		[self _scaleBy:0.9];
+	else
+		[self _moveByX:0.0 Y:+0.1*[self visibleMapRect].size.height];
 }
 
 - (IBAction) moveDown:(id) sender;
 {
-	[self _moveByX:0.0 Y:-0.1*[self visibleMapRect].size.width];
+	if(([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask) != 0)
+		[self _scaleBy:1.0/0.9];
+	else
+		[self _moveByX:0.0 Y:-0.1*[self visibleMapRect].size.height];
 }
 
 - (void) scrollWheel:(NSEvent *) event;
