@@ -15,7 +15,11 @@
  *   range is 0 .. 20000km on latitude and 0 .. 40000km on longitude
  *   MKMapView knows this when fetching, scaling and drawing tiles
  *
- * CLLocationCoordinate2D are on earth surface (-90 (south) .. +90 (north) / -180 (west) .. 180 (east) degrees)
+ *   since MapPoints are some internal coordinate system we defined them to
+ *   start at the southwest corner (-180deg) with (0,0) and span towards north east (+180)
+ *
+ * CLLocationCoordinate2D are on earth surface
+ *   (-90 (south) .. +90 (north) / -180 (west) .. 180 (east) degrees)
  */
 
 #define POINTS_PER_METER (72/0.0254)
@@ -24,27 +28,29 @@
 #define MKMapWidth (2*M_PI*EQUATOR_RADIUS*POINTS_PER_METER)	// total width of map expressed in typographic points
 #define MKMapHeight (M_PI*POLE_RADIUS*POINTS_PER_METER)		// total height of map
 
+// Mercator map projection:
+
 MKMapPoint MKMapPointForCoordinate(CLLocationCoordinate2D coord)
 { // positive coords go east (!) and north
 	double l = coord.latitude * (M_PI / 180.0);		// latitude is limited to approx. +/- 85 deg
-	double y = 1.0 + log( tan(l) + 1.0 / cos(l)) / M_PI;
+	double n = log( tan(l) + 1.0 / cos(l));
+	double y = 0.5 + n / (2.0 * M_PI);
 	double x = (180.0 + coord.longitude) / 360.0;
-	return MKMapPointMake(x*MKMapWidth, y*0.5*MKMapHeight);
+	return MKMapPointMake(x*MKMapWidth, y*MKMapHeight);
 }
-
-// FIXME: this may rotate the map by 180 degrees?
 
 CLLocationCoordinate2D MKCoordinateForMapPoint(MKMapPoint mapPoint)
 {
-	double x = mapPoint.x / MKMapWidth;			// 0 ... MapWidth
-	double y = mapPoint.y / MKMapHeight;		// 0 ... MapHeight
+	double x = mapPoint.x / MKMapWidth;			// 0 ... MapWidth : 0 = -180 deg (west)
+	double y = mapPoint.y / MKMapHeight;		// 0 ... MapHeigh : 0 = north
 	CLLocationCoordinate2D loc;
-	double n;
-	x=remainder(x, 1.0);
-	y=2.0 * remainder(y, 1.0);
+	double n, l;
+	x = fmod(x, 1.0);	// see http://www.gnu.org/s/hello/manual/libc/Remainder-Functions.html
+	y = fmod(y, 1.0);
+	n = y * (2.0 * M_PI) - M_PI;	// -PI ... +PI
+	l = atan(0.5 * (exp(n) - exp(-n)));
+	loc.latitude = (180.0 / M_PI) * l;
 	loc.longitude = x * 360.0 - 180.0;	// -180 ... +180
-	n = (2.0 * M_PI) * y - M_PI;	// -PI ... +PI
-	loc.latitude = (180.0 / M_PI) * atan(0.5 * (exp(-n) - exp(n)));
 	return loc;
 }
 
@@ -182,7 +188,7 @@ MKMapSize MKMapSizeMake(double w, double h)
 	return (MKMapSize) { w, h };
 }
 
-NSString *MKStringFromMapPoint(MKMapPoint point) { return [NSString stringWithFormat:@"{ %lf, %lf }", point.x, point.y]; }
+NSString *MKStringFromMapPoint(MKMapPoint point) { return [NSString stringWithFormat:@"{ %lf (%.1lf%%), %lf (%.1lf%%) }", point.x, 100*point.x/MKMapWidth, point.y, 100*point.y/MKMapHeight]; }
 NSString *MKStringFromMapRect(MKMapRect rect) { return [NSString stringWithFormat:@"{ %@, %@ }", MKStringFromMapPoint(rect.origin), MKStringFromMapSize(rect.size)]; }
 NSString *MKStringFromMapSize(MKMapSize size) { return [NSString stringWithFormat:@"{ %lf, %lf }", size.width, size.height]; }
 
