@@ -478,7 +478,7 @@ static NSMutableArray *tileLRU;
 	NSString *ident=[view reuseIdentifier];
 	if(ident)
 		{ // put into queue
-		
+			[view prepareForReuse];	// give them a chance to prepare for reuse
 		}
 }
 
