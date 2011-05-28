@@ -109,7 +109,6 @@
 			//
 			// CGAffineTransform rotation = CGAffineTransformMakeRotation(radians);
 			// self.mapView.transform = rotation * M_PI / 180.0;
-			// FIXME: rotate around view center
 			[map setBoundsRotation:angle];
 			[map setNeedsDisplay:YES];
 		}
@@ -126,7 +125,6 @@
 		//
 		// CGAffineTransform rotation = CGAffineTransformMakeRotation(radians);
 		// self.mapView.transform = rotation * M_PI / 180.0;
-		// FIXME: rotate around view center
 		[map setBoundsRotation:angle];
 		[map setNeedsDisplay:YES];
 		}
@@ -134,16 +132,14 @@
 }
 
 - (IBAction) rotateLeft:(id) sender;
-{
-	// FIXME: rotate around view center
-	[map setBoundsRotation:[map boundsRotation]-10.0];
+{ // rotate around view center
+	[map setBoundsRotation:[map boundsRotation]+10.0];
 	[map setNeedsDisplay:YES];
 }
 
 - (IBAction) rotateRight:(id) sender;
-{
-	// FIXME: rotate around view center
-	[map setBoundsRotation:[map boundsRotation]+10.0];
+{ // rotate around view center
+	[map setBoundsRotation:[map boundsRotation]-10.0];
 	[map setNeedsDisplay:YES];
 }
 
