@@ -74,8 +74,8 @@ struct_component_expression
 
 selector
 	: IDENTIFIER
-	| ':'  { $$=node(':', 0, 0); }
 	| IDENTIFIER ':'  { $$=node(':', $1, 0); }
+	| ':'  { $$=node(':', 0, 0); }
 	| selector ':'  { $$=node(':', $1, 0); }
 	;
 
@@ -84,10 +84,12 @@ primary_expression
 	| CONSTANT
 	| STRING_LITERAL
 	| '(' expression ')'  { $$=node('(', 0, $2); }
+	/* Obj-C extensions */
 	| AT_STRING_LITERAL
-	| '[' expression selector_with_arguments ']'  { $$=node('[', 0, node(' ', $2, $3)); }
 	| AT_SELECTOR '(' selector ')'  { $$=node('(', node(AT_SELECTOR, 0, 0), $3); }
 	| AT_ENCODE '(' type_name ')'  { $$=node('(', node(AT_ENCODE, 0, 0), $3); }
+	| AT_PROTOCOL '(' IDENTIFIER ')'  { $$=node('(', node(AT_PROTOCOL, 0, 0), $3); }
+	| '[' expression selector_with_arguments ']'  { $$=node('[', 0, node(' ', $2, $3)); }
 	;
 
 postfix_expression
@@ -112,6 +114,7 @@ argument_expression_list
 
 unary_expression
 	: postfix_expression
+// FIXME: is ++(char *) x really invalid?
 	| INC_OP unary_expression { $$=node(INC_OP, 0, $2); }
 	| DEC_OP unary_expression { $$=node(DEC_OP, 0, $2); }
 	| unary_operator cast_expression { $$=node(type($1), 0, $2); dealloc($1); }
