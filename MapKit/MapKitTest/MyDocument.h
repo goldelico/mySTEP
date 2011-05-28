@@ -15,4 +15,8 @@
 	CLLocationManager *loc;
 	IBOutlet MKMapView *map; 
 }
+
+- (IBAction) rotateLeft:(id) sender;
+- (IBAction) rotateRight:(id) sender;
+
 @end

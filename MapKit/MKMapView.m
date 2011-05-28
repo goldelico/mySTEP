@@ -79,7 +79,7 @@ static int alreadyLoading=0;
 #endif
 #if 0
 	_image=[[NSImage alloc] initWithSize:NSMakeSize(TILEPIXELS, TILEPIXELS)];	// write error message into a tile
-	[_image setFlipped:NO];
+//	[_image setFlipped:NO];
 	[_image lockFocus];
 	[[error localizedDescription] drawInRect:[_image alignmentRect] withAttributes:nil];
 	[_image unlockFocus];
@@ -159,9 +159,9 @@ static NSMutableArray *tileLRU;
 		MKMapPoint topRight=MKMapPointForCoordinate((CLLocationCoordinate2D) { 85.0, 180.0-1e-12 });	// CLLocationCoordinate2D is (latitude, longigude) which corresponds to (y, x)
 #if 1	// for testing...
 		CLLocationCoordinate2D test=MKCoordinateForMapPoint(topRight);
-		if(test.latitude != 85.0 || test.longitude != 180.0-1e-12)
+		if(fabs(test.latitude - 85.0) > 1e-6 || fabs(test.longitude - 180.0) > 1e-6)
 			{
-			NSLog(@"conversion error");
+			NSLog(@"internal conversion error");
 			topRight=MKMapPointForCoordinate((CLLocationCoordinate2D) { 85.0, 180.0 });	// CLLocationCoordinate2D is (latitude, longigude) which corresponds to (y, x)
 			test=MKCoordinateForMapPoint(topRight);
 			}
@@ -302,6 +302,7 @@ static NSMutableArray *tileLRU;
 	iscale = 1<<z;
 	x %= iscale;	// repeat tile pattern if we wrap around the map
 	if(x < 0) x += iscale;	// c99 defines negative return value for negative dividend and we need the modulus
+	y = (iscale-1 - y);	// flip - OpenStreetMap has (0,0) at top left position and we at bottom left
 	y %= iscale;
 	if(y < 0) y += iscale;
 	switch(mapType) {
@@ -588,6 +589,9 @@ static NSMutableArray *tileLRU;
 { // keep zoom constant and just move center
 	MKMapRect visible=[self visibleMapRect];
 	MKMapPoint newCenter=MKMapPointForCoordinate(center);
+#if 1
+	NSLog(@"setCenterCoordinate:%@", MKStringFromMapPoint(newCenter));
+#endif
 	visible=MKMapRectMake(newCenter.x-0.5*MKMapRectGetWidth(visible), newCenter.x-0.5*MKMapRectGetHeight(visible), MKMapRectGetWidth(visible), MKMapRectGetHeight(visible));
 	[self setVisibleMapRect:visible animated:flag];	// show new map rect
 }
@@ -640,7 +644,11 @@ static NSMutableArray *tileLRU;
 
 - (void) setVisibleMapRect:(MKMapRect) rect;
 {
-//	rect=[self mapRectThatFits:rect edgePadding:insets];
+#if 1
+	NSLog(@"setVisibleMapRect:%@", MKStringFromMapRect(rect));
+#endif
+	//	rect=[self mapRectThatFits:rect edgePadding:insets];
+	// notify delegate
 	visibleMapRect=rect;
 	// update annotation an overlay views
 	[self setNeedsDisplay:YES];

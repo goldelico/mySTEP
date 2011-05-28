@@ -7,6 +7,24 @@
 //
 
 #import "MyDocument.h"
+#import <CoreLocation/CoreLocation.h>
+
+#if TARGET_OS_MAC 
+// locally define methods missing on MacOS (only available in iOS or mySTEP)
+
+@interface CLHeading : NSObject
+- (CLLocationDirection) magneticHeading;
+@end
+
+@interface CLLocationManager (iOSOnly)
+- (void) startUpdatingHeading;
+@end
+
+@protocol CLLocationManagerDelegateiOS <CLLocationManagerDelegate>
+- (void) locationManager:(CLLocationManager *) manager didUpdateHeading:(CLHeading *) newHeading;
+@end
+
+#endif
 
 @implementation MyDocument
 
@@ -44,6 +62,8 @@
 	loc=[[CLLocationManager alloc] init];
 	[loc setDelegate:self];
 	[loc startUpdatingLocation];
+	if([loc respondsToSelector:@selector(startUpdatingHeading)])
+		[loc startUpdatingHeading];
 }
 
 - (NSData *) dataOfType:(NSString *)typeName error:(NSError **)outError
@@ -79,18 +99,52 @@
 	NSLog(@"error: %@", error);	
 }
 
+- (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
+{
+	float angle = [newHeading magneticHeading];	// rotate north
+	if(angle >= 0.0)
+		{ // rotate the mapview - see http://www.osxentwicklerforum.de/index.php?page=Thread&threadID=16045
+			//
+			// on iOS:
+			//
+			// CGAffineTransform rotation = CGAffineTransformMakeRotation(radians);
+			// self.mapView.transform = rotation * M_PI / 180.0;
+			// FIXME: rotate around view center
+			[map setBoundsRotation:angle];
+			[map setNeedsDisplay:YES];
+		}
+}
+
 - (void) locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
 {
+	float angle = [newLocation course];			// rotate in movement direction
 	NSLog(@"new location: %@", newLocation);
-	// rotate the mapview
-	// this method may not be implemented!
-	// if(enabled && [newLocation respondsToSelector:@selector(magneticHeading)])
-	//		rad = (-(newLocation.magneticHeading) *M_PI / 180.0);	// rotate north
-	// else
-	//		rad = (-(newLocation.course) *M_PI / 180.0);			// rotate in movement direction
-	
-	// if(newLocation.course < 0) -> ignore
+	if(angle >= 0.0)
+		{ // rotate the mapview - see http://www.osxentwicklerforum.de/index.php?page=Thread&threadID=16045
+		//
+		// on iOS:
+		//
+		// CGAffineTransform rotation = CGAffineTransformMakeRotation(radians);
+		// self.mapView.transform = rotation * M_PI / 180.0;
+		// FIXME: rotate around view center
+		[map setBoundsRotation:angle];
+		[map setNeedsDisplay:YES];
+		}
 	[map setCenterCoordinate:newLocation.coordinate];	// center
+}
+
+- (IBAction) rotateLeft:(id) sender;
+{
+	// FIXME: rotate around view center
+	[map setBoundsRotation:[map boundsRotation]-10.0];
+	[map setNeedsDisplay:YES];
+}
+
+- (IBAction) rotateRight:(id) sender;
+{
+	// FIXME: rotate around view center
+	[map setBoundsRotation:[map boundsRotation]+10.0];
+	[map setNeedsDisplay:YES];
 }
 
 @end
