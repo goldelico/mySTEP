@@ -156,17 +156,21 @@ static NSMutableArray *tileLRU;
 {
 	if(self == [MKMapView class])
 		{
-		MKMapPoint topRight=MKMapPointForCoordinate((CLLocationCoordinate2D) { 85.0, 180.0-1e-12 });	// CLLocationCoordinate2D is (latitude, longigude) which corresponds to (y, x)
+		MKMapPoint topRight=MKMapPointForCoordinate((CLLocationCoordinate2D) { 85.05112, 180.0-1e-12 });	// CLLocationCoordinate2D is (latitude, longigude) which corresponds to (y, x)
 #if 1	// for testing...
 		CLLocationCoordinate2D test=MKCoordinateForMapPoint(topRight);
-		if(fabs(test.latitude - 85.0) > 1e-6 || fabs(test.longitude - 180.0) > 1e-6)
+		if(fabs(test.latitude - 85.05112) > 1e-6 || fabs(test.longitude - 180.0) > 1e-6)
 			{
 			NSLog(@"internal conversion error");
-			topRight=MKMapPointForCoordinate((CLLocationCoordinate2D) { 85.0, 180.0 });	// CLLocationCoordinate2D is (latitude, longigude) which corresponds to (y, x)
+			topRight=MKMapPointForCoordinate((CLLocationCoordinate2D) { 85.05112, 180.0 });	// CLLocationCoordinate2D is (latitude, longigude) which corresponds to (y, x)
 			test=MKCoordinateForMapPoint(topRight);
 			}
 #endif
-		worldMap.origin=MKMapPointForCoordinate((CLLocationCoordinate2D) { -85.0, -180.0  });
+		worldMap.origin=MKMapPointForCoordinate((CLLocationCoordinate2D) { -85.05112, -180.0+1e-12 });
+#if 0
+		NSLog(@"bottom left: %@", MKStringFromMapPoint(worldMap.origin));
+		NSLog(@"top right:   %@", MKStringFromMapPoint(topRight));
+#endif
 		worldMap.size.width=topRight.x - worldMap.origin.x;
 		worldMap.size.height=topRight.y - worldMap.origin.y;
 		imageCache=[[NSMutableDictionary alloc] initWithCapacity:CACHESIZE];
@@ -180,7 +184,10 @@ static NSMutableArray *tileLRU;
 		{
 		annotations=[[NSMutableArray alloc] initWithCapacity:50];
 		overlays=[[NSMutableArray alloc] initWithCapacity:20];
-		visibleMapRect=[self mapRectThatFits:worldMap];	// start with world map
+		// FIXME: take only that part of the worldMap that has the same aspect ratio
+		visibleMapRect=worldMap;
+		visibleMapRect.size.width *= NSWidth(frameRect)/TILEPIXELS;	// scale so that tiles are TILEPIXELS large (this may repeat the world map if the frame is larger than 256 pixels)
+		visibleMapRect.size.height *= NSHeight(frameRect)/TILEPIXELS;
 		scrollEnabled=YES;
 		zoomEnabled=YES;
 		[self setShowsUserLocation:YES];
@@ -190,7 +197,7 @@ static NSMutableArray *tileLRU;
 
 - (void) setFrame:(NSRect) frameRect
 { // adjust aspect ratio
-#if 1
+#if 0
 	NSRect frame=[self frame];
 	float fx=frameRect.size.width / frame.size.width;
 	float fy=frameRect.size.height / frame.size.height;
@@ -204,7 +211,9 @@ static NSMutableArray *tileLRU;
 	visibleMapRect.size.height *= fy;
 	visibleMapRect.origin.y += 0.5*visibleMapRect.size.height;
 #endif
-	[super setFrame:frameRect];
+	// lock setFrameSize to change visibleMapRect again!
+	[super setFrame:frameRect];	// this will/may call setFrameSize
+	// unlock
 	[self setNeedsDisplay:YES];
 }
 
@@ -225,6 +234,30 @@ static NSMutableArray *tileLRU;
 #endif
 	[super setFrameSize:newSize];
 	[self setNeedsDisplay:YES];
+}
+
+- (void) setBounds:(NSRect) boundsRect
+{ // adjust aspect ratio
+#if 0
+	NSRect frame=[self frame];
+	float fx=frameRect.size.width / frame.size.width;
+	float fy=frameRect.size.height / frame.size.height;
+	// adjust for movement of frame.origin!
+	visibleMapRect.origin.x += 0.5*visibleMapRect.size.width;	// keep center stable
+	//	visibleMapRect.origin.x *= fx;
+	visibleMapRect.size.width *= fx;
+	visibleMapRect.origin.x -= 0.5*visibleMapRect.size.width;	// new left edge
+	visibleMapRect.origin.y -= 0.5*visibleMapRect.size.height;
+	//	visibleMapRect.origin.y *= fy;
+	visibleMapRect.size.height *= fy;
+	visibleMapRect.origin.y += 0.5*visibleMapRect.size.height;
+#endif
+	[super setBounds:boundsRect];
+}
+
+- (void) setBoundsSize:(NSSize) newSize
+{
+	[super setBoundsSize:newSize];
 }
 
 - (id) initWithCoder:(NSCoder *) aDecoder;
@@ -252,6 +285,7 @@ static NSMutableArray *tileLRU;
 
 
 // FIXME: we could define a NSAffineTransform that we update parallel to changes of bounds and visibleMapRect
+// FIXME: we need to scale by 1.0-MIN(fabs(sin([self boundsRotation])), fabs(cos([self boundsRotation]))) to compensate for rotated bounds
 
 - (NSPoint) _pointForMapPoint:(MKMapPoint) pnt
 { // convert map point to bounds point (using visibleMapRect)
@@ -319,7 +353,11 @@ static NSMutableArray *tileLRU;
 	NSRect drawRect = [self _rectForMapRect:mapRect];	// transform tile
 	NSString *url;
 	_MKTile *tile;
-	NSImage *img;	
+	NSImage *img;
+#if 1
+	NSLog(@"mapRect=%@", MKStringFromMapRect(mapRect));
+	NSLog(@"drawRect=%@", NSStringFromRect(drawRect));
+#endif
 	if(!NSIntersectsRect(drawRect, rect))
 		return NO;	// tile does not fall into drawing rect
 	url=[self tileURLForZ:z x:x y:y];	// repeat tiles if necessary
@@ -349,7 +387,7 @@ static NSMutableArray *tileLRU;
 	img=[tile image];
 	if(img)
 		[tileLRU insertObject:tile atIndex:0];  // move to beginning of LRU list
-#if 1
+#if 0
 	NSLog(@"drawTile z=%d x=%d y=%d into %@ %@", z, x, y, NSStringFromRect(drawRect), [tile image]);
 #endif
 	[img drawInRect:drawRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
@@ -365,7 +403,8 @@ static NSMutableArray *tileLRU;
 
 - (void) drawRect:(NSRect) rect
 {
-	MKZoomScale scale = MIN(worldMap.size.width / visibleMapRect.size.width, worldMap.size.height / visibleMapRect.size.height);
+	// FIXME: adjust scale by bounds/TILESIZE
+	MKZoomScale scale = MAX(worldMap.size.width / visibleMapRect.size.width, worldMap.size.height / visibleMapRect.size.height);
 	float lscale=log2(scale);
 	int z=ceil(lscale);	// basic scale
 	float iscale = exp2(z);	// scale factor
@@ -375,6 +414,9 @@ static NSMutableArray *tileLRU;
 	int miny=floor(iscale*MKMapRectGetMinY(r) / worldMap.size.height);
 	int maxy=ceil(iscale*MKMapRectGetMaxY(r) / worldMap.size.height);
 	int x, y;
+	
+	NSEnumerator *e;
+	NSObject <MKAnnotation> *a;
 	
 	[[NSColor controlColor] set];
 	NSRectFill(rect);	// draw grey background
@@ -410,9 +452,14 @@ static NSMutableArray *tileLRU;
 				}
 			}
 		}
+	// FIXME: should we have some flag to update only if any annotation or visibleMapRect changes?
 	/* draw annotations and overlays (not here - they are handled through subviews) */
-	// we should check annotation views if they are still visible
-	//
+	// but we should check annotations / annotation views if they are still visible
+	e=[annotations objectEnumerator];
+	while((a=[e nextObject]))
+		{ // update position of annotation
+		
+		}
 }
 
 - (void) addAnnotation:(id <MKAnnotation>) a; { [annotations addObject:a]; [self setNeedsDisplay:YES]; }	// could optimize drawing rect?
@@ -528,9 +575,14 @@ static NSMutableArray *tileLRU;
 - (MKMapRect) mapRectThatFits:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets;
 {
 	NSRect frame=[self frame];
-	// adjust frame by insets
-	float fx=rect.size.width / frame.size.width;
-	float fy=rect.size.height / frame.size.height;
+	float fx;
+	float fy;
+	frame.origin.x += insets.left;
+	frame.size.width -= insets.left+insets.right;
+	frame.origin.y += insets.bottom;
+	frame.size.height -= insets.bottom+insets.top;
+	fx=rect.size.width / frame.size.width;
+	fy=rect.size.height / frame.size.height;
 	if(fx > fy)
 		{ // wider than screen - cut left&right
 			rect.origin.x += 0.5*rect.size.width;	// keep center stable
@@ -639,8 +691,6 @@ static NSMutableArray *tileLRU;
 				}
 		}
 }
-
-- (void) setUserLocationVisible:(BOOL) flag; { userLocationVisible=flag; [self setNeedsDisplay:YES]; }
 
 - (void) setVisibleMapRect:(MKMapRect) rect;
 {

@@ -102,7 +102,6 @@ typedef struct UIEdgeInsets
 - (void) setScrollEnabled:(BOOL) flag;
 - (void) setSelectedAnnotation:(NSArray *) a;	// copy property
 - (void) setShowsUserLocation:(BOOL) flag;
-- (void) setUserLocationVisible:(BOOL) flag;
 - (void) setVisibleMapRect:(MKMapRect) rect;
 - (void) setVisibleMapRect:(MKMapRect) rect animated:(BOOL) flag;
 - (void) setVisibleMapRect:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets animated:(BOOL) flag;
