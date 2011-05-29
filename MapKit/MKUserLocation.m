@@ -10,11 +10,12 @@
 
 @implementation MKUserLocation
 
-// FIXME: make the MKMapView the delegate and forward these messages
+// FIXME: how do we know our MKMapView?
+// e.g. make the MKMapView the delegate and forward these messages
 
 - (void) locationManager:(CLLocationManager *) mngr didFailWithError:(NSError *) err;
 {
-	
+	// [mapView delegate] mapView:mapView didFailToLocateUserWithError:err];
 }
 
 - (void) locationManager:(CLLocationManager *) mngr didUpdateToLocation:(CLLocation *) newloc fromLocation:(CLLocation *) old;

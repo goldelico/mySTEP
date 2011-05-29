@@ -56,14 +56,20 @@
 
 - (void) windowControllerDidLoadNib:(NSWindowController *) aController
 {
+	MKPlacemark *pmk;
     [super windowControllerDidLoadNib:aController];
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
 	[map setShowsUserLocation:YES];
+	[map setDelegate:self];
 	loc=[[CLLocationManager alloc] init];
 	[loc setDelegate:self];
 	[loc startUpdatingLocation];
 	if([loc respondsToSelector:@selector(startUpdatingHeading)])
 		[loc startUpdatingHeading];
+	pmk = [[MKPlacemark alloc] initWithCoordinate:(CLLocationCoordinate2D) { 31.134358, 29.979175 } addressDictionary:nil];
+//	[pmk setTitle:@"Cheops Pyramid"];
+	[map addAnnotation:pmk];
+	[pmk release];
 }
 
 - (NSData *) dataOfType:(NSString *)typeName error:(NSError **)outError
@@ -141,6 +147,91 @@
 { // rotate around view center
 	[map setBoundsRotation:[map boundsRotation]-10.0];
 	[map setNeedsDisplay:YES];
+}
+
+- (void) mapView:(MKMapView *) mapView annotationView:(MKAnnotationView *) view calloutAccessoryControlTapped:(UIControl *) control;
+{
+	
+}
+
+- (void) mapView:(MKMapView *) mapView annotationView:(MKAnnotationView *) view didChangeDragState:(MKAnnotationViewDragState) state fromOldState:(MKAnnotationViewDragState) oldState;
+{
+	
+}
+
+- (void) mapView:(MKMapView *) mapView didAddAnnotationViews:(NSArray *) views;
+{
+	
+}
+
+- (void) mapView:(MKMapView *) mapView didAddOverlayViews:(NSArray *) views;
+{
+	
+}
+
+- (void) mapView:(MKMapView *) mapView didDeselectAnnotationView:(MKAnnotationView *) view;
+{
+	
+}
+
+- (void) mapView:(MKMapView *) mapView didFailToLocateUserWithError:(NSError *) error;
+{
+	
+}
+
+- (void) mapView:(MKMapView *) mapView didSelectAnnotationView:(MKAnnotationView *) view;
+{
+	
+}
+
+- (void) mapView:(MKMapView *) mapView didUpdateUserLocation:(MKUserLocation *) location;
+{
+	NSLog(@"new user location: %@", location);
+}
+
+- (void) mapView:(MKMapView *) mapView regionDidChangeAnimated:(BOOL) flag;
+{
+	
+}
+
+- (void) mapView:(MKMapView *) mapView regionWillChangeAnimated:(BOOL) flag;
+{
+	
+}
+
+- (MKAnnotationView *) mapView:(MKMapView *) mapView viewForAnnotation:(id <MKAnnotation>) annotation;
+{
+	return nil;
+}
+
+- (MKOverlayView *) mapView:(MKMapView *) mapView viewForOverlay:(id <MKOverlay>) overlay;
+{
+	return nil;
+}
+
+- (void) mapViewDidFailLoadingMap:(MKMapView *) mapView withError:(NSError *) error;
+{
+	
+}
+
+- (void) mapViewDidFinishLoadingMap:(MKMapView *) mapView;
+{
+	
+}
+
+- (void) mapViewDidStopLocatingUser:(MKMapView *) mapView;
+{
+	
+}
+
+- (void) mapViewWillStartLoadingMap:(MKMapView *) mapView;
+{
+	
+}
+
+- (void) mapViewWillStartLocatingUser:(MKMapView *) mapView;
+{
+	
 }
 
 @end

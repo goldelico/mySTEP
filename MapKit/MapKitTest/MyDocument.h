@@ -10,7 +10,7 @@
 #import <Cocoa/Cocoa.h>
 #import <MapKit/MapKit.h>
 
-@interface MyDocument : NSDocument <CLLocationManagerDelegate>
+@interface MyDocument : NSDocument <CLLocationManagerDelegate, MKMapViewDelegate>
 {
 	CLLocationManager *loc;
 	IBOutlet MKMapView *map; 
