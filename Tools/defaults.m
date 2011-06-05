@@ -53,8 +53,8 @@ int main(int argc, const char *argv[])
 	proc = [NSProcessInfo processInfo];
 	if (proc == nil)
 		{
-		NSLog(@"defaults: unable to get process information!\n");
-		[pool release];
+		fprintf(stderr, "defaults: unable to get process information!\n");
+//		[pool release];
 		exit(1);
 		}
 	
@@ -62,8 +62,8 @@ int main(int argc, const char *argv[])
 	
 	if ([args count] <= 1)
 			{
-				NSLog(@"defaults: use --help for command list\n");
-				[pool release];
+				fprintf(stderr, "defaults: use --help for command list\n");
+//				[pool release];
 				exit(1);
 			}
 
@@ -80,20 +80,27 @@ int main(int argc, const char *argv[])
 				   "'-u username' before any other options to use that user's database rather\n"
 				   "than your own.\n\n");
 			printf(
+				   "defaults -u user ...\n"
+				   "    operate for specific user (needs read/write access to Library/Preferences folder).\n"
+				   );
+			printf(
 				   "defaults read [ domain [ key] ]\n"
 				   "    read the named default from the specified domain.\n"
 				   "    If no 'key' is given - read all defaults from the domain.\n"
-				   "    If no 'domain' is given - read all defaults from all domains.\n\n");
+				   "    If no 'domain' is given - read all defaults from all domains.\n"
+				   "    If '-g' is given - read from the NSGlobalDomain.\n\n");
 			printf(
 				   "defaults readkey key\n"
 				   "    read the named default from all domains.\n\n");
 			printf(
 				   "defaults write domain key value\n"
 				   "    write 'value' as default 'key' in the specified domain.\n"
+				   "    If '-g' is given - write to the NSGlobalDomain.\n"
 				   "    'value' must be a property list in single quotes.\n\n");
 			printf(
 				   "defaults write domain dictionary\n"
 				   "    write 'dictionary' as a replacement for the specified domain.\n"
+				   "    If '-g' is given - write to the NSGlobalDomain.\n"
 				   "    'dictionary' must be a property list in single quotes.\n\n");
 			printf(
 				   "defaults write\n"
@@ -118,8 +125,9 @@ int main(int argc, const char *argv[])
 				   "defaults plist\n"
 				   "    output some information about property lists\n\n");
 			printf(
+				   "defaults --help\n"
 				   "defaults help\n"
-				   "    list options fo the defaults command.\n\n");
+				   "    print this list of options for the defaults command.\n\n");
 			[pool release];
 			exit(0);
 			}
@@ -175,23 +183,24 @@ int main(int argc, const char *argv[])
 				   "    );\n"
 				   "    Checksum = <01014b5b 123a8b20>\n"
 				   "}'\n\n");
-			[pool release];
+//			[pool release];
 			exit(0);
 			}
-		}
-	
-	if ([[args objectAtIndex: i] isEqual: @"-u"])
-		{
-		if ([args count] > ++i)
+		else if ([[args objectAtIndex: i] isEqual: @"-u"])
 			{
-			user = [args objectAtIndex: i++];
+			if ([args count] > ++i)
+				{
+				user = [args objectAtIndex: i++];
+				}
+			else
+				{
+				fprintf(stderr, "defaults: no name supplied for -u option!\n");
+				//			[pool release];
+				exit(1);
+				}
 			}
 		else
-			{
-			NSLog(@"defaults: no name supplied for -u option!\n");
-			[pool release];
-			exit(1);
-			}
+			break;
 		}
 	if (user)
 		{
@@ -204,14 +213,14 @@ int main(int argc, const char *argv[])
 		}
 	if (defs == nil)
 		{
-		NSLog(@"defaults: unable to access defaults database!\n");
-		[pool release];
+		fprintf(stderr, "defaults: unable to access defaults database!\n");
+//		[pool release];
 		exit(1);
 		}
 	if ([args count] <= i)
 		{
-		NSLog(@"defaults: too few arguments supplied!\n");
-		[pool release];
+		fprintf(stderr, "defaults: missing command!\n");
+//		[pool release];
 		exit(1);
 		}
 	
@@ -240,8 +249,8 @@ int main(int argc, const char *argv[])
 			{
 			if ([args count] == ++i)
 				{
-				NSLog(@"defaults: too few arguments supplied!\n");
-				[pool release];
+				fprintf(stderr, "defaults: too few arguments supplied!\n");
+//				[pool release];
 				exit(1);
 				}
 			owner = nil;
@@ -325,7 +334,7 @@ int main(int argc, const char *argv[])
 		
 		if (found == NO && name != nil)
 			{
-			printf("defaults read: couldn't read default\n");
+			fprintf(stderr, "defaults read: couldn't read default\n");
 			}
 		}
 	else if ([[args objectAtIndex: i] isEqual: @"write"])
@@ -367,18 +376,18 @@ int main(int argc, const char *argv[])
 					}
 				if (*start == '\0')
 					{
-					printf("defaults write: invalid input - nul domain name\n");
-					[pool release];
-					exit(0);
+					fprintf(stderr, "defaults write: invalid input - nul domain name\n");
+					// [pool release];
+					exit(1);
 					}
 				for (str = start; *str; str++)
 					{
 					if (isspace(*str))
 						{
-						printf("defaults write: invalid input - "
+						fprintf(stderr, "defaults write: invalid input - "
 							   "space in domain name.\n");
-						[pool release];
-						exit(0);
+						// [pool release];
+						exit(1);
 						}
 					}
 				owner = [NSString stringWithCString: start];
@@ -402,19 +411,19 @@ int main(int argc, const char *argv[])
 					}
 				if (*start == '\0')
 					{
-					printf("defaults write: invalid input - "
+					fprintf(stderr, "defaults write: invalid input - "
 						   "nul default name.\n");
-					[pool release];
-					exit(0);
+					// [pool release];
+					exit(1);
 					}
 				for (str = start; *str; str++)
 					{
 					if (isspace(*str))
 						{
-						printf("defaults write: invalid input - "
+						fprintf(stderr, "defaults write: invalid input - "
 							   "space in default name.\n");
-						[pool release];
-						exit(0);
+						// [pool release];
+						exit(1);
 						}
 					}
 				name = [NSString stringWithCString: start];
@@ -447,17 +456,17 @@ int main(int argc, const char *argv[])
 									}
 								else
 									{
-									printf("defaults write: fatal error - "
+									fprintf(stderr, "defaults write: fatal error - "
 										   "out of memory.\n");
-									[pool release];
+									// [pool release];
 									exit(1);
 									}
 								}
 							if (fgets(ptr, BUFSIZ, stdin) == 0)
 								{
-								printf("defaults write: invalid input - "
+								fprintf(stderr, "defaults write: invalid input - "
 									   "no final quote.\n");
-								[pool release];
+								// [pool release];
 								exit(1);
 								}
 							}
@@ -488,9 +497,9 @@ int main(int argc, const char *argv[])
 					}
 				if (*start == '\0')
 					{
-					printf("defaults write: invalid input - "
+					fprintf(stderr, "defaults write: invalid input - "
 						   "empty property list\n");
-					[pool release];
+					// [pool release];
 					exit(1);
 					}
 				
@@ -505,9 +514,9 @@ int main(int argc, const char *argv[])
 					
 					if (tmp == nil)
 						{
-						printf("defaults write: invalid input - "
+						fprintf(stderr, "defaults write: invalid input - "
 							   "bad property list\n");
-						[pool release];
+						// [pool release];
 						exit(1);
 						}
 					else
@@ -531,8 +540,8 @@ int main(int argc, const char *argv[])
 			owner=globalOwner(owner);
 			if ([args count] <= i)
 				{
-				NSLog(@"defaults: no dictionary or key for write!\n");
-				[pool release];
+				fprintf(stderr, "defaults: no dictionary or key for write!\n");
+				// [pool release];
 				exit(1);
 				}
 			name = [args objectAtIndex: i++];
@@ -549,9 +558,9 @@ int main(int argc, const char *argv[])
 					
 					if (obj == nil)
 						{
-						printf("defaults write: invalid input - "
+						fprintf(stderr, "defaults write: invalid input - "
 							   "bad property list\n");
-						[pool release];
+						// [pool release];
 						exit(1);
 						}
 					}
@@ -574,8 +583,8 @@ int main(int argc, const char *argv[])
 				if (domain == nil ||
 					[domain isKindOfClass: [NSDictionary class]] == NO)
 					{
-					NSLog(@"defaults write: domain is not a dictionary!\n");
-					[pool release];
+					fprintf(stderr, "defaults write: domain is not a dictionary!\n");
+					// [pool release];
 					exit(1);
 					}
 				}
@@ -583,7 +592,7 @@ int main(int argc, const char *argv[])
 		
 		if ([defs synchronize] == NO)
 			{
-			NSLog(@"defaults: unable to write to defaults database - %s\n",
+			fprintf(stderr, "defaults: unable to write to defaults database - %s\n",
 				  strerror(errno));
 			}
 		}
@@ -614,8 +623,8 @@ int main(int argc, const char *argv[])
 					}
 				if (*start == '\0')
 					{
-					printf("defaults delete: invalid input\n");
-					[pool release];
+					fprintf(stderr, "defaults delete: invalid input\n");
+					// [pool release];
 					exit(1);
 					}
 				owner = [NSString stringWithCString: start];
@@ -635,15 +644,15 @@ int main(int argc, const char *argv[])
 					}
 				if (*start == '\0')
 					{
-					printf("defaults delete: invalid input\n");
-					[pool release];
+					fprintf(stderr, "defaults delete: invalid input\n");
+					// [pool release];
 					exit(1);
 					}
 				name = [NSString stringWithCString: start];
 				domain = [[defs persistentDomainForName: owner] mutableCopy];
 				if (domain == nil || [domain objectForKey: name] == nil)
 					{
-					printf("defaults delete: couldn't remove %s owned by %s\n",
+					fprintf(stderr, "defaults delete: couldn't remove %s owned by %s\n",
 						   [name cString], [owner cString]);
 					}
 				else
@@ -670,7 +679,7 @@ int main(int argc, const char *argv[])
 				domain = [[defs persistentDomainForName: owner] mutableCopy];
 				if (domain == nil || [domain objectForKey: name] == nil)
 					{
-					printf("dremove: couldn't remove %s owned by %s\n",
+					fprintf(stderr, "dremove: couldn't remove %s owned by %s\n",
 						   [name cString], [owner cString]);
 					}
 				else
@@ -686,7 +695,7 @@ int main(int argc, const char *argv[])
 			}
 		if ([defs synchronize] == NO)
 			{
-			NSLog(@"defaults: unable to write to defaults database - %s\n",
+			fprintf(stderr, "defaults: unable to write to defaults database - %s\n",
 				  strerror(errno));
 			}
 		}
@@ -697,15 +706,15 @@ int main(int argc, const char *argv[])
 			{
 			NSString	*domainName = [domains objectAtIndex: i];
 			
-			printf("%s\n", [domainName cString]);
+			printf("%s\n", [domainName UTF8String]);
 			}
 		}
 	else if ([[args objectAtIndex: i] isEqual: @"find"])
 		{
 		if ([args count] == ++i)
 			{
-			NSLog(@"defaults: no arguments for find!\n");
-			[pool release];
+			fprintf(stderr, "defaults: no arguments for find!\n");
+			// [pool release];
 			exit(1);
 			}
 		name = [args objectAtIndex: i];
@@ -755,15 +764,15 @@ int main(int argc, const char *argv[])
 		
 		if (found == NO)
 			{
-			printf("defaults find: couldn't find value\n");
+			fprintf(stderr, "defaults find: couldn't find value\n");
 			}
 		}
 	else
 		{
-		NSLog(@"defaults: unknown option supplied!\n");
+		fprintf(stderr, "defaults: unknown option supplied!\n");
 		}
 	
-	[pool release];
+//	[pool release];
 	exit(0);
 }
 
