@@ -613,7 +613,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (void) run
 { // Run the main event loop
-#if 0
+#if 1
 	NSLog(@"NSApplication -run\n");
 #endif
 	[self finishLaunching];
@@ -1371,7 +1371,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NSLog(@"_setWindowsHidden: %d", flag);
 #endif
 	if(flag)
-			{ // hide windows
+			{ // hide windows with hidesOnDeactivate flag
 				NSArray *_windowList = [self windows];
 				int i, count = [_windowList count];
 				for(i = 0; i < count; i++)
@@ -1414,8 +1414,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	if (flag || ![self isActive])
 		{ // make application known to the public
 			NSString *active=[NSWorkspace _activeApplicationPath:@"active"];
-			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillBecomeActive) object: self];	 // menu's should listen for note so that they are up when app active
-			if(![[NSFileManager defaultManager] removeFileAtPath:active handler:nil])	// reove as active application
+			// FIXME: call deactivate for currently active application!
+			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillBecomeActive) object: self];
+			if(![[NSFileManager defaultManager] removeFileAtPath:active handler:nil])	// remove other active application
 				NSLog(@"remove error for activate");
 			[[NSFileManager defaultManager] createSymbolicLinkAtPath:active pathContent:[[NSBundle mainBundle] bundleIdentifier]];	// link to identifier
 			[self _setWindowsHidden:NO];		// unhide our windows
@@ -1434,18 +1435,19 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (void) deactivate
 {
-	if([self isActive])				// in order to make themselves invisible 
-		{	// when the application is not active.
+	[_mainMenuWindow orderOut:self];	// order out the application menu
+	if([self isActive])
+		{ // make windows invisible when the application is not active.
 			NSString *active=[NSWorkspace _activeApplicationPath:@"active"];
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(WillResignActive) object:self];
 #if 1
 		NSLog(@"NSApp deactivate");
 #endif
 		[_keyWindow resignKeyWindow];
-			if(![[NSFileManager defaultManager] removeFileAtPath:active handler:nil])	// reove as active application
-				NSLog(@"remove error for deactivate");
-			[self _setWindowsHidden:YES];		// hide
-			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidResignActive) object:self];
+		if(![[NSFileManager defaultManager] removeFileAtPath:active handler:nil])	// remove as active application
+			NSLog(@"remove error for deactivate");
+		[self _setWindowsHidden:YES];		// hide windows that hide on deactivate
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidResignActive) object:self];
 		}
 }
 

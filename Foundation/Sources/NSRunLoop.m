@@ -275,7 +275,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	NSAutoreleasePool *arp;
 	
 	NSAssert(mode, NSInvalidArgumentException);
-#if 0
+#if 1
 	NSLog(@"_runLoopForMode:%@ beforeDate:%@ limitDate:%p", mode, before, limit);
 #endif
 	if(limit)
@@ -468,7 +468,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 #endif
 			}
 	else 
-		{ // Inspect all file descriptors where select() says they are ready, notify the respective object for each ready fd.
+		{ // inspect all file descriptors where select() says they are ready, notify the respective object for each ready fd.
 		for (fd_index = 0; fd_index < FD_SETSIZE; fd_index++)
 			{
 			if (FD_ISSET (fd_index, &write_fds))

@@ -127,7 +127,7 @@ extern void _NSRemoveHandler2( NSHandler2 *handler );
 			return; } while (0)
 
 //
-//	Asserts are not compiled in if NS_BLOCK_ASSERTIONS
+//	Asserts are not compiled in if NS_BLOCK_ASSERTIONS is defined
 //
 
 @interface NSAssertionHandler : NSObject
