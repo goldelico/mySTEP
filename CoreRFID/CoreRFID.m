@@ -213,7 +213,7 @@ static NSString *lastChunk;
 			NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"RFIDReaderSerialDevice"];	// e.g. /dev/ttyACM0 or /dev/cu.usbmodem1d11
 			if(!dev)
 				{ // set some default
-#if __mySTEP__
+#ifdef __mySTEP__
 				dev=@"/dev/rfid";	// Linux: serial interface for USB receiver
 #else
 				dev=@"/dev/cu.usbmodem1d11";	// MacOS X: serial interface for USB receiver
