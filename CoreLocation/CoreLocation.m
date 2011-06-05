@@ -162,6 +162,8 @@
 
 @implementation CLHeading
 
+// init...
+
 - (CLLocationDirection) headingAccuracy; { return headingAccuracy; }
 - (CLLocationDirection) magneticHeading; { return magneticHeading; }
 - (NSDate *) timestamp; { return timestamp; }
@@ -178,10 +180,10 @@
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"magneticHeading %.lf trueHeading %.lf accuracy %.lf x %.lf y %.lf z %.lf @ %@",
+	return [NSString stringWithFormat:@"magneticHeading %.lf trueHeading %.lf accuracy %.lf x %.lf y %.lf z %.lf a %.lf @ %@",
 			magneticHeading, trueHeading, headingAccuracy,
 			x, y, z,
-			headingAccuracy];
+			headingAccuracy, timestamp];
 }
 
 - (id) copyWithZone:(NSZone *) zone
@@ -247,6 +249,7 @@
 - (void) setPurpose:(NSString *) string; { [purpose autorelease]; purpose=[string copy]; }
 
 + (BOOL) headingAvailable; {
+	// how can we find out?
 	return NO;
 }
 
@@ -268,9 +271,10 @@
 
 - (id) init
 {
+	NSLog(@"init");
 	if((self=[super init]))
 		{
-		heading=[CLHeading new];
+		heading=[CLHeading new];	// CHECKME
 		location=[CLLocation new];
 		}
 	return self;
@@ -304,7 +308,7 @@
 
 - (void) startUpdatingHeading;
 {
-	
+	// what makes the difference?
 }
 
 - (void) startUpdatingLocation;
@@ -364,15 +368,22 @@ static BOOL noSatellite;
 
 + (void) registerManager:(CLLocationManager *) m
 {
+#if 1
+	NSLog(@"registerManager: %@", m);
+#endif
 	if(![self locationServicesEnabled])
 		return;	// ignore
+	/*
+	 * check if permanently enabled
+	 * otherwise ask user
+	 */
 	if(!managers)
 		{ // set up GPS receiver and wait for first fix
-			// get this from some system wide user default
+			// get this from some *system wide* user default
 			NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"NMEAGPSSerialDevice"];	// e.g. /dev/ttyS2 or /dev/cu.usbmodem1d11
 			if(!dev)
 				{
-#if __mySTEP__
+#ifdef __mySTEP__
 				dev=@"/dev/ttyS2";	// Linux: serial interface for USB receiver
 #else
 				dev=@"/dev/cu.BT-348_GPS-Serialport-1";	// Mac OS X: serial interface for NMEA receiver
@@ -404,6 +415,9 @@ static BOOL noSatellite;
 
 + (void) unregisterManager:(CLLocationManager *) m
 {
+#if 1
+	NSLog(@"unregisterManager: %@", m);
+#endif
 	[managers removeObjectIdenticalTo:m];
 	if([managers count] == 0)
 		{ // stop GPS receiveer
@@ -580,7 +594,7 @@ static BOOL noSatellite;
 
 + (void) _dataReceived:(NSNotification *) n;
 {
-#if 0
+#if 1
 	NSLog(@"_dataReceived %@", n);
 #endif
 	[self _parseNMEA183:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line

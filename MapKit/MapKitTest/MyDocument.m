@@ -56,6 +56,9 @@
 
 - (void) windowControllerDidLoadNib:(NSWindowController *) aController
 {
+#if 1
+	NSLog(@"windowControllerDidLoadNib");
+#endif
 	MKPlacemark *pmk;
     [super windowControllerDidLoadNib:aController];
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
@@ -134,7 +137,7 @@
 		[map setBoundsRotation:angle];
 		[map setNeedsDisplay:YES];
 		}
-	[map setCenterCoordinate:newLocation.coordinate];	// center
+	[map setCenterCoordinate:[newLocation coordinate]];	// center
 }
 
 - (IBAction) rotateLeft:(id) sender;

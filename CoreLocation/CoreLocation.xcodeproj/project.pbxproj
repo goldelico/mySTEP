@@ -13,8 +13,6 @@
 		EE31071E125F027D00DF3C91 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
 		EE31DFC8125A4EE200DF3C91 /* CoreLocation_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFC7125A4EE200DF3C91 /* CoreLocation_Prefix.pch */; };
 		EE31DFD2125A4F1900DF3C91 /* CoreLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31DFD9125A4F7F00DF3C91 /* SYSLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFD7125A4F7F00DF3C91 /* SYSLocation.h */; };
-		EE31DFDA125A4F7F00DF3C91 /* SYSLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DFD8125A4F7F00DF3C91 /* SYSLocation.m */; };
 		EE31E020125AF0EB00DF3C91 /* CoreLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */; };
 		EE31E055125B031300DF3C91 /* CLLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E053125B031300DF3C91 /* CLLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE31E068125B065900DF3C91 /* CLError.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E065125B065900DF3C91 /* CLError.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -26,7 +24,6 @@
 		EE31E298125CD78F00DF3C91 /* cltest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31E297125CD78F00DF3C91 /* cltest.m */; };
 		EE31E2BD125CDC2500DF3C91 /* CoreLocation_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFC7125A4EE200DF3C91 /* CoreLocation_Prefix.pch */; };
 		EE31E2BE125CDC2500DF3C91 /* CoreLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE31E2BF125CDC2500DF3C91 /* SYSLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFD7125A4F7F00DF3C91 /* SYSLocation.h */; };
 		EE31E2C0125CDC2500DF3C91 /* CLLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E053125B031300DF3C91 /* CLLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE31E2C1125CDC2500DF3C91 /* CLError.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E065125B065900DF3C91 /* CLError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE31E2C2125CDC2500DF3C91 /* CLHeading.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E067125B065900DF3C91 /* CLHeading.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -35,12 +32,9 @@
 		EE31E2C5125CDC2500DF3C91 /* CLErrorDomain.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E091125B0AA800DF3C91 /* CLErrorDomain.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE31E2C6125CDC2500DF3C91 /* CLRegion.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E0BB125B523100DF3C91 /* CLRegion.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE31E2C8125CDC2500DF3C91 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
-		EE31E2CA125CDC2500DF3C91 /* SYSLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DFD8125A4F7F00DF3C91 /* SYSLocation.m */; };
 		EE31E2CB125CDC2500DF3C91 /* CoreLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */; };
 		EE31E2CD125CDC2500DF3C91 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
-		EE31E2CE125CDC2500DF3C91 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
 		EE31E2E5125CDC7C00DF3C91 /* CLTestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE31E2D3125CDC2500DF3C91 /* CLTestFramework.framework */; };
-		EEB23DB51258B6410018A9F3 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,7 +81,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */,
-				EEB23DB51258B6410018A9F3 /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,7 +105,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE31E2CD125CDC2500DF3C91 /* Cocoa.framework in Frameworks */,
-				EE31E2CE125CDC2500DF3C91 /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,7 +174,6 @@
 		1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				EEB23DB41258B6410018A9F3 /* CoreLocation.framework */,
 				1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
@@ -191,6 +182,7 @@
 		1058C7B2FEA5585E11CA2CBB /* Other Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EEB23DB41258B6410018A9F3 /* CoreLocation.framework */,
 				0867D6A5FE840307C02AAC07 /* AppKit.framework */,
 				0867D69BFE84028FC02AAC07 /* Foundation.framework */,
 			);
@@ -224,7 +216,6 @@
 			files = (
 				EE31DFC8125A4EE200DF3C91 /* CoreLocation_Prefix.pch in Headers */,
 				EE31DFD2125A4F1900DF3C91 /* CoreLocation.h in Headers */,
-				EE31DFD9125A4F7F00DF3C91 /* SYSLocation.h in Headers */,
 				EE31E055125B031300DF3C91 /* CLLocation.h in Headers */,
 				EE31E068125B065900DF3C91 /* CLError.h in Headers */,
 				EE31E06A125B065900DF3C91 /* CLHeading.h in Headers */,
@@ -241,7 +232,6 @@
 			files = (
 				EE31E2BD125CDC2500DF3C91 /* CoreLocation_Prefix.pch in Headers */,
 				EE31E2BE125CDC2500DF3C91 /* CoreLocation.h in Headers */,
-				EE31E2BF125CDC2500DF3C91 /* SYSLocation.h in Headers */,
 				EE31E2C0125CDC2500DF3C91 /* CLLocation.h in Headers */,
 				EE31E2C1125CDC2500DF3C91 /* CLError.h in Headers */,
 				EE31E2C2125CDC2500DF3C91 /* CLHeading.h in Headers */,
@@ -400,7 +390,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n# export DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=CoreLocation.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n# export DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -409,7 +399,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE31DFDA125A4F7F00DF3C91 /* SYSLocation.m in Sources */,
 				EE31E020125AF0EB00DF3C91 /* CoreLocation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -434,7 +423,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE31E2CA125CDC2500DF3C91 /* SYSLocation.m in Sources */,
 				EE31E2CB125CDC2500DF3C91 /* CoreLocation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
