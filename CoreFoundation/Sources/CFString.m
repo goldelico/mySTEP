@@ -13,6 +13,5 @@
 #define CFIndex _CFIndex
 #import <Foundation/Foundation.h>
 
-CFStringRef CFSTR(char *str) { return (CFStringRef) [[NSString alloc] initWithCString:str]; }
 
 #endif

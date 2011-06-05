@@ -69,6 +69,8 @@ typedef UInt32 CFTypeID;
 typedef const struct __CFAllocator *CFAllocatorRef;
 typedef SInt32 CFIndex;
 
+typedef struct NSRange CFRange;
+
 #if INLINE
 inline CFStringRef CFCopyDescription(CFTypeRef cf) { return [(id) cf description]; }
 inline CFStringRef CFCopyTypeIDDescription(CFTypeID type_id) { return NSStringFromClass((Class) type_id); }
