@@ -222,6 +222,8 @@ int i, j = (_trackRects) ? [_trackRects count] : 0;
 //
 //*****************************************************************************
 
+// CHECKME: would it be more universal to define _NSEnclosingRectForPoints(int n, NSPointArray points) and loop?
+
 NSRect _NSRectFromFourNSPoints(NSPoint p1, NSPoint p2, NSPoint p3, NSPoint p4)
 { // define a new rect that covers all 4 points (transformed corners)
 	float minx=p1.x;
@@ -242,6 +244,21 @@ NSRect _NSRectFromFourNSPoints(NSPoint p1, NSPoint p2, NSPoint p3, NSPoint p4)
 	if(p4.y > maxy) maxy=p4.y;
 	return NSMakeRect(minx, miny, maxx-minx, maxy-miny);
 }
+
+@interface NSAffineTransform (NSViewAdditions)
+- (NSRect) _transformRect:(NSRect) aRect;
+@end
+
+@implementation NSAffineTransform (NSViewAdditions)
+- (NSRect) _transformRect:(NSRect) aRect;
+{
+	return _NSRectFromFourNSPoints([self transformPoint:NSMakePoint(NSMinX(aRect), NSMinY(aRect))],
+								   [self transformPoint:NSMakePoint(NSMaxX(aRect), NSMinY(aRect))],
+								   [self transformPoint:NSMakePoint(NSMaxX(aRect), NSMaxY(aRect))],
+								   [self transformPoint:NSMakePoint(NSMinX(aRect), NSMaxY(aRect))]);	
+}
+@end
+
 
 @implementation NSView
 
