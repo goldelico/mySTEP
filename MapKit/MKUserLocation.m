@@ -65,7 +65,7 @@
 - (NSString *) description;
 {
 	CLLocationCoordinate2D l=[location coordinate];
-	return [NSString stringWithFormat:@"MKUserLocation (%lf %lf)", l.latitude, l.longitude];
+	return [NSString stringWithFormat:@"MKUserLocation (%lg %lg)", l.latitude, l.longitude];
 }
 
 @end

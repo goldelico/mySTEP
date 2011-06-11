@@ -264,7 +264,7 @@ NSContainsRect(NSRect aRect, NSRect bRect)
 NSString *
 NSStringFromPoint(NSPoint aPoint)
 {
-	return [NSString stringWithFormat:@"{%.f, %.f}", 
+	return [NSString stringWithFormat:@"{%g, %g}", 
 										aPoint.x, aPoint.y];
 }
 
@@ -272,7 +272,7 @@ NSString *
 NSStringFromRect(NSRect aRect)
 {
 	return [NSString stringWithFormat:
-						@"{{%.f, %.f}, {%.f, %.f}}",
+						@"{{%g, %g}, {%g, %g}}",
 						NSMinX(aRect), NSMinY(aRect), 
 						NSWidth(aRect), NSHeight(aRect)];
 }
@@ -280,7 +280,7 @@ NSStringFromRect(NSRect aRect)
 NSString *
 NSStringFromSize(NSSize aSize)
 {
-	return [NSString stringWithFormat:@"{%.f, %.f}",
+	return [NSString stringWithFormat:@"{%g, %g}",
 					 					aSize.width, aSize.height];
 }
 

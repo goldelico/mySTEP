@@ -2258,9 +2258,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		{
 		struct RGBA8 src={0,0,0,255}, dest={0,0,0,255};	// initialize
 		// FIXME: we must adjust x&y if we have clipped, i.e. x&y are not aligned with the dest origin
-		pnt.x=/*atms.m11*(0)+*/ -atms.m12*(y)+atms.tX;	// first point of this scan line
+		pnt.x=/*atms.m11*(0)+*/ atms.m12*(y)+atms.tX;	// first point of this scan line
 		pnt.y=/*atms.m21*(0)+*/ atms.m22*(y)+atms.tY;
-		for(x=0; x<img->width; x++, pnt.x+=atms.m11, pnt.y-=atms.m21)
+		for(x=0; x<img->width; x++, pnt.x+=atms.m11, pnt.y+=atms.m21)
 			{
 			if(mustFetch)
 				dest=XGetRGBA8(img, x, y);	// get current image value

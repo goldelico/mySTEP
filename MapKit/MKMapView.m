@@ -55,11 +55,11 @@ static int alreadyLoading=0;
 {
 	if(!_connection)
 		{
-		_connection=[[NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:_url] delegate:self] retain];
+		alreadyLoading++;
+		_connection=[[NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:_url] delegate:self] retain];	// may immediately trigger didFailWithError:
 		[_url release];
 		_url=nil;
 		[_connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSEventTrackingRunLoopMode];
-		alreadyLoading++;
 		[loadQueue removeObjectIdenticalTo:self];	// and remove (if we are in the queue)
 		}
 }
@@ -102,7 +102,7 @@ static int alreadyLoading=0;
 	alreadyLoading--;
 	NSAssert(alreadyLoading >= 0, @"never become negative");
 	if([loadQueue count] > 0)
-		[[loadQueue lastObject] start];	// will remove self
+		[[loadQueue lastObject] start];	// start next in queue (and remove)
 	else if(alreadyLoading == 0)
 		[[_delegate delegate] mapViewDidFinishLoadingMap:_delegate];
 }

@@ -275,7 +275,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	NSAutoreleasePool *arp;
 	
 	NSAssert(mode, NSInvalidArgumentException);
-#if 1
+#if 0
 	NSLog(@"_runLoopForMode:%@ beforeDate:%@ limitDate:%p", mode, before, limit);
 #endif
 	if(limit)

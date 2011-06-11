@@ -211,6 +211,49 @@ extern id NSApp;					// NSApp global var
 
 @end
 
+@protocol NSApplicationDelegate	// did appear in 10.6
+
+- (void) applicationWillFinishLaunching:(NSNotification *) notification;
+- (void) applicationDidFinishLaunching:(NSNotification *) notification;
+
+- (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *) app;
+- (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *) app;
+- (void) applicationWillTerminate:(NSNotification *) notification;
+
+- (void) applicationWillBecomeActive:(NSNotification *) notification;
+- (void) applicationWillBecomeActive:(NSNotification *) notification;
+- (void) applicationWillResignActive:(NSNotification *) notification;
+- (void) applicationDidResignActive:(NSNotification *) notification;
+
+- (void) applicationWillHide:(NSNotification *) notification;
+- (void) applicationDidHide:(NSNotification *) notification;
+- (void) applicationWillUnhide:(NSNotification *) notification;
+- (void) applicationDidUnhide:(NSNotification *) notification;
+
+- (void) applicationWillUpdate:(NSNotification *) notification;
+- (void) applicationDidUpdate:(NSNotification *) notification;
+- (BOOL) applicationShouldHandleReopen:(NSApplication *) app hasVisibleWindows:(BOOL) flag;
+
+- (NSMenu *) applicationDockMenu:(NSApplication *) sender;
+
+- (NSError *) application:(NSApplication *) app willPresentError:(NSError *) error;
+
+- (void) applicationDidChangeScreenParameters:(NSNotification *) notification;
+
+- (BOOL) application:(NSApplication *) app openFile:(NSString *) file;
+- (void) application:(NSApplication *) app openFiles:(NSArray *) files;
+- (BOOL) application:(NSApplication *) app openFileWithoutUI:(NSString *) file;
+- (BOOL) application:(NSApplication *) app openTempFile:(NSString *) file;
+- (BOOL) applicationOpenUntitledFile:(NSApplication *) app;
+- (BOOL) applicationShouldOpenUntitledFile:(NSApplication *) app;
+
+- (BOOL) application:(NSApplication *) app printFile:(NSString *) file;
+- (NSApplicationPrintReply) application:(NSApplication *) app printFiles:(NSArray *) files withSettings:(NSDictionary *) settings showPrintPanels:(BOOL) flag;
+
+@end
+
+// FIXME: can we simply reference the protocol in the category?
+
 @interface NSObject (NSApplicationDelegate)					// Implemented by
 															// the delegate
 

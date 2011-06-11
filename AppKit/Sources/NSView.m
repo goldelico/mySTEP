@@ -222,6 +222,27 @@ int i, j = (_trackRects) ? [_trackRects count] : 0;
 //
 //*****************************************************************************
 
+NSRect _NSRectFromFourNSPoints(NSPoint p1, NSPoint p2, NSPoint p3, NSPoint p4)
+{ // define a new rect that covers all 4 points (transformed corners)
+	float minx=p1.x;
+	float miny=p1.y;
+	float maxx=p1.x;
+	float maxy=p1.y;
+	if(p2.x < minx) minx=p2.x;
+	if(p3.x < minx) minx=p3.x;
+	if(p4.x < minx) minx=p4.x;
+	if(p2.y < miny) miny=p2.y;
+	if(p3.y < miny) miny=p3.y;
+	if(p4.y < miny) miny=p4.y;
+	if(p2.x > maxx) maxx=p2.x;
+	if(p3.x > maxx) maxx=p3.x;
+	if(p4.x > maxx) maxx=p4.x;
+	if(p2.y > maxy) maxy=p2.y;
+	if(p3.y > maxy) maxy=p3.y;
+	if(p4.y > maxy) maxy=p4.y;
+	return NSMakeRect(minx, miny, maxx-minx, maxy-miny);
+}
+
 @implementation NSView
 
 /* NOT YET IMPLEMENTED
@@ -984,14 +1005,18 @@ printing
 		if([self isFlipped])
 			{
 			if(_v.isRotatedFromBase)
-				[_bounds2frame rotateByDegrees:boundsRotation];	// rotate around origin
-			[_bounds2frame translateXBy:0 yBy:_bounds.size.height];
+				{
+				[_bounds2frame translateXBy:0 yBy:_bounds.size.height];
+				[_bounds2frame rotateByDegrees:boundsRotation];	// rotate around origin				
+				}
+			else
+				[_bounds2frame translateXBy:0 yBy:_bounds.size.height];
 			// [_bounds2frame scaleXBy:unitSquareSize.width yBy:-unitSquareSize.height];	// finally (or initially?) scale (incl. origin)
 			if(_bounds.origin.x != 0.0 || _bounds.origin.y != 0.0)
 				[_bounds2frame translateXBy:-_bounds.origin.x yBy:-_bounds.origin.y];
 			[_bounds2frame scaleXBy:1.0 yBy:-1.0];	// apply flipping
 			if(frameRotation != 0.0)
-				[_bounds2frame rotateByDegrees:frameRotation];	// rotate around frame origin
+				[_bounds2frame rotateByDegrees:-frameRotation];	// rotate around frame origin
 
 			// FIXME: we can optimize this step if(super_view && [super_view isFlipped])
 
@@ -1119,10 +1144,18 @@ printing
 	if(aView == self)
 		return aRect;
 	atm=[isa _matrixFromView:aView toView:self];
-	r.origin=[atm transformPoint:aRect.origin];
-	r.size=[atm transformSize:aRect.size];
-	if((aRect.size.height < 0) != (r.size.height < 0))
-		r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved: r.size.height=sgn(aRect.size.height)*abs(r.size.height)
+	if(_v.isRotatedFromBase)
+		r=_NSRectFromFourNSPoints([atm transformPoint:NSMakePoint(NSMinX(aRect), NSMinY(aRect))],
+								  [atm transformPoint:NSMakePoint(NSMaxX(aRect), NSMinY(aRect))],
+								  [atm transformPoint:NSMakePoint(NSMaxX(aRect), NSMaxY(aRect))],
+								  [atm transformPoint:NSMakePoint(NSMinX(aRect), NSMaxY(aRect))]);
+	else
+		{
+		r.origin=[atm transformPoint:aRect.origin];
+		r.size=[atm transformSize:aRect.size];
+		if((aRect.size.height < 0) != (r.size.height < 0))
+			r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved: r.size.height=sgn(aRect.size.height)*abs(r.size.height)
+		}
 #if 1
 	if(r.size.height < 0)
 		{
@@ -1161,10 +1194,31 @@ printing
 	NSLog(@"convertRect 1");
 #endif
 	atm=[isa _matrixFromView:self toView:aView];
-	r.origin=[atm transformPoint:aRect.origin];
-	r.size=[atm transformSize:aRect.size];
-	if((aRect.size.height < 0) != (r.size.height < 0))
-		r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved
+	if(_v.isRotatedFromBase)
+#if 1
+		NSLog(@"slow"),
+#endif
+		r=_NSRectFromFourNSPoints([atm transformPoint:NSMakePoint(NSMinX(aRect), NSMinY(aRect))],
+								  [atm transformPoint:NSMakePoint(NSMaxX(aRect), NSMinY(aRect))],
+								  [atm transformPoint:NSMakePoint(NSMaxX(aRect), NSMaxY(aRect))],
+								  [atm transformPoint:NSMakePoint(NSMinX(aRect), NSMaxY(aRect))]);
+	else
+		{
+#if 1
+		NSLog(@"fast");
+#endif
+		r.origin=[atm transformPoint:aRect.origin];
+		r.size=[atm transformSize:aRect.size];
+//		if((aRect.size.height < 0) != (r.size.height < 0))
+//			r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved
+		}
+#if 0
+	NSLog(@"p1=%@", NSStringFromPoint([atm transformPoint:NSMakePoint(aRect.origin.x, aRect.origin.y)]));
+	NSLog(@"p2=%@", NSStringFromPoint([atm transformPoint:NSMakePoint(aRect.origin.x+NSWidth(aRect), aRect.origin.y)]));
+	NSLog(@"p3=%@", NSStringFromPoint([atm transformPoint:NSMakePoint(aRect.origin.x+NSWidth(aRect), aRect.origin.y+NSHeight(aRect))]));
+	NSLog(@"p4=%@", NSStringFromPoint([atm transformPoint:NSMakePoint(aRect.origin.x, aRect.origin.y+NSHeight(aRect))]));
+	NSLog(@"r=%@", NSStringFromRect(r));
+#endif
 #if 0
 	NSLog(@"convertRect 2");
 #endif

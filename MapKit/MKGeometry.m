@@ -188,9 +188,9 @@ MKMapSize MKMapSizeMake(double w, double h)
 	return (MKMapSize) { w, h };
 }
 
-NSString *MKStringFromMapPoint(MKMapPoint point) { return [NSString stringWithFormat:@"{ %lf (%.1lf%%), %lf (%.1lf%%) }", point.x, 100*point.x/MKMapWidth, point.y, 100*point.y/MKMapHeight]; }
+NSString *MKStringFromMapPoint(MKMapPoint point) { return [NSString stringWithFormat:@"{ %lg (%.1lf%%), %lg (%.1lf%%) }", point.x, 100*point.x/MKMapWidth, point.y, 100*point.y/MKMapHeight]; }
 NSString *MKStringFromMapRect(MKMapRect rect) { return [NSString stringWithFormat:@"{ %@, %@ }", MKStringFromMapPoint(rect.origin), MKStringFromMapSize(rect.size)]; }
-NSString *MKStringFromMapSize(MKMapSize size) { return [NSString stringWithFormat:@"{ %lf, %lf }", size.width, size.height]; }
+NSString *MKStringFromMapSize(MKMapSize size) { return [NSString stringWithFormat:@"{ %lg, %lg }", size.width, size.height]; }
 
 #if TODO
 

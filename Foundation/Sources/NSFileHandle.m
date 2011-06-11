@@ -341,7 +341,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 {
 	NSEnumerator *e;
 	NSString *m;
-#if 1
+#if 0
 	NSLog(@"[%@ %@] mode:%d modes:%@", NSStringFromClass([self class]), NSStringFromSelector(_cmd), mode, modes);
 #endif
 	if(mode == kIsNotWaiting)
