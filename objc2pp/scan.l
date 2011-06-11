@@ -175,7 +175,7 @@ void scaninit(void)
 	yylval=s;
 	if(right(s))
 		return TYPE_NAME;	/* typedef'd type name */
-	return type(s); 
+	return type(s);
 } 
 
 	/* numeral CONSTANTs */
