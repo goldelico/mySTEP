@@ -6,6 +6,20 @@
 	objectVersion = 45;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		EE37FADC13B20D53005D28ED /* FetchTiles */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = EE37FADF13B20D71005D28ED /* Build configuration list for PBXAggregateTarget "FetchTiles" */;
+			buildPhases = (
+				EE37FADB13B20D53005D28ED /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = FetchTiles;
+			productName = FetchTiles;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
@@ -31,6 +45,7 @@
 		EE31DF15125A359D00DF3C91 /* MKOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF14125A359D00DF3C91 /* MKOverlayView.m */; };
 		EE31DF21125A36A600DF3C91 /* MKGeometry.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF20125A36A600DF3C91 /* MKGeometry.m */; };
 		EE31DF23125A385600DF3C91 /* MKPointAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE37FA9813B20B98005D28ED /* CachedTiles in Resources */ = {isa = PBXBuildFile; fileRef = EE37FA9613B20B98005D28ED /* CachedTiles */; };
 		EE6D4082137BB5EF003D5863 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
 		EE6D4087137BB5F2003D5863 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		EE92251713617A000010C76C /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = EE922504136179DD0010C76C /* Credits.rtf */; };
@@ -78,6 +93,7 @@
 		EE31DF14125A359D00DF3C91 /* MKOverlayView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKOverlayView.m; sourceTree = "<group>"; };
 		EE31DF20125A36A600DF3C91 /* MKGeometry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKGeometry.m; sourceTree = "<group>"; };
 		EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPointAnnotation.h; sourceTree = "<group>"; };
+		EE37FA9613B20B98005D28ED /* CachedTiles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CachedTiles; sourceTree = "<group>"; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE9224C7136179BD0010C76C /* MapKitTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapKitTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE922505136179DD0010C76C /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
@@ -158,6 +174,7 @@
 			children = (
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
 				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
+				EE37FA9613B20B98005D28ED /* CachedTiles */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -282,7 +299,7 @@
 				8DC2EF520486A6940098B216 /* Resources */,
 				8DC2EF540486A6940098B216 /* Sources */,
 				8DC2EF560486A6940098B216 /* Frameworks */,
-				EEAA841913688AF9000E2336 /* ShellScript */,
+				EEAA841913688AF9000E2336 /* Copy to Library */,
 				EE69CFE7108DD93100486DB1 /* ShellScript */,
 			);
 			buildRules = (
@@ -335,6 +352,7 @@
 			targets = (
 				8DC2EF4F0486A6940098B216 /* MapKit */,
 				EE9224C6136179BD0010C76C /* MapKitTest */,
+				EE37FADC13B20D53005D28ED /* FetchTiles */,
 			);
 		};
 /* End PBXProject section */
@@ -344,6 +362,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE37FA9813B20B98005D28ED /* CachedTiles in Resources */,
 				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -362,6 +381,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		EE37FADB13B20D53005D28ED /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# prefetch tiles up to a given zoom factor\n\nz=0\nwhile [ $z -lt 2 ]\n\tdo\n\ti=$(expr 1 '<<' $z)\n\ty=0\n\twhile [ $y -lt $i ]\n\t\tdo\n\t\tx=0\n\t\twhile [ $x -lt $i ]\n\t\t\tdo\n\t\t\tx=$(expr $x + 1)\n\t\t\tURL=http://tile.openstreetmap.org/$z/$x/$y.png\n\t\t\tmkdir -p CachedTiles/$z/$x\n\t\t\tcurl $URL >CachedTiles/$z/$x/$y.png\n\t\t\tdone\n\t\ty=$(expr $y + 1)\n\t\tdone\n\tz=$(expr $z + 1)\n\tdone\nexit 0";
+		};
 		EE69CFE7108DD93100486DB1 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -388,13 +420,14 @@
 			shellPath = /bin/sh;
 			shellScript = "export SOURCES=MapKitTest/*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"CoreLocation MapKit\"\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/Applications/Test   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=true                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-mapkit-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
-		EEAA841913688AF9000E2336 /* ShellScript */ = {
+		EEAA841913688AF9000E2336 /* Copy to Library */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Copy to Library";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -541,6 +574,27 @@
 			};
 			name = Release;
 		};
+		EE37FADD13B20D53005D28ED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = FetchTiles;
+			};
+			name = Debug;
+		};
+		EE37FADE13B20D53005D28ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = FetchTiles;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		EE9224CA136179BD0010C76C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -608,6 +662,15 @@
 			buildConfigurations = (
 				1DEB91B208733DA50010E9CD /* Debug */,
 				1DEB91B308733DA50010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EE37FADF13B20D71005D28ED /* Build configuration list for PBXAggregateTarget "FetchTiles" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE37FADD13B20D53005D28ED /* Debug */,
+				EE37FADE13B20D53005D28ED /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

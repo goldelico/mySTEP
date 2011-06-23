@@ -331,18 +331,30 @@ static NSMutableArray *tileLRU;
 - (NSString *) tileURLForZ:(int) z x:(int) x y:(int) y;
 { // conversion of geo location and zoom into Mapnik tile path: http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
 	long iscale;
+	NSString *url;
 	if(z < 0 || z > 20)
 		return nil;
 	iscale = 1<<z;
 	x %= iscale;	// repeat tile pattern if we wrap around the map
 	if(x < 0) x += iscale;	// c99 defines negative return value for negative dividend and we need the modulus
-	y = (iscale-1 - y);	// flip - OpenStreetMap has (0,0) at top left position and we at bottom left
+	y = (iscale-1) - y;	// flip - OpenStreetMap has (0,0) at top left position and we at bottom left
 	y %= iscale;
 	if(y < 0) y += iscale;
 	switch(mapType) {
 		// ignored
 	}
-	return [NSString stringWithFormat:@"http://tile.openstreetmap.org/%d/%d/%d.png", z, x, y];
+	url=[[NSBundle bundleForClass:[self class]] pathForResource:@"CachedTiles" ofType:@""];
+	url=[url stringByAppendingFormat:@"/%d/%d/%d.png", z, x, y];
+	if([[NSFileManager defaultManager] fileExistsAtPath:url])
+		url=[@"file:///" stringByAppendingString:url];	// stored in bundle for offine access
+	else
+		{		
+		url=[NSString stringWithFormat:@"http://tile.openstreetmap.org/%d/%d/%d.png", z, x, y];
+#if 1	// debugging http loader - we can look into the server log
+		url=[NSString stringWithFormat:@"http://downloads.goldelico.de/mySTEP/OSM/%d/%d/%d.png", z, x, y];
+#endif
+		}
+	return url;
 }
 
 - (BOOL) drawTileForZ:(int) z x:(int) x y:(int) y intoRect:(NSRect) rect load:(BOOL) flag;
