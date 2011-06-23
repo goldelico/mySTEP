@@ -97,6 +97,7 @@ struct RESERVED
 	"@end", AT_END, 
 	"@class", AT_CLASS, 
 	"@protocol", AT_PROTOCOL, 
+	"@defs", AT_DEFS, 
 	"@selector", AT_SELECTOR, 
 	"@encode", AT_ENCODE, 
 	"@protected", AT_PROTECTED, 

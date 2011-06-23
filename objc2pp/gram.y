@@ -442,6 +442,7 @@ struct_declaration
 	| protection_qualifier specifier_qualifier_list struct_declarator_list ';'  { $$=node(';', node(' ', node(' ', $1, $2), $3), 0); }
 	| property_qualifier specifier_qualifier_list struct_declarator_list ';'  { $$=node(';', node(' ', node(' ', $1, $2), $3), 0); }
 	| AT_SYNTHESIZE ivar_list ';'  { $$=node(AT_SYNTHESIZE, $2, 0); }
+	| AT_DEFS '(' IDENTIFIER ')' { ; }	// substitute the iVar definition tree
 	;
 
 protection_qualifier
