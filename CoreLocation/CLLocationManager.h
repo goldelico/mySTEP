@@ -23,6 +23,14 @@ typedef enum _CLDeviceOrientation
 	CLDeviceOrientationFaceDown
 } CLDeviceOrientation;
 
+typedef enum _CLAuthorizationStatus
+{
+	kCLAuthorizationStatusNotDetermined = 0,
+	kCLAuthorizationStatusRestricted,
+	kCLAuthorizationStatusDenied,
+	kCLAuthorizationStatusAuthorized
+} CLAuthorizationStatus;
+
 @protocol CLLocationManagerDelegate;
 @class CLLocation;
 @class CLHeading;
@@ -70,8 +78,9 @@ typedef enum _CLDeviceOrientation
 - (void) setHeadingOrientation:(CLDeviceOrientation) orient;
 - (void) setPurpose:(NSString *) string;
 
++ (CLAuthorizationStatus) authorizationStatus;	// if this application is allowed
 + (BOOL) headingAvailable;
-+ (BOOL) locationServicesEnabled;
++ (BOOL) locationServicesEnabled;	// if this device can determine location
 + (BOOL) regionMonitoringAvailable;
 + (BOOL) regionMonitoringEnabled;	// system setting
 + (BOOL) significantLocationChangeMonitoringAvailable;	// system setting
