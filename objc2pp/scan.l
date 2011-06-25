@@ -130,6 +130,7 @@ struct RESERVED
 	"@catch", AT_CATCH, 
 	"@finally", AT_FINALLY, 
 	"@throw", AT_TRY, 
+	"@synchronized", AT_SYNCHRONIZED, 
 
 	/* Obj-C 1.5 extensions */
 	

@@ -595,6 +595,7 @@ statement
 	| AT_TRY compound_statement catch_sequence finally
 	| AT_THROW ';'	// rethrow within @catch block
 	| AT_THROW expression ';'
+	| AT_SYNCHRONIZED '(' expression ')' compound_statement
 	| error ';' 
 	| error '}'
 	;
