@@ -640,8 +640,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #endif
 									_app.isRunning=NO;
 								}
-						else if(_delegate && [_delegate respondsToSelector:@selector(applicationShouldTerminateAfterLastWindowClosed:)] &&
-										[_delegate applicationShouldTerminateAfterLastWindowClosed:self])
+						else if([_delegate applicationShouldTerminateAfterLastWindowClosed:self])
 								{ // delegate allows us to end
 #if 1
 									NSLog(@"last windows item removed - terminate");
@@ -2230,3 +2229,13 @@ NSWindow *w;
 	*/
 
 @end /* NSApplication */
+																   
+@implementation NSObject (NSApplicationDelegate)
+																   
+- (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *) app
+{
+	// FIXME: make this a user's setting!
+	return NO;
+}
+
+@end
