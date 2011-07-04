@@ -1,27 +1,39 @@
 //
-//  CRTagManager.h
-//  CoreRFID
+//  CTCallCenter.h
+//  CoreTelephony
 //
-//  Created by H. Nikolaus Schaller on 09.10.10.
-//  Copyright 2010 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
+//  Created by H. Nikolaus Schaller on 04.07.11.
+//  Copyright 2011 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-@protocol CRTagManagerDelegate;
-@class CRTag;
+@class CTCall;
 
-@interface CRTagManager : NSObject
+// extension
+
+@protocol CTCallCenterDelegate
+- (BOOL) handleCallEvent:(CTCall *) call;
+@end
+
+@interface CTCallCenter : NSObject
 {
-	id <CRTagManagerDelegate> delegate;
+	NSMutableSet *currentCalls;
+	id <CTCallCenterDelegate> delegate;
 }
 
-- (id <CRTagManagerDelegate>) delegate;
-- (NSArray *) tags;
-- (NSString *) readerUID;
+// @property (nonatomic, copy) void (^callEventHandler)(CTCall *)
 
-- (void) setDelegate:(id <CRTagManagerDelegate>) d;
-- (void) startMonitoringTags;
-- (void) stopMonitoringTags;
+- (NSSet *) currentCalls;
+   
+@end
+
+@interface CTCallCenter (Extensions)
+
+- (id <CTCallCenterDelegate>) delegate;
+- (void) setDelegate:(id <CTCallCenterDelegate>) d;
+
+- (CTCall *) dial:(NSString *) number;
+- (BOOL) sendSMS:(NSString *) number message:(NSString *) message;
 
 @end

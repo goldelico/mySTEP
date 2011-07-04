@@ -1,14 +1,16 @@
 //
-//  CRTag.m
-//  CRTag
+//  CTCall.h
+//  CoreTelephony
 //
-//  Created by H. Nikolaus Schaller on 09.10.10.
-//  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
+//  Created by H. Nikolaus Schaller on 04.07.11.
+//  Copyright 2010 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <CoreRFID/CoreRFID.h>
+#import <CoreTelephony/CoreTelephony.h>
 
-@implementation CRTag
+@implementation CTCall
+
+#if 0
 
 - (NSString *) tagUID; {
 	return tagUID;
@@ -360,5 +362,7 @@ static NSString *lastChunk;
 	[self _processData:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
 	[[n object] readInBackgroundAndNotify];	// and trigger more notifications
 }
+
+#endif
 
 @end

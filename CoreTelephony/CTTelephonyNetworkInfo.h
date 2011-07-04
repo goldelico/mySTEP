@@ -1,20 +1,33 @@
 //
-//  CRTagManagerDelegate.h
-//  CoreRFID
+//  CTTelephonyNetworkInfo.h
+//  CoreTelephony
 //
-//  Created by H. Nikolaus Schaller on 09.10.10.
-//  Copyright 2010 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
+//  Created by H. Nikolaus Schaller on 04.07.11.
+//  Copyright 2011 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-@class CRTag;
-@class CRTagManager;
+@class CTCarrier;
 
-@protocol CRTagManagerDelegate <NSObject>
+@protocol CTNetworkInfoDelegate
 
-- (void) tagManager:(CRTagManager *) mngr didFailWithError:(NSError *) err;
-- (void) tagManager:(CRTagManager *) mngr didFindTag:(CRTag *) err;
-- (void) tagManager:(CRTagManager *) mngr didLooseTag:(CRTag *) err;
+- (void) subscriberCellularProviderDidUpdate:(CTCarrier *) carrier;
+
+@end
+
+@interface CTTelephonyNetworkInfo : NSObject
+
+- (CTCarrier *) subscriberCellularProvider;
+
+@end
+
+@interface CTTelephonyNetworkInfo (Extensions)
+
+- (id <CTNetworkInfoDelegate>) delegate;
+- (void) setDelegate:(id <CTNetworkInfoDelegate>) delegate;
+
+- (CTCarrier *) currentNetwork;	// different during roaming
+- (NSSet *) networks;	// list of networks being available
 
 @end

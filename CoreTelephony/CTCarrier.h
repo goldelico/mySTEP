@@ -1,20 +1,28 @@
 //
-//  CRTagManagerDelegate.h
-//  CoreRFID
+//  CTCarrier.h
+//  CoreTelephony
 //
-//  Created by H. Nikolaus Schaller on 09.10.10.
-//  Copyright 2010 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
+//  Created by H. Nikolaus Schaller on 04.07.11.
+//  Copyright 2011 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-@class CRTag;
-@class CRTagManager;
+@interface CTCarrier : NSObject
 
-@protocol CRTagManagerDelegate <NSObject>
+- (BOOL) allowsVOIP;
+- (NSString *) carrierName;
+- (NSString *) isoCountryCode;
+- (NSString *) mobileCountryCode;
+- (NSString *) mobileNetworkCode;
 
-- (void) tagManager:(CRTagManager *) mngr didFailWithError:(NSError *) err;
-- (void) tagManager:(CRTagManager *) mngr didFindTag:(CRTag *) err;
-- (void) tagManager:(CRTagManager *) mngr didLooseTag:(CRTag *) err;
+@end
+
+@interface CTCarrier (Extensions)
+
+- (float) strength;	// signal strength (in db)
+- (float) networkType;	// 2.0, 2.5, 3.0, 3.5 etc.
+- (BOOL) canChoose;	// is permitted to use
+- (void) choose;	// make the current carrier if there are several options to choose
 
 @end
