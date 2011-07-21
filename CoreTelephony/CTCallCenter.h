@@ -13,7 +13,7 @@
 // extension
 
 @protocol CTCallCenterDelegate
-- (BOOL) handleCallEvent:(CTCall *) call;
+- (BOOL) handleCallEvent:(CTCall *) call;	// should ring and -accept/-discard etc. depending on -callState
 @end
 
 @interface CTCallCenter : NSObject

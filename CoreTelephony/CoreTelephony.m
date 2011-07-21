@@ -8,7 +8,147 @@
 
 #import <CoreTelephony/CoreTelephony.h>
 
+NSString const *CTCallStateDialing=@"CTCallStateDialing";
+NSString const *CTCallStateIncoming=@"CTCallStateIncoming";
+NSString const *CTCallStateConnected=@"CTCallStateConnected";
+NSString const *CTCallStateDisconnected=@"CTCallStateDisconnected";
+
 @implementation CTCall
+
+- (void) dealloc
+{
+	[callID release];
+	[callState release];
+	[peer release];
+	[super dealloc];
+}
+
+- (NSString *) callID;
+{
+	return callID;
+}
+
+- (NSString *) callState;
+{
+	// find out callState
+	return (NSString *) CTCallStateDisconnected;
+}
+
+- (NSString *) peerPhoneNumber
+{ // caller ID or called ID
+	return peer;
+}
+
+- (void) terminate;
+{
+	// anytime
+	// send ATH
+}
+
+- (void) hold;
+{
+	// anytime
+}
+
+- (void) reject;	// if incoming
+{
+	// if CTCallStateIncoming
+}
+
+- (void) divert;
+{
+	// if CTCallStateIncoming
+}
+
+// set 
+- (void) handsfree:(BOOL) flag;	// switch on handsfree speakers (or headset?)
+{
+	// if CTCallStateConnected
+	// switch amixer
+}
+
+- (void) mute:(BOOL) flag;	// mute microphone
+{
+	// if CTCallStateConnected
+	// switch amixer
+}
+
+- (void) volume:(float) value;	// general volume (earpiece, handsfree, headset)
+{
+	// if CTCallStateConnected
+	// switch amixer
+}
+
+- (void) sendDTMF:(int) digit
+{ // 0..9, a-c, #, *
+	// send if connected
+}
+
+@end
+
+@implementation CTCallCenter
+
+- (id) init
+{
+	if(self=[super init])
+		{
+		// open interface to modem chip
+		// install callback
+		// asynchronously handle RING and incoming SMS
+		}
+	return self;
+}
+
+- (NSSet *) currentCalls; { return currentCalls; }
+
+- (id <CTCallCenterDelegate>) delegate; { return delegate; }
+- (void) setDelegate:(id <CTCallCenterDelegate>) d; { delegate=d; }
+
+- (CTCall *) dial:(NSString *) number;
+{
+	// initiate a new call in CTCallStateDialing
+	return nil;
+}
+
+- (BOOL) sendSMS:(NSString *) number message:(NSString *) message;
+{
+	// send a SMS
+	return NO;
+}
+
+@end
+
+@implementation CTCarrier
+
+#if 0
+- (BOOL) allowsVOIP;
+- (NSString *) carrierName;
+- (NSString *) isoCountryCode;
+- (NSString *) mobileCountryCode;
+- (NSString *) mobileNetworkCode;
+
+- (float) strength;	// signal strength (in db)
+- (float) networkType;	// 2.0, 2.5, 3.0, 3.5 etc.
+- (BOOL) canChoose;	// is permitted to use
+- (NSString *) cellID;	// current cell ID
+- (void) choose;	// make the current carrier if there are several options to choose
+#endif
+
+@end
+
+@implementation CTTelephonyNetworkInfo
+
+#if 0
+- (CTCarrier *) subscriberCellularProvider;
+
+- (id <CTNetworkInfoDelegate>) delegate;
+- (void) setDelegate:(id <CTNetworkInfoDelegate>) delegate;
+
+- (CTCarrier *) currentNetwork;	// changes while roaming
+- (NSSet *) networks;	// list of networks being available
+#endif
+
+@end
 
 #if 0
 
@@ -365,4 +505,3 @@ static NSString *lastChunk;
 
 #endif
 
-@end

@@ -23,6 +23,7 @@
 - (float) strength;	// signal strength (in db)
 - (float) networkType;	// 2.0, 2.5, 3.0, 3.5 etc.
 - (BOOL) canChoose;	// is permitted to use
-- (void) choose;	// make the current carrier if there are several options to choose
+- (void) choose;	// make this the current carrier
+- (NSString *) cellID;	// current cell ID
 
 @end

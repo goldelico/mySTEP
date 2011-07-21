@@ -16,9 +16,8 @@ extern NSString const *CTCallStateDisconnected;
 @interface CTCall : NSObject
 {
 	NSString *callID;
-	NSString *callState;
+	NSString *peer;
 }
-
 
 - (NSString *) callID;
 - (NSString *) callState;
@@ -27,9 +26,18 @@ extern NSString const *CTCallStateDisconnected;
 
 @interface CTCall (Extensions)
 
+- (NSString *) peerPhoneNumber;	// caller ID or called ID
+
 - (void) terminate;
 - (void) hold;
 - (void) reject;	// if incoming
 - (void) divert;
+
+// set 
+- (void) handsfree:(BOOL) flag;	// switch on handsfree speakers (or headset?)
+- (void) mute:(BOOL) flag;	// mute microphone
+- (void) volume:(float) value;	// general volume (earpiece, handsfree, headset)
+
+- (void) sendDTMF:(int) digit;	// 0..9, a-c, #, *
 
 @end

@@ -12,7 +12,12 @@
 
 @protocol CTNetworkInfoDelegate
 
-- (void) subscriberCellularProviderDidUpdate:(CTCarrier *) carrier;
+- (void) subscriberCellularProviderDidUpdate:(CTCarrier *) carrier;	// SIM card was changed
+- (void) currentNetworkDidUpdate:(CTCarrier *) carrier;	// roaming
+
+// enable other notificat‚ions?
+- (void) currentCellDidUpdate:(CTCarrier *) carrier;	// mobile operation
+// notify other changes? signal strength etc?
 
 @end
 
@@ -27,7 +32,7 @@
 - (id <CTNetworkInfoDelegate>) delegate;
 - (void) setDelegate:(id <CTNetworkInfoDelegate>) delegate;
 
-- (CTCarrier *) currentNetwork;	// different during roaming
+- (CTCarrier *) currentNetwork;	// changes while roaming
 - (NSSet *) networks;	// list of networks being available
 
 @end
