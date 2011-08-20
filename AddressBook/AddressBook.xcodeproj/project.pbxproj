@@ -192,7 +192,14 @@
 			isa = PBXProject;
 			buildConfigurationList = EEEB9C7809A7503D00626AB7 /* Build configuration list for PBXProject "AddressBook" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";

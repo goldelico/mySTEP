@@ -68,7 +68,7 @@ typedef NSInteger NSTrackingRectTag;
 	NSMutableArray *sub_views;
     NSArray *_dragTypes;
 	NSWindow *_window;
-	NSAffineTransform *_bounds2frame;	// bounds to superview's bounds - created on demand
+	NSAffineTransform *_bounds2frame;	// bounds to frame (unrotated) - created on demand
 	NSAffineTransform *_frame2bounds;	// inverse - created on demand
 	NSAffineTransform *_bounds2base;	// bounds to screen - created on demand
 	NSAffineTransform *_base2bounds;	// inverse - created on demand
@@ -76,7 +76,7 @@ typedef NSInteger NSTrackingRectTag;
 	NSRect _bounds;
 	NSRect invalidRect;			// union of all subrects
 	NSRect *invalidRects;
-	NSSize unitSquareSize;	// ?? do we need that or is it just scaling bounds/frame size?
+//	NSSize unitSquareSize;	// ?? do we need that or is it just scaling bounds/frame size?
 	float frameRotation;
 	float boundsRotation;
 	unsigned int nInvalidRects;

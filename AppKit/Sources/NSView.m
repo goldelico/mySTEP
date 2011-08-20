@@ -222,10 +222,17 @@ int i, j = (_trackRects) ? [_trackRects count] : 0;
 //
 //*****************************************************************************
 
-// CHECKME: would it be more universal to define _NSEnclosingRectForPoints(int n, NSPointArray points) and loop?
+@interface NSAffineTransform (NSViewAdditions)
+- (NSRect) _transformRect:(NSRect) aRect;
+@end
 
-NSRect _NSRectFromFourNSPoints(NSPoint p1, NSPoint p2, NSPoint p3, NSPoint p4)
-{ // define a new rect that covers all 4 points (transformed corners)
+@implementation NSAffineTransform (NSViewAdditions)
+- (NSRect) _transformRect:(NSRect) aRect;
+{ // get the smallest rectangle that covers all 4 transformed points (which are not necessarily a rectangle!)
+	NSPoint p1=[self transformPoint:NSMakePoint(NSMinX(aRect), NSMinY(aRect))];
+	NSPoint p2=[self transformPoint:NSMakePoint(NSMaxX(aRect), NSMinY(aRect))];
+	NSPoint p3=[self transformPoint:NSMakePoint(NSMaxX(aRect), NSMaxY(aRect))];
+	NSPoint p4=[self transformPoint:NSMakePoint(NSMinX(aRect), NSMaxY(aRect))];	
 	float minx=p1.x;
 	float miny=p1.y;
 	float maxx=p1.x;
@@ -243,19 +250,6 @@ NSRect _NSRectFromFourNSPoints(NSPoint p1, NSPoint p2, NSPoint p3, NSPoint p4)
 	if(p3.y > maxy) maxy=p3.y;
 	if(p4.y > maxy) maxy=p4.y;
 	return NSMakeRect(minx, miny, maxx-minx, maxy-miny);
-}
-
-@interface NSAffineTransform (NSViewAdditions)
-- (NSRect) _transformRect:(NSRect) aRect;
-@end
-
-@implementation NSAffineTransform (NSViewAdditions)
-- (NSRect) _transformRect:(NSRect) aRect;
-{
-	return _NSRectFromFourNSPoints([self transformPoint:NSMakePoint(NSMinX(aRect), NSMinY(aRect))],
-								   [self transformPoint:NSMakePoint(NSMaxX(aRect), NSMinY(aRect))],
-								   [self transformPoint:NSMakePoint(NSMaxX(aRect), NSMaxY(aRect))],
-								   [self transformPoint:NSMakePoint(NSMinX(aRect), NSMaxY(aRect))]);	
 }
 @end
 
@@ -557,8 +551,7 @@ printing
 		NSLog(@"NSView: initWithFrame 1 %@", [self _descriptionWithSubviews]);
 #endif
 		_frame = frameRect;
-		_bounds = (NSRect){ NSZeroPoint, _frame.size };
-//		unitSquareSize = NSMakeSize(1.0, 1.0);		// FIXME???
+		[self setBounds:frameRect];
 		sub_views = [NSMutableArray new];
 #if 0
 		NSLog(@"NSView: initWithFrame 2a %@", [self _descriptionWithSubviews]);
@@ -1004,8 +997,11 @@ printing
 	[self _invalidateCTMtoBase];	// subviews can keep their bounds2frame mapping intact - only their mapping to the screen changes
 }
 
-// FIXME: frame and bounds rotation are not correctly handled
-// FIXME: scaleUnitSquare is not correctly handled
+#if NEW
+	// setBounds* calls directly manipulate _bounds2frame (and recache _frame2bounds) and update _bounds
+#endif
+
+#if 1 // OLD
 
 - (NSAffineTransform*) _bounds2frame;
 { // create transformation matrix
@@ -1075,8 +1071,10 @@ printing
 	return _frame2bounds;
 }
 
+#endif
+
 - (NSAffineTransform *) _bounds2base;
-{ // transform base coordinates to NSWindow's base
+{ // direct transformation of bounds coordinates to NSWindow's base, i.e. accumulation of all super_views
 	if(!_window)
 		NSLog(@"Not yet part of the window hierarchy - CTM is invalid: %@", self);
 	if(_window && !_bounds2base)
@@ -1099,6 +1097,8 @@ printing
 			}
 		else
 			_bounds2base=[[self _bounds2frame] retain];	// we are the toplevel view
+		// apply flipping
+		// apply frame rotation
 		[_base2bounds release];
 		_base2bounds=nil;	// recache inverse
 		}
@@ -1124,11 +1124,12 @@ printing
 	if(from == to)
 		{ // return identity matrix
 		static NSAffineTransform *identity;
-		if(!identity) identity=[[NSAffineTransform transform] retain];
+		if(!identity) identity=[[NSAffineTransform alloc] init];	// a singleton
 		return identity;
 		}
 	if(!from)
 		return [to _base2bounds];	// convert from window coordinates to base only
+#if 0	// we have changed the semantics of _bounds2frame not to cover frameRotation and flipping!
 	if(to == [from superview])
 		{ // shortcut to direct superview
 		return [from _bounds2frame];
@@ -1137,12 +1138,12 @@ printing
 		{ // shortcut to direct subview
 		return [to _frame2bounds];
 		}
+#endif
 	atm=[from _bounds2base];	// convert from base to window coordinates
 	if(to)
 		{ // and transform from window to base
-		atm=[atm copy];	// get a working copy
+		atm=[[atm copy] autorelease];	// get a working copy
 		[atm appendTransform:[to _base2bounds]];
-		[atm autorelease];
 		}
 	return atm;
 }
@@ -1162,10 +1163,7 @@ printing
 		return aRect;
 	atm=[isa _matrixFromView:aView toView:self];
 	if(_v.isRotatedFromBase)
-		r=_NSRectFromFourNSPoints([atm transformPoint:NSMakePoint(NSMinX(aRect), NSMinY(aRect))],
-								  [atm transformPoint:NSMakePoint(NSMaxX(aRect), NSMinY(aRect))],
-								  [atm transformPoint:NSMakePoint(NSMaxX(aRect), NSMaxY(aRect))],
-								  [atm transformPoint:NSMakePoint(NSMinX(aRect), NSMaxY(aRect))]);
+		r=[atm _transformRect:aRect];
 	else
 		{
 		r.origin=[atm transformPoint:aRect.origin];
@@ -1215,10 +1213,7 @@ printing
 #if 1
 		NSLog(@"slow"),
 #endif
-		r=_NSRectFromFourNSPoints([atm transformPoint:NSMakePoint(NSMinX(aRect), NSMinY(aRect))],
-								  [atm transformPoint:NSMakePoint(NSMaxX(aRect), NSMinY(aRect))],
-								  [atm transformPoint:NSMakePoint(NSMaxX(aRect), NSMaxY(aRect))],
-								  [atm transformPoint:NSMakePoint(NSMinX(aRect), NSMaxY(aRect))]);
+		r=[atm _transformRect:aRect];
 	else
 		{
 #if 1
@@ -1229,13 +1224,6 @@ printing
 //		if((aRect.size.height < 0) != (r.size.height < 0))
 //			r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved
 		}
-#if 0
-	NSLog(@"p1=%@", NSStringFromPoint([atm transformPoint:NSMakePoint(aRect.origin.x, aRect.origin.y)]));
-	NSLog(@"p2=%@", NSStringFromPoint([atm transformPoint:NSMakePoint(aRect.origin.x+NSWidth(aRect), aRect.origin.y)]));
-	NSLog(@"p3=%@", NSStringFromPoint([atm transformPoint:NSMakePoint(aRect.origin.x+NSWidth(aRect), aRect.origin.y+NSHeight(aRect))]));
-	NSLog(@"p4=%@", NSStringFromPoint([atm transformPoint:NSMakePoint(aRect.origin.x, aRect.origin.y+NSHeight(aRect))]));
-	NSLog(@"r=%@", NSStringFromRect(r));
-#endif
 #if 0
 	NSLog(@"convertRect 2");
 #endif
@@ -1622,19 +1610,8 @@ printing
 				return;
 				}
 			atm=[self _bounds2frame];	// goes to our superview
-			// HM - we should transform the corners individually and determine min/max dimension of the invalidated superview
-			// we can also estimate the bounding box (as long as it is at least the required size)
-				/* basic idea:
-				 NSBezierPath *r=[NSBezierPath bezierPathWithRect:rect];
-				 [rect transformUsingAffineTransform:atm];
-				 NSRect boundingBox=[r controlPointBounds];   
-				 */				 
-			r.origin=[atm transformPoint:rect.origin];
-			r.size=[atm transformSize:rect.size];
-			if((rect.size.height < 0) != (r.size.height < 0))
-				r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved
-			[super_view setNeedsDisplayInRect:r];
-			// FIXME: we should simply loop instead of doing a recursion
+			r=[self convertRect:rect toView:super_view];
+			[super_view setNeedsDisplayInRect:r];	// FIXME: we should simply loop instead of doing a recursion
 			}
 		else
 			{
@@ -1752,14 +1729,7 @@ printing
 				continue;
 			if(!NSIntersectsRect([subview frame], rect))
 				continue;	// subview is not within rect - ignore transformation
-							// FIXME: not rotation-safe
-			atm=[subview _frame2bounds];	// transform the dirty rect to our subview
-											// HM - we should transform the corners individually and determine min/max dimension of the invalidated superview
-											// we can also estimate the bounding box (as long as it is at least the required size)
-			subRect.origin=[atm transformPoint:rect.origin];
-			subRect.size=[atm transformSize:rect.size];
-			if((rect.size.height < 0) != (subRect.size.height < 0))
-				subRect.origin.y-=(subRect.size.height=-subRect.size.height);	// there was some flipping involved
+			subRect=[self convertRect:rect toView:subview];	// update subview
 			[subview displayRectIgnoringOpacity:subRect inContext:context];
 			}
 		if(locked)
@@ -1902,7 +1872,7 @@ printing
 		  [super_view isFlipped]);
 #endif
 	if(_v.hidden)
-		return nil;
+		return nil;	// ignore invisible (sub)views
 	if(super_view)
 		{
 		if(!NSMouseInRect(aPoint, _frame, [super_view isFlipped]))
@@ -1913,21 +1883,24 @@ printing
 			return nil;		// If not within our frame then immediately return
 			}
 		}
-	aPoint=[[self _frame2bounds] transformPoint:aPoint];	// transform point from superview's coordinates
-	for(i = [sub_views count] - 1; i >= 0; i--)	
-		{ // Check our sub_views front to back
-		if((v = [[sub_views objectAtIndex:i] hitTest:aPoint]))
-			{
+	if([sub_views count] > 0)
+		{
+		aPoint=[self convertPoint:aPoint fromView:super_view];	// transform point from superview's coordinates
+		for(i = [sub_views count] - 1; i >= 0; i--)	
+			{ // Check our sub_views front to back
+				if((v = [[sub_views objectAtIndex:i] hitTest:aPoint]))
+					{ // hit in subview
 #if 0
-			NSLog(@"  found %d=%@", i, v);
+					NSLog(@"  found %d=%@", i, v);
 #endif
-			return v;
+					return v;
+					}
 			}
 		}
 #if 0
 	NSLog(@"  success: %@", self);
 #endif
-	return self;	// mouse is either in the subview or within self
+	return self;	// mouse is within self
 }
 
 - (BOOL) mouse:(NSPoint)aPoint inRect:(NSRect)aRect
