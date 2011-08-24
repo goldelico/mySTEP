@@ -2098,7 +2098,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	 */
 	isFlipped=[self isFlipped];
 	origin=[_state->_ctm transformPoint:NSZeroPoint];	// determine real drawing origin in X11 coordinates
-	scanRect=[_state->_ctm _boundingRectForTransformedRect:unitSquare];	// get bounding box for transformed unit square
+	scanRect=[_state->_ctm _transformRect:unitSquare];	// get bounding box for transformed unit square
 #if 0
 	NSLog(@"_draw: %@", rep);
 	NSLog(@"context %@", self);

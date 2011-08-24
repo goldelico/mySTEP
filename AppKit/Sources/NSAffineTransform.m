@@ -36,30 +36,12 @@
 	return [p autorelease];
 }
 
-- (NSRect) _boundingRectForTransformedRect:(NSRect) box
-{ // transform all four corners and find bounding box
-	NSPoint p[4]={ [self transformPoint:NSMakePoint(NSMinX(box), NSMinY(box))], 
-				   [self transformPoint:NSMakePoint(NSMinX(box), NSMaxY(box))],
-				   [self transformPoint:NSMakePoint(NSMaxX(box), NSMaxY(box))],
-				   [self transformPoint:NSMakePoint(NSMaxX(box), NSMinY(box))] };
-	NSPoint min=p[0], max=p[0];
-	int i;
-	for(i=1; i<4; i++)
-		{ // a good compiler tries to unroll this loop
-		if(p[i].x < min.x) min.x=p[i].x;
-		if(p[i].x > max.x) max.x=p[i].x;
-		if(p[i].y < min.y) min.y=p[i].y;
-		if(p[i].y > max.y) max.y=p[i].y;
-		}
-	return NSMakeRect(min.x, min.y, max.x-min.x, max.y-min.y);	// get scaled/rotated bounding rect
-}
-	
 @end /* NSAffineTransform */
 
 @interface NSPSMatrix : NSObject
 @end
 
-@implementation NSPSMatrix	/* used by drawing system (unarchived from e.g. NSProgressIndicator) */
+@implementation NSPSMatrix	/* private class used by Cocoa drawing system and sometimes archived (e.g. NSProgressIndicator) */
 
 - (void) encodeWithCoder:(NSCoder *) coder
 {

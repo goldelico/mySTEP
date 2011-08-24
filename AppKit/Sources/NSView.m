@@ -222,11 +222,8 @@ int i, j = (_trackRects) ? [_trackRects count] : 0;
 //
 //*****************************************************************************
 
-@interface NSAffineTransform (NSViewAdditions)
-- (NSRect) _transformRect:(NSRect) aRect;
-@end
+@implementation NSAffineTransform (NSPrivate)
 
-@implementation NSAffineTransform (NSViewAdditions)
 - (NSRect) _transformRect:(NSRect) aRect;
 { // get the smallest rectangle that covers all 4 transformed points (which are not necessarily a rectangle!)
 	NSPoint p1=[self transformPoint:NSMakePoint(NSMinX(aRect), NSMinY(aRect))];
@@ -251,6 +248,7 @@ int i, j = (_trackRects) ? [_trackRects count] : 0;
 	if(p4.y > maxy) maxy=p4.y;
 	return NSMakeRect(minx, miny, maxx-minx, maxy-miny);
 }
+
 @end
 
 
@@ -551,7 +549,8 @@ printing
 		NSLog(@"NSView: initWithFrame 1 %@", [self _descriptionWithSubviews]);
 #endif
 		_frame = frameRect;
-		[self setBounds:frameRect];
+		_bounds = (NSRect){ NSZeroPoint, _frame.size };
+//		_bounds2frame = [NSAffineTransform new];	// initialize unit transform
 		sub_views = [NSMutableArray new];
 #if 0
 		NSLog(@"NSView: initWithFrame 2a %@", [self _descriptionWithSubviews]);
@@ -1221,8 +1220,8 @@ printing
 #endif
 		r.origin=[atm transformPoint:aRect.origin];
 		r.size=[atm transformSize:aRect.size];
-//		if((aRect.size.height < 0) != (r.size.height < 0))
-//			r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved
+		if((aRect.size.height < 0) != (r.size.height < 0))
+			r.origin.y-=(r.size.height=-r.size.height);	// there was some flipping involved
 		}
 #if 0
 	NSLog(@"convertRect 2");
@@ -1560,6 +1559,8 @@ printing
 
 - (void) setNeedsDisplay:(BOOL) flag;
 {
+	if(!_window)
+		return;	// ignore if we have no window
 	if(flag)
 		{
 		nInvalidRects=0;	// clear list first
@@ -1579,6 +1580,8 @@ printing
 #if 0
 	NSLog(@"-setNeedsDisplayInRect:%@ of %@", NSStringFromRect(rect), self);
 #endif
+	if(!_window)
+		return;	// ignore if we have no window
 	rect=NSIntersectionRect(_bounds, rect);	// limit to bounds
 	if(NSIsEmptyRect(rect))
 		return;	// ignore
@@ -1981,19 +1984,19 @@ printing
 	return isLocal?0x0000:0x0000;
 }
 
-- (NSView*) nextValidKeyView
+- (NSView *) nextValidKeyView
 { 
 	return [_nextKeyView acceptsFirstResponder] ? _nextKeyView : nil;
 }
 
-- (NSView*) previousValidKeyView
+- (NSView *) previousValidKeyView
 { 
 NSView *p = [self previousKeyView];
 
 	return [p acceptsFirstResponder] ? p : nil;
 }
 
-- (NSView*) previousKeyView
+- (NSView *) previousKeyView
 {
 NSView *a = [_window initialFirstResponder];
 NSView *p = nil;
@@ -2010,10 +2013,10 @@ NSView *p = nil;
 }
 
 - (void) setNextKeyView:(NSView *)next			{ _nextKeyView = next; }
-- (NSView*) nextKeyView							{ return _nextKeyView; }
-- (NSView*) superview							{ return super_view; }
-- (NSWindow*) window							{ return _window; }
-- (NSMutableArray*) subviews					{ return sub_views; }
+- (NSView *) nextKeyView						{ return _nextKeyView; }
+- (NSView *) superview							{ return super_view; }
+- (NSWindow *) window							{ return _window; }
+- (NSMutableArray *) subviews					{ return sub_views; }
 - (unsigned int) autoresizingMask				{ return _v.autoresizingMask; }
 - (void) setAutoresizesSubviews:(BOOL)flag		{ _v.autoSizeSubviews = flag; }
 - (void) setAutoresizingMask:(unsigned int)mask	{ _v.autoresizingMask = mask; }

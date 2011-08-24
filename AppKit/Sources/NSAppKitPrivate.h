@@ -303,7 +303,7 @@ extern void GSConvertRGBtoHSB(struct RGB_Color rgb, struct HSB_Color *hsb);
 // extensions of functions and methods implemented in Foundation
 
 @interface NSAffineTransform (NSPrivate)
-- (NSRect) _boundingRectForTransformedRect:(NSRect) box;
+- (NSRect) _transformRect:(NSRect) box;
 @end
 
 @interface NSRunLoop (NSPrivate)
