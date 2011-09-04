@@ -235,6 +235,8 @@ static const float pi = 3.1415926535897932384626433;
 - (void) appendTransform:(NSAffineTransform*)other
 {
 	float newA, newC, newB, newD, newTX, newTY;
+	if(!other)
+		[NSException raise: NSInvalidArgumentException format: @"can't append nil transform"];
 	if(other->_isIdentity)
 		{
 		TX+=other->TX;
@@ -275,6 +277,8 @@ static const float pi = 3.1415926535897932384626433;
 {
 	float newA, newC, newB, newD, newTX, newTY;
 
+	if(!other)
+		[NSException raise: NSInvalidArgumentException format: @"can't prepend nil transform"];
 	if(other->_isIdentity)
 		{
 		newTX = other->TX * A + other->TY * B + TX;

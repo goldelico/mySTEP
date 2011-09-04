@@ -550,7 +550,7 @@ printing
 #endif
 		_frame = frameRect;
 		_bounds = (NSRect){ NSZeroPoint, _frame.size };
-//		_bounds2frame = [NSAffineTransform new];	// initialize unit transform
+		_frame2bounds = [NSAffineTransform new];	// initialize unit transform
 		sub_views = [NSMutableArray new];
 #if 0
 		NSLog(@"NSView: initWithFrame 2a %@", [self _descriptionWithSubviews]);
@@ -768,6 +768,7 @@ printing
 	_window=newWindow;	// set new window
 	[sub_views makeObjectsPerformSelector:_cmd withObject:newWindow];	// recursively for all subviews
 	nInvalidRects=0;	// clear cache
+	// FIXME: this might be quite inefficient for many subviews since their setNeedsDisplayInRect recursively goes upwards
 	[self setNeedsDisplayInRect:_bounds];	// we need to be redisplayed completely in the new window
 	[self viewDidMoveToWindow];
 }
@@ -800,16 +801,6 @@ printing
 - (void) willRemoveSubview:(NSView *) view;
 {
 	return;	// default: do nothing
-}
-
-- (void) rotateByAngle:(float)angle
-{
-	// FIXME: this also changes the bounds rect!
-	boundsRotation+=angle;
-	_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;
-	[self _invalidateCTM];
-	if(_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }
 
 - (void) setFrame:(NSRect)frameRect
@@ -895,79 +886,7 @@ printing
 		return (super_view) ? [super_view isRotatedOrScaledFromBase] : NO;
 }
 
-- (void) scaleUnitSquareToSize:(NSSize)newSize
-{
-	// FIXME!!! isn't it sufficient to update the bounds rect?
-
-//	unitSquareSize=newSize;
-	// scale bounds size & origin
-	_bounds.origin.x /= newSize.width;
-	_bounds.size.width /= newSize.width;
-	_bounds.origin.y /= newSize.height;
-	_bounds.size.height /= newSize.height;
-	_v.isRotatedOrScaledFromBase = YES;
-	[self _invalidateCTM];
-	if (_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
-}
-
-- (void) setBounds:(NSRect)aRect
-{
-	if(!NSEqualRects(_bounds, aRect))
-			{
-				_v.customBounds=YES;
-				_bounds = aRect;
-				[self _invalidateCTM];
-			}
-	if (_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
-}
-
-- (void) setBoundsOrigin:(NSPoint)newOrigin			// translate bounds origin
-{													// in opposite direction so that newOrigin becomes the origin when viewed.
-	if(!NSEqualPoints(_bounds.origin, newOrigin))
-			{
-				_v.customBounds=YES;
-				_bounds.origin = newOrigin;
-				[self _invalidateCTM];
-			}
-	if(_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
-}
-
-- (void) setBoundsSize:(NSSize)newSize
-{
-	if(!NSEqualSizes(_bounds.size, newSize))
-			{
-				_v.customBounds=YES;
-				_bounds.size = newSize;
-				[self _invalidateCTM];
-			}
-	if (_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
-}
-
-- (void) setBoundsRotation:(float)angle
-{
-	if(boundsRotation != angle)
-			{
-				_v.customBounds=YES;
-				boundsRotation=angle;
-				[self _invalidateCTM];
-				_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;
-			}
-	if (_v.postBoundsChange)
-		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
-}
-
-- (void) translateOriginToPoint:(NSPoint)point
-{
-	[self setBoundsOrigin:NSMakePoint(_bounds.origin.x-point.x, _bounds.origin.y-point.y)];
-}
-
-- (NSRect) bounds					{ return _bounds; }
 - (NSRect) frame					{ return _frame; }
-- (float) boundsRotation			{ return boundsRotation; }
 - (float) frameRotation				{ return frameRotation; }
 
 - (NSRect) centerScanRect:(NSRect)aRect
@@ -989,6 +908,256 @@ printing
 	[sub_views makeObjectsPerformSelector:_cmd];	// and invalidate all subviews
 }
 
+#define NEW 1
+
+#if NEW
+
+// FIXME: do we really need _frame2bounds as a separate matrix?
+
+- (void) _invalidateCTM;
+{
+	[_bounds2frame release], _bounds2frame=nil;
+//	[_frame2bounds release], _frame2bounds=nil;
+	[self _invalidateCTMtoBase];	// subviews can keep their bounds2frame mapping intact - only their mapping to the screen changes
+}
+
+- (NSAffineTransform *) _base2bounds
+{ // cached
+	BOOL flipped=[self isFlipped];
+	// should be compared to a stored flag so that we can detect dynamic changes in flipping state
+	if(_window && (!_base2bounds /* || flipped != flippedCache */))
+		{
+#if 0
+		NSLog(@"calculating _base2bounds: %@", self);
+#endif
+		if(super_view)
+			_base2bounds=[[super_view _base2bounds] copy];
+		else
+			_base2bounds=[NSAffineTransform new];
+		if(/*flippedCache = */flipped)
+			[_base2bounds scaleXBy:1.0 yBy:-1.0];
+		[_base2bounds rotateByDegrees:frameRotation];
+		[_base2bounds translateXBy:_frame.origin.x yBy:_frame.origin.y];
+		[_base2bounds appendTransform:_frame2bounds];	// finally transform to bounds
+		}
+	return _base2bounds;
+}
+
+- (NSAffineTransform *) _bounds2base;
+{
+	// FIXME: must also be recached if isFlipped has changed!
+	if(_window && (!_bounds2base /* || [self isFlipped] != flippedCache */))
+		{ // not yet cached
+#if 0
+			NSLog(@"calculating _bounds2base: %@", self);
+#endif
+			_bounds2base=[[self _base2bounds] copy];
+			[_bounds2base invert];	// go back from window to our bounds coordinates
+		}
+	return _bounds2base;
+}
+
+/* getters */
+
+// OK
+
+- (NSRect) bounds
+{ // updated after each modifier call
+	return _bounds;
+}
+
+// OK
+
+- (CGFloat) boundsRotation;
+{
+	return boundsRotation;
+}
+
+/* absolute setters */
+
+#define deg2rad(X)	(((double)(X))*(M_PI/180.0))
+
+// fails @ 180 deg
+
+- (void) setBounds:(NSRect) b
+{
+	NSLog(@"2 setBounds:%@", NSStringFromRect(b));
+	NSRect frame=[self frame];
+	NSAffineTransformStruct t;
+	float sx=b.size.width/frame.size.width;
+	float sy=b.size.height/frame.size.height;
+	float s=sin(deg2rad(boundsRotation));
+	float c=cos(deg2rad(boundsRotation));
+	static float special;
+	//	NSLog(@"%30.30f", 2*asin(1)/180.0);
+	//	NSLog(@"%g", sinf(deg2rad(180.0)));
+	if(boundsRotation == 180.0)
+		NSLog(@"now 180: s=%g c=%g c+1=%g", s, c, c+1.0);
+	if(!special)
+		special=sin(M_PI);	// not 0 since sin(M_PI) = 1.22e-16
+	if(1 && (c+1.0) == 0.0)
+		{ // this appears to be a buggy optimization in Cocoa because it ignores sgn(c)
+			t.m11 = -sx;
+			t.m12 = 0;
+			t.m21 = 0;
+			t.m22 = -sy;
+		}
+	else
+		{ // 180 deg
+			t.m11 = c * sx;
+			t.m12 = -s * sx;
+			t.m21 = s * sy;
+			t.m22 = c * sy;
+		}
+	t.tX=b.origin.x;
+	t.tY=b.origin.y;
+	[_frame2bounds setTransformStruct:t];
+	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
+//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
+	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+}
+
+/*
+ * setBoundsSize followed by setBoundsOrigin is the same as setBounds
+ * setBoundsOrigin followed by setBoundsSize isn't, because setBoundsSize modifies the origin)
+ */
+
+// ok
+
+- (void) setBoundsOrigin:(NSPoint) p;
+{
+	NSLog(@"2 setBoundsOrigin:%@", NSStringFromPoint(p));
+	NSAffineTransformStruct t=[_frame2bounds transformStruct];
+	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
+	t.tX=p.x;
+	t.tY=p.y;
+	[_frame2bounds setTransformStruct:t];
+//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
+	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+}
+
+// OK (maybe except @ 180 degrees)
+
+- (void) setBoundsSize:(NSSize) newSize;
+{
+	NSLog(@"2 setBoundsSize:%@", NSStringFromSize(newSize));
+	NSAffineTransformStruct t=[_frame2bounds transformStruct];
+	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
+	
+	// There is a "optimization" for 180 rotation that delivers very different results from 179.999 or 180.001
+	// mainly, the sign of m11,m22 is changed
+	
+	if(boundsRotation == 180.0)
+		{
+		NSLog(@"now 180");
+		}
+	NSRect frame=[self frame];
+	// can be skipped if never rotated or scaled:
+	double D=t.m11*t.m22 - t.m12*t.m21;
+	NSPoint o={ (t.m22*t.tX-t.m21*t.tY)/D, (t.m11*t.tY-t.m12*t.tX)/D };	// remove rotation and scale
+	float sx=newSize.width/frame.size.width;
+	float sy=newSize.height/frame.size.height;
+	if(boundsRotation == 180.0)
+		NSLog(@"now 180");
+	float s=sin(deg2rad(boundsRotation));
+	float c=cos(deg2rad(boundsRotation));
+	// t.m?? increasingly differs from Cocoa after translateOriginToPoint
+	// especially we find differences in the matrix that we reconstruct here directly from boundsRotation, newSize and frame.size
+	// the only explanation is that Cocoa dynamically calculates s/c from the old t.m?? values - i.e. ignores sin(rotation)/cos(rotation)
+	// i.e. the new rotation matrix should not be /set/ but be calculated
+	t.m11 = c * sx;
+	t.m12 = -s * sx;
+	t.m21 = s * sy;
+	t.m22 = c * sy;
+	t.tX = t.m11*o.x + t.m21*o.y;	// apply rotation and new scale
+	t.tY = t.m12*o.x + t.m22*o.y;
+	[_frame2bounds setTransformStruct:t];
+//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
+	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+}
+
+// nok
+
+- (void) setBoundsRotation:(CGFloat) a;
+{
+	NSLog(@"2 setBoundsRotation:%g", a);
+	NSAffineTransformStruct t=[_frame2bounds transformStruct];
+	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
+	float c=cos(deg2rad(a));
+	float s=sin(deg2rad(a));
+	float Q = t.m11*t.m11+t.m12*t.m12+t.m21*t.m21+t.m22*t.m22;
+	float D = t.m11*t.m22-t.m12*t.m21;	// invariants (don't change for rotations)
+	NSPoint o={ (t.m22*t.tX-t.m21*t.tY)/D, (t.m11*t.tY-t.m12*t.tX)/D };	// remove rotation and scale from origin
+	// FIXME: when do we use -sqrt and when +sqrt???
+	float sx = sqrt(0.5*(Q + sqrt(Q*Q - 4*D*D)));
+	float sy = D / sx;	// = sqrt(0.5*(Q - sqrt(Q*Q - 4*D*D))); but a division is cheaper than sqrt
+	t.m11 = c * sx;
+	t.m12 = -s * sx;
+	t.m21 = s * sy;
+	t.m22 = c * sy;
+	t.tX = t.m11*o.x + t.m21*o.y;	// apply rotation and new scale
+	t.tY = t.m12*o.x + t.m22*o.y;
+	[_frame2bounds setTransformStruct:t];
+//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
+	boundsRotation=a;	// protect against rounding errors
+	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+}
+
+/* relative modifiers */
+
+// OK
+
+- (void) rotateByAngle:(CGFloat) a;
+{
+	NSLog(@"2 rotateByAngle:%g", a);
+	NSAffineTransformStruct t=[_frame2bounds transformStruct];
+	float c=cos(deg2rad(a));
+	float s=sin(deg2rad(a));
+	NSAffineTransformStruct n;
+	n.m11=c*t.m11+s*t.m12;
+	n.m12=-s*t.m11+c*t.m12;
+	n.m21=c*t.m21+s*t.m22;
+	n.m22=-s*t.m21+c*t.m22;
+	n.tX=c*t.tX+s*t.tY;
+	n.tY=-s*t.tX+c*t.tY;
+	[_frame2bounds setTransformStruct:n];
+//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
+	boundsRotation += a;
+	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+}
+
+// OK
+
+- (void) translateOriginToPoint:(NSPoint) p;
+{
+	NSLog(@"2 translateOriginToPoint:%@", NSStringFromPoint(p));
+	NSAffineTransformStruct t=[_frame2bounds transformStruct];
+	t.tX -= p.x;
+	t.tY -= p.y;
+	[_frame2bounds setTransformStruct:t];
+//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
+	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+}
+
+// OK
+
+- (void) scaleUnitSquareToSize:(NSSize) sz;
+{
+	NSLog(@"2 scaleUnitSquareToSize:%@", NSStringFromSize(sz));
+	NSAffineTransformStruct t=[_frame2bounds transformStruct];
+	t.m11 /= sz.width;
+	t.m12 /= sz.height;
+	t.m21 /= sz.width;
+	t.m22 /= sz.height;
+	t.tX /= sz.width;
+	t.tY /= sz.height;
+	[_frame2bounds setTransformStruct:t];
+//	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
+	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+}
+
+#else // OLD
+
 - (void) _invalidateCTM;
 {
 	[_bounds2frame release], _bounds2frame=nil;
@@ -996,11 +1165,88 @@ printing
 	[self _invalidateCTMtoBase];	// subviews can keep their bounds2frame mapping intact - only their mapping to the screen changes
 }
 
-#if NEW
-	// setBounds* calls directly manipulate _bounds2frame (and recache _frame2bounds) and update _bounds
-#endif
+- (void) scaleUnitSquareToSize:(NSSize)newSize
+{
+	// FIXME!!! isn't it sufficient to update the bounds rect?
+	
+	//	unitSquareSize=newSize;
+	// scale bounds size & origin
+	_bounds.origin.x /= newSize.width;
+	_bounds.size.width /= newSize.width;
+	_bounds.origin.y /= newSize.height;
+	_bounds.size.height /= newSize.height;
+	_v.isRotatedOrScaledFromBase = YES;
+	[self _invalidateCTM];
+	if (_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+}
 
-#if 1 // OLD
+- (void) setBounds:(NSRect)aRect
+{
+	if(!NSEqualRects(_bounds, aRect))
+		{
+		_v.customBounds=YES;
+		_bounds = aRect;
+		[self _invalidateCTM];
+		}
+	if (_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+}
+
+- (void) setBoundsOrigin:(NSPoint)newOrigin			// translate bounds origin
+{													// in opposite direction so that newOrigin becomes the origin when viewed.
+	if(!NSEqualPoints(_bounds.origin, newOrigin))
+		{
+		_v.customBounds=YES;
+		_bounds.origin = newOrigin;
+		[self _invalidateCTM];
+		}
+	if(_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+}
+
+- (void) setBoundsSize:(NSSize)newSize
+{
+	if(!NSEqualSizes(_bounds.size, newSize))
+		{
+		_v.customBounds=YES;
+		_bounds.size = newSize;
+		[self _invalidateCTM];
+		}
+	if (_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+}
+
+- (void) setBoundsRotation:(float)angle
+{
+	if(boundsRotation != angle)
+		{
+		_v.customBounds=YES;
+		boundsRotation=angle;
+		[self _invalidateCTM];
+		_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;
+		}
+	if (_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+}
+
+- (void) translateOriginToPoint:(NSPoint)point
+{
+	[self setBoundsOrigin:NSMakePoint(_bounds.origin.x-point.x, _bounds.origin.y-point.y)];
+}
+
+- (void) rotateByAngle:(float)angle
+{
+	// FIXME: this also changes the bounds rect!
+	boundsRotation+=angle;
+	_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;
+	[self _invalidateCTM];
+	if(_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
+}
+
+- (NSRect) bounds					{ return _bounds; }
+- (float) boundsRotation			{ return boundsRotation; }
 
 - (NSAffineTransform*) _bounds2frame;
 { // create transformation matrix
@@ -1070,8 +1316,6 @@ printing
 	return _frame2bounds;
 }
 
-#endif
-
 - (NSAffineTransform *) _bounds2base;
 { // direct transformation of bounds coordinates to NSWindow's base, i.e. accumulation of all super_views
 	if(!_window)
@@ -1109,13 +1353,15 @@ printing
 	if(_window && !_base2bounds)
 		{ // not cached
 #if 0
-		NSLog(@"calculating _base2bounds: %@", self);
+			NSLog(@"calculating _base2bounds: %@", self);
 #endif
-		_base2bounds=[[self _bounds2base] copy];
-		[_base2bounds invert];	// go back from window to our bounds coordinates
+			_base2bounds=[[self _bounds2base] copy];
+			[_base2bounds invert];	// go back from window to our bounds coordinates
 		}
 	return _base2bounds;
 }
+
+#endif	/* old */
 
 + (NSAffineTransform *) _matrixFromView:(NSView *) from toView:(NSView *) to;
 { // transform from 'from' -> base -> 'to' - NOTE: result is NOT necessarily a mutable copy!
@@ -1599,7 +1845,6 @@ printing
 #endif
 		if(super_view)
 			{ // FIXME: not rotation-safe
-			NSAffineTransform *atm;
 			NSRect r;
 			if(NO && [self isOpaque])
 				{ // just mark all the superviews to needsDisplaySubviews without updating their dirty rect
@@ -1612,7 +1857,6 @@ printing
 				[NSApp setWindowsNeedUpdate:YES];	// and NSApp should also know...
 				return;
 				}
-			atm=[self _bounds2frame];	// goes to our superview
 			r=[self convertRect:rect toView:super_view];
 			[super_view setNeedsDisplayInRect:r];	// FIXME: we should simply loop instead of doing a recursion
 			}
@@ -1726,7 +1970,6 @@ printing
 		e=[sub_views objectEnumerator];
 		while((subview=[e nextObject]))	// go downwards independently of their needsDisplay status since we have redrawn the background
 			{
-			NSAffineTransform *atm;
 			NSRect subRect;
 			if([subview isHidden])		// this saves converting the rect if the subview doesn't want to be drawn
 				continue;

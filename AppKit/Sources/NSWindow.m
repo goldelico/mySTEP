@@ -182,7 +182,7 @@ static BOOL __cursorHidden = NO;
 #if 0
 			NSLog(@"init theme frame 2: subviews=%@", sub_views);
 #endif
-			_style=aStyle;
+		_style=aStyle;
 		_drawsResizeIndicator=(_style & NSResizableWindowMask) != 0 && !([self interfaceStyle] >= NSPDAInterfaceStyle);
 		[self setAutoresizingMask:(NSViewWidthSizable|NSViewHeightSizable)];	// resize with window
 		[self setAutoresizesSubviews:YES];
@@ -190,7 +190,7 @@ static BOOL __cursorHidden = NO;
 			{ // not a NSNextStepFrame
 			NSButton *b0, *b1, *b2, *b3;
 #if 0
-				NSLog(@"init theme frame 3: subviews=%@", sub_views);
+			NSLog(@"init theme frame 3: subviews=%@", sub_views);
 #endif
 			[self addSubview:b0=[NSWindow standardWindowButton:NSWindowCloseButton forStyleMask:aStyle]];
 			[self addSubview:b1=[NSWindow standardWindowButton:NSWindowMiniaturizeButton forStyleMask:aStyle]];
@@ -685,7 +685,7 @@ static BOOL __cursorHidden = NO;
 		[_cell setImagePosition:NSImageOverlaps];
 		[_cell setBordered:NO];	// no bezel
 		[_cell setFont:[NSFont titleBarFontOfSize:0]];
-			[_cell setShowsFirstResponder:NO];	// don't show
+		[_cell setShowsFirstResponder:NO];	// don't show
 		}
 	return self;
 }
