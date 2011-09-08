@@ -16,6 +16,8 @@
 @property Object1 *location;
 
 - (oneway void) doSomething:(id) val;
+/* some special cases */
+- (id) continue;
 - (void) for:(Object1 <protocol> *) val;
 
 @end

@@ -935,7 +935,10 @@ printing
 		else
 			_base2bounds=[NSAffineTransform new];
 		if(/*flippedCache = */flipped)
-			[_base2bounds scaleXBy:1.0 yBy:-1.0];
+			{
+			[_base2bounds translateXBy:0 yBy:_frame.size.height];
+			[_base2bounds scaleXBy:1.0 yBy:-1.0];			
+			}
 		[_base2bounds rotateByDegrees:frameRotation];
 		[_base2bounds translateXBy:_frame.origin.x yBy:_frame.origin.y];
 		[_base2bounds appendTransform:_frame2bounds];	// finally transform to bounds
@@ -1454,7 +1457,7 @@ printing
 	NSLog(@"convertRect 1");
 #endif
 	atm=[isa _matrixFromView:self toView:aView];
-	if(_v.isRotatedFromBase)
+	if(1 || _v.isRotatedFromBase)
 #if 1
 		NSLog(@"slow"),
 #endif

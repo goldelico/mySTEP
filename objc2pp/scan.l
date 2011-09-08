@@ -171,13 +171,14 @@ void scaninit(void)
 {L}({L}|{D})*  { 
 	int s;
 	charCount();
+	/* FIXME: obj-c method names may be any identifier, i.e. it is perfectly legal to define a method - (void) continue;
 	s=lookup(symtab, yytext);
 	if(type(s) == 0)
 		setType(s, IDENTIFIER);	/* new entry */
 	yylval=s;
 	if(right(s))
 		return TYPE_NAME;	/* typedef'd type name */
-	return type(s);
+	return type(s);	/* keyword or plain identifier */
 } 
 
 	/* numeral CONSTANTs */
