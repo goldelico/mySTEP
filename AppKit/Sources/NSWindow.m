@@ -674,6 +674,11 @@ static BOOL __cursorHidden = NO;
 
 // handle graying out of buttons if our window is not main window or App is not active
 
+- (void) drawRect:(NSRect)rect
+{
+	[super drawRect:rect];
+}
+
 - (id) initWithFrame:(NSRect) f forStyleMask:(unsigned int) aStyle;
 {
 	if((self=[super initWithFrame:f]))

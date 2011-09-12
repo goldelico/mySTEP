@@ -925,9 +925,9 @@ printing
 { // cached
 	BOOL flipped=[self isFlipped];
 	if(super_view)
-		flipped	= flipped != [super_view isFlipped];	// flip only of different
+		flipped	= flipped != [super_view isFlipped];	// flip only if different
 	// should be compared to a stored flag so that we can detect dynamic changes in flipping state
-	if(_window && (!_base2bounds /* || flipped != flippedCache */))
+	if((!_base2bounds /* || flipped != flippedCache */) && _window)
 		{
 #if 0
 		NSLog(@"calculating _base2bounds: %@", self);
@@ -938,11 +938,11 @@ printing
 			_base2bounds=[NSAffineTransform new];
 		if(/*flippedCache = */flipped)
 			{
-			[_base2bounds translateXBy:0 yBy:_frame.size.height];
+			[_base2bounds translateXBy:0.0 yBy:_frame.size.height];
 			[_base2bounds scaleXBy:1.0 yBy:-1.0];			
 			}
+		[_base2bounds translateXBy:-_frame.origin.x yBy:-_frame.origin.y];
 		[_base2bounds rotateByDegrees:frameRotation];
-		[_base2bounds translateXBy:_frame.origin.x yBy:_frame.origin.y];
 		[_base2bounds appendTransform:_frame2bounds];	// finally transform to bounds
 		}
 	return _base2bounds;
@@ -951,7 +951,7 @@ printing
 - (NSAffineTransform *) _bounds2base;
 {
 	// FIXME: must also be recached if isFlipped has changed!
-	if(_window && (!_bounds2base /* || [self isFlipped] != flippedCache */))
+	if((!_bounds2base /* || [self isFlipped] != flippedCache */) && _window)
 		{ // not yet cached
 #if 0
 			NSLog(@"calculating _bounds2base: %@", self);
