@@ -924,6 +924,8 @@ printing
 - (NSAffineTransform *) _base2bounds
 { // cached
 	BOOL flipped=[self isFlipped];
+	if(super_view)
+		flipped	= flipped != [super_view isFlipped];	// flip only of different
 	// should be compared to a stored flag so that we can detect dynamic changes in flipping state
 	if(_window && (!_base2bounds /* || flipped != flippedCache */))
 		{
@@ -1018,6 +1020,10 @@ printing
 	NSLog(@"m11=%g m12=%g m21=%g m22=%g tX=%g tY=%g", t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
 //	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
 	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+	_v.customBounds=YES;
+	[self _invalidateCTM];
+	if (_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }
 
 /*
@@ -1037,6 +1043,10 @@ printing
 	[_frame2bounds setTransformStruct:t];
 //	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
 	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+	_v.customBounds=YES;
+	[self _invalidateCTM];
+	if (_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }
 
 // OK (maybe except @ 180 degrees)
@@ -1077,6 +1087,10 @@ printing
 	[_frame2bounds setTransformStruct:t];
 //	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
 	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+	_v.customBounds=YES;
+	[self _invalidateCTM];
+	if (_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }
 
 // nok
@@ -1104,6 +1118,10 @@ printing
 //	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
 	boundsRotation=a;	// protect against rounding errors
 	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+	_v.customBounds=YES;
+	[self _invalidateCTM];
+	if (_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }
 
 /* relative modifiers */
@@ -1127,6 +1145,10 @@ printing
 //	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
 	boundsRotation += a;
 	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+	_v.customBounds=YES;
+	[self _invalidateCTM];
+	if (_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }
 
 // OK
@@ -1140,6 +1162,10 @@ printing
 	[_frame2bounds setTransformStruct:t];
 //	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
 	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+	_v.customBounds=YES;
+	[self _invalidateCTM];
+	if (_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }
 
 // OK
@@ -1157,6 +1183,10 @@ printing
 	[_frame2bounds setTransformStruct:t];
 //	NSLog(@"bounds=%@ matrix=%@ rot=%g", NSStringFromRect([self bounds]), [self matrix], [self boundsRotation]);
 	_bounds=[_frame2bounds _transformRect:(NSRect) { NSZeroPoint, _frame.size }];	// does not include frameOrigin and frameRotation!
+	_v.customBounds=YES;
+	[self _invalidateCTM];
+	if (_v.postBoundsChange)
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(BoundsDidChange) object: self];
 }
 
 #else // OLD
@@ -1396,6 +1426,36 @@ printing
 	return atm;
 }
 
+- (NSPoint) convertPointFromBase:(NSPoint) p
+{
+	return [_base2bounds transformPoint:p];
+}
+
+- (NSPoint) convertPointToBase:(NSPoint) p
+{
+	return [[self _bounds2base] transformPoint:p];	
+}
+
+- (NSSize) convertSizeFromBase:(NSSize) sz
+{
+	return [_base2bounds transformSize:sz];
+}
+
+- (NSSize) convertSizeToBase:(NSSize) sz
+{
+	return [[self _bounds2base] transformSize:sz];	
+}
+
+- (NSRect) convertRectFromBase:(NSRect) r
+{
+	return [_base2bounds _transformRect:r];
+}
+
+- (NSRect) convertRectToBase:(NSRect) r
+{
+	return [[self _bounds2base] _transformRect:r];	
+}
+
 - (NSPoint) convertPoint:(NSPoint)aPoint fromView:(NSView*)aView
 {
 	if(aView == self)
@@ -1410,6 +1470,9 @@ printing
 	if(aView == self)
 		return aRect;
 	atm=[isa _matrixFromView:aView toView:self];
+#if 1
+	NSLog(@"convert rect atm: %@", atm);
+#endif
 	if(_v.isRotatedFromBase)
 		r=[atm _transformRect:aRect];
 	else

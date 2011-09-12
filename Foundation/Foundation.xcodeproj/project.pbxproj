@@ -357,7 +357,7 @@
 		EE81F9F40962EFD200F9F896 /* NSCompatibility.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSCompatibility.h; path = Sources/NSCompatibility.h; sourceTree = "<group>"; };
 		EE81FA1F0962F0EC00F9F896 /* NSDebug.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSDebug.h; path = Sources/NSDebug.h; sourceTree = "<group>"; };
 		EE84E10910DBC29F00BD95A6 /* libobjc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = libobjc; path = ../libobjc; sourceTree = SOURCE_ROOT; };
-		EE84E14710DBC2BC00BD95A6 /* objc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objc; path = ../libobjc/objc; sourceTree = SOURCE_ROOT; };
+		EE84E14710DBC2BC00BD95A6 /* objc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = objc; path = "../../../Library/Frameworks/System.framework/Versions/i386-apple-darwin/gcc/armv4t-angstrom-linux-gnueabi/lib/gcc/armv4t-angstrom-linux-gnueabi/4.2.4/include/objc"; sourceTree = SOURCE_ROOT; };
 		EE8B85B512A2649E00224CBA /* build.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
 		EE8CDDE40F404B0600790C18 /* NSXMLNodeOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSXMLNodeOptions.h; path = Sources/NSXMLNodeOptions.h; sourceTree = "<group>"; };
 		EE8EFA4909605809006CCB63 /* NSPredicate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSPredicate.h; path = Sources/NSPredicate.h; sourceTree = "<group>"; };
