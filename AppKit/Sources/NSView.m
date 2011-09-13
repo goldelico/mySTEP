@@ -477,6 +477,10 @@ printing
 		}
 	context=[NSGraphicsContext currentContext];
 	[[self _bounds2base] set];	// set required transformation matrix
+	if(_v.isRotatedFromBase)
+		{
+		// set rotated clipping rect for frame
+		}
 	fstack=(NSMutableArray *) [context focusStack];
 	if(!fstack)
 		{ // create focus stack
@@ -1981,6 +1985,7 @@ printing
 		invalidRect=NSZeroRect;
 		return;
 		}
+	// FIXME: must also clip to rotated frame
 	rect=NSIntersectionRect(_bounds, rect);	// shrink to bounds (not invalidRect!)
 	_v.needsDisplaySubviews=NO;
 	locked=NO;
