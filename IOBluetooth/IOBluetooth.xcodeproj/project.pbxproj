@@ -380,7 +380,14 @@
 			isa = PBXProject;
 			buildConfigurationList = EEEB9CF709A7542900626AB7 /* Build configuration list for PBXProject "IOBluetooth" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* BrowserTester */;
 			productRefGroup = EE29D8D8058A38830035639B /* Products */;
 			projectDirPath = "";
@@ -422,7 +429,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"IOBluetoothObject.m IOBluetoothDevice*.m IOBluetooth*Channel.m IOBluetoothSDP*.m IOBluetoothUserNotification.m *OBEX*.m\"   # all source codes\nexport LIBS=#-lbluez\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport OTHER_CFLAGS=-I../include\nexport FRAMEWORKS=\"Cocoa SystemStatus\"\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"libbluetooth2, quantumstep-foundation-framework\"\n\nexport CFLAGS=-I$ROOT/System/Sources/Xtoolchain/sources/bluez-libs-3.29/include/\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=\"IOBluetoothObject.m IOBluetoothDevice*.m IOBluetooth*Channel.m IOBluetoothSDP*.m IOBluetoothUserNotification.m *OBEX*.m\"   # all source codes\nexport LIBS=#-lbluez\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport OTHER_CFLAGS=-I../include\nexport FRAMEWORKS=\"Cocoa SystemStatus\"\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"libbluetooth3, quantumstep-foundation-framework\"\n\nexport CFLAGS=-I$ROOT/System/Sources/Xtoolchain/sources/bluez-libs-3.29/include/\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EEE16C0D0CD7BC7900A85BD3 /* Create Headers-objc */ = {
 			isa = PBXShellScriptBuildPhase;
