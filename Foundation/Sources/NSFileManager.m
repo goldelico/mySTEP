@@ -816,7 +816,7 @@ NSMutableArray *c;
 			NSLog(@"virtualRoot=%@", virtualRoot);
 #endif
 			}
-		if(![path hasPrefix:@"/dev"] && ![path hasPrefix:@"/proc"] && ![path hasPrefix:@"/tmp"] && ![path hasPrefix:@"/bin"] && ![path hasPrefix:@"/etc"])	// we could also check for upper/lower case?
+		if(![path hasPrefix:@"/dev"] && ![path hasPrefix:@"/sys"] && ![path hasPrefix:@"/proc"] && ![path hasPrefix:@"/tmp"] && ![path hasPrefix:@"/bin"] && ![path hasPrefix:@"/etc"])	// we could also check for upper/lower case?
 			path=[virtualRoot stringByAppendingString:path]; // virtually do a chroot("/home/myPDA")
 		}
 #if 0
