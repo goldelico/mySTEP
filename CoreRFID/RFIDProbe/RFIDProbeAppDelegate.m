@@ -15,7 +15,7 @@
 	return YES;
 }
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+- (void) applicationDidFinishLaunching:(NSNotification *)aNotification {
 	// Insert code here to initialize your application
 	manager=[CRTagManager new];
 	[manager setDelegate:self];
@@ -116,6 +116,7 @@
 		{
 		NSString *fullname=[@"/dev" stringByAppendingPathComponent:[devices objectAtIndex:row]];
 		NSMutableDictionary *values=[[[NSUserDefaults standardUserDefaults] persistentDomainForName:NSGlobalDomain] mutableCopy];
+		if(!values) values=[[NSMutableDictionary alloc] initWithCapacity:1];
 		[values setObject:fullname forKey:@"RFIDReaderSerialDevice"];
 		[[NSUserDefaults standardUserDefaults] setPersistentDomain:values forName:NSGlobalDomain];
 		[values release];
