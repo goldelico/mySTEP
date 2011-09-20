@@ -786,7 +786,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 { // deduct encoding from data
 	NSStringEncoding e;
 	const unsigned char *t = [data bytes];
-	static char xml[]="<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+	static char xml[]="<?xml version=\"1.0\" encoding=\"UTF-8\"";
 	if(t == NULL) 
 		return nil;
 	if((t[0]==0xFF) && (t[1]==0xFE))
@@ -802,6 +802,9 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		}
 	else	
 		e = __cStringEncoding;
+#if 1
+	NSLog(@"enc=%d data=%@", e, data);
+#endif
 	return [self initWithData:data encoding:e];
 }
 

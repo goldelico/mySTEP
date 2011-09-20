@@ -275,6 +275,8 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	NSAutoreleasePool *arp;
 	
 	NSAssert(mode, NSInvalidArgumentException);
+	if(limit)
+		*limit=[[NSDate distantFuture] retain];	// default
 #if 0
 	NSLog(@"_runLoopForMode:%@ beforeDate:%@ limitDate:%p", mode, before, limit);
 #endif
@@ -347,7 +349,6 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 			}
 		if(limit)
 			{ // second loop to determine the limit date
-			*limit=[NSDate distantFuture];	// default
 			i = [timers count];
 #if 0
 			NSLog(@"timers=%@", timers);
@@ -371,14 +372,16 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 						*limit=fire;	// timer with earlier trigger date has been found
 					}
 				}
-			[*limit retain];	// protect against being dealloc'ed when we clear up private ARPs
 			}
 		}
 
-#if 0
 	if(limit)
+		{
+		[*limit retain];	// protect against being dealloc'ed when we clear up private ARPs
+#if 0
 		NSLog(@"limit = %@", *limit);
-#endif
+#endif		
+		}
 	
 	if(!before || (ti = [before timeIntervalSinceNow]) <= 0.0)		// Determine time to wait and
 		{															// set SELECT_TIMEOUT.	Don't

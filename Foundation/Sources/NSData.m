@@ -1406,13 +1406,13 @@ void* b;
 		{ [self release]; return nil; }
 	p=[[NSFileManager defaultManager] fileSystemRepresentationWithPath:path];
 #if 0
-	NSLog(@"initWithContentsOfFile: %@", path);
+	NSLog(@"initWithContentsOfFile: %@ -> %s", path, p);
 #endif
 	
     if ((f = fopen(p, "r")) == NULL) 
 		{
 		[self release];
-		return nil; // does not exist
+		return nil; // does not exist or can't read
 		}
 	
 	if ((fseek(f, 0L, SEEK_END)) != 0)			// Seek to end of the file
@@ -1435,16 +1435,20 @@ void* b;
 		fclose(f);
 		return GSError(self, @"fseek SEEK_SET failed - %s", strerror(errno));	// does a [self release] which does objc_free(bytes)
 		}
-
-	if(length == 0)
+#if 0
+	NSLog(@"length=%d", length);
+#endif
+	if(length == 0 || length == 4096)
 		{
 		/*
 		 * Special case ... a file of length zero may be a named pipe or some
 		 * file in the /proc filesystem, which will return us data if we read
 		 * from it ... so we try reading as much as we can.
+		 * More special case: a file in /sys reports 4096 (always???) length
 		 */
 		unsigned char buf[BUFSIZ];	// temporary buffer
 		int l;
+		length=0;
 		while((l = fread(buf, 1, BUFSIZ, f)) != 0)
 			{
 			unsigned char *newBytes=objc_realloc(bytes, length+l);	// increase buffer size
@@ -1460,8 +1464,9 @@ void* b;
 		}
 	else if ((fread(bytes, 1, length, f)) != length)  // we know the length; read in one full chunk
 		{ // did not read the full file
+		int err=errno;
 		fclose(f);
-		return GSError(self, @"Fread of file %@ failed - %s", path, strerror(errno));
+		return GSError(self, @"Fread of file %@ failed - %s", path, strerror(err));
 		}
     fclose(f);
 #if 0

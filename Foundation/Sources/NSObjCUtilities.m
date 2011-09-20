@@ -531,10 +531,16 @@ void NSLogv(NSString *format, va_list args)
 #endif
 	if(__printLog)
 		{
-		NSAutoreleasePool *pool = [NSAutoreleasePool new];
+		NSAutoreleasePool *pool;
 		NSString *prefix;
 		NSString *message;
 		const char *msg;
+		if(__doingNSLog)
+			{ // any of the NSString, NSCalendarDate, NSProcessInfo methods may have a debugging call to NSLog()
+			fprintf(stderr, "recursive NSLog\n");
+			return;
+			}
+		pool = [NSAutoreleasePool new];
 		__doingNSLog = YES;
 #if 0
 		fprintf(stderr, ">> NSRealMemoryAvailable=%u\n", NSRealMemoryAvailable ());
