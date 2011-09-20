@@ -133,7 +133,9 @@ static NSMutableArray *_paired;
 	NSUserDefaults *ud=[NSUserDefaults standardUserDefaults];
 	NSMutableDictionary *dom=[[[ud persistentDomainForName:DEFAULTS] mutableCopy] autorelease];
 	NSString *addr=[self getAddressString];
-	NSArray *favs=[dom objectForKey:@"FavoriteDevices"];
+	NSArray *favs;
+	if(!dom) dom=[NSMutableDictionary dictionaryWithCapacity:1];
+	favs=[dom objectForKey:@"FavoriteDevices"];
 	if([favs containsObject:addr])
 		return kIOReturnError;	// already a favourite
 	[dom setObject:[favs arrayByAddingObject:addr] forKey:@"FavoriteDevices"];	// update list
