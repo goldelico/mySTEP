@@ -278,8 +278,6 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 #if 0
 	NSLog(@"_runLoopForMode:%@ beforeDate:%@ limitDate:%p", mode, before, limit);
 #endif
-	if(limit)
-		*limit=[NSDate distantFuture];	// default
 	arp=[NSAutoreleasePool new];
 #if 0
 	NSLog(@"_checkPerformersAndTimersForMode:%@ count=%d", mode, count);
@@ -300,27 +298,30 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		}										// the end of the array
 	
 	if((timers = NSMapGet(_mode_2_timers, mode)))									
-		{ // process all timers for this mode
-		i = [timers count];		
+		{ // process all timers for this mode - we must be careful, since firing timers may add/remove timers and call the same runloop
+		i = [timers count];
+#if 0
+		NSLog(@"timers=%@", timers);
+#endif
 		while(i-- > 0)
 			{ // process backwards because we might remove the timer (or add new ones at the end)
-			NSTimer *min_timer = [timers objectAtIndex:i];
+			NSTimer *timer = [timers objectAtIndex:i];
 #if 0
-			NSLog(@"%d: check %p: %@ forMode:%@", i, min_timer, min_timer, mode);
+			NSLog(@"%d: check timer to fire %p: %@ forMode:%@", i, timer, timer, mode);
 #endif
 #if 0
-			NSLog(@"retainCount=%d", [min_timer retainCount]);
+			NSLog(@"retainCount=%d", [timer retainCount]);
 #endif
-			[min_timer retain];	// note: we may reenter this run-loop through -fire - where the timer may already be invalid; the inner run-loop will remove the timer from the array
-			if(min_timer->_is_valid)
+			[timer retain];	// note: we may reenter this run-loop through -fire - where the timer may already be invalid; the inner run-loop will remove the timer from the array
+			if(timer->_is_valid)
 				{ // valid timer (may be left over with negative interval from firing while we did run in a different mode or did have too much to do)
 #if 0
-				NSLog(@"timeFromNow = %lf", [[min_timer fireDate] timeIntervalSinceNow]); 
+				NSLog(@"timeFromNow = %lf", [[timer fireDate] timeIntervalSinceNow]); 
 #endif
-				if([[min_timer fireDate] timeIntervalSinceNow] <= 0.0)
+				if([[timer fireDate] timeIntervalSinceNow] <= 0.0)
 					{ // fire!
 #if 0
-					NSLog(@"fire %p!", min_timer);
+					NSLog(@"fire %p!", timer);
 #endif
 						/* NOTEs:
 						 * this might also fire an attached timed performer object
@@ -328,14 +329,40 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 						 * and even re-enter this run-loop!
 						 * will update the fireDate for repeating timers
 						 */
-					[min_timer fire];
+					[timer fire];
 #if 0
-						NSLog(@"fire %p done.", min_timer);
-						NSLog(@"retainCount=%d", [min_timer retainCount]);
+					NSLog(@"fire %p done.", timer);
+					NSLog(@"retainCount=%d", [timer retainCount]);
 #endif
 					}
-				if(limit && min_timer->_is_valid)
-					{ // if timer is still (or again) valid - include in limit date calculation
+				}
+			if(!timer->_is_valid)
+				{ // now invalid after firing (i.e. we are not a repeating timer or did invalidate)
+#if 0
+				NSLog(@"%d[%d] remove %@", i, [timers count], timer);
+#endif
+				[timers removeObjectAtIndex:i];
+				}
+			[timer release];	// this should finally dealloc an invalid timer (and a timed performer) if it is the last mode we have checked
+			}
+		if(limit)
+			{ // second loop to determine the limit date
+			*limit=[NSDate distantFuture];	// default
+			i = [timers count];
+#if 0
+			NSLog(@"timers=%@", timers);
+#endif
+			while(i-- > 0)
+				{
+				NSTimer *min_timer = [timers objectAtIndex:i];
+#if 0
+				NSLog(@"%d: check timer for limit %p: %@ forMode:%@", i, min_timer, min_timer, mode);
+#endif
+				if(min_timer->_is_valid)
+					{
+#if 0
+					NSLog(@"timeFromNow = %lf", [[min_timer fireDate] timeIntervalSinceNow]); 
+#endif
 					NSDate *fire=[min_timer fireDate];	// get (new) fire date
 #if 0
 					NSLog(@"new fire date %@", fire);
@@ -344,20 +371,15 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 						*limit=fire;	// timer with earlier trigger date has been found
 					}
 				}
-			if(!min_timer->_is_valid)
-				{ // now invalid after firing (i.e. we are not a repeating timer or did invalidate)
-#if 0
-				NSLog(@"%d[%d] remove %@", i, [timers count], min_timer);
-#endif
-				[timers removeObjectAtIndex:i];
-				}
-			[min_timer release];	// this should finally dealloc an invalid timer (and a timed performer) if it is the last mode we have checked
+			[*limit retain];	// protect against being dealloc'ed when we clear up private ARPs
 			}
 		}
-	
-	if(limit)
-		[*limit retain];	// protect against being dealloc'ed when we clear up private ARPs
 
+#if 0
+	if(limit)
+		NSLog(@"limit = %@", *limit);
+#endif
+	
 	if(!before || (ti = [before timeIntervalSinceNow]) <= 0.0)		// Determine time to wait and
 		{															// set SELECT_TIMEOUT.	Don't
 		timeout.tv_sec = 0;											// wait if no limit date or it lies in the past. i.e.		
