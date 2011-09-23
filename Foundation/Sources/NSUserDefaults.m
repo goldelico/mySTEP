@@ -111,7 +111,7 @@ static NSUserDefaults *__sharedDefaults = nil;
 	if([domain isEqualToString:NSGlobalDomain])
 		domain=NSGLOBALDOMAINFILE;   // surrogate file name (invisible)
 	path=[NSString stringWithFormat:@"%@/%@.plist", _defaultsDatabase, domain];
-#if 1
+#if 0
 	NSLog(@"path=%@", path);
 #endif
 	return path;
@@ -419,7 +419,7 @@ static NSUserDefaults *__sharedDefaults = nil;
 { // try to load and cache this domain
 	NSMutableDictionary *dict;
 	static BOOL lock=NO;	// may be called recursively during initialization
-#if 1
+#if 0
 	NSLog(@"persistentDomainForName:%@ flag=%d", domain, lock);
 #endif
 	/*
@@ -437,7 +437,7 @@ static NSUserDefaults *__sharedDefaults = nil;
 	dict = [_persDomains objectForKey:domain]; // try in persistent domains cache
 	if(!dict)
 		{ // domain is not yet in cache - create & load - will be written back only if it is really changed
-#if 1
+#if 0
 		NSLog(@"load persistent domain from file %@", [self _filePathForDomain:domain]);
 #endif
 		NS_DURING
@@ -447,12 +447,12 @@ static NSUserDefaults *__sharedDefaults = nil;
 		NS_ENDHANDLER
 		if(!dict || ![dict isKindOfClass:[NSDictionary class]])
 			dict=(NSMutableDictionary *) [NSNull null];	// mark as non-existent (or corrupt)
-#if 1
+#if 0
 		NSLog(@"loaded %@", dict);
 #endif
 		[_persDomains setObject:dict forKey:domain]; // was able to load - replace in cache
 		}
-#if 1
+#if 0
 	NSLog(@"found %@", dict);
 #endif
 	lock=NO;

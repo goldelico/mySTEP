@@ -3445,20 +3445,26 @@ static NSDictionary *_x11settings;
 		int first_event_return;
 		int first_error_return;
 		id val;
-		float xdpi=(25.4*WidthOfScreen(_screen))/(72.0*WidthMMOfScreen(_screen));
-		float ydpi=(25.4*HeightOfScreen(_screen))/(72.0*HeightMMOfScreen(_screen));
-		float avg=(xdpi+ydpi)*0.5;	// take average for 72dpi
+		float xdpp=(25.4*WidthOfScreen(_screen))/(72.0*WidthMMOfScreen(_screen));	// dpp: dots per point
+		float ydpp=(25.4*HeightOfScreen(_screen))/(72.0*HeightMMOfScreen(_screen));
+		float avg=(xdpp+ydpp)*0.5;	// take average for 72dpi
 		if(fabs(avg - rint(avg)) < 0.1)
 			avg=rint(avg);	// round to nearest integer if near enough
 		_screenScale=avg;
 #if 1
-		NSLog(@"calculated system space scale factor=%lf", _screenScale);
-		NSLog(@"xdpi=%lf", xdpi);
-		NSLog(@"ydpi=%lf", ydpi);
+			NSLog(@"pixel: w=%d h=%d", WidthOfScreen(_screen), HeightOfScreen(_screen));
+			NSLog(@"   mm: w=%d h=%d", WidthMMOfScreen(_screen), HeightMMOfScreen(_screen));
+			NSLog(@"dpp:   x=%lf y=%lf", xdpp, ydpp);
+			NSLog(@"calculated system space scale factor=%lf", _screenScale);
 #endif
 		val=[_x11settings objectForKey:@"systemSpaceScaleFactor"];
 		if(val)
-			_screenScale *= [val floatValue];	// modify
+			{
+			_screenScale *= [val floatValue];	// modify			
+#if 1
+			NSLog(@" adjusted system space scale factor=%lf", _screenScale);
+#endif
+			}
 		_xRect.width=WidthOfScreen(_screen);			// screen width in pixels
 		_xRect.height=HeightOfScreen(_screen);			// screen height in pixels
 		size.width=_xRect.width/_screenScale;					// screen width in 1/72 points
