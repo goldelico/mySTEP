@@ -1107,6 +1107,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	NSRange search = {0, _count};							// into Substrings
 	NSMutableArray *array = [NSMutableArray array];
 	NSRange found = [self rangeOfString:separator options:NSLiteralSearch range:search];
+	if (!separator)
+		[NSException raise: NSInvalidArgumentException format: @"separator is nil"];
 
 	while (found.length)
 		{
@@ -1116,9 +1118,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		search.length = _count - search.location;
 		found = [self rangeOfString:separator options:0 range:search];
 		}
-														// Add the last search (if any)
-	if (search.length)									// string range
-		[array addObject: [self substringWithRange: search]];
+														
+	[array addObject: [self substringWithRange: search]];	// Add the last fragment
 	
 	return array;
 }
@@ -1128,6 +1129,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	NSRange search = {0, _count};							// into Substrings
 	NSMutableArray *array = [NSMutableArray array];
 	NSRange found = [self rangeOfCharacterFromSet:separator options:NSLiteralSearch range:search];
+	if (!separator)
+		[NSException raise: NSInvalidArgumentException format: @"separator is nil"];
 	
 	while (found.length)
 		{
@@ -1137,9 +1140,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		search.length = _count - search.location;
 		found = [self rangeOfCharacterFromSet:separator options:0 range:search];
 		}
-	// Add the last search (if any)
-	if (search.length)									// string range
-		[array addObject: [self substringWithRange: search]];
+	[array addObject: [self substringWithRange: search]];
 	
 	return array;
 }

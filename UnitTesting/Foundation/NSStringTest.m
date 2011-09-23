@@ -13,6 +13,7 @@
 @implementation NSStringTest
 
 #define test(NAME, INPUT, METHOD, OUTPUT) - (void) test##NAME; { STAssertEqualObjects(OUTPUT, [INPUT METHOD], nil); }
+#define test1(NAME, INPUT, ARG, METHOD, OUTPUT) - (void) test##NAME; { STAssertEqualObjects(OUTPUT, [INPUT METHOD:ARG], nil); }
 
 // test creation, conversions, add, mutability etc.
 
@@ -33,6 +34,16 @@ test(stringByDeletingLastPathComponent7, @"scratch.tiff", stringByDeletingLastPa
 test(stringByDeletingLastPathComponent8, @"//tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");
 test(stringByDeletingLastPathComponent9, @"//", stringByDeletingLastPathComponent, @"/");
 // test(stringByDeletingLastPathComponent10, [NSNull null], stringByDeletingLastPathComponent, @"exception...");
+
+test1(componentsSeparatedByString1, @"a:b", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"a", @"b", nil]));
+test1(componentsSeparatedByString2, @"ab", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"ab", nil]));
+test1(componentsSeparatedByString3, @":b", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"", @"b", nil]));
+test1(componentsSeparatedByString4, @"a:", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"a", @"", nil]));
+test1(componentsSeparatedByString5, @"a::b", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"a", @"", @"b", nil]));
+test1(componentsSeparatedByString6, @"a:::b", @"::", componentsSeparatedByString, ([NSArray arrayWithObjects:@"a", @":b", nil]));
+test1(componentsSeparatedByString7, @"a::::b", @"::", componentsSeparatedByString, ([NSArray arrayWithObjects:@"a", @"", @"b", nil]));
+test1(componentsSeparatedByString8, @":", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"", @"", nil]));
+test1(componentsSeparatedByString9, @"", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"", nil]));
 
 // add many more such tests
 
