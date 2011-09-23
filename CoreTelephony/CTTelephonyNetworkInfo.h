@@ -14,10 +14,8 @@
 
 - (void) subscriberCellularProviderDidUpdate:(CTCarrier *) carrier;	// SIM card was changed
 - (void) currentNetworkDidUpdate:(CTCarrier *) carrier;	// roaming
-
-// enable other notifications?
 - (void) currentCellDidUpdate:(CTCarrier *) carrier;	// mobile operation
-// notify other changes? signal strength etc?
+- (void) signalStrengthDidUpdate:(CTCarrier *) carrier;
 
 @end
 
@@ -38,6 +36,6 @@
 - (void) setDelegate:(id <CTNetworkInfoDelegate>) delegate;
 
 - (CTCarrier *) currentNetwork;	// changes while roaming
-- (NSSet *) networks;	// list of networks being available
+- (NSSet *) networks;	// list of networks that are available
 
 @end

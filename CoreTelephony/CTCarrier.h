@@ -9,21 +9,32 @@
 #import <Foundation/Foundation.h>
 
 @interface CTCarrier : NSObject
+{
+	NSString	*carrierName;
+	NSString	*isoCountryCode;
+	NSString	*mobileCountryCode;
+	NSString	*mobileNetworkCode;
+	NSString	*cellID;
+	float		strength;
+	float		dBm;
+	float		networkType;
+}
 
-- (BOOL) allowsVOIP;
 - (NSString *) carrierName;
 - (NSString *) isoCountryCode;
 - (NSString *) mobileCountryCode;
 - (NSString *) mobileNetworkCode;
+- (BOOL) allowsVOIP;
 
 @end
 
 @interface CTCarrier (Extensions)
 
-- (float) strength;	// signal strength (in db)
+- (float) strength;		// signal strength (0..1)
+- (float) dBm;			// signal strength (in dBm)
 - (float) networkType;	// 2.0, 2.5, 3.0, 3.5 etc.
-- (BOOL) canChoose;	// is permitted to use
-- (void) choose;	// make this the current carrier
+- (BOOL) canChoose;		// is permitted to use
+- (void) choose;		// make this the current carrier
 - (NSString *) cellID;	// current cell ID
 
 @end
