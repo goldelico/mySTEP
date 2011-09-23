@@ -29,6 +29,7 @@
 		EE02A43713C1E20A00D5E67E /* CTCallCenter.h in Headers */ = {isa = PBXBuildFile; fileRef = EE02A43113C1E20A00D5E67E /* CTCallCenter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE02A43813C1E20A00D5E67E /* CTCarrier.h in Headers */ = {isa = PBXBuildFile; fileRef = EE02A43213C1E20A00D5E67E /* CTCarrier.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE02A43913C1E20A00D5E67E /* CTTelephonyNetworkInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = EE02A43313C1E20A00D5E67E /* CTTelephonyNetworkInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE549AC3142B26B600978121 /* AskPin.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE549AC1142B26B600978121 /* AskPin.nib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +56,7 @@
 		EE02A43113C1E20A00D5E67E /* CTCallCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTCallCenter.h; sourceTree = "<group>"; };
 		EE02A43213C1E20A00D5E67E /* CTCarrier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTCarrier.h; sourceTree = "<group>"; };
 		EE02A43313C1E20A00D5E67E /* CTTelephonyNetworkInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTTelephonyNetworkInfo.h; sourceTree = "<group>"; };
+		EE549AC2142B26B600978121 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AskPin.nib; sourceTree = "<group>"; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEB23DB41258B6410018A9F3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
@@ -105,6 +107,7 @@
 			isa = PBXGroup;
 			children = (
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
+				EE549AC1142B26B600978121 /* AskPin.nib */,
 				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
 			);
 			name = Resources;
@@ -220,6 +223,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
+				EE549AC3142B26B600978121 /* AskPin.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,6 +284,14 @@
 				089C1667FE841158C02AAC07 /* English */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		EE549AC1142B26B600978121 /* AskPin.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EE549AC2142B26B600978121 /* English */,
+			);
+			name = AskPin.nib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

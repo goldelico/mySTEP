@@ -15,13 +15,18 @@
 - (void) subscriberCellularProviderDidUpdate:(CTCarrier *) carrier;	// SIM card was changed
 - (void) currentNetworkDidUpdate:(CTCarrier *) carrier;	// roaming
 
-// enable other notificat‚ions?
+// enable other notifications?
 - (void) currentCellDidUpdate:(CTCarrier *) carrier;	// mobile operation
 // notify other changes? signal strength etc?
 
 @end
 
 @interface CTTelephonyNetworkInfo : NSObject
+{
+	CTCarrier *subscriberCellularProvider;
+	CTCarrier *currentNetwork;
+	id <CTNetworkInfoDelegate> delegate;
+}
 
 - (CTCarrier *) subscriberCellularProvider;
 

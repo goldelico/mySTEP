@@ -17,6 +17,12 @@ extern NSString const *CTCallStateDisconnected;
 {
 	NSString *callID;
 	NSString *peer;
+	enum {
+		kCTCallStateDialing,
+		kCTCallStateIncoming,
+		kCTCallStateConnected,
+		kCTCallStateDisconnected
+	} callState;
 }
 
 - (NSString *) callID;
@@ -38,6 +44,6 @@ extern NSString const *CTCallStateDisconnected;
 - (void) mute:(BOOL) flag;	// mute microphone
 - (void) volume:(float) value;	// general volume (earpiece, handsfree, headset)
 
-- (void) sendDTMF:(int) digit;	// 0..9, a-c, #, *
+- (void) sendDTMF:(NSString *) digit;	// 0..9, a-c, #, *
 
 @end

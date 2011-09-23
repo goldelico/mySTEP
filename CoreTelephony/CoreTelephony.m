@@ -7,31 +7,307 @@
 //
 
 #import <CoreTelephony/CoreTelephony.h>
+#include <signal.h>
 
 NSString const *CTCallStateDialing=@"CTCallStateDialing";
 NSString const *CTCallStateIncoming=@"CTCallStateIncoming";
 NSString const *CTCallStateConnected=@"CTCallStateConnected";
 NSString const *CTCallStateDisconnected=@"CTCallStateDisconnected";
 
+@interface CTCall (Private)
+- (int) _callState;
+- (void) _setCallState:(int) state;
+- (void) _setPeerPhoneNumber:(NSString *) number;
+@end
+
+@interface CTCallCenter (Modem)
+
+enum
+{
+	CT_STATE_INITIALIZE,
+	CT_STATE_DISCONNECTED,
+	CT_STATE_DIALLING,
+	CT_STATE_CONNECTED,
+	CT_STATE_DISCONNECTING,
+	CT_STATE_FATAL_ERROR,
+	CT_STATE_PIN_SENT,
+	CT_STATE_PIN_NOT_ACCEPTED,
+	CT_STATE_NO_SIM,
+	CT_STATE_MODEM_DEAD,
+};
+
+- (void) _gotoState:(int) state;
+- (void) _writeCommand:(NSString *) command andGotoState:(int) state;
+- (void) _processLine:(NSString *) line;
+- (void) _processData:(NSData *) line;
+- (void) _dataReceived:(NSNotification *) n;
+- (void) _writeCommand:(NSString *) str;
+
+@end
+
+@implementation CTCallCenter (Modem)
+
+- (IBAction) orderFrontPinPanel:(id) sender
+{
+	if(!pinPanel)
+		{ // try to load from NIB
+			if(![NSBundle loadNibNamed:@"AskPin" owner:self])	// being the owner allows to connect to views in the panel
+				{
+				NSLog(@"can't open AskPin panel");
+				return;	// ignore
+				}
+		}
+	/// FIXME: es gibt da einen NumberFormatter!!!
+	[pin setStringValue:@"****"];
+	[pinPanel orderFront:self];
+}
+	
+- (IBAction) pinOk:(id) sender;
+{ // a new pin has been provided
+	NSString *p=[pin stringValue];
+	// store temporarily so that we can check if it returns OK or not
+	// if ok, we can save the PIN
+	[self _writeCommand:[NSString stringWithFormat:@"AT+CPIN=%@", p] andGotoState:CT_STATE_PIN_SENT];
+}
+
+// we may add a checkbox to reveal/hide the PIN...
+// [pin setEchosBullets:YES/NO]
+
+- (void) _gotoState:(int) s;
+{
+	state=s;
+	NSLog(@"state=%d", state);
+}
+
+- (void) _writeCommand:(NSString *) command andGotoState:(int) s;
+{
+	[self _writeCommand:command];
+	[self _gotoState:s];
+}
+
+- (void) _processLine:(NSString *) line;
+{
+#if 1
+	NSLog(@"WWAN r (s=%d): %@", state, line);
+#endif
+	if([line hasPrefix:@"+CME ERROR: SIM not inserted"])
+		{ // response to AT+CPIN?
+			switch(state)
+			{
+				
+			}
+		// make [CTTelephonyNetworkInfo currentNetwork] show "NO SIM" which can be displayed in the status line
+		// cancel any action
+			return;
+		}
+	if([line hasPrefix:@"+CPIN: READY"])
+		{ // response to AT+CPIN?
+		// already provided, everything ok
+			//[self _gotoState:0];	// FIXME: pin state is different from other states...
+			return;
+		}
+	if([line hasPrefix:@"+CPIN: SIM PIN"])
+		{ // response to AT+CPIN?
+			[self orderFrontPinPanel:nil];
+			return;
+		}
+	
+	if([line hasPrefix:@"OK"])
+		{
+		switch(state)
+			{
+				
+			}
+		}
+	if([line hasPrefix:@"ERROR"])
+		{
+		switch(state)
+			{
+				
+			}
+		}
+	if([line hasPrefix:@"RING"])
+		{
+		
+		}
+}
+
+- (void) _processData:(NSData *) line;
+{ // we have received a new data block from the serial line
+	NSString *s=[[[NSString alloc] initWithData:line encoding:NSASCIIStringEncoding] autorelease];
+	NSArray *lines;
+	int l;
+#if 0
+	NSLog(@"data=%@", line);
+	NSLog(@"string=%@", s);
+#endif
+	if(lastChunk)
+		s=[lastChunk stringByAppendingString:s];	// append to last chunk
+	lines=[s componentsSeparatedByString:@"\n"];	// split into lines
+	for(l=0; l<[lines count]-1; l++)
+		{ // process lines except last chunk
+			s=[[lines objectAtIndex:l] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r"]];
+			[self _processLine:s];
+		}
+#if 0
+	NSLog(@"string=%@", s);
+#endif
+	[lastChunk release];
+	lastChunk=[[lines lastObject] retain];
+}
+
+- (void) _dataReceived:(NSNotification *) n;
+{
+#if 0
+	NSLog(@"_dataReceived %@", n);
+#endif
+	[self _processData:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
+	[[n object] readInBackgroundAndNotify];	// and trigger more notifications
+}
+
+- (void) _writeCommand:(NSString *) str;
+{
+#if 1
+	NSLog(@"WWAN w: %@", str);
+#endif
+	str=[str stringByAppendingString:@"\r"];
+	[modem writeData:[str dataUsingEncoding:NSASCIIStringEncoding]];	
+}
+
+@end
+
+@implementation CTCallCenter
+
+// FIXME: the call center shouldn't be a singleton!
+// reason: there may be multiple and different delegates for each instance
+
+static CTCallCenter *singleton;
+
+- (id) init
+{
+	if(singleton)
+		{
+		[self release];
+		return [singleton retain];
+		}
+	if(self=[super init])
+		{
+		NSString *dev=@"/dev/ttyHS3";	// find out by scanning /sys/.../*/name for the "Application" port
+		modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
+		if(!modem)
+			{
+			NSLog(@"was not able to open device file %@", dev);
+			[self release];
+			return nil;
+			}
+		currentCalls=[[NSMutableSet alloc] initWithCapacity:10];
+		signal(SIGIO, SIG_IGN);	// the HSO driver appears to send SIGIO although there was no fcntl(FASYNC)
+		[[NSNotificationCenter defaultCenter] addObserver:self
+												  selector:@selector(_dataReceived:)
+													  name:NSFileHandleReadCompletionNotification 
+													object:modem];	// make us see notifications
+#if 1
+		 NSLog(@"waiting for data on %@", dev);
+#endif
+		[modem readInBackgroundAndNotify];	// and trigger notifications
+		[self _writeCommand:@"ATI" andGotoState:CT_STATE_INITIALIZE];
+		[self checkPin:nil];		// could read from a keychain if specified - nil asks the user
+		singleton=[self retain];	// keep once more (caller will release!)
+		}
+	return self;
+}
+
+- (void) dealloc
+{
+	NSLog(@"CTCallCenter dealloc");
+	[[NSNotificationCenter defaultCenter] removeObserver:self
+													name:NSFileHandleReadCompletionNotification
+												  object:modem];	// don't observe any more
+	[self _writeCommand:@"AT+CHUP"];	// be as sure as possible to hang up
+	[modem closeFile];
+	[currentCalls release];
+	[modem release];
+	[super dealloc];
+	singleton=nil;
+}
+
+- (NSSet *) currentCalls; { return currentCalls; }
+
+- (id <CTCallCenterDelegate>) delegate; { return delegate; }
+- (void) setDelegate:(id <CTCallCenterDelegate>) d; { delegate=d; }
+
+- (CTCall *) dial:(NSString *) number;
+{
+	// check if we are already dialling or connected
+	// then either block, postpone or do something reasonable
+	// check string for legal characters
+	// check for non-empty
+	NSString *cmd=[NSString stringWithFormat:@"ATD%@;", number];
+	CTCall *call=[CTCall new];
+	[call _setCallState:kCTCallStateDialing];
+	[call _setPeerPhoneNumber:number];
+	[self _writeCommand:cmd andGotoState:CT_STATE_DIALLING];
+	[currentCalls addObject:call];
+	[call release];
+	return call;
+}
+
+- (BOOL) sendSMS:(NSString *) number message:(NSString *) message;
+{
+	// send a SMS
+	return NO;
+}
+
+- (BOOL) checkPin:(NSString *) p;	// get PIN status and ask if nil and none specified yet
+{
+	if(!p)
+		[self _writeCommand:@"AT+CPIN?" andGotoState:CT_STATE_PIN_SENT];
+	else
+		// AT+CPIN=number
+		; // check if pin is valid (can be used for a screen saver)
+	// runloop until we have received the status
+	// may open popup panel to provide the PIN
+	return YES;
+}
+
+@end
+
 @implementation CTCall
 
 - (void) dealloc
 {
+	if(callState != kCTCallStateDisconnected)
+		[self terminate];
 	[callID release];
-	[callState release];
 	[peer release];
 	[super dealloc];
 }
 
 - (NSString *) callID;
 {
-	return callID;
+	return callID;	// should be a unique number
 }
 
 - (NSString *) callState;
 {
-	// find out callState
-	return (NSString *) CTCallStateDisconnected;
+	switch(callState)
+	{
+		case kCTCallStateDialing: return (NSString *) CTCallStateDialing;
+		case kCTCallStateIncoming: return (NSString *) CTCallStateIncoming;
+		case kCTCallStateConnected: return (NSString *) CTCallStateConnected;
+		case kCTCallStateDisconnected: return (NSString *) CTCallStateDisconnected;
+	}
+	return @"callState: unknown";
+}
+
+- (int) _callState;
+{
+	return callState;
+}
+
+- (void) _setCallState:(int) state
+{
+	callState=state;
 }
 
 - (NSString *) peerPhoneNumber
@@ -39,10 +315,18 @@ NSString const *CTCallStateDisconnected=@"CTCallStateDisconnected";
 	return peer;
 }
 
+- (void) _setPeerPhoneNumber:(NSString *) number
+{
+	[peer autorelease];
+	peer=[number retain];
+}
+
 - (void) terminate;
 {
-	// anytime
-	// send ATH
+	CTCallCenter *center=[[CTCallCenter new] autorelease];
+	[center _writeCommand:@"AT+CHUP\n" andGotoState:CT_STATE_DISCONNECTING];
+	// FIXME: shouldn't we wait for the OK?
+	callState=kCTCallStateDisconnected;
 }
 
 - (void) hold;
@@ -79,41 +363,13 @@ NSString const *CTCallStateDisconnected=@"CTCallStateDisconnected";
 	// switch amixer
 }
 
-- (void) sendDTMF:(int) digit
+- (void) sendDTMF:(NSString *) digit
 { // 0..9, a-c, #, *
-	// send if connected
-}
-
-@end
-
-@implementation CTCallCenter
-
-- (id) init
-{
-	if(self=[super init])
-		{
-		// open interface to modem chip
-		// install callback
-		// asynchronously handle RING and incoming SMS
-		}
-	return self;
-}
-
-- (NSSet *) currentCalls; { return currentCalls; }
-
-- (id <CTCallCenterDelegate>) delegate; { return delegate; }
-- (void) setDelegate:(id <CTCallCenterDelegate>) d; { delegate=d; }
-
-- (CTCall *) dial:(NSString *) number;
-{
-	// initiate a new call in CTCallStateDialing
-	return nil;
-}
-
-- (BOOL) sendSMS:(NSString *) number message:(NSString *) message;
-{
-	// send a SMS
-	return NO;
+	if([digit length] != 1)
+		return;	// we could loop over all digits with a little delay
+	// check if this is a valid digit
+	NSLog(@"send DTMF: %@", digit);
+	[center _writeCommand:[NSString stringWithFormat:@"AT+VTS=%@\n", digit]];
 }
 
 @end
@@ -121,387 +377,68 @@ NSString const *CTCallStateDisconnected=@"CTCallStateDisconnected";
 @implementation CTCarrier
 
 #if 0
-- (BOOL) allowsVOIP;
+
 - (NSString *) carrierName;
 - (NSString *) isoCountryCode;
 - (NSString *) mobileCountryCode;
 - (NSString *) mobileNetworkCode;
+- (BOOL) allowsVOIP;
 
 - (float) strength;	// signal strength (in db)
 - (float) networkType;	// 2.0, 2.5, 3.0, 3.5 etc.
-- (BOOL) canChoose;	// is permitted to use
 - (NSString *) cellID;	// current cell ID
+- (BOOL) canChoose;	// is permitted to select (if there are alternatives)
 - (void) choose;	// make the current carrier if there are several options to choose
+
+- (id) initWithName:(NSString *) name isoCode etc. --- oder initWithResponse:
+
+- (void) _updateStrength:(float) strength networkType:(float) type cellID:(NSString *) cell;
+{ // process response of a regular AT command to get this info - as long as we stay with the same network
+	
+}
+
 #endif
 
 @end
 
 @implementation CTTelephonyNetworkInfo
 
-#if 0
+// wie werden Updates auf AT-Befehle angewendet - dazu erst mal die Befehle sammeln und verstehen
+
 - (CTCarrier *) subscriberCellularProvider;
+{
+	return subscriberCellularProvider;	// FIXME: das sollte einfach ein Index in den carrier-Set sein!
+}
+
+- (void) _setSubscriberCellularProvider:(CTCarrier *) provider;
+{
+	if(subscriberCellularProvider != provider)
+		{
+		[subscriberCellularProvider release];
+		subscriberCellularProvider=[provider retain];
+		[delegate subscriberCellularProviderDidUpdate:provider];
+		}
+}
 
 - (id <CTNetworkInfoDelegate>) delegate;
-- (void) setDelegate:(id <CTNetworkInfoDelegate>) delegate;
-
-- (CTCarrier *) currentNetwork;	// changes while roaming
-- (NSSet *) networks;	// list of networks being available
-#endif
-
-@end
-
-#if 0
-
-- (NSString *) tagUID; {
-	return tagUID;
-}
-- (NSString *) description; {
-	return [self tagUID];
-}
-
-- (NSData *) readAt:(NSUInteger) block; {
-	return [CRTagManager readBlockForTag:self at:(NSUInteger) block];	
-}
-
-- (BOOL) write:(NSData *) data at:(NSUInteger) block; {
-	return [CRTagManager writeBlockForTag:self at:(NSUInteger) block data:(NSData *) data];	
-}
-
-- (id) initWithUID:(NSString *) uid;
 {
-	if((self=[super init]))
-		{
-		tagUID=[uid retain];
-		}
-	return self;
+	return delegate;
 }
 
-- (void) dealloc
+- (void) setDelegate:(id <CTNetworkInfoDelegate>) del;
 {
-	[tagUID release];
-	[super dealloc];
+	delegate=del;
 }
 
-#if 0
-
-
-- (CLLocationDistance) altitude; { return altitude; }
-- (CLLocationCoordinate2D) coordinate; { return coordinate; }
-- (CLLocationDirection) course; { return course; }
-- (CLLocationAccuracy) horizontalAccuracy; { return horizontalAccuracy; }
-- (CLLocationSpeed) speed; { return speed; }
-- (NSDate *) timestamp; { return timestamp; }
-- (CLLocationAccuracy) verticalAccuracy; { return verticalAccuracy; }
-
-- (NSString *) description
-{
-	return [NSString stringWithFormat:@"<%.lf, %.lf> +/- %.lfm (speed %.lf kph / heading %.lf) @ %@",
-			coordinate.latitude, coordinate.longitude,
-			horizontalAccuracy,
-			speed,
-			course,
-			timestamp];
+- (CTCarrier *) currentNetwork;
+{ // changes while roaming
+	return currentNetwork;
 }
 
-- (CLLocationDistance) distanceFromLocation:(const CLLocation *) loc;
-{
-	// Großkreis berechnen
-	return -1.0;
-}
-
-- (void) dealloc
-{
-	[timestamp release];
-	[super dealloc];
-}
-
-- (id) initWithCoordinate:(CLLocationCoordinate2D) coord
-				 altitude:(CLLocationDistance) alt
-	   horizontalAccuracy:(CLLocationAccuracy) hacc
-		 verticalAccuracy:(CLLocationAccuracy) vacc
-				timestamp:(NSDate *) time;
-{
-	if(self = [super init])
-		{
-		altitude=alt;
-		coordinate=coord;
-		course=0.0;
-		horizontalAccuracy=hacc;
-		speed=0.0;
-		verticalAccuracy=vacc;
-		timestamp=[time retain];
-		}
-	return self;
-}
-
-- (id) initWithLatitude:(CLLocationDegrees) lat longitude:(CLLocationDegrees) lng;
-{
-	return [self initWithCoordinate:(CLLocationCoordinate2D) { lat, lng }
-						   altitude:0.0		// sea level
-				 horizontalAccuracy:0.0		// exact
-				   verticalAccuracy:-1.0	// unknown
-						  timestamp:[NSDate date]];	// now
-}
-
-#endif
-
-- (id) copyWithZone:(NSZone *) zone
-{
-	CRTag *c=[CRTag alloc];
-	if(c)
-		{
-/*		c->altitude=altitude;
-		c->coordinate=coordinate;
-		c->course=course;
-		c->horizontalAccuracy=horizontalAccuracy;
-		c->speed=speed;
-		c->verticalAccuracy=verticalAccuracy;
-		c->timestamp=[timestamp retain];
-*/		}
-	return c;
-}
-
-- (id) initWithCoder:(NSCoder *) coder
-{
-//	self=[super initWithCoder:coder];
-	if(self)
-		{
-		// decode keyed values
-		}
-	return self;	
-}
-
-- (void) encodeWithCoder:(NSCoder *) coder
-{
-//	[super encodeWithCoder:coder];
-	// encode keyed values
+- (NSSet *) networks;
+{ // list of networks being available
+	return nil;
 }
 
 @end
-
-@implementation CRTagManager
-
-- (id <CRTagManagerDelegate>) delegate; { return delegate; }
-- (void) setDelegate:(id <CRTagManagerDelegate>) d; { delegate=d; }
-
-- (NSArray *) tags; {
-	return [CRTagManager tags];
-}
-
-- (NSString *) readerUID; {
-	return [CRTagManager readerUID];
-}
-
-- (id) init
-{
-	if((self=[super init]))
-		{
-		}
-	return self;
-}
-
-- (void) dealloc
-{
-	[self stopMonitoringTags];
-	[super dealloc];
-}
-
-- (void) startMonitoringTags;
-{
-	[CRTagManager registerManager:self];
-}
-
-- (void) stopMonitoringTags;
-{
-	[CRTagManager unregisterManager:self];
-}
-
-@end
-
-// RFID USB key
-
-@implementation CRTagManager (Serialport)
-
-// this should be a system-wide service i.e. access through DO!
-
-// here, we handle a Ubisys 13.56 MHz RFID USB CDC/ACM USB-key
-
-static NSMutableArray *managers;	// list of all managers
-static NSMutableDictionary *tags;	// keyed by UID
-static NSFileHandle *file;
-static NSString *lastChunk;
-
-+ (NSArray *) tags; {
-	return [tags allValues];
-}
-
-+ (NSString *) readerUID; {
-	return @"Reader S/N";
-}
-
-+ (void) _writeCommand:(NSString *) str
-{
-#if 1
-	NSLog(@"RFID w: %@", str);
-#endif
-	str=[str stringByAppendingString:@"\r"];
-	[file writeData:[str dataUsingEncoding:NSASCIIStringEncoding]];	
-}
-
-+ (void) registerManager:(CRTagManager *) m
-{
-	if(!managers)
-		{ // set up RFID receiver and wait for first fix
-			NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"RFIDReaderSerialDevice"];	// e.g. /dev/ttyACM0 or /dev/cu.usbmodem1d11
-			if(!dev)
-				{ // set some default
-#ifdef __mySTEP__
-				dev=@"/dev/rfid";	// Linux: serial interface for USB receiver
-#else
-				dev=@"/dev/cu.usbmodem1d11";	// MacOS X: serial interface for USB receiver
-#endif
-				}			
-			file=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
-			if(!file)
-				{
-				NSLog(@"was not able to open device file %@", dev);
-				// create an error object!
-				[[m delegate] tagManager:m didFailWithError:nil];
-				return;
-				}
-			managers=[[NSMutableArray arrayWithObject:m] retain];
-			tags=[[NSMutableDictionary alloc] initWithCapacity:10];
-			[[NSNotificationCenter defaultCenter] addObserver:self
-													 selector:@selector(_dataReceived:)
-														 name:NSFileHandleReadCompletionNotification 
-													   object:file];	// make us see notifications
-#if 1
-			NSLog(@"waiting for data on %@", dev);
-#endif
-			[file readInBackgroundAndNotify];	// and trigger notifications
-			// state=0;
-			[self _writeCommand:@"ATE0"];
-			[self _writeCommand:@"ATI"];
-			[self _writeCommand:@"AT+RF1"];
-			[self _writeCommand:@"AT+SCAN2"];
-			[self _writeCommand:@"AT+I"];
-			[self _writeCommand:@"AT+S"];
-			return;
-		}
-	if([managers indexOfObjectIdenticalTo:m] != NSNotFound)
-		return;	// already started
-	[managers addObject:m];
-}
-
-+ (void) unregisterManager:(CRTagManager *) m
-{
-	[managers removeObjectIdenticalTo:m];
-	if([managers count] == 0)
-		{ // stop receiveer
-			[[NSNotificationCenter defaultCenter] removeObserver:self
-															name:NSFileHandleReadCompletionNotification
-														  object:file];	// don't observe any more
-			[self _writeCommand:@"AT+RF=0"];	// power down
-			// could loop and wait for AT+RF? return 0...
-			[file closeFile];
-#if 1
-			NSLog(@"RFID: file closed");
-#endif
-			[file release];
-			[tags release];
-			tags=nil;
-			[managers release];
-			managers=nil;
-		}
-}
-
-+ (void) _processLine:(NSString *) line
-{
-#if 1
-	NSLog(@"RFID r: %@", line);
-#endif
-	// check for state and divert response
-	// notify changes in tag list
-	// e.g.:
-	// SCAN:+UID=E00401001C2017BD,+RSSI=0/2
-	// SCAN:-UID=E0022C1395900204
-	// ubisys 13.56MHz RFID (CDC) 1.08 Apr  7 2010
-	// S/N 0000000000
-	// +UID=E00401001C2017BD,+RSSI=0/2
-	// +UID=E00401001C2017BD,DSFID=00,AFI=00,BC=28,BS=4,IC=01
-	// OK
-	// ERROR
-	if([line hasPrefix:@"SCAN:+UID"])
-		{ // tag added
-			NSString *uid=[[[line substringFromIndex:10] componentsSeparatedByString:@","] objectAtIndex:0];
-			CRTag *tag=[tags objectForKey:uid];
-			if(!tag)
-				{ // not yet known
-				NSEnumerator *e=[managers objectEnumerator];
-				CRTagManager *m;
-				tag=[[CRTag alloc] initWithUID:uid];
-				[tags setObject:tag forKey:uid];
-				[tag release];
-				while((m=[e nextObject]))
-					[[m delegate] tagManager:m didFindTag:tag];
-				}
-#if 1
-			NSLog(@"found %@: %@", uid, tag); 
-#endif
-			// update RSI
-		}
-	else if([line hasPrefix:@"SCAN:-UID"])
-		{ // tag added
-			NSString *uid=[[[line substringFromIndex:10] componentsSeparatedByString:@","] objectAtIndex:0];
-			CRTag *tag=[tags objectForKey:uid];
-#if 1
-			NSLog(@"lost %@: %@", uid, tag); 
-#endif
-			if(tag)
-				{
-				NSEnumerator *e=[managers objectEnumerator];
-				CRTagManager *m;
-				[tag retain];
-				[tags removeObjectForKey:uid];
-				while((m=[e nextObject]))
-					[[m delegate] tagManager:m didLooseTag:tag];
-				[tag release];
-				}
-		}
-}
-
-+ (void) _processData:(NSData *) line;
-{ // we have received a new data block from the serial line
-	NSString *s=[[[NSString alloc] initWithData:line encoding:NSASCIIStringEncoding] autorelease];
-	NSArray *lines;
-	int l;
-#if 0
-	NSLog(@"data=%@", line);
-	NSLog(@"string=%@", s);
-#endif
-	if(lastChunk)
-		s=[lastChunk stringByAppendingString:s];	// append to last chunk
-	lines=[s componentsSeparatedByString:@"\n"];	// split into lines
-	for(l=0; l<[lines count]-1; l++)
-		{ // process lines except last chunk
-			s=[[lines objectAtIndex:l] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r"]];
-			[self _processLine:s];
-		}
-#if 0
-	NSLog(@"string=%@", s);
-#endif
-	[lastChunk release];
-	lastChunk=[[lines lastObject] retain];
-}
-
-+ (void) _dataReceived:(NSNotification *) n;
-{
-#if 0
-	NSLog(@"_dataReceived %@", n);
-#endif
-	[self _processData:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
-	[[n object] readInBackgroundAndNotify];	// and trigger more notifications
-}
-
-#endif
 
