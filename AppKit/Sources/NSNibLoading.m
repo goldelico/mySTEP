@@ -316,6 +316,8 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #if 0
 	NSLog(@"custom object nibInstantiate (class=%@)", className);
 #endif
+	// FIXME: how can we easily/correctly decode/load singletons???
+	// maybe only if their -init method also returns the singleton
 	if([className isEqualToString:@"NSApplication"])
 		return [NSApplication sharedApplication];
 	if(object)
@@ -904,7 +906,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	if(![path isAbsolutePath])
 		NSLog(@"??? NOT ABSOLUTE ???");
 #endif
-	return [self _initWithContentsOfURL:[NSURL fileURLWithPath:path] bundle:referencingBundle];	// FIXME: what is the filename: NIB bundle oder keyedobjects.nib filename?
+	return [self _initWithContentsOfURL:[NSURL fileURLWithPath:path] bundle:referencingBundle];
 }
 
 - (id) initWithContentsOfURL:(NSURL *) url;
@@ -1047,7 +1049,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 		[t addObject:o];
 		if([o respondsToSelector:@selector(awakeFromNib)])
 			{
-#if 1
+#if 0
 			NSLog(@"awakeFromNib: %@", o);
 #endif
 			[o awakeFromNib];							// Send awakeFromNib

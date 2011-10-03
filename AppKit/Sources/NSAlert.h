@@ -19,7 +19,8 @@
 #define _mySTEP_H_NSAlert
 
 #import <Foundation/Foundation.h>
-#import <AppKit/NSImage.h>
+
+@class NSImage;
 
 enum
 {

@@ -142,13 +142,13 @@
 
 @end /* NSPanel */
 
-	//*****************************************************************************
-	//
-	// 		Alert panel functions
-	//
-	//*****************************************************************************
+//*****************************************************************************
+//
+// 		Alert panel functions
+//
+//*****************************************************************************
 
-	static id _NSGetAlertPanel(NSString *icon,
+static id _NSGetAlertPanel(NSString *icon,
 							   NSString *title,
 							   NSString *msg,
 							   NSString *defaultButton,
@@ -297,126 +297,7 @@
 			[cv addSubview: a];
 			[a release];
 			}
-		// if there is a (localized) "Don't Save" alt/other buton: assign ctrl-D as keyEquivalent
-		
-#if OLD		
-		{
-			if (__alertPanel == nil)
-				{
-				_message = m;
-				_title = t;
-				_default = d;
-				_alternate = a;
-				_other = o;
-				}	}
-		else												// reuse existing alert
-			{												// panel
-			cv = [(p = __alertPanel) contentView];
-			
-			if (msg)
-				{
-				[_message setStringValue: msg];
-				if ([_message superview] == nil)
-					[cv addSubview: _message];
-				}
-			else
-				if ([_message superview] != nil)
-					[[_message retain] removeFromSuperview];
-			
-			[_title setStringValue: (title ? title : @"Alert")];
-			
-			if (defaultButton)
-				{
-				[(d = _default) setTitle: defaultButton];
-				if ([_default superview] == nil)
-					[cv addSubview: _default];
-				[__alertPanel makeFirstResponder: _default];
-				}
-			else
-				if ([_default superview] != nil)
-					[[_default retain] removeFromSuperview];
-			
-			if (alternateButton)
-				{
-				[(a = _alternate) setTitle: alternateButton];
-				if ([_alternate superview] == nil)
-					[cv addSubview: _alternate];
-				}
-			else
-				if ([_alternate superview] != nil)
-					[[_alternate retain] removeFromSuperview];
-			
-			if (otherButton)
-				{
-				[(o = _other) setTitle: otherButton];
-				if ([_other superview] == nil)
-					[cv addSubview: _other];
-				}
-			else
-				if ([_other superview] != nil)
-					[[_other retain] removeFromSuperview];
-			}
-#if 0	// reuse
-		if (defaultButton)
-			{
-			numButtons++;
-			maxWidth = [[d cell] cellSize].width;
-			}
-		if (alternateButton)
-			{
-			numButtons++;
-			maxWidth = MAX([[a cell] cellSize].width, maxWidth);
-			}
-		if (otherButton)
-			{
-			numButtons++;
-			maxWidth = MAX([[o cell] cellSize].width, maxWidth);
-			}
-		
-		if (numButtons)
-			{
-			NSRect rect = [d frame];
-			NSRect frame = [p frame];
-			float maxButtonWidthInFrame = ((NSWidth(frame) - 8) / numButtons) - 8;
-			BOOL shouldAdjustButtonWidth = NO;
-			
-			if(maxWidth > maxButtonWidthInFrame)			// widen the panel to
-				{											// accomadate buttons 
-				float newWidth = MIN(((maxWidth + 8) * numButtons) + 8,
-									 [p maxSize].width);
-				
-				NSWidth(frame) = newWidth;
-				[p setFrame:frame display:NO];
-				shouldAdjustButtonWidth = YES;
-				}
-			else											// reset panel to defs
-				if(maxButtonWidthInFrame > (maxWidth + 8)
-				   && NSWidth(frame) != ALERT_PANEL_WIDTH)
-					{	
-					NSWidth(frame) = ALERT_PANEL_WIDTH;
-					[p setFrame:frame display:NO];
-					shouldAdjustButtonWidth = YES;
-					}
-			
-			if(shouldAdjustButtonWidth)
-				{
-				NSWidth(rect) = maxWidth;
-				NSMinX(rect) = NSWidth(frame) - (8 + NSWidth(rect));
-				if (defaultButton)
-					{
-					[d setFrame:rect];
-					NSMinX(rect) -= (8 + NSWidth(rect));
-					}
-				if (alternateButton)
-					{
-					[a setFrame:rect];
-					NSMinX(rect) -= (8 + NSWidth(rect));
-					}
-				if (otherButton)
-					[o setFrame:rect];
-				}	}
-#endif
-#endif // OLD
+		// if there is a (localized) "Don't Save" alt/other buton: assign ctrl-D as keyEquivalent		
 #if 1
 		NSLog(@"panel=%@", p);
 #endif
@@ -536,6 +417,35 @@ NSRunInformationalAlertPanel(NSString *title,
 	
 	return _NSRunPanel(p);
 }
+
+@implementation NSAlert
+
++ (NSAlert *) alertWithMessageText:(NSString *) message 
+					 defaultButton:(NSString *) defaultTitle 
+				   alternateButton:(NSString *) altTitle 
+					   otherButton:(NSString *) otherTitle 
+		 informativeTextWithFormat:(NSString *) textWithFormat, ...;
+{
+	NSAlert *a=[[self new] autorelease];
+	va_list	ap;
+	va_start (ap, textWithFormat);
+	_window=[_NSGetAlertPanel(@"Alert",message,textWithFormat,defaultTitle,altTitle,otherTitle,ap) retain];
+	va_end (ap);
+	return a;
+}
+
+- (void) dealloc
+{
+	[_window release];
+	[super dealloc];
+}
+
+- (NSInteger) runModal;
+{
+	return _NSRunPanel(_window);
+}
+
+@end
 
 //*****************************************************************************
 //

@@ -34,6 +34,7 @@
 #import <AppKit/AppKitErrors.h>
 #import <AppKit/NSActionCell.h>
 #import <AppKit/NSAffineTransform.h>
+#import <AppKit/NSAlert.h>
 #import <AppKit/NSAnimation.h>
 #import <AppKit/NSApplication.h>
 #import <AppKit/NSAppAccessibility.h>
