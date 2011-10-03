@@ -6,7 +6,7 @@
 //  Copyright 2011 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 @class CTCall;
 
@@ -18,23 +18,15 @@
 
 @interface CTCallCenter : NSObject
 {
-	NSFileHandle *modem;	// access to the modem AT file
-	NSString *lastChunk;	// for handling strings that arrive in chunks
-	int state;		// internal state
-	IBOutlet NSPanel *pinPanel;
-	IBOutlet NSSecureTextField *pin;
-	IBOutlet NSButton *okButton;
-	
 	NSMutableSet *currentCalls;
 	id <CTCallCenterDelegate> delegate;
 }
 
++ (CTCallCenter *) callCenter;
+
 // @property (nonatomic, copy) void (^callEventHandler)(CTCall *)
 
 - (NSSet *) currentCalls;
-
-- (IBAction) orderFrontPinPanel:(id) sender;
-- (IBAction) pinOk:(id) sender;
 
 @end
 
@@ -43,9 +35,7 @@
 - (id <CTCallCenterDelegate>) delegate;
 - (void) setDelegate:(id <CTCallCenterDelegate>) d;
 
-- (CTCall *) dial:(NSString *) number;
+- (CTCall *) dial:(NSString *) number;	/* allows +, *, # and spaces within numbers */
 - (BOOL) sendSMS:(NSString *) number message:(NSString *) message;
-
-- (BOOL) checkPin:(NSString *) pin;	// get PIN status and ask if nil and none specified yet
 
 @end

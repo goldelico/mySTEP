@@ -15,7 +15,7 @@
 - (void) subscriberCellularProviderDidUpdate:(CTCarrier *) carrier;	// SIM card was changed
 - (void) currentNetworkDidUpdate:(CTCarrier *) carrier;	// roaming
 - (void) currentCellDidUpdate:(CTCarrier *) carrier;	// mobile operation
-- (void) signalStrengthDidUpdate:(CTCarrier *) carrier;
+- (void) signalStrengthDidUpdate:(CTCarrier *) carrier;	// also called for network type changes
 
 @end
 
@@ -26,6 +26,7 @@
 	id <CTNetworkInfoDelegate> delegate;
 }
 
++ (CTTelephonyNetworkInfo *) telephonyNetworkInfo;
 - (CTCarrier *) subscriberCellularProvider;
 
 @end

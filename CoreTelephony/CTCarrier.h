@@ -32,7 +32,7 @@
 
 - (float) strength;		// signal strength (0..1)
 - (float) dBm;			// signal strength (in dBm)
-- (float) networkType;	// 2.0, 2.5, 3.0, 3.5 etc.
+- (float) networkSpeed;	// 1.0, 2.0, 2.5, 2.75, 3.0, 3.5 etc. (0.0 = unknown)
 - (BOOL) canChoose;		// is permitted to use
 - (void) choose;		// make this the current carrier
 - (NSString *) cellID;	// current cell ID

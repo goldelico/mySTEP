@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 42;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -29,6 +29,8 @@
 		EE02A43713C1E20A00D5E67E /* CTCallCenter.h in Headers */ = {isa = PBXBuildFile; fileRef = EE02A43113C1E20A00D5E67E /* CTCallCenter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE02A43813C1E20A00D5E67E /* CTCarrier.h in Headers */ = {isa = PBXBuildFile; fileRef = EE02A43213C1E20A00D5E67E /* CTCarrier.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE02A43913C1E20A00D5E67E /* CTTelephonyNetworkInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = EE02A43313C1E20A00D5E67E /* CTTelephonyNetworkInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE226F0C143430350012B077 /* CTModemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = EE226F0A143430350012B077 /* CTModemManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE226F0D143430350012B077 /* CTModemManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EE226F0B143430350012B077 /* CTModemManager.m */; };
 		EE549AC3142B26B600978121 /* AskPin.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE549AC1142B26B600978121 /* AskPin.nib */; };
 /* End PBXBuildFile section */
 
@@ -56,6 +58,8 @@
 		EE02A43113C1E20A00D5E67E /* CTCallCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTCallCenter.h; sourceTree = "<group>"; };
 		EE02A43213C1E20A00D5E67E /* CTCarrier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTCarrier.h; sourceTree = "<group>"; };
 		EE02A43313C1E20A00D5E67E /* CTTelephonyNetworkInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTTelephonyNetworkInfo.h; sourceTree = "<group>"; };
+		EE226F0A143430350012B077 /* CTModemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTModemManager.h; sourceTree = "<group>"; };
+		EE226F0B143430350012B077 /* CTModemManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CTModemManager.m; sourceTree = "<group>"; };
 		EE549AC2142B26B600978121 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AskPin.nib; sourceTree = "<group>"; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEB23DB41258B6410018A9F3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
@@ -148,6 +152,8 @@
 				EE02A43113C1E20A00D5E67E /* CTCallCenter.h */,
 				EE02A43213C1E20A00D5E67E /* CTCarrier.h */,
 				EE02A43313C1E20A00D5E67E /* CTTelephonyNetworkInfo.h */,
+				EE226F0A143430350012B077 /* CTModemManager.h */,
+				EE226F0B143430350012B077 /* CTModemManager.m */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -164,6 +170,7 @@
 				EE02A43713C1E20A00D5E67E /* CTCallCenter.h in Headers */,
 				EE02A43813C1E20A00D5E67E /* CTCarrier.h in Headers */,
 				EE02A43913C1E20A00D5E67E /* CTTelephonyNetworkInfo.h in Headers */,
+				EE226F0C143430350012B077 /* CTModemManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -197,7 +204,7 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "CoreTelephony" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 2.4";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -264,6 +271,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE02A43513C1E20A00D5E67E /* CoreTelephony.m in Sources */,
+				EE226F0D143430350012B077 /* CTModemManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,7 +309,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
 				COPY_PHASE_STRIP = NO;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -319,7 +328,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PREBINDING = NO;
 				PRODUCT_NAME = CoreTelephony;
-				SDKROOT = macosx10.5;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -328,7 +337,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -343,7 +353,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PREBINDING = NO;
 				PRODUCT_NAME = CoreRFID;
-				SDKROOT = macosx10.5;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
@@ -359,7 +369,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				PREBINDING = NO;
-				SDKROOT = macosx10.4;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Debug;
 		};
@@ -373,7 +383,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				PREBINDING = NO;
-				SDKROOT = macosx10.4;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Release;
 		};

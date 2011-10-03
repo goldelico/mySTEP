@@ -7,7 +7,7 @@
 //
 
 #import <CoreTelephony/CoreTelephony.h>
-#include <signal.h>
+#import "CTModemManager.h"
 
 NSString const *CTCallStateDialing=@"CTCallStateDialing";
 NSString const *CTCallStateIncoming=@"CTCallStateIncoming";
@@ -20,313 +20,233 @@ NSString const *CTCallStateDisconnected=@"CTCallStateDisconnected";
 - (void) _setPeerPhoneNumber:(NSString *) number;
 @end
 
-@interface CTCallCenter (Private)
-
-enum
-{
-	CT_STATE_DEFAULT,
-	CT_STATE_ATI,			// ATI sent
-	CT_STATE_ATD,			// ATD sent
-	CT_STATE_ATCHUP,		// AT+CHUP sent
-	CT_STATE_ATCPIN,		// AT+CPIN="" sent
-	CT_STATE_ATOBLS,		// AT_OBLS
-	CT_STATE_ATOBSI,		// AT_OBSI
-	CT_STATE_ATONCI,		// AT_ONCI?
-};
-
-- (void) _gotoState:(int) state;
-- (void) _writeCommand:(NSString *) command andGotoState:(int) state;
-- (void) _processLine:(NSString *) line;
-- (void) _processData:(NSData *) line;
-- (void) _dataReceived:(NSNotification *) n;
-- (void) _writeCommand:(NSString *) str;
-
-@end
-
 @interface CTCarrier (Private)
 
 - (void) _setCarrierName:(NSString *) n;
 - (void) _setStrength:(float) s;
+- (void) _setNetworkType:(float) s;
 - (void) _setdBm:(float) s;
 - (void) _setCellID:(NSString *) n;
 
 @end
 
-
 // FIXME: the call center shouldn't be a singleton!
 // reason: there may be multiple and different delegates for each instance
 
-static CTCallCenter *callCenter;
-static CTTelephonyNetworkInfo *networkInfo;
-
-@implementation CTCallCenter (Private)
-
-- (IBAction) orderFrontPinPanel:(id) sender
-{
-	if(!pinPanel)
-		{ // try to load from NIB
-			if(![NSBundle loadNibNamed:@"AskPin" owner:self])	// being the owner allows to connect to views in the panel
-				{
-				NSLog(@"can't open AskPin panel");
-				return;	// ignore
-				}
-		}
-	/// FIXME: es gibt da einen NumberFormatter!!!
-	[pin setStringValue:@"****"];
-	[pinPanel orderFront:self];
-}
-	
-- (IBAction) pinOk:(id) sender;
-{ // a new pin has been provided
-	NSString *p=[pin stringValue];
-	// store temporarily so that we can check if it returns OK or not
-	// if ok, we can save the PIN
-	[self _writeCommand:[NSString stringWithFormat:@"AT+CPIN=%@", p] andGotoState:CT_STATE_ATCPIN];
-}
-
-// we may add a checkbox to reveal/hide the PIN...
-// [pin setEchosBullets:YES/NO]
-
-- (void) _gotoState:(int) s;
-{
-	state=s;
-	NSLog(@"state=%d", state);
-}
-
-- (void) _writeCommand:(NSString *) command andGotoState:(int) s;
-{
-	[self _writeCommand:command];
-	[self _gotoState:s];
-}
-
-- (void) _processLine:(NSString *) line;
-{
-#if 1
-	NSLog(@"WWAN r (s=%d): %@", state, line);
-#endif
-	if([line hasPrefix:@"+CPIN: READY"])
-		{ // response to AT+CPIN?
-		// already provided, everything ok
-			//[self _gotoState:0];	// FIXME: pin state is different from other states...
-			return;
-		}
-	if([line hasPrefix:@"+CPIN: SIM PIN"] || [line hasPrefix:@"+CME ERROR: SIM PIN required"])
-		{ // response to AT+CPIN?
-			[self orderFrontPinPanel:nil];
-			return;
-		}
-	
-	if([line hasPrefix:@"OK"])
-		{
-		switch(state) {
-			case CT_STATE_ATI:
-				[self _gotoState:CT_STATE_DEFAULT];
-				return;
-			case CT_STATE_ATCPIN:
-				[self _writeCommand:@"AT_OSIMOP" andGotoState:CT_STATE_DEFAULT];	// ask for operator
-				return;
-			case CT_STATE_ATD:
-				// notify that we are connected
-				// enable voice etc.
-				[self _gotoState:CT_STATE_DEFAULT];
-				return;
-			case CT_STATE_ATOBLS:
-				// FIXME: add delay
-				[self _writeCommand:@"AT_OBSI" andGotoState:CT_STATE_ATOBSI];
-				return;
-			case CT_STATE_ATOBSI:
-				// FIXME: add delay
-				[self _writeCommand:@"AT_ONCI?" andGotoState:CT_STATE_ATONCI];	// neighbouring base stations
-				return;
-			case CT_STATE_ATONCI:
-				// FIXME: add delay
-				// should go back to state DEFAULT and add a delay
-				[self _writeCommand:@"AT_OBLS" andGotoState:CT_STATE_ATOBLS];	// get SIM status (removed etc.)
-				return;
-			default:
-				return;
-			}
-		}
-	if([line hasPrefix:@"ERROR"])
-		{
-		switch(state) {
-			case CT_STATE_ATD:
-				// notify that we are connected
-				// enable voice etc.
-				return;
-			case CT_STATE_ATCHUP:
-				;
-			}
-		NSLog(@"unsolicited error");
-		return;
-		}
-	if([line hasPrefix:@"+CME ERROR:"])
-		{
-		if([line hasPrefix:@"+CME ERROR: SIM not inserted"])
-			{ // response to AT+CPIN?
-				switch(state)
-				{
-				
-				}
-				// make [CTTelephonyNetworkInfo currentNetwork] show "NO SIM" which can be displayed in the status line
-				// cancel any action
-				return;
-			}
-		}
-	if([line hasPrefix:@"RING"])
-		{
-		
-		}
-	switch(state) {
-		case CT_STATE_ATI:	// ATI result line
-			return;
-	}
-	if([line hasPrefix:@"_OERCN:"])
-		{ // remaining pin and puk retries - _OERCN: <PIN retries>, <PUK retries>
-			// write to GUI
-		}
-	if([line hasPrefix:@"_OSIMOP:"])
-		{ // home plnm - _OSIMOP: “<long_op>”,”<short_op>”, ”<MCC_MNC>”
-			CTCarrier *carrier=[networkInfo subscriberCellularProvider];
-			NSScanner *sc=[NSScanner scannerWithString:line];
-			NSString *name=@"unknown";
-			[sc scanString:@"_OSIMOP: \"" intoString:NULL];
-			[sc scanUpToString:@"\"" intoString:&name];
-			[carrier _setCarrierName:name];
-			NSLog(@"carrier name=%@ delegate=%@", name, [networkInfo delegate]);
-			[[networkInfo delegate] subscriberCellularProviderDidUpdate:carrier];
-			return;
-		}
-	if([line hasPrefix:@"_OPON:"])
-		{ // current visited network - _OPON: <cs>,<oper>,<src>
-			// notify through CTCarrier/CTTelephonyNetworkInfo			
-		}
-	if([line hasPrefix:@"_OSIGQ:"])
-		{ // signal quality - _OSIGQ: 2*<rssi>-113dBm,<ber> (ber=99)
-			CTCarrier *carrier=[networkInfo currentNetwork];
-			float dbm=[[line substringFromIndex:8] floatValue];
-			if(dbm == 99.9)	dbm=0.0;
-			[carrier _setdBm:dbm];
-			[[networkInfo delegate] signalStrengthDidUpdate:carrier];
-			return;
-		}
-	if([line hasPrefix:@"_OEANT:"])
-		{ // antenna level - _OEANT: <n> (0..5 but 4 is the maximum ever reported)
-			CTCarrier *carrier=[networkInfo currentNetwork];
-			float strength=[[line substringFromIndex:8] floatValue]/4.0;
-			if(strength > 1.0) strength=1.0;	// limit
-			[carrier _setStrength:strength];
-			[[networkInfo delegate] signalStrengthDidUpdate:carrier];
-			return;
-		}
-	if([line hasPrefix:@"_ONCI:"])
-		{ // neighbour cell info
-			// notify through CTCarrier/CTTelephonyNetworkInfo
-		}
-	if([line hasPrefix:@"_OBSI:"])
-		{ // base station location - _OBSI=<id>,<lat>,<long>
-			// notify through CTCarrier/CTTelephonyNetworkInfo
-		}
-	if(![line hasPrefix:@"AT"])	// not an echoed AT command
-		NSLog(@"unexpected message from Modem: %@", line);
-}
-
-- (void) _processData:(NSData *) line;
-{ // we have received a new data block from the serial line
-	NSString *s=[[[NSString alloc] initWithData:line encoding:NSASCIIStringEncoding] autorelease];
-	NSArray *lines;
-	int l;
-#if 0
-	NSLog(@"data=%@", line);
-	NSLog(@"string=%@", s);
-#endif
-	if(lastChunk)
-		s=[lastChunk stringByAppendingString:s];	// append to last chunk
-	lines=[s componentsSeparatedByString:@"\n"];	// split into lines
-	for(l=0; l<[lines count]-1; l++)
-		{ // process lines except last chunk
-			s=[[lines objectAtIndex:l] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\r"]];
-			[self _processLine:s];
-		}
-#if 0
-	NSLog(@"string=%@", s);
-#endif
-	[lastChunk release];
-	lastChunk=[[lines lastObject] retain];
-}
-
-- (void) _dataReceived:(NSNotification *) n;
-{
-#if 0
-	NSLog(@"_dataReceived %@", n);
-#endif
-	[self _processData:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
-	[[n object] readInBackgroundAndNotify];	// and trigger more notifications
-}
-
-- (void) _writeCommand:(NSString *) str;
-{
-#if 1
-	NSLog(@"WWAN w: %@", str);
-#endif
-	str=[str stringByAppendingString:@"\r"];
-	[modem writeData:[str dataUsingEncoding:NSASCIIStringEncoding]];	
-}
-
-@end
-
 @implementation CTCallCenter
+
+/* NIB-safe Singleton pattern */
+
+#define SINGLETON_CLASS		CTCallCenter
+#define SINGLETON_VARIABLE	callCenter
+#define SINGLETON_HANDLE	callCenter
+
+/* static part */
+
+static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
+
++ (id) allocWithZone:(NSZone *)zone
+{
+	//   @synchronized(self)
+	{
+	if (! SINGLETON_VARIABLE)
+		return [super allocWithZone:zone];
+	}
+    return SINGLETON_VARIABLE;
+}
+
+- (id) copyWithZone:(NSZone *)zone { return self; }
+
+- (id) retain { return self; }
+
+- (unsigned) retainCount { return UINT_MAX; }
+
+- (void)release {}
+
+- (id) autorelease { return self; }
+
++ (SINGLETON_CLASS *) SINGLETON_HANDLE
+{
+	//   @synchronized(self)
+	{
+	if (! SINGLETON_VARIABLE)
+		[[self alloc] init];
+    }
+    return SINGLETON_VARIABLE;
+}
+
+/* customized part */
 
 - (id) init
 {
-	if(callCenter)
+	//    Class myClass = [self class];
+	//    @synchronized(myClass)
+	{
+	if (!SINGLETON_VARIABLE && (self = [super init]))
 		{
-		[self release];
-		return [callCenter retain];
-		}
-	if(self=[super init])
-		{
-		NSString *dev=@"/dev/ttyHS3";	// find out by scanning /sys/.../*/name for the "Application" port
-		modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
-		if(!modem)
-			{
-			NSLog(@"was not able to open device file %@", dev);
-			[self release];
-			return nil;
-			}
+		SINGLETON_VARIABLE = self;
+		/* custom initialization here */
+		CTModemManager *m=[CTModemManager modemManager];
 		currentCalls=[[NSMutableSet alloc] initWithCapacity:10];
-		signal(SIGIO, SIG_IGN);	// the HSO driver appears to send SIGIO although there was no fcntl(FASYNC)
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												  selector:@selector(_dataReceived:)
-													  name:NSFileHandleReadCompletionNotification 
-													object:modem];	// make us see notifications
-#if 1
-		 NSLog(@"waiting for data on %@", dev);
-#endif
-		[modem readInBackgroundAndNotify];	// and trigger notifications
-		[self _writeCommand:@"AT_OPONI=1"];	// report current network registration
-		[self _writeCommand:@"AT_OSQI=1"];	// report signal quality in dBm
-		[self _writeCommand:@"AT_OEANT=1"];	// report quality level (0..4 or 5)
-		[self _writeCommand:@"AT_OUWCTI=1"];	// report available cell data rate		
-		[self _writeCommand:@"ATI" andGotoState:CT_STATE_ATI];
-		[self checkPin:nil];		// could read from a keychain if specified - nil asks the user
-		callCenter=[self retain];	// keep once more (caller will release!)
+		[m setUnsolicitedTarget:self action:@selector(processUnsolicitedInfo:)];
+		[m runATCommand:@"AT_OPONI=1"];	// report current network registration
+		[m runATCommand:@"AT_OSQI=1"];	// report signal quality in dBm
+		[m runATCommand:@"AT_OEANT=1"];	// report quality level (0..4 or 5)
+		[m runATCommand:@"AT_OUWCTI=1"];	// report available cell data rate		
+		[m runATCommand:@"AT_OCTI=1"];	// report GSM/GPRS/EDGE cell data rate		
+		[m runATCommand:@"AT+CLIP=1"];	// report CLIP		
+		[m runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING		
+		[m checkPin:nil];		// could read from a keychain if specified - nil asks the user
 		}
-	return self;
+    }
+    return self;
 }
 
 - (void) dealloc
 { // should not be possible for a singleton!
 	NSLog(@"CTCallCenter dealloc");
-	[[NSNotificationCenter defaultCenter] removeObserver:self
-													name:NSFileHandleReadCompletionNotification
-												  object:modem];	// don't observe any more
-	[self _writeCommand:@"AT+CHUP"];	// be as sure as possible to hang up
-	[modem closeFile];
+	abort();
 	[currentCalls release];
-	[modem release];
 	[super dealloc];
 	callCenter=nil;
+}
+
+#undef SINGLETON_CLASS
+#undef SINGLETON_VARIABLE
+#undef SINGLETON_HANDLE
+
+- (void) processUnsolicitedInfo:(NSString *) line
+{
+#if 1
+	NSLog(@"processUnsolicitedInfo: %@", line);
+#endif
+	if([line hasPrefix:@"RING"] || [line hasPrefix:@"+CRING:"])
+		{
+		// incoming call
+		NSLog(@"incoming call: %@", line);
+		return;
+		}
+	if([line hasPrefix:@"BUSY"])
+		{
+		NSLog(@"busy: %@", line);
+		return;
+		}
+	if([line hasPrefix:@"NO CARRIER"])
+		{
+		NSLog(@"remote hangup: %@", line);
+		return;
+		}
+	if([line hasPrefix:@"+CBM:"])
+		{
+		NSLog(@"cell broadcast message: %@", line);
+		return;
+		}
+	if([line hasPrefix:@"_OPON:"])
+		{ // current visited network - _OPON: <cs>,<oper>,<src>
+			// notify through CTCarrier/CTTelephonyNetworkInfo
+			NSLog(@"visited network: %@", line);
+/*
+ CTTelephonyNetworkInfo *ni=[CTTelephonyNetworkInfo telephonyNetworkInfo];
+ CTCarrier *carrier=[ni subscriberCellularProvider];
+ NSScanner *sc=[NSScanner scannerWithString:line];
+ NSString *cs=@"unknown";
+ NSString *name=@"unknown";
+ NSString *name=@"src";
+ [sc scanString:@"_OPON: \"" intoString:NULL];
+ [sc scanUpToString:@"\"" intoString:&cs];
+ [sc scanUpToString:@"\"" intoString:&name];
+ [sc scanUpToString:@"\"" intoString:&src];
+ [carrier _setCarrierName:name];
+ #if 1
+ NSLog(@"carrier name=%@ delegate=%@", name, [ni delegate]);
+ #endif
+ [[ni delegate] subscriberCellularProviderDidUpdate:carrier];
+ return;
+*/
+			return;
+		}
+	if([line hasPrefix:@"_OSIGQ:"])
+		{ // signal quality - _OSIGQ: 2*<rssi>-113dBm,<ber> (ber=99)
+			CTTelephonyNetworkInfo *ni=[CTTelephonyNetworkInfo telephonyNetworkInfo];
+			CTCarrier *carrier=[ni currentNetwork];
+			int dbm=[[line substringFromIndex:8] intValue];
+			if(dbm == 99) dbm=(113-999)/2;	// show -999 dBm
+			[carrier _setdBm:2.0*dbm-113.0];
+			[[ni delegate] signalStrengthDidUpdate:carrier];
+			return;
+		}
+	if([line hasPrefix:@"_OEANT:"])
+		{ // antenna level - _OEANT: <n> (0..5 but 4 is the maximum ever reported)
+			CTTelephonyNetworkInfo *ni=[CTTelephonyNetworkInfo telephonyNetworkInfo];
+			CTCarrier *carrier=[ni currentNetwork];
+			float strength=[[line substringFromIndex:8] floatValue]/4.0;
+			if(strength > 1.0) strength=1.0;	// limit
+			[carrier _setStrength:strength];
+			[[ni delegate] signalStrengthDidUpdate:carrier];
+			return;
+		}
+	if([line hasPrefix:@"_OCTI:"])
+		{ // GSM/EDGE cell type - _OCTI: <n> (0..3)
+			CTTelephonyNetworkInfo *ni=[CTTelephonyNetworkInfo telephonyNetworkInfo];
+			CTCarrier *carrier=[ni currentNetwork];
+#if 1
+			NSLog(@"GSM capability: %@", line);
+#endif
+			switch([[line substringFromIndex:8] intValue]) {
+				case 1:
+					[carrier _setNetworkType:2.0];	// GSM
+					break;
+				case 2:
+					[carrier _setNetworkType:2.5];	// GPRS
+					break;
+				case 3:
+					[carrier _setNetworkType:2.75];	// EDGE - see http://en.wikipedia.org/wiki/2G#Evolution
+					break;
+				default:
+					[carrier _setNetworkType:0.0];	// unknown
+			}
+			[[ni delegate] signalStrengthDidUpdate:carrier];
+			return;
+		}
+	if([line hasPrefix:@"_OUWCTI:"])
+		{ // WDMA cell type - _OUWCTI: <n> (0..4)
+			CTTelephonyNetworkInfo *ni=[CTTelephonyNetworkInfo telephonyNetworkInfo];
+			CTCarrier *carrier=[ni currentNetwork];
+#if 1
+			NSLog(@"WCDMA capability: %@", line);
+#endif
+			switch([[line substringFromIndex:8] intValue]) { // see http://3g4g.blogspot.com/2007/05/3g-39g.html
+				default:
+					return;	// non-wcdma - don't overwrite
+				case 1:
+					[carrier _setNetworkType:3.0];	// WCDMA
+					break;
+				case 2:
+					[carrier _setNetworkType:3.5];	// WCDMA+HSDPA
+					break;
+				case 3:
+					[carrier _setNetworkType:3.75];	// WCDMA+HSUPA
+					break;
+				case 4:
+					[carrier _setNetworkType:3.75];	// WCDMA+HSDPA+HSUPA
+					break;
+			}
+			[[ni delegate] signalStrengthDidUpdate:carrier];
+			return;
+		}
+	if([line hasPrefix:@"_ONCI:"])
+		{ // neighbour cell info
+			// notify through CTCarrier/CTTelephonyNetworkInfo
+			NSLog(@"neighbour cell: %@", line);
+			return;
+		}
+	if([line hasPrefix:@"_OBSI:"])
+		{ // base station location - _OBSI=<id>,<lat>,<long>
+			// notify through CTCarrier/CTTelephonyNetworkInfo
+			NSLog(@"base station location: %@", line);
+			// forward to CLLocation?
+			return;
+		}	
 }
 
 - (NSSet *) currentCalls; { return currentCalls; }
@@ -334,20 +254,43 @@ static CTTelephonyNetworkInfo *networkInfo;
 - (id <CTCallCenterDelegate>) delegate; { return delegate; }
 - (void) setDelegate:(id <CTCallCenterDelegate>) d; { delegate=d; }
 
+// see ANNEX G of GSM 07.07 how voice dialling works */
+
 - (CTCall *) dial:(NSString *) number;
 {
-	// check if we are already dialling or connected
-	// then either block, postpone or do something reasonable
-	// check string for legal characters
-	// check for non-empty
-	NSString *cmd=[NSString stringWithFormat:@"ATD%@;", number];
-	CTCall *call=[CTCall new];
-	[call _setCallState:kCTCallStateDialing];
-	[call _setPeerPhoneNumber:number];
-	[self _writeCommand:cmd andGotoState:CT_STATE_ATD];
-	[currentCalls addObject:call];
-	[call release];
-	return call;
+	CTModemManager *mm=[CTModemManager modemManager];
+	// check if we are already connected
+	// check string for legal characters (0-9, +, #, *, G/g, I/i, space)
+	NSString *colp, *err;
+	NSString *cmd=[NSString stringWithFormat:@"ATD%@;", number];	// initiate a voice call
+	[mm runATCommand:@"AT+COLP=1"];	// report phone number and make ATD blocking
+	colp=[mm runATCommandReturnResponse:cmd];
+	if(colp)
+		{ // successfull call setup
+#if 1
+			NSLog(@"dial ok: %@", colp);
+#endif
+			// we could check the COLP message to set the peer phone number!
+			CTCall *call=[[CTCall new] autorelease];
+			[call _setCallState:kCTCallStateDialing];
+			[call _setPeerPhoneNumber:number];
+			[currentCalls addObject:call];
+			// notify delegate
+			return call;
+		}
+	err=[mm error];
+#if 1
+	NSLog(@"dial error: %@", err);
+#endif
+	/*
+	 unsolicited responses may be
+	 NO CARRIER, BUSY, NO ANSWER and CONNECT
+	 */
+	if([err isEqualToString:@""])
+		{
+		
+		}
+	return nil;	// not successfull
 }
 
 - (BOOL) sendSMS:(NSString *) number message:(NSString *) message;
@@ -356,29 +299,17 @@ static CTTelephonyNetworkInfo *networkInfo;
 	return NO;
 }
 
-- (BOOL) checkPin:(NSString *) p;	// get PIN status and ask if nil and none specified yet
-{
-	if(!p)
-		[self _writeCommand:@"AT_OERCN\nAT+CPIN?" andGotoState:CT_STATE_ATCPIN];
-	else
-		// AT+CPIN=number
-		; // check if pin is valid (can be used for a screen saver)
-	// runloop until we have received the status
-	// may open popup panel to provide the PIN
-	return YES;
-}
-
 // FIXME: in State-Machine einbauen - ein Befehl fertig triggert den nächsten...
 // und letzter triggert nach Timeout den ersten
 // also eine polling-queue
 
 - (void) timer
 { // timer triggered commands
-	[self _writeCommand:@"AT_OBLS"];	// get SIM status (removed etc.)
+	[[CTModemManager modemManager] runATCommand:@"AT_OBLS"];	// get SIM status (removed etc.)
 	// wait for being processed
-	[self _writeCommand:@"AT_OBSI"];	// base station location
+	[[CTModemManager modemManager] runATCommand:@"AT_OBSI"];	// base station location
 	// wait for being processed
-	[self _writeCommand:@"AT_ONCI?"];	// neighbouring base stations
+	[[CTModemManager modemManager] runATCommand:@"AT_ONCI?"];	// neighbouring base stations
 	// wait for being processed
 }
 
@@ -424,6 +355,7 @@ static CTTelephonyNetworkInfo *networkInfo;
 
 - (NSString *) peerPhoneNumber
 { // caller ID or called ID
+	// can we read that from the Modem so that we never have to set it?
 	return peer;
 }
 
@@ -435,15 +367,19 @@ static CTTelephonyNetworkInfo *networkInfo;
 
 - (void) terminate;
 {
-	CTCallCenter *center=[[CTCallCenter new] autorelease];
-	[center _writeCommand:@"AT+CHUP" andGotoState:CT_STATE_ATCHUP];
-	// FIXME: shouldn't we wait for the OK?
-	callState=kCTCallStateDisconnected;
+	[[CTModemManager modemManager] runATCommand:@"AT+CHUP"];
+	// error handling?
 }
 
 - (void) hold;
 {
 	// anytime
+}
+
+- (void) accept;	// if incoming
+{
+	// ATO?
+	// if CTCallStateIncoming
 }
 
 - (void) reject;	// if incoming
@@ -465,12 +401,14 @@ static CTTelephonyNetworkInfo *networkInfo;
 
 - (void) mute:(BOOL) flag;	// mute microphone
 {
+	/* return */ [[CTModemManager modemManager] runATCommand:[NSString stringWithFormat:@"AT+CMUT=%d", flag != 0]];
 	// if CTCallStateConnected
 	// switch amixer
 }
 
 - (void) volume:(float) value;	// general volume (earpiece, handsfree, headset)
 {
+	/* return */ [[CTModemManager modemManager] runATCommand:[NSString stringWithFormat:@"AT+CLVL=%d", (int) (7.0*value)]];
 	// if CTCallStateConnected
 	// switch amixer
 }
@@ -481,7 +419,9 @@ static CTTelephonyNetworkInfo *networkInfo;
 		return;	// we could loop over all digits with a little delay
 	// check if this is a valid digit
 	NSLog(@"send DTMF: %@", digit);
-	[callCenter _writeCommand:[NSString stringWithFormat:@"AT+VTS=%@", digit]];
+	// if this already blocks until the tone has been sent, we can simply loop over all characters
+	if(![[CTModemManager modemManager] runATCommand:[NSString stringWithFormat:@"AT+VTS=%@", digit]] != CTModemOk)
+		;
 }
 
 @end
@@ -506,7 +446,7 @@ static CTTelephonyNetworkInfo *networkInfo;
 
 - (float) strength; { return strength; }	// signal strength (0..1.0)
 - (float) dBm; { return dBm; }		// signal strength (in dBm)
-- (float) networkType; { return networkType; }	// 2.0, 2.5, 3.0, 3.5 etc.
+- (float) networkSpeed; { return networkType; }	// 1.0, 2.0, 2.5, 3.0, 3.5 etc.
 - (NSString *) cellID;	 { return cellID; }// current cell ID
 - (BOOL) canChoose; { return YES; }// is permitted to select (if there are alternatives)
 
@@ -514,43 +454,106 @@ static CTTelephonyNetworkInfo *networkInfo;
 
 - (void) _setCarrierName:(NSString *) n; { [carrierName autorelease]; carrierName=[n retain]; }
 - (void) _setStrength:(float) s; { strength=s; }
+- (void) _setNetworkType:(float) s; { networkType=s; }
 - (void) _setdBm:(float) s; { dBm=s; }
 - (void) _setCellID:(NSString *) n; { [cellID autorelease]; cellID=[n retain]; }
 
 - (void) choose;
 { // make the current carrier if there are several options to choose
-	return strength;
+	return;
 }
 
 @end
 
 @implementation CTTelephonyNetworkInfo
 
-// wie werden Updates auf AT-Befehle angewendet? - dazu erst mal die Befehle sammeln und verstehen
+/* NIB-safe Singleton pattern */
+
+#define SINGLETON_CLASS		CTTelephonyNetworkInfo
+#define SINGLETON_VARIABLE	telephonyNetworkInfo
+#define SINGLETON_HANDLE	telephonyNetworkInfo
+
+/* static part */
+
+static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
+
++ (id) allocWithZone:(NSZone *) zone
+{
+	//   @synchronized(self)
+	{
+	if (! SINGLETON_VARIABLE)
+		return [super allocWithZone:zone];
+	}
+    return SINGLETON_VARIABLE;
+}
+
+- (id) copyWithZone:(NSZone *) zone { return self; }
+
+- (id) retain { return self; }
+
+- (unsigned) retainCount { return UINT_MAX; }
+
+- (void) release {}
+
+- (id) autorelease { return self; }
+
++ (SINGLETON_CLASS *) SINGLETON_HANDLE
+{
+	//   @synchronized(self)
+	{
+	if (! SINGLETON_VARIABLE)
+		[[self alloc] init];
+    }
+    return SINGLETON_VARIABLE;
+}
+
+/* customized part */
 
 - (id) init
 {
-	if(!networkInfo)
+	//    Class myClass = [self class];
+	//    @synchronized(myClass)
+	{
+	if (!SINGLETON_VARIABLE && (self = [super init]))
 		{
-		networkInfo=self;
+		NSString *simop;
+		CTModemManager *m=[CTModemManager modemManager];
+		SINGLETON_VARIABLE = self;
+		/* custom initialization here */
 		subscriberCellularProvider=[CTCarrier new];	// create default entry
+		currentNetwork=[subscriberCellularProvider retain];	// default: the same
 		[subscriberCellularProvider _setCarrierName:@"No SIM"];	// default if we can't read the SIM
+		// FIXME: this works only with PIN!
+		simop=[m runATCommandReturnResponse:@"AT_OSIMOP"];
+		if(simop)
+			{ // home plnm - _OSIMOP: “<long_op>”,”<short_op>”, ”<MCC_MNC>”
+				NSScanner *sc=[NSScanner scannerWithString:simop];
+				NSString *name=@"unknown";
+				[sc scanString:@"_OSIMOP: \"" intoString:NULL];
+				[sc scanUpToString:@"\"" intoString:&name];
+				[subscriberCellularProvider _setCarrierName:name];
+#if 1
+				NSLog(@"carrier name=%@", name);
+#endif
+			}
+		else
+			NSLog(@"AT_OSIMOP error: %@", [m error]);
 		}
-	else
-		{
-		[self release];
-		[networkInfo retain];
-		}
-	return networkInfo;
+	}
+    return self;
 }
 
 - (void) dealloc
 { // should not be possible for a singleton!
 	NSLog(@"CTTelephonyNetworkInfo dealloc");
+	abort();
 	[subscriberCellularProvider release];
 	[super dealloc];
-	networkInfo=nil;
 }
+
+#undef SINGLETON_CLASS
+#undef SINGLETON_VARIABLE
+#undef SINGLETON_HANDLE
 
 - (CTCarrier *) subscriberCellularProvider;
 {
@@ -584,9 +587,14 @@ static CTTelephonyNetworkInfo *networkInfo;
 
 - (NSSet *) networks;
 { // list of networks being available
-	// ask AT+COPS?
+	// geht auch ohne PIN
+	// ask AT+COPS? - blockiert sehr lange (30-60 Sekunden)
+	// +COPS: (1,"E-Plus","E-Plus","26203",0),(2,"o2 - de","o2 - de","26207",2),(1,"E-Plus","E-Plus","26203",2),(1,"T-Mobile D","TMO D","26201",0),(1,"o2 - de","o2 - de","26207",0),(1,"Vodafone.de","voda DE","26202",0),(1,"Vodafone.de","voda DE","26202",2),(1,"T-Mobile D","TMO D","26201",2),,(0,1,2,3,4),(0,1,2)	
+	// +COPS: (2,"o2 - de","o2 - de","26207",2),(1,"E-Plus","E-Plus","26203",0),(1,"E-Plus","E-Plus","26203",2),(1,"o2 - de","o2 - de","26207",0),(1,"Vodafone.de","voda DE","26202",0),(1,"T-Mobile D","TMO D","26201",0),(1,"T-Mobile D","TMO D","26201",2),(1,"Vodafone.de","voda DE","26202",2),,(0,1,2,3,4),(0,1,2)
+	// 	at+cops=0  -- automatisch
+	//  at+cops=1,2,27207  -- feste Wahl, Format <numerisch>
+	// ohne SIM: +COPS: 0,0,"Limited Service",2
 	return nil;
 }
 
 @end
-
