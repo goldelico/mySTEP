@@ -922,7 +922,7 @@ printing
 {
 	[_bounds2frame release], _bounds2frame=nil;
 //	[_frame2bounds release], _frame2bounds=nil;
-	[self _invalidateCTMtoBase];	// subviews can keep their bounds2frame mapping intact - only their mapping to the screen changes
+	[self _invalidateCTMtoBase];	// subviews can keep their bounds2frame mapping intact - only their mapping to the screen will change
 }
 
 - (NSAffineTransform *) _base2bounds
@@ -931,7 +931,7 @@ printing
 	if(super_view)
 		flipped	= flipped != [super_view isFlipped];	// flip only if different
 	// should be compared to a stored flag so that we can detect dynamic changes in flipping state
-	if((!_base2bounds /* || flipped != flippedCache */) && _window)
+	if((1 || !_base2bounds /* || flipped != flippedCache */) && _window)
 		{
 #if 0
 		NSLog(@"calculating _base2bounds: %@", self);
@@ -940,14 +940,21 @@ printing
 			_base2bounds=[[super_view _base2bounds] copy];
 		else
 			_base2bounds=[NSAffineTransform new];
-		if(/*flippedCache = */flipped)
-			{
-			[_base2bounds translateXBy:0.0 yBy:_frame.size.height];
-			[_base2bounds scaleXBy:1.0 yBy:-1.0];			
+		if(frameRotation)
+			[_base2bounds rotateByDegrees:-frameRotation];	// FIXME: dreht nicht ordentlich um Ecke
+		if(super_view && [super_view isFlipped])
+			{ // undo flipping within superview (because only our position is expressed in flipped coordinates but not our own coordinate system)
+				NSRect sbounds=[super_view bounds];
+				[_base2bounds scaleXBy:1.0 yBy:-1.0];
+				[_base2bounds translateXBy:0.0 yBy:+0.0*_frame.origin.y-_frame.size.height/*-NSHeight(sbounds)-_frame.origin.y*/];	// frame position is expressed in (potentially flipped) super_view coordinates
 			}
-		[_base2bounds translateXBy:-_frame.origin.x yBy:-_frame.origin.y];
-		[_base2bounds rotateByDegrees:frameRotation];
-		[_base2bounds appendTransform:_frame2bounds];	// finally transform to bounds
+		[_base2bounds translateXBy:-_frame.origin.x yBy:-_frame.origin.y];	// frame position is expressed in (potentially flipped) super_view coordinates
+		[_base2bounds appendTransform:_frame2bounds];	// finally transform frame (i.e. superview bound) to our bounds
+		if([self isFlipped])
+			{ // finally flip bounds
+				[_base2bounds translateXBy:0.0 yBy:NSHeight(_bounds)];
+				[_base2bounds scaleXBy:1.0 yBy:-1.0];
+			}
 		}
 	return _base2bounds;
 }
@@ -1421,7 +1428,7 @@ printing
 		return [to _frame2bounds];
 		}
 #endif
-	atm=[from _bounds2base];	// convert from base to window coordinates
+	atm=[from _bounds2base];	// convert from bounds to window coordinates
 	if(to)
 		{ // and transform from window to base
 		atm=[[atm copy] autorelease];	// get a working copy
@@ -1523,17 +1530,22 @@ printing
 #if 0
 	NSLog(@"convertRect 1");
 #endif
-	atm=[isa _matrixFromView:self toView:aView];
+	// FIXME
 	if(1 || _v.isRotatedFromBase)
-#if 1
+		{
+#if 0
 		NSLog(@"slow"),
 #endif
+		atm=[isa _matrixFromView:self toView:aView];
 		r=[atm _transformRect:aRect];
+		}
 	else
 		{
-#if 1
+#if 0
 		NSLog(@"fast");
 #endif
+		// FIXME: can we do without matrix calculations at all?
+		atm=[isa _matrixFromView:self toView:aView];
 		r.origin=[atm transformPoint:aRect.origin];
 		r.size=[atm transformSize:aRect.size];
 		if((aRect.size.height < 0) != (r.size.height < 0))
@@ -1985,7 +1997,6 @@ printing
 		invalidRect=NSZeroRect;
 		return;
 		}
-	// FIXME: must also clip to rotated frame
 	rect=NSIntersectionRect(_bounds, rect);	// shrink to bounds (not invalidRect!)
 	_v.needsDisplaySubviews=NO;
 	locked=NO;
@@ -2017,7 +2028,12 @@ printing
 				if((clip=[self wantsDefaultClipping]))
 					{ // may be switched off to speed up
 					[context saveGraphicsState];
-					  // FIXME: default should clip to list of rects in invalidRects!!!
+					if(_v.isRotatedFromBase)
+						{ // FIXME: must also clip to frame (which may be rotated or unrotated)
+							// do we do that in lockFocus?
+							// or here
+						}
+						// FIXME: default should also clip to list of rects in invalidRects!!!
 					[NSBezierPath clipRect:rect];	// intersect with our inherited clipping path
 					}
 				[self drawRect:rect];		// that one is overridden in subviews and really draws
