@@ -89,13 +89,6 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		CTModemManager *m=[CTModemManager modemManager];
 		currentCalls=[[NSMutableSet alloc] initWithCapacity:10];
 		[m setUnsolicitedTarget:self action:@selector(processUnsolicitedInfo:)];
-		[m runATCommand:@"AT_OPONI=1"];	// report current network registration
-		[m runATCommand:@"AT_OSQI=1"];	// report signal quality in dBm
-		[m runATCommand:@"AT_OEANT=1"];	// report quality level (0..4 or 5)
-		[m runATCommand:@"AT_OUWCTI=1"];	// report available cell data rate		
-		[m runATCommand:@"AT_OCTI=1"];	// report GSM/GPRS/EDGE cell data rate		
-		[m runATCommand:@"AT+CLIP=1"];	// report CLIP		
-		[m runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING		
 		[m checkPin:nil];		// could read from a keychain if specified - nil asks the user
 		}
     }

@@ -63,25 +63,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		{
 		SINGLETON_VARIABLE = self;
 		/* custom initialization here */
-		NSString *dev=@"/dev/ttyHS3";	// find out by scanning /sys/.../*/name for the "Application" port
-		modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
-		if(!modem)
+		if(![self _openHSO])
 			{
-			NSLog(@"was not able to open device file %@", dev);
 			[self release];
 			return nil;
 			}
-		signal(SIGIO, SIG_IGN);	// the HSO driver appears to send SIGIO although there was no fcntl(FASYNC)
-		done=YES;	// no command is running
-		[[NSNotificationCenter defaultCenter] addObserver:self
-												 selector:@selector(_dataReceived:)
-													 name:NSFileHandleReadCompletionNotification 
-												   object:modem];	// make us see notifications
-#if 1
-		NSLog(@"waiting for data on %@", dev);
-#endif
-		[modem readInBackgroundAndNotify];	// and trigger notifications
-		[self runATCommand:@"ATE1"];	// enable echo so that we can separate unsolicited lines from responses
 		}
     }
     return self;
@@ -101,6 +87,73 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	[lastChunk release];
 	[super dealloc];
 	modemManager=nil;
+}
+
+- (BOOL) _openHSO;
+{ // open during init or reopen after AT_ORESET
+	NSString *dir=@"/sys/class/tty";
+	NSDirectoryEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:dir];
+	NSString *typ;
+	NSString *dev=nil;
+	if(modem)
+		{ // close previous modem
+			[[NSNotificationCenter defaultCenter] removeObserver:self
+															name:NSFileHandleReadCompletionNotification
+														  object:modem];	// don't observe any more
+			[modem release];
+			modem=nil;
+		}
+	while((typ=[e nextObject]))
+		{ // search Application interface
+		NSString *hs=[typ lastPathComponent];
+#if 1
+		NSLog(@"file: %@ - %@", typ, hs);
+#endif
+		if([hs hasPrefix:@"ttyHS"])
+			{
+			NSString *path=[[dir stringByAppendingPathComponent:typ] stringByAppendingPathComponent:@"hsotype"];
+			NSString *type=[NSString stringWithContentsOfFile:path];
+#if 1
+			NSLog(@"%@ -> %@", path, type);
+#endif
+			if([type hasPrefix:@"Application"])
+				{
+				dev=[NSString stringWithFormat:@"/dev/%@", hs];
+				break;	// application port found			
+				}
+			}
+		}
+	if(!dev)
+		{
+		NSLog(@"No GTM601 found");
+		return NO;		
+		}
+	signal(SIGIO, SIG_IGN);	// the HSO driver appears to send SIGIO although there was no fcntl(FASYNC)
+	modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
+	if(!modem)
+		{
+		NSLog(@"could not open %@", dev);
+		return NO;		
+		}
+	done=YES;	// no command is running
+	[[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(_dataReceived:)
+												 name:NSFileHandleReadCompletionNotification 
+											   object:modem];	// make us see notifications
+#if 1
+	NSLog(@"waiting for data on %@", dev);
+#endif
+	[modem readInBackgroundAndNotify];	// and trigger notifications
+	if([self runATCommand:@"ATE1"] != CTModemOk)	// enable echo so that we can separate unsolicited lines from responses
+		return NO;
+	[self runATCommand:@"AT_OPONI=1"];	// report current network registration
+	[self runATCommand:@"AT_OSQI=1"];	// report signal quality in dBm
+	[self runATCommand:@"AT_OEANT=1"];	// report quality level (0..4 or 5)
+	[self runATCommand:@"AT_OUWCTI=1"];	// report available cell data rate		
+	[self runATCommand:@"AT_OCTI=1"];	// report GSM/GPRS/EDGE cell data rate		
+	[self runATCommand:@"AT+CLIP=1"];	// report CLIP		
+	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING		
+	return YES;
 }
 
 - (void) setUnsolicitedTarget:(id) t action:(SEL) a;
@@ -235,7 +288,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	//	NSLog(@"WWAN w: %@", str);
 #endif
 	str=[str stringByAppendingString:@"\r"];
-	[modem writeData:[str dataUsingEncoding:NSASCIIStringEncoding]];	
+	NS_DURING
+		[modem writeData:[str dataUsingEncoding:NSASCIIStringEncoding]];
+	NS_HANDLER
+		NSLog(@"_writeCommand: %@", localException);
+	NS_ENDHANDLER
 }
 
 - (IBAction) orderFrontPinPanel:(id) sender
@@ -357,6 +414,24 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		{
 		// report error and keep panel open
 		}
+}
+
+- (BOOL) reset;
+{
+	[self _writeCommand:@"AT_ORESET"];
+	sleep(1);
+	if([self _openHSO])
+		{
+		return YES;
+		}
+	return NO;
+}
+
+- (BOOL) changePin:(NSString *) pin toNewPin:(NSString *) new;
+{
+	if(![self reset])
+		return NO;
+	// AT+CPIN="old","new"
 }
 
 - (void) connectWWAN:(BOOL) flag;	// 0 to disconnect

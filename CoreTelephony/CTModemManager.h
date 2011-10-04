@@ -46,9 +46,12 @@
 - (IBAction) orderFrontPinPanel:(id) sender;
 - (IBAction) pinOk:(id) sender;
 - (BOOL) checkPin:(NSString *) pin;	// get PIN status and ask if nil and none specified yet
+- (BOOL) changePin:(NSString *) pin toNewPin:(NSString *) new;
+- (BOOL) reset;	// reset modem so that the PIN must be provided again
 
 - (void) connectWWAN:(BOOL) flag;	// 0 to disconnect
 
+- (BOOL) _openHSO;	// (re)open FileHandle for AT command stream
 - (void) _processLine:(NSString *) line;
 - (void) _processData:(NSData *) line;
 - (void) _dataReceived:(NSNotification *) n;
