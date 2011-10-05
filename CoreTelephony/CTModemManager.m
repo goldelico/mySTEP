@@ -135,6 +135,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		NSLog(@"could not open %@", dev);
 		return NO;		
 		}
+	atstarted=NO;
 	done=YES;	// no command is running
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(_dataReceived:)
@@ -412,6 +413,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		}
 	else
 		{
+		NSString *err=[self error];
+		if([err hasPrefix:@"+CME ERROR: incorrect password"])
+			[self checkPin:nil];	// check again and update Retries counter
 		// report error and keep panel open
 		}
 }
@@ -419,11 +423,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (BOOL) reset;
 {
 	[self _writeCommand:@"AT_ORESET"];
+	wwan=NO;
+	// kill all connections...
 	sleep(1);
 	if([self _openHSO])
-		{
 		return YES;
-		}
 	return NO;
 }
 
