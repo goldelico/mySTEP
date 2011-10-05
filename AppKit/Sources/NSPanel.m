@@ -429,7 +429,7 @@ NSRunInformationalAlertPanel(NSString *title,
 	NSAlert *a=[[self new] autorelease];
 	va_list	ap;
 	va_start (ap, textWithFormat);
-	_window=[_NSGetAlertPanel(@"Alert",message,textWithFormat,defaultTitle,altTitle,otherTitle,ap) retain];
+	a->_window=[_NSGetAlertPanel(@"Alert",message,textWithFormat,defaultTitle,altTitle,otherTitle,ap) retain];
 	va_end (ap);
 	return a;
 }
