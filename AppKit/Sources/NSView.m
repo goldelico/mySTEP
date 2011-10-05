@@ -746,8 +746,8 @@ printing
 		[sub_views replaceObjectAtIndex:index withObject:newView];
 		
 		[self didAddSubview:newView];
+		[newView _setSuperview:self];	// must be done before _setWindow:
 		[newView _setWindow:_window];
-		[newView _setSuperview:self];
 		[newView setNextResponder:self];
 		}
 	else
@@ -764,16 +764,17 @@ printing
 {
 	if(_window == newWindow)
 		return;	// no change
-	[self viewWillMoveToWindow:newWindow];
-	[_bounds2base release], _bounds2base=nil;
-	[_base2bounds release], _base2bounds=nil;	// no recursion required (done through _setWindow)
 	if([_window firstResponder] == self)
 		[_window makeFirstResponder:nil];	// we are currently the first responder of the old window
+	[self viewWillMoveToWindow:newWindow];
+	[_bounds2base release], _bounds2base=nil;
+	[_base2bounds release], _base2bounds=nil;	// no recursion required (done through sub_views makeObjectsPerformSelector:_cmd)
 	_window=newWindow;	// set new window
 	[sub_views makeObjectsPerformSelector:_cmd withObject:newWindow];	// recursively for all subviews
 	nInvalidRects=0;	// clear cache
 	// FIXME: this might be quite inefficient for many subviews since their setNeedsDisplayInRect recursively goes upwards
-	[self setNeedsDisplayInRect:_bounds];	// we need to be redisplayed completely in the new window
+	if(newWindow)
+		[self setNeedsDisplayInRect:_bounds];	// we need to be redisplayed completely in the new window
 	[self viewDidMoveToWindow];
 }
 
@@ -812,9 +813,15 @@ printing
 	NSSize o;
 	if(NSEqualPoints(_frame.origin, frameRect.origin))
 		{ // change size only - required for Cocoa compatibility if subclass overwrites setFrameSize
-		[self setFrameSize:frameRect.size];	// this will also post a single notification
-		return;
+			[self setFrameSize:frameRect.size];	// this will also post a single notification
+			return;
 		}
+#if 1
+	if(frameRect.size.height == 0.0)
+		NSLog(@"height == 0!");
+	if(frameRect.size.width == 0.0)
+		NSLog(@"width == 0!");	// this may occur for invisible corner views
+#endif
 	o=_frame.size;	// remember old size
 	_frame=frameRect;
 	if(!_v.customBounds)
@@ -828,21 +835,21 @@ printing
 	NSLog(@"autosized");
 #endif
 	if(_v.postFrameChange)
-			{
+		{
 #if 1
-				NSLog(@"notify FrameDidChange");
+		NSLog(@"notify FrameDidChange");
 #endif
-				[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
-			}
+		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
+		}
 }
 
 - (void) setFrameOrigin:(NSPoint)newOrigin
 {
 	if(!NSEqualPoints(_frame.origin, newOrigin))
-			{
-				_frame.origin = newOrigin;
-				[self _invalidateCTM];
-			}
+		{
+		_frame.origin = newOrigin;
+		[self _invalidateCTM];
+		}
 	if(_v.postFrameChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
 }
@@ -851,13 +858,19 @@ printing
 {
 	NSSize o = _frame.size;
 	if(!NSEqualSizes(o, newSize))
-			{
-				_frame.size = newSize;
-				if(!_v.customBounds)
-					_bounds.size = newSize;	// always adjust
-				[self _invalidateCTM];
-				[self resizeSubviewsWithOldSize:o];	// Resize subviews if needed
-			}
+		{
+#if 1
+		if(newSize.height == 0.0)
+			NSLog(@"height == 0!");	// this may occur for empty text fields -> leads to NaN bounds
+		if(newSize.width == 0.0)
+			NSLog(@"width == 0!");
+#endif
+		_frame.size = newSize;
+		if(!_v.customBounds)
+			_bounds.size = newSize;	// always adjust
+		[self _invalidateCTM];
+		[self resizeSubviewsWithOldSize:o];	// Resize subviews if needed
+		}
 	if(_v.postFrameChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
 }
@@ -865,11 +878,11 @@ printing
 - (void) setFrameRotation:(float)angle
 {
 	if(frameRotation != angle)
-			{
-				frameRotation=angle;
-				[self _invalidateCTM];
-				_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;	// FIXME should also be set for superviews
-			}
+		{
+		frameRotation=angle;
+		[self _invalidateCTM];
+		_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;	// FIXME should also be set for superviews
+		}
 	if(_v.postFrameChange)
 		[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
 }
@@ -927,12 +940,16 @@ printing
 
 - (NSAffineTransform *) _base2bounds
 { // cached
-	BOOL flipped=[self isFlipped];
-	if(super_view)
-		flipped	= flipped != [super_view isFlipped];	// flip only if different
-	// should be compared to a stored flag so that we can detect dynamic changes in flipping state
-	if((1 || !_base2bounds /* || flipped != flippedCache */) && _window)
+	BOOL flipped;
+	BOOL superFlipped;
+	if(!_window)
+		return nil;
+	flipped=[self isFlipped];
+	superFlipped=(super_view && [super_view isFlipped]);
+	if((!_base2bounds || flipped != _v.flippedCache || superFlipped != _v.superFlippedCache))
 		{
+		_v.flippedCache=flipped;
+		_v.superFlippedCache=superFlipped;
 #if 0
 		NSLog(@"calculating _base2bounds: %@", self);
 #endif
@@ -940,20 +957,29 @@ printing
 			_base2bounds=[[super_view _base2bounds] copy];
 		else
 			_base2bounds=[NSAffineTransform new];
-		if(frameRotation)
-			[_base2bounds rotateByDegrees:-frameRotation];	// FIXME: dreht nicht ordentlich um Ecke
-		if(super_view && [super_view isFlipped])
+		if(super_view && superFlipped)
 			{ // undo flipping within superview (because only our position is expressed in flipped coordinates but not our own coordinate system)
-				NSRect sbounds=[super_view bounds];
-				[_base2bounds scaleXBy:1.0 yBy:-1.0];
-				[_base2bounds translateXBy:0.0 yBy:+0.0*_frame.origin.y-_frame.size.height/*-NSHeight(sbounds)-_frame.origin.y*/];	// frame position is expressed in (potentially flipped) super_view coordinates
+				[_base2bounds translateXBy:0.0 yBy:+0*_frame.origin.y+_frame.size.height];	// frame position is expressed in flipped super_view coordinates
+				[_base2bounds scaleXBy:1.0 yBy:-1.0];	// unflip coordinates, but not translation
 			}
+		if(frameRotation)
+			[_base2bounds rotateByDegrees:-frameRotation];	// FIXME: dreht bei flipped view um linke obere Ecke !?!
+			// ist auch hier ein appendTransform:rotation etwas anderes als rotateByDegrees?
 		[_base2bounds translateXBy:-_frame.origin.x yBy:-_frame.origin.y];	// frame position is expressed in (potentially flipped) super_view coordinates
+		// if(_v.customBounds)
 		[_base2bounds appendTransform:_frame2bounds];	// finally transform frame (i.e. superview bound) to our bounds
-		if([self isFlipped])
+		if(flipped)
 			{ // finally flip bounds
-				[_base2bounds translateXBy:0.0 yBy:NSHeight(_bounds)];
-				[_base2bounds scaleXBy:1.0 yBy:-1.0];
+//				[_base2bounds scaleXBy:1.0 yBy:-1.0];	// this is not the same as appending a flipping transform!
+				static NSAffineTransform *f;
+				if(!f)
+					{
+					f=[NSAffineTransform transform];
+					[f scaleXBy:1.0 yBy:-1.0];
+					[f retain];
+					}
+				[_base2bounds appendTransform:f];	// flip
+				[_base2bounds translateXBy:0.0 yBy:-NSHeight(_bounds)];
 			}
 		}
 	return _base2bounds;
@@ -967,8 +993,10 @@ printing
 #if 0
 			NSLog(@"calculating _bounds2base: %@", self);
 #endif
-			_bounds2base=[[self _base2bounds] copy];
+			_bounds2base=[[self _base2bounds] copy];	// always make a (modifiable) copy
 			[_bounds2base invert];	// go back from window to our bounds coordinates
+			NSLog(@"base2bounds=%@", _base2bounds);
+			NSLog(@"bounds2base=%@", _bounds2base);
 		}
 	return _bounds2base;
 }
@@ -1412,34 +1440,26 @@ printing
 	NSAffineTransform *atm;
 	if(from == to)
 		{ // return identity matrix
-		static NSAffineTransform *identity;
-		if(!identity) identity=[[NSAffineTransform alloc] init];	// a singleton
-		return identity;
+			static NSAffineTransform *identity;
+			if(!identity) identity=[[NSAffineTransform alloc] init];	// a singleton
+			return identity;
 		}
 	if(!from)
 		return [to _base2bounds];	// convert from window coordinates to base only
-#if 0	// we have changed the semantics of _bounds2frame not to cover frameRotation and flipping!
-	if(to == [from superview])
-		{ // shortcut to direct superview
-		return [from _bounds2frame];
-		}
-	if(from == [to superview])
-		{ // shortcut to direct subview
-		return [to _frame2bounds];
-		}
-#endif
 	atm=[from _bounds2base];	// convert from bounds to window coordinates
 	if(to)
 		{ // and transform from window to base
-		atm=[[atm copy] autorelease];	// get a working copy
-		[atm appendTransform:[to _base2bounds]];
+			if([from window] != [to window])
+				[NSException raise:NSInternalInconsistencyException format:@"views do not belong to the same window"];
+			atm=[[atm copy] autorelease];	// get a safely modifiable copy
+			[atm appendTransform:[to _base2bounds]];
 		}
 	return atm;
 }
 
 - (NSPoint) convertPointFromBase:(NSPoint) p
 {
-	return [_base2bounds transformPoint:p];
+	return [[self _base2bounds] transformPoint:p];
 }
 
 - (NSPoint) convertPointToBase:(NSPoint) p
@@ -1449,7 +1469,7 @@ printing
 
 - (NSSize) convertSizeFromBase:(NSSize) sz
 {
-	return [_base2bounds transformSize:sz];
+	return [[self _base2bounds] transformSize:sz];
 }
 
 - (NSSize) convertSizeToBase:(NSSize) sz
@@ -1459,7 +1479,7 @@ printing
 
 - (NSRect) convertRectFromBase:(NSRect) r
 {
-	return [_base2bounds _transformRect:r];
+	return [[self _base2bounds] _transformRect:r];
 }
 
 - (NSRect) convertRectToBase:(NSRect) r

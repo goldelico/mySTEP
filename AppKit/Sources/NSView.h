@@ -63,24 +63,23 @@ typedef NSInteger NSTrackingRectTag;
 
 @interface NSView : NSResponder  <NSCoding> 
 {
-	NSView *_nextKeyView;
 	NSView *super_view;
 	NSMutableArray *sub_views;
-    NSArray *_dragTypes;
 	NSWindow *_window;
 	NSAffineTransform *_bounds2frame;	// bounds to frame (unrotated) - created on demand
 	NSAffineTransform *_frame2bounds;	// inverse - created on demand
 	NSAffineTransform *_bounds2base;	// bounds to screen - created on demand
 	NSAffineTransform *_base2bounds;	// inverse - created on demand
-	NSRect _frame;
-	NSRect _bounds;
+	NSRect _frame;				// as defined by setFrame
+	NSRect _bounds;				// calculated from frame and _frame2bounds
 	NSRect invalidRect;			// union of all subrects
-	NSRect *invalidRects;
-//	NSSize unitSquareSize;	// ?? do we need that or is it just scaling bounds/frame size?
+	NSRect *invalidRects;		// invalid rectangle list
+	NSView *_nextKeyView;
+    NSArray *_dragTypes;
 	float frameRotation;
 	float boundsRotation;
-	unsigned int nInvalidRects;
-	unsigned int cInvalidRects;
+	unsigned int nInvalidRects;	// number of invalid rects
+	unsigned int cInvalidRects;	// capacity of invalidRects array
 	int _gState;
     struct __ViewFlags {
 		unsigned int isRotatedFromBase:1;
@@ -94,8 +93,9 @@ typedef NSInteger NSTrackingRectTag;
 		unsigned int hidden:1;
 		unsigned int preservesContentDuringLiveResize:1;
 		unsigned int customBounds:1;
-//		unsigned int needsDisplay:1;
 		unsigned int needsDisplaySubviews:1;
+		unsigned int flippedCache:1;
+		unsigned int superFlippedCache:1;
 		} _v;
 }
 
