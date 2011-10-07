@@ -210,6 +210,7 @@ int main(int argc, const char *argv[])
 			}
 		else if ([[args objectAtIndex: i] isEqual: @"-x"])
 			{
+			// check that arguments exist
 			NSString *uid = [args objectAtIndex: ++i];
 			NSArray *attrib = [[args objectAtIndex: ++i] componentsSeparatedByString:@"."];
 			NSString *value = [args objectAtIndex: ++i];
@@ -273,6 +274,7 @@ int main(int argc, const char *argv[])
 			}
 		else if ([[args objectAtIndex: i] isEqual: @"-l"])
 			{ // list
+				// FIXME: check if uid and attrib exist
 			NSString *uid = [args objectAtIndex: ++i];
 			NSArray *attrib = [[args objectAtIndex: ++i] componentsSeparatedByString:@"."];
 			ABRecord *r;
