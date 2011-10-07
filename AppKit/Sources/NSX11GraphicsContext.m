@@ -3365,7 +3365,10 @@ static NSDictionary *_x11settings;
 	XInitThreads();	// make us thread-safe
 #endif
 	if((_display=XOpenDisplay(NULL)) == NULL) 		// connect to X server based on DISPLAY variable
-		[NSException raise:NSGenericException format:@"Unable to connect to X server"];
+		{
+		fprintf(stderr, "Unable to connect to X server\n");
+		exit(1);
+		}
 	XSetErrorHandler((XErrorHandler)X11ErrorHandler);
 #if 0	// enable to debug X11 errors - will be notified immediately and not after other actions
 	XSynchronize(_display, True);

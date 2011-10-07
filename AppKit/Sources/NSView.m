@@ -925,7 +925,7 @@ printing
 	[sub_views makeObjectsPerformSelector:_cmd];	// and invalidate all subviews
 }
 
-#define NEW 1
+#define NEW 0
 
 #if NEW
 
@@ -957,9 +957,9 @@ printing
 			_base2bounds=[[super_view _base2bounds] copy];
 		else
 			_base2bounds=[NSAffineTransform new];
-		if(super_view && superFlipped)
+		if(super_view && (superFlipped != flipped))
 			{ // undo flipping within superview (because only our position is expressed in flipped coordinates but not our own coordinate system)
-				[_base2bounds translateXBy:0.0 yBy:+0*_frame.origin.y+_frame.size.height];	// frame position is expressed in flipped super_view coordinates
+				[_base2bounds translateXBy:0.0 yBy:NSHeight(_frame)];	// frame position is expressed in flipped super_view coordinates
 				[_base2bounds scaleXBy:1.0 yBy:-1.0];	// unflip coordinates, but not translation
 			}
 		if(frameRotation)
@@ -968,7 +968,7 @@ printing
 		[_base2bounds translateXBy:-_frame.origin.x yBy:-_frame.origin.y];	// frame position is expressed in (potentially flipped) super_view coordinates
 		// if(_v.customBounds)
 		[_base2bounds appendTransform:_frame2bounds];	// finally transform frame (i.e. superview bound) to our bounds
-		if(flipped)
+		if(superFlipped != flipped)
 			{ // finally flip bounds
 //				[_base2bounds scaleXBy:1.0 yBy:-1.0];	// this is not the same as appending a flipping transform!
 				static NSAffineTransform *f;
