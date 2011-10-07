@@ -287,11 +287,14 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	_current_mode = mode;
 	for(loop = 0, i=0; loop < count; loop++)
 		{ // check for performers to fire
-		_NSRunLoopPerformer *item = [_performers objectAtIndex: i];
+		_NSRunLoopPerformer *item;
+		if(i >= [_performers count])
+			break;	// firing some performer may re-enter this runloop and/or cancel some others
+		item = [_performers objectAtIndex: i];
 		if([item->modes containsObject:mode])
 			{ // here we have untimed performers only - timed performers will be triggered by timer
 			[item retain];
-			[_performers removeObjectAtIndex:i];	// remove before firing - it may add a new one
+			[_performers removeObjectAtIndex:i];	// remove before firing - it may add a new one to the end of the array
 			[item fire];
 			[item release];
 			}
@@ -300,14 +303,17 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		}										// the end of the array
 	
 	if((timers = NSMapGet(_mode_2_timers, mode)))									
-		{ // process all timers for this mode - we must be careful, since firing timers may add/remove timers and call the same runloop
+		{ // process all timers for this mode - we must be careful, since firing timers may add/remove timers and recursively enter the same runloop
 		i = [timers count];
 #if 0
 		NSLog(@"timers=%@", timers);
 #endif
 		while(i-- > 0)
 			{ // process backwards because we might remove the timer (or add new ones at the end)
-			NSTimer *timer = [timers objectAtIndex:i];
+			NSTimer *timer;
+			if(i >= [timers count])
+				continue;	// someone has modified our timers array... This can happen if a fire method re-enters this runloop and itself processes invalidated timers
+			timer = [timers objectAtIndex:i];
 #if 0
 			NSLog(@"%d: check timer to fire %p: %@ forMode:%@", i, timer, timer, mode);
 #endif
@@ -331,6 +337,11 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 						 * and even re-enter this run-loop!
 						 * will update the fireDate for repeating timers
 						 */
+						
+						// FIXME: if the fire method re-enters this runloop, it may invalidate
+						// and remove timers we have not yet processed here!
+						// So we better should start over with our index i and check it against [timers count]
+						
 					[timer fire];
 #if 0
 					NSLog(@"fire %p done.", timer);
@@ -339,11 +350,11 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 					}
 				}
 			if(!timer->_is_valid)
-				{ // now invalid after firing (i.e. we are not a repeating timer or did invalidate)
+				{ // now invalid after firing (i.e. this is not a repeating timer or was invalidated)
 #if 0
 				NSLog(@"%d[%d] remove %@", i, [timers count], timer);
 #endif
-				[timers removeObjectAtIndex:i];
+				[timers removeObjectIdenticalTo:timer];
 				}
 			[timer release];	// this should finally dealloc an invalid timer (and a timed performer) if it is the last mode we have checked
 			}
