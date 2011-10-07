@@ -6,7 +6,7 @@
 //  Copyright 2011 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "CTModemManager.h"
+#import "CTPrivate.h"
 
 #include <signal.h>
 
@@ -166,22 +166,34 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	unsolicitedAction=a;
 }
 
-- (int) runATCommand:(NSString *) cmd target:(id) t action:(SEL) a;
+- (int) runATCommand:(NSString *) cmd target:(id) t action:(SEL) a timeout:(NSTimeInterval) seconds;
 {
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
-	NSDate *timeout=[NSDate dateWithTimeIntervalSinceNow:2.0];
-	// FIXME: there is a race between queued unsolicited responses, writing the new command and setting the done flag!
-	// we may need a separate flag to divert unsolicited responses that is set by an echoed (!) AT command and reset by OK or ERROR
+	NSDate *timeout=[NSDate dateWithTimeIntervalSinceNow:seconds];
+#if 1
+	NSLog(@"run: %@", cmd);
+#endif
 	[self _writeCommand:cmd];
 	done=NO;
+	atstarted=NO;	// make us wait until we receive the echo
 	target=t;
 	action=a;
 	status=CTModemTimeout;
 	while(!done && [timeout timeIntervalSinceNow] >= 0)
 		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeout];
+	if(!done)
+		NSLog(@"timeout for %@", cmd);
 	done=YES;	// even if we did timeout
 	[arp release];
+#if 1
+	NSLog(@"done: %@ (%d)", cmd, status);
+#endif
 	return status;
+}
+
+- (int) runATCommand:(NSString *) cmd target:(id) t action:(SEL) a;
+{
+	return [self runATCommand:cmd target:t action:a timeout:2.0];
 }
 
 - (NSString *) error; { return error; }
@@ -237,7 +249,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				 */
 				status=CTModemError;
 				done=YES;
-				atstarted=NO;	// further responses are unsolicited
+				atstarted=NO;	// treat further responses as unsolicited
 				return;
 			}
 		if(target && action)
@@ -246,7 +258,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if([line hasPrefix:@"AT"])	// is some echoed AT command
 		atstarted=YES;	// divert future responses
 	else
-		[unsolicitedTarget performSelector:unsolicitedAction withObject:line];	// unsolicited response
+		[unsolicitedTarget performSelector:unsolicitedAction withObject:line afterDelay:0.0];	// unsolicited response - process in main runloop!
 }
 
 - (void) _processData:(NSData *) line;
@@ -275,17 +287,19 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) _dataReceived:(NSNotification *) n;
 {
+	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 #if 0
 	NSLog(@"_dataReceived %@", n);
 #endif
 	[self _processData:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
 	[[n object] readInBackgroundAndNotify];	// and trigger more notifications
+	[arp release];
 }
 
 - (void) _writeCommand:(NSString *) str;
 {
 #if 1
-	fprintf(stderr, "WWAN w: %s\n", [[str description] UTF8String]);
+	fprintf(stderr, "WWAN w (done=%d at=%d): %s\n", done, atstarted, [[str description] UTF8String]);
 	//	NSLog(@"WWAN w: %@", str);
 #endif
 	str=[str stringByAppendingString:@"\r"];
@@ -382,6 +396,23 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			}
 		if([pinstatus hasPrefix:@"+CPIN: READY"])
 			{ // response to AT+CPIN? - PIN is ok!
+				NSString *simop;
+				// ask information that is only available with PIN
+				CTModemManager *m=[CTModemManager modemManager];
+				simop=[m runATCommandReturnResponse:@"AT_OSIMOP"];
+				if(simop)
+					{ // home plnm - _OSIMOP: “<long_op>”,”<short_op>”, ”<MCC_MNC>”
+						NSScanner *sc=[NSScanner scannerWithString:simop];
+						NSString *name=@"unknown";
+						[sc scanString:@"_OSIMOP: \"" intoString:NULL];
+						[sc scanUpToString:@"\"" intoString:&name];
+						[[[CTTelephonyNetworkInfo telephonyNetworkInfo] subscriberCellularProvider] _setCarrierName:name];
+#if 1
+						NSLog(@"carrier name=%@", name);
+#endif
+					}
+				else
+					NSLog(@"AT_OSIMOP error: %@", [m error]);
 				return YES;
 			}
 		if([pinstatus hasPrefix:@"+CPIN: SIM PIN"] || [pinstatus hasPrefix:@"+CPIN: SIM PUK"])
@@ -410,6 +441,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		{ // is accepted
 		// save PIN
 		[pinPanel orderOut:self];
+			// run AT_OSIMOP
 		}
 	else
 		{
@@ -436,6 +468,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if(![self reset])
 		return NO;
 	// AT+CPIN="old","new"
+	return NO;
 }
 
 - (void) connectWWAN:(BOOL) flag;	// 0 to disconnect

@@ -37,7 +37,8 @@
 
 - (void) setUnsolicitedTarget:(id) target action:(SEL) action;
 
-- (int) runATCommand:(NSString *) cmd target:(id) target action:(SEL) action;
+- (int) runATCommand:(NSString *) cmd target:(id) t action:(SEL) a timeout:(NSTimeInterval) seconds;
+- (int) runATCommand:(NSString *) cmd target:(id) target action:(SEL) action;	// default timeout = 2 seconds
 - (int) runATCommand:(NSString *) cmd;
 - (NSString *) runATCommandReturnResponse:(NSString *) cmd;
 

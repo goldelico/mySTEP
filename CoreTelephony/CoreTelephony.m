@@ -6,29 +6,12 @@
 //  Copyright 2010 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <CoreTelephony/CoreTelephony.h>
-#import "CTModemManager.h"
+#import "CTPrivate.h"
 
 NSString const *CTCallStateDialing=@"CTCallStateDialing";
 NSString const *CTCallStateIncoming=@"CTCallStateIncoming";
 NSString const *CTCallStateConnected=@"CTCallStateConnected";
 NSString const *CTCallStateDisconnected=@"CTCallStateDisconnected";
-
-@interface CTCall (Private)
-- (int) _callState;
-- (void) _setCallState:(int) state;
-- (void) _setPeerPhoneNumber:(NSString *) number;
-@end
-
-@interface CTCarrier (Private)
-
-- (void) _setCarrierName:(NSString *) n;
-- (void) _setStrength:(float) s;
-- (void) _setNetworkType:(float) s;
-- (void) _setdBm:(float) s;
-- (void) _setCellID:(NSString *) n;
-
-@end
 
 // FIXME: the call center shouldn't be a singleton!
 // reason: there may be multiple and different delegates for each instance
@@ -132,6 +115,54 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if([line hasPrefix:@"+CBM:"])
 		{
 		NSLog(@"cell broadcast message: %@", line);
+		return;
+		}
+	if([line hasPrefix:@"+COLP:"])
+		{
+		CTModemManager *mm=[CTModemManager modemManager];
+		NSEnumerator *e=[currentCalls objectEnumerator];
+		CTCall *call;
+		while((call=[e nextObject]))
+			{ // update connection state to connected
+			if([call _callState] == kCTCallStateDialing)
+				{
+				[call _setCallState:kCTCallStateConnected];
+				// notify delegate
+				break;
+				}
+			}
+#if 1
+		NSLog(@"connection established: %@", call);
+#endif
+		system("amixer set 'DAC1 Analog' off;"
+			   "amixer set 'DAC2 Analog' on;"
+			   //"amixer set  'Codec Operation Mode' 'Option 1 (audio)'");
+			   "amixer set  'Codec Operation Mode' 'Option 2 (voice/audio)'");
+		system("amixer set Earpiece 100%;"
+			   "amixer set 'Earpiece Mixer AudioL2' on;"
+			   /* "amixer set 'Earpiece Mixer AudioR2' off;" -- does not exist */
+			   "amixer set 'Earpiece Mixer Voice' off");
+		system("amixer set 'Analog' 5;"
+			   "amixer set TX1 'Analog';"
+			   "amixer set 'TX1 Digital' 12;"
+			   "amixer set 'Analog Left AUXL' nocap;"
+			   "amixer set 'Analog Right AUXR' nocap;"
+			   "amixer set 'Analog Left Main Mic' cap;"
+			   "amixer set 'Analog Left Headset Mic' nocap");
+#if 0	// does not work! Modem mutes all voice signals if we do that *during* a call
+		[mm runATCommand:@"AT_OPCMENABLE=1"];
+		[mm runATCommand:@"AT_OPCMPROF=0"];	// default "handset"
+		[mm runATCommand:@"AT+VIP=0"];
+#endif
+		[call handsfree:YES];	// switch profile and enable speakers
+		[call volume:1.0];
+		
+		// FIXME: recording a phone call should only be possible under active user's control
+		
+		system("killall arecord aplay;"	// stop any running audio forwarding
+			   "arecord -fS16_LE -r8000 | tee mic2net.wav | aplay -Dhw:1,0 &"	// microphone -> network
+			   "arecord -Dhw:1,0 -fS16_LE -r8000 | tee net2ear.wav | aplay &"	// network -> handset/earpiece
+			   );
 		return;
 		}
 	if([line hasPrefix:@"_OPON:"])
@@ -253,20 +284,20 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 {
 	CTModemManager *mm=[CTModemManager modemManager];
 	// check if we are already connected
-	// check string for legal characters (0-9, +, #, *, G/g, I/i, space)
-	NSString *colp, *err;
+	// check string for legal characters (0-9, +, #, *, G/g, I/i, space or someone could inject arbitraty AT commands...)
+	NSString *err;
 	NSString *cmd=[NSString stringWithFormat:@"ATD%@;", number];	// initiate a voice call
 	[mm runATCommand:@"AT+COLP=1"];	// report phone number and make ATD blocking
-	colp=[mm runATCommandReturnResponse:cmd];
-	if(colp)
-		{ // successfull call setup
-#if 1
-			NSLog(@"dial ok: %@", colp);
+#if 1	// Run before sretting up the call. Modem mutes all voice signals if we do that *during* a call
+	[mm runATCommand:@"AT_OPCMENABLE=1"];
+	[mm runATCommand:@"AT_OPCMPROF=0"];	// default "handset"
+	[mm runATCommand:@"AT+VIP=0"];
 #endif
-			// we could check the COLP message to set the peer phone number!
+	if([mm runATCommand:cmd target:nil action:NULL timeout:120.0])	// ATD blocks only until connection is setup and remote ringing starts; so don't timeout too early!
+		{ // successfull call setup
 			CTCall *call=[[CTCall new] autorelease];
 			[call _setCallState:kCTCallStateDialing];
-			[call _setPeerPhoneNumber:number];
+			[call _setPeerPhoneNumber:number];	// should this come from AT+COLP (later)?
 			[currentCalls addObject:call];
 			// notify delegate
 			return call;
@@ -276,8 +307,13 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSLog(@"dial error: %@", err);
 #endif
 	/*
-	 unsolicited responses may be
-	 NO CARRIER, BUSY, NO ANSWER and CONNECT
+	 error responses may be
+	 NO CARRIER (kein Anschluß unter dieser Nummer)
+	 BUSY
+	 NO ANSWER
+	 CONNECT
+	 
+	 could also use AT+CEER to get a more precise information
 	 */
 	if([err isEqualToString:@""])
 		{
@@ -361,7 +397,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (void) terminate;
 {
 	[[CTModemManager modemManager] runATCommand:@"AT+CHUP"];
+	system("killall arecord aplay");	// stop audio forwarding
 	// error handling?
+	[[CTModemManager modemManager] runATCommand:@"AT_OPCMENABLE=0"];	// disable PCM clocks to save some energy
 }
 
 - (void) hold;
@@ -388,8 +426,28 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 // set 
 - (void) handsfree:(BOOL) flag;	// switch on handsfree speakers (or headset?)
 {
-	// if CTCallStateConnected
-	// switch amixer
+#if 1
+	NSLog(@"handsfree: %d", flag);
+#endif
+	// if CTCallStateConnected (?)
+	if(flag)
+		{
+#if 0	// does not work with Modem Firmware during a voice call
+		[[CTModemManager modemManager] runATCommand:@"AT_OPCMPROF=2"];
+#endif
+		system("amixer set HandsfreeL on;"
+			   "amixer set HandsfreeR on;"
+			   "amixer set 'HandsfreeL Mux' AudioL2;"
+			   "amixer set 'HandsfreeR Mux' AudioR2");
+		}
+	else
+		{
+		system("amixer set HandsfreeL off;"
+			   "amixer set HandsfreeR off");
+#if 0	// does not work with Modem Firmware during a voice call
+		[[CTModemManager modemManager] runATCommand:@"AT_OPCMPROF=0"];
+#endif
+		}
 }
 
 - (void) mute:(BOOL) flag;	// mute microphone
@@ -509,28 +567,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	{
 	if (!SINGLETON_VARIABLE && (self = [super init]))
 		{
-		NSString *simop;
-		CTModemManager *m=[CTModemManager modemManager];
 		SINGLETON_VARIABLE = self;
 		/* custom initialization here */
 		subscriberCellularProvider=[CTCarrier new];	// create default entry
 		currentNetwork=[subscriberCellularProvider retain];	// default: the same
 		[subscriberCellularProvider _setCarrierName:@"No SIM"];	// default if we can't read the SIM
-		// FIXME: this works only with PIN!
-		simop=[m runATCommandReturnResponse:@"AT_OSIMOP"];
-		if(simop)
-			{ // home plnm - _OSIMOP: “<long_op>”,”<short_op>”, ”<MCC_MNC>”
-				NSScanner *sc=[NSScanner scannerWithString:simop];
-				NSString *name=@"unknown";
-				[sc scanString:@"_OSIMOP: \"" intoString:NULL];
-				[sc scanUpToString:@"\"" intoString:&name];
-				[subscriberCellularProvider _setCarrierName:name];
-#if 1
-				NSLog(@"carrier name=%@", name);
-#endif
-			}
-		else
-			NSLog(@"AT_OSIMOP error: %@", [m error]);
 		}
 	}
     return self;

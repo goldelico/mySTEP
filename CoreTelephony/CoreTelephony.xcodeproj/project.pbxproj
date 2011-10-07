@@ -63,6 +63,7 @@
 		EE549AC2142B26B600978121 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AskPin.nib; sourceTree = "<group>"; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEB23DB41258B6410018A9F3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
+		EEB37D70143E0CDA0056E493 /* CTPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTPrivate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +153,7 @@
 				EE02A43113C1E20A00D5E67E /* CTCallCenter.h */,
 				EE02A43213C1E20A00D5E67E /* CTCarrier.h */,
 				EE02A43313C1E20A00D5E67E /* CTTelephonyNetworkInfo.h */,
+				EEB37D70143E0CDA0056E493 /* CTPrivate.h */,
 				EE226F0A143430350012B077 /* CTModemManager.h */,
 				EE226F0B143430350012B077 /* CTModemManager.m */,
 			);
