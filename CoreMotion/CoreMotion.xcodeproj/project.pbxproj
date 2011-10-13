@@ -19,6 +19,7 @@
 		EEB3B5E3144604000056E493 /* CMError.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB3B5D9144603910056E493 /* CMError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB3B5E4144604000056E493 /* CMErrorDomain.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB3B5D5144603730056E493 /* CMErrorDomain.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB3B5E6144604000056E493 /* CoreMotion.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB3B5C3144603160056E493 /* CoreMotion.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEB3D7D414461DE90056E493 /* CMMagnetometer.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB3D7D314461DE90056E493 /* CMMagnetometer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +40,7 @@
 		EEB3B5D9144603910056E493 /* CMError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMError.h; sourceTree = "<group>"; };
 		EEB3B5DC144603AD0056E493 /* CMMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMMotionManager.h; sourceTree = "<group>"; };
 		EEB3B5DD144603AD0056E493 /* CMMotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMMotionManager.m; sourceTree = "<group>"; };
+		EEB3D7D314461DE90056E493 /* CMMagnetometer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMMagnetometer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +104,7 @@
 				EEB3B5D5144603730056E493 /* CMErrorDomain.h */,
 				EEB3B5D4144603730056E493 /* CMGyro.h */,
 				EEB3B5D8144603910056E493 /* CMLogItem.h */,
+				EEB3D7D314461DE90056E493 /* CMMagnetometer.h */,
 				EEB3B5DC144603AD0056E493 /* CMMotionManager.h */,
 				EEB3B5DD144603AD0056E493 /* CMMotionManager.m */,
 				EEB3B5C3144603160056E493 /* CoreMotion.h */,
@@ -147,6 +150,7 @@
 				EEB3B5E4144604000056E493 /* CMErrorDomain.h in Headers */,
 				EEB3B5D6144603730056E493 /* CMGyro.h in Headers */,
 				EEB3B5DA144603910056E493 /* CMLogItem.h in Headers */,
+				EEB3D7D414461DE90056E493 /* CMMagnetometer.h in Headers */,
 				EEB3B5DE144603AD0056E493 /* CMMotionManager.h in Headers */,
 				EEB3B5E6144604000056E493 /* CoreMotion.h in Headers */,
 			);
@@ -226,7 +230,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=CoreLocation.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n# export DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=CMMotionManager.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n# export DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -13,5 +13,6 @@
 #import <CoreMotion/CMErrorDomain.h>
 #import <CoreMotion/CMGyro.h>
 #import <CoreMotion/CMLogItem.h>
+#import <CoreMotion/CMMagnetometer.h>
 #import <CoreMotion/CMMotionManager.h>
 

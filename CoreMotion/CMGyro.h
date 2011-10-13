@@ -6,12 +6,21 @@
 //  Copyright 2011 quantumstep. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <CoreMotion/CMLogItem.h>
 
 
-@interface CMGyro : NSObject
+typedef struct _CMRotationRate
+{
+	double x;
+	double y;
+	double z;
+} CMRotationRate;
+
+@interface CMGyro : CMLogItem
 {
 
 }
+
+- (CMRotationRate) rotationRate;
 
 @end

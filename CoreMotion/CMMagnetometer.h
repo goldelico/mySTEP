@@ -1,5 +1,5 @@
 //
-//  CMAccelerometer.h
+//  CMMagnetometer.h
 //  CoreMotion
 //
 //  Created by H. Nikolaus Schaller on 12.10.11.
@@ -8,19 +8,19 @@
 
 #import <CoreMotion/CMLogItem.h>
 
-typedef struct _CMAcceleration
-{
+
+typedef struct _CMMagneticField
+{ // in uTesla
 	double x;
 	double y;
 	double z;
-} CMAcceleration;
+} CMMagneticField;
 
-
-@interface CMAccelerometer : CMLogItem
+@interface CMMagnetometerData : CMLogItem
 {
 
 }
 
-- (CMAcceleration) acceleration;
+- (CMMagneticField) magneticField;
 
 @end

@@ -28,6 +28,10 @@
 
 @end
 
+@implementation CMMagnetometerData
+
+@end
+
 @implementation CMMotionManager
 
 @end

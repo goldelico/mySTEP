@@ -8,10 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-
-@interface CMLogItem : NSObject
+@interface CMLogItem : NSObject <NSCoding, NSCopying>
 {
 
 }
+
+- (NSTimeInterval) timestamp;	// since last boot
 
 @end

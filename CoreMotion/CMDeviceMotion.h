@@ -6,10 +6,11 @@
 //  Copyright 2011 quantumstep. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <CoreMotion/CMLogItem.h>
+#import <CoreMotion/CMAttitude.h>
 
 
-@interface CMDeviceMotion : NSObject
+@interface CMDeviceMotion : CMLogItem
 {
 
 }
