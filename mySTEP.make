@@ -155,7 +155,8 @@ ifeq ($(WRAPPER_EXTENSION),framework)	# framework
 	EXEC=$(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)
 	BINARY=$(EXEC)/lib$(EXECUTABLE_NAME).so
 	HEADERS=$(EXEC)/Headers/$(PRODUCT_NAME)
-	CFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) -I$(EXEC)/Headers/ $(CFLAGS)
+	CFLAGS := -I$(EXEC)/Headers/ $(CFLAGS)
+	LDFLAGS := -shared -Wl,-soname,$(PRODUCT_NAME) $(LDFLAGS)
 else
 	CONTENTS=Contents
 	NAME_EXT=$(PRODUCT_NAME).$(WRAPPER_EXTENSION)
@@ -165,7 +166,7 @@ else
 ifeq ($(WRAPPER_EXTENSION),app)
 	CFLAGS := -DFAKE_MAIN $(CFLAGS)	# application
 else
-	CFLAGS := -shared -Wl,-soname,$(NAME_EXT) $(CFLAGS)	# any other bundle
+	LDFLAGS := -shared -Wl,-soname,$(NAME_EXT) $(LDFLAGS)	# any other bundle
 endif
 endif
 endif
@@ -307,20 +308,21 @@ endif
 # CFLAGS :=  -Wxyz $(CFLAGS)
 # endif
 
-#.SUFFIXES : .o .c .m
+.SUFFIXES : .o .c .m
 
-#.m.o::
-#	- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)
-#	@(echo Compiling: $*; echo cd $(TARGET_BUILD_DIR)/$(ARCHITECTURE); echo $(CC) -c -MD $(CFLAGS) $(PWD)/$< -o $*.o)
-#	@(echo Compiling: $*; cd $(TARGET_BUILD_DIR)/$(ARCHITECTURE); $(CC) -c -MD $(CFLAGS) $(PWD)/$< -o $*.o)
+$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/%.o: %.m
+	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$(*D)
+	@(echo Compiling: $< -> $*.o;)
+	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$*.o
 
-#.c.o:: 	
-#	- mkdir -p $(TARGET_BUILD_DIR)/arm-linux
-#	@(echo Compiling: $*; echo cd $(TARGET_BUILD_DIR)/$(ARCHITECTURE); echo $(CC) -c -MD $(CFLAGS) $(PWD)/$< -o $*.o)
-#	@(echo Compiling: $*; cd $(TARGET_BUILD_DIR)/$(ARCHITECTURE); $(CC) -c -MD $(CFLAGS) $(PWD)/$< -o $*.o)
+$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/%.o: %.c
+	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$(*D)
+	@(echo Compiling: $< -> $*.o;)
+	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$*.o
 
-XOBJECTS=$(wildcard $(SOURCES:%.m=$(TARGET_BUILD_DIR)$(ARCHITECTURE)/%.o))
-OBJECTS=$(SOURCES)
+
+XSOURCES=$(wildcard $(SOURCES))
+OBJECTS=$(XSOURCES:%.m=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/%.o)
 
 build_architecture: make_bundle make_exec make_binary install_local install_tool install_remote launch_remote
 	# $(BINARY) for $(ARCHITECTURE) built.
@@ -503,15 +505,15 @@ clean:
 
 # generic bundle rule
 
-### add rules to copy the Info.plist and Resources if not done by Xcode
+### add rules or code to copy the Info.plist and Resources if not done by Xcode
 ### so that this makefile can be used independently of Xcode to create full bundles
 
-"$(BINARY)":: $(XOBJECTS) $(OBJECTS)
-	#
-	# compile $(SOURCES) into $(BINARY)
-	#
+# FIXME: use dependencies to link only if any object file has changed
+
+"$(BINARY)":: $(OBJECTS)
+	# link $(OBJECTS) into $(BINARY)
 	@mkdir -p "$(EXEC)"
-	$(CC) $(CFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
+	$(CC) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	# compiled.
 
 # link headers of framework
@@ -525,7 +527,7 @@ endif
 
 "$(EXEC)":: headers
 	# make directory for Linux executable
-	# echo ".o objects: " $(XOBJECTS)
+	# echo ".o objects: " $(OBJECTS)
 	@mkdir -p "$(EXEC)"
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks

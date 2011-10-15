@@ -3348,7 +3348,7 @@ static NSDictionary *_x11settings;
 	};
 	Atom atoms[sizeof(atomNames)/sizeof(atomNames[0])];
 	NSFileHandle *fh;
-	NSUserDefaults *def=[[[NSUserDefaults alloc] initWithUser:@"root"] autorelease];	// load /Library/Preferences
+	NSUserDefaults *def=[[[NSUserDefaults alloc] initWithUser:@"root"] autorelease];	// load /Library/Preferences user defaults (if they exist)
 #if 1
 	NSLog(@"NSScreen backend +initialize");
 	//	system("export;/usr/X11R6/bin/xeyes&");
@@ -3451,9 +3451,11 @@ static NSDictionary *_x11settings;
 		float xdpp=(25.4*WidthOfScreen(_screen))/(72.0*WidthMMOfScreen(_screen));	// dpp: dots per point
 		float ydpp=(25.4*HeightOfScreen(_screen))/(72.0*HeightMMOfScreen(_screen));
 		float avg=(xdpp+ydpp)*0.5;	// take average for 72dpi
+		avg=avg*(1.0 + (0.8/500.0)*((WidthMMOfScreen(_screen)+HeightMMOfScreen(_screen)) - 500.0));	// enlarge for big and far away screens / reduce for handhelds
 		if(fabs(avg - rint(avg)) < 0.1)
 			avg=rint(avg);	// round to nearest integer if near enough
-		_screenScale=avg;
+			_screenScale=avg;
+		printf("%g\n", _screenScale);
 #if 1
 			NSLog(@"pixel: w=%d h=%d", WidthOfScreen(_screen), HeightOfScreen(_screen));
 			NSLog(@"   mm: w=%d h=%d", WidthMMOfScreen(_screen), HeightMMOfScreen(_screen));
@@ -3481,6 +3483,8 @@ static NSDictionary *_x11settings;
 #if 0
 		NSLog(@"_screen2X11=%@", (NSAffineTransform *) _screen2X11);
 #endif
+			// FIXME: this is very Zaurus-specific
+			// maybe, we should require the Core Motion framework and ask there?
 #if __linux__
 		if(XDisplayString(_display)[0] == ':' ||
 		   strncmp(XDisplayString(_display), "localhost:", 10) == 0)

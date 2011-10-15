@@ -38,7 +38,7 @@
 	return 1.0;
 #if 0	
 	NSSize dpi=[[[self deviceDescription] objectForKey:NSDeviceResolution] sizeValue];
-	return (dpi.width+dpi.height)/144;	// take average for 72dpi
+	return (dpi.width+dpi.height)/144.0;	// take average for 72dpi
 #endif
 }
 
@@ -59,10 +59,14 @@
 	if(vFrame.size.width == 0.0)
 		{
 		NSRect mb=[self _menuBarFrame];
+		NSRect smb=[self _systemMenuBarFrame];
 		vFrame=[self frame];
 		if(mb.origin.y == 0.0)
 			vFrame.origin.y=mb.size.height;		// menu bar is at bottom: visible area begins above menu bar
-		vFrame.size.height=[self _systemMenuBarFrame].origin.y-vFrame.origin.y;   // visible area between both menu bars
+		if(smb.origin.y > vFrame.origin.y)	// not "very small" mode
+			vFrame.size.height=smb.origin.y-vFrame.origin.y;   // visible area between both menu bars
+		else
+			vFrame.size.height=vFrame.size.height-vFrame.origin.y;   // visible area above both menu bars
 		}
 #if 0
 	NSLog(@"visibleFrame=%@", NSStringFromRect(vFrame));
@@ -71,6 +75,7 @@
 }
 
 #define SYSTEM_MENU_WIDTH 1.2
+#define VERY_SMALL 100.0	// when do we consider a screen too small for a full menu (horiz. size on Points)
 
 - (NSRect) _statusBarFrame;
 { // the system status menu bar (accessed by NSStatusBar)
@@ -80,7 +85,7 @@
 	h=[NSMenuView menuBarHeight];
 	r.origin.y=r.size.height-h;
 	r.size.height=h;
-	if(r.size.width > 240.0)
+	if(r.size.width > VERY_SMALL)
 		{ // not a very small screen
 		r.origin.x=ceil(SYSTEM_MENU_WIDTH*r.size.height);	// leave room for systemMenu
 		r.size.width-=r.origin.x;
@@ -95,7 +100,7 @@
 { // the system menu bar (not accessible directly by applications) - fills space to the left of the statusBar
 	NSRect r=[self _statusBarFrame];
 	if(r.origin.x == 0)
-		{ // bottom left half
+		{ // bottom left half (VERY_SMALL mode)
 		r.origin.y=0;									// system menu bar is at bottom of screen
 		r.size.height=[NSMenuView menuBarHeight];
 		r.size.width/=2.0;								// width is half of the screen
@@ -114,12 +119,12 @@
 - (NSRect) _menuBarFrame;
 { // the application main menu bar (accessed by NSApp setMainMenu)
 	NSRect r=[self frame];
-	if(r.size.width < r.size.height || r.size.width <= 240.0)
+	if(r.size.width < r.size.height || r.size.width <= VERY_SMALL)
 		{ // portrait mode: application menu bar at bottom of screen
 		r.origin.x=0.0;
 		r.origin.y=0.0;
-		if(r.size.width <= 240.0)
-			{
+		if(r.size.width <= VERY_SMALL)
+			{ // pure PDA mode - application menu on right half
 			r.size.width/=2.0;								// width is half of the screen
 			r.origin.x=ceil(r.size.width);					// right half of the screen
 			}
