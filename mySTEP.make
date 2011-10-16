@@ -48,13 +48,15 @@ export INSTALL_PATH=/Applications   # override INSTALL_PATH for MacOS X for the 
 #export RUN_OPTIONS=-NoNSBackingStoreBuffered
 #export BUILD_FOR_DEPLOYMENT=		# true to generate optimized code and strip binaries
 #export	PREINST=./preinst			# preinst file
-#export	POSTRM=./postrm				# preinst file
+#export	POSTRM=./postrm				# postrm file
 
 # Debian packages
 export DEPENDS="quantumstep-cocoa-framework"	# debian package dependencies (, separated list)
 # export DEBIAN_PACKAGE_NAME="quantumstep"	# manually define package name
 # export FILES=""					# list of other files to be added to the package (relative to $ROOT)
 # export DATA=""					# directory of other files to be added to the package (relative to /)
+# export DEBIAN_PREINST=./preinst	# preinst file
+# export DEBIAN_POSTRM=./postrm		# postrm file
 
 # start make script
 export ROOT=/usr/share/QuantumSTEP	# project root
