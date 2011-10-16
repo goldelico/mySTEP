@@ -556,7 +556,13 @@ static BOOL __userKeyEquivalents = YES;
 	return nil;
 }
 
-- (int) indexOfItem:(NSMenuItem *) item; { return [_menuItems indexOfObject:item]; }
+- (int) indexOfItem:(NSMenuItem *) item;
+{
+	unsigned int idx=[_menuItems indexOfObject:item];
+	if(idx != NSNotFound)
+		return idx;
+	return -1;
+}
 
 - (int) indexOfItemWithRepresentedObject:(id) object;
 {
@@ -628,11 +634,11 @@ static BOOL __userKeyEquivalents = YES;
 - (NSString*) title							{ return _title; }
 
 - (void) submenuAction:(id)sender			{ NIMP }		// item's that open submenu
-- (NSArray*) itemArray						{ return _menuItems; }
+- (NSArray *) itemArray						{ return _menuItems; }
 - (int) numberOfItems;						{ return [[self itemArray] count]; }
 - (NSMenuItem *) itemAtIndex:(int) index;	{ return [[self itemArray] objectAtIndex:index]; }
-- (NSMenu*) attachedMenu;					{ return _attachedMenu; }
-- (NSMenu*) supermenu;						{ return _supermenu; }
+- (NSMenu *) attachedMenu;					{ return _attachedMenu; }
+- (NSMenu *) supermenu;						{ return _supermenu; }
 - (void) setSupermenu:(NSMenu *) menu;		{ _supermenu=menu; }	// does not retain!!!
 - (id) delegate;							{ return _delegate; }
 

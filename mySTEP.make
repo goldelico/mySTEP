@@ -312,12 +312,12 @@ endif
 
 $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/%.o: %.m
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$(*D)
-	@(echo Compiling: $< -> $*.o;)
+	# compile $< -> $*.o
 	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$*.o
 
 $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/%.o: %.c
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$(*D)
-	@(echo Compiling: $< -> $*.o;)
+	# compile $< -> $*.o
 	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$*.o
 
 
@@ -511,7 +511,7 @@ clean:
 # FIXME: use dependencies to link only if any object file has changed
 
 "$(BINARY)":: $(OBJECTS)
-	# link $(OBJECTS) into $(BINARY)
+	# link $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
 	$(CC) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	# compiled.
@@ -527,8 +527,8 @@ endif
 
 "$(EXEC)":: headers
 	# make directory for Linux executable
-	# echo ".o objects: " $(OBJECTS)
-	@mkdir -p "$(EXEC)"
+	# objects: $(OBJECTS)
+	mkdir -p "$(EXEC)"
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
 	- rm -f $(PKG)/$(NAME_EXT)/$(CONTENTS)/$(ARCHITECTURE)/$(EXECUTABLE_NAME)

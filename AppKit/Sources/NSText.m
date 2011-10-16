@@ -680,7 +680,7 @@ object:self]
 { // post field editor notification
 	if(_delegate && [_delegate respondsToSelector:@selector(textShouldEndEditing:)]
 	   && ![_delegate textShouldEndEditing:self])
-		return NO;	// not accepted
+		return;	// not accepted
 	[[NSNotificationCenter defaultCenter] postNotification:
 	 [NSNotification notificationWithName:NOTE(DidEndEditing) 
 								   object:self

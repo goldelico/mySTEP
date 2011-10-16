@@ -3455,7 +3455,9 @@ static NSDictionary *_x11settings;
 		if(fabs(avg - rint(avg)) < 0.1)
 			avg=rint(avg);	// round to nearest integer if near enough
 			_screenScale=avg;
+#if 0
 		printf("%g\n", _screenScale);
+#endif
 #if 1
 			NSLog(@"pixel: w=%d h=%d", WidthOfScreen(_screen), HeightOfScreen(_screen));
 			NSLog(@"   mm: w=%d h=%d", WidthMMOfScreen(_screen), HeightMMOfScreen(_screen));

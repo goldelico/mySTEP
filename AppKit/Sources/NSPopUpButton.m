@@ -15,7 +15,7 @@ NSPopUpButton.m
 #import <Foundation/NSException.h>
 #import <Foundation/NSArray.h>
 
-// NOTE: we are a sbclass of NSMenuItemCell!
+// NOTE: we are a subclass of NSMenuItemCell!
 
 #import <AppKit/NSApplication.h>
 #import <AppKit/NSMenu.h>
@@ -48,6 +48,13 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	if(_bezelStyle == NSRoundedBezelStyle)
 		return NSInsetRect(cellFrame, _d.controlSize == NSMiniControlSize?2:4, floor(cellFrame.size.height*0.12));	// make smaller than enclosing frame
 	return [super drawingRectForBounds:cellFrame];
+}
+
+- (NSRect) titleRectForBounds:(NSRect)theRect
+{
+	theRect=[self drawingRectForBounds:theRect];
+	// handle text position
+	return theRect;
 }
 
 - (void) drawBezelWithFrame:(NSRect) cellFrame inView:(NSView *) controlView;
@@ -290,12 +297,12 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 - (NSMenuItem *) itemWithTitle:(NSString *)title
 {
 	int i = [self indexOfItemWithTitle:title];
-	return (i != NSNotFound) ? [_menu itemAtIndex:i] : nil;
+	return (i != NSNotFound) ? [_menu itemAtIndex:i] : (NSMenuItem *) nil;
 }
 
 - (NSMenuItem *) lastItem
 {
-	return ([_menu numberOfItems]) ? [_menu itemAtIndex:[_menu numberOfItems]-1] : nil;
+	return ([_menu numberOfItems]) ? [_menu itemAtIndex:[_menu numberOfItems]-1] : (NSMenuItem *) nil;
 }
 
 - (NSMenuItem *) selectedItem
@@ -317,7 +324,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (void) selectItemAtIndex:(int)index
 {
-#if 0
+#if 1
 	NSLog(@"selectItemAtIndex: %d [0,%d]", index, [_menu numberOfItems]-1);
 #endif
 	if(_altersStateOfSelectedItem && _selectedItem >= 0 && !_pullsDown)
@@ -325,7 +332,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	_selectedItem = index;
 	if(_altersStateOfSelectedItem && _selectedItem >= 0 && !_pullsDown)
 		[[self selectedItem] setState:NSOnState];	// select new
-#if 0
+#if 1
 	NSLog(@"selectedItem=%d:%@ state=%d", _selectedItem, [self selectedItem], [[self selectedItem] state]);
 #endif
 	[self synchronizeTitleAndSelectedItem];
@@ -338,16 +345,20 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (void) selectItem:(NSMenuItem *) item;
 {
-#if 0
-	NSLog(@"selectItem: %@", item);
+	int idx;
+	idx=[self indexOfItem:item];
+#if 1
+	NSLog(@"selectItem [%d]: %@", idx, item);
 #endif
-	[self selectItemAtIndex:[self indexOfItem:item]];
+	if(idx < 0 && item)
+		NSLog(@"item is not member of the menu items: %@\n%@", item, _menu);
+	[self selectItemAtIndex:idx];
 }
 
 - (BOOL) selectItemWithTag:(int)t
 {
 	int idx=[self indexOfItemWithTag:t];
-#if 0
+#if 1
 	NSLog(@"selectItemWithTag:%d", t);
 #endif
 	if(idx == NSNotFound)
@@ -524,17 +535,40 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	self=[super initWithCoder:aDecoder];
 	if(![aDecoder allowsKeyedCoding])
 		return NIMP;
+#if 1
+	NSLog(@"NSPopupButtonCell menu=%@", _menu);
+	NSLog(@"NSPopupButtonCell items=%@", [_menu itemArray]);
+#endif
 	_altersStateOfSelectedItem=[aDecoder decodeBoolForKey:@"NSAltersState"];
 	_usesItemFromMenu=[aDecoder decodeBoolForKey:@"NSUsesItemFromMenu"];
 	_pullsDown=[aDecoder decodeBoolForKey:@"NSPullDown"];
 	_arrowPosition=[aDecoder decodeIntForKey:@"NSArrowPosition"];
 	_preferredEdge=[aDecoder decodeIntForKey:@"NSPreferredEdge"];
 	
-/*	_preferredEdge= */[aDecoder decodeObjectForKey:@"NSMenuItemRespectAlignment"];
+/*	_respectAlignment= */[aDecoder decodeObjectForKey:@"NSMenuItemRespectAlignment"];
 	
 	// _autoenablesItems=?
-	[self selectItemAtIndex:[aDecoder decodeIntForKey:@"NSSelectedIndex"]];	// try to select
+	if([aDecoder containsValueForKey:@"NSSelectedIndex"])
+		[self selectItemAtIndex:[aDecoder decodeIntForKey:@"NSSelectedIndex"]];	// try to select
 	return self;
+}
+
+/*
+ * Checkme: this is a workaround for the following problem:
+ * the popupbuttoncell's NSMenu has an array of items
+ * when decoding this menu, all items are decoded
+ * each menu-item has this popupButtonCell as it's target
+ * the target is also decoded
+ * depending on some ordering, this may lead to either complete or incomplete menu initialization
+ *
+ * we may need a fundamental solution for such recursive decoding of NIBs
+ */
+
+- (void) awakeFromNib;
+{
+	NSLog(@"NSPopupButtonCell awakeFromNib");
+	if(menuItem)
+		[self selectItem:menuItem];
 }
 
 @end
@@ -611,7 +645,9 @@ NSString *NSPopUpButtonWillPopUpNotification=@"NSPopUpButtonWillPopUpNotificatio
 - (NSMenu *) menu						{ return [_cell menu]; }
 - (void) setMenu:(NSMenu *) m		
 { 
+#if 0
 	NSLog(@"NSPopupButton %08x setMenu:%@", self, m);
+#endif
 	[_cell setMenu:m]; 
 }
 - (NSMenuItem *) itemAtIndex:(int)index				{ return [_cell itemAtIndex:index]; }
@@ -636,7 +672,7 @@ NSString *NSPopUpButtonWillPopUpNotification=@"NSPopUpButtonWillPopUpNotificatio
 - (NSRectEdge) preferredEdge;						{ return [_cell preferredEdge]; }
 - (void) setTitle:(NSString *)aString				{ [_cell setTitle:aString]; }
 - (void) setImage:(NSImage *)anImage				{ [_cell setImage:anImage]; }
-- (void) setObjectValue:(id)anValue					{ [_cell setObjectValue:anValue]; }
+- (void) setObjectValue:(id)anValue					{ [(NSPopUpButtonCell *) _cell setObjectValue:anValue]; }
 - (void) synchronizeTitleAndSelectedItem			{ [_cell synchronizeTitleAndSelectedItem]; }
 - (id) objectValue									{ return [_cell objectValue]; }
 
