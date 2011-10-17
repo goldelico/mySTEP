@@ -11,6 +11,7 @@
 #import <IOBluetooth/objc/IOBluetoothUserNotification.h>
 #import <IOBluetooth/objc/IOBluetoothSDPServiceRecord.h>
 #import <IOBluetooth/objc/IOBluetoothSDPUUID.h>
+#import "BluetoothPrivate.h"
 
 static NSMutableArray *_paired;
 
@@ -149,7 +150,7 @@ static NSMutableArray *_paired;
 	NIMP; return 0;
 }
 
-- (NSString *) decription;
+- (NSString *) description;
 {
 	return [NSString stringWithFormat:@"IOBluetoothDevice %@ name: %@ class:%d clockoff:%d", [self getAddressString], [self getName], [self getClassOfDevice], [self getClockOffset]];
 }
@@ -183,6 +184,17 @@ static NSMutableArray *_paired;
 - (NSArray *) getServices; { return NIMP; }
 - (BOOL) isConnected; { return NO; }
 
+- (NSUInteger) hash;
+{
+	NSUInteger h = _addr.addr[0];
+	h = 2*h + _addr.addr[1];
+	h = 3*h + _addr.addr[2];
+	h = 5*h + _addr.addr[3];
+	h = 7*h + _addr.addr[4];
+	h = 11*h + _addr.addr[5];
+	return h;
+}
+   
 - (BOOL) isEqual:(id) other;
 { // same address?
 	const BluetoothDeviceAddress *addr;

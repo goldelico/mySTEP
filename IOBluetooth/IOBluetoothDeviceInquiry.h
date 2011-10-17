@@ -6,7 +6,7 @@
 //  Copyright 2007 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 #import <IOBluetooth/BluetoothAssignedNumbers.h>
 
 @class IOBluetoothDevice;
@@ -15,6 +15,7 @@
 {
 	NSMutableArray *_devices;
 	id _delegate;
+	NSTask *_task;		// scanning task
 	uint8_t _timeout;	// in seconds up to 255
 	int _socket;
 	BOOL _bluetoothAvailable;
@@ -24,7 +25,6 @@
 
 + (BOOL) _activateBluetoothHardware:(BOOL) flag;
 + (BOOL) _bluetoothHardwareIsActive;
-// + (NSTask *) _hcitool:(NSArray *) cmds handler:(id) handler done:(SEL) sel;	// registers handler as observer!
 
 + (IOBluetoothDeviceInquiry *) inquiryWithDelegate:(id) delegate; 
 

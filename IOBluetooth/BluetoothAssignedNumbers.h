@@ -6,7 +6,7 @@
 //  Copyright (c) 2006 DSITRI. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 // FIXME: not sure if this all should really be declared here or somewhere else
 

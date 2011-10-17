@@ -9,6 +9,7 @@
 #ifdef __mySTEP__
 #import <SystemStatus/NSSystemStatus.h>
 
+#if OLD
 // new version to be based on bluez
 
 #define id objc_id
@@ -17,17 +18,18 @@
 // conflicts with Bluetooth.h
 #undef id
 
+#endif
+
 #else
 
 @interface NSSystemStatus : NSObject
 + (NSDictionary *) sysInfo;
 + (id) sysInfoForKey:(NSString *) key;
 @end
-@implementation NSSystemStatus
-+ (NSDictionary *) sysInfo; { return nil; }
-+ (id) sysInfoForKey:(NSString *) key; { return nil; }
-@end
 
 #endif
 
+@interface IOBluetoothDeviceInquiry (Private)
++ (NSTask *) _hcitool:(NSArray *) cmds handler:(id) handler done:(SEL) sel;	// registers handler as observer!
+@end
 
