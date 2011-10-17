@@ -312,19 +312,22 @@ endif
 
 .SUFFIXES : .o .c .m
 
-$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/%.o: %.m
-	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$(*D)
-	# compile $< -> $*.o
-	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$*.o
+# adding /+ to the file path looks strange but is to avoid problems with ../neighbour/source.m
+# if someone knows how to easily substitute ../ by ++/ or .../ we could avoid some minor problems
 
-$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/%.o: %.c
-	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$(*D)
+$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.m
+	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
 	# compile $< -> $*.o
-	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/$*.o
+	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
+
+$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.c
+	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
+	# compile $< -> $*.o
+	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
 
 
 XSOURCES=$(wildcard $(SOURCES))
-OBJECTS=$(XSOURCES:%.m=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/%.o)
+OBJECTS=$(XSOURCES:%.m=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
 
 build_architecture: make_bundle make_exec make_binary install_local install_tool install_remote launch_remote
 	# $(BINARY) for $(ARCHITECTURE) built.
