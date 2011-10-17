@@ -291,14 +291,20 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
     NSLog(@"executable=%s", [_launchPath fileSystemRepresentation]);
 #endif
 	if (![[NSFileManager defaultManager] isExecutableFileAtPath:_launchPath])
-		[NSException raise: NSInvalidArgumentException
-							 format:@"NSTask: no executable at launch path %@", _launchPath];
-
+		{
+		executable = [_launchPath UTF8String];	// try on root file system
+		if(access(executable, X_OK) != 0)
+			[NSException raise: NSInvalidArgumentException
+						format:@"NSTask: no executable at launch path %@", _launchPath];		
+		}
+	else
+		{
+		executable = [_launchPath fileSystemRepresentation];		
+		}
 	[__taskList addObject:self];
-    executable = [_launchPath fileSystemRepresentation];
 	// set sig handler to
 	(void)signal(SIGCHLD, _catchChildExit);				// catch child exit
-    args[0] = [_launchPath UTF8String];					// pass full path
+    args[0] = [_launchPath UTF8String];					// pass full path as provided by caller
     for(i = 0; i < argCount; i++)
 		args[i+1] = [[[a objectAtIndex: i] description] UTF8String];
     args[argCount+1] = NULL;
@@ -327,13 +333,13 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 	NSLog(@"stdin=%d stdout=%d stderr=%d", idesc, odesc, edesc);
 #endif
 	_task.hasLaunched = YES;		// we may receive the SIGCHLD before our fork returns...
-    switch (pid = fork())									// fork to create
-		{													// a child process
+    switch (pid = fork())	// fork to create a child process
+		{
 		case -1:
 			[NSException raise: NSInvalidArgumentException			// error
 								 format: @"NSTask - failed to create child process"];
 		case 0:
-			{ // child process -- fork return zero
+			{ // child process -- fork returns zero
 #if 0
 			NSLog(@"child process");
 #endif

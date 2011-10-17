@@ -81,7 +81,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (void) dealloc;
 {
 #if 1
-	NSLog(@"dealloc %@", self);
+	NSLog(@"NSStream dealloc %@", self);
 #endif
 	if(_streamStatus != NSStreamStatusClosed)
 		[self close];	// if not yet...

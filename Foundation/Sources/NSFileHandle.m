@@ -144,7 +144,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 
 - (void) dealloc;
 {
-#if 0
+#if 1
 	NSLog(@"NSFileHandle dealloc");
 #endif
 	[self finalize];
@@ -158,6 +158,8 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 #if 0
 	NSLog(@"NSFileHandle close");
 #endif
+	[_inputStream setDelegate:nil];
+	[_outputStream setDelegate:nil];
 	[_inputStream close];
 	[_outputStream close];
 }

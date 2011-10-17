@@ -1,5 +1,5 @@
 # project settings
-export SOURCES="Sources/NS*.m Sources/Externs.m Sources/Unicode.m ../SimpleWebKit/Sources/NSXMLParser.m"   # all source codes
+export SOURCES="Sources/NS*.m Sources/Externs.m Sources/Unicode.m"   # all source codes
 # export SOURCES="Sources/NSString.m Sources/Externs.m Sources/Unicode.m"   # all source codes
 export LIBS="-Uobjc_main -lm -ldl -lpthread -lssl -lcrypto -lobjc"   # add any additional libraries (or flags) like -ltiff etc.
 export FRAMEWORKS=				   # add any additional Frameworks etc.
