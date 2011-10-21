@@ -1,3 +1,11 @@
+//
+//  CWGlobals.h
+//  CoreWLAN
+//
+//  Created by H. Nikolaus Schaller on 03.10.10.
+//  Copyright 2010 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
+//
+
 @class NSString;
 
 extern NSString * const kCWAssocKey8021XProfile;
