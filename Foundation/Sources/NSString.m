@@ -802,7 +802,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		}
 	else	
 		e = __cStringEncoding;
-#if 1
+#if 0
 	NSLog(@"enc=%d data=%@", e, data);
 #endif
 	return [self initWithData:data encoding:e];

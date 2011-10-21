@@ -128,6 +128,7 @@
 	[task setLaunchPath:tool];
 	[task setArguments:cmds];
 	[task setStandardOutput:[NSPipe pipe]];
+	[task setStandardError:nil];	// hide error messages
 #if 0
 	NSLog(@"launching task %@ %p %u", task, task, [task retainCount]);
 #endif
@@ -545,6 +546,8 @@ Inquiring ...
 	if(!cmd)
 		return NO;
 	file=popen([cmd UTF8String], "r");	// check status
+	if(!file)
+		return NO;
 	/* result looks like
 		hci0:   Type: USB				<- we may have more than one Bluetooth interface!
         BD Address: 00:06:6E:14:4B:5A ACL MTU: 384:8 SCO MTU: 64:8    <- this is our own address (if we need it)
