@@ -26,7 +26,7 @@
 - (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
 - (BOOL) commitConfiguration:(CWConfiguration *) config error:(NSError **) err;
 - (void) disassociate;
-- (BOOL) enableIBSSWithParameters:(NSDictionary *) params; 
+- (BOOL) enableIBSSWithParameters:(NSDictionary *) params error:(NSError **) err; 
 - (CWInterface *) init;
 - (CWInterface *) initWithInterfaceName:(NSString *) name;
 - (BOOL) isEqualToInterface:(CWInterface *) interface;

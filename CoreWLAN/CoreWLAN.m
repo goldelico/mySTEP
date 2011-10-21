@@ -10,7 +10,7 @@
   Here is some API:
 		http://developer.apple.com/library/mac/#documentation/Networking/Reference/CoreWLANFrameworkRef/
  
-  Examples how to use see e.g.
+  Examples how to use this API, see e.g.
 		http://dougt.org/wordpress/2009/09/usingcorewlan/
 		http://lists.apple.com/archives/macnetworkprog/2009/Sep/msg00007.html
 		Apple CoreWLANController
@@ -39,6 +39,12 @@ NSString * const kCWScanKeyScanType=@"kCWScanKeyScanType";
 NSString * const kCWScanKeySSID=@"kCWScanKeySSID";
 NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
+#if 0	// debugging
+#define system(CMD) (printf("system: %s\n", (CMD)), 0)
+#endif
+
+extern int system(const char *cmd);
+
 @interface CWInterface (Private)
 
 + (BOOL) _bluetoothIsActive;
@@ -65,7 +71,16 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 	return self;
 }
 
-// copy
+- (id) copyWithZone:(NSZone *) zone
+{
+	CW8021XProfile *p=[super copyWithZone:zone];
+	p->_password=[_password copyWithZone:zone];
+	p->_ssid=[_ssid copyWithZone:zone];
+	p->_userDefinedName=[_userDefinedName copyWithZone:zone];
+	p->_username=[_username copyWithZone:zone];
+	p->_alwaysPromptForPassword=_alwaysPromptForPassword;
+	return p;
+}
 
 - (void) dealloc
 {
@@ -159,7 +174,6 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 	+ _requireAdminForPowerChange*(1<<4);
 }
 
-// all setters are 'copy'
 - (NSArray *) preferredNetworks; { return _preferredNetworks; }
 - (void) setPreferredNetworks:(NSArray *) str;
 {
@@ -252,6 +266,7 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 + (NSArray *) supportedInterfaces;
 {
 	static NSMutableArray *supportedInterfaces;
+	[NSTask class];	// initialize SIGCHLD or we get problems that system() returns -1 instead of the exit value
 	if(!supportedInterfaces)
 		{
 		FILE *f;
@@ -272,7 +287,6 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 				}
 			}
 		pclose(f);
-		// power off?
 #if 1
 		NSLog(@"supportedInterfaces: %@", supportedInterfaces);
 #endif
@@ -283,6 +297,7 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 - (CWInterface *) init;
 {
 	NSArray *ifs=[CWInterface supportedInterfaces];
+	sleep(1);
 	if([ifs count] > 0)
 		return [self initWithInterfaceName:[ifs objectAtIndex:0]];
 	[self release];
@@ -322,13 +337,15 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 - (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
 {
 	NSString *cmd;
-	cmd=[NSString stringWithFormat:@"iwconfig %@ mode '%@' essid '%@'", _name, [network isIBSS]?@"ad-hoc":@"managed", [network ssid]];
+	NSError *dummy;
+	if(!err) err=&dummy;
+	cmd=[NSString stringWithFormat:@"echo ifconfig '%@' up", _name];
 	if(system([cmd UTF8String]) != 0)
-		{
-		// set err
-		return NO;
-		}
-	cmd=[NSString stringWithFormat:@"ifconfig %@ up", _name];
+		{ // interface does not exist
+			// set err
+			return NO;
+		}		
+	cmd=[NSString stringWithFormat:@"iwconfig '%@' mode '%@' essid '%@'", _name, [network isIBSS]?@"ad-hoc":@"managed", [network ssid]];
 	if(system([cmd UTF8String]) != 0)
 		{
 		// set err
@@ -339,33 +356,42 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
  
  - (BOOL) commitConfiguration:(CWConfiguration *) config error:(NSError **) err;
 { 
+	NSError *dummy;
+	if(!err) err=&dummy;
 	// change current configuration of interface (preferred networks?)
+	// there is one configuration for each interface
+	// we archive the config in some file - or store it as a NSData in NSUserDefault
 	return NO;
 }
 
 - (void) disassociate;
 {
-	NSString *cmd=[NSString stringWithFormat:@"ifconfig %@ down", _name];
+	// CHECKME: is that really a disassociate?
+	// or should we set SSID=""? Or mode?
+	NSString *cmd=[NSString stringWithFormat:@"ifconfig '%@' down", _name];
 	system([cmd UTF8String]);
 }
 
-- (BOOL) enableIBSSWithParameters:(NSDictionary *) params; 
+- (BOOL) enableIBSSWithParameters:(NSDictionary *) params error:(NSError **) err; 
 { // enable as ad-hoc station
 	NSString *network=@"GTA04";	// get from params or default to machine name
 	int channel=6;
-	NSString *cmd=[NSString stringWithFormat:@"ifconfig %@ up", _name];
+	NSString *cmd;
+	NSError *dummy;
+	if(!err) err=&dummy;
+	cmd=[NSString stringWithFormat:@"ifconfig '%@' up", _name];
 	if(system([cmd UTF8String]) != 0)
 		{
 		// set err
 		return NO;
 		}
-	cmd=[NSString stringWithFormat:@"iwconfig %@ mode '%@' essid '%@' channel '%u' enc 'off'", _name, @"ad-hoc", network, channel];
+	cmd=[NSString stringWithFormat:@"iwconfig '%@' mode '%@' essid '%@' channel '%u' enc 'off'", _name, @"ad-hoc", network, channel];
 	if(system([cmd UTF8String]) != 0)
 		{
 		// set err
 		return NO;
 		}
-	cmd=[NSString stringWithFormat:@"ifconfig %@ %@", @"10.1.1.1"];
+	cmd=[NSString stringWithFormat:@"ifconfig '%@' '%@'", _name, @"10.1.1.1"];
 	if(system([cmd UTF8String]) != 0)
 		{
 		// set err
@@ -376,32 +402,42 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
 - (NSArray *) scanForNetworksWithParameters:(NSDictionary*) params error:(NSError **) err;
 { // is blocking! Should be implemented thread-safe...
-	NSString *cmd=[NSString stringWithFormat:@"iwlist %@ scan", _name];
-	FILE *f=popen([cmd UTF8String], "r");
-	NSError *dummy;
+	NSString *cmd;
+	FILE *f;
 	NSMutableArray *a;
+	char line[256];
+	NSError *dummy;
 	if(!err) err=&dummy;
+	cmd=[NSString stringWithFormat:@"echo ifconfig '%@' up", _name];
+	if(system([cmd UTF8String]) != 0)
+		{ // interface does not exist
+			// set err
+			return NO;
+		}		
+	cmd=[NSString stringWithFormat:@"iwlist '%@' scanning", _name];
+	f=popen([cmd UTF8String], "r");
 	if(!f)
 		{
 		*err=[NSError errorWithDomain:@"WLAN" code:1 userInfo:nil];
 		return nil;
 		}
 	a=[NSMutableArray arrayWithCapacity:10];
-	// read lines
-	// decode networks
-	// and initialize CWNetwork objects
+	while(fgets(line, sizeof(line)-1, f))
+		{
+		// process and add CWNetwork records
+		}
 	pclose(f);
 	return a;
 }
 
 - (BOOL) setChannel:(NSUInteger) channel error:(NSError **) err;
 {
-	NSString *cmd=[NSString stringWithFormat:@"iwconfig %@ channel %u", _name, channel];
+	NSString *cmd=[NSString stringWithFormat:@"iwconfig '%@' channel %u", _name, channel];
+	NSError *dummy;
+	if(!err) err=&dummy;
 	if(system([cmd UTF8String]) != 0)
 		{
-		if(err)
-			*err=[NSError errorWithDomain:@"WLAN" code:1 userInfo:nil];
-		
+		*err=[NSError errorWithDomain:@"WLAN" code:1 userInfo:nil];		
 		return NO;
 		}
 	return YES;
@@ -409,8 +445,10 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
 - (BOOL) setPower:(BOOL) power error:(NSError **) err;
 {
+	NSError *dummy;
+	if(!err) err=&dummy;
 #if 0	// has no result on our hardware
-	NSString *cmd=[NSString stringWithFormat:@"iwconfig %@ power %@", _name, power?@"on":@"off"];
+	NSString *cmd=[NSString stringWithFormat:@"iwconfig '%@' power '%@'", _name, power?@"on":@"off"];
 	if(system([cmd UTF8String]) != 0)
 		{
 		if(err)
@@ -419,23 +457,73 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 		}
 	return YES;
 #else
-	[CWInterface _activateHardware:power];	// we should count activations/deactivations
+	return [CWInterface _activateHardware:power];	// we should count activations/deactivations
 #endif
 }
 
-/*
+- (SFAuthorization *) authorization; { return _authorization; }
+- (void) setAuthorization:(SFAuthorization *) auth; { [_authorization autorelease]; _authorization=[auth retain]; }
 
-// ... properties
- 
- should we use ifconfig to read the properties if they are older than 1-2 seconds?
- and cache in the meantime?
- // we can read individual settings by e.g. iwlist wlan0 power; iwlist wlan0 frequency etc.
- // returns e.g. "wlan0     no transmit-power information."
+// calls to iwlist
+- (id) _getiwlist:(NSString *) parameter;
+{
+	// should we read multiple values by iwlist and cache them for 1 second? Or simply query individual values???
+	return nil;
+}
 
+// should return nil or empty or 0 if interface is not attached
 
- */
+//- (NSString *) bssid;
+//- (NSData *) bssidData; 
+//- (NSNumber *) channel; 
+
+- (CWConfiguration *) configuration;
+{
+	// we need one (persistent!) configuration for each interface
+	return nil;
+}
+
+//- (NSString *) countryCode;
+
+- (NSNumber *) interfaceState;
+{
+	return [NSNumber numberWithInt:kCWInterfaceStateRunning];
+}
 
 - (NSString *) name; { return _name; }
+
+//- (NSNumber *) noise;	// in dBm
+
+- (NSNumber *) opMode;
+{
+	return [NSNumber numberWithInt:kCWOpModeStation];
+}
+
+//- (NSNumber *) phyMode;
+
+- (BOOL) power;
+{
+	return [[NSString stringWithContentsOfFile:@"/sys/devices/platform/reg-virt-consumer.4/max_microvolts"] intValue] > 0;
+}
+
+//- (BOOL) powerSave;
+
+- (NSNumber *) rssi;
+{ // in dBm
+	return [NSNumber numberWithFloat:10.0];
+}
+
+//- (NSNumber *) securityMode;
+
+- (NSString *) ssid;
+{
+	return @"basisstation";
+}
+
+//- (NSNumber *) txPower;	// in mW
+//- (NSNumber *) txRate;	// in Mbit/s
+
+// handle more capabilities (parse iwlist auth)
 
 // FIXME: we should link to IOBluetooth and use their method
 
@@ -465,10 +553,18 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 
 + (BOOL) _activateHardware:(BOOL) flag;
 {
+#if 1
+	NSLog(@"WLAN _activateHardware:%d", flag);
+#endif
 	if(flag)
 		{ // power on
 			if([[NSString stringWithContentsOfFile:@"/sys/devices/platform/reg-virt-consumer.4/max_microvolts"] intValue] > 0)
+				{
+#if 1
+				NSLog(@"WLAN already powered on");
+#endif
 				return YES;	// already powered on
+				}
 #if 1
 			NSLog(@"WLAN power on");
 #endif
@@ -488,9 +584,19 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 	else
 		{
 		if([[NSString stringWithContentsOfFile:@"/sys/devices/platform/reg-virt-consumer.4/max_microvolts"] intValue] == 0)
-			return YES;	// already powered down
+			{
+#if 1
+			NSLog(@"WLAN already powered down");
+#endif
+			return YES;				
+			}
 		if([self _bluetoothIsActive])
+			{
+#if 1
+			NSLog(@"WLAN not powered down (Bluetooth still active)");
+#endif
 			return YES;	// if bluetooth is still on - ignore
+			}
 #if 1
 		NSLog(@"WLAN power off");
 #endif
@@ -589,10 +695,10 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 @end
 
 @implementation CWWirelessProfile
+
++ (CWWirelessProfile *) profile; { return [[self new] autorelease]; }
+
 /*
-
-+ (CWWirelessProfile *) profile; 
-
 - (CWWirelessProfile *) init; 
 - (BOOL) isEqualToProfile:(CWWirelessProfile *) profile; 
  - (BOOL) isEqual:(id) other; 
@@ -607,4 +713,5 @@ NSString * const kCWSSIDDidChangeNotification=@"kCWSSIDDidChangeNotification";
 - (CW8021XProfile *) user8021XProfile;
 - (void) setUser8021XProfile:(CW8021XProfile *) name;
 */
+
 @end
