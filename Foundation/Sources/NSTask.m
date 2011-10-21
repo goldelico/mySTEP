@@ -93,7 +93,6 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 + (void) initialize
 {
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-
 	[nc addObserver: self
 		selector: @selector(_taskDidTerminate:)
 		name: NSTaskDidTerminateNotification
@@ -102,6 +101,10 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 	__taskDidTerminate = [NOTE(DidTerminate) retain];	// we must prepare this notfication so that it can be processed in a signal handler
 	__notifyTaskDidTerminate=YES;
 	__notificationQueue = [NSNotificationQueue defaultQueue];
+	(void)signal(SIGCHLD, _catchChildExit);				// set sig handler to catch child exit
+#if 0
+	fprintf(stderr, "NSTask: _catchChildExit installed\n");
+#endif
 }
 
 + (NSTask*) launchedTaskWithLaunchPath:(NSString*)path 
@@ -302,8 +305,6 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 		executable = [_launchPath fileSystemRepresentation];		
 		}
 	[__taskList addObject:self];
-	// set sig handler to
-	(void)signal(SIGCHLD, _catchChildExit);				// catch child exit
     args[0] = [_launchPath UTF8String];					// pass full path as provided by caller
     for(i = 0; i < argCount; i++)
 		args[i+1] = [[[a objectAtIndex: i] description] UTF8String];
@@ -473,12 +474,14 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 #endif
 		} while(__childExitCount > 0 && [__taskList count] > 0);	// we have lost some signal while processing the task loop
 	__notifyTaskDidTerminate=YES;	// reenable queuing another notification
-	if(__childExitCount != 0)
+#if 1
+	if(__childExitCount != 0)	// system() may disturb our counter
 		{
 		NSLog(@"did probably loose %d SIGCHLD notification(s)", __childExitCount);
 		NSLog(@"  tasklist count=%d", [__taskList count]);
 		NSLog(@"  tasklist=%@", __taskList);
 		}
+#endif
 }
 
 @end
@@ -490,13 +493,13 @@ static void _catchChildExit(int sig)
 #endif
 	if(sig == SIGCHLD)
 		{
-		__childExitCount++;
+		__childExitCount++;	// this includes children created through the system() call!
 		if(__notifyTaskDidTerminate)
 			{
 			__notifyTaskDidTerminate=NO;	// ignore further signals until we have received this notification through the runloop - CHECKME: might this create a short blind period?
 			[__notificationQueue enqueueNotification:__taskDidTerminate
 										postingStyle:NSPostWhenIdle	// a signal interrupts the runloop like Idle mode
-										coalesceMask:NSNotificationNoCoalescing	// NSNotificationCoalescingOnName?
+										coalesceMask:NSNotificationCoalescingOnName
 											forModes:nil];
 #if 0
 			fprintf(stderr, "_catchChildExit notification queued count=%d\n", __childExitCount);
