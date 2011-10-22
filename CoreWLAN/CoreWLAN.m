@@ -52,6 +52,12 @@ extern int system(const char *cmd);
 
 @end
 
+@interface CWNetwork (Private)
+
+- (id) initWithAttributes:(NSDictionary *) attributes;
+
+@end
+
 @implementation CW8021XProfile
 
 + (NSArray *) allUser8021XProfiles;
@@ -207,7 +213,8 @@ extern int system(const char *cmd);
 
 @implementation CWInterface
 
-/*
+/* sample output
+ 
  gta04:~# iwconfig
  lo        no wireless extensions.
  
@@ -236,21 +243,54 @@ extern int system(const char *cmd);
 			RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
  
  gta04:~# iwlist wlan13 scan
-			wlan13    No scan results
+ wlan13    No scan results
  
  gta04:~# iwlist wlan13 scanning     
- wlan13    Scan completed :
+ wlan13		Scan completed :
 			Cell 01 - Address: 00:**:BF:**:CE:E6
-			ESSID:"******"
-			Mode:Managed
-			Frequency:2.427 GHz (Channel 4)
-			Quality=100/100  Signal level=-46 dBm  Noise level=-96 dBm
-			Encryption key:off
-			Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s
-				11 Mb/s; 12 Mb/s; 18 Mb/s; 24 Mb/s; 36 Mb/s
-				48 Mb/s; 54 Mb/s
+					ESSID:"******"
+					Mode:Managed
+					Frequency:2.427 GHz (Channel 4)
+					Quality=100/100  Signal level=-46 dBm  Noise level=-96 dBm
+					Encryption key:off
+					Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s
+							11 Mb/s; 12 Mb/s; 18 Mb/s; 24 Mb/s; 36 Mb/s
+							48 Mb/s; 54 Mb/s
  
+ another example:
  
+ bb-debian:~# iwlist wlan1 scan
+ wlan1     Scan completed :
+			Cell 01 - Address: 00:**:**:9B:**:E9
+					ESSID:"****-4"
+					Mode:Managed
+					Frequency:2.417 GHz (Channel 2)
+					Quality=96/100  Signal level=-53 dBm  Noise level=-96 dBm
+					Encryption key:on
+					Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 11 Mb/s; 9 Mb/s
+						18 Mb/s; 36 Mb/s; 54 Mb/s; 6 Mb/s; 12 Mb/s
+						24 Mb/s; 48 Mb/s
+					IE: IEEE 802.11i/WPA2 Version 1
+					Group Cipher : CCMP
+					Pairwise Ciphers (1) : CCMP
+					Authentication Suites (1) : PSK
+			Cell 02 - Address: 46:**:**:58:**:D5
+					ESSID:"MacBookPro"
+					Mode:Ad-Hoc
+					Frequency:2.462 GHz (Channel 11)
+					Quality=99/100  Signal level=-33 dBm  Noise level=-96 dBm
+					Encryption key:off
+					Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s
+						11 Mb/s; 12 Mb/s; 18 Mb/s; 24 Mb/s; 36 Mb/s
+						48 Mb/s; 54 Mb/s
+ 
+ bb-debian:~# 
+
+ 
+ */
+
+/*
+ * we could also run a global iweven in a NSTask to get notifications about wireless events
  */
 
 + (CWInterface *) interface;
@@ -345,7 +385,7 @@ extern int system(const char *cmd);
 			// set err
 			return NO;
 		}		
-	cmd=[NSString stringWithFormat:@"iwconfig '%@' mode '%@' essid '%@'", _name, [network isIBSS]?@"ad-hoc":@"managed", [network ssid]];
+	cmd=[NSString stringWithFormat:@"iwconfig '%@' mode '%@' essid -- '%@'", _name, [network isIBSS]?@"ad-hoc":@"managed", [network ssid]];
 	if(system([cmd UTF8String]) != 0)
 		{
 		// set err
@@ -374,18 +414,25 @@ extern int system(const char *cmd);
 
 - (BOOL) enableIBSSWithParameters:(NSDictionary *) params error:(NSError **) err; 
 { // enable as ad-hoc station
-	NSString *network=@"GTA04";	// get from params or default to machine name
-	int channel=6;
+	NSString *network=[params objectForKey:kCWIBSSKeySSID];	// get from params or default to machine name
+	int channel=[[params objectForKey:kCWIBSSKeyChannel] intValue];	// value may be an NSString
 	NSString *cmd;
 	NSError *dummy;
 	if(!err) err=&dummy;
+#if 1
+	NSLog(@"parameters %@", params);
+#endif
+	if(!network)
+		network=@"GTA04";	// default should we use [[NSHost currentHost] name] ?
+	if(channel <= 0)
+		channel=11;	// default
 	cmd=[NSString stringWithFormat:@"ifconfig '%@' up", _name];
 	if(system([cmd UTF8String]) != 0)
 		{
 		// set err
 		return NO;
 		}
-	cmd=[NSString stringWithFormat:@"iwconfig '%@' mode '%@' essid '%@' channel '%u' enc 'off'", _name, @"ad-hoc", network, channel];
+	cmd=[NSString stringWithFormat:@"iwconfig '%@' mode '%@' essid -- '%@' channel '%u' enc 'off'", _name, @"ad-hoc", network, channel];
 	if(system([cmd UTF8String]) != 0)
 		{
 		// set err
@@ -401,20 +448,25 @@ extern int system(const char *cmd);
 }
 
 - (NSArray *) scanForNetworksWithParameters:(NSDictionary*) params error:(NSError **) err;
-{ // is blocking! Should be implemented thread-safe...
+{ // is blocking! Should be implemented thread-safe because it is most likely not running in the main thread...
 	NSString *cmd;
 	FILE *f;
 	NSMutableArray *a;
 	char line[256];
 	NSError *dummy;
+	NSMutableDictionary *attributes=[NSMutableDictionary dictionaryWithCapacity:15];
+	CWNetwork *n;
 	if(!err) err=&dummy;
-	cmd=[NSString stringWithFormat:@"echo ifconfig '%@' up", _name];
+	cmd=[NSString stringWithFormat:@"ifconfig '%@' up", _name];
 	if(system([cmd UTF8String]) != 0)
 		{ // interface does not exist
 			// set err
 			return NO;
 		}		
 	cmd=[NSString stringWithFormat:@"iwlist '%@' scanning", _name];
+#if 1
+	NSLog(@"popen %@", cmd);
+#endif
 	f=popen([cmd UTF8String], "r");
 	if(!f)
 		{
@@ -422,11 +474,63 @@ extern int system(const char *cmd);
 		return nil;
 		}
 	a=[NSMutableArray arrayWithCapacity:10];
+	/*
+	 wlan13		Scan completed :
+				Cell 01 - Address: 00:**:BF:**:CE:E6
+					ESSID:"******"
+					Mode:Managed
+					Frequency:2.427 GHz (Channel 4)
+					Quality=100/100  Signal level=-46 dBm  Noise level=-96 dBm
+					Encryption key:off
+					Bit Rates:1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s
+						11 Mb/s; 12 Mb/s; 18 Mb/s; 24 Mb/s; 36 Mb/s
+						48 Mb/s; 54 Mb/s
+	 */
 	while(fgets(line, sizeof(line)-1, f))
 		{
-		// process and add CWNetwork records
+		char *s;
+		NSString *key;
+		NSString *value;
+		printf("line=%s", line);
+		s=strchr(line, ':');
+		if(!s)
+			s=strchr(line, '=');
+		if(!s)
+			// may be "No scan results"
+			// if available, append to "Bit Rates"
+			continue;
+		key=[[NSString stringWithCString:line length:s-line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// up to delimiter
+		if([key hasSuffix:@"Scan completed"])
+			continue;	// ignore
+		value=[[NSString stringWithCString:s+1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];	// from delimiter to end of line
+		if([key hasPrefix:@"Cell"])
+			{
+			NSArray *cell;
+			if([attributes count] > 0)
+				{ // process previous entry
+				n=[[CWNetwork alloc] initWithAttributes:attributes];
+				[a addObject:n];
+				[n release];
+				[attributes removeAllObjects];	// clear for next record
+				}
+			cell=[key componentsSeparatedByString:@" "];
+			if([cell count] >= 2)
+				[attributes setObject:[cell objectAtIndex:1] forKey:@"Cell"];	// separate cell number
+			key=@"Address";
+			}
+		[attributes setObject:value forKey:key];	// collect
+		}
+	if([attributes count] > 0)
+		{ // add last record
+			n=[[CWNetwork alloc] initWithAttributes:attributes];
+			if(n)
+				[a addObject:n];
+			[n release];
 		}
 	pclose(f);
+#if 1
+	NSLog(@"pclose %@", cmd);
+#endif
 	return a;
 }
 
@@ -464,18 +568,38 @@ extern int system(const char *cmd);
 - (SFAuthorization *) authorization; { return _authorization; }
 - (void) setAuthorization:(SFAuthorization *) auth; { [_authorization autorelease]; _authorization=[auth retain]; }
 
-// calls to iwlist
-- (id) _getiwlist:(NSString *) parameter;
+// call iwconfig or iwlist
+- (id) _getiwid:(NSString *) parameter;
 {
-	// should we read multiple values by iwlist and cache them for 1 second? Or simply query individual values???
-	return nil;
+	NSString *cmd=[NSString stringWithFormat:@"iwgetid '%@' --%@", parameter];
+	FILE *f=popen([cmd UTF8String], "r");
+	char line[512];
+	if(!f)
+		return nil;
+	fgets(line, sizeof(line)-1, f);
+	fclose(f);
+	return [NSString stringWithCString:line];
 }
 
 // should return nil or empty or 0 if interface is not attached
 
-//- (NSString *) bssid;
+- (NSString *) bssid;
+{
+	NSArray *a=[[self _getiwid:@"ap"] componentsSeparatedByString:@": "];
+	if([a count] >= 2)
+		return [a objectAtIndex:1];
+	return nil;
+}
+
 //- (NSData *) bssidData; 
-//- (NSNumber *) channel; 
+
+- (NSNumber *) channel;	// iwgetid wlan13 --channel
+{
+	NSArray *a=[[self _getiwid:@"channel"] componentsSeparatedByString:@"Channel:"];
+	if([a count] >= 2)
+		return [NSNumber numberWithInt:[[a objectAtIndex:1] intValue]];
+	return nil;
+}
 
 - (CWConfiguration *) configuration;
 {
@@ -483,23 +607,51 @@ extern int system(const char *cmd);
 	return nil;
 }
 
-//- (NSString *) countryCode;
+//- (NSString *) countryCode;	// no idea how to read that
 
 - (NSNumber *) interfaceState;
 {
+	// read iwconfig name -> Access Point: Not-Associated or Cell : address
+	// or get iwgetid address and check for 00:00:00:00:00:00
 	return [NSNumber numberWithInt:kCWInterfaceStateRunning];
 }
 
 - (NSString *) name; { return _name; }
 
-//- (NSNumber *) noise;	// in dBm
+// - (NSNumber *) noise;	// in dBm -- iwconfig name
 
 - (NSNumber *) opMode;
 {
-	return [NSNumber numberWithInt:kCWOpModeStation];
+	NSArray *a=[[self _getiwid:@"mode"] componentsSeparatedByString:@"Mode:"];
+	if([a count] >= 2)
+		{
+		NSString *mode=[a objectAtIndex:1];
+		if([mode hasPrefix:@"Managed"])
+			return [NSNumber numberWithInt:kCWOpModeStation];
+		if([mode hasPrefix:@"Ad-Hoc"])
+			return [NSNumber numberWithInt:kCWOpModeIBSS];
+		if([mode hasPrefix:@"Master"])
+			return [NSNumber numberWithInt:kCWOpModeHostAP];
+		}
+	return nil;	// unknown
 }
 
-//- (NSNumber *) phyMode;
+- (NSNumber *) phyMode;
+{
+	NSArray *a=[[self _getiwid:@"protocol"] componentsSeparatedByString:@"Name:"];
+	if([a count] >= 2)
+		{
+		NSString *mode=[a objectAtIndex:1];
+/*
+ kCWPHYMode11A,
+		kCWPHYMode11B,
+		kCWPHYMode11G,
+		kCWPHYMode11N
+*/		
+		return [NSNumber numberWithInt:kCWPHYMode11N];
+		}
+	return nil;
+}
 
 - (BOOL) power;
 {
@@ -513,7 +665,7 @@ extern int system(const char *cmd);
 	return [NSNumber numberWithFloat:10.0];
 }
 
-//- (NSNumber *) securityMode;
+//- (NSNumber *) securityMode;	// read encryption
 
 - (NSString *) ssid;
 {
@@ -625,8 +777,48 @@ extern int system(const char *cmd);
  
 */
 
-// we can get that from ifconfig wlan0 resp. iwlist wlan0 scan etc.
-// so we might need an initWithResponseFromIWLIST:
+/* NSDictionary:
+ attributes={
+ Address = B2:9C:**:D4:**:CC;
+ "Bit Rates" = "1 Mb/s; 2 Mb/s; 5.5 Mb/s; 6 Mb/s; 9 Mb/s";
+ Cell = 01;
+ ESSID = "MacBookPro";
+ "Encryption key" = off;
+ Frequency = "2.462 GHz (Channel 11)";
+ Mode = "Ad-Hoc";
+ Quality = "97/100  Signal level=-29 dBm  Noise level=-96 dBm";
+ }
+*/
+
+- (id) initWithAttributes:(NSDictionary *) attribs
+{ // initialize with attributes
+	NSLog(@"attributes=%@", attribs);
+	if((self=[self init]))
+		{
+		NSArray *f=[[attribs objectForKey:@"Frequency"] componentsSeparatedByString:@" "];
+		NSArray *q=[[attribs objectForKey:@"Quality"] componentsSeparatedByString:@"="];
+		NSString *m=[attribs objectForKey:@"Mode"];
+		_bssid=[[attribs objectForKey:@"Address"] retain];
+		if([f count] >= 4)
+			_channel=[[NSNumber alloc] initWithInt:[[f objectAtIndex:3] intValue]];
+		_ieData=nil;
+		_isIBSS=[m hasPrefix:@"Ad-Hoc"];
+		if([q count] >= 3)
+			{
+			_noise=[[NSNumber alloc] initWithFloat:(float)[[q objectAtIndex:2] intValue]];
+			_rssi=[[NSNumber alloc] initWithFloat:(float)[[q objectAtIndex:1] intValue]];
+			// quality?
+			}
+		_phyMode=[[NSNumber alloc] initWithInt:kCWPHYMode11N];	// get from Bit Rates entry and Frequency
+		_securityMode=kCWSecurityModeOpen;
+		m=[attribs objectForKey:@"Encryption key"];
+		if([m hasPrefix:@"off"])
+			;
+		// decode other options
+		_ssid=[[[attribs objectForKey:@"ESSID"] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\""]] retain];
+		}
+	return self;
+}
 
 - (id) copyWithZone:(NSZone *) zone
 {
@@ -644,6 +836,7 @@ extern int system(const char *cmd);
 
 - (void) dealloc;
 {
+//	NSLog(@"dealloc %@", self);
 	[_bssid release];
 	[_channel release];
 	[_ieData release];
