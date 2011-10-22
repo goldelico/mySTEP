@@ -568,9 +568,8 @@ extern int system(const char *cmd);
 - (SFAuthorization *) authorization; { return _authorization; }
 - (void) setAuthorization:(SFAuthorization *) auth; { [_authorization autorelease]; _authorization=[auth retain]; }
 
-// call iwconfig or iwlist
-- (id) _getiwid:(NSString *) parameter;
-{
+- (id) _getiw:(NSString *) parameter;
+{ // call iwconfig or iwlist or iwgetid
 	NSString *cmd=[NSString stringWithFormat:@"iwgetid '%@' --%@", parameter];
 	FILE *f=popen([cmd UTF8String], "r");
 	char line[512];
@@ -581,21 +580,19 @@ extern int system(const char *cmd);
 	return [NSString stringWithCString:line];
 }
 
-// should return nil or empty or 0 if interface is not attached
-
 - (NSString *) bssid;
 {
-	NSArray *a=[[self _getiwid:@"ap"] componentsSeparatedByString:@": "];
+	NSArray *a=[[self _getiw:@"ap"] componentsSeparatedByString:@": "];
 	if([a count] >= 2)
 		return [a objectAtIndex:1];
 	return nil;
 }
 
-//- (NSData *) bssidData; 
+//- (NSData *) bssidData; // convert to NSData
 
 - (NSNumber *) channel;	// iwgetid wlan13 --channel
 {
-	NSArray *a=[[self _getiwid:@"channel"] componentsSeparatedByString:@"Channel:"];
+	NSArray *a=[[self _getiw:@"channel"] componentsSeparatedByString:@"Channel:"];
 	if([a count] >= 2)
 		return [NSNumber numberWithInt:[[a objectAtIndex:1] intValue]];
 	return nil;
@@ -618,11 +615,15 @@ extern int system(const char *cmd);
 
 - (NSString *) name; { return _name; }
 
-// - (NSNumber *) noise;	// in dBm -- iwconfig name
+- (NSNumber *) noise;
+{ // in dBm
+	// read from iwconfig
+	return [NSNumber numberWithFloat:10.0];
+}
 
 - (NSNumber *) opMode;
 {
-	NSArray *a=[[self _getiwid:@"mode"] componentsSeparatedByString:@"Mode:"];
+	NSArray *a=[[self _getiw:@"mode"] componentsSeparatedByString:@"Mode:"];
 	if([a count] >= 2)
 		{
 		NSString *mode=[a objectAtIndex:1];
@@ -638,7 +639,7 @@ extern int system(const char *cmd);
 
 - (NSNumber *) phyMode;
 {
-	NSArray *a=[[self _getiwid:@"protocol"] componentsSeparatedByString:@"Name:"];
+	NSArray *a=[[self _getiw:@"protocol"] componentsSeparatedByString:@"Name:"];
 	if([a count] >= 2)
 		{
 		NSString *mode=[a objectAtIndex:1];
@@ -662,20 +663,32 @@ extern int system(const char *cmd);
 
 - (NSNumber *) rssi;
 { // in dBm
+	// read from iwconfig
 	return [NSNumber numberWithFloat:10.0];
 }
 
-//- (NSNumber *) securityMode;	// read encryption
+- (NSNumber *) securityMode;
+{
+	// read from iwconfig
+	return [NSNumber numberWithInt:kCWSecurityModeOpen];
+}
 
 - (NSString *) ssid;
 {
 	return @"basisstation";
 }
 
-//- (NSNumber *) txPower;	// in mW
-//- (NSNumber *) txRate;	// in Mbit/s
+- (NSNumber *) txPower;
+{ // in mW
+	// read from iwconfig
+	return [NSNumber numberWithInt:20];
+}
 
-// handle more capabilities (parse iwlist auth)
+- (NSNumber *) txRate;
+{ // in Mbit/s
+	// read from iwconfig
+	return [NSNumber numberWithInt:10000000];
+}
 
 // FIXME: we should link to IOBluetooth and use their method
 
