@@ -51,6 +51,7 @@
 #if 1
 			NSLog(@"loaded NSMenuExtra nib file %@", nib);
 #endif
+				[super setMenu:_menu];	// set the menu connected to the _menu outlet
 			}
 		}
 	return self;
