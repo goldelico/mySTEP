@@ -316,7 +316,10 @@ extern int system(const char *cmd);
 		supportedInterfaces=[NSMutableArray new];
 		f=popen("iwconfig 2>/dev/null", "r");
 		if(!f)
+			{ // can't get configs
+			[self _activateHardware:NO];	// some error
 			return nil;
+			}
 		while(fgets(line, sizeof(line)-1, f))
 			{
 			char *e=strchr(line, ' ');
@@ -330,6 +333,8 @@ extern int system(const char *cmd);
 #if 1
 		NSLog(@"supportedInterfaces: %@", supportedInterfaces);
 #endif
+		if([supportedInterfaces count] == 0)
+			[self _activateHardware:NO];	// no interfaces found
 		}
 	return supportedInterfaces;
 }
@@ -379,6 +384,11 @@ extern int system(const char *cmd);
 	NSString *cmd;
 	NSError *dummy;
 	if(!err) err=&dummy;
+	if(!network)
+		{
+			// set err
+			return NO;
+		}
 	cmd=[NSString stringWithFormat:@"echo ifconfig '%@' up", _name];
 	if(system([cmd UTF8String]) != 0)
 		{ // interface does not exist
@@ -394,16 +404,6 @@ extern int system(const char *cmd);
 	return YES;
 }
  
- - (BOOL) commitConfiguration:(CWConfiguration *) config error:(NSError **) err;
-{ 
-	NSError *dummy;
-	if(!err) err=&dummy;
-	// change current configuration of interface (preferred networks?)
-	// there is one configuration for each interface
-	// we archive the config in some file - or store it as a NSData in NSUserDefault
-	return NO;
-}
-
 - (void) disassociate;
 {
 	// CHECKME: is that really a disassociate?
@@ -423,7 +423,7 @@ extern int system(const char *cmd);
 	NSLog(@"parameters %@", params);
 #endif
 	if(!network)
-		network=@"GTA04";	// default should we use [[NSHost currentHost] name] ?
+		network=@"GTA04";	// default; should we use [[NSProcessInfo processInfo] hostName] ?
 	if(channel <= 0)
 		channel=11;	// default
 	cmd=[NSString stringWithFormat:@"ifconfig '%@' up", _name];
@@ -570,7 +570,7 @@ extern int system(const char *cmd);
 
 - (id) _getiw:(NSString *) parameter;
 { // call iwconfig or iwlist or iwgetid
-	NSString *cmd=[NSString stringWithFormat:@"iwgetid '%@' --%@", parameter];
+	NSString *cmd=[NSString stringWithFormat:@"iwgetid '%@' --%@", _name, parameter];
 	FILE *f=popen([cmd UTF8String], "r");
 	char line[512];
 	if(!f)
@@ -596,6 +596,16 @@ extern int system(const char *cmd);
 	if([a count] >= 2)
 		return [NSNumber numberWithInt:[[a objectAtIndex:1] intValue]];
 	return nil;
+}
+
+- (BOOL) commitConfiguration:(CWConfiguration *) config error:(NSError **) err;
+{ 
+	NSError *dummy;
+	if(!err) err=&dummy;
+	// change current configuration of interface (preferred networks?)
+	// there is one configuration for each interface
+	// we archive the config in some file - or store it as a NSData in NSUserDefault
+	return NO;
 }
 
 - (CWConfiguration *) configuration;
@@ -739,11 +749,12 @@ extern int system(const char *cmd);
 					  "echo \"$VDD\" >/sys/devices/platform/reg-virt-consumer.4/min_microvolts &&"
 					  "echo \"normal\" >/sys/devices/platform/reg-virt-consumer.4/mode &&"
 					  "echo \"0\" >/sys/class/leds/tca6507:6/brightness &&"
-					  "sleep 1") != 0)
+					  "sleep 2") != 0)
 				{
 				NSLog(@"VAUX4 power on failed");
 				return NO;	// something failed
 				}
+			// we should wait until libertas becomes available
 			return YES;
 		}
 	else

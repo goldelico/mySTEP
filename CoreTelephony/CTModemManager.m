@@ -476,34 +476,48 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if(!wwan && flag)
 		{ // set up WWAN connection
 			NSString *data;
+			// see: http://blog.mobilebroadbanduser.eu/page/Worldwide-Access-Point-Name-%28APN%29-list.aspx#403
+			NSString *apn=@"web.vodafone.de";	// lookup in some database?
+			NSArray *a;
 			// cdgcont has numbers (1)
-			// [self runATCommand:[NSString stringWithFormat:@"AT+CGDCONT=1,\"%@\",\"%@\"", @"ip", @"apn"]];
+			[self runATCommand:[NSString stringWithFormat:@"AT+CGDCONT=1,\"%@\",\"%@\"", @"ip", apn]];
 			[self runATCommand:@"AT_OWANCALL=1,1,1"];	// context #1, start, send unsolicited response
 			// will give unsolicited response: _OWANCALL: 1, 1
 
-			// FIXME: should we do that on receiving _OWANCALL: 1, 1?
+			// FIXME: should we do that after receiving _OWANCALL: 1, 1?
+			// FIXME: we could receive _OWANCALL: 1, 3 - if the APN is wrong
+			// FIXME: we could receive _OWANCALL: 1,0 if disconnected
+			
+			sleep(1);
 			data=[self runATCommandReturnResponse:@"AT_OWANDATA?"];	// e.g. _OWANDATA: 1, 10.152.124.183, 0.0.0.0, 193.189.244.225, 193.189.244.206, 0.0.0.0, 0.0.0.0,144000
 			if(!data)
 				{ // some error!
 				
 				}
-			// split up into fields
-/*
- IP=$(expr "$IP" : "\(.*\),")
-				DNS1=$(expr "$DNS1" : "\(.*\),")
-				DNS2=$(expr "$DNS2" : "\(.*\),")
-				system("ifconfig hso0 $IP netmask 255.255.255.255 up");
-				// write/append to resolv.conf
-				echo "nameserver $DNS1" >/etc/resolv.conf
-				echo "nameserver $DNS2" >>/etc/resolv.conf
-*/				
-			
+			a=[data componentsSeparatedByString:@","];
+			NSLog(@"Internet config: %@", a);
+			if([a count] >= 7)
+				{
+				NSMutableString *resolv=[NSMutableString stringWithContentsOfFile:@"/etc/resolv.conf"];
+				NSString *cmd=[NSString stringWithFormat:@"ifconfig hso0 '%@' netmask 255.255.255.255 up",
+							   [[a objectAtIndex:1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+				NSLog(@"system: %@", cmd);
+				system([cmd UTF8String]);
+				if(!resolv) resolv=[NSMutableString string];
+				[resolv appendFormat:@"nameserver %@ # wwan\n",
+					[[a objectAtIndex:3] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+				[resolv appendFormat:@"nameserver %@ # wwan\n",
+					[[a objectAtIndex:4] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+				[resolv writeToFile:@"/etc/resolv.conf" atomically:NO];
+				NSLog(@"resolv=%@", resolv);
+				}
 		}
 	else if(wwan && !flag)
 		{ // disable WWAN connection
-			[self runATCommand:@"AT_OWANCALL=1,0,1"];	// start
+			system("ifconfig hso0 down");
+			[self runATCommand:@"AT_OWANCALL=1,0,1"];	// stop
 			// will give unsolicited response: _OWANCALL: 1, 0 
-		// restore resolv.conf
+			// restore resolv.conf
 		}
 	wwan=flag;
 }
