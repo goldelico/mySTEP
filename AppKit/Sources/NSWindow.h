@@ -166,6 +166,9 @@ typedef NSUInteger NSWindowCollectionBehavior;
 	NSButtonCell *_defaultButtonCell;
 	NSShadow *_shadow;
 	NSCachedImageRep *_cachedRep;
+	NSMutableArray *_childWindows;
+	NSWindow *_parentWindow;
+	NSWindow *_attachedSheet;
 	float _userSpaceScaleFactor;
 
 	int _level;
@@ -199,6 +202,7 @@ typedef NSUInteger NSWindowCollectionBehavior;
 		UIBITFIELD(unsigned int, hasShadow, 1);
 		UIBITFIELD(unsigned int, canHide, 1);
 		UIBITFIELD(unsigned int, isOpaque, 1);
+		UIBITFIELD(unsigned int, isSheet, 1);
 	} _w;
 }
 

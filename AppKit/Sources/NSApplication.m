@@ -699,7 +699,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	NSModalSession s = 0;
 	void (*didend)(id, SEL, NSWindow *, int, void *);
 	didend = (void (*)(id, SEL, NSWindow *, int, void *))[delegate methodForSelector:selector];
-	// make the sheet a child window of the doc window
+	[doc _attachSheet:sheet];
+	[sheet _becomeSheet];
+
 	// animate sheet to show up as a sliding 'sheet'
 	// run modal session
 	
@@ -726,6 +728,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 			r = NSRunAbortedResponse;
 		}
 	NS_ENDHANDLER
+	[doc _attachSheet:nil];	// no sheet attached
 	if(didend)
 		didend(delegate, selector, sheet, r, context);	// send result to modal delegate
 }

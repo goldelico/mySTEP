@@ -601,6 +601,7 @@ static BOOL __cursorHidden = NO;
 											NSLog(@"move window from (%@) to (%@)", NSStringFromPoint([_window frame].origin), NSStringFromPoint(wframe.origin));
 #endif
 											[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay)
+											NSLog(@"move child windows %@", [_window childWindows]);
 										}
 								break;
 							}
@@ -1286,6 +1287,8 @@ static NSButtonCell *sharedCell;
 	[_miniWindowTitle release];
 	[_representedFilename release];
 	[_windowTitle release];
+	[_parentWindow removeChildWindow:self];	// if we have a parent...
+	[_childWindows release];
 #if 0
 	NSLog(@"d");
 #endif
@@ -3089,6 +3092,60 @@ id prev;
 - (void) runToolbarCustomizationPalette:(id)sender
 {
 	[[(NSThemeFrame *) _themeFrame toolbar] runCustomizationPalette:sender];
+}
+
+- (void) _attachSheet:(NSWindow *) sheet
+{
+	_attachedSheet=sheet;
+}
+
+- (NSWindow *) attachedSheet;
+{
+	return _attachedSheet;
+}
+
+- (void) _becomeSheet;
+{
+	_w.isSheet=YES;
+}
+
+- (BOOL) isSheet;
+{
+	return _w.isSheet;
+}
+
+- (void) addChildWindow:(NSWindow *) child ordered:(NSWindowOrderingMode) place;
+{
+	if(!_childWindows)
+		_childWindows=[[NSMutableArray alloc] initWithCapacity:3];
+	// FIXME: do we need two separate lists?
+	// ordering of windows should reorder the parent/child
+	// movements will only move children
+	[_childWindows addObject:child];
+	[child setParentWindow:self];
+}
+
+- (NSArray *) childWindows;
+{
+	if(!_childWindows)
+		return [NSArray array];
+	return _childWindows;
+}
+
+- (void) removeChildWindow:(NSWindow *) child;
+{
+	[child setParentWindow:nil];
+	[_childWindows removeObject:child];
+}
+
+- (NSWindow *) parentWindow;
+{
+	return _parentWindow;
+}
+
+- (void) setParentWindow:(NSWindow *) window;
+{
+	_parentWindow=window;
 }
 
 - (BOOL) validateMenuItem:(NSMenuItem *)menuItem

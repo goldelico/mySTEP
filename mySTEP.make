@@ -381,7 +381,7 @@ build_deb: make_bundle make_exec make_binary install_tool \
 # FIXME: use different /tmp/data subdirectories for each running make
 
 TMP_DATA := data
-TMP_CONTROL := controlfields
+TMP_CONTROL := control
 TMP_DEBIAN_BINARY := debian-binary
 
 "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
