@@ -13,7 +13,7 @@
 #ifndef _mySTEP_H_NSBlock
 #define _mySTEP_H_NSBlock
 
-#import <Foundation/NSObject.h>
+#import <Foundation/NSDictionary.h>
 
 @interface NSBlock : NSObject
 {
@@ -47,7 +47,7 @@
  * @end
  *
  * replace ^var with
- * Lit1 *var
+ * Lit1 *var (can sometimes been done with a typedef)
  *
  * replace var = { code... }
  * by e.g. var=[NSBlock createBlock:var1, @"var1", [NSNumber numberWithInt:var2], @"var2", nil];
@@ -55,5 +55,19 @@
  *
  * replace var() with [var run]
  */
+
+@interface NSBlockHandler : NSObject
+{
+	id delegate;
+	SEL action;
+}
+
++ (NSBlockHandler *) handlerWithDelegate:(id) delegate action:(SEL) action;
+- (id) initWithDelegate:(id) delegate action:(SEL) action;
+- (id) performSelector;
+- (id) performSelectorWithObject:(id) obj;
+- (id) performSelectorWithObject:(id) obj1 withObject:(id) obj2;
+
+@end
 
 #endif /* _mySTEP_H_NSBlock */

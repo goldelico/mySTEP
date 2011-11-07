@@ -1,5 +1,5 @@
 /* 
-    NSBlock.h
+    NSBlock.m
 
     Copyright (C) 2011. H. N. Schaller
     All rights reserved.
@@ -10,20 +10,24 @@
     see: http://stackoverflow.com/questions/4731940/is-it-possible-to-create-a-category-of-the-block-object-in-objective-c
 */
 
-#ifndef _mySTEP_H_NSBlock
-#define _mySTEP_H_NSBlock
+#import <Foundation/NSBlock.h>
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSDictionary.h>
-
-@interface NSBlock : NSObject
-{
-	NSDictionary *_dict;
-}
+@implementation NSBlock
 
 + (NSBlock *) createBlock:(id) valuesAndKeys, ...;	// pass variables (e.g. as NSNumber or value) and names
+{
+	return NIMP;
+}
+
 - (id) run;	// the block method
+{
+	return NIMP;
+}
+
 - (id) valueForKey:(NSString *) key;	// fetch environment variable
+{
+	return [_dict valueForKey:key];
+}
 
 @end
 
@@ -55,4 +59,36 @@
  * replace var() with [var run]
  */
 
-#endif /* _mySTEP_H_NSBlock */
+@implementation NSBlockHandler
+
+- (id) initWithDelegate:(id) d action:(SEL) a
+{
+	if((self=[self init]))
+		{
+		delegate=d;
+		action=a;
+		}
+	return self;
+}
+
++ (NSBlockHandler *) handlerWithDelegate:(id) d action:(SEL) a;
+{
+	return [[[self alloc] initWithDelegate:d action:a] autorelease];
+}
+
+- (id) performSelector;
+{
+	return [delegate performSelector:action];
+}
+
+- (id) performSelectorWithObject:(id) obj;
+{
+	return [delegate performSelector:action withObject:obj];
+}
+
+- (id) performSelectorWithObject:(id) obj1 withObject:(id) obj2;
+{
+	return [delegate performSelector:action withObject:obj1 withObject:obj2];
+}
+
+@end
