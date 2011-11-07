@@ -64,6 +64,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 		{
 		signal(SIGPIPE, SIG_IGN);	// If SIGPIPE is not ignored, we will abort on any attempt to write to a pipe/socket that has been closed by the other end!
 		signal(SIGSTOP, SIG_IGN);	// some devices might send a SIGSTOP if they become inactive
+		signal(SIGIO, SIG_IGN);		// the HSO driver and some others appear to send SIGIO although there was no fcntl(FASYNC)
 		}
 }
 

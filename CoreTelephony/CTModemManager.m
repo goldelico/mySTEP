@@ -128,7 +128,6 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		NSLog(@"No GTM601 found");
 		return NO;		
 		}
-	signal(SIGIO, SIG_IGN);	// the HSO driver appears to send SIGIO although there was no fcntl(FASYNC)
 	modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
 	if(!modem)
 		{
