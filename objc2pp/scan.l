@@ -107,9 +107,10 @@ struct RESERVED
 	// FIXME: these are not really keywords!
 	// it is 100% legal to write 'int id' or 'NSString *Class;'
 	// they behave like preinitialized global typedefs that can be overwritten.
-	// but aren't. I.e. typedef int SEL; int SEL; only gives an error on the second definition.
+	// but aren't. They are more like can-be-typedefs.
+	// I.e. typedef int SEL; int SEL; gives an error on the second definition.
 	// or typedef BOOL SEL; SEL x; defines x to be a BOOL
-	// or 	int x, BOOL; BOOL *x; compiles fine
+	// or 	int x, BOOL; BOOL *y; compiles fine
 		
 	"inout", INOUT, 
 	"in", IN, 
@@ -124,14 +125,6 @@ struct RESERVED
 	"unichar", UNICHAR, 
 	"Class", CLASS, 
 	
-	/* Obj-C 2.0 extensions */
-	
-	"@try", AT_TRY, 
-	"@catch", AT_CATCH, 
-	"@finally", AT_FINALLY, 
-	"@throw", AT_TRY, 
-	"@synchronized", AT_SYNCHRONIZED, 
-
 	/* Obj-C 1.5 extensions */
 	
 	"@property", AT_PROPERTY, 
@@ -142,7 +135,19 @@ struct RESERVED
 	"__weak", WEAK, 
 	"__strong", STRONG,
 		
+	/* Obj-C 2.0 extensions */
 		
+	"@try", AT_TRY, 
+	"@catch", AT_CATCH, 
+	"@finally", AT_FINALLY, 
+	"@throw", AT_TRY, 
+	"@synchronized", AT_SYNCHRONIZED, 
+		
+	/* Obj-C 2.5 extensions */
+		
+	"@autoreleasepool", AT_AUTORELEASEPOOL, 
+	"__unsafe_unretained", AT_UNSAFE_UNRETAINED,
+	"__autoreleasing", AT_AUTORELEASING,
 	};
 	
 int symtab;	/* global symbol table */
