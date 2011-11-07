@@ -95,4 +95,7 @@ typedef enum _CLAuthorizationStatus
 - (void) stopUpdatingHeading;
 - (void) stopUpdatingLocation;
 
++ (void) WLANseen:(NSString *) bssid;
++ (void) WWANseen:(NSString *) cellid;
+
 @end

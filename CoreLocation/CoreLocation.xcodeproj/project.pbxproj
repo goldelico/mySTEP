@@ -35,6 +35,9 @@
 		EE31E2CB125CDC2500DF3C91 /* CoreLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */; };
 		EE31E2CD125CDC2500DF3C91 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		EE31E2E5125CDC7C00DF3C91 /* CLTestFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE31E2D3125CDC2500DF3C91 /* CLTestFramework.framework */; };
+		EE9E750A1467E2140029F8D8 /* CLPlacemark.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9E75081467E2140029F8D8 /* CLPlacemark.h */; };
+		EE9E750F1467E22B0029F8D8 /* CLPlacemark.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9E75081467E2140029F8D8 /* CLPlacemark.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE9E75121467E2480029F8D8 /* CLGeocoder.h in Headers */ = {isa = PBXBuildFile; fileRef = EE9E75101467E2480029F8D8 /* CLGeocoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +75,8 @@
 		EE31E2D3125CDC2500DF3C91 /* CLTestFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CLTestFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE31E348125CF60300DF3C91 /* Info-test.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-test.plist"; sourceTree = "<group>"; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EE9E75081467E2140029F8D8 /* CLPlacemark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLPlacemark.h; sourceTree = "<group>"; };
+		EE9E75101467E2480029F8D8 /* CLGeocoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLGeocoder.h; sourceTree = "<group>"; };
 		EEB23DB41258B6410018A9F3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
@@ -161,10 +166,12 @@
 				EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */,
 				EE31E065125B065900DF3C91 /* CLError.h */,
 				EE31E091125B0AA800DF3C91 /* CLErrorDomain.h */,
+				EE9E75101467E2480029F8D8 /* CLGeocoder.h */,
 				EE31E067125B065900DF3C91 /* CLHeading.h */,
 				EE31E053125B031300DF3C91 /* CLLocation.h */,
 				EE31E054125B031300DF3C91 /* CLLocationManager.h */,
 				EE31E073125B07BD00DF3C91 /* CLLocationManagerDelegate.h */,
+				EE9E75081467E2140029F8D8 /* CLPlacemark.h */,
 				EE31E0BB125B523100DF3C91 /* CLRegion.h */,
 				EE31E021125AF0F100DF3C91 /* Old */,
 			);
@@ -214,6 +221,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE9E750F1467E22B0029F8D8 /* CLPlacemark.h in Headers */,
 				EE31DFC8125A4EE200DF3C91 /* CoreLocation_Prefix.pch in Headers */,
 				EE31DFD2125A4F1900DF3C91 /* CoreLocation.h in Headers */,
 				EE31E055125B031300DF3C91 /* CLLocation.h in Headers */,
@@ -223,6 +231,7 @@
 				EE31E074125B07BD00DF3C91 /* CLLocationManagerDelegate.h in Headers */,
 				EE31E092125B0AA800DF3C91 /* CLErrorDomain.h in Headers */,
 				EE31E0BC125B523100DF3C91 /* CLRegion.h in Headers */,
+				EE9E75121467E2480029F8D8 /* CLGeocoder.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,6 +248,7 @@
 				EE31E2C4125CDC2500DF3C91 /* CLLocationManagerDelegate.h in Headers */,
 				EE31E2C5125CDC2500DF3C91 /* CLErrorDomain.h in Headers */,
 				EE31E2C6125CDC2500DF3C91 /* CLRegion.h in Headers */,
+				EE9E750A1467E2140029F8D8 /* CLPlacemark.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

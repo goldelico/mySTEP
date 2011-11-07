@@ -366,6 +366,34 @@ static int numSatellites;
 static int numVisibleSatellites;
 static BOOL noSatellite;
 
+// special code for the W2SG0004 on the GTA04 board
+
+static int startW2SG;
+
++ (void) didNotStart
+{ // timeout
+#if 1
+	NSLog(@"did not yet receive NMEA");
+#endif
+	if(startW2SG++ > 3)
+		{ // permanent problem
+			NSLog(@"GPS receiver not working");
+			/*
+			 error=[NSError ...];
+			 e=[managers objectEnumerator];
+			 while((m=[e nextObject]))
+			 { // notify all known CLLocationManager instances
+			 // check for desiredAccuracy
+			 // check for distanceFilter
+			 [[m delegate] locationManager:self didFailWithError:error];
+			 }
+*/			 
+			return;
+		}
+	system("echo 0 >/sys/devices/virtual/gpio/gpio145/value; echo 1 >/sys/devices/virtual/gpio/gpio145/value; stty 9600 </dev/ttyS1");	// give a start/stop impulse
+	[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// we did not receive NMEA records
+}
+
 + (void) registerManager:(CLLocationManager *) m
 {
 #if 1
@@ -380,15 +408,18 @@ static BOOL noSatellite;
 	if(!managers)
 		{ // set up GPS receiver and wait for first fix
 			// get this from some *system wide* user default
-			NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"NMEAGPSSerialDevice"];	// e.g. /dev/ttyS2 or /dev/cu.usbmodem1d11
+			NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"NMEAGPSSerialDevice"];	// e.g. /dev/ttyS1 or /dev/cu.usbmodem1d11
 			if(!dev)
 				{
 #ifdef __mySTEP__
-				dev=@"/dev/ttyS2";	// Linux: serial interface for USB receiver
+				dev=@"/dev/ttyS1";	// Linux: serial interface for USB receiver
 #else
 				dev=@"/dev/cu.BT-348_GPS-Serialport-1";	// Mac OS X: serial interface for NMEA receiver
 #endif
 				}
+#if 1
+			NSLog(@"Start reading NMEA on device file %@", dev);
+#endif
 			file=[[NSFileHandle fileHandleForReadingAtPath:dev] retain];
 			if(!file)
 				{
@@ -406,6 +437,8 @@ static BOOL noSatellite;
 			NSLog(@"waiting for data on %@", dev);
 #endif
 			[file readInBackgroundAndNotify];	// and trigger notifications
+			startW2SG=0;
+			[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// we did not receive NMEA records
 			return;
 		}
 	if([managers indexOfObjectIdenticalTo:m] != NSNotFound)
@@ -433,6 +466,7 @@ static BOOL noSatellite;
 			managers=nil;		
 			[oldLocation release];
 			oldLocation=nil;
+			// send a power down impulse
 		}
 }
 
@@ -442,7 +476,7 @@ static BOOL noSatellite;
 	NSString *cmd=[a objectAtIndex:0];
 	CLLocationManager *m;
 	NSEnumerator *e;
-	CLLocation *newLocation=nil;
+	CLLocation *newLocation=[CLLocation new];
 #if 0
 	NSLog(@"a=%@", a);
 #endif
@@ -463,7 +497,6 @@ static BOOL noSatellite;
 					time=[NSDate dateWithTimeIntervalSinceReferenceDate:[time timeIntervalSinceReferenceDate]];	// remove formatting
 					[time retain];				// keep alive
 #endif
-					newLocation=[CLLocation new];
 					newLocation->timestamp=[NSDate new];		// now (as seen by system time)
 					// if enabled we could sync the clock...
 					//   sudo(@"date -u '%@'", [c description]);
@@ -530,6 +563,7 @@ static BOOL noSatellite;
 					NSLog(@"Q=%@", [a objectAtIndex:6]);	// quality
 					NSLog(@"Hdil=%@", [a objectAtIndex:8]);	// horizontal dilution = precision?
 					NSLog(@"Alt=%@%@", [a objectAtIndex:9], [a objectAtIndex:10]);	// altitude + units (meters)
+					// calibrate/compare with Barometer data
 #endif
 				}
 			else
@@ -543,6 +577,7 @@ static BOOL noSatellite;
 #if 1
 		NSLog(@"unrecognized %@", cmd);
 #endif
+		[newLocation release];
 		return;	// unrecognized command
 		}
 	e=[managers objectEnumerator];
@@ -597,8 +632,126 @@ static BOOL noSatellite;
 #if 1
 	NSLog(@"_dataReceived %@", n);
 #endif
+	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel startup timer
 	[self _parseNMEA183:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
 	[[n object] readInBackgroundAndNotify];	// and trigger more notifications
 }
 
 @end
+
+@implementation CLPlacemark
+
+// for a description see http://www.icodeblog.com/2009/12/22/introduction-to-mapkit-in-iphone-os-3-0-part-2/
+
+- (NSDictionary *) addressDictionary; { return addressDictionary; }
+
+- (CLLocationCoordinate2D) coordinate; { return coordinate; }
+
+- (void) setCoordinate:(CLLocationCoordinate2D) pos;
+{ // checkme: does this method exist?
+	coordinate=pos;
+}
+
+- (NSString *) subtitle;
+{
+	return @"Subtitle";	
+}
+
+- (NSString *) title;
+{
+	return @"Placemmark";
+}
+
+- (NSString *) thoroughfare; { return [addressDictionary objectForKey:@"Throughfare"]; }
+- (NSString *) subThoroughfare; { return [addressDictionary objectForKey:@"SubThroughfare"]; }
+- (NSString *) locality; { return [addressDictionary objectForKey:@"?"]; }
+- (NSString *) subLocality; { return [addressDictionary objectForKey:@"?"]; }
+- (NSString *) administrativeArea; { return [addressDictionary objectForKey:@"?"]; }
+- (NSString *) subAdministrativeArea; { return [addressDictionary objectForKey:@"SubAdministrativeArea"]; }
+- (NSString *) postalCode; { return [addressDictionary objectForKey:@"ZIP"]; }
+- (NSString *) country; { return [addressDictionary objectForKey:@"Country"]; }
+- (NSString *) countryCode; { return [addressDictionary objectForKey:@"CountryCode"]; }
+
+- (id) initWithCoordinate:(CLLocationCoordinate2D) coord addressDictionary:(NSDictionary *) addr;
+{
+	if((self=[super init]))
+		{
+		coordinate=coord;
+		addressDictionary=[addr retain];	// FIXME: or copy?
+		}
+	return self;
+}
+
+- (void) dealloc
+{
+	[addressDictionary release];
+	[super dealloc];
+}
+
+@end
+
+@implementation CLGeocoder
+
+- (void) cancelGeocode;
+{
+	if(connection)
+		[connection cancel];
+	[connection release];
+	connection=nil;
+}
+
+- (void) dealloc
+{
+	[self cancelGeocode];
+	[handler release];
+	[super dealloc];
+}
+
+- (BOOL) isGeocoding;
+{
+	return connection != nil;
+}
+
+- (void) reverseGeocodeLocation:(CLLocation *) location completionHandler:(CLGeocodeCompletionHandler) h;
+{ //	http://developers.cloudmade.com/wiki/geocoding-http-api/Documentation#Reverse-Geocoding-httpcm-redmine01-datas3amazonawscomfiles101117091610_icon_beta_orangepng
+	if(!connection)
+		{ // build query and start
+			handler=[h retain];
+			// use reverse geocoding api:
+			// read resulting property list
+			// make asynchronous fetch and report result through [handler performSelectorWithObject:andObject:]
+		}
+}
+
+- (void) geocodeAddressString:(NSString *) address inRegion:(CLRegion *)region completionHandler:(CLGeocodeCompletionHandler) h;
+{ // http://developers.cloudmade.com/projects/show/geocoding-http-api
+	if(!connection)
+		{ // build query and start
+			handler=[h retain];
+			if(region)
+				{
+				// add to query
+				}
+			// FIXME: encode blanks as + and + as %25 etc.
+			NSString *url=[NSString stringWithFormat:@"http://geocoding.cloudmade.com/%@/geocoding/v2/find.plist?query=%@", @"8ee2a50541944fb9bcedded5165f09d9", address];
+			// make asynchronous fetch and report result through [handler performSelectorWithObject:andObject:]
+			NSDictionary *dict=[NSDictionary dictionaryWithContentsOfURL:[NSURL URLWithString:url]];
+		}
+}
+
+- (void) geocodeAddressString:(NSString *) address completionHandler:(CLGeocodeCompletionHandler) h;
+{
+	[self geocodeAddressString:address inRegion:nil completionHandler:h];
+}
+
+- (void) geocodeAddressDictionary:(NSDictionary *) address completionHandler:(CLGeocodeCompletionHandler) h;
+{
+	NSMutableString *str=[NSMutableString stringWithCapacity:50];
+	// add components from address (if defined)
+	[str appendFormat:@"133 Fleet street, London, UK"];
+	[self geocodeAddressString:str completionHandler:h];
+}
+
+@end
+
+// EOF
