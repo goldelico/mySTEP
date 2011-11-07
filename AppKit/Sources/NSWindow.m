@@ -597,9 +597,6 @@ static BOOL __cursorHidden = NO;
 														if(NSMinX(wframe) < NSMinX(visibleRect))
 															wframe.origin.x+=NSMinX(visibleRect)-NSMinX(wframe);
 													}
-#if 0
-											NSLog(@"move window from (%@) to (%@)", NSStringFromPoint([_window frame].origin), NSStringFromPoint(wframe.origin));
-#endif
 											[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay)
 											NSLog(@"move child windows %@", [_window childWindows]);
 										}
@@ -1862,6 +1859,8 @@ static NSButtonCell *sharedCell;
 	[self setFrameOrigin:NSMakePoint(aPoint.x, aPoint.y-_frame.size.height)];
 }
 
+// FIXME: handle childWindows
+ 
 - (void) setFrameOrigin:(NSPoint)aPoint
 {
 	if(!NSEqualPoints(aPoint, _frame.origin))

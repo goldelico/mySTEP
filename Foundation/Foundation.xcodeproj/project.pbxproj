@@ -54,7 +54,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		1FA220050E352CF100179AC4 /* NSPointerArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FA220030E352CF100179AC4 /* NSPointerArray.h */; };
+		1FA220050E352CF100179AC4 /* NSPointerArray.h in Headers */ = {isa = PBXBuildFile; fileRef = 1FA220030E352CF100179AC4 /* NSPointerArray.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1FA220060E352CF100179AC4 /* NSPointerArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FA220040E352CF100179AC4 /* NSPointerArray.m */; };
 		EE11484E131A432B005DFDD2 /* NSBlock.h in Headers */ = {isa = PBXBuildFile; fileRef = EE11484C131A432B005DFDD2 /* NSBlock.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE11484F131A432B005DFDD2 /* NSBlock.m in Sources */ = {isa = PBXBuildFile; fileRef = EE11484D131A432B005DFDD2 /* NSBlock.m */; };

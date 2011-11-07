@@ -893,8 +893,8 @@ static NSArray *__pbBitmapImageReps;
 
 + (BOOL) canInitWithData:(NSData *)data
 {
-	TIFF *tif = GSTiffOpenData((char *)[data bytes], [data length], "r");
-	TIFFClose(tif);
+	TIFF *tif = GSTiffOpenData((char *)[data bytes], [data length], "r");	// try to open
+	if(tif)	TIFFClose(tif);
 	return (tif) ? YES : NO;
 }
 
