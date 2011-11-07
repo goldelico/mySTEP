@@ -10,6 +10,7 @@
 
 @class MKReverseGeocoder;
 @class MKPlacemark;
+@class CLGeocoder;
 
 @protocol MKReverseGeocoderDelegate <NSObject>
 - (void) reverseGeocoder:(MKReverseGeocoder *) coder didFindPlacemark:(MKPlacemark *) placemark;
@@ -21,12 +22,14 @@
 // NOTE: we should also provide a reference location to search in the vicinity only
 // we should use  http://developers.cloudmade.com/projects/show/geocoding-http-api
 
+// Now, there is one in CoreLocation with different API
+
 @interface MKReverseGeocoder : NSObject
 {
 	CLLocationCoordinate2D coordinate;
 	id <MKReverseGeocoderDelegate> delegate;
 	MKPlacemark *placemark;
-	NSURLConnection *connection;
+	CLGeocoder *geocoder;
 }
 
 - (void) cancel;
@@ -36,8 +39,6 @@
 - (BOOL) isQuerying;
 - (MKPlacemark *) placemark;
 - (void) start;
-
-- (void) _lookFor:(NSString *) query;	// ForwardGeocoder
 
 @end
 

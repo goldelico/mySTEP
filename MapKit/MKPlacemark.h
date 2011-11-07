@@ -6,23 +6,15 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-@interface MKPlacemark : NSObject <MKAnnotation>
-{
-	CLLocationCoordinate2D coordinate;
-	NSDictionary *addressDictionary;	
-}
+#import <CoreLocation/CoreLocation.h>
 
-- (NSDictionary *) addressDictionary;
-- (CLLocationCoordinate2D) coordinate;
-- (NSString *) thoroughfare;
-- (NSString *) subThoroughfare;
-- (NSString *) locality;
-- (NSString *) subLocality;
-- (NSString *) administrativeArea;
-- (NSString *) subAdministrativeArea;
-- (NSString *) postalCode;
-- (NSString *) country;
-- (NSString *) countryCode;
+#ifndef __mySTEP__
+typedef NSObject CLPlacemark;	// n/a on MacOS X
+#endif
+
+@interface MKPlacemark : CLPlacemark <MKAnnotation>
+{
+}
 
 - (id) initWithCoordinate:(CLLocationCoordinate2D) coord addressDictionary:(NSDictionary *) addr;
 

@@ -7,6 +7,14 @@
 //
 
 #import <MapKit/MapKit.h>
+#import <CoreLocation/CoreLocation.h>
+
+#ifdef __mySTEP__	// workaround for what appears to be a library/gcc bug
+
+extern double exp2(double);
+extern double log2(double);
+
+#endif
 
 #define TILEPIXELS	256.0
 
@@ -89,6 +97,8 @@ static int alreadyLoading=0;
 
 - (void) connectionDidFinishLoading:(NSURLConnection *) connection
 {
+	if(connection != _connection)
+		return;	// ignore spurious callback (e.g. after didFailWithError)
 	[_connection release];
 	_connection=nil;
 	if(!_image && _data)
@@ -899,63 +909,17 @@ static NSMutableArray *tileLRU;
 
 @implementation MKPlacemark
 
-// for a description see http://www.icodeblog.com/2009/12/22/introduction-to-mapkit-in-iphone-os-3-0-part-2/
-
-- (NSDictionary *) addressDictionary; { return addressDictionary; }
-
-- (CLLocationCoordinate2D) coordinate; { return coordinate; }
-
-- (void) setCoordinate:(CLLocationCoordinate2D) pos;
-{ // checkme: does this method exist?
-	coordinate=pos;
-}
-
-- (NSString *) subtitle;
-{
-	return @"Subtitle";	
-}
-
-- (NSString *) title;
-{
-	return @"Placemmark";
-}
-
-- (NSString *) thoroughfare; { return [addressDictionary objectForKey:@"Throughfare"]; }
-- (NSString *) subThoroughfare; { return [addressDictionary objectForKey:@"SubThroughfare"]; }
-- (NSString *) locality; { return [addressDictionary objectForKey:@"?"]; }
-- (NSString *) subLocality; { return [addressDictionary objectForKey:@"?"]; }
-- (NSString *) administrativeArea; { return [addressDictionary objectForKey:@"?"]; }
-- (NSString *) subAdministrativeArea; { return [addressDictionary objectForKey:@"SubAdministrativeArea"]; }
-- (NSString *) postalCode; { return [addressDictionary objectForKey:@"ZIP"]; }
-- (NSString *) country; { return [addressDictionary objectForKey:@"Country"]; }
-- (NSString *) countryCode; { return [addressDictionary objectForKey:@"CountryCode"]; }
-
-- (id) initWithCoordinate:(CLLocationCoordinate2D) coord addressDictionary:(NSDictionary *) addr;
-{
-	if((self=[super init]))
-		{
-		coordinate=coord;
-		addressDictionary=[addr retain];	// FIXME: or copy?
-		}
-	return self;
-}
-
-- (void) dealloc
-{
-	[addressDictionary release];
-	[super dealloc];
-}
+// now based on CLPlacemark
 
 @end
 
 @implementation MKReverseGeocoder
 
+#ifdef __mySTEP__	// wrapper for a new CLGeocoder (n/a on MacOS X)
+
 - (void) cancel;
 {
-	if(connection)
-		[connection cancel];
-	[connection release];
-	connection=nil;
+	[geocoder cancelGeocode];
 }
 
 - (CLLocationCoordinate2D) coordinate;
@@ -984,14 +948,15 @@ static NSMutableArray *tileLRU;
 
 - (void) dealloc
 {
-	[self cancel];
+	[geocoder cancelGeocode];
+	[geocoder release];
 	[placemark release];
 	[super dealloc];
 }
 
 - (BOOL) isQuerying;
 {
-	return connection != nil;
+	return [geocoder isGeocoding];
 }
 
 - (MKPlacemark *) placemark;
@@ -999,29 +964,34 @@ static NSMutableArray *tileLRU;
 	return placemark;
 }
 
+- (void) placemarks:(NSArray *) placemarks error:(NSError *) error
+{
+	if([placemarks count] >= 1)
+		{
+		placemark=[[placemarks objectAtIndex:0] retain];
+		[delegate reverseGeocoder:self didFindPlacemark:placemark];
+		}
+	else
+		[delegate reverseGeocoder:self didFailWithError:error];
+}
+
 - (void) start;
 {
-	if(!connection)
+	if(!geocoder)
 		{ // build query and start
-		// use reverse geocoding api:
-		//	http://developers.cloudmade.com/wiki/geocoding-http-api/Documentation#Reverse-Geocoding-httpcm-redmine01-datas3amazonawscomfiles101117091610_icon_beta_orangepng
-			// read resulting property list
-			// make asynchronous fetch and report result through delegate protocol
+			CLLocation *location=[[CLLocation alloc] initWithCoordinate:coordinate
+															   altitude:0.0		// sea level
+													 horizontalAccuracy:0.0		// exact
+													   verticalAccuracy:-1.0	// unknown
+															  timestamp:[NSDate date]];	// now
+			CLGeocodeCompletionHandler handler=[NSBlockHandler handlerWithDelegate:self action:@selector(placemarks:error:)];
+			geocoder=[[CLGeocoder alloc] init];
+			[geocoder reverseGeocodeLocation:location completionHandler:handler];
+			[location release];
 		}
 }
 
-// or should we provide a subclass "MKGeocoder" that implements initWithQuery:
-
-- (void) _lookFor:(NSString *) query
-{ // http://developers.cloudmade.com/projects/show/geocoding-http-api
-	// FIXME: encode blanks as + and + as %25 etc.
-	query=@"133+Fleet+street,+London,+UK";
-	NSString *url=[NSString stringWithFormat:@"http://geocoding.cloudmade.com/%@/geocoding/v2/find.plist?query=%@", @"8ee2a50541944fb9bcedded5165f09d9", query];
-	// we should do this asynchronously
-	NSDictionary *dict=[NSDictionary dictionaryWithContentsOfURL:[NSURL URLWithString:url]];
-	// convert resulting property list into a MKPlacemark
-	// make asynchronous fetch and report result through delegate protocol
-}
+#endif
 
 @end
 

@@ -45,7 +45,6 @@
 		EE31DF15125A359D00DF3C91 /* MKOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF14125A359D00DF3C91 /* MKOverlayView.m */; };
 		EE31DF21125A36A600DF3C91 /* MKGeometry.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF20125A36A600DF3C91 /* MKGeometry.m */; };
 		EE31DF23125A385600DF3C91 /* MKPointAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EE37FA9813B20B98005D28ED /* CachedTiles in Resources */ = {isa = PBXBuildFile; fileRef = EE37FA9613B20B98005D28ED /* CachedTiles */; };
 		EE6D4082137BB5EF003D5863 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
 		EE6D4087137BB5F2003D5863 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		EE92251713617A000010C76C /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = EE922504136179DD0010C76C /* Credits.rtf */; };
@@ -55,6 +54,7 @@
 		EE92251B13617A0A0010C76C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE92250C136179DD0010C76C /* main.m */; };
 		EE92251C13617A0A0010C76C /* MyDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = EE922513136179DD0010C76C /* MyDocument.m */; };
 		EE92252013617A2D0010C76C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* MapKit.framework */; };
+		EE9E755A1467EB390029F8D8 /* PreinstalledTiles in Resources */ = {isa = PBXBuildFile; fileRef = EE9E75581467EB390029F8D8 /* PreinstalledTiles */; };
 		EEB23D5812589D3E0018A9F3 /* MapKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D5512589D3E0018A9F3 /* MapKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D5912589D3E0018A9F3 /* MKMapView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D5612589D3E0018A9F3 /* MKMapView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D5A12589D3E0018A9F3 /* MKMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEB23D5712589D3E0018A9F3 /* MKMapView.m */; };
@@ -93,7 +93,6 @@
 		EE31DF14125A359D00DF3C91 /* MKOverlayView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKOverlayView.m; sourceTree = "<group>"; };
 		EE31DF20125A36A600DF3C91 /* MKGeometry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKGeometry.m; sourceTree = "<group>"; };
 		EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPointAnnotation.h; sourceTree = "<group>"; };
-		EE37FA9613B20B98005D28ED /* CachedTiles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = CachedTiles; sourceTree = "<group>"; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE9224C7136179BD0010C76C /* MapKitTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapKitTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE922505136179DD0010C76C /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
@@ -105,6 +104,7 @@
 		EE922511136179DD0010C76C /* MapKitTest_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapKitTest_Prefix.pch; sourceTree = "<group>"; };
 		EE922512136179DD0010C76C /* MyDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocument.h; sourceTree = "<group>"; };
 		EE922513136179DD0010C76C /* MyDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyDocument.m; sourceTree = "<group>"; };
+		EE9E75581467EB390029F8D8 /* PreinstalledTiles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PreinstalledTiles; sourceTree = "<group>"; };
 		EEB23D5512589D3E0018A9F3 /* MapKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapKit.h; sourceTree = "<group>"; };
 		EEB23D5612589D3E0018A9F3 /* MKMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKMapView.h; sourceTree = "<group>"; };
 		EEB23D5712589D3E0018A9F3 /* MKMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKMapView.m; sourceTree = "<group>"; };
@@ -174,7 +174,7 @@
 			children = (
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
 				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
-				EE37FA9613B20B98005D28ED /* CachedTiles */,
+				EE9E75581467EB390029F8D8 /* PreinstalledTiles */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -362,8 +362,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE37FA9813B20B98005D28ED /* CachedTiles in Resources */,
 				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
+				EE9E755A1467EB390029F8D8 /* PreinstalledTiles in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
