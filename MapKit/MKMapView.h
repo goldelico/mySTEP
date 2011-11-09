@@ -8,6 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
+#if !defined(__mySTEP__)
+#import <MapKit/CLExtensions.h>
+#endif
+
+
 #if !TARGET_OS_IPHONE
 #define UIView NSView
 #define UIControl NSControl

@@ -7,11 +7,9 @@
 //
 
 #import <MapKit/MKAnnotation.h>
+#import <CoreLocation/CoreLocation.h>
 
 // This is a proxy for the core location data (and updates automatically)
-
-@class CLLocation;
-@class CLLocationManager;
 
 @interface MKUserLocation : NSObject <MKAnnotation>
 {

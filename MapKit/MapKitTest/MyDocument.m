@@ -12,10 +12,6 @@
 #if TARGET_OS_MAC 
 // locally define methods missing on MacOS (only available in iOS or mySTEP)
 
-@interface CLHeading : NSObject
-- (CLLocationDirection) magneticHeading;
-@end
-
 @interface CLLocationManager (iOSOnly)
 - (void) startUpdatingHeading;
 @end
@@ -62,6 +58,10 @@
 	MKPlacemark *pmk;
     [super windowControllerDidLoadNib:aController];
     // Add any code here that needs to be executed once the windowController has loaded the document's window.
+	pmk=[[MKPlacemark alloc] initWithCoordinate:(CLLocationCoordinate2D) { 31.134358, 29.979175 } addressDictionary:nil];
+	//	[pmk setTitle:@"Cheops Pyramid"];
+	[map addAnnotation:pmk];
+	[pmk release];
 	[map setShowsUserLocation:YES];
 	[map setDelegate:self];
 	loc=[[CLLocationManager alloc] init];
@@ -69,10 +69,6 @@
 	[loc startUpdatingLocation];
 	if([loc respondsToSelector:@selector(startUpdatingHeading)])
 		[loc startUpdatingHeading];
-	pmk = [[MKPlacemark alloc] initWithCoordinate:(CLLocationCoordinate2D) { 31.134358, 29.979175 } addressDictionary:nil];
-//	[pmk setTitle:@"Cheops Pyramid"];
-	[map addAnnotation:pmk];
-	[pmk release];
 }
 
 - (NSData *) dataOfType:(NSString *)typeName error:(NSError **)outError

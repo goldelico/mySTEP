@@ -39,6 +39,11 @@ extern double log2(double);
 static NSMutableArray *loadQueue;	// TileLoaders to be started
 static int alreadyLoading=0;
 
+- (NSString *) description
+{
+	return [NSString stringWithFormat:@"MKTile: %@%@", _url, _image?@"":@" no image"];
+}
+
 - (id) initWithContentsOFURL:(NSURL *) url forView:(MKMapView *) delegate;
 {
 	if((self=[super init]))
@@ -353,15 +358,16 @@ static NSMutableArray *tileLRU;
 	switch(mapType) {
 		// ignored
 	}
-	url=[[NSBundle bundleForClass:[self class]] pathForResource:@"CachedTiles" ofType:@""];
+	url=[[NSBundle bundleForClass:[self class]] pathForResource:@"PreinstalledTiles" ofType:@""];
 	url=[url stringByAppendingFormat:@"/%d/%d/%d.png", z, x, y];
 	if([[NSFileManager defaultManager] fileExistsAtPath:url])
-		url=[@"file:///" stringByAppendingString:url];	// stored in bundle for offine access
+		url=[[NSURL fileURLWithPath:url] absoluteString];
+		// url=[@"file:///" stringByAppendingString:url];	// stored in bundle for offine access
 	else
 		{		
 		url=[NSString stringWithFormat:@"http://tile.openstreetmap.org/%d/%d/%d.png", z, x, y];
 #if 1	// debugging http loader - we can look into the server log
-		url=[NSString stringWithFormat:@"http://downloads.goldelico.de/mySTEP/OSM/%d/%d/%d.png", z, x, y];
+		url=[NSString stringWithFormat:@"http://download.goldelico.com/quantumstep/OSM/%d/%d/%d.png", z, x, y];
 #endif
 		}
 	return url;
@@ -915,8 +921,6 @@ static NSMutableArray *tileLRU;
 
 @implementation MKReverseGeocoder
 
-#ifdef __mySTEP__	// wrapper for a new CLGeocoder (n/a on MacOS X)
-
 - (void) cancel;
 {
 	[geocoder cancelGeocode];
@@ -990,8 +994,6 @@ static NSMutableArray *tileLRU;
 			[location release];
 		}
 }
-
-#endif
 
 @end
 

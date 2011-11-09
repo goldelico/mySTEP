@@ -7,10 +7,12 @@
 //
 
 #import <CoreLocation/CoreLocation.h>
+#ifndef __mySTEP__
+#import <MapKit/CLExtensions.h>
+#endif
 
 @class MKReverseGeocoder;
 @class MKPlacemark;
-@class CLGeocoder;
 
 @protocol MKReverseGeocoderDelegate <NSObject>
 - (void) reverseGeocoder:(MKReverseGeocoder *) coder didFindPlacemark:(MKPlacemark *) placemark;

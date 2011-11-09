@@ -7,9 +7,8 @@
 //
 
 #import <CoreLocation/CoreLocation.h>
-
 #ifndef __mySTEP__
-typedef NSObject CLPlacemark;	// n/a on MacOS X
+#import <MapKit/CLExtensions.h>
 #endif
 
 @interface MKPlacemark : CLPlacemark <MKAnnotation>

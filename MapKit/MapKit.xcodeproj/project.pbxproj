@@ -55,6 +55,12 @@
 		EE92251C13617A0A0010C76C /* MyDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = EE922513136179DD0010C76C /* MyDocument.m */; };
 		EE92252013617A2D0010C76C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* MapKit.framework */; };
 		EE9E755A1467EB390029F8D8 /* PreinstalledTiles in Resources */ = {isa = PBXBuildFile; fileRef = EE9E75581467EB390029F8D8 /* PreinstalledTiles */; };
+		EEAF48F014697F3C00A1196E /* CLExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAF48EE14697F3C00A1196E /* CLExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEAF48F114697F3C00A1196E /* CLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAF48EF14697F3C00A1196E /* CLExtensions.m */; };
+		EEAF49CC14699FC400A1196E /* CLGeocoder.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAF49C814699FC400A1196E /* CLGeocoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEAF49CD14699FC400A1196E /* CLHeading.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAF49C914699FC400A1196E /* CLHeading.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEAF49CE14699FC400A1196E /* CLPlacemark.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAF49CA14699FC400A1196E /* CLPlacemark.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEAF49CF14699FC400A1196E /* CLRegion.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAF49CB14699FC400A1196E /* CLRegion.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D5812589D3E0018A9F3 /* MapKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D5512589D3E0018A9F3 /* MapKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D5912589D3E0018A9F3 /* MKMapView.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D5612589D3E0018A9F3 /* MKMapView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D5A12589D3E0018A9F3 /* MKMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEB23D5712589D3E0018A9F3 /* MKMapView.m */; };
@@ -105,6 +111,12 @@
 		EE922512136179DD0010C76C /* MyDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyDocument.h; sourceTree = "<group>"; };
 		EE922513136179DD0010C76C /* MyDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyDocument.m; sourceTree = "<group>"; };
 		EE9E75581467EB390029F8D8 /* PreinstalledTiles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PreinstalledTiles; sourceTree = "<group>"; };
+		EEAF48EE14697F3C00A1196E /* CLExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLExtensions.h; sourceTree = "<group>"; };
+		EEAF48EF14697F3C00A1196E /* CLExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CLExtensions.m; sourceTree = "<group>"; };
+		EEAF49C814699FC400A1196E /* CLGeocoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CLGeocoder.h; path = ../CoreLocation/CLGeocoder.h; sourceTree = SOURCE_ROOT; };
+		EEAF49C914699FC400A1196E /* CLHeading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CLHeading.h; path = ../CoreLocation/CLHeading.h; sourceTree = SOURCE_ROOT; };
+		EEAF49CA14699FC400A1196E /* CLPlacemark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CLPlacemark.h; path = ../CoreLocation/CLPlacemark.h; sourceTree = SOURCE_ROOT; };
+		EEAF49CB14699FC400A1196E /* CLRegion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CLRegion.h; path = ../CoreLocation/CLRegion.h; sourceTree = SOURCE_ROOT; };
 		EEB23D5512589D3E0018A9F3 /* MapKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapKit.h; sourceTree = "<group>"; };
 		EEB23D5612589D3E0018A9F3 /* MKMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKMapView.h; sourceTree = "<group>"; };
 		EEB23D5712589D3E0018A9F3 /* MKMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKMapView.m; sourceTree = "<group>"; };
@@ -235,6 +247,12 @@
 			isa = PBXGroup;
 			children = (
 				EEB23D5B12589D4B0018A9F3 /* MapKit_Prefix.pch */,
+				EEAF49C814699FC400A1196E /* CLGeocoder.h */,
+				EEAF49C914699FC400A1196E /* CLHeading.h */,
+				EEAF49CA14699FC400A1196E /* CLPlacemark.h */,
+				EEAF49CB14699FC400A1196E /* CLRegion.h */,
+				EEAF48EE14697F3C00A1196E /* CLExtensions.h */,
+				EEAF48EF14697F3C00A1196E /* CLExtensions.m */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -285,6 +303,11 @@
 				EE31DEFD125A350A00DF3C91 /* MKShape.h in Headers */,
 				EE31DEFE125A350A00DF3C91 /* MKUserLocation.h in Headers */,
 				EE31DF23125A385600DF3C91 /* MKPointAnnotation.h in Headers */,
+				EEAF48F014697F3C00A1196E /* CLExtensions.h in Headers */,
+				EEAF49CC14699FC400A1196E /* CLGeocoder.h in Headers */,
+				EEAF49CD14699FC400A1196E /* CLHeading.h in Headers */,
+				EEAF49CE14699FC400A1196E /* CLPlacemark.h in Headers */,
+				EEAF49CF14699FC400A1196E /* CLRegion.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -405,7 +428,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=CoreLocation\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=MK*.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=CoreLocation\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EE92258013617BB00010C76C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -446,6 +469,7 @@
 				EE31DF15125A359D00DF3C91 /* MKOverlayView.m in Sources */,
 				EE31DF21125A36A600DF3C91 /* MKGeometry.m in Sources */,
 				EE310665125E2F1C00DF3C91 /* MKUserLocation.m in Sources */,
+				EEAF48F114697F3C00A1196E /* CLExtensions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
