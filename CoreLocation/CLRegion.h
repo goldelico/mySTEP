@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreLocation/CLLocation.h>
 
 @interface CLRegion : NSObject <NSCopying, NSCoding>
 {

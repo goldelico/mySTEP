@@ -17,16 +17,17 @@
 
 - (NSDictionary *) addressDictionary;
 - (CLLocationCoordinate2D) coordinate;
-- (NSString *) thoroughfare;
-- (NSString *) subThoroughfare;
-- (NSString *) locality;
-- (NSString *) subLocality;
-- (NSString *) administrativeArea;
-- (NSString *) subAdministrativeArea;
+- (NSString *) thoroughfare;		// street
+- (NSString *) subThoroughfare;		// street number
+- (NSString *) locality;			// city
+- (NSString *) subLocality;			// city district
+- (NSString *) administrativeArea;		// state
+- (NSString *) subAdministrativeArea;	// county
 - (NSString *) postalCode;
-- (NSString *) country;
-- (NSString *) countryCode;
+- (NSString *) country;				// country
+- (NSString *) countryCode;			// ISO
 
+- (id) initWithPlacemark:(CLPlacemark *) placemark;
 - (id) initWithCoordinate:(CLLocationCoordinate2D) coord addressDictionary:(NSDictionary *) addr;
 
 @end

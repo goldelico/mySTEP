@@ -248,24 +248,30 @@
 - (void) setHeadingOrientation:(CLDeviceOrientation) orient; { headingOrientation=orient; }
 - (void) setPurpose:(NSString *) string; { [purpose autorelease]; purpose=[string copy]; }
 
-+ (BOOL) headingAvailable; {
++ (BOOL) headingAvailable;
+{
 	// how can we find out?
+	// if we have a compass
 	return NO;
 }
 
-+ (BOOL) locationServicesEnabled {
++ (BOOL) locationServicesEnabled
+{
 	return YES;
 }
 
-+ (BOOL) regionMonitoringAvailable {
++ (BOOL) regionMonitoringAvailable
+{
 	return NO;
 }
 
-+ (BOOL) regionMonitoringEnabled { // system setting
++ (BOOL) regionMonitoringEnabled
+{ // system setting
 	return NO;
 }
 
-+ (BOOL) significantLocationChangeMonitoringAvailable { // system setting
++ (BOOL) significantLocationChangeMonitoringAvailable
+{ // system setting
 	return NO;
 }
 
@@ -274,8 +280,6 @@
 	NSLog(@"init");
 	if((self=[super init]))
 		{
-		heading=[CLHeading new];	// CHECKME
-		location=[CLLocation new];
 		}
 	return self;
 }
@@ -477,6 +481,7 @@ static int startW2SG;
 	CLLocationManager *m;
 	NSEnumerator *e;
 	CLLocation *newLocation=[CLLocation new];
+	newLocation->timestamp=[NSDate new];		// now (as seen by system time)
 #if 0
 	NSLog(@"a=%@", a);
 #endif
@@ -497,9 +502,8 @@ static int startW2SG;
 					time=[NSDate dateWithTimeIntervalSinceReferenceDate:[time timeIntervalSinceReferenceDate]];	// remove formatting
 					[time retain];				// keep alive
 #endif
-					newLocation->timestamp=[NSDate new];		// now (as seen by system time)
 					// if enabled we could sync the clock...
-					//   sudo(@"date -u '%@'", [c description]);
+					//   sudo(@"date -u '%@'", [time description]);
 					//   /sbin/hwclock --systohc
 					pos=[[a objectAtIndex:3] floatValue];		// ddmm.mmmmm (degrees + minutes)
 					deg=((int) pos)/100;
@@ -515,6 +519,8 @@ static int startW2SG;
 					newLocation->course=[[a objectAtIndex:8] floatValue];
 					// speed precision - only if 4 sats and more and speed > 10 km/h?
 					// should we also update the heading object?
+					// newHeading->course=newLocation->course;
+					// and read the compass (if available)
 #if 1
 					NSLog(@"ddmmyy=%@", [a objectAtIndex:9]);
 					NSLog(@"hhmmss.sss=%@", [a objectAtIndex:1]);	// hhmmss.sss
@@ -586,6 +592,7 @@ static int startW2SG;
 		// check for desiredAccuracy
 		// check for distanceFilter
 			[[m delegate] locationManager:self didUpdateToLocation:newLocation fromLocation:oldLocation];
+			// update heading?
 		}
 	[oldLocation release];
 	oldLocation=newLocation;	// was freshly allocated
