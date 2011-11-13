@@ -250,7 +250,8 @@ NSString *SYSLocationNMEA183Notification=@"SYSLocationNMEA183Notification";		// 
 			}
 	else if([cmd isEqualToString:@"GPGSA"])
 			{ // satellite info
-				
+				pos=[[a objectAtIndex:16] floatValue];		// horizontal precision
+
 			}
 	else if([cmd isEqualToString:@"GPGSV"])
 			{ // satellites in view (might have several messages for full list)

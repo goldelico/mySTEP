@@ -13,6 +13,7 @@ typedef double CLHeadingComponentValue;	// in uTesla
 
 @interface CLHeading : NSObject <NSCopying, NSCoding>
 {
+@public	// well, this should not be but is the easiest way to allow the CLLocationManager to insert data received from GPS
 	CLLocationDirection headingAccuracy;
 	CLLocationDirection magneticHeading;
 	CLLocationDirection trueHeading;

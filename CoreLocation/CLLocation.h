@@ -33,6 +33,8 @@ typedef struct _CLLocationCoordinate2D
 	CLLocationDirection course;
 	CLLocationSpeed speed;
 	NSDate *timestamp;
+	int numSatellites;
+	int numVisibleSatellites;
 }
 
 - (CLLocationDistance) altitude;
@@ -54,5 +56,9 @@ typedef struct _CLLocationCoordinate2D
 				timestamp:(NSDate *) time;
 
 - (id) initWithLatitude:(CLLocationDegrees) lat longitude:(CLLocationDegrees) lng;
+
+/* extensions */
+- (int) numberOfReceivedSatellites;
+- (int) numberOfVisibleSatellites;
 
 @end

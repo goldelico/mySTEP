@@ -100,6 +100,16 @@
 	// encode keyed values
 }
 
+- (int) numberOfReceivedSatellites;
+{
+	return numSatellites;
+}
+
+- (int) numberOfVisibleSatellites;
+{
+	return numVisibleSatellites;
+}
+
 @end
 
 @implementation CLRegion
@@ -364,12 +374,6 @@ static CLLocation *oldLocation;		// previous location
 static NSString *lastChunk;
 static NSFileHandle *file;
 
-// some global interesting status notes...
-
-static int numSatellites;
-static int numVisibleSatellites;
-static BOOL noSatellite;
-
 // special code for the W2SG0004 on the GTA04 board
 
 static int startW2SG;
@@ -474,14 +478,18 @@ static int startW2SG;
 		}
 }
 
+static CLLocation *newLocation;
+static CLHeading *newHeading;
+
 + (void) _processNMEA183:(NSString *) line;
 { // process NMEA183 record (components separated by ",")
 	NSArray *a=[line componentsSeparatedByString:@","];
 	NSString *cmd=[a objectAtIndex:0];
-	CLLocationManager *m;
-	NSEnumerator *e;
-	CLLocation *newLocation=[CLLocation new];
-	newLocation->timestamp=[NSDate new];		// now (as seen by system time)
+	CLLocation *oldLocation=[[newLocation copy] autorelease];	// save a copy
+	BOOL didUpdateLocation=NO;
+	BOOL didUpdateHeading=NO;
+	if(!newLocation)
+		newLocation=[CLLocation new];
 #if 0
 	NSLog(@"a=%@", a);
 #endif
@@ -489,7 +497,7 @@ static int startW2SG;
 	[[NSNotificationCenter defaultCenter] postNotificationName:@"CLLocation.NMEA183" object:self userInfo:[NSDictionary dictionaryWithObject:line forKey:@"CLLocation.NMEA183.String"]];
 	if([cmd isEqualToString:@"$GPRMC"])
 		{ // minimum recommended navigation info (this is mainly used by CLLocation)
-			noSatellite=![[a objectAtIndex:2] isEqualToString:@"A"];	// A=Ok, V=receiver warning
+			BOOL noSatellite=![[a objectAtIndex:2] isEqualToString:@"A"];	// A=Active, V=Void
 			if(!noSatellite)
 				{ // update time and timestamp
 					NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];
@@ -517,10 +525,12 @@ static int startW2SG;
 						newLocation->coordinate.longitude= -newLocation->coordinate.longitude;
 					newLocation->speed=[[a objectAtIndex:7] floatValue]*(1852.0/3600.0);	// convert knots (sea miles per hour) to m/s
 					newLocation->course=[[a objectAtIndex:8] floatValue];
-					// speed precision - only if 4 sats and more and speed > 10 km/h?
-					// should we also update the heading object?
-					// newHeading->course=newLocation->course;
+					didUpdateLocation=YES;
+					if(!newHeading)
+						newHeading=[CLHeading new];
+					newHeading->trueHeading=newLocation->course;
 					// and read the compass (if available)
+					didUpdateHeading=YES;
 #if 1
 					NSLog(@"ddmmyy=%@", [a objectAtIndex:9]);
 					NSLog(@"hhmmss.sss=%@", [a objectAtIndex:1]);	// hhmmss.sss
@@ -537,65 +547,68 @@ static int startW2SG;
 				{
 				newLocation->horizontalAccuracy=-1.0;
 				newLocation->verticalAccuracy=-1.0;					
+				didUpdateLocation=YES;
 				}
 		}
 	else if([cmd isEqualToString:@"$GPGSA"])
 		{ // satellite info
-			
+			newLocation->horizontalAccuracy=[[a objectAtIndex:16] floatValue];		// HDOP horizontal precision
+			newLocation->verticalAccuracy==[[a objectAtIndex:17] floatValue];		// VDOP vertical precision
+			didUpdateLocation=YES;
 		}
 	else if([cmd isEqualToString:@"$GPGSV"])
 		{ // satellites in view (might have several messages for full list)
-			numVisibleSatellites=[[a objectAtIndex:3] intValue];
+			newLocation->numVisibleSatellites=[[a objectAtIndex:3] intValue];
 #if 1
-			NSLog(@"#S visible=%d", numVisibleSatellites);
+			NSLog(@"#S visible=%d", newLocation->numVisibleSatellites);
 #endif
-			// we could parse the info into a NSArray or NSDictionary (indexed by Sat#)
+			// we could parse the satellite info into a NSArray or NSDictionary (indexed by Sat#)
+			didUpdateLocation=YES;
 		}
 	else if([cmd isEqualToString:@"$GPGGA"])
 		{ // more location info (e.g. altitude above geoid)
-			numSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
+			newLocation->numSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
 #if 1
-			NSLog(@"#S received=%d", numSatellites);
+			NSLog(@"#S received=%d", newLocation->numSatellites);
 #endif
-			if(!noSatellite)
-				{ // update
-					newLocation=[CLLocation new];
-					// Hm... we must collect several records until we notify the delegates!!!
-					newLocation->horizontalAccuracy=[[a objectAtIndex:8] floatValue];
-					// check for altitude units
-					newLocation->altitude=[[a objectAtIndex:9] floatValue];
-					newLocation->verticalAccuracy=10.0;					
+			newLocation->horizontalAccuracy=[[a objectAtIndex:8] floatValue];
+			// check for altitude units
+			newLocation->altitude=[[a objectAtIndex:9] floatValue];
+			newLocation->verticalAccuracy=10.0;					
 #if 1
-					NSLog(@"Q=%@", [a objectAtIndex:6]);	// quality
-					NSLog(@"Hdil=%@", [a objectAtIndex:8]);	// horizontal dilution = precision?
-					NSLog(@"Alt=%@%@", [a objectAtIndex:9], [a objectAtIndex:10]);	// altitude + units (meters)
-					// calibrate/compare with Barometer data
+			NSLog(@"Q=%@", [a objectAtIndex:6]);	// quality
+			NSLog(@"Hdil=%@", [a objectAtIndex:8]);	// horizontal dilution = precision?
+			NSLog(@"Alt=%@%@", [a objectAtIndex:9], [a objectAtIndex:10]);	// altitude + units (meters)
+			// calibrate/compare with Barometer data
 #endif
-				}
-			else
-				{
-					newLocation->horizontalAccuracy=-1.0;
-					newLocation->verticalAccuracy=-1.0;					
-				}
+			didUpdateLocation=YES;
 		}
 	else
 		{
 #if 1
 		NSLog(@"unrecognized %@", cmd);
 #endif
-		[newLocation release];
-		return;	// unrecognized command
 		}
-	e=[managers objectEnumerator];
-	while((m=[e nextObject]))
-		{ // notify all CLLocationManager instances
-		// check for desiredAccuracy
-		// check for distanceFilter
-			[[m delegate] locationManager:self didUpdateToLocation:newLocation fromLocation:oldLocation];
-			// update heading?
+	if(didUpdateLocation || didUpdateHeading)
+		{ // notify interested delegates
+		NSEnumerator *e;
+		CLLocationManager *m;
+		[newLocation->timestamp release];
+		newLocation->timestamp=[NSDate new];			// now (as seen by system time)
+		[newHeading->timestamp release];
+		newHeading->timestamp=[newLocation retain];		// now (as seen by system time)
+		e=[managers objectEnumerator];
+		while((m=[e nextObject]))
+			{ // notify all CLLocationManager instances
+				// check for desiredAccuracy
+				// check for distanceFilter
+				if(didUpdateLocation)
+					[[m delegate] locationManager:self didUpdateToLocation:newLocation fromLocation:oldLocation];
+				if(didUpdateHeading)
+					[[m delegate] locationManager:self didUpdateHeading:newHeading];
+			}
+		
 		}
-	[oldLocation release];
-	oldLocation=newLocation;	// was freshly allocated
 }
 
 + (void) _parseNMEA183:(NSData *) line;

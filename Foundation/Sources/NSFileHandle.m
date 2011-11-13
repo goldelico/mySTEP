@@ -418,7 +418,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 					if(!(_readMode & kIsWaiting))
 						{ // fetch data for immediate notification
 						NSData *data=[self availableData];	// as much as we can get
-						NSNumber *error=[NSNumber numberWithInt:errno];
+						NSNumber *error=[NSNumber numberWithInt:errno == EWOULDBLOCK?0:errno];
 						if(_readMode & kIsReadingToEOF)
 							{
 							if(errno)
