@@ -38,7 +38,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (unsigned) retainCount { return UINT_MAX; }
 
-- (void)release {}
+- (void) release {}
 
 - (id) autorelease { return self; }
 
