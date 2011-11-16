@@ -196,6 +196,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	fcntl(fd, F_SETFL, O_NONBLOCK);		// don't block
 	NS_DURING
 		r=[self readDataToEndOfFile];
+		// we should save errno here!
 	NS_HANDLER
 		fcntl(fd, F_SETFL, O_ASYNC);	// back to normal operation even in case of an exception
 		[localException raise];			// re-raise
@@ -241,6 +242,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 #if 1
 				NSLog(@"NSFileHandle: EWOULDBLOCK - no more data available");
 #endif
+				errno=0;	// don't report
 				break;
 				}
 			objc_free(buffer);
@@ -412,13 +414,13 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 																			  newfh, NSFileHandleNotificationFileHandleItem,
 																			  error, NSFileHandleError,
 																			  nil]];
-							[newfh release];
+						[newfh release];
 						return;
 						}
 					if(!(_readMode & kIsWaiting))
 						{ // fetch data for immediate notification
 						NSData *data=[self availableData];	// as much as we can get
-						NSNumber *error=[NSNumber numberWithInt:errno == EWOULDBLOCK?0:errno];
+						NSNumber *error=[NSNumber numberWithInt:errno];
 						if(_readMode & kIsReadingToEOF)
 							{
 							if(errno)

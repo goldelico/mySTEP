@@ -2456,9 +2456,9 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 { // NSWindow frontend should have identified the otherWin number from the global window list or pass 0 if global front/back
 	XWindowChanges values;
 	NSWindow *win=[NSApp windowWithWindowNumber:_realWindow];
-#if 0
-	NSLog(@"_orderWindow: %d %@ %d", (int)_realWindow, (place==NSWindowOut?@"out":(place==NSWindowAbove?@"above":@"below")), otherWin);
 #if 1
+	NSLog(@"_orderWindow: %d %@ %d%@", (int)_realWindow, (place==NSWindowOut?@"out":(place==NSWindowAbove?@"above":@"below")), otherWin, [win isVisible]?@" visible":@"");
+#if 0
 		{
 			char bfr[256];
 			sprintf(bfr, "/usr/X11/bin/xprop -id %d", (int) _realWindow);
@@ -2469,6 +2469,11 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 #endif
 #endif
+	if(!win)
+		{
+		NSLog(@"window not known");
+		return;
+		}	
 	if([win isMiniaturized])	// FIXME: used as special trick not to really map the window during init
 		return;
 	if(_realWindow == otherWin)
@@ -2607,6 +2612,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _makeKeyWindow;
 {
+//	fprintf(stderr, "_makeKeyWindow %d\n", _realWindow);
 	XSetInputFocus(_display, _realWindow, RevertToNone, CurrentTime);
 }
 
@@ -3144,13 +3150,20 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 			break;
 	NSLog(@"  sequence: %u:%u", LastKnownRequestProcessed(display), NextRequest(display));
 	if(requests[i].name)
-		NSLog(@"  request: %s(%u).%u", requests[i].name, error_event->request_code, error_event->minor_code);
+		NSLog(@"  request: %s(%lu).%lu", requests[i].name, error_event->request_code, error_event->minor_code);
 	else
-		NSLog(@"  request: %u.%u", error_event->request_code, error_event->minor_code);
+		NSLog(@"  request: %lu.%lu", error_event->request_code, error_event->minor_code);
     NSLog(@"  resource: %lu", error_event->resourceid);
 	if(error_event->request_code == 73)
-		return;	// ignore errors from XGetImage
+		return;	// ignore errors from XGetImage until we clip to the real window
 #if 1
+	fprintf(stderr, "abort through X Error %s code %u display %s sequence %lu:%lu request %s(%u.%u) resource %lu\n",
+			string,
+			error_event->error_code,
+			DisplayString(display),
+			LastKnownRequestProcessed(display), NextRequest(display),
+			requests[i].name?requests[i].name:"", error_event->request_code, error_event->minor_code,
+			error_event->resourceid);
 	*((long *) 1)=0;	// force SEGFAULT to ease debugging by writing a core dump
 	abort();
 #endif
@@ -3370,7 +3383,7 @@ static NSDictionary *_x11settings;
 		exit(1);
 		}
 	XSetErrorHandler((XErrorHandler)X11ErrorHandler);
-#if 0	// enable to debug X11 errors - will be notified immediately and not after other actions
+#if 1	// enable to debug X11 errors - will be notified immediately and not after other actions
 	XSynchronize(_display, True);
 	NSLog(@"X11 runs synchronized");
 #endif
@@ -3974,6 +3987,7 @@ static NSDictionary *_x11settings;
 					case MapNotify:							// when a window changes
 #if 1
 						NSLog(@"MapNotify");			// state from ummapped to mapped
+					//	fprintf(stderr, "MapNotify\n");
 #endif
 						[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _setIsVisible:YES];
 						break;								 
@@ -5076,7 +5090,7 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 				 * 2) having dashed lines is also more complex since we must split the rects into evenly distributed fragments
 				 *    this may be quite simple: if we keep some float variable that says how much of the last dash goes to the
 				 *    next fragment, we can walk along the line between P0 and P1 and define intermediate points that generate rects
-				 *    one issue is how to handle closed lines properly if the last segment does not fit
+				 *    one issue is how to handle closed lines elegantly if the last segment does not fit
 				 */
 
 				NSPoint pts[3];

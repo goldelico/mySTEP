@@ -238,15 +238,19 @@
 + (void) _dataReceived:(NSNotification *) n;
 @end
 
+static CLLocation *newLocation;
+static CLHeading *newHeading;
+
 @implementation CLLocationManager
 
 - (id <CLLocationManagerDelegate>) delegate; { return delegate; }
 - (CLLocationAccuracy) desiredAccuracy; { return desiredAccuracy; }
 - (CLLocationDistance) distanceFilter; { return distanceFilter; }
-- (CLHeading *) heading; { return heading; }
+- (CLHeading *) heading; { return newHeading; }
 - (CLLocationDegrees) headingFilter; { return headingFilter; }
+// FIXME: ask UIDevice? No: this variable indicates how the delegate wants to get the heading reported
 - (CLDeviceOrientation) headingOrientation; { return headingOrientation; }
-- (CLLocation *) location; { return location; }
+- (CLLocation *) location; { return newLocation; }
 - (CLLocationDistance) maximumRegionMonitoringDistance; { return maximumRegionMonitoringDistance; }
 - (NSSet *) monitoredRegions; { return [[NSUserDefaults standardUserDefaults] objectForKey:@"_CoreLocationManagerRegions"]; }	// persistent by application (!)
 - (NSString *) purpose; { return purpose; }
@@ -299,8 +303,6 @@
 	[self stopMonitoringSignificantLocationChanges];
 	[self stopUpdatingHeading];
 	[self stopUpdatingLocation];
-	[heading release];
-	[location release];
 	[super dealloc];
 }
 
@@ -323,6 +325,9 @@
 - (void) startUpdatingHeading;
 {
 	// what makes the difference?
+	// basically if we want to receive heading callbacks...
+	// maybe we can store that in a iVar and have the location manager check what we want to receive
+	// and we can switch on/off the compass
 }
 
 - (void) startUpdatingLocation;
@@ -370,7 +375,6 @@
 // FIXME: send heading updates
 
 static NSMutableArray *managers;	// list of all managers
-static CLLocation *oldLocation;		// previous location
 static NSString *lastChunk;
 static NSFileHandle *file;
 
@@ -472,14 +476,13 @@ static int startW2SG;
 			[file release];
 			[managers release];
 			managers=nil;		
-			[oldLocation release];
-			oldLocation=nil;
+			[newLocation release];
+			newLocation=nil;
+			[newHeading release];
+			newHeading=nil;
 			// send a power down impulse
 		}
 }
-
-static CLLocation *newLocation;
-static CLHeading *newHeading;
 
 + (void) _processNMEA183:(NSString *) line;
 { // process NMEA183 record (components separated by ",")
@@ -571,6 +574,7 @@ static CLHeading *newHeading;
 #if 1
 			NSLog(@"#S received=%d", newLocation->numSatellites);
 #endif
+			// FIXME: reports 0 if we have no satellites
 			newLocation->horizontalAccuracy=[[a objectAtIndex:8] floatValue];
 			// check for altitude units
 			newLocation->altitude=[[a objectAtIndex:9] floatValue];
@@ -595,8 +599,11 @@ static CLHeading *newHeading;
 		CLLocationManager *m;
 		[newLocation->timestamp release];
 		newLocation->timestamp=[NSDate new];			// now (as seen by system time)
-		[newHeading->timestamp release];
-		newHeading->timestamp=[newLocation retain];		// now (as seen by system time)
+		if(newHeading)
+			{
+			[newHeading->timestamp release];
+			newHeading->timestamp=[newLocation->timestamp retain];		// now (as seen by system time)
+			}
 		e=[managers objectEnumerator];
 		while((m=[e nextObject]))
 			{ // notify all CLLocationManager instances
@@ -607,7 +614,6 @@ static CLHeading *newHeading;
 				if(didUpdateHeading)
 					[[m delegate] locationManager:self didUpdateHeading:newHeading];
 			}
-		
 		}
 }
 
@@ -649,7 +655,7 @@ static CLHeading *newHeading;
 
 + (void) _dataReceived:(NSNotification *) n;
 {
-#if 1
+#if 0
 	NSLog(@"_dataReceived %@", n);
 #endif
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel startup timer

@@ -1515,6 +1515,9 @@ static NSButtonCell *sharedCell;
 
 - (void) _setIsVisible:(BOOL) flag
 {
+#if 1
+	NSLog(@"_setIsVisible: %d", flag);
+#endif
 	if(_w.visible == flag)
 		return;
 	_w.visible=flag;
@@ -1632,7 +1635,7 @@ static NSButtonCell *sharedCell;
 - (void) orderWindow:(NSWindowOrderingMode) place 
 					relativeTo:(int) otherWin
 { // main interface call
-#if 0
+#if 1
 	NSString *str[]={ @"Below", @"Out", @"Above" };
 	NSLog(@"orderWindow:NSWindow%@ relativeTo:%d - %@", str[place+1], otherWin, self);
 #endif
