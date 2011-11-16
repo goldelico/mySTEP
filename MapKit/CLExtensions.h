@@ -32,6 +32,24 @@
 
 @end
 
+typedef enum _CLLocationSource
+{
+	CLLocationSourceUnknown		= 0,
+	CLLocationSourceGPS			= 1<<0,
+	CLLocationSourceGLONASS		= 1<<1,
+	CLLocationSourceGALILEO		= 1<<2,
+	CLLocationSourceWLAN		= 1<<3,
+	CLLocationSourceWWAN		= 1<<4,
+	CLLocationSourceInertial	= 1<<5,
+	CLLocationSourceExternalAnt	= 1<<15,
+} CLLocationSource;
+
+@interface CLLocation (Extensions)
+- (CLLocationSource) source;
+- (int) numberOfReceivedSatellites;
+- (int) numberOfVisibleSatellites;
+@end
+
 #endif
 
 #endif

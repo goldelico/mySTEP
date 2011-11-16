@@ -110,6 +110,15 @@
 	return numVisibleSatellites;
 }
 
+- (CLLocationSource) source;
+{
+	// FIXME: should be determined when updating the location
+	// this is very GTA04 specific
+	if([[NSString stringWithContentsOfFile:@"/sys/devices/virtual/gpio/gpio144/value"] boolValue])
+		return CLLocationSourceGPS | CLLocationSourceExternalAnt;
+	return CLLocationSourceGPS;
+}
+
 @end
 
 @implementation CLRegion
@@ -450,7 +459,10 @@ static int startW2SG;
 #endif
 			[file readInBackgroundAndNotify];	// and trigger notifications
 			startW2SG=0;
+			// power on GPS receiver
 			[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// we did not receive NMEA records
+			// power on antenna
+			system("echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
 			return;
 		}
 	if([managers indexOfObjectIdenticalTo:m] != NSNotFound)
@@ -481,6 +493,9 @@ static int startW2SG;
 			[newHeading release];
 			newHeading=nil;
 			// send a power down impulse
+			// FIXME: must make sure that we really have started
+			// power off antenna
+			system("echo 0 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 0 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
 		}
 }
 
@@ -555,9 +570,12 @@ static int startW2SG;
 		}
 	else if([cmd isEqualToString:@"$GPGSA"])
 		{ // satellite info
-			newLocation->horizontalAccuracy=[[a objectAtIndex:16] floatValue];		// HDOP horizontal precision
-			newLocation->verticalAccuracy==[[a objectAtIndex:17] floatValue];		// VDOP vertical precision
-			didUpdateLocation=YES;
+			if([[a objectAtIndex:16] length] > 0)
+				{
+				newLocation->horizontalAccuracy=[[a objectAtIndex:16] floatValue];		// HDOP horizontal precision
+				newLocation->verticalAccuracy==[[a objectAtIndex:17] floatValue];		// VDOP vertical precision				
+				didUpdateLocation=YES;
+				}
 		}
 	else if([cmd isEqualToString:@"$GPGSV"])
 		{ // satellites in view (might have several messages for full list)
@@ -575,16 +593,19 @@ static int startW2SG;
 			NSLog(@"#S received=%d", newLocation->numSatellites);
 #endif
 			// FIXME: reports 0 if we have no satellites
-			newLocation->horizontalAccuracy=[[a objectAtIndex:8] floatValue];
-			// check for altitude units
-			newLocation->altitude=[[a objectAtIndex:9] floatValue];
-			newLocation->verticalAccuracy=10.0;					
+			if([[a objectAtIndex:8] length] > 0)
+				{
+				newLocation->horizontalAccuracy=[[a objectAtIndex:8] floatValue];
+				// check for altitude units
+				newLocation->altitude=[[a objectAtIndex:9] floatValue];
+				newLocation->verticalAccuracy=10.0;					
 #if 1
-			NSLog(@"Q=%@", [a objectAtIndex:6]);	// quality
-			NSLog(@"Hdil=%@", [a objectAtIndex:8]);	// horizontal dilution = precision?
-			NSLog(@"Alt=%@%@", [a objectAtIndex:9], [a objectAtIndex:10]);	// altitude + units (meters)
-			// calibrate/compare with Barometer data
+				NSLog(@"Q=%@", [a objectAtIndex:6]);	// quality
+				NSLog(@"Hdil=%@", [a objectAtIndex:8]);	// horizontal dilution = precision?
+				NSLog(@"Alt=%@%@", [a objectAtIndex:9], [a objectAtIndex:10]);	// altitude + units (meters)
+				// calibrate/compare with Barometer data
 #endif
+				}
 			didUpdateLocation=YES;
 		}
 	else
