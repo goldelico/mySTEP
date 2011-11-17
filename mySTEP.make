@@ -421,7 +421,7 @@ endif
 	  echo "Priority: optional"; \
 	  echo "Description: this is part of mySTEP/QuantumSTEP"; \
 	) >"/tmp/$(TMP_CONTROL)"
-	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz -C /tmp ./control
+	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz -C /tmp ./control $(DEBIAN_CONTROL)
 	- mv -f "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" "$(ROOT)/System/Installation/Debian/archive" 2>/dev/null
 	- rm -rf $@
 	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz

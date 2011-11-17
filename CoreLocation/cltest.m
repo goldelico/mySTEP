@@ -1,3 +1,4 @@
+#import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 
 @interface Delegate : NSObject <CLLocationManagerDelegate>

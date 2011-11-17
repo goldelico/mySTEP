@@ -70,7 +70,7 @@
 		EE31E073125B07BD00DF3C91 /* CLLocationManagerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLLocationManagerDelegate.h; sourceTree = "<group>"; };
 		EE31E091125B0AA800DF3C91 /* CLErrorDomain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLErrorDomain.h; sourceTree = "<group>"; };
 		EE31E0BB125B523100DF3C91 /* CLRegion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLRegion.h; sourceTree = "<group>"; };
-		EE31E27D125CD76C00DF3C91 /* cltest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cltest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE31E27D125CD76C00DF3C91 /* cltestOursOnOSX */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cltestOursOnOSX; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE31E297125CD78F00DF3C91 /* cltest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = cltest.m; sourceTree = "<group>"; };
 		EE31E2D3125CDC2500DF3C91 /* CLTestFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CLTestFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE31E348125CF60300DF3C91 /* Info-test.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-test.plist"; sourceTree = "<group>"; };
@@ -120,7 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				8DC2EF5B0486A6940098B216 /* CoreLocation.framework */,
-				EE31E27D125CD76C00DF3C91 /* cltest */,
+				EE31E27D125CD76C00DF3C91 /* cltestOursOnOSX */,
 				EE31E2D3125CDC2500DF3C91 /* CLTestFramework.framework */,
 				EE310713125F025C00DF3C91 /* cltest */,
 			);
@@ -275,25 +275,26 @@
 			productReference = 8DC2EF5B0486A6940098B216 /* CoreLocation.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		EE310709125F025C00DF3C91 /* cltestsys */ = {
+		EE310709125F025C00DF3C91 /* cltest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EE310710125F025C00DF3C91 /* Build configuration list for PBXNativeTarget "cltestsys" */;
+			buildConfigurationList = EE310710125F025C00DF3C91 /* Build configuration list for PBXNativeTarget "cltest" */;
 			buildPhases = (
 				EE31070C125F025C00DF3C91 /* Sources */,
 				EE31070E125F025C00DF3C91 /* Frameworks */,
+				EE6FE9AE147521FF000BC485 /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = cltestsys;
+			name = cltest;
 			productName = cltest;
 			productReference = EE310713125F025C00DF3C91 /* cltest */;
 			productType = "com.apple.product-type.tool";
 		};
-		EE31E27C125CD76C00DF3C91 /* cltest */ = {
+		EE31E27C125CD76C00DF3C91 /* cltestOursOnOSX */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EE31E296125CD77C00DF3C91 /* Build configuration list for PBXNativeTarget "cltest" */;
+			buildConfigurationList = EE31E296125CD77C00DF3C91 /* Build configuration list for PBXNativeTarget "cltestOursOnOSX" */;
 			buildPhases = (
 				EE31E27A125CD76C00DF3C91 /* Sources */,
 				EE31E27B125CD76C00DF3C91 /* Frameworks */,
@@ -303,9 +304,9 @@
 			dependencies = (
 				EE31E2E9125CDC8E00DF3C91 /* PBXTargetDependency */,
 			);
-			name = cltest;
+			name = cltestOursOnOSX;
 			productName = cltest;
-			productReference = EE31E27D125CD76C00DF3C91 /* cltest */;
+			productReference = EE31E27D125CD76C00DF3C91 /* cltestOursOnOSX */;
 			productType = "com.apple.product-type.tool";
 		};
 		EE31E2BB125CDC2500DF3C91 /* CLTestFramework */ = {
@@ -350,8 +351,8 @@
 			targets = (
 				8DC2EF4F0486A6940098B216 /* CoreLocation */,
 				EE31E2BB125CDC2500DF3C91 /* CLTestFramework */,
-				EE31E27C125CD76C00DF3C91 /* cltest */,
-				EE310709125F025C00DF3C91 /* cltestsys */,
+				EE31E27C125CD76C00DF3C91 /* cltestOursOnOSX */,
+				EE310709125F025C00DF3C91 /* cltest */,
 			);
 		};
 /* End PBXProject section */
@@ -401,6 +402,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export SOURCES=CoreLocation.m   # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n# export DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
+		EE6FE9AE147521FF000BC485 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SOURCES=\"cltest.m\"   \t# all source codes\nexport LIBS=\t\t\t\t\t   \t# add any additional\nexport FRAMEWORKS=CoreLocation\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\n\nexport INSTALL_PATH=/usr/bin   # override INSTALL_PATH for MacOS X for Zaurus\n\n#export STRIP_Framework=false       \t# set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            \t# set to true if you want a Linux-ARM only bundle\n#export INSTALL=true                \t# true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\nexport RUN=false                    \t# true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport DEPENDS=\"quantumstep-corelocation-framework\"\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -548,7 +562,7 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = cltestsys;
+				PRODUCT_NAME = cltest;
 			};
 			name = Debug;
 		};
@@ -596,7 +610,7 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = cltest;
+				PRODUCT_NAME = cltestOursOnOSX;
 			};
 			name = Debug;
 		};
@@ -688,7 +702,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		EE310710125F025C00DF3C91 /* Build configuration list for PBXNativeTarget "cltestsys" */ = {
+		EE310710125F025C00DF3C91 /* Build configuration list for PBXNativeTarget "cltest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE310711125F025C00DF3C91 /* Debug */,
@@ -697,7 +711,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		EE31E296125CD77C00DF3C91 /* Build configuration list for PBXNativeTarget "cltest" */ = {
+		EE31E296125CD77C00DF3C91 /* Build configuration list for PBXNativeTarget "cltestOursOnOSX" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EE31E27F125CD76C00DF3C91 /* Debug */,
