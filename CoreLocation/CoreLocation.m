@@ -568,7 +568,7 @@ static int startW2SG;
 					newHeading->trueHeading=newLocation->course;
 					// and read the compass (if available)
 					didUpdateHeading=YES;
-#if 1
+#if 0
 					NSLog(@"ddmmyy=%@", [a objectAtIndex:9]);
 					NSLog(@"hhmmss.sss=%@", [a objectAtIndex:1]);	// hhmmss.sss
 //					NSLog(@"ts=%@ -> %@", ts, time);	// satellite time
