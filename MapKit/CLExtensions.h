@@ -44,10 +44,12 @@ typedef enum _CLLocationSource
 	CLLocationSourceExternalAnt	= 1<<15,
 } CLLocationSource;
 
-@interface CLLocation (Extensions)
-- (CLLocationSource) source;
-- (int) numberOfReceivedSatellites;
-- (int) numberOfVisibleSatellites;
+@interface CLLocationManager (Extensions)
++ (CLLocationSource) source;
++ (int) numberOfReceivedSatellites;
++ (int) numberOfVisibleSatellites;
++ (NSDate *) satelliteTime;
++ (NSArray *) satelliteInfo;
 @end
 
 #endif

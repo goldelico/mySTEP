@@ -214,7 +214,7 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 	unsigned int ulen;
 	int len;
 #if 0
-	NSLog(@"readDataOfLength %u", length);
+	NSLog(@"NSFileHandle: readDataOfLength %u", length);
 #endif
 	if([_inputStream getBuffer:&buffer length:&ulen])
 		return [NSData dataWithBytes:buffer length:MIN(ulen, length)];	// buffer is directly available
@@ -240,13 +240,13 @@ NSString *NSFileHandleOperationException = @"NSFileHandleOperationException";
 			if(errno == EWOULDBLOCK)
 				{ // there is currently no more data available
 #if 0
-				NSLog(@"NSFileHandle: EWOULDBLOCK - no more data available");
+				NSLog(@"NSFileHandle: no more data available - %s", strerror(errno));
 #endif
 				errno=0;	// don't report
 				break;
 				}
 			objc_free(buffer);
-			[NSException raise:NSFileHandleOperationException format:@"failed to read data from NSFileHandle - %s", strerror(errno)];	
+			[NSException raise:NSFileHandleOperationException format:@"NSFileHandle: failed to read data - %s", strerror(errno)];	
 			return nil;
 			}
 		bufpos+=len;

@@ -33,8 +33,6 @@ typedef struct _CLLocationCoordinate2D
 	CLLocationDirection course;
 	CLLocationSpeed speed;
 	NSDate *timestamp;
-	int numSatellites;
-	int numVisibleSatellites;
 }
 
 - (CLLocationDistance) altitude;
@@ -56,23 +54,5 @@ typedef struct _CLLocationCoordinate2D
 				timestamp:(NSDate *) time;
 
 - (id) initWithLatitude:(CLLocationDegrees) lat longitude:(CLLocationDegrees) lng;
-
-/* extensions */
-
-typedef enum _CLLocationSource
-{
-	CLLocationSourceUnknown		= 0,
-	CLLocationSourceGPS			= 1<<0,
-	CLLocationSourceGLONASS		= 1<<1,
-	CLLocationSourceGALILEO		= 1<<2,
-	CLLocationSourceWLAN		= 1<<3,
-	CLLocationSourceWWAN		= 1<<4,
-	CLLocationSourceInertial	= 1<<5,
-	CLLocationSourceExternalAnt	= 1<<15,
-} CLLocationSource;
-
-- (CLLocationSource) source;
-- (int) numberOfReceivedSatellites;
-- (int) numberOfVisibleSatellites;
 
 @end

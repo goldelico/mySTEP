@@ -8,6 +8,9 @@
 
 #ifndef __mySTEP__
 
+@interface CLLocationManager : NSObject
+@end
+
 #import "CLExtensions.h"
 
 @implementation CLRegion

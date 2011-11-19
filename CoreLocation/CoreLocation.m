@@ -20,7 +20,7 @@
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"<%.lf, %.lf> +/- %.lfm (speed %.lf kph / heading %.lf) @ %@",
+	return [NSString stringWithFormat:@"<%lg, %lg> +/- %lgm (speed %lg kph / heading %lg) @ %@",
 			coordinate.latitude, coordinate.longitude,
 			horizontalAccuracy,
 			speed,
@@ -98,25 +98,6 @@
 {
 //	[super encodeWithCoder:coder];
 	// encode keyed values
-}
-
-- (int) numberOfReceivedSatellites;
-{
-	return numSatellites;
-}
-
-- (int) numberOfVisibleSatellites;
-{
-	return numVisibleSatellites;
-}
-
-- (CLLocationSource) source;
-{
-	// FIXME: should be determined when updating the location
-	// this is very GTA04 specific
-	if([[NSString stringWithContentsOfFile:@"/sys/devices/virtual/gpio/gpio144/value"] boolValue])
-		return CLLocationSourceGPS | CLLocationSourceExternalAnt;
-	return CLLocationSourceGPS;
 }
 
 @end
@@ -199,7 +180,7 @@
 
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"magneticHeading %.lf trueHeading %.lf accuracy %.lf x %.lf y %.lf z %.lf a %.lf @ %@",
+	return [NSString stringWithFormat:@"magneticHeading %lg trueHeading %lg accuracy %lg x %lg y %lg z %lg a %lg @ %@",
 			magneticHeading, trueHeading, headingAccuracy,
 			x, y, z,
 			headingAccuracy, timestamp];
@@ -370,6 +351,43 @@ static CLHeading *newHeading;
 
 @end
 
+static int numSatellites;
+static int numVisibleSatellites;
+static NSDate *satelliteTime;
+static NSMutableArray *satelliteInfo;
+
+@implementation CLLocationManager (Extensions)
+
++ (int) numberOfReceivedSatellites;
+{
+	return numSatellites;
+}
+
++ (int) numberOfVisibleSatellites;
+{
+	return numVisibleSatellites;
+}
+
++ (CLLocationSource) source;
+{
+	// this is very GTA04 specific
+	if([[NSString stringWithContentsOfFile:@"/sys/devices/virtual/gpio/gpio144/value"] boolValue])
+		return CLLocationSourceGPS | CLLocationSourceExternalAnt;
+	return CLLocationSourceGPS;
+}
+
++ (NSDate *) satelliteTime
+{
+	return satelliteTime;
+}
+
++ (NSArray *) satelliteInfo
+{
+	return satelliteInfo;
+}
+
+@end
+
 // we should  integrate sensor data from GPS, barometric Altimeter, Gyroscope, Accelerometer, and Compass 
 // though a Kalman-Bucy filter
 
@@ -397,7 +415,7 @@ static int startW2SG;
 	NSLog(@"did not yet receive NMEA");
 #endif
 	if(startW2SG++ > 3)
-		{ // permanent problem
+		{ // permanent problem - don't try again (is this good if this process is only started once after reboot?)
 			NSLog(@"GPS receiver not working");
 			/*
 			 error=[NSError ...];
@@ -460,7 +478,7 @@ static int startW2SG;
 			[file readInBackgroundAndNotify];	// and trigger notifications
 			startW2SG=0;
 			// power on GPS receiver
-			[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// we did not receive NMEA records
+			[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// check if we did not receive NMEA records
 			// power on antenna
 			system("echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
 			return;
@@ -492,6 +510,10 @@ static int startW2SG;
 			newLocation=nil;
 			[newHeading release];
 			newHeading=nil;
+			[satelliteTime release];
+			satelliteTime=nil;
+			[satelliteInfo release];
+			satelliteInfo=nil;
 			// send a power down impulse
 			// FIXME: must make sure that we really have started
 			// power off antenna
@@ -517,17 +539,14 @@ static int startW2SG;
 		{ // minimum recommended navigation info (this is mainly used by CLLocation)
 			BOOL noSatellite=![[a objectAtIndex:2] isEqualToString:@"A"];	// A=Active, V=Void
 			if(!noSatellite)
-				{ // update time and timestamp
+				{ // update satellite time and other data
 					NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];
 					float pos;
 					int deg;
-#if 0
-					NSDate *time=nil;	// satellite time...
-					[time release];
-					time=[NSCalendarDate dateWithString:ts calendarFormat:@"%d%m%y:%H%M%S.%F"];	// parse
-					time=[NSDate dateWithTimeIntervalSinceReferenceDate:[time timeIntervalSinceReferenceDate]];	// remove formatting
-					[time retain];				// keep alive
-#endif
+					[satelliteTime release];
+					satelliteTime=[NSCalendarDate dateWithString:ts calendarFormat:@"%d%m%y:%H%M%S.%F"];	// parse
+					satelliteTime=[NSDate dateWithTimeIntervalSinceReferenceDate:[satelliteTime timeIntervalSinceReferenceDate]];	// remove formatting
+					[satelliteTime retain];				// keep alive
 					// if enabled we could sync the clock...
 					//   sudo(@"date -u '%@'", [time description]);
 					//   /sbin/hwclock --systohc
@@ -578,19 +597,40 @@ static int startW2SG;
 				}
 		}
 	else if([cmd isEqualToString:@"$GPGSV"])
-		{ // satellites in view (might have several messages for full list)
-			newLocation->numVisibleSatellites=[[a objectAtIndex:3] intValue];
-#if 1
-			NSLog(@"#S visible=%d", newLocation->numVisibleSatellites);
+		{ // satellites in view (might need several messages to get a full list)
+			int i;
+			const int satPerRecord=4;	// there may be less records!
+			const int entriesPerSat=4;
+			int sat=satPerRecord*([[a objectAtIndex:2] intValue]-1);	// first satellite (index starting at 0 while NMEA starts at 1)
+			numVisibleSatellites=[[a objectAtIndex:3] intValue];
+			if(sat >= 0 && sat < numVisibleSatellites)
+				{ // record is ok
+					if(!satelliteInfo)
+						satelliteInfo=[[NSMutableArray alloc] initWithCapacity:satPerRecord*numVisibleSatellites];
+					else
+						[satelliteInfo removeObjectsInRange:NSMakeRange(numVisibleSatellites, [satelliteInfo count]-numVisibleSatellites)];
+					while([satelliteInfo count] < numVisibleSatellites)
+						[satelliteInfo addObject:[NSMutableDictionary dictionaryWithCapacity:entriesPerSat]];	// create more entries
+#if 0
+					NSLog(@"#S visible=%d", numVisibleSatellites);
 #endif
-			// we could parse the satellite info into a NSArray or NSDictionary (indexed by Sat#)
-			didUpdateLocation=YES;
+					for(i=0; i<satPerRecord && sat < numVisibleSatellites; i++)
+						{ // 4 entries per satellite
+							NSMutableDictionary *s=[satelliteInfo objectAtIndex:sat++];
+							[s setObject:[a objectAtIndex:4+entriesPerSat*i] forKey:@"PRN"];
+							[s setObject:[a objectAtIndex:5+entriesPerSat*i] forKey:@"elevation"];	// use intValue - 00-90 (can also be negative!)
+							[s setObject:[a objectAtIndex:6+entriesPerSat*i] forKey:@"azimuth"];	// use intValue - 000-359
+							[s setObject:[a objectAtIndex:7+entriesPerSat*i] forKey:@"SNR"];		// use intValue - can be @""
+						}
+				}
+			else
+				NSLog(@"bad NMEA: %@", line);
 		}
 	else if([cmd isEqualToString:@"$GPGGA"])
 		{ // more location info (e.g. altitude above geoid)
-			newLocation->numSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
-#if 1
-			NSLog(@"#S received=%d", newLocation->numSatellites);
+			numSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
+#if 0
+			NSLog(@"#S received=%d", numSatellites);
 #endif
 			// FIXME: reports 0 if we have no satellites
 			if([[a objectAtIndex:8] length] > 0)
@@ -599,7 +639,7 @@ static int startW2SG;
 				// check for altitude units
 				newLocation->altitude=[[a objectAtIndex:9] floatValue];
 				newLocation->verticalAccuracy=10.0;					
-#if 1
+#if 0
 				NSLog(@"Q=%@", [a objectAtIndex:6]);	// quality
 				NSLog(@"Hdil=%@", [a objectAtIndex:8]);	// horizontal dilution = precision?
 				NSLog(@"Alt=%@%@", [a objectAtIndex:9], [a objectAtIndex:10]);	// altitude + units (meters)

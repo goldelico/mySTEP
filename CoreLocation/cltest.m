@@ -30,7 +30,18 @@
 
 - (void) locationManager:(CLLocationManager *) mngr didUpdateToLocation:(CLLocation *) newloc fromLocation:(CLLocation *) old;
 {
+	NSEnumerator *e;
+	NSDictionary *d;
 	NSLog(@"location: %@", newloc);
+#ifdef __mySTEP__
+	NSLog(@"time: %@", [CLLocationManager satelliteTime]);
+	NSLog(@"%d of %d satellites on %@ ant",
+		  [CLLocationManager numberOfReceivedSatellites], [CLLocationManager numberOfVisibleSatellites],
+		  ([CLLocationManager source]&CLLocationSourceExternalAnt)?@"ext":@"int");
+	e=[[CLLocationManager satelliteInfo] objectEnumerator];
+	while((d=[e nextObject]))
+		NSLog(@"%@ az=%@ el=%@ s/n=%@", [d objectForKey:@"PRN"], [d objectForKey:@"azimuth"], [d objectForKey:@"elevation"], [d objectForKey:@"SNR"]);
+#endif
 }
 
 - (void) locationManager:(CLLocationManager *) mngr monitoringDidFailForRegion:(CLRegion *) region withError:(NSError *) err;

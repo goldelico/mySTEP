@@ -48,6 +48,13 @@
 			remoteGlobalIDString = EE31E2BB125CDC2500DF3C91;
 			remoteInfo = CLTest;
 		};
+		EE6FF4F61476C71D000BC485 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8DC2EF4F0486A6940098B216 /* CoreLocation */;
+			remoteInfo = CoreLocation;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -286,6 +293,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				EE6FF4F71476C71D000BC485 /* PBXTargetDependency */,
 			);
 			name = cltest;
 			productName = cltest;
@@ -458,6 +466,11 @@
 			isa = PBXTargetDependency;
 			target = EE31E2BB125CDC2500DF3C91 /* CLTestFramework */;
 			targetProxy = EE31E2E8125CDC8E00DF3C91 /* PBXContainerItemProxy */;
+		};
+		EE6FF4F71476C71D000BC485 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8DC2EF4F0486A6940098B216 /* CoreLocation */;
+			targetProxy = EE6FF4F61476C71D000BC485 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
