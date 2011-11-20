@@ -118,6 +118,7 @@ typedef enum _CLLocationSource
 
 + (CLLocationSource) source;
 + (int) numberOfReceivedSatellites;
++ (int) numberOfReliableSatellites;
 + (int) numberOfVisibleSatellites;
 + (NSDate *) satelliteTime;
 + (NSArray *) satelliteInfo;	// NSDictionaries

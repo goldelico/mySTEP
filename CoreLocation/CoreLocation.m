@@ -351,7 +351,7 @@ static CLHeading *newHeading;
 
 @end
 
-static int numSatellites;
+static int numReliableSatellites;
 static int numVisibleSatellites;
 static NSDate *satelliteTime;
 static NSMutableArray *satelliteInfo;
@@ -359,8 +359,19 @@ static NSMutableArray *satelliteInfo;
 @implementation CLLocationManager (Extensions)
 
 + (int) numberOfReceivedSatellites;
+{ // count all satellites with SNR > 0
+	NSEnumerator *e=[satelliteInfo objectEnumerator];
+	NSDictionary *s;
+	int numReceivedSatellites=0;
+	while((s=[e nextObject]))
+		if([[s objectForKey:@"SNR"] intValue] > 0)
+			numReceivedSatellites++;
+	return numReceivedSatellites;
+}
+
++ (int) numberOfReliableSatellites;
 {
-	return numSatellites;
+	return numReliableSatellites;	
 }
 
 + (int) numberOfVisibleSatellites;
@@ -537,16 +548,18 @@ static int startW2SG;
 	[[NSNotificationCenter defaultCenter] postNotificationName:@"CLLocation.NMEA183" object:self userInfo:[NSDictionary dictionaryWithObject:line forKey:@"CLLocation.NMEA183.String"]];
 	if([cmd isEqualToString:@"$GPRMC"])
 		{ // minimum recommended navigation info (this is mainly used by CLLocation)
-			BOOL noSatellite=![[a objectAtIndex:2] isEqualToString:@"A"];	// A=Active, V=Void
-			if(!noSatellite)
-				{ // update satellite time and other data
-					NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];
+			NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];	// combine fields
+			[satelliteTime release];
+			satelliteTime=[NSCalendarDate dateWithString:ts calendarFormat:@"%d%m%y:%H%M%S.%F"];	// parse
+#if 0
+			NSLog(@"ts=%@ -> time=%@", ts, satelliteTime);
+#endif
+			satelliteTime=[NSDate dateWithTimeIntervalSinceReferenceDate:[satelliteTime timeIntervalSinceReferenceDate]];	// remove formatting
+			[satelliteTime retain];				// keep alive
+			if([[a objectAtIndex:2] isEqualToString:@"A"])	// A=Active, V=Void
+				{ // update data
 					float pos;
 					int deg;
-					[satelliteTime release];
-					satelliteTime=[NSCalendarDate dateWithString:ts calendarFormat:@"%d%m%y:%H%M%S.%F"];	// parse
-					satelliteTime=[NSDate dateWithTimeIntervalSinceReferenceDate:[satelliteTime timeIntervalSinceReferenceDate]];	// remove formatting
-					[satelliteTime retain];				// keep alive
 					// if enabled we could sync the clock...
 					//   sudo(@"date -u '%@'", [time description]);
 					//   /sbin/hwclock --systohc
@@ -628,7 +641,8 @@ static int startW2SG;
 		}
 	else if([cmd isEqualToString:@"$GPGGA"])
 		{ // more location info (e.g. altitude above geoid)
-			numSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
+			// FIXME: is this number of satellites being used for location?
+			numReliableSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
 #if 0
 			NSLog(@"#S received=%d", numSatellites);
 #endif
@@ -647,6 +661,10 @@ static int startW2SG;
 #endif
 				}
 			didUpdateLocation=YES;
+		}
+	else if([cmd isEqualToString:@"$PSRFTXT"])
+		{ // SIRF
+		// ignore
 		}
 	else
 		{
@@ -668,12 +686,14 @@ static int startW2SG;
 		e=[managers objectEnumerator];
 		while((m=[e nextObject]))
 			{ // notify all CLLocationManager instances
+				id <CLLocationManagerDelegate> delegate=[m delegate];
 				// check for desiredAccuracy
 				// check for distanceFilter
-				if(didUpdateLocation)
-					[[m delegate] locationManager:self didUpdateToLocation:newLocation fromLocation:oldLocation];
-				if(didUpdateHeading)
-					[[m delegate] locationManager:self didUpdateHeading:newHeading];
+	// FIXME:			NS_DURING
+				if(didUpdateLocation && [delegate respondsToSelector:@selector(locationManager:didUpdateToLocation:fromLocation:)])
+					[delegate locationManager:self didUpdateToLocation:newLocation fromLocation:oldLocation];
+				if(didUpdateHeading && [delegate respondsToSelector:@selector(locationManager:didUpdateHeading:)])
+					[delegate locationManager:self didUpdateHeading:newHeading];
 			}
 		}
 }
@@ -705,7 +725,11 @@ static int startW2SG;
 #if 1
 			NSLog(@"NEMA: %@", s);
 #endif
-			[self _processNMEA183:s];
+			NS_DURING	// protect against problems in delegates
+				[self _processNMEA183:s];
+			NS_HANDLER
+				NSLog(@"Exception during _processNMEA183: %@", localException);
+			NS_ENDHANDLER
 		}
 #if 0
 	NSLog(@"string=%@", s);
