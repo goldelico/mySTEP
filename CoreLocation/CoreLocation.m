@@ -602,11 +602,31 @@ static int startW2SG;
 		}
 	else if([cmd isEqualToString:@"$GPGSA"])
 		{ // satellite info
+			NSEnumerator *e=[satelliteInfo objectEnumerator];
+			NSMutableDictionary *d;
+			int i;
+			// check mode B for no fix, 2D fix, 3D to control verticalAccuracy
 			if([[a objectAtIndex:16] length] > 0)
 				{
 				newLocation->horizontalAccuracy=[[a objectAtIndex:16] floatValue];		// HDOP horizontal precision
 				newLocation->verticalAccuracy==[[a objectAtIndex:17] floatValue];		// VDOP vertical precision				
 				didUpdateLocation=YES;
+				}
+			while((d=[e nextObject]))
+				[d setObject:[NSNumber numberWithBool:NO] forKey:@"used"];	// clear
+			for(i=0; i<12; i++)
+				{ // check which satellites are used for a position fix
+				int sat=[[a objectAtIndex:3+i] intValue];
+				if(sat == 0) continue;
+				e=[satelliteInfo objectEnumerator];
+				while((d=[e nextObject]))
+					{
+					if([[d objectForKey:@"PRN"] intValue] == sat)
+						{
+						[d setObject:[NSNumber numberWithBool:YES] forKey:@"used"];	// used in position fix
+						continue;	// found
+						}
+					}
 				}
 		}
 	else if([cmd isEqualToString:@"$GPGSV"])
@@ -641,7 +661,6 @@ static int startW2SG;
 		}
 	else if([cmd isEqualToString:@"$GPGGA"])
 		{ // more location info (e.g. altitude above geoid)
-			// FIXME: is this number of satellites being used for location?
 			numReliableSatellites=[[a objectAtIndex:7] intValue];	// # satellites being received
 #if 0
 			NSLog(@"#S received=%d", numSatellites);
@@ -651,8 +670,13 @@ static int startW2SG;
 				{
 				newLocation->horizontalAccuracy=[[a objectAtIndex:8] floatValue];
 				// check for altitude units
-				newLocation->altitude=[[a objectAtIndex:9] floatValue];
-				newLocation->verticalAccuracy=10.0;					
+				if(numReliableSatellites > 3)
+					{
+					newLocation->altitude=[[a objectAtIndex:9] floatValue];
+					newLocation->verticalAccuracy=10.0;										
+					}
+				else
+					newLocation->verticalAccuracy=-1.0;
 #if 0
 				NSLog(@"Q=%@", [a objectAtIndex:6]);	// quality
 				NSLog(@"Hdil=%@", [a objectAtIndex:8]);	// horizontal dilution = precision?
