@@ -51,6 +51,7 @@
 - (BOOL) reset;	// reset modem so that the PIN must be provided again
 
 - (void) connectWWAN:(BOOL) flag;	// 0 to disconnect
+- (BOOL) isWWWANconnected;
 
 - (BOOL) _openHSO;	// (re)open FileHandle for AT command stream
 - (void) _processLine:(NSString *) line;

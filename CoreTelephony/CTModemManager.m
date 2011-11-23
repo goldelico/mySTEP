@@ -521,5 +521,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	wwan=flag;
 }
 
+- (BOOL) isWWWANconnected;
+{
+	// or should we ask the modem?
+	return wwan;
+}
+
 @end
 
