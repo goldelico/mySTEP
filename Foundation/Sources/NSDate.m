@@ -434,7 +434,7 @@ NSTimeInterval NSTimeIntervalSince1970=0.0;
 {														// ok; currently
 const char *d = [description UTF8String];					// ignores locale info
 const char *f = [format UTF8String];						// and some specifiers.
-char *newf;
+char *newf, *nfp;
 int lf = strlen(f);
 BOOL mtag = NO, dtag = NO, ycent = NO;
 BOOL fullm = NO;
@@ -459,10 +459,10 @@ BOOL zoneByAbbreviation = YES;
 										// Find the order of date elements and 
 										// translate format string into scanf 
 	order = 1;							// ready string
-	newf = objc_malloc(lf+1);
+	nfp = newf = objc_malloc(2*lf+1);
 	for (i = 0;i < lf; ++i)				// see description method for a list of
 		{								// the strftime format specifiers
-		newf[i] = f[i];
+		*nfp++ = f[i];
 
 		if (f[i] == '%')				// Only care about a format specifier
 			{
@@ -470,7 +470,7 @@ BOOL zoneByAbbreviation = YES;
 				{	
 				case '%':								// skip literal %
 					++i;
-					newf[i] = f[i];
+					*nfp++ = f[i];
 					break;
 
 				case 'Y':								// is it the year
@@ -479,7 +479,8 @@ BOOL zoneByAbbreviation = YES;
 					yord = order;
 					++order;
 					++i;
-					newf[i] = 'd';
+						*nfp++ = ycent?'4':'2';
+					*nfp++ = 'd';
 					pntr[yord] = (void *)&yd;
 					break;
 
@@ -493,12 +494,13 @@ BOOL zoneByAbbreviation = YES;
 					++i;
 					if (mtag)
 						{
-						newf[i] = 's';
+						*nfp++ = 's';
 						pntr[mord] = (void *)ms;
 						}
 					else
 						{
-						newf[i] = 'd';
+						*nfp++ = '2';
+						*nfp++ = 'u';
 						pntr[mord] = (void *)&md;
 						}
 					break;
@@ -514,12 +516,13 @@ BOOL zoneByAbbreviation = YES;
 					++i;
 					if (dtag)
 						{
-						newf[i] = 's';
+						*nfp++ = 's';
 						pntr[dord] = (void *)ds;
 						}
 					else
 						{
-						newf[i] = 'd';
+						*nfp++ = '2';
+						*nfp++ = 'u';
 						pntr[dord] = (void *)&dd;
 						}
 					break;
@@ -529,7 +532,8 @@ BOOL zoneByAbbreviation = YES;
 					hord = order;
 					++order;
 					++i;
-					newf[i] = 'd';
+					*nfp++ = '2';
+					*nfp++ = 'u';
 					pntr[hord] = (void *)&hd;
 					break;
 
@@ -537,7 +541,8 @@ BOOL zoneByAbbreviation = YES;
 					mnord = order;
 					++order;
 					++i;
-					newf[i] = 'd';
+					*nfp++ = '2';
+					*nfp++ = 'u';
 					pntr[mnord] = (void *)&mnd;
 					break;
 
@@ -545,7 +550,8 @@ BOOL zoneByAbbreviation = YES;
 					sord = order;
 					++order;
 					++i;
-					newf[i] = 'd';
+					*nfp++ = '2';
+					*nfp++ = 'u';
 					pntr[sord] = (void *)&sd;
 					break;
 
@@ -553,7 +559,7 @@ BOOL zoneByAbbreviation = YES;
 					tzord = order;
 					++order;
 					++i;
-					newf[i] = 's';
+					*nfp++ = 's';
 					pntr[tzord] = (void *)timez;
 					break;
 
@@ -561,7 +567,7 @@ BOOL zoneByAbbreviation = YES;
 					tzord = order;							// numeric format
 					++order;
 					++i;
-					newf[i] = 'd';
+					*nfp++ = 'u';
 					pntr[tzord] = (void *)&tznum;
 					zoneByAbbreviation = NO;
 					break;
@@ -570,7 +576,7 @@ BOOL zoneByAbbreviation = YES;
 					ampmord = order;
 					++order;
 					++i;
-					newf[i] = 's';
+					*nfp++ = 's';
 					pntr[ampmord] = (void *)ampm;
 					break;
 
@@ -578,7 +584,8 @@ BOOL zoneByAbbreviation = YES;
 					msord = order;
 					++order;
 					++i;
-					newf[i] = 'd';
+					*nfp++ = '3';
+					*nfp++ = 'u';
 					pntr[msord] = (void *)&msec;
 					break;
 					
@@ -588,13 +595,9 @@ BOOL zoneByAbbreviation = YES;
 								 format: @"Invalid NSCalendar date, specifier \
 								%c not recognized in format %s", f[i+1], f];
 		}	}	}
-	newf[lf] = '\0';
+	*nfp = 0;
 		
-			// Have sscanf parse and retrieve the values for us
-	
-	// !!!!
-	// FIXME: this has a fatal flaw: %d means 2 digits in date format, but any number of digits in sscanf
-	// so, we can't parse 090705 properly
+	// Have sscanf parse and retrieve the values for us
 
 	if (order != 1)
 		sscanf(d, newf, pntr[1], pntr[2], pntr[3], pntr[4], pntr[5], pntr[6],
@@ -606,7 +609,7 @@ BOOL zoneByAbbreviation = YES;
 			// Put century on year if need be
 			// +++ How do we be year 2000 compliant?
 	if (!ycent)
-		yd += 1900;
+		yd += (yd >= 70 ? 1900 : 2000);	// 1970 .. 2069
 		
 			// Possibly convert month from string to decimal number
 			// +++ how do we take locale into account?
