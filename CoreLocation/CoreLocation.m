@@ -30,7 +30,9 @@
 
 - (CLLocationDistance) distanceFromLocation:(const CLLocation *) loc;
 {
-	// Großkreis berechnen
+	if(!loc)
+		return FLT_MAX;
+	// Großkreisentfernung berechnen
 	return -1.0;
 }
 

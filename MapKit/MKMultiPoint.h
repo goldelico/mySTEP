@@ -8,7 +8,26 @@
 
 @interface MKMultiPoint : MKShape
 {
+	/*@property (nonatomic, readonly)*/ MKMapPoint *points;
+	/*@property (nonatomic, readonly)*/ NSUInteger pointCount;
+	NSUInteger capacity;
 }
+
+- (NSUInteger) pointCount;
+- (MKMapPoint *) points;
+- (void) getCoordinates:(CLLocationCoordinate2D *) coords range:(NSRange) range;
+
+@end
+
+@interface MKMultiPoint (Extension)
+
+- (void) addPoint:(MKMapPoint) point;
+- (void) addCoordinate:(CLLocationCoordinate2D) coord;
+// setPoint: atIndex:
+// setCoordinate: atIndex:
+// insertPoint: atIndex:
+// insertCoordinate: atIndex:
+- (void) removePointAtIndex:(unsigned int) idx;
 
 @end
 

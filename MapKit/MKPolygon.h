@@ -9,7 +9,14 @@
 
 @interface MKPolygon : MKMultiPoint
 {
+	NSArray *interiorPolygons;
 }
+
+- (NSArray *) interiorPolygons;
++ (MKPolygon *) polygonWithCoordinates:(CLLocationCoordinate2D *) coords count:(NSUInteger) count;
++ (MKPolygon *) polygonWithCoordinates:(CLLocationCoordinate2D *) coords count:(NSUInteger) count interiorPolygons:(NSArray *) interiorPolygons;
++ (MKPolygon *) polygonWithPoints:(MKMapPoint *) points count:(NSUInteger) count;
++ (MKPolygon *) polygonWithPoints:(MKMapPoint *) points count:(NSUInteger) count interiorPolygons:(NSArray *) interiorPolygons;
 
 @end
 

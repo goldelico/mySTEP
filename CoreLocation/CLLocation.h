@@ -13,19 +13,21 @@ typedef double CLLocationDegrees;
 typedef double CLLocationDirection;
 typedef double CLLocationSpeed;
 
-// const CLLocationCoordinate2D kCLLocationCoordinate2DInvalid = { NAN, NAN };
-
 typedef struct _CLLocationCoordinate2D
 {
 	CLLocationDegrees latitude;
 	CLLocationDegrees longitude;
 } CLLocationCoordinate2D;
 
+#if 0	// NAN macro is missing on some platforms
+const CLLocationCoordinate2D kCLLocationCoordinate2DInvalid = { NAN, NAN };
+#endif
+
 #import <CoreLocation/CLLocationManager.h>	// defines CLLocationDistance
 
 @interface CLLocation : NSObject <NSCopying, NSCoding>
 {
-@public	// well, this should not be but is the easiest way to allow the CLLocationManager to insert data received from GPS
+@public	// well, this should not be @public but is the easiest way to allow the CLLocationManager to insert data received from GPS
 	CLLocationCoordinate2D coordinate;
 	CLLocationDistance altitude;
 	CLLocationAccuracy horizontalAccuracy;

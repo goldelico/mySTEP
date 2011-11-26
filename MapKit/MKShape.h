@@ -8,7 +8,14 @@
 
 @interface MKShape : NSObject <MKAnnotation>
 {
+	/*@property(nonatomic, copy)*/ NSString *subtitle;
+	/*@property(nonatomic, copy)*/ NSString *title;
 }
+
+- (void) setSubtitle:(NSString *) s;
+- (void) setTitle:(NSString *) t;
+- (NSString *) subtitle;
+- (NSString *) title;
 
 @end
 
