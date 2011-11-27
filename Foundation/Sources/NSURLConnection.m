@@ -129,6 +129,7 @@
 			{ [self release]; return nil; }
 		_delegate=delegate;
 		_protocol=[[NSURLProtocol alloc] initWithRequest:request cachedResponse:cachedResponse client:(id <NSURLProtocolClient>) self];
+		[_protocol scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 #if 0
 		NSLog(@"  -> protocol %@", _protocol);
 #endif
@@ -140,6 +141,7 @@
 
 - (void) dealloc;
 {
+	[_protocol unscheduleFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 	[_protocol release];
 	[super dealloc];
 }

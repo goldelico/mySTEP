@@ -210,8 +210,8 @@ static NSMutableArray *_registeredClasses;
 
 // such undocumented methods must exist since NSURLConnection can be scheduled on several runloops and modes in parallel
 
-- (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode; { NIMP; }
-- (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode; { NIMP; }
+- (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode; { return; }
+- (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode; { return; }
 
 @end
 
@@ -1079,6 +1079,8 @@ static NSMutableDictionary *_httpConnections;
 	// we should store each pair in a mutable array
 	// and use them by HTTPSerialization on demand
 	// but documentation says that it is possible to change them after download has started loading (and only delegate messages may arrive in the wrong thread)
+	// therefore, we should just forward this to the HTTPSerialization objects
+	// NOTE: latest documentation (10.7) appears to have removed this description
 }
 
 - (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
@@ -1135,7 +1137,6 @@ static NSMutableDictionary *_httpConnections;
 		[_outputStream retain];
 		[_inputStream setDelegate:self];
 		[_outputStream setDelegate:self];
-		[self scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 		// set socket options for ftps requests
 		[_inputStream open];
 		[_outputStream open];

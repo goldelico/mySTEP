@@ -69,11 +69,12 @@ static int alreadyLoading=0;
 	if(!_connection)
 		{
 		alreadyLoading++;
-		_connection=[[NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:_url] delegate:self] retain];	// may immediately trigger didFailWithError:
+		_connection=[[NSURLConnection alloc] initWithRequest:[NSURLRequest requestWithURL:_url] delegate:self startImmediately:NO];
 		[_url release];
 		_url=nil;
-		[_connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSEventTrackingRunLoopMode];
-		[loadQueue removeObjectIdenticalTo:self];	// and remove (if we are in the queue)
+		[_connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSEventTrackingRunLoopMode];	// load even if we are tracking (moving the map)
+		[loadQueue removeObjectIdenticalTo:self];	// remove from queue (if we are in the queue)
+		[_connection start];	// may immediately call connection:didFailWithError:
 		}
 }
 
@@ -90,7 +91,7 @@ static int alreadyLoading=0;
 #if 1
 	NSLog(@"didFailWithError: %@", error);
 #endif
-#if 0
+#if 1
 	_image=[[NSImage alloc] initWithSize:NSMakeSize(TILEPIXELS, TILEPIXELS)];	// write error message into a tile
 //	[_image setFlipped:NO];
 	[_image lockFocus];
@@ -106,14 +107,15 @@ static int alreadyLoading=0;
 		return;	// ignore spurious callback (e.g. after didFailWithError)
 	[_connection release];
 	_connection=nil;
-	if(!_image && _data)
+	// FIXME: if the page does not exist or is temporarily not available, we may have got a html/text response!
+	if(!_image && [_data length] > 0)
 		{ // get image from data (unless we show an error message)
 		_image=[[NSImage alloc] initWithData:_data];
 //		[_image setFlipped:YES];
 		}
 	[_data release];
 	_data=nil;
-	[_delegate setNeedsDisplay:YES];	// and redisplay (we should specify a rect where we want to be updated)
+	[_delegate setNeedsDisplay:YES];	// and redisplay (we should just specify a rect where we want to be updated)
 	alreadyLoading--;
 	NSAssert(alreadyLoading >= 0, @"never become negative");
 	if([loadQueue count] > 0)
@@ -389,30 +391,29 @@ static NSMutableArray *tileLRU;
 	if(!NSIntersectsRect(drawRect, rect))
 		return NO;	// tile does not fall into drawing rect
 	url=[self tileURLForZ:z x:x y:y];	// repeat tiles if necessary
-	if(!url || !(tile=[imageCache objectForKey:url]))	// check if we already cache this tile
-		{ // not in cache - try larger or smaller tiles and trigger tile loader
-			// problem with larger tiles: must be drawn before we draw any other smaller one!
-			// i.e. we must sort according to z and draw any lower z before this z!
+	if(!url)
+		return NO;	// can't translate
+	tile=[imageCache objectForKey:url];	// check cache
+	if(!tile)
+		{ // not in cache
 			if(!flag)
 				return NO;	// and don't load
 			if(url)
-				{
-				// start tile loader
-				// if we add the first tile to load, call [delegate didStartLoading]
-				// for each tile that arrives, call setNeedsDisplayInRect:
-				// when the last tile arrives, call [delegate didFinishLoading]
+				{ // start tile loader
+#if 1
 				NSLog(@"loading %@", url);
+#endif
 				tile=[[[_MKTile alloc] initWithContentsOFURL:[NSURL URLWithString:url] forView:self] autorelease];
 				[imageCache setObject:tile forKey:url];
 				if([tileLRU count] > CACHESIZE)
-					[tileLRU removeLastObject];	// remove least recently used tile
+					[tileLRU removeLastObject];	// if we run out of space, remove least recently used tile
 				}
 			else
 				tile=nil;
 		}
 	else
-		[tileLRU removeObject:tile];
-	img=[tile image];
+		[tileLRU removeObject:tile];	// remove from current LRU position
+	img=[tile image];	// get image
 	if(img)
 		[tileLRU insertObject:tile atIndex:0];  // move to beginning of LRU list
 #if 0
@@ -435,6 +436,8 @@ static NSMutableArray *tileLRU;
 	MKZoomScale scale = MAX(worldMap.size.width / visibleMapRect.size.width, worldMap.size.height / visibleMapRect.size.height);
 	float lscale=log2(scale);
 	int z=ceil(lscale);	// basic scale
+	if(z < 0) z = 0; // limit tile scaling
+	if(z > 20) z = 20;
 	float iscale = exp2(z);	// scale factor
 	MKMapRect r=[self _mapRectForRect:rect];
 	int minx=floor(iscale*MKMapRectGetMinX(r) / worldMap.size.width);	// get tile index range at zoom z

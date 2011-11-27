@@ -53,7 +53,17 @@
 		cachedResponse:(NSCachedURLResponse *) cachedResponse
 				client:(id <NSURLProtocolClient>) client;
 - (NSURLRequest *) request;
+// FIXME: does this also schedule the connections?
 - (void) startLoading;
 - (void) stopLoading;
 
+@end
+
+// FIXME: is scheduling done at all by NSURLProtocol? Hm. Yes: only the protocol instance can schedule the underlaying transport medium
+
+@class NSRunLoop;
+
+@interface NSURLProtocol (Extension)
+- (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
+- (void) unscheduleFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
 @end
