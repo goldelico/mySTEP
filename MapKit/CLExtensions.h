@@ -47,6 +47,7 @@ typedef enum _CLLocationSource
 @interface CLLocationManager (Extensions)
 + (CLLocationSource) source;
 + (int) numberOfReceivedSatellites;
++ (int) numberOfReliableSatellites;
 + (int) numberOfVisibleSatellites;
 + (NSDate *) satelliteTime;
 + (NSArray *) satelliteInfo;

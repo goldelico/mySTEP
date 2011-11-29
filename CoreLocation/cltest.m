@@ -40,7 +40,7 @@
 		  ([CLLocationManager source]&CLLocationSourceExternalAnt)?@"ext":@"int");
 	e=[[CLLocationManager satelliteInfo] objectEnumerator];
 	while((d=[e nextObject]))
-		NSLog(@"%@ az=%@ el=%@ s/n=%@", [d objectForKey:@"PRN"], [d objectForKey:@"azimuth"], [d objectForKey:@"elevation"], [d objectForKey:@"SNR"]);
+		NSLog(@"%@ az=%@ el=%@ s/n=%@%@", [d objectForKey:@"PRN"], [d objectForKey:@"azimuth"], [d objectForKey:@"elevation"], [d objectForKey:@"SNR"], [[d objectForKey:@"used"] boolValue]?@" *":@"");
 #endif
 }
 
