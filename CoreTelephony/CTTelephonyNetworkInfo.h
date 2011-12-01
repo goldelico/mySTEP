@@ -13,7 +13,7 @@
 @protocol CTNetworkInfoDelegate
 
 - (void) subscriberCellularProviderDidUpdate:(CTCarrier *) carrier;	// SIM card was changed
-- (void) currentNetworkDidUpdate:(CTCarrier *) carrier;	// roaming
+- (void) currentNetworkDidUpdate:(CTCarrier *) carrier;	// roaming or connected/disconnected from Internet
 - (void) currentCellDidUpdate:(CTCarrier *) carrier;	// mobile operation
 - (void) signalStrengthDidUpdate:(CTCarrier *) carrier;	// also called for network type changes
 

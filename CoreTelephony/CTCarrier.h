@@ -28,6 +28,15 @@
 
 @end
 
+typedef enum _CTCarrierWWANState
+{
+	CTCarrierWWANStateDisconnected = 0,
+	CTCarrierWWANStateConnected = 1,
+	CTCarrierWWANStateCallFailed = 2,
+	CTCarrierWWANStateConnectionFailed = 3,	// e.g. bad APN
+	CTCarrierWWANStateUnknown,
+} CTCarrierWWANState;
+
 @interface CTCarrier (Extensions)
 
 - (float) strength;		// signal strength (0..1)
@@ -36,5 +45,8 @@
 - (BOOL) canChoose;		// is permitted to use
 - (void) choose;		// make this the current carrier
 - (NSString *) cellID;	// current cell ID
+
+- (void) connectWWAN:(BOOL) flag;	// YES/NO to connect/disconnect
+- (CTCarrierWWANState) WWANstate;
 
 @end

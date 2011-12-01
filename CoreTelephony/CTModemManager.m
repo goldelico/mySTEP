@@ -89,12 +89,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	modemManager=nil;
 }
 
-- (BOOL) _openHSO;
-{ // open during init or reopen after AT_ORESET
-	NSString *dir=@"/sys/class/tty";
-	NSDirectoryEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:dir];
-	NSString *typ;
-	NSString *dev=nil;
+- (void) _closeHSO;
+{
 	if(modem)
 		{ // close previous modem
 			[[NSNotificationCenter defaultCenter] removeObserver:self
@@ -102,11 +98,21 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 														  object:modem];	// don't observe any more
 			[modem release];
 			modem=nil;
-		}
+		}	
+}
+
+- (BOOL) _openHSO;
+{ // open during init or reopen after AT_ORESET
+	NSString *dir=@"/sys/class/tty";
+	NSDirectoryEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:dir];
+	NSString *typ;
+	NSString *dev=nil;
+	pinStatus=CTPinStatusUnknown;	// needs to check
+	[self _closeHSO];
 	while((typ=[e nextObject]))
 		{ // search Application interface
 		NSString *hs=[typ lastPathComponent];
-#if 1
+#if 0
 		NSLog(@"file: %@ - %@", typ, hs);
 #endif
 		if([hs hasPrefix:@"ttyHS"])
@@ -202,6 +208,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	return [self runATCommand:cmd target:nil action:NULL];
 }
 
+// FIXME: this is not reentrant!
+// Why is it a problem: because there may arrive unsolicited messages
+// while we wait for the answer and these may trigger callbacks that
+// try to run another AT command
+
 - (void) _collectResponse:(NSString *) line
 {
 	[response appendString:line];
@@ -209,10 +220,13 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (NSString *) runATCommandReturnResponse:(NSString *) cmd
 { // collect response in string
-	response=[NSMutableString stringWithCapacity:100];
+	NSMutableString *sr=response;	// save response (if we are a nested call)
+	NSMutableString *r=[NSMutableString stringWithCapacity:100];
+	response=r;	
 	if([self runATCommand:cmd target:self action:@selector(_collectResponse:)] != CTModemOk)
-		return nil;	// wasn't able to get response
-	return response;
+		r=nil;	// wasn't able to get response
+	response=sr;	// restore
+	return r;
 }
 
 - (void) _processLine:(NSString *) line;
@@ -309,9 +323,62 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NS_ENDHANDLER
 }
 
+- (BOOL) reset;
+{
+	[self _writeCommand:@"AT_ORESET"];
+	pinStatus=CTPinStatusUnknown;	// needs to ask again (if we have a SIM card without lock)
+	// kill all connections...
+	sleep(1);
+	if([self _openHSO])
+		return YES;
+	return NO;
+}
+
+- (void) _unlocked;
+{
+	CTModemManager *m=[CTModemManager modemManager];
+	pinStatus=CTPinStatusUnlocked;	// now unlocked
+	[[CTTelephonyNetworkInfo telephonyNetworkInfo] processUnsolicitedInfo:[m runATCommandReturnResponse:@"AT_OSIMOP"]];
+	[[CTTelephonyNetworkInfo telephonyNetworkInfo] processUnsolicitedInfo:[m runATCommandReturnResponse:@"AT+CSQ"]];
+}
+
+- (BOOL) sendPIN:(NSString *) p;
+{ // send pin and run additional commands after unlocking
+	if([self runATCommand:[NSString stringWithFormat:@"AT+CPIN=%@", p]] == CTModemOk)
+		{ // is accepted
+			// save PIN so that we can reuse it
+			sleep(1);	// some commands (AT_OSIMOP) do not work immediately after providing PIN
+			[self _unlocked];
+			return YES;
+		}
+	return NO;	// no SIM, wrong PIN or already unlocked
+}
+
+- (CTPinStatus) pinStatus;
+{ // get current PIN status
+	if(pinStatus == CTPinStatusUnknown)
+		{ // ask modem
+			NSString *pinstatus=[self runATCommandReturnResponse:@"AT+CPIN?"];
+			if(!pinstatus)
+				{
+				if([error hasPrefix:@"+CME ERROR: SIM not inserted"])
+					return CTPinStatusNoSIM;
+				}
+			if([pinstatus hasPrefix:@"+CPIN: READY"])
+				{ // response to AT+CPIN? - PIN is ok!
+					[self _unlocked];
+					return pinStatus;
+				}
+			if([pinstatus hasPrefix:@"+CPIN: SIM PIN"] || [pinstatus hasPrefix:@"+CPIN: SIM PUK"])
+				{ // user needs to provide pin
+					return pinStatus=CTPinStatusPINRequired;
+				}
+		}
+	return pinStatus;
+}
+
 - (IBAction) orderFrontPinPanel:(id) sender
 {
-	NSString *pinstatus;
 	NSString *pinpuk;
 	if(!pinPanel)
 		{ // try to load from NIB
@@ -321,48 +388,84 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				return;	// ignore
 				}
 		}
-	pinstatus=[self runATCommandReturnResponse:@"AT+CPIN?"];
-	[message setStringValue:@"Unknown SIM status"];
 	[pin setEditable:NO];
-	if(!pinstatus)
-		{
-		if([error hasPrefix:@"+CME ERROR: SIM not inserted"])
+	switch([self pinStatus]) {
+		case CTPinStatusNoSIM:
 			[message setStringValue:@"No SIM inserted"];
-		}
-	else if([pinstatus hasPrefix:@"+CPIN: READY"])
-		{ // response to AT+CPIN? - PIN is ok!
+			[okButton setTitle:@"Cancel"];
+			break;
+		case CTPinStatusUnlocked:
 			[message setStringValue:@"Already unlocked"];
-		}
-	else if([pinstatus hasPrefix:@"+CPIN: SIM PIN"] || [pinstatus hasPrefix:@"+CPIN: SIM PUK"])
-		{ // user needs to provide pin
-		pinpuk=[self runATCommandReturnResponse:@"AT_OERCN"];	// Improvement: could also check PIN2, PUK2
-		if([pinpuk length] > 0)
-			{ // split into pin and puk retries
-				NSArray *a=[pinpuk componentsSeparatedByString:@" "];
+			[okButton setTitle:@"Cancel"];
+			break;
+		case CTPinStatusPINRequired:
+			pinpuk=[self runATCommandReturnResponse:@"AT_OERCN"];	// Improvement: could also check PIN2, PUK2
+			if([pinpuk length] > 0)
+				{ // split into pin and puk retries
+					NSArray *a=[pinpuk componentsSeparatedByString:@" "];
 #if 0
-				NSLog(@"PIN/PUK retries: %@", pinpuk);
+					NSLog(@"PIN/PUK retries: %@", pinpuk);
 #endif
-				if([a count] == 3)
-					{
-					int pinretries=[[a objectAtIndex:1] intValue];
-					int pukretries=[[a objectAtIndex:2] intValue];
+					if([a count] == 3)
+						{
+						int pinretries=[[a objectAtIndex:1] intValue];
+						int pukretries=[[a objectAtIndex:2] intValue];
 #if 1
-					NSLog(@"%d pin retries; %d puk retries", pinretries, pukretries);
+						NSLog(@"%d pin retries; %d puk retries", pinretries, pukretries);
 #endif
-					if(pukretries != 10)
-						[message setStringValue:[NSString stringWithFormat:@"%d PUK / %d PIN retries", pukretries, pinretries]];
-					else
-						[message setStringValue:[NSString stringWithFormat:@"%d PIN retries", pinretries]];
-					}
-				[pin setEditable:YES];
-			}
+						if(pukretries != 10)
+							[message setStringValue:[NSString stringWithFormat:@"%d PUK / %d PIN retries", pukretries, pinretries]];
+						else
+							[message setStringValue:[NSString stringWithFormat:@"%d PIN retries", pinretries]];
+						}
+					[pin setEditable:YES];
+					[okButton setTitle:@"Unlock"];
+				}
+			break;
+		default:
+			[message setStringValue:@"Unknown SIM status"];			
 		}
-	else
-		NSLog(@"unknown PIN status: %@", pinstatus);	// may be +CPIN: SIM PIN2
 	[pin setStringValue:@""];	// clear
 	[pinPanel setBackgroundColor:[NSColor blackColor]];
 	[pinPanel center];
 	[pinPanel orderFront:self];
+	[pinKeypadPanel orderFront:self];
+}
+
+- (IBAction) pinOk:(id) sender;
+{ // a new pin has been provided
+	NSString *p=[pin stringValue];
+	if(![[okButton title] isEqualToString:@"Unlock"])	// either we have no SIM or are already unlocked
+		{ // cancel
+		[pinPanel orderOut:self];
+			[pinKeypadPanel orderOut:self];
+		return;
+		}
+	// store temporarily so that we can check if it returns OK or not
+	// if ok, we can save the PIN
+	if([self sendPIN:p])
+		{ // is accepted
+			[pinPanel orderOut:self];
+			[pinKeypadPanel orderOut:self];
+			return;
+		}
+	else
+		{
+		NSString *err=[self error];
+		if([err hasPrefix:@"+CME ERROR: incorrect password"])
+			;
+		// report error and keep panel open
+		[message setStringValue:@"Invalid PIN"];
+		// FIXME: will this be overwritten by PIN/PUK retries?
+		}
+}
+
+/* temporary */- (IBAction) pinKey:(id) sender;
+{
+	if([[sender title] isEqualToString:@"C"])
+		[pin setStringValue:@""];	// clear
+	else
+		[pin setStringValue:[[pin stringValue] stringByAppendingString:[sender title]]];	// type digit
 }
 
 // we may add a checkbox to reveal/hide the PIN...
@@ -374,91 +477,26 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	if(!p)
 		{
 		// loop until pin is valid?
-		NSString *pinstatus=[self runATCommandReturnResponse:@"AT+CPIN?"];
-		if(!pinstatus)
-			{
-			if([error hasPrefix:@"+CME ERROR: SIM not inserted"])
-				{
+		switch([self pinStatus]) {
+			case CTPinStatusNoSIM:
 				[[NSAlert alertWithMessageText:@"NO SIM"
 								 defaultButton:@"Ok"
 							   alternateButton:nil
 								   otherButton:nil
-						informativeTextWithFormat:@"No SIM inserted"] runModal];
+					 informativeTextWithFormat:@"No SIM inserted"] runModal];
 				return NO;
-				}
-			[[NSAlert alertWithMessageText:@"SIM Error"
-							 defaultButton:@"Ok"
-						   alternateButton:nil
-							   otherButton:nil
-				 informativeTextWithFormat:@"Error accessing SIM: %@", error] runModal];
-			return NO;	// wasn't able to access modem
-			}
-		if([pinstatus hasPrefix:@"+CPIN: READY"])
-			{ // response to AT+CPIN? - PIN is ok!
-				NSString *simop;
-				// ask information that is only available with PIN
-				CTModemManager *m=[CTModemManager modemManager];
-				simop=[m runATCommandReturnResponse:@"AT_OSIMOP"];
-				if(simop)
-					{ // home plnm - _OSIMOP: “<long_op>”,”<short_op>”, ”<MCC_MNC>”
-						NSScanner *sc=[NSScanner scannerWithString:simop];
-						NSString *name=@"unknown";
-						[sc scanString:@"_OSIMOP: \"" intoString:NULL];
-						[sc scanUpToString:@"\"" intoString:&name];
-						[[[CTTelephonyNetworkInfo telephonyNetworkInfo] subscriberCellularProvider] _setCarrierName:name];
-#if 1
-						NSLog(@"carrier name=%@", name);
-#endif
-					}
-				else
-					NSLog(@"AT_OSIMOP error: %@", [m error]);
+			case CTPinStatusUnlocked:
 				return YES;
-			}
-		if([pinstatus hasPrefix:@"+CPIN: SIM PIN"] || [pinstatus hasPrefix:@"+CPIN: SIM PUK"])
-			{
-			// loop while panel is open (so that the user can cancel it)
-			[self orderFrontPinPanel:nil];
-			// loop modal while panel is open
-			// return YES if PIN was successfully provided
-			return YES;
-			}
-		NSLog(@"unknown PIN status: %@", pinstatus);	// may be +CPIN: SIM PIN2
-		return NO;
+			case CTPinStatusPINRequired:
+				if(p && [self sendPIN:p])
+					return YES;	// successful - otherwise open panel
+				// loop while panel is open (so that the user can cancel it)
+				[self orderFrontPinPanel:nil];
+				// loop modal while panel is open
+				// return YES only if PIN was successfully provided, NO if cancelled
+				return YES;
 		}
-	else
-		// AT+CPIN=number
-		; // check if given pin is valid (can be used for a screen saver)
-	return NO;
-}
-
-- (IBAction) pinOk:(id) sender;
-{ // a new pin has been provided
-	NSString *p=[pin stringValue];
-	// store temporarily so that we can check if it returns OK or not
-	// if ok, we can save the PIN
-	if([self runATCommand:[NSString stringWithFormat:@"AT+CPIN=%@", p]] == CTModemOk)
-		{ // is accepted
-		// save PIN
-		[pinPanel orderOut:self];
-			// run AT_OSIMOP
 		}
-	else
-		{
-		NSString *err=[self error];
-		if([err hasPrefix:@"+CME ERROR: incorrect password"])
-			[self checkPin:nil];	// check again and update Retries counter
-		// report error and keep panel open
-		}
-}
-
-- (BOOL) reset;
-{
-	[self _writeCommand:@"AT_ORESET"];
-	wwan=NO;
-	// kill all connections...
-	sleep(1);
-	if([self _openHSO])
-		return YES;
 	return NO;
 }
 
@@ -470,62 +508,4 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	return NO;
 }
 
-- (void) connectWWAN:(BOOL) flag;	// 0 to disconnect
-{
-	if(!wwan && flag)
-		{ // set up WWAN connection
-			NSString *data;
-			// see: http://blog.mobilebroadbanduser.eu/page/Worldwide-Access-Point-Name-%28APN%29-list.aspx#403
-			NSString *apn=@"web.vodafone.de";	// lookup in some database?
-			NSArray *a;
-			// cdgcont has numbers (1)
-			[self runATCommand:[NSString stringWithFormat:@"AT+CGDCONT=1,\"%@\",\"%@\"", @"ip", apn]];
-			[self runATCommand:@"AT_OWANCALL=1,1,1"];	// context #1, start, send unsolicited response
-			// will give unsolicited response: _OWANCALL: 1, 1
-
-			// FIXME: should we do that after receiving _OWANCALL: 1, 1?
-			// FIXME: we could receive _OWANCALL: 1, 3 - if the APN is wrong
-			// FIXME: we could receive _OWANCALL: 1,0 if disconnected
-			
-			sleep(1);
-			data=[self runATCommandReturnResponse:@"AT_OWANDATA?"];	// e.g. _OWANDATA: 1, 10.152.124.183, 0.0.0.0, 193.189.244.225, 193.189.244.206, 0.0.0.0, 0.0.0.0,144000
-			if(!data)
-				{ // some error!
-				
-				}
-			a=[data componentsSeparatedByString:@","];
-			NSLog(@"Internet config: %@", a);
-			if([a count] >= 7)
-				{
-				NSMutableString *resolv=[NSMutableString stringWithContentsOfFile:@"/etc/resolv.conf"];
-				NSString *cmd=[NSString stringWithFormat:@"ifconfig hso0 '%@' netmask 255.255.255.255 up",
-							   [[a objectAtIndex:1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
-				NSLog(@"system: %@", cmd);
-				system([cmd UTF8String]);
-				if(!resolv) resolv=[NSMutableString string];
-				[resolv appendFormat:@"nameserver %@ # wwan\n",
-					[[a objectAtIndex:3] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
-				[resolv appendFormat:@"nameserver %@ # wwan\n",
-					[[a objectAtIndex:4] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
-				[resolv writeToFile:@"/etc/resolv.conf" atomically:NO];
-				NSLog(@"resolv=%@", resolv);
-				}
-		}
-	else if(wwan && !flag)
-		{ // disable WWAN connection
-			system("ifconfig hso0 down");
-			[self runATCommand:@"AT_OWANCALL=1,0,1"];	// stop
-			// will give unsolicited response: _OWANCALL: 1, 0 
-			// restore resolv.conf
-		}
-	wwan=flag;
-}
-
-- (BOOL) isWWWANconnected;
-{
-	// or should we ask the modem?
-	return wwan;
-}
-
 @end
-

@@ -24,3 +24,8 @@
 - (void) _setCellID:(NSString *) n;
 
 @end
+
+@interface CTTelephonyNetworkInfo (Private)
+- (void) processUnsolicitedInfo:(NSString *) line;
+@end
+

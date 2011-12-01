@@ -175,17 +175,23 @@ static BOOL _isOnExternalPower;
 
 + (void) sleep;
 {
-	system([[NSSystemStatus sysInfoForKey:@"Sleep"] UTF8String]);
+	// make some LED show suspend state (i.e. blink on low power)
+//	system([[NSSystemStatus sysInfoForKey:@"Sleep"] UTF8String]);
+	system("echo mem >/sys/power");
 }
 
 + (void) shutdown;
 {
-	system([[NSSystemStatus sysInfoForKey:@"Shutdown"] UTF8String]);
+	// make some LED show "shutting down" state (Power Button blinking red)
+//	system([[NSSystemStatus sysInfoForKey:@"Shutdown"] UTF8String]);
+	system("poweroff");
 }
 
 + (void) reboot;
 {
-	system([[NSSystemStatus sysInfoForKey:@"Reboot"] UTF8String]);
+	// make some LED show "rebooting" state (Power Button blinking green)
+//	system([[NSSystemStatus sysInfoForKey:@"Reboot"] UTF8String]);
+	system("reboot");
 }
 
 + (BOOL) isOnExternalPower;

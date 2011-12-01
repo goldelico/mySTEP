@@ -8,6 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 
+typedef enum _CTPinStatus
+{
+	CTPinStatusUnknown = 0,
+	CTPinStatusNoSIM,
+	CTPinStatusUnlocked,
+	CTPinStatusPINRequired,
+} CTPinStatus;
 
 @interface CTModemManager : NSObject
 {
@@ -19,10 +26,12 @@
 	IBOutlet NSTextField *message;
 	IBOutlet NSSecureTextField *pin;
 	IBOutlet NSButton *okButton;
+/* temporary */	IBOutlet NSPanel *pinKeypadPanel;	// until we have a system-wide keyboard or HWR
 	id /*nonretained*/ target;
 	id /*nonretained*/ unsolicitedTarget;
 	SEL action;
 	SEL unsolicitedAction;
+	CTPinStatus pinStatus;
 	enum {
 		CTModemTimeout,
 		CTModemError,
@@ -30,7 +39,6 @@
 	} status;	
 	BOOL done;	// last AT command is done
 	BOOL atstarted;	// last AT command echo received
-	BOOL wwan;
 }
 
 + (CTModemManager *) modemManager;
@@ -44,14 +52,16 @@
 
 - (NSString *) error;
 
+- (CTPinStatus) pinStatus;
+- (BOOL) sendPIN:(NSString *) pin;	// try to unlock
+- (BOOL) reset;	// reset modem to CTPinStatusPINRequired
+
 - (IBAction) orderFrontPinPanel:(id) sender;
 - (IBAction) pinOk:(id) sender;
+/* temporary */- (IBAction) pinKey:(id) sender;
+
 - (BOOL) checkPin:(NSString *) pin;	// get PIN status and ask if nil and none specified yet
 - (BOOL) changePin:(NSString *) pin toNewPin:(NSString *) new;
-- (BOOL) reset;	// reset modem so that the PIN must be provided again
-
-- (void) connectWWAN:(BOOL) flag;	// 0 to disconnect
-- (BOOL) isWWWANconnected;
 
 - (BOOL) _openHSO;	// (re)open FileHandle for AT command stream
 - (void) _processLine:(NSString *) line;
