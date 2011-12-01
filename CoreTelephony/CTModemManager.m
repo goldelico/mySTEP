@@ -65,6 +65,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		/* custom initialization here */
 		if(![self _openHSO])
 			{
+			SINGLETON_VARIABLE = nil;
 			[self release];
 			return nil;
 			}
@@ -311,6 +312,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) _writeCommand:(NSString *) str;
 {
+	NSAssert(modem, @"needs NSFileHandle");
 #if 1
 	fprintf(stderr, "WWAN w (done=%d at=%d): %s\n", done, atstarted, [[str description] UTF8String]);
 	//	NSLog(@"WWAN w: %@", str);
