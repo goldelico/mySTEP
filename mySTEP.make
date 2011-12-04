@@ -173,6 +173,10 @@ endif
 endif
 endif
 
+ifeq ($(DEBIAN_ARCHITECTURES),)
+DEBIAN_ARCHITECTURES=i386 armel mipsel
+endif
+
 build:
 ### check if meta package
 ### copy/install $DATA and $FILES
@@ -184,7 +188,7 @@ build:
 ### FIXME: directly use the DEBIAN_ARCH names for everything
 
 	# make for all architectures $(ARCHITECTURES)
-	for DEBIAN_ARCH in i386 armel mipsel; do \
+	for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 		case "$$DEBIAN_ARCH" in \
 			i386 ) export ARCHITECTURE=i486-debianetch-linux-gnu;; \
 			arm ) export ARCHITECTURE=arm-zaurus-linux-gnu;; \
@@ -373,10 +377,12 @@ endif
 SVN_VERSION := $(shell svnversion)
 DEBIAN_VERSION := 0.$(shell if expr "$(SVN_VERSION)" : '.*:.*' >/dev/null; then expr "$(SVN_VERSION)" : '.*:\([0-9]*\).*' + 200; else expr "$(SVN_VERSION)" : '\([0-9]*\).*' + 200; fi )
 
+DEBDIST="$(ROOT)/System/Installation/Debian/dists/unstable/main"
+
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
 build_deb: make_bundle make_exec make_binary install_tool \
-	"$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
-	"$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" 
+	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" \
+	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" 
 
 # FIXME: use different /tmp/data subdirectories for each running make
 
@@ -384,9 +390,9 @@ TMP_DATA := data
 TMP_CONTROL := control
 TMP_DEBIAN_BINARY := debian-binary
 
-"$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
+"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
 	# make debian package $(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
-	mkdir -p "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)" "$(ROOT)/System/Installation/Debian/archive"
+	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	- rm -rf "/tmp/$(TMP_DATA)"
 	- mkdir -p "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)"
 ifneq ($(SOURCES),)
@@ -422,16 +428,16 @@ endif
 	  echo "Description: this is part of mySTEP/QuantumSTEP"; \
 	) >"/tmp/$(TMP_CONTROL)"
 	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz -C /tmp ./control $(DEBIAN_CONTROL)
-	- mv -f "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" "$(ROOT)/System/Installation/Debian/archive" 2>/dev/null
+	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	- rm -rf $@
 	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
 	ls -l $@
 
-"$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
+"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
 	# FIXME: make also dependent on location (i.e. public */Frameworks/ only)
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian development package
-	mkdir -p "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)" "$(ROOT)/System/Installation/Debian/archive"
+	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	- rm -rf /tmp/data
 	- mkdir -p "/tmp/data/$(ROOT)$(INSTALL_PATH)"
 	# explicitly include Headers
@@ -459,7 +465,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	) >/tmp/control
 	$(TAR) czf /tmp/control.tar.gz -C /tmp ./control
 	- rm -rf $@
-	- mv -f "$(ROOT)/System/Installation/Debian/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_"*"_$(DEBIAN_ARCH).deb" "$(ROOT)/System/Installation/Debian/archive" 2>/dev/null
+	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
 	ls -l $@
 else
