@@ -64,7 +64,7 @@ export ROOT=/usr/share/QuantumSTEP	# project root
 
 ########################### end to cut here ###########################
 
-#  7. change the SRC= line to include all required source files (e.g. main.m other/*.m)
+#  7. change the SOURCES= line to include all required source files (e.g. main.m other/*.m)
 #  8. change the LIBS= line to add any non-standard libraries (e.g. -lsqlite3)
 #  9. Build the project (either in deployment or development mode)
 #
@@ -187,7 +187,8 @@ build:
 
 ### FIXME: directly use the DEBIAN_ARCH names for everything
 
-	# make for all architectures $(ARCHITECTURES)
+ifneq ($(DEBIAN_ARCHITECTURES),)
+	# make for architectures $(DEBIAN_ARCHITECTURES)
 	for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 		case "$$DEBIAN_ARCH" in \
 			i386 ) export ARCHITECTURE=i486-debianetch-linux-gnu;; \
@@ -199,7 +200,10 @@ build:
 		echo "*** building for $$DEBIAN_ARCH using cross-tools $$ARCHITECTURE ***"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
 		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_deb; \
-		done		
+		done
+endif
+ifneq ($(ARCHITECTURES),)
+	# make for architectures $(ARCHITECTURES)
 	for ARCH in $(ARCHITECTURES); do \
 		if [ "$$ARCH" = "i386-apple-darwin" ] ; then continue; fi; \
 		echo "*** building for $$ARCH ***"; \
@@ -207,6 +211,7 @@ build:
 		export ARCHITECTURES="$$ARCHITECTURES"; \
 		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_architecture; \
 		done
+endif
 
 __dummy__:
 	# dummy target to allow for comments while setting more make variables
@@ -346,6 +351,7 @@ make_binary: "$(BINARY)"
 	ls -l "$(BINARY)"
 else
 make_binary:
+	# no sources - no binary
 endif
 
 #
@@ -374,8 +380,11 @@ endif
 # this allows to rebuild packages with updated numbers just after checkin of changes
 
 # DEBIAN_VERSION = 0.$(BUILD_NUMBER)
+ifeq ($(DEBIAN_VERSION),)
+# read from SVN
 SVN_VERSION := $(shell svnversion)
 DEBIAN_VERSION := 0.$(shell if expr "$(SVN_VERSION)" : '.*:.*' >/dev/null; then expr "$(SVN_VERSION)" : '.*:\([0-9]*\).*' + 200; else expr "$(SVN_VERSION)" : '\([0-9]*\).*' + 200; fi )
+endif
 
 DEBDIST="$(ROOT)/System/Installation/Debian/dists/unstable/main"
 
@@ -402,7 +411,7 @@ ifneq ($(FILES),)
 	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)" && tar xvzf -)
 endif
 ifneq ($(DATA),)
-	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)/$(DATA)" . | (cd "/tmp/$(TMP_DATA)/" && tar xvzf -)
+	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && tar xvzf -)
 endif
 	# strip all executables down to the minimum
 	find "/tmp/$(TMP_DATA)" "(" -name '*-*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
@@ -427,7 +436,7 @@ endif
 	  echo "Priority: optional"; \
 	  echo "Description: this is part of mySTEP/QuantumSTEP"; \
 	) >"/tmp/$(TMP_CONTROL)"
-	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz -C /tmp ./control $(DEBIAN_CONTROL)
+	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) -C /tmp ./control
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	- rm -rf $@
 	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
@@ -463,7 +472,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  echo "Priority: optional"; \
 	  echo "Description: this is part of mySTEP/QuantumSTEP"; \
 	) >/tmp/control
-	$(TAR) czf /tmp/control.tar.gz -C /tmp ./control
+	$(TAR) czf /tmp/control.tar.gz $(DEBIAN_CONTROL) -C /tmp ./control
 	- rm -rf $@
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
@@ -528,7 +537,7 @@ clean:
 # FIXME: use dependencies to link only if any object file has changed
 
 "$(BINARY)":: $(OBJECTS)
-	# link $(OBJECTS) -> $(BINARY)
+	# link $(SOURCES) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
 	$(CC) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	# compiled.
