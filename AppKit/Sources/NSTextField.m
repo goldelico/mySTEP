@@ -202,10 +202,12 @@
 - (BOOL) trackMouse:(NSEvent *)event inRect:(NSRect)cellFrame ofView:(NSView *)controlView untilMouseUp:(BOOL)untilMouseUp
 {
 #if 1
-	NSLog(@"NSTextField trackMouse:");
+	NSLog(@"NSTextFieldCell trackMouse:");
 #endif
 	if([self isSelectable])
 		{ // start editing
+			// how does this work if we have no controlView like DOMHTMLInputElements in SWK?
+			// FIXME: delegate:[self target]?	// for making <input> work in SWK
 		[self editWithFrame:[self drawingRectForBounds:cellFrame] 			
 					  inView:controlView				
 					  editor:[[controlView window] fieldEditor:YES forObject:self]	
@@ -227,7 +229,7 @@
 - (id) initWithCoder:(NSCoder *)aDecoder
 {
 #if 0
-	NSLog(@"%@ -[NSTextField initWithCoder:] %@", self, aDecoder);
+	NSLog(@"%@ -[NSTextFieldCell initWithCoder:] %@", self, aDecoder);
 #endif
 	self=[super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
