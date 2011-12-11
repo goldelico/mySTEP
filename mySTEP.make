@@ -361,10 +361,6 @@ endif
 
 # add default dependency
 
-ifeq ($(DEPENDS),)
-DEPENDS := "quantumstep-cocoa-framework"
-endif
-
 # FIXME: eigentlich sollte zu jedem mit mystep-/quantumstep- beginnenden Eintrag von "DEPENDS" ein >= $(VERSION) zugefügt werden
 # damit auch abhängige Pakete einen Versions-Upgrade bekommen
 
@@ -373,6 +369,16 @@ ifeq ($(WRAPPER_EXTENSION),)
 DEBIAN_PACKAGE_NAME = $(shell echo "QuantumSTEP-$(PRODUCT_NAME)" | tr "[:upper:]" "[:lower:]")
 else
 DEBIAN_PACKAGE_NAME = $(shell echo "QuantumSTEP-$(PRODUCT_NAME)-$(WRAPPER_EXTENSION)" | tr "[:upper:]" "[:lower:]")
+endif
+endif
+
+ifeq ($(DEBIAN_DESCRIPTION),)
+DEBIAN_DESCRIPTION = "this is part of mySTEP/QuantumSTEP"
+ifeq ($(DEPENDS),)
+DEPENDS := "quantumstep-cocoa-framework"
+endif
+ifeq ($(DEBIAN_SECTION),)
+DEBIAN_SECTION = "x11"
 endif
 endif
 
@@ -430,11 +436,11 @@ endif
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
 	  echo "Maintainer: info@goldelico.com"; \
 	  echo "Homepage: http://www.quantum-step.com"; \
-	  echo "Depends: $(DEPENDS)"; \
-	  echo "Section: x11"; \
+	  [ "$(DEPENDS)" ] && echo "Depends: $(DEPENDS)"; \
+	  echo "Section: $(DEBIAN_SECTION)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
 	  echo "Priority: optional"; \
-	  echo "Description: this is part of mySTEP/QuantumSTEP"; \
+	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)"
 	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) -C /tmp ./control
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
@@ -466,11 +472,11 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
 	  echo "Maintainer: info@goldelico.com"; \
 	  echo "Homepage: http://www.quantum-step.com"; \
-	  echo "Depends: $(DEPENDS)"; \
-	  echo "Section: x11"; \
+	  [ "$(DEPENDS)" ] && echo "Depends: $(DEPENDS)"; \
+	  echo "Section: $(DEBIAN_SECTION)"; \
 	  echo "Installed-Size: `du -kHs /tmp/data | cut -f1`"; \
 	  echo "Priority: optional"; \
-	  echo "Description: this is part of mySTEP/QuantumSTEP"; \
+	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >/tmp/control
 	$(TAR) czf /tmp/control.tar.gz $(DEBIAN_CONTROL) -C /tmp ./control
 	- rm -rf $@
