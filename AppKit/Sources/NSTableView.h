@@ -301,6 +301,53 @@ dataCellForTableColumn:(NSTableColumn *) tableColumn
 
 @end
 
+@protocol NSTableViewDelegate	// Implemented by a delegate
+- (BOOL) selectionShouldChangeInTableView:(NSTableView *) aTableView;
+- (NSCell *) tableView:(NSTableView *) tableView 
+dataCellForTableColumn:(NSTableColumn *) tableColumn 
+				   row:(NSInteger) row; 
+- (void) tableView:(NSTableView *) tableView didClickTableColumn:(NSTableColumn *) col;
+- (void) tableView:(NSTableView *) tableView didDragTableColumn:(NSTableColumn *) col;
+- (CGFloat) tableView:(NSTableView *) tableView heightOfRow:(NSInteger) row;
+- (BOOL) tableView:(NSTableView *) tableView isGroupRow:(NSInteger) row; 
+- (void) tableView:(NSTableView *) tableView mouseDownInHeaderOfTableColumn:(NSTableColumn *) col;
+- (NSInteger) tableView:(NSTableView *) tableView 
+nextTypeSelectMatchFromRow:(NSInteger) fromRow 
+				  toRow:(NSInteger) toRow 
+			  forString:(NSString *) searchStr; 
+- (NSIndexSet *) tableView:(NSTableView *) tableView 
+selectionIndexesForProposedSelection:(NSIndexSet *) indexes; 
+- (BOOL) tableView:(NSTableView *) tableView 
+shouldEditTableColumn:(NSTableColumn *) tableColumn 
+			   row:(NSInteger) row;
+- (BOOL) tableView:(NSTableView *) tableView shouldSelectRow:(NSInteger) row;
+- (BOOL) tableView:(NSTableView *) tableView shouldSelectTableColumn:(NSTableColumn *) tableColumn;
+- (BOOL) tableView:(NSTableView *) tableView 
+shouldShowCellExpansionForTableColumn:(NSTableColumn *) tableColumn 
+			   row:(NSInteger) row; 
+- (BOOL) tableView:(NSTableView *) tableView 
+   shouldTrackCell:(NSCell *) cell 
+	forTableColumn:(NSTableColumn *) tableColumn 
+			   row:(NSInteger) row; 
+- (BOOL) tableView:(NSTableView *) tableView 
+shouldTypeSelectForEvent:(NSEvent *) evt 
+withCurrentSearchString:(NSString *) searchStr; 
+- (NSString *) tableView:(NSTableView *) tableView
+		  toolTipForCell:(NSCell *) cell
+					rect:(NSRectPointer) rect
+			 tableColumn:(NSTableColumn *) col
+					 row:(NSInteger) row
+		   mouseLocation:(NSPoint) mouse;
+- (NSString *) tableView:(NSTableView *) tableView 
+typeSelectStringForTableColumn:(NSTableColumn *) tableColumn 
+					 row:(NSInteger) row; 
+- (void) tableView:(NSTableView *) tableView 
+   willDisplayCell:(id) cell 
+	forTableColumn:(NSTableColumn *) tableColumn 
+			   row:(NSInteger) row;
+
+@end
+
 @interface NSObject (NSTableViewNotifications)
 
 - (void) tableViewColumnDidMove:(NSNotification *) notification;
@@ -345,6 +392,37 @@ extern NSString *NSTableViewSelectionIsChangingNotification;
 	  toPasteboard:(NSPasteboard *) pasteboard; /* DEPRECATED */
 - (BOOL) tableView:(NSTableView *) tableView 
 		 writeRowsWithIndexes:(NSIndexSet *) indexes 
+	  toPasteboard:(NSPasteboard *) pasteboard; 
+
+@end
+
+@protocol NSTableDataSource	// Implemented by a datasource
+- (NSInteger) numberOfRowsInTableView:(NSTableView *) tableView;
+- (BOOL) tableView:(NSTableView *) tableView 
+		acceptDrop:(id < NSDraggingInfo >) info 
+			   row:(NSInteger) row 
+	 dropOperation:(NSTableViewDropOperation) op;
+- (NSArray *) tableView:(NSTableView *) tableView 
+namesOfPromisedFilesDroppedAtDestination:(NSURL *) dest 
+forDraggedRowsWithIndexes:(NSIndexSet *) indexes;
+- (id) tableView:(NSTableView *) tableView 
+objectValueForTableColumn:(NSTableColumn *) tableColumn 
+			 row:(NSInteger)row;
+- (void) tableView:(NSTableView *) tableView 
+	setObjectValue:(id) object 
+	forTableColumn:(NSTableColumn *) tableColumn 
+			   row:(NSInteger) row;
+- (void) tableView:(NSTableView *) tableView 
+sortDescriptorsDidChange:(NSArray *) descriptors;
+- (NSDragOperation) tableView:(NSTableView *) tableView 
+				 validateDrop:(id < NSDraggingInfo >) info 
+				  proposedRow:(NSInteger) row 
+		proposedDropOperation:(NSTableViewDropOperation) op;
+- (BOOL) tableView:(NSTableView *) tableView 
+		 writeRows:(NSArray *) rows 
+	  toPasteboard:(NSPasteboard *) pasteboard; /* DEPRECATED */
+- (BOOL) tableView:(NSTableView *) tableView 
+writeRowsWithIndexes:(NSIndexSet *) indexes 
 	  toPasteboard:(NSPasteboard *) pasteboard; 
 
 @end
