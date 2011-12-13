@@ -79,7 +79,7 @@ extern int system(const char *cmd);
 
 - (id) copyWithZone:(NSZone *) zone
 {
-	CW8021XProfile *p=[super copyWithZone:zone];
+	CW8021XProfile *p=[super allocWithZone:zone];
 	p->_password=[_password copyWithZone:zone];
 	p->_ssid=[_ssid copyWithZone:zone];
 	p->_userDefinedName=[_userDefinedName copyWithZone:zone];
@@ -831,14 +831,25 @@ extern int system(const char *cmd);
 			{
 			_noise=[[NSNumber alloc] initWithFloat:(float)[[q objectAtIndex:2] intValue]];
 			_rssi=[[NSNumber alloc] initWithFloat:(float)[[q objectAtIndex:1] intValue]];
-			// quality?
+			// quality [[q objectAtIndex:1] intValue]
 			}
 		_phyMode=[[NSNumber alloc] initWithInt:kCWPHYMode11N];	// get from Bit Rates entry and Frequency
 		_securityMode=kCWSecurityModeOpen;
 		m=[attribs objectForKey:@"Encryption key"];
 		if([m hasPrefix:@"off"])
-			;
-		// decode other options
+			_securityMode=[[NSNumber alloc] initWithInt:kCWSecurityModeOpen];
+		else 
+			{ // assume "on"
+				m=[attribs objectForKey:@"IE"];
+				if([m hasPrefix:@"WEP"])
+					_securityMode=[[NSNumber alloc] initWithInt:kCWSecurityModeWEP];
+				else if([m hasPrefix:@"WEP"])
+					_securityMode=[[NSNumber alloc] initWithInt:kCWSecurityModeWPA_PSK];
+				else if([m hasPrefix:@"IEEE 802.11i/WPA2 Version 1"])
+					_securityMode=[[NSNumber alloc] initWithInt:kCWSecurityModeWPA2_PSK];
+				else
+					NSLog(@"unknown Encryption: %@", m);
+			}
 		_ssid=[[[attribs objectForKey:@"ESSID"] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"\""]] retain];
 		}
 	return self;
