@@ -54,7 +54,7 @@ NSColor *fillColour = nil;
 		{
 		_isIndeterminate = YES;
 		_isBezeled = YES;
-		_usesThreadedAnimation = NO;
+		_usesThreadedAnimation = YES;
 		_animationDelay = 5.0 / 60.0;	// 1 twelfth of a second
 		_doubleValue = 0.0;
 		_minValue = 0.0;
@@ -104,7 +104,10 @@ NSColor *fillColour = nil;
 													  userInfo: nil
 													   repeats: YES]);
 	_isRunning = YES;
-	[self setNeedsDisplay:YES];
+	if (_usesThreadedAnimation)
+		[self display];	// most likely the programmer assumes that it becomes at least visible without entering a runloop
+	else
+		[self setNeedsDisplay:YES];
 }
 
 - (void) stopAnimation:(id)sender
@@ -119,7 +122,10 @@ NSColor *fillColour = nil;
 	[_timer release];
 	_timer=nil;
 	_isRunning=NO;
-	[self setNeedsDisplay:YES];
+	if (_usesThreadedAnimation)
+		[self display];	// most likely the programmer assumes that it becomes at least visible without entering a runloop
+	else
+		[self setNeedsDisplay:YES];
 }
 
 - (BOOL) usesThreadedAnimation
@@ -314,6 +320,7 @@ NSColor *fillColour = nil;
 			_isDisplayedWhenStopped = DISPLAYED_WHEN_STOPPED;
 			_isIndeterminate = INDETERMINATE;
 			_isBezeled = YES;
+			_usesThreadedAnimation = YES;
 			
 		_minValue=[aDecoder decodeFloatForKey:@"NSMinValue"];
 		_maxValue=[aDecoder decodeFloatForKey:@"NSMaxValue"];
