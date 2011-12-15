@@ -32,6 +32,7 @@
 	float _width;
 	int _tag;
 	BOOL _enabled;
+	BOOL _highlighted;
 	BOOL _selected;
 }
 - (NSString *) label;
@@ -42,6 +43,7 @@
 - (float) autoWidth;
 - (int) tag;
 - (BOOL) enabled;
+- (BOOL) highlighted;
 - (BOOL) selected;
 - (void) setLabel:(NSString *) label;
 - (void) setTooltip:(NSString *) tooltip;
@@ -50,7 +52,8 @@
 - (void) setWidth:(float) width;		// 0.0 = autosize
 - (void) setTag:(int) tag;
 - (void) setEnabled:(BOOL) enabled;
-- (int) setSelected:(BOOL) selected;
+- (void) setHighlighted:(BOOL) selected;
+- (void) setSelected:(BOOL) selected;
 @end
 
 @implementation NSSegmentItem
@@ -75,13 +78,14 @@
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"NSSegmentItem:%@ tag=%d image=%@ menu=%@ tooltip=%@ enabled=%d selected=%d",
+	return [NSString stringWithFormat:@"NSSegmentItem:%@ tag=%d image=%@ menu=%@ tooltip=%@ enabled=%d highlighted=%d selected=%d",
 		_label,
 		_tag,
 		_image,
 		_menu,
 		_tooltip,
 		_enabled,
+		_highlighted,
 		_selected];
 }
 
@@ -92,6 +96,7 @@
 - (float) width; { return _width; }
 - (int) tag; { return _tag; }
 - (BOOL) enabled; { return _enabled; }
+- (BOOL) highlighted; { return _highlighted; }
 - (BOOL) selected; { return _selected; }
 
 - (float) autoWidth;
@@ -108,7 +113,8 @@
 - (void) setWidth:(float) width; { _width=width; }
 - (void) setTag:(int) tag; { _tag=tag; }
 - (void) setEnabled:(BOOL) enabled; { _enabled=enabled; }
-- (int) setSelected:(BOOL) selected; { if(_selected == selected) return 0; return (_selected=selected)?1:-1; }
+- (void) setHighlighted:(BOOL) flag; { _highlighted=flag; }
+- (void) setSelected:(BOOL) selected; { _selected=selected; }
 
 - (void) encodeWithCoder:(NSCoder *) aCoder
 {
@@ -148,7 +154,6 @@
 	if((self=[super initTextCell:aString]))
 		{
 			[self setAlignment:NSCenterTextAlignment];
-			_lastSelected=-1;	// none
 			_segments=[[NSMutableArray alloc] initWithCapacity:10];
 		}
 	return self;
@@ -159,7 +164,6 @@
 	NSSegmentedCell *c = [super copyWithZone:zone];
 	if(c)
 		{
-		c->_lastSelected=_lastSelected;
 		c->_mode=_mode;
 //	c->_count=_count;
 //	c->_capacity=_capacity;
@@ -195,7 +199,7 @@
 }
 
 - (void) drawInteriorWithFrame:(NSRect)frame inView:(NSView*)controlView
-{ // we don't use this method...
+{ // we can't use this method since we can't distingush between interior and exterior
 }
 
 - (void) drawSegment:(int) i inFrame:(NSRect) frame withView:(NSView *) controlView;
@@ -204,7 +208,7 @@
 	int border=(i==0?1:0)+(i==[_segments count]-1?2:0);
 	NSImage *img;
 	_c.enabled=[s enabled];	// copy status of current cell
-	[NSBezierPath _drawRoundedBezel:border inFrame:frame enabled:[(NSSegmentedControl *) controlView isEnabled] && _c.enabled selected:[s selected] highlighted:_c.highlighted radius:5.0];
+	[NSBezierPath _drawRoundedBezel:border inFrame:frame enabled:(_c.enabled && [(NSSegmentedControl *) controlView isEnabled]) selected:[s selected] highlighted:(_c.highlighted && [s highlighted]) radius:5.0];
 	if((img=[s image]))
 		{ // composite segment image
 		[img drawAtPoint:frame.origin fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
@@ -217,25 +221,43 @@
 { // check to which subcell we have to forward tracking
 	NSPoint loc=[event locationInWindow];
 	NSRect frame=cellFrame;
-	unsigned int i=0, count=[_segments count];
+	unsigned int count=[_segments count];
 	loc = [controlView convertPoint:loc fromView:nil];
 #if 1
 	NSLog(@"NSSegmentedCell trackMouse:%@ inRect:%@", NSStringFromPoint(loc), NSStringFromRect(cellFrame));
 #endif
-	while(i < count && frame.origin.x < cellFrame.size.width)
+	if(_trackedSegment < [_segments count])
+		{
+		[[_segments objectAtIndex:_trackedSegment] setHighlighted:NO];	// remove highlighting
+		[controlView setNeedsDisplayInRect:cellFrame];		// could be restriced to highlighting position
+		}
+	_trackedSegment=0;
+	while(_trackedSegment < count && frame.origin.x < cellFrame.size.width)
 		{ // there is still room for a segment
-		frame.size.width=[[_segments objectAtIndex:i] autoWidth];
+		frame.size.width=[[_segments objectAtIndex:_trackedSegment] autoWidth];
 		if(NSMouseInRect(loc, frame, NO))
 			{
 #if 1
-			NSLog(@"mouse is in segment %d", i);
+			NSLog(@"mouse is in segment %d", _trackedSegment);
 #endif
+			[[_segments objectAtIndex:_trackedSegment] setHighlighted:YES];	// set highlighting
+			[controlView setNeedsDisplayInRect:cellFrame];		// could be restriced to highlighting position
 			break;
 			}
 		frame.origin.x+=frame.size.width;
-		i++;
+		_trackedSegment++;
 		}
- 	return [super trackMouse:event inRect:frame ofView:controlView untilMouseUp:untilMouseUp];	// track in subframe only
+ 	return [super trackMouse:event inRect:frame ofView:controlView untilMouseUp:untilMouseUp];	// track while in this segment
+}
+
+- (void) stopTracking:(NSPoint) lastPoint at:(NSPoint) stopPoint inView:(NSView *) controlView mouseIsUp:(BOOL) flag
+{
+	if(_trackedSegment < [_segments count])
+		[[_segments objectAtIndex:_trackedSegment] setHighlighted:NO];	// remove highlighting
+	if(flag && [self isEnabledForSegment:_trackedSegment])
+		{ // make the segment where the mouse did go up the selected segment
+		[self setSelectedSegment:_trackedSegment];
+		}
 }
 
 - (NSImage *) imageForSegment:(int) segment; { return [[_segments objectAtIndex:segment] image]; }
@@ -255,7 +277,14 @@
 
 - (NSMenu *) menuForSegment:(int) segment; { return [[_segments objectAtIndex:segment] menu]; }
 - (int) segmentCount; { return [_segments count]; }
-- (int) selectedSegment; { return _lastSelected; }
+- (int) selectedSegment;
+{
+	unsigned int i, count=[_segments count];
+	for(i=0; i<count; i++)
+		if([self isSelectedForSegment:i])
+			return i;
+	return -1;
+}
 
 - (BOOL) selectSegmentWithTag:(int) t;
 {
@@ -290,17 +319,18 @@
 
 - (void) setSelected:(BOOL) flag forSegment:(int) segment;
 {
-	_selectedCount+=[[_segments objectAtIndex:segment] setSelected:flag];
-	if(_selectedCount == 0)
-		_lastSelected=-1;	// this was the last one
+	[[_segments objectAtIndex:segment] setSelected:flag];
 }
 
 - (void) setSelectedSegment:(int) segment;
-{ // you can't set it to -1
-	if(_mode != NSSegmentSwitchTrackingSelectAny && _lastSelected >= 0)
-		[self setSelected:NO forSegment:_lastSelected];
-	[self setSelected:YES forSegment:segment];
-	_lastSelected=segment;
+{
+	int lastSelected=[self selectedSegment];
+	if(segment == lastSelected)
+		return;	// unchanged
+	if(_mode != NSSegmentSwitchTrackingSelectAny && lastSelected >= 0)
+		[self setSelected:NO forSegment:lastSelected];
+	if(segment >= 0 && segment < [self segmentCount])
+		[self setSelected:YES forSegment:segment];
 }
 
 - (void) setTag:(int) t forSegment:(int) segment; { [[_segments objectAtIndex:segment] setTag:t]; }
@@ -320,20 +350,14 @@
 
 - (id) initWithCoder:(NSCoder *) aDecoder
 {
-	unsigned int i, count;
+	unsigned int count;
 	self=[super initWithCoder:aDecoder];
 	if(![aDecoder allowsKeyedCoding])
 		{ [self release]; return nil; }
 	_c.enabled=YES;
 	[self setAlignment:NSCenterTextAlignment];
-	_lastSelected=-1;	// none
 	_segments = [[aDecoder decodeObjectForKey:@"NSSegmentImages"] retain];	// array of segments
 	count=[_segments count];
-	for(i=0; i<count; i++)
-		{
-		if([[_segments objectAtIndex:i] selected])
-			_selectedCount++;	// count them to track
-		}
 	return self;
 }
 

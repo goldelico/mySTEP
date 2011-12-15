@@ -305,7 +305,12 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 				background=[NSColor selectedControlColor];
 			}
 		else
-			background=[NSColor controlColor];
+			{
+			if(highlighted)
+				background=[NSColor controlHighlightColor];
+			else
+				background=[NSColor controlColor];
+			}
 		}
 	else
 		background=[NSColor controlBackgroundColor];

@@ -396,7 +396,7 @@ extern NSString *NSTableViewSelectionIsChangingNotification;
 
 @end
 
-@protocol NSTableDataSource	// Implemented by a datasource
+@protocol NSTableViewDataSource	// Implemented by a datasource
 - (NSInteger) numberOfRowsInTableView:(NSTableView *) tableView;
 - (BOOL) tableView:(NSTableView *) tableView 
 		acceptDrop:(id < NSDraggingInfo >) info 

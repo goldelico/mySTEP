@@ -394,10 +394,10 @@ id __buttonCellClass = nil;
 		[self setState:(anObject != nil)];
 }
 
-- (void) stopTracking:(NSPoint)lastPoint
-									 at:(NSPoint)stopPoint
-						   inView:(NSView*)controlView
-						mouseIsUp:(BOOL)flag;
+- (void) stopTracking:(NSPoint) lastPoint
+				   at:(NSPoint)stopPoint
+			   inView:(NSView*)controlView
+			mouseIsUp:(BOOL)flag;
 {
 #if 0
 	NSLog(@"clicked on %@ bezelStyle=%d", _title, _bezelStyle);

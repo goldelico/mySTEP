@@ -498,8 +498,7 @@ static struct _NSTabViewSizing
 	unsigned i=[tab_items indexOfObjectIdenticalTo:anItem];
 	int border=(i==0?1:0)+(i==[tab_items count]-1?2:0);	// handle rounded corners
 	NSTabState itemState = [anItem tabState];
-	// we could try to draw in grey color if itemState == NSPressedTab
-	[NSBezierPath _drawRoundedBezel:border inFrame:tabRect enabled:YES selected:(itemState != NSBackgroundTab) highlighted:(itemState == NSPressedTab) radius:5.0];
+	[NSBezierPath _drawRoundedBezel:border inFrame:tabRect enabled:YES selected:(itemState == NSSelectedTab) highlighted:(itemState == NSPressedTab) radius:5.0];
 	[anItem drawLabel:tab_truncated_label inRect:tabRect];	// this saves the tabRect
 }
 
@@ -605,7 +604,8 @@ static struct _NSTabViewSizing
 			if(aTab)
 				{ // there is one selected now
 				prevstate=[aTab tabState];	// save previous state (NSSelectedTab/NSBackgroundTab)
-				[aTab _setTabState:NSPressedTab];
+				if(prevstate != NSSelectedTab)
+					[aTab _setTabState:NSPressedTab];	// selected tab overrides
 				[self setNeedsDisplayInRect:[aTab _tabRect]];	// redraw in pressed state
 				}
 			prev=aTab;
