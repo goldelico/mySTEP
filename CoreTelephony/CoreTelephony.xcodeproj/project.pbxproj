@@ -349,14 +349,14 @@
 				FRAMEWORK_VERSION = A;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = CoreRFID_Prefix.pch;
+				GCC_PREFIX_HEADER = CoreTelephony_Prefix.pch;
 				GCC_VERSION = 4.2;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = /Library/Frameworks;
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				ONLY_ACTIVE_ARCH = NO;
 				PREBINDING = NO;
-				PRODUCT_NAME = CoreRFID;
+				PRODUCT_NAME = CoreTelephony;
 				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 				WRAPPER_EXTENSION = framework;
 			};
@@ -403,7 +403,7 @@
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = CoreRFID2;
+				PRODUCT_NAME = CoreTelephony;
 			};
 			name = Debug;
 		};
@@ -413,7 +413,7 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				PRODUCT_NAME = CoreRFID2;
+				PRODUCT_NAME = CoreTelephony;
 				ZERO_LINK = NO;
 			};
 			name = Release;
