@@ -79,7 +79,7 @@ extern int system(const char *cmd);
 
 - (id) copyWithZone:(NSZone *) zone
 {
-	CW8021XProfile *p=[super allocWithZone:zone];
+	CW8021XProfile *p=[CW8021XProfile allocWithZone:zone];
 	p->_password=[_password copyWithZone:zone];
 	p->_ssid=[_ssid copyWithZone:zone];
 	p->_userDefinedName=[_userDefinedName copyWithZone:zone];
@@ -379,6 +379,55 @@ extern int system(const char *cmd);
 	return [_name isEqualToString:[(CWInterface *) other name]];
 }
 
+// FIXME: should be cached and reread value(s) only if older than 1 second since last fetch
+
+- (NSString *) _getiw:(NSString *) parameter;
+{ // call iwconfig or iwlist or iwgetid
+	NSString *cmd=[NSString stringWithFormat:@"iwgetid '%@' --raw --%@", _name, parameter];
+	FILE *f=popen([cmd UTF8String], "r");
+	char line[512];
+	if(!f)
+		return nil;
+	fgets(line, sizeof(line)-1, f);
+	fclose(f);
+#if 1
+	NSLog(@"%@: %@", parameter, [[NSString stringWithCString:line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]);
+#endif
+	return [[NSString stringWithCString:line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+}
+
+- (NSString *) _getiwlist:(NSString *) parameter;
+{ // call iwconfig
+	NSString *cmd=[NSString stringWithFormat:@"iwlist '%@' %@", _name, parameter];
+	FILE *f=popen([cmd UTF8String], "r");
+	char line[512];
+	unsigned int n;
+	if(!f)
+		return nil;
+	n=fread(line, 1, sizeof(line)-1, f);
+	fclose(f);
+#if 1
+	NSLog(@"%@: %@", parameter, [[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]);
+#endif
+	return [[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+}
+
+- (NSString *) _getiwconfig;
+{ // call iwconfig
+	NSString *cmd=[NSString stringWithFormat:@"iwconfig '%@'", _name];
+	FILE *f=popen([cmd UTF8String], "r");
+	char line[512];
+	unsigned int n;
+	if(!f)
+		return nil;
+	n=fread(line, 1, sizeof(line)-1, f);
+	fclose(f);
+#if 1
+	NSLog(@"%@", [[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]);
+#endif
+	return [[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+}
+
 - (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
 {
 	NSString *cmd;
@@ -407,7 +456,7 @@ extern int system(const char *cmd);
 - (void) disassociate;
 {
 	// CHECKME: is that really a disassociate?
-	// or should we set SSID=""? Or mode?
+	// FIXME: we should set SSID="" to disassociate
 	NSString *cmd=[NSString stringWithFormat:@"ifconfig '%@' down", _name];
 	system([cmd UTF8String]);
 }
@@ -568,34 +617,16 @@ extern int system(const char *cmd);
 - (SFAuthorization *) authorization; { return _authorization; }
 - (void) setAuthorization:(SFAuthorization *) auth; { [_authorization autorelease]; _authorization=[auth retain]; }
 
-- (id) _getiw:(NSString *) parameter;
-{ // call iwconfig or iwlist or iwgetid
-	NSString *cmd=[NSString stringWithFormat:@"iwgetid '%@' --%@", _name, parameter];
-	FILE *f=popen([cmd UTF8String], "r");
-	char line[512];
-	if(!f)
-		return nil;
-	fgets(line, sizeof(line)-1, f);
-	fclose(f);
-	return [NSString stringWithCString:line];
-}
-
 - (NSString *) bssid;
 {
-	NSArray *a=[[self _getiw:@"ap"] componentsSeparatedByString:@": "];
-	if([a count] >= 2)
-		return [a objectAtIndex:1];
-	return nil;
+	return [self _getiw:@"ap"];
 }
 
-//- (NSData *) bssidData; // convert to NSData
+//- (NSData *) bssidData; // convert NSString to NSData
 
 - (NSNumber *) channel;	// iwgetid wlan13 --channel
 {
-	NSArray *a=[[self _getiw:@"channel"] componentsSeparatedByString:@"Channel:"];
-	if([a count] >= 2)
-		return [NSNumber numberWithInt:[[a objectAtIndex:1] intValue]];
-	return nil;
+	return [NSNumber numberWithInt:[[self _getiw:@"channel"] intValue]];
 }
 
 - (BOOL) commitConfiguration:(CWConfiguration *) config error:(NSError **) err;
@@ -614,53 +645,63 @@ extern int system(const char *cmd);
 	return nil;
 }
 
-//- (NSString *) countryCode;	// no idea how to read that
+- (NSString *) countryCode;
+{ // no idea how to find out
+	return @"";
+}
 
 - (NSNumber *) interfaceState;
 {
+	// FIXME
 	// read iwconfig name -> Access Point: Not-Associated or Cell : address
 	// or get iwgetid address and check for 00:00:00:00:00:00
-	return [NSNumber numberWithInt:kCWInterfaceStateRunning];
+#if 0
+	NSArray *a=[[self _getiwconfig] componentsSeparatedByString:@"Access Point:"];
+	if([a count] >= 2)
+		{
+		return [NSNumber numberWithFloat:10.0];		
+		}
+	return [NSNumber numberWithFloat:10.0];
+#else
+	if(![[self _getiw:@"ap"] hasPrefix:@"00:00:00:00:00:00"])
+		return [NSNumber numberWithInt:kCWInterfaceStateRunning];
+#endif
+	return [NSNumber numberWithInt:kCWInterfaceStateInactive];
 }
 
 - (NSString *) name; { return _name; }
 
 - (NSNumber *) noise;
 { // in dBm
-	// read from iwconfig
-	return [NSNumber numberWithFloat:10.0];
+	NSArray *a=[[self _getiwconfig] componentsSeparatedByString:@"Noise level:"];
+	if([a count] >= 2)
+		{
+		return [NSNumber numberWithInt:[[a objectAtIndex:1] intValue]];		
+		}
+	return [NSNumber numberWithInt:-99.0];
 }
 
 - (NSNumber *) opMode;
 {
-	NSArray *a=[[self _getiw:@"mode"] componentsSeparatedByString:@"Mode:"];
-	if([a count] >= 2)
-		{
-		NSString *mode=[a objectAtIndex:1];
-		if([mode hasPrefix:@"Managed"])
-			return [NSNumber numberWithInt:kCWOpModeStation];
-		if([mode hasPrefix:@"Ad-Hoc"])
-			return [NSNumber numberWithInt:kCWOpModeIBSS];
-		if([mode hasPrefix:@"Master"])
-			return [NSNumber numberWithInt:kCWOpModeHostAP];
-		}
+	switch([[self _getiw:@"mode"] intValue]) {
+		case 2:	return [NSNumber numberWithInt:kCWOpModeStation];
+		case 3:	return [NSNumber numberWithInt:kCWOpModeIBSS];
+		case 4:	return [NSNumber numberWithInt:kCWOpModeHostAP];
+	}
 	return nil;	// unknown
 }
 
 - (NSNumber *) phyMode;
-{
-	NSArray *a=[[self _getiw:@"protocol"] componentsSeparatedByString:@"Name:"];
-	if([a count] >= 2)
-		{
-		NSString *mode=[a objectAtIndex:1];
+{ // get current phyMode
+	NSString *mode=[self _getiw:@"protocol"];
+	if([mode isEqualToString:@"IEEE 802.11b/g"])
+		return [NSNumber numberWithInt:kCWPHYMode11G];
 /*
  kCWPHYMode11A,
 		kCWPHYMode11B,
 		kCWPHYMode11G,
 		kCWPHYMode11N
 */		
-		return [NSNumber numberWithInt:kCWPHYMode11N];
-		}
 	return nil;
 }
 
@@ -673,31 +714,75 @@ extern int system(const char *cmd);
 
 - (NSNumber *) rssi;
 { // in dBm
-	// read from iwconfig
-	return [NSNumber numberWithFloat:10.0];
+	NSArray *a=[[self _getiwconfig] componentsSeparatedByString:@"Signal level:"];
+	if([a count] >= 2)
+		{
+		return [NSNumber numberWithInt:[[a objectAtIndex:1] intValue]];		
+		}
+	return [NSNumber numberWithInt:-99.0];
 }
 
 - (NSNumber *) securityMode;
 {
-	// read from iwconfig
+	NSArray *a=[[self _getiwconfig] componentsSeparatedByString:@"Encryption key:"];
+	if([a count] >= 2)
+		{
+		NSString *m=[a objectAtIndex:1];
+		if([m hasPrefix:@"off"])
+			return [NSNumber numberWithInt:kCWSecurityModeOpen];
+		}
 	return [NSNumber numberWithInt:kCWSecurityModeOpen];
 }
 
 - (NSString *) ssid;
 {
-	return @"basisstation";
+	return [self _getiw:@""];
+}
+
+- (NSArray *) supportedChannels;
+{
+	// FIXME: we can read&cache this once per power cycle since it does not change very often...
+	NSMutableArray *c=[NSMutableArray arrayWithCapacity:16];
+	NSEnumerator *e=[[[self _getiwlist:@"frequency"] componentsSeparatedByString:@"\n"] objectEnumerator];
+	NSString *line;
+	while((line=[e nextObject]))
+		{
+		NSArray *a=[line componentsSeparatedByString:@" Channel "];
+		if([a count] == 2)
+			[c addObject:[NSNumber numberWithInt:[[a objectAtIndex:1] intValue]]];	// copy channel number
+		}
+	[c sortUsingSelector:@selector(compare:)];
+	return c;
+}
+
+- (NSArray *) supportedPHYModes;
+{
+	return [NSArray arrayWithObjects:
+			//[NSNumber numberWithInt:kCWPHYMode11A],
+			[NSNumber numberWithInt:kCWPHYMode11B],
+			[NSNumber numberWithInt:kCWPHYMode11G],
+			//[NSNumber numberWithInt:kCWPHYMode11N],
+			nil];
 }
 
 - (NSNumber *) txPower;
 { // in mW
-	// read from iwconfig
-	return [NSNumber numberWithInt:20];
+	NSArray *a=[[self _getiwlist:@"txpower"] componentsSeparatedByString:@"Tx-Power="];
+	if([a count] >= 2)
+		{
+		a=[[a objectAtIndex:1] componentsSeparatedByString:@"("];
+		if([a count] >= 2)
+			return [NSNumber numberWithInt:[[a objectAtIndex:1] intValue]];	// copy mW value
+		}
+	return [NSNumber numberWithInt:0];
 }
 
 - (NSNumber *) txRate;
 { // in Mbit/s
-	// read from iwconfig
-	return [NSNumber numberWithInt:10000000];
+	NSArray *a=[[self _getiwlist:@"bitrate"] componentsSeparatedByString:@"Current Bit Rate:"];
+	if([a count] >= 2)
+		return [NSNumber numberWithInt:[[a objectAtIndex:1] intValue]/1000];	// kb/s -> Mbit/s
+	return [NSNumber numberWithInt:0];
 }
 
 // FIXME: we should link to IOBluetooth and use their method

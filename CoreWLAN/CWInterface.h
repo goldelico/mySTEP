@@ -16,6 +16,7 @@
 {
 	NSString *_name;
 	SFAuthorization *_authorization;
+	// add cached values and timestamps
 }
 
 + (NSArray *) supportedInterfaces;
@@ -53,6 +54,22 @@
 - (NSNumber *) rssi;	// in dBm
 - (NSNumber *) securityMode;
 - (NSString *) ssid;
+- (NSArray *) supportedChannels;
+- (NSArray *) supportedPHYModes;
+- (BOOL) supportsAES_CCM;
+- (BOOL) supportsHostAP;
+- (BOOL) supportsIBSS;
+- (BOOL) supportsMonitorMode;
+- (BOOL) supportsPMGT;
+- (BOOL) supportsShortGI20MHz;
+- (BOOL) supportsShortGI40MHz;
+- (BOOL) supportsTKIP;
+- (BOOL) supportsTSN;
+- (BOOL) supportsWEP;
+- (BOOL) supportsWME;
+- (BOOL) supportsWoW;
+- (BOOL) supportsWPA;
+- (BOOL) supportsWPA2;
 - (NSNumber *) txPower;	// in mW
 - (NSNumber *) txRate;	// in Mbit/s
 
