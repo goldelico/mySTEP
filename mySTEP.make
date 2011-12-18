@@ -442,7 +442,7 @@ endif
 	  echo "Priority: optional"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)"
-	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) -C /tmp ./control
+	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp ./control
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	- rm -rf $@
 	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
@@ -478,7 +478,7 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  echo "Priority: optional"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >/tmp/control
-	$(TAR) czf /tmp/control.tar.gz $(DEBIAN_CONTROL) -C /tmp ./control
+	$(TAR) czf /tmp/control.tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp ./control
 	- rm -rf $@
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
