@@ -392,7 +392,7 @@ SVN_VERSION := $(shell svnversion)
 DEBIAN_VERSION := 0.$(shell if expr "$(SVN_VERSION)" : '.*:.*' >/dev/null; then expr "$(SVN_VERSION)" : '.*:\([0-9]*\).*' + 200; else expr "$(SVN_VERSION)" : '\([0-9]*\).*' + 200; fi )
 endif
 
-DEBDIST="$(ROOT)/System/Installation/Debian/dists/unstable/main"
+DEBDIST="$(ROOT)/System/Installation/Debian/dists/staging/main"
 
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
 build_deb: make_bundle make_exec make_binary install_tool \
