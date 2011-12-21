@@ -442,7 +442,7 @@ static int startW2SG;
 */			 
 			return;
 		}
-	system("echo 0 >/sys/devices/virtual/gpio/gpio145/value; echo 1 >/sys/devices/virtual/gpio/gpio145/value; stty 9600 </dev/ttyS1");	// give a start/stop impulse
+	system("echo 0 >/sys/devices/virtual/gpio/gpio145/value; echo 1 >/sys/devices/virtual/gpio/gpio145/value; stty 9600 </dev/ttyO1");	// give a start/stop impulse
 	[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// we did not receive NMEA records
 }
 
@@ -460,11 +460,11 @@ static int startW2SG;
 	if(!managers)
 		{ // set up GPS receiver and wait for first fix
 			// get this from some *system wide* user default
-			NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"NMEAGPSSerialDevice"];	// e.g. /dev/ttyS1 or /dev/cu.usbmodem1d11
+			NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"NMEAGPSSerialDevice"];	// e.g. /dev/ttyO1 or /dev/cu.usbmodem1d11
 			if(!dev)
 				{
 #ifdef __mySTEP__
-				dev=@"/dev/ttyS1";	// Linux: serial interface for USB receiver
+				dev=@"/dev/ttyO1";	// Linux: serial interface for USB receiver
 #else
 				dev=@"/dev/cu.BT-348_GPS-Serialport-1";	// Mac OS X: serial interface for NMEA receiver
 #endif
