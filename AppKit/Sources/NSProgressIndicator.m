@@ -319,7 +319,9 @@ NSColor *fillColour = nil;
 			_style = STYLE;
 			_isDisplayedWhenStopped = DISPLAYED_WHEN_STOPPED;
 			_isIndeterminate = INDETERMINATE;
+		// which piFlag?
 			_isBezeled = YES;
+		// separate key?
 			_usesThreadedAnimation = YES;
 			
 		_minValue=[aDecoder decodeFloatForKey:@"NSMinValue"];
