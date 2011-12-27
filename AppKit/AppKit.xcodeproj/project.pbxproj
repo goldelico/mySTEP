@@ -336,6 +336,9 @@
 		EE1D48720997962600DDE5E0 /* NSFont.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D48710997962600DDE5E0 /* NSFont.m */; };
 		EE1D90260A921A71003988F3 /* NSSound.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D90250A921A71003988F3 /* NSSound.m */; };
 		EE1D90270A921A71003988F3 /* NSSound.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1D90250A921A71003988F3 /* NSSound.m */; };
+		EE1FA35F14A88641002A1AA1 /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1FA35E14A88641002A1AA1 /* CircleView.m */; };
+		EE1FA36014A88641002A1AA1 /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1FA35E14A88641002A1AA1 /* CircleView.m */; };
+		EE1FA36114A88641002A1AA1 /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1FA35E14A88641002A1AA1 /* CircleView.m */; };
 		EE20F93F0F8BC28E00BA8E28 /* StandardKeyBinding.dict in Resources */ = {isa = PBXBuildFile; fileRef = EE20F93E0F8BC28E00BA8E28 /* StandardKeyBinding.dict */; };
 		EE20F9400F8BC28E00BA8E28 /* StandardKeyBinding.dict in Resources */ = {isa = PBXBuildFile; fileRef = EE20F93E0F8BC28E00BA8E28 /* StandardKeyBinding.dict */; };
 		EE291C7C0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE291C7A0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1194,6 +1197,8 @@
 		EE1D48310996A68B00DDE5E0 /* NSX11GraphicsContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSX11GraphicsContext.m; sourceTree = "<group>"; };
 		EE1D48710997962600DDE5E0 /* NSFont.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSFont.m; sourceTree = "<group>"; };
 		EE1D90250A921A71003988F3 /* NSSound.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSound.m; sourceTree = "<group>"; };
+		EE1FA35D14A88641002A1AA1 /* CircleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CircleView.h; path = ../../Applications/Samples/CircleView/CircleView.h; sourceTree = SOURCE_ROOT; };
+		EE1FA35E14A88641002A1AA1 /* CircleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CircleView.m; path = ../../Applications/Samples/CircleView/CircleView.m; sourceTree = SOURCE_ROOT; };
 		EE20F93E0F8BC28E00BA8E28 /* StandardKeyBinding.dict */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = StandardKeyBinding.dict; sourceTree = "<group>"; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.make; };
 		EE291C7A0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSSpeechRecognizer.h; sourceTree = "<group>"; };
@@ -1847,6 +1852,8 @@
 				EECD83FD0A089F8000EF3E30 /* myModel.m */,
 				EE31971109AB7E8B0089A9A2 /* myView.h */,
 				EE31971209AB7E8B0089A9A2 /* myView.m */,
+				EE1FA35D14A88641002A1AA1 /* CircleView.h */,
+				EE1FA35E14A88641002A1AA1 /* CircleView.m */,
 				EE31970C09AB7E8B0089A9A2 /* main.m */,
 				EECD84030A089FA300EF3E30 /* Resources */,
 			);
@@ -3516,6 +3523,7 @@
 				EE31972309AB7F290089A9A2 /* main.m in Sources */,
 				EE31972409AB7F290089A9A2 /* myView.m in Sources */,
 				EECD83FE0A089F8000EF3E30 /* myModel.m in Sources */,
+				EE1FA35F14A88641002A1AA1 /* CircleView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3649,6 +3657,7 @@
 				EEC8034009AE4EB6006EEB03 /* main.m in Sources */,
 				EEC8034109AE4EB6006EEB03 /* myView.m in Sources */,
 				EECD83FF0A089F8000EF3E30 /* myModel.m in Sources */,
+				EE1FA36014A88641002A1AA1 /* CircleView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3660,6 +3669,7 @@
 				EEC8035909AE4EBF006EEB03 /* main.m in Sources */,
 				EEC8035A09AE4EBF006EEB03 /* myView.m in Sources */,
 				EECD84000A089F8100EF3E30 /* myModel.m in Sources */,
+				EE1FA36114A88641002A1AA1 /* CircleView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
