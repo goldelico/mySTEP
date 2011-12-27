@@ -716,18 +716,17 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 - (void) drawRect:(NSRect)rect
 {
 	NSRange range;
-	NSRect r;
 	if(!layoutManager)
 		return;
-	range=[layoutManager glyphRangeForTextContainer:textContainer];
-	// range=[layoutManager glyphRangeForBoundingRect:rect inTextContainer:textContainer]
+	// range=[layoutManager glyphRangeForTextContainer:textContainer];
+	range=[layoutManager glyphRangeForBoundingRect:rect inTextContainer:textContainer];
 #if 0
 	NSLog(@"NSTextView drawRect %@", NSStringFromRect(rect));
 	NSLog(@"         glyphRange %@", NSStringFromRange(range));
 #endif
 	[self drawViewBackgroundInRect:rect];
 	
-	[layoutManager drawBackgroundForGlyphRange:_selectedRange atPoint:textContainerOrigin];
+	[layoutManager drawBackgroundForGlyphRange:range atPoint:textContainerOrigin];
 	
 	[layoutManager drawGlyphsForGlyphRange:range atPoint:textContainerOrigin];
 	if([self shouldDrawInsertionPoint])

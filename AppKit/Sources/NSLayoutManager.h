@@ -44,10 +44,6 @@
 @class NSBox;
 @class NSTextField;
 @class NSMatrix;
-@class NSTabWell;
-@class NSStorage;
-@class NSRunStorage;
-@class NSSortedArray;
 @class NSView;
 @class NSEvent;
 @class NSTextBlock;
@@ -70,7 +66,7 @@ typedef NSUInteger NSGlyphInscription;
 
 enum {
 	NSTypesetterLatestBehavior = -1,
-	NSTypesetterOriginalBehavior = 0, // should not used
+	NSTypesetterOriginalBehavior = 0, // should not be used
 	NSTypesetterBehavior_10_2_WithCompatibility = 1,
 	NSTypesetterBehavior_10_2 = 2,
 	NSTypesetterBehavior_10_3 = 3,
@@ -80,10 +76,10 @@ typedef NSInteger NSTypesetterBehavior;
 
 @interface NSLayoutManager : NSObject <NSGlyphStorage>
 {	
-	NSTextStorage /*nonretained*/ *_textStorage;	// The textStorage owns the layout manager(s)
+	NSTextStorage /*nonretained*/ *_textStorage;	// The textStorage owns its layout manager(s)
     NSMutableArray *_textContainers;
-    NSGlyphGenerator *_glyphGenerator;
-    NSTypesetter *_typesetter;
+    NSGlyphGenerator *_glyphGenerator;	// defaults to the sharedGlyphGenerator
+    NSTypesetter *_typesetter;	// defaults to sharedSystemTypesetter
     NSTextContainer *_extraLineFragmentContainer;
     NSTextView *_firstTextView;		// Cache for first text view (that is text view of the first text container which has one)
 	
@@ -94,21 +90,31 @@ typedef NSInteger NSTypesetterBehavior;
 	
 	float _hyphenationFactor;
 	NSImageScaling _defaultAttachmentScaling;
-	NSTypesetterBehavior _typesetterBehavior;
 
-	NSGlyph *_glyphs;	// glyph array
-	
-/*	
-	struct
-		{
-			NSGlyph glyph;
-			NSRect box;			// bounding box where to draw this glyph
-		} *_glyphs;				// one for each string position
-	*/
-
+	// NSGlyphStorage (should be able to handle sparse data)
+	// the key challenge is to keep memory demand low and still allow fast search by glyph, character index, position etc.
+	// it could be seen more or less as a relational database table with indexes
+	struct NSGlyphStorage {
+		NSRect lineFragmentRect;	// the line fragment rectangle
+		NSPoint location;	// relative to the line fragment rect
+		NSGlyph glyph;		// the glyph code
+		NSTextContainer *textContainer;	// the text container
+		struct NSGlyphStorageExtra {
+			NSSize attachmentSize;
+			NSDictionary *temporaryAttributes;	// FIXME: these are NOT indexed by the glyph but by the character!!!
+			int softAttribute;	// integer attributes
+			int elasticAttribute;
+			int bidiLevelAttribute;
+			int inscribeAttribute;
+		} *extra;	// extra data allocated on demand
+		NSUInteger characterIndex;	// the character index
+		BOOL notShownAttribute;	// Bitflag im intAttribute?
+		BOOL drawsOutsideLineFragment;	// Bitflag im intAttribute?
+		BOOL validFlag;	// oder ist das identisch zu glyph != 0?	
+	} *_glyphs;		// glyph storage array - it should be possible to define a sparse array!
 	unsigned int _numberOfGlyphs;
 	unsigned int _glyphBufferCapacity;
-	
+
 	unsigned _firstUnlaidCharacterIndex;
 	unsigned _firstUnlaidGlyphIndex;
 
@@ -116,8 +122,10 @@ typedef NSInteger NSTypesetterBehavior;
 	
 	BOOL _backgroundLayoutEnabled;
 	BOOL _usesScreenFonts;
-
+	BOOL _usesFontLeading;
 	BOOL _textStorageChanged;
+	BOOL _allowsNonContiguousLayout;
+	BOOL _hasNonContiguousLayout;
 
 	// what we need to store:
 
@@ -125,7 +133,7 @@ typedef NSInteger NSTypesetterBehavior;
 	// a (reverse) mapping from glyph ranges to TextContainers
 	// glyph rects for individual glyphs
 	// glyph fragmens - with rects (i.e. corresponding to a PDF draw operation)
-	// attributes (font, color, underlining etc.) etc. for these glyph ranges (but we can use the mapping to character ranges ans ask the textStorage attributes)
+	// attributes (font, color, underlining etc.) etc. for these glyph ranges (but we can use the mapping to character ranges and ask the textStorage attributes)
 	// line rects
 	//    should we start with a mapping of character and glyph ranges to Text Containers (one record per container?)
 	//   NSMutableArray *lineFragments;	// map line numbers to text container and position
@@ -144,8 +152,7 @@ typedef NSInteger NSTypesetterBehavior;
 	//                   total rect dimensions
 	//                   relative position within fragment
 	
-#if 0
-	// GNUstep headers
+#if 0	// from GNUstep headers
 	
     NSStorage *containerUsedRects;
 
@@ -214,7 +221,6 @@ typedef NSInteger NSTypesetterBehavior;
 					 inTextContainer:(NSTextContainer *) container;
 - (NSRect) boundsRectForTextBlock:(NSTextBlock *) block atIndex:(NSUInteger) index effectiveRange:(NSRangePointer) range;
 - (NSRect) boundsRectForTextBlock:(NSTextBlock *) block glyphRange:(NSRange) range;
-
 - (NSUInteger) characterIndexForGlyphAtIndex:(NSUInteger) glyphIndex;
 - (NSRange) characterRangeForGlyphRange:(NSRange) glyphRange actualGlyphRange:(NSRangePointer) actualGlyphRange;
 - (NSImageScaling) defaultAttachmentScaling;
@@ -248,6 +254,7 @@ typedef NSInteger NSTypesetterBehavior;
 - (NSRect) extraLineFragmentRect;
 - (NSTextContainer *) extraLineFragmentTextContainer;
 - (NSRect) extraLineFragmentUsedRect;
+- (void) fillBackgroundRectArray:(NSRectArray) rectArray count:(NSUInteger) rectCount forCharacterRange:(NSRange) charRange color:(NSColor *) color;
 - (NSTextView *) firstTextView;
 - (NSUInteger) firstUnlaidCharacterIndex;
 - (NSUInteger) firstUnlaidGlyphIndex;
@@ -305,8 +312,8 @@ typedef NSInteger NSTypesetterBehavior;
 - (NSRect) layoutRectForTextBlock:(NSTextBlock *) block
 					   glyphRange:(NSRange) range;
 - (NSRect) lineFragmentRectForGlyphAtIndex:(NSUInteger) index effectiveRange:(NSRangePointer) range;
-- (NSRect) lineFragmentUsedRectForGlyphAtIndex:(NSUInteger) glyphIndex effectiveRange:(NSRange *) effectiveGlyphRange;
 - (NSRect) lineFragmentRectForGlyphAtIndex:(NSUInteger) index effectiveRange:(NSRangePointer) charRange withoutAdditionalLayout:(BOOL) layoutFlag;
+- (NSRect) lineFragmentUsedRectForGlyphAtIndex:(NSUInteger) glyphIndex effectiveRange:(NSRange *) effectiveGlyphRange;
 - (NSPoint) locationForGlyphAtIndex:(NSUInteger) glyphIndex;
 - (BOOL) notShownAttributeForGlyphAtIndex:(NSUInteger) glyphIndex;
 - (NSUInteger) numberOfGlyphs;

@@ -30,6 +30,14 @@ typedef NSUInteger NSTypesetterControlCharacterAction;
 
 @interface NSTypesetter : NSObject
 {
+	NSAttributedString */* nonretained */_attributedString;
+	NSLayoutManager *_layoutManager;	// only valid within layoutGlyphsInLayoutManager:startingAtGlyphIndex:maxNumberOfLineFragments:nextGlyphIndex:
+	NSParagraphStyle *_currentParagraphStyle;
+	NSTextContainer *_currentTextContainer;
+	NSTypesetterBehavior _typesetterBehavior;
+	CGFloat _lineFragmentPadding;
+	BOOL _bidiProcessingEnabled;
+	BOOL _usesFontLeading;
 }
 
 + (NSTypesetterBehavior) defaultTypesetterBehavior;
@@ -47,7 +55,7 @@ typedef NSUInteger NSTypesetterControlCharacterAction;
 - (void) beginLineWithGlyphAtIndex:(NSUInteger) index; 
 - (void) beginParagraph; 
 - (BOOL) bidiProcessingEnabled; 
-- (NSRect) boundingBoxForControlGlyphAtIndex:(NSUInteger) index 
+- (NSRect) boundingBoxForControlGlyphAtIndex:(NSUInteger) glyph 
 							forTextContainer:(NSTextContainer *) container 
 						proposedLineFragment:(NSRect) rect 
 							   glyphPosition:(NSPoint) position 
@@ -83,12 +91,15 @@ typedef NSUInteger NSTypesetterControlCharacterAction;
 - (float) hyphenationFactorForGlyphAtIndex:(NSUInteger) index; 
 - (UTF32Char) hyphenCharacterForGlyphAtIndex:(NSUInteger) index; 
 - (void) insertGlyph:(NSGlyph) glyph atGlyphIndex:(NSUInteger) index characterIndex:(NSUInteger) charIdx; 
+- (NSRange) layoutCharactersInRange:(NSRange) range
+				   forLayoutManager:(NSLayoutManager *) manager
+	   maximumNumberOfLineFragments:(NSUInteger) maxLines;
 - (void) layoutGlyphsInLayoutManager:(NSLayoutManager *) manager 
 				startingAtGlyphIndex:(NSUInteger) startIndex 
 			maxNumberOfLineFragments:(NSUInteger) maxLines 
 					  nextGlyphIndex:(NSUInteger *) nextGlyph; 
 - (NSLayoutManager *) layoutManager; 
-- (NSUInteger)layoutParagraphAtPoint:(NSPointPointer) originPt; 
+- (NSUInteger) layoutParagraphAtPoint:(NSPointPointer) originPt; 
 - (CGFloat) lineFragmentPadding; 
 - (CGFloat) lineSpacingAfterGlyphAtIndex:(NSUInteger) index withProposedLineFragmentRect:(NSRect) fragRect; 
 - (NSRange) paragraphCharacterRange; 

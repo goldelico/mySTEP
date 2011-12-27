@@ -439,7 +439,7 @@
 			[self setMenuItemCell:cell forItemAtIndex:i];		// to add all cell connections and updates
 			}
 		if(cnt > 50)
-			NSLog(@"set large menu with %d emtries", cnt);
+			NSLog(@"set large menu with %d entries", cnt);
 		_needsSizing=YES;		// even if we have no cells...
 		[_menumenu update];		// auto-enable and resize if needed
 		}
