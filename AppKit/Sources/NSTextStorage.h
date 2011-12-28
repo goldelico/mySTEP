@@ -56,6 +56,7 @@ enum
 	int _editedMask;
 	int _changeInLength;
     int _editedDelta;
+	int _nestingCount;
     BOOL _fixesAttributesLazily;
 }
 

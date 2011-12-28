@@ -164,7 +164,7 @@ static NSAttributedString *_currentString;
 #if 0
 	NSLog(@"drawWithRect:options: %@", self);
 #endif
-	
+#if 1
 	{	// FIXME: should be processed by layoutManager
 		NSParagraphStyle *para=[[self attributesAtIndex:0 effectiveRange:NULL] objectForKey:NSParagraphStyleAttributeName];
 		switch([para alignment])
@@ -186,9 +186,10 @@ static NSAttributedString *_currentString;
 					}
 			}
 	}
+#endif
 	[_layoutManager drawGlyphsForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
-																																 actualCharacterRange:NULL]
-																	atPoint:rect.origin];
+																   actualCharacterRange:NULL]
+									atPoint:rect.origin];
 	// underline...
 	// strikethrough...
 	[ctxt restoreGraphicsState];
@@ -203,12 +204,16 @@ static NSAttributedString *_currentString;
 
 - (NSSize) size;
 {
+#if 0
 	if([self length] == 0)
 		return NSZeroSize;	// empty string
 	[self _setupWithRect:(NSRect) { NSZeroPoint, { 16000.0, 16000.0 } } options:0];	// start with a very large text container
 	return [_layoutManager boundingRectForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
 																			actualCharacterRange:NULL]
 									 inTextContainer:_textContainer].size;	// get really required bounding box
+#else
+	return [self boundingRectWithSize:NSMakeSize(16000.0, 16000.0) options:0].size;
+#endif
 }
 
 @end

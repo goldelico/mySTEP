@@ -264,6 +264,13 @@ FT_Library _ftLibrary(void)
 	return FT_Get_Char_Index(_faceStruct, c);
 }
 
+- (NSSize) _kerningBetweenGlyph:(NSGlyph) left andGlyph:(NSGlyph) right
+{
+	FT_Vector delta;
+	FT_Get_Kerning(_faceStruct, left, right, FT_KERNING_DEFAULT, &delta);
+	return NSZeroSize;
+}
+
 - (float) _widthOfAntialisedString:(NSString *) string;
 { // deprecated...
 	FT_Matrix matrix = { 1<<16, 0, 0, 1<<16 };	// identity matrix
@@ -390,62 +397,6 @@ FT_Library _ftLibrary(void)
 			return g;
 			}
 	return NULL;
-}
-
-@end
-
-@implementation NSGlyphGenerator (NSFreeTypeFont)
-
-- (void) generateGlyphsForGlyphStorage:(id <NSGlyphStorage>) storage
-			 desiredNumberOfCharacters:(unsigned int) num
-							glyphIndex:(unsigned int *) gidx
-						characterIndex:(unsigned int *) cidx
-{
-	NSAttributedString *astr=[storage attributedString];	// get string to layout
-	NSString *str=[astr string];
-	unsigned int options=[storage layoutOptions];	 // NSShowControlGlyphs, NSShowInvisibleGlyphs, NSWantsBidiLevels
-	NSGlyph previous=0;
-	BOOL usekerning=YES;	// ask storage?
-	while(num > 0)
-		{
-		
-		// FIXME: handle invisible characters, make page breaks etc. optionally visible, handle multi-character glyphs (ligatures), multi-glyph characters etc.
-		// convert unicode to glyph encoding
-		
-		// loop through characters
-		// switch fonts as necessary
-		// add line breaks (?)
-		// convert character to glyph encoding
-
-		NSGlyph glyph;
-		int gnum=1;
-		unichar c=[str characterAtIndex:*cidx];
-		NSDictionary *attribs=[astr attributesAtIndex:*cidx effectiveRange:NULL];
-		NSFont *font=[attribs objectForKey:@"Font"];
-		FT_Face face=[(_NSX11Font *) font _face];
-		switch(c)
-			{
-			// handle special characters like \n \t and textattachments depending on options
-			default:
-				glyph=FT_Get_Char_Index(face, c);
-			}
-
-		// generate position information
-		if(usekerning && previous && glyph)
-			{ // handle kerning
-			FT_Vector delta;
-			FT_Get_Kerning(face, previous, glyph, FT_KERNING_DEFAULT, &delta);
-//			pen_x += Free2Pt(delta.x);
-//			pen_y += Free2Pt(delta.y);
-			previous=glyph;
-			}
-		[storage insertGlyphs:&glyph length:gnum forStartingGlyphAtIndex:*gidx characterIndex:*cidx];
-//		[storage setIntAttribute:124 value:4321 forGlyphAtIndex:*gidx];
-//		store glyph positions
-		*gidx+=gnum;
-		*cidx++;
-		num--;
-		}
 }
 
 @end

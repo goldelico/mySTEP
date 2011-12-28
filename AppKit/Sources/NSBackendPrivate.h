@@ -152,6 +152,8 @@
 
 @interface NSFont (NSBackend)
 - (NSGlyph) _glyphForCharacter:(unichar) c;
+- (NSSize) _kerningBetweenGlyph:(NSGlyph) left andGlyph:(NSGlyph) right;
+- (float) _widthOfAntialisedString:(NSString *) string;	// deprecated!
 @end
 
 @interface NSFontDescriptor (NSBackend)

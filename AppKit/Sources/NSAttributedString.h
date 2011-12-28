@@ -171,7 +171,7 @@ extern const unsigned NSUnderlineByWordMask;
 
 @interface NSAttributedString (NSAttributedStringAdditions)
 
-+ (NSAttributedString *) attributedStringWithAttachment:(NSTextAttachment *)attach; // Problem, parse error
++ (NSAttributedString *) attributedStringWithAttachment:(NSTextAttachment *)attach;
 + (NSArray *) textFileTypes;
 + (NSArray *) textPasteboardTypes;
 + (NSArray *) textTypes;

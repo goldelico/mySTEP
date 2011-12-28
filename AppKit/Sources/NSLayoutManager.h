@@ -95,7 +95,8 @@ typedef NSInteger NSTypesetterBehavior;
 	// the key challenge is to keep memory demand low and still allow fast search by glyph, character index, position etc.
 	// it could be seen more or less as a relational database table with indexes
 	struct NSGlyphStorage {
-		NSRect lineFragmentRect;	// the line fragment rectangle
+		NSRect lineFragmentRect;	// the line fragment rectangle we belong to
+		NSRect usedLineFragmentRect;
 		NSPoint location;	// relative to the line fragment rect
 		NSGlyph glyph;		// the glyph code
 		NSTextContainer *textContainer;	// the text container
@@ -110,7 +111,8 @@ typedef NSInteger NSTypesetterBehavior;
 		NSUInteger characterIndex;	// the character index
 		BOOL notShownAttribute;	// Bitflag im intAttribute?
 		BOOL drawsOutsideLineFragment;	// Bitflag im intAttribute?
-		BOOL validFlag;	// oder ist das identisch zu glyph != 0?	
+		BOOL validFlag;		// Glyph is valid
+		BOOL layoutFlag;	// Layout information is valid
 	} *_glyphs;		// glyph storage array - it should be possible to define a sparse array!
 	unsigned int _numberOfGlyphs;
 	unsigned int _glyphBufferCapacity;
@@ -126,89 +128,8 @@ typedef NSInteger NSTypesetterBehavior;
 	BOOL _textStorageChanged;
 	BOOL _allowsNonContiguousLayout;
 	BOOL _hasNonContiguousLayout;
-
-	// what we need to store:
-
-	// a (reverse) mapping from character ranges to glyph ranges
-	// a (reverse) mapping from glyph ranges to TextContainers
-	// glyph rects for individual glyphs
-	// glyph fragmens - with rects (i.e. corresponding to a PDF draw operation)
-	// attributes (font, color, underlining etc.) etc. for these glyph ranges (but we can use the mapping to character ranges and ask the textStorage attributes)
-	// line rects
-	//    should we start with a mapping of character and glyph ranges to Text Containers (one record per container?)
-	//   NSMutableArray *lineFragments;	// map line numbers to text container and position
-	//      -> NSTextLineFragment
-	//					 covered characterRange - sorted so that we can do a binary search on lineFragments; union of all glyphRuns
-	//					 covered glyphRange - union of all glyphRuns
-	//           rect of line in text container - union of all glyphRuns
-	//           NSTextContainer (a line belongs to a single and specific container!)
-	//					 NSParagraphStyle reference
-	//           NSMutableArray *glyphRun;
-	//              -> NSGlyphRun
-	//									 total characterRange
-	//									 total glyphRange (defines #glpyhs)
-	//                   the glyphs
-	//									 mapping of glyphs <-> characters
-	//                   total rect dimensions
-	//                   relative position within fragment
 	
-#if 0	// from GNUstep headers
-	
-    NSStorage *containerUsedRects;
-
-    NSStorage *glyphs;
-    NSRunStorage *containerRuns;
-    NSRunStorage *fragmentRuns;
-    NSRunStorage *glyphLocations;
-    NSRunStorage *glyphRotationRuns;
-    
-	
-    NSSortedArray *glyphHoles;
-    NSSortedArray *layoutHoles;
-	
-    // Enable/disable stacks
-    unsigned short textViewResizeDisableStack;
-    unsigned short displayInvalidationDisableStack;
-    NSRange deferredDisplayCharRange;
-	
-
-	
-	// Cache for rectangle arrays
-    NSRect *cachedRectArray;
-    unsigned cachedRectArrayCapacity;
-	
-	// Cache for glyph strings (used when drawing)
-    char *glyphBuffer;
-    unsigned glyphBufferSize;
-	
-	// Cache for faster glyph location lookup
-    NSRange cachedLocationNominalGlyphRange;
-    unsigned cachedLocationGlyphIndex;
-    NSPoint cachedLocation;
-	
-	// Cache for faster glyph location lookup
-    NSRange cachedFontCharRange;
-    NSFont *cachedFont;
-	
-	// Cache for first unlaid glypha and character
-    unsigned firstUnlaidGlyphIndex;
-    unsigned firstUnlaidCharIndex;
-
-
-	// Outlets for ruler accessory view.
-    NSBox *rulerAccView;
-    NSMatrix *rulerAccViewAlignmentButtons;
-    NSTextField *rulerAccViewLeadingField;
-    NSTabWell *rulerAccViewLeftTabWell;
-    NSTabWell *rulerAccViewRightTabWell;
-    NSTabWell *rulerAccViewCenterTabWell;
-    NSTabWell *rulerAccViewDecimalTabWell;
-    NSMatrix *rulerAccViewIncrementLineHeightButtons;
-    NSMatrix *rulerAccViewFixedLineHeightButtons;
-	
-    NSRange newlyFilledGlyphRange;
-		
-#endif
+	BOOL _layoutIsValid;
 }
 
 - (void) addTemporaryAttribute:(NSString *) attr value:(id) val forCharacterRange:(NSRange) range;

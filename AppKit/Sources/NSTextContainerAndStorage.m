@@ -58,9 +58,9 @@
 - (float) lineFragmentPadding; { return lineFragmentPadding; }
 
 - (NSRect) lineFragmentRectForProposedRect:(NSRect) proposedRect
-			 sweepDirection:(NSLineSweepDirection) sweepDirection
-			 movementDirection:(NSLineMovementDirection) movementDirection
-			 remainingRect:(NSRect *) remainingRect;
+							sweepDirection:(NSLineSweepDirection) sweepDirection
+						 movementDirection:(NSLineMovementDirection) movementDirection
+							 remainingRect:(NSRect *) remainingRect;
 {
 	NIMP;
 	return NSZeroRect;
@@ -81,13 +81,13 @@
 - (void) setContainerSize:(NSSize) sz;
 {
 	if(!NSEqualSizes(size, sz))
-			{
-				size=sz;
+		{
+		size=sz;
 #if 0
-				NSLog(@"adjusted %@", self);
+		NSLog(@"adjusted %@", self);
 #endif
-				// notify layout manager to invalidate the glyph layout
-			}
+		// notify layout manager to invalidate the glyph layout
+		}
 }
 
 - (void) setHeightTracksTextView:(BOOL) flag; { heightTracksTextView=flag; }
@@ -101,21 +101,21 @@
 		return;
 	nc=[NSNotificationCenter defaultCenter];
 	if(textView)
-			{ // disconnect from text view
-				[textView setPostsFrameChangedNotifications:NO];	// no need to notify any more...
-				[textView setTextContainer:nil];
-				[nc removeObserver:self name:NSViewFrameDidChangeNotification object:textView];
-				[textView release];
-				textView=nil;
-			}
+		{ // disconnect from text view
+			[textView setPostsFrameChangedNotifications:NO];	// no need to notify any more...
+			[textView setTextContainer:nil];
+			[nc removeObserver:self name:NSViewFrameDidChangeNotification object:textView];
+			[textView release];
+			textView=nil;
+		}
 	if(tv)
-			{ // connect to text view
-				textView=[tv retain];
-				[textView setTextContainer:self];
-				[textView setPostsFrameChangedNotifications:YES];	// should notify...
-				[nc addObserver:self selector:@selector(_track:) name:NSViewFrameDidChangeNotification object:textView];
-				[self _track:nil];	// initial "notification"
-			}
+		{ // connect to text view
+			textView=[tv retain];
+			[textView setTextContainer:self];
+			[textView setPostsFrameChangedNotifications:YES];	// should notify...
+			[nc addObserver:self selector:@selector(_track:) name:NSViewFrameDidChangeNotification object:textView];
+			[self _track:nil];	// initial "notification"
+		}
 }
 
 - (void) setWidthTracksTextView:(BOOL) flag; { widthTracksTextView=flag; }
@@ -221,19 +221,41 @@
 		  range:(NSRange)range 
  changeInLength:(int)delta;
 {
-	// accumulate changeInLength
-	NIMP;
-	[self processEditing];
+	if(_nestingCount == 0)
+		{
+		_editedMask = editedMask;
+		_editedRange = range;
+		_changeInLength = delta;
+		[self processEditing];		
+		}
+	else
+		{
+		_editedMask |= editedMask;
+		_editedRange.location = MIN(_editedRange.location, range.location);
+		_editedRange.length = MAX(NSMaxRange(_editedRange), NSMaxRange(range))-_editedRange.location;
+		_changeInLength += delta;
+		}
 }
 
 - (void) beginEditing;
 {
+	if(_nestingCount == 0)
+		{
+		_editedMask = 0;
+		_editedRange = (NSRange) { 0, 0 };
+		_changeInLength = 0;
+		}
+	_nestingCount++;
 }
 
 - (void) endEditing;
 {
-//	[self fixAttributesInRange:editedRange];
-// inform NSLayoutManager(s)
+	if(_nestingCount)
+		NSLog(@"unbalanced endEditing");
+	else
+		_nestingCount--;
+	[self fixAttributesInRange:_editedRange];
+	[self processEditing];
 }
 
 - (unsigned int) editedMask; { return _editedMask; }
@@ -260,21 +282,33 @@
 	NSLayoutManager *lm;
 	NSNotificationCenter *nc=[NSNotificationCenter defaultCenter];
 	[nc postNotificationName:NSTextStorageWillProcessEditingNotification object:self];
-	// do something???
+	if(!_fixesAttributesLazily)
+		[self fixAttributesInRange:_editedRange];
 	[nc postNotificationName:NSTextStorageDidProcessEditingNotification object:self];
 	while((lm=[e nextObject]))
-		[lm textStorage:self edited:0 range:_editedRange changeInLength:_changeInLength invalidatedRange:NSMakeRange(0, 0)];
+		[lm textStorage:self
+				 edited:_editedMask
+				  range:_editedRange	// FIXME: this should be the new range!?!
+		 changeInLength:_changeInLength
+	   invalidatedRange:_editedRange];	// FIXME: this should be the range where attributes were fixed
 }
 
 - (void) removeLayoutManager:(NSLayoutManager *)obj; { [obj setTextStorage:nil]; [_layoutManagers removeObject:obj]; }
 
 - (void) setDelegate:(id)obj;
 {
+	NSNotificationCenter *nc=[NSNotificationCenter defaultCenter];
 	if(_delegate)
-		; // disconnect notifications
+		{ // disconnect delegate
+			[nc removeObserver:obj name:NSTextStorageDidProcessEditingNotification object:self];
+			[nc removeObserver:obj name:NSTextStorageWillProcessEditingNotification object:self];
+		}
 	_delegate=obj;
 	if(_delegate)
-		; // connect notifications
+		{ // connect delegate
+			[nc addObserver:obj selector:@selector(textStorageDidProcessEditing:) name:NSTextStorageDidProcessEditingNotification object:self];
+			[nc addObserver:obj selector:@selector(textStorageWillProcessEditing:) name:NSTextStorageWillProcessEditingNotification object:self];
+		}
 }
 
 - (NSArray *) attributeRuns; { return NIMP; }
@@ -310,10 +344,10 @@
 	self=[super initWithCoder:coder];	// we are a real subclass of NSMutableAttributedString
 #endif
 	if(self)
-			{
-				_layoutManagers=[NSMutableArray new];
-				[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
-			}
+		{
+		_layoutManagers=[NSMutableArray new];
+		[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
+		}
 #if 0
 	NSLog(@"%@ done", self);
 #endif
@@ -375,41 +409,26 @@
 
 - (void) replaceCharactersInRange:(NSRange) rng withAttributedString:(NSAttributedString *) str
 {
-	NSEnumerator *e;
-	NSLayoutManager *lm;
-	NSRange irng;
 #if __APPLE__
 	[_concreteString replaceCharactersInRange:rng withAttributedString:str];
 #else
 	[super replaceCharactersInRange:rng withAttributedString:str];
 #endif
-	e=[_layoutManagers objectEnumerator];
-	irng=NSMakeRange(0, [str length]);
-	while((lm=[e nextObject]))
-		[lm textStorage:self edited:0 range:rng changeInLength:0 invalidatedRange:irng];
+	[self edited:NSTextStorageEditedCharacters|NSTextStorageEditedAttributes range:rng changeInLength:[str length]-rng.length];
 }
 
 - (void) replaceCharactersInRange:(NSRange) rng withString:(NSString *) str
 {
-	NSEnumerator *e;
-	NSLayoutManager *lm;
-	NSRange irng;
 #if __APPLE__
 	[_concreteString replaceCharactersInRange:rng withString:str];
 #else
 	[super replaceCharactersInRange:rng withString:str];
 #endif
-	e=[_layoutManagers objectEnumerator];
-	irng=NSMakeRange(0, [str length]);
-	while((lm=[e nextObject]))
-		[lm textStorage:self edited:0 range:rng changeInLength:0 invalidatedRange:irng];
+	[self edited:NSTextStorageEditedCharacters range:rng changeInLength:[str length]-rng.length];
 }
 
 - (void) setAttributedString:(NSAttributedString *) str;
 {
-	NSEnumerator *e;
-	NSLayoutManager *lm;
-	NSRange irng;
 	unsigned prevLen=[self length];
 #if __APPLE__
 	if(_concreteString == str)
@@ -419,26 +438,17 @@
 #else
 	[super setAttributedString:str];
 #endif
-	e=[_layoutManagers objectEnumerator];
-	irng=NSMakeRange(0, [self length]);
-	while((lm=[e nextObject]))
-		[lm textStorage:self edited:0 range:irng changeInLength:0 invalidatedRange:irng];
+	[self edited:NSTextStorageEditedCharacters|NSTextStorageEditedAttributes range:NSMakeRange(0, prevLen) changeInLength:[str length]-prevLen];
 }
 
 - (void) setAttributes:(NSDictionary *)attributes range:(NSRange)aRange
 {
-	NSEnumerator *e;
-	NSLayoutManager *lm;
-	NSRange irng;
 #if __APPLE__
 	[_concreteString setAttributes:attributes range:aRange];
 #else
 	[super setAttributes:attributes range:aRange];
 #endif
-	e=[_layoutManagers objectEnumerator];
-	irng=NSMakeRange(0, [self length]);
-	while((lm=[e nextObject]))
-		[lm textStorage:self edited:0 range:aRange changeInLength:0 invalidatedRange:irng];
+	[self edited:NSTextStorageEditedAttributes range:aRange changeInLength:0];
 }
 
 @end

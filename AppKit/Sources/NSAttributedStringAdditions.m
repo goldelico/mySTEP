@@ -1026,12 +1026,25 @@ static BOOL done;
 
 - (NSDictionary *) fontAttributesInRange:(NSRange)range
 { // get font attributes for character at range.location
-	return NIMP;
+	NSDictionary *d;
+	NSMutableDictionary *e;
+	if(NSMaxRange(range) > [self length])
+		[NSException raise:NSRangeException format:@"range out of bounds"];
+	d=[self attributesAtIndex:range.location effectiveRange:NULL];
+	e=[d mutableCopy];
+	[e removeObjectForKey:NSLinkAttributeName];
+	[e removeObjectForKey:NSParagraphStyleAttributeName];
+	[e removeObjectForKey:NSAttachmentAttributeName];
+	return [e autorelease];
 }
 
 - (NSDictionary *) rulerAttributesInRange:(NSRange)range
 {
-	return NIMP;
+	NSDictionary *d;
+	if(NSMaxRange(range) > [self length])
+		[NSException raise:NSRangeException format:@"range out of bounds"];
+	d=[self attributesAtIndex:range.location effectiveRange:NULL];
+	return [NSDictionary dictionaryWithObjectsAndKeys:[d objectForKey:NSParagraphStyleAttributeName], NSParagraphStyleAttributeName, nil];
 }
 
 - (BOOL) containsAttachments
@@ -1102,6 +1115,48 @@ static BOOL done;
 		return r.location;	// location of first whitespace
 	return location;	// unchanged
 }
+
+- (NSData *) docFormatFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs;
+{ // convert to Word DOC format
+	return NIMP;
+}
+
+- (NSFileWrapper *) fileWrapperFromRange:(NSRange) range documentAttributes:(NSDictionary *) attrs error:(NSError **) error;
+{
+	return NIMP;
+}
+
+- (NSRange) itemNumberInTextList:(NSTextList *) textList atIndex:(unsigned) loc;
+{
+	NIMP;
+}
+
+- (NSRange) rangeOfTextBlock:(NSTextBlock *) textBlock atIndex:(unsigned) loc;
+{
+	NIMP;
+}
+
+- (NSRange) rangeOfTextList:(NSTextList *) textList atIndex:(unsigned) loc;
+{
+	NIMP;
+}
+
+- (NSRange) rangeOfTextTable:(NSTextTable *) textTable atIndex:(unsigned) loc;
+{
+	NIMP;
+}
+
+- (NSURL *) URLAtIndex:(NSUInteger) loc effectiveRange:(NSRangePointer) range; 
+{
+	// check for URL Link attribute
+	// or if not found, check for string that looks like an URL (scheme:something)
+	return NIMP;
+}
+
++ (NSAttributedString *) attributedStringWithAttachment:(NSTextAttachment *)attach; // Problem, parse error
+{
+	return [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%C", NSAttachmentCharacter]
+										   attributes:[NSDictionary dictionaryWithObject:attach forKey:NSAttachmentAttributeName]] autorelease]; }
 
 /*
 +textFileTypes;
@@ -1191,20 +1246,39 @@ static BOOL done;
 
 - (void) fixFontAttributeInRange:(NSRange)range
 {
-	// substitute illegal fonts
-	NIMP;
+	unsigned i;
+	unsigned cnt=[self length];
+	for(i=0; i<cnt; i++)
+		{
+		// substitute illegal fonts
+		// i.e. if the font(s) don't support the characer range, substitute a font
+		}
+	return;
 }
 
 - (void) fixParagraphStyleAttributeInRange:(NSRange)range
 {
-	// merge multiple paragraph styles for single lines
-	NIMP;
+	unsigned i;
+	unsigned cnt=[self length];
+	for(i=0; i<cnt; i++)
+		{
+		// merge multiple paragraph styles for single lines		
+		}
+	return;
 }
 
 - (void) fixAttachmentAttributeInRange:(NSRange)range
 {
-	// remove attachments for non-attachment characters
-	NIMP;
+	unsigned i;
+	unsigned cnt=[self length];
+	for(i=0; i<cnt; i++)
+		{
+		if([[self string] characterAtIndex:i] != NSAttachmentCharacter)
+			{
+			// remove attachments for non-attachment characters			
+			}
+		}
+	return;
 }
 
 - (void) setBaseWritingDirection:(NSWritingDirection) direction range:(NSRange) range;
@@ -1212,6 +1286,34 @@ static BOOL done;
 	[self setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:direction]
 													forKey:@"WritingDirection"]
 				  range:range];
+}
+
+- (BOOL) readFromData:(NSData *) data options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs;
+{
+	return [self readFromData:data options:opts documentAttributes:attrs error:NULL];
+}
+
+- (BOOL) readFromData:(NSData *) data options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs error:(NSError **) error;
+{
+	NSAttributedString *a=[[NSAttributedString alloc] initWithData:data options:opts documentAttributes:attrs error:error];
+	if(!a) return NO;
+	[self setAttributedString:a];
+	[a release];
+	return YES;
+}
+						   
+- (BOOL) readFromURL:(NSURL *) url options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs;
+{
+	return [self readFromURL:url options:opts documentAttributes:attrs error:NULL];
+}
+
+- (BOOL) readFromURL:(NSURL *) url options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs error:(NSError **) error;
+{
+	NSAttributedString *a=[[NSAttributedString alloc] initWithURL:url options:opts documentAttributes:attrs error:error];
+	if(!a) return NO;
+	[self setAttributedString:a];
+	[a release];
+	return YES;
 }
 
 @end
