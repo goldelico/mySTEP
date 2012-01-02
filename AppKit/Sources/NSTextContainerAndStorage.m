@@ -61,9 +61,14 @@
 							sweepDirection:(NSLineSweepDirection) sweepDirection
 						 movementDirection:(NSLineMovementDirection) movementDirection
 							 remainingRect:(NSRect *) remainingRect;
-{
-	NIMP;
-	return NSZeroRect;
+{ // standard container - limit proposed rect to width and height of container
+	NSRect crect={ NSZeroPoint, size };	// container rectangle
+	NSRect lfr=NSIntersectionRect(proposedRect, crect);	// limit by container - may be zero if no space available
+	if(NSHeight(lfr) < NSHeight(proposedRect))
+		lfr=NSZeroRect;	// does not fit for given height
+	if(remainingRect)
+		*remainingRect=NSZeroRect;	// there is no remaining rect
+	return lfr;
 }
 
 - (void) replaceLayoutManager:(NSLayoutManager *) newLayoutManager;
@@ -86,13 +91,17 @@
 #if 0
 		NSLog(@"adjusted %@", self);
 #endif
-		// notify layout manager to invalidate the glyph layout
+		[layoutManager textContainerChangedGeometry:self];	// so that glyphs and layout can be invalidated
 		}
 }
 
 - (void) setHeightTracksTextView:(BOOL) flag; { heightTracksTextView=flag; }
 - (void) setLayoutManager:(NSLayoutManager *) lm; { layoutManager=lm; }
-- (void) setLineFragmentPadding:(float) pad; { lineFragmentPadding=pad; }
+- (void) setLineFragmentPadding:(float) pad;
+{
+	lineFragmentPadding=pad;
+	[layoutManager textContainerChangedGeometry:self];
+}
 
 - (void) setTextView:(NSTextView *) tv;
 {

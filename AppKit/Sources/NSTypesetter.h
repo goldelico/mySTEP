@@ -35,7 +35,12 @@ typedef NSUInteger NSTypesetterControlCharacterAction;
 	NSParagraphStyle *_currentParagraphStyle;
 	NSTextContainer *_currentTextContainer;
 	NSTypesetterBehavior _typesetterBehavior;
+	NSRange _paragraphCharacterRange;
+	NSRange _separatorCharacterRange;
+	NSRange _paragraphGlyphRange;
+	NSRange _separatorGlyphRange;
 	CGFloat _lineFragmentPadding;
+	NSUInteger _maxNumberOfLineFragments;
 	BOOL _bidiProcessingEnabled;
 	BOOL _usesFontLeading;
 }

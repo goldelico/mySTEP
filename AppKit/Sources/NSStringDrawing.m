@@ -108,6 +108,7 @@ static NSAttributedString *_currentString;
 		_textContainer=[[NSTextContainer alloc] initWithContainerSize:rect.size];	// predefine the size of the container
 		_layoutManager=[NSLayoutManager new];
 		[_layoutManager addTextContainer:_textContainer];
+		[[_layoutManager typesetter] setTypesetterBehavior:NSTypesetterBehavior_10_2_WithCompatibility];	// our typesetter ignores that...
 		[_textContainer release];	// is retained by _layoutManager
 		[_textStorage addLayoutManager:_layoutManager];
 		[_layoutManager release];	// is retained by _textStorage

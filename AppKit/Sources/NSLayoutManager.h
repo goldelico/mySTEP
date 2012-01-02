@@ -130,6 +130,7 @@ typedef NSInteger NSTypesetterBehavior;
 	BOOL _hasNonContiguousLayout;
 	
 	BOOL _layoutIsValid;
+	BOOL _glyphsAreValid;
 }
 
 - (void) addTemporaryAttribute:(NSString *) attr value:(id) val forCharacterRange:(NSRange) range;

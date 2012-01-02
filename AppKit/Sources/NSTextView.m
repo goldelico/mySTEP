@@ -779,30 +779,31 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 			shared=[coder decodeObjectForKey:@"NSSharedData"];
 			if(shared)
 				{
-					int flags=[shared flags];
-					[self setBackgroundColor:[shared backgroundColor]];
-					_tx.selectable = ((0x02 & flags) != 0);
-					[self setEditable:((0x01 & flags) != 0)];	// will also set selectable
-					_tx.isRichText = ((0x04 & flags) != 0);
-					_tx.importsGraphics = ((0x08 & flags) != 0);
-					//		  _tf.is_field_editor = ((0x10 & flags) > 0);
-					_tx.usesFontPanel = ((0x20 & flags) > 0);
-					_tx.rulerVisible = ((0x40 & flags) > 0);
-					//		  _tf.uses_ruler = ((0x100 & flags) > 0);
-					_tx.drawsBackground = ((0x800 & flags) != 0);
-					smartInsertDeleteEnabled = ((0x2000000 & flags) != 0);
-					//		  _tf.allows_undo = ((0x40000000 & flags) > 0);	  
-					[self setInsertionPointColor:[shared insertionPointColor]];
-					[self setDefaultParagraphStyle:[shared defaultParagraphStyle]];
-					[self setLinkTextAttributes:[shared linkTextAttributes]];
-					[self setMarkedTextAttributes:[shared markedTextAttributes]];
-					[self setSelectedTextAttributes:[shared selectedTextAttributes]];
+				int flags=[shared flags];
+				[self setBackgroundColor:[shared backgroundColor]];
+				_tx.selectable = ((0x02 & flags) != 0);
+				[self setEditable:((0x01 & flags) != 0)];	// will also set selectable
+				_tx.isRichText = ((0x04 & flags) != 0);
+				_tx.importsGraphics = ((0x08 & flags) != 0);
+				//		  _tf.is_field_editor = ((0x10 & flags) > 0);
+				_tx.usesFontPanel = ((0x20 & flags) > 0);
+				_tx.rulerVisible = ((0x40 & flags) > 0);
+				//		  _tf.uses_ruler = ((0x100 & flags) > 0);
+				_tx.drawsBackground = ((0x800 & flags) != 0);
+				smartInsertDeleteEnabled = ((0x2000000 & flags) != 0);
+				//		  _tf.allows_undo = ((0x40000000 & flags) > 0);	  
+				[self setInsertionPointColor:[shared insertionPointColor]];
+				[self setDefaultParagraphStyle:[shared defaultParagraphStyle]];
+				[self setLinkTextAttributes:[shared linkTextAttributes]];
+				[self setMarkedTextAttributes:[shared markedTextAttributes]];
+				[self setSelectedTextAttributes:[shared selectedTextAttributes]];
 				}
 		}
 	return self;
 }
 
 // FIXME: this method should expect SCREEN coordinates!!!
+// FIXME: handle multiple text containers?
 
 - (unsigned int) characterIndexForPoint:(NSPoint) pnt;
 {
