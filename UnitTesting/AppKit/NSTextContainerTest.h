@@ -1,5 +1,5 @@
 //
-//  NSTextFieldCellTest.h
+//  NSTextContainerTest.h
 //  AppKit
 //
 //  Created by H. Nikolaus Schaller on 28.03.09.
@@ -9,7 +9,7 @@
 #import <SenTestingKit/SenTestingKit.h>
 
 
-@interface NSTextFieldCellTest : SenTestCase {
+@interface NSTextContainerTest : SenTestCase {
 
 }
 

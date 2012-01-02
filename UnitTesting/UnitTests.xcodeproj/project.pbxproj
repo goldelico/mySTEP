@@ -20,6 +20,7 @@
 		EE488BAC0F9102D000B3E56F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EE488BAD0F9102D500B3E56F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
 		EE488C3F0F91030800B3E56F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE488C3E0F91030800B3E56F /* main.m */; };
+		EE7A573B14B0BD8500A12559 /* NSTextContainerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */; };
 		EEBB6D95109CBEE500B67699 /* NSPortCoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */; };
 		EED109C90F82540300E9AEC6 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
 		EED980320F875953002E4AD5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
@@ -47,6 +48,8 @@
 		EE488AEC0F91025500B3E56F /* Special-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Special-Info.plist"; sourceTree = "<group>"; };
 		EE488C3E0F91030800B3E56F /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EE5DAEF010A61BD200910F0B /* Special.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Special.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE7A573914B0BD8500A12559 /* NSTextContainerTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextContainerTest.h; sourceTree = "<group>"; };
+		EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextContainerTest.m; sourceTree = "<group>"; };
 		EEBB6D93109CBEE500B67699 /* NSPortCoderTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSPortCoderTest.h; sourceTree = "<group>"; };
 		EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPortCoderTest.m; sourceTree = "<group>"; };
 		EED109C80F82540300E9AEC6 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
@@ -54,7 +57,6 @@
 		EED980280F87594E002E4AD5 /* NSTextFieldCellTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextFieldCellTest.h; sourceTree = "<group>"; };
 		EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextFieldCellTest.m; sourceTree = "<group>"; };
 		EED9803A0F875953002E4AD5 /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EED9803B0F875953002E4AD5 /* Tests-Info copy.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info copy.plist"; sourceTree = "<group>"; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		EEFFF0EC098DF148002610FC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -103,7 +105,6 @@
 				EEFFF241098DF160002610FC /* MacOS X Frameworks */,
 				EE29D8D8058A38830035639B /* Products */,
 				EE0C72040F7E7328008B94EE /* Tests-Info.plist */,
-				EED9803B0F875953002E4AD5 /* Tests-Info copy.plist */,
 				EE488C3E0F91030800B3E56F /* main.m */,
 				EE488AEC0F91025500B3E56F /* Special-Info.plist */,
 			);
@@ -147,6 +148,8 @@
 			isa = PBXGroup;
 			children = (
 				EE13461D10A04ECB00169BC8 /* Sources */,
+				EE7A573914B0BD8500A12559 /* NSTextContainerTest.h */,
+				EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */,
 				EED980280F87594E002E4AD5 /* NSTextFieldCellTest.h */,
 				EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */,
 			);
@@ -361,6 +364,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EED9803E0F875962002E4AD5 /* NSTextFieldCellTest.m in Sources */,
+				EE7A573B14B0BD8500A12559 /* NSTextContainerTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -599,7 +603,7 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "/usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/Tests-Info copy.plist";
+				INFOPLIST_FILE = "/usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				LIBRARY_SEARCH_PATHS = /Developer/Library;
 				ONLY_ACTIVE_ARCH = YES;
@@ -631,7 +635,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
 				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "/usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/Tests-Info copy.plist";
+				INFOPLIST_FILE = "/usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -659,7 +663,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
 				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "/usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/Tests-Info copy.plist";
+				INFOPLIST_FILE = "/usr/share/QuantumSTEP/System/Sources/Frameworks/UnitTesting/Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (

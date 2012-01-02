@@ -1,6 +1,6 @@
 //
 //  NSTextFieldCellTest.m
-//  Foundation
+//  AppKit
 //
 //  Created by H. Nikolaus Schaller on 28.03.09.
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
@@ -16,7 +16,7 @@
 
 - (void) testTextFieldCell;
 {
-	NSTextFieldCell *c = [[NSTextFieldCellTest alloc] init];
+	NSTextFieldCell *c = [[NSTextFieldCell alloc] init];
 	[c setTitle:@"title1"];
 	STAssertEqualObjects(@"title1", [c title], nil);
 	[c setTitle:@"title2"];
