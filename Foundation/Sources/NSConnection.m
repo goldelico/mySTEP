@@ -368,11 +368,11 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	NSLog(@"dealloc %p:%@", self, self);
 #endif
 	if(_isValid)
-			{ // this should not really occur since we are retained as an observer as long as we are valid!
-				NSLog(@"dealloc without invalidate: %p %@", self, self);
-				abort();
-				[self invalidate];		
-			}
+		{ // this should not really occur since we are retained as an observer as long as we are valid!
+			NSLog(@"dealloc without invalidate: %p %@", self, self);
+			abort();
+			[self invalidate];		
+		}
 #if 0
 	NSLog(@"proxy connection: %p", _proxy);
 	NSLog(@"local objects: %p", _localObjects);
@@ -383,10 +383,16 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	NSLog(@"remote objects: %@", NSAllHashTableValues(_remoteObjects));
 #endif
 	//	[_proxy release];
-	NSAssert(NSCountMapTable(_localObjects) == 0, @"local objects still use this connection"); // should be empty before we can be released...
-	NSAssert(NSCountMapTable(_remoteObjects) == 0, @"remote objects still use this connection"); // should be empty before we can be released...
-	if(_localObjects) NSFreeMapTable(_localObjects);
-	if(_remoteObjects) NSFreeMapTable(_remoteObjects);
+	if(_localObjects)
+		{
+		NSAssert(NSCountMapTable(_localObjects) == 0, @"local objects still use this connection"); // should be empty before we can be released...
+		NSFreeMapTable(_localObjects);		
+		}
+	if(_remoteObjects)
+		{
+		NSAssert(NSCountMapTable(_remoteObjects) == 0, @"remote objects still use this connection"); // should be empty before we can be released...
+		NSFreeMapTable(_remoteObjects);
+		}
 	if(_responses) NSFreeMapTable(_responses);
 	// [_delegate release];	// not retained
 	[_receivePort release];	// we are already removed as receivePort observer by -invalidate
