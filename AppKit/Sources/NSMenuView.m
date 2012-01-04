@@ -736,7 +736,7 @@
 		NSLog(@"drawing large menu with %d entries", nc);
 	if(_needsSizing)
 		NSLog(@"NSMenuView drawRect: please call sizeToFit explicitly before calling display");	// rect is most probably inaccurate
-#if 0
+#if 1
 	NSLog(@"NSMenuView - %@ (nc=%d) drawRect:%@", [[_menumenu itemAtIndex:0] title], nc, NSStringFromRect(rect));
 #endif
 	//// FIXME: the following code deletes all menu items in the drawing rectangle which may be the union of 2 non-adjacent cells!
@@ -744,7 +744,6 @@
 	[[NSColor windowBackgroundColor] set];	// draw white/light grey lines
 	NSRectFill(rect);	// draw background
 #if 0	// draw box around menu for testing
-	if(!_isHorizontal)
 		{ // draw box
 		[[NSColor brownColor] set];
 		// shouldn't this be frame/bounds clipped by rect???
@@ -758,7 +757,7 @@
 	for(i=0; i<nc; i++)
 		{ // go through cells and draw them at their calculated position - if needed (needsDisplay of cell)
 		NSRect cRect=[self rectOfItemAtIndex:i];	// get cell rectangle
-#if 0
+#if 1
 		NSLog(@"menu=%@", _menumenu);
 		NSLog(@"menuitem=%@", [_menumenu itemAtIndex:0]);
 		NSLog(@"menuitem title=%@", [[_menumenu itemAtIndex:0] title]);

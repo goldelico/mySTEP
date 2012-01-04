@@ -17,7 +17,7 @@
 
 #import "NSBackendPrivate.h"
 
-#define OLD	0
+#define OLD	1
 
 @implementation NSGlyphGenerator
 
@@ -1154,8 +1154,6 @@ static unsigned int _oldGlyphBufferCapacity;
 {
 	NSTextContainer *container;
 	NSTextView *tv;
-	if(!flag)
-		[self ensureLayoutForCharacterRange:NSMakeRange(0, [_textStorage length])]; // additional layout
 	container=[_textContainers objectAtIndex:0];	// first one
 	tv=[container textView];
 	// FIXME: this is a hack

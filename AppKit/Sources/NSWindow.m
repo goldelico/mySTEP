@@ -1388,6 +1388,7 @@ static NSButtonCell *sharedCell;
 #if 0
 		NSLog(@"NSWindow end of designated initializer\n");
 #endif
+		// fixme - should we register each individual window???
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(_screenParametersNotification:)
 													 name:NSApplicationDidChangeScreenParametersNotification
@@ -1840,7 +1841,13 @@ static NSButtonCell *sharedCell;
 
 - (NSRect) frameRectForContentRect:(NSRect) cRect
 {
+#if 0
+	NSLog(@"frameRectForContentRect:%@", NSStringFromRect(cRect));
+#endif
 	cRect=[NSWindow frameRectForContentRect:cRect styleMask:_w.styleMask];
+#if 0
+	NSLog(@"frameRectForContentRect -> %@", NSStringFromRect(cRect));
+#endif
 	// FIXME: add toolbar height
 	// scale by userspace factor
 	return cRect;
@@ -1853,6 +1860,9 @@ static NSButtonCell *sharedCell;
 - (void) setContentSize:(NSSize)aSize
 {
 	NSRect r={ _frame.origin, aSize };
+#if 0
+	NSLog(@"setContentSize ->%@", NSStringFromRect(r));
+#endif
 	// limit to be larger than minSize and smaller than maxSize!
 	[self setFrame:[self frameRectForContentRect:r] display:_w.visible];
 }
@@ -1876,6 +1886,9 @@ static NSButtonCell *sharedCell;
 
 - (void) setFrame:(NSRect)r display:(BOOL)flag
 {
+#if 0
+	NSLog(@"setFrame:%@ display:%d", NSStringFromRect(r), flag);
+#endif
 	if(!NSEqualSizes(r.size, _frame.size))
 		{ // resize (and move)
 		[_context _setOriginAndSize:r];	// set origin since we must "move" in X11 coordinates even if we resize only
@@ -1887,12 +1900,7 @@ static NSButtonCell *sharedCell;
 		[_context _setOrigin:r.origin];
 		[self _setFrame:r];	// update content view etc.
 		}
-	else if(flag)
-		{ // no change, but display requested
-		[self display];
-		return;
-		}
-	else
+	else if(!flag)
 		return;	// NOOP request
 	if(flag)
 		[self display];	// if requested in addition
@@ -1907,7 +1915,7 @@ static NSButtonCell *sharedCell;
 		return;	// no change
 	if(!NSEqualSizes(rect.size, _frame.size))
 		{ // needs to resize content view
-		_frame=rect;
+			_frame=rect;
 			[(NSThemeFrame *) _themeFrame setFrameSize:rect.size];	// adjust theme frame subviews and content View
 			[(NSThemeFrame *) _themeFrame layout];
 		}
