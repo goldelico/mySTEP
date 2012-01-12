@@ -6,6 +6,8 @@
 //  Copyright (c) 2003 DSITRI. All rights reserved.
 //
 
+#include <openssl/md5.h>
+
 ///// selecting a menu item should set setDefaultButtonCell: so that 'return' selects
 
 #import <AppKit/NSMenuView.h>
