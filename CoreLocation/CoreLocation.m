@@ -423,12 +423,13 @@ static NSFileHandle *file;
 static int startW2SG;
 
 + (void) didNotStart
-{ // timeout
+{ // timeout - try to retrigger
 #if 1
 	NSLog(@"did not yet receive NMEA");
 #endif
-	if(startW2SG++ > 3)
-		{ // permanent problem - don't try again (is this good if this process is only started once after reboot?)
+#if UNUSED
+	if(startW2SG == 3)
+		{ // permanent problem
 			NSLog(@"GPS receiver not working");
 			/*
 			 error=[NSError ...];
@@ -439,11 +440,12 @@ static int startW2SG;
 			 // check for distanceFilter
 			 [[m delegate] locationManager:self didFailWithError:error];
 			 }
-*/			 
-			return;
+*/
+			// return;
 		}
+#endif
 	system("echo 0 >/sys/devices/virtual/gpio/gpio145/value; echo 1 >/sys/devices/virtual/gpio/gpio145/value; stty 9600 </dev/ttyO1");	// give a start/stop impulse
-	[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// we did not receive NMEA records
+	[self performSelector:@selector(didNotStart) withObject:nil afterDelay:++startW2SG > 4?30.0:5.0];	// we did not receive NMEA records
 }
 
 + (void) registerManager:(CLLocationManager *) m
@@ -490,10 +492,9 @@ static int startW2SG;
 #endif
 			[file readInBackgroundAndNotify];	// and trigger notifications
 			startW2SG=0;
-			// power on GPS receiver
-			[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// check if we did not receive NMEA records
-			// power on antenna
+			// power on GPS receiver and antenna
 			system("echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
+			[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// times out if we did not receive NMEA records
 			return;
 		}
 	if([managers indexOfObjectIdenticalTo:m] != NSNotFound)
@@ -772,6 +773,7 @@ static int startW2SG;
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel startup timer
 	[self _parseNMEA183:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
 	[[n object] readInBackgroundAndNotify];	// and trigger more notifications
+	[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// times out if we do not receive any further NMEA records
 }
 
 @end
