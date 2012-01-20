@@ -476,7 +476,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 }
 
 - (NSDictionary *) afmDictionary;	{ DEPRECATED; return nil; }
-- (float) defaultLineHeightForFont;	{ DEPRECATED; return [self ascender]+[self descender]+[self leading]; }
+- (float) defaultLineHeightForFont;	{ DEPRECATED; return [self ascender]-[self descender]+[self leading]; }
 - (NSString *) encodingScheme;	{ DEPRECATED; return @"FontSpecificEncoding"; }
 - (BOOL) glyphIsEncoded:(NSGlyph)aGlyph;	{ DEPRECATED; return NO; }
 - (NSMultibyteGlyphPacking) glyphPacking;	{ DEPRECATED; return NSNativeShortGlyphPacking; }

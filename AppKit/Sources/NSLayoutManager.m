@@ -132,6 +132,7 @@ static id _sharedSystemTypesetter;
 - (CGFloat) baselineOffsetInLayoutManager:(NSLayoutManager *) manager glyphIndex:(NSUInteger) index;
 {
 	// FIXME: this depends on the NSFont??
+	// or is it stored/cached for each glyph in the typesetter???
 	return 0.0;
 }
 
@@ -396,6 +397,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 						unichar c=[str characterAtIndex:attribRange.location];
 						NSGlyph glyph=[_layoutManager glyphAtIndex:startIndex];
 						NSTypesetterControlCharacterAction a=0;
+						float baseLineOffset;
 						if(glyph == NSControlGlyph)
 							a=[self actionForControlCharacterAtIndex:attribRange.location];
 						if(a&NSTypesetterZeroAdvancementAction)
@@ -475,8 +477,9 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 						ulfr=box;
 						[self setNotShownAttribute:(a != 0) forGlyphRange:NSMakeRange(startIndex, 1)];
 						// FIXME: handle rects
-//						[self willSetLineFragmentRect:&lfr forGlyphRange:NSMakeRange(startIndex, 1) usedRect:&ulfr baselineOffset:0];
-//						[self setLineFragmentRect:lfr forGlyphRange:NSMakeRange(startIndex, 1) usedRect:ulfr baselineOffset:[self baselineOffsetInLayoutManager:_layoutManager glyphIndex:startIndex]];
+						baseLineOffset=[_layoutManager defaultBaselineOffsetForFont:font];
+						[self willSetLineFragmentRect:&lfr forGlyphRange:NSMakeRange(startIndex, 1) usedRect:&ulfr baselineOffset:&baseLineOffset];
+						[self setLineFragmentRect:lfr forGlyphRange:NSMakeRange(startIndex, 1) usedRect:ulfr baselineOffset:baseLineOffset];
 						previous=glyph;
 						startIndex++;
 						
@@ -701,7 +704,8 @@ forStartOfGlyphRange:(NSRange) range;
 						usedRect:(NSRectPointer) usedRectPt 
 				  baselineOffset:(CGFloat *) offset; 
 {
-	return;	// no op
+	return;	// no op - can be overridden in subclasses to implement modified layout
+	// see: http://www.cocoabuilder.com/archive/cocoa/175380-creating-an-nstypesetter-subclass.html
 }
 
 @end
@@ -1298,9 +1302,13 @@ static void allocateExtra(struct NSGlyphStorage *g)
 }
 
 - (float) defaultLineHeightForFont:(NSFont *) font;
-{
-	// FIXME: ask typesetter behaviour???
-	return [font defaultLineHeightForFont];
+{ // may differ from [font defaultLineHeightForFont]
+	float leading=[font leading];
+	float height;
+	height=floor([font ascender]+0.5)+floor(0.5-[font descender]);
+	if(leading > 0)
+		height += leading + floor(0.2*height + 0.5);
+	return height;
 }
 
 - (id) delegate; { return _delegate; }
@@ -1400,7 +1408,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			/* get underline attribute value
 			 [self drawUnderlineForGlyphRange:(NSRange)glyphRange 
 			 underlineType:(int)underlineVal 
-			 baselineOffset:(float)baselineOffset 
+			 baselineOffset:[_typesetter baselineOffsetInLayoutManager:self glyphIndex:startIndex];
 			 lineFragmentRect:(NSRect)lineRect 
 			 lineFragmentGlyphRange:(NSRange)lineGlyphRange 
 			 containerOrigin:(NSPoint)containerOrigin;
@@ -1408,7 +1416,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			/* get strikethrough attribute value
 			 [self drawStrikethroughForGlyphRange:(NSRange)glyphRange 
 			 strikethroughType:(int)strikethroughVal 
-			 baselineOffset:(float)baselineOffset 
+			 baselineOffset:[_typesetter baselineOffsetInLayoutManager:self glyphIndex:startIndex] 
 			 lineFragmentRect:(NSRect)lineRect 
 			 lineFragmentGlyphRange:(NSRange)lineGlyphRange 
 			 containerOrigin:(NSPoint)containerOrigin;
@@ -2131,7 +2139,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				 containerOrigin:(NSPoint)containerOrigin;
 {
 	[self ensureLayoutForGlyphRange:glyphRange];
-	[self drawStrikethroughForGlyphRange:glyphRange strikethroughType:strikethroughVal baselineOffset:0.0 lineFragmentRect:lineRect lineFragmentGlyphRange:lineGlyphRange containerOrigin:containerOrigin];
+	[self drawStrikethroughForGlyphRange:glyphRange strikethroughType:strikethroughVal baselineOffset:[_typesetter baselineOffsetInLayoutManager:self glyphIndex:glyphRange.location] lineFragmentRect:lineRect lineFragmentGlyphRange:lineGlyphRange containerOrigin:containerOrigin];
 }
 
 - (NSFont *) substituteFontForFont:(NSFont *) originalFont;
@@ -2254,7 +2262,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	[self ensureLayoutForGlyphRange:glyphRange];
 	// get fragments with same font???
 	// use [font underlinePosition];
-	[self drawUnderlineForGlyphRange:glyphRange underlineType:underlineVal baselineOffset:0.0 lineFragmentRect:lineRect lineFragmentGlyphRange:lineGlyphRange containerOrigin:containerOrigin];
+	[self drawUnderlineForGlyphRange:glyphRange underlineType:underlineVal baselineOffset:[_typesetter baselineOffsetInLayoutManager:self glyphIndex:glyphRange.location] lineFragmentRect:lineRect lineFragmentGlyphRange:lineGlyphRange containerOrigin:containerOrigin];
 }
 
 - (NSRect) usedRectForTextContainer:(NSTextContainer *)container;
