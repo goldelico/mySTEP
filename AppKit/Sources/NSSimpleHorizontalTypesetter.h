@@ -48,24 +48,27 @@ typedef struct _NSTypesetterGlyphInfo
 } NSTypesetterGlyphInfo;
 
 @interface NSSimpleHorizontalTypesetter : NSTypesetter
-{
-	NSTypesetterGlyphInfo *_glyphInfo;	// this is the shelf where Glyphs are laid out until a complete line is flushed to the LayoutManager
-//	NSLayoutManager *_currentLayoutManager;	=> _layoutManager
-//	NSTextStorage *_currentTextStorage;	=> _attributedString
-//	NSTextContainer *_currentContainer;	=> _currentTextContainer
-//	NSParagraphStyle *_currentParagraphStyle;	=> _currentParagraphStyle
-	unsigned _capacityGlyphInfo;
-	unsigned _sizeGlyphInfo;
-	unsigned _firstIndexOfCurrentLineFragment;
-	unsigned _currentGlyphIndex;
-	NSRange _currentParagraphRange;
-	/* from http://lightchaos.blog10.fc2.com/blog-entry-111.html
-	NSLayoutManager *layoutManager;
-	NSTextStorage *textStorage;
+{ /* from http://lightchaos.blog10.fc2.com/blog-entry-111.html */
+
+	NSTypesetterGlyphInfo *glyphs;	// this is the shelf where Glyphs are laid out until a complete line is flushed to the LayoutManager
+	NSLayoutManager *layoutManager;	// => _layoutManager
+	NSTextStorage *textStorage;		// => _attributedString
+	NSString *textString;
+	NSTextContainer *curContainer;	// => _currentTextContainer
+	NSParagraphStyle *curParaStyle;	// => _currentParagraphStyle
+	NSFont *previousFont;
+	NSFont *curFont;
+	NSDictionary *attrs;
+	NSRange attrsRange;
+	unsigned capacityGlyphInfo;
+	unsigned sizeGlyphInfo;
+	unsigned firstIndexOfCurrentLineFragment;
+	unsigned curGlyphIndex;
+	float curMinLineHeight;
+	float curMaxLineHeight;
+	/*
 	unsigned int firstGlyphIndex;
-	unsigned int curGlyphIndex;
 	unsigned int firstInvalidGlyphIndex;
-	NSTypesetterGlyphInfo *glyphs;
 	unsigned int *glyphCache;
 	int *glyphInscriptionCache;
 	unsigned int *glyphCharacterIndexCache;
@@ -80,7 +83,6 @@ typedef struct _NSTypesetterGlyphInfo
 	unsigned int previousGlyph;
 	unsigned int previousBaseGlyphIndex;
 	unsigned int previousBaseGlyph;
-	NSFont *previousFont;
 	float curGlyphOffset;
 	BOOL curGlyphOffsetOutOfDate;
 	BOOL curGlyphIsAControlGlyph;
@@ -93,26 +95,18 @@ typedef struct _NSTypesetterGlyphInfo
 	float curGlyphExtentBelowLocation;
 	int curLayoutDirection;
 	int curTextAlignment;
-	NSFont *curFont;
 	NSRect curFontBoundingBox;
 	BOOL curFontIsFixedPitch;
 	NSPoint curFontAdvancement;
 	void *curFontPositionOfGlyphMethod;
-	NSDictionary *attrs;
-	NSRange attrsRange;
 	float curBaselineOffset;
 	float curMinBaselineDistance;
 	float curMaxBaselineDistance;
 	int curSuperscript;
-	NSParagraphStyle *curParaStyle;
-	NSTextContainer *curContainer;
 	unsigned int curContainerIndex;
 	float curContainerLineFragmentPadding;
 	BOOL curContainerIsSimpleRectangular;
 	NSSize curContainerSize;
-	float curMinLineHeight;
-	float curMaxLineHeight;
-	NSString *textString;
 	unsigned int capacityOfGlyphs;
 	BOOL busy;
 	struct {
@@ -136,14 +130,14 @@ typedef struct _NSTypesetterGlyphInfo
 + (id) sharedInstance;
 
 - (NSTypesetterGlyphInfo *) baseOfTypesetterGlyphInfo;
-#define NSGlyphInfoAtIndex(IDX) (_glyphInfo+(IDX)*sizeof(_glyphInfo[0]))
+#define NSGlyphInfoAtIndex(IDX) (glyphs+(IDX)*sizeof(glyphs[0]))
 - (void) breakLineAtIndex:(unsigned) location;
 - (unsigned) capacityOfTypesetterGlyphInfo;
 - (void) clearAttributesCache;
 - (void) clearGlyphCache;
 - (NSTextContainer *) currentContainer;	// [super currentTextContainer]
 - (NSLayoutManager *) currentLayoutManager;	// [super layoutManager]
-// - (NSParagraphStyle *) currentParagraphStyle;	// inherited from superclass
+- (NSParagraphStyle *) currentParagraphStyle;	// inherited from superclass
 - (NSTextStorage *) currentTextStorage;	// [super attributedString]
 - (void) fillAttributesCache;
 - (unsigned) firstGlyphIndexOfCurrentLineFragment;
@@ -163,7 +157,7 @@ typedef struct _NSTypesetterGlyphInfo
 - (unsigned) sizeOfTypesetterGlyphInfo;
 - (void) typesetterLaidOneGlyph:(NSTypesetterGlyphInfo *) gl;	// called after each glyph
 - (void) updateCurGlyphOffset;
-// - (void) willSetLineFragmentRect:(NSRect *) aRect forGlyphRange:(NSRange) aRange usedRect:(NSRect *) bRect;	// inherited from superclass
+- (void) willSetLineFragmentRect:(NSRect *) aRect forGlyphRange:(NSRange) aRange usedRect:(NSRect *) bRect;	// inherited from superclass
 
 /* undocumented methods */
 - (unsigned int)glyphIndexToBreakLineByClippingAtIndex:(unsigned int)fp8;
