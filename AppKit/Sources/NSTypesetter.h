@@ -15,7 +15,7 @@
 #ifndef _mySTEP_H_NSTypesetter
 #define _mySTEP_H_NSTypesetter
 
-#import "AppKit/NSResponder.h"
+#import "AppKit/NSResponder.h"	// imports what we need
 
 enum
 {

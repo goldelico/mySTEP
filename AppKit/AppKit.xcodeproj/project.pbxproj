@@ -352,6 +352,8 @@
 		EE294BFF0E4586B100F2D481 /* Toolbar.plist in Resources */ = {isa = PBXBuildFile; fileRef = EE294BFE0E4586B100F2D481 /* Toolbar.plist */; };
 		EE294C000E4586B100F2D481 /* Toolbar.plist in Resources */ = {isa = PBXBuildFile; fileRef = EE294BFE0E4586B100F2D481 /* Toolbar.plist */; };
 		EE294C010E4586B100F2D481 /* Toolbar.plist in Resources */ = {isa = PBXBuildFile; fileRef = EE294BFE0E4586B100F2D481 /* Toolbar.plist */; };
+		EE2B330814CC4554007F446C /* NSSimpleHorizontalTypesetter.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2B330714CC4554007F446C /* NSSimpleHorizontalTypesetter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE2B330914CC4554007F446C /* NSSimpleHorizontalTypesetter.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2B330714CC4554007F446C /* NSSimpleHorizontalTypesetter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE3193EF09AA47490089A9A2 /* NSX11GraphicsContext.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1D48300996A68B00DDE5E0 /* NSX11GraphicsContext.h */; };
 		EE3193F009AA47490089A9A2 /* AppKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3717D09540271001244CF /* AppKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE3193F209AA47490089A9A2 /* GSServices.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3719F09540271001244CF /* GSServices.h */; };
@@ -1207,6 +1209,7 @@
 		EE291CD70AD7EA40004A1CA6 /* NSSpeechRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSSpeechRecognizer.m; sourceTree = "<group>"; };
 		EE294BFE0E4586B100F2D481 /* Toolbar.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Toolbar.plist; path = ../../System/Tools/ZMacSync/ZMacSync/Toolbar.plist; sourceTree = SOURCE_ROOT; };
 		EE294C310E458C3700F2D481 /* Info.cocoa.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.cocoa.plist; sourceTree = "<group>"; };
+		EE2B330714CC4554007F446C /* NSSimpleHorizontalTypesetter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSSimpleHorizontalTypesetter.h; sourceTree = "<group>"; };
 		EE2C4F510D4393670017D712 /* Xrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Xrender.h; path = /usr/X11R6/include/X11/extensions/Xrender.h; sourceTree = "<absolute>"; };
 		EE31951109AA47490089A9A2 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE3196E209AB7E8A0089A9A2 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
@@ -2152,6 +2155,7 @@
 				EEA3728209540273001244CF /* NSTextView.h */,
 				EEA3728309540273001244CF /* NSTextView.m */,
 				EEF5292D0A55355E0049AF3C /* NSTypesetter.h */,
+				EE2B330714CC4554007F446C /* NSSimpleHorizontalTypesetter.h */,
 			);
 			name = Text;
 			sourceTree = "<group>";
@@ -2668,6 +2672,7 @@
 				EE0E66C90DBC828600564003 /* tiff.h in Headers */,
 				EE0E66CA0DBC828600564003 /* zlib.h in Headers */,
 				EEAA6C500F96315C00B5BA72 /* NSTextInputClient.h in Headers */,
+				EE2B330914CC4554007F446C /* NSSimpleHorizontalTypesetter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2924,6 +2929,7 @@
 				EE0E66650DBC828600564003 /* tiff.h in Headers */,
 				EE0E66660DBC828600564003 /* zlib.h in Headers */,
 				EEAA6C4F0F96315C00B5BA72 /* NSTextInputClient.h in Headers */,
+				EE2B330814CC4554007F446C /* NSSimpleHorizontalTypesetter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

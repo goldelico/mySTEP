@@ -16,8 +16,9 @@
 #import <AppKit/NSTypesetter.h>
 
 #import "NSBackendPrivate.h"
+#import "NSSimpleHorizontalTypesetter.h"
 
-#define OLD	1
+#define OLD	0
 
 @implementation NSGlyphGenerator
 
@@ -71,7 +72,7 @@
 
 + (NSTypesetterBehavior) defaultTypesetterBehavior;
 {
-	return NSTypesetterLatestBehavior;
+	return NSTypesetterOriginalBehavior;	// overwritten in subclasses
 }
 
 + (NSSize) printingAdjustmentInLayoutManager:(NSLayoutManager *) manager 
@@ -83,8 +84,6 @@
 	return NSZeroSize;
 }
 
-static id _sharedSystemTypesetter;
-
 + (id) sharedSystemTypesetter;
 {
 	return [self sharedSystemTypesetterForBehavior:[self defaultTypesetterBehavior]];
@@ -92,12 +91,20 @@ static id _sharedSystemTypesetter;
 
 + (id) sharedSystemTypesetterForBehavior:(NSTypesetterBehavior) behavior;
 { // FIXME: there should be an array of singletons for all potential behaviors
-	if(!_sharedSystemTypesetter)
-		{
-		_sharedSystemTypesetter=[[self alloc] init];
-		[_sharedSystemTypesetter setTypesetterBehavior:[NSTypesetter defaultTypesetterBehavior]];		
+	switch(behavior) {
+		case NSTypesetterLatestBehavior:
+		case NSTypesetterOriginalBehavior:
+			return [NSSimpleHorizontalTypesetter sharedInstance];
+		default: {
+			static id _sharedSystemTypesetter;
+			if(!_sharedSystemTypesetter)
+				{
+				_sharedSystemTypesetter=[[self alloc] init];
+				[_sharedSystemTypesetter setTypesetterBehavior:behavior];				
+				}
+			return _sharedSystemTypesetter;
 		}
-	return _sharedSystemTypesetter;
+	}
 }
 
 - (NSTypesetterControlCharacterAction) actionForControlCharacterAtIndex:(NSUInteger) location;
@@ -706,6 +713,232 @@ forStartOfGlyphRange:(NSRange) range;
 {
 	return;	// no op - can be overridden in subclasses to implement modified layout
 	// see: http://www.cocoabuilder.com/archive/cocoa/175380-creating-an-nstypesetter-subclass.html
+}
+
+@end
+
+@implementation NSSimpleHorizontalTypesetter
+
++ (id) sharedInstance;
+{
+	static NSSimpleHorizontalTypesetter *sharedInstance;
+	if(!sharedInstance)
+		sharedInstance=[self new];
+	return sharedInstance;
+}
+
+- (id) init
+{
+	if((self=[super init]))
+		{
+		_capacityGlyphInfo=20;
+		_glyphInfo=(NSTypesetterGlyphInfo *) malloc(_capacityGlyphInfo*sizeof(_glyphInfo[0]));
+		}
+	return self;
+}
+
+- (NSTypesetterGlyphInfo *) baseOfTypesetterGlyphInfo;
+{
+	return _glyphInfo;
+}
+
+- (void) breakLineAtIndex:(unsigned) location;
+{
+	// Find an index to break the line, if inside a word try to hyphenate and 
+	// add a hyphen, if not possibe wrap.
+	// Do justification acording to the paragraph style.
+	// if stle == NSLineBreakByWordWrapping
+	[self glyphIndexToBreakLineByWordWrappingAtIndex:location];
+	_firstIndexOfCurrentLineFragment = location;
+}
+
+- (unsigned) capacityOfTypesetterGlyphInfo;
+{
+	return _capacityGlyphInfo;
+}
+
+- (void) clearAttributesCache;
+{
+	return;
+}
+
+- (void) clearGlyphCache;
+{
+	_sizeGlyphInfo=0;
+}
+
+- (NSTextContainer *) currentContainer;
+{
+	return [super currentTextContainer];
+}
+
+- (NSLayoutManager *) currentLayoutManager;
+{
+	return [super layoutManager];
+}
+
+// - (NSParagraphStyle *) currentParagraphStyle;	// inherited from superclass
+
+- (NSTextStorage *) currentTextStorage;
+{
+	return (NSTextStorage *) [super attributedString];
+}
+
+- (void) fillAttributesCache;
+{
+	return;
+}
+
+- (unsigned) firstGlyphIndexOfCurrentLineFragment;
+{
+	return _firstIndexOfCurrentLineFragment;
+}
+
+- (void) fullJustifyLineAtGlyphIndex:(unsigned) glyphIndexForLineBreak;
+{
+	
+}
+
+- (unsigned) glyphIndexToBreakLineByHyphenatingWordAtIndex:(unsigned) charIndex;
+{
+	// hyphenate by inserGlyph:'-'
+	// if paragraph style is NSJustifiedTextAlignment
+	[self fullJustifyLineAtGlyphIndex:charIndex];
+}
+
+- (unsigned) glyphIndexToBreakLineByWordWrappingAtIndex:(unsigned) charIndex;
+{
+	[self glyphIndexToBreakLineByHyphenatingWordAtIndex: 0 ];
+}
+
+- (unsigned) growGlyphCaches:(unsigned) desiredCapacity fillGlyphInfo:(BOOL) fillGlyphInfo;
+{
+	if(_capacityGlyphInfo < desiredCapacity)
+		{ // really grow
+			unsigned glyphCount=0;
+			_glyphInfo=(NSTypesetterGlyphInfo *) realloc(_glyphInfo, desiredCapacity*sizeof(NSTypesetterGlyphInfo));
+			if(fillGlyphInfo)
+				{
+				// loop 
+				// fills with glyph information from the layout manager and updates firstInvalidGlyphIndex.
+				// if no more glyphs available, break
+				// firstInvalidGlyphIndex++;
+				glyphCount++;
+				}
+			return glyphCount;
+		}
+	return 0;
+}
+
+- (void) insertGlyph:(NSGlyph) glyph atGlyphIndex:(unsigned) glyphIndex characterIndex:(unsigned) charIndex;
+{
+	// sync with _glyphInfo cache
+	// i.e. realloc with additional slot
+	// memmove
+	// and fill entry
+	[super insertGlyph:glyph atGlyphIndex:glyphIndex characterIndex:charIndex];
+}
+
+- (NSLayoutStatus) layoutControlGlyphForLineFragment:(NSRect) lineFrag;
+{
+	// if character is \t: [self layoutTab];
+	return NSLayoutOutOfGlyphs;
+}
+
+- (NSLayoutStatus) layoutGlyphsInHorizontalLineFragment:(NSRect *) lineFragmentRect baseline:(float *) baseline;
+{
+	NSRect *usedRect;
+	*lineFragmentRect = NSZeroRect;
+	*baseline = 0.0;
+	return NSLayoutOutOfGlyphs;
+	// collect glyphs
+	// call typesetterLaidOneGlyph: after each one
+	// end at \n
+	// handle tabs and attachments and control characters
+	[self layoutControlGlyphForLineFragment:*lineFragmentRect];
+	// check for available width in current container
+	// if container is full, get LFR and CFR
+	[self breakLineAtIndex: _currentGlyphIndex];
+
+	[self willSetLineFragmentRect: lineFragmentRect
+					forGlyphRange: NSMakeRange(_firstIndexOfCurrentLineFragment, 
+											   _currentGlyphIndex - _firstIndexOfCurrentLineFragment)
+						 usedRect: usedRect];
+	
+}
+
+- (void) layoutGlyphsInLayoutManager:(NSLayoutManager *) layoutManager
+				startingAtGlyphIndex:(unsigned) startGlyphIndex maxNumberOfLineFragments:(unsigned) maxNumLines
+					  nextGlyphIndex:(unsigned *) nextGlyph;
+{ // core layout method
+	unsigned charIndex;
+	unsigned numLines = 0;
+	NSLayoutStatus status;
+	
+	_layoutManager = layoutManager;
+	_attributedString = [layoutManager textStorage];
+
+	// FIXME: check if we have a new text container
+	if(startGlyphIndex == 0)
+		_currentTextContainer = [[layoutManager textContainers] objectAtIndex:0];
+	// else check for next container
+	
+	charIndex = [layoutManager characterIndexForGlyphAtIndex: startGlyphIndex];
+	_currentParagraphStyle = [_attributedString 
+							  attribute: NSParagraphStyleAttributeName
+							  atIndex: charIndex
+							  effectiveRange: &_currentParagraphRange];
+	_firstIndexOfCurrentLineFragment = startGlyphIndex;
+	
+	_currentGlyphIndex = startGlyphIndex;
+	do {
+		float baseline = NSBaselineNotSet;
+		NSRect lineFragmentRect;
+		NSRect usedRect;
+		
+		// Get the current lineFragmentRect from the layout manager / container
+		usedRect = lineFragmentRect;
+		
+		// Build up a line
+		// make rect the remainder of the current container
+		status = [self layoutGlyphsInHorizontalLineFragment: &usedRect 
+												   baseline: &baseline];
+		if (status == NSLayoutOutOfGlyphs)
+			{ // ask NSLayoutManager and NSGlyphStorage to generate enough glyphs
+			[self growGlyphCaches: _currentGlyphIndex + 100
+								  fillGlyphInfo: YES];
+			continue;
+			}
+		// try to stow the usedRect in the container, i.e. calculate a proposedRect
+		
+		[layoutManager setLineFragmentRect:lineFragmentRect forGlyphRange:NSMakeRange(startGlyphIndex, _currentGlyphIndex-startGlyphIndex) usedRect:usedRect];
+		
+		numLines++;
+	} while((numLines <= maxNumLines) && (status));
+	
+	if (nextGlyph != NULL)
+		*nextGlyph = _firstIndexOfCurrentLineFragment;
+	
+}
+
+- (void) layoutTab;
+{
+	
+}
+
+- (unsigned) sizeOfTypesetterGlyphInfo;
+{
+	return sizeof(NSTypesetterGlyphInfo);
+}
+
+- (void) typesetterLaidOneGlyph:(NSTypesetterGlyphInfo *) gl;
+{
+	return;	// can be overridden to modify glyph info
+}
+
+- (void) updateCurGlyphOffset;
+{
+	
 }
 
 @end
