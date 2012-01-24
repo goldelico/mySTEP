@@ -744,6 +744,8 @@ forStartOfGlyphRange:(NSRange) range;
 	[super dealloc];
 }
 
+//- (float) baselineOffsetInLayoutManager:(id) fp8 glyphIndex:(unsigned int) fp12;
+
 - (NSTypesetterGlyphInfo *) baseOfTypesetterGlyphInfo;
 {
 	return glyphs;
@@ -754,8 +756,12 @@ forStartOfGlyphRange:(NSRange) range;
 	// Find an index to break the line, if inside a word try to hyphenate and 
 	// add a hyphen, if not possibe wrap.
 	// Do justification acording to the paragraph style.
-	// if stle == NSLineBreakByWordWrapping
-	[self glyphIndexToBreakLineByWordWrappingAtIndex:location];
+	switch([curParaStyle lineBreakMode]) {
+		case NSLineBreakByWordWrapping:
+			return [self glyphIndexToBreakLineByWordWrappingAtIndex:location];
+		case NSLineBreakByClipping:
+			return [self glyphIndexToBreakLineByClippingAtIndex:location];
+	}
 	firstIndexOfCurrentLineFragment = location;
 }
 
@@ -811,7 +817,9 @@ forStartOfGlyphRange:(NSRange) range;
 
 - (void) fillAttributesCache;
 {
-	return;
+	[self getAttributesForCharacterIndex:curCharacterIndex];
+	curTextAlignment=[curParaStyle alignment];
+	curFontIsFixedPitch=[curFont isFixedPitch];
 }
 
 - (unsigned) firstGlyphIndexOfCurrentLineFragment;
@@ -820,20 +828,36 @@ forStartOfGlyphRange:(NSRange) range;
 }
 
 - (void) fullJustifyLineAtGlyphIndex:(unsigned) glyphIndexForLineBreak;
-{
+{ // insert flexible space
 	
+}
+
+- (void) getAttributesForCharacterIndex:(unsigned int) fp8;
+{
+	attrs=[textStorage attributesAtIndex:fp8 effectiveRange:&attrsRange];
+	curFont=[attrs objectForKey:NSFontAttributeName];
+	// substitute defaults and screen fonts here!?!
+	curSuperscript=[[attrs objectForKey:NSSuperscriptAttributeName] intValue];
 }
 
 - (unsigned) glyphIndexToBreakLineByHyphenatingWordAtIndex:(unsigned) charIndex;
 {
-	// hyphenate by inserGlyph:'-'
-	// if paragraph style is NSJustifiedTextAlignment
-	[self fullJustifyLineAtGlyphIndex:charIndex];
+	// hyphenate by [self inserGlyph:'-' ... 
+	if(curTextAlignment == NSJustifiedTextAlignment)
+		[self fullJustifyLineAtGlyphIndex:charIndex];
+	return 0;
 }
 
 - (unsigned) glyphIndexToBreakLineByWordWrappingAtIndex:(unsigned) charIndex;
 {
-	[self glyphIndexToBreakLineByHyphenatingWordAtIndex: 0 ];
+	// check if hyphenation is enabled
+	// find a hyphen location
+	return [self glyphIndexToBreakLineByHyphenatingWordAtIndex:charIndex];
+}
+
+- (unsigned int) glyphIndexToBreakLineByClippingAtIndex:(unsigned int) fp8;
+{
+	return 0;
 }
 
 - (unsigned) growGlyphCaches:(unsigned) desiredCapacity fillGlyphInfo:(BOOL) fillGlyphInfo;
@@ -866,16 +890,18 @@ forStartOfGlyphRange:(NSRange) range;
 
 - (NSLayoutStatus) layoutControlGlyphForLineFragment:(NSRect) lineFrag;
 {
-	// if character is \t: [self layoutTab];
+	if([textString characterAtIndex:curCharacterIndex] == '\t')
+		[self layoutTab];
 	return NSLayoutOutOfGlyphs;
 }
 
 - (NSLayoutStatus) layoutGlyphsInHorizontalLineFragment:(NSRect *) lineFragmentRect baseline:(float *) baseline;
 {
-	NSRect *usedRect;
+	NSRect usedRect;
+	// if all characters are laid out: return NSLayoutDone;
 	*lineFragmentRect = NSZeroRect;
 	*baseline = 0.0;
-	return NSLayoutOutOfGlyphs;
+	curMaxGlyphLocation = 0.0;
 	// collect glyphs
 	// call typesetterLaidOneGlyph: after each one
 	// end at \n
@@ -888,33 +914,36 @@ forStartOfGlyphRange:(NSRange) range;
 	[self willSetLineFragmentRect: lineFragmentRect
 					forGlyphRange: NSMakeRange(firstIndexOfCurrentLineFragment, 
 											   curGlyphIndex - firstIndexOfCurrentLineFragment)
-						 usedRect: usedRect];
-	
+						 usedRect: &usedRect];
+	return NSLayoutNotDone;
 }
 
 - (void) layoutGlyphsInLayoutManager:(NSLayoutManager *) lm
 				startingAtGlyphIndex:(unsigned) startGlyphIndex maxNumberOfLineFragments:(unsigned) maxNumLines
 					  nextGlyphIndex:(unsigned *) nextGlyph;
 { // core layout method
-	unsigned charIndex;
 	unsigned numLines = 0;
 	NSLayoutStatus status;
 	NSRange currentParagraphRange;
+	NSAssert(!busy, @"NSSimpleHorizontalTypesetter is already busy");
+	busy=YES;
 	
 	layoutManager = lm;
 	textStorage = [layoutManager textStorage];
 	textString = [textStorage string];
 
-	// FIXME: check if we have a new text container
+	// FIXME: check if we have/need a new text container
 	if(startGlyphIndex == 0)
-		curContainer = [[layoutManager textContainers] objectAtIndex:0];
+		curContainer = [[layoutManager textContainers] objectAtIndex:curContainerIndex];
 	// else check for next container
 	
-	charIndex = [layoutManager characterIndexForGlyphAtIndex: startGlyphIndex];
+	curCharacterIndex = [layoutManager characterIndexForGlyphAtIndex: startGlyphIndex];
 	curParaStyle = [textStorage 
 					attribute: NSParagraphStyleAttributeName
-							  atIndex: charIndex
+							  atIndex: curCharacterIndex
 							  effectiveRange: &currentParagraphRange];
+	if(!curParaStyle)
+		curParaStyle=[NSParagraphStyle defaultParagraphStyle];
 	firstIndexOfCurrentLineFragment = startGlyphIndex;
 	
 	curGlyphIndex = startGlyphIndex;
@@ -941,19 +970,21 @@ forStartOfGlyphRange:(NSRange) range;
 		[layoutManager setLineFragmentRect:lineFragmentRect forGlyphRange:NSMakeRange(startGlyphIndex, curGlyphIndex-startGlyphIndex) usedRect:usedRect];
 		
 		numLines++;
-	} while((numLines <= maxNumLines) && (status));
+	} while((numLines <= maxNumLines) && (status != NSLayoutDone));
 	
 	if (nextGlyph != NULL)
 		*nextGlyph = firstIndexOfCurrentLineFragment;
 
 	layoutManager=nil;
 	textStorage=nil;
+	busy=NO;
 
 }
 
 - (void) layoutTab;
 {
-	
+	NSTextTab *tab=[super textTabForGlyphLocation:curGlyphIndex writingDirection:0 maxLocation:curContainerSize.width];
+	// ...
 }
 
 - (unsigned) sizeOfTypesetterGlyphInfo;
@@ -969,6 +1000,34 @@ forStartOfGlyphRange:(NSRange) range;
 - (void) updateCurGlyphOffset;
 {
 	
+}
+
+- (void) willSetLineFragmentRect:(NSRect *) aRect forGlyphRange:(NSRange) aRange usedRect:(NSRect *) bRect;
+{ // overwrite this or the superclass definition in subclasses
+	[super willSetLineFragmentRect:aRect forGlyphRange:aRange usedRect:bRect baselineOffset:&curBaselineOffset];
+}
+
+
+/*
+ - (void) _layoutGlyphsInLayoutManager:(id) fp8
+ startingAtGlyphIndex:(unsigned int) fp12
+ maxNumberOfLineFragments:(unsigned int) fp16
+ currentTextContainer:(id *) fp20
+ proposedRect:(NSRect *) fp24
+ nextGlyphIndex:(unsigned int *) fp28;
+ */
+
+//- (BOOL) followsItalicAngle;
+//- (void) setFollowsItalicAngle:(BOOL) fp8;
+
+- (BOOL) _typesetterIsBusy;
+{
+	return busy;
+}
+
+- (NSTypesetterGlyphInfo *) _glyphInfoAtIndex:(int) fp8;
+{
+	return NSGlyphInfoAtIndex(fp8);
 }
 
 @end
@@ -1434,11 +1493,6 @@ static unsigned int _oldGlyphBufferCapacity;
 		[tv sizeToFit];	// size... - warning: this may be recursive!
 		}
 	return container;
-}
-
-- (void) willSetLineFragmentRect:(NSRect *) aRect forGlyphRange:(NSRange) aRange usedRect:(NSRect *) bRect;
-{ // overwrite in subclasses
-	return;
 }
 
 @end

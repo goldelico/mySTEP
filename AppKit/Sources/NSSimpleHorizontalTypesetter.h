@@ -3,7 +3,10 @@
 	mySTEP
 
 	Created by Dr. H. Nikolaus Schaller on Sun Jan 22 2012.
-	Copyright (c) 2006 DSITRI.
+	Copyright (c) 2012 Golden Delicious Computers GmbH&Co. KG.
+ 
+	Tries to be compatible to
+	http://developer.apple.com/legacy/mac/library/documentation/Cocoa/Reference/ApplicationKit/Classes/NSSimpleHorizontalTypesetter_Class/NSSimpleHorizontalTypesetter_Class.pdf
 
 	This file is part of the mySTEP Library and is provided
 	under the terms of the GNU Library General Public License.
@@ -59,28 +62,37 @@ typedef struct _NSTypesetterGlyphInfo
 	NSFont *previousFont;
 	NSFont *curFont;
 	NSDictionary *attrs;
+	NSSize curContainerSize;
+	float curMinLineHeight;
+	float curMaxLineHeight;
+	float curGlyphExtentAboveLocation;
+	float curGlyphExtentBelowLocation;
+	float curMaxGlyphLocation;
+	float curBaselineOffset;
 	NSRange attrsRange;
 	unsigned capacityGlyphInfo;
 	unsigned sizeGlyphInfo;
 	unsigned firstIndexOfCurrentLineFragment;
 	unsigned curGlyphIndex;
-	float curMinLineHeight;
-	float curMaxLineHeight;
-	/*
+	unsigned int curGlyph;
+	unsigned int curCharacterIndex;
 	unsigned int firstGlyphIndex;
 	unsigned int firstInvalidGlyphIndex;
+	unsigned int previousGlyph;
+	unsigned int curContainerIndex;
+	int curTextAlignment;
+	int curSuperscript;
+	BOOL curFontIsFixedPitch;
+	BOOL busy;
+	/*
 	unsigned int *glyphCache;
 	int *glyphInscriptionCache;
 	unsigned int *glyphCharacterIndexCache;
 	char *glyphElasticCache;
 	NSSize glyphLocationOffset;
-	float curMaxGlyphLocation;
 	unsigned int lastFixedGlyphIndex;
 	unsigned int sizeOfGlyphInfo;
-	unsigned int curGlyph;
 	int curGlyphInscription;
-	unsigned int curCharacterIndex;
-	unsigned int previousGlyph;
 	unsigned int previousBaseGlyphIndex;
 	unsigned int previousBaseGlyph;
 	float curGlyphOffset;
@@ -91,24 +103,15 @@ typedef struct _NSTypesetterGlyphInfo
 	float curSpaceAfter;
 	float previousSpaceAfter;
 	int glyphLayoutMode;
-	float curGlyphExtentAboveLocation;
-	float curGlyphExtentBelowLocation;
 	int curLayoutDirection;
-	int curTextAlignment;
 	NSRect curFontBoundingBox;
-	BOOL curFontIsFixedPitch;
 	NSPoint curFontAdvancement;
 	void *curFontPositionOfGlyphMethod;
-	float curBaselineOffset;
 	float curMinBaselineDistance;
 	float curMaxBaselineDistance;
-	int curSuperscript;
-	unsigned int curContainerIndex;
 	float curContainerLineFragmentPadding;
 	BOOL curContainerIsSimpleRectangular;
-	NSSize curContainerSize;
 	unsigned int capacityOfGlyphs;
-	BOOL busy;
 	struct {
 		unsigned int _glyphPostLay:1;
 		unsigned int _fragPostLay:1;
@@ -160,16 +163,21 @@ typedef struct _NSTypesetterGlyphInfo
 - (void) willSetLineFragmentRect:(NSRect *) aRect forGlyphRange:(NSRange) aRange usedRect:(NSRect *) bRect;	// inherited from superclass
 
 /* undocumented methods */
-- (unsigned int)glyphIndexToBreakLineByClippingAtIndex:(unsigned int)fp8;
-- (void)getAttributesForCharacterIndex:(unsigned int)fp8;
-- (struct _NSRect)normalizedRect:(struct _NSRect)fp8;
-- (void)_setupBoundsForLineFragment:(struct _NSRect *)fp8;
-- (float)baselineOffsetInLayoutManager:(id)fp8 glyphIndex:(unsigned int)fp12;
-- (void)_layoutGlyphsInLayoutManager:(id)fp8 startingAtGlyphIndex:(unsigned int)fp12 maxNumberOfLineFragments:(unsigned int)fp16 currentTextContainer:(id *)fp20 proposedRect:(struct _NSRect *)fp24 nextGlyphIndex:(unsigned int *)fp28;
-- (BOOL)followsItalicAngle;
-- (void)setFollowsItalicAngle:(BOOL)fp8;
-- (BOOL)_typesetterIsBusy;
-- (struct _NSTypesetterGlyphInfo *)_glyphInfoAtIndex:(int)fp8;
+- (unsigned int) glyphIndexToBreakLineByClippingAtIndex:(unsigned int) fp8;
+- (void) getAttributesForCharacterIndex:(unsigned int) fp8;
+- (NSRect) normalizedRect:(NSRect) fp8;
+- (void) _setupBoundsForLineFragment:(NSRect *) fp8;
+- (float) baselineOffsetInLayoutManager:(id) fp8 glyphIndex:(unsigned int) fp12;
+- (void) _layoutGlyphsInLayoutManager:(id) fp8
+				 startingAtGlyphIndex:(unsigned int) fp12
+			 maxNumberOfLineFragments:(unsigned int) fp16
+				 currentTextContainer:(id *) fp20
+						 proposedRect:(NSRect *) fp24
+					   nextGlyphIndex:(unsigned int *) fp28;
+- (BOOL) followsItalicAngle;
+- (void) setFollowsItalicAngle:(BOOL) fp8;
+- (BOOL) _typesetterIsBusy;
+- (NSTypesetterGlyphInfo *) _glyphInfoAtIndex:(int) fp8;
 
 @end
 
