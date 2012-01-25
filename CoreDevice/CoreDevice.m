@@ -7,6 +7,7 @@
 //
 
 #import "CoreDevice.h"
+#import <AppKit/NSApplication.h>
 
 NSString *UIDeviceBatteryLevelDidChangeNotification=@"UIDeviceBatteryLevelDidChangeNotification";
 NSString *UIDeviceBatteryStateDidChangeNotification=@"UIDeviceBatteryStateDidChangeNotification";
@@ -148,14 +149,14 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			// notification
 			}
 		}
-	[self performSelector:@selector(_update) withObject:nil afterDelay:1.0];	// trigger updates
+	[self performSelector:@selector(_update) withObject:nil afterDelay:1.0 inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];	// trigger updates
 }
 
 - (void) _updater;
 {
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel previous updates
 	if(generatingDeviceOrientationNotifications || proximityMonitoringEnabled || batteryMonitoringEnabled)
-		[self performSelector:@selector(_update) withObject:nil afterDelay:1.0];	// trigger updates
+		[self performSelector:@selector(_update) withObject:nil afterDelay:1.0 inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];	// trigger updates
 }
 
 - (float) batteryLevel;
@@ -173,7 +174,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) setBatteryMonitoringEnabled:(BOOL) state;
 {
-	batteryMonitoringEnabled=state;
+	if(batteryMonitoringEnabled != state)
+		{
+		batteryMonitoringEnabled=state;
+		[self _updater];	// trigger updates
+		}
 }
 
 - (UIDeviceBatteryState) batteryState;
@@ -230,20 +235,14 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) beginGeneratingDeviceOrientationNotifications;
 {
-	if(!generatingDeviceOrientationNotifications)
-		{
-		[self _updater];
-		}
 	generatingDeviceOrientationNotifications=YES;
+	[self _updater];
 }
 
 - (void) endGeneratingDeviceOrientationNotifications;
 {
-	if(generatingDeviceOrientationNotifications)
-		{
-		// disable
-		}
 	generatingDeviceOrientationNotifications=NO;
+	[self _updater];
 }
 
 - (UIDeviceOrientation) orientation;
@@ -266,6 +265,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 {
 	// we can't set it to YES
 	// proximityMonitoringEnabled=state;
+	[self _updater];
 }
 
 - (BOOL) proximityState;
