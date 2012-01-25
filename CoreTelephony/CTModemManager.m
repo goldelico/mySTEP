@@ -152,7 +152,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #if 1
 	NSLog(@"waiting for data on %@", dev);
 #endif
-	[modem readToEndOfFileInBackgroundAndNotifyForModes:modes];	// and trigger notifications
+	[modem readInBackgroundAndNotifyForModes:modes];	// and trigger notifications
 	if([self runATCommand:@"ATE1"] != CTModemOk)	// enable echo so that we can separate unsolicited lines from responses
 		return NO;
 	[self runATCommand:@"AT_OPONI=1"];	// report current network registration

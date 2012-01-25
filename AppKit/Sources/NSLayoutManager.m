@@ -18,7 +18,7 @@
 #import "NSBackendPrivate.h"
 #import "NSSimpleHorizontalTypesetter.h"
 
-#define OLD	0
+#define OLD	1
 
 @implementation NSGlyphGenerator
 
