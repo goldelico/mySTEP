@@ -19,6 +19,7 @@ typedef enum _CTPinStatus
 @interface CTModemManager : NSObject
 {
 	NSFileHandle *modem;
+	NSArray *modes;
 	NSString *lastChunk;	// for handling strings that arrive in chunks
 	NSMutableString /*nonretained*/ *response;
 	NSString *error;		// updated if runATCommand returns CTModemError

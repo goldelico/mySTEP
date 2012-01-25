@@ -82,8 +82,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 													name:NSFileHandleReadCompletionNotification
 												  object:modem];	// don't observe any more
 	[self _writeCommand:@"AT+CHUP"];	// be as sure as possible to hang up
-	[modem closeFile];
-	[modem release];
+	[modem _closeHSO];
 	[error release];
 	[lastChunk release];
 	[super dealloc];
@@ -99,6 +98,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 														  object:modem];	// don't observe any more
 			[modem release];
 			modem=nil;
+			[modes release];
+			modes=nil;
 		}	
 }
 
@@ -108,6 +109,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSDirectoryEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:dir];
 	NSString *typ;
 	NSString *dev=nil;
+	modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
 	pinStatus=CTPinStatusUnknown;	// needs to check
 	[self _closeHSO];
 	while((typ=[e nextObject]))
@@ -150,7 +152,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #if 1
 	NSLog(@"waiting for data on %@", dev);
 #endif
-	[modem readInBackgroundAndNotify];	// and trigger notifications
+	[modem readToEndOfFileInBackgroundAndNotifyForModes:modes];	// and trigger notifications
 	if([self runATCommand:@"ATE1"] != CTModemOk)	// enable echo so that we can separate unsolicited lines from responses
 		return NO;
 	[self runATCommand:@"AT_OPONI=1"];	// report current network registration
@@ -306,7 +308,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSLog(@"_dataReceived %@", n);
 #endif
 	[self _processData:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
-	[[n object] readInBackgroundAndNotify];	// and trigger more notifications
+	[[n object] readInBackgroundAndNotifyForModes:modes];	// and trigger more notifications
 	[arp release];
 }
 

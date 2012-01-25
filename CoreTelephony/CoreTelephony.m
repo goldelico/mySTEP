@@ -698,6 +698,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		{ // home plnm - _OSIMOP: “<long_op>”,”<short_op>”,”<MCC_MNC>”
 			NSScanner *sc=[NSScanner scannerWithString:line];
 			NSString *name=@"unknown";
+			// FIXME: response does not necessarily enclose args in quotes!
 			[sc scanString:@"_OSIMOP: \"" intoString:NULL];
 			[sc scanUpToString:@"\"" intoString:&name];
 			[subscriberCellularProvider _setCarrierName:name];
