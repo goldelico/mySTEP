@@ -7,6 +7,7 @@
 //
 
 #import <CoreLocation/CoreLocation.h>
+#import <AppKit/NSApplication.h>	// for NSEventTrackingRunLoopMode
 
 @implementation CLLocation
 
@@ -414,9 +415,11 @@ static NSMutableArray *satelliteInfo;
 
 // FIXME: send heading updates
 
+// FIXME: make this iVars?
 static NSMutableArray *managers;	// list of all managers
 static NSString *lastChunk;
 static NSFileHandle *file;
+static NSArray *modes;
 
 // special code for the W2SG0004 on the GTA04 board
 
@@ -490,7 +493,8 @@ static int startW2SG;
 #if 1
 			NSLog(@"waiting for data on %@", dev);
 #endif
-			[file readInBackgroundAndNotify];	// and trigger notifications
+			modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
+			[file readInBackgroundAndNotifyForModes:modes];	// and trigger notifications
 			startW2SG=0;
 			// power on GPS receiver and antenna
 			system("echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
@@ -520,6 +524,8 @@ static int startW2SG;
 			[file release];
 			[managers release];
 			managers=nil;		
+			[modes release];
+			modes=nil;		
 			[newLocation release];
 			newLocation=nil;
 			[newHeading release];
@@ -772,7 +778,7 @@ static int startW2SG;
 #endif
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel startup timer
 	[self _parseNMEA183:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
-	[[n object] readInBackgroundAndNotify];	// and trigger more notifications
+	[[n object] readInBackgroundAndNotifyForModes:modes];	// and trigger more notifications
 	[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// times out if we do not receive any further NMEA records
 }
 
