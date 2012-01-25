@@ -309,16 +309,22 @@ extern int system(const char *cmd);
 	[NSTask class];	// initialize SIGCHLD or we get problems that system() returns -1 instead of the exit value
 	if(!supportedInterfaces)
 		{
-		FILE *f;
+		FILE *f=NULL;
 		char line[256];
-		if(![self _activateHardware:YES])
-			return nil;	// can't read iwconfig list
+		int retry=0;
 		supportedInterfaces=[NSMutableArray new];
-		f=popen("iwconfig 2>/dev/null", "r");
-		if(!f)
-			{ // can't get configs
-			[self _activateHardware:NO];	// some error
-			return nil;
+		while(!f)
+			{
+			if(retry++ > 3)
+				return nil;	// failed
+			if(![self _activateHardware:YES])
+				continue;	// we will not be able to read iwconfig list unless power is on
+			f=popen("iwconfig 2>/dev/null", "r");
+			if(!f)
+				{ // can't open configs
+					[self _activateHardware:NO];
+					continue;
+				}
 			}
 		while(fgets(line, sizeof(line)-1, f))
 			{
@@ -840,6 +846,7 @@ extern int system(const char *cmd);
 				return NO;	// something failed
 				}
 			// we should wait until libertas becomes available
+			sleep(2);
 			return YES;
 		}
 	else
@@ -863,6 +870,7 @@ extern int system(const char *cmd);
 #endif
 		system("echo \"255\" >/sys/class/leds/tca6507:6/brightness;"
 			   "echo 0 >/sys/devices/platform/reg-virt-consumer.4/max_microvolts");
+		sleep(2);
 		return YES;
 		}
 }
