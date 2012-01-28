@@ -1995,7 +1995,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSRange) glyphRangeForBoundingRect:(NSRect)bounds 
 					  inTextContainer:(NSTextContainer *)container;
 {
-	[self ensureLayoutForBoundingRect:bounds inTextContainer:container]; // additional layout
+	[self ensureLayoutForBoundingRect:bounds inTextContainer:container]; // do any additional layout
 	return [self glyphRangeForBoundingRectWithoutAdditionalLayout:bounds inTextContainer:container];
 }
 

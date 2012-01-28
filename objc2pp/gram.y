@@ -730,6 +730,14 @@ char *indent(int level)
 
 #define STYLE1
 
+// FIXME: if we make NSObject nodes, move this processing into categories i.e. loadable bundle(s)
+// we should also define one node subclass for each type
+// generally it should be NSObject -> OCSyntaxTree -> OCStatement, OCExpression, OCType, OCIdentifier, OCConstant, OCList, OCBlock, OCFor, etc.
+// then we can define methods on OCSyntaxTree or other intermediate abstract classes
+// these methods can do constant expr. evaluation, simplification, constant folding, reordering, dead code elimination, pretty printing etc. etc.
+// generally: do any required code rewriting
+// and finally generate output from such nodes
+
 int emit(int node)
 { /* print tree (as standard C) */
 	static int level=0;

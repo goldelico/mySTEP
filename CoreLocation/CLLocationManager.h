@@ -95,9 +95,6 @@ typedef enum _CLAuthorizationStatus
 - (void) stopUpdatingHeading;
 - (void) stopUpdatingLocation;
 
-+ (void) WLANseen:(NSString *) bssid;
-+ (void) WWANseen:(NSString *) cellid;
-
 @end
 
 @interface CLLocationManager (Extensions)
@@ -122,5 +119,7 @@ typedef enum _CLLocationSource
 + (int) numberOfVisibleSatellites;
 + (NSDate *) satelliteTime;
 + (NSArray *) satelliteInfo;	// NSDictionaries
++ (void) WLANseen:(NSString *) bssid;
++ (void) WWANseen:(NSString *) cellid;
 
 @end

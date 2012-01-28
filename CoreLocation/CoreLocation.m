@@ -9,6 +9,8 @@
 #import <CoreLocation/CoreLocation.h>
 #import <AppKit/NSApplication.h>	// for NSEventTrackingRunLoopMode
 
+NSString *const kCLErrorDomain=@"CLErrorDomain";
+
 @implementation CLLocation
 
 - (CLLocationDistance) altitude; { return altitude; }
@@ -255,6 +257,11 @@ static CLHeading *newHeading;
 - (void) setHeadingOrientation:(CLDeviceOrientation) orient; { headingOrientation=orient; }
 - (void) setPurpose:(NSString *) string; { [purpose autorelease]; purpose=[string copy]; }
 
++ (CLAuthorizationStatus) authorizationStatus;	// if this application is allowed
+{
+	return kCLAuthorizationStatusAuthorized;
+}
+
 + (BOOL) headingAvailable;
 {
 	// how can we find out?
@@ -400,6 +407,16 @@ static NSMutableArray *satelliteInfo;
 	return satelliteInfo;
 }
 
++ (void) WLANseen:(NSString *) bssid;
+{
+	
+}
+
++ (void) WWANseen:(NSString *) cellid;
+{
+	
+}
+
 @end
 
 // we should  integrate sensor data from GPS, barometric Altimeter, Gyroscope, Accelerometer, and Compass 
@@ -425,30 +442,31 @@ static NSArray *modes;
 
 static int startW2SG;
 
-+ (void) didNotStart
++ (void) _didNotStart
 { // timeout - try to retrigger
 #if 1
 	NSLog(@"did not yet receive NMEA");
 #endif
-#if UNUSED
 	if(startW2SG == 3)
 		{ // permanent problem
+			NSError *error=[NSError errorWithDomain:kCLErrorDomain code:kCLErrorDenied userInfo:nil];
+			NSEnumerator *e=[managers objectEnumerator];
+			CLLocationManager *m;
 			NSLog(@"GPS receiver not working");
-			/*
-			 error=[NSError ...];
-			 e=[managers objectEnumerator];
-			 while((m=[e nextObject]))
-			 { // notify all known CLLocationManager instances
-			 // check for desiredAccuracy
-			 // check for distanceFilter
-			 [[m delegate] locationManager:self didFailWithError:error];
-			 }
-*/
-			// return;
+			while((m=[e nextObject]))
+				{ // notify all CLLocationManager instances
+					id <CLLocationManagerDelegate> delegate=[m delegate];
+					NS_DURING
+					if([delegate respondsToSelector:@selector(locationManager:didFailWithError:)])
+						[delegate locationManager:m didFailWithError:error];
+					NS_HANDLER
+					; // ignore
+					NS_ENDHANDLER
+				}
+			return;	// trigger again if manager is re-registered
 		}
-#endif
 	system("echo 0 >/sys/devices/virtual/gpio/gpio145/value; echo 1 >/sys/devices/virtual/gpio/gpio145/value; stty 9600 </dev/ttyO1");	// give a start/stop impulse
-	[self performSelector:@selector(didNotStart) withObject:nil afterDelay:++startW2SG > 4?30.0:5.0];	// we did not receive NMEA records
+	[self performSelector:_cmd withObject:nil afterDelay:++startW2SG > 4?30.0:5.0];	// we did not receive NMEA records
 }
 
 + (void) registerManager:(CLLocationManager *) m
@@ -498,7 +516,7 @@ static int startW2SG;
 			startW2SG=0;
 			// power on GPS receiver and antenna
 			system("echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/max_microvolts && echo 2800000 >/sys/devices/platform/reg-virt-consumer.5/min_microvolts");
-			[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// times out if we did not receive NMEA records
+			[self performSelector:@selector(_didNotStart) withObject:nil afterDelay:5.0];	// times out if we did not receive NMEA records
 			return;
 		}
 	if([managers indexOfObjectIdenticalTo:m] != NSNotFound)
@@ -722,11 +740,22 @@ static int startW2SG;
 				id <CLLocationManagerDelegate> delegate=[m delegate];
 				// check for desiredAccuracy
 				// check for distanceFilter
-	// FIXME:			NS_DURING
 				if(didUpdateLocation && [delegate respondsToSelector:@selector(locationManager:didUpdateToLocation:fromLocation:)])
-					[delegate locationManager:self didUpdateToLocation:newLocation fromLocation:oldLocation];
+					{
+					NS_DURING
+					[delegate locationManager:m didUpdateToLocation:newLocation fromLocation:oldLocation];
+					NS_HANDLER
+					; // ignore
+					NS_ENDHANDLER
+					}
 				if(didUpdateHeading && [delegate respondsToSelector:@selector(locationManager:didUpdateHeading:)])
-					[delegate locationManager:self didUpdateHeading:newHeading];
+					{
+					NS_DURING
+					[delegate locationManager:m didUpdateHeading:newHeading];
+					NS_HANDLER
+					; // ignore
+					NS_ENDHANDLER
+					}
 			}
 		}
 }
@@ -779,7 +808,7 @@ static int startW2SG;
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel startup timer
 	[self _parseNMEA183:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
 	[[n object] readInBackgroundAndNotifyForModes:modes];	// and trigger more notifications
-	[self performSelector:@selector(didNotStart) withObject:nil afterDelay:5.0];	// times out if we do not receive any further NMEA records
+	[self performSelector:@selector(_didNotStart) withObject:nil afterDelay:5.0];	// times out if we do not receive any further NMEA records
 }
 
 @end
@@ -816,6 +845,11 @@ static int startW2SG;
 - (NSString *) postalCode; { return [addressDictionary objectForKey:@"ZIP"]; }
 - (NSString *) country; { return [addressDictionary objectForKey:@"Country"]; }
 - (NSString *) countryCode; { return [addressDictionary objectForKey:@"CountryCode"]; }
+
+- (id) initWithPlacemark:(CLPlacemark *) placemark;
+{ // just copy...
+	return [self initWithCoordinate:[placemark coordinate] addressDictionary:[placemark addressDictionary]];
+}
 
 - (id) initWithCoordinate:(CLLocationCoordinate2D) coord addressDictionary:(NSDictionary *) addr;
 {

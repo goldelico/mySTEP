@@ -82,7 +82,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 													name:NSFileHandleReadCompletionNotification
 												  object:modem];	// don't observe any more
 	[self _writeCommand:@"AT+CHUP"];	// be as sure as possible to hang up
-	[modem _closeHSO];
+	[self _closeHSO];
 	[error release];
 	[lastChunk release];
 	[super dealloc];
@@ -106,36 +106,42 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (BOOL) _openHSO;
 { // open during init or reopen after AT_ORESET
 	NSString *dir=@"/sys/class/tty";
-	NSDirectoryEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:dir];
 	NSString *typ;
 	NSString *dev=nil;
+	int retry=0;
 	modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
 	pinStatus=CTPinStatusUnknown;	// needs to check
 	[self _closeHSO];
-	while((typ=[e nextObject]))
-		{ // search Application interface
-		NSString *hs=[typ lastPathComponent];
-#if 0
-		NSLog(@"file: %@ - %@", typ, hs);
-#endif
-		if([hs hasPrefix:@"ttyHS"])
-			{
-			NSString *path=[[dir stringByAppendingPathComponent:typ] stringByAppendingPathComponent:@"hsotype"];
-			NSString *type=[NSString stringWithContentsOfFile:path];
-#if 1
-			NSLog(@"%@ -> %@", path, type);
-#endif
-			if([type hasPrefix:@"Application"])
-				{
-				dev=[NSString stringWithFormat:@"/dev/%@", hs];
-				break;	// application port found			
-				}
-			}
-		}
-	if(!dev)
+	system("echo 1 >/sys/devices/virtual/gpio/gpio186/value");	// wake up modem on GTA04A4
+	while(YES)
 		{
+		NSDirectoryEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:dir];
+		while((typ=[e nextObject]))
+			{ // search Application interface
+				NSString *hs=[typ lastPathComponent];
+#if 0
+				NSLog(@"file: %@ - %@", typ, hs);
+#endif
+				if([hs hasPrefix:@"ttyHS"])
+					{
+					NSString *path=[[dir stringByAppendingPathComponent:typ] stringByAppendingPathComponent:@"hsotype"];
+					NSString *type=[NSString stringWithContentsOfFile:path];
+#if 1
+					NSLog(@"%@ -> %@", path, type);
+#endif
+					if([type hasPrefix:@"Application"])
+						{
+						dev=[NSString stringWithFormat:@"/dev/%@", hs];
+						break;	// application port found			
+						}
+					}
+			}
+		if(dev)
+			break;	// found!
 		NSLog(@"No GTM601 found");
-		return NO;		
+		if(retry++ > 3)
+			return NO;
+		sleep(4);		
 		}
 	modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
 	if(!modem)
@@ -332,7 +338,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	[self _writeCommand:@"AT_ORESET"];
 	pinStatus=CTPinStatusUnknown;	// needs to ask again (if we have a SIM card without lock)
 	// kill all connections...
-	sleep(1);
+	sleep(5);
 	if([self _openHSO])
 		return YES;
 	return NO;

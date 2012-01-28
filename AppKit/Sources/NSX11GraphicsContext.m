@@ -3669,7 +3669,7 @@ static NSDictionary *_x11settings;
 					thisXWin=xe.xmotion.window;
 					if(thisXWin != lastXWin)						
 						lastMotionEvent=nil;	// window has changed - we need a new event
-						break;
+					break;
 				case ReparentNotify:
 					thisXWin=xe.xreparent.window;
 					break;
@@ -3700,6 +3700,7 @@ static NSDictionary *_x11settings;
 				default:
 					thisXWin=lastXWin;	// assume unchanged
 				}
+			// FIXME: here we should flush any coalesced motion events
 			if(xe.type != MotionNotify)
 				lastMotionEvent=nil;	// any other event - start a new motion notification
 			if(thisXWin != lastXWin)						
@@ -3770,7 +3771,7 @@ static NSDictionary *_x11settings;
 						else
 							type=NSOtherMouseUp;
 						e = [NSEvent mouseEventWithType:type		// create NSEvent	
-											   location:X11toScreen(xe.xbutton)
+											   location:X11toScreen(xe.xbutton)	// relative to the current window
 										  modifierFlags:__modFlags
 											  timestamp:X11toTimestamp(xe.xbutton)
 										   windowNumber:windowNumber
@@ -3793,6 +3794,7 @@ static NSDictionary *_x11settings;
 						{ // WM is asking us to close
 						[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) performClose:self];
 						}									// to close window
+					// send NSAppKit / NSSystemDefined event
 #if DND
 						else
 							XRProcessXDND(_display, &xe);		// handle X DND
@@ -3804,6 +3806,19 @@ static NSDictionary *_x11settings;
 				case ConfigureNotify:					// window has been moved or resized by window manager
 					NSDebugLog(@"ConfigureNotify\n");
 						[[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _themeFrame] setNeedsDisplay:YES];	// make us redraw content
+#if FIXME					
+					// create a NSAppKitDefined event
+					e = [NSEvent otherEventWithType:NSAppKitDefined
+										   location:X11toScreen(xe.xconfigure)
+									  modifierFlags:__modFlags 
+										  timestamp:X11toTimestamp(xe.xconfigure)
+									   windowNumber:windowNumber
+											context:self
+											subtype:0
+											  data1:xe.xconfigure.width
+											  data2:xe.xconfigure.height];	// new position and dimensions
+					// this should allow to precisely track mouse position if the window is moved
+#endif
 #if FIXME
 						// we should at least redisplay the window
 					if(!xe.xconfigure.override_redirect || 

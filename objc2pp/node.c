@@ -1,5 +1,7 @@
 /* part of objc2pp - an obj-c 2 preprocessor */
 
+// FIXME: would be nice to use NSObjects so that the real work on the AST can be done in categories
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

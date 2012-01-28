@@ -510,14 +510,22 @@ static BOOL __cursorHidden = NO;
 #if 1
 				NSLog(@"NSThemeFrame event %@", theEvent);
 #endif
+				
+#define OLDMOVE 1
+
 				switch([theEvent type])
 					{
 						case NSLeftMouseDown:
 							{
 								// FIXME: check for click on document icon or title cell
 								// if representedURL defined and crtl-click, call - (BOOL)window:(NSWindow *)sender shouldPopUpDocumentPathMenu:(NSMenu *)titleMenu
+#if OLDMOVE
 								NSPoint p=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
 								initial=[NSEvent mouseLocation];
+#else
+								NSPoint p=[theEvent locationInWindow];
+								initial=p;
+#endif
 								if(p.y < _frame.size.height-_height)
 										{ // check if we a have resize enabled in _style and we clicked on lower right corner
 											if((_style & NSResizableWindowMask) == 0 || p.y > 10.0 || p.x < _frame.size.width-10.0)
@@ -540,15 +548,20 @@ static BOOL __cursorHidden = NO;
 #endif
 								break;
 							}
-						case NSLeftMouseUp:				// update to final location
+						case NSLeftMouseUp:			// update to final location
 						case NSLeftMouseDragged:	// update to current location
 							{
-								// NOTE: we can't use [event locationInWindow] if we move the window - is not reliable because it is not synchronized with really moving the window!
 								float deltax, deltay;
 								NSRect wframe=initialFrame;
+#if OLDMOVE
+							// NOTE: we can't use [event locationInWindow] if we move the window - is not reliable because it is not synchronized with really moving the window!
 								NSPoint loc=[NSEvent mouseLocation];
+#else
+								NSPoint loc=[theEvent locationInWindow];
+#endif
 								deltax=loc.x-initial.x;	// how much we have moved
 								deltay=loc.y-initial.y;
+							NSLog(@"moved by (%g %g)", deltax, deltay);
 #if 0
 								NSLog(@"window dragged loc=%@ mouse=%@", NSStringFromPoint(loc), NSStringFromPoint([theEvent locationInWindow]));
 #endif
@@ -579,8 +592,8 @@ static BOOL __cursorHidden = NO;
 										}
 								else
 										{ // moving
-											wframe.origin.x+=(loc.x-initial.x);
-											wframe.origin.y+=(loc.y-initial.y);	// move as mouse moves
+											wframe.origin.x+=deltax;
+											wframe.origin.y+=deltay;	// move as mouse moves
 											
 											// limit title bar to stay below menu
 											
@@ -599,6 +612,12 @@ static BOOL __cursorHidden = NO;
 													}
 											[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay)
 											NSLog(@"move child windows %@", [_window childWindows]);
+#if OLDMOVE
+#else
+											// can be cleaned up if it works!!!
+											initial=loc;	// window has moved - assume next event is relative to new location
+											initialFrame=wframe;
+#endif
 										}
 								break;
 							}
@@ -608,10 +627,10 @@ static BOOL __cursorHidden = NO;
 				if([theEvent type] == NSLeftMouseUp)
 					break;	// done
 				theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask
-																			untilDate:[NSDate distantFuture]
-																				 inMode:NSEventTrackingRunLoopMode 
-																				dequeue:YES];							// get next event
-  		}
+											  untilDate:[NSDate distantFuture]
+												 inMode:NSEventTrackingRunLoopMode 
+												dequeue:YES];							// get next event
+			}
 	if(_inLiveResize)
 			{
 				_inLiveResize=NO;

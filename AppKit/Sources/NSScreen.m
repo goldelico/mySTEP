@@ -55,6 +55,7 @@
 
 - (NSRect) visibleFrame;
 {
+	// CHECKME: what if we have multiple screens??
 	static NSRect vFrame; // cache
 	if(vFrame.size.width == 0.0)
 		{
