@@ -623,36 +623,36 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];
 		NS_DURING // protect against exceptions
 		int windowitemsbefore=_windowItems;
-			e=[self nextEventMatchingMask:NSAnyEventMask
-								untilDate:[NSDate distantFuture]
-								   inMode:NSDefaultRunLoopMode
-								  dequeue:YES];
-			[self sendEvent:e];	// this can set isRunning=NO as a side effect to break the loop
-			if(windowitemsbefore > 0 && _windowItems == 0)
-					{ // no window items (left over) after processing last event
+		e=[self nextEventMatchingMask:NSAnyEventMask
+							untilDate:[NSDate distantFuture]
+							   inMode:NSDefaultRunLoopMode
+							  dequeue:YES];
+		[self sendEvent:e];	// this can set isRunning=NO as a side effect to break the loop
+		if(windowitemsbefore > 0 && _windowItems == 0)
+			{ // no window items (left over) after processing last event
 #if 1
-						NSLog(@"windowitems %d -> 0", windowitemsbefore);
+				NSLog(@"windowitems %d -> 0", windowitemsbefore);
 #endif
-						if(!_delegate && ![NSApp mainMenu])
-								{	// we are a menu-less daemon and have no delegate - default to terminate after initialization
+				if(!_delegate && ![NSApp mainMenu])
+					{	// we are a menu-less daemon and have no delegate - default to terminate after initialization
 #if 1
-									NSLog(@"terminating pure daemon without menu and windows");
+						NSLog(@"terminating pure daemon without menu and windows");
 #endif
-									_app.isRunning=NO;
-								}
-						else if([_delegate applicationShouldTerminateAfterLastWindowClosed:self])
-								{ // delegate allows us to end
-#if 1
-									NSLog(@"last windows item removed - terminate");
-#endif
-									_app.isRunning=NO;
-								}
+						_app.isRunning=NO;
 					}
+				else if([_delegate applicationShouldTerminateAfterLastWindowClosed:self])
+					{ // delegate allows us to end
+#if 1
+						NSLog(@"last windows item removed - terminate");
+#endif
+						_app.isRunning=NO;
+					}
+			}
 		NS_HANDLER
-			NSLog(@"Exception %@ - %@", [localException name], [localException reason]);
+		NSLog(@"Exception %@ - %@", [localException name], [localException reason]);
 		NS_ENDHANDLER
 		[arp release];
-		}
+	}
 	while(_app.isRunning);
 	NSDebugLog(@"NSApplication end of run loop\n");	
 	[self terminate:self];

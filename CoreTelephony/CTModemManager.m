@@ -141,6 +141,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		NSLog(@"No GTM601 found");
 		if(retry++ > 3)
 			return NO;
+		// FIXME: use nested runloop or make us pure state-drive, i.e. allow the state "initializing"
 		sleep(4);		
 		}
 	modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
@@ -170,6 +171,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING		
 	return YES;
 }
+
+- (NSString *) error; { return error; }
+
+- (BOOL) isAvaliable; {	return modem != nil; }
 
 - (void) setUnsolicitedTarget:(id) t action:(SEL) a;
 {
@@ -209,8 +214,6 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 {
 	return [self runATCommand:cmd target:t action:a timeout:2.0];
 }
-
-- (NSString *) error; { return error; }
 
 - (int) runATCommand:(NSString *) cmd
 { // without callback
@@ -338,6 +341,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	[self _writeCommand:@"AT_ORESET"];
 	pinStatus=CTPinStatusUnknown;	// needs to ask again (if we have a SIM card without lock)
 	// kill all connections...
+	// FIXME: use nested runloop or make us pure state-drive, i.e. allow the state "resetting"
 	sleep(5);
 	if([self _openHSO])
 		return YES;

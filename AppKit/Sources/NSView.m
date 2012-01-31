@@ -765,16 +765,21 @@ printing
 	if(_window == newWindow)
 		return;	// no change
 	if([_window firstResponder] == self)
-		[_window makeFirstResponder:nil];	// we are currently the first responder of the old window
+		// this may still access the view hierarchy as it was before being changed! It may e.g. call -display
+		[_window makeFirstResponder:nil];	// we are currently the first responder of the old window - make the window the responder
 	[self viewWillMoveToWindow:newWindow];
 	[_bounds2base release], _bounds2base=nil;
 	[_base2bounds release], _base2bounds=nil;	// no recursion required (done through sub_views makeObjectsPerformSelector:_cmd)
-	_window=newWindow;	// set new window
-	[sub_views makeObjectsPerformSelector:_cmd withObject:newWindow];	// recursively for all subviews
-	nInvalidRects=0;	// clear cache
-	// FIXME: this might be quite inefficient for many subviews since their setNeedsDisplayInRect recursively goes upwards
 	if(newWindow)
-		[self setNeedsDisplayInRect:_bounds];	// we need to be redisplayed completely in the new window
+		_window=newWindow;	// set new window before processing siblings - unless we are tearing down
+	[sub_views makeObjectsPerformSelector:_cmd withObject:newWindow];	// recursively for all subviews
+	_window=newWindow;	// set new window (always)
+	nInvalidRects=0;	// clear cache
+	if(newWindow)
+	// FIXME: this might be quite inefficient for many subviews since their setNeedsDisplayInRect recursively goes upwards
+	 [self _addRectNeedingDisplay:_bounds];	// set bounds as the first and only invalid rect
+//		[self setNeedsDisplayInRect:_bounds];	// we need to be redisplayed completely in the new window
+	_v.needsDisplaySubviews=YES;	// mark to redraw subviews
 	[self viewDidMoveToWindow];
 }
 
@@ -1450,7 +1455,13 @@ printing
 	if(to)
 		{ // and transform from window to base
 			if([from window] != [to window])
-				[NSException raise:NSInternalInconsistencyException format:@"views do not belong to the same window"];
+				{
+#if 1
+				NSLog(@"from: %@", from);
+				NSLog(@"to: %@", to);
+#endif
+				[NSException raise:NSInternalInconsistencyException format:@"views do not belong to the same window"];				
+				}
 			atm=[[atm copy] autorelease];	// get a safely modifiable copy
 			[atm appendTransform:[to _base2bounds]];
 		}
