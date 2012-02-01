@@ -3806,18 +3806,18 @@ static NSDictionary *_x11settings;
 				case ConfigureNotify:					// window has been moved or resized by window manager
 					NSDebugLog(@"ConfigureNotify\n");
 						[[(NSWindow *) NSMapGet(__WindowNumToNSWindow, (void *) thisXWin) _themeFrame] setNeedsDisplay:YES];	// make us redraw content
-#if FIXME					
-					// create a NSAppKitDefined event
+#if 1					
 					e = [NSEvent otherEventWithType:NSAppKitDefined
-										   location:X11toScreen(xe.xconfigure)
+										   location:X11toScreen(xe.xconfigure)	// or do we notify relative movement?
 									  modifierFlags:__modFlags 
-										  timestamp:X11toTimestamp(xe.xconfigure)
+										  timestamp:0 //X11toTimestamp(xe.xconfigure)
 									   windowNumber:windowNumber
 											context:self
-											subtype:0
+											subtype:NSWindowMovedEventType
 											  data1:xe.xconfigure.width
 											  data2:xe.xconfigure.height];	// new position and dimensions
 					// this should allow to precisely track mouse position if the window is moved
+					// for that it could be sufficient to track window movements and report top-left corner only
 #endif
 #if FIXME
 						// we should at least redisplay the window

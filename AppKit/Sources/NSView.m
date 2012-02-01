@@ -2016,6 +2016,7 @@ printing
 	NSEnumerator *e;
 	NSView *subview;
 	BOOL locked;
+	BOOL displaySubviews;
 #if 0
 	NSLog(@"displayRectIgnoringOpacity:%@ inContext:%@ for %@", NSStringFromRect(rect), context, self);
 #endif
@@ -2029,7 +2030,8 @@ printing
 		return;
 		}
 	rect=NSIntersectionRect(_bounds, rect);	// shrink to bounds (not invalidRect!)
-	_v.needsDisplaySubviews=NO;
+	displaySubviews=_v.needsDisplaySubviews || YES;	// FIXME: geht sonst nicht!
+	_v.needsDisplaySubviews=NO;	// prepare since drawing code can call setNeedsDisplay on any subview
 	locked=NO;
 	if(!NSIsEmptyRect(rect))
 		{ // we are dirty ourselves - otherwise we have a dirty but opaque subview
@@ -2067,7 +2069,23 @@ printing
 						// FIXME: default should also clip to list of rects in invalidRects!!!
 					[NSBezierPath clipRect:rect];	// intersect with our inherited clipping path
 					}
+#if 0	// detect slow drawing code
+				{
+				struct timeval start, end;
+				gettimeofday(&start, NULL);
 				[self drawRect:rect];		// that one is overridden in subviews and really draws
+				gettimeofday(&end, NULL);
+				end.tv_sec-=start.tv_sec;
+				end.tv_usec-=start.tv_usec;
+				if(end.tv_usec < 0)
+					end.tv_sec-=1, end.tv_usec+=1000000;
+				// FIXME: it appears that StringDrawing is quite slow (expectedly)
+				if(end.tv_sec > 0 || end.tv_usec > 20000)
+					fprintf(stderr, "slow draw %u.%06us: %s\n", end.tv_sec, end.tv_usec, [[self description] UTF8String]);
+				}
+#else
+			[self drawRect:rect];		// that one is overridden in subviews and really draws
+#endif
 				if(_NSShowAllViews && [_window isVisible])
 					{ // draw box around all views
 					[[NSColor brownColor] set];
@@ -2083,7 +2101,7 @@ printing
 		if(context == [_window graphicsContext])		// NOTE: remove after drawing!
 			[self _removeRectNeedingDisplay:rect];	// should end up with empty list i.e. no more needsDrawing
 		}
-	if(YES || _v.needsDisplaySubviews)
+	if(displaySubviews)
 		{
 		e=[sub_views objectEnumerator];
 		while((subview=[e nextObject]))	// go downwards independently of their needsDisplay status since we have redrawn the background
@@ -2096,9 +2114,9 @@ printing
 			subRect=[self convertRect:rect toView:subview];	// update subview
 			[subview displayRectIgnoringOpacity:subRect inContext:context];
 			}
-		if(locked)
-			[self unlockFocus];	// after drawing any subviews
 		}
+	if(locked)
+		[self unlockFocus];	// only after drawing subviews
 }
 
 - (BOOL) autoscroll:(NSEvent *)event					// Auto Scrolling

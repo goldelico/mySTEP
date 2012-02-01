@@ -442,6 +442,19 @@ static NSArray *modes;
 
 static int startW2SG;
 
++ (NSString *) _device
+{ // get this from some *system wide* user default
+	NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"NMEAGPSSerialDevice"];	// e.g. /dev/ttyO1 or /dev/cu.usbmodem1d11
+	if(!dev)
+		{
+#ifdef __mySTEP__
+		dev=@"/dev/ttyO1";	// Linux: serial interface for USB receiver
+#else
+		dev=@"/dev/cu.BT-348_GPS-Serialport-1";	// Mac OS X: serial interface for NMEA receiver
+#endif
+		}
+}
+
 + (void) _didNotStart
 { // timeout - try to retrigger
 #if 1
@@ -465,8 +478,11 @@ static int startW2SG;
 				}
 			return;	// trigger again if manager is re-registered
 		}
-	system("echo 0 >/sys/devices/virtual/gpio/gpio145/value; echo 1 >/sys/devices/virtual/gpio/gpio145/value; stty 9600 </dev/ttyO1");	// give a start/stop impulse
-	[self performSelector:_cmd withObject:nil afterDelay:++startW2SG > 4?30.0:5.0];	// we did not receive NMEA records
+#ifdef __mySTEP__
+	// GTA04-specific!
+	system([[NSString stringWithFormat:@"echo 0 >/sys/devices/virtual/gpio/gpio145/value; echo 1 >/sys/devices/virtual/gpio/gpio145/value; stty 9600 <%@", dev] UTF8String]);	// give a start/stop impulse and set up interface
+#endif
+	[self performSelector:_cmd withObject:nil afterDelay:++startW2SG > 4?30.0:5.0];	// we did not (yet) receive NMEA records
 }
 
 + (void) registerManager:(CLLocationManager *) m
@@ -482,19 +498,10 @@ static int startW2SG;
 	 */
 	if(!managers)
 		{ // set up GPS receiver and wait for first fix
-			// get this from some *system wide* user default
-			NSString *dev=[[NSUserDefaults standardUserDefaults] stringForKey:@"NMEAGPSSerialDevice"];	// e.g. /dev/ttyO1 or /dev/cu.usbmodem1d11
-			if(!dev)
-				{
-#ifdef __mySTEP__
-				dev=@"/dev/ttyO1";	// Linux: serial interface for USB receiver
-#else
-				dev=@"/dev/cu.BT-348_GPS-Serialport-1";	// Mac OS X: serial interface for NMEA receiver
-#endif
-				}
+			NSString *dev=[self _device];
 #if 1
 			NSLog(@"Start reading NMEA on device file %@", dev);
-#endif
+#endif	
 			file=[[NSFileHandle fileHandleForReadingAtPath:dev] retain];
 			if(!file)
 				{
