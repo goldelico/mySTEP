@@ -350,6 +350,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			[mm runATCommand:[NSString stringWithFormat:@"AT+CGDCONT=%u,\"%@\",\"%@\"", context, protocol, apn]];
 			[mm runATCommand:[NSString stringWithFormat:@"AT_OWANCALL=%u,1,1", context]];	// context #1, start, send unsolicited response
 			// will give unsolicited response: _OWANCALL: 1, 1 - to NDIS channel
+			
+			// FIXME: replace by performSelector:withObject:withDelay!!!
+
 			sleep(1);
 			data=[mm runATCommandReturnResponse:@"AT_OWANDATA?"];	// e.g. _OWANDATA: 1, 10.152.124.183, 0.0.0.0, 193.189.244.225, 193.189.244.206, 0.0.0.0, 0.0.0.0,144000
 			if(!data)
@@ -394,6 +397,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #endif
 			system("ifconfig hso0 down");	// we could make the ifconfig up/down trigger our daemon...
 			// or add interface-specific record to /etc/network/interfaces
+
+			// FIXME: replace by performSelector:withObject:withDelay!!!
+			
 			sleep(1);
 			[mm runATCommand:[NSString stringWithFormat:@"AT_OWANCALL=%u,0,1", context]];	// stop
 			// will give unsolicited response: _OWANCALL: 1, 0 

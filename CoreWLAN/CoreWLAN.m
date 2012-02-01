@@ -306,49 +306,51 @@ extern int system(const char *cmd);
 + (NSArray *) supportedInterfaces;
 {
 	static NSMutableArray *supportedInterfaces;
-	[NSTask class];	// initialize SIGCHLD or we get problems that system() returns -1 instead of the exit value
+	int retry=0;
 	if(!supportedInterfaces)
+		supportedInterfaces=[NSMutableArray new];
+	while([supportedInterfaces count] == 0)
 		{
 		FILE *f=NULL;
 		char line[256];
-		int retry=0;
-		supportedInterfaces=[NSMutableArray new];
-		while(!f)
+		[NSTask class];	// initialize SIGCHLD or we get problems that system() returns -1 instead of the exit value
+		if(![self _activateHardware:YES])
+			break;	// we will not be able to read iwconfig list unless power is on
+		// FIXME: this may also timeout and make the process (GUI!) hang!
+		// set up NSTask + Timer that interrupts/terminates the task?
+		// i.e. task=[NSTask ....]
+		// [task performSelector:@(terminate) withObject:nil afterDelay:3];
+		f=popen("iwconfig 2>/dev/null", "r");
+		if(f)
 			{
-			if(retry++ > 3)
-				return nil;	// failed
-			if(![self _activateHardware:YES])
-				continue;	// we will not be able to read iwconfig list unless power is on
-			f=popen("iwconfig 2>/dev/null", "r");
-			if(!f)
-				{ // can't open configs
-					[self _activateHardware:NO];
-					continue;
+			while(fgets(line, sizeof(line)-1, f))
+				{
+				char *e=strchr(line, ' ');
+				if(e && e != line)
+					{ // non-empty entries are interface names
+						NSString *interface=[NSString stringWithCString:line length:e-line];
+						[supportedInterfaces addObject:interface];
+					}
 				}
+			pclose(f);
 			}
-		while(fgets(line, sizeof(line)-1, f))
-			{
-			char *e=strchr(line, ' ');
-			if(e && e != line)
-				{ // non-empty entries are interface names
-				NSString *interface=[NSString stringWithCString:line length:e-line];
-				[supportedInterfaces addObject:interface];
-				}
-			}
-		pclose(f);
+		else
+			[self _activateHardware:NO];	// can't open
 #if 1
 		NSLog(@"supportedInterfaces: %@", supportedInterfaces);
 #endif
 		if([supportedInterfaces count] == 0)
-			[self _activateHardware:NO];	// no interfaces found
+			{
+			NSLog(@"no WLAN interfaces found; retrying");
+			sleep(2);
+			}
 		}
 	return supportedInterfaces;
 }
 
 - (CWInterface *) init;
 {
-	NSArray *ifs=[CWInterface supportedInterfaces];
-	sleep(1);
+	NSArray *ifs=[CWInterface supportedInterfaces];	// this will power on
 	if([ifs count] > 0)
 		return [self initWithInterfaceName:[ifs objectAtIndex:0]];
 	[self release];
@@ -839,14 +841,12 @@ extern int system(const char *cmd);
 					  "echo \"$VDD\" >/sys/devices/platform/reg-virt-consumer.4/max_microvolts &&"
 					  "echo \"$VDD\" >/sys/devices/platform/reg-virt-consumer.4/min_microvolts &&"
 					  "echo \"normal\" >/sys/devices/platform/reg-virt-consumer.4/mode &&"
-					  "echo \"0\" >/sys/class/leds/tca6507:6/brightness &&"
-					  "sleep 2") != 0)
+					  "echo \"0\" >/sys/class/leds/tca6507:6/brightness") != 0)
 				{
 				NSLog(@"VAUX4 power on failed");
 				return NO;	// something failed
 				}
 			// we should wait until libertas becomes available
-			sleep(2);
 			return YES;
 		}
 	else
@@ -870,7 +870,6 @@ extern int system(const char *cmd);
 #endif
 		system("echo \"255\" >/sys/class/leds/tca6507:6/brightness;"
 			   "echo 0 >/sys/devices/platform/reg-virt-consumer.4/max_microvolts");
-		sleep(2);
 		return YES;
 		}
 }
@@ -950,7 +949,7 @@ extern int system(const char *cmd);
 
 - (id) copyWithZone:(NSZone *) zone
 {
-	CWNetwork *n=[super copyWithZone:zone];
+	CWNetwork *n=[super allocWithZone:zone];
 	n->_bssid=[_bssid copyWithZone:zone];
 	n->_channel=[_channel copyWithZone:zone];
 	n->_ieData=[_ieData copyWithZone:zone];

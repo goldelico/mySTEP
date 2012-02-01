@@ -54,7 +54,7 @@ typedef enum _CTPinStatus
 - (NSString *) error;
 
 - (CTPinStatus) pinStatus;
-- (BOOL) sendPIN:(NSString *) pin;	// try to unlock
+- (BOOL) sendPIN:(NSString *) pin;	// try to unlock; if ok, returns YES but use pinStatus to wait for real unlock
 - (BOOL) reset;	// reset modem to CTPinStatusPINRequired
 
 - (IBAction) orderFrontPinPanel:(id) sender;
@@ -64,7 +64,7 @@ typedef enum _CTPinStatus
 - (BOOL) checkPin:(NSString *) pin;	// get PIN status and ask if nil and none specified yet
 - (BOOL) changePin:(NSString *) pin toNewPin:(NSString *) new;
 
-- (BOOL) _openHSO;	// (re)open FileHandle for AT command stream
+- (void) _openHSO;	// (re)open FileHandle for AT command stream
 - (void) _processLine:(NSString *) line;
 - (void) _processData:(NSData *) line;
 - (void) _dataReceived:(NSNotification *) n;

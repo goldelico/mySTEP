@@ -63,12 +63,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		{
 		SINGLETON_VARIABLE = self;
 		/* custom initialization here */
-		if(![self _openHSO])
-			{
-			SINGLETON_VARIABLE = nil;
-			[self release];
-			return nil;
-			}
+		[self _openHSO];	// try to connect
 		}
     }
     return self;
@@ -103,15 +98,14 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		}	
 }
 
-- (BOOL) _openHSO;
-{ // open during init or reopen after AT_ORESET
+- (void) _openHSO;
+{ // try to open during init or reopen after AT_ORESET
 	NSString *dir=@"/sys/class/tty";
 	NSString *typ;
 	NSString *dev=nil;
-	int retry=0;
 	modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
 	pinStatus=CTPinStatusUnknown;	// needs to check
-	[self _closeHSO];
+	[self _closeHSO];	// if open
 	system("echo 1 >/sys/devices/virtual/gpio/gpio186/value");	// wake up modem on GTA04A4
 	while(YES)
 		{
@@ -138,17 +132,15 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			}
 		if(dev)
 			break;	// found!
-		NSLog(@"No GTM601 found");
-		if(retry++ > 3)
-			return NO;
-		// FIXME: use nested runloop or make us pure state-drive, i.e. allow the state "initializing"
-		sleep(4);		
+		NSLog(@"No GTM601 found; retrying in 2 seconds");
+		[self performSelector:_cmd withObject:nil afterDelay:2.0];	// try again
+		return;
 		}
 	modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
 	if(!modem)
 		{
 		NSLog(@"could not open %@", dev);
-		return NO;		
+		return;		
 		}
 	atstarted=NO;
 	done=YES;	// no command is running
@@ -192,6 +184,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #if 1
 	NSLog(@"run: %@", cmd);
 #endif
+	if(!modem)
+		{
+		// we could try to open the modem here!
+		return CTModemTimeout;	// treat as timeout without trying
+		}
 	[self _writeCommand:cmd];
 	done=NO;
 	atstarted=NO;	// make us wait until we receive the echo
@@ -201,7 +198,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	while(!done && [timeout timeIntervalSinceNow] >= 0)
 		[[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeout];
 	if(!done)
+		{
 		NSLog(@"timeout for %@", cmd);
+		// we could try to reopen the modem file handle here	
+		}
 	done=YES;	// even if we did timeout
 	[arp release];
 #if 1
@@ -338,14 +338,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (BOOL) reset;
 {
-	[self _writeCommand:@"AT_ORESET"];
-	pinStatus=CTPinStatusUnknown;	// needs to ask again (if we have a SIM card without lock)
-	// kill all connections...
-	// FIXME: use nested runloop or make us pure state-drive, i.e. allow the state "resetting"
-	sleep(5);
-	if([self _openHSO])
-		return YES;
-	return NO;
+	[self runATCommand:@"AT_ORESET"];	// with default timeout to give modem a chance to respond with "OK"
+	[self _openHSO];	// will close current connection and reopen
 }
 
 - (void) _unlocked;
@@ -357,12 +351,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 }
 
 - (BOOL) sendPIN:(NSString *) p;
-{ // send pin and run additional commands after unlocking
+{ // send pin and run additional initialization commands after unlocking
 	if([self runATCommand:[NSString stringWithFormat:@"AT+CPIN=%@", p]] == CTModemOk)
 		{ // is accepted
 			// save PIN so that we can reuse it
-			sleep(1);	// some commands (AT_OSIMOP) do not work immediately after providing PIN
-			[self _unlocked];
+			[self performSelector:@selector(_unlocked) withObject:nil afterDelay:1.0];	// run with delay since they do not work immediately
 			return YES;
 		}
 	return NO;	// no SIM, wrong PIN or already unlocked
