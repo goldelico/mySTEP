@@ -10,6 +10,17 @@
 
 #include <signal.h>
 
+@interface CTModemManager (Private)
+
+- (void) _openHSO;	// (re)open FileHandle for AT command stream
+- (void) _closeHSO;
+- (void) _processLine:(NSString *) line;
+- (void) _processData:(NSData *) line;
+- (void) _dataReceived:(NSNotification *) n;
+- (void) _writeCommand:(NSString *) str;
+
+@end
+
 @implementation CTModemManager
 
 /* NIB-safe Singleton pattern */
@@ -153,7 +164,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #endif
 	[modem readInBackgroundAndNotifyForModes:modes];	// and trigger notifications
 	if([self runATCommand:@"ATE1"] != CTModemOk)	// enable echo so that we can separate unsolicited lines from responses
-		return NO;
+		return;
 	[self runATCommand:@"AT_OPONI=1"];	// report current network registration
 	[self runATCommand:@"AT_OSQI=1"];	// report signal quality in dBm
 	[self runATCommand:@"AT_OEANT=1"];	// report quality level (0..4 or 5)
@@ -161,7 +172,6 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	[self runATCommand:@"AT_OCTI=1"];	// report GSM/GPRS/EDGE cell data rate		
 	[self runATCommand:@"AT+CLIP=1"];	// report CLIP		
 	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING		
-	return YES;
 }
 
 - (NSString *) error; { return error; }
@@ -336,7 +346,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NS_ENDHANDLER
 }
 
-- (BOOL) reset;
+- (void) reset;
 {
 	[self runATCommand:@"AT_ORESET"];	// with default timeout to give modem a chance to respond with "OK"
 	[self _openHSO];	// will close current connection and reopen
@@ -382,6 +392,24 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				}
 		}
 	return pinStatus;
+}
+
+- (BOOL) setAirplaneMode:(BOOL) flag;
+{
+	if(flag)
+		{
+		if(pinStatus == CTPinStatusAirplaneMode)
+			return YES;	// already set
+		// switch off modem
+		return NO;
+		}
+	else
+		{
+		if(pinStatus != CTPinStatusAirplaneMode)
+			return YES;	// already disabled
+		// switch on modem
+		return NO;
+		}
 }
 
 - (IBAction) orderFrontPinPanel:(id) sender
@@ -467,7 +495,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		}
 }
 
-/* temporary */- (IBAction) pinKey:(id) sender;
+- (IBAction) pinKey:(id) sender;
 {
 	if([[sender title] isEqualToString:@"C"])
 		[pin setStringValue:@""];	// clear
@@ -509,8 +537,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (BOOL) changePin:(NSString *) pin toNewPin:(NSString *) new;
 {
-	if(![self reset])
-		return NO;
+	[self reset];
 	// AT+CPIN="old","new"
 	return NO;
 }

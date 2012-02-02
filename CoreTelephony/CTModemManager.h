@@ -14,6 +14,7 @@ typedef enum _CTPinStatus
 	CTPinStatusNoSIM,
 	CTPinStatusUnlocked,
 	CTPinStatusPINRequired,
+	CTPinStatusAirplaneMode,
 } CTPinStatus;
 
 @interface CTModemManager : NSObject
@@ -55,19 +56,15 @@ typedef enum _CTPinStatus
 
 - (CTPinStatus) pinStatus;
 - (BOOL) sendPIN:(NSString *) pin;	// try to unlock; if ok, returns YES but use pinStatus to wait for real unlock
-- (BOOL) reset;	// reset modem to CTPinStatusPINRequired
 
 - (IBAction) orderFrontPinPanel:(id) sender;
 - (IBAction) pinOk:(id) sender;
-/* temporary */- (IBAction) pinKey:(id) sender;
+- (IBAction) pinKey:(id) sender;
 
 - (BOOL) checkPin:(NSString *) pin;	// get PIN status and ask if nil and none specified yet
 - (BOOL) changePin:(NSString *) pin toNewPin:(NSString *) new;
 
-- (void) _openHSO;	// (re)open FileHandle for AT command stream
-- (void) _processLine:(NSString *) line;
-- (void) _processData:(NSData *) line;
-- (void) _dataReceived:(NSNotification *) n;
-- (void) _writeCommand:(NSString *) str;
+- (void) reset;	// reset modem to CTPinStatusPINRequired
+- (BOOL) setAirplaneMode:(BOOL) flag;
 
 @end
