@@ -290,7 +290,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
     if (_launchPath == nil)
 		[NSException raise: NSInvalidArgumentException
 							 format: @"NSTask: no launch path set"];
-#if 0
+#if 1
     NSLog(@"executable=%s", [_launchPath fileSystemRepresentation]);
 #endif
 	if (![[NSFileManager defaultManager] isExecutableFileAtPath:_launchPath])
@@ -310,6 +310,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 		args[i+1] = [[[a objectAtIndex: i] description] UTF8String];
     args[argCount+1] = NULL;
 
+	// CHECKME: is this a good decision? or should we use $HOME?
 	if(_currentDirectoryPath == nil)
 		{ // use launch path to set the directory
 		_currentDirectoryPath =[_launchPath stringByDeletingLastPathComponent];
@@ -329,7 +330,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 		envl[i] = [s UTF8String];
 		}
     envl[envCount] = 0;
-#if 0
+#if 1
 	NSLog(@"cd %s; %s %s %s ...", path, args[0], args[1]!=NULL?args[1]:"", (args[1]!=NULL&&args[2]!=NULL)?args[2]:"");
 	NSLog(@"stdin=%d stdout=%d stderr=%d", idesc, odesc, edesc);
 #endif
@@ -341,7 +342,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 								 format: @"NSTask - failed to create child process"];
 		case 0:
 			{ // child process -- fork returns zero
-#if 0
+#if 1
 			NSLog(@"child process");
 #endif
 			// WARNING - don't raise NSExceptions here or we will end up in two instances of the calling task with shared address space!
@@ -361,8 +362,8 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 			// try to switch working directory
 			if(chdir(path) == -1)
 				NSLog(@"NSTask: unable to change directory to %s", path);
-#if 0
-			NSLog(@"execve...");
+#if 1
+			NSLog(@"child %@", [[NSFileManager defaultManager] contentsOfDirectoryAtPath:@"/dev/fd" error:NULL]);
 #endif
 			execve(executable, (char *const *)args, (char *const *)envl);	// and execute
 			NSLog(@"NSTask: unable to execve %s", executable);
@@ -378,6 +379,9 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 				[[_standardOutput fileHandleForWriting] closeFile];
 			if([_standardError isKindOfClass:[NSPipe class]])
 				[[_standardError fileHandleForWriting] closeFile];
+#if 1
+			NSLog(@"parent %@", [[NSFileManager defaultManager] contentsOfDirectoryAtPath:@"/dev/fd" error:NULL]);
+#endif
 			break;
 			}
 		}
@@ -453,7 +457,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 }
 
 + (void) _taskDidTerminate:(NSNotification *)aNotification
-{ // we receive this notification from the runloop at next idle time after _catchChildExit()
+{ // we receive this notification from the runloop at next idle time after _catchChildExit() - our clients may receive this as well!
 	do
 		{
 			NSAutoreleasePool *pool = [NSAutoreleasePool new];

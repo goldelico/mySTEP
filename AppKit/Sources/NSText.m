@@ -781,6 +781,11 @@ object:self]
 	[self moveRightAndModifySelection:sender];
 }
 
+- (void) moveToEndOfLine:(id) sender
+{
+	NSLog(@"should move selection to end of line");
+}
+
 - (void) moveLeft:(id) sender
 {
 	if(NO && _tx.fieldEditor)
@@ -811,6 +816,11 @@ object:self]
 - (void) moveBackwardAndModifySelection:(id) sender
 {
 	[self moveLeftAndModifySelection:sender];
+}
+
+- (void) moveToBeginningOfLine:(id) sender
+{
+	NSLog(@"should move selection to beginning of line");
 }
 
 - (void) moveDownAndModifySelection:(id) sender

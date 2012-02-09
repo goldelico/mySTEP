@@ -140,6 +140,16 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 
 @implementation _NSMutableAttributedStringProxy	// this is a subclass of NSMutableString
 
++ (id) allocWithZone:(NSZone *) z
+{
+	return NSAllocateObject(self, 0, z);
+}
+
++ (id) alloc
+{
+	return NSAllocateObject(self, 0, NSDefaultMallocZone());
+}
+
 - (id) initWithAttributedString:(NSAttributedString *) astring;
 {
 	// we don't call super init!
@@ -149,7 +159,7 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 
 - (id) copyWithZone:(NSZone *) zone
 {
-	return [[_astring string] retain];	// convert to "normal" NSString
+	return [[_astring string] retain];	// convert us to a "normal" NSString
 }
 
 - (void) dealloc
@@ -158,16 +168,27 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 	[super dealloc];	// this is NSMutableString's dealloc
 }
 
-// FIXME: make all changes update attributes in _astring
-// i.e. setString
-// etc.
+// make all changes update the attributed _astring
+
+- (void) deleteCharactersInRange:(NSRange) range;
+{
+	[_astring replaceCharactersInRange:range withString:@""];
+}
+
+- (void) insertString:(NSString *) aString atIndex:(NSUInteger) index;
+{
+	[_astring replaceCharactersInRange:NSMakeRange(index,0) withString:aString];
+}
+
+- (void) replaceCharactersInRange:(NSRange) range withString:(NSString *) aString;
+{
+	[_astring replaceCharactersInRange:range withString:aString];	
+}
 
 - (void) setString:(NSString *) str
 {
 	[_astring replaceCharactersInRange:NSMakeRange(0, [_astring length]) withString:str];	// retains attributes of first character
 }
-
-/// implement other wrapper methods that can't be inherited from NSMutableString
 
 @end
 

@@ -685,28 +685,15 @@ BOOL allOk = YES;
 }
 
 - (NSArray*) directoryContentsAtPath:(NSString*)path
-{ // note: the .hidden list will itself be part of the returned array!
-	NSDirectoryEnumerator *de = [self enumeratorAtPath: path];
-	NSMutableArray *c;
-	NSArray *hidden=[[NSString stringWithContentsOfFile:[path stringByAppendingPathComponent:@".hidden"]] componentsSeparatedByString:@"\n"];
-	if(!de)
-		return nil;
-    ((NSDirectoryEnumerator_t *)de)->_fm.shallow = YES;
-	c = [NSMutableArray arrayWithCapacity:25];	// guess for average sized directories
-    while((path = [de nextObject]))
-		{
-		if([hidden containsObject:path])
-			continue;  // is in hidden-list
-		[c addObject:path];
-		}
-    return c;
+{
+    return [self contentsOfDirectoryAtPath:path error:NULL];
 }
 
 - (NSDirectoryEnumerator*) enumeratorAtPath:(NSString*)path
 {
-NSDirectoryEnumerator_t *de;
-BOOL isDir;
-DIR *dir;
+	NSDirectoryEnumerator_t *de;
+	BOOL isDir;
+	DIR *dir;
 
     if (![self fileExistsAtPath:path isDirectory:&isDir] || !isDir)
 		return nil;
@@ -730,8 +717,9 @@ DIR *dir;
 
 - (NSArray*) subpathsAtPath:(NSString*)path
 {
-NSDirectoryEnumerator *de = [self enumeratorAtPath: path];
-NSMutableArray *c;
+	// return [self subpathsOfDirectory:path error:NULL];
+	NSDirectoryEnumerator *de = [self enumeratorAtPath: path];
+	NSMutableArray *c;
 
 	if (!de)
 		return nil;
@@ -900,8 +888,26 @@ NSMutableArray *c;
 }
 - (NSArray *) contentsOfDirectoryAtPath:(NSString *) path error:(NSError **) error;
 {
-	return NIMP;
+	NSDirectoryEnumerator *de = [self enumeratorAtPath: path];
+	NSMutableArray *c;
+	NSArray *hidden=[[NSString stringWithContentsOfFile:[path stringByAppendingPathComponent:@".hidden"]] componentsSeparatedByString:@"\n"];
+	if(!de)
+		{
+		if(error)
+			*error=[NSError errorWithDomain:@"NSFileManager" code:0 userInfo:[NSDictionary dictionaryWithObject:path forKey:@"path"]];
+		return nil;		
+		}
+    ((NSDirectoryEnumerator_t *) de)->_fm.shallow = YES;
+	c = [NSMutableArray arrayWithCapacity:25];	// guess for average sized directories
+    while((path = [de nextObject]))
+		{
+		if([hidden containsObject:path])
+			continue;  // is in hidden-list
+		[c addObject:path];
+		}
+    return c;
 }
+
 - (BOOL) copyItemAtPath:(NSString *) src toPath:(NSString *) dst error:(NSError **) error;
 {
 	NIMP; return NO;
