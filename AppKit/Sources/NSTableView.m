@@ -1848,37 +1848,38 @@ int index = [self columnWithIdentifier:identifier];
 
 	for (i = _columnRange.location; i < maxColRange; i++)
 		{ // draw all columns of this row that are visible
+//			NSCell *aCell = [self preparedCellAtColumn:i row:row];
+			NSTableDataCell *aCell;
 		NSTableColumn *col = [_tableColumns objectAtIndex:i];
 		rect.size.width = col->_width;
+			// FIXME: we may not need _clickedCell because _clickedRow / _clickedColumn is unique - but mus be set to -1 when leaving the tracking loop
 		if(_clickedCell && _clickedRow == row && _clickedColumn == i)
 			{ // we are tracking this cell - don't update from data source!
+			aCell = _clickedCell;
 #if 0
 			NSLog(@"draw clicked cell");
 #endif
-			[_clickedCell drawWithFrame:rect inView:self];
 			}
 		else
 			{ // get from data source
-			NSTableDataCell *aCell = [col dataCellForRow:row];
+				aCell = [col dataCellForRow:row];
 			id data;
 			if(row < [self numberOfRows])
 				data=[_dataSource tableView:self objectValueForTableColumn:col row:row];	// ask data source
 			else
-				data=nil;
+				data=nil;	// non-existing row
 #if 0
 			NSLog(@"drawRow:%d column %d", row, i);
 			NSLog(@"col=%@", col);
 			NSLog(@"cel=%@", aCell);
 			NSLog(@"data=%@", data);
 #endif
-			if(data)
-				{ // set data from data source
+			if(data)	// set data from data source (if available)
 				[aCell setObjectValue:data];
-				if(_tv.delegateWillDisplayCell)
-					[_delegate tableView:self willDisplayCell:aCell forTableColumn:col row:row];	// give delegate a chance to modify the cell
-				[aCell drawWithFrame:rect inView:self];
-				}
+			if(_tv.delegateWillDisplayCell)
+				[_delegate tableView:self willDisplayCell:aCell forTableColumn:col row:row];	// give delegate a chance to modify the cell
 			}
+		[aCell drawWithFrame:rect inView:self];
 		rect.origin.x = NSMaxX(rect) + _intercellSpacing.width;
 	}
 }

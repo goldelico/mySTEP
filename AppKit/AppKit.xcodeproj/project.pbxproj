@@ -354,6 +354,8 @@
 		EE294C010E4586B100F2D481 /* Toolbar.plist in Resources */ = {isa = PBXBuildFile; fileRef = EE294BFE0E4586B100F2D481 /* Toolbar.plist */; };
 		EE2B330814CC4554007F446C /* NSSimpleHorizontalTypesetter.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2B330714CC4554007F446C /* NSSimpleHorizontalTypesetter.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE2B330914CC4554007F446C /* NSSimpleHorizontalTypesetter.h in Headers */ = {isa = PBXBuildFile; fileRef = EE2B330714CC4554007F446C /* NSSimpleHorizontalTypesetter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE2D206014F7D0D300652883 /* NSTypesetter.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2D205F14F7D0D300652883 /* NSTypesetter.m */; };
+		EE2D206114F7D0D300652883 /* NSTypesetter.m in Sources */ = {isa = PBXBuildFile; fileRef = EE2D205F14F7D0D300652883 /* NSTypesetter.m */; };
 		EE3193EF09AA47490089A9A2 /* NSX11GraphicsContext.h in Headers */ = {isa = PBXBuildFile; fileRef = EE1D48300996A68B00DDE5E0 /* NSX11GraphicsContext.h */; };
 		EE3193F009AA47490089A9A2 /* AppKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3717D09540271001244CF /* AppKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE3193F209AA47490089A9A2 /* GSServices.h in Headers */ = {isa = PBXBuildFile; fileRef = EEA3719F09540271001244CF /* GSServices.h */; };
@@ -1211,6 +1213,7 @@
 		EE294C310E458C3700F2D481 /* Info.cocoa.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.cocoa.plist; sourceTree = "<group>"; };
 		EE2B330714CC4554007F446C /* NSSimpleHorizontalTypesetter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSSimpleHorizontalTypesetter.h; sourceTree = "<group>"; };
 		EE2C4F510D4393670017D712 /* Xrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Xrender.h; path = /usr/X11R6/include/X11/extensions/Xrender.h; sourceTree = "<absolute>"; };
+		EE2D205F14F7D0D300652883 /* NSTypesetter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTypesetter.m; sourceTree = "<group>"; };
 		EE31951109AA47490089A9A2 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE3196E209AB7E8A0089A9A2 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
 		EE3196E309AB7E8A0089A9A2 /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = AppController.m; sourceTree = "<group>"; };
@@ -2142,6 +2145,7 @@
 				EEAA6C4E0F96315C00B5BA72 /* NSTextInputClient.h */,
 				EEA3723009540273001244CF /* NSLayoutManager.h */,
 				EE0B257D0A51B0DD002E1464 /* NSLayoutManager.m */,
+				EE2B330714CC4554007F446C /* NSSimpleHorizontalTypesetter.h */,
 				EEA3727A09540273001244CF /* NSText.h */,
 				EEA3727B09540273001244CF /* NSText.m */,
 				EEA3727C09540273001244CF /* NSTextAttachment.h */,
@@ -2155,7 +2159,7 @@
 				EEA3728209540273001244CF /* NSTextView.h */,
 				EEA3728309540273001244CF /* NSTextView.m */,
 				EEF5292D0A55355E0049AF3C /* NSTypesetter.h */,
-				EE2B330714CC4554007F446C /* NSSimpleHorizontalTypesetter.h */,
+				EE2D205F14F7D0D300652883 /* NSTypesetter.m */,
 			);
 			name = Text;
 			sourceTree = "<group>";
@@ -3518,6 +3522,7 @@
 				EE469E620D1B9D9000E99DA0 /* NSViewController.m in Sources */,
 				EE3E754B0D294E8400B28288 /* NSTextList.m in Sources */,
 				EEF6E6FC1021A3E600764AC3 /* NSShadow.m in Sources */,
+				EE2D206114F7D0D300652883 /* NSTypesetter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3643,6 +3648,7 @@
 				EE469E600D1B9D9000E99DA0 /* NSViewController.m in Sources */,
 				EE3E754A0D294E8400B28288 /* NSTextList.m in Sources */,
 				EEF6E6FB1021A3E600764AC3 /* NSShadow.m in Sources */,
+				EE2D206014F7D0D300652883 /* NSTypesetter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

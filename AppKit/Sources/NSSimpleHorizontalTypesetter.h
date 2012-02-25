@@ -36,7 +36,7 @@ typedef enum _NSLayoutDirection { NSLayoutLeftToRight = 0, NSLayoutRightToLeft
 
 typedef struct _NSTypesetterGlyphInfo
 { // Must be identical in component names to Cocoa or subclassing and overwriting typesetterLaidOneGlyph may fail
-	NSPoint			curLocation;	// location of glyph
+	NSPoint			curLocation;	// location of glyph (relative to line fragment origin)
 	NSSize			attachmentSize;
 	NSFont			*font;
 	float			extent;			// width of glyph
@@ -56,62 +56,61 @@ typedef struct _NSTypesetterGlyphInfo
 	NSTypesetterGlyphInfo *glyphs;	// this is the shelf where Glyphs are laid out until a complete line is flushed to the LayoutManager
 	NSLayoutManager *layoutManager;	// => _layoutManager
 	NSTextStorage *textStorage;		// => _attributedString
-	NSString *textString;
 	NSTextContainer *curContainer;	// => _currentTextContainer
-	NSParagraphStyle *curParaStyle;	// => _currentParagraphStyle
+	NSFont *curFont;				// [attrs objectForKey:NSFontAttributeName]
 	NSFont *previousFont;
-	NSFont *curFont;
-	NSDictionary *attrs;
-	NSSize curContainerSize;
-	float curMinLineHeight;
-	float curMaxLineHeight;
-	float curGlyphExtentAboveLocation;
-	float curGlyphExtentBelowLocation;
-	float curMaxGlyphLocation;
-	float curBaselineOffset;
-	NSRange attrsRange;
-	unsigned capacityGlyphInfo;
-	unsigned sizeGlyphInfo;
-	unsigned firstIndexOfCurrentLineFragment;
-	unsigned curGlyphIndex;
-	unsigned int curGlyph;
-	unsigned int curCharacterIndex;
-	unsigned int firstGlyphIndex;
-	unsigned int firstInvalidGlyphIndex;
-	unsigned int previousGlyph;
-	unsigned int curContainerIndex;
-	int curTextAlignment;
-	int curSuperscript;
-	BOOL curFontIsFixedPitch;
-	BOOL busy;
-	/*
+	NSParagraphStyle *curParaStyle;	// => _currentParagraphStyle
+	NSString *textString;			// [textStorage string]
+	NSDictionary *attrs;			// current attributes
+	NSRange attrsRange;				// current attribute range (character index)
+	NSSize curContainerSize;		// [curContainer containerSize]; .width is used to know when to break a line
+	NSRect curFontBoundingBox;
+	NSSize curFontAdvancement;
+	float curGlyphOffset;			// glyph layout cursor (x of next glyph)
+	float curMaxGlyphLocation;		// max width of line fragment
+	float curContainerLineFragmentPadding;	// [curContainer lineFragmentPadding]
+	float curSpaceAfter;			// cached [attrs objectForKey:NSKernAttributeName]
+	float curMinLineHeight;			// cached [curParaStyle minLineHeight]
+	float curMaxLineHeight;			// cached [curParaStyle maxLineHeight]
+	NSGlyph previousGlyph;
+	NSGlyph curGlyph;
+	unsigned firstGlyphIndex;		// index of first glyph in glyphs array
+	unsigned curGlyphIndex;			// current glyph being processed (index in glyphs[])
+	unsigned firstInvalidGlyphIndex;	// first invalid index in glyphs[]
+	unsigned capacityGlyphInfo;		// capacity of glyph[] cache
+	unsigned sizeOfGlyphInfo;		// sizeof(NSTypesetterGlyphInfo)
+	unsigned curCharacterIndex;		// current character index being processed
+	unsigned curContainerIndex;		// index into [layoutManager textContainers]
+	unsigned firstIndexOfCurrentLineFragment;	// glyph index where current line fragment starts
+	NSLayoutDirection curLayoutDirection;		// [curParaStyle baseWritingDirection]
+	NSTextAlignment curTextAlignment;			// [curParaStyle alignment]
+	int curSuperscript;				// [attrs objectForKey:NSSuperscriptAttributeName]
+	BOOL curFontIsFixedPitch;		// [curFont isFixedPitch]
+	BOOL curContainerIsSimpleRectangular;	// [curContainer isSimpleRectangularTextContainer]
+	BOOL busy;						// busy doing layout (can detect recursions)
+
+	/* unknown what it is good for */
 	unsigned int *glyphCache;
 	int *glyphInscriptionCache;
+	int glyphLayoutMode;
 	unsigned int *glyphCharacterIndexCache;
 	char *glyphElasticCache;
-	NSSize glyphLocationOffset;
+	struct _NSSize glyphLocationOffset;
 	unsigned int lastFixedGlyphIndex;
-	unsigned int sizeOfGlyphInfo;
 	int curGlyphInscription;
 	unsigned int previousBaseGlyphIndex;
 	unsigned int previousBaseGlyph;
-	float curGlyphOffset;
 	BOOL curGlyphOffsetOutOfDate;
 	BOOL curGlyphIsAControlGlyph;
 	BOOL containerBreakAfterCurGlyph;
 	BOOL wrapAfterCurGlyph;
-	float curSpaceAfter;
 	float previousSpaceAfter;
-	int glyphLayoutMode;
-	int curLayoutDirection;
-	NSRect curFontBoundingBox;
-	NSPoint curFontAdvancement;
 	void *curFontPositionOfGlyphMethod;
+	float curBaselineOffset;
 	float curMinBaselineDistance;
 	float curMaxBaselineDistance;
-	float curContainerLineFragmentPadding;
-	BOOL curContainerIsSimpleRectangular;
-	unsigned int capacityOfGlyphs;
+	float curGlyphExtentAboveLocation;
+	float curGlyphExtentBelowLocation;
 	struct {
 		unsigned int _glyphPostLay:1;
 		unsigned int _fragPostLay:1;
@@ -127,13 +126,16 @@ typedef struct _NSTypesetterGlyphInfo
 	unsigned char previousBidiLevel;
 	unsigned char _reservedChars[2];
 	unsigned int _reserved2[6];
-	*/
+
+	/* our extensions */
+	NSRange curParaRange;	// current paragraph attribute range (and paragraph length)
+
 }
 
 + (id) sharedInstance;
 
 - (NSTypesetterGlyphInfo *) baseOfTypesetterGlyphInfo;
-#define NSGlyphInfoAtIndex(IDX) (glyphs+(IDX)*sizeof(glyphs[0]))
+#define NSGlyphInfoAtIndex(IDX) (&glyphs[IDX])
 - (void) breakLineAtIndex:(unsigned) location;
 - (unsigned) capacityOfTypesetterGlyphInfo;
 - (void) clearAttributesCache;
@@ -168,10 +170,10 @@ typedef struct _NSTypesetterGlyphInfo
 - (NSRect) normalizedRect:(NSRect) fp8;
 - (void) _setupBoundsForLineFragment:(NSRect *) fp8;
 - (float) baselineOffsetInLayoutManager:(id) fp8 glyphIndex:(unsigned int) fp12;
-- (void) _layoutGlyphsInLayoutManager:(id) fp8
+- (void) _layoutGlyphsInLayoutManager:(NSLayoutManager *) fp8
 				 startingAtGlyphIndex:(unsigned int) fp12
 			 maxNumberOfLineFragments:(unsigned int) fp16
-				 currentTextContainer:(id *) fp20
+				 currentTextContainer:(NSTextContainer **) fp20
 						 proposedRect:(NSRect *) fp24
 					   nextGlyphIndex:(unsigned int *) fp28;
 - (BOOL) followsItalicAngle;

@@ -323,7 +323,7 @@
 
 // predefine abstract methods
 
-#define ACTION(NAME) -(void) NAME:(id)sender { SUBCLASS; }
+#define ACTION(NAME) - (void) NAME:(id)sender { SUBCLASS; }
 
 ACTION(cancelOperation)
 ACTION(capitalizeWord)
