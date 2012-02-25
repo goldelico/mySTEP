@@ -1,62 +1,74 @@
 /* part of objc2pp - an obj-c 2 preprocessor */
 
-// FIXME: would be nice to use NSObjects so that the real work on the AST can be done in categories
+#import "AST.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+@implementation Node 
+
+- (id) initWithName:(char *) name type:(int) type
+{
+	if((self=[super init]))
+		{
+		if(name)
+			self->name=strdup(name);
+		self->type=type;
+		// add to map table(s)
+		}
+	return self;
+}
+
+- (void) dealloc
+{
+	[left release];
+	[right release];
+	// remove from map table(s)
+	[super dealloc];
+}
+
+@end
+
+/* parser interface methods */
+
 #include "node.h"
 
-struct Node 
-{ /* internal structure */
-	int type;
-	char *name;
-	int left;
-	int right;
-	int next;
-} *nodes;
+/// FIXME: use the Node's -hash value as the integer id
+/// FIXME: and use a NSMapTables to map from int back to Node object
+
+Node **nodes;
 
 static int nodecount, nodecapacity;
 
-static struct Node *get(int node)
+static Node *get(int node)
 {
 	if(node <= 0 || node > nodecount)
 		return NULL; /* error */
-	return &nodes[node-1];	/* nodes start counting at 1 */
+	return nodes[node-1];	/* nodes start counting at 1 */
 }
 
 int leaf(int type, const char *name)
 { /* create a leaf node */
 	int n;
-	struct Node *node;
+	AST *node;
 	if(nodecount >= nodecapacity)
 		{ /* (re)alloc */
 			if(nodecapacity == 0)
 				{ /* first allocation */
 					nodecapacity=100;
-					nodes=malloc(nodecapacity*sizeof(struct Node));
+					nodes=malloc(nodecapacity*sizeof(Node *));
 				}
 			else
 				{
 				nodecapacity=2*nodecapacity+10;	/* exponentially increase available capacity */
-				nodes=realloc(nodes, nodecapacity*sizeof(struct Node));
+				nodes=realloc(nodes, nodecapacity*sizeof(Node *));
 				}
 		}
-	node=&nodes[nodecount++];	/* next free node */
-	node->type=type;
-	if(name)
-		node->name=strdup(name);
-	else
-		node->name=NULL;
-	node->left=node->right=0;
-	node->next=0;
+	nodes[nodecount++]=node=[[Node alloc] initWithName:name type:type];	/* create new entry */
 	return nodecount;	/* returns node index + 1 */
 }
 
 int node(int type, int left, int right)
 { /* create a binary node */
 	int n=leaf(type, NULL);
-	struct Node *node = get(n);
+	Node *node = get(n);
 	node->left=left;
 	node->right=right;
 	return n;
@@ -66,7 +78,7 @@ void dealloc(int n)
 {
 	if(n)
 		{
-		struct Node *node = get(n);
+		AST *node = get(n);
 		dealloc(node->left);
 		dealloc(node->right);
 		/*

@@ -1,6 +1,6 @@
 /* part of objc2pp - an obj-c 2 preprocessor */
 
-// tree node management
+// tree node management wrapper
 
 int leaf(int type, const char *name);
 int node(int type, int left, int right);

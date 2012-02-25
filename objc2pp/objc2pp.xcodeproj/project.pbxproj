@@ -8,6 +8,11 @@
 
 /* Begin PBXFileReference section */
 		EE08E5A110D7CE3200684837 /* node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node.h; sourceTree = "<group>"; };
+		EE22087E14EDB23500E78349 /* AST.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AST.h; sourceTree = "<group>"; };
+		EE22088714EDB47600E78349 /* Printing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Printing.h; sourceTree = "<group>"; };
+		EE22088814EDB47600E78349 /* Printing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Printing.m; sourceTree = "<group>"; };
+		EE22088914EDB51200E78349 /* Simplify.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Simplify.h; sourceTree = "<group>"; };
+		EE22088A14EDB51200E78349 /* Simplify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Simplify.m; sourceTree = "<group>"; };
 		EE4108510B956BA30065DD36 /* gram.y */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.yacc; path = gram.y; sourceTree = "<group>"; };
 		EE4108520B956BA30065DD36 /* main.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		EE4108530B956BA30065DD36 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
@@ -24,7 +29,7 @@
 		EE6D3DFC13755463003D5863 /* test4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test4.c; path = test/test4.c; sourceTree = "<group>"; };
 		EE6D3DFD13755463003D5863 /* test4.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = test4.i; path = test/test4.i; sourceTree = "<group>"; };
 		EE6D3E0513755497003D5863 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
-		EE6D6105137AF9E5007F7BD7 /* node.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = node.c; sourceTree = "<group>"; };
+		EE6D6105137AF9E5007F7BD7 /* AST.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AST.m; sourceTree = "<group>"; };
 		EEFD77D40B957C83002EA6A8 /* test.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = test.m; sourceTree = "<group>"; };
 		EEFD871D0B95DA5B002EA6A8 /* ToDo */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ToDo; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -47,7 +52,12 @@
 				EE4108540B956BA30065DD36 /* scan.l */,
 				EE4108520B956BA30065DD36 /* main.c */,
 				EE08E5A110D7CE3200684837 /* node.h */,
-				EE6D6105137AF9E5007F7BD7 /* node.c */,
+				EE22087E14EDB23500E78349 /* AST.h */,
+				EE6D6105137AF9E5007F7BD7 /* AST.m */,
+				EE22088714EDB47600E78349 /* Printing.h */,
+				EE22088814EDB47600E78349 /* Printing.m */,
+				EE22088914EDB51200E78349 /* Simplify.h */,
+				EE22088A14EDB51200E78349 /* Simplify.m */,
 			);
 			name = Source;
 			sourceTree = "<group>";

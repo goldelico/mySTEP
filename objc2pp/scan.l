@@ -145,7 +145,7 @@ struct RESERVED
 		
 	/* Obj-C 2.5 extensions */
 		
-	"@autoreleasepool", AT_AUTORELEASEPOOL, 
+	"@autoreleasepool", AT_AUTORELEASEPOOL,
 	"__unsafe_unretained", AT_UNSAFE_UNRETAINED,
 	"__autoreleasing", AT_AUTORELEASING,
 	};
