@@ -118,6 +118,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	pinStatus=CTPinStatusUnknown;	// needs to check
 	[self _closeHSO];	// if open
 	system("echo 1 >/sys/devices/virtual/gpio/gpio186/value");	// wake up modem on GTA04A4
+	// FIXME: use /dev/ttyHS_Application
+	// FIXME: also open /dev/ttyHS_Modem to receive "NO CARRIER" messages
 	while(YES)
 		{
 		NSDirectoryEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:dir];
@@ -163,6 +165,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSLog(@"waiting for data on %@", dev);
 #endif
 	[modem readInBackgroundAndNotifyForModes:modes];	// and trigger notifications
+	// FIXME: this does not correctly work - unsolicited messages may interrupt echo of AT commands - but the echo is split up by e.g. \nRING\n i.e. it is a full line
 	if([self runATCommand:@"ATE1"] != CTModemOk)	// enable echo so that we can separate unsolicited lines from responses
 		return;
 	[self runATCommand:@"AT_OPONI=1"];	// report current network registration
@@ -170,8 +173,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	[self runATCommand:@"AT_OEANT=1"];	// report quality level (0..4 or 5)
 	[self runATCommand:@"AT_OUWCTI=1"];	// report available cell data rate		
 	[self runATCommand:@"AT_OCTI=1"];	// report GSM/GPRS/EDGE cell data rate		
-	[self runATCommand:@"AT+CLIP=1"];	// report CLIP		
+	[self runATCommand:@"AT+COPS"];		// report RING etc.		
 	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING		
+	[self runATCommand:@"AT+CLIP=1"];	// report +CLIP:		
 }
 
 - (NSString *) error; { return error; }
@@ -291,7 +295,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			[target performSelector:action withObject:line];	// repsonse to current command
 		}
 	if([line hasPrefix:@"AT"])	// is some echoed AT command
-		atstarted=YES;	// divert future responses
+		atstarted=YES;	// divert future responses - FIXME: may not work reliably if echoing is slow
 	else
 		[unsolicitedTarget performSelector:unsolicitedAction withObject:line afterDelay:0.0];	// unsolicited response - process in main runloop!
 }

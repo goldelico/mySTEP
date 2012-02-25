@@ -227,13 +227,16 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) accept;	// if incoming
 {
-	// ATO?
+	// ATA?
 	// if CTCallStateIncoming
+	[[CTModemManager modemManager] runATCommand:@"ATA"];
+	// start PCM
 }
 
 - (void) reject;	// if incoming
 {
 	// if CTCallStateIncoming
+	[self terminate];
 }
 
 - (void) divert;
@@ -529,16 +532,50 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		{
 		// incoming call
 		NSLog(@"incoming call: %@", line);
+		// decode CLIP information
+		// create a new call and notify
+		// FIXME: this message may repeat and end without other notice
 		return;
 		}
 	if([line hasPrefix:@"BUSY"])
 		{
+		NSEnumerator *e=[[[CTCallCenter callCenter] currentCalls] objectEnumerator];
+		CTCall *call;
 		NSLog(@"busy: %@", line);
+		while((call=[e nextObject]))
+			{ // update connection state to connected
+				if([call _callState] == kCTCallStateDialing)
+					{ // found the call that was dialling
+						[call _setCallState:kCTCallStateDisconnected];	// well, it was busy
+						[[[CTCallCenter callCenter] delegate] handleCallEvent:call];	// notify through CallCenter
+						break;
+					}
+			}
 		return;
 		}
 	if([line hasPrefix:@"NO CARRIER"])
 		{
+		NSEnumerator *e=[[[CTCallCenter callCenter] currentCalls] objectEnumerator];
+		CTCall *call;
 		NSLog(@"remote hangup: %@", line);
+		while((call=[e nextObject]))
+			{ // update connection state to connected
+				if([call _callState] == kCTCallStateDialing)
+					{ // found the call that was dialling
+						[call _setCallState:kCTCallStateDisconnected];	// well, it was rejected
+						[[[CTCallCenter callCenter] delegate] handleCallEvent:call];	// notify through CallCenter
+						break;
+					}
+				if([call _callState] == kCTCallStateConnected)
+					{ // found the call that was established
+						system("killall arecord aplay");	// stop audio forwarding
+						// error handling?
+						[[CTModemManager modemManager] runATCommand:@"AT_OPCMENABLE=0"];	// disable PCM clocks to save some energy
+						[call _setCallState:kCTCallStateDisconnected];
+						[[[CTCallCenter callCenter] delegate] handleCallEvent:call];	// notify through CallCenter
+						break;
+					}
+			}
 		return;
 		}
 	if([line hasPrefix:@"+CBM:"])
@@ -588,8 +625,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		// FIXME: recording a phone call should only be possible under active user's control
 		
 		system("killall arecord aplay;"	// stop any running audio forwarding
-			   "arecord -fS16_LE -r8000 | tee mic2net.wav | aplay -Dhw:1,0 &"	// microphone -> network
-			   "arecord -Dhw:1,0 -fS16_LE -r8000 | tee net2ear.wav | aplay &"	// network -> handset/earpiece
+			   "arecord -fS16_LE -r8000 | aplay -Dhw:1,0 &"	// forward microphone -> network
+			   "arecord -Dhw:1,0 -fS16_LE -r8000 | aplay &"	// forward network -> handset/earpiece
 			   );
 		return;
 		}
@@ -695,11 +732,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			// forward to CLLocation?
 			return;
 		}
-	if([line hasPrefix:@"+CBM:"])
-		{ // cell broadcast received
-			
-		}
-	// these lines are not "unsolicted" but are handled like they were
+	// these responses are not really "unsolicted" but are handled like they were
 	if([line hasPrefix:@"_OSIMOP:"])
 		{ // home plnm - _OSIMOP: “<long_op>”,”<short_op>”,”<MCC_MNC>”
 			NSScanner *sc=[NSScanner scannerWithString:line];

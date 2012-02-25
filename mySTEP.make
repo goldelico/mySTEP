@@ -117,6 +117,9 @@ CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 else
 TOOLCHAIN := $(ROOT)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(ARCHITECTURE)
 CC := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-gcc
+# CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(ARCHITECTURE) -integrated-as --sysroot $(ROOT) -I$(ROOT)/include
+LD := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-gcc
+
 endif
 LS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-ld
 AS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-as
@@ -545,7 +548,7 @@ clean:
 "$(BINARY)":: $(OBJECTS)
 	# link $(SOURCES) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
-	$(CC) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
+	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	# compiled.
 
 # link headers of framework
