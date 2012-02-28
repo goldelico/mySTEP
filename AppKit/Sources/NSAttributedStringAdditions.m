@@ -1128,22 +1128,34 @@ static BOOL done;
 
 - (NSRange) itemNumberInTextList:(NSTextList *) textList atIndex:(unsigned) loc;
 {
-	NIMP;
+	NSRange rng;
+	NSParagraphStyle *p=[self attribute:NSParagraphStyleAttributeName atIndex:loc longestEffectiveRange:&rng inRange:(NSRange){ 0, [self length] }];
+	[p textLists];
+	return rng;
 }
 
 - (NSRange) rangeOfTextBlock:(NSTextBlock *) textBlock atIndex:(unsigned) loc;
 {
-	NIMP;
+	NSRange rng;
+	NSParagraphStyle *p=[self attribute:NSParagraphStyleAttributeName atIndex:loc longestEffectiveRange:&rng inRange:(NSRange){ 0, [self length] }];
+	[p textBlocks];
+	return rng;
 }
 
 - (NSRange) rangeOfTextList:(NSTextList *) textList atIndex:(unsigned) loc;
 {
-	NIMP;
+	NSRange rng;
+	NSParagraphStyle *p=[self attribute:NSParagraphStyleAttributeName atIndex:loc longestEffectiveRange:&rng inRange:(NSRange){ 0, [self length] }];
+	[p textLists];
+	return rng;
 }
 
 - (NSRange) rangeOfTextTable:(NSTextTable *) textTable atIndex:(unsigned) loc;
 {
-	NIMP;
+	NSRange rng;
+	NSParagraphStyle *p=[self attribute:NSParagraphStyleAttributeName atIndex:loc longestEffectiveRange:&rng inRange:(NSRange){ 0, [self length] }];
+	[p textBlocks];
+	return rng;
 }
 
 - (NSURL *) URLAtIndex:(NSUInteger) loc effectiveRange:(NSRangePointer) range; 

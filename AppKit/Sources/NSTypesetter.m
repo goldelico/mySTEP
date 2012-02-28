@@ -983,7 +983,8 @@ forStartOfGlyphRange:(NSRange) range;
 				curParaStyle = [textStorage 
 								attribute: NSParagraphStyleAttributeName
 								atIndex: curCharacterIndex
-								effectiveRange: &curParaRange];
+								longestEffectiveRange: &curParaRange
+								inRange:(NSRange){ 0, [textStorage length] }];
 				if(!curParaStyle)
 					curParaStyle=[NSParagraphStyle defaultParagraphStyle];			
 				curMaxGlyphLocation=curContainerSize.width-[curParaStyle tailIndent];

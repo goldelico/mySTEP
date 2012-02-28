@@ -54,10 +54,11 @@ static NSCountedSet *__pb;
 //
 //*****************************************************************************
 
-@class GSBitmapImageRepPNG;
-@class GSBitmapImageRepGIF;
-@class GSBitmapImageRepJPEG;
-@class GSBitmapImageRepICNS;
+// forward declarations
+@interface GSBitmapImageRepPNG : NSBitmapImageRep; @end
+@interface GSBitmapImageRepGIF : NSBitmapImageRep; @end
+@interface GSBitmapImageRepJPEG : NSBitmapImageRep; @end
+@interface GSBitmapImageRepICNS : NSBitmapImageRep; @end
 
 @implementation NSImageRep
 
