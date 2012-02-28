@@ -2,17 +2,14 @@
 
 // tree node management wrapper
 
-int leaf(int type, const char *name);
-int node(int type, int left, int right);
-void dealloc(int node);
+int leaf(int type, const char *name);		// create a leaf
+int node(int type, int left, int right);	// create a node
 
 int type(int node);
-char *name(int node);
+const char *name(int node);
 void setType(int node, int type);	// used for handling keywords
-int left(int node);
-void setLeft(int node, int left);
-int right(int node);
-void setRight(int node, int right);
+
+void process(int node);	// called for each declaration
 
 // list object (may be build from nodes or implemented differently)
 

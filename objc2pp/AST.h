@@ -7,16 +7,23 @@
 @interface Node : NSObject 
 { /* internal structure */
 	int type;
-	char *name;
-	int left;
-	int right;
-	int next;
+	const char *name;
+	Node *left;
+	Node *right;
+	Node *next;
 }
 
-- (id) initWithName:(char *) name type:(int) type;
+- (id) initWithName:(const char *) name type:(int) type;
 - (int) type;
-- (char *) name;
+- (const char *) name;
 - (Node *) left;
 - (Node *) right;
+- (void) setLeft:(Node *) n;
+- (void) setRight:(Node *) n;
+- (void) setType:(Class) type;
 
 @end
+
+// here we can either define generic nodes with type
+// or real subclasses (which would simplify writing tree processing algorithms
+// we could also define subclasses and use/replace the isa pointer as the 'type'

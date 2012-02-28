@@ -4,13 +4,13 @@
 
 @implementation Node 
 
-- (id) initWithName:(char *) name type:(int) type
+- (id) initWithName:(const char *) n type:(int) t
 {
 	if((self=[super init]))
 		{
-		if(name)
-			self->name=strdup(name);
-		self->type=type;
+		if(n)
+			name=strdup(n);
+		type=t;
 		// add to map table(s)
 		}
 	return self;
@@ -18,10 +18,54 @@
 
 - (void) dealloc
 {
+	if(name)
+		free((void *) name);
 	[left release];
 	[right release];
 	// remove from map table(s)
 	[super dealloc];
+}
+
+- (int) type;
+{
+	return type;
+}
+
+- (const char *) name;
+{
+	return name;
+}
+
+- (Node *) left;
+{
+	return left;
+}
+
+- (Node *) right;
+{
+	return right;
+}
+
+- (void) setLeft:(Node *) n;
+{
+	[left autorelease];
+	left=[n retain];
+}
+
+- (void) setRight:(Node *) n;
+{
+	[right autorelease];
+	right=[n retain];
+}
+
+- (void) setType:(Class) type;
+{
+	
+}
+
+- (void) process
+{ // process this node
+	[self print];	
 }
 
 @end
@@ -30,7 +74,7 @@
 
 #include "node.h"
 
-/// FIXME: use the Node's -hash value as the integer id
+/// FIXME: can we use the Node's -hash value as the integer id ???
 /// FIXME: and use a NSMapTables to map from int back to Node object
 
 Node **nodes;
@@ -40,14 +84,13 @@ static int nodecount, nodecapacity;
 static Node *get(int node)
 {
 	if(node <= 0 || node > nodecount)
-		return NULL; /* error */
+		return nil;
 	return nodes[node-1];	/* nodes start counting at 1 */
 }
 
 int leaf(int type, const char *name)
 { /* create a leaf node */
 	int n;
-	AST *node;
 	if(nodecount >= nodecapacity)
 		{ /* (re)alloc */
 			if(nodecapacity == 0)
@@ -61,7 +104,7 @@ int leaf(int type, const char *name)
 				nodes=realloc(nodes, nodecapacity*sizeof(Node *));
 				}
 		}
-	nodes[nodecount++]=node=[[Node alloc] initWithName:name type:type];	/* create new entry */
+	nodes[nodecount++]=[[Node alloc] initWithName:name type:type];	/* create new entry */
 	return nodecount;	/* returns node index + 1 */
 }
 
@@ -69,65 +112,24 @@ int node(int type, int left, int right)
 { /* create a binary node */
 	int n=leaf(type, NULL);
 	Node *node = get(n);
-	node->left=left;
-	node->right=right;
+	[node setLeft:get(left)];
+	[node setRight:get(right)];
 	return n;
-}
-
-void dealloc(int n)
-{
-	if(n)
-		{
-		AST *node = get(n);
-		dealloc(node->left);
-		dealloc(node->right);
-		/*
-		 free(node->name);
-		 free(node);
-		 */		
-		}
-}
-
-int left(int node)
-{
-	return get(node)->left;
-}
-
-void setLeft(int node, int left)
-{
-	get(node)->left=left;
-}
-
-int right(int node)
-{
-	return get(node)->right;
-}
-
-void setRight(int node, int right)
-{
-#if 1
-	printf("setRight(");
-	emit(node);
-	printf(", ");
-	emit(right);
-	printf("\n");
-#endif
-	get(node)->right=right;
 }
 
 int type(int node)
 {
-	return get(node)->type;
+	return [get(node) type];
 }
 
-void setType(int node, int type)
+const char *name(int node)
 {
-	get(node)->type=type;
+	return [get(node) name];
 }
 
-char *name(int node)
-{
-	return get(node)->name;
+void process(int node)
+{ // called for each declaration
+	[get(node) process];
 }
 
 /* list */

@@ -94,8 +94,8 @@
      BREAK = 310,
      RETURN = 311,
      ID = 312,
-     SEL = 313,
-     BOOL = 314,
+     SELECTOR = 313,
+     BOOLTYPE = 314,
      UNICHAR = 315,
      CLASS = 316,
      AT_CLASS = 317,
@@ -192,8 +192,8 @@
 #define BREAK 310
 #define RETURN 311
 #define ID 312
-#define SEL 313
-#define BOOL 314
+#define SELECTOR 313
+#define BOOLTYPE 314
 #define UNICHAR 315
 #define CLASS 316
 #define AT_CLASS 317

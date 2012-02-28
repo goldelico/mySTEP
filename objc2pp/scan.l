@@ -120,8 +120,8 @@ struct RESERVED
 	"oneway", ONEWAY, 
 	
 	"id", ID, 
-	"SEL", SEL, 
-	"BOOL", BOOL, 
+	"SEL", SELECTOR, 
+	"BOOL", BOOLTYPE, 
 	"unichar", UNICHAR, 
 	"Class", CLASS, 
 	
@@ -176,7 +176,15 @@ void scaninit(void)
 {L}({L}|{D})*  { 
 	int s;
 	charCount();
-	/* FIXME: obj-c method names may be any identifier, i.e. it is perfectly legal to define a method - (void) continue;
+	/* FIXME: obj-c method names may be any identifier, i.e. it is perfectly legal to define a method - (void) continue; */
+	// so we may have to tell the scanner if we want to see a keyword or an arbitrary identifier
+	// this can be done by some global variable being set once in the syntax, e.g.
+	// selector: { nokeyword=1; } IDENTIFIER
+	//          | selector ':' { nokeyword=1; } IDENTIFIER
+	// and id, BOOL, sel should go similar
+	// { objctype=1; } BOOL
+	// d.h. wenn objctype nicht 1 ist wird BOOL wie ein normaler IDENTIFIER gemeldet
+	// Flags werden dann sofort zurückgesetzt
 	s=lookup(symtab, yytext);
 	if(type(s) == 0)
 		setType(s, IDENTIFIER);	/* new entry */

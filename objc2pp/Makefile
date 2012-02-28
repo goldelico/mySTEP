@@ -7,8 +7,8 @@ LFLAGS  =
 LEX		= flex
 YACC	= bison
 
-SRC		= gram.y scan.l main.c node.m AST.m Printing.m Simplify.m
-OBJ		= gram.o scan.o main.o node.o AST.o Printing.o Simplify.o
+SRC		= gram.y scan.l main.c AST.m Printing.m Simplify.m
+OBJ		= gram.o scan.o main.o AST.o Printing.o Simplify.o
 BIN		= /usr/share/QuantumSTEP/Developer/bin/objc2pp
 
 # OBJC2PP	= cpp -P
@@ -20,7 +20,7 @@ OBJC2PP	= cc -E -P
 all:	$(BIN) test
 
 $(BIN): $(OBJ)
-	cc $(CFLAGS) -o $(BIN) $(OBJ)
+	cc $(CFLAGS) -o $(BIN) $(OBJ) -lobjc -framework Foundation
 
 scan.o:	scan.l y.tab.h
 	flex  -t $< > scan.c

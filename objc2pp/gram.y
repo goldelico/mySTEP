@@ -34,7 +34,7 @@
 
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
 
-%token ID SEL BOOL UNICHAR CLASS
+%token ID SELECTOR BOOLTYPE UNICHAR CLASS
 %token AT_CLASS AT_PROTOCOL AT_INTERFACE AT_IMPLEMENTATION AT_END
 %token AT_PRIVATE AT_PUBLIC AT_PROTECTED
 %token AT_SELECTOR AT_ENCODE
@@ -120,7 +120,7 @@ unary_expression
 // FIXME: is ++(char *) x really invalid?
 	| INC_OP unary_expression { $$=node(INC_OP, 0, $2); }
 	| DEC_OP unary_expression { $$=node(DEC_OP, 0, $2); }
-	| unary_operator cast_expression { $$=node(type($1), 0, $2); dealloc($1); }
+	| unary_operator cast_expression { $$=node(type($1), 0, $2); }
 	| SIZEOF unary_expression { $$=node(SIZEOF, 0, $2); }
 	| SIZEOF '(' type_name ')' { $$=node(SIZEOF, 0, $2); }
 	;
@@ -206,7 +206,7 @@ conditional_expression
 assignment_expression
 	: conditional_expression
 	| unary_expression '.' IDENTIFIER assignment_operator assignment_expression /* check for calling Obj-C 2 setters */
-	| unary_expression assignment_operator assignment_expression  { $$=node(type($2), $1, $3); dealloc($2); }
+	| unary_expression assignment_operator assignment_expression  { $$=node(type($2), $1, $3); }
 	;
 
 assignment_operator
@@ -300,7 +300,6 @@ method_declaration
 					 $5
 					 )
 				);
-		dealloc($1);
 		}
 	;
 
@@ -413,16 +412,16 @@ type_specifier
 	| TYPE_NAME		{ $$=right($1); }
 	| ID	{ $$=node(ID, 0, 0); }
 	| ID '<' protocol_list '>'	{ $$=node(ID, 0, $3); }
-	| SEL	{ $$=node(SEL, 0, 0); }
-	| BOOL	{ $$=node(BOOL, 0, 0); }
+	| SELECTOR	{ $$=node(SELECTOR, 0, 0); }
+	| BOOLTYPE	{ $$=node(BOOLTYPE, 0, 0); }
 	| UNICHAR	{ $$=node(UNICHAR, 0, 0); }
 	| CLASS	{ $$=node(CLASS, 0, 0); }
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'  { $$=node(type($1), $2, $3); setRight($2, $$); dealloc($1); }
-	| struct_or_union '{' struct_declaration_list '}'  { $$=node(type($1), 0, $3); dealloc($1); }
-	| struct_or_union IDENTIFIER  { $$=node(type($1), $2, 0); setRight($2, $$); dealloc($1);}
+	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'  { $$=node(type($1), $2, $3); setRight($2, $$); }
+	| struct_or_union '{' struct_declaration_list '}'  { $$=node(type($1), 0, $3); }
+	| struct_or_union IDENTIFIER  { $$=node(type($1), $2, 0); setRight($2, $$); }
 	;
 
 struct_or_union
@@ -521,7 +520,7 @@ direct_declarator
 	;
 
 pointer
-	: '*'  { $$=node('*', 0, 0); }
+	: '*' { $$=node('*', 0, 0); }
 	| '*' type_qualifier_list  { $$=node('*', 0, $2); }
 	| '*' pointer  { $$=node('*', 0, $2); }
 	| '*' type_qualifier_list pointer  { $$=node('*', $2, $3); }
@@ -599,6 +598,7 @@ statement
 	| AT_THROW ';'	// rethrow within @catch block
 	| AT_THROW expression ';'
 	| AT_SYNCHRONIZED '(' expression ')' compound_statement
+	| AT_AUTORELEASEPOOL compound_statement
 	| error ';' 
 	| error '}'
 	;
@@ -704,7 +704,7 @@ function_definition
 	;
 
 translation_unit
-	: external_declaration { printf("#message result\n\n"); emit($1); printf("\n\n"); dealloc($1); }
+	: external_declaration { process($1); }
 	| translation_unit external_declaration
 	;
 
@@ -722,6 +722,7 @@ char *s;
 	fflush(stdout);
 }
 
+#if OLDCODE
 char *indent(int level)
 {
 	static char indent[]="                                               ";
@@ -805,3 +806,5 @@ int emit(int node)
 	}
 
 }
+
+#endif
