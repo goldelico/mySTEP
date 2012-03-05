@@ -17,8 +17,8 @@
 	int t=[self type];
 	switch(t)
 	{
-		case IDENTIFIER:	printf("%s", [self name]); break;
-		case CONSTANT:	printf("%s", [self name]); break;
+		case IDENTIFIER:	printf("%s", [[self name] UTF8String]); break;
+		case CONSTANT:	printf("%s", [[self name] UTF8String]); break;
 		case ' ':	[[self left] print:level+1];
 					if([self left] || [self right])
 						printf(" ");

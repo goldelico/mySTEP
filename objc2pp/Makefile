@@ -7,53 +7,11 @@ LFLAGS  =
 LEX		= flex
 YACC	= bison
 
-SRC		= gram.y scan.l main.c AST.m Printing.m Simplify.m
-OBJ		= gram.o scan.o main.o AST.o Printing.o Simplify.o
-BIN		= /usr/share/QuantumSTEP/Developer/bin/objc2pp
+all: build/scan.m build/gram.m
 
-# OBJC2PP	= cpp -P
-OBJC2PP	= cc -E -P
-# OBJC2PP	= cc -E -v -H 
+build/scan.m:	scan.l y.tab.h
+	flex  -t $< > build/scan.m
 
-.PHONY : all clean src test
-
-all:	$(BIN) test
-
-$(BIN): $(OBJ)
-	cc $(CFLAGS) -o $(BIN) $(OBJ) -lobjc -framework Foundation
-
-scan.o:	scan.l y.tab.h
-	flex  -t $< > scan.c
-	cc $(CFLAGS) -c -o $@ scan.c
-	rm scan.c
-
-y.tab.h gram.o:	gram.y
-	bison $(YFLAGS) $< 
-	cc $(CFLAGS) -c -o gram.o y.tab.c
-	rm y.tab.c
-
-MYSTEP_SYSROOT :=  -std=c99 -isysroot/usr/share/QuantumSTEP \
-	-I/Developer/usr/bin/../lib/gcc/i686-apple-darwin10/4.2.1/include \
-	-I/usr/local/include \
-	-I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include \
-	-I/usr/include
-
-test:
-	@mkdir -p test
-	@echo "*** test 1 ***"
-	$(OBJC2PP) simple.m | tee test/test1.i | $(BIN) | tee test/test1.c
-	@echo "*** test 2 ***"
-	$(OBJC2PP) main.c | tee test/test2.i | $(BIN) | tee test/test2.c
-	@echo "*** test 3 ***"
-	$(OBJC2PP) test.m | tee test/test3.i | $(BIN) | tee test/test3.c
-	@echo "*** test 4 ***"
-	# disable standard Cocoa framework include paths so that we can (pre)process mySTEP sources
-	$(OBJC2PP) $(MYSTEP_SYSROOT) ../Foundation/Sources/NSArray.m | tee test/test4.i | $(BIN) | tee test/test4.c
-	@echo "*** tests done ***"
-
-clean:
-	rm -rf build y.tab.h y.output *.o test
-	
-src:	clean
-	COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true tar cvzf objc2pp.tgz --exclude .svn --exclude '*.pbxuser' --exclude '*.perspective*' --exclude '*.mode1*' Makefile *.m *.y *.c *.l *.xcodeproj ToDo
-
+y.tab.h build/gram.m:	gram.y
+	bison $(YFLAGS) $<
+	mv y.tab.c build/gram.m

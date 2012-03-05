@@ -1,78 +1,10 @@
 /* part of objc2pp - an obj-c 2 preprocessor */
 
+
 #import "AST.h"
-
-@implementation Node 
-
-- (id) initWithName:(const char *) n type:(int) t
-{
-	if((self=[super init]))
-		{
-		if(n)
-			name=strdup(n);
-		type=t;
-		// add to map table(s)
-		}
-	return self;
-}
-
-- (void) dealloc
-{
-	if(name)
-		free((void *) name);
-	[left release];
-	[right release];
-	// remove from map table(s)
-	[super dealloc];
-}
-
-- (int) type;
-{
-	return type;
-}
-
-- (const char *) name;
-{
-	return name;
-}
-
-- (Node *) left;
-{
-	return left;
-}
-
-- (Node *) right;
-{
-	return right;
-}
-
-- (void) setLeft:(Node *) n;
-{
-	[left autorelease];
-	left=[n retain];
-}
-
-- (void) setRight:(Node *) n;
-{
-	[right autorelease];
-	right=[n retain];
-}
-
-- (void) setType:(Class) type;
-{
-	
-}
-
-- (void) process
-{ // process this node
-	[self print];	
-}
-
-@end
+#include "node.h"
 
 /* parser interface methods */
-
-#include "node.h"
 
 /// FIXME: can we use the Node's -hash value as the integer id ???
 /// FIXME: and use a NSMapTables to map from int back to Node object
@@ -104,7 +36,8 @@ int leaf(int type, const char *name)
 				nodes=realloc(nodes, nodecapacity*sizeof(Node *));
 				}
 		}
-	nodes[nodecount++]=[[Node alloc] initWithName:name type:type];	/* create new entry */
+	nodes[nodecount]=[[Node alloc] initWithName:name?[NSString stringWithUTF8String:name]:@"" type:type number:nodecount+1];	/* create new entry */
+	nodecount++;
 	return nodecount;	/* returns node index + 1 */
 }
 
@@ -124,7 +57,17 @@ int type(int node)
 
 const char *name(int node)
 {
-	return [get(node) name];
+	return [[get(node) name] UTF8String];
+}
+
+int left(int node)
+{
+	return [[get(node) left] number];
+}
+
+int right(int node)
+{
+	return [[get(node) right] number];
 }
 
 void process(int node)
@@ -189,34 +132,25 @@ int pop(int lifo)
 
 int dictionary(void)
 {
-	return leaf(0, NULL);	// dummy...
-}
-
-/* FIXME: somehow attach the hash table and linked lists to the dictionary object */
-
-static int symtab[11*19];	// hashed start into linked lists
-
-int lookup(int table, char *word)
-{ // look up identifier
-	int hash=0;
-	char *h=word;
-	int s;
-	while(*h)
-		hash=2*hash+(*h++);
-	hash%=sizeof(symtab)/sizeof(symtab[0]);
-	s=symtab[hash];	// get first entry
-	while(s)
-		{
-		if(strcmp(name(s), word) == 0)
-			return s;	// found
-		s=next(s);	// go to next symtab node
-		}
-	s=leaf(0, word);	// create new entry
-	setNext(s, symtab[hash]);
-	symtab[hash]=s;	// prepend new entry
+	int s=leaf(0, NULL);	// dummy...
+	Node *n=get(s);
+	[n setRight:(id) [NSMutableDictionary dictionaryWithCapacity:10]];
 	return s;
 }
 
+int lookup(int table, const char *word, int type)
+{ // look up identifier
+	NSString *key=[NSString stringWithUTF8String:word];
+	int s=[[(NSMutableDictionary *) [get(table) right] objectForKey:key] number];
+	if(s == 0 && type > 0)
+		{ // create new entry
+			s=leaf(type, word);
+			[(NSMutableDictionary *) [get(table) right] setObject:get(s) forKey:key];		// create entry
+		}
+	return s;
+}
+
+#if OLDCODE
 char *keyword(int table, int t)
 { // look up keyword for given type
 	int i;
@@ -232,3 +166,90 @@ char *keyword(int table, int t)
 		}
 	return NULL;
 }
+#endif
+
+@implementation Node 
+
++ (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with Objective C source into AST and return root node
+{
+	extern int yyparse();
+	extern void scaninit(void);
+	extern int rootnode;
+#if 0
+	extern int yydebug;
+	yydebug=1;
+#endif
+	scaninit();
+	yyparse();
+	return get(rootnode);
+}
+
+- (id) initWithName:(NSString *) n type:(int) t number:(int) num
+{
+	if((self=[super init]))
+		{
+		if(n)
+			name=[n retain];
+		type=t;
+		number=num;
+		}
+	return self;
+}
+
+- (void) dealloc
+{
+	[left release];
+	[right release];
+	[name release];
+	// remove from map table(s)
+	[super dealloc];
+}
+
+- (int) number
+{ // get object number (must be unique and different from 0)
+	return number;
+}
+
+- (int) type;
+{
+	return type;
+}
+
+- (NSString *) name;
+{
+	return name;
+}
+
+- (Node *) left;
+{
+	return left;
+}
+
+- (Node *) right;
+{
+	return right;
+}
+
+- (void) setLeft:(Node *) n;
+{
+	[left autorelease];
+	left=[n retain];
+}
+
+- (void) setRight:(Node *) n;
+{
+	[right autorelease];
+	right=[n retain];
+}
+
+- (void) setType:(int) type;
+{
+	
+}
+
++ (Node *) get:(int) number
+{ // get node for given number
+	return get(number);
+}
+
+@end

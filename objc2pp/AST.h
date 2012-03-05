@@ -2,25 +2,39 @@
 
 #import <Cocoa/Cocoa.h>
 
-// tree node management wrapper
+// Abstract Syntax Tree for Objective C
+
+@protocol Notification
+// report:
+// error
+// expression
+// statement
+// external_declaration
+// translation_unit
+@end
 
 @interface Node : NSObject 
 { /* internal structure */
 	int type;
-	const char *name;
+	int number;
+	NSString *name;
 	Node *left;
 	Node *right;
 	Node *next;
 }
 
-- (id) initWithName:(const char *) name type:(int) type;
+- (id) initWithName:(NSString *) name type:(int) t number:(int) num;
 - (int) type;
-- (const char *) name;
+- (NSString *) name;
 - (Node *) left;
 - (Node *) right;
 - (void) setLeft:(Node *) n;
 - (void) setRight:(Node *) n;
-- (void) setType:(Class) type;
+- (void) setType:(int) type;
+
+// define some delegate that receives callbacks e.g. after each expression, statement, method/function, class definition, at end of file and on errors
+
++ (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with Objective C source into AST and return root node
 
 @end
 

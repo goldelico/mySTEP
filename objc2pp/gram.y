@@ -21,6 +21,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "node.h"
+	
+	int scope;	// scope list
+	int rootnode;
+
 %}
 
 %token SIZEOF PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
@@ -59,13 +63,13 @@
 /* FIXME: selectors can consist of *any* word (even if keyword like 'for', 'default') and not only IDENTIFIERs! */
 
 selector_component
-	: IDENTIFIER ':'  { $$=node(':', $1, 0); }
+	: { nokeyword=1; } IDENTIFIER ':'  { $$=node(':', $1, 0); }
 	| ':' { $$=node(':', 0, 0); }
 	;
 
 selector_with_arguments
-	: IDENTIFIER
-	| IDENTIFIER ':' expression  { $$=node(':', $1, $3); }
+	: { nokeyword=1; } IDENTIFIER
+	| { nokeyword=1; } IDENTIFIER ':' expression  { $$=node(':', $1, $3); }
 	| selector_with_arguments selector_component expression   { $$=node(' ', $1, node(' ', $2, $3)); }
 	| selector_with_arguments ',' ELLIPSIS    { $$=node(',', $1, node(ELLIPSIS, 0, 0)); }
 	;
@@ -76,8 +80,8 @@ struct_component_expression
 	;
 
 selector
-	: IDENTIFIER
-	| IDENTIFIER ':'  { $$=node(':', $1, 0); }
+	: { nokeyword=1; } IDENTIFIER
+	| { nokeyword=1; } IDENTIFIER ':'  { $$=node(':', $1, 0); }
 	| ':'  { $$=node(':', 0, 0); }
 	| selector ':'  { $$=node(':', $1, 0); }
 	;
@@ -266,12 +270,12 @@ class_or_instance_method_specifier
 /* FIXME - there are valid combinations i.e. byref out! */
 
 do_atribute_specifier
-	: ONEWAY  { $$=node(ONEWAY, 0, 0); }
-	| IN  { $$=node(IN, 0, 0); }
-	| OUT  { $$=node(OUT, 0, 0); }
-	| INOUT  { $$=node(INOUT, 0, 0); }
-	| BYREF  { $$=node(BYREF, 0, 0); }
-	| BYCOPY  { $$=node(BYCOPY, 0, 0); }
+	: { objctype=1; } ONEWAY  { $$=node(ONEWAY, 0, 0); }
+	| { objctype=1; } IN  { $$=node(IN, 0, 0); }
+	| { objctype=1; } OUT  { $$=node(OUT, 0, 0); }
+	| { objctype=1; } INOUT  { $$=node(INOUT, 0, 0); }
+	| { objctype=1; } BYREF  { $$=node(BYREF, 0, 0); }
+	| { objctype=1; } BYCOPY  { $$=node(BYCOPY, 0, 0); }
 	;
 
 objc_declaration_specifiers
@@ -284,8 +288,8 @@ selector_argument_declaration
 	;
 
 selector_with_argument_declaration
-	: IDENTIFIER
-	| IDENTIFIER ':' selector_argument_declaration   { $$=node(':', $1, $3); }
+	: { nokeyword=1; } IDENTIFIER
+	| { nokeyword=1; } IDENTIFIER ':' selector_argument_declaration   { $$=node(':', $1, $3); }
 	| selector_with_argument_declaration selector_component selector_argument_declaration  { $$=node(' ', $1, node(' ', $2, $3)); }
 	| selector_with_argument_declaration ',' ELLIPSIS  { $$=node(',', $1, node(ELLIPSIS, 0, 0)); }
 	;
@@ -336,7 +340,7 @@ objc_declaration
 				node(AT_CLASS, 0, $2),
 				0);
 		/* FIXME: do for all class names in the list! */
-		setRight($2, $$);	/* this makes it a TYPE_NAME since $2 is the symbol table entry */
+//		setRight($2, $$);	/* this makes it a TYPE_NAME since $2 is the symbol table entry */
 		}
 	| AT_PROTOCOL class_name_declaration AT_END  { $$=node(AT_PROTOCOL, $2, 0); }
 	| AT_PROTOCOL class_name_declaration method_declaration_list AT_END  { $$=node(AT_PROTOCOL, $2, $3); }
@@ -361,7 +365,7 @@ declaration_specifiers
 		{
 		if($1 == TYPEDEF)
 			{
-			setRight($2, $$);	/* make it a TYPE_NAME */
+//			setRight($2, $$);	/* make it a TYPE_NAME */
 			$$=node(' ', 0, 0);	/* eat all typedef declarations since we expand them */
 			}
 		else
@@ -409,19 +413,20 @@ type_specifier
 	| UNSIGNED	{ $$=node(UNSIGNED, 0, 0); }
 	| struct_or_union_specifier
 	| enum_specifier
-	| TYPE_NAME		{ $$=right($1); }
-	| ID	{ $$=node(ID, 0, 0); }
-	| ID '<' protocol_list '>'	{ $$=node(ID, 0, $3); }
-	| SELECTOR	{ $$=node(SELECTOR, 0, 0); }
-	| BOOLTYPE	{ $$=node(BOOLTYPE, 0, 0); }
-	| UNICHAR	{ $$=node(UNICHAR, 0, 0); }
-	| CLASS	{ $$=node(CLASS, 0, 0); }
+	| TYPE_NAME		{ /* $$=right($1); */ }
+	| { objctype=1; } ID	{ $$=node(ID, 0, 0); }
+	| { objctype=1; } ID '<' protocol_list '>'	{ $$=node(ID, 0, $3); }
+	| { objctype=1; } SELECTOR	{ $$=node(SELECTOR, 0, 0); }
+	| { objctype=1; } BOOLTYPE	{ $$=node(BOOLTYPE, 0, 0); }
+	| { objctype=1; } UNICHAR	{ $$=node(UNICHAR, 0, 0); }
+	| { objctype=1; } CLASS	{ $$=node(CLASS, 0, 0); }
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'  { $$=node(type($1), $2, $3); setRight($2, $$); }
+	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'  { $$=node(type($1), $2, $3); /*
+																								setRight($2, $$);*/ }
 	| struct_or_union '{' struct_declaration_list '}'  { $$=node(type($1), 0, $3); }
-	| struct_or_union IDENTIFIER  { $$=node(type($1), $2, 0); setRight($2, $$); }
+	| struct_or_union IDENTIFIER  { $$=node(type($1), $2, 0); /*setRight($2, $$);*/ }
 	;
 
 struct_or_union
@@ -620,7 +625,7 @@ labeled_statement
 
 compound_statement
 	: '{' '}'  { $$=node('{', 0, 0); }
-	| '{' statement_list '}'  { $$=node('{', 0, $2); }
+    | '{' { pushscope(); } statement_list '}'  { pushscope(); $$=node('{', 0, $2); }
 	;
 
 statement_list
@@ -693,19 +698,19 @@ jump_statement
 	| RETURN expression ';' { $$=node(';', node(RETURN, 0, $2), 0); }
 	;
 
-external_declaration
-	: function_definition
-	| declaration
-	;
-
 function_definition
 	: declaration_specifiers declarator compound_statement { $$=node(' ', node(' ', $1, $2), $3); }
 	| declarator compound_statement { $$=node(' ', $1, $2); }
 	;
 
+external_declaration
+	: function_definition
+	| declaration
+	;
+
 translation_unit
-	: external_declaration { process($1); }
-	| translation_unit external_declaration
+	: external_declaration { rootnode=$1; /* notify delegate */ }
+	| translation_unit external_declaration { rootnode=node(' ', rootnode, $2); /* notify delegate */ }
 	;
 
 %%
@@ -716,95 +721,10 @@ extern int line, column;
 yyerror(s)
 char *s;
 {
+	// forward to AST delegate (if it exists)
 	fflush(stdout);
 	printf("#error line %d column %d\n", line, column);
 	printf("/* %s\n * %*s\n * %*s\n*/\n", yytext, column, "^", column, s);
 	fflush(stdout);
 }
 
-#if OLDCODE
-char *indent(int level)
-{
-	static char indent[]="                                               ";
-	level = sizeof(indent)-1 - 4*level;	
-	if(level < 0)
-		level=0;
-	return &indent[level];	
-}
-
-#define STYLE1
-
-// FIXME: if we make NSObject nodes, move this processing into categories i.e. loadable bundle(s)
-// we should also define one node subclass for each type
-// generally it should be NSObject -> OCSyntaxTree -> OCStatement, OCExpression, OCType, OCIdentifier, OCConstant, OCList, OCBlock, OCFor, etc.
-// then we can define methods on OCSyntaxTree or other intermediate abstract classes
-// these methods can do constant expr. evaluation, simplification, constant folding, reordering, dead code elimination, pretty printing etc. etc.
-// generally: do any required code rewriting
-// and finally generate output from such nodes
-
-int emit(int node)
-{ /* print tree (as standard C) */
-	static int level=0;
-	if(node != 0)
-		{
-			int t=type(node);
-			switch(t)
-			{
-				case IDENTIFIER:	printf("%s", name(node)); break;
-				case CONSTANT:	printf("%s", name(node)); break;
-				case ' ':	emit(left(node)); if(left(node) || right(node)) printf(" "); emit(right(node)); break;
-#ifdef STYLE1
-				case '{':	emit(left(node)); if(right(node)) { printf(" {\n%s", indent(++level)); emit(right(node)); printf("\n%s}\n", indent(level--)); } break;
-#else
-				case '{':	emit(left(node)); if(right(node)) { level++; printf("\n%s{\n%s", indent(level), indent(level)); emit(right(node)); printf("\n%s}\n", indent(level)); level--; } break;
-#endif
-				case '(':	emit(left(node)); printf("("); emit(right(node)); printf(")"); break;
-				case '[':	emit(left(node)); printf("["); emit(right(node)); printf("]"); break;
-				case ':':	emit(left(node)); printf(":"); emit(right(node)); break;
-				case ';':	emit(left(node)); printf(";\n%s", indent(level)); emit(right(node)); break;
-				case ',':	emit(left(node)); if(right(node)) printf(", "); emit(right(node)); break;
-				case '?':	emit(left(node)); printf(" ? "); emit(right(node)); break;
-				case WHILE:	printf("while ("); emit(left(node)); printf(")\n%s", indent(++level)); emit(right(node)); printf("\n%s", indent(--level)); break;
-				case DO:	printf("do\n%s", indent(++level)); emit(left(node)); printf("\nwhile("); emit(right(node)); printf(")\n%s", indent(--level)); break;
-				case IF:	printf("if ("); emit(left(node)); printf("\n%s", indent(++level)); emit(right(node)); printf("\n%s", indent(--level)); break;
-				case ELSE:	emit(left(node)); printf("\nelse\n"); emit(right(node)); printf("\n"); break;
-				default:
-				{
-					char *w=keyword(0, t);	/* try to translate type into keyword */
-					if(w)
-						{
-						emit(left(node));
-#ifdef STYLE1
-						printf(" %s ", w);
-#else
-						printf("%s", w);
-#endif
-						emit(right(node));
-						}
-					else if(t >= ' ' && t <= '~')
-						{ // standard single character operator
-						emit(left(node));
-#ifdef STYLE1
-						printf(" %c ", t);
-#else
-						printf("%c", t);
-#endif
-						emit(right(node));
-						}
-					else
-						{
-						printf("$%d(", t);
-						emit(left(node));
-						if(left(node) && right(node))
-							printf(", ");
-						emit(right(node));
-						printf(")\n");
-						}
-					break;
-				}
-			}
-	}
-
-}
-
-#endif

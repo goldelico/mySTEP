@@ -6,6 +6,27 @@
 	objectVersion = 42;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		EE55BFCA1504DB5B00BDF3F7 /* AST.h in Headers */ = {isa = PBXBuildFile; fileRef = EE22087E14EDB23500E78349 /* AST.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE55BFCC1504DB6000BDF3F7 /* AST.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6D6105137AF9E5007F7BD7 /* AST.m */; };
+		EE55BFD61504DB8100BDF3F7 /* ObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE55BFC01504DB3900BDF3F7 /* ObjC.framework */; };
+		EE55BFD71504DB8B00BDF3F7 /* Printing.m in Sources */ = {isa = PBXBuildFile; fileRef = EE22088814EDB47600E78349 /* Printing.m */; };
+		EE55BFD81504DB8E00BDF3F7 /* Simplify.m in Sources */ = {isa = PBXBuildFile; fileRef = EE22088A14EDB51200E78349 /* Simplify.m */; };
+		EE55BFDA1504DB9700BDF3F7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE4108520B956BA30065DD36 /* main.m */; };
+		EE55C0271504DF4100BDF3F7 /* gram.m in Sources */ = {isa = PBXBuildFile; fileRef = EE55C0251504DF4100BDF3F7 /* gram.m */; };
+		EE55C0281504DF4100BDF3F7 /* scan.m in Sources */ = {isa = PBXBuildFile; fileRef = EE55C0261504DF4100BDF3F7 /* scan.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EE55C02C1504DFB600BDF3F7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EED3C1240488F87500000103 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EE55BFBF1504DB3900BDF3F7 /* ObjC */;
+			remoteInfo = ObjC;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		EE08E5A110D7CE3200684837 /* node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node.h; sourceTree = "<group>"; };
 		EE22087E14EDB23500E78349 /* AST.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AST.h; sourceTree = "<group>"; };
@@ -14,11 +35,17 @@
 		EE22088914EDB51200E78349 /* Simplify.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Simplify.h; sourceTree = "<group>"; };
 		EE22088A14EDB51200E78349 /* Simplify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Simplify.m; sourceTree = "<group>"; };
 		EE4108510B956BA30065DD36 /* gram.y */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.yacc; path = gram.y; sourceTree = "<group>"; };
-		EE4108520B956BA30065DD36 /* main.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		EE4108520B956BA30065DD36 /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EE4108530B956BA30065DD36 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		EE4108540B956BA30065DD36 /* scan.l */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.lex; path = scan.l; sourceTree = "<group>"; };
 		EE4108550B956BA30065DD36 /* y.output */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = y.output; sourceTree = "<group>"; };
 		EE4108560B956BA30065DD36 /* y.tab.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = y.tab.h; sourceTree = "<group>"; };
+		EE55BFC01504DB3900BDF3F7 /* ObjC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ObjC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE55BFC11504DB3A00BDF3F7 /* ObjC-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ObjC-Info.plist"; sourceTree = "<group>"; };
+		EE55BFD01504DB7400BDF3F7 /* objc2pp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = objc2pp; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE55BFF11504DC5700BDF3F7 /* y.tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = y.tab.h; sourceTree = "<group>"; };
+		EE55C0251504DF4100BDF3F7 /* gram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = gram.m; path = build/gram.m; sourceTree = "<group>"; };
+		EE55C0261504DF4100BDF3F7 /* scan.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = scan.m; path = build/scan.m; sourceTree = "<group>"; };
 		EE6D3DDD137553CE003D5863 /* simple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = simple.m; sourceTree = "<group>"; };
 		EE6D3DF613755463003D5863 /* test1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test1.c; path = test/test1.c; sourceTree = "<group>"; };
 		EE6D3DF713755463003D5863 /* test1.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = test1.i; path = test/test1.i; sourceTree = "<group>"; };
@@ -28,16 +55,49 @@
 		EE6D3DFB13755463003D5863 /* test3.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = test3.i; path = test/test3.i; sourceTree = "<group>"; };
 		EE6D3DFC13755463003D5863 /* test4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test4.c; path = test/test4.c; sourceTree = "<group>"; };
 		EE6D3DFD13755463003D5863 /* test4.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = test4.i; path = test/test4.i; sourceTree = "<group>"; };
-		EE6D3E0513755497003D5863 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		EE6D3E0513755497003D5863 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EE6D6105137AF9E5007F7BD7 /* AST.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AST.m; sourceTree = "<group>"; };
 		EEFD77D40B957C83002EA6A8 /* test.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = test.m; sourceTree = "<group>"; };
 		EEFD871D0B95DA5B002EA6A8 /* ToDo */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ToDo; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFrameworksBuildPhase section */
+		EE55BFBE1504DB3900BDF3F7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE55BFCE1504DB7400BDF3F7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE55BFD61504DB8100BDF3F7 /* ObjC.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
 /* Begin PBXGroup section */
+		EE55BFF21504DC5C00BDF3F7 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				EE55C0251504DF4100BDF3F7 /* gram.m */,
+				EE55C0261504DF4100BDF3F7 /* scan.m */,
+				EE55BFF11504DC5700BDF3F7 /* y.tab.h */,
+			);
+			name = Generated;
+			sourceTree = "<group>";
+		};
 		EE6D3DE0137553DE003D5863 /* Testing */ = {
 			isa = PBXGroup;
 			children = (
+				EE4108520B956BA30065DD36 /* main.m */,
+				EE22088714EDB47600E78349 /* Printing.h */,
+				EE22088814EDB47600E78349 /* Printing.m */,
+				EE22088914EDB51200E78349 /* Simplify.h */,
+				EE22088A14EDB51200E78349 /* Simplify.m */,
 				EE6D3E0013755472003D5863 /* Input */,
 				EE6D3DE713755422003D5863 /* Output */,
 			);
@@ -47,17 +107,12 @@
 		EE6D3DE3137553ED003D5863 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				EE4108530B956BA30065DD36 /* Makefile */,
 				EE4108510B956BA30065DD36 /* gram.y */,
 				EE4108540B956BA30065DD36 /* scan.l */,
-				EE4108520B956BA30065DD36 /* main.c */,
 				EE08E5A110D7CE3200684837 /* node.h */,
 				EE22087E14EDB23500E78349 /* AST.h */,
 				EE6D6105137AF9E5007F7BD7 /* AST.m */,
-				EE22088714EDB47600E78349 /* Printing.h */,
-				EE22088814EDB47600E78349 /* Printing.m */,
-				EE22088914EDB51200E78349 /* Simplify.h */,
-				EE22088A14EDB51200E78349 /* Simplify.m */,
+				EE4108530B956BA30065DD36 /* Makefile */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -89,7 +144,7 @@
 		EE6D3E0013755472003D5863 /* Input */ = {
 			isa = PBXGroup;
 			children = (
-				EE6D3E0513755497003D5863 /* main.c */,
+				EE6D3E0513755497003D5863 /* main.m */,
 				EE6D3DDD137553CE003D5863 /* simple.m */,
 				EEFD77D40B957C83002EA6A8 /* test.m */,
 			);
@@ -101,12 +156,27 @@
 			children = (
 				EEFD871D0B95DA5B002EA6A8 /* ToDo */,
 				EE6D3DE3137553ED003D5863 /* Source */,
+				EE55BFF21504DC5C00BDF3F7 /* Generated */,
 				EE6D3DE0137553DE003D5863 /* Testing */,
 				EE6D3DE613755416003D5863 /* Derived */,
+				EE55BFC01504DB3900BDF3F7 /* ObjC.framework */,
+				EE55BFC11504DB3A00BDF3F7 /* ObjC-Info.plist */,
+				EE55BFD01504DB7400BDF3F7 /* objc2pp */,
 			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		EE55BFBB1504DB3900BDF3F7 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE55BFCA1504DB5B00BDF3F7 /* AST.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXLegacyTarget section */
 		EE4108580B956BC50065DD36 /* Make */ = {
@@ -123,6 +193,45 @@
 			productName = Ma;
 		};
 /* End PBXLegacyTarget section */
+
+/* Begin PBXNativeTarget section */
+		EE55BFBF1504DB3900BDF3F7 /* ObjC */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE55BFC51504DB3A00BDF3F7 /* Build configuration list for PBXNativeTarget "ObjC" */;
+			buildPhases = (
+				EE55BFC81504DB4600BDF3F7 /* ShellScript */,
+				EE55BFBB1504DB3900BDF3F7 /* Headers */,
+				EE55BFBC1504DB3900BDF3F7 /* Resources */,
+				EE55BFBD1504DB3900BDF3F7 /* Sources */,
+				EE55BFBE1504DB3900BDF3F7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ObjC;
+			productName = ObjC;
+			productReference = EE55BFC01504DB3900BDF3F7 /* ObjC.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		EE55BFCF1504DB7400BDF3F7 /* objc2pp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE55BFDB1504DBB500BDF3F7 /* Build configuration list for PBXNativeTarget "objc2pp" */;
+			buildPhases = (
+				EE55BFCD1504DB7400BDF3F7 /* Sources */,
+				EE55BFCE1504DB7400BDF3F7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EE55C02D1504DFB600BDF3F7 /* PBXTargetDependency */,
+			);
+			name = objc2pp;
+			productName = objc2pp;
+			productReference = EE55BFD01504DB7400BDF3F7 /* objc2pp */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		EED3C1240488F87500000103 /* Project object */ = {
@@ -143,9 +252,68 @@
 			projectRoot = "";
 			targets = (
 				EE4108580B956BC50065DD36 /* Make */,
+				EE55BFBF1504DB3900BDF3F7 /* ObjC */,
+				EE55BFCF1504DB7400BDF3F7 /* objc2pp */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EE55BFBC1504DB3900BDF3F7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		EE55BFC81504DB4600BDF3F7 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "make -f Makefile";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EE55BFBD1504DB3900BDF3F7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE55BFCC1504DB6000BDF3F7 /* AST.m in Sources */,
+				EE55C0271504DF4100BDF3F7 /* gram.m in Sources */,
+				EE55C0281504DF4100BDF3F7 /* scan.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE55BFCD1504DB7400BDF3F7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE55BFDA1504DB9700BDF3F7 /* main.m in Sources */,
+				EE55BFD71504DB8B00BDF3F7 /* Printing.m in Sources */,
+				EE55BFD81504DB8E00BDF3F7 /* Simplify.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EE55C02D1504DFB600BDF3F7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EE55BFBF1504DB3900BDF3F7 /* ObjC */;
+			targetProxy = EE55C02C1504DFB600BDF3F7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		EE41085A0B956BFA0065DD36 /* Development */ = {
@@ -177,6 +345,150 @@
 			};
 			name = Default;
 		};
+		EE55BFC21504DB3A00BDF3F7 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "ObjC-Info.plist";
+				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = ObjC;
+			};
+			name = Development;
+		};
+		EE55BFC31504DB3A00BDF3F7 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "ObjC-Info.plist";
+				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = ObjC;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE55BFC41504DB3A00BDF3F7 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "ObjC-Info.plist";
+				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = ObjC;
+			};
+			name = Default;
+		};
+		EE55BFD21504DB7500BDF3F7 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = objc2pp;
+			};
+			name = Development;
+		};
+		EE55BFD31504DB7500BDF3F7 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = objc2pp;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE55BFD41504DB7500BDF3F7 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = objc2pp;
+			};
+			name = Default;
+		};
 		EE772D2F0A10C27000F73E78 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -204,6 +516,26 @@
 				EE41085A0B956BFA0065DD36 /* Development */,
 				EE41085B0B956BFA0065DD36 /* Deployment */,
 				EE41085C0B956BFA0065DD36 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EE55BFC51504DB3A00BDF3F7 /* Build configuration list for PBXNativeTarget "ObjC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE55BFC21504DB3A00BDF3F7 /* Development */,
+				EE55BFC31504DB3A00BDF3F7 /* Deployment */,
+				EE55BFC41504DB3A00BDF3F7 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EE55BFDB1504DBB500BDF3F7 /* Build configuration list for PBXNativeTarget "objc2pp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE55BFD21504DB7500BDF3F7 /* Development */,
+				EE55BFD31504DB7500BDF3F7 /* Deployment */,
+				EE55BFD41504DB7500BDF3F7 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;

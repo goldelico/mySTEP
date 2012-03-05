@@ -150,19 +150,49 @@ struct RESERVED
 	"__autoreleasing", AT_AUTORELEASING,
 	};
 	
-int symtab;	/* global symbol table */
+int scopestack;	/* global symbol table */
+int keywordtab;	/* keyword table */
+int softkeywordtab;	/* soft keyword table */
+
+void pushscope()
+{ // start a new local variable scope
+	push(scopestack, dictionary());	// create global symbol table
+}
+	
+void popscope()
+{ // pop scope
+	pop(scopestack);
+}	
 	
 void scaninit(void)
 	{
-		int i;
-		symtab=dictionary();
-		for(i=0; i<sizeof(reserved)/sizeof(reserved[0]); i++)
-			{ // initialize all reserved words in symbol table
-			int n=lookup(symtab, reserved[i].word);
-			setType(n, reserved[i].token);
-			}
+	int i, n;
+	softkeywordtab=dictionary();
+	n=lookup(softkeywordtab, "id", ID);
+	n=lookup(softkeywordtab, "SEL", SELECTOR);
+	n=lookup(softkeywordtab, "BOOL", BOOLTYPE);
+	n=lookup(softkeywordtab, "Class", CLASS);
+	n=lookup(softkeywordtab, "unichar", UNICHAR);
+	keywordtab=dictionary();
+	for(i=0; i<sizeof(reserved)/sizeof(reserved[0]); i++)
+		{ // initialize all reserved words in symbol table
+			if(lookup(softkeywordtab, reserved[i].word, 0))
+				continue;
+			n=lookup(keywordtab, reserved[i].word, reserved[i].token);
+		}
+	scopestack=list();
+	pushscope();	// create global symbol table
 	}
-	
+
+	/* FIXME: read from an NSInputStream
+// how can we easily set up an input stream for "stdin"?
+
+#define YY_INPUT(buf,result,max_size) \
+{ \
+	 result = [stream read:(uint8_t *)(buf) maxLength:(may_size)];
+}
+	*/
+
 %}
 
 %%
@@ -176,22 +206,29 @@ void scaninit(void)
 {L}({L}|{D})*  { 
 	int s;
 	charCount();
-	/* FIXME: obj-c method names may be any identifier, i.e. it is perfectly legal to define a method - (void) continue; */
-	// so we may have to tell the scanner if we want to see a keyword or an arbitrary identifier
-	// this can be done by some global variable being set once in the syntax, e.g.
-	// selector: { nokeyword=1; } IDENTIFIER
-	//          | selector ':' {Ênokeyword=1; } IDENTIFIER
-	// and id, BOOL, sel should go similar
-	// {Êobjctype=1; } BOOL
-	// d.h. wenn objctype nicht 1 ist wird BOOL wie ein normaler IDENTIFIER gemeldet
-	// Flags werden dann sofort zurŸckgesetzt
-	s=lookup(symtab, yytext);
-	if(type(s) == 0)
-		setType(s, IDENTIFIER);	/* new entry */
+	if(!nokeyword)
+		{ // check for keywords
+		s=lookup(keywordtab, yytext, 0);
+		if(type(s))
+			return type(s);	// keyword found
+		if(objctype)
+			{ // check for soft keywords
+			objctype=0;
+			s=lookup(softkeywordtab, yytext, 0);
+			if(type(s))
+				return type(s);	// soft keyword found
+			}
+		}
+	nokeyword=0;
+	// go through scope stack from end (most locally) to global - but add to last level only
+	s=lookup(first(scopestack), yytext, 0);
+	if(!s)
+		s=lookup(first(scopestack), yytext, IDENTIFIER);	// add new identifier to most local level
+		// FIXME: how to handle static/extern functions and forward declarations? Must copy to last(scopestack)
 	yylval=s;
 	if(right(s))
-		return TYPE_NAME;	/* typedef'd type name */
-	return type(s);	/* keyword or plain identifier */
+		return TYPE_NAME;	/* in current context it is a typedef'd type name */
+	return IDENTIFIER;
 } 
 
 	/* numeral CONSTANTs */
@@ -265,11 +302,12 @@ L?\"(\\.|[^\\"])*\"	{ charCount(); yylval=cons(yytext); return(STRING_LITERAL); 
 
 %%
  
+ int nokeyword, objctype;
+
  int yywrap()
  {
 	 return(1);
  }
- 
  
  void comment(int cxx)
  {
