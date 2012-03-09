@@ -20,8 +20,8 @@ static Node *get(int node)
 	return nodes[node-1];	/* nodes start counting at 1 */
 }
 
-int leaf(int type, const char *name)
-{ /* create a leaf node */
+int leaf(char *type, const char *name)
+{ /* create a leaf node - name becomes the value */
 	int n;
 	if(nodecount >= nodecapacity)
 		{ /* (re)alloc */
@@ -36,12 +36,12 @@ int leaf(int type, const char *name)
 				nodes=realloc(nodes, nodecapacity*sizeof(Node *));
 				}
 		}
-	nodes[nodecount]=[[Node alloc] initWithName:name?[NSString stringWithUTF8String:name]:@"" type:type number:nodecount+1];	/* create new entry */
+	nodes[nodecount]=[[Node alloc] initWithType:[NSString stringWithUTF8String:type] number:nodecount+1 value:name?[NSString stringWithUTF8String:name]:nil];	/* create new entry */
 	nodecount++;
 	return nodecount;	/* returns node index + 1 */
 }
 
-int node(int type, int left, int right)
+int node(char *type, int left, int right)
 { /* create a binary node */
 	int n=leaf(type, NULL);
 	Node *node = get(n);
@@ -50,14 +50,14 @@ int node(int type, int left, int right)
 	return n;
 }
 
-int type(int node)
+const char *type(int node)
 {
-	return [get(node) type];
+	return [[get(node) type] UTF8String];
 }
 
-const char *name(int node)
+void setType(int node, char *type)
 {
-	return [[get(node) name] UTF8String];
+	[get(node) setType:[NSString stringWithUTF8String:type]];
 }
 
 int left(int node)
@@ -70,84 +70,79 @@ int right(int node)
 	return [[get(node) right] number];
 }
 
-void process(int node)
-{ // called for each declaration
-	[get(node) process];
-}
-
 /* list */
 
 int list(void)
 { // create a list object
-	return leaf(0, NULL);	// dummy...
+	int s=leaf("list", NULL);	// dummy...
+	Node *n=get(s);
+	[n setValue:[NSMutableArray arrayWithCapacity:10]];
+	return s;
 }
 
 int first(int list)
 { // get first entry of a list
-	return get(list)->next;
-}
-
-int next(int node)
-{
-	return get(node)->next;
-}
-
-/* static? */ void setNext(int node, int next)
-{
-	get(node)->next=next;
+	NSArray *a=[get(list) value];
+	if([a count] == 0)
+		return 0;
+	return [[a objectAtIndex:0] number];	// first entry
 }
 
 int nth(int list, int n)
 { // get n-th entry of a list
-	int r=first(list);
-	while(n-- > 0)
-		r=next(r);
-	return r;
+	NSArray *a=[get(list) value];
+	if(n  < 0 || n >= [a count])
+		return 0;
+	return [[a objectAtIndex:n] number];	// n-th entry
+}
+
+int last(int list)
+{ // count elements in a list
+	return [[[get(list) value] lastObject] number];
 }
 
 int count(int list)
 { // count elements in a list
-	int r=first(list);
-	int c=0;
-	while(r != 0)
-		c++, r=next(r);
-	return c;	
+	return [[get(list) value] count];
 }
 
-int push(int lifo, int node)
-{ // add to lifo (first entry)
-	setNext(node, first(lifo));	// attach current first object
-	setNext(lifo, node);	// make it the new first
+void push(int lifo, int node)
+{ // add to lifo
+	[[get(lifo) value] addObject:get(node)];
 }
 
-int pop(int lifo)
-{ // pop first entry
-	int r=first(lifo);
-	if(r)
-		setNext(lifo, next(r));	// remove from LIFO
-	return r;
+void pop(int lifo)
+{ // pop last entry
+	[[get(lifo) value] removeLastObject];
 }
 
 /* dictionary */
 
 int dictionary(void)
 {
-	int s=leaf(0, NULL);	// dummy...
+	int s=leaf("dict", NULL);	// dummy...
 	Node *n=get(s);
-	[n setRight:(id) [NSMutableDictionary dictionaryWithCapacity:10]];
+	[n setValue:[NSMutableDictionary dictionaryWithCapacity:10]];
 	return s;
 }
 
-int lookup(int table, const char *word, int type)
+int lookup(int table, const char *word, char *type, int value)
 { // look up identifier
 	NSString *key=[NSString stringWithUTF8String:word];
-	int s=[[(NSMutableDictionary *) [get(table) right] objectForKey:key] number];
-	if(s == 0 && type > 0)
+	int s=[[(NSMutableDictionary *) [get(table) value] objectForKey:key] number];
+	if(s == 0 && type != NULL)
 		{ // create new entry
-			s=leaf(type, word);
-			[(NSMutableDictionary *) [get(table) right] setObject:get(s) forKey:key];		// create entry
+			s=leaf(type, NULL);
+			if(value)
+				[get(s) setValue:[NSNumber numberWithInt:value]];
+			[(NSMutableDictionary *) [get(table) value] setObject:get(s) forKey:key];		// create entry
 		}
 	return s;
+}
+
+int value(int node)
+{
+	return [[get(node) value] intValue];
 }
 
 #if OLDCODE
@@ -179,18 +174,22 @@ char *keyword(int table, int t)
 	extern int yydebug;
 	yydebug=1;
 #endif
+	static BOOL busy=NO;
+	NSAssert(!busy, @"parser is busy");
+	busy=YES;
+	// setup stream and delegate
 	scaninit();
 	yyparse();
+	busy=NO;
 	return get(rootnode);
 }
 
-- (id) initWithName:(NSString *) n type:(int) t number:(int) num
+- (id) initWithType:(NSString *) t number:(int) num value:(id) val;
 {
 	if((self=[super init]))
 		{
-		if(n)
-			name=[n retain];
-		type=t;
+		type=[t retain];
+		value=[val retain];
 		number=num;
 		}
 	return self;
@@ -198,9 +197,10 @@ char *keyword(int table, int t)
 
 - (void) dealloc
 {
+	[type release];
 	[left release];
 	[right release];
-	[name release];
+	[value release];
 	// remove from map table(s)
 	[super dealloc];
 }
@@ -210,14 +210,14 @@ char *keyword(int table, int t)
 	return number;
 }
 
-- (int) type;
+- (NSString *) type;
 {
 	return type;
 }
 
-- (NSString *) name;
+- (id) value;
 {
-	return name;
+	return value;
 }
 
 - (Node *) left;
@@ -225,26 +225,61 @@ char *keyword(int table, int t)
 	return left;
 }
 
+- (Node *) parent;
+{
+	return parent;
+}
+
+- (Node *) parentWithType:(NSString *) t;
+{
+	while(self && ![type isEqualToString:t])
+		self=parent;
+	return self;	// has type or is nil
+}
+
+- (Node *) root;
+{
+	while(parent)
+		self=parent;
+	return self;
+}
+
 - (Node *) right;
 {
 	return right;
 }
 
+- (void) setParent:(Node *) n;
+{
+	parent=n;
+}
+
 - (void) setLeft:(Node *) n;
 {
+	[left setParent:nil];
 	[left autorelease];
 	left=[n retain];
+	[left setParent:self];
 }
 
 - (void) setRight:(Node *) n;
 {
+	[right setParent:nil];
 	[right autorelease];
 	right=[n retain];
+	[right setParent:self];
 }
 
-- (void) setType:(int) type;
+- (void) setValue:(id) val;
 {
-	
+	[value autorelease];
+	value=[val retain];
+}
+
+- (void) setType:(NSString *) t;
+{
+	[type autorelease];
+	type=[t retain];
 }
 
 + (Node *) get:(int) number
@@ -253,3 +288,4 @@ char *keyword(int table, int t)
 }
 
 @end
+

@@ -15,24 +15,27 @@
 
 @interface Node : NSObject 
 { /* internal structure */
-	int type;
-	int number;
-	NSString *name;
-	Node *left;
-	Node *right;
-	Node *next;
+	NSString *type;	// node type
+	int number;		// object number
+	id value;		// leaf value (we could re-use left/right)
+	Node *parent;	// parent node
+	Node *left;		// left tree
+	Node *right;	// right tree
 }
 
-- (id) initWithName:(NSString *) name type:(int) t number:(int) num;
-- (int) type;
-- (NSString *) name;
+- (id) initWithType:(NSString *) type number:(int) num value:(id) value;
+- (NSString *) type;
+- (void) setType:(NSString *) type;
+- (int) number;
+- (id) value;	// value of leaf nodes, e.g. identifier, numerical or string constant
+- (void) setValue:(id) val;
 - (Node *) left;
-- (Node *) right;
 - (void) setLeft:(Node *) n;
+- (Node *) right;
 - (void) setRight:(Node *) n;
-- (void) setType:(int) type;
-
-// define some delegate that receives callbacks e.g. after each expression, statement, method/function, class definition, at end of file and on errors
+- (Node *) parent;
+- (Node *) parentWithType:(NSString *) type;	// search parent of type t (nil if not found)
+- (Node *) root;
 
 + (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with Objective C source into AST and return root node
 

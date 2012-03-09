@@ -150,38 +150,50 @@ struct RESERVED
 	"__autoreleasing", AT_AUTORELEASING,
 	};
 	
-int scopestack;	/* global symbol table */
+	// FIXME: should the scanner really handle the scope stack or is this part of the grammar which can handle separate symbol tables, e.g. for stuct components
+	// depends a little on context depencence: is it allowed to (re)define a struct component with the same name as a typedef? Or global function?
+	
+int scopestack;	/* global and local scope stack */
 int keywordtab;	/* keyword table */
 int softkeywordtab;	/* soft keyword table */
 
 void pushscope()
 { // start a new local variable scope
-	push(scopestack, dictionary());	// create global symbol table
+	push(scopestack, dictionary());	// create symbol table
 }
 	
 void popscope()
 { // pop scope
 	pop(scopestack);
 }	
+
+int globals()
+{
+	return first(scopestack);
+}
+
+int makeglobal(int identifier)
+{ // make this a global entry 
 	
+}
+
 void scaninit(void)
 	{
 	int i, n;
 	softkeywordtab=dictionary();
-	n=lookup(softkeywordtab, "id", ID);
-	n=lookup(softkeywordtab, "SEL", SELECTOR);
-	n=lookup(softkeywordtab, "BOOL", BOOLTYPE);
-	n=lookup(softkeywordtab, "Class", CLASS);
-	n=lookup(softkeywordtab, "unichar", UNICHAR);
+	n=lookup(softkeywordtab, "id", "keyword", ID);
+	n=lookup(softkeywordtab, "SEL", "keyword", SELECTOR);
+	n=lookup(softkeywordtab, "BOOL", "keyword", BOOLTYPE);
+	n=lookup(softkeywordtab, "Class", "keyword", CLASS);
+	n=lookup(softkeywordtab, "unichar", "keyword", UNICHAR);
 	keywordtab=dictionary();
 	for(i=0; i<sizeof(reserved)/sizeof(reserved[0]); i++)
 		{ // initialize all reserved words in symbol table
-			if(lookup(softkeywordtab, reserved[i].word, 0))
+			if(lookup(softkeywordtab, reserved[i].word, NULL, 0))
 				continue;
-			n=lookup(keywordtab, reserved[i].word, reserved[i].token);
+			n=lookup(keywordtab, reserved[i].word, "keyword", reserved[i].token);
 		}
-	scopestack=list();
-	pushscope();	// create global symbol table
+	pushscope();	// create initially empty global symbol table
 	}
 
 	/* FIXME: read from an NSInputStream
@@ -208,26 +220,25 @@ void scaninit(void)
 	charCount();
 	if(!nokeyword)
 		{ // check for keywords
-		s=lookup(keywordtab, yytext, 0);
-		if(type(s))
-			return type(s);	// keyword found
+		s=lookup(keywordtab, yytext, NULL, 0);
+		if(s)
+			return value(s);	// keyword found
 		if(objctype)
 			{ // check for soft keywords
 			objctype=0;
-			s=lookup(softkeywordtab, yytext, 0);
-			if(type(s))
-				return type(s);	// soft keyword found
+			s=lookup(softkeywordtab, yytext, NULL, 0);
+			if(s)
+				return value(s);	// soft keyword found
 			}
 		}
 	nokeyword=0;
-	// go through scope stack from end (most locally) to global - but add to last level only
-	s=lookup(first(scopestack), yytext, 0);
+	// loop through scope stack from end (most locally) to global - but add to deepest level only
+	s=lookup(first(scopestack), yytext, NULL, 0);
 	if(!s)
-		s=lookup(first(scopestack), yytext, IDENTIFIER);	// add new identifier to most local level
-		// FIXME: how to handle static/extern functions and forward declarations? Must copy to last(scopestack)
+		s=lookup(first(scopestack), yytext, "identifier", 0);	// add new identifier to most local level
 	yylval=s;
 	if(right(s))
-		return TYPE_NAME;	/* in current context it is a typedef'd type name */
+		return TYPE_NAME;	/* in current scope this identifier is a typedef'd type name */
 	return IDENTIFIER;
 } 
 
@@ -359,5 +370,5 @@ L?\"(\\.|[^\\"])*\"	{ charCount(); yylval=cons(yytext); return(STRING_LITERAL); 
 
 int cons(char *str)
 {
-	return leaf(CONSTANT, str);
+	return leaf("constant", str);
 }

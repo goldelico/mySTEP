@@ -63,148 +63,148 @@
 /* FIXME: selectors can consist of *any* word (even if keyword like 'for', 'default') and not only IDENTIFIERs! */
 
 selector_component
-	: { nokeyword=1; } IDENTIFIER ':'  { $$=node(':', $1, 0); }
-	| ':' { $$=node(':', 0, 0); }
+	: { nokeyword=1; } IDENTIFIER ':'  { $$=node(":", $1, 0); }
+	| ':' { $$=node(":", 0, 0); }
 	;
 
 selector_with_arguments
 	: { nokeyword=1; } IDENTIFIER
-	| { nokeyword=1; } IDENTIFIER ':' expression  { $$=node(':', $1, $3); }
-	| selector_with_arguments selector_component expression   { $$=node(' ', $1, node(' ', $2, $3)); }
-	| selector_with_arguments ',' ELLIPSIS    { $$=node(',', $1, node(ELLIPSIS, 0, 0)); }
+	| { nokeyword=1; } IDENTIFIER ':' expression  { $$=node(":", $1, $3); }
+	| selector_with_arguments selector_component expression   { $$=node(" ", $1, node(" ", $2, $3)); }
+	| selector_with_arguments ',' ELLIPSIS    { $$=node(",", $1, node("...", 0, 0)); }
 	;
 
 struct_component_expression
 	: conditional_expression
-	| struct_component_expression conditional_expression   { $$=node(' ', $1, $2); }
+	| struct_component_expression conditional_expression   { $$=node(" ", $1, $2); }
 	;
 
 selector
 	: { nokeyword=1; } IDENTIFIER
-	| { nokeyword=1; } IDENTIFIER ':'  { $$=node(':', $1, 0); }
-	| ':'  { $$=node(':', 0, 0); }
-	| selector ':'  { $$=node(':', $1, 0); }
+	| { nokeyword=1; } IDENTIFIER ':'  { $$=node(":", $1, 0); }
+	| ':'  { $$=node(":", 0, 0); }
+	| selector ':'  { $$=node(":", $1, 0); }
 	;
 
 primary_expression
 	: IDENTIFIER
 	| CONSTANT
 	| STRING_LITERAL
-	| '(' expression ')'  { $$=node('(', 0, $2); }
+	| '(' expression ')'  { $$=node("(", 0, $2); }
 	/* Obj-C extensions */
 	| AT_STRING_LITERAL
-	| AT_SELECTOR '(' selector ')'  { $$=node('(', node(AT_SELECTOR, 0, 0), $3); }
-	| AT_ENCODE '(' type_name ')'  { $$=node('(', node(AT_ENCODE, 0, 0), $3); }
-	| AT_PROTOCOL '(' IDENTIFIER ')'  { $$=node('(', node(AT_PROTOCOL, 0, 0), $3); }
-	| '[' expression selector_with_arguments ']'  { $$=node('[', 0, node(' ', $2, $3)); }
+	| AT_SELECTOR '(' selector ')'  { $$=node("(", node("@selector", 0, 0), $3); }
+	| AT_ENCODE '(' type_name ')'  { $$=node("(", node("@encode", 0, 0), $3); }
+	| AT_PROTOCOL '(' IDENTIFIER ')'  { $$=node("(", node("@protocol", 0, 0), $3); }
+	| '[' expression selector_with_arguments ']'  { $$=node("[", 0, node(" ", $2, $3)); }
 	;
 
 postfix_expression
 	: primary_expression
-	| postfix_expression '[' expression ']'  { $$=node('[', $1, $3); }
-	| postfix_expression '(' ')'  { $$=node('(', $1, 0); }
-	| postfix_expression '(' argument_expression_list ')'  { $$=node('(', $1, $3); }
+	| postfix_expression '[' expression ']'  { $$=node("[", $1, $3); }
+	| postfix_expression '(' ')'  { $$=node("(", $1, 0); }
+	| postfix_expression '(' argument_expression_list ')'  { $$=node("(", $1, $3); }
 	| postfix_expression '.' IDENTIFIER
 		{
 		/* if expression is object, replace by [object valueForKey:@"path.path."] - or setValue if we are part of an LValue */
-		$$=node('.', $1, $3);
+		$$=node(".", $1, $3);
 		}
-	| postfix_expression PTR_OP IDENTIFIER  { $$=node(PTR_OP, $1, 0); }
-	| postfix_expression INC_OP  { $$=node(INC_OP, $1, 0); }
-	| postfix_expression DEC_OP  { $$=node(DEC_OP, $1, 0); }
+	| postfix_expression PTR_OP IDENTIFIER  { $$=node("*", $1, 0); }
+	| postfix_expression INC_OP  { $$=node("++", $1, 0); }
+	| postfix_expression DEC_OP  { $$=node("--", $1, 0); }
 	;
 
 argument_expression_list
 	: assignment_expression
-	| argument_expression_list ',' assignment_expression  { $$=node(',', $1, $3); }
+	| argument_expression_list ',' assignment_expression  { $$=node(",", $1, $3); }
 	;
 
 unary_expression
 	: postfix_expression
 // FIXME: is ++(char *) x really invalid?
-	| INC_OP unary_expression { $$=node(INC_OP, 0, $2); }
-	| DEC_OP unary_expression { $$=node(DEC_OP, 0, $2); }
+	| INC_OP unary_expression { $$=node("++", 0, $2); }
+	| DEC_OP unary_expression { $$=node("--", 0, $2); }
 	| unary_operator cast_expression { $$=node(type($1), 0, $2); }
-	| SIZEOF unary_expression { $$=node(SIZEOF, 0, $2); }
-	| SIZEOF '(' type_name ')' { $$=node(SIZEOF, 0, $2); }
+	| SIZEOF unary_expression { $$=node("sizeof", 0, $2); }
+	| SIZEOF '(' type_name ')' { $$=node("sizeof", 0, $2); }
 	;
 
 unary_operator
-	: '&'  { $$=node('&', 0, 0); }
-	| '*'  { $$=node('*', 0, 0); }
-	| '+'  { $$=node('+', 0, 0); }
-	| '-'  { $$=node('-', 0, 0); }
-	| '~'  { $$=node('~', 0, 0); }
-	| '!'  { $$=node('!', 0, 0); }
+	: '&'  { $$=node("&", 0, 0); }
+	| '*'  { $$=node("*", 0, 0); }
+	| '+'  { $$=node("+", 0, 0); }
+	| '-'  { $$=node("-", 0, 0); }
+	| '~'  { $$=node("~", 0, 0); }
+	| '!'  { $$=node("!", 0, 0); }
 	;
 
 cast_expression
 	: unary_expression
-	| '(' type_name ')' cast_expression { $$=node(' ', node('(', 0, $2), $4); }
-	| '(' type_name ')' '{' struct_component_expression '}'	 { $$=node('{', node('(', 0, $2), $4); }
+	| '(' type_name ')' cast_expression { $$=node(" ", node("(", 0, $2), $4); }
+	| '(' type_name ')' '{' struct_component_expression '}'	 { $$=node("{", node("(", 0, $2), $4); }
 	;
 
 multiplicative_expression
 	: cast_expression
-	| multiplicative_expression '*' cast_expression { $$=node('*', $1, $3); }
-	| multiplicative_expression '/' cast_expression { $$=node('/', $1, $3); }
-	| multiplicative_expression '%' cast_expression { $$=node('%', $1, $3); }
+	| multiplicative_expression '*' cast_expression { $$=node("*", $1, $3); }
+	| multiplicative_expression '/' cast_expression { $$=node("/", $1, $3); }
+	| multiplicative_expression '%' cast_expression { $$=node("%", $1, $3); }
 	;
 
 additive_expression
 	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression { $$=node('+', $1, $3); }
-	| additive_expression '-' multiplicative_expression { $$=node('-', $1, $3); }
+	| additive_expression '+' multiplicative_expression { $$=node("+", $1, $3); }
+	| additive_expression '-' multiplicative_expression { $$=node("-", $1, $3); }
 	;
 
 shift_expression
 	: additive_expression
-	| shift_expression LEFT_OP additive_expression { $$=node(LEFT_OP, $1, $3); }
-	| shift_expression RIGHT_OP additive_expression { $$=node(RIGHT_OP, $1, $3); }
+	| shift_expression LEFT_OP additive_expression { $$=node("<<", $1, $3); }
+	| shift_expression RIGHT_OP additive_expression { $$=node(">>", $1, $3); }
 	;
 
 relational_expression
 	: shift_expression
-	| relational_expression '<' shift_expression { $$=node('<', $1, $3); }
-	| relational_expression '>' shift_expression { $$=node('>', $1, $3); }
-	| relational_expression LE_OP shift_expression { $$=node(LE_OP, $1, $3); }
-	| relational_expression GE_OP shift_expression { $$=node(GE_OP, $1, $3); }
+	| relational_expression '<' shift_expression { $$=node("<", $1, $3); }
+	| relational_expression '>' shift_expression { $$=node(">", $1, $3); }
+	| relational_expression LE_OP shift_expression { $$=node("<=", $1, $3); }
+	| relational_expression GE_OP shift_expression { $$=node(">=", $1, $3); }
 	;
 
 equality_expression
 	: relational_expression
-	| equality_expression EQ_OP relational_expression { $$=node(EQ_OP, $1, $3); }
-	| equality_expression NE_OP relational_expression { $$=node(NE_OP, $1, $3); }
+	| equality_expression EQ_OP relational_expression { $$=node("=", $1, $3); }
+	| equality_expression NE_OP relational_expression { $$=node("!=", $1, $3); }
 	;
 
 and_expression
 	: equality_expression
-	| and_expression '&' equality_expression { $$=node('&', $1, $3); }
+	| and_expression '&' equality_expression { $$=node("&", $1, $3); }
 	;
 
 exclusive_or_expression
 	: and_expression
-	| exclusive_or_expression '^' and_expression { $$=node('^', $1, $3); }
+	| exclusive_or_expression '^' and_expression { $$=node("^", $1, $3); }
 	;
 
 inclusive_or_expression
 	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression { $$=node('|', $1, $3); }
+	| inclusive_or_expression '|' exclusive_or_expression { $$=node("|", $1, $3); }
 	;
 
 logical_and_expression
 	: inclusive_or_expression
-	| logical_and_expression AND_OP inclusive_or_expression { $$=node(AND_OP, $1, $3); }
+	| logical_and_expression AND_OP inclusive_or_expression { $$=node("&&", $1, $3); }
 	;
 
 logical_or_expression
 	: logical_and_expression
-	| logical_or_expression OR_OP logical_and_expression { $$=node(OR_OP, $1, $3); }
+	| logical_or_expression OR_OP logical_and_expression { $$=node("||", $1, $3); }
 	;
 
 conditional_expression
 	: logical_or_expression
-	| logical_or_expression '?' expression ':' conditional_expression { $$=node('?', $1, node(':', $3, $5)); }
+	| logical_or_expression '?' expression ':' conditional_expression { $$=node("?", $1, node(":", $3, $5)); }
 	;
 
 assignment_expression
@@ -214,22 +214,22 @@ assignment_expression
 	;
 
 assignment_operator
-	: '='   { $$=node('=', 0, 0); }
-	| MUL_ASSIGN   { $$=node(MUL_ASSIGN, 0, 0); }
-	| DIV_ASSIGN   { $$=node(DIV_ASSIGN, 0, 0); }
-	| MOD_ASSIGN   { $$=node(MOD_ASSIGN, 0, 0); }
-	| ADD_ASSIGN   { $$=node(ADD_ASSIGN, 0, 0); }
-	| SUB_ASSIGN   { $$=node(SUB_ASSIGN, 0, 0); }
-	| LEFT_ASSIGN   { $$=node(LEFT_ASSIGN, 0, 0); }
-	| RIGHT_ASSIGN   { $$=node(RIGHT_ASSIGN, 0, 0); }
-	| AND_ASSIGN   { $$=node(AND_ASSIGN, 0, 0); }
-	| XOR_ASSIGN   { $$=node(XOR_ASSIGN, 0, 0); }
-	| OR_ASSIGN   { $$=node(OR_ASSIGN, 0, 0); }
+	: '='   { $$=node("=", 0, 0); }
+	| MUL_ASSIGN   { $$=node("*=", 0, 0); }
+	| DIV_ASSIGN   { $$=node("/=", 0, 0); }
+	| MOD_ASSIGN   { $$=node("%=", 0, 0); }
+	| ADD_ASSIGN   { $$=node("+=", 0, 0); }
+	| SUB_ASSIGN   { $$=node("-=", 0, 0); }
+	| LEFT_ASSIGN   { $$=node("<<=", 0, 0); }
+	| RIGHT_ASSIGN   { $$=node(">>=", 0, 0); }
+	| AND_ASSIGN   { $$=node("&=", 0, 0); }
+	| XOR_ASSIGN   { $$=node("^=", 0, 0); }
+	| OR_ASSIGN   { $$=node("|=", 0, 0); }
 	;
 
 expression
 	: assignment_expression
-	| expression ',' assignment_expression  { $$=node(',', $1, $3); }
+	| expression ',' assignment_expression  { $$=node(",", $1, $3); }
 	;
 
 constant_expression
@@ -238,12 +238,12 @@ constant_expression
 
 class_name_list
 	: IDENTIFIER
-	| class_name_list ',' IDENTIFIER  { $$=node(',', $1, $3); }
+	| class_name_list ',' IDENTIFIER  { $$=node(",", $1, $3); }
 	;
 
 class_with_superclass
 	: IDENTIFIER
-	| IDENTIFIER ':' IDENTIFIER  { $$=node(':', $1, $3); }
+	| IDENTIFIER ':' IDENTIFIER  { $$=node(":", $1, $3); }
 	;
 
 category_name
@@ -257,41 +257,41 @@ inherited_protocols
 class_name_declaration
 	: class_with_superclass
 	| class_with_superclass '<' inherited_protocols '>'
-	| class_with_superclass '(' category_name ')'  { $$=node('(', $1, $3); }
-	| class_with_superclass '<' inherited_protocols '>' '(' category_name ')'  { $$=node(',', $1, $5); }
+	| class_with_superclass '(' category_name ')'  { $$=node("(", $1, $3); }
+	| class_with_superclass '<' inherited_protocols '>' '(' category_name ')'  { $$=node(",", $1, $5); }
 	| error
 	;
 
 class_or_instance_method_specifier
-	: '+'  { $$=node('+', 0, 0); }
-	| '-'  { $$=node('-', 0, 0); }
+	: '+'  { $$=node("+method", 0, 0); }
+	| '-'  { $$=node("-method", 0, 0); }
 	;
 
 /* FIXME - there are valid combinations i.e. byref out! */
 
 do_atribute_specifier
-	: { objctype=1; } ONEWAY  { $$=node(ONEWAY, 0, 0); }
-	| { objctype=1; } IN  { $$=node(IN, 0, 0); }
-	| { objctype=1; } OUT  { $$=node(OUT, 0, 0); }
-	| { objctype=1; } INOUT  { $$=node(INOUT, 0, 0); }
-	| { objctype=1; } BYREF  { $$=node(BYREF, 0, 0); }
-	| { objctype=1; } BYCOPY  { $$=node(BYCOPY, 0, 0); }
+	: { objctype=1; } ONEWAY  { $$=node("oneway", 0, 0); }
+	| { objctype=1; } IN  { $$=node("in", 0, 0); }
+	| { objctype=1; } OUT  { $$=node("out", 0, 0); }
+	| { objctype=1; } INOUT  { $$=node("inout", 0, 0); }
+	| { objctype=1; } BYREF  { $$=node("byref", 0, 0); }
+	| { objctype=1; } BYCOPY  { $$=node("bycopy", 0, 0); }
 	;
 
 objc_declaration_specifiers
-	: do_atribute_specifier objc_declaration_specifiers  { $$=node(' ', $1, $2); }
+	: do_atribute_specifier objc_declaration_specifiers  { $$=node(" ", $1, $2); }
 	| type_name
 	;
 
 selector_argument_declaration
-	: '(' objc_declaration_specifiers ')' IDENTIFIER  { $$=node(' ', node('(', 0, $2), $4); }
+	: '(' objc_declaration_specifiers ')' IDENTIFIER  { $$=node(" ", node("(", 0, $2), $4); }
 	;
 
 selector_with_argument_declaration
 	: { nokeyword=1; } IDENTIFIER
-	| { nokeyword=1; } IDENTIFIER ':' selector_argument_declaration   { $$=node(':', $1, $3); }
-	| selector_with_argument_declaration selector_component selector_argument_declaration  { $$=node(' ', $1, node(' ', $2, $3)); }
-	| selector_with_argument_declaration ',' ELLIPSIS  { $$=node(',', $1, node(ELLIPSIS, 0, 0)); }
+	| { nokeyword=1; } IDENTIFIER ':' selector_argument_declaration   { $$=node(":", $1, $3); }
+	| selector_with_argument_declaration selector_component selector_argument_declaration  { $$=node(" ", $1, node(" ", $2, $3)); }
+	| selector_with_argument_declaration ',' ELLIPSIS  { $$=node(",", $1, node("...", 0, 0)); }
 	;
 
 method_declaration
@@ -299,8 +299,8 @@ method_declaration
 		{
 		$$=node(type($1),
 				0,
-				node(' ',
-					 node('(', 0, $3),
+				node(" ",
+					 node("(", 0, $3),
 					 $5
 					 )
 				);
@@ -308,54 +308,54 @@ method_declaration
 	;
 
 method_declaration_list
-	: method_declaration ';'  { $$=node(';', $1, 0); }
-	| AT_OPTIONAL method_declaration ';'  { $$=node(';', $1, 0); }
-	| AT_REQUIRED method_declaration ';'  { $$=node(';', $1, 0); }
-	| method_declaration_list method_declaration ';'  { $$=node(' ', $1, node(';', $2, 0)); }
+	: method_declaration ';'  { $$=node(";", $1, 0); }
+	| AT_OPTIONAL method_declaration ';'  { $$=node(";", $1, 0); }
+	| AT_REQUIRED method_declaration ';'  { $$=node(";", $1, 0); }
+	| method_declaration_list method_declaration ';'  { $$=node(" ", $1, node(";", $2, 0)); }
 	| error ';'
 	;
 
 ivar_declaration_list
-	: '{' struct_declaration_list '}'  { $$=node('{', 0, $2); }
+	: '{' struct_declaration_list '}'  { $$=node("{", 0, $2); }
 	;
 
 class_implementation
 	: IDENTIFIER
-	| IDENTIFIER '(' category_name ')'  { $$=node('(', $1, $3); }
+	| IDENTIFIER '(' category_name ')'  { $$=node("(", $1, $3); }
 
 method_implementation
-	: method_declaration compound_statement  { $$=node(' ', $1, $2); }
-	| method_declaration ';' compound_statement  { $$=node(' ', $1, $3); }	/* ignore extra ; */
+	: method_declaration compound_statement  { $$=node(" ", $1, $2); }
+	| method_declaration ';' compound_statement  { $$=node(" ", $1, $3); }	/* ignore extra ; */
 	;
 
 method_implementation_list
 	: method_implementation
-	| method_implementation_list method_implementation  { $$=node(' ', $1, $2); }
+	| method_implementation_list method_implementation  { $$=node(" ", $1, $2); }
 	;
 
 objc_declaration
 	: AT_CLASS class_name_list ';'
 		{
-		$$=node(';',
-				node(AT_CLASS, 0, $2),
+		$$=node(";",
+				node("@class", 0, $2),
 				0);
 		/* FIXME: do for all class names in the list! */
 //		setRight($2, $$);	/* this makes it a TYPE_NAME since $2 is the symbol table entry */
 		}
-	| AT_PROTOCOL class_name_declaration AT_END  { $$=node(AT_PROTOCOL, $2, 0); }
-	| AT_PROTOCOL class_name_declaration method_declaration_list AT_END  { $$=node(AT_PROTOCOL, $2, $3); }
-	| AT_INTERFACE class_name_declaration AT_END  { $$=node(AT_INTERFACE, $2, 0); }
-	| AT_INTERFACE class_name_declaration ivar_declaration_list AT_END  { $$=node(AT_INTERFACE, $2, node(' ', $3, 0)); }
-	| AT_INTERFACE class_name_declaration ivar_declaration_list method_declaration_list AT_END  { $$=node(AT_INTERFACE, $2, node(' ', $3, $4)); }
-	| AT_IMPLEMENTATION class_implementation AT_END  { $$=node(AT_IMPLEMENTATION, $2, 0); }
-	| AT_IMPLEMENTATION class_implementation ivar_declaration_list AT_END  { $$=node(AT_IMPLEMENTATION, $2, node(' ', $3, 0)); }
-	| AT_IMPLEMENTATION class_implementation method_implementation_list AT_END  { $$=node(AT_IMPLEMENTATION, $2, node(' ', 0, $3)); }
-	| AT_IMPLEMENTATION class_implementation ivar_declaration_list method_implementation_list AT_END  { $$=node(AT_IMPLEMENTATION, $2, node(' ', $3, $4)); }
+	| AT_PROTOCOL class_name_declaration AT_END  { $$=node("@protocol", $2, 0); }
+	| AT_PROTOCOL class_name_declaration method_declaration_list AT_END  { $$=node("@protocol", $2, $3); }
+	| AT_INTERFACE class_name_declaration AT_END  { $$=node("@interface", $2, 0); }
+	| AT_INTERFACE class_name_declaration ivar_declaration_list AT_END  { $$=node("@interface", $2, node(" ", $3, 0)); }
+	| AT_INTERFACE class_name_declaration ivar_declaration_list method_declaration_list AT_END  { $$=node("@interface", $2, node(" ", $3, $4)); }
+	| AT_IMPLEMENTATION class_implementation AT_END  { $$=node("@implementation", $2, 0); }
+	| AT_IMPLEMENTATION class_implementation ivar_declaration_list AT_END  { $$=node("@implementation", $2, node(" ", $3, 0)); }
+	| AT_IMPLEMENTATION class_implementation method_implementation_list AT_END  { $$=node("@implementation", $2, node(" ", 0, $3)); }
+	| AT_IMPLEMENTATION class_implementation ivar_declaration_list method_implementation_list AT_END  { $$=node("@implementation", $2, node(" ", $3, $4)); }
 	;
 
 declaration
-	: declaration_specifiers ';'  { $$=node(';', $1, 0); }
-	| declaration_specifiers init_declarator_list ';'  { $$=node(';', node(' ', $1, $2), 0); }
+	: declaration_specifiers ';'  { $$=node(";", $1, 0); }
+	| declaration_specifiers init_declarator_list ';'  { $$=node(";", node(" ", $1, $2), 0); }
 	| objc_declaration
 	;
 
@@ -366,27 +366,28 @@ declaration_specifiers
 		if($1 == TYPEDEF)
 			{
 //			setRight($2, $$);	/* make it a TYPE_NAME */
-			$$=node(' ', 0, 0);	/* eat all typedef declarations since we expand them */
+			// setType(declaratorname, "typedef")
+			$$=node(" ", 0, 0);	/* eat all typedef declarations since we expand them */
 			}
 		else
 			{
-			$$=node(' ', $1, $2);
+			$$=node(" ", $1, $2);
 			}
 		}
 	| type_specifier
-	| type_specifier declaration_specifiers  { $$=node(' ', $1, 0); }
+	| type_specifier declaration_specifiers  { $$=node(" ", $1, 0); }
 	| type_qualifier
-	| type_qualifier declaration_specifiers  { $$=node(' ', $1, 0); }
+	| type_qualifier declaration_specifiers  { $$=node(" ", $1, 0); }
 	;
 
 init_declarator_list
 	: init_declarator
-	| init_declarator_list ',' init_declarator  { $$=node(',', $1, $3); }
+	| init_declarator_list ',' init_declarator  { $$=node(",", $1, $3); }
 	;
 
 init_declarator
 	: declarator
-	| declarator '=' initializer  { $$=node('=', $1, $3); }
+	| declarator '=' initializer  { $$=node("=", $1, $3); }
 	;
 
 storage_class_specifier
@@ -399,56 +400,56 @@ storage_class_specifier
 
 protocol_list
 	: IDENTIFIER
-	| protocol_list ',' IDENTIFIER  { $$=node(',', $1, $3); }
+	| protocol_list ',' IDENTIFIER  { $$=node(",", $1, $3); }
 
 type_specifier
-	: VOID	{ $$=node(VOID, 0, 0); }
-	| CHAR	{ $$=node(CHAR, 0, 0); }
-	| SHORT	{ $$=node(SHORT, 0, 0); }
-	| INT	{ $$=node(INT, 0, 0); }
-	| LONG	{ $$=node(LONG, 0, 0); }
-	| FLOAT	{ $$=node(FLOAT, 0, 0); }
-	| DOUBLE	{ $$=node(DOUBLE, 0, 0); }
-	| SIGNED	{ $$=node(SIGNED, 0, 0); }
-	| UNSIGNED	{ $$=node(UNSIGNED, 0, 0); }
+	: VOID	{ $$=node("void", 0, 0); }
+	| CHAR	{ $$=node("char", 0, 0); }
+	| SHORT	{ $$=node("short", 0, 0); }
+	| INT	{ $$=node("int", 0, 0); }
+	| LONG	{ $$=node("long", 0, 0); }
+	| FLOAT	{ $$=node("float", 0, 0); }
+	| DOUBLE	{ $$=node("double", 0, 0); }
+	| SIGNED	{ $$=node("signed", 0, 0); }
+	| UNSIGNED	{ $$=node("unsigned", 0, 0); }
 	| struct_or_union_specifier
 	| enum_specifier
 	| TYPE_NAME		{ /* $$=right($1); */ }
-	| { objctype=1; } ID	{ $$=node(ID, 0, 0); }
-	| { objctype=1; } ID '<' protocol_list '>'	{ $$=node(ID, 0, $3); }
-	| { objctype=1; } SELECTOR	{ $$=node(SELECTOR, 0, 0); }
-	| { objctype=1; } BOOLTYPE	{ $$=node(BOOLTYPE, 0, 0); }
-	| { objctype=1; } UNICHAR	{ $$=node(UNICHAR, 0, 0); }
-	| { objctype=1; } CLASS	{ $$=node(CLASS, 0, 0); }
+	| { objctype=1; } ID	{ $$=node("id", 0, 0); }
+	| { objctype=1; } ID '<' protocol_list '>'	{ $$=node("id", 0, $3); }
+	| { objctype=1; } SELECTOR	{ $$=node("SEL", 0, 0); }
+	| { objctype=1; } BOOLTYPE	{ $$=node("BOOL", 0, 0); }
+	| { objctype=1; } UNICHAR	{ $$=node("unichar", 0, 0); }
+	| { objctype=1; } CLASS	{ $$=node("Class", 0, 0); }
 	;
 
 struct_or_union_specifier
 	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'  { $$=node(type($1), $2, $3); /*
-																								setRight($2, $$);*/ }
+																								setRight($2, $$);*/; /* add to struct symbol table */ }
 	| struct_or_union '{' struct_declaration_list '}'  { $$=node(type($1), 0, $3); }
-	| struct_or_union IDENTIFIER  { $$=node(type($1), $2, 0); /*setRight($2, $$);*/ }
+	| struct_or_union IDENTIFIER  { $$=node(type($1), $2, 0); /*setRight($2, $$);*/; /* add to struct symbol table */ }
 	;
 
 struct_or_union
-	: STRUCT	{ $$=node(STRUCT, 0, 0); }
-	| UNION		{ $$=node(UNION, 0, 0); }
+	: STRUCT	{ $$=node("struct", 0, 0); }
+	| UNION		{ $$=node("union", 0, 0); }
 	;
 
 struct_declaration_list
 	: struct_declaration
-	| struct_declaration_list struct_declaration  { $$=node(' ', $1, $2); }
+	| struct_declaration_list struct_declaration  { $$=node(" ", $1, $2); }
 	;
 
 property_attributes_list
 	: IDENTIFIER
-	| IDENTIFIER ',' property_attributes_list  { $$=node(',', $1, $3); }
+	| IDENTIFIER ',' property_attributes_list  { $$=node(",", $1, $3); }
 	;
 
 struct_declaration
-	: specifier_qualifier_list struct_declarator_list ';'  { $$=node(';', node(' ', $1, $2), 0); }
-	| protection_qualifier specifier_qualifier_list struct_declarator_list ';'  { $$=node(';', node(' ', node(' ', $1, $2), $3), 0); }
-	| property_qualifier specifier_qualifier_list struct_declarator_list ';'  { $$=node(';', node(' ', node(' ', $1, $2), $3), 0); }
-	| AT_SYNTHESIZE ivar_list ';'  { $$=node(AT_SYNTHESIZE, $2, 0); }
+	: specifier_qualifier_list struct_declarator_list ';'  { $$=node(";", node(" ", $1, $2), 0); }
+	| protection_qualifier specifier_qualifier_list struct_declarator_list ';'  { $$=node(";", node(" ", node(" ", $1, $2), $3), 0); }
+	| property_qualifier specifier_qualifier_list struct_declarator_list ';'  { $$=node(";", node(" ", node(" ", $1, $2), $3), 0); }
+	| AT_SYNTHESIZE ivar_list ';'  { $$=node("@synthesize", $2, 0); }
 	| AT_DEFS '(' IDENTIFIER ')' { ; }	// substitute the iVar definition tree
 	;
 
@@ -459,31 +460,31 @@ protection_qualifier
 	;
 
 property_qualifier
-	: AT_PROPERTY '(' property_attributes_list ')'  { $$=node('(', $1, $3); }
+	: AT_PROPERTY '(' property_attributes_list ')'  { $$=node("(", $1, $3); }
 	| AT_PROPERTY
 	;
 
 ivar_list
-	: ivar_list IDENTIFIER  { $$=node(' ', $1, $2); }
+	: ivar_list IDENTIFIER  { $$=node(" ", $1, $2); }
 	| IDENTIFIER
 	;
 
 specifier_qualifier_list
-	: type_specifier specifier_qualifier_list  { $$=node(' ', $1, $2); }
+	: type_specifier specifier_qualifier_list  { $$=node(" ", $1, $2); }
 	| type_specifier
-	| type_qualifier specifier_qualifier_list  { $$=node(' ', $1, $2); }
+	| type_qualifier specifier_qualifier_list  { $$=node(" ", $1, $2); }
 	| type_qualifier
 	;
 
 struct_declarator_list
 	: struct_declarator
-	| struct_declarator_list ',' struct_declarator  { $$=node(',', $1, $3); }
+	| struct_declarator_list ',' struct_declarator  { $$=node(",", $1, $3); }
 	;
 
 struct_declarator
 	: declarator
-	| ':' constant_expression  { $$=node(':', 0, $2); }
-	| declarator ':' constant_expression  { $$=node(':', $1, $3); }
+	| ':' constant_expression  { $$=node(":", 0, $2); }
+	| declarator ':' constant_expression  { $$=node(":", $1, $3); }
 	;
 
 enum_specifier
@@ -494,12 +495,12 @@ enum_specifier
 
 enumerator_list
 	: enumerator
-	| enumerator_list ',' enumerator  { $$=node(',', $1, $3); }
+	| enumerator_list ',' enumerator  { $$=node(",", $1, $3); }
 	;
 
 enumerator
 	: IDENTIFIER
-	| IDENTIFIER '=' constant_expression  { $$=node('=', $1, $3); }
+	| IDENTIFIER '=' constant_expression  { $$=node("=", $1, $3); }
 	;
 
 type_qualifier
@@ -510,86 +511,86 @@ type_qualifier
 	;
 
 declarator
-	: pointer direct_declarator  { $$=node(' ', $1, $2); }
+	: pointer direct_declarator  { $$=node(" ", $1, $2); }
 	| direct_declarator
 	;
 
 direct_declarator
 	: IDENTIFIER
-	| '(' declarator ')'  { $$=node('(', 0, $2); }
-	| direct_declarator '[' constant_expression ']'  { $$=node('[', $1, $3); }
-	| direct_declarator '[' ']'  { $$=node('[', $1, 0); }
-	| direct_declarator '(' parameter_type_list ')'  { $$=node('(', $1, $3); }
-	| direct_declarator '(' identifier_list ')'  { $$=node('(', $1, $3); }
-	| direct_declarator '(' ')'  { $$=node('(', $1, 0); }
+	| '(' declarator ')'  { $$=node("(", 0, $2); }
+	| direct_declarator '[' constant_expression ']'  { $$=node("[", $1, $3); }
+	| direct_declarator '[' ']'  { $$=node("[", $1, 0); }
+	| direct_declarator '(' parameter_type_list ')'  { $$=node("(", $1, $3); }
+	| direct_declarator '(' identifier_list ')'  { $$=node("(", $1, $3); }
+	| direct_declarator '(' ')'  { $$=node("(", $1, 0); }
 	;
 
 pointer
-	: '*' { $$=node('*', 0, 0); }
-	| '*' type_qualifier_list  { $$=node('*', 0, $2); }
-	| '*' pointer  { $$=node('*', 0, $2); }
-	| '*' type_qualifier_list pointer  { $$=node('*', $2, $3); }
+	: '*' { $$=node("*", 0, 0); }
+	| '*' type_qualifier_list  { $$=node("*", 0, $2); }
+	| '*' pointer  { $$=node("*", 0, $2); }
+	| '*' type_qualifier_list pointer  { $$=node("*", $2, $3); }
 	;
 
 type_qualifier_list
 	: type_qualifier
-	| type_qualifier_list type_qualifier  { $$=node(' ', $1, $2); }
+	| type_qualifier_list type_qualifier  { $$=node(" ", $1, $2); }
 	;
 
 
 parameter_type_list
 	: parameter_list
-	| parameter_list ',' ELLIPSIS  { $$=node(',', $1, node(ELLIPSIS, 0, 0)); }
+	| parameter_list ',' ELLIPSIS  { $$=node(",", $1, node("...", 0, 0)); }
 	;
 
 parameter_list
 	: parameter_declaration
-	| parameter_list ',' parameter_declaration  { $$=node(',', $1, $3); }
+	| parameter_list ',' parameter_declaration  { $$=node(",", $1, $3); }
 	;
 
 parameter_declaration
-	: declaration_specifiers declarator  { $$=node(' ', $1, $2); }
-	| declaration_specifiers abstract_declarator  { $$=node(' ', $1, $2); }
+	: declaration_specifiers declarator  { $$=node(" ", $1, $2); }
+	| declaration_specifiers abstract_declarator  { $$=node(" ", $1, $2); }
 	| declaration_specifiers
 	;
 
 identifier_list
 	: IDENTIFIER
-	| identifier_list ',' IDENTIFIER  { $$=node(',', $1, $3); }
+	| identifier_list ',' IDENTIFIER  { $$=node(",", $1, $3); }
 	;
 
 type_name
 	: specifier_qualifier_list
-	| specifier_qualifier_list abstract_declarator  { $$=node(' ', $1, $2); }
+	| specifier_qualifier_list abstract_declarator  { $$=node(" ", $1, $2); }
 	;
 
 abstract_declarator
 	: pointer
 	| direct_abstract_declarator
-	| pointer direct_abstract_declarator  { $$=node(' ', $1, $2); }
+	| pointer direct_abstract_declarator  { $$=node(" ", $1, $2); }
 	;
 
 direct_abstract_declarator
-	: '(' abstract_declarator ')' { $$=node('(', 0, $2); }
-	| '[' ']'  { $$=node('[', 0, 0); }
-	| '[' constant_expression ']'  { $$=node('[', 0, $2); }
-	| direct_abstract_declarator '[' ']'  { $$=node('[', $1, 0); }
-	| direct_abstract_declarator '[' constant_expression ']'  { $$=node('[', $1, $2); }
-	| '(' ')'  { $$=node('(', 0, 0); }
-	| '(' parameter_type_list ')'  { $$=node('(', 0, $2); }
-	| direct_abstract_declarator '(' ')'  { $$=node('(', $1, 0); }
-	| direct_abstract_declarator '(' parameter_type_list ')'  { $$=node('(', $1, $2); }
+	: '(' abstract_declarator ')' { $$=node("(", 0, $2); }
+	| '[' ']'  { $$=node("[", 0, 0); }
+	| '[' constant_expression ']'  { $$=node("[", 0, $2); }
+	| direct_abstract_declarator '[' ']'  { $$=node("[", $1, 0); }
+	| direct_abstract_declarator '[' constant_expression ']'  { $$=node("[", $1, $2); }
+	| '(' ')'  { $$=node("(", 0, 0); }
+	| '(' parameter_type_list ')'  { $$=node("(", 0, $2); }
+	| direct_abstract_declarator '(' ')'  { $$=node("(", $1, 0); }
+	| direct_abstract_declarator '(' parameter_type_list ')'  { $$=node("(", $1, $2); }
 	;
 
 initializer
 	: assignment_expression
-	| '{' initializer_list '}'  { $$=node('{', 0, $2); }
-	| '{' initializer_list ',' '}'  { $$=node('{', 0, $2); }	/* removes extra , */
+	| '{' initializer_list '}'  { $$=node("{", 0, $2); }
+	| '{' initializer_list ',' '}'  { $$=node("{", 0, $2); }	/* removes extra , */
 	;
 
 initializer_list
 	: initializer
-	| initializer_list ',' initializer  { $$=node(',', $1, $3); }
+	| initializer_list ',' initializer  { $$=node(",", $1, $3); }
 	;
 
 statement
@@ -609,8 +610,8 @@ statement
 	;
 
 catch_sequence
-	: AT_CATCH compound_statement{ $$=node(AT_CATCH, 0, 0); }
-	| catch_sequence AT_CATCH compound_statement{ $$=node(AT_CATCH, 0, 0); }
+	: AT_CATCH compound_statement{ $$=node("@catch", 0, 0); }
+	| catch_sequence AT_CATCH compound_statement{ $$=node("@catch", 0, 0); }
 	;
 
 finally
@@ -618,68 +619,68 @@ finally
 	;
 
 labeled_statement
-	: IDENTIFIER ':' statement  { $$=node(':', $1, $3); }
-	| CASE constant_expression ':' statement  { $$=node(CASE, $2, $4); }
-	| DEFAULT ':' statement  { $$=node(DEFAULT, 0, $3); }
+	: IDENTIFIER ':' statement  { $$=node(":", $1, $3); }
+	| CASE constant_expression ':' statement  { $$=node("case", $2, $4); }
+	| DEFAULT ':' statement  { $$=node("default", 0, $3); }
 	;
 
 compound_statement
-	: '{' '}'  { $$=node('{', 0, 0); }
-    | '{' { pushscope(); } statement_list '}'  { pushscope(); $$=node('{', 0, $2); }
+	: '{' '}'  { $$=node("{", 0, 0); }
+    | '{' { pushscope(); } statement_list '}'  { pushscope(); $$=node("{", 0, $2); }
 	;
 
 statement_list
 	: declaration
 	| statement
-	| statement_list statement  { $$=node(' ', $1, $2); }
+	| statement_list statement  { $$=node(" ", $1, $2); }
 	;
 
 expression_statement
-	: ';'  { $$=node(';', 0, 0); }
-	| expression ';'  { $$=node(';', $1, 0); }
+	: ';'  { $$=node(";", 0, 0); }
+	| expression ';'  { $$=node(";", $1, 0); }
 	;
 
 selection_statement
 	: IF '(' expression ')' statement
 		{
-		$$=node(IF, $3, $5);
+		$$=node("if", $3, $5);
 		}
 	| IF '(' expression ')' statement ELSE statement
 		{
-		$$=node(IF,
+		$$=node("if",
 				$3,
-				node(ELSE, $5, $7)
+				node("else", $5, $7)
 				);
 		}
-	| SWITCH '(' expression ')' statement  { $$=node(SWITCH, $3, $5); }
+	| SWITCH '(' expression ')' statement  { $$=node("switch", $3, $5); }
 	;
 
 iteration_statement
-	: WHILE '(' expression ')' statement  { $$=node(WHILE, $3, $5); }
-	| DO statement WHILE '(' expression ')' ';'  { $$=node(DO, $5, $3); }
+	: WHILE '(' expression ')' statement  { $$=node("while", $3, $5); }
+	| DO statement WHILE '(' expression ')' ';'  { $$=node("do", $5, $3); }
 	| FOR '(' expression_statement expression_statement ')' statement
 		{
-		$$=node(FOR,
-				node(';', $3, $4),
+		$$=node("for",
+				node(";", $3, $4),
 				$6);
 		}
 	| FOR '(' expression_statement expression_statement expression ')' statement
 		{
-		$$=node(FOR,
-				node(';',
+		$$=node("for",
+				node(";",
 					 $3,
-					 node(';', $4, $5)
+					 node(";", $4, $5)
 					 ), 
 				$7);
 		}
 	| FOR '(' declaration expression_statement expression ')' statement	
 		{
-		$$=node('{',
+		$$=node("{",
 				$3,
-				node(FOR,
-					 node(';',
+				node("for",
+					 node(";",
 						  0,
-						  node(';', $4, $5)
+						  node(";", $4, $5)
 						  ),
 					 $7)
 				);
@@ -691,16 +692,16 @@ iteration_statement
 	;
 
 jump_statement
-	: GOTO IDENTIFIER ';'  { $$=node(';', node(GOTO, 0, $2), 0); }
-	| CONTINUE ';'  { $$=node(';', node(CONTINUE, 0, 0), 0); }
-	| BREAK ';' { $$=node(';', node(BREAK, 0, 0), 0); }
-	| RETURN ';' { $$=node(';', node(RETURN, 0, 0), 0); }
-	| RETURN expression ';' { $$=node(';', node(RETURN, 0, $2), 0); }
+	: GOTO IDENTIFIER ';'  { $$=node(";", node("goto", 0, $2), 0); }
+	| CONTINUE ';'  { $$=node(";", node("continue", 0, 0), 0); }
+	| BREAK ';' { $$=node(";", node("break", 0, 0), 0); }
+	| RETURN ';' { $$=node(";", node("return", 0, 0), 0); }
+	| RETURN expression ';' { $$=node(";", node("return", 0, $2), 0); }
 	;
 
 function_definition
-	: declaration_specifiers declarator compound_statement { $$=node(' ', node(' ', $1, $2), $3); }
-	| declarator compound_statement { $$=node(' ', $1, $2); }
+	: declaration_specifiers declarator compound_statement { $$=node(" ", node(" ", $1, $2), $3); }
+	| declarator compound_statement { $$=node(" ", $1, $2); }
 	;
 
 external_declaration
@@ -710,7 +711,7 @@ external_declaration
 
 translation_unit
 	: external_declaration { rootnode=$1; /* notify delegate */ }
-	| translation_unit external_declaration { rootnode=node(' ', rootnode, $2); /* notify delegate */ }
+	| translation_unit external_declaration { rootnode=node(" ", rootnode, $2); /* notify delegate */ }
 	;
 
 %%
