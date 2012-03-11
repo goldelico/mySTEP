@@ -60,11 +60,11 @@
 		EE4108520B956BA30065DD36 /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EE4108530B956BA30065DD36 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		EE4108540B956BA30065DD36 /* scan.l */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.lex; path = scan.l; sourceTree = "<group>"; };
-		EE4108550B956BA30065DD36 /* y.output */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = y.output; sourceTree = "<group>"; };
+		EE4108550B956BA30065DD36 /* y.output */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = y.output; path = build/y.output; sourceTree = "<group>"; };
 		EE55BFC01504DB3900BDF3F7 /* ObjC.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ObjC.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE55BFC11504DB3A00BDF3F7 /* ObjC-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ObjC-Info.plist"; sourceTree = "<group>"; };
 		EE55BFD01504DB7400BDF3F7 /* objc2pp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = objc2pp; sourceTree = BUILT_PRODUCTS_DIR; };
-		EE55BFF11504DC5700BDF3F7 /* y.tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = y.tab.h; sourceTree = "<group>"; };
+		EE55BFF11504DC5700BDF3F7 /* y.tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = y.tab.h; path = build/y.tab.h; sourceTree = "<group>"; };
 		EE55C0251504DF4100BDF3F7 /* gram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = gram.m; path = build/gram.m; sourceTree = "<group>"; };
 		EE55C0261504DF4100BDF3F7 /* scan.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = scan.m; path = build/scan.m; sourceTree = "<group>"; };
 		EE6D3DDD137553CE003D5863 /* simple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = simple.m; path = test/simple.m; sourceTree = "<group>"; };

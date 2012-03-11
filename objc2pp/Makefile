@@ -11,7 +11,7 @@ all: build/scan.m build/gram.m
 
 build/y.tab.h build/gram.m:	gram.y
 	(cd build; bison $(YFLAGS) ../$<)
-	cp build/y.tab.c build/gram.m
+	sed 's-y.tab.c-build/gram.m-g'<build/y.tab.c >build/gram.m
 
 build/scan.m:	scan.l build/y.tab.h
 	flex -o build/scan.m $<
