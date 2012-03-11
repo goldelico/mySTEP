@@ -37,7 +37,7 @@
 - (Node *) parentWithType:(NSString *) type;	// search parent of type t (nil if not found)
 - (Node *) root;
 
-+ (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with Objective C source into AST and return root node
++ (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with (preprocessed!) Objective C source into AST and return root node
 
 @end
 

@@ -121,7 +121,7 @@ argument_expression_list
 
 unary_expression
 	: postfix_expression
-// FIXME: is ++(char *) x really invalid?
+// FIXME: is ++(char *) x really invalid and must be written as ++((char *) x)?
 	| INC_OP unary_expression { $$=node("++", 0, $2); }
 	| DEC_OP unary_expression { $$=node("--", 0, $2); }
 	| unary_operator cast_expression { $$=node(type($1), 0, $2); }

@@ -24,16 +24,18 @@
 		printf("%s", [[self value] UTF8String]);
 	else
 		{
-		[[self left] print:level+1];
-		if([self left] || [self right])
-			printf("%s", [t UTF8String]);
-		[[self right] print:level+1];
+		int l=level;
+		if([t isEqualToString:@"{"])
+			printf("\n"), l++;
+		[[self left] print:l];
+		printf("%s", [t UTF8String]);
+		[[self right] print:l];
 		if([t isEqualToString:@"("])
 			printf(")");
 		else if([t isEqualToString:@"["])
 			printf("]");
 		else if([t isEqualToString:@"{"])
-			printf("}");
+			printf("}\n");
 		}
 }
 
