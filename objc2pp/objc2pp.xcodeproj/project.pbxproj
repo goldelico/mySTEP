@@ -30,6 +30,8 @@
 		EE55BFDA1504DB9700BDF3F7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE4108520B956BA30065DD36 /* main.m */; };
 		EE55C0271504DF4100BDF3F7 /* gram.m in Sources */ = {isa = PBXBuildFile; fileRef = EE55C0251504DF4100BDF3F7 /* gram.m */; };
 		EE55C0281504DF4100BDF3F7 /* scan.m in Sources */ = {isa = PBXBuildFile; fileRef = EE55C0261504DF4100BDF3F7 /* scan.m */; };
+		EEEB70FF150DD753000EE2E5 /* Expression.h in Headers */ = {isa = PBXBuildFile; fileRef = EEEB70FD150DD753000EE2E5 /* Expression.h */; };
+		EEEB7100150DD753000EE2E5 /* Expression.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEB70FE150DD753000EE2E5 /* Expression.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +84,8 @@
 		EEEB4C461509E84D000EE2E5 /* special.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = special.m; path = test/special.m; sourceTree = "<group>"; };
 		EEEB4C5A1509E96A000EE2E5 /* test5.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test5.c; path = test/test5.c; sourceTree = "<group>"; };
 		EEEB4C5B1509E96A000EE2E5 /* test5.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = test5.i; path = test/test5.i; sourceTree = "<group>"; };
+		EEEB70FD150DD753000EE2E5 /* Expression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Expression.h; sourceTree = "<group>"; };
+		EEEB70FE150DD753000EE2E5 /* Expression.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Expression.m; sourceTree = "<group>"; };
 		EEFD77D40B957C83002EA6A8 /* test.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = test.m; path = test/test.m; sourceTree = "<group>"; };
 		EEFD871D0B95DA5B002EA6A8 /* ToDo */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ToDo; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -133,12 +137,14 @@
 		EE6D3DE3137553ED003D5863 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				EE4108530B956BA30065DD36 /* Makefile */,
 				EE4108510B956BA30065DD36 /* gram.y */,
 				EE4108540B956BA30065DD36 /* scan.l */,
 				EE08E5A110D7CE3200684837 /* node.h */,
 				EE22087E14EDB23500E78349 /* AST.h */,
 				EE6D6105137AF9E5007F7BD7 /* AST.m */,
-				EE4108530B956BA30065DD36 /* Makefile */,
+				EEEB70FD150DD753000EE2E5 /* Expression.h */,
+				EEEB70FE150DD753000EE2E5 /* Expression.m */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -193,6 +199,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE55BFCA1504DB5B00BDF3F7 /* AST.h in Headers */,
+				EEEB70FF150DD753000EE2E5 /* Expression.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,6 +344,7 @@
 				EE55BFCC1504DB6000BDF3F7 /* AST.m in Sources */,
 				EE55C0271504DF4100BDF3F7 /* gram.m in Sources */,
 				EE55C0281504DF4100BDF3F7 /* scan.m in Sources */,
+				EEEB7100150DD753000EE2E5 /* Expression.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

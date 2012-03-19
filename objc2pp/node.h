@@ -10,13 +10,16 @@ extern void popscope();		// pop scope
 
 // tree node management wrapper so that we can use integers as production values in the grammer
 
-int leaf(char *type, const char *name);		// create a leaf
+int leaf(char *type, const char *value);	// create a leaf
 int node(char *type, int left, int right);	// create a node
 
 const char *type(int node);
 void setType(int node, char *type);	// used for handling keywords
 int left(int node);
 int right(int node);
+int value(int node);
+const char *stringValue(int node);
+void setStringValue(int node, char *value);
 
 void process(int node);	// called for each declaration
 
@@ -35,6 +38,6 @@ void pop(int lifo);				// remove last entry
 
 int dictionary(void);	// create a (hashed) dictionary object
 int lookup(int dictionary, const char *word, char *type, int value);	// look up word and return node; if type>0 not found return a fresh leafnode with given type/code 
-int value(int node);
+void setkey(int dictionary, const char *key, int value);
 // char *keyword(int dictionary, int t);	// reverse look up of keyword for object with type t (NULL if not found)
 

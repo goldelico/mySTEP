@@ -20,7 +20,7 @@ static Node *get(int node)
 	return nodes[node-1];	/* nodes start counting at 1 */
 }
 
-int leaf(char *type, const char *name)
+int leaf(char *type, const char *value)
 { /* create a leaf node - name becomes the value */
 	int n;
 	if(nodecount >= nodecapacity)
@@ -36,7 +36,7 @@ int leaf(char *type, const char *name)
 				nodes=realloc(nodes, nodecapacity*sizeof(Node *));
 				}
 		}
-	nodes[nodecount]=[[Node alloc] initWithType:[NSString stringWithUTF8String:type] number:nodecount+1 value:name?[NSString stringWithUTF8String:name]:nil];	/* create new entry */
+	nodes[nodecount]=[[Node alloc] initWithType:[NSString stringWithUTF8String:type] number:nodecount+1 value:value?[NSString stringWithUTF8String:value]:nil];	/* create new entry */
 	nodecount++;
 	return nodecount;	/* returns node index + 1 */
 }
@@ -52,7 +52,9 @@ int node(char *type, int left, int right)
 
 const char *type(int node)
 {
-	return [[get(node) type] UTF8String];
+	NSString *t=[get(node) type];
+	if(!t) return "<null>";
+	return [t UTF8String];
 }
 
 void setType(int node, char *type)
@@ -65,9 +67,36 @@ int left(int node)
 	return [[get(node) left] number];
 }
 
+void setLeft(int node, int left)
+{
+	[get(node) setLeft:get(left)];
+}
+
 int right(int node)
 {
 	return [[get(node) right] number];
+}
+
+void setRight(int node, int right)
+{
+	[get(node) setRight:get(right)];
+}
+
+int value(int node)
+{
+	return [[get(node) value] intValue];
+}
+
+const char *stringValue(int node)
+{
+	NSString *val=[get(node) value];
+	if(!val) return "<nil>";
+	return [val UTF8String];
+}
+
+void setStringValue(int node, char *value)
+{
+	[get(node) setValue:[NSString stringWithUTF8String:value]];
 }
 
 /* list */
@@ -138,11 +167,6 @@ int lookup(int table, const char *word, char *type, int value)
 			[(NSMutableDictionary *) [get(table) value] setObject:get(s) forKey:key];		// create entry
 		}
 	return s;
-}
-
-int value(int node)
-{
-	return [[get(node) value] intValue];
 }
 
 #if OLDCODE

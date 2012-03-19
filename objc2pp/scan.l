@@ -216,7 +216,14 @@ void scaninit(void)
 	/* identifiers and keywords */
 
 {L}({L}|{D})*  { 
+	/*
+	 * symbol table entries are nodes with type "identifier"
+	 * value is the identifier name
+	 * left is the storage class (leaf node e.g. "static", "extern", "auto", "Class", "typedef")
+	 * right is the data type
+	 */
 	int s;
+	int n;
 	charCount();
 	if(!nokeyword)
 		{ // check for keywords
@@ -232,13 +239,23 @@ void scaninit(void)
 			}
 		}
 	nokeyword=0;
-	// loop through scope stack from end (most locally) to global - but add to deepest level only
-	s=lookup(first(scopestack), yytext, NULL, 0);
+	n=count(scopestack);
+	while(n-- >= 0)
+		{ // loop through scope stack from end (most locally) to global - but add to deepest level only
+			s=lookup(nth(scopestack, n), yytext, NULL, 0);
+			if(s)
+				break;
+		}
 	if(!s)
-		s=lookup(first(scopestack), yytext, "identifier", 0);	// add new identifier to most local level
+		{ // add new identifier (without type) to most local level
+			s=lookup(last(scopestack), yytext, "identifier", 0);
+			setStringValue(s, yytext);	// set symbol name
+		}
 	yylval=s;
-	if(right(s))
+	if(strcmp(type(left(s)), "typedef") == 0)
 		return TYPE_NAME;	/* in current scope this identifier is a typedef'd type name */
+	if(strcmp(type(left(s)), "Class") == 0)
+		return TYPE_NAME;	/* in current scope this identifier is a Class name */
 	return IDENTIFIER;
 } 
 

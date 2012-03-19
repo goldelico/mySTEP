@@ -562,7 +562,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) addTextContainer:(NSTextContainer *)container;
 {
-	[_textContainers addObject:container];
+	[self insertTextContainer:container atIndex:[_textContainers count]];
 }
 
 - (BOOL) allowsNonContiguousLayout; { return _allowsNonContiguousLayout; }
@@ -580,14 +580,13 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSRect) boundingRectForGlyphRange:(NSRange) glyphRange 
 					 inTextContainer:(NSTextContainer *) container;
 {
-	NSRect r=NSZeroRect;
+	NSRect r=[self usedRectForTextContainer:container];
+	NSRange cRange=[self glyphRangeForTextContainer:container];
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
 	[self ensureLayoutForGlyphRange:glyphRange];
-	// The range is intersected with the container's range before computing the bounding
-	// rectangle. This method can be used to translate glyph ranges into display rectangles
-	// for invalidation and redrawing when a range of glyphs changes.
-	// Bounding rectangles are always in container coordinates.
+		// intersect glyphRange and cRange
+	
 	while(glyphRange.length-- > 0)
 		{
 		if(_glyphs[glyphRange.location].textContainer != container)
@@ -648,6 +647,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	[_glyphGenerator release];
 	[_typesetter release];
 	[_textContainers release];
+	if(_textContainerInfo)
+		objc_free(_textContainerInfo);
 	[super dealloc];
 }
 
@@ -869,6 +870,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) ensureLayoutForTextContainer:(NSTextContainer *) textContainer;
 {
+	// FIXME:
 	[self ensureLayoutForCharacterRange:NSMakeRange(0, [_textStorage length])];
 }
 
@@ -1014,15 +1016,14 @@ static void allocateExtra(struct NSGlyphStorage *g)
  fractionOfDistanceThroughGlyph:(float *)partialFraction;
 {
 	unsigned int i;
+	NSRange cRange=[self glyphRangeForTextContainer:textContainer];
 	[self ensureLayoutForTextContainer:textContainer]; // additional layout
-	for(i=0; i<_numberOfGlyphs; i++)
+	while(cRange.length-- > 0)
 		{
-		if(_glyphs[i].textContainer != textContainer)
-			continue;	// different container
 		// check if point is within glyph
 		// if(partialFraction)
 		// calculate from location and width
-		
+		cRange.location++;
 		}
 	return NSNotFound;	
 }
@@ -1038,6 +1039,15 @@ static void allocateExtra(struct NSGlyphStorage *g)
 											 inTextContainer:(NSTextContainer *)container;
 {
 	NSRange r;
+	/* FIXME:
+	 NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:container];
+	 NSAssert(idx != NSNotFound, @"Text Container unknown for NSLayoutManager");
+	 _NSTextContainerInfo *info=_textContainerInfo[idx];
+	 if(!info.valid) // run layout
+	 // find glyphs within the bounds
+	 return info.glyphRange;
+	 */
+	
 	for(r.location=0; r.location < _numberOfGlyphs; r.location++)
 		if(_glyphs[r.location].textContainer == container && NSIntersectsRect(_glyphs[r.location].lineFragmentRect, bounds))
 			break;	// first glyph in this container found that falls into the bounds
@@ -1077,6 +1087,13 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSRange) glyphRangeForTextContainer:(NSTextContainer *)container;
 { // this can become quite slow if we have 10 Mio characters...
 	// so we should have some cache indexed by the container
+	/*
+	 NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:container];
+	 NSAssert(idx != NSNotFound, @"Text Container unknown for NSLayoutManager");
+	 _NSTextContainerInfo *info=_textContainerInfo[idx];
+	 if(!info.valid) // run layout
+	 return info.glyphRange;
+	 */
 	NSRange r;
 	[self ensureLayoutForTextContainer:container];
 	for(r.location=0; r.location < _numberOfGlyphs; r.location++)
@@ -1110,10 +1127,14 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) insertTextContainer:(NSTextContainer *)container atIndex:(unsigned)index;
 {
+	NSUInteger cnt=[_textContainers count];	// before insertion
 	[_textContainers insertObject:container atIndex:index];
 	if(index == 0)
 		_firstTextView=[container textView];	// has changed
-	// invalidate
+	_textContainerInfo=(struct _NSTextContainerInfo *) realloc(_textContainerInfo, sizeof(*_textContainerInfo)*(cnt+1));	// (re)allocate memory
+	if(index != cnt)
+		memmove(&_textContainerInfo[index+1], &_textContainerInfo[index], sizeof(*_textContainerInfo)*(cnt-index));	// make room for new slot
+	memset(_textContainers+index, 0, sizeof(*_textContainerInfo));	// clear new slot
 }
 
 - (int) intAttribute:(int)attributeTag forGlyphAtIndex:(unsigned)glyphIndex;
@@ -1298,10 +1319,12 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) removeTextContainerAtIndex:(unsigned)index;
 {
+	NSUInteger cnt=[_textContainers count];	// before removing
 	if(index == 0)
 		_firstTextView=nil;	// might have changed
 	[_textContainers removeObjectAtIndex:index];
-	// invalidate this and following containers
+	if(cnt != index+1)
+		memmove(&_textContainerInfo[index], &_textContainerInfo[index+1], sizeof(*_textContainerInfo)*(cnt-index-1));	// make room for new slot
 }
 
 - (void) replaceGlyphAtIndex:(unsigned)glyphIndex withGlyph:(NSGlyph)newGlyph;
@@ -1447,6 +1470,11 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) setTextContainer:(NSTextContainer *) container forGlyphRange:(NSRange) glyphRange;
 {
+	NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:container];
+	NSAssert(idx != NSNotFound, @"Text Container unknown in NSLayoutManager");
+	// FIXME: should we make the union of the glyph range?
+	// Should we ensure that the glyph range of adjacent containers is reduced?
+	_textContainerInfo[idx].glyphRange=glyphRange;
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
 	while(glyphRange.length-- > 0)
@@ -1560,13 +1588,6 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	[self invalidateDisplayForGlyphRange:[self glyphRangeForTextContainer:container]];
 }
 
-// FIXME
-
-// we should circle through containers touched by range
-// NOTE: the container rect might be very large if the container covers several 10-thousands lines
-// therefore, this algorithm must be very efficient
-// and there might be several thousand containers...
-
 - (NSTextContainer *) textContainerForGlyphAtIndex:(unsigned)glyphIndex effectiveRange:(NSRange *)effectiveGlyphRange;
 {
 	return [self textContainerForGlyphAtIndex:glyphIndex effectiveRange:effectiveGlyphRange withoutAdditionalLayout:NO];
@@ -1579,8 +1600,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	if(glyphIndex >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];
 	if(effectiveGlyphRange)
-		{ // search back/forth for effective range
-			
+		{ // get glyph range of text container
+			NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:_glyphs[glyphIndex].textContainer];
+			*effectiveGlyphRange=_textContainerInfo[idx].glyphRange;
 		}
 	return _glyphs[glyphIndex].textContainer;
 }
@@ -1624,28 +1646,14 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (NSRect) usedRectForTextContainer:(NSTextContainer *)container;
 {
-	// Returns the text container's currently used area, which determines
-	// the size that the view would need to be in order to display all the glyphs
-	// that are currently laid out in the container.
-	// This causes neither glyph generation nor layout.
-	
-	// Used rectangles are always in container coordinates.
-	
-	NSRect r=NSZeroRect;
-	unsigned int i;
-	BOOL any=NO;
-	for(i=0; i<_numberOfGlyphs; i++)
-		{
-		if(_glyphs[i].textContainer != container)
-			{
-			if(any)
-				break;	// does no longer match
-			continue;	// skip if not inside this container			
-			}
-		r=NSUnionRect(r, _glyphs[i].usedLineFragmentRect);
-		any=YES;
-		}
-	return r;	
+	NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:container];
+	_NSTextContainerInfo *info:
+	NSAssert(idx != NSNotFound, @"Text Container unknown for NSLayoutManager");
+	info=_textContainerInfo[idx];
+	//	 WARNING: if the layout algorithm can delete this container through a delegate, we have a problem to report...
+	if(!info.valid)
+		;// run layout
+	return info.usedRect;
 }
 
 - (BOOL) usesFontLeading; { return _usesFontLeading; }
@@ -1667,6 +1675,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 #endif
 	[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
 	_textContainers=[[coder decodeObjectForKey:@"NSTextContainers"] retain];
+	_textContainerInfo=calloc(sizeof(_textContainerInfo[0], [_textContainers count]);
 	_textStorage=[[coder decodeObjectForKey:@"NSTextStorage"] retain];
 	_typesetter=[[NSTypesetter sharedSystemTypesetter] retain];
 	_glyphGenerator=[[NSGlyphGenerator sharedGlyphGenerator] retain];

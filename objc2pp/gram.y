@@ -24,6 +24,15 @@
 	
 	int scope;	// scope list
 	int rootnode;
+	
+	int declaratorName;	// current declarator IDENTIFIER object
+	int currentDeclarationSpecifier;	// current storage class and base type (e.g. static int)
+
+	int structNames;	// struct namespace (dictionary)
+	/* is there a separate namespace for unions? */
+	int enumNames;		// enum namespace (dictionary)
+	int classNames;		// Class namespace (dictionary)
+	int protocolNames;	// @protocol namespace (dictionary)
 
 %}
 
@@ -355,27 +364,18 @@ objc_declaration
 
 declaration
 	: declaration_specifiers ';'  { $$=node(";", $1, 0); }
-	| declaration_specifiers init_declarator_list ';'  { $$=node(";", node(" ", $1, $2), 0); }
+	| declaration_specifiers { currentDeclarationSpecifier=$1; } init_declarator_list ';'  { $$=$3; }
 	| objc_declaration
 	;
+
+/* a type can be a mix of storage class, types and qualifiers (e.g. const) */
 
 declaration_specifiers
 	: storage_class_specifier
 	| storage_class_specifier declaration_specifiers
-		{
-		if($1 == TYPEDEF)
-			{
-//			setRight($2, $$);	/* make it a TYPE_NAME */
-			// setType(declaratorname, "typedef")
-			$$=node(" ", 0, 0);	/* eat all typedef declarations since we expand them */
-			}
-		else
-			{
-			$$=node(" ", $1, $2);
-			}
-		}
-	| type_specifier
-	| type_specifier declaration_specifiers  { $$=node(" ", $1, 0); }
+	| type_specifier_list declaration_specifiers  { $$=node(" ", $1, $2); }
+	| storage_class_specifier type_specifier_list declaration_specifiers  { $$=node(" ", $1, 0); }
+	| type_specifier_list storage_class_specifier declaration_specifiers  { $$=node(" ", $1, 0); }
 	| type_qualifier
 	| type_qualifier declaration_specifiers  { $$=node(" ", $1, 0); }
 	;
@@ -386,48 +386,51 @@ init_declarator_list
 	;
 
 init_declarator
-	: declarator
-	| declarator '=' initializer  { $$=node("=", $1, $3); }
+	: declarator { /* process declarator, expecially typedef */ }
+	| declarator '=' initializer  { /* check if it can be initialized */ $$=node("=", $1, $3); }
 	;
 
 storage_class_specifier
-	: TYPEDEF
-	| EXTERN
-	| STATIC
-	| AUTO
-	| REGISTER
+	: TYPEDEF { $$=leaf("typedef", NULL); }
+	| EXTERN { $$=leaf("extern", NULL); }
+	| STATIC { $$=leaf("static", NULL); }
+	| AUTO { $$=leaf("auto", NULL); }
+	| REGISTER { $$=leaf("register", NULL); }
 	;
 
 protocol_list
-	: IDENTIFIER
+	: IDENTIFIER  { /* save identifier */ }
 	| protocol_list ',' IDENTIFIER  { $$=node(",", $1, $3); }
 
+type_specifier_list
+	: type_specifier { $$=$1; }
+	| type_specifier type_specifier_list { setRight($1, $2); $$=$1; }
+
 type_specifier
-	: VOID	{ $$=node("void", 0, 0); }
-	| CHAR	{ $$=node("char", 0, 0); }
-	| SHORT	{ $$=node("short", 0, 0); }
-	| INT	{ $$=node("int", 0, 0); }
-	| LONG	{ $$=node("long", 0, 0); }
-	| FLOAT	{ $$=node("float", 0, 0); }
-	| DOUBLE	{ $$=node("double", 0, 0); }
-	| SIGNED	{ $$=node("signed", 0, 0); }
-	| UNSIGNED	{ $$=node("unsigned", 0, 0); }
+	: VOID	{ $$=leaf("void", NULL); }
+	| CHAR	{ $$=leaf("char", NULL); }
+	| SHORT	{ $$=leaf("short", NULL); }
+	| INT	{ $$=leaf("int", NULL); }
+	| LONG	{ $$=leaf("long", NULL); }
+	| FLOAT	{ $$=leaf("float", NULL); }
+	| DOUBLE	{ $$=leaf("double", NULL); }
+	| SIGNED	{ $$=leaf("signed", NULL); }
+	| UNSIGNED	{ $$=leaf("unsigned", NULL); }
 	| struct_or_union_specifier
 	| enum_specifier
-	| TYPE_NAME		{ /* $$=right($1); */ }
+	| TYPE_NAME		{ $$=right($1); }
 	| { objctype=1; } ID	{ $$=node("id", 0, 0); }
 	| { objctype=1; } ID '<' protocol_list '>'	{ $$=node("id", 0, $3); }
-	| { objctype=1; } SELECTOR	{ $$=node("SEL", 0, 0); }
-	| { objctype=1; } BOOLTYPE	{ $$=node("BOOL", 0, 0); }
-	| { objctype=1; } UNICHAR	{ $$=node("unichar", 0, 0); }
-	| { objctype=1; } CLASS	{ $$=node("Class", 0, 0); }
+	| { objctype=1; } SELECTOR	{ $$=leaf("SEL", NULL); }
+	| { objctype=1; } BOOLTYPE	{ $$=leaf("BOOL", NULL); }
+	| { objctype=1; } UNICHAR	{ $$=leaf("unichar", NULL); }
+	| { objctype=1; } CLASS	{ $$=leaf("Class", NULL); }
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'  { $$=node(type($1), $2, $3); /*
-																								setRight($2, $$);*/; /* add to struct symbol table */ }
+	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'  { $$=node(type($1), $2, $3); /* accept only forward defines */ setkey(structNames, name($2), $$); }
 	| struct_or_union '{' struct_declaration_list '}'  { $$=node(type($1), 0, $3); }
-	| struct_or_union IDENTIFIER  { $$=node(type($1), $2, 0); /*setRight($2, $$);*/; /* add to struct symbol table */ }
+	| struct_or_union IDENTIFIER { /* lookup in structNames or forward-define */ $$=node(type($1), $2, 0); }
 	;
 
 struct_or_union
@@ -516,7 +519,7 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER
+	: IDENTIFIER { $$=declaratorName=$1; }
 	| '(' declarator ')'  { $$=node("(", 0, $2); }
 	| direct_declarator '[' constant_expression ']'  { $$=node("[", $1, $3); }
 	| direct_declarator '[' ']'  { $$=node("[", $1, 0); }

@@ -114,6 +114,16 @@ typedef NSInteger NSTypesetterBehavior;
 		BOOL validFlag;		// Glyph is valid
 		BOOL layoutFlag;	// Layout information is valid
 	} *_glyphs;		// glyph storage array - it should be possible to define a sparse array!
+	
+	/* this can be used to speed up e.g. glyphRangeForTextContainer */
+	
+	struct _NSTextContainerInfo {
+		NSRange glyphRange;
+		NSRange characterRange;
+		NSRect usedRect;
+		BOOL valid;
+	} *_textContainerInfo; // there is one slot for each text container
+
 	unsigned int _numberOfGlyphs;
 	unsigned int _glyphBufferCapacity;
 

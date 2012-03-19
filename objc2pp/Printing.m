@@ -19,7 +19,17 @@
 {
 	NSString *t=[self type];
 	if([t isEqualToString:@"identifier"])
-		printf("%s", [[self value] UTF8String]);
+		{
+		if([self left] || [self right])
+			{
+			printf("/* ");
+			[[self left] print:level];	// storage class
+			printf(" ");
+			[[self right] print:level];	// type tree
+			printf("*/");				
+			}
+		printf("%s", [[self value] UTF8String]);		
+		}
 	else if([t isEqualToString:@"constant"])
 		printf("%s", [[self value] UTF8String]);
 	else
