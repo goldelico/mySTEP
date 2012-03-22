@@ -341,6 +341,9 @@
 		EE1FA36114A88641002A1AA1 /* CircleView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE1FA35E14A88641002A1AA1 /* CircleView.m */; };
 		EE20F93F0F8BC28E00BA8E28 /* StandardKeyBinding.dict in Resources */ = {isa = PBXBuildFile; fileRef = EE20F93E0F8BC28E00BA8E28 /* StandardKeyBinding.dict */; };
 		EE20F9400F8BC28E00BA8E28 /* StandardKeyBinding.dict in Resources */ = {isa = PBXBuildFile; fileRef = EE20F93E0F8BC28E00BA8E28 /* StandardKeyBinding.dict */; };
+		EE22B2B5151B166900E3BAF9 /* paper_clip.png in Resources */ = {isa = PBXBuildFile; fileRef = EE22B2B4151B166900E3BAF9 /* paper_clip.png */; };
+		EE22B2B6151B166900E3BAF9 /* paper_clip.png in Resources */ = {isa = PBXBuildFile; fileRef = EE22B2B4151B166900E3BAF9 /* paper_clip.png */; };
+		EE22B2B7151B166900E3BAF9 /* paper_clip.png in Resources */ = {isa = PBXBuildFile; fileRef = EE22B2B4151B166900E3BAF9 /* paper_clip.png */; };
 		EE291C7C0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE291C7A0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE291C7D0AD7C0EE004A1CA6 /* NSSpeechSynthesizer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE291C7B0AD7C0EE004A1CA6 /* NSSpeechSynthesizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE291C7E0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h in Headers */ = {isa = PBXBuildFile; fileRef = EE291C7A0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1204,6 +1207,7 @@
 		EE1FA35D14A88641002A1AA1 /* CircleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CircleView.h; path = ../../Applications/Samples/CircleView/CircleView.h; sourceTree = SOURCE_ROOT; };
 		EE1FA35E14A88641002A1AA1 /* CircleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CircleView.m; path = ../../Applications/Samples/CircleView/CircleView.m; sourceTree = SOURCE_ROOT; };
 		EE20F93E0F8BC28E00BA8E28 /* StandardKeyBinding.dict */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = StandardKeyBinding.dict; sourceTree = "<group>"; };
+		EE22B2B4151B166900E3BAF9 /* paper_clip.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = paper_clip.png; path = ../../Applications/myMail/Icons/paper_clip.png; sourceTree = SOURCE_ROOT; };
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.make; };
 		EE291C7A0AD7C0EE004A1CA6 /* NSSpeechRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSSpeechRecognizer.h; sourceTree = "<group>"; };
 		EE291C7B0AD7C0EE004A1CA6 /* NSSpeechSynthesizer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSSpeechSynthesizer.h; sourceTree = "<group>"; };
@@ -2387,6 +2391,7 @@
 				EEDB37850ABD584F00C31F1E /* myTest.icns */,
 				EEDB378F0ABD592900C31F1E /* rss.gif */,
 				EE5B8C1F0E9015F300264951 /* info_16.png */,
+				EE22B2B4151B166900E3BAF9 /* paper_clip.png */,
 				EE294BFE0E4586B100F2D481 /* Toolbar.plist */,
 				EE31970409AB7E8B0089A9A2 /* InfoPlist.strings */,
 				EE31970609AB7E8B0089A9A2 /* MainMenu.nib */,
@@ -3184,6 +3189,7 @@
 				EEEBB1DE0CF4C279003B9D6E /* 1bK Copy.png in Resources */,
 				EE294BFF0E4586B100F2D481 /* Toolbar.plist in Resources */,
 				EE5B8C220E9015F300264951 /* info_16.png in Resources */,
+				EE22B2B5151B166900E3BAF9 /* paper_clip.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3295,6 +3301,7 @@
 				EEEBB1DD0CF4C279003B9D6E /* 1bK Copy.png in Resources */,
 				EE294C000E4586B100F2D481 /* Toolbar.plist in Resources */,
 				EE5B8C210E9015F300264951 /* info_16.png in Resources */,
+				EE22B2B6151B166900E3BAF9 /* paper_clip.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3311,6 +3318,7 @@
 				EEEBB1DF0CF4C279003B9D6E /* 1bK Copy.png in Resources */,
 				EE294C010E4586B100F2D481 /* Toolbar.plist in Resources */,
 				EE5B8C200E9015F300264951 /* info_16.png in Resources */,
+				EE22B2B7151B166900E3BAF9 /* paper_clip.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

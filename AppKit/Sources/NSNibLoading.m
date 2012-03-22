@@ -849,7 +849,11 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 - (id) unarchiver:(NSKeyedUnarchiver *)unarchiver didDecodeObject:(id)object
 {
 #if 0
-	NSLog(@"unarchiver:%@ didDecodeObject:%@", unarchiver, object);
+	NS_DURING
+		NSLog(@"unarchiver:%@ didDecodeObject:%@", unarchiver, object);
+	NS_HANDLER
+		NSLog(@"unarchiver:%@ didDecodeObject:%@", unarchiver, NSStringFromClass([object class]));
+	NS_ENDHANDLER
 #endif
 	if([decodedObjects indexOfObjectIdenticalTo:object] != NSNotFound)
 		{
@@ -857,7 +861,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 			return object;
 		}
 	if(![decodedObjects containsObject:object])
-		[decodedObjects addObject:object];	// keep it unique (should we use a NSMutableSet?)
+		[decodedObjects addObject:object];	// keep it unique (should we use a NSMutableSet for better speed?)
 	return object;
 }
 

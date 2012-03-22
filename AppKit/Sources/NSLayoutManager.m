@@ -1154,10 +1154,10 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	[_textContainers insertObject:container atIndex:index];
 	if(index == 0)
 		_firstTextView=[container textView];	// has changed
-	_textContainerInfo=(struct _NSTextContainerInfo *) realloc(_textContainerInfo, sizeof(*_textContainerInfo)*(cnt+1));	// (re)allocate memory
+	_textContainerInfo=(struct _NSTextContainerInfo *) objc_realloc(_textContainerInfo, sizeof(_textContainerInfo[0])*(cnt+1));	// (re)allocate memory
 	if(index != cnt)
-		memmove(&_textContainerInfo[index+1], &_textContainerInfo[index], sizeof(*_textContainerInfo)*(cnt-index));	// make room for new slot
-	memset(_textContainers+index, 0, sizeof(*_textContainerInfo));	// clear new slot
+		memmove(&_textContainerInfo[index+1], &_textContainerInfo[index], sizeof(_textContainerInfo[0])*(cnt-index));	// make room for new slot
+	memset(&_textContainerInfo[index], 0, sizeof(_textContainerInfo[0]));	// clear new slot
 }
 
 - (int) intAttribute:(int)attributeTag forGlyphAtIndex:(unsigned)glyphIndex;
@@ -1347,7 +1347,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		_firstTextView=nil;	// might have changed
 	[_textContainers removeObjectAtIndex:index];
 	if(cnt != index+1)
-		memmove(&_textContainerInfo[index], &_textContainerInfo[index+1], sizeof(*_textContainerInfo)*(cnt-index-1));	// make room for new slot
+		memmove(&_textContainerInfo[index], &_textContainerInfo[index+1], sizeof(_textContainerInfo[0])*(cnt-index-1));	// make room for new slot
 }
 
 - (void) replaceGlyphAtIndex:(unsigned)glyphIndex withGlyph:(NSGlyph)newGlyph;
@@ -1698,7 +1698,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 #endif
 	[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
 	_textContainers=[[coder decodeObjectForKey:@"NSTextContainers"] retain];
-	_textContainerInfo=calloc(sizeof(_textContainerInfo[0]), [_textContainers count]);
+	_textContainerInfo=objc_calloc(sizeof(_textContainerInfo[0]), [_textContainers count]);
 	_textStorage=[[coder decodeObjectForKey:@"NSTextStorage"] retain];
 	_typesetter=[[NSTypesetter sharedSystemTypesetter] retain];
 	_glyphGenerator=[[NSGlyphGenerator sharedGlyphGenerator] retain];
