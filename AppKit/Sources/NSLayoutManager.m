@@ -487,6 +487,29 @@ static unsigned int _oldGlyphBufferCapacity;
 - (void) drawGlyphsForGlyphRange:(NSRange)glyphsToShow 
 						 atPoint:(NSPoint)origin;		// top left of the text container (in flipped coordinates)
 {
+#if 0
+	{	// FIXME: this needs to know more inforation
+		NSParagraphStyle *para=[[_textStorage attributesAtIndex:0 effectiveRange:NULL] objectForKey:NSParagraphStyleAttributeName];
+		switch([para alignment])
+		{
+			case NSLeftTextAlignment:
+			case NSNaturalTextAlignment:
+			break;
+			case NSRightTextAlignment:
+			case NSCenterTextAlignment:
+			case NSJustifiedTextAlignment:
+			{
+			NSSize size=[_textStorage boundingRectForGlyphRange:[self glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
+																						 actualCharacterRange:NULL]
+												  inTextContainer:[_textContainers objectAtIndex:0]].size;
+			if([para alignment] == NSRightTextAlignment)
+				origin.x = NSMaxX(rect)-size.width-2.0;	// start at right edge
+			else
+				origin.x += (rect.size.width-size.width)/2-1.0;	// center
+			}
+		}
+	}
+#endif
 	[self _draw:YES glyphsForGlyphRange:glyphsToShow atPoint:origin findPoint:NSZeroPoint foundAtPos:NULL];
 }
 
@@ -1647,13 +1670,13 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSRect) usedRectForTextContainer:(NSTextContainer *)container;
 {
 	NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:container];
-	_NSTextContainerInfo *info:
+	struct _NSTextContainerInfo *info;
 	NSAssert(idx != NSNotFound, @"Text Container unknown for NSLayoutManager");
-	info=_textContainerInfo[idx];
+	info=&_textContainerInfo[idx];
 	//	 WARNING: if the layout algorithm can delete this container through a delegate, we have a problem to report...
-	if(!info.valid)
+	if(!info->valid)
 		;// run layout
-	return info.usedRect;
+	return info->usedRect;
 }
 
 - (BOOL) usesFontLeading; { return _usesFontLeading; }
@@ -1675,7 +1698,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 #endif
 	[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
 	_textContainers=[[coder decodeObjectForKey:@"NSTextContainers"] retain];
-	_textContainerInfo=calloc(sizeof(_textContainerInfo[0], [_textContainers count]);
+	_textContainerInfo=calloc(sizeof(_textContainerInfo[0]), [_textContainers count]);
 	_textStorage=[[coder decodeObjectForKey:@"NSTextStorage"] retain];
 	_typesetter=[[NSTypesetter sharedSystemTypesetter] retain];
 	_glyphGenerator=[[NSGlyphGenerator sharedGlyphGenerator] retain];

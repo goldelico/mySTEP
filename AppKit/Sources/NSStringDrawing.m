@@ -166,7 +166,7 @@ static NSAttributedString *_currentString;
 	NSLog(@"drawWithRect:options: %@", self);
 #endif
 #if 1
-	{	// FIXME: should be processed by layoutManager
+	{	// FIXME: this should have been processed by layoutManager
 		NSParagraphStyle *para=[[self attributesAtIndex:0 effectiveRange:NULL] objectForKey:NSParagraphStyleAttributeName];
 		switch([para alignment])
 			{
@@ -191,8 +191,6 @@ static NSAttributedString *_currentString;
 	[_layoutManager drawGlyphsForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
 																   actualCharacterRange:NULL]
 									atPoint:rect.origin];
-	// underline...
-	// strikethrough...
 	[ctxt restoreGraphicsState];
 	if(options&NSStringDrawingOneShot)
 			{ // remove

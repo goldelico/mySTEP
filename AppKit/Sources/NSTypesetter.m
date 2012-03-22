@@ -887,7 +887,7 @@ forStartOfGlyphRange:(NSRange) range;
 		if(curGlyphIndex >= firstInvalidGlyphIndex)
 			return NSLayoutOutOfGlyphs;
 		glyphInfo=NSGlyphInfoAtIndex(curGlyphIndex);
-		glyphInfo->curLocation=(NSPoint) { curGlyphOffset, *baseline+[[attribs objectForKey:NSBaselineOffsetAttributeName] floatValue] };
+		glyphInfo->curLocation=(NSPoint) { curGlyphOffset, *baseline+[[attrs objectForKey:NSBaselineOffsetAttributeName] floatValue] };
 		glyphInfo->font=curFont;
 		glyphInfo->glyphCharacterIndex=curCharacterIndex;
 		*((unsigned char *) &glyphInfo->_giflags)=0;
