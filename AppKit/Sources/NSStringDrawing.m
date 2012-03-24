@@ -154,6 +154,7 @@ static NSAttributedString *_currentString;
 - (void) drawWithRect:(NSRect) rect options:(NSStringDrawingOptions) options;
 { // draw with line breaks within box defined by rect - might clip if lines are too long
 	NSGraphicsContext *ctxt;
+	NSRange rng;
 	if([self length] == 0)
 		return;	// empty string
 	[self _setupWithRect:rect options:options];
@@ -188,9 +189,10 @@ static NSAttributedString *_currentString;
 			}
 	}
 #endif
-	[_layoutManager drawGlyphsForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
-																   actualCharacterRange:NULL]
-									atPoint:rect.origin];
+	rng=[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
+							   actualCharacterRange:NULL];
+	[_layoutManager drawBackgroundForGlyphRange:rng atPoint:rect.origin];
+	[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];
 	[ctxt restoreGraphicsState];
 	if(options&NSStringDrawingOneShot)
 			{ // remove

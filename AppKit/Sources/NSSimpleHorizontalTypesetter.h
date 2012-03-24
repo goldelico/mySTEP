@@ -22,16 +22,23 @@
 
 typedef enum _NSLayoutStatus
 {
-	NSLayoutNotDone = 0,
-	NSLayoutDone,
-	NSLayoutCantFit,
-	NSLayoutOutOfGlyphs
+	NSLayoutNotDone = 0,	// line fragment rect fully filled + more glyphs (for another fragment)
+	NSLayoutDone,			// all gyphs did fit into the rect (last fragment of this paragraph)
+	NSLayoutCantFit,		// current glyph is too big to fit
+	NSLayoutOutOfGlyphs		// last line was laid out (extra fragment)
 } NSLayoutStatus;
 
-typedef enum _NSGlyphLayoutMode { NSGlyphLayoutAtAPoint = 0, NSGlyphLayoutAgainstAPoint, NSGlyphLayoutWithPrevious
+typedef enum _NSGlyphLayoutMode
+{
+	NSGlyphLayoutAtAPoint = 0,
+	NSGlyphLayoutAgainstAPoint,
+	NSGlyphLayoutWithPrevious
 } NSGlyphLayoutMode;
 
-typedef enum _NSLayoutDirection { NSLayoutLeftToRight = 0, NSLayoutRightToLeft
+typedef enum _NSLayoutDirection
+{
+	NSLayoutLeftToRight = 0,
+	NSLayoutRightToLeft
 } NSLayoutDirection;
 
 typedef struct _NSTypesetterGlyphInfo
@@ -67,21 +74,22 @@ typedef struct _NSTypesetterGlyphInfo
 	NSRect curFontBoundingBox;
 	NSSize curFontAdvancement;
 	float curGlyphOffset;			// glyph layout cursor (x of next glyph)
-	float curMaxGlyphLocation;		// max width of line fragment
+	float curMaxGlyphLocation;		// max width of line fragment (i.e. mix of indent and [curContainer size].width)
 	float curContainerLineFragmentPadding;	// [curContainer lineFragmentPadding]
 	float curSpaceAfter;			// cached [attrs objectForKey:NSKernAttributeName]
+	float curBaselineOffset;		// cached [attrs objectForKey:NSBaselineOffsetAttributeName] 
 	float curMinLineHeight;			// cached [curParaStyle minLineHeight]
 	float curMaxLineHeight;			// cached [curParaStyle maxLineHeight]
 	NSGlyph previousGlyph;
 	NSGlyph curGlyph;
-	unsigned firstGlyphIndex;		// index of first glyph in glyphs array
-	unsigned curGlyphIndex;			// current glyph being processed (index in glyphs[])
-	unsigned firstInvalidGlyphIndex;	// first invalid index in glyphs[]
+	unsigned firstGlyphIndex;		// relative index of first glyph in glyphs array
+	unsigned curGlyphIndex;			// current glyph being processed (relative index in glyphs[])
+	unsigned firstInvalidGlyphIndex;	// first invalid index in glyphs[] - i.e. number of used entries
 	unsigned capacityGlyphInfo;		// capacity of glyph[] cache
 	unsigned sizeOfGlyphInfo;		// sizeof(NSTypesetterGlyphInfo)
-	unsigned curCharacterIndex;		// current character index being processed
+	unsigned curCharacterIndex;		// current character index (absolute) being processed
 	unsigned curContainerIndex;		// index into [layoutManager textContainers]
-	unsigned firstIndexOfCurrentLineFragment;	// glyph index where current line fragment starts
+	unsigned firstIndexOfCurrentLineFragment;	// absolute glyph index where current line fragment starts
 	NSLayoutDirection curLayoutDirection;		// [curParaStyle baseWritingDirection]
 	NSTextAlignment curTextAlignment;			// [curParaStyle alignment]
 	int curSuperscript;				// [attrs objectForKey:NSSuperscriptAttributeName]
@@ -92,22 +100,21 @@ typedef struct _NSTypesetterGlyphInfo
 	/* unknown what it is good for */
 	unsigned int *glyphCache;
 	int *glyphInscriptionCache;
-	int glyphLayoutMode;
-	unsigned int *glyphCharacterIndexCache;
+	NSGlyphLayoutMode glyphLayoutMode;
+	unsigned int *glyphCharacterIndexCache;	// local mapping from glyph index to character index?
 	char *glyphElasticCache;
-	struct _NSSize glyphLocationOffset;
+	struct _NSSize glyphLocationOffset;	// is this the accumulation of glyph location, baseline, kerning etc. before typesetterLaidOneGlyph is called?
 	unsigned int lastFixedGlyphIndex;
 	int curGlyphInscription;
 	unsigned int previousBaseGlyphIndex;
 	unsigned int previousBaseGlyph;
 	BOOL curGlyphOffsetOutOfDate;
 	BOOL curGlyphIsAControlGlyph;
-	BOOL containerBreakAfterCurGlyph;
+	BOOL containerBreakAfterCurGlyph;	// can be set to YES in typesetterLaidOneGlyph subclass
 	BOOL wrapAfterCurGlyph;
 	float previousSpaceAfter;
 	void *curFontPositionOfGlyphMethod;
-	float curBaselineOffset;
-	float curMinBaselineDistance;
+	float curMinBaselineDistance;		// something accumulated? Used to determine required fragment height?
 	float curMaxBaselineDistance;
 	float curGlyphExtentAboveLocation;
 	float curGlyphExtentBelowLocation;

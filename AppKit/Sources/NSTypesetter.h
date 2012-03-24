@@ -149,4 +149,6 @@ forStartOfGlyphRange:(NSRange) range;
 
 @end
 
+#import <AppKit/NSSimpleHorizontalTypesetter.h>	// for compatibility
+
 #endif /* _mySTEP_H_NSTypesetter */

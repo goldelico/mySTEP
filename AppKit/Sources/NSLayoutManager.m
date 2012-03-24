@@ -18,7 +18,7 @@
 #import "NSBackendPrivate.h"
 #import "NSSimpleHorizontalTypesetter.h"
 
-#define OLD	1
+#define OLD	0
 
 @implementation NSGlyphGenerator
 
@@ -56,7 +56,7 @@
 					glyphs[0]=NSControlGlyph;
 				else
 					glyphs[0]=[font _glyphForCharacter:c];
-				// if we need multiple glyphs for a single character, insert more than one!
+				// if we need multiple glyphs for a single character (ligatures), insert more than one!
 				// but how do we know that??? Does the font ever report that???
 				[storage insertGlyphs:glyphs length:numGlyphs forStartingGlyphAtIndex:*glyphIndex characterIndex:*index];
 				(*glyphIndex)+=numGlyphs;	// inc. by number of glyphs
@@ -603,19 +603,14 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSRect) boundingRectForGlyphRange:(NSRange) glyphRange 
 					 inTextContainer:(NSTextContainer *) container;
 {
-	NSRect r=[self usedRectForTextContainer:container];
+	NSRect r=NSZeroRect /*[self usedRectForTextContainer:container]*/;
 	NSRange cRange=[self glyphRangeForTextContainer:container];
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
 	[self ensureLayoutForGlyphRange:glyphRange];
-		// intersect glyphRange and cRange
-	
+	glyphRange=NSIntersectionRange(glyphRange, cRange);	// take glyphs within given container
 	while(glyphRange.length-- > 0)
-		{
-		if(_glyphs[glyphRange.location].textContainer != container)
-			continue;	// skip if not inside this container
 		r=NSUnionRect(r, _glyphs[glyphRange.location++].usedLineFragmentRect);
-		}
 	return r;
 }
 
@@ -633,6 +628,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (unsigned) characterIndexForGlyphAtIndex:(unsigned)glyphIndex;
 {
+	if(glyphIndex == 0)
+		return 0;
 	if(glyphIndex >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];
 	return _glyphs[glyphIndex].characterIndex;
@@ -739,13 +736,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		unsigned int cindex=[self characterIndexForGlyphAtIndex:glyphsToShow.location];
 		NSRange attribRange;	// range of same attributes
 		NSDictionary *attribs=[_textStorage attributesAtIndex:cindex effectiveRange:&attribRange];
-		NSColor *color=[attribs objectForKey:NSForegroundColorAttributeName];
-		NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
-		int count=0;
 		NSGlyph *glyphs;
-		NSPoint pos=[self locationForGlyphAtIndex:glyphsToShow.location];
-		if(!color) color=[NSColor blackColor];	// default color is black
-		if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
+		int count=0;
 		/*
 		 NSTextAttachment *attachment=[attributes objectForKey:NSAttachmentAttributeName];
 		 if(attachment){
@@ -769,8 +761,15 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			}
 		if(count > 0)
 			{
-			pos.x+=origin.x;
-			pos.y+=origin.y;	// translate container
+			NSRect lfr=[self lineFragmentRectForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];
+			NSPoint pos=[self locationForGlyphAtIndex:glyphsToShow.location];	// location within its line fragment
+			// color and font should also be cached for each glyph position!?!
+			NSColor *color=[attribs objectForKey:NSForegroundColorAttributeName];
+			NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
+			if(!color) color=[NSColor blackColor];	// default color is black
+			if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
+			pos.x+=lfr.origin.x+origin.x;
+			pos.y+=lfr.origin.y+origin.y;	// translate container
 			glyphs=objc_malloc(sizeof(*glyphs)*(count+1));	// stores NSNullGlyph at end
 			[self getGlyphs:glyphs range:NSMakeRange(glyphsToShow.location, count)];
 			if(color != lastColor) [lastColor=color set];
@@ -1020,6 +1019,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSUInteger) glyphIndexForCharacterAtIndex:(NSUInteger) index;
 {
 	unsigned int i;
+	if(index == 0)
+		return 0;
 	// generate glyphs if needed
 	if(index >= [_textStorage length])
 		return index-[_textStorage length]+_numberOfGlyphs;	// extrapolate

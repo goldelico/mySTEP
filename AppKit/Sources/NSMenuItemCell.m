@@ -70,7 +70,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 
 - (void) drawInteriorWithFrame:(NSRect) frame inView:(NSView *) view;
 { // main interface for drawing
-#if 1
+#if 0
 	NSLog(@"drawInteriorWithFrame:%@ - %@", NSStringFromRect(frame), self);
 #endif
 	if(!needsDisplay)

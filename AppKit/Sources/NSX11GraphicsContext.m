@@ -1628,7 +1628,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XDestroyImage(img);
 	// distinguish between character and word spacing
 	[_textMatrix translateXBy:width+_characterSpace
-												yBy:0.0];		// advance text matrix in horizontal mode according to info from glyph
+						  yBy:0.0];		// advance text matrix in horizontal mode according to info from glyph
 }
 
 - (void) _drawGlyphs:(NSGlyph *) glyphs count:(unsigned) cnt;	// (string) Tj

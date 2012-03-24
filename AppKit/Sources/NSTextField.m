@@ -122,7 +122,7 @@
 		else
 			cellFrame = NSInsetRect(cellFrame, 1, 1);
 		}
-#if 1
+#if 0
 	NSLog(@"-[super drawInteriorWithFrame:%@", NSStringFromRect(cellFrame));
 #endif
 	[super drawInteriorWithFrame:cellFrame inView:controlView];  // default (formatted) drawing method of NSCell

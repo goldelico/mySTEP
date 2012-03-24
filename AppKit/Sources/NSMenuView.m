@@ -757,7 +757,7 @@
 	for(i=0; i<nc; i++)
 		{ // go through cells and draw them at their calculated position - if needed (needsDisplay of cell)
 		NSRect cRect=[self rectOfItemAtIndex:i];	// get cell rectangle
-#if 1
+#if 0
 		NSLog(@"menu=%@", _menumenu);
 		NSLog(@"menuitem=%@", [_menumenu itemAtIndex:0]);
 		NSLog(@"menuitem title=%@", [[_menumenu itemAtIndex:0] title]);
