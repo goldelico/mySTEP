@@ -29,6 +29,8 @@ typedef enum _NSPropertyListMutabilityOptions
 
 typedef enum _NSPropertyListFormat
 {
+	NSPropertyListJSONPrettyPrintedFormat=-4,	// extension: pretty printed JSON format
+	NSPropertyListJSONFormat=-3,		// extension: tight JSON format
 	NSPropertyListStringFileFormat=-2,	// extension: StringFile format
 	NSPropertyListAnyFormat=-1,			// extension: try to determine format
 	NSPropertyListXMLFormat_v1_0,		// tried first when NSPropertyListAnyFormat is specified because most probable
