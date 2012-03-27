@@ -75,6 +75,8 @@
 		EE6D46C60DEB1BEB00399D29 /* NSXMLDTDNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F57F0DA2C1A40007817B /* NSXMLDTDNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE6D46C70DEB1BEF00399D29 /* NSXMLElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F5810DA2C1A40007817B /* NSXMLElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE6D46C80DEB1BF400399D29 /* NSXMLNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 1F73F5830DA2C1A40007817B /* NSXMLNode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE6D869F15222673004F9394 /* NSJSONSerialization.h in Headers */ = {isa = PBXBuildFile; fileRef = EE6D869D15222673004F9394 /* NSJSONSerialization.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE6D86A015222673004F9394 /* NSJSONSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6D869E15222673004F9394 /* NSJSONSerialization.m */; };
 		EE79057F0BCE873C00A35703 /* NSNumberFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = EE79057E0BCE873C00A35703 /* NSNumberFormatter.m */; };
 		EE8CDDE50F404B0600790C18 /* NSXMLNodeOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8CDDE40F404B0600790C18 /* NSXMLNodeOptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEA925860C0B004500A846D2 /* alphanum.charSet in Resources */ = {isa = PBXBuildFile; fileRef = EEA9257B0C0B004500A846D2 /* alphanum.charSet */; };
@@ -343,6 +345,8 @@
 		EE27270005426A7F0000013C /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.make; };
 		EE2FDF2709770599003EA8A2 /* NSLocale.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSLocale.m; path = Sources/NSLocale.m; sourceTree = "<group>"; };
 		EE6954250A34312B00E0C6C0 /* NSKeyValueObserving.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = NSKeyValueObserving.m; path = Sources/NSKeyValueObserving.m; sourceTree = "<group>"; };
+		EE6D869D15222673004F9394 /* NSJSONSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSJSONSerialization.h; path = Sources/NSJSONSerialization.h; sourceTree = "<group>"; };
+		EE6D869E15222673004F9394 /* NSJSONSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSJSONSerialization.m; path = Sources/NSJSONSerialization.m; sourceTree = "<group>"; };
 		EE79057E0BCE873C00A35703 /* NSNumberFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSNumberFormatter.m; path = Sources/NSNumberFormatter.m; sourceTree = "<group>"; };
 		EE81F7C80961BDDF00F9F896 /* NSURLError.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = NSURLError.h; path = Sources/NSURLError.h; sourceTree = "<group>"; };
 		EE81F9010962E72600F9F896 /* FoundationErrors.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = FoundationErrors.h; path = Sources/FoundationErrors.h; sourceTree = "<group>"; };
@@ -575,6 +579,8 @@
 				EEA32EEC09537D0C001244CF /* NSCoder.m */,
 				EEA32ED009537D0C001244CF /* NSArchiver.h */,
 				EEA32ED109537D0C001244CF /* NSArchiver.m */,
+				EE6D869D15222673004F9394 /* NSJSONSerialization.h */,
+				EE6D869E15222673004F9394 /* NSJSONSerialization.m */,
 				EEA32F1609537D0D001244CF /* NSKeyedArchiver.h */,
 				EEA32F1709537D0D001244CF /* NSKeyedArchiver.m */,
 				EEA32F3709537D0D001244CF /* NSPropertyList.h */,
@@ -1113,6 +1119,7 @@
 				EEB458AA0DE48C1D007BE44E /* NSPointerFunctions.h in Headers */,
 				1FA220050E352CF100179AC4 /* NSPointerArray.h in Headers */,
 				EE8CDDE50F404B0600790C18 /* NSXMLNodeOptions.h in Headers */,
+				EE6D869F15222673004F9394 /* NSJSONSerialization.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1341,6 +1348,7 @@
 				EEB458AB0DE48C1D007BE44E /* NSPointerFunctions.m in Sources */,
 				1FA220060E352CF100179AC4 /* NSPointerArray.m in Sources */,
 				EE11484F131A432B005DFDD2 /* NSBlock.m in Sources */,
+				EE6D86A015222673004F9394 /* NSJSONSerialization.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

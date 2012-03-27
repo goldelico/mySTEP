@@ -712,6 +712,7 @@ const struct _strenc_ str_encoding_table[] =
 	{NSWindowsCP1254StringEncoding,"NSWindowsCP1254StringEncoding"},
 	{NSWindowsCP1250StringEncoding,"NSWindowsCP1250StringEncoding"},
 	{NSISO2022JPStringEncoding,"NSISO2022JPStringEncoding "},
+	{NSMorseCodeStringEncoding,"NSMorseCodeStringEncoding "},
 	{NSUnicodeStringEncoding, "NSUnicodeStringEncoding"}
 };
 

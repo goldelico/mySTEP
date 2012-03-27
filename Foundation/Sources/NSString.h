@@ -89,6 +89,7 @@ enum								// O encoding defines type encoding that is undefined
 	NSISOLatin7StringEncoding,
 	NSISOLatin8StringEncoding,
 	NSISOLatin9StringEncoding,
+	NSMorseCodeStringEncoding,
 	
 	// new in 10.5
 	NSUTF16StringEncoding=NSUnicodeStringEncoding,

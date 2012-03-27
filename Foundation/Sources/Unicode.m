@@ -35,6 +35,7 @@ static const NSStringEncoding __availableEncodings[] =
 	NSISOLatin1StringEncoding,
 	NSUnicodeStringEncoding,
 	NSCyrillicStringEncoding,
+	NSMorseCodeStringEncoding,
 	0
 };
 
@@ -54,6 +55,13 @@ static int ascii8encoder(UTF32Char u, unsigned char **p)
 		return 0;	// can't encode
 	*(*p)++=u;	// save lower 8 bits
 	return 1;
+}
+
+static int morsecodeencoder(UTF32Char u, unsigned char **p)
+{
+	// look up character and append string to *p
+	// append ' '
+	return 0;	// can't encode
 }
 
 static int UTF8encoder(UTF32Char u, unsigned char **p)
@@ -148,6 +156,7 @@ uniencoder encodeuni(NSStringEncoding enc)
 		case ENC(Unicode):			return standarduniencoder;
 		case ENC(NEXTSTEP):			return nextstepencoder;
 		case ENC(Cyrillic):			return cyrillicencoder;
+		case ENC(MorseCode):		return morsecodeencoder;
 		default:					return NULL;	// can't encode
 		}
 }
@@ -155,6 +164,13 @@ uniencoder encodeuni(NSStringEncoding enc)
 static UTF32Char asciidecoder(unsigned char **p)
 {
 	return *(*p)++;
+}
+
+static int morsecodedecoder(UTF32Char u, unsigned char **p)
+{
+	// skip whitespace
+	// decode and look up pattern from *p until unrecognized character
+	return 0;	// can't encode
 }
 
 static UTF32Char UTF8decoder(unsigned char **p)
@@ -245,6 +261,7 @@ unidecoder decodeuni(NSStringEncoding enc)		// get appropriate decoder function
 		case ENC(SwappedUnicode):	return swappedunidecoder;
 		case ENC(NEXTSTEP):			return nextstepunidecoder;
 		case ENC(Cyrillic):			return cyrillicunidecoder;
+		case ENC(MorseCode):		return morsecodedecoder;
 		default:					return NULL;	// can't encode
 		}
 }
