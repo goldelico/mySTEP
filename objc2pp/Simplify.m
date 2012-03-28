@@ -8,6 +8,8 @@
 
 #import "Simplify.h"
 
+// NOTE: evaluation/simplification of constant float expression needs private IEEE FPU implementation!
+// unless we want to require a FPU on the underlaying system
 
 @implementation Node (Simplify)
 
