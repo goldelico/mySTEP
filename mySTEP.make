@@ -177,7 +177,7 @@ endif
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-DEBIAN_ARCHITECTURES=i386 armel mipsel
+DEBIAN_ARCHITECTURES=i486 armel mipsel
 endif
 
 build:
@@ -194,13 +194,17 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 	# make for architectures $(DEBIAN_ARCHITECTURES)
 	for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 		case "$$DEBIAN_ARCH" in \
-			i386 ) export ARCHITECTURE=i486-debianetch-linux-gnu;; \
+			i486 ) export ARCHITECTURE=i486-linux-gnu;; \
+			armel ) export ARCHITECTURE=arm-linux-gnueabi;; \
+			armelhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
+			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
+			i486 ) export ARCHITECTURE=i486-debianetch-linux-gnu;; \
 			arm ) export ARCHITECTURE=arm-zaurus-linux-gnu;; \
 			armel ) export ARCHITECTURE=armv4t-angstrom-linux-gnueabi;; \
 			mipsel ) export ARCHITECTURE=mipsel-debianetch-linux-gnu;; \
 			? ) export ARCHITECTURE=unknown-debian-linux-gnu;; \
 		esac; \
-		echo "*** building for $$DEBIAN_ARCH using cross-tools $$ARCHITECTURE ***"; \
+		echo "*** building for $$DEBIAN_ARCH using xtc $$ARCHITECTURE ***"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
 		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		done
