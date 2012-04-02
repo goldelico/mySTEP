@@ -132,6 +132,14 @@ TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true /usr/bin/gnu
 # TAR := $(TOOLS)/gnutar-1.13.25	# use older tar that does not know about ._ resource files
 # TAR := $(ROOT)/this/bin/gnutar
 
+# if we call the makefile not within Xcode
+ifeq ($(BUILT_PRODUCTS_DIR),)
+BUILT_PRODUCTS_DIR=/tmp
+endif
+ifeq ($(TARGET_BUILD_DIR),)
+TARGET_BUILD_DIR=/tmp
+endif
+
 # aggregate target
 ifeq ($(PRODUCT_NAME),All)
 PRODUCT_NAME=$(PROJECT_NAME)
