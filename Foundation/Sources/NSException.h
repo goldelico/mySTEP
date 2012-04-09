@@ -18,8 +18,6 @@
 #define _mySTEP_H_NSException
 
 #import <Foundation/NSString.h>
-#include <setjmp.h>
-#include <stdarg.h>
 
 @class NSDictionary;
 
@@ -69,6 +67,8 @@ extern NSString *NSPortSendException;
 extern NSString *NSPortReceiveException;
 
 // Exception handler definitions (local stack object created by NS_DURING)
+
+#include <setjmp.h>
 
 typedef struct _NSHandler2
 {

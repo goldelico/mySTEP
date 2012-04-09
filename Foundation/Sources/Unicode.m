@@ -166,9 +166,9 @@ static UTF32Char asciidecoder(unsigned char **p)
 	return *(*p)++;
 }
 
-static int morsecodedecoder(UTF32Char u, unsigned char **p)
+static UTF32Char morsecodedecoder(unsigned char **p)
 {
-	// skip whitespace
+	// skip whitespace (maybe all unknown characters besides . and -)
 	// decode and look up pattern from *p until unrecognized character
 	return 0;	// can't encode
 }

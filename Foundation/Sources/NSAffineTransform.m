@@ -13,7 +13,7 @@
    under the terms of the GNU Library General Public License.
 */
 
-#include <math.h>
+// #include <math.h>
 
 #import <Foundation/NSAffineTransform.h>
 #import <Foundation/NSException.h>
@@ -87,7 +87,6 @@ static const float pi = 3.1415926535897932384626433;
 		}
 	return self;
 }
-
 - (void) invert											// matrix transform of
 {														// (X,Y) yields (X',Y')	
 	float newA, newC, newB, newD, newTX, newTY;				// then inverse matrix

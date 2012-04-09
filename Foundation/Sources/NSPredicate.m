@@ -91,16 +91,31 @@
 
 @implementation _NSPredicateScanner
 
+// FIXME: this vargs things are most likely wrong
+
 + (_NSPredicateScanner *) _scannerWithString:(NSString *) format args:(NSEnumerator *) args vargs:(va_list) vargs;
 {
 	return [[[self alloc] _initWithString:format args:args vargs:vargs] autorelease];
 }
 
-- (id) _initWithString:(NSString *) format args:(NSEnumerator *) args vargs:(va_list) vargs;
++ (_NSPredicateScanner *) _scannerWithString:(NSString *) format args:(NSEnumerator *) args;
+{
+	return [[[self alloc] _initWithString:format args:args] autorelease];
+}
+
+- (id) _initWithString:(NSString *) format args:(NSEnumerator *) args;
 {
 	if((self=[super initWithString:format]))
 		{
 		_args=args;	// not retained
+		}
+	return self;
+}
+
+- (id) _initWithString:(NSString *) format args:(NSEnumerator *) args vargs:(va_list) vargs;
+{
+	if((self=[self _initWithString:format args:args]))
+		{
 		_vargs=vargs;
 		}
 	return self;
@@ -155,7 +170,7 @@
 
 + (NSPredicate *) predicateWithFormat:(NSString *) format argumentArray:(NSArray *) args;
 {
-	return [self _parseWithScanner:[_NSPredicateScanner _scannerWithString:format args:[args objectEnumerator] vargs:NULL]];
+	return [self _parseWithScanner:[_NSPredicateScanner _scannerWithString:format args:[args objectEnumerator]]];
 }
 
 + (NSPredicate *) predicateWithFormat:(NSString *) format arguments:(va_list) args;

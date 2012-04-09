@@ -28,10 +28,12 @@
 
 @interface NSMethodSignature : NSObject
 {
-    const char *methodTypes;
+    const char *methodTypes;		// ObjCTypes
     unsigned argFrameLength;
     unsigned numArgs;
     struct NSArgumentInfo *info;	// forward reference
+	void *internal1;	// used to reference ffi_cif
+	void *internal2;	// used to reference ffi_type
 }
 
 + (NSMethodSignature *) signatureWithObjCTypes:(const char *) types;

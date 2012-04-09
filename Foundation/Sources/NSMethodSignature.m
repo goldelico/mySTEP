@@ -35,9 +35,12 @@
 #import <Foundation/NSException.h>
 #import <Foundation/NSString.h>
 #import "NSPrivate.h"
+#ifndef __APPLE__
+#include <ffi.h>
+#endif
 
 struct NSArgumentInfo
-	{ // Info about layout of arguments. Extended from the original OpenStep version - no longer available in OSX
+	{ // internal Info about layout of arguments. Extended from the original OpenStep version - no longer available in OSX
 		int offset;							// can be negative (!)
 		unsigned size;					// let us know if the arg is passed in 
 		const char *type;				// registers or on the stack
@@ -47,6 +50,7 @@ struct NSArgumentInfo
 		BOOL isReg;							// is passed in a register (+)
 		BOOL byRef;							// argument is not passed by value but by pointer (i.e. structs)
 		BOOL floatAsDouble;			// its a float value that is passed as double
+		// ffi type
 	};
 
 #define AUTO_DETECT 0
@@ -611,6 +615,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 
 static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *retbuf, struct NSArgumentInfo *info)
 { // wrap call because it fails if called from within a Objective-C method
+#if 0	// broken
 #ifndef __APPLE__
 	retval_t retframe=__builtin_apply(imp, frame, stack);	// here, we really invoke the method implementation
 #if 1
@@ -665,6 +670,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 					}
 				return YES;	// break from switch
 			}
+#endif
 #endif
 	return NO;
 }

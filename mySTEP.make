@@ -185,7 +185,7 @@ endif
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-DEBIAN_ARCHITECTURES=i486 armel mipsel
+DEBIAN_ARCHITECTURES=armel i486 mipsel
 endif
 
 build:
@@ -202,14 +202,10 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 	# make for architectures $(DEBIAN_ARCHITECTURES)
 	for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 		case "$$DEBIAN_ARCH" in \
-			i486 ) export ARCHITECTURE=i486-linux-gnu;; \
 			armel ) export ARCHITECTURE=arm-linux-gnueabi;; \
 			armelhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
+			i486 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
-			i486 ) export ARCHITECTURE=i486-debianetch-linux-gnu;; \
-			arm ) export ARCHITECTURE=arm-zaurus-linux-gnu;; \
-			armel ) export ARCHITECTURE=armv4t-angstrom-linux-gnueabi;; \
-			mipsel ) export ARCHITECTURE=mipsel-debianetch-linux-gnu;; \
 			? ) export ARCHITECTURE=unknown-debian-linux-gnu;; \
 		esac; \
 		echo "*** building for $$DEBIAN_ARCH using xtc $$ARCHITECTURE ***"; \
@@ -217,16 +213,16 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		done
 endif
-ifneq ($(ARCHITECTURES),)
+#ifneq ($(ARCHITECTURES),)
 	# make for architectures $(ARCHITECTURES)
-	for ARCH in $(ARCHITECTURES); do \
-		if [ "$$ARCH" = "i386-apple-darwin" ] ; then continue; fi; \
-		echo "*** building for $$ARCH ***"; \
-		export ARCHITECTURE="$$ARCH"; \
-		export ARCHITECTURES="$$ARCHITECTURES"; \
-		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_architecture; \
-		done
-endif
+#	for ARCH in $(ARCHITECTURES); do \
+#		if [ "$$ARCH" = "i386-apple-darwin" ] ; then continue; fi; \
+#		echo "*** building for $$ARCH ***"; \
+#		export ARCHITECTURE="$$ARCH"; \
+#		export ARCHITECTURES="$$ARCHITECTURES"; \
+#		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_architecture; \
+#		done
+#endif
 
 __dummy__:
 	# dummy target to allow for comments while setting more make variables
@@ -257,6 +253,9 @@ else
 OPTIMIZE := $(GCC_OPTIMIZATION_LEVEL)
 endif
 endif
+
+# workaround for bug in arm-linux-gnueabi toolchain
+OPTIMIZE := 0
 
 # check if embedded device responds
 ifneq ($(SEND2ZAURUS),false) # check if we can reach the device
@@ -342,6 +341,8 @@ endif
 $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.m
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
 	# compile $< -> $*.o
+	$(CC) -c $(CFLAGS) -E $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.i	# store preprocessor result for debugging
+	$(CC) -c $(CFLAGS) -S $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.S	# store assembler source for debugging
 	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
 
 $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.c

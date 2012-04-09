@@ -20,6 +20,7 @@
 #import <Foundation/NSDictionary.h>
 #import "NSPrivate.h"
 
+#include <stdarg.h>
 
 static /*volatile*/ void
 _NSFoundationUncaughtExceptionHandler(NSException *exception)

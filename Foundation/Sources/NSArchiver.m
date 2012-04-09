@@ -439,8 +439,7 @@ SEL writeSel = @selector(serializeDataAt:ofObjCType:context:);
 						 format: @"NSArchiver cannot encode void type"];
 		default:
 			[NSException raise: NSInvalidArgumentException
-						 format: @"NSArchiver unknown type %s"
-						 arguments:strdup(type)];
+						 format: @"NSArchiver unknown type %s", strdup(type)];
 		}
 }
 

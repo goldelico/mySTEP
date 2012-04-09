@@ -9,7 +9,7 @@ export INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for Mac
 #export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
 #export SEND2ZAURUS=true		   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)
 #export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
-export DEPENDS="libc6 (>= 2.7-1), libobjc2, libssl0.9.8"      # debian package dependencies
+export DEPENDS="libc6 (>= 2.7-1), libobjc2, libssl0.9.8, libffi5"      # debian package dependencies
 
 [ "$ROOT" ] || export ROOT=/usr/share/QuantumSTEP	# project root
 /usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION

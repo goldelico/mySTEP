@@ -12,8 +12,6 @@
    terms of the libFoundation BSD type license (See the Readme file).
 */
 
-#include <stdarg.h>
-
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSObject.h>

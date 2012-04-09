@@ -1030,7 +1030,7 @@ const char *objc_skip_typespec (const char *type)
 			if(len >= 2)
 				{
 					NSArray *subarray=[components subarrayWithRange:NSMakeRange(0, len-1)];
-				// shat do we do with the other components?
+				// FIXME: what do we do with the other components?
 					NSData *data=[components objectAtIndex:len-1];	// split
 					return [delegate authenticateComponents:components withData:data];
 				}

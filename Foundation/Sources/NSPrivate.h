@@ -47,7 +47,7 @@
 
 #include <unistd.h>
 
-/* Because openssl uses `id' as variable name sometime, while it is an Objective-C reserved keyword. */
+/* Because openssl sometimes uses `id' as variable name, while it is an Objective-C reserved keyword. */
 
 #define id ssl_id
 #include <openssl/ssl.h>
@@ -232,7 +232,9 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 }
 
 + (_NSPredicateScanner *) _scannerWithString:(NSString *) format args:(NSEnumerator *) args vargs:(va_list) vargs;
++ (_NSPredicateScanner *) _scannerWithString:(NSString *) format args:(NSEnumerator *) args;
 - (id) _initWithString:(NSString *) format args:(NSEnumerator *) args vargs:(va_list) vargs;
+- (id) _initWithString:(NSString *) format args:(NSEnumerator *) args;
 - (NSEnumerator *) _args;
 - (va_list) _vargs;
 - (BOOL) _scanPredicateKeyword:(NSString *) key;
