@@ -269,9 +269,10 @@ endif
 
 # system includes&libraries and locate all standard frameworks
 
+#		-I$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/X11 \
+# 		-I$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include \
+
 INCLUDES := \
-		-I$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include \
-		-I$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/X11 \
 		-I$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/freetype2 \
 		-I$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
 		-I$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
@@ -377,8 +378,8 @@ endif
 
 # add default dependency
 
-# FIXME: eigentlich sollte zu jedem mit mystep-/quantumstep- beginnenden Eintrag von "DEPENDS" ein >= $(VERSION) zugefügt werden
-# damit auch abhängige Pakete einen Versions-Upgrade bekommen
+# FIXME: eigentlich sollte zu jedem mit mystep-/quantumstep- beginnenden Eintrag von "DEPENDS" ein >= $(VERSION) zugefuegt werden
+# damit auch abhaengige Pakete einen Versions-Upgrade bekommen
 
 ifeq ($(DEBIAN_PACKAGE_NAME),)
 ifeq ($(WRAPPER_EXTENSION),)
@@ -398,14 +399,13 @@ DEBIAN_SECTION = "x11"
 endif
 endif
 
-# we should better use current svnversion instead of global BUILD_NUMBER
-# this allows to rebuild packages with updated numbers just after checkin of changes
-
 # DEBIAN_VERSION = 0.$(BUILD_NUMBER)
 ifeq ($(DEBIAN_VERSION),)
 # read from SVN
-SVN_VERSION := $(shell svnversion)
-DEBIAN_VERSION := 0.$(shell if expr "$(SVN_VERSION)" : '.*:.*' >/dev/null; then expr "$(SVN_VERSION)" : '.*:\([0-9]*\).*' + 200; else expr "$(SVN_VERSION)" : '\([0-9]*\).*' + 200; fi )
+# SVN_VERSION := $(shell svnversion)
+# DEBIAN_VERSION := 0.$(shell if expr "$(SVN_VERSION)" : '.*:.*' >/dev/null; then expr "$(SVN_VERSION)" : '.*:\([0-9]*\).*' + 200; else expr "$(SVN_VERSION)" : '\([0-9]*\).*' + 200; fi )
+# use build date as package version so that we become independent from SVN checkins
+DEBIAN_VERSION := 0.$(shell date '+%Y%m%d%H%M%S' )
 endif
 
 DEBDIST="$(ROOT)/System/Installation/Debian/dists/staging/main"
