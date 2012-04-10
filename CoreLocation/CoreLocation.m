@@ -453,6 +453,7 @@ static int startW2SG;
 		dev=@"/dev/cu.BT-348_GPS-Serialport-1";	// Mac OS X: serial interface for NMEA receiver
 #endif
 		}
+	return dev;
 }
 
 + (void) _didNotStart
@@ -480,7 +481,7 @@ static int startW2SG;
 		}
 #ifdef __mySTEP__
 	// GTA04-specific!
-	system([[NSString stringWithFormat:@"echo 0 >/sys/devices/virtual/gpio/gpio145/value; echo 1 >/sys/devices/virtual/gpio/gpio145/value; stty 9600 <%@", dev] UTF8String]);	// give a start/stop impulse and set up interface
+	system([[NSString stringWithFormat:@"echo 0 >/sys/devices/virtual/gpio/gpio145/value; echo 1 >/sys/devices/virtual/gpio/gpio145/value; stty 9600 <%@", [self _device]] UTF8String]);	// give a start/stop impulse and set up interface
 #endif
 	[self performSelector:_cmd withObject:nil afterDelay:++startW2SG > 4?30.0:5.0];	// we did not (yet) receive NMEA records
 }

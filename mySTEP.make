@@ -116,9 +116,9 @@ TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 else
 TOOLCHAIN := $(ROOT)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(ARCHITECTURE)
-CC := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-gcc
+CC := $(TOOLCHAIN)/$(ARCHITECTURE)/bin/gcc
 # CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(ARCHITECTURE) -integrated-as --sysroot $(ROOT) -I$(ROOT)/include
-LD := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-gcc
+LD := $(TOOLCHAIN)/$(ARCHITECTURE)/bin/gcc -v -L$(TOOLCHAIN)/$(ARCHITECTURE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(ARCHITECTURE)/lib
 
 endif
 LS := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-ld
@@ -185,7 +185,7 @@ endif
 endif
 
 ifeq ($(DEBIAN_ARCHITECTURES),)
-DEBIAN_ARCHITECTURES=armel i486 mipsel
+DEBIAN_ARCHITECTURES=armel i386 mipsel
 endif
 
 build:
@@ -204,7 +204,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		case "$$DEBIAN_ARCH" in \
 			armel ) export ARCHITECTURE=arm-linux-gnueabi;; \
 			armelhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
-			i486 ) export ARCHITECTURE=i486-linux-gnu;; \
+			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
 			? ) export ARCHITECTURE=unknown-debian-linux-gnu;; \
 		esac; \
@@ -287,8 +287,10 @@ FMWKS := $(addprefix -l,Foundation AppKit $(FRAMEWORKS))
 endif
 endif
 
+#		-L$(TOOLCHAIN)/lib \
+
+
 LIBRARIES := \
-		-L$(TOOLCHAIN)/lib \
 		-L$(ROOT)/usr/lib \
 		-Wl,-rpath-link,$(ROOT)/usr/lib \
 		-L$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
