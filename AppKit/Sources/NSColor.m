@@ -63,7 +63,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 	NSColor	*color = nil;
 	NSString *rep;
 	int cnt=10;	// break recursion if someone did make an error
-#if 0
+#if 1
 	NSLog(@"NSColor _systemColorWithName:%@", name);
 #endif
 	rep = [_colorStrings objectForKey: name];
@@ -75,6 +75,9 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 			else
 				break;	// stop at last level
 		}
+#if 1
+	NSLog(@"  rep=%@", rep);
+#endif
 	if([rep hasPrefix:@"/"])
 		{ // file to image which defines a pattern color
 			NSImage *img=[[[NSImage alloc] initWithContentsOfFile:rep] autorelease];

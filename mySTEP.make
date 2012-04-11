@@ -74,6 +74,8 @@ include $(ROOT)/System/Sources/Frameworks/Version.def
 
 .PHONY:	clean build build_architecture
 
+ARCHITECTURES=arm-linux-gnueabi
+
 ifeq ($(ARCHITECTURES),)
 ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 # set all architectures for which we know a compiler (should also check that we have a libobjc.so for this architecture!)
@@ -213,16 +215,16 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		done
 endif
-#ifneq ($(ARCHITECTURES),)
+ifneq ($(ARCHITECTURES),)
 	# make for architectures $(ARCHITECTURES)
-#	for ARCH in $(ARCHITECTURES); do \
-#		if [ "$$ARCH" = "i386-apple-darwin" ] ; then continue; fi; \
-#		echo "*** building for $$ARCH ***"; \
-#		export ARCHITECTURE="$$ARCH"; \
-#		export ARCHITECTURES="$$ARCHITECTURES"; \
-#		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_architecture; \
-#		done
-#endif
+	for ARCH in $(ARCHITECTURES); do \
+		if [ "$$ARCH" = "i386-apple-darwin" ] ; then continue; fi; \
+		echo "*** building for $$ARCH ***"; \
+		export ARCHITECTURE="$$ARCH"; \
+		export ARCHITECTURES="$$ARCHITECTURES"; \
+		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_architecture; \
+		done
+endif
 
 __dummy__:
 	# dummy target to allow for comments while setting more make variables
@@ -255,7 +257,12 @@ endif
 endif
 
 # workaround for bug in arm-linux-gnueabi toolchain
+ifeq ($(ARCHITECTURE),arm-linux-gnueabi)
 OPTIMIZE := 0
+# we could try -mfloat-abi=hardfp
+# see https://wiki.linaro.org/Linaro-arm-hardfloat
+CFLAGS := -ftree-vectorize -mfpu=neon -mfloat-abi=softfp
+endif
 
 # check if embedded device responds
 ifneq ($(SEND2ZAURUS),false) # check if we can reach the device

@@ -198,12 +198,6 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 	path=[[NSFileManager defaultManager] stringWithFileSystemRepresentation:file length:strlen(file)];
 	if([path hasPrefix:@"./"])
 		path=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// denotes relative location
-#if OLD
-	if([path hasPrefix:@"/hdd2"])
-		path=[path substringFromIndex:5];	// strip off - just in case of C3000...
-	if([path hasPrefix:@"/home/root"])
-		path=[path substringFromIndex:10];	// strip off - just in case of gdb on Zaurus (/usr/share -> /home/root/usr/share)
-#endif
 #if 0
 	NSLog(@"path=%@", path);
 #endif

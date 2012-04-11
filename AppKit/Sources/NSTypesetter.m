@@ -720,7 +720,12 @@ forStartOfGlyphRange:(NSRange) range;
 		case NSLineBreakByClipping:
 			[self glyphIndexToBreakLineByClippingAtIndex:location];
 			break;
+		case NSLineBreakByCharWrapping:
+		case NSLineBreakByTruncatingHead:
+		case NSLineBreakByTruncatingTail:
+		case NSLineBreakByTruncatingMiddle:
 			// check for truncation and apply [curParagraphStyle tighteningFactorForTruncation]
+			break;
 	}
 }
 
