@@ -14,6 +14,7 @@ typedef const struct AuthorizationOpaqueRef *AuthorizationRef;	// define before 
 
 #ifndef __APPLE__
 typedef int OSStatus;
+typedef uint32_t UInt32;
 #endif
 
 enum 

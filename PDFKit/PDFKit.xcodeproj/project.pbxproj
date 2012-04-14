@@ -99,7 +99,7 @@
 		EEF8BF50092271F000767EF8 /* PDFPage.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFPage.m; sourceTree = "<group>"; };
 		EEF8BF85092282D500767EF8 /* PDFKitPrivate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFKitPrivate.h; sourceTree = "<group>"; };
 		EEF8BFBC0922848100767EF8 /* NSPDFImageRep.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSPDFImageRep.m; sourceTree = "<group>"; };
-		EEF8BFF50923E12000767EF8 /* PDF */ = {isa = PBXFileReference; lastKnownFileType = folder; name = PDF; path = ../../Documentation/PDF; sourceTree = "<group>"; };
+		EEF8BFF50923E12000767EF8 /* PDF */ = {isa = PBXFileReference; lastKnownFileType = folder; name = PDF; path = ../../System/Documentation/PDF; sourceTree = "<group>"; };
 		EEF8BFFD0923E35F00767EF8 /* PDFDestination.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFDestination.h; sourceTree = "<group>"; };
 		EEF8BFFE0923E35F00767EF8 /* PDFDestination.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = PDFDestination.m; sourceTree = "<group>"; };
 		EEF8BFFF0923E35F00767EF8 /* PDFOutline.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PDFOutline.h; sourceTree = "<group>"; };

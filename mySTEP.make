@@ -261,7 +261,7 @@ ifeq ($(ARCHITECTURE),arm-linux-gnueabi)
 OPTIMIZE := 0
 # we could try -mfloat-abi=hardfp
 # see https://wiki.linaro.org/Linaro-arm-hardfloat
-CFLAGS := -ftree-vectorize -mfpu=neon -mfloat-abi=softfp
+CFLAGS += -ftree-vectorize -mfpu=neon -mfloat-abi=softfp
 endif
 
 # check if embedded device responds
