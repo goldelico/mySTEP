@@ -2070,8 +2070,11 @@ printing
 					[NSBezierPath clipRect:rect];	// intersect with our inherited clipping path
 					}
 #if 0	// detect slow drawing code
-				{
-				struct timeval start, end;
+			NS_TIME_START(drawRect);
+			[self drawRect:rect];		// that one is overridden in subviews and really draws
+			NS_TIME_END(drawRect, [[self description] UTF8String]);
+/*		{
+ struct timeval start, end;
 				gettimeofday(&start, NULL);
 				[self drawRect:rect];		// that one is overridden in subviews and really draws
 				gettimeofday(&end, NULL);
@@ -2083,6 +2086,7 @@ printing
 				if(end.tv_sec > 0 || end.tv_usec > 20000)
 					fprintf(stderr, "slow draw %u.%06us: %s\n", end.tv_sec, end.tv_usec, [[self description] UTF8String]);
 				}
+ */
 #else
 			[self drawRect:rect];		// that one is overridden in subviews and really draws
 #endif
