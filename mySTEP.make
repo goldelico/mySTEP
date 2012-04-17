@@ -155,7 +155,7 @@ endif
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	CONTENTS=.
 	NAME_EXT=$(PRODUCT_NAME)
-	PKG=$(BUILT_PRODUCTS_DIR)/$(NAME_EXT).tool
+	PKG=$(BUILT_PRODUCTS_DIR)/$(ARCHITECTURE)/bin
 	EXEC=$(PKG)
 	BINARY=$(EXEC)/$(NAME_EXT)
 	# architecture specific version (only if it does not yet have the prefix
@@ -258,10 +258,10 @@ endif
 
 # workaround for bug in arm-linux-gnueabi toolchain
 ifeq ($(ARCHITECTURE),arm-linux-gnueabi)
-OPTIMIZE := 0
+OPTIMIZE := 3
 # we could try -mfloat-abi=hardfp
 # see https://wiki.linaro.org/Linaro-arm-hardfloat
-CFLAGS += -ftree-vectorize -mfpu=neon -mfloat-abi=softfp
+CFLAGS += -fno-section-anchors -ftree-vectorize -mfpu=neon -mfloat-abi=softfp
 endif
 
 # check if embedded device responds
