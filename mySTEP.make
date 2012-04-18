@@ -282,6 +282,7 @@ endif
 INCLUDES := \
 		-I$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/freetype2 \
 		-I$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
+		-I$(shell sh -c 'echo $(ROOT)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
 		-I$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 
 ifeq ($(PRODUCT_NAME),Foundation)
@@ -304,6 +305,8 @@ LIBRARIES := \
 		-Wl,-rpath-link,$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
 		-L$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-L$(shell sh -c 'echo $(ROOT)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		-L$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
 		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		$(FMWKS) \
@@ -578,6 +581,7 @@ clean:
 headers:
 ifeq ($(WRAPPER_EXTENSION),framework)
 # fixme: copy only public headers and recognize changes!
+# fixme: hard coding Sources/*.h is wrong!
 	- [ -r "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" ] || (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && cp Sources/*.h "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" )	# copy headers (FIXME: only public!)
 	- [ -r "$(HEADERS)" ] || (mkdir -p "$(EXEC)/Headers" && ln -s ../../Headers "$(HEADERS)")	# link to headers to find <Framework/File.h>
 endif
