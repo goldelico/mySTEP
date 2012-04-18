@@ -428,7 +428,7 @@ type_specifier
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'  { $$=node(type($1), $2, $3); /* accept only forward defines */ setkey(structNames, name($2), $$); }
+	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'  { $$=node(type($1), $2, $3); /* accept only forward defines */ /* setkeyval(structNames, name($2), $$); */ }
 	| struct_or_union '{' struct_declaration_list '}'  { $$=node(type($1), 0, $3); }
 	| struct_or_union IDENTIFIER { /* lookup in structNames or forward-define */ $$=node(type($1), $2, 0); }
 	;

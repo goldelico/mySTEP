@@ -169,23 +169,10 @@ int lookup(int table, const char *word, char *type, int value)
 	return s;
 }
 
-#if OLDCODE
-char *keyword(int table, int t)
-{ // look up keyword for given type
-	int i;
-	for(i=0; i<sizeof(symtab)/sizeof(symtab[0]); i++)
-		{
-		int s=symtab[i];
-		while(s)
-			{
-			if(type(s) == t)
-				return name(s);	// type code found - print symbol
-			s=next(s);	// go to next symtab node
-			}
-		}
-	return NULL;
+void setkeyval(int dictionary, const char *key, int value)
+{
+	
 }
-#endif
 
 @implementation Node 
 

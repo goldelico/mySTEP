@@ -233,6 +233,7 @@
 			buildPhases = (
 				EE55BFCD1504DB7400BDF3F7 /* Sources */,
 				EE55BFCE1504DB7400BDF3F7 /* Frameworks */,
+				EE8B94D8153DC9D0009770D4 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -307,6 +308,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# shell script goes here\n\n# PREPROCESS =\"cpp -P\"\nPREPROCESS=\"cc -E -P\"\n# PREPROCESS\t=\"cc -E -v -H\" \n\nCOMPILE=${TARGET_BUILD_DIR}/objc2pp\n\nMYSTEP_SYSROOT=\"-std=c99 -isysroot/usr/share/QuantumSTEP \\\n\t-I/Developer/usr/bin/../lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/local/include \\\n\t-I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/include\"\n\necho \"*** test 1 ***\"\n${PREPROCESS} test/simple.m | tee test/test1.i | ${COMPILE} | tee test/test1.c\necho \"*** test 2 ***\"\n${PREPROCESS} main.m | tee test/test2.i | ${COMPILE} | tee test/test2.c\necho \"*** test 3 ***\"\n${PREPROCESS} test/test.m | tee test/test3.i | ${COMPILE} | tee test/test3.c\necho \"*** test 4 ***\"\n${PREPROCESS} test/special.m | tee test/test4.i | ${COMPILE} | tee test/test4.c\necho \"*** test 5 ***\"\n# disable standard Cocoa framework include paths so that we can (pre)process mySTEP sources\n${PREPROCESS} ${MYSTEP_SYSROOT} ../Foundation/Sources/NSArray.m | tee test/test5.i | ${COMPILE} | tee test/test5.c\necho \"*** tests done ***\"\n\nexit 0";
+		};
+		EE8B94D8153DC9D0009770D4 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "";
 		};
 		EEEB4C031508D63A000EE2E5 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;

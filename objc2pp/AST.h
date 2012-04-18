@@ -13,7 +13,7 @@
 // translation_unit
 @end
 
-@interface Node : NSObject 
+@interface Node : NSObject
 { /* internal structure */
 	NSString *type;	// node type
 	int number;		// object number

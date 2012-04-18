@@ -38,6 +38,6 @@ void pop(int lifo);				// remove last entry
 
 int dictionary(void);	// create a (hashed) dictionary object
 int lookup(int dictionary, const char *word, char *type, int value);	// look up word and return node; if type>0 not found return a fresh leafnode with given type/code 
-void setkey(int dictionary, const char *key, int value);
+void setkeyval(int dictionary, const char *key, int value);
 // char *keyword(int dictionary, int t);	// reverse look up of keyword for object with type t (NULL if not found)
 
