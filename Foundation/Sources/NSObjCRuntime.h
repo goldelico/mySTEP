@@ -407,13 +407,15 @@ _classIsKindOfClass(Class c, Class aClass)
 	struct timeval VAR, _ns_time_end; \
 	gettimeofday(&VAR, NULL);
 
-#define NS_TIME_END(VAR, MESSAGE) \
+#define NS_TIME_END(VAR, MESSAGE...) \
 	gettimeofday(&_ns_time_end, NULL); \
 	_ns_time_end.tv_sec-=VAR.tv_sec; \
 	_ns_time_end.tv_usec-=VAR.tv_usec; \
 	if(_ns_time_end.tv_usec < 0) _ns_time_end.tv_sec-=1, _ns_time_end.tv_usec+=1000000; \
 	if(_ns_time_end.tv_sec > 0 || _ns_time_end.tv_usec > 0) \
-		fprintf(stderr, "%s: %u.%06ds\n", MESSAGE, (unsigned int) _ns_time_end.tv_sec, _ns_time_end.tv_usec); \
+		fprintf(stderr, "%u.%06ds: ", (unsigned int) _ns_time_end.tv_sec, _ns_time_end.tv_usec), \
+		fprintf(stderr, MESSAGE), \
+		fprintf(stderr, "\n"); \
 	}
 
 #endif /* _mySTEP_H_NSObjCRuntime */

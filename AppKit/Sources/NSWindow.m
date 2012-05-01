@@ -2428,24 +2428,6 @@ static NSButtonCell *sharedCell;
 
 - (void) sendEvent:(NSEvent *)event
 {
-#if 0	// detect slow drawing code
-	NS_TIME_START(drawRect);
-	[self drawRect:rect];		// that one is overridden in subviews and really draws
-	NS_TIME_END(drawRect, [[self description] UTF8String]);
-/*	{
-	struct timeval start, end;
-	gettimeofday(&start, NULL);
-	gettimeofday(&end, NULL);
-	end.tv_sec-=start.tv_sec;
-	end.tv_usec-=start.tv_usec;
-	if(end.tv_usec < 0)
-		end.tv_sec-=1, end.tv_usec+=1000000;
-	// FIXME: it appears that StringDrawing is quite slow (expectedly)
-	if(end.tv_sec > 0 || end.tv_usec > 20000)
-		fprintf(stderr, "slow draw %u.%06us: %s\n", end.tv_sec, end.tv_usec, [[self description] UTF8String]);
-	}
- */
-#endif
 	
 	if (!_w.cursorRectsValid)
 		[self resetCursorRects];

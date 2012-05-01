@@ -623,11 +623,26 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];
 		NS_DURING // protect against exceptions
 		int windowitemsbefore=_windowItems;
+#if 1
+		NS_TIME_START(sendEvent);
 		e=[self nextEventMatchingMask:NSAnyEventMask
 							untilDate:[NSDate distantFuture]
 							   inMode:NSDefaultRunLoopMode
 							  dequeue:YES];
+		NS_TIME_END(sendEvent, "nextEventMatchingMask");	// may involve drawing
+#else
+		e=[self nextEventMatchingMask:NSAnyEventMask
+							untilDate:[NSDate distantFuture]
+							   inMode:NSDefaultRunLoopMode
+							  dequeue:YES];
+#endif
+#if 1
+		NS_TIME_START(sendEvent);
 		[self sendEvent:e];	// this can set isRunning=NO as a side effect to break the loop
+		NS_TIME_END(sendEvent, "sendEvent: %s", [[e description] UTF8String]);
+#else
+		[self sendEvent:e];	// this can set isRunning=NO as a side effect to break the loop
+#endif
 		if(windowitemsbefore > 0 && _windowItems == 0)
 			{ // no window items (left over) after processing last event
 #if 1

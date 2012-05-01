@@ -2069,10 +2069,10 @@ printing
 						// FIXME: default should also clip to list of rects in invalidRects!!!
 					[NSBezierPath clipRect:rect];	// intersect with our inherited clipping path
 					}
-#if 0	// detect slow drawing code
+#if 1	// detect slow drawing code
 			NS_TIME_START(drawRect);
 			[self drawRect:rect];		// that one is overridden in subviews and really draws
-			NS_TIME_END(drawRect, [[self description] UTF8String]);
+			NS_TIME_END(drawRect, "drawRect of %s", [[self description] UTF8String]);
 /*		{
  struct timeval start, end;
 				gettimeofday(&start, NULL);
