@@ -900,6 +900,7 @@ static unsigned _portDirectoryLength;
 		h=[NSHost hostWithAddress:host];	// try dotted notation
 	if(!h)
 		{ // could not resolve
+			// CHECKME: Cocoa appears to use the "localhost"
 		[self release];
 		return nil;
 		}
