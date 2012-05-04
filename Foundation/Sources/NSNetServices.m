@@ -91,6 +91,8 @@ struct DNSHeader
 		const unsigned char *kp=bytes;	// start of key
 		NSString *key;
 		NSData *val;
+		if(len > end-bytes)
+			len=end-bytes;	// limit to data length: formally this is a format or parsing error
 		while(len > 0 && *bytes != '=')
 			bytes++, len--;
 		key=[[NSString _stringWithUTF8String:(char *) kp length:bytes-kp] lowercaseString];	// key isn't case sensitive

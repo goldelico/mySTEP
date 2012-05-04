@@ -72,13 +72,13 @@ NSString *const NSFailedAuthenticationException = @"NSFailedAuthenticationExcept
 - (id) initWithInvocation:(NSInvocation *) inv conversation:(NSObject *) conv sequence:(unsigned int) seq importedObjects:(NSMutableArray *) obj connection:(NSConnection *) conn;
 {
 	if((self=[super init]))
-			{
-				_invocation=[inv retain];
-				_conversation=conv;
-				_imports=obj;
-				_connection=conn;
-				_sequence=seq;
-			}
+		{
+		_invocation=[inv retain];
+		_conversation=conv;
+		_imports=obj;
+		_connection=conn;
+		_sequence=seq;
+		}
 	return self;
 }
 
@@ -123,31 +123,31 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 }
 
 + (NSConnection *) connectionWithReceivePort:(NSPort *)receivePort
-																		sendPort:(NSPort *)sendPort;
+									sendPort:(NSPort *)sendPort;
 {
 	return [[[self alloc] initWithReceivePort:receivePort sendPort:sendPort] autorelease];
 }
 
 + (NSConnection *) connectionWithRegisteredName:(NSString*)n
-																					 host:(NSString*)h;
+										   host:(NSString*)h;
 {
 	return [self connectionWithRegisteredName:n host:h usingNameServer:nil];
 }
 
 + (NSConnection *) connectionWithRegisteredName:(NSString *)name
-																					 host:(NSString *)hostName
-																usingNameServer:(NSPortNameServer *)server;
+										   host:(NSString *)hostName
+								usingNameServer:(NSPortNameServer *)server;
 {
 #if 0
 	NSLog(@"connectionWithRegisteredName:%@ host:%@ usingNameServer:%@", name, hostName, server);
 #endif
 	if(!server)
-			{
-				if(hostName)
-					server=[NSSocketPortNameServer sharedInstance];
-				else
-					server=[NSPortNameServer systemDefaultPortNameServer];
-			}
+		{
+		if(hostName)
+			server=[NSSocketPortNameServer sharedInstance];
+		else
+			server=[NSPortNameServer systemDefaultPortNameServer];
+		}
 #if 0
 	NSLog(@"  ->server:%@", server);
 #endif
@@ -162,25 +162,25 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	NSMutableDictionary *dict=[[NSThread currentThread] threadDictionary];
 	NSConnection *defaultConnection=[dict objectForKey:key];
 	if(!defaultConnection)
-			{ // allocate
-				NSPort *port=[NSPort new];	// select port by system
-				defaultConnection=[[self alloc] initWithReceivePort:port sendPort:port];
-				[dict setObject:defaultConnection forKey:key];
-				[port release];
-				[defaultConnection release];
-			}
+		{ // allocate
+			NSPort *port=[NSPort new];	// select port by system
+			defaultConnection=[[self alloc] initWithReceivePort:port sendPort:port];
+			[dict setObject:defaultConnection forKey:key];
+			[port release];
+			[defaultConnection release];
+		}
 	return defaultConnection;
 }
 
 + (NSDistantObject *) rootProxyForConnectionWithRegisteredName:(NSString*)name
-																													host:(NSString*)host;
+														  host:(NSString*)host;
 {
 	return [self rootProxyForConnectionWithRegisteredName:name host:host usingNameServer:nil];
 }
 
 + (NSDistantObject *) rootProxyForConnectionWithRegisteredName:(NSString *)name
-																													host:(NSString *)hostName
-																							 usingNameServer:(NSPortNameServer *)server;
+														  host:(NSString *)hostName
+											   usingNameServer:(NSPortNameServer *)server;
 {
 	return [[self connectionWithRegisteredName:name host:hostName usingNameServer:server] rootProxy];
 }
@@ -216,10 +216,10 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 - (void) addRequestMode:(NSString *)mode;
 { // schedule additional mode in all known runloops
 	if(![_modes containsObject:mode])
-			{
-				[_modes addObject:mode];
-				[_receivePort addConnection:self toRunLoop:[NSRunLoop currentRunLoop] forMode:mode];
-			}
+		{
+		[_modes addObject:mode];
+		[_receivePort addConnection:self toRunLoop:[NSRunLoop currentRunLoop] forMode:mode];
+		}
 }
 
 - (void) addRunLoop:(NSRunLoop *)runLoop;
@@ -237,109 +237,109 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 // found in http://opensource.apple.com/source/objc4/objc4-371/runtime/objc-sel-table.h
 
 - (id) initWithReceivePort:(NSPort *)receivePort
-									sendPort:(NSPort *)sendPort;
+				  sendPort:(NSPort *)sendPort;
 {
 #if 1
 	NSLog(@"NSConnection -initWithReceivePort:%@ sendPort:%@", receivePort, sendPort);
 #endif
 	if((self=[super init]))
+		{
+		NSNotificationCenter *nc=[NSNotificationCenter defaultCenter];
+		NSConnection *c;
+		if(!sendPort)
 			{
-				NSNotificationCenter *nc=[NSNotificationCenter defaultCenter];
-				NSConnection *c;
-				if(!sendPort)
-						{
-							if(!receivePort)
-									{ // neither port is defined
+			if(!receivePort)
+				{ // neither port is defined
 #if 1
-										NSLog(@"NSConnection -init: two nil ports detected (recv=%@ send=%@)", receivePort, sendPort);
+					NSLog(@"NSConnection -init: two nil ports detected (recv=%@ send=%@)", receivePort, sendPort);
 #endif
-										[self release];
-										return nil;
-									}
-							sendPort=receivePort;	// make same
-						}
-				else if(!receivePort)
-					receivePort=[[[sendPort class] new] autorelease];
-				if(receivePort != sendPort && (c=[isa lookUpConnectionWithReceivePort:receivePort sendPort:receivePort]))
-						{ // parent connection exists - copy root object and all configs
-#if 0
-							NSLog(@"NSConnection -init: parent connection exists");
-#endif
-							if([_delegate respondsToSelector:@selector(connection:shouldMakeNewConnection:)] &&
-								 ![_delegate connection:c shouldMakeNewConnection:self])
-									{ // did veto
-										[self release];
-										return nil;
-									}
-							if(([_delegate respondsToSelector:@selector(connection:shouldMakeNewConnection:)] &&
-									![_delegate connection:self shouldMakeNewConnection:c])	// preferred delegate method
-								 ||
-								 ([_delegate respondsToSelector:@selector(makeNewConnection:sender:)] &&
-									![_delegate makeNewConnection:c sender:self]))	// this appears to be deprecated
-									{ // did veto
-										[self release];
-										return nil;
-									}
-							_rootObject=[c->_rootObject retain];
-							_delegate=c->_delegate;
-							_modes=[c->_modes mutableCopy];
-							_requestTimeout=c->_requestTimeout;
-							_replyTimeout=c->_replyTimeout;
-							_replyTimeout=c->_replyTimeout;
-							_multipleThreadsEnabled=c->_multipleThreadsEnabled;
-							_independentConversationQueueing=c->_independentConversationQueueing;
-							//			_isLocal=c->_isLocal;
-						}
-				else if((c=[isa lookUpConnectionWithReceivePort:receivePort sendPort:sendPort]))
-						{ // already exists
-#if 0
-							NSLog(@"NSConnection -init: connection exists");
-#endif
-							[self release];
-							return [c retain];	// use existing
-						}
-				else if(([isa lookUpConnectionWithReceivePort:sendPort sendPort:receivePort]))
-						{ // reverse direction exists
-#if 0
-							NSLog(@"NSConnection -init: reverse connection exists");
-#endif
-							//			_isLocal=YES;	// local communication
-							return self;
-						}
-				else
-						{
-#if 0
-							NSLog(@"really new connection");
-#endif
-							// ????		[_sendPort setDelegate:self];	// get notifications
-							_modes=[[NSMutableArray alloc] initWithObjects:NSDefaultRunLoopMode, nil];
-							_replyTimeout=_requestTimeout=99999999.0;	// set defaults
-							_multipleThreadsEnabled=NO;
-							_independentConversationQueueing=NO;
-						}
-				_receivePort=[receivePort retain];
-				_sendPort=[sendPort retain];
-				_isValid=YES;
-				// or sould we be retained by all proxy objects???
-				[self retain];	// make us persistent until we are invalidated
-#if 0
-				NSLog(@"did set valid");
-#endif
-				[nc addObserver:self selector:@selector(_portInvalidated:) name:NSPortDidBecomeInvalidNotification object:_receivePort];
-				_localObjects=NSCreateMapTable(NSNonOwnedPointerOrNullMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain proxies
-				_remoteObjects=NSCreateMapTable(NSNonOwnedPointerOrNullMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain proxies
-				_responses=NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 10);	// map sequence number to response portcoder
-				if(!_allConnections)
-					_allConnections=NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 10);	// allocate - don't retain connections in hash table
-				NSHashInsertKnownAbsent(_allConnections, self);	// add us to connections list
-				[_receivePort setDelegate:self];	// we want to receive NSPort notifications from receive port
-				[_receivePort scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSConnectionReplyMode];
-				[self addRequestMode:NSDefaultRunLoopMode];		// schedule ports in current runloop
-				[nc postNotificationName:NSConnectionDidInitializeNotification object:self];
-#if 0
-				NSLog(@"initialized: %p:%@", self, self);
-#endif
+					[self release];
+					return nil;
+				}
+			sendPort=receivePort;	// make same
 			}
+		else if(!receivePort)
+			receivePort=[[[sendPort class] new] autorelease];
+		if(receivePort != sendPort && (c=[isa lookUpConnectionWithReceivePort:receivePort sendPort:receivePort]))
+			{ // parent connection exists - copy root object and all configs
+#if 0
+				NSLog(@"NSConnection -init: parent connection exists");
+#endif
+				if([_delegate respondsToSelector:@selector(connection:shouldMakeNewConnection:)] &&
+				   ![_delegate connection:c shouldMakeNewConnection:self])
+					{ // did veto
+						[self release];
+						return nil;
+					}
+				if(([_delegate respondsToSelector:@selector(connection:shouldMakeNewConnection:)] &&
+					![_delegate connection:self shouldMakeNewConnection:c])	// preferred delegate method
+				   ||
+				   ([_delegate respondsToSelector:@selector(makeNewConnection:sender:)] &&
+					![_delegate makeNewConnection:c sender:self]))	// this appears to be deprecated
+					{ // did veto
+						[self release];
+						return nil;
+					}
+				_rootObject=[c->_rootObject retain];
+				_delegate=c->_delegate;
+				_modes=[c->_modes mutableCopy];
+				_requestTimeout=c->_requestTimeout;
+				_replyTimeout=c->_replyTimeout;
+				_replyTimeout=c->_replyTimeout;
+				_multipleThreadsEnabled=c->_multipleThreadsEnabled;
+				_independentConversationQueueing=c->_independentConversationQueueing;
+				//			_isLocal=c->_isLocal;
+			}
+		else if((c=[isa lookUpConnectionWithReceivePort:receivePort sendPort:sendPort]))
+			{ // already exists
+#if 0
+				NSLog(@"NSConnection -init: connection exists");
+#endif
+				[self release];
+				return [c retain];	// use existing
+			}
+		else if(([isa lookUpConnectionWithReceivePort:sendPort sendPort:receivePort]))
+			{ // reverse direction exists
+#if 0
+				NSLog(@"NSConnection -init: reverse connection exists");
+#endif
+				//			_isLocal=YES;	// local communication
+				return self;
+			}
+		else
+			{
+#if 0
+			NSLog(@"really new connection");
+#endif
+			// ????		[_sendPort setDelegate:self];	// get notifications
+			_modes=[[NSMutableArray alloc] initWithObjects:NSDefaultRunLoopMode, nil];
+			_replyTimeout=_requestTimeout=99999999.0;	// set defaults
+			_multipleThreadsEnabled=NO;
+			_independentConversationQueueing=NO;
+			}
+		_receivePort=[receivePort retain];
+		_sendPort=[sendPort retain];
+		_isValid=YES;
+		// or sould we be retained by all proxy objects???
+		[self retain];	// make us persistent until we are invalidated
+#if 0
+		NSLog(@"did set valid");
+#endif
+		[nc addObserver:self selector:@selector(_portInvalidated:) name:NSPortDidBecomeInvalidNotification object:_receivePort];
+		_localObjects=NSCreateMapTable(NSNonOwnedPointerOrNullMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain proxies
+		_remoteObjects=NSCreateMapTable(NSNonOwnedPointerOrNullMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain proxies
+		_responses=NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 10);	// map sequence number to response portcoder
+		if(!_allConnections)
+			_allConnections=NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 10);	// allocate - don't retain connections in hash table
+		NSHashInsertKnownAbsent(_allConnections, self);	// add us to connections list
+		[_receivePort setDelegate:self];	// we want to receive NSPort notifications from receive port
+		[_receivePort scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSConnectionReplyMode];
+		[self addRequestMode:NSDefaultRunLoopMode];		// schedule ports in current runloop
+		[nc postNotificationName:NSConnectionDidInitializeNotification object:self];
+#if 0
+		NSLog(@"initialized: %p:%@", self, self);
+#endif
+		}
 	return self;
 }
 
@@ -406,17 +406,17 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 - (NSString *) description;
 {
 	return [NSString stringWithFormat:@"%@\n  recv=%@\n  send=%@\n  root=%@\n  delegate=%@\n  modes=%@\n  req=%.2lf\n  reply=%.2lf\n  flags:%@%@%@",
-					NSStringFromClass(isa),
-					_receivePort,
-					_sendPort,
-					_rootObject,
-					_delegate,
-					_modes,
-					_requestTimeout, _replyTimeout,
-					_multipleThreadsEnabled?@" multiple-threads":@"",
-					_isValid?@" valid":@"",
-					_independentConversationQueueing?@" indep-queueing":@""
-					];
+			NSStringFromClass(isa),
+			_receivePort,
+			_sendPort,
+			_rootObject,
+			_delegate,
+			_modes,
+			_requestTimeout, _replyTimeout,
+			_multipleThreadsEnabled?@" multiple-threads":@"",
+			_isValid?@" valid":@"",
+			_independentConversationQueueing?@" indep-queueing":@""
+			];
 }
 
 - (void) invalidate;
@@ -465,20 +465,20 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	if(!server)
 		server=[NSPortNameServer systemDefaultPortNameServer];
 	if(![server registerPort:_receivePort name:name])
-			{
-				NSLog(@"can't register name %@ with portnameserver", name);
-				return NO;
-			}
+		{
+		NSLog(@"can't register name %@ with portnameserver", name);
+		return NO;
+		}
 	return YES;
 }
 
 - (void) removeRequestMode:(NSString*)mode;
 {
 	if([_modes containsObject:mode])
-			{
-				[_modes removeObject:mode];
-				[_receivePort removeConnection:self fromRunLoop:[NSRunLoop currentRunLoop] forMode:mode];
-			}
+		{
+		[_modes removeObject:mode];
+		[_receivePort removeConnection:self fromRunLoop:[NSRunLoop currentRunLoop] forMode:mode];
+		}
 }
 
 - (void) removeRunLoop:(NSRunLoop *)runLoop;
@@ -583,7 +583,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 #if 1
 	NSLog(@"_getRemote: %p", target);
 	NSLog(@"   -> %p", NSMapGet(_remoteObjects, (void *) target));
-//	NSLog(@"   -> %@", NSMapGet(_remoteObjects, (void *) target));
+	//	NSLog(@"   -> %@", NSMapGet(_remoteObjects, (void *) target));
 #endif
 	return NSMapGet(_remoteObjects, (void *) target);
 }
@@ -617,20 +617,20 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 }
 
 + (NSConnection *) lookUpConnectionWithReceivePort:(NSPort *) receivePort
-																					sendPort:(NSPort *) sendPort;
+										  sendPort:(NSPort *) sendPort;
 { // look up if we already know this connection
 	// FIXME: this should use a NSMapTable with struct { NSPort *recv, *send; } as key/hash
 	// but as long as we just have 2-3 connection objects this does not really matter
 	if(_allConnections)
+		{
+		NSHashEnumerator e=NSEnumerateHashTable(_allConnections);
+		NSConnection *c;
+		while((c=(NSConnection *) NSNextHashEnumeratorItem(&e)))
 			{
-				NSHashEnumerator e=NSEnumerateHashTable(_allConnections);
-				NSConnection *c;
-				while((c=(NSConnection *) NSNextHashEnumeratorItem(&e)))
-						{
-							if([c receivePort] == receivePort && [c sendPort] == sendPort)
-								return c;	// found!
-						}
+			if([c receivePort] == receivePort && [c sendPort] == sendPort)
+				return c;	// found!
 			}
+		}
 	return nil;	// not found
 }
 
@@ -668,8 +668,8 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 { // jedes Mal ein neuer PortCoder -> jedesmal neue Abfrage der Connection?
 	// hier werden nicht die ports aus der MachMessage verwendet
 	return [[[NSPortCoder alloc] initWithReceivePort:_receivePort
-																					sendPort:_sendPort
-																				components:components] autorelease];
+											sendPort:_sendPort
+										  components:components] autorelease];
 }
 
 - (void) sendInvocation:(NSInvocation *) i internal:(BOOL) internal;
@@ -692,11 +692,11 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	 }
 	 */
 	if(_multipleThreadsEnabled)
-			{
-				NSRunLoop *rl=[NSRunLoop currentRunLoop];
-				// somehow check if we are already added to this runloop!
-				[self addRunLoop:rl];
-			}
+		{
+		NSRunLoop *rl=[NSRunLoop currentRunLoop];
+		// somehow check if we are already added to this runloop!
+		[self addRunLoop:rl];
+		}
 	isOneway=[[i methodSignature] isOneway];
 	
 	// if([self hasRunloop:???])
@@ -724,60 +724,60 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	// runloop containsPort:forMode: ...
 	
 	if(!isOneway)
-			{ // wait for response to arrive
-				NSDate *until=[NSDate dateWithTimeIntervalSinceNow:_replyTimeout];
-				NSRunLoop *rl=[NSRunLoop currentRunLoop];
-				NSException *ex;
+		{ // wait for response to arrive
+			NSDate *until=[NSDate dateWithTimeIntervalSinceNow:_replyTimeout];
+			NSRunLoop *rl=[NSRunLoop currentRunLoop];
+			NSException *ex;
 #if 0
-				NSLog(@"*** (conn=%p) waiting for response before %@ in runloop %@ from %@", self, [NSDate dateWithTimeIntervalSinceNow:_replyTimeout], rl, _receivePort);
+			NSLog(@"*** (conn=%p) waiting for response before %@ in runloop %@ from %@", self, [NSDate dateWithTimeIntervalSinceNow:_replyTimeout], rl, _receivePort);
 #endif
-				[_receivePort addConnection:self toRunLoop:rl forMode:NSConnectionReplyMode];	// schedule our receive port so that we can be connected
-				while(YES)	// loop until we can extract a matching response for our sequence number from the receive queue...
-						{ // not yet timed out and current conversation is not yet completed
+			[_receivePort addConnection:self toRunLoop:rl forMode:NSConnectionReplyMode];	// schedule our receive port so that we can be connected
+			while(YES)	// loop until we can extract a matching response for our sequence number from the receive queue...
+				{ // not yet timed out and current conversation is not yet completed
 #if 0
-							NSLog(@"*** (Conn=%p) loop for response %u in %@ at %@: %@", self, _sequence, NSConnectionReplyMode, _receivePort, rl);
+					NSLog(@"*** (Conn=%p) loop for response %u in %@ at %@: %@", self, _sequence, NSConnectionReplyMode, _receivePort, rl);
 #endif
-							portCoder=NSMapGet(_responses, (const void *) _sequence);
-							if(portCoder)
-									{ // the response we are waiting for has arrived!
-										[portCoder retain];	// we will need it for a little time...
-										NSMapRemove(_responses, (const void *) _sequence);
-										break;	// break the loop and decode the response
-									}
-							if(![_receivePort isValid])
-								[NSException raise:NSPortReceiveException format:@"sendInvocation: receive port became invalid"];
-							if(![rl runMode:NSConnectionReplyMode beforeDate:until])
-								[NSException raise:NSPortReceiveException format:@"sendInvocation: receive runloop error"];
-#if 1
-							NSLog(@"responses %@", NSAllMapTableValues(_responses));
-#endif
-							if([until timeIntervalSinceNow] < 0)
-								[NSException raise:NSPortTimeoutException format:@"did not receive response within %.0f seconds", _replyTimeout];
+					portCoder=NSMapGet(_responses, (const void *) _sequence);
+					if(portCoder)
+						{ // the response we are waiting for has arrived!
+							[portCoder retain];	// we will need it for a little time...
+							NSMapRemove(_responses, (const void *) _sequence);
+							break;	// break the loop and decode the response
 						}
-				[_receivePort removeFromRunLoop:rl forMode:NSConnectionReplyMode];	// FIXME: should also be removed if we raise exceptions
-#if 0
-				NSLog(@"*** (conn=%p) runloop done for mode: %@", self, NSConnectionReplyMode);
-#endif
-#if 0
-				NSLog(@"decode response from: %@ -> %@", portCoder);
-#endif
-				ex=[portCoder decodeObject];	// what is this? Exception to raise?
-				[portCoder decodeReturnValue:i];	// decode into our original invocation
-				if(![portCoder verifyWithDelegate:_delegate])
-					[NSException raise:NSFailedAuthenticationException format:@"authentication of response failed"];
-				[portCoder invalidate];
-				[portCoder release];
-				[ex raise];	// if there is something to raise...
-			}
-	else
-			{
+					if(![_receivePort isValid])
+						[NSException raise:NSPortReceiveException format:@"sendInvocation: receive port became invalid"];
+					if(![rl runMode:NSConnectionReplyMode beforeDate:until])
+						[NSException raise:NSPortReceiveException format:@"sendInvocation: receive runloop error"];
 #if 1
-				NSLog(@"no need to wait for response because it is a oneway method call");
+					NSLog(@"responses %@", NSAllMapTableValues(_responses));
 #endif
-			}
+					if([until timeIntervalSinceNow] < 0)
+						[NSException raise:NSPortTimeoutException format:@"did not receive response within %.0f seconds", _replyTimeout];
+				}
+			[_receivePort removeFromRunLoop:rl forMode:NSConnectionReplyMode];	// FIXME: should also be removed if we raise exceptions
+#if 0
+			NSLog(@"*** (conn=%p) runloop done for mode: %@", self, NSConnectionReplyMode);
+#endif
+#if 0
+			NSLog(@"decode response from: %@ -> %@", portCoder);
+#endif
+			ex=[portCoder decodeObject];	// what is this? Exception to raise?
+			[portCoder decodeReturnValue:i];	// decode into our original invocation
+			if(![portCoder verifyWithDelegate:_delegate])
+				[NSException raise:NSFailedAuthenticationException format:@"authentication of response failed"];
+			[portCoder invalidate];
+			[portCoder release];
+			[ex raise];	// if there is something to raise...
+		}
+	else
+		{
+#if 1
+		NSLog(@"no need to wait for response because it is a oneway method call");
+#endif
+		}
 	NS_HANDLER
-		NSLog(@"Exception in sendInvocation %@: %@", i, [localException reason]);
-		[localException raise];		// re-raise exception
+	NSLog(@"Exception in sendInvocation %@: %@", i, [localException reason]);
+	[localException raise];		// re-raise exception
 	NS_ENDHANDLER
 }
 
@@ -821,18 +821,18 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	NSLog(@"found seq number = %d", seq);
 #endif
 	switch(flags)
-		{
-			case FLAGS_INTERNAL:	// connection setup (just allocates this NSConnection)
-				break;
-			case FLAGS_REQUEST:	// request received
-				[self handleRequest:coder sequence:seq];
-				break;
-			case FLAGS_RESPONSE:	// response received
-				NSMapInsert(_responses, (void *) seq, (void *) coder);	// put response into sequence queue/dictionary
-				break;
-			default:
-				NSLog(@"unknown flags received: %08x", flags);
-		}
+	{
+		case FLAGS_INTERNAL:	// connection setup (just allocates this NSConnection)
+		break;
+		case FLAGS_REQUEST:	// request received
+		[self handleRequest:coder sequence:seq];
+		break;
+		case FLAGS_RESPONSE:	// response received
+		NSMapInsert(_responses, (void *) seq, (void *) coder);	// put response into sequence queue/dictionary
+		break;
+		default:
+		NSLog(@"unknown flags received: %08x", flags);
+	}
 	NS_HANDLER
 	NSLog(@"Exception in handlePortCoder: %@", localException);
 	NS_ENDHANDLER
@@ -840,7 +840,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 }
 
 - (void) handleRequest:(NSPortCoder *) coder sequence:(int) seq;
-{ // what can/should we do with the sequence number?
+{ // what can/should we do with the sequence number? This is used to keep the order when queueing requests
 	NSInvocation *inv;
 	NSException *exception;	// exception response (an NSException created in the current ARP)
 	id imports=nil;
@@ -853,30 +853,30 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 #endif	
 	inv=[coder decodeObject];	// the first remote call for [client rootProxy] passes nil here (to establish the connection?)
 	if(inv)
-			{
+		{
 #if 1
-				NSLog(@"inv.argumentsRetained=%@", [inv argumentsRetained]?@"yes":@"no");
-				NSLog(@"inv.selector=%@", NSStringFromSelector([inv selector]));
-				NSLog(@"inv.target=%p", [inv target]);	// don't try to call any method on the target here since it is a NSDistantObject...
-				NSLog(@"inv.target.class=%@", NSStringFromClass([[inv target] class]));
-				NSLog(@"inv.methodSignature.numberOfArguments=%d", [[inv methodSignature] numberOfArguments]);
-				NSLog(@"inv.methodSignature.methodReturnLength=%d", [[inv methodSignature] methodReturnLength]);
-				NSLog(@"inv.methodSignature.frameLength=%d", [[inv methodSignature] frameLength]);
-				NSLog(@"inv.methodSignature.isoneway=%d", [[inv methodSignature] isOneway]);
-				NSLog(@"inv.methodSignature.methodReturnType=%s", [[inv methodSignature] methodReturnType]);
+		NSLog(@"inv.argumentsRetained=%@", [inv argumentsRetained]?@"yes":@"no");
+		NSLog(@"inv.selector=%@", NSStringFromSelector([inv selector]));
+		NSLog(@"inv.target=%p", [inv target]);	// don't try to call any method on the target here since it is a NSDistantObject...
+		NSLog(@"inv.target.class=%@", NSStringFromClass([[inv target] class]));
+		NSLog(@"inv.methodSignature.numberOfArguments=%d", [[inv methodSignature] numberOfArguments]);
+		NSLog(@"inv.methodSignature.methodReturnLength=%d", [[inv methodSignature] methodReturnLength]);
+		NSLog(@"inv.methodSignature.frameLength=%d", [[inv methodSignature] frameLength]);
+		NSLog(@"inv.methodSignature.isoneway=%d", [[inv methodSignature] isOneway]);
+		NSLog(@"inv.methodSignature.methodReturnType=%s", [[inv methodSignature] methodReturnType]);
 #endif
-				// here, we can decode up to 3 more objects until the coder reports no more data
-				// they may have to do something with the current conversation and/or with the importedObjects
-				// don't know yet.
-				NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
-				NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
-				NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
-				if(![sig isEqual:[[inv target] methodSignatureForSelector:[inv selector]]])
-					; // exception local method signature is different from remote
-				[self _cleanupAndAuthenticate:coder sequence:seq conversation:&conversation invocation:inv raise:YES];
-				sig=[inv methodSignature];
-				isOneway=[sig isOneway];
-			}
+		// here, we can decode up to 3 more objects until the coder reports no more data
+		// they may have to do something with the current conversation and/or with the importedObjects
+		// don't know yet.
+		NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
+		NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
+		NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
+		if(![sig isEqual:[[inv target] methodSignatureForSelector:[inv selector]]])
+			; // exception local method signature is different from remote
+		[self _cleanupAndAuthenticate:coder sequence:seq conversation:&conversation invocation:inv raise:YES];
+		sig=[inv methodSignature];
+		isOneway=[sig isOneway];
+		}
 	if([self _shouldDispatch:&conversation invocation:inv sequence:seq coder:coder])	// this will allocate the conversation if needed
 		;;;;
 	[coder invalidate];	// no longer needed
@@ -884,46 +884,47 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 #if OLDOLD
 	// FIXME: shouldn't we only queue requests that we receive?
 	if(_independentConversationQueueing && _currentConversation != [req conversation])
-			{ // enqueue while we are engaged in a conversation
+		{ // enqueue while we are engaged in a conversation
 #if 1
-				NSLog(@"*** (conn=%p) queued: %@", self, req);
+			NSLog(@"*** (conn=%p) queued: %@", self, req);
 #endif
-				if(!_requestQueue)
-					_requestQueue=[NSMutableArray new];
-				[_requestQueue addObject:req];
-				return;
-			}
+			if(!_requestQueue)
+				_requestQueue=[NSMutableArray new];
+			[_requestQueue addObject:req];
+			return;
+		}
 #endif
 	
 	if([_delegate respondsToSelector:@selector(connection:handleRequest:)])
-			{
+		{
 #if __APPLE__
-				NSDistantObjectRequest *req=[[NSConcreteDistantObjectRequest alloc] initWithInvocation:inv conversation:conversation sequence:seq importedObjects:imports connection:self];
+		NSDistantObjectRequest *req=[[NSConcreteDistantObjectRequest alloc] initWithInvocation:inv conversation:conversation sequence:seq importedObjects:imports connection:self];
 #else
-				NSDistantObjectRequest *req=[[NSDistantObjectRequest alloc] initWithInvocation:inv conversation:conversation sequence:seq importedObjects:imports connection:self];
+		NSDistantObjectRequest *req=[[NSDistantObjectRequest alloc] initWithInvocation:inv conversation:conversation sequence:seq importedObjects:imports connection:self];
 #endif
-				if([_delegate connection:self handleRequest:req])
-						{ // done by handler
-							[req release];	// should call [req replyWithException:exception];	// try to reply
-							return;
-						}
-				[req release];
+		if([_delegate connection:self handleRequest:req])
+			{ // done by handler
+				[req release];	// should call [req replyWithException:exception];	// try to reply
+				return;
 			}
+		[req release];
+		}
 #if 1
 	NSLog(@"*** (conn=%p) request received ***", self);
 #endif
 	NS_DURING
-		{
+	{
 #if 0
-			[inv _log:@"handleRequest"];
+	[inv _log:@"handleRequest"];
 #endif
-			[self dispatchInvocation:inv];	// make a call to the local object(s)
-			exception=nil;	// no exception
-		}
+	[self dispatchInvocation:inv];	// make a call to the local object(s)
+	exception=nil;	// no exception
+	}
 	NS_HANDLER
 	exception=localException;	// dispatching results in an exception
 	NS_ENDHANDLER
 	[self returnResult:inv exception:exception sequence:seq imports:imports];
+	// if request queue not empty: handle next request in sequence
 }
 
 - (void) dispatchInvocation:(NSInvocation *) i;
@@ -938,9 +939,9 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 #endif
 #if 0
 	if([[[i target] class] isKindOfClass:[NSDistantObject class]])
-			{
-				//				NSLog(@"target.
-			}
+		{
+		//				NSLog(@"target.
+		}
 #endif
 	[i invoke];
 #if 0
@@ -953,48 +954,48 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	NSMethodSignature *sig=[result methodSignature];
 	BOOL isOneway=[sig isOneway];
 	if(!isOneway)
-			{ // there is something to return...
-				NSPortCoder *pc=[self portCoderWithComponents:nil];
-				unsigned long flags=FLAGS_RESPONSE;
+		{ // there is something to return...
+			NSPortCoder *pc=[self portCoderWithComponents:nil];
+			unsigned long flags=FLAGS_RESPONSE;
 #if 1
-				NSLog(@"returnResult %u: %@ exception %@", seq, result, exception);
+			NSLog(@"returnResult %u: %@ exception %@", seq, result, exception);
 #endif
 #if OLDOLD
-				if(isOneway)
-						{
+			if(isOneway)
+				{
 #if 1
-							NSLog(@"*** replyWithException: %@ - oneway ignored", exception);
+				NSLog(@"*** replyWithException: %@ - oneway ignored", exception);
 #endif
-							return;	// no response needed!
-						}
+				return;	// no response needed!
+				}
 #endif
-				// may need to create a port coder for encoding
-				// maybe with nil components?
+			// may need to create a port coder for encoding
+			// maybe with nil components?
 #if FIXME
-				if(exception)		// send back exception
-					[pc encodeObject:exception];
-				else	// send back return value
-#if 0
-					
-					NSLog(@"*** (conn=%p) send reply to %@", self, [_coder _sendPort]);
-#endif
-#endif
-				[pc encodeValueOfObjCType:@encode(unsigned int) at:&flags];
-				[pc encodeValueOfObjCType:@encode(unsigned int) at:&seq];
-				[pc encodeObject:nil];
-				[pc encodeReturnValue:result];	// encode resulting invocation (i.e. result and out/inout parameters)
+			if(exception)		// send back exception
 				[pc encodeObject:exception];
-				//				[pc encodeObject:imports];
-				[self finishEncoding:pc];
-				// CHECKME: is this timeout correct? We are sending a reply...
-				NSLog(@"replyTimeout=%f", _replyTimeout);
-				NSLog(@"timeIntervalSince1970=%f", [[NSDate date] timeIntervalSince1970]);
-				NSLog(@"timeIntervalSinceRefDate=%f", [[NSDate date] timeIntervalSinceReferenceDate]);
-				NSLog(@"time=%f", [NSDate timeIntervalSinceReferenceDate]+_replyTimeout);
-				// flags must be YES or we get a timeout (!) exception
-				[pc sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_replyTimeout sendReplyPort:YES];	// send response
-				[pc invalidate];
-			}
+			else	// send back return value
+#if 0
+				
+				NSLog(@"*** (conn=%p) send reply to %@", self, [_coder _sendPort]);
+#endif
+#endif
+			[pc encodeValueOfObjCType:@encode(unsigned int) at:&flags];
+			[pc encodeValueOfObjCType:@encode(unsigned int) at:&seq];
+			[pc encodeObject:nil];
+			[pc encodeReturnValue:result];	// encode resulting invocation (i.e. result and out/inout parameters)
+			[pc encodeObject:exception];
+			//				[pc encodeObject:imports];
+			[self finishEncoding:pc];
+			// CHECKME: is this timeout correct? We are sending a reply...
+			NSLog(@"replyTimeout=%f", _replyTimeout);
+			NSLog(@"timeIntervalSince1970=%f", [[NSDate date] timeIntervalSince1970]);
+			NSLog(@"timeIntervalSinceRefDate=%f", [[NSDate date] timeIntervalSinceReferenceDate]);
+			NSLog(@"time=%f", [NSDate timeIntervalSinceReferenceDate]+_replyTimeout);
+			// flags must be YES or we get a timeout (!) exception
+			[pc sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_replyTimeout sendReplyPort:YES];	// send response
+			[pc invalidate];
+		}
 }
 
 - (void) finishEncoding:(NSPortCoder *) coder;
