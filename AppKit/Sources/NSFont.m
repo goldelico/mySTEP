@@ -700,8 +700,8 @@ static BOOL changed;
 		NSLog(@"read font cache from %@", FONT_CACHE);
 #endif
 		cache=[[NSMutableDictionary alloc] initWithContentsOfFile:FONT_CACHE];
-		if(!cache)
-			{ // could not load
+		if(![cache count])
+			{ // could not load or cache is empty (unbelievable!)
 			cache=[[NSMutableDictionary alloc] initWithCapacity:10];	// allocate empty cache
 			[self _findFonts];
 			[self _writeFonts];
