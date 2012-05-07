@@ -304,12 +304,12 @@ extern int system(const char *cmd);
 }
 
 + (NSArray *) supportedInterfaces;
-{
+{ // may be empty if we don't find interfaces - in this case the client should retry later
 	static NSMutableArray *supportedInterfaces;
 	int retry=0;
 	if(!supportedInterfaces)
 		supportedInterfaces=[NSMutableArray new];
-	while([supportedInterfaces count] == 0)
+	if([supportedInterfaces count] == 0)
 		{
 		FILE *f=NULL;
 		char line[256];
@@ -329,7 +329,8 @@ extern int system(const char *cmd);
 				if(e && e != line)
 					{ // non-empty entries are interface names
 						NSString *interface=[NSString stringWithCString:line length:e-line];
-						[supportedInterfaces addObject:interface];
+						if(![supportedInterfaces containsObject:interface])
+							[supportedInterfaces addObject:interface];	// new interface found
 					}
 				}
 			pclose(f);
@@ -339,11 +340,6 @@ extern int system(const char *cmd);
 #if 1
 		NSLog(@"supportedInterfaces: %@", supportedInterfaces);
 #endif
-		if([supportedInterfaces count] == 0)
-			{
-			NSLog(@"no WLAN interfaces found; retrying");
-			sleep(2);
-			}
 		}
 	return supportedInterfaces;
 }
@@ -354,7 +350,7 @@ extern int system(const char *cmd);
 	if([ifs count] > 0)
 		return [self initWithInterfaceName:[ifs objectAtIndex:0]];
 	[self release];
-	return nil;
+	return nil;	// could not find any interface - in this case the client should retry later
 }
 
 - (CWInterface *) initWithInterfaceName:(NSString *) n;
