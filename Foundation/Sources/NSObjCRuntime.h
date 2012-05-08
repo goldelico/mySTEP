@@ -405,6 +405,7 @@ _classIsKindOfClass(Class c, Class aClass)
 
 #define NS_TIME_START(VAR) { \
 	struct timeval VAR, _ns_time_end; \
+	fprintf(stderr, ">>> "); \
 	gettimeofday(&VAR, NULL);
 
 #define NS_TIME_END(VAR, MESSAGE...) \
@@ -413,7 +414,7 @@ _classIsKindOfClass(Class c, Class aClass)
 	_ns_time_end.tv_usec-=VAR.tv_usec; \
 	if(_ns_time_end.tv_usec < 0) _ns_time_end.tv_sec-=1, _ns_time_end.tv_usec+=1000000; \
 	if(_ns_time_end.tv_sec > 0 || _ns_time_end.tv_usec > 0) \
-		fprintf(stderr, "%u.%06ds: ", (unsigned int) _ns_time_end.tv_sec, _ns_time_end.tv_usec), \
+		fprintf(stderr, "<<< %u.%06ds: ", (unsigned int) _ns_time_end.tv_sec, _ns_time_end.tv_usec), \
 		fprintf(stderr, MESSAGE), \
 		fprintf(stderr, "\n"); \
 	}

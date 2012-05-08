@@ -772,7 +772,7 @@ static NSColor *__borderedBackgroundColor = nil;
 - (NSView *) controlView						{ return _controlView; }
 - (void) setControlView:(NSView *) view;		{ _controlView=view; }
 - (BOOL) isHighlighted							{ return _c.highlighted; }
-- (void) setHighlighted:(BOOL)flag				{ _c.highlighted = flag; /* force redraw??? */ }
+- (void) setHighlighted:(BOOL)flag				{ _c.highlighted = flag; /* force redraw - if changed??? */ }
 - (BOOL) isContinuous							{ return _c.continuous; }
 - (void) setContinuous:(BOOL)flag				{ _c.continuous = flag; }
 - (void) setTag:(int)anInt						{ SUBCLASS; }
