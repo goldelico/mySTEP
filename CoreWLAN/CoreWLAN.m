@@ -306,17 +306,14 @@ extern int system(const char *cmd);
 + (NSArray *) supportedInterfaces;
 { // may be empty if we don't find interfaces - in this case the client should retry later
 	static NSMutableArray *supportedInterfaces;
-	int retry=0;
+	FILE *f=NULL;
+	char line[256];
 	if(!supportedInterfaces)
 		supportedInterfaces=[NSMutableArray new];
-	if([supportedInterfaces count] == 0)
+	[NSTask class];	// initialize SIGCHLD or we get problems that system() returns -1 instead of the exit value
+	if([self _activateHardware:YES])
 		{
-		FILE *f=NULL;
-		char line[256];
-		[NSTask class];	// initialize SIGCHLD or we get problems that system() returns -1 instead of the exit value
-		if(![self _activateHardware:YES])
-			break;	// we will not be able to read iwconfig list unless power is on
-		// FIXME: this may also timeout and make the process (GUI!) hang!
+		// FIXME: this popen may also timeout and make the process (GUI!) hang!
 		// set up NSTask + Timer that interrupts/terminates the task?
 		// i.e. task=[NSTask ....]
 		// [task performSelector:@(terminate) withObject:nil afterDelay:3];
@@ -344,11 +341,20 @@ extern int system(const char *cmd);
 	return supportedInterfaces;
 }
 
+// FIXME: what do we do if we can't initialize or locate the wlan interface???
+// user space code assumes that there is always a CWInterface object
+// maybe in state kCWInterfaceStateInactive
+// but our hardware does not reveal the interface name unless we can power it on...
+
+// well, we can return an interface without name and add the name as soon as
+// it becomes known
+// i.e. make interfaceState return kCWInterfaceStateInactive in this case
+
 - (CWInterface *) init;
 {
 	NSArray *ifs=[CWInterface supportedInterfaces];	// this will power on
 	if([ifs count] > 0)
-		return [self initWithInterfaceName:[ifs objectAtIndex:0]];
+		return [self initWithInterfaceName:[ifs objectAtIndex:0]];	// take the first interface
 	[self release];
 	return nil;	// could not find any interface - in this case the client should retry later
 }
@@ -945,7 +951,7 @@ extern int system(const char *cmd);
 
 - (id) copyWithZone:(NSZone *) zone
 {
-	CWNetwork *n=[super allocWithZone:zone];
+	CWNetwork *n=[CWNetwork allocWithZone:zone];
 	n->_bssid=[_bssid copyWithZone:zone];
 	n->_channel=[_channel copyWithZone:zone];
 	n->_ieData=[_ieData copyWithZone:zone];
