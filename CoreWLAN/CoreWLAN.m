@@ -389,25 +389,48 @@ extern int system(const char *cmd);
 	return [_name isEqualToString:[(CWInterface *) other name]];
 }
 
-// FIXME: should be cached and reread value(s) only if older than 1 second since last fetch
+// FIXME: should be cached and we should re-read value(s) only if older than 1 second since last fetch
+
+- (NSString *) _get:(NSString *) command parameter:(NSString *) parameter
+{
+	NSString *cmd=[NSString stringWithFormat:@"%@ '%@' %@", command, _name, parameter];
+	FILE *f=popen([cmd UTF8String], "r");
+	NSString *r;
+	char line[512];
+	unsigned int n;
+	if(!f)
+		return nil;
+	n=fread(line, 1, sizeof(line)-1, f);
+	pclose(f);
+	r=[[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+#if 1
+	NSLog(@"%@: %@", cmd, r);
+#endif
+	return r;
+}
 
 - (NSString *) _getiw:(NSString *) parameter;
 { // call iwconfig or iwlist or iwgetid
+	return [self _get:@"iwgetid" parameter:[NSString stringWithFormat:@"--raw --%@", parameter]];
+#if OLD
 	NSString *cmd=[NSString stringWithFormat:@"iwgetid '%@' --raw --%@", _name, parameter];
 	FILE *f=popen([cmd UTF8String], "r");
-	char line[512];
+	char line[512]="";
 	if(!f)
 		return nil;
 	fgets(line, sizeof(line)-1, f);
-	fclose(f);
+	pclose(f);
 #if 1
 	NSLog(@"%@: %@", parameter, [[NSString stringWithCString:line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]);
 #endif
 	return [[NSString stringWithCString:line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+#endif
 }
 
 - (NSString *) _getiwlist:(NSString *) parameter;
 { // call iwconfig
+	return [self _get:@"iwlist" parameter:parameter];
+#if OLD
 	NSString *cmd=[NSString stringWithFormat:@"iwlist '%@' %@", _name, parameter];
 	FILE *f=popen([cmd UTF8String], "r");
 	char line[512];
@@ -415,15 +438,18 @@ extern int system(const char *cmd);
 	if(!f)
 		return nil;
 	n=fread(line, 1, sizeof(line)-1, f);
-	fclose(f);
+	pclose(f);
 #if 1
 	NSLog(@"%@: %@", parameter, [[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]);
 #endif
 	return [[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+#endif
 }
 
 - (NSString *) _getiwconfig;
 { // call iwconfig
+	return [self _get:@"iwconfig" parameter:@""];
+#if OLD
 	NSString *cmd=[NSString stringWithFormat:@"iwconfig '%@'", _name];
 	FILE *f=popen([cmd UTF8String], "r");
 	char line[512];
@@ -431,11 +457,12 @@ extern int system(const char *cmd);
 	if(!f)
 		return nil;
 	n=fread(line, 1, sizeof(line)-1, f);
-	fclose(f);
+	pclose(f);
 #if 1
 	NSLog(@"%@", [[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]);
 #endif
 	return [[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+#endif
 }
 
 - (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
@@ -449,17 +476,26 @@ extern int system(const char *cmd);
 			return NO;
 		}
 	cmd=[NSString stringWithFormat:@"echo ifconfig '%@' up", _name];
+#if 1
+	NSLog(@"%@", cmd);
+#endif
 	if(system([cmd UTF8String]) != 0)
 		{ // interface does not exist
 			// set err
 			return NO;
 		}		
 	cmd=[NSString stringWithFormat:@"iwconfig '%@' mode '%@' essid -- '%@'", _name, [network isIBSS]?@"ad-hoc":@"managed", [network ssid]];
+#if 1
+	NSLog(@"%@", cmd);
+#endif
 	if(system([cmd UTF8String]) != 0)
 		{
 		// set err
 		return NO;
 		}
+#if 1
+	NSLog(@"associated to %@", network);
+#endif
 	return YES;
 }
  
