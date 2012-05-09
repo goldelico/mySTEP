@@ -466,7 +466,7 @@ extern int system(const char *cmd);
 }
 
 - (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
-{
+{ // may block and ask for admin password
 	NSString *cmd;
 	NSError *dummy;
 	if(!err) err=&dummy;
