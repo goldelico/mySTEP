@@ -263,6 +263,7 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 				// parse and decode
 				// if monitoring: [_delegate netService:self didUpdateTXTRecordData:data];
 				// if yes, notify [_delegate netServiceDidResolveAddress:self];
+				// and set hostName, _addresses and _port
 				// [_timer release], _timer=nil;
 					return;
 				}
@@ -284,8 +285,7 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 {
 	if([_addresses count] == 0)
 		return NO;	// not yet resolved successfully
-	// FIXME: get host&port from found service(s)
-	[NSStream getStreamsToHost:[NSHost hostWithName:_hostName] port:12345 inputStream:input outputStream:output];
+	[NSStream getStreamsToHost:[NSHost hostWithName:_hostName] port:_port inputStream:input outputStream:output];
 	return *input && *output;
 }
 
@@ -300,12 +300,6 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 { // adaequate to publish a net service
 	if((self=[super init]))
 		{
-		int s;	// the socket
-		struct sockaddr_in saddr;	// socket address
-		struct ip_mreq mc;			// socket options
-		int flag = 1;
-		int ittl = 255;
-		char ttl = 255;
 #if 1
 		NSLog(@"%@ initWithDomain:%@ type:%@ name:%@ port:%d", NSStringFromClass(isa), domain, type, name, port);
 #endif
@@ -317,53 +311,55 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 		_type=[type retain];
 		_name=[name retain];
 		_port=port;
-		if(port < 0)
-			{ // we want to resolve
-			saddr.sin_family = AF_INET;
-			saddr.sin_port = htons(5353);
-			saddr.sin_addr.s_addr = 0;
-			}
-		else
-			{ // we (probably) want to publish a service
-			saddr.sin_family = AF_INET;
-			saddr.sin_port = htons(5353);
-			saddr.sin_addr.s_addr = 0;
-			}
-		s=socket(saddr.sin_family, SOCK_DGRAM, PF_UNSPEC);
-		if(s < 0)
-			{
-			NSLog(@"NSNetService: could not create multicast socket due to %s", strerror(errno));
-			[self release];
-			return nil;
-			}
-#ifdef SO_REUSEPORT
-		setsockopt(s, SOL_SOCKET, SO_REUSEPORT, (char*)&flag, sizeof(flag));	// reuse port
-#endif
-		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, sizeof(flag));	// reuse address
-		if(bind(s, (struct sockaddr *) &saddr, sizeof(saddr)) != 0)
-			{
-			close(s); 
-			NSLog(@"NSNetService: could not bind multicast socket due to %s", strerror(errno));
-			[self release];
-			return nil;
-			}
-		inet_aton("224.0.0.251", &mc.imr_multiaddr);
-		mc.imr_interface.s_addr = INADDR_ANY;
-		setsockopt(s, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mc, sizeof(mc)); 
-		setsockopt(s, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl));
-		setsockopt(s, IPPROTO_IP, IP_MULTICAST_TTL, &ittl, sizeof(ittl));
-		flag =  fcntl(s, F_GETFL, 0);
-		flag |= O_NONBLOCK;
-		fcntl(s, F_SETFL, flag);
-		// shouldn't we check for errors?
-		_inputStream=[[NSInputStream alloc] _initWithFileDescriptor:s];
-		_outputStream=[[NSOutputStream alloc] _initWithFileDescriptor:s];
-		[_inputStream setDelegate:self];	// make us receive packet notifications
-		[self scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-		[_inputStream open];
-		[_outputStream open];
 		}
 	return self;
+}
+
+- (BOOL) _schedule
+{
+	int s;	// the socket
+	struct sockaddr_in saddr;	// socket address
+	struct ip_mreq mc;			// socket options
+	int flag = 1;
+	int ittl = 255;
+	char ttl = 255;
+	if(_inputStream)
+		return NO;	// already scheduled
+	saddr.sin_family = AF_INET;
+	saddr.sin_port = htons(5353);
+	saddr.sin_addr.s_addr = 0;
+	s=socket(saddr.sin_family, SOCK_DGRAM, PF_UNSPEC);
+	if(s < 0)
+		{
+		NSLog(@"NSNetService: could not create multicast socket due to %s", strerror(errno));
+		return NO;
+		}
+#ifdef SO_REUSEPORT
+	setsockopt(s, SOL_SOCKET, SO_REUSEPORT, (char*)&flag, sizeof(flag));	// reuse port
+#endif
+	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, sizeof(flag));	// reuse address
+	if(bind(s, (struct sockaddr *) &saddr, sizeof(saddr)) != 0)
+		{
+		close(s); 
+		NSLog(@"NSNetService: could not bind multicast socket due to %s", strerror(errno));
+		return NO;
+		}
+	inet_aton("224.0.0.251", &mc.imr_multiaddr);
+	mc.imr_interface.s_addr = INADDR_ANY;
+	setsockopt(s, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mc, sizeof(mc)); 
+	setsockopt(s, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl));
+	setsockopt(s, IPPROTO_IP, IP_MULTICAST_TTL, &ittl, sizeof(ittl));
+	flag =  fcntl(s, F_GETFL, 0);
+	flag |= O_NONBLOCK;
+	fcntl(s, F_SETFL, flag);
+	// shouldn't we check for errors?
+	_inputStream=[[NSInputStream alloc] _initWithFileDescriptor:s];
+	_outputStream=[[NSOutputStream alloc] _initWithFileDescriptor:s];
+	[_inputStream setDelegate:self];	// make us receive packet notifications
+	[self scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+	[_inputStream open];
+	[_outputStream open];
+	return YES;
 }
 
 - (void) dealloc;
@@ -405,6 +401,8 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 		return;	// already
 	if(_port < 0)
 		return;	// initialized for resolving
+	_isPublishing=YES;
+	[self _schedule];
 	[_delegate netServiceWillPublish:self];
 	// send publish record
 	// handle timers (?)
@@ -439,8 +437,9 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 	if(_port > 0)
 		return;	// initialized for publishing
 	_timer=[[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(_resolveTimedOut:) userInfo:nil repeats:NO] retain];
+	[self _schedule];
 	[_delegate netServiceWillResolve:self];
-	// send resolve request
+	// send out resolve request
 }
 
 - (void) scheduleInRunLoop:(NSRunLoop *) loop forMode:(NSString *) mode;
