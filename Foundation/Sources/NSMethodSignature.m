@@ -29,6 +29,8 @@
  ARM-Stackframe conventions are described in section 5.3-5.5, 7.2 of http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042b/IHI0042B_aapcs.pdf
  Unfortunately, this does not cover Objective-C conventions (which appear to be different from C/C++!)
 
+ * libffi documentation: https://github.com/atgreen/libffi/blob/master/doc/libffi.info
+ 
 */ 
 
 #import <Foundation/NSMethodSignature.h>
@@ -41,48 +43,90 @@
 
 struct NSArgumentInfo
 	{ // internal Info about layout of arguments. Extended from the original OpenStep version - no longer available in OSX
-		int offset;							// can be negative (!)
-		unsigned size;					// let us know if the arg is passed in 
-		const char *type;				// registers or on the stack
+		const char *type;				// type (pointer to first type character)
+		int offset;						// can be negative (!)
+		unsigned size;					// size 
 		unsigned align;					// alignment
 		unsigned qual;					// qualifier (oneway, byref, bycopy, in, inout, out)
 		unsigned index;					// argument index (to decode return=0, self=1, and _cmd=2)
-		BOOL isReg;							// is passed in a register (+)
-		BOOL byRef;							// argument is not passed by value but by pointer (i.e. structs)
-		BOOL floatAsDouble;			// its a float value that is passed as double
+		BOOL isReg;						// is passed in a register (+)
+		BOOL byRef;						// argument is not passed by value but by pointer (i.e. structs)
+		BOOL floatAsDouble;				// its a float value that is passed as double
 		// ffi type
 	};
 
-#define AUTO_DETECT 0
+/*
+ * define architecture specific values and fixes
+ */
 
-#if AUTO_DETECT	// to identify calling conventions automatically - EXPERIMENTAL
-@interface NSMethodSignature (Autodetect)
-+ (id) __call_me:(id) s :(SEL) cmd : (id) arg;
-@end
+#if defined(__APPLE__)	// compile on MacOS X (no need to run)
 
-static SEL sel=@selector(__call_me::);
+#define REGISTERSAVEAREASIZE		4*sizeof(long)
+#define STRUCTRETURNPOINTERLENGTH	sizeof(void *)
+#define FLOATASDOUBLE				YES
+#define POINTERADJUST				12
+#define MINALIGN					sizeof(long)
+#define STRUCTBYREF					YES
 
-static BOOL passStructByPointer;			// passes structs by pointer
-static BOOL returnStructByVirtualArgument;	// returns structs by virtual argument pointer
+#elif defined(__arm__)	// for ARM
+#if defined(__ARM_EABI__)
+
+#define REGISTERSAVEAREASIZE		4*sizeof(long)
+#define STRUCTRETURNPOINTERLENGTH	sizeof(void *)
+#define FLOATASDOUBLE				YES
+#define POINTERADJUST				12
+#define MINALIGN					sizeof(long)
+#define STRUCTBYREF					YES
+
+#else // not EABI
+
+#define REGISTERSAVEAREASIZE		4*sizeof(long)
+#define STRUCTRETURNPOINTERLENGTH	sizeof(void *)
+#define FLOATASDOUBLE				YES
+#define POINTERADJUST				12
+#define MINALIGN					sizeof(long)
+#define STRUCTBYREF					YES
+
+#endif	// ARM_EABI
+#elif defined(__mips__)	// for MIPS
+
+#define REGISTERSAVEAREASIZE		4*sizeof(long)
+#define STRUCTRETURNPOINTERLENGTH	sizeof(void *)
+#define FLOATASDOUBLE				YES
+#define POINTERADJUST				0
+#define MINALIGN					sizeof(long)
+#define STRUCTBYREF					YES
+
+#elif defined(i386)	// for Intel
+
+#define REGISTERSAVEAREASIZE		4*sizeof(long)
+#define STRUCTRETURNPOINTERLENGTH	sizeof(void *)
+#define FLOATASDOUBLE				YES
+#define POINTERADJUST				0
+#define MINALIGN					sizeof(long)
+#define STRUCTBYREF					YES
+
+#elif defined(__x86_64__)
+#elif defined(__ppc__)
+#elif defined(__ppc64__)
+#elif defined(__m68k__)
+
+#else
+
+#error "unknown architecture"
 
 #endif
 
-// processor specific constants initialized in +initialize
-
-static BOOL isBigEndian;
-static BOOL structByRef;
-static BOOL floatAsDouble;
-static int registerSaveAreaSize;			// how much bytes we need for that (may be 0)
-static int structReturnPointerLength;		// how much bytes we need for that (may be 0)
-static int pointerAdjust;							// if we must adjust the frame pointer in _allocArgFrame
+#define ISBIGENDIAN					(NSHostByteOrder()==NS_BigEndian)
 
 // merge this into NSMethodSignature
 
 static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *info)
-{
+{ // returns NULL on error
 	NSCAssert(info, @"missing NSArgumentInfo");
 	// FIXME: NO, we should keep the flags+type but remove the offset
 	info->qual = 0;	// start with no qualifier
+	info->isReg = NO;
 	info->floatAsDouble = NO;
 	// Skip past any type qualifiers,
 	for(; YES; typePtr++)
@@ -104,7 +148,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 		}
 	info->type = typePtr;
 	
-	if(structByRef)
+	if(STRUCTBYREF)
 		info->byRef = (*typePtr == _C_STRUCT_B || *typePtr == _C_UNION_B || *typePtr == _C_ARY_B);
 	else
 		info->byRef = NO;
@@ -177,7 +221,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			break;
 			
 		case _C_FLT:
-			if(floatAsDouble)
+			if(FLOATASDOUBLE)
 				{
 				// I guess we should set align/size differently...
 				info->floatAsDouble = YES;
@@ -246,8 +290,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 				if (*typePtr != _C_STRUCT_E)			// on first element.
 					{
 					typePtr = mframe_next_arg(typePtr, &local);
-					if (typePtr == 0)
-						return 0;						// error
+					if (!typePtr)
+						return typePtr;						// error
 					
 					acc_size = ROUND(acc_size, local.align);
 					acc_size += local.size;
@@ -257,8 +301,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 				while (*typePtr != _C_STRUCT_E)			// structure size.
 					{
 					typePtr = mframe_next_arg(typePtr, &local);
-					if (typePtr == 0)
-						return 0;						// error
+					if (!typePtr)
+						return typePtr;						// error
 					
 					acc_size = ROUND(acc_size, local.align);
 					acc_size += local.size;
@@ -283,8 +327,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 				while (*typePtr != _C_UNION_E)
 					{
 					typePtr = mframe_next_arg(typePtr, &local);
-					if (typePtr == 0)
-						return 0;						// error
+					if (!typePtr)
+						return typePtr;						// error
 					max_size = MAX(max_size, local.size);
 					max_align = MAX(max_align, local.align);
 					}
@@ -300,11 +344,9 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			break;
 			
 		default:
-			return 0;
+			return NULL;	// unknown
 		}
 	
-	if(*typePtr == 0)
-		return NULL;								// error
 	if(info->type[0] != _C_PTR || info->type[1] == '?')
 		{
 		if(*typePtr == '+')	 
@@ -329,106 +371,69 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 
 @implementation NSMethodSignature
 
-+ (void) initialize
-{
-//	NSLog(@"This is [NSMethodSignature initialize]\n");
-#if AUTO_DETECT
-	[NSMethodSignature __call_me:self :sel :self];
-	passStructByPointer=NO;
-	returnStructByVirtualArgument=YES;
-#elif defined(__arm__)	// for ARM
-#if defined(__ARM_EABI__)
-	// don't know
-#else
-	registerSaveAreaSize=4*sizeof(long);		// for ARM processor
-	structReturnPointerLength=sizeof(void *);	// if we have one
-	floatAsDouble=YES;
-	// FIXME: check for gcc version and/or EABI
-	// on ARM - forward:: returns the full stack while __builtin_apply() needs only the extra arguments (gcc bug?)
-	pointerAdjust=12;
-//	structByRef=YES;
-#endif
-#elif defined(__mips__)	// for MIPS
-	registerSaveAreaSize=4*sizeof(long);		// for ARM processor
-	structReturnPointerLength=sizeof(void *);	// if we have one
-	floatAsDouble=YES;
-	//	structByRef=YES;
-#elif defined(__x86__)	// for Intel
-	// check for others
-#endif
-	isBigEndian=(NSHostByteOrder()==NS_BigEndian);
-#if 1
-	NSLog(@"NSMethodSignature +initialize: processor is %@", isBigEndian?@"Big Endian":@"Little Endian");
-	NSLog(@"NSMethodSignature +initialize: register save area %d bytes", registerSaveAreaSize);
-#endif
-}
-
 #define NEED_INFO() if(info == NULL) [self _methodInfo]
 
 - (void) _methodInfo
 { // collect all information from methodTypes in a platform independent way
 	if(info == NULL) 
-			{ // calculate method info
-				const char *types = methodTypes;
-				int i;
-				int allocArgs=5;
-				argFrameLength=0;
-#if 0
-				NSLog(@"methodInfo create");
+		{ // calculate method info
+			const char *types = methodTypes;
+			int i=0;
+			int allocArgs=5;
+			argFrameLength=STRUCTRETURNPOINTERLENGTH;
+#if 1
+			NSLog(@"methodInfo create for types %s", methodTypes);
 #endif
-				// should we add a struct return pointer
-				info = objc_malloc(sizeof(struct NSArgumentInfo) * allocArgs);
-				for(i = 0; *types != 0; i++)
-						{ // process all types
-#if 0
-							NSLog(@"%d: %s", i, types);
+			info = objc_malloc(sizeof(struct NSArgumentInfo) * allocArgs);
+			while(*types)
+				{ // process all types
+#if 1
+					NSLog(@"%d: %s", i, types);
 #endif
-							if(i >= allocArgs)
-								allocArgs+=5, info = objc_realloc(info, sizeof(struct NSArgumentInfo) * allocArgs);	// we need more space
-							types = mframe_next_arg(types, &info[i]);
-							info[i].index=i-1;
-							if((info[i].qual & _F_INOUT) == 0)
-									{ // add default qualifiers
-										if(i == 0)
-											info[i].qual |= _F_OUT;		// default to "bycopy out" for the return value
-										else if(*info[0].type == _C_PTR || *info[0].type == _C_ATOM || *info[0].type == _C_CHARPTR)
-											info[i].qual |= _F_INOUT;	// default to "bycopy in/out"
-										else
-											info[i].qual |= _F_IN;		// default to "bycopy in"
-									}
-							if(isBigEndian && info[i].align < 4)
-									{ // adjust offset
-										info[i].offset+=4-info[i].align;	// point to the correct byte
-										info[i].align=4;					// ARM pushes all arguments as long words
-									}
-							// CHECKME!
-							if(i>0 && info[i].isReg && info[0].byRef)
-								info[i].offset += structReturnPointerLength;	// adapt offset because we have a virtual first argument
-							if(!info[i].isReg)	// value is on stack - counts for frameLength
-								argFrameLength += ((info[i].size+info[i].align-1)/info[i].align)*info[i].align;
+					if(i >= allocArgs)
+						allocArgs+=5, info = objc_realloc(info, sizeof(struct NSArgumentInfo) * allocArgs);	// we need more space
+					types = mframe_next_arg(types, &info[i]);
+					if(!types)
+						break;	// some error
+					info[i].index=i-1;
+					if((info[i].qual & _F_INOUT) == 0)
+						{ // add default qualifiers
+							if(i == 0)
+								info[i].qual |= _F_OUT;		// default to "bycopy out" for the return value
+							else if(*info[i].type == _C_PTR || *info[i].type == _C_ATOM || *info[i].type == _C_CHARPTR)
+								info[i].qual |= _F_INOUT;	// pointers default to "bycopy in/out"
+							else
+								info[i].qual |= _F_IN;		// others default to "bycopy in"
 						}
-				numArgs = i-1;	// return type does not count
-#if 0
-				NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
+					if(info[i].align < MINALIGN)
+						info[i].align=MINALIGN;
+					info[i].offset = argFrameLength;
+					if(!info[i].isReg)	// value is on stack - counts for frameLength
+						argFrameLength += ((info[i].size+info[i].align-1)/info[i].align)*info[i].align;
+					i++;
+				}
+			numArgs = i-1;	// return type does not count
+#if 1
+			NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
 #endif
     	}
 	// FIXME: is this a general problem and not only ARM? Fixed in gcc 3.x and later? How to handle e.g. (double) as arguments in a protocol?
 	if(!info[numArgs].isReg && info[numArgs].offset == 0)
-			{ // fix bug in gcc 2.95.3 signature for @protocol (last argument is described as @0 instead of e.g. @+16)
+		{ // fix bug in gcc 2.95.3 signature for @protocol (last argument is described as @0 instead of e.g. @+16)
 #if 1
-				NSLog(@"fix ARM @protocol()");
+			NSLog(@"fix ARM @protocol()");
 #endif
-				info[numArgs].offset=info[numArgs-1].offset-20;
-			}
-#if 1
-		{
-			int i;
-			for(i=0; i<=numArgs; i++)
-				NSLog(@"%d: type=%s size=%d align=%d isreg=%d offset=%d qual=%x byRef=%d fltDbl=%d",
-							info[i].index, info[i].type, info[i].size, info[i].align,
-							info[i].isReg, info[i].offset, info[i].qual,
-							info[i].byRef, info[i].floatAsDouble);
+			info[numArgs].offset=info[numArgs-1].offset-20;
 		}
+#if 1
+	{
+	int i;
+	for(i=0; i<=numArgs; i++)
+		NSLog(@"%d: type=%s size=%d align=%d isreg=%d offset=%d qual=%x byRef=%d fltDbl=%d",
+			  info[i].index, info[i].type, info[i].size, info[i].align,
+			  info[i].isReg, info[i].offset, info[i].qual,
+			  info[i].byRef, info[i].floatAsDouble);
+	}
 #endif
 }
 
@@ -598,7 +603,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 { // (re)allocate stack frame for ARM CPU
 	if(!frame)
 		{ // make a single buffer that is large enough to hold the _builtin_apply() block + space for frameLength arguments
-		int part1 = sizeof(void *) + structReturnPointerLength + registerSaveAreaSize;	// first part
+		int part1 = sizeof(void *) + STRUCTRETURNPOINTERLENGTH + REGISTERSAVEAREASIZE;	// first part
 		void *args;
 		NEED_INFO();	// get valid argFrameLength
 		frame=(arglist_t) objc_calloc(part1 + argFrameLength, sizeof(char));
@@ -608,71 +613,73 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 #endif
 		((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
 		}
-	else if(pointerAdjust)
-		((char **)frame)[0]+=pointerAdjust;
+	else if(POINTERADJUST > 0)
+		((char **)frame)[0]+=POINTERADJUST;
 	return frame;
 }
 
-static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *retbuf, struct NSArgumentInfo *info)
-{ // wrap call because it fails if called from within a Objective-C method
-#if 0	// broken
-#ifndef __APPLE__
-	retval_t retframe=__builtin_apply(imp, frame, stack);	// here, we really invoke the method implementation
-#if 1
-	NSLog(@"retframe= %p", retframe);
-#endif
-	if(info[0].size)
-			{ // the following code fetches a typed value from retframe and makes it available through getReturnValue
-				typedef struct {
-					char val[info[0].size];
-				} block;
+#define RETURN(CODE, TYPE) CODE: { \
+		inline TYPE retframe##CODE(void *imp, arglist_t frame, int stack) \
+			{ \
+			NSLog(@"retframe##CODE called (imp=%p frame=%p stack=%d)", imp, frame, stack); \
+			retval_t retval=__builtin_apply(imp, frame, stack); \
+			NSLog(@"__builtin_apply called"); \
+			__builtin_return(retval); \
+			}; \
+		NSLog(@"call retframe##CODE"); \
+		*(TYPE *) retbuf = retframe##CODE(imp, frame, stack); \
+		NSLog(@"call retframe##CODE"); \
+		break; \
+		}
+
 #if 0
-				NSLog(@"  type:%s save:%p", info[0].type, retframe);
+- (void) test
+{
+	NSLog(@"test");
+}
 #endif
-				switch(*info[0].type)
-					{
-#define RETURN(CODE, TYPE) case CODE: { /*inline*/ TYPE retframe_##CODE(void *f) { __builtin_return(f); } *(TYPE *) retbuf = retframe_##CODE(retframe); break; }
-#if 0	// debugging
-						case _C_ID:
-							{
-								static /* inline or static? */ id retframe_id(void *f)			{ __builtin_return(f); }
-								NSLog(@"retframe_id returns %p", retframe_id(retframe));
-								*(id *)retbuf = retframe_id(retframe);
-								NSLog(@"invoke returns id %p", *(id *) retbuf);
-								NSLog(@"  object: %@", *(id *) retbuf);
-								break;
-							}
-#else
-							RETURN(_C_ID, id);
+
+static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *retbuf, struct NSArgumentInfo *info)
+{ // wrap call because it fails if __builtin_apply is called directly from within a Objective-C method
+//	imp=[NSMethodSignature instanceMethodForSelector:@selector(test)];
+#ifndef __APPLE__
+	typedef struct {
+		char val[1 /*info[0].size */];
+	} block;
+#if 1
+	NSLog(@"type %s imp=%p frame=%p stack=%d retbuf=%p", info[0].type, imp, frame, stack, retbuf);
 #endif
-							RETURN(_C_CLASS, Class);
-							RETURN(_C_SEL, SEL);
-							RETURN(_C_CHR, char);
-							RETURN(_C_UCHR, unsigned short);
-							RETURN(_C_SHT, char);
-							RETURN(_C_USHT, unsigned short);
-							RETURN(_C_INT, int);
-							RETURN(_C_UINT, unsigned int);
-							RETURN(_C_LNG, long);
-							RETURN(_C_ULNG, unsigned long);
-							RETURN(_C_LNG_LNG, long long);
-							RETURN(_C_ULNG_LNG, unsigned long long);
-							RETURN(_C_FLT, float);
-							RETURN(_C_DBL, double);
-							RETURN(_C_PTR, char *);
-							RETURN(_C_ATOM, char *);
-							RETURN(_C_CHARPTR, char *);
-							RETURN(_C_ARY_B, block);
-							RETURN(_C_STRUCT_B, block);
-							RETURN(_C_UNION_B, block);
-						case _C_VOID:
-							break;	// should not happen to be called since size==0
-					}
-				return YES;	// break from switch
-			}
+	switch(*info[0].type) {
+		case RETURN(_C_ID, id);
+		case RETURN(_C_CLASS, Class);
+		case RETURN(_C_SEL, SEL);
+		case RETURN(_C_CHR, char);
+		case RETURN(_C_UCHR, unsigned short);
+		case RETURN(_C_SHT, char);
+		case RETURN(_C_USHT, unsigned short);
+		case RETURN(_C_INT, int);
+		case RETURN(_C_UINT, unsigned int);
+		case RETURN(_C_LNG, long);
+		case RETURN(_C_ULNG, unsigned long);
+		case RETURN(_C_LNG_LNG, long long);
+		case RETURN(_C_ULNG_LNG, unsigned long long);
+		case RETURN(_C_FLT, float);
+		case RETURN(_C_DBL, double);
+		case RETURN(_C_PTR, char *);
+		case RETURN(_C_ATOM, char *);
+		case RETURN(_C_CHARPTR, char *);
+			// FIXME: needs special handling for variable size
+		case RETURN(_C_ARY_B, block);
+		case RETURN(_C_STRUCT_B, block);
+		case RETURN(_C_UNION_B, block);
+		case _C_VOID:
+			break;
+		default:
+			NSLog(@"unprocessed type %s for _call", info[0].type);
+			return NO;	// unknown type
+	}
 #endif
-#endif
-	return NO;
+	return YES;	// ok
 }
 
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe retbuf:(void *) retbuf;
@@ -681,43 +688,9 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 #if 1
 	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, (argFrameLength+3)&~3);
 #endif
-	if(pointerAdjust)
+	if(POINTERADJUST)
 		((void **)_argframe)[1] = ((void **)_argframe)[2];		// copy target/self value to the register frame
 	return wrapped_builtin_apply(imp, _argframe, (argFrameLength+3)&~3, retbuf, &info[0]);	// here, we really invoke the implementation	
 }
-
-@end
-
-@implementation NSMethodSignature (Autodetect)
-
-#if AUTO_DETECT
-
-+ (id) __call_me:(id) s :(SEL) cmd : (id) arg;
-{
-	arglist_t argFrame=__builtin_apply_args();
-	Method *m;
-	const char *type;
-//	NSLog(@"This is [NSMethodSignature __call_me::]");
-//	NSLog(@"argFrame=%08x", (unsigned) argFrame);
-	m=class_get_instance_method(((struct objc_class*) s)->class_pointer, cmd);
-//	NSLog(@"m=%08x", (unsigned) m);
-	if(m)
-		{
-		NSLog(@"firstarg=%08x", (unsigned) method_get_first_argument(m, argFrame, &type));
-		NSLog(@"nextarg=%08x", (unsigned) method_get_next_argument(argFrame, &type));
-
-// retval_t objc_msg_sendv(id object, SEL op, arglist_t arg_frame)
-//{
-// Method* m = class_get_instance_method(object->class_pointer, op);
-// const char *type;
-// *((id*)method_get_first_argument (m, arg_frame, &type)) = object;
-// *((SEL*)method_get_next_argument (arg_frame, &type)) = op;
-//  return __builtin_apply((apply_t)m->method_imp, arg_frame, method_get_sizeof_arguments (m));
-//  }
-		}
-	return nil;
-	}
-
-#endif
 
 @end  /* NSMethodSignature (mySTEP) */

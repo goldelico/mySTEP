@@ -35,4 +35,12 @@
 
 @end
 
+@interface NSIBUserDefinedRuntimeAttributesConnector : NSObject <NSCoding>
+{
+	id _destination;
+	NSArray *_keyPaths;
+	NSArray *_values;
+}
+@end
+
 #endif /* _mySTEP_H_NSNibConnector */

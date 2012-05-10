@@ -28,24 +28,60 @@
 #import <Foundation/NSMethodSignature.h>
 #import "NSPrivate.h"
 
-#ifndef __APPLE__
+@implementation NSInvocation
 
-// the following functions convert their argument into a proper retval_t that can be passed back
-// they do it by using __builtin_apply() on well known functions which transparently pass back their argument
+#if 1	// test
 
-typedef struct { id many[8]; } __big;		// For returning structures ...etc
-
-static __big return_block (void *data)		{ return *(__big*)data; }
-
-static retval_t apply_block(void *data)
+- (void) test1
 {
-	void *args = __builtin_apply_args();
-	return __builtin_apply((apply_t)return_block, args, sizeof(data));
+	NSLog(@"*** self=%p", self);
+	NSLog(@"*** _cmd=%p", _cmd);
+	NSAssert(self != nil, @"self is not set correctly; NSInvocation may be broken");	
+	NSAssert(_cmd != NULL, @"_cmd is not set correctly; NSInvocation may be broken");	
+}
+
+- (void) test2:(id) arg
+{
+	NSLog(@"*** self=%p", self);
+	NSLog(@"*** _cmd=%p", _cmd);
+	NSLog(@"*** arg=%p", arg);
+	NSAssert(self != nil, @"self is not set correctly; NSInvocation may be broken");	
+	NSAssert(_cmd != NULL, @"_cmd is not set correctly; NSInvocation may be broken");	
+	NSAssert(arg != nil, @"arg is not set correctly; NSInvocation may be broken");	
+}
+
+- (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector
+{ // must be overridden or forwardInvocation: will not be called
+	if(sel_eq(aSelector, @selector(makeObjectsPerformSelector:)))
+		return [NSArray instanceMethodSignatureForSelector:aSelector];
+	return [super methodSignatureForSelector:aSelector];
+}
+
++ (void) initialize
+{
+	SEL sel;
+	NSInvocation *test;
+	NSLog(@"-- NSInvocation initialize -- testing ---");
+	sel=@selector(test1);
+	test=[NSInvocation invocationWithMethodSignature:[NSInvocation instanceMethodSignatureForSelector:sel]];
+	[test setSelector:sel];
+	NSLog(@"-- test1 ---");
+	[test invokeWithTarget:test];
+	NSLog(@"-- test1 done ---");
+	sel=@selector(test2:);
+	test=[NSInvocation invocationWithMethodSignature:[NSInvocation instanceMethodSignatureForSelector:sel]];
+	[test setSelector:sel];
+	[test setArgument:&test atIndex:2];
+	NSLog(@"-- test2 ---");
+	[test invokeWithTarget:test];
+	NSLog(@"-- test2 done ---");
+	NSLog(@"-- test3 ---");
+	[test makeObjectsPerformSelector:sel];	// not existing (in this class)  -> call forward::
+	NSLog(@"-- test3 done ---");
+	NSLog(@"-- NSInvocation initialize -- done ---");
 }
 
 #endif
-
-@implementation NSInvocation
 
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *)aSig
 {
@@ -115,7 +151,7 @@ static retval_t apply_block(void *data)
 					NSStringFromClass(isa),
 					self,
 					NSStringFromSelector(sel),
-					target,
+					target==self?@"(self)":target,
 					_types,
 					_validReturn?@"yes":@"no",
 					_argsRetained?@"yes":@"no"
@@ -171,6 +207,8 @@ static retval_t apply_block(void *data)
 #endif
 }
 
+// this is called from NSObject/NSProxy from the forward:: method
+
 - (id) _initWithMethodSignature:(NSMethodSignature*)aSignature andArgFrame:(arglist_t) argFrame
 {
 #if 1
@@ -213,7 +251,7 @@ static retval_t apply_block(void *data)
 			_retvalismalloc=YES;	// always...
 			}
 		}
-#if 0
+#if 1
 	[self _log:@"_initWithMethodSignature:andArgFrame:"];
 #endif
 	return self;
@@ -222,13 +260,30 @@ static retval_t apply_block(void *data)
 // NOTE: this approach is not sane since the retval_t from __builtin_apply_args() may be a pointer into a stack frame that becomes invalid if we return apply()
 // therefore, this mechanism is not signal()-safe (i.e. don't use NSTask)
 
-#define APPLY(NAME, TYPE)  case NAME: { \
+#ifndef __APPLE__
+
+// the following functions convert their argument into a proper retval_t that can be passed back
+// they do it by using __builtin_apply() on well known functions which transparently pass back their argument
+
+typedef struct { id many[8]; } __big;		// For returning structures ...etc
+
+static __big return_block (void *data)		{ return *(__big*)data; }
+
+static retval_t apply_block(void *data)
+{
+	void *args = __builtin_apply_args();
+	return __builtin_apply((apply_t)return_block, args, sizeof(data));
+}
+
+#endif
+
+#define APPLY(NAME, TYPE)  NAME: { \
 	/*static*/ TYPE return##NAME(TYPE data) { fprintf(stderr, "return"#NAME" %x\n", (unsigned)data); return data; } \
 	inline retval_t apply##NAME(TYPE data) { void *args = __builtin_apply_args(); fprintf(stderr, "apply"#NAME" args=%p %x\n", args, (unsigned)data); return __builtin_apply((apply_t)return##NAME, args, sizeof(data)); } \
 	fprintf(stderr, "case"#NAME":\n"); \
 	return apply##NAME(*(TYPE *) _retval); } 
 
-#define APPLY_VOID(NAME)  case NAME: { \
+#define APPLY_VOID(NAME)  NAME: { \
 	/*static*/ void return##NAME(void) { return; } \
 	inline retval_t apply##NAME(void) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, 0); } \
 	return apply##NAME(); } 
@@ -239,64 +294,63 @@ static retval_t apply_block(void *data)
 #if 1
 	NSLog(@"_returnValue");
 	if(_rettype[0] == _C_ID)
-			{
-				id ret;
-				[self getReturnValue:&ret];
-				NSLog(@"value = %@", ret);
-			}
+		{
+		id ret;
+		[self getReturnValue:&ret];
+		NSLog(@"value = %@", ret);
+		}
 #endif
 	if(_argsRetained)
 		[self _releaseArguments];
 	if(!_argframeismalloc && _argframe)
 		_argframe=NULL;	// deallocate since it was inherited from our caller
 	if(!_validReturn && *_rettype != _C_VOID)
-			{ // no valid return value
-				NSLog(@"warning - no valid return value set");
-				[NSException raise: NSInvalidArgumentException format: @"did not 'setReturnValue:' for non-void NSInvocation"];
-			}
+		{ // no valid return value
+			NSLog(@"warning - no valid return value set");
+			[NSException raise: NSInvalidArgumentException format: @"did not 'setReturnValue:' for non-void NSInvocation"];
+		}
 #ifndef __APPLE__
-	switch(_rettype[0])
-		{
-				APPLY_VOID(_C_VOID);
-				APPLY(_C_ID, id);
-				APPLY(_C_CLASS, Class);
-				APPLY(_C_SEL, SEL);
-				APPLY(_C_CHR, char);
-				APPLY(_C_UCHR, unsigned char);
-				APPLY(_C_SHT, short);
-				APPLY(_C_USHT, unsigned short);
-				APPLY(_C_INT, int);
-				APPLY(_C_UINT, unsigned int);
-				APPLY(_C_LNG, long);
-				APPLY(_C_ULNG, unsigned long);
-				APPLY(_C_LNG_LNG, long long);
-				APPLY(_C_ULNG_LNG, unsigned long long);
-//				APPLY(_C_FLT, float);
-//				APPLY(_C_DBL, double);
-				APPLY(_C_ARY_B, char *);
-				
-			case _C_UNION_B:
-			case _C_STRUCT_B:
+	switch(_rettype[0]) {
+		case APPLY_VOID(_C_VOID);
+		case APPLY(_C_ID, id);
+		case APPLY(_C_CLASS, Class);
+		case APPLY(_C_SEL, SEL);
+		case APPLY(_C_CHR, char);
+		case APPLY(_C_UCHR, unsigned char);
+		case APPLY(_C_SHT, short);
+		case APPLY(_C_USHT, unsigned short);
+		case APPLY(_C_INT, int);
+		case APPLY(_C_UINT, unsigned int);
+		case APPLY(_C_LNG, long);
+		case APPLY(_C_ULNG, unsigned long);
+		case APPLY(_C_LNG_LNG, long long);
+		case APPLY(_C_ULNG_LNG, unsigned long long);
+			//				case APPLY(_C_FLT, float);
+			//				case APPLY(_C_DBL, double);
+		case APPLY(_C_ARY_B, char *);
+			
+		case _C_UNION_B:
+		case _C_STRUCT_B:
 #if FIXME
-			{
-				// FIXME
-//				memcpy(((void **)_argframe)[2], _retval, _info[0].size);
-				if(_info[0].byRef)
-					return (retval_t) _retval;	// ???
-// #else
-				if (_info[0].size > 8)
-					// should be dependent on maximum size returned in a register (typically 8 but sometimes 4)
-					// can we use sizeof(retval_t) for that purpose???
-					return apply_block(*(void**)_retval);
-
-// #endif
-			}
+		{
+		// FIXME
+		//				memcpy(((void **)_argframe)[2], _retval, _info[0].size);
+		if(_info[0].byRef)
+			return (retval_t) _retval;	// ???
+		// #else
+		if (_info[0].size > 8)
+			// should be dependent on maximum size returned in a register (typically 8 but sometimes 4)
+			// can we use sizeof(retval_t) for that purpose???
+			return apply_block(*(void**)_retval);
+		
+		// #endif
+		}
 #endif
 			return apply_block(*(void**)_retval);
 		default:	// all others
-				NSLog(@"unprocessed type %s for _returnValue", _rettype);
+			NSLog(@"unprocessed type %s for _returnValue", _rettype);
 			return (retval_t) _retval;	// uh???
-		}
+	}
 #endif
 	return (retval_t) NULL;
 }

@@ -302,10 +302,10 @@
 // value. Same as scanInt, 
 - (BOOL) scanLongLong: (long long *)value		// except with different
 {												// variable types and limits.
-#if defined(ULONG_LONG_MAX)
+#if defined(ULLONG_MAX)
 	
 	unsigned long long num = 0;
-	const unsigned long long limit = ULONG_LONG_MAX / 10;
+	const unsigned long long limit = ULLONG_MAX / 10;
 	BOOL negative = NO;
 	BOOL overflow = NO;
 	BOOL got_digits = NO;
@@ -354,8 +354,8 @@
 	
 	if (value)
 		{
-		if (overflow || (num > (negative ? (unsigned long long) LONG_LONG_MIN : (unsigned long long) LONG_LONG_MAX)))
-			*value = negative ? LONG_LONG_MIN: LONG_LONG_MAX;
+		if (overflow || (num > (negative ? (unsigned long long) LLONG_MIN : (unsigned long long) LLONG_MAX)))
+			*value = negative ? LLONG_MIN: LLONG_MAX;
 		else 
 			if (negative)
 				*value = -num;

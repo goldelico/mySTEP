@@ -62,7 +62,8 @@ extern NSString *const NSFailedAuthenticationException;
 	NSMapTable *_localObjects;			// map of local objects -> proxy
 	NSMapTable *_remoteObjects;			// map of remote target (reference number) -> proxy
 	unsigned int _nextReference;		// next reference id
-	NSMutableArray *_modes;
+	NSMutableArray *_modes;			// all modes
+	NSMutableArray *_runLoops;		// all runloops
 	NSMutableArray *_requestQueue;	// queue of pending NSDistantObjectRequests
 	NSMapTable *_responses;	// responses indexed by sequence number
 	NSTimeInterval _requestTimeout;

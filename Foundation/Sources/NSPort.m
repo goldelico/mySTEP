@@ -405,7 +405,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		short family;
 		if(!_isBound)
 			{
-#if 1
+#if 0
 			NSLog(@"not yet bound & listening:%@", self);
 			return;
 #endif
@@ -469,7 +469,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		if((len=read(_sendfd, &header, sizeof(header))) != sizeof(header))
 			{ // should we have a mechanism to resync? This appears to be not required since we assume a reliable transport socket
 			// we might have to remember a partial header!
-#if 1
+#if 0
 			NSLog(@"closed by peer: %@", self);
 #endif
 			[self invalidate];
@@ -560,12 +560,12 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 			[msg _setReceivePort:recv];		// we (or our parent) is the receive port
 			objc_free(_recvBuffer);			// done
 			_recvBuffer=NULL;
-#if 0
+#if 1
 			NSLog(@"handlePortMessage:%@ by delegate %@", msg, d);
 #endif
 			[d handlePortMessage:msg];	// process by delegate
 			[msg release];
-#if 0
+#if 1
 			NSLog(@"msg released");
 #endif
 			[arp release];
@@ -793,7 +793,7 @@ static unsigned _portDirectoryLength;
 	// FIXME: the first 2 bytes of address should probably be the same as the family!
 	// should we substitute a unique local name if alen == 0?
 	// i.e. [[NSProcessInfo processInfo] globallyUniqueString]]
-#if 1
+#if 0
 	NSLog(@"NSMessagePort _initRemoteWithFamily:%d socketType:%d protocol:%d address:%@", family, type, protocol, address);
 #endif
 	if((self=[super init]))
@@ -900,7 +900,7 @@ static unsigned _portDirectoryLength;
 		h=[NSHost hostWithAddress:host];	// try dotted notation
 	if(!h)
 		{ // could not resolve
-			// CHECKME: Cocoa appears to use the "localhost"
+			// CHECKME: Cocoa appears to use the "localhost" in this case
 		[self release];
 		return nil;
 		}
@@ -970,6 +970,9 @@ static unsigned _portDirectoryLength;
 		_address.protocol=protocol;
 		_fd=sock;
 		}
+#if 0
+	NSLog(@"initialized with socket %d", sock);
+#endif
 	return self;
 }
 

@@ -598,3 +598,30 @@ static unsigned long parseLong(unsigned char *buffer, int len, unsigned int *pos
 }
 
 @end
+
+@implementation NSObject (NSNetService)
+
+// FIXME: which are mandatory?
+- (void) netService:(NSNetService *) sender didNotPublish:(NSDictionary *) error; { return; }
+- (void) netService:(NSNetService *) sender didNotResolve:(NSDictionary *) error; { return; }
+- (void) netServiceDidPublish:(NSNetService *) sender; { return; }
+- (void) netServiceDidResolveAddress:(NSNetService *) sender; { return; }
+- (void) netServiceDidStop:(NSNetService *) sender; { return; }
+- (void) netService:(NSNetService *)sender didUpdateTXTRecordData:(NSData *) txt; { return; }
+- (void) netServiceWillPublish:(NSNetService *) sender; { return; }
+- (void) netServiceWillResolve:(NSNetService *) sender; { return; }
+
+@end
+
+@implementation NSObject(NSNetServiceBrowser)
+
+- (void) netServiceBrowser:(NSNetServiceBrowser *) browser didFindDomain:(NSString *) domain moreComing:(BOOL) more; { return; }
+- (void) netServiceBrowser:(NSNetServiceBrowser *) browser didFindService:(NSNetService *) service moreComing:(BOOL) more; { return; }
+- (void) netServiceBrowser:(NSNetServiceBrowser *) browser didNotSearch:(NSDictionary *) error; { return; }
+- (void) netServiceBrowser:(NSNetServiceBrowser *) browser didRemoveDomain:(NSString *) domain moreComing:(BOOL) more; { return; }
+- (void) netServiceBrowser:(NSNetServiceBrowser *) browser didRemoveService:(NSNetService *) domain moreComing:(BOOL) more; { return; }
+- (void) netServiceBrowserDidStopSearch:(NSNetServiceBrowser *) browser; { return; }
+- (void) netServiceBrowserWillSearch:(NSNetServiceBrowser *) browser; { return; }
+
+@end
+

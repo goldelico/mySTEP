@@ -367,17 +367,22 @@
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
-	BOOL flag;
+	BOOL flag1, flag2;
 	NSConnection *c=[(NSPortCoder *) coder connection];
 #if 1
 	NSLog(@"NSDistantObject initWithCoder:%@", coder);
 #endif
 	[coder decodeValueOfObjCType:@encode(int) at:&_reference];
-	[coder decodeValueOfObjCType:@encode(char) at:&flag];
-	[coder decodeValueOfObjCType:@encode(char) at:&flag];
+	[coder decodeValueOfObjCType:@encode(char) at:&flag1];
+	[coder decodeValueOfObjCType:@encode(char) at:&flag2];
 #if 1
-	NSLog(@"reference %u", _reference);
+	NSLog(@"reference=%u flag1=%d flag2=%d", _reference, flag1, flag2);
 #endif
+	if(_reference == 0)
+		{
+		[self release];
+		return [c retain];	// this refers to the connection object
+		}
 	return [self initWithTarget:(id) _reference connection:[(NSPortCoder *)coder connection]];	// looks up in cache or creates a new one
 }
 

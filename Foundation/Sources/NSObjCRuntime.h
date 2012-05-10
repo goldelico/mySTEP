@@ -81,9 +81,14 @@ typedef signed long CFIndex;
 
 typedef struct __CGEvent *CGEventRef;
 
-#define NSIntegerMax   LONG_MAX
-#define NSIntegerMin   LONG_MIN
-#define NSUIntegerMax  ULONG_MAX
+#define NSIntegerMax	LONG_MAX
+#define NSIntegerMin	LONG_MIN
+#define NSUIntegerMax	ULONG_MAX
+#ifndef LONG_LONG_MAX
+#define LONG_LONG_MAX	LLONG_MAX
+#define LONG_LONG_MIN	LLONG_MIN
+#define ULONG_LONG_MAX	ULLONG_MAX
+#endif
 
 #ifdef __linux__			
 // those from gcc but not available on MacOS X

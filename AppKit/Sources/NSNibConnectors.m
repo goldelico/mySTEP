@@ -224,3 +224,53 @@
 }
 
 @end
+
+@implementation NSIBUserDefinedRuntimeAttributesConnector
+
+- (void) encodeWithCoder:(NSCoder *) aCoder
+{
+	NIMP;
+}
+
+- (id) initWithCoder:(NSCoder *) coder
+{
+	if(![coder allowsKeyedCoding])
+		{ [self release]; return nil; }
+#if 0
+	NSLog(@"%@ initWithCoder:%@", NSStringFromClass([self class]), coder);
+#endif
+	_destination = [[coder decodeObjectForKey:@"NSObject"] retain];
+//	_pairs = [NSDictionary alloc] initWithObjects:[coder decodeObjectForKey:@"NSValues"] forKeys:[coder decodeObjectForKey:@"NSKeyPaths"]];
+	_keyPaths = [[coder decodeObjectForKey:@"NSKeyPaths"] retain];
+	_values = [[coder decodeObjectForKey:@"NSValues"] retain];
+#if 0
+	NSLog(@"decoded: %@", self);
+#endif
+	return self;
+}
+
+- (void) dealloc
+{
+	[_destination release];
+	[_keyPaths release];
+	[_values release];
+	[super dealloc];
+}
+
+- (void) establishConnection;
+{
+#if 1
+	NSLog(@"establishConnection %@", self);
+#endif
+//	[_destination setValuesForKeysWithDictionary:_pairs];
+}
+
+- (void) replaceObject:(id) old withObject:(id) new
+{
+	NSLog(@"someone wants me to replaceObject: %@ withObject: %@", old, new);
+	if(_destination == old) ASSIGN(_destination, new);
+}
+
+@end
+
+
