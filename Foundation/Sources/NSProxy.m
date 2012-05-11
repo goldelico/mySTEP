@@ -131,6 +131,7 @@
 	if(aSel == 0)
 		[NSException raise:NSInvalidArgumentException
 					format:@"NSProxy forward:: %@ NULL selector", NSStringFromSelector(_cmd)];
+	// FIXME: Cocoa is said to discard the call if methodSignature returns nil - but how do we get a retval_t??
 	inv=[[NSInvocation alloc] _initWithMethodSignature:[self methodSignatureForSelector:aSel] andArgFrame:argFrame];
 	if(!inv)
 		{ // unknown to system

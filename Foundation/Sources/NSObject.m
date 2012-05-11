@@ -542,16 +542,17 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	NSInvocation *inv;
 	BOOL resolved;
 #if 1
-	{ 	// show stack
-	int i;
-	NSLog(@"NSObject -forward:@selector(%@):", NSStringFromSelector(aSel));
-	NSLog(@"Object=%@", self);
-	NSLog(@"frame=%p", argFrame);
-	NSLog(@"target=%p sel=%p", self, aSel);
-	for(i=0; i<24; i++)
-		{
-		NSLog(@"frame[%2d]:%p %08x", i, &((void **)argFrame)[i], ((void **)argFrame)[i]);
-		}
+	{ 	// show stack frame
+		int i;
+		NSLog(@"NSObject -forward:@selector(%@):", NSStringFromSelector(aSel));
+		NSLog(@"self=%@", self);
+		NSLog(@"_cmd=%s", _cmd);
+		NSLog(@"sel=%p", aSel);
+		NSLog(@"frame=%p", argFrame);
+		for(i=0; i<24; i++)
+			{
+			NSLog(@"frame[%2d]:%p %08x", i, &((void **)argFrame)[i], ((void **)argFrame)[i]);
+			}
 	}
 #endif
 	if(aSel == 0)
@@ -559,24 +560,27 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 					format:@"NSObject forward:: %@ NULL selector", NSStringFromSelector(_cmd)];
 	// FIXME: class or instance?
 	resolved=[self resolveInstanceMethod:aSel];	// give a chance to add to runtime methods before invoking
+	// FIXME: Cocoa is said to discard the call if methodSignature returns nil - but how do we get a retval_t??
 	inv=[[NSInvocation alloc] _initWithMethodSignature:[self methodSignatureForSelector:aSel] andArgFrame:argFrame];
 	if(!inv)
 		{ // unknown to system
-		[self doesNotRecognizeSelector:aSel];
-		return nil;
+			[self doesNotRecognizeSelector:aSel];
+			return nil;
 		}
 	if(resolved)
-			{ // was resolved
-				[inv invoke];
-			}
+		{ // was resolved, call directly
+			[inv invoke];
+		}
 	else
-			{
-				[inv setTarget:[self forwardingTargetForSelector:aSel]];
-				[self forwardInvocation:inv];
+		{
+		id target=[self forwardingTargetForSelector:aSel];
+		if(target != self)
+			[inv setTarget:target];	// update target
+		[self forwardInvocation:inv];
 #if 1
-	NSLog(@"invocation forwarded. Returning result");
+		NSLog(@"invocation forwarded. Returning result");
 #endif
-			}
+		}
 	r=[inv _returnValue];
 	[inv release];
 #if 1

@@ -66,6 +66,8 @@ NSString *const NSFailedAuthenticationException = @"NSFailedAuthenticationExcept
 #define FLAGS_REQUEST 0x0e1ffeed
 #define FLAGS_RESPONSE 0x0e2ffece
 
+static unsigned int _sequence;	// global sequence number
+
 @implementation NSDistantObjectRequest
 
 // private initializer:
@@ -251,6 +253,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 {
 #if 1
 	NSLog(@"NSConnection -initWithReceivePort:%@ sendPort:%@", receivePort, sendPort);
+	[NSInvocation class];	// run +initialize
 #endif
 	if((self=[super init]))
 		{
@@ -362,7 +365,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 - (id) init;
 { // init with default ports
 	NSPort *port=[NSPort new];
-#if 0
+#if 1
 	NSLog(@"NSConnection -init: port=%@", port);
 #endif
 	self=[self initWithReceivePort:port sendPort:port];	// make a connection for vending objects
@@ -856,18 +859,17 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 #if 1
 	NSLog(@"found seq number = %d", seq);
 #endif
-	switch(flags)
-	{
+	switch(flags) {
 		case FLAGS_INTERNAL:	// connection setup (just allocates this NSConnection)
-		break;
+			break;
 		case FLAGS_REQUEST:	// request received
-		[self handleRequest:coder sequence:seq];
-		break;
+			[self handleRequest:coder sequence:seq];
+			break;
 		case FLAGS_RESPONSE:	// response received
-		NSMapInsert(_responses, (void *) seq, (void *) coder);	// put response into sequence queue/dictionary
-		break;
+			NSMapInsert(_responses, (void *) seq, (void *) coder);	// put response into sequence queue/dictionary
+			break;
 		default:
-		NSLog(@"unknown flags received: %08x", flags);
+			NSLog(@"unknown flags received: %08x", flags);
 	}
 	NS_HANDLER
 	NSLog(@"Exception in handlePortCoder: %@", localException);
@@ -970,7 +972,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 - (void) dispatchInvocation:(NSInvocation *) i;
 {
 	// if([i selector] == ....) then special handling
-#if 0
+#if 1
 	NSLog(@"--- dispatchInvocation: %@", i);
 #endif
 #if 1
@@ -984,7 +986,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 		}
 #endif
 	[i invoke];
-#if 0
+#if 1
 	NSLog(@"--- done with dispatchInvocation: %@", i);
 #endif
 }
@@ -1009,8 +1011,6 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 				return;	// no response needed!
 				}
 #endif
-			// may need to create a port coder for encoding
-			// maybe with nil components?
 #if FIXME
 			if(exception)		// send back exception
 				[pc encodeObject:exception];
@@ -1032,8 +1032,10 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 			NSLog(@"timeIntervalSinceRefDate=%f", [[NSDate date] timeIntervalSinceReferenceDate]);
 			NSLog(@"time=%f", [NSDate timeIntervalSinceReferenceDate]+_replyTimeout);
 			// flags must be YES or we get a timeout (!) exception
+			NSLog(@"now sending");
 			[pc sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_replyTimeout sendReplyPort:YES];	// send response
 			[pc invalidate];
+			NSLog(@"sent");
 		}
 }
 

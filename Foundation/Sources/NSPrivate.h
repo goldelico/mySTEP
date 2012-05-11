@@ -403,6 +403,7 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
 - (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index;
 - (arglist_t) _allocArgFrame:(arglist_t) frame;
+- (retval_t) _returnValue:(void *) buffer frame:(arglist_t) frame;
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe retbuf:(void *) buffer;
 - (id) _initWithObjCTypes:(const char*) t;
 - (const char *) _methodType;		// total method type

@@ -237,7 +237,7 @@
 
 - (void) forwardInvocation:(NSInvocation *) invocation;
 { // this encodes the invocation, transmits and waits for a response - exceptions may be rised during communication
-#if 0
+#if 1
 	NSLog(@"NSDistantObject -forwardInvocation: %@ though %@", invocation, _connection);
 #endif
 #if !defined(__arm__)	// FIXME: NSInvocation is currenty broken on Freerunner
@@ -248,6 +248,7 @@
 #else
 	{ // most likely used for getting rootObject
 		id val=nil;
+		NSLog(@"returning nil value");
 		[invocation setReturnValue:&val];
 	}
 #endif

@@ -1389,7 +1389,7 @@ struct PortFlags {
 		[NSException raise:NSInvalidSendPortException format:@"no send port for message %@", self];
 	if(!_recv)
 		[NSException raise:NSInvalidReceivePortException format:@"no receive port for message %@", self];
-#if 0
+#if 1
 	NSLog(@"send NSPortMessage: %@ on %@", _components, _send);
 #endif
 	return [_send sendBeforeDate:when msgid:_msgid components:_components from:_recv reserved:[_send reservedSpaceLength]];

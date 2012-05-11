@@ -70,7 +70,6 @@ extern NSString *const NSFailedAuthenticationException;
 	NSTimeInterval _replyTimeout;
 	unsigned _localProxyCount;
 //	NSDistantObject *_proxy;		// (cached) the proxy that represents the remote NSConnection object
-	unsigned int _sequence;
 	BOOL _multipleThreadsEnabled;
 	BOOL _isValid;
 	BOOL _independentConversationQueueing;
