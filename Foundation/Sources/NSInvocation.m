@@ -9,8 +9,8 @@
  Author:  Richard Frith-Macdonald <richard@brainstorm.co.uk>
  
  Author:  Nikolaus Schaller <hns@computer.org> 
- removed mframe so that we only rely on libobjc and gcc __builtin()
- plus some private methods of NSMethodSignature
+ removed mframe so that we only rely on libobjc
+ plus some private methods of NSMethodSignature that wrap __builtin_apply()
  (the compiler should hide and manage the processor architecture as good as possible!).
  
  Sept 2007 - should now be machine independent
@@ -31,7 +31,7 @@
 
 @implementation NSInvocation
 
-#if 1	// test
+#if 0	// test
 
 - (void) test1
 {
@@ -257,6 +257,7 @@
 		_rettype=[_sig methodReturnType];
 		_returnLength=[_sig methodReturnLength];
 		_maxValueLength=MAX(_returnLength, [_sig frameLength]);
+		// we could use a char private[8] if _returnLength < sizeof(private)
 		if(_returnLength > 0)
 			{
 			_retval = objc_calloc(1, _returnLength);

@@ -1512,7 +1512,7 @@ printing
 	if(aView == self)
 		return aRect;
 	atm=[isa _matrixFromView:aView toView:self];
-#if 1
+#if 0
 	NSLog(@"convert rect atm: %@", atm);
 #endif
 	if(_v.isRotatedFromBase)

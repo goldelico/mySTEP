@@ -1267,14 +1267,16 @@ static NSButtonCell *sharedCell;
 		return (mask&NSUtilityWindowMask)?16.0:23.0;
 }
 
+#if 0
 - (void) release
 {
 #if 0 && defined(__mySTEP__)
 	free(malloc(8192));
-#endif	
+#endif
 	NSLog(@"release %@", self);
 	[super release];
 }
+#endif
 
 - (void) dealloc
 {

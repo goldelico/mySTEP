@@ -11,7 +11,7 @@
  Rewrite:	Richard Frith-Macdonald <richard@brainstorm.co.uk>
  Date:	August 1998
  Rewrite: Nikolaus Schaller <hns@computer.org> - remove as much of mframe as possible and only rely on gcc/libobjc to run on ARM processor
- Date:    November 2003, Jan 2006-2007
+ Date:    November 2003, Jan 2006-2007,2011-2012
  
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
@@ -20,15 +20,10 @@
  * the argframe passed when forward:: is the one created by the libobjc functions __objc_x_forward(id, SEL, ...)
  * x can be word, double, block
  * that argframe structure can/will be different on ARM from the argframe within a called method with known number of arguments!
- * therefore, the method signature might be different for implemented and non-implemented methods - the latter being
- based on (id, SEL, ...)
+ * therefore, the method signature might be different for implemented and non-implemented methods - the latter being based on (id, SEL, ...)
  * so we need to create a different structure to call any existing/nonexisting method by __builtin_apply()
  * libobjc seems to use #define OBJC_MAX_STRUCT_BY_VALUE 1 (runtime-info.h) meaning that a char[1] only struct is returned in a register
  * we should use more support functions from libobjc...
- 
- ARM-Stackframe conventions are described in section 5.3-5.5, 7.2 of http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042b/IHI0042B_aapcs.pdf
- Unfortunately, this does not cover Objective-C conventions (which appear to be different from C/C++!)
- 
  * libffi documentation: https://github.com/atgreen/libffi/blob/master/doc/libffi.info
  
  */ 
@@ -38,7 +33,7 @@
 #import <Foundation/NSString.h>
 #import "NSPrivate.h"
 #ifndef __APPLE__
-#include <ffi.h>
+#include <ffi.h>	// not really used yet (maybe never...)
 #endif
 
 struct NSArgumentInfo
@@ -382,7 +377,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			info = objc_malloc(sizeof(struct NSArgumentInfo) * allocArgs);
 			while(*types)
 				{ // process all types
-#if 1
+#if 0
 					NSLog(@"%d: %s", i, types);
 #endif
 					if(i >= allocArgs)
@@ -412,10 +407,11 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 					i++;
 				}
 			numArgs = i-1;	// return type does not count
-#if 1
+#if 0
 			NSLog(@"numArgs=%d argFrameLength=%d", numArgs, argFrameLength);
 #endif
     	}
+#if 0
 	// FIXME: is this a general problem and not only ARM? Fixed in gcc 3.x and later? How to handle e.g. (double) as arguments in a protocol?
 	if(!info[numArgs].isReg && info[numArgs].offset == 0)
 		{ // fix bug in gcc 2.95.3 signature for @protocol (last argument is described as @0 instead of e.g. @+16)
@@ -424,6 +420,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 #endif
 			info[numArgs].offset=info[numArgs-1].offset-20;
 		}
+#endif
 #if 1
 	{
 	int i;
@@ -657,10 +654,10 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	if(!frame)
 		{ // allocate a new buffer that is large enough to hold the _builtin_apply() block + space for frameLength arguments
 			int part1 = sizeof(void *) + STRUCT_RETURN_POINTER_LENGTH + REGISTER_SAVEAREA_SIZE;	// first part
-			void *args;
+			unsigned long *args;
 			NEED_INFO();	// get valid argFrameLength
 			frame=(arglist_t) objc_calloc(part1 + argFrameLength, sizeof(char));
-			args=(char *) frame + part1;
+			args=(unsigned long *) ((char *) frame + part1);
 #if 1
 			NSLog(@"allocated frame=%p args=%p framelength=%d", frame, args, argFrameLength);
 #endif
@@ -672,9 +669,13 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			unsigned long self=f[1];	// original r0 value
 			unsigned long *args;
 			f[0] -= STRUCT_RETURN_POINTER_LENGTH + REGISTER_SAVEAREA_SIZE;	// adjust
+#if 0
 			NSLog(@"frame=%p", f);
+#endif
 			args=(unsigned long *) f[0];	// new arguments pointer - this will be copied to the stack by __builtin_apply()
+#if 0
 			NSLog(@"adjusted args=%p", args);
+#endif
 			args[0]=args[1];	// save link register in tmp
 			args[1]=self;		// insert self value to be copied to r0
 		}
@@ -703,6 +704,8 @@ static retval_t apply_block(void *data)
 
 #endif
 
+#if 0
+
 #define APPLY(NAME, TYPE)  NAME: { \
 /*static*/ TYPE return##NAME(TYPE data) { fprintf(stderr, "return"#NAME" %x\n", (unsigned)data); return data; } \
 inline retval_t apply##NAME(TYPE data) { void *args = __builtin_apply_args(); fprintf(stderr, "apply"#NAME" args=%p %x\n", args, (unsigned)data); return __builtin_apply((apply_t)return##NAME, args, sizeof(data)); } \
@@ -717,6 +720,24 @@ inline retval_t apply##NAME(void) { void *args = __builtin_apply_args(); return 
 r=apply##NAME(); \
 break; \
 }
+
+#else
+
+#define APPLY(NAME, TYPE)  NAME: { \
+/*static*/ TYPE return##NAME(TYPE data) { return data; } \
+inline retval_t apply##NAME(TYPE data) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, sizeof(data)); } \
+r=apply##NAME(*(TYPE *) retval); \
+break; \
+} 
+
+#define APPLY_VOID(NAME)  NAME: { \
+/*static*/ void return##NAME(void) { return; } \
+inline retval_t apply##NAME(void) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, 0); } \
+r=apply##NAME(); \
+break; \
+}
+
+#endif
 
 - (retval_t) _returnValue:(void *) retval frame:(arglist_t) frame;
 {
@@ -781,6 +802,8 @@ break; \
 	return r;
 }
 
+#if 0
+
 #define RETURN(CODE, TYPE) CODE: { \
 inline TYPE retframe##CODE(void *imp, arglist_t frame, int stack) \
 { \
@@ -808,6 +831,30 @@ retframe##CODE(imp, frame, stack); \
 NSLog(@"called retframe%s", #CODE); \
 break; \
 }
+
+#else
+
+#define RETURN(CODE, TYPE) CODE: { \
+inline TYPE retframe##CODE(void *imp, arglist_t frame, int stack) \
+{ \
+retval_t retval=__builtin_apply(imp, frame, stack); \
+__builtin_return(retval); \
+}; \
+*(TYPE *) retbuf = retframe##CODE(imp, frame, stack); \
+break; \
+}
+
+#define RETURN_VOID(CODE, TYPE) CODE: { \
+inline TYPE retframe##CODE(void *imp, arglist_t frame, int stack) \
+{ \
+retval_t retval=__builtin_apply(imp, frame, stack); \
+__builtin_return(retval); \
+}; \
+retframe##CODE(imp, frame, stack); \
+break; \
+}
+
+#endif
 
 #if 0
 - (void) test

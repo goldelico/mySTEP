@@ -496,18 +496,18 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 - (void) _portInvalidated:(NSNotification *) n;
 - (void) _executeInNewThread;
 - (id) newConversation;
-- (NSPortCoder *) portCoderWithComponents:(NSArray *) components;
+- (NSPortCoder *) portCoderWithComponents:(NSPortMessage *) components;
 - (void) sendInvocation:(NSInvocation *) i internal:(BOOL) internal;
 - (void) sendInvocation:(NSInvocation *) i;
 - (void) handlePortMessage:(NSPortMessage *) message;
 - (void) handlePortCoder:(NSPortCoder *) coder;
 - (void) handleRequest:(NSPortCoder *) coder sequence:(int) seq;
 - (void) dispatchInvocation:(NSInvocation *) i;
-- (void) returnResult:(NSInvocation *) result exception:(NSException *) exception sequence:(int) seq imports:(NSArray *) imports;
+- (void) returnResult:(NSInvocation *) result exception:(NSException *) exception sequence:(unsigned int) seq imports:(NSArray *) imports;
 - (void) finishEncoding:(NSPortCoder *) coder;
 - (BOOL) _cleanupAndAuthenticate:(NSPortCoder *) coder sequence:(unsigned int) seq conversation:(id *) conversation invocation:(NSInvocation *) inv raise:(BOOL) raise;
 - (BOOL) _shouldDispatch:(id *) conversation invocation:(NSInvocation *) invocation sequence:(unsigned int) seq coder:(NSCoder *) coder;
-- (BOOL) hasRunloop:(id) obj;
+- (BOOL) hasRunloop:(NSRunLoop *) obj;
 
 @end
 

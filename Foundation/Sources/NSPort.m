@@ -1,21 +1,21 @@
 /* 
-   NSPort.m
-
-   Implementation of abstract superclass port for use with NSConnection
-
-   Copyright (C) 1997, 1998 Free Software Foundation, Inc.
-
-   Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
-   Date:	July 1994
-   Rewrite: Richard Frith-Macdonald <richard@brainstorm.co.u>
-   Date:	August 1997
+ NSPort.m
  
-   NSSocketPort & Complete Rewrite: H. Nikolaus Schaller <hns@computer.org>
-   Date:	Dec 2005 - Jan 2007
-
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/
+ Implementation of abstract superclass port for use with NSConnection
+ 
+ Copyright (C) 1997, 1998 Free Software Foundation, Inc.
+ 
+ Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
+ Date:	July 1994
+ Rewrite: Richard Frith-Macdonald <richard@brainstorm.co.u>
+ Date:	August 1997
+ 
+ NSSocketPort & Complete Rewrite: H. Nikolaus Schaller <hns@computer.org>
+ Date:	Dec 2005 - Jan 2007
+ 
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #define DEFAULT_PORT_CLASS NSMessagePort
 // #define DEFAULT_PORT_CLASS NSSocketPort
@@ -89,15 +89,15 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 + (id) _allocForProtocolFamily:(int) family;
 {
 	switch(family)
-		{
+	{
 		case AF_INET:
-			return [NSSocketPort allocWithZone:NSDefaultMallocZone()];
+		return [NSSocketPort allocWithZone:NSDefaultMallocZone()];
 		case AF_UNIX:
-			return [NSMessagePort allocWithZone:NSDefaultMallocZone()];
+		return [NSMessagePort allocWithZone:NSDefaultMallocZone()];
 		default:
-			NSLog(@"can't handle protocol family %d", family);
-			return nil;
-		}
+		NSLog(@"can't handle protocol family %d", family);
+		return nil;
+	}
 }
 
 - (NSString *) description;
@@ -117,7 +117,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 {
 	if((self=[super init]))
 		{
-			_delegate=self;	// appears to be initialized to be its own delegate
+		_delegate=self;	// appears to be initialized to be its own delegate
 		_isValid = YES;
 		_fd=-1;
 		_sendfd=-1;
@@ -284,12 +284,12 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		if(![loop runMode:NSConnectionReplyMode beforeDate:limitDate])
 			{ // some runloop error, e.g. not scheduled in this mode
 #if 0
-			NSLog(@"sendBeforeDate: runloop error");
+				NSLog(@"sendBeforeDate: runloop error");
 #endif
-			[loop _removeInputWatcher:self forMode:NSConnectionReplyMode];
-			[loop _removeOutputWatcher:self forMode:NSConnectionReplyMode];
-			[NSException raise:NSPortSendException format:@"sendBeforeDate: runloop error for %@", self];
-			break;
+				[loop _removeInputWatcher:self forMode:NSConnectionReplyMode];
+				[loop _removeOutputWatcher:self forMode:NSConnectionReplyMode];
+				[NSException raise:NSPortSendException format:@"sendBeforeDate: runloop error for %@", self];
+				break;
 			}
 #if 0
 		NSLog(@"remaining interval %lf", [limitDate timeIntervalSinceNow]);
@@ -320,19 +320,19 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 {
 	if(_sendfd < 0)
 		{ // needs to connect to peer first
-		if(!_isValid)
-			[NSException raise:NSInvalidSendPortException format:@"invalidated before connect: %@", self];
+			if(!_isValid)
+				[NSException raise:NSInvalidSendPortException format:@"invalidated before connect: %@", self];
 #if 0
-		NSLog(@"connect to family=%d %@", _address.addr.ss_family, self);
+			NSLog(@"connect to family=%d %@", _address.addr.ss_family, self);
 #endif
-		_sendfd=socket(_address.addr.ss_family, SOCK_STREAM, 0);
-		if(connect(_sendfd, (struct sockaddr *) &_address.addr, _address.addrlen))
-			{
-			NSLog(@"%@: could not connect due to %s", self, strerror(errno));
-			return NO;
-			}
+			_sendfd=socket(_address.addr.ss_family, SOCK_STREAM, 0);
+			if(connect(_sendfd, (struct sockaddr *) &_address.addr, _address.addrlen))
+				{
+				NSLog(@"%@: could not connect due to %s", self, strerror(errno));
+				return NO;
+				}
 #if 1
-		NSLog(@"connected %@", self);
+			NSLog(@"connected %@", self);
 #endif
 		}
 	return YES;
@@ -342,34 +342,34 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 {
 	if(!_isBound)
 		{ // not yet bound
-		if(!_isValid)
-			[NSException raise:NSInvalidReceivePortException format:@"invalidated before bind&listen: %@", self];
-		if(bind(_fd, (struct sockaddr *) &_address.addr, _address.addrlen))
-			{
-			NSLog(@"%@: could not bind due to %s", self, strerror(errno));
-			return NO;
-			}
-		if(_address.addr.ss_family != AF_UNIX)
-			{ // get port assigned by system - AF_UNIX does not support this system call
-			unsigned addrlen=_address.addrlen;
-			// NSMapRemove(__sockets, &_address);
-			getsockname(_fd, (struct sockaddr *) &_address.addr, &addrlen);	// read back to know the port number
-			_address.addrlen=addrlen;
-			// FIXME: may this change cache mapping? 
-			// NSMapInsert(__sockets, &_address, self);
-			}
+			if(!_isValid)
+				[NSException raise:NSInvalidReceivePortException format:@"invalidated before bind&listen: %@", self];
+			if(bind(_fd, (struct sockaddr *) &_address.addr, _address.addrlen))
+				{
+				NSLog(@"%@: could not bind due to %s", self, strerror(errno));
+				return NO;
+				}
+			if(_address.addr.ss_family != AF_UNIX)
+				{ // get port assigned by system - AF_UNIX does not support this system call
+					unsigned addrlen=_address.addrlen;
+					// NSMapRemove(__sockets, &_address);
+					getsockname(_fd, (struct sockaddr *) &_address.addr, &addrlen);	// read back to know the port number
+					_address.addrlen=addrlen;
+					// FIXME: may this change cache mapping? 
+					// NSMapInsert(__sockets, &_address, self);
+				}
 #if 0
-		NSLog(@"bound %@", self);
+			NSLog(@"bound %@", self);
 #endif
-		if(listen(_fd, 10))
-			{
-			NSLog(@"%@: could not listen due to %s", self, strerror(errno));
-			return NO;
-			}
+			if(listen(_fd, 10))
+				{
+				NSLog(@"%@: could not listen due to %s", self, strerror(errno));
+				return NO;
+				}
 #if 0
-		NSLog(@"listening");
+			NSLog(@"listening");
 #endif
-		_isBound=YES;
+			_isBound=YES;
 		}
 	return YES;
 }
@@ -396,137 +396,139 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		}
 	if(_fd >= 0)
 		{ // listening was successfull
-		struct sockaddr_storage ss;	// FIXME: is this large enough for AF_UNIX?
-		socklen_t saddrlen=sizeof(ss);
-		NSRunLoop *loop=[NSRunLoop currentRunLoop];
-		NSPort *newPort;
-		NSData *addr;
-		int newfd;
-		short family;
-		if(!_isBound)
-			{
+			struct sockaddr_storage ss;	// FIXME: is this large enough for AF_UNIX?
+			socklen_t saddrlen=sizeof(ss);
+			NSRunLoop *loop=[NSRunLoop currentRunLoop];
+			NSPort *newPort;
+			NSData *addr;
+			int newfd;
+			short family;
+			if(!_isBound)
+				{
 #if 0
-			NSLog(@"not yet bound & listening:%@", self);
-			return;
+				NSLog(@"not yet bound & listening:%@", self);
+				return;
 #endif
-			}
+				}
 #if 0
-		NSLog(@"salen=%d %@", saddrlen, self);
+			NSLog(@"salen=%d %@", saddrlen, self);
 #endif
-		memset(&ss, 0, saddrlen);			// clear completely before using
-		newfd=accept(_fd, (struct sockaddr *) &ss, &saddrlen);
+			memset(&ss, 0, saddrlen);			// clear completely before using
+			newfd=accept(_fd, (struct sockaddr *) &ss, &saddrlen);
 #if 0
-		NSLog(@"accepted on fd=%d newfd=%d salen=%d", _fd, newfd, saddrlen);
+			NSLog(@"accepted on fd=%d newfd=%d salen=%d", _fd, newfd, saddrlen);
 #endif
-		if(newfd < 0)
-			{
-			NSLog(@"_readFileDescriptorReady: could not accept on %@ due to %s", self, strerror(errno));
-			[self invalidate];
-			return;
-			}
-		family=ss.ss_family;
-		*((short *) &ss.ss_family)=htons(family);	// swap family to network byte order (as expected by initRemoteWithProtocolFamily)
-		addr=[NSData dataWithBytesNoCopy:&ss length:saddrlen freeWhenDone:NO];
+			if(newfd < 0)
+				{
+				NSLog(@"_readFileDescriptorReady: could not accept on %@ due to %s", self, strerror(errno));
+				[self invalidate];
+				return;
+				}
+			family=ss.ss_family;
+			*((short *) &ss.ss_family)=htons(family);	// swap family to network byte order (as expected by initRemoteWithProtocolFamily)
+			addr=[NSData dataWithBytesNoCopy:&ss length:saddrlen freeWhenDone:NO];
 #if 1
-		NSLog(@"accepted socket=%d", newfd);
-		NSLog(@"  address=%@", addr);
+			NSLog(@"accepted socket=%d", newfd);
+			NSLog(@"  address=%@", addr);
 #endif
-		newPort=[[isa alloc] initRemoteWithProtocolFamily:family socketType:_address.type protocol:_address.protocol address:addr];
-		NSAssert1(newPort->_sendfd < 0, @"Already connected! newport=%@", newPort);
-		newPort->_parent=[self retain];
-		newPort->_isBound=YES;			// pretend we are already bound
-		newPort->_sendfd=newfd;			// we are already connected
+			newPort=[[isa alloc] initRemoteWithProtocolFamily:family socketType:_address.type protocol:_address.protocol address:addr];
+			NSAssert1(newPort->_sendfd < 0, @"Already connected! newport=%@", newPort);
+			newPort->_parent=[self retain];
+			newPort->_isBound=YES;			// pretend we are already bound
+			newPort->_sendfd=newfd;			// we are already connected
 #if 0
-		NSLog(@"accepted %@ on parent %@", newPort, self);
+			NSLog(@"accepted %@ on parent %@", newPort, self);
 #endif
-		
-		// FIXME: should we inherit the watchers from our parent???
-		// this is just a temporary hack that appears to make it work...
-		
-		[loop _addInputWatcher:newPort forMode:NSDefaultRunLoopMode];	// allow us to receive the first packet on this port
-		[loop _addInputWatcher:newPort forMode:NSConnectionReplyMode];
-
-		/* CHECKME:
-			how do we schedule other modes - and how and when do we unschedule???
-			well, we probably carry a new NSConnection and initializing the NSConnection will inherit runloops&modes from the parent-NSConnection
-			unscheduling is done automatically when we are set invalid
-			*/
-		[newPort release];	// should now have been retained as watcher and/or by cache until invalidated
+			
+			// FIXME: should we inherit the watchers from our parent???
+			// this is just a temporary hack that appears to make it work...
+			
+			// FIXME: NSConnection may already schedule us correctly!
+			
+			[loop _addInputWatcher:newPort forMode:NSDefaultRunLoopMode];	// allow us to receive the first packet on this port
+			[loop _addInputWatcher:newPort forMode:NSConnectionReplyMode];
+			
+			/* CHECKME:
+			 how do we schedule other modes - and how and when do we unschedule???
+			 well, we probably carry a new NSConnection and initializing the NSConnection will inherit runloops&modes from the parent-NSConnection
+			 unscheduling is done automatically when we are set invalid
+			 */
+			[newPort release];	// should now have been retained as watcher and/or by cache until invalidated
 #if 0
-		NSLog(@"accept done. retain count=%d", [newPort retainCount]);
+			NSLog(@"accept done. retain count=%d", [newPort retainCount]);
 #endif
-		return;
+			return;
 		}
 #if 0
 	NSLog(@"_readFileDescriptor:%d ready %@", _sendfd, self);
 #endif
 	if(!_recvBuffer)
 		{ // no buffer allocated so far - receive and check for header
-		struct { unsigned long magic, messageLength; } header;	// we know something about the mach message structure, i.e. that there is a header magic and the block length and therefore know how much to read for frame boundaries		
-		int len;
-//		fcntl(_sendfd, F_SETFL, O_NONBLOCK);	// don't block here or later
-		// FIXME: we need a more sophisticated mechanism to properly handle header fragments! Therefore we block until we have received a full header
-		if((len=read(_sendfd, &header, sizeof(header))) != sizeof(header))
-			{ // should we have a mechanism to resync? This appears to be not required since we assume a reliable transport socket
-			// we might have to remember a partial header!
+			struct { unsigned long magic, messageLength; } header;	// we know something about the mach message structure, i.e. that there is a header magic and the block length and therefore know how much to read for frame boundaries		
+			int len;
+			//		fcntl(_sendfd, F_SETFL, O_NONBLOCK);	// don't block here or later
+			// FIXME: we need a more sophisticated mechanism to properly handle header fragments! Therefore we block until we have received a full header
+			if((len=read(_sendfd, &header, sizeof(header))) != sizeof(header))
+				{ // should we have a mechanism to resync? This appears to be not required since we assume a reliable transport socket
+					// we might have to remember a partial header!
 #if 0
-			NSLog(@"closed by peer: %@", self);
+					NSLog(@"closed by peer: %@", self);
 #endif
-			[self invalidate];
-			if(len == 0)
-				return;	// simply closed by peer (EOF notification)
-			[NSException raise:NSPortReceiveException format:@"_readFileDescriptorReady: header read error %s - len=%d", strerror(errno), len];
-			}
-#if 0
-		NSLog(@"did read %u bytes", len);
+					[self invalidate];
+					if(len == 0)
+						return;	// simply closed by peer (EOF notification)
+					[NSException raise:NSPortReceiveException format:@"_readFileDescriptorReady: header read error %s - len=%d", strerror(errno), len];
+				}
+#if 1
+			NSLog(@"did read %u bytes from fd %d", len, _sendfd);
 #endif
-		if(header.magic != NSSwapHostLongToBig(0xd0cf50c0))
-			{
-			[self invalidate];
-			[NSException raise:NSPortReceiveException format:@"sendBeforeDate: bad header magic %08x", header.magic];
-			}
-		_recvLength=NSSwapBigLongToHost(header.messageLength);
-		// FIXME: limit _recvLength to a reasonable value
-		if(_recvLength > 64000)
-			{
-			[self invalidate];
+			if(header.magic != NSSwapHostLongToBig(0xd0cf50c0))
+				{
+				[self invalidate];
+				[NSException raise:NSPortReceiveException format:@"sendBeforeDate: bad header magic %08x", header.magic];
+				}
+			_recvLength=NSSwapBigLongToHost(header.messageLength);
+			// FIXME: limit _recvLength to a reasonable value
+			if(_recvLength > 64000)
+				{
+				[self invalidate];
+				return;
+				}
+#if 1
+			NSLog(@"header received length=%u on fd=%d", _recvLength, _sendfd);
+#endif
+			_recvBuffer=objc_malloc(_recvLength);
+			if(!_recvBuffer)
+				{
+				[self invalidate];
+				[NSException raise:NSPortReceiveException format:@"_readFileDescriptorReady: could not allocate header for message of length %u", header.messageLength];
+				}
+			memcpy(_recvBuffer, &header, sizeof(header));
+			_recvPos=sizeof(header);	// include header in the buffer
 			return;
-			}
-#if 0
-		NSLog(@"header received length=%u on fd=%d", _recvLength, _sendfd);
-#endif
-		_recvBuffer=objc_malloc(_recvLength);
-		if(!_recvBuffer)
-			{
-			[self invalidate];
-			[NSException raise:NSPortReceiveException format:@"_readFileDescriptorReady: could not allocate header for message of length %u", header.messageLength];
-			}
-		memcpy(_recvBuffer, &header, sizeof(header));
-		_recvPos=sizeof(header);	// include header in the buffer
-		return;
 		}
 #if 0
 	NSLog(@"pos=%u length=%u", _recvPos, _recvLength);
 #endif
 	if(_recvPos < _recvLength)
 		{ // read next fragment - as much as we can get from the missing part
-		int len=_recvLength-_recvPos;	// how much we still expect (we know from the header)
-		len=read(_sendfd, _recvBuffer+_recvPos, len);
-		if(len < 0)
-			{ // we received an error
-			if(errno == EWOULDBLOCK)
-				return;	// ignore
-			[self invalidate];
-			[NSException raise:NSPortReceiveException format:@"_readFileDescriptorReady: read error %s", strerror(errno)];
-			}
+			int len=_recvLength-_recvPos;	// how much we still expect (we know from the header)
+			len=read(_sendfd, _recvBuffer+_recvPos, len);
+			if(len < 0)
+				{ // we received an error
+					if(errno == EWOULDBLOCK)
+						return;	// ignore
+					[self invalidate];
+					[NSException raise:NSPortReceiveException format:@"_readFileDescriptorReady: read error %s", strerror(errno)];
+				}
 #if 0
-		NSLog(@"did read %u bytes from fd=%d", len, _sendfd);
+			NSLog(@"did read %u bytes from fd=%d", len, _sendfd);
 #endif
-		_recvPos+=len;
-		if(_recvPos < _recvLength)
-			return;	// incomplete
+			_recvPos+=len;
+			if(_recvPos < _recvLength)
+				return;	// incomplete
 		}
-#if 0
+#if 1
 	NSLog(@"complete message received on %@: %@", self, [NSData dataWithBytesNoCopy:_recvBuffer length:_recvLength freeWhenDone:NO]);
 #endif
 	recv=_parent?_parent:self;	// act for parent if we are a child
@@ -535,7 +537,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 	if(!d)
 		NSLog(@"no delegate! %@", self);
 #endif
-
+	
 	/* FIXME: this is a terrible hack
 	 * since we may receive 0.0.0.0 for an encoded NSSocketPort in the MachMessage
 	 * which is meant to encode "sender"
@@ -546,7 +548,9 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 	 */
 	
 	_current_inaddr=((struct sockaddr_in *) &_address.addr)->sin_addr;	// get receiver's IP address
-	// FIXME: should we protect this block against exceptions in the handler
+	
+	// FIXME: we should protect this block against exceptions in the handler
+	NS_DURING
 	if([d respondsToSelector:@selector(handleMachMessage:)])
 		{
 		[d handleMachMessage:_recvBuffer];
@@ -555,21 +559,24 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		}
 	else
 		{
-			NSAutoreleasePool *arp=[NSAutoreleasePool new];
-			NSPortMessage *msg=[[NSPortMessage alloc] initWithMachMessage:_recvBuffer];
-			[msg _setReceivePort:recv];		// we (or our parent) is the receive port
-			objc_free(_recvBuffer);			// done
-			_recvBuffer=NULL;
+		NSAutoreleasePool *arp=[NSAutoreleasePool new];
+		NSPortMessage *msg=[[NSPortMessage alloc] initWithMachMessage:_recvBuffer];
+		[msg _setReceivePort:recv];		// we (or our parent) is the receive port
+		objc_free(_recvBuffer);			// done
+		_recvBuffer=NULL;
 #if 1
-			NSLog(@"handlePortMessage:%@ by delegate %@", msg, d);
+		NSLog(@"handlePortMessage:%@ by delegate %@", msg, d);
 #endif
-			[d handlePortMessage:msg];	// process by delegate
-			[msg release];
+		[d handlePortMessage:msg];	// process by delegate
+		[msg release];
 #if 1
-			NSLog(@"msg released");
+		NSLog(@"msg released");
 #endif
-			[arp release];
+		[arp release];
 		}
+	NS_HANDLER
+	NSLog(@"exception while trying handleMachMessage/handlePortMessage: %@", localException);
+	NS_ENDHANDLER
 	_current_inaddr.s_addr=INADDR_ANY;	// restore
 }
 
@@ -585,39 +592,39 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		}
 	if(_sendData)
 		{ // we have something more to write
-		int len;
+			int len;
 #if 0
-		NSLog(@"_writeFileDescriptorReady %@ (pos=%u len=%u)", self, _sendPos, [_sendData length]);
+			NSLog(@"_writeFileDescriptorReady %@ (pos=%u len=%u)", self, _sendPos, [_sendData length]);
 #endif
-		len=[_sendData length]-_sendPos;	// remaining block
-		if(len == 0)
-			{ // done
-			fsync(_sendfd);
+			len=[_sendData length]-_sendPos;	// remaining block
+			if(len == 0)
+				{ // done
+					fsync(_sendfd);
+#if 1
+					NSLog(@"all sent to fd %d", _sendfd);
+#endif
+					[_sendData release];
+					_sendData=nil;
+					_sendPos=NSNotFound;
+					return;
+				}
+			if(len > 512)
+				len=512;	// limit to reduce risk of blocking
 #if 0
-			NSLog(@"all sent");
+			NSLog(@"write next %u bytes to fd=%d", len, _sendfd);
 #endif
-			[_sendData release];
-			_sendData=nil;
-			_sendPos=NSNotFound;
-			return;
-			}
-		if(len > 512)
-			len=512;	// limit to reduce risk of blocking
+			
+			// we could/should make the write non-blocking and account for how much was really sent - would prevent from stall
 #if 0
-		NSLog(@"write next %u bytes to fd=%d", len, _sendfd);
+			NSLog(@"send byte 0x02d", *(((char *)[_sendData bytes])+_sendPos));
 #endif
-		
-		// we could/should make the write non-blocking and account for how much was really sent - would prevent from stall
-#if 0
-		NSLog(@"send byte 0x02d", *(((char *)[_sendData bytes])+_sendPos));
-#endif
-		if(write(_sendfd, ((char *)[_sendData bytes])+_sendPos, len) != len) // this might block in the kernel if the FIFO becomes filled up!
-			{
-			NSLog(@"send error %s", strerror(errno));
-			[self invalidate];
-			return;
-			}
-		_sendPos+=len;
+			if(write(_sendfd, ((char *)[_sendData bytes])+_sendPos, len) != len) // this might block in the kernel if the FIFO becomes filled up!
+				{
+				NSLog(@"send error %s", strerror(errno));
+				[self invalidate];
+				return;
+				}
+			_sendPos+=len;
 		}
 	else
 		; // nothing (more) to write - should we better unscheldule to reduce processor utilization?
@@ -668,7 +675,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 
 - (id) _substituteFromCache;
 { // call only after setting the address
-  // FIXME: lock
+	// FIXME: lock
 	if(!__sockets)
 		__sockets=NSCreateMapTable(NSSocketMapKeyCallBacks, NSObjectMapValueCallBacks, 0);
 	else
@@ -677,16 +684,16 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		if(cached)
 			{ // we already have a socket with these specific properties ("data")
 #if 0
-			NSLog(@"substitute by cached socket: %@ %d+1", cached, [self retainCount]);
+				NSLog(@"substitute by cached socket: %@ %d+1", cached, [self retainCount]);
 #endif
-			if(cached != self)
-				{ // substitute
-				[cached retain];
-				_isValid=NO;	// don't explicity invalidate
-				[self release];
-				// FIXME: unlock
-				}
-			return cached;
+				if(cached != self)
+					{ // substitute
+						[cached retain];
+						_isValid=NO;	// don't explicity invalidate
+						[self release];
+						// FIXME: unlock
+					}
+				return cached;
 			}
 		}
 #if 0
@@ -843,7 +850,7 @@ static unsigned _portDirectoryLength;
 
 - (BOOL) _unlink;
 { // delete name
-  // shouldn't we close?
+	// shouldn't we close?
 	if(unlink(SUN_PATH))	// delete any registration if it still exists
 		{
 		// check for error != E_NOTFOUND
@@ -884,7 +891,7 @@ static unsigned _portDirectoryLength;
 			if(SIN_INADDR == INADDR_ANY)
 				{
 				// FIXME: we should substitute with the in_addr of the socket we have received the message from which we have decoded a socket!
-//				SIN_INADDR = htonl(INADDR_LOOPBACK);	// substitute so that we connect locally
+				//				SIN_INADDR = htonl(INADDR_LOOPBACK);	// substitute so that we connect locally
 				SIN_ADDRP->sin_addr = _current_inaddr;	// substitute so that we connect back to the sender of the message
 				}
 			}
@@ -901,14 +908,14 @@ static unsigned _portDirectoryLength;
 	if(!h)
 		{ // could not resolve
 			// CHECKME: Cocoa appears to use the "localhost" in this case
-		[self release];
-		return nil;
+			[self release];
+			return nil;
 		}
 	self=[self initWithProtocolFamily:AF_INET socketType:SOCK_STREAM protocol:IPPROTO_TCP socket:-1];	// no listener socket
 	if(self)
 		{ // insert address of remote system
-		inet_aton([[h address] cString], &SIN_ADDRP->sin_addr);
-		SIN_PORT=htons(port);	// swap to network byte order
+			inet_aton([[h address] cString], &SIN_ADDRP->sin_addr);
+			SIN_PORT=htons(port);	// swap to network byte order
 		}
 	return [self _substituteFromCache];
 }
@@ -933,8 +940,8 @@ static unsigned _portDirectoryLength;
 			self=[self _substituteFromCache];
 			if(self && !_isBound && ![self _bindAndListen])
 				{ // can't bind or listen
-				[self release];
-				return nil;
+					[self release];
+					return nil;
 				}
 			}
 		}
@@ -949,13 +956,13 @@ static unsigned _portDirectoryLength;
 							  address:nil];	// no address
 	if(self)
 		{ // set local port (or 0)
-		SIN_PORT = htons(port);	// to network byte order
-		self=[self _substituteFromCache];
-		if(self && !_isBound && ![self _bindAndListen])
-			{ // can't bind or listen
-			[self release];
-			return nil;
-			}
+			SIN_PORT = htons(port);	// to network byte order
+			self=[self _substituteFromCache];
+			if(self && !_isBound && ![self _bindAndListen])
+				{ // can't bind or listen
+					[self release];
+					return nil;
+				}
 		}
 	return self;
 }

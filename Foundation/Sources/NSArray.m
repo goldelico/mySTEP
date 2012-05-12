@@ -293,7 +293,7 @@ int count;
 - (id) init { return [self initWithObjects: NULL count: 0]; }
 
 - (id) initWithObjects:(id*)objects count:(unsigned)count
-{										
+{
 	if (count > 0)									// designated initializer
 		{
 		unsigned i;
