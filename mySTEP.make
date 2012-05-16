@@ -364,7 +364,7 @@ $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.c
 XSOURCES=$(wildcard $(SOURCES))
 OBJECTS=$(XSOURCES:%.m=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
 
-build_architecture: make_bundle make_exec make_binary install_local install_tool install_remote launch_remote
+build_architecture: make_bundle make_exec make_binary make_php install_local install_tool install_remote launch_remote
 	# $(BINARY) for $(ARCHITECTURE) built.
 	date
 
@@ -379,6 +379,12 @@ else
 make_binary:
 	# no sources - no binary
 endif
+
+make_php:
+	for PHP in *.php Sources/*.php; do \
+		if [ -r "$$PHP" ]; then mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php" && cp "$$PHP" "$(PKG)/$(NAME_EXT)/$(CONTENTS)/php/"; fi; \
+		done
+
 
 #
 # Debian package builder
@@ -446,6 +452,7 @@ ifneq ($(DATA),)
 endif
 	# strip all executables down to the minimum
 	find "/tmp/$(TMP_DATA)" "(" -name '*-*-linux-gnu*' ! -name $(ARCHITECTURE) ")" -prune -print -exec rm -rf {} ";"
+	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# strip MacOS X binary for frameworks
 	rm -rf "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
