@@ -20,6 +20,10 @@ if($_SERVER['SERVER_PORT']!=443)
 
 require "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/executable.php";		
 
+function parameter($name, $value)
+{
+	echo " $name=\"".$value."\"";
+}
 // check if login is required to run the App
 
 class NSApplication
@@ -31,18 +35,39 @@ class NSApplication
 	// FIXME: this belongs to NSWorkspace!?!
 	public function open($app)
 		{ // switch to a different app
+		// search App in different locations
+		$dir="System/Library/CoreServices";
+// use NSBundle
+		$bundle="$dir/$app";
+// ask $bundle->executablePath;
+		$executablePath="https://".$_SERVER['HTTP_HOST']."/$bundle/Contents/php/executable.php";
 // how can we pass arbitrary parameters to their NSApplication $argv???
-		header("location: https://".$_SERVER['HTTP_HOST']."/$app/Contents/php/executable.php");
+		header("location: ".$executablePath);	// how to handle special characters here? rawurlencode?
 		exit;
 		}
 	public function terminate()
 		{
 		$this->open("Cloudtop.app");
 		}
+	public function sendActionToTarget($from, $action, $target)
+		{
+/*
+echo "sendAction $action to";
+print_r($target);
+echo "<br>";
+*/
+		if(!isset($target))
+			return;	// it $target does not exist -> take first responder
+		// if method does not exist -> ignore
+		$target->$action($from);
+		}
 	public function run()
 		{
-		// dispatch event(s)
-// print_r($this);
+// FIXME: wir mŸssen die View-Hierarchie zweimal durchlaufen!
+// zuerst die neuen $_POST-Werte in die NSTextFields Ÿbernehmen
+// und dann erst den NSButton-action aufrufen
+// sonst hŠngt es davon ab wo der NSButton in der Hierarchie steht ob die Felder Werte haben oder nicht
+		$this->mainWindow->sendEvent($_POST);
 		$this->mainWindow->display();
 		}
 }
@@ -75,15 +100,31 @@ class NSColor
 	}
 
 class NSView
-{ // abstract superclass
+{ // semi-abstract superclass
+	public $elementName;
 	public $subviews = array();
 	public $autoResizing;
 	public function subviews() { return $this->subviews; }
 	public function addSubview($view) { $this->subviews[]=$view; }
+	public function NSView()
+		{
+		global $elementNumber;	// unique number
+		$this->elementName="NSView-".(++$elementNumber);
+		}
 	public function draw()
 		{
 		foreach($this->subviews as $view)
 			$view->draw();
+		}
+	public function sendEvent($event)
+		{
+		foreach($this->subviews as $view)
+			$view->sendEvent($event);
+		}
+	public function sendAction($action, $target)
+		{
+		global $NSApp;
+		$NSApp->sendActionToTarget($this, $action, $target);
 		}
 }
 
@@ -94,15 +135,17 @@ class NSImageView extends NSView
 	public $height=32;
 	public function NSImageView($name)
 		{
+       		parent::__construct();
 		$this->name="images/".$name.".png";	// default name
 		}
 	public function setName($name) { $this->name=$name; }
 	public function draw()
 		{
 		parent::draw();
-		echo "<img src=\"";
-		echo htmlentities($this->name);
-		echo "\" style=\"{ width:".htmlentities($this->width).", height:".htmlentities($this->height)."}\">\n";
+		echo "<img";
+		parameter("src", htmlentities($this->name));
+		parameter("style", "{ width:".htmlentities($this->width).", height:".htmlentities($this->height)."}");
+		echo ">\n";
 		}
 }
 
@@ -122,17 +165,22 @@ class NSCollectionView extends NSView
 
 	public function NSCollectionView($cols=5, $items=array())
 		{
+       		parent::__construct();
 		$this->columns=$cols;
 		$this->content=$items;
 // echo "NSCollectionView $cols<br>";
 		}
+	public function sendEvent($event)
+		{
+		foreach($this->content as $item)
+			$item->sendEvent($event);
+		}
 	public function draw()
 		{
 		parent::draw();
-		echo "<table border=\"";
-		echo $this->border;
-		echo "\" width=\"";
-		echo $this->width;
+		echo "<table";
+		parameter("border", $this->border);
+		parameter("width", $this->width);
 		echo "\">\n";
 		$col=1;
 		foreach($this->content as $item)
@@ -170,7 +218,7 @@ class NSTabViewItem
 
 class NSTabView extends NSView
 	{
-	public $border=0;
+	public $border=1;
 	public $width="100%";
 	public $tabViewItems;
 	public $selectedIndex=0;
@@ -182,33 +230,70 @@ class NSTabView extends NSView
 	public function setBorder($border) { $this->border=0+$border; }
 	public function NSTabView($items=array())
 		{
+       		parent::__construct();
 		$this->tabViewItems=$items;
 		// echo "NSTabView $cols<br>";
+		}
+	public function sendEvent($event)
+		{ // forward to selected item
+		if(isset($event[$this->elementName."-selectedIndex"]))
+			$this->selectedIndex=$event[$this->elementName."-selectedIndex"];	// get default
+// print_r($selectedIndex);
+		for($index=0; $index < count($this->tabViewItems); $index++)
+			{
+			$element=$this->elementName."-".$index;
+// print_r($element);
+			if(isset($event[$element]) && $event[$element] != "")
+				$this->selectTabViewItemAtIndex($index);	// some tab button was pressed
+			}
+		$selectedItem=$this->selectedTabViewItem();
+		if(isset($selectedItem))
+			$selectedItem->view->sendEvent($event);
 		}
 	public function draw()
 		{
 		parent::draw();
-		echo "<table border=\"";
-		echo $this->border;
-		echo "\" width=\"";
-		echo $this->width;
+		echo "<input";
+		parameter("type", "hidden");
+		parameter("name", $this->elementName."-selectedIndex");
+		parameter("value", $this->selectedIndex);
+		echo ">\n";
+		echo "<table";
+		parameter("border", $this->border);
+		parameter("width", $this->width);
 		echo "\">\n";
 		echo "<tr>";
-		echo "<td>";
+		echo "<td";
+		parameter("class", "NSTabViewItemsBar");
+		parameter("bgcolor", "LightSteelBlue");
+		echo ">\n";
+		$index=0;
 		foreach($this->tabViewItems as $item)
 			{ // add tab buttons and switching logic
+			echo "<input";
+			parameter("class", "NSTabViewItemsButton");
+			parameter("type", "submit");
+			parameter("name", $this->elementName."-".$index++);
+			parameter("value", htmlentities($item->label));
+/*
 			if($item == $this->selectedTabViewItem())
 				echo "<span color=green>";
 			else
 				echo "<span color=red>";
 			echo htmlentities($item->label);
-			echo "<span> ";
+
+			echo "</span> ";
+			echo "</button>";
+*/
+			echo ">\n";
 			}
 		echo "</td>";
-		echo "</tr>";
+		echo "</tr>\n";
 		echo "<tr>";
-		echo "<td align=\"center\">\n";
-		$selectedItem=$this->tabViewItems[$this->selectedIndex];
+		echo "<td";
+		parameter("align", "center");
+		echo ">\n";
+		$selectedItem=$this->selectedTabViewItem();
 		if(isset($selectedItem))
 			$selectedItem->view->draw();	// draw current tab
 		else
@@ -226,46 +311,79 @@ class NSTableView extends NSView
 	public $width="100%";
 	public $dataSource;
 	public $visibleRows=20;
+	public $selectedRow=-1;
 	public function setDataSource($source) { $this->dataSource=$source; }
 	public function setHeaders($headers) { $this->headers=$headers; }
 	public function setBorder($border) { $this->border=0+$border; }
+	public function numberOfRows() { return $this->dataSource->numberOfRowsInTableView($this); }
+	public function numberOfColumns() { return count($this->headers); }
 	
 	// allow to define colspan and rowspan objects
 	// allow to modify alignment
 	
-	public function NSTableView($headers=array())
+	public function NSTableView($headers=array("Column1"), $visibleRows=20)
 		{
+       		parent::__construct();
+		$this->visibleRows=$visibleRows;
 		$this->headers=$headers;
+		}
+	public function sendEvent($event)
+		{
+		if(isset($event[$this->elementName."-selectedRow"]))
+			$this->selectedRow=$event[$this->elementName."-selectedRow"];	// get default
+/* handle row selection
+		for($index=0; $index < count($this->tabViewItems); $index++)
+			{
+			$element=$this->elementName."-".$index;
+// print_r($element);
+			if(isset($event[$element]) && $event[$element] != "")
+				$this->selectTabViewItemAtIndex($index);	// some tab button was pressed
+			}
+*/
 		}
 	public function draw()
 		{
 		parent::draw();
-		echo "<table border=\"";
-		echo $this->border;
-		echo "\" width=\"";
-		echo $this->width;
+		echo "<input";
+		parameter("type", "hidden");
+		parameter("name", $this->elementName."-selectedRow");
+		parameter("value", $this->selectedRow);
+		echo ">\n";
+		echo "<table";
+		parameter("border", $this->border);
+		parameter("width", $this->width);
 		echo "\">\n";
-		echo "<tr>";
+		echo "<tr";
+		parameter("class", "NSHeaderView");
+		parameter("bgcolor", "LightSteelBlue");
+		echo ">\n";
 		// columns should be NSTableColumn objects that define alignment, identifier, title, sorting etc.
 		foreach($this->headers as $header)
 			{
-			echo "<th>";
+			echo "<th";
+			parameter("class", "NSTableHeaderCell");
+			parameter("bgcolor", "LightSteelBlue");
+			echo ">\n";
 			echo htmlentities($header);
 			echo "</th>\n";
 			}
 		echo "</tr>\n";
-		$rows=$this->dataSource->numberOfRows();
-		for($row=0; $row<$visibleRows; $row++)
+		$rows=$this->numberOfRows();
+		for($row=0; $row<$this->visibleRows; $row++)
 			{
 			echo "<tr>";
 			foreach($this->headers as $column)
 				{
-				// handle alternating colors
-				echo "<td>\n";
+				echo "<td";
+				parameter("class", "NSTableCell");
+				parameter("bgcolor", ($row%2 == 0)?"white":"PaleTurquoise");	// alternating colors
+				echo ">\n";
 				if($row < $rows)
 					{ // ask delegate for the item to draw
 					$item=$this->dataSource->tableView_objectValueForTableColumn_row($this, $column, $row);
-					$item->draw();					
+					// we should insert that into the $column->cell
+				//	$item->draw();					
+					echo htmlentities($item);
 					}
 				else
 					echo "&nbsp;";	// add empty rows
@@ -284,17 +402,26 @@ class NSButton extends NSView
 	public $action;	// function name
 	public function NSButton($newtitle = "NSButton")
 		{
+       		parent::__construct();
 // echo "NSButton $newtitle<br>";
-	$this->title=$newtitle;
+		$this->title=$newtitle;
+		}
+	public function sendEvent($event)
+		{ // this button may have been pressed
+// print_r($event);
+// print_r($this);
+		if(isset($event[$this->elementName]) && $event[$this->elementName] == $this->title)
+			$this->sendAction($this->action, $this->target);
 		}
 	public function draw()
 		{
 		parent::draw();
-		echo "<input type=\"submit\" name=\"";
-		echo rawurlencode("name");
-		echo "\" value=\"";
-		echo htmlentities($this->title);
-		echo "\">\n";
+		echo "<input";
+		parameter("class", "NSButton");
+		parameter("type", "submit");
+		parameter("name", $this->elementName);
+		parameter("value", htmlentities($this->title));
+		echo "\"/>\n";
 		}
 }
 
@@ -302,25 +429,34 @@ class NSButton extends NSView
 
 class NSTextField extends NSView
 {
+// FIXME: should we use cookies to store values when switching apps???
 	public $stringValue;
 	public $backgroundColor;
 	public $align;
 	public $type="text";
 	public $width;
-// get current value from stored cookie
+	public function stringValue() { return $this->stringValue; }
 	public function NSTextField($width=30, $stringValue = "")
 	{
-	$this->stringValue=$stringValue;
-	$this->width=$width;
+       		parent::__construct();
+		$this->stringValue=$stringValue;
+		$this->width=$width;
 	}
+	public function sendEvent($event)
+		{ // some button has been pressed
+		if(isset($event[$this->elementName]))
+			$this->stringValue=$event[$this->elementName];	// get our value when posted
+		}
 	public function draw()
 		{
 		parent::draw();
-		echo "<input type=\"".$this->type."\" size=\"".$this->width."\" name=\"";
-		echo rawurlencode("name");
-		echo "\" value=\"";
-		echo htmlentities($this->stringValue);
-		echo "\">\n";
+		echo "<input";
+		parameter("class", "NSTextField");
+		parameter("type", $this->type);
+		parameter("size", $this->width);
+		parameter("name", $this->elementName);
+		parameter("value", htmlentities($this->stringValue));
+		echo "\"/>\n";
 		}
 }
 
@@ -328,8 +464,9 @@ class NSSecureTextField extends NSTextField
 {
 	public function NSSecureTextField($width=30)
 	{
-	parent::NSTextField($width);
-	$this->type="password";
+       		parent::__construct($width);
+	//	parent::NSTextField($width);
+		$this->type="password";
 	}
 
 }
@@ -339,12 +476,42 @@ class NSStaticTextField extends NSView
 	public $stringValue;
 	public function NSStaticTextField($stringValue = "")
 	{
-	$this->stringValue=$stringValue;
+       		parent::__construct();
+		$this->stringValue=$stringValue;
 	}
 	public function draw()
 		{
 		parent::draw();
 		echo htmlentities($this->stringValue);
+		}
+}
+
+class NSTextView extends NSView
+{
+	public $string="";
+	public $width;
+	public $height;
+	public function NSTextView($width = 80, $height = 20)
+		{
+       		parent::__construct();
+		$this->width=$width;
+		$this->height=$height;
+		}
+	public function sendEvent($event)
+		{ // some button has been pressed
+		if(isset($event[$this->elementName]))
+			$this->stringValue=$event[$this->elementName];	// get our value when posted
+		}
+	public function draw()
+		{
+		parent::draw();
+		echo "<textarea";
+		parameter("width", $this->width);
+		parameter("height", $this->height);
+		parameter("name", $this->elementName);
+		echo "\">";
+		echo htmlentities($this->stringValue);
+		echo "</textarea>\n";
 		}
 }
 
@@ -363,6 +530,11 @@ class NSWindow
 		if(!$NSApp->mainWindow)
 			$NSApp->mainWindow=$this;
 // print_r($NSApp);
+		}
+	public function sendEvent($event)
+		{
+// print_r($event);
+		$this->contentView->sendEvent($event);
 		}
 	public function display() 
 		{
@@ -386,6 +558,30 @@ class NSWindow
 		echo "</body>\n";
 		echo "</html>\n";
 	}
+}
+
+class WebView extends NSView
+{
+	public $url;
+	public function WebView($url = "https://www.quantumstep.eu")
+		{
+       		parent::__construct();
+		$this->url=$url;
+		}
+// set URL, set stringValue,  setHTML
+	public function draw()
+		{
+		parent::draw();
+		echo "<iframe";
+		paramter("src", rawurlencode($this->url));
+		paramter("width", "100%");
+		paramter("height", "100%");
+		echo ">\n";
+		echo "<a";
+		parameter("href", rawurlencode($this->url));
+		echo ">Link</a>";
+		echo "<iframe>\n";
+		}
 }
 
 // EOF
