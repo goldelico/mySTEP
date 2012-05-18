@@ -26,6 +26,9 @@ function parameter($name, $value)
 }
 // check if login is required to run the App
 
+	
+global $NSApp;
+
 class NSApplication
 {
 	public $name;
@@ -33,21 +36,81 @@ class NSApplication
 	public $delegate;
 	public $mainWindow;
 	// FIXME: this belongs to NSWorkspace!?!
+	public function NSApplication($name)
+		{
+		global $NSApp;
+		$NSApp=$this;
+		$this->name=$name;
+		$NSApp->mainMenu=new NSMenuView();	// create menu bar
+		$NSApp->mainMenu->isHorizontal=true;
+		
+		// we should either load or extend that
+
+		$item=new NSMenuItemView("System");
+		$submenu=new NSMenuView();
+		$item->setSubMenu($submenu);
+		$NSApp->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("Logout", "terminate", $NSApp);
+
+		$item=new NSMenuItemView($this->name);
+		$submenu=new NSMenuView();
+		$item->setSubMenu($submenu);
+		$NSApp->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("Quit", "terminate", $NSApp);
+
+		$item=new NSMenuItemView("File");
+		$submenu=new NSMenuView();
+		$item->setSubMenu($submenu);
+		$NSApp->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("New", "newDocument", $NSApp);
+		$submenu->addMenuItemWithTitleAndAction("Open", "openDocument", $NSApp);
+		$submenu->addMenuItemSeparator();
+		$submenu->addMenuItemWithTitleAndAction("Save", "saveDocument", $NSApp);
+
+		$item=new NSMenuItemView("Edit");
+		$submenu=new NSMenuView();
+		$item->setSubMenu($submenu);
+		$NSApp->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("Undo", "undo", $NSApp);
+
+		$item=new NSMenuItemView("View");
+		$submenu=new NSMenuView();
+		$item->setSubMenu($submenu);
+		$NSApp->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("View", "undo", $NSApp);
+
+		$item=new NSMenuItemView("Window");
+		$submenu=new NSMenuView();
+		$item->setSubMenu($submenu);
+		$NSApp->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("Window", "undo", $NSApp);
+
+		$item=new NSMenuItemView("Help");
+		$submenu=new NSMenuView();
+		$item->setSubMenu($submenu);
+		$NSApp->mainMenu->addMenuItem($item);
+		$submenu->addMenuItemWithTitleAndAction("Help", "help", $NSApp);
+		
+		}
 	public function open($app)
 		{ // switch to a different app
-		// search App in different locations
-		$dir="System/Library/CoreServices";
-// use NSBundle
-		$bundle="$dir/$app";
+		$bundle=NSWorkspace::fullPathForApplication($app);
+//			print_r($bundle);
+		if(isset($bundle))
+			{
 // ask $bundle->executablePath;
-		$executablePath="https://".$_SERVER['HTTP_HOST']."/$bundle/Contents/php/executable.php";
+			$executablePath="https://".$_SERVER['HTTP_HOST']."/$bundle/Contents/php/executable.php";
 // how can we pass arbitrary parameters to their NSApplication $argv???
-		header("location: ".$executablePath);	// how to handle special characters here? rawurlencode?
-		exit;
+			header("location: ".$executablePath);	// how to handle special characters here? rawurlencode?
+			exit;
+			}
 		}
 	public function terminate()
 		{
-		$this->open("Cloudtop.app");
+		if($this->name == "Palmtop")
+			$this->open("loginwindow.app");
+		else
+			$this->open("Palmtop.app");
 		}
 	public function sendActionToTarget($from, $action, $target)
 		{
@@ -63,6 +126,11 @@ echo "<br>";
 		}
 	public function run()
 		{
+		// FIXME: this is also checekd for loginwindow!!!
+		$defaults=NSUserDefaults::standardUserDefaults();	// try to read
+//		print_r($defaults);
+		if($defaults->user == "")
+			$this->open("loginwindow.app");	// go back to login
 // FIXME: wir müssen die View-Hierarchie zweimal durchlaufen!
 // zuerst die neuen $_POST-Werte in die NSTextFields übernehmen
 // und dann erst den NSButton-action aufrufen
@@ -71,15 +139,17 @@ echo "<br>";
 		$this->mainWindow->display();
 		}
 }
-
-global $NSApp;
 	
 function NSApplicationMain($name)
 {
 	global $NSApp;
-	$NSApp = new NSApplication;
-	$NSApp->name=$name;
-	// set $NSApp->argv
+	global $ROOT;
+	if(!isset($ROOT))
+		{
+		echo '$ROOT is not set globally!';
+		exit;	
+		}
+	new NSApplication($name);
 	$NSApp->delegate=new AppController;	// this should come from the NIB file!
 	if(method_exists($NSApp->delegate, "awakeFromNib"))
 		$NSApp->delegate->awakeFromNib();
@@ -99,6 +169,175 @@ class NSColor
 		}
 	}
 
+class NSMenuItemView extends NSView
+	{	
+		public $label;
+		public $icon;
+		public $shortcut;
+		public $subMenuView;
+		public $action;
+		public $target;
+		public $isSelected;
+		public function NSMenuItemView($label)
+			{
+			parent::__construct();
+			$this->label=$label;
+			}
+		public function setActionAndTarget($action, $target)
+			{
+			$this->action=$action;
+			$this->target=$target;
+			}
+		public function setSubmenu($submenu)
+			{
+			$submenu->isHorizontal=false;
+			$this->subMenuView=$submenu;
+			}
+		public function draw()
+			{
+			// if no action -> grey out
+			echo htmlentities($this->label);
+			if(isset($this->subMenuView))
+				{
+// for this to work correctly we must know our superview!	if(!$superview->isHorizontal)
+					echo htmlentities(" >");
+				if($this->isSelected)
+					{
+					echo "<br>";
+					$this->subMenuView->draw();	// draw submenu (vertical)
+					}
+				}
+			else if(isset($this->shortcut))
+				echo htmlentities(" ".$this->shortcut);
+			}
+	}
+
+class NSMenuItemSeparator extends NSMenuItemView
+	{	
+		public function NSMenuItemSeparator()
+		{
+		parent::__construct("---");
+		}
+		public function draw()
+		{
+			echo "<hr>\n";
+		}
+	}
+
+class NSMenuView extends NSView
+	{
+	public $border=1;
+	public $width="100%";
+	public $isHorizontal;
+	public $menuItems;
+	public $selectedItem=-1;
+	public function NSMenuItemView()
+		{
+		parent::__construct();
+		$menuItems=array();
+		}
+	public function menuItemAtIndex($index) { return $this->menuItems[$index]; }
+	public function addMenuItem($item) { $this->menuItems[]=$item; }
+	public function addMenuItemWithTitleAndAction($title, $action, $target)
+		{
+		$item=new NSMenuItemView($title);
+		$item->setActionAndTarget($action, $target);
+		$this->addMenuItem($item);
+		return $item;
+		}
+	public function addMenuItemSeparator()
+		{
+		$item=new NSMenuItemSeparator();
+		$this->addMenuItem($item);
+		}
+	public function draw()
+		{
+		echo "<input";
+		parameter("type", "hidden");
+		parameter("name", $this->elementName."-selectedIndex");
+		parameter("value", $this->selectedItem);
+		echo ">\n";
+		echo "<table";
+		parameter("border", $this->border);
+		if($this->isHorizontal)
+			parameter("width", $this->width);
+		echo "\">\n";
+		echo "<tr";
+		parameter("class", "NSMenuItemView");
+		//		parameter("bgcolor", "LightSteelBlue");
+		echo ">\n";
+		$index=0;
+		foreach($this->menuItems as $item)
+		{ // add menu buttons and switching logic
+			echo "<td";
+			parameter("class", "NSMenuItem");
+			parameter("bgcolor", $this->selectedItem == $index?"blue":"white");
+			echo ">\n";
+			$item->isSelected=($this->selectedItem == $index);
+			$item->draw();
+			echo "</td>";
+			$index++;
+		}
+		echo "</tr>\n";
+		echo "</table>\n";		
+		}
+	}
+
+	// FIXME: shouldn't we separate between NSImage and NSImageView?
+	
+class NSImageView extends NSView
+{
+	public static $images=array();
+	public $name;
+	public $url;
+	public $width=32;
+	public $height=32;
+	public static function imageNamed($name)
+		{
+		$img=self::$images[$name];
+		if(isset($img))
+			return $img;	// known
+		return new NSImageView($name);	// create
+		}
+	public function NSImageView()
+		{
+       		parent::__construct();
+		}
+	public function setName($name)
+		{
+		if($this->name != "")
+			unset(self::$images[$this->name]);
+		if($name != "")
+			{
+			self::$images[$name]=$this;
+			$this->name=$name;
+			if(!isset($this->url))
+				{
+				// search in main bundle
+				$this->setFilePath("images/".$name.".png");	// set default name				
+				}
+			}
+		}
+	public function setURL($url)
+		{
+		$this->url=$url;
+		// $this->setName(basename($path)) - ohne Suffix
+		}
+	public function setFilePath($path)
+		{
+		$this->setURL("https://".$_SERVER['HTTP_HOST']."/$path");
+		}
+	public function draw()
+		{
+		parent::draw();
+		echo "<img";
+		parameter("src", htmlentities($this->url));
+		parameter("name", htmlentities($this->name));
+		parameter("style", "{ width:".htmlentities($this->width).", height:".htmlentities($this->height)."}");
+		echo ">\n";
+		}
+}
+
 class NSView
 { // semi-abstract superclass
 	public $elementName;
@@ -108,11 +347,12 @@ class NSView
 	public function addSubview($view) { $this->subviews[]=$view; }
 	public function NSView()
 		{
-		global $elementNumber;	// unique number
+		static $elementNumber;	// unique number
 		$this->elementName="NSView-".(++$elementNumber);
 		}
 	public function draw()
 		{
+//		echo "<!-- ".$this->elementName." -->\n";
 		foreach($this->subviews as $view)
 			$view->draw();
 		}
@@ -128,27 +368,6 @@ class NSView
 		}
 }
 
-class NSImageView extends NSView
-{
-	public $name;
-	public $width=32;
-	public $height=32;
-	public function NSImageView($name)
-		{
-       		parent::__construct();
-		$this->name="images/".$name.".png";	// default name
-		}
-	public function setName($name) { $this->name=$name; }
-	public function draw()
-		{
-		parent::draw();
-		echo "<img";
-		parameter("src", htmlentities($this->name));
-		parameter("style", "{ width:".htmlentities($this->width).", height:".htmlentities($this->height)."}");
-		echo ">\n";
-		}
-}
-
 class NSCollectionView extends NSView
 {
 	public $colums=5;
@@ -157,6 +376,8 @@ class NSCollectionView extends NSView
 	public $content;
 	public function content() { return $this->content; }
 	public function setContent($array) { $this->content=$array; }
+	// FIXME: we should decide which method we prefer!
+	public function addSubview($item) { $this->addCollectionViewItem($item); }
 	public function addCollectionViewItem($item) { $this->content[]=$item; }
 	public function setBorder($border) { $this->border=0+$border; }
 
@@ -546,10 +767,10 @@ class NSWindow
 		// meta content generator...
 		echo "<title>".htmlentities($this->title)."</title>\n";
 		echo "</head>\n";
-		echo "<body>\n";
-		// horizontal Menu bar
-		// add QuantumSTEP-Icon for the system menu
-		echo "<h2>".htmlentities($NSApp->name)."<font size=-1> | Files | Edit | Windows | Help</font>"."</h2>\n";
+		echo "<body";
+//		parameter("bgcolor", "grey");
+		echo ">\n";
+		$NSApp->mainMenu->draw();
 		echo "<form method=\"POST\">\n";	// a window is a big form to handle all input/output through POST (and GET)
 		// add App-Icon, menu/status bar
 		$this->contentView->draw();
@@ -560,27 +781,62 @@ class NSWindow
 	}
 }
 
-class WebView extends NSView
+class NSWorkspace
 {
-	public $url;
-	public function WebView($url = "https://www.quantumstep.eu")
+	public static $knownApplications;
+	public static function knownApplications()
 		{
-       		parent::__construct();
-		$this->url=$url;
+		if(isset(self::$knownApplications))
+			return self::$knownApplications;	// already analysed
+		$appdirs=array("Applications", "Applications/Games", "Applications/Work", "Applications/Utilities", "System/Library/CoreServices");
+		self::$knownApplications=array();
+		foreach($appdirs as $dir)
+			{
+			global $ROOT;
+//			echo "$ROOT/$dir ";
+			$f=opendir("$ROOT/$dir");
+			if($f)
+				{
+				while($bundle=readdir($f))
+					{
+//					echo "$dir/$bundle ";
+					if(substr($bundle, -4) == ".app")
+						{ // candidate
+						// check for bundle
+						$name=substr($bundle, 0, strlen($bundle)-4);
+						self::$knownApplications[$bundle]=array(
+							"NSApplicationName" => $name,
+							"NSApplicationPath" => "$dir/$bundle",
+							"NSApplicationDomain" => $dir
+							);
+						// collect suffixes handled by this app
+						}
+					}
+				closedir($f);
+				}
+			}
+//		print_r($knownApplications);
+		return self::$knownApplications;
 		}
-// set URL, set stringValue,  setHTML
-	public function draw()
+	public static function fullPathForApplication($name)
 		{
-		parent::draw();
-		echo "<iframe";
-		paramter("src", rawurlencode($this->url));
-		paramter("width", "100%");
-		paramter("height", "100%");
-		echo ">\n";
-		echo "<a";
-		parameter("href", rawurlencode($this->url));
-		echo ">Link</a>";
-		echo "<iframe>\n";
+		NSWorkspace::knownApplications();
+//		echo $name;
+		$app=self::$knownApplications[$name];
+		if(isset($app))
+			return $app["NSApplicationPath"];
+		echo "fullPathForApplication:$app not found";
+		print_r(self::$knownApplications);
+		return $app;
+		}
+	public static function iconForFile($path)
+		{
+		return NSImageView::imageNamed("NSApplication");	// default
+		// check if that is a bundle -> get through Info.plist / bundle
+		// else find application by suffix
+		}
+	public static function openFile($file)
+		{
 		}
 }
 
