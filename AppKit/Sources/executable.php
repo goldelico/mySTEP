@@ -9,6 +9,8 @@
  * hitTest, sendEvent and mouseDown called when button is clicked or something modified
  */
 
+echo "loading AppKit<br>";
+
 if($_SERVER['SERVER_PORT']!=443)
 { // reload page as https
 	if($_SERVER['REQUEST_URI'] == "" || $_SERVER['REQUEST_URI'] == "/")
@@ -18,7 +20,7 @@ if($_SERVER['SERVER_PORT']!=443)
 	exit;
 }
 
-require "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/executable.php";		
+require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/executable.php";		
 
 function parameter($name, $value)
 {
@@ -31,11 +33,24 @@ global $NSApp;
 
 class NSApplication
 {
+	// FIXME: part of this belongs to NSWorkspace!?!
 	public $name;
 	public $argv;	// arguments (?)
 	public $delegate;
 	public $mainWindow;
-	// FIXME: this belongs to NSWorkspace!?!
+	public $mainMenu;
+
+	function logout($sender)
+	{
+		setcookie("login", "", 24*3600);
+		setcookie("passcode", "", 24*3600);
+		$this->open("loginwindow.app");
+	}
+	function openSettings($sender)
+	{
+		$this->open("settings.app");
+	}
+	
 	public function NSApplication($name)
 		{
 		global $NSApp;
@@ -50,7 +65,10 @@ class NSApplication
 		$submenu=new NSMenuView();
 		$item->setSubMenu($submenu);
 		$NSApp->mainMenu->addMenuItem($item);
-		$submenu->addMenuItemWithTitleAndAction("Logout", "terminate", $NSApp);
+		$submenu->addMenuItemWithTitleAndAction("About", "orderFrontAboutPanel", $NSApp);
+		$submenu->addMenuItemWithTitleAndAction("Settings", "openSettings", $NSApp);
+		$submenu->addMenuItemSeparator();
+		$submenu->addMenuItemWithTitleAndAction("Logout", "logout", $NSApp);
 
 		$item=new NSMenuItemView($this->name);
 		$submenu=new NSMenuView();
@@ -126,15 +144,17 @@ echo "<br>";
 		}
 	public function run()
 		{
-		// FIXME: this is also checekd for loginwindow!!!
 		$defaults=NSUserDefaults::standardUserDefaults();	// try to read
-//		print_r($defaults);
+		print_r($defaults);
 		if($defaults->user == "")
-			$this->open("loginwindow.app");	// go back to login
+			echo "Login failed!";
+//			$this->open("loginwindow.app");	// go back to login
+		
 // FIXME: wir mŸssen die View-Hierarchie zweimal durchlaufen!
 // zuerst die neuen $_POST-Werte in die NSTextFields Ÿbernehmen
 // und dann erst den NSButton-action aufrufen
 // sonst hŠngt es davon ab wo der NSButton in der Hierarchie steht ob die Felder Werte haben oder nicht
+		
 		$this->mainWindow->sendEvent($_POST);
 		$this->mainWindow->display();
 		}
@@ -428,8 +448,8 @@ class NSCollectionView extends NSView
 
 class NSTabViewItem
 	{
-	public $view;
 	public $label;
+	public $view;
 	public function NSTabViewItem($label, $view)
 		{
 		$this->label=$label;
@@ -443,16 +463,38 @@ class NSTabView extends NSView
 	public $width="100%";
 	public $tabViewItems;
 	public $selectedIndex=0;
+	public $delegate;
 	public function tabViewItems() { return $this->tabViewItems; }
 	public function addTabViewItem($item) { $this->tabViewItems[]=$item; }
 	public function selectedTabViewItem() {	return $this->tabViewItems[$this->selectedIndex]; }
+	public function indexOfTabViewItem($item)
+		{
+		$index=0;
+		foreach($this->tabViewItems as $i)
+			{
+			if($i == $item)
+				return $index;
+			$index++;			
+			}
+		return -1;
+		}
 	public function indexOfSelectedTabViewItem() { return $this->selectedIndex; }
-	public function selectTabViewItemAtIndex($index) { $this->selectedIndex=$index; }
+	public function selectTabViewItemAtIndex($index)
+		{
+		if(method_exists($this->delegate, "tabViewShouldSelectTabViewItem"))
+			if(!$this->delegate->tabViewShouldSelectTabViewItem($this, $this->tabViewItems[index]))
+				return;	// don't select
+		if(method_exists($this->delegate, "tabViewWillSelectTabViewItem"))
+			$this->delegate->tabViewWillSelectTabViewItem($this, $this->tabViewItems[index]);
+		$this->selectedIndex=$index;
+		if(method_exists($this->delegate, "tabViewDidSelectTabViewItem"))
+			$this->delegate->tabViewDidSelectTabViewItem($this, $this->tabViewItems[$index]);
+		}
 	public function setBorder($border) { $this->border=0+$border; }
 	public function NSTabView($items=array())
 		{
        		parent::__construct();
-		$this->tabViewItems=$items;
+			$this->tabViewItems=$items;
 		// echo "NSTabView $cols<br>";
 		}
 	public function sendEvent($event)
@@ -770,7 +812,8 @@ class NSWindow
 		echo "<body";
 //		parameter("bgcolor", "grey");
 		echo ">\n";
-		$NSApp->mainMenu->draw();
+		if(isset($NSApp->mainMenu))
+			$NSApp->mainMenu->draw();
 		echo "<form method=\"POST\">\n";	// a window is a big form to handle all input/output through POST (and GET)
 		// add App-Icon, menu/status bar
 		$this->contentView->draw();
@@ -793,13 +836,13 @@ class NSWorkspace
 		foreach($appdirs as $dir)
 			{
 			global $ROOT;
-//			echo "$ROOT/$dir ";
+//			echo "$ROOT/$dir<br>";
 			$f=opendir("$ROOT/$dir");
 			if($f)
 				{
 				while($bundle=readdir($f))
 					{
-//					echo "$dir/$bundle ";
+//					echo "$dir/$bundle<br>";
 					if(substr($bundle, -4) == ".app")
 						{ // candidate
 						// check for bundle
@@ -821,11 +864,11 @@ class NSWorkspace
 	public static function fullPathForApplication($name)
 		{
 		NSWorkspace::knownApplications();
-//		echo $name;
+//		echo "$name<br>";
 		$app=self::$knownApplications[$name];
 		if(isset($app))
 			return $app["NSApplicationPath"];
-		echo "fullPathForApplication:$app not found";
+		echo "fullPathForApplication:$app not found<br>";
 		print_r(self::$knownApplications);
 		return $app;
 		}
@@ -833,6 +876,7 @@ class NSWorkspace
 		{
 		return NSImageView::imageNamed("NSApplication");	// default
 		// check if that is a bundle -> get through Info.plist / bundle
+		// $bundle->objectForInfoDictionaryKey('CFBundleIconFile');
 		// else find application by suffix
 		}
 	public static function openFile($file)

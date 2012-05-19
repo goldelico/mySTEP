@@ -4,18 +4,66 @@
 	 * (C) Golden Delicious Computers GmbH&Co. KG, 2012
 	 * All rights reserved.
 	 */
-	
+
+	echo "loading Foundation<br>";
+
 // define (simple) classes for NSBundle, NSUserDefaults
+
+class NSPropertyListSerialization
+	{
+	public static function propertyListFromPath($path)
+		{
+		$filename=NSFileManager::fileSystemRepresentationWithPath($path);
+//		echo "$filename =><br>";
+		$f=fopen($filename, "r");	// open for reading
+		if($f)
+			{ // file exists and can be read
+				while($line=fgets($f))
+					{
+					$line=trim($line);
+					// this is a hack to read XML property lists
+					if(substr($line, 0, 5) == "<key>")
+						{
+						$key=html_entity_decode(substr(substr($line, 5), 0, -6));
+						continue;
+						}
+					if(substr($line, 0, 8) == "<string>")
+						{
+						// FIXME: handle multi-line strings
+						$val=html_entity_decode(substr(substr($line, 8), 0, -9));
+						$plist[$key]=$val;
+						}
+					}
+				fclose($f);
+			}
+//		print_r($plist);
+//		echo "<br>";
+		return $plist;
+		}
+	public static function writePropertyListToPath($plist, $path)
+		{
+		echo "no idea yet how to writePropertyListToPath($path)<br>";
+		exit;		
+		}
+	}
+
+function __load($path)
+   {
+//   echo "load bundle from $path<br>";
+   return include($path);
+   }
 
 class NSBundle
 { // abstract superclass
 	public $path;
 	public static $mainBundle;
 	public $infoDictionary;
+	public $loaded=false;
 	public function NSBundle($path)
 		{
 		$this->path=$path;
 		}
+	public static function bundleWithPath($path) { return new NSBundle($path); }
 	public static function mainBundle()
 		{
 		global $NSApp;
@@ -23,31 +71,44 @@ class NSBundle
 			NSBundle::$mainBundle=new NSBundle($NSApp->path);
 		return NSBundle::$mainBundle;
 		}
-	public static function bundleForClass($class) { }
-	public function addSubview($view) { $this->subviews[]=$view; }
-	public function executablePath() { return $path."/Contents/php/executable.php"; }
+	public static function bundleForClass($class)
+		{
+		echo "no idea yet how to get bundleForClass($class)<br>";
+		// get_declared_classes()
+		exit;
+		}
+	public function executablePath() { return $this->path."/Contents/php/executable.php"; }
 	public function infoDictionary()
 	{
 		if(!isset($this->infoDictionary))
 			{ // locate and load Info.plist
-			
+				$plistPath=$this->pathForResourceOfType("Info", "plist");
+				echo "read $plistPath<br>";
+				$this->infoDictionary=NSPropertyListSerialization::propertyListFromPath($plistPath);
 			}
 		return $this->infoDictionary;
 	}
-	public function resourcePath($name, $type) { }
+	public function pathForResourceOfType($name, $type)
+		{
+		// should apply search path and look in /Contents/Resources, /Resources until we find an existing file
+		return $this->path."/Contents/$name.$type";
+		}
 	public function objectForInfoDictionaryKey($key)
-	{
+		{
 		$dict=$this->infoDictionary();
 		return $dict[$key];
-	}
+		}
+	public function bundleIdentifier() { return $this->objectForInfoDictionaryKey('CFBundleIdentifier'); }
 	public function principalClass()
-	{
+		{
+		$this->load();
 		return $this->objectForInfoDictionaryKey('NSPrincipalClass');
-	}
+		}
 	public function load()
 	{ // dynamically load the bundle classes
-		$path=$this->executablePath();
-		include $path;
+		if(!$this->loaded)
+			$this->loaded=__load(NSFileManager::fileSystemRepresentationWithPath($this->executablePath()));
+		return $this->loaded;
 	}
 }
 	
@@ -67,6 +128,19 @@ class NSBundle
 // FIXME: chmod("/einverzeichnis/einedatei", 0750);	auf /Users/<username>
 // Problem: wenn php drankommt, dann kommt auch der WebServer dran!?!
 
+function NSHomeDirectoryForUser($user)
+	{
+	if($user == "")
+		return "???";
+	// we must make sure that nobody can try "username/../something"...
+	return "/Users/".rawurlencode($user);
+	}
+
+function NSHomeDirectory()
+	{
+	return NSHomeDirectoryForUser(NSUserDefaults::standardUserDefaults()->user);
+	}
+	
 class NSUserDefaults
 { // persistent values (user settings)
 	public static $standardUserDefaults;
@@ -77,19 +151,24 @@ class NSUserDefaults
 	{
 	if(!isset(self::$standardUserDefaults) || self::$standardUserDefaults->user == "")
 		{ // read and check for proper login
+//			echo "read and check for proper login ";
 			
-			$checkPassword=false;
+			$checkPassword=true;
 
-		if(!$checkPassword)
-			$_COOKIE['login']="user";
 		$defaults=new NSUserDefaults();
+		self::$standardUserDefaults=$defaults;
 		if(!$checkPassword)
-			self::$standardUserDefaults=$defaults;
-		if(isset($defaults->user) && isset($_COOKIE['passcode']))
-			{
+			{ // dummy initialization
+			$defaults->user="unchecked";
+			$defaults->defaults=array();
+			}
+		else if($defaults->user != "" && isset($_COOKIE['passcode']))
+			{ // check passcode
 			$doublehash=md5($_COOKIE['passcode'].$defaults->user);	// 2nd hash so that the passcode can't be determined from the file system
-			if($doublehash == $defaults->stringForKey("NSUserPassword"))
-				self::$standardUserDefaults=$defaults;	// does match
+			$stored=$defaults->stringForKey("NSUserPassword");
+			echo "check $doublehash with $stored<br>";
+			if($doublehash != $stored)
+				$defaults->user="";	// does not match
 			}
 		}
 	return self::$standardUserDefaults;
@@ -102,11 +181,15 @@ class NSUserDefaults
 	{
 		if(isset($_COOKIE['login']) && $_COOKIE['login'] != "")
 			{
+			// $this->defaults=array("NSUserPassword" => "04f91b9cb7853a4245b3b2292a3dcfe4");
 			$this->user=$_COOKIE['login'];
-			// if file exists and can be read
-			$this->defaults=array();
-			// read $this->defaults from file system ($ROOT/Users/$login/Library/Preferences/NSGlobalDomain.plist)			
+			$plist=NSHomeDirectoryForUser($this->user)."/Library/Preferences/NSGlobalDomain.plist";
+			$this->defaults=NSPropertyListSerialization::propertyListFromPath($plist);
+			if(!isset($this->defaults))
+				$this->user="";
 			}
+		else
+			$this->user="";
 	}
 	public function registerDefaults($dict)
 	{
@@ -114,7 +197,7 @@ class NSUserDefaults
 	}
 	public function dictionaryRepresentation()
 	{
-		// combine values
+		// combine values into single return dictionary
 		return $this->defaults;
 	}
 	public function objectForKey($key)
@@ -136,9 +219,9 @@ class NSUserDefaults
 		// write to file system
 	}
 	public function boolForKey($key) { $val=$this->objectForKey($key); return $val=="1" || $val == "true" || $val == "YES"; }
-	public function floatForKey($key) { (float) $this->objectForKey($key); }
-	public function integerForKey($key) { (int) $this->objectForKey($key); }
-	public function stringForKey($key) { "".$this->objectForKey($key); }
+	public function floatForKey($key) { return (float) $this->objectForKey($key); }
+	public function integerForKey($key) { return (int) $this->objectForKey($key); }
+	public function stringForKey($key) { return "".$this->objectForKey($key); }
 	public function setBoolForKey($key, $val) { $val=$this->setObjectForKey($key, $val?"1":"0"); }
 	public function setFloatForKey($key, $val) { $this->setObjectForKey($key, $val); }
 	public function setIntegerForKey($key, $val) { $this->setObjectForKey($key, $val); }
@@ -147,7 +230,11 @@ class NSUserDefaults
 
 class NSFileManager
 	{
-	
+	public static function fileSystemRepresentationWithPath($path)
+		{
+		global $ROOT;
+		return "$ROOT/$path";
+		}
 	}
 
 // EOF
