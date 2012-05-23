@@ -9,8 +9,9 @@
  * hitTest, sendEvent and mouseDown called when button is clicked or something modified
  */
 
-echo "loading PreferencePanes<br>";
+// echo "loading PreferencePanes.framework<br>";
 
+global $ROOT;	// must be set by some .app
 require_once "$ROOT/System/Library/Frameworks/AppKit.framework/Versions/Current/php/executable.php";		
 
 class NSPreferencePane

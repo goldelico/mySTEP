@@ -9,7 +9,7 @@
  * hitTest, sendEvent and mouseDown called when button is clicked or something modified
  */
 
-echo "loading AppKit<br>";
+// echo "loading AppKit<br>";
 
 if($_SERVER['SERVER_PORT']!=443)
 { // reload page as https
@@ -20,6 +20,7 @@ if($_SERVER['SERVER_PORT']!=443)
 	exit;
 }
 
+global $ROOT;	// must be set by some .app
 require_once "$ROOT/System/Library/Frameworks/Foundation.framework/Versions/Current/php/executable.php";		
 
 function parameter($name, $value)
