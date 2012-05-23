@@ -283,7 +283,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 			receivePort=[[[sendPort class] new] autorelease];
 		if(receivePort != sendPort && (c=[isa lookUpConnectionWithReceivePort:receivePort sendPort:receivePort]))
 			{ // parent connection exists - copy root object and all configs
-#if 0
+#if 1
 				NSLog(@"NSConnection -init: parent connection exists");
 #endif
 				if([_delegate respondsToSelector:@selector(connection:shouldMakeNewConnection:)] &&
@@ -315,7 +315,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 			}
 		else if((c=[isa lookUpConnectionWithReceivePort:receivePort sendPort:sendPort]))
 			{ // already exists
-#if 0
+#if 1
 				NSLog(@"NSConnection -init: connection exists");
 #endif
 				[self release];
@@ -323,7 +323,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 			}
 		else if(([isa lookUpConnectionWithReceivePort:sendPort sendPort:receivePort]))
 			{ // reverse direction exists
-#if 0
+#if 1
 				NSLog(@"NSConnection -init: reverse connection exists");
 #endif
 				// _isLocal=YES;	// local communication
@@ -331,7 +331,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 			}
 		else
 			{
-#if 0
+#if 1
 			NSLog(@"really new connection");
 #endif
 			// ????		[_sendPort setDelegate:self];	// get notifications
@@ -433,13 +433,15 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@\n  recv=%@\n  send=%@\n  root=%@\n  delegate=%@\n  modes=%@\n  req=%.2lf\n  reply=%.2lf\n  flags:%@%@%@",
+	return [NSString stringWithFormat:@"%p:%@\n  recv=%@\n  send=%@\n  root=%@\n  delegate=%@\n  modes=%@\n  runLoops=%@\n  req=%.2lf\n  reply=%.2lf\n  flags:%@%@%@",
+			self,
 			NSStringFromClass(isa),
 			_receivePort,
 			_sendPort,
 			_rootObject,
 			_delegate,
 			_modes,
+			_runLoops,
 			_requestTimeout, _replyTimeout,
 			_multipleThreadsEnabled?@" multiple-threads":@"",
 			_isValid?@" valid":@"",
@@ -573,6 +575,15 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 - (void) setReplyTimeout:(NSTimeInterval)seconds; { _replyTimeout=seconds; }
 - (void) setRequestTimeout:(NSTimeInterval)seconds; { _requestTimeout=seconds; }
 - (void) setRootObject:(id) anObj; { ASSIGN(_rootObject, anObj); }
+
+/* should be like
+ statistics={
+ NSConnectionRepliesReceived = 5;
+ NSConnectionRepliesSent = 7;
+ NSConnectionRequestsReceived = 7;
+ NSConnectionRequestsSent = 6;
+ }
+*/
 
 - (NSDictionary *) statistics; { return [NSDictionary dictionaryWithObject:@"not implemented" forKey:@"Statistics"]; }
 
@@ -888,7 +899,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	NSInvocation *inv;
 	NSException *exception;	// exception response (an NSException created in the current ARP)
 	id imports=nil;
-	NSMethodSignature *sig=nil;
+	NSMethodSignature *sig;
 	NSDistantObjectRequest *req;
 	BOOL enqueue;
 	BOOL isOneway=NO;
@@ -896,12 +907,14 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	NSLog(@"handleRequest (seq=%d): %@", seq, coder);
 	NSLog(@"message=%@", [[coder components] objectAtIndex:0]);
 #endif	
-	inv=[coder decodeObject];	// ?? could not confirm recently ?? the first remote call for [client rootProxy] passes nil here (to establish the connection?)
+	inv=[coder decodeObject];	// ?? could not confirm recently: the first remote call for [client rootProxy] passes nil here (to establish the connection?)
 	if(inv)
 		{
+		NSMethodSignature *tsig;
+		sig=[inv methodSignature];	// how the invocation was initialized
 #if 1
 		NSLog(@"inv.argumentsRetained=%@", [inv argumentsRetained]?@"yes":@"no");
-		NSLog(@"inv.selector=%@", NSStringFromSelector([inv selector]));
+		NSLog(@"inv.selector='%@'", NSStringFromSelector([inv selector]));
 		NSLog(@"inv.target=%p", [inv target]);	// don't try to call any method on the target here since it is a NSDistantObject...
 		NSLog(@"inv.target.class=%@", NSStringFromClass([[inv target] class]));
 		NSLog(@"inv.methodSignature.numberOfArguments=%d", [[inv methodSignature] numberOfArguments]);
@@ -914,23 +927,24 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 		// they may have to do something with the current conversation and/or with the importedObjects
 		// but I don't know yet.
 		NS_DURING
-		NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
-		NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
-		NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
+			NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
+			NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
+			NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
 		NS_HANDLER
-		NSLog(@"decoding exception: %@", localException);
+			NSLog(@"decoding exception: %@", localException);
 		NS_ENDHANDLER
-		if(![sig isEqual:[[inv target] methodSignatureForSelector:[inv selector]]])
-			NSLog(@"signature mismatch: %@ vs. %@", sig, [[inv target] methodSignatureForSelector:[inv selector]]); // exception local method signature is different from remote
-		[self _cleanupAndAuthenticate:coder sequence:seq conversation:&_currentConversation invocation:inv raise:YES];
-#if WHAT_DO_WE_NEED_THIS_FOR
 		// it appears that this has been found in some stack traces
-		sig=[inv methodSignature];
+#if WHAT_DO_WE_NEED_THIS_FOR
 		isOneway=[sig isOneway];
 		// shouldn't we skip enqueueing if it isOneway?
 #endif
+		// CHECKME: do we really need to check that by creating another methodSignature object???
+		tsig=[[inv target] methodSignatureForSelector:[inv selector]];
+		if(![sig isEqual:tsig])
+			NSLog(@"signature mismatch: %@ vs. %@", sig, tsig); // should raise exception: local method signature is different from remote
+		[self _cleanupAndAuthenticate:coder sequence:seq conversation:&_currentConversation invocation:inv raise:YES];
 		}
-	enqueue=![self _shouldDispatch:&_currentConversation invocation:inv sequence:seq coder:coder];	// this will allocate the conversation if needed
+	enqueue=![self _shouldDispatch:&_currentConversation invocation:inv sequence:seq coder:coder];	// this will allocate the conversation if needed and tell if we should dispatch immediately
 #if __APPLE__
 	req=[[NSConcreteDistantObjectRequest alloc] initWithInvocation:inv conversation:_currentConversation sequence:seq importedObjects:imports connection:self];
 #else
@@ -940,6 +954,8 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	if(enqueue)
 		{ //should not dispatch, i.e. enqueue
 			// hm - do we have a global queue or one per NSConnection??? if local: why do we then save the connection within NSDistantObjectRequest
+			// according to the description it appears there is one queue per NSThread shared by all NSConnections known to that NSThread
+			// so we should not have an iVar but use [[NSThread currentThread] threadDictionary]
 			if(!_requestQueue)
 				_requestQueue=[NSMutableArray new];
 			[inv retainArguments];
@@ -958,7 +974,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 				NSLog(@"*** (conn=%p) request received ***", self);
 #endif
 				NS_DURING {
-#if 1
+#if 0
 					[inv _log:@"handleRequest"];
 #endif
 					[[req connection] dispatchInvocation:inv];	// make a call to the local object(s)
@@ -1029,13 +1045,15 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 			[pc encodeObject:exception];
 			// [pc encodeObject:imports];
 			[self finishEncoding:pc];
-#if 1
+#if 0
 			// CHECKME: is this timeout correct? We are sending a reply...
 			NSLog(@"replyTimeout=%f", _replyTimeout);
 			NSLog(@"timeIntervalSince1970=%f", [[NSDate date] timeIntervalSince1970]);
 			NSLog(@"timeIntervalSinceRefDate=%f", [[NSDate date] timeIntervalSinceReferenceDate]);
 			NSLog(@"time=%f", [NSDate timeIntervalSinceReferenceDate]+_replyTimeout);
 			// flags must be YES or we get a timeout (!) exception
+#endif
+#if 1
 			NSLog(@"now sending");
 #endif
 			[pc sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_replyTimeout sendReplyPort:YES];	// send response
@@ -1063,9 +1081,11 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 - (BOOL) _cleanupAndAuthenticate:(NSPortCoder *) coder sequence:(unsigned int) seq conversation:(id *) conversation invocation:(NSInvocation *) inv raise:(BOOL) raise;
 {
 	BOOL r=[coder verifyWithDelegate:_delegate];
-#if 1
+#if 0
+	NSLog(@"_cleanupAndAuthenticate sequence=%u", seq);
+	NSLog(@"verifyWithDelegate => %@ delegate = %@", r?@"YES":@"NO", _delegate);
 	NSLog(@"components %@", [coder components]);
-	NSLog(@"result = %@ delegate = %@", r?@"YES":@"NO", _delegate);
+	NSLog(@"conversation %@", *conversation);
 	r=YES;
 #endif
 	[coder invalidate];	// no longer needed

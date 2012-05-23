@@ -260,7 +260,7 @@ const char *objc_skip_typespec (const char *type)
 	unsigned char data[8];
 	} d;
 	char len=8;
-#if 1
+#if 0
 	NSLog(@"encode %lld", val);
 #endif
 	d.val=NSSwapHostLongLongToLittle(val);	// NOTE: this has been unit-tested to be correct on big and little endian machines
@@ -289,7 +289,7 @@ const char *objc_skip_typespec (const char *type)
 	[(NSMutableArray *) _components addObject:port];
 }
 
-#if 1	// should be inherited!
+#if 1	// should become inherited!
 - (void) encodeArrayOfObjCType:(const char*) type
 						 count:(unsigned int) count
 							at:(const void*) array
@@ -417,7 +417,7 @@ const char *objc_skip_typespec (const char *type)
 
 - (void) encodeValueOfObjCType:(const char *)type at:(const void *)address
 { // must encode in network byte order (i.e. bigendian)
-#if 1
+#if 0
 	NSLog(@"NSPortCoder encodeValueOfObjCType:'%s' at:%p", type, address);
 #endif
 	switch(*type)
@@ -440,7 +440,7 @@ const char *objc_skip_typespec (const char *type)
 #if 1
 		NSLog(@"encoding class %s", class);
 #endif
-#if 1	// for debugging
+#if 0	// for debugging
 		if(strcmp(class, "MYDistantObject") == 0)
 			class="NSDistantObject";
 #endif
@@ -598,7 +598,7 @@ const char *objc_skip_typespec (const char *type)
 	return NIMP;
 }
 
-#if 1	// should be inherited!
+#if 1	// should become inherited!
 - (void) decodeArrayOfObjCType:(const char*)type
 						 count:(unsigned)count
 							at:(void*)array
@@ -641,7 +641,7 @@ const char *objc_skip_typespec (const char *type)
 
 - (void) decodeValueOfObjCType:(const char *) type at:(void *) address
 { // must encode in network byte order (i.e. bigendian)
-#if 1
+#if 0
 	NSLog(@"NSPortCoder decodeValueOfObjCType:%s at:%p", type, address);
 #endif
 	switch(*type)
@@ -756,7 +756,7 @@ const char *objc_skip_typespec (const char *type)
 		if(flag)
 			{
 			addr=[self decodeBytesWithReturnedLength:&numBytes];
-#if 1
+#if 0
 			NSLog(@"decoded %u bytes atomar string", numBytes);
 #endif
 			// should check if the last byte is 00
@@ -812,7 +812,7 @@ const char *objc_skip_typespec (const char *type)
 { // can be called within initWithCoder to find out which version(s) to decode
 	Class class;
 	NSNumber *version;
-#if 1
+#if 0
 	NSLog(@"versionForClassName: %@", className);
 #endif
 	version=[_classVersions objectForKey:className];
@@ -946,7 +946,7 @@ const char *objc_skip_typespec (const char *type)
 	BOOL flag;
 	NSMutableDictionary *savedClassVersions;
 	int version;
-#if 1
+#if 0
 	NSLog(@"decodeRetainedObject");
 #endif
 	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// the first byte is the non-nil/nil flag
@@ -967,7 +967,7 @@ const char *objc_skip_typespec (const char *type)
 	if(flag)
 		{ // main class version is not 0
 			[self decodeValueOfObjCType:@encode(int) at:&version];
-#if 1
+#if 0
 			NSLog(@"versionForClass: %@ -> %d", NSStringFromClass(class), version);
 #endif
 			[_classVersions setObject:[NSNumber numberWithInt:version] forKey:NSStringFromClass(class)];	// save class version
@@ -979,7 +979,7 @@ const char *objc_skip_typespec (const char *type)
 						break;
 					[self decodeValueOfObjCType:@encode(Class) at:&otherClass];	// another class folows
 					[self decodeValueOfObjCType:@encode(int) at:&version];
-#if 1
+#if 0
 					NSLog(@"versionForClass: %@ -> %d", NSStringFromClass(otherClass), version);
 #endif
 					[_classVersions setObject:[NSNumber numberWithInt:version] forKey:NSStringFromClass(otherClass)];	// save class version
@@ -1090,13 +1090,13 @@ const char *objc_skip_typespec (const char *type)
 	if([coder versionForClassName:@"NSString"] != 1)
 		[NSException raise:NSInvalidArgumentException format:@"Can't decode version %d of NSString", [coder versionForClassName:@"NSString"]];
 	[coder decodeValueOfObjCType:@encode(unsigned int) at:&len];
-#if 1
+#if 0
 	NSLog(@"NSString initWithCoder len=%d", len);
 #endif
 	str=objc_malloc(len+1);
 	[coder decodeArrayOfObjCType:@encode(char) count:len at:str];
 	str[len]=0;
-#if 1
+#if 0
 	NSLog(@"UTF8=%s", str);
 #endif
 	self=[self initWithUTF8String:str];
@@ -1394,7 +1394,7 @@ struct PortFlags {
 		[NSException raise:NSInvalidSendPortException format:@"no send port for message %@", self];
 	if(!_recv)
 		[NSException raise:NSInvalidReceivePortException format:@"no receive port for message %@", self];
-#if 1
+#if 0
 	NSLog(@"send NSPortMessage: %@ on %@", _components, _send);
 #endif
 	return [_send sendBeforeDate:when msgid:_msgid components:_components from:_recv reserved:[_send reservedSpaceLength]];

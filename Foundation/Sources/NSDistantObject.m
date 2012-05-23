@@ -318,6 +318,14 @@
 	return [self methodSignatureForSelector:aSelector] != nil;
 }
 
++ (BOOL) instancesRespondToSelector:(SEL)aSelector;
+{ // CHECKME: how can we know that?
+	if(class_get_instance_method(self, aSelector) != METHOD_NULL)
+		return YES;	// this is a method of NSDistantObject
+	// we don't know a remote object or protocols here!
+	return NO;
+}
+
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
 	BOOL ret;

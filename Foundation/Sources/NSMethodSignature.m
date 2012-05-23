@@ -371,7 +371,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			int i=0;
 			int allocArgs=5;	// this is usually enough, i.e. self+_cmd+3 args
 			argFrameLength=STRUCT_RETURN_POINTER_LENGTH;
-#if 1
+#if 0
 			NSLog(@"methodInfo create for types %s", methodTypes);
 #endif
 			info = objc_malloc(sizeof(struct NSArgumentInfo) * allocArgs);
@@ -415,13 +415,13 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	// FIXME: is this a general problem and not only ARM? Fixed in gcc 3.x and later? How to handle e.g. (double) as arguments in a protocol?
 	if(!info[numArgs].isReg && info[numArgs].offset == 0)
 		{ // fix bug in gcc 2.95.3 signature for @protocol (last argument is described as @0 instead of e.g. @+16)
-#if 1
+#if 0
 			NSLog(@"fix ARM @protocol()");
 #endif
 			info[numArgs].offset=info[numArgs-1].offset-20;
 		}
 #endif
-#if 1
+#if 0
 	{
 	int i;
 	for(i=0; i<=numArgs; i++)
@@ -498,6 +498,16 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	return [self _initWithObjCTypes:type];
 }
 
+- (BOOL) isEqual:(id)other
+{
+	if(other == self)
+		return YES;
+	if(![super isEqual:other])
+		return NO;
+	// compare signatures (ignoring embedded offsets)
+	return YES;
+}
+
 + (NSMethodSignature *) signatureWithObjCTypes:(const char*) t;
 { // now officially made public (10.5) - but not documented
 	return [[[NSMethodSignature alloc] _initWithObjCTypes:t] autorelease];
@@ -556,7 +566,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	if(!info[index+1].isReg)
 		addr=*(char **)addr;	// indirect through pointer
 	addr+=info[index+1].offset;
-#if 1
+#if 0
 	NSLog(@"_getArgument[%d] offset=%d size=%d addr=%p isReg=%d byref=%d double=%d", index, info[index+1].offset, info[index+1].size, addr, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
 	if(info[index+1].byRef)
@@ -584,7 +594,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	if(!info[index+1].isReg)
 		addr=*(char **)addr;	// indirect through pointer
 	addr+=info[index+1].offset;
-#if 1
+#if 0
 	NSLog(@"_setArgument[%d] offset=%d size=%d addr=%p isReg=%d byref=%d double=%d", index, info[index+1].offset, info[index+1].size, addr, info[index+1].isReg, info[index+1].byRef, info[index+1].floatAsDouble);
 #endif
 	if(info[index+1].byRef)
@@ -658,7 +668,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 			NEED_INFO();	// get valid argFrameLength
 			frame=(arglist_t) objc_calloc(part1 + argFrameLength, sizeof(char));
 			args=(unsigned long *) ((char *) frame + part1);
-#if 1
+#if 0
 			NSLog(@"allocated frame=%p args=%p framelength=%d", frame, args, argFrameLength);
 #endif
 			((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
@@ -883,7 +893,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 	typedef struct {
 		char val[1 /*info[0].size */];
 	} block;
-#if 1
+#if 0
 	NSLog(@"type %s imp=%p frame=%p stack=%d retbuf=%p", info[0].type, imp, frame, stack, retbuf);
 #endif
 	switch(*info[0].type) {
@@ -921,7 +931,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe retbuf:(void *) retbuf;
 { // preload registers from ARM stack frame and call implementation
 	NEED_INFO();	// make sure that argFrameLength is defined
-#if 1
+#if 0
 	// FIXME: it is not necessary to round that up - __builtin_apply does it for us
 	NSLog(@"doing __builtin_apply(%08x, %08x, %d)", imp, _argframe, argFrameLength);
 #endif

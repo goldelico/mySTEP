@@ -5,12 +5,48 @@
 	 * All rights reserved.
 	 */
 
-	echo "loading Foundation<br>";
+// echo "loading Foundation<br>";
 
-// define (simple) classes for NSBundle, NSUserDefaults
+// define (simple) classes for NSBundle, NSUserDefaults, etc.
 
 class NSPropertyListSerialization
 	{
+	static function readPropertyListElementFromFile($file, $thisline)
+		{ // read next element
+			$line=trim($thisline);
+				// this is a hack to read XML property lists
+			if(substr($line, 0, 5) == "<dict>")
+				{
+				$ret=array();
+				while($thisline=fgets($line))
+					{
+					$line=trim($thisline);
+					if(substr($line, 0, 5) == "</dict>")
+						break;
+					$key=readPropertyListElementFromFile($file, $thisline);
+					$value=readPropertyListElementFromFile($file, $thisline);
+					$ret[$key]=$value;
+					}
+				return $ret;
+				}
+			if(substr($line, 0, 5) == "<array>")
+				{
+				$ret=array();
+				while($thisline=fgets($line))
+					{
+					$line=trim($thisline);
+					if(substr($line, 0, 5) == "</array>")
+						break;
+					$value=readPropertyListElementFromFile($file, $thisline);
+					$ret[]=$value;
+					}
+				return $ret;
+				}
+			if(substr($line, 0, 5) == "<key>" || substr($line, 0, 5) == "<string>")
+				;
+			if(substr($line, 0, 5) == "<number>")
+				;
+		}
 	public static function propertyListFromPath($path)
 		{
 		$filename=NSFileManager::fileSystemRepresentationWithPath($path);
@@ -39,6 +75,11 @@ class NSPropertyListSerialization
 //		print_r($plist);
 //		echo "<br>";
 		return $plist;
+		}
+	static function writePropertyListElementToFile($element, $file)
+		{
+		// detect element type
+		// write in XML string fromat
 		}
 	public static function writePropertyListToPath($plist, $path)
 		{

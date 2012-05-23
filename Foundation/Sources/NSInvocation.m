@@ -231,7 +231,7 @@
 
 - (id) _initWithMethodSignature:(NSMethodSignature*)aSignature andArgFrame:(arglist_t) argFrame
 {
-#if 1
+#if 0
 	NSLog(@"NSInovcation _initWithMethodSignature:%@", aSignature);
 #endif
 	if(!aSignature)
@@ -271,7 +271,7 @@
 				}
 			_retvalismalloc=YES;	// always...
 			}
-#if 1
+#if 0
 		[self _log:@"_initWithMethodSignature:andArgFrame:"];
 #endif
 		}
@@ -281,7 +281,7 @@
 - (retval_t) _returnValue;
 { // encode the return value so that it can be passed back to the libobjc forward:: method
 	retval_t retval;
-#if 1
+#if 0
 	NSLog(@"_returnValue called");
 	[self _log:@"before getting retval"];
 	if(_rettype[0] == _C_ID)
@@ -429,7 +429,7 @@
 			case _C_ID: { // retain object
 				id obj;
 				[_sig _getArgument:&obj fromFrame:_argframe atIndex:i];
-#if 1
+#if 0
 				NSLog(@"retaining arg %p", obj);
 				NSLog(@"retaining arg %@", obj);
 #endif
@@ -515,17 +515,17 @@
 	
 	if(imp == NULL)
 		{ // If fast lookup failed, we may be forwarding or something ...
-#if 1
+#if 0
 			NSLog(@"invoke: forwarding or something ...");
 #endif
 			imp = objc_msg_lookup(target, selector);
 		}
-#if 1
+#if 0
 	[self _log:@"stack before _call"];
 	//	*((long *)1)=0;
 #endif
 	_validReturn=[_sig _call:imp frame:_argframe retbuf:_retval];	// call
-#if 1
+#if 0
 	[self _log:@"stack after _call"];
 	//	*((long *)1)=0;
 #endif
@@ -601,15 +601,15 @@
 	const char *types;
 	void *buffer;
 	int i;
-#if 1
+#if 0
 	NSLog(@"%@ initWithCoder: %@", self, aCoder);
 #endif
 	[aCoder decodeValueOfObjCType:@encode(char*) at:&types];
-#if 1
+#if 0
 	NSLog(@"  decoded type=%s", types);
 #endif
 	[aCoder decodeValueOfObjCType:@encode(BOOL) at:&_validReturn];
-#if 1
+#if 0
 	NSLog(@"  validReturn=%@", _validReturn?@"YES":@"NO");
 #endif
 	if(!_sig || !_validReturn)
@@ -618,12 +618,13 @@
 		}
 	else
 		{ // a response - assume we already have been initialized for _sig
-			NSAssert(strcmp(types, _types) == 0, @"received different signature");		// should be the same as we have requested
 #if 1
-			NSLog(@"  existing type=%s", _types);
+			NSLog(@"  decoded type=%s", types);
+			NSLog(@"  local type=%s", _types);
 #endif
+			NSAssert(strcmp(types, _types) == 0, @"received different signature");		// should be the same as we have requested
 		}
-#if 1
+#if 0
 	NSLog(@"  _sig=%@", _sig);
 	NSLog(@"  _maxValueLength=%d", _maxValueLength);
 #endif
@@ -642,7 +643,7 @@
 				if(*type == _C_VOID)
 					continue;	// we didn't encode a void return value
 			}
-#if 1
+#if 0
 		NSLog(@"  decode arg %d type %s", i, type);
 #endif
 		if(_validReturn && (qual & _F_IN) != 0)
@@ -654,11 +655,11 @@
 			[self setReturnValue:buffer];
 		else
 			[self setArgument:buffer atIndex:i];
-#if 1
+#if 0
 		if(*type == _C_ID) NSLog(@"did set argument %d: id=%@ <%p>", i, NSStringFromClass([*(id *) buffer class]), *(id *) buffer);
 		if(*type == _C_SEL) NSLog(@"did set argument %d: SEL=%@", i, NSStringFromSelector(*(SEL *) buffer));
 #endif
-#if 1
+#if 0
 		[self _log:@"initWithCoder:"];
 #endif
 		}
