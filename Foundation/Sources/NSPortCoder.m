@@ -196,7 +196,7 @@ const char *objc_skip_typespec (const char *type)
 #endif
 	[pm setMsgid:_msgid];
 	if(flag)
-		[self encodePortObject:_recv];	// send our reply port
+		[self encodePortObject:_recv];	// send where we expect the reply
 	r=[pm sendBeforeDate:due];
 	[pm release];
 	if(!r)

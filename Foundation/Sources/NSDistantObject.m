@@ -103,7 +103,7 @@
 
 @implementation NSObject (NSDOAdditions)
 
-// FIXME: the methods methodDescriptionForSelector are only defined for Object and not NSObject !?!
+// this are very old Obj-C methods now completely wrapped but still used by DO
 
 + (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
 {
@@ -112,8 +112,15 @@
 
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
 {
+#if 1
+	NSLog(@"- methodDescriptionForSelector:'%@'", NSStringFromSelector(sel));
+#endif
+	/* CHECKME: is the return value compatible to Cocoa? */
+	/* ANSWER: it appears to be because the struct is defined in GNU libobjc as { SEL sel, char *types; } */
 	return ((struct objc_method_description *) class_get_instance_method(self->isa, sel));
 }
+
+// this is listed in http://www.opensource.apple.com/source/objc4/objc4-371/runtime/objc-sel-table.h
 
 + (const char *) _localClassNameForClass;
 {
@@ -129,6 +136,9 @@
 #ifdef __APPLE__
 	return object_getClassName(self);
 #else
+#if 1
+	NSLog(@"_localClassNameForClass -> %s", class_get_class_name(isa));
+#endif	
 	return class_get_class_name(isa);
 #endif
 }
@@ -260,6 +270,7 @@
 {
 	return NIMP;
 #if 0
+	// Hm. This implementation assumes that we get a NSMethodSignature for the selector
 	NSMethodSignature *ret=[_selectorCache objectForKey:NSStringFromSelector(aSelector)];
 	if(ret)
 		return ret;	// known from cache
@@ -279,7 +290,7 @@
 	NSMethodSignature *ret=[_selectorCache objectForKey:NSStringFromSelector(aSelector)];
 	if(ret)
 		return ret;	// known from cache
-	// FIXME: what about methodSignature of builtin methods?
+	// FIXME: what about methodSignature of the methods in NSDistantObject/NSProxy?
 #if 1
 	NSLog(@"[NSDistantObject methodSignatureForSelector:\"%@\"]", NSStringFromSelector(aSelector));
 #endif
@@ -306,8 +317,9 @@
 				[i getReturnValue:&md];
 				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
 			}
-	[_selectorCache setObject:ret forKey:NSStringFromSelector(aSelector)];	// add to cache
-#if 0
+	if(ret)
+		[_selectorCache setObject:ret forKey:NSStringFromSelector(aSelector)];	// add to cache
+#if 1
 	NSLog(@"  methodSignatureForSelector %@ -> %s", NSStringFromSelector(aSelector), ret);
 #endif
 	return ret;
@@ -368,9 +380,9 @@
 { // just send the reference number
 	BOOL flag;
 	[coder encodeValueOfObjCType:@encode(int) at:&_reference];	// encode as a reference into the address space and not the real object
-	flag=YES;	// sometimes 0 sometimes 1
+	flag=NO;	// sometimes 0 sometimes 1 -- is this some "local(0)" vs. "remote(1)" flag? I.e. we receive always 1 but send 0 or return 1
 	[coder encodeValueOfObjCType:@encode(char) at:&flag];
-	flag=YES;	// always 1
+	flag=YES;	// always 1 -- is this a "keep alive" flag?
 	[coder encodeValueOfObjCType:@encode(char) at:&flag];
 }
 
@@ -385,7 +397,7 @@
 	[coder decodeValueOfObjCType:@encode(char) at:&flag1];
 	[coder decodeValueOfObjCType:@encode(char) at:&flag2];
 #if 1
-	NSLog(@"reference=%u flag1=%d flag2=%d", _reference, flag1, flag2);
+	NSLog(@"NSDistantObject reference=%u flag1=%d flag2=%d", _reference, flag1, flag2);
 #endif
 	if(_reference == 0)
 		{

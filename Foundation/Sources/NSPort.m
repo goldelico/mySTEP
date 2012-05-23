@@ -436,6 +436,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 			newPort->_parent=[self retain];
 			newPort->_isBound=YES;			// pretend we are already bound
 			newPort->_sendfd=newfd;			// we are already connected
+			newPort->_delegate=_delegate;	// same delegate
 #if 0
 			NSLog(@"accepted %@ on parent %@", newPort, self);
 #endif
@@ -549,7 +550,6 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 	
 	_current_inaddr=((struct sockaddr_in *) &_address.addr)->sin_addr;	// get receiver's IP address
 	
-	// FIXME: we should protect this block against exceptions in the handler
 	NS_DURING
 	if([d respondsToSelector:@selector(handleMachMessage:)])
 		{
@@ -575,7 +575,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		[arp release];
 		}
 	NS_HANDLER
-	NSLog(@"exception while trying handleMachMessage/handlePortMessage: %@", localException);
+		NSLog(@"exception while trying handleMachMessage/handlePortMessage: %@", localException);
 	NS_ENDHANDLER
 	_current_inaddr.s_addr=INADDR_ANY;	// restore
 }
@@ -683,13 +683,13 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		id cached=NSMapGet(__sockets, &_address);	// look up in cache
 		if(cached)
 			{ // we already have a socket with these specific properties ("data")
-#if 0
+#if 1
 				NSLog(@"substitute by cached socket: %@ %d+1", cached, [self retainCount]);
 #endif
 				if(cached != self)
 					{ // substitute
 						[cached retain];
-						_isValid=NO;	// don't explicity invalidate
+						_isValid=NO;	// the allocated socket may have been set to valid
 						[self release];
 						// FIXME: unlock
 					}
@@ -717,6 +717,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		_isValid = NO;	// we will remove any scheduling for invalid ports!
 		[self retain];
 		NSMapRemove(__sockets, &_address);
+		// FIXME: this will notify the accepted socket that is not officially known!?!
 		[[NSNotificationCenter defaultCenter] postNotificationName:NSPortDidBecomeInvalidNotification object:self];
 		[self release];
 		}
@@ -896,7 +897,11 @@ static unsigned _portDirectoryLength;
 				}
 			}
 		}
-	return [self _substituteFromCache];
+	self=[self _substituteFromCache];
+#if 1
+	NSLog(@"new %@:%p", NSStringFromClass(isa), self);
+#endif
+	return self;
 }
 
 - (id) initRemoteWithTCPPort:(unsigned short) port host:(NSString *) host;
@@ -917,7 +922,11 @@ static unsigned _portDirectoryLength;
 			inet_aton([[h address] cString], &SIN_ADDRP->sin_addr);
 			SIN_PORT=htons(port);	// swap to network byte order
 		}
-	return [self _substituteFromCache];
+	self=[self _substituteFromCache];
+#if 1
+	NSLog(@"new %@:%p", NSStringFromClass(isa), self);
+#endif
+	return self;
 }
 
 - (id) initWithProtocolFamily:(int) family socketType:(int) type protocol:(int) protocol address:(NSData *) address;
@@ -945,6 +954,9 @@ static unsigned _portDirectoryLength;
 				}
 			}
 		}
+#if 1
+	NSLog(@"new %@:%p", NSStringFromClass(isa), self);
+#endif
 	return self;
 }
 
@@ -964,6 +976,9 @@ static unsigned _portDirectoryLength;
 					return nil;
 				}
 		}
+#if 1
+	NSLog(@"new %@:%p", NSStringFromClass(isa), self);
+#endif
 	return self;
 }
 

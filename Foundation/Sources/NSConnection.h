@@ -57,19 +57,23 @@ extern NSString *const NSFailedAuthenticationException;
 {
 	NSPort *_receivePort;
 	NSPort *_sendPort;
-	id _rootObject;					// the root object to vend
 	id _delegate;
+	id _rootObject;						// the root object to vend
 	NSMapTable *_localObjects;			// map of local objects -> proxy
 	NSMapTable *_remoteObjects;			// map of remote target (reference number) -> proxy
-	unsigned int _nextReference;		// next reference id
-	NSMutableArray *_modes;			// all modes
-	NSMutableArray *_runLoops;		// all runloops
-	NSMutableArray *_requestQueue;	// queue of pending NSDistantObjectRequests
-	NSMapTable *_responses;	// responses indexed by sequence number
+	NSMutableArray *_modes;				// all modes
+	NSMutableArray *_runLoops;			// all runloops
+	NSMutableArray *_requestQueue;		// queue of pending NSDistantObjectRequests (this should be one queue per thread!)
+	NSMapTable *_responses;				// (unprocessed) responses (NSPortCoder) indexed by sequence number
 	NSTimeInterval _requestTimeout;
 	NSTimeInterval _replyTimeout;
+	unsigned int _nextReference;		// next reference id for remote objects
 	unsigned _localProxyCount;
-//	NSDistantObject *_proxy;		// (cached) the proxy that represents the remote NSConnection object
+//	NSDistantObject *_proxy;			// (cached) the proxy that represents the remote NSConnection object
+	unsigned int _repliesReceived;
+	unsigned int _repliesSent;
+	unsigned int _requestsReceived;
+	unsigned int _requestsSent;
 	BOOL _multipleThreadsEnabled;
 	BOOL _isValid;
 	BOOL _independentConversationQueueing;
@@ -136,7 +140,7 @@ extern NSString *const NSFailedAuthenticationException;
 	unsigned int _sequence;
 }
 
-// private initializer:
+// undocumented initializer - see http://opensource.apple.com/source/objc4/objc4-208/runtime/objc-sel.m
 - (id) initWithInvocation:(NSInvocation *) inv conversation:(NSObject *) conv sequence:(unsigned int) seq importedObjects:(NSMutableArray *) obj connection:(NSConnection *) conn;
 
 - (NSConnection *) connection;
