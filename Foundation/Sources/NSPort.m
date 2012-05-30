@@ -342,8 +342,10 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 {
 	if(!_isBound)
 		{ // not yet bound
+			int flag=1;
 			if(!_isValid)
 				[NSException raise:NSInvalidReceivePortException format:@"invalidated before bind&listen: %@", self];
+			setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, sizeof(flag));	// reuse address
 			if(bind(_fd, (struct sockaddr *) &_address.addr, _address.addrlen))
 				{
 				NSLog(@"%@: could not bind due to %s", self, strerror(errno));

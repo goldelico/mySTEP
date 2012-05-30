@@ -335,6 +335,7 @@
 
 - (void) getReturnValue:(void *)buffer
 {
+	// NOTE: If the NSInvocation object has never been invoked, the result of this method is undefined.
 	if(!_validReturn)
 		[NSException raise: NSGenericException
 					format: @"getReturnValue with no value set"];

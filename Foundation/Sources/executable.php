@@ -7,21 +7,45 @@
 
 // echo "loading Foundation<br>";
 
+class NSObject
+	{
+	public function forwardInvocation(NSInvocation $invocation)
+		{
+		// default error handling
+		}
+	}
+
+class NSInvocation extends NSObject
+	{
+	public $target;
+	public $selector;
+	public $args=array();
+	public function invoke()
+		{
+		return $target->$selector($args);
+		}
+	public function invokeWithTarget($target)
+		{
+		$this->target=$target;
+		return $this->invoke();
+		}
+	}
+
 // define (simple) classes for NSBundle, NSUserDefaults, etc.
 
-class NSPropertyListSerialization
+class NSPropertyListSerialization extends NSObject
 	{
 	static function readPropertyListElementFromFile($file, $thisline)
 		{ // read next element
 			$line=trim($thisline);
 				// this is a hack to read XML property lists
-			if(substr($line, 0, 5) == "<dict>")
+			if(substr($line, 0, 6) == "<dict>")
 				{
 				$ret=array();
 				while($thisline=fgets($line))
 					{
 					$line=trim($thisline);
-					if(substr($line, 0, 5) == "</dict>")
+					if(substr($line, 0, -7) == "</dict>")
 						break;
 					$key=readPropertyListElementFromFile($file, $thisline);
 					$value=readPropertyListElementFromFile($file, $thisline);
@@ -29,23 +53,42 @@ class NSPropertyListSerialization
 					}
 				return $ret;
 				}
-			if(substr($line, 0, 5) == "<array>")
+			if(substr($line, 0, 8) == "<array>")
 				{
 				$ret=array();
 				while($thisline=fgets($line))
 					{
 					$line=trim($thisline);
-					if(substr($line, 0, 5) == "</array>")
+					if(substr($line, 0, -9) == "</array>")
 						break;
 					$value=readPropertyListElementFromFile($file, $thisline);
 					$ret[]=$value;
 					}
 				return $ret;
 				}
-			if(substr($line, 0, 5) == "<key>" || substr($line, 0, 5) == "<string>")
-				;
-			if(substr($line, 0, 5) == "<number>")
-				;
+			if(substr($line, 0, 5) == "<key>" || substr($line, 0, 8) == "<string>")
+				{
+				if(substr($line, 0, 5) == "<key>")
+					$thisline=substr($line, 6);
+				else
+					$thisline=substr($line, 8);
+				while(true)
+					{
+					$line=trim($thisline);
+					if(substr($line, 0, -6) == "</key>" || substr($line, 0, -9) == "</string>")
+						{
+						$ret=.html_entity_decode(substr(substr($line, 5), 0, -6));	// append last fragment
+						break;
+						}
+					$ret.=$thisline;
+					$thisline=fgets($line);
+					}
+				return $ret;
+				}
+			if(substr($line, 0, 8) == "<number>")
+				{
+				
+				}
 		}
 	public static function propertyListFromPath($path)
 		{
@@ -94,7 +137,7 @@ function __load($path)
    return include($path);
    }
 
-class NSBundle
+class NSBundle extends NSObject
 { // abstract superclass
 	public $path;
 	public static $mainBundle;
@@ -182,7 +225,7 @@ function NSHomeDirectory()
 	return NSHomeDirectoryForUser(NSUserDefaults::standardUserDefaults()->user);
 	}
 	
-class NSUserDefaults
+class NSUserDefaults extends NSObject
 { // persistent values (user settings)
 	public static $standardUserDefaults;
 	public $user="";
@@ -222,7 +265,6 @@ class NSUserDefaults
 	{
 		if(isset($_COOKIE['login']) && $_COOKIE['login'] != "")
 			{
-			// $this->defaults=array("NSUserPassword" => "04f91b9cb7853a4245b3b2292a3dcfe4");
 			$this->user=$_COOKIE['login'];
 			$plist=NSHomeDirectoryForUser($this->user)."/Library/Preferences/NSGlobalDomain.plist";
 			$this->defaults=NSPropertyListSerialization::propertyListFromPath($plist);
@@ -269,7 +311,7 @@ class NSUserDefaults
 	public function setStringForKey($key, $val) { $this->setObjectForKey($key, $val); }
 }
 
-class NSFileManager
+class NSFileManager extends NSObject
 	{
 	public static function fileSystemRepresentationWithPath($path)
 		{

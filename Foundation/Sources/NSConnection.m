@@ -272,7 +272,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 			{
 			if(!receivePort)
 				{ // neither port is defined
-#if 0
+#if 1
 					NSLog(@"NSConnection -init: two nil ports detected (recv=%@ send=%@)", receivePort, sendPort);
 #endif
 					[self release];
@@ -349,8 +349,8 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 		_isValid=YES;
 		// or should we be retained by all proxy objects???
 		[self retain];	// make us persistent until we are invalidated
-		_localObjects=NSCreateMapTable(NSNonOwnedPointerOrNullMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain proxies
-		_remoteObjects=NSCreateMapTable(NSNonOwnedPointerOrNullMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain proxies
+		_localObjects=NSCreateMapTable(NSIntMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain local proxies
+		_remoteObjects=NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 10);	// retain remote proxies
 		_responses=NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 10);	// map sequence number to response portcoder
 		if(!_allConnections)
 			_allConnections=NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 10);	// allocate - don't retain connections in hash table
@@ -364,8 +364,9 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 #endif
 		[self addRunLoop:[NSRunLoop currentRunLoop]];
 		[self addRequestMode:NSDefaultRunLoopMode];		// schedule ports in current runloop
-//		[nc addObserver:self selector:@selector(_portInvalidated:) name:NSPortDidBecomeInvalidNotification object:_receivePort];
+		//		[nc addObserver:self selector:@selector(_portInvalidated:) name:NSPortDidBecomeInvalidNotification object:_receivePort];
 		[nc addObserver:self selector:@selector(_portInvalidated:) name:NSPortDidBecomeInvalidNotification object:_sendPort];	// if we can't send any more
+		//		_nextReference=100;
 		[nc postNotificationName:NSConnectionDidInitializeNotification object:self];
 #if 0
 		NSLog(@"initialized: %p:%@", self, self);
@@ -563,7 +564,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 - (NSDistantObject *) rootProxy;
 { // this generates a proxy
 	NSConnection *conn=(NSConnection *) [NSDistantObject proxyWithTarget:(id) 0 connection:self];	// get first remote object (id == 0) which represents the NSConnection
-	NSDistantObject *proxy=[conn rootObject];	// ask other side for a reference to their root object
+	NSDistantObject *proxy=[conn rootObject];	// this asks other side for a reference to their root object
 #if 0	// for unknown reasons this may also ask _localClassNameForClass from the result
 	// this may also be a side-effect of actively using the proxy the first time by NSLog(@"proxy=%@", proxy);
 	[proxy _localClassNameForClass];
@@ -606,82 +607,18 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 
 @end
 
-@implementation NSConnection (Private)
+@implementation NSConnection (NSUndocumented)
 
 // private methods
 // all of them have been identified to exist in MacOS X Core Dumps
 // by Googling for 'NSConnection core dump'
 // or class-dumps found on the net
 
+// according to http://www.cocoabuilder.com/archive/cocoa/225353-distributed-objects-with-garbage-collection-on-ppc.html
+// these seem to set up and tear down the runloop scheduling
+
 - (void) _incrementLocalProxyCount { _localProxyCount++; }
 - (void) _decrementLocalProxyCount { _localProxyCount--; }
-
-- (NSDistantObject *) _getLocal:(id) target;
-{ // get proxy object for local object - if known
-#if 1
-	NSLog(@"_getLocal: %p", target);
-	NSLog(@"   -> %p", NSMapGet(_localObjects, (void *) target));
-	NSLog(@"   -> %@", NSMapGet(_localObjects, (void *) target));
-#endif
-	return NSMapGet(_localObjects, (void *) target);
-}
-
-- (void) _addDistantObject:(NSDistantObject *) obj forLocal:(id) target;
-{
-#if 1
-	NSLog(@"_addLocal: %p", target);
-#endif
-	NSMapInsert(_localObjects, (void *) target, obj);
-}
-
-- (void) _removeLocal:(id) target;
-{
-#if 1
-	NSLog(@"_removeLocal: %p", target);
-#endif
-	NSMapRemove(_localObjects, (void *) target);
-}
-
-// map target id's (my be casted from int) to the distant objects
-// note that the distant object retains this connection, but not vice versa!
-
-- (NSDistantObject *) _getRemote:(id) target;
-{ // get proxy for remote target - if known
-#if 1
-	NSLog(@"_getRemote: %p", target);
-	NSLog(@"   -> %p", NSMapGet(_remoteObjects, (void *) target));
-	//	NSLog(@"   -> %@", NSMapGet(_remoteObjects, (void *) target));
-#endif
-	return NSMapGet(_remoteObjects, (void *) target);
-}
-
-- (id) _freshRemote
-{ // get a fresh, still unused remote reference id
-	while(NSMapGet(_remoteObjects, (void *) _nextReference) != nil)
-		_nextReference++;	// already esists
-#if 1
-	NSLog(@"fresh remote assigned: %lu", _nextReference);
-#endif
-	return (id) _nextReference;
-}
-
-- (void) _addDistantObject:(NSDistantObject *) obj forRemote:(id) target;
-{
-#if 1
-	NSLog(@"_addRemote: %p", target);
-#endif
-	NSMapInsert(_remoteObjects, (void *) target, obj);
-	if((unsigned int) target >= _nextReference)
-		_nextReference=((unsigned int) target)+1;
-}
-
-- (void) _removeRemote:(id) target;
-{
-#if 1
-	NSLog(@"_removeRemote: %p", target);
-#endif
-	NSMapRemove(_remoteObjects, (void *) target);
-}
 
 + (NSConnection *) lookUpConnectionWithReceivePort:(NSPort *) receivePort
 										  sendPort:(NSPort *) sendPort;
@@ -737,6 +674,8 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 											sendPort:[message sendPort]
 										  components:[message components]] autorelease];
 }
+
+// FIXME: how do we handle the 'internal' flag?
 
 - (void) sendInvocation:(NSInvocation *) i internal:(BOOL) internal;
 { // send invocation and handle result - this might be called reentrant!
@@ -944,11 +883,11 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 		// they may have to do something with the current conversation and/or with the importedObjects
 		// but I don't know yet.
 		NS_DURING
-			NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
-			NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
-			NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
+		NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
+		NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
+		//			NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
 		NS_HANDLER
-			NSLog(@"decoding exception: %@", localException);
+		NSLog(@"decoding exception: %@", localException);
 		NS_ENDHANDLER
 		// it appears that this has been found in some stack traces
 #if WHAT_DO_WE_NEED_THIS_FOR
@@ -1015,9 +954,17 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	_currentConversation=nil;	// done
 }
 
+/*
+ * NOTE: it has been verified by stack traces that an
+ * invocation dispatched to a NSDistantObject target
+ * will call -invoke twice, i.e. the NSDistantObject
+ * will get a forwardInvocation: call because it does
+ * not implement the method and that will result in
+ * [i invokeWithTarget:[distantObject localObject]]
+ */
+
 - (void) dispatchInvocation:(NSInvocation *) i;
 {
-	// if([i selector] == ....) then special handling
 #if 1
 	NSLog(@"--- dispatchInvocation: %@", i);
 #endif
@@ -1028,7 +975,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 #if 0
 	if([[[i target] class] isKindOfClass:[NSDistantObject class]])
 		{
-		//				NSLog(@"target.
+		// NSLog(@"target is NSDistantObject");
 		}
 #endif
 	[i invoke];
@@ -1116,7 +1063,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 - (BOOL) _shouldDispatch:(id *) conversation invocation:(NSInvocation *) invocation sequence:(unsigned int) seq coder:(NSCoder *) coder;
 {
 	SEL sel=[invocation selector];
-	// es sieht nach Sonderbehandlung von 2 Selektoren aus...
+	// it looks like special rules for 2 selectors...
 	// a guess is that we process methodDescriptionForSelector: and _localClassNameForClass here
 	// it may be required that some selectors are never queued up
 	// lastConversationInfo ()
@@ -1126,7 +1073,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 #if MAYBE
 	sig=[inv methodSignature];
 	if([sig isOneway])
-		return YES;	// dispatch always
+		return YES;	// dispatch always immediately
 #endif
 	if(*conversation)
 		return NO;	// must enqueue
@@ -1137,6 +1084,83 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 - (BOOL) hasRunloop:(NSRunLoop *) obj
 {
 	return [_runLoops indexOfObjectIdenticalTo:obj] != NSNotFound;
+}
+
+@end
+
+@implementation NSConnection (NSPrivate)
+
+// this are our own private methods to make it work
+
+- (NSDistantObject *) _getLocal:(id) target;
+{ // get proxy object for local object - if known
+#if 1
+	NSLog(@"_getLocal: %p", target);
+	NSLog(@"   -> %p", NSMapGet(_localObjects, (void *) target));
+	NSLog(@"   -> %@", NSMapGet(_localObjects, (void *) target));
+#endif
+	return NSMapGet(_localObjects, (void *) target);
+}
+
+- (void) _addDistantObject:(NSDistantObject *) obj forLocal:(id) target;
+{
+#if 1
+	NSLog(@"_addLocal: %p", target);
+#endif
+	NSMapInsert(_localObjects, (void *) target, obj);
+	[self _incrementLocalProxyCount];
+}
+
+- (void) _removeLocal:(id) target;
+{
+#if 1
+	NSLog(@"_removeLocal: %p", target);
+#endif
+	NSMapRemove(_localObjects, (void *) target);
+	[self _decrementLocalProxyCount];
+}
+
+// map target id's (may be casted from int) to the distant objects
+// note that the distant object retains this connection, but not vice versa!
+
+- (NSDistantObject *) _getRemote:(id) target;
+{ // get proxy for remote target - if known
+#if 1
+	NSLog(@"_getRemote: %p", target);
+	NSLog(@"   -> %p", NSMapGet(_remoteObjects, (void *) target));
+	//	NSLog(@"   -> %@", NSMapGet(_remoteObjects, (void *) target));
+#endif
+	return NSMapGet(_remoteObjects, (void *) target);
+}
+
+#if OLD
+- (id) _freshRemote
+{ // get a fresh, still unused remote reference id
+	while(NSMapGet(_remoteObjects, (void *) _nextReference) != nil)
+		_nextReference++;	// already esists
+#if 1
+	NSLog(@"fresh remote assigned: %lu", _nextReference);
+#endif
+	return (id) _nextReference;
+}
+#endif
+
+- (void) _addDistantObject:(NSDistantObject *) obj forRemote:(id) target;
+{
+#if 1
+	NSLog(@"_addRemote: %p", target);
+#endif
+	NSMapInsert(_remoteObjects, (void *) target, obj);
+	//	if((unsigned int) target >= _nextReference)
+	//		_nextReference=((unsigned int) target)+1;
+}
+
+- (void) _removeRemote:(id) target;
+{
+#if 1
+	NSLog(@"_removeRemote: %p", target);
+#endif
+	NSMapRemove(_remoteObjects, (void *) target);
 }
 
 @end

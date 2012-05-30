@@ -420,144 +420,129 @@ const char *objc_skip_typespec (const char *type)
 #if 0
 	NSLog(@"NSPortCoder encodeValueOfObjCType:'%s' at:%p", type, address);
 #endif
-	switch(*type)
-	{
+	switch(*type) {
 		case _C_VOID:
 		case _C_UNION_B:
 		default:
-		NSLog(@"%@ can't encodeValueOfObjCType:%s", self, type);
-		return;
-		case _C_ID:
-		{
-		[self encodeObject:*((id *)address)];
-		break;
+			NSLog(@"%@ can't encodeValueOfObjCType:%s", self, type);
+			return;
+		case _C_ID:	{
+			[self encodeObject:*((id *)address)];
+			break;
 		}
-		case _C_CLASS:
-		{
-		Class c=*((Class *)address);
-		BOOL flag=YES;
-		const char *class=c?[NSStringFromClass(c) UTF8String]:"nil";
+		case _C_CLASS: {
+			Class c=*((Class *)address);
+			BOOL flag=YES;
+			const char *class=c?[NSStringFromClass(c) UTF8String]:"nil";
 #if 1
-		NSLog(@"encoding class %s", class);
+			NSLog(@"encoding class %s", class);
 #endif
 #if 0	// for debugging
-		if(strcmp(class, "MYDistantObject") == 0)
-			class="NSDistantObject";
+			if(strcmp(class, "MYDistantObject") == 0)
+				class="NSDistantObject";
 #endif
-		[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
-		if(class)
-			[self encodeBytes:class length:strlen(class)+1];	// include terminating 0 byte
-		break;
+			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
+			if(class)
+				[self encodeBytes:class length:strlen(class)+1];	// include terminating 0 byte
+			break;
 		}
-		case _C_SEL:
-		{
-		SEL s=*((SEL *) address);
-		BOOL flag=(s != NULL);
-		const char *sel=[NSStringFromSelector(s) UTF8String];
-		[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
-		if(sel)
-			[self encodeBytes:sel length:strlen(sel)+1];	// include terminating 0 byte
-		break;
+		case _C_SEL: {
+			SEL s=*((SEL *) address);
+			BOOL flag=(s != NULL);
+			const char *sel=[NSStringFromSelector(s) UTF8String];
+			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
+			if(sel)
+				[self encodeBytes:sel length:strlen(sel)+1];	// include terminating 0 byte
+			break;
 		}
 		case _C_CHR:
-		case _C_UCHR:
-		{
-		[[_components objectAtIndex:0] appendBytes:address length:1];	// encode character as it is
-		break;
+		case _C_UCHR: {
+			[[_components objectAtIndex:0] appendBytes:address length:1];	// encode character as it is
+			break;
 		}
 		case _C_SHT:
-		case _C_USHT:
-		{
-		[self _encodeInteger:*((short *) address)];
-		break;
+		case _C_USHT: {
+			[self _encodeInteger:*((short *) address)];
+			break;
 		}
 		case _C_INT:
-		case _C_UINT:
-		{
-		[self _encodeInteger:*((int *) address)];
-		break;
+		case _C_UINT: {
+			[self _encodeInteger:*((int *) address)];
+			break;
 		}
 		case _C_LNG:
-		case _C_ULNG:
-		{
-		[self _encodeInteger:*((long *) address)];
-		break;
+		case _C_ULNG: {
+			[self _encodeInteger:*((long *) address)];
+			break;
 		}
 		case _C_LNG_LNG:
-		case _C_ULNG_LNG:
-		{
-		[self _encodeInteger:*((long long *) address)];
-		break;
+		case _C_ULNG_LNG: {
+			[self _encodeInteger:*((long long *) address)];
+			break;
 		}
-		case _C_FLT:
-		{
-		NSMutableData *data=[_components objectAtIndex:0];
-		NSSwappedFloat val=NSSwapHostFloatToLittle(*(float *)address);	// test on PowerPC if we really swap or if we swap only when we decode from a different architecture
-		char len=sizeof(float);
-		[data appendBytes:&len length:1];
-		[data appendBytes:&val length:len];
-		break;
+		case _C_FLT: {
+			NSMutableData *data=[_components objectAtIndex:0];
+			NSSwappedFloat val=NSSwapHostFloatToLittle(*(float *)address);	// test on PowerPC if we really swap or if we swap only when we decode from a different architecture
+			char len=sizeof(float);
+			[data appendBytes:&len length:1];
+			[data appendBytes:&val length:len];
+			break;
 		}
-		case _C_DBL:
-		{
-		NSMutableData *data=[_components objectAtIndex:0];
-		NSSwappedDouble val=NSSwapHostDoubleToLittle(*(double *)address);
-		char len=sizeof(double);
-		[data appendBytes:&len length:1];
-		[data appendBytes:&val length:len];
-		break;
+		case _C_DBL: {
+			NSMutableData *data=[_components objectAtIndex:0];
+			NSSwappedDouble val=NSSwapHostDoubleToLittle(*(double *)address);
+			char len=sizeof(double);
+			[data appendBytes:&len length:1];
+			[data appendBytes:&val length:len];
+			break;
 		}
 		case _C_ATOM:
-		case _C_CHARPTR:
-		{
-		char *str=*((char **)address);
-		BOOL flag=(str != NULL);
-		[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
-		if(flag)
-			[self encodeBytes:str length:strlen(str)+1];	// include final 0-byte
-		break;
+		case _C_CHARPTR: {
+			char *str=*((char **)address);
+			BOOL flag=(str != NULL);
+			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
+			if(flag)
+				[self encodeBytes:str length:strlen(str)+1];	// include final 0-byte
+			break;
 		}
-		case _C_PTR:	// generic pointer
-		{
-		void *ptr=*((void **) address);
-		BOOL flag=(ptr != NULL);
-		[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
-		if(flag)
-			[self encodeArrayOfObjCType:type+1 count:1 at:ptr];	// dereference pointer
-		break;
+		case _C_PTR: { // generic pointer
+			void *ptr=*((void **) address);
+			BOOL flag=(ptr != NULL);
+			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
+			if(flag)
+				[self encodeArrayOfObjCType:type+1 count:1 at:ptr];	// dereference pointer
+			break;
 		}
-		case _C_ARY_B:
-	{ // get number of entries from type encoding
-		int cnt=0;
-		type++;
-		while(*type >= '0' && *type <= '9')
-			cnt=10*cnt+(*type++)-'0';
-		[self encodeArrayOfObjCType:type count:cnt at:address];
-		break;
-	}
-		case _C_STRUCT_B:
-	{ // recursively encode components! type is e.g. "{testStruct=c*}"
-#if 1
-		NSLog(@"encodeValueOfObjCType %s", type);
-#endif
-		while(*type != 0 && *type != '=')
+		case _C_ARY_B: { // get number of entries from type encoding
+			int cnt=0;
 			type++;
-		if(*type++ == 0)
-			break;	// invalid
-		while(*type != 0 && *type != '}')
-			{
+			while(*type >= '0' && *type <= '9')
+				cnt=10*cnt+(*type++)-'0';
+			[self encodeArrayOfObjCType:type count:cnt at:address];
+			break;
+		}
+		case _C_STRUCT_B: { // recursively encode components! type is e.g. "{testStruct=c*}"
 #if 1
-			NSLog(@"addr %p struct component %s", address, type);
+			NSLog(@"encodeValueOfObjCType %s", type);
 #endif
-			[self encodeValueOfObjCType:type at:address];
-			address=objc_aligned_size(type) + (char *)address;
-			type=objc_skip_typespec(type);	// next
-			}
+			while(*type != 0 && *type != '=')
+				type++;
+			if(*type++ == 0)
+				break;	// invalid
+			while(*type != 0 && *type != '}')
+				{
 #if 1
-		NSLog(@"did encode struct/array/union of type %s", type);
+				NSLog(@"addr %p struct component %s", address, type);
 #endif
-		break;
-	}
+				[self encodeValueOfObjCType:type at:address];
+				address=objc_aligned_size(type) + (char *)address;
+				type=objc_skip_typespec(type);	// next
+				}
+#if 1
+			NSLog(@"did encode struct/array/union of type %s", type);
+#endif
+			break;
+		}
 	}
 #if 0
 	NSLog(@"encoded: %@", [_components objectAtIndex:0]);
@@ -849,8 +834,12 @@ const char *objc_skip_typespec (const char *type)
 {
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
-	[i getReturnValue:buffer];	// get value
-	[self encodeValueOfObjCType:[sig methodReturnType] at:buffer];
+	NS_DURING
+		[i getReturnValue:buffer];	// get value
+		[self encodeValueOfObjCType:[sig methodReturnType] at:buffer];
+	NS_HANDLER
+		NSLog(@"encodeReturnValue has no return value");	// e.g. if [i invoke] did result in an exception!
+	NS_ENDHANDLER
 	objc_free(buffer);
 }
 
@@ -913,6 +902,8 @@ const char *objc_skip_typespec (const char *type)
 	[self decodeValueOfObjCType:@encode(id) at:&target];
 	[self decodeValueOfObjCType:@encode(int) at:&cnt];
 	[self decodeValueOfObjCType:@encode(SEL) at:&selector];
+//	if(SEL_EQ(selector, @selector(rootObject)))
+//		target=[self connection];	// special handling for -rootObject method; you can't call it on arbitrary target objects since -methodDescriptionForSelector: is called first
 	[self decodeValueOfObjCType:@encode(char *) at:&type];
 	sig=[NSMethodSignature signatureWithObjCTypes:type];
 	[self decodeValueOfObjCType:@encode(int) at:&j];
@@ -1058,7 +1049,12 @@ const char *objc_skip_typespec (const char *type)
 { // default is to encode a local proxy
 	id rep=[self replacementObjectForCoder:coder];
 	if(rep)
+		{
 		rep=[NSDistantObject proxyWithLocal:rep connection:[coder connection]];	// this will be encoded and decoded into a remote proxy
+#if 1
+		NSLog(@"wrapped as NSDistantObject: %@", rep);
+#endif
+		}
 	return rep;
 }
 #endif

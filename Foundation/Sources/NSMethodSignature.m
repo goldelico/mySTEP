@@ -505,6 +505,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	if(![super isEqual:other])
 		return NO;
 	// compare signatures (ignoring embedded offsets)
+	// return strcmp([self _methodType], [other _methodType]) == 0;
 	return YES;
 }
 
@@ -523,6 +524,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	if((self=[super init]))
 		{
 		methodTypes=objc_malloc(strlen(t)+1);
+		// strip off embedded offsets?
 		strcpy(((char *) methodTypes), t);	// save unchanged
 #if 0
 		NSLog(@"NSMethodSignature -> %s", t);

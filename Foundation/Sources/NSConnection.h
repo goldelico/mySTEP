@@ -67,7 +67,6 @@ extern NSString *const NSFailedAuthenticationException;
 	NSMapTable *_responses;				// (unprocessed) responses (NSPortCoder) indexed by sequence number
 	NSTimeInterval _requestTimeout;
 	NSTimeInterval _replyTimeout;
-	unsigned int _nextReference;		// next reference id for remote objects
 	unsigned _localProxyCount;
 //	NSDistantObject *_proxy;			// (cached) the proxy that represents the remote NSConnection object
 	unsigned int _repliesReceived;

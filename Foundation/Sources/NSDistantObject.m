@@ -64,6 +64,12 @@
 
 @end
 
+@interface Protocol (NSPrivate)
+
+- (NSMethodSignature *) _methodSignatureForInstanceMethod:(SEL)aSel;
+- (NSMethodSignature *) _methodSignatureForClassMethod:(SEL)aSel;
+
+@end
 
 @implementation Protocol (NSPrivate)
 
@@ -159,7 +165,7 @@
 
 + (NSDistantObject*) proxyWithTarget:(id)anObject
 						  connection:(NSConnection*)aConnection;
-{ // remoteObject is an id in another thread or another applicationâ€™s address space!
+{ // remoteObject is an id in another thread or another applicationâ or address space!
 	return [[[self alloc] initWithTarget:anObject connection:aConnection] autorelease];
 }
 
@@ -167,15 +173,23 @@
 
 - (id) initWithLocal:(id)anObject connection:(NSConnection*)aConnection;
 { // this is initialization for vending objects
+	id remoteObjectId;
+	static unsigned int nextReference=100;	// shared between all connections and unique for this address space
 	NSDistantObject *proxy=[aConnection _getLocal:anObject];
 	if(proxy)
-			{ // already known
-				[self release];	// release newly allocated object
-				return [proxy retain];	// retain the existing proxy once
-			}
-	self=[self initWithTarget:[aConnection _freshRemote] connection:aConnection];	// will be a fresh initialization since the reference is new
+		{ // already known
+			[self release];	// release newly allocated object
+			return [proxy retain];	// retain the existing proxy once
+		}
+#if 1
+	remoteObjectId=(id) nextReference++;	// assign serial numbers to be able to mix 32 and 64 bit address spaces
+#else
+	remoteObjectId=anObject;	// use the unique object address as descibed in the manual
+#endif
+	self=[self initWithTarget:remoteObjectId connection:aConnection];	// will become a fresh initialization since the reference is new
+	_connection=[aConnection retain];	// remember the connection as long as we exist
 	[aConnection _addDistantObject:self forLocal:anObject];	// add to local objects
-	_target=[anObject retain];	// retain the local object as long as we exist
+	_local=[anObject retain];	// retain the local object as long as we exist
 	return self;
 }
 
@@ -187,13 +201,14 @@
 				[self release];	// release newly allocated object
 				return [proxy retain];	// retain the existing proxy once
 			}
-	_connection=[aConnection retain];	// keep the connection as long as we exist
+	_remote=remoteObject;
 	_selectorCache=[[NSMutableDictionary alloc] initWithCapacity:10];
 	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache
 	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(respondsToSelector:)] forKey:@"respondsToSelector:"]; 	// predefine NSMethodSignature cache
-	if(remoteObject == nil)
-		[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache
+//	if(remoteObject == nil)
+//		[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache
 	[aConnection _addDistantObject:self forRemote:remoteObject];	// add to remote objects
+	_connection=aConnection;	// we are retained by the connection
 	return self;
 }
 
@@ -219,56 +234,63 @@
 	_protocol=aProtocol;	// protocols are sort of static objects so we don't have to retain
 }
 
-// NOTE: implementing this method makes problems for NSLog(@"object that returns - (byref NSString)", remoteObject)
-// since NSLog calls description which does NOT return the represented value but this string
-// returning NSString bycopy is no problem
-
-- (NSString *) description
+- (bycopy NSString *) description
 { // we should use [_protocol name] but that appears to be broken
+	if(_local)
+		return [_local description];
 	return [NSString stringWithFormat:
-		@"<%@ %p>\ntarget=%p\nprotocol=%s\nconnection=%@\nreference=%lu",
+		@"<%@ %p>\ntarget=%p\nprotocol=%s\nconnection=%@\nremote=%p",
 		NSStringFromClass([self class]), self,
-		_target,
+		_local,
 		_protocol?[_protocol name]:"<NULL>",
 		_connection,
-		_reference];
+		_remote];
 }
 
 - (void) dealloc;
 {
-	[_target release];
-	[_connection release];	// this will dealloc the connection if we are the last proxy
+	if(!_local)
+		[_connection release];	// this will dealloc the connection if we are the last proxy
+	[_local release];
 	[_selectorCache release];
 	[super dealloc];
 #if 1
-	NSLog(@"NSDistantObject dealloc done");
+	NSLog(@"NSDistantObject %p dealloc done", self);
 #endif
 }
 
 - (void) forwardInvocation:(NSInvocation *) invocation;
 { // this encodes the invocation, transmits and waits for a response - exceptions may be rised during communication
 #if 1
-	NSLog(@"NSDistantObject -forwardInvocation: %@ though %@", invocation, _connection);
+	NSLog(@"NSDistantObject %p -forwardInvocation: %@ through %@", self, invocation, _connection);
 #endif
-#if !defined(__arm__)	// FIXME: NSInvocation is currenty broken on Freerunner
-	if(_target)
-		[invocation invokeWithTarget:_target];	// have our local target receive the message for which we are the original target
+	if(_local)
+		[invocation invokeWithTarget:_local];	// have our local target receive the message for which we are the original target
 	else
 		[_connection sendInvocation:invocation internal:NO];
-#else
-	{ // most likely used for getting rootObject
-		id val=nil;
-		NSLog(@"returning nil value");
-		[invocation setReturnValue:&val];
-	}
-#endif
 }
 
-// FIXME: which of the following methods is 'basic' and forwarded to the peers and which is 'derived'
+// FIXME: which of the following methods is 'basic' and forwarded to the peers and which is 'derived'?
+// it appears that DO always uses a remote methodDescriptionForSelector even to get a methodSignatureForSelector
+// so we must implement this method for local objects (so that a client can ask us)
 
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL)aSelector;
-{
-	return NIMP;
+{ // returns NULL if unknown
+	if(_local)
+		{
+		struct objc_method_description *md=[_local methodDescriptionForSelector:aSelector]; // forward to wrapped object
+#if 1
+		NSLog(@"md=%p", md);
+		if(md)
+			{ // exists
+			NSLog(@"md.name=%s", md->name);
+			NSLog(@"md.types=%p", md->types);			
+			}
+#endif
+		return md;
+		}
+	NIMP;
+	return NULL;
 #if 0
 	// Hm. This implementation assumes that we get a NSMethodSignature for the selector
 	NSMethodSignature *ret=[_selectorCache objectForKey:NSStringFromSelector(aSelector)];
@@ -287,6 +309,7 @@
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector;
 {
+	struct objc_method_description *md;
 	NSMethodSignature *ret=[_selectorCache objectForKey:NSStringFromSelector(aSelector)];
 	if(ret)
 		return ret;	// known from cache
@@ -294,33 +317,33 @@
 #if 1
 	NSLog(@"[NSDistantObject methodSignatureForSelector:\"%@\"]", NSStringFromSelector(aSelector));
 #endif
-	if(_target)
-		ret=[_target methodSignatureForSelector:aSelector];	// ask local object for its signature
+	if(_local)
+		ret=[_local methodSignatureForSelector:aSelector];	// ask local object for its signature
 	else if(_protocol)
-			{ // ask protocol
-				struct objc_method_description *md;
+		{ // ask protocol
 #if 0
-				NSLog(@"[NSDistantObject methodSignatureForSelector:] _protocol=%s", [_protocol name]);
+			NSLog(@"[NSDistantObject methodSignatureForSelector:] _protocol=%s", [_protocol name]);
 #endif
-				md=[_protocol descriptionForInstanceMethod:aSelector];	// ask protocol for the signature
-// FIXME:				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
-				ret=nil;
-			}
+			md=[_protocol descriptionForInstanceMethod:aSelector];	// ask protocol for the signature
+		}
 	else
-			{	// we must forward this call to the peer
-				struct objc_method_description *md;
-				NSInvocation *i=[NSInvocation invocationWithMethodSignature:[_selectorCache objectForKey:@"methodDescriptionForSelector:"]];
-				[i setTarget:self];
-				[i setSelector:@selector(methodDescriptionForSelector:)];
-				[i setArgument:&aSelector atIndex:2];
-				[_connection sendInvocation:i internal:YES];
-				[i getReturnValue:&md];
-				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
-			}
-	if(ret)
-		[_selectorCache setObject:ret forKey:NSStringFromSelector(aSelector)];	// add to cache
+		{	// we must forward this call to the peer
+			NSInvocation *i=[NSInvocation invocationWithMethodSignature:[_selectorCache objectForKey:@"methodDescriptionForSelector:"]];
 #if 1
-	NSLog(@"  methodSignatureForSelector %@ -> %s", NSStringFromSelector(aSelector), ret);
+			NSLog(@"ask peer: %@", i);
+#endif
+			[i setTarget:self];
+			[i setSelector:@selector(methodDescriptionForSelector:)];
+			[i setArgument:&aSelector atIndex:2];
+			[_connection sendInvocation:i internal:YES];
+			[i getReturnValue:&md];
+		}
+	if(!md)
+		[NSException raise:NSInvalidArgumentException format:@"remote object does not recognize selector: %@", NSStringFromSelector(aSelector)];
+	ret=[NSMethodSignature signatureWithObjCTypes:md->types];
+	[_selectorCache setObject:ret forKey:NSStringFromSelector(aSelector)];	// add to cache
+#if 1
+	NSLog(@"  methodSignatureForSelector %@ -> %@", NSStringFromSelector(aSelector), ret);
 #endif
 	return ret;
 }
@@ -341,46 +364,74 @@
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
 	BOOL ret;
-	if(class_get_instance_method([NSDistantObject class], aSelector) != METHOD_NULL)
-		return YES;	// this is a method of NSDistantObject
-	if([_selectorCache objectForKey:NSStringFromSelector(aSelector)])
-		return YES;	// known from cache
 #if 1
 	NSLog(@"[NSDistantObject respondsToSelector:\"%@\"]", NSStringFromSelector(aSelector));
 #endif
-	if(_target)
-		return [_target respondsToSelector:aSelector];	// ask local object if it responds
-	else if(_protocol)
-			{ // ask protocol
-				struct objc_method_description *md;
-#if 0
-				NSLog(@"[NSDistantObject respondsToSelector:] _protocol=%s", [_protocol name]);
+	if(!aSelector) return NO;
+	if([_selectorCache objectForKey:NSStringFromSelector(aSelector)])
+		{
+#if 1
+		NSLog(@"cached");
 #endif
-				md=[_protocol descriptionForInstanceMethod:aSelector];	// ask protocol for the signature
-				// FIXME:				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
-				return (md != NULL);
-			}
+		return YES;	// known from cache		
+		}
+	if([@protocol(NSObject) descriptionForInstanceMethod:aSelector])
+		{ // simply assume that all methods from NSObject protocol are implemented
+#if 1
+		NSLog(@"defined in <NSObject> protocol");
+#endif
+		return YES;	// this is a method of NSDistantObject		
+		}
+	// check for NSObject protocol only, i.e. return NO for e.g. -connectionForProxy or -descriptionWithLocale: !!!
+	if(0 && class_get_instance_method([NSDistantObject class], aSelector) != METHOD_NULL)
+		{
+#if 1
+		NSLog(@"method of NSDistantObject");
+#endif
+		return YES;	// this is a method of NSDistantObject		
+		}
+	if(_local)
+		{
+#if 1
+		NSLog(@"ask wrapped local object");
+#endif
+		return [_local respondsToSelector:aSelector];	// ask local object if it responds
+		}
+	if(_protocol)
+		{ // ask protocol
+			struct objc_method_description *md;
+#if 0
+			NSLog(@"[NSDistantObject respondsToSelector:] _protocol=%s", [_protocol name]);
+#endif
+			md=[_protocol descriptionForInstanceMethod:aSelector];	// ask protocol for the signature
+			// FIXME:				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
+			return (md != NULL);
+		}
 	else
-			{	// we must cast this call into an NSInvocation and forward to the peer
-				NSInvocation *i=[NSInvocation invocationWithMethodSignature:[_selectorCache objectForKey:@"respondsToSelector:"]];
-				[i setTarget:self];
-				[i setSelector:_cmd];
-				[i setArgument:&aSelector atIndex:2];
-				[_connection sendInvocation:i internal:YES];
-				[i getReturnValue:&ret];
-			}
+		{	// we must cast this call into an NSInvocation and forward to the peer
+			NSInvocation *i=[NSInvocation invocationWithMethodSignature:[_selectorCache objectForKey:@"respondsToSelector:"]];
+			[i setTarget:self];
+			[i setSelector:_cmd];
+			[i setArgument:&aSelector atIndex:2];
+			[_connection sendInvocation:i internal:YES];
+			[i getReturnValue:&ret];
+		}
 	return ret;
 }
 
+// FIXME: should be cached
 - (Class) classForCoder; { return /*isa*/ NSClassFromString(@"NSDistantObject"); }	// for compatibility
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't ever replace by another proxy
 
+/* NOTE: reference addresses/numbers are encoded as 32 bit integers although the API referes to them as id */
+
 - (void) encodeWithCoder:(NSCoder *) coder;
 { // just send the reference number
 	BOOL flag;
-	[coder encodeValueOfObjCType:@encode(int) at:&_reference];	// encode as a reference into the address space and not the real object
-	flag=NO;	// sometimes 0 sometimes 1 -- is this some "local(0)" vs. "remote(1)" flag? I.e. we receive always 1 but send 0 or return 1
+	unsigned int ref=(unsigned int) _remote;
+	[coder encodeValueOfObjCType:@encode(unsigned int) at:&ref];	// encode as a reference into the address space and not the real object
+	flag=(_local == nil);	// sometimes 0 sometimes 1 -- is this some "local(0)" vs. "remote(1)" flag? I.e. we receive always 1 but send 0 or return 1
 	[coder encodeValueOfObjCType:@encode(char) at:&flag];
 	flag=YES;	// always 1 -- is this a "keep alive" flag?
 	[coder encodeValueOfObjCType:@encode(char) at:&flag];
@@ -388,23 +439,33 @@
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
+	unsigned int ref;
 	BOOL flag1, flag2;
+	NSDistantObject *proxy;
 	NSConnection *c=[(NSPortCoder *) coder connection];
-#if 1
+#if 0
 	NSLog(@"NSDistantObject initWithCoder:%@", coder);
 #endif
-	[coder decodeValueOfObjCType:@encode(int) at:&_reference];
+	[coder decodeValueOfObjCType:@encode(unsigned int) at:&ref];
+	_remote=(id) ref;
 	[coder decodeValueOfObjCType:@encode(char) at:&flag1];
 	[coder decodeValueOfObjCType:@encode(char) at:&flag2];
 #if 1
-	NSLog(@"NSDistantObject reference=%u flag1=%d flag2=%d", _reference, flag1, flag2);
+	NSLog(@"NSDistantObject %p initWithCoder -> reference=%p flag1=%d flag2=%d", self, _remote, flag1, flag2);
 #endif
-	if(_reference == 0)
+	proxy=[c _getRemote:_remote];
+	if(proxy)
+		{ // we already have a proxy for this target
+		[self release];	// release newly allocated object
+		return [proxy retain];	// retain the existing proxy once
+		}
+	if(flag1)	// or if remoteObject == nil??? Why do we need this flag at all here???
 		{
-		[self release];
+		[self release];	// release newly allocated object
 		return [c retain];	// this refers to the connection object
 		}
-	return [self initWithTarget:(id) _reference connection:[(NSPortCoder *)coder connection]];	// looks up in cache or creates a new one
+	self=[self initWithTarget:_remote connection:c];	// initializes a new one and installs in _getRemote
+	return self;
 }
 
 + (id) newDistantObjectWithCoder:(NSCoder *) coder;

@@ -483,16 +483,15 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 @interface NSConcreteDistantObjectRequest : NSDistantObjectRequest
 @end
 
-@interface NSDistantObjectRequest (NSPrivate)
+@interface NSDistantObjectRequest (NSUndocumented)
 - (id) initWithInvocation:(NSInvocation *) inv conversation:(NSObject *) conv sequence:(unsigned int) seq importedObjects:(NSMutableArray *) obj connection:(NSConnection *) conn;
 @end
 
-@interface NSConnection (NSPrivate)
+@interface NSConnection (NSUndocumented)
 
 // these methods exist in Cocoa but are not documented
 
-+ (NSConnection *) lookUpConnectionWithReceivePort:(NSPort *) receivePort
-																					sendPort:(NSPort *) sendPort;
++ (NSConnection *) lookUpConnectionWithReceivePort:(NSPort *) receivePort sendPort:(NSPort *) sendPort;
 - (void) _portInvalidated:(NSNotification *) n;
 - (void) _executeInNewThread;
 - (id) newConversation;
@@ -508,6 +507,19 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 - (BOOL) _cleanupAndAuthenticate:(NSPortCoder *) coder sequence:(unsigned int) seq conversation:(id *) conversation invocation:(NSInvocation *) inv raise:(BOOL) raise;
 - (BOOL) _shouldDispatch:(id *) conversation invocation:(NSInvocation *) invocation sequence:(unsigned int) seq coder:(NSCoder *) coder;
 - (BOOL) hasRunloop:(NSRunLoop *) obj;
+- (void) _incrementLocalProxyCount;
+- (void) _decrementLocalProxyCount;
+
+@end
+
+@interface NSConnection (NSPrivate)
+
+- (NSDistantObject *) _getLocal:(id) target;
+- (void) _addDistantObject:(NSDistantObject *) obj forLocal:(id) target;
+- (void) _removeLocal:(id) target;
+- (NSDistantObject *) _getRemote:(id) target;
+- (void) _addDistantObject:(NSDistantObject *) obj forRemote:(id) target;
+- (void) _removeRemote:(id) target;
 
 @end
 
