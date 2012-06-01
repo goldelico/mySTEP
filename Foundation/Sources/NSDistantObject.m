@@ -1,24 +1,24 @@
 /* 
-   NSDistantObject.m
-
-   Class which defines proxies for objects in other applications
-
-   Copyright (C) 1997 Free Software Foundation, Inc.
-
-   Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
-   Rewrite: Richard Frith-Macdonald <richard@brainstorm.co.u>
-
-   changed to encode/decode NSInvocations:
-   Dr. H. Nikolaus Schaller <hns@computer.org>
-   Date: October 2003
+ NSDistantObject.m
  
-   complete rewrite:
-   Dr. H. Nikolaus Schaller <hns@computer.org>
-   Date: Jan 2006
+ Class which defines proxies for objects in other applications
  
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-   */
+ Copyright (C) 1997 Free Software Foundation, Inc.
+ 
+ Author:  Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
+ Rewrite: Richard Frith-Macdonald <richard@brainstorm.co.u>
+ 
+ changed to encode/decode NSInvocations:
+ Dr. H. Nikolaus Schaller <hns@computer.org>
+ Date: October 2003
+ 
+ complete rewrite:
+ Dr. H. Nikolaus Schaller <hns@computer.org>
+ Date: Jan 2006
+ 
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #import <Foundation/NSRunLoop.h>
 #import <Foundation/NSConnection.h>
@@ -188,7 +188,7 @@
 #endif
 	self=[self initWithTarget:remoteObjectId connection:aConnection];	// will become a fresh initialization since the reference is new
 	_connection=[aConnection retain];	// remember the connection as long as we exist
-	[aConnection _addDistantObject:self forLocal:anObject];	// add to local objects
+	[aConnection _addDistantObject:self forLocal:anObject andRemote:remoteObjectId];	// add to local objects
 	_local=[anObject retain];	// retain the local object as long as we exist
 	return self;
 }
@@ -197,16 +197,17 @@
 { // remoteObject is an id in another thread or another application’s address space!
 	NSDistantObject *proxy=[aConnection _getRemote:remoteObject];
 	if(proxy)
-			{ // we already have a proxy for this target
-				[self release];	// release newly allocated object
-				return [proxy retain];	// retain the existing proxy once
-			}
+		{ // we already have a proxy for this target
+			[self release];	// release newly allocated object
+			return [proxy retain];	// retain the existing proxy once
+		}
 	_remote=remoteObject;
 	_selectorCache=[[NSMutableDictionary alloc] initWithCapacity:10];
-	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache
+	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodDescriptionForSelector:)] forKey:@"methodDescriptionForSelector:"]; 	// predefine NSMethodSignature cache
+//	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache
 	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(respondsToSelector:)] forKey:@"respondsToSelector:"]; 	// predefine NSMethodSignature cache
-//	if(remoteObject == nil)
-//		[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache
+	//	if(remoteObject == nil)
+	//		[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache
 	[aConnection _addDistantObject:self forRemote:remoteObject];	// add to remote objects
 	_connection=aConnection;	// we are retained by the connection
 	return self;
@@ -216,7 +217,7 @@
 {
 	// FIXME: this is currently broken!
 	// methodSignatureForSelector correctly returns the qualifiers while a remote request to the implementation doesn't
-
+	
 	// HACK:
 	if(aProtocol)
 		*(Class *)aProtocol=[Protocol class];	// isa pointer of @protocol(xxx) is sometimes not properly initialized
@@ -239,12 +240,12 @@
 	if(_local)
 		return [_local description];
 	return [NSString stringWithFormat:
-		@"<%@ %p>\ntarget=%p\nprotocol=%s\nconnection=%@\nremote=%p",
-		NSStringFromClass([self class]), self,
-		_local,
-		_protocol?[_protocol name]:"<NULL>",
-		_connection,
-		_remote];
+			@"<%@ %p>\ntarget=%p\nprotocol=%s\nconnection=%@\nremote=%p",
+			NSStringFromClass([self class]), self,
+			_local,
+			_protocol?[_protocol name]:"<NULL>",
+			_connection,
+			_remote];
 }
 
 - (void) dealloc;
@@ -283,8 +284,8 @@
 		NSLog(@"md=%p", md);
 		if(md)
 			{ // exists
-			NSLog(@"md.name=%s", md->name);
-			NSLog(@"md.types=%p", md->types);			
+				NSLog(@"md.name=%s", md->name);
+				NSLog(@"md.types=%p", md->types);			
 			}
 #endif
 		return md;
@@ -328,8 +329,11 @@
 		}
 	else
 		{	// we must forward this call to the peer
-			NSInvocation *i=[NSInvocation invocationWithMethodSignature:[_selectorCache objectForKey:@"methodDescriptionForSelector:"]];
+			NSMethodSignature *sig=[_selectorCache objectForKey:@"methodDescriptionForSelector:"];
+			NSInvocation *i=[NSInvocation invocationWithMethodSignature:sig];
+			NSAssert(sig, @"methodsignature for methodDescriptionForSelector must be known");
 #if 1
+			NSLog(@"_selectorCache=%@", _selectorCache);
 			NSLog(@"ask peer: %@", i);
 #endif
 			[i setTarget:self];
@@ -378,9 +382,9 @@
 	if([@protocol(NSObject) descriptionForInstanceMethod:aSelector])
 		{ // simply assume that all methods from NSObject protocol are implemented
 #if 1
-		NSLog(@"defined in <NSObject> protocol");
+			NSLog(@"defined in <NSObject> protocol");
 #endif
-		return YES;	// this is a method of NSDistantObject		
+			return YES;	// this is a method of NSDistantObject		
 		}
 	// check for NSObject protocol only, i.e. return NO for e.g. -connectionForProxy or -descriptionWithLocale: !!!
 	if(0 && class_get_instance_method([NSDistantObject class], aSelector) != METHOD_NULL)
@@ -431,7 +435,7 @@
 	BOOL flag;
 	unsigned int ref=(unsigned int) _remote;
 	[coder encodeValueOfObjCType:@encode(unsigned int) at:&ref];	// encode as a reference into the address space and not the real object
-	flag=(_local == nil);	// sometimes 0 sometimes 1 -- is this some "local(0)" vs. "remote(1)" flag? I.e. we receive always 1 but send 0 or return 1
+	flag=(_local == nil);	// local(0) vs. remote(1) flag
 	[coder encodeValueOfObjCType:@encode(char) at:&flag];
 	flag=YES;	// always 1 -- is this a "keep alive" flag?
 	[coder encodeValueOfObjCType:@encode(char) at:&flag];
@@ -453,19 +457,30 @@
 #if 1
 	NSLog(@"NSDistantObject %p initWithCoder -> reference=%p flag1=%d flag2=%d", self, _remote, flag1, flag2);
 #endif
-	proxy=[c _getRemote:_remote];
-	if(proxy)
-		{ // we already have a proxy for this target
-		[self release];	// release newly allocated object
-		return [proxy retain];	// retain the existing proxy once
+	if(flag1)
+		{ // local (i.e. remote seen from sender's perspective)
+			proxy=[c _getLocalByRemote:_remote];
+			if(proxy)
+				{ // local proxy for this target found
+					[self release];	// release newly allocated object
+					return [proxy retain];	// retain the existing proxy once
+				}
+			// unknown - refers to connection (to get rootObject)
+			// do we check for _remote==nil?
+			[self release];	// release newly allocated object
+			return [c retain];	// unknown remote id refers to the connection object
 		}
-	if(flag1)	// or if remoteObject == nil??? Why do we need this flag at all here???
-		{
-		[self release];	// release newly allocated object
-		return [c retain];	// this refers to the connection object
+	else
+		{ // clients sends us a handle to access its remote object
+			proxy=[c _getRemote:_remote];
+			if(proxy)
+				{ // local proxy for this target found
+					[self release];	// release newly allocated object
+					return [proxy retain];	// retain the existing proxy once
+				}
+			self=[self initWithTarget:_remote connection:c];	// initialize and install reference in _getRemote
+			return self;
 		}
-	self=[self initWithTarget:_remote connection:c];	// initializes a new one and installs in _getRemote
-	return self;
 }
 
 + (id) newDistantObjectWithCoder:(NSCoder *) coder;
@@ -519,5 +534,5 @@
 { // ask protocol
 	return [_protocol _methodSignatureForInstanceMethod:aSelector];
 }
-	
+
 @end

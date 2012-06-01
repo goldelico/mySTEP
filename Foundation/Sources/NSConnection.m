@@ -349,7 +349,8 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 		_isValid=YES;
 		// or should we be retained by all proxy objects???
 		[self retain];	// make us persistent until we are invalidated
-		_localObjects=NSCreateMapTable(NSIntMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain local proxies
+		_localObjects=NSCreateMapTable(NSNonRetainedObjectMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain local proxies
+		_localObjectsByRemote=NSCreateMapTable(NSIntMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain local proxies
 		_remoteObjects=NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 10);	// retain remote proxies
 		_responses=NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 10);	// map sequence number to response portcoder
 		if(!_allConnections)
@@ -419,7 +420,8 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	if(_localObjects)
 		{
 		NSAssert(NSCountMapTable(_localObjects) == 0, @"local objects still use this connection"); // should be empty before we can be released...
-		NSFreeMapTable(_localObjects);		
+		NSFreeMapTable(_localObjects);
+		NSFreeMapTable(_localObjectsByRemote);
 		}
 	if(_remoteObjects)
 		{
@@ -883,9 +885,10 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 		// they may have to do something with the current conversation and/or with the importedObjects
 		// but I don't know yet.
 		NS_DURING
-		NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
-		NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
-		//			NSLog(@"%@", [coder decodeRetainedObject]);	// one more?
+		NSLog(@"1st %@", [coder decodeRetainedObject]);	// one more?
+		// has been seen missing in test code where last decodeRetainedObject did have flag3=0 
+		NSLog(@"2nd %@", [coder decodeRetainedObject]);	// one more?
+		//			NSLog(@"3rd %@", [coder decodeRetainedObject]);	// one more?
 		NS_HANDLER
 		NSLog(@"decoding exception: %@", localException);
 		NS_ENDHANDLER
@@ -894,7 +897,7 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 		isOneway=[sig isOneway];
 		// shouldn't we skip enqueueing if it isOneway?
 #endif
-		// CHECKME: do we really need to check that by creating another methodSignature object???
+		// CHECKME: do we really need to check that by creating yet another methodSignature object???
 		tsig=[[inv target] methodSignatureForSelector:[inv selector]];
 		if(![sig isEqual:tsig])
 			NSLog(@"signature mismatch: %@ vs. %@", sig, tsig); // should raise exception: local method signature is different from remote
@@ -1102,12 +1105,19 @@ NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializ
 	return NSMapGet(_localObjects, (void *) target);
 }
 
-- (void) _addDistantObject:(NSDistantObject *) obj forLocal:(id) target;
+- (NSDistantObject *) _getLocalByRemote:(id) remote;
+{ // get proxy object for local object - if known
+	// we could do the NSConnection fallback here
+	return NSMapGet(_localObjectsByRemote, (void *) remote);
+}
+
+- (void) _addDistantObject:(NSDistantObject *) obj forLocal:(id) target andRemote:(id) remote;
 {
 #if 1
-	NSLog(@"_addLocal: %p", target);
+	NSLog(@"_addLocal: %p %p", target, remote);
 #endif
 	NSMapInsert(_localObjects, (void *) target, obj);
+	NSMapInsert(_localObjectsByRemote, (void *) remote, obj);
 	[self _incrementLocalProxyCount];
 }
 

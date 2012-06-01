@@ -60,7 +60,8 @@ extern NSString *const NSFailedAuthenticationException;
 	id _delegate;
 	id _rootObject;						// the root object to vend
 	NSMapTable *_localObjects;			// map of local objects -> proxy
-	NSMapTable *_remoteObjects;			// map of remote target (reference number) -> proxy
+	NSMapTable *_localObjectsByRemote;	// map or remote target (reference number) -> proxy - numbers assigned by local connection
+	NSMapTable *_remoteObjects;			// map of remote target (reference number) -> proxy - numbers assigned by remote connection
 	NSMutableArray *_modes;				// all modes
 	NSMutableArray *_runLoops;			// all runloops
 	NSMutableArray *_requestQueue;		// queue of pending NSDistantObjectRequests (this should be one queue per thread!)

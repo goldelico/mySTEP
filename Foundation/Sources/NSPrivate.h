@@ -514,11 +514,12 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 
 @interface NSConnection (NSPrivate)
 
-- (NSDistantObject *) _getLocal:(id) target;
-- (void) _addDistantObject:(NSDistantObject *) obj forLocal:(id) target;
-- (void) _removeLocal:(id) target;
-- (NSDistantObject *) _getRemote:(id) target;
+- (NSDistantObject *) _getLocal:(id) target;	// check if we know a wrapper for this target
+- (NSDistantObject *) _getLocalByRemote:(id) remote;	// get distant object for this (local) reference number
+- (void) _addDistantObject:(NSDistantObject *) obj forLocal:(id) target andRemote:(id) remote;
+- (NSDistantObject *) _getRemote:(id) target;	// get distant object for this (remote) reference number
 - (void) _addDistantObject:(NSDistantObject *) obj forRemote:(id) target;
+- (void) _removeLocal:(id) target;
 - (void) _removeRemote:(id) target;
 
 @end
