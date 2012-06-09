@@ -19,6 +19,7 @@
  
    Refer to http://gcc.gnu.org/onlinedocs/gcc-4.0.2/gcc/Type-encoding.html#Type-encoding how gcc encodes types
 
+   on Cocoa this appears to reside in CoreFoundation.framework
 */ 
 
 #ifndef _mySTEP_H_NSMethodSignature

@@ -31,77 +31,6 @@
 
 @implementation NSInvocation
 
-#if 0	// test
-
-- (void) test1
-{
-	NSLog(@"*** test1 ***");
-	NSLog(@"  self=%p", self);
-	NSLog(@"  _cmd=%p", _cmd);
-	NSAssert(self != nil, @"self is not set correctly; NSInvocation may be broken");	
-	NSAssert(_cmd != NULL, @"_cmd is not set correctly; NSInvocation may be broken");	
-}
-
-- (void) test2:(id) arg
-{
-	NSLog(@"*** test2: ***");
-	NSLog(@"  self=%p", self);
-	NSLog(@"  _cmd=%p", _cmd);
-	NSLog(@"  arg=%p", arg);
-	NSAssert(self != nil, @"self is not set correctly; NSInvocation may be broken");	
-	NSAssert(_cmd != NULL, @"_cmd is not set correctly; NSInvocation may be broken");	
-	NSAssert(arg != nil, @"arg is not set correctly; NSInvocation may be broken");	
-}
-
-- (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector
-{ // must be overridden or forwardInvocation: will not be called
-	NSLog(@"methodSignatureForSelector %@ %p", NSStringFromSelector(aSelector), aSelector);
-	return [NSString instanceMethodSignatureForSelector:aSelector];
-}
-
-- (void) forwardInvocation:(NSInvocation *)anInvocation
-{
-	id ret=nil;
-	NSLog(@"forwardInvocation: %@", anInvocation);
-	[anInvocation setReturnValue:&ret];
-}
-
-+ (void) initialize
-{
-	SEL sel=@selector(test2:);	// default
-	NSInvocation *test=[NSInvocation invocationWithMethodSignature:[NSInvocation instanceMethodSignatureForSelector:sel]];
-	NSString *str=@"teststring";
-#if 0
-	NSLog(@"-- NSInvocation initialize -- testing ---");
-	sel=@selector(test1);
-	test=[NSInvocation invocationWithMethodSignature:[NSInvocation instanceMethodSignatureForSelector:sel]];
-	[test setSelector:sel];
-	NSLog(@"-- test1 ---");
-	[test invokeWithTarget:test];
-	NSLog(@"-- test1 done ---");
-	sel=@selector(test2:);
-	test=[NSInvocation invocationWithMethodSignature:[NSInvocation instanceMethodSignatureForSelector:sel]];
-	[test setSelector:sel];
-	[test setArgument:&str atIndex:2];
-	NSLog(@"-- test2 ---");
-	[test invokeWithTarget:test];
-	NSLog(@"-- test2 done ---");
-#endif
-	NSLog(@"-- test3 ---");
-	NSLog(@"  self=%p", test);
-	NSLog(@"  selector=%p", sel);
-	NSLog(@"  object=%p", str);
-	NSLog(@"  imp=%p", [NSString instanceMethodForSelector:@selector(writeToFile:atomically:encoding:error:)]);
-	NSLog(@"  this=%p", [self methodForSelector:@selector(initialize)]);
-	//	[test makeObjectsPerformSelector:(SEL) 0x11111111 withObject:(id) 0x22222222];	// not existing (in this class)  -> calls forward::
-	[test writeToFile:(id) 0x11111111 atomically:(BOOL)0x22222222 encoding:0x33333333 error:(NSError **)0x44444444];
-	
-	NSLog(@"-- test3 done ---");
-	NSLog(@"-- NSInvocation initialize -- done ---");
-}
-
-#endif
-
 + (NSInvocation *) invocationWithMethodSignature:(NSMethodSignature *)aSig
 {
 #if 0
@@ -115,11 +44,6 @@
 	NSLog(@"don't call -init on NSInvocation");
 	[self release];
 	return nil;
-}
-
-- (id) initWithMethodSignature:(NSMethodSignature*)aSignature
-{ // undocumented in Cocoa but exists
-	return [self _initWithMethodSignature:aSignature andArgFrame:NULL];
 }
 
 - (void) setTarget:(id)anObject
@@ -175,134 +99,6 @@
 			_validReturn?@"yes":@"no",
 			_argsRetained?@"yes":@"no"
 			];
-}
-
-- (void) _log:(NSString *) str;
-{
-	int i;
-	id target=[self target];
-	SEL selector=[self selector];
-	NSLog(@"%@ %@ types=%s argframe=%p", str, /*self*/nil, _types, _argframe);
-	if(!_argframe)
-		return;
-	for(i=0; i<18+[_sig frameLength]/4; i++)
-		{ // print stack
-			NSString *note=@"";
-			if(&((void **)_argframe)[i] == ((void **)_argframe)[0]) note=[note stringByAppendingString:@"<<- link "];
-			if(((void **)_argframe)[i] == target) note=[note stringByAppendingString:@"self "];
-			if(((void **)_argframe)[i] == selector) note=[note stringByAppendingString:@"_cmd "];
-			if(((void **)_argframe)[i] == (_argframe+0x28)) note=[note stringByAppendingString:@"argp "];
-			if(((void **)_argframe)[i] == _argframe) note=[note stringByAppendingString:@"link ->> "];
-			NSLog(@"arg[%2d]:%08x %+3d %3d %08x %12ld %@", i, &(((void **)_argframe)[i]), 4*i, ((char *)&(((void **)_argframe)[i]))-(((char **)_argframe)[0]), ((void **)_argframe)[i], ((void **)_argframe)[i], note);
-		}
-#if 0
-	{
-	void *buffer;
-	NSLog(@"allocating buffer - len=%d", _maxValueLength);
-	buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
-	// print argframe
-	for(i = _validReturn?-1:0; i < _numArgs; i++)
-		{
-		const char *type;
-		unsigned qual=[_sig _getArgumentQualifierAtIndex:i];
-		if(i >= 0)
-			{ // normal argument
-				type=[_sig _getArgument:buffer fromFrame:_argframe atIndex:i];
-			}
-		else
-			{ // return value
-				type=[_sig methodReturnType];
-				[self getReturnValue:buffer];
-			}
-		if(*type == _C_ID)
-			NSLog(@"argument %d qual=%d type=%s id=%@ <%p>", i, qual, type, NSStringFromClass([*(id *) buffer class]), *(id *) buffer);
-		// NSLog(@"argument %d qual=%d type=%s %p %p", i, qual, type, *(id *) buffer, *(id *) buffer);
-		else if(*type == _C_SEL)
-			NSLog(@"argument %d qual=%d type=%s SEL=%@ <%p>", i, qual, type, NSStringFromSelector(*(SEL *) buffer), *(SEL *) buffer);
-		else
-			NSLog(@"argument %d qual=%d type=%s %08x", i, qual, type, *(long *) buffer);
-		}
-	objc_free(buffer);
-	}
-#endif
-}
-
-// this is called from NSObject/NSProxy from the forward:: method
-
-- (id) _initWithMethodSignature:(NSMethodSignature*)aSignature andArgFrame:(arglist_t) argFrame
-{
-#if 0
-	NSLog(@"NSInovcation _initWithMethodSignature:%@", aSignature);
-#endif
-	if(!aSignature)
-		{ // missing signature
-			[self release];
-			return nil;
-		}
-	if((self=[super init]))
-		{
-		_sig = [aSignature retain];
-		_argframe = [_sig _allocArgFrame:argFrame];
-		if(!_argframe)
-			{ // could not allocate
-#if 1
-				NSLog(@"_initWithMethodSignature:andArgFrame: could not allocate _argframe");
-#endif
-				[self release];
-				return nil;
-			}
-		_argframeismalloc=(_argframe != argFrame);	// was re-allocated if different
-		_types=[_sig _methodType];	// get method type
-		_numArgs=[aSignature numberOfArguments];
-		_rettype=[_sig methodReturnType];
-		_returnLength=[_sig methodReturnLength];
-		_maxValueLength=MAX(_returnLength, [_sig frameLength]);
-		// we could use a char private[8] if _returnLength < sizeof(private)
-		if(_returnLength > 0)
-			{
-			_retval = objc_calloc(1, _returnLength);
-			if(!_retval)
-				{ // could not allocate
-#if 1
-					NSLog(@"_initWithMethodSignature:andArgFrame: could not allocate _retval");
-#endif
-					[self release];
-					return nil;
-				}
-			_retvalismalloc=YES;	// always...
-			}
-#if 0
-		[self _log:@"_initWithMethodSignature:andArgFrame:"];
-#endif
-		}
-	return self;
-}
-
-- (retval_t) _returnValue;
-{ // encode the return value so that it can be passed back to the libobjc forward:: method
-	retval_t retval;
-#if 0
-	NSLog(@"_returnValue called");
-	[self _log:@"before getting retval"];
-	if(_rettype[0] == _C_ID)
-		{
-		id ret;
-		[self getReturnValue:&ret];
-		NSLog(@"value = %@", ret);
-		}
-#endif
-	if(_argsRetained)
-		[self _releaseArguments];
-	if(!_validReturn && *_rettype != _C_VOID)
-		{ // no valid return value
-			NSLog(@"warning - no valid return value set");
-			[NSException raise: NSInvalidArgumentException format: @"did not 'setReturnValue:' for non-void NSInvocation"];
-		}
-	[_sig _returnValue:_retval frame:_argframe];	// get return value and restore argframe if needed
-	[self _log:@"after getting retval"];
-	if(!_argframeismalloc)
-		_argframe=NULL;	// invalidate since it was inherited from our caller
-	return retval;
 }
 
 - (void) dealloc
@@ -443,42 +239,6 @@
 		}
 }
 
-- (void) _releaseReturnValue;
-{ // no longer needed so that we can reuse an invocation
-	_validReturn=NO;	// invalidate - so that initWithCoder properly handles requests&responses
-}
-
-- (void) _releaseArguments
-{
-	int	i;
-	if(!_argsRetained || !_argframe)
-		return;	// already released or no need to do so
-	_argsRetained = NO;
-#if 0
-	NSLog(@"releasing arguments %@", self);
-#endif
-	for(i = 0; i < _numArgs; i++)
-		{
-		const char *type=[_sig getArgumentTypeAtIndex:i];
-		if(*type == _C_CHARPTR)
-			{ // release the copy
-				char *str;
-				[_sig _getArgument:&str fromFrame:_argframe atIndex:i];
-				if(str != NULL)
-					objc_free(str);	// ??? immediately, or should we put it into the ARP?
-			}
-		else if(*type == _C_ID)
-			{ // release object
-				id obj;
-				[_sig _getArgument:&obj fromFrame:_argframe atIndex:i];
-#if 0
-				NSLog(@"release arg %@", obj);
-#endif
-				[obj release];
-			}
-		}
-}
-
 - (void) invokeWithTarget:(id)anObject
 {
 	[_sig _setArgument:&anObject forFrame:_argframe atIndex:0];
@@ -532,8 +292,6 @@
 #endif
 #endif
 }
-
-- (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode invocations bycopy
 
 /*
  * encoding of in/out/inout paramters is based on the _validReturn flag
@@ -669,3 +427,273 @@
 }
 
 @end  /* NSInvocation */
+
+@implementation NSInvocation (NSUndocumented)
+
+- (id) initWithMethodSignature:(NSMethodSignature*) aSignature
+{ // undocumented in Cocoa but exists
+	return [self _initWithMethodSignature:aSignature andArgFrame:NULL];
+}
+
+- (id) copyWithZone:(NSZone *) z;
+{
+	NIMP;
+	return nil;
+}
+
+- (void) invokeSuper;
+{
+	NIMP;
+}
+
+- (void) _addAttachedObject:(id) obj
+{
+	// does this handle the Imports for DO?
+	// and is this additionally encoded by the PortCoder?
+	NIMP;
+}
+
+@end
+
+@implementation NSInvocation (NSPrivate)
+
+- (void) _releaseReturnValue;
+{ // no longer needed so that we can reuse an invocation
+	_validReturn=NO;	// invalidate - so that initWithCoder properly handles requests&responses
+}
+
+- (void) _releaseArguments
+{
+	int	i;
+	if(!_argsRetained || !_argframe)
+		return;	// already released or no need to do so
+	_argsRetained = NO;
+#if 0
+	NSLog(@"releasing arguments %@", self);
+#endif
+	for(i = 0; i < _numArgs; i++)
+		{
+		const char *type=[_sig getArgumentTypeAtIndex:i];
+		if(*type == _C_CHARPTR)
+			{ // release the copy
+				char *str;
+				[_sig _getArgument:&str fromFrame:_argframe atIndex:i];
+				if(str != NULL)
+					objc_free(str);	// ??? immediately, or should we put it into the ARP?
+			}
+		else if(*type == _C_ID)
+			{ // release object
+				id obj;
+				[_sig _getArgument:&obj fromFrame:_argframe atIndex:i];
+#if 0
+				NSLog(@"release arg %@", obj);
+#endif
+				[obj release];
+			}
+		}
+}
+
+- (void) _log:(NSString *) str;
+{
+	int i;
+	id target=[self target];
+	SEL selector=[self selector];
+	NSLog(@"%@ %@ types=%s argframe=%p", str, /*self*/nil, _types, _argframe);
+	if(!_argframe)
+		return;
+	for(i=0; i<18+[_sig frameLength]/4; i++)
+		{ // print stack
+			NSString *note=@"";
+			if(&((void **)_argframe)[i] == ((void **)_argframe)[0]) note=[note stringByAppendingString:@"<<- link "];
+			if(((void **)_argframe)[i] == target) note=[note stringByAppendingString:@"self "];
+			if(((void **)_argframe)[i] == selector) note=[note stringByAppendingString:@"_cmd "];
+			if(((void **)_argframe)[i] == (_argframe+0x28)) note=[note stringByAppendingString:@"argp "];
+			if(((void **)_argframe)[i] == _argframe) note=[note stringByAppendingString:@"link ->> "];
+			NSLog(@"arg[%2d]:%08x %+3d %3d %08x %12ld %@", i, &(((void **)_argframe)[i]), 4*i, ((char *)&(((void **)_argframe)[i]))-(((char **)_argframe)[0]), ((void **)_argframe)[i], ((void **)_argframe)[i], note);
+		}
+#if 0
+	{
+	void *buffer;
+	NSLog(@"allocating buffer - len=%d", _maxValueLength);
+	buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
+	// print argframe
+	for(i = _validReturn?-1:0; i < _numArgs; i++)
+		{
+		const char *type;
+		unsigned qual=[_sig _getArgumentQualifierAtIndex:i];
+		if(i >= 0)
+			{ // normal argument
+				type=[_sig _getArgument:buffer fromFrame:_argframe atIndex:i];
+			}
+		else
+			{ // return value
+				type=[_sig methodReturnType];
+				[self getReturnValue:buffer];
+			}
+		if(*type == _C_ID)
+			NSLog(@"argument %d qual=%d type=%s id=%@ <%p>", i, qual, type, NSStringFromClass([*(id *) buffer class]), *(id *) buffer);
+		// NSLog(@"argument %d qual=%d type=%s %p %p", i, qual, type, *(id *) buffer, *(id *) buffer);
+		else if(*type == _C_SEL)
+			NSLog(@"argument %d qual=%d type=%s SEL=%@ <%p>", i, qual, type, NSStringFromSelector(*(SEL *) buffer), *(SEL *) buffer);
+		else
+			NSLog(@"argument %d qual=%d type=%s %08x", i, qual, type, *(long *) buffer);
+		}
+	objc_free(buffer);
+	}
+#endif
+}
+
+// this is called from NSObject/NSProxy from the forward:: method
+
+- (id) _initWithMethodSignature:(NSMethodSignature*)aSignature andArgFrame:(arglist_t) argFrame
+{
+#if 0
+	NSLog(@"NSInovcation _initWithMethodSignature:%@", aSignature);
+#endif
+	if(!aSignature)
+		{ // missing signature
+			[self release];
+			return nil;
+		}
+	if((self=[super init]))
+		{
+		_sig = [aSignature retain];
+		_argframe = [_sig _allocArgFrame:argFrame];
+		if(!_argframe)
+			{ // could not allocate
+#if 1
+				NSLog(@"_initWithMethodSignature:andArgFrame: could not allocate _argframe");
+#endif
+				[self release];
+				return nil;
+			}
+		_argframeismalloc=(_argframe != argFrame);	// was re-allocated if different
+		_types=[_sig _methodType];	// get method type
+		_numArgs=[aSignature numberOfArguments];
+		_rettype=[_sig methodReturnType];
+		_returnLength=[_sig methodReturnLength];
+		_maxValueLength=MAX(_returnLength, [_sig frameLength]);
+		// we could use a char private[8] if _returnLength < sizeof(private)
+		if(_returnLength > 0)
+			{
+			_retval = objc_calloc(1, _returnLength);
+			if(!_retval)
+				{ // could not allocate
+#if 1
+					NSLog(@"_initWithMethodSignature:andArgFrame: could not allocate _retval");
+#endif
+					[self release];
+					return nil;
+				}
+			_retvalismalloc=YES;	// always...
+			}
+#if 0
+		[self _log:@"_initWithMethodSignature:andArgFrame:"];
+#endif
+		}
+	return self;
+}
+
+- (retval_t) _returnValue;
+{ // encode the return value so that it can be passed back to the libobjc forward:: method
+	retval_t retval;
+#if 0
+	NSLog(@"_returnValue called");
+	[self _log:@"before getting retval"];
+	if(_rettype[0] == _C_ID)
+		{
+		id ret;
+		[self getReturnValue:&ret];
+		NSLog(@"value = %@", ret);
+		}
+#endif
+	if(_argsRetained)
+		[self _releaseArguments];
+	if(!_validReturn && *_rettype != _C_VOID)
+		{ // no valid return value
+			NSLog(@"warning - no valid return value set");
+			[NSException raise: NSInvalidArgumentException format: @"did not 'setReturnValue:' for non-void NSInvocation"];
+		}
+	[_sig _returnValue:_retval frame:_argframe];	// get return value and restore argframe if needed
+	[self _log:@"after getting retval"];
+	if(!_argframeismalloc)
+		_argframe=NULL;	// invalidate since it was inherited from our caller
+	return retval;
+}
+
+@end
+
+#if 0	// test
+
+@implementation NSInvocation (Testing)
+
+- (void) test1
+{
+	NSLog(@"*** test1 ***");
+	NSLog(@"  self=%p", self);
+	NSLog(@"  _cmd=%p", _cmd);
+	NSAssert(self != nil, @"self is not set correctly; NSInvocation may be broken");	
+	NSAssert(_cmd != NULL, @"_cmd is not set correctly; NSInvocation may be broken");	
+}
+
+- (void) test2:(id) arg
+{
+	NSLog(@"*** test2: ***");
+	NSLog(@"  self=%p", self);
+	NSLog(@"  _cmd=%p", _cmd);
+	NSLog(@"  arg=%p", arg);
+	NSAssert(self != nil, @"self is not set correctly; NSInvocation may be broken");	
+	NSAssert(_cmd != NULL, @"_cmd is not set correctly; NSInvocation may be broken");	
+	NSAssert(arg != nil, @"arg is not set correctly; NSInvocation may be broken");	
+}
+
+- (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector
+{ // must be overridden or forwardInvocation: will not be called
+	NSLog(@"methodSignatureForSelector %@ %p", NSStringFromSelector(aSelector), aSelector);
+	return [NSString instanceMethodSignatureForSelector:aSelector];
+}
+
+- (void) forwardInvocation:(NSInvocation *)anInvocation
+{
+	id ret=nil;
+	NSLog(@"forwardInvocation: %@", anInvocation);
+	[anInvocation setReturnValue:&ret];
+}
+
++ (void) initialize
+{
+	SEL sel=@selector(test2:);	// default
+	NSInvocation *test=[NSInvocation invocationWithMethodSignature:[NSInvocation instanceMethodSignatureForSelector:sel]];
+	NSString *str=@"teststring";
+#if 0
+	NSLog(@"-- NSInvocation initialize -- testing ---");
+	sel=@selector(test1);
+	test=[NSInvocation invocationWithMethodSignature:[NSInvocation instanceMethodSignatureForSelector:sel]];
+	[test setSelector:sel];
+	NSLog(@"-- test1 ---");
+	[test invokeWithTarget:test];
+	NSLog(@"-- test1 done ---");
+	sel=@selector(test2:);
+	test=[NSInvocation invocationWithMethodSignature:[NSInvocation instanceMethodSignatureForSelector:sel]];
+	[test setSelector:sel];
+	[test setArgument:&str atIndex:2];
+	NSLog(@"-- test2 ---");
+	[test invokeWithTarget:test];
+	NSLog(@"-- test2 done ---");
+#endif
+	NSLog(@"-- test3 ---");
+	NSLog(@"  self=%p", test);
+	NSLog(@"  selector=%p", sel);
+	NSLog(@"  object=%p", str);
+	NSLog(@"  imp=%p", [NSString instanceMethodForSelector:@selector(writeToFile:atomically:encoding:error:)]);
+	NSLog(@"  this=%p", [self methodForSelector:@selector(initialize)]);
+	//	[test makeObjectsPerformSelector:(SEL) 0x11111111 withObject:(id) 0x22222222];	// not existing (in this class)  -> calls forward::
+	[test writeToFile:(id) 0x11111111 atomically:(BOOL)0x22222222 encoding:0x33333333 error:(NSError **)0x44444444];
+	
+	NSLog(@"-- test3 done ---");
+	NSLog(@"-- NSInvocation initialize -- done ---");
+}
+
+@end
+
+#endif

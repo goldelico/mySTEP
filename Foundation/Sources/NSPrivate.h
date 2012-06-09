@@ -396,27 +396,36 @@ void NSDecimalFromComponents(NSDecimal *result, unsigned long long mantissa,
 void NSDecimalFromString(NSDecimal *result, NSString *numberValue, 
 						 NSDictionary *locale);
 
+@interface NSMethodSignature (NSUndocumented)
+
+- (NSString *) _typeString;		// full method type
+
+@end
+
 @interface NSMethodSignature (NSPrivate)
 
-- (unsigned) _getArgumentLengthAtIndex:(int)index;
-- (unsigned) _getArgumentQualifierAtIndex:(int)index;
+- (void) _methodInfo;
+- (unsigned) _getArgumentLengthAtIndex:(int) index;
+- (unsigned) _getArgumentQualifierAtIndex:(int) index;
 - (const char *) _getArgument:(void *) buffer fromFrame:(arglist_t) _argframe atIndex:(int) index;
 - (void) _setArgument:(void *) buffer forFrame:(arglist_t) _argframe atIndex:(int) index;
 - (arglist_t) _allocArgFrame:(arglist_t) frame;
 - (retval_t) _returnValue:(void *) buffer frame:(arglist_t) frame;
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe retbuf:(void *) buffer;
-- (id) _initWithObjCTypes:(const char*) t;
-- (const char *) _methodType;		// total method type
-- (NSString *) _typeString;		// total method type
-- (void) _makeOneWay;
+- (id) _initWithObjCTypes:(const char *) t;
+- (const char *) _methodType;		// full method type
+
+@end
+
+@interface NSInvocation (NSUndocumented)
+
+- (id) initWithMethodSignature:(NSMethodSignature *) aSignature;	// this one exists undocumented in Cocoa
 
 @end
 
 @interface NSInvocation (NSPrivate)
 
-- (id) initWithMethodSignature:(NSMethodSignature*) aSignature;		// this one exists undocumented in Cocoa
-
-- (id) _initWithMethodSignature:(NSMethodSignature*) aSignature andArgFrame:(arglist_t) argFrame;
+- (id) _initWithMethodSignature:(NSMethodSignature *) aSignature andArgFrame:(arglist_t) argFrame;
 // - (id) _initWithSelector:(SEL) aSelector andArgFrame:(arglist_t) argFrame;
 - (retval_t) _returnValue;
 - (void) _releaseArguments;
@@ -484,6 +493,7 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 @end
 
 @interface NSDistantObjectRequest (NSUndocumented)
+// undocumented initializer - see http://opensource.apple.com/source/objc4/objc4-208/runtime/objc-sel.m
 - (id) initWithInvocation:(NSInvocation *) inv conversation:(NSObject *) conv sequence:(unsigned int) seq importedObjects:(NSMutableArray *) obj connection:(NSConnection *) conn;
 @end
 

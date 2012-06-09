@@ -363,6 +363,118 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 
 #define NEED_INFO() if(info == NULL) [self _methodInfo]
 
+- (unsigned) frameLength
+{
+	NEED_INFO();
+	return argFrameLength;
+}
+
+- (const char *) getArgumentTypeAtIndex:(unsigned)index
+{
+	NEED_INFO();	// make sure numArgs and type is defined
+	if(index >= numArgs)
+		[NSException raise: NSInvalidArgumentException format: @"Index too high."];
+	return info[index+1].type;
+}
+
+- (BOOL) isOneway
+{
+	NEED_INFO();
+	return (info[0].qual & _F_ONEWAY) ? YES : NO;
+}
+
+- (unsigned) methodReturnLength
+{
+	NEED_INFO();
+	return info[0].size;
+}
+
+- (const char*) methodReturnType
+{
+	NEED_INFO();
+    return info[0].type;
+}
+
+- (unsigned) numberOfArguments
+{
+	NEED_INFO();
+	return numArgs;
+}
+
+- (void) dealloc
+{
+    if(methodTypes)
+		objc_free((void*) methodTypes);
+    if(info)
+		objc_free((void*) info);
+    [super dealloc];
+}
+
+// NOTE: this encoding is not platform independent! And not compatible to OSX!
+
+- (void) encodeWithCoder:(NSCoder*)aCoder
+{ // encode type string - NOTE: it can't encode _makeOneWay
+	[aCoder encodeValueOfObjCType:@encode(char *) at:&methodTypes];
+}
+
+- (id) initWithCoder:(NSCoder*)aCoder
+{ // initialize from received type string
+	char *type;
+	[aCoder decodeValueOfObjCType:@encode(char *) at:&type];
+	return [self _initWithObjCTypes:type];
+}
+
+- (BOOL) isEqual:(id)other
+{
+	if(other == self)
+		return YES;
+	if(![super isEqual:other])
+		return NO;
+	// compare signatures (ignoring embedded offsets)
+	// return strcmp([self _methodType], [other _methodType]) == 0;
+	return YES;
+}
+
+- (NSUInteger) hash;
+{
+	// checkme
+	return [super hash];
+}
+
++ (NSMethodSignature *) signatureWithObjCTypes:(const char*) t;
+{ // now officially made public (10.5) - but not documented
+	return [[[NSMethodSignature alloc] _initWithObjCTypes:t] autorelease];
+}
+
+@end
+
+@implementation NSMethodSignature (NSUndocumented)
+
+- (NSString *) _typeString	{ return [NSString stringWithUTF8String:methodTypes]; }
+
+- (struct NSArgumentInfo *) _argInfo:(unsigned) index
+{
+	NEED_INFO();	// make sure numArgs and type is defined
+	if(index >= numArgs)
+		[NSException raise: NSInvalidArgumentException format: @"Index too high."];
+	return &info[index+1];	
+}
+
+- (void *) _frameDescriptor;
+{
+	NIMP;
+	return NULL;
+}
+
+@end
+
+@implementation NSMethodSignature (NSPrivate)
+
+- (NSString *) description;
+{
+	return [NSString stringWithFormat:@"%@ %s", [super description], methodTypes];
+}
+
 - (void) _methodInfo
 { // collect all information from methodTypes in a platform independent way
 	if(info == NULL) 
@@ -433,108 +545,21 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 #endif
 }
 
-// standard methods
-
-- (unsigned) frameLength
-{
-	NEED_INFO();
-	return argFrameLength;
-}
-
-- (const char *) getArgumentTypeAtIndex:(unsigned)index
-{
-	NEED_INFO();	// make sure numArgs and type is defined
-	if(index >= numArgs)
-		[NSException raise: NSInvalidArgumentException format: @"Index too high."];
-	return info[index+1].type;
-}
-
-- (BOOL) isOneway
-{
-	NEED_INFO();
-	return (info[0].qual & _F_ONEWAY) ? YES : NO;
-}
-
-- (unsigned) methodReturnLength
-{
-	NEED_INFO();
-	return info[0].size;
-}
-
-- (const char*) methodReturnType
-{
-	NEED_INFO();
-    return info[0].type;
-}
-
-- (unsigned) numberOfArguments
-{
-	NEED_INFO();
-	return numArgs;
-}
-
-- (void) dealloc
-{
-    if(methodTypes)
-		objc_free((void*) methodTypes);
-    if(info)
-		objc_free((void*) info);
-    [super dealloc];
-}
-
-- (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode bycopy
-
-// NOTE: this encoding is not platform independent! And not compatible to OSX!
-
-- (void) encodeWithCoder:(NSCoder*)aCoder
-{ // encode type string - NOTE: it can't encode _makeOneWay
-	[aCoder encodeValueOfObjCType:@encode(char *) at:&methodTypes];
-}
-
-- (id) initWithCoder:(NSCoder*)aCoder
-{ // initialize from received type string
-	char *type;
-	[aCoder decodeValueOfObjCType:@encode(char *) at:&type];
-	return [self _initWithObjCTypes:type];
-}
-
-- (BOOL) isEqual:(id)other
-{
-	if(other == self)
-		return YES;
-	if(![super isEqual:other])
-		return NO;
-	// compare signatures (ignoring embedded offsets)
-	// return strcmp([self _methodType], [other _methodType]) == 0;
-	return YES;
-}
-
-+ (NSMethodSignature *) signatureWithObjCTypes:(const char*) t;
-{ // now officially made public (10.5) - but not documented
-	return [[[NSMethodSignature alloc] _initWithObjCTypes:t] autorelease];
-}
-
-- (NSString *) description;
-{
-	return [NSString stringWithFormat:@"%@ %s", [super description], methodTypes];
-}
-
 - (id) _initWithObjCTypes:(const char*) t;
 {
 	if((self=[super init]))
 		{
 		methodTypes=objc_malloc(strlen(t)+1);
-		// strip off embedded offsets?
+		// strip off embedded offsets, i.e. convert from gcc to OpenSTEP format?
 		strcpy(((char *) methodTypes), t);	// save unchanged
 #if 0
-		NSLog(@"NSMethodSignature -> %s", t);
+		NSLog(@"NSMethodSignature -> %s", methodTypes);
 #endif
 		}
 	return self;
 }
 
 - (const char *) _methodType	{ return methodTypes; }
-- (NSString *) _type	{ return [NSString stringWithUTF8String:methodTypes]; }
 
 - (unsigned) _getArgumentLengthAtIndex:(int) index;
 {
@@ -693,8 +718,6 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 		}
 	return frame;
 }
-
-// FIXME: should we make this part of NSMethodSignature?
 
 // NOTE: this approach is not sane since the retval_t from __builtin_apply_args() may be a pointer into a stack frame that becomes invalid if we return apply()
 // therefore, this mechanism is not signal()-safe (i.e. don't use NSTask)

@@ -14,6 +14,9 @@
  
     This file is part of the mySTEP Library and is provided
     under the terms of the GNU Library General Public License.
+ 
+    on Cocoa this appears to reside in CoreFoundation.framework
+
 */ 
 
 #ifndef _mySTEP_H_NSInvocation
