@@ -379,6 +379,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 { // get current PIN status
 	if(pinStatus == CTPinStatusUnknown)
 		{ // ask modem
+			// check if we are in airplane mode!
 			NSString *pinstatus=[self runATCommandReturnResponse:@"AT+CPIN?"];
 			if(!pinstatus)
 				{
@@ -404,21 +405,22 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		{
 		if(pinStatus == CTPinStatusAirplaneMode)
 			return YES;	// already set
-		// switch off modem
-		return NO;
+		[self runATCommand:@"AT_OAIR=1"];
+		pinStatus=CTPinStatusAirplaneMode;
+		return YES;
 		}
 	else
 		{
 		if(pinStatus != CTPinStatusAirplaneMode)
 			return YES;	// already disabled
-		// switch on modem
-		return NO;
+		[self runATCommand:@"AT_OAIR=0"];
+		pinStatus=CTPinStatusUnknown;	// check
+		return YES;
 		}
 }
 
 - (IBAction) orderFrontPinPanel:(id) sender
 {
-	NSString *pinpuk;
 	if(!pinPanel)
 		{ // try to load from NIB
 			if(![NSBundle loadNibNamed:@"AskPin" owner:self])	// being the owner allows to connect to views in the panel
@@ -429,6 +431,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		}
 	[pin setEditable:NO];
 	switch([self pinStatus]) {
+		case CTPinStatusAirplaneMode:
+			[message setStringValue:@"Airplane mode"];
+			[okButton setTitle:@"Cancel"];
+			break;
 		case CTPinStatusNoSIM:
 			[message setStringValue:@"No SIM inserted"];
 			[okButton setTitle:@"Cancel"];
@@ -437,8 +443,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			[message setStringValue:@"Already unlocked"];
 			[okButton setTitle:@"Cancel"];
 			break;
-		case CTPinStatusPINRequired:
-			pinpuk=[self runATCommandReturnResponse:@"AT_OERCN"];	// Improvement: could also check PIN2, PUK2
+		case CTPinStatusPINRequired: {
+			NSString *pinpuk=[self runATCommandReturnResponse:@"AT_OERCN"];	// Improvement: could also check PIN2, PUK2
 			if([pinpuk length] > 0)
 				{ // split into pin and puk retries
 					NSArray *a=[pinpuk componentsSeparatedByString:@" "];
@@ -460,7 +466,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 					[pin setEditable:YES];
 					[okButton setTitle:@"Unlock"];
 				}
-			break;
+			break;			
+		}
 		default:
 			[message setStringValue:@"Unknown SIM status"];			
 		}

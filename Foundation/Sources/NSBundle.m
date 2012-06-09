@@ -230,7 +230,6 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 - (id) initWithPath:(NSString *)path;
 {
 	NSBundle *bundle;
-	NSString *exec;
 	BOOL isdir;
 
 	if (!path || [path length] == 0)
@@ -285,9 +284,11 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 	NSMapInsert(__bundles, _path, self);	// map by bundle path (retains!)
 	
 	// CHECKME: __bundlesForExecutables uses a C string (absolute file name) as the key
-	// we may have to use the fileSystemRepresentation
+	// we may have to use the fileSystemRepresentation to be useful!
 	
 #if 0
+	{
+	NSString *exec;
 	if((exec=[self executablePath]))
 		{ // we have a executable
 #if 0
@@ -296,7 +297,8 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 #endif
 			NSMapInsert(__bundlesForExecutables, exec, self);	// map by executable path (retains!)			
 		}
-#endif
+	}
+#endif	
 	return self;
 }
 

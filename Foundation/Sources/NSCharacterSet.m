@@ -232,7 +232,7 @@ static NSString *__charSetPath /*= @"CS"*/;
 	length = [aString length];
 	for (i = 0; i < length; i++)
 		{
-		unichar letter = [aString characterAtIndex:i];
+		unsigned letter = [aString characterAtIndex:i];
 		if (letter >= UNICODE_SIZE)
 			[NSException raise:NSInvalidArgumentException
 						format:@"Specified string exceeds character set"];
@@ -488,7 +488,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 	length = [aString length];
 	for (i = 0; i < length; i++)
 		{
-		unichar letter = [aString characterAtIndex:i];
+		unsigned letter = [aString characterAtIndex:i];
 		if (letter >= UNICODE_SIZE)
 			[NSException raise:NSInvalidArgumentException
 						format:@"Specified string exceeds character set"];
@@ -537,7 +537,7 @@ char *bytes = (char *)[bitmap mutableBytes];
 	length = [aString length];
 	for (i = 0; i < length; i++)
 		{
-		unichar letter = [aString characterAtIndex:i];
+		unsigned letter = [aString characterAtIndex:i];
 		if (letter >= UNICODE_SIZE)
 			[NSException raise:NSInvalidArgumentException
 						format:@"Specified string exceeds character set"];
