@@ -140,9 +140,6 @@ extern NSString *const NSFailedAuthenticationException;
 	unsigned int _sequence;
 }
 
-// undocumented initializer - see http://opensource.apple.com/source/objc4/objc4-208/runtime/objc-sel.m
-- (id) initWithInvocation:(NSInvocation *) inv conversation:(NSObject *) conv sequence:(unsigned int) seq importedObjects:(NSMutableArray *) obj connection:(NSConnection *) conn;
-
 - (NSConnection *) connection;
 - (id) conversation;
 - (NSInvocation *) invocation;

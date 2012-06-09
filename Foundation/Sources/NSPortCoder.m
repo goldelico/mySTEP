@@ -37,36 +37,33 @@ int objc_alignof_type(const char *type)
 
 int objc_sizeof_type(const char *type)
 {
-	switch(*type)
-	{
+	switch(*type) {
 		case _C_ID:	return sizeof(id);
 		case _C_CLASS:	return sizeof(Class);
 		case _C_SEL:	return sizeof(SEL);
 		case _C_PTR:	return sizeof(void *);
 		case _C_ATOM:
 		case _C_CHARPTR:	return sizeof(char *);
-		case _C_ARY_B:
-		{
-		int cnt=0;
-		type++;
-		while(isdigit(*type))
-			cnt=10*cnt+(*type++)-'0';
-		return cnt*objc_sizeof_type(type);
+		case _C_ARY_B: {
+			int cnt=0;
+			type++;
+			while(isdigit(*type))
+				cnt=10*cnt+(*type++)-'0';
+			return cnt*objc_sizeof_type(type);
 		}
 		case _C_UNION_B:
-		// should get maximum size of all components
-		case _C_STRUCT_B:
-		{
-		int cnt=0;
-		while(*type != 0 && *type != '=')
-			type++;
-		while(*type != 0 && *type != _C_STRUCT_E)
-			{
-			int objc_aligned_size(const char *type);
-			cnt+=objc_aligned_size(type);
-			type=(char *) objc_skip_typespec(type);
-			}
-		return cnt;
+			// should get maximum size of all components
+		case _C_STRUCT_B: {
+			int cnt=0;
+			while(*type != 0 && *type != '=')
+				type++;
+			while(*type != 0 && *type != _C_STRUCT_E)
+				{
+				int objc_aligned_size(const char *type);
+				cnt+=objc_aligned_size(type);
+				type=(char *) objc_skip_typespec(type);
+				}
+			return cnt;
 		}
 		case _C_VOID:	return 0;
 		case _C_CHR:
@@ -82,8 +79,8 @@ int objc_sizeof_type(const char *type)
 		case _C_FLT:	return sizeof(float);
 		case _C_DBL:	return sizeof(double);
 		default:
-		NSLog(@"can't determine size of %s", type);
-		return 0;
+			NSLog(@"can't determine size of %s", type);
+			return 0;
 	}
 }
 
@@ -104,26 +101,25 @@ const char *objc_skip_offset (const char *type)
 
 const char *objc_skip_typespec (const char *type)
 {
-	switch(*type)
-	{
+	switch(*type) {
 		case _C_PTR:	// *type
-		return objc_skip_typespec(type+1);
+			return objc_skip_typespec(type+1);
 		case _C_ARY_B:	// [size type]
-		type=objc_skip_offset(type+1);
-		type=objc_skip_typespec(type);
-		if(*type == _C_ARY_E)
-			type++;
-		return type;
-		case _C_STRUCT_B:	// {name=type type}
-		while(*type != 0 && *type != '=')
-			type++;
-		while(*type != 0 && *type != _C_STRUCT_E)
+			type=objc_skip_offset(type+1);
 			type=objc_skip_typespec(type);
-		if(*type != 0)
-			type++;
-		return type;
+			if(*type == _C_ARY_E)
+				type++;
+			return type;
+		case _C_STRUCT_B:	// {name=type type}
+			while(*type != 0 && *type != '=')
+				type++;
+			while(*type != 0 && *type != _C_STRUCT_E)
+				type=objc_skip_typespec(type);
+			if(*type != 0)
+				type++;
+			return type;
 		default:
-		return type+1;
+			return type+1;
 	}
 }
 
@@ -309,14 +305,13 @@ const char *objc_skip_typespec (const char *type)
 - (void) encodeObject:(id) obj
 {
 	Class class;
-	id robj=obj;
+	id robj;
 	BOOL flag;
 #if 0
 	NSLog(@"NSPortCoder encodeObject%@%@ %p", _isBycopy?@" bycopy":@"", _isByref?@" byref":@"", obj);
 	NSLog(@"  obj %@", obj);
 #endif
-	if([obj class] != [NSInvocation class] && [obj respondsToSelector:@selector(replacementObjectForPortCoder:)])	// (calling -[NSInvocation replacementObjectForPortCoder:] would return a wrong value)
-		robj=[obj replacementObjectForPortCoder:self];	// substitute by a proxy if required
+	robj=[obj replacementObjectForPortCoder:self];	// substitute by a proxy if required
 	flag=(robj != nil);
 	if(![robj isProxy])
 		class=[robj classForPortCoder];	// only available for NSObject but not for NSProxy
@@ -629,167 +624,152 @@ const char *objc_skip_typespec (const char *type)
 #if 0
 	NSLog(@"NSPortCoder decodeValueOfObjCType:%s at:%p", type, address);
 #endif
-	switch(*type)
-	{
+	switch(*type) {
 		case _C_VOID:
 		case _C_UNION_B:
 		default:
-		NSLog(@"%@ can't decodeValueOfObjCType:%s", self, type);
-		[NSException raise:NSPortReceiveException format:@"can't decodeValueOfObjCType:%s", type];
-		return;
-		case _C_ID:
-		{
-		*((id *)address)=[self decodeObject];
-		return;
+			NSLog(@"%@ can't decodeValueOfObjCType:%s", self, type);
+			[NSException raise:NSPortReceiveException format:@"can't decodeValueOfObjCType:%s", type];
+			return;
+		case _C_ID: {
+			*((id *)address)=[self decodeObject];
+			return;
 		}
-		case _C_CLASS:
-		{
-		BOOL flag;
-		Class class=nil;
-		[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
-		if(flag)
-			{
-			unsigned int len;
-			char *str=[self decodeBytesWithReturnedLength:&len];	// include terminating 0 byte
-			// check if last byte is 00
-			NSString *s=[NSString stringWithUTF8String:str];
-			if(![s isEqualToString:@"Nil"])	// may not really be needed unless someone defines a class named "Nil"
-				class=NSClassFromString(s);
-			}
-		*((Class *)address)=class;
-		return;
+		case _C_CLASS: {
+			BOOL flag;
+			Class class=nil;
+			[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
+			if(flag)
+				{
+				unsigned int len;
+				char *str=[self decodeBytesWithReturnedLength:&len];	// include terminating 0 byte
+				// check if last byte is 00
+				NSString *s=[NSString stringWithUTF8String:str];
+				if(![s isEqualToString:@"Nil"])	// may not really be needed unless someone defines a class named "Nil"
+					class=NSClassFromString(s);
+				}
+			*((Class *)address)=class;
+			return;
 		}
-		case _C_SEL:
-		{
-		BOOL flag;
-		SEL sel=NULL;
-		[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
-		if(flag)
-			{
-			unsigned int len;
-			char *str=[self decodeBytesWithReturnedLength:&len];	// include terminating 0 byte
-			// check if last byte is 00
-			NSString *s=[NSString stringWithUTF8String:str];
-			sel=NSSelectorFromString(s);
-			}
-		*((SEL *)address)=sel;
-		return;
+		case _C_SEL: {
+			BOOL flag;
+			SEL sel=NULL;
+			[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
+			if(flag)
+				{
+				unsigned int len;
+				char *str=[self decodeBytesWithReturnedLength:&len];	// include terminating 0 byte
+				// check if last byte is 00
+				NSString *s=[NSString stringWithUTF8String:str];
+				sel=NSSelectorFromString(s);
+				}
+			*((SEL *)address)=sel;
+			return;
 		}
 		case _C_CHR:
-		case _C_UCHR:
-		{
-		if(_pointer >= _eod)
-			[NSException raise:NSPortReceiveException format:@"not enough data to decode char: %@", [_components objectAtIndex:0]];
-		*((char *) address) = *_pointer++;	// single byte
-		break;
+		case _C_UCHR: {
+			if(_pointer >= _eod)
+				[NSException raise:NSPortReceiveException format:@"not enough data to decode char: %@", [_components objectAtIndex:0]];
+			*((char *) address) = *_pointer++;	// single byte
+			break;
 		}
 		case _C_SHT:
-		case _C_USHT:
-		{
-		*((short *) address) = [self _decodeInteger];
-		break;
+		case _C_USHT: {
+			*((short *) address) = [self _decodeInteger];
+			break;
 		}
 		case _C_INT:
-		case _C_UINT:
-		{
-		*((int *) address) = [self _decodeInteger];
-		break;
+		case _C_UINT: {
+			*((int *) address) = [self _decodeInteger];
+			break;
 		}
 		case _C_LNG:
-		case _C_ULNG:
-		{
-		*((long *) address) = [self _decodeInteger];
-		break;
+		case _C_ULNG: {
+			*((long *) address) = [self _decodeInteger];
+			break;
 		}
 		case _C_LNG_LNG:
-		case _C_ULNG_LNG:
-		{
-		*((long long *) address) = [self _decodeInteger];
-		break;
+		case _C_ULNG_LNG: {
+			*((long long *) address) = [self _decodeInteger];
+			break;
 		}
-		case _C_FLT:
-		{
-		NSSwappedFloat val;
-		if(_pointer+sizeof(float) >= _eod)
-			[NSException raise:NSPortReceiveException format:@"not enough data to decode float"];
-		if(*_pointer != sizeof(float))
-			[NSException raise:NSPortReceiveException format:@"invalid length to decode float"];
-		memcpy(&val, ++_pointer, sizeof(float));
-		_pointer+=sizeof(float);
-		*((float *) address) = NSSwapLittleFloatToHost(val);	
-		break;
+		case _C_FLT: {
+			NSSwappedFloat val;
+			if(_pointer+sizeof(float) >= _eod)
+				[NSException raise:NSPortReceiveException format:@"not enough data to decode float"];
+			if(*_pointer != sizeof(float))
+				[NSException raise:NSPortReceiveException format:@"invalid length to decode float"];
+			memcpy(&val, ++_pointer, sizeof(float));
+			_pointer+=sizeof(float);
+			*((float *) address) = NSSwapLittleFloatToHost(val);	
+			break;
 		}
-		case _C_DBL:
-		{
-		NSSwappedDouble val;
-		if(_pointer+sizeof(double) >= _eod)
-			[NSException raise:NSPortReceiveException format:@"not enough data to decode double"];
-		if(*_pointer != sizeof(double))
-			[NSException raise:NSPortReceiveException format:@"invalid length to decode double"];
-		memcpy(&val, ++_pointer, sizeof(double));
-		_pointer+=sizeof(double);
-		*((double *) address) = NSSwapLittleDoubleToHost(val);	
-		break;
+		case _C_DBL: {
+			NSSwappedDouble val;
+			if(_pointer+sizeof(double) >= _eod)
+				[NSException raise:NSPortReceiveException format:@"not enough data to decode double"];
+			if(*_pointer != sizeof(double))
+				[NSException raise:NSPortReceiveException format:@"invalid length to decode double"];
+			memcpy(&val, ++_pointer, sizeof(double));
+			_pointer+=sizeof(double);
+			*((double *) address) = NSSwapLittleDoubleToHost(val);	
+			break;
 		}
 		case _C_ATOM:
-		case _C_CHARPTR:
-		{
-		BOOL flag;
-		unsigned numBytes;
-		void *addr;
-		[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
-		if(flag)
-			{
-			addr=[self decodeBytesWithReturnedLength:&numBytes];
+		case _C_CHARPTR: {
+			BOOL flag;
+			unsigned numBytes;
+			void *addr;
+			[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
+			if(flag)
+				{
+				addr=[self decodeBytesWithReturnedLength:&numBytes];
 #if 0
-			NSLog(@"decoded %u bytes atomar string", numBytes);
+				NSLog(@"decoded %u bytes atomar string", numBytes);
 #endif
-			// should check if the last byte is 00
-			}
-		else
-			addr=NULL;
-		*((char **) address) = addr;	// store address (storage object is an autoreleased NSData!)
-		break;
+				// should check if the last byte is 00
+				}
+			else
+				addr=NULL;
+			*((char **) address) = addr;	// store address (storage object is an autoreleased NSData!)
+			break;
 		}
-		case _C_PTR:
-		{
-		BOOL flag;
-		// unsigned numBytes;
-		void *addr;
-		[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
-		if(flag)
-			[self decodeArrayOfObjCType:type+1 count:1 at:&addr];
-		else
-			addr=NULL;	// FIXME - what does this mean???
-		*((void **) address) = (*(void **) addr);
-		break;
+		case _C_PTR: {
+			BOOL flag;
+			// unsigned numBytes;
+			void *addr;
+			[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
+			if(flag)
+				[self decodeArrayOfObjCType:type+1 count:1 at:&addr];
+			else
+				addr=NULL;	// FIXME - what does this mean???
+			*((void **) address) = (*(void **) addr);
+			break;
 		}
-		case _C_ARY_B:
-	{ // get number of entries from type encoding
-		int cnt=0;
-		type++;
-		while(*type >= '0' && *type <= '9')
-			cnt=10*cnt+(*type++)-'0';
-		[self decodeArrayOfObjCType:type count:cnt at:address];
-		break;
-	}				
-		case _C_STRUCT_B:
-	{ // recursively decode components! type is e.g. "{testStruct=c*}"
-		while(*type != 0 && *type != '=')
+		case _C_ARY_B: { // get number of entries from type encoding
+			int cnt=0;
 			type++;
-		if(*type++ == 0)
-			break;	// invalid
-		while(*type != 0 && *type != '}')
-			{
+			while(*type >= '0' && *type <= '9')
+				cnt=10*cnt+(*type++)-'0';
+			[self decodeArrayOfObjCType:type count:cnt at:address];
+			break;
+		}
+		case _C_STRUCT_B: { // recursively decode components! type is e.g. "{testStruct=c*}"
+			while(*type != 0 && *type != '=')
+				type++;
+			if(*type++ == 0)
+				break;	// invalid
+			while(*type != 0 && *type != '}')
+				{
 #if 1
-			NSLog(@"addr %p struct component %s", address, type);
+				NSLog(@"addr %p struct component %s", address, type);
 #endif
-			[self decodeValueOfObjCType:type at:address];
-			address=objc_aligned_size(type) + (char *)address;
-			type=objc_skip_typespec(type);	// next
-			}
-		break;
-	}
+				[self decodeValueOfObjCType:type at:address];
+				address=objc_aligned_size(type) + (char *)address;
+				type=objc_skip_typespec(type);	// next
+				}
+			break;
+		}
 	}
 }
 
@@ -835,10 +815,10 @@ const char *objc_skip_typespec (const char *type)
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
 	NS_DURING
-		[i getReturnValue:buffer];	// get value
-		[self encodeValueOfObjCType:[sig methodReturnType] at:buffer];
+	[i getReturnValue:buffer];	// get value
+	[self encodeValueOfObjCType:[sig methodReturnType] at:buffer];
 	NS_HANDLER
-		NSLog(@"encodeReturnValue has no return value");	// e.g. if [i invoke] did result in an exception!
+	NSLog(@"encodeReturnValue has no return value");	// e.g. if [i invoke] did result in an exception!
 	NS_ENDHANDLER
 	objc_free(buffer);
 }
@@ -857,7 +837,8 @@ const char *objc_skip_typespec (const char *type)
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig frameLength]);	// allocate a buffer
 	int cnt=[sig numberOfArguments];	// encode arguments
-	const char *type=[[sig _typeString] UTF8String];	// private method to get the type string
+	const char *type=[[sig _typeString] UTF8String];	// private method (of Cocoa???) to get the type string
+//	const char *type=[sig _methodType];	// would be a little faster
 	const char *ret=[sig methodReturnType];
 	char retlen=strlen(ret);
 	SEL selector=[i selector];
@@ -902,8 +883,6 @@ const char *objc_skip_typespec (const char *type)
 	[self decodeValueOfObjCType:@encode(id) at:&target];
 	[self decodeValueOfObjCType:@encode(int) at:&cnt];
 	[self decodeValueOfObjCType:@encode(SEL) at:&selector];
-//	if(SEL_EQ(selector, @selector(rootObject)))
-//		target=[self connection];	// special handling for -rootObject method; you can't call it on arbitrary target objects since -methodDescriptionForSelector: is called first
 	[self decodeValueOfObjCType:@encode(char *) at:&type];
 	sig=[NSMethodSignature signatureWithObjCTypes:type];
 	[self decodeValueOfObjCType:@encode(int) at:&j];
@@ -931,7 +910,6 @@ const char *objc_skip_typespec (const char *type)
 
 - (id) decodeRetainedObject;
 {
-	//	NSString *name;
 	Class class;
 	id obj;
 	BOOL flag;
@@ -981,13 +959,13 @@ const char *objc_skip_typespec (const char *type)
 		obj=[[NSDistantObject alloc] initWithCoder:self];
 	else
 #endif
-		if(class == [NSInvocation class])
-			obj=[[self decodeInvocation] retain];	// special handling
-		else if([class instancesRespondToSelector:@selector(_initWithPortCoder:)])
-			obj=[[class alloc] _initWithPortCoder:self];	// this allows to define different encoding
-		else
-			obj=[[class alloc] initWithCoder:self];	// allocate and load new instance
-	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// always 0x01 (?) - appears to be 0x00 for a reply
+	if(class == [NSInvocation class])
+		obj=[[self decodeInvocation] retain];	// special handling
+	else if([class instancesRespondToSelector:@selector(_initWithPortCoder:)])
+		obj=[[class alloc] _initWithPortCoder:self];	// this allows to define different encoding
+	else
+		obj=[[class alloc] initWithCoder:self];	// allocate and load new instance
+	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// always 0x01 (?) - appears to be 0x00 for a reply; and there may be another object if flag == 0x01
 #if 1
 	NSLog(@"flag3=%d", flag);
 #endif
@@ -1031,18 +1009,18 @@ const char *objc_skip_typespec (const char *type)
 			return [delegate authenticateComponents:components withData:data];
 			}
 		NSLog(@"no authentication data received");
-		//			[NSException raise:NSFailedAuthenticationException format:@"did receive message without authentication"];
+		// [NSException raise:NSFailedAuthenticationException format:@"did receive message without authentication"];
 		}
 	return YES;
 }
 
 @end
 
+#ifndef __APPLE__	// must be disabled if we try to run on Cocoa Foundation because calling proxyWithLocal does not work well...
 @implementation NSObject (NSPortCoder)
 
 + (int) _versionForPortCoder; { return 0; }	// default version
 
-#ifndef __APPLE__	// must be disabled if we try to run on Cocoa Foundation because proxyWithLocal does not work well
 - (Class) classForPortCoder { return [self classForCoder]; }
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder
@@ -1057,9 +1035,9 @@ const char *objc_skip_typespec (const char *type)
 		}
 	return rep;
 }
-#endif
 
 @end
+#endif
 
 @implementation NSTimeZone (NSPortCoding) 
 
@@ -1069,7 +1047,7 @@ const char *objc_skip_typespec (const char *type)
 
 @implementation NSString (NSPortCoding) 
 
-+ (int) _versionForPortCoder; { return 1; }	// we use the encoding version #1 as UTF8-String (with length out without trailing 0!)
++ (int) _versionForPortCoder; { return 1; }	// we use the encoding version #1 as UTF8-String (with length but without trailing 0!)
 
 - (void) _encodeWithPortCoder:(NSCoder *) coder;
 {
@@ -1099,6 +1077,18 @@ const char *objc_skip_typespec (const char *type)
 	objc_free(str);
 	return self;
 }
+
+@end
+
+@implementation NSMethodSignature (NSPortCoding)
+
+- (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode invocations bycopy
+
+@end
+
+@implementation NSInvocation (NSPortCoding)
+
+- (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode invocations bycopy
 
 @end
 
@@ -1175,17 +1165,17 @@ struct PortFlags {
 				}
 			else
 				{ // serialize an NSPort
-					NSData *saddr=[(NSSocketPort *) c address];
-					value=NSSwapHostLongToBig(2);	// port_t
-					[d appendBytes:&value length:sizeof(value)];	// record type
-					value=NSSwapHostLongToBig([saddr length]+sizeof(port));
-					[d appendBytes:&value length:sizeof(value)];	// total record length
-					port.protocol=[(NSSocketPort *) c protocol];
-					port.type=[(NSSocketPort *) c socketType];
-					port.family=[(NSSocketPort *) c protocolFamily];
-					port.len=[saddr length];
-					[d appendBytes:&port length:sizeof(port)];	// write socket flags
-					[d appendData:saddr];
+				NSData *saddr=[(NSSocketPort *) c address];
+				value=NSSwapHostLongToBig(2);	// port_t
+				[d appendBytes:&value length:sizeof(value)];	// record type
+				value=NSSwapHostLongToBig([saddr length]+sizeof(port));
+				[d appendBytes:&value length:sizeof(value)];	// total record length
+				port.protocol=[(NSSocketPort *) c protocol];
+				port.type=[(NSSocketPort *) c socketType];
+				port.family=[(NSSocketPort *) c protocolFamily];
+				port.len=[saddr length];
+				[d appendBytes:&port length:sizeof(port)];	// write socket flags
+				[d appendData:saddr];
 				}
 		}
 	value=NSSwapHostLongToBig([d length]);
@@ -1296,42 +1286,38 @@ struct PortFlags {
 						[self release];
 						return nil;
 					}
-				switch(record.type)
-				{
-					case 1:
-				{ // NSData
+				switch(record.type) {
+					case 1: { // NSData
 #if 0
-					NSLog(@"decode component with length %u", record.len); 
+						NSLog(@"decode component with length %u", record.len); 
 #endif
-					[_components addObject:[NSData dataWithBytes:bp length:record.len]];	// cut out and save a copy of the data fragment
-					break;
-				}
-					case 2:
-				{ // decode NSPort
-					NSData *addr;
-					NSPort *p=nil;
-					memcpy(&port, bp, sizeof(port));
-					if(bp+sizeof(port)+port.len > end)
-						{ // goes beyond total length
-							[self release];
-							return nil;
-						}
-					addr=[NSData dataWithBytesNoCopy:bp+sizeof(port) length:port.len freeWhenDone:NO];
+						[_components addObject:[NSData dataWithBytes:bp length:record.len]];	// cut out and save a copy of the data fragment
+						break;
+					}
+					case 2: { // decode NSPort
+						NSData *addr;
+						NSPort *p=nil;
+						memcpy(&port, bp, sizeof(port));
+						if(bp+sizeof(port)+port.len > end)
+							{ // goes beyond total length
+								[self release];
+								return nil;
+							}
+						addr=[NSData dataWithBytesNoCopy:bp+sizeof(port) length:port.len freeWhenDone:NO];
 #if 1
-					NSLog(@"decode NSPort family=%u addr=%@ %p", port.family, addr, addr);
+						NSLog(@"decode NSPort family=%u addr=%@ %p", port.family, addr, addr);
 #endif
-					p=[[NSPort _allocForProtocolFamily:port.family] initRemoteWithProtocolFamily:port.family socketType:port.type protocol:port.protocol address:addr];
-					[_components addObject:p];
-					[p release];
-					break;
-				}
-					default:
-					{
+						p=[[NSPort _allocForProtocolFamily:port.family] initRemoteWithProtocolFamily:port.family socketType:port.type protocol:port.protocol address:addr];
+						[_components addObject:p];
+						[p release];
+						break;
+					}
+					default: {
 #if 1
-					NSLog(@"unexpected record type %u at pos=%u", record.type, bp-(char *) buffer);
+						NSLog(@"unexpected record type %u at pos=%u", record.type, bp-(char *) buffer);
 #endif
-					[self release];
-					return nil;
+						[self release];
+						return nil;
 					}
 				}
 				bp+=record.len;	// go to next record
