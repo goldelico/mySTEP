@@ -240,10 +240,10 @@
 	return [NSDictionary dictionaryWithObjectsAndKeys:tag, @"TAG", attribs, @"ATTRIBUTES", value, @"VALUES", nil];
 }
 
-// touch should only be called if we are stored in an Address book!
-// we should reference the address book we are stored in: _setAddressBook:(ABAddressBook *) ab; called by addRecord
+// touch should only be called if we are really *stored* in an Address book!
+// we coould reference the address book we are stored in: _setAddressBook:(ABAddressBook *) ab; called by addRecord
 
-- (void) _touch; { [[ABAddressBook sharedAddressBook] _touch]; }
+- (void) _touch; { _hasUnsavedChanges=YES; [[ABAddressBook sharedAddressBook] _touch]; }
 
 - (NSMutableDictionary *) _properties;
 {
@@ -252,7 +252,29 @@
 
 + (NSMutableDictionary *) _properties;
 {
-	return [[[ABAddressBook sharedAddressBook] _properties] objectForKey:NSStringFromClass([self class])];
+	return [[[ABAddressBook sharedAddressBook] _properties] objectForKey:NSStringFromClass(self)];
+}
+
+- (NSString *) _XCard;
+{
+	// make xcard representation
+	return @"<xml>to be defined</xml>";
+}
+
+- (BOOL) _writeXCard:(NSString *) directory;
+{
+	NSString *path;
+	if(!_hasUnsavedChanges)
+		return YES;
+	_hasUnsavedChanges=NO;   // reset
+	path=[directory stringByAppendingPathComponent:[[self uniqueId] stringByAppendingPathExtension:@"xcard"]];
+	return [[self _XCard] writeToFile:path atomically:YES];
+}
+
+- (ABRecord *) _initWithXCard:(NSString *) path;	// may return ABPerson or ABGroup
+{
+	[self release];
+	return nil;
 }
 
 @end
@@ -309,7 +331,7 @@
 	NSLog(@"setValue %@ forProperty %@", value, property);
 	if(value)
 		{
-		// check if property data type is ok for assignment
+		// check if property data type is ok for this assignment
 		[data setObject:value forKey:property];
 		}
 	else

@@ -17,6 +17,7 @@
 
 @interface ABRecord : NSObject <NSCoding> {
 	NSMutableDictionary *data;  // property data
+	BOOL _hasUnsavedChanges;
 }
 
 - (BOOL) isReadOnly;

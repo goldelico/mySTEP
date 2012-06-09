@@ -18,6 +18,7 @@
 #endif
 	if((self=[super init]))
 		{
+#if AB_USE_PLISTS
 		NSDictionary *records=[NSMutableDictionary dictionaryWithContentsOfFile:AB_FILE];	// read file
 		// warning: result read from file must be deep mutable!!!
 		if(!records)
@@ -50,6 +51,9 @@
 		[properties retain];
 		[persons retain];
 		[groups retain];
+#elif AB_USE_XCARDS
+		// read .xcard files from AB_DIRECTORY
+#endif
 #if 0
 		NSLog(@"properties=%@", properties);
 		NSLog(@"persons=%@", properties);
@@ -181,19 +185,29 @@
 #endif
 	if(!hasUnsavedChanges)
 		return YES;
+	hasUnsavedChanges=NO;   // reset anyway
 	d=[NSMutableDictionary dictionaryWithCapacity:4];
 	[d setObject:properties forKey:AB_KEY_PROPERTIES];
 	if(ich)
 		[d setObject:ich forKey:AB_KEY_ME];
-//	[d setObject:persons forKey:AB_KEY_PERSONS];
-//	[d setObject:groups forKey:AB_KEY_GROUPS];
-	hasUnsavedChanges=NO;   // reset anyway
-#if 1
-	NSLog(@"save %@", d);
+#if AB_USE_PLISTS
+	[NSArchiver archiveRootObject:groups toFile:AB_GROUPS];
+	[NSArchiver archiveRootObject:persons toFile:AB_PERSONS];
+#elif AB_USE_XCARDS
+	{
+	ABRecord *r;
+	NSEnumerator *e=[groups objectEnumerator];
+	while((r=[e nextObject]))
+		[r _writeXCard:AB_XCARD_STORE];
+	e=[persons objectEnumerator];
+	while((r=[e nextObject]))
+		[r _writeXCard:AB_XCARD_STORE];
+	}
 #endif
-	return [d writeToFile:AB_FILE atomically:YES] && 
-		   [NSArchiver archiveRootObject:groups toFile:AB_GROUPS] &&
-		   [NSArchiver archiveRootObject:persons toFile:AB_PERSONS];
+#if 1
+	NSLog(@"save %@ to %@", d, AB_FILE);
+#endif
+	return [d writeToFile:AB_FILE atomically:YES];
 	// send distributed notification?
 }
 

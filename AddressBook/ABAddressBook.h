@@ -18,11 +18,11 @@
 #import <AddressBook/ABSearchElement.h>
 
 @interface ABAddressBook : NSObject {
-	BOOL hasUnsavedChanges;
 	NSMutableDictionary *properties;	// ABGroup and ABPerson properties
 	NSString *ich;						// uniqueID of me-record
 	NSMutableArray *groups;
 	NSMutableArray *persons;
+	BOOL hasUnsavedChanges;
 }
 
 + (ABAddressBook *) sharedAddressBook;
