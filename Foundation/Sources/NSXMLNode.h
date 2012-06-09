@@ -1,12 +1,12 @@
 /*
-    NSXMLNode.h
-    Foundation
-
-    Created by H. Nikolaus Schaller on 28.03.08.
-    Copyright 2008 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
+ NSXMLNode.h
+ Foundation
  
-    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
-*/
+ Created by H. Nikolaus Schaller on 28.03.08.
+ Copyright 2008 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
+ 
+ Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ */
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSXMLNodeOptions.h>
@@ -40,9 +40,9 @@ typedef NSUInteger NSXMLNodeKind;
 @interface NSXMLNode : NSObject <NSCopying>
 {
 	NSString *_name;
-	id _objectValue;
-	NSXMLDocument *_rootDocument;	// ?? or do we get that by recursion?
+	id _objectValue;	// e.g. a string/text object or comment
 	NSXMLNode *_parent;
+	NSXMLNode *_current;	// used during parsing
 	NSMutableArray *_children;
 	NSString *_localName;
 	NSString *_prefix;

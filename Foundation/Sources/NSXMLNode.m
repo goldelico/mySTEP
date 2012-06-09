@@ -53,10 +53,15 @@
 - (id) initWithKind:(NSXMLNodeKind) kind options:(NSUInteger) opts;
 {
 	if((self=[self initWithKind:kind]))
-			{
-				_options=opts;
-			}
+		{
+		_options=opts;
+		}
 	return self;
+}
+
+- (NSUInteger) _options;	// Cocoa has no official getter???
+{
+	return _options;
 }
 
 - (id) copyWithZone:(NSZone *) zone
@@ -68,8 +73,7 @@
 {
 	[_name release];
 	[_objectValue release];
-	// _rootDocument;	// weak pointer
-	[_children makeObjectsPerformSelector:@selector(_orphanize)];	// detach our children nodes from us
+	[_children makeObjectsPerformSelector:@selector(_setParent:) withObject:nil];	// detach our children nodes from us
 	[_children release];
 	[_localName release];
 	[_prefix release];
@@ -84,7 +88,7 @@
 - (NSString *) prefix; { return _prefix; }
 - (id) objectValue; { return _objectValue; }
 - (NSString *) stringValue; { return _objectValue; }
-- (NSXMLDocument *) rootDocument; { return _rootDocument; }
+- (NSXMLDocument *) rootDocument; { while(_parent) self=_parent; return (NSXMLDocument *) self; }
 - (NSXMLNode *) parent; { return _parent; }
 - (NSUInteger) childCount; { return [_children count]; }
 - (NSArray *) children; { return _children; }
@@ -99,74 +103,103 @@
 - (NSXMLNode *) nextNode; { /* if we have children, take first child; take nextSibling - if nil, go up one level and find first node by walking down */ return NIMP; }
 - (NSString *) localName; { return _localName; }
 
-// formatters
-
-- (NSString *) _descriptionTag;
-{
-	if(_name)
-		return [NSString stringWithFormat:@"<%@ %@ %d>%@\n", _name, NSStringFromClass([self class]), _kind, _objectValue?_objectValue:(id)@""];
-	return [NSString stringWithFormat:@"<%@ %d>%@\n", NSStringFromClass([self class]), _kind, _objectValue?_objectValue:(id)@""];
-}
-
-- (NSString *) _descriptionWithLevel:(int) n;
-{
-	NSAutoreleasePool *arp=[NSAutoreleasePool new];
-	NSString *indent=[@"" stringByPaddingToLength:2*n withString:@" " startingAtIndex:0];
-	NSString *s=[indent stringByAppendingString:[self _descriptionTag]];
-	NSEnumerator *e=[_children objectEnumerator];
-	NSXMLNode *child;
-	while((child=[e nextObject]))
-		s=[s stringByAppendingString:[child	_descriptionWithLevel:n+1]];
-	if(_name)
-		s=[s stringByAppendingFormat:@"%@</%@>\n", indent, _name];
-	[s retain];
-	[arp release];
-	return [s autorelease];
-}
-
-- (NSString *) description;
-{
-	return [self _descriptionWithLevel:0];
-}
+- (NSString *) description; { return [self XMLString]; }
 
 - (NSString *) XMLString; { return [self XMLStringWithOptions:0]; }
 
+- (void) _XMLStringWithOptions:(NSUInteger) opts appendingToString:(NSMutableString	*) str;
+{
+	int documentKind=[[self rootDocument] documentContentKind];	// Text, XML, XHTML, HTML etc.
+	switch(_kind) {
+		default:
+		case NSXMLInvalidKind:
+			break;
+		case NSXMLDocumentKind:
+			switch(documentKind) {
+				case NSXMLDocumentXMLKind:
+//					[str appendString:@"<?xml UTF-8>\n"];
+					[[(NSXMLDocument *) self DTD] _XMLStringWithOptions:opts appendingToString:str];
+					[[(NSXMLDocument *) self rootElement] _XMLStringWithOptions:opts appendingToString:str];
+					return;
+				case NSXMLDocumentXHTMLKind:
+//					[str appendString:@"<?xml UTF-8>\n"];
+				case NSXMLDocumentHTMLKind:
+					[[(NSXMLDocument *) self DTD] _XMLStringWithOptions:opts appendingToString:str];
+					[str appendString:@"<html>\n"];
+					[[(NSXMLDocument *) self rootElement] _XMLStringWithOptions:opts appendingToString:str];
+					[str appendString:@"</html>\n"];
+					return;
+				case NSXMLDocumentTextKind:
+					[[(NSXMLDocument *) self rootElement] _XMLStringWithOptions:opts appendingToString:str];
+			}
+			break;
+		case NSXMLElementKind:
+			if([[self children] count] || (opts&NSXMLNodeExpandEmptyElement) || documentKind == NSXMLDocumentTextKind)
+				{
+				if(documentKind != NSXMLDocumentTextKind)
+					{
+				[str appendFormat:@"<%@", _name];
+				if([[(NSXMLElement *) self attributes] count] > 0)
+					{
+					[str appendString:@" "];
+					
+					// loop					[[(NSXMLElement *) self attributes] _XMLStringWithOptions:opts appendingToString:str];
+					}
+				[str appendString:@">"];
+					}
+				// loop				[[(NSXMLElement *) self children] _XMLStringWithOptions:opts appendingToString:str];
+				[str appendFormat:@"</%@>\n", _name];
+				}
+			if(documentKind != NSXMLDocumentTextKind)
+				[str appendFormat:@"<%@/>", _name];	// <tag/>
+			break;
+		case NSXMLAttributeKind:
+			// escape quotes and entities
+			/*
+			 if(_URI)
+			 return [NSString stringWithFormat:@"%@:%@='%@'", _URI, _name, _objectValue];
+			 return [NSString stringWithFormat:@"%@='%@'", _name, _objectValue];
+			 */
+		case NSXMLNamespaceKind:
+			[str appendFormat:@"xmlns:%@", _objectValue];
+			break;
+		case NSXMLProcessingInstructionKind:
+			if(documentKind != NSXMLDocumentTextKind)
+				{
+				[str appendFormat:@"<?%@", _name];
+				if(_objectValue)
+					[str appendString:_objectValue];
+				[str appendString:@"?>\n"];
+				}
+			break;
+		case NSXMLCommentKind:
+			// escape -- in comments
+			if(documentKind != NSXMLDocumentTextKind)
+				[str appendFormat:@"<!--%@-->", _objectValue];
+			break;
+		case NSXMLTextKind:
+			if(_options & NSXMLNodeIsCDATA)
+				{
+				// write as CDATA
+				}
+			else
+				[str appendString:_objectValue];
+			break;
+		case NSXMLDTDKind:
+			break;
+		case NSXMLEntityDeclarationKind:
+		case NSXMLAttributeDeclarationKind:
+		case NSXMLElementDeclarationKind:
+		case NSXMLNotationDeclarationKind:
+			break;
+	}
+}
+
 - (NSString *) XMLStringWithOptions:(NSUInteger) opts;
 {
-	switch(_kind)
-		{
-			default:
-			case NSXMLInvalidKind:
-				break;
-			case NSXMLDocumentKind:
-				return [NSString stringWithFormat:@"<?xml UTF-8>\n%@\n%@", [[(NSXMLDocument *) self DTD] XMLStringWithOptions:opts], [[(NSXMLDocument *) self rootElement] XMLStringWithOptions:opts]];
-			case NSXMLElementKind:
-				if([_children count])
-					return [NSString stringWithFormat:@"<%@ %@>%@</%@>", _name, [(NSXMLElement *) self attributes], [self children], _name];
-				return [NSString stringWithFormat:@"<%@/>"];
-			case NSXMLAttributeKind:
-				// escape quotes and entities
-				if(_URI)
-					return [NSString stringWithFormat:@"%@:%@='%@'", _URI, _name, _objectValue];
-				return [NSString stringWithFormat:@"%@='%@'", _name, _objectValue];
-			case NSXMLNamespaceKind:
-				return [NSString stringWithFormat:@"xmlns:%@", _objectValue];
-			case NSXMLProcessingInstructionKind:
-				break;
-			case NSXMLCommentKind:
-				// escape -- in comments
-				return [NSString stringWithFormat:@"<!--%@-->", _objectValue];
-			case NSXMLTextKind:
-				return _objectValue;
-			case NSXMLDTDKind:
-				return _objectValue;
-			case NSXMLEntityDeclarationKind:
-			case NSXMLAttributeDeclarationKind:
-			case NSXMLElementDeclarationKind:
-			case NSXMLNotationDeclarationKind:
-				break;
-		}
-	return @"???";
+	NSMutableString *str=[NSMutableString stringWithCapacity:100];
+	[self _XMLStringWithOptions:opts appendingToString:str];
+	return str;
 }
 
 - (NSString *) canonicalXMLStringPreservingComments:(BOOL) flag;
@@ -177,7 +210,6 @@
 - (void) detach; { if(_parent) [(NSMutableArray *)[_parent children] removeObjectIdenticalTo:self]; _parent=nil; }
 
 - (void) _setParent:(NSXMLNode *) p; { _parent=p; }
-- (void) _orphanize; { _parent=nil; }
 - (void) setName:(NSString *) name; { ASSIGN(_name, name); }
 - (void) setObjectValue:(id) value; { ASSIGN(_objectValue, value); }
 - (void) setStringValue:(NSString *) str; { /* check for string */ ASSIGN(_objectValue, str); }
@@ -239,68 +271,83 @@
 	[node _setParent:self];
 }
 
-// XML parsing
+@end
 
-- (void) parser:(NSXMLParser *) parser foundCharacters:(NSString *) string
+@implementation NSXMLNode (NSXMLParserDelegate)
+
+- (void) parserDidStartDocument:(NSXMLParser *) parser;
 {
-	// we may want to add individual text nodes depending on parse options!
-	if(!_objectValue)
-		_objectValue = [[NSMutableString alloc] initWithCapacity:50];
-	[_objectValue appendString:string];    
+	_current=self;
 }
 
-- (void) parser:(NSXMLParser *) parser foundIgnorableWhitespace:(NSString *) string
+- (void) parserDidEndDocument:(NSXMLParser *) parser;
 {
-	// we may want to add individual text nodes or completely ignore - depending on parse options!
-	if(!_objectValue)
-		_objectValue = [[NSMutableString alloc] initWithCapacity:50];
-	[_objectValue appendString:string];    
 }
 
-- (void) parser:(NSXMLParser *) parser foundCDATA:(NSData *) data
+- (void) parser:(NSXMLParser *) parser parseErrorOccurred:(NSError *) parseError;
+{
+	NSLog(@"parse Error: %@", parseError);
+}
+
+- (void) parser:(NSXMLParser *) parser validationErrorOccurred:(NSError *) parseError;
+{
+}
+
+- (void) parser:(NSXMLParser *) parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict;
+{
+	NSXMLElement *element=[[NSXMLElement alloc] initWithName:elementName URI:namespaceURI];
+	// what is the qualified name?
+	[element setAttributesAsDictionary:attributeDict];
+	[_current addChild:element];	// add to parent level
+	_current=element;	// handle nesting
+}
+
+- (void) parser:(NSXMLParser *) parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName;
+{
+	_current=[_current parent];
+}
+
+/*
+ - parser:didStartMappingPrefix:toURI:
+ - parser:didEndMappingPrefix:
+ - parser:resolveExternalEntityName:systemID:
+ */
+
+- (void) parser:(NSXMLParser *) parser foundCharacters:(NSString *) characters;
+{
+	[_current addChild:[NSXMLNode textWithStringValue:characters]];
+}
+
+- (void) parser:(NSXMLParser *) parser foundIgnorableWhitespace:(NSString *) characters;
+{
+	[_current addChild:[NSXMLNode textWithStringValue:characters]];	
+}
+
+- (void) parser:(NSXMLParser *) parser foundProcessingInstructionWithTarget:(NSString *)target data:(NSString *)data;
+{ // e.g. <?xml> - target=@"xml"
+	[_current addChild:[NSXMLNode processingInstructionWithName:target stringValue:data]];	
+}
+
+- (void) parser:(NSXMLParser *) parser foundComment:(NSString *) characters;
+{
+	[_current addChild:[NSXMLNode commentWithStringValue:characters]];
+}
+
+- (void) parser:(NSXMLParser *) parser foundCDATA:(NSData *)CDATABlock;
 {
 	NSXMLNode *n=[[NSXMLNode alloc] initWithKind:NSXMLTextKind options:NSXMLNodeIsCDATA];
-	[n setObjectValue:data];
-	[self addChild:n];
+	[n setObjectValue:CDATABlock];
+	[_current addChild:n];
 	[n release];
 }
 
-- (void) parser:(NSXMLParser *) parser foundComment:(NSString *) comment
-{
-	[self addChild:[NSXMLNode commentWithStringValue:comment]];
-}
-
-- (void) parser:(NSXMLParser *) parser didStartElement:(NSString *) elementName namespaceURI:(NSString *) namespaceURI qualifiedName:(NSString *) qualifiedName attributes:(NSDictionary *) attributeDict
-{
-	NSXMLElement *subNode=[NSXMLElement elementWithName:elementName URI:namespaceURI];
-	// what shall we do with the qualified name?
-	[subNode setAttributesAsDictionary:attributeDict];
-#if 1
-	NSLog(@"didStartElement: %@ <%@ %@>", _objectValue, elementName, attributeDict);
-	NSLog(@"subNode=%@", subNode);
-#endif
-	if(_objectValue)
-			{ // add any text coming before this subelement
-				[self addChild:[NSXMLNode textWithStringValue:_objectValue]];
-				[_objectValue release];  
-				_objectValue=nil;
-			}
-	[self addChild:subNode];
-	[parser setDelegate:subNode];
-}
-
-- (void) parser:(NSXMLParser *) parser didEndElement:(NSString *) elementName namespaceURI:(NSString *) namespaceURI qualifiedName:(NSString *) qName
-{
-#if 1
-	NSLog(@"didEndElement: %@ </%@>", _objectValue, elementName);
-#endif
-	if(_objectValue)
-			{ // add any text coming after this subelement
-				[self addChild:[NSXMLNode textWithStringValue:_objectValue]];
-				[_objectValue release];  
-				_objectValue=nil;
-			}
-	[parser setDelegate:[self parent]];
-}
+/*
+ - parser:foundAttributeDeclarationWithName:forElement:type:defaultValue:
+ - parser:foundElementDeclarationWithName:model:
+ - parser:foundExternalEntityDeclarationWithName:publicID:systemID:
+ - parser:foundInternalEntityDeclarationWithName:value:
+ - parser:foundUnparsedEntityDeclarationWithName:publicID:systemID:notationName:
+ - parser:foundNotationDeclarationWithName:publicID:systemID:
+ */
 
 @end

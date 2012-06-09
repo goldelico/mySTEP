@@ -1,12 +1,12 @@
 /*
-    NSXMLDTD.h
-    Foundation
+ NSXMLDTD.h
+ Foundation
  
-    Created by H. Nikolaus Schaller on 28.03.08.
-    Copyright 2008 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
+ Created by H. Nikolaus Schaller on 28.03.08.
+ Copyright 2008 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
  
-    Fabian Spillner, July 2008 - API revised to be compatible to 10.5
-*/
+ Fabian Spillner, July 2008 - API revised to be compatible to 10.5
+ */
 
 #import <Foundation/NSXMLNode.h>
 

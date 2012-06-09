@@ -19,15 +19,15 @@
 { // this calls the XML parser...
 	NSXMLParser *parser=[[NSXMLParser alloc] initWithData:[string dataUsingEncoding:NSUTF8StringEncoding]];
 	if(err) *err=nil;
-	[parser setDelegate:self];
-		if(![parser parse])
-				{
-					if(err)
-						*err=[parser parserError];
-					[parser release];
-					[self release];
-					return nil;
-				}
+	[parser setDelegate:self];	// the delegate methods are implemented in our NSXMLNode superclass
+	if(![parser parse])
+		{
+		if(err)
+			*err=[parser parserError];
+		[parser release];
+		[self release];
+		return nil;
+		}
 	[parser release];
 	return self;
 }
@@ -37,14 +37,6 @@
 	[_children release];
 	[_namespaces release];
 	[super dealloc];
-}
-
-- (NSString *) _descriptionTag;
-{
-	// show attributes
-	if(_name)
-		return [NSString stringWithFormat:@"<%@ %@ %d>%@\n", _name, NSStringFromClass([self class]), _kind, _objectValue?_objectValue:(id)@""];
-	return [NSString stringWithFormat:@"<%@ %d>%@\n", NSStringFromClass([self class]), _kind, _objectValue?_objectValue:(id)@""];
 }
 
 // should we have mutable dicts for children and attributes?
@@ -69,13 +61,13 @@
 	NSString *key;
 	// remove all attributes
 	while((key=[e nextObject]))
-			{
-				NSXMLNode *attr=[[NSXMLNode alloc] initWithKind:NSXMLAttributeKind];
-				[attr setName:key];
-				[attr setObjectValue:[attrs objectForKey:key]];
-				[self addAttribute:attr];
-				[attr release];
-			}
+		{
+		NSXMLNode *attr=[[NSXMLNode alloc] initWithKind:NSXMLAttributeKind];
+		[attr setName:key];
+		[attr setObjectValue:[attrs objectForKey:key]];
+		[self addAttribute:attr];
+		[attr release];
+		}
 }
 
 - (NSArray *) attributes; { return [_attributes allValues]; }
@@ -95,13 +87,13 @@
 }
 
 /* implemented in superclass
-
-- (void) insertChild:(NSXMLNode *) node atIndex:(NSUInteger) idx; {}
-- (void) insertChildren:(NSArray *) nodes atIndex:(NSUInteger) idx; {}
-  (void) removeChildAtIndex:(NSUInteger) idx; {}
-- (void) setChildren:(NSArray *) nodes; {}
-- (void) addChild:(NSXMLNode *) node; {}
-- (void) replaceChildAtIndex:(NSUInteger) idx withNode:(NSXMLNode *) node; {}
-*/
+ 
+ - (void) insertChild:(NSXMLNode *) node atIndex:(NSUInteger) idx; {}
+ - (void) insertChildren:(NSArray *) nodes atIndex:(NSUInteger) idx; {}
+ (void) removeChildAtIndex:(NSUInteger) idx; {}
+ - (void) setChildren:(NSArray *) nodes; {}
+ - (void) addChild:(NSXMLNode *) node; {}
+ - (void) replaceChildAtIndex:(NSUInteger) idx withNode:(NSXMLNode *) node; {}
+ */
 
 @end

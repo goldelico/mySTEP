@@ -46,11 +46,6 @@
 	[super dealloc];
 }
 
-- (NSString *) _descriptionTag;
-{
-	return [super _descriptionTag];
-}
-
 - (void) setPublicID:(NSString *) pubId; { ASSIGN(_publicID, pubId); }
 - (NSString *) publicID; { return _publicID; }
 - (void) setSystemID:(NSString *) sysId; { ASSIGN(_systemID, sysId); }

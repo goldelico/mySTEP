@@ -11,13 +11,17 @@
 
 @implementation NSXMLDTDNode
 
-- (id) initWithXMLString:(NSString *) xmlStr;
-{
-	// parse DTD XML
-	if((self=[self initWithKind:NSXMLEntityDeclarationKind options:0]))
-			{
-				// FIXME;
-			}
+- (id) initWithXMLString:(NSString *) string;
+{ // this calls the XML parser...
+	NSXMLParser *parser=[[NSXMLParser alloc] initWithData:[string dataUsingEncoding:NSUTF8StringEncoding]];
+	[parser setDelegate:self];	// the delegate methods are implemented in our NSXMLNode superclass
+	if(![parser parse])
+		{
+		[parser release];
+		[self release];
+		return nil;
+		}
+	[parser release];
 	return self;
 }
 
@@ -27,11 +31,6 @@
 	[_systemID release];
 	[_notationName release];
 	[super dealloc];
-}
-
-- (NSString *) _descriptionTag;
-{
-	return [super _descriptionTag];
 }
 
 - (void) setDTDKind:(NSXMLDTDNodeKind) kind; { _DTDKind=kind; }

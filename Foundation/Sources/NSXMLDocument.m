@@ -34,45 +34,50 @@
 {
 	NSData *data=[NSData dataWithContentsOfURL:url options:optsMask error:err];
 	if(!data)
-			{
-			[self release];
-			return nil;
-			}
+		{
+		[self release];
+		return nil;
+		}
 	return [self initWithData:data options:optsMask	error:err];
 }
 
-// implement NSXMLParser delegate methods...
+- (id) initWithXMLString:(NSString *) str options:(NSUInteger) optsMask error:(NSError **) err;
+{
+	// FIXME - we must set the encoding to UTF-8 *before* we try to parse!
+	// i.e. should we check the <?xml tag that it contains UTF-8 or add that if it is missing/different?
+	return [self initWithData:[str dataUsingEncoding:NSUTF8StringEncoding] options:optsMask error:err];
+}
 
 - (id) initWithData:(NSData *) data options:(NSUInteger) optsMask error:(NSError **) err;
 {
 	if((self=[self initWithRootElement:nil]))
-			{
-				NSXMLParser *parser;
-	// try to parse XML
-	// set encoding if defined
-	// etc.
-				parser=[[NSXMLParser alloc] initWithData:data];
+		{
+		NSXMLParser *parser;
+		parser=[[NSXMLParser alloc] initWithData:data];
 #if 1
-				NSLog(@"parser=%@", parser);
+		NSLog(@"parser=%@", parser);
 #endif
-				[parser setDelegate:self];
-				[parser setShouldProcessNamespaces:YES];
-				[parser setShouldReportNamespacePrefixes:YES];
-				[parser setShouldResolveExternalEntities:YES];
-				if(![parser parse])
-						{
-						if(err)
-								*err=[parser parserError];
-						[self release]; 
-						self=nil;
-						}
-				[parser release];
-				if((optsMask & NSXMLDocumentValidate) && self && ![self validateAndReturnError:err])
-						{
-						[self release];
-						self=nil;
-						}
+		[parser setDelegate:self];	// the delegate methods are implemented in our NSXMLNode superclass
+		[parser setShouldProcessNamespaces:YES];
+		[parser setShouldReportNamespacePrefixes:YES];
+		[parser setShouldResolveExternalEntities:YES];
+		if(![parser parse])
+			{
+#if 1
+			NSLog(@"tree=%@", self);
+#endif
+			if(err)
+				*err=[parser parserError];
+			[self release]; 
+			self=nil;
 			}
+		[parser release];
+		if((optsMask & NSXMLDocumentValidate) && self && ![self validateAndReturnError:err])
+			{
+			[self release];
+			self=nil;
+			}
+		}
 #if 1
 	NSLog(@"parsed XML document: %@", self);
 #endif
@@ -83,23 +88,11 @@
 {
 	// raise [self release], self=nil; if not a valid root node
 	if((self=[super initWithKind:NSXMLDocumentKind]))
-			{
-				if(rootNode)
-					[self addChild:rootNode];
-			}
+		{
+		if(rootNode)
+			[self addChild:rootNode];
+		}
 	return self;
-}
-
-- (id) initWithXMLString:(NSString *) str options:(NSUInteger) optsMask error:(NSError **) err;
-{
-	// FIXME - we must set the encoding to UTF-8 *before* we try to parse!
-	// i.e. should we check the <?xml tag that it contains UTF-8 or add that if it is missing/different?
-	return [self initWithData:[str dataUsingEncoding:NSUTF8StringEncoding] options:optsMask error:err];
-}
-
-- (NSString *) _descriptionTag;
-{
-	return [super _descriptionTag];
 }
 
 - (BOOL) isStandalone; { return _isStandalone; }
@@ -123,8 +116,7 @@
 
 - (NSXMLElement *) rootElement;
 {
-	// check for a root node
-	return nil;
+	return (NSXMLElement *) [self childAtIndex:0];
 }
 
 - (void) setCharacterEncoding:(NSString *) str; { ASSIGN(_characterEncoding, str); }
@@ -161,18 +153,16 @@
 - (NSData *) _XMLDataWithOptions:(NSUInteger) opts format:(NSUInteger) fmt
 {
 	NSString *str=nil;
-	switch(_documentContentKind)
-		{
-			case NSXMLDocumentTextKind:
-				// collect all nodes into single text string
-				break;
-			case NSXMLDocumentXMLKind:
-			case NSXMLDocumentXHTMLKind:
-			case NSXMLDocumentHTMLKind:
-				// how can we pass down opts&NSXMLDocumentIncludeContentTypeDeclaration and documentKind?
-				// documentKind can be requested from any node by going through the parents until we find self
-				str=[[self rootElement] XMLStringWithOptions:opts];
-		}
+	switch(_documentContentKind) {
+		case NSXMLDocumentTextKind:
+			// collect all nodes into single text string and ignore all tags
+			break;
+		case NSXMLDocumentXMLKind:
+		case NSXMLDocumentXHTMLKind:
+		case NSXMLDocumentHTMLKind:
+			// how can we pass down opts&NSXMLDocumentIncludeContentTypeDeclaration and documentKind?
+			str=[[self rootElement] XMLStringWithOptions:opts];
+	}
 	// handle characterEncoding - use UTF8 if unknown
 	return [str dataUsingEncoding:NSUTF8StringEncoding];
 }
