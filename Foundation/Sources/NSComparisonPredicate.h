@@ -26,6 +26,7 @@ typedef enum _NSComparisonPredicateOptions
 {
 	NSCaseInsensitivePredicateOption=0x01,
 	NSDiacriticInsensitivePredicateOption=0x02,
+	NSLocaleSensitivePredicateOption = 0x08,
 } NSComparisonPredicateOptions;
 
 typedef enum _NSPredicateOperatorType

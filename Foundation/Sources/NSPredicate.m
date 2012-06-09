@@ -555,18 +555,18 @@
 	else if([sc _scanPredicateKeyword:@"SOME"])
 		modifier=NSAllPredicateModifier, negate=YES;
 	left=[NSExpression _parseBinaryExpressionWithScanner:sc];
-	if([sc scanString:@"<" intoString:NULL])
-		type=NSLessThanPredicateOperatorType;
-	else if([sc scanString:@"<=" intoString:NULL])
+	if([sc scanString:@"!=" intoString:NULL] || [sc scanString:@"<>" intoString:NULL])	// try longer token first (<> before <)
+		type=NSNotEqualToPredicateOperatorType;
+	else if([sc scanString:@"<=" intoString:NULL] || [sc scanString:@"=<" intoString:NULL])
 		type=NSLessThanOrEqualToPredicateOperatorType;
+	else if([sc scanString:@"<" intoString:NULL])
+		type=NSLessThanPredicateOperatorType;
+	else if([sc scanString:@">=" intoString:NULL] || [sc scanString:@"=>" intoString:NULL])
+		type=NSGreaterThanOrEqualToPredicateOperatorType;
 	else if([sc scanString:@">" intoString:NULL])
 		type=NSGreaterThanPredicateOperatorType;
-	else if([sc scanString:@">=" intoString:NULL])
-		type=NSGreaterThanOrEqualToPredicateOperatorType;
-	else if([sc scanString:@"=" intoString:NULL])
+	else if([sc scanString:@"==" intoString:NULL] || [sc scanString:@"=" intoString:NULL])
 		type=NSEqualToPredicateOperatorType;
-	else if([sc scanString:@"!=" intoString:NULL])
-		type=NSNotEqualToPredicateOperatorType;
 	else if([sc _scanPredicateKeyword:@"MATCHES"])
 		type=NSMatchesPredicateOperatorType;
 	else if([sc _scanPredicateKeyword:@"LIKE"])
@@ -579,12 +579,23 @@
 		type=NSInPredicateOperatorType;
 	else
 		[NSException raise:NSInvalidArgumentException format:@"Invalid comparison predicate: %@", [[sc string] substringFromIndex:[sc scanLocation]]];
-	if([sc scanString:@"[cd]" intoString:NULL])
-		opts=NSCaseInsensitivePredicateOption | NSDiacriticInsensitivePredicateOption;
-	else if([sc scanString:@"[c]" intoString:NULL])
-		opts=NSCaseInsensitivePredicateOption;
-	else if([sc scanString:@"[d]" intoString:NULL])
-		opts=NSDiacriticInsensitivePredicateOption;
+	if([sc scanString:@"[" intoString:NULL])
+		{
+		while(YES)
+			{
+			// FIXME: we should eat only single characters here!
+			if([sc scanString:@"c" intoString:NULL])
+				opts=NSCaseInsensitivePredicateOption;
+			else if([sc scanString:@"d" intoString:NULL])
+				opts=NSDiacriticInsensitivePredicateOption;
+			else if([sc scanString:@"l" intoString:NULL])
+				opts=NSLocaleSensitivePredicateOption;
+			else if([sc scanString:@"]" intoString:NULL])
+				break;
+			else
+				[NSException raise:NSInvalidArgumentException format:@"Invalid comparison option: %@", [[sc string] substringFromIndex:[sc scanLocation]]];
+			}
+		}
 	p=[self predicateWithLeftExpression:left rightExpression:[NSExpression _parseBinaryExpressionWithScanner:sc]
 								  modifier:modifier type:type options:opts];
 	return negate?[NSCompoundPredicate notPredicateWithSubpredicate:p]:p;
@@ -663,15 +674,13 @@
 	NSString *modi=@"";
 	NSString *comp=@"?comparison?";
 	NSString *opt=@"";
-	switch(_modifier)
-		{
+	switch(_modifier) {
 		case NSDirectPredicateModifier: break;
 		case NSAnyPredicateModifier: modi=@"ANY "; break;
 		case NSAllPredicateModifier: modi=@"ALL"; break;
 		default: modi=@"?modifier?"; break;
 		}
-	switch(_type)
-		{
+	switch(_type) {
 		case NSLessThanPredicateOperatorType: comp=@"<"; break;
 		case NSLessThanOrEqualToPredicateOperatorType: comp=@"<="; break;
 		case NSGreaterThanPredicateOperatorType: comp=@">="; break;
@@ -685,17 +694,16 @@
 		case NSInPredicateOperatorType: comp=@"IN"; break;
 		case NSContainsPredicateOperatorType: comp=@"CONTAINS"; break;
 		case NSBetweenPredicateOperatorType: comp=@"BETWEEN"; break;
-		case NSCustomSelectorPredicateOperatorType:
-			{
+		case NSCustomSelectorPredicateOperatorType: {
 				comp=NSStringFromSelector(_selector);
 			}
 		}
-	switch(_options)
-		{
-		case NSCaseInsensitivePredicateOption: opt=@"[c]"; break;
-		case NSDiacriticInsensitivePredicateOption: opt=@"[d]"; break;
-		case NSCaseInsensitivePredicateOption | NSDiacriticInsensitivePredicateOption: opt=@"[cd]"; break;
-		default: opt=@"[?options?]"; break;
+	if(_options) {
+		opt=@"[";
+		if(_options&NSCaseInsensitivePredicateOption) opt=[opt stringByAppendingString:@"c"];
+		if(_options&NSDiacriticInsensitivePredicateOption) opt=[opt stringByAppendingString:@"d"];
+		if(_options&NSLocaleSensitivePredicateOption) opt=[opt stringByAppendingString:@"l"];
+		opt=[opt stringByAppendingString:@"]"];
 		}
 	return [NSString stringWithFormat:@"%@%@ %@%@ %@", modi, _left, comp, opt, _right];
 }
@@ -706,6 +714,51 @@
 	copy->_left=[_left _expressionWithSubstitutionVariables:variables];
 	copy->_right=[_right _expressionWithSubstitutionVariables:variables];
 	return [copy autorelease];	
+}
+
+- (BOOL) evaluateWithObject:(id) object;
+{
+	id left=[_left expressionValueWithObject:object context:nil];	// substitute SELF
+	id right=[_right expressionValueWithObject:object context:nil];	// substitute SELF
+	// FIXME: handle modifiers and options
+	switch(_type) {
+		case NSLessThanPredicateOperatorType:
+			if(_options)
+				;
+			return [left compare:right] == NSOrderedAscending;
+		case NSLessThanOrEqualToPredicateOperatorType:
+			return [left compare:right] != NSOrderedDescending;
+		case NSGreaterThanPredicateOperatorType:
+			return [left compare:right] == NSOrderedDescending;
+		case NSGreaterThanOrEqualToPredicateOperatorType:
+			return [left compare:right] != NSOrderedAscending;
+		case NSEqualToPredicateOperatorType:
+			return [left compare:right] == NSOrderedSame;
+		case NSNotEqualToPredicateOperatorType:
+			return [left compare:right] != NSOrderedSame;
+		case NSMatchesPredicateOperatorType:
+		case NSLikePredicateOperatorType:
+			// FIXME: add SQL pattern matching (what is the difference between MATCHES and LIKE?)
+			// MATCHES is a full regex, LIKE is SQL style, i.e. "%string%"
+			return [left compare:right] == NSOrderedSame;
+		case NSBeginsWithPredicateOperatorType:
+			return [left hasPrefix:right];
+		case NSEndsWithPredicateOperatorType:
+			return [left hasSuffix:right];
+		case NSInPredicateOperatorType:
+			return [right containsObject:left];
+		case NSContainsPredicateOperatorType:
+			return [left containsObject:right];
+		case NSBetweenPredicateOperatorType:
+			return [left compare:[right objectAtIndex:0]] != NSOrderedAscending
+				&& [left compare:[right objectAtIndex:1]] != NSOrderedDescending;
+		case NSCustomSelectorPredicateOperatorType: {
+			BOOL (*custom)(id, SEL, id);
+			custom = (BOOL (*)(id, SEL, id))[left methodForSelector:_selector];
+			return custom && custom(left, _selector, _right);
+		}
+	}
+	return NO;
 }
 
 @end
@@ -723,14 +776,14 @@
 	if([sc scanString:@"-" intoString:NULL])
 		return [NSExpression expressionForFunction:@"_chs" arguments:[NSArray arrayWithObject:[self _parseExpressionWithScanner:sc]]];
 	if([sc scanString:@"(" intoString:NULL])
-		{
+		{ // ( subexpr )
 		NSExpression *arg=[self _parseExpressionWithScanner:sc];
 		if(![sc scanString:@")" intoString:NULL])
 			[NSException raise:NSInvalidArgumentException format:@"Missing ) in expression"];
 		return arg;
 		}
 	if([sc scanString:@"{" intoString:NULL])
-		{
+		{ // { element1, element2, ... }
 		NSMutableArray *a=[NSMutableArray arrayWithCapacity:10];
 		if([sc scanString:@"}" intoString:NULL])
 			return a;	// empty
@@ -775,13 +828,27 @@
 	// FIXME: other formats
 	if([sc scanString:@"\"" intoString:NULL])
 		{
-		NSString *str=@"string constant";
-		return [NSExpression expressionForConstantValue:str];
+		NSExpression *r;
+		NSString *str;
+		// FIXME: handle \ and maybe "str1""str2"
+		if(![sc scanUpToString:@"\"" intoString:&str])
+			str=@"";
+		r=[NSExpression expressionForConstantValue:str];
+		if(![sc scanString:@"\"" intoString:NULL])
+			[NSException raise:NSInvalidArgumentException format:@"Missing \" in literal: %@", [[sc string] substringFromIndex:[sc scanLocation]]];
+		return r;
 		}
 	if([sc scanString:@"'" intoString:NULL])
 		{
-		NSString *str=@"string constant";
-		return [NSExpression expressionForConstantValue:str];
+		NSExpression *r;
+		NSString *str;
+		// FIXME: handle \ and maybe "str1""str2"
+		if(![sc scanUpToString:@"'" intoString:&str])
+			str=@"";
+		r=[NSExpression expressionForConstantValue:str];
+		if(![sc scanString:@"'" intoString:NULL])
+			[NSException raise:NSInvalidArgumentException format:@"Missing ' in literal: %@", [[sc string] substringFromIndex:[sc scanLocation]]];
+		return r;
 		}
 	if([sc scanString:@"@" intoString:NULL])
 		{
@@ -1079,7 +1146,7 @@
 - (id) constantValue; { return nil; }
 - (NSString *) description; { return @"SELF"; }
 - (NSExpressionType) expressionType; { return NSEvaluatedObjectExpressionType; }
-- (id) expressionValueWithObject:(id) object context:(NSMutableDictionary *) context; { return object; }
+- (id) expressionValueWithObject:(id) object context:(NSMutableDictionary *) context; { return object; }	// SELF
 - (NSString *) function; { return nil; }
 - (NSString *) keyPath; { return nil; }
 - (NSExpression *) operand; { return nil; }
@@ -1235,7 +1302,7 @@
 }
 
 /* add other arithmetic functions here
-	average, median, mode, stddev, sqrt, log, ln, exp, floor, ceiling, abs, trunc, random, randomn, now
+	average, median, mode, stddev, sqrt, log, ln, exp, floor, ceiling, abs, trunc, random, random, now
 */
 
 - (NSString *) function; { return [NSStringFromSelector(_selector) substringFromIndex:6]; }
