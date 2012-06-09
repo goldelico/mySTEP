@@ -11,7 +11,7 @@
 
 @interface IOBluetoothDeviceSelectorController : NSWindowController
 {
-
+	// outlets
 }
 
 @end

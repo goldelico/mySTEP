@@ -50,8 +50,7 @@ typedef int BluetoothRFCOMMParityType;
 - (BOOL) isOpen;
 - (BOOL) isTransmissionPaused;
 - (IOBluetoothUserNotification *) registerForChannelCloseNotification:(id) observer selector:(SEL) sel; 
-#if 0
-- (IOReturn) registerIncomingDataListener:(IOBluetoothRFCOMMChannelIncomingDataListener) listener refCon:(void *) ref; 
+#if 0	// use setDelegate
 - (IOReturn) registerIncomingDataListener:(IOBluetoothRFCOMMChannelIncomingDataListener) listener refCon:(void *) ref; 
 - (IOReturn) registerIncomingEventListener:(IOBluetoothRFCOMMChannelIncomingEventListener) listener;
 - (IOReturn) registerIncomingEventListener:(IOBluetoothRFCOMMChannelIncomingEventListener) listener refCon:(void *) ref; 

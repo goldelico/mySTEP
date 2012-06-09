@@ -11,7 +11,7 @@
 
 @interface IOBluetoothServiceBrowserController : NSWindowController
 {
-
+	// outlets
 }
 
 @end

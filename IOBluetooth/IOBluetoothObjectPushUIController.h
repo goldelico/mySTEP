@@ -11,7 +11,7 @@
 
 @interface IOBluetoothObjectPushUIController : NSWindowController
 {
-
+	// outlets
 }
 
 @end
