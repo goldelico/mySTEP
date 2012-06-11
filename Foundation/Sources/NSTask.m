@@ -253,7 +253,7 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 
 static int getfd(NSTask *self, id object, BOOL read, int def)
 { // extract file descriptor
-#if 0
+#if 1
 	NSLog(@"getfd(%@, def=%d)", object, def);
 #endif
 	if(!object)
@@ -346,12 +346,12 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 			NSLog(@"child process");
 #endif
 			// WARNING - don't raise NSExceptions here or we will end up in two instances of the calling task with shared address space!
-			if(idesc != 0)	
-				dup2(idesc, 0), close(idesc); // redirect
-			if(odesc != 1)
-				dup2(odesc, 1), close(odesc); // redirect
-			if(edesc != 2)
-				dup2(edesc, 2), close(edesc); // redirect
+			if(idesc != 0) dup2(idesc, 0);	// redirect
+			if(odesc != 1) dup2(odesc, 1);	// redirect
+			if(edesc != 2) dup2(edesc, 2);	// redirect
+			if(idesc > 2) close(idesc);	// original is no longer used after redirect
+			if(odesc > 2) close(odesc);	// original is no longer used after redirect
+			if(edesc > 2) close(edesc);	// original is no longer used after redirect
 			// close unused ends of NSPipes to free up file descriptors
 			if([_standardInput isKindOfClass:[NSPipe class]])
 				[[_standardInput fileHandleForWriting] closeFile];
