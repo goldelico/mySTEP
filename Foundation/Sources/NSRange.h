@@ -24,6 +24,8 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSObject.h>
 
+#define LIMITED_NSMaxRange 1
+
 @class NSString;
 
 typedef struct _NSRange
