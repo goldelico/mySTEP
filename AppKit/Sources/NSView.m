@@ -619,8 +619,9 @@ printing
 		}
 	if([sub_views indexOfObjectIdenticalTo:aView] != NSNotFound)
 		{
-		// FIXME: this is just a Workaround!!!
+		// FIXME: this is just a Workaround for a more fundamental NIB loading problem!!!
 		// FIXME: this does sometimes happen when loading NIBs -- why???
+		// IDEA: if we make a CustomView and reference some component before we add the hierarchy
 		NSLog(@"%@ is already a subview of %@ (ignored)", aView, self);
 		return;
 		}
@@ -816,17 +817,18 @@ printing
 - (void) setFrame:(NSRect)frameRect
 {
 	NSSize o;
+#if 1
+	NSLog(@"setFrame: %@ %@", NSStringFromRect(frameRect), self);
+#endif
+#if 1
+	if(NSIsEmptyRect(frameRect))
+		NSLog(@"setFrame to empty: %@! %@", NSStringFromRect(frameRect), self);
+#endif
 	if(NSEqualPoints(_frame.origin, frameRect.origin))
 		{ // change size only - required for Cocoa compatibility if subclass overwrites setFrameSize
 			[self setFrameSize:frameRect.size];	// this will also post a single notification
 			return;
 		}
-#if 1
-	if(frameRect.size.height == 0.0)
-		NSLog(@"height == 0!");
-	if(frameRect.size.width == 0.0)
-		NSLog(@"width == 0!");	// this may occur for invisible corner views
-#endif
 	o=_frame.size;	// remember old size
 	_frame=frameRect;
 	if(!_v.customBounds)
@@ -850,6 +852,9 @@ printing
 
 - (void) setFrameOrigin:(NSPoint)newOrigin
 {
+#if 1
+	NSLog(@"setFrameOrigin: %@ %@", NSStringFromPoint(newOrigin), self);
+#endif
 	if(!NSEqualPoints(_frame.origin, newOrigin))
 		{
 		_frame.origin = newOrigin;
@@ -862,6 +867,9 @@ printing
 - (void) setFrameSize:(NSSize)newSize
 {
 	NSSize o = _frame.size;
+#if 1
+	NSLog(@"setFrameSize: %@ %@", NSStringFromSize(newSize), self);
+#endif
 	if(!NSEqualSizes(o, newSize))
 		{
 #if 1
@@ -1674,7 +1682,7 @@ printing
 	superViewFrameSize = [super_view frame].size;	// super_view should not be nil!
 	if(NSEqualSizes(oldSize, superViewFrameSize))
 		return;	// ignore unchanged superview size
-#if 0
+#if 1
 	NSLog(@"resizeWithOldSuperviewSize %x: %@ -> %@ %@", _v.autoresizingMask, NSStringFromSize(oldSize), NSStringFromSize(superViewFrameSize), self);
 #endif
 	// do nothing if view is not resizable
@@ -1792,6 +1800,9 @@ printing
 			NSLog(@"and now? %@", self);
 			}
 		[self resizeSubviewsWithOldSize: old_size];	// recursively go down
+#if 1
+			NSLog(@"new frame %@", NSStringFromRect(_frame));
+#endif
 		if(_v.postFrameChange)
 			[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(FrameDidChange) object: self];
 		}

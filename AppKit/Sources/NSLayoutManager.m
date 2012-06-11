@@ -1643,7 +1643,20 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	// and pure layout (not changing geometry of individual glyphs but their relative position)
 	// check if only drawing attributes have been changed like NSColor/underline/striketrhough/link - then we do not even need to generate new glyphs or new layout positions
 	if(editedMask&NSTextStorageEditedCharacters)
-		[self invalidateLayoutForCharacterRange:invalidatedCharRange actualCharacterRange:NULL], _glyphsAreValid=NO;
+		{
+		NSTextView *tv=[self firstTextView];
+		NSRange sel=[tv selectedRange];
+#if 1
+		NSLog(@"textStorage:edited:%u range:%@ change:%d inval:%@", editedMask, NSStringFromRange(newCharRange), delta, NSStringFromRange(invalidatedCharRange));
+		NSLog(@"  tv=%@", tv);
+		if([tv frame].size.height == 0)
+			NSLog(@"height became 0!");
+#endif
+		[self invalidateLayoutForCharacterRange:newCharRange actualCharacterRange:NULL], _glyphsAreValid=NO;
+		sel=newCharRange;
+		sel.location+=delta;
+		[tv setSelectedRange:sel];
+		}
 	else if(editedMask&NSTextStorageEditedAttributes)
 		[self invalidateLayoutForCharacterRange:invalidatedCharRange actualCharacterRange:NULL];
 }

@@ -211,7 +211,7 @@
 
 - (void) dealloc;
 {
-#if 1
+#if 0
 	NSLog(@"dealloc NSTextStorage %p: %@", self, self);
 #endif
 	[self setDelegate:nil];
@@ -235,12 +235,15 @@
 		  range:(NSRange)range 
  changeInLength:(int)delta;
 {
+#if 0
+	NSLog(@"edited %u range=%@ delta=%d", editedMask, NSStringFromRange(range), delta);
+#endif
 	if(_nestingCount == 0)
-		{
+		{ // base level
 		_editedMask = editedMask;
 		_editedRange = range;
 		_changeInLength = delta;
-		[self processEditing];		
+		[self processEditing];
 		}
 	else
 		{
@@ -266,10 +269,11 @@
 {
 	if(_nestingCount)
 		NSLog(@"unbalanced endEditing");
-	else
-		_nestingCount--;
-	[self fixAttributesInRange:_editedRange];
-	[self processEditing];
+	else if(_nestingCount-- == 0)
+		{ // finally done
+		[self fixAttributesInRange:_editedRange];
+		[self processEditing];
+		}
 }
 
 - (unsigned int) editedMask; { return _editedMask; }
@@ -295,6 +299,9 @@
 	NSEnumerator *e=[_layoutManagers objectEnumerator];
 	NSLayoutManager *lm;
 	NSNotificationCenter *nc=[NSNotificationCenter defaultCenter];
+#if 0
+	NSLog(@"processEditing: %@", self);
+#endif
 	[nc postNotificationName:NSTextStorageWillProcessEditingNotification object:self];
 	if(!_fixesAttributesLazily)
 		[self fixAttributesInRange:_editedRange];

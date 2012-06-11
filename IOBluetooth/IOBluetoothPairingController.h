@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "IOBluetoothSDPUUID.h"
+#import <IOBluetooth/objc/IOBluetoothSDPUUID.h>
 
 typedef enum _IOBluetoothServiceBrowserControllerOptions { 
     kIOBluetoothServiceBrowserControllerOptionsNone = 0L,

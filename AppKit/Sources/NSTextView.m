@@ -179,6 +179,9 @@ static NSCursor *__textCursor = nil;
 - (void) setConstrainedFrameSize:(NSSize) desiredSize
 { // size to desired size if within limits and resizable
 	NSSize newSize=_frame.size;
+#if 1
+	NSLog(@"setConstrainedFrameSize %@: %@", NSStringFromSize(desiredSize), self);
+#endif
 	if(!_tx.horzResizable)
 		newSize.width=_frame.size.width;	// don't fit to text, i.e. keep frame as it is
 	else
@@ -187,14 +190,23 @@ static NSCursor *__textCursor = nil;
 		newSize.height=_frame.size.height;	// don't fit to text, i.e. keep frame as it is
 	else
 		newSize.height=MAX(MIN(desiredSize.height, _maxSize.height), _minSize.height);
+#if 1
+	NSLog(@"newSize=%@", NSStringFromSize(newSize));
+#endif
 	[self setFrameSize:newSize];	// this should adjust the container depending on its tracking flags
 	[self setBoundsSize:newSize];	// will not be updated automatically if we are enclosed in a NSClipView (custom bounds)
 	[self setNeedsDisplay:YES];
+#if 1
+	NSLog(@"container=%@", [self textContainer]);
+#endif
 }
 
 - (void) sizeToFit;
 {
 	NSSize size=NSZeroSize;
+#if 1
+	NSLog(@"sizeToFit: %@", self);
+#endif
 	if([textStorage length] > 0)
 		{ // get bounding box assuming given or unlimited size
 			[textContainer setContainerSize:NSMakeSize((_tx.horzResizable?16000.0:_frame.size.width), (_tx.vertResizable?16000.0:_frame.size.height))];
@@ -702,6 +714,10 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (void) setNeedsDisplayInRect:(NSRect)rect
 { // override as documented
+#if 1
+	if(_frame.size.height == 0)
+		NSLog(@"height became 0!");
+#endif
 	[self setNeedsDisplayInRect:rect avoidAdditionalLayout:NO];
 }
 
@@ -749,7 +765,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
-#if 0
+#if 1
 	NSLog(@"%@ initWithCoder: %@", self, coder);
 #endif
 	if((self=[super initWithCoder:coder]))
@@ -759,16 +775,16 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 			
 			
 			[self replaceTextContainer:[coder decodeObjectForKey:@"NSTextContainer"]];	// this decodes the layoutManager and the textStorage
-#if 0
+#if 1
 			NSLog(@"textContainer=%@", textContainer);
 #endif
 			ASSIGN(layoutManager, [textContainer layoutManager]);	// store a retained reference so that we become the owner
-#if 0
+#if 1
 			NSLog(@"layoutManager=%@", layoutManager);
 #endif
 			ASSIGN(textStorage, [layoutManager textStorage]);	// an empty one had already been assigned by superclass
 			[textStorage addLayoutManager:layoutManager];	// this also retains the layout manager
-#if 0
+#if 1
 			NSLog(@"NSTVFlags=%08x", tvFlags);
 			_tx.horzResizable=NO;
 			_tx.vertResizable=YES;
@@ -799,6 +815,9 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 				[self setSelectedTextAttributes:[shared selectedTextAttributes]];
 				}
 		}
+#if 1
+	NSLog(@"  self: %@", self);
+#endif
 	return self;
 }
 

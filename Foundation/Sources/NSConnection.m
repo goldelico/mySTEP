@@ -112,6 +112,10 @@ NSString *const NSFailedAuthenticationException = @"NSFailedAuthenticationExcept
 
 @end
 
+@implementation NSConcreteDistantObjectRequest
+
+@end
+
 NSString *const NSConnectionDidDieNotification=@"NSConnectionDidDieNotification";
 NSString *const NSConnectionDidInitializeNotification=@"NSConnectionDidInitializeNotification";
 

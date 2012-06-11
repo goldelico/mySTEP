@@ -383,6 +383,8 @@ object:self]
 	_tx.moveUpDownEnd=0;
 #if 0
 	NSLog(@"setSelectedRange=%@", NSStringFromRange(_selectedRange));
+#endif
+#if 0
 	NSLog(@"  text=%@", textStorage);
 #endif
 }
@@ -420,6 +422,12 @@ object:self]
 - (void) sizeToFit;
 {
 	NSRect rect=(NSRect) { NSZeroPoint, [textStorage size] };	// ask the text storage for the unbound size
+#if 1
+	NSLog(@"sizeToFit %@", self);
+	NSLog(@"  rect=%@", NSStringFromRect(rect));
+	NSLog(@"  min=%@", NSStringFromSize(_minSize));
+	NSLog(@"  max=%@", NSStringFromSize(_maxSize));
+#endif
 	if(!_tx.horzResizable)
 		rect.size.width=_bounds.size.width;	// don't resize horizontally
 	if(!_tx.vertResizable)
@@ -569,6 +577,7 @@ object:self]
 		[self replaceCharactersInRange:rng withString:text];
 	else
 		[textStorage replaceCharactersInRange:rng withAttributedString:text];
+	// FIXME: this should have been done through processEditing if we have a text storage
 	rng.location+=[(NSString *) text length];	// advance selection
 	rng.length=0;
 	[self setSelectedRange:rng];
