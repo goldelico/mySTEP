@@ -105,7 +105,7 @@
 
 - (NSString *) description; { return [self XMLString]; }
 
-- (NSString *) XMLString; { return [self XMLStringWithOptions:0]; }
+- (NSString *) XMLString; { return [self XMLStringWithOptions:NSXMLNodeOptionsNone]; }
 
 - (void) _XMLStringWithOptions:(NSUInteger) opts appendingToString:(NSMutableString	*) str;
 {

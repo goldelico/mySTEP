@@ -13,7 +13,7 @@
 
 + (NSXMLDTDNode *) predefinedEntityDeclarationForName:(NSString *) name;
 {
-	NSXMLDTDNode *node=[[NSXMLDTDNode alloc] initWithKind:NSXMLEntityDeclarationKind options:0];
+	NSXMLDTDNode *node=[[NSXMLDTDNode alloc] initWithKind:NSXMLEntityDeclarationKind options:NSXMLNodeOptionsNone];
 	[node setNotationName:name];
 	[node setDTDKind:NSXMLEntityPredefined];
 	return [node autorelease];
@@ -27,7 +27,7 @@
 
 - (id) initWithData:(NSData *) data options:(NSUInteger) optsMask error:(NSError **) err;
 {
-	if((self=[self initWithKind:NSXMLDTDKind options:0]))
+	if((self=[self initWithKind:NSXMLDTDKind options:NSXMLNodeOptionsNone]))
 			{
 	/* parse DTD from data
 	 * i.e. generate subnodes of type

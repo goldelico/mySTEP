@@ -38,7 +38,7 @@
 		[self release];
 		return nil;
 		}
-	return [self initWithData:data options:optsMask	error:err];
+	return [self initWithData:data options:optsMask error:err];
 }
 
 - (id) initWithXMLString:(NSString *) str options:(NSUInteger) optsMask error:(NSError **) err;
