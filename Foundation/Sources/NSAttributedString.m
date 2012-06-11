@@ -47,7 +47,7 @@ _setAttributesFrom( NSAttributedString *attributedString,
 		return;										// No attributes
 
 	attributeDict = [attributedString attributesAtIndex:aRange.location
-									  effectiveRange:&effectiveRange];
+									  effectiveRange:&effectiveRange];	// first attribute at index 0
 	[attributeArray replaceObjectAtIndex:0 withObject:attributeDict];
 	
 	while ((m = NSMaxRange(effectiveRange)) < NSMaxRange(aRange))
@@ -138,7 +138,7 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 
 @end
 
-@implementation _NSMutableAttributedStringProxy	// this is a subclass of NSMutableString
+@implementation _NSMutableAttributedStringProxy	// this is a subclass of NSMutableString and implements all methods as a wrapper
 
 + (id) allocWithZone:(NSZone *) z
 {
@@ -167,6 +167,11 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 	[_astring release];
 	[super dealloc];	// this is NSMutableString's dealloc
 }
+
+// to make this wrapper work completely, all getter methods (e.g. capitalizedString, intValue, componentsSeparatedByString, etc. of NSString must be based on some primitives!
+
+- (unichar) characterAtIndex:(NSUInteger) index; { return [[_astring string] characterAtIndex:index]; }
+- (NSUInteger) length; { return [[_astring string] length]; }
 
 // make all changes update the attributed _astring
 
@@ -246,6 +251,10 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 			attributes = [NSDictionary dictionary];
 		[_attributes addObject:attributes];
 		[_locations addObject:[NSNumber numberWithUnsignedInt:0]];
+#if 0
+		NSLog(@"initWithString %@ attributes %@", aString, attributes);
+		NSLog(@"  -> _locations=%@", _locations);
+#endif
 		}
 	return self;
 }
@@ -458,11 +467,10 @@ BOOL result;
 - (id) initWithCoder:(NSCoder *)aCoder
 {
 #if 0
-	NSLog(@"%@ initWithCoder: %@", NSStringFromClass([self class]), coder);
-	NSLog(@"NSAttributes=%@", [coder decodeObjectForKey:@"NSAttributes"]);
-	NSLog(@"NSString=%@", [coder decodeObjectForKey:@"NSString"]);
-	NSLog(@"NSAttributeInfo=%@", [coder decodeObjectForKey:@"NSAttributeInfo"]);	// NSData(!)
-	NSLog(@"NSDelegate=%@", [coder decodeObjectForKey:@"NSDelegate"]);	// NSTextStorage only
+	NSLog(@"%@ initWithCoder: %@", NSStringFromClass([self class]), aCoder);
+	NSLog(@"NSAttributes=%@", [aCoder decodeObjectForKey:@"NSAttributes"]);
+	NSLog(@"NSString=%@", [aCoder decodeObjectForKey:@"NSString"]);
+	NSLog(@"NSAttributeInfo=%@", [aCoder decodeObjectForKey:@"NSAttributeInfo"]);	// NSData(!)
 #endif
 	self = [super initWithCoder:aCoder];
 	if([aCoder allowsKeyedCoding])
@@ -477,6 +485,9 @@ BOOL result;
 						 1 byte index of into the attributes array
 						*/
 						NSData *info=[aCoder decodeObjectForKey:@"NSAttributeInfo"];
+#if 0
+						NSLog(@"info=%@", info);
+#endif
 						self=[self initWithString:[aCoder decodeObjectForKey:@"NSString"] attributes:nil];
 						p=[info bytes];
 						end=p+[info length];
@@ -510,9 +521,9 @@ BOOL result;
 #endif
 						return self;
 					}
-			else
+			else	// single attribute run
 				return [self initWithString:[aCoder decodeObjectForKey:@"NSString"]
-												 attributes:[aCoder decodeObjectForKey:@"NSAttributes"]];	// single attribute run
+								 attributes:[aCoder decodeObjectForKey:@"NSAttributes"]];
 		}
 	[aCoder decodeValueOfObjCType: @encode(id) at: &_string];
 	[aCoder decodeValueOfObjCType: @encode(id) at: &_attributes];
@@ -542,9 +553,9 @@ BOOL result;
 - (id) initWithString:(NSString *)aString attributes:(NSDictionary *)attributes
 {
 	if((self=[super initWithString:nil attributes:attributes]))
-			{
-				_string = [aString mutableCopy];
-			}
+		{
+			_string = [aString mutableCopy];
+		}
 	return self;
 }
 
@@ -594,9 +605,11 @@ NSString *newSubstring;
 	NSNumber *afterRangeLocation, *beginRangeLocation;
 	NSDictionary *attrs;
 #if 0
-	NSLog(@"setAttributes:%p range:%@", attributes, NSStringFromRange(range));
+	NSLog(@"setAttributes:%@ range:%@ of %@", attributes, NSStringFromRange(range), self);
+	NSLog(@"  _locations = %@", _locations);
 #endif
-  
+	if(range.length == 0)
+		return;	// ignore empty range
 	if(!attributes)
 		attributes = [NSDictionary dictionary];
 	tmpLength = [self length];
@@ -622,6 +635,9 @@ NSString *newSubstring;
 		}
 	else
 		arrayIndex = arraySize - 1;
+#if 0
+	NSLog(@"arrayIndex=%u", arrayIndex);
+#endif
 	while(arrayIndex > 0 && [[_locations objectAtIndex:arrayIndex-1] unsignedIntValue] >= range.location)
 		{
 #if 0
@@ -633,18 +649,32 @@ NSString *newSubstring;
 		}
 	beginRangeLocation = [NSNumber numberWithUnsignedInt:range.location];
 	location = [[_locations objectAtIndex:arrayIndex] unsignedIntValue];
+#if 0
+	NSLog(@"beginRangeLocation=%@", beginRangeLocation);
+	NSLog(@"location=%u", location);
+	NSLog(@"range=%@", NSStringFromRange(range));
+#endif
+#if 0
+	NSLog(@"a) locations = %@", _locations);
+#endif
 	if(location >= range.location)
 		{
 		if(location > range.location)
 			[_locations replaceObjectAtIndex:arrayIndex
 						 withObject:beginRangeLocation];
 		[_attributes replaceObjectAtIndex:arrayIndex withObject:attributes];
+#if 0
+		NSLog(@"b) locations = %@", _locations);
+#endif
 		}
 	else
 		{
 		arrayIndex++;
 		[_attributes insertObject:attributes atIndex:arrayIndex];
 		[_locations insertObject:beginRangeLocation atIndex:arrayIndex];
+#if 0
+		NSLog(@"c) locations = %@", _locations);
+#endif
 		}
 #if 0
 	NSLog(@"setAttributes -> %@", _locations);
@@ -807,12 +837,12 @@ unsigned int tmpLength = [self length];
 	if(NSMaxRange(range) > tmpLength)
 		{ // beyond end of string
 #if 0
-		NSLog(@"range=%@", NSStringFromRange(range));
-		NSLog(@"current string=%@", [self string]);
-		NSLog(@"new string=%@", aString);
+			NSLog(@"range=%@", NSStringFromRange(range));
+			NSLog(@"current string=%@", [self string]);
+			NSLog(@"new string=%@", aString);
 #endif
-		[NSException raise:NSRangeException
-				format:@"RangeError in -replaceCharactersInRange:%@ withString:%@", NSStringFromRange(range), aString];
+			[NSException raise:NSRangeException
+						format:@"RangeError in -replaceCharactersInRange:%@ withString:%@", NSStringFromRange(range), aString];
 		}
 	arraySize = [_locations count];
 	if(NSMaxRange(range) < tmpLength)
@@ -820,10 +850,10 @@ unsigned int tmpLength = [self length];
 			NSRange effectiveRange;
 			unsigned int cnt;
 			NSNumber *afterRangeLocation;
-		attrs = _attributesAtIndexEffectiveRange(NSMaxRange(range), &effectiveRange, tmpLength, _attributes, _locations, &arrayIndex);
-    
-		moveLocations = [aString length] - range.length;	// how much we have to add
-		afterRangeLocation = [NSNumber numberWithUnsignedInt:NSMaxRange(range)+moveLocations];
+			attrs = _attributesAtIndexEffectiveRange(NSMaxRange(range), &effectiveRange, tmpLength, _attributes, _locations, &arrayIndex);
+			
+			moveLocations = [aString length] - range.length;	// how much we have to add
+			afterRangeLocation = [NSNumber numberWithUnsignedInt:NSMaxRange(range)+moveLocations];
 #if 0
 			NSLog(@"arrayIndex = %u", arrayIndex);
 			NSLog(@"effectiveRange = %@", NSStringFromRange(effectiveRange));
@@ -831,25 +861,25 @@ unsigned int tmpLength = [self length];
 			NSLog(@"afterRangeLocation = %@", afterRangeLocation);
 			NSLog(@"  loc1 = %@", _locations);
 #endif
-		if(effectiveRange.location > range.location)
-			[_locations replaceObjectAtIndex:arrayIndex withObject:afterRangeLocation];
-		else
-			{
-			arrayIndex++;
-			[_attributes insertObject:attrs atIndex:arrayIndex];
-			[_locations insertObject:afterRangeLocation atIndex:arrayIndex];
-			arraySize++;	// has now one more element
-			}
+			if(effectiveRange.location > range.location)
+				[_locations replaceObjectAtIndex:arrayIndex withObject:afterRangeLocation];
+			else
+				{
+				arrayIndex++;
+				[_attributes insertObject:attrs atIndex:arrayIndex];
+				[_locations insertObject:afterRangeLocation atIndex:arrayIndex];
+				arraySize++;	// has now one more element
+				}
 #if 0
 			NSLog(@"  loc1.5 = %@", _locations);
 #endif
 			
-		for(cnt = arrayIndex + 1; cnt < arraySize; cnt++)
-			{
-			unsigned int newLocation = [[_locations objectAtIndex:cnt] unsignedIntValue] + moveLocations;
-			[_locations replaceObjectAtIndex:cnt withObject:[NSNumber numberWithUnsignedInt:newLocation]];
-			}
-		arrayIndex--;
+			for(cnt = arrayIndex + 1; cnt < arraySize; cnt++)
+				{
+				unsigned int newLocation = [[_locations objectAtIndex:cnt] unsignedIntValue] + moveLocations;
+				[_locations replaceObjectAtIndex:cnt withObject:[NSNumber numberWithUnsignedInt:newLocation]];
+				}
+			arrayIndex--;
 #if 0
 			NSLog(@"  loc2 = %@", _locations);
 #endif
@@ -864,9 +894,9 @@ unsigned int tmpLength = [self length];
 #endif
 	while(arrayIndex > 0 && [[_locations objectAtIndex:arrayIndex] unsignedIntValue] > range.location)
 		{ // delete any location did change attributes in the replaced range
-		[_locations removeObjectAtIndex:arrayIndex];
-		[_attributes removeObjectAtIndex:arrayIndex];
-		arrayIndex--;
+			[_locations removeObjectAtIndex:arrayIndex];
+			[_attributes removeObjectAtIndex:arrayIndex];
+			arrayIndex--;
 		}
 #if 0
 	NSLog(@"  loc4 = %@", _locations);

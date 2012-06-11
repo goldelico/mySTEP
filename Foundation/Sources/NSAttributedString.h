@@ -70,7 +70,7 @@
 - (void) endEditing;
 - (void) insertAttributedString:(NSAttributedString *) attributedString 
 						atIndex:(NSUInteger) index;
-- (NSMutableString *) mutableString;				// Retrieve char info
+- (NSMutableString *) mutableString;				// this allows to modify the attributed string; WARNING: does not yet correctly implement *all* NSString methods
 - (void) removeAttribute:(NSString *) name range:(NSRange) aRange;
 - (void) replaceCharactersInRange:(NSRange) aRange 
 			 withAttributedString:(NSAttributedString *) attributedString;
