@@ -1284,6 +1284,7 @@
 		EE5B8C1F0E9015F300264951 /* info_16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = info_16.png; path = ../../Icons/Harmony/Additions/info_16.png; sourceTree = SOURCE_ROOT; };
 		EE61B6A509B21985005A250B /* NSColorSpace.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSColorSpace.m; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE8CE17A158C6CAD001DFA6B /* AppKitMixed-Prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AppKitMixed-Prefix.h"; sourceTree = "<group>"; };
 		EE8D1C330A2B4C71000632BC /* GSSearch.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSSearch.tiff; sourceTree = "<group>"; };
 		EE8D1C340A2B4C71000632BC /* GSStop.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSStop.tiff; sourceTree = "<group>"; };
 		EE8D21E41031DEF800195E25 /* GSArrowDown.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = GSArrowDown.png; sourceTree = "<group>"; };
@@ -1858,6 +1859,7 @@
 		EE3196E109AB7E8A0089A9A2 /* mySTEP Test */ = {
 			isa = PBXGroup;
 			children = (
+				EE8CE17A158C6CAD001DFA6B /* AppKitMixed-Prefix.h */,
 				EE3196E209AB7E8A0089A9A2 /* AppController.h */,
 				EE3196E309AB7E8A0089A9A2 /* AppController.m */,
 				EECD83FC0A089F8000EF3E30 /* myModel.h */,
@@ -3818,7 +3820,7 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
+				GCC_PREFIX_HEADER = "../TestApplications/NIB/AppKitMixed-Prefix.h";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"NSDebugLog(...)=",
 					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2)",
@@ -3888,7 +3890,7 @@
 				FRAMEWORK_VERSION = A;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
+				GCC_PREFIX_HEADER = "../TestApplications/NIB/AppKitMixed-Prefix.h";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"NSDebugLog(...)=",
 					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2)",
@@ -3956,7 +3958,7 @@
 				FRAMEWORK_SEARCH_PATHS = "";
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
+				GCC_PREFIX_HEADER = "../TestApplications/NIB/AppKitMixed-Prefix.h";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"NSDebugLog(...)=",
 					"$(GCC_PREPROCESSOR_DEFINITIONS_QUOTED_2)",
