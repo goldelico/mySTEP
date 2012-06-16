@@ -1,35 +1,13 @@
 VERSION
 
-  This is version 2.5 of the mySTEP libraries.
+  This is version 3.0 of the mySTEP libraries.
   
-  The code is based on mGstep-0.536. Many thanks to Felipe A. Rodriguez for providing the source codes!!!
+  The code has its root in mGstep-0.536.
+  Many thanks to Felipe A. Rodriguez for providing the source codes!!!
   
-  And on GNUstep.
+  And some parts are coming from GNUstep. Others
+  are even shared (CoreData, SimpleWebKit).
   
-  Modifications are described in the file HISTORY.rtf
-	
-SUPPORTED PLATFORMS
-
-  Currently, this package has been built on ARM-Linux for the Sharp Zaurus PDA,
-  for the Openmoko and Beagle Board as well as the Letux 400 (MIPS).
-
-HOW TO BUILD
-
-  This package builds within it's own hierarchy right from within Xcode.
-  
-  Open the project file (Frameworks.xcode).
-  
-  Select the myFrameworks target.
-  
-  Press Build.
-	
-INSTALLATION
-
-  mySTEP automatically copies itself to the Sharp Zaurus if one is connected.
-  
-  mySTEP installs itself in the SDK directory on the MacOS X machine to allow
-  for linking new applications to the SDK.
-
 LICENSE
 
    The mySTEP library is free software; you can redistribute it and/or
