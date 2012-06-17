@@ -477,7 +477,7 @@ endif
 	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp ./control
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	- rm -rf $@
-	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
+	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
 	ls -l $@
 
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
@@ -485,19 +485,19 @@ endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian development package
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-	- rm -rf /tmp/data
-	- mkdir -p "/tmp/data/$(ROOT)$(INSTALL_PATH)"
+	- rm -rf /tmp/$(TMP_DATA)
+	- mkdir -p "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)"
 	# explicitly include Headers
-	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(ROOT)$(INSTALL_PATH)" $(NAME_EXT) | (mkdir -p "/tmp/data/$(ROOT)$(INSTALL_PATH)" && cd "/tmp/data/$(ROOT)$(INSTALL_PATH)" && tar xvzf -)
+	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(ROOT)$(INSTALL_PATH)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)" && tar xvzf -)
 	# strip all executables down so that they can be linked
-	find /tmp/data -name '*-*-linux-gnu*' ! -name $(ARCHITECTURE) -exec rm -rf {} ";" -prune
-	rm -rf /tmp/data/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
-	rm -rf /tmp/data/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
-	find /tmp/data -type f -perm +a+x -exec $(STRIP) {} \;
-	mkdir -p /tmp/data/$(ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/data/$(ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
-	$(TAR) czf /tmp/data.tar.gz --owner 0 --group 0 -C /tmp/data .
-	ls -l /tmp/data.tar.gz
-	echo "2.0" >/tmp/debian-binary
+	find /tmp/$(TMP_DATA) -name '*-*-linux-gnu*' ! -name $(ARCHITECTURE) -exec rm -rf {} ";" -prune
+	rm -rf /tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
+	rm -rf /tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
+	find /tmp/$(TMP_DATA) -type f -perm +a+x -exec $(STRIP) {} \;
+	mkdir -p /tmp/$(TMP_DATA)/$(ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
+	$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_DATA) .
+	ls -l /tmp/$(TMP_DATA).tar.gz
+	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)-dev"; \
 	  echo "Replaces: $(DEBIAN_PACKAGE_NAME)"; \
 	  echo "Version: $(DEBIAN_VERSION)"; \
@@ -506,14 +506,14 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  echo "Homepage: http://www.quantum-step.com"; \
 	  [ "$(DEPENDS)" ] && echo "Depends: $(DEPENDS)"; \
 	  echo "Section: $(DEBIAN_SECTION)"; \
-	  echo "Installed-Size: `du -kHs /tmp/data | cut -f1`"; \
+	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
 	  echo "Priority: optional"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
-	) >/tmp/control
-	$(TAR) czf /tmp/control.tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp ./control
+	) >/tmp/$(TMP_CONTROL)
+	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp ./control
 	- rm -rf $@
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
-	ar -r -cSv $@ /tmp/debian-binary /tmp/control.tar.gz /tmp/data.tar.gz
+	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
 	ls -l $@
 else
 	# no development version
