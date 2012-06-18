@@ -36,9 +36,6 @@ enum
     NSTableColumnUserResizingMask=	0x02
 };
 
-@interface NSTableDataCell : NSTextFieldCell	// -> NSAppKitPrivate.h???
-@end
-
 @interface NSTableColumn : NSObject
 {
     id _identifier;

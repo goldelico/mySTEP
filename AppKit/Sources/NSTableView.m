@@ -119,46 +119,6 @@
 
 //*****************************************************************************
 //
-// 		NSTableDataCell 
-//
-//*****************************************************************************
-
-@implementation NSTableDataCell	// a simple text cell
-
-- (id) initTextCell:(NSString *)aString
-{
-	if((self=[super initTextCell:aString]))
-		{
-		_c.editable = NO;
-		_c.selectable = NO;
-		_c.bezeled = NO;
-		ASSIGN(_backgroundColor, [NSColor controlBackgroundColor]); 
-		}
-	return self;
-}
-
-- (void) dealloc
-{
-	_contents = nil;
-	[super dealloc];
-}
-
-- (void) setObjectValue:(id)anObject 			{ _contents = anObject; }
-// - (NSColor*) backgroundColor					{ return [NSColor whiteColor];}
-
-- (void) highlight:(BOOL)lit
-		 withFrame:(NSRect)cellFrame						
-		 inView:(NSView *)controlView					
-{
-	_c.highlighted = lit;
-	[self drawInteriorWithFrame:cellFrame inView:controlView];
-	_c.highlighted = NO;
-}											
-
-@end /* NSTableDataCell */
-
-//*****************************************************************************
-//
 // 		NSTableHeaderView 
 //
 //*****************************************************************************
@@ -510,7 +470,7 @@
 		{
 		ASSIGN(_identifier, identifier);
 		_headerCell = [NSTableHeaderCell new];	// create default cells
-		_dataCell = [NSTableDataCell new];
+		_dataCell = [NSTextFieldCell new];		// default
 		_maxWidth = 9999;
 		}
 	return self;
@@ -555,7 +515,7 @@
 - (void) setDataCell:(NSCell *)cell			 { ASSIGN(_dataCell, cell); }
 - (id) headerCell							 { return _headerCell; }
 - (id) dataCell								 { return _dataCell; }
-- (id) dataCellForRow:(int)row;				 { return _dataCell; }
+- (id) dataCellForRow:(int)row;				 { return [self dataCell]; }
 - (NSSortDescriptor *) sortDescriptorPrototype; { return _sortDescriptor; }
 - (void) setSortDescriptorPrototype:(NSSortDescriptor *) desc; { ASSIGN(_sortDescriptor, desc); }
 - (void) setResizingMask:(unsigned)mask;	 { _cFlags.resizingMask = mask; }
@@ -1826,8 +1786,39 @@ int index = [self columnWithIdentifier:identifier];
 	return;	// don't call super to avoid recursion, since we know that we update the cell during drawRect:
 }
 
+- (NSCell *) preparedCellAtColumn:(int)col row:(int)row
+{
+	NSTableColumn *column;
+	NSCell *aCell;
+	id data;
+	if(_clickedCell && _clickedRow == row && _clickedColumn == col)
+		{ // we are tracking this cell - don't update from data source!
+			return _clickedCell;
+#if 0
+			NSLog(@"draw clicked cell");
+#endif
+		}
+	column = [_tableColumns objectAtIndex:col];
+	if(row >= [self numberOfRows])
+		return nil;	// row does not exist
+	data=[_dataSource tableView:self objectValueForTableColumn:column row:row];	// ask data source
+	if(!data)
+		return nil;	// invalid data
+	aCell = [column dataCellForRow:row];
+#if 0
+	NSLog(@"preparedCellAtColumn:%d row %d", col, row);
+	NSLog(@"column=%@", column);
+	NSLog(@"cel=%@", aCell);
+	NSLog(@"data=%@", data);
+#endif
+	[aCell setObjectValue:data];	// set data from data source
+	if(_tv.delegateWillDisplayCell)
+		[_delegate tableView:self willDisplayCell:aCell forTableColumn:column row:row];	// give delegate a chance to modify the cell
+	return aCell;
+}
+
 - (void) drawRow:(int)row clipRect:(NSRect)rect
-{ // draws empty cells if row is not inside table
+{ // draws no cells if row is not inside table (but updates caches etc.)
 	int i, maxColRange;
 #if 0
 	NSLog(@"drawRow:%d", row);
@@ -1842,46 +1833,17 @@ int index = [self columnWithIdentifier:identifier];
 		_columnRange = [self columnsInRect:rect];
 		_cachedColOrigin = NSMinX([self rectOfColumn:_columnRange.location]);
 		}
-
+	
 	maxColRange = NSMaxRange(_columnRange);
 	rect.origin.x = _cachedColOrigin;
-
+	
 	for (i = _columnRange.location; i < maxColRange; i++)
 		{ // draw all columns of this row that are visible
-//			NSCell *aCell = [self preparedCellAtColumn:i row:row];
-			NSTableDataCell *aCell;
-		NSTableColumn *col = [_tableColumns objectAtIndex:i];
-		rect.size.width = col->_width;
-			// FIXME: we may not need _clickedCell because _clickedRow / _clickedColumn is unique - but mus be set to -1 when leaving the tracking loop
-		if(_clickedCell && _clickedRow == row && _clickedColumn == i)
-			{ // we are tracking this cell - don't update from data source!
-			aCell = _clickedCell;
-#if 0
-			NSLog(@"draw clicked cell");
-#endif
-			}
-		else
-			{ // get from data source
-				aCell = [col dataCellForRow:row];
-			id data;
-			if(row < [self numberOfRows])
-				data=[_dataSource tableView:self objectValueForTableColumn:col row:row];	// ask data source
-			else
-				data=nil;	// non-existing row
-#if 0
-			NSLog(@"drawRow:%d column %d", row, i);
-			NSLog(@"col=%@", col);
-			NSLog(@"cel=%@", aCell);
-			NSLog(@"data=%@", data);
-#endif
-			if(data)	// set data from data source (if available)
-				[aCell setObjectValue:data];
-			if(_tv.delegateWillDisplayCell)
-				[_delegate tableView:self willDisplayCell:aCell forTableColumn:col row:row];	// give delegate a chance to modify the cell
-			}
-		[aCell drawWithFrame:rect inView:self];
-		rect.origin.x = NSMaxX(rect) + _intercellSpacing.width;
-	}
+			NSCell *aCell = [self preparedCellAtColumn:i row:row];
+			if(aCell)
+				[aCell drawWithFrame:rect inView:self];	// draw
+			rect.origin.x = NSMaxX(rect) + _intercellSpacing.width;
+		}
 }
 
 - (void) highlightSelectionInClipRect:(NSRect)rect

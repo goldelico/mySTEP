@@ -2118,17 +2118,19 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		XIntersectRect(&xClipRect, &_state->_clipBox);
 		
 		/*
-		 FIXME: clip by screen rect (if window is partially offscreen)
+		 FIXME: clip by Screen rect (if window is partially offscreen)
+		 or we will get errors when trying to fetch the XImage
 		 
 		 for this calculation use:
 		 WidthOfScreen(_screen);			// screen width in pixels
 		 HeightOfScreen(_screen);			// screen height in pixels
 		 _windowRect
+		 
 		 onscreenbox in window Koordinaten:
 		 onscreen.x=MIN(0, -_windowRect.x)
 		 onscreen.width=MAX(widthofscreen, windowRect.x+windowRect.width)
 		 if(windowRect.x < 0)
-		 box.x-=windowRect.x, box.width+=windowRect.x;
+			box.x-=windowRect.x, box.width+=windowRect.x;
 		 
 		 */
 		

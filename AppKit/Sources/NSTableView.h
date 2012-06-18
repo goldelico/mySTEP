@@ -67,7 +67,7 @@ typedef NSUInteger NSTableViewDropOperation;
 {
 	NSTableHeaderView *_headerView;
 	NSView *_cornerView;
-	NSTableDataCell *_clickedCell;
+	NSCell *_clickedCell;
     NSCell *_editingCell;
     NSColor *_backgroundColor;
     NSColor *_gridColor;
