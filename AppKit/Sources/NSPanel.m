@@ -142,12 +142,6 @@
 
 @end /* NSPanel */
 
-//*****************************************************************************
-//
-// 		Alert panel functions
-//
-//*****************************************************************************
-
 static id _NSGetAlertPanel(NSString *icon,
 							   NSString *title,
 							   NSString *msg,
@@ -169,6 +163,18 @@ static id _NSGetAlertPanel(NSString *icon,
 		NSFont *bfont;			// button font
 		NSDictionary *attr;		// attributes
 		
+	// FXIME: we should load this once from a NIB file stored in the AppKit bundle!
+	// and just update the contents (i.e. set icon, title, message and hide/show buttons)
+	
+	/*
+	 if (!__alertPanel)
+	 {
+		[NSKeyedUnarchiver setClass:nil forClassName:@"NSAlertPanel"];	// just be sure: reset mapping
+		if(![NSBundle loadNibNamed:@"AlertPanel" owner:NSApp])	// looks for AlertPanel.nib in ressources of NSApp's bundle
+			[NSException raise: NSInternalInconsistencyException format: @"Unable to open alert panel model file."];
+	 }
+		*/
+
 #if 0
 		NSLog(@"_NSGetAlertPanel message=%@", msg);
 #endif
@@ -205,6 +211,7 @@ static id _NSGetAlertPanel(NSString *icon,
 		[m setAlignment: NSLeftTextAlignment];
 		[m setStringValue: (message ? message : @"")];
 		[m setFont: [NSFont systemFontOfSize: 9.0]];
+		[m setWraps:YES];
 		[cv addSubview: m];
 		[m release];
 		// create title field
@@ -420,6 +427,26 @@ NSRunInformationalAlertPanel(NSString *title,
 
 @implementation NSAlert
 
+- (IBAction) _defaultButtonAction:(id)sender
+{
+	[NSApp stopModalWithCode:NSAlertDefaultReturn];
+}
+
+- (IBAction) _alternateButtonAction:(id)sender
+{
+	[NSApp stopModalWithCode:NSAlertAlternateReturn];
+}
+
+- (IBAction) _otherButtonAction:(id)sender
+{ 
+	[NSApp stopModalWithCode:NSAlertOtherReturn];
+}
+
++ (NSAlert *) alertWithError:(NSError *) err;
+{
+	// initialize with components of error
+}
+
 + (NSAlert *) alertWithMessageText:(NSString *) message 
 					 defaultButton:(NSString *) defaultTitle 
 				   alternateButton:(NSString *) altTitle 
@@ -429,9 +456,38 @@ NSRunInformationalAlertPanel(NSString *title,
 	NSAlert *a=[[self new] autorelease];
 	va_list	ap;
 	va_start (ap, textWithFormat);
+	// a=[self initWithMessageText: ...
 	a->_window=[_NSGetAlertPanel(@"Alert",message,textWithFormat,defaultTitle,altTitle,otherTitle,ap) retain];
 	va_end (ap);
 	return a;
+}
+
+- (id) alertWithMessageText:(NSString *) message 
+			  defaultButton:(NSString *) defaultTitle 
+			alternateButton:(NSString *) altTitle 
+				otherButton:(NSString *) otherTitle
+					 format:(NSString *) format
+				  arguments:(va_list) ap
+{
+	if((self=[super init]))
+	   {
+	   [NSKeyedUnarchiver setClass:nil forClassName:@"NSAlert"];	// just be sure: reset mapping
+	   if(![NSBundle loadNibNamed:@"AlertPanel" owner:self])	// looks for AlertPanel.nib in ressources of NSApp's bundle
+		   {
+		   [self release];
+		   [NSException raise: NSInternalInconsistencyException format: @"Unable to open alert panel model file."];
+		   }
+	   [_defaultButton setHidden:defaultTitle == nil];
+	   if(defaultTitle) [_defaultButton setStringValue:defaultTitle];
+	   [_alternateButton setHidden:altTitle == nil];
+	   if(altTitle) [_alternateButton setStringValue:altTitle];
+	   [_otherButton setHidden:otherTitle == nil];
+	   if(otherTitle) [_otherButton setStringValue:otherTitle];
+	   [_icon setImage:[NSImage imageNamed: NSApplicationIcon]];
+	   [_title setStringValue:message];
+	   [_msg setStringValue:[[[NSString alloc] initWithFormat:format arguments: ap] autorelease]];
+	   }
+	return self;
 }
 
 - (void) dealloc
@@ -444,6 +500,8 @@ NSRunInformationalAlertPanel(NSString *title,
 {
 	return _NSRunPanel(_window);
 }
+
+// FIXME: add missing getters and setters
 
 @end
 
@@ -473,11 +531,6 @@ static NSSavePanel *__savePanel;
 
 + (NSSavePanel *) savePanel
 { // load the save panel from the NIB file
-#if OLD
-	if(!__savePanel)
-		__savePanel=[self new];	// alloc and init
-	return __savePanel;
-#endif
 	if (!__savePanel)
 		{
 		[NSKeyedUnarchiver setClass:nil forClassName:@"NSSavePanel"];	// just be sure: reset mapping

@@ -677,6 +677,8 @@
 		EE52D85E09E446140047FBB3 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D467109964C8300DDE5E0 /* AppKit.framework */; };
 		EE52D85F09E446140047FBB3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
 		EE52D86D09E4466D0047FBB3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE1D471409964C8F00DDE5E0 /* Foundation.framework */; };
+		EE59A471158F513300ADD1C9 /* AlertPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE59A46F158F513300ADD1C9 /* AlertPanel.nib */; };
+		EE59A472158F513300ADD1C9 /* AlertPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE59A46F158F513300ADD1C9 /* AlertPanel.nib */; };
 		EE5B8C200E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
 		EE5B8C210E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
 		EE5B8C220E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
@@ -1280,6 +1282,7 @@
 		EE4CC7100B3546F300B04C5F /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PrintProgressPanel.nib; sourceTree = "<group>"; };
 		EE4EF11C0CBE2A7C00376CD3 /* GSColorWheel.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = GSColorWheel.jpg; sourceTree = "<group>"; };
 		EE52832F09A1FB2E00218247 /* NSCursor.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSCursor.m; sourceTree = "<group>"; };
+		EE59A470158F513300ADD1C9 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/AlertPanel.nib; sourceTree = "<group>"; };
 		EE59BFFC15624FD000754103 /* executable.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = executable.php; path = Sources/executable.php; sourceTree = "<group>"; };
 		EE5B8C1F0E9015F300264951 /* info_16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = info_16.png; path = ../../Icons/Harmony/Additions/info_16.png; sourceTree = SOURCE_ROOT; };
 		EE61B6A509B21985005A250B /* NSColorSpace.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSColorSpace.m; sourceTree = "<group>"; };
@@ -1823,6 +1826,7 @@
 		EE1227140D059AC2000E4BA5 /* System Panels */ = {
 			isa = PBXGroup;
 			children = (
+				EE349C39097027D500CBF42C /* NSAlert.h */,
 				EEA3720709540273001244CF /* NSColorPanel.h */,
 				EEA3720809540273001244CF /* NSColorPicker.h */,
 				EEA3720909540273001244CF /* NSColorPicking.h */,
@@ -2114,7 +2118,6 @@
 		EE52F2140B8F2FD00093595A /* Windows */ = {
 			isa = PBXGroup;
 			children = (
-				EE349C39097027D500CBF42C /* NSAlert.h */,
 				EE349C42097027D500CBF42C /* NSDrawer.h */,
 				EEACF8A409ED3A9F0085F56E /* NSDrawer.m */,
 				EEA3725909540273001244CF /* NSScreen.h */,
@@ -2358,6 +2361,7 @@
 			isa = PBXGroup;
 			children = (
 				EEA3729509540274001244CF /* AboutPanel.nib */,
+				EE59A46F158F513300ADD1C9 /* AlertPanel.nib */,
 				EEA3F88C0BEDD65400E39682 /* ColorPanel.nib */,
 				EEA3F8900BEDD66A00E39682 /* FindPanel.nib */,
 				EEA3F8920BEDD66A00E39682 /* FontPanel.nib */,
@@ -3185,6 +3189,7 @@
 				EE8D21F91031DEF800195E25 /* GSArrowRightH.png in Resources */,
 				EE8D21FA1031DEF800195E25 /* GSArrowUp.png in Resources */,
 				EE8D21FB1031DEF800195E25 /* GSArrowUpH.png in Resources */,
+				EE59A472158F513300ADD1C9 /* AlertPanel.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3284,6 +3289,7 @@
 				EE8D21F11031DEF800195E25 /* GSArrowRightH.png in Resources */,
 				EE8D21F21031DEF800195E25 /* GSArrowUp.png in Resources */,
 				EE8D21F31031DEF800195E25 /* GSArrowUpH.png in Resources */,
+				EE59A471158F513300ADD1C9 /* AlertPanel.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3753,6 +3759,14 @@
 				EE4CC7100B3546F300B04C5F /* English */,
 			);
 			name = PrintProgressPanel.nib;
+			sourceTree = "<group>";
+		};
+		EE59A46F158F513300ADD1C9 /* AlertPanel.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EE59A470158F513300ADD1C9 /* English */,
+			);
+			name = AlertPanel.nib;
 			sourceTree = "<group>";
 		};
 		EE93C7A20B901E5700FBD885 /* MainMenu ViewTest.nib */ = {

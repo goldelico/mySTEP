@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class NSImage;
+@class NSImage, NSTextField, NSImageView, NSButton, NSPanel;
 
 enum
 {
@@ -40,15 +40,18 @@ enum
 
 @interface NSAlert : NSObject
 {
+	IBOutlet NSTextField *_title;
+	IBOutlet NSTextField *_msg;
+	IBOutlet NSImageView *_icon;
+	IBOutlet NSButton *_defaultButton;
+	IBOutlet NSButton *_alternateButton;
+	IBOutlet NSButton *_otherButton;
+	IBOutlet NSPanel *_window;
 	NSAlertStyle _alertStyle;
-	NSArray *_buttons;
 	id _delegate;
 	NSString *_helpAnchor;
-	NSImage *_icon;
 	NSString *_informativeText;
-	NSString *_messageText;
-	id _window;
-	BOOL _showsHelp;
+	BOOL _showsHelp;	
 }
 
 + (NSAlert *) alertWithError:(NSError *) err;
