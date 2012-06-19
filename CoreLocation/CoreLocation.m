@@ -824,6 +824,7 @@ static int startW2SG;
 @implementation CLPlacemark
 
 // for a description see http://www.icodeblog.com/2009/12/22/introduction-to-mapkit-in-iphone-os-3-0-part-2/
+// attribute names should be compatible to ABGlobals.h
 
 - (NSDictionary *) addressDictionary; { return addressDictionary; }
 
@@ -846,7 +847,7 @@ static int startW2SG;
 
 - (NSString *) thoroughfare; { return [addressDictionary objectForKey:@"Throughfare"]; }
 - (NSString *) subThoroughfare; { return [addressDictionary objectForKey:@"SubThroughfare"]; }
-- (NSString *) locality; { return [addressDictionary objectForKey:@"?"]; }
+- (NSString *) locality; { return [addressDictionary objectForKey:@"City"]; }
 - (NSString *) subLocality; { return [addressDictionary objectForKey:@"?"]; }
 - (NSString *) administrativeArea; { return [addressDictionary objectForKey:@"?"]; }
 - (NSString *) subAdministrativeArea; { return [addressDictionary objectForKey:@"SubAdministrativeArea"]; }
@@ -864,7 +865,7 @@ static int startW2SG;
 	if((self=[super init]))
 		{
 		coordinate=coord;
-		addressDictionary=[addr retain];	// FIXME: or copy?
+		addressDictionary=[addr copy];
 		}
 	return self;
 }

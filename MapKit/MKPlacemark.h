@@ -15,6 +15,8 @@
 {
 }
 
+/* address Dictionary uses constants from <ABAddressBook/ABGlobals.h> */
+
 - (id) initWithCoordinate:(CLLocationCoordinate2D) coord addressDictionary:(NSDictionary *) addr;
 
 @end
