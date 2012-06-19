@@ -483,7 +483,6 @@ NSRunInformationalAlertPanel(NSString *title,
 	   if(altTitle) [_alternateButton setStringValue:altTitle];
 	   [_otherButton setHidden:otherTitle == nil];
 	   if(otherTitle) [_otherButton setStringValue:otherTitle];
-	   [_icon setImage:[NSImage imageNamed: NSApplicationIcon]];
 	   [_title setStringValue:message];
 	   [_msg setStringValue:[[[NSString alloc] initWithFormat:format arguments: ap] autorelease]];
 	   }
