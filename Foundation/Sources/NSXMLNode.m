@@ -87,6 +87,8 @@
 - (NSString *) name; { return _name; }
 - (NSString *) prefix; { return _prefix; }
 - (id) objectValue; { return _objectValue; }
+
+// FIXME: concatenate children and or apply value transformers!
 - (NSString *) stringValue; { return _objectValue; }
 - (NSXMLDocument *) rootDocument; { while(_parent) self=_parent; return (NSXMLDocument *) self; }
 - (NSXMLNode *) parent; { return _parent; }
