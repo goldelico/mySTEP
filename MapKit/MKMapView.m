@@ -926,9 +926,17 @@ static NSMutableArray *tileLRU;
 
 @end
 
-@implementation MKPlacemark
+@implementation MKPlacemark // based on CLPlacemark
 
-// now based on CLPlacemark
+- (NSString *) subtitle;
+{
+	return @"MKPlacemark subtitle";
+}
+
+- (NSString *) title;
+{
+	return @"MKPlacemark title";
+}
 
 @end
 
