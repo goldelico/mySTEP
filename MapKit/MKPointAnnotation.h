@@ -6,6 +6,7 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
+#import <MapKit/MKShape.h>
 
 @interface MKPointAnnotation : MKShape
 {

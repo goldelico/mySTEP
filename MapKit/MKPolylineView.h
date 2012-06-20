@@ -6,6 +6,8 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
+#import <MapKit/MKOverlayPathView.h>
+
 @interface MKPolylineView : MKOverlayPathView
 @end
 

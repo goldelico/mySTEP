@@ -14,13 +14,9 @@
 @interface MKUserLocation : NSObject <MKAnnotation>
 {
 	CLLocationManager *manager;
-	// @property (readonly, nonatomic) CLLocation *location;
-	CLLocation *location;
-	// @property (retain, nonatomic) NSString *subtitle;
-	NSString *subtitle;
-	// @property (retain, nonatomic) NSString *title;
-	NSString *title;
-	// @property (readonly, nonatomic, getter=isUpdating) BOOL updating;
+	/* readonly, nonatomic */ CLLocation *location;
+	/* retain, nonatomic */ NSString *subtitle;
+	/* retain, nonatomic */ NSString *title;
 }
 
 - (CLLocation *) location;

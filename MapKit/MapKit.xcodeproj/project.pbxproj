@@ -45,6 +45,7 @@
 		EE31DF15125A359D00DF3C91 /* MKOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF14125A359D00DF3C91 /* MKOverlayView.m */; };
 		EE31DF21125A36A600DF3C91 /* MKGeometry.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31DF20125A36A600DF3C91 /* MKGeometry.m */; };
 		EE31DF23125A385600DF3C91 /* MKPointAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE59A609159109E500ADD1C9 /* flag_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EE59A608159109E500ADD1C9 /* flag_32.png */; };
 		EE6D4082137BB5EF003D5863 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
 		EE6D4087137BB5F2003D5863 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		EE92251713617A000010C76C /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = EE922504136179DD0010C76C /* Credits.rtf */; };
@@ -99,6 +100,7 @@
 		EE31DF14125A359D00DF3C91 /* MKOverlayView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKOverlayView.m; sourceTree = "<group>"; };
 		EE31DF20125A36A600DF3C91 /* MKGeometry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKGeometry.m; sourceTree = "<group>"; };
 		EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPointAnnotation.h; sourceTree = "<group>"; };
+		EE59A608159109E500ADD1C9 /* flag_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = flag_32.png; path = ../../Icons/Harmony/PNG/flag_32.png; sourceTree = SOURCE_ROOT; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EE9224C7136179BD0010C76C /* MapKitTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapKitTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE922505136179DD0010C76C /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 		089C1665FE841158C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				EE59A608159109E500ADD1C9 /* flag_32.png */,
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
 				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
 				EE9E75581467EB390029F8D8 /* PreinstalledTiles */,
@@ -387,6 +390,7 @@
 			files = (
 				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
 				EE9E755A1467EB390029F8D8 /* PreinstalledTiles in Resources */,
+				EE59A609159109E500ADD1C9 /* flag_32.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

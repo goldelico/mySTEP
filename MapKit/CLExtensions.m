@@ -180,6 +180,8 @@
 	[super dealloc];
 }
 
+// initWithPlacemark not found
+
 @end
 
 @implementation CLGeocoder
@@ -228,6 +230,7 @@
 			NSString *url=[NSString stringWithFormat:@"http://geocoding.cloudmade.com/%@/geocoding/v2/find.plist?query=%@", @"8ee2a50541944fb9bcedded5165f09d9", address];
 			// make asynchronous fetch and report result through [handler performSelectorWithObject:andObject:]
 			NSDictionary *dict=[NSDictionary dictionaryWithContentsOfURL:[NSURL URLWithString:url]];
+			// FIXME: do something with the result
 		}
 }
 

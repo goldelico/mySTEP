@@ -6,11 +6,7 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "MKOverlayView.h"
-#import "MKShape.h"
-#import "MKMultiPoint.h"
-#import "MKPolyline.h"
-#import "MKPolygon.h"
+#import <MapKit/MapKit.h>
 
 
 @implementation MKOverlayView
@@ -26,23 +22,69 @@
 	[[NSColor greenColor] set];
 	NSRectFill(rect);
 #endif
+	//	[self drawMapRect:<#(MKMapRect)rect#> zoomScale:1.0 inContext:[NSGraphicsContext currentContext]];
+}
+
+- (BOOL) canDrawMapRect:(MKMapRect) rect zoomScale:(MKZoomScale) scale;
+{
+	return NO;
+}
+
+- (void) drawMapRect:(MKMapRect) rect zoomScale:(MKZoomScale) scale inContext:(CGContextRef) context;
+{
+	
+}
+
+- (id) initWithOverlay:(id <MKOverlay>) overlay;
+{
+	if((self=[super initWithFrame:NSZeroRect]))
+		{
+		_overlay=[overlay retain];
+		}
+	return self;
+}
+
+- (void) dealloc;
+{
+	[_overlay release];
+	[super dealloc];
+}
+
+/*
+- (MKMapPoint) mapPointForPoint:(CGPoint) point;
+- (MKMapRect) mapRectForRect:(CGRect) rect;
+- (CGPoint) pointForMapPoint:(MKMapPoint) point;
+- (CGRect) rectForMapRect:(MKMapRect) rect;
+*/
+
+- (id <MKOverlay>) overlay; { return _overlay; }
+
+- (void) setNeedsDisplayInMapRect:(MKMapRect) rect;
+{
+//	[self setNeedsDisplayInRect:[self rectForMapRect:rect]];
+}
+
+- (void) setNeedsDisplayInMapRect:(MKMapRect) rect zoomScale:(MKZoomScale) scale;
+{
+	// adjust for scale
+//	[self setNeedsDisplayInRect:[self rectForMapRect:rect]];
 }
 
 @end
 
-@implementation MKOverlayPathView
+@implementation MKOverlayPathView	/* : MKOverlayView */
 
 @end
 
-@implementation MKCircleView
+@implementation MKCircleView	/* : MKOverlayPathView */
 
 @end
 
-@implementation MKPolygonView
+@implementation MKPolygonView	/* : MKOverlayPathView */
 
 @end
 
-@implementation MKPolylineView
+@implementation MKPolylineView	/* : MKOverlayPathView */
 
 @end
 

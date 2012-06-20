@@ -6,14 +6,17 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#if !TARGET_OS_IPHONE
-#define UIView NSView
-#endif
-
 #import <Cocoa/Cocoa.h>
 #import <MapKit/MKGeometry.h>
 #import <MapKit/MKOverlay.h>
 #import <MapKit/MKTypes.h>
+
+#if !TARGET_OS_IPHONE
+#undef UIView
+#define UIView NSView
+#define UIImage NSImage
+#define CGPoint NSPoint
+#endif
 
 typedef enum MKAnnotationViewDragState
 {
@@ -24,14 +27,16 @@ typedef enum MKAnnotationViewDragState
 	MKAnnotationViewDragStateEnding
 } MKAnnotationViewDragState;
 
-// a better design decision by those who defined this API
-// would have been to subclass NSCell...
-// and have MKMapView use a dataSource like NSTableView
-
 @interface MKAnnotationView : UIView
 {
+	CGPoint calloutOffset;
+	CGPoint centerOffset;
 	id <MKAnnotation> annotation;
 	NSString *reuseIdentifier;
+	UIImage *image;
+	UIView *leftCalloutAccessoryView;
+	UIView *rightCalloutAccessoryView;
+	MKAnnotationViewDragState dragState;
 	BOOL canShowCallout;
 	BOOL draggable;
 	BOOL enabled;
@@ -40,29 +45,29 @@ typedef enum MKAnnotationViewDragState
 }
 
 - (id <MKAnnotation>) annotation;
+- (CGPoint) calloutOffset;
 - (BOOL) canShowCallout;
+- (CGPoint) centerOffset;
+- (MKAnnotationViewDragState) dragState;
 - (BOOL) isDraggable;
 - (BOOL) isEnabled;
 - (BOOL) isHighlighted;
+- (UIImage *) image;
 - (BOOL) isSelected;
+- (UIView *) leftCalloutAccessoryView;
 - (NSString *) reuseIdentifier;
+- (UIView *) rightCalloutAccessoryView;
 - (void) setAnnotation:(id <MKAnnotation>) a;
+- (void) setCalloutOffset:(CGPoint) offset;
 - (void) setCanShowCallout:(BOOL) flag;
+- (void) setCenterOffset:(CGPoint) offset;
 - (void) setDraggable:(BOOL) flag;
 - (void) setEnabled:(BOOL) flag;
 - (void) setHighlighted:(BOOL) flag;
+- (void) setImage:(UIImage *) image;
+- (void) setLeftCalloutAccessoryView:(UIView *) view;
+- (void) setRightCalloutAccessoryView:(UIView *) view;
 - (void) setSelected:(BOOL) flag;
-
-#if 0
-
-@property (nonatomic) CGPoint calloutOffset
-@property (nonatomic) CGPoint centerOffset
-@property (nonatomic) MKAnnotationViewDragState dragState
-@property (nonatomic, retain) UIImage *image
-@property (retain, nonatomic) UIView *leftCalloutAccessoryView
-@property (retain, nonatomic) UIView *rightCalloutAccessoryView
-
-#endif
 
 - (id) initWithAnnotation:(id <MKAnnotation>) annotation reuseIdentifier:(NSString *) ident;
 - (void) prepareForReuse;

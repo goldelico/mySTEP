@@ -306,6 +306,8 @@ static NSMutableArray *tileLRU;
 	[annotations release];
 	[overlays release];
 	[userLocation release];
+	[viewForAnnotation release];
+	[viewForOverlay release];
 	[super dealloc];
 }
 
@@ -500,11 +502,51 @@ static NSMutableArray *tileLRU;
 	// FIXME: should we have some flag to update only if any annotation or visibleMapRect changes?
 	/* draw annotations and overlays (not here - they are handled through subviews) */
 	// but we should check annotations / annotation views if they are still visible
+
+	// make sure they are not drawn more than needed!!! There may be several 100 of them...
+	
 	e=[annotations objectEnumerator];
 	while((a=[e nextObject]))
-		{ // update position of annotation
-			
+		{ // update annotation subviews (will be drawn by AppKit after our -drawRect: did end)
+			MKAnnotationView *aView=[self viewForAnnotation:a];	// may be nil
+			MKMapPoint pos=MKMapPointForCoordinate([a coordinate]);
+			BOOL visible=MKMapRectContainsPoint(visibleMapRect, pos);	// if center is within visible rect
+			// general FIXME: remove subviews if they are no longer needed!
+			if(aView && !visible)
+				{ // became invisible
+					[aView setHidden:YES];
+					// here we may put it into the reuse queue for [a reuseIdentifier]
+#if 0	// if we have no reuse queue we must keep the link
+					NSMapRemove(viewForAnnotation, a);
+#endif
+				}
+#if 1	// unless we have the reuse queue
+			if(aView && visible)
+				{ // became visible (again)
+					[aView setHidden:NO];
+				}
+#endif
+			if(!aView && visible)
+				{ // became visible for the first time
+					if([delegate respondsToSelector:@selector(mapView:viewForAnnotation:)])
+						aView=[delegate mapView:self viewForAnnotation:a];	// let delegate provide a new annotation view, potentially reused
+					if(!aView)	// default
+						aView=[[[MKPinAnnotationView alloc] initWithAnnotation:a reuseIdentifier:@"PinAnnotation"] autorelease];	// create a fresh one
+					[self addSubview:aView];	// makes us the superview
+					if(!viewForAnnotation)
+						viewForAnnotation=NSCreateMapTable(NSNonRetainedObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 10);
+					NSMapInsert(viewForAnnotation, a, aView);	// and remember
+				}
+			if(visible)
+				{
+				NSPoint origin;
+				origin=[self _pointForMapPoint:pos];
+				// handle centerOffset of annotation view!
+				[aView setFrameOrigin:origin];	// move to current location
+				/* drawing of the subviews will be done automatically after this drawRect */
+				}
 		}
+	// FIXME: same code for Overlays
 }
 
 - (void) addAnnotation:(id <MKAnnotation>) a; { [annotations addObject:a]; [self setNeedsDisplay:YES]; }	// could optimize drawing rect?
@@ -770,20 +812,12 @@ static NSMutableArray *tileLRU;
 
 - (MKAnnotationView *) viewForAnnotation:(id <MKAnnotation>) a;
 {
-	// check queue/cache
-	MKAnnotationView *v=[delegate mapView:self viewForAnnotation:a];
-	if(!v)
-		{ // use default view
-			
-		}
-	return v;
+	return NSMapGet(viewForAnnotation, a);
 }
 
 - (MKOverlayView *) viewForOverlay:(id <MKOverlay>) o;
 {
-	// check queue/cache
-	MKOverlayView *v=[delegate mapView:self viewForOverlay:o];
-	return v;	
+	return NSMapGet(viewForOverlay, o);
 }
 
 - (MKMapRect) visibleMapRect; { return visibleMapRect; }
@@ -874,6 +908,12 @@ static NSMutableArray *tileLRU;
 		}
 }
 
+- (NSView *) hitTest:(NSPoint) pos
+{
+	// check for hits in annotation or overlay views
+	return [super hitTest:pos];
+}
+
 - (void) mouseDown:(NSEvent *)theEvent;
 { // we come here only if hitTest of MKAnnotationViews and MKOverlayViews did fail
 	NSPoint p0 = [self convertPoint:[theEvent locationInWindow] fromView:nil];	// initial point
@@ -936,6 +976,16 @@ static NSMutableArray *tileLRU;
 - (NSString *) title;
 {
 	return @"MKPlacemark title";
+}
+
+- (id) initWithCoordinate:(CLLocationCoordinate2D) coord addressDictionary:(NSDictionary *) addr;
+{
+	return [super initWithCoordinate:coord addressDictionary:addr];
+}
+
+- (void) setCoordinate:(CLLocationCoordinate2D) pos
+{
+//	[super setCoordinate:pos];
 }
 
 @end

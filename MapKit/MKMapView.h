@@ -56,6 +56,8 @@ typedef struct UIEdgeInsets
 	MKMapRect visibleMapRect;	
 	NSMutableArray *annotations;
 	NSMutableArray *overlays;	// back to front
+	NSMapTable *viewForAnnotation;
+	NSMapTable *viewForOverlay;
 	id <MKMapViewDelegate> delegate;
 	MKUserLocation *userLocation;
 	MKMapType mapType;
