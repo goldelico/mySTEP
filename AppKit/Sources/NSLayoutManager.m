@@ -1646,7 +1646,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		{
 		NSTextView *tv=[self firstTextView];
 		NSRange sel=[tv selectedRange];
-#if 1
+#if 0
 		NSLog(@"textStorage:edited:%u range:%@ change:%d inval:%@", editedMask, NSStringFromRange(newCharRange), delta, NSStringFromRange(invalidatedCharRange));
 		NSLog(@"  tv=%@", tv);
 		if([tv frame].size.height == 0)

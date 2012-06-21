@@ -22,8 +22,12 @@
 {
 	[location release];
 	location=[newloc retain];
-	// make us redraw - what is the protocol how a MKAnnotation can notify changes? KVO?
-	// or does a MKAnnotation know its MKAnnotationView?
+	// make us redraw - what is the protocol how a MKAnnotation can notify the MKMapView about changes?
+	// a) KVO?
+	// b) does a MKAnnotation know its MKAnnotationView? Apparently no.
+	// c) does (each) MKMapView have a timer to check for changes in [annotation coordinate]?
+	// d) is there a global +[MKMapView _viewForAnnotation:] table with all visible annotations to find out the superview (MKMapView)?
+	// anyways we have to call:
 	// [[mapview delegate] mapView:mapView didUpdateUserLocation:self]
 #if 1
 //	NSLog(@"old location: %@", old);
@@ -54,7 +58,7 @@
 }
 
 - (CLLocationCoordinate2D) coordinate; { return [location coordinate]; }
-- (void) setCoordinate:(CLLocationCoordinate2D) pos; { return; }	// ignore or raise
+- (void) setCoordinate:(CLLocationCoordinate2D) pos; { return; }	// ignore
 - (NSString *) subtitle; { return subtitle; }
 - (NSString *) title; { return title; }
 

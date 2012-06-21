@@ -15,7 +15,6 @@
 
 #import <MapKit/CLHeading.h>
 #import <MapKit/CLPlacemark.h>
-#import <MapKit/CLGeocoder.h>
 #import <MapKit/CLRegion.h>
 
 @interface NSBlockHandler : NSObject
@@ -31,6 +30,10 @@
 - (id) performSelectorWithObject:(id) obj1 withObject:(id) obj2;
 
 @end
+
+#define __mySTEP__
+#import <MapKit/CLGeocoder.h>
+#undef __mySTEP__
 
 typedef enum _CLLocationSource
 {

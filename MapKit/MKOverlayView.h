@@ -15,6 +15,7 @@
 #undef UIView
 #define UIView NSView
 #define UIImage NSImage
+#define CGRect NSRect
 #endif
 
 @interface MKOverlayView : UIView

@@ -119,7 +119,9 @@ typedef struct UIEdgeInsets
 - (MKOverlayView *) viewForOverlay:(id <MKOverlay>) o;
 - (MKMapRect) visibleMapRect;
 
-// NSResponder methods
+@end
+
+@interface MKMapView (NSResponder)
 
 - (IBAction) zoomIn:(id) sender;
 - (IBAction) zoomOut:(id) sender;
@@ -127,6 +129,20 @@ typedef struct UIEdgeInsets
 - (IBAction) moveRight:(id) sender;	// move east
 - (IBAction) moveUp:(id) sender;	// move north (like vertical scrollwheel)
 - (IBAction) moveDown:(id) sender;	// move south
+
+@end
+
+@interface MKMapView (Private)
+
+- (NSPoint) _pointForMapPoint:(MKMapPoint) pnt;
+- (NSRect) _rectForMapRect:(MKMapRect) rect;
+- (MKMapPoint) _mapPointForPoint:(NSPoint) pnt;
+- (MKMapRect) _mapRectForRect:(NSRect) rect;
+- (NSString *) _tileURLForZ:(int) z x:(int) x y:(int) y;
+- (BOOL) _drawTileForZ:(int) z x:(int) x y:(int) y intoRect:(NSRect) rect load:(BOOL) flag;
+- (void) _scaleBy:(float) factor aroundCenter:(MKMapPoint) center;
+- (void) _scaleBy:(float) factor;
+- (void) _moveByX:(double) x Y:(double) y;
 
 @end
 

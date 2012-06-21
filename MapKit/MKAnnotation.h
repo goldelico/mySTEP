@@ -9,10 +9,12 @@
 #import <CoreLocation/CoreLocation.h>
 
 @protocol MKAnnotation <NSObject>
+/* required */
 - (CLLocationCoordinate2D) coordinate;
-- (void) setCoordinate:(CLLocationCoordinate2D) pos;	// changed by user
+/* optional */
 - (NSString *) subtitle;
 - (NSString *) title;
+- (void) setCoordinate:(CLLocationCoordinate2D) pos;	// changed by user
 @end
 
 // EOF

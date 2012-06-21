@@ -16,8 +16,8 @@
 
 - (void) setSubtitle:(NSString *) s;
 - (void) setTitle:(NSString *) t;
-- (NSString *) subtitle;
-- (NSString *) title;
+// - (NSString *) subtitle;
+// - (NSString *) title;
 
 @end
 

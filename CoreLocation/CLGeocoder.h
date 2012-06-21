@@ -12,7 +12,9 @@
 @class CLRegion, CLLocation;
 
 #ifndef __mySTEP__
-@class NSBlockHandler;	// mySTEP extension
+@interface NSBlockHandler : NSObject;	// mySTEP extension
+- (void) performSelectorWithObject:(id) obj andObject:(id) obj;
+@end
 #endif
 
 // typedef void (^CLGeocodeCompletionHandler)(NSArray *placemark, NSError *error);

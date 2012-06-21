@@ -306,8 +306,8 @@ static NSMutableArray *tileLRU;
 	[annotations release];
 	[overlays release];
 	[userLocation release];
-	[viewForAnnotation release];
-	[viewForOverlay release];
+	if(viewForAnnotation) NSFreeMapTable(viewForAnnotation);
+	if(viewForOverlay) NSFreeMapTable(viewForOverlay);
 	[super dealloc];
 }
 
@@ -546,7 +546,8 @@ static NSMutableArray *tileLRU;
 				/* drawing of the subviews will be done automatically after this drawRect */
 				}
 		}
-	// FIXME: same code for Overlays
+	// FIXME: almost same code for Overlays - but checks for intersection of visibleMapRect with overlay rect (so that it does not disappear if the coordinate is not visible)
+	// pass zoom scale
 }
 
 - (void) addAnnotation:(id <MKAnnotation>) a; { [annotations addObject:a]; [self setNeedsDisplay:YES]; }	// could optimize drawing rect?
@@ -605,15 +606,6 @@ static NSMutableArray *tileLRU;
 	// if yes, we need a NSDictionary with NSMutableArray entries
 	// this method looks if we have such an identifier
 	return nil;
-}
-
-- (void) _enqueueReusableAnnotationView:(MKAnnotationView *) view
-{ // has moved off-screen
-	NSString *ident=[view reuseIdentifier];
-	if(ident)
-		{ // put into queue
-			[view prepareForReuse];	// give them a chance to prepare for reuse
-		}
 }
 
 - (void) deselectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
@@ -812,11 +804,13 @@ static NSMutableArray *tileLRU;
 
 - (MKAnnotationView *) viewForAnnotation:(id <MKAnnotation>) a;
 {
+	if(!viewForAnnotation) return nil;
 	return NSMapGet(viewForAnnotation, a);
 }
 
 - (MKOverlayView *) viewForOverlay:(id <MKOverlay>) o;
 {
+	if(!viewForOverlay) return nil;
 	return NSMapGet(viewForOverlay, o);
 }
 

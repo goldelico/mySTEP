@@ -50,12 +50,25 @@
 	[super dealloc];
 }
 
-/*
 - (MKMapPoint) mapPointForPoint:(CGPoint) point;
+{
+	return [(MKMapView *) [self superview] _mapPointForPoint:point];
+}
+
 - (MKMapRect) mapRectForRect:(CGRect) rect;
+{
+	return [(MKMapView *) [self superview] _mapRectForRect:rect];
+}
+
 - (CGPoint) pointForMapPoint:(MKMapPoint) point;
+{
+	return [(MKMapView *) [self superview] _pointForMapPoint:point];
+}
+
 - (CGRect) rectForMapRect:(MKMapRect) rect;
-*/
+{
+	return [(MKMapView *) [self superview] _rectForMapRect:rect];
+}
 
 - (id <MKOverlay>) overlay; { return _overlay; }
 

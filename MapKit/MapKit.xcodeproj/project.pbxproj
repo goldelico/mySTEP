@@ -48,6 +48,10 @@
 		EE59A609159109E500ADD1C9 /* flag_32.png in Resources */ = {isa = PBXBuildFile; fileRef = EE59A608159109E500ADD1C9 /* flag_32.png */; };
 		EE6D4082137BB5EF003D5863 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
 		EE6D4087137BB5F2003D5863 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
+		EE71B541159302E800C4E869 /* CLGeocoder.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B53D159302E800C4E869 /* CLGeocoder.m */; };
+		EE71B542159302E800C4E869 /* CLHeading.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B53E159302E800C4E869 /* CLHeading.m */; };
+		EE71B543159302E800C4E869 /* CLPlacemark.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B53F159302E800C4E869 /* CLPlacemark.m */; };
+		EE71B544159302E800C4E869 /* CLRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = EE71B540159302E800C4E869 /* CLRegion.m */; };
 		EE92251713617A000010C76C /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = EE922504136179DD0010C76C /* Credits.rtf */; };
 		EE92251813617A000010C76C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EE922506136179DD0010C76C /* InfoPlist.strings */; };
 		EE92251913617A000010C76C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = EE922508136179DD0010C76C /* MainMenu.xib */; };
@@ -57,7 +61,6 @@
 		EE92252013617A2D0010C76C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* MapKit.framework */; };
 		EE9E755A1467EB390029F8D8 /* PreinstalledTiles in Resources */ = {isa = PBXBuildFile; fileRef = EE9E75581467EB390029F8D8 /* PreinstalledTiles */; };
 		EEAF48F014697F3C00A1196E /* CLExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAF48EE14697F3C00A1196E /* CLExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EEAF48F114697F3C00A1196E /* CLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAF48EF14697F3C00A1196E /* CLExtensions.m */; };
 		EEAF49CC14699FC400A1196E /* CLGeocoder.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAF49C814699FC400A1196E /* CLGeocoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEAF49CD14699FC400A1196E /* CLHeading.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAF49C914699FC400A1196E /* CLHeading.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEAF49CE14699FC400A1196E /* CLPlacemark.h in Headers */ = {isa = PBXBuildFile; fileRef = EEAF49CA14699FC400A1196E /* CLPlacemark.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -69,6 +72,7 @@
 		EEB23D7E1258B1F80018A9F3 /* MKTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D7D1258B1F80018A9F3 /* MKTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23D901258B5850018A9F3 /* MKGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB23D8F1258B5850018A9F3 /* MKGeometry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB23DB51258B6410018A9F3 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
+		EEC35EE215930B89008B3D25 /* CLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEAF48EF14697F3C00A1196E /* CLExtensions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -102,6 +106,10 @@
 		EE31DF22125A385600DF3C91 /* MKPointAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKPointAnnotation.h; sourceTree = "<group>"; };
 		EE59A608159109E500ADD1C9 /* flag_32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = flag_32.png; path = ../../Icons/Harmony/PNG/flag_32.png; sourceTree = SOURCE_ROOT; };
 		EE69CFD9108DD5A100486DB1 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EE71B53D159302E800C4E869 /* CLGeocoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CLGeocoder.m; path = ../CoreLocation/CLGeocoder.m; sourceTree = SOURCE_ROOT; };
+		EE71B53E159302E800C4E869 /* CLHeading.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CLHeading.m; path = ../CoreLocation/CLHeading.m; sourceTree = SOURCE_ROOT; };
+		EE71B53F159302E800C4E869 /* CLPlacemark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CLPlacemark.m; path = ../CoreLocation/CLPlacemark.m; sourceTree = SOURCE_ROOT; };
+		EE71B540159302E800C4E869 /* CLRegion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CLRegion.m; path = ../CoreLocation/CLRegion.m; sourceTree = SOURCE_ROOT; };
 		EE9224C7136179BD0010C76C /* MapKitTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapKitTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE922505136179DD0010C76C /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		EE922507136179DD0010C76C /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -256,6 +264,10 @@
 				EEAF49CB14699FC400A1196E /* CLRegion.h */,
 				EEAF48EE14697F3C00A1196E /* CLExtensions.h */,
 				EEAF48EF14697F3C00A1196E /* CLExtensions.m */,
+				EE71B53D159302E800C4E869 /* CLGeocoder.m */,
+				EE71B53E159302E800C4E869 /* CLHeading.m */,
+				EE71B53F159302E800C4E869 /* CLPlacemark.m */,
+				EE71B540159302E800C4E869 /* CLRegion.m */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -473,7 +485,11 @@
 				EE31DF15125A359D00DF3C91 /* MKOverlayView.m in Sources */,
 				EE31DF21125A36A600DF3C91 /* MKGeometry.m in Sources */,
 				EE310665125E2F1C00DF3C91 /* MKUserLocation.m in Sources */,
-				EEAF48F114697F3C00A1196E /* CLExtensions.m in Sources */,
+				EEC35EE215930B89008B3D25 /* CLExtensions.m in Sources */,
+				EE71B541159302E800C4E869 /* CLGeocoder.m in Sources */,
+				EE71B542159302E800C4E869 /* CLHeading.m in Sources */,
+				EE71B543159302E800C4E869 /* CLPlacemark.m in Sources */,
+				EE71B544159302E800C4E869 /* CLRegion.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

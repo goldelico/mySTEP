@@ -21,6 +21,7 @@
 @class NSDistantObject;
 @class NSURL;
 @class NSError;
+@class NSTask;
 
 enum {
 	NSSpeechImmediateBoundary =  0,
@@ -34,6 +35,7 @@ typedef NSUInteger NSSpeechBoundary;
 	NSDistantObject *_server;
 	NSString *_voice;
 	id _delegate;
+	NSTask *_task;
 	BOOL _usesFeedbackWindow;
 }
 

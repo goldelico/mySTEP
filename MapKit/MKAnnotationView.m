@@ -123,10 +123,26 @@
 - (void) drawRect:(NSRect) rect
 {
 	CLLocation *loc=[(MKUserLocation *) annotation location];
-	// FIXME:
-	[(MKUserLocation *) annotation isUpdating];
-	// draw a circle showing
-	[loc horizontalAccuracy];
+	CLLocationCoordinate2D pos=[loc coordinate];
+	float accuracy=[loc horizontalAccuracy];	// meters
+//	[(MKUserLocation *) annotation isUpdating];
+	if(0 && loc && accuracy > 0.0)
+		{ // draw a circle showing the accuracy
+			NSPoint a;
+			NSRect circle;
+			NSBezierPath *path;
+			accuracy *= MKMapPointsPerMeterAtLatitude(pos.latitude);	// mappoint size
+			a=[(MKMapView *) [self superview] _pointForMapPoint:MKMapPointMake(accuracy, 0.0)];	// convert to screen coordinates
+			circle.size.width=2.0*a.x;
+			circle.size.height=2.0*a.x;
+			circle.origin.x=-a.x;
+			circle.origin.y=-a.x;	// lower left corner
+			[[NSColor colorWithCalibratedRed:0.0 green:0.0 blue:1.0 alpha:0.5] set];
+			path=[NSBezierPath bezierPathWithOvalInRect:circle];
+			[path setLineWidth:2.0];
+			// we must temporarily remove clipping!
+			[path fill];	// draw circle
+		}
 	// make callout show [loc altitude] and position in human readable format
 	[super drawRect:rect];	// draw flag image
 }
