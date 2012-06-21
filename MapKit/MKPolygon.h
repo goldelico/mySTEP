@@ -8,7 +8,7 @@
 
 #import <MapKit/MKMultiPoint.h>
 
-@interface MKPolygon : MKMultiPoint
+@interface MKPolygon : MKMultiPoint <MKOverlay>
 {
 	NSArray *interiorPolygons;
 }

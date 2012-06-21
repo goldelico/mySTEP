@@ -134,6 +134,7 @@
 		EEB23D7D1258B1F80018A9F3 /* MKTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKTypes.h; sourceTree = "<group>"; };
 		EEB23D8F1258B5850018A9F3 /* MKGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKGeometry.h; sourceTree = "<group>"; };
 		EEB23DB41258B6410018A9F3 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
+		EEC3672315936725008B3D25 /* CLLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CLLocation.h; path = ../CoreLocation/CLLocation.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -260,6 +261,7 @@
 				EEB23D5B12589D4B0018A9F3 /* MapKit_Prefix.pch */,
 				EEAF49C814699FC400A1196E /* CLGeocoder.h */,
 				EEAF49C914699FC400A1196E /* CLHeading.h */,
+				EEC3672315936725008B3D25 /* CLLocation.h */,
 				EEAF49CA14699FC400A1196E /* CLPlacemark.h */,
 				EEAF49CB14699FC400A1196E /* CLRegion.h */,
 				EEAF48EE14697F3C00A1196E /* CLExtensions.h */,

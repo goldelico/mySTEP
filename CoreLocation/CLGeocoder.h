@@ -13,7 +13,7 @@
 
 #ifndef __mySTEP__
 @interface NSBlockHandler : NSObject;	// mySTEP extension
-- (void) performSelectorWithObject:(id) obj andObject:(id) obj;
+- (void) performWithObject:(id) obj withObject:(id) obj;
 @end
 #endif
 

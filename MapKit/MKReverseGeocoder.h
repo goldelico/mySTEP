@@ -19,12 +19,7 @@
 - (void) reverseGeocoder:(MKReverseGeocoder *) coder didFailWithError:(NSError *) error;
 @end
 
-// FIXME: is there also a non-reverse geocoder? I.e. one that searches by Name and also returns matching placemarks?
-// NOTE: we could add that one to the API by providing multiple placemarks and a "done" call to didFindPlacemark
-// NOTE: we should also provide a reference location to search in the vicinity only
-// we should use  http://developers.cloudmade.com/projects/show/geocoding-http-api
-
-// Now, there is one in CoreLocation with different API
+// Now, there is also a reverse and forward geocoder in CoreLocation with different API
 
 @interface MKReverseGeocoder : NSObject
 {

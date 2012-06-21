@@ -1037,7 +1037,7 @@ static NSMutableArray *tileLRU;
 {
 	if([placemarks count] >= 1)
 		{
-		placemark=[[placemarks objectAtIndex:0] retain];
+		placemark=[[MKPlacemark alloc] initWithPlacemark:[placemarks objectAtIndex:0]];	// copy
 		[delegate reverseGeocoder:self didFindPlacemark:placemark];
 		}
 	else

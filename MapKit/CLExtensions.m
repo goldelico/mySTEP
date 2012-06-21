@@ -30,17 +30,17 @@
 	return [[[self alloc] initWithDelegate:d action:a] autorelease];
 }
 
-- (id) performSelector;
+- (id) perform;
 {
 	return [delegate performSelector:action];
 }
 
-- (id) performSelectorWithObject:(id) obj;
+- (id) performWithObject:(id) obj;
 {
 	return [delegate performSelector:action withObject:obj];
 }
 
-- (id) performSelectorWithObject:(id) obj1 withObject:(id) obj2;
+- (id) performWithObject:(id) obj1 withObject:(id) obj2;
 {
 	return [delegate performSelector:action withObject:obj1 withObject:obj2];
 }

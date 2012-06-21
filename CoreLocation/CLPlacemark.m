@@ -44,7 +44,7 @@
 - (NSString *) countryCode; { return [addressDictionary objectForKey:@"CountryCode"]; }
 
 - (id) initWithPlacemark:(CLPlacemark *) placemark;
-{ // just copy...
+{ // just copy... (may be used to explicitly transforma  CLPlacemark into a MKPlacemark)
 	return [self initWithCoordinate:[placemark coordinate] addressDictionary:[placemark addressDictionary]];
 }
 
@@ -62,6 +62,11 @@
 {
 	[addressDictionary release];
 	[super dealloc];
+}
+
+- (NSString *) description
+{ // collect what we know (stret, locality, postal code, country, coords)
+	return [NSString stringWithFormat:@"CLPlacemark %g, %g", coordinate.longitude, coordinate.latitude];
 }
 
 @end

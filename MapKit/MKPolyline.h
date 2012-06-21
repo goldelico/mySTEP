@@ -8,7 +8,7 @@
 
 #import <MapKit/MKMultiPoint.h>
 
-@interface MKPolyline : MKMultiPoint
+@interface MKPolyline : MKMultiPoint <MKOverlay>
 {
 }
 

@@ -64,9 +64,9 @@
 
 + (NSBlockHandler *) handlerWithDelegate:(id) delegate action:(SEL) action;
 - (id) initWithDelegate:(id) delegate action:(SEL) action;
-- (id) performSelector;
-- (id) performSelectorWithObject:(id) obj;
-- (id) performSelectorWithObject:(id) obj1 withObject:(id) obj2;
+- (id) perform;
+- (id) performWithObject:(id) obj;
+- (id) performWithObject:(id) obj1 withObject:(id) obj2;
 
 @end
 

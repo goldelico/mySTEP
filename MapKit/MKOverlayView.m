@@ -168,7 +168,7 @@
 
 - (void) getCoordinates:(CLLocationCoordinate2D *) coords range:(NSRange) range;
 {
-	unsigned int i=0;
+	unsigned int i;
 	if(NSMaxRange(range) > pointCount)
 		[NSException raise:NSInvalidArgumentException format:@"invalid coordinate range"];		
 	for(i=0; i<range.length; i++)
@@ -196,6 +196,43 @@
 	// memcpy as needed
 }
 
+/* MKAnnotation protocol */
+
+- (CLLocationCoordinate2D) coordinate;
+{
+	CLLocationCoordinate2D center = { 0, 0 };
+	unsigned int i;
+	for(i=0; i<pointCount; i++)
+		{
+		CLLocationCoordinate2D pos=MKCoordinateForMapPoint(points[i]);
+		center.latitude += pos.latitude;
+		center.longitude += pos.longitude;
+		}
+	if(pointCount > 1)
+		{ // average
+		center.latitude /= pointCount;
+		center.longitude /= pointCount;
+		}
+	return center;
+}
+
+- (void) setCoordinate:(CLLocationCoordinate2D) pos
+{
+	CLLocationCoordinate2D delta = [self coordinate];
+	unsigned int i;
+	delta.latitude = pos.latitude - delta.latitude;
+	delta.longitude = pos.longitude - delta.longitude;
+	if(delta.longitude == 0.0 && delta.latitude == 0.0)
+		return;
+	for(i=0; i<pointCount; i++)
+		{
+		CLLocationCoordinate2D pos=MKCoordinateForMapPoint(points[i]);
+		pos.latitude += delta.latitude;
+		pos.longitude += delta.longitude;
+		points[i]=MKMapPointForCoordinate(pos);
+		}
+}
+
 @end
 
 @implementation MKPolyline
@@ -214,6 +251,20 @@
 	while(count-- > 0)
 		[p addPoint:*points++];
 	return [p autorelease];	
+}
+
+- (BOOL) intersectsMapRect:(MKMapRect)rect
+{
+	return MKMapRectIntersectsRect([self boundingMapRect], rect);
+}
+
+- (MKMapRect) boundingMapRect;
+{
+	MKMapRect bounds={ 0, 0, 0, 0 };
+	unsigned int i;
+	for(i=0; i<pointCount; i++)
+		bounds=MKMapRectUnion(bounds, (MKMapRect) { points[i], { 0, 0 } } );	// enlarge by all points
+	return bounds;
 }
 
 @end
@@ -263,6 +314,20 @@
 	while(count-- > 0)
 		[p addPoint:*points++];
 	return [p autorelease];	
+}
+
+- (BOOL) intersectsMapRect:(MKMapRect)rect
+{
+	return MKMapRectIntersectsRect([self boundingMapRect], rect);
+}
+
+- (MKMapRect) boundingMapRect;
+{
+	MKMapRect bounds={ 0, 0, 0, 0 };
+	unsigned int i;
+	for(i=0; i<pointCount; i++)
+		bounds=MKMapRectUnion(bounds, (MKMapRect) { points[i], { 0, 0 } } );	// enlarge by all points
+	return bounds;
 }
 
 @end
