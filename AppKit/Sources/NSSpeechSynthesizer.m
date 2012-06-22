@@ -60,12 +60,15 @@ NSString *NSVoiceGenderFemale=@"GenderFemale";
 	return [self startSpeakingString:text toURL:nil];
 }
 
+/*
+ * needs:  apt-get install festival festvox-kallpc16k
+ */
+
 - (BOOL) startSpeakingString:(NSString *) text toURL:(NSURL *) url;
 {
 	// should be implemented by a NSTask
 	// if url is defined and a file-url call text2wav
 	// pass voice
-	/* needs apt-get install festival festvox-kallpc16k */
 	FILE *f=popen("festival --tts", "w");	// start subprocess
 	if(!f)
 		/* needs apt-get install flite */

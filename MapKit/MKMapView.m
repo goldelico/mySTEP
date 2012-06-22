@@ -50,7 +50,7 @@ static int alreadyLoading=0;
 		{
 		_delegate=[delegate retain];
 		_url=[url retain];
-		if(alreadyLoading == 0)
+		if(alreadyLoading == 0 && [[_delegate delegate] respondsToSelector:@selector(mapViewWillStartLoadingMap:)])
 			// protect against exceptions
 			[[_delegate delegate] mapViewWillStartLoadingMap:_delegate];
 		if(alreadyLoading < 5)
@@ -130,7 +130,7 @@ static int alreadyLoading=0;
 	NSAssert(alreadyLoading >= 0, @"never become negative");
 	if([loadQueue count] > 0)
 		[[loadQueue lastObject] start];	// start next in queue (and remove)
-	else if(alreadyLoading == 0)
+	else if(alreadyLoading == 0 && [[_delegate delegate] respondsToSelector:@selector(mapViewDidFinishLoadingMap:)])
 		// protect against exceptions
 		[[_delegate delegate] mapViewDidFinishLoadingMap:_delegate];
 }
@@ -533,6 +533,7 @@ static NSMutableArray *tileLRU;
 					if(!aView)	// default
 						aView=[[[MKPinAnnotationView alloc] initWithAnnotation:a reuseIdentifier:@"PinAnnotation"] autorelease];	// create a fresh one
 					[self addSubview:aView];	// makes us the superview
+// should collect before notifying the delegate		[delegate mapView:self didAddAnnotationViews:[NSArray arrayWithObject:aView]];
 					if(!viewForAnnotation)
 						viewForAnnotation=NSCreateMapTable(NSNonRetainedObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 10);
 					NSMapInsert(viewForAnnotation, a, aView);	// and remember
@@ -550,7 +551,7 @@ static NSMutableArray *tileLRU;
 	// pass zoom scale
 }
 
-- (void) addAnnotation:(id <MKAnnotation>) a; { [annotations addObject:a]; [self setNeedsDisplay:YES]; }	// could optimize drawing rect?
+- (void) addAnnotation:(id <MKAnnotation>) a; { [annotations addObject:a]; [self setNeedsDisplay:YES]; }
 - (void) addAnnotations:(NSArray *) a; { [annotations addObjectsFromArray:a]; [self setNeedsDisplay:YES]; }
 - (void) addOverlay:(id <MKOverlay>) o; { [overlays addObject:o]; [self setNeedsDisplay:YES]; }
 - (void) addOverlays:(NSArray *) o; { [overlays addObjectsFromArray:o]; [self setNeedsDisplay:YES]; }
@@ -688,7 +689,16 @@ static NSMutableArray *tileLRU;
 	return MKCoordinateRegionForMapRect([self mapRectThatFits:_MKMapRectForCoordinateRegion(region)]);
 }
 
-- (void) removeAnnotation:(id <MKAnnotation>) a; { [annotations removeObjectIdenticalTo:a]; [self setNeedsDisplay:YES]; }
+// FIXME: we must remove any connected annotation and overlay views and put them into the queue
+/*
+ if([self viewForAnnotation:a])
+	{
+	// put in queue (or it will be released) using [a reuseIdentifier]
+	[[self viewForAnnotation:a] removeFromSuperview]
+	}
+ */
+
+- (void) removeAnnotation:(id <MKAnnotation>) a; { [[self viewForAnnotation:a] removeFromSuperview]; [annotations removeObjectIdenticalTo:a]; [self setNeedsDisplay:YES]; }
 - (void) removeAnnotations:(NSArray *) a; { [annotations removeObjectsInArray:a]; [self setNeedsDisplay:YES]; }
 - (void) removeOverlay:(id <MKOverlay>) a; { [overlays removeObjectIdenticalTo:a]; [self setNeedsDisplay:YES]; }
 - (void) removeOverlays:(NSArray *) a; { [overlays removeObjectsInArray:a]; [self setNeedsDisplay:YES]; }
@@ -773,23 +783,23 @@ static NSMutableArray *tileLRU;
 
 - (void) setVisibleMapRect:(MKMapRect) rect;
 {
-#if 1
-	NSLog(@"setVisibleMapRect:%@", MKStringFromMapRect(rect));
-#endif
-	//	rect=[self mapRectThatFits:rect edgePadding:insets];
-	// notify delegate
-	visibleMapRect=rect;
-	// update annotation an overlay views
-	[self setNeedsDisplay:YES];
 }
 
 - (void) setVisibleMapRect:(MKMapRect) rect animated:(BOOL) flag;
 {
+#if 1
+	NSLog(@"setVisibleMapRect:%@", MKStringFromMapRect(rect));
+#endif
+	//	rect=[self mapRectThatFits:rect edgePadding:insets];
+//	[delegate mapView:self regionWillChangeAnimated:flag];
 	if(flag)
 		{
 		// animate by defining a timer and the delta
 		}
+	visibleMapRect=rect;
+	[self setNeedsDisplay:YES];
 	[self setVisibleMapRect:rect];
+//	[delegate mapView:self regionDidChangeAnimated:flag];
 }
 
 - (void) setVisibleMapRect:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets animated:(BOOL) flag;

@@ -8,10 +8,23 @@
 
 #import <MapKit/MKAnnotationView.h>
 
+typedef enum _MKPinAnnotationColor {
+	MKPinAnnotationColorRed = 0,
+	MKPinAnnotationColorGreen,
+	MKPinAnnotationColorPurple
+} MKPinAnnotationColor;
+
 @interface MKPinAnnotationView : MKAnnotationView
 {
-	// iVars for showing the pin and callouts
+	MKPinAnnotationColor pinColor;
+	BOOL animatesDrop;
 }
+
+- (BOOL) animatesDrop;
+- (MKPinAnnotationColor) pinColor;
+- (void) setAnimatesDrop:(BOOL) flag;
+- (void) setPinColor:(MKPinAnnotationColor) color;
+
 @end
 
 // EOF

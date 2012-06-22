@@ -176,14 +176,14 @@
 	 @"1398 Haight Street", kABPersonAddressStreetKey,
 	 @"94117", kABPersonAddressZIPKey,
 	 nil];
-	 */	 
+	 */
 	if([[dict objectForKey:@"Street"] length] > 0)
 		[str appendFormat:@", %@", [dict objectForKey:@"Street"]];
 	if([[dict objectForKey:@"City"] length] > 0)
 		[str appendFormat:@", %@", [dict objectForKey:@"City"]];
 	if([[dict objectForKey:@"Country"] length] > 0)
 		[str appendFormat:@", %@", [dict objectForKey:@"Country"]];
-	[self geocodeAddressString:str completionHandler:h];
+	[self geocodeAddressString:[str stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@", "]] completionHandler:h];
 }
 
 @end
