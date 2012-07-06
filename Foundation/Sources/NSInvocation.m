@@ -431,7 +431,7 @@
 @implementation NSInvocation (NSUndocumented)
 
 - (id) initWithMethodSignature:(NSMethodSignature*) aSignature
-{ // undocumented in Cocoa but exists
+{ // undocumented in Cocoa but exists in some releases
 	return [self _initWithMethodSignature:aSignature andArgFrame:NULL];
 }
 

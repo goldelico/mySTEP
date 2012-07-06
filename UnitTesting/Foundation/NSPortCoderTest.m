@@ -11,7 +11,16 @@
 #import "NSPortCoderTest.h"
 
 
-#if 1	// 1: test our mySTEP implementation - 0: test our test patterns against Cocoa
+#if 0	// 1: test our mySTEP implementation - 0: test our test patterns against Cocoa
+
+@implementation NSObject (Version)
+
++ (int) _versionForPortCoder
+{
+	return [self version];
+}
+
+@end
 
 // make NSPrivate.h compile on Cocoa Foundation
 
@@ -95,6 +104,7 @@
 
 - (NSPortCoder *) portCoderForEncode
 {
+	// passing nil as components allocates an empty NSData wrapped in an NSArray for encoding
 	return [[[NSPortCoder alloc] initWithReceivePort:[connection receivePort] sendPort:[connection sendPort] components:nil] autorelease];
 }
 
@@ -129,6 +139,7 @@
 	id have=[pc components];
 	id want=[NSArray arrayWithObject:[NSData data]];	// should be one empty data component
 	STAssertEqualObjects(have, want,  nil);
+	pc=[[[NSPortCoder alloc] initWithReceivePort:[connection receivePort] sendPort:[connection sendPort] components:nil] autorelease];	// provide a default object
 }
 
 - (void) testChar1
@@ -553,7 +564,7 @@
 	STAssertEqualObjects(have, want,  nil);
 	pc=[self portCoderForDecode:want];
 #if 0
-	// we would have to provide the correct version to the string class...
+	// we would have to provide the correct version number to the string class...
 	have=[[[NSString alloc] initWithCoder:pc] autorelease];
 	STAssertEqualObjects(have, @"String",  nil);	// error: NSString cannot decode class version 0
 #endif
@@ -982,6 +993,17 @@
 	[pc encodeObject:i];	// encode [@"string" testInvocation8:@selector(testInvocation8)]
 	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
 	STAssertEqualObjects(have, want,  nil);
+}
+
+- (void) testInvocation10
+{
+	NSPortCoder *pc=[self portCoderForEncode];
+	NSString *r=@"<01 01010d4e 53496e76 6f636174 696f6e00 00010101 104e5344 69737461 6e744f62 6a656374 00000001 01010103 01011e6d 6574686f 64446573 63726970 74696f6e 466f7253 656c6563 746f723a 00010126 5e7b6f62 6a635f6d 6574686f 645f6465 73637269 7074696f 6e3d3a2a 7d313240 303a343a 3800255e 7b6f626a 635f6d65 74686f64 5f646573 63726970 74696f6e 3d3a2a7d 31324030 3a343a38 01010b72 6f6f744f 626a6563 74000100 00>>";
+	id have=@"";
+	id want=@"?";
+	pc=[self portCoderForDecode:r];
+	have=[pc decodeRetainedObject];	// should be NSInvocation
+	NSLog(@"textInvocation10: %@", have);
 }
 
 - (void) testReturnInvocation

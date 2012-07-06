@@ -222,13 +222,15 @@ const char *objc_skip_typespec (const char *type)
 		NSData *first;
 		NSAssert(recv, @"receive port");
 		NSAssert(send, @"send port");
+		if(!cmp)
+			cmp=[NSMutableArray arrayWithObject:[NSMutableData dataWithCapacity:200]];	// provide a default object for encoding
 		NSAssert(cmp, @"components");
 		_recv=[recv retain];
 		_send=[send retain];
 		_components=[cmp retain];
 		first=[_components objectAtIndex:0];
 		_pointer=[first bytes];	// set read pointer
-		_eod=(unsigned char *) [first bytes] + [first length];
+		_eod=(unsigned char *) [first bytes] + [first length];	// only relevant for decoding
 		}
 	return self;
 }
@@ -285,7 +287,6 @@ const char *objc_skip_typespec (const char *type)
 	[(NSMutableArray *) _components addObject:port];
 }
 
-#if 1	// should become inherited!
 - (void) encodeArrayOfObjCType:(const char*) type
 						 count:(unsigned int) count
 							at:(const void*) array
@@ -294,13 +295,17 @@ const char *objc_skip_typespec (const char *type)
 #if 1
 	NSLog(@"encodeArrayOfObjCType %s count %d size %d", type, count, size);
 #endif
+	if(size == 1)
+		{
+		[[_components objectAtIndex:0] appendBytes:array length:count];	// encode bytes directly
+		return;
+		}
 	while(count-- > 0)
 		{
 		[self encodeValueOfObjCType:type at:array];
 		array=size + (char *) array;
 		}
 }
-#endif
 
 - (void) encodeObject:(id) obj
 {
@@ -585,7 +590,6 @@ const char *objc_skip_typespec (const char *type)
 	return NIMP;
 }
 
-#if 1	// should become inherited!
 - (void) decodeArrayOfObjCType:(const char*)type
 						 count:(unsigned)count
 							at:(void*)array
@@ -594,13 +598,20 @@ const char *objc_skip_typespec (const char *type)
 #if 1
 	NSLog(@"decodeArrayOfObjCType %s count %d size %d", type, count, size);
 #endif
+	if(size == 1)
+		{
+		if(_pointer+count >= _eod)
+			[NSException raise:NSPortReceiveException format:@"not enough data to decode byte array"];
+		memcpy(array, _pointer, count);
+		_pointer+=count;
+		return;
+		}
 	while(count-- > 0)
 		{
 		[self decodeValueOfObjCType:type at:array];
 		array=size + (char *) array;
 		}
 }
-#endif
 
 - (id) decodeObject
 {
@@ -820,21 +831,26 @@ const char *objc_skip_typespec (const char *type)
 - (void) encodeReturnValue:(NSInvocation *) i
 {
 	NSMethodSignature *sig=[i methodSignature];
+	unsigned char len=[sig methodReturnLength];
 	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
+	[self encodeValueOfObjCType:@encode(unsigned char) at:&len];
 	NS_DURING
-	[i getReturnValue:buffer];	// get value
-	[self encodeValueOfObjCType:[sig methodReturnType] at:buffer];
+		[i getReturnValue:buffer];	// get value
+		[self encodeArrayOfObjCType:@encode(char) count:len at:buffer];
 	NS_HANDLER
-	NSLog(@"encodeReturnValue has no return value");	// e.g. if [i invoke] did result in an exception!
+		NSLog(@"encodeReturnValue has no return value");	// e.g. if [i invoke] did result in an exception!
 	NS_ENDHANDLER
 	objc_free(buffer);
 }
 
 - (void) decodeReturnValue:(NSInvocation *) i
 { // decode value into existing invocation
-	NSMethodSignature *sig=[i methodSignature];
-	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
-	[self decodeValueOfObjCType:[sig methodReturnType] at:buffer];
+	unsigned char len;
+	void *buffer;
+	[self decodeValueOfObjCType:@encode(unsigned char) at:&len];
+	// FIXME: is there a special encoding for return lenghth > 255?
+	buffer=objc_malloc(len);	// allocate a buffer
+	[self decodeArrayOfObjCType:@encode(char) count:len at:buffer];
 	[i setReturnValue:buffer];	// set value
 	objc_free(buffer);
 }
@@ -843,38 +859,24 @@ const char *objc_skip_typespec (const char *type)
 {
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig frameLength]);	// allocate a buffer
-	int cnt=[sig numberOfArguments];	// encode arguments
+	int cnt=[sig numberOfArguments];	// encode arguments (incl. target&selector)
 	const char *type=[[sig _typeString] UTF8String];	// private method (of Cocoa???) to get the type string
 //	const char *type=[sig _methodType];	// would be a little faster
-	const char *ret=[sig methodReturnType];
-	char retlen=strlen(ret);
-	SEL selector=[i selector];
 	id target=[i target];
+	SEL selector=[i selector];
 	int j;
 	[self encodeValueOfObjCType:@encode(id) at:&target];
-#if 0
-	{ // FIXME: sending our invocation appears to need to insert this byte but Unit-Tests don't
-		int fill=NO;	// 0 or 1
-		[self encodeValueOfObjCType:@encode(int) at:&fill];
-	}
-#endif
 	[self encodeValueOfObjCType:@encode(int) at:&cnt];	// argument count
 	[self encodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self encodeValueOfObjCType:@encode(char *) at:&type];	// method type
-	[self encodeValueOfObjCType:@encode(char) at:&retlen];	// length (in most cases 1 sometimes more characters)
-	[self encodeArrayOfObjCType:@encode(char) count:retlen at:ret];	// no final 0-byte
+	[self encodeReturnValue:i];
 	for(j=2; j<cnt; j++)
 		{ // encode arguments
 			// set byRef & byCopy flags here
-#if 0
-			{ // FIXME: really sending our invocation appears to need to insert this byte but Unit-Tests don't
-				BOOL fillByte=NO;
-				[self encodeValueOfObjCType:@encode(char) at:&fillByte];
-			}
-#endif
 			[i getArgument:buffer atIndex:j];	// get value
 			[self encodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
 		}
+	objc_free(buffer);
 }
 
 - (NSInvocation *) decodeInvocation;
@@ -883,7 +885,7 @@ const char *objc_skip_typespec (const char *type)
 	NSMethodSignature *sig;
 	void *buffer;
 	char *type;
-	int cnt;
+	int cnt;	// number of arguments (incl. target&selector)
 	id target;
 	SEL selector;
 	int j;
@@ -891,19 +893,20 @@ const char *objc_skip_typespec (const char *type)
 	[self decodeValueOfObjCType:@encode(int) at:&cnt];
 	[self decodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self decodeValueOfObjCType:@encode(char *) at:&type];
+	// FIXME: we should we translate network signatures here or should all foundation classes be compatible with OpenSTEP?
 	sig=[NSMethodSignature signatureWithObjCTypes:type];
-	[self decodeValueOfObjCType:@encode(int) at:&j];
 	buffer=objc_malloc([sig frameLength]);	// allocate a buffer
-	i=[[NSInvocation alloc] initWithMethodSignature:sig];	// official method since 10.5
-	[i setTarget:target];
-	[i setSelector:selector];
+	i=[NSInvocation invocationWithMethodSignature:sig];
+	[self decodeReturnValue:i];
 	for(j=2; j<cnt; j++)
-		{
+		{ // decode arguments
 		[self decodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
 		[i setArgument:buffer atIndex:j];	// set value
 		}
+	[i setTarget:target];
+	[i setSelector:selector];
 	objc_free(buffer);
-	return [i autorelease];
+	return i;
 }
 
 - (id) importedObjects; { return _imports; }
@@ -974,12 +977,13 @@ const char *objc_skip_typespec (const char *type)
 		obj=[[class alloc] initWithCoder:self];	// allocate and load new instance
 	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// always 0x01 (?) - appears to be 0x00 for a reply; and there may be another object if flag == 0x01
 #if 1
+	// almost always 1 - only seen as 0 in some NSInvocation and then the invocation has less data
 	NSLog(@"flag3=%d %@", flag, [self _location]);
 #endif
 	[_classVersions release];
 	_classVersions=savedClassVersions;
 	if(!obj)
-		[NSException raise:NSGenericException format:@"decodeRetainedObject: class %@ not instantiated", NSStringFromClass(class)];
+		[NSException raise:NSGenericException format:@"decodeRetainedObject: class %@ not instantiated %@", NSStringFromClass(class), [self _location]];
 	return obj;
 }
 

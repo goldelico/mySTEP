@@ -682,6 +682,7 @@ static unsigned int _sequence;	// global sequence number
 	return _currentConversation;
 }
 
+// since we call this for the correctly initialized connection, we can pass the components only and use _receivePort and _sendPort
 - (NSPortCoder *) portCoderWithComponents:(NSPortMessage *) message
 { // CHEKME: is the parameter just the components part or the full port message?
 	return [[[NSPortCoder alloc] initWithReceivePort:[message receivePort]
@@ -697,7 +698,6 @@ static unsigned int _sequence;	// global sequence number
 	BOOL isOneway=NO;
 	//	unsigned long flags=internal?FLAGS_INTERNAL:FLAGS_REQUEST;
 	unsigned long flags=FLAGS_REQUEST;
-	NSArray *components;
 	NSPortCoder *portCoder;
 #if 1
 	NSLog(@"*** (conn=%p) sendInvocation:%@", self, i);
@@ -722,9 +722,8 @@ static unsigned int _sequence;	// global sequence number
 		   
 	// lastconversationinfo() - legt es ggf. an und trägt es in ein Dict ein
 	
-	components=[NSMutableArray arrayWithObject:[NSMutableData dataWithCapacity:100]];
 	// CHECKME: portCoder=[self portCoderWithComponents:components];
-	portCoder=[NSPortCoder portCoderWithReceivePort:_receivePort sendPort:_sendPort components:components];
+	portCoder=[NSPortCoder portCoderWithReceivePort:_receivePort sendPort:_sendPort components:nil];
 	[portCoder encodeValueOfObjCType:@encode(unsigned long) at:&flags];
 	++_sequence;	// we will wait for a response to appear...
 	[portCoder encodeValueOfObjCType:@encode(unsigned long) at:&_sequence];
@@ -908,7 +907,7 @@ static unsigned int _sequence;	// global sequence number
 		// but I don't know yet.
 		NS_DURING
 		NSLog(@"1st %@", [coder decodeRetainedObject]);	// one more?
-		// has been seen missing in test code where last decodeRetainedObject did have flag3=0 
+		// 2nd has been seen missing in test code where last decodeRetainedObject did have flag3=0 
 		NSLog(@"2nd %@", [coder decodeRetainedObject]);	// one more?
 		//			NSLog(@"3rd %@", [coder decodeRetainedObject]);	// one more?
 		NS_HANDLER
@@ -1027,8 +1026,7 @@ static unsigned int _sequence;	// global sequence number
 #endif
 	if(!isOneway)
 		{ // there is something to return...
-			NSArray *components=[NSMutableArray arrayWithObject:[NSMutableData dataWithCapacity:100]];
-			NSPortCoder *pc=[NSPortCoder portCoderWithReceivePort:_receivePort sendPort:_sendPort components:components];
+			NSPortCoder *pc=[NSPortCoder portCoderWithReceivePort:_receivePort sendPort:_sendPort components:nil];
 			unsigned long flags=FLAGS_RESPONSE;
 #if 1
 			NSLog(@"port coder=%@", pc);
