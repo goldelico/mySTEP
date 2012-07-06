@@ -873,11 +873,7 @@ const char *objc_skip_typespec (const char *type)
 	[self encodeValueOfObjCType:@encode(id) at:&target];
 	[self encodeValueOfObjCType:@encode(int) at:&cnt];	// argument count
 	[self encodeValueOfObjCType:@encode(SEL) at:&selector];
-#if 0
-	type=translateSignatureToNetwork(type);
-#endif
 	[self encodeValueOfObjCType:@encode(char *) at:&type];	// method type
-	[self encodeValueOfObjCType:@encode(unsigned char) at:&len];
 #if 0
 	NSLog(@"encodeInvocation2 comp=%@", _components);
 #endif
@@ -888,6 +884,7 @@ const char *objc_skip_typespec (const char *type)
 		len=1;
 		*(char *) buffer=0x40;
 	NS_ENDHANDLER
+	[self encodeValueOfObjCType:@encode(unsigned char) at:&len];
 	[self encodeArrayOfObjCType:@encode(char) count:len at:buffer];	// encode the bytes of the return value (not the object/type which can be done by encodeReturnValue)
 	for(j=2; j<cnt; j++)
 		{ // encode arguments
@@ -917,9 +914,7 @@ const char *objc_skip_typespec (const char *type)
 	[self decodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self decodeValueOfObjCType:@encode(char *) at:&type];
 	[self decodeValueOfObjCType:@encode(unsigned char) at:&len];	// should set the buffer size internal to the NSInvocation
-#if 0
-	type=translateSignatureFromNetwork(type);
-#endif
+	// FIXME: we should we translate network signatures here or should all foundation classes be compatible with OpenSTEP?
 	sig=[NSMethodSignature signatureWithObjCTypes:type];
 	buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
 	i=[NSInvocation invocationWithMethodSignature:sig];
