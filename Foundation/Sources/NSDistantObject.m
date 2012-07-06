@@ -113,17 +113,23 @@
 
 + (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
 {
-	return ((struct objc_method_description *) class_get_instance_method(self, sel));
+	struct objc_method_description *r=class_get_instance_method(self, sel);
+#if 0
+	r.types=translateSignatureToNetwork(r.types);	// translate to network representation, i.e. strip off offsets and transcode some encodings
+#endif
+	return r;
 }
 
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
-{
+{ // the result is compatible to because the struct is defined in GNU libobjc as { SEL sel, char *types; } */
+	struct objc_method_description *r=class_get_instance_method(self->isa, sel);
 #if 1
 	NSLog(@"- methodDescriptionForSelector:'%@'", NSStringFromSelector(sel));
 #endif
-	/* CHECKME: is the return value compatible to Cocoa? */
-	/* ANSWER: it appears to be because the struct is defined in GNU libobjc as { SEL sel, char *types; } */
-	return ((struct objc_method_description *) class_get_instance_method(self->isa, sel));
+#if 0
+	r.types=translateSignatureToNetwork(r.types);	// translate to network representation, i.e. strip off offsets and transcode some encodings
+#endif
+	return r;
 }
 
 // this is listed in http://www.opensource.apple.com/source/objc4/objc4-371/runtime/objc-sel-table.h
@@ -312,6 +318,7 @@ static Class *_doClass;
 	[i setArgument:&aSelector atIndex:2];
 	[_connection sendInvocation:i internal:YES];
 	[i getReturnValue:&md];
+	// get the type
 	return md;
 #endif
 }
@@ -336,7 +343,7 @@ static Class *_doClass;
 			md=[_protocol descriptionForInstanceMethod:aSelector];	// ask protocol for the signature
 		}
 	else
-		{	// we must forward this call to the peer
+		{	// we must ask the peer for a methodDescription
 			NSMethodSignature *sig=[_selectorCache objectForKey:@"methodDescriptionForSelector:"];
 			NSInvocation *i=[NSInvocation invocationWithMethodSignature:sig];
 			NSAssert(sig, @"methodsignature for methodDescriptionForSelector must be known");
@@ -349,10 +356,14 @@ static Class *_doClass;
 			[i setArgument:&aSelector atIndex:2];
 			[_connection sendInvocation:i internal:YES];
 			[i getReturnValue:&md];
+#if 0
+			// NOTE: we do not need this if our NSMethodSignature understands the network signature encoding - but it doesn't because we can use @encode()
+			md->types=translateSignatureFromNetwork(md->types);
+#endif
 		}
 	if(!md)
 		[NSException raise:NSInvalidArgumentException format:@"remote object does not recognize selector: %@", NSStringFromSelector(aSelector)];
-	ret=[NSMethodSignature signatureWithObjCTypes:md->types];
+	ret=[NSMethodSignature signatureWithObjCTypes:md->types];	// a NSMethodSignature is always a local object and never a NSDistantObject
 	[_selectorCache setObject:ret forKey:NSStringFromSelector(aSelector)];	// add to cache
 #if 1
 	NSLog(@"  methodSignatureForSelector %@ -> %@", NSStringFromSelector(aSelector), ret);
