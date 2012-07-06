@@ -832,14 +832,17 @@ const char *objc_skip_typespec (const char *type)
 {
 	NSMethodSignature *sig=[i methodSignature];
 	unsigned char len=[sig methodReturnLength];
-	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
-	[self encodeValueOfObjCType:@encode(unsigned char) at:&len];
+	void *buffer=objc_malloc(len);	// allocate a buffer
 	NS_DURING
 		[i getReturnValue:buffer];	// get value
-		[self encodeArrayOfObjCType:@encode(char) count:len at:buffer];
 	NS_HANDLER
 		NSLog(@"encodeReturnValue has no return value");	// e.g. if [i invoke] did result in an exception!
+		if(len >= 1)
+			*(char *) buffer=0x40;
+		len=1;
 	NS_ENDHANDLER
+	[self encodeValueOfObjCType:@encode(unsigned char) at:&len];
+	[self encodeArrayOfObjCType:@encode(char) count:len at:buffer];
 	objc_free(buffer);
 }
 
@@ -865,10 +868,12 @@ const char *objc_skip_typespec (const char *type)
 	id target=[i target];
 	SEL selector=[i selector];
 	int j;
+	NSLog(@"encodeInvocation1 comp=%@", _components);
 	[self encodeValueOfObjCType:@encode(id) at:&target];
 	[self encodeValueOfObjCType:@encode(int) at:&cnt];	// argument count
 	[self encodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self encodeValueOfObjCType:@encode(char *) at:&type];	// method type
+	NSLog(@"encodeInvocation2 comp=%@", _components);
 	[self encodeReturnValue:i];
 	for(j=2; j<cnt; j++)
 		{ // encode arguments
@@ -876,6 +881,7 @@ const char *objc_skip_typespec (const char *type)
 			[i getArgument:buffer atIndex:j];	// get value
 			[self encodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
 		}
+	NSLog(@"encodeInvocation3 comp=%@", _components);
 	objc_free(buffer);
 }
 

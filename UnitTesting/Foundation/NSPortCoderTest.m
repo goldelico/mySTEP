@@ -11,7 +11,7 @@
 #import "NSPortCoderTest.h"
 
 
-#if 0	// 1: test our mySTEP implementation - 0: test our test patterns against Cocoa
+#if 1	// 1: test our mySTEP implementation - 0: test our test patterns against Cocoa
 
 @implementation NSObject (Version)
 
