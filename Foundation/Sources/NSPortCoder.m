@@ -829,29 +829,24 @@ const char *objc_skip_typespec (const char *type)
 }
 
 - (void) encodeReturnValue:(NSInvocation *) i
-{
+{ // this is also used to encode only the return value
 	NSMethodSignature *sig=[i methodSignature];
-	unsigned char len=[sig methodReturnLength];
+	unsigned int len=[sig methodReturnLength];
 	void *buffer=objc_malloc(len);	// allocate a buffer
 	NS_DURING
 		[i getReturnValue:buffer];	// get value
 	NS_HANDLER
 		NSLog(@"encodeReturnValue has no return value");	// e.g. if [i invoke] did result in an exception!
-		if(len >= 1)
-			*(char *) buffer=0x40;
-		len=1;
 	NS_ENDHANDLER
-	[self encodeValueOfObjCType:@encode(unsigned char) at:&len];
 	[self encodeArrayOfObjCType:@encode(char) count:len at:buffer];
 	objc_free(buffer);
 }
 
 - (void) decodeReturnValue:(NSInvocation *) i
-{ // decode value into existing invocation
-	unsigned char len;
+{ // decode return value into existing invocation
+	NSMethodSignature *sig=[i methodSignature];
+	unsigned int len=[sig methodReturnLength];
 	void *buffer;
-	[self decodeValueOfObjCType:@encode(unsigned char) at:&len];
-	// FIXME: is there a special encoding for return lenghth > 255?
 	buffer=objc_malloc(len);	// allocate a buffer
 	[self decodeArrayOfObjCType:@encode(char) count:len at:buffer];
 	[i setReturnValue:buffer];	// set value
@@ -863,6 +858,7 @@ const char *objc_skip_typespec (const char *type)
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig frameLength]);	// allocate a buffer
 	int cnt=[sig numberOfArguments];	// encode arguments (incl. target&selector)
+	unsigned char len=[sig methodReturnLength];
 	const char *type=[[sig _typeString] UTF8String];	// private method (of Cocoa???) to get the type string
 //	const char *type=[sig _methodType];	// would be a little faster
 	id target=[i target];
@@ -873,6 +869,7 @@ const char *objc_skip_typespec (const char *type)
 	[self encodeValueOfObjCType:@encode(int) at:&cnt];	// argument count
 	[self encodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self encodeValueOfObjCType:@encode(char *) at:&type];	// method type
+	[self encodeValueOfObjCType:@encode(unsigned char) at:&len];
 	NSLog(@"encodeInvocation2 comp=%@", _components);
 	[self encodeReturnValue:i];
 	for(j=2; j<cnt; j++)
@@ -892,6 +889,7 @@ const char *objc_skip_typespec (const char *type)
 	void *buffer;
 	char *type;
 	int cnt;	// number of arguments (incl. target&selector)
+	unsigned char len;
 	id target;
 	SEL selector;
 	int j;
@@ -899,11 +897,13 @@ const char *objc_skip_typespec (const char *type)
 	[self decodeValueOfObjCType:@encode(int) at:&cnt];
 	[self decodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self decodeValueOfObjCType:@encode(char *) at:&type];
+	[self decodeValueOfObjCType:@encode(unsigned char) at:&len];	// ignored in this implementation
 	// FIXME: we should we translate network signatures here or should all foundation classes be compatible with OpenSTEP?
 	sig=[NSMethodSignature signatureWithObjCTypes:type];
-	buffer=objc_malloc([sig frameLength]);	// allocate a buffer
+	buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
 	i=[NSInvocation invocationWithMethodSignature:sig];
-	[self decodeReturnValue:i];
+	[self decodeArrayOfObjCType:@encode(char) count:len at:buffer];
+	[i setReturnValue:buffer];	// set value
 	for(j=2; j<cnt; j++)
 		{ // decode arguments
 		[self decodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];

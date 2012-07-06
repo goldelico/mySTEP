@@ -1034,7 +1034,7 @@ static unsigned int _sequence;	// global sequence number
 			[pc encodeValueOfObjCType:@encode(unsigned int) at:&flags];
 			[pc encodeValueOfObjCType:@encode(unsigned int) at:&seq];
 			[pc encodeObject:nil];
-			[pc encodeReturnValue:result];	// encode resulting invocation (i.e. result and out/inout parameters)
+			[pc encodeReturnValue:result];	// encode result (separately from NSInvocation)
 			[pc encodeObject:exception];
 			// [pc encodeObject:imports];
 			[self finishEncoding:pc];
