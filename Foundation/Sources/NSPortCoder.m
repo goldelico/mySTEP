@@ -828,37 +828,41 @@ const char *objc_skip_typespec (const char *type)
 	return _components;
 }
 
+/*  */
+
 - (void) encodeReturnValue:(NSInvocation *) i
-{ // this is also used to encode only the return value
+{ // encode the return value as an object with correct type
 	NSMethodSignature *sig=[i methodSignature];
-	unsigned int len=[sig methodReturnLength];
-	void *buffer=objc_malloc(len);	// allocate a buffer
+	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
 	NS_DURING
 		[i getReturnValue:buffer];	// get value
+		[self encodeValueOfObjCType:[sig methodReturnType] at:buffer];
 	NS_HANDLER
 		NSLog(@"encodeReturnValue has no return value");	// e.g. if [i invoke] did result in an exception!
 	NS_ENDHANDLER
-	[self encodeArrayOfObjCType:@encode(char) count:len at:buffer];
 	objc_free(buffer);
 }
 
 - (void) decodeReturnValue:(NSInvocation *) i
-{ // decode return value into existing invocation
+{ // decode object as return value into existing invocation so that we can finish a forwardInvocation:
 	NSMethodSignature *sig=[i methodSignature];
-	unsigned int len=[sig methodReturnLength];
-	void *buffer;
-	buffer=objc_malloc(len);	// allocate a buffer
-	[self decodeArrayOfObjCType:@encode(char) count:len at:buffer];
+	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
+	[self decodeValueOfObjCType:[sig methodReturnType] at:buffer];
 	[i setReturnValue:buffer];	// set value
 	objc_free(buffer);
 }
 
+// this should be implemented in NSInvocation to have direct access to the iVars
+// i.e. call some private [i _encodeWithPortCoder:self]
+// this would also eliminate the detection of the Class during encodeObject/decodeObject
+
 - (void) encodeInvocation:(NSInvocation *) i
 {
 	NSMethodSignature *sig=[i methodSignature];
-	void *buffer=objc_malloc([sig frameLength]);	// allocate a buffer
+	unsigned char len=[sig methodReturnLength];	// this should be the lenght really allocated
+	void *buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
 	int cnt=[sig numberOfArguments];	// encode arguments (incl. target&selector)
-	unsigned char len=[sig methodReturnLength];
+	// if we move this to NSInvocation we don't even need the private methods
 	const char *type=[[sig _typeString] UTF8String];	// private method (of Cocoa???) to get the type string
 //	const char *type=[sig _methodType];	// would be a little faster
 	id target=[i target];
@@ -871,7 +875,12 @@ const char *objc_skip_typespec (const char *type)
 	[self encodeValueOfObjCType:@encode(char *) at:&type];	// method type
 	[self encodeValueOfObjCType:@encode(unsigned char) at:&len];
 	NSLog(@"encodeInvocation2 comp=%@", _components);
-	[self encodeReturnValue:i];
+	NS_DURING
+		[i getReturnValue:buffer];	// get value
+	NS_HANDLER
+		NSLog(@"encodeInvocation has no return value");	// e.g. if [i invoke] did result in an exception!
+	NS_ENDHANDLER
+	[self encodeArrayOfObjCType:@encode(char) count:len at:buffer];	// encode the bytes of the return value (not the object/type which can be done by encodeReturnValue)
 	for(j=2; j<cnt; j++)
 		{ // encode arguments
 			// set byRef & byCopy flags here
@@ -897,12 +906,12 @@ const char *objc_skip_typespec (const char *type)
 	[self decodeValueOfObjCType:@encode(int) at:&cnt];
 	[self decodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self decodeValueOfObjCType:@encode(char *) at:&type];
-	[self decodeValueOfObjCType:@encode(unsigned char) at:&len];	// ignored in this implementation
+	[self decodeValueOfObjCType:@encode(unsigned char) at:&len];	// should set the buffer size internal to the NSInvocation
 	// FIXME: we should we translate network signatures here or should all foundation classes be compatible with OpenSTEP?
 	sig=[NSMethodSignature signatureWithObjCTypes:type];
 	buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
 	i=[NSInvocation invocationWithMethodSignature:sig];
-	[self decodeArrayOfObjCType:@encode(char) count:len at:buffer];
+	[self decodeArrayOfObjCType:@encode(char) count:len at:buffer];	// decode byte pattern
 	[i setReturnValue:buffer];	// set value
 	for(j=2; j<cnt; j++)
 		{ // decode arguments
