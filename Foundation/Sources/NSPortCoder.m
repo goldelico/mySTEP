@@ -827,17 +827,16 @@ const char *objc_skip_typespec (const char *type)
 	return _components;
 }
 
-/*  */
-
 - (void) encodeReturnValue:(NSInvocation *) i
 { // encode the return value as an object with correct type
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
 	NS_DURING
 		[i getReturnValue:buffer];	// get value
+		NSLog(@"encodeReturnValue %08x (%d)", *(unsigned long *) buffer, [sig methodReturnLength]);
 		[self encodeValueOfObjCType:[sig methodReturnType] at:buffer];
 	NS_HANDLER
-		NSLog(@"encodeReturnValue has no return value");	// e.g. if [i invoke] did result in an exception!
+		NSLog(@"encodeReturnValue has no return value");	// e.g. if [i invoke] did result in an exception! or we have a oneway void
 	NS_ENDHANDLER
 	objc_free(buffer);
 }
@@ -852,8 +851,9 @@ const char *objc_skip_typespec (const char *type)
 }
 
 // this should be implemented in NSInvocation to have direct access to the iVars
-// i.e. call some private [i _encodeWithPortCoder:self]
+// i.e. call some private [i encodeWithCoder:self]
 // this would also eliminate the detection of the Class during encodeObject/decodeObject
+// DOC says: NSInvocation also conforms to the NSCoding protocol, i.e has encodeWithCoder!
 
 - (void) encodeInvocation:(NSInvocation *) i
 {

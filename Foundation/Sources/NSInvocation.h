@@ -64,7 +64,7 @@ typedef struct
     } value;
 } NSObjCValue;
 
-@interface NSInvocation : NSObject
+@interface NSInvocation : NSObject <NSCoding>
 {
 	NSMethodSignature *_sig;
 	arglist_t _argframe;

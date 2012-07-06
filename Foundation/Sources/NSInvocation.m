@@ -297,6 +297,10 @@
 #endif
 }
 
+// FIXME: copy the debugged and tested code from -[NSPortCoder encodeInvocation:] here!
+
+#if FIXME
+
 /*
  * encoding of in/out/inout paramters is based on the _validReturn flag
  *
@@ -429,6 +433,7 @@
 	objc_free(buffer);
 	return self;
 }
+#endif
 
 @end  /* NSInvocation */
 
