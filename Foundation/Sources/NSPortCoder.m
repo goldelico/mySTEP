@@ -383,12 +383,11 @@ const char *objc_skip_typespec (const char *type)
 			flag=YES;	// It appears as if this is always YES
 			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
 		}
+#if 1
+	NSLog(@"encodeObject -> %@", _components);
+#endif
 	_isBycopy=_isByref=NO;	// reset flags for next encoder call
 }
-
-// FIXME: check how this really should work
-// the default implementation is that it calls [self encodeObject:]
-// and another scheme may be that encodeInvocation sets the flags and calls encodeBycopyObject:
 
 - (void) encodeBycopyObject:(id) obj
 {
@@ -868,17 +867,23 @@ const char *objc_skip_typespec (const char *type)
 	id target=[i target];
 	SEL selector=[i selector];
 	int j;
+#if 0
 	NSLog(@"encodeInvocation1 comp=%@", _components);
+#endif
 	[self encodeValueOfObjCType:@encode(id) at:&target];
 	[self encodeValueOfObjCType:@encode(int) at:&cnt];	// argument count
 	[self encodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self encodeValueOfObjCType:@encode(char *) at:&type];	// method type
 	[self encodeValueOfObjCType:@encode(unsigned char) at:&len];
+#if 0
 	NSLog(@"encodeInvocation2 comp=%@", _components);
+#endif
 	NS_DURING
 		[i getReturnValue:buffer];	// get value
-	NS_HANDLER
+	NS_HANDLER	// not needed if we implement encoding in NSInvocation
 		NSLog(@"encodeInvocation has no return value");	// e.g. if [i invoke] did result in an exception!
+		len=1;
+		*(char *) buffer=0x40;
 	NS_ENDHANDLER
 	[self encodeArrayOfObjCType:@encode(char) count:len at:buffer];	// encode the bytes of the return value (not the object/type which can be done by encodeReturnValue)
 	for(j=2; j<cnt; j++)
@@ -887,7 +892,9 @@ const char *objc_skip_typespec (const char *type)
 			[i getArgument:buffer atIndex:j];	// get value
 			[self encodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
 		}
+#if 0
 	NSLog(@"encodeInvocation3 comp=%@", _components);
+#endif
 	objc_free(buffer);
 }
 

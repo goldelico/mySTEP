@@ -153,6 +153,13 @@
 
 @implementation NSDistantObject		// this object forwards messages to the peer
 
+static Class *_doClass;
+
++ (void) initialize
+{
+	_doClass=[NSDistantObject class];
+}
+
 // more private methods
 // + (void)_enableLogging:(BOOL)arg1;
 // - (void)_releaseWireCount:(unsigned long long)arg1;
@@ -207,7 +214,8 @@
 	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodDescriptionForSelector:)] forKey:@"methodDescriptionForSelector:"]; 	// predefine NSMethodSignature cache
 //	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache
 	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(respondsToSelector:)] forKey:@"respondsToSelector:"]; 	// predefine NSMethodSignature cache
-	[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache
+	if(remoteObject == nil)	// root proxy
+		[_selectorCache setObject:[aConnection methodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache
 	[aConnection _addDistantObject:self forRemote:remoteObject];	// add to remote objects
 	_connection=aConnection;	// we are retained by the connection
 	return self;
@@ -423,17 +431,15 @@
 	return ret;
 }
 
-// FIXME: should be cached
-- (Class) classForCoder; { return /*isa*/ NSClassFromString(@"NSDistantObject"); }	// for compatibility
+- (Class) classForCoder; { return _doClass; }	// for compatibility
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't ever replace by another proxy
 
-/* NOTE: reference addresses/numbers are encoded as 32 bit integers although the API referes to them as id */
 
 - (void) encodeWithCoder:(NSCoder *) coder;
 { // just send the reference number
 	BOOL flag;
-	unsigned int ref=(unsigned int) _remote;
+	unsigned int ref=(unsigned int) _remote;	// reference addresses/numbers are encoded as 32 bit unsigned integers although the API declasres them as id
 	[coder encodeValueOfObjCType:@encode(unsigned int) at:&ref];	// encode as a reference into the address space and not the real object
 	flag=(_local == nil);	// local(0) vs. remote(1) flag
 	[coder encodeValueOfObjCType:@encode(char) at:&flag];

@@ -132,13 +132,17 @@
 - (void) getReturnValue:(void *)buffer
 {
 	// NOTE: If the NSInvocation object has never been invoked, the result of this method is undefined.
-	if(!_validReturn)
-		[NSException raise: NSGenericException
-					format: @"getReturnValue with no value set"];
-	[_sig _getArgument:buffer fromFrame:_retval atIndex:-1];
+	if(_validReturn)
+		{
+		[_sig _getArgument:buffer fromFrame:_retval atIndex:-1];
 #if 0
-	if(*_rettype == _C_ID)
-		NSLog(@"getReturnValue id=%@", *(id *) buffer);
+		if(*_rettype == _C_ID)
+			NSLog(@"getReturnValue id=%@", *(id *) buffer);
+#endif		
+		}
+#if 1 // this is only needed if we are encoding any NSInvocation in NSPortCoder
+	else
+		[NSException raise: NSGenericException format: @"getReturnValue with no value set"];
 #endif
 }
 
