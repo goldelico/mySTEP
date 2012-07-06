@@ -1065,12 +1065,12 @@ static unsigned int _sequence;	// global sequence number
 #if 1
 	NSLog(@"delegate %@", _delegate);
 	NSLog(@"coder %@", coder);
-	NSLog(@"components %@", [coder components]);
+	NSLog(@"components1 %@", [coder components]);
 #endif
 	[coder authenticateWithDelegate:_delegate];
 	// [somearray addObject:something];
 #if 1
-	NSLog(@"components %@", [coder components]);
+	NSLog(@"components2 %@", [coder components]);
 #endif
 }
 
@@ -1080,7 +1080,7 @@ static unsigned int _sequence;	// global sequence number
 #if 0
 	NSLog(@"_cleanupAndAuthenticate sequence=%u", seq);
 	NSLog(@"verifyWithDelegate => %@ delegate = %@", r?@"YES":@"NO", _delegate);
-	NSLog(@"components %@", [coder components]);
+	NSLog(@"components3 %@", [coder components]);
 	NSLog(@"conversation %@", *conversation);
 	r=YES;
 #endif
