@@ -873,6 +873,9 @@ const char *objc_skip_typespec (const char *type)
 	[self encodeValueOfObjCType:@encode(id) at:&target];
 	[self encodeValueOfObjCType:@encode(int) at:&cnt];	// argument count
 	[self encodeValueOfObjCType:@encode(SEL) at:&selector];
+#if 0
+	type=translateSignatureToNetwork(type);
+#endif
 	[self encodeValueOfObjCType:@encode(char *) at:&type];	// method type
 #if 0
 	NSLog(@"encodeInvocation2 comp=%@", _components);
@@ -914,7 +917,9 @@ const char *objc_skip_typespec (const char *type)
 	[self decodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self decodeValueOfObjCType:@encode(char *) at:&type];
 	[self decodeValueOfObjCType:@encode(unsigned char) at:&len];	// should set the buffer size internal to the NSInvocation
-	// FIXME: we should we translate network signatures here or should all foundation classes be compatible with OpenSTEP?
+#if 0
+	type=translateSignatureFromNetwork(type);
+#endif
 	sig=[NSMethodSignature signatureWithObjCTypes:type];
 	buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
 	i=[NSInvocation invocationWithMethodSignature:sig];
