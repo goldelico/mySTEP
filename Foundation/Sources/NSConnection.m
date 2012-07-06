@@ -1049,7 +1049,7 @@ static unsigned int _sequence;	// global sequence number
 			// flags must be YES or we get a timeout (!) exception
 #endif
 #if 1
-			NSLog(@"now sending");
+			NSLog(@"now sending %@", [pc components]);
 #endif
 			[pc sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_replyTimeout sendReplyPort:NO];	// send response
 			_repliesSent++;

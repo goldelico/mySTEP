@@ -13,6 +13,9 @@
  
    NSConnection, NSDistantObjectRequest - aligned with 10.5 by Fabian Spillner 28.04.2008
  
+   for an overview about Distributed Objects see:
+	http://objc.toodarkpark.net/moreobjc.html#904
+ 
    This file is part of the mySTEP Library and is provided
    under the terms of the GNU Library General Public License.
 */ 
