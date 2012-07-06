@@ -181,10 +181,10 @@
 			[self release];	// release newly allocated object
 			return [proxy retain];	// retain the existing proxy once
 		}
-#if 1
+#if 1	// this enables mixing 32 and 64 bit address spaces
 	remoteObjectId=(id) nextReference++;	// assign serial numbers to be able to mix 32 and 64 bit address spaces
-#else
-	remoteObjectId=anObject;	// use the unique object address as descibed in the manual
+#else	// this is most likely old OpenSTEP behaviour
+	remoteObjectId=anObject;	// use a unique 32 bit object address as descibed in the manual
 #endif
 	self=[self initWithTarget:remoteObjectId connection:aConnection];	// will become a fresh initialization since the reference is new
 	_connection=[aConnection retain];	// remember the connection as long as we exist
@@ -203,11 +203,11 @@
 		}
 	_remote=remoteObject;
 	_selectorCache=[[NSMutableDictionary alloc] initWithCapacity:10];
+	// fixme: should there be a global cache? How to handle conflicting signatures for different classes?
 	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodDescriptionForSelector:)] forKey:@"methodDescriptionForSelector:"]; 	// predefine NSMethodSignature cache
 //	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache
 	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(respondsToSelector:)] forKey:@"respondsToSelector:"]; 	// predefine NSMethodSignature cache
-	//	if(remoteObject == nil)
-	//		[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache
+	[_selectorCache setObject:[NSConnection instanceMethodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache
 	[aConnection _addDistantObject:self forRemote:remoteObject];	// add to remote objects
 	_connection=aConnection;	// we are retained by the connection
 	return self;

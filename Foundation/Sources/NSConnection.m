@@ -795,7 +795,7 @@ static unsigned int _sequence;	// global sequence number
 			// FIXME: align with returnResult:
 			ex=[portCoder decodeObject];	// what is this? most likely the Exception to raise
 			[portCoder decodeReturnValue:i];	// decode return value into our original invocation
-			// FIXME: is there another object to be decoded?
+			// FIXME: is there another object to be decoded? the inout list?
 			if(![portCoder verifyWithDelegate:_delegate])
 				[NSException raise:NSFailedAuthenticationException format:@"authentication of response failed"];
 			[portCoder invalidate];
@@ -1035,7 +1035,7 @@ static unsigned int _sequence;	// global sequence number
 #endif
 			[pc encodeValueOfObjCType:@encode(unsigned int) at:&flags];
 			[pc encodeValueOfObjCType:@encode(unsigned int) at:&seq];
-			[pc encodeObject:nil];	// or is this the exception?
+			[pc encodeObject:nil];	// is this the exception or the inout objects list?
 			[pc encodeReturnValue:result];	// encode result (separately from NSInvocation)
 			[pc encodeObject:exception];
 			// [pc encodeObject:imports];
