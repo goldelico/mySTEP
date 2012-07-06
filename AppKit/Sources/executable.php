@@ -214,8 +214,9 @@ class NSMenuItemView extends NSView
 			$submenu->isHorizontal=false;
 			$this->subMenuView=$submenu;
 			}
-		public function draw()
+		public function draw($superview="")
 			{
+			// FXIME: use <style>
 			// if no action -> grey out
 			echo htmlentities($this->label);
 			if(isset($this->subMenuView))
@@ -539,16 +540,10 @@ class NSTabView extends NSView
 			parameter("type", "submit");
 			parameter("name", $this->elementName."-".$index++);
 			parameter("value", htmlentities($item->label));
-/*
 			if($item == $this->selectedTabViewItem())
-				echo "<span color=green>";
+				parameter("style", "color=green;");
 			else
-				echo "<span color=red>";
-			echo htmlentities($item->label);
-
-			echo "</span> ";
-			echo "</button>";
-*/
+				parameter("style", "color=red;");
 			echo ">\n";
 			}
 		echo "</td>";
