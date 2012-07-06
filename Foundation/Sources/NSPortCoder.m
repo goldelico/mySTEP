@@ -546,6 +546,13 @@ const char *objc_skip_typespec (const char *type)
 
 // core decoding
 
+- (NSString *) _location;
+{ // show current decoding location
+	NSData *first=[_components objectAtIndex:0];
+	const unsigned char *f=[first bytes];	// initial read pointer
+	return [NSString stringWithFormat:@"%@ * %@", [first subdataWithRange:NSMakeRange(0, _pointer-f)], [first subdataWithRange:NSMakeRange(_pointer-f, _eod-_pointer)]];
+}
+
 - (long long) _decodeInteger
 {
 	union
@@ -555,7 +562,7 @@ const char *objc_skip_typespec (const char *type)
 	} d;
 	int len;
 	if(_pointer >= _eod)
-		[NSException raise:NSPortReceiveException format:@"no more data to decode (%@)", [_components objectAtIndex:0]];
+		[NSException raise:NSPortReceiveException format:@"no more data to decode (%@)", [self _location]];
 	len=*_pointer++;
 	if(len < 0)
 		{ // fill with 1 bits
@@ -565,9 +572,9 @@ const char *objc_skip_typespec (const char *type)
 	else
 		d.val=0;
 	if(len > 8)
-		[NSException raise:NSPortReceiveException format:@"invalid integer length (%d) to decode (%@)", len, [_components objectAtIndex:0]];
+		[NSException raise:NSPortReceiveException format:@"invalid integer length (%d) to decode (%@)", len, [self _location]];
 	if(_pointer+len > _eod)
-		[NSException raise:NSPortReceiveException format:@"not enough data to decode integer with length %d (%@)", len, [_components objectAtIndex:0]];
+		[NSException raise:NSPortReceiveException format:@"not enough data to decode integer with length %d (%@)", len, [self _location]];
 	memcpy(d.data, _pointer, len);
 	_pointer+=len;
 	return NSSwapLittleLongLongToHost(d.val);
@@ -613,7 +620,7 @@ const char *objc_skip_typespec (const char *type)
 	unsigned long len=[self _decodeInteger];
 	NSData *d;
 	if(_pointer+len > _eod)
-		[NSException raise:NSPortReceiveException format:@"not enough data to decode data (length=%ul)", len];
+		[NSException raise:NSPortReceiveException format:@"not enough data to decode data (length=%ul): %@", len, [self _location]];
 	d=[NSData dataWithBytes:_pointer length:len];	// retained copy...
 	_pointer+=len;
 	return d;
@@ -669,7 +676,7 @@ const char *objc_skip_typespec (const char *type)
 		case _C_CHR:
 		case _C_UCHR: {
 			if(_pointer >= _eod)
-				[NSException raise:NSPortReceiveException format:@"not enough data to decode char: %@", [_components objectAtIndex:0]];
+				[NSException raise:NSPortReceiveException format:@"not enough data to decode char: %@", [self _location]];
 			*((char *) address) = *_pointer++;	// single byte
 			break;
 		}
@@ -915,8 +922,8 @@ const char *objc_skip_typespec (const char *type)
 	BOOL flag;
 	NSMutableDictionary *savedClassVersions;
 	int version;
-#if 0
-	NSLog(@"decodeRetainedObject");
+#if 1
+	NSLog(@"decodeRetainedObject: %@", [self _location]);
 #endif
 	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// the first byte is the non-nil/nil flag
 	if(!flag)
@@ -967,7 +974,7 @@ const char *objc_skip_typespec (const char *type)
 		obj=[[class alloc] initWithCoder:self];	// allocate and load new instance
 	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// always 0x01 (?) - appears to be 0x00 for a reply; and there may be another object if flag == 0x01
 #if 1
-	NSLog(@"flag3=%d", flag);
+	NSLog(@"flag3=%d %@", flag, [self _location]);
 #endif
 	[_classVersions release];
 	_classVersions=savedClassVersions;
