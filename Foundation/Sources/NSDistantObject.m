@@ -159,7 +159,7 @@
 
 @implementation NSDistantObject		// this object forwards messages to the peer
 
-static Class *_doClass;
+static Class _doClass;
 
 + (void) initialize
 {

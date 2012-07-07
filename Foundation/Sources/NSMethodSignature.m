@@ -775,18 +775,25 @@ break; \
 #endif
 
 - (retval_t) _returnValue:(void *) retval frame:(arglist_t) frame;
-{
+{ // get the return value as a retval_t so that we can return from forward::
 	retval_t r;
 #ifndef __APPLE__
 	unsigned long *f=(unsigned long *) frame;
 	unsigned long *args;
+#if 1
+	NSLog(@"_returnValue");
 	NSLog(@"frame=%p", f);
+#endif
 	args=(unsigned long *) f[0];	// current arguments pointer
+#if 1
 	NSLog(@"adjusted args=%p", args);
+#endif
 	args[1]=args[0];	// restore link register
 	f[0] += STRUCT_RETURN_POINTER_LENGTH + REGISTER_SAVEAREA_SIZE;	// adjust back
+#if 1
 	NSLog(@"restored args=%p", args);
 	NSLog(@"frame=%p", f);
+#endif
 	switch(*info[0].type) {
 		case APPLY_VOID(_C_VOID);
 		case APPLY(_C_ID, id);
@@ -833,7 +840,9 @@ break; \
 		}
 	}
 #endif
+#if 1
 	fprintf(stderr, "retval=%p\n", r);
+#endif
 	return r;
 }
 
@@ -954,7 +963,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 }
 
 - (BOOL) _call:(void *) imp frame:(arglist_t) _argframe retbuf:(void *) retbuf;
-{ // preload registers from ARM stack frame and call implementation
+{ // preload registers from stack frame and call implementation
 	NEED_INFO();	// make sure that argFrameLength is defined
 #if 0
 	// FIXME: it is not necessary to round that up - __builtin_apply does it for us
@@ -967,7 +976,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 			for(i=1; i<REGISTER_SAVEAREA_SIZE/sizeof(void *); i++)	// a good compiler should be able to unroll this loop
 				((void **)_argframe)[i] = ((void **)stackframe)[i];	// copy from stack frame to register filling locations
 		}
-	return wrapped_builtin_apply(imp, _argframe, argFrameLength, retbuf, &info[0]);	// here, we really invoke the implementation	
+	return wrapped_builtin_apply(imp, _argframe, argFrameLength, retbuf, &info[0]);	// here, we really invoke the implementation and store the result in retbuf
 }
 
 @end  /* NSMethodSignature (mySTEP) */

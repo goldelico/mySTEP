@@ -126,7 +126,7 @@
 {
 	NSInvocation *inv;
 #if 1
-	NSLog(@"forward:@selector(%@) :... through %@", NSStringFromSelector(aSel), self);
+	NSLog(@"NSProxy forward:@selector(%@) :... through %@", NSStringFromSelector(aSel), self);
 #endif
 	if(aSel == 0)
 		[NSException raise:NSInvalidArgumentException

@@ -289,6 +289,9 @@
 	[self _log:@"stack before _call"];
 	//	*((long *)1)=0;
 #endif
+	
+	// NOTE: we run into problems if imp is itself calling forward::
+	
 	_validReturn=[_sig _call:imp frame:_argframe retbuf:_retval];	// call
 #if 0
 	[self _log:@"stack after _call"];
