@@ -739,7 +739,7 @@ static retval_t apply_block(void *data)
 
 #endif
 
-#if 0
+#if 0	// with logging
 
 #define APPLY(NAME, TYPE)  NAME: { \
 /*static*/ TYPE return##NAME(TYPE data) { fprintf(stderr, "return"#NAME" %x\n", (unsigned)data); return data; } \
@@ -841,12 +841,12 @@ break; \
 	}
 #endif
 #if 1
-	fprintf(stderr, "retval=%p\n", r);
+	fprintf(stderr, "retval=%p %lu\n", r, *(unsigned long *) r);
 #endif
 	return r;
 }
 
-#if 0
+#if 0	// with logging
 
 #define RETURN(CODE, TYPE) CODE: { \
 inline TYPE retframe##CODE(void *imp, arglist_t frame, int stack) \
@@ -927,7 +927,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 	typedef struct {
 		char val[1 /*info[0].size */];
 	} block;
-#if 0
+#if 1
 	NSLog(@"type %s imp=%p frame=%p stack=%d retbuf=%p", info[0].type, imp, frame, stack, retbuf);
 #endif
 	switch(*info[0].type) {

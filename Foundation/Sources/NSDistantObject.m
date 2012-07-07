@@ -145,14 +145,16 @@
 
 - (const char *) _localClassNameForClass;
 {
+	const char *n;
 #ifdef __APPLE__
-	return object_getClassName(self);
+	n=object_getClassName(self);
 #else
-#if 1
-	NSLog(@"_localClassNameForClass -> %s", class_get_class_name(isa));
-#endif	
-	return class_get_class_name(isa);
+	n=class_get_class_name(isa);
 #endif
+#if 1
+	NSLog(@"_localClassNameForClass -> %p %s", n, n);
+#endif	
+	return n;
 }
 
 @end

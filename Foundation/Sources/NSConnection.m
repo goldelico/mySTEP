@@ -1002,9 +1002,10 @@ static unsigned int _sequence;	// global sequence number
 	NSLog(@"selector=%@", NSStringFromSelector([i selector]));
 #endif
 #if 1	// we have to handle this differently since our -invoke makes problems with the return value of another -forward::
-	if([[[i target] class] isSubclassOfClass:[NSDistantObject class]])	// don't call -isKindOfClass on any instance object since it may not be implemented!
+	if([[i target] isKindOfClass:[NSDistantObject class]])
 		{
 		NSLog(@"target is NSDistantObject");
+		// this should only happen for local NSDistantObjects!
 		[(NSDistantObject *) [i target] forwardInvocation:i];	// call with _local as the target
 		}
 	else

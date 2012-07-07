@@ -293,7 +293,7 @@
 	// NOTE: we run into problems if imp is itself calling forward::
 	
 	_validReturn=[_sig _call:imp frame:_argframe retbuf:_retval];	// call
-#if 0
+#if 1
 	[self _log:@"stack after _call"];
 	//	*((long *)1)=0;
 #endif
@@ -626,10 +626,15 @@
 			NSLog(@"warning - no valid return value set");
 			[NSException raise: NSInvalidArgumentException format: @"did not 'setReturnValue:' for non-void NSInvocation"];
 		}
-	[_sig _returnValue:_retval frame:_argframe];	// get return value and restore argframe if needed
+	retval=[_sig _returnValue:_retval frame:_argframe];	// get return value and restore argframe if needed
+#if 1
 	[self _log:@"after getting retval"];
+#endif
 	if(!_argframeismalloc)
 		_argframe=NULL;	// invalidate since it was inherited from our caller
+#if 1
+	NSLog(@"retval=%p %ul", retval, *(unsigned long *) retval);
+#endif
 	return retval;
 }
 
@@ -668,7 +673,7 @@
 - (void) forwardInvocation:(NSInvocation *)anInvocation
 {
 	id ret=nil;
-	NSLog(@"forwardInvocation: %@", anInvocation);
+	NSLog(@"NSInvocation %p forwardInvocation: %@", self, anInvocation);
 	[anInvocation setReturnValue:&ret];
 }
 
