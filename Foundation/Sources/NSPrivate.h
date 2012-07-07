@@ -505,7 +505,7 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 - (void) _portInvalidated:(NSNotification *) n;
 - (void) _executeInNewThread;
 - (id) newConversation;
-- (NSPortCoder *) portCoderWithComponents:(NSPortMessage *) components;
+- (NSPortCoder *) portCoderWithComponents:(NSArray *) components;
 - (void) sendInvocation:(NSInvocation *) i internal:(BOOL) internal;
 - (void) sendInvocation:(NSInvocation *) i;
 - (void) handlePortMessage:(NSPortMessage *) message;

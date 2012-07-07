@@ -682,12 +682,11 @@ static unsigned int _sequence;	// global sequence number
 	return _currentConversation;
 }
 
-// since we call this for the correctly initialized connection, we can pass the components only and use _receivePort and _sendPort
-- (NSPortCoder *) portCoderWithComponents:(NSPortMessage *) message
-{ // CHEKME: is the parameter just the components part or the full port message?
-	return [[[NSPortCoder alloc] initWithReceivePort:[message receivePort]
-											sendPort:[message sendPort]
-										  components:[message components]] autorelease];
+- (NSPortCoder *) portCoderWithComponents:(NSArray *) components
+{
+	return [[[NSPortCoder alloc] initWithReceivePort:_receivePort
+											sendPort:_sendPort
+										  components:components] autorelease];
 }
 
 // FIXME: what do we do with the 'internal' flag?
@@ -722,8 +721,7 @@ static unsigned int _sequence;	// global sequence number
 		   
 	// lastconversationinfo() - legt es ggf. an und trägt es in ein Dict ein
 	
-	// CHECKME: portCoder=[self portCoderWithComponents:components];
-	portCoder=[NSPortCoder portCoderWithReceivePort:_receivePort sendPort:_sendPort components:nil];
+	portCoder=[self portCoderWithComponents:nil];	// for encoding
 	[portCoder encodeValueOfObjCType:@encode(unsigned long) at:&flags];
 	++_sequence;	// we will wait for a response to appear...
 	[portCoder encodeValueOfObjCType:@encode(unsigned long) at:&_sequence];
@@ -833,8 +831,7 @@ static unsigned int _sequence;	// global sequence number
 	NSLog(@"recv.delegate=%@", [[message receivePort] delegate]);	// is the NSConnection
 	NSLog(@"send.delegate=%@", [[message sendPort] delegate]);		// is its own delegate
 #endif
-	// FIXME: [[connection portCoderWithComponents:[message components]] dispatch];
-	[[connection portCoderWithComponents:message] dispatch];
+	[[connection portCoderWithComponents:[message components]] dispatch];
 }
 
 - (void) handlePortCoder:(NSPortCoder *) coder;
@@ -1028,7 +1025,7 @@ static unsigned int _sequence;	// global sequence number
 #endif
 	if(!isOneway)
 		{ // there is something to return...
-			NSPortCoder *pc=[NSPortCoder portCoderWithReceivePort:_receivePort sendPort:_sendPort components:nil];
+			NSPortCoder *pc=[self portCoderWithComponents:nil];	// for encoding
 			unsigned long flags=FLAGS_RESPONSE;
 #if 1
 			NSLog(@"port coder=%@", pc);
