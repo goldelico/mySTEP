@@ -1001,7 +1001,7 @@ static unsigned int _sequence;	// global sequence number
 	NSLog(@"target=%p %@", [i target], NSStringFromClass([[i target] class]));
 	NSLog(@"selector=%@", NSStringFromSelector([i selector]));
 #endif
-#if 1	// we have to handle this differently since our -invoke makes problems with the return value of another -forward::
+#if 1	 // this is a workaround since our -invoke does not work as described in the comment NOTE above this method
 	if([[i target] isKindOfClass:[NSDistantObject class]])
 		{
 		NSLog(@"target is NSDistantObject");

@@ -1118,9 +1118,15 @@ const char *objc_skip_typespec (const char *type)
 
 @end
 
+@implementation NSValue (NSPortCoding)
+
+- (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode numbers bycopy
+
+@end
+
 @implementation NSMethodSignature (NSPortCoding)
 
-- (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode invocations bycopy
+- (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode method signatures bycopy (if at all!)
 
 @end
 

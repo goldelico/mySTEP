@@ -117,6 +117,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 {
 	if((self=[super init]))
 		{
+		// CHECKME!!!
 		_delegate=self;	// appears to be initialized to be its own delegate
 		_isValid = YES;
 		_fd=-1;
@@ -167,7 +168,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 
 - (void) setDelegate:(id)anObject
 {
-	if(anObject && ![anObject respondsToSelector: @selector(handlePortMessage:)] && !![anObject respondsToSelector: @selector(handleMachMessage:)])
+	if(anObject && ![anObject respondsToSelector: @selector(handlePortMessage:)] && ![anObject respondsToSelector: @selector(handleMachMessage:)])
 		[NSException raise:NSInvalidArgumentException format:@"does not provide handlePortMessage or handleMachMessage: %@", anObject];
 	_delegate = anObject;	// remember
 }
