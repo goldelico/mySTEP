@@ -752,6 +752,7 @@ static unsigned int _sequence;	// global sequence number
 			NSLog(@"*** (conn=%p) waiting for response before %@ in runloop %@ from %@", self, [NSDate dateWithTimeIntervalSinceNow:_replyTimeout], rl, _receivePort);
 #endif
 			[_receivePort addConnection:self toRunLoop:rl forMode:NSConnectionReplyMode];	// schedule our receive port so that we can be connected
+			[_receivePort setDelegate:self];
 			while(YES)	// loop until we can extract a matching response for our sequence number from the receive queue...
 				{ // not yet timed out and current conversation is not yet completed
 #if 1
