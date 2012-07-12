@@ -172,16 +172,6 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 	_delegate = anObject;	// remember
 }
 
-- (void) handlePortMessage:(NSPortMessage *) message
-{ // handle a received port message (as long as we are our own delegate)
-#if 1
-	NSLog(@"### handlePortMessage:%@\nmsgid=%d\nrecv=%@\nsend=%@\ncomponents=%@", message, [message msgid], [message receivePort], [message sendPort], [message components]);
-#endif
-	if(!message)
-		return;	// no message to handle
-	[[NSPortCoder portCoderWithReceivePort:[message receivePort] sender:[message sendPort] components:[message components]] dispatch];
-}
-
 // should we really override?
 
 - (id) replacementObjectForPortCoder:(NSPortCoder *)aCoder	{ return self; }	// never replace

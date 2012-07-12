@@ -1078,6 +1078,20 @@ const char *objc_skip_typespec (const char *type)
 @end
 #endif
 
+@implementation NSPort (NSPortCoder)
+
+- (void) handlePortMessage:(NSPortMessage *) message
+{ // handle a received port message (as long as we are our own delegate)
+#if 1
+	NSLog(@"### handlePortMessage:%@\nmsgid=%d\nrecv=%@\nsend=%@\ncomponents=%@", message, [message msgid], [message receivePort], [message sendPort], [message components]);
+#endif
+	if(!message)
+		return;	// no message to handle
+	[[NSPortCoder portCoderWithReceivePort:[message receivePort] sendPort:[message sendPort] components:[message components]] dispatch];
+}
+
+@end
+
 @implementation NSTimeZone (NSPortCoding) 
 
 + (int) _versionForPortCoder; { return 1; }
