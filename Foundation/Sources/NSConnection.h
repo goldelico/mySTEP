@@ -58,8 +58,8 @@ extern NSString *const NSFailedAuthenticationException;
 
 @interface NSConnection : NSObject
 {
-	NSPort *_receivePort;
-	NSPort *_sendPort;
+	NSPort *_receivePort;				// where we receive requests and send responses
+	NSPort *_sendPort;					// where we send requests and receive responses
 	id _delegate;
 	id _rootObject;						// the root object to vend
 	NSMapTable *_localObjects;			// map of local objects -> proxy
@@ -84,6 +84,12 @@ extern NSString *const NSFailedAuthenticationException;
 }
 
 + (NSArray *) allConnections;
+
+/*
+ * the sendPort is the port where we send NSInvocations and receive responses
+ * the receivePort is the port where we can receive NSInvocations and send responses
+ */
+
 + (NSConnection *) connectionWithReceivePort:(NSPort *) receivePort
 									sendPort:(NSPort *) sendPort;
 + (NSConnection *) connectionWithRegisteredName:(NSString *) n

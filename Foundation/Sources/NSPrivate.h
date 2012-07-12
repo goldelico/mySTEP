@@ -508,7 +508,6 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 - (NSPortCoder *) portCoderWithComponents:(NSArray *) components;
 - (void) sendInvocation:(NSInvocation *) i internal:(BOOL) internal;
 - (void) sendInvocation:(NSInvocation *) i;
-- (void) handlePortMessage:(NSPortMessage *) message;
 - (void) handlePortCoder:(NSPortCoder *) coder;
 - (void) handleRequest:(NSPortCoder *) coder sequence:(int) seq;
 - (void) dispatchInvocation:(NSInvocation *) i;

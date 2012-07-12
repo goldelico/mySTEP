@@ -99,7 +99,7 @@ typedef int NSSocketNativeHandle;
 @interface NSObject (NSPortDelegate)
 
 - (void) handleMachMessage:(void *) message;
-- (void) handlePortMessage:(NSPortMessage *) message;
+- (void) handlePortMessage:(NSPortMessage *) message;	// a NSPort is its own delegate by default
 
 @end
 
@@ -137,12 +137,6 @@ enum {
 - (uint32_t) machPort;
 - (void) removeFromRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
 - (void) scheduleInRunLoop:(NSRunLoop *) runLoop forMode:(NSString *) mode;
-
-@end
-
-@interface NSObject (NSMachPortDelegate)
-
-- (void) handleMachMessage:(void *) machMessage;
 
 @end
 
