@@ -247,15 +247,18 @@ static unsigned int _sequence;	// global sequence number
 		}
 }
 
-- (void) addRunLoop:(NSRunLoop *)runLoop;
+- (void) addRunLoop:(NSRunLoop *) runLoop;
 { // schedule in new runloop in all known modes
+#if 1
+	NSLog(@"addRunLoop: %@ to %@", runLoop, _runLoops);
+#endif
 	if(![_runLoops containsObject:runLoop])
 		{
-		NSEnumerator *e=[_modes objectEnumerator];
-		NSString *mode;
-		while((mode=[e nextObject]))
-			[_receivePort addConnection:self toRunLoop:runLoop forMode:mode];
-		[_runLoops addObject:runLoop];
+			NSEnumerator *e=[_modes objectEnumerator];
+			NSString *mode;
+			[_runLoops addObject:runLoop];
+			while((mode=[e nextObject]))
+				[_receivePort addConnection:self toRunLoop:runLoop forMode:mode];
 		}
 }
 
@@ -299,6 +302,13 @@ static unsigned int _sequence;	// global sequence number
 #if 1
 				NSLog(@"NSConnection -init: connection exists");
 #endif
+				/* check for new thread
+				 if(_multipleThreadsEnabled)
+				 {
+				 if(![self hasRunloop:rl])
+				 [self addRunLoop:rl];
+				 }
+				*/
 				[self release];
 				return [c retain];	// use existing object
 			}
@@ -333,6 +343,8 @@ static unsigned int _sequence;	// global sequence number
 						[self release];
 						return nil;
 					}
+				_receivePort=[receivePort retain];
+				_sendPort=[sendPort retain];
 				_rootObject=[c->_rootObject retain];
 				_delegate=c->_delegate;
 				_modes=[c->_modes mutableCopy];		// we share the receivePort which is already scheduled in these modes and runloops
@@ -349,20 +361,19 @@ static unsigned int _sequence;	// global sequence number
 #if 1
 			NSLog(@"really new connection");
 #endif
+			_receivePort=[receivePort retain];
+			_sendPort=[sendPort retain];
 			_modes=[[NSMutableArray alloc] initWithCapacity:10];
 			_runLoops=[[NSMutableArray alloc] initWithCapacity:10];
 			_replyTimeout=_requestTimeout=99999999.0;	// set defaults
 			_multipleThreadsEnabled=NO;
 			_independentConversationQueueing=NO;
-#if 0
+#if 1
 			NSLog(@"schedule receive port %@", _receivePort);
 #endif
 			[self addRunLoop:[NSRunLoop currentRunLoop]];
 			[self addRequestMode:NSDefaultRunLoopMode];		// schedule ports in current runloop
 			}
-		_receivePort=[receivePort retain];
-		_sendPort=[sendPort retain];
-		// [nc addObserver:self selector:@selector(_portInvalidated:) name:NSPortDidBecomeInvalidNotification object:_receivePort];
 		[nc addObserver:self selector:@selector(_portInvalidated:) name:NSPortDidBecomeInvalidNotification object:_sendPort];	// if we can't send any more
 		_isValid=YES;
 		// or should we be retained by all proxy objects???
@@ -476,8 +487,7 @@ static unsigned int _sequence;	// global sequence number
 	if(!_isValid)
 		return;	// already invalidated
 	_isValid=NO;	// don't loop through notifications...
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSPortDidBecomeInvalidNotification object:_receivePort];
-	// what if multiple connections share our ports?
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSPortDidBecomeInvalidNotification object:_sendPort];
 	e=[_runLoops objectEnumerator];
 	while((rl=[e nextObject]))
 		{
@@ -533,11 +543,11 @@ static unsigned int _sequence;	// global sequence number
 {
 	if([_modes containsObject:mode])
 		{
-		NSEnumerator *e=[_runLoops objectEnumerator];
-		NSRunLoop *runLoop;
-		while((runLoop=[e nextObject]))
-			[_receivePort removeConnection:self fromRunLoop:runLoop forMode:mode];
-		[_modes removeObject:mode];
+			NSEnumerator *e=[_runLoops objectEnumerator];
+			NSRunLoop *runLoop;
+			while((runLoop=[e nextObject]))
+				[_receivePort removeConnection:self fromRunLoop:runLoop forMode:mode];
+			[_modes removeObject:mode];
 		}
 }
 
@@ -710,14 +720,6 @@ static unsigned int _sequence;	// global sequence number
 	 }
 	 */
 	isOneway=[[i methodSignature] isOneway];
-	if(_multipleThreadsEnabled)
-		{
-		if(![self hasRunloop:rl])
-		   [self addRunLoop:rl];
-		}
-		   
-	// lastconversationinfo() - legt es ggf. an und trägt es in ein Dict ein
-	
 	portCoder=[self portCoderWithComponents:nil];	// for encoding
 	[portCoder encodeValueOfObjCType:@encode(unsigned long) at:&flags];
 	++_sequence;	// we will wait for a response to appear...
@@ -751,7 +753,7 @@ static unsigned int _sequence;	// global sequence number
 			while(YES)	// loop until we can extract a matching response for our sequence number from the receive queue...
 				{ // not yet timed out and current conversation is not yet completed
 #if 1
-					NSLog(@"*** (Conn=%p) loop for response %u in %@ at %@: %@", self, _sequence, NSConnectionReplyMode, _receivePort, rl);
+					NSLog(@"*** (conn=%p) loop for response %u in %@ at %@: %@", self, _sequence, NSConnectionReplyMode, _receivePort, rl);
 #endif
 					portCoder=NSMapGet(_responses, (const void *) _sequence);
 					if(portCoder)
@@ -814,7 +816,7 @@ static unsigned int _sequence;	// global sequence number
 	unsigned int flags;
 	unsigned int seq;
 #if 1
-	NSLog(@"handlePortCoder: %@", coder);
+	NSLog(@"%p: handlePortCoder: %@", self, coder);
 #endif
 	NS_DURING
 	[coder decodeValueOfObjCType:@encode(unsigned int) at:&flags];
@@ -823,7 +825,7 @@ static unsigned int _sequence;	// global sequence number
 #endif
 	[coder decodeValueOfObjCType:@encode(unsigned int) at:&seq];	// that is sequential (0, 1, ...)
 #if 1
-	NSLog(@"found seq number = %d", seq);
+	NSLog(@"%p: found seq number = %d", self, seq);
 #endif
 	switch(flags) {
 		case FLAGS_INTERNAL:	// connection setup (just allocates this NSConnection)
@@ -835,10 +837,10 @@ static unsigned int _sequence;	// global sequence number
 		case FLAGS_RESPONSE:	// response received
 			_repliesReceived++;
 			NSMapInsert(_responses, (void *) seq, (void *) coder);	// put response into sequence queue/dictionary
-			NSLog(@"response queued %d", seq);
+			NSLog(@"%p: response queued %d", self, seq);
 			break;
 		default:
-			NSLog(@"unknown flags received: %08x", flags);
+			NSLog(@"%p: unknown flags received: %08x", self, flags);
 	}
 	NS_HANDLER
 	NSLog(@"Exception in handlePortCoder: %@", localException);

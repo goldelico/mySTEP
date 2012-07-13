@@ -187,21 +187,23 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 	return [(NSPortCoder *) coder decodePortObject];
 }
 
-- (void) addConnection:(NSConnection *)connection
-			 toRunLoop:(NSRunLoop *)runLoop
-			   forMode:(NSString *)mode;
+// UNDERSTANDME: why do we need to know the connection object here?
+
+- (void) addConnection:(NSConnection *) connection
+			 toRunLoop:(NSRunLoop *) runLoop
+			   forMode:(NSString *) mode;
 { // schedule for receiving for the given connection
-#if 0
+#if 1
 	NSLog(@"addConnection:%@ toRunLoop:%@ forMode:%@", connection, runLoop, mode);
 #endif
 	[self scheduleInRunLoop:runLoop forMode:mode];
 }
 
-- (void) removeConnection:(NSConnection *)connection
-			  fromRunLoop:(NSRunLoop *)runLoop
-				  forMode:(NSString *)mode;
+- (void) removeConnection:(NSConnection *) connection
+			  fromRunLoop:(NSRunLoop *) runLoop
+				  forMode:(NSString *) mode;
 {
-#if 0
+#if 1
 	NSLog(@"removeConnection:%@ fromRunLoop:%@ forMode:%@", connection, runLoop, mode);
 #endif
 	[self removeFromRunLoop:runLoop forMode:mode];
