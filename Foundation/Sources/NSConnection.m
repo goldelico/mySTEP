@@ -18,6 +18,7 @@
  Dr. H. Nikolaus Schaller <hns@computer.org>
  Date: Jan 2006
  Some implementation expertise comes from from Crashlogs found on the Internet: Google for "Thread 0 Crashed dispatchInvocation" - and examples of "class dump"
+ Everything else from good guessing and inspecting data that is exchanged
  Date: Oct 2009
  Heavily reworked to be more compatible to Cocoa
  Date: May 2012

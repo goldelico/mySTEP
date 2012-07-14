@@ -7,12 +7,11 @@
  Dr. H. Nikolaus Schaller <hns@computer.org>
  Date: Jan 2006-Oct 2009
  Some implementation expertise comes from Crashlogs found on the Internet: Google e.g. for "NSPortCoder sendBeforeTime:"
+ Everything else from good guessing and inspecting data that is exchanged
  
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
  */
-
-#import <sys/socket.h>	// needed for handling MachMessages on TCP/IP
 
 #import <Foundation/NSPortCoder.h>
 #import <Foundation/NSArray.h>
@@ -187,7 +186,7 @@ const char *objc_skip_typespec (const char *type)
 	NSDate *due=[NSDate dateWithTimeIntervalSinceReferenceDate:time];
 	BOOL r;
 	int _msgid=0;
-#if 1
+#if 0
 	NSLog(@"sendBeforeTime %@ msgid=%d replyPort:%d _send:%@ _recv:%@", due, _msgid, flag, _send, _recv);
 #endif
 	[pm setMsgid:_msgid];

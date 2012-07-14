@@ -1082,11 +1082,11 @@ struct PortFlags {
 		{ // serialize objects
 			if([c isKindOfClass:[NSData class]])
 				{
-				value=NSSwapHostLongToBig(1);	// MSG_TYPE_BYTE
-				[d appendBytes:&value length:sizeof(value)];	// record type
-				value=NSSwapHostLongToBig([c length]);
-				[d appendBytes:&value length:sizeof(value)];	// total record length
-				[d appendData:c];								// the data or port address
+					value=NSSwapHostLongToBig(1);	// MSG_TYPE_BYTE
+					[d appendBytes:&value length:sizeof(value)];	// record type
+					value=NSSwapHostLongToBig([c length]);
+					[d appendBytes:&value length:sizeof(value)];	// total record length
+					[d appendData:c];								// the data or port address
 				}
 			else
 				{ // serialize an NSPort
@@ -1105,7 +1105,7 @@ struct PortFlags {
 		}
 	value=NSSwapHostLongToBig([d length]);
 	[d replaceBytesInRange:NSMakeRange(sizeof(value), sizeof(value)) withBytes:&value];	// insert total record length
-#if 0
+#if 1
 	NSLog(@"machmessage=%@", d);
 #endif
 	return d;
@@ -1286,10 +1286,14 @@ struct PortFlags {
 	[super dealloc];
 }
 
+- (NSString *) description
+{
+	return [NSString stringWithFormat:@"NSPortMessage msgid:%u r:%@ s:%@ c:%@", _msgid, _recv, _send, _components];
+}
+
 - (NSArray*) components; { return _components; }
 - (unsigned) msgid; { return _msgid; }
 - (NSPort *) receivePort; { return _recv; }
-// CHEKCME: do we need the private setters?
 - (void) _setReceivePort:(NSPort *) p; { ASSIGN(_recv, p); }
 - (NSPort *) sendPort; { return _send; }
 - (void) _setSendPort:(NSPort *) p; { ASSIGN(_send, p); }
@@ -1301,8 +1305,8 @@ struct PortFlags {
 		[NSException raise:NSInvalidSendPortException format:@"no send port for message %@", self];
 	if(!_recv)
 		[NSException raise:NSInvalidReceivePortException format:@"no receive port for message %@", self];
-#if 0
-	NSLog(@"send NSPortMessage: %@ on %@", _components, _send);
+#if 1
+	NSLog(@"sendBeforeDate:%@ %@", when, self);
 #endif
 	return [_send sendBeforeDate:when msgid:_msgid components:_components from:_recv reserved:[_send reservedSpaceLength]];
 }
