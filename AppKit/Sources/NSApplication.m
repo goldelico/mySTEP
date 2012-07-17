@@ -1516,24 +1516,13 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (int) requestUserAttention:(NSRequestUserAttentionType) requestType;
 {
-	NS_DURING
-		NS_VALUERETURN([[NSWorkspace _loginWindowServer] requestUserAttention:requestType forApplication:self], int);
-	NS_HANDLER
-		NSLog(@"could not requestUserAttention due to %@", [localException reason]);
-	NS_ENDHANDLER
-	return 0;
+	return [[NSWorkspace _loginWindowServer] requestUserAttention:requestType forApplication:self];
 }
 
 - (void) cancelUserAttentionRequest:(int) request;
 {
 	if(request != 0)
-		{
-		NS_DURING
-			[[NSWorkspace _loginWindowServer] cancelUserAttentionRequest:request];
-		NS_HANDLER
-			NSLog(@"could not requestUserAttention due to %@", [localException reason]);
-		NS_ENDHANDLER
-		}
+		[[NSWorkspace _loginWindowServer] cancelUserAttentionRequest:request];
 }
 
 - (IBAction) hideOtherApplications:(id)sender; { [[NSWorkspace sharedWorkspace] hideOtherApplications]; }

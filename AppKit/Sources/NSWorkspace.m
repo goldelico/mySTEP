@@ -1466,11 +1466,7 @@ static NSArray *prevList;
 	// we should loop through launchedApplications
 	// and send all others a note to hide message
 	NSLog(@"hideOtherApplications");
-	NS_DURING
-		[[NSWorkspace _loginWindowServer] hideApplicationsExcept:getpid()];
-	NS_HANDLER
-		NSLog(@"could not send hideOtherApplications: message due to %@", [localException reason]);
-	NS_ENDHANDLER
+	[[NSWorkspace _loginWindowServer] hideApplicationsExcept:getpid()];
 }
 
 + (id <_NSLoginWindowProtocol>) _loginWindowServer;			// distributed workspace

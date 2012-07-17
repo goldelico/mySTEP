@@ -81,6 +81,6 @@
 
 @interface NSWorkspace (NSLoginWindowServer)
 
-+ (id <_NSLoginWindowProtocol>) _loginWindowServer;	// get distributed object to contact loginwindow
++ (id <_NSLoginWindowProtocol>) _loginWindowServer;	// get distributed object to contact loginwindow - implemented in our AppKit
 
 @end
