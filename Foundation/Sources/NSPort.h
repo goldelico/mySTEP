@@ -48,7 +48,6 @@ typedef int NSSocketNativeHandle;
 @interface NSPort : NSObject  <NSCoding, NSCopying>
 {
 	id _delegate;
-	NSPort *_parent;
 	NSData *_sendData;
 	char *_recvBuffer;
 	unsigned long _recvLength;

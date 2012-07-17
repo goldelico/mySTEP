@@ -54,7 +54,7 @@
 - (id) initWithReceivePort:(NSPort *) recv sendPort:(NSPort *) send components:(NSArray *) cmp;
 - (BOOL) isBycopy;
 - (BOOL) isByref;
-// - (void) sendBeforeTime:(NSTimeInterval) time sendReplyPort:(NSPort *) port;	// undocumented private method
+// - (void) sendBeforeTime:(NSTimeInterval) time sendReplyPort:(BOOL) flag;	// undocumented private method
 
 @end
 

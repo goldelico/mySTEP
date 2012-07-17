@@ -191,8 +191,9 @@ const char *objc_skip_typespec (const char *type)
 #endif
 	[pm setMsgid:_msgid];
 	// FIXME: this doesn't work as expected
+	// and we have no mechanism to decode this
 	if(flag)
-		[self encodePortObject:_recv];	// send where we expect the reply
+		[self encodePortObject:_send];	// send where we expect the reply
 	r=[pm sendBeforeDate:due];
 	[pm release];
 	if(!r)
@@ -837,6 +838,7 @@ const char *objc_skip_typespec (const char *type)
 		[self encodeValueOfObjCType:[sig methodReturnType] at:buffer];
 	NS_HANDLER
 		NSLog(@"encodeReturnValue has no return value");	// e.g. if [i invoke] did result in an exception! or we have a oneway void
+		// FIXME: we must encode something or we can't send back NSExceptions
 	NS_ENDHANDLER
 	objc_free(buffer);
 }
@@ -1079,14 +1081,36 @@ const char *objc_skip_typespec (const char *type)
 
 @implementation NSPort (NSPortCoder)
 
+/*
+ * this trick works as follows:
+ *
+ * there is a NSPort listening for new connections
+ * incoming accepted connections spawn a child NSPort
+ * this child NSPort is reported as the receiver of the NSPortMessage
+ * but NSConnections are identified by the listening NSPort (the
+ *   one to be used for vending objects)
+ * therefore NSConnection makes the listening port its own delegate
+ *   so that the method implemented here is called
+ * the new accepted NSPort shares this delegate
+ * now, since both call this delegate method, we end up here
+ *   with self being always the listening port
+ * which we can pass as the receiving port to the NSPortCoder
+ * NSPortCoder's dispatch method looks up the connection based on the
+ *   listening port (hiding the receiving port)
+ *
+ * this behaviour has also been observed here:
+ *   http://lists.apple.com/archives/macnetworkprog/2003/Oct/msg00033.html
+ */
+
 - (void) handlePortMessage:(NSPortMessage *) message
-{ // handle a received port message (as long as we are our own delegate)
+{ // handle a received port message
 #if 1
 	NSLog(@"### handlePortMessage:%@\nmsgid=%d\nrecv=%@\nsend=%@\ncomponents=%@", message, [message msgid], [message receivePort], [message sendPort], [message components]);
 #endif
 	if(!message)
 		return;	// no message to handle
-	[[NSPortCoder portCoderWithReceivePort:[message receivePort] sendPort:[message sendPort] components:[message components]] dispatch];
+	// overwrite receive port from message with the delegate (which may be the parent of the receive port)
+	[[NSPortCoder portCoderWithReceivePort:self /*[message receivePort] */ sendPort:[message sendPort] components:[message components]] dispatch];
 }
 
 @end

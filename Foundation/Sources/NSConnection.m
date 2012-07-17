@@ -738,7 +738,7 @@ static unsigned int _sequence;	// global sequence number
 	NSLog(@"timeIntervalSinceReferenceDate=%f", [NSDate timeIntervalSinceReferenceDate]);
 	NSLog(@"time=%f", [NSDate timeIntervalSinceReferenceDate]+_requestTimeout);
 	[_sendPort addConnection:self toRunLoop:rl forMode:NSConnectionReplyMode];	// schedule the send port so that we can receive from it
-	[portCoder sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_requestTimeout sendReplyPort:YES];		// encode and send - raises exception on timeout
+	[portCoder sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_requestTimeout sendReplyPort:/*YES*/NO];		// encode and send - raises exception on timeout
 	_requestsSent++;
 	[portCoder invalidate];	// release internal memory immediately
 	

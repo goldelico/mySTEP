@@ -102,7 +102,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%p:%@ listen=%d connect=%d parent=%@%@%@", self, NSStringFromClass(isa), _fd, _sendfd, _parent, _isValid?@" valid":@"", _isBound?@"":@" not bound"];
+	return [NSString stringWithFormat:@"%p:%@ listen=%d connect=%d%@%@", self, NSStringFromClass(isa), _fd, _sendfd, _isValid?@" valid":@"", _isBound?@"":@" not bound"];
 }
 
 - (id) copyWithZone:(NSZone *) zone			{ return [self retain]; }
@@ -117,7 +117,6 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 {
 	if((self=[super init]))
 		{
-		_delegate=self;	// appears to be initialized to be its own delegate so that handlePortMessage is processed here
 		_isValid = YES;
 		_fd=-1;
 		_sendfd=-1;
@@ -130,7 +129,6 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 #if 0
 	NSLog(@"dealloc:%@", self);
 #endif
-	[_parent release];
 	[_sendData release];	// if not nil
 	if(_fd > 0)
 		close(_fd);			// assume we never use fd=0 - this ivar may be 0 if we alloc/release without init
@@ -196,6 +194,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 #if 1
 	NSLog(@"addConnection:%@ toRunLoop:%@ forMode:%@", connection, runLoop, mode);
 #endif
+	[self setDelegate:self];	// make us handlePortMessage: (implemented in NSPortCoder)
 	[self scheduleInRunLoop:runLoop forMode:mode];
 }
 
@@ -207,6 +206,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 	NSLog(@"removeConnection:%@ fromRunLoop:%@ forMode:%@", connection, runLoop, mode);
 #endif
 	[self removeFromRunLoop:runLoop forMode:mode];
+//	[self setDelegate:nil];
 }
 
 - (void) removeFromRunLoop:(NSRunLoop *)runLoop
@@ -385,8 +385,6 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 
 - (void) _readFileDescriptorReady;
 { // callback
-	NSPort *recv;	// 'official' receive port
-	id d;			// delegate
 #if 0
 	NSLog(@"_readFileDescriptorReady: %@", self);
 #endif
@@ -435,7 +433,6 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 #endif
 			newPort=[[isa alloc] initRemoteWithProtocolFamily:family socketType:_address.type protocol:_address.protocol address:addr];
 			NSAssert1(newPort->_sendfd < 0, @"Already connected! newport=%@", newPort);
-			newPort->_parent=[self retain];
 			newPort->_isBound=YES;			// pretend we are already bound
 			newPort->_sendfd=newfd;			// we are already connected
 			newPort->_delegate=_delegate;	// same delegate
@@ -534,10 +531,8 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 #if 1
 	NSLog(@"complete message received on %@: %@", self, [NSData dataWithBytesNoCopy:_recvBuffer length:_recvLength freeWhenDone:NO]);
 #endif
-	recv=_parent?_parent:self;	// act for parent if we are a child
-	d=[recv delegate];
 #if 1
-	if(!d)
+	if(!_delegate)
 		NSLog(@"no delegate! %@", self);
 #endif
 	
@@ -553,9 +548,9 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 	_current_inaddr=((struct sockaddr_in *) &_address.addr)->sin_addr;	// get receiver's IP address
 	
 	NS_DURING
-	if([d respondsToSelector:@selector(handleMachMessage:)])
+	if([_delegate respondsToSelector:@selector(handleMachMessage:)])
 		{
-		[d handleMachMessage:_recvBuffer];
+		[_delegate handleMachMessage:_recvBuffer];
 		objc_free(_recvBuffer);	// done
 		_recvBuffer=NULL;
 		}
@@ -563,16 +558,19 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		{
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];
 		NSPortMessage *msg=[[NSPortMessage alloc] initWithMachMessage:_recvBuffer];
-		[msg _setReceivePort:recv];		// we (or our parent) is the receive port
+		[msg _setReceivePort:self];		// we are the receive port (this is not encoded in the message)
 		objc_free(_recvBuffer);			// done
 		_recvBuffer=NULL;
 #if 1
-		NSLog(@"handlePortMessage:%@ by delegate %@", msg, d);
+		NSLog(@"handlePortMessage:%@ by delegate %@", msg, _delegate);
 #endif
-		[d handlePortMessage:msg];	// process by delegate
+#if 1
+		printf("r: %s\n", [[msg description] UTF8String]);
+#endif	
+		[_delegate handlePortMessage:msg];	// process by delegate
 		[msg release];
 #if 1
-		NSLog(@"msg released");
+		NSLog(@"received msg released");
 #endif
 		[arp release];
 		}
@@ -1305,8 +1303,11 @@ struct PortFlags {
 		[NSException raise:NSInvalidSendPortException format:@"no send port for message %@", self];
 	if(!_recv)
 		[NSException raise:NSInvalidReceivePortException format:@"no receive port for message %@", self];
-#if 1
+#if 0
 	NSLog(@"sendBeforeDate:%@ %@", when, self);
+#endif
+#if 1
+	printf("s: %s\n", [[self description] UTF8String]);
 #endif
 	return [_send sendBeforeDate:when msgid:_msgid components:_components from:_recv reserved:[_send reservedSpaceLength]];
 }
