@@ -267,7 +267,24 @@ static unsigned int _sequence;	// global sequence number
 - (void) enableMultipleThreads; { _multipleThreadsEnabled=YES; }
 - (BOOL) independentConversationQueueing; { return _independentConversationQueueing; }
 
-// found in http://opensource.apple.com/source/objc4/objc4-371/runtime/objc-sel-table.h
+/*
+ * receivePort: on this port we can receive requests from some other NSConnection
+ *   i.e. we vend our rootObject and return responses to incoming requests
+ *   all scheduling methods control the receivePort
+ *
+ * sendPort: on this port, we send out invocations to some other NSConnection
+ *   i.e. we ask for its rootProxy and reveice repsonses for outgoing requests
+ *   this port is (temporarily) scheduled in NSConnectionReplyMode
+ *
+ * if sendPort == nil or sendPort == receivePort, we are only serving (vending)
+ *   a rootObject
+ *
+ * if receivePort == nil, we are a pure client and create a (unpublished)
+ *   receivePort of the same class
+ *
+ * in summary: send/receive does not refer to the transmission direction of
+ *   the underlaying NSPortMessages
+ */
 
 - (id) initWithReceivePort:(NSPort *)receivePort
 				  sendPort:(NSPort *)sendPort;
@@ -631,6 +648,8 @@ static unsigned int _sequence;	// global sequence number
 
 @implementation NSConnection (NSUndocumented)
 
+// found in http://opensource.apple.com/source/objc4/objc4-371/runtime/objc-sel-table.h
+
 // private methods
 // all of them have been identified to exist in MacOS X Core Dumps
 // by Googling for 'NSConnection core dump'
@@ -745,7 +764,7 @@ static unsigned int _sequence;	// global sequence number
 	// runloop containsPort:forMode: ...
 	
 	if(!isOneway)
-		{ // wait for response to arrive
+		{ // wait for response to arrive (it may already have arrived since sendBeforeTime also runs the loop)
 			NSDate *until=[NSDate dateWithTimeIntervalSinceNow:_replyTimeout];
 			NSException *ex;
 #if 1

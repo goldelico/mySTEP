@@ -270,7 +270,6 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 #endif
 	_sendPos=0;
 	[loop _addOutputWatcher:self forMode:NSConnectionReplyMode];	// get callbacks when we can send
-	[loop _addInputWatcher:self forMode:NSConnectionReplyMode];		// get callbacks for our listen() port even if we are scheduled in NSDefaultRunLoopMode only
 #if 0
 	NSLog(@"remaining interval %lf", [limitDate timeIntervalSinceNow]);
 #endif
@@ -281,7 +280,6 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 #endif
 		if(!_isValid)
 			{
-			[loop _removeInputWatcher:self forMode:NSConnectionReplyMode];
 			[loop _removeOutputWatcher:self forMode:NSConnectionReplyMode];
 			[NSException raise:NSPortSendException format:@"sendBeforeDate: send port became invalid %@", self];
 			}
@@ -290,7 +288,6 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 #if 0
 				NSLog(@"sendBeforeDate: runloop error");
 #endif
-				[loop _removeInputWatcher:self forMode:NSConnectionReplyMode];
 				[loop _removeOutputWatcher:self forMode:NSConnectionReplyMode];
 				[NSException raise:NSPortSendException format:@"sendBeforeDate: runloop error for %@", self];
 				break;
@@ -299,7 +296,6 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 		NSLog(@"remaining interval %lf", [limitDate timeIntervalSinceNow]);
 #endif
 		}
-	[loop _removeInputWatcher:self forMode:NSConnectionReplyMode];
 	[loop _removeOutputWatcher:self forMode:NSConnectionReplyMode];
 #if 0
 	if(_sendPos == NSNotFound)
@@ -453,7 +449,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 			// FIXME: NSConnection may already schedule us correctly!
 			
 			[loop _addInputWatcher:newPort forMode:NSDefaultRunLoopMode];	// allow us to receive the first packet on this port
-			[loop _addInputWatcher:newPort forMode:NSConnectionReplyMode];
+//			[loop _addInputWatcher:newPort forMode:NSConnectionReplyMode];
 			
 			/* CHECKME:
 			 how do we schedule other modes - and how and when do we unschedule???
