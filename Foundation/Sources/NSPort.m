@@ -21,11 +21,13 @@
 // #define DEFAULT_PORT_CLASS NSSocketPort
 
 #include <signal.h>
+#include <stdint.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+
 
 #import <Foundation/NSPort.h>
 #import <Foundation/NSHost.h>
@@ -60,7 +62,7 @@ NSString *NSInvalidReceivePortException=@"NSInvalidReceivePortException";
 NSString *NSPortSendException=@"NSPortSendException";
 NSString *NSPortReceiveException=@"NSPortReceiveException";
 
-static struct in_addr _current_inaddr;	// used for a terrible hack to replace a received IP addr of 0.0.0.0 by the sender's address
+static NSMapTable *__sockets;	// a map table to associate family, type, protocol, address with a specific socket instance
 
 @implementation NSPort
 
@@ -253,8 +255,10 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 #endif
 	if(!_isValid)
 		[NSException raise:NSInvalidSendPortException format:@"invalidated: %@", self];
-	if(!receivePort || ![receivePort _bindAndListen])	// receive port wasn't bound to a file or socket yet - bind before connect for self-connections
-		return NO;
+	if(!receivePort)
+		return NO;	// raise exception? Or can we even send in this case?
+//	if(![receivePort _bindAndListen])	// receive port wasn't bound to a file or socket yet - bind before connect for self-connections
+//		return NO;
 	if(_sendfd < 0 && ![self _connect])	// we are not yet connected
 		return NO;
 	_sendData=[NSPortMessage _machMessageWithId:msgid forSendPort:self receivePort:receivePort components:components];	// convert to data block
@@ -346,23 +350,26 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 			if(!_isValid)
 				[NSException raise:NSInvalidReceivePortException format:@"invalidated before bind&listen: %@", self];
 			setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, sizeof(flag));	// reuse address
+			// NOTE: if we have INADDR_ANY the address remains INADDR_ANY! Only an accepted() connection is bound to a specific interface
 			if(bind(_fd, (struct sockaddr *) &_address.addr, _address.addrlen))
 				{
 				NSLog(@"%@: could not bind due to %s", self, strerror(errno));
 				return NO;
 				}
+#if 1
+			NSLog(@"bound %@", self);
+#endif
 			if(_address.addr.ss_family != AF_UNIX)
 				{ // get port assigned by system - AF_UNIX does not support this system call
 					unsigned addrlen=_address.addrlen;
-					// NSMapRemove(__sockets, &_address);
+					NSMapRemove(__sockets, &_address);
 					getsockname(_fd, (struct sockaddr *) &_address.addr, &addrlen);	// read back to know the port number
 					_address.addrlen=addrlen;
-					// FIXME: may this change cache mapping? 
-					// NSMapInsert(__sockets, &_address, self);
-				}
-#if 0
-			NSLog(@"bound %@", self);
+					NSMapInsert(__sockets, &_address, self);
+#if 1
+					NSLog(@"rebound %@", self);
 #endif
+				}
 			if(listen(_fd, 10))
 				{
 				NSLog(@"%@: could not listen due to %s", self, strerror(errno));
@@ -464,7 +471,7 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 #endif
 	if(!_recvBuffer)
 		{ // no buffer allocated so far - receive and check for header
-			struct { unsigned long magic, messageLength; } header;	// we know something about the mach message structure, i.e. that there is a header magic and the block length and therefore know how much to read for frame boundaries		
+			struct { uint32_t magic, messageLength; } header;	// we know something about the mach message structure, i.e. that there is a header magic and the block length and therefore know how much to read for frame boundaries		
 			int len;
 			//		fcntl(_sendfd, F_SETFL, O_NONBLOCK);	// don't block here or later
 			// FIXME: we need a more sophisticated mechanism to properly handle header fragments! Therefore we block until we have received a full header
@@ -535,18 +542,6 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 	if(!_delegate)
 		NSLog(@"no delegate! %@", self);
 #endif
-	
-	/* FIXME: this is a terrible hack
-	 * since we may receive 0.0.0.0 for an encoded NSSocketPort in the MachMessage
-	 * which is meant to encode "sender"
-	 * we must make us known to the following method 
-	 * -initRemoteWithProtocolFamily:socketType:protocol:address:
-	 * which subsitutes the address
-	 * this is neither thread-safe nor exception-safe
-	 */
-	
-	_current_inaddr=((struct sockaddr_in *) &_address.addr)->sin_addr;	// get receiver's IP address
-	
 	NS_DURING
 	if([_delegate respondsToSelector:@selector(handleMachMessage:)])
 		{
@@ -558,14 +553,15 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		{
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];
 		NSPortMessage *msg=[[NSPortMessage alloc] initWithMachMessage:_recvBuffer];
-		[msg _setReceivePort:self];		// we are the receive port (this is not encoded in the message)
+		if(![msg receivePort])	[msg _setReceivePort:self];
+		if(![msg sendPort])		[msg _setSendPort:self];
 		objc_free(_recvBuffer);			// done
 		_recvBuffer=NULL;
 #if 1
 		NSLog(@"handlePortMessage:%@ by delegate %@", msg, _delegate);
 #endif
 #if 1
-		printf("r: %s\n", [[msg description] UTF8String]);
+		printf("r: %s d:%s\n", [[msg description] UTF8String], [[_delegate description] UTF8String]);
 #endif	
 		[_delegate handlePortMessage:msg];	// process by delegate
 		[msg release];
@@ -577,7 +573,6 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 	NS_HANDLER
 		NSLog(@"exception while trying handleMachMessage/handlePortMessage: %@", localException);
 	NS_ENDHANDLER
-	_current_inaddr.s_addr=INADDR_ANY;	// restore
 }
 
 - (void) _writeFileDescriptorReady;
@@ -630,11 +625,9 @@ static struct in_addr _current_inaddr;	// used for a terrible hack to replace a 
 		; // nothing (more) to write - should we better unscheldule to reduce processor utilization?
 }
 
-static NSMapTable *__sockets;	// a map table to associate family, type, protocol, address with a specific socket instance
-
 NSString *__NSDescribeSockets(void *table, const void *addr)
 {
-	return [[NSData dataWithBytes:addr length:((struct _NSPortAddress *) addr)->addrlen+sizeof(unsigned short)+2*sizeof(unsigned char)] description];
+	return [[NSData dataWithBytes:addr length:((struct _NSPortAddress *) addr)->addrlen+sizeof(uint16_t)+2*sizeof(uint8_t)] description];
 }
 
 unsigned __NSHashSocket(void *table, const void *addr)
@@ -642,7 +635,7 @@ unsigned __NSHashSocket(void *table, const void *addr)
 	register const char *p = (char*)addr;
 	register unsigned hash = 0, hash2;
 	register int i;
-    for(i = 0; i < ((struct _NSPortAddress *) addr)->addrlen+sizeof(unsigned short)+2*sizeof(unsigned char); i++)
+    for(i = 0; i < ((struct _NSPortAddress *) addr)->addrlen+sizeof(uint16_t)+2*sizeof(uint8_t); i++)
 		{
         hash <<= 4;
         hash += *p++;
@@ -661,7 +654,7 @@ BOOL __NSCompareSockets(void *table, const void *addr1, const void *addr2)
 	NSLog(@"compare %@", __NSDescribeSockets(table, addr1));
 	NSLog(@"     to %@", __NSDescribeSockets(table, addr2));
 #endif
-    return memcmp((char*)addr1, (char*)addr2, ((struct _NSPortAddress *) addr1)->addrlen+sizeof(unsigned short)+2*sizeof(unsigned char)) == 0;
+    return memcmp((char*)addr1, (char*)addr2, ((struct _NSPortAddress *) addr1)->addrlen+sizeof(uint16_t)+2*sizeof(uint8_t)) == 0;
 }
 
 static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
@@ -689,10 +682,10 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 				if(cached != self)
 					{ // substitute
 						[cached retain];
-						_isValid=NO;	// the allocated socket may have been set to valid
+						_isValid=NO;	// the allocated and replaced socket may have been set to valid
 						[self release];
-						// FIXME: unlock
 					}
+				// FIXME: unlock
 				return cached;
 			}
 		}
@@ -700,7 +693,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 	NSLog(@"cache new socket: %@ %d", self, [self retainCount]);
 #endif
 	NSMapInsertKnownAbsent(__sockets, &_address, self);
-#if 0
+#if 1
 	NSLog(@"cached new socket: %@ %d", self, [self retainCount]);
 #endif
 	// FIXME: unlock
@@ -718,6 +711,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		[self retain];
 		NSMapRemove(__sockets, &_address);
 		// FIXME: this will notify the accepted socket that is not officially known!?!
+		// i.e. we may have to substitute by the _delegate
 		[[NSNotificationCenter defaultCenter] postNotificationName:NSPortDidBecomeInvalidNotification object:self];
 		[self release];
 		}
@@ -739,17 +733,17 @@ static NSString *_portDirectory;
 static unsigned _portDirectoryLength;
 
 + (void) initialize;	// called on first real use of this class
-{ // this is a system constant...
+{ // initialize system wide constants
 	const char *fsrep;
 	NSAssert(sizeof(struct sockaddr_un) <= sizeof(struct sockaddr_storage), NSInternalInconsistencyException);	// we can't use the sockaddr_storage structure!
 	_portDirectory=[[NSTemporaryDirectory() stringByAppendingPathComponent:@".QuantumSTEP"] retain];
 	fsrep=[_portDirectory fileSystemRepresentation];
 	_portDirectoryLength=strlen(fsrep);
-	mkdir(fsrep, 0770);	// create socket temp directory - ignore errors
+	mkdir(fsrep, 0770);	// create socket temp directory - ignore errors (e.g. if it already exists)
 }
 
 - (NSData *) address;
-{ // not defined by the @interface but we need it to encode the socket
+{ // not officilly defined by the @interface but we need it to encode the socket
 	NSData *d;
 	int l=_address.addrlen-_portDirectoryLength-1;
 	if(l < 0) l=0;
@@ -836,6 +830,7 @@ static unsigned _portDirectoryLength;
 		}
 	n=[name mutableCopy];	// make autoreleased mutable copy
 	[n replaceOccurrencesOfString:@"%" withString:@"%%" options:0 range:NSMakeRange(0, [name length])];
+	[n replaceOccurrencesOfString:@"." withString:@"%." options:0 range:NSMakeRange(0, [name length])];	// prevent using .. to try harmful things
 	[n replaceOccurrencesOfString:@"/" withString:@"%-" options:0 range:NSMakeRange(0, [name length])];	// prevent using / to create or overwrite other files
 #if 0
 	NSLog(@"setname -> %@", n);
@@ -871,31 +866,22 @@ static unsigned _portDirectoryLength;
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@ fam=%d type=%d proto=%d addr=%s:%d", [super description], ((struct sockaddr_in *) &_address.addr)->sin_family, _address.type, _address.protocol, inet_ntoa(((struct sockaddr_in *) &_address.addr)->sin_addr), ntohs(((struct sockaddr_in *) &_address.addr)->sin_port)];
+	return [NSString stringWithFormat:@"%@ fam=%u type=%u proto=%u addr=%s:%u", [super description], ((struct sockaddr_in *) &_address.addr)->sin_family, _address.type, _address.protocol, inet_ntoa(((struct sockaddr_in *) &_address.addr)->sin_addr), ntohs(((struct sockaddr_in *) &_address.addr)->sin_port)];
 }
 
 - (id) init;
-{ // initialize for a local port assigned by the system
+{ // initialize for a local (receive) port assigned by the system
 	return [self initWithTCPPort:0];
 }
 
 - (id) initRemoteWithProtocolFamily:(int) family socketType:(int) type protocol:(int) protocol address:(NSData *) address;
 {
 #if 0
-	NSLog(@"NSSocketPort _initRemoteWithFamily:%d socketType:%d protocol:%d address:%@", family, type, protocol, address);
+	NSLog(@"NSSocketPort _initRemoteWithFamily:%u socketType:%u protocol:%u address:%@", family, type, protocol, address);
 #endif
 	if((self=[self initWithProtocolFamily:family socketType:type protocol:protocol socket:-1]))	// no listener socket and not connected (yet)
 		{
-		if(address)
-			{
 			[address getBytes:((char *)SIN_ADDRP)+2 range:NSMakeRange(2, sizeof(*SIN_ADDRP)-2)];	// initialize with address - but ignore the sin_family from the address
-			if(SIN_INADDR == INADDR_ANY)
-				{
-				// FIXME: we should substitute with the in_addr of the socket we have received the message from which we have decoded a socket!
-				//				SIN_INADDR = htonl(INADDR_LOOPBACK);	// substitute so that we connect locally
-				SIN_ADDRP->sin_addr = _current_inaddr;	// substitute so that we connect back to the sender of the message
-				}
-			}
 		}
 	self=[self _substituteFromCache];
 #if 1
@@ -905,7 +891,7 @@ static unsigned _portDirectoryLength;
 }
 
 - (id) initRemoteWithTCPPort:(unsigned short) port host:(NSString *) host;
-{ // NOTE: this one is not cached!
+{
 	NSHost *h;
 	h=[NSHost hostWithName:host];	// use NSHost to do the address resolution
 	if(!h)
@@ -916,6 +902,7 @@ static unsigned _portDirectoryLength;
 			[self release];
 			return nil;
 		}
+// FIXME: check for IPv6 host address
 	self=[self initWithProtocolFamily:AF_INET socketType:SOCK_STREAM protocol:IPPROTO_TCP socket:-1];	// no listener socket
 	if(self)
 		{ // insert address of remote system
@@ -955,7 +942,8 @@ static unsigned _portDirectoryLength;
 			}
 		}
 #if 1
-	NSLog(@"new %@:%p", NSStringFromClass(isa), self);
+	if(self)
+		NSLog(@"new %@:%p", NSStringFromClass(isa), self);
 #endif
 	return self;
 }
@@ -965,7 +953,7 @@ static unsigned _portDirectoryLength;
 	self=[self initWithProtocolFamily:AF_INET
 						   socketType:SOCK_STREAM
 							 protocol:IPPROTO_TCP 
-							  address:nil];	// no address
+							  address:nil];	// no address - this represents INADDR_ANY and does not substitute from cache
 	if(self)
 		{ // set local port (or 0)
 			SIN_PORT = htons(port);	// to network byte order
@@ -977,7 +965,8 @@ static unsigned _portDirectoryLength;
 				}
 		}
 #if 1
-	NSLog(@"new %@:%p", NSStringFromClass(isa), self);
+	if(self)
+		NSLog(@"new %@:%p", NSStringFromClass(isa), self);
 #endif
 	return self;
 }
@@ -1001,10 +990,12 @@ static unsigned _portDirectoryLength;
 - (NSData *) address;
 { // return everything in network byte order compatible to MacOS X format
 	NSData *d;
-	short family=*(short *) &SIN_FAMILY;	// fetch in host byte order
-	*(short *) &SIN_FAMILY=htons((sizeof(struct sockaddr_in)<<8)+SIN_FAMILY);	// combine with structure length and temporarily (!) swap as word (!)
-	d=[NSData dataWithBytes:SIN_ADDRP length:sizeof(struct sockaddr_in)];
-	*(short *) &SIN_FAMILY=family;	// restore
+	struct sockaddr_in addr=*(SIN_ADDRP);	// copy
+#if 1
+	NSLog(@"get address of %@", self);
+#endif
+	addr.sin_family=htons((sizeof(struct sockaddr_in)<<8)+SIN_FAMILY);	// swap into Mac expected byte order
+	d=[NSData dataWithBytes:&addr length:sizeof(addr)];	// pack into NSData
 	return d;
 }
 
@@ -1041,17 +1032,19 @@ static unsigned _portDirectoryLength;
  
  */
 
+// see also http://www.gnu.org/software/hurd/gnumach-doc/Message-Format.html
+
 struct MachHeader {
-	unsigned long magic;	// well, some header bits
-	unsigned long len;		// total packet length
-	unsigned long msgid;
+	uint32_t magic;	// well, some header bits
+	uint32_t len;		// total packet length
+	uint32_t msgid;
 };
 
 struct PortFlags {
-	unsigned char family;
-	unsigned char type;
-	unsigned char protocol;
-	unsigned char len;
+	uint8_t family;
+	uint8_t type;
+	uint8_t protocol;
+	uint8_t len;
 };
 
 + (NSData *) _machMessageWithId:(unsigned) msgid forSendPort:(NSPort *)sendPort receivePort:(NSPort *)receivePort components:(NSArray *)components
@@ -1060,7 +1053,7 @@ struct PortFlags {
 	NSMutableData *d=[NSMutableData dataWithCapacity:64+16*[components count]];	// some reasonable initial allocation
 	NSEnumerator *e=[components objectEnumerator];
 	id c;
-	unsigned long value;
+	uint32_t value;
 	value=NSSwapHostLongToBig(0xd0cf50c0);
 	[d appendBytes:&value length:sizeof(value)];	// header flags
 	[d appendBytes:&value length:sizeof(value)];	// we insert real length later on
@@ -1075,6 +1068,9 @@ struct PortFlags {
 		port.len=[saddr length];
 		[d appendBytes:&port length:sizeof(port)];	// write socket flags
 		[d appendData:saddr];
+#if 1
+		NSLog(@"encoded receive port address: %@", [d subdataWithRange:NSMakeRange(12, [d length]-12)]);
+#endif
 		}
 	while((c=[e nextObject]))
 		{ // serialize objects
@@ -1116,6 +1112,8 @@ struct PortFlags {
  end up in infinite loops blocking or crashing the application or service.
  */
 
+// FIXME: this method may be thought for a real Mach Message - here we assume an encoded port message for
+
 - (id) initWithMachMessage:(void *) buffer;
 { // decode a binary encoded message - for some details see e.g. http://objc.toodarkpark.net/Foundation/Classes/NSPortMessage.htm
 	if((self=[super init]))
@@ -1148,8 +1146,8 @@ struct PortFlags {
 #if 0
 		NSLog(@"msgid=%d len=%u", _msgid, end-(char *) buffer);
 #endif
-		if(1 /* send port */)
-			{ // decode our send port that has been supplied by the sender as sendbeforeDate:from:
+		if(0 /* this is the send port */)
+			{ // decode send port that has been supplied by the sender as sendbeforeDate:from:
 				memcpy(&port, bp, sizeof(port));
 				if(bp+sizeof(port)+port.len > end)
 					{ // goes beyond total length
@@ -1166,15 +1164,15 @@ struct PortFlags {
 #endif
 				bp+=sizeof(port)+port.len;
 			}
-		if(0 /* recv port */)
-			{ // decode receive port that has been part of the message
+		if(1 /* recv port */)
+			{ // decode receive port that has been supplied by the sender as sendbeforeDate:from:
 				memcpy(&port, bp, sizeof(port));
 				if(bp+sizeof(port)+port.len > end)
 					{ // goes beyond total length
 						[self release];
 						return nil;
 					}
-				addr=[NSData dataWithBytesNoCopy:bp+sizeof(port) length:port.len freeWhenDone:NO];
+				addr=[NSData dataWithBytesNoCopy:bp+sizeof(port) length:port.len freeWhenDone:NO];	// we don't need to copy since we know that initRemoteWithProtocolFamily makes its own private copy
 #if 1
 				NSLog(@"decoded _recv addr %@ %p", addr, addr);
 #endif
@@ -1188,8 +1186,8 @@ struct PortFlags {
 		while(bp < end)
 			{ // more component records to come
 				struct MachComponentHeader {
-					unsigned long type;
-					unsigned long len;
+					uint32_t type;
+					uint32_t len;
 				} record;
 				memcpy(&record, bp, sizeof(record));
 #if 0
@@ -1299,10 +1297,10 @@ struct PortFlags {
 
 - (BOOL) sendBeforeDate:(NSDate*) when;
 {
-	if(!_send)
-		[NSException raise:NSInvalidSendPortException format:@"no send port for message %@", self];
-	if(!_recv)
-		[NSException raise:NSInvalidReceivePortException format:@"no receive port for message %@", self];
+	if(!_send || ![_send isValid])
+		[NSException raise:NSInvalidSendPortException format:@"invalid send port for message %@", self];
+	if(!_recv || ![_recv isValid])
+		[NSException raise:NSInvalidReceivePortException format:@"invalid receive port for message %@", self];
 #if 0
 	NSLog(@"sendBeforeDate:%@ %@", when, self);
 #endif

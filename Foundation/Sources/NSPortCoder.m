@@ -190,8 +190,7 @@ const char *objc_skip_typespec (const char *type)
 	NSLog(@"sendBeforeTime %@ msgid=%d replyPort:%d _send:%@ _recv:%@", due, _msgid, flag, _send, _recv);
 #endif
 	[pm setMsgid:_msgid];
-	// FIXME: this doesn't work as expected
-	// and we have no mechanism to decode this
+	// FIXME: this doesn't work as one could expect
 	if(flag)
 		[self encodePortObject:_send];	// send where we expect the reply
 	r=[pm sendBeforeDate:due];
@@ -203,9 +202,12 @@ const char *objc_skip_typespec (const char *type)
 - (void) dispatch;
 { // handle components either passed during initialization or received while sending
 	NS_DURING
-	[[self connection] handlePortCoder:self];	// locate real connection and forward
+		if(_send == _recv)
+			NSLog(@"receive and send ports must be different");	// should not be the same
+		else
+			[[self connection] handlePortCoder:self];	// locate real connection and forward
 	NS_HANDLER
-	NSLog(@"-[NSPortCoder dispatch]: %@", localException);
+		NSLog(@"-[NSPortCoder dispatch]: %@", localException);
 	NS_ENDHANDLER
 }
 
