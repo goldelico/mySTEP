@@ -390,8 +390,9 @@ static unsigned int _sequence;	// global sequence number
 			NSLog(@"schedule receive port %@", _receivePort);
 #endif
 			[self addRunLoop:[NSRunLoop currentRunLoop]];
-			[self addRequestMode:NSDefaultRunLoopMode];		// schedule ports in current runloop
+			[self addRequestMode:NSDefaultRunLoopMode];		// schedule receive port in current runloop
 			}
+		// shouldn't we also check the receivePort?
 		[nc addObserver:self selector:@selector(_portInvalidated:) name:NSPortDidBecomeInvalidNotification object:_sendPort];	// if we can't send any more
 		_isValid=YES;
 		// or should we be retained by all proxy objects???
@@ -467,11 +468,12 @@ static unsigned int _sequence;	// global sequence number
 		NSFreeMapTable(_remoteObjects);
 		}
 	if(_responses) NSFreeMapTable(_responses);
+	// releasing from all modes/runloops automatically unschedules the port!
+	[_modes release];
+	[_runLoops release];
 	// [_delegate release];	// not retained
 	[_receivePort release];	// we are already removed as receivePort observer by -invalidate
 	[_sendPort release];
-	[_modes release];
-	[_runLoops release];
 	[_rootObject release];
 	[_requestQueue release];
 	[super dealloc];
@@ -760,11 +762,8 @@ static unsigned int _sequence;	// global sequence number
 	[portCoder sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_requestTimeout sendReplyPort:/*YES*/NO];		// encode and send - raises exception on timeout
 	_requestsSent++;
 	[portCoder invalidate];	// release internal memory immediately
-	
-	// runloop containsPort:forMode: ...
-	
 	if(!isOneway)
-		{ // wait for response to arrive (it may already have arrived since sendBeforeTime also runs the loop)
+		{ // wait for response to arrive (it may already have arrived since sendBeforeTime also runs the loop in NSConnectionReplyMode)
 			NSDate *until=[NSDate dateWithTimeIntervalSinceNow:_replyTimeout];
 			NSException *ex;
 #if 1

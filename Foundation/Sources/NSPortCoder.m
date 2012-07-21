@@ -1093,7 +1093,7 @@ const char *objc_skip_typespec (const char *type)
  *   one to be used for vending objects)
  * therefore NSConnection makes the listening port its own delegate
  *   so that the method implemented here is called
- * the new accepted NSPort shares this delegate
+ * the newly accepted NSPort shares this delegate
  * now, since both call this delegate method, we end up here
  *   with self being always the listening port
  * which we can pass as the receiving port to the NSPortCoder
