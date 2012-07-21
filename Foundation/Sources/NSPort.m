@@ -196,7 +196,6 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 #if 1
 	NSLog(@"addConnection:%@ toRunLoop:%@ forMode:%@", connection, runLoop, mode);
 #endif
-	[self setDelegate:self];	// make us handlePortMessage: (implemented in NSPortCoder)
 	[self scheduleInRunLoop:runLoop forMode:mode];
 }
 
@@ -208,7 +207,6 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 	NSLog(@"removeConnection:%@ fromRunLoop:%@ forMode:%@", connection, runLoop, mode);
 #endif
 	[self removeFromRunLoop:runLoop forMode:mode];
-//	[self setDelegate:nil];
 }
 
 - (void) removeFromRunLoop:(NSRunLoop *)runLoop
@@ -443,19 +441,12 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 			NSLog(@"accepted %@ on parent %@", newPort, self);
 #endif
 			
-			// FIXME: should we inherit the watchers from our parent???
+			// FIXME: should we inherit the watchers/modes from our parent???
 			// this is just a temporary hack that appears to make it work...
-			
-			// FIXME: NSConnection may already schedule us correctly!
-			
+						
 			[loop _addInputWatcher:newPort forMode:NSDefaultRunLoopMode];	// allow us to receive the first packet on this port
-//			[loop _addInputWatcher:newPort forMode:NSConnectionReplyMode];
-			
-			/* CHECKME:
-			 how do we schedule other modes - and how and when do we unschedule???
-			 well, we probably carry a new NSConnection and initializing the NSConnection will inherit runloops&modes from the parent-NSConnection
-			 unscheduling is done automatically when we are set invalid
-			 */
+			[loop _addInputWatcher:newPort forMode:NSConnectionReplyMode];
+
 			[newPort release];	// should now have been retained as watcher and/or by cache until invalidated
 #if 0
 			NSLog(@"accept done. retain count=%d", [newPort retainCount]);

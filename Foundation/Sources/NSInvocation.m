@@ -633,7 +633,7 @@
 	if(!_argframeismalloc)
 		_argframe=NULL;	// invalidate since it was inherited from our caller
 #if 1
-	NSLog(@"retval=%p %ul", retval, *(unsigned long *) retval);
+	NSLog(@"retval=%p %p %ul", retval, *(void **) retval, *(unsigned long *) retval);
 #endif
 	return retval;
 }

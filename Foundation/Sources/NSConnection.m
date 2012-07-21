@@ -238,14 +238,20 @@ static unsigned int _sequence;	// global sequence number
 #if 0
 	NSLog(@"addRequestMode %@ to %@", mode, _modes);
 #endif
-	if(![_modes containsObject:mode])
-		{ // only once per mode
-			NSEnumerator *e=[_runLoops objectEnumerator];
-			NSRunLoop *runLoop;
-			[_modes addObject:mode];
-			while((runLoop=[e nextObject]))
-				[_receivePort addConnection:self toRunLoop:runLoop forMode:mode];
-		}
+	NSEnumerator *e=[_runLoops objectEnumerator];
+	NSRunLoop *runLoop;
+	[_modes addObject:mode];
+	while((runLoop=[e nextObject]))
+		[_receivePort addConnection:self toRunLoop:runLoop forMode:mode];
+}
+
+- (void) addPortsToRunLoop:(NSRunLoop *) runLoop
+{
+	NSEnumerator *e=[_modes objectEnumerator];
+	NSString *mode;
+	[_receivePort addConnection:self toRunLoop:runLoop forMode:NSConnectionReplyMode];	
+	while((mode=[e nextObject]))
+		[_receivePort addConnection:self toRunLoop:runLoop forMode:mode];	
 }
 
 - (void) addRunLoop:(NSRunLoop *) runLoop;
@@ -389,10 +395,11 @@ static unsigned int _sequence;	// global sequence number
 #if 1
 			NSLog(@"schedule receive port %@", _receivePort);
 #endif
-			[self addRunLoop:[NSRunLoop currentRunLoop]];
 			[self addRequestMode:NSDefaultRunLoopMode];		// schedule receive port in current runloop
+			[self addRunLoop:[NSRunLoop currentRunLoop]];
 			}
-		// shouldn't we also check the receivePort?
+		[_receivePort setDelegate:_receivePort];		// make receivePort process handlePortMessage
+		// shouldn't we also observe the receivePort?
 		[nc addObserver:self selector:@selector(_portInvalidated:) name:NSPortDidBecomeInvalidNotification object:_sendPort];	// if we can't send any more
 		_isValid=YES;
 		// or should we be retained by all proxy objects???
@@ -561,14 +568,20 @@ static unsigned int _sequence;	// global sequence number
 
 - (void) removeRequestMode:(NSString*)mode;
 {
-	if([_modes containsObject:mode])
-		{
-			NSEnumerator *e=[_runLoops objectEnumerator];
-			NSRunLoop *runLoop;
-			while((runLoop=[e nextObject]))
-				[_receivePort removeConnection:self fromRunLoop:runLoop forMode:mode];
-			[_modes removeObject:mode];
-		}
+	NSEnumerator *e=[_runLoops objectEnumerator];
+	NSRunLoop *runLoop;
+	while((runLoop=[e nextObject]))
+		[_receivePort removeConnection:self fromRunLoop:runLoop forMode:mode];
+	[_modes removeObject:mode];
+}
+
+- (void) removePortsFromRunLoop:(NSRunLoop *) runLoop
+{
+	NSEnumerator *e=[_modes objectEnumerator];
+	NSString *mode;
+	[_receivePort removeConnection:self fromRunLoop:runLoop forMode:NSConnectionReplyMode];	
+	while((mode=[e nextObject]))
+		[_receivePort removeConnection:self fromRunLoop:runLoop forMode:mode];	
 }
 
 - (void) removeRunLoop:(NSRunLoop *)runLoop;
@@ -633,7 +646,15 @@ static unsigned int _sequence;	// global sequence number
 
 - (void) setReplyTimeout:(NSTimeInterval)seconds; { _replyTimeout=seconds; }
 - (void) setRequestTimeout:(NSTimeInterval)seconds; { _requestTimeout=seconds; }
-- (void) setRootObject:(id) anObj; { ASSIGN(_rootObject, anObj); }
+
+- (void) setRootObject:(id) anObj;
+{
+	ASSIGN(_rootObject, anObj);
+	if(anObj)
+		[self addPortsToRunLoop:[_runLoops objectAtIndex:0]];	// checkme - loop over all???
+	else
+		[self removePortsFromRunLoop:[_runLoops objectAtIndex:0]];	// checkme - loop over all???
+}
 
 - (NSDictionary *) statistics;
 {
@@ -734,6 +755,10 @@ static unsigned int _sequence;	// global sequence number
 	[i _log:@"sendInvocation"];	// log incl. stack
 #endif
 #endif
+#if 1
+	printf("i: %s\n", [[self description] UTF8String]);
+#endif
+	
 	NSAssert(i, @"missing invocation to send");
 	/*	if(_isLocal)
 	 { // we have been initialized with reversed ports, i.e. local connection
@@ -759,6 +784,8 @@ static unsigned int _sequence;	// global sequence number
 	NSLog(@"timeIntervalSinceReferenceDate=%f", [NSDate timeIntervalSinceReferenceDate]);
 	NSLog(@"time=%f", [NSDate timeIntervalSinceReferenceDate]+_requestTimeout);
 	[_sendPort addConnection:self toRunLoop:rl forMode:NSConnectionReplyMode];	// schedule the send port so that we can receive from it
+	// is the previous delegate restored?
+	[_sendPort setDelegate:_receivePort];	// make us handlePortMessage: (implemented in NSPortCoder)
 	[portCoder sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_requestTimeout sendReplyPort:/*YES*/NO];		// encode and send - raises exception on timeout
 	_requestsSent++;
 	[portCoder invalidate];	// release internal memory immediately

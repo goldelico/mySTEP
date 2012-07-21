@@ -16,7 +16,7 @@ NSMapTable *__NSAllocationCountTable;	// maps class records to allocation counte
 NSString *NSWillBecomeMultiThreadedNotification = @"NSWillBecomeMultiThreadedNotification";
 NSString *NSThreadWillExitNotification = @"NSThreadWillExitNotification";
 															// RunLoop modes 
-NSString *NSConnectionReplyMode = @"NSConnectionReplyMode";
+NSString *NSConnectionReplyMode = @"NSConnection Seeking Reply";
 															// Exceptions
 NSString *NSInconsistentArchiveException = @"NSInconsistentArchiveException";
 NSString *NSGenericException = @"NSGenericException";

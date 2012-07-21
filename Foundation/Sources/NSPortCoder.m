@@ -214,7 +214,12 @@ const char *objc_skip_typespec (const char *type)
 - (NSConnection *) connection;
 {
 	if(!_connection)
+		{
 		_connection=[NSConnection connectionWithReceivePort:_recv sendPort:_send];	// get our connection object (new or existing)
+#if 1
+		printf("c: %s\n", [[_connection description] UTF8String]);
+#endif
+		}
 	return _connection;
 }
 
@@ -1108,6 +1113,10 @@ const char *objc_skip_typespec (const char *type)
 { // handle a received port message
 #if 1
 	NSLog(@"### handlePortMessage:%@\nmsgid=%d\nrecv=%@\nsend=%@\ncomponents=%@", message, [message msgid], [message receivePort], [message sendPort], [message components]);
+	NSLog(@"  self=%p %@", self, self);
+	NSLog(@"  recv.delegate=%p %@", [[message receivePort] delegate], [[message receivePort] delegate]);
+	NSLog(@"  send.delegate=%p %@", [[message sendPort] delegate], [[message sendPort] delegate]);
+	NSLog(@"  runloop.mode=%@", [[NSRunLoop currentRunLoop] currentMode]);
 #endif
 	if(!message)
 		return;	// no message to handle
