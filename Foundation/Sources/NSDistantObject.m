@@ -277,14 +277,17 @@ static Class _doClass;
 }
 
 - (void) forwardInvocation:(NSInvocation *) invocation;
-{ // this encodes the invocation, transmits and waits for a response - exceptions may be rised during communication
+{ // this encodes the invocation, transmits and waits for a response - exceptions may be raised during communication
 #if 1
 	NSLog(@"NSDistantObject %p -forwardInvocation: %@ through %@", self, invocation, _connection);
 #endif
 	if(_local)
 		[invocation invokeWithTarget:_local];	// have our local target receive the message for which we are the original target
 	else
-		[_connection sendInvocation:invocation internal:NO];
+		[_connection sendInvocation:invocation internal:NO];	// send to peer and insert return value
+#if 1
+	NSLog(@"forwardInvocation done");
+#endif
 }
 
 // FIXME: which of the following methods is 'basic' and forwarded to the peers and which is 'derived'?

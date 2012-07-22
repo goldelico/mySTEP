@@ -189,14 +189,14 @@
 
 - (void) setReturnValue:(void*)buffer
 {
-#if 0
+#if 1
 	NSLog(@"setReturnValue buffer=%08x *buffer=%08x", buffer, *(long *) buffer);
 	if(*_rettype == _C_ID)
 		NSLog(@"              id=%@", *(id *) buffer);
 	NSLog(@"_retval=%08x", _retval);
 #endif
 	[_sig _setArgument:buffer forFrame:_retval atIndex:-1];
-#if 0
+#if 1
 	if(*_rettype == _C_ID)
 		NSLog(@"              id=%@", *(id *) _retval);
 #endif

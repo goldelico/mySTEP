@@ -821,11 +821,14 @@ static unsigned int _sequence;	// global sequence number
 #if 0
 			NSLog(@"*** (conn=%p) runloop done for mode: %@", self, NSConnectionReplyMode);
 #endif
-#if 0
+#if 1
 			NSLog(@"decode response from: %@ -> %@", portCoder);
 #endif
 			// FIXME: align with returnResult:
 			ex=[portCoder decodeObject];	// what is this? most likely the Exception to raise
+#if 1
+			NSLog(@"ex=%@", ex);
+#endif
 			[portCoder decodeReturnValue:i];	// decode return value into our original invocation
 			// FIXME: is there another object to be decoded? the inout list?
 			if(![portCoder verifyWithDelegate:_delegate])

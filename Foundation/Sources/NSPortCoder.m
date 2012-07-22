@@ -854,6 +854,9 @@ const char *objc_skip_typespec (const char *type)
 { // decode object as return value into existing invocation so that we can finish a forwardInvocation:
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
+#if 1
+	NSLog(@"decodeReturnValue with %@", sig);
+#endif
 	[self decodeValueOfObjCType:[sig methodReturnType] at:buffer];
 	[i setReturnValue:buffer];	// set value
 	objc_free(buffer);
