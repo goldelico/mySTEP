@@ -90,15 +90,15 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 
 + (id) _allocForProtocolFamily:(int) family;
 {
-	switch(family)
-	{
+	switch(family) {
 		case AF_INET:
-		return [NSSocketPort allocWithZone:NSDefaultMallocZone()];
+		case AF_INET6:
+			return [NSSocketPort allocWithZone:NSDefaultMallocZone()];
 		case AF_UNIX:
-		return [NSMessagePort allocWithZone:NSDefaultMallocZone()];
+			return [NSMessagePort allocWithZone:NSDefaultMallocZone()];
 		default:
-		NSLog(@"can't handle protocol family %d", family);
-		return nil;
+			NSLog(@"can't handle protocol family %d", family);
+			return nil;
 	}
 }
 
@@ -850,10 +850,21 @@ static unsigned _portDirectoryLength;
 #define SIN_FAMILY	(SIN_ADDRP->sin_family)
 #define SIN_INADDR	(SIN_ADDRP->sin_addr.s_addr)
 #define SIN_PORT	(SIN_ADDRP->sin_port)
+#define SIN_ADDRP6	((struct sockaddr_in6 *) &_address.addr)
+#define SIN_PORT6	(SIN_ADDRP->sin6_port)
+
+// add macros that check for SIN_FAMILY
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@ fam=%u type=%u proto=%u addr=%s:%u", [super description], ((struct sockaddr_in *) &_address.addr)->sin_family, _address.type, _address.protocol, inet_ntoa(((struct sockaddr_in *) &_address.addr)->sin_addr), ntohs(((struct sockaddr_in *) &_address.addr)->sin_port)];
+	return [NSString stringWithFormat:@"%@ fam=%u type=%u proto=%u addr=%s:%u",
+			[super description],
+			SIN_FAMILY,
+			_address.type,
+			_address.protocol,
+			// make dependent on SIN_FAMILY == AF_INET or AF_INET6
+			inet_ntoa(SIN_ADDRP->sin_addr),
+			ntohs(SIN_PORT)];
 }
 
 - (id) init;
@@ -889,10 +900,11 @@ static unsigned _portDirectoryLength;
 			[self release];
 			return nil;
 		}
-// FIXME: check for IPv6 host address
+// FIXME: check for IPv6 host address and pass AF_INET6
 	self=[self initWithProtocolFamily:AF_INET socketType:SOCK_STREAM protocol:IPPROTO_TCP socket:-1];	// no listener socket
 	if(self)
 		{ // insert address of remote system
+			// handle IPv6
 			inet_aton([[h address] cString], &SIN_ADDRP->sin_addr);
 			SIN_PORT=htons(port);	// swap to network byte order
 		}
@@ -937,7 +949,7 @@ static unsigned _portDirectoryLength;
 
 - (id) initWithTCPPort:(unsigned short) port;
 {
-	self=[self initWithProtocolFamily:AF_INET
+	self=[self initWithProtocolFamily:AF_INET	 // defaults to IPv4!
 						   socketType:SOCK_STREAM
 							 protocol:IPPROTO_TCP 
 							  address:nil];	// no address - this represents INADDR_ANY and does not substitute from cache
@@ -962,7 +974,7 @@ static unsigned _portDirectoryLength;
 { // this is the core initializer which makes the socket the listener _fd
 	if((self=[super init]))
 		{
-		_address.addrlen=sizeof(struct sockaddr_in);
+		_address.addrlen=(family == AF_INET6)?sizeof(struct sockaddr_in6):sizeof(struct sockaddr_in);
 		SIN_FAMILY=family;
 		_address.type=type;
 		_address.protocol=protocol;
@@ -977,6 +989,7 @@ static unsigned _portDirectoryLength;
 - (NSData *) address;
 { // return everything in network byte order compatible to MacOS X format
 	NSData *d;
+	// handle IPv6
 	struct sockaddr_in addr=*(SIN_ADDRP);	// copy
 #if 1
 	NSLog(@"get address of %@", self);

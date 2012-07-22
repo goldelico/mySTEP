@@ -1073,7 +1073,7 @@ static unsigned int _sequence;	// global sequence number
 #if 1
 			NSLog(@"now sending %@", [pc components]);
 #endif
-			[pc sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_replyTimeout sendReplyPort:NO];	// send response
+			[pc sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_replyTimeout sendReplyPort:NO];	// send response on sendPort
 			_repliesSent++;
 			[pc invalidate];
 #if 1
