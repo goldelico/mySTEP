@@ -361,8 +361,13 @@ static Class _doClass;
 			[i setArgument:&aSelector atIndex:2];
 			[_connection sendInvocation:i internal:YES];
 			[i getReturnValue:&md];
+#if 1
+			NSLog(@"md=%p", md);
+			NSLog(@"md->sel=%p", md->name);		// SEL
+			NSLog(@"md->types=%p", md->types);	// char *
+#endif
 #if 0
-			// NOTE: we do not need this if our NSMethodSignature understands the network signature encoding - but it doesn't because we can use @encode()
+			// NOTE: we do not need this if our NSMethodSignature understands the network signature encoding - but it doesn't because we can use our local @encode()
 			md->types=translateSignatureFromNetwork(md->types);
 #endif
 		}

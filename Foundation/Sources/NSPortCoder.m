@@ -513,11 +513,11 @@ const char *objc_skip_typespec (const char *type)
 			break;
 		}
 		case _C_PTR: { // generic pointer
-			void *ptr=*((void **) address);
+			void *ptr=*((void **) address);	// load pointer
 			BOOL flag=(ptr != NULL);
 			[self encodeValueOfObjCType:@encode(BOOL) at:&flag];
 			if(flag)
-				[self encodeArrayOfObjCType:type+1 count:1 at:ptr];	// dereference pointer
+				[self encodeValueOfObjCType:type+1 at:ptr];	// dereference pointer
 			break;
 		}
 		case _C_ARY_B: { // get number of entries from type encoding
@@ -525,6 +525,7 @@ const char *objc_skip_typespec (const char *type)
 			type++;
 			while(*type >= '0' && *type <= '9')
 				cnt=10*cnt+(*type++)-'0';
+			// FIXME: do we have to dereference?
 			[self encodeArrayOfObjCType:type count:cnt at:address];
 			break;
 		}
@@ -532,11 +533,11 @@ const char *objc_skip_typespec (const char *type)
 #if 1
 			NSLog(@"encodeValueOfObjCType %s", type);
 #endif
-			while(*type != 0 && *type != '=')
+			while(*type != 0 && *type != '=' && *type != _C_STRUCT_E)
 				type++;
 			if(*type++ == 0)
 				break;	// invalid
-			while(*type != 0 && *type != '}')
+			while(*type != 0 && *type != _C_STRUCT_E)
 				{
 #if 1
 				NSLog(@"addr %p struct component %s", address, type);
@@ -545,9 +546,6 @@ const char *objc_skip_typespec (const char *type)
 				address=objc_aligned_size(type) + (char *)address;
 				type=objc_skip_typespec(type);	// next
 				}
-#if 1
-			NSLog(@"did encode struct/array/union of type %s", type);
-#endif
 			break;
 		}
 	}
@@ -603,7 +601,7 @@ const char *objc_skip_typespec (const char *type)
 {
 	int size=objc_sizeof_type(type);
 #if 1
-	NSLog(@"decodeArrayOfObjCType %s count %d size %d", type, count, size);
+	NSLog(@"decodeArrayOfObjCType %s count %d size %d from %@", type, count, size, [self _location]);
 #endif
 	if(size == 1)
 		{
@@ -646,8 +644,8 @@ const char *objc_skip_typespec (const char *type)
 
 - (void) decodeValueOfObjCType:(const char *) type at:(void *) address
 { // must encode in network byte order (i.e. bigendian)
-#if 0
-	NSLog(@"NSPortCoder decodeValueOfObjCType:%s at:%p", type, address);
+#if 1
+	NSLog(@"NSPortCoder decodeValueOfObjCType:%s at:%p from %@", type, address, [self _location]);
 #endif
 	switch(*type) {
 		case _C_VOID:
@@ -684,9 +682,12 @@ const char *objc_skip_typespec (const char *type)
 				{
 				unsigned int len;
 				char *str=[self decodeBytesWithReturnedLength:&len];	// include terminating 0 byte
-				// check if last byte is 00
+				// check if last byte is really 00
 				NSString *s=[NSString stringWithUTF8String:str];
 				sel=NSSelectorFromString(s);
+#if 1
+				NSLog(@"SEL=%p: %@", sel, s);
+#endif
 				}
 			*((SEL *)address)=sel;
 			return;
@@ -749,26 +750,34 @@ const char *objc_skip_typespec (const char *type)
 			if(flag)
 				{
 				addr=[self decodeBytesWithReturnedLength:&numBytes];
-#if 0
-				NSLog(@"decoded %u bytes atomar string", numBytes);
+#if 1
+				NSLog(@"decoded %u bytes atomar string: %p", numBytes, addr);
 #endif
 				// should check if the last byte is 00
 				}
 			else
 				addr=NULL;
-			*((char **) address) = addr;	// store address (storage object is an autoreleased NSData!)
+			*((char **) address) = addr;	// store address (storage object is the bytes of an autoreleased NSData!)
 			break;
 		}
 		case _C_PTR: {
 			BOOL flag;
 			// unsigned numBytes;
-			void *addr;
-			[self decodeValueOfObjCType:@encode(BOOL) at:&flag];
+			[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// NIL-flag
+#if 1
+			NSLog(@"decode pointer to something (flag=%d): %@", flag, [self _location]);
+#endif
 			if(flag)
-				[self decodeArrayOfObjCType:type+1 count:1 at:&addr];
+				{
+				unsigned len=objc_aligned_size(type+1);
+				void *addr=objc_malloc(len);
+				[NSData dataWithBytesNoCopy:addr length:len];	// take autorelease-ownership
+				NSLog(@"allocated: %p[%u]", addr, len);
+				[self decodeValueOfObjCType:type+1 at:addr];	// decode object pointed to
+				*((void **) address) = addr;	// store address of buffer
+				}
 			else
-				addr=NULL;	// FIXME - what does this mean???
-			*((void **) address) = (*(void **) addr);
+				*((void **) address) = NULL;	// store NULL pointer
 			break;
 		}
 		case _C_ARY_B: { // get number of entries from type encoding
@@ -776,15 +785,16 @@ const char *objc_skip_typespec (const char *type)
 			type++;
 			while(*type >= '0' && *type <= '9')
 				cnt=10*cnt+(*type++)-'0';
+			// FIXME: should we return the address of a malloc() array? I.e. handle like _C_PTR?
 			[self decodeArrayOfObjCType:type count:cnt at:address];
 			break;
 		}
 		case _C_STRUCT_B: { // recursively decode components! type is e.g. "{testStruct=c*}"
-			while(*type != 0 && *type != '=')
+			while(*type != 0 && *type != '=' && *type != _C_STRUCT_E)
 				type++;
 			if(*type++ == 0)
 				break;	// invalid
-			while(*type != 0 && *type != '}')
+			while(*type != 0 && *type != _C_STRUCT_E)
 				{
 #if 1
 				NSLog(@"addr %p struct component %s", address, type);
@@ -855,7 +865,7 @@ const char *objc_skip_typespec (const char *type)
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
 #if 1
-	NSLog(@"decodeReturnValue with %@", sig);
+	NSLog(@"decodeReturnValue with %@ -> buffer=%p", sig, buffer);
 #endif
 	[self decodeValueOfObjCType:[sig methodReturnType] at:buffer];
 	[i setReturnValue:buffer];	// set value
@@ -869,6 +879,9 @@ const char *objc_skip_typespec (const char *type)
 
 - (void) encodeInvocation:(NSInvocation *) i
 {
+#if 1
+	[i encodeWithCoder:self];
+#else
 	NSMethodSignature *sig=[i methodSignature];
 	unsigned char len=[sig methodReturnLength];	// this should be the lenght really allocated
 	void *buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
@@ -911,10 +924,14 @@ const char *objc_skip_typespec (const char *type)
 	NSLog(@"encodeInvocation3 comp=%@", _components);
 #endif
 	objc_free(buffer);
+#endif
 }
 
 - (NSInvocation *) decodeInvocation;
 {
+#if 0
+	return [[[NSInvocation alloc] initWithCoder:portCoder] autorelease];
+#else
 	NSInvocation *i;
 	NSMethodSignature *sig;
 	void *buffer;
@@ -946,6 +963,7 @@ const char *objc_skip_typespec (const char *type)
 	[i setSelector:selector];
 	objc_free(buffer);
 	return i;
+#endif
 }
 
 - (id) importedObjects; { return _imports; }

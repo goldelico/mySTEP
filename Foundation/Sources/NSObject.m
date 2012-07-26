@@ -584,7 +584,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	r=[inv _returnValue];
 	[inv release];
 #if 1
-	NSLog(@"returnFrame=%08x", r);
+	NSLog(@"forward:: returnFrame=%08x", r);
 #endif
 	return r;
 }

@@ -618,7 +618,10 @@ static unsigned int _sequence;	// global sequence number
 - (NSDistantObject *) rootProxy;
 { // this generates a proxy
 	NSConnection *conn=(NSConnection *) [NSDistantObject proxyWithTarget:(id) 0 connection:self];	// get first remote object (id == 0) which represents the NSConnection
-	NSDistantObject *proxy=[conn rootObject];	// this asks other side for a reference to their root object
+	NSDistantObject *proxy=[conn rootObject];	// this ends up in forwardInvocation: and asks other side for a reference to their root object
+#if 1
+	NSLog(@"root object: %p", proxy);
+#endif
 #if 0	// for unknown reasons this may also ask _localClassNameForClass from the result
 	// this may also be a side-effect of actively using the proxy the first time by NSLog(@"proxy=%@", proxy);
 	[proxy _localClassNameForClass];
