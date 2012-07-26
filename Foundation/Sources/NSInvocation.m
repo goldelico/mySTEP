@@ -190,15 +190,15 @@
 - (void) setReturnValue:(void*)buffer
 {
 #if 1
-	NSLog(@"setReturnValue buffer=%08x *buffer=%08x", buffer, *(long *) buffer);
+	NSLog(@"setReturnValue: _retval=%p", _retval);
+	NSLog(@"setReturnValue:buffer=%p *buffer=%p", buffer, *(void **) buffer);
 	if(*_rettype == _C_ID)
-		NSLog(@"              id=%@", *(id *) buffer);
-	NSLog(@"_retval=%08x", _retval);
+		NSLog(@"  object id=%p %@", *(id *) buffer, *(id *) buffer);
 #endif
 	[_sig _setArgument:buffer forFrame:_retval atIndex:-1];
 #if 1
 	if(*_rettype == _C_ID)
-		NSLog(@"              id=%@", *(id *) _retval);
+		NSLog(@"  object id=%@", *(id *) _retval);
 #endif
 	_validReturn = YES;
 }
@@ -300,143 +300,79 @@
 #endif
 }
 
-// FIXME: copy the debugged and tested code from -[NSPortCoder encodeInvocation:] here!
-
-#if FIXME
-
-/*
- * encoding of in/out/inout paramters is based on the _validReturn flag
- *
- * if validReturn, we assume we are a response and encode the result, 'out' and 'inout' paramters only
- * if no validReturn, we assume a request and encode no result, and 'in' and 'inout' parameters only
- */
-
 - (void) encodeWithCoder:(NSCoder*) aCoder
 { // NOTE: only supports NSPortCoder
-	void *buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
-	int i;
+	NSMethodSignature *sig=[self methodSignature];
+	unsigned char len=[sig methodReturnLength];	// this should be the length really allocated
+	void *buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
+	int cnt=[sig numberOfArguments];	// encode arguments (incl. target&selector)
+	// if we move this to NSInvocation we don't even need the private methods
+	const char *type=[[sig _typeString] UTF8String];	// private method (of Cocoa???) to get the type string
+	//	const char *type=[sig _methodType];	// would be a little faster
+	id target=[self target];
+	SEL selector=[self selector];
+	int j;
+	[aCoder encodeValueOfObjCType:@encode(id) at:&target];
+	[aCoder encodeValueOfObjCType:@encode(int) at:&cnt];	// argument count
+	[aCoder encodeValueOfObjCType:@encode(SEL) at:&selector];
 #if 0
-	[self _log:@"encodeWithCoder:"];
+	type=translateSignatureToNetwork(type);
 #endif
-#if 0
-	NSLog(@"buffer[%d]=%p", _maxValueLength), buffer);
-#endif
-	if(!buffer)
-		return;
-	[aCoder encodeValueOfObjCType:@encode(char *) at:&_types];
-	[aCoder encodeValueOfObjCType:@encode(BOOL) at:&_validReturn];
-	for(i = _validReturn?-1:0; i < _numArgs; i++)
-		{ // handle all arguments (and return value)
-			const char *type;
-			unsigned qual=[_sig _getArgumentQualifierAtIndex:i];
-			if(i >= 0)
-				{ // normal argument
-					type=[_sig _getArgument:buffer fromFrame:_argframe atIndex:i];
-				}
-			else
-				{ // return value
-					type=[_sig methodReturnType];
-					if(*type == _C_VOID)
-						continue;	// don't encode void return value
-					[self getReturnValue:buffer];
-				}
-#if 0
-			NSLog(@"NSInvocation encode arg %d qual %x type %s", i, qual, type);
-#endif
-			if(_validReturn && (qual & _F_IN) != 0)
-				continue;	// don't encode in responses
-			if(!_validReturn && (qual & _F_OUT) != 0)
-				continue;	// don't encode in requests
-#if 0
-			NSLog(@"buffer=%p", buffer);
-			NSLog(@"long buffer[0]=%x", *(long *) buffer);
-#endif
-			if(*type == _C_ID)
-				{
-				if((qual & _F_BYCOPY) != 0)
-					[aCoder encodeBycopyObject:*(id *)buffer];
-				else if((qual & _F_BYREF) != 0)
-					[aCoder encodeByrefObject:*(id *)buffer];
-				else
-					[aCoder encodeObject:*(id *)buffer];
-				}
-			else
-				[aCoder encodeValueOfObjCType:type at:buffer];	// always encode bycopy
+	[aCoder encodeValueOfObjCType:@encode(char *) at:&type];	// method type
+	if(_validReturn)
+		[_sig _getArgument:buffer fromFrame:_retval atIndex:-1];
+	else
+		{
+		NSLog(@"encodeInvocation has no return value");	// e.g. if [i invoke] did result in an exception!
+		len=1;	// this may also be some default value
+		*(char *) buffer=0x40;
+		}
+	[aCoder encodeValueOfObjCType:@encode(unsigned char) at:&len];
+	[aCoder encodeArrayOfObjCType:@encode(char) count:len at:buffer];	// encode the bytes of the return value (not the object/type which can be done by encodeReturnValue)
+	for(j=2; j<cnt; j++)
+		{ // encode arguments
+			// set byRef & byCopy flags here
+			[self getArgument:buffer atIndex:j];	// get value
+			[aCoder encodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
 		}
 	objc_free(buffer);
 }
 
 - (id) initWithCoder:(NSCoder*)aCoder
-{ // this is special behaviour: we can update an existing (otherwise initialized) NSInvocation by decoding return value and arguments
-	const char *types;
+{
+	NSMethodSignature *sig;
 	void *buffer;
-	int i;
+	char *type;
+	int cnt;	// number of arguments (incl. target&selector)
+	unsigned char len;
+	id target;
+	SEL selector;
+	int j;
+	[aCoder decodeValueOfObjCType:@encode(id) at:&target];
+	[aCoder decodeValueOfObjCType:@encode(int) at:&cnt];
+	[aCoder decodeValueOfObjCType:@encode(SEL) at:&selector];
+	[aCoder decodeValueOfObjCType:@encode(char *) at:&type];
+	[aCoder decodeValueOfObjCType:@encode(unsigned char) at:&len];	// should set the buffer size internal to the NSInvocation
 #if 0
-	NSLog(@"%@ initWithCoder: %@", self, aCoder);
+	type=translateSignatureFromNetwork(type);
 #endif
-	[aCoder decodeValueOfObjCType:@encode(char*) at:&types];
-#if 0
-	NSLog(@"  decoded type=%s", types);
-#endif
-	[aCoder decodeValueOfObjCType:@encode(BOOL) at:&_validReturn];
-#if 0
-	NSLog(@"  validReturn=%@", _validReturn?@"YES":@"NO");
-#endif
-	if(!_sig || !_validReturn)
-		{ // assume we have to decode a Request
-			self=[self _initWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:types] andArgFrame:NULL];
+	sig=[NSMethodSignature signatureWithObjCTypes:type];
+	buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
+	self=[self _initWithMethodSignature:sig andArgFrame:NULL];
+	if(!self)
+		return nil;	// failed
+	[aCoder decodeArrayOfObjCType:@encode(char) count:len at:buffer];	// decode byte pattern
+	[self setReturnValue:buffer];	// set value
+	for(j=2; j<cnt; j++)
+		{ // decode arguments
+			[aCoder decodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
+			[self setArgument:buffer atIndex:j];	// set value
 		}
-	else
-		{ // a response - assume we already have been initialized for _sig
-#if 1
-			NSLog(@"  decoded type=%s", types);
-			NSLog(@"  local type=%s", _types);
-#endif
-			NSAssert(strcmp(types, _types) == 0, @"received different signature");		// should be the same as we have requested
-		}
-#if 0
-	NSLog(@"  _sig=%@", _sig);
-	NSLog(@"  _maxValueLength=%d", _maxValueLength);
-#endif
-	buffer=objc_malloc(_maxValueLength);	// make buffer large enough for max value size
-	for(i = _validReturn?-1:0; i < _numArgs; i++)
-		{
-		unsigned qual=[_sig _getArgumentQualifierAtIndex:i];
-		const char *type;
-		if(i >= 0)
-			{ // normal argument
-				type=[_sig getArgumentTypeAtIndex:i];
-			}
-		else
-			{ // return value
-				type=_rettype;
-				if(*type == _C_VOID)
-					continue;	// we didn't encode a void return value
-			}
-#if 0
-		NSLog(@"  decode arg %d type %s", i, type);
-#endif
-		if(_validReturn && (qual & _F_IN) != 0)
-			continue;	// wasn't encoded in response
-		if(!_validReturn && (qual & _F_OUT) != 0)
-			continue;	// wasn't encoded in request
-		[aCoder decodeValueOfObjCType:type at:buffer];
-		if(i < 0)
-			[self setReturnValue:buffer];
-		else
-			[self setArgument:buffer atIndex:i];
-#if 0
-		if(*type == _C_ID) NSLog(@"did set argument %d: id=%@ <%p>", i, NSStringFromClass([*(id *) buffer class]), *(id *) buffer);
-		if(*type == _C_SEL) NSLog(@"did set argument %d: SEL=%@", i, NSStringFromSelector(*(SEL *) buffer));
-#endif
-#if 0
-		[self _log:@"initWithCoder:"];
-#endif
-		}
+	[self setTarget:target];
+	[self setSelector:selector];
 	objc_free(buffer);
 	return self;
 }
-#endif
 
 @end  /* NSInvocation */
 
@@ -627,13 +563,14 @@
 			[NSException raise: NSInvalidArgumentException format: @"did not 'setReturnValue:' for non-void NSInvocation"];
 		}
 	retval=[_sig _returnValue:_retval frame:_argframe];	// get return value and restore argframe if needed
-#if 1
+#if 0	// this call to _log will almost certainly overwrite the much deeper stack value of retval!
 	[self _log:@"after getting retval"];
 #endif
 	if(!_argframeismalloc)
 		_argframe=NULL;	// invalidate since it was inherited from our caller
 #if 1
-	NSLog(@"retval=%p %p %ul", retval, *(void **) retval, *(unsigned long *) retval);
+	fprintf(stderr, "_returnValue: %p %p %p %p %p %p\n", retval, *(void **) retval, ((void **) retval)[0], ((void **) retval)[1], ((void **) retval)[2], ((void **) retval)[3]);
+	NSLog(@"_returnValue: %p %p %p %p %p %p", retval, *(void **) retval, ((void **) retval)[0], ((void **) retval)[1], ((void **) retval)[2], ((void **) retval)[3]);
 #endif
 	return retval;
 }

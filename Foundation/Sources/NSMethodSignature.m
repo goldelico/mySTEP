@@ -109,7 +109,7 @@ struct NSArgumentInfo
 
 #define ISBIGENDIAN					(NSHostByteOrder()==NS_BigEndian)
 
-// merge this into NSMethodSignature
+// this may be called recursively (structs)
 
 static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *info)
 { // returns NULL on error
@@ -121,20 +121,19 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	// Skip past any type qualifiers,
 	for(; YES; typePtr++)
 		{
-		switch (*typePtr)
-			{
-				case _C_CONST:  info->qual |= _F_CONST; continue;
-				case _C_IN:     info->qual |= _F_IN; continue;
-				case _C_INOUT:  info->qual |= _F_INOUT; continue;
-				case _C_OUT:    info->qual |= _F_OUT; continue;
-				case _C_BYCOPY: info->qual |= _F_BYCOPY; info->qual &= ~_F_BYREF; continue;
+		switch (*typePtr) {
+			case _C_CONST:  info->qual |= _F_CONST; continue;
+			case _C_IN:     info->qual |= _F_IN; continue;
+			case _C_INOUT:  info->qual |= _F_INOUT; continue;
+			case _C_OUT:    info->qual |= _F_OUT; continue;
+			case _C_BYCOPY: info->qual |= _F_BYCOPY; info->qual &= ~_F_BYREF; continue;
 #ifdef _C_BYREF
-				case _C_BYREF:  info->qual |= _F_BYREF; info->qual &= ~_F_BYCOPY; continue;
+			case _C_BYREF:  info->qual |= _F_BYREF; info->qual &= ~_F_BYCOPY; continue;
 #endif
-				case _C_ONEWAY: info->qual |= _F_ONEWAY; continue;
-				default: break;
-			}
-		break;	// break loop
+			case _C_ONEWAY: info->qual |= _F_ONEWAY; continue;
+			default: break;
+		}
+		break;	// break loop if there was no continue
 		}
 	info->type = typePtr;
 	
@@ -143,198 +142,194 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 	else
 		info->byRef = NO;
 	
-	switch (*typePtr++)				// Scan for size and alignment information.
-	{
+	switch (*typePtr++) { // Scan for size and alignment information.
 		case _C_ID:
-		info->size = sizeof(id);
-		info->align = __alignof__(id);
-		break;
-		
+			info->size = sizeof(id);
+			info->align = __alignof__(id);
+			break;
+			
 		case _C_CLASS:
-		info->size = sizeof(Class);
-		info->align = __alignof__(Class);
-		break;
-		
+			info->size = sizeof(Class);
+			info->align = __alignof__(Class);
+			break;
+			
 		case _C_SEL:
-		info->size = sizeof(SEL);
-		info->align = __alignof__(SEL);
-		break;
-		
+			info->size = sizeof(SEL);
+			info->align = __alignof__(SEL);
+			break;
+			
 		case _C_CHR:
-		info->size = sizeof(char);
-		info->align = __alignof__(char);
-		break;
-		
+			info->size = sizeof(char);
+			info->align = __alignof__(char);
+			break;
+			
 		case _C_UCHR:
-		info->size = sizeof(unsigned char);
-		info->align = __alignof__(unsigned char);
-		break;
-		
+			info->size = sizeof(unsigned char);
+			info->align = __alignof__(unsigned char);
+			break;
+			
 		case _C_SHT:
-		info->size = sizeof(short);
-		info->align = __alignof__(short);
-		break;
-		
+			info->size = sizeof(short);
+			info->align = __alignof__(short);
+			break;
+			
 		case _C_USHT:
-		info->size = sizeof(unsigned short);
-		info->align = __alignof__(unsigned short);
-		break;
-		
+			info->size = sizeof(unsigned short);
+			info->align = __alignof__(unsigned short);
+			break;
+			
 		case _C_INT:
-		info->size = sizeof(int);
-		info->align = __alignof__(int);
-		break;
-		
+			info->size = sizeof(int);
+			info->align = __alignof__(int);
+			break;
+			
 		case _C_UINT:
-		info->size = sizeof(unsigned int);
-		info->align = __alignof__(unsigned int);
-		break;
-		
+			info->size = sizeof(unsigned int);
+			info->align = __alignof__(unsigned int);
+			break;
+			
 		case _C_LNG:
-		info->size = sizeof(long);
-		info->align = __alignof__(long);
-		break;
-		
+			info->size = sizeof(long);
+			info->align = __alignof__(long);
+			break;
+			
 		case _C_ULNG:
-		info->size = sizeof(unsigned long);
-		info->align = __alignof__(unsigned long);
-		break;
-		
+			info->size = sizeof(unsigned long);
+			info->align = __alignof__(unsigned long);
+			break;
+			
 		case _C_LNG_LNG:
-		info->size = sizeof(long long);
-		info->align = __alignof__(long long);
-		break;
-		
+			info->size = sizeof(long long);
+			info->align = __alignof__(long long);
+			break;
+			
 		case _C_ULNG_LNG:
-		info->size = sizeof(unsigned long long);
-		info->align = __alignof__(unsigned long long);
-		break;
-		
+			info->size = sizeof(unsigned long long);
+			info->align = __alignof__(unsigned long long);
+			break;
+			
 		case _C_FLT:
-		if(FLOAT_AS_DOUBLE)
-			{
-			// I guess we should set align/size differently...
-			info->floatAsDouble = YES;
+			if(FLOAT_AS_DOUBLE)
+				{
+				// I guess we should set align/size differently...
+				info->floatAsDouble = YES;
+				info->size = sizeof(double);
+				info->align = __alignof__(double);
+				}
+			else
+				{
+				info->size = sizeof(float);
+				info->align = __alignof__(float);
+				}
+			break;
+			
+		case _C_DBL:
 			info->size = sizeof(double);
 			info->align = __alignof__(double);
-			}
-		else
-			{
-			info->size = sizeof(float);
-			info->align = __alignof__(float);
-			}
-		break;
-		
-		case _C_DBL:
-		info->size = sizeof(double);
-		info->align = __alignof__(double);
-		break;
-		
+			break;
+			
 		case _C_PTR:
-		info->size = sizeof(char*);
-		info->align = __alignof__(char*);
-		if (*typePtr == '?')
-			typePtr++;
-		else
-			{ // recursively
-				struct NSArgumentInfo local;
-				typePtr = mframe_next_arg(typePtr, &local);
-				info->isReg = local.isReg;
-				info->offset = local.offset;
-			}
-		break;
-		
+			info->size = sizeof(char*);
+			info->align = __alignof__(char*);
+			if (*typePtr == '?')
+				typePtr++;
+			else
+				{ // recursively
+					struct NSArgumentInfo local;
+					typePtr = mframe_next_arg(typePtr, &local);
+					info->isReg = local.isReg;
+					info->offset = local.offset;
+				}
+			break;
+			
 		case _C_ATOM:
 		case _C_CHARPTR:
-		info->size = sizeof(char*);
-		info->align = __alignof__(char*);
-		break;
-		
-		case _C_ARY_B:
-		{
-		struct NSArgumentInfo local;
-		int	length = atoi(typePtr);
-		
-		while (isdigit(*typePtr))
-			typePtr++;
-		
-		typePtr = mframe_next_arg(typePtr, &local);
-		info->size = length * ROUND(local.size, local.align);
-		info->align = local.align;
-		typePtr++;								// Skip end-of-array
-		}
-		break; 
-		
-		case _C_STRUCT_B:
-		{
-		struct NSArgumentInfo local;
-		//	struct { int x; double y; } fooalign;
-		struct { unsigned char x; } fooalign;
-		int acc_size = 0;
-		int acc_align = __alignof__(fooalign);
-		
-		while (*typePtr != _C_STRUCT_E)			// Skip "<name>=" stuff.
-			if (*typePtr++ == '=')
-				break;
-		// Base structure alignment 
-		if (*typePtr != _C_STRUCT_E)			// on first element.
-			{
-			typePtr = mframe_next_arg(typePtr, &local);
-			if (!typePtr)
-				return typePtr;						// error
+			info->size = sizeof(char*);
+			info->align = __alignof__(char*);
+			break;
 			
-			acc_size = ROUND(acc_size, local.align);
-			acc_size += local.size;
-			acc_align = MAX(local.align, __alignof__(fooalign));
-			}
-		// Continue accumulating 
-		while (*typePtr != _C_STRUCT_E)			// structure size.
-			{
-			typePtr = mframe_next_arg(typePtr, &local);
-			if (!typePtr)
-				return typePtr;						// error
+		case _C_ARY_B: {
+			struct NSArgumentInfo local;
+			int	length = atoi(typePtr);
 			
-			acc_size = ROUND(acc_size, local.align);
-			acc_size += local.size;
-			}
-		info->size = acc_size;
-		info->align = acc_align;
-		//printf("_C_STRUCT_B  size %d align %d\n",info->size,info->align);
-		typePtr++;								// Skip end-of-struct
-		}
-		break;
-		
-		case _C_UNION_B:
-		{
-		struct NSArgumentInfo local;
-		int	max_size = 0;
-		int	max_align = 0;
-		
-		while (*typePtr != _C_UNION_E)			// Skip "<name>=" stuff.
-			if (*typePtr++ == '=')
-				break;
-		
-		while (*typePtr != _C_UNION_E)
-			{
+			while (isdigit(*typePtr))
+				typePtr++;
+			
 			typePtr = mframe_next_arg(typePtr, &local);
-			if (!typePtr)
-				return typePtr;						// error
-			max_size = MAX(max_size, local.size);
-			max_align = MAX(max_align, local.align);
-			}
-		info->size = max_size;
-		info->align = max_align;
-		typePtr++;								// Skip end-of-union
+			info->size = length * ROUND(local.size, local.align);
+			info->align = local.align;
+			typePtr++;								// Skip end-of-array
+			break; 
 		}
-		break;
-		
+			
+		case _C_STRUCT_B: {
+			struct NSArgumentInfo local;
+			//	struct { int x; double y; } fooalign;
+			struct { unsigned char x; } fooalign;
+			int acc_size = 0;
+			int acc_align = __alignof__(fooalign);
+			
+			while (*typePtr != _C_STRUCT_E)			// Skip "<name>=" stuff.
+				if (*typePtr++ == '=')
+					break;
+			// Base structure alignment 
+			if (*typePtr != _C_STRUCT_E)			// on first element.
+				{
+				typePtr = mframe_next_arg(typePtr, &local);
+				if (!typePtr)
+					return typePtr;						// error
+				
+				acc_size = ROUND(acc_size, local.align);
+				acc_size += local.size;
+				acc_align = MAX(local.align, __alignof__(fooalign));
+				}
+			// Continue accumulating 
+			while (*typePtr != _C_STRUCT_E)			// structure size.
+				{
+				typePtr = mframe_next_arg(typePtr, &local);
+				if (!typePtr)
+					return typePtr;						// error
+				
+				acc_size = ROUND(acc_size, local.align);
+				acc_size += local.size;
+				}
+			info->size = acc_size;
+			info->align = acc_align;
+			//printf("_C_STRUCT_B  size %d align %d\n",info->size,info->align);
+			typePtr++;								// Skip end-of-struct
+			break;
+		}
+			
+		case _C_UNION_B: {
+			struct NSArgumentInfo local;
+			int	max_size = 0;
+			int	max_align = 0;
+			
+			while (*typePtr != _C_UNION_E)			// Skip "<name>=" stuff.
+				if (*typePtr++ == '=')
+					break;
+			
+			while (*typePtr != _C_UNION_E)
+				{
+				typePtr = mframe_next_arg(typePtr, &local);
+				if (!typePtr)
+					return typePtr;						// error
+				max_size = MAX(max_size, local.size);
+				max_align = MAX(max_align, local.align);
+				}
+			info->size = max_size;
+			info->align = max_align;
+			typePtr++;								// Skip end-of-union
+			break;
+		}
+			
 		case _C_VOID:
-		info->size = 0;
-		info->align = __alignof__(char*);
-		break;
-		
+			info->size = 0;
+			info->align = __alignof__(char*);
+			break;
+			
 		default:
-		return NULL;	// unknown
+			return NULL;	// unknown
 	}
 	
 	if(info->type[0] != _C_PTR || info->type[1] == '?')
@@ -547,6 +542,9 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 
 - (id) _initWithObjCTypes:(const char*) t;
 {
+#if 1
+	NSLog(@"_initWithObjCTypes: %s", t);
+#endif
 	if((self=[super init]))
 		{
 		methodTypes=objc_malloc(strlen(t)+1);
@@ -745,14 +743,14 @@ static retval_t apply_block(void *data)
 /*static*/ TYPE return##NAME(TYPE data) { fprintf(stderr, "return"#NAME" %x\n", (unsigned)data); return data; } \
 inline retval_t apply##NAME(TYPE data) { void *args = __builtin_apply_args(); fprintf(stderr, "apply"#NAME" args=%p %x\n", args, (unsigned)data); return __builtin_apply((apply_t)return##NAME, args, sizeof(data)); } \
 fprintf(stderr, "case "#NAME":\n"); \
-r=apply##NAME(*(TYPE *) retval); \
+memcpy(_r, apply##NAME(*(TYPE *) retval), 16); \
 break; \
 } 
 
 #define APPLY_VOID(NAME)  NAME: { \
 /*static*/ void return##NAME(void) { return; } \
 inline retval_t apply##NAME(void) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, 0); } \
-r=apply##NAME(); \
+memcpy(_r, apply##NAME(), 16); \
 break; \
 }
 
@@ -761,14 +759,14 @@ break; \
 #define APPLY(NAME, TYPE)  NAME: { \
 /*static*/ TYPE return##NAME(TYPE data) { return data; } \
 inline retval_t apply##NAME(TYPE data) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, sizeof(data)); } \
-r=apply##NAME(*(TYPE *) retval); \
+memcpy(_r, apply##NAME(*(TYPE *) retval), 16); \
 break; \
 } 
 
 #define APPLY_VOID(NAME)  NAME: { \
 /*static*/ void return##NAME(void) { return; } \
 inline retval_t apply##NAME(void) { void *args = __builtin_apply_args(); return __builtin_apply((apply_t)return##NAME, args, 0); } \
-r=apply##NAME(); \
+memcpy(_r, apply##NAME(), 16); \
 break; \
 }
 
@@ -776,13 +774,12 @@ break; \
 
 - (retval_t) _returnValue:(void *) retval frame:(arglist_t) frame;
 { // get the return value as a retval_t so that we can return from forward::
-	retval_t r;
+	//	retval_t r;
 #ifndef __APPLE__
 	unsigned long *f=(unsigned long *) frame;
 	unsigned long *args;
 #if 1
-	NSLog(@"_returnValue");
-	NSLog(@"frame=%p", f);
+	NSLog(@"_returnValue:%p frame:%p (%p)", retval, frame, f);
 #endif
 	args=(unsigned long *) f[0];	// current arguments pointer
 #if 1
@@ -791,8 +788,10 @@ break; \
 	args[1]=args[0];	// restore link register
 	f[0] += STRUCT_RETURN_POINTER_LENGTH + REGISTER_SAVEAREA_SIZE;	// adjust back
 #if 1
+	args=(unsigned long *) f[0];	// current arguments pointer
 	NSLog(@"restored args=%p", args);
 	NSLog(@"frame=%p", f);
+	NSLog(@"apply %s", info[0].type);
 #endif
 	switch(*info[0].type) {
 		case APPLY_VOID(_C_VOID);
@@ -834,16 +833,17 @@ break; \
 #endif
 			
 		default: { // all others
-			long dummy[4] = { 0, 0, 0, 0 };	// will be copied to registers
+			//			long dummy[4] = { 0, 0, 0, 0 };	// will be copied to registers r0 .. r3
 			NSLog(@"unprocessed type %s for _returnValue", info[0].type);
-			r=(void *) &dummy;
+			//			r=(void *) &dummy;
 		}
 	}
 #endif
-#if 1
-	fprintf(stderr, "retval=%p %lu\n", r, *(unsigned long *) r);
+	//	r=(void *) _r;
+#if 0
+	fprintf(stderr, "_returnValue:frame: %p %p %p %p %p %p\n", _r, *(void **) _r, ((void **) _r)[0], ((void **) _r)[1], ((void **) _r)[2], ((void **) _r)[3]);
 #endif
-	return r;
+	return _r;
 }
 
 #if 0	// with logging
