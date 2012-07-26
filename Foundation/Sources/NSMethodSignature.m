@@ -684,6 +684,19 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
  *
  */
 
+/* here is the definition of the retval_t and arglist_t */
+
+#if 0	// already defined in objc.h on Linux */
+
+typedef void* retval_t;		/* return value */
+typedef void(*apply_t)(void);	/* function pointer */
+typedef union arglist {
+	char *arg_ptr;
+	char arg_regs[sizeof (char*)];
+} *arglist_t;			/* argument frame */
+
+#endif
+
 - (arglist_t) _allocArgFrame:(arglist_t) frame
 { // (re)allocate stack frame
 	if(!frame)
@@ -719,6 +732,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 
 // NOTE: this approach is not sane since the retval_t from __builtin_apply_args() may be a pointer into a stack frame that becomes invalid if we return apply()
 // therefore, this mechanism is not signal()-safe (i.e. don't use NSTask)
+// well, this is already broken in the libobjc - there, __objc_forward() is called which calls forward:: and the latter must return a safe retval_t
 
 #ifndef __APPLE__
 
