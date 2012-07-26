@@ -42,6 +42,9 @@
 	float _horizontalPageScroll;
 	float _verticalLineScroll;
 	float _verticalPageScroll;
+	CGFloat _magnification;
+	CGFloat _minMagnification;
+	CGFloat _maxMagnification;
 	struct {
 		UIBITFIELD(unsigned int, hasHorizScroller, 1);
 		UIBITFIELD(unsigned int, hasVertScroller, 1);
@@ -51,6 +54,7 @@
 		UIBITFIELD(unsigned int, autohidesScrollers, 1);
 		UIBITFIELD(unsigned int, autohidingScrollers, 1);
 		UIBITFIELD(unsigned int, doubleLongClick, 1);
+		UIBITFIELD(unsigned int, allowMagnification, 1);
 		UIBITFIELD(NSBorderType, borderType, 2);
 	} _sv;
 }
@@ -118,6 +122,27 @@
 - (NSRulerView *) verticalRulerView;
 - (NSScroller *) verticalScroller;
 
+- (BOOL) allowsMagnification;	// default NO
+- (void) setAllowsMagnification:(BOOL) flag;
+
+- (CGFloat) magnification;	// default 1.0
+- (void) setMagnification:(CGFloat) factor;
+
+- (CGFloat) maxMagnification;	// default 4.0
+- (void) setMaxMagnification:(CGFloat) factor;
+- (CGFloat) minMagnification;	// default 1/4.0
+- (void) setMinMagnification:(CGFloat) factor;
+
+- (void) magnifyToFitRect:(NSRect) rect;	// magnify proportionally but clip to min/max
+- (void) setMagnification:(CGFloat) magnification centeredAtPoint:(NSPoint) point;	// set magnification (clipped) and center
+
+@end
+
+extern NSString *NSScrollViewWillStartLiveMagnifyNotification;
+extern NSString *NSScrollViewDidEndLiveMagnifyNotification;
+
+@interface NSView (NSDocumentViewMagnification)
+- (NSRect) rectForSmartMagnificationAtPoint:(NSPoint) location inRect:(NSRect) visibleRect;	// default: NSZeroRect
 @end
 
 #endif /* _mySTEP_H_NSScrollView */
