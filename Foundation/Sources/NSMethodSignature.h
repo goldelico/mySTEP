@@ -35,6 +35,7 @@
     struct NSArgumentInfo *info;	// forward reference
 	void *internal1;	// used to reference ffi_cif
 	void *internal2;	// used to reference ffi_type
+	char _r[16];
 }
 
 + (NSMethodSignature *) signatureWithObjCTypes:(const char *) types;
