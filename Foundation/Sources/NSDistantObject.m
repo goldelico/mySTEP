@@ -290,6 +290,8 @@ static Class _doClass;
 #endif
 }
 
+#if 0	// we can use the normal forwardInvocation: strategy
+
 // FIXME: which of the following methods is 'basic' and forwarded to the peers and which is 'derived'?
 // it appears that DO always uses a remote methodDescriptionForSelector even to get a methodSignatureForSelector
 // so we must implement this method for local objects (so that a client can ask us)
@@ -309,6 +311,7 @@ static Class _doClass;
 #endif
 		return md;
 		}
+	// FIXME: forward!
 	NIMP;
 	return NULL;
 #if 0
@@ -327,6 +330,7 @@ static Class _doClass;
 	return md;
 #endif
 }
+#endif
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector;
 {
@@ -363,18 +367,23 @@ static Class _doClass;
 			[i getReturnValue:&md];
 #if 1
 			NSLog(@"md=%p", md);
-			NSLog(@"md->sel=%p", md->name);		// SEL
-			NSLog(@"md->types=%p", md->types);	// char *
+			if(md)
+				{
+			NSLog(@"md->sel=%p %s", md->name, md->name);		// SEL
+			NSLog(@"md->types=%p %s", md->types, md->types);	// char *				
+				}
 #endif
 #if 0
 			// NOTE: we do not need this if our NSMethodSignature understands the network signature encoding - but it doesn't because we can use our local @encode()
-			md->types=translateSignatureFromNetwork(md->types);
+			if(md)
+				md->types=translateSignatureFromNetwork(md->types);
 #endif
 		}
-	if(!md)
-		[NSException raise:NSInvalidArgumentException format:@"remote object does not recognize selector: %@", NSStringFromSelector(aSelector)];
-	ret=[NSMethodSignature signatureWithObjCTypes:md->types];	// a NSMethodSignature is always a local object and never a NSDistantObject
-	[_selectorCache setObject:ret forKey:NSStringFromSelector(aSelector)];	// add to cache
+	if(md)
+		{
+		ret=[NSMethodSignature signatureWithObjCTypes:md->types];	// a NSMethodSignature is always a local object and never a NSDistantObject
+		[_selectorCache setObject:ret forKey:NSStringFromSelector(aSelector)];	// add to cache
+		}
 #if 1
 	NSLog(@"  methodSignatureForSelector %@ -> %@", NSStringFromSelector(aSelector), ret);
 #endif
@@ -396,6 +405,9 @@ static Class _doClass;
 
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
+#if 1
+	return [self methodSignatureForSelector:aSelector] != nil;	// it is very likely that we will call this method, so let's cache the NSMethodSignature
+#else
 	BOOL ret;
 #if 1
 	NSLog(@"[NSDistantObject respondsToSelector:\"%@\"]", NSStringFromSelector(aSelector));
@@ -404,7 +416,7 @@ static Class _doClass;
 	if([_selectorCache objectForKey:NSStringFromSelector(aSelector)])
 		{
 #if 1
-		NSLog(@"cached");
+		NSLog(@"cached: %@", NSStringFromSelector(aSelector));
 #endif
 		return YES;	// known from cache		
 		}
@@ -442,6 +454,7 @@ static Class _doClass;
 		}
 	else
 		{	// we must cast this call into an NSInvocation and forward to the peer
+			// FIXME: Cocoa refuses to handle this selector on NSDistantObject
 			NSInvocation *i=[NSInvocation invocationWithMethodSignature:[_selectorCache objectForKey:@"respondsToSelector:"]];
 			[i setTarget:self];
 			[i setSelector:_cmd];
@@ -450,6 +463,7 @@ static Class _doClass;
 			[i getReturnValue:&ret];
 		}
 	return ret;
+#endif
 }
 
 - (Class) classForCoder; { return _doClass; }	// for compatibility
@@ -481,7 +495,7 @@ static Class _doClass;
 	_remote=(id) ref;
 	[coder decodeValueOfObjCType:@encode(char) at:&flag1];
 	[coder decodeValueOfObjCType:@encode(char) at:&flag2];
-#if 1
+#if 0
 	NSLog(@"NSDistantObject %p initWithCoder -> reference=%p flag1=%d flag2=%d", self, _remote, flag1, flag2);
 #endif
 	if(flag1)

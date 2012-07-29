@@ -542,7 +542,7 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 
 - (id) _initWithObjCTypes:(const char*) t;
 {
-#if 1
+#if 0
 	NSLog(@"_initWithObjCTypes: %s", t);
 #endif
 	if((self=[super init]))
@@ -801,7 +801,7 @@ break; \
 #endif
 	args[1]=args[0];	// restore link register
 	f[0] += STRUCT_RETURN_POINTER_LENGTH + REGISTER_SAVEAREA_SIZE;	// adjust back
-#if 1
+#if 0
 	args=(unsigned long *) f[0];	// current arguments pointer
 	NSLog(@"restored args=%p", args);
 	NSLog(@"frame=%p", f);
@@ -941,7 +941,7 @@ static BOOL wrapped_builtin_apply(void *imp, arglist_t frame, int stack, void *r
 	typedef struct {
 		char val[1 /*info[0].size */];
 	} block;
-#if 1
+#if 0
 	NSLog(@"type %s imp=%p frame=%p stack=%d retbuf=%p", info[0].type, imp, frame, stack, retbuf);
 #endif
 	switch(*info[0].type) {

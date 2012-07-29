@@ -2690,9 +2690,8 @@ struct stat tmp_stat;
 - (void) encodeWithCoder:(NSCoder *)anEncoder					{ SUBCLASS }
 - (id) initWithCoder:(NSCoder *)aDecoder						{ SUBCLASS return nil; }
 
-- (Class) classForArchiver							{ return [self class]; }
-- (Class) classForCoder								{ return [self class]; }
-- (Class) classForPortCoder								{ return [NSString class]; }	// even for subclasses
+- (Class) classForArchiver							{ return [NSString class]; }
+- (Class) classForCoder								{ return [NSString class]; }
 
 - (id) replacementObjectForPortCoder:(NSPortCoder *)coder
 { // default is to encode by copy
@@ -2880,8 +2879,6 @@ struct stat tmp_stat;
 									options: (unsigned int)opts
 									  range: (NSRange)searchRange				{ SUBCLASS; return 0; }
 - (void) setString:(NSString*)aString;											{ SUBCLASS; }
-
-- (Class) classForPortCoder								{ return [NSMutableString class]; }	// even for subclasses
 
 @end /* NSMutableString */
 
@@ -3740,12 +3737,6 @@ struct stat tmp_stat;
 
 @implementation _NSConstantStringClassName
 
-	// If we pass an NXConstantString to another process or record it in an
-	// archive and read it back, the new copy will never be deallocated -
-	// causing a memory leak.  So we tell the system to use the super class.
-- (Class) classForArchiver				{ return _cStringClass; }
-- (Class) classForCoder					{ return _cStringClass; }
-- (Class) classForPortCoder				{ return _cStringClass; }
 - (void) dealloc						{ return; [super dealloc]; }
 - (id) retain							{ return self; }
 - (oneway void) release					{ return; }

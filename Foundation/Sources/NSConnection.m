@@ -209,7 +209,7 @@ static unsigned int _sequence;	// global sequence number
 {
 	NSPort *port;
 	NSConnection *connection;
-#if 1
+#if 0
 	NSLog(@"portNameServer=%@", server);
 #endif
 #if __APPLE__
@@ -256,7 +256,7 @@ static unsigned int _sequence;	// global sequence number
 
 - (void) addRunLoop:(NSRunLoop *) runLoop;
 { // schedule in new runloop in all known modes
-#if 1
+#if 0
 	NSLog(@"addRunLoop: %@ to %@", runLoop, _runLoops);
 #endif
 	if(![_runLoops containsObject:runLoop])
@@ -295,7 +295,7 @@ static unsigned int _sequence;	// global sequence number
 - (id) initWithReceivePort:(NSPort *)receivePort
 				  sendPort:(NSPort *)sendPort;
 {
-#if 1
+#if 0
 	NSLog(@"NSConnection -initWithReceivePort:%@ sendPort:%@", receivePort, sendPort);
 	NSLog(@"existing connections: %@", [NSConnection allConnections]);
 	[NSInvocation class];	// run +initialize
@@ -323,7 +323,7 @@ static unsigned int _sequence;	// global sequence number
 			}
 		if((c=[isa lookUpConnectionWithReceivePort:receivePort sendPort:sendPort]))
 			{ // already exists
-#if 1
+#if 0
 				NSLog(@"NSConnection -init: connection exists");
 #endif
 				/* check for new thread
@@ -348,7 +348,7 @@ static unsigned int _sequence;	// global sequence number
 			}
 		else if(receivePort != sendPort && (c=[isa lookUpConnectionWithReceivePort:receivePort sendPort:receivePort]))
 			{ // parent connection exists - copy root object and all configs
-#if 1
+#if 0
 				NSLog(@"NSConnection -init: parent connection exists, make new connection");
 #endif
 				// FIXME: which one is correct?
@@ -382,7 +382,7 @@ static unsigned int _sequence;	// global sequence number
 			}
 		else
 			{
-#if 1
+#if 0
 			NSLog(@"really new connection");
 #endif
 			_receivePort=[receivePort retain];
@@ -392,7 +392,7 @@ static unsigned int _sequence;	// global sequence number
 			_replyTimeout=_requestTimeout=99999999.0;	// set defaults
 			_multipleThreadsEnabled=NO;
 			_independentConversationQueueing=NO;
-#if 1
+#if 0
 			NSLog(@"schedule receive port %@", _receivePort);
 #endif
 			[self addRequestMode:NSDefaultRunLoopMode];		// schedule receive port in current runloop
@@ -411,7 +411,7 @@ static unsigned int _sequence;	// global sequence number
 		if(!_allConnections)
 			_allConnections=NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 10);	// allocate - don't retain connections in hash table
 		NSHashInsertKnownAbsent(_allConnections, self);	// add us to connections list
-#if 1
+#if 0
 		NSLog(@"new NSConnection: %p send=%p recv=%p", self, _sendPort, _receivePort);
 #endif
 		[nc postNotificationName:NSConnectionDidInitializeNotification object:self];
@@ -425,7 +425,7 @@ static unsigned int _sequence;	// global sequence number
 - (id) init;
 { // init with default ports
 	NSPort *port=[NSPort new];
-#if 1
+#if 0
 	NSLog(@"NSConnection -init: port=%@", port);
 #endif
 	self=[self initWithReceivePort:port sendPort:port];	// make a connection for vending objects
@@ -604,7 +604,7 @@ static unsigned int _sequence;	// global sequence number
 
 - (id) rootObject;
 {
-#if 1
+#if 0
 	NSLog(@"*** asked for rootObject:");
 	NSLog(@"***   self=%p", self);
 	NSLog(@"***   _cmd=%p", _cmd);
@@ -619,7 +619,7 @@ static unsigned int _sequence;	// global sequence number
 { // this generates a proxy
 	NSConnection *conn=(NSConnection *) [NSDistantObject proxyWithTarget:(id) 0 connection:self];	// get first remote object (id == 0) which represents the NSConnection
 	NSDistantObject *proxy=[conn rootObject];	// this ends up in forwardInvocation: and asks other side for a reference to their root object
-#if 1
+#if 0
 	NSLog(@"root object: %p", proxy);
 #endif
 #if 0	// for unknown reasons this may also ask _localClassNameForClass from the result
@@ -752,13 +752,13 @@ static unsigned int _sequence;	// global sequence number
 	//	unsigned long flags=internal?FLAGS_INTERNAL:FLAGS_REQUEST;
 	unsigned long flags=FLAGS_REQUEST;
 	NSPortCoder *portCoder;
-#if 1
+#if 0
 	NSLog(@"*** (conn=%p) sendInvocation:%@", self, i);
 #if 0
 	[i _log:@"sendInvocation"];	// log incl. stack
 #endif
 #endif
-#if 1
+#if 0
 	printf("i: %s\n", [[self description] UTF8String]);
 #endif
 	
@@ -796,12 +796,12 @@ static unsigned int _sequence;	// global sequence number
 		{ // wait for response to arrive (it may already have arrived since sendBeforeTime also runs the loop in NSConnectionReplyMode)
 			NSDate *until=[NSDate dateWithTimeIntervalSinceNow:_replyTimeout];
 			NSException *ex;
-#if 1
+#if 0
 			NSLog(@"*** (conn=%p) waiting for response before %@ in runloop %@ from %@", self, [NSDate dateWithTimeIntervalSinceNow:_replyTimeout], rl, _receivePort);
 #endif
 			while(YES)	// loop until we can extract a matching response for our sequence number from the receive queue...
 				{ // not yet timed out and current conversation is not yet completed
-#if 1
+#if 0
 					NSLog(@"*** (conn=%p) loop for response %u in %@ at %@: %@", self, _sequence, NSConnectionReplyMode, _receivePort, rl);
 #endif
 					portCoder=NSMapGet(_responses, (const void *) _sequence);
@@ -815,7 +815,7 @@ static unsigned int _sequence;	// global sequence number
 						[NSException raise:NSPortReceiveException format:@"sendInvocation: receive port became invalid"];						
 					if(![rl runMode:NSConnectionReplyMode beforeDate:until])
 						[NSException raise:NSPortReceiveException format:@"sendInvocation: receive runloop error"];
-#if 1
+#if 0
 					NSLog(@"responses %@", NSAllMapTableValues(_responses));
 #endif
 					if([until timeIntervalSinceNow] < 0)
@@ -824,12 +824,12 @@ static unsigned int _sequence;	// global sequence number
 #if 0
 			NSLog(@"*** (conn=%p) runloop done for mode: %@", self, NSConnectionReplyMode);
 #endif
-#if 1
+#if 0
 			NSLog(@"decode response from: %@ -> %@", portCoder);
 #endif
 			// FIXME: align with returnResult:
 			ex=[portCoder decodeObject];	// what is this? most likely the Exception to raise
-#if 1
+#if 0
 			NSLog(@"ex=%@", ex);
 #endif
 			[portCoder decodeReturnValue:i];	// decode return value into our original invocation
@@ -845,7 +845,7 @@ static unsigned int _sequence;	// global sequence number
 		}
 	else
 		{
-#if 1
+#if 0
 		NSLog(@"no need to wait for response because it is a oneway method call");
 #endif
 		}
@@ -867,16 +867,16 @@ static unsigned int _sequence;	// global sequence number
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	unsigned int flags;
 	unsigned int seq;
-#if 1
+#if 0
 	NSLog(@"%p: handlePortCoder: %@", self, coder);
 #endif
 	NS_DURING
 	[coder decodeValueOfObjCType:@encode(unsigned int) at:&flags];
-#if 1
+#if 0
 	NSLog(@"found flag = %d 0x%08x", flags, flags);
 #endif
 	[coder decodeValueOfObjCType:@encode(unsigned int) at:&seq];	// that is sequential (0, 1, ...)
-#if 1
+#if 0
 	NSLog(@"%p: found seq number = %d", self, seq);
 #endif
 	switch(flags) {
@@ -909,7 +909,7 @@ static unsigned int _sequence;	// global sequence number
 	NSDistantObjectRequest *req;
 	BOOL enqueue;
 	BOOL isOneway=NO;
-#if 1
+#if 0
 	NSLog(@"handleRequest (seq=%d): %@", seq, coder);
 	NSLog(@"message=%@", [[coder components] objectAtIndex:0]);
 #endif	
@@ -918,7 +918,7 @@ static unsigned int _sequence;	// global sequence number
 		{
 		NSMethodSignature *tsig;
 		sig=[inv methodSignature];	// how the invocation was initialized
-#if 1
+#if 0
 		NSLog(@"inv.argumentsRetained=%@", [inv argumentsRetained]?@"yes":@"no");
 		NSLog(@"inv.selector='%@'", NSStringFromSelector([inv selector]));
 		NSLog(@"inv.target=%p", [inv target]);	// don't try to call any method on the target here since it is a NSDistantObject...
@@ -971,7 +971,7 @@ static unsigned int _sequence;	// global sequence number
 				_requestQueue=[NSMutableArray new];
 			[inv retainArguments];
 			[_requestQueue addObject:req];
-#if 1
+#if 0
 			NSLog(@"*** (conn=%p) queued: %@", self, req);
 #endif
 			[req release];
@@ -998,7 +998,7 @@ static unsigned int _sequence;	// global sequence number
 				NS_ENDHANDLER
 				[req replyWithException:exception];
 			}
-#if 1
+#if 0
 		NSLog(@"request queue %@", _requestQueue);
 #endif
 		[req release];
@@ -1039,7 +1039,7 @@ static unsigned int _sequence;	// global sequence number
 	else
 #endif
 	[i invoke];
-#if 1
+#if 0
 	NSLog(@"--- done with dispatchInvocation: %@", i);
 #endif
 }
@@ -1048,7 +1048,7 @@ static unsigned int _sequence;	// global sequence number
 {
 	NSMethodSignature *sig=[result methodSignature];
 	BOOL isOneway=[sig isOneway];
-#if 1
+#if 0
 	NSLog(@"returnResult: %@", result);
 	NSLog(@"   exception: %@", exception);
 	NSLog(@"    sequence: %u", seq);
@@ -1058,7 +1058,7 @@ static unsigned int _sequence;	// global sequence number
 		{ // there is something to return...
 			NSPortCoder *pc=[self portCoderWithComponents:nil];	// for encoding
 			unsigned long flags=FLAGS_RESPONSE;
-#if 1
+#if 0
 			NSLog(@"port coder=%@", pc);
 #endif
 			[pc encodeValueOfObjCType:@encode(unsigned int) at:&flags];
@@ -1082,7 +1082,7 @@ static unsigned int _sequence;	// global sequence number
 			[pc sendBeforeTime:[NSDate timeIntervalSinceReferenceDate]+_replyTimeout sendReplyPort:NO];	// send response on sendPort
 			_repliesSent++;
 			[pc invalidate];
-#if 1
+#if 0
 			NSLog(@"sent");
 #endif
 		}
@@ -1090,14 +1090,14 @@ static unsigned int _sequence;	// global sequence number
 
 - (void) finishEncoding:(NSPortCoder *) coder;
 {
-#if 1
+#if 0
 	NSLog(@"delegate %@", _delegate);
 	NSLog(@"coder %@", coder);
 	NSLog(@"components1 %@", [coder components]);
 #endif
 	[coder authenticateWithDelegate:_delegate];
 	// [somearray addObject:something];
-#if 1
+#if 0
 	NSLog(@"components2 %@", [coder components]);
 #endif
 }
@@ -1154,7 +1154,7 @@ static unsigned int _sequence;	// global sequence number
 
 - (NSDistantObject *) _getLocal:(id) target;
 { // get proxy object for local object - if known
-#if 1
+#if 0
 	NSLog(@"_getLocal: %p", target);
 	NSLog(@"   -> %p", NSMapGet(_localObjects, (void *) target));
 	NSLog(@"   -> %@", NSMapGet(_localObjects, (void *) target));
@@ -1170,7 +1170,7 @@ static unsigned int _sequence;	// global sequence number
 
 - (void) _addDistantObject:(NSDistantObject *) obj forLocal:(id) target andRemote:(id) remote;
 {
-#if 1
+#if 0
 	NSLog(@"_addLocal: %p %p", target, remote);
 #endif
 	NSMapInsert(_localObjects, (void *) target, obj);
@@ -1180,7 +1180,7 @@ static unsigned int _sequence;	// global sequence number
 
 - (void) _removeLocal:(id) target;
 {
-#if 1
+#if 0
 	NSLog(@"_removeLocal: %p", target);
 #endif
 	NSMapRemove(_localObjects, (void *) target);
@@ -1192,7 +1192,7 @@ static unsigned int _sequence;	// global sequence number
 
 - (NSDistantObject *) _getRemote:(id) target;
 { // get proxy for remote target - if known
-#if 1
+#if 0
 	NSLog(@"_getRemote: %p", target);
 	NSLog(@"   -> %p", NSMapGet(_remoteObjects, (void *) target));
 	//	NSLog(@"   -> %@", NSMapGet(_remoteObjects, (void *) target));
@@ -1214,7 +1214,7 @@ static unsigned int _sequence;	// global sequence number
 
 - (void) _addDistantObject:(NSDistantObject *) obj forRemote:(id) target;
 {
-#if 1
+#if 0
 	NSLog(@"_addRemote: %p", target);
 #endif
 	NSMapInsert(_remoteObjects, (void *) target, obj);
@@ -1224,7 +1224,7 @@ static unsigned int _sequence;	// global sequence number
 
 - (void) _removeRemote:(id) target;
 {
-#if 1
+#if 0
 	NSLog(@"_removeRemote: %p", target);
 #endif
 	NSMapRemove(_remoteObjects, (void *) target);

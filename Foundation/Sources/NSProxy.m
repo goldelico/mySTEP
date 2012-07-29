@@ -78,6 +78,7 @@
 	return self;
 }
 
+#if 0	// forwarded automatically if we don't implement this here...
 - (BOOL) conformsToProtocol:(Protocol*)aProtocol
 { // default: pack into a request and forward
 	NSInvocation *inv;
@@ -92,6 +93,7 @@
 	[inv getReturnValue:&result];
 	return result;
 }
+#endif
 
 + (BOOL) conformsToProtocol:(Protocol*)aProtocol;
 {
@@ -149,6 +151,13 @@
 	return [inv _returnValue];	// this also invalidates the argFrame
 }
 
+- (BOOL) isKindOfClass:(Class)aClass
+{
+	return _classIsKindOfClass(isa, aClass);
+}
+
+- (BOOL) isMemberOfClass:(Class)aClass		{ return (isa == aClass); }
+
 - (id) _nimp:(SEL) cmd;
 {
 	[NSException raise:NSInvalidArgumentException
@@ -159,28 +168,28 @@
 	return nil;
 }
 
-// which of these should be forwarded...
-
-- (unsigned int) hash						{ return (unsigned int)self; }
-- (BOOL) isEqual:(id)anObject				{ return (self == anObject); }
-- (BOOL) isMemberOfClass:(Class)aClass		{ return (isa == aClass); }
-- (BOOL) isProxy							{ return YES; }
-
-- (BOOL) isKindOfClass:(Class)aClass
-{
-	return _classIsKindOfClass(isa, aClass);
-}
-
 - (id) notImplemented:(SEL)aSel
 {
 	return [self _nimp:aSel];
 }
 
+- (BOOL) isProxy							{ return YES; }
+
+// which of these should be forwarded...
+
+#if 0	// all these...
+- (unsigned int) hash						{ return (unsigned int)self; }
+- (BOOL) isEqual:(id)anObject				{ return (self == anObject); }
+#endif
+
+#if 0
 - (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
 {
 	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];
 	return NULL;
 }
+
+#endif
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector
 { // default implementation raises exception
@@ -188,6 +197,7 @@
 	return nil;
 }
 
+#if 0	// simply forward as well
 // FIXME: this does not properly forward!
 
 - (id) performSelector:(SEL)aSelector
@@ -238,5 +248,6 @@
 	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];
 	return NO;
 }
+#endif
 
 @end

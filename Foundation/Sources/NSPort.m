@@ -193,7 +193,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 			 toRunLoop:(NSRunLoop *) runLoop
 			   forMode:(NSString *) mode;
 { // schedule for receiving for the given connection
-#if 1
+#if 0
 	NSLog(@"addConnection:%@ toRunLoop:%@ forMode:%@", connection, runLoop, mode);
 #endif
 	[self scheduleInRunLoop:runLoop forMode:mode];
@@ -203,7 +203,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 			  fromRunLoop:(NSRunLoop *) runLoop
 				  forMode:(NSString *) mode;
 {
-#if 1
+#if 0
 	NSLog(@"removeConnection:%@ fromRunLoop:%@ forMode:%@", connection, runLoop, mode);
 #endif
 	[self removeFromRunLoop:runLoop forMode:mode];
@@ -329,7 +329,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 				NSLog(@"%@: could not connect due to %s", self, strerror(errno));
 				return NO;
 				}
-#if 1
+#if 0
 			NSLog(@"connected %@", self);
 #endif
 		}
@@ -350,7 +350,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 				NSLog(@"%@: could not bind due to %s", self, strerror(errno));
 				return NO;
 				}
-#if 1
+#if 0
 			NSLog(@"bound %@", self);
 #endif
 			if(_address.addr.ss_family != AF_UNIX)
@@ -360,7 +360,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 					getsockname(_fd, (struct sockaddr *) &_address.addr, &addrlen);	// read back to know the port number
 					_address.addrlen=addrlen;
 					NSMapInsert(__sockets, &_address, self);
-#if 1
+#if 0
 					NSLog(@"rebound %@", self);
 #endif
 				}
@@ -428,7 +428,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 			family=ss.ss_family;
 			*((short *) &ss.ss_family)=htons(family);	// swap family to network byte order (as expected by initRemoteWithProtocolFamily)
 			addr=[NSData dataWithBytesNoCopy:&ss length:saddrlen freeWhenDone:NO];
-#if 1
+#if 0
 			NSLog(@"accepted socket=%d", newfd);
 			NSLog(@"  address=%@", addr);
 #endif
@@ -473,7 +473,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 						return;	// simply closed by peer (EOF notification)
 					[NSException raise:NSPortReceiveException format:@"_readFileDescriptorReady: header read error %s - len=%d", strerror(errno), len];
 				}
-#if 1
+#if 0
 			NSLog(@"did read %u bytes from fd %d", len, _sendfd);
 #endif
 			if(header.magic != NSSwapHostLongToBig(0xd0cf50c0))
@@ -488,7 +488,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 				[self invalidate];
 				return;
 				}
-#if 1
+#if 0
 			NSLog(@"header received length=%u on fd=%d", _recvLength, _sendfd);
 #endif
 			_recvBuffer=objc_malloc(_recvLength);
@@ -522,7 +522,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 			if(_recvPos < _recvLength)
 				return;	// incomplete
 		}
-#if 1
+#if 0
 	NSLog(@"complete message received on %@: %@", self, [NSData dataWithBytesNoCopy:_recvBuffer length:_recvLength freeWhenDone:NO]);
 #endif
 #if 1
@@ -544,15 +544,15 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 		if(![msg sendPort])		[msg _setSendPort:self];
 		objc_free(_recvBuffer);			// done
 		_recvBuffer=NULL;
-#if 1
+#if 0
 		NSLog(@"handlePortMessage:%@ by delegate %@", msg, _delegate);
 #endif
-#if 1
+#if 0
 		printf("r: %s d:%s\n", [[msg description] UTF8String], [[_delegate description] UTF8String]);
 #endif	
 		[_delegate handlePortMessage:msg];	// process by delegate
 		[msg release];
-#if 1
+#if 0
 		NSLog(@"received msg released");
 #endif
 		[arp release];
@@ -663,7 +663,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		id cached=NSMapGet(__sockets, &_address);	// look up in cache
 		if(cached)
 			{ // we already have a socket with these specific properties ("data")
-#if 1
+#if 0
 				NSLog(@"substitute by cached socket: %@ %d+1", cached, [self retainCount]);
 #endif
 				if(cached != self)
@@ -680,7 +680,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 	NSLog(@"cache new socket: %@ %d", self, [self retainCount]);
 #endif
 	NSMapInsertKnownAbsent(__sockets, &_address, self);
-#if 1
+#if 0
 	NSLog(@"cached new socket: %@ %d", self, [self retainCount]);
 #endif
 	// FIXME: unlock
@@ -991,7 +991,7 @@ static unsigned _portDirectoryLength;
 	NSData *d;
 	// handle IPv6
 	struct sockaddr_in addr=*(SIN_ADDRP);	// copy
-#if 1
+#if 0
 	NSLog(@"get address of %@", self);
 #endif
 	addr.sin_family=htons((sizeof(struct sockaddr_in)<<8)+SIN_FAMILY);	// swap into Mac expected byte order
@@ -1068,7 +1068,7 @@ struct PortFlags {
 		port.len=[saddr length];
 		[d appendBytes:&port length:sizeof(port)];	// write socket flags
 		[d appendData:saddr];
-#if 1
+#if 0
 		NSLog(@"encoded receive port address: %@", [d subdataWithRange:NSMakeRange(12, [d length]-12)]);
 #endif
 		}
@@ -1099,7 +1099,7 @@ struct PortFlags {
 		}
 	value=NSSwapHostLongToBig([d length]);
 	[d replaceBytesInRange:NSMakeRange(sizeof(value), sizeof(value)) withBytes:&value];	// insert total record length
-#if 1
+#if 0
 	NSLog(@"machmessage=%@", d);
 #endif
 	return d;
@@ -1155,11 +1155,11 @@ struct PortFlags {
 						return nil;
 					}
 				addr=[NSData dataWithBytesNoCopy:bp+sizeof(port) length:port.len freeWhenDone:NO];	// we don't need to copy since we know that initRemoteWithProtocolFamily makes its own private copy
-#if 1
+#if 0
 				NSLog(@"decoded _send addr %@ %p", addr, addr);
 #endif
 				_send=[[NSPort _allocForProtocolFamily:port.family] initRemoteWithProtocolFamily:port.family socketType:port.type protocol:port.protocol address:addr];
-#if 1
+#if 0
 				NSLog(@"decoded _send %@", _send);
 #endif
 				bp+=sizeof(port)+port.len;
@@ -1173,11 +1173,11 @@ struct PortFlags {
 						return nil;
 					}
 				addr=[NSData dataWithBytesNoCopy:bp+sizeof(port) length:port.len freeWhenDone:NO];	// we don't need to copy since we know that initRemoteWithProtocolFamily makes its own private copy
-#if 1
+#if 0
 				NSLog(@"decoded _recv addr %@ %p", addr, addr);
 #endif
 				_recv=[[NSPort _allocForProtocolFamily:port.family] initRemoteWithProtocolFamily:port.family socketType:port.type protocol:port.protocol address:addr];
-#if 1
+#if 0
 				NSLog(@"decoded _recv %@", _recv);
 #endif
 				bp+=sizeof(port)+port.len;
@@ -1201,7 +1201,7 @@ struct PortFlags {
 				bp+=sizeof(record);
 				if(record.len > end-bp)
 					{ // goes beyond available data
-#if 1
+#if 0
 						NSLog(@"length error: pos=%u len=%u remaining=%u", bp-(char *) buffer, record.len, end-bp);
 #endif
 						[self release];
@@ -1225,7 +1225,7 @@ struct PortFlags {
 								return nil;
 							}
 						addr=[NSData dataWithBytesNoCopy:bp+sizeof(port) length:port.len freeWhenDone:NO];
-#if 1
+#if 0
 						NSLog(@"decode NSPort family=%u addr=%@ %p", port.family, addr, addr);
 #endif
 						p=[[NSPort _allocForProtocolFamily:port.family] initRemoteWithProtocolFamily:port.family socketType:port.type protocol:port.protocol address:addr];
@@ -1304,7 +1304,7 @@ struct PortFlags {
 #if 0
 	NSLog(@"sendBeforeDate:%@ %@", when, self);
 #endif
-#if 1
+#if 0
 	printf("s: %s\n", [[self description] UTF8String]);
 #endif
 	return [_send sendBeforeDate:when msgid:_msgid components:_components from:_recv reserved:[_send reservedSpaceLength]];

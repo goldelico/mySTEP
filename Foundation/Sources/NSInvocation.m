@@ -189,14 +189,14 @@
 
 - (void) setReturnValue:(void*)buffer
 {
-#if 1
+#if 0
 	NSLog(@"setReturnValue: _retval=%p", _retval);
 	NSLog(@"setReturnValue:buffer=%p *buffer=%p", buffer, *(void **) buffer);
 	if(*_rettype == _C_ID)
 		NSLog(@"  object id=%p %@", *(id *) buffer, *(id *) buffer);
 #endif
 	[_sig _setArgument:buffer forFrame:_retval atIndex:-1];
-#if 1
+#if 0
 	if(*_rettype == _C_ID)
 		NSLog(@"  object id=%@", *(id *) _retval);
 #endif
@@ -261,7 +261,7 @@
 		return;
 		}
 	[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
-#if 1
+#if 0
 	NSLog(@"NSInvocation -invoke withTarget:%@", target);
 #endif
 	if(target == nil)			// A message to a nil object returns nil
@@ -293,7 +293,7 @@
 	// NOTE: we run into problems if imp is itself calling forward::
 	
 	_validReturn=[_sig _call:imp frame:_argframe retbuf:_retval];	// call
-#if 1
+#if 0
 	[self _log:@"stack after _call"];
 	//	*((long *)1)=0;
 #endif
@@ -568,7 +568,7 @@
 #endif
 	if(!_argframeismalloc)
 		_argframe=NULL;	// invalidate since it was inherited from our caller
-#if 1
+#if 0
 	fprintf(stderr, "_returnValue: %p %p %p %p %p %p\n", retval, *(void **) retval, ((void **) retval)[0], ((void **) retval)[1], ((void **) retval)[2], ((void **) retval)[3]);
 	NSLog(@"_returnValue: %p %p %p %p %p %p", retval, *(void **) retval, ((void **) retval)[0], ((void **) retval)[1], ((void **) retval)[2], ((void **) retval)[3]);
 #endif
