@@ -124,16 +124,17 @@
 
 // convert runtime forwarding arguments into NSInvocation
 
-- (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
+- (retval_t) forward:(SEL) aSel :(arglist_t) argFrame
 {
 	NSInvocation *inv;
 #if 1
-	NSLog(@"NSProxy forward:@selector(%@) :... through %@", NSStringFromSelector(aSel), self);
+	NSLog(@"NSProxy %p forward:@selector(%p:%@) :... through %@", self, aSel, NSStringFromSelector(aSel), self);
 #endif
 	if(aSel == 0)
 		[NSException raise:NSInvalidArgumentException
 					format:@"NSProxy forward:: %@ NULL selector", NSStringFromSelector(_cmd)];
 	// FIXME: Cocoa is said to discard the call if methodSignature returns nil - but how do we get a retval_t??
+	// well, retval can be a pointer to a long[4] initialized to 0
 	inv=[[NSInvocation alloc] _initWithMethodSignature:[self methodSignatureForSelector:aSel] andArgFrame:argFrame];
 	if(!inv)
 		{ // unknown to system
@@ -144,7 +145,7 @@
 		return nil;
 		}
 	[self forwardInvocation:inv];
-#if 0	// WARNING: this will destroy the stack and the return value! So, we have to fetch it twice in debugging mode.
+#if 0
 	NSLog(@"invocation forwarded. Returning result");
 	NSLog(@"returnFrame=%08x", [inv _returnValue]);
 #endif

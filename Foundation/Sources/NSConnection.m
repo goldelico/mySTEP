@@ -1200,18 +1200,6 @@ static unsigned int _sequence;	// global sequence number
 	return NSMapGet(_remoteObjects, (void *) target);
 }
 
-#if OLD
-- (id) _freshRemote
-{ // get a fresh, still unused remote reference id
-	while(NSMapGet(_remoteObjects, (void *) _nextReference) != nil)
-		_nextReference++;	// already esists
-#if 1
-	NSLog(@"fresh remote assigned: %lu", _nextReference);
-#endif
-	return (id) _nextReference;
-}
-#endif
-
 - (void) _addDistantObject:(NSDistantObject *) obj forRemote:(id) target;
 {
 #if 0

@@ -109,7 +109,7 @@
 
 @implementation NSObject (NSDOAdditions)
 
-// this are very old Obj-C methods now completely wrapped but still used by DO
+// this are very old Obj-C methods now completely wrapped but still used as the backbone of DO
 
 + (struct objc_method_description *) methodDescriptionForSelector:(SEL) sel;
 {
@@ -266,9 +266,12 @@ static Class _doClass;
 
 - (void) dealloc;
 {
-	if(!_local)
-		[_connection release];	// this will dealloc the connection if we are the last proxy
+	if(_local)
+		[_connection _removeLocal:self];
+	else
+		[_connection _removeRemote:self];
 	[_local release];
+	[_connection release];	// this will dealloc the connection if we are the last proxy
 	[_selectorCache release];
 	[super dealloc];
 #if 1
@@ -279,6 +282,7 @@ static Class _doClass;
 - (void) forwardInvocation:(NSInvocation *) invocation;
 { // this encodes the invocation, transmits and waits for a response - exceptions may be raised during communication
 #if 1
+	[invocation description];
 	NSLog(@"NSDistantObject %p -forwardInvocation: %@ through %@", self, invocation, _connection);
 #endif
 	if(_local)

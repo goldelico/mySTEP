@@ -56,44 +56,49 @@ struct NSArgumentInfo
 
 #if defined(__APPLE__)	// compile on MacOS X (no need to run)
 
-#define REGISTER_SAVEAREA_SIZE		4*sizeof(long)
+#define ADJUST_STACK					0
+#define REGISTER_SAVEAREA_SIZE			4*sizeof(long)
 #define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
-#define FLOAT_AS_DOUBLE				YES
-#define MIN_ALIGN					sizeof(long)
+#define FLOAT_AS_DOUBLE					YES
+#define MIN_ALIGN						sizeof(long)
 #define STRUCT_BYREF					YES
 
 #elif defined(__arm__)	// for ARM
 #if defined(__ARM_EABI__)
 
-#define REGISTER_SAVEAREA_SIZE		4*sizeof(long)
+#define ADJUST_STACK					1
+#define REGISTER_SAVEAREA_SIZE			4*sizeof(long)
 #define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
-#define FLOAT_AS_DOUBLE				YES
-#define MIN_ALIGN					sizeof(long)
+#define FLOAT_AS_DOUBLE					YES
+#define MIN_ALIGN						sizeof(long)
 #define STRUCT_BYREF					YES
 
 #else // not EABI
 
-#define REGISTER_SAVEAREA_SIZE		4*sizeof(long)
+#define ADJUST_STACK					1
+#define REGISTER_SAVEAREA_SIZE			4*sizeof(long)
 #define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
-#define FLOAT_AS_DOUBLE				YES
-#define MIN_ALIGN					sizeof(long)
+#define FLOAT_AS_DOUBLE					YES
+#define MIN_ALIGN						sizeof(long)
 #define STRUCT_BYREF					YES
 
 #endif	// ARM_EABI
 #elif defined(__mips__)	// for MIPS
 
-#define REGISTER_SAVEAREA_SIZE		4*sizeof(long)
+#define ADJUST_STACK					0
+#define REGISTER_SAVEAREA_SIZE			4*sizeof(long)
 #define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
-#define FLOAT_AS_DOUBLE				YES
-#define MIN_ALIGN					sizeof(long)
+#define FLOAT_AS_DOUBLE					YES
+#define MIN_ALIGN						sizeof(long)
 #define STRUCT_BYREF					YES
 
 #elif defined(i386)	// for Intel
 
-#define REGISTER_SAVEAREA_SIZE		4*sizeof(long)
-#define STRUCT_RETURN_POINTER_LENGTH	sizeof(void *)
-#define FLOAT_AS_DOUBLE				YES
-#define MIN_ALIGN					sizeof(long)
+#define ADJUST_STACK					0
+#define REGISTER_SAVEAREA_SIZE			7*sizeof(long)
+#define STRUCT_RETURN_POINTER_LENGTH	0
+#define FLOAT_AS_DOUBLE					YES
+#define MIN_ALIGN						sizeof(long)
 #define STRUCT_BYREF					YES
 
 #elif defined(__x86_64__)
@@ -519,16 +524,6 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 #endif
     	}
 #if 0
-	// FIXME: is this a general problem and not only ARM? Fixed in gcc 3.x and later? How to handle e.g. (double) as arguments in a protocol?
-	if(!info[numArgs].isReg && info[numArgs].offset == 0)
-		{ // fix bug in gcc 2.95.3 signature for @protocol (last argument is described as @0 instead of e.g. @+16)
-#if 0
-			NSLog(@"fix ARM @protocol()");
-#endif
-			info[numArgs].offset=info[numArgs-1].offset-20;
-		}
-#endif
-#if 0
 	{
 	int i;
 	for(i=0; i<=numArgs; i++)
@@ -706,27 +701,29 @@ typedef union arglist {
 			NEED_INFO();	// get valid argFrameLength
 			frame=(arglist_t) objc_calloc(part1 + argFrameLength, sizeof(char));
 			args=(unsigned long *) ((char *) frame + part1);
-#if 0
-			NSLog(@"allocated frame=%p args=%p framelength=%d", frame, args, argFrameLength);
+#if 1
+			NSLog(@"allocated frame=%p args=%p framelength=%d part1=%d", frame, args, argFrameLength, part1);
 #endif
 			((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)
 		}
+#if ADJUST_STACK
 	else
 		{ // adjust the frame received from -forward:: so that argument offsets are correct and we can call __builtin_apply()
 			unsigned long *f=(unsigned long *) frame;
-			unsigned long self=f[1];	// original r0 value
+			unsigned long _self=f[1];	// original r0 value
 			unsigned long *args;
 			f[0] -= STRUCT_RETURN_POINTER_LENGTH + REGISTER_SAVEAREA_SIZE;	// adjust
-#if 0
+#if 1
 			NSLog(@"frame=%p", f);
 #endif
 			args=(unsigned long *) f[0];	// new arguments pointer - this will be copied to the stack by __builtin_apply()
-#if 0
+#if 1
 			NSLog(@"adjusted args=%p", args);
 #endif
 			args[0]=args[1];	// save link register in tmp
-			args[1]=self;		// insert self value to be copied to r0
+			args[1]=_self;		// insert self value to be copied to r0
 		}
+#endif
 	return frame;
 }
 
@@ -799,8 +796,10 @@ break; \
 #if 1
 	NSLog(@"adjusted args=%p", args);
 #endif
+#if ADJUST_STACK
 	args[1]=args[0];	// restore link register
 	f[0] += STRUCT_RETURN_POINTER_LENGTH + REGISTER_SAVEAREA_SIZE;	// adjust back
+#endif
 #if 0
 	args=(unsigned long *) f[0];	// current arguments pointer
 	NSLog(@"restored args=%p", args);
