@@ -845,10 +845,13 @@
 - (BOOL) trackWithEvent:(NSEvent *) event;
 {
 	NSPoint p;
+#if 0
+	NSLog(@"trackWithEvent: %@", event);
+#endif
 	if(_attachedMenuView && [_attachedMenuView trackWithEvent:event])
 		return YES;	// yes, it has been successfully handled by the submenu(s)
 	p=[self convertPoint:[_window mouseLocationOutsideOfEventStream] fromView:nil];	// get coordinates relative to our window (we might have a different one as the event!)
-	if([event type] == NSPeriodic && _needsScrolling)
+	if([event type] == NSPeriodic)
 		{
 			NSRect rect=[self bounds];
 			BOOL change=YES;
@@ -936,7 +939,8 @@
 #endif
 	[NSApp preventWindowOrdering];
 	[self update];	// update/enable menu(s)
-	[NSEvent startPeriodicEventsAfterDelay:0.3 withPeriod:0.05];
+	if(_needsScrolling)
+		[NSEvent startPeriodicEventsAfterDelay:0.3 withPeriod:0.05];
 	while(YES)
 		{ // loop until mouse goes up
 		NSEventType type=[theEvent type];
@@ -967,7 +971,8 @@
 										 inMode:NSEventTrackingRunLoopMode 
 										dequeue:YES];
 		}
-	[NSEvent stopPeriodicEvents];	// was generating scroll events
+	if(_needsScrolling)
+		[NSEvent stopPeriodicEvents];	// was generating scroll events
 	mv=self;
 	while([mv attachedMenuView])
 		mv=[mv attachedMenuView];	// go down to lowest open submenu level

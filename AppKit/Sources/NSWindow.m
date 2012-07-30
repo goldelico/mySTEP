@@ -1,16 +1,16 @@
 /* 
-   NSWindow.m
-
-   Window class
-
-   Copyright (C) 1998 Free Software Foundation, Inc.
-
-   Author:  Felipe A. Rodriguez <far@pcmagic.net>
-   Date:    June 1998
-   
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/ 
+ NSWindow.m
+ 
+ Window class
+ 
+ Copyright (C) 1998 Free Software Foundation, Inc.
+ 
+ Author:  Felipe A. Rodriguez <far@pcmagic.net>
+ Date:    June 1998
+ 
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */ 
 
 #import <Foundation/NSString.h>
 #import <Foundation/NSCoder.h>
@@ -180,7 +180,7 @@ static BOOL __cursorHidden = NO;
 	if((self=[super initWithFrame:f]))	// NOTE: this calls -setMenu with class.defaultMenu
 		{
 #if 0
-			NSLog(@"init theme frame 2: subviews=%@", sub_views);
+		NSLog(@"init theme frame 2: subviews=%@", sub_views);
 #endif
 		_style=aStyle;
 		_drawsResizeIndicator=(_style & NSResizableWindowMask) != 0 && !([self interfaceStyle] >= NSPDAInterfaceStyle);
@@ -188,21 +188,21 @@ static BOOL __cursorHidden = NO;
 		[self setAutoresizesSubviews:YES];
 		if((aStyle&GSAllWindowMask) != NSBorderlessWindowMask)
 			{ // not a NSNextStepFrame
-			NSButton *b0, *b1, *b2, *b3;
+				NSButton *b0, *b1, *b2, *b3;
 #if 0
-			NSLog(@"init theme frame 3: subviews=%@", sub_views);
+				NSLog(@"init theme frame 3: subviews=%@", sub_views);
 #endif
-			[self addSubview:b0=[NSWindow standardWindowButton:NSWindowCloseButton forStyleMask:aStyle]];
-			[self addSubview:b1=[NSWindow standardWindowButton:NSWindowMiniaturizeButton forStyleMask:aStyle]];
-			[self addSubview:b2=[NSWindow standardWindowButton:NSWindowZoomButton forStyleMask:aStyle]];
-			if([self interfaceStyle] >= NSPDAInterfaceStyle)
-				[b1 setHidden:YES], [b2 setHidden:YES];	// standard PDA screen is not large enough for multiple resizable windows
-			else
-			if((aStyle & (NSClosableWindowMask | NSMiniaturizableWindowMask| NSResizableWindowMask)) == 0)
-				{ // no visible buttons!
-				[b0 setHidden:YES], [b1 setHidden:YES], [b2 setHidden:YES];
-				}
-			[self addSubview:b3=[NSWindow standardWindowButton:NSWindowDocumentIconButton forStyleMask:aStyle]];
+				[self addSubview:b0=[NSWindow standardWindowButton:NSWindowCloseButton forStyleMask:aStyle]];
+				[self addSubview:b1=[NSWindow standardWindowButton:NSWindowMiniaturizeButton forStyleMask:aStyle]];
+				[self addSubview:b2=[NSWindow standardWindowButton:NSWindowZoomButton forStyleMask:aStyle]];
+				if([self interfaceStyle] >= NSPDAInterfaceStyle)
+					[b1 setHidden:YES], [b2 setHidden:YES];	// standard PDA screen is not large enough for multiple resizable windows
+				else
+					if((aStyle & (NSClosableWindowMask | NSMiniaturizableWindowMask| NSResizableWindowMask)) == 0)
+						{ // no visible buttons!
+							[b0 setHidden:YES], [b1 setHidden:YES], [b2 setHidden:YES];
+						}
+				[self addSubview:b3=[NSWindow standardWindowButton:NSWindowDocumentIconButton forStyleMask:aStyle]];
 				[b3 setFrameSize:NSMakeSize(f.size.width - 50.0, 15.0)]; // resize to fit between buttons and toolbar button
 			}
 		[self layout];
@@ -234,26 +234,26 @@ static BOOL __cursorHidden = NO;
 		{
 		if((_style&NSUtilityWindowMask) == 0)
 			{ // make title bar with rounded corners
-			NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
-			float radius=9.0;
-			NSBezierPath *b=[NSBezierPath new];
-			[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(_frame)+radius, NSMinY(_frame)+radius)
-										  radius:radius
-									  startAngle:180.0
-										endAngle:270.0
-									   clockwise:NO];	// top left corner
-			[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(_frame)-radius, NSMinY(_frame)+radius)
-										  radius:radius
-									  startAngle:270.0
-										endAngle:360.0
-									   clockwise:NO];	// top right corner
-			[b lineToPoint:NSMakePoint(NSMaxX(_frame), NSMaxY(_frame))];	// bottom right
-			[b lineToPoint:NSMakePoint(0.0, NSMaxY(_frame))];	// bottom left
-			[b closePath];
+				NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
+				float radius=9.0;
+				NSBezierPath *b=[NSBezierPath new];
+				[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMinX(_frame)+radius, NSMinY(_frame)+radius)
+											  radius:radius
+										  startAngle:180.0
+											endAngle:270.0
+										   clockwise:NO];	// top left corner
+				[b appendBezierPathWithArcWithCenter:NSMakePoint(NSMaxX(_frame)-radius, NSMinY(_frame)+radius)
+											  radius:radius
+										  startAngle:270.0
+											endAngle:360.0
+										   clockwise:NO];	// top right corner
+				[b lineToPoint:NSMakePoint(NSMaxX(_frame), NSMaxY(_frame))];	// bottom right
+				[b lineToPoint:NSMakePoint(0.0, NSMaxY(_frame))];	// bottom left
+				[b closePath];
 #if 0
 				NSLog(@"set window shape %@", b);
 #endif
-			[ctxt _setShape:b];
+				[ctxt _setShape:b];
 				[b release];
 			}
 		_didSetShape=YES;
@@ -261,46 +261,46 @@ static BOOL __cursorHidden = NO;
 	[_backgroundColor set];
 	NSRectFill(rect);	// draw window background
 	if(NSMinY(rect) < _height)
-			{ // needs to redraw the titlebar
-				[[self titleBarBackgroundColor] set];
-				NSRectFill((NSRect){NSZeroPoint, {_bounds.size.width, _height }});	// fill titlebar background
-				[[NSColor windowFrameColor] set];
-				NSFrameRect(_bounds);	// draw a frame around the window (using current fill color)
-				if(!_title && !_titleIcon)
-					return;
-				if(_titleIcon)
-						{
-							[_titleIcon compositeToPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0-[_titleIcon size].width,
-																											 1.0+(_height-16.0)/2.0)
-											 operation:NSCompositeSourceOver
-												fraction:[_window isKeyWindow]?1.0:0.8];	// should be dimmed out if we are not the main window
-						}
-				a=[NSDictionary dictionaryWithObjectsAndKeys:		// FIXME: how does this differ from the defaults?
-					 [_window isKeyWindow]?[NSColor windowFrameTextColor]:[NSColor grayColor], NSForegroundColorAttributeName,
-					 [NSFont titleBarFontOfSize:(_style&NSUtilityWindowMask)?9.0:12.0], NSFontAttributeName,
-					 nil];
-				// draw document icon or shouldn't we better use a resizable NSButton with center alignment to store the window icon and title?
-				// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
-				[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, 1.0+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
-			}
+		{ // needs to redraw the titlebar
+			[[self titleBarBackgroundColor] set];
+			NSRectFill((NSRect){NSZeroPoint, {_bounds.size.width, _height }});	// fill titlebar background
+			[[NSColor windowFrameColor] set];
+			NSFrameRect(_bounds);	// draw a frame around the window (using current fill color)
+			if(!_title && !_titleIcon)
+				return;
+			if(_titleIcon)
+				{
+				[_titleIcon compositeToPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0-[_titleIcon size].width,
+														 1.0+(_height-16.0)/2.0)
+								   operation:NSCompositeSourceOver
+									fraction:[_window isKeyWindow]?1.0:0.8];	// should be dimmed out if we are not the main window
+				}
+			a=[NSDictionary dictionaryWithObjectsAndKeys:		// FIXME: how does this differ from the defaults?
+			   [_window isKeyWindow]?[NSColor windowFrameTextColor]:[NSColor grayColor], NSForegroundColorAttributeName,
+			   [NSFont titleBarFontOfSize:(_style&NSUtilityWindowMask)?9.0:12.0], NSFontAttributeName,
+			   nil];
+			// draw document icon or shouldn't we better use a resizable NSButton with center alignment to store the window icon and title?
+			// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
+			[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, 1.0+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
+		}
 }
 
 - (void) unlockFocus;
 { // last chance to draw anything - note that we start with the graphics state left over by the previous operations
 	if(_drawsResizeIndicator)
 		{ // draw resizing handle in the lower right corner
-		[NSGraphicsContext setGraphicsState:[_window gState]];
-		[[NSBezierPath bezierPathWithRect:_bounds] setClip];
-		[[NSColor grayColor] set];
+			[NSGraphicsContext setGraphicsState:[_window gState]];
+			[[NSBezierPath bezierPathWithRect:_bounds] setClip];
+			[[NSColor grayColor] set];
 #if 0
-		[[NSColor redColor] set];
+			[[NSColor redColor] set];
 #endif
-		[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-8)
-															toPoint:NSMakePoint(_bounds.size.width-8, _bounds.size.height-2)];
-		[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-11)
-															toPoint:NSMakePoint(_bounds.size.width-11, _bounds.size.height-2)];
-		[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-14)
-															toPoint:NSMakePoint(_bounds.size.width-14, _bounds.size.height-2)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-8)
+									  toPoint:NSMakePoint(_bounds.size.width-8, _bounds.size.height-2)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-11)
+									  toPoint:NSMakePoint(_bounds.size.width-11, _bounds.size.height-2)];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(_bounds.size.width-2, _bounds.size.height-14)
+									  toPoint:NSMakePoint(_bounds.size.width-14, _bounds.size.height-2)];
 		}
 	[super unlockFocus];
 }
@@ -337,15 +337,14 @@ static BOOL __cursorHidden = NO;
 	NSLog(@"standardWindowButton %d", button);
 	NSLog(@"subviews %@", sub_views);
 #endif
-	switch(button)
-		{
+	switch(button) {
 		case NSWindowCloseButton: return [sub_views objectAtIndex:0];
 		case NSWindowMiniaturizeButton: return [sub_views objectAtIndex:1];
 		case NSWindowZoomButton: return [sub_views objectAtIndex:2];
 		case NSWindowDocumentIconButton: return [sub_views objectAtIndex:3];
 		case NSWindowToolbarButton: return [sub_views count] > 5?[sub_views objectAtIndex:5]:nil;
 		default: return nil;
-		}
+	}
 }
 
 - (NSButton *) documentIcon; { return [sub_views count] > 3?[sub_views objectAtIndex:3]:nil; }
@@ -362,16 +361,16 @@ static BOOL __cursorHidden = NO;
 	f.origin.y+=_height;		// add room for buttons
 	f.size.height-=_height;
 	if([_window canBecomeMainWindow] && [self menu])
-			{ // has a window menu
-				NSMenuView *mv=[self windowMenuView];
-				float height=[mv frame].size.height;
-				NSRect tf=f;
-				f.origin.y+=height;
-				f.size.height-=height;	// make room for menu
-				tf.size.height=height;
-				[mv setFrame:tf];					// adjust menu view
-				[mv setNeedsDisplay:YES];	// needs redraw
-			}
+		{ // has a window menu
+			NSMenuView *mv=[self windowMenuView];
+			float height=[mv frame].size.height;
+			NSRect tf=f;
+			f.origin.y+=height;
+			f.size.height-=height;	// make room for menu
+			tf.size.height=height;
+			[mv setFrame:tf];					// adjust menu view
+			[mv setNeedsDisplay:YES];	// needs redraw
+		}
 	if([sub_views count] >= 7)
 		{ // has a toolbar
 			NSToolbarView *tv=[self toolbarView];
@@ -441,25 +440,25 @@ static BOOL __cursorHidden = NO;
 	if(toolbar && [sub_views count] <= 5)
 		{ // we don't have a toolbar (yet)
 			NSRect wf=[_window frame];	// window frame
-		NSToolbarView *tv;
-		NSButton *wb;
+			NSToolbarView *tv;
+			NSButton *wb;
 			NSRect f;
-		[self addSubview:wb=[NSWindow standardWindowButton:NSWindowToolbarButton forStyleMask:_style]];
-		[wb setTarget:_window];
-		f=[wb frame];		// button frame
-		f.origin.x=wf.size.width-f.size.width-4.0;
-		[wb setFrameOrigin:f.origin];	// flush toolbar button to the right end
-		tv=[[NSToolbarView alloc] initWithFrame:(NSRect){{0.0, 0.0}, {wf.size.width, 50.0}}];	// as wide as the window
-		[tv setAutoresizingMask:NSViewWidthSizable|NSViewMaxYMargin];
-		[tv setAutoresizesSubviews:YES];
-		[self addSubview:tv];	// becomes #5
-		[tv release];
+			[self addSubview:wb=[NSWindow standardWindowButton:NSWindowToolbarButton forStyleMask:_style]];
+			[wb setTarget:_window];
+			f=[wb frame];		// button frame
+			f.origin.x=wf.size.width-f.size.width-4.0;
+			[wb setFrameOrigin:f.origin];	// flush toolbar button to the right end
+			tv=[[NSToolbarView alloc] initWithFrame:(NSRect){{0.0, 0.0}, {wf.size.width, 50.0}}];	// as wide as the window
+			[tv setAutoresizingMask:NSViewWidthSizable|NSViewMaxYMargin];
+			[tv setAutoresizesSubviews:YES];
+			[self addSubview:tv];	// becomes #5
+			[tv release];
 			// reduce size of title bar
 		}
 	if(!toolbar && [sub_views count] > 6)
 		{ // remove button and toolbar
-		[[sub_views objectAtIndex:6] removeFromSuperviewWithoutNeedingDisplay];	// toolbar view
-		[[sub_views objectAtIndex:5] removeFromSuperviewWithoutNeedingDisplay];	// toolbar button
+			[[sub_views objectAtIndex:6] removeFromSuperviewWithoutNeedingDisplay];	// toolbar view
+			[[sub_views objectAtIndex:5] removeFromSuperviewWithoutNeedingDisplay];	// toolbar button
 			// increase size of title bar
 		}
 	else if(toolbar)
@@ -482,10 +481,13 @@ static BOOL __cursorHidden = NO;
 
 - (BOOL) mouseDownCanMoveWindow; { return YES; }
 
-	// might need to modify hit-test to detect resize...
+// might need to modify hit-test to detect resize...
 
 - (BOOL) acceptsFirstMouse:(NSEvent *) event; { return YES; }	// send us the first event
 - (BOOL) acceptsFirstResponder;	{ return YES; }	// to allow selecting the window
+
+// FIXME: try to cache since it will be called at least twice for each inking/mouseDown event and may got through the whole hierarchy
+// FIXME: it might be better to know the event and cache per event
 
 - (NSView *) hitTest:(NSPoint) aPoint
 {
@@ -506,136 +508,133 @@ static BOOL __cursorHidden = NO;
 	if((_style & NSResizableWindowMask) != 0 && ([self interfaceStyle] >= NSPDAInterfaceStyle))
 		return;	// resizable window has already been resized for full screen mode - don't permit to move
 	while(YES)
-			{ // loop until mouse goes up
+		{ // loop until mouse goes up
 #if 1
-				NSLog(@"NSThemeFrame event %@", theEvent);
+			NSLog(@"NSThemeFrame event %@", theEvent);
 #endif
-				
+			
 #define OLDMOVE 1
-
-				switch([theEvent type])
-					{
-						case NSLeftMouseDown:
-							{
-								// FIXME: check for click on document icon or title cell
-								// if representedURL defined and crtl-click, call - (BOOL)window:(NSWindow *)sender shouldPopUpDocumentPathMenu:(NSMenu *)titleMenu
+			
+			switch([theEvent type]) {
+				case NSLeftMouseDown: {
+					// FIXME: check for click on document icon or title cell
+					// if representedURL defined and crtl-click, call - (BOOL)window:(NSWindow *)sender shouldPopUpDocumentPathMenu:(NSMenu *)titleMenu
 #if OLDMOVE
-								NSPoint p=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
-								initial=[NSEvent mouseLocation];
+					NSPoint p=[_window mouseLocationOutsideOfEventStream];	// (0,0) is lower left corner!
+					initial=[NSEvent mouseLocation];
 #else
-								NSPoint p=[theEvent locationInWindow];
-								initial=p;
+					NSPoint p=[theEvent locationInWindow];
+					initial=p;
 #endif
-								if(p.y < _frame.size.height-_height)
-										{ // check if we a have resize enabled in _style and we clicked on lower right corner
-											if((_style & NSResizableWindowMask) == 0 || p.y > 10.0 || p.x < _frame.size.width-10.0)
-													{
-														// FIXME: we can also check if we are textured and the point we did hit is considered "background"
+					if(p.y < _frame.size.height-_height)
+						{ // check if we a have resize enabled in _style and we clicked on lower right corner
+							if((_style & NSResizableWindowMask) == 0 || p.y > 10.0 || p.x < _frame.size.width-10.0)
+								{
+								// FIXME: we can also check if we are textured and the point we did hit is considered "background"
 #if 1
-														NSLog(@"inside");
+								NSLog(@"inside");
 #endif
-														return;	// ignore if neither in title bar nor resize area
-													}
-											_inLiveResize=YES;
+								return;	// ignore if neither in title bar nor resize area
+								}
+							_inLiveResize=YES;
 #if 0
-											NSLog(@"liveResize started");
+							NSLog(@"liveResize started");
 #endif
-											// FIXME: should also be called exactly once if view is added/removed repeatedly to the hierarchy during life resize
-											[self _performOnAllSubviews:@selector(viewWillStartLiveResize)];
-										}
+							// FIXME: should also be called exactly once if view is added/removed repeatedly to the hierarchy during life resize
+							[self _performOnAllSubviews:@selector(viewWillStartLiveResize)];
+						}
 #if 0
-								NSLog(@"initial = %@ (%@)", NSStringFromPoint(initial), NSStringFromPoint(p));
+					NSLog(@"initial = %@ (%@)", NSStringFromPoint(initial), NSStringFromPoint(p));
 #endif
-								break;
-							}
-						case NSLeftMouseUp:			// update to final location
-						case NSLeftMouseDragged:	// update to current location
-							{
-								float deltax, deltay;
-								NSRect wframe=initialFrame;
+					break;
+				}
+				case NSLeftMouseUp:			// update to final location
+				case NSLeftMouseDragged: {
+					float deltax, deltay;
+					NSRect wframe=initialFrame;
 #if OLDMOVE
-							// NOTE: we can't use [event locationInWindow] if we move the window - is not reliable because it is not synchronized with really moving the window!
-								NSPoint loc=[NSEvent mouseLocation];
+					// NOTE: we can't use [event locationInWindow] if we move the window - is not reliable because it is not synchronized with really moving the window!
+					NSPoint loc=[NSEvent mouseLocation];
 #else
-								NSPoint loc=[theEvent locationInWindow];
+					NSPoint loc=[theEvent locationInWindow];
 #endif
-								deltax=loc.x-initial.x;	// how much we have moved
-								deltay=loc.y-initial.y;
-							NSLog(@"moved by (%g %g)", deltax, deltay);
+					deltax=loc.x-initial.x;	// how much we have moved
+					deltay=loc.y-initial.y;
+					NSLog(@"moved by (%g %g)", deltax, deltay);
 #if 0
-								NSLog(@"window dragged loc=%@ mouse=%@", NSStringFromPoint(loc), NSStringFromPoint([theEvent locationInWindow]));
+					NSLog(@"window dragged loc=%@ mouse=%@", NSStringFromPoint(loc), NSStringFromPoint([theEvent locationInWindow]));
 #endif
-								if(_inLiveResize)
-										{ // resizing
-											wframe.origin.y+=wframe.size.height;		// keep top left corner stable
-											// FIXME: handle resizeIncrements
-											// FIXME: protect against empty or negative window size...
-											wframe.size.width+=deltax;
-											if(wframe.size.width < 0)
-												wframe.size.width = 0;
-											wframe.size.height-=deltay;	// resize as mouse moves
-											if(wframe.size.height < 0)
-												wframe.size.height = 0;
-											if(wframe.origin.y - wframe.size.height < NSMinY(visibleRect))
-												;	// limit height
-											// FIXME: should this be part of setFrame: ?
-											wframe.size.width = MIN(MAX(wframe.size.width, [_window minSize].width), [_window maxSize].width);
-											wframe.size.height = MIN(MAX(wframe.size.height, [_window minSize].height), [_window maxSize].height);
-											wframe.origin.y-=wframe.size.height;		// calculate new bottom left corner
+					if(_inLiveResize)
+						{ // resizing
+							wframe.origin.y+=wframe.size.height;		// keep top left corner stable
+							// FIXME: handle resizeIncrements
+							// FIXME: protect against empty or negative window size...
+							wframe.size.width+=deltax;
+							if(wframe.size.width < 0)
+								wframe.size.width = 0;
+							wframe.size.height-=deltay;	// resize as mouse moves
+							if(wframe.size.height < 0)
+								wframe.size.height = 0;
+							if(wframe.origin.y - wframe.size.height < NSMinY(visibleRect))
+								;	// limit height
+							// FIXME: should this be part of setFrame: ?
+							wframe.size.width = MIN(MAX(wframe.size.width, [_window minSize].width), [_window maxSize].width);
+							wframe.size.height = MIN(MAX(wframe.size.height, [_window minSize].height), [_window maxSize].height);
+							wframe.origin.y-=wframe.size.height;		// calculate new bottom left corner
 #if 0
-											NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
+							NSLog(@"resize window from (%@) to (%@)", NSStringFromRect([_window frame]), NSStringFromRect(wframe));
 #endif
-											[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
-											[_window setFrame:wframe display:NO];	// resize - will redisplay by ConfigureNotify event
-											// called by ConfigureNotify event
-											// [self setNeedsDisplay:YES];
-										}
-								else
-										{ // moving
-											wframe.origin.x+=deltax;
-											wframe.origin.y+=deltay;	// move as mouse moves
-											
-											// limit title bar to stay below menu
-											
-											// can we use [window constrainFrameRect:wframe toScreen:[window screen]];
-											
-											if(NSMaxY(wframe) > NSMaxY(visibleRect))
-												wframe.origin.y-=NSMaxY(wframe)-NSMaxY(visibleRect);	// limit so that window can't be moved under the menu bar
-											if(YES)
-													{ // in PDA mode/style: clamp window to [screen visibleFrame]
-														if(NSMinY(wframe) < NSMinY(visibleRect))
-															wframe.origin.y+=NSMinY(visibleRect)-NSMinY(wframe);	// limit so that window can't be moved under the bottom menu bar
-														if(NSMaxX(wframe) > NSMaxX(visibleRect))
-															wframe.origin.x-=NSMaxX(wframe)-NSMaxX(visibleRect);
-														if(NSMinX(wframe) < NSMinX(visibleRect))
-															wframe.origin.x+=NSMinX(visibleRect)-NSMinX(wframe);
-													}
-											[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay)
-											NSLog(@"move child windows %@", [_window childWindows]);
+							[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
+							[_window setFrame:wframe display:NO];	// resize - will redisplay by ConfigureNotify event
+							// called by ConfigureNotify event
+							// [self setNeedsDisplay:YES];
+						}
+					else
+						{ // moving
+							wframe.origin.x+=deltax;
+							wframe.origin.y+=deltay;	// move as mouse moves
+							
+							// limit title bar to stay below menu
+							
+							// can we use [window constrainFrameRect:wframe toScreen:[window screen]];
+							
+							if(NSMaxY(wframe) > NSMaxY(visibleRect))
+								wframe.origin.y-=NSMaxY(wframe)-NSMaxY(visibleRect);	// limit so that window can't be moved under the menu bar
+							if(YES)
+								{ // in PDA mode/style: clamp window to [screen visibleFrame]
+									if(NSMinY(wframe) < NSMinY(visibleRect))
+										wframe.origin.y+=NSMinY(visibleRect)-NSMinY(wframe);	// limit so that window can't be moved under the bottom menu bar
+									if(NSMaxX(wframe) > NSMaxX(visibleRect))
+										wframe.origin.x-=NSMaxX(wframe)-NSMaxX(visibleRect);
+									if(NSMinX(wframe) < NSMinX(visibleRect))
+										wframe.origin.x+=NSMinX(visibleRect)-NSMinX(wframe);
+								}
+							[_window setFrameOrigin:wframe.origin];	// move window (no need to redisplay)
+							NSLog(@"move child windows %@", [_window childWindows]);
 #if OLDMOVE
 #else
-											// can be cleaned up if it works!!!
-											initial=loc;	// window has moved - assume next event is relative to new location
-											initialFrame=wframe;
+							// can be cleaned up if it works!!!
+							initial=loc;	// window has moved - assume next event is relative to new location
+							initialFrame=wframe;
 #endif
-										}
-								break;
-							}
-						default:
-							break;	// ignore other events
-					}
-				if([theEvent type] == NSLeftMouseUp)
-					break;	// done
-				theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask
-											  untilDate:[NSDate distantFuture]
-												 inMode:NSEventTrackingRunLoopMode 
-												dequeue:YES];							// get next event
+						}
+					break;
+				}
+				default:
+					break;	// ignore other events
 			}
+			if([theEvent type] == NSLeftMouseUp)
+				break;	// done
+			theEvent = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+										  untilDate:[NSDate distantFuture]
+											 inMode:NSEventTrackingRunLoopMode 
+											dequeue:YES];							// get next event
+		}
 	if(_inLiveResize)
-			{
-				_inLiveResize=NO;
-				[self _performOnAllSubviews:@selector(viewDidEndLiveResize)];
-			}
+		{
+		_inLiveResize=NO;
+		[self _performOnAllSubviews:@selector(viewDidEndLiveResize)];
+		}
 #if 1
 	NSLog(@"NSThemeFrame tracking done");
 #endif
@@ -700,14 +699,14 @@ static BOOL __cursorHidden = NO;
 {
 	if((self=[super initWithFrame:f]))
 		{ // set some defaults
-		[self setButtonType:NSMomentaryChangeButton];	// toggle images
-		[self setAutoresizesSubviews:YES];
-		[self setAutoresizingMask:(NSViewMaxXMargin|NSViewMinYMargin)];	// don't resize with window
-		[_cell setAlignment:NSCenterTextAlignment];
-		[_cell setImagePosition:NSImageOverlaps];
-		[_cell setBordered:NO];	// no bezel
-		[_cell setFont:[NSFont titleBarFontOfSize:0]];
-		[_cell setShowsFirstResponder:NO];	// don't show
+			[self setButtonType:NSMomentaryChangeButton];	// toggle images
+			[self setAutoresizesSubviews:YES];
+			[self setAutoresizingMask:(NSViewMaxXMargin|NSViewMinYMargin)];	// don't resize with window
+			[_cell setAlignment:NSCenterTextAlignment];
+			[_cell setImagePosition:NSImageOverlaps];
+			[_cell setBordered:NO];	// no bezel
+			[_cell setFont:[NSFont titleBarFontOfSize:0]];
+			[_cell setShowsFirstResponder:NO];	// don't show
 		}
 	return self;
 }
@@ -761,11 +760,11 @@ static NSButtonCell *sharedCell;
 - (id) initWithFrame:(NSRect) frame
 {
 	if((self=[super initWithFrame:frame]))
-			{
-				_clickedCell=-1;			// none
-				_highlightedCell=-1;	// none
-				_itemRectCount= -1;		// unknown
-			}
+		{
+		_clickedCell=-1;			// none
+		_highlightedCell=-1;	// none
+		_itemRectCount= -1;		// unknown
+		}
 	return self;
 }
 
@@ -798,171 +797,170 @@ static NSButtonCell *sharedCell;
 - (BOOL) popUpMode
 { // should we use popUpMode?
 	if([_toolbar displayMode] != NSToolbarDisplayModeIconOnly)
-			{ // unless we have IconOnly mode, make it depend on screen size
-				if([(NSThemeFrame *) [self superview] showsToolbarButton])
-						{
-							NSSize size=[[[NSScreen screens] objectAtIndex:0] frame].size;
-							return size.height > size.width;	// portrait mode screen
-						}
-			}
+		{ // unless we have IconOnly mode, make it depend on screen size
+			if([(NSThemeFrame *) [self superview] showsToolbarButton])
+				{
+				NSSize size=[[[NSScreen screens] objectAtIndex:0] frame].size;
+				return size.height > size.width;	// portrait mode screen
+				}
+		}
 	return NO;	// always show icons
 }
 
 - (NSRect) rectForToolbarItem:(int) idx;
 {
 	if(_itemRectCount < 0 && [_toolbar isVisible])
-			{ // recache
-				NSArray *items=[_toolbar _activeItems];
-				unsigned cnt=[items count];
-				int i;
-				NSToolbarItem *item;
-				NSControlSize csize=([_toolbar sizeMode] == NSToolbarSizeModeSmall)?NSSmallControlSize:NSRegularControlSize;
-				if(!sharedCell)
-						{
-							sharedCell=[[NSButtonCell alloc] init];
-							[sharedCell setButtonType:NSMomentaryLightButton];	// ???
-							[sharedCell setBordered:NO];	// no border (i.e. ignores bezelStyle)
-							[sharedCell setImageScaling:NSImageScaleProportionallyUpOrDown];
-							[sharedCell setShowsFirstResponder:NO];
-							[sharedCell setImageDimsWhenDisabled:YES];
-							[sharedCell setAction:@selector(dummy:)];	// so that the cell calls our sendAction:to: method
-						}
-				switch([_toolbar displayMode])
-					{
-						case NSToolbarDisplayModeDefault:
-						case NSToolbarDisplayModeIconAndLabel:
-							[sharedCell setImagePosition:NSImageAbove];
-							break;
-						case NSToolbarDisplayModeLabelOnly:
-							[sharedCell setImagePosition:NSNoImage];
-							break;
-						case NSToolbarDisplayModeIconOnly:
-							[sharedCell setImagePosition:NSImageOnly];
-							break;
-					}
-				[sharedCell setControlSize:csize];
-				_itemRectCount=0;
-				_toolbarHeight=0.0;
-				if([self popUpMode])
-					_needsOverflowMenu=YES;
-				else
-						{ // we have a large screen, so we can really layout a toolbar
-							float border=3.0;
-							NSRect rect={ { border, border }, { 0, 0 } };
-							_needsOverflowMenu=NO;
-							_toolbarHeight=12.0;	// minimum height
-							for(i=0; i<cnt; i++)
-									{ // allocate next item
-										NSView *iv;	// item view
-										NSSize min, max;
-										item=[items objectAtIndex:i];
-										iv=[item view];
-										[sharedCell setTitle:[item label]];
-										if(iv)
-												{ // item has its own view - use min/max algorithm
-													float labelheight;
-													[sharedCell setImage:nil];	// no image
-													if([iv respondsToSelector:@selector(cell)])
-														[[(NSControl *) iv cell] setControlSize:csize];	// try to adjust size of cell - this should also adjust font to systemFontSizeForControlSize:
-													else if([iv respondsToSelector:@selector(setControlSize:)])
-														[(NSScroller *) iv setControlSize:csize];	// try to adjust size of view
-													[iv setAutoresizingMask:0];	// don't autoresize
-													labelheight=[sharedCell cellSize].height;
-													min.height+=labelheight;
-													min=[item minSize];
-													max=[item maxSize];
-												}
-										else
-												{
-													[sharedCell setImage:[item image]];
-													min=max=[sharedCell cellSize];	// use as much as needed by contents
-													if(min.width < 10.0)
-														min=max=NSMakeSize(10.0, 10.0);
-												}
-										// how much space do we want or have left over to distribute
-										while((rect.size.width=MIN([self frame].size.width-2*border-NSMinX(rect), max.width)) < min.width)
-												{ // is not enough
-													float squeeze=min.width-rect.size.width;	// how much room we need
-													int j;
-													NSToolbarItem *other;
-													for(j=0; j<i; j++)
-															{ // try to squeeze flexible items down to their minSize.width
-																other=[items objectAtIndex:j];
-																if(![other view])
-																	continue;	// not variable size
-																if(_itemRects[j].size.width-squeeze >= [other minSize].width)
-																		{
-																			_itemRects[j].size.width-=squeeze;	// squeeze as needed
-																			break;
-																		}
-															}
-													if(j == i)
-															{ // if it does not suffice, kick out items with lower priority
-																int prio=[item visibilityPriority];
-																for(j=0; j<i; j++)
-																		{
-																			other=[items objectAtIndex:j];
-																			if([other visibilityPriority] < prio)
-																					{ // yes, has lower priority
-																						_itemRects[j].size.width=0.0;	// kick out
-																						break;
-																					}
-																		}
-															}
-													if(j == i)
-															{ // neither squeezing nor kicking out is sufficient - we must leave out the new element
-																rect.size.width=0.0;
-																_needsOverflowMenu=YES;
-																break;
-															}
-													for(; j < i; j++)
-															{ // reposition elements
-																rect.origin.x=NSMaxX(_itemRects[j]);	// this will update up to our current element which may now fit
-																if(j+1 < i)
-																	_itemRects[j+1].origin.x=rect.origin.x;
-																if(_itemRects[j].size.width > 0)
-																	rect.origin.x += 2*border;
-															}
-												}
-										if(rect.size.width > 0 && _toolbarHeight < min.height)
-											_toolbarHeight = min.height; // make _toolbarHeight at least as our minimum
-#if 0
-										NSLog(@"item %@ size %@", [item paletteLabel], NSStringFromSize(rect.size));
-#endif
-										if(_itemRects == NULL || _itemRectCount >= _itemRectCapacity)
-											_itemRects=objc_realloc(_itemRects, sizeof(_itemRects[0])*(_itemRectCapacity=2*_itemRectCapacity+3));	// allocate more space
-										_itemRects[_itemRectCount++]=rect;	// store
-#if 0
-										NSLog(@"item %@ located at %@", [item paletteLabel], NSStringFromRect(rect));
-#endif
-										if(rect.size.width > 0)
-											rect.origin.x += rect.size.width + 2*border;	// advance to next position
-									}
-							_toolbarHeight+=border;
-							for(i=0; i<cnt; i++)
-									{	// adjust / reposition subviews (if iv exists)
-										NSView *iv;	// item view
-										item=[items objectAtIndex:i];
-										iv=[item view];
-										if(iv)
-												{
-													NSSize max=[item maxSize];
-													_itemRects[i].size.height=MIN(_toolbarHeight, max.height);	// limit
-													_itemRects[i].origin.y += (_toolbarHeight - _itemRects[i].size.height)/2;	// vertically centered
-													if(!NSIsEmptyRect(_itemRects[i]))
-															{ // not invisible
-																[iv setFrame:_itemRects[i]];
-																if(![sub_views containsObject:iv])
-																	[self addSubview:iv];	// not yet visible, add to view hierarchy
-															}
-													else
-														[iv removeFromSuperview];	// not visible
-												}
-										else
-											_itemRects[i].size.height=_toolbarHeight;
-									}
-						}
+		{ // recache
+			NSArray *items=[_toolbar _activeItems];
+			unsigned cnt=[items count];
+			int i;
+			NSToolbarItem *item;
+			NSControlSize csize=([_toolbar sizeMode] == NSToolbarSizeModeSmall)?NSSmallControlSize:NSRegularControlSize;
+			if(!sharedCell)
+				{
+				sharedCell=[[NSButtonCell alloc] init];
+				[sharedCell setButtonType:NSMomentaryLightButton];	// ???
+				[sharedCell setBordered:NO];	// no border (i.e. ignores bezelStyle)
+				[sharedCell setImageScaling:NSImageScaleProportionallyUpOrDown];
+				[sharedCell setShowsFirstResponder:NO];
+				[sharedCell setImageDimsWhenDisabled:YES];
+				[sharedCell setAction:@selector(dummy:)];	// so that the cell calls our sendAction:to: method
+				}
+			switch([_toolbar displayMode]) {
+				case NSToolbarDisplayModeDefault:
+				case NSToolbarDisplayModeIconAndLabel:
+					[sharedCell setImagePosition:NSImageAbove];
+					break;
+				case NSToolbarDisplayModeLabelOnly:
+					[sharedCell setImagePosition:NSNoImage];
+					break;
+				case NSToolbarDisplayModeIconOnly:
+					[sharedCell setImagePosition:NSImageOnly];
+					break;
 			}
+			[sharedCell setControlSize:csize];
+			_itemRectCount=0;
+			_toolbarHeight=0.0;
+			if([self popUpMode])
+				_needsOverflowMenu=YES;
+			else
+				{ // we have a large screen, so we can really layout a toolbar
+					float border=3.0;
+					NSRect rect={ { border, border }, { 0, 0 } };
+					_needsOverflowMenu=NO;
+					_toolbarHeight=12.0;	// minimum height
+					for(i=0; i<cnt; i++)
+						{ // allocate next item
+							NSView *iv;	// item view
+							NSSize min, max;
+							item=[items objectAtIndex:i];
+							iv=[item view];
+							[sharedCell setTitle:[item label]];
+							if(iv)
+								{ // item has its own view - use min/max algorithm
+									float labelheight;
+									[sharedCell setImage:nil];	// no image
+									if([iv respondsToSelector:@selector(cell)])
+										[[(NSControl *) iv cell] setControlSize:csize];	// try to adjust size of cell - this should also adjust font to systemFontSizeForControlSize:
+									else if([iv respondsToSelector:@selector(setControlSize:)])
+										[(NSScroller *) iv setControlSize:csize];	// try to adjust size of view
+									[iv setAutoresizingMask:0];	// don't autoresize
+									labelheight=[sharedCell cellSize].height;
+									min.height+=labelheight;
+									min=[item minSize];
+									max=[item maxSize];
+								}
+							else
+								{
+								[sharedCell setImage:[item image]];
+								min=max=[sharedCell cellSize];	// use as much as needed by contents
+								if(min.width < 10.0)
+									min=max=NSMakeSize(10.0, 10.0);
+								}
+							// how much space do we want or have left over to distribute
+							while((rect.size.width=MIN([self frame].size.width-2*border-NSMinX(rect), max.width)) < min.width)
+								{ // is not enough
+									float squeeze=min.width-rect.size.width;	// how much room we need
+									int j;
+									NSToolbarItem *other;
+									for(j=0; j<i; j++)
+										{ // try to squeeze flexible items down to their minSize.width
+											other=[items objectAtIndex:j];
+											if(![other view])
+												continue;	// not variable size
+											if(_itemRects[j].size.width-squeeze >= [other minSize].width)
+												{
+												_itemRects[j].size.width-=squeeze;	// squeeze as needed
+												break;
+												}
+										}
+									if(j == i)
+										{ // if it does not suffice, kick out items with lower priority
+											int prio=[item visibilityPriority];
+											for(j=0; j<i; j++)
+												{
+												other=[items objectAtIndex:j];
+												if([other visibilityPriority] < prio)
+													{ // yes, has lower priority
+														_itemRects[j].size.width=0.0;	// kick out
+														break;
+													}
+												}
+										}
+									if(j == i)
+										{ // neither squeezing nor kicking out is sufficient - we must leave out the new element
+											rect.size.width=0.0;
+											_needsOverflowMenu=YES;
+											break;
+										}
+									for(; j < i; j++)
+										{ // reposition elements
+											rect.origin.x=NSMaxX(_itemRects[j]);	// this will update up to our current element which may now fit
+											if(j+1 < i)
+												_itemRects[j+1].origin.x=rect.origin.x;
+											if(_itemRects[j].size.width > 0)
+												rect.origin.x += 2*border;
+										}
+								}
+							if(rect.size.width > 0 && _toolbarHeight < min.height)
+								_toolbarHeight = min.height; // make _toolbarHeight at least as our minimum
+#if 0
+							NSLog(@"item %@ size %@", [item paletteLabel], NSStringFromSize(rect.size));
+#endif
+							if(_itemRects == NULL || _itemRectCount >= _itemRectCapacity)
+								_itemRects=objc_realloc(_itemRects, sizeof(_itemRects[0])*(_itemRectCapacity=2*_itemRectCapacity+3));	// allocate more space
+							_itemRects[_itemRectCount++]=rect;	// store
+#if 0
+							NSLog(@"item %@ located at %@", [item paletteLabel], NSStringFromRect(rect));
+#endif
+							if(rect.size.width > 0)
+								rect.origin.x += rect.size.width + 2*border;	// advance to next position
+						}
+					_toolbarHeight+=border;
+					for(i=0; i<cnt; i++)
+						{	// adjust / reposition subviews (if iv exists)
+							NSView *iv;	// item view
+							item=[items objectAtIndex:i];
+							iv=[item view];
+							if(iv)
+								{
+								NSSize max=[item maxSize];
+								_itemRects[i].size.height=MIN(_toolbarHeight, max.height);	// limit
+								_itemRects[i].origin.y += (_toolbarHeight - _itemRects[i].size.height)/2;	// vertically centered
+								if(!NSIsEmptyRect(_itemRects[i]))
+									{ // not invisible
+										[iv setFrame:_itemRects[i]];
+										if(![sub_views containsObject:iv])
+											[self addSubview:iv];	// not yet visible, add to view hierarchy
+									}
+								else
+									[iv removeFromSuperview];	// not visible
+								}
+							else
+								_itemRects[i].size.height=_toolbarHeight;
+						}
+				}
+		}
 	if(idx >= _itemRectCount)
 		return NSZeroRect;
 	return _itemRects[idx];
@@ -973,10 +971,10 @@ static NSButtonCell *sharedCell;
 	int i;
 	float border = -3.0;	// don't leave an unresponsive space between items
 	for(i=0; i<_itemRectCount; i++)
-			{
-				if(NSMouseInRect(pnt, NSInsetRect(_itemRects[i], border, border), [self isFlipped]))	// include border
-					return i;	// found
-			}
+		{
+		if(NSMouseInRect(pnt, NSInsetRect(_itemRects[i], border, border), [self isFlipped]))	// include border
+			return i;	// found
+		}
 	return -1;	// not found
 }
 
@@ -996,35 +994,35 @@ static NSButtonCell *sharedCell;
 	[[(NSThemeFrame *) super_view titleBarBackgroundColor] set];
 	NSRectFill(rect);
 	if([_toolbar showsBaselineSeparator])
-			{ // draw separator
-				[[NSColor whiteColor] set];
-				[NSBezierPath strokeLineFromPoint:NSMakePoint(0, NSMaxY(_bounds)) toPoint:NSMakePoint(NSMaxX(_bounds), NSMaxY(_bounds))];
-			}
+		{ // draw separator
+			[[NSColor whiteColor] set];
+			[NSBezierPath strokeLineFromPoint:NSMakePoint(0, NSMaxY(_bounds)) toPoint:NSMakePoint(NSMaxX(_bounds), NSMaxY(_bounds))];
+		}
 	if(_itemRectCount < 0)
 		[self rectForToolbarItem:0];	// load cache
 	[_toolbar validateVisibleItems];	// check if items need to be drawn enabled
 	for(i=0; i<_itemRectCount; i++)
-			{
-				// FIXME: shouldn't we read out the "config dict" to get the active items???
-				
-				NSToolbarItem *item=[items objectAtIndex:i];
-				if(NSIsEmptyRect(_itemRects[i]))
-					continue;	// entry to ignore
-				if(NSIntersectsRect(_itemRects[i], rect))
-						{ // is visible - draw
-							[sharedCell setEnabled:[item isEnabled]];	// grey out label/image
-							[sharedCell setTitle:[item label]];
-							if([item view])
-								[sharedCell setImage:nil];	// no image
-							else
-								[sharedCell setImage:[item image]];
-							[sharedCell setHighlighted:(i == _highlightedCell)];
-							[sharedCell drawWithFrame:_itemRects[i] inView:self];
-						}
+		{
+		// FIXME: shouldn't we read out the "config dict" to get the active items???
+		
+		NSToolbarItem *item=[items objectAtIndex:i];
+		if(NSIsEmptyRect(_itemRects[i]))
+			continue;	// entry to ignore
+		if(NSIntersectsRect(_itemRects[i], rect))
+			{ // is visible - draw
+				[sharedCell setEnabled:[item isEnabled]];	// grey out label/image
+				[sharedCell setTitle:[item label]];
+				if([item view])
+					[sharedCell setImage:nil];	// no image
+				else
+					[sharedCell setImage:[item image]];
+				[sharedCell setHighlighted:(i == _highlightedCell)];
+				[sharedCell drawWithFrame:_itemRects[i] inView:self];
 			}
+		}
 	if(_needsOverflowMenu)
-			{ // draw overflow indicator
-			}
+		{ // draw overflow indicator
+		}
 }
 
 - (void) addConfigItems:(NSMenu *) menu;
@@ -1056,49 +1054,49 @@ static NSButtonCell *sharedCell;
 	[menu setAutoenablesItems:NO];
 	[self rectForToolbarItem:0];	// this may update the layout
 	while((item=[e nextObject]))
-			{ // build menu on the fly, copying visibility to enable the menu items
-				NSView *iv;
-				NSMenu *submenu=nil;
-				NSString *ident=[item itemIdentifier];
+		{ // build menu on the fly, copying visibility to enable the menu items
+			NSView *iv;
+			NSMenu *submenu=nil;
+			NSString *ident=[item itemIdentifier];
 #if 0
-				NSLog(@"ident %@", ident);
+			NSLog(@"ident %@", ident);
 #endif
-				if(!NSIsEmptyRect(_itemRects[idx++]))
-					continue;	// is being displayed and not empty
-				if([ident isEqualToString:NSToolbarSeparatorItemIdentifier] ||
-					 [ident isEqualToString:NSToolbarSpaceItemIdentifier] ||
-					 [ident isEqualToString:NSToolbarFlexibleSpaceItemIdentifier])
-					continue;	// skip these in our menu
-				if((iv=[item view]))
-						{ // may be a popup button
-							if([iv respondsToSelector:@selector(menu)])
-									{ // if it responds to -menu (e.g. an NSPopUpButton) and that one is defined, make a submenu
-										submenu=[iv menu];
-									}
-							else
-									{
-									}
+			if(!NSIsEmptyRect(_itemRects[idx++]))
+				continue;	// is being displayed and not empty
+			if([ident isEqualToString:NSToolbarSeparatorItemIdentifier] ||
+			   [ident isEqualToString:NSToolbarSpaceItemIdentifier] ||
+			   [ident isEqualToString:NSToolbarFlexibleSpaceItemIdentifier])
+				continue;	// skip these in our menu
+			if((iv=[item view]))
+				{ // may be a popup button
+					if([iv respondsToSelector:@selector(menu)])
+						{ // if it responds to -menu (e.g. an NSPopUpButton) and that one is defined, make a submenu
+							submenu=[iv menu];
 						}
-				mi=[[NSMenuItem alloc] initWithTitle:[item label] action:[item action] keyEquivalent:@""];
-				if(submenu)
-					[mi setMenu:submenu];
-				else
-					[mi setTarget:[item target]];
-				[mi setImage:[item image]];
-				[mi setEnabled:[item isEnabled]];
-				[mi setTag:[item tag]];
-				[menu addItem:mi];
-				[mi release];
-			}	
+					else
+						{
+						}
+				}
+			mi=[[NSMenuItem alloc] initWithTitle:[item label] action:[item action] keyEquivalent:@""];
+			if(submenu)
+				[mi setMenu:submenu];
+			else
+				[mi setTarget:[item target]];
+			[mi setImage:[item image]];
+			[mi setEnabled:[item isEnabled]];
+			[mi setTag:[item tag]];
+			[menu addItem:mi];
+			[mi release];
+		}	
 	[menu addItem:[NSMenuItem separatorItem]];
 	[self addConfigItems:menu];	// standard items
 	[menu addItem:[NSMenuItem separatorItem]];
 	if([_toolbar allowsUserCustomization])
-			{
-				mi=[menu addItemWithTitle:@"Customize Toolbar" action:@selector(runCustomizationPalette:) keyEquivalent:@""];
-				[mi setImage:[NSImage imageNamed:@"NSToolbarCustomize"]];
-				[mi setTarget:_toolbar];	// not through first responder
-			}
+		{
+		mi=[menu addItemWithTitle:@"Customize Toolbar" action:@selector(runCustomizationPalette:) keyEquivalent:@""];
+		[mi setImage:[NSImage imageNamed:@"NSToolbarCustomize"]];
+		[mi setTarget:_toolbar];	// not through first responder
+		}
 	[NSMenu popUpContextMenu:menu withEvent:[NSApp currentEvent] forView:[(NSThemeFrame *) [self superview] standardWindowButton:NSWindowToolbarButton]];	// pop up over the toolbar button
 	[menu release];
 }
@@ -1114,19 +1112,19 @@ static NSButtonCell *sharedCell;
 - (IBAction) removeItem:(id) sender;
 {
 	if(_clickedCell >= 0)
-			{ // send to highlighted item
-				NSToolbarItem *item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
-				// FIME: remove item and ask themeframe to re-layout
-			}
+		{ // send to highlighted item
+			NSToolbarItem *item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
+			// FIME: remove item and ask themeframe to re-layout
+		}
 }
 
 - (IBAction) keepItemVisible:(id) sender;
 {
 	if(_clickedCell >= 0)
-			{ // send to highlighted item
-				NSToolbarItem *item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
-				[item setVisibilityPriority:([item visibilityPriority] == NSToolbarItemVisibilityPriorityUser)?NSToolbarItemVisibilityPriorityStandard:NSToolbarItemVisibilityPriorityUser];	// toggle
-			}
+		{ // send to highlighted item
+			NSToolbarItem *item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
+			[item setVisibilityPriority:([item visibilityPriority] == NSToolbarItemVisibilityPriorityUser)?NSToolbarItemVisibilityPriorityStandard:NSToolbarItemVisibilityPriorityUser];	// toggle
+		}
 }
 
 - (BOOL) acceptFirstResponder;				{ return NO; }
@@ -1150,75 +1148,75 @@ static NSButtonCell *sharedCell;
 	_clickedCell=[self itemIndexForPoint:location];
 	[_toolbar validateVisibleItems];	// check if items need to be enabled
 	if(_clickedCell >= 0)
-			{ // clicked into a cell, update control menu
-				NSView *iv;
-				NSMenu *controlMenu;
-				NSMenuItem *mi;
-				item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
-				iv=[item view];
-				controlMenu=[[[NSMenu alloc] initWithTitle:@"Toolbar Item Menu"] autorelease];
-				[self addConfigItems:controlMenu];
+		{ // clicked into a cell, update control menu
+			NSView *iv;
+			NSMenu *controlMenu;
+			NSMenuItem *mi;
+			item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
+			iv=[item view];
+			controlMenu=[[[NSMenu alloc] initWithTitle:@"Toolbar Item Menu"] autorelease];
+			[self addConfigItems:controlMenu];
+			[controlMenu addItem:[NSMenuItem separatorItem]];
+			// the next entry/entries is/are not to be shown for all items! How do we control that?
+			[mi=[controlMenu addItemWithTitle:@"Keep Item Visible" action:@selector(keepItemVisible:) keyEquivalent:@""] setTarget:self];
+			[mi setState:[item visibilityPriority] == NSToolbarItemVisibilityPriorityUser?NSOnState:NSOffState];
+			[[controlMenu addItemWithTitle:@"Remove Item" action:@selector(removeItem:) keyEquivalent:@""] setTarget:self];
+			if([_toolbar allowsUserCustomization])
+				{
 				[controlMenu addItem:[NSMenuItem separatorItem]];
-				// the next entry/entries is/are not to be shown for all items! How do we control that?
-				[mi=[controlMenu addItemWithTitle:@"Keep Item Visible" action:@selector(keepItemVisible:) keyEquivalent:@""] setTarget:self];
-				[mi setState:[item visibilityPriority] == NSToolbarItemVisibilityPriorityUser?NSOnState:NSOffState];
-				[[controlMenu addItemWithTitle:@"Remove Item" action:@selector(removeItem:) keyEquivalent:@""] setTarget:self];
-				if([_toolbar allowsUserCustomization])
-						{
-							[controlMenu addItem:[NSMenuItem separatorItem]];
-							[[controlMenu addItemWithTitle:@"Customize Toolbar..." action:@selector(runCustomizationPalette:) keyEquivalent:@""] setTarget:_toolbar];
-						}
-				if(iv)
-						{ // implemented by subview
-							[iv setMenu:controlMenu];	// set the menu (NSResponder)
-							[iv mouseDown:event];	// pass to item view and track there
-							return;
-						}
-				[sharedCell setMenu:controlMenu];	// define for control-click
-				[sharedCell setEnabled:[item isEnabled]];
-				rect=[self rectForToolbarItem:_clickedCell];
-			}
+				[[controlMenu addItemWithTitle:@"Customize Toolbar..." action:@selector(runCustomizationPalette:) keyEquivalent:@""] setTarget:_toolbar];
+				}
+			if(iv)
+				{ // implemented by subview
+					[iv setMenu:controlMenu];	// set the menu (NSResponder)
+					[iv mouseDown:event];	// pass to item view and track there
+					return;
+				}
+			[sharedCell setMenu:controlMenu];	// define for control-click
+			[sharedCell setEnabled:[item isEnabled]];
+			rect=[self rectForToolbarItem:_clickedCell];
+		}
 	else	// click outside of cell(s) - we still do "virtual" tracking to be able to show the control-menu
-			{
-				rect=NSMakeRect(location.x-1.0, location.y+1.0, 3.0, 3.0);	// small rect around initial point
-				[sharedCell setEnabled:YES];
-			}
+		{
+		rect=NSMakeRect(location.x-1.0, location.y+1.0, 3.0, 3.0);	// small rect around initial point
+		[sharedCell setEnabled:YES];
+		}
 	done=NO;
 #if 1
 	NSLog(@"tracking rect %@", NSStringFromRect(rect));
 #endif
 	while([event type] != NSLeftMouseUp)
-			{ // loop outside until mouse finally goes up
-				if(NSMouseInRect(location, rect, [self isFlipped]))
-						{ // track the cell while we are in the initial cell
-							if([item isEnabled])
-								_highlightedCell=_clickedCell;	// highlight
-							[self setNeedsDisplayInRect:rect];
-							done = [sharedCell trackMouse:event
-																		 inRect:rect
-																		 ofView:self
-															 untilMouseUp:NO];			// YES if mouse went up in cell, NO if we leave the cell
-							_highlightedCell=-1;
-							[self setNeedsDisplayInRect:rect];
-							if(done)
-								break;	// break loop if we are done
-						}
-				event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
-																	 untilDate:[NSDate distantFuture]
-																			inMode:NSEventTrackingRunLoopMode
-																		 dequeue:YES];
-				location = [self convertPoint:[event locationInWindow] fromView:nil];	// new location
-			}
+		{ // loop outside until mouse finally goes up
+			if(NSMouseInRect(location, rect, [self isFlipped]))
+				{ // track the cell while we are in the initial cell
+					if([item isEnabled])
+						_highlightedCell=_clickedCell;	// highlight
+					[self setNeedsDisplayInRect:rect];
+					done = [sharedCell trackMouse:event
+										   inRect:rect
+										   ofView:self
+									 untilMouseUp:NO];			// YES if mouse went up in cell, NO if we leave the cell
+					_highlightedCell=-1;
+					[self setNeedsDisplayInRect:rect];
+					if(done)
+						break;	// break loop if we are done
+				}
+			event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+									   untilDate:[NSDate distantFuture]
+										  inMode:NSEventTrackingRunLoopMode
+										 dequeue:YES];
+			location = [self convertPoint:[event locationInWindow] fromView:nil];	// new location
+		}
 }
 
 - (BOOL) sendAction:(SEL) action to:(id) target
 {
 	if(_clickedCell >= 0)
-			{ // send to highlighted item
-				NSToolbarItem *item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
-				if([item isEnabled])
-					return [NSApp sendAction:[item action] to:[item target] from:item];	// checkme - who is the sender?
-			}
+		{ // send to highlighted item
+			NSToolbarItem *item=[[_toolbar _activeItems] objectAtIndex:_clickedCell];
+			if([item isEnabled])
+				return [NSApp sendAction:[item action] to:[item target] from:item];	// checkme - who is the sender?
+		}
 	return NO;
 }
 
@@ -1252,7 +1250,7 @@ static NSButtonCell *sharedCell;
 }
 
 + (float) minFrameWidthWithTitle:(NSString *)aTitle
-						styleMask:(unsigned int)aStyle
+					   styleMask:(unsigned int)aStyle
 {
 	return 0.0;
 }
@@ -1322,10 +1320,10 @@ static NSButtonCell *sharedCell;
 {
 	NSLog(@"should not -init NSWindow");
 	return [self initWithContentRect:NSMakeRect(0.0, 0.0, 48.0, 48.0)
-				 styleMask:GSAllWindowMask				// default style mask
-				 backing:NSBackingStoreBuffered
-				 defer:NO
-				 screen:nil];
+						   styleMask:GSAllWindowMask				// default style mask
+							 backing:NSBackingStoreBuffered
+							   defer:NO
+							  screen:nil];
 }
 
 - (NSWindow *) initWithWindowRef:(void *) ref;
@@ -1365,9 +1363,9 @@ static NSButtonCell *sharedCell;
 
 - (id) initWithContentRect:(NSRect)cRect
 				 styleMask:(unsigned int)aStyle
-				 backing:(NSBackingStoreType)bufferingType
-				 defer:(BOOL)defer
-				 screen:(NSScreen *)aScreen
+				   backing:(NSBackingStoreType)bufferingType
+					 defer:(BOOL)defer
+					screen:(NSScreen *)aScreen
 {
 	if((self=[super init]))
 		{
@@ -1504,10 +1502,10 @@ static NSButtonCell *sharedCell;
 #endif
 	if(![_fieldEditor resignFirstResponder] && _fieldEditor == _firstResponder)
 		{ // if not then force resignation
-		NSLog(@" NSWindow endEditingFor: current field editor did not resign voluntarily.");
-		[[NSNotificationCenter defaultCenter] postNotificationName:NSTextDidEndEditingNotification
-							object:_fieldEditor];
-		[(_firstResponder = self) becomeFirstResponder];
+			NSLog(@" NSWindow endEditingFor: current field editor did not resign voluntarily.");
+			[[NSNotificationCenter defaultCenter] postNotificationName:NSTextDidEndEditingNotification
+																object:_fieldEditor];
+			[(_firstResponder = self) becomeFirstResponder];
 		}
 	[anObject removeFromSuperview];
 	[anObject setDelegate:nil];
@@ -1523,8 +1521,8 @@ static NSButtonCell *sharedCell;
 			return d;
 	if(!_fieldEditor && createFlag)					// each window has a global
 		{											// text field editor, if it
-		_fieldEditor = [NSTextView new];			// doesn't exist create it
-		[_fieldEditor setFieldEditor:YES]; 			// if create flag is set					 
+			_fieldEditor = [NSTextView new];			// doesn't exist create it
+			[_fieldEditor setFieldEditor:YES]; 			// if create flag is set					 
 		}
 	return _fieldEditor;							
 }
@@ -1618,12 +1616,12 @@ static NSButtonCell *sharedCell;
 	[[NSApp keyWindow] resignKeyWindow];			// ask current key window to resign status
 	[self becomeKeyWindow];
 }													 
-	
+
 - (void) makeMainWindow
 {													// Can we become main win
 	if ((_w.isMain) || ![self canBecomeMainWindow])
 		return;
-													// ask current main window
+	// ask current main window
 	[[NSApp mainWindow] resignMainWindow];			// to resign status
 	[self becomeMainWindow];
 }													
@@ -1776,12 +1774,12 @@ static NSButtonCell *sharedCell;
 	static NSPoint cascadePoint = { 0, 0 };
 	NSSize screenSize = [_screen visibleFrame].size;
 	NSPoint new = { topLeftPoint.x + 25, topLeftPoint.y - 25 };
-
+	
 	if(NSEqualPoints(topLeftPoint, NSZeroPoint))
 		; // constrain to screen but don't move
 	else
 		[self setFrameTopLeftPoint:topLeftPoint];
-
+	
 	if(new.x + _frame.size.width > screenSize.width)
 		{
 		new.x = 30 + cascadePoint.x;
@@ -1894,7 +1892,7 @@ static NSButtonCell *sharedCell;
 }
 
 // FIXME: handle childWindows
- 
+
 - (void) setFrameOrigin:(NSPoint)aPoint
 {
 	if(!NSEqualPoints(aPoint, _frame.origin))
@@ -1912,14 +1910,14 @@ static NSButtonCell *sharedCell;
 #endif
 	if(!NSEqualSizes(r.size, _frame.size))
 		{ // resize (and move)
-		[_context _setOriginAndSize:r];	// set origin since we must "move" in X11 coordinates even if we resize only
-		[self _setFrame:r];	// update content view size etc.
-		_w.isZoomed=NO;	// no longer remember old size
+			[_context _setOriginAndSize:r];	// set origin since we must "move" in X11 coordinates even if we resize only
+			[self _setFrame:r];	// update content view size etc.
+			_w.isZoomed=NO;	// no longer remember old size
 		}
 	else if(!NSEqualPoints(r.origin, _frame.origin))
 		{ // move only
-		[_context _setOrigin:r.origin];
-		[self _setFrame:r];	// update content view etc.
+			[_context _setOrigin:r.origin];
+			[self _setFrame:r];	// update content view etc.
 		}
 	else if(!flag)
 		return;	// NOOP request
@@ -1956,16 +1954,16 @@ static NSButtonCell *sharedCell;
 #if 0	// if window animation works
 	if(animate)
 		{ // smooth resize
-		NSArray *animations=[NSArray arrayWithObject:
-			[NSDictionary dictionaryWithObjectsAndKeys:
-//				[NSValue valueWithRect:_frame], NSViewAnimationStartFrameKey,	// current frame
-				[NSValue valueWithRect:rect], NSViewAnimationEndFrameKey,		// new frame
-				self, NSViewAnimationTargetKey,
-				nil]
-			];
-		NSViewAnimation *a=[[[NSViewAnimation alloc] initWithViewAnimations:animations] autorelease];
-		[a startAnimation];	// start
-		return;
+			NSArray *animations=[NSArray arrayWithObject:
+								 [NSDictionary dictionaryWithObjectsAndKeys:
+								  //				[NSValue valueWithRect:_frame], NSViewAnimationStartFrameKey,	// current frame
+								  [NSValue valueWithRect:rect], NSViewAnimationEndFrameKey,		// new frame
+								  self, NSViewAnimationTargetKey,
+								  nil]
+								 ];
+			NSViewAnimation *a=[[[NSViewAnimation alloc] initWithViewAnimations:animations] autorelease];
+			[a startAnimation];	// start
+			return;
 		}
 #endif
 	[self setFrame:rect display:flag];	// just setFrame...
@@ -2033,15 +2031,15 @@ static NSButtonCell *sharedCell;
 
 - (void) update
 {
-#if 0
+#if 1
 	NSLog(@"%@ update %d %d", self, _w.autodisplay, _w.needsDisplay);
 #endif
 	if(_w.autodisplay && _w.needsDisplay && _w.visible)
 		{ // if autodisplay is enabled and window needs display
 #if 0
-		NSLog(@"%@ update %@", self, [_themeFrame _descriptionWithSubviews]);
+			NSLog(@"%@ update %@", self, [_themeFrame _descriptionWithSubviews]);
 #endif
-		[self displayIfNeeded];	// display subviews if needed
+			[self displayIfNeeded];	// display subviews if needed
     	}
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidUpdateNotification object:self];
 }
@@ -2106,14 +2104,14 @@ static NSButtonCell *sharedCell;
 - (void) setDelegate:(id)anObject
 {
 	NSNotificationCenter *n;
-
+	
 	if(_delegate == anObject)
 		return;
-
+	
 #define IGNORE_(notif_name) [n removeObserver:_delegate \
-								name:NSWindow##notif_name##Notification \
-								object:self]
-
+name:NSWindow##notif_name##Notification \
+object:self]
+	
 	n = [NSNotificationCenter defaultCenter];
 	if (_delegate)
 		{
@@ -2131,18 +2129,18 @@ static NSButtonCell *sharedCell;
 		IGNORE_(WillClose);
 		IGNORE_(WillMiniaturize);
 		}
-
+	
 	ASSIGN(_delegate, anObject);
 	if(!anObject)
 		return;
-
+	
 #define OBSERVE_(notif_name) \
-	if ([_delegate respondsToSelector:@selector(window##notif_name:)]) \
-		[n addObserver:_delegate \
-		   selector:@selector(window##notif_name:) \
-		   name:NSWindow##notif_name##Notification \
-		   object:self]
-
+if ([_delegate respondsToSelector:@selector(window##notif_name:)]) \
+[n addObserver:_delegate \
+selector:@selector(window##notif_name:) \
+name:NSWindow##notif_name##Notification \
+object:self]
+	
 	OBSERVE_(DidBecomeKey);
 	OBSERVE_(DidBecomeMain);
 	OBSERVE_(DidChangeScreen);
@@ -2219,26 +2217,26 @@ static NSButtonCell *sharedCell;
 	if(!(_w.styleMask&NSResizableWindowMask))
 		return;	// can't zoom
 	if(!_w.isZoomed)
-			{ // not yet zoomed
-				NSRect defaultFrame=[_screen visibleFrame];
-				NSRect proposedFrame=_delegate?[_delegate windowWillUseStandardFrame:self defaultFrame:defaultFrame]:defaultFrame;	// allow delegate to modify
+		{ // not yet zoomed
+			NSRect defaultFrame=[_screen visibleFrame];
+			NSRect proposedFrame=_delegate?[_delegate windowWillUseStandardFrame:self defaultFrame:defaultFrame]:defaultFrame;	// allow delegate to modify
 #if 1
-				NSLog(@"default frame %@", NSStringFromRect(defaultFrame));
-				NSLog(@"delegate's frame %@", NSStringFromRect(proposedFrame));
+			NSLog(@"default frame %@", NSStringFromRect(defaultFrame));
+			NSLog(@"delegate's frame %@", NSStringFromRect(proposedFrame));
 #endif
-				proposedFrame=NSIntersectionRect(proposedFrame, defaultFrame);	// limit to screen
+			proposedFrame=NSIntersectionRect(proposedFrame, defaultFrame);	// limit to screen
 #if 1
-				NSLog(@"proposed frame %@", NSStringFromRect(proposedFrame));
+			NSLog(@"proposed frame %@", NSStringFromRect(proposedFrame));
 #endif
-				if(_delegate && ![_delegate windowShouldZoom:self toFrame:proposedFrame])
-					return;	// delegate did veto
-				_oldFrame=[self frame];	// remember current frame
+			if(_delegate && ![_delegate windowShouldZoom:self toFrame:proposedFrame])
+				return;	// delegate did veto
+			_oldFrame=[self frame];	// remember current frame
 #if 1
-				NSLog(@"old frame %@", NSStringFromRect(_oldFrame));
+			NSLog(@"old frame %@", NSStringFromRect(_oldFrame));
 #endif
-				[self setFrame:proposedFrame display:YES animate:YES];
-				_w.isZoomed=YES;	// setFrame did reset
-			}
+			[self setFrame:proposedFrame display:YES animate:YES];
+			_w.isZoomed=YES;	// setFrame did reset
+		}
 	else
 		[self setFrame:_oldFrame display:YES animate:YES];	// this will also reset _w.isZoomed flag
 }
@@ -2272,26 +2270,26 @@ static NSButtonCell *sharedCell;
 #endif
 	if(!(_w.styleMask & NSClosableWindowMask))
 		{											// self must have a close
-		NSBeep();									// button in order to be
-		return;										// closed
+			NSBeep();									// button in order to be
+			return;										// closed
 		}
 	if([_delegate respondsToSelector:@selector(windowShouldClose:)])
 		{											// if delegate responds to
-    	if(![_delegate windowShouldClose:self])		// windowShouldClose query
-			{										// it to see if it's ok to
-			NSBeep();								// close the window
-			return;									
-			}
+			if(![_delegate windowShouldClose:self])		// windowShouldClose query
+				{										// it to see if it's ok to
+					NSBeep();								// close the window
+					return;									
+				}
 		}
 	else
 		{
 		if([self respondsToSelector:@selector(windowShouldClose:)])
 			{										// else if self (i.e. a subclass of NSWindow) responds to
-			if(![self windowShouldClose:self])		// windowShouldClose query
-				{									// self to see if it's ok
-				NSBeep();							// to close self
-				return;								
-				}
+				if(![self windowShouldClose:self])		// windowShouldClose query
+					{									// self to see if it's ok
+						NSBeep();							// to close self
+						return;								
+					}
 			}
 		} 
 	[self close];									// it's ok to close self								
@@ -2349,48 +2347,48 @@ static NSButtonCell *sharedCell;
 #endif
 	if (_firstResponder == aResponder)				// if responder is already
 		return YES;									// first responder return Y
-
+	
 	if(!aResponder)
 		aResponder=self;	// nil makes us the first responder (e.g. if no initialFirstResponder is defined)
 	if (![aResponder isKindOfClass: __responderClass])
-			{
+		{
 #if 1
-				NSLog(@"not responder class");
+		NSLog(@"not responder class");
 #endif
 		return NO;									// not a responder return N
-			}
+		}
 	if (![aResponder acceptsFirstResponder])		
-			{
+		{
 #if 1
-				NSLog(@"does not accept status");
+		NSLog(@"does not accept status");
 		return NO;									// does not accept status
-			}
+		}
 #endif
 	if (_firstResponder)
 		{ // resign first responder status
-		NSResponder *first = _firstResponder;
-
-		_firstResponder = nil;
-		if (![first resignFirstResponder])			// the first responder must
-			{ // agree to resign
-			_firstResponder = first;	// did not!
+			NSResponder *first = _firstResponder;
+			
+			_firstResponder = nil;
+			if (![first resignFirstResponder])			// the first responder must
+				{ // agree to resign
+					_firstResponder = first;	// did not!
 #if 1
-				NSLog(@"previous did not resign");
+					NSLog(@"previous did not resign");
 #endif
-			return NO;
-			}
+					return NO;
+				}
 		}
 	
 	if (__cursorHidden)
 		[NSCursor unhide];
 	__cursorHidden = NO;
-
+	
 	if (_firstResponder == aResponder)				// in case resignFirstResponder already set
 		return YES;									// a new first responder
-
+	
 	if([(_firstResponder = aResponder) becomeFirstResponder])
 		return YES;									// Notify responder of it's	
-													// new status, make window
+	// new status, make window
 	_firstResponder = self;							// first if it refuses
 #if 1
 	NSLog(@"did finally refuse");
@@ -2408,8 +2406,8 @@ static NSButtonCell *sharedCell;
 
 - (NSEvent *) nextEventMatchingMask:(unsigned int)mask
 						  untilDate:(NSDate *)expiration
-						  inMode:(NSString *)mode
-						  dequeue:(BOOL)deqFlag
+							 inMode:(NSString *)mode
+							dequeue:(BOOL)deqFlag
 {
 	return [NSApp nextEventMatchingMask:mask 
 							  untilDate:expiration
@@ -2424,139 +2422,134 @@ static NSButtonCell *sharedCell;
 
 - (BOOL) shouldBeTreatedAsInkEvent:(NSEvent *) theEvent;
 { // permit ink-anywhere
-	_lastLeftHit=[_themeFrame hitTest:[theEvent locationInWindow]];	// cache
-	return [_lastLeftHit shouldBeTreatedAsInkEvent:theEvent];	// pass to view under pen (subview of theme frame)
+	return [[_themeFrame hitTest:[theEvent locationInWindow]] shouldBeTreatedAsInkEvent:theEvent];	// pass to view under pen (subview of theme frame)
 }
 
 - (void) sendEvent:(NSEvent *)event
 {
-	
+	NSView *hit;
 	if (!_w.cursorRectsValid)
 		[self resetCursorRects];
-
-	switch ([event type])
-    	{
-		case NSAppKitDefined:
-			{
+	
+	switch ([event type]) {
+		case NSAppKitDefined: {
 #if 1
-				NSLog(@"Event %@", event);
+			NSLog(@"Event %@", event);
 #endif
-				switch([event subtype])
-					{
-					case NSWindowExposedEventType:
-						{
-							NSRect rect={[event locationInWindow], {[event data1], [event data2] }};
-							NSDictionary *uinfo=[NSDictionary dictionaryWithObject:[NSValue valueWithRect:rect] forKey:@"NSExposedRect"];
+			switch([event subtype]) {
+				case NSWindowExposedEventType: {
+					NSRect rect={[event locationInWindow], {[event data1], [event data2] }};
+					NSDictionary *uinfo=[NSDictionary dictionaryWithObject:[NSValue valueWithRect:rect] forKey:@"NSExposedRect"];
 #if 1
-							NSLog(@"NSWindowExposedEventType %@", NSStringFromRect(rect));
+					NSLog(@"NSWindowExposedEventType %@", NSStringFromRect(rect));
 #endif
-							[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidExposeNotification
-																				object:self
-																			  userInfo:uinfo];
-							rect=[_themeFrame convertRect:rect fromView:nil];	// from window to theme frame (which uses flipped coordinates!)
-							[_themeFrame setNeedsDisplayInRect:rect];	// we know that we own the top-level view...
-							if(!_w.needsDisplay)
-								NSLog(@"window did expose but does not need to display? %@", self);
-							break;
-						}
+					[[NSNotificationCenter defaultCenter] postNotificationName:NSWindowDidExposeNotification
+																		object:self
+																	  userInfo:uinfo];
+					rect=[_themeFrame convertRect:rect fromView:nil];	// from window to theme frame (which uses flipped coordinates!)
+					[_themeFrame setNeedsDisplayInRect:rect];	// we know that we own the top-level view...
+					if(!_w.needsDisplay)
+						NSLog(@"window did expose but does not need to display? %@", self);
+					break;
+				}
 					// should this event ever arrive at a NSWindow???
-					case NSApplicationActivatedEventType:
-						{
-						[NSApp activateIgnoringOtherApps:YES];	// user has clicked: bring our application windows and menus to front
-						if (!_w.isKey)
-							[self makeKeyAndOrderFront:self];
-						break;
-						}
-					case NSApplicationDeactivatedEventType:
-						{
-						break;
-						}
-					case NSWindowMovedEventType:
-						{
-						NSLog(@"Window moved to %@", NSStringFromPoint([event locationInWindow]));
-						// update frame origin (so that location based events are synchronous)
-						break;
-						}
-					case NSScreenChangedEventType:
-						{
-						// check window geometry
-						}
-					}
-				break;
+				case NSApplicationActivatedEventType: {
+					[NSApp activateIgnoringOtherApps:YES];	// user has clicked: bring our application windows and menus to front
+					if (!_w.isKey)
+						[self makeKeyAndOrderFront:self];
+					break;
+				}
+				case NSApplicationDeactivatedEventType: {
+					break;
+				}
+				case NSWindowMovedEventType: {
+					NSLog(@"Window moved to %@", NSStringFromPoint([event locationInWindow]));
+					// update frame origin (so that location based events are synchronous)
+					break;
+				}
+				case NSScreenChangedEventType: {
+					// check window geometry
+				}
 			}
-
+			break;
+		}
+			
 		case NSLeftMouseDown:								// Left mouse down
 			if(!_w.visible || _w.ignoresMouseEvents)
 				break;			// we check if we are still visible (user may have clicked while we were ordering out)
 			if (__cursorHidden)
 				{ 
-				[NSCursor unhide]; 
-				__cursorHidden = NO; 
+					[NSCursor unhide]; 
+					__cursorHidden = NO; 
 				}
-//			_lastLeftHit = [_themeFrame hitTest:[event locationInWindow]];	// this assumes that we have already called shouldBeTreatedAsInkEvent!
-			NSDebugLog([_lastLeftHit description]);
+			hit = [_themeFrame hitTest:[event locationInWindow]];	// this assumes that we have already called shouldBeTreatedAsInkEvent!
+			NSDebugLog([hit description]);
 #if 0
 			NSLog(@"NSLeftMouseDown: %@", event);
 			NSLog(@"  locationInWindow=%@", NSStringFromPoint([event locationInWindow]));
 			NSLog(@"  _themeFrame=%@", _themeFrame);
-			NSLog(@"  _lastLeftHit=%@", _lastLeftHit);
+			NSLog(@"  hit=%@", hit);
 #endif
-			// FIXME: we should check for window movement and resize here so that we can honor [_lastleftHit mouseDownCanMoveWindow]
-
-			if((NSResponder *) _lastLeftHit != _firstResponder && [(NSResponder *) _lastLeftHit acceptsFirstResponder])
-				[self makeFirstResponder:_lastLeftHit];		// make hit view first responder if not already and if it accepts
+			// FIXME: we should check for window movement and resize here so that we can honor [hit mouseDownCanMoveWindow]
+			
+			if((NSResponder *) hit != _firstResponder && [(NSResponder *) hit acceptsFirstResponder])
+				[self makeFirstResponder:hit];		// make hit view first responder if not already and if it accepts
 			if(_w.isKey)
-				[_lastLeftHit mouseDown:event];
+				[hit mouseDown:event];
 			else
 				{ // first click makes it the key window unless the view asks for a delay
-				if(![_lastLeftHit shouldDelayWindowOrderingForEvent:event])
-					{
+					if(![hit shouldDelayWindowOrderingForEvent:event])
+						{
 #if 1
-					NSLog(@"first click results in makeKeyAndOrderFront");
+						NSLog(@"first click results in makeKeyAndOrderFront: %@", hit);
 #endif
-					[self makeKeyAndOrderFront:self];	// bring clicked window to front
-					}
-				else
-					[NSApp _setPendingWindow:self];		// register for delayed ordering
-				if([_lastLeftHit acceptsFirstMouse:event])
-					[_lastLeftHit mouseDown:event];
+						[self makeKeyAndOrderFront:self];	// bring clicked window to front
+						}
+					else
+						[NSApp _setPendingWindow:self];		// register for delayed ordering
+					if([hit acceptsFirstMouse:event])
+						[hit mouseDown:event];
+					else
+						NSLog(@"rejects first mouse: %@", hit);
 				}
 			break;
-
+			
 		case NSLeftMouseUp:									// Left mouse up
-					if(_w.ignoresMouseEvents)
-						break;
+			if(_w.ignoresMouseEvents)
+				break;
 #if 0
-			NSLog(@"NSLeftMouseUp %@", _lastLeftHit);
+			NSLog(@"NSLeftMouseUp %@", hit);
 #endif
 			if (__cursorHidden)
 				{ 
-				[NSCursor unhide]; 
-				__cursorHidden = NO;
+					[NSCursor unhide]; 
+					__cursorHidden = NO;
 				}
-			[_lastLeftHit mouseUp:event];
+			hit = [_themeFrame hitTest:[event locationInWindow]];	// this assumes that we have already called shouldBeTreatedAsInkEvent!
+			[hit mouseUp:event];
 			break;
-
+			
 		case NSRightMouseDown:								// Right mouse down
-					if(_w.ignoresMouseEvents)
-						break;
+			if(_w.ignoresMouseEvents)
+				break;
 			if (__cursorHidden)
 				{ [NSCursor unhide]; __cursorHidden = NO; }
-			_lastRightHit = [_themeFrame hitTest:[event locationInWindow]];
-			[_lastRightHit rightMouseDown:event];
+			hit = [_themeFrame hitTest:[event locationInWindow]];
+			[hit rightMouseDown:event];
 			break;
-
+			
 		case NSRightMouseUp:								// Right mouse up
-					if(_w.ignoresMouseEvents)
-						break;
+			if(_w.ignoresMouseEvents)
+				break;
 			if (__cursorHidden)
 				{ [NSCursor unhide]; __cursorHidden = NO; }
-			[_lastRightHit rightMouseUp:event];
+			hit = [_themeFrame hitTest:[event locationInWindow]];
+			[hit rightMouseUp:event];
 			break;
-
+			
 		case NSMouseMoved:									// Mouse moved
-					if(_w.ignoresMouseEvents)
-						break;
+			if(_w.ignoresMouseEvents)
+				break;
 			if (__cursorHidden)
 				{ [NSCursor unhide]; __cursorHidden = NO; }
 			if(_w.acceptsMouseMoved)
@@ -2564,26 +2557,27 @@ static NSButtonCell *sharedCell;
 				NSView *v = [_themeFrame hitTest:[event locationInWindow]];
 				[v mouseMoved:event];				// hit view passes event up
 				}									// responder chain to self
-												// if we accept mouse moved
+			// if we accept mouse moved
 			if(_w.cursorRectsEnabled)
 				[self mouseMoved:event];	// handle cursor
 			break;
-
+			
 		case NSLeftMouseDragged:									// Mouse moved
-					if(_w.ignoresMouseEvents)
-						break;
+			if(_w.ignoresMouseEvents)
+				break;
 #if 0
-			NSLog(@"NSLeftMouseDragged %@", _lastLeftHit);
+			NSLog(@"NSLeftMouseDragged %@", hit);
 #endif
-			[_lastLeftHit mouseDragged:event];
+			hit = [_themeFrame hitTest:[event locationInWindow]];
+			[hit mouseDragged:event];
 			break;
 			
 		case NSRightMouseDragged:									// Mouse moved
-			[_lastRightHit mouseDragged:event];
+			hit = [_themeFrame hitTest:[event locationInWindow]];
+			[hit mouseDragged:event];
 			break;
 			
-		case NSKeyDown:										// Key down
-			{
+		case NSKeyDown: {
 			__lastKeyDown = _firstResponder;	// save the first responder so that the key up goes to it and not a possible new first responder
 			if(!__cursorHidden)
 				{
@@ -2597,29 +2591,29 @@ static NSButtonCell *sharedCell;
 #endif
 			[_firstResponder keyDown:event];
 			break;
-			}
-
+		}
+			
 		case NSKeyUp:
 			if (__lastKeyDown)
 				[__lastKeyDown keyUp:event];		// send Key Up to object that got the key down
 			__lastKeyDown = nil;
 			break;
-
+			
 		case NSScrollWheel:
-					if(_w.ignoresMouseEvents)
-						break;
-		    [[_themeFrame hitTest:[event locationInWindow]] scrollWheel:event];
+			if(_w.ignoresMouseEvents)
+				break;
+			[[_themeFrame hitTest:[event locationInWindow]] scrollWheel:event];
 			break;
-
+			
 		case NSCursorUpdate:
 			if([event trackingNumber])						// a mouse entered
 				[(id)[event userData] push];				// push the cursor
 			else
 				[NSCursor pop];								// a mouse exited
-															// pop the cursor
+			// pop the cursor
 		default:
 			break;
-		}
+	}
 }
 
 - (BOOL) performKeyEquivalent:(NSEvent*)event
@@ -2645,11 +2639,11 @@ static NSButtonCell *sharedCell;
 
 - (void) dragImage:(NSImage *)anImage						// Drag and Drop
 				at:(NSPoint)baseLocation
-				offset:(NSSize)initialOffset
-				event:(NSEvent *)event
-				pasteboard:(NSPasteboard *)pboard
-				source:sourceObject
-				slideBack:(BOOL)slideFlag		{ BACKEND }
+			offset:(NSSize)initialOffset
+			 event:(NSEvent *)event
+		pasteboard:(NSPasteboard *)pboard
+			source:sourceObject
+		 slideBack:(BOOL)slideFlag		{ BACKEND }
 
 - (void) registerForDraggedTypes:(NSArray *)newTypes
 {
@@ -2672,7 +2666,7 @@ static NSButtonCell *sharedCell;
 {
 	if(_delegate && [_delegate respondsToSelector:@selector(draggingEntered:)])
 		return [_delegate draggingEntered:sender];
-
+	
 	return NSDragOperationNone;
 }
 
@@ -2686,7 +2680,7 @@ static NSButtonCell *sharedCell;
 {
 	if(_delegate && [_delegate respondsToSelector:@selector(draggingUpdated:)])
 		return [_delegate draggingUpdated:sender];
-
+	
 	return NSDragOperationNone;
 }
 
@@ -2695,7 +2689,7 @@ static NSButtonCell *sharedCell;
 	if(_delegate)
 		if ([_delegate respondsToSelector:@selector(performDragOperation:)])
 			return [_delegate performDragOperation:sender];
-
+	
 	return NO;
 }
 
@@ -2704,7 +2698,7 @@ static NSButtonCell *sharedCell;
 	if(_delegate)
 		if ([_delegate respondsToSelector:@selector(prepareForDragOperation:)])
 			return [_delegate prepareForDragOperation:sender];
-
+	
 	return NO;
 }
 
@@ -2712,14 +2706,14 @@ static NSButtonCell *sharedCell;
 					  returnType:(NSString *)returnType
 {
 	id result = nil;
-
+	
 	if (_delegate && [_delegate respondsToSelector: _cmd])
 		result = [_delegate validRequestorForSendType: sendType
-							returnType: returnType];
-
+										   returnType: returnType];
+	
 	if (result == nil)
 		result = [NSApp validRequestorForSendType: sendType 
-						returnType: returnType];
+									   returnType: returnType];
 	return result;
 }
 
@@ -2727,7 +2721,7 @@ static NSButtonCell *sharedCell;
 {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSString *key = [NSString stringWithFormat:@"NSWindow Frame %@",name];
-
+	
 	[defaults removeObjectForKey:key];
 	[defaults synchronize];
 	[__frameNames removeObjectForKey:name];
@@ -2737,13 +2731,13 @@ static NSButtonCell *sharedCell;
 {
 	if(!__frameNames)
 		__frameNames = [NSMutableDictionary new];
-
+	
 	if([__frameNames objectForKey:name])
 		return NO;
-
+	
 	ASSIGN(_frameSaveName, name);
 	[__frameNames setObject:self forKey:name];
-
+	
 	return YES;
 }
 
@@ -2751,11 +2745,11 @@ static NSButtonCell *sharedCell;
 
 - (void) saveFrameUsingName:(NSString *)name
 {
-NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-NSString *key = [NSString stringWithFormat:@"NSWindow Frame %@",name];
-		
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	NSString *key = [NSString stringWithFormat:@"NSWindow Frame %@",name];
+	
 	NSDebugLog(@"saveFrameUsingName %@\n",[NSValue valueWithRect:frame]);
-
+	
 	[defaults setObject:[NSValue valueWithRect:_frame] forKey:key];
 	[defaults synchronize];
 }
@@ -2765,13 +2759,13 @@ NSString *key = [NSString stringWithFormat:@"NSWindow Frame %@",name];
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSString *key = [NSString stringWithFormat:@"NSWindow Frame %@",name];
 	NSString *value = [defaults stringForKey:key];
-
+	
 	if(!value)
 		return NO;
-
+	
 	NSDebugLog(@"setFrameUsingName %@\n", value);
 	[self setFrameFromString: value];
-
+	
 	return YES;
 }
 
@@ -2788,7 +2782,7 @@ NSString *key = [NSString stringWithFormat:@"NSWindow Frame %@",name];
 	r.size.height = [[d objectForKey:@"height"] floatValue];
 	r.size.width = MIN(MAX(r.size.width, _minSize.width), _maxSize.width);
 	r.size.height = MIN(MAX(r.size.height, _minSize.height), _maxSize.height);
-
+	
 	if(_delegate)
 		{
 		if ([_delegate respondsToSelector:@selector(windowWillResize:toSize:)])
@@ -2818,10 +2812,10 @@ NSString *key = [NSString stringWithFormat:@"NSWindow Frame %@",name];
 	NSLog(@" frame %@", NSStringFromRect(frame));
 #endif
 	return [NSString stringWithFormat:@"%@ [%lu]: title=%@ frame=%@",
-		NSStringFromClass(isa),
-		[_context _windowNumber],
-		[self title],
-		NSStringFromRect(_frame)];
+			NSStringFromClass(isa),
+			[_context _windowNumber],
+			[self title],
+			NSStringFromRect(_frame)];
 }
 
 - (NSView *) initialFirstResponder			{ return _initialFirstResponder; }
@@ -2833,14 +2827,14 @@ NSString *key = [NSString stringWithFormat:@"NSWindow Frame %@",name];
 
 - (void) selectNextKeyView:(id)sender
 {
-id next;
-
+	id next;
+	
 	if(_firstResponder && _firstResponder != self)
 		next = [(NSView *)_firstResponder nextValidKeyView];
 	else
 		if((next = _initialFirstResponder) && ![next acceptsFirstResponder])
 			next = [(NSView *)_initialFirstResponder nextValidKeyView];
-
+	
 	if(next && [self makeFirstResponder:next])
 		{
 		if([next respondsToSelector:@selector(selectText:)])
@@ -2852,14 +2846,14 @@ id next;
 
 - (void) selectPreviousKeyView:(id)sender
 {
-id prev;
-
+	id prev;
+	
 	if(_firstResponder && _firstResponder != self)
 		prev = [(NSView *)_firstResponder previousValidKeyView];
 	else
 		if((prev = _initialFirstResponder) && ![prev acceptsFirstResponder])
 			prev = [(NSView *)_initialFirstResponder previousValidKeyView];
-
+	
 	if(prev && [self makeFirstResponder:prev])
 		{
 		if([prev respondsToSelector:@selector(selectText:)])
@@ -2890,9 +2884,9 @@ id prev;
 	[aCoder encodeRect:_frame];
 	[aCoder encodeObject:_themeFrame];
 	[aCoder encodeObject:_initialFirstResponder];
-//  [aCoder encodeObjectReference: _delegate withName:NULL];
+	//  [aCoder encodeObjectReference: _delegate withName:NULL];
 	[aCoder encodeValueOfObjCType:"i" at:&_windowNum];
-//	[aCoder encodeObject:_backgroundColor];
+	//	[aCoder encodeObject:_backgroundColor];
 	[aCoder encodeObject:_representedFilename];
 	[aCoder encodeObject:_miniWindowTitle];
 	[aCoder encodeObject:_windowTitle];
@@ -2920,74 +2914,73 @@ id prev;
 	static NSSize smallImage={ 15.0, 15.0 };
 	float button=[self _titleBarHeightForStyleMask:aStyle];	// adjust size
 	// set style dependent windget cell, i.e. brushed metal
-	switch(type)
-		{
-			case NSWindowCloseButton:
-				// CHECKME: do we already position the buttons here or have they all an NSZeroPoint origin?
-				b=[[_NSThemeCloseWidget alloc] initWithFrame:NSMakeRect(4.0, 0.0, button, button) forStyleMask:aStyle];
-				[b setAction:@selector(_close:)];
-				[b setEnabled:(aStyle&NSClosableWindowMask) != 0];
-				[b setImage:[NSImage imageNamed:@"NSWindowCloseButton"]];
-//				[b setTitle:@"x"];
-				[b setTitle:@""];
-				[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
-				break;
-			case NSWindowMiniaturizeButton:
-				b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(3.0+button, 0.0, button, button) forStyleMask:aStyle];
-				[b setAction:@selector(miniaturize:)];
-				[b setEnabled:(aStyle&NSMiniaturizableWindowMask) != 0];
-				[b setImage:[NSImage imageNamed:@"NSWindowMiniaturizeButton"]];
-//				[b setTitle:@"-"];
-				[b setTitle:@""];
-				[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
-				break;
-			case NSWindowZoomButton:
-				b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(2.0+2.0*button, 0.0, button, button) forStyleMask:aStyle];
-				[b setAction:@selector(zoom:)];
-				[b setEnabled:(aStyle&NSResizableWindowMask) != 0];
-				[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];
-//				[b setTitle:@"+"];
-				[b setTitle:@""];
-				[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
-				break;
-			case NSWindowToolbarButton:
-				b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(0.0, 0.125*button, 1.25*button, 0.75*button) forStyleMask:aStyle];	// we must adjust the origin when using this button!
-				[b setAction:@selector(toggleToolbarShown:)];
-				[b setEnabled:YES];
-				[b setBordered:YES];	// with bezel
-				[b setBezelStyle:NSRoundedBezelStyle];
-//				[b setImage:[NSImage imageNamed:@"NSWindowToolbarButton"]];
-//				[b setTitle:@"t"];
-				[b setTitle:@""];
-				[b setAutoresizingMask:NSViewMinXMargin|NSViewMinYMargin];
-				break;
-			case NSWindowDocumentIconButton:
-				b=[[NSThemeDocumentButton alloc] initWithFrame:NSMakeRect(2.0+3.0*button, 0.0, 100.0, button) forStyleMask:aStyle];	// we must adjust the width when using this button!
-				[b setEnabled:NO];
-				// somehow include us in handling move by clicking into the title bar except for D&D on the icon
-				[b setImagePosition:NSImageLeft];
-				[[b cell] setImageDimsWhenDisabled:NO];
-//				[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];	// FIXME: image alignment and text alignment do not work correctly for NSButtonCells
-				[b setTitle:@""];
-				// [b setTitle:@"notitle"];
-				[b setAlignment:NSCenterTextAlignment];
-				[[b cell] setLineBreakMode:NSLineBreakByTruncatingTail];
-				[b setAutoresizingMask:NSViewWidthSizable|NSViewMinYMargin];
-				break;
-		}
+	switch(type) {
+		case NSWindowCloseButton:
+			// CHECKME: do we already position the buttons here or have they all an NSZeroPoint origin?
+			b=[[_NSThemeCloseWidget alloc] initWithFrame:NSMakeRect(4.0, 0.0, button, button) forStyleMask:aStyle];
+			[b setAction:@selector(_close:)];
+			[b setEnabled:(aStyle&NSClosableWindowMask) != 0];
+			[b setImage:[NSImage imageNamed:@"NSWindowCloseButton"]];
+			//				[b setTitle:@"x"];
+			[b setTitle:@""];
+			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
+			break;
+		case NSWindowMiniaturizeButton:
+			b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(3.0+button, 0.0, button, button) forStyleMask:aStyle];
+			[b setAction:@selector(miniaturize:)];
+			[b setEnabled:(aStyle&NSMiniaturizableWindowMask) != 0];
+			[b setImage:[NSImage imageNamed:@"NSWindowMiniaturizeButton"]];
+			//				[b setTitle:@"-"];
+			[b setTitle:@""];
+			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
+			break;
+		case NSWindowZoomButton:
+			b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(2.0+2.0*button, 0.0, button, button) forStyleMask:aStyle];
+			[b setAction:@selector(zoom:)];
+			[b setEnabled:(aStyle&NSResizableWindowMask) != 0];
+			[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];
+			//				[b setTitle:@"+"];
+			[b setTitle:@""];
+			[b setAutoresizingMask:NSViewMaxXMargin|NSViewMinYMargin];
+			break;
+		case NSWindowToolbarButton:
+			b=[[_NSThemeWidget alloc] initWithFrame:NSMakeRect(0.0, 0.125*button, 1.25*button, 0.75*button) forStyleMask:aStyle];	// we must adjust the origin when using this button!
+			[b setAction:@selector(toggleToolbarShown:)];
+			[b setEnabled:YES];
+			[b setBordered:YES];	// with bezel
+			[b setBezelStyle:NSRoundedBezelStyle];
+			//				[b setImage:[NSImage imageNamed:@"NSWindowToolbarButton"]];
+			//				[b setTitle:@"t"];
+			[b setTitle:@""];
+			[b setAutoresizingMask:NSViewMinXMargin|NSViewMinYMargin];
+			break;
+		case NSWindowDocumentIconButton:
+			b=[[NSThemeDocumentButton alloc] initWithFrame:NSMakeRect(2.0+3.0*button, 0.0, 100.0, button) forStyleMask:aStyle];	// we must adjust the width when using this button!
+			[b setEnabled:NO];
+			// somehow include us in handling move by clicking into the title bar except for D&D on the icon
+			[b setImagePosition:NSImageLeft];
+			[[b cell] setImageDimsWhenDisabled:NO];
+			//				[b setImage:[NSImage imageNamed:@"NSWindowZoomButton"]];	// FIXME: image alignment and text alignment do not work correctly for NSButtonCells
+			[b setTitle:@""];
+			// [b setTitle:@"notitle"];
+			[b setAlignment:NSCenterTextAlignment];
+			[[b cell] setLineBreakMode:NSLineBreakByTruncatingTail];
+			[b setAutoresizingMask:NSViewWidthSizable|NSViewMinYMargin];
+			break;
+	}
 	if(aStyle & NSUtilityWindowMask)
+		{
+		NSImage *i=[[b image] copy];
+		if(i)
 			{
-				NSImage *i=[[b image] copy];
-				if(i)
-						{
-							// [b setFrameSize:small];
-							[i setSize:smallImage];	// scale copy of button image
-							[i setScalesWhenResized:YES];
-							[b setImage:i];	// store a copy
-							[i release];
-							[b setNeedsDisplay:YES];
-						}
+			// [b setFrameSize:small];
+			[i setSize:smallImage];	// scale copy of button image
+			[i setScalesWhenResized:YES];
+			[b setImage:i];	// store a copy
+			[i release];
+			[b setNeedsDisplay:YES];
 			}
+		}
 	return [b autorelease];
 }
 
@@ -3128,11 +3121,11 @@ id prev;
 	if([tv popUpMode])
 		[tv popUpOverflowMenu:(id) sender];
 	else
-			{
-				NSToolbar *tb=[tv toolbar];
-				if(tb)
-					[tb setVisible:![tb isVisible]];	// toggle visibility
-			}
+		{
+		NSToolbar *tb=[tv toolbar];
+		if(tb)
+			[tb setVisible:![tb isVisible]];	// toggle visibility
+		}
 }
 
 - (void) runToolbarCustomizationPalette:(id)sender

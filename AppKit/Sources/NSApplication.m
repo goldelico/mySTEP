@@ -1011,39 +1011,31 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (NSEvent*) _eventMatchingMask:(unsigned int)mask dequeue:(BOOL)dequeue
 {
-	int i, cnt;
 	[_mainWindow flushWindow];	// this will enqueue any pending events
-	cnt=[_eventQueue count];
 #if 0
 	NSLog(@"_eventMatchingMask");
 #endif
-	if(_app.windowsNeedUpdate)		// needs to send an update message to all visible windows
+	if(mask)
 		{
-			static long skipped=0;	// remember when the first redraw request was skipped
-			if(cnt <= 1 || (skipped != 0 && (time(NULL) > skipped+1)))
-				{ // queue is empty or we didn't redraw for more than one second
-					skipped=0;
-					[self updateWindows];	// FIXME: should not be called during NSEventTrackingRunLoopMode!
-				}
-			else if(skipped == 0)
-				skipped=time(NULL);	// remember that we did skip
-		}
-	if(!mask)
-		return nil;	// no event will match
-	for (i = 0; i < cnt; i++)							// return next event
-		{												// in the queue which
-		NSEvent *e = [_eventQueue objectAtIndex:i];		// matches mask
-		if((mask == NSAnyEventMask) || (mask & NSEventMaskFromType([e type]))) 
-			{
-			[e retain];	// save across removeObjectAtIndex
-			if(dequeue)
-				[_eventQueue removeObjectAtIndex:i];
+		int i, cnt;
+		cnt=[_eventQueue count];
+		for (i = 0; i < cnt; i++) 
+			{ // return next event in the queue which matches mask
+				NSEvent *e = [_eventQueue objectAtIndex:i];
+				if((mask == NSAnyEventMask) || (mask & NSEventMaskFromType([e type]))) 
+					{
+					[e retain];	// save across removeObjectAtIndex
+					if(dequeue)
+						[_eventQueue removeObjectAtIndex:i];
 #if 0
-			NSLog(@"_eventMatchingMask found");
+					NSLog(@"_eventMatchingMask found");
 #endif
-			return [e autorelease];		// return an event from the queue which matches the mask
+					return [e autorelease];		// return an event from the queue which matches the mask
+					}
 			}
 		}
+	if(_app.windowsNeedUpdate)	// needs to send an update message to all visible windows
+		[self updateWindows];	// FIXME: according to doc this should not be called during NSEventTrackingRunLoopMode! But then, we don't get window updates???
 #if 0
 	NSLog(@"_eventMatchingMask no event found");
 #endif
@@ -1592,6 +1584,9 @@ NSWindow *w;
 
 - (void) setWindowsNeedUpdate:(BOOL)flag
 {
+#if 1
+	NSLog(@"setWindowsNeedUpdate: %d", flag);
+#endif
 	_app.windowsNeedUpdate = flag;
 }
 
@@ -1607,9 +1602,12 @@ NSWindow *w;
 
 - (void) updateWindows
 { // send an update message to all visible windows
-#if 0
+	static long lastupdate=0;	// remember when the last update did take place
+#if 1
 	NSLog(@"updateWindows");
 #endif
+	if([_eventQueue count] >= 3 && time(NULL) < lastupdate+1)
+		return;	// throttle redrawing by ignoring for a moment
 	{
 	NSArray *_windowList = [self windows];
 	int i, count = [_windowList count];
@@ -1630,12 +1628,13 @@ NSWindow *w;
 		if([w isVisible])
 			{ // send to visible windows only
 			[w update];	// update this window
-			_app.windowsNeedUpdate |= [w viewsNeedDisplay];	// might still or again need update!
+			_app.windowsNeedUpdate |= [w viewsNeedDisplay];	// might still or again need an update!
 			}
 		[w flushWindow];	// might have pending mapping and other events
 		}
 	[[NSNotificationCenter defaultCenter] postNotificationName:NOTICE(DidUpdate) object:self];	// notify that update did occur
 	}
+	lastupdate=time(NULL);	// remember when we did the last update				
 #if 0
 	NSLog(@"updateWindows done");
 #endif

@@ -156,8 +156,6 @@ typedef NSUInteger NSWindowCollectionBehavior;
 	NSString *_windowTitle;
 	NSString *_miniWindowTitle;
 	NSImage *_miniWindowImage;
-    NSView *_lastLeftHit;
-    NSView *_lastRightHit;
 	NSScreen *_screen;
 	NSGraphicsContext *_context;	// our context
 	NSMutableArray *_trackRects;
