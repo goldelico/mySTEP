@@ -791,7 +791,8 @@ static NSMutableArray *tileLRU;
 	NSLog(@"setVisibleMapRect:%@", MKStringFromMapRect(rect));
 #endif
 	//	rect=[self mapRectThatFits:rect edgePadding:insets];
-//	[delegate mapView:self regionWillChangeAnimated:flag];
+	if([delegate respondsToSelector:@selector(mapView:regionWillChangeAnimated:)])
+		[delegate mapView:self regionWillChangeAnimated:flag];
 	if(flag)
 		{
 		// animate by defining a timer and the delta
@@ -799,7 +800,8 @@ static NSMutableArray *tileLRU;
 	visibleMapRect=rect;
 	[self setNeedsDisplay:YES];
 	[self setVisibleMapRect:rect];
-//	[delegate mapView:self regionDidChangeAnimated:flag];
+	if([delegate respondsToSelector:@selector(mapView:regionDidChangeAnimated:)])
+		[delegate mapView:self regionDidChangeAnimated:flag];
 }
 
 - (void) setVisibleMapRect:(MKMapRect) rect edgePadding:(UIEdgeInsets) insets animated:(BOOL) flag;
