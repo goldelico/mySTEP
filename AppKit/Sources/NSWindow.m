@@ -1867,7 +1867,6 @@ static NSButtonCell *sharedCell;
 #if 0
 	NSLog(@"frameRectForContentRect -> %@", NSStringFromRect(cRect));
 #endif
-	// FIXME: add toolbar height
 	// scale by userspace factor
 	return cRect;
 }
@@ -1886,15 +1885,16 @@ static NSButtonCell *sharedCell;
 	[self setFrame:[self frameRectForContentRect:r] display:_w.visible];
 }
 
+// FIXME: handle childWindows (in setFrame/setFrameOrigin?)
+
 - (void) setFrameTopLeftPoint:(NSPoint)aPoint
 {
-	[self setFrameOrigin:NSMakePoint(aPoint.x, aPoint.y-_frame.size.height)];
+	[self setFrameOrigin:NSMakePoint(aPoint.x, aPoint.y-[self _titleBarHeightForStyleMask:_w.styleMask]-_frame.size.height)];
 }
-
-// FIXME: handle childWindows
 
 - (void) setFrameOrigin:(NSPoint)aPoint
 {
+	// FIXME: apply screen limits here???
 	if(!NSEqualPoints(aPoint, _frame.origin))
 		{
 		NSRect r={aPoint, _frame.size};
@@ -1908,6 +1908,7 @@ static NSButtonCell *sharedCell;
 #if 0
 	NSLog(@"setFrame:%@ display:%d", NSStringFromRect(r), flag);
 #endif
+	// FIXME: apply screen limits here???
 	if(!NSEqualSizes(r.size, _frame.size))
 		{ // resize (and move)
 			[_context _setOriginAndSize:r];	// set origin since we must "move" in X11 coordinates even if we resize only
