@@ -24,6 +24,12 @@
 @class NSString;
 @class NSNotification;
 
+typedef enum NSTaskTerminationReason
+{
+	NSTaskTerminationReasonExit				= 1,
+	NSTaskTerminationReasonUncaughtSignal	= 2
+} NSTaskTerminationReason;
+
 
 @interface NSTask : NSObject
 {
@@ -42,7 +48,8 @@
 		unsigned int hasTerminated:1;
         unsigned int hasCollected:1;
         unsigned int hasNotified:1;
-        unsigned int reserved:4;
+        unsigned int hasTerminatedBySignal:1;
+        unsigned int reserved:3;
     } _task;
 }
 
@@ -72,6 +79,7 @@
 - (BOOL) suspend;
 - (void) terminate;
 - (int) terminationStatus;
+- (NSTaskTerminationReason) terminationReason;
 - (void) waitUntilExit;
 
 @end

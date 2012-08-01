@@ -60,8 +60,13 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 		_task.hasCollected = YES;
 		_task.hasTerminated = YES;
 		
-		if (WIFEXITED(_terminationStatus)) 
-			_terminationStatus = WEXITSTATUS(_terminationStatus);
+		if (WIFSIGNALED(_terminationStatus))
+			{
+			_task.hasTerminatedBySignal=YES;
+			_terminationStatus = WTERMSIG(_terminationStatus);		// replace by signal number
+			}
+		else if (WIFEXITED(_terminationStatus)) 
+			_terminationStatus = WEXITSTATUS(_terminationStatus);	// replace by exit status
 		}
 	
 	if (_task.hasTerminated && !_task.hasNotified)
@@ -249,6 +254,12 @@ NSString *NSTaskDidTerminateNotification = @"NSTaskDidTerminateNotification";
 					format: @"NSTask - could not collect termination status"];
 
     return _terminationStatus;
+}
+
+- (NSTaskTerminationReason) terminationReason;
+{
+	[self terminationStatus];	// may collect
+	return _task.hasTerminatedBySignal?NSTaskTerminationReasonUncaughtSignal:NSTaskTerminationReasonExit;
 }
 
 static int getfd(NSTask *self, id object, BOOL read, int def)
