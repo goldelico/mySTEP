@@ -106,7 +106,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSString *err;
 	NSString *cmd=[NSString stringWithFormat:@"ATD%@;", number];	// initiate a voice call
 	[mm runATCommand:@"AT+COLP=1"];	// report phone number and make ATD blocking
-#if 1	// Run before sretting up the call. Modem mutes all voice signals if we do that *during* a call
+#if 1	// Run before setting up the call. Modem mutes all voice signals if we do that *during* a call
 	[mm runATCommand:@"AT_OPCMENABLE=1"];
 	[mm runATCommand:@"AT_OPCMPROF=0"];	// default "handset"
 	[mm runATCommand:@"AT+VIP=0"];
@@ -140,9 +140,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	return nil;	// not successfull
 }
 
-- (BOOL) sendSMS:(NSString *) number message:(NSString *) message;
-{
-	// send a SMS
+- (BOOL) sendSMS:(NSString *) message toNumber:(NSString *) message;
+{ // send a SMS
+	// AT+CMGS="91234567"<CR>Sending text messages is easy.<Ctrl+z>
 	return NO;
 }
 
@@ -150,7 +150,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 // und letzter triggert nach Timeout den ersten
 // also eine polling-queue
 
-- (void) timer
+- (void) poll
 { // timer triggered commands
 	[[CTModemManager modemManager] runATCommand:@"AT_OBLS"];	// get SIM status (removed etc.)
 	// wait for being processed
@@ -158,6 +158,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	// wait for being processed
 	[[CTModemManager modemManager] runATCommand:@"AT_ONCI?"];	// neighbouring base stations
 	// wait for being processed
+	[[CTModemManager modemManager] runATCommand:@"AT+CMGL=\"REC UNREAD\""];	// received SMS
+	// process +CMGL: responses
+	// [delegate callCenter:self didReceiveSMS:(NSString *) message fromNumber:(NSString *) sender attributes:(NSDictionary *) dict];
+	// Dabei könnte ein NSDict mit aller Zusatzinfo (Uhrzeit - Achtung TimeZone ist in 15min-Schritten, AT+CSDH=1) mitgegeben werden.
+	// same for cell broadcasts (?) AT+CPMS="BM"
 }
 
 @end

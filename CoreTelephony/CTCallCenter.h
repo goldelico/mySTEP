@@ -13,7 +13,8 @@
 // extension
 
 @protocol CTCallCenterDelegate
-- (BOOL) handleCallEvent:(CTCall *) call;	// should ring and -accept/-discard etc. depending on -callState
+- (BOOL) callCenter:(CTCallCenter *) center handleCall:(CTCall *) call;	// should ring and -accept/-discard etc. depending on -callState
+- (void) callCenter:(CTCallCenter *) center didReceiveSMS:(NSString *) message fromNumber:(NSString *) sender attributes:(NSDictionary *) dict;
 @end
 
 @interface CTCallCenter : NSObject
@@ -36,6 +37,6 @@
 - (void) setDelegate:(id <CTCallCenterDelegate>) d;
 
 - (CTCall *) dial:(NSString *) number;	/* allows +, *, # and spaces within numbers */
-- (BOOL) sendSMS:(NSString *) number message:(NSString *) message;
+- (BOOL) sendSMS:(NSString *) message toNumber:(NSString *) message;
 
 @end
