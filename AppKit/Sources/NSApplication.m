@@ -1536,7 +1536,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		NSMenuItem *item;
 
 		while((item = [e nextObject]))
-			{ // bring to front all windows int the menu
+			{ // bring to front all windows in the menu
 			NSWindow *w = [item target];
 			if ((w != _keyWindow) && (w != _mainWindow) && ![w isExcludedFromWindowsMenu])
 				{

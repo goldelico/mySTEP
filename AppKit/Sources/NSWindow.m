@@ -1889,7 +1889,7 @@ static NSButtonCell *sharedCell;
 
 - (void) setFrameTopLeftPoint:(NSPoint)aPoint
 {
-	[self setFrameOrigin:NSMakePoint(aPoint.x, aPoint.y-[self _titleBarHeightForStyleMask:_w.styleMask]-_frame.size.height)];
+	[self setFrameOrigin:NSMakePoint(aPoint.x, aPoint.y-[NSWindow _titleBarHeightForStyleMask:_w.styleMask]-_frame.size.height)];
 }
 
 - (void) setFrameOrigin:(NSPoint)aPoint

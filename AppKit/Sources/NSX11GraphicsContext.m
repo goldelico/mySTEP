@@ -55,16 +55,12 @@
 #import "NSPasteboard.h"
 
 #define USE_XRENDER 0
+#define USE_XRENDER_GLYPHSTORE 0
 
 #if 1	// all windows are borderless, i.e. the frontend draws the title bar and manages windows directly
 #define WINDOW_MANAGER_TITLE_HEIGHT 0
 #else
 #define WINDOW_MANAGER_TITLE_HEIGHT 23	// number of pixels added by window manager - the content view is moved down by that amount
-#endif
-
-#if __linux__	// this is needed for Sharp Zaurus (only) to detect the hinge status
-#include <sys/ioctl.h>
-#define SCRCTL_GET_ROTATION 0x413c
 #endif
 
 static BOOL _doubleBufferering=YES;
@@ -3486,46 +3482,12 @@ static NSDictionary *_x11settings;
 #if 0
 			NSLog(@"_screen2X11=%@", (NSAffineTransform *) _screen2X11);
 #endif
-			// FIXME: this is very Zaurus-specific
-			// maybe, we should require the Core Motion framework and ask there?
 #if 0
 			if(XDisplayString(_display)[0] == ':' ||
 			   strncmp(XDisplayString(_display), "localhost:", 10) == 0)
 				{ // local server
-					static int fd=-1;
-					int r;
-					if(fd < 0)
-						fd=open("/dev/apm_bios", O_RDWR|O_NONBLOCK);
-					if(fd < 0)
-						NSLog(@"Failed to open /dev/apm_bios");
-					else
-						{
-						r=ioctl(fd, SCRCTL_GET_ROTATION);
-#if 1
-						NSLog(@"hinge state=%d", r);
-#endif
-						switch(r) {
-							case -1:
-								break;	// unsupported ioctl
-							default:
-								NSLog(@"unknown hinge state %d", r);
-								break;
-							case 3:	// Case Closed
-								break;
-							case 2:	// Case open & portrait
-							{ // swap x and y
-								// what if we should now apply a different scaling factor?
-								{ unsigned xh=_xRect.width; _xRect.width=_xRect.height; _xRect.height=xh; }
-								{ float h=size.height; size.height=size.width; size.width=h; }
-								{ float h=resolution.height; resolution.height=resolution.width; resolution.width=h; }
-								[(NSAffineTransform *) _screen2X11 rotateByDegrees:90.0];
-								break;
-							}
-							case 0:	// Case open & landscape
-								break;
-						}
-						}
-					// setup a timer to verify/update the deviceDescription every now and then
+					// setup a timer to verify/update the deviceDescription/orientation every now and then
+					// based on CoreMotion values
 				}
 #endif
 			if(XQueryExtension(_display, "Apple-WM", &major_opcode_return, &first_event_return, &first_error_return))
