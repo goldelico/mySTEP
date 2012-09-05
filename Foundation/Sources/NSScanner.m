@@ -435,17 +435,15 @@
         return NO;
       	}
 	
+	saveScanLocation = scanRange.location;	// save exponent location
 	if ((scanRange.location < len) && ((c == 'e') || (c == 'E')))
 		{									// Check for trailing exponent
-			int exp;							// Numbers like 1.23eFOO are 
-			scanRange.location++;				// rejected.
+			int exp;							// Numbers like 1.23eFOO ignore the e character 
+			scanRange.location++;
 			if (![self _scanInt: &exp])
-				{
 				scanRange.location = saveScanLocation;
-				return NO;
-				}
 			
-			if (num)							// Check for exponent overflow
+			else if (num)							// Check for exponent overflow
 				{
 				if ((exponent > 0) && (exp > (LONG_MAX - exponent)))
 					exponent = LONG_MAX;
