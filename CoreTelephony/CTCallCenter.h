@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class CTCall;
+@class CTCallCenter;
 
 // extension
 

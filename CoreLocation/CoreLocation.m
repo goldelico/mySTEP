@@ -420,8 +420,9 @@ static int startW2SG;
 	NSLog(@"unregisterManager: %@", m);
 #endif
 	[managers removeObjectIdenticalTo:m];
-	if([managers count] == 0)
-		{ // stop GPS receiveer
+	if(managers && [managers count] == 0)
+		{ // was last consumer; stop GPS receiveer
+			[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel startup timer
 			[[NSNotificationCenter defaultCenter] removeObserver:self
 															name:NSFileHandleReadCompletionNotification
 														  object:file];	// don't observe any more
@@ -430,6 +431,7 @@ static int startW2SG;
 			NSLog(@"Location: file closed");
 #endif
 			[file release];
+			file=nil;
 			[managers release];
 			managers=nil;		
 			[modes release];

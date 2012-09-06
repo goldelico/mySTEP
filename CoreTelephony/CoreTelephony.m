@@ -140,7 +140,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	return nil;	// not successfull
 }
 
-- (BOOL) sendSMS:(NSString *) message toNumber:(NSString *) message;
+- (BOOL) sendSMS:(NSString *) message toNumber:(NSString *) number;
 { // send a SMS
 	// AT+CMGS="91234567"<CR>Sending text messages is easy.<Ctrl+z>
 	return NO;
@@ -552,7 +552,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				if([call _callState] == kCTCallStateDialing)
 					{ // found the call that was dialling
 						[call _setCallState:kCTCallStateDisconnected];	// well, it was busy
-						[[[CTCallCenter callCenter] delegate] handleCallEvent:call];	// notify through CallCenter
+						[[[CTCallCenter callCenter] delegate] callCenter:[CTCallCenter callCenter] handleCall:call];	// notify through CallCenter
 						break;
 					}
 			}
@@ -568,7 +568,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				if([call _callState] == kCTCallStateDialing)
 					{ // found the call that was dialling
 						[call _setCallState:kCTCallStateDisconnected];	// well, it was rejected
-						[[[CTCallCenter callCenter] delegate] handleCallEvent:call];	// notify through CallCenter
+						[[[CTCallCenter callCenter] delegate] callCenter:[CTCallCenter callCenter] handleCall:call];	// notify through CallCenter
 						break;
 					}
 				if([call _callState] == kCTCallStateConnected)
@@ -577,7 +577,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 						// error handling?
 						[[CTModemManager modemManager] runATCommand:@"AT_OPCMENABLE=0"];	// disable PCM clocks to save some energy
 						[call _setCallState:kCTCallStateDisconnected];
-						[[[CTCallCenter callCenter] delegate] handleCallEvent:call];	// notify through CallCenter
+						[[[CTCallCenter callCenter] delegate] callCenter:[CTCallCenter callCenter] handleCall:call];	// notify through CallCenter
 						break;
 					}
 			}
@@ -597,7 +597,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 				if([call _callState] == kCTCallStateDialing)
 					{ // found the call that was dialling
 					[call _setCallState:kCTCallStateConnected];
-					[[[CTCallCenter callCenter] delegate] handleCallEvent:call];	// notify through CallCenter
+					[[[CTCallCenter callCenter] delegate] callCenter:[CTCallCenter callCenter] handleCall:call];	// notify through CallCenter
 					break;
 					}
 			}
@@ -786,6 +786,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (NSSet *) networks;
 { // list of networks being available
+	if(currentNetwork)
+		return [NSSet setWithObject:currentNetwork];	// we can at least report the current network...
+	return [NSSet set];
 	// geht auch ohne PIN
 	// ask AT+COPS=? - blockiert sehr lange (30-60 Sekunden)
 	// +COPS: (1,"E-Plus","E-Plus","26203",0),(2,"o2 - de","o2 - de","26207",2),(1,"E-Plus","E-Plus","26203",2),(1,"T-Mobile D","TMO D","26201",0),(1,"o2 - de","o2 - de","26207",0),(1,"Vodafone.de","voda DE","26202",0),(1,"Vodafone.de","voda DE","26202",2),(1,"T-Mobile D","TMO D","26201",2),,(0,1,2,3,4),(0,1,2)	

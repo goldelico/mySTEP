@@ -289,12 +289,16 @@ static unsigned int _sequence;	// global sequence number
  *   receivePort of the same class
  *
  * in summary: send/receive does not refer to the transmission direction of
- *   the underlaying NSPortMessages
+ *   the underlaying NSPortMessages but for distributed object messages
  */
 
 - (id) initWithReceivePort:(NSPort *)receivePort
 				  sendPort:(NSPort *)sendPort;
 {
+#if 1	// disable DO
+	[self release];
+	return nil;
+#endif
 #if 0
 	NSLog(@"NSConnection -initWithReceivePort:%@ sendPort:%@", receivePort, sendPort);
 	NSLog(@"existing connections: %@", [NSConnection allConnections]);

@@ -11,6 +11,8 @@
 #ifndef __CLExtenstions__
 #define __CLExtenstions__
 
+#define NSBlockHandler _NSBlockHandler	// avoid name conflicts on some Mac OS X versions
+
 // provides classes n/a on Mac OS X (10.6)
 
 #import <MapKit/CLHeading.h>

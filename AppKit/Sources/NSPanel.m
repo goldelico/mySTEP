@@ -211,7 +211,8 @@ static id _NSGetAlertPanel(NSString *icon,
 		[m setAlignment: NSLeftTextAlignment];
 		[m setStringValue: (message ? message : @"")];
 		[m setFont: [NSFont systemFontOfSize: 9.0]];
-		[m setWraps:YES];
+		[[m cell] setWraps:YES];
+	// FIXME: Panel height should be adjusted to message
 		[cv addSubview: m];
 		[m release];
 		// create title field

@@ -412,57 +412,16 @@ extern int system(const char *cmd);
 - (NSString *) _getiw:(NSString *) parameter;
 { // call iwconfig or iwlist or iwgetid
 	return [self _get:@"iwgetid" parameter:[NSString stringWithFormat:@"--raw --%@", parameter]];
-#if OLD
-	NSString *cmd=[NSString stringWithFormat:@"iwgetid '%@' --raw --%@", _name, parameter];
-	FILE *f=popen([cmd UTF8String], "r");
-	char line[512]="";
-	if(!f)
-		return nil;
-	fgets(line, sizeof(line)-1, f);
-	pclose(f);
-#if 1
-	NSLog(@"%@: %@", parameter, [[NSString stringWithCString:line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]);
-#endif
-	return [[NSString stringWithCString:line] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-#endif
 }
 
 - (NSString *) _getiwlist:(NSString *) parameter;
 { // call iwconfig
 	return [self _get:@"iwlist" parameter:parameter];
-#if OLD
-	NSString *cmd=[NSString stringWithFormat:@"iwlist '%@' %@", _name, parameter];
-	FILE *f=popen([cmd UTF8String], "r");
-	char line[512];
-	unsigned int n;
-	if(!f)
-		return nil;
-	n=fread(line, 1, sizeof(line)-1, f);
-	pclose(f);
-#if 1
-	NSLog(@"%@: %@", parameter, [[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]);
-#endif
-	return [[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-#endif
 }
 
 - (NSString *) _getiwconfig;
 { // call iwconfig
 	return [self _get:@"iwconfig" parameter:@""];
-#if OLD
-	NSString *cmd=[NSString stringWithFormat:@"iwconfig '%@'", _name];
-	FILE *f=popen([cmd UTF8String], "r");
-	char line[512];
-	unsigned int n;
-	if(!f)
-		return nil;
-	n=fread(line, 1, sizeof(line)-1, f);
-	pclose(f);
-#if 1
-	NSLog(@"%@", [[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]);
-#endif
-	return [[NSString stringWithCString:line length:n] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-#endif
 }
 
 - (BOOL) associateToNetwork:(CWNetwork *) network parameters:(NSDictionary *) params error:(NSError **) err;
