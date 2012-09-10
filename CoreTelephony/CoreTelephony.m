@@ -143,6 +143,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (BOOL) sendSMS:(NSString *) message toNumber:(NSString *) number;
 { // send a SMS
 	// AT+CMGS="91234567"<CR>Sending text messages is easy.<Ctrl+z>
+	// +CMS ERROR: 304
+	
 	return NO;
 }
 
