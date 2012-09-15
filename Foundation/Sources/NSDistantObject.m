@@ -347,13 +347,19 @@ static Class _doClass;
 	NSLog(@"[NSDistantObject methodSignatureForSelector:\"%@\"]", NSStringFromSelector(aSelector));
 #endif
 	if(_local)
+		{
 		ret=[_local methodSignatureForSelector:aSelector];	// ask local object for its signature
+		if(!ret)
+			NSLog(@"local object does not define @selector(%@): %@", NSStringFromSelector(aSelector), _local);
+		}
 	else if(_protocol)
 		{ // ask protocol
-#if 0
+#if 1
 			NSLog(@"[NSDistantObject methodSignatureForSelector:] _protocol=%s", [_protocol name]);
 #endif
 			md=[_protocol descriptionForInstanceMethod:aSelector];	// ask protocol for the signature
+			if(!md)
+				NSLog(@"@protocol %s does not define @selector(%@)", [_protocol name], NSStringFromSelector(aSelector));
 		}
 	else
 		{	// we must ask the peer for a methodDescription
@@ -382,6 +388,8 @@ static Class _doClass;
 			if(md)
 				md->types=translateSignatureFromNetwork(md->types);
 #endif
+			if(!md)
+				NSLog(@"peer does not know methodSignatureForSelector:@selector(%@)", NSStringFromSelector(aSelector));
 		}
 	if(md)
 		{
@@ -409,65 +417,7 @@ static Class _doClass;
 
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
-#if 1
 	return [self methodSignatureForSelector:aSelector] != nil;	// it is very likely that we will call this method, so let's cache the NSMethodSignature
-#else
-	BOOL ret;
-#if 1
-	NSLog(@"[NSDistantObject respondsToSelector:\"%@\"]", NSStringFromSelector(aSelector));
-#endif
-	if(!aSelector) return NO;
-	if([_selectorCache objectForKey:NSStringFromSelector(aSelector)])
-		{
-#if 1
-		NSLog(@"cached: %@", NSStringFromSelector(aSelector));
-#endif
-		return YES;	// known from cache		
-		}
-	if([@protocol(NSObject) descriptionForInstanceMethod:aSelector])
-		{ // simply assume that all methods from NSObject protocol are implemented
-#if 1
-			NSLog(@"defined in <NSObject> protocol");
-#endif
-			return YES;	// this is a method of NSDistantObject		
-		}
-	// check for NSObject protocol only, i.e. return NO for e.g. -connectionForProxy or -descriptionWithLocale: !!!
-	if(0 && class_get_instance_method([NSDistantObject class], aSelector) != METHOD_NULL)
-		{
-#if 1
-		NSLog(@"method of NSDistantObject");
-#endif
-		return YES;	// this is a method of NSDistantObject		
-		}
-	if(_local)
-		{
-#if 1
-		NSLog(@"ask wrapped local object");
-#endif
-		return [_local respondsToSelector:aSelector];	// ask local object if it responds
-		}
-	if(_protocol)
-		{ // ask protocol
-			struct objc_method_description *md;
-#if 0
-			NSLog(@"[NSDistantObject respondsToSelector:] _protocol=%s", [_protocol name]);
-#endif
-			md=[_protocol descriptionForInstanceMethod:aSelector];	// ask protocol for the signature
-			// FIXME:				ret=[NSMethodSignature signatureWithObjCTypes:md->types];
-			return (md != NULL);
-		}
-	else
-		{	// we must cast this call into an NSInvocation and forward to the peer
-			// FIXME: Cocoa refuses to handle this selector on NSDistantObject
-			NSInvocation *i=[NSInvocation invocationWithMethodSignature:[_selectorCache objectForKey:@"respondsToSelector:"]];
-			[i setTarget:self];
-			[i setSelector:_cmd];
-			[i setArgument:&aSelector atIndex:2];
-			[_connection sendInvocation:i internal:YES];
-			[i getReturnValue:&ret];
-		}
-	return ret;
-#endif
 }
 
 - (Class) classForCoder; { return _doClass; }	// for compatibility

@@ -697,7 +697,7 @@
 			name = Predicates;
 			sourceTree = "<group>";
 		};
-		EE52D6F20B8EEF870093595A /* Distributed Objects */ = {
+		EE52D6F20B8EEF870093595A /* Portable Distributed Objects */ = {
 			isa = PBXGroup;
 			children = (
 				EEA32EED09537D0C001244CF /* NSConnection.h */,
@@ -719,7 +719,7 @@
 				EEA32F3A09537D0D001244CF /* NSProxy.h */,
 				EEA32F3B09537D0D001244CF /* NSProxy.m */,
 			);
-			name = "Distributed Objects";
+			name = "Portable Distributed Objects";
 			sourceTree = "<group>";
 		};
 		EE52D6F30B8EEFEC0093595A /* Files & Paths & Streams */ = {
@@ -966,7 +966,7 @@
 				EE52D6ED0B8EEF1B0093595A /* Coding & Serialization */,
 				EE52D6EE0B8EEF280093595A /* Container */,
 				EE52D6F00B8EEF540093595A /* Data&Strings */,
-				EE52D6F20B8EEF870093595A /* Distributed Objects */,
+				EE52D6F20B8EEF870093595A /* Portable Distributed Objects */,
 				EE52D6F30B8EEFEC0093595A /* Files & Paths & Streams */,
 				EE52D6F40B8EEFF40093595A /* Formatters */,
 				EE52D6F80B8EF08A0093595A /* KVC & KVO */,

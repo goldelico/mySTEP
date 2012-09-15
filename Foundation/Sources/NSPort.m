@@ -221,7 +221,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 - (void) scheduleInRunLoop:(NSRunLoop *)runLoop
 				   forMode:(NSString *)mode;
 {
-#if 0
+#if 1
 	NSLog(@"+++ scheduleInRunLoop:%@ forMode:%@ - %@", runLoop, mode, self);
 #endif
 	[runLoop _addInputWatcher:self forMode:mode];
@@ -255,14 +255,14 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 		[NSException raise:NSInvalidSendPortException format:@"invalidated: %@", self];
 	if(!receivePort)
 		return NO;	// raise exception? Or can we even send in this case?
-//	if(![receivePort _bindAndListen])	// receive port wasn't bound to a file or socket yet - bind before connect for self-connections
+//	if(![receivePort _bindAndListen])	// receive port wasn't bound to a file or socket yet (should happen only for NSMessagePorts)
 //		return NO;
 	if(_sendfd < 0 && ![self _connect])	// we are not yet connected
 		return NO;
 	_sendData=[NSPortMessage _machMessageWithId:msgid forSendPort:self receivePort:receivePort components:components];	// convert to data block
 	if(!_sendData)
 		[NSException raise:NSPortSendException format:@"could not convert data to machMessage"];
-	[_sendData retain];	// NSRunLoop may autorelease pools until everything is sent!
+	[_sendData retain];	// NSRunLoop may autorelease pools before everything is sent! Will be released in _writeFileDescriptorReady
 #if 0
 	NSLog(@"send length=%u data=%@ to fd=%d", [_sendData length], _sendData, _sendfd);
 #endif
@@ -350,7 +350,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 				NSLog(@"%@: could not bind due to %s", self, strerror(errno));
 				return NO;
 				}
-#if 0
+#if 1
 			NSLog(@"bound %@", self);
 #endif
 			if(_address.addr.ss_family != AF_UNIX)
@@ -369,8 +369,8 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 				NSLog(@"%@: could not listen due to %s", self, strerror(errno));
 				return NO;
 				}
-#if 0
-			NSLog(@"listening");
+#if 1
+			NSLog(@"listening %@", self);
 #endif
 			_isBound=YES;
 		}
@@ -396,7 +396,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 		return;
 		}
 	if(_fd >= 0)
-		{ // listening was successfull
+		{ // listening was successful
 			struct sockaddr_storage ss;	// FIXME: is this large enough for AF_UNIX?
 			socklen_t saddrlen=sizeof(ss);
 			NSRunLoop *loop=[NSRunLoop currentRunLoop];
@@ -405,9 +405,10 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 			int newfd;
 			short family;
 			if(!_isBound)
-				{
-#if 0
+				{ // someone has scheduled this socket but it is not yet bound
+#if 1
 				NSLog(@"not yet bound & listening:%@", self);
+				[self _bindAndListen];
 				return;
 #endif
 				}
@@ -416,7 +417,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 #endif
 			memset(&ss, 0, saddrlen);			// clear completely before using
 			newfd=accept(_fd, (struct sockaddr *) &ss, &saddrlen);
-#if 0
+#if 1
 			NSLog(@"accepted on fd=%d newfd=%d salen=%d", _fd, newfd, saddrlen);
 #endif
 			if(newfd < 0)
@@ -730,7 +731,7 @@ static unsigned _portDirectoryLength;
 }
 
 - (NSData *) address;
-{ // not officilly defined by the @interface but we need it to encode the socket
+{ // not officilly defined by the @interface but we need it to encode the socket; returns the basename only
 	NSData *d;
 	int l=_address.addrlen-_portDirectoryLength-1;
 	if(l < 0) l=0;
@@ -817,6 +818,7 @@ static unsigned _portDirectoryLength;
 		}
 	n=[name mutableCopy];	// make autoreleased mutable copy
 	[n replaceOccurrencesOfString:@"%" withString:@"%%" options:0 range:NSMakeRange(0, [name length])];
+	// FIXME: it could be sufficient to check for names beginning with .
 	[n replaceOccurrencesOfString:@"." withString:@"%." options:0 range:NSMakeRange(0, [name length])];	// prevent using .. to try harmful things
 	[n replaceOccurrencesOfString:@"/" withString:@"%-" options:0 range:NSMakeRange(0, [name length])];	// prevent using / to create or overwrite other files
 #if 0

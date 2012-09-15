@@ -41,13 +41,14 @@
 + (id) JSONObjectWithStream:(NSInputStream *) stream options:(NSJSONReadingOptions) opt error:(NSError **) error;
 {
 	// read stream to data and convert
-	// use new stream based PListSerialization methods
-	return nil;
+	// or use new stream based PListSerialization methods
+	return NIMP;
 }
 
 + (NSInteger) writeJSONObject:(id) obj toStream:(NSOutputStream *) stream options:(NSJSONWritingOptions) opt error:(NSError **) error;
 {
 	// get data and write to stream
+	NIMP;
 	return nil;
 }
 

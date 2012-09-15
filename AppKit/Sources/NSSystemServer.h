@@ -16,7 +16,7 @@
 #import <AppKit/NSSound.h>
 #import <AppKit/NSWorkspace.h>
 
-@protocol _NSApplicationRemoteControlProtocol	// basic communication of workspace server with any application
+@protocol _NSApplicationRemoteControlProtocol	// basic communication of workspace server with any application - implemented in NSApplication
 
 - (BOOL) _application:(in NSApplication *) app openURLs:(in bycopy NSArray *) urls withOptions:(in bycopy NSWorkspaceLaunchOptions) opts;	// handle open
 - (void) activate;
@@ -59,11 +59,6 @@
 - (oneway void) stop:(byref NSSound *) sound;
 - (BOOL) isPlaying:(byref NSSound *) sound;
 
-	/* global window list / window levels */
-
-// - (int []) windowList;
-// - (int []) windowsAtLevel:(int) level;
-
 	/* request&cancel user attention for a given application */
 
 - (int) requestUserAttention:(NSRequestUserAttentionType) requestType forApplication:(byref NSApplication *) app;
@@ -73,7 +68,10 @@
 
 - (oneway void) startInkingAtScreenPosition:(NSPoint) point pressure:(float) pressure;	// calls back [app postEvent:] with keyboard events
 
+	/* input methods */
+
 - (oneway void) enableASR:(BOOL) flag;	// enable/disable automatic speech recognition
+- (oneway void) enableHWR:(BOOL) flag;	// enable/disable handwriting
 - (oneway void) enableOCR:(BOOL) flag;	// enable/disable OCR
 - (oneway void) enableVKBD:(BOOL) flag;	// enable/disable virtual keyboard
 

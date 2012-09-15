@@ -495,19 +495,20 @@
 	NSLog(@"NSInovcation _initWithMethodSignature:%@ andArgFrame:%p", aSignature, argFrame);
 #endif
 #if 1
-	{
-	int i;
-	for(i=0; i<18+[aSignature frameLength]/4; i++)
-		{ // print stack
-			NSString *note=@"";
-			if(&((void **)argFrame)[i] == ((void **)argFrame)[0]) note=[note stringByAppendingString:@"<<- link "];
-//			if(((void **)argFrame)[i] == target) note=[note stringByAppendingString:@"self "];
-//			if(((void **)argFrame)[i] == selector) note=[note stringByAppendingString:@"_cmd "];
-			if(((void **)argFrame)[i] == (argFrame+0x28)) note=[note stringByAppendingString:@"argp "];
-			if(((void **)argFrame)[i] == argFrame) note=[note stringByAppendingString:@"link ->> "];
-			NSLog(@"arg[%2d]:%08x %+3d %3d %08x %12ld %@", i, &(((void **)argFrame)[i]), 4*i, ((char *)&(((void **)argFrame)[i]))-(((char **)argFrame)[0]), ((void **)argFrame)[i], ((void **)argFrame)[i], note);
-		}	
-	}
+	if(argFrame)
+		{
+		int i, imax=18+[aSignature frameLength]/4;
+		for(i=0; i<imax; i++)
+			{ // print stack
+				NSString *note=@"";
+				if(&((void **)argFrame)[i] == ((void **)argFrame)[0]) note=[note stringByAppendingString:@"<<- link "];
+				//			if(((void **)argFrame)[i] == target) note=[note stringByAppendingString:@"self "];
+				//			if(((void **)argFrame)[i] == selector) note=[note stringByAppendingString:@"_cmd "];
+				if(((void **)argFrame)[i] == (argFrame+0x28)) note=[note stringByAppendingString:@"argp "];
+				if(((void **)argFrame)[i] == argFrame) note=[note stringByAppendingString:@"link ->> "];
+				NSLog(@"arg[%2d]:%08x %+3d %3d %08x %12ld %@", i, &(((void **)argFrame)[i]), 4*i, ((char *)&(((void **)argFrame)[i]))-(((char **)argFrame)[0]), ((void **)argFrame)[i], ((void **)argFrame)[i], note);
+			}	
+		}
 #endif
 	if(!aSignature)
 		{ // missing signature

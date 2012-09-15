@@ -129,7 +129,7 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 	return nil;
 }
 
-@interface _NSMutableAttributedStringProxy : NSMutableString
+@interface NSMutableStringProxyForMutableAttributedString : NSMutableString
 { // returned by [astring mutableString]
 	NSMutableAttributedString *_astring;	// original
 }
@@ -138,7 +138,7 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 
 @end
 
-@implementation _NSMutableAttributedStringProxy	// this is a subclass of NSMutableString and implements all methods as a wrapper
+@implementation NSMutableStringProxyForMutableAttributedString	// this is a subclass of NSMutableString and implements all methods as a wrapper
 
 + (id) allocWithZone:(NSZone *) z
 {
@@ -159,7 +159,7 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 
 - (id) copyWithZone:(NSZone *) zone
 {
-	return [[_astring string] retain];	// convert us to a "normal" NSString
+	return [[_astring string] retain];	// convert us to an immutable NSString
 }
 
 - (void) dealloc
@@ -168,7 +168,8 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 	[super dealloc];	// this is NSMutableString's dealloc
 }
 
-// to make this wrapper work completely, all getter methods (e.g. capitalizedString, intValue, componentsSeparatedByString, etc. of NSString must be based on some primitives!
+// FIXME: to make this wrapper work completely, all getter methods (e.g. capitalizedString, intValue,
+// compare, componentsSeparatedByString, etc. of NSString must be based on some primitives that are wrappers here!
 
 - (unichar) characterAtIndex:(NSUInteger) index; { return [[_astring string] characterAtIndex:index]; }
 - (NSUInteger) length; { return [[_astring string] length]; }
@@ -579,7 +580,7 @@ NSString *newSubstring;
 	return newAttrString;
 }
 
-- (NSMutableString *) mutableString			{ return [[[_NSMutableAttributedStringProxy alloc] initWithAttributedString:self] autorelease]; }
+- (NSMutableString *) mutableString			{ return [[[NSMutableStringProxyForMutableAttributedString alloc] initWithAttributedString:self] autorelease]; }
 - (void) beginEditing						{ return; }
 - (void) endEditing							{ return; }
 

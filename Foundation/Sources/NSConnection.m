@@ -295,7 +295,7 @@ static unsigned int _sequence;	// global sequence number
 - (id) initWithReceivePort:(NSPort *)receivePort
 				  sendPort:(NSPort *)sendPort;
 {
-#if 1	// disable DO
+#if 0	// disable DO
 	[self release];
 	return nil;
 #endif
