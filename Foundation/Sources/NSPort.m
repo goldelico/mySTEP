@@ -408,7 +408,10 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 				{ // someone has scheduled this socket but it is not yet bound
 #if 1
 				NSLog(@"not yet bound & listening:%@", self);
-				[self _bindAndListen];
+					// FIXME: how and when is this unbound/_unlinked?
+					// would it be better not to schedule a socket that is not bound?
+//				[self _bindAndListen];	// NO: bind may create a named socket file in /tmp/.QuantumSTEP which is never deleted
+				[loop _removeInputWatcher:self forMode:[loop currentMode]];	// unschedule if not bound
 				return;
 #endif
 				}
