@@ -177,8 +177,10 @@ static MKMapRect worldMap;	// visible map rect at z=0 (topmost tile)
 
 #define CACHESIZE 100
 
-static NSMutableDictionary *imageCache;
-static NSMutableArray *tileLRU;
+static NSMutableDictionary *imageCache;		// tile cache (shared between multiple MKMapViews!)
+static NSMutableArray *tileLRU;				// LRU list (duplicates entries of imageCache!)
+
+static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared between multiple MKMapViews!)
 
 + (void) initialize
 {
@@ -201,8 +203,10 @@ static NSMutableArray *tileLRU;
 #endif
 		worldMap.size.width=topRight.x - worldMap.origin.x;
 		worldMap.size.height=topRight.y - worldMap.origin.y;
+		
 		imageCache=[[NSMutableDictionary alloc] initWithCapacity:CACHESIZE];
 		tileLRU=[[NSMutableArray alloc] initWithCapacity:CACHESIZE];
+		reuseQueue=[[NSMutableDictionary alloc] initWithCapacity:10];
 		}
 }
 
@@ -500,36 +504,37 @@ static NSMutableArray *tileLRU;
 			[self _drawTileForZ:z x:x y:y intoRect:rect load:YES];
 		}
 	// FIXME: should we have some flag to update only if any annotation or visibleMapRect changes?
-	/* draw annotations and overlays (not here - they are handled through subviews) */
-	// but we should check annotations / annotation views if they are still visible
-
-	// make sure they are not drawn more than needed!!! There may be several 100 of them...
-	
 	e=[annotations objectEnumerator];
 	while((a=[e nextObject]))
-		{ // update annotation subviews (will be drawn by AppKit after our -drawRect: did end)
+		{ // update annotation subviews (will be drawn automatically by AppKit after our -drawRect: did end)
 			MKAnnotationView *aView=[self viewForAnnotation:a];	// may be nil
 			MKMapPoint pos=MKMapPointForCoordinate([a coordinate]);
 			BOOL visible=MKMapRectContainsPoint(visibleMapRect, pos);	// if center is within visible rect
-			// general FIXME: remove subviews if they are no longer needed!
 			if(aView && !visible)
 				{ // became invisible
-					[aView setHidden:YES];
-					// here we may put it into the reuse queue for [a reuseIdentifier]
-#if 0	// if we have no reuse queue we must keep the link
-					NSMapRemove(viewForAnnotation, a);
-#endif
+					NSString *ident=[aView reuseIdentifier];
+					NSMapRemove(viewForAnnotation, a);	// remove mapping
+					if(ident)
+						{ // put in reuse queue (if enabled)
+							NSMutableArray *cells=[reuseQueue objectForKey:ident];
+							if(!cells)
+								{ // identifier is seen for the first time
+									cells=[NSMutableArray arrayWithCapacity:5];
+									[reuseQueue setObject:cells forKey:ident];
+								}
+							// FIXME: should we limit the total length of the reuse Queue?
+							// It may overflow if mapView:viewForAnnotation: does not (correctly) call dequeueReusableAnnotationViewWithIdentifier
+							[cells addObject:aView];
+						}
+					[aView removeFromSuperview];	// and remove a subview
 				}
-#if 1	// unless we have the reuse queue
-			if(aView && visible)
-				{ // became visible (again)
-					[aView setHidden:NO];
-				}
-#endif
 			if(!aView && visible)
 				{ // became visible for the first time
+					// FIXME: what happens if mapView:viewForAnnotation: does not (correctly) call dequeueReuseable....? It will finally fill our cache!!!
 					if([delegate respondsToSelector:@selector(mapView:viewForAnnotation:)])
-						aView=[delegate mapView:self viewForAnnotation:a];	// let delegate provide a new annotation view, potentially reused
+						aView=[delegate mapView:self viewForAnnotation:a];	// let delegate provide a new annotation view, or one from the reuseQUeue
+					if(!aView)
+						aView=[self dequeueReusableAnnotationViewWithIdentifier:@"PinAnnotation"];	// check if we have queued one
 					if(!aView)	// default
 						aView=[[[MKPinAnnotationView alloc] initWithAnnotation:a reuseIdentifier:@"PinAnnotation"] autorelease];	// create a fresh one
 					[self addSubview:aView];	// makes us the superview
@@ -544,11 +549,15 @@ static NSMutableArray *tileLRU;
 				origin=[self _pointForMapPoint:pos];
 				// handle centerOffset of annotation view!
 				[aView setFrameOrigin:origin];	// move to current location
+				[aView setNeedsDisplay:YES];
 				/* drawing of the subviews will be done automatically after this drawRect */
 				}
 		}
-	// FIXME: almost same code for Overlays - but checks for intersection of visibleMapRect with overlay rect (so that it does not disappear if the coordinate is not visible)
-	// pass zoom scale
+	// FIXME: almost same code for Overlays - but
+	//  -- checks for intersection of visibleMapRect with overlay rect (so that it does not disappear if the coordinate is not visible)
+	//  -- does not know about reuseIdentifiers and therefore has no queue
+	//  -- i.e. we control visibility through setHidden:
+	//  -- and we have to pass the correct zoom scale value
 }
 
 - (void) addAnnotation:(id <MKAnnotation>) a; { [annotations addObject:a]; [self setNeedsDisplay:YES]; }
@@ -589,8 +598,9 @@ static NSMutableArray *tileLRU;
 
 - (NSRect) convertRegion:(MKCoordinateRegion) region toRectToView:(UIView *) view;
 {
-	/* FIXME: this is not well defined since there is no MKMapRectForCoordinateRegion function - and the rect becomes distorted
-	 We may have to take the center of the region and apply the span uniformly
+	/* FIXME: this is not well defined since there is no MKMapRectForCoordinateRegion function
+	 * and the rect becomes distorted
+	 * We may have to take the center of the region and apply the span uniformly
 	 
 	 MKMapRect rect=MKMapRectForCoordinateRegion(region);
 	 NSRect r=[self _rectForMapRect:rect];	// map to point
@@ -602,11 +612,16 @@ static NSMutableArray *tileLRU;
 - (id <MKMapViewDelegate>) delegate; { return delegate; }
 
 - (MKAnnotationView *) dequeueReusableAnnotationViewWithIdentifier:(NSString *) ident;
-{ // not yet implemented
-	// can we have multiple views with same ident?
-	// if yes, we need a NSDictionary with NSMutableArray entries
-	// this method looks if we have such an identifier
-	return nil;
+{ // this implements despite its name not really a Queue (FIFO) but a LIFO
+	NSMutableArray *cells=[reuseQueue objectForKey:ident];
+	MKAnnotationView *cell=[cells lastObject];
+	if(cell)
+		{
+		[cell retain];
+		[cells removeLastObject];
+		[cell autorelease];
+		}
+	return cell;
 }
 
 - (void) deselectAnnotation:(id <MKAnnotation>) a animated:(BOOL) flag;
@@ -620,7 +635,7 @@ static NSMutableArray *tileLRU;
 { // search 
 	NSUInteger idx=[overlays indexOfObject:sibling];
 	if(idx == NSNotFound)
-		; // raise exception
+		[NSException raise:NSInvalidArgumentException format:@"aboveOverlay not found: %@", sibling]; // raise exception
 	[self insertOverlay:o atIndex:idx+1];
 }
 
@@ -630,7 +645,7 @@ static NSMutableArray *tileLRU;
 { // search  
 	NSUInteger idx=[overlays indexOfObject:sibling];
 	if(idx == NSNotFound)
-		; // raise exception
+		[NSException raise:NSInvalidArgumentException format:@"belowOverlay not found: %@", sibling]; // raise exception
 	[self insertOverlay:o atIndex:idx];
 }
 

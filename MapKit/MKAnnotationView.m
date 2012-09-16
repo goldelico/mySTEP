@@ -108,7 +108,8 @@
 {
 	if(self=[super initWithAnnotation:a reuseIdentifier:ident])
 		{
-		[self setImage:[NSImage imageNamed:@"flag_32"]];
+		NSString *path=[[NSBundle bundleForClass:[self class]] pathForResource:@"flag_32" ofType:@"png"];
+		[self setImage:[[[NSImage alloc] initWithContentsOfFile:path] autorelease]];
 		// set offet so that flag point is at the right position
 		[self setDraggable:NO];	
 		}
@@ -123,8 +124,9 @@
 - (void) drawRect:(NSRect) rect
 {
 	CLLocationCoordinate2D pos=[annotation coordinate];
+	// FIXME: does not work doe to clipping to rect (image size)
 	if(0 && [annotation isKindOfClass:[MKUserLocation class]])
-		{ // general pin annotations don't know accuracy
+		{ // only the user location knows its accuracy
 		CLLocation *loc=[(MKUserLocation *) annotation location];
 		float accuracy=[loc horizontalAccuracy];	// meters
 		//	[(MKUserLocation *) annotation isUpdating];
