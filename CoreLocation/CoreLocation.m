@@ -176,6 +176,41 @@ static CLHeading *newHeading;
 	NSLog(@"init");
 	if((self=[super init]))
 		{
+		NSString *portName=NSStringFromClass([self class]);
+		NSPort *server=[NSMessagePort port];	// create a new port where we try to vend our-self
+		NSConnection *connection;
+		int i;
+		for(i=0; i<2; i++)
+			{ // the first attempt to register the port may fail in case of a stale port
+			if(![[NSMessagePortNameServer sharedInstance] registerPort:server name:portName])
+				{ // failed to register - some server appears to be already running
+					[self release];
+					self=nil;
+					NS_DURING
+						connection=[NSConnection connectionWithRegisteredName:portName host:nil];
+						[connection setReplyTimeout:5.0];
+						self=(id)[connection rootProxy];
+					NS_HANDLER	// if the port was stale, retry to register ourselves
+						NSLog(@"could not connect - should try again at least once");
+						continue;	// try again
+					NS_ENDHANDLER
+					NSLog(@"CLLocationManager client %@", portName);
+				}
+			else
+				{
+				connection=[NSConnection connectionWithReceivePort:server sendPort:nil];
+				[connection setRootObject:self];	// vend our own services
+#if 0	// TEST if second registration fails
+				server=[NSMessagePort port];	// make another one
+				if(![[NSMessagePortNameServer sharedInstance] registerPort:server name:/*@"other"*/portName])	// try again on same name
+					NSLog(@"failed");	// registering the same name again should fail!
+				else
+					NSLog(@"succeeded");
+#endif
+				NSLog(@"CLLocationManager server %@", portName);			
+				}
+			break;
+			}
 		}
 	return self;
 }
@@ -250,7 +285,7 @@ static NSMutableArray *satelliteInfo;
 
 @implementation CLLocationManager (Extensions)
 
-+ (int) numberOfReceivedSatellites;
+- (int) numberOfReceivedSatellites;
 { // count all satellites with SNR > 0
 	NSEnumerator *e=[satelliteInfo objectEnumerator];
 	NSDictionary *s;
@@ -261,42 +296,42 @@ static NSMutableArray *satelliteInfo;
 	return numReceivedSatellites;
 }
 
-+ (int) numberOfReliableSatellites;
+- (int) numberOfReliableSatellites;
 {
 	return numReliableSatellites;	
 }
 
-+ (int) numberOfVisibleSatellites;
+- (int) numberOfVisibleSatellites;
 {
 	return numVisibleSatellites;
 }
 
-+ (CLLocationSource) source;
+- (CLLocationSource) source;
 {
-	// this is very GTA04 specific
+	// this implementation is very GTA04 specific
 	if([[NSString stringWithContentsOfFile:@"/sys/devices/virtual/gpio/gpio144/value"] boolValue])
 		return CLLocationSourceGPS | CLLocationSourceExternalAnt;
 	return CLLocationSourceGPS;
 }
 
-+ (NSDate *) satelliteTime
+- (NSDate *) satelliteTime
 {
 	return satelliteTime;
 }
 
-+ (NSArray *) satelliteInfo
+- (NSArray *) satelliteInfo
 {
 	return satelliteInfo;
 }
 
-+ (void) WLANseen:(NSString *) bssid;
+- (void) WLANseen:(NSString *) bssid;
 {
-	
+	// use if no GPS is available
 }
 
-+ (void) WWANseen:(NSString *) cellid;
+- (void) WWANseen:(NSString *) cellid;
 {
-	
+	// use if no GPS is available
 }
 
 @end

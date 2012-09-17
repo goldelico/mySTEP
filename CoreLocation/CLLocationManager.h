@@ -113,13 +113,13 @@ typedef enum _CLLocationSource
 	CLLocationSourceExternalAnt	= 1<<15,
 } CLLocationSource;
 
-+ (CLLocationSource) source;
-+ (int) numberOfReceivedSatellites;
-+ (int) numberOfReliableSatellites;
-+ (int) numberOfVisibleSatellites;
-+ (NSDate *) satelliteTime;
-+ (NSArray *) satelliteInfo;	// NSDictionaries
-+ (void) WLANseen:(NSString *) bssid;
-+ (void) WWANseen:(NSString *) cellid;
+- (CLLocationSource) source;
+- (int) numberOfReceivedSatellites;
+- (int) numberOfReliableSatellites;
+- (int) numberOfVisibleSatellites;
+- (bycopy NSDate *) satelliteTime;
+- (bycopy NSArray *) satelliteInfo;	// NSDictionaries with strings
+- (void) WLANseen:(NSString *) bssid;
+- (void) WWANseen:(NSString *) cellid;
 
 @end
