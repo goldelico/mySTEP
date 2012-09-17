@@ -9,6 +9,8 @@
 #import <MapKit/MKOverlayPathView.h>
 
 @interface MKPolygonView : MKOverlayPathView
+- (id) initWithPolygon:(MKPolygon *) polygon;
+- (MKPolygon *) polygon;
 @end
 
 // EOF

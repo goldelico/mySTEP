@@ -24,6 +24,8 @@
 - (void) setSubtitle:(NSString *) str;
 - (void) setTitle:(NSString *) str;
 
+- (CLLocationManager *) locationManager;
+
 @end
 
 // EOF

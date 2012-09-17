@@ -9,6 +9,8 @@
 #import <MapKit/MKOverlayPathView.h>
 
 @interface MKPolylineView : MKOverlayPathView
+- (id) initWithPolyline:(MKPolyline *) polyline;
+- (MKPolyline *) polyline;
 @end
 
 // EOF

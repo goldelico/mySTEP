@@ -18,9 +18,13 @@
 #define CGRect NSRect
 #endif
 
+#if defined(__mySTEP__)
+typedef NSGraphicsContext *CGContextRef;
+#endif
+
 @interface MKOverlayView : UIView
 {
-	id <MKOverlay> _overlay;
+	/* @property (nonatomic, readonly) */ id <MKOverlay> _overlay;
 }
 
 CGFloat MKRoadWidthAtZoomScale(MKZoomScale zoom);

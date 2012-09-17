@@ -63,6 +63,7 @@
 - (NSString *) title; { return title; }
 
 - (CLLocation *) location; { return location; }
+- (CLLocationManager *) locationManager; { return manager; }
 - (BOOL) isUpdating; { return YES; }
 - (void) setSubtitle:(NSString *) str; { [subtitle autorelease]; subtitle=[str retain]; }
 - (void) setTitle:(NSString *) str; { [title autorelease]; title=[str retain]; }

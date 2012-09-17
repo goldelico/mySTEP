@@ -480,6 +480,7 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 	
 	NSEnumerator *e;
 	NSObject <MKAnnotation> *a;
+	NSObject <MKOverlay> *o;
 	
 	[[NSColor controlColor] set];
 	NSRectFill(rect);	// draw grey background
@@ -545,19 +546,48 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 				}
 			if(visible)
 				{
-				NSPoint origin;
-				origin=[self _pointForMapPoint:pos];
-				// handle centerOffset of annotation view!
-				[aView setFrameOrigin:origin];	// move to current location
-				[aView setNeedsDisplay:YES];
+				NSRect frame=[aView frame];
+	//			CGPoint offset=[aView centerOffset];
+				frame.origin=[self _pointForMapPoint:pos];
+				frame.origin.x-=0.5*NSWidth(frame);	// center the annotation
+				frame.origin.y-=0.5*NSHeight(frame);
+	//			frame.origin.x+=offset.x;
+	//			frame.origin.y+=offset.y;
+				[aView setFrame:frame];	// move to current location
 				/* drawing of the subviews will be done automatically after this drawRect */
 				}
 		}
-	// FIXME: almost same code for Overlays - but
-	//  -- checks for intersection of visibleMapRect with overlay rect (so that it does not disappear if the coordinate is not visible)
-	//  -- does not know about reuseIdentifiers and therefore has no queue
-	//  -- i.e. we control visibility through setHidden:
-	//  -- and we have to pass the correct zoom scale value
+	e=[overlays objectEnumerator];
+	while((o=[e nextObject]))
+		{ // update overlay views (Annotations will be drawn over the overlay)
+			MKOverlayView *oView=[self viewForOverlay:o];	// may be nil
+			BOOL visible=[o intersectsMapRect:visibleMapRect];	// if center is within visible rect
+			if(oView && !visible)
+				{ // became invisible
+					NSMapRemove(viewForOverlay, o);	// remove mapping
+					[oView removeFromSuperview];	// and remove as subview
+				}
+			if(!oView && visible)
+				{ // became visible for the first time
+					// FIXME: what happens if mapView:viewForOverlay: does not (correctly) call dequeueReuseable....? It will finally fill our cache!!!
+					if([delegate respondsToSelector:@selector(mapView:viewForOverlay:)])
+						oView=[delegate mapView:self viewForOverlay:o];	// let delegate provide a new annotation view, or one from the reuseQUeue
+					if(oView)
+						{
+						[self addSubview:oView];	// makes us the superview
+						// should collect before notifying the delegate		[delegate mapView:self didAddAnnotationViews:[NSArray arrayWithObject:aView]];
+						if(!viewForOverlay)
+							viewForOverlay=NSCreateMapTable(NSNonRetainedObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 10);
+						NSMapInsert(viewForOverlay, o, oView);	// and remember						
+						}
+				}
+			if(visible)
+				{ // draw overlay
+					// how to get zoom scale?
+					// how to translate the drawRect to a mapRect?
+				[oView drawMapRect:visibleMapRect zoomScale:1.0 inContext:(CGContextRef) [[NSGraphicsContext currentContext] graphicsPort]];
+				}
+		}
 }
 
 - (void) addAnnotation:(id <MKAnnotation>) a; { [annotations addObject:a]; [self setNeedsDisplay:YES]; }
@@ -621,6 +651,7 @@ static 	NSMutableDictionary *reuseQueue;	// MKAnnotationView reuse queue (shared
 		[cells removeLastObject];
 		[cell autorelease];
 		}
+	[cell prepareForReuse];
 	return cell;
 }
 

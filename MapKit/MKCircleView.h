@@ -9,9 +9,8 @@
 #import <MapKit/MKOverlayPathView.h>
 
 @interface MKCircleView : MKOverlayPathView
-{
-}
-
+- (id) initWithCircle:(MKCircle *) circle;
+- (MKCircle *) circle;
 @end
 
 // EOF

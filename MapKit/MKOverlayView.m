@@ -8,6 +8,9 @@
 
 #import <MapKit/MapKit.h>
 
+#ifndef NIMP
+#define NIMP (nil)
+#endif
 
 @implementation MKOverlayView
 
@@ -87,17 +90,99 @@
 
 @implementation MKOverlayPathView	/* : MKOverlayView */
 
+- (void) applyFillPropertiesToContext:(CGContextRef) context atZoomScale:(MKZoomScale) zoomScale;
+{
+	NIMP;
+}
+
+- (void) applyStrokePropertiesToContext:(CGContextRef) context atZoomScale:(MKZoomScale) zoomScale;
+{
+	NIMP;
+}
+
+- (void) createPath;
+{
+	NIMP;
+}
+
+- (void) fillPath:(CGPathRef) p inContext:(CGContextRef) context;
+{
+	[NSGraphicsContext setCurrentContext:context];
+	[p fill];
+}
+
+- (void) strokePath:(CGPathRef) p inContext:(CGContextRef) context;
+{
+	[NSGraphicsContext setCurrentContext:context];
+	[p stroke];
+}
+
+- (void) invalidatePath;
+{
+	NIMP;
+}
+
+- (UIColor *) fillColor; { return fillColor; }
+- (CGLineCap) lineCap; { return lineCap; }
+- (NSArray *) lineDashPattern; { return lineDashPattern; }
+- (CGFloat) lineDashPhase; { return lineDashPhase; }
+- (CGLineJoin) lineJoin; { return lineJoin; }
+- (CGFloat) lineWidth; { return lineWidth; }
+- (CGFloat) miterLimit; { return miterLimit; }
+- (CGPathRef) path; { return path; }
+- (UIColor *) strokeColor; { return strokeColor; }
+
+- (void) setFillColor:(UIColor *) color; { [fillColor autorelease]; fillColor=[color retain]; }
+- (void) setLineCap:(CGLineCap) cap; { lineCap=cap; }
+- (void) setLineDashPattern:(NSArray *) pattern; { [lineDashPattern autorelease]; lineDashPattern=[pattern copy]; }
+- (void) setLineDashPhase:(CGFloat) phase; { lineDashPhase=phase; }
+- (void) setLineJoin:(CGLineJoin) join; { lineJoin=join; }
+- (void) setLineWidth:(CGFloat) width; { lineWidth=width; }
+- (void) setMiterLimit:(CGFloat) limit; { miterLimit=limit; }
+- (void) setPath:(CGPathRef) path; { NIMP; }
+- (void) setStrokeColor:(UIColor *) color; { [strokeColor autorelease]; strokeColor=[color retain]; }
+
 @end
 
 @implementation MKCircleView	/* : MKOverlayPathView */
+
+- (id) initWithCircle:(MKCircle *) circle;
+{
+	return [super initWithOverlay:circle];
+}
+
+- (MKCircle *) circle;
+{
+	return (MKCircle *) [super overlay];
+}
 
 @end
 
 @implementation MKPolygonView	/* : MKOverlayPathView */
 
+- (id) initWithPolygon:(MKPolygon *) polygon;
+{
+	return [super initWithOverlay:polygon];
+}
+
+- (MKPolygon *) polygon;
+{
+	return (MKPolygon *) [super overlay];
+}
+
 @end
 
 @implementation MKPolylineView	/* : MKOverlayPathView */
+
+- (id) initWithPolyline:(MKPolyline *) polyline;
+{
+	return [super initWithOverlay:polyline];
+}
+
+- (MKPolyline *) polyline;
+{
+	return (MKPolyline *) [super overlay];
+}
 
 @end
 
@@ -144,6 +229,49 @@
 @end
 
 @implementation MKCircle
+
+- (id) initWithCenterCoordinate:(CLLocationCoordinate2D) coord radius:(CLLocationDistance) rad;
+{
+	if((self=[super init]))
+		{
+		coordinate=coord;
+		radius=rad;
+		}
+	return self;
+}
+
++ (MKCircle *) circleWithCenterCoordinate:(CLLocationCoordinate2D) coord radius:(CLLocationDistance) rad;
+{
+	return [[[self alloc] initWithCenterCoordinate:coord radius:rad] autorelease];
+}
+
++ (MKCircle *) circleWithMapRect:(MKMapRect) mapRect;	// longest side determines the radius
+{
+	CLLocationCoordinate2D loc;
+	loc.longitude=MKMapRectGetMidX(mapRect);
+	loc.latitude=MKMapRectGetMidY(mapRect);
+	return [self circleWithCenterCoordinate:loc radius:0.5*MAX(MKMapRectGetWidth(mapRect), MKMapRectGetHeight(mapRect))];
+}
+
+- (MKMapRect) boundingMapRect;
+{ // CHEKME: is this a stored or a calculated property?
+	return MKMapRectMake(coordinate.latitude-radius, coordinate.longitude-radius, 2.0*radius, 2.0*radius);
+}
+
+- (CLLocationCoordinate2D) coordinate;
+{
+	return coordinate;
+}
+
+- (CLLocationDistance) radius;
+{
+	return radius;	
+}
+
+- (BOOL) intersectsMapRect:(MKMapRect)rect
+{
+	return MKMapRectIntersectsRect([self boundingMapRect], rect);
+}
 
 @end
 

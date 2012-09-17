@@ -7,10 +7,22 @@
 //
 
 #import <MapKit/MKShape.h>
+#import <CoreLocation/CoreLocation.h>
 
-@interface MKCircle : MKShape
+@interface MKCircle : MKShape <MKOverlay>
 {
+	/* @property (nonatomic, readonly) MKMapRect boundingMapRect; */
+	/* @property (nonatomic, readonly) */ CLLocationCoordinate2D coordinate;
+	/* @property (nonatomic, readonly) */ CLLocationDistance radius;
 }
+
++ (MKCircle *) circleWithCenterCoordinate:(CLLocationCoordinate2D) coord radius:(CLLocationDistance) radius;
++ (MKCircle *) circleWithMapRect:(MKMapRect) mapRect;	// longest side determines the radius
+
+- (MKMapRect) boundingMapRect;
+- (CLLocationCoordinate2D) coordinate;
+- (CLLocationDistance) radius;
+
 @end
 
 // EOF

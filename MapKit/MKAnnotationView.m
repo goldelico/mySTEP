@@ -84,6 +84,8 @@
 - (void) drawRect:(NSRect) rect
 { // draw with center at NSZeroPoint
 	// handle selection/highlight
+	// handle colors
+	// FIXME: really draw centered - but this may interfere with the frame and bounds...
 	[image drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 }
 
@@ -110,7 +112,7 @@
 		{
 		NSString *path=[[NSBundle bundleForClass:[self class]] pathForResource:@"flag_32" ofType:@"png"];
 		[self setImage:[[[NSImage alloc] initWithContentsOfFile:path] autorelease]];
-		// set offet so that flag point is at the right position
+		centerOffset=(NSPoint) { -5.0, -3.0 };
 		[self setDraggable:NO];	
 		}
 	return self;
@@ -122,30 +124,42 @@
 }
 
 - (void) drawRect:(NSRect) rect
-{
-	CLLocationCoordinate2D pos=[annotation coordinate];
-	// FIXME: does not work doe to clipping to rect (image size)
-	if(0 && [annotation isKindOfClass:[MKUserLocation class]])
+{ // draw circle if we represent the user location
+	if([annotation isKindOfClass:[MKUserLocation class]])
 		{ // only the user location knows its accuracy
 		CLLocation *loc=[(MKUserLocation *) annotation location];
 		float accuracy=[loc horizontalAccuracy];	// meters
 		//	[(MKUserLocation *) annotation isUpdating];
 		if(loc && accuracy > 0.0)
 			{ // draw a circle showing the accuracy
-				NSPoint a;
+				float a;	// accuracy in pixels
 				NSRect circle;
 				NSBezierPath *path;
-				accuracy *= MKMapPointsPerMeterAtLatitude(pos.latitude);	// mappoint size
-				a=[(MKMapView *) [self superview] _pointForMapPoint:MKMapPointMake(accuracy, 0.0)];	// convert to screen coordinates
-				circle.size.width=2.0*a.x;
-				circle.size.height=2.0*a.x;
-				circle.origin.x=-a.x;
-				circle.origin.y=-a.x;	// lower left corner
-				[[NSColor colorWithCalibratedRed:0.0 green:0.0 blue:1.0 alpha:0.5] set];
-				path=[NSBezierPath bezierPathWithOvalInRect:circle];
-				[path setLineWidth:2.0];
-				// we must temporarily remove clipping!
-				[path fill];	// draw circle
+				CLLocationCoordinate2D pos=[annotation coordinate];
+				// it appears as if there is a factor 2 or 4 missing, i.e. the circle is a little smaller on the map as the "meters" value indicates
+				float mappoints=accuracy*MKMapPointsPerMeterAtLatitude(pos.latitude);
+				a=[(MKMapView *) [self superview] _rectForMapRect:MKMapRectMake(0.0, 0.0, mappoints, 0.0)].size.width;
+#if 1
+				NSLog(@"accuracy %gm / %gpx", accuracy, a);
+#endif
+				if(a > 5.0)
+					{ // is large enough to be visible
+						NSView *mapView;
+						NSRect clip;
+						circle.size.width=2.0*a;
+						circle.size.height=2.0*a;
+						circle.origin.x=-a;
+						circle.origin.y=-a;	// lower left corner
+						[[NSColor colorWithCalibratedRed:0.0 green:0.0 blue:1.0 alpha:0.5] set];
+						path=[NSBezierPath bezierPathWithOvalInRect:circle];
+						[path setLineWidth:2.0];
+						[NSGraphicsContext saveGraphicsState];
+						mapView=[self superview];
+						clip=[mapView convertRect:[mapView bounds] toView:self];	// convert superview's bounds to our coordinate system
+						[[NSBezierPath bezierPathWithRect:clip] setClip];	// we must temporarily enlarge the clipping path if the circle is larger than the flag image!
+						[path fill];	// draw circle
+						[NSGraphicsContext restoreGraphicsState];
+					}
 			}
 		// make callout show [loc altitude] and position in human readable format		
 		}
