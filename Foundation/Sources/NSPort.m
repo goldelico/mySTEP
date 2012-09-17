@@ -327,6 +327,11 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 			if(connect(_sendfd, (struct sockaddr *) &_address.addr, _address.addrlen))
 				{
 				NSLog(@"%@: could not connect due to %s", self, strerror(errno));
+				if(errno == ECONNREFUSED && [self isKindOfClass:[NSMessagePort class]])
+					{ // nobody is listening on this message port name i.e. the named socked is stale
+						NSLog(@"trying to connect stale socket: %@", self);
+						[(NSMessagePort *) self _unlink];
+					}
 				return NO;
 				}
 #if 0
@@ -838,7 +843,6 @@ static unsigned _portDirectoryLength;
 
 - (BOOL) _unlink;
 { // delete name
-	// shouldn't we close?
 	if(unlink(SUN_PATH))	// delete any registration if it still exists
 		{
 		// check for error != E_NOTFOUND

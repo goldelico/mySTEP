@@ -213,15 +213,15 @@ static NSMessagePortNameServer *__sharedNSMessagePortNameServer;
 		return NO;	// not a message port
 	[(NSMessagePort *) port _setName:name];	// substitute public name
 	// we might have to move in cache!
-	[(NSMessagePort *) port _unlink];		// remove existing socket
-	return [port _bindAndListen];			// create socket and start listening (if scheduled)
+	return [port _bindAndListen];			// create socket and start listening (if scheduled) - must fail if the name is already in use
 }
 
 - (BOOL) removePortForName:(NSString *) name;
 { // remove name
-	NSPort *port=nil;	// how do we get the port for this name?
-	[(NSMessagePort *) port _setName:name];	// substitute public name
-	return [(NSMessagePort *) port _unlink];
+	NSMessagePort *port=(NSMessagePort *) [NSMessagePort port];	// temporary port
+	[port _setName:name];	// substitute public name - this is a quite indirect way to pass the name to unlink()
+	// FIXME: this allows to remove arbitrary sockets and therefore can corrupt the system!
+	return [port _unlink];	// remove from file system
 }
 
 @end
