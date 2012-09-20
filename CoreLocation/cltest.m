@@ -54,20 +54,34 @@
 	return YES;
 }
 
+- (void) locationManager:(CLLocationManager *) mngr didReceiveNMEA:(NSString *) str;
+{
+	NSLog(@"NMEA: %@", str);
+}
+
 @end
 
 int main(int argc, char *argv[])
 {
 	NSAutoreleasePool *arp=[[NSAutoreleasePool alloc] init];
 	CLLocationManager *mgr=[CLLocationManager new];
-	NSLog(@"cltest started");
+	if(!mgr)
+		{
+		NSLog(@"needs allocation of manager");
+		exit(1);
+		}
+	NSLog(@"cltest started - mgr=%@", mgr);
 	if([mgr respondsToSelector:@selector(setPurpose:)])
 		[mgr setPurpose:@"cltest"];
 	[mgr setDelegate:[[Delegate new] autorelease]];
 	[mgr startUpdatingLocation];
-	while(YES)
-		[[NSRunLoop mainRunLoop] run];
+	NSLog(@"add unused port!");
+	[[NSRunLoop mainRunLoop] addPort:[NSPort port] forMode:NSDefaultRunLoopMode];	// we must at least have one entry in the loop or -run will fail immediately
+	NSLog(@"run loop");
+	[[NSRunLoop mainRunLoop] run];
+	NSLog(@"runloop did end!");
 	[arp release];
+	return 0;
 }
 
 // EOF

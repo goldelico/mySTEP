@@ -24,3 +24,9 @@
 - (BOOL) locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *) mngr;
 
 @end
+
+/* private extension */
+
+@interface NSObject (CLLocationManagerDelegate)
+- (void) locationManager:(CLLocationManager *) mngr didReceiveNMEA:(NSString *) line;
+@end

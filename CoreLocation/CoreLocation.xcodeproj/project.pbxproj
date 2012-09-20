@@ -9,9 +9,11 @@
 /* Begin PBXBuildFile section */
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
+		EE07C8991609BBDD001F5841 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = EE07C8981609BBDD001F5841 /* MainMenu.xib */; };
+		EE07C89A1609BC3E001F5841 /* CoreLocationDaemon.m in Sources */ = {isa = PBXBuildFile; fileRef = EE07C84C1609136D001F5841 /* CoreLocationDaemon.m */; };
+		EE07C8D01609CB92001F5841 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* CoreLocation.framework */; };
 		EE31070D125F025C00DF3C91 /* cltest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31E297125CD78F00DF3C91 /* cltest.m */; };
 		EE31071E125F027D00DF3C91 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEB23DB41258B6410018A9F3 /* CoreLocation.framework */; };
-		EE31DFC8125A4EE200DF3C91 /* CoreLocation_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFC7125A4EE200DF3C91 /* CoreLocation_Prefix.pch */; };
 		EE31DFD2125A4F1900DF3C91 /* CoreLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE31E020125AF0EB00DF3C91 /* CoreLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */; };
 		EE31E055125B031300DF3C91 /* CLLocation.h in Headers */ = {isa = PBXBuildFile; fileRef = EE31E053125B031300DF3C91 /* CLLocation.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -73,11 +75,14 @@
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* CoreLocation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CoreLocation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE07C84B1609136D001F5841 /* CoreLocationDaemon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreLocationDaemon.h; sourceTree = "<group>"; };
+		EE07C84C1609136D001F5841 /* CoreLocationDaemon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreLocationDaemon.m; sourceTree = "<group>"; };
+		EE07C857160913B8001F5841 /* CoreLocationDaemon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreLocationDaemon.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE07C859160913B8001F5841 /* CoreLocationDaemon-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CoreLocationDaemon-Info.plist"; sourceTree = "<group>"; };
+		EE07C86E16091491001F5841 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		EE310713125F025C00DF3C91 /* cltest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cltest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE31DFC7125A4EE200DF3C91 /* CoreLocation_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreLocation_Prefix.pch; sourceTree = "<group>"; };
 		EE31DFD1125A4F1900DF3C91 /* CoreLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreLocation.h; sourceTree = "<group>"; };
-		EE31DFD7125A4F7F00DF3C91 /* SYSLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SYSLocation.h; sourceTree = "<group>"; };
-		EE31DFD8125A4F7F00DF3C91 /* SYSLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SYSLocation.m; sourceTree = "<group>"; };
 		EE31E01F125AF0EB00DF3C91 /* CoreLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreLocation.m; sourceTree = "<group>"; };
 		EE31E053125B031300DF3C91 /* CLLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLLocation.h; sourceTree = "<group>"; };
 		EE31E054125B031300DF3C91 /* CLLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CLLocationManager.h; sourceTree = "<group>"; };
@@ -106,6 +111,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE07C855160913B8001F5841 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE07C8D01609CB92001F5841 /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -143,6 +156,7 @@
 				EE31E27D125CD76C00DF3C91 /* cltestOursOnOSX */,
 				EE31E2D3125CDC2500DF3C91 /* CLTestFramework.framework */,
 				EE310713125F025C00DF3C91 /* cltest */,
+				EE07C857160913B8001F5841 /* CoreLocationDaemon.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -152,6 +166,7 @@
 			children = (
 				EE69CFD9108DD5A100486DB1 /* mySTEP.make */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
+				EE07C84A16091358001F5841 /* CoreLocationDaemon */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				089C1665FE841158C02AAC07 /* Resources */,
 				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
@@ -175,6 +190,8 @@
 				8DC2EF5A0486A6940098B216 /* Info.plist */,
 				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
 				EE31E348125CF60300DF3C91 /* Info-test.plist */,
+				EE07C859160913B8001F5841 /* CoreLocationDaemon-Info.plist */,
+				EE07C8981609BBDD001F5841 /* MainMenu.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -197,7 +214,6 @@
 				EE71B528159301F900C4E869 /* CLPlacemark.m */,
 				EE31E0BB125B523100DF3C91 /* CLRegion.h */,
 				EE71B529159301F900C4E869 /* CLRegion.m */,
-				EE31E021125AF0F100DF3C91 /* Old */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -229,13 +245,13 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
-		EE31E021125AF0F100DF3C91 /* Old */ = {
+		EE07C84A16091358001F5841 /* CoreLocationDaemon */ = {
 			isa = PBXGroup;
 			children = (
-				EE31DFD7125A4F7F00DF3C91 /* SYSLocation.h */,
-				EE31DFD8125A4F7F00DF3C91 /* SYSLocation.m */,
+				EE07C84B1609136D001F5841 /* CoreLocationDaemon.h */,
+				EE07C84C1609136D001F5841 /* CoreLocationDaemon.m */,
 			);
-			name = Old;
+			name = CoreLocationDaemon;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -246,7 +262,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE9E750F1467E22B0029F8D8 /* CLPlacemark.h in Headers */,
-				EE31DFC8125A4EE200DF3C91 /* CoreLocation_Prefix.pch in Headers */,
 				EE31DFD2125A4F1900DF3C91 /* CoreLocation.h in Headers */,
 				EE31E055125B031300DF3C91 /* CLLocation.h in Headers */,
 				EE31E068125B065900DF3C91 /* CLError.h in Headers */,
@@ -298,6 +313,24 @@
 			productName = ScreenSaver;
 			productReference = 8DC2EF5B0486A6940098B216 /* CoreLocation.framework */;
 			productType = "com.apple.product-type.framework";
+		};
+		EE07C856160913B8001F5841 /* CoreLocationDaemon */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE07C85C160913B9001F5841 /* Build configuration list for PBXNativeTarget "CoreLocationDaemon" */;
+			buildPhases = (
+				EE07C853160913B8001F5841 /* Resources */,
+				EE07C854160913B8001F5841 /* Sources */,
+				EE07C855160913B8001F5841 /* Frameworks */,
+				EE07C8A41609BDC9001F5841 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CoreLocationDaemon;
+			productName = CoreLocationServer;
+			productReference = EE07C857160913B8001F5841 /* CoreLocationDaemon.app */;
+			productType = "com.apple.product-type.application";
 		};
 		EE310709125F025C00DF3C91 /* cltest */ = {
 			isa = PBXNativeTarget;
@@ -376,6 +409,7 @@
 			targets = (
 				8DC2EF4F0486A6940098B216 /* CoreLocation */,
 				EE31E2BB125CDC2500DF3C91 /* CLTestFramework */,
+				EE07C856160913B8001F5841 /* CoreLocationDaemon */,
 				EE31E27C125CD76C00DF3C91 /* cltestOursOnOSX */,
 				EE310709125F025C00DF3C91 /* cltest */,
 			);
@@ -391,6 +425,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EE07C853160913B8001F5841 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE07C8991609BBDD001F5841 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EE31E2C7125CDC2500DF3C91 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -402,6 +444,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		EE07C8A41609BDC9001F5841 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SOURCES=\"CoreLocationDaemon.m\"        # all source codes\n\nexport LIBS=\t\t\t\t\t\t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\"CoreLocation\"\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport INSTALL_PATH=/System/Library/Frameworks/CoreLocation.framework/Resources  # override INSTALL_PATH for MacOS X for the Zaurus\n\nexport RUN=false                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\n\n# global/compile settings\n#export STRIP_Framework=true        # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\n#export INSTALL=no                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
 		EE31E2F8125CDD2600DF3C91 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 12;
@@ -426,7 +481,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"CoreLocation.m CLGeocoder.m CLHeading.m CLPlacemark.m CLRegion.m\"  # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n# export DEPENDS=\"quantumstep-corelocation-framework\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "export SOURCES=\"CoreLocation.m CLGeocoder.m CLHeading.m CLPlacemark.m CLRegion.m\"  # all source codes\nexport LIBS=  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\nexport DEPENDS=\"quantumstep-corelocationdaemon-app\"\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EE6FE9AE147521FF000BC485 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -453,6 +508,14 @@
 				EE71B52A159301F900C4E869 /* CLPlacemark.m in Sources */,
 				EE71B52B159301F900C4E869 /* CLRegion.m in Sources */,
 				EE71B539159302B800C4E869 /* CLHeading.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE07C854160913B8001F5841 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE07C89A1609BC3E001F5841 /* CoreLocationDaemon.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -507,6 +570,14 @@
 				089C1667FE841158C02AAC07 /* English */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		EE07C8981609BBDD001F5841 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EE07C86E16091491001F5841 /* English */,
+			);
+			name = MainMenu.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -579,6 +650,54 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+		EE07C85A160913B9001F5841 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "CoreLocationDaemon-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = CoreLocationDaemon;
+			};
+			name = Debug;
+		};
+		EE07C85B160913B9001F5841 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INFOPLIST_FILE = "CoreLocationDaemon-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = CoreLocationDaemon;
+				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -738,6 +857,15 @@
 			buildConfigurations = (
 				1DEB91B208733DA50010E9CD /* Debug */,
 				1DEB91B308733DA50010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EE07C85C160913B9001F5841 /* Build configuration list for PBXNativeTarget "CoreLocationDaemon" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE07C85A160913B9001F5841 /* Debug */,
+				EE07C85B160913B9001F5841 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

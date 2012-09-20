@@ -38,6 +38,7 @@ typedef enum _CLAuthorizationStatus
 
 @interface CLLocationManager : NSObject
 {
+	id _server;
 //	@property(assign, nonatomic) CLLocationAccuracy desiredAccuracy;
 	CLLocationAccuracy desiredAccuracy;
 //	@property(assign, nonatomic) CLLocationDistance distanceFilter;

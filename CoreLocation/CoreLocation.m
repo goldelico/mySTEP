@@ -8,6 +8,7 @@
 
 #import <CoreLocation/CoreLocation.h>
 #import <AppKit/NSApplication.h>	// for NSEventTrackingRunLoopMode
+#import "CoreLocationDaemon.h"
 
 NSString *const kCLErrorDomain=@"CLErrorDomain";
 
@@ -107,6 +108,7 @@ NSString *const kCLErrorDomain=@"CLErrorDomain";
 
 @end
 
+#if OLD
 @interface CLLocationManager (GPSNMEA)
 + (void) registerManager:(CLLocationManager *) m;
 + (void) unregisterManager:(CLLocationManager *) m;
@@ -117,17 +119,20 @@ NSString *const kCLErrorDomain=@"CLErrorDomain";
 
 static CLLocation *newLocation;
 static CLHeading *newHeading;
+#endif
 
 @implementation CLLocationManager
+
+// FIXME: there must be multiple delegates - one for each remote connection!
 
 - (id <CLLocationManagerDelegate>) delegate; { return delegate; }
 - (CLLocationAccuracy) desiredAccuracy; { return desiredAccuracy; }
 - (CLLocationDistance) distanceFilter; { return distanceFilter; }
-- (CLHeading *) heading; { return newHeading; }
+//- (CLHeading *) heading; { return newHeading; }
 - (CLLocationDegrees) headingFilter; { return headingFilter; }
 // FIXME: ask UIDevice? No: this variable indicates how the delegate wants to get the heading reported
 - (CLDeviceOrientation) headingOrientation; { return headingOrientation; }
-- (CLLocation *) location; { return newLocation; }
+//- (CLLocation *) location; { return newLocation; }
 - (CLLocationDistance) maximumRegionMonitoringDistance; { return maximumRegionMonitoringDistance; }
 - (NSSet *) monitoredRegions; { return [[NSUserDefaults standardUserDefaults] objectForKey:@"_CoreLocationManagerRegions"]; }	// persistent by application (!)
 - (NSString *) purpose; { return purpose; }
@@ -171,6 +176,65 @@ static CLHeading *newHeading;
 	return NO;
 }
 
+- (id) init;
+{
+	NSBundle *b=[NSBundle bundleForClass:[self class]];	// our bundle where the daemon sits in the resources
+	NSString *path=[b pathForResource:@"CoreLocationDaemon" ofType:@"app"];
+	NS_DURING
+#if 1
+		NSLog(@"Bundle: %@", b);
+		NSLog(@"Trying to connect to server %@ @ %@", SERVER_ID, path);
+#endif
+		_server=[[NSConnection rootProxyForConnectionWithRegisteredName:SERVER_ID host:nil] retain];	// look up on local host only
+	NS_HANDLER
+#if 1
+		NSLog(@"Exception: %@", localException);
+#endif
+	NS_ENDHANDLER
+	if(!_server)
+		{ // not available - launch server process and try again
+#if 1
+			NSLog(@"no contact to daemon; try to launch process");
+#endif
+			if(![[NSWorkspace sharedWorkspace]
+#if __mySTEP__
+				 launchAppWithBundleIdentifier:path
+#else
+				 launchAppWithBundleIdentifier:SERVER_ID
+#endif
+			 options:NSWorkspaceLaunchWithoutActivation | NSWorkspaceLaunchAndHide | NSWorkspaceLaunchDefault
+			 additionalEventParamDescriptor:nil
+			 launchIdentifier:NULL])
+				{
+				NSLog(@"could not launch %@", SERVER_ID);
+				[self release];
+				return nil;
+				}
+#if 1
+			NSLog(@"daemon launched");
+#endif
+			// FIXME: run the loop or wait otherwise
+			sleep(2);	// wait a little for the server to start
+#if 1
+			NSLog(@"try to contact");
+#endif
+			_server=[[NSConnection rootProxyForConnectionWithRegisteredName:SERVER_ID 
+																		   host:nil] retain];	// try again
+			if(!_server)
+				{ // not available - launch server process
+					NSLog(@"no response from %@", SERVER_ID);
+					[self release];
+					return nil;
+				}
+			[_server setProtocolForProxy:@protocol(CoreLocationDaemonProtocol)];
+#if 1
+			NSLog(@"initialized");
+#endif
+		}
+	return self;
+}
+
+#if OLD
 - (id) init
 {
 	NSLog(@"init");
@@ -182,22 +246,37 @@ static CLHeading *newHeading;
 		int i;
 		for(i=0; i<2; i++)
 			{ // the first attempt to register the port may fail in case of a stale port
+#if 1
+			NSLog(@"try: %d %@", i, self);
+#endif
 			if(![[NSMessagePortNameServer sharedInstance] registerPort:server name:portName])
-				{ // failed to register - some server appears to be already running
-					[self release];
-					self=nil;
+				{ // failed to register - a server is already running - become client
+					id client;
+#if 1
+					NSLog(@"failed to register as %@", portName);
+#endif
 					NS_DURING
 						connection=[NSConnection connectionWithRegisteredName:portName host:nil];
+						NSLog(@"self1 %@", self);
 						[connection setReplyTimeout:5.0];
-						self=(id)[connection rootProxy];
-					NS_HANDLER	// if the port was stale, retry to register ourselves
-						NSLog(@"could not connect - should try again at least once");
+						NSLog(@"self2 %@", self);
+						client=(id)[connection rootProxy];
+						NSLog(@"self3 %@", self);
+					NS_HANDLER	// if the port was stale, retry to become server
+						NSLog(@"could not connect %@ try again", portName);
 						continue;	// try again
 					NS_ENDHANDLER
-					NSLog(@"CLLocationManager client %@", portName);
+#if 1
+					NSLog(@"CLLocationManager client initialized: %@", portName, self);
+#endif
+					[self release];
+					return client;	// return the rootProxy
 				}
 			else
 				{
+#if 1
+				NSLog(@"registered %@", server);
+#endif
 				connection=[NSConnection connectionWithReceivePort:server sendPort:nil];
 				[connection setRootObject:self];	// vend our own services
 #if 0	// TEST if second registration fails
@@ -207,16 +286,22 @@ static CLHeading *newHeading;
 				else
 					NSLog(@"succeeded");
 #endif
-				NSLog(@"CLLocationManager server %@", portName);			
+#if 1
+				NSLog(@"%@ server initialized: %@", portName, self);
+#endif
+				return self;	// return the local handler
 				}
-			break;
 			}
 		}
-	return self;
+	[self release];
+	return nil;	// finally failed to initialize (neither as server nor as client)
 }
+#endif
 
 - (void) dealloc
 {
+	[purpose release];
+	[_server release];
 	[self stopMonitoringSignificantLocationChanges];
 	[self stopUpdatingHeading];
 	[self stopUpdatingLocation];
@@ -249,11 +334,11 @@ static CLHeading *newHeading;
 
 - (void) startUpdatingLocation;
 {
-	// if first call or not permanently enabled, ask user in a nonmodal window "<App> wants to use your current location"
-	// there is a checkbox to disable this message (probably stored in the User Defaults of the current process?)
-	// it also asks for command line tools (w/o Info.plist!)
-	// postpone the registration until user confirms
-	[CLLocationManager registerManager:self];
+	NS_DURING
+		[_server registerManager:self];
+	NS_HANDLER
+		[localException raise];
+	NS_ENDHANDLER
 }
 
 - (void) stopMonitoringForRegion:(CLRegion *) region;
@@ -273,10 +358,16 @@ static CLHeading *newHeading;
 
 - (void) stopUpdatingLocation;
 {
-	[CLLocationManager unregisterManager:self];
+	NS_DURING
+		[_server unregisterManager:self];
+	NS_HANDLER
+		[localException raise];
+	NS_ENDHANDLER
 }
 
 @end
+
+#if OLD
 
 static int numReliableSatellites;
 static int numVisibleSatellites;
@@ -493,13 +584,30 @@ static int startW2SG;
 	CLLocation *oldLocation=[[newLocation copy] autorelease];	// save a copy
 	BOOL didUpdateLocation=NO;
 	BOOL didUpdateHeading=NO;
+	NSEnumerator *e;
+	CLLocationManager *m;
+	e=[managers objectEnumerator];
+	while((m=[e nextObject]))
+		{ // notify all CLLocationManager instances
+			id <CLLocationManagerDelegate> delegate=[m delegate];
+			NS_DURING
+				[(NSObject *) delegate locationManager:m didReceiveNMEA:line];
+			NS_HANDLER
+				; // ignore
+			NS_ENDHANDLER
+		}
 	if(!newLocation)
 		newLocation=[CLLocation new];
 #if 0
 	NSLog(@"a=%@", a);
 #endif
-	// we may add some more info to this notification!
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"CLLocation.NMEA183" object:self userInfo:[NSDictionary dictionaryWithObject:line forKey:@"CLLocation.NMEA183.String"]];
+	[newLocation->timestamp release];
+	newLocation->timestamp=[NSDate new];			// now (as seen by system time)
+	if(newHeading)
+		{
+		[newHeading->timestamp release];
+		newHeading->timestamp=[newLocation->timestamp retain];		// now (as seen by system time)
+		}
 	if([cmd isEqualToString:@"$GPRMC"])
 		{ // minimum recommended navigation info (this is mainly used by CLLocation)
 			NSString *ts=[NSString stringWithFormat:@"%@:%@", [a objectAtIndex:9], [a objectAtIndex:1]];	// combine fields
@@ -556,9 +664,9 @@ static int startW2SG;
 		}
 	else if([cmd isEqualToString:@"$GPGSA"])
 		{ // satellite info
-			NSEnumerator *e=[satelliteInfo objectEnumerator];
 			NSMutableDictionary *d;
 			int i;
+			e=[satelliteInfo objectEnumerator];
 			// check mode B for no fix, 2D fix, 3D to control verticalAccuracy
 			if([[a objectAtIndex:16] length] > 0)
 				{
@@ -652,8 +760,6 @@ static int startW2SG;
 		}
 	if(didUpdateLocation || didUpdateHeading)
 		{ // notify interested delegates
-		NSEnumerator *e;
-		CLLocationManager *m;
 		[newLocation->timestamp release];
 		newLocation->timestamp=[NSDate new];			// now (as seen by system time)
 		if(newHeading)
@@ -670,17 +776,17 @@ static int startW2SG;
 				if(didUpdateLocation && [delegate respondsToSelector:@selector(locationManager:didUpdateToLocation:fromLocation:)])
 					{
 					NS_DURING
-					[delegate locationManager:m didUpdateToLocation:newLocation fromLocation:oldLocation];
+						[delegate locationManager:m didUpdateToLocation:newLocation fromLocation:oldLocation];
 					NS_HANDLER
-					; // ignore
+						; // ignore
 					NS_ENDHANDLER
 					}
 				if(didUpdateHeading && [delegate respondsToSelector:@selector(locationManager:didUpdateHeading:)])
 					{
 					NS_DURING
-					[delegate locationManager:m didUpdateHeading:newHeading];
+						[delegate locationManager:m didUpdateHeading:newHeading];
 					NS_HANDLER
-					; // ignore
+						; // ignore
 					NS_ENDHANDLER
 					}
 			}
@@ -711,8 +817,8 @@ static int startW2SG;
 					// get bytes and calculate checksum
 					// check checksum
 				}
-#if 1
-			NSLog(@"NEMA: %@", s);
+#if 0
+			NSLog(@"NMEA: %@", s);
 #endif
 			NS_DURING	// protect against problems in delegates
 				[self _processNMEA183:s];
@@ -736,6 +842,21 @@ static int startW2SG;
 	[self _parseNMEA183:[[n userInfo] objectForKey:@"NSFileHandleNotificationDataItem"]];	// parse data as line
 	[[n object] readInBackgroundAndNotifyForModes:modes];	// and trigger more notifications
 	[self performSelector:@selector(_didNotStart) withObject:nil afterDelay:5.0];	// times out if we do not receive any further NMEA records
+}
+
+@end
+
+#endif
+
+// FIXME: quite inefficient - this means that the daemon sends a DO message and we ignore it...
+// i.e. we should control the daemon that we do (not) want to see this more than once
+
+@implementation NSObject (CLLocationManagerDelegate)
+
+- (void) locationManager:(CLLocationManager *) mngr didReceiveNMEA:(NSString *) str;
+{
+	// [_server dontSendNMEAtoManager:mngr];
+	return;
 }
 
 @end
