@@ -407,7 +407,7 @@ static unsigned int _sequence;	// global sequence number
 		[nc addObserver:self selector:@selector(_portInvalidated:) name:NSPortDidBecomeInvalidNotification object:_sendPort];	// if we can't send any more
 		_isValid=YES;
 		// or should we be retained by all proxy objects???
-		[self retain];	// make us persistent until we are invalidated
+		[self retain];	// make us persistent at least until we are invalidated
 		_localObjects=NSCreateMapTable(NSNonRetainedObjectMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain local proxies
 		_localObjectsByRemote=NSCreateMapTable(NSIntMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain local proxies
 		_remoteObjects=NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 10);	// retain remote proxies
@@ -510,8 +510,7 @@ static unsigned int _sequence;	// global sequence number
 
 - (void) invalidate;
 {
-	NSEnumerator *e;
-	NSRunLoop *rl;
+	unsigned int cnt;
 #if 0
 	NSLog(@"invalidate %p:%@ (_isValid=%d)", self, self, _isValid);
 #endif
@@ -519,11 +518,12 @@ static unsigned int _sequence;	// global sequence number
 		return;	// already invalidated
 	_isValid=NO;	// don't loop through notifications...
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSPortDidBecomeInvalidNotification object:_sendPort];
-	e=[_runLoops objectEnumerator];
-	while((rl=[e nextObject]))
-		{
-		[self removeRunLoop:rl];
+	cnt=[_runLoops count];
+	while(cnt-- > 0)
+		{ // can't enumerate if we remove objects from the array
+		NSRunLoop *rl=[_runLoops objectAtIndex:cnt];
 		[_sendPort removeFromRunLoop:rl forMode:NSConnectionReplyMode];		
+		[self removeRunLoop:rl];
 		}
 #if 0
 	NSLog(@"send NSConnectionDidDieNotification for %p:%@", self, self);

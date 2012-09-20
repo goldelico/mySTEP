@@ -429,10 +429,7 @@ const char *objc_skip_typespec (const char *type)
 #endif
 	switch(*type) {
 		case _C_VOID:
-		case _C_UNION_B:
-		default:
-			NSLog(@"%@ can't encodeValueOfObjCType:%s", self, type);
-			return;
+			return;	// nothing to encode
 		case _C_ID:	{
 			[self encodeObject:*((id *)address)];
 			break;
@@ -547,6 +544,10 @@ const char *objc_skip_typespec (const char *type)
 				type=objc_skip_typespec(type);	// next
 				}
 			break;
+		case _C_UNION_B:
+		default:
+			NSLog(@"%@ can't encodeValueOfObjCType:%s", self, type);
+			[NSException raise:NSPortReceiveException format:@"can't encodeValueOfObjCType:%s", type];
 		}
 	}
 #if 0
@@ -655,11 +656,7 @@ const char *objc_skip_typespec (const char *type)
 #endif
 	switch(*type) {
 		case _C_VOID:
-		case _C_UNION_B:
-		default:
-			NSLog(@"%@ can't decodeValueOfObjCType:%s", self, type);
-			[NSException raise:NSPortReceiveException format:@"can't decodeValueOfObjCType:%s", type];
-			return;
+			return;	// nothing to decode
 		case _C_ID: {
 			*((id *)address)=[self decodeObject];
 			return;
@@ -814,6 +811,10 @@ const char *objc_skip_typespec (const char *type)
 				}
 			break;
 		}
+		case _C_UNION_B:
+		default:
+			NSLog(@"%@ can't decodeValueOfObjCType:%s", self, type);
+			[NSException raise:NSPortReceiveException format:@"can't decodeValueOfObjCType:%s", type];
 	}
 }
 
@@ -858,14 +859,9 @@ const char *objc_skip_typespec (const char *type)
 { // encode the return value as an object with correct type
 	NSMethodSignature *sig=[i methodSignature];
 	void *buffer=objc_malloc([sig methodReturnLength]);	// allocate a buffer
-	NS_DURING
-		[i getReturnValue:buffer];	// get value
-		NSLog(@"encodeReturnValue %08x (%d)", *(unsigned long *) buffer, [sig methodReturnLength]);
-		[self encodeValueOfObjCType:[sig methodReturnType] at:buffer];
-	NS_HANDLER
-		NSLog(@"encodeReturnValue has no return value");	// e.g. if [i invoke] did result in an exception! or we have a oneway void
-		// FIXME: we must encode something or we can't send back NSExceptions
-	NS_ENDHANDLER
+	[i getReturnValue:buffer];	// get value
+	NSLog(@"encodeReturnValue %08x (%d)", *(unsigned long *) buffer, [sig methodReturnLength]);
+	[self encodeValueOfObjCType:[sig methodReturnType] at:buffer];
 	objc_free(buffer);
 }
 

@@ -400,20 +400,23 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 		timeout.tv_usec = 0;										// call select() once with 0 timeout effectively polling inputs
 		select_timeout = &timeout;
 #if 0
-		NSLog(@"_runLoopForMode:%@ beforeDate:%@ - don't wait", mode, limit_date);
+		NSLog(@"_runLoopForMode:%@ beforeDate:%@ - don't wait", mode, before);
 #endif
     	}
 	else if (ti < LONG_MAX)
 		{ // Wait until the LIMIT_DATE.
-		NSDebugLog(@"NSRunLoop accept input %f seconds from now %f", 						
-				   [before timeIntervalSinceReferenceDate], ti);
+#if 0
+		NSLog(@"NSRunLoop accept input %g seconds from now %f", [before timeIntervalSinceReferenceDate], ti);
+#endif
 		timeout.tv_sec = ti;
 		timeout.tv_usec = (ti - timeout.tv_sec) * 1000000.0;
 		select_timeout = &timeout;
 		}
 	else
 		{ // Wait very long, i.e. forever
-		NSDebugLog(@"NSRunLoop accept input waiting forever");
+#if 0
+		NSLog(@"NSRunLoop accept input waiting forever");
+#endif
 		select_timeout = NULL;
 		}
 	
@@ -496,7 +499,7 @@ NSString *NSDefaultRunLoopMode = @"NSDefaultRunLoopMode";
 	if(select_return == 0)
 			{
 				[NSNotificationQueue _runLoopIdle];			// dispatch pending notifications if we timeout (incl. task terminated)
-#if 1
+#if 0
 					{
 						extern void __NSPrintAllocationCount(void);
 					__NSPrintAllocationCount();

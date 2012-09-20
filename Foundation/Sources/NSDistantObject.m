@@ -350,7 +350,7 @@ static Class _doClass;
 		{
 		ret=[_local methodSignatureForSelector:aSelector];	// ask local object for its signature
 		if(!ret)
-			NSLog(@"local object does not define @selector(%@): %@", NSStringFromSelector(aSelector), _local);
+			[NSException raise:NSInternalInconsistencyException format:@"local object does not define @selector(%@): %@", NSStringFromSelector(aSelector), _local];
 		}
 	else if(_protocol)
 		{ // ask protocol
@@ -359,7 +359,7 @@ static Class _doClass;
 #endif
 			md=[_protocol descriptionForInstanceMethod:aSelector];	// ask protocol for the signature
 			if(!md)
-				NSLog(@"@protocol %s does not define @selector(%@)", [_protocol name], NSStringFromSelector(aSelector));
+				[NSException raise:NSInternalInconsistencyException format:@"@protocol %s does not define @selector(%@)", [_protocol name], NSStringFromSelector(aSelector)];
 		}
 	else
 		{	// we must ask the peer for a methodDescription
@@ -389,7 +389,7 @@ static Class _doClass;
 				md->types=translateSignatureFromNetwork(md->types);
 #endif
 			if(!md)
-				NSLog(@"peer does not know methodSignatureForSelector:@selector(%@)", NSStringFromSelector(aSelector));
+				[NSException raise:NSInternalInconsistencyException format:@"peer does not know methodSignatureForSelector:@selector(%@)", NSStringFromSelector(aSelector)];
 		}
 	if(md)
 		{
@@ -404,7 +404,11 @@ static Class _doClass;
 
 + (BOOL) respondsToSelector:(SEL)aSelector;
 { // CHEKCKME: is this correct? Should we ask the other side for the class? Who is our class proxy?
-	return [self methodSignatureForSelector:aSelector] != nil;
+	NS_DURING
+		NS_VALUERETURN([self methodSignatureForSelector:aSelector] != nil, BOOL);
+	NS_HANDLER
+		return NO;
+	NS_ENDHANDLER
 }
 
 + (BOOL) instancesRespondToSelector:(SEL)aSelector;
@@ -415,9 +419,13 @@ static Class _doClass;
 	return NO;
 }
 
-- (BOOL) respondsToSelector:(SEL)aSelector
+- (BOOL) respondsToSelector:(SEL)aSelector;
 {
-	return [self methodSignatureForSelector:aSelector] != nil;	// it is very likely that we will call this method, so let's cache the NSMethodSignature
+	NS_DURING
+		NS_VALUERETURN([self methodSignatureForSelector:aSelector] != nil, BOOL);
+	NS_HANDLER
+		return NO;
+	NS_ENDHANDLER
 }
 
 - (Class) classForCoder; { return _doClass; }	// for compatibility

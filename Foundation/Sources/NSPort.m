@@ -416,7 +416,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 					// FIXME: how and when is this unbound/_unlinked?
 					// would it be better not to schedule a socket that is not bound?
 //				[self _bindAndListen];	// NO: bind may create a named socket file in /tmp/.QuantumSTEP which is never deleted
-				[loop _removeInputWatcher:self forMode:[loop currentMode]];	// unschedule if not bound
+				[loop _removeWatcher:self]; // completely unschedule this port
 				return;
 #endif
 				}
@@ -474,7 +474,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 			if((len=read(_sendfd, &header, sizeof(header))) != sizeof(header))
 				{ // should we have a mechanism to resync? This appears to be not required since we assume a reliable transport socket
 					// we might have to remember a partial header!
-#if 0
+#if 1
 					NSLog(@"closed by peer: %@", self);
 #endif
 					[self invalidate];
