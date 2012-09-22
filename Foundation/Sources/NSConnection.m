@@ -408,8 +408,17 @@ static unsigned int _sequence;	// global sequence number
 		_isValid=YES;
 		// or should we be retained by all proxy objects???
 		[self retain];	// make us persistent at least until we are invalidated
-		_localObjects=NSCreateMapTable(NSNonRetainedObjectMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain local proxies
-		_localObjectsByRemote=NSCreateMapTable(NSIntMapKeyCallBacks, NSNonOwnedPointerMapValueCallBacks, 10);	// don't retain local proxies
+		// FIXME: how do we manage memory? we retain a NSDistantObject as soon as we have vended it once since we don't know
+		// when the peer finally releases the last handle
+		// I have not seen that any retain/release messages are exchanged
+		// and although the NSDistantObject has a flag of unknown meaning, it is not sure that it is indeed a "keep alive" flag
+		// so we retain any vended object here and it will only disappear if the client closes the connection
+//		_localObjects=NSCreateMapTable(NSNonRetainedObjectMapKeyCallBacks, NSNonRetainedObjectMapValueCallBacks, 10);	// don't retain local proxies
+		_localObjects=NSCreateMapTable(NSNonRetainedObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 10);	// retain local proxies
+		_localObjectsByRemote=NSCreateMapTable(NSIntMapKeyCallBacks, NSNonRetainedObjectMapValueCallBacks, 10);	// don't retain local proxies
+		// for remote objects is is different: we can retain them if we need to send them back
+		// and we can release them if we don't need them any more
+		// if the client decides to send it to us another time, we simply create a new "token" proxy
 		_remoteObjects=NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 10);	// retain remote proxies
 		_responses=NSCreateMapTable(NSIntMapKeyCallBacks, NSObjectMapValueCallBacks, 10);	// map sequence number to response portcoder
 		if(!_allConnections)
@@ -756,10 +765,27 @@ static unsigned int _sequence;	// global sequence number
 	//	unsigned long flags=internal?FLAGS_INTERNAL:FLAGS_REQUEST;
 	unsigned long flags=FLAGS_REQUEST;
 	NSPortCoder *portCoder;
-#if 0
+#if 1
 	NSLog(@"*** (conn=%p) sendInvocation:%@", self, i);
-#if 0
+#if 1
 	[i _log:@"sendInvocation"];	// log incl. stack
+	{
+	NSMethodSignature *sig=[i methodSignature];
+	unsigned int cnt=[sig numberOfArguments];
+	int j;
+	for(j=0; j<cnt; j++)
+		{
+		char *type=[sig getArgumentTypeAtIndex:j];
+		if(*type == _C_ID)
+			{
+			id val;
+			[i getArgument:&val atIndex:j];
+			NSLog(@"%u: %@", j, val);
+			}
+		else
+			NSLog(@"%u: %s", j, type);
+		}
+	}
 #endif
 #endif
 #if 0
@@ -783,8 +809,8 @@ static unsigned int _sequence;	// global sequence number
 	[portCoder encodeObject:nil];
 	[portCoder encodeObject:nil];
 	[self finishEncoding:portCoder];	// should add authentication
-	
 	NS_DURING
+	[self retain];	// otherwise we may be deallocated by -invalidate
 #if 0
 	NSLog(@"*** (conn=%p) send request to %@", self, [portCoder _sendPort]);
 #endif
@@ -808,6 +834,10 @@ static unsigned int _sequence;	// global sequence number
 #if 0
 					NSLog(@"*** (conn=%p) loop for response %u in %@ at %@: %@", self, _sequence, NSConnectionReplyMode, _receivePort, rl);
 #endif
+					if(![self isValid])
+						[NSException raise:NSPortReceiveException format:@"NSConnection became invalid"];						
+					if(![_sendPort isValid])
+						[NSException raise:NSPortReceiveException format:@"sendInvocation: receive port became invalid"];						
 					portCoder=NSMapGet(_responses, (const void *) _sequence);
 					if(portCoder)
 						{ // the response we are waiting for has arrived!
@@ -815,8 +845,6 @@ static unsigned int _sequence;	// global sequence number
 							NSMapRemove(_responses, (const void *) _sequence);
 							break;	// break the loop and decode the response
 						}
-					if(![_sendPort isValid])
-						[NSException raise:NSPortReceiveException format:@"sendInvocation: receive port became invalid"];						
 					if(![rl runMode:NSConnectionReplyMode beforeDate:until])
 						[NSException raise:NSPortReceiveException format:@"sendInvocation: receive runloop error"];
 #if 0
@@ -854,9 +882,11 @@ static unsigned int _sequence;	// global sequence number
 #endif
 		}
 	[_sendPort removeFromRunLoop:rl forMode:NSConnectionReplyMode];
+	[self release];
 	NS_HANDLER
 	NSLog(@"Exception in sendInvocation %@: %@", i, [localException reason]);
 	[_sendPort removeFromRunLoop:rl forMode:NSConnectionReplyMode];
+	[self release];
 	[localException raise];		// re-raise exception
 	NS_ENDHANDLER
 }
@@ -967,13 +997,13 @@ static unsigned int _sequence;	// global sequence number
 			// according to the description it appears there is one queue per NSThread shared by all NSConnections known to that NSThread
 			// so we should not have an iVar but use [[NSThread currentThread] threadDictionary]
 			
-//			static NSString *key=@"NSPerThreadConnectionQueue";	// CHECKME!!!
+//			static NSString *key=@"NSPerThreadConnectionQueue";	// CHECKME how the key is called!!!
 //			NSMutableDictionary *dict=[[NSThread currentThread] threadDictionary];
 //			NSMutableArray *requestQueue=[dict objectForKey:key];
 			
 			if(!_requestQueue)
 				_requestQueue=[NSMutableArray new];
-			[inv retainArguments];
+			[inv retainArguments];	// retain any NSDistantObject we have received
 			[_requestQueue addObject:req];
 #if 0
 			NSLog(@"*** (conn=%p) queued: %@", self, req);
@@ -1158,10 +1188,12 @@ static unsigned int _sequence;	// global sequence number
 
 - (NSDistantObject *) _getLocal:(id) target;
 { // get proxy object for local object - if known
-#if 0
+#if 1
 	NSLog(@"_getLocal: %p", target);
 	NSLog(@"   -> %p", NSMapGet(_localObjects, (void *) target));
+#if 0
 	NSLog(@"   -> %@", NSMapGet(_localObjects, (void *) target));
+#endif
 #endif
 	return NSMapGet(_localObjects, (void *) target);
 }
@@ -1172,21 +1204,22 @@ static unsigned int _sequence;	// global sequence number
 	return NSMapGet(_localObjectsByRemote, (void *) remote);
 }
 
-- (void) _addDistantObject:(NSDistantObject *) obj forLocal:(id) target andRemote:(id) remote;
+- (void) _addLocalDistantObject:(NSDistantObject *) obj forLocal:(id) target andRemote:(id) remote;
 {
-#if 0
-	NSLog(@"_addLocal: %p %p", target, remote);
+#if 1
+	NSLog(@"_addLocalDistantObject: forLocal: %p andRemote: %p", target, remote);
 #endif
 	NSMapInsert(_localObjects, (void *) target, obj);
 	NSMapInsert(_localObjectsByRemote, (void *) remote, obj);
 	[self _incrementLocalProxyCount];
 }
 
-- (void) _removeLocal:(id) target;
+- (void) _removeLocalDistantObjectForLocal:(id) target andRemote:(id) remote;
 {
-#if 0
-	NSLog(@"_removeLocal: %p", target);
+#if 1
+	NSLog(@"_removeLocalDistantObjectForLocal: %p andRemote: %p", target, remote);
 #endif
+	NSMapRemove(_localObjectsByRemote, (void *) remote);
 	NSMapRemove(_localObjects, (void *) target);
 	[self _decrementLocalProxyCount];
 }
@@ -1196,7 +1229,7 @@ static unsigned int _sequence;	// global sequence number
 
 - (NSDistantObject *) _getRemote:(id) target;
 { // get proxy for remote target - if known
-#if 0
+#if 1
 	NSLog(@"_getRemote: %p", target);
 	NSLog(@"   -> %p", NSMapGet(_remoteObjects, (void *) target));
 	//	NSLog(@"   -> %@", NSMapGet(_remoteObjects, (void *) target));
@@ -1204,20 +1237,20 @@ static unsigned int _sequence;	// global sequence number
 	return NSMapGet(_remoteObjects, (void *) target);
 }
 
-- (void) _addDistantObject:(NSDistantObject *) obj forRemote:(id) target;
+- (void) _addRemoteDistantObject:(NSDistantObject *) obj forRemote:(id) target;
 {
-#if 0
-	NSLog(@"_addRemote: %p", target);
+#if 1
+	NSLog(@"_addRemoteDistantObject: forRemote: %p", target);
 #endif
 	NSMapInsert(_remoteObjects, (void *) target, obj);
 	//	if((unsigned int) target >= _nextReference)
 	//		_nextReference=((unsigned int) target)+1;
 }
 
-- (void) _removeRemote:(id) target;
+- (void) _removeRemoteDistantObjectForRemote:(id) target;
 {
-#if 0
-	NSLog(@"_removeRemote: %p", target);
+#if 1
+	NSLog(@"_removeRemoteDistantObjectForRemote: %p", target);
 #endif
 	NSMapRemove(_remoteObjects, (void *) target);
 }

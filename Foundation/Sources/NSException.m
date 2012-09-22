@@ -57,11 +57,11 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 	NSLog(@"file=%@", file);
 	NSLog(@"line=%d", line);
 #endif
-	NSLog(@"Assertion failed: %@ method: %@ file: %@ line: %d", description, NSStringFromSelector(_cmd), file, line);
+	NSLog(@"Assertion failed: %@; method: %@ file: %@ line: %d", description, NSStringFromSelector(sel), file, line);
 #if 1
     abort();
 #endif
-	[NSException raise:NSInternalInconsistencyException format:@"Assertion failed: %@ method: %@ file: %@ line: %d", description, NSStringFromSelector(_cmd), file, line];
+	[NSException raise:NSInternalInconsistencyException format:@"Assertion failed: %@; method: %@ file: %@ line: %d", description, NSStringFromSelector(sel), file, line];
 }
 
 - (void) handleFailureInFunction:(NSString *) name file:(NSString *) file lineNumber:(NSInteger) line description:(NSString *) desc, ...
@@ -77,11 +77,11 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 	NSLog(@"file=%@", file);
 	NSLog(@"line=%d", line);
 #endif
-	NSLog(@"Assertion failed: %@ function: %@ file: %@ line: %d", description, name, file, line);
+	NSLog(@"Assertion failed: %@; function: %@ file: %@ line: %d", description, name, file, line);
 #if 1
     abort();
 #endif
-	[NSException raise:NSInternalInconsistencyException format:@"Assertion failed: %@ function: %@ file: %@ line: %d", description, name, file, line];
+	[NSException raise:NSInternalInconsistencyException format:@"Assertion failed: %@; function: %@ file: %@ line: %d", description, name, file, line];
 }
 
 @end

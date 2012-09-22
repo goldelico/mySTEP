@@ -14,9 +14,6 @@ int main(int argc, char *argv[])
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	CoreLocationDaemon *d=[CoreLocationDaemon new];	// create daemon
     NSConnection *theConnection=[NSConnection new];
-#if 0
-	[NSData md5test];
-#endif
 #if 1
     NSLog(@"Creating connection for %@...", SERVER_ID);
 #endif
@@ -30,10 +27,14 @@ int main(int argc, char *argv[])
 		return 1;
 		}	
 	// process events
+#if 1
+    NSLog(@"Running the loop...");
+#endif
 	[[NSRunLoop currentRunLoop] run];	// run until all input sources have been removed (after GPS is shut down)
 #if 1
     NSLog(@"Exiting daemon for %@", SERVER_ID);
 #endif
+	[d release];
     [pool release];
     return 0;	
 }
@@ -94,7 +95,7 @@ static int startW2SG;
 #if 1
 	NSLog(@"Daemon: registerManager: %@", m);
 #endif
-	NSAssert([m isKindOfClass:[CLLocationManager class]], @"register CLLocationManagers only");
+//	NSAssert([m isKindOfClass:[CLLocationManager class]], @"register CLLocationManagers only");
 	if(!managers)
 		{ // set up GPS receiver and wait for first fix
 			NSString *dev=[self _device];

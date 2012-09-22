@@ -86,14 +86,16 @@
 	NSLog(@"target=%@", target);
 	NSLog(@"sel=%p", sel);
 	NSLog(@"sel=%@", NSStringFromSelector(sel));
-	return [NSString stringWithFormat:@"%@ %p: selector=%@ target=%@ signature=%s validReturn=%@ argsRetained=%@",
+	return [NSString stringWithFormat:@"%@ %p: selector=%@ target=%@ signature=%s validReturn=%@ argsRetained=%@ sig=%@ numargs=%u",
 			NSStringFromClass(isa),
 			self,
 			NSStringFromSelector(sel),
 			target==self?@"(self)":target,
 			_types,
 			_validReturn?@"yes":@"no",
-			_argsRetained?@"yes":@"no"
+			_argsRetained?@"yes":@"no",
+			_sig,
+			[_sig numberOfArguments]
 			];
 }
 
@@ -257,7 +259,7 @@
 		return;
 		}
 	[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
-#if 0
+#if 1
 	NSLog(@"NSInvocation -invoke withTarget:%@", target);
 #endif
 	if(target == nil)			// A message to a nil object returns nil
@@ -281,7 +283,7 @@
 #endif
 			imp = objc_msg_lookup(target, selector);
 		}
-#if 0
+#if 1
 	[self _log:@"stack before _call"];
 	//	*((long *)1)=0;
 #endif
@@ -319,7 +321,7 @@
 		[_sig _getArgument:buffer fromFrame:_retval atIndex:-1];
 	else
 		{
-		NSLog(@"encodeInvocation has no return value");	// e.g. if [i invoke] did result in an exception!
+		NSLog(@"encodeInvocation has no return value to encode");	// e.g. if [i invoke] did result in an exception!
 		len=1;	// this may also be some default value
 		*(char *) buffer=0x40;
 		}
@@ -327,7 +329,6 @@
 	[aCoder encodeArrayOfObjCType:@encode(char) count:len at:buffer];	// encode the bytes of the return value (not the object/type which can be done by encodeReturnValue)
 	for(j=2; j<cnt; j++)
 		{ // encode arguments
-			// set byRef & byCopy flags here
 			[self getArgument:buffer atIndex:j];	// get value
 			[aCoder encodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
 		}
@@ -344,6 +345,7 @@
 	id target;
 	SEL selector;
 	int j;
+	return NIMP;
 	[aCoder decodeValueOfObjCType:@encode(id) at:&target];
 	[aCoder decodeValueOfObjCType:@encode(int) at:&cnt];
 	[aCoder decodeValueOfObjCType:@encode(SEL) at:&selector];

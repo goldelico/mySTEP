@@ -431,7 +431,17 @@ const char *objc_skip_typespec (const char *type)
 		case _C_VOID:
 			return;	// nothing to encode
 		case _C_ID:	{
-			[self encodeObject:*((id *)address)];
+			switch(type[1]) {
+				case _C_BYREF:
+					[self encodeByrefObject:*((id *)address)];
+					break;
+				case _C_BYCOPY:
+					[self encodeBycopyObject:*((id *)address)];
+					break;
+				default:
+					[self encodeObject:*((id *)address)];
+					break;
+			}
 			break;
 		}
 		case _C_CLASS: {
@@ -887,6 +897,7 @@ const char *objc_skip_typespec (const char *type)
 #if 1
 	[i encodeWithCoder:self];
 #else
+	NIMP;
 	NSMethodSignature *sig=[i methodSignature];
 	unsigned char len=[sig methodReturnLength];	// this should be the lenght really allocated
 	void *buffer=objc_malloc(MAX([sig frameLength], len));	// allocate a buffer
@@ -936,6 +947,7 @@ const char *objc_skip_typespec (const char *type)
 {
 #if 0
 	// FIXME: this is not correctly implemented yet
+	NIMP;
 	return [[[NSInvocation alloc] initWithCoder:portCoder] autorelease];
 #else
 	NSInvocation *i;
@@ -947,10 +959,18 @@ const char *objc_skip_typespec (const char *type)
 	id target;
 	SEL selector;
 	int j;
+#if 1
+	NSLog(@"decode target");
+#endif
 	[self decodeValueOfObjCType:@encode(id) at:&target];
 	[self decodeValueOfObjCType:@encode(int) at:&cnt];
+#if 1
+	NSLog(@"%d arguments", cnt);
+	NSLog(@"decode selector");
+#endif
 	[self decodeValueOfObjCType:@encode(SEL) at:&selector];
 	[self decodeValueOfObjCType:@encode(char *) at:&type];
+	// FIXME: we must check if it is big enough...
 	[self decodeValueOfObjCType:@encode(unsigned char) at:&len];	// should set the buffer size internal to the NSInvocation
 #if 0
 	type=translateSignatureFromNetwork(type);
@@ -962,12 +982,18 @@ const char *objc_skip_typespec (const char *type)
 	[i setReturnValue:buffer];	// set value
 	for(j=2; j<cnt; j++)
 		{ // decode arguments
-		[self decodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
-		[i setArgument:buffer atIndex:j];	// set value
+#if 1
+			NSLog(@"decode argument %d", j);
+#endif
+			[self decodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
+			[i setArgument:buffer atIndex:j];	// set value
 		}
 	[i setTarget:target];
 	[i setSelector:selector];
 	objc_free(buffer);
+#if 1
+	NSLog(@"NSInvocation decoded");
+#endif
 	return i;
 #endif
 }
@@ -988,14 +1014,14 @@ const char *objc_skip_typespec (const char *type)
 	BOOL flag;
 	NSMutableDictionary *savedClassVersions;
 	int version;
-#if 0
+#if 1
 	NSLog(@"decodeRetainedObject: %@", [self _location]);
 #endif
 	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// the first byte is the non-nil/nil flag
 	if(!flag)
 		return nil;
 	[self decodeValueOfObjCType:@encode(Class) at:&class];
-#if 0
+#if 1
 	NSLog(@"decoded class=%@", NSStringFromClass(class));
 #endif
 	if(!class)
@@ -1036,13 +1062,13 @@ const char *objc_skip_typespec (const char *type)
 		obj=[[NSDistantObject alloc] initWithCoder:self];
 	else
 #endif
-#if 1	// as long as we can't call initWithCoder: for NSInovocation
+#if 1	// special handling as long as we can't call initWithCoder: for NSInovocation
 	if(class == [NSInvocation class])
 		obj=[[self decodeInvocation] retain];	// special handling
 	else 
 #endif
 	if([class instancesRespondToSelector:@selector(_initWithPortCoder:)])
-		obj=[[class alloc] _initWithPortCoder:self];	// this allows to define different encoding
+		obj=[[class alloc] _initWithPortCoder:self];	// this allows to define a different encoding - currently used for NSString
 	else
 		obj=[[class alloc] initWithCoder:self];	// allocate and load new instance
 	[self decodeValueOfObjCType:@encode(BOOL) at:&flag];	// always 0x01 (?) - appears to be 0x00 for a reply; and there may be another object if flag == 0x01
@@ -1054,6 +1080,9 @@ const char *objc_skip_typespec (const char *type)
 	_classVersions=savedClassVersions;
 	if(!obj)
 		[NSException raise:NSGenericException format:@"decodeRetainedObject: class %@ not instantiated %@", NSStringFromClass(class), [self _location]];
+#if 1
+	NSLog(@"decoded object=%p", obj);
+#endif
 	return obj;
 }
 

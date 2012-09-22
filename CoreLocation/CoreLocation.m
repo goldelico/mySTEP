@@ -334,6 +334,8 @@ static CLHeading *newHeading;
 
 - (void) startUpdatingLocation;
 {
+	NSLog(@"_server=%@", _server);
+	NSLog(@"manager=%@", self);
 	NS_DURING
 		[_server registerManager:self];
 	NS_HANDLER

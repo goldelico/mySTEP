@@ -430,9 +430,8 @@ static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *i
 		return YES;
 	if(![super isEqual:other])
 		return NO;
-	// compare signatures (ignoring embedded offsets)
-	// return strcmp([self _methodType], [other _methodType]) == 0;
-	return YES;
+	// fixme: strip off offsets if included
+	return strcmp([self _methodType], [other _methodType]) == 0;
 }
 
 - (NSUInteger) hash;

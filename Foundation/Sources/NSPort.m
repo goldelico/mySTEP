@@ -374,10 +374,10 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 				NSLog(@"%@: could not listen due to %s", self, strerror(errno));
 				return NO;
 				}
+			_isBound=YES;
 #if 1
 			NSLog(@"listening %@", self);
 #endif
-			_isBound=YES;
 		}
 	return YES;
 }

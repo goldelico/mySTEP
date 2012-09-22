@@ -175,11 +175,11 @@
 }
 
 - (BOOL) isProxy							{ return YES; }
+- (unsigned int) hash						{ return (unsigned int)self; }
 
-// which of these should be forwarded...
+// which of these should be forwarded as well?
 
 #if 0	// all these...
-- (unsigned int) hash						{ return (unsigned int)self; }
 - (BOOL) isEqual:(id)anObject				{ return (self == anObject); }
 #endif
 
