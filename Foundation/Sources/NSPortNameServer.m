@@ -199,12 +199,15 @@ static NSMessagePortNameServer *__sharedNSMessagePortNameServer;
 
 - (NSPort *) portForName:(NSString *) portName host:(NSString *) hostName;
 { // get named socket through alias
+	NSMessagePort *p;
 #if 0
 	NSLog(@"NSMessagePortNameServer portForName:%@ host:%@", portName, hostName);
 #endif	  
 	if([hostName length] != 0)
 		return nil; // host name must be nil or empty!
-	return [[[NSMessagePort alloc] _initRemoteWithName:portName] autorelease];	// connect to AF_UNIX file
+	p=[NSMessagePort new];
+	[p _setName:portName];		// connect to AF_UNIX file
+	return [p autorelease];
 }
 
 - (BOOL) registerPort:(NSPort *) port name:(NSString *) name;

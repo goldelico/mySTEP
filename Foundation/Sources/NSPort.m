@@ -66,6 +66,49 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 
 @implementation NSPort
 
+NSString *__NSDescribeSockets(void *table, const void *addr)
+{
+	return [[NSData dataWithBytes:addr length:((struct _NSPortAddress *) addr)->addrlen+sizeof(uint16_t)+2*sizeof(uint8_t)] description];
+}
+
+unsigned __NSHashSocket(void *table, const void *addr)
+{
+	register const char *p = (char*)addr;
+	register unsigned hash = 0, hash2;
+	register int i;
+    for(i = 0; i < ((struct _NSPortAddress *) addr)->addrlen+sizeof(uint16_t)+2*sizeof(uint8_t); i++)
+		{
+        hash <<= 4;
+        hash += *p++;
+        if((hash2 = hash & 0xf0000000))
+            hash ^= (hash2 >> 24) ^ hash2;
+		}
+#if 0
+	NSLog(@"hash=%u for %@", hash, __NSDescribeSockets(table, addr));
+#endif
+	return hash;
+}
+
+BOOL __NSCompareSockets(void *table, const void *addr1, const void *addr2)
+{
+#if 0
+	NSLog(@"compare %@", __NSDescribeSockets(table, addr1));
+	NSLog(@"     to %@", __NSDescribeSockets(table, addr2));
+#endif
+	if(((struct _NSPortAddress *) addr1)->addrlen != ((struct _NSPortAddress *) addr2)->addrlen)
+		return NO;	// different address length
+    return memcmp((char*)addr1, (char*)addr2, ((struct _NSPortAddress *) addr1)->addrlen+sizeof(uint16_t)+2*sizeof(uint8_t)) == 0;
+}
+
+static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
+    (unsigned(*)(NSMapTable *, const void *))__NSHashSocket,
+    (BOOL (*)(NSMapTable *, const void *, const void *))__NSCompareSockets,
+    (void (*)(NSMapTable *, const void *anObject))__NSRetainNothing,
+    (void (*)(NSMapTable *, void *anObject))__NSReleaseNothing,
+    (NSString *(*)(NSMapTable *, const void *))__NSDescribeSockets,
+    (const void *)NULL
+};
+
 + (void) initialize
 {
 	if(self == [NSPort class])
@@ -74,6 +117,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 		// If SIGPIPE is not ignored, we will abort 
 		// on any attempt to write to a pipe/socket
 		// that has been closed by the other end!
+		__sockets=NSCreateMapTable(NSSocketMapKeyCallBacks, NSObjectMapValueCallBacks, 0);
 		}
 }
 
@@ -151,7 +195,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 		// invalidating so that we know that anything refering to this
 		// port during the invalidation process is released immediately
 		// Also bracket with retain/release pair to prevent recursion.
-#if 0
+#if 1
 		NSLog(@"port finally released: %@", self);
 #endif
 		[super retain];
@@ -248,7 +292,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 			   reserved:(unsigned)headerSpaceReserved;	// ignored...
 { // make us generically work as an NSPort based on UNIX file descriptors (sockets)
 	NSRunLoop *loop=[NSRunLoop currentRunLoop];
-#if 0
+#if 1
 	NSLog(@"%@ sendBeforeDate:%@ msgid:%u components:%@ from:%@ reserved:%u", self, limitDate, msgid, components, receivePort, headerSpaceReserved);
 #endif
 	if(!_isValid)
@@ -263,8 +307,8 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 	if(!_sendData)
 		[NSException raise:NSPortSendException format:@"could not convert data to machMessage"];
 	[_sendData retain];	// NSRunLoop may autorelease pools before everything is sent! Will be released in _writeFileDescriptorReady
-#if 0
-	NSLog(@"send length=%u data=%@ to fd=%d", [_sendData length], _sendData, _sendfd);
+#if 1
+	NSLog(@"send length=%u data=%@ to fd=%d on %@", [_sendData length], _sendData, _sendfd);
 #endif
 	_sendPos=0;
 	[loop _addOutputWatcher:self forMode:NSConnectionReplyMode];	// get callbacks when we can send
@@ -334,6 +378,7 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 					}
 				return NO;
 				}
+			_isBound=YES;
 #if 0
 			NSLog(@"connected %@", self);
 #endif
@@ -415,8 +460,8 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 				NSLog(@"not yet bound & listening:%@", self);
 					// FIXME: how and when is this unbound/_unlinked?
 					// would it be better not to schedule a socket that is not bound?
-//				[self _bindAndListen];	// NO: bind may create a named socket file in /tmp/.QuantumSTEP which is never deleted
-				[loop _removeWatcher:self]; // completely unschedule this port
+				[self _bindAndListen];	// NO: bind may create a named socket file in /tmp/.QuantumSTEP which is never deleted
+//				[loop _removeWatcher:self]; // completely unschedule this port !!! this may remove the last run loop watcher and make the loop end
 				return;
 #endif
 				}
@@ -621,69 +666,23 @@ static NSMapTable *__sockets;	// a map table to associate family, type, protocol
 		; // nothing (more) to write - should we better unscheldule to reduce processor utilization?
 }
 
-NSString *__NSDescribeSockets(void *table, const void *addr)
-{
-	return [[NSData dataWithBytes:addr length:((struct _NSPortAddress *) addr)->addrlen+sizeof(uint16_t)+2*sizeof(uint8_t)] description];
-}
-
-unsigned __NSHashSocket(void *table, const void *addr)
-{
-	register const char *p = (char*)addr;
-	register unsigned hash = 0, hash2;
-	register int i;
-    for(i = 0; i < ((struct _NSPortAddress *) addr)->addrlen+sizeof(uint16_t)+2*sizeof(uint8_t); i++)
-		{
-        hash <<= 4;
-        hash += *p++;
-        if((hash2 = hash & 0xf0000000))
-            hash ^= (hash2 >> 24) ^ hash2;
-		}
-#if 0
-	NSLog(@"hash=%u for %@", hash, __NSDescribeSockets(table, addr));
-#endif
-	return hash;
-}
-
-BOOL __NSCompareSockets(void *table, const void *addr1, const void *addr2)
-{
-#if 0
-	NSLog(@"compare %@", __NSDescribeSockets(table, addr1));
-	NSLog(@"     to %@", __NSDescribeSockets(table, addr2));
-#endif
-    return memcmp((char*)addr1, (char*)addr2, ((struct _NSPortAddress *) addr1)->addrlen+sizeof(uint16_t)+2*sizeof(uint8_t)) == 0;
-}
-
-static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
-    (unsigned(*)(NSMapTable *, const void *))__NSHashSocket,
-    (BOOL (*)(NSMapTable *, const void *, const void *))__NSCompareSockets,
-    (void (*)(NSMapTable *, const void *anObject))__NSRetainNothing,
-    (void (*)(NSMapTable *, void *anObject))__NSReleaseNothing,
-    (NSString *(*)(NSMapTable *, const void *))__NSDescribeSockets,
-    (const void *)NULL
-};
-
 - (id) _substituteFromCache;
 { // call only after setting the address
 	// FIXME: lock
-	if(!__sockets)
-		__sockets=NSCreateMapTable(NSSocketMapKeyCallBacks, NSObjectMapValueCallBacks, 0);
-	else
-		{
-		id cached=NSMapGet(__sockets, &_address);	// look up in cache
-		if(cached)
-			{ // we already have a socket with these specific properties ("data")
-#if 0
-				NSLog(@"substitute by cached socket: %@ %d+1", cached, [self retainCount]);
+	id cached=NSMapGet(__sockets, &_address);	// look up in cache
+	if(cached)
+		{ // we already have a socket with these specific properties ("data")
+#if 1
+			NSLog(@"substitute by cached socket: %@ %d+1", cached, [self retainCount]);
 #endif
-				if(cached != self)
-					{ // substitute
-						[cached retain];
-						_isValid=NO;	// the allocated and replaced socket may have been set to valid
-						[self release];
-					}
-				// FIXME: unlock
-				return cached;
-			}
+			if(cached != self)
+				{ // substitute
+					[cached retain];
+					_isValid=NO;	// the allocated and replaced socket may have been set to valid
+					[self release];
+				}
+			// FIXME: unlock
+			return cached;
 		}
 #if 0
 	NSLog(@"cache new socket: %@ %d", self, [self retainCount]);
@@ -726,89 +725,93 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 #define SUN_PATH	(SUN_ADDRP->sun_path)
 
 static NSString *_portDirectory;
+static char _portDirectoryPath[50];
 static unsigned _portDirectoryLength;
 
 + (void) initialize;	// called on first real use of this class
 { // initialize system wide constants
-	const char *fsrep;
 	NSAssert(sizeof(struct sockaddr_un) <= sizeof(struct sockaddr_storage), NSInternalInconsistencyException);	// we can't use the sockaddr_storage structure!
 	_portDirectory=[[NSTemporaryDirectory() stringByAppendingPathComponent:@".QuantumSTEP"] retain];
-	fsrep=[_portDirectory fileSystemRepresentation];
-	_portDirectoryLength=strlen(fsrep);
-	mkdir(fsrep, 0770);	// create socket temp directory - ignore errors (e.g. if it already exists)
+	strncpy(_portDirectoryPath, [_portDirectory fileSystemRepresentation], sizeof(_portDirectoryPath)-1);
+	_portDirectoryLength=strlen(_portDirectoryPath);
+	mkdir(_portDirectoryPath, 0770);	// create socket temp directory - ignore errors (e.g. if it already exists)
 }
 
 - (NSData *) address;
 { // not officilly defined by the @interface but we need it to encode the socket; returns the basename only
 	NSData *d;
-	int l=_address.addrlen-_portDirectoryLength-1;
-	if(l < 0) l=0;
-	// FIXME: the first two bytes should be the address family (but is ignored when matching ports in the cache)
-	d=[NSData dataWithBytesNoCopy:SUN_PATH+_portDirectoryLength-1 length:l freeWhenDone:NO];
+	// FIXME: the first two bytes should be the address family (but ignored when matching ports in the cache)
+	if(SUN_PATH[0] == 0)
+		{ // abstract
+			d=[NSData dataWithBytesNoCopy:SUN_PATH length:_address.addrlen freeWhenDone:NO];	// should include leading 0-byte
+		}
+	else
+		{
+			int l=_address.addrlen-_portDirectoryLength-1;
+			if(l < 0) l=0;
+			d=[NSData dataWithBytesNoCopy:SUN_PATH+_portDirectoryLength-1 length:l freeWhenDone:NO];
+		}
 	return d;
 }
 
 - (NSString *) description;
 {
+	if(SUN_PATH[0] == 0)
+		return [NSString stringWithFormat:@"%@ abstract path=%.*s %@", [super description], _address.addrlen-1, SUN_PATH+1, [self address]];
 	return [NSString stringWithFormat:@"%@ path=%.*s %@", [super description], _address.addrlen-2, SUN_PATH, [self address]];
 }
 
 - (id) init
-{ // create local socket with unique local name
-#if 0
-	NSLog(@"NSMessagePort init");
+{ // create local socket with unique name in abstract name space
+#if 1
+	NSLog(@"NSMessagePort init %p", self);
 #endif
-	if((self=[self _initRemoteWithName:[[NSProcessInfo processInfo] globallyUniqueString]]))
+	NSMutableData *addr=[[NSMutableData alloc] initWithLength:1];	// initialize with single 0 byte (abstract namespace)
+	[addr appendData:[[[NSProcessInfo processInfo] globallyUniqueString] dataUsingEncoding:NSUTF8StringEncoding]];
+	return [self initRemoteWithProtocolFamily:AF_UNIX socketType:SOCK_STREAM protocol:0 address:addr];
+}
+
+- (id) initRemoteWithProtocolFamily:(int) family socketType:(int) type protocol:(int) protocol address:(NSData *) address;
+{
+	// FIXME: the first 2 bytes of address should probably be the same as the family!
+#if 1
+	NSLog(@"NSMessagePort %p _initRemoteWithFamily:%d socketType:%d protocol:%d address:%@", self, family, type, protocol, address);
+#endif
+	if((self=[super init]))
 		{
-		_fd=socket(SUN_FAMILY, _address.type, 0);
+		SUN_FAMILY=family;
+		if([address length] > 0 && ((char *)[address bytes])[0] == 0)
+			{ // abstract name space
+			_address.addrlen=MIN([address length], sizeof(SUN_PATH));
+			memcpy(SUN_PATH, ((char *)[address bytes]), _address.addrlen);	// copy incl. leading 0x00
+			}
+		else
+			{ // file system name space - prefix with directory path
+			unsigned int alen=[address length]-2;
+			strncpy(SUN_PATH, _portDirectoryPath, sizeof(SUN_PATH));
+			SUN_PATH[_portDirectoryLength]='/';
+			strncpy(SUN_PATH+_portDirectoryLength+1, (char *)[address bytes]+2, sizeof(SUN_PATH)-_portDirectoryLength-1);
+			_address.addrlen=SUN_LEN(SUN_ADDRP);	// set length after storing the path
+			if(alen+_portDirectoryLength+1 >= sizeof(SUN_PATH))
+				NSLog(@"NSMessagePort: name will be truncated!");
+			else
+				(SUN_PATH+_portDirectoryLength+1)[alen]=0;	// make 0-or-length terminated string			
+			}
+		_address.type=type;
+		_address.protocol=protocol;
+		_fd=socket(SUN_FAMILY, _address.type, _address.protocol);
 		if(_fd < 0)
 			{
 			NSLog(@"NSMessagePort: could not create socket due to %s", strerror(errno));
 			[self release];
 			return nil;
 			}
-		// note: we do not yet bind&listen like the NSSocketPort - we do that only if we are used for the first time, so that publishing may change the socket name
+		// NOTE: we do not yet bind&listen like a NSSocketPort does
+		// We postpone this until the port is used for the first
+		// time, so that publishing may change the socket name
+		// and name space to a public name (visible in the file system)		
 		}
-	return self;
-}
-
-- (id) _initRemoteWithName:(NSString *) name;
-{ // create socket that will connect to specified remote socket
-#if 0
-	NSLog(@"NSMessagePort _initRemoteWithName:%@", name);
-#endif
-	if((self=[super init]))
-		{
-		_address.type=SOCK_STREAM;
-		[self _setName:name];	// insert socket address
-		}
-	return [self _substituteFromCache];
-}
-
-- (id) initRemoteWithProtocolFamily:(int) family socketType:(int) type protocol:(int) protocol address:(NSData *) address;
-{
-	int alen=[address length]-2;
-	// FIXME: the first 2 bytes of address should probably be the same as the family!
-	// should we substitute a unique local name if alen == 0?
-	// i.e. [[NSProcessInfo processInfo] globallyUniqueString]]
-#if 0
-	NSLog(@"NSMessagePort _initRemoteWithFamily:%d socketType:%d protocol:%d address:%@", family, type, protocol, address);
-#endif
-	if((self=[super init]))
-		{
-		SUN_FAMILY=family;
-		strncpy(SUN_PATH, [_portDirectory fileSystemRepresentation], sizeof(SUN_PATH));
-		SUN_PATH[_portDirectoryLength]='/';
-		strncpy(SUN_PATH+_portDirectoryLength+1, (char *)[address bytes]+2, sizeof(SUN_PATH)-_portDirectoryLength-1);
-		if(alen+_portDirectoryLength+1 >= sizeof(SUN_PATH))
-			NSLog(@"NSMessagePort: name will be truncated!");
-		else
-			(SUN_PATH+_portDirectoryLength+1)[alen]=0;	// make 0-or-length terminated string
-		_address.addrlen=SUN_LEN(SUN_ADDRP);
-		_address.type=type;
-		_address.protocol=protocol;
-		}
-	if(alen > 0)
+	if([address length] > 0)
 		return [self _substituteFromCache];
 	return self;	// accept() returns an empty address - don't merge all these
 }
@@ -816,12 +819,13 @@ static unsigned _portDirectoryLength;
 - (NSSocketNativeHandle) socket; { return _fd; }
 
 - (void) _setName:(NSString *) name;
-{ // insert file name into the AF_UNIX socket
+{ // insert concrete file name into the AF_UNIX socket
 	NSMutableString *n;
 	const char *fn;
 	if(_isBound)
 		{
 		NSLog(@"can't _setName:%@ - already bound: %@", name, self);
+		// raise exception
 		return;
 		}
 	n=[name mutableCopy];	// make autoreleased mutable copy

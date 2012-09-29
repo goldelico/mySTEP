@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     NSLog(@"Creating connection for %@...", SERVER_ID);
 #endif
     [theConnection setRootObject:d];
-#if 1	// FIXME: this is hack because the message port isn't always deleted automatically yet
+#if 1	// FIXME: this is a hack because the message port isn't always deleted automatically yet, especially if the daemon is aborted
 	unlink("/tmp/.QuantumSTEP/com%.Quantum-STEP%.CoreLocation%.CoreLocationDaemon");
 #endif
     if([theConnection registerName:SERVER_ID] == NO)

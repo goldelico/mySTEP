@@ -64,12 +64,34 @@
 int main(int argc, char *argv[])
 {
 	NSAutoreleasePool *arp=[[NSAutoreleasePool alloc] init];
+#if 0
+	{ // test NSMessagePort creation and caching
+	NSPort *p;
+	NSLog(@"first NSMessagePort: %@", p=[NSMessagePort port]);
+	NSLog(@"second NSMessagePort: %@", [NSMessagePort port]);
+	NSLog(@"copied NSMessagePort: %@", [[NSMessagePort alloc] initRemoteWithProtocolFamily:[p protocolFamily]
+															   socketType:[p socketType]
+																 protocol:[p protocol]
+																  address:[p address]]);
+	return 0;
+	}
+#endif
 	CLLocationManager *mgr=[CLLocationManager new];
 	if(!mgr)
 		{
 		NSLog(@"needs allocation of manager");
 		exit(1);
 		}
+	{
+	NSPort *p;
+	NSLog(@"first NSMessagePort: %@", [NSMessagePort port]);
+	NSLog(@"second NSMessagePort: %@", p=[NSMessagePort port]);
+	NSLog(@"copy %@", [[NSMessagePort alloc] initRemoteWithProtocolFamily:[p protocolFamily]
+															   socketType:[p socketType]
+																 protocol:[p protocol]
+																  address:[p address]]);
+	}
+ 
 	NSLog(@"cltest started - mgr=%@", mgr);
 	if([mgr respondsToSelector:@selector(setPurpose:)])
 		[mgr setPurpose:@"cltest"];

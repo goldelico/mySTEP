@@ -319,10 +319,10 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 
 @interface NSMessagePort (NSPrivate)
 
-+ (NSString *) _portSocketDirectory;
 - (void) _setName:(NSString *) name;
 - (BOOL) _unlink;
 - (id) _initRemoteWithName:(NSString *) name;
+- (id) initRemoteWithProtocolFamily:(int) family socketType:(int) type protocol:(int) protocol address:(NSData *) address;
 
 // other private messages found in a core dump:
 // - sendBeforeTime:streamData:components:from:msgid:;
