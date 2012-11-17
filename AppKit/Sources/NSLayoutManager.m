@@ -18,7 +18,7 @@
 #import "NSBackendPrivate.h"
 #import "NSSimpleHorizontalTypesetter.h"
 
-#define OLD	1
+#define OLD	0
 
 @implementation NSGlyphGenerator
 
@@ -37,8 +37,9 @@
 {
 	NSAttributedString *astr=[storage attributedString];	// get string to layout
 	NSString *str=[astr string];
+	unsigned int length=[str length];
 	// could be optimized a little by getting and consuming the effective range of attributes
-	while(num > 0)
+	while(num > 0 && *index < length)
 		{
 		NSRange attribRange;	// range of same attributes
 		NSDictionary *attribs=[astr attributesAtIndex:*index effectiveRange:&attribRange];
@@ -76,7 +77,7 @@
  * this is currently our core layout and drawing method
  * it works quite well but has 3 limitations
  *
- * 1. it reclculates the layout for each call since there is no caching
+ * 1. it recalculates the complete layout for each drawing call since there is no caching
  * 2. it can't properly align vertically if font size is variable
  * 3. it can't handle horizontal alignment
  *
@@ -85,33 +86,7 @@
  * 5. recalculates for invisible ranges
  * 6. may line-break words at attribute run sections instead of hyphenation positions
  *
- * all this can be easily solved by separating the layout and the drawing phases
- * and by caching the glyph positions
- *
- * [_glyphGenerator generateGlyphsForGlyphStorage:self desiredNumberOfCharacters:attribRange.length glyphIndex:0 characterIndex:attribRange.location];
  */
-
-//
-// FIXME: optimize/cache for large NSTextStorages and multiple NSTextContainers
-//
-// FIXME: use and update glyph cache if needed
-// well, we should move that to the shared NSGlyphGenerator which does the layout
-// and make it run in the background
-//
-// 1. split into paragraphs
-// 2. split into lines
-// 3. split into words and try to fill line and hyphenate / line break
-// 4. split words into attribute ranges
-//
-// drawing should look like
-// [ctxt _setFont:xxx]; 
-// [ctxt _beginText];
-// [ctxt _newLine]; or [ctxt _setTextPosition:...];
-// [ctxt _setBaseline:xxx]; 
-// [ctxt _setHorizontalScale:xxx]; 
-// [ctxt _drawGlyphs:(NSGlyph *)glyphs count:(unsigned)cnt;	// -> (string) Tj
-// [ctxt _endText];
-//
 
 static NSGlyph *_oldGlyphs;
 static unsigned int _oldNumberOfGlyphs;
@@ -1110,15 +1085,14 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (NSRange) glyphRangeForTextContainer:(NSTextContainer *)container;
 { // this can become quite slow if we have 10 Mio characters...
-	// so we should have some cache indexed by the container
+	NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:container];
+	NSRange r;
+	NSAssert(idx != NSNotFound, @"Text Container unknown for NSLayoutManager");
 	/*
-	 NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:container];
-	 NSAssert(idx != NSNotFound, @"Text Container unknown for NSLayoutManager");
 	 _NSTextContainerInfo *info=_textContainerInfo[idx];
 	 if(!info.valid) // run layout
 	 return info.glyphRange;
 	 */
-	NSRange r;
 	[self ensureLayoutForTextContainer:container];
 	for(r.location=0; r.location < _numberOfGlyphs; r.location++)
 		if(_glyphs[r.location].textContainer == container)
@@ -1602,6 +1576,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) textContainerChangedGeometry:(NSTextContainer *)container;
 {
+	if(!_textContainers)
+		return;	// we are not yet initialized, i.e. won't find this container
 	// trigger invalidation
 	[self invalidateDisplayForGlyphRange:[self glyphRangeForTextContainer:container]];
 }

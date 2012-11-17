@@ -227,7 +227,7 @@ static NSFont *_getNSFont(NSString *key, NSString *defaultFontName, float size, 
 - (NSAffineTransform *) textTransform;			{ return [_descriptor matrix]; }
 
 - (void) encodeWithCoder:(NSCoder *)aCoder
-{														// NSCoding protocol
+{ // NSCoding protocol
 //	[aCoder encodeObject:_fontName];
 //	[aCoder encodeArrayOfObjCType:"f" count:6 at:_matrix];
 	NIMP;

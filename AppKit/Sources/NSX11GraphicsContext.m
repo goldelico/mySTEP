@@ -2554,7 +2554,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 				{ // resize backing store buffer
 					XWindowAttributes xwattrs;
 #if 1
-					NSLog(@"resize backing store buffer");
+					NSLog(@"resize backing store buffer { %u %u }", _xRect.width, _xRect.height);
 #endif
 					XGetWindowAttributes(_display, _realWindow, &xwattrs);
 					XFreePixmap(_display, (Pixmap) _graphicsPort);

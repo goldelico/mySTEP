@@ -107,9 +107,10 @@ typedef NSInteger NSTypesetterBehavior;
 			int elasticAttribute;
 			int bidiLevelAttribute;
 			int inscribeAttribute;
-		} *extra;	// extra data allocated on demand
+		} *extra;	// extra data allocated on demand (NULL otherwise)
 		NSUInteger characterIndex;	// the character index
-		BOOL notShownAttribute;	// Bitflag im intAttribute?
+		// define some int Attribute and bit fields
+		BOOL notShownAttribute;	// Bitflag in intAttribute?
 		BOOL drawsOutsideLineFragment;	// Bitflag im intAttribute?
 		BOOL validFlag;		// Glyph is valid
 		BOOL layoutFlag;	// Layout information is valid

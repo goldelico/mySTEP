@@ -235,10 +235,11 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 				   forLayoutManager:(NSLayoutManager *) manager
 	   maximumNumberOfLineFragments:(NSUInteger) maxLines;
 { // this is the main layout function - we assume that the Glyphs are already generated and character indexes are assigned
-	NSUInteger nextGlyph;
+	NSUInteger nextGlyph=[manager glyphIndexForCharacterAtIndex:range.location];
 	NSRange r=range;
-	[self layoutGlyphsInLayoutManager:manager startingAtGlyphIndex:[manager glyphIndexForCharacterAtIndex:range.location] maxNumberOfLineFragments:maxLines nextGlyphIndex:&nextGlyph];
-	r.length=[manager characterIndexForGlyphAtIndex:nextGlyph]-r.location;
+	[self layoutGlyphsInLayoutManager:manager startingAtGlyphIndex:nextGlyph maxNumberOfLineFragments:maxLines nextGlyphIndex:&nextGlyph];
+	if(nextGlyph < [manager numberOfGlyphs])
+		r.length=[manager characterIndexForGlyphAtIndex:nextGlyph]-r.location;	// did not process all
 	return r;
 }
 
@@ -624,8 +625,8 @@ forStartOfGlyphRange:(NSRange) range;
 	NSEnumerator *e;
 	NSPoint loc=[_layoutManager locationForGlyphAtIndex:glyphLoc];
 	if(writingDirection == NSWritingDirectionNatural)
-		writingDirection=NSWritingDirectionLeftToRight;
-	if(writingDirection != NSWritingDirectionLeftToRight)
+		writingDirection=NSWritingDirectionLeftToRight;	// determine from system setting
+	if(writingDirection == NSWritingDirectionLeftToRight)
 		{
 		e=[[_currentParagraphStyle tabStops] objectEnumerator];
 		while((tab=[e nextObject]))
@@ -638,11 +639,14 @@ forStartOfGlyphRange:(NSRange) range;
 			}
 		}
 	else
-		{
+		{ // right to left
 		e=[[_currentParagraphStyle tabStops] reverseObjectEnumerator];
-		CGFloat tl=[tab location];
-		if(tl <= maxLoc && tl < loc.x)
-			return tab;	// first tab before this glyph
+		while((tab=[e nextObject]))
+			{
+			CGFloat tl=[tab location];
+			if(tl <= maxLoc && tl < loc.x)
+				return tab;	// first tab before this glyph
+			}
 		}
 	return nil;
 }
@@ -856,7 +860,7 @@ forStartOfGlyphRange:(NSRange) range;
 			[[layoutManager glyphGenerator] generateGlyphsForGlyphStorage:layoutManager
 								 desiredNumberOfCharacters:desiredCapacity-glyphIndex
 												glyphIndex:&glyphIndex
-											characterIndex:&charIndex];	// generate Glyphs (code but not position!)
+											characterIndex:&charIndex];	// generate Glyphs (character code but not position!)
 			count=glyphIndex-firstInvalidGlyphIndex;
 			firstInvalidGlyphIndex=glyphIndex;
 			return count;
@@ -1080,6 +1084,7 @@ NSLayoutOutOfGlyphs
 					location.y+=baselineOffset;	// move glyph to base line
 					[layoutManager setLocation:location forStartOfGlyphRange:rng];
 				}
+			[layoutManager setTextContainer:*currentTextContainer forGlyphRange:glyphRange];	// attach to text container
 			[self willSetLineFragmentRect: &lineFragmentRect
 							forGlyphRange: glyphRange
 								 usedRect: &usedRect];	// last chance to modify layout (e.g. line spacing)
@@ -1108,10 +1113,13 @@ NSLayoutOutOfGlyphs
 					  nextGlyphIndex:(unsigned *) nextGlyph;
 { // core layout method
 	NSRect proposedRect;
+	NSArray *containers=[lm textContainers];
+	if(!containers)
+		return;	// not initialized properly
 	NSAssert(!busy, @"NSSimpleHorizontalTypesetter is already busy");
 	busy=YES;
 	// FIXME: check if index out of range?
-	curContainer=[[layoutManager textContainers] objectAtIndex:curContainerIndex];
+	curContainer=[containers objectAtIndex:curContainerIndex];
 	proposedRect = (NSRect) { NSZeroPoint, [curContainer containerSize] };	// initially we propose the full container but each call can reduce it
 	// FIXME: do we loop here to create new containers if needed?
 	[self _layoutGlyphsInLayoutManager:lm
@@ -1125,10 +1133,12 @@ NSLayoutOutOfGlyphs
 
 - (void) layoutTab;
 {
-	NSTextTab *tab=[super textTabForGlyphLocation:firstGlyphIndex+curGlyphIndex writingDirection:0 maxLocation:curContainerSize.width];
-	// ...
-	// if there is no explicit tab, check [curParagraphStyle defaultTabInterval]
-	// if > 0 apply to the tab in the GlyphInfo (by modifying the extent)
+	NSTextTab *tab=[super textTabForGlyphLocation:firstGlyphIndex+curGlyphIndex writingDirection:curLayoutDirection maxLocation:curContainerSize.width];
+	if(!tab)
+		{
+		// use [curParagraphStyle defaultTabInterval]
+		// if > 0 apply to the tab in the GlyphInfo (by modifying the extent)		
+		}
 }
 
 - (unsigned) sizeOfTypesetterGlyphInfo;
