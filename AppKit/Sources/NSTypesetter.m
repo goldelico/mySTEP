@@ -1146,8 +1146,6 @@ NSLayoutOutOfGlyphs
 							glyphRange.location++;
 						}
 					glyphRange=NSMakeRange(firstIndexOfCurrentLineFragment, i);
-					// FIXME: define lineFragmentRect.size.height
-					//	usedRect.size.height= same
 					[layoutManager setTextContainer:curContainer forGlyphRange:glyphRange];	// attach to text container
 					[self willSetLineFragmentRect:&lineFragmentRect
 									forGlyphRange:glyphRange

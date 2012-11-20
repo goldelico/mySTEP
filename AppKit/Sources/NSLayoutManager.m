@@ -575,6 +575,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (BOOL) backgroundLayoutEnabled; { return _backgroundLayoutEnabled; }
 
+// FIXME does the usedLFR really describe the boundingRect of individual glyphs?
+
 - (NSRect) boundingRectForGlyphRange:(NSRange) glyphRange 
 					 inTextContainer:(NSTextContainer *) container;
 {
@@ -706,6 +708,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
 	NSColor *lastColor=nil;
 	NSFont *lastFont=nil;
+	[ctxt _beginText];
 	while(glyphsToShow.length > 0)
 		{
 		unsigned int cindex=[self characterIndexForGlyphAtIndex:glyphsToShow.location];
@@ -714,7 +717,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		NSGlyph *glyphs;
 		int count=0;
 		/*
-		 NSTextAttachment *attachment=[attributes objectForKey:NSAttachmentAttributeName];
+		 NSTextAttachment *attachment=[attribs objectForKey:NSAttachmentAttributeName];
 		 if(attachment){
 		 id <NSTextAttachmentCell> cell=[attachment attachmentCell];
 		 NSRect frame;		 
@@ -737,7 +740,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		if(count > 0)
 			{
 			NSRect lfr=[self lineFragmentRectForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];
-			NSPoint pos=[self locationForGlyphAtIndex:glyphsToShow.location];	// location within its line fragment
+			NSPoint pos=[self locationForGlyphAtIndex:glyphsToShow.location];	// location of baseline within its line fragment
 			// color and font should also be cached for each glyph position!?!
 			NSColor *color=[attribs objectForKey:NSForegroundColorAttributeName];
 			NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
@@ -745,6 +748,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
 			pos.x+=lfr.origin.x+origin.x;
 			pos.y+=lfr.origin.y+origin.y;	// translate container
+//			pos.y-=[font ascender];	// _drawGlyphs assumes that the top left corner of a glyph is specified
+			if(![ctxt isFlipped])
+				pos.y=-pos.y;
 			glyphs=objc_malloc(sizeof(*glyphs)*(count+1));	// stores NSNullGlyph at end
 			[self getGlyphs:glyphs range:NSMakeRange(glyphsToShow.location, count)];
 			if(color != lastColor) [lastColor=color set];
@@ -753,6 +759,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			// handle NSShadowAttributeName
 			// handle NSObliquenessAttributeName
 			// handle NSExpansionAttributeName
+			
+			// FIXME: is this relative or absolute position???
+		
 			[ctxt _setTextPosition:pos];
 			[ctxt _drawGlyphs:glyphs count:count];	// -> (string) Tj
 			objc_free(glyphs);
@@ -778,6 +787,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			 */
 			}
 		}
+	[ctxt _endText];
 }
 
 - (BOOL) drawsOutsideLineFragmentForGlyphAtIndex:(unsigned)index;
