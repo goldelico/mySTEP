@@ -582,7 +582,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	NSRange cRange=[self glyphRangeForTextContainer:container];
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
-	[self ensureLayoutForGlyphRange:glyphRange];
+//	[self ensureLayoutForGlyphRange:glyphRange];
 	glyphRange=NSIntersectionRange(glyphRange, cRange);	// take glyphs within given container
 	while(glyphRange.length-- > 0)
 		r=NSUnionRect(r, _glyphs[glyphRange.location++].usedLineFragmentRect);
@@ -690,7 +690,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	if(glyphsToShow.length > 0)
 		{
 		NSTextContainer *textContainer=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];	// this call could fill the cache if needed...
-		// FIXME - should be done line by line!
+		// FIXME - should be done line by line because the last line is shorter!
 		NSRect r=[self boundingRectForGlyphRange:glyphsToShow inTextContainer:textContainer];
 		NSColor *color=[NSColor selectedTextBackgroundColor];
 		[color set];
@@ -1037,16 +1037,11 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSRange) glyphRangeForBoundingRectWithoutAdditionalLayout:(NSRect)bounds 
 											 inTextContainer:(NSTextContainer *)container;
 {
+	NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:container];
 	NSRange r;
-	/* FIXME:
-	 NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:container];
-	 NSAssert(idx != NSNotFound, @"Text Container unknown for NSLayoutManager");
-	 _NSTextContainerInfo *info=_textContainerInfo[idx];
-	 if(!info.valid) // run layout
-	 // find glyphs within the bounds
-	 return info.glyphRange;
-	 */
-	
+	NSAssert(idx != NSNotFound, @"Text Container unknown for NSLayoutManager");
+	if(_textContainerInfo[idx].valid && NSContainsRect(bounds, (NSRect) { NSZeroPoint, [container containerSize] }))
+	   return _textContainerInfo[idx].glyphRange;
 	for(r.location=0; r.location < _numberOfGlyphs; r.location++)
 		if(_glyphs[r.location].textContainer == container && NSIntersectsRect(_glyphs[r.location].lineFragmentRect, bounds))
 			break;	// first glyph in this container found that falls into the bounds
@@ -1084,23 +1079,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 }
 
 - (NSRange) glyphRangeForTextContainer:(NSTextContainer *)container;
-{ // this can become quite slow if we have 10 Mio characters...
-	NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:container];
-	NSRange r;
-	NSAssert(idx != NSNotFound, @"Text Container unknown for NSLayoutManager");
-	/*
-	 _NSTextContainerInfo *info=_textContainerInfo[idx];
-	 if(!info.valid) // run layout
-	 return info.glyphRange;
-	 */
-	[self ensureLayoutForTextContainer:container];
-	for(r.location=0; r.location < _numberOfGlyphs; r.location++)
-		if(_glyphs[r.location].textContainer == container)
-			break;	// first glyph in this container found
-	for(r.length=0; NSMaxRange(r) < _numberOfGlyphs; r.length++)
-		if(_glyphs[NSMaxRange(r)].textContainer != container)
-			break;	// last glyph found because next one belongs to a different container
-	return r;
+{
+	return [self glyphRangeForBoundingRect:(NSRect){ NSZeroPoint, [container containerSize]} inTextContainer:container];
 }
 
 - (BOOL) hasNonContiguousLayout; { return _hasNonContiguousLayout; }
@@ -1663,9 +1643,19 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	struct _NSTextContainerInfo *info;
 	NSAssert(idx != NSNotFound, @"Text Container unknown for NSLayoutManager");
 	info=&_textContainerInfo[idx];
-	//	 WARNING: if the layout algorithm can delete this container through a delegate, we have a problem to report...
+	// FIXME: do we really have this valid flag or should the info be always up to date?
 	if(!info->valid)
-		;// run layout
+		{
+		unsigned int idx;
+		// run layout to get the glyph range
+		//	 WARNING: if the layout algorithm can delete this container through a delegate, we have a problem to report...
+		NSLog(@"glyph range %@", NSStringFromRange(info->glyphRange));
+		for(idx=0; idx<info->glyphRange.length; idx++)
+			{
+			info->usedRect=NSUnionRect(info->usedRect, _glyphs[info->glyphRange.location+idx].usedLineFragmentRect);
+			info->characterRange=NSUnionRange(info->characterRange, (NSRange) { _glyphs[info->glyphRange.location+idx].characterIndex, 1 });
+			}
+		}
 	return info->usedRect;
 }
 

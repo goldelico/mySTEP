@@ -358,6 +358,8 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (void) setNeedsDisplayInRect:(NSRect)rect avoidAdditionalLayout:(BOOL)flag
 {
+	// if the rect is visible, ensure glyph&layout generation
+	// if not, it may trigger background layout - this may split the text storage into chunks and perform delayed
 	if(!flag)
 		{
 			// do additional layout if needed

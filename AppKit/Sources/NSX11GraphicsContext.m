@@ -1017,6 +1017,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XPoint pnt;
 	if(state->npoints >= state->capacity)
 		state->points=(XPoint *) objc_realloc(state->points, sizeof(state->points[0])*(state->capacity=2*state->capacity+5));	// make more room
+	// FIXME: limit to short?
 	pnt.x=point.x;		// convert to integer
 	pnt.y=point.y;
 	if(state->npoints == 0 || pnt.x != state->lastpoint.x || pnt.y != state->lastpoint.y)

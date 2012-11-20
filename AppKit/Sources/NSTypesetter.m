@@ -699,7 +699,7 @@ forStartOfGlyphRange:(NSRange) range;
 	[super dealloc];
 }
 
-//- (float) baselineOffsetInLayoutManager:(id) fp8 glyphIndex:(unsigned int) fp12;
+//- (float) baselineOffsetInLayoutManager:(id) layoutManager glyphIndex:(unsigned int) idx;
 
 - (NSTypesetterGlyphInfo *) baseOfTypesetterGlyphInfo;
 {
@@ -740,13 +740,22 @@ forStartOfGlyphRange:(NSRange) range;
 
 - (void) clearAttributesCache;
 {
+	// release any retained objects
+	attrsRange = (NSRange) { 0, 0 };
+	curParaRange = (NSRange) { 0, 0 };
+	previousFont=nil;
+	curFont=nil;
 	return;
 }
 
 - (void) clearGlyphCache;
 {
-	// ???
-	sizeOfGlyphInfo=0;
+	sizeOfGlyphInfo=0;	// ???
+	curGlyphIndex=0;
+	curContainer=0;
+	curContainerIndex=0;
+	// shrink glpyhInfo storage to a reasonable default allocation
+	// i.e. to 200 entries
 }
 
 - (NSTextContainer *) currentContainer;
@@ -810,12 +819,12 @@ forStartOfGlyphRange:(NSRange) range;
 
 - (void) fullJustifyLineAtGlyphIndex:(unsigned) glyphIndexForLineBreak;
 { // insert flexible space between index 0 and glyphIndexForLineBreak-1
-	
+	NIMP;
 }
 
-- (void) getAttributesForCharacterIndex:(unsigned int) fp8;
+- (void) getAttributesForCharacterIndex:(unsigned int) idx;
 {
-	attrs=[textStorage attributesAtIndex:fp8 effectiveRange:&attrsRange];
+	attrs=[textStorage attributesAtIndex:idx effectiveRange:&attrsRange];
 }
 
 - (unsigned) glyphIndexToBreakLineByHyphenatingWordAtIndex:(unsigned) charIndex;
@@ -840,7 +849,7 @@ forStartOfGlyphRange:(NSRange) range;
 	return [self glyphIndexToBreakLineByHyphenatingWordAtIndex:charIndex];
 }
 
-- (unsigned int) glyphIndexToBreakLineByClippingAtIndex:(unsigned int) fp8;
+- (unsigned int) glyphIndexToBreakLineByClippingAtIndex:(unsigned int) idx;
 {
 	return 0;
 }
@@ -870,10 +879,17 @@ forStartOfGlyphRange:(NSRange) range;
 
 - (void) insertGlyph:(NSGlyph) glyph atGlyphIndex:(unsigned) glyphIndex characterIndex:(unsigned) charIndex;
 {
+	NIMP;
 	// sync with _glyphInfo cache
 	// i.e. realloc with additional slot
 	// memmove
 	// and fill entry
+	/*
+	glyphInfo=NSGlyphInfoAtIndex(curGlyphIndex);
+	glyphInfo->curLocation=(NSPoint) { curGlyphOffset, *baseline+curBaselineOffset };
+	glyphInfo->font=curFont;
+	glyphInfo->glyphCharacterIndex=charIndex;
+	 */
 	[super insertGlyph:glyph atGlyphIndex:glyphIndex characterIndex:charIndex];
 }
 
@@ -890,55 +906,85 @@ NSLayoutNotDone = 0,
  // line fragment rect fully filled + more glyphs (for another fragment)
  // return if we reach the right margin and have more glyphs
  // the outer loop must continue
+ // more or less means that a line within a paragraph is filled
 NSLayoutDone,
  // all gyphs (of this paragraph) did fit into the rect (last fragment)
  // if we reach \n
 NSLayoutCantFit,
- // current glyph is too big to fit
+ // first glyph is already too big to fit
  // outer loop must decide how to handle this (ignore, try with a bigger fragment etc)
 NSLayoutOutOfGlyphs
  // last line was laid out (extra fragment)
  // if we reach the end of the textstorage
- 
- call [self growGlyphCaches:curGlyphIndex + 100 fillGlyphInfo:YES];
- here in this method on demand - OutOfGlyphs 
- 
 */
 
 - (NSLayoutStatus) layoutGlyphsInHorizontalLineFragment:(NSRect *) lineFragmentRect baseline:(float *) baseline;
-{ // this is the core layout method doing one line (fragment)
+{  /* this is the core layout method doing one line (fragment)
+	* it simply fills until the given width of the lineFragmentRect is reached
+	* or the paragraph range or the character storage is exhausted.
+	* ending at the paragraph range may be a feature that is n/a in Cocoa but we add it to lay out table cells
+	* note that glyph locations are relative to the lineFragmentRect
+	*
+	* on return
+	*   lineFragement.size has been reduced to the usedRect (width&height)
+	*   baseline is unchanged or has been determined by the maximum ascender
+	*   the glyphinfo array has been filled
+	*     the vertical location is either the baseline or 0.0 and must be moved externally
+	*   curGlyphIndex gives the number of the glyphs
+	*
+	* it uses or modifies (m) these iVars:
+	*   curGlyphOffset (m)
+	*   curCharacterIndex (m)
+	*   curGlyphIndex (m)
+	*   curParaRange (m)
+	*   firstInvalidGlyphIndex (m)
+	*   previousGlyph (m)
+	*   curGlyph (m)
+	*   curBaselineOffset
+	*   curFont
+	*   curContainer
+	*   attribute cache (m)
+	*/
+	
 	BOOL setBaseline=(*baseline == NSBaselineNotSet);
 	NSLayoutStatus status=NSLayoutOutOfGlyphs;	// all glyphs laid out
 	if(setBaseline)
 		*baseline=0.0;
-	// this appears to be a parameter filled by the caller!
-//	*lineFragmentRect = (NSRect) { NSZeroPoint, { curContainerSize.width, curContainerSize.height } };
-	// FIXME: handle firstLineHeadIndent, headIndent and lineFragmentPadding
-	curGlyphOffset = 0.0;	// start at the left
+	curGlyphOffset=(curCharacterIndex == curParaRange.location)?[curParaStyle firstLineHeadIndent]:[curParaStyle headIndent];	// start at left indent
 	while(curCharacterIndex < [textString length])
 		{ // we still have a character to process
-		unichar curChar;
-		NSTypesetterGlyphInfo *glyphInfo;
-		if(curCharacterIndex >= NSMaxRange(attrsRange))
-			{ // get new attribute range
-			[self getAttributesForCharacterIndex:curCharacterIndex];
-			[self fillAttributesCache];			
-			}
-		if(curCharacterIndex >= NSMaxRange(curParaRange))
-			{
-			status=NSLayoutDone;	// end of paragraph
-			break;
-			}
-		if(curGlyphIndex >= firstInvalidGlyphIndex)
-			{ // needs more glyphs
-				// could estimate required size by line length?
-				if([self growGlyphCaches:curGlyphIndex + 100 fillGlyphInfo:YES] == 0)
-					break;	// there are no more glyphs (how can this be while we still have a character to process?)
-				continue;	// try again
-			}
-			//		if(curGlyphOffset >= curMaxGlyphLocation)
-		curChar=[textString characterAtIndex:curCharacterIndex];
-		// FIXME: how to handle multiple glyphs for single character (and vice versa: ligatures)
+			unichar curChar;
+			NSTypesetterGlyphInfo *glyphInfo;
+			if(curCharacterIndex >= NSMaxRange(curParaRange))
+				{ // switch to new paragraph style
+					// how to handle extra fragment if end of string?
+					curParaStyle=[textStorage attribute:NSParagraphStyleAttributeName
+												atIndex:curCharacterIndex
+								  longestEffectiveRange:&curParaRange
+												inRange:(NSRange){ 0, [textStorage length] }];
+					if(!curParaStyle)
+						curParaStyle=[NSParagraphStyle defaultParagraphStyle];
+					curMaxGlyphLocation=[curParaStyle tailIndent];	// absolute
+					if(curMaxGlyphLocation <= 0.0)	// relative to right margin
+						curMaxGlyphLocation+=lineFragmentRect->size.width;
+					// set up baseline offset for fixed line height
+					status=NSLayoutDone;	// end of paragraph
+					break;
+				}
+			if(curCharacterIndex >= NSMaxRange(attrsRange))
+				{ // get new attribute range
+					[self getAttributesForCharacterIndex:curCharacterIndex];
+					[self fillAttributesCache];			
+				}
+			if(curGlyphIndex >= firstInvalidGlyphIndex)
+				{ // needs more glyphs
+					// could estimate required size by line length?
+					if([self growGlyphCaches:curGlyphIndex + 100 fillGlyphInfo:YES] == 0)
+						break;	// there are no more glyphs (how can this be while we still have a character to process?)
+					continue;	// try again
+				}
+			curChar=[textString characterAtIndex:curCharacterIndex];
+		// FIXME: how to handle multiple glyphs for single character (and vice versa: i.e. ligatures and overprinting)
 		previousGlyph=curGlyph;
 		curGlyph=[layoutManager glyphAtIndex:firstGlyphIndex+curGlyphIndex];	// get glyph
 		glyphInfo=NSGlyphInfoAtIndex(curGlyphIndex);
@@ -949,7 +995,7 @@ NSLayoutOutOfGlyphs
 		switch(curChar) {
 			case '\t':
 				glyphInfo->_giflags.dontShow=YES;
-				glyphInfo->extent=0;	// should be width of tab
+				glyphInfo->extent=0;	// will become width of tab
 				[self layoutControlGlyphForLineFragment:*lineFragmentRect];
 				break;
 			case '\n':
@@ -960,13 +1006,15 @@ NSLayoutOutOfGlyphs
 			case '\b':
 				glyphInfo->_giflags.dontShow=YES;
 				glyphInfo->extent=0;
-				break;	// allow overprinting (?)
+				// allow overprinting (?)
+				break;
 			case NSAttachmentCharacter: { // handle attachment
 				NSTextAttachment *a=[attrs objectForKey:NSAttachmentAttributeName];
 				id <NSTextAttachmentCell> c=[a attachmentCell];
 				NSPoint off=[c cellBaselineOffset];
 				NSRect frame;
 				glyphInfo->_giflags.isAttachment=YES;
+				glyphInfo->_giflags.defaultPositioning=(off.x == 0 && off.y == 0);
 				glyphInfo->attachmentSize=[c cellSize];
 				glyphInfo->curLocation.x+=off.x;	// adjust offset
 				glyphInfo->curLocation.y+=off.y;
@@ -978,15 +1026,16 @@ NSLayoutOutOfGlyphs
 				break;				
 			}
 			default: {
-				NSRect box=[curFont boundingRectForGlyph:curGlyph];
+//				NSRect box=[curFont boundingRectForGlyph:curGlyph];
 				NSSize adv=[curFont advancementForGlyph:curGlyph];
 				glyphInfo->extent=adv.width;
 				glyphInfo->_giflags.defaultPositioning=YES;
 				// adjust line height and baseline according to bounding box
+				// or do we need ascender/descender only? glyphs may be bigger than the are treated for advancements
 //				[attribs objectForKey:NSLigatureAttributeName];
 				if(previousGlyph)
 					{ // handle kerning
-						// check if previous = f and current = l => reduce to single glyph
+						// handle ligatures: check if previous = 'f' and current = 'l' => reduce to single glyph
 						NSSize k=[curFont _kerningBetweenGlyph:previousGlyph andGlyph:curGlyph];
 						glyphInfo->curLocation.x+=k.width+curSpaceAfter;
 						glyphInfo->curLocation.y+=k.height;
@@ -994,20 +1043,36 @@ NSLayoutOutOfGlyphs
 					}
 			}
 		}
-		[self typesetterLaidOneGlyph:glyphInfo];
-		if(curGlyphOffset == 0.0 && glyphInfo->extent > curMaxGlyphLocation)
-			{
-			status=NSLayoutCantFit;	// this glyph does not fit
+		if(curGlyphOffset+glyphInfo->extent > curMaxGlyphLocation)
+			{ // glyph does not fit into this line
+			// FIXME: check also for vertical fit!
+			if(curGlyphIndex == 0)
+				status=NSLayoutCantFit;	// not event the first glyph does fit
+			else
+				status=NSLayoutNotDone;	// more work to do
 			break;
 			}
-		curGlyphOffset += glyphInfo->extent;	// advance writing position
+		[self typesetterLaidOneGlyph:glyphInfo];
+		[self updateCurGlyphOffset];	// advance writing position
 		curCharacterIndex++;
 		curGlyphIndex++;
 		}
-	if(*baseline == NSBaselineNotSet)
-		; // determine here (by maximum character height)
+	if(setBaseline)
+		*baseline=12.0; // determine here (by maximum ascender)
+	lineFragmentRect->size.width=curGlyphOffset;	// used width
+	lineFragmentRect->size.height=20.0;				// set used height
 	return status;
 }
+
+/* the following method splits a pure horizontal layout into fragments and multiple lines to
+ * flow around forbidden areas in a (potentially non-rectangular) currentTextContainer.
+ * the proposedRect should be within the text container
+ * CHECKME: can we call this recursively with same textContainer but small/different proposedRects to layout table cells?
+ * it also handles indentation, padding, line spacing, justification etc.
+ *
+ * FIXME: should handle table cells
+ * FIXME: should request and switch containers if needed
+ */
 
 - (void) _layoutGlyphsInLayoutManager:(NSLayoutManager *) lm
 				 startingAtGlyphIndex:(unsigned int) startGlyphIndex
@@ -1015,94 +1080,107 @@ NSLayoutOutOfGlyphs
 				 currentTextContainer:(NSTextContainer **) currentTextContainer
 						 proposedRect:(NSRect *) proposedRect
 					   nextGlyphIndex:(unsigned int *) nextGlyph;
-{ // internal method - CHECKME: can we call this recursively with different textContainer/proposedRect to layout table entries?
+{ // internal method
 	unsigned numLines = 0;
 	NSLayoutStatus status;
+	NSRect remainingRect = NSZeroRect;
 	
 	layoutManager = lm;
 	textStorage = [layoutManager textStorage];
 	textString = [textStorage string];
 	
-	// FIXME: better handle empty strings!
 	firstGlyphIndex = startGlyphIndex;
 	if(startGlyphIndex > 0)
-		curCharacterIndex = [layoutManager characterIndexForGlyphAtIndex: startGlyphIndex];
+		curCharacterIndex = [layoutManager characterIndexForGlyphAtIndex:startGlyphIndex];
 	else
 		curCharacterIndex=0;
-	curGlyphIndex = 0;
-	previousGlyph = NSNullGlyph;
-	attrsRange = (NSRange) { 0, 0 };
-	curParaRange = (NSRange) { 0, 0 };
-	
-	curContainerSize=[*currentTextContainer containerSize];
-	curContainerIsSimpleRectangular=[*currentTextContainer isSimpleRectangularTextContainer];
-	curContainerLineFragmentPadding=[*currentTextContainer lineFragmentPadding];
+
+	curContainer=*currentTextContainer;
+	if(!curContainer)
+		{
+		NSArray *containers=[lm textContainers];
+		curContainer=[containers objectAtIndex:curContainerIndex];
+		}
+	curContainerSize=[curContainer containerSize];
+	*proposedRect=(NSRect) { NSZeroPoint, curContainerSize };
+	curContainerIsSimpleRectangular=[curContainer isSimpleRectangularTextContainer];
+	curContainerLineFragmentPadding=[curContainer lineFragmentPadding];
 	
 	while(numLines < maxNumLines && curCharacterIndex < [textString length])
 		{ // try to fill the next line
-		NSRect lineFragmentRect;
-		NSRect remainingRect;
-		NSRect usedRect;
-		NSRange glyphRange;
-		float baselineOffset = NSBaselineNotSet;
-		if(curCharacterIndex >= NSMaxRange(curParaRange))
-			{ // needs to handle new paragraph style
-				// handle extra fragment if end of string?
-				curParaStyle = [textStorage 
-								attribute: NSParagraphStyleAttributeName
-								atIndex: curCharacterIndex
-								longestEffectiveRange: &curParaRange
-								inRange:(NSRange){ 0, [textStorage length] }];
-				if(!curParaStyle)
-					curParaStyle=[NSParagraphStyle defaultParagraphStyle];			
-				curMaxGlyphLocation=curContainerSize.width-[curParaStyle tailIndent];
-				// set up basline offset for fixed line height
-			}
-		firstIndexOfCurrentLineFragment = firstGlyphIndex;
-		status = [self layoutGlyphsInHorizontalLineFragment: proposedRect 
-												   baseline: &baselineOffset];
-		if (status == NSLayoutCantFit)
-			{ // container is not wide or high enough, we need a new one
-				break;
-			}
-		while(YES)
-			{
-			unsigned int i;
-			// fixme: handle indentation and line fragment padding
-			lineFragmentRect=[*currentTextContainer lineFragmentRectForProposedRect:*proposedRect
-																	 sweepDirection:NSLineSweepRight
-																  movementDirection:NSLineMovesDown
-																	  remainingRect:&remainingRect];
+			NSRange glyphRange;
+			float baselineOffset = NSBaselineNotSet;	// we want to position the glyphs ourseleves
+			NSRect lineFragmentRect;
+			NSRect usedRect;
+			int i;
+			// if empty proposedRect (?)
+			if(curContainerIsSimpleRectangular)
+				lineFragmentRect=*proposedRect;	// full container rect is ok
+			// FIXME: passing in the full proposedRect may lead to wrong results, for example for an hour-glass shaped container
+			// we somehow should be able to adjust/redo based on the estimated or real line height
+			else if(NSIsEmptyRect(remainingRect))
+				lineFragmentRect=[curContainer lineFragmentRectForProposedRect:*proposedRect
+																sweepDirection:NSLineSweepRight
+															 movementDirection:NSLineMovesDown
+																 remainingRect:&remainingRect];
+			else
+				lineFragmentRect=[curContainer lineFragmentRectForProposedRect:remainingRect
+																sweepDirection:NSLineSweepRight
+															 movementDirection:NSLineMovesDown
+																 remainingRect:&remainingRect];
+			firstIndexOfCurrentLineFragment=firstGlyphIndex;
 			usedRect=lineFragmentRect;
-			glyphRange = NSMakeRange(firstIndexOfCurrentLineFragment, curGlyphIndex);
-			for(i=0; i < curGlyphIndex; i++)
-				{ // set glyph specific attributes
-					NSRange rng=NSMakeRange(firstGlyphIndex+i, 1);
-					NSPoint location;
-					[layoutManager setNotShownAttribute:NSGlyphInfoAtIndex(i)->_giflags.dontShow forGlyphAtIndex:rng.location];
-					location=NSGlyphInfoAtIndex(i)->curLocation;
-					location.y+=baselineOffset;	// move glyph to base line
-					[layoutManager setLocation:location forStartOfGlyphRange:rng];
+			status=[self layoutGlyphsInHorizontalLineFragment:&usedRect 
+													 baseline:&baselineOffset];	// layout into this LFR
+			lineFragmentRect.size.height=usedRect.size.height;	// line height
+			if(curGlyphIndex > 0)
+				{ // did layout anything
+					glyphRange=NSMakeRange(firstGlyphIndex, 1);
+					for(i=0; i < curGlyphIndex; i++)
+						{ // copy location and attributes to layout manager
+							NSPoint location=NSGlyphInfoAtIndex(i)->curLocation;
+							location.x+=0.0;
+							location.y+=baselineOffset;	// move glyph down to base line
+							[layoutManager setNotShownAttribute:NSGlyphInfoAtIndex(i)->_giflags.dontShow forGlyphAtIndex:glyphRange.location];
+							[layoutManager setLocation:location forStartOfGlyphRange:glyphRange];
+							glyphRange.location++;
+						}
+					glyphRange=NSMakeRange(firstIndexOfCurrentLineFragment, i);
+					// FIXME: define lineFragmentRect.size.height
+					//	usedRect.size.height= same
+					[layoutManager setTextContainer:curContainer forGlyphRange:glyphRange];	// attach to text container
+					[self willSetLineFragmentRect:&lineFragmentRect
+									forGlyphRange:glyphRange
+										 usedRect:&usedRect];	// last chance to modify layout (e.g. line spacing)
+					[layoutManager setLineFragmentRect:lineFragmentRect forGlyphRange:glyphRange usedRect:usedRect];				
+					if(curContainerIsSimpleRectangular || NSIsEmptyRect(remainingRect))
+						{ // we need a new line
+							numLines++;
+							proposedRect->origin.y=NSMaxY(lineFragmentRect);	// where next line fragment rect can start
+						}
 				}
-			[layoutManager setTextContainer:*currentTextContainer forGlyphRange:glyphRange];	// attach to text container
-			[self willSetLineFragmentRect: &lineFragmentRect
-							forGlyphRange: glyphRange
-								 usedRect: &usedRect];	// last chance to modify layout (e.g. line spacing)
-			[layoutManager setLineFragmentRect:lineFragmentRect forGlyphRange:glyphRange usedRect:usedRect];			
-			if(curContainerIsSimpleRectangular || NSIsEmptyRect(remainingRect))
+			if(status == NSLayoutCantFit)
+				{ // proposedRect is not wide or high enough for next glyph, we need a new one
+					// move to the next container?
+					// do something (notify delegate to add a new container?)
+					// or skip
+					break;
+				}
+			if(status == NSLayoutDone)
+				{
+				// end of paragraph or text string
+				// add paragraph spacing etc.
+				// here it is called before the paragraph has been processed
+				}
+			if(status == NSLayoutOutOfGlyphs)	// this was the last fragment
+				{
+				// handle extra segment here?
 				break;
-			}
-		// reduce proposedRect by what we have consumed and apply line spacing
-		numLines++;
-		if(status == NSLayoutOutOfGlyphs)	// this was the last fragment
-			{
-			// handle extra segment here?
-			break;
-			}
+				}
 		}
 	// FIXME: handle/create the extra line fragment
-	if (nextGlyph != NULL)
-		*nextGlyph = firstGlyphIndex+curGlyphIndex;
+	if(nextGlyph != NULL)
+		*nextGlyph = curGlyphIndex;
 	layoutManager=nil;
 	textStorage=nil;
 }
@@ -1112,33 +1190,29 @@ NSLayoutOutOfGlyphs
 			maxNumberOfLineFragments:(unsigned) maxNumLines
 					  nextGlyphIndex:(unsigned *) nextGlyph;
 { // core layout method
-	NSRect proposedRect;
-	NSArray *containers=[lm textContainers];
-	if(!containers)
-		return;	// not initialized properly
+	NSRect proposedRect=NSZeroRect;
 	NSAssert(!busy, @"NSSimpleHorizontalTypesetter is already busy");
 	busy=YES;
-	// FIXME: check if index out of range?
-	curContainer=[containers objectAtIndex:curContainerIndex];
-	proposedRect = (NSRect) { NSZeroPoint, [curContainer containerSize] };	// initially we propose the full container but each call can reduce it
-	// FIXME: do we loop here to create new containers if needed?
 	[self _layoutGlyphsInLayoutManager:lm
 				 startingAtGlyphIndex:startGlyphIndex
 			 maxNumberOfLineFragments:maxNumLines
 				  currentTextContainer:&curContainer
 						 proposedRect:&proposedRect
 						nextGlyphIndex:nextGlyph];
+	[self clearAttributesCache];
+	[self clearGlyphCache];
 	busy=NO;
 }
 
 - (void) layoutTab;
 {
 	NSTextTab *tab=[super textTabForGlyphLocation:firstGlyphIndex+curGlyphIndex writingDirection:curLayoutDirection maxLocation:curContainerSize.width];
-	if(!tab)
-		{
-		// use [curParagraphStyle defaultTabInterval]
-		// if > 0 apply to the tab in the GlyphInfo (by modifying the extent)		
-		}
+	NSTypesetterGlyphInfo *glyphInfo=NSGlyphInfoAtIndex(curGlyphIndex);
+	CGFloat interval;
+	if(tab)
+		glyphInfo->extent=[tab location]-glyphInfo->curLocation.x;
+	else if(curParaStyle && (interval=[curParaStyle defaultTabInterval]) > 0.0)
+		glyphInfo->extent=interval*ceil(glyphInfo->curLocation.x/interval)-glyphInfo->curLocation.x;	// equally spaced
 }
 
 - (unsigned) sizeOfTypesetterGlyphInfo;
@@ -1152,8 +1226,8 @@ NSLayoutOutOfGlyphs
 }
 
 - (void) updateCurGlyphOffset;
-{
-	// calculate current glyph location if needed (if defaultPositioning == YES???)
+{ // calculate current glyph location if needed (if defaultPositioning == YES???)
+	curGlyphOffset+=NSGlyphInfoAtIndex(curGlyphIndex)->extent;
 }
 
 - (void) willSetLineFragmentRect:(NSRect *) aRect forGlyphRange:(NSRange) aRange usedRect:(NSRect *) bRect;
@@ -1168,9 +1242,9 @@ NSLayoutOutOfGlyphs
 	return busy;
 }
 
-- (NSTypesetterGlyphInfo *) _glyphInfoAtIndex:(int) fp8;
+- (NSTypesetterGlyphInfo *) _glyphInfoAtIndex:(int) idx;
 {
-	return NSGlyphInfoAtIndex(fp8);
+	return NSGlyphInfoAtIndex(idx);	// &glyphs[IDX]
 }
 
 - (BOOL) followsItalicAngle;
@@ -1178,24 +1252,24 @@ NSLayoutOutOfGlyphs
 	return _tsFlags._useItal;
 }
 
-- (void) setFollowsItalicAngle:(BOOL) fp8;
+- (void) setFollowsItalicAngle:(BOOL) flag;
 {
-	_tsFlags._useItal=fp8;
+	_tsFlags._useItal=flag;
 }
 
-- (float) baselineOffsetInLayoutManager:(id) fp8 glyphIndex:(unsigned int) fp12;
+- (float) baselineOffsetInLayoutManager:(id) layoutManager glyphIndex:(unsigned int) idx;
 {
 	return 0.0;
 }
 
-- (void) _setupBoundsForLineFragment:(NSRect *) fp8;
+- (void) _setupBoundsForLineFragment:(NSRect *) bounds;
 {
-	
+	NIMP;
 }
 
-- (NSRect) normalizedRect:(NSRect) fp8;
+- (NSRect) normalizedRect:(NSRect) rect;
 {
-	return fp8;
+	return rect;
 }
 
 @end
