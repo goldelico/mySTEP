@@ -805,7 +805,9 @@ forStartOfGlyphRange:(NSRange) range;
 	curTextAlignment=[curParaStyle alignment];
 	curLayoutDirection=[curParaStyle baseWritingDirection];
 	curMinLineHeight=[curParaStyle minimumLineHeight];
+	if(curMinLineHeight < 0.0) curMinLineHeight=0.0;
 	curMaxLineHeight=[curParaStyle maximumLineHeight];
+	if(curMaxLineHeight <= 0.0) curMaxLineHeight=FLT_MAX;	// infinite
 	curSuperscript=[[attrs objectForKey:NSSuperscriptAttributeName] intValue];
 	curSpaceAfter=[[attrs objectForKey:NSKernAttributeName] floatValue];
 	curBaselineOffset=[[attrs objectForKey:NSBaselineOffsetAttributeName] floatValue];
@@ -944,6 +946,8 @@ NSLayoutOutOfGlyphs
 	*   curFont
 	*   curContainer
 	*   attribute cache (m)
+	*   curMinLineHeight
+	*   curMaxLineHeight
 	*/
 	
 	BOOL setBaseline=(*baseline == NSBaselineNotSet);
@@ -951,6 +955,8 @@ NSLayoutOutOfGlyphs
 	if(setBaseline)
 		*baseline=0.0;
 	curGlyphOffset=(curCharacterIndex == curParaRange.location)?[curParaStyle firstLineHeadIndent]:[curParaStyle headIndent];	// start at left indent
+	containerBreakAfterCurGlyph=NO;
+	curMinBaselineDistance=curMaxBaselineDistance=0.0;
 	while(curCharacterIndex < [textString length])
 		{ // we still have a character to process
 			unichar curChar;
@@ -984,83 +990,95 @@ NSLayoutOutOfGlyphs
 					continue;	// try again
 				}
 			curChar=[textString characterAtIndex:curCharacterIndex];
-		// FIXME: how to handle multiple glyphs for single character (and vice versa: i.e. ligatures and overprinting)
-		previousGlyph=curGlyph;
-		curGlyph=[layoutManager glyphAtIndex:firstGlyphIndex+curGlyphIndex];	// get glyph
-		glyphInfo=NSGlyphInfoAtIndex(curGlyphIndex);
-		glyphInfo->curLocation=(NSPoint) { curGlyphOffset, *baseline+curBaselineOffset };
-		glyphInfo->font=curFont;
-		glyphInfo->glyphCharacterIndex=curCharacterIndex;
-		*((unsigned char *) &glyphInfo->_giflags)=0;
-		switch(curChar) {
-			case '\t':
-				glyphInfo->_giflags.dontShow=YES;
-				glyphInfo->extent=0;	// will become width of tab
-				[self layoutControlGlyphForLineFragment:*lineFragmentRect];
-				break;
-			case '\n':
-				glyphInfo->_giflags.dontShow=YES;
-				glyphInfo->extent=0;
-				[self breakLineAtIndex:curGlyphIndex];		
-				break;
-			case '\b':
-				glyphInfo->_giflags.dontShow=YES;
-				glyphInfo->extent=0;
-				// allow overprinting (?)
-				break;
-			case NSAttachmentCharacter: { // handle attachment
-				NSTextAttachment *a=[attrs objectForKey:NSAttachmentAttributeName];
-				id <NSTextAttachmentCell> c=[a attachmentCell];
-				NSPoint off=[c cellBaselineOffset];
-				NSRect frame;
-				glyphInfo->_giflags.isAttachment=YES;
-				glyphInfo->_giflags.defaultPositioning=(off.x == 0 && off.y == 0);
-				glyphInfo->attachmentSize=[c cellSize];
-				glyphInfo->curLocation.x+=off.x;	// adjust offset
-				glyphInfo->curLocation.y+=off.y;
-				frame=[c cellFrameForTextContainer:curContainer
-							  proposedLineFragment:*lineFragmentRect
-									 glyphPosition:glyphInfo->curLocation
-									characterIndex:curCharacterIndex];
-				glyphInfo->extent=frame.size.width;
-				break;				
+			// FIXME: how to handle multiple glyphs for single character (and vice versa: i.e. ligatures and overprinting)
+			previousGlyph=curGlyph;
+			curGlyph=[layoutManager glyphAtIndex:firstGlyphIndex+curGlyphIndex];	// get glyph
+			glyphInfo=NSGlyphInfoAtIndex(curGlyphIndex);
+			glyphInfo->curLocation=(NSPoint) { curGlyphOffset, *baseline+curBaselineOffset };
+			glyphInfo->font=curFont;
+			glyphInfo->glyphCharacterIndex=curCharacterIndex;
+			*((unsigned char *) &glyphInfo->_giflags)=0;
+			curGlyphIsAControlGlyph=NO;
+			curGlyphExtentAboveLocation=curGlyphExtentBelowLocation=0.0;
+			switch(curChar) {
+				case '\t':
+					glyphInfo->_giflags.dontShow=YES;
+					glyphInfo->extent=0;	// will become width of tab
+					curGlyphIsAControlGlyph=YES;
+					[self layoutControlGlyphForLineFragment:*lineFragmentRect];
+					break;
+				case '\n':
+					glyphInfo->_giflags.dontShow=YES;
+					glyphInfo->extent=0;
+					[self breakLineAtIndex:curGlyphIndex];		
+					break;
+				case '\b':
+					glyphInfo->_giflags.dontShow=YES;
+					glyphInfo->extent=0;
+					// allow overprinting (?)
+					break;
+				case NSAttachmentCharacter: { // handle attachment
+					NSTextAttachment *a=[attrs objectForKey:NSAttachmentAttributeName];
+					id <NSTextAttachmentCell> c=[a attachmentCell];
+					NSPoint off=[c cellBaselineOffset];
+					NSRect frame;
+					glyphInfo->_giflags.isAttachment=YES;
+					glyphInfo->_giflags.defaultPositioning=(off.x == 0 && off.y == 0);
+					glyphInfo->attachmentSize=[c cellSize];
+					glyphInfo->curLocation.x+=off.x;	// adjust offset
+					glyphInfo->curLocation.y+=off.y;
+					curGlyphExtentAboveLocation=glyphInfo->attachmentSize.height;
+					curGlyphExtentBelowLocation=-off.y;
+					frame=[c cellFrameForTextContainer:curContainer
+								  proposedLineFragment:*lineFragmentRect
+										 glyphPosition:glyphInfo->curLocation
+										characterIndex:curCharacterIndex];
+					glyphInfo->extent=frame.size.width;
+					break;				
+				}
+				default: {
+					NSRect box=[curFont boundingRectForGlyph:curGlyph];
+					NSSize adv=[curFont advancementForGlyph:curGlyph];
+					glyphInfo->extent=adv.width;
+					glyphInfo->_giflags.defaultPositioning=YES;
+					curGlyphExtentAboveLocation=NSMaxY(box);
+					curGlyphExtentBelowLocation=NSMinY(box);
+					//				[attribs objectForKey:NSLigatureAttributeName];
+					if(previousGlyph)
+						{ // handle kerning
+							// handle ligatures: check if previous = 'f' and current = 'l' => reduce to single glyph
+							NSSize k=[curFont _kerningBetweenGlyph:previousGlyph andGlyph:curGlyph];
+							glyphInfo->curLocation.x+=k.width+curSpaceAfter;
+							glyphInfo->curLocation.y+=k.height;
+							glyphInfo->_giflags.defaultPositioning=NO;
+						}
+				}
 			}
-			default: {
-//				NSRect box=[curFont boundingRectForGlyph:curGlyph];
-				NSSize adv=[curFont advancementForGlyph:curGlyph];
-				glyphInfo->extent=adv.width;
-				glyphInfo->_giflags.defaultPositioning=YES;
-				// adjust line height and baseline according to bounding box
-				// or do we need ascender/descender only? glyphs may be bigger than the are treated for advancements
-//				[attribs objectForKey:NSLigatureAttributeName];
-				if(previousGlyph)
-					{ // handle kerning
-						// handle ligatures: check if previous = 'f' and current = 'l' => reduce to single glyph
-						NSSize k=[curFont _kerningBetweenGlyph:previousGlyph andGlyph:curGlyph];
-						glyphInfo->curLocation.x+=k.width+curSpaceAfter;
-						glyphInfo->curLocation.y+=k.height;
-						glyphInfo->_giflags.defaultPositioning=NO;
-					}
-			}
-		}
-		if(curGlyphOffset+glyphInfo->extent > curMaxGlyphLocation)
-			{ // glyph does not fit into this line
-			// FIXME: check also for vertical fit!
-			if(curGlyphIndex == 0)
-				status=NSLayoutCantFit;	// not event the first glyph does fit
-			else
-				status=NSLayoutNotDone;	// more work to do
-			break;
-			}
-		[self typesetterLaidOneGlyph:glyphInfo];
-		[self updateCurGlyphOffset];	// advance writing position
-		curCharacterIndex++;
-		curGlyphIndex++;
+			curMinBaselineDistance=MAX(curMinBaselineDistance, curGlyphExtentAboveLocation);
+			curMaxBaselineDistance=MAX(curMaxBaselineDistance, curGlyphExtentBelowLocation+curGlyphExtentAboveLocation);
+			if(curGlyphOffset+glyphInfo->extent > curMaxGlyphLocation)
+				{ // glyph does not fit into this line
+					// FIXME: check also for vertical fit!
+					if(curGlyphIndex == 0)
+						status=NSLayoutCantFit;	// not event the first glyph does fit
+					else
+						status=NSLayoutNotDone;	// more work to do
+					break;
+				}
+			[self typesetterLaidOneGlyph:glyphInfo];
+			[self updateCurGlyphOffset];	// advance writing position
+			curCharacterIndex++;
+			curGlyphIndex++;
+			if(containerBreakAfterCurGlyph)
+				{
+				status=NSLayoutDone;	// treat like end of paragraph
+				break;
+				}
 		}
 	if(setBaseline)
-		*baseline=12.0; // determine here (by maximum ascender)
-	lineFragmentRect->size.width=curGlyphOffset;	// used width
-	lineFragmentRect->size.height=20.0;				// set used height
+		*baseline=curMinBaselineDistance; // determine here (by maximum ascender)
+	lineFragmentRect->size.width=curGlyphOffset;			// used width
+	lineFragmentRect->size.height=MIN(MAX(curMinLineHeight, curMaxBaselineDistance), curMaxLineHeight);	// set line height
 	return status;
 }
 
@@ -1169,6 +1187,10 @@ NSLayoutOutOfGlyphs
 				// end of paragraph or text string
 				// add paragraph spacing etc.
 				// here it is called before the paragraph has been processed
+				if(containerBreakAfterCurGlyph)
+					{
+					
+					}
 				}
 			if(status == NSLayoutOutOfGlyphs)	// this was the last fragment
 				{

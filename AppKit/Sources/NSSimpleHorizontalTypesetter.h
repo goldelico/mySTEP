@@ -58,7 +58,7 @@ typedef struct _NSTypesetterGlyphInfo
 } NSTypesetterGlyphInfo;
 
 @interface NSSimpleHorizontalTypesetter : NSTypesetter
-{ /* from http://lightchaos.blog10.fc2.com/blog-entry-111.html */
+{ /* structure comes from http://lightchaos.blog10.fc2.com/blog-entry-111.html */
 
 	NSTypesetterGlyphInfo *glyphs;	// this is the shelf where Glyphs are laid out until a complete line is flushed to the LayoutManager
 	NSLayoutManager *layoutManager;	// => _layoutManager
@@ -74,12 +74,16 @@ typedef struct _NSTypesetterGlyphInfo
 	NSRect curFontBoundingBox;
 	NSSize curFontAdvancement;
 	float curGlyphOffset;			// glyph layout cursor (x of next glyph)
-	float curMaxGlyphLocation;		// max width of line fragment (i.e. mix of indent and [curContainer size].width)
+	float curMaxGlyphLocation;		// max width of line fragment (i.e. mixed from indentation and container width)
 	float curContainerLineFragmentPadding;	// [curContainer lineFragmentPadding]
 	float curSpaceAfter;			// cached [attrs objectForKey:NSKernAttributeName]
 	float curBaselineOffset;		// cached [attrs objectForKey:NSBaselineOffsetAttributeName] 
 	float curMinLineHeight;			// cached [curParaStyle minLineHeight]
 	float curMaxLineHeight;			// cached [curParaStyle maxLineHeight]
+	float curMinBaselineDistance;		// accumulated during layout of a single horizontal line
+	float curMaxBaselineDistance;
+	float curGlyphExtentAboveLocation;	// ascender/descender of current glyph
+	float curGlyphExtentBelowLocation;
 	NSGlyph previousGlyph;
 	NSGlyph curGlyph;
 	unsigned firstGlyphIndex;		// relative index of first glyph in glyphs array
@@ -95,6 +99,8 @@ typedef struct _NSTypesetterGlyphInfo
 	int curSuperscript;				// [attrs objectForKey:NSSuperscriptAttributeName]
 	BOOL curFontIsFixedPitch;		// [curFont isFixedPitch]
 	BOOL curContainerIsSimpleRectangular;	// [curContainer isSimpleRectangularTextContainer]
+	BOOL curGlyphIsAControlGlyph;
+	BOOL containerBreakAfterCurGlyph;	// can be set to YES in typesetterLaidOneGlyph subclass
 	BOOL busy;						// busy doing layout (can detect recursions)
 
 	/* unknown what it is good for */
@@ -109,15 +115,9 @@ typedef struct _NSTypesetterGlyphInfo
 	unsigned int previousBaseGlyphIndex;
 	unsigned int previousBaseGlyph;
 	BOOL curGlyphOffsetOutOfDate;
-	BOOL curGlyphIsAControlGlyph;
-	BOOL containerBreakAfterCurGlyph;	// can be set to YES in typesetterLaidOneGlyph subclass
 	BOOL wrapAfterCurGlyph;
 	float previousSpaceAfter;
 	void *curFontPositionOfGlyphMethod;
-	float curMinBaselineDistance;		// something accumulated? Used to determine required fragment height?
-	float curMaxBaselineDistance;
-	float curGlyphExtentAboveLocation;
-	float curGlyphExtentBelowLocation;
 	struct {
 		unsigned int _glyphPostLay:1;
 		unsigned int _fragPostLay:1;

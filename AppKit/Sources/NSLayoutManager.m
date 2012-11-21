@@ -747,10 +747,10 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			if(!color) color=[NSColor blackColor];	// default color is black
 			if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
 			pos.x+=lfr.origin.x+origin.x;
-			pos.y+=lfr.origin.y+origin.y;	// translate container
-//			pos.y-=[font ascender];	// _drawGlyphs assumes that the top left corner of a glyph is specified
 			if(![ctxt isFlipped])
-				pos.y=-pos.y;
+				pos.y=origin.y-pos.y-lfr.origin.y;	// translate container and glyphs
+			else
+				pos.y=origin.y+pos.y+lfr.origin.y;	// translate container and glyphs
 			glyphs=objc_malloc(sizeof(*glyphs)*(count+1));	// stores NSNullGlyph at end
 			[self getGlyphs:glyphs range:NSMakeRange(glyphsToShow.location, count)];
 			if(color != lastColor) [lastColor=color set];
