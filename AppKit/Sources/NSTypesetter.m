@@ -838,7 +838,7 @@ forStartOfGlyphRange:(NSRange) range;
 	// hyphenate by [self inserGlyph:'-' just before the charIndex
 	if(curTextAlignment == NSJustifiedTextAlignment)
 		[self fullJustifyLineAtGlyphIndex:charIndex];
-	return 0;
+	return charIndex;
 }
 
 - (unsigned) glyphIndexToBreakLineByWordWrappingAtIndex:(unsigned) charIndex;
@@ -853,7 +853,7 @@ forStartOfGlyphRange:(NSRange) range;
 
 - (unsigned int) glyphIndexToBreakLineByClippingAtIndex:(unsigned int) idx;
 {
-	return 0;
+	return idx;
 }
 
 - (unsigned) growGlyphCaches:(unsigned) desiredCapacity fillGlyphInfo:(BOOL) fillGlyphInfo;
@@ -1000,12 +1000,14 @@ NSLayoutOutOfGlyphs
 			*((unsigned char *) &glyphInfo->_giflags)=0;
 			curGlyphIsAControlGlyph=NO;
 			curGlyphExtentAboveLocation=curGlyphExtentBelowLocation=0.0;
+			// if([NSCharacterSet controlCharacterSet] containsCharacter:curChar])
 			switch(curChar) {
 				case '\t':
+					// ask [layoutManager showsControlCharacters]
 					glyphInfo->_giflags.dontShow=YES;
 					glyphInfo->extent=0;	// will become width of tab
 					curGlyphIsAControlGlyph=YES;
-					[self layoutControlGlyphForLineFragment:*lineFragmentRect];
+					status=[self layoutControlGlyphForLineFragment:*lineFragmentRect];
 					break;
 				case '\n':
 					glyphInfo->_giflags.dontShow=YES;
@@ -1015,7 +1017,7 @@ NSLayoutOutOfGlyphs
 				case '\b':
 					glyphInfo->_giflags.dontShow=YES;
 					glyphInfo->extent=0;
-					// allow overprinting (?)
+					// allow overprinting (?) by setting back curGlyphOffset to previous glyph?
 					break;
 				case NSAttachmentCharacter: { // handle attachment
 					NSTextAttachment *a=[attrs objectForKey:NSAttachmentAttributeName];
@@ -1079,6 +1081,16 @@ NSLayoutOutOfGlyphs
 		*baseline=curMinBaselineDistance; // determine here (by maximum ascender)
 	lineFragmentRect->size.width=curGlyphOffset;			// used width
 	lineFragmentRect->size.height=MIN(MAX(curMinLineHeight, curMaxBaselineDistance), curMaxLineHeight);	// set line height
+	switch(curTextAlignment) {
+		case NSRightTextAlignment:
+			lineFragmentRect->origin.x+=curMaxGlyphLocation-curGlyphOffset;
+			break;
+		case NSCenterTextAlignment:
+			lineFragmentRect->origin.x+=0.5*(curMaxGlyphLocation-curGlyphOffset);
+			break;
+		default:
+			break;
+	}
 	return status;
 }
 
@@ -1157,10 +1169,12 @@ NSLayoutOutOfGlyphs
 					for(i=0; i < curGlyphIndex; i++)
 						{ // copy location and attributes to layout manager
 							NSPoint location=NSGlyphInfoAtIndex(i)->curLocation;
-							location.x+=0.0;
+							location.x+=usedRect.origin.x-lineFragmentRect.origin.x;
 							location.y+=baselineOffset;	// move glyph down to base line
 							[layoutManager setNotShownAttribute:NSGlyphInfoAtIndex(i)->_giflags.dontShow forGlyphAtIndex:glyphRange.location];
 							[layoutManager setLocation:location forStartOfGlyphRange:glyphRange];
+							// FIXME:
+							[layoutManager setDrawsOutsideLineFragment:NO forGlyphAtIndex:glyphRange.location];
 							glyphRange.location++;
 						}
 					glyphRange=NSMakeRange(firstIndexOfCurrentLineFragment, i);

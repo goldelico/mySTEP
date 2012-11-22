@@ -195,12 +195,12 @@ static NSAttributedString *_currentString;
 	[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];
 	[ctxt restoreGraphicsState];
 	if(options&NSStringDrawingOneShot)
-			{ // remove
-				[_textStorage release];
-				_textStorage=nil;
-				_layoutManager=nil;
-				_textContainer=nil;
-			}
+		{ // remove
+			[_textStorage release];
+			_textStorage=nil;
+			_layoutManager=nil;
+			_textContainer=nil;
+		}
 }
 
 - (NSSize) size;
