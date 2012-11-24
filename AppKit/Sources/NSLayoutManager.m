@@ -576,16 +576,12 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (BOOL) backgroundLayoutEnabled; { return _backgroundLayoutEnabled; }
 
-// FIXME does the usedLFR really describe the boundingRect of individual glyphs?
-// no - this is different from
-// - (NSRectArray)rectArrayForGlyphRange:(NSRange)glyphRange withinSelectedGlyphRange:(NSRange)selGlyphRange inTextContainer:(NSTextContainer *)container rectCount:(NSUInteger *)rectCount
+// this is different from - (NSRectArray)rectArrayForGlyphRange:(NSRange)glyphRange withinSelectedGlyphRange:(NSRange)selGlyphRange inTextContainer:(NSTextContainer *)container rectCount:(NSUInteger *)rectCount
 
 - (NSRect) boundingRectForGlyphRange:(NSRange) glyphRange 
 					 inTextContainer:(NSTextContainer *) container;
 {
-	// FIXME: get the union of all bounding boxes of all glyphs in range
-	
-	NSRect r=NSZeroRect /*[self usedRectForTextContainer:container]*/;
+	NSRect r=NSZeroRect;
 	NSRange cRange;
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
@@ -593,7 +589,19 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	cRange=[self glyphRangeForTextContainer:container];
 	glyphRange=NSIntersectionRange(glyphRange, cRange);	// take glyphs within given container
 	while(glyphRange.length-- > 0)
-		r=NSUnionRect(r, _glyphs[glyphRange.location++].usedLineFragmentRect);
+		{
+		NSDictionary *attribs=[_textStorage attributesAtIndex:glyphRange.location effectiveRange:NULL];	// could be optimized for font range
+		NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
+		NSRect lfr=[self lineFragmentRectForGlyphAtIndex:glyphRange.location effectiveRange:NULL];
+		NSPoint pos=[self locationForGlyphAtIndex:glyphRange.location];
+		NSRect box;
+		if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
+		box=[font boundingRectForGlyph:[self glyphAtIndex:glyphRange.location]];
+		box.origin.x+=lfr.origin.x+pos.x;
+		box.origin.y+=lfr.origin.y+pos.y;
+		r=NSUnionRect(r, box);
+		glyphRange.location++;
+		}
 	return r;
 }
 
@@ -695,19 +703,14 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) drawBackgroundForGlyphRange:(NSRange)glyphsToShow 
 							 atPoint:(NSPoint)origin;
 { // draw selection range background
-	
-	// FIXME:
-	// use - (NSRectArray)rectArrayForGlyphRange:(NSRange)glyphRange withinSelectedGlyphRange:(NSRange)selGlyphRange inTextContainer:(NSTextContainer *)container rectCount:(NSUInteger *)rectCount
-
 	if(glyphsToShow.length > 0)
 		{
 		NSTextContainer *textContainer=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];	// this call could fill the cache if needed...
-		// FIXME - should be done line by line because the last line is shorter!
-		NSRect r=[self boundingRectForGlyphRange:glyphsToShow inTextContainer:textContainer];
 		NSColor *color=[NSColor selectedTextBackgroundColor];
-		[color set];
-		// FIXME: this is correct only for single lines...
-		[self fillBackgroundRectArray:&r count:1 forCharacterRange:glyphsToShow color:color];
+		unsigned int cnt;
+		NSRectArray r=[self rectArrayForGlyphRange:glyphsToShow withinSelectedGlyphRange:glyphsToShow inTextContainer:textContainer rectCount:&cnt];
+		// FIXME: how do we handle the origin?
+		[self fillBackgroundRectArray:r count:cnt forCharacterRange:glyphsToShow color:color];
 		}
 	// also calls -[NSTextBlock drawBackgroundWithRange... ] if needed
 }
@@ -1246,7 +1249,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return [self lineFragmentRectForGlyphAtIndex:glyphIndex effectiveRange:effectiveGlyphRange withoutAdditionalLayout:NO];
 }
 
-- (NSRect) lineFragmentRectForGlyphAtIndex:(NSUInteger) index effectiveRange:(NSRangePointer) charRange withoutAdditionalLayout:(BOOL) layoutFlag;
+- (NSRect) lineFragmentRectForGlyphAtIndex:(NSUInteger) index effectiveRange:(NSRangePointer) range withoutAdditionalLayout:(BOOL) layoutFlag;
 {
 	NSRect lfr;
 	if(!layoutFlag)
@@ -1254,30 +1257,50 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	if(index >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
 	lfr=_glyphs[index].lineFragmentRect;
-	if(charRange)
-		{ // find the effective range by searching back and forth from the current index for glyphs with the same lft
-			charRange->location=index;
-			while(charRange->location > 0)
+	if(range)
+		{ // find the effective range by searching back and forth from the current index for glyphs with the same lfr
+			range->location=index;
+			while(range->location > 0)
 				{
-				if(!NSEqualRects(lfr, _glyphs[charRange->location-1].lineFragmentRect))
+				if(!NSEqualRects(lfr, _glyphs[range->location-1].lineFragmentRect))
 					break;	// previous index is different
-				charRange->location--;
+				range->location--;
 				}
-			charRange->length=index-charRange->location;
-			while(NSMaxRange(*charRange)+1 < _numberOfGlyphs)
+			range->length=index-range->location;
+			while(NSMaxRange(*range)+1 < _numberOfGlyphs)
 				{
-				if(!NSEqualRects(lfr, _glyphs[NSMaxRange(*charRange)+1].lineFragmentRect))
+				if(!NSEqualRects(lfr, _glyphs[NSMaxRange(*range)+1].lineFragmentRect))
 					break;	// next index is different
-				charRange->length++;
+				range->length++;
 				}
 		}
 	return lfr;
 }
 
-- (NSRect) lineFragmentUsedRectForGlyphAtIndex:(unsigned)glyphIndex effectiveRange:(NSRange *)effectiveGlyphRange;
+- (NSRect) lineFragmentUsedRectForGlyphAtIndex:(unsigned) index effectiveRange:(NSRange *) range;
 {
-	NIMP;
-	return NSZeroRect;
+	NSRect lfur;
+	if(index >= _numberOfGlyphs)
+		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
+	lfur=_glyphs[index].usedLineFragmentRect;
+	if(range)
+		{ // find the effective range by searching back and forth from the current index for glyphs with the same lfr
+			range->location=index;
+			while(range->location > 0)
+				{
+				if(!NSEqualRects(lfur, _glyphs[range->location-1].usedLineFragmentRect))
+					break;	// previous index is different
+				range->location--;
+				}
+			range->length=index-range->location;
+			while(NSMaxRange(*range)+1 < _numberOfGlyphs)
+				{
+				if(!NSEqualRects(lfur, _glyphs[NSMaxRange(*range)+1].usedLineFragmentRect))
+					break;	// next index is different
+				range->length++;
+				}
+		}
+	return lfur;
 }
 
 - (NSPoint) locationForGlyphAtIndex:(unsigned) index;
@@ -1307,24 +1330,40 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return NSMakeRange(0, 0);
 }
 
-- (NSRect*) rectArrayForCharacterRange:(NSRange)charRange 
-		  withinSelectedCharacterRange:(NSRange)selCharRange 
-					   inTextContainer:(NSTextContainer *)container 
-							 rectCount:(unsigned *)rectCount;
+- (NSRect *) rectArrayForCharacterRange:(NSRange) charRange 
+		  withinSelectedCharacterRange:(NSRange) selCharRange 
+					   inTextContainer:(NSTextContainer *) container 
+							 rectCount:(unsigned *) rectCount;
 {
-	static NSRect rect;
-	NIMP;
-	return &rect;
+	// CHECKME: which one is better to base on the other method?
+	charRange=[self glyphRangeForCharacterRange:charRange actualCharacterRange:NULL];
+	selCharRange=[self glyphRangeForCharacterRange:selCharRange actualCharacterRange:NULL];
+	return [self rectArrayForGlyphRange:charRange withinSelectedGlyphRange:selCharRange inTextContainer:container rectCount:rectCount];
 }
 
-- (NSRect*) rectArrayForGlyphRange:(NSRange)glyphRange 
-		  withinSelectedGlyphRange:(NSRange)selGlyphRange 
-				   inTextContainer:(NSTextContainer *)container 
-						 rectCount:(unsigned *)rectCount;
+- (NSRect *) rectArrayForGlyphRange:(NSRange) glyphRange 
+		  withinSelectedGlyphRange:(NSRange) selGlyphRange 
+				   inTextContainer:(NSTextContainer *) container 
+						 rectCount:(unsigned *) rectCount;
 {
-	static NSRect rect;
-	NIMP;
-	return &rect;
+	// FIXME: this is not shared between all instances!
+	static NSRect rect[3];	// owned by us and reused; also reused by boundingRectForGlyphRange:inTextContainer (???)
+	// check that selGlyphRange contains glyphRange
+	// or selGlyphRange.location == NSNotFound
+	// find first partial line range (unless empty)
+	// find middle "box"
+	// find last partial line (unless empty)
+	
+	if(NSIsEmptyRect(rect[2]))
+		{
+		if(NSIsEmptyRect(rect[1]))
+			*rectCount=1;
+		else
+			*rectCount=2;
+		}
+	else
+		*rectCount=3;
+	return rect;
 }
 
 - (void) removeTemporaryAttribute:(NSString *)name forCharacterRange:(NSRange)charRange;
@@ -1498,8 +1537,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) setTextStorage:(NSTextStorage *) ts; { _textStorage=ts; [_typesetter setAttributedString:_textStorage]; _layoutIsValid=_glyphsAreValid=NO; }	// The textStorage owns the layout manager(s)
 - (void) setTypesetter:(NSTypesetter *) ts; { ASSIGN(_typesetter, ts); [_typesetter setAttributedString:_textStorage]; _layoutIsValid=_glyphsAreValid=NO; }
 - (void) setTypesetterBehavior:(NSTypesetterBehavior) behavior; { [_typesetter setTypesetterBehavior:behavior]; }
-- (void) setUsesFontLeading:(BOOL) flag; { _usesFontLeading=flag; _layoutIsValid=NO; }
-- (void) setUsesScreenFonts:(BOOL) flag; { _usesScreenFonts=flag; _layoutIsValid=_glyphsAreValid=NO; }
+- (void) setUsesFontLeading:(BOOL) flag; { _usesFontLeading=flag; }
+- (void) setUsesScreenFonts:(BOOL) flag; { _usesScreenFonts=flag; }
 
 - (void) showAttachmentCell:(NSCell *) cell inRect:(NSRect) rect characterIndex:(unsigned) attachmentIndex;
 {

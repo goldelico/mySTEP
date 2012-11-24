@@ -1,5 +1,5 @@
 /* 
-NSStringDrawing.m
+ NSStringDrawing.m
  
  Draw and Measure categories of NSString and NSAttributedString 
  
@@ -15,7 +15,6 @@ NSStringDrawing.m
  under the terms of the GNU Library General Public License.
  */ 
 
-#import <AppKit/NSStringDrawing.h>
 #import <AppKit/AppKit.h>
 
 // can be removed for new implementation:
@@ -37,10 +36,8 @@ NSStringDrawing.m
 - (void) drawAtPoint:(NSPoint)point
 	  withAttributes:(NSDictionary *)attrs;
 {
-	NSRect r=[self boundingRectWithSize:NSMakeSize(16000.0, 16000.0) options:0 attributes:attrs];	// start with infinite box
+	NSRect r=[self boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:0 attributes:attrs];	// start with infinite box
 	r.origin=point; // move to given origin
-//	if([[NSGraphicsContext currentContext] isFlipped])
-//		r.origin.y-=r.size.height;
 	[self drawWithRect:r options:0 attributes:attrs];
 }
 
@@ -58,9 +55,9 @@ NSStringDrawing.m
 	NSLog(@"drawWithRect");
 	{
 #endif
-		NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attributes];
-		[a drawWithRect:rect options:options];	// draw as attributed string
-		[a release];							// no longer needed
+	NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attributes];
+	[a drawWithRect:rect options:options];	// draw as attributed string
+	[a release];							// no longer needed
 #if 0
 	}
 	[arp release];
@@ -86,6 +83,7 @@ static NSTextStorage *_textStorage;
 static NSLayoutManager *_layoutManager;
 static NSTextContainer *_textContainer;
 static NSAttributedString *_currentString;
+static NSStringDrawingOptions _currentOptions;
 
 - (void) _setupWithRect:(NSRect) rect options:(NSStringDrawingOptions) options;
 {
@@ -97,6 +95,7 @@ static NSAttributedString *_currentString;
 	 NSStringDrawingUsesDeviceMetrics - screenFontWithRenderingMode:NSFontIntegerAdvancementsRenderingMode
 	 NSStringDrawingOneShot	- don't cache
 	 */
+	_currentOptions=options;
 	if(self == _currentString)
 		return;	// don't change if we size&draw the same string
 	if(!_textStorage)
@@ -118,6 +117,8 @@ static NSAttributedString *_currentString;
 		[_textContainer setContainerSize:rect.size];	// resize container
 		[_textStorage setAttributedString:self];		// replace
 		}
+	[_layoutManager setUsesFontLeading:((options&NSStringDrawingUsesFontLeading) != 0)];
+	[_layoutManager setUsesScreenFonts:((options&NSStringDrawingDisableScreenFontSubstitution) == 0)];
 #if 0
 	NSLog(@"self = %@", self);
 	NSLog(@"_textStorage = %@", _textStorage);
@@ -130,20 +131,26 @@ static NSAttributedString *_currentString;
 - (NSRect) boundingRectWithSize:(NSSize) size
 						options:(NSStringDrawingOptions) options;
 {
+	NSRect rect;
 	if([self length] == 0)
 		return NSZeroRect;	// empty string
 	[self _setupWithRect:(NSRect) { NSZeroPoint, size } options:options];	// create a text container from given size
-	return [_layoutManager boundingRectForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
-																			actualCharacterRange:NULL]
-									 inTextContainer:_textContainer];
+	rect=[_layoutManager boundingRectForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
+																		  actualCharacterRange:NULL]
+								   inTextContainer:_textContainer];
+	rect.origin.x=0.0;	// ignore alignment
+	// subtract baseline offset !?!
 	// FIXME: handle oneshot option...
+	return rect;
 }
 
 - (void) drawAtPoint:(NSPoint) point;
 {
-	NSRect r=[self boundingRectWithSize:NSMakeSize(16000.0, 16000.0) options:0];	// start with infinite box
+	NSRect r=[self boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:0];	// start with infinite box
 	r.origin=point; // move to given origin
-	[self drawWithRect:r options:0];
+	if(_currentOptions&NSStringDrawingUsesLineFragmentOrigin)
+		// adjust by baseline i.e. draw at line fragment origin
+		[self drawWithRect:r options:0];
 }
 
 - (void) drawInRect:(NSRect) rect;
@@ -166,27 +173,27 @@ static NSAttributedString *_currentString;
 #if 0
 	NSLog(@"drawWithRect:options: %@", self);
 #endif
-#if 1
+#if 0	// only done here for old layoutManager
 	{	// FIXME: this should have been processed by layoutManager
 		NSParagraphStyle *para=[[self attributesAtIndex:0 effectiveRange:NULL] objectForKey:NSParagraphStyleAttributeName];
 		switch([para alignment])
+		{
+			case NSLeftTextAlignment:
+			case NSNaturalTextAlignment:
+			break;
+			case NSRightTextAlignment:
+			case NSCenterTextAlignment:
+			case NSJustifiedTextAlignment:
 			{
-				case NSLeftTextAlignment:
-				case NSNaturalTextAlignment:
-					break;
-				case NSRightTextAlignment:
-				case NSCenterTextAlignment:
-				case NSJustifiedTextAlignment:
-					{
-						NSSize size=[_layoutManager boundingRectForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
-																																												 actualCharacterRange:NULL]
-																									inTextContainer:_textContainer].size;
-						if([para alignment] == NSRightTextAlignment)
-							rect.origin.x = NSMaxX(rect)-size.width-2.0;	// start at right edge
-						else
-							rect.origin.x += (rect.size.width-size.width)/2-1.0;	// center
-					}
+			NSSize size=[_layoutManager boundingRectForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
+																						 actualCharacterRange:NULL]
+												  inTextContainer:_textContainer].size;
+			if([para alignment] == NSRightTextAlignment)
+				rect.origin.x = NSMaxX(rect)-size.width-2.0;	// start at right edge
+			else
+				rect.origin.x += (rect.size.width-size.width)/2-1.0;	// center
 			}
+		}
 	}
 #endif
 	rng=[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
@@ -205,16 +212,7 @@ static NSAttributedString *_currentString;
 
 - (NSSize) size;
 {
-#if 0
-	if([self length] == 0)
-		return NSZeroSize;	// empty string
-	[self _setupWithRect:(NSRect) { NSZeroPoint, { 16000.0, 16000.0 } } options:0];	// start with a very large text container
-	return [_layoutManager boundingRectForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
-																			actualCharacterRange:NULL]
-									 inTextContainer:_textContainer].size;	// get really required bounding box
-#else
-	return [self boundingRectWithSize:NSMakeSize(16000.0, 16000.0) options:0].size;
-#endif
+	return [self boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:0].size;
 }
 
 @end

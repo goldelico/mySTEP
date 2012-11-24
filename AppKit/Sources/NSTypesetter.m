@@ -1079,18 +1079,21 @@ NSLayoutOutOfGlyphs
 		}
 	if(setBaseline)
 		*baseline=curMinBaselineDistance; // determine here (by maximum ascender)
+	if(lineFragmentRect->size.width != FLT_MAX)
+		{ // can't align for infinitely large box (e.g. string drawing at given point)
+		switch(curTextAlignment) {
+			case NSRightTextAlignment:
+				lineFragmentRect->origin.x+=curMaxGlyphLocation-curGlyphOffset;
+				break;
+			case NSCenterTextAlignment:
+				lineFragmentRect->origin.x+=0.5*(curMaxGlyphLocation-curGlyphOffset);
+				break;
+			default:
+				break;
+		}
+		}
 	lineFragmentRect->size.width=curGlyphOffset;			// used width
-	lineFragmentRect->size.height=MIN(MAX(curMinLineHeight, curMaxBaselineDistance), curMaxLineHeight);	// set line height
-	switch(curTextAlignment) {
-		case NSRightTextAlignment:
-			lineFragmentRect->origin.x+=curMaxGlyphLocation-curGlyphOffset;
-			break;
-		case NSCenterTextAlignment:
-			lineFragmentRect->origin.x+=0.5*(curMaxGlyphLocation-curGlyphOffset);
-			break;
-		default:
-			break;
-	}
+	lineFragmentRect->size.height=MIN(MAX(curMinLineHeight, curMaxBaselineDistance), curMaxLineHeight);	// set line height	
 	return status;
 }
 

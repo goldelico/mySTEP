@@ -259,7 +259,7 @@ FT_Library _ftLibrary(void)
 }
 
 - (NSGlyph) _glyphForCharacter:(unichar) c;
-	// FIXME - this should be moved to NSGlyphGenerator!
+	// FIXME - this should be moved to a NSGlyphGenerator category!
 {
 	return FT_Get_Char_Index(_faceStruct, c);
 }

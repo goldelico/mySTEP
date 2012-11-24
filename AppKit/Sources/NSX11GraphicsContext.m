@@ -4277,6 +4277,10 @@ static NSDictionary *_x11settings;
 
 - (NSFont *) screenFontWithRenderingMode:(NSFontRenderingMode) mode;
 { // check if we can make it an X11 screen font - otherwise make it a freetype font
+#if 1
+	// Screen fonts are broken since private font methods assume a freetype font
+	return self;
+#endif
 	if(_renderingMode == NSFontIntegerAdvancementsRenderingMode)
 		return nil;	// is already a screen font!
 	if(mode == NSFontDefaultRenderingMode)
