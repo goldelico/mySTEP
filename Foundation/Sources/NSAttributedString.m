@@ -262,6 +262,7 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 
 - (NSString *) description
 {
+	// FIXME: should print attribute runs + string
 	return [self string];
 }
 
@@ -353,34 +354,42 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 			[NSException raise:NSRangeException 
 				format:@"RangeError in -attribute:%@ atIndex:%d longestEffectiveRange:%@ inRange:%@",
 				attributeName, index, NSStringFromRange(*aRange), NSStringFromRange(rangeLimit)];
-			
+	if(!attributeName && !aRange)
+		return nil;
+	
 	attrValue = [self attribute:attributeName 
 					  atIndex:index 
 					  effectiveRange:aRange]; // Raises exception if index is out of range
-	if(!attributeName)
-		return nil;		// attribute:atIndex:effectiveRange: handles this case.
-	if(!aRange)
-		return attrValue;
-  
-	while(aRange->location > rangeLimit.location)
-		{										// Check extend range backwards
-		tmpDictionary = [self attributesAtIndex:aRange->location - 1
-							  effectiveRange:&tmpRange];
-		tmpAttrValue = [tmpDictionary objectForKey:attributeName];
-		if(tmpAttrValue == attrValue)
-			aRange->location = tmpRange.location;
+	if(attributeName)
+		{
+		if(!aRange)
+			return attrValue;
+		
+		while(aRange->location > rangeLimit.location)
+			{ // Check extend range backwards
+				tmpDictionary = [self attributesAtIndex:aRange->location - 1
+										 effectiveRange:&tmpRange];
+				tmpAttrValue = [tmpDictionary objectForKey:attributeName];
+				if(tmpAttrValue == attrValue)
+					aRange->location = tmpRange.location;
+				else
+					break;
+			}
+		while(NSMaxRange(*aRange) < NSMaxRange(rangeLimit))
+			{ // Check extend range forwards
+//				NSLog(@"aRange=%@ rangeLimit=%@", NSStringFromRange(*aRange), NSStringFromRange(rangeLimit));
+				tmpDictionary = [self attributesAtIndex:NSMaxRange(*aRange)
+										 effectiveRange:&tmpRange];
+				tmpAttrValue = [tmpDictionary objectForKey:attributeName];
+//				NSLog(@"tmpDict=%@ tmpAttrValue=%@", tmpDictionary, tmpAttrValue);
+				if(tmpAttrValue == attrValue)
+					aRange->length = NSMaxRange(tmpRange) - aRange->location;	// extend
+				else
+					break;
+			}
 		}
-	while(NSMaxRange(*aRange) < NSMaxRange(rangeLimit))
-		{										// Check extend range forwards
-		tmpDictionary = [self attributesAtIndex:NSMaxRange(*aRange)
-							  effectiveRange:&tmpRange];
-		tmpAttrValue = [tmpDictionary objectForKey:attributeName];
-		if(tmpAttrValue == attrValue)
-			aRange->length = NSMaxRange(tmpRange) - aRange->location;
-		}
-
-	*aRange = NSIntersectionRange(*aRange,rangeLimit);	// Clip to rangeLimit
-
+	*aRange = NSIntersectionRange(*aRange, rangeLimit);	// Clip to rangeLimit
+	
 	return attrValue;
 }
 												// Comparing attributed strings
