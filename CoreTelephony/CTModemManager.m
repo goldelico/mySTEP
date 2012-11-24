@@ -118,7 +118,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	pinStatus=CTPinStatusUnknown;	// needs to check
 	[self _closeHSO];	// if open
 	system("echo 1 >/sys/devices/virtual/gpio/gpio186/value");	// wake up modem on GTA04A4
-	// FIXME: use /dev/ttyHS_Application
+	// FIXME: use /dev/ttyHS_Application instead of searching (udev rule)
 	// FIXME: also open /dev/ttyHS_Modem to receive "NO CARRIER" messages
 	while(YES)
 		{
