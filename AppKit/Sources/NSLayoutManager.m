@@ -597,9 +597,11 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		NSPoint pos=[self locationForGlyphAtIndex:glyphRange.location];
 		NSRect box;
 		if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
-		box=[font boundingRectForGlyph:[self glyphAtIndex:glyphRange.location]];
-		box.origin.x+=lfr.origin.x+pos.x;
-		box.origin.y+=lfr.origin.y+pos.y;
+		box=[font boundingRectForGlyph:[self glyphAtIndex:glyphRange.location]];	// origin is on baseline
+		pos.x+=lfr.origin.x;
+		pos.y+=lfr.origin.y;	// move to container coordinates
+		pos.x+=box.origin.x;
+		pos.y+=box.origin.y;	// container is in flipped coordinates
 		r=NSUnionRect(r, box);
 		glyphRange.location++;
 		}
@@ -1531,6 +1533,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	_textContainerInfo[idx].glyphRange=NSUnionRange(_textContainerInfo[idx].glyphRange, glyphRange);
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
+	// FIXME: we could binary search the best matching text container...
 	while(glyphRange.length-- > 0)
 		_glyphs[glyphRange.location++].textContainer=container;
 }
@@ -1561,7 +1564,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 					color:(NSColor *) color
 	   printingAdjustment:(NSSize) adjust;
 {
-	NIMP;
+	NIMP;	// what is this method still used for?
 	NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
 	[ctxt _setTextPosition:point];
 	if(font) [ctxt _setFont:font];
@@ -1597,6 +1600,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return originalFont;
 }
 
+// this is used for spell checking only and does only support underlining
+
 - (id) temporaryAttribute:(NSString *) name 
 		 atCharacterIndex:(NSUInteger) loc 
 		   effectiveRange:(NSRangePointer) effectiveRange;
@@ -1628,7 +1633,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return NIMP;
 }
 
-- (NSDictionary *) temporaryAttributesAtCharacterIndex:(NSUInteger) index effectiveRange:(NSRangePointer) charRange;
+- (NSDictionary *) temporaryAttributesAtCharacterIndex:(NSUInteger) index
+										effectiveRange:(NSRangePointer) effectiveRange;
 {
 	return NIMP;
 }
@@ -1637,13 +1643,11 @@ static void allocateExtra(struct NSGlyphStorage *g)
 {
 	if(!_textContainers)
 		return;	// we are not yet initialized, i.e. won't find this container
-	// trigger invalidation
 	[self invalidateDisplayForGlyphRange:[self glyphRangeForTextContainer:container]];
 }
 
 - (void) textContainerChangedTextView:(NSTextContainer *)container;
 {
-	// trigger invalidation
 	[self invalidateDisplayForGlyphRange:[self glyphRangeForTextContainer:container]];
 }
 
@@ -1655,9 +1659,11 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSTextContainer *) textContainerForGlyphAtIndex:(unsigned) glyphIndex effectiveRange:(NSRangePointer) effectiveGlyphRange withoutAdditionalLayout:(BOOL) flag
 {
 	if(!flag)
-		[self ensureLayoutForCharacterRange:NSMakeRange(0, [_textStorage length])]; // additional layout
+		[self ensureLayoutForGlyphRange:NSMakeRange(0, glyphIndex)]; // ensure layout up to this index
 	if(glyphIndex >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];
+	// FIXME: we could binary search the best matching text container...
+	// and get rid of the _glyphs[].textContainer variable
 	if(effectiveGlyphRange)
 		{ // get glyph range of text container
 			NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:_glyphs[glyphIndex].textContainer];

@@ -209,10 +209,10 @@ static NSCursor *__textCursor = nil;
 #endif
 	if([textStorage length] > 0)
 		{ // get bounding box assuming given or unlimited size
+			NSRange rng;
 			[textContainer setContainerSize:NSMakeSize((_tx.horzResizable?FLT_MAX:_frame.size.width), (_tx.vertResizable?FLT_MAX:_frame.size.height))];
-			size=[layoutManager boundingRectForGlyphRange:[layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [textStorage length])
-																				actualCharacterRange:NULL]
-										  inTextContainer:textContainer].size;
+			rng=[layoutManager glyphRangeForTextContainer:textContainer];
+			size=[layoutManager boundingRectForGlyphRange:rng inTextContainer:textContainer].size;
 		}
 	[self setConstrainedFrameSize:size];	// try to adjust
 #if 0

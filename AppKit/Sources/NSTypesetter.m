@@ -90,6 +90,7 @@
 {
 	// FIXME: this depends on the NSFont??
 	// or is it stored/cached for each glyph in the typesetter???
+	// or can we calculate that from the glyph location?
 	return 0.0;
 }
 
@@ -947,6 +948,7 @@ NSLayoutOutOfGlyphs
 	*   curGlyphIndex gives the number of the glyphs
 	*
 	* it uses or modifies (m) these iVars:
+	*   firstIndexOfCurrentLineFragment
 	*   curGlyphOffset (m)
 	*   curCharacterIndex (m)
 	*   curGlyphIndex (m)
@@ -969,6 +971,7 @@ NSLayoutOutOfGlyphs
 	curGlyphOffset=(curCharacterIndex == curParaRange.location)?[curParaStyle firstLineHeadIndent]:[curParaStyle headIndent];	// start at left indent
 	containerBreakAfterCurGlyph=NO;
 	curMinBaselineDistance=curMaxBaselineDistance=0.0;
+	curGlyphIndex=0;	// fill from the beginning
 	while(curCharacterIndex < [textString length])
 		{ // we still have a character to process
 			unichar curChar;
@@ -1006,7 +1009,7 @@ NSLayoutOutOfGlyphs
 			curChar=[textString characterAtIndex:curCharacterIndex];
 			// FIXME: how to handle multiple glyphs for single character (and vice versa: i.e. ligatures and overprinting)
 			previousGlyph=curGlyph;
-			curGlyph=[layoutManager glyphAtIndex:firstGlyphIndex+curGlyphIndex];	// get glyph
+			curGlyph=[layoutManager glyphAtIndex:firstIndexOfCurrentLineFragment+curGlyphIndex];	// get glyph
 			glyphInfo=NSGlyphInfoAtIndex(curGlyphIndex);
 			glyphInfo->curLocation=(NSPoint) { curGlyphOffset, *baseline+curBaselineOffset };
 			glyphInfo->font=curFont;
@@ -1126,7 +1129,7 @@ NSLayoutOutOfGlyphs
 	
 	firstGlyphIndex = startGlyphIndex;
 	if(startGlyphIndex > 0)
-		curCharacterIndex = [layoutManager characterIndexForGlyphAtIndex:startGlyphIndex];
+		curCharacterIndex = [layoutManager characterIndexForGlyphAtIndex:curGlyphIndex];
 	else
 		curCharacterIndex=0;
 
@@ -1170,7 +1173,7 @@ NSLayoutOutOfGlyphs
 			lineFragmentRect.size.height=usedRect.size.height;	// line height
 			if(curGlyphIndex > 0)
 				{ // did layout anything
-					glyphRange=NSMakeRange(firstGlyphIndex, 1);
+					glyphRange=NSMakeRange(firstIndexOfCurrentLineFragment, 1);	// initialize range
 					for(i=0; i < curGlyphIndex; i++)
 						{ // copy location and attributes to layout manager
 							NSPoint location=NSGlyphInfoAtIndex(i)->curLocation;
@@ -1178,8 +1181,7 @@ NSLayoutOutOfGlyphs
 							location.y+=baselineOffset;	// move glyph down to base line
 							[layoutManager setNotShownAttribute:NSGlyphInfoAtIndex(i)->_giflags.dontShow forGlyphAtIndex:glyphRange.location];
 							[layoutManager setLocation:location forStartOfGlyphRange:glyphRange];
-							// FIXME:
-							[layoutManager setDrawsOutsideLineFragment:NO forGlyphAtIndex:glyphRange.location];
+							[layoutManager setDrawsOutsideLineFragment:NSGlyphInfoAtIndex(i)->_giflags.drawsOutside forGlyphAtIndex:glyphRange.location];
 							glyphRange.location++;
 						}
 					glyphRange=NSMakeRange(firstIndexOfCurrentLineFragment, i);
@@ -1191,8 +1193,9 @@ NSLayoutOutOfGlyphs
 					if(curContainerIsSimpleRectangular || NSIsEmptyRect(remainingRect))
 						{ // we need a new line
 							numLines++;
-							proposedRect->origin.y=NSMaxY(lineFragmentRect);	// where next line fragment rect can start
+							proposedRect->origin.y=NSMaxY(lineFragmentRect)+[curParaStyle lineSpacing];	// where next line fragment rect can start
 						}
+					firstGlyphIndex+=curGlyphIndex;	// we have processed the fragment
 				}
 			if(status == NSLayoutCantFit)
 				{ // proposedRect is not wide or high enough for next glyph, we need a new one
@@ -1219,7 +1222,7 @@ NSLayoutOutOfGlyphs
 		}
 	// FIXME: handle/create the extra line fragment
 	if(nextGlyph != NULL)
-		*nextGlyph = curGlyphIndex;
+		*nextGlyph = firstGlyphIndex;
 	layoutManager=nil;
 	textStorage=nil;
 }
@@ -1245,7 +1248,7 @@ NSLayoutOutOfGlyphs
 
 - (void) layoutTab;
 {
-	NSTextTab *tab=[super textTabForGlyphLocation:firstGlyphIndex+curGlyphIndex writingDirection:curLayoutDirection maxLocation:curContainerSize.width];
+	NSTextTab *tab=[super textTabForGlyphLocation:firstIndexOfCurrentLineFragment+curGlyphIndex writingDirection:curLayoutDirection maxLocation:curContainerSize.width];
 	NSTypesetterGlyphInfo *glyphInfo=NSGlyphInfoAtIndex(curGlyphIndex);
 	CGFloat interval;
 	if(tab)

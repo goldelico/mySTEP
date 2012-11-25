@@ -54,6 +54,7 @@ typedef struct _NSTypesetterGlyphInfo
 		unsigned int defaultPositioning:1;
 		unsigned int dontShow:1;
 		unsigned int isAttachment:1;
+		unsigned int drawsOutside:1;	// this is our addition
 	} _giflags;
 } NSTypesetterGlyphInfo;
 
