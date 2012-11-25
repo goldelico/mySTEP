@@ -157,6 +157,13 @@ static NSStringDrawingOptions _currentOptions;
 	if(!(options&NSStringDrawingUsesLineFragmentOrigin))
 		{
 		// FIXME: we need only the bounding box of the first line...
+		/* do we simply call
+		 [[_layoutManager typesetter] layoutGlyphsInLayoutManager:_layoutManager
+			startingAtGlyphIndex:0
+		maxNumberOfLineFragments:1
+		nextGlyphIndex:&nextGlyph]
+		 to create just a single line fragment rect?
+		 */
 			rng=[_layoutManager glyphRangeForBoundingRect:(NSRect) { NSZeroPoint, size } inTextContainer:_textContainer];
 			rect=[_layoutManager boundingRectForGlyphRange:rng inTextContainer:_textContainer];
 			rect.origin.y-=[[_layoutManager typesetter] baselineOffsetInLayoutManager:_layoutManager glyphIndex:0];

@@ -708,6 +708,7 @@ forStartOfGlyphRange:(NSRange) range;
 
 - (void) breakLineAtIndex:(unsigned) location;
 {
+	NSTypesetterGlyphInfo *glyphInfo=NSGlyphInfoAtIndex(curGlyphIndex);
 	// index appears to be a glyphInfo index!
 	// this assumes that there are enough glyphs
 	// I think it will remove the glyphs up to (excluding) location
@@ -731,6 +732,7 @@ forStartOfGlyphRange:(NSRange) range;
 			// check for truncation and apply [curParagraphStyle tighteningFactorForTruncation]
 			break;
 	}
+	glyphInfo->extent=curMaxGlyphLocation-curGlyphOffset;	// extends to end of line
 }
 
 - (unsigned) capacityOfTypesetterGlyphInfo;
@@ -899,8 +901,17 @@ forStartOfGlyphRange:(NSRange) range;
 - (NSLayoutStatus) layoutControlGlyphForLineFragment:(NSRect) lineFrag;
 {
 	// this is IMHO intended to be overwritten in subclasses to control e.g. display of paragraph or tab characters
-	if([textString characterAtIndex:curCharacterIndex] == '\t')
-		[self layoutTab];
+	switch([textString characterAtIndex:curCharacterIndex]) {
+		case '\t':
+			[self layoutTab];
+			break;
+		case '\n':
+			[self breakLineAtIndex:curGlyphIndex];		
+			break;
+		case '\b':
+			// allow overprinting (?) by setting back curGlyphOffset to previous glyph or assigning negative extent?
+			break;
+	}
 	return NSLayoutOutOfGlyphs;
 }
 
@@ -975,6 +986,8 @@ NSLayoutOutOfGlyphs
 					if(curMaxGlyphLocation <= 0.0)	// relative to right margin
 						curMaxGlyphLocation+=lineFragmentRect->size.width;
 					// set up baseline offset for fixed line height
+					// check for NSTextTableBlock attribute in textStorage and if yes,
+					// get table cell size and recursively layout table cells (with lineFragmenRect reduced to column)
 					status=NSLayoutDone;	// end of paragraph
 					break;
 				}
@@ -1001,26 +1014,14 @@ NSLayoutOutOfGlyphs
 			*((unsigned char *) &glyphInfo->_giflags)=0;
 			curGlyphIsAControlGlyph=NO;
 			curGlyphExtentAboveLocation=curGlyphExtentBelowLocation=0.0;
-			// if([NSCharacterSet controlCharacterSet] containsCharacter:curChar])
-			switch(curChar) {
-				case '\t':
-					// ask [layoutManager showsControlCharacters]
-					glyphInfo->_giflags.dontShow=YES;
-					glyphInfo->extent=0;	// will become width of tab
-					curGlyphIsAControlGlyph=YES;
-					status=[self layoutControlGlyphForLineFragment:*lineFragmentRect];
-					break;
-				case '\n':
-					glyphInfo->_giflags.dontShow=YES;
-					glyphInfo->extent=0;
-					[self breakLineAtIndex:curGlyphIndex];		
-					break;
-				case '\b':
-					glyphInfo->_giflags.dontShow=YES;
-					glyphInfo->extent=0;
-					// allow overprinting (?) by setting back curGlyphOffset to previous glyph?
-					break;
-				case NSAttachmentCharacter: { // handle attachment
+			if([[NSCharacterSet controlCharacterSet] characterIsMember:curChar])
+				{
+				glyphInfo->_giflags.dontShow=[layoutManager showsControlCharacters];
+				glyphInfo->extent=0;	// may become width of tab or \n to end of line
+				status=[self layoutControlGlyphForLineFragment:*lineFragmentRect];				
+				}
+			else if(curChar == NSAttachmentCharacter)
+				{ // handle attachment
 					NSTextAttachment *a=[attrs objectForKey:NSAttachmentAttributeName];
 					id <NSTextAttachmentCell> c=[a attachmentCell];
 					NSPoint off=[c cellBaselineOffset];
@@ -1039,7 +1040,8 @@ NSLayoutOutOfGlyphs
 					glyphInfo->extent=frame.size.width;
 					break;				
 				}
-				default: {
+			else
+				{
 					NSRect box=[curFont boundingRectForGlyph:curGlyph];
 					NSSize adv=[curFont advancementForGlyph:curGlyph];
 					glyphInfo->extent=adv.width;
@@ -1056,7 +1058,6 @@ NSLayoutOutOfGlyphs
 							glyphInfo->_giflags.defaultPositioning=NO;
 						}
 				}
-			}
 			curMinBaselineDistance=MAX(curMinBaselineDistance, curGlyphExtentAboveLocation);
 			curMaxBaselineDistance=MAX(curMaxBaselineDistance, curGlyphExtentBelowLocation+curGlyphExtentAboveLocation);
 			if(curGlyphOffset+glyphInfo->extent > curMaxGlyphLocation)

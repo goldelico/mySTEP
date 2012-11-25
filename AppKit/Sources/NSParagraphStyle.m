@@ -108,21 +108,21 @@ NSString *NSTabColumnTerminatorsAttributeName=@"TabColumnTerminatorsAttributeNam
 		{
 		NSMutableParagraphStyle *s=[NSMutableParagraphStyle new];
 		int i;
-		[s setAlignment:NSLeftTextAlignment];
-		[s setLineBreakMode:NSLineBreakByWordWrapping];
+		[s setAlignment:NSNaturalTextAlignment];
 		for(i=1; i<=12; i++)
 			{ // 12 left aligned tab stops with 28 points distance
 			NSTextTab *ts=[[NSTextTab alloc] initWithType:NSLeftTabStopType location:28.0*i];
 			[s addTabStop:ts];
 			[ts release];
 			}
-		// FIXME: doc says all others are 0.0 ???
-		[s setLineSpacing:12.0];
-		[s setParagraphSpacing:6.0];
-		[s setFirstLineHeadIndent:6.0];
+		[s setLineBreakMode:NSLineBreakByWordWrapping];
+		[s setBaseWritingDirection:[self defaultWritingDirectionForLanguage:nil]];
+		// doc says all others are 0.0
+		[s setLineSpacing:0.0];
+		[s setParagraphSpacing:0.0];
+		[s setFirstLineHeadIndent:0.0];
 		[s setHeadIndent:0.0];
 		[s setTailIndent:0.0];
-		[s setBaseWritingDirection:[self defaultWritingDirectionForLanguage:nil]];
 		[s setMinimumLineHeight:0.0];
 		[s setMaximumLineHeight:0.0];
 		def=[s copy];	// immutable copy
