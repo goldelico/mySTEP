@@ -820,8 +820,9 @@ forStartOfGlyphRange:(NSRange) range;
 }
 
 - (void) fullJustifyLineAtGlyphIndex:(unsigned) glyphIndexForLineBreak;
-{ // insert flexible space between index 0 and glyphIndexForLineBreak-1
-	NIMP;
+{ // insert flexible space (kerning) between index 0 and glyphIndexForLineBreak-1
+	// unless we need too much flexible space
+	;
 }
 
 - (void) getAttributesForCharacterIndex:(unsigned int) idx;
@@ -835,7 +836,7 @@ forStartOfGlyphRange:(NSRange) range;
 	if(factor <= 0.0) factor=[layoutManager hyphenationFactor];
 	if(factor <= 0.0)
 		; // no hyphenation
-	// hyphenate by [self inserGlyph:'-' just before the charIndex
+	// hyphenate by [self inserGlyph:'-'] just before the charIndex
 	if(curTextAlignment == NSJustifiedTextAlignment)
 		[self fullJustifyLineAtGlyphIndex:charIndex];
 	return charIndex;

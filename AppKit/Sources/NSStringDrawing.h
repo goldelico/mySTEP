@@ -25,13 +25,14 @@
 #import <Foundation/NSAttributedString.h>
 #import <Foundation/NSGeometry.h>
 
-typedef enum 
+typedef enum _NSStringDrawingOptions
 {
     NSStringDrawingUsesLineFragmentOrigin=0x01,
     NSStringDrawingUsesFontLeading=0x02,
     NSStringDrawingDisableScreenFontSubstitution=0x04,
     NSStringDrawingUsesDeviceMetrics=0x08,
-    NSStringDrawingOneShot=0x10
+    NSStringDrawingOneShot=0x10,
+	NSStringDrawingTruncatesLastVisibleLine=0x20,
 } NSStringDrawingOptions;
 
 @interface NSString (NSStringDrawingAdditions)

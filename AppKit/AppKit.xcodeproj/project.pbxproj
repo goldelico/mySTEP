@@ -684,6 +684,9 @@
 		EE5B8C220E9015F300264951 /* info_16.png in Resources */ = {isa = PBXBuildFile; fileRef = EE5B8C1F0E9015F300264951 /* info_16.png */; };
 		EE61B6A609B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
 		EE61B6A709B21985005A250B /* NSColorSpace.m in Sources */ = {isa = PBXBuildFile; fileRef = EE61B6A509B21985005A250B /* NSColorSpace.m */; };
+		EE869ABB1662211000964140 /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE869ABA1662211000964140 /* TestView.m */; };
+		EE869ABC1662211000964140 /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE869ABA1662211000964140 /* TestView.m */; };
+		EE869ABD1662211000964140 /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = EE869ABA1662211000964140 /* TestView.m */; };
 		EE8D1C350A2B4C71000632BC /* GSSearch.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C330A2B4C71000632BC /* GSSearch.tiff */; };
 		EE8D1C360A2B4C71000632BC /* GSStop.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C340A2B4C71000632BC /* GSStop.tiff */; };
 		EE8D1C370A2B4C71000632BC /* GSSearch.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EE8D1C330A2B4C71000632BC /* GSSearch.tiff */; };
@@ -1287,6 +1290,8 @@
 		EE5B8C1F0E9015F300264951 /* info_16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = info_16.png; path = ../../Icons/Harmony/Additions/info_16.png; sourceTree = SOURCE_ROOT; };
 		EE61B6A509B21985005A250B /* NSColorSpace.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = NSColorSpace.m; sourceTree = "<group>"; };
 		EE6FE352076F05AF009CC969 /* AppKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AppKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE869AB91662211000964140 /* TestView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestView.h; path = ../TestApplications/NSTextAlignmentTest/TestView.h; sourceTree = SOURCE_ROOT; };
+		EE869ABA1662211000964140 /* TestView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestView.m; path = ../TestApplications/NSTextAlignmentTest/TestView.m; sourceTree = SOURCE_ROOT; };
 		EE8CE17A158C6CAD001DFA6B /* AppKitMixed-Prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AppKitMixed-Prefix.h"; sourceTree = "<group>"; };
 		EE8D1C330A2B4C71000632BC /* GSSearch.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSSearch.tiff; sourceTree = "<group>"; };
 		EE8D1C340A2B4C71000632BC /* GSStop.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GSStop.tiff; sourceTree = "<group>"; };
@@ -1872,6 +1877,8 @@
 				EE31971209AB7E8B0089A9A2 /* myView.m */,
 				EE1FA35D14A88641002A1AA1 /* CircleView.h */,
 				EE1FA35E14A88641002A1AA1 /* CircleView.m */,
+				EE869AB91662211000964140 /* TestView.h */,
+				EE869ABA1662211000964140 /* TestView.m */,
 				EE31970C09AB7E8B0089A9A2 /* main.m */,
 				EECD84030A089FA300EF3E30 /* Resources */,
 			);
@@ -3561,6 +3568,7 @@
 				EE31972409AB7F290089A9A2 /* myView.m in Sources */,
 				EECD83FE0A089F8000EF3E30 /* myModel.m in Sources */,
 				EE1FA35F14A88641002A1AA1 /* CircleView.m in Sources */,
+				EE869ABB1662211000964140 /* TestView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3696,6 +3704,7 @@
 				EEC8034109AE4EB6006EEB03 /* myView.m in Sources */,
 				EECD83FF0A089F8000EF3E30 /* myModel.m in Sources */,
 				EE1FA36014A88641002A1AA1 /* CircleView.m in Sources */,
+				EE869ABC1662211000964140 /* TestView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3708,6 +3717,7 @@
 				EEC8035A09AE4EBF006EEB03 /* myView.m in Sources */,
 				EECD84000A089F8100EF3E30 /* myModel.m in Sources */,
 				EE1FA36114A88641002A1AA1 /* CircleView.m in Sources */,
+				EE869ABD1662211000964140 /* TestView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
