@@ -736,7 +736,6 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	NSRange range;
 	if(!layoutManager)
 		return;
-	// range=[layoutManager glyphRangeForTextContainer:textContainer];
 	range=[layoutManager glyphRangeForBoundingRectWithoutAdditionalLayout:rect inTextContainer:textContainer];
 #if 0
 	NSLog(@"NSTextView drawRect %@", NSStringFromRect(rect));

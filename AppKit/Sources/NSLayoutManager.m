@@ -724,14 +724,17 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
 	NSColor *lastColor=nil;
 	NSFont *lastFont=nil;
+	NSDictionary *attribs=nil;
+	NSDictionary *newAttribs=nil;
+	NSRange attribRange={ 0, 0 };	// range of same attributes
+	NSRect lfr;
+	NSRect newLfr;
+	NSRange lfrRange={ 0, 0 };	// range of same lfr
+	int count=0;
 	[ctxt _beginText];
 	while(glyphsToShow.length > 0)
 		{
-		unsigned int cindex=[self characterIndexForGlyphAtIndex:glyphsToShow.location];
-		NSRange attribRange;	// range of same attributes
-		NSDictionary *attribs=[_textStorage attributesAtIndex:cindex effectiveRange:&attribRange];
 		NSGlyph *glyphs;
-		int count=0;
 		/*
 		 NSTextAttachment *attachment=[attribs objectForKey:NSAttachmentAttributeName];
 		 if(attachment){
@@ -742,33 +745,34 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		 [cell drawWithFrame:frame inView:textView characterIndex:characterRange.location layoutManager:self];
 		 */
 		while(count < glyphsToShow.length)
-			{ // get glyph range with uniform attributes
-			if([self characterIndexForGlyphAtIndex:glyphsToShow.location+count] > NSMaxRange(attribRange))
-				break;
-			if([self notShownAttributeForGlyphAtIndex:glyphsToShow.location+count])
-				{ // don't include
-					glyphsToShow.length--;
-					glyphsToShow.location++;			
-					break;
-				}
-			count++;	// include in this chunk
+			{ // get visible glyph range with uniform attributes and same lfr
+				if(glyphsToShow.location+count >= NSMaxRange(attribRange))
+					{ // update attributes
+						unsigned int cindex;
+						cindex=[self characterIndexForGlyphAtIndex:glyphsToShow.location+count];
+						newAttribs=[_textStorage attributesAtIndex:cindex effectiveRange:&attribRange];
+						break;
+					}
+				if(glyphsToShow.location+count >= NSMaxRange(lfrRange))
+					{ // update lfr
+						newLfr=[self lineFragmentRectForGlyphAtIndex:glyphsToShow.location+count effectiveRange:&lfrRange withoutAdditionalLayout:YES];
+						break;
+					}
+				if([self notShownAttributeForGlyphAtIndex:glyphsToShow.location+count])
+					{ // don't include in this list but skip
+						glyphsToShow.length--;
+						glyphsToShow.location++;			
+						break;
+					}
+				count++;	// include in this chunk
 			}
 		if(count > 0)
-			{
-			NSRect lfr=[self lineFragmentRectForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];
+			{ // there is something to draw
 			NSPoint pos=[self locationForGlyphAtIndex:glyphsToShow.location];	// location of baseline within its line fragment
-			// color and font should also be cached for each glyph position!?!
 			NSColor *color=[attribs objectForKey:NSForegroundColorAttributeName];
 			NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
 			if(!color) color=[NSColor blackColor];	// default color is black
 			if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
-			pos.x+=lfr.origin.x+origin.x;
-			if(![ctxt isFlipped])
-				pos.y=origin.y-pos.y-lfr.origin.y;	// translate container and glyphs
-			else
-				pos.y=origin.y+pos.y+lfr.origin.y;	// translate container and glyphs
-			glyphs=objc_malloc(sizeof(*glyphs)*(count+1));	// stores NSNullGlyph at end
-			[self getGlyphs:glyphs range:NSMakeRange(glyphsToShow.location, count)];
 			if(color != lastColor) [lastColor=color set];
 			if(font != lastFont) [lastFont=font set];
 			// handle NSStrokeWidthAttributeName
@@ -778,7 +782,21 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			
 			// FIXME: is this relative or absolute position???
 		
-			[ctxt _setTextPosition:pos];
+			pos.x+=lfr.origin.x+origin.x;
+				//			if(![ctxt isFlipped])
+				//				pos.y=origin.y-pos.y-lfr.origin.y;	// translate container and glyphs
+				//			else
+			pos.y=origin.y+pos.y+lfr.origin.y;	// translate container and glyphs
+				{
+				NSAffineTransform *tm=[NSAffineTransform transform];
+				[tm translateXBy:pos.x yBy:pos.y];
+				[ctxt _setTM:tm];
+				// FIXME: when can we use relative PDF positioning commands?
+				// [ctxt _setTextPosition:pos];	// x y Td
+				// or [ctxt newLine] T*
+				}
+			glyphs=objc_malloc(sizeof(*glyphs)*(count+1));	// stores NSNullGlyph at end
+			[self getGlyphs:glyphs range:NSMakeRange(glyphsToShow.location, count)];
 			[ctxt _drawGlyphs:glyphs count:count];	// -> (string) Tj
 			objc_free(glyphs);
 			glyphsToShow.length-=count;
@@ -801,7 +819,10 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			 lineFragmentGlyphRange:(NSRange)lineGlyphRange 
 			 containerOrigin:(NSPoint)containerOrigin;
 			 */
+				count=0;
 			}
+		attribs=newAttribs;
+		lfr=newLfr;
 		}
 	[ctxt _endText];
 }
@@ -1270,9 +1291,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				range->location--;
 				}
 			range->length=index-range->location;
-			while(NSMaxRange(*range)+1 < _numberOfGlyphs)
+			while(NSMaxRange(*range) < _numberOfGlyphs)
 				{
-				if(!NSEqualRects(lfr, _glyphs[NSMaxRange(*range)+1].lineFragmentRect))
+				if(!NSEqualRects(lfr, _glyphs[NSMaxRange(*range)].lineFragmentRect))
 					break;	// next index is different
 				range->length++;
 				}

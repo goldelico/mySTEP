@@ -281,6 +281,7 @@ static BOOL __cursorHidden = NO;
 			   nil];
 			// draw document icon or shouldn't we better use a resizable NSButton with center alignment to store the window icon and title?
 			// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
+			// YES, or at least use _title drawRect: and centering paragraph style attribute
 			[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, 1.0+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
 		}
 }
