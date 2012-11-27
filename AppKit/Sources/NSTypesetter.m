@@ -1235,12 +1235,19 @@ NSLayoutOutOfGlyphs
 	NSRect proposedRect=NSZeroRect;
 	NSAssert(!busy, @"NSSimpleHorizontalTypesetter is already busy");
 	busy=YES;
-	[self _layoutGlyphsInLayoutManager:lm
-				 startingAtGlyphIndex:startGlyphIndex
-			 maxNumberOfLineFragments:maxNumLines
-				  currentTextContainer:&curContainer
-						 proposedRect:&proposedRect
-						nextGlyphIndex:nextGlyph];
+	NS_DURING
+		[self _layoutGlyphsInLayoutManager:lm
+					  startingAtGlyphIndex:startGlyphIndex
+				  maxNumberOfLineFragments:maxNumLines
+					  currentTextContainer:&curContainer
+							  proposedRect:&proposedRect
+							nextGlyphIndex:nextGlyph];
+	NS_HANDLER
+		[self clearAttributesCache];
+		[self clearGlyphCache];
+		busy=NO;	// cleanup
+		[localException raise];
+	NS_ENDHANDLER
 	[self clearAttributesCache];
 	[self clearGlyphCache];
 	busy=NO;
