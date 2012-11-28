@@ -178,8 +178,9 @@ static NSStringDrawingOptions _currentOptions;
 }
 
 // the point is the origin of the line fragment rect and may
-// be at the top left (flipped) or bottom left corner (unflipped)
-// alignment is ignored
+// be at the top left (if flipped) or bottom left corner (if not flipped)
+// alignment is ignored and always natural (or left?)
+// text always goes downwards on screen and glyphs are not flipped
 
 - (void) drawAtPoint:(NSPoint) point;
 {
@@ -190,8 +191,9 @@ static NSStringDrawingOptions _currentOptions;
 }
 
 // draws in rect applying text aligment rules
-// text may start at the top left (flipped) and go downwards
-// or bottom left corner (unflipped) and go upwards
+// text always starts at the top line and is
+// always going down on screen
+// and glyphs are not flipped
 
 - (void) drawInRect:(NSRect) rect;
 {
