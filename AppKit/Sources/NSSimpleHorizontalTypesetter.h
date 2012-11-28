@@ -102,6 +102,7 @@ typedef struct _NSTypesetterGlyphInfo
 	BOOL curContainerIsSimpleRectangular;	// [curContainer isSimpleRectangularTextContainer]
 	BOOL curGlyphIsAControlGlyph;
 	BOOL containerBreakAfterCurGlyph;	// can be set to YES in typesetterLaidOneGlyph subclass
+	BOOL wrapAfterCurGlyph;			// can be set to YES in typesetterLaidOneGlyph subclass
 	BOOL busy;						// busy doing layout (can detect recursions)
 
 	/* unknown what it is good for */
@@ -116,7 +117,6 @@ typedef struct _NSTypesetterGlyphInfo
 	unsigned int previousBaseGlyphIndex;
 	unsigned int previousBaseGlyph;
 	BOOL curGlyphOffsetOutOfDate;
-	BOOL wrapAfterCurGlyph;
 	float previousSpaceAfter;
 	void *curFontPositionOfGlyphMethod;
 	struct {

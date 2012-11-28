@@ -709,7 +709,7 @@ forStartOfGlyphRange:(NSRange) range;
 
 - (void) breakLineAtIndex:(unsigned) location;
 {
-	NSTypesetterGlyphInfo *glyphInfo=NSGlyphInfoAtIndex(curGlyphIndex);
+//	NSTypesetterGlyphInfo *glyphInfo=NSGlyphInfoAtIndex(curGlyphIndex);
 	// index appears to be a glyphInfo index!
 	// this assumes that there are enough glyphs
 	// I think it will remove the glyphs up to (excluding) location
@@ -733,7 +733,8 @@ forStartOfGlyphRange:(NSRange) range;
 			// check for truncation and apply [curParagraphStyle tighteningFactorForTruncation]
 			break;
 	}
-	glyphInfo->extent=curMaxGlyphLocation-curGlyphOffset;	// extends to end of line
+//	glyphInfo->extent=curMaxGlyphLocation-curGlyphOffset;	// extends to end of line
+	wrapAfterCurGlyph=YES;
 }
 
 - (unsigned) capacityOfTypesetterGlyphInfo;
@@ -1017,6 +1018,7 @@ NSLayoutOutOfGlyphs
 			*((unsigned char *) &glyphInfo->_giflags)=0;
 			curGlyphIsAControlGlyph=NO;
 			curGlyphExtentAboveLocation=curGlyphExtentBelowLocation=0.0;
+			wrapAfterCurGlyph=NO;
 			if([[NSCharacterSet controlCharacterSet] characterIsMember:curChar])
 				{
 				glyphInfo->_giflags.dontShow=[layoutManager showsControlCharacters];
@@ -1064,22 +1066,26 @@ NSLayoutOutOfGlyphs
 			curMinBaselineDistance=MAX(curMinBaselineDistance, curGlyphExtentAboveLocation);
 			curMaxBaselineDistance=MAX(curMaxBaselineDistance, curGlyphExtentBelowLocation+curGlyphExtentAboveLocation);
 			if(curGlyphOffset+glyphInfo->extent > curMaxGlyphLocation)
-				{ // glyph does not fit into this line
-					// FIXME: check also for vertical fit!
-					if(curGlyphIndex == 0)
-						status=NSLayoutCantFit;	// not event the first glyph does fit
-					else
-						status=NSLayoutNotDone;	// more work to do
-					break;
+				{ // check if there is enough space for this glyph
+				if(curGlyphIndex == 0)
+					status=NSLayoutCantFit;	// not even the first glyph does fit
+				else
+					status=NSLayoutNotDone;	// more work to do
+				break;
 				}
 			[self typesetterLaidOneGlyph:glyphInfo];
 			[self updateCurGlyphOffset];	// advance writing position
 			curCharacterIndex++;
 			curGlyphIndex++;
+			if(wrapAfterCurGlyph)
+				{ // we did hit a \n
+					status=NSLayoutNotDone;	// more work to do
+					break;
+				}
 			if(containerBreakAfterCurGlyph)
 				{
-				status=NSLayoutDone;	// treat like end of paragraph
-				break;
+					status=NSLayoutDone;	// treat like end of paragraph
+					break;
 				}
 		}
 	if(setBaseline)
