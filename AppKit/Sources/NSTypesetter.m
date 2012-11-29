@@ -1029,51 +1029,51 @@ NSLayoutOutOfGlyphs
 				}
 			else if(curChar == NSAttachmentCharacter)
 				{ // handle attachment
-					NSTextAttachment *a=[attrs objectForKey:NSAttachmentAttributeName];
-					id <NSTextAttachmentCell> c=[a attachmentCell];
-					NSPoint off=[c cellBaselineOffset];
-					NSRect frame;
-					glyphInfo->_giflags.isAttachment=YES;
-					glyphInfo->_giflags.defaultPositioning=(off.x == 0 && off.y == 0);
-					glyphInfo->attachmentSize=[c cellSize];
-					glyphInfo->curLocation.x+=off.x;	// adjust offset
-					glyphInfo->curLocation.y+=off.y;
-					curGlyphExtentAboveLocation=glyphInfo->attachmentSize.height;
-					curGlyphExtentBelowLocation=-off.y;
-					frame=[c cellFrameForTextContainer:curContainer
-								  proposedLineFragment:*lineFragmentRect
-										 glyphPosition:glyphInfo->curLocation
-										characterIndex:curCharacterIndex];
-					glyphInfo->extent=frame.size.width;
-					break;				
+				NSTextAttachment *a=[attrs objectForKey:NSAttachmentAttributeName];
+				id <NSTextAttachmentCell> c=[a attachmentCell];
+				NSPoint off=[c cellBaselineOffset];
+				NSRect frame;
+				glyphInfo->_giflags.isAttachment=YES;
+				glyphInfo->_giflags.defaultPositioning=(off.x == 0 && off.y == 0);
+				glyphInfo->attachmentSize=[c cellSize];
+				glyphInfo->curLocation.x+=off.x;	// adjust offset
+				glyphInfo->curLocation.y+=off.y;
+				curGlyphExtentAboveLocation=glyphInfo->attachmentSize.height;
+				curGlyphExtentBelowLocation=-off.y;
+				frame=[c cellFrameForTextContainer:curContainer
+							  proposedLineFragment:*lineFragmentRect
+									 glyphPosition:glyphInfo->curLocation
+									characterIndex:curCharacterIndex];
+				glyphInfo->extent=frame.size.width;
+				break;				
 				}
 			else
 				{
-					NSRect box=[curFont boundingRectForGlyph:curGlyph];
-					NSSize adv=[curFont advancementForGlyph:curGlyph];
-					glyphInfo->extent=adv.width;
-					glyphInfo->_giflags.defaultPositioning=YES;
-					curGlyphExtentAboveLocation=NSMaxY(box);
-					curGlyphExtentBelowLocation=NSMinY(box);
-					//				[attribs objectForKey:NSLigatureAttributeName];
-					if(previousGlyph)
-						{ // handle kerning
-							// handle ligatures: check if previous = 'f' and current = 'l' => reduce to single glyph
-							NSSize k=[curFont _kerningBetweenGlyph:previousGlyph andGlyph:curGlyph];
-							glyphInfo->curLocation.x+=k.width+curSpaceAfter;
-							glyphInfo->curLocation.y+=k.height;
-							glyphInfo->_giflags.defaultPositioning=NO;
-						}
+				NSRect box=[curFont boundingRectForGlyph:curGlyph];
+				NSSize adv=[curFont advancementForGlyph:curGlyph];
+				glyphInfo->extent=adv.width;
+				glyphInfo->_giflags.defaultPositioning=YES;
+				curGlyphExtentAboveLocation=NSMaxY(box);
+				curGlyphExtentBelowLocation=NSMinY(box);
+				//				[attribs objectForKey:NSLigatureAttributeName];
+				if(previousGlyph)
+					{ // handle kerning
+						// handle ligatures: check if previous = 'f' and current = 'l' => reduce to single glyph
+						NSSize k=[curFont _kerningBetweenGlyph:previousGlyph andGlyph:curGlyph];
+						glyphInfo->curLocation.x+=k.width+curSpaceAfter;
+						glyphInfo->curLocation.y+=k.height;
+						glyphInfo->_giflags.defaultPositioning=NO;
+					}
 				}
 			curMinBaselineDistance=MAX(curMinBaselineDistance, curGlyphExtentAboveLocation);
 			curMaxBaselineDistance=MAX(curMaxBaselineDistance, curGlyphExtentBelowLocation+curGlyphExtentAboveLocation);
 			if(curGlyphOffset+glyphInfo->extent > curMaxGlyphLocation)
 				{ // check if there is enough space for this glyph
-				if(curGlyphIndex == 0)
-					status=NSLayoutCantFit;	// not even the first glyph does fit
-				else
-					status=NSLayoutNotDone;	// more work to do
-				break;
+					if(curGlyphIndex == 0)
+						status=NSLayoutCantFit;	// not even the first glyph does fit
+					else
+						status=NSLayoutNotDone;	// more work to do
+					break;
 				}
 			[self typesetterLaidOneGlyph:glyphInfo];
 			[self updateCurGlyphOffset];	// advance writing position
@@ -1086,24 +1086,24 @@ NSLayoutOutOfGlyphs
 				}
 			if(containerBreakAfterCurGlyph)
 				{
-					status=NSLayoutDone;	// treat like end of paragraph
-					break;
+				status=NSLayoutDone;	// treat like end of paragraph
+				break;
 				}
 		}
 	if(setBaseline)
 		*baseline=curMinBaselineDistance; // determine here (by maximum ascender)
 	if(lineFragmentRect->size.width != FLT_MAX)
 		{ // can't align for infinitely large box (e.g. string drawing at given point)
-		switch(curTextAlignment) {
-			case NSRightTextAlignment:
-				lineFragmentRect->origin.x+=curMaxGlyphLocation-curGlyphOffset;
-				break;
-			case NSCenterTextAlignment:
-				lineFragmentRect->origin.x+=0.5*(curMaxGlyphLocation-curGlyphOffset);
-				break;
-			default:
-				break;
-		}
+			switch(curTextAlignment) {
+				case NSRightTextAlignment:
+					lineFragmentRect->origin.x+=curMaxGlyphLocation-curGlyphOffset;
+					break;
+				case NSCenterTextAlignment:
+					lineFragmentRect->origin.x+=0.5*(curMaxGlyphLocation-curGlyphOffset);
+					break;
+				default:
+					break;
+			}
 		}
 	lineFragmentRect->size.width=curGlyphOffset;			// used width
 	lineHeight=curMaxBaselineDistance;
@@ -1179,6 +1179,10 @@ NSLayoutOutOfGlyphs
 																sweepDirection:NSLineSweepRight
 															 movementDirection:NSLineMovesDown
 																 remainingRect:&remainingRect];
+			if(NSIsEmptyRect(lineFragmentRect))
+				{
+				// try a different one, get a new container or give up...
+				}
 			firstIndexOfCurrentLineFragment=firstGlyphIndex;
 			usedRect=lineFragmentRect;
 			status=[self layoutGlyphsInHorizontalLineFragment:&usedRect 
