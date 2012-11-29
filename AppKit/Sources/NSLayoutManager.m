@@ -783,9 +783,6 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			// FIXME: is this relative or absolute position???
 		
 			pos.x+=lfr.origin.x+origin.x;
-				//			if(![ctxt isFlipped])
-				//				pos.y=origin.y-pos.y-lfr.origin.y;	// translate container and glyphs
-				//			else
 			pos.y=origin.y+pos.y+lfr.origin.y;	// translate container and glyphs
 				{
 				NSAffineTransform *tm=[NSAffineTransform transform];

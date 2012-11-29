@@ -938,6 +938,18 @@ printing
 	[sub_views makeObjectsPerformSelector:_cmd];	// and invalidate all subviews
 }
 
+- (void) _updateFlipped;
+{ // check if we or our superview have changed flipping state and clear transformation cache
+	BOOL flipped=[self isFlipped];
+	BOOL superFlipped=(super_view && [super_view isFlipped]);
+	if(flipped != _v.flippedCache || superFlipped != _v.superFlippedCache)
+		{ // has changed - must invalidate
+			_v.flippedCache=flipped;
+			_v.superFlippedCache=superFlipped;
+			[self _invalidateCTM];
+		}
+}
+
 #define NEW 0
 
 #if NEW
@@ -953,16 +965,11 @@ printing
 
 - (NSAffineTransform *) _base2bounds
 { // cached
-	BOOL flipped;
-	BOOL superFlipped;
 	if(!_window)
 		return nil;
-	flipped=[self isFlipped];
-	superFlipped=(super_view && [super_view isFlipped]);
-	if((!_base2bounds || flipped != _v.flippedCache || superFlipped != _v.superFlippedCache))
+	[self _updateFlipped];
+	if(!_base2bounds)
 		{
-		_v.flippedCache=flipped;
-		_v.superFlippedCache=superFlipped;
 #if 0
 		NSLog(@"calculating _base2bounds: %@", self);
 #endif
@@ -970,7 +977,7 @@ printing
 			_base2bounds=[[super_view _base2bounds] copy];
 		else
 			_base2bounds=[NSAffineTransform new];
-		if(super_view && (superFlipped != flipped))
+		if(super_view && (_v.superFlippedCache != _v.flippedCache))
 			{ // undo flipping within superview (because only our position is expressed in flipped coordinates but not our own coordinate system)
 				[_base2bounds translateXBy:0.0 yBy:NSHeight(_frame)];	// frame position is expressed in flipped super_view coordinates
 				[_base2bounds scaleXBy:1.0 yBy:-1.0];	// unflip coordinates, but not translation
@@ -981,7 +988,7 @@ printing
 		[_base2bounds translateXBy:-_frame.origin.x yBy:-_frame.origin.y];	// frame position is expressed in (potentially flipped) super_view coordinates
 		// if(_v.customBounds)
 		[_base2bounds appendTransform:_frame2bounds];	// finally transform frame (i.e. superview bound) to our bounds
-		if(superFlipped != flipped)
+		if(_v.superFlippedCache != _v.flippedCache)
 			{ // finally flip bounds
 //				[_base2bounds scaleXBy:1.0 yBy:-1.0];	// this is not the same as appending a flipping transform!
 				static NSAffineTransform *f;
@@ -1000,8 +1007,8 @@ printing
 
 - (NSAffineTransform *) _bounds2base;
 {
-	// FIXME: must also be recached if isFlipped has changed!
-	if((!_bounds2base /* || [self isFlipped] != flippedCache */) && _window)
+	[self _updateFlipped];
+	if(!_bounds2base && _window)
 		{ // not yet cached
 #if 0
 			NSLog(@"calculating _bounds2base: %@", self);
@@ -1335,6 +1342,7 @@ printing
 
 - (NSAffineTransform*) _bounds2frame;
 { // create transformation matrix
+	[self _updateFlipped];
 	if(_window && !_bounds2frame)
 		{ // FIXME: can we optimize this if(!_v.customBounds) ???
 #if 0
@@ -1345,7 +1353,7 @@ printing
 		if(_bounds.origin.x != 0 || _bounds.origin.y != 0)
 			NSLog(@"displaced origin");
 #endif
-		if([self isFlipped])
+		if(_v.flippedCache)
 			{
 			if(_v.isRotatedFromBase)
 				{
@@ -1376,7 +1384,8 @@ printing
 			if(frameRotation != 0.0)
 				[_bounds2frame rotateByDegrees:frameRotation];	// rotate around frame origin
 			}
-		if(super_view && [super_view isFlipped])
+			// FIXME: get this from cache
+		if(super_view && _v.superFlippedCache)
 			{ // flip back coordinates, but take care that our _frame.origin is still expressed in flipped coordinates!
 			[_bounds2frame translateXBy:-_frame.origin.x yBy:_frame.origin.y];	// shift us back (_frame.origin is flipped by superview)
 			[_bounds2frame scaleXBy:1.0 yBy:-1.0];	// undo flipping
@@ -1390,6 +1399,7 @@ printing
 
 - (NSAffineTransform *) _frame2bounds;
 {
+	[self _updateFlipped];
 	if(_window && !_frame2bounds)
 		{ // not cached
 #if 0
@@ -1403,6 +1413,7 @@ printing
 
 - (NSAffineTransform *) _bounds2base;
 { // direct transformation of bounds coordinates to NSWindow's base, i.e. accumulation of all super_views
+	[self _updateFlipped];
 	if(!_window)
 		NSLog(@"Not yet part of the window hierarchy - CTM is invalid: %@", self);
 	if(_window && !_bounds2base)
@@ -1412,16 +1423,17 @@ printing
 #endif
 		if(super_view)
 			{
+			NSAffineTransform *svb2b=[super_view _bounds2base];	// do this first since flipping may invalidate our bounds2base!
 			_bounds2base=[[self _bounds2frame] copy];
 #if 0
-			if([super_view isFlipped])
+			if(_v.superFlippedCache)
 				{ // flip back coordinates, but take care that our _frame.origin is still expressed in flipped coordinates!
 				[_bounds2base translateXBy:-_frame.origin.x yBy:_frame.origin.y];	// shift us back (_frame.origin is flipped by superview)
 				[_bounds2base scaleXBy:1.0 yBy:-1.0];	// undo flipping
 				[_bounds2base translateXBy:_frame.origin.x yBy:_frame.origin.y-_frame.size.height];	// shift view to its target position within flipped superview
 				}
 #endif
-			[_bounds2base appendTransform:[super_view _bounds2base]];	// merge with superview's transformation(s)
+			[_bounds2base appendTransform:svb2b];	// merge with superview's transformation(s)
 			}
 		else
 			_bounds2base=[[self _bounds2frame] retain];	// we are the toplevel view
@@ -1435,6 +1447,7 @@ printing
 
 - (NSAffineTransform *) _base2bounds;
 {
+	[self _updateFlipped];
 	if(_window && !_base2bounds)
 		{ // not cached
 #if 0

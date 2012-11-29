@@ -1544,6 +1544,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 // FIXME:
 // does not handle rotation
 // ignores CTM scaling (only in cursor position!)
+// ignores flipping which appears to be correct (can only be verified by generating PDF documents)
 
 // DEPRECATED
 - (void) _drawGlyphBitmap:(unsigned char *) buffer x:(int) x y:(int) y width:(unsigned) width height:(unsigned) height;
@@ -1559,13 +1560,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	NSLog(@"size={%d %d}", width, height);
 	NSLog(@"font=%@", _state->_font);
 #endif
-	// CHECKME: does the compositing operation apply to text drawing?
-	//	mustFetch=_compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
-	//		_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut;
 	if(x > _state->_clipBox.x+_state->_clipBox.width || x+width <  _state->_clipBox.x)
 		return;	// completely outside
 	if(y > _state->_clipBox.y+_state->_clipBox.height || y+height <  _state->_clipBox.y)
 		return;	// completely outside
+	// CHECKME: does the compositing operation apply to text drawing?
+	//	mustFetch=_compositingOperation != NSCompositeClear && _compositingOperation != NSCompositeCopy &&
+	//		_compositingOperation != NSCompositeSourceIn && _compositingOperation != NSCompositeSourceOut;
 	mustFetch=YES;
 	if(mustFetch)
 		{ // we must really fetch the current image from our context
@@ -1580,12 +1581,12 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		}
 	else
 		{
-		img=XCreateImage(_display, DefaultVisual(_display, screen_number), DefaultDepth(_display, screen_number),
-						 ZPixmap, 0, NULL,
-						 width, height,
-						 8, 0);
-		if(!(img && (img->data = objc_malloc(img->bytes_per_line*img->height))))
-			return;	// error
+			img=XCreateImage(_display, DefaultVisual(_display, screen_number), DefaultDepth(_display, screen_number),
+							 ZPixmap, 0, NULL,
+							 width, height,
+							 8, 0);
+			if(!(img && (img->data = objc_malloc(img->bytes_per_line*img->height))))
+				return;	// error
 		}
 	if(!img)
 		return;	// can't allocate or fetch

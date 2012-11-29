@@ -229,38 +229,25 @@ static NSStringDrawingOptions _currentOptions;
 #if 0
 	NSLog(@"drawWithRect:options: %@", self);
 #endif
-#if 0	// only done here for old layoutManager
-	{	// FIXME: this should have been processed by layoutManager
-		NSParagraphStyle *para=[[self attributesAtIndex:0 effectiveRange:NULL] objectForKey:NSParagraphStyleAttributeName];
-		switch([para alignment])
-		{
-			case NSLeftTextAlignment:
-			case NSNaturalTextAlignment:
-			break;
-			case NSRightTextAlignment:
-			case NSCenterTextAlignment:
-			case NSJustifiedTextAlignment:
-			{
-			NSSize size=[_layoutManager boundingRectForGlyphRange:[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
-																						 actualCharacterRange:NULL]
-												  inTextContainer:_textContainer].size;
-			if([para alignment] == NSRightTextAlignment)
-				rect.origin.x = NSMaxX(rect)-size.width-2.0;	// start at right edge
-			else
-				rect.origin.x += (rect.size.width-size.width)/2-1.0;	// center
-			}
-		}
-	}
-#endif
-#if 0
-	// FIXME: determine visible glyph range for rect
-	rng=[_layoutManager glyphRangeForCharacterRange:NSMakeRange(0, [_textStorage length])
-							   actualCharacterRange:NULL];
-#else
 	rng=[_layoutManager glyphRangeForBoundingRect:(NSRect) { NSZeroPoint, rect.size } inTextContainer:_textContainer];
-#endif
-	[_layoutManager drawBackgroundForGlyphRange:rng atPoint:rect.origin];
-	[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];
+	if([ctxt isFlipped])
+		{
+			[_layoutManager drawBackgroundForGlyphRange:rng atPoint:rect.origin];
+			[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];		
+		}
+	else
+		{ // in this case the layout manager draws lines "bootom up" so we must flip the CTM
+			static NSAffineTransform *flip=nil;
+			if(!flip)
+				{
+				flip=[NSAffineTransform transform];
+				[flip scaleXBy:1.0 yBy:-1.0];
+				[flip retain];
+				}
+			[flip concat];	// flip before drawing
+			[_layoutManager drawBackgroundForGlyphRange:rng atPoint:rect.origin];
+			[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];
+		}
 	[ctxt restoreGraphicsState];
 	[self _tearDown];
 }
