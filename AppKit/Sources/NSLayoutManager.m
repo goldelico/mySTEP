@@ -590,7 +590,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	glyphRange=NSIntersectionRange(glyphRange, cRange);	// take glyphs within given container
 	while(glyphRange.length-- > 0)
 		{
-		// FIXME by looping over the effectiveRange for NSFontAttributeName and/or the same LFR
+		// FIXME: improve by iterating over the effectiveRange for NSFontAttributeName and/or the same LFR, by less font substitution
 		NSDictionary *attribs=[_textStorage attributesAtIndex:glyphRange.location effectiveRange:NULL];	// could be optimized for font range
 		NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
 		NSRect lfr=[self lineFragmentRectForGlyphAtIndex:glyphRange.location effectiveRange:NULL];
@@ -600,8 +600,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		box=[font boundingRectForGlyph:[self glyphAtIndex:glyphRange.location]];	// origin is on baseline
 		pos.x+=lfr.origin.x;
 		pos.y+=lfr.origin.y;	// move to container coordinates
-		pos.x+=box.origin.x;
-		pos.y+=box.origin.y;	// container is in flipped coordinates
+		box.origin.x+=pos.x;
+		box.origin.y+=pos.y;	// container is in flipped coordinates
 		r=NSUnionRect(r, box);
 		glyphRange.location++;
 		}

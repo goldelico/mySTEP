@@ -967,12 +967,14 @@ NSLayoutOutOfGlyphs
 	
 	BOOL setBaseline=(*baseline == NSBaselineNotSet);
 	NSLayoutStatus status=NSLayoutOutOfGlyphs;	// all glyphs laid out
+	float lineHeight;
 	if(setBaseline)
 		*baseline=0.0;
 	curGlyphOffset=(curCharacterIndex == curParaRange.location)?[curParaStyle firstLineHeadIndent]:[curParaStyle headIndent];	// start at left indent
 	containerBreakAfterCurGlyph=NO;
 	curMinBaselineDistance=curMaxBaselineDistance=0.0;
 	curGlyphIndex=0;	// fill from the beginning
+	curGlyph=NSNullGlyph;
 	while(curCharacterIndex < [textString length])
 		{ // we still have a character to process
 			unichar curChar;
@@ -1104,6 +1106,11 @@ NSLayoutOutOfGlyphs
 		}
 		}
 	lineFragmentRect->size.width=curGlyphOffset;			// used width
+	lineHeight=curMaxBaselineDistance;
+	if([curParaStyle lineHeightMultiple] > 0.0)
+		lineHeight *= [curParaStyle lineHeightMultiple];	// shouldn't we take the previous Paragraph?
+	lineHeight+=[curParaStyle lineSpacing];
+	// somehow add paragraphSpacing and paragraphSpacingBefore
 	lineFragmentRect->size.height=MIN(MAX(curMinLineHeight, curMaxBaselineDistance), curMaxLineHeight);	// set line height	
 	return status;
 }
@@ -1176,9 +1183,9 @@ NSLayoutOutOfGlyphs
 			usedRect=lineFragmentRect;
 			status=[self layoutGlyphsInHorizontalLineFragment:&usedRect 
 													 baseline:&baselineOffset];	// layout into this LFR
-			lineFragmentRect.size.height=usedRect.size.height;	// line height
 			if(curGlyphIndex > 0)
 				{ // did layout anything
+					lineFragmentRect.size.height=usedRect.size.height;	// line height
 					glyphRange=NSMakeRange(firstIndexOfCurrentLineFragment, 1);	// initialize range
 					for(i=0; i < curGlyphIndex; i++)
 						{ // copy location and attributes to layout manager
@@ -1199,7 +1206,7 @@ NSLayoutOutOfGlyphs
 					if(curContainerIsSimpleRectangular || NSIsEmptyRect(remainingRect))
 						{ // we need a new line
 							numLines++;
-							proposedRect->origin.y=NSMaxY(lineFragmentRect)+[curParaStyle lineSpacing];	// where next line fragment rect can start
+							proposedRect->origin.y=NSMaxY(lineFragmentRect);	// where next line fragment rect can start
 						}
 					firstGlyphIndex+=curGlyphIndex;	// we have processed the fragment
 				}
