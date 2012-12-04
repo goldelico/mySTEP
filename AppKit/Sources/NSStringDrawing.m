@@ -179,7 +179,7 @@ static NSStringDrawingOptions _currentOptions;
 
 // the point is the origin of the line fragment rect and may
 // be at the top left (if flipped) or bottom left corner (if not flipped)
-// alignment is ignored and always natural (or left?)
+// alignment is ignored and always natural (or left???)
 // text always goes downwards on screen and glyphs are not flipped
 
 - (void) drawAtPoint:(NSPoint) point;
@@ -201,8 +201,9 @@ static NSStringDrawingOptions _currentOptions;
 }
 
 // draws in rect applying text aligment rules
-// text may start at the top left (flipped) and go downwards
-// or bottom left corner (unflipped) and go upwards
+// text may start at the bottom left (flipped)
+// or top left corner (unflipped)
+// text always goes downwards on screen
 // if NSStringDrawingUsesLineFragmentOrigin is not set,
 // only the first line (\n) is considered and size.height is ignored
 // size.width defines the maximum line fragment width if (>0.0)
@@ -215,13 +216,22 @@ static NSStringDrawingOptions _currentOptions;
 	NSRange rng;
 	if([self length] == 0)
 		return;	// empty string
+	if(rect.size.width > 1e6) rect.size.width=1e6;		// limit
+	if(rect.size.height > 1e6) rect.size.height=1e6;	// limit
 	ctxt=[NSGraphicsContext currentContext];
-	if(![ctxt isFlipped])
-		rect.origin.y=NSMaxY(rect);	// start at top of rect (drawGlyphsForGlyphRange assumes flipped coordinates)
+//	if(![ctxt isFlipped])
+//		rect.origin.y=NSMaxY(rect);	// start at top of rect (drawGlyphsForGlyphRange assumes flipped coordinates)
 #if 1
 	// Clipping should be done by the layout manager/typesetter by limiting the glyph range. Not by drawing!
 	[ctxt saveGraphicsState];
 	[NSBezierPath clipRect:rect];	// set clipping rect
+	
+#endif
+#if 1
+	[ctxt saveGraphicsState];
+	[[NSColor brownColor] set];
+	NSFrameRect(rect);	// drawing rect
+	[ctxt restoreGraphicsState];
 #endif
 	if(!(options&NSStringDrawingUsesLineFragmentOrigin))
 		rect.size.width=FLT_MAX;	// single line mode
@@ -244,11 +254,16 @@ static NSStringDrawingOptions _currentOptions;
 				[flip scaleXBy:1.0 yBy:-1.0];
 				[flip retain];
 				}
+			[ctxt saveGraphicsState];
 			[flip concat];	// flip before drawing
+			rect.origin.y=NSMaxY(rect);	// start at top of rect (drawGlyphsForGlyphRange assumes flipped coordinates)
 			[_layoutManager drawBackgroundForGlyphRange:rng atPoint:rect.origin];
 			[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];
+			[ctxt restoreGraphicsState];
 		}
+#if 1
 	[ctxt restoreGraphicsState];
+#endif
 	[self _tearDown];
 }
 
