@@ -256,7 +256,7 @@ static NSStringDrawingOptions _currentOptions;
 				}
 			[ctxt saveGraphicsState];
 			[flip concat];	// flip before drawing
-			rect.origin.y=NSMaxY(rect);	// start at top of rect (drawGlyphsForGlyphRange assumes flipped coordinates)
+			rect.origin.y=-NSMaxY(rect);	// start at top of rect (drawGlyphsForGlyphRange assumes flipped coordinates)
 			[_layoutManager drawBackgroundForGlyphRange:rng atPoint:rect.origin];
 			[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];
 			[ctxt restoreGraphicsState];
