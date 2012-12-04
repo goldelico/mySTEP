@@ -1010,6 +1010,7 @@ NSLayoutOutOfGlyphs
 					continue;	// try again
 				}
 			curChar=[textString characterAtIndex:curCharacterIndex];
+			/* [_layoutManager temporaryAttributeAtCharacterIndex:curCharIndex effectiveRange:NULL]; */
 			// FIXME: how to handle multiple glyphs for single character (and vice versa: i.e. ligatures and overprinting)
 			previousGlyph=curGlyph;
 			curGlyph=[layoutManager glyphAtIndex:firstIndexOfCurrentLineFragment+curGlyphIndex];	// get glyph
@@ -1053,6 +1054,8 @@ NSLayoutOutOfGlyphs
 				NSSize adv=[curFont advancementForGlyph:curGlyph];
 				glyphInfo->extent=adv.width;
 				glyphInfo->_giflags.defaultPositioning=YES;
+				if(NSIsEmptyRect(box))
+					glyphInfo->_giflags.dontShow=YES;
 				curGlyphExtentAboveLocation=NSMaxY(box);
 				curGlyphExtentBelowLocation=NSMinY(box);
 				//				[attribs objectForKey:NSLigatureAttributeName];
@@ -1062,7 +1065,7 @@ NSLayoutOutOfGlyphs
 						NSSize k=[curFont _kerningBetweenGlyph:previousGlyph andGlyph:curGlyph];
 						glyphInfo->curLocation.x+=k.width+curSpaceAfter;
 						glyphInfo->curLocation.y+=k.height;
-						glyphInfo->_giflags.defaultPositioning=NO;
+						glyphInfo->_giflags.defaultPositioning=NO;	// must set the relative position before drawing this glyph
 					}
 				}
 			curMinBaselineDistance=MAX(curMinBaselineDistance, curGlyphExtentAboveLocation);

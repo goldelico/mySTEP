@@ -48,11 +48,16 @@
 
 @implementation _NSX11Font (NSFreeTypeFont)
 
+/*
+ * for a definition see
+ * https://developer.apple.com/legacy/mac/library/#documentation/Cocoa/Conceptual/FontHandling/Tasks/GettingFontMetrics.html
+ */
+
 static float scale;		// cache for screen scale
 static float rscale;	// cache for 1/screen scale
 static float rscale64;	// cache for 1/(64.0*screen scale)
 
-#define Free2Pt(VAL) ((VAL)*rscale64)	// we mignt need to undo global screen scaling!
+#define Free2Pt(VAL) ((VAL)*rscale64)
 
 - (float) ascender;
 {
@@ -64,7 +69,9 @@ static float rscale64;	// cache for 1/(64.0*screen scale)
 
 - (NSRect) boundingRectForFont;
 {
-	return NSMakeRect(Free2Pt(_faceStruct->bbox.xMin), Free2Pt(_faceStruct->bbox.yMin), Free2Pt(_faceStruct->bbox.xMax-_faceStruct->bbox.xMin), Free2Pt(_faceStruct->bbox.yMax-_faceStruct->bbox.yMin));
+	FT_BBox bbox=_faceStruct->bbox;
+	// FIXME: somethng apears to be wrong here
+	return NSMakeRect(Free2Pt(bbox.xMin), Free2Pt(bbox.yMin), Free2Pt(bbox.xMax-bbox.xMin), Free2Pt(bbox.yMax-bbox.yMin));
 }
 
 - (float) capHeight;
@@ -124,12 +131,11 @@ static float rscale64;	// cache for 1/(64.0*screen scale)
 		{
 		NSRect rect;
 		FT_Load_Glyph(_faceStruct, *glyphs++, FT_LOAD_DEFAULT | FT_LOAD_IGNORE_TRANSFORM);
-		rect=NSMakeRect(Free2Pt(_faceStruct->glyph->metrics.horiBearingX), Free2Pt(_faceStruct->glyph->metrics.height-_faceStruct->glyph->metrics.horiBearingY),
+		rect=NSMakeRect(Free2Pt(_faceStruct->glyph->metrics.horiBearingX), Free2Pt(_faceStruct->glyph->metrics.horiBearingY-_faceStruct->glyph->metrics.height),
 						Free2Pt(_faceStruct->glyph->metrics.width), Free2Pt(_faceStruct->glyph->metrics.height));
 		*bounds++=rect;
 		}
 }
-
 
 - (NSGlyph) glyphWithName:(NSString *) name;
 {
@@ -403,7 +409,7 @@ FT_Library _ftLibrary(void)
 
 @implementation NSFontDescriptor (NSFreeTypeFont)	// the NSFontDescriptor can cache a libfreetype FT_Face structure
 
-#define USE_SQLITE 0
+#define USE_SQLITE 0	// has not been tested or debugged
 
 #if USE_SQLITE	// sqlite based font cache - overwrites default implementation
 

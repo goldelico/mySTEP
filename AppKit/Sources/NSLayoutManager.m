@@ -765,6 +765,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 						break;
 					}
 				count++;	// include in this chunk
+#if 1	// debug glyph advancement between NSFont and Server
+				break;
+#endif
 			}
 		if(count > 0)
 			{ // there is something to draw
@@ -775,6 +778,21 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
 			if(color != lastColor) [lastColor=color set];
 			if(font != lastFont) [lastFont=font set];
+#if 1
+				{ // draw bounding boxes of glyphs
+					int g;
+					[ctxt saveGraphicsState];
+					[[NSColor colorWithCalibratedRed:1.0 green:0.5 blue:1.0 alpha:0.2] set];
+					for(g=glyphsToShow.location; g < glyphsToShow.location+count; g++)
+						{
+						NSRect box=[font boundingRectForGlyph:[self glyphAtIndex:g]];	// origin is on baseline
+						box.origin.x=lfr.origin.x+origin.x+pos.x+box.origin.x;
+						box.origin.y=lfr.origin.y+origin.y+pos.y-box.origin.y-box.size.height;	// translate container and glyphs
+						NSRectFill(box);
+						}
+					[ctxt restoreGraphicsState];
+				}
+#endif
 			// handle NSStrokeWidthAttributeName
 			// handle NSShadowAttributeName
 			// handle NSObliquenessAttributeName
@@ -782,7 +800,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			
 			// FIXME: is this relative or absolute position???
 		
-			pos.x+=lfr.origin.x+origin.x;
+			pos.x=origin.x+pos.x+lfr.origin.x;
 			pos.y=origin.y+pos.y+lfr.origin.y;	// translate container and glyphs
 				{
 				NSAffineTransform *tm=[NSAffineTransform transform];
@@ -859,7 +877,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 {
 	NIMP;
 #if 0
-	// how do we get to the font?
+	// how do we get to the font? - in the same loop over attributeRanges as for drawGlyphs
 	float posy=pos.y+[font defaultLineHeightForFont]+baselineOffset+[font underlinePosition];
 #if 0
 	NSLog(@"underline %x", style);
@@ -874,6 +892,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 {
 	if(_glyphsAreValid)
 		return;
+	// FIXME: we simply rebuild all glyphs
 	[self deleteGlyphsInRange:NSMakeRange(0, _numberOfGlyphs)];	// delete all existing glyphs
 	_firstUnlaidGlyphIndex=0;
 	_firstUnlaidCharacterIndex=0;
@@ -1022,7 +1041,11 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSGlyph) glyphAtIndex:(unsigned)glyphIndex;
 {
 	if(glyphIndex >= _numberOfGlyphs)
-		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];
+		{
+		[self ensureGlyphsForGlyphRange:NSMakeRange(0, glyphIndex+1)];
+		if(glyphIndex >= _numberOfGlyphs)	// still not enough
+			[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];		
+		}
 	return _glyphs[glyphIndex].glyph;
 }
 

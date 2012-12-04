@@ -334,16 +334,16 @@
 
 - (NSArray *) attributeRuns; { return NIMP; }
 - (NSArray *) characters; { return NIMP; }
-- (NSFont *) font; { return NIMP; }
-- (NSColor *) foregroundColor; { return NIMP; }
+- (NSFont *) font; { return [[self attributesAtIndex:0 effectiveRange:NULL] objectForKey:NSFontAttributeName]; }
+- (NSColor *) foregroundColor; { return [[self attributesAtIndex:0 effectiveRange:NULL] objectForKey:NSForegroundColorAttributeName]; }
 - (NSArray *) paragraphs; { return [[self string] componentsSeparatedByString:@"\n"]; }
 - (void) setAttributeRuns:(NSArray *)attributeRuns; { NIMP; return; }
-- (void) setCharacters:(NSArray *)characters; { NIMP; return; }
-- (void) setFont:(NSFont *)font; { NIMP; return; }
-- (void) setForegroundColor:(NSColor *)color; { NIMP; return; }
-- (void) setParagraphs:(NSArray *)paragraphs; { NIMP; return; }
-- (void) setWords:(NSArray *)words; { NIMP; return; }
-- (NSArray *) words; { return NIMP; }
+- (void) setCharacters:(NSArray *)characters; { [[self mutableString] setString:[characters componentsJoinedByString:@""]]; }
+- (void) setFont:(NSFont *)font; { [self addAttribute:NSFontAttributeName value:font range:NSMakeRange(0, [self length])]; }
+- (void) setForegroundColor:(NSColor *)color; { [self addAttribute:NSForegroundColorAttributeName value:color range:NSMakeRange(0, [self length])]; }
+- (void) setParagraphs:(NSArray *)paragraphs; { [[self mutableString] setString:[paragraphs componentsJoinedByString:@"\n"]]; }
+- (void) setWords:(NSArray *)words; { [[self mutableString]  setString:[words componentsJoinedByString:@" "]]; }
+- (NSArray *) words; { return [[self string] componentsSeparatedByString:@" "]; }
 
 - (void) encodeWithCoder:(NSCoder *) coder;
 {
