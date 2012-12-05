@@ -108,12 +108,13 @@ static float rscale64;	// cache for 1/(64.0*screen scale)
 		FT_Load_Glyph(_faceStruct, *glyphs++, FT_LOAD_DEFAULT | FT_LOAD_IGNORE_TRANSFORM);
 		if(_renderingMode == NSFontAntialiasedIntegerAdvancementsRenderingMode)
 			{ // a little faster but less accurate
-			sz=NSMakeSize(_faceStruct->glyph->advance.x>>6, _faceStruct->glyph->advance.y>>6);
+			sz=NSMakeSize(Free2Pt(_faceStruct->glyph->advance.x), Free2Pt(_faceStruct->glyph->advance.y));
 			}
 		else
 			{ // needs additional float operations per step
-				// FIXME - appears to have both horiz&vert advancement
-			sz=NSMakeSize(_faceStruct->glyph->linearHoriAdvance*(1.0/65536.0), 0* _faceStruct->glyph->linearVertAdvance*(1.0/65536.0));
+				// FIXME: delivers wrong results
+//			sz=NSMakeSize(_faceStruct->glyph->linearHoriAdvance*(1.0/65536.0), 0* _faceStruct->glyph->linearVertAdvance*(1.0/65536.0));
+			sz=NSMakeSize(Free2Pt(_faceStruct->glyph->advance.x), Free2Pt(_faceStruct->glyph->advance.y));
 			}
 		*advancements++=sz;
 		}

@@ -2,7 +2,7 @@
  NSTypesetter.m
  
  Author:	H. N. Schaller <hns@computer.org>
- Date:	Jun 2006
+ Date:		Jun 2006-2012
  
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
@@ -18,7 +18,7 @@
 #import "NSBackendPrivate.h"
 #import "NSSimpleHorizontalTypesetter.h"
 
-@implementation NSTypesetter
+@implementation NSTypesetter	// please use NSSimpleHorizontalTypesetter and not this class!
 
 + (NSTypesetterBehavior) defaultTypesetterBehavior;
 {
@@ -1062,6 +1062,7 @@ NSLayoutOutOfGlyphs
 				if(previousGlyph)
 					{ // handle kerning
 						// handle ligatures: check if previous = 'f' and current = 'l' => reduce to single glyph
+						// not here - this is done in NSGlyphGenerator
 						NSSize k=[curFont _kerningBetweenGlyph:previousGlyph andGlyph:curGlyph];
 						glyphInfo->curLocation.x+=k.width+curSpaceAfter;
 						glyphInfo->curLocation.y+=k.height;
@@ -1070,7 +1071,7 @@ NSLayoutOutOfGlyphs
 				}
 			curMinBaselineDistance=MAX(curMinBaselineDistance, curGlyphExtentAboveLocation);
 			curMaxBaselineDistance=MAX(curMaxBaselineDistance, curGlyphExtentBelowLocation+curGlyphExtentAboveLocation);
-			if(curGlyphOffset+glyphInfo->extent > curMaxGlyphLocation)
+			if(!glyphInfo->_giflags.dontShow && curGlyphOffset+glyphInfo->extent > curMaxGlyphLocation)
 				{ // check if there is enough space for this glyph
 					if(curGlyphIndex == 0)
 						status=NSLayoutCantFit;	// not even the first glyph does fit

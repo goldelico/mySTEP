@@ -765,7 +765,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 						break;
 					}
 				count++;	// include in this chunk
-#if 1	// debug glyph advancement between NSFont and Server
+#if 0	// debug glyph advancement between NSFont and Server
 				break;
 #endif
 			}
@@ -787,7 +787,10 @@ static void allocateExtra(struct NSGlyphStorage *g)
 						{
 						NSRect box=[font boundingRectForGlyph:[self glyphAtIndex:g]];	// origin is on baseline
 						box.origin.x=lfr.origin.x+origin.x+pos.x+box.origin.x;
-						box.origin.y=lfr.origin.y+origin.y+pos.y-box.origin.y-box.size.height;	// translate container and glyphs
+						if([ctxt isFlipped])
+							box.origin.y=lfr.origin.y+origin.y+pos.y-box.origin.y-box.size.height;	// translate container and glyphs
+						else
+							box.origin.y=lfr.origin.y+origin.y+pos.y-box.origin.y;	// translate container and glyphs
 						NSRectFill(box);
 						}
 					[ctxt restoreGraphicsState];
