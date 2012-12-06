@@ -95,10 +95,8 @@ static NSStringDrawingOptions _currentOptions;
 	 NSStringDrawingTruncatesLastVisibleLine - 
 	 */
 	_currentOptions=options;
-	if(self == _currentString)
-		return;	// don't change if we size&draw the same string
 	if(!_textStorage)
-		{
+		{ // first call, setup text system
 #if 0
 		NSLog(@"create global text storage");
 #endif
@@ -113,8 +111,9 @@ static NSStringDrawingOptions _currentOptions;
 		}
 	else
 		{
-		[_textContainer setContainerSize:rect.size];	// resize container - should invalidate layout
-		[_textStorage setAttributedString:self];		// replace - should invalidate glyphs
+		[_textContainer setContainerSize:rect.size];	// resize container - should invalidate layout but keep glyphs - if it changes
+		if(![self isEqual:_currentString])
+		   [_textStorage setAttributedString:self];		// replace - should invalidate glyphs and layout
 		}
 	[_layoutManager setUsesFontLeading:((_currentOptions&NSStringDrawingUsesFontLeading) != 0)];
 	[_layoutManager setUsesScreenFonts:((_currentOptions&NSStringDrawingDisableScreenFontSubstitution) == 0)];

@@ -1110,7 +1110,7 @@ static NSColor *__borderedBackgroundColor = nil;
 #define IMPORTSGRAPHICS ((cellflags2&0x10000000)!=0)	// does not match bitfield definitions but works
 		_d.importsGraphics=IMPORTSGRAPHICS;
 #define ALIGNMENT ((cellflags2&0x1c000000)>>26)
-			[self setAlignment:ALIGNMENT];
+		[self setAlignment:ALIGNMENT];
 #define REFUSESFIRSTRESPONDER ((cellflags2&0x00010000)!=0)
 		_c.refusesFirstResponder=REFUSESFIRSTRESPONDER;
 #define ALLOWSUNDO ((cellflags2&0x00004000)==0)

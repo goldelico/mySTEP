@@ -262,6 +262,7 @@ static BOOL __cursorHidden = NO;
 	NSRectFill(rect);	// draw window background
 	if(NSMinY(rect) < _height)
 		{ // needs to redraw the titlebar
+			NSParagraphStyle *paragraph=nil;
 			[[self titleBarBackgroundColor] set];
 			NSRectFill((NSRect){NSZeroPoint, {_bounds.size.width, _height }});	// fill titlebar background
 			[[NSColor windowFrameColor] set];
@@ -278,10 +279,10 @@ static BOOL __cursorHidden = NO;
 			a=[NSDictionary dictionaryWithObjectsAndKeys:		// FIXME: how does this differ from the defaults?
 			   [_window isKeyWindow]?[NSColor windowFrameTextColor]:[NSColor grayColor], NSForegroundColorAttributeName,
 			   [NSFont titleBarFontOfSize:(_style&NSUtilityWindowMask)?9.0:12.0], NSFontAttributeName,
+			   paragraph, NSParagraphStyleAttributeName,
 			   nil];
 			// draw document icon or shouldn't we better use a resizable NSButton with center alignment to store the window icon and title?
 			// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
-			// YES, or at least use _title drawRect: and centering paragraph style attribute
 			[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, 1.0+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
 		}
 }

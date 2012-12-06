@@ -78,14 +78,20 @@
 
 - (void) replaceLayoutManager:(NSLayoutManager *) newLayoutManager;
 {
-	int idx;
-	[self retain];	// just be sure
-	idx=[[layoutManager textContainers] indexOfObject:self];	// find us int the list of text container
-	if(idx != NSNotFound)
-		[layoutManager removeTextContainerAtIndex:idx];			// remove us from our old layout manager
-	[self setLayoutManager:newLayoutManager];
-	[layoutManager insertTextContainer:self atIndex:idx];	// connect to the new layout manager
-	[self release];
+	NSArray *textContainers=[layoutManager textContainers];
+	unsigned int i, cnt=[textContainers count];
+	NSTextContainer *c;
+	NSLayoutManager *oldLayoutManager=layoutManager;
+	if(newLayoutManager == layoutManager)
+		return;	// no change
+	for(i=0; i<cnt; i++)
+		{
+		c=[textContainers objectAtIndex:i];
+		[c retain];
+		[oldLayoutManager removeTextContainerAtIndex:i];	// remove first
+		[newLayoutManager addTextContainer:c];	// add to new layout manager
+		[c release];
+		}
 }
 
 - (void) setContainerSize:(NSSize) sz;

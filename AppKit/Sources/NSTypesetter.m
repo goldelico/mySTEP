@@ -975,6 +975,10 @@ NSLayoutOutOfGlyphs
 	curMinBaselineDistance=curMaxBaselineDistance=0.0;
 	curGlyphIndex=0;	// fill from the beginning
 	curGlyph=NSNullGlyph;
+#if 0
+	if([textString isEqualToString:@"Bezeled rounded"])
+		NSLog(@"string %@", textString);
+#endif
 	while(curCharacterIndex < [textString length])
 		{ // we still have a character to process
 			unichar curChar;
@@ -1020,7 +1024,8 @@ NSLayoutOutOfGlyphs
 			glyphInfo->glyphCharacterIndex=curCharacterIndex;
 			*((unsigned char *) &glyphInfo->_giflags)=0;
 			curGlyphIsAControlGlyph=NO;
-			curGlyphExtentAboveLocation=curGlyphExtentBelowLocation=0.0;
+			curGlyphExtentAboveLocation=[curFont ascender];
+			curGlyphExtentBelowLocation=[curFont descender];
 			wrapAfterCurGlyph=NO;
 			if([[NSCharacterSet controlCharacterSet] characterIsMember:curChar])
 				{
@@ -1094,6 +1099,7 @@ NSLayoutOutOfGlyphs
 				break;
 				}
 		}
+	curMaxBaselineDistance=ceil(curMaxBaselineDistance);
 	if(setBaseline)
 		*baseline=curMinBaselineDistance; // determine here (by maximum ascender)
 	if(lineFragmentRect->size.width != FLT_MAX)
@@ -1115,7 +1121,7 @@ NSLayoutOutOfGlyphs
 		lineHeight *= [curParaStyle lineHeightMultiple];	// shouldn't we take the previous Paragraph?
 	lineHeight+=[curParaStyle lineSpacing];
 	// somehow add paragraphSpacing and paragraphSpacingBefore
-	lineFragmentRect->size.height=MIN(MAX(curMinLineHeight, curMaxBaselineDistance), curMaxLineHeight);	// set line height	
+	lineFragmentRect->size.height=MIN(MAX(curMinLineHeight, lineHeight), curMaxLineHeight);	// set line height	
 	return status;
 }
 

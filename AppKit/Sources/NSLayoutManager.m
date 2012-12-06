@@ -781,17 +781,22 @@ static void allocateExtra(struct NSGlyphStorage *g)
 #if 1
 				{ // draw bounding boxes of glyphs
 					int g;
+					float advance=0.0;
 					[ctxt saveGraphicsState];
 					[[NSColor colorWithCalibratedRed:1.0 green:0.5 blue:1.0 alpha:0.2] set];
 					for(g=glyphsToShow.location; g < glyphsToShow.location+count; g++)
 						{
-						NSRect box=[font boundingRectForGlyph:[self glyphAtIndex:g]];	// origin is on baseline
-						box.origin.x=lfr.origin.x+origin.x+pos.x+box.origin.x;
+						NSGlyph glyph=[self glyphAtIndex:g];
+						NSRect box=[font boundingRectForGlyph:glyph];	// origin is on baseline
+						NSSize adv;
+						box.origin.x=lfr.origin.x+origin.x+pos.x+box.origin.x+advance;
 						if([ctxt isFlipped])
 							box.origin.y=lfr.origin.y+origin.y+pos.y-box.origin.y-box.size.height;	// translate container and glyphs
 						else
 							box.origin.y=lfr.origin.y+origin.y+pos.y-box.origin.y;	// translate container and glyphs
 						NSRectFill(box);
+						[font getAdvancements:&adv forGlyphs:&glyph count:1];
+						advance+=adv.width;
 						}
 					[ctxt restoreGraphicsState];
 				}
@@ -1186,6 +1191,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 {
 	NSUInteger cnt=[_textContainers count];	// before insertion
 	[_textContainers insertObject:container atIndex:index];
+	[container setLayoutManager:self];
 	if(index == 0)
 		_firstTextView=[container textView];	// has changed
 	_textContainerInfo=(struct _NSTextContainerInfo *) objc_realloc(_textContainerInfo, sizeof(_textContainerInfo[0])*(cnt+1));	// (re)allocate memory
@@ -1224,6 +1230,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) invalidateDisplayForGlyphRange:(NSRange)glyphRange;
 {
+	[self invalidateGlyphsOnLayoutInvalidationForGlyphRange:glyphRange];
 	// [textview setNeedsDisplayInRect:rect avoidAdditionalLayout:YES]
 }
 
@@ -1237,7 +1244,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 {
 	unsigned idx=range.location;
 	while(idx < NSMaxRange(range))
-		_glyphs[idx].validFlag=NO;
+		_glyphs[idx++].validFlag=NO;
 	if(_firstUnlaidGlyphIndex > range.location)
 		_firstUnlaidGlyphIndex=range.location;
 	if(_firstUnlaidGlyphIndex == 0)
@@ -1423,6 +1430,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	NSUInteger cnt=[_textContainers count];	// before removing
 	if(index == 0)
 		_firstTextView=nil;	// might have changed
+	[[_textContainers objectAtIndex:index] setLayoutManager:nil];	// no layout manager
 	[_textContainers removeObjectAtIndex:index];
 	if(cnt != index+1)
 		memmove(&_textContainerInfo[index], &_textContainerInfo[index+1], sizeof(_textContainerInfo[0])*(cnt-index-1));	// make room for new slot
@@ -1685,9 +1693,14 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) textContainerChangedGeometry:(NSTextContainer *) container;
 {
-	if(!_textContainers)
-		return;	// we are not yet initialized, i.e. won't find this container
-	[self invalidateDisplayForGlyphRange:[self glyphRangeForTextContainer:container]];
+	if(_textContainers)
+		{
+		NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:container];
+		NSAssert(idx != NSNotFound, @"Text Container unknown in NSLayoutManager");
+		[self invalidateDisplayForGlyphRange:_textContainerInfo[idx].glyphRange];	// as it was previously known
+		_textContainerInfo[idx].glyphRange=(NSRange) { 0, 0 };	// reset to empty/unknown
+		// shouldn't we also invalidate all further containers?
+		}
 }
 
 - (void) textContainerChangedTextView:(NSTextContainer *)container;

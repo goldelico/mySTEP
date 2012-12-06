@@ -485,7 +485,25 @@ id __buttonCellClass = nil;
 - (NSRect) titleRectForBounds:(NSRect)theRect
 {
 	theRect=[self drawingRectForBounds:theRect];
-	// handle text position
+	switch(_bezelStyle & 15) {
+		case _NSTraditionalBezelStyle:
+			break;
+		case NSRoundedBezelStyle:
+			theRect=NSInsetRect(theRect, 5.0, 0.0);
+			break;
+		case NSRegularSquareBezelStyle:		// Square 2 pixels border
+			theRect=NSInsetRect(theRect, 2.0, 0.0);
+			break;
+		case NSThickSquareBezelStyle:		// 3 px
+			theRect=NSInsetRect(theRect, 3.0, 0.0);
+			break;
+		case NSThickerSquareBezelStyle:		// 4 px
+			theRect=NSInsetRect(theRect, 4.0, 0.0);
+			break;
+			// FIXME:
+		default:
+			break;
+	}
 	return theRect;
 }
 
@@ -663,10 +681,6 @@ id __buttonCellClass = nil;
 				[ctxt restoreGraphicsState];
 				[[NSColor blackColor] set];	// black ring
 				[bezel stroke];
-				size=[@"?" sizeWithAttributes:nil];
-				cellFrame.origin.x+=(cellFrame.size.width-size.width)/2.0;
-				cellFrame.origin.y+=(cellFrame.size.height-size.height)/2.0;
-				[@"?" drawAtPoint:cellFrame.origin withAttributes:nil];	// default attribs
 				break;
 			}
 		case NSSmallSquareBezelStyle:
@@ -911,7 +925,13 @@ id __buttonCellClass = nil;
 		this code will also work if title is a NSString or an NSAttributedString or if a NSFormatter is attached
 		i.e. we can easily implement attributedTitle, attributedAlternateTitle etc.
 		*/
-	_contents=title;	// draw title by superclass
+	if((_bezelStyle&15) == NSHelpButtonBezelStyle)
+		{
+		_contents=@"?";	// could be an NSAttributedString
+		NSLog(@"%d", [self alignment]);
+		}
+	else
+		_contents=title;	// draw title by superclass
 #if 0	// test to find out why NSEnabled is not working properly
 	if(!_c.enabled)
 		NSLog(@"button not enabled: %@", self);
@@ -1099,10 +1119,13 @@ id __buttonCellClass = nil;
 #endif
 		return self;
 		}
-	_alternateTitle = [[aDecoder decodeObject] retain];
-	_alternateImage = [[aDecoder decodeObject] retain];
-	_normalImage = [[aDecoder decodeObject] retain];
-	[aDecoder decodeValueOfObjCType: @encode(BOOL) at: &_transparent];
+	else
+		{
+		_alternateTitle = [[aDecoder decodeObject] retain];
+		_alternateImage = [[aDecoder decodeObject] retain];
+		_normalImage = [[aDecoder decodeObject] retain];
+		[aDecoder decodeValueOfObjCType: @encode(BOOL) at: &_transparent];
+		}
 	
 	return self;
 }
@@ -1317,6 +1340,6 @@ id __buttonCellClass = nil;
 }
 
 - (void) encodeWithCoder:(NSCoder *) aCoder		{ [super encodeWithCoder:aCoder]; }
-- (id) initWithCoder:(NSCoder *) aDecdr			{ return [super initWithCoder:aDecdr]; }
+- (id) initWithCoder:(NSCoder *) aDecoder		{ return [super initWithCoder:aDecoder]; }
 
 @end /* NSButton */

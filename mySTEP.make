@@ -555,7 +555,7 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	# try to launch $(RUN) Application
 	: defaults write com.apple.x11 nolisten_tcp false; \
 	defaults write org.x.X11 nolisten_tcp 0; \
-	rm -f /tmp/.X0-lock; open -a X11; sleep 5; \
+	rm -rf /tmp/.X0-lock /tmp/.X11-unix; open -a X11; sleep 5; \
 	export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(IP_ADDR) && \
 	$(DOWNLOAD) \
 		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" || echo failed to run;
