@@ -148,6 +148,7 @@ struct RESERVED
 	"@autoreleasepool", AT_AUTORELEASEPOOL,
 	"__unsafe_unretained", AT_UNSAFE_UNRETAINED,
 	"__autoreleasing", AT_AUTORELEASING,
+	"@[", AT_ARRAY_LITERAL,
 	};
 	
 	// FIXME: should the scanner really handle the scope stack or is this part of the grammar which can handle separate symbol tables, e.g. for stuct components

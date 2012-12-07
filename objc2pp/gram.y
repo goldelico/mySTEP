@@ -64,6 +64,7 @@
 %token CONSTANT
 %token STRING_LITERAL
 %token AT_STRING_LITERAL
+%token AT_ARRAY_LITERAL
 
 %start translation_unit
 
@@ -145,6 +146,7 @@ unary_operator
 	| '-'  { $$=node("-", 0, 0); }
 	| '~'  { $$=node("~", 0, 0); }
 	| '!'  { $$=node("!", 0, 0); }
+	| AT_ARRAY_LITERAL { $$=node("@[]", 0, 0); ']'; }
 	;
 
 cast_expression
