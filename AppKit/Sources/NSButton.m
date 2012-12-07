@@ -448,8 +448,6 @@ id __buttonCellClass = nil;
 		case NSShadowlessSquareBezelStyle:
 			break;
 		case NSCircularBezelStyle:
-			cellFrame.origin.x=(cellFrame.size.width-cellFrame.size.height)/2.0;
-			cellFrame.size.width=cellFrame.size.height;	// make square in the middle
 			break;
 		case NSTexturedSquareBezelStyle:
 			break;
@@ -641,8 +639,11 @@ id __buttonCellClass = nil;
 		case NSCircularBezelStyle:
 			{ // Round
 			  // FIXME: we should get an NSImage
+				NSRect round=NSInsetRect(cellFrame, 1, 1);	// make smaller so that it does not touch frame
 				ctxt=[NSGraphicsContext currentContext];
-				bezel=[NSBezierPath bezierPathWithOvalInRect:NSInsetRect(cellFrame, 1, 1)];	// make smaller so that it does not touch frame
+				round.origin.x=0.5*(round.size.width-round.size.height);
+				round.size.width=round.size.height;
+				bezel=[NSBezierPath bezierPathWithOvalInRect:round];	// make a centered circle
 				if(!backgroundColor) backgroundColor=[NSColor controlColor];
 				[ctxt saveGraphicsState];
 				[bezel addClip];
