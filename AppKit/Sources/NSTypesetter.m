@@ -60,9 +60,9 @@
 - (NSTypesetterControlCharacterAction) actionForControlCharacterAtIndex:(NSUInteger) location;
 { // default action - can be overwritten in subclass typesetter
 	// modify action based on
-	[_layoutManager showsControlCharacters];
-	[_layoutManager showsInvisibleCharacters];
-	switch([[_attributedString string] characterAtIndex:location]) {
+	[layoutManager showsControlCharacters];
+	[layoutManager showsInvisibleCharacters];
+	switch([[textStorage string] characterAtIndex:location]) {
 		case '\t': return NSTypesetterHorizontalTabAction;
 		case '\n': return NSTypesetterParagraphBreakAction;
 		case ' ': return NSTypesetterWhitespaceAction;
@@ -75,12 +75,12 @@
 
 - (NSAttributedString *) attributedString;
 {
-	return _attributedString;
+	return textStorage;
 }
 
 - (NSDictionary *) attributesForExtraLineFragment;
 {
-	NSDictionary *d=[[_layoutManager firstTextView] typingAttributes];
+	NSDictionary *d=[[layoutManager firstTextView] typingAttributes];
 	if(!d)
 		;
 	return d;
@@ -96,16 +96,16 @@
 
 - (void) beginLineWithGlyphAtIndex:(NSUInteger) index;
 {
-	[self setLineFragmentPadding:[_currentTextContainer lineFragmentPadding]];
+	[self setLineFragmentPadding:[curContainer lineFragmentPadding]];
 	return;
 }
 
 - (void) beginParagraph;
 {
-	_currentParagraphStyle=[_attributedString attribute:NSParagraphStyleAttributeName atIndex:_paragraphCharacterRange.location effectiveRange:&_paragraphCharacterRange];
-	if(!_currentParagraphStyle)
-		_currentParagraphStyle=[NSParagraphStyle defaultParagraphStyle];	// none specified
-	[self setParagraphGlyphRange:[_layoutManager glyphRangeForCharacterRange:_paragraphCharacterRange actualCharacterRange:NULL] separatorGlyphRange:NSMakeRange(0, 0)];
+	curParaStyle=[textStorage attribute:NSParagraphStyleAttributeName atIndex:curParaRange.location effectiveRange:&curParaRange];
+	if(!curParaStyle)
+		curParaStyle=[NSParagraphStyle defaultParagraphStyle];	// none specified
+	[self setParagraphGlyphRange:[layoutManager glyphRangeForCharacterRange:curParaRange actualCharacterRange:NULL] separatorGlyphRange:NSMakeRange(0, 0)];
 }
 
 - (BOOL) bidiProcessingEnabled;
@@ -125,15 +125,15 @@
 - (NSRange) characterRangeForGlyphRange:(NSRange) range 
 					   actualGlyphRange:(NSRangePointer) rangePt;
 {
-	return [_layoutManager characterRangeForGlyphRange:range actualGlyphRange:rangePt];
+	return [layoutManager characterRangeForGlyphRange:range actualGlyphRange:rangePt];
 }
 
-- (NSParagraphStyle *) currentParagraphStyle; { return _currentParagraphStyle; }
-- (NSTextContainer *) currentTextContainer; { return _currentTextContainer; }
+- (NSParagraphStyle *) currentParagraphStyle; { return curParaStyle; }
+- (NSTextContainer *) currentTextContainer; { return curContainer; }
 
 - (void) deleteGlyphsInRange:(NSRange) range;
 {
-	[_layoutManager deleteGlyphsInRange:range];
+	[layoutManager deleteGlyphsInRange:range];
 }
 
 - (void) endLineWithGlyphRange:(NSRange) range;
@@ -141,7 +141,7 @@
 	// center: shift used rect right by half difference
 	// right: shift used rect right by full difference
 	// justify: distribute difference on space characters and kerning
-	[_layoutManager setTextContainer:[self currentTextContainer] forGlyphRange:_paragraphGlyphRange];
+	[layoutManager setTextContainer:[self currentTextContainer] forGlyphRange:_paragraphGlyphRange];
 }
 
 - (void) endParagraph;
@@ -156,7 +156,7 @@
 					elasticBits:(BOOL *) flag 
 					 bidiLevels:(unsigned char *) bidiLevels;
 {
-	return [_layoutManager getGlyphsInRange:range
+	return [layoutManager getGlyphsInRange:range
 									 glyphs:glyphs
 						   characterIndexes:idxs
 						  glyphInscriptions:inscBuffer
@@ -193,13 +193,13 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 { // for lines
 	int sweep;
 	// FIXME: should also set up the initial position to the left or right?
-	switch([_currentParagraphStyle baseWritingDirection]) {
+	switch([curParaStyle baseWritingDirection]) {
 		case NSWritingDirectionNatural:
 		default:
 		case NSWritingDirectionLeftToRight: sweep=NSLineSweepRight; break;
 		case NSWritingDirectionRightToLeft: sweep=NSLineSweepLeft; break;
 	}
-	*lineFragmentRect=[_currentTextContainer lineFragmentRectForProposedRect:propRect sweepDirection:sweep movementDirection:NSLineMovesDown remainingRect:remRect];
+	*lineFragmentRect=[curContainer lineFragmentRectForProposedRect:propRect sweepDirection:sweep movementDirection:NSLineMovesDown remainingRect:remRect];
 	*lineFragmentUsedRect=*lineFragmentRect;
 	// FIXME: how can this be smaller if we take the proposed rect???
 	lineFragmentRect->size.width=MIN(NSWidth(*lineFragmentRect), NSWidth(propRect));	// reduce to what was proposed
@@ -209,12 +209,12 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 - (NSRange) glyphRangeForCharacterRange:(NSRange) range 
 				   actualCharacterRange:(NSRangePointer) rangePt;
 {
-	return [_layoutManager glyphRangeForCharacterRange:range actualCharacterRange:rangePt];
+	return [layoutManager glyphRangeForCharacterRange:range actualCharacterRange:rangePt];
 }
 
 - (float) hyphenationFactor;
 {
-	return [_layoutManager hyphenationFactor];
+	return [layoutManager hyphenationFactor];
 }
 
 - (float) hyphenationFactorForGlyphAtIndex:(NSUInteger) index;
@@ -229,7 +229,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 
 - (void) insertGlyph:(NSGlyph) glyph atGlyphIndex:(NSUInteger) index characterIndex:(NSUInteger) charIdx;
 { // used for hyphenation and keeps some caches in sync...
-	[_layoutManager insertGlyphs:&glyph length:1 forStartingGlyphAtIndex:index characterIndex:charIdx];
+	[layoutManager insertGlyphs:&glyph length:1 forStartingGlyphAtIndex:index characterIndex:charIdx];
 }
 
 - (NSRange) layoutCharactersInRange:(NSRange) range
@@ -251,7 +251,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 { // documentation says that this is the main function called by NSLayoutManager
 	_maxNumberOfLineFragments=maxLines;	// set up limitation counter
 
-//	_currentTextContainer=
+//	curContainer=
 
 	/* FIXME:
 	appears to setup everything and then simply calls layoutParagraphAtPoint:
@@ -268,28 +268,28 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 	// MOVE this to layoutParagraphAtPoint: to lay out current paragraph into current text container starting at current position...
 	
 	
-	NSString *str=[_attributedString string];
+	NSString *str=[textStorage string];
 	unsigned int options=[manager layoutOptions];	 // NSShowControlGlyphs, NSShowInvisibleGlyphs, NSWantsBidiLevels
 	NSGlyph previous=0;
 	NSTextContainer *container;
 	NSPoint location;	// relative location within line fragment rect
 	NSRect lfr;		// current line fragment rect
-	_layoutManager=manager;
+	layoutManager=manager;
 	if(startIndex > 0)
 		{ // continue previous
-			container=[_layoutManager textContainerForGlyphAtIndex:startIndex-1 effectiveRange:NULL];
-		location=[_layoutManager locationForGlyphAtIndex:startIndex-1];
+			container=[layoutManager textContainerForGlyphAtIndex:startIndex-1 effectiveRange:NULL];
+		location=[layoutManager locationForGlyphAtIndex:startIndex-1];
 		// update location!?!
-		lfr=[_layoutManager lineFragmentRectForGlyphAtIndex:startIndex-1 effectiveRange:NULL];
+		lfr=[layoutManager lineFragmentRectForGlyphAtIndex:startIndex-1 effectiveRange:NULL];
 		}
 	else
 		{
-		container=[[_layoutManager textContainers] objectAtIndex:0];
+		container=[[layoutManager textContainers] objectAtIndex:0];
 		location=NSZeroPoint;
 		lfr=(NSRect) { NSZeroPoint, [container containerSize] };
 		}
 
-	while(startIndex < [_layoutManager numberOfGlyphs] && _maxNumberOfLineFragments > 0)
+	while(startIndex < [layoutManager numberOfGlyphs] && _maxNumberOfLineFragments > 0)
 		{
 		startIndex = [self layoutParagraphAtPoint:&location];
 		// check for end due to end of container
@@ -317,13 +317,13 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 	
 	// if the last character did not end up in a line fragment rect, define an extra line fragment
 	// [self getLineFragmentRect:&lfr usedRect:&ulfr forParagraphSeparatorGlyphRange:NSMakeRange(glyph, 0) atProposedOrigin:origin];
-	// [_layoutManager setExtraLineFragmentRect:lfr usedRect:ulfr textContainer:aTextContainer];
-	_layoutManager=nil;
+	// [layoutManager setExtraLineFragmentRect:lfr usedRect:ulfr textContainer:aTextContainer];
+	layoutManager=nil;
 }
 
 - (NSLayoutManager *) layoutManager;
 {
-	return _layoutManager;
+	return layoutManager;
 }
 
 // NOTE: there may be no glyph corresponding to the \n character!!!
@@ -332,9 +332,9 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 
 - (NSUInteger) layoutParagraphAtPoint:(NSPointPointer) lfrOrigin;
 { // layout glyphs until end of paragraph; creates full line fragments
-	NSString *str=[_attributedString string];
+	NSString *str=[textStorage string];
 	NSUInteger startIndex=_paragraphGlyphRange.location;
-	NSRect proposedRect=(NSRect) { *lfrOrigin, [_currentTextContainer containerSize] };
+	NSRect proposedRect=(NSRect) { *lfrOrigin, [curContainer containerSize] };
 	NSPoint location;
 	NSRect lfr, lfur, rr;
 	// reduce size?
@@ -343,19 +343,19 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 		{ // for each line (fragment)
 			CGFloat baselineOffset;
 			[self beginLineWithGlyphAtIndex:startIndex];
-			while(_paragraphCharacterRange.location < [_attributedString length])
+			while(curParaRange.location < [textStorage length])
 				{
 				NSRect box;
 				NSRect ulfr;	// used line fragment rect
 				NSGlyph previous=NSNullGlyph;
 				NSRange attribRange;
-				NSDictionary *attribs=[_attributedString attributesAtIndex:_paragraphCharacterRange.location effectiveRange:&attribRange];
+				NSDictionary *attribs=[textStorage attributesAtIndex:curParaRange.location effectiveRange:&attribRange];
 				NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
 				if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
 				while(attribRange.length > 0)
 					{ // character range with same font
 						unichar c=[str characterAtIndex:attribRange.location];
-						NSGlyph glyph=[_layoutManager glyphAtIndex:startIndex];
+						NSGlyph glyph=[layoutManager glyphAtIndex:startIndex];
 						NSTypesetterControlCharacterAction a=0;
 						float baseLineOffset;
 						if(glyph == NSControlGlyph)
@@ -368,7 +368,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 								NSSize adv;
 								if(glyph == NSControlGlyph)
 									{
-									box=[self boundingBoxForControlGlyphAtIndex:startIndex forTextContainer:_currentTextContainer proposedLineFragment:lfr glyphPosition:location characterIndex:attribRange.location];
+									box=[self boundingBoxForControlGlyphAtIndex:startIndex forTextContainer:curContainer proposedLineFragment:lfr glyphPosition:location characterIndex:attribRange.location];
 									adv=box.size;	
 									}
 								else if(c == NSAttachmentCharacter)
@@ -431,21 +431,21 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 							}
 						if(a&NSTypesetterContainerBreakAction)
 							{ // advance to beginning of next container
-								// may ask [[_layoutManager delegate] layoutManager:_layoutManager didCompleteLayoutForTextContainer: atEnd:]
+								// may ask [[layoutManager delegate] layoutManager:layoutManager didCompleteLayoutForTextContainer: atEnd:]
 							}
 						// FIXME: update proposedRect
 						ulfr=box;
 						[self setNotShownAttribute:(a != 0) forGlyphRange:NSMakeRange(startIndex, 1)];
 						// FIXME: handle rects
-						baseLineOffset=[_layoutManager defaultBaselineOffsetForFont:font];
+						baseLineOffset=[layoutManager defaultBaselineOffsetForFont:font];
 						[self willSetLineFragmentRect:&lfr forGlyphRange:NSMakeRange(startIndex, 1) usedRect:&ulfr baselineOffset:&baseLineOffset];
 						[self setLineFragmentRect:lfr forGlyphRange:NSMakeRange(startIndex, 1) usedRect:ulfr baselineOffset:baseLineOffset];
 						previous=glyph;
 						startIndex++;
 						
 						attribRange.location++;
-						_paragraphCharacterRange.location++;
-						_paragraphCharacterRange.length--;
+						curParaRange.location++;
+						curParaRange.length--;
 					}
 				
 				
@@ -470,7 +470,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 			 forParagraphSeparatorGlyphRange:_separatorGlyphRange
 			 atProposedOrigin:*lfrOrigin];
 			 */
-			baselineOffset=[self baselineOffsetInLayoutManager:_layoutManager glyphIndex:startIndex];
+			baselineOffset=[self baselineOffsetInLayoutManager:layoutManager glyphIndex:startIndex];
 			
 			// do alignments etc. here
 			
@@ -494,7 +494,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 	return 5.0;
 }
 
-- (NSRange) paragraphCharacterRange; { return  _paragraphCharacterRange; }
+- (NSRange) paragraphCharacterRange; { return  curParaRange; }
 - (NSRange) paragraphGlyphRange; { return _paragraphGlyphRange;	 }
 - (NSRange) paragraphSeparatorCharacterRange; { return _separatorCharacterRange; }
 - (NSRange) paragraphSeparatorGlyphRange; { return _separatorGlyphRange; }
@@ -514,12 +514,12 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 
 - (void) setAttachmentSize:(NSSize) size forGlyphRange:(NSRange) range; 
 {
-	[_layoutManager setAttachmentSize:size forGlyphRange:range];
+	[layoutManager setAttachmentSize:size forGlyphRange:range];
 }
 
 - (void) setAttributedString:(NSAttributedString *) attrStr;
 {
-	_attributedString=attrStr;
+	textStorage=(NSTextStorage *) attrStr;	// should have the NSTextStorage interface
 }
 
 - (void) setBidiLevels:(const uint8_t *) levels forGlyphRange:(NSRange) range;
@@ -535,7 +535,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 - (void) setDrawsOutsideLineFragment:(BOOL) flag forGlyphRange:(NSRange) range;
 {
 	while(range.length-- > 0)
-		[_layoutManager setDrawsOutsideLineFragment:flag forGlyphAtIndex:range.location++];
+		[layoutManager setDrawsOutsideLineFragment:flag forGlyphAtIndex:range.location++];
 }
 
 - (void) setHardInvalidation:(BOOL) flag forGlyphRange:(NSRange) range;
@@ -545,7 +545,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 
 - (void) setHyphenationFactor:(float) value;
 {
-	[_layoutManager setHyphenationFactor:value];
+	[layoutManager setHyphenationFactor:value];
 }
 
 - (void) setLineFragmentPadding:(CGFloat) value;
@@ -558,7 +558,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 					usedRect:(NSRect) rect 
 			  baselineOffset:(CGFloat) offset;
 {
-	[_layoutManager setLineFragmentRect:fragRect forGlyphRange:range usedRect:rect];
+	[layoutManager setLineFragmentRect:fragRect forGlyphRange:range usedRect:rect];
 	// what do we do with the offset???
 }
 
@@ -566,14 +566,14 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 	withAdvancements:(const CGFloat *) advancements 
 forStartOfGlyphRange:(NSRange) range;
 {
-	[_layoutManager setLocation:loc forStartOfGlyphRange:range];
+	[layoutManager setLocation:loc forStartOfGlyphRange:range];
 	// apply advancements
 }
 
 - (void) setNotShownAttribute:(BOOL) flag forGlyphRange:(NSRange) range;
 { // can be set e.g. for TAB or other control characters that are not shown in Postscript/PDF
 	while(range.length-- > 0)
-		[_layoutManager setNotShownAttribute:flag forGlyphAtIndex:range.location++];
+		[layoutManager setNotShownAttribute:flag forGlyphAtIndex:range.location++];
 }
 
 - (void) setParagraphGlyphRange:(NSRange) paragRange separatorGlyphRange:(NSRange) sepRange;
@@ -604,18 +604,18 @@ forStartOfGlyphRange:(NSRange) range;
 
 - (NSFont *) substituteFontForFont:(NSFont *) font;
 {
-	return [_layoutManager substituteFontForFont:font];
+	return [layoutManager substituteFontForFont:font];
 }
 
 - (void) substituteGlyphsInRange:(NSRange) range withGlyphs:(NSGlyph *) glyphs; 
 {
-	[_layoutManager deleteGlyphsInRange:range];
-	[_layoutManager insertGlyphs:glyphs length:range.length forStartingGlyphAtIndex:range.location characterIndex:[_layoutManager characterIndexForGlyphAtIndex:range.location]];
+	[layoutManager deleteGlyphsInRange:range];
+	[layoutManager insertGlyphs:glyphs length:range.length forStartingGlyphAtIndex:range.location characterIndex:[layoutManager characterIndexForGlyphAtIndex:range.location]];
 }
 
 - (NSArray *) textContainers;
 {
-	return [_layoutManager textContainers];
+	return [layoutManager textContainers];
 }
 
 - (NSTextTab *) textTabForGlyphLocation:(CGFloat) glyphLoc 
@@ -624,12 +624,13 @@ forStartOfGlyphRange:(NSRange) range;
 {
 	NSTextTab *tab;
 	NSEnumerator *e;
-	NSPoint loc=[_layoutManager locationForGlyphAtIndex:glyphLoc];
+	// FIXME: locationForGlyphAtIndex has not yet been set!
+	NSPoint loc=[layoutManager locationForGlyphAtIndex:glyphLoc];
 	if(writingDirection == NSWritingDirectionNatural)
 		writingDirection=NSWritingDirectionLeftToRight;	// determine from system setting
 	if(writingDirection == NSWritingDirectionLeftToRight)
 		{
-		e=[[_currentParagraphStyle tabStops] objectEnumerator];
+		e=[[curParaStyle tabStops] objectEnumerator];
 		while((tab=[e nextObject]))
 			{
 			CGFloat tl=[tab location];
@@ -641,7 +642,7 @@ forStartOfGlyphRange:(NSRange) range;
 		}
 	else
 		{ // right to left
-		e=[[_currentParagraphStyle tabStops] reverseObjectEnumerator];
+		e=[[curParaStyle tabStops] reverseObjectEnumerator];
 		while((tab=[e nextObject]))
 			{
 			CGFloat tl=[tab location];
@@ -1014,7 +1015,7 @@ NSLayoutOutOfGlyphs
 					continue;	// try again
 				}
 			curChar=[textString characterAtIndex:curCharacterIndex];
-			/* [_layoutManager temporaryAttributeAtCharacterIndex:curCharIndex effectiveRange:NULL]; */
+			/* [layoutManager temporaryAttributeAtCharacterIndex:curCharIndex effectiveRange:NULL]; */
 			// FIXME: how to handle multiple glyphs for single character (and vice versa: i.e. ligatures and overprinting)
 			previousGlyph=curGlyph;
 			curGlyph=[layoutManager glyphAtIndex:firstIndexOfCurrentLineFragment+curGlyphIndex];	// get glyph

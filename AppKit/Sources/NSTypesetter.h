@@ -30,12 +30,12 @@ typedef NSUInteger NSTypesetterControlCharacterAction;
 
 @interface NSTypesetter : NSObject
 {
-	NSAttributedString */* nonretained */_attributedString;
-	NSLayoutManager *_layoutManager;	// only valid within layoutGlyphsInLayoutManager:startingAtGlyphIndex:maxNumberOfLineFragments:nextGlyphIndex:
-	NSParagraphStyle *_currentParagraphStyle;
-	NSTextContainer *_currentTextContainer;
+	NSLayoutManager *layoutManager;	// only valid within layoutGlyphsInLayoutManager:startingAtGlyphIndex:maxNumberOfLineFragments:nextGlyphIndex:
+	NSTextStorage */* nonretained */textStorage;
+	NSTextContainer *curContainer;
+	NSParagraphStyle *curParaStyle;
 	NSTypesetterBehavior _typesetterBehavior;
-	NSRange _paragraphCharacterRange;
+	NSRange curParaRange;
 	NSRange _separatorCharacterRange;
 	NSRange _paragraphGlyphRange;
 	NSRange _separatorGlyphRange;

@@ -183,10 +183,56 @@ static NSStringDrawingOptions _currentOptions;
 
 - (void) drawAtPoint:(NSPoint) point;
 {
+	NSGraphicsContext *ctxt;
+	NSRect rect={ NSZeroPoint, { FLT_MAX, FLT_MAX }};
+	NSRange rng;
+	if([self length] == 0)
+		return;	// empty string
+	ctxt=[NSGraphicsContext currentContext];
+#if 1
+	{ // show small dot at drawing origin
+	NSRect r={ { point.x-2.0, point.y-2.0 }, { 4.0, 4.0 }};
+	[ctxt saveGraphicsState];
+	[[NSColor brownColor] set];
+	NSFrameRect(r);	// drawing origin
+	[ctxt restoreGraphicsState];	
+	}
+#endif
+	[self _setupWithRect:rect options:NSStringDrawingUsesLineFragmentOrigin];	// infinitely large container
+#if 0
+	NSLog(@"drawWithRect:options: %@", self);
+#endif
+	rng=[_layoutManager glyphRangeForBoundingRect:rect inTextContainer:_textContainer];
+	if([ctxt isFlipped])
+		{
+		[_layoutManager drawBackgroundForGlyphRange:rng atPoint:point];
+		[_layoutManager drawGlyphsForGlyphRange:rng atPoint:point];		
+		}
+	else
+		{ // in this case the layout manager draws lines "bootom up" so we must flip the CTM
+			static NSAffineTransform *flip=nil;
+			NSRect rect=[_layoutManager boundingRectForGlyphRange:rng inTextContainer:_textContainer];
+			point.y=-(point.y+rect.size.height);	// start at top of rect (drawGlyphsForGlyphRange assumes flipped coordinates)
+			if(!flip)
+				{
+				flip=[NSAffineTransform transform];
+				[flip scaleXBy:1.0 yBy:-1.0];
+				[flip retain];
+				}
+			[ctxt saveGraphicsState];
+			[flip concat];	// flip before drawing
+			[_layoutManager drawBackgroundForGlyphRange:rng atPoint:point];
+			[_layoutManager drawGlyphsForGlyphRange:rng atPoint:point];
+			[ctxt restoreGraphicsState];
+		}
+	[self _tearDown];
+#if OLD
 	NSRect r=[self boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:NSStringDrawingUsesLineFragmentOrigin];	// start with infinitely large box
 	r.origin=point;			// move to given origin
 	r.size.width=FLT_MAX;	// disable horizontal alignment
+	// FIXME: we should not do it this way since we force recalculation of the layout into dimensions we already know
 	[self drawWithRect:r options:NSStringDrawingUsesLineFragmentOrigin];
+#endif
 }
 
 // draws in rect applying text aligment rules
@@ -215,8 +261,6 @@ static NSStringDrawingOptions _currentOptions;
 	NSRange rng;
 	if([self length] == 0)
 		return;	// empty string
-	if(rect.size.width > 1e6) rect.size.width=1e6;		// limit
-	if(rect.size.height > 1e6) rect.size.height=1e6;	// limit
 	ctxt=[NSGraphicsContext currentContext];
 //	if(![ctxt isFlipped])
 //		rect.origin.y=NSMaxY(rect);	// start at top of rect (drawGlyphsForGlyphRange assumes flipped coordinates)
@@ -227,10 +271,15 @@ static NSStringDrawingOptions _currentOptions;
 	
 #endif
 #if 1
-	[ctxt saveGraphicsState];
-	[[NSColor brownColor] set];
-	NSFrameRect(rect);	// drawing rect
-	[ctxt restoreGraphicsState];
+	{ // draw box
+		NSRect r=rect;
+		if(r.size.width > 1e6) r.size.width=1e6;	// limit to avoid problems with bezier paths
+		if(r.size.height > 1e6) r.size.height=1e6;	// limit
+		[ctxt saveGraphicsState];
+		[[NSColor brownColor] set];
+		NSFrameRect(r);	// drawing rect
+		[ctxt restoreGraphicsState];	
+	}
 #endif
 	if(!(options&NSStringDrawingUsesLineFragmentOrigin))
 		rect.size.width=FLT_MAX;	// single line mode

@@ -61,13 +61,15 @@ typedef struct _NSTypesetterGlyphInfo
 @interface NSSimpleHorizontalTypesetter : NSTypesetter
 { /* structure comes from http://lightchaos.blog10.fc2.com/blog-entry-111.html */
 
+	// the following iVars are defined in NSTypesetter
+	// NSLayoutManager *layoutManager;	// => _layoutManager
+	// NSTextStorage *textStorage;		// => _attributedString
+	// NSTextContainer *curContainer;	// => _currentTextContainer
+	// NSParagraphStyle *curParaStyle;	// => _currentParagraphStyle
+	// NSRange curParaRange;	// current paragraph attribute range (and paragraph length)
 	NSTypesetterGlyphInfo *glyphs;	// this is the shelf where Glyphs are laid out until a complete line is flushed to the LayoutManager
-	NSLayoutManager *layoutManager;	// => _layoutManager
-	NSTextStorage *textStorage;		// => _attributedString
-	NSTextContainer *curContainer;	// => _currentTextContainer
 	NSFont *curFont;				// [attrs objectForKey:NSFontAttributeName]
 	NSFont *previousFont;
-	NSParagraphStyle *curParaStyle;	// => _currentParagraphStyle
 	NSString *textString;			// [textStorage string]
 	NSDictionary *attrs;			// current attributes
 	NSRange attrsRange;				// current attribute range (character index)
@@ -134,10 +136,6 @@ typedef struct _NSTypesetterGlyphInfo
 	unsigned char previousBidiLevel;
 	unsigned char _reservedChars[2];
 	unsigned int _reserved2[6];
-
-	/* our extensions */
-	NSRange curParaRange;	// current paragraph attribute range (and paragraph length)
-
 }
 
 + (id) sharedInstance;
