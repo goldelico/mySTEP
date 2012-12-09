@@ -71,16 +71,10 @@ static NSCursor *__textCursor = nil;
 
 - (id) initWithFrame:(NSRect)frameRect textContainer:(NSTextContainer *)container
 {
-	// FIXME: can we call [self initWithFrame] and then still release everything or do we leak?
-	if((self=[super initWithFrame:frameRect]))	// this will create an owned textStorage
+	textContainer=container;	// preinitialize to skip some initializations
+	if((self=[self initWithFrame:frameRect]))
 		{
-			[textStorage release];
-			_tx.ownsTextStorage=NO;
-			[self setTextContainer:container];
-			layoutManager=[container layoutManager];
-			textStorage=[layoutManager textStorage];
-			// other initialization
-			insertionPointColor=[[NSColor blackColor] retain];
+		NSAssert(textContainer && layoutManager && textStorage, @"needs text system");
 		}
 	return self;
 }
@@ -90,18 +84,28 @@ static NSCursor *__textCursor = nil;
 
 - (id) initWithFrame:(NSRect)frameRect
 {
-	if((self=[super initWithFrame:frameRect]))	// this will already create an owned textStorage
+	NSTextContainer *tc=textContainer;	// notify if we want a non-owned textStorage
+	NSLayoutManager *lm=[textContainer layoutManager]; // preinitialize
+	textStorage=[lm textStorage];				
+	if((self=[super initWithFrame:frameRect]))	// the original values may be lost if we receive a proxy here
 		{ // create simple text network
-			layoutManager=[NSLayoutManager new];
-			[layoutManager setTextStorage:textStorage];	// attach our text storage
-			[textStorage addLayoutManager:layoutManager];	// this retains the layout manager
-			textContainer=[[NSTextContainer alloc] initWithContainerSize:frameRect.size];
-			[textContainer replaceLayoutManager:layoutManager];
-			[textContainer setTextView:self];	// this tries to track container size...
-			// FIXME: who reatains the textContainer?
-			// ???		[layoutManager release];
-			// ???		[textContainer release];
-			// other initialization
+			if(tc)
+				{ // don't create the default if called from initWithCoder
+				textContainer=tc;
+				layoutManager=lm;
+				textStorage=[layoutManager textStorage];	// non-owned textStorage				
+				[textContainer setTextView:self];	// this tries to track container size...
+				}
+			else
+				{
+				layoutManager=[NSLayoutManager new];
+				textContainer=[[NSTextContainer alloc] initWithContainerSize:frameRect.size];
+				[layoutManager addTextContainer:textContainer];
+				[textContainer release];	// LayoutManager retains TextContainer
+				[textStorage addLayoutManager:layoutManager];
+				[layoutManager release];	// LayoutManager retains LayoutManager (and self retains textStorage)
+				NSAssert(textContainer && layoutManager && textStorage, @"needs text system");
+				}
 			insertionPointColor=[[NSColor blackColor] retain];
 			defaultParagraphStyle=[[NSParagraphStyle defaultParagraphStyle] retain];
 		}
@@ -138,6 +142,8 @@ static NSCursor *__textCursor = nil;
 - (void) replaceTextContainer:(NSTextContainer *)newContainer
 { // do something to retain the web
 	int idx;
+	if(textContainer == newContainer)
+		return;	// not really changed
 	[self retain];	// just be sure
 	idx=[[layoutManager textContainers] indexOfObject:textContainer];	// find current text container
 	if(idx != NSNotFound)
@@ -742,9 +748,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	NSLog(@"         glyphRange %@", NSStringFromRange(range));
 #endif
 	[self drawViewBackgroundInRect:rect];
-	
 	[layoutManager drawBackgroundForGlyphRange:range atPoint:textContainerOrigin];
-	
 	[layoutManager drawGlyphsForGlyphRange:range atPoint:textContainerOrigin];
 	if([self shouldDrawInsertionPoint])
 		{
@@ -769,22 +773,23 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 #if 1
 	NSLog(@"%@ initWithCoder: %@", self, coder);
 #endif
+	NSTextContainer *tc=[coder decodeObjectForKey:@"NSTextContainer"];	// this also decodes the layoutManager and the textStorage - but does not retain them as needed!
+	textContainer=tc;	// notify initWithFrame to create no default text system
+#if 1
+	NSLog(@"textContainer=%@", textContainer);
+#endif
 	if((self=[super initWithCoder:coder]))
-		{ // this will have called initWithFrame: so we have to replace the text system
+		{ // this will have called initWithFrame:
 			NSTextViewSharedData *shared;
 			int tvFlags=[coder decodeInt32ForKey:@"NSTVFlags"];	// do we have these in NSText or NSTextView?
-			
-			
-			[self replaceTextContainer:[coder decodeObjectForKey:@"NSTextContainer"]];	// this decodes the layoutManager and the textStorage
-#if 1
-			NSLog(@"textContainer=%@", textContainer);
-#endif
-			ASSIGN(layoutManager, [textContainer layoutManager]);	// store a retained reference so that we become the owner
+			textContainer=tc;
+			layoutManager=[textContainer layoutManager];	// layoutManager retains textContainer
 #if 1
 			NSLog(@"layoutManager=%@", layoutManager);
 #endif
-			ASSIGN(textStorage, [layoutManager textStorage]);	// an empty one had already been assigned by superclass
-			[textStorage addLayoutManager:layoutManager];	// this also retains the layout manager
+			textStorage=[[layoutManager textStorage] retain];
+			_tx.ownsTextStorage=YES;			// that we now own
+			NSAssert(textContainer && layoutManager && textStorage, @"needs text system");
 #if 1
 			NSLog(@"NSTVFlags=%08x", tvFlags);
 			_tx.horzResizable=NO;
@@ -802,13 +807,13 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 				[self setEditable:((0x01 & flags) != 0)];	// will also set selectable
 				_tx.isRichText = ((0x04 & flags) != 0);
 				_tx.importsGraphics = ((0x08 & flags) != 0);
-				//		  _tf.is_field_editor = ((0x10 & flags) > 0);
+				// _tf.is_field_editor = ((0x10 & flags) > 0);
 				_tx.usesFontPanel = ((0x20 & flags) > 0);
 				_tx.rulerVisible = ((0x40 & flags) > 0);
-				//		  _tf.uses_ruler = ((0x100 & flags) > 0);
+				// _tf.uses_ruler = ((0x100 & flags) > 0);
 				_tx.drawsBackground = ((0x800 & flags) != 0);
 				smartInsertDeleteEnabled = ((0x2000000 & flags) != 0);
-				//		  _tf.allows_undo = ((0x40000000 & flags) > 0);	  
+				// _tf.allows_undo = ((0x40000000 & flags) > 0);	  
 				[self setInsertionPointColor:[shared insertionPointColor]];
 				[self setDefaultParagraphStyle:[shared defaultParagraphStyle]];
 				[self setLinkTextAttributes:[shared linkTextAttributes]];

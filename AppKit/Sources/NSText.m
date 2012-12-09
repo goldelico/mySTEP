@@ -515,14 +515,24 @@ object:self]
 
 - (id) initWithFrame:(NSRect) f
 {
+	NSTextStorage *ts=textStorage;
 #if 0
 	NSLog(@"%@ initWithFrame:%@", NSStringFromClass([self class]), NSStringFromRect(f));
 #endif
 	if((self=[super initWithFrame:f]))
 		{ // this initialization will be used for a Field Editor but is also called from initWithCoder!
+		if(ts)
+			{
+			textStorage=ts;
+			_tx.ownsTextStorage=NO;	// some subclass initWithFrame has already initialized the textStorage
+			}
+		else
+			{
+			textStorage=[NSTextStorage new];	// provide empty default text storage
+			_tx.ownsTextStorage=YES;			// that we own
+			[self setString:@""];	// this will default rich text to NO
+			}
 		_spellCheckerDocumentTag=[NSSpellChecker uniqueSpellDocumentTag];
-		textStorage=[NSTextStorage new];	// provide empty default text storage
-		_tx.ownsTextStorage=YES;			// that we own
 		_tx.alignment = NSLeftTextAlignment;
 		_tx.editable = YES;
 		_tx.selectable = YES;
@@ -531,8 +541,7 @@ object:self]
 		_backgroundColor=[[NSColor textBackgroundColor] retain];
 		_minSize = (NSSize){5, 15};
 		_maxSize = (NSSize){HUGE,HUGE};
-			_font=[[NSFont userFontOfSize:12] retain];
-		[self setString:@""];	// this will set rich text to NO
+		_font=[[NSFont userFontOfSize:12] retain];
 		[self setSelectedRange:NSMakeRange(0,0)];
 		}
 	return self;
@@ -922,19 +931,8 @@ object:self]
 #if 0
 	NSLog(@"[NSText] %@ initWithCoder: %@", self, coder);
 #endif
-	if((self=[super initWithCoder:coder]))
+	if((self=[super initWithCoder:coder]))	// calls our initWithFrame
 		{
-//		_spellCheckerDocumentTag=[NSSpellChecker uniqueSpellDocumentTag];
-//		textStorage=[NSTextStorage new];	// provide empty default text storage without layout manager connection
-//		_tx.ownsTextStorage=YES;			// that we own
-//		_tx.alignment = NSLeftTextAlignment;
-//		_tx.editable = YES;
-//		_tx.isRichText = NO;				// default
-//		_tx.selectable = YES;
-//		_tx.drawsBackground = YES;
-//		_tx.vertResizable = YES;	// default			
-//			_backgroundColor=[[NSColor textBackgroundColor] retain];
-//		[self setString:@""];	// will set rich text to NO
 		[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
 		_minSize=[coder decodeSizeForKey:@"NSMinize"];	// NB: this is a bug in Apple IB: key should be @"NSMinSize" - beware of changes by Apple
 		_maxSize=[coder decodeSizeForKey:@"NSMaxSize"];

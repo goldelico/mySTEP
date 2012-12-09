@@ -79,9 +79,9 @@ typedef NSUInteger NSFindPanelSubstringMatchType;
 
 @interface NSTextView : NSText <NSTextInput,NSTextInputClient,NSUserInterfaceValidations>
 {	
-	NSTextContainer *textContainer;
+	NSTextContainer */*nonretained*/textContainer;
 	NSColor *insertionPointColor;
-	NSLayoutManager *layoutManager;
+	NSLayoutManager */*nonretained*/layoutManager;
 	NSDictionary *linkTextAttributes;
 	NSDictionary *markedTextAttributes;
 	NSDictionary *selectedTextAttributes;

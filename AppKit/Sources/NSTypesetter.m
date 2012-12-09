@@ -993,7 +993,7 @@ NSLayoutOutOfGlyphs
 												inRange:(NSRange){ 0, [textStorage length] }];
 					if(!curParaStyle)
 						curParaStyle=[NSParagraphStyle defaultParagraphStyle];
-					curMaxGlyphLocation=[curParaStyle tailIndent];	// absolute
+					curMaxGlyphLocation=[curParaStyle tailIndent];	// positive values are absolute
 					if(curMaxGlyphLocation <= 0.0)	// relative to right margin
 						curMaxGlyphLocation+=lineFragmentRect->size.width;
 					// set up baseline offset for fixed line height

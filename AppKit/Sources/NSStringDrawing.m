@@ -40,7 +40,7 @@
 - (void) drawInRect:(NSRect)rect withAttributes:(NSDictionary *)attrs;
 {
 	NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attrs];
-	[a drawInRect:rect];
+	[a drawWithRect:rect options:NSStringDrawingUsesLineFragmentOrigin];
 	[a release];	// no longer needed
 }
 
@@ -48,19 +48,9 @@
 			  options:(NSStringDrawingOptions)options
 		   attributes:(NSDictionary *)attrs;
 {
-#if 0
-	NSAutoreleasePool *arp=[NSAutoreleasePool new];
-	NSLog(@"drawWithRect");
-	{
-#endif
 	NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attrs];
 	[a drawWithRect:rect options:options];	// draw as attributed string
 	[a release];	// no longer needed
-#if 0
-	}
-	[arp release];
-	NSLog(@"drawWithRect arp released");
-#endif
 }
 
 - (NSSize) sizeWithAttributes:(NSDictionary *)attrs;
@@ -262,13 +252,10 @@ static NSStringDrawingOptions _currentOptions;
 	if([self length] == 0)
 		return;	// empty string
 	ctxt=[NSGraphicsContext currentContext];
-//	if(![ctxt isFlipped])
-//		rect.origin.y=NSMaxY(rect);	// start at top of rect (drawGlyphsForGlyphRange assumes flipped coordinates)
 #if 1
 	// Clipping should be done by the layout manager/typesetter by limiting the glyph range. Not by drawing!
 	[ctxt saveGraphicsState];
 	[NSBezierPath clipRect:rect];	// set clipping rect
-	
 #endif
 #if 1
 	{ // draw box

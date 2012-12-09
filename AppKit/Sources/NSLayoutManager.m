@@ -657,6 +657,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		[self deleteGlyphsInRange:NSMakeRange(0, _numberOfGlyphs)];
 		objc_free(_glyphs);
 		}
+	[_textStorage removeLayoutManager:self];
 	[_extraLineFragmentContainer release];
 	[_glyphGenerator release];
 	[_typesetter release];
@@ -776,7 +777,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
 			if(!color) color=[NSColor blackColor];	// default color is black
 			if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
-			if(color != lastColor) [lastColor=color set];
+			if(color != lastColor) [lastColor=color set];	// this should be tracked in the context/backend
 			if(font != lastFont) [lastFont=font set];
 #if 1
 				{ // draw bounding boxes of glyphs
@@ -1447,8 +1448,13 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) replaceTextStorage:(NSTextStorage *)newTextStorage;
 {
-	[_textStorage removeLayoutManager:self];
-	[newTextStorage removeLayoutManager:self];	// this calls setTextStorage
+	if(_textStorage != newTextStorage)
+		{
+		[self retain];
+		[_textStorage removeLayoutManager:self];
+		[newTextStorage addLayoutManager:self];	// this calls setTextStorage
+		[self release];
+		}
 }
 
 - (NSView *) rulerAccessoryViewForTextView:(NSTextView *)aTextView
@@ -1818,12 +1824,13 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	NSLog(@"LMFlags=%d", lmFlags);
 	NSLog(@"%@ initWithCoder: %@", self, coder);
 #endif
+	_typesetter=[[NSTypesetter sharedSystemTypesetter] retain];
+	_glyphGenerator=[[NSGlyphGenerator sharedGlyphGenerator] retain];
 	[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
 	_textContainers=[[coder decodeObjectForKey:@"NSTextContainers"] retain];
 	_textContainerInfo=objc_calloc(sizeof(_textContainerInfo[0]), [_textContainers count]);
-	_textStorage=[[coder decodeObjectForKey:@"NSTextStorage"] retain];
-	_typesetter=[[NSTypesetter sharedSystemTypesetter] retain];
-	_glyphGenerator=[[NSGlyphGenerator sharedGlyphGenerator] retain];
+	_textStorage=[coder decodeObjectForKey:@"NSTextStorage"];
+	[_textStorage addLayoutManager:self];
 	_usesScreenFonts=NO;
 #if 0
 	NSLog(@"%@ done", self);

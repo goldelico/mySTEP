@@ -1087,12 +1087,14 @@ id __buttonCellClass = nil;
 		if(_normalImage)
 			{ // try to deduce the button type from the image name
 				NSString *name;
+#if 0
 				NSLog(@"normalImage=%@", _normalImage);
-			name=[_normalImage name];
-			if([name isEqualToString:@"NSRadioButton"])
-				_buttonType=NSRadioButton, _d.imageScaling=NSImageScaleProportionallyDown;
-			else if([name isEqualToString:@"NSSwitch"])
-				_buttonType=NSSwitchButton, _d.imageScaling=NSImageScaleProportionallyDown;
+#endif
+				name=[_normalImage name];
+				if([name isEqualToString:@"NSRadioButton"])
+					_buttonType=NSRadioButton, _d.imageScaling=NSImageScaleProportionallyDown;
+				else if([name isEqualToString:@"NSSwitch"])
+					_buttonType=NSSwitchButton, _d.imageScaling=NSImageScaleProportionallyDown;
 			}
 		ASSIGN(_keyEquivalent, [aDecoder decodeObjectForKey:@"NSKeyEquivalent"]);
 		if([aDecoder containsValueForKey:@"NSKeyEquiv"])
