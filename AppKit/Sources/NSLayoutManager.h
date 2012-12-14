@@ -99,7 +99,7 @@ typedef NSInteger NSTypesetterBehavior;
 		NSRect usedLineFragmentRect;
 		NSPoint location;	// relative to the line fragment rect
 		NSGlyph glyph;		// the glyph code
-		NSTextContainer *textContainer;	// the text container
+		NSTextContainer *textContainer;	// the text container - if nil the glyph has invalid laid out
 		struct NSGlyphStorageExtra {
 			NSSize attachmentSize;
 			NSDictionary *temporaryAttributes;	// FIXME: these are NOT indexed by the glyph but by the character!!!
@@ -112,24 +112,21 @@ typedef NSInteger NSTypesetterBehavior;
 		// define some int Attribute and bit fields
 		BOOL notShownAttribute;	// Bitflag in intAttribute?
 		BOOL drawsOutsideLineFragment;	// Bitflag im intAttribute?
-		BOOL validFlag;		// Glyph is valid
-		BOOL layoutFlag;	// Layout information is valid
+		BOOL needsDisplay;
 	} *_glyphs;		// glyph storage array - it should be possible to define a sparse array!
 	
 	/* this can be used to speed up e.g. glyphRangeForTextContainer */
 	
 	struct _NSTextContainerInfo {
 		NSRange glyphRange;
-		NSRange characterRange;
 		NSRect usedRect;
-		BOOL valid;
 	} *_textContainerInfo; // there is one slot for each text container
 
-	unsigned int _numberOfGlyphs;
+	unsigned int _numberOfGlyphs;	// number of currently known glyphs (in relation to the characters)
 	unsigned int _glyphBufferCapacity;
 
+	unsigned _firstUnlaidGlyphIndex;	// defines the range for valid glyphIndex with characterIndex mapping
 	unsigned _firstUnlaidCharacterIndex;
-	unsigned _firstUnlaidGlyphIndex;
 
 	unsigned int _layoutOptions;
 	
@@ -138,10 +135,7 @@ typedef NSInteger NSTypesetterBehavior;
 	BOOL _usesFontLeading;
 	BOOL _textStorageChanged;
 	BOOL _allowsNonContiguousLayout;
-	BOOL _hasNonContiguousLayout;
-	
-	BOOL _layoutIsValid;
-	BOOL _glyphsAreValid;
+	BOOL _hasNonContiguousLayout;	
 }
 
 - (void) addTemporaryAttribute:(NSString *) attr value:(id) val forCharacterRange:(NSRange) range;
@@ -246,7 +240,8 @@ typedef NSInteger NSTypesetterBehavior;
 					   glyphRange:(NSRange) range;
 - (NSRect) lineFragmentRectForGlyphAtIndex:(NSUInteger) index effectiveRange:(NSRangePointer) range;
 - (NSRect) lineFragmentRectForGlyphAtIndex:(NSUInteger) index effectiveRange:(NSRangePointer) charRange withoutAdditionalLayout:(BOOL) layoutFlag;
-- (NSRect) lineFragmentUsedRectForGlyphAtIndex:(NSUInteger) glyphIndex effectiveRange:(NSRange *) effectiveGlyphRange;
+- (NSRect) lineFragmentUsedRectForGlyphAtIndex:(NSUInteger) index effectiveRange:(NSRange *) range;
+- (NSRect) lineFragmentUsedRectForGlyphAtIndex:(NSUInteger) index effectiveRange:(NSRangePointer) charRange withoutAdditionalLayout:(BOOL) layoutFlag;
 - (NSPoint) locationForGlyphAtIndex:(NSUInteger) glyphIndex;
 - (BOOL) notShownAttributeForGlyphAtIndex:(NSUInteger) glyphIndex;
 - (NSUInteger) numberOfGlyphs;

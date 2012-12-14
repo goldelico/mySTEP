@@ -159,7 +159,7 @@ static NSStringDrawingOptions _currentOptions;
 		}
 	else
 		{
-		rng=[_layoutManager glyphRangeForBoundingRect:(NSRect) { NSZeroPoint, size } inTextContainer:_textContainer];
+		rng=NSMakeRange(0, NSNotFound);	// will be cut down to textContainer
 		rect=[_layoutManager boundingRectForGlyphRange:rng inTextContainer:_textContainer];
 		}
 	[self _tearDown];

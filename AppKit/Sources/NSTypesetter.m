@@ -624,8 +624,6 @@ forStartOfGlyphRange:(NSRange) range;
 {
 	NSTextTab *tab;
 	NSEnumerator *e;
-	// FIXME: locationForGlyphAtIndex has not yet been set!
-	NSPoint loc=[layoutManager locationForGlyphAtIndex:glyphLoc];
 	if(writingDirection == NSWritingDirectionNatural)
 		writingDirection=NSWritingDirectionLeftToRight;	// determine from system setting
 	if(writingDirection == NSWritingDirectionLeftToRight)
@@ -636,7 +634,7 @@ forStartOfGlyphRange:(NSRange) range;
 			CGFloat tl=[tab location];
 			if(tl > maxLoc)
 				break;
-			if(tl > loc.x)
+			if(tl > glyphLoc)
 				return tab;	// first tab beyond this glyph
 			}
 		}
@@ -646,7 +644,7 @@ forStartOfGlyphRange:(NSRange) range;
 		while((tab=[e nextObject]))
 			{
 			CGFloat tl=[tab location];
-			if(tl <= maxLoc && tl < loc.x)
+			if(tl <= maxLoc && tl < glyphLoc)
 				return tab;	// first tab before this glyph
 			}
 		}
@@ -1152,10 +1150,8 @@ NSLayoutOutOfGlyphs
 	textString = [textStorage string];
 	
 	firstGlyphIndex = startGlyphIndex;
-	if(startGlyphIndex > 0)
-		curCharacterIndex = [layoutManager characterIndexForGlyphAtIndex:curGlyphIndex];
-	else
-		curCharacterIndex=0;
+	curGlyphIndex = firstGlyphIndex;
+	curCharacterIndex = [layoutManager characterIndexForGlyphAtIndex:curGlyphIndex];
 
 	curContainer=*currentTextContainer;
 	if(!curContainer)
@@ -1283,7 +1279,7 @@ NSLayoutOutOfGlyphs
 
 - (void) layoutTab;
 {
-	NSTextTab *tab=[super textTabForGlyphLocation:firstIndexOfCurrentLineFragment+curGlyphIndex writingDirection:curLayoutDirection maxLocation:curContainerSize.width];
+	NSTextTab *tab=[super textTabForGlyphLocation:curGlyphOffset writingDirection:curLayoutDirection maxLocation:curContainerSize.width];
 	NSTypesetterGlyphInfo *glyphInfo=NSGlyphInfoAtIndex(curGlyphIndex);
 	CGFloat interval;
 	if(tab)
