@@ -1283,9 +1283,10 @@ static BOOL done;
 {
 	unsigned i;
 	unsigned cnt=[self length];
+	NSString *str=[self string];
 	for(i=0; i<cnt; i++)
 		{
-		if([[self string] characterAtIndex:i] != NSAttachmentCharacter)
+		if([str characterAtIndex:i] != NSAttachmentCharacter)
 			{
 			// remove attachments for non-attachment characters			
 			}

@@ -38,7 +38,7 @@ static Class _sliderCellClass;
 
 - (id) init
 {
-	if((self=[self initImageCell:nil]))
+	if((self=[self initTextCell:@""]))
 		{
 		_altIncrementValue = -1.0;
 		_isVertical = NO;

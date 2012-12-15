@@ -990,6 +990,7 @@ static NSArray *__bitmapImageRepsICNS;
 			continue;	// not found
 		if(reps[i].isJPEG2000)
 				{
+				NSLog(@"JPEG ICNS format not implemented");
 					// read as JPEG2000 from rgb data (which allows for alpha channel)
 					// [array addObject:imageRep];	// save this representation
 					continue;

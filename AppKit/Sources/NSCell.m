@@ -229,8 +229,9 @@ static NSColor *__borderedBackgroundColor = nil;
 			[self setImage:nil];
 			break;
 		case NSTextCellType:
-				[_attribs setObject:[NSColor controlTextColor] forKey:NSForegroundColorAttributeName];
-				[_attribs setObject:__defaultFont forKey:NSFontAttributeName];
+			// FIXME: move some special initializations here
+			[_attribs setObject:[NSColor controlTextColor] forKey:NSForegroundColorAttributeName];
+			[_attribs setObject:__defaultFont forKey:NSFontAttributeName];
 			break;
 	// default: raise exception?
 		}
@@ -306,11 +307,11 @@ static NSColor *__borderedBackgroundColor = nil;
 	if(_c.type == NSTextCellType)
 		_contents=[anObject copyWithZone:NULL];	// save a copy (of a mutable string)
 	else
-			{ // image cell
-				if(anObject && ![(id <NSObject>) anObject isKindOfClass:[NSImage class]])
-					 NSLog(@"setObjectValue not an NSImage %@", anObject); 
-				_contents=[(NSObject *) anObject retain];	// copying an NSImage objectValue (e.g. the result of a TableView's dataSource) would cause a lot of trouble if it is not yet valid...
-			}
+		{ // image cell
+			if(anObject && ![(id <NSObject>) anObject isKindOfClass:[NSImage class]])
+				NSLog(@"setObjectValue not an NSImage %@", anObject); 
+			_contents=[(NSObject *) anObject retain];	// copying an NSImage objectValue (e.g. the result of a TableView's dataSource) would cause a lot of trouble if it is not yet valid...
+		}
 #if 0
 	NSLog(@"%@ setObjectValue done:", self);
 #endif

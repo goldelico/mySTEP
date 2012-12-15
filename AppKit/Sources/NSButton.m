@@ -929,7 +929,9 @@ id __buttonCellClass = nil;
 	if((_bezelStyle&15) == NSHelpButtonBezelStyle)
 		{
 		_contents=@"?";	// could be an NSAttributedString
-		NSLog(@"%d", [self alignment]);
+#if 0
+		NSLog(@"button alignment %d", [self alignment]);
+#endif
 		}
 	else
 		_contents=title;	// draw title by superclass

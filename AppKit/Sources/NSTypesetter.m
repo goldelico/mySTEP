@@ -239,8 +239,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 	NSUInteger nextGlyph=[manager glyphIndexForCharacterAtIndex:range.location];
 	NSRange r=range;
 	[self layoutGlyphsInLayoutManager:manager startingAtGlyphIndex:nextGlyph maxNumberOfLineFragments:maxLines nextGlyphIndex:&nextGlyph];
-	if(nextGlyph < [manager numberOfGlyphs])
-		r.length=[manager characterIndexForGlyphAtIndex:nextGlyph]-r.location;	// did not process all
+	r.length=[manager characterIndexForGlyphAtIndex:nextGlyph]-r.location;	// did not process all
 	return r;
 }
 
@@ -862,25 +861,25 @@ forStartOfGlyphRange:(NSRange) range;
 
 - (unsigned) growGlyphCaches:(unsigned) desiredCapacity fillGlyphInfo:(BOOL) fillGlyphInfo;
 {
+	unsigned count=0;
 	if(capacityGlyphInfo < desiredCapacity)
 		{ // really needs to grow the cache
-			glyphs=(NSTypesetterGlyphInfo *) realloc(glyphs, desiredCapacity*sizeof(NSTypesetterGlyphInfo));
-			capacityGlyphInfo=desiredCapacity;
+			glyphs=(NSTypesetterGlyphInfo *) objc_realloc(glyphs, desiredCapacity*sizeof(NSTypesetterGlyphInfo));
+			memset(&glyphs[capacityGlyphInfo], 0, (desiredCapacity-capacityGlyphInfo)*sizeof(glyphs[0]));	// clear
 		}
 	if(fillGlyphInfo)
-		{ // make sure we have enough glyphs from the layout manager to fill the cache
-			unsigned int charIndex=curCharacterIndex;
-			unsigned int glyphIndex=firstInvalidGlyphIndex;
-			unsigned int count;
-			[[layoutManager glyphGenerator] generateGlyphsForGlyphStorage:layoutManager
-								 desiredNumberOfCharacters:desiredCapacity-glyphIndex
-												glyphIndex:&glyphIndex
-											characterIndex:&charIndex];	// generate Glyphs (character code but not position!)
-			count=glyphIndex-firstInvalidGlyphIndex;
-			firstInvalidGlyphIndex=glyphIndex;
-			return count;
+		{
+		BOOL flag;
+		NSGlyph glyph;
+		[layoutManager ensureGlyphsForGlyphRange:NSMakeRange(firstInvalidGlyphIndex, desiredCapacity)];	// generate glyphs only once
+		while((glyph=[layoutManager glyphAtIndex:firstInvalidGlyphIndex isValidIndex:&flag]), flag)
+			{ // we need this loop to find out how many glyphs have been generated
+			firstInvalidGlyphIndex++;
+			count++;
+			}
 		}
-	return 0;
+	capacityGlyphInfo=desiredCapacity;
+	return count;
 }
 
 - (void) insertGlyph:(NSGlyph) glyph atGlyphIndex:(unsigned) glyphIndex characterIndex:(unsigned) charIndex;

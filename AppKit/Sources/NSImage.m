@@ -650,7 +650,10 @@ static NSMutableDictionary *__nameToImageDict = nil;
 			reps=[NSArray arrayWithObject:[[[NSCachedImageRep alloc] initWithSize:_size depth:0 separate:_img.cacheSeparately alpha:YES] autorelease]];
 		if(!reps)
 			{
-			NSLog(@"could not load representations");
+			if(_imageFilePath)
+				NSLog(@"could not load representations from file %@", _imageFilePath);
+			else
+				NSLog(@"could not load representations from NSData");
 			return NO;
 			}
 		[self addRepresentations:reps];

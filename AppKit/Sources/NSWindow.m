@@ -2034,7 +2034,7 @@ static NSButtonCell *sharedCell;
 
 - (void) update
 {
-#if 1
+#if 0
 	NSLog(@"%@ update %d %d", self, _w.autodisplay, _w.needsDisplay);
 #endif
 	if(_w.autodisplay && _w.needsDisplay && _w.visible)

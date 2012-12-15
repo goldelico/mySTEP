@@ -1095,7 +1095,7 @@ This method is used for selecting cells in list mode with selection by
 		if (col2 >= _numCols)
 			col2 = _numCols - 1;
 		}
-#if 1
+#if 0
 	NSLog (@"%@ draw cells in rect %@ between (%d, %d) and (%d, %d)", self, NSStringFromRect(rect), row1,col1, row2,col2);
 #endif
 	for (i = row1; i <= row2; i++) 					// Draw the cells within 

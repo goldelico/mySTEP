@@ -123,10 +123,11 @@ typedef NSInteger NSTypesetterBehavior;
 	} *_textContainerInfo; // there is one slot for each text container
 
 	unsigned int _numberOfGlyphs;	// number of currently known glyphs (in relation to the characters)
+	unsigned int _nextCharacterIndex;	// next index for glyph generation
 	unsigned int _glyphBufferCapacity;
 
-	unsigned _firstUnlaidGlyphIndex;	// defines the range for valid glyphIndex with characterIndex mapping
-	unsigned _firstUnlaidCharacterIndex;
+	unsigned int _firstUnlaidGlyphIndex;	// next glyph to be laid out
+	unsigned int _firstUnlaidCharacterIndex;
 
 	unsigned int _layoutOptions;
 	

@@ -1584,7 +1584,7 @@ NSWindow *w;
 
 - (void) setWindowsNeedUpdate:(BOOL)flag
 {
-#if 1
+#if 0
 	NSLog(@"setWindowsNeedUpdate: %d", flag);
 #endif
 	_app.windowsNeedUpdate = flag;

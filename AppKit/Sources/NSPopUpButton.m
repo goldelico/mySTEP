@@ -324,7 +324,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (void) selectItemAtIndex:(int)index
 {
-#if 1
+#if 0
 	NSLog(@"selectItemAtIndex: %d [0,%d]", index, [_menu numberOfItems]-1);
 #endif
 	if(_altersStateOfSelectedItem && _selectedItem >= 0 && !_pullsDown)
@@ -332,7 +332,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	_selectedItem = index;
 	if(_altersStateOfSelectedItem && _selectedItem >= 0 && !_pullsDown)
 		[[self selectedItem] setState:NSOnState];	// select new
-#if 1
+#if 0
 	NSLog(@"selectedItem=%d:%@ state=%d", _selectedItem, [self selectedItem], [[self selectedItem] state]);
 #endif
 	[self synchronizeTitleAndSelectedItem];
@@ -347,7 +347,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 {
 	int idx;
 	idx=[self indexOfItem:item];
-#if 1
+#if 0
 	NSLog(@"selectItem [%d]: %@", idx, item);
 #endif
 	if(idx < 0 && item)
@@ -358,7 +358,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 - (BOOL) selectItemWithTag:(int)t
 {
 	int idx=[self indexOfItemWithTag:t];
-#if 1
+#if 0
 	NSLog(@"selectItemWithTag:%d", t);
 #endif
 	if(idx == NSNotFound)
@@ -447,7 +447,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	NSLog(@"win=%@", _menuWindow);
 	NSLog(@"autodisplay=%d", [_menuWindow isAutodisplay]);
 #endif
-#if 1
+#if 0
 	[_menuWindow setTitle:@"PopUpButton Menu"];
 #endif
 	[[_menuWindow contentView] addSubview:menuView];	// add to view hiearachy
@@ -484,7 +484,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 
 - (void) dismissPopUp;
 {
-#if 1
+#if 0
 	NSLog(@"dimiss popup");
 #endif
 	[_menuWindow close];
@@ -494,7 +494,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 - (void) performClickWithFrame:(NSRect) frame inView:(NSView *) controlView;
 { // pop up as context menu
 	NSEvent *event=[NSApp currentEvent];
-#if 1
+#if 0
 	NSLog(@"performClickWithFrame %@ - %@ - %@", _menu, event, controlView);
 #endif
 	// how to handle frame? Simulate as a mouseDown event and use frame as the location?
@@ -506,7 +506,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 			 ofView:(NSView *)controlView
 	   untilMouseUp:(BOOL)flag
 {
-#if 1
+#if 0
 	NSLog(@"NSPopUpButtonCell trackMouse:inRect:...");
 #endif
 	[self attachPopUpWithFrame:cellFrame inView:controlView];	// open menu
@@ -535,7 +535,7 @@ NSString *NSPopUpButtonCellWillPopUpNotification=@"NSPopUpButtonCellWillPopUpNot
 	self=[super initWithCoder:aDecoder];
 	if(![aDecoder allowsKeyedCoding])
 		return NIMP;
-#if 1
+#if 0
 	NSLog(@"NSPopupButtonCell menu=%@", _menu);
 	NSLog(@"NSPopupButtonCell items=%@", [_menu itemArray]);
 #endif
