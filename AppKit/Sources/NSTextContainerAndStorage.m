@@ -244,19 +244,21 @@
 #if 0
 	NSLog(@"edited %u range=%@ delta=%d", editedMask, NSStringFromRange(range), delta);
 #endif
+	if(!(editedMask&NSTextStorageEditedCharacters))
+		delta=0;	// ignore if we just edited attributes
+	range.length += delta;	// we need the full edited range
 	if(_nestingCount == 0)
-		{ // base level
-		_editedMask = editedMask;
-		_editedRange = range;
-		_changeInLength = delta;
-		[self processEditing];
+		{ // first in sequence
+			_editedMask = editedMask;
+			_editedRange = range;
+			_changeInLength = delta;
+			[self processEditing];
 		}
 	else
-		{
-		_editedMask |= editedMask;
-		_editedRange.location = MIN(_editedRange.location, range.location);
-		_editedRange.length = MAX(NSMaxRange(_editedRange), NSMaxRange(range))-_editedRange.location;
-		_changeInLength += delta;
+		{ // nested - collect ranges
+			_editedMask |= editedMask;
+			_editedRange=NSUnionRange(_editedRange, range);	// combine
+			_changeInLength += delta;	// accumulate
 		}
 }
 
@@ -315,9 +317,9 @@
 	while((lm=[e nextObject]))
 		[lm textStorage:self
 				 edited:_editedMask
-				  range:_editedRange	// FIXME: this should be the new range!?!
+				  range:_editedRange
 		 changeInLength:_changeInLength
-	   invalidatedRange:_editedRange];	// FIXME: this should be the range where attributes were fixed
+	   invalidatedRange:_editedRange];	// FIXME: this should be the range where attributes were fixed and may be larger!
 }
 
 - (void) removeLayoutManager:(NSLayoutManager *)obj; { [obj setTextStorage:nil]; [_layoutManagers removeObject:obj]; }

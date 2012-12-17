@@ -66,6 +66,17 @@ static Class _sliderCellClass;
 	[super dealloc];
 }
 
+- (void) setObjectValue:(id <NSCopying>)anObject
+{ // should be a float!
+#if 0
+	NSLog(@"%@ setObjectValue:%@ (_contents=%@)", self, anObject, _contents);
+#endif
+	if(anObject == _contents)
+		return;	// needn't do anything
+	[_contents release];	// we can release since it was a copy
+	_contents=[anObject copyWithZone:NULL];	// save a copy
+}
+
 - (void) drawBarInside:(NSRect)rect flipped:(BOOL)flipped
 {
 	// FIXME: can we cache the path?
@@ -273,6 +284,7 @@ static Class _sliderCellClass;
 
 - (id) initWithCoder:(NSCoder*)decoder
 {
+	// FIXME: _c.type makes it an image cell which gives problems with setObjectValue
 	self = [super initWithCoder:decoder];
 	if([decoder allowsKeyedCoding])
 		{

@@ -756,6 +756,7 @@ forStartOfGlyphRange:(NSRange) range;
 	curGlyphIndex=0;
 	curContainer=0;
 	curContainerIndex=0;
+	firstInvalidGlyphIndex=0;
 	// shrink glpyhInfo storage to a reasonable default allocation
 	// i.e. to 200 entries
 }
@@ -973,10 +974,6 @@ NSLayoutOutOfGlyphs
 	curMinBaselineDistance=curMaxBaselineDistance=0.0;
 	curGlyphIndex=0;	// fill from the beginning
 	curGlyph=NSNullGlyph;
-#if 0
-	if([textString isEqualToString:@"Bezeled rounded"])
-		NSLog(@"string %@", textString);
-#endif
 	while(curCharacterIndex < [textString length])
 		{ // we still have a character to process
 			unichar curChar;

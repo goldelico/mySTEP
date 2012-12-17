@@ -677,7 +677,6 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		[self deleteGlyphsInRange:NSMakeRange(0, _numberOfGlyphs)];
 		objc_free(_glyphs);
 		}
-	[_textStorage removeLayoutManager:self];
 	[_extraLineFragmentContainer release];
 	[_glyphGenerator release];
 	[_typesetter release];
@@ -728,6 +727,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			}
 #endif
 		}
+	_nextCharacterIndex=_glyphs[_numberOfGlyphs-glyphRange.length].characterIndex;	// reset to the first character we need to re-generate
 	if(_numberOfGlyphs != NSMaxRange(glyphRange))
 		memcpy(&_glyphs[glyphRange.location], &_glyphs[NSMaxRange(glyphRange)], sizeof(_glyphs[0])*(_numberOfGlyphs-NSMaxRange(glyphRange)));
 	_numberOfGlyphs-=glyphRange.length;	// does not invalidate anything
@@ -1311,14 +1311,15 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
 	while(glyphRange.length > 0 && glyphRange.location < _numberOfGlyphs)
 		{
-		if(_glyphs[glyphRange.location].textContainer != lastContainer)
+		NSTextContainer *container=_glyphs[glyphRange.location].textContainer;	// may be nil if this glyph isn't laid out yet
+		if(container && container != lastContainer)
 			{ // new container reached
-				idx=[_textContainers indexOfObjectIdenticalTo:_glyphs[glyphRange.location].textContainer];
+				idx=[_textContainers indexOfObjectIdenticalTo:container];
 				if(idx == NSNotFound)
-					[NSException raise:@"NSLayoutManager" format:@"invalid container"];				
+					[NSException raise:@"NSLayoutManager" format:@"invalid container %@", container];				
 				[[lastContainer textView] setNeedsDisplayInRect:rect];
 				rect=NSZeroRect;
-				lastContainer=_glyphs[glyphRange.location].textContainer;
+				lastContainer=container;
 			}
 		rect=NSUnionRect(rect, _textContainerInfo[idx].usedRect);
 		_glyphs[glyphRange.location++].needsDisplay=YES;
@@ -1328,11 +1329,19 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) invalidateGlyphsForCharacterRange:(NSRange) range changeInLength:(int) delta actualCharacterRange:(NSRange *) actual;
 {
-	// FIXME:
-	if(delta)
-		; // FIXME: adjust character indices
-	if(actual)
-		*actual=range;
+	NSRange glyphRange;
+	if(range.location >= [_textStorage length])
+		return;	// not valid
+	glyphRange=[self glyphRangeForCharacterRange:range actualCharacterRange:actual];
+	if(glyphRange.length == 0)
+		return;
+	if(!_allowsNonContiguousLayout)
+		{ // delete all glyphs starting at range - ignore delta since we have deleted them all...
+			glyphRange.length=_numberOfGlyphs-glyphRange.location;	// extend to end of glyph range
+			[self deleteGlyphsInRange:glyphRange];	// delete - ensureGlyphsInRange will generate new glyphs
+		}
+	else
+		; // cut a glyph hole and adjust character indexes
 }
 
 - (void) invalidateGlyphsOnLayoutInvalidationForGlyphRange:(NSRange) range;
@@ -1354,6 +1363,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			while(_firstUnlaidCharacterIndex > charRange.location)
 				{
 				_firstUnlaidCharacterIndex--;
+				NSAssert(_firstUnlaidGlyphIndex > 0, @"_firstUnlaid* got out of sync");
 				_firstUnlaidGlyphIndex--;
 				if(_glyphs[_firstUnlaidGlyphIndex].textContainer)
 					{
@@ -1849,17 +1859,17 @@ static void allocateExtra(struct NSGlyphStorage *g)
 {
 	if(_textContainers)
 		{
-		NSRange crng;
+		NSRange crng, grng;
 		NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:container];
 		NSAssert(idx != NSNotFound, @"Text Container unknown in NSLayoutManager");
 		if(idx+1 < [_textContainers count])
 			[self textContainerChangedGeometry:[_textContainers objectAtIndex:idx+1]];	// invalidate all further containers
-		crng=[self characterRangeForGlyphRange:_textContainerInfo[idx].glyphRange actualGlyphRange:NULL];
+		grng=_textContainerInfo[idx].glyphRange;
+		crng=[self characterRangeForGlyphRange:grng actualGlyphRange:NULL];
 		// this appears to be overkill...
+		[self invalidateDisplayForGlyphRange:grng];	// as it was previously known
 		[self invalidateLayoutForCharacterRange:crng actualCharacterRange:NULL];
 		[self invalidateGlyphsForCharacterRange:crng changeInLength:0 actualCharacterRange:NULL];
-		[self invalidateDisplayForGlyphRange:_textContainerInfo[idx].glyphRange];	// as it was previously known
-		[self deleteGlyphsInRange:_textContainerInfo[idx].glyphRange];	// this should already reset the text container
 		_textContainerInfo[idx].glyphRange=(NSRange) { 0, 0 };	// reset to empty/unknown
 		}
 }
@@ -1903,36 +1913,26 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	// check if only drawing attributes have been changed like NSColor/underline/striketrhough/link - then we do not even need to generate new glyphs or new layout positions
 	if(editedMask&NSTextStorageEditedCharacters)
 		{ // characters have been added/removed
-		NSTextView *tv=[self firstTextView];
+			NSTextView *tv=[self firstTextView];
 			NSRange aRange;
-		NSRange sel=[tv selectedRange];
+			NSRange sel=[tv selectedRange];
 #if 0
-		NSLog(@"textStorage:edited:%u range:%@ change:%d inval:%@", editedMask, NSStringFromRange(newCharRange), delta, NSStringFromRange(invalidatedCharRange));
-		NSLog(@"  tv=%@", tv);
-		if([tv frame].size.height == 0)
-			NSLog(@"height became 0!");
+			NSLog(@"textStorage:edited:%u range:%@ change:%d inval:%@", editedMask, NSStringFromRange(newCharRange), delta, NSStringFromRange(invalidatedCharRange));
+			NSLog(@"  tv=%@", tv);
+			if([tv frame].size.height == 0)
+				NSLog(@"height became 0!");
 #endif
-		/* make glyph storage track changes
-		 if (delta > 0)
-			[_glyphGenerator generateGlyphsForGlyphStorage:self
-								desiredNumberOfCharacters:delta
-												glyphIndex:&newGlyphLocation
-											characterIndex:&newCharRange.location];	// generate Glyphs (code but not position!)		
-		 else if(delta < 0)
-			[self deleteGlyphsInRange:...]
-		 */
-		[self invalidateGlyphsForCharacterRange:invalidatedCharRange changeInLength:delta actualCharacterRange:&aRange];
-		[self invalidateLayoutForCharacterRange:aRange actualCharacterRange:NULL];
-		sel=newCharRange;
-		sel.location+=delta;
-		[tv setSelectedRange:sel];
+			[self invalidateGlyphsForCharacterRange:invalidatedCharRange changeInLength:delta actualCharacterRange:&aRange];
+			[self invalidateLayoutForCharacterRange:aRange actualCharacterRange:NULL];
+			sel=newCharRange;
+			[tv setSelectedRange:sel];	// set new selection range
 		}
 	else if(editedMask&NSTextStorageEditedAttributes)
-		{
-		// [self invalidateLayoutForCharacterRange:invalidatedCharRange actualCharacterRange:NULL];
+		{ // no need to change glyphs
+			[self invalidateLayoutForCharacterRange:invalidatedCharRange actualCharacterRange:NULL];
 		}
 }
-	 
+
 - (NSTextView *) textViewForBeginningOfSelection;
 {
 	return NIMP;
