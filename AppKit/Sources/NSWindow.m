@@ -2466,7 +2466,9 @@ object:self]
 					break;
 				}
 				case NSWindowMovedEventType: {
+#if 0
 					NSLog(@"Window moved to %@", NSStringFromPoint([event locationInWindow]));
+#endif
 					// update frame origin (so that location based events are synchronous)
 					break;
 				}

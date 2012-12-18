@@ -804,32 +804,6 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 				break;
 			}
 		}
-#if OLD
-	if(!img)
-		{ // FIXME: raise exception
-#if 0
-		NSLog(@"unknown: %@ buttonImageForCell:%@", self, cell);
-#endif
-		return nil;
-		}
-
-// FIXME: we could better use drawInRect: to scale the image during drawing!
-	
-	[img setScalesWhenResized:YES];
-	switch([cell controlSize])
-		{
-		default:
-		case NSRegularControlSize:
-			[img setSize:NSMakeSize(16.0, 16.0)];
-			break;
-		case NSSmallControlSize:
-			[img setSize:NSMakeSize(13.0, 13.0)];
-			break;
-		case NSMiniControlSize:
-			[img setSize:NSMakeSize(10.0, 10.0)];
-			break;
-		}
-#endif
 #if 0
 	NSLog(@"image=%@", img);
 #endif

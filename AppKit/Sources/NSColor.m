@@ -142,65 +142,12 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 #endif
 	if(self == [NSColor class])	// of all the system colors as keys with
 		{ // colors in string format as values.
-#if OLD
-			NSString *white = 	  @"1.0 1.0 1.0";
-		NSString *lightGray = @"0.667 0.667 0.667";
-		NSString *gray =	  @"0.5 0.5 0.5";
-		NSString *black =	  @"0.0 0.0 0.0";
-#endif
 #if 0
 		NSLog(@"NSColor initialize 00: %@", nc);
 #endif
-		// FIXME: we should read that from a resource file in AppKit.framework
-			_colorStrings=[[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSSystemColorList"] retain];
-			if(!_colorStrings)
-				NSLog(@"can't initialize system color list");
-#if OLD
-			_colorStrings = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
-			white,				@"controlBackgroundColor",
-			white,				@"controlColor",
-			@"0.91 0.91 0.91",	@"controlHighlightColor",
-			white,				@"controlLightHighlightColor",
-			@"0.57 0.57 0.57",	@"controlShadowColor",
-			black,				@"controlDarkShadowColor",
-			black,				@"controlTextColor",
-			@"0.53 0.53 0.53",	@"disabledControlTextColor",
-			gray,				@"gridColor",
-			@"0.60 0.75 0.98",	@"headerColor",
-			black,				@"headerTextColor",
-			white,				@"highlightColor",
-			@"0.60 0.60 0.73",	@"knobColor",
-			white,				@"scrollBarColor",
-			@"0.60 0.75 0.98",  @"selectedControlColor",
-			black,				@"selectedControlTextColor",
-			@"0.16 0.40 0.80",	@"selectedMenuItemColor",
-			white,				@"selectedMenuItemTextColor",
-			@"0.70 0.85 0.98",	@"selectedTextBackgroundColor",
-			black,				@"selectedTextColor",
-			@"0.40 0.40 0.60",  @"selectedKnobColor",
-			black,				@"shadowColor",
-			white,				@"textBackgroundColor",
-			black,				@"textColor",
-			@"0.95 0.95 0.95",	@"windowBackgroundColor",
-			lightGray,			@"windowFrameColor",
-			black,				@"windowFrameTextColor",
-			
-			black,					@"black",
-			@"0.333, 0.333, 0.333",	@"darkGray",
-			gray,					@"gray",
-			lightGray,				@"lightGray",
-			white,					@"white",
-			@"0.0, 0.0, 1.0",		@"blue",
-			@"0.6, 0.4, 0.2",		@"brown",
-			@"0.0, 1.0, 1.0",		@"cyan",
-			@"0.0, 1.0, 0.0",		@"green",
-			@"1.0, 0.0, 1.0",		@"magenta",
-			@"1.0, 0.5, 0.0",		@"orange",
-			@"0.5, 0.0, 0.5",		@"purple",
-			@"1.0, 0.0, 0.0",		@"red",
-			@"1.0, 1.0, 0.0",		@"yellow",
-			nil] retain];			// Set up default system colors list
-#endif
+		_colorStrings=[[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSSystemColorList"] retain];
+		if(!_colorStrings)
+			NSLog(@"can't initialize system color list");
 #if 0
 		NSLog(@"NSColor initialize 0: %@", _colorStrings);
 #endif
@@ -391,27 +338,7 @@ void GSConvertHSBtoRGB(struct HSB_Color hsb, struct RGB_Color *rgb);
 
 // Predefined NSColors (cached)
 
-// #define COLOR(R,G,B,A)	static NSColor *c; return c?c:(c=[[NSColor colorWithCalibratedRed:R green:G blue:B alpha:A] retain])	// simple caching system
 #define CLR()			static NSColor *c; return c?c:(c=[[NSColor colorWithCatalogName:@"System" colorName:NSStringFromSelector(_cmd)] retain])	// simple caching system
-
-#if OLD
-+ (NSColor*) blackColor					{ COLOR(0.0, 0.0, 0.0, 1.0); }
-+ (NSColor*) darkGrayColor				{ COLOR(0.33, 0.33, 0.33, 1.0); }
-+ (NSColor*) grayColor					{ COLOR(0.5, 0.5, 0.5, 1.0); }
-+ (NSColor*) whiteColor					{ COLOR(1.0, 1.0, 1.0, 1.0); }
-+ (NSColor*) lightGrayColor				{ COLOR(0.67, 0.67, 0.67, 1.0); }
-+ (NSColor*) blueColor					{ COLOR(0.0, 0.0, 1.0, 1.0); }
-+ (NSColor*) brownColor					{ COLOR(0.6, 0.4, 0.2, 1.0); }
-+ (NSColor*) cyanColor					{ COLOR(0.0, 1.0, 1.0, 1.0); }
-+ (NSColor*) greenColor					{ COLOR(0.0, 1.0, 0.0, 1.0); }
-+ (NSColor*) magentaColor				{ COLOR(1.0, 0.0, 1.0, 1.0); }
-+ (NSColor*) orangeColor				{ COLOR(1.0, 0.5, 0.0, 1.0); }
-+ (NSColor*) purpleColor				{ COLOR(0.5, 0.0, 0.5, 1.0); }
-+ (NSColor*) redColor					{ COLOR(1.0, 0.0, 0.0, 1.0); }
-+ (NSColor*) yellowColor				{ COLOR(1.0, 1.0, 0.0, 1.0); }
-
-+ (NSColor*) clearColor					{ COLOR(0.0, 0.0, 0.0, 0.0); }
-#endif
 
 + (NSColor*) blackColor					{ CLR(); }
 + (NSColor*) darkGrayColor				{ CLR(); }

@@ -109,175 +109,6 @@ static NSString	*NSAbortModalException = @"NSAbortModalException";
 static Class __windowClass = Nil;
 extern NSView *__toolTipOwnerView;
 
-#if OLD
-
-// GSListener is a proxy class used in communicating with other
-// apps.  It implements some dangerous methods in a harmless 
-// manner to reduce the chances of a malicious app messing with 
-// us.  It forwards service requests and other communications.
-
-@interface _NSApplicationRemoteAccess : NSObject <_NSApplicationRemoteControlProtocol>
-
-+ (void) _connectionBecameInvalid:(NSNotification*)notification;
-
-@end
-
-@implementation _NSApplicationRemoteAccess
-
-// + (GSListener *) listener
-// {
-// 	return __listener ? __listener : (__listener = (id)NSAllocateObject(self, 0, NSDefaultMallocZone()));
-// }
-
-- (id) init;
-{
-	if((self=[super init]))
-		{
-		}
-	return self;
-}
-
-+ (void) _connectionBecameInvalid:(NSNotification *) notification
-{
-	NSLog(@"GSListener + connectionBecameInvalid: %@", notification);
-	NSUnregisterServicesProvider(nil);	// it is our connection
-}
-
-// - (Class) class							{ return nil; }
-- (void) dealloc						{ return; [super dealloc]; }
-- (void) release						{ return; }
-- (id) retain							{ return self; }
-- (id) self								{ return self; }
-
-#if OLD
-	// this is called for all unimplemented methods
-
-- (void) forwardInvocation:(NSInvocation *) i
-{
-	SEL aSel=[i selector];
-	NSString *selName = NSStringFromSelector(aSel);
-	id delegate;		// If the selector matches the correct form for a services 
-						// request, send the message to the services provider - 
-						// otherwise raise a method is not implemented exception.
-	NSLog(@"GSListener checking request %@", selName);
-	
-#if 0
-	if ([selName hasSuffix: @":userData:error:"])
-		{
-		// [i setTargeg:__servicesProvider];
-		[i invokeWithTarget:__servicesProvider];
-		return;
-		}
-	
-	NSLog(@"GSListener NSApp delegate=%@", [NSApp delegate]);
-	// If app delegate can handle the message forward it to it
-	
-	if([selName isEqualToString:@"_application:openURLs:withOptions:"])
-		{
-#if 1
-		NSArray *urls;
-		int options;
-		[i getArgument:&urls atIndex:3];
-		[i getArgument:&options atIndex:4];
-		NSLog(@"NSApp is asked to open URLs %@ with options %d", urls, options);
-#endif
-		[i invokeWithTarget:NSApp];
-		return;
-		}
-#endif
-	
-	// FIXME: this allows all applications to remotely access any private AppController method...
-	
-	if([(delegate = [NSApp delegate]) respondsToSelector: aSel] == YES)
-		{
-#if 1
-		NSLog(@"%08x:%@ forwarding %@ to NSApp delegate (%@)", self, self, selName, delegate);
-		// NSLog(@"aSel=%08x frame=%08x: %08x %08x %08x", aSel, frame, ((long *)frame)[0], ((long *)frame)[1], ((long *)frame)[2]);
-		// [i setTargeg:__servicesProvider];
-#endif
-		[i invokeWithTarget:delegate];
-		return;	// invocation has been modified as defined by delegate
-		}
-	NSLog(@"GSListener blocks request %@", selName);
-	[NSException raise: NSGenericException
-				format: @"method %@ not implemented", selName];
-	return;
-}
-
-#endif
-
-// FIXME: shouldn't this be oneway void so that a launching app can't be blocked too long by a launched app?
-
-- (BOOL) _application:(in NSApplication *) app openURLs:(in bycopy NSArray *) urls withOptions:(in bycopy NSWorkspaceLaunchOptions) opts;	// handle open
-{ // forward to the application which will dispatch the call
-	NSLog(@"GSListener %@ _application:openURLs:withOptions:", NSApp);
-	[NSApp _application:NSApp openURLs:urls withOptions:opts];
-	NSLog(@"  opened...");
-	return YES;
-}
-
-- (void) performService:(NSString*)name
-		 withPasteboard:(NSPasteboard*)pb
-			   userData:(NSString*)ud
-				  error:(NSString**)e
-{
-	id obj = [[GSServices sharedManager] servicesProvider];
-	SEL msgSel = NSSelectorFromString(name);
-	IMP msgImp;
-	
-	if (obj != nil && [obj respondsToSelector: msgSel])
-		{
-		if ((msgImp = [obj methodForSelector: msgSel]) != 0)
-			{
-			(*msgImp)(obj, msgSel, pb, ud, e);
-			return;
-			}	}
-	
-	if ((obj = [NSApp delegate]) != nil && [obj respondsToSelector: msgSel])
-		{
-		if ((msgImp = [obj methodForSelector: msgSel]) != 0)
-			{
-			(*msgImp)(obj, msgSel, pb, ud, e);
-			return;
-			}
-		}
-	*e = @"No object available to provide service"; 
-}
-
-- (void) activate;
-{ // show menu (+windows, i.e. everything)
-	NSLog(@"requested to activate");
-	[NSApp activateIgnoringOtherApps:NO];
-}
-
-- (void) deactivate;
-{ // hide menu
-	NSLog(@"requested to deactivate");
-	[NSApp deactivate];
-}
-
-- (void) hide;
-{ // hide windows (+menu, i.e. everything)
-	NSLog(@"requested to hide");
-	// FIXME: hide all windows
-	[NSApp hide:nil];
-}
-
-- (void) unhide;
-{ // show windows
-	NSLog(@"requested to unhide");
-	[NSApp unhide:nil];
-}
-
-- (void) echo;
-{ // can be used to check if I am responding...
-	NSLog(@"requested to echo");
-}
-
-@end /* GSListener */
-
-#endif
-
 //
 // Class variables
 //
@@ -405,7 +236,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 1
 		NSLog(@"Root object %@", [connection rootObject]);
 #endif
-#if OLD
+#if FIXME
 		[n addObserver: [remote class]
 												 selector: @selector(_connectionBecameInvalid:)
 													 name: NSConnectionDidDieNotification
@@ -1603,7 +1434,7 @@ NSWindow *w;
 - (void) updateWindows
 { // send an update message to all visible windows
 	static long lastupdate=0;	// remember when the last update did take place
-#if 1
+#if 0
 	NSLog(@"updateWindows");
 #endif
 	if([_eventQueue count] >= 3 && time(NULL) < lastupdate+1)
@@ -1642,28 +1473,27 @@ NSWindow *w;
 
 - (IBAction) orderFrontColorPanel:(id)sender			// Standard Panels
 {
+#if 0
 	NSLog(@"orderFrontColorPanel");
+#endif
 	[[NSColorPanel sharedColorPanel] orderFront:sender];
 }
 
 - (IBAction) orderFrontCharacterPalette:(id)sender
 {
+#if 0
 	NSLog(@"orderFrontCharacterPalette");
+#endif
 	[[NSWorkspace _loginWindowServer] enableVKBD:YES];
 }
 
 - (IBAction) _orderOutCharacterPalette:(id)sender
 {
+#if 0
 	NSLog(@"orderFrontCharacterPalette");
+#endif
 	[[NSWorkspace _loginWindowServer] enableVKBD:NO];
 }
-
-#if OLD
-- (IBAction) orderFrontHelpPanel:(id)sender
-{
-//	NIMP;
-}
-#endif
 
 - (IBAction) orderFrontStandardAboutPanel:sender; { [self orderFrontStandardAboutPanelWithOptions:nil]; }
 

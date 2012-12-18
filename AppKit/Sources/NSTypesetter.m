@@ -913,6 +913,7 @@ forStartOfGlyphRange:(NSRange) range;
 			// allow overprinting (?) by setting back curGlyphOffset to previous glyph or assigning negative extent?
 			break;
 	}
+	// FIXME:
 	return NSLayoutOutOfGlyphs;
 }
 
@@ -1024,7 +1025,7 @@ NSLayoutOutOfGlyphs
 			wrapAfterCurGlyph=NO;
 			if([[NSCharacterSet controlCharacterSet] characterIsMember:curChar])
 				{
-				glyphInfo->_giflags.dontShow=[layoutManager showsControlCharacters];
+				glyphInfo->_giflags.dontShow=![layoutManager showsControlCharacters];
 				glyphInfo->extent=0;	// may become width of tab or \n to end of line
 				status=[self layoutControlGlyphForLineFragment:*lineFragmentRect];				
 				}
@@ -1202,6 +1203,7 @@ NSLayoutOutOfGlyphs
 							[layoutManager setNotShownAttribute:NSGlyphInfoAtIndex(i)->_giflags.dontShow forGlyphAtIndex:glyphRange.location];
 							[layoutManager setLocation:location forStartOfGlyphRange:glyphRange];
 							[layoutManager setDrawsOutsideLineFragment:NSGlyphInfoAtIndex(i)->_giflags.drawsOutside forGlyphAtIndex:glyphRange.location];
+							// FIXME: NSGlyphInfoAtIndex(i)->_giflags.defaultPositioning
 							glyphRange.location++;
 						}
 					glyphRange=NSMakeRange(firstIndexOfCurrentLineFragment, i);
@@ -1282,6 +1284,7 @@ NSLayoutOutOfGlyphs
 		glyphInfo->extent=[tab location]-glyphInfo->curLocation.x;
 	else if(curParaStyle && (interval=[curParaStyle defaultTabInterval]) > 0.0)
 		glyphInfo->extent=interval*ceil(glyphInfo->curLocation.x/interval)-glyphInfo->curLocation.x;	// equally spaced
+	glyphInfo->_giflags.dontShow=YES;
 }
 
 - (unsigned) sizeOfTypesetterGlyphInfo;

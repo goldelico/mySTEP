@@ -27,12 +27,6 @@
 @interface NSScreen : NSObject
 {
 	NSMutableDictionary *_device;
-#if OLD
-	@public
-	void *_backendPrivate1;	// X11 Screen *
-	void *_backendPrivate2;	// NSAffineTransform * - default CTM from screen to X11
-	float _backendPrivate3;	// screen scaling factor
-#endif
 }
 
 + (NSScreen *) deepestScreen;

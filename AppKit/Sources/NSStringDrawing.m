@@ -216,13 +216,6 @@ static NSStringDrawingOptions _currentOptions;
 			[ctxt restoreGraphicsState];
 		}
 	[self _tearDown];
-#if OLD
-	NSRect r=[self boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:NSStringDrawingUsesLineFragmentOrigin];	// start with infinitely large box
-	r.origin=point;			// move to given origin
-	r.size.width=FLT_MAX;	// disable horizontal alignment
-	// FIXME: we should not do it this way since we force recalculation of the layout into dimensions we already know
-	[self drawWithRect:r options:NSStringDrawingUsesLineFragmentOrigin];
-#endif
 }
 
 // draws in rect applying text aligment rules

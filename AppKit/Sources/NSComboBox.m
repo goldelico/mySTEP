@@ -389,7 +389,7 @@
 	cellFrame.size.width -= 3.0;	// IB specifies 3 px spacing on the right hand side
 	cellFrame.origin.y += 2.0;		// IB specifies 4px vertical (transparent!) spacing
 	cellFrame.size.height -= 4.0;
-#if 1
+#if 0
 	NSLog(@"drawingRectForBounds: %@", NSStringFromRect(cellFrame));
 #endif
 	return cellFrame;
@@ -481,19 +481,6 @@ static Class __comboBoxCellClass = Nil;
 + (void) setCellClass:(Class)class			{ __comboBoxCellClass = class; }
 
 - (BOOL) isOpaque; { return NO; }	// bounds are defined larger by IB than filled by the cell
-
-#if OLD
-
-- (id) initWithFrame:(NSRect)frameRect
-{
-	self=[super initWithFrame:frameRect];
-	if(self)
-		{
-		[self setCell: [[NSComboBoxCell new] autorelease]];
-		}
-	return self;
-}
-#endif
 
 - (void) dealloc
 {
