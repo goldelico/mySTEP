@@ -295,7 +295,7 @@
 	else
 		{ // adjust
 #if 1
-		NSLog(@"popup content view: %@", [[_popUpWindow contentView] _descriptionWithSubviews]);
+		NSLog(@"popup content view: %@", [[_popUpWindow contentView] _subtreeDescription]);
 		NSLog(@"table columns: %@", [_tableView tableColumns]);
 #endif
 		[_popUpWindow setFrame:f display:NO];	// reposition the window and resize the table

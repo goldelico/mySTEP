@@ -1065,9 +1065,13 @@ NSLayoutOutOfGlyphs
 						// handle ligatures: check if previous = 'f' and current = 'l' => reduce to single glyph
 						// not here - this is done in NSGlyphGenerator
 						NSSize k=[curFont _kerningBetweenGlyph:previousGlyph andGlyph:curGlyph];
-						glyphInfo->curLocation.x+=k.width+curSpaceAfter;
-						glyphInfo->curLocation.y+=k.height;
-						glyphInfo->_giflags.defaultPositioning=NO;	// must set the relative position before drawing this glyph
+						k.width+=curSpaceAfter;
+						if(k.width != 0.0 || k.height != 0.0)
+							{
+							glyphInfo->curLocation.x+=k.width;
+							glyphInfo->curLocation.y+=k.height;
+							glyphInfo->_giflags.defaultPositioning=NO;	// must set the relative position before drawing this glyph
+							}
 					}
 				}
 			curMinBaselineDistance=MAX(curMinBaselineDistance, curGlyphExtentAboveLocation);

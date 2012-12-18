@@ -79,6 +79,7 @@
 {
 	if(shouldTruncateLabel)
 		;
+	// FIXME: set paragraph style
 	return [item_label sizeWithAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[item_tabview font], NSFontAttributeName, nil]];
 }
 
@@ -104,15 +105,17 @@
 	id delegate=[(NSTabView *) item_tabview delegate];
 	NSDictionary *attribs;
 	NSSize bounds;
+	NSMutableParagraphStyle *para=[[NSParagraphStyle defaultParagraphStyle] mutableCopy];
 	if([delegate respondsToSelector:@selector(tabView:shouldSelectTabViewItem:)] &&
 		![delegate tabView:(NSTabView *) item_tabview shouldSelectTabViewItem:self])
 		labelColor=[NSColor disabledControlTextColor];	// show as disabled
+	[para setAlignment:NSCenterTextAlignment];
 	attribs=[NSDictionary dictionaryWithObjectsAndKeys:
 		labelColor, NSForegroundColorAttributeName,
 		[(NSTabView *) item_tabview font], NSFontAttributeName,
+		para, NSParagraphStyleAttributeName,
 		nil];
 	bounds=[item_label boundingRectWithSize:(NSSize){ FLT_MAX, FLT_MAX } options:0 attributes:attribs].size;
-	tabRect.origin.x+=(tabRect.size.width-bounds.width)/2.0;	// center the tab label
 	tabRect.origin.y+=(tabRect.size.height-bounds.height)/2.0;
 	[item_label drawInRect:tabRect withAttributes:attribs];
 }
@@ -519,7 +522,7 @@ static struct _NSTabViewSizing
 		NSTabViewItem *anItem = [tab_items objectAtIndex:i];
 		width+=[anItem sizeOfLabel:tab_truncated_label].width;
 		}
-	tabRect.origin.x=(tabRect.size.width-width-numberOfTabs*hspacing)/2.0;	// start at center
+	tabRect.origin.x=(tabRect.size.width-width-numberOfTabs*hspacing)/2.0;	// center all tabs
 	borderRect=NSInsetRect([self contentRect], -3.0, -3.0);	// basically around tabs
 	delta=borderRect.origin.y-(tabRect.origin.y+tabRect.size.height/2.0-0.5);
 	borderRect.origin.y-=delta;
@@ -559,7 +562,7 @@ static struct _NSTabViewSizing
 		{ // draw tab if it falls within rect
 		NSTabViewItem *anItem = [tab_items objectAtIndex:i];
 		NSSize s = [anItem sizeOfLabel:tab_truncated_label];
-		tabRect.size.width=s.width+hspacing;	// define drawing box
+		tabRect.size.width=s.width+hspacing;	// define drawing box incl. spacing
 		if(NSIntersectsRect(tabRect, rect))
 			{ // is at least partially visible
 			[anItem _setTabRect:tabRect];	// cache for mouseDown etc. (must be drawn once to be initialized)

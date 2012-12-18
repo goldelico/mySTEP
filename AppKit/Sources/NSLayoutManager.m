@@ -74,6 +74,14 @@
 
 @implementation NSLayoutManager
 
+static BOOL _NSShowGlyphBoxes=NO;
+
++ (void) initialize
+{
+	char *flag=getenv("QSShowGlyphBoxes");
+	if(flag) _NSShowGlyphBoxes=strcmp(flag, "YES") == 0;
+}
+
 static void allocateExtra(struct NSGlyphStorage *g)
 {
 	if(!g->extra)
@@ -277,8 +285,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		NSRectArray r=[self rectArrayForGlyphRange:glyphsToShow withinSelectedGlyphRange:glyphsToShow inTextContainer:textContainer rectCount:&cnt];
 		// FIXME: how do we handle the origin?
 		[self fillBackgroundRectArray:r count:cnt forCharacterRange:glyphsToShow color:color];
-#if 1
-		{ // draw bounding boxes of glyphs
+		if(_NSShowGlyphBoxes)
+			{ // draw bounding boxes of glyphs
 			unsigned int g;
 			float advance=0.0;
 			for(g=glyphsToShow.location; g < NSMaxRange(glyphsToShow); g++)
@@ -307,8 +315,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				advance+=adv.width;
 #endif
 				}
-		}
-#endif
+			}
 		}
 	// also calls -[NSTextBlock drawBackgroundWithRange... ] if needed
 }
@@ -672,6 +679,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSUInteger) glyphIndexForCharacterAtIndex:(NSUInteger) index;
 {
 	NSUInteger i;
+	NSAssert(_glyphs == NULL || _glyphs[0].notShownAttribute <= YES, @"_glyphs damaged");
 	if(!_allowsNonContiguousLayout)
 		[self ensureGlyphsForCharacterRange:NSMakeRange(0, index+1)];	// generate glyphs up to and including the given index
 	if(index >= _nextCharacterIndex)
@@ -855,6 +863,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	unsigned int idx;
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
+	NSAssert(_glyphs == NULL || _glyphs[0].notShownAttribute <= 0, @"_glyphs damaged");
 	while(glyphRange.length > 0 && glyphRange.location < _numberOfGlyphs)
 		{
 		NSTextContainer *container=_glyphs[glyphRange.location].textContainer;	// may be nil if this glyph isn't laid out yet
@@ -1273,10 +1282,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) setTemporaryAttributes:(NSDictionary *) attrs forCharacterRange:(NSRange) charRange;
 {
 	NIMP;
-	// FIXME: this is for characters!!!
 	if(NSMaxRange(charRange) > [_textStorage length])
 		[NSException raise:@"NSLayoutManager" format:@"invalid character range"];
-//	return _glyphs[glyphIndex].extra=flag;
+	// FIXME:
 }
 
 - (void) setTextContainer:(NSTextContainer *) container forGlyphRange:(NSRange) glyphRange;
@@ -1368,9 +1376,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		 atCharacterIndex:(NSUInteger) loc 
 		   effectiveRange:(NSRangePointer) effectiveRange;
 {
-//	if(index >= _numberOfGlyphs)
-//		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
-//	return _glyphs[glyphIndex].extra;	
+	if(loc >= [_textStorage length])
+		[NSException raise:@"NSLayoutManager" format:@"invalid character index: %u", loc];
 	return NIMP;
 }
 
@@ -1379,9 +1386,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	longestEffectiveRange:(NSRangePointer) effectiveRange 
 				  inRange:(NSRange) limit;
 {
-//	if(index >= _numberOfGlyphs)
-//		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
-//	return _glyphs[glyphIndex].extra;	
+	if(loc >= [_textStorage length])
+		[NSException raise:@"NSLayoutManager" format:@"invalid character index: %u", loc];
 	return NIMP;
 }
 
@@ -1389,20 +1395,22 @@ static void allocateExtra(struct NSGlyphStorage *g)
 								 longestEffectiveRange:(NSRangePointer) effectiveRange 
 											   inRange:(NSRange) limit;
 {
-//	if(index >= _numberOfGlyphs)
-//		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
-//	return _glyphs[glyphIndex].extra;
+	if(loc >= [_textStorage length])
+		[NSException raise:@"NSLayoutManager" format:@"invalid character index: %u", loc];
 	return NIMP;
 }
 
-- (NSDictionary *) temporaryAttributesAtCharacterIndex:(NSUInteger) index
+- (NSDictionary *) temporaryAttributesAtCharacterIndex:(NSUInteger) loc
 										effectiveRange:(NSRangePointer) effectiveRange;
 {
+	if(loc >= [_textStorage length])
+		[NSException raise:@"NSLayoutManager" format:@"invalid character index: %u", loc];
 	return NIMP;
 }
 
 - (void) textContainerChangedGeometry:(NSTextContainer *) container;
 {
+	NSAssert(_glyphs == NULL || _glyphs[0].notShownAttribute <= 0, @"_glyphs damaged");
 	if(_textContainers)
 		{
 		NSRange crng, grng;

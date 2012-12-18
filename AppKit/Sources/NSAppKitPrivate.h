@@ -179,7 +179,7 @@ typedef enum _NSRoundedBezelSegments
 @end
 
 @interface NSView (NSPrivate)
-- (NSString *) _descriptionWithSubviews;
+- (NSString *) _subtreeDescription;
 - (NSAffineTransform *) _bounds2frame;
 - (NSAffineTransform *) _bounds2base;
 - (void) _invalidateCTM;

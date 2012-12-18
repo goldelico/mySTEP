@@ -67,6 +67,7 @@
 
 // FIXME: make this thread-safe by locking (in setup) and unlocking (after use)
 
+static BOOL _NSShowStringDrawingBox=NO;
 static NSTextStorage *_textStorage;
 static NSLayoutManager *_layoutManager;
 static NSTextContainer *_textContainer;
@@ -87,11 +88,15 @@ static NSStringDrawingOptions _currentOptions;
 	_currentOptions=options;
 	if(!_textStorage)
 		{ // first call, setup text system
+		char *flag=getenv("QSShowStringDrawingBox");
+		if(flag) _NSShowStringDrawingBox=strcmp(flag, "YES") == 0;
 #if 0
 		NSLog(@"create global text storage");
 #endif
 		_textStorage=[[NSTextStorage alloc] initWithAttributedString:self];			// store a copy
+		NSAssert(!_textContainer, @"text container left over");
 		_textContainer=[[NSTextContainer alloc] initWithContainerSize:rect.size];	// predefine the size of the container
+		NSAssert(!_layoutManager, @"layout manager left over");
 		_layoutManager=[NSLayoutManager new];
 		[_layoutManager addTextContainer:_textContainer];
 		[[_layoutManager typesetter] setTypesetterBehavior:NSTypesetterBehavior_10_2_WithCompatibility];	// our typesetter ignores that...
@@ -179,15 +184,14 @@ static NSStringDrawingOptions _currentOptions;
 	if([self length] == 0)
 		return;	// empty string
 	ctxt=[NSGraphicsContext currentContext];
-#if 1
-	{ // show small dot at drawing origin
-	NSRect r={ { point.x-2.0, point.y-2.0 }, { 4.0, 4.0 }};
-	[ctxt saveGraphicsState];
-	[[NSColor brownColor] set];
-	NSFrameRect(r);	// drawing origin
-	[ctxt restoreGraphicsState];	
-	}
-#endif
+	if(_NSShowStringDrawingBox)
+		{ // show small dot at drawing origin
+			NSRect r={ { point.x-2.0, point.y-2.0 }, { 4.0, 4.0 }};
+			[ctxt saveGraphicsState];
+			[[NSColor brownColor] set];
+			NSFrameRect(r);	// drawing origin
+			[ctxt restoreGraphicsState];	
+		}
 	[self _setupWithRect:rect options:NSStringDrawingUsesLineFragmentOrigin];	// infinitely large container
 #if 0
 	NSLog(@"drawWithRect:options: %@", self);
@@ -250,17 +254,16 @@ static NSStringDrawingOptions _currentOptions;
 	[ctxt saveGraphicsState];
 	[NSBezierPath clipRect:rect];	// set clipping rect
 #endif
-#if 1
-	{ // draw box
-		NSRect r=rect;
-		if(r.size.width > 1e6) r.size.width=1e6;	// limit to avoid problems with bezier paths
-		if(r.size.height > 1e6) r.size.height=1e6;	// limit
-		[ctxt saveGraphicsState];
-		[[NSColor brownColor] set];
-		NSFrameRect(r);	// drawing rect
-		[ctxt restoreGraphicsState];	
-	}
-#endif
+	if(_NSShowStringDrawingBox)
+		{ // draw box
+			NSRect r=rect;
+			if(r.size.width > 1e6) r.size.width=1e6;	// limit to avoid problems with bezier paths
+			if(r.size.height > 1e6) r.size.height=1e6;	// limit
+			[ctxt saveGraphicsState];
+			[[NSColor brownColor] set];
+			NSFrameRect(r);	// drawing rect
+			[ctxt restoreGraphicsState];	
+		}
 	if(!(options&NSStringDrawingUsesLineFragmentOrigin))
 		rect.size.width=FLT_MAX;	// single line mode
 	[self _setupWithRect:rect options:options];
@@ -270,8 +273,8 @@ static NSStringDrawingOptions _currentOptions;
 	rng=[_layoutManager glyphRangeForBoundingRect:(NSRect) { NSZeroPoint, rect.size } inTextContainer:_textContainer];
 	if([ctxt isFlipped])
 		{
-			[_layoutManager drawBackgroundForGlyphRange:rng atPoint:rect.origin];
-			[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];		
+		[_layoutManager drawBackgroundForGlyphRange:rng atPoint:rect.origin];
+		[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];		
 		}
 	else
 		{ // in this case the layout manager draws lines "bootom up" so we must flip the CTM

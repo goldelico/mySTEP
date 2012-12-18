@@ -526,14 +526,14 @@ printing
 	return s;
 }
 
-- (NSString *) _descriptionWithSubviews
+- (NSString *) _subtreeDescription
 {
 	NSMutableString *s=[NSMutableString stringWithString:[self description]];
 	NSEnumerator *e=[sub_views objectEnumerator];
 	NSView *v;
 	while((v=[e nextObject]))
 		{ // prefix all lines with @"  "
-		NSString *sub=[v _descriptionWithSubviews];
+		NSString *sub=[v _subtreeDescription];
 		NSArray *suba=[sub componentsSeparatedByString:@"\n"];
 		[s appendFormat:@"\n  %@", [suba componentsJoinedByString:@"\n  "]];
 		}
