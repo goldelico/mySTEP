@@ -629,7 +629,7 @@ printing
 	
 	// FIXME: check for relative position and otherView and insert at expected position
 	
-	[sub_views addObject:(id)aView];				// Append to our subview list
+	[sub_views addObject:aView];				// Append to our subview list
 	[aView _setSuperview:self];
 	[aView viewDidMoveToSuperview];
 													// Make ourselves the next 

@@ -78,6 +78,7 @@ static BOOL _NSShowGlyphBoxes=NO;
 
 + (void) initialize
 {
+	// FIXME: should be a default and not an ENV variable
 	char *flag=getenv("QSShowGlyphBoxes");
 	if(flag) _NSShowGlyphBoxes=strcmp(flag, "YES") == 0;
 }
@@ -700,16 +701,38 @@ static void allocateExtra(struct NSGlyphStorage *g)
  fractionOfDistanceThroughGlyph:(float *)partialFraction;
 {
 	NSRange cRange=[self glyphRangeForTextContainer:textContainer];
-	[self ensureLayoutForTextContainer:textContainer]; // additional layout
-	while(cRange.length-- > 0)
-		{
-		// FIXME:
-		// check if point is within glyph
-		// if(partialFraction)
-		// calculate from location and width
-		cRange.location++;
+	NSRange lfrRange={ cRange.location, 0 };
+	float fraction=0.0;
+	while(lfrRange.location < NSMaxRange(cRange))
+		{ // check all line fragment rects
+		NSRect lfrRect=[self lineFragmentRectForGlyphAtIndex:NSMaxRange(lfrRange) effectiveRange:&lfrRange];
+		if(aPoint.y < NSMinY(lfrRect))
+			break;	// between this and previous lfr
+		if(aPoint.y < NSMaxY(lfrRect))
+			{ // in this line
+				NSPoint prevx=0;
+				while(lfrRange.length > 0)
+					{
+					NSPoint pos=[self locationForGlyphAtIndex:lfrRange.location];
+					if(aPoint.x < pos.x)
+						{ // was in previous glyph
+							if(lfrRange.location > 0)
+								{
+								lfrRange.location--;
+								fraction=(aPoint.x-prevx)/(pos.x-prevx);
+								}
+							break;
+						}
+					prevx=pos.x;	// remember horizontal offset of glyph
+					lfrRange.location++;
+					lfrRange.length--;
+					}
+				break;	// in this line or at end if glyph index was not found in lfr range
+			}
 		}
-	return NSNotFound;	
+	if(*partialFraction)
+		*partialFraction=fraction;
+	return lfrRange.location;	
 }
 
 - (NSRange) glyphRangeForBoundingRect:(NSRect)bounds 

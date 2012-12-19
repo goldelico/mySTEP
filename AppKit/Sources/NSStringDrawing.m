@@ -88,6 +88,7 @@ static NSStringDrawingOptions _currentOptions;
 	_currentOptions=options;
 	if(!_textStorage)
 		{ // first call, setup text system
+			// FIXME: should be a default and not an ENV variable
 		char *flag=getenv("QSShowStringDrawingBox");
 		if(flag) _NSShowStringDrawingBox=strcmp(flag, "YES") == 0;
 #if 0

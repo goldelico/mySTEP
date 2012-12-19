@@ -42,6 +42,8 @@
 #if 0
 	NSLog(@"%@ setDocumentView: %@", self, aView);
 #endif
+	if([_documentView window] != [self window])
+		NSLog(@"has different Window");
 	if(_documentView == aView)
 		return; // unchanged
 	dnc = [NSNotificationCenter defaultCenter];
@@ -74,10 +76,6 @@
 			 selector:@selector(viewBoundsChanged:)
 			 name:NSViewBoundsDidChangeNotification 
 			 object:_documentView];
-// CHECKME: is this "standard" behaviour?
-		if([aView respondsToSelector:@selector(backgroundColor)])								
-			ASSIGN(_backgroundColor, (NSColor *)[(id)aView backgroundColor]);	// copy from document view
-
 		[super_view reflectScrolledClipView:self];
 		}
 }
@@ -269,7 +267,13 @@ because this reverses the writing direction within the text container
 - (void) setDocumentCursor:(NSCursor*)aCursor	{ ASSIGN(_cursor, aCursor); }
 - (void) setDrawsBackground:(BOOL) flag			{ _clip.drawsBackground=flag; }
 - (NSCursor*) documentCursor					{ return _cursor; }
-- (NSColor*) backgroundColor					{ return _backgroundColor; }
+
+- (NSColor*) backgroundColor
+{ // try to get from documentView if not explicitly set
+	if(!_backgroundColor && [_documentView respondsToSelector:@selector(backgroundColor)])								
+		return (NSColor *)[(id)_documentView backgroundColor];	// get from document view
+	return _backgroundColor;
+}
 
 - (void) setBackgroundColor:(NSColor*)aColor
 {
@@ -449,9 +453,9 @@ because this reverses the writing direction within the text container
 
 - (void) drawRect:(NSRect)rect
 {
-	if(_clip.drawsBackground && _backgroundColor)
+	if(_clip.drawsBackground)
 		{
-		[_backgroundColor set];				
+		[[self backgroundColor] set];				
 		NSRectFill(rect);
 		}
 #if 1
@@ -491,8 +495,8 @@ because this reverses the writing direction within the text container
 		if([aDecoder containsValueForKey:@"NSBounds"])
 			[self setBounds:[aDecoder decodeRectForKey:@"NSBounds"]];
 		_documentView=[[aDecoder decodeObjectForKey:@"NSDocView"] retain];
-		if(!_backgroundColor && [_documentView respondsToSelector:@selector(backgroundColor)])								
-			ASSIGN(_backgroundColor, (NSColor *)[(id)_documentView backgroundColor]);	// copy from document view
+		if([_documentView window] != [self window])
+			NSLog(@"has different Window");
 		// Register for notifications sent by the document view 
 		[_documentView setPostsFrameChangedNotifications:YES];
 		[_documentView setPostsBoundsChangedNotifications:YES];
