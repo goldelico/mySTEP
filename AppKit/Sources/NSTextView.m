@@ -91,10 +91,10 @@ static NSCursor *__textCursor = nil;
 		{ // create simple text network
 			if(tc)
 				{ // don't create the default if called from initWithCoder
-				textContainer=tc;
-				layoutManager=lm;
-				textStorage=[layoutManager textStorage];	// non-owned textStorage				
-				[textContainer setTextView:self];	// this tries to track container size...
+					textContainer=tc;
+					layoutManager=lm;
+					textStorage=[layoutManager textStorage];	// non-owned textStorage				
+					[textContainer setTextView:self];	// this tries to track container size...
 				}
 			else
 				{
@@ -224,8 +224,8 @@ static NSCursor *__textCursor = nil;
 #if 0
 	if(!NSEqualSizes([textContainer containerSize], size))
 		{
-			NSLog(@"fit %@ is %@", NSStringFromSize(size), textContainer);
-			NSLog(@"different sizes");
+		NSLog(@"fit %@ is %@", NSStringFromSize(size), textContainer);
+		NSLog(@"different sizes");
 		}
 #endif
 }
@@ -368,7 +368,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	// if not, it may trigger background layout - this may split the text storage into chunks and perform delayed
 	if(!flag)
 		{
-			// do additional layout if needed
+		// do additional layout if needed
 		}
 #if 0
 	NSLog(@"NSTextView setNeedsDisplayInRect:%@", NSStringFromRect(rect));
@@ -428,9 +428,9 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 {
 	if(NSIsEmptyRect(_caretRect))
 		{
-			_caretRect=[self firstRectForCharacterRange:_selectedRange];
-			_caretRect.origin.x+=1.0;
-			_caretRect.size.width=1.0;
+		_caretRect=[self firstRectForCharacterRange:_selectedRange];
+		_caretRect.origin.x+=1.0;
+		_caretRect.size.width=1.0;
 		}
 	return _caretRect;
 }
@@ -485,8 +485,8 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 {
 	if(_tx.drawsBackground)
 		{
-			[_backgroundColor set];
-			NSRectFill(rect);
+		[_backgroundColor set];
+		NSRectFill(rect);
 		}
 #if 1	// show container outline
 	[[NSColor redColor] set];
@@ -752,9 +752,9 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	[layoutManager drawGlyphsForGlyphRange:range atPoint:textContainerOrigin];
 	if([self shouldDrawInsertionPoint])
 		{
-			NSRect r=[self _caretRect];
-			if(NSIntersectsRect(r, rect))
-				[self drawInsertionPointInRect:r color:insertionPointColor turnedOn:insertionPointIsOn];
+		NSRect r=[self _caretRect];
+		if(NSIntersectsRect(r, rect))
+			[self drawInsertionPointInRect:r color:insertionPointColor turnedOn:insertionPointIsOn];
 		}
 #if 0
 	if(!NSEqualSizes(_bounds.size, _frame.size))
@@ -854,89 +854,89 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 #endif
 	while(YES)	// loop outside until mouse goes up 
 		{
-			NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
-			// FIXME: this method expects SCREEN coordinates!
-			unsigned int pos=[self characterIndexForPoint:p];	// convert to character index
+		NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
+		// FIXME: this method expects SCREEN coordinates!
+		unsigned int pos=[self characterIndexForPoint:p];	// convert to character index
 #if 1
-			NSLog(@"NSTextView mouseDown point=%@ pos=%d", NSStringFromPoint(p), pos);
+		NSLog(@"NSTextView mouseDown point=%@ pos=%d", NSStringFromPoint(p), pos);
 #endif
-			if([event type] == NSLeftMouseDown)
-				{
-					if([event clickCount] > 1 && NSLocationInRange(pos, _selectedRange))
-						{ // in current range; we already hit the current selection -> it is a potential drag&drop
+		if([event type] == NSLeftMouseDown)
+			{
+			if([event clickCount] > 1 && NSLocationInRange(pos, _selectedRange))
+				{ // in current range; we already hit the current selection -> it is a potential drag&drop
 #if 1
-							NSLog(@"multiclick %d", [event clickCount]);
+					NSLog(@"multiclick %d", [event clickCount]);
 #endif
-							[self setSelectionGranularity:NSSelectByWord];
-							rng=_selectedRange;	// default: unchanged
-							switch([event clickCount]) {
-								case 2:	// select word
-								  rng=[textStorage doubleClickAtIndex:pos];
-								  break;
-								case 3: // select line
-								case 4:	// select paragraph
-								{
-									NSString *str=[textStorage string];
-									unsigned length=[str length];
-								
-								// FIXME: this is *wrong* lineBreakBeforeIndex returns a proposed position where a line break could be inserted (e.g. a space or puncuation).
-								
-									rng.location=[textStorage lineBreakBeforeIndex:pos withinRange:NSMakeRange(0, length)];
-									rng.length=[str rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"\n"] options:0 range:NSMakeRange(pos, length-pos)].location;
-									if(rng.length == NSNotFound)
-										rng.length = length-rng.location;
-									else
-										rng.length = rng.length-rng.location;
-								}
-								default:
-								  break;
-							}
-						}
-					else if(modifiers&NSCommandKeyMask) // shift key
-						rng=_selectedRange;
-					else if(modifiers&NSShiftKeyMask) // shift key
-						rng=NSUnionRange(_selectedRange, NSMakeRange(pos, 0));	// extend selection
-					else
+					[self setSelectionGranularity:NSSelectByWord];
+					rng=_selectedRange;	// default: unchanged
+					switch([event clickCount]) {
+						case 2:	// select word
+							rng=[textStorage doubleClickAtIndex:pos];
+							break;
+						case 3: // select line
+						case 4:	// select paragraph
 						{
-							rng=NSMakeRange(pos, 0);	// default: set cursor to location where we did click
-							if(pos < [textStorage length] && [[textStorage string] characterAtIndex:pos] == NSAttachmentCharacter)
-								{ // click on text attachment
-									NSTextAttachment *attachment=[textStorage attribute:NSAttachmentAttributeName atIndex:pos effectiveRange:NULL];
-									id <NSTextAttachmentCell> cell=[attachment attachmentCell];
-									if([cell wantsToTrackMouse])
-										{
-											NSRect rect=NSZeroRect;	// determine cell rect
-											if([cell wantsToTrackMouseForEvent:event inRect:rect ofView:self atCharacterIndex:pos])
-												{
-													while([event type] != NSLeftMouseUp)
-														{ // loop until mouse goes up
-															if([cell trackMouse:event inRect:rect ofView:self atCharacterIndex:pos untilMouseUp:NO])
-																break;	// tracking is done
-															event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
-																					   untilDate:[NSDate distantFuture]						// get next event
-																						  inMode:NSEventTrackingRunLoopMode 
-																						 dequeue:YES];
-														}
-													return;
-												}
-										}
-								}
+						NSString *str=[textStorage string];
+						unsigned length=[str length];
+						
+						// FIXME: this is *wrong* lineBreakBeforeIndex returns a proposed position where a line break could be inserted (e.g. a space or puncuation).
+						
+						rng.location=[textStorage lineBreakBeforeIndex:pos withinRange:NSMakeRange(0, length)];
+						rng.length=[str rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"\n"] options:0 range:NSMakeRange(pos, length-pos)].location;
+						if(rng.length == NSNotFound)
+							rng.length = length-rng.location;
+						else
+							rng.length = rng.length-rng.location;
 						}
-					initialRange=rng;
+						default:
+							break;
+					}
 				}
+			else if(modifiers&NSCommandKeyMask) // shift key
+				rng=_selectedRange;
+			else if(modifiers&NSShiftKeyMask) // shift key
+				rng=NSUnionRange(_selectedRange, NSMakeRange(pos, 0));	// extend selection
 			else
-				{ // moved or up
-					[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
-					rng=NSUnionRange(initialRange, NSMakeRange(pos, 0));	// extend initial selection
+				{
+				rng=NSMakeRange(pos, 0);	// default: set cursor to location where we did click
+				if(pos < [textStorage length] && [[textStorage string] characterAtIndex:pos] == NSAttachmentCharacter)
+					{ // click on text attachment
+						NSTextAttachment *attachment=[textStorage attribute:NSAttachmentAttributeName atIndex:pos effectiveRange:NULL];
+						id <NSTextAttachmentCell> cell=[attachment attachmentCell];
+						if([cell wantsToTrackMouse])
+							{
+							NSRect rect=NSZeroRect;	// determine cell rect
+							if([cell wantsToTrackMouseForEvent:event inRect:rect ofView:self atCharacterIndex:pos])
+								{
+								while([event type] != NSLeftMouseUp)
+									{ // loop until mouse goes up
+										if([cell trackMouse:event inRect:rect ofView:self atCharacterIndex:pos untilMouseUp:NO])
+											break;	// tracking is done
+										event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+																   untilDate:[NSDate distantFuture]						// get next event
+																	  inMode:NSEventTrackingRunLoopMode 
+																	 dequeue:YES];
+									}
+								return;
+								}
+							}
+					}
 				}
-			if([event type] == NSLeftMouseUp)
-				break;	// done with loop
-			// FIXME: handle [self selectionGranularity]
-			[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:YES];	// this should call setNeedsDisplay!
-			event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
-									   untilDate:[NSDate distantFuture]						// get next event
-										  inMode:NSEventTrackingRunLoopMode 
-										 dequeue:YES];
+			initialRange=rng;
+			}
+		else
+			{ // moved or up
+				[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
+				rng=NSUnionRange(initialRange, NSMakeRange(pos, 0));	// extend initial selection
+			}
+		if([event type] == NSLeftMouseUp)
+			break;	// done with loop
+		// FIXME: handle [self selectionGranularity]
+		[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:YES];	// this should call setNeedsDisplay!
+		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+								   untilDate:[NSDate distantFuture]						// get next event
+									  inMode:NSEventTrackingRunLoopMode 
+									 dequeue:YES];
 		}
 	[self setSelectedRange:rng affinity:[self selectionAffinity] stillSelecting:NO];	// finally update selection
 #if 1
@@ -949,11 +949,11 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	[super setSelectedRange:range];
 	if(!flag && layoutManager)
 		{
-			[self updateInsertionPointStateAndRestartTimer:YES];	// will call _caretRect
-			// font=[textStorage attribute:NSFontAttributeName atIndex:range.location effectiveRange:NULL];	// set
-			//	[self setTypingAttributes:];	// reset from first selected character
-			_stableCursorColumn=_caretRect.origin.x;
-			// send NSTextViewDidChangeSelectionNotification
+		[self updateInsertionPointStateAndRestartTimer:YES];	// will call _caretRect
+		// font=[textStorage attribute:NSFontAttributeName atIndex:range.location effectiveRange:NULL];	// set
+		//	[self setTypingAttributes:];	// reset from first selected character
+		_stableCursorColumn=_caretRect.origin.x;
+		// send NSTextViewDidChangeSelectionNotification
 		}
 }
 
@@ -970,13 +970,13 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		[super moveUp:sender];	// specific handling defined there
 	else
 		{
-			float cx=_stableCursorColumn;	// save for cursor stability
-			NSPoint p=NSMakePoint(cx, NSMinY([self _caretRect])-1.0);	// get new cursor position
-			// FIXME: this method expects SCREEN coordinates!
-			unsigned int pos=[self characterIndexForPoint:p];		// will go to start of document of p.y is negative
-			if(pos != NSNotFound)
-				[self setSelectedRange:NSMakeRange(pos, 0)];
-			_stableCursorColumn=cx;	// restore for a sequence of moveUp/moveDown
+		float cx=_stableCursorColumn;	// save for cursor stability
+		NSPoint p=NSMakePoint(cx, NSMinY([self _caretRect])-1.0);	// get new cursor position
+		// FIXME: this method expects SCREEN coordinates!
+		unsigned int pos=[self characterIndexForPoint:p];		// will go to start of document of p.y is negative
+		if(pos != NSNotFound)
+			[self setSelectedRange:NSMakeRange(pos, 0)];
+		_stableCursorColumn=cx;	// restore for a sequence of moveUp/moveDown
 		}
 }
 
@@ -986,13 +986,13 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		[super moveUp:sender];	// specific handling defined there
 	else
 		{
-			float cx=_stableCursorColumn;	// save for cursor stability
-			NSPoint p=NSMakePoint(cx, NSMaxY([self _caretRect])+1.0);	// get new cursor position
-			// FIXME: this method expects SCREEN coordinates!
-			unsigned int pos=[self characterIndexForPoint:p];		// will go to end of document if p.y is beyond end of document
-			if(pos != NSNotFound)
-				[self setSelectedRange:NSMakeRange(pos, 0)];
-			_stableCursorColumn=cx;	// restore for a sequence of moveUp/moveDown
+		float cx=_stableCursorColumn;	// save for cursor stability
+		NSPoint p=NSMakePoint(cx, NSMaxY([self _caretRect])+1.0);	// get new cursor position
+		// FIXME: this method expects SCREEN coordinates!
+		unsigned int pos=[self characterIndexForPoint:p];		// will go to end of document if p.y is beyond end of document
+		if(pos != NSNotFound)
+			[self setSelectedRange:NSMakeRange(pos, 0)];
+		_stableCursorColumn=cx;	// restore for a sequence of moveUp/moveDown
 		}
 }
 
@@ -1024,16 +1024,16 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 			NSRect r=NSZeroRect;	// default position
 			if([textStorage length] > 0)
 				{
-					range.length=1;	// take rect of first character behind given location
-					if(NSMaxRange(range) >= [textStorage length])
-						{	// take last known character
-							range.location=[textStorage length]-1;
-							r=[layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
-							r.origin.x+=r.size.width;
-							r.size.width=0.0;
-						}
-					else
+				range.length=1;	// take rect of first character behind given location
+				if(NSMaxRange(range) >= [textStorage length])
+					{	// take last known character
+						range.location=[textStorage length]-1;
 						r=[layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
+						r.origin.x+=r.size.width;
+						r.size.width=0.0;
+					}
+				else
+					r=[layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
 				}
 			else
 				// FIXME: should come from typingAttributes
@@ -1075,21 +1075,21 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 #endif
 	//	if((self=[super initWithCoder:coder]))	// derived from NSObject
 	{
-		flags=[coder decodeInt32ForKey:@"NSFlags"];
-		backgroundColor=[[coder decodeObjectForKey:@"NSBackgroundColor"] retain];
-		insertionColor=[[coder decodeObjectForKey:@"NSInsertionColor"] retain];
-		defaultParagraphStyle=[[coder decodeObjectForKey:@"NSDefaultParagraphStyle"] retain];
-		// FIXME: appears to have problems with decoding components of NSDictionary (returning nil)
-		// linkAttributes components are
-		// NSUnderline -> NSNumber
-		// NSCursor -> NSCursor (NSCursorType -> NSNumber, NSHotSpot -> NSString {8,-8})
-		// NSColor -> NSColor
-		linkAttributes=[[coder decodeObjectForKey:@"NSLinkAttributes"] retain];
-		// NSBackgroundColor -> NSColor, NSColor -> NSColor
-		markedAttributes=[[coder decodeObjectForKey:@"NSMarkedAttributes"] retain];
-		selectedAttributes=[[coder decodeObjectForKey:@"NSSelectedAttributes"] retain];
-		// FIXME:
-		[coder decodeInt32ForKey:@"NSTextCheckingTypes"];
+	flags=[coder decodeInt32ForKey:@"NSFlags"];
+	backgroundColor=[[coder decodeObjectForKey:@"NSBackgroundColor"] retain];
+	insertionColor=[[coder decodeObjectForKey:@"NSInsertionColor"] retain];
+	defaultParagraphStyle=[[coder decodeObjectForKey:@"NSDefaultParagraphStyle"] retain];
+	// FIXME: appears to have problems with decoding components of NSDictionary (returning nil)
+	// linkAttributes components are
+	// NSUnderline -> NSNumber
+	// NSCursor -> NSCursor (NSCursorType -> NSNumber, NSHotSpot -> NSString {8,-8})
+	// NSColor -> NSColor
+	linkAttributes=[[coder decodeObjectForKey:@"NSLinkAttributes"] retain];
+	// NSBackgroundColor -> NSColor, NSColor -> NSColor
+	markedAttributes=[[coder decodeObjectForKey:@"NSMarkedAttributes"] retain];
+	selectedAttributes=[[coder decodeObjectForKey:@"NSSelectedAttributes"] retain];
+	// FIXME:
+	[coder decodeInt32ForKey:@"NSTextCheckingTypes"];
 	}
 	return self;
 }

@@ -1199,6 +1199,8 @@ NSLayoutOutOfGlyphs
 				{ // did layout anything
 					lineFragmentRect.size.height=usedRect.size.height;	// line height
 					glyphRange=NSMakeRange(firstIndexOfCurrentLineFragment, 1);	// initialize range
+					// FIXME: should set textContainer first
+					// FIXME: should set the location for the first glyph in sequence only
 					for(i=0; i < curGlyphIndex; i++)
 						{ // copy location and attributes to layout manager
 							NSPoint location=NSGlyphInfoAtIndex(i)->curLocation;

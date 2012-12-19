@@ -128,6 +128,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSRect) boundingRectForGlyphRange:(NSRange) glyphRange 
 					 inTextContainer:(NSTextContainer *) container;
 {
+	// ??? does this call rectArrayForGlyphRange and NSUnionRect all rectangles??
 	NSRect r=NSZeroRect;
 	NSRange cRange;
 	[self ensureLayoutForGlyphRange:glyphRange];
@@ -282,10 +283,12 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
 		NSTextContainer *textContainer=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];	// this call could fill the cache if needed...
 		NSColor *color=[NSColor selectedTextBackgroundColor];
-		unsigned int cnt;
+		unsigned int i, cnt;
 		NSRectArray r=[self rectArrayForGlyphRange:glyphsToShow withinSelectedGlyphRange:glyphsToShow inTextContainer:textContainer rectCount:&cnt];
-		// FIXME: how do we handle the origin?
-		[self fillBackgroundRectArray:r count:cnt forCharacterRange:glyphsToShow color:color];
+		for(i=0; i<cnt; i++)
+			r[i].origin.x+=origin.x,
+			r[i].origin.y+=origin.y;	// move to drawing origin
+		[self fillBackgroundRectArray:r count:cnt forCharacterRange:glyphsToShow color:color];	// draw selection
 		if(_NSShowGlyphBoxes)
 			{ // draw bounding boxes of glyphs
 			unsigned int g;
@@ -347,6 +350,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		 frame.size=[cell cellSize];
 		 [cell drawWithFrame:frame inView:textView characterIndex:characterRange.location layoutManager:self];
 		 */
+		// FIXME: we should intersect with rangeOfNominallySpacedGlyphsContainingIndex to find a range drawable using backend advancements (nominal spacing)
 		while(count < glyphsToShow.length)
 			{ // get visible glyph range with uniform attributes and same lfr
 				if(glyphsToShow.location+count >= NSMaxRange(attribRange))
@@ -710,7 +714,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			break;	// between this and previous lfr
 		if(aPoint.y < NSMaxY(lfrRect))
 			{ // in this line
-				NSPoint prevx=0;
+				float prevx=0;
 				while(lfrRange.length > 0)
 					{
 					NSPoint pos=[self locationForGlyphAtIndex:lfrRange.location];
@@ -1081,11 +1085,13 @@ static void allocateExtra(struct NSGlyphStorage *g)
 }
 
 - (NSRange) rangeOfNominallySpacedGlyphsContainingIndex:(unsigned)glyphIndex;
-{
+{ // return a glpyh range with no kerning
 	[self ensureLayoutForGlyphRange:NSMakeRange(0, glyphIndex+1)];
 	if(glyphIndex >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
 	NIMP;
+	// search backwards until the first glyph with a location is found
+	// then find the range up to but not including the next location
 	return NSMakeRange(0, 0);
 }
 
@@ -1094,7 +1100,6 @@ static void allocateExtra(struct NSGlyphStorage *g)
 					   inTextContainer:(NSTextContainer *) container 
 							 rectCount:(unsigned *) rectCount;
 {
-	// CHECKME: which one is better to base on the other method?
 	charRange=[self glyphRangeForCharacterRange:charRange actualCharacterRange:NULL];
 	selCharRange=[self glyphRangeForCharacterRange:selCharRange actualCharacterRange:NULL];
 	return [self rectArrayForGlyphRange:charRange withinSelectedGlyphRange:selCharRange inTextContainer:container rectCount:rectCount];
@@ -1105,26 +1110,46 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				   inTextContainer:(NSTextContainer *) container 
 						 rectCount:(unsigned *) rectCount;
 {
-	// FIXME: this is not shared between all instances!
+	// FIXME: this is not intended to be shared between all instances!
+	// FIXME: if the textContainer has holes, there can be multiple line fragment rects on the same y position!
+	// FIXME: then we can receive more than 3 rectangles
+	// FIXME: handle selGlyphRange (can be {NSNotFound, 0} )
 	static NSRect rect[3];	// owned by us and reused; also reused by boundingRectForGlyphRange:inTextContainer (???)
-	
-	// FIXME:
-	
-	// check that selGlyphRange contains glyphRange
-	// or selGlyphRange.location == NSNotFound
-	// find first partial line range (unless empty)
-	// find middle "box"
-	// find last partial line (unless empty)
-	
-	if(NSIsEmptyRect(rect[2]))
-		{
-		if(NSIsEmptyRect(rect[1]))
-			*rectCount=1;
+	NSPoint pos;
+	if(glyphRange.length == 0)
+		{ // no rectangles
+		*rectCount=0;
+		return rect;
+		}
+	rect[1]=rect[0]=[self lineFragmentRectForGlyphAtIndex:glyphRange.location effectiveRange:NULL];	// first line of range
+	pos=[self locationForGlyphAtIndex:glyphRange.location];	// first glyph
+	rect[0].size.width-=pos.x;
+	rect[0].origin.x=pos.x;	// first glyph to right margin
+	rect[1].origin.y+=rect[0].size.height;	// middle part starts below first line
+	rect[2]=[self lineFragmentRectForGlyphAtIndex:NSMaxRange(glyphRange)-1 effectiveRange:NULL];	// last line of range
+	// FIXME: do we have to account for the extraFragmentRect?
+	// if NSMaxRange(glyphRange) == _numberOfGlyphs
+	// or is this automatically handled by lineFragmentRectForGlyphAtIndex and locationForGlyphAtIndex
+	pos=[self locationForGlyphAtIndex:NSMaxRange(glyphRange)-1];	// last glyph
+	rect[2].size.width=pos.x-rect[2].origin.x;	// left margin to last glyph
+	if(rect[2].origin.y <= rect[1].origin.y)
+		{ // there is no middle block
+		if(rect[2].origin.y == rect[0].origin.y)
+			{ // first and last line are the same
+				rect[0].size.width=pos.x-rect[0].origin.x;
+				*rectCount=1;
+			}
 		else
+			{ // first and last line are different, i.e. spans a single line break
+			rect[1]=rect[2];
 			*rectCount=2;
+			}
 		}
 	else
+		{
+		rect[1].size.height=rect[2].origin.y-rect[1].origin.y;	// block between first and last line
 		*rectCount=3;
+		}
 	return rect;
 }
 
@@ -1271,6 +1296,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	// [self setLocations:&location startingGlyphIndexes:&glyphRange.location count:1 forGlyphRange:glyphRange];
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
+	// other glyphs should have no location or ot should be calculated here or if someone tries to ask its locationForGlyphAtIndex:
 	_glyphs[glyphRange.location].location=location;
 }
 
