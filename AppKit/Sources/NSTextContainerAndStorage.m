@@ -433,9 +433,6 @@
 }
 #endif
 
-//// FIXME: this is called in SWK when we update the attributed string
-//// and it should at least make the NSTextView resize so that scrollbars are displayed properly
-
 - (void) replaceCharactersInRange:(NSRange) rng withAttributedString:(NSAttributedString *) str
 {
 #if __APPLE__

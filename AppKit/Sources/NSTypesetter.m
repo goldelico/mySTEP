@@ -831,6 +831,11 @@ forStartOfGlyphRange:(NSRange) range;
 - (void) getAttributesForCharacterIndex:(unsigned int) idx;
 {
 	attrs=[textStorage attributesAtIndex:idx effectiveRange:&attrsRange];
+#if 0
+	NSLog(@"getAttributesForCharacterIndex:%u", idx);
+	NSLog(@"  -> range:%@", NSStringFromRange(attrsRange));
+	NSLog(@"  -> %@", attrs);
+#endif
 }
 
 - (unsigned) glyphIndexToBreakLineByHyphenatingWordAtIndex:(unsigned) charIndex;
@@ -857,24 +862,28 @@ forStartOfGlyphRange:(NSRange) range;
 
 - (unsigned int) glyphIndexToBreakLineByClippingAtIndex:(unsigned int) idx;
 {
+	// clipping means deleting glyphs to end of line
 	return idx;
 }
 
 - (unsigned) growGlyphCaches:(unsigned) desiredCapacity fillGlyphInfo:(BOOL) fillGlyphInfo;
 {
 	unsigned count=0;
-	if(capacityGlyphInfo < desiredCapacity)
+	if(desiredCapacity > capacityGlyphInfo)
 		{ // really needs to grow the cache
 			glyphs=(NSTypesetterGlyphInfo *) objc_realloc(glyphs, desiredCapacity*sizeof(NSTypesetterGlyphInfo));
-			memset(&glyphs[capacityGlyphInfo], 0, (desiredCapacity-capacityGlyphInfo)*sizeof(glyphs[0]));	// clear
+			memset(&glyphs[capacityGlyphInfo], 0, (desiredCapacity-capacityGlyphInfo)*sizeof(glyphs[0]));	// clear newly created slots
 		}
 	if(fillGlyphInfo)
 		{
 		BOOL flag;
 		NSGlyph glyph;
-		[layoutManager ensureGlyphsForGlyphRange:NSMakeRange(firstInvalidGlyphIndex, desiredCapacity)];	// generate glyphs only once
-		while((glyph=[layoutManager glyphAtIndex:firstInvalidGlyphIndex isValidIndex:&flag]), flag)
-			{ // we need this loop to find out how many glyphs have been generated
+		[layoutManager ensureGlyphsForGlyphRange:NSMakeRange(firstInvalidGlyphIndex, desiredCapacity)];	// generate glyphs only once (or glyphAtIndex: would generate them individually)
+		while(YES)
+			{ // we need this loop to find out how many glyphs have been generated and make firstInvalidGlyphIndex track [layoutManager numberOfGlyphs]
+			glyph=[layoutManager glyphAtIndex:firstInvalidGlyphIndex isValidIndex:&flag];
+			if(!flag)
+				break;	// no longer valid
 			firstInvalidGlyphIndex++;
 			count++;
 			}
@@ -968,6 +977,9 @@ NSLayoutOutOfGlyphs
 	BOOL setBaseline=(*baseline == NSBaselineNotSet);
 	NSLayoutStatus status=NSLayoutOutOfGlyphs;	// all glyphs laid out
 	float lineHeight;
+#if 0
+	NSLog(@"layoutGlyphsInHorizontalLineFragment: %@", NSStringFromRect(*lineFragmentRect));
+#endif
 	if(setBaseline)
 		*baseline=0.0;
 	curGlyphOffset=(curCharacterIndex == curParaRange.location)?[curParaStyle firstLineHeadIndent]:[curParaStyle headIndent];	// start at left indent
@@ -979,6 +991,15 @@ NSLayoutOutOfGlyphs
 		{ // we still have a character to process
 			unichar curChar;
 			NSTypesetterGlyphInfo *glyphInfo;
+#if 0
+			NSLog(@"curGlyphIndex: %u", curGlyphIndex);
+			NSLog(@"curGlyphOffset: %g", curGlyphOffset);
+			NSLog(@"curCharacterIndex: %u", curCharacterIndex);
+			NSLog(@"curParaRange: %@", NSStringFromRange(curParaRange));
+			NSLog(@"curMaxGlyphLocation: %g", curMaxGlyphLocation);
+			NSLog(@"attrsRange: %@", NSStringFromRange(attrsRange));
+			NSLog(@"firstInvalidGlyphIndex: %u", firstInvalidGlyphIndex);
+#endif
 			if(curCharacterIndex >= NSMaxRange(curParaRange))
 				{ // switch to new paragraph style
 					// how to handle extra fragment if end of string?
@@ -1121,7 +1142,10 @@ NSLayoutOutOfGlyphs
 		lineHeight *= [curParaStyle lineHeightMultiple];	// shouldn't we take the previous Paragraph?
 	lineHeight+=[curParaStyle lineSpacing];
 	// somehow add paragraphSpacing and paragraphSpacingBefore
-	lineFragmentRect->size.height=MIN(MAX(curMinLineHeight, lineHeight), curMaxLineHeight);	// set line height	
+	lineFragmentRect->size.height=MIN(MAX(curMinLineHeight, lineHeight), curMaxLineHeight);	// set line height
+#if 0
+	NSLog(@"   -> %d: %@", status, NSStringFromRect(*lineFragmentRect));
+#endif	
 	return status;
 }
 

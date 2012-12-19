@@ -1,16 +1,16 @@
 /* 
-   NSCell.m
-
-   Abstract cell class
-
-   Copyright (C) 1996 Free Software Foundation, Inc.
-
-   Author:  Felipe A. Rodriguez <far@pcmagic.net>
-   Date:    August 1998
-   
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/ 
+ NSCell.m
+ 
+ Abstract cell class
+ 
+ Copyright (C) 1996 Free Software Foundation, Inc.
+ 
+ Author:  Felipe A. Rodriguez <far@pcmagic.net>
+ Date:    August 1998
+ 
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */ 
 
 #import <Foundation/NSString.h>
 #import <Foundation/NSException.h>
@@ -46,9 +46,9 @@ static NSColor *__borderedBackgroundColor = nil;
 {
 	if (self == [NSCell class])
 		{
-			__defaultFont = [[NSFont userFontOfSize:0] retain];
-			NSAssert(__defaultFont, @"get default font");	// we can't operate without one
-			__borderedBackgroundColor = [[NSColor controlBackgroundColor] retain];
+		__defaultFont = [[NSFont userFontOfSize:0] retain];
+		NSAssert(__defaultFont, @"get default font");	// we can't operate without one
+		__borderedBackgroundColor = [[NSColor controlBackgroundColor] retain];
 		}
 }
 
@@ -109,7 +109,7 @@ static NSColor *__borderedBackgroundColor = nil;
 - (id) copyWithZone:(NSZone *) zone
 {
 	NSCell *c = [isa allocWithZone:zone];	// makes a real copy
-
+	
 	c->_contents = [_contents copyWithZone:zone];
 	c->_controlView = _controlView;
 	c->_representedObject = [_representedObject retain];
@@ -127,8 +127,8 @@ static NSColor *__borderedBackgroundColor = nil;
 {
 	NSMutableString *a=[NSMutableString stringWithFormat:@"%@: state=%d\n", NSStringFromClass([self class]), _c.state];
 	switch(_c.type) { case NSTextCellType:  [a appendString:@"NSTextCellType\n"]; break;
-					  case NSImageCellType: [a appendString:@"NSImageCellType\n"]; break;
-					  case NSNullCellType:  [a appendString:@"NSNullCellType\n"]; break; }
+		case NSImageCellType: [a appendString:@"NSImageCellType\n"]; break;
+		case NSNullCellType:  [a appendString:@"NSNullCellType\n"]; break; }
 	if(_c.highlighted) [a appendString:@"highlighted\n"];
 	if(_c.enabled) [a appendString:@"enabled\n"];
 	if(_c.editable) [a appendString:@"editable\n"];
@@ -160,13 +160,13 @@ static NSColor *__borderedBackgroundColor = nil;
 			m=[_contents size];
 		else
 			m=[_contents sizeWithAttributes:_attribs];
-			m.width += 4.0;
+		m.width += 4.0;
 		}
 	else if (_c.type == NSImageCellType && _contents != nil)
 		m=[_contents size];
 	else
 		m=NSZeroSize;
-
+	
 	if(_c.bordered)
 		return (NSSize){m.width+10, m.height+10};
 	if(_c.bezeled)
@@ -223,18 +223,18 @@ static NSColor *__borderedBackgroundColor = nil;
 	NSLog(@"%@ setType %d", self, aType);
 #endif
 	switch(aType)
-		{
+	{
 		case NSImageCellType:
 		case NSNullCellType:
-			[self setImage:nil];
-			break;
+		[self setImage:nil];
+		break;
 		case NSTextCellType:
-			// FIXME: move some special initializations here
-			[_attribs setObject:[NSColor controlTextColor] forKey:NSForegroundColorAttributeName];
-			[_attribs setObject:__defaultFont forKey:NSFontAttributeName];
-			break;
-	// default: raise exception?
-		}
+		// FIXME: move some special initializations here
+		[_attribs setObject:[NSColor controlTextColor] forKey:NSForegroundColorAttributeName];
+		[_attribs setObject:__defaultFont forKey:NSFontAttributeName];
+		break;
+		// default: raise exception?
+	}
 }
 
 - (void) setState:(int)value
@@ -316,12 +316,12 @@ static NSColor *__borderedBackgroundColor = nil;
 	NSLog(@"%@ setObjectValue done:", self);
 #endif
 	if(_c.editing)
-			{ // update field editor to new value
-				NSTextView *textObject=(NSTextView *) [[[self controlView] window] fieldEditor:NO forObject:[self controlView]];
-				[[textObject textStorage] setAttributedString:[self attributedStringValue]];	// copy attributed string from cell to be edited
-				//		[textObject setSelectedRange:(NSRange){selStart, selLength}];
-				return;
-			}
+		{ // update field editor to new value
+			NSTextView *textObject=(NSTextView *) [[[self controlView] window] fieldEditor:NO forObject:[self controlView]];
+			[[textObject textStorage] setAttributedString:[self attributedStringValue]];	// copy attributed string from cell to be edited
+			//		[textObject setSelectedRange:(NSRange){selStart, selLength}];
+			return;
+		}
 }
 
 - (void) setDoubleValue:(double)aDouble
@@ -377,10 +377,10 @@ static NSColor *__borderedBackgroundColor = nil;
 {
 	[self setObjectValue:[sender objectValue]];
 }
-														// Text Attributes 
+// Text Attributes 
 - (void) setFloatingPointFormat:(BOOL)autoRange
 						   left:(unsigned int)leftDigits
-						   right:(unsigned int)rightDigits
+						  right:(unsigned int)rightDigits
 {
 	_c.floatAutorange = autoRange;					// FIX ME create formatter 
 }													// if needed and set format
@@ -396,10 +396,10 @@ static NSColor *__borderedBackgroundColor = nil;
 - (void) setWraps:(BOOL)flag
 {
 	if(flag)
-			{
-			[self setLineBreakMode:NSLineBreakByWordWrapping];
-			[self setScrollable:NO];
-			}
+		{
+		[self setLineBreakMode:NSLineBreakByWordWrapping];
+		[self setScrollable:NO];
+		}
 	else  
 		[self setLineBreakMode:NSLineBreakByClipping];
 }
@@ -447,20 +447,20 @@ static NSColor *__borderedBackgroundColor = nil;
 	[textObject setFocusRingType:NSFocusRingTypeExterior];
 	
 	if(_c.drawsBackground)
-			{
-				[textObject setBackgroundColor:[(id)self backgroundColor]];
-				[textObject setDrawsBackground:YES];
-			}
+		{
+		[textObject setBackgroundColor:[(id)self backgroundColor]];
+		[textObject setDrawsBackground:YES];
+		}
 	else if(_c.bezeled)
-			{
-				[textObject setBackgroundColor:[NSColor controlBackgroundColor]];
-				[textObject setDrawsBackground:YES];
-			}
+		{
+		[textObject setBackgroundColor:[NSColor controlBackgroundColor]];
+		[textObject setDrawsBackground:YES];
+		}
 	else if(_c.bordered && __borderedBackgroundColor)
-			{
-				[textObject setBackgroundColor:__borderedBackgroundColor];
-				[textObject setDrawsBackground:YES];
-			}
+		{
+		[textObject setBackgroundColor:__borderedBackgroundColor];
+		[textObject setDrawsBackground:YES];
+		}
 	else
 		[textObject setDrawsBackground:NO];
 	return textObject;
@@ -469,19 +469,19 @@ static NSColor *__borderedBackgroundColor = nil;
 - (void) editWithFrame:(NSRect)aRect 					// edit the cell's text
 				inView:(NSView*)controlView				// using the fieldEditor
 				editor:(NSText*)textObject				// s/b called only from 
-				delegate:(id)anObject					// a mouseDown
-				event:(NSEvent*)event
+			  delegate:(id)anObject					// a mouseDown
+				 event:(NSEvent*)event
 {
 	if(_c.type != NSTextCellType || _c.editing)
 		return;
-
+	
 	[self selectWithFrame:aRect				
-		  inView:controlView	 		
-		  editor:textObject	 		
-		  delegate:anObject
-		  start:(int)0	 
-		  length:(int)0];
-
+				   inView:controlView	 		
+				   editor:textObject	 		
+				 delegate:anObject
+					start:(int)0	 
+				   length:(int)0];
+	
 	[textObject mouseDown:event];	// NOTE: this will track until mouse goes up!
 }
 
@@ -500,11 +500,11 @@ static NSColor *__borderedBackgroundColor = nil;
 	_c.editing = NO;	// we may still be first responder - so suppress sending field editor notifications during resignFirstResponder
 	if(_c.scrollable)
 		{ // we did have an encapsulating clip view
-		NSClipView *c = (NSClipView *) [textObject superview];
-		v = [c superview];
-		r = [c frame];
-		[c retain];	
-		[c removeFromSuperview];	
+			NSClipView *c = (NSClipView *) [textObject superview];
+			v = [c superview];
+			r = [c frame];
+			[c retain];	
+			[c removeFromSuperview];	
 		}
 	else
 		{
@@ -518,8 +518,8 @@ static NSColor *__borderedBackgroundColor = nil;
 - (void) selectWithFrame:(NSRect)aRect					// similar to editWith-
 				  inView:(NSView*)controlView	 		// Frame method but can
 				  editor:(NSText*)textObject	 		// be called from more
-				  delegate:(id)anObject	 				// than just mouseDown
-				  start:(int)selStart	 
+				delegate:(id)anObject	 				// than just mouseDown
+				   start:(int)selStart	 
 				  length:(int)selLength
 {
 	if(controlView && textObject && _c.type == NSTextCellType)
@@ -528,7 +528,7 @@ static NSColor *__borderedBackgroundColor = nil;
 		NSClipView *controlSuperView;
 #if 1
 		NSLog(@"NSCell -selectWithFrame: %@", self);
-			NSLog(@"	current window=%@", [textObject window]);
+		NSLog(@"	current window=%@", [textObject window]);
 		NSLog(@"	current superview=%@", [textObject superview]);
 		NSLog(@"	current firstResponder=%@", [[textObject window] firstResponder]);
 #endif
@@ -548,37 +548,37 @@ static NSColor *__borderedBackgroundColor = nil;
 			[textObject setString:[self stringValue]];	// copy simple string from cell to be edited
 		[textObject setSelectedRange:(NSRange){selStart, selLength}];
 		[self setUpFieldEditorAttributes:textObject];
-	
+		
 		if(_c.scrollable)
 			{ // if we are scrollable, put us in a clipview
-			[textObject setHorizontallyResizable:YES];	// don't adjust width to content rect
-			[textObject setVerticallyResizable:NO];	// and not for height (i.e. keep as large as the cell we are editing)
-			[textObject setFrame:(NSRect){{0,1},aRect.size}];
-			if(!controlSuperView)
-				{ // insert into new clipview
-				controlSuperView = [[[NSClipView alloc] initWithFrame:aRect] autorelease];
-				[controlSuperView setDocumentView:textObject];	// indirectly does [textObject sizeToFit]
-				}
-			else
-				{ // update the clipview
-				[controlSuperView setBoundsOrigin:NSZeroPoint];
-				[controlSuperView setFrame:aRect];
-					[textObject sizeToFit];
-				}
-			[controlView addSubview:controlSuperView];
+				[textObject setHorizontallyResizable:YES];	// don't adjust width to content rect
+				[textObject setVerticallyResizable:NO];	// and not for height (i.e. keep as large as the cell we are editing)
+				[textObject setFrame:(NSRect){{0,1},aRect.size}];
+				if(!controlSuperView)
+					{ // insert into new clipview
+						controlSuperView = [[[NSClipView alloc] initWithFrame:aRect] autorelease];
+						[controlSuperView setDocumentView:textObject];	// indirectly does [textObject sizeToFit]
+					}
+				else
+					{ // update the clipview
+						[controlSuperView setBoundsOrigin:NSZeroPoint];
+						[controlSuperView setFrame:aRect];
+						[textObject sizeToFit];
+					}
+				[controlView addSubview:controlSuperView];
 			}
 		else
-				{ // remove us from any clip view
-					if(controlSuperView)
-							{
-								[controlSuperView setDocumentView:nil];	// if we had been scrollable
-								[controlSuperView removeFromSuperview];	// give up the clipview
-							}
-					[textObject setHorizontallyResizable:NO];	// keep as wide as the cell
-					[textObject setVerticallyResizable:YES];	// adjust height if needed
-					[textObject setFrame:NSOffsetRect(aRect, 1.0, -1.0)];	// adjust so that it really overlaps
-					[controlView addSubview:textObject];
-				}
+			{ // remove us from any clip view
+				if(controlSuperView)
+					{
+					[controlSuperView setDocumentView:nil];	// if we had been scrollable
+					[controlSuperView removeFromSuperview];	// give up the clipview
+					}
+				[textObject setHorizontallyResizable:NO];	// keep as wide as the cell
+				[textObject setVerticallyResizable:YES];	// adjust height if needed
+				[textObject setFrame:NSOffsetRect(aRect, 1.0, -1.0)];	// adjust so that it really overlaps
+				[controlView addSubview:textObject];
+			}
 		[[controlView window] makeFirstResponder:textObject];	// make the field editor the first responder
 		_c.editing = YES;	// now consider the cell as editing
 		[controlView setNeedsDisplayInRect:aRect];	// and redisplay new NSText (over the cell)
@@ -603,33 +603,33 @@ static NSColor *__borderedBackgroundColor = nil;
 - (int) cellAttribute:(NSCellAttribute)aParameter
 {
 	switch (aParameter)									// FIX ME unfinished
-		{
+	{
 		case NSCellDisabled:	return (int)_c.enabled;
 		case NSCellIsBordered:	return (int)_c.bordered;
 		case NSCellHighlighted:	return (int)_c.highlighted;
 		case NSCellState:		return (int)_c.state;
 		case NSCellEditable:	return (int)_c.editable;
 		default:				return -1;
-		}
+	}
 }
 
 - (void) setCellAttribute:(NSCellAttribute)aParameter to:(int)value
 {
 	switch (aParameter)
-		{
+	{
 		case NSCellDisabled:	_c.enabled = (BOOL)value;		break;
 		case NSCellIsBordered:	_c.bordered = (BOOL)value; _c.bezeled=NO;		break;
 		case NSCellHighlighted:	_c.highlighted = (BOOL)value;	break;
 		case NSCellState:		_c.state = (BOOL)value;			break;
 		case NSCellEditable:	_c.editable = _c.selectable = (BOOL)value;
 		default:
-			break;
-		}
+		break;
+	}
 }
 
 - (void) highlight:(BOOL)lit							// Drawing the cell
 		 withFrame:(NSRect)cellFrame						
-		 inView:(NSView *)controlView					
+			inView:(NSView *)controlView					
 {
 	_c.highlighted = lit;
 	[self drawWithFrame:cellFrame inView:controlView];
@@ -639,7 +639,7 @@ static NSColor *__borderedBackgroundColor = nil;
 				inView:(NSView*)controlView
 {
 	NSDebugLog (@"NSCell drawWithFrame:inView:");
-
+	
 	if(_c.bezeled) 
 		{
 #if 0
@@ -676,10 +676,10 @@ static NSColor *__borderedBackgroundColor = nil;
 #endif
 	NSDictionary *attribs=_attribs;	// set default
 	if(!_c.enabled)
-			{ // replace by disabledControlTextColor
-				attribs=[[_attribs mutableCopy] autorelease];	// copy attributes
-				[(NSMutableDictionary *) attribs setObject:[NSColor disabledControlTextColor] forKey:NSForegroundColorAttributeName];
-			}
+		{ // replace by disabledControlTextColor
+			attribs=[[_attribs mutableCopy] autorelease];	// copy attributes
+			[(NSMutableDictionary *) attribs setObject:[NSColor disabledControlTextColor] forKey:NSForegroundColorAttributeName];
+		}
 #if 0
 	NSLog(@"attribs=%@", attribs);
 	NSLog(@"_formatter=%@", _formatter);
@@ -687,12 +687,12 @@ static NSColor *__borderedBackgroundColor = nil;
 	NSLog(@"_contents class=%@", [_contents class]);
 #endif
 	if(_formatter)
-			{
-				if([_formatter respondsToSelector:@selector(attributedStringForObjectValue:withDefaultAttributes:)])
-					string=[_formatter attributedStringForObjectValue:_contents withDefaultAttributes:attribs];
-				if(string == nil)
-					string=[[[NSAttributedString alloc] initWithString:[_formatter stringForObjectValue:_contents] attributes:attribs] autorelease];
-			}
+		{
+		if([_formatter respondsToSelector:@selector(attributedStringForObjectValue:withDefaultAttributes:)])
+			string=[_formatter attributedStringForObjectValue:_contents withDefaultAttributes:attribs];
+		if(string == nil)
+			string=[[[NSAttributedString alloc] initWithString:[_formatter stringForObjectValue:_contents] attributes:attribs] autorelease];
+		}
 	else if([_contents isKindOfClass:[NSAttributedString class]])
 		string=_contents;   // is already an attributed string
 	else
@@ -702,24 +702,24 @@ static NSColor *__borderedBackgroundColor = nil;
 #endif
 	length=[string length];
 	if(length > 0)
+		{
+		if(_c.secure)   // set by NSSecureTextField
 			{
-				if(_c.secure)   // set by NSSecureTextField
-						{
-							string=[string mutableCopy];
-							[(NSMutableAttributedString *) string replaceCharactersInRange:NSMakeRange(0, length) withString:[@"" stringByPaddingToLength:length withString:@"*" startingAtIndex:0]];	// replace with sequence of *
-							[string autorelease];
-						}
+			string=[string mutableCopy];
+			[(NSMutableAttributedString *) string replaceCharactersInRange:NSMakeRange(0, length) withString:[@"" stringByPaddingToLength:length withString:@"*" startingAtIndex:0]];	// replace with sequence of *
+			[string autorelease];
 			}
+		}
 	else if(!flag && _placeholderString)
-			{ // substitute placeholder
-				if([_placeholderString isKindOfClass:[NSAttributedString class]])
-					string=_placeholderString;	// we already have an attributed placeholder
-				else
-						{
-							string=[[[NSMutableAttributedString alloc] initWithString:_placeholderString attributes:attribs] autorelease];
-							[(NSMutableAttributedString *) string addAttribute:NSForegroundColorAttributeName value:[NSColor disabledControlTextColor] range:NSMakeRange(0, [string length])];
-						}
-			}
+		{ // substitute placeholder
+			if([_placeholderString isKindOfClass:[NSAttributedString class]])
+				string=_placeholderString;	// we already have an attributed placeholder
+			else
+				{
+				string=[[[NSMutableAttributedString alloc] initWithString:_placeholderString attributes:attribs] autorelease];
+				[(NSMutableAttributedString *) string addAttribute:NSForegroundColorAttributeName value:[NSColor disabledControlTextColor] range:NSMakeRange(0, [string length])];
+				}
+		}
 #if 0
 	NSLog(@"string=%@", string);
 #endif
@@ -745,11 +745,11 @@ static NSColor *__borderedBackgroundColor = nil;
 #endif
 		if(_d.verticallyCentered)
 			{ // vertically center
-			NSSize size=[astring size]; // determine bounding box of text
-			if([controlView isFlipped])
-				frame.origin.y += (NSHeight(frame) - size.height) / 2;
-			else
-				frame.origin.y -= (NSHeight(frame) - size.height) / 2;
+				NSSize size=[astring size]; // determine bounding box of text
+				if([controlView isFlipped])
+					frame.origin.y += (NSHeight(frame) - size.height) / 2;
+				else
+					frame.origin.y -= (NSHeight(frame) - size.height) / 2;
 			}
 #if 0
 		NSLog(@"inFrame %@", NSStringFromRect(frame));
@@ -760,13 +760,13 @@ static NSColor *__borderedBackgroundColor = nil;
 	
 	if(_c.type == NSImageCellType)
 		{ // render image cell
-		NSSize size = [(NSImage *)_contents size];
-		NSCompositingOperation op = (_c.highlighted) ? NSCompositeHighlight 
-													 : NSCompositeSourceOver;
-		// always center
-		frame.origin.x += (NSWidth(frame) - size.width) / 2;
-		frame.origin.y += (NSHeight(frame) - size.height) / 2;
-		[_contents compositeToPoint:frame.origin operation:op fraction:(_c.highlighted?0.8:1.0)];	  
+			NSSize size = [(NSImage *)_contents size];
+			NSCompositingOperation op = (_c.highlighted) ? NSCompositeHighlight 
+			: NSCompositeSourceOver;
+			// always center
+			frame.origin.x += (NSWidth(frame) - size.width) / 2;
+			frame.origin.y += (NSHeight(frame) - size.height) / 2;
+			[_contents compositeToPoint:frame.origin operation:op fraction:(_c.highlighted?0.8:1.0)];	  
 		}
 }
 
@@ -792,17 +792,17 @@ static NSColor *__borderedBackgroundColor = nil;
 - (int) sendActionOn:(int)mask
 {
 	unsigned int previousMask = 0;
-
+	
 	previousMask |= _c.continuous ? NSPeriodicMask : 0;
 	previousMask |= _c.actOnMouseDown ? NSLeftMouseDownMask : 0;
 	previousMask |= _c.actOnMouseUp ? NSLeftMouseUpMask : 0;
 	previousMask |= _c.actOnMouseDragged ? NSLeftMouseDraggedMask : 0;
-
+	
 	_c.continuous = (mask & NSPeriodicMask) != 0;
 	_c.actOnMouseDown = (mask & NSLeftMouseDownMask) != 0;
 	_c.actOnMouseDragged = (mask & NSLeftMouseDraggedMask) != 0;
 	_c.actOnMouseUp = (mask & NSLeftMouseUpMask) != 0;
-
+	
 	return previousMask;
 }
 
@@ -826,19 +826,19 @@ static NSColor *__borderedBackgroundColor = nil;
 	if([self action])
 		{
 		NS_DURING
-			[self _sendActionFrom:v];
+		[self _sendActionFrom:v];
 		NS_HANDLER
 			{
 #if 0
-				NSLog(@"%@ performClick exception %@", self, localException);
+			NSLog(@"%@ performClick exception %@", self, localException);
 #endif
-				[NSApp nextEventMatchingMask:0						// never match events
-								   untilDate:limit					// just delay
-									  inMode:NSEventTrackingRunLoopMode 
-									 dequeue:NO];
-				[self setHighlighted:NO];
-				[v setNeedsDisplayInRect:b];
-				[localException raise];	// re-raise on next level
+			[NSApp nextEventMatchingMask:0						// never match events
+							   untilDate:limit					// just delay
+								  inMode:NSEventTrackingRunLoopMode 
+								 dequeue:NO];
+			[self setHighlighted:NO];
+			[v setNeedsDisplayInRect:b];
+			[localException raise];	// re-raise on next level
 			}
 		NS_ENDHANDLER
 		}
@@ -902,8 +902,8 @@ static NSColor *__borderedBackgroundColor = nil;
 }
 
 - (BOOL) _trackLongPress:(NSEvent *)event
-						  inRect:(NSRect)cellFrame
-						  ofView:(NSView *)controlView
+				  inRect:(NSRect)cellFrame
+				  ofView:(NSView *)controlView
 			   lastPoint:(NSPoint) last_point
 				 atPoint:(NSPoint) point
 {
@@ -948,10 +948,10 @@ static NSColor *__borderedBackgroundColor = nil;
 		return NO;
 	if(_c.continuous)	// (sub)cell class wants periodic tracking
 		{ // enable periodic events
-		float delay, interval;
-		[self getPeriodicDelay:&delay interval:&interval];
-		[NSEvent startPeriodicEventsAfterDelay:delay withPeriod:interval];
-		mask |= NSPeriodicMask;
+			float delay, interval;
+			[self getPeriodicDelay:&delay interval:&interval];
+			[NSEvent startPeriodicEventsAfterDelay:delay withPeriod:interval];
+			mask |= NSPeriodicMask;
 		}
 	tracking=[self startTrackingAt:point inView:controlView];
 	if(_c.actOnMouseDown && action)
@@ -961,63 +961,63 @@ static NSColor *__borderedBackgroundColor = nil;
 	while(YES)
 		{ // Get next mouse event until a mouse up is obtained
 #if 0
-		NSLog(@"NSCell expiration=%@", expiration);
+			NSLog(@"NSCell expiration=%@", expiration);
 #endif
-		event = [NSApp nextEventMatchingMask:mask 
-								   untilDate:expiration
-									  inMode:NSEventTrackingRunLoopMode 
-									 dequeue:YES];
+			event = [NSApp nextEventMatchingMask:mask 
+									   untilDate:expiration
+										  inMode:NSEventTrackingRunLoopMode 
+										 dequeue:YES];
 #if 0
-		NSLog(@"NSCell event=%@", event);
+			NSLog(@"NSCell event=%@", event);
 #endif
-		if(!event)
-			{ // no matching event, i.e. timed out
-			if([self _trackLongPress:mouseDownEvent inRect:cellFrame ofView:controlView lastPoint:last_point atPoint:point])
-				return YES;	// mouse went up
-			expiration=[NSDate distantFuture];
-			continue;
-			}
-#if 0
-		NSLog(@"NSCell trackMouse: event=%@", event);
-#endif
-		switch([event type])
-			{
-			case NSPeriodic:
-				{ // send periodic action while tracking (e.g. for a slider)
-					if(action)
-						[self _sendActionFrom:controlView];
+			if(!event)
+				{ // no matching event, i.e. timed out
+					if([self _trackLongPress:mouseDownEvent inRect:cellFrame ofView:controlView lastPoint:last_point atPoint:point])
+						return YES;	// mouse went up
+					expiration=[NSDate distantFuture];
 					continue;
 				}
-			case NSLeftMouseUp:					// Did mouse go up?
-				{
-					mouseWentUp = YES;
-					break;	// break loop
-				}
-			case NSLeftMouseDragged:
-				{ // pointer has moved
-					last_point=point;
-					point = [controlView convertPoint:[event locationInWindow] fromView:nil];
-					if(fabs(point.x-first_point.x)+fabs(point.y-first_point.y) > 5.0)
-					   expiration=[NSDate distantFuture];	// if pointer has been moved too far, disable context menu detection
 #if 0
-					NSLog(@"NSCell trackMouse: pointIsInCell=%@", [controlView mouse:point inRect:cellFrame]?@"YES":@"NO");
+			NSLog(@"NSCell trackMouse: event=%@", event);
 #endif
-					if(!untilMouseUp && ![controlView mouse:point inRect:cellFrame]) // we did leave the cell
-						break;	// break loop when leaving the frame box
-					if(_c.actOnMouseDragged)
-						{ // send action while tracking (e.g. for a slider)
+			switch([event type])
+			{
+				case NSPeriodic:
+			{ // send periodic action while tracking (e.g. for a slider)
+				if(action)
+					[self _sendActionFrom:controlView];
+				continue;
+			}
+				case NSLeftMouseUp:					// Did mouse go up?
+				{
+				mouseWentUp = YES;
+				break;	// break loop
+				}
+				case NSLeftMouseDragged:
+			{ // pointer has moved
+				last_point=point;
+				point = [controlView convertPoint:[event locationInWindow] fromView:nil];
+				if(fabs(point.x-first_point.x)+fabs(point.y-first_point.y) > 5.0)
+					expiration=[NSDate distantFuture];	// if pointer has been moved too far, disable context menu detection
+#if 0
+				NSLog(@"NSCell trackMouse: pointIsInCell=%@", [controlView mouse:point inRect:cellFrame]?@"YES":@"NO");
+#endif
+				if(!untilMouseUp && ![controlView mouse:point inRect:cellFrame]) // we did leave the cell
+					break;	// break loop when leaving the frame box
+				if(_c.actOnMouseDragged)
+					{ // send action while tracking (e.g. for a slider)
 						if(action)
 							[self _sendActionFrom:controlView];
-						}
-					if(tracking && ![self continueTracking:last_point at:point inView:controlView])
-						tracking=NO;	// cell no longer wants to receive any more tracking calls
-					continue;
-				}
+					}
+				if(tracking && ![self continueTracking:last_point at:point inView:controlView])
+					tracking=NO;	// cell no longer wants to receive any more tracking calls
+				continue;
+			}
 				// scroll wheel?
-			default:
+				default:
 				continue;	// ignore all others and continue loop
 			}
-		break;	// break in switch also breaks the while loop
+			break;	// break in switch also breaks the while loop
 		}
 	if((mask & NSPeriodicMask) != 0)
 		[NSEvent stopPeriodicEvents];					// was still tracking
@@ -1068,7 +1068,7 @@ static NSColor *__borderedBackgroundColor = nil;
 		{
 		long cellflags=[aDecoder decodeInt32ForKey:@"NSCellFlags"];
 		long cellflags2=[aDecoder decodeInt32ForKey:@"NSCellFlags2"];
-
+		
 #define STATE ((cellflags&0x80000000)!=0)
 		_c.state=STATE;
 #define HIGHLIGHTED ((cellflags&0x40000000)!=0)
@@ -1094,7 +1094,7 @@ static NSColor *__borderedBackgroundColor = nil;
 #define LEAF ((cellflags&0x00020000)!=0)
 		_d.isLeaf=LEAF;
 #define LINEBREAKMODE ((cellflags&0x00007000)>>12)
-			[self setLineBreakMode:LINEBREAKMODE];
+		[self setLineBreakMode:LINEBREAKMODE];
 #define ACTDRAG ((cellflags&0x00000100)!=0)
 		_c.actOnMouseDragged=ACTDRAG;
 #define LOADED ((cellflags&0x00000080)!=0)
@@ -1140,7 +1140,7 @@ static NSColor *__borderedBackgroundColor = nil;
 			_d.imageScaling=[aDecoder decodeIntForKey:@"NSScale"];	// NSButtonCell
 		else
 			_d.imageScaling=NSScaleNone;
-
+		
 		_placeholderString=[[aDecoder decodeObjectForKey:@"NSPlaceholderString"] retain];
 		[self setFont:[aDecoder decodeObjectForKey:@"NSSupport"]];		// font
 		_menu=[[aDecoder decodeObjectForKey:@"NSMenu"] retain];
@@ -1170,7 +1170,7 @@ static NSColor *__borderedBackgroundColor = nil;
 	[aDecoder decodeValueOfObjCType:@encode(unsigned int) at: &_c];
 	[aDecoder decodeValueOfObjCType:@encode(unsigned int) at: &_d];
 	_controlView = [aDecoder decodeObject];
-
+	
 	return self;
 }
 

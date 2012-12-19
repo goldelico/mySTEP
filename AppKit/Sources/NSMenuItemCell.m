@@ -126,7 +126,7 @@ Finally, NSPopUpButtonCell can be a real subclass of NSMenuItemCell
 { // return size
 	if(needsSizing)
 		[self calcSize];
-#if 0
+#if 1
 	NSLog(@"cellSize=%@", NSStringFromSize(size));
 #endif
 	return size;

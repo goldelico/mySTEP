@@ -195,7 +195,7 @@ static NSStringDrawingOptions _currentOptions;
 		}
 	[self _setupWithRect:rect options:NSStringDrawingUsesLineFragmentOrigin];	// infinitely large container
 #if 0
-	NSLog(@"drawWithRect:options: %@", self);
+	NSLog(@"drawAtPoint:%@ %@", NSStringFromPoint(point), self);
 #endif
 	rng=[_layoutManager glyphRangeForBoundingRect:rect inTextContainer:_textContainer];
 	if([ctxt isFlipped])
@@ -269,7 +269,7 @@ static NSStringDrawingOptions _currentOptions;
 		rect.size.width=FLT_MAX;	// single line mode
 	[self _setupWithRect:rect options:options];
 #if 0
-	NSLog(@"drawWithRect:options: %@", self);
+	NSLog(@"drawWithRect:%@ options:%d %@", NSStringFromRect(rect), options, self);
 #endif
 	rng=[_layoutManager glyphRangeForBoundingRect:(NSRect) { NSZeroPoint, rect.size } inTextContainer:_textContainer];
 	if([ctxt isFlipped])

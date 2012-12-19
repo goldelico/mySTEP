@@ -513,6 +513,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) ensureGlyphsForGlyphRange:(NSRange) range;
 { // this will also define the mapping from glyph to character indices
 	unsigned int cnt;
+#if 0
+	NSLog(@"ensureGlyphsForGlyphRange: %@ numberOfGlyphs=%u", NSStringFromRange(range), _numberOfGlyphs);
+#endif
 	while(_numberOfGlyphs < NSMaxRange(range) && _nextCharacterIndex < (cnt=[_textStorage length]))
 		{ // do some more characters/glyphs
 			unsigned glyphIndex=_numberOfGlyphs;
@@ -521,6 +524,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 												glyphIndex:&glyphIndex
 											characterIndex:&_nextCharacterIndex];	// generate Glyphs (code but not layout position!)		
 		}
+#if 0
+	NSLog(@"  -> numberOfGlyphs=%u", _numberOfGlyphs);
+#endif
 }
 
 - (void) ensureLayoutForBoundingRect:(NSRect) rect inTextContainer:(NSTextContainer *) textContainer;
@@ -685,11 +691,11 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		[self ensureGlyphsForGlyphRange:NSMakeRange(0, glyphIndex+1)];
 		if(glyphIndex >= _numberOfGlyphs)	// still not enough glyphs for this index
 			{
-			if(*isValidIndex) *isValidIndex=NO;
+			if(isValidIndex) *isValidIndex=NO;
 			return NSNullGlyph;
 			}
 		}
-	if(*isValidIndex) *isValidIndex=YES;
+	if(isValidIndex) *isValidIndex=YES;
 	return _glyphs[glyphIndex].glyph;
 }
 
@@ -1476,6 +1482,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) textContainerChangedGeometry:(NSTextContainer *) container;
 {
 	NSAssert(_glyphs == NULL || _glyphs[0].notShownAttribute <= 0, @"_glyphs damaged");
+#if 0
+	NSLog(@"textContainerChangedGeometry");
+#endif
 	if(_textContainers)
 		{
 		NSRange crng, grng;
@@ -1530,13 +1539,15 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	// translation of character codes to glyph codes through NSFont
 	// and pure layout (not changing geometry of individual glyphs but their relative position)
 	// check if only drawing attributes have been changed like NSColor/underline/striketrhough/link - then we do not even need to generate new glyphs or new layout positions
+#if 0
+	NSLog(@"textStorage:edited:%u range:%@ change:%d inval:%@", editedMask, NSStringFromRange(newCharRange), delta, NSStringFromRange(invalidatedCharRange));
+#endif
 	if(editedMask&NSTextStorageEditedCharacters)
 		{ // characters have been added/removed
 			NSTextView *tv=[self firstTextView];
 			NSRange aRange;
 			NSRange sel=[tv selectedRange];
 #if 0
-			NSLog(@"textStorage:edited:%u range:%@ change:%d inval:%@", editedMask, NSStringFromRange(newCharRange), delta, NSStringFromRange(invalidatedCharRange));
 			NSLog(@"  tv=%@", tv);
 			if([tv frame].size.height == 0)
 				NSLog(@"height became 0!");
