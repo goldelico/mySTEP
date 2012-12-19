@@ -281,14 +281,27 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	if(glyphsToShow.length > 0)
 		{
 		NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
-		NSTextContainer *textContainer=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];	// this call could fill the cache if needed...
-		NSColor *color=[NSColor selectedTextBackgroundColor];
-		unsigned int i, cnt;
-		NSRectArray r=[self rectArrayForGlyphRange:glyphsToShow withinSelectedGlyphRange:glyphsToShow inTextContainer:textContainer rectCount:&cnt];
-		for(i=0; i<cnt; i++)
-			r[i].origin.x+=origin.x,
-			r[i].origin.y+=origin.y;	// move to drawing origin
-		[self fillBackgroundRectArray:r count:cnt forCharacterRange:glyphsToShow color:color];	// draw selection
+		NSTextView *tv=[self firstTextView];
+		if(tv)
+			{ // draw selection - if any
+			NSTextContainer *textContainer=[self textContainerForGlyphAtIndex:glyphsToShow.location effectiveRange:NULL];	// this call could fill the cache if needed...
+			NSColor *color=[NSColor selectedTextBackgroundColor];
+			unsigned int i, cnt;
+			NSRectArray r=[self rectArrayForGlyphRange:glyphsToShow withinSelectedGlyphRange:[tv selectedRange] inTextContainer:textContainer rectCount:&cnt];
+				if(cnt)
+					{ // some range to fill
+					for(i=0; i<cnt; i++)
+						{
+						r[i].origin.x+=origin.x;
+						r[i].origin.y+=origin.y;	// move to drawing origin
+#if 1
+						NSLog(@"fill background %u: %@", i, NSStringFromRect(r[i]));
+#endif
+						}
+					[color set];	// must be set before drawing (parameter below is only for informational purposes)
+					[self fillBackgroundRectArray:r count:cnt forCharacterRange:glyphsToShow color:color];	// draw selection			
+					}
+			}
 		if(_NSShowGlyphBoxes)
 			{ // draw bounding boxes of glyphs
 			unsigned int g;
@@ -560,7 +573,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) fillBackgroundRectArray:(NSRectArray) rectArray count:(NSUInteger) rectCount forCharacterRange:(NSRange) charRange color:(NSColor *) color;
 { // charRange and color are for informational purposes - color must already be set
-	NSRectFillList(rectArray, rectCount);
+	BOOL behaveAsOSX10_6orlater=NO;	// makes highlighting transparent
+	NSRectFillListUsingOperation(rectArray, rectCount, behaveAsOSX10_6orlater?NSCompositeSourceOver:NSCompositeCopy);
 }
 
 - (NSTextView *) firstTextView;
@@ -1116,8 +1130,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	// FIXME: handle selGlyphRange (can be {NSNotFound, 0} )
 	static NSRect rect[3];	// owned by us and reused; also reused by boundingRectForGlyphRange:inTextContainer (???)
 	NSPoint pos;
+	glyphRange=NSIntersectionRange(glyphRange, selGlyphRange);
 	if(glyphRange.length == 0)
-		{ // no rectangles
+		{ // no rectangles to generate
 		*rectCount=0;
 		return rect;
 		}
@@ -1132,6 +1147,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	// or is this automatically handled by lineFragmentRectForGlyphAtIndex and locationForGlyphAtIndex
 	pos=[self locationForGlyphAtIndex:NSMaxRange(glyphRange)-1];	// last glyph
 	rect[2].size.width=pos.x-rect[2].origin.x;	// left margin to last glyph
+	// FIXME: we should also eliminate zero-width rects
 	if(rect[2].origin.y <= rect[1].origin.y)
 		{ // there is no middle block
 		if(rect[2].origin.y == rect[0].origin.y)
@@ -1147,7 +1163,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		}
 	else
 		{
-		rect[1].size.height=rect[2].origin.y-rect[1].origin.y;	// block between first and last line
+		rect[1].size.height=rect[2].origin.y-rect[1].origin.y;	// there is a block between first and last line
 		*rectCount=3;
 		}
 	return rect;
