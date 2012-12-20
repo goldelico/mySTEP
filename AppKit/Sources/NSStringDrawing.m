@@ -250,16 +250,20 @@ static NSStringDrawingOptions _currentOptions;
 	if([self length] == 0)
 		return;	// empty string
 	ctxt=[NSGraphicsContext currentContext];
-#if 1
-	// Clipping should be done by the layout manager/typesetter by limiting the glyph range. Not by drawing!
+#if 0
+	{ // Clipping should be done by the layout manager/typesetter by limiting the glyph range. Not by drawing!
+	NSRect r=rect;
+	if(r.size.width > 1e4) r.size.width=1e4;	// limit to avoid problems with bezier paths
+	if(r.size.height > 1e4) r.size.height=1e4;	// limit
 	[ctxt saveGraphicsState];
 	[NSBezierPath clipRect:rect];	// set clipping rect
+	}
 #endif
 	if(_NSShowStringDrawingBox)
-		{ // draw box
+		{ // show string drawing box
 			NSRect r=rect;
-			if(r.size.width > 1e4) r.size.width=10;	// limit to avoid problems with bezier paths
-			if(r.size.height > 1e4) r.size.height=10;	// limit
+			if(r.size.width > 1e6) r.size.width=1e6;	// limit to avoid problems with bezier paths
+			if(r.size.height > 1e6) r.size.height=1e6;	// limit
 			[ctxt saveGraphicsState];
 			[[NSColor brownColor] set];
 			NSFrameRect(r);	// drawing rect
@@ -293,7 +297,7 @@ static NSStringDrawingOptions _currentOptions;
 			[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];
 			[ctxt restoreGraphicsState];
 		}
-#if 1
+#if 0
 	[ctxt restoreGraphicsState];
 #endif
 	[self _tearDown];
