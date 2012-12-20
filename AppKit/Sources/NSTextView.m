@@ -1019,6 +1019,12 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (NSRect) firstRectForCharacterRange:(NSRange) range
 {
+	return [self firstRectForCharacterRange:range actualRange:NULL];
+}
+
+- (NSRect) firstRectForCharacterRange:(NSRange) range actualRange:(NSRangePointer) actual
+{
+#if OLD
 	if(range.length == 0)
 		{ // width 0 - we must get a correct height
 			NSRect r=NSZeroRect;	// default position
@@ -1041,6 +1047,12 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 			return r;
 		}
 	return [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
+#else
+	unsigned cnt;
+	NSRectArray	r=[layoutManager rectArrayForGlyphRange:range withinSelectedGlyphRange:range inTextContainer:textContainer rectCount:&cnt];
+	NSAssert(cnt > 0, @"zero count");
+	return r[0];	// first
+#endif
 }
 
 - (void) scrollRangeToVisible:(NSRange) range;

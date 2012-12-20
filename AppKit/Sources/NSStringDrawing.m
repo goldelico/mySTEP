@@ -258,8 +258,8 @@ static NSStringDrawingOptions _currentOptions;
 	if(_NSShowStringDrawingBox)
 		{ // draw box
 			NSRect r=rect;
-			if(r.size.width > 1e6) r.size.width=1e6;	// limit to avoid problems with bezier paths
-			if(r.size.height > 1e6) r.size.height=1e6;	// limit
+			if(r.size.width > 1e4) r.size.width=10;	// limit to avoid problems with bezier paths
+			if(r.size.height > 1e4) r.size.height=10;	// limit
 			[ctxt saveGraphicsState];
 			[[NSColor brownColor] set];
 			NSFrameRect(r);	// drawing rect

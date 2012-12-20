@@ -1231,9 +1231,9 @@ NSLayoutOutOfGlyphs
 							location.x+=usedRect.origin.x-lineFragmentRect.origin.x;
 							location.y+=baselineOffset;	// move glyph down to base line
 							[layoutManager setNotShownAttribute:NSGlyphInfoAtIndex(i)->_giflags.dontShow forGlyphAtIndex:glyphRange.location];
+							// if(i == 0 || !NSGlyphInfoAtIndex(i)->_giflags.defaultPositioning)
 							[layoutManager setLocation:location forStartOfGlyphRange:glyphRange];
 							[layoutManager setDrawsOutsideLineFragment:NSGlyphInfoAtIndex(i)->_giflags.drawsOutside forGlyphAtIndex:glyphRange.location];
-							// FIXME: NSGlyphInfoAtIndex(i)->_giflags.defaultPositioning
 							glyphRange.location++;
 						}
 					glyphRange=NSMakeRange(firstIndexOfCurrentLineFragment, i);
