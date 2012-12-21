@@ -1168,7 +1168,7 @@ NSLayoutOutOfGlyphs
 					   nextGlyphIndex:(unsigned int *) nextGlyph;
 { // internal method
 	unsigned numLines = 0;
-	NSLayoutStatus status;
+	NSLayoutStatus status=NSLayoutNotDone;
 	NSRect remainingRect = NSZeroRect;
 	
 	layoutManager = lm;
@@ -1179,22 +1179,16 @@ NSLayoutOutOfGlyphs
 	curGlyphIndex = firstGlyphIndex;
 	curCharacterIndex = [layoutManager characterIndexForGlyphAtIndex:curGlyphIndex];
 
-	if(*currentTextContainer)
-		{
-		curContainerSize=[*currentTextContainer containerSize];
-		*proposedRect=(NSRect) { NSZeroPoint, curContainerSize };
-		curContainerIsSimpleRectangular=[*currentTextContainer isSimpleRectangularTextContainer];
-		curContainerLineFragmentPadding=[*currentTextContainer lineFragmentPadding];
-		}
-	while(numLines < maxNumLines && curCharacterIndex < [textString length])
+	containerBreakAfterCurGlyph=YES;
+	while(numLines < maxNumLines)
 		{ // try to fill the next line
 			NSRange glyphRange;
 			float baselineOffset = NSBaselineNotSet;	// we want to position the glyphs ourseleves
 			NSRect lineFragmentRect;
 			NSRect usedRect;
 			int i;
-			if(*currentTextContainer)
-				{
+			if(!containerBreakAfterCurGlyph)
+				{ // try current container again
 				if(curContainerIsSimpleRectangular)
 					lineFragmentRect=*proposedRect;	// full container rect is ok
 				// FIXME: passing in the full proposedRect may lead to wrong results, for example for an hour-glass shaped container
@@ -1210,7 +1204,7 @@ NSLayoutOutOfGlyphs
 																 movementDirection:NSLineMovesDown
 																	 remainingRect:&remainingRect];				
 				}
-			if(!*currentTextContainer || NSIsEmptyRect(lineFragmentRect))
+			if(containerBreakAfterCurGlyph || NSIsEmptyRect(lineFragmentRect))
 				{ // try next container
 					NSArray *containers=[lm textContainers];
 					if(!*currentTextContainer)
@@ -1229,7 +1223,13 @@ NSLayoutOutOfGlyphs
 					*proposedRect=(NSRect) { NSZeroPoint, curContainerSize };
 					curContainerIsSimpleRectangular=[*currentTextContainer isSimpleRectangularTextContainer];
 					curContainerLineFragmentPadding=[*currentTextContainer lineFragmentPadding];
+					containerBreakAfterCurGlyph=NO;	// found one
 					continue;	// try again for new container
+				}
+			if(status == NSLayoutOutOfGlyphs)	// we previously have processed the last fragment
+				{
+				[layoutManager setExtraLineFragmentRect:lineFragmentRect usedRect:usedRect textContainer:*currentTextContainer];
+				break;
 				}
 			firstIndexOfCurrentLineFragment=firstGlyphIndex;
 			usedRect=lineFragmentRect;
@@ -1280,11 +1280,6 @@ NSLayoutOutOfGlyphs
 					{
 					
 					}
-				}
-			if(status == NSLayoutOutOfGlyphs)	// this was the last fragment
-				{
-				// handle extra segment here?
-				break;
 				}
 		}
 	// FIXME: handle/create the extra line fragment

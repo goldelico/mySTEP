@@ -130,8 +130,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSRect) boundingRectForGlyphRange:(NSRange) glyphRange 
 					 inTextContainer:(NSTextContainer *) container;
 {
-	// ??? does this call rectArrayForGlyphRange and NSUnionRect all rectangles??
 	NSRect r=NSZeroRect;
+#if 0	// ALGORITHM1
+	// ??? does this call rectArrayForGlyphRange and NSUnionRect all rectangles??
 	NSRange cRange;
 	[self ensureLayoutForGlyphRange:glyphRange];
 	cRange=[self glyphRangeForTextContainer:container];
@@ -153,6 +154,12 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		r=NSUnionRect(r, box);
 		glyphRange.location++;
 		}
+#elif 1	// ALGORITHM2
+	NSUInteger cnt; 
+	NSRectArray ra=[self rectArrayForGlyphRange:glyphRange withinSelectedGlyphRange:NSMakeRange(NSNotFound, 0) inTextContainer:container rectCount:&cnt];
+	while(cnt-- > 0)
+		r=NSUnionRect(r, ra[cnt]);
+#endif
 	return r;
 }
 
@@ -1184,19 +1191,23 @@ static void allocateExtra(struct NSGlyphStorage *g)
 }
 
 - (NSRect *) rectArrayForGlyphRange:(NSRange) glyphRange 
-		   withinSelectedGlyphRange:(NSRange) selGlyphRange 
+		   withinSelectedGlyphRange:(NSRange) selGlyphRange		// { NSNotFound, 0 } defines a different algorithm!
 					inTextContainer:(NSTextContainer *) container 
 						  rectCount:(unsigned *) rectCount;
 {
 	// FIXME: this is not intended to be shared between all instances!
 	// FIXME: if the textContainer has holes, there can be multiple line fragment rects on the same y position!
 	// FIXME: then we can receive more than 3 rectangles
-	// FIXME: handle selGlyphRange (can be {NSNotFound, 0} )
+	// FIXME: handle selGlyphRange (can be { NSNotFound, 0 } )
 	static NSRect rect[3];	// owned by us and reused; also reused by boundingRectForGlyphRange:inTextContainer (???)
 	NSPoint pos;
-	glyphRange=NSIntersectionRange(glyphRange, selGlyphRange);
-	if(glyphRange.length == 0)
-		glyphRange.location=selGlyphRange.location;	// has been wiped out by NSIntersectionRange
+	glyphRange=NSIntersectionRange(glyphRange, [self glyphRangeForTextContainer:container]);
+	if(selGlyphRange.location != NSNotFound)
+		{
+		glyphRange=NSIntersectionRange(glyphRange, selGlyphRange);
+		if(glyphRange.length == 0)
+			glyphRange.location=selGlyphRange.location;	// has been wiped out by NSIntersectionRange
+		}
 	// FIXME: do we need to check this here or does lineFragmentRectForGlyphAtIndex know about the extraFragment?
 	if(glyphRange.location == _numberOfGlyphs)
 		{
