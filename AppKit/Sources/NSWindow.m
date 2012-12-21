@@ -269,6 +269,10 @@ static BOOL __cursorHidden = NO;
 			NSFrameRect(_bounds);	// draw a frame around the window (using current fill color)
 			if(!_title && !_titleIcon)
 				return;
+			// draw document icon
+			// or shouldn't we better use a resizable NSButton with center alignment to store and draw both, the window icon and title?
+			// or at least use a centered paragraph style!
+			// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
 			if(_titleIcon)
 				{
 				[_titleIcon compositeToPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0-[_titleIcon size].width,
@@ -276,14 +280,12 @@ static BOOL __cursorHidden = NO;
 								   operation:NSCompositeSourceOver
 									fraction:[_window isKeyWindow]?1.0:0.8];	// should be dimmed out if we are not the main window
 				}
-			a=[NSDictionary dictionaryWithObjectsAndKeys:		// FIXME: how does this differ from the defaults?
+			a=[NSDictionary dictionaryWithObjectsAndKeys:
 			   [_window isKeyWindow]?[NSColor windowFrameTextColor]:[NSColor grayColor], NSForegroundColorAttributeName,
 			   [NSFont titleBarFontOfSize:(_style&NSUtilityWindowMask)?9.0:12.0], NSFontAttributeName,
 			   paragraph, NSParagraphStyleAttributeName,
 			   nil];
-			// draw document icon or shouldn't we better use a resizable NSButton with center alignment to store the window icon and title?
-			// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
-			[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, 1.0+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
+			[_title drawAtPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0, ((_style&NSUtilityWindowMask)?5.0:4.0)+(_height-16.0)/2.0) withAttributes:a]; // draw centered window title
 		}
 }
 
