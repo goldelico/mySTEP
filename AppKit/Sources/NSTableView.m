@@ -563,6 +563,8 @@
 	return NIMP;
 }
 
+// MISSING: isHidden setHidden headerToolTip setHeaderToolTip
+
 @end /* NSTableColumn */
 
 //*****************************************************************************
@@ -1726,8 +1728,7 @@ int index = [self columnWithIdentifier:identifier];
 - (void) drawRect:(NSRect)rect								// Draw tableview
 {
 	NSRange rowRange = [self rowsInRect:rect];
-	NSRect rowClipRect;
-	int i, maxRowRange = NSMaxRange(rowRange);
+	int i, maxRowRange = NSMaxRange(rowRange), cnt=[self numberOfColumns];
 	if(!_window || _numberOfRows == NSNotFound)
 		{
 		NSLog(@"win=%@ _numRows=%d: %@", _window, _numberOfRows, self);
@@ -1736,24 +1737,18 @@ int index = [self columnWithIdentifier:identifier];
 #if 0
 	NSLog(@"drawRect of %@: %@", self, NSStringFromRect(rect));
 #endif
-	if(_cacheOrigin != NSMinX(rect) || (_cacheWidth != NSWidth(rect)))
-		{
-		_cacheOrigin = NSMinX(rect);						// cache col origin
-		_cacheWidth = NSWidth(rect);						// and size info
-		_columnRange = [self columnsInRect:rect];
-		_cachedColOrigin = NSMinX([self rectOfColumn:_columnRange.location]);
-		}
-
 	[self drawBackgroundInClipRect:rect];					// draw table background
 
 	if(_lastSelectedColumn >= 0)							// if cols selected
 		{													// highlight them
-		int maxColRange = NSMaxRange(_columnRange);
-		for (i = _columnRange.location; i <= maxColRange; i++)
+		for (i = 0; i <cnt; i++)
 			{
 			if([_selectedColumns containsIndex:i])
 				{
-				NSRect c = NSIntersectionRect(rect, [self rectOfColumn:i]);
+				NSRect c = [self rectOfColumn:i];
+				c=NSIntersectionRect(rect, c);
+				if(NSIsEmptyRect(c))
+					continue;	// skip drawing
 				[self highlightSelectionInClipRect: c];		// draw selected column background
 				}
 			}
@@ -1761,7 +1756,8 @@ int index = [self columnWithIdentifier:identifier];
 
 	for (i = rowRange.location; i < maxRowRange; i++)
 		{ // draw rows
-		rowClipRect=[self rectOfRow:i];
+			NSRect rowClipRect=[self rectOfRow:i];
+			// intersect with column range!
 		if([_selectedRows containsIndex:i])
 			[self highlightSelectionInClipRect: rowClipRect];	// draw selected column background
 		[self drawRow:i clipRect:rowClipRect];					// cell might also highlight
@@ -1819,30 +1815,21 @@ int index = [self columnWithIdentifier:identifier];
 
 - (void) drawRow:(int)row clipRect:(NSRect)rect
 { // draws no cells if row is not inside table (but updates caches etc.)
-	int i, maxColRange;
+	unsigned int i, cnt=[self numberOfColumns];
 #if 0
 	NSLog(@"drawRow:%d", row);
 #endif
-	if(_cacheOrigin != NSMinX(rect) || (_cacheWidth != NSWidth(rect)))
-		{
-#if 0
-		NSLog(@"drawRow: recache");
-#endif
-		_cacheOrigin = NSMinX(rect);						// cache col origin
-		_cacheWidth = NSWidth(rect);						// and size info
-		_columnRange = [self columnsInRect:rect];
-		_cachedColOrigin = NSMinX([self rectOfColumn:_columnRange.location]);
-		}
-	
-	maxColRange = NSMaxRange(_columnRange);
-	rect.origin.x = _cachedColOrigin;
-	
-	for (i = _columnRange.location; i < maxColRange; i++)
-		{ // draw all columns of this row that are visible
+	for (i = 0; i < cnt; i++)
+		{ // draw all columns of this row that are within this row clipRect
 			NSCell *aCell = [self preparedCellAtColumn:i row:row];
 			if(aCell)
-				[aCell drawWithFrame:rect inView:self];	// draw
-			rect.origin.x = NSMaxX(rect) + _intercellSpacing.width;
+				{
+				NSRect cellRect=[self rectOfColumn:i];
+				cellRect=NSIntersectionRect(cellRect, rect);
+				if(NSIsEmptyRect(cellRect))
+					continue;	// skip if nothing to draw
+				[aCell drawWithFrame:cellRect inView:self];	// draw
+				}
 		}
 }
 

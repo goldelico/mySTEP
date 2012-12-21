@@ -82,12 +82,8 @@ typedef NSUInteger NSTableViewDropOperation;
     SEL _action;
     SEL _doubleAction;
     NSSize _intercellSpacing;
-	NSRange _columnRange;
 	NSRect _clickedCellFrame;
     float _rowHeight;
-	float _cacheOrigin;
-	float _cacheWidth;
-	float _cachedColOrigin;
 	unsigned int _draggingSourceOperationMaskForLocal;		// we have a dynamic mask
 	unsigned int _draggingSourceOperationMaskForRemote;
     int _lastSelectedColumn;
