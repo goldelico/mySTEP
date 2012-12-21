@@ -14,6 +14,8 @@
 #import <AppKit/NSTextView.h>
 #import <AppKit/NSTextStorage.h>
 #import <AppKit/NSTypesetter.h>
+#import <AppKit/NSTextList.h>
+#import <AppKit/NSTextTable.h>
 
 #import "NSBackendPrivate.h"
 #import "NSSimpleHorizontalTypesetter.h"
@@ -154,18 +156,22 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	return r;
 }
 
+// GETME: why do we need the index/glyphRange for the next two methods?
+// A textBlock should always belong to a well specified glyphRange
+// i.e. it should suffice to have a NSMapTable from blocks to effectiveRanges and boundsRect
+// that is updated by setBoundsRect:forTextBlock:glyphRange:
+
 - (NSRect) boundsRectForTextBlock:(NSTextBlock *)block atIndex:(unsigned)index effectiveRange:(NSRangePointer)range;
 {
-	[self ensureGlyphsForGlyphRange:NSMakeRange(0, index+1)];	
-	NIMP;
+	[self ensureGlyphsForGlyphRange:NSMakeRange(0, index+1)];
+	// if never set:
 	return NSZeroRect;
 }
 
 - (NSRect) boundsRectForTextBlock:(NSTextBlock *)block glyphRange:(NSRange)range;
 {
-	[self ensureGlyphsForGlyphRange:range];	
-	NIMP;
-	return NSZeroRect;
+	[self ensureGlyphsForGlyphRange:range];
+	return [self boundsRectForTextBlock:block atIndex:range.location effectiveRange:NULL];
 }
 
 - (unsigned) characterIndexForGlyphAtIndex:(unsigned) glyphIndex;
@@ -281,25 +287,29 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	if(glyphsToShow.length > 0)
 		{
 		NSGraphicsContext *ctxt=[NSGraphicsContext currentContext];
-		NSTextView *tv=[self firstTextView];
+		NSTextView *tv=[self firstTextView];	// hm. what is correct? +[NSView focusView], [textContainer view], or [self firstTextView]?
 		NSTextContainer *textContainer;
 		NSRange range=glyphsToShow;
 		NSRectArray r;
 		unsigned int cnt, i;
 		NSColor *color;
 		// draw table cells background first, then background by attribute, then selection and finally characters boxes for debugging
-
 		while((range.location < NSMaxRange(glyphsToShow)))
 			{ // draw table cell background if specified
-				NSArray *blocks=[[_textStorage attribute:NSParagraphStyleAttributeName atIndex:[self characterIndexForGlyphAtIndex:range.location] effectiveRange:&range] textBlocks];
+				NSParagraphStyle *style=[_textStorage attribute:NSParagraphStyleAttributeName atIndex:[self characterIndexForGlyphAtIndex:range.location] effectiveRange:&range];
+				NSArray *blocks=[style textBlocks];
 				range=NSIntersectionRange(range, glyphsToShow);	// effective range may be larger than requested..
 				if([blocks count] > 0)
 					{ // there are text blocks to fill
-						NSTextBlock *block;
 						NSRange charRange=[self characterRangeForGlyphRange:range actualGlyphRange:NULL];
-//						NSRect rect=[self boundsRectForTextBlock:block glyphRange:range];
-						// loop through all nested tables from outermost to innermost
-						// -[block drawBackgroundWithFrame:blockRect inView:[NSGraphicsContext focusView] characterRange:charRange layoutManager:self];
+						NSTextBlock *block;
+						NSEnumerator *e=[blocks objectEnumerator];	// loop through all nested table blocks from outermost to innermost
+						while((block=[e nextObject]))
+							{
+							NSRect rect=[self boundsRectForTextBlock:block glyphRange:range];	// get location where typesetter did place the table cell
+							if(!NSIsEmptyRect(rect))
+								[block drawBackgroundWithFrame:rect inView:tv characterRange:charRange layoutManager:self];	// make the cell draw the background according to its attributes
+							}
 					}
 				range.location=NSMaxRange(range);	// go to next glyph run
 			}		
@@ -353,7 +363,6 @@ static void allocateExtra(struct NSGlyphStorage *g)
 					NSDictionary *attribs=[_textStorage attributesAtIndex:g effectiveRange:NULL];
 					NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
 					NSRect box;
-					NSSize adv;
 					if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
 					box=[font boundingRectForGlyph:glyph];	// origin is on baseline
 					box.origin.x=lfr.origin.x+origin.x+pos.x+box.origin.x+advance;
@@ -367,6 +376,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 						[[NSColor colorWithCalibratedRed:1.0 green:0.5 blue:1.0 alpha:0.2] set];
 					NSRectFill(box);
 #if 0 // only if we draw a sequence of characters
+					NSSize adv;
 					[font getAdvancements:&adv forGlyphs:&glyph count:1];
 					advance+=adv.width;
 #endif
@@ -791,6 +801,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 						}
 					break;	// in this line or at end if glyph index was not found in lfr range
 				}
+			lfrRange.location=NSMaxRange(lfrRange);	// try next lfr
 		}
 	if(*partialFraction)
 		*partialFraction=fraction;
@@ -996,6 +1007,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) invalidateLayoutForCharacterRange:(NSRange)charRange isSoft:(BOOL)flag actualCharacterRange:(NSRange *)actualCharRange;
 {
+	BOOL wasDone=_firstUnlaidCharacterIndex == [_textStorage length];
 	if(!flag)
 		{ // really invalidate layout
 			// FIXME: we must remove glyph[idx].textContainer
@@ -1020,7 +1032,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			_extraLineFragmentContainer=nil;
 		}
 	// clear caches
-	[_delegate layoutManagerDidInvalidateLayout:self];
+	if(wasDone)
+		[_delegate layoutManagerDidInvalidateLayout:self];	// inform delegate
 }
 
 - (BOOL) isValidGlyphIndex:(unsigned)glyphIndex;
@@ -1184,13 +1197,30 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	glyphRange=NSIntersectionRange(glyphRange, selGlyphRange);
 	if(glyphRange.length == 0)
 		glyphRange.location=selGlyphRange.location;	// has been wiped out by NSIntersectionRange
-	rect[1]=rect[0]=[self lineFragmentRectForGlyphAtIndex:glyphRange.location effectiveRange:NULL];	// first line of range
-	pos=[self locationForGlyphAtIndex:glyphRange.location];	// first glyph
+	// FIXME: do we need to check this here or does lineFragmentRectForGlyphAtIndex know about the extraFragment?
+	if(glyphRange.location == _numberOfGlyphs)
+		{
+		rect[1]=rect[0]=_extraLineFragmentRect;
+		pos=NSZeroPoint;
+		}
+	else
+		{
+		rect[1]=rect[0]=[self lineFragmentRectForGlyphAtIndex:glyphRange.location effectiveRange:NULL];	// first line of range
+		pos=[self locationForGlyphAtIndex:glyphRange.location];	// first glyph
+		}
 	rect[0].size.width-=pos.x;
 	rect[0].origin.x=pos.x;	// first glyph to right margin
 	rect[1].origin.y+=rect[0].size.height;	// middle part starts below first line
-	rect[2]=[self lineFragmentRectForGlyphAtIndex:NSMaxRange(glyphRange) effectiveRange:NULL];	// last line of range
-	pos=[self locationForGlyphAtIndex:NSMaxRange(glyphRange)];	// first glyph after last one
+	if(NSMaxRange(glyphRange) == _numberOfGlyphs)
+		{
+		rect[2]=_extraLineFragmentRect;
+		pos=NSZeroPoint;
+		}
+	else
+		{
+		rect[2]=[self lineFragmentRectForGlyphAtIndex:NSMaxRange(glyphRange) effectiveRange:NULL];	// last line of range
+		pos=[self locationForGlyphAtIndex:NSMaxRange(glyphRange)];	// first glyph after last one
+		}
 	rect[2].size.width=pos.x-rect[2].origin.x;	// left margin to last glyph
 	// FIXME: we should also eliminate zero-width rects
 	if(rect[2].origin.y <= rect[1].origin.y)
@@ -1718,3 +1748,27 @@ forStartingGlyphAtIndex:(unsigned int) glyph
 
 @end
 
+// default implementations unless overwritten
+
+@implementation NSObject (NSLayoutManagerDelegate)
+
+- (void) layoutManagerDidInvalidateLayout:(NSLayoutManager *) sender;
+{
+	return;
+}
+
+- (NSDictionary *) layoutManager:(NSLayoutManager *) sender 
+	shouldUseTemporaryAttributes:(NSDictionary *) tempAttrs 
+			  forDrawingToScreen:(BOOL) flag 
+				atCharacterIndex:(NSUInteger) index 
+				  effectiveRange:(NSRangePointer) charRange;
+{
+	return flag?tempAttrs:nil;	// use only when drawing to screen
+}
+
+- (void) layoutManager:(NSLayoutManager *) layoutManager didCompleteLayoutForTextContainer:(NSTextContainer *) textContainer atEnd:(BOOL) layoutFinishedFlag;
+{
+	return;
+}
+
+@end

@@ -266,7 +266,6 @@ FT_Library _ftLibrary(void)
 }
 
 - (NSGlyph) _glyphForCharacter:(unichar) c;
-	// FIXME - this should be moved to a NSGlyphGenerator category!
 {
 	return FT_Get_Char_Index(_faceStruct, c);
 }
@@ -275,7 +274,7 @@ FT_Library _ftLibrary(void)
 {
 	FT_Vector delta;
 	FT_Get_Kerning(_faceStruct, left, right, FT_KERNING_DEFAULT, &delta);
-	return NSZeroSize;
+	return NSMakeSize(Free2Pt(delta.x), Free2Pt(delta.y));
 }
 
 - (float) _widthOfAntialisedString:(NSString *) string;

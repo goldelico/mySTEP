@@ -1152,8 +1152,9 @@ NSLayoutOutOfGlyphs
 /* the following method splits a pure horizontal layout into fragments and multiple lines to
  * flow around forbidden areas in a (potentially non-rectangular) currentTextContainer.
  * the proposedRect should be within the text container
- * CHECKME: can we call this recursively with same textContainer but small/different proposedRects to layout table cells?
  * it also handles indentation, padding, line spacing, justification etc.
+ *
+ * CHECKME: can we call this recursively with same textContainer but small/different proposedRects to layout table cells?
  *
  * FIXME: should handle table cells
  * FIXME: should request and switch containers if needed
@@ -1178,17 +1179,13 @@ NSLayoutOutOfGlyphs
 	curGlyphIndex = firstGlyphIndex;
 	curCharacterIndex = [layoutManager characterIndexForGlyphAtIndex:curGlyphIndex];
 
-	curContainer=*currentTextContainer;
-	if(!curContainer)
+	if(*currentTextContainer)
 		{
-		NSArray *containers=[lm textContainers];
-		curContainer=[containers objectAtIndex:curContainerIndex];
+		curContainerSize=[*currentTextContainer containerSize];
+		*proposedRect=(NSRect) { NSZeroPoint, curContainerSize };
+		curContainerIsSimpleRectangular=[*currentTextContainer isSimpleRectangularTextContainer];
+		curContainerLineFragmentPadding=[*currentTextContainer lineFragmentPadding];
 		}
-	curContainerSize=[curContainer containerSize];
-	*proposedRect=(NSRect) { NSZeroPoint, curContainerSize };
-	curContainerIsSimpleRectangular=[curContainer isSimpleRectangularTextContainer];
-	curContainerLineFragmentPadding=[curContainer lineFragmentPadding];
-	
 	while(numLines < maxNumLines && curCharacterIndex < [textString length])
 		{ // try to fill the next line
 			NSRange glyphRange;
@@ -1196,24 +1193,43 @@ NSLayoutOutOfGlyphs
 			NSRect lineFragmentRect;
 			NSRect usedRect;
 			int i;
-			// if empty proposedRect (?)
-			if(curContainerIsSimpleRectangular)
-				lineFragmentRect=*proposedRect;	// full container rect is ok
-			// FIXME: passing in the full proposedRect may lead to wrong results, for example for an hour-glass shaped container
-			// we somehow should be able to adjust/redo based on the estimated or real line height
-			else if(NSIsEmptyRect(remainingRect))
-				lineFragmentRect=[curContainer lineFragmentRectForProposedRect:*proposedRect
-																sweepDirection:NSLineSweepRight
-															 movementDirection:NSLineMovesDown
-																 remainingRect:&remainingRect];
-			else
-				lineFragmentRect=[curContainer lineFragmentRectForProposedRect:remainingRect
-																sweepDirection:NSLineSweepRight
-															 movementDirection:NSLineMovesDown
-																 remainingRect:&remainingRect];
-			if(NSIsEmptyRect(lineFragmentRect))
+			if(*currentTextContainer)
 				{
-				// try a different one, get a new container or give up...
+				if(curContainerIsSimpleRectangular)
+					lineFragmentRect=*proposedRect;	// full container rect is ok
+				// FIXME: passing in the full proposedRect may lead to wrong results, for example for an hour-glass shaped container
+				// we somehow should be able to adjust/redo based on the estimated or real line height
+				else if(NSIsEmptyRect(remainingRect))
+					lineFragmentRect=[*currentTextContainer lineFragmentRectForProposedRect:*proposedRect
+																	sweepDirection:NSLineSweepRight
+																 movementDirection:NSLineMovesDown
+																	 remainingRect:&remainingRect];
+				else
+					lineFragmentRect=[*currentTextContainer lineFragmentRectForProposedRect:remainingRect
+																	sweepDirection:NSLineSweepRight
+																 movementDirection:NSLineMovesDown
+																	 remainingRect:&remainingRect];				
+				}
+			if(!*currentTextContainer || NSIsEmptyRect(lineFragmentRect))
+				{ // try next container
+					NSArray *containers=[lm textContainers];
+					if(!*currentTextContainer)
+						curContainerIndex=0;	// first container index
+					else
+						curContainerIndex=[containers indexOfObjectIdenticalTo:*currentTextContainer]+1;	// next container index
+					if(curContainerIndex >= [containers count])
+						{ // does not exist
+						*currentTextContainer=nil;
+						break;	// no container left over
+						}
+					if(*currentTextContainer)
+						[[layoutManager delegate] layoutManager:layoutManager didCompleteLayoutForTextContainer:*currentTextContainer atEnd:NO];	// wasn't the end
+					*currentTextContainer=[containers objectAtIndex:curContainerIndex];
+					curContainerSize=[*currentTextContainer containerSize];
+					*proposedRect=(NSRect) { NSZeroPoint, curContainerSize };
+					curContainerIsSimpleRectangular=[*currentTextContainer isSimpleRectangularTextContainer];
+					curContainerLineFragmentPadding=[*currentTextContainer lineFragmentPadding];
+					continue;	// try again for new container
 				}
 			firstIndexOfCurrentLineFragment=firstGlyphIndex;
 			usedRect=lineFragmentRect;
@@ -1252,8 +1268,7 @@ NSLayoutOutOfGlyphs
 			if(status == NSLayoutCantFit)
 				{ // proposedRect is not wide or high enough for next glyph, we need a new one
 					// move to the next container?
-					// do something (notify delegate to add a new container?)
-					// or skip
+					// or simply skip
 					break;
 				}
 			if(status == NSLayoutDone)
@@ -1273,6 +1288,12 @@ NSLayoutOutOfGlyphs
 				}
 		}
 	// FIXME: handle/create the extra line fragment
+	// FIXME: handle the atEnd flag correctly
+	[[layoutManager delegate] layoutManager:layoutManager didCompleteLayoutForTextContainer:curContainer atEnd:curCharacterIndex == [textString length]];
+	// try to switch to next one
+	// if none found:
+	// [[layoutManager delegate] layoutManager:layoutManager didCompleteLayoutForTextContainer:nil atEnd:NO];
+	// try a different one, get a new container or give up...
 	if(nextGlyph != NULL)
 		*nextGlyph = firstGlyphIndex;
 	layoutManager=nil;
@@ -1287,6 +1308,10 @@ NSLayoutOutOfGlyphs
 	NSRect proposedRect=NSZeroRect;
 	NSAssert(!busy, @"NSSimpleHorizontalTypesetter is already busy");
 	busy=YES;
+	if(startGlyphIndex > 0)
+		curContainer=[lm textContainerForGlyphAtIndex:startGlyphIndex-1 effectiveRange:NULL];	// continue where last glyph was placed in
+	else
+		curContainer=nil;	// start at first
 	NS_DURING
 		[self _layoutGlyphsInLayoutManager:lm
 					  startingAtGlyphIndex:startGlyphIndex
