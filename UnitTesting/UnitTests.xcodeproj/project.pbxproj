@@ -20,6 +20,11 @@
 		EE488BAC0F9102D000B3E56F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EE488BAD0F9102D500B3E56F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
 		EE488C3F0F91030800B3E56F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE488C3E0F91030800B3E56F /* main.m */; };
+		EE547A9A168BA3A400164AB4 /* NSStringDrawingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547A99168BA3A400164AB4 /* NSStringDrawingTest.m */; };
+		EE547A9D168BA4A400164AB4 /* NSLayoutManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547A9C168BA4A400164AB4 /* NSLayoutManagerTest.m */; };
+		EE547ABE168BAC8E00164AB4 /* NSFontTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547ABD168BAC8E00164AB4 /* NSFontTest.m */; };
+		EE547AC1168BAC9A00164AB4 /* NSFontDescriptorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547AC0168BAC9A00164AB4 /* NSFontDescriptorTest.m */; };
+		EE547B35168C3EDA00164AB4 /* NSViewTestBounds.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547B34168C3EDA00164AB4 /* NSViewTestBounds.m */; };
 		EE7A573B14B0BD8500A12559 /* NSTextContainerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */; };
 		EEBB6D95109CBEE500B67699 /* NSPortCoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */; };
 		EED109C90F82540300E9AEC6 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
@@ -47,6 +52,16 @@
 		EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAttributedStringTest.m; sourceTree = "<group>"; };
 		EE488AEC0F91025500B3E56F /* Special-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Special-Info.plist"; sourceTree = "<group>"; };
 		EE488C3E0F91030800B3E56F /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		EE547A98168BA3A400164AB4 /* NSStringDrawingTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSStringDrawingTest.h; sourceTree = "<group>"; };
+		EE547A99168BA3A400164AB4 /* NSStringDrawingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringDrawingTest.m; sourceTree = "<group>"; };
+		EE547A9B168BA4A400164AB4 /* NSLayoutManagerTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSLayoutManagerTest.h; sourceTree = "<group>"; };
+		EE547A9C168BA4A400164AB4 /* NSLayoutManagerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSLayoutManagerTest.m; sourceTree = "<group>"; };
+		EE547ABC168BAC8E00164AB4 /* NSFontTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSFontTest.h; sourceTree = "<group>"; };
+		EE547ABD168BAC8E00164AB4 /* NSFontTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSFontTest.m; sourceTree = "<group>"; };
+		EE547ABF168BAC9A00164AB4 /* NSFontDescriptorTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSFontDescriptorTest.h; sourceTree = "<group>"; };
+		EE547AC0168BAC9A00164AB4 /* NSFontDescriptorTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSFontDescriptorTest.m; sourceTree = "<group>"; };
+		EE547B33168C3EDA00164AB4 /* NSViewTestBounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSViewTestBounds.h; sourceTree = "<group>"; };
+		EE547B34168C3EDA00164AB4 /* NSViewTestBounds.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSViewTestBounds.m; sourceTree = "<group>"; };
 		EE5DAEF010A61BD200910F0B /* Special.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Special.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE7A573914B0BD8500A12559 /* NSTextContainerTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextContainerTest.h; sourceTree = "<group>"; };
 		EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextContainerTest.m; sourceTree = "<group>"; };
@@ -152,6 +167,16 @@
 				EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */,
 				EED980280F87594E002E4AD5 /* NSTextFieldCellTest.h */,
 				EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */,
+				EE547A98168BA3A400164AB4 /* NSStringDrawingTest.h */,
+				EE547A99168BA3A400164AB4 /* NSStringDrawingTest.m */,
+				EE547A9B168BA4A400164AB4 /* NSLayoutManagerTest.h */,
+				EE547A9C168BA4A400164AB4 /* NSLayoutManagerTest.m */,
+				EE547ABC168BAC8E00164AB4 /* NSFontTest.h */,
+				EE547ABD168BAC8E00164AB4 /* NSFontTest.m */,
+				EE547ABF168BAC9A00164AB4 /* NSFontDescriptorTest.h */,
+				EE547AC0168BAC9A00164AB4 /* NSFontDescriptorTest.m */,
+				EE547B33168C3EDA00164AB4 /* NSViewTestBounds.h */,
+				EE547B34168C3EDA00164AB4 /* NSViewTestBounds.m */,
 			);
 			name = "AppKit-Tests";
 			path = AppKit;
@@ -363,8 +388,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EED9803E0F875962002E4AD5 /* NSTextFieldCellTest.m in Sources */,
 				EE7A573B14B0BD8500A12559 /* NSTextContainerTest.m in Sources */,
+				EE547A9A168BA3A400164AB4 /* NSStringDrawingTest.m in Sources */,
+				EE547A9D168BA4A400164AB4 /* NSLayoutManagerTest.m in Sources */,
+				EE547ABE168BAC8E00164AB4 /* NSFontTest.m in Sources */,
+				EE547AC1168BAC9A00164AB4 /* NSFontDescriptorTest.m in Sources */,
+				EED9803E0F875962002E4AD5 /* NSTextFieldCellTest.m in Sources */,
+				EE547B35168C3EDA00164AB4 /* NSViewTestBounds.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -616,7 +646,7 @@
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				PRODUCT_NAME = Tests;
-				SDKROOT = macosx10.4;
+				SDKROOT = macosx10.5;
 				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = octest;
 			};

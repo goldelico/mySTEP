@@ -17,53 +17,9 @@
 
 #import <AppKit/AppKit.h>
 
-@implementation NSString (NSStringDrawingAdditions)
-
-- (NSRect) boundingRectWithSize:(NSSize)size
-						options:(NSStringDrawingOptions)options
-					 attributes:(NSDictionary *)attributes;
-{
-	NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attributes];
-	NSRect r=[a boundingRectWithSize:size options:options];	// get rect of attributed string
-	[a release];	// no longer needed
-	return r;
-}
-
-- (void) drawAtPoint:(NSPoint)point
-	  withAttributes:(NSDictionary *)attrs;
-{
-	NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attrs];
-	[a drawAtPoint:point];	// draw as attributed string
-	[a release];	// no longer needed
-}
-
-- (void) drawInRect:(NSRect)rect withAttributes:(NSDictionary *)attrs;
-{
-	NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attrs];
-	[a drawWithRect:rect options:NSStringDrawingUsesLineFragmentOrigin];
-	[a release];	// no longer needed
-}
-
-- (void) drawWithRect:(NSRect)rect
-			  options:(NSStringDrawingOptions)options
-		   attributes:(NSDictionary *)attrs;
-{
-	NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attrs];
-	[a drawWithRect:rect options:options];	// draw as attributed string
-	[a release];	// no longer needed
-}
-
-- (NSSize) sizeWithAttributes:(NSDictionary *)attrs;
-{
-	NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attrs];
-	NSSize size=[a size];	// get size of attributed string
-	[a release];	// no longer needed
-	return size;
-}
-
-@end
-
-@implementation NSAttributedString (NSAttributedStringDrawingAdditions)
+// FIXME: how does -[NSTextStorage font] play a role? It is the Helvetica-12 default if we have empty strings?
+// BUT: that method is related to scripting only
+// and there is a note that empty strings are displaying by default [NSTextView typingAttributes!]
 
 // FIXME: make this thread-safe by locking (in setup) and unlocking (after use)
 
@@ -73,6 +29,9 @@ static NSLayoutManager *_layoutManager;
 static NSTextContainer *_textContainer;
 static NSAttributedString *_currentString;
 static NSStringDrawingOptions _currentOptions;
+
+
+@implementation NSAttributedString (NSAttributedStringDrawingAdditions)
 
 - (void) _setupWithRect:(NSRect) rect options:(NSStringDrawingOptions) options;
 {
@@ -89,27 +48,34 @@ static NSStringDrawingOptions _currentOptions;
 	if(!_textStorage)
 		{ // first call, setup text system
 			// FIXME: should be a default and not an ENV variable
-		char *flag=getenv("QSShowStringDrawingBox");
-		if(flag) _NSShowStringDrawingBox=strcmp(flag, "YES") == 0;
+			NSTextView *textView;
+			char *flag=getenv("QSShowStringDrawingBox");
+			if(flag) _NSShowStringDrawingBox=strcmp(flag, "YES") == 0;
 #if 0
-		NSLog(@"create global text storage");
+			NSLog(@"create global text storage");
 #endif
-		_textStorage=[[NSTextStorage alloc] initWithAttributedString:self];			// store a copy
-		NSAssert(!_textContainer, @"text container left over");
-		_textContainer=[[NSTextContainer alloc] initWithContainerSize:rect.size];	// predefine the size of the container
-		NSAssert(!_layoutManager, @"layout manager left over");
-		_layoutManager=[NSLayoutManager new];
-		[_layoutManager addTextContainer:_textContainer];
-		[[_layoutManager typesetter] setTypesetterBehavior:NSTypesetterBehavior_10_2_WithCompatibility];	// our typesetter ignores that...
-		[_textContainer release];	// is retained by _layoutManager
-		[_textStorage addLayoutManager:_layoutManager];
-		[_layoutManager release];	// is retained by _textStorage
+			_textStorage=[[NSTextStorage alloc] initWithAttributedString:self];			// store a copy
+			NSAssert(!_textContainer, @"text container left over");
+			_textContainer=[[NSTextContainer alloc] initWithContainerSize:rect.size];	// predefine the size of the container
+			NSAssert(!_layoutManager, @"layout manager left over");
+			_layoutManager=[NSLayoutManager new];
+			[_layoutManager addTextContainer:_textContainer];
+			[[_layoutManager typesetter] setTypesetterBehavior:NSTypesetterBehavior_10_2_WithCompatibility];	// our typesetter ignores that...
+			[_textContainer release];	// is retained by _layoutManager
+			[_textStorage addLayoutManager:_layoutManager];
+			[_layoutManager release];	// is retained by _textStorage
+			textView=[[NSTextView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 500.0, 500.0)];
+			[_textContainer setTextView:textView];
+			[textView setTypingAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
+										   [NSFont fontWithName:@"Helvetica" size:12],	// this defines the default font if nothing else is known!
+										   NSFontAttributeName, nil]];
+			[textView release];
 		}
 	else
 		{
 		[_textContainer setContainerSize:rect.size];	// resize container - should invalidate layout but keep glyphs - if it changes
 		if(![self isEqual:_currentString])
-		   [_textStorage setAttributedString:self];		// replace - should invalidate glyphs and layout
+			[_textStorage setAttributedString:self];		// replace - should invalidate glyphs and layout
 		}
 	[_layoutManager setUsesFontLeading:((_currentOptions&NSStringDrawingUsesFontLeading) != 0)];
 	[_layoutManager setUsesScreenFonts:((_currentOptions&NSStringDrawingDisableScreenFontSubstitution) == 0)];
@@ -144,31 +110,32 @@ static NSStringDrawingOptions _currentOptions;
 {
 	NSRect rect;
 	NSRange rng;
-	if([self length] == 0)
-		return NSZeroRect;	// empty string
-	if(!(options&NSStringDrawingUsesLineFragmentOrigin))
-		size.height=FLT_MAX;	// single line mode
-	[self _setupWithRect:(NSRect) { NSZeroPoint, size } options:options];	// create a text container from given size
-	if(!(options&NSStringDrawingUsesLineFragmentOrigin))
+	if([self length] > 0)
 		{
-		// FIXME: we need only the bounding box of the first line...
-		/* do we simply call
-		 [[_layoutManager typesetter] layoutGlyphsInLayoutManager:_layoutManager
-			startingAtGlyphIndex:0
-		maxNumberOfLineFragments:1
-		nextGlyphIndex:&nextGlyph]
-		 to create just a single line fragment rect?
-		 */
+		if(!(options&NSStringDrawingUsesLineFragmentOrigin))
+			size.height=FLT_MAX;	// single line mode
+		[self _setupWithRect:(NSRect) { NSZeroPoint, size } options:options];	// create a text container from given size
+		if(!(options&NSStringDrawingUsesLineFragmentOrigin))
+			{
+			// FIXME: we need only the bounding box of the first line...
+			/* do we simply call
+			 [[_layoutManager typesetter] layoutGlyphsInLayoutManager:_layoutManager
+			 startingAtGlyphIndex:0
+			 maxNumberOfLineFragments:1
+			 nextGlyphIndex:&nextGlyph]
+			 to create just a single line fragment rect?
+			 */
 			rng=[_layoutManager glyphRangeForBoundingRect:(NSRect) { NSZeroPoint, size } inTextContainer:_textContainer];
 			rect=[_layoutManager boundingRectForGlyphRange:rng inTextContainer:_textContainer];
 			rect.origin.y-=[[_layoutManager typesetter] baselineOffsetInLayoutManager:_layoutManager glyphIndex:0];
+			}
+		else
+			{
+			rng=NSMakeRange(0, NSNotFound);	// will be cut down to textContainer
+			rect=[_layoutManager boundingRectForGlyphRange:rng inTextContainer:_textContainer];
+			}
+		[self _tearDown];		
 		}
-	else
-		{
-		rng=NSMakeRange(0, NSNotFound);	// will be cut down to textContainer
-		rect=[_layoutManager boundingRectForGlyphRange:rng inTextContainer:_textContainer];
-		}
-	[self _tearDown];
 	return rect;
 }
 
@@ -179,48 +146,50 @@ static NSStringDrawingOptions _currentOptions;
 
 - (void) drawAtPoint:(NSPoint) point;
 {
-	NSGraphicsContext *ctxt;
-	NSRect rect={ NSZeroPoint, { FLT_MAX, FLT_MAX }};
-	NSRange rng;
-	if([self length] == 0)
-		return;	// empty string
-	ctxt=[NSGraphicsContext currentContext];
-	if(_NSShowStringDrawingBox)
-		{ // show small dot at drawing origin
-			NSRect r={ { point.x-2.0, point.y-2.0 }, { 4.0, 4.0 }};
-			[ctxt saveGraphicsState];
-			[[NSColor brownColor] set];
-			NSFrameRect(r);	// drawing origin
-			[ctxt restoreGraphicsState];	
-		}
-	[self _setupWithRect:rect options:NSStringDrawingUsesLineFragmentOrigin];	// infinitely large container
-#if 0
-	NSLog(@"drawAtPoint:%@ %@", NSStringFromPoint(point), self);
-#endif
-	rng=[_layoutManager glyphRangeForBoundingRect:rect inTextContainer:_textContainer];
-	if([ctxt isFlipped])
+	if([self length] > 0)
 		{
-		[_layoutManager drawBackgroundForGlyphRange:rng atPoint:point];
-		[_layoutManager drawGlyphsForGlyphRange:rng atPoint:point];		
-		}
-	else
-		{ // in this case the layout manager draws lines "bootom up" so we must flip the CTM
-			static NSAffineTransform *flip=nil;
-			NSRect rect=[_layoutManager boundingRectForGlyphRange:rng inTextContainer:_textContainer];
-			point.y=-(point.y+rect.size.height);	// start at top of rect (drawGlyphsForGlyphRange assumes flipped coordinates)
-			if(!flip)
-				{
-				flip=[NSAffineTransform transform];
-				[flip scaleXBy:1.0 yBy:-1.0];
-				[flip retain];
-				}
-			[ctxt saveGraphicsState];
-			[flip concat];	// flip before drawing
+		NSGraphicsContext *ctxt;
+		NSRect rect={ NSZeroPoint, { FLT_MAX, FLT_MAX }};
+		NSRange rng;
+		ctxt=[NSGraphicsContext currentContext];
+		if(_NSShowStringDrawingBox)
+			{ // show small dot at drawing origin
+				NSRect r={ { point.x-2.0, point.y-2.0 }, { 4.0, 4.0 }};
+				[ctxt saveGraphicsState];
+				[[NSColor brownColor] set];
+				NSFrameRect(r);	// drawing origin
+				[ctxt restoreGraphicsState];	
+			}
+		[self _setupWithRect:rect options:NSStringDrawingUsesLineFragmentOrigin];	// infinitely large container
+#if 0
+		NSLog(@"drawAtPoint:%@ %@", NSStringFromPoint(point), self);
+#endif
+		rng=[_layoutManager glyphRangeForBoundingRect:rect inTextContainer:_textContainer];
+		if([ctxt isFlipped])
+			{
 			[_layoutManager drawBackgroundForGlyphRange:rng atPoint:point];
-			[_layoutManager drawGlyphsForGlyphRange:rng atPoint:point];
-			[ctxt restoreGraphicsState];
+			[_layoutManager drawGlyphsForGlyphRange:rng atPoint:point];		
+			}
+		else
+			{ // in this case the layout manager draws lines "bootom up" so we must flip the CTM
+				static NSAffineTransform *flip=nil;
+				NSRect rect=[_layoutManager boundingRectForGlyphRange:rng inTextContainer:_textContainer];
+				point.y=-(point.y+rect.size.height);	// start at top of rect (drawGlyphsForGlyphRange assumes flipped coordinates)
+				if(!flip)
+					{
+					flip=[NSAffineTransform transform];
+					[flip scaleXBy:1.0 yBy:-1.0];
+					[flip retain];
+					}
+				[ctxt saveGraphicsState];
+				[flip concat];	// flip before drawing
+				[_layoutManager drawBackgroundForGlyphRange:rng atPoint:point];
+				[_layoutManager drawGlyphsForGlyphRange:rng atPoint:point];
+				[ctxt restoreGraphicsState];
+			}
+		[self _tearDown];
+		
 		}
-	[self _tearDown];
 }
 
 // draws in rect applying text aligment rules
@@ -245,67 +214,123 @@ static NSStringDrawingOptions _currentOptions;
 
 - (void) drawWithRect:(NSRect) rect options:(NSStringDrawingOptions) options;
 { // draw with line breaks within box defined by rect - might clip if lines are too long
-	NSGraphicsContext *ctxt;
-	NSRange rng;
-	if([self length] == 0)
-		return;	// empty string
-	ctxt=[NSGraphicsContext currentContext];
-#if 0
-	{ // Clipping should be done by the layout manager/typesetter by limiting the glyph range. Not by drawing!
-	NSRect r=rect;
-	if(r.size.width > 1e4) r.size.width=1e4;	// limit to avoid problems with bezier paths
-	if(r.size.height > 1e4) r.size.height=1e4;	// limit
-	[ctxt saveGraphicsState];
-	[NSBezierPath clipRect:rect];	// set clipping rect
-	}
-#endif
-	if(_NSShowStringDrawingBox)
-		{ // show string drawing box
-			NSRect r=rect;
-			if(r.size.width > 1e6) r.size.width=1e6;	// limit to avoid problems with bezier paths
-			if(r.size.height > 1e6) r.size.height=1e6;	// limit
-			[ctxt saveGraphicsState];
-			[[NSColor brownColor] set];
-			NSFrameRect(r);	// drawing rect
-			[ctxt restoreGraphicsState];	
-		}
-	if(!(options&NSStringDrawingUsesLineFragmentOrigin))
-		rect.size.width=FLT_MAX;	// single line mode
-	[self _setupWithRect:rect options:options];
-#if 0
-	NSLog(@"drawWithRect:%@ options:%d %@", NSStringFromRect(rect), options, self);
-#endif
-	rng=[_layoutManager glyphRangeForBoundingRect:(NSRect) { NSZeroPoint, rect.size } inTextContainer:_textContainer];
-	if([ctxt isFlipped])
+	if([self length] > 0)
 		{
-		[_layoutManager drawBackgroundForGlyphRange:rng atPoint:rect.origin];
-		[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];		
-		}
-	else
-		{ // in this case the layout manager draws lines "bootom up" so we must flip the CTM
-			static NSAffineTransform *flip=nil;
-			if(!flip)
-				{
-				flip=[NSAffineTransform transform];
-				[flip scaleXBy:1.0 yBy:-1.0];
-				[flip retain];
-				}
-			[ctxt saveGraphicsState];
-			[flip concat];	// flip before drawing
-			rect.origin.y=-NSMaxY(rect);	// start at top of rect (drawGlyphsForGlyphRange assumes flipped coordinates)
-			[_layoutManager drawBackgroundForGlyphRange:rng atPoint:rect.origin];
-			[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];
-			[ctxt restoreGraphicsState];
-		}
+		NSGraphicsContext *ctxt;
+		NSRange rng;
+		ctxt=[NSGraphicsContext currentContext];
 #if 0
-	[ctxt restoreGraphicsState];
+		{ // Clipping should be done by the layout manager/typesetter by limiting the glyph range. Not by drawing!
+			NSRect r=rect;
+			if(r.size.width > 1e4) r.size.width=1e4;	// limit to avoid problems with bezier paths
+			if(r.size.height > 1e4) r.size.height=1e4;	// limit
+			[ctxt saveGraphicsState];
+			[NSBezierPath clipRect:rect];	// set clipping rect
+		}
 #endif
-	[self _tearDown];
+		if(_NSShowStringDrawingBox)
+			{ // show string drawing box
+				NSRect r=rect;
+				if(r.size.width > 1e6) r.size.width=1e6;	// limit to avoid problems with bezier paths
+				if(r.size.height > 1e6) r.size.height=1e6;	// limit
+				[ctxt saveGraphicsState];
+				[[NSColor brownColor] set];
+				NSFrameRect(r);	// drawing rect
+				[ctxt restoreGraphicsState];	
+			}
+		if(!(options&NSStringDrawingUsesLineFragmentOrigin))
+			rect.size.width=FLT_MAX;	// single line mode
+		[self _setupWithRect:rect options:options];
+#if 0
+		NSLog(@"drawWithRect:%@ options:%d %@", NSStringFromRect(rect), options, self);
+#endif
+		rng=[_layoutManager glyphRangeForBoundingRect:(NSRect) { NSZeroPoint, rect.size } inTextContainer:_textContainer];
+		if([ctxt isFlipped])
+			{
+			[_layoutManager drawBackgroundForGlyphRange:rng atPoint:rect.origin];
+			[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];		
+			}
+		else
+			{ // in this case the layout manager draws lines "bootom up" so we must flip the CTM
+				static NSAffineTransform *flip=nil;
+				if(!flip)
+					{
+					flip=[NSAffineTransform transform];
+					[flip scaleXBy:1.0 yBy:-1.0];
+					[flip retain];
+					}
+				[ctxt saveGraphicsState];
+				[flip concat];	// flip before drawing
+				rect.origin.y=-NSMaxY(rect);	// start at top of rect (drawGlyphsForGlyphRange assumes flipped coordinates)
+				[_layoutManager drawBackgroundForGlyphRange:rng atPoint:rect.origin];
+				[_layoutManager drawGlyphsForGlyphRange:rng atPoint:rect.origin];
+				[ctxt restoreGraphicsState];
+			}
+#if 0
+		[ctxt restoreGraphicsState];
+#endif
+		[self _tearDown];
+		}
 }
 
 - (NSSize) size;
 {
 	return [self boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:NSStringDrawingUsesLineFragmentOrigin].size;
+}
+
+@end
+
+@implementation NSString (NSStringDrawingAdditions)
+
+- (NSRect) boundingRectWithSize:(NSSize) size
+						options:(NSStringDrawingOptions) options
+					 attributes:(NSDictionary *) attributes;
+{
+	NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attributes];
+	NSRect r;
+	[a _setupWithRect:(NSRect) { NSZeroPoint, size } options:options];	// create a text container from given size
+	[[_textContainer textView] setTypingAttributes:attributes];	// needed to handle empty strings
+	r=[a boundingRectWithSize:size options:options];	// get rect of attributed string
+	[a release];	// no longer needed
+	return r;
+}
+
+- (void) drawAtPoint:(NSPoint) point
+	  withAttributes:(NSDictionary *) attrs;
+{
+	if([self length] > 0)
+		{
+		NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attrs];
+		[a drawAtPoint:point];	// draw as attributed string
+		[a release];	// no longer needed
+		}
+}
+
+- (void) drawInRect:(NSRect)rect withAttributes:(NSDictionary *) attrs;
+{
+	if([self length] > 0)
+		{
+		NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attrs];
+		[a drawWithRect:rect options:NSStringDrawingUsesLineFragmentOrigin];
+		[a release];	// no longer needed
+		}
+}
+
+- (void) drawWithRect:(NSRect)rect
+			  options:(NSStringDrawingOptions)options
+		   attributes:(NSDictionary *) attrs;
+{
+	if([self length] > 0)
+		{
+		NSAttributedString *a=[[NSAttributedString alloc] initWithString:self attributes:attrs];
+		[a drawWithRect:rect options:options];	// draw as attributed string
+		[a release];	// no longer needed
+		}
+}
+
+- (NSSize) sizeWithAttributes:(NSDictionary *) attrs;
+{
+	return [self boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attrs].size;
 }
 
 @end

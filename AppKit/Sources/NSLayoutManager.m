@@ -48,8 +48,9 @@
 			NSDictionary *attribs=[astr attributesAtIndex:*index effectiveRange:&attribRange];
 			NSFont *font=[attribs objectForKey:NSFontAttributeName];
 			attribRange.length-=(*index)-attribRange.location;	// characters with same attributes before we start
-			if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
 			font=[(NSLayoutManager *) storage substituteFontForFont:font];
+			if(!font) font=[[[(NSLayoutManager *) storage firstTextView] typingAttributes] objectForKey:NSFontAttributeName];		// try to get from typing attributes
+			if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
 			while(num > 0 && attribRange.length-- > 0)
 				{ // process this attribute range but not more than requested
 					NSGlyph glyphs[2];
@@ -145,6 +146,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		NSRect lfr=[self lineFragmentRectForGlyphAtIndex:glyphRange.location effectiveRange:NULL withoutAdditionalLayout:YES];
 		NSPoint pos=[self locationForGlyphAtIndex:glyphRange.location];
 		NSRect box;
+		if(!font) font=[[[self firstTextView] typingAttributes] objectForKey:NSFontAttributeName];		// try to get from typing attributes
 		if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
 		box=[font boundingRectForGlyph:[self glyphAtIndex:glyphRange.location]];	// origin is on baseline
 		pos.x+=lfr.origin.x;
@@ -349,9 +351,10 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				r=[self rectArrayForGlyphRange:glyphsToShow withinSelectedGlyphRange:[tv selectedRange] inTextContainer:textContainer rectCount:&cnt];
 				for(i=0; i<cnt; i++)
 					{
+					// FIXME: there can be negative width!?!
 					r[i].origin.x+=origin.x;
 					r[i].origin.y+=origin.y;	// move to drawing origin
-#if 1
+#if 0
 					NSLog(@"fill background %u: %@", i, NSStringFromRect(r[i]));
 #endif
 					}
@@ -370,6 +373,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 					NSDictionary *attribs=[_textStorage attributesAtIndex:g effectiveRange:NULL];
 					NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
 					NSRect box;
+					if(!font) font=[[[self firstTextView] typingAttributes] objectForKey:NSFontAttributeName];		// try to get from typing attributes
 					if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
 					box=[font boundingRectForGlyph:glyph];	// origin is on baseline
 					box.origin.x=lfr.origin.x+origin.x+pos.x+box.origin.x+advance;
@@ -454,6 +458,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				NSColor *color=[attribs objectForKey:NSForegroundColorAttributeName];
 				NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
 				if(!color) color=[NSColor blackColor];	// default color is black
+				if(!font) font=[[[self firstTextView] typingAttributes] objectForKey:NSFontAttributeName];		// try to get from typing attributes
 				if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
 				if(color != lastColor) [lastColor=color set];	// this should be tracked in the context/backend
 				if(font != lastFont) [lastFont=font set];
@@ -640,7 +645,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (NSTextView *) firstTextView;
 {
-	if(!_firstTextView)
+	if(!_firstTextView && [_textContainers count] > 0)
 		_firstTextView=[[_textContainers objectAtIndex:0] textView];	// get first (may be nil!)
 	return _firstTextView;
 }
@@ -1360,10 +1365,18 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) setExtraLineFragmentRect:(NSRect) fragmentRect usedRect:(NSRect) usedRect textContainer:(NSTextContainer *) container;
 { // used to define a virtual extra line to display the insertion point if there is no content or the last character is a hard break
+	unsigned int idx;
 	_extraLineFragmentRect=fragmentRect;
 	_extraLineFragmentUsedRect=usedRect;
 	[_extraLineFragmentContainer autorelease];
 	_extraLineFragmentContainer=[container retain];
+	if(container)
+		{
+		idx=[_textContainers indexOfObjectIdenticalTo:container];
+		if(idx == NSNotFound)
+			[NSException raise:@"NSLayoutManager" format:@"no text container for glyph range"];
+		_textContainerInfo[idx].usedRect=NSUnionRect(_textContainerInfo[idx].usedRect, usedRect);	// enlarge used rect
+		}
 }
 
 - (void) setGlyphGenerator:(NSGlyphGenerator *) gg; { ASSIGN(_glyphGenerator, gg); }

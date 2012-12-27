@@ -350,6 +350,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 				NSRange attribRange;
 				NSDictionary *attribs=[textStorage attributesAtIndex:curParaRange.location effectiveRange:&attribRange];
 				NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
+				if(!font) font=[[[layoutManager firstTextView] typingAttributes] objectForKey:NSFontAttributeName];		// try to get from typing attributes
 				if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
 				while(attribRange.length > 0)
 					{ // character range with same font
@@ -800,6 +801,7 @@ forStartOfGlyphRange:(NSRange) range;
 {
 	previousFont=curFont;
 	curFont=[layoutManager substituteFontForFont:[attrs objectForKey:NSFontAttributeName]];
+	if(!curFont) curFont=[[[layoutManager firstTextView] typingAttributes] objectForKey:NSFontAttributeName];		// try to get from typing attributes
 	if(!curFont) curFont=[NSFont userFontOfSize:0.0];	// default
 	curFontBoundingBox=[curFont boundingRectForFont];
 	curFontIsFixedPitch=[curFont isFixedPitch];
@@ -1187,6 +1189,12 @@ NSLayoutOutOfGlyphs
 			NSRect lineFragmentRect;
 			NSRect usedRect;
 			int i;
+			// check for table layout
+			// i.e. if [[textStorage attribute:NSParagraphStyleAttributeName AtIndex:curCharacterIndex] textBlocks]
+			// is not empty count
+			// save initial/current container index
+			// if yes, get number of columns and do their layout (unlimited numberOfLines)
+			// reset container and vertical start position for each table column
 			if(!containerBreakAfterCurGlyph)
 				{ // try current container again
 				if(curContainerIsSimpleRectangular)
@@ -1228,7 +1236,11 @@ NSLayoutOutOfGlyphs
 				}
 			if(status == NSLayoutOutOfGlyphs)	// we previously have processed the last fragment
 				{
-				[layoutManager setExtraLineFragmentRect:lineFragmentRect usedRect:usedRect textContainer:*currentTextContainer];
+				// FIXME: should we append a virtual \n glyph if there isn't any?
+				if(firstGlyphIndex == 0)	// right after \n or empty text storage
+					[layoutManager setExtraLineFragmentRect:lineFragmentRect usedRect:usedRect textContainer:*currentTextContainer];
+				else	// CHECKME: do we need this here?
+					[layoutManager setExtraLineFragmentRect:NSZeroRect usedRect:NSZeroRect textContainer:nil];	// clear extra fragment
 				break;
 				}
 			firstIndexOfCurrentLineFragment=firstGlyphIndex;
