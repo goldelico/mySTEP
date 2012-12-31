@@ -68,7 +68,7 @@
 }
 
 - (void) test05
-{
+{ // default typing attributes
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"Helvetica", nil);
 }
 
@@ -103,6 +103,13 @@
 	 */
 }
 
+- (void) test08
+{ // default layout settings
+	NSSize size=[textContainer containerSize];
+	NSLog(@"%@", NSStringFromSize(size));
+	STAssertTrue(size.width == 1e+07 && size.height == 1e+07, nil);
+}
+
 - (void) test10
 {
 	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 0, nil);
@@ -122,16 +129,17 @@
 	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 0, nil);
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
 	// strangely we can go up to index 30
+	// FIXME: this does not work as expected!
+	// i.e. we may have a text container assignment even if we have no layout!
+	STAssertTrue([layoutManager textContainerForGlyphAtIndex:0 effectiveRange:NULL withoutAdditionalLayout:YES] == nil, nil);
 	STAssertTrue([layoutManager textContainerForGlyphAtIndex:10 effectiveRange:NULL withoutAdditionalLayout:YES] == nil, nil);
 //	STAssertTrue([layoutManager isValidGlyphIndex:5], nil);
 	// here we get nil because there is no layout for this glyph
-	// FIXME: this does not work as expected!
-	STAssertTrue([layoutManager textContainerForGlyphAtIndex:0 effectiveRange:NULL withoutAdditionalLayout:YES] == nil, nil);
+	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 0, nil);
+	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
 	/* conclusion
 	 - generating glyphs does not assign text containers
 	 */
-	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 0, nil);
-	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
 }
 
 - (void) test12
@@ -168,8 +176,8 @@
 	[layoutManager ensureLayoutForGlyphRange:NSMakeRange(0, 5)];
 	// now we have a text container for the first glyph -- which generates all glyphs that fit into the container
 	STAssertTrue([layoutManager textContainerForGlyphAtIndex:0 effectiveRange:NULL withoutAdditionalLayout:YES] != nil, nil);
-	STAssertTrue([layoutManager textContainerForGlyphAtIndex:7 effectiveRange:NULL withoutAdditionalLayout:YES] != nil, nil);
-	STAssertTrue([layoutManager textContainerForGlyphAtIndex:20 effectiveRange:NULL withoutAdditionalLayout:YES] != nil, nil);
+	STAssertTrue([layoutManager textContainerForGlyphAtIndex:7 effectiveRange:NULL withoutAdditionalLayout:YES] == nil, nil);
+	STAssertTrue([layoutManager textContainerForGlyphAtIndex:20 effectiveRange:NULL withoutAdditionalLayout:YES] == nil, nil);
 	glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
 	// here we will see all 30 glyphs (all lines!)
 	STAssertTrue(glyphRange.location == 0 && glyphRange.length == 30, nil);
@@ -354,9 +362,9 @@
 	// we must ensure the layout because usedRectForTextContainer does not
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
 	rect = [layoutManager usedRectForTextContainer:textContainer];
-	// now we should see the typing attributes
+	// we still don't see the typingAttributes because the string is not empty - but we have no NSFontAttributeName!
 	NSLog(@"%@", NSStringFromRect(rect));	
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 16.0 && rect.size.height == 18.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, nil);
 
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"LucidaGrande", nil);
 
@@ -419,15 +427,75 @@
 	rect = [layoutManager extraLineFragmentRect];
 	NSLog(@"%@", NSStringFromRect(rect));	
 	// the rect is not empty
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 0.0 && rect.size.height == 0.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, nil);
 	rect = [layoutManager extraLineFragmentUsedRect];
+	NSLog(@"%@", NSStringFromRect(rect));	
 	// the rect is not empty
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, nil);
+	
+	
+	/* conclusion:
+	 - typesetting characters with no font information defaults to some built-in font ([NSFont userFontOfSize:0.0])
+	 - the extra Fragment uses the default height of the typingAttributes of the extraFragmenContainer's textView - if any
+	 */
+}
+
+- (void) test33
+{ // what happens with empty string and no NSFontAttributeName in typingAttributes?
+	NSRect rect;
+	[textStorage replaceCharactersInRange:NSMakeRange(0, [textStorage length]) withString:@""];
+	[[textContainer textView] setTypingAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
+												   [NSFont fontWithName:@"LucidaGrande" size:18.0],
+												   NSFontAttributeName, nil]];	// set explicit typing Attributes
+
+	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"LucidaGrande", nil);
+	
+	// now we should have no layout, i.e. 0
+	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 0, nil);
+	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
+	// we must ensure the layout because usedRectForTextContainer does not
+	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
+	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 0, nil);
+	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
+	rect = [layoutManager usedRectForTextContainer:textContainer];
+	NSLog(@"%@", NSStringFromRect(rect));
+	// there is some default font for empty string with line height 14.0
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 21.0, nil);	
+	// since we have some characters there is no extra line fragment
+	STAssertEqualObjects([layoutManager extraLineFragmentTextContainer], textContainer, nil);
+	rect = [layoutManager extraLineFragmentRect];
+	// the rect is not empty
+	NSLog(@"%@", NSStringFromRect(rect));	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 21.0, nil);
+	rect = [layoutManager extraLineFragmentUsedRect];
+	// the rect is not empty - but width is always 10.0 (height is 125% * fontSize)
 	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 21.0, nil);
 	
+	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"LucidaGrande", nil);
 	
-	// conclusion:
-	// typesetting characters with no font information defaults to some built-in font ([NSFont userFontOfSize:0.0])
-	// the extra Fragment uses the default height of the typingAttributes of the extraFragmenContainer's textView - if any
+	[[textContainer textView] setTypingAttributes:[NSDictionary dictionaryWithObjectsAndKeys:nil]];	// remove explicit typing Attributes
+	
+	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], nil, nil);
+	
+	[layoutManager invalidateGlyphsOnLayoutInvalidationForGlyphRange:NSMakeRange(0, INT_MAX)];
+	[layoutManager invalidateLayoutForCharacterRange:NSMakeRange(0, [textStorage length]) actualCharacterRange:NULL];
+	// we must ensure the layout because usedRectForTextContainer does not
+	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
+	rect = [layoutManager usedRectForTextContainer:textContainer];
+	// now we should see the typing attributes
+	NSLog(@"%@", NSStringFromRect(rect));	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, nil);
+
+	// typing attributes have not been changed by layoutManager
+	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], nil, nil);
+	
+	/* conclusion:
+	 - there is a hierarchy of default fonts
+	 -- if empty string: font=typingAttributes
+	 -- if non-empty string: font=attribute
+	 -- if !font use userFontOfSize:0.0
+	 - the width of the extra Fragment is always 10.0 (2*5 for some internal margin/padding?)
+	 */
 }
 
 - (void) test40
@@ -504,6 +572,7 @@
 	/* conclusions
 	 - string drawing uses a different default for empty line height (or font) than the manually set up layoutManager!
 	 - typing attributes are not touched by string drawing
+	 - default typing attributes are Helvetica-12
 	 - most likely string drawing has its own private NSTextView with default typing attributes
 	 */
 	

@@ -917,6 +917,7 @@ forStartOfGlyphRange:(NSRange) range;
 		case '\t':
 			[self layoutTab];
 			break;
+		case 0x2028:	// unicode line separator
 		case '\n':
 			[self breakLineAtIndex:curGlyphIndex];		
 			break;

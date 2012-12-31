@@ -108,6 +108,7 @@ static NSCursor *__textCursor = nil;
 				}
 			insertionPointColor=[[NSColor blackColor] retain];
 			defaultParagraphStyle=[[NSParagraphStyle defaultParagraphStyle] retain];
+			[self _updateTypingAttributes];
 		}
 	return self;
 }
@@ -253,17 +254,24 @@ static NSCursor *__textCursor = nil;
 
 - (void) turnOffKerning:(id) sender
 {
-	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.0]
-														   forKey:NSKernAttributeName]
-						 range:[self rangeForUserCharacterAttributeChange]];
+	if([self shouldChangeTextInRange:[self rangeForUserCharacterAttributeChange] replacementString:nil])
+		{
+		[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.0]
+															   forKey:NSKernAttributeName]
+							 range:[self rangeForUserCharacterAttributeChange]];
+		[self didChangeText];
+		}
 }
 
 - (void) tightenKerning:(id) sender
 {
-	// FIXME: accumulate?
-	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.0]
-														   forKey:NSKernAttributeName]
-						 range:[self rangeForUserCharacterAttributeChange]];
+	if([self shouldChangeTextInRange:[self rangeForUserCharacterAttributeChange] replacementString:nil])
+		{
+		[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.0]
+															   forKey:NSKernAttributeName]
+							 range:[self rangeForUserCharacterAttributeChange]];
+		[self didChangeText];
+		}
 }
 
 - (void) loosenKerning:(id) sender
@@ -519,12 +527,33 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 - (NSDictionary*) typingAttributes { return typingAttributes; }
 - (void) setTypingAttributes:(NSDictionary *)attrs { ASSIGN(typingAttributes, attrs); }
 
-- (BOOL) shouldChangeTextInRange:(NSRange)affectedCharRange 
-			   replacementString:(NSString *)replacementString
-{ NIMP; return NO;
+- (void) _updateTypingAttributes;
+{
+	NSDictionary *attribs;
+	unsigned int length=[textStorage length];
+	if(_selectedRange.location < length)
+		attribs=[textStorage attributesAtIndex:_selectedRange.location effectiveRange:NULL];
+	else
+		{ // cursor is at end of string
+		if(length > 0)
+			attribs=[textStorage attributesAtIndex:_selectedRange.location-1 effectiveRange:NULL];	// continue with last format
+		else
+			attribs=[NSDictionary dictionaryWithObjectsAndKeys:[NSFont userFontOfSize:0.0], NSFontAttributeName, nil];	// set default typing attributes		
+		}
+	[self setTypingAttributes:attribs];	// reset from first selected character	
 }
 
-// FIXME: make use of this method...
+- (BOOL) shouldChangeTextInRange:(NSRange)affectedCharRange 
+			   replacementString:(NSString *)replacementString
+{
+	if(![self isEditable])
+		return NO;
+	if(![_delegate textShouldBeginEditing:self])
+		return NO;
+	if(![_delegate textView:self shouldChangeTextInRange:affectedCharRange replacementString:replacementString])
+		return NO;
+	return YES;
+}
 
 - (void) didChangeText
 {
@@ -839,6 +868,22 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	return [layoutManager characterIndexForGlyphAtIndex:gindex];	// convert to character index
 }
 
+- (void) insertText:(id) text;
+{
+	NSRange rng=[self selectedRange];
+#if 1
+	NSLog(@"insertText: %@", text);
+#endif
+	if([self shouldChangeTextInRange:rng replacementString:text])
+		{
+		NSDictionary *attribs=[typingAttributes retain];
+		[self replaceCharactersInRange:rng withString:text];
+		[self setAttributes:attribs range:rng];
+		[attribs release];
+		[self didChangeText];
+		}
+}
+
 - (void) mouseDown:(NSEvent *) event
 { // run a text selection tracking loop
 	NSRange initialRange;	// initial range (for extending selection)
@@ -946,12 +991,14 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (void) setSelectedRange:(NSRange) range affinity:(NSSelectionAffinity) affinity stillSelecting:(BOOL) flag;
 {
+	if(_selectedRange.location == range.location && _selectedRange.length == range.length)
+		return;	// no change
 	[super setSelectedRange:range];
 	if(!flag && layoutManager)
 		{
+		NSFont *attribs;
 		[self updateInsertionPointStateAndRestartTimer:YES];	// will call _caretRect
-		// font=[textStorage attribute:NSFontAttributeName atIndex:range.location effectiveRange:NULL];	// set
-		//	[self setTypingAttributes:];	// reset from first selected character
+		[self _updateTypingAttributes];
 		_stableCursorColumn=_caretRect.origin.x;
 		// send NSTextViewDidChangeSelectionNotification
 		}
@@ -1024,35 +1071,10 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (NSRect) firstRectForCharacterRange:(NSRange) range actualRange:(NSRangePointer) actual
 {
-#if OLD
-	if(range.length == 0)
-		{ // width 0 - we must get a correct height
-			NSRect r=NSZeroRect;	// default position
-			if([textStorage length] > 0)
-				{
-				range.length=1;	// take rect of first character behind given location
-				if(NSMaxRange(range) >= [textStorage length])
-					{	// take last known character
-						range.location=[textStorage length]-1;
-						r=[layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
-						r.origin.x+=r.size.width;
-						r.size.width=0.0;
-					}
-				else
-					r=[layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
-				}
-			else
-				// FIXME: should come from typingAttributes
-				r.size.height=[layoutManager defaultLineHeightForFont:[self font]];	// get from default insertion point font
-			return r;
-		}
-	return [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
-#else
 	unsigned cnt;
 	NSRectArray	r=[layoutManager rectArrayForGlyphRange:range withinSelectedGlyphRange:range inTextContainer:textContainer rectCount:&cnt];
 	NSAssert(cnt > 0, @"zero count");
 	return r[0];	// first
-#endif
 }
 
 - (void) scrollRangeToVisible:(NSRange) range;
