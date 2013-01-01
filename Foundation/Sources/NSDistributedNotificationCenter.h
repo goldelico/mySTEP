@@ -48,10 +48,7 @@ enum
 	NSNotificationPostToAllSessions=0x02
 };
 
-NSString *NSLocalNotificationCenterType;
-#ifdef NO_GNUSTEP
-NSString *GSNetworkNotificationCenterType;
-#endif
+extern NSString *NSLocalNotificationCenterType;
 
 @interface NSDistributedNotificationCenter : NSNotificationCenter
 {
@@ -61,23 +58,13 @@ NSString *GSNetworkNotificationCenterType;
 	BOOL			_suspended;		/* Is delivery suspended?	*/
 }
 
-+ (NSNotificationCenter *) defaultCenter;
 + (NSNotificationCenter *) notificationCenterForType:(NSString *) type;
 
 - (void) addObserver:(id) anObserver
 			selector:(SEL) aSelector
 				name:(NSString *) notificationName
-			  object:(NSString *) anObject;
-- (void) addObserver:(id) anObserver
-			selector:(SEL) aSelector
-				name:(NSString *) notificationName
 			  object:(NSString *) anObject
   suspensionBehavior:(NSNotificationSuspensionBehavior) suspensionBehavior;
-- (void) postNotificationName:(NSString *) notificationName
-					   object:(NSString *) anObject;
-- (void) postNotificationName:(NSString *) notificationName
-					   object:(NSString *) anObject
-					 userInfo:(NSDictionary *) userInfo;
 - (void) postNotificationName:(NSString *) notificationName
 					   object:(NSString *) anObject
 					 userInfo:(NSDictionary *) userInfo
@@ -86,9 +73,6 @@ NSString *GSNetworkNotificationCenterType;
 					   object:(NSString *) anObject
 					 userInfo:(NSDictionary *) userInfo
 					  options:(NSUInteger) options;
-- (void) removeObserver:(id) anObserver
-				   name:(NSString *) notificationName
-				 object:(NSString *) anObject;
 - (void) setSuspended:(BOOL) flag;
 - (BOOL) suspended;
 

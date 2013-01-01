@@ -57,7 +57,7 @@
     id _nullNameToObjects;
 }
 
-+ (NSNotificationCenter *) defaultCenter;
++ (id) defaultCenter;
 
 - (void) addObserver: observer
 			selector:(SEL) selector 

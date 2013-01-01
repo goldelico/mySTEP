@@ -11,6 +11,7 @@
 */
 
 #import <Foundation/NSNotification.h>
+#import <Foundation/NSDistributedNotificationCenter.h>
 #import <Foundation/NSObject.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSArray.h>
@@ -244,7 +245,7 @@ NSMapEnumerator regEnum = NSEnumerateMapTable(objectObservers);
 		_defaultCenter = [self new];
 }
 
-+ (NSNotificationCenter*) defaultCenter			{ return _defaultCenter; }
++ (id) defaultCenter			{ return _defaultCenter; }
 
 - (id) init
 {
@@ -356,3 +357,11 @@ GSNoteDictionary *reg;
 }
 
 @end /* NSNotificationCenter */
+
+NSString *NSLocalNotificationCenterType=@"NSLocalNotificationCenterType";
+
+@implementation NSDistributedNotificationCenter
+
+
+@end
+
