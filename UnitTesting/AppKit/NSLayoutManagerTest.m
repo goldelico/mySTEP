@@ -96,7 +96,7 @@
 	[[textContainer textView] setTypingAttributes:[NSDictionary dictionaryWithObjectsAndKeys:nil]];	// set explicit typing Attributes
 	NSLog(@"%@", [[textContainer textView] typingAttributes]);
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], nil, nil);
-	/* conclusion
+	/* conclusions
 	 - it is impossible to completely clear the typing atrributes
 	 - setting to nil is ignored
 	 - but it is possible to set attributes without NSFontAttributeName
@@ -118,7 +118,7 @@
 	// since we still see 0 here, firstUnlaidGlyph has nothing to do with the glyph generation
 	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 0, nil);
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
-	/* conclusion
+	/* conclusions
 	 - ensuring glyphRanges has nothing to do with firstUnlaid*Index
 	 - it is solely for layout
 	 */
@@ -128,17 +128,23 @@
 {
 	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 0, nil);
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
-	// strangely we can go up to index 30
-	// FIXME: this does not work as expected!
-	// i.e. we may have a text container assignment even if we have no layout!
-	STAssertTrue([layoutManager textContainerForGlyphAtIndex:0 effectiveRange:NULL withoutAdditionalLayout:YES] == nil, nil);
-	STAssertTrue([layoutManager textContainerForGlyphAtIndex:10 effectiveRange:NULL withoutAdditionalLayout:YES] == nil, nil);
-//	STAssertTrue([layoutManager isValidGlyphIndex:5], nil);
+	// this shows that we may have a stale text container assignment even if we have no valid layout!
+	// it is not even clear where this comes from!
+	// if we check this right after setting up the layout manger it is/was nil
+	// most likely there was some initial layout phase during setUp which was reset
+	STAssertTrue([layoutManager textContainerForGlyphAtIndex:0 effectiveRange:NULL withoutAdditionalLayout:YES] == textContainer, nil);
+	STAssertTrue([layoutManager textContainerForGlyphAtIndex:10 effectiveRange:NULL withoutAdditionalLayout:YES] == textContainer, nil);
+	[layoutManager invalidateGlyphsOnLayoutInvalidationForGlyphRange:NSMakeRange(0, 30)];
+	STAssertThrows([layoutManager invalidateLayoutForCharacterRange:NSMakeRange(0, 40) actualCharacterRange:NULL], nil);
+	STAssertNoThrow([layoutManager invalidateLayoutForCharacterRange:NSMakeRange(0, 30) actualCharacterRange:NULL], nil);
 	// here we get nil because there is no layout for this glyph
 	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 0, nil);
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
-	/* conclusion
+	STAssertTrue([layoutManager textContainerForGlyphAtIndex:0 effectiveRange:NULL withoutAdditionalLayout:YES] == textContainer, nil);
+	STAssertTrue([layoutManager textContainerForGlyphAtIndex:10 effectiveRange:NULL withoutAdditionalLayout:YES] == textContainer, nil);
+	/* conclusions
 	 - generating glyphs does not assign text containers
+	 - there may be stale text container info attached to glyphs (probably unless we enforce additionalLayout)
 	 */
 }
 
@@ -150,7 +156,7 @@
 	// ensuring glyphs does not do any layout
 	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 0, nil);
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);			
-	/* conclusion
+	/* conclusions
 	 - generating glyphs does not assign text containers
 	 */
 }
@@ -163,7 +169,7 @@
 	// here we will see 7 because the first line (7 chars/glyphs) was laid out completely
 	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 7, nil);
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 7, nil);			
-	/* conclusion
+	/* conclusions
 	 - generating layout works line by line
 	 */
 }
@@ -210,7 +216,7 @@
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 //	NSLog(@"usedRectForTextContainer: %@", NSStringFromRect(rect));
 	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, nil);
-	/* conclusion
+	/* conclusions
 	 - invalidation of already invalid ranges is ignored
 	 - invalidation reset the firstUnlaid*Index to the beginning
 	 - usedRect is reduced
@@ -434,7 +440,7 @@
 	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, nil);
 	
 	
-	/* conclusion:
+	/* conclusions
 	 - typesetting characters with no font information defaults to some built-in font ([NSFont userFontOfSize:0.0])
 	 - the extra Fragment uses the default height of the typingAttributes of the extraFragmenContainer's textView - if any
 	 */
@@ -489,7 +495,7 @@
 	// typing attributes have not been changed by layoutManager
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], nil, nil);
 	
-	/* conclusion:
+	/* conclusions
 	 - there is a hierarchy of default fonts
 	 -- if empty string: font=typingAttributes
 	 -- if non-empty string: font=attribute

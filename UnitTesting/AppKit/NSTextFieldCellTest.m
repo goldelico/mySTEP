@@ -39,7 +39,7 @@
 	STAssertEqualObjects(@"title1", [c title], nil);
 	[c setTitle:@"title2"];
 	STAssertEqualObjects(@"title2", [c title], nil);
-	STAssertThrows([c setTitle:nil], nil);	// not allowed
+	STAssertThrows([c setTitle:nil], @"NSCell throws on setTitle:nil");	// not allowed
 	STAssertEqualObjects(@"title2", [c title], nil);	// unchanged
 	[c setStringValue:@"string1"];
 	STAssertEqualObjects(@"string1", [c stringValue], nil);
@@ -57,8 +57,8 @@
 	STAssertEqualObjects(@"title1", [c title], nil);
 	[c setTitle:@"title2"];
 	STAssertEqualObjects(@"title2", [c title], nil);
-	STAssertThrows([c setTitle:nil], nil);	// not allowed
-	STAssertEqualObjects(@"", [c title], nil);	// cleared?
+	STAssertNoThrow([c setTitle:nil], @"NSButtonCell accepts setTitle:nil");	// can be set to nil (which is different to NSCell)
+	STAssertEqualObjects(@"", [c title], nil);	// title will be cleared
 	[c setStringValue:@"string1"];
 	STAssertEqualObjects(@"1", [c stringValue], nil);
 	STAssertEqualObjects(@"", [c title], nil);	// title has not been changed
