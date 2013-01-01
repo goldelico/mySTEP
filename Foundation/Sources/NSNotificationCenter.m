@@ -11,7 +11,6 @@
 */
 
 #import <Foundation/NSNotification.h>
-#import <Foundation/NSDistributedNotificationCenter.h>
 #import <Foundation/NSObject.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSArray.h>
@@ -21,11 +20,15 @@
 #import <Foundation/NSMapTable.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSEnumerator.h>
+#import <Foundation/NSDistributedNotificationCenter.h>
 
 #define DEFAULT_CAPACITY 1023
 
+NSString *NSLocalNotificationCenterType = @"NSLocalNotificationCenterType";
+
 // Class variables	
 static NSNotificationCenter *_defaultCenter = nil;
+static NSDistributedNotificationCenter *_defaultDistributedCenter = nil;
 
 
 @interface GSNoteObserver : NSObject
@@ -358,10 +361,66 @@ GSNoteDictionary *reg;
 
 @end /* NSNotificationCenter */
 
-NSString *NSLocalNotificationCenterType=@"NSLocalNotificationCenterType";
-
 @implementation NSDistributedNotificationCenter
 
++ (void) initialize
+{
+    if (_defaultDistributedCenter == nil) 
+		_defaultDistributedCenter = [[self notificationCenterForType:NSLocalNotificationCenterType] retain];
+}
+
++ (id) defaultCenter			{ return _defaultDistributedCenter; }
+
++ (NSNotificationCenter *) notificationCenterForType:(NSString *) type;
+{
+	if([type isEqualToString:NSLocalNotificationCenterType])
+		return [[self new] autorelease];
+	return nil;
+}
+
+- (id) init
+{
+	if((self=[super init]))
+		{
+		
+		}
+	return self;
+}
+
+- (void) addObserver:(id) anObserver
+			selector:(SEL) aSelector
+				name:(NSString *) notificationName
+			  object:(NSString *) anObject
+  suspensionBehavior:(NSNotificationSuspensionBehavior) suspensionBehavior;
+{
+	
+}
+
+- (void) postNotificationName:(NSString *) notificationName
+					   object:(NSString *) anObject
+					 userInfo:(NSDictionary *) userInfo
+		   deliverImmediately:(BOOL) deliverImmediately;
+{
+	[self postNotificationName:notificationName object:anObject userInfo:userInfo options:deliverImmediately?NSNotificationDeliverImmediately:0];
+}
+
+- (void) postNotificationName:(NSString *) name
+					   object:(NSString *) anObject
+					 userInfo:(NSDictionary *) userInfo
+					  options:(NSUInteger) options;
+{
+	
+}
+
+- (void) setSuspended:(BOOL) flag;
+{
+	_suspended=flag;
+}
+
+- (BOOL) suspended;
+{
+	return _suspended;
+}
 
 @end
 
