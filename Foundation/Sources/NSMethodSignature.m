@@ -700,7 +700,7 @@ typedef union arglist {
 			NEED_INFO();	// get valid argFrameLength
 			frame=(arglist_t) objc_calloc(part1 + argFrameLength, sizeof(char));
 			args=(unsigned long *) ((char *) frame + part1);
-#if 1
+#if 0
 			NSLog(@"allocated frame=%p args=%p framelength=%d part1=%d", frame, args, argFrameLength, part1);
 #endif
 			((void **)frame)[0]=args;		// insert argument pointer (points to part 2 of the buffer)

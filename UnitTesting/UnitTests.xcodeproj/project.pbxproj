@@ -53,14 +53,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = EE0C72020F7E7328008B94EE /* Foundation */;
+			remoteGlobalIDString = EE0C72020F7E7328008B94EE;
 			remoteInfo = Foundation;
 		};
 		EEBCCA1D169355A800CED788 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = EED9802D0F875953002E4AD5 /* AppKit */;
+			remoteGlobalIDString = EED9802D0F875953002E4AD5;
 			remoteInfo = AppKit;
 		};
 /* End PBXContainerItemProxy section */
@@ -68,7 +68,7 @@
 /* Begin PBXFileReference section */
 		EE0C71F70F7E7278008B94EE /* NSStringTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSStringTest.h; sourceTree = "<group>"; };
 		EE0C71F80F7E7278008B94EE /* NSStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringTest.m; sourceTree = "<group>"; };
-		EE0C72030F7E7328008B94EE /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE0C72030F7E7328008B94EE /* Foundation.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Foundation.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE0C72040F7E7328008B94EE /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		EE13454410A04EB700169BC8 /* Sources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Sources; path = ../Foundation/Sources; sourceTree = SOURCE_ROOT; };
 		EE13461D10A04ECB00169BC8 /* Sources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Sources; path = ../AppKit/Sources; sourceTree = SOURCE_ROOT; };
@@ -103,7 +103,7 @@
 		EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EED980280F87594E002E4AD5 /* NSTextFieldCellTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextFieldCellTest.h; sourceTree = "<group>"; };
 		EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextFieldCellTest.m; sourceTree = "<group>"; };
-		EED9803A0F875953002E4AD5 /* Tests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EED9803A0F875953002E4AD5 /* AppKit.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKit.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		EEFFF0EC098DF148002610FC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -184,8 +184,8 @@
 		EE29D8D8058A38830035639B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				EE0C72030F7E7328008B94EE /* Tests.octest */,
-				EED9803A0F875953002E4AD5 /* Tests.octest */,
+				EE0C72030F7E7328008B94EE /* Foundation.octest */,
+				EED9803A0F875953002E4AD5 /* AppKit.octest */,
 				EE5DAEF010A61BD200910F0B /* Special.app */,
 			);
 			name = Products;
@@ -244,7 +244,7 @@
 			);
 			name = Foundation;
 			productName = Tests;
-			productReference = EE0C72030F7E7328008B94EE /* Tests.octest */;
+			productReference = EE0C72030F7E7328008B94EE /* Foundation.octest */;
 			productType = "com.apple.product-type.bundle";
 		};
 		EE488AE90F91025400B3E56F /* Special */ = {
@@ -280,7 +280,7 @@
 			);
 			name = AppKit;
 			productName = Tests;
-			productReference = EED9803A0F875953002E4AD5 /* Tests.octest */;
+			productReference = EED9803A0F875953002E4AD5 /* AppKit.octest */;
 			productType = "com.apple.product-type.bundle";
 		};
 /* End PBXNativeTarget section */
@@ -362,7 +362,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#exit\n\n# project settings\nexport SOURCES=\"Foundation/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=SenTestingKit\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/UnitTests/Foundation   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "#exit\n\n# project settings\nexport SOURCES=\"Foundation/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=SenTestingKit\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/UnitTests  # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EED980340F875953002E4AD5 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -376,7 +376,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#exit\n\n# project settings\nexport SOURCES=\"AppKit/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=SenTestingKit\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/UnitTests/AppKit   # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "#exit\n\n# project settings\nexport SOURCES=\"AppKit/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=SenTestingKit\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/UnitTests  # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EED980350F875953002E4AD5 /* Run Tests */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -478,7 +478,7 @@
 				);
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = Tests;
+				PRODUCT_NAME = Foundation;
 				SDKROOT = macosx10.4;
 				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = octest;
@@ -508,7 +508,7 @@
 					SenTestingKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = Tests;
+				PRODUCT_NAME = Foundation;
 				SDKROOT = macosx10.4;
 				WRAPPER_EXTENSION = octest;
 				ZERO_LINK = NO;
@@ -536,7 +536,7 @@
 					SenTestingKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = Tests;
+				PRODUCT_NAME = Foundation;
 				SDKROOT = macosx10.4;
 				WRAPPER_EXTENSION = octest;
 			};
@@ -719,7 +719,7 @@
 				);
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRODUCT_NAME = Tests;
+				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx10.5;
 				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = octest;
@@ -749,7 +749,7 @@
 					SenTestingKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = Tests;
+				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx10.5;
 				WRAPPER_EXTENSION = octest;
 				ZERO_LINK = NO;
@@ -777,7 +777,7 @@
 					SenTestingKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = Tests;
+				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx10.5;
 				WRAPPER_EXTENSION = octest;
 			};

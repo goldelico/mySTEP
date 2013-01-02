@@ -1413,7 +1413,7 @@ next:
 	unsigned len;
 	NSString *str;
 	NSScanner *sc;
-//	NSMutableDictionary *d;
+	unsigned int loc;
 #if 0
 	NSLog(@"propertyListFromData %u bytes", [data length]);
 #endif
@@ -1495,7 +1495,16 @@ next:
 	sc=[NSScanner scannerWithString:str];
 	[sc setCharactersToBeSkipped:nil];	// skip nothing
 	[sc propertyListSkipSpaceAndComments];
-	plist=[sc propertyListScanPropertyListDictionary:opt errorDescription:errorString withBrace:[sc scanString:@"{" intoString:NULL]];
+	loc=[sc scanLocation];
+	if([sc scanString:@"(" intoString:NULL])
+		{ // array on top level
+			[sc setScanLocation:loc];
+			plist=[sc propertyListScanPropertyListElement:opt errorDescription:errorString];
+		}
+	if(!plist)
+		{ // try top level dictionary (w/o { })
+			plist=[sc propertyListScanPropertyListDictionary:opt errorDescription:errorString withBrace:[sc scanString:@"{" intoString:NULL]];
+		}
 	if(plist)
 		{ // has parsed something
 		[sc propertyListSkipSpaceAndComments];

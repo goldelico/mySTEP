@@ -259,7 +259,7 @@
 		return;
 		}
 	[_sig _getArgument:&target fromFrame:_argframe atIndex:0];
-#if 1
+#if 0
 	NSLog(@"NSInvocation -invoke withTarget:%@", target);
 #endif
 	if(target == nil)			// A message to a nil object returns nil
@@ -283,7 +283,7 @@
 #endif
 			imp = objc_msg_lookup(target, selector);
 		}
-#if 1
+#if 0
 	[self _log:@"stack before _call"];
 	//	*((long *)1)=0;
 #endif
@@ -493,10 +493,10 @@
 
 - (id) _initWithMethodSignature:(NSMethodSignature *) aSignature andArgFrame:(arglist_t) argFrame
 {
-#if 1
+#if 0
 	NSLog(@"NSInovcation _initWithMethodSignature:%@ andArgFrame:%p", aSignature, argFrame);
 #endif
-#if 1
+#if 0
 	if(argFrame)
 		{
 		int i, imax=18+[aSignature frameLength]/4;
@@ -549,7 +549,7 @@
 				}
 			_retvalismalloc=YES;	// always...
 			}
-#if 1
+#if 0
 		[self _log:@"_initWithMethodSignature:andArgFrame:"];
 #endif
 		}

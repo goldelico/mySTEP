@@ -27,6 +27,7 @@
 	[textStorage addLayoutManager:layoutManager];
 	[layoutManager release];	// The textStorage will retain the layoutManager
 	[textView release];
+// would rise an exception	[layoutManager glyphAtIndex:100];
 	[layoutManager invalidateGlyphsOnLayoutInvalidationForGlyphRange:NSMakeRange(0, INT_MAX)];
 	[layoutManager invalidateLayoutForCharacterRange:NSMakeRange(0, [textStorage length]) actualCharacterRange:NULL];
 }

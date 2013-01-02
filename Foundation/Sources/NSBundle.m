@@ -94,16 +94,21 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		NSLog(@"$0=%@", path);
 		NSLog(@"virtualRoot=%@", virtualRoot);
 #endif
+		__launchCurrentDirectory=[[fm currentDirectoryPath] retain];
+			// FIXME: can we streamline this a little? It appears that we do a lot of duplicate checks
 		if(![path isAbsolutePath])
 			{ // $0 is a relative path
 			NSString *PATH=[[pi environment] objectForKey:@"PATH"];
 			NSEnumerator *e=[[PATH componentsSeparatedByString:@":"] objectEnumerator];
 			NSString *basepath;
+			// FIXME: the correct way would be to loop over the C-Strings of getenv("PATH") and convert external file names to NSString
 			while((basepath=[e nextObject]))
 				{
 				NSString *p;
-				if([basepath length] == 0 || [basepath isEqualToString:@"."])
-					basepath=[[fm currentDirectoryPath] stringByAppendingPathComponent:path];	// denotes relative location
+				if([basepath hasPrefix:virtualRoot])
+					basepath=[basepath substringFromIndex:vrl];	// strip off virtual root from $PATH entry except /
+				else if([basepath length] == 0 || [basepath isEqualToString:@"."])	// ignore .. in $PATH entry for security reasons!
+					basepath=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// $PATH entry denotes relative location
 				p=[basepath stringByAppendingPathComponent:path];
 #if 0
 				NSLog(@"check %@", p);
@@ -111,22 +116,15 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 				if([fm fileExistsAtPath:p])
 					{ //  found
 					path=p;
-#if 0
-					NSLog(@"found %@", path);
+#if 1
+					NSLog(@"NSBundle found executable at %@", path);
 #endif
 					break;
 					}
 				}
 			}
-		__launchCurrentDirectory=[[fm currentDirectoryPath] retain];
 		if([path hasPrefix:@"./"])
 			path=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// denotes relative location
-#if OLD
-		if([path hasPrefix:@"/hdd2"])
-			path=[path substringFromIndex:5];	// strip off - just in case of C3000...
-		if([path hasPrefix:@"/home/root"])
-			path=[path substringFromIndex:10];	// strip off - just in case of gdb on Zaurus (/usr/share -> /home/root/usr/share)
-#endif
 		if([path hasPrefix:virtualRoot])
 			path=[path substringFromIndex:vrl];	// strip off - just in case...
 #if 0
@@ -134,12 +132,13 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 #endif
 		if(![fm fileExistsAtPath:path])
 			{ // executable does not exist or is not found where it should be -> no main bundle
+			NSLog(@"Can't find executable in main bundle: %@", path);
 			[NSException raise:NSInternalInconsistencyException format: @"Can't find executable in main bundle: %@", path];
 			}
 		path = [path stringByDeletingLastPathComponent];		// Strip off the name of the program
 		if([[path lastPathComponent] isEqualToString:@"."])
 			path = [path stringByDeletingLastPathComponent];	// was called as ./executable
-#ifdef __linux__
+#ifdef __mySTEP__
 		// should be made conditionally so that we can access a binary tool like 'open' or 'defaults' as mainBundle
 		path = [path stringByDeletingLastPathComponent];		// Strip off the name of the processor
 		path = [path stringByDeletingLastPathComponent];		// Strip off 'Contents'
@@ -153,7 +152,10 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		[__loadLock lock];
 		__mainBundle = [[NSBundle alloc] initWithPath:path];
 		if(!__mainBundle)
+			{
+			[__loadLock unlock];
 			[NSException raise:NSInternalInconsistencyException format: @"Not a main bundle at %@", path];
+			}
 		__mainBundle->_bundleType = (unsigned int) NSBUNDLE_APPLICATION;
 #if 0
 		NSLog(@"NSBundle: before loadunlock 1");
