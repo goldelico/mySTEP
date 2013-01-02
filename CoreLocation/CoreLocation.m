@@ -176,6 +176,16 @@ static CLHeading *newHeading;
 	return NO;
 }
 
+- (CLHeading *) heading;
+{
+	
+}
+
+- (CLLocation *) location;
+{
+	
+}
+
 - (id) init;
 {
 	NSBundle *b=[NSBundle bundleForClass:[self class]];	// our bundle where the daemon sits in the resources
