@@ -33,6 +33,10 @@
 #include <ctype.h>
 #include <errno.h>
 #include <assert.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/signal.h>
+#include <sys/wait.h>
 
 #ifndef mySTEP_MAJOR_VERSION
 #define mySTEP_MAJOR_VERSION	2

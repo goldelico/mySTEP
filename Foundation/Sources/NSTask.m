@@ -14,11 +14,6 @@
    under the terms of the GNU Library General Public License.
 */
 
-#include <sys/types.h>
-#include <sys/signal.h>
-#include <sys/wait.h>
-#include <unistd.h>
-
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSTask.h>
 #import <Foundation/NSData.h>
