@@ -17,6 +17,7 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSArray.h>
+#import <Foundation/NSSet.h>
 
 static void __NSHashGrow(NSHashTable *table, unsigned newSize);
 static void __NSMapGrow(NSMapTable *table, unsigned newSize);
@@ -119,6 +120,87 @@ __NSCheckMapTableFull(NSMapTable* table)
 }
 
 - (NSString *) description; { return NSStringFromHashTable(self); }
+
+- (void) addObject:(id) obj;
+{
+	NSLog(@"addObject: %p", obj);
+	NSHashInsertIfAbsent(self, obj);
+}
+
+- (NSArray *) allObjects;
+{
+	return NSAllHashTableObjects(self);
+}
+
+- (id) anyObject;
+{
+	struct _NSHashNode *node;
+	unsigned i;
+	for(i = 0; i < hashSize; i++)
+		for(node = nodes[i]; node; node = node->next)
+			return (id)(node->key);	// first found
+	return nil;
+}
+
+- (BOOL) containsObject:(id) anObj;
+{
+	return NSHashGet(self, anObj) != NULL;
+}
+
+- (NSUInteger) count;
+{
+	return NSCountHashTable(self);
+}
+
+/*
+ - (id) initWithOptions:(NSPointerFunctionsOptions) opts capacity:(NSUInteger) cap;
+ - (id) initWithPointerFunctions:(NSPointerFunctions *) functs capacity:(NSUInteger) initCap;
+ - (void) intersectHashTable:(NSHashTable *) hashTable;
+ - (BOOL) intersectsHashTable:(NSHashTable *) hashTable;
+ - (BOOL) isEqualToHashTable:(NSHashTable *) hashTable;
+ - (BOOL) isSubsetOfHashTable:(NSHashTable *) hashTable;
+ */
+
+- (id) member:(id) obj;
+{
+	return NSHashGet(self, obj);
+}
+
+/*
+ - (void) minusHashTable:(NSHashTable *) hashTable;
+ - (NSEnumerator *) objectEnumerator;
+ - (NSPointerFunctions *) pointerFunctions;
+ */
+
+- (void) removeAllObjects;
+{
+	NSResetHashTable(self);
+}
+
+- (void) removeObject:(id) obj;
+{
+	NSHashRemove(self, obj);
+}
+
+- (NSSet *) setRepresentation;
+{
+	if(itemsCount)
+		{
+		id array = [NSMutableSet setWithCapacity:itemsCount];
+		struct _NSHashNode *node;
+		unsigned i;
+		for(i = 0; i < hashSize; i++)
+			for(node = nodes[i]; node; node = node->next)
+				[array addObject:(NSObject*)(node->key)];	// this will retain
+		return array;
+		}
+	else
+		return [NSSet set];
+}
+
+/*
+ - (void) unionHashTable:(NSHashTable *) hashTable;
+ */
 
 @end
 
@@ -251,7 +333,7 @@ struct _NSHashNode *node;
 
 NSArray *NSAllHashTableObjects(NSHashTable *table)
 {
-	if(table)
+	if(table && table->itemsCount)
 		{
 		id array = [NSMutableArray arrayWithCapacity:table->itemsCount];
 		struct _NSHashNode *node;
