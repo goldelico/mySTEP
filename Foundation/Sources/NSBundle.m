@@ -327,7 +327,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		_path,
 		_infoDict,
 		_searchPaths,
-		_bundleClasses];
+		[_bundleClasses allObjects]];
 }
 
 - (Class) classNamed:(NSString *)className
@@ -340,18 +340,16 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		return Nil;
 		}
 	// look if the class was really defined in our bundle
+	theClass = NSClassFromString(className);
 	if (self == __mainBundle) 
 		{
-		theClass = NSClassFromString(className);
 		if (theClass && [[self class] bundleForClass:theClass] != __mainBundle)
 			theClass = Nil;
 		} 
 	else 
 		{
-		int j = [_bundleClasses indexOfObject: NSClassFromString(className)];
-
-		if (j != NSNotFound)
-			theClass = [_bundleClasses objectAtIndex: j];
+		if(![_bundleClasses containsObject: theClass])
+			theClass = Nil;	// no
 		}
   
 	return theClass;
@@ -382,8 +380,8 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 				return Nil;		
 			if(n)
 				_principalClass = NSClassFromString(n);
-			if(!_principalClass && ([_bundleClasses count]))
-				_principalClass = [_bundleClasses objectAtIndex:0];	// use first
+			if(!_principalClass)
+				_principalClass = [_bundleClasses anyObject];
 			}
 		}
 
@@ -423,7 +421,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 			if(error) *error=[NSError errorWithDomain:@"NSBundleLoading" code:0 userInfo:nil];
 			return NO;
 			}
-		_bundleClasses = [[NSMutableArray arrayWithCapacity:2] retain];
+		_bundleClasses = NSCreateHashTable(NSOwnedObjectIdentityHashCallBacks, 10);
 		__loadingBundle = self;
 		
 #ifdef NeXT_RUNTIME		// FIXME rewrite routine per NeXT to avoid this mess
@@ -452,9 +450,8 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 				NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 				NSDictionary *dict;
 				
-				dict = [NSDictionary dictionaryWithObjects: (id *) &_bundleClasses
-												   forKeys: (id *) &NSLoadedClasses 
-													 count: 1];
+				// FIXME: shouldn't we pass an array with NSStrings?
+				dict = [NSDictionary dictionaryWithObjectsAndKeys:[_bundleClasses allObjects], NSLoadedClasses, nil];
 				_codeLoaded = YES;
 				__loadingBundle = nil;
 				[nc postNotificationName: NSBundleDidLoadNotification 
@@ -945,13 +942,19 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 
 void _bundleLoadCallback(Class theClass, Category *theCategory)
 {
+	// theCategory->category_name
+	// theCategory->class_name
 #if 0
-		fprintf(stderr, "_bundleLoadCallback\n");
+	fprintf(stderr, "_bundleLoadCallback\n");
 #endif
-		NSCAssert(__loadingBundle, NSInternalInconsistencyException);
-		if(!theCategory)								// Don't store categories
-			[__loadingBundle _addClass:theClass];
-#if 1
+	NSCAssert(__loadingBundle, NSInternalInconsistencyException);
+	if(!theCategory)								// Don't store categories
+		[__loadingBundle _addClass:theClass];
+#if 0
+	// this may have unexpected side effects!!!
+	// printing the bundle description will print the list of bundle classes
+	// this may trigger +initialize for some classes that have already been loded
+	// while others are not yet initialized here!!!
 	else
 		NSLog(@"Warning: _bundleLoadCallback __loadingBundle=%@ theClass=%08x is not a class, theCategory=%08x", __loadingBundle, theClass, theCategory);
 #endif
