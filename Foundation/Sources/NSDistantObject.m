@@ -430,13 +430,11 @@ static Class _doClass;
 }
 
 + (BOOL) respondsToSelector:(SEL)aSelector;
-{ // CHEKCKME: is this correct? Should we ask the other side for the class? Who is our class proxy?
-	NS_DURING
-		NS_VALUERETURN([self methodSignatureForSelector:aSelector] != nil, BOOL);
-	NS_HANDLER
-		return NO;
-	NS_ENDHANDLER
+{
+	return (class_get_instance_method(self, aSelector) != METHOD_NULL);
 }
+
+// this is officially only available in NSObject class (not protocol!)
 
 + (BOOL) instancesRespondToSelector:(SEL)aSelector;
 { // CHECKME: how can we know that?
@@ -447,7 +445,7 @@ static Class _doClass;
 }
 
 - (BOOL) respondsToSelector:(SEL)aSelector;
-{
+{ // ask if peer provides a methodSignature
 	NS_DURING
 		NS_VALUERETURN([self methodSignatureForSelector:aSelector] != nil, BOOL);
 	NS_HANDLER

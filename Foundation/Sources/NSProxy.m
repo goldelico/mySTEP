@@ -246,8 +246,9 @@
 
 - (BOOL) respondsToSelector:(SEL)aSelector
 {
-	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];
-	return NO;
+	return (class_get_instance_method(isa, aSelector) != METHOD_NULL);
+//	[NSException raise: NSInvalidArgumentException format: @"-[NSProxy %s] called!", sel_get_name(_cmd)];
+//	return NO;
 }
 #endif
 
