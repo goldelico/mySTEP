@@ -421,7 +421,11 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 			if(error) *error=[NSError errorWithDomain:@"NSBundleLoading" code:0 userInfo:nil];
 			return NO;
 			}
-		_bundleClasses = NSCreateHashTable(NSOwnedObjectIdentityHashCallBacks, 10);
+		/*
+		 * don't use NSNonRetainedObjectHashCallBacks because that calls -isEqual which
+		 * calls +initialize too early (before all string constants are initialized)
+		 */
+		_bundleClasses = NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 10);
 		__loadingBundle = self;
 		
 #ifdef NeXT_RUNTIME		// FIXME rewrite routine per NeXT to avoid this mess
@@ -944,7 +948,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory)
 {
 	// theCategory->category_name
 	// theCategory->class_name
-#if 0
+#if 1
 	fprintf(stderr, "_bundleLoadCallback\n");
 #endif
 	NSCAssert(__loadingBundle, NSInternalInconsistencyException);
@@ -957,6 +961,9 @@ void _bundleLoadCallback(Class theClass, Category *theCategory)
 	// while others are not yet initialized here!!!
 	else
 		NSLog(@"Warning: _bundleLoadCallback __loadingBundle=%@ theClass=%08x is not a class, theCategory=%08x", __loadingBundle, theClass, theCategory);
+#endif
+#if 1
+	fprintf(stderr, "_bundleLoadCallback done\n");
 #endif
 }
 
