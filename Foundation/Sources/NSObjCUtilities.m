@@ -29,7 +29,7 @@
 
 #include <sys/types.h>
 #ifdef __linux__
-#include <sys/sysinfo.h>
+#include <sys/sysinfo.h>	// ignore warning about using kernel headers from user space
 #endif
 #if !defined(__WIN32__) && !defined(_WIN32)
 #include <pwd.h>		// for getpwnam()
@@ -207,12 +207,15 @@ void objc_load_callback(Class class, Category *category)
 #endif
     if (class != 0 && category != 0) 		// Invalidate the dtable, so it 
 		{									// will be rebuilt correctly
-//		objc_invalidate_dtable(class);
-//		objc_invalidate_dtable(class->class_pointer);
+		objc_invalidate_dtable(class);
+		objc_invalidate_dtable(class->class_pointer);
 		}
 	
     if (objc_loadmodule_callback)
-		(*objc_loadmodule_callback)(class, category);
+		(*objc_loadmodule_callback)(class, category);	// pass to user provided callback (_bundleLoadCallback)
+#if 0
+	fprintf(stderr, "objc_load_callback done\n");
+#endif
 }
 
 long objc_load_module(const char *filename,
@@ -225,7 +228,7 @@ long objc_load_module(const char *filename,
 	dl_handle_t handle;
 	
 #if 0
-	fprintf(stderr, "objc_load_module\n");
+	fprintf(stderr, "objc_load_module %s\n", filename);
 #endif
 	
     if (!__dynamicLoaderInitialized)
@@ -242,7 +245,7 @@ long objc_load_module(const char *filename,
 	// Link in the object file
 	if ((handle = __objc_dynamic_link(filename, 1, debugFilename)) == 0) 
 		{
-#if 0
+#if 1
 		fprintf(stderr, "objc_load_module: error linking file %s\n", filename);
 #endif
 		if (errorStream)
@@ -809,8 +812,8 @@ unsigned int count = 0;
 #endif
 
 #ifdef __linux__
-#include <linux/kernel.h>
-#include <linux/sys.h>
+// #include <linux/kernel.h>
+// #include <linux/sys.h>
 #endif
 
 #ifdef __WIN32__

@@ -948,7 +948,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory)
 {
 	// theCategory->category_name
 	// theCategory->class_name
-#if 1
+#if 0
 	fprintf(stderr, "_bundleLoadCallback\n");
 #endif
 	NSCAssert(__loadingBundle, NSInternalInconsistencyException);
@@ -962,7 +962,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory)
 	else
 		NSLog(@"Warning: _bundleLoadCallback __loadingBundle=%@ theClass=%08x is not a class, theCategory=%08x", __loadingBundle, theClass, theCategory);
 #endif
-#if 1
+#if 0
 	fprintf(stderr, "_bundleLoadCallback done\n");
 #endif
 }

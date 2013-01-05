@@ -544,7 +544,7 @@ const char *s, *d;
 	
     if (!cpath || stat(cpath, &statbuf) != 0)
 		{
-#if 1
+#if 0
 		NSLog(@"fileAttributesAtPath: can't stat %s", cpath);
 #endif
 		return nil;

@@ -8,7 +8,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 #
 # You should not edit this file as it affects all projects you will compile!
 #
-# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2008
+# Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2013
 # This document is licenced using LGPL
 #
 # Requires Xcode 2.5 or later
@@ -55,8 +55,8 @@ export DEPENDS="quantumstep-cocoa-framework"	# debian package dependencies (, se
 # export DEBIAN_PACKAGE_NAME="quantumstep"	# manually define package name
 # export FILES=""					# list of other files to be added to the package (relative to $ROOT)
 # export DATA=""					# directory of other files to be added to the package (relative to /)
-# export DEBIAN_PREINST=./preinst	# preinst file
-# export DEBIAN_POSTRM=./postrm		# postrm file
+# export DEBIAN_PREINST=./preinst	# preinst file if needed
+# export DEBIAN_POSTRM=./postrm		# postrm file if needed
 
 # start make script
 export ROOT=/usr/share/QuantumSTEP	# project root

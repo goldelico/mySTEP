@@ -273,6 +273,12 @@ NSMapEnumerator regEnum = NSEnumerateMapTable(objectObservers);
 			name:(NSString*)notificationName 
 			object:(id)object
 {
+#if 0
+	NSLog(@"addObserver %@", observer);
+	NSLog(@"selector %@", NSStringFromSelector(selector));
+	NSLog(@"name %@", notificationName);
+	NSLog(@"object %@", object);
+#endif
 	GSNoteDictionary *reg;
     if (notificationName == nil)
 		reg = _nullNameToObjects;
@@ -285,6 +291,7 @@ NSMapEnumerator regEnum = NSEnumerateMapTable(objectObservers);
 		}	}
 
     [reg addObserver:observer selector:selector object:object];
+//	NSLog(@"done");
 }
 
 - (void) removeObserver:(id)observer 
