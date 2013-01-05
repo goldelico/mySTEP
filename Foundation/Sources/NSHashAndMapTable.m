@@ -123,7 +123,6 @@ __NSCheckMapTableFull(NSMapTable* table)
 
 - (void) addObject:(id) obj;
 {
-	NSLog(@"addObject: %p", obj);
 	NSHashInsertIfAbsent(self, obj);
 }
 
@@ -153,7 +152,6 @@ __NSCheckMapTableFull(NSMapTable* table)
 }
 
 /*
- - (id) initWithOptions:(NSPointerFunctionsOptions) opts capacity:(NSUInteger) cap;
  - (id) initWithPointerFunctions:(NSPointerFunctions *) functs capacity:(NSUInteger) initCap;
  - (void) intersectHashTable:(NSHashTable *) hashTable;
  - (BOOL) intersectsHashTable:(NSHashTable *) hashTable;
@@ -210,13 +208,13 @@ NSCreateHashTable(NSHashTableCallBacks callBacks, unsigned capacity)
 //	NSHashTable *table = objc_malloc(sizeof(NSHashTable));
 	NSHashTable *table = [[NSHashTable alloc] initWithOptions:0	capacity:capacity];
 
-    capacity = capacity ? capacity : 13;
-    if (!is_prime(capacity))
-		capacity = nextPrime(capacity);
+//    capacity = capacity ? capacity : 13;
+//  if (!is_prime(capacity))
+//		capacity = nextPrime(capacity);
 
-    table->hashSize = capacity;
-    table->nodes = objc_calloc(table->hashSize, sizeof(void*));
-    table->itemsCount = 0;
+//  table->hashSize = capacity;
+//  table->nodes = objc_calloc(table->hashSize, sizeof(void*));
+//  table->itemsCount = 0;
     table->callbacks = callBacks;
     if (table->callbacks.hash == NULL)
 	table->callbacks.hash = 
