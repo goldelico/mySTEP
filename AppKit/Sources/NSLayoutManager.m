@@ -1087,7 +1087,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (NSRect) lineFragmentRectForGlyphAtIndex:(unsigned)glyphIndex effectiveRange:(NSRange *)effectiveGlyphRange;
 {
 	[self ensureLayoutForGlyphRange:NSMakeRange(0, glyphIndex+1)];
-	return [self lineFragmentRectForGlyphAtIndex:glyphIndex effectiveRange:effectiveGlyphRange withoutAdditionalLayout:NO];
+	return [self lineFragmentRectForGlyphAtIndex:glyphIndex effectiveRange:effectiveGlyphRange withoutAdditionalLayout:YES];
 }
 
 - (NSRect) lineFragmentRectForGlyphAtIndex:(NSUInteger) index effectiveRange:(NSRangePointer) range withoutAdditionalLayout:(BOOL) layoutFlag;
@@ -1231,10 +1231,23 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	rect[0].size.width-=pos.x;
 	rect[0].origin.x=pos.x;	// first glyph to right margin
 	rect[1].origin.y+=rect[0].size.height;	// middle part starts below first line
-	if(NSMaxRange(glyphRange) == _numberOfGlyphs)
+	if(_numberOfGlyphs == 0)
+		{ // empty
+			rect[2]=rect[1];
+			pos=NSZeroPoint;
+		}
+	else if(NSMaxRange(glyphRange) == _numberOfGlyphs)
 		{
-		rect[2]=_extraLineFragmentRect;
-		pos=NSZeroPoint;
+		if(_extraLineFragmentContainer)
+			{
+			rect[2]=_extraLineFragmentRect;
+			pos=NSZeroPoint;
+			}
+		else if(_numberOfGlyphs > 0)
+			{ // there is no extra fragment
+			rect[2]=[self lineFragmentUsedRectForGlyphAtIndex:NSMaxRange(glyphRange)-1 effectiveRange:NULL];	// last line of range
+			pos=NSMakePoint(NSWidth(rect[2]), rect[2].origin.y);	// line width
+			}
 		}
 	else
 		{

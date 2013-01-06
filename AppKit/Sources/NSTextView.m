@@ -996,7 +996,6 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	[super setSelectedRange:range];
 	if(!flag && layoutManager)
 		{
-		NSFont *attribs;
 		[self updateInsertionPointStateAndRestartTimer:YES];	// will call _caretRect
 		[self _updateTypingAttributes];
 		_stableCursorColumn=_caretRect.origin.x;
