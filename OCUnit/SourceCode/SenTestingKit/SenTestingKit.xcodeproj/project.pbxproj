@@ -102,6 +102,19 @@
 		E9CD3BE305A99B590078AC3E /* SenTestClassEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = E9CD3BDD05A99B590078AC3E /* SenTestClassEnumerator.m */; };
 		E9CD3BE405A99B590078AC3E /* SenTestInvocationEnumerator.h in Headers */ = {isa = PBXBuildFile; fileRef = E9CD3BDE05A99B590078AC3E /* SenTestInvocationEnumerator.h */; };
 		E9CD3BE505A99B590078AC3E /* SenTestInvocationEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = E9CD3BDF05A99B590078AC3E /* SenTestInvocationEnumerator.m */; };
+		EEC07E801699E58800CA1448 /* SenTestContinueOrRaiseTesting.m in Sources */ = {isa = PBXBuildFile; fileRef = E98E64AD056D17B90033599A /* SenTestContinueOrRaiseTesting.m */; };
+		EEC07E811699E58800CA1448 /* SenTestEmptySuite.m in Sources */ = {isa = PBXBuildFile; fileRef = E98E64AF056D17B90033599A /* SenTestEmptySuite.m */; };
+		EEC07E821699E58800CA1448 /* SenTestErrorTesting.m in Sources */ = {isa = PBXBuildFile; fileRef = E98E64B1056D17B90033599A /* SenTestErrorTesting.m */; };
+		EEC07E831699E58800CA1448 /* SenTestFail.m in Sources */ = {isa = PBXBuildFile; fileRef = E98E64B3056D17B90033599A /* SenTestFail.m */; };
+		EEC07E841699E58800CA1448 /* SenTestMacroTesting.m in Sources */ = {isa = PBXBuildFile; fileRef = E98E64B5056D17B90033599A /* SenTestMacroTesting.m */; };
+		EEC07E851699E58800CA1448 /* SenTestPerformance.m in Sources */ = {isa = PBXBuildFile; fileRef = E98E64B7056D17B90033599A /* SenTestPerformance.m */; };
+		EEC07E861699E58800CA1448 /* SenTestShould.m in Sources */ = {isa = PBXBuildFile; fileRef = E98E64B9056D17B90033599A /* SenTestShould.m */; };
+		EEC07E871699E58800CA1448 /* SenTestShouldBeEqual.m in Sources */ = {isa = PBXBuildFile; fileRef = E98E64BB056D17B90033599A /* SenTestShouldBeEqual.m */; };
+		EEC07E881699E58800CA1448 /* SenTestShouldRaise.m in Sources */ = {isa = PBXBuildFile; fileRef = E98E64BD056D17B90033599A /* SenTestShouldRaise.m */; };
+		EEC07E891699E58800CA1448 /* SenTestTestSuite.m in Sources */ = {isa = PBXBuildFile; fileRef = E98E64BF056D17B90033599A /* SenTestTestSuite.m */; };
+		EEC07E8A1699E58800CA1448 /* SenTestNewStyleMacros.m in Sources */ = {isa = PBXBuildFile; fileRef = 3DB0931106133A8D003C502B /* SenTestNewStyleMacros.m */; };
+		EEC07F1E1699E59600CA1448 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D69BFE84028FC02AAC07 /* Foundation.framework */; };
+		EEC07F1F1699E59600CA1448 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* SenTestingKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -223,6 +236,8 @@
 		E9CD3BDE05A99B590078AC3E /* SenTestInvocationEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SenTestInvocationEnumerator.h; sourceTree = "<group>"; };
 		E9CD3BDF05A99B590078AC3E /* SenTestInvocationEnumerator.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SenTestInvocationEnumerator.m; sourceTree = "<group>"; };
 		EE416F1F168EE18200869F75 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../../../mySTEP.make; sourceTree = SOURCE_ROOT; };
+		EEC07E781699E54600CA1448 /* SenTestingKitTest.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SenTestingKitTest.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEC07E791699E54600CA1448 /* SenTestingKitTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SenTestingKitTest-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -243,6 +258,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEC07E751699E54600CA1448 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEC07F1E1699E59600CA1448 /* Foundation.framework in Frameworks */,
+				EEC07F1F1699E59600CA1448 /* SenTestingKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -251,6 +275,7 @@
 			children = (
 				8DC2EF5B0486A6940098B216 /* SenTestingKit.framework */,
 				E98E64A5056D17830033599A /* SenTestingKit_UnitTests.octest */,
+				EEC07E781699E54600CA1448 /* SenTestingKitTest.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -268,6 +293,7 @@
 				E98E64A9056D178C0033599A /* Unit Tests */,
 				3D6DC290054FEA7300091E74 /* Documentation */,
 				034768DFFF38A50411DB9C8B /* Products */,
+				EEC07E791699E54600CA1448 /* SenTestingKitTest-Info.plist */,
 			);
 			name = SenTestingKitxx;
 			sourceTree = "<group>";
@@ -542,6 +568,25 @@
 			productReference = E98E64A5056D17830033599A /* SenTestingKit_UnitTests.octest */;
 			productType = "com.apple.product-type.framework";
 		};
+		EEC07E771699E54600CA1448 /* SenTestingKitTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEC07E7E1699E54800CA1448 /* Build configuration list for PBXNativeTarget "SenTestingKitTest" */;
+			buildPhases = (
+				EEC07E731699E54600CA1448 /* Resources */,
+				EEC07E741699E54600CA1448 /* Sources */,
+				EEC07E751699E54600CA1448 /* Frameworks */,
+				EEC07F211699E5C000CA1448 /* Cross Compile */,
+				EEC07E761699E54600CA1448 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SenTestingKitTest;
+			productName = SenTestingKitTest;
+			productReference = EEC07E781699E54600CA1448 /* SenTestingKitTest.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -564,6 +609,7 @@
 			targets = (
 				8DC2EF4F0486A6940098B216 /* SenTestingKit */,
 				E98E64A4056D17830033599A /* SenTestingKit_UnitTests */,
+				EEC07E771699E54600CA1448 /* SenTestingKitTest */,
 			);
 		};
 /* End PBXProject section */
@@ -615,6 +661,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEC07E731699E54600CA1448 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXRezBuildPhase section */
@@ -653,6 +706,33 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export SOURCES=*.m           # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport STRIP_MacOS=false            # set to true if you want a Linux-ARM only bundle\nexport INSTALL_PATH=/Developer/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n#export STRIP_Framework=false       # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\nexport INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
+		EEC07E761699E54600CA1448 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+		EEC07F211699E5C000CA1448 /* Cross Compile */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Cross Compile";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#exit\n\n# project settings\nexport SOURCES=\"Tests.subproj/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=SenTestingKit\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/UnitTests  # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EEDB2D1216972E830011D22A /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -713,6 +793,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEC07E741699E54600CA1448 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEC07E801699E58800CA1448 /* SenTestContinueOrRaiseTesting.m in Sources */,
+				EEC07E811699E58800CA1448 /* SenTestEmptySuite.m in Sources */,
+				EEC07E821699E58800CA1448 /* SenTestErrorTesting.m in Sources */,
+				EEC07E831699E58800CA1448 /* SenTestFail.m in Sources */,
+				EEC07E841699E58800CA1448 /* SenTestMacroTesting.m in Sources */,
+				EEC07E851699E58800CA1448 /* SenTestPerformance.m in Sources */,
+				EEC07E861699E58800CA1448 /* SenTestShould.m in Sources */,
+				EEC07E871699E58800CA1448 /* SenTestShouldBeEqual.m in Sources */,
+				EEC07E881699E58800CA1448 /* SenTestShouldRaise.m in Sources */,
+				EEC07E891699E58800CA1448 /* SenTestTestSuite.m in Sources */,
+				EEC07E8A1699E58800CA1448 /* SenTestNewStyleMacros.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -738,6 +836,7 @@
 		EE416B84168EE0BA00869F75 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_VERSION = 4.0;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Development;
@@ -745,18 +844,24 @@
 		EE416B85168EE0BA00869F75 /* RootDeployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_VERSION = 4.0;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = RootDeployment;
 		};
 		EE416B86168EE0BA00869F75 /* HomeDeployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_VERSION = 4.0;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = HomeDeployment;
 		};
 		EE416B87168EE0BA00869F75 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_VERSION = 4.0;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Default;
 		};
@@ -1138,6 +1243,121 @@
 			};
 			name = Default;
 		};
+		EEC07E7A1699E54800CA1448 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(NATIVE_ARCH)";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_VERSION = 4.0;
+				INFOPLIST_FILE = "SenTestingKitTest-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = SenTestingKitTest;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Development;
+		};
+		EEC07E7B1699E54800CA1448 /* RootDeployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(NATIVE_ARCH)";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_VERSION = 4.0;
+				INFOPLIST_FILE = "SenTestingKitTest-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = SenTestingKitTest;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = RootDeployment;
+		};
+		EEC07E7C1699E54800CA1448 /* HomeDeployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(NATIVE_ARCH)";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_VERSION = 4.0;
+				INFOPLIST_FILE = "SenTestingKitTest-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = SenTestingKitTest;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = HomeDeployment;
+		};
+		EEC07E7D1699E54800CA1448 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(NATIVE_ARCH)";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_VERSION = 4.0;
+				INFOPLIST_FILE = "SenTestingKitTest-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = SenTestingKitTest;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Default;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1170,6 +1390,17 @@
 				EE416B8D168EE0BA00869F75 /* RootDeployment */,
 				EE416B8E168EE0BA00869F75 /* HomeDeployment */,
 				EE416B8F168EE0BA00869F75 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EEC07E7E1699E54800CA1448 /* Build configuration list for PBXNativeTarget "SenTestingKitTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEC07E7A1699E54800CA1448 /* Development */,
+				EEC07E7B1699E54800CA1448 /* RootDeployment */,
+				EEC07E7C1699E54800CA1448 /* HomeDeployment */,
+				EEC07E7D1699E54800CA1448 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;

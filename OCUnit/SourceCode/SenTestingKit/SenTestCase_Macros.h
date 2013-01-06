@@ -31,44 +31,58 @@
 #import "SenTestingUtilities.h"
 
 #undef STFail
-#undef fail
-#undef fail1
+
+#undef STAssertNil
 
 #undef STAssertNotNil
 
 #undef STAssertTrue
-#undef should
-#undef should1
 
 #undef STAssertFalse
-#undef shouldnt
-#undef shouldnt1
 
 #undef STAssertEquals
 #undef STAssertEqualObjects
 #undef STAssertEqualsWithAccuracy
-#undef shouldBeEqual
-#undef shouldBeEqual1
 
 #undef STAssertThrows
 #undef STAssertThrowsSpecific
 #undef STAssertThrowsSpecificNamed
-#undef shouldRaise
-#undef shouldRaise1
 
 #undef STAssertNoThrow
 #undef STAssertNoThrowSpecific
 #undef STAssertNoThrowSpecificNamed
-#undef shouldntRaise
-#undef shouldntRaise1
 
 #undef STAssertTrueNoThrow
-#undef shouldnoraise
-#undef should1noraise
 
 #undef STAssertFalseNoThrow
+
+/* appears to be added to version found with Xcode 3.2 */
+
+/* 
+ The following macros are deprecated.  If you have code that uses them and you
+ don't wish to migrate to the modern macros immediately, add the following line
+ before importing this header or any header that imports it:
+ 
+ #define STEnableDeprecatedAssertionMacros 1
+ */
+#ifdef STEnableDeprecatedAssertionMacros
+#undef fail
+#undef fail1
+#undef should
+#undef should1
+#undef shouldnt
+#undef shouldnt1
+#undef shouldBeEqual
+#undef shouldBeEqual1
+#undef shouldRaise
+#undef shouldRaise1
+#undef shouldntRaise
+#undef shouldntRaise1
+#undef shouldnoraise
+#undef should1noraise
 #undef shouldntnoraise
 #undef shouldnt1noraise
+#endif /* STEnableDeprecatedAssertionMacros */
 
 
 /*" Generates a failure when !{ [a1 isEqualTo:a2] } is false 
@@ -206,6 +220,37 @@ do { \
                                             atLine: __LINE__ \
                                    withDescription: STComposeString(description, ##__VA_ARGS__)]]
 
+
+/* appears to be available with Xcode */
+
+/*" Generates a failure when a1 is not nil.
+	_{a1    An object.}
+	_{description A format string as in the printf() function. Can be nil or
+		an empty string but must be present.}
+	_{... A variable number of arguments to the format string. Can be absent.}
+"*/
+#define STAssertNil(a1, description, ...) \
+do { \
+	TRY {\
+		id a1value = (a1); \
+			if (a1value != nil) { \
+				NSString *_a1 = [NSString stringWithCString: #a1]; \
+				NSString *_expression = [NSString stringWithFormat:@"((%@) != nil)", _a1]; \
+				[self failWithException:[NSException failureInCondition: _expression \
+																 isTrue: NO \
+																 inFile: [NSString stringWithCString:__FILE__] \
+																 atLine: __LINE__ \
+														withDescription: STComposeString(description, ##__VA_ARGS__)]]; \
+			} \
+	}\
+	CATCH (id anException) {\
+		[self failWithException:[NSException failureInRaise:[NSString stringWithFormat: @"(%s) != nil fails", #a1] \
+												  exception:anException \
+													 inFile:[NSString stringWithCString:__FILE__] \
+													 atLine:__LINE__ \
+											withDescription:STComposeString(description, ##__VA_ARGS__)]]; \
+	} ENDTRY\
+} while(0)
 
 
 /*" Generates a failure when a1 is nil.
@@ -519,6 +564,7 @@ do { \
     } ENDTRY \
 } while (0)
 
+#ifdef STEnableDeprecatedAssertionMacros
 
 /*" This macro has been deprecated as of Feb 2004.
     Generates a failure unconditionally.
@@ -606,3 +652,4 @@ do { \
 "*/
 #define shouldnt1noraise(expression, description)  STAssertFalseNoThrow(expression, description)
 
+#endif
