@@ -13,7 +13,7 @@
 
 - (void) setUp;	// runs before each test (+setUp would run only once)
 {
-	NSLog(@"-setUp");
+//	NSLog(@"-setUp");
 	// create text network
 	textStorage = [[NSTextStorage alloc] initWithString:@"Direct\ndrawing\nmultiple\nlines."];
 	layoutManager = [[NSLayoutManager alloc] init];
@@ -27,15 +27,16 @@
 	[textStorage addLayoutManager:layoutManager];
 	[layoutManager release];	// The textStorage will retain the layoutManager
 	[textView release];
-// would rise an exception:
+#if 0	// would rise an exception:
 	[layoutManager glyphAtIndex:100];
+#endif
 	[layoutManager invalidateGlyphsOnLayoutInvalidationForGlyphRange:NSMakeRange(0, INT_MAX)];
 	[layoutManager invalidateLayoutForCharacterRange:NSMakeRange(0, [textStorage length]) actualCharacterRange:NULL];
 }
 
 - (void) tearDown;	// runs after each test
 {
-	NSLog(@"-tearDown");
+//	NSLog(@"-tearDown");
 	[textStorage release];
 }
 
@@ -90,14 +91,14 @@
 												   [NSColor redColor],
 												   NSForegroundColorAttributeName,
 												   nil]];	// set explicit typing Attributes
-	NSLog(@"%@", [[textContainer textView] typingAttributes]);
+//	NSLog(@"%@", [[textContainer textView] typingAttributes]);
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"LucidaGrande", nil);
-	[[textContainer textView] setTypingAttributes:nil];	// clear typing attributes
-	NSLog(@"%@", [[textContainer textView] typingAttributes]);
+	[[textContainer textView] setTypingAttributes:nil];	// try to clear typing attributes
+//	NSLog(@"%@", [[textContainer textView] typingAttributes]);
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"LucidaGrande", nil);
 	[[textContainer textView] setTypingAttributes:[NSDictionary dictionaryWithObjectsAndKeys:nil]];	// set explicit typing Attributes
-	NSLog(@"%@", [[textContainer textView] typingAttributes]);
-	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], nil, nil);
+//	NSLog(@"%@", [[textContainer textView] typingAttributes]);
+	STAssertNil([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], nil);
 	/* conclusions
 	 - it is impossible to completely clear the typing atrributes
 	 - setting to nil is ignored
@@ -108,8 +109,8 @@
 - (void) test08
 { // default layout settings
 	NSSize size=[textContainer containerSize];
-	NSLog(@"%@", NSStringFromSize(size));
-	STAssertTrue(size.width == 1e+07 && size.height == 1e+07, nil);
+//	NSLog(@"%@", NSStringFromSize(size));
+	STAssertTrue(size.width == 1e+07 && size.height == 1e+07, @"size=%@", NSStringFromSize(size));
 }
 
 - (void) test10
@@ -172,7 +173,7 @@
 	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 7, nil);
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 7, nil);			
 	/* conclusions
-	 - generating layout works line by line
+	 - generating layout is done line by line as far as needed
 	 */
 }
 
@@ -190,7 +191,10 @@
 	// here we will see all 30 glyphs (all lines!)
 	STAssertTrue(glyphRange.location == 0 && glyphRange.length == 30, nil);
 	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 30, nil);
-	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 30, nil);		
+	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 30, nil);
+	/* conclusions
+	 * unclear
+	 */
 }
 
 - (void) test20
@@ -207,8 +211,8 @@
 	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 30, nil);
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 30, nil);	// everything done
 	rect = [layoutManager usedRectForTextContainer:textContainer];
-	NSLog(@"usedRectForTextContainer: %@", NSStringFromRect(rect));
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 4*14.0, nil);
+//	NSLog(@"usedRectForTextContainer: %@", NSStringFromRect(rect));
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 4*14.0, @"rect=%@", NSStringFromRect(rect));
 	// invalidate subrange
 	[layoutManager invalidateLayoutForCharacterRange:NSMakeRange(7, 5) actualCharacterRange:NULL];
 //	NSLog(@"%u", [layoutManager firstUnlaidGlyphIndex]);
@@ -217,11 +221,12 @@
 	// should have become smaller
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 //	NSLog(@"usedRectForTextContainer: %@", NSStringFromRect(rect));
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));
 	/* conclusions
 	 - invalidation of already invalid ranges is ignored
-	 - invalidation reset the firstUnlaid*Index to the beginning
-	 - usedRect is reduced
+	 - invalidation resets the firstUnlaid*Index to the beginning
+	 - usedRect is reduced by invalidated areas
+	 - i.e. layout generation is incremental and decremental
 	 */
 }
 
@@ -262,15 +267,15 @@
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 	// there is some default font for empty strings
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));
 	// the text container we have provided
 	STAssertEqualObjects([layoutManager extraLineFragmentTextContainer], textContainer, nil);
 	rect = [layoutManager extraLineFragmentRect];
 	// we see an almost infinitely wide container
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));
 	rect = [layoutManager extraLineFragmentUsedRect];
 	// the textContainer usedRect is the extraFragmentUsedRect
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10 && rect.size.height == 14.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));
 }
 
 - (void) test31
@@ -288,15 +293,15 @@
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 	// there is some default font for empty strings
 	// the 10 width appears to be some default margin?
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));
 	// the text container we have provided
 	STAssertEqualObjects([layoutManager extraLineFragmentTextContainer], textContainer, nil);
 	rect = [layoutManager extraLineFragmentRect];
 	// we see an almost infinitely wide container
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));
 	rect = [layoutManager extraLineFragmentUsedRect];
 	// the textContainer usedRect is the extraFragmentUsedRect
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10 && rect.size.height == 14.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));
 }
 
 - (void) test32
@@ -313,15 +318,15 @@
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 1, nil);
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 	// there is some default font for any string with line height 14.0
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 16.0 && rect.size.height == 14.0, nil);	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 16.0 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));	
 	// since we have some characters there is no extra line fragment
 	STAssertEqualObjects([layoutManager extraLineFragmentTextContainer], nil, nil);
 	rect = [layoutManager extraLineFragmentRect];
 	// the rect is empty
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 0.0 && rect.size.height == 0.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 0.0 && rect.size.height == 0.0, @"rect=%@", NSStringFromRect(rect));
 	rect = [layoutManager extraLineFragmentUsedRect];
 	// the rect is empty
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 0.0 && rect.size.height == 0.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 0.0 && rect.size.height == 0.0, @"rect=%@", NSStringFromRect(rect));
 
 	[textStorage setFont:[NSFont fontWithName:@"Helvetica" size:24.0]];
 
@@ -334,16 +339,16 @@
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 1, nil);
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 	// now we see the bigger font height
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 22.0 && rect.size.height == 29.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 22.0 && rect.size.height == 29.0, @"rect=%@", NSStringFromRect(rect));
 	// since we have some characters there is no extra line fragment
 	STAssertEqualObjects([layoutManager extraLineFragmentTextContainer], nil, nil);
 	rect = [layoutManager extraLineFragmentRect];
 	// the rect is empty - but where does the offset 15.0 come from?
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 15.0 && rect.size.width == 0.0 && rect.size.height == 0.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 15.0 && rect.size.width == 0.0 && rect.size.height == 0.0, @"rect=%@", NSStringFromRect(rect));
 	rect = [layoutManager extraLineFragmentUsedRect];
 //	NSLog(@"%@", NSStringFromRect(rect));
 	// the rect is empty
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 15.0 && rect.size.width == 0.0 && rect.size.height == 0.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 15.0 && rect.size.width == 0.0 && rect.size.height == 0.0, @"rect=%@", NSStringFromRect(rect));
 	
 	// [textStorage setFont:nil];	// go back to default font -- this raises an exception
 	[textStorage removeAttribute:NSFontAttributeName range:NSMakeRange(0, [textStorage length])];
@@ -353,7 +358,7 @@
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 	// there is some default font for any string with line height 14.0
 //	NSLog(@"%@", NSStringFromRect(rect));
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 16.0 && rect.size.height == 14.0, nil);	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 16.0 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));	
 	
 	[textStorage removeAttribute:NSFontAttributeName range:NSMakeRange(0, [textStorage length])];
 
@@ -371,8 +376,8 @@
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 	// we still don't see the typingAttributes because the string is not empty - but we have no NSFontAttributeName!
-	NSLog(@"%@", NSStringFromRect(rect));	
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, nil);
+//	NSLog(@"%@", NSStringFromRect(rect));	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));
 
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"LucidaGrande", nil);
 
@@ -385,8 +390,8 @@
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 	// now we should see the font height from the typing attributes
-	NSLog(@"%@", NSStringFromRect(rect));	
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 21.0, nil);	
+//	NSLog(@"%@", NSStringFromRect(rect));	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 21.0, @"rect=%@", NSStringFromRect(rect));	
 
 	// but as soon as we have a character again, the typingAttributes are ignored
 	
@@ -403,15 +408,15 @@
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 1, nil);
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 	// there is some default font for any string with line height 14.0
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 16.0 && rect.size.height == 14.0, nil);	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 16.0 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));	
 	// since we have some characters there is no extra line fragment
 	STAssertEqualObjects([layoutManager extraLineFragmentTextContainer], nil, nil);
 	rect = [layoutManager extraLineFragmentRect];
 	// the rect is empty
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 0.0 && rect.size.height == 0.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 0.0 && rect.size.height == 0.0, @"rect=%@", NSStringFromRect(rect));
 	rect = [layoutManager extraLineFragmentUsedRect];
 	// the rect is empty
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 0.0 && rect.size.height == 0.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 0.0 && rect.size.height == 0.0, @"rect=%@", NSStringFromRect(rect));
 
 	// so let's remove it again and the typing attributes should re-appear
 	
@@ -428,18 +433,18 @@
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 	// there is some default font for any string with line height 14.0
-	NSLog(@"%@", NSStringFromRect(rect));	
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, nil);	
+//	NSLog(@"%@", NSStringFromRect(rect));	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));	
 	// since we have no characters there is now an extra line fragment
 	STAssertEqualObjects([layoutManager extraLineFragmentTextContainer], textContainer, nil);
 	rect = [layoutManager extraLineFragmentRect];
-	NSLog(@"%@", NSStringFromRect(rect));	
+//	NSLog(@"%@", NSStringFromRect(rect));	
 	// the rect is not empty
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));
 	rect = [layoutManager extraLineFragmentUsedRect];
-	NSLog(@"%@", NSStringFromRect(rect));	
+//	NSLog(@"%@", NSStringFromRect(rect));	
 	// the rect is not empty
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));
 	
 	
 	/* conclusions
@@ -466,18 +471,18 @@
 	STAssertTrue([layoutManager firstUnlaidGlyphIndex] == 0, nil);
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
 	rect = [layoutManager usedRectForTextContainer:textContainer];
-	NSLog(@"%@", NSStringFromRect(rect));
+//	NSLog(@"%@", NSStringFromRect(rect));
 	// there is some default font for empty string with line height 14.0
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 21.0, nil);	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 21.0, @"rect=%@", NSStringFromRect(rect));	
 	// since we have some characters there is no extra line fragment
 	STAssertEqualObjects([layoutManager extraLineFragmentTextContainer], textContainer, nil);
 	rect = [layoutManager extraLineFragmentRect];
 	// the rect is not empty
-	NSLog(@"%@", NSStringFromRect(rect));	
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 21.0, nil);
+//	NSLog(@"%@", NSStringFromRect(rect));	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 21.0, @"rect=%@", NSStringFromRect(rect));
 	rect = [layoutManager extraLineFragmentUsedRect];
 	// the rect is not empty - but width is always 10.0 (height is 125% * fontSize)
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 21.0, nil);
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 21.0, @"rect=%@", NSStringFromRect(rect));
 	
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"LucidaGrande", nil);
 	
@@ -491,8 +496,8 @@
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 	// now we should see the typing attributes
-	NSLog(@"%@", NSStringFromRect(rect));	
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, nil);
+//	NSLog(@"%@", NSStringFromRect(rect));	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));
 
 	// typing attributes have not been changed by layoutManager
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], nil, nil);
@@ -519,7 +524,7 @@
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"Helvetica", nil);
 
 	size=[textStorage size];
-	NSLog(@"%@", NSStringFromSize(size));
+//	NSLog(@"%@", NSStringFromSize(size));
 	STAssertTrue(size.width == 44.0 && size.height == 60.0, nil);
 
 	// with specific font
@@ -528,8 +533,8 @@
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"Helvetica", nil);
 
 	size=[textStorage size];
-	NSLog(@"%@ %.10f", NSStringFromSize(size), size.width);
-	STAssertTrue(size.width == 79.638671875 && size.height == 96.0, nil);
+//	NSLog(@"%@ %.10f", NSStringFromSize(size), size.width);
+	STAssertTrue(size.width == 79.638671875 && size.height == 96.0, @"size=%@", NSStringFromSize(size));
 
 	// make empty string with font
 	
@@ -538,9 +543,9 @@
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"Helvetica", nil);
 
 	size=[textStorage size];
-	NSLog(@"%@", NSStringFromSize(size));
+//	NSLog(@"%@", NSStringFromSize(size));
 	// NOTE: this is different from asking our layoutManager for the usedRect which is 14.0 in this case!
-	STAssertTrue(size.width == 0.0 && size.height == 15.0, nil);
+	STAssertTrue(size.width == 0.0 && size.height == 15.0, NSStringFromSize(size));
 
 	// remove font info
 	
@@ -559,8 +564,8 @@
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 	// there is some default font for any string with line height 14.0 [userFontOfSize.0.0]
-	NSLog(@"%@", NSStringFromRect(rect));	
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, nil);
+//	NSLog(@"%@", NSStringFromRect(rect));	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 14.0, @"rect=%@", NSStringFromRect(rect));
 	
 	// and again with setting typingAttributes to some systemFont
 
@@ -574,8 +579,8 @@
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 	// this results in the same height as string drawing
-	NSLog(@"%@", NSStringFromRect(rect));	
-	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 15.0, nil);
+//	NSLog(@"%@", NSStringFromRect(rect));	
+	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width == 10.0 && rect.size.height == 15.0, @"rect=%@", NSStringFromRect(rect));
 	
 	/* conclusions
 	 - string drawing uses a different default for empty line height (or font) than the manually set up layoutManager!
@@ -583,6 +588,8 @@
 	 - default typing attributes are Helvetica-12
 	 - most likely string drawing has its own private NSTextView with default typing attributes
 	 */
+	
+	// FIXME: make tests out of this:
 	
 	// [astr boundingRectWithSize:options:0]={{0, -3}, {0, 15}}
 	NSLog(@"[astr boundingRectWithSize:options:%u]=%@", 0, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:0]));
@@ -600,18 +607,20 @@
 	// reset them to nil
 	// apply font to textStorage
 	
-NSLog(@"[astr size]=%@", NSStringFromSize([textStorage size]));
-NSLog(@"[astr boundingRectWithSize:options:%u]=%@", 0, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:0]));
-NSLog(@"[astr boundingRectWithSize:options:%u]=%@", NSStringDrawingUsesLineFragmentOrigin, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options: NSStringDrawingUsesLineFragmentOrigin]));
-NSLog(@"[astr size]=%@", NSStringFromSize([textStorage size]));
-// [astr boundingRectWithSize:options:0]={{0, -3}, {0, 15}} -- single line!
-NSLog(@"[astr boundingRectWithSize:options:%u]=%@", 0, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:0]));
-// [astr boundingRectWithSize:options:1]={{0, 0}, {0, 30}} -- double line
-NSLog(@"[astr boundingRectWithSize:options:%u]=%@", NSStringDrawingUsesLineFragmentOrigin, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options: NSStringDrawingUsesLineFragmentOrigin]));
-// change the font
-NSLog(@"[astr size]=%@", NSStringFromSize([textStorage size]));
-NSLog(@"[astr boundingRectWithSize:options:%u]=%@", 0, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:0]));
-NSLog(@"[astr boundingRectWithSize:options:%u]=%@", NSStringDrawingUsesLineFragmentOrigin, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options: NSStringDrawingUsesLineFragmentOrigin]));
+	// FIXME: make tests out of this:
 
+	NSLog(@"[astr size]=%@", NSStringFromSize([textStorage size]));
+	NSLog(@"[astr boundingRectWithSize:options:%u]=%@", 0, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:0]));
+	NSLog(@"[astr boundingRectWithSize:options:%u]=%@", NSStringDrawingUsesLineFragmentOrigin, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options: NSStringDrawingUsesLineFragmentOrigin]));
+	NSLog(@"[astr size]=%@", NSStringFromSize([textStorage size]));
+	// [astr boundingRectWithSize:options:0]={{0, -3}, {0, 15}} -- single line!
+	NSLog(@"[astr boundingRectWithSize:options:%u]=%@", 0, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:0]));
+	// [astr boundingRectWithSize:options:1]={{0, 0}, {0, 30}} -- double line
+	NSLog(@"[astr boundingRectWithSize:options:%u]=%@", NSStringDrawingUsesLineFragmentOrigin, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options: NSStringDrawingUsesLineFragmentOrigin]));
+	// change the font
+	NSLog(@"[astr size]=%@", NSStringFromSize([textStorage size]));
+	NSLog(@"[astr boundingRectWithSize:options:%u]=%@", 0, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options:0]));
+	NSLog(@"[astr boundingRectWithSize:options:%u]=%@", NSStringDrawingUsesLineFragmentOrigin, NSStringFromRect([textStorage boundingRectWithSize:NSMakeSize(FLT_MAX, FLT_MAX) options: NSStringDrawingUsesLineFragmentOrigin]));
+	
 }
 @end

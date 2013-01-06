@@ -15,6 +15,7 @@
 			dependencies = (
 				EEBCCA1C169355A500CED788 /* PBXTargetDependency */,
 				EEBCCA1E169355A800CED788 /* PBXTargetDependency */,
+				EEC07FB21699EC8400CA1448 /* PBXTargetDependency */,
 			);
 			name = UnitTesting;
 			productName = UnitTests;
@@ -44,6 +45,14 @@
 		EEBB6D95109CBEE500B67699 /* NSPortCoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */; };
 		EEC07E3D1699C69000CA1448 /* NSScannerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC07E3C1699C69000CA1448 /* NSScannerTest.m */; };
 		EEC07E3E1699C69000CA1448 /* NSScannerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC07E3C1699C69000CA1448 /* NSScannerTest.m */; };
+		EEC07F901699EC2500CA1448 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
+		EEC07F911699EC2500CA1448 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
+		EEC07F921699EC2500CA1448 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
+		EEC07F931699EC2500CA1448 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
+		EEC07FA61699EC3100CA1448 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
+		EEC07FA71699EC3100CA1448 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
+		EEC07FA81699EC3100CA1448 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
+		EEC07FA91699EC3100CA1448 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
 		EED109C90F82540300E9AEC6 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
 		EED980320F875953002E4AD5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
 		EED980330F875953002E4AD5 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
@@ -85,6 +94,13 @@
 			remoteGlobalIDString = EED9802D0F875953002E4AD5;
 			remoteInfo = AppKit;
 		};
+		EEC07FB11699EC8400CA1448 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EEC07F851699EC2500CA1448 /* AddressBook */;
+			remoteInfo = AddressBook;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -123,6 +139,10 @@
 		EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPortCoderTest.m; sourceTree = "<group>"; };
 		EEC07E3B1699C69000CA1448 /* NSScannerTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSScannerTest.h; sourceTree = "<group>"; };
 		EEC07E3C1699C69000CA1448 /* NSScannerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSScannerTest.m; sourceTree = "<group>"; };
+		EEC07F991699EC2500CA1448 /* AddressBook.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AddressBook.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEC07F9A1699EC2500CA1448 /* Tests-Info copy 2.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info copy 2.plist"; sourceTree = "<group>"; };
+		EEC07FAF1699EC3100CA1448 /* AddressBook.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AddressBook.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEC07FB01699EC3100CA1448 /* Tests-Info copy 3.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info copy 3.plist"; sourceTree = "<group>"; };
 		EED109C80F82540300E9AEC6 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EED980280F87594E002E4AD5 /* NSTextFieldCellTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextFieldCellTest.h; sourceTree = "<group>"; };
@@ -152,6 +172,28 @@
 				EE488BAB0F9102CC00B3E56F /* Cocoa.framework in Frameworks */,
 				EE488BAC0F9102D000B3E56F /* AppKit.framework in Frameworks */,
 				EE488BAD0F9102D500B3E56F /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEC07F8F1699EC2500CA1448 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEC07F901699EC2500CA1448 /* Foundation.framework in Frameworks */,
+				EEC07F911699EC2500CA1448 /* AppKit.framework in Frameworks */,
+				EEC07F921699EC2500CA1448 /* Cocoa.framework in Frameworks */,
+				EEC07F931699EC2500CA1448 /* SenTestingKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEC07FA51699EC3100CA1448 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEC07FA61699EC3100CA1448 /* Foundation.framework in Frameworks */,
+				EEC07FA71699EC3100CA1448 /* AppKit.framework in Frameworks */,
+				EEC07FA81699EC3100CA1448 /* Cocoa.framework in Frameworks */,
+				EEC07FA91699EC3100CA1448 /* SenTestingKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -200,6 +242,8 @@
 				EE0C72040F7E7328008B94EE /* Tests-Info.plist */,
 				EE488C3E0F91030800B3E56F /* main.m */,
 				EE488AEC0F91025500B3E56F /* Special-Info.plist */,
+				EEC07F9A1699EC2500CA1448 /* Tests-Info copy 2.plist */,
+				EEC07FB01699EC3100CA1448 /* Tests-Info copy 3.plist */,
 			);
 			name = BrowserTester;
 			sourceTree = "<group>";
@@ -237,6 +281,8 @@
 				EE5DAEF010A61BD200910F0B /* Special.app */,
 				EEDB59F2169878070011D22A /* Foundation.octest */,
 				EEDB5A09169878070011D22A /* AppKit.octest */,
+				EEC07F991699EC2500CA1448 /* AddressBook.octest */,
+				EEC07FAF1699EC3100CA1448 /* AddressBook.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -312,6 +358,42 @@
 			productName = Special;
 			productReference = EE5DAEF010A61BD200910F0B /* Special.app */;
 			productType = "com.apple.product-type.application";
+		};
+		EEC07F851699EC2500CA1448 /* AddressBook */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEC07F951699EC2500CA1448 /* Build configuration list for PBXNativeTarget "AddressBook" */;
+			buildPhases = (
+				EEC07F861699EC2500CA1448 /* Resources */,
+				EEC07F871699EC2500CA1448 /* Sources */,
+				EEC07F8F1699EC2500CA1448 /* Frameworks */,
+				EEC07F941699EC2500CA1448 /* Cross Compile */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AddressBook;
+			productName = Tests;
+			productReference = EEC07F991699EC2500CA1448 /* AddressBook.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+		EEC07F9B1699EC3100CA1448 /* AddressBook Build and Run */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEC07FAB1699EC3100CA1448 /* Build configuration list for PBXNativeTarget "AddressBook Build and Run" */;
+			buildPhases = (
+				EEC07F9C1699EC3100CA1448 /* Resources */,
+				EEC07F9D1699EC3100CA1448 /* Sources */,
+				EEC07FA51699EC3100CA1448 /* Frameworks */,
+				EEC07FAA1699EC3100CA1448 /* Run Tests */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "AddressBook Build and Run";
+			productName = Tests;
+			productReference = EEC07FAF1699EC3100CA1448 /* AddressBook.octest */;
+			productType = "com.apple.product-type.bundle";
 		};
 		EED9802D0F875953002E4AD5 /* AppKit */ = {
 			isa = PBXNativeTarget;
@@ -390,9 +472,11 @@
 				EE488AE90F91025400B3E56F /* Special */,
 				EEBCCA171693559F00CED788 /* UnitTesting */,
 				EE0C72020F7E7328008B94EE /* Foundation */,
-				EED9802D0F875953002E4AD5 /* AppKit */,
 				EEDB59DF169878070011D22A /* Foundation Build and Run */,
+				EED9802D0F875953002E4AD5 /* AppKit */,
 				EEDB59F4169878070011D22A /* AppKit Build and Run */,
+				EEC07F851699EC2500CA1448 /* AddressBook */,
+				EEC07F9B1699EC3100CA1448 /* AddressBook Build and Run */,
 			);
 		};
 /* End PBXProject section */
@@ -406,6 +490,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		EE488AE60F91025400B3E56F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEC07F861699EC2500CA1448 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEC07F9C1699EC3100CA1448 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -436,6 +534,34 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		EEC07F941699EC2500CA1448 /* Cross Compile */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Cross Compile";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#exit\n\n# project settings\nexport SOURCES=\"AddressBook/NS*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=SenTestingKit\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/UnitTests  # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+		};
+		EEC07FAA1699EC3100CA1448 /* Run Tests */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Tests";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
 		EED10A120F82590100E9AEC6 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -518,6 +644,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEC07F871699EC2500CA1448 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEC07F9D1699EC3100CA1448 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EED9802F0F875953002E4AD5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -573,6 +713,11 @@
 			isa = PBXTargetDependency;
 			target = EED9802D0F875953002E4AD5 /* AppKit */;
 			targetProxy = EEBCCA1D169355A800CED788 /* PBXContainerItemProxy */;
+		};
+		EEC07FB21699EC8400CA1448 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EEC07F851699EC2500CA1448 /* AddressBook */;
+			targetProxy = EEC07FB11699EC8400CA1448 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -676,6 +821,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = NO;
+				GCC_VERSION = 4.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				SDKROOT = macosx10.4;
 			};
@@ -685,6 +831,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
+				GCC_VERSION = 4.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				SDKROOT = macosx10.4;
 			};
@@ -818,7 +965,104 @@
 			};
 			name = Default;
 		};
-		EED980370F875953002E4AD5 /* Development */ = {
+		EEC07F961699EC2500CA1448 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_ENABLE_SYMBOL_SEPARATION = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
+				GCC_VERSION = 4.0;
+				INFOPLIST_FILE = "Tests-Info copy 2.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				LIBRARY_SEARCH_PATHS = /Developer/Library;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = AddressBook;
+				SDKROOT = macosx10.5;
+				USER_HEADER_SEARCH_PATHS = "";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Development;
+		};
+		EEC07F971699EC2500CA1448 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_VERSION = 4.0;
+				INFOPLIST_FILE = "Tests-Info copy 2.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = AddressBook;
+				SDKROOT = macosx10.5;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Deployment;
+		};
+		EEC07F981699EC2500CA1448 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_VERSION = 4.0;
+				INFOPLIST_FILE = "Tests-Info copy 2.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = AddressBook;
+				SDKROOT = macosx10.5;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Default;
+		};
+		EEC07FAC1699EC3100CA1448 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -837,9 +1081,105 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = 4.0;
+				INFOPLIST_FILE = "Tests-Info copy 3.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				LIBRARY_SEARCH_PATHS = /Developer/Library;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
+				PRODUCT_NAME = AddressBook;
+				SDKROOT = macosx10.5;
+				USER_HEADER_SEARCH_PATHS = "";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Development;
+		};
+		EEC07FAD1699EC3100CA1448 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_VERSION = 4.0;
+				INFOPLIST_FILE = "Tests-Info copy 3.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = AddressBook;
+				SDKROOT = macosx10.5;
+				WRAPPER_EXTENSION = octest;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EEC07FAE1699EC3100CA1448 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_VERSION = 4.0;
+				INFOPLIST_FILE = "Tests-Info copy 3.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = AddressBook;
+				SDKROOT = macosx10.5;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Default;
+		};
+		EED980370F875953002E4AD5 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SYSTEM_LIBRARY_DIR)/Frameworks",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_ENABLE_SYMBOL_SEPARATION = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
+				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				LIBRARY_SEARCH_PATHS = /Developer/Library;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -871,6 +1211,7 @@
 				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -882,7 +1223,6 @@
 				PRODUCT_NAME = AppKit;
 				SDKROOT = macosx10.5;
 				WRAPPER_EXTENSION = octest;
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -899,6 +1239,7 @@
 				GCC_VERSION = 4.0;
 				INFOPLIST_FILE = "Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1142,6 +1483,26 @@
 				EEBCCA181693559F00CED788 /* Development */,
 				EEBCCA191693559F00CED788 /* Deployment */,
 				EEBCCA1A1693559F00CED788 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EEC07F951699EC2500CA1448 /* Build configuration list for PBXNativeTarget "AddressBook" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEC07F961699EC2500CA1448 /* Development */,
+				EEC07F971699EC2500CA1448 /* Deployment */,
+				EEC07F981699EC2500CA1448 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EEC07FAB1699EC3100CA1448 /* Build configuration list for PBXNativeTarget "AddressBook Build and Run" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEC07FAC1699EC3100CA1448 /* Development */,
+				EEC07FAD1699EC3100CA1448 /* Deployment */,
+				EEC07FAE1699EC3100CA1448 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;
