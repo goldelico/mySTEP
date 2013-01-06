@@ -1,0 +1,86 @@
+From: Patrick Middleton
+Date: Tue Jun 17, 2003  1:06:04 PM Europe/Zurich
+To: feedback@sente.ch
+Subject: FYI: building/using OCUnit etc on OPENSTEP4.2
+
+Hi,
+
+	I've been doing some OPENSTEP backporting of somebody else's project, and he has some OCUnit-based tests in the project.  I have backported SenFoundation, SenTestingKit and otest to OPENSTEP4.2 with some success.  Here are some notes.
+
+[1] For all projects, it's a good idea to set the compiler options to -Wall -O2 -DRHAPSODY .
+While OPENSTEP is not the old MacOSX Server, it's closer to that than any of the currently supported platforms.
+
+[2] Makefile and PB.project need to be rewritten for every project and subproject.  If each PB.project is changed (comparing it to an OPENSTEP project makes this fairly easy) and the PROJECT_VERSION value reduced to 2.59, then the OPENSTEP ProjectBuilder will rewrite each Makefile when the project is opened.
+
+[3] Remove SenTestingKit/SenTestDistributedNotifier.[hm] from the project -- they use NSDistributedNotificationCenter, which isn't available on OPENSTEP.  Also comment out '#import "SenTestDistributedNotifier.h"' from SenTestingKit/SenTestingKit.h .  This means that SenTestingKit won't work with Shikenjo on OPENSTEP -- but then, the lack of things like NSDistributedNotificationCenter mean that Shikenjo can't be built on OPENSTEP.  'otest' will still work fine.
+
+[4] In SenFoundation/SenInvocationEnumerator.m,
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+- (id) nextObject
+{
+    if (mlist == NULL) {
+        return nil;
+    }
+    else {
+        SEL nextSelector = mlist->method_list[count].method_name;
+        count--;
+        if (count == -1) {
+            [self goNextMethodList];
+        }
+#if defined (GNUSTEP)
+        if (sel_is_mapped(nextSelector)) {
+#else
+            if (sel_isMapped(nextSelector)) {
+#endif
+                NSInvocation *invocation = nil;
+                NSMethodSignature *methodSignature = nil;
+
+// 16-Jun-2003 PRM -printForDebugger: causes a function invoked inside
+//  +[NSObject instanceMethodSignatureForSelector:] to crash
+#ifdef NeXT
+                if (nextSelector==@selector(printForDebugger:)) return [self nextObject];
+#endif
+                methodSignature = [class instanceMethodSignatureForSelector:nextSelector];
+
+                if (methodSignature) {
+                    invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+                    [invocation setSelector:nextSelector];
+                }
+                return invocation;
+            }
+        else {
+            return [self nextObject];
+        }
+    }
+}
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+[5] In SenFoundation/SenClassEnumerator.m,
+here's my revised -nextObject
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+- (id) nextObject
+{
+    if (isAtEnd) {
+        return nil;
+    } else {
+        Class aClass = Nil;
+#if defined (GNUSTEP)
+ 	aClass = objc_next_class(&state);
+ 	if (aClass == Nil)
+            isAtEnd = YES;
+#elif !defined (RHAPSODY)
+        isAtEnd = (index >= numClasses);
+        if(!isAtEnd) {
+            aClass = [cleanClasses objectAtIndex:index++];
+        }
+#else
+        isAtEnd = !NXNextHashState(class_hash, &state, (void **) &aClass);
+#if defined(NeXT) // 17-Jun-2003 PRM
+        if (aClass && !strncmp(aClass->name, "NSZombie_", 7)) return [self nextObject];
+#endif
+
+#endif
+        return isAtEnd ? nil : aClass;
+    }
+}
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

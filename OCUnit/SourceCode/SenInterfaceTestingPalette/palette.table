@@ -1,0 +1,6 @@
+Class = SenInterfaceTestingPalette;			/* (a subclass of IBPalette) */
+NibFile = SenInterfaceTestingPalette;			/* (a nib file name) */
+Icon = SenInterfaceTestingPalette;				/* (a tiff/eps file name) */
+ExportClasses = (SenTest, SenTestCase, SenInterfaceTestCase);		/*	(a list of class names) */
+/* ExportImages = ();			(a list of icon names) */
+/* ExportSounds = ();			(a list of sound names) */

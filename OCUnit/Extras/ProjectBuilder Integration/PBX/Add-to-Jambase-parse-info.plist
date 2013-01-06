@@ -1,0 +1,14 @@
+
+    PhaseScriptExecution = {
+        InfileParamNum = 0;
+        ProgressStatusFormat = "Testing %@";
+        MessageStatusFormat = "Testing %@";
+        FilenameRegexes = ("^/usr/local/bin/otest .*");
+        OutputParseRules = (
+            ("^()()(Testing.*)$", emit-notice),
+            ("^()()(warning.*)$", emit-warning),
+	    ("^(.*):([0-9]*): (.*)$", emit-error),
+	    ("^(.*):(.null.): (.*)$", emit-error),
+        );
+    };
+

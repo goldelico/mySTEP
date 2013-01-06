@@ -1,0 +1,32 @@
+// Copyright (c) 2000-2002 Sen:te (Sente SA).  All rights reserved.
+
+OCUnit Makefiles README (For OPENSTEP, WEBOBJECTS, YELLOW BOX/NT, PB WO)
+
+The content of this folder should be merged with your local Makefiles directory, for instance /Local/Developer/Makefiles (note that /Network/Developer/Makefiles is not searched by ProjectBuilder).
+
+Doing the operations below allows you to run tests from ProjectBuilder and get nice error reporting in ProjectBuilder build panel. The test, test_debug, test_all and test_debug_all targets will be defined and included in your makefiles (you don't have to edit your Makefile.preamble or Makefile.postamble). 
+Unless you have installed SenTestableProjects, a bundle for ProjectBuilder, you still need to add these targets to your project (for instance in ProjectBuilder's Build Attributes inspector).
+
+You can ignore the CVS folders.
+
+* Resources/otestSpec.plist
+Defines the syntax of test results to be processed by the BuildFilter tool. It is used to report errors in ProjectBuilder's build panel top view. 
+
+If you changed the installation directory for otest, reflect that change in this file: edit the "Executables" plist to the path of otest on your system (otest is a tool project of OCUnit).
+
+
+* pb_makefiles/test.make
+Defines the test and test_debug targets. 
+
+If you changed the installation directory for otest, reflect that change in this file. Add to your local pb_makefiles.
+
+
+* pb_makefiles/common.make.postamble
+Includes test.make . 
+Should be merged with your pb_makefiles/common.make.postamble.
+
+
+* pb_makefiles/aggregate.make.preamble
+Defines recursive test and test_debug targets. 
+Should be merged with your pb_makefiles/aggregate.make.preamble.
+

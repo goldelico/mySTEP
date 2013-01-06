@@ -6,7 +6,7 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 #import "NSURLTest.h"
 
 
@@ -22,7 +22,7 @@
 	STAssertEqualObjects(@"scheme://user:password@host.domain.org:888/path/absfile.htm", [[url baseURL] description], nil);
 	STAssertEqualObjects(@"fragments", [url fragment], nil);
 	STAssertEqualObjects(@"host.domain.org", [url host], nil);
-	STAssertTrue(![url isFileURL], nil);
+	STAssertFalse([url isFileURL], nil);
 	STAssertEqualObjects(@"param1;param2", [url parameterString], nil);
 	STAssertEqualObjects(@"password", [url password], nil);
 	STAssertEqualObjects(@"/path/file name.htm", [url path], nil);
@@ -60,12 +60,14 @@
 - (void) test2
 {
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note"];
+	STAssertEqualObjects(@"data", [url scheme], nil);
 	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"data:,A%20brief%20note");
 }
 
 - (void) test3
 {
 	NSURL *url=[NSURL URLWithString:@"data:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7"];
+	STAssertEqualObjects(@"data", [url scheme], nil);
 	// assert something
 }
 
@@ -74,9 +76,17 @@
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"data:other"]];
 	STAssertEqualObjects(@"data", [url scheme], @"scheme");
 	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"absoluteString");
-	url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"file://localhost/"]];
+}
+
+- (void) test4b
+{
+	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"file://localhost/"]];
 	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"absoluteString");
-	url=[NSURL fileURLWithPath:@"/this#is a Path with % < > ?"];
+}
+
+- (void) test5
+{ // file: urls
+	NSURL *url=[NSURL fileURLWithPath:@"/this#is a Path with % < > ?"];
 	STAssertEqualObjects(@"file", [url scheme], @"scheme");
 	STAssertEqualObjects(@"localhost", [url host], @"host");
 	STAssertNil([url user], @"user");
@@ -89,7 +99,11 @@
 	STAssertEqualObjects(@"file://localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", [url absoluteString], @"absoluteString");
 	STAssertEqualObjects(@"/this#is a Path with % < > ?", [url relativePath], @"relativePath");
 	STAssertEqualObjects(@"file://localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", [url description], @"description");
-	url=[NSURL URLWithString:@"file:///pathtofile;parameters?query#anchor"];
+}
+
+- (void) test5b
+{
+	NSURL *url=[NSURL URLWithString:@"file:///pathtofile;parameters?query#anchor"];
 	STAssertNil([url host], @"host");
 	STAssertNil([url user], @"user");
 	STAssertNil([url password], @"password");
@@ -101,13 +115,21 @@
 	STAssertEqualObjects(@"file:///pathtofile;parameters?query#anchor", [url absoluteString], @"absoluteString");
 	STAssertEqualObjects(@"/pathtofile", [url relativePath], @"relativePath");
 	STAssertEqualObjects(@"file:///pathtofile;parameters?query#anchor", [url description], @"description");
-	url=[NSURL URLWithString:@"file:///pathtofile; parameters? query #anchor"];	// can't initialize with spaces (must be %20)
+}
+
+- (void) test5c
+{
+	NSURL *url=[NSURL URLWithString:@"file:///pathtofile; parameters? query #anchor"];	// can't initialize with spaces (must be %20)
 	STAssertNil(url, @"url");
-	url=[NSURL URLWithString:@"file:///pathtofile;%20parameters?%20query%20#anchor"];
+}
+
+- (void) test5d
+{
+	NSURL *url=[NSURL URLWithString:@"file:///pathtofile;%20parameters?%20query%20#anchor"];
 	STAssertNotNil(url, @"url");
 }
 
-- (void) test5
+- (void) test6
 {
 	NSURL *url=[NSURL URLWithString:@""];	// empty string is invalid - should return nils
 	STAssertEqualObjects(nil, [url path], nil);

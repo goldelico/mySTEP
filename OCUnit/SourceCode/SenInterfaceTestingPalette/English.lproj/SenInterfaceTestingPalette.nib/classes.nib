@@ -1,0 +1,10 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = SenInterfaceTestCase; LANGUAGE = ObjC; SUPERCLASS = SenTestCase; }, 
+        {CLASS = SenInterfaceTestingPalette; LANGUAGE = ObjC; SUPERCLASS = IBPalette; }, 
+        {CLASS = SenTest; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = SenTestCase; LANGUAGE = ObjC; SUPERCLASS = SenTest; }
+    ); 
+    IBVersion = 1; 
+}

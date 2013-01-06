@@ -1,0 +1,2099 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 39;
+	objects = {
+		014CEA440018CDF011CA2923 = {
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEBUGGING_SYMBOLS = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = NO;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				OPTIMIZATION_CFLAGS = "-O0";
+				ZERO_LINK = YES;
+			};
+			isa = PBXBuildStyle;
+			name = Development;
+		};
+		014CEA450018CDF011CA2923 = {
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_VALUE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = /Library/Frameworks;
+				ZERO_LINK = NO;
+			};
+			isa = PBXBuildStyle;
+			name = RootDeployment;
+		};
+//010
+//011
+//012
+//013
+//014
+//030
+//031
+//032
+//033
+//034
+		034768DFFF38A50411DB9C8B = {
+			children = (
+				8DC2EF5B0486A6940098B216,
+				E98E64A5056D17830033599A,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+//030
+//031
+//032
+//033
+//034
+//080
+//081
+//082
+//083
+//084
+		0867D690FE84028FC02AAC07 = {
+			buildSettings = {
+			};
+			buildStyles = (
+				014CEA440018CDF011CA2923,
+				014CEA450018CDF011CA2923,
+				3DEB814B060754FA00B09789,
+			);
+			hasScannedForEncodings = 1;
+			isa = PBXProject;
+			mainGroup = 0867D691FE84028FC02AAC07;
+			productRefGroup = 034768DFFF38A50411DB9C8B;
+			projectDirPath = "";
+			targets = (
+				8DC2EF4F0486A6940098B216,
+				E98E64A4056D17830033599A,
+			);
+		};
+		0867D691FE84028FC02AAC07 = {
+			children = (
+				08FB77AEFE84172EC02AAC07,
+				3D6DC2FB054FEC8300091E74,
+				3D6DC2F2054FEC3900091E74,
+				32C88DFF0371C24200C91783,
+				089C1665FE841158C02AAC07,
+				0867D69AFE84028FC02AAC07,
+				E98E64A9056D178C0033599A,
+				3D6DC290054FEA7300091E74,
+				034768DFFF38A50411DB9C8B,
+			);
+			isa = PBXGroup;
+			name = SenTestingKitxx;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 = {
+			children = (
+				1058C7B0FEA5585E11CA2CBB,
+				1058C7B2FEA5585E11CA2CBB,
+			);
+			isa = PBXGroup;
+			name = "External Frameworks and Libraries";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		0867D69BFE84028FC02AAC07 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = Foundation.framework;
+			path = /System/Library/Frameworks/Foundation.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		089C1665FE841158C02AAC07 = {
+			children = (
+				3D6DC285054FE9BC00091E74,
+				E97D6D85056E371F0087F969,
+				8DC2EF5A0486A6940098B216,
+				3D6DC2E2054FEBDC00091E74,
+				089C1666FE841158C02AAC07,
+			);
+			isa = PBXGroup;
+			name = Resources;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		089C1666FE841158C02AAC07 = {
+			children = (
+				089C1667FE841158C02AAC07,
+			);
+			isa = PBXVariantGroup;
+			name = InfoPlist.strings;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		089C1667FE841158C02AAC07 = {
+			fileEncoding = 10;
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
+			name = English;
+			path = English.lproj/InfoPlist.strings;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		08FB77AEFE84172EC02AAC07 = {
+			children = (
+				3D6DC252054FE90A00091E74,
+				3D6DC253054FE90A00091E74,
+				3D6DC254054FE90A00091E74,
+				3D6DC255054FE90A00091E74,
+				3D6DC256054FE90A00091E74,
+				3D6DC257054FE90A00091E74,
+				3D6DC258054FE90A00091E74,
+				3D6DC259054FE90A00091E74,
+				3D6DC25A054FE90A00091E74,
+				3D6DC25B054FE90A00091E74,
+				3D6DC25C054FE90A00091E74,
+				3D6DC25D054FE90A00091E74,
+				3D6DC25E054FE90A00091E74,
+				3D6DC25F054FE90A00091E74,
+				3D6DC260054FE90A00091E74,
+				3D6DC261054FE90A00091E74,
+				3D6DC262054FE90A00091E74,
+				3D6DC263054FE90A00091E74,
+				3D6DC264054FE90A00091E74,
+				3D6DC265054FE90A00091E74,
+				3D6DC266054FE90B00091E74,
+				3D6DC267054FE90B00091E74,
+				3D6DC24E054FE90A00091E74,
+				3D6DC24F054FE90A00091E74,
+				3D6DC250054FE90A00091E74,
+				3D6DC251054FE90A00091E74,
+			);
+			isa = PBXGroup;
+			name = Classes;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+//080
+//081
+//082
+//083
+//084
+//100
+//101
+//102
+//103
+//104
+		1058C7B0FEA5585E11CA2CBB = {
+			children = (
+				0867D69BFE84028FC02AAC07,
+			);
+			isa = PBXGroup;
+			name = "Linked Frameworks";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		1058C7B2FEA5585E11CA2CBB = {
+			children = (
+			);
+			isa = PBXGroup;
+			name = "Other Frameworks";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+//100
+//101
+//102
+//103
+//104
+//320
+//321
+//322
+//323
+//324
+		32C88DFF0371C24200C91783 = {
+			children = (
+				32DBCF5E0370ADEE00C91783,
+			);
+			isa = PBXGroup;
+			name = "Other Sources";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		32DBCF5E0370ADEE00C91783 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestingKit_Prefix.pch;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+//320
+//321
+//322
+//323
+//324
+//3D0
+//3D1
+//3D2
+//3D3
+//3D4
+		3D6DC24E054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = NSException_SenTestFailure.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC24F054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = NSException_SenTestFailure.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC250054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = NSInvocation_SenTesting.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC251054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = NSInvocation_SenTesting.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC252054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenInterfaceTestCase.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC253054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenInterfaceTestCase.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC254054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTest.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC255054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTest.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC256054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestCase.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC257054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTestCase.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC258054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestCaseRun.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC259054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTestCaseRun.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC25A054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestDistributedNotifier.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC25B054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTestDistributedNotifier.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC25C054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestLog.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC25D054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTestLog.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC25E054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestObserver.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC25F054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTestObserver.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC260054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestProbe.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC261054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTestProbe.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC262054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestRun.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC263054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTestRun.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC264054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestSuite.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC265054FE90A00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTestSuite.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC266054FE90B00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestSuiteRun.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC267054FE90B00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTestSuiteRun.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC268054FE90B00091E74 = {
+			fileRef = 3D6DC24E054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC269054FE90B00091E74 = {
+			fileRef = 3D6DC24F054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC26A054FE90B00091E74 = {
+			fileRef = 3D6DC250054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC26B054FE90B00091E74 = {
+			fileRef = 3D6DC251054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC26C054FE90B00091E74 = {
+			fileRef = 3D6DC252054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC26D054FE90B00091E74 = {
+			fileRef = 3D6DC253054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC26E054FE90B00091E74 = {
+			fileRef = 3D6DC254054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC26F054FE90B00091E74 = {
+			fileRef = 3D6DC255054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC270054FE90B00091E74 = {
+			fileRef = 3D6DC256054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC271054FE90B00091E74 = {
+			fileRef = 3D6DC257054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC272054FE90B00091E74 = {
+			fileRef = 3D6DC258054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC273054FE90B00091E74 = {
+			fileRef = 3D6DC259054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC274054FE90B00091E74 = {
+			fileRef = 3D6DC25A054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC275054FE90B00091E74 = {
+			fileRef = 3D6DC25B054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC276054FE90B00091E74 = {
+			fileRef = 3D6DC25C054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC277054FE90B00091E74 = {
+			fileRef = 3D6DC25D054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC278054FE90B00091E74 = {
+			fileRef = 3D6DC25E054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC279054FE90B00091E74 = {
+			fileRef = 3D6DC25F054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC27A054FE90B00091E74 = {
+			fileRef = 3D6DC260054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC27B054FE90B00091E74 = {
+			fileRef = 3D6DC261054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC27C054FE90B00091E74 = {
+			fileRef = 3D6DC262054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC27D054FE90B00091E74 = {
+			fileRef = 3D6DC263054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC27E054FE90B00091E74 = {
+			fileRef = 3D6DC264054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC27F054FE90B00091E74 = {
+			fileRef = 3D6DC265054FE90A00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC280054FE90B00091E74 = {
+			fileRef = 3D6DC266054FE90B00091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC281054FE90B00091E74 = {
+			fileRef = 3D6DC267054FE90B00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC285054FE9BC00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist;
+			path = CustomInfo.plist;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC287054FE9BC00091E74 = {
+			fileRef = 3D6DC285054FE9BC00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC290054FEA7300091E74 = {
+			children = (
+				3D6DC291054FEA7300091E74,
+				3D6DC292054FEA7300091E74,
+				3D6DC293054FEA7300091E74,
+				3D6DC2E6054FEC0600091E74,
+				3D6DC294054FEA7300091E74,
+				3D6DC295054FEA7300091E74,
+				3D6DC296054FEA7300091E74,
+				3D6DC298054FEA7300091E74,
+				3D6DC297054FEA7300091E74,
+				3D6DC299054FEA7300091E74,
+				3D6DC29A054FEA7300091E74,
+				3D6DC2A1054FEA7300091E74,
+				3D6DC29B054FEA7300091E74,
+				3D6DC29C054FEA7300091E74,
+				3D6DC29D054FEA7300091E74,
+				3D6DC29E054FEA7300091E74,
+				3D6DC29F054FEA7300091E74,
+				3D6DC2A0054FEA7300091E74,
+				3D6DC2C9054FEB8300091E74,
+			);
+			isa = PBXGroup;
+			path = Documentation;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC291054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = IntroSenTestingKit.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC292054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = NSException_SenTestFailure.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC293054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = NSInvocation_SenTesting.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC294054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenInterfaceTestCase.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC295054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTest.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC296054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTestCase.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC297054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTestCaseRun.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC298054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTestCase_Macros.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC299054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTestDefines.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC29A054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTestDistributedNotifier.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC29B054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTestLog.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC29C054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTestObserver.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC29D054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTestProbe.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC29E054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTestRun.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC29F054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTestSuite.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2A0054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTestSuiteRun.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2A1054FEA7300091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			path = SenTestingKitTOC.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2A3054FEA7300091E74 = {
+			fileRef = 3D6DC291054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2A4054FEA7300091E74 = {
+			fileRef = 3D6DC292054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2A5054FEA7400091E74 = {
+			fileRef = 3D6DC293054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2A6054FEA7400091E74 = {
+			fileRef = 3D6DC294054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2A7054FEA7400091E74 = {
+			fileRef = 3D6DC295054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2A8054FEA7400091E74 = {
+			fileRef = 3D6DC296054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2A9054FEA7400091E74 = {
+			fileRef = 3D6DC297054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2AA054FEA7400091E74 = {
+			fileRef = 3D6DC298054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2AB054FEA7400091E74 = {
+			fileRef = 3D6DC299054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2AC054FEA7400091E74 = {
+			fileRef = 3D6DC29A054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2AD054FEA7400091E74 = {
+			fileRef = 3D6DC29B054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2AE054FEA7400091E74 = {
+			fileRef = 3D6DC29C054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2AF054FEA7400091E74 = {
+			fileRef = 3D6DC29D054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2B0054FEA7400091E74 = {
+			fileRef = 3D6DC29E054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2B1054FEA7400091E74 = {
+			fileRef = 3D6DC29F054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2B2054FEA7400091E74 = {
+			fileRef = 3D6DC2A0054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2B3054FEA7400091E74 = {
+			fileRef = 3D6DC2A1054FEA7300091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2C9054FEB8300091E74 = {
+			children = (
+				3D6DC2CC054FEBA400091E74,
+				3D6DC2CD054FEBA400091E74,
+				3D6DC2CE054FEBA400091E74,
+				3D6DC2CF054FEBA400091E74,
+				3D6DC2D0054FEBA400091E74,
+				3D6DC2D1054FEBA400091E74,
+				3D6DC2D2054FEBA400091E74,
+				3D6DC2D3054FEBA400091E74,
+				3D6DC2D4054FEBA400091E74,
+				3D6DC2D5054FEBA400091E74,
+			);
+			isa = PBXGroup;
+			name = Tests;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2CC054FEBA400091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			name = SenTestContinueOrRaiseTesting.html;
+			path = Tests.subproj/SenTestContinueOrRaiseTesting.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2CD054FEBA400091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			name = SenTestEmptySuite.html;
+			path = Tests.subproj/SenTestEmptySuite.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2CE054FEBA400091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			name = SenTestErrorTesting.html;
+			path = Tests.subproj/SenTestErrorTesting.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2CF054FEBA400091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			name = SenTestFail.html;
+			path = Tests.subproj/SenTestFail.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2D0054FEBA400091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			name = SenTestMacroTesting.html;
+			path = Tests.subproj/SenTestMacroTesting.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2D1054FEBA400091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			name = SenTestPerformance.html;
+			path = Tests.subproj/SenTestPerformance.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2D2054FEBA400091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			name = SenTestShould.html;
+			path = Tests.subproj/SenTestShould.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2D3054FEBA400091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			name = SenTestShouldBeEqual.html;
+			path = Tests.subproj/SenTestShouldBeEqual.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2D4054FEBA400091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			name = SenTestShouldRaise.html;
+			path = Tests.subproj/SenTestShouldRaise.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2D5054FEBA400091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html.documentation;
+			name = SenTestTestSuite.html;
+			path = Tests.subproj/SenTestTestSuite.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2D6054FEBA400091E74 = {
+			fileRef = 3D6DC2CC054FEBA400091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2D7054FEBA400091E74 = {
+			fileRef = 3D6DC2CD054FEBA400091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2D8054FEBA400091E74 = {
+			fileRef = 3D6DC2CE054FEBA400091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2D9054FEBA400091E74 = {
+			fileRef = 3D6DC2CF054FEBA400091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2DA054FEBA400091E74 = {
+			fileRef = 3D6DC2D0054FEBA400091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2DB054FEBA400091E74 = {
+			fileRef = 3D6DC2D1054FEBA400091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2DC054FEBA400091E74 = {
+			fileRef = 3D6DC2D2054FEBA400091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2DD054FEBA400091E74 = {
+			fileRef = 3D6DC2D3054FEBA400091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2DE054FEBA400091E74 = {
+			fileRef = 3D6DC2D4054FEBA400091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2DF054FEBA400091E74 = {
+			fileRef = 3D6DC2D5054FEBA400091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2E2054FEBDC00091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist;
+			path = NoSourceDirectoryExtensions.plist;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2E3054FEBDC00091E74 = {
+			fileRef = 3D6DC2E2054FEBDC00091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2E6054FEC0600091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.html;
+			name = OpenSourceLicense.html;
+			path = ../OpenSourceLicense.html;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2E7054FEC0600091E74 = {
+			fileRef = 3D6DC2E6054FEC0600091E74;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3D6DC2EA054FEC3100091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestCase_Macros.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2EB054FEC3100091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestDefines.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2EC054FEC3100091E74 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestingKit.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2ED054FEC3100091E74 = {
+			fileRef = 3D6DC2EA054FEC3100091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC2EE054FEC3100091E74 = {
+			fileRef = 3D6DC2EB054FEC3100091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC2EF054FEC3100091E74 = {
+			fileRef = 3D6DC2EC054FEC3100091E74;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		3D6DC2F2054FEC3900091E74 = {
+			children = (
+				3D6DC2EA054FEC3100091E74,
+				3D6DC2EB054FEC3100091E74,
+				3D6DC2EC054FEC3100091E74,
+			);
+			isa = PBXGroup;
+			name = "Other Headers";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3D6DC2FB054FEC8300091E74 = {
+			children = (
+				E9CD3AC605A9886A0078AC3E,
+				E9CD3AC705A9886A0078AC3E,
+				E9CD3BDA05A99B590078AC3E,
+				E9CD3BDB05A99B590078AC3E,
+				E9CD3BDC05A99B590078AC3E,
+				E9CD3BDD05A99B590078AC3E,
+				E9CD3BDE05A99B590078AC3E,
+				E9CD3BDF05A99B590078AC3E,
+			);
+			isa = PBXGroup;
+			name = "Utility Classes";
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		3DB0931006133A8D003C502B = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = SenTestNewStyleMacros.h;
+			path = Tests.subproj/SenTestNewStyleMacros.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		3DB0931106133A8D003C502B = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			name = SenTestNewStyleMacros.m;
+			path = Tests.subproj/SenTestNewStyleMacros.m;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		3DB0931206133A8D003C502B = {
+			fileRef = 3DB0931006133A8D003C502B;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3DB0931306133A8D003C502B = {
+			fileRef = 3DB0931106133A8D003C502B;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		3DEB814B060754FA00B09789 = {
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEPLOYMENT_LOCATION = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				ZERO_LINK = NO;
+			};
+			isa = PBXBuildStyle;
+			name = HomeDeployment;
+		};
+//3D0
+//3D1
+//3D2
+//3D3
+//3D4
+//8D0
+//8D1
+//8D2
+//8D3
+//8D4
+		8DC2EF4F0486A6940098B216 = {
+			buildPhases = (
+				8DC2EF500486A6940098B216,
+				8DC2EF520486A6940098B216,
+				8DC2EF540486A6940098B216,
+				8DC2EF560486A6940098B216,
+				8DC2EF580486A6940098B216,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				"Enable trigraphs" = NO;
+				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				"Header search paths" = "";
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_STYLE = Dynamic;
+				OTHER_LDFLAGS = "-seg1addr 0x20100000 -headerpad_max_install_names";
+				PRODUCT_NAME = SenTestingKit;
+				"Precompile prefix header" = YES;
+				"Prefix Header" = SenTestingKit_Prefix.pch;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+				WRAPPER_EXTENSION = framework;
+			};
+			dependencies = (
+			);
+			isa = PBXNativeTarget;
+			name = SenTestingKit;
+			productInstallPath = "$(HOME)/Library/Frameworks";
+			productName = SenTestingKit;
+			productReference = 8DC2EF5B0486A6940098B216;
+			productType = "com.apple.product-type.framework";
+		};
+		8DC2EF500486A6940098B216 = {
+			buildActionMask = 2147483647;
+			files = (
+				8DC2EF510486A6940098B216,
+				3D6DC268054FE90B00091E74,
+				3D6DC26A054FE90B00091E74,
+				3D6DC26C054FE90B00091E74,
+				3D6DC26E054FE90B00091E74,
+				3D6DC270054FE90B00091E74,
+				3D6DC272054FE90B00091E74,
+				3D6DC274054FE90B00091E74,
+				3D6DC276054FE90B00091E74,
+				3D6DC278054FE90B00091E74,
+				3D6DC27A054FE90B00091E74,
+				3D6DC27C054FE90B00091E74,
+				3D6DC27E054FE90B00091E74,
+				3D6DC280054FE90B00091E74,
+				3D6DC2ED054FEC3100091E74,
+				3D6DC2EE054FEC3100091E74,
+				3D6DC2EF054FEC3100091E74,
+				E9CD3AC805A9886A0078AC3E,
+				E9CD3BE005A99B590078AC3E,
+				E9CD3BE205A99B590078AC3E,
+				E9CD3BE405A99B590078AC3E,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DC2EF510486A6940098B216 = {
+			fileRef = 32DBCF5E0370ADEE00C91783;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8DC2EF520486A6940098B216 = {
+			buildActionMask = 2147483647;
+			files = (
+				8DC2EF530486A6940098B216,
+				3D6DC287054FE9BC00091E74,
+				3D6DC2A3054FEA7300091E74,
+				3D6DC2A4054FEA7300091E74,
+				3D6DC2A5054FEA7400091E74,
+				3D6DC2A6054FEA7400091E74,
+				3D6DC2A7054FEA7400091E74,
+				3D6DC2A8054FEA7400091E74,
+				3D6DC2A9054FEA7400091E74,
+				3D6DC2AA054FEA7400091E74,
+				3D6DC2AB054FEA7400091E74,
+				3D6DC2AC054FEA7400091E74,
+				3D6DC2AD054FEA7400091E74,
+				3D6DC2AE054FEA7400091E74,
+				3D6DC2AF054FEA7400091E74,
+				3D6DC2B0054FEA7400091E74,
+				3D6DC2B1054FEA7400091E74,
+				3D6DC2B2054FEA7400091E74,
+				3D6DC2B3054FEA7400091E74,
+				3D6DC2D6054FEBA400091E74,
+				3D6DC2D7054FEBA400091E74,
+				3D6DC2D8054FEBA400091E74,
+				3D6DC2D9054FEBA400091E74,
+				3D6DC2DA054FEBA400091E74,
+				3D6DC2DB054FEBA400091E74,
+				3D6DC2DC054FEBA400091E74,
+				3D6DC2DD054FEBA400091E74,
+				3D6DC2DE054FEBA400091E74,
+				3D6DC2DF054FEBA400091E74,
+				3D6DC2E3054FEBDC00091E74,
+				3D6DC2E7054FEC0600091E74,
+				E97D6D86056E371F0087F969,
+			);
+			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DC2EF530486A6940098B216 = {
+			fileRef = 089C1666FE841158C02AAC07;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8DC2EF540486A6940098B216 = {
+			buildActionMask = 2147483647;
+			files = (
+				3D6DC269054FE90B00091E74,
+				3D6DC26B054FE90B00091E74,
+				3D6DC26D054FE90B00091E74,
+				3D6DC26F054FE90B00091E74,
+				3D6DC271054FE90B00091E74,
+				3D6DC273054FE90B00091E74,
+				3D6DC275054FE90B00091E74,
+				3D6DC277054FE90B00091E74,
+				3D6DC279054FE90B00091E74,
+				3D6DC27B054FE90B00091E74,
+				3D6DC27D054FE90B00091E74,
+				3D6DC27F054FE90B00091E74,
+				3D6DC281054FE90B00091E74,
+				E9CD3AC905A9886A0078AC3E,
+				E9CD3BE105A99B590078AC3E,
+				E9CD3BE305A99B590078AC3E,
+				E9CD3BE505A99B590078AC3E,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DC2EF560486A6940098B216 = {
+			buildActionMask = 2147483647;
+			files = (
+				E9831F010563D1A9000B981F,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DC2EF580486A6940098B216 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXRezBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DC2EF5A0486A6940098B216 = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist;
+			path = Info.plist;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8DC2EF5B0486A6940098B216 = {
+			explicitFileType = wrapper.framework;
+			includeInIndex = 0;
+			isa = PBXFileReference;
+			path = SenTestingKit.framework;
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+//8D0
+//8D1
+//8D2
+//8D3
+//8D4
+//E90
+//E91
+//E92
+//E93
+//E94
+		E916C27507F5738400ABA046 = {
+			compilerSpec = com.apple.compilers.gcc.3_3;
+			fileType = sourcecode.c;
+			isEditable = 1;
+			isa = PBXBuildRule;
+			outputFiles = (
+			);
+		};
+		E97D6D85056E371F0087F969 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist;
+			path = ApplicationWrapperExtensions.plist;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		E97D6D86056E371F0087F969 = {
+			fileRef = E97D6D85056E371F0087F969;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E9831F010563D1A9000B981F = {
+			fileRef = 0867D69BFE84028FC02AAC07;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64A0056D17830033599A = {
+			buildActionMask = 2147483647;
+			files = (
+				E98E64C0056D17B90033599A,
+				E98E64C2056D17B90033599A,
+				E98E64C4056D17B90033599A,
+				E98E64C6056D17B90033599A,
+				E98E64C8056D17B90033599A,
+				E98E64CA056D17B90033599A,
+				E98E64CC056D17B90033599A,
+				E98E64CE056D17B90033599A,
+				E98E64D0056D17B90033599A,
+				E98E64D2056D17B90033599A,
+				3DB0931206133A8D003C502B,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E98E64A1056D17830033599A = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E98E64A2056D17830033599A = {
+			buildActionMask = 2147483647;
+			files = (
+				E98E64C1056D17B90033599A,
+				E98E64C3056D17B90033599A,
+				E98E64C5056D17B90033599A,
+				E98E64C7056D17B90033599A,
+				E98E64C9056D17B90033599A,
+				E98E64CB056D17B90033599A,
+				E98E64CD056D17B90033599A,
+				E98E64CF056D17B90033599A,
+				E98E64D1056D17B90033599A,
+				E98E64D3056D17B90033599A,
+				3DB0931306133A8D003C502B,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E98E64A3056D17830033599A = {
+			buildActionMask = 2147483647;
+			files = (
+				E98E650F056D188E0033599A,
+				E98E657F056D18950033599A,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E98E64A4056D17830033599A = {
+			buildPhases = (
+				E98E64A0056D17830033599A,
+				E98E64A1056D17830033599A,
+				E98E64A2056D17830033599A,
+				E98E64A3056D17830033599A,
+				E98E64D6056D17CB0033599A,
+			);
+			buildRules = (
+				E916C27507F5738400ABA046,
+			);
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				INFOPLIST_FILE = "UnitTests-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "-framework Foundation -framework AppKit";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = SenTestingKit_UnitTests;
+				SECTORDER_FLAGS = "";
+				TEST_AFTER_BUILD = YES;
+				WARNING_CFLAGS = "-Wmost";
+				WRAPPER_EXTENSION = framework;
+			};
+			dependencies = (
+				E98E64D8056D17F70033599A,
+			);
+			isa = PBXNativeTarget;
+			name = SenTestingKit_UnitTests;
+			productName = UnitTests;
+			productReference = E98E64A5056D17830033599A;
+			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>UnitTests</string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
+	<key>CFBundleIdentifier</key>
+	<string>com.MySoftwareCompany.UnitTests</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>FMWK</string>
+	<key>CFBundleShortVersionString</key>
+	<string></string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>1.0.0d1</string>
+</dict>
+</plist>
+";
+			productType = "com.apple.product-type.framework";
+		};
+		E98E64A5056D17830033599A = {
+			explicitFileType = wrapper.framework;
+			includeInIndex = 0;
+			isa = PBXFileReference;
+			path = SenTestingKit_UnitTests.framework;
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E98E64A9056D178C0033599A = {
+			children = (
+				3DB0931006133A8D003C502B,
+				3DB0931106133A8D003C502B,
+				E98E64AC056D17B90033599A,
+				E98E64AD056D17B90033599A,
+				E98E64AE056D17B90033599A,
+				E98E64AF056D17B90033599A,
+				E98E64B0056D17B90033599A,
+				E98E64B1056D17B90033599A,
+				E98E64B2056D17B90033599A,
+				E98E64B3056D17B90033599A,
+				E98E64B4056D17B90033599A,
+				E98E64B5056D17B90033599A,
+				E98E64B6056D17B90033599A,
+				E98E64B7056D17B90033599A,
+				E98E64B8056D17B90033599A,
+				E98E64B9056D17B90033599A,
+				E98E64BA056D17B90033599A,
+				E98E64BB056D17B90033599A,
+				E98E64BC056D17B90033599A,
+				E98E64BD056D17B90033599A,
+				E98E64BE056D17B90033599A,
+				E98E64BF056D17B90033599A,
+			);
+			isa = PBXGroup;
+			name = "Unit Tests";
+			path = Documentation;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		E98E64AC056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = SenTestContinueOrRaiseTesting.h;
+			path = Tests.subproj/SenTestContinueOrRaiseTesting.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64AD056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			name = SenTestContinueOrRaiseTesting.m;
+			path = Tests.subproj/SenTestContinueOrRaiseTesting.m;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64AE056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = SenTestEmptySuite.h;
+			path = Tests.subproj/SenTestEmptySuite.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64AF056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			name = SenTestEmptySuite.m;
+			path = Tests.subproj/SenTestEmptySuite.m;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64B0056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = SenTestErrorTesting.h;
+			path = Tests.subproj/SenTestErrorTesting.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64B1056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			name = SenTestErrorTesting.m;
+			path = Tests.subproj/SenTestErrorTesting.m;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64B2056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = SenTestFail.h;
+			path = Tests.subproj/SenTestFail.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64B3056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			name = SenTestFail.m;
+			path = Tests.subproj/SenTestFail.m;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64B4056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = SenTestMacroTesting.h;
+			path = Tests.subproj/SenTestMacroTesting.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64B5056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			name = SenTestMacroTesting.m;
+			path = Tests.subproj/SenTestMacroTesting.m;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64B6056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = SenTestPerformance.h;
+			path = Tests.subproj/SenTestPerformance.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64B7056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			name = SenTestPerformance.m;
+			path = Tests.subproj/SenTestPerformance.m;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64B8056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = SenTestShould.h;
+			path = Tests.subproj/SenTestShould.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64B9056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			name = SenTestShould.m;
+			path = Tests.subproj/SenTestShould.m;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64BA056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = SenTestShouldBeEqual.h;
+			path = Tests.subproj/SenTestShouldBeEqual.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64BB056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			name = SenTestShouldBeEqual.m;
+			path = Tests.subproj/SenTestShouldBeEqual.m;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64BC056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = SenTestShouldRaise.h;
+			path = Tests.subproj/SenTestShouldRaise.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64BD056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			name = SenTestShouldRaise.m;
+			path = Tests.subproj/SenTestShouldRaise.m;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64BE056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = SenTestTestSuite.h;
+			path = Tests.subproj/SenTestTestSuite.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64BF056D17B90033599A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			name = SenTestTestSuite.m;
+			path = Tests.subproj/SenTestTestSuite.m;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		E98E64C0056D17B90033599A = {
+			fileRef = E98E64AC056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64C1056D17B90033599A = {
+			fileRef = E98E64AD056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64C2056D17B90033599A = {
+			fileRef = E98E64AE056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64C3056D17B90033599A = {
+			fileRef = E98E64AF056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64C4056D17B90033599A = {
+			fileRef = E98E64B0056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64C5056D17B90033599A = {
+			fileRef = E98E64B1056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64C6056D17B90033599A = {
+			fileRef = E98E64B2056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64C7056D17B90033599A = {
+			fileRef = E98E64B3056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64C8056D17B90033599A = {
+			fileRef = E98E64B4056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64C9056D17B90033599A = {
+			fileRef = E98E64B5056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64CA056D17B90033599A = {
+			fileRef = E98E64B6056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64CB056D17B90033599A = {
+			fileRef = E98E64B7056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64CC056D17B90033599A = {
+			fileRef = E98E64B8056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64CD056D17B90033599A = {
+			fileRef = E98E64B9056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64CE056D17B90033599A = {
+			fileRef = E98E64BA056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64CF056D17B90033599A = {
+			fileRef = E98E64BB056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64D0056D17B90033599A = {
+			fileRef = E98E64BC056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64D1056D17B90033599A = {
+			fileRef = E98E64BD056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64D2056D17B90033599A = {
+			fileRef = E98E64BE056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64D3056D17B90033599A = {
+			fileRef = E98E64BF056D17B90033599A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E64D6056D17CB0033599A = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			isa = PBXShellScriptBuildPhase;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "~/Developer/Tools/RunTargetUnitTests";
+		};
+		E98E64D7056D17F70033599A = {
+			containerPortal = 0867D690FE84028FC02AAC07;
+			isa = PBXContainerItemProxy;
+			proxyType = 1;
+			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
+			remoteInfo = Framework;
+		};
+		E98E64D8056D17F70033599A = {
+			isa = PBXTargetDependency;
+			target = 8DC2EF4F0486A6940098B216;
+			targetProxy = E98E64D7056D17F70033599A;
+		};
+		E98E650F056D188E0033599A = {
+			fileRef = 0867D69BFE84028FC02AAC07;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E98E657F056D18950033599A = {
+			fileRef = 8DC2EF5B0486A6940098B216;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E9CD3AC605A9886A0078AC3E = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestingUtilities.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		E9CD3AC705A9886A0078AC3E = {
+			fileEncoding = 4;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTestingUtilities.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		E9CD3AC805A9886A0078AC3E = {
+			fileRef = E9CD3AC605A9886A0078AC3E;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		E9CD3AC905A9886A0078AC3E = {
+			fileRef = E9CD3AC705A9886A0078AC3E;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E9CD3BDA05A99B590078AC3E = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = NSObject_SenTestRuntimeUtilities.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		E9CD3BDB05A99B590078AC3E = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = NSObject_SenTestRuntimeUtilities.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		E9CD3BDC05A99B590078AC3E = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestClassEnumerator.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		E9CD3BDD05A99B590078AC3E = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTestClassEnumerator.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		E9CD3BDE05A99B590078AC3E = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = SenTestInvocationEnumerator.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		E9CD3BDF05A99B590078AC3E = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
+			path = SenTestInvocationEnumerator.m;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		E9CD3BE005A99B590078AC3E = {
+			fileRef = E9CD3BDA05A99B590078AC3E;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E9CD3BE105A99B590078AC3E = {
+			fileRef = E9CD3BDB05A99B590078AC3E;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E9CD3BE205A99B590078AC3E = {
+			fileRef = E9CD3BDC05A99B590078AC3E;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E9CD3BE305A99B590078AC3E = {
+			fileRef = E9CD3BDD05A99B590078AC3E;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E9CD3BE405A99B590078AC3E = {
+			fileRef = E9CD3BDE05A99B590078AC3E;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		E9CD3BE505A99B590078AC3E = {
+			fileRef = E9CD3BDF05A99B590078AC3E;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+	};
+	rootObject = 0867D690FE84028FC02AAC07;
+}

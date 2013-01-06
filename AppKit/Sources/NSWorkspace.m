@@ -13,8 +13,8 @@
  Date:	Feb 1999
  Author:  H. Nikolaus Schaller <hns@computer.org>
  Date:	Aug 2003-2005
-	- distributed Workspace support (dws)
-	- findApplications made looking for MacOS X like bundles and document types (QSLaunchServices)
+ - distributed Workspace support (dws)
+ - findApplications made looking for MacOS X like bundles and document types (QSLaunchServices)
  
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
@@ -91,9 +91,9 @@
 - (NSArray *) knownApplications;
 
 - (BOOL) launchAppWithBundle:(NSBundle *) b
-										 options:(NSWorkspaceLaunchOptions) options
-		additionalEventParamDescriptor:(id) urls
-						launchIdentifier:(NSNumber **) identifiers;
+					 options:(NSWorkspaceLaunchOptions) options
+additionalEventParamDescriptor:(id) urls
+			launchIdentifier:(NSNumber **) identifiers;
 @end
 
 // Class variables
@@ -120,24 +120,24 @@ static BOOL __fileSystemChanged = NO;
 	self=[super init];
 	if(self)
 		{ // load database (if possible)
-		NSData *data=[NSData dataWithContentsOfFile:APPDATABASE];
-		NSString *error;
-		NSPropertyListFormat format;
-		NSDictionary *defaults=[NSPropertyListSerialization propertyListFromData:data
-												   mutabilityOption:NSPropertyListMutableContainers 
-															 format:&format
-												   errorDescription:&error];
+			NSData *data=[NSData dataWithContentsOfFile:APPDATABASE];
+			NSString *error;
+			NSPropertyListFormat format;
+			NSDictionary *defaults=[NSPropertyListSerialization propertyListFromData:data
+																	mutabilityOption:NSPropertyListMutableContainers 
+																			  format:&format
+																	errorDescription:&error];
 #if 0
-		NSLog(@"LS database=%@", defaults);
+			NSLog(@"LS database=%@", defaults);
 #endif
-		if(data && ![defaults isKindOfClass:[NSDictionary class]])
-			NSLog(@"QSLaunchServices did not load %@ due to: %@", APPDATABASE, error);
-		else
+			if(data && ![defaults isKindOfClass:[NSDictionary class]])
+				NSLog(@"QSLaunchServices did not load %@ due to: %@", APPDATABASE, error);
+			else
 				{
-					QSApplicationIdentsByName = [[defaults objectForKey:@"QSApplicationIdentsByName"] retain];
-					QSApplicationPathsByIdent = [[defaults objectForKey:@"QSApplicationPathsByIdent"] retain];
-					QSApplicationsByExtension = [[defaults objectForKey:@"QSApplicationsByExtension"] retain];
-					QSFilePackageExtensions = [[defaults objectForKey:@"QSFilePackageExtensions"] retain];
+				QSApplicationIdentsByName = [[defaults objectForKey:@"QSApplicationIdentsByName"] retain];
+				QSApplicationPathsByIdent = [[defaults objectForKey:@"QSApplicationPathsByIdent"] retain];
+				QSApplicationsByExtension = [[defaults objectForKey:@"QSApplicationsByExtension"] retain];
+				QSFilePackageExtensions = [[defaults objectForKey:@"QSFilePackageExtensions"] retain];
 				}
 		}
 	return self;
@@ -192,11 +192,11 @@ static BOOL __fileSystemChanged = NO;
 		[QSApplicationsByExtension setObject:records=[NSMutableArray arrayWithCapacity:3] forKey:ext];
 	// go through records and check if entry with ident, role, type is already stored
 	dict=[NSDictionary dictionaryWithObjectsAndKeys:
-		ident, @"CFBundleIdentifier",
-		role, @"CFBundleTypeRole",
-		type, @"CFBundleTypeName",
-		path, @"CFBundleTypeIconPath",	// path may be nil, so this must be the last entry
-		nil];
+		  ident, @"CFBundleIdentifier",
+		  role, @"CFBundleTypeRole",
+		  type, @"CFBundleTypeName",
+		  path, @"CFBundleTypeIconPath",	// path may be nil, so this must be the last entry
+		  nil];
 	[records addObject:dict];	// add record
 }
 
@@ -246,7 +246,7 @@ static BOOL __fileSystemChanged = NO;
 - (NSString *) fullPathForApplication:(NSString *)appName
 {
 	NSString *last=[appName lastPathComponent];
-//	NSString *ext=[appName pathExtension];
+	//	NSString *ext=[appName pathExtension];
 	NSString *path;
 	if(!appName)
 		return nil;		// unspecified
@@ -261,8 +261,8 @@ static BOOL __fileSystemChanged = NO;
 #endif
 	if(!QSApplicationIdentsByName)
 		{ // first call
-		[self findApplications];	// build database
-		return [self absolutePathForAppBundleWithIdentifier:[QSApplicationIdentsByName objectForKey:appName]];	// try to map name to ident to path
+			[self findApplications];	// build database
+			return [self absolutePathForAppBundleWithIdentifier:[QSApplicationIdentsByName objectForKey:appName]];	// try to map name to ident to path
 		}
 	path=[self absolutePathForAppBundleWithIdentifier:[QSApplicationIdentsByName objectForKey:appName]];	// try to map name to ident to path
 	if(!path)
@@ -362,32 +362,32 @@ static BOOL __fileSystemChanged = NO;
 	fte=[filetypes objectEnumerator];
 	while((ft=[fte nextObject]))
 		{ // process file types
-		NSString *iconFile;
-		NSString *iconPath;
-		NSString *role;
-		NSString *type;
-		NSEnumerator *ftex;
-		NSString *ext;
-		iconFile=[ft objectForKey:@"CFBundleTypeIconFile"];
-		if(!iconFile)
-			iconFile=[ft objectForKey:@"CFBundleURLIconFile"];
-		iconPath=[iconFile length]>0?[b pathForResource:iconFile ofType:nil inDirectory:nil]:nil;	// try to look up in application bundle
-		role=[ft objectForKey:@"CFBundleTypeRole"];
-		type=[ft objectForKey:@"CFBundleTypeName"];
-		if(!type)
-			type=[ft objectForKey:@"CFBundleURLName"];
-		ftex=[[ft objectForKey:@"CFBundleTypeExtensions"] objectEnumerator];
-		while((ext=[ftex nextObject]))
-			{ // process all potential file extensions for this type (e.g. .jpg, .jpeg, .tif, .tiff, ...)
-			[self mapExtension:ext toIdent:ident withIconPath:iconPath andRole:role andType:type];
-			}
-		ftex=[[ft objectForKey:@"CFBundleURLSchemes"] objectEnumerator];
-		while((ext=[ftex nextObject]))
-			{ // process all potential URL schemes for this type (e.g. http, ftp, file, folder, ...)
-			[self mapExtension:[ext stringByAppendingString:@":"] toIdent:ident withIconPath:iconPath andRole:role andType:type];
-			}
-		if([[ft objectForKey:@"LSTypeIsPackage"] boolValue])
-			[self treatExtensionAsFilePackage:ext];
+			NSString *iconFile;
+			NSString *iconPath;
+			NSString *role;
+			NSString *type;
+			NSEnumerator *ftex;
+			NSString *ext;
+			iconFile=[ft objectForKey:@"CFBundleTypeIconFile"];
+			if(!iconFile)
+				iconFile=[ft objectForKey:@"CFBundleURLIconFile"];
+			iconPath=[iconFile length]>0?[b pathForResource:iconFile ofType:nil inDirectory:nil]:nil;	// try to look up in application bundle
+			role=[ft objectForKey:@"CFBundleTypeRole"];
+			type=[ft objectForKey:@"CFBundleTypeName"];
+			if(!type)
+				type=[ft objectForKey:@"CFBundleURLName"];
+			ftex=[[ft objectForKey:@"CFBundleTypeExtensions"] objectEnumerator];
+			while((ext=[ftex nextObject]))
+				{ // process all potential file extensions for this type (e.g. .jpg, .jpeg, .tif, .tiff, ...)
+					[self mapExtension:ext toIdent:ident withIconPath:iconPath andRole:role andType:type];
+				}
+			ftex=[[ft objectForKey:@"CFBundleURLSchemes"] objectEnumerator];
+			while((ext=[ftex nextObject]))
+				{ // process all potential URL schemes for this type (e.g. http, ftp, file, folder, ...)
+					[self mapExtension:[ext stringByAppendingString:@":"] toIdent:ident withIconPath:iconPath andRole:role andType:type];
+				}
+			if([[ft objectForKey:@"LSTypeIsPackage"] boolValue])
+				[self treatExtensionAsFilePackage:ext];
 		}
 	// might call findApplicationsInDirectory:Resources to get embedded .apps
 }
@@ -402,18 +402,18 @@ static BOOL __fileSystemChanged = NO;
 #endif
 	while((dp=[de nextObject]))
 		{ // all files in search path with .app extension
-		NSAutoreleasePool *arp;
-		// we should try to skip non-app bundles!
-		if(![[dp pathExtension] isEqualToString:@"app"])
-			continue;
-		arp=[NSAutoreleasePool new];
-		[de skipDescendents];		// don't search/find embedded applications! (why or why not?)
-		dp=[fp stringByAppendingPathComponent:dp];	// make absolute path
+			NSAutoreleasePool *arp;
+			// we should try to skip non-app bundles!
+			if(![[dp pathExtension] isEqualToString:@"app"])
+				continue;
+			arp=[NSAutoreleasePool new];
+			[de skipDescendents];		// don't search/find embedded applications! (why or why not?)
+			dp=[fp stringByAppendingPathComponent:dp];	// make absolute path
 #if 0
-		NSLog(@"candidate: %@", dp);
+			NSLog(@"candidate: %@", dp);
 #endif
-		[self addApplicationAtPath:dp];
-		[arp release];
+			[self addApplicationAtPath:dp];
+			[arp release];
 		}
 }
 
@@ -433,7 +433,7 @@ static BOOL __fileSystemChanged = NO;
 {
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];
 	NSArray *path=NSSearchPathForDirectoriesInDomains(NSAllApplicationsDirectory,	NSAllDomainsMask, YES);
-//	NSArray *path=[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSApplicationSearchPath"];
+	//	NSArray *path=[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSApplicationSearchPath"];
 	NSEnumerator *p=[path objectEnumerator];
 	NSString *dir;
 #if 1
@@ -456,22 +456,22 @@ static BOOL __fileSystemChanged = NO;
 	NSData *data;
 	NSString *error;
 	dict=[NSDictionary dictionaryWithObjectsAndKeys:
-		QSApplicationIdentsByName, @"QSApplicationIdentsByName",
-		QSApplicationPathsByIdent, @"QSApplicationPathsByIdent",
-		QSApplicationsByExtension, @"QSApplicationsByExtension",
-		QSFilePackageExtensions, @"QSFilePackageExtensions",
-		nil
-		];
+		  QSApplicationIdentsByName, @"QSApplicationIdentsByName",
+		  QSApplicationPathsByIdent, @"QSApplicationPathsByIdent",
+		  QSApplicationsByExtension, @"QSApplicationsByExtension",
+		  QSFilePackageExtensions, @"QSFilePackageExtensions",
+		  nil
+		  ];
 #if 1
 	NSLog(@"write application Database");
 #endif
 	data=[NSPropertyListSerialization dataFromPropertyList:dict
 #if 0	// human readable for testing */
-				format:NSPropertyListXMLFormat_v1_0
+													format:NSPropertyListXMLFormat_v1_0
 #else
-				format:NSPropertyListBinaryFormat_v1_0
+													format:NSPropertyListBinaryFormat_v1_0
 #endif
-				errorDescription:&error];
+										  errorDescription:&error];
 	if(!data)
 		NSLog(@"Could not create Launch Services database from %@", dict);
 	else if(![data writeToFile:APPDATABASE atomically:YES])
@@ -490,9 +490,9 @@ static BOOL __fileSystemChanged = NO;
 // FIXME: how are arguments/URLs from openURL really passed here (if we launch/send openApp event through DO)?
 
 - (BOOL) launchAppWithBundle:(NSBundle *) b
-										 options:(NSWorkspaceLaunchOptions) options
-	additionalEventParamDescriptor:(id) params
-						launchIdentifier:(NSNumber **) identifiers;
+					 options:(NSWorkspaceLaunchOptions) options
+additionalEventParamDescriptor:(id) params
+			launchIdentifier:(NSNumber **) identifiers;
 {
 	NSTask *task;
 	NSDate *date;
@@ -516,97 +516,97 @@ static BOOL __fileSystemChanged = NO;
 	//     if response => send eventParamDescriptor and arguments
 	//
 	if(options&NSWorkspaceLaunchInhibitingBackgroundOnly)
-			{ // check if we want to launch a background only application and deny
-				if([[b objectForInfoDictionaryKey:@"LSBackgroundOnly"] boolValue])
-					return NO;	// is background only
-			}
+		{ // check if we want to launch a background only application and deny
+			if([[b objectForInfoDictionaryKey:@"LSBackgroundOnly"] boolValue])
+				return NO;	// is background only
+		}
 	appFile=[NSWorkspace _activeApplicationPath:[b bundleIdentifier]];
 	while((options&NSWorkspaceLaunchNewInstance) == 0)
-			{ // try to contact existing application - and launch exactly once
-				int fd;
-				if((fd=open([appFile fileSystemRepresentation], O_CREAT|O_EXCL, 0644)) < 0)
-						{ // We are not the first to write the file. This means someone else is launching or has launched the same application
-							NSDictionary *app=[NSDictionary dictionaryWithContentsOfFile:appFile];
-							pid_t pid=[[app objectForKey:@"NSApplicationProcessIdentifier"] intValue];
-							if(pid)
-									{ // if file is non-empty and defines a pid, it is up and running (DO port is initialized)
+		{ // try to contact existing application - and launch exactly once
+			int fd;
+			if((fd=open([appFile fileSystemRepresentation], O_CREAT|O_EXCL, 0644)) < 0)
+				{ // We are not the first to write the file. This means someone else is launching or has launched the same application
+					NSDictionary *app=[NSDictionary dictionaryWithContentsOfFile:appFile];
+					pid_t pid=[[app objectForKey:@"NSApplicationProcessIdentifier"] intValue];
+					if(pid)
+						{ // if file is non-empty and defines a pid, it is up and running (DO port is initialized)
 #if 1
-										NSLog(@"App is already running with pid=%d", pid);
+							NSLog(@"App is already running with pid=%d", pid);
 #endif
-										if([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"/proc/%d", pid]])
-												{ // process exists
-													id a;
+							if([[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"/proc/%d", pid]])
+								{ // process exists
+									id a;
 #if 1
-													NSLog(@"process exists");
-													NSLog(@"contact by DO");
+									NSLog(@"process exists");
+									NSLog(@"contact by DO");
 #endif
-													NS_DURING
-													if([[b bundleIdentifier] isEqual:[[NSBundle mainBundle] bundleIdentifier]])
-														a=[NSApp delegate];			// that is myself - avoid loop through DO
-													else
-															{
-																a = [NSConnection connectionWithRegisteredName:[b bundleIdentifier] host:@""];	// Try to contact the existing instance
-																if(a)
-																		{ // ports exists (but might not respond)
-																			[a setRequestTimeout:1.0];	// should answer nearly immediately
-																			[a setReplyTimeout:2.0];
-																			a = [a rootProxy];	// get root proxy
-																		}
-															}
+									NS_DURING
+									if([[b bundleIdentifier] isEqual:[[NSBundle mainBundle] bundleIdentifier]])
+										a=[NSApp delegate];			// that is myself - avoid loop through DO
+									else
+										{
+										a = [NSConnection connectionWithRegisteredName:[b bundleIdentifier] host:@""];	// Try to contact the existing instance
+										if(a)
+											{ // ports exists (but might not respond)
+												[a setRequestTimeout:1.0];	// should answer nearly immediately
+												[a setReplyTimeout:2.0];
+												a = [a rootProxy];	// get root proxy
+											}
+										}
 #if 0
-														NSLog(@"connection to application=%@", a);
+									NSLog(@"connection to application=%@", a);
 #endif
-														[[a retain] autorelease];	// FIXME: do we really need that???
-													// if we are sending to ourselves, a is the delegate - and should respond to this method!
-														NS_VALUERETURN([a _application:a openURLs:params withOptions:options], BOOL);	// call the handler of GSListener
-													NS_HANDLER
-													NSLog(@"exception while contacting other application: %@", localException);
-														return NO;	// timeout - did not respond
-													NS_ENDHANDLER
-												}
-										else
-												{ // App has crashed: launch a new instance (which will get a different pid!)
-#if 1
-													NSLog(@"App has crashed. Launching new instance.");
-													// loop with timeout until pid changes
-													// FIXME:
-													//  this risks a race condition if two differnt apps try to launch the crashed one again!
-													//  if we simply launch, then there is no locking
-													//  if we simply delete the file and try again, we are not guaranteed that we then get an exclusive launch
-													//  so we should
-
-													// unlink([appFile fileSystemRepresentation];
-													// if((fd=open([appFile fileSystemRepresentation], O_CREAT|O_EXCL, 0644)) < 0)
-														// { // failed, i.e. someone else was faster
-													// continue;		// loop again
-														// }
-													// else break;	// now we have the lock and can launch
-													
-													// FIXME: this is still not safe
-													//        what happens if we unlink the file after someone else has just created the lock file???
-													//        unlink&open must be atomic - or we need a different mechanism
-													
-#endif
-												break;
-												}
-									}
+									[[a retain] autorelease];	// FIXME: do we really need that???
+									// if we are sending to ourselves, a is the delegate - and should respond to this method!
+									NS_VALUERETURN([a _application:a openURLs:params withOptions:options], BOOL);	// call the handler of GSListener
+									NS_HANDLER
+									NSLog(@"exception while contacting other application: %@", localException);
+									return NO;	// timeout - did not respond
+									NS_ENDHANDLER
+								}
 							else
-									{ // App is not (yet) up and running
+								{ // App has crashed: launch a new instance (which will get a different pid!)
 #if 1
-										NSLog(@"app not yet started (or crashed before launching)");
+									NSLog(@"App has crashed. Launching new instance.");
+									// loop with timeout until pid changes
+									// FIXME:
+									//  this risks a race condition if two differnt apps try to launch the crashed one again!
+									//  if we simply launch, then there is no locking
+									//  if we simply delete the file and try again, we are not guaranteed that we then get an exclusive launch
+									//  so we should
+									
+									// unlink([appFile fileSystemRepresentation];
+									// if((fd=open([appFile fileSystemRepresentation], O_CREAT|O_EXCL, 0644)) < 0)
+									// { // failed, i.e. someone else was faster
+									// continue;		// loop again
+									// }
+									// else break;	// now we have the lock and can launch
+									
+									// FIXME: this is still not safe
+									//        what happens if we unlink the file after someone else has just created the lock file???
+									//        unlink&open must be atomic - or we need a different mechanism
+									
 #endif
-										// get attributes of appfile
-										//    App is not yet running
-										//    if creation date is too old
-										//       App did never launch: launch a new instance
-										//    else
-										//       App is still launching, wait and then contact through DO
 									break;
-									}
+								}
 						}
-				else
-					close(fd);	// don't leak file handle of the newly created file
-			}
+					else
+						{ // App is not (yet) up and running
+#if 1
+							NSLog(@"app not yet started (or crashed before launching)");
+#endif
+							// get attributes of appfile
+							//    App is not yet running
+							//    if creation date is too old
+							//       App did never launch: launch a new instance
+							//    else
+							//       App is still launching, wait and then contact through DO
+							break;
+						}
+				}
+			else
+				close(fd);	// don't leak file handle of the newly created file
+		}
 	executable=[b executablePath];	// get executable within bundle
 	if(!executable)
 		return NO;	// we have no executable to launch
@@ -617,75 +617,75 @@ static BOOL __fileSystemChanged = NO;
 	psn_high=tp.tv_sec;
 	psn_low=tp.tv_usec;
 	dict=[NSMutableDictionary dictionaryWithObjectsAndKeys:
-				[b bundlePath], @"NSApplicationPath",
-				appname, @"NSApplicationName",
-				[b bundleIdentifier], @"NSApplicationBundleIdentifier",
-				[NSNumber numberWithInt:0], @"NSApplicationProcessIdentifier",	// we don't know yet
-				[NSNumber numberWithInt:psn_high], @"NSApplicationProcessSerialNumberHigh",
-				[NSNumber numberWithInt:psn_low], @"NSApplicationProcessSerialNumberLow",
-				nil];
+		  [b bundlePath], @"NSApplicationPath",
+		  appname, @"NSApplicationName",
+		  [b bundleIdentifier], @"NSApplicationBundleIdentifier",
+		  [NSNumber numberWithInt:0], @"NSApplicationProcessIdentifier",	// we don't know yet
+		  [NSNumber numberWithInt:psn_high], @"NSApplicationProcessSerialNumberHigh",
+		  [NSNumber numberWithInt:psn_low], @"NSApplicationProcessSerialNumberLow",
+		  nil];
 	[[[NSWorkspace sharedWorkspace] notificationCenter] postNotificationName:WORKSPACE(WillLaunchApplication)
-																					 object:self
-																				 userInfo:dict];
+																	  object:self
+																	userInfo:dict];
 	args=[NSMutableArray arrayWithCapacity:[params count]+6];
 	NS_DURING   // shield caller from exceptions
-		[args addObject:[NSString stringWithFormat:@"-psn_%lu_%lu", psn_high, psn_low]];
-		if(params)
-				{ // convert URLs to command line arguments
-					NSEnumerator *e=[params objectEnumerator];
-					NSURL *url;
-					while((url=[e nextObject]))
-							{
-								if([url isFileURL])
-									[args addObject:[url path]];	// add plain path - should we do a tilde abbreviation?
-								else
-									[args addObject:[url absoluteString]];	// full URL
-							}
+	[args addObject:[NSString stringWithFormat:@"-psn_%lu_%lu", psn_high, psn_low]];
+	if(params)
+		{ // convert URLs to command line arguments
+			NSEnumerator *e=[params objectEnumerator];
+			NSURL *url;
+			while((url=[e nextObject]))
+				{
+				if([url isFileURL])
+					[args addObject:[url path]];	// add plain path - should we do a tilde abbreviation?
+				else
+					[args addObject:[url absoluteString]];	// full URL
 				}
-		if(options&NSWorkspaceLaunchAndPrint)
-			[args addObject:@"-NSPrint"];	// append behind files or they would become arguments to the options
-		if(options&NSWorkspaceLaunchWithoutActivation)
-			[args addObject:@"-NSNoActivation"];
-		if((options&(NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchNewInstance)) == (NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchNewInstance))
-			[args addObject:@"-NSTemp"];
-		else if(options&NSWorkspaceLaunchWithoutAddingToRecents)
-			[args addObject:@"-NSNoUI"];
-		else if(options&NSWorkspaceLaunchNewInstance)
-			[args addObject:@"-NSNew"];
+		}
+	if(options&NSWorkspaceLaunchAndPrint)
+		[args addObject:@"-NSPrint"];	// append behind files or they would become arguments to the options
+	if(options&NSWorkspaceLaunchWithoutActivation)
+		[args addObject:@"-NSNoActivation"];
+	if((options&(NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchNewInstance)) == (NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchNewInstance))
+		[args addObject:@"-NSTemp"];
+	else if(options&NSWorkspaceLaunchWithoutAddingToRecents)
+		[args addObject:@"-NSNoUI"];
+	else if(options&NSWorkspaceLaunchNewInstance)
+		[args addObject:@"-NSNew"];
 #if 0
-		NSLog(@"NSWorkspace launchApplication: '%@' $*=%@", executable, args);
+	NSLog(@"NSWorkspace launchApplication: '%@' $*=%@", executable, args);
 #endif
-		task=[[[NSTask alloc] init] autorelease];
-		[task setLaunchPath:executable];
-		[task setArguments:args];
-		[task setEnvironment:[b objectForInfoDictionaryKey:@"LSEnvironment"]];	// may be nil?
-		[task launch];
+	task=[[[NSTask alloc] init] autorelease];
+	[task setLaunchPath:executable];
+	[task setArguments:args];
+	[task setEnvironment:[b objectForInfoDictionaryKey:@"LSEnvironment"]];	// may be nil?
+	[task launch];
 	NS_HANDLER
-		NSLog(@"could not launchApplication %@ due to %@", [b bundlePath], [localException reason]);
-		return NO;  // did not launch - e.g. bad executable
+	NSLog(@"could not launchApplication %@ due to %@", [b bundlePath], [localException reason]);
+	return NO;  // did not launch - e.g. bad executable
 	NS_ENDHANDLER
 	if(!(options&NSWorkspaceLaunchAsync))
-			{ // synchronously, i.e. wait until launched
-				pid_t pid;
-				while(YES)
-						{
-							// FIXME: timeout? i.e. if App never launches
-							NSDictionary *app=[NSDictionary dictionaryWithContentsOfFile:appFile];
-							pid=[[app objectForKey:@"NSApplicationProcessIdentifier"] intValue];
-							if(pid > 0)
-								break;	// wait until app appears to have launched
+		{ // synchronously, i.e. wait until launched
+			pid_t pid;
+			while(YES)
+				{
+				// FIXME: timeout? i.e. if App never launches
+				NSDictionary *app=[NSDictionary dictionaryWithContentsOfFile:appFile];
+				pid=[[app objectForKey:@"NSApplicationProcessIdentifier"] intValue];
+				if(pid > 0)
+					break;	// wait until app appears to have launched
 #if 1
-							NSLog(@"Wait until launched.");
+				NSLog(@"Wait until launched.");
 #endif
-							date=[NSDate dateWithTimeIntervalSinceNow:0.5];
-							[[NSRunLoop currentRunLoop] runUntilDate:date];
-						}
-				// should be a distributed notification sent by launched application!
-				[dict setObject:[NSNumber numberWithInt:pid] forKey:@"NSApplicationProcessIdentifier"];
-				[[[NSWorkspace sharedWorkspace] notificationCenter] postNotificationName:WORKSPACE(DidLaunchApplication)
-																																					object:self
-																																				userInfo:dict];
-			}
+				date=[NSDate dateWithTimeIntervalSinceNow:0.5];
+				[[NSRunLoop currentRunLoop] runUntilDate:date];
+				}
+			// should be a distributed notification sent by launched application!
+			[dict setObject:[NSNumber numberWithInt:pid] forKey:@"NSApplicationProcessIdentifier"];
+			[[[NSWorkspace sharedWorkspace] notificationCenter] postNotificationName:WORKSPACE(DidLaunchApplication)
+																			  object:self
+																			userInfo:dict];
+		}
 	return YES;
 }
 
@@ -709,15 +709,15 @@ static BOOL __fileSystemChanged = NO;
 	return [NSNotificationCenter defaultCenter];
 }
 
-	// 
-	// this is the most generic file launcher on which all other -open methods are based on
-	//
+// 
+// this is the most generic file launcher on which all other -open methods are based on
+//
 
 - (BOOL) openURLs:(NSArray *) list		// may be nil to denote application launch without files
-			withAppBundleIdentifier:(NSString *) identOrApp		// may be absolute path, appName, bundleIdentifier or nil - .app may be present or omitted
-							options:(NSWorkspaceLaunchOptions) options
-	 additionalEventParamDescriptor:(id) ignored		// we have no NSAppleEventDescriptor
-				  launchIdentifiers:(NSArray **) identifiers;
+withAppBundleIdentifier:(NSString *) identOrApp		// may be absolute path, appName, bundleIdentifier or nil - .app may be present or omitted
+		  options:(NSWorkspaceLaunchOptions) options
+additionalEventParamDescriptor:(id) ignored		// we have no NSAppleEventDescriptor
+launchIdentifiers:(NSArray **) identifiers;
 {
 	NSMutableDictionary *apps;
 	NSEnumerator *e;
@@ -727,61 +727,61 @@ static BOOL __fileSystemChanged = NO;
 #endif
 	if(!identOrApp)
 		{ // get application(s) for scheme(s) or file extension(s) in list
-		NSURL *arg;
-		if([list count] == 0)
-			return NO;	// nothing to open with no application...
-		apps=[NSMutableDictionary dictionaryWithCapacity:5];
-		e=[list objectEnumerator];	// go through all arguments
-		while((arg=[e nextObject]))
-			{
-			NSMutableArray *arglist;	// for current ident
-			NSString *ext;
-			if([arg isFileURL])
-				{ // is file - try to find by extension
-				NSString *path=[arg path];
-				ext=[path pathExtension];
-#if 0
-				NSLog(@"  path=%@", path);
-				NSLog(@"  ext=%@", ext);
-#endif
-				if([path isAbsolutePath] && [ext isEqualToString:@"app"] && [list count] == 1)
-					{ // open single application (well, myFinder could handle this if it is asked to open)
-					apps=[NSDictionary dictionaryWithObject:[NSArray array] forKey:path];
-					break;
-					}
-				else if([ext length] == 0)
-					{ // check for directory and process extension "/"
-					NSFileManager *fm=[NSFileManager defaultManager];
-					BOOL isDir=NO;
-#if 0
-					NSLog(@"check for directory at %@", path);
-#endif
-					if([fm fileExistsAtPath:path isDirectory:&isDir] && isDir)
-						ext=@"/";
-					}
-				}
-			else
-				ext=[[arg scheme] stringByAppendingString:@":"];	// include : for lookup by URL scheme
-			if(ext)
+			NSURL *arg;
+			if([list count] == 0)
+				return NO;	// nothing to open with no application...
+			apps=[NSMutableDictionary dictionaryWithCapacity:5];
+			e=[list objectEnumerator];	// go through all arguments
+			while((arg=[e nextObject]))
 				{
+				NSMutableArray *arglist;	// for current ident
+				NSString *ext;
+				if([arg isFileURL])
+					{ // is file - try to find by extension
+						NSString *path=[arg path];
+						ext=[path pathExtension];
 #if 0
-				NSLog(@"  try extension: %@", ext);
+						NSLog(@"  path=%@", path);
+						NSLog(@"  ext=%@", ext);
 #endif
-				if(!__launchServices)
-					[QSLaunchServices sharedLaunchServices];
-				identOrApp=[[__launchServices preferredIdentForExtension:ext] objectForKey:@"CFBundleIdentifier"];
+						if([path isAbsolutePath] && [ext isEqualToString:@"app"] && [list count] == 1)
+							{ // open single application (well, myFinder could handle this if it is asked to open)
+								apps=[NSDictionary dictionaryWithObject:[NSArray array] forKey:path];
+								break;
+							}
+						else if([ext length] == 0)
+							{ // check for directory and process extension "/"
+								NSFileManager *fm=[NSFileManager defaultManager];
+								BOOL isDir=NO;
+#if 0
+								NSLog(@"check for directory at %@", path);
+#endif
+								if([fm fileExistsAtPath:path isDirectory:&isDir] && isDir)
+									ext=@"/";
+							}
+					}
+				else
+					ext=[[arg scheme] stringByAppendingString:@":"];	// include : for lookup by URL scheme
+				if(ext)
+					{
+#if 0
+					NSLog(@"  try extension: %@", ext);
+#endif
+					if(!__launchServices)
+						[QSLaunchServices sharedLaunchServices];
+					identOrApp=[[__launchServices preferredIdentForExtension:ext] objectForKey:@"CFBundleIdentifier"];
+					if(!identOrApp)
+						identOrApp=[[__launchServices preferredIdentForExtension:@"*"] objectForKey:@"CFBundleIdentifier"];
+					}
 				if(!identOrApp)
-					identOrApp=[[__launchServices preferredIdentForExtension:@"*"] objectForKey:@"CFBundleIdentifier"];
+					{ // don't know how to launch
+						return NO;
+					}
+				arglist=[apps objectForKey:identOrApp];
+				if(!arglist)
+					[apps setObject:arglist=[NSMutableArray arrayWithCapacity:10] forKey:identOrApp];
+				[arglist addObject:arg];	// make that app open this url
 				}
-			if(!identOrApp)
-				{ // don't know how to launch
-				return NO;
-				}
-			arglist=[apps objectForKey:identOrApp];
-			if(!arglist)
-				[apps setObject:arglist=[NSMutableArray arrayWithCapacity:10] forKey:identOrApp];
-			[arglist addObject:arg];	// make that app open this url
-			}
 		}
 	else
 		apps=[NSDictionary dictionaryWithObject:list forKey:identOrApp];
@@ -793,11 +793,11 @@ static BOOL __fileSystemChanged = NO;
 	e=[apps keyEnumerator];
 	while((identOrApp=[e nextObject]))
 		{ // launch all applications needed for these URLs
-		NSNumber *ident=nil;
-		if(![self launchAppWithBundleIdentifier:identOrApp options:options additionalEventParamDescriptor:[apps objectForKey:identOrApp] launchIdentifier:&ident])
-			return NO;
-		if(identifiers && ident)
-			[(NSMutableArray *) *identifiers addObject:ident];	// add to list
+			NSNumber *ident=nil;
+			if(![self launchAppWithBundleIdentifier:identOrApp options:options additionalEventParamDescriptor:[apps objectForKey:identOrApp] launchIdentifier:&ident])
+				return NO;
+			if(identifiers && ident)
+				[(NSMutableArray *) *identifiers addObject:ident];	// add to list
 		}
 	return YES;
 }
@@ -805,10 +805,10 @@ static BOOL __fileSystemChanged = NO;
 - (BOOL) openURL:(NSURL *) url;
 {
 	return [self openURLs:[NSArray arrayWithObject:url]
-				 withAppBundleIdentifier:nil
-				 options:NSWorkspaceLaunchDefault 
-				 additionalEventParamDescriptor:nil
-				 launchIdentifiers:NULL];
+  withAppBundleIdentifier:nil
+				  options:NSWorkspaceLaunchDefault 
+additionalEventParamDescriptor:nil
+		launchIdentifiers:NULL];
 }
 
 - (BOOL) openFiles:(NSArray *) paths	// may be nil to open application
@@ -818,26 +818,26 @@ static BOOL __fileSystemChanged = NO;
 	NSMutableArray *a;
 	if(paths)
 		{ // translate paths into file URLs
-		NSEnumerator *e=[paths objectEnumerator];
-		NSString *path;
-		a=[NSMutableArray arrayWithCapacity:[paths count]];
-		while((path=[e nextObject]))
-			{
-			if(![path isAbsolutePath])
+			NSEnumerator *e=[paths objectEnumerator];
+			NSString *path;
+			a=[NSMutableArray arrayWithCapacity:[paths count]];
+			while((path=[e nextObject]))
 				{
-				NSLog(@"NSWorkspace openFiles requires absolute paths (%@)", path);
-				return NO;
+				if(![path isAbsolutePath])
+					{
+					NSLog(@"NSWorkspace openFiles requires absolute paths (%@)", path);
+					return NO;
+					}
+				[a addObject:[NSURL fileURLWithPath:path]];
 				}
-			[a addObject:[NSURL fileURLWithPath:path]];
-			}
 		}
 	else
 		a=nil;
 	return			[self openURLs:a
-		   withAppBundleIdentifier:appName
-						   options:flag?(NSWorkspaceLaunchDefault|NSWorkspaceLaunchWithoutActivation):NSWorkspaceLaunchDefault
-	additionalEventParamDescriptor:nil		// we have no NSAppleEventDescriptor
-				 launchIdentifiers:NULL];
+	withAppBundleIdentifier:appName
+					options:flag?(NSWorkspaceLaunchDefault|NSWorkspaceLaunchWithoutActivation):NSWorkspaceLaunchDefault
+additionalEventParamDescriptor:nil		// we have no NSAppleEventDescriptor
+		  launchIdentifiers:NULL];
 }
 
 - (BOOL) openFile:(NSString *) fullPath
@@ -861,9 +861,9 @@ static BOOL __fileSystemChanged = NO;
 { // open new but not adding to recents...
 	return
 	[self openURLs:[NSArray arrayWithObject:[NSURL fileURLWithPath:fullPath]]
-		   withAppBundleIdentifier:nil
+withAppBundleIdentifier:nil
 		   options:NSWorkspaceLaunchDefault | NSWorkspaceLaunchWithoutAddingToRecents | NSWorkspaceLaunchNewInstance
-	additionalEventParamDescriptor:nil
+additionalEventParamDescriptor:nil
  launchIdentifiers:NULL];
 }
 
@@ -877,7 +877,7 @@ static BOOL __fileSystemChanged = NO;
 }
 
 - (BOOL) selectFile:(NSString *) fullPath
-		 inFileViewerRootedAtPath:(NSString *) rootFullpath
+inFileViewerRootedAtPath:(NSString *) rootFullpath
 {
 	// somehow pass rootFullpath to myFinder and make it 'show' instead of 'open'
 	return [self openFile:fullPath withApplication:@"myFinder"];
@@ -925,16 +925,16 @@ static BOOL __fileSystemChanged = NO;
 	if(!b)
 		return NO;	// is not a valid bundle
 	if([[QSLaunchServices sharedLaunchServices] launchAppWithBundle:b
-																													options:options
-																	 additionalEventParamDescriptor:params
-																								 launchIdentifier:identifiers])
-			{ // did launch as expected
-				if(options&NSWorkspaceLaunchAndHideOthers)
-					[NSApp hideOtherApplications:self];
-				if(options&NSWorkspaceLaunchAndHide)
-					[NSApp hide:self];
-				return YES;
-			}
+															options:options
+									 additionalEventParamDescriptor:params
+												   launchIdentifier:identifiers])
+		{ // did launch as expected
+			if(options&NSWorkspaceLaunchAndHideOthers)
+				[NSApp hideOtherApplications:self];
+			if(options&NSWorkspaceLaunchAndHide)
+				[NSApp hide:self];
+			return YES;
+		}
 	return NO;
 }
 
@@ -957,180 +957,180 @@ static BOOL __fileSystemChanged = NO;
 }
 
 - (BOOL) performFileOperation:(NSString *)operation
-											 source:(NSString *)source
-									destination:(NSString *)destination
-												files:(NSArray *)files
-													tag:(int *)tag
+					   source:(NSString *)source
+				  destination:(NSString *)destination
+						files:(NSArray *)files
+						  tag:(int *)tag
 {
 	int result=NSAlertDefaultReturn, count = [files count];
 	
 	NSLog(@"performFileOperation %@", operation);
 	
 	if([operation isEqualToString:NSWorkspaceMoveOperation])
+		{
+		*tag = 0;
+		while (count--)
 			{
-				*tag = 0;
-				while (count--)
-						{
-							NSString *f = [files objectAtIndex: count];
-							NSString *s = [source stringByAppendingPathComponent:f];
-							NSString *d = [destination stringByAppendingPathComponent:f];
-							NSString *a = [[NSProcessInfo processInfo] processName];
-							result = NSRunAlertPanel(a, @"Move: %@ to: %@?", @"Move", 
-																			 @"Cancel", NULL, s, d);
-							if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] movePath:s toPath:d handler:0])
-								return NO;
-							NSLog(@"not moving");
-						}	
-			}
+			NSString *f = [files objectAtIndex: count];
+			NSString *s = [source stringByAppendingPathComponent:f];
+			NSString *d = [destination stringByAppendingPathComponent:f];
+			NSString *a = [[NSProcessInfo processInfo] processName];
+			result = NSRunAlertPanel(a, @"Move: %@ to: %@?", @"Move", 
+									 @"Cancel", NULL, s, d);
+			if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] movePath:s toPath:d handler:0])
+				return NO;
+			NSLog(@"not moving");
+			}	
+		}
 	else if([operation isEqualToString:NSWorkspaceCopyOperation])
+		{
+		*tag = 1;
+		while (count--)
 			{
-				*tag = 1;
-				while (count--)
-						{
-							NSString *f = [files objectAtIndex: count];
-							NSString *s = [source stringByAppendingPathComponent:f];
-							NSString *d = [destination stringByAppendingPathComponent:f];
-							NSString *a = [[NSProcessInfo processInfo] processName];
-							result = NSRunAlertPanel(a, @"Copy: %@ ?", @"Copy", 
-																			 @"Cancel", NULL, s);
-							if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] copyPath:s toPath:d handler:0])
-								return NO;
-							NSLog(@"not copying");
-						}
+			NSString *f = [files objectAtIndex: count];
+			NSString *s = [source stringByAppendingPathComponent:f];
+			NSString *d = [destination stringByAppendingPathComponent:f];
+			NSString *a = [[NSProcessInfo processInfo] processName];
+			result = NSRunAlertPanel(a, @"Copy: %@ ?", @"Copy", 
+									 @"Cancel", NULL, s);
+			if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] copyPath:s toPath:d handler:0])
+				return NO;
+			NSLog(@"not copying");
 			}
+		}
 	else if([operation isEqualToString:NSWorkspaceLinkOperation])
+		{
+		*tag = 2;
+		while (count--)
 			{
-				*tag = 2;
-				while (count--)
-						{
-							NSString *f = [files objectAtIndex: count];
-							NSString *s = [source stringByAppendingPathComponent:f];
-							NSString *d = [destination stringByAppendingPathComponent:f];
-							NSString *a = [[NSProcessInfo processInfo] processName];
-							result = NSRunAlertPanel(a, @"Link: %@ ?", @"Link", 
-																			 @"Cancel", NULL, s);
-							if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] linkPath:s toPath:d handler:0])
-								return NO;
-							NSLog(@"not linking");
-						}
+			NSString *f = [files objectAtIndex: count];
+			NSString *s = [source stringByAppendingPathComponent:f];
+			NSString *d = [destination stringByAppendingPathComponent:f];
+			NSString *a = [[NSProcessInfo processInfo] processName];
+			result = NSRunAlertPanel(a, @"Link: %@ ?", @"Link", 
+									 @"Cancel", NULL, s);
+			if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] linkPath:s toPath:d handler:0])
+				return NO;
+			NSLog(@"not linking");
 			}
+		}
 	else if([operation isEqualToString:NSWorkspaceCompressOperation])
-			{
-				*tag = 3;
-			}
+		{
+		*tag = 3;
+		}
 	else if([operation isEqualToString:NSWorkspaceDecompressOperation])
+		{
+		NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+		
+		*tag = 4;
+		while (count--)
 			{
-				NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-				
-				*tag = 4;
-				while (count--)
-						{
-							BOOL tar = NO;
-							NSArray *args;
-							NSString *p, *f = [files objectAtIndex: count];
-							NSString *s = [source stringByAppendingPathComponent:f];
-							NSString *tmp, *ext = [s pathExtension];
-							NSTask *task;
-							
-							/// FIXME: should open the Archiver by file extension?
-							
-							if ([ext isEqualToString: @"bz2"])
-								p = @"/usr/bin/bunzip2";
-							else if ([ext isEqualToString: @"gz"]
-											 || [ext isEqualToString: @"Z"]
-											 || [ext isEqualToString: @"z"])
-								p = @"/bin/gunzip";
-							else if ([ext isEqualToString: @"tgz"]
-											 || [ext isEqualToString: @"taz"])
-									{
-										p = @"/bin/gunzip";
-										tar = YES;
-									}
-							else
-								continue;
-							
-							tmp = [NSString stringWithFormat:@"/tmp/%@.%d.workspace", f,
-										 (int)[NSDate timeIntervalSinceReferenceDate]];
-							NSLog(@"create temporary directory %@", tmp);
-							if(![[NSFileManager defaultManager] createDirectoryAtPath:tmp
-																														 attributes:nil])
-								return NO;
-							
-							if (tar || [s rangeOfString: @".tar"].length > 0)
-								s = [NSString stringWithFormat:@"%@ -c %@ | tar xfpv -", p, s];
-							else
-								s = [NSString stringWithFormat:@"%@ %@", p, s];
-							args = [NSArray arrayWithObjects: @"-c", s, nil];
-							
-							NSLog(@"launching with str arg %@",s);
-							task = [NSTask new];
-							[task setCurrentDirectoryPath: tmp];
-							[task setLaunchPath: @"/bin/sh"];
-							[task setArguments: args];
-							
-							[nc addObserver: self
-										 selector: @selector(_taskDidTerminate:)
-												 name: NSTaskDidTerminateNotification
-											 object: task];
-							[task launch];
-							[task release];
-						}	
-			}
+			BOOL tar = NO;
+			NSArray *args;
+			NSString *p, *f = [files objectAtIndex: count];
+			NSString *s = [source stringByAppendingPathComponent:f];
+			NSString *tmp, *ext = [s pathExtension];
+			NSTask *task;
+			
+			/// FIXME: should open the Archiver by file extension?
+			
+			if ([ext isEqualToString: @"bz2"])
+				p = @"/usr/bin/bunzip2";
+			else if ([ext isEqualToString: @"gz"]
+					 || [ext isEqualToString: @"Z"]
+					 || [ext isEqualToString: @"z"])
+				p = @"/bin/gunzip";
+			else if ([ext isEqualToString: @"tgz"]
+					 || [ext isEqualToString: @"taz"])
+				{
+				p = @"/bin/gunzip";
+				tar = YES;
+				}
+			else
+				continue;
+			
+			tmp = [NSString stringWithFormat:@"/tmp/%@.%d.workspace", f,
+				   (int)[NSDate timeIntervalSinceReferenceDate]];
+			NSLog(@"create temporary directory %@", tmp);
+			if(![[NSFileManager defaultManager] createDirectoryAtPath:tmp
+														   attributes:nil])
+				return NO;
+			
+			if (tar || [s rangeOfString: @".tar"].length > 0)
+				s = [NSString stringWithFormat:@"%@ -c %@ | tar xfpv -", p, s];
+			else
+				s = [NSString stringWithFormat:@"%@ %@", p, s];
+			args = [NSArray arrayWithObjects: @"-c", s, nil];
+			
+			NSLog(@"launching with str arg %@",s);
+			task = [NSTask new];
+			[task setCurrentDirectoryPath: tmp];
+			[task setLaunchPath: @"/bin/sh"];
+			[task setArguments: args];
+			
+			[nc addObserver: self
+				   selector: @selector(_taskDidTerminate:)
+					   name: NSTaskDidTerminateNotification
+					 object: task];
+			[task launch];
+			[task release];
+			}	
+		}
 	else if([operation isEqualToString:NSWorkspaceEncryptOperation])
-			{
-				*tag = 5;
-			}
+		{
+		*tag = 5;
+		}
 	else if([operation isEqualToString:NSWorkspaceDecryptOperation])
-			{
-				*tag = 6;
-			}
+		{
+		*tag = 6;
+		}
 	if([operation isEqualToString:NSWorkspaceDestroyOperation])
+		{
+		*tag = 7;
+		while (count--)
 			{
-				*tag = 7;
-				while (count--)
-						{
-							NSString *f = [files objectAtIndex: count];
-							NSString *s = [source stringByAppendingPathComponent: f];
-							NSString *a = [[NSProcessInfo processInfo] processName];
-							
-							result = NSRunAlertPanel(a, @"Destroy path: %@ ?", @"Destroy", 
-																			 @"Cancel", NULL, s);
-							
-							if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] removeFileAtPath:s handler:0])
-								return NO;
-							NSLog(@"not deleting");
-						}
+			NSString *f = [files objectAtIndex: count];
+			NSString *s = [source stringByAppendingPathComponent: f];
+			NSString *a = [[NSProcessInfo processInfo] processName];
+			
+			result = NSRunAlertPanel(a, @"Destroy path: %@ ?", @"Destroy", 
+									 @"Cancel", NULL, s);
+			
+			if (result == NSAlertDefaultReturn && ![[NSFileManager defaultManager] removeFileAtPath:s handler:0])
+				return NO;
+			NSLog(@"not deleting");
 			}
+		}
 	else if([operation isEqualToString:NSWorkspaceRecycleOperation])
+		{
+		*tag = 8;
+		while (count--)
 			{
-				*tag = 8;
-				while (count--)
-						{
-							NSString *f = [files objectAtIndex: count];
-							NSString *s = [source stringByAppendingPathComponent:f];
-							NSString *d = [@"~/Library/Trash" stringByAppendingPathComponent:f];
-							NSString *a = [[NSProcessInfo processInfo] processName];
-							result = NSRunAlertPanel(a, @"Recycle: %@ to: %@?", @"Recycle", 
-																			 @"Cancel", NULL, s, d);
-							if (result == NSAlertDefaultReturn && [[NSFileManager defaultManager] movePath:s toPath:d handler:0])
-								return NO;
-							NSLog(@"not moving");
-						}
+			NSString *f = [files objectAtIndex: count];
+			NSString *s = [source stringByAppendingPathComponent:f];
+			NSString *d = [@"~/Library/Trash" stringByAppendingPathComponent:f];
+			NSString *a = [[NSProcessInfo processInfo] processName];
+			result = NSRunAlertPanel(a, @"Recycle: %@ to: %@?", @"Recycle", 
+									 @"Cancel", NULL, s, d);
+			if (result == NSAlertDefaultReturn && [[NSFileManager defaultManager] movePath:s toPath:d handler:0])
+				return NO;
+			NSLog(@"not moving");
 			}
+		}
 	else if([operation isEqualToString:NSWorkspaceDuplicateOperation])
+		{
+		*tag = 9;
+		while (count--)
 			{
-				*tag = 9;
-				while (count--)
-						{
-							NSString *f = [files objectAtIndex: count];
-							NSString *n = [NSString stringWithFormat: @"CopyOf%@", f];
-							NSString *s = [source stringByAppendingPathComponent:f];
-							NSString *p = [source stringByAppendingPathComponent:n];
-							
-							if(![[NSFileManager defaultManager] copyPath:s toPath:p handler:0])
-								return NO;
-						}
+			NSString *f = [files objectAtIndex: count];
+			NSString *n = [NSString stringWithFormat: @"CopyOf%@", f];
+			NSString *s = [source stringByAppendingPathComponent:f];
+			NSString *p = [source stringByAppendingPathComponent:n];
+			
+			if(![[NSFileManager defaultManager] copyPath:s toPath:p handler:0])
+				return NO;
 			}
+		}
 	[[self notificationCenter] postNotificationName:WORKSPACE(DidPerformFileOperation) object:self];
 	return (result == NSAlertDefaultReturn) ? YES : NO;
 }
@@ -1187,29 +1187,29 @@ static BOOL __fileSystemChanged = NO;
 	if((app = [__launchServices preferredIdentForExtension:[fullPath pathExtension]]))
 		{ // try to get get application name from file extensions database
 #if 1
-		NSLog(@"app for extension %@ = %@", [fullPath pathExtension], app);
+			NSLog(@"app for extension %@ = %@", [fullPath pathExtension], app);
 #endif
-		*type=[app objectForKey:@"CFBundleTypeName"];
-		*appName=[__launchServices applicationNameForIdent:[app objectForKey:@"CFBundleIdentifier"]];	// application name
+			*type=[app objectForKey:@"CFBundleTypeName"];
+			*appName=[__launchServices applicationNameForIdent:[app objectForKey:@"CFBundleIdentifier"]];	// application name
 #if 0
-		NSLog(@"ext=%@", [fullPath pathExtension]);
-		NSLog(@"preferred app=%@", app);
-		NSLog(@"appname=%@", appName);
+			NSLog(@"ext=%@", [fullPath pathExtension]);
+			NSLog(@"preferred app=%@", app);
+			NSLog(@"appname=%@", appName);
 #endif
-		if([*type length] != 0 && ![[app objectForKey:@"CFBundleTypeRole"] isEqualToString:@"None"])
-			return YES; // found - and role is not None (i.e. providing Icon only)
+			if([*type length] != 0 && ![[app objectForKey:@"CFBundleTypeRole"] isEqualToString:@"None"])
+				return YES; // found - and role is not None (i.e. providing Icon only)
 		}
 	if(is_dir)
 		{ // directoy
-		if([[fullPath pathExtension] isEqualToString: @"app"])  // should better check to be a bundle of type 'APPL'
-			{
-			*appName=fullPath;  // launch applications by themselves
-			*type=NSApplicationFileType;
+			if([[fullPath pathExtension] isEqualToString: @"app"])  // should better check to be a bundle of type 'APPL'
+				{
+				*appName=fullPath;  // launch applications by themselves
+				*type=NSApplicationFileType;
+				return YES;
+				}
+			*appName=@"myFinder";	// open directories by default
+			*type=NSDirectoryFileType;
 			return YES;
-			}
-		*appName=@"myFinder";	// open directories by default
-		*type=NSDirectoryFileType;
-		return YES;
 		}
 	// check for executable -> NSShellCommandFileType
 	// check for mounted directory -> NSFilesystemFileType
@@ -1244,20 +1244,20 @@ static BOOL __fileSystemChanged = NO;
 	icon=[b objectForInfoDictionaryKey:@"CFBundleIconFile"];
 	if(icon && [icon length] > 0)
 		{ // bundle exists and an icon has been defined
-		icon=[icon stringByDeletingPathExtension];
+			icon=[icon stringByDeletingPathExtension];
 #if 0
-		NSLog(@"bundle icon file=%@", icon);
+			NSLog(@"bundle icon file=%@", icon);
 #endif
-		icon=[b pathForResource:icon ofType:@"icns"];	// try to locate icon file within bundle
-		if(icon)
-			{
+			icon=[b pathForResource:icon ofType:@"icns"];	// try to locate icon file within bundle
+			if(icon)
+				{
 #if 0
-			NSLog(@"bundle icon resource=%@", icon);
+				NSLog(@"bundle icon resource=%@", icon);
 #endif
-			i=[[[NSImage alloc] initByReferencingFile:icon] autorelease];
-			if(i)
-				return i;	// was able to load
-			}
+				i=[[[NSImage alloc] initByReferencingFile:icon] autorelease];
+				if(i)
+					return i;	// was able to load
+				}
 		}
 	if([fm fileExistsAtPath:fullPath isDirectory:&is_dir])
 		{
@@ -1269,45 +1269,45 @@ static BOOL __fileSystemChanged = NO;
 			return i;	// found
 		if(is_dir)
 			{ // some type of directory
-			NSString *home=NSHomeDirectory();
-			NSString *lastComponent=[fullPath lastPathComponent];
-			// check if directory contains a (hidden) "Icon\r" file
-			if([fullPath isEqualToString:home])
-				i=[NSImage imageNamed:@"GSHome.tiff"];
-			else if([lastComponent isEqualToString:@"Applications"])
-				i=[NSImage imageNamed:@"GSApplications.tiff"];
-			else if([lastComponent isEqualToString:@"Games"])
-				i=[NSImage imageNamed:@"GSGames.tiff"];
-			else if([lastComponent isEqualToString:@"Utilities"])
-				i=[NSImage imageNamed:@"GSUtilities.tiff"];
-			else if([lastComponent isEqualToString:@"Network"])
-				i=[NSImage imageNamed:@"GSNetwork.tiff"];
-			else if([fullPath isEqualToString:@"/Users"])
-				i=[NSImage imageNamed:@"GSUsers.tiff"];
-			else if([fullPath isEqualToString:@"/Volumes"])
-				i=[NSImage imageNamed:@"GSVolumes.tiff"];
-			else if([fullPath isEqualToString:[home stringByAppendingPathComponent:@"Documents"]])
-				i=[NSImage imageNamed:@"GSDocuments.tiff"];
-			else if([fullPath isEqualToString:[home stringByAppendingPathComponent:@"Music"]])
-				i=[NSImage imageNamed:@"GSMusic.tiff"];
-			else if([fullPath isEqualToString:[home stringByAppendingPathComponent:@"Pictures"]])
-				i=[NSImage imageNamed:@"GSPictures.tiff"];
-			else if([fullPath isEqualToString:[home stringByAppendingPathComponent:@"Library/Favorites"]])
-				i=[NSImage imageNamed:@"GSFavorites.tiff"];
-			else if([fullPath isEqualToString:[home stringByAppendingPathComponent:@"Library/Preferences"]])
-				i=[NSImage imageNamed:@"GSPreferences.tiff"];
-			else if([fullPath isEqualToString:[home stringByAppendingPathComponent:@"Library/.Trash"]])
-				i=[NSImage imageNamed:@"GSTrash.tiff"];
-			if(!i)
-				i=[NSImage imageNamed:@"GSFolder.tiff"];	// default folder
+				NSString *home=NSHomeDirectory();
+				NSString *lastComponent=[fullPath lastPathComponent];
+				// check if directory contains a (hidden) "Icon\r" file
+				if([fullPath isEqualToString:home])
+					i=[NSImage imageNamed:@"GSHome.tiff"];
+				else if([lastComponent isEqualToString:@"Applications"])
+					i=[NSImage imageNamed:@"GSApplications.tiff"];
+				else if([lastComponent isEqualToString:@"Games"])
+					i=[NSImage imageNamed:@"GSGames.tiff"];
+				else if([lastComponent isEqualToString:@"Utilities"])
+					i=[NSImage imageNamed:@"GSUtilities.tiff"];
+				else if([lastComponent isEqualToString:@"Network"])
+					i=[NSImage imageNamed:@"GSNetwork.tiff"];
+				else if([fullPath isEqualToString:@"/Users"])
+					i=[NSImage imageNamed:@"GSUsers.tiff"];
+				else if([fullPath isEqualToString:@"/Volumes"])
+					i=[NSImage imageNamed:@"GSVolumes.tiff"];
+				else if([fullPath isEqualToString:[home stringByAppendingPathComponent:@"Documents"]])
+					i=[NSImage imageNamed:@"GSDocuments.tiff"];
+				else if([fullPath isEqualToString:[home stringByAppendingPathComponent:@"Music"]])
+					i=[NSImage imageNamed:@"GSMusic.tiff"];
+				else if([fullPath isEqualToString:[home stringByAppendingPathComponent:@"Pictures"]])
+					i=[NSImage imageNamed:@"GSPictures.tiff"];
+				else if([fullPath isEqualToString:[home stringByAppendingPathComponent:@"Library/Favorites"]])
+					i=[NSImage imageNamed:@"GSFavorites.tiff"];
+				else if([fullPath isEqualToString:[home stringByAppendingPathComponent:@"Library/Preferences"]])
+					i=[NSImage imageNamed:@"GSPreferences.tiff"];
+				else if([fullPath isEqualToString:[home stringByAppendingPathComponent:@"Library/.Trash"]])
+					i=[NSImage imageNamed:@"GSTrash.tiff"];
+				if(!i)
+					i=[NSImage imageNamed:@"GSFolder.tiff"];	// default folder
 			}
 		else
 			{ // some type of file - but unknown file extension
-			  // might decode more file attributes here
-			if([fm isExecutableFileAtPath:fullPath])
-				i=[NSImage imageNamed:@"GSUnix.tiff"];	// executable file
-			else
-				i=[NSImage imageNamed:@"GSDocument.tiff"];	// some default document
+				// might decode more file attributes here
+				if([fm isExecutableFileAtPath:fullPath])
+					i=[NSImage imageNamed:@"GSUnix.tiff"];	// executable file
+				else
+					i=[NSImage imageNamed:@"GSDocument.tiff"];	// some default document
 			}
 		}
 	if(i)
@@ -1318,10 +1318,10 @@ static BOOL __fileSystemChanged = NO;
 - (NSImage *) iconForFiles:(NSArray *) pathArray
 {
 	switch([pathArray count])
-		{
+	{
 		case 0:	return nil;	// no file
 		case 1: return [self iconForFile:[pathArray objectAtIndex:0]];	// first
-		}
+	}
 	return [NSImage imageNamed:@"GSMultiple.tiff"];
 }
 
@@ -1340,9 +1340,9 @@ static BOOL __fileSystemChanged = NO;
 	e=[[__launchServices identsForExtension:fileType] objectEnumerator];
 	while((a=[e nextObject]))
 		{ // locate first app with an icon for this extension
-		path=[a objectForKey:@"CFBundleTypeIconPath"];	// look up icon path for known file extensions
-		if(path)
-			break;	// app has defined an icon
+			path=[a objectForKey:@"CFBundleTypeIconPath"];	// look up icon path for known file extensions
+			if(path)
+				break;	// app has defined an icon
 		}
 #if 0
 	NSLog(@"%@ has iconFile %@", fileType, path);
@@ -1370,8 +1370,8 @@ static BOOL __fileSystemChanged = NO;
 	[[self notificationCenter] postNotificationName:WORKSPACE(WillUnmount)
 											 object:self
 										   userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-											   path, @"NSDevicePath",
-											   nil]];
+													 path, @"NSDevicePath",
+													 nil]];
 	// send NSWorkspaceWillUnmountNotification
 	return YES;
 }
@@ -1389,13 +1389,13 @@ static NSArray *prevList;
 	[[self notificationCenter] postNotificationName:WORKSPACE(DidMount)
 											 object:self
 										   userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-											   path, @"NSDevicePath",
-											   nil]];
+													 path, @"NSDevicePath",
+													 nil]];
 	[[self notificationCenter] postNotificationName:WORKSPACE(DidUnmount)
 											 object:self
 										   userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-											   path, @"NSDevicePath",
-											   nil]];
+													 path, @"NSDevicePath",
+													 nil]];
 	//      or NSWorkspaceDidUnmountNotification if it disappeared
 #endif
 	[prevList release];
@@ -1442,17 +1442,17 @@ static NSArray *prevList;
 	NSString *path;
 	NSMutableArray *list=[NSMutableArray arrayWithCapacity:10];
 	while((path=[e nextObject]))
-			{
-				NSDictionary *app;
-				if([path hasPrefix:@"."])
-					continue;	// skip
-				if([path isEqualToString:@"active"])
-					continue;	// skip
-				path=[lsdatabase stringByAppendingPathComponent:path];	// get full path
-				app=[NSDictionary dictionaryWithContentsOfFile:path];
-				if(app)
-					[list addObject:app];
-			}
+		{
+		NSDictionary *app;
+		if([path hasPrefix:@"."])
+			continue;	// skip
+		if([path isEqualToString:@"active"])
+			continue;	// skip
+		path=[lsdatabase stringByAppendingPathComponent:path];	// get full path
+		app=[NSDictionary dictionaryWithContentsOfFile:path];
+		if(app)
+			[list addObject:app];
+		}
 	return list;
 }
 
@@ -1472,34 +1472,36 @@ static NSArray *prevList;
 + (id <_NSLoginWindowProtocol>) _loginWindowServer;			// distributed workspace
 {
 	static id _loginWindowServer;	// system UI server used for inking, sound etc.
+#if 0	// option to disable
 	if(!_loginWindowServer)
 		{
 #if 1
 		NSLog(@"get _loginWindowServer");
 #endif
 		NS_DURING
-			_loginWindowServer = [NSConnection rootProxyForConnectionWithRegisteredName:NSLoginWindowPort host:nil];
+		_loginWindowServer = [NSConnection rootProxyForConnectionWithRegisteredName:NSLoginWindowPort host:nil];
 #if 1
-			NSLog(@"created _loginWindowServer=%@", _loginWindowServer);
+		NSLog(@"created _loginWindowServer=%@", _loginWindowServer);
 #endif
-			[_loginWindowServer retain];
+		[_loginWindowServer retain];
 #if 0
-			NSLog(@"retained");
+		NSLog(@"retained");
 #endif
-			[((NSDistantObject *) _loginWindowServer) setProtocolForProxy:@protocol(_NSLoginWindowProtocol)];
+		[((NSDistantObject *) _loginWindowServer) setProtocolForProxy:@protocol(_NSLoginWindowProtocol)];
 		NS_HANDLER
-			NSLog(@"could not contact %@ due to %@ - %@", NSLoginWindowPort, [localException name], [localException reason]);
-			_loginWindowServer=nil;	// no connection established
-			// we could alternatively setup ourselves as a (local) server
+		NSLog(@"could not contact %@ due to %@ - %@", NSLoginWindowPort, [localException name], [localException reason]);
+		_loginWindowServer=nil;	// no connection established
+		// we could alternatively setup ourselves as a (local) server
 		NS_ENDHANDLER
 		}
+#endif
 #if 1
 	NSLog(@"_loginWindowServer=%@", _loginWindowServer);
 #endif
 	return _loginWindowServer;
 }
 
-// should be replaced by [[QSLaunchServices sharedLaunchServices] applicationList] etc.
+// should be replaced by directly calling [[QSLaunchServices sharedLaunchServices] applicationList] etc. (?)
 
 - (NSDictionary *) _applicationList; { return [[QSLaunchServices sharedLaunchServices] applicationList]; }
 - (NSDictionary *) _fileTypeList; { return [[QSLaunchServices sharedLaunchServices] fileTypeList]; }

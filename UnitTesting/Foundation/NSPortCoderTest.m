@@ -6,12 +6,12 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 #import <Foundation/NSMethodSignature.h>
 #import "NSPortCoderTest.h"
 
 
-#if 1	// 1: test our mySTEP implementation - 0: test our test patterns against Cocoa
+#if 0	// 1: test our mySTEP implementation - 0: test our test patterns against Cocoa
 
 @implementation NSObject (Version)
 
@@ -47,6 +47,7 @@
 #define _C_ULNG_LNG 'Q'
 #define _C_VECTOR   '!'
 #define _C_COMPLEX   'j'
+
 #endif
 
 // rename our implementation to avoid conflicts with Cocoa
@@ -66,10 +67,16 @@
 
 #endif
 
+@interface NSMethodSignature (Since10_5)
++ (NSMethodSignature *)signatureWithObjCTypes:(const char *)types;
+@end
+
 @interface NSPortCoder (NSConcretePortCoder)
 - (NSArray *) components;
 - (void) encodeInvocation:(NSInvocation *) i;
 - (void) encodeReturnValue:(NSInvocation *) r;
+- (id) decodeRetainedObject;
+
 @end
 
 @interface MyClass : NSObject <NSCoding>
@@ -1002,8 +1009,10 @@
 	id have=@"";
 	id want=@"?";
 	pc=[self portCoderForDecode:r];
+	// raises an exception: more significant bytes (37) than room to hold them (4)
 	have=[pc decodeRetainedObject];	// should be NSInvocation
 	NSLog(@"textInvocation10: %@", have);
+//	STAssertEqualObjects(have, want,  nil);
 }
 
 - (void) testReturnInvocation

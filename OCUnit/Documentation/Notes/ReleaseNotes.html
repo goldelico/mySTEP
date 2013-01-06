@@ -1,0 +1,358 @@
+<HTML>
+
+<HEAD>
+<TITLE>Sen:te - OCUnit Release Notes</TITLE>
+</HEAD>
+
+<body bgcolor="#FFFFFF">
+<table border="0" width="100%">
+	<tr>
+		<td colspan="1" rowspan="3"><img src="../images/sente.gif" alt="Sen:te" /></td>
+		<td> </td>
+	</tr>
+	<tr>
+		<td align="RIGHT" valign="BOTTOM"><h1><img src="../images/Shikenjo.gif" /><br /><a href="http://www.sente.ch/software/ocunit/">OCUnit</a> Release Notes</h1><br /></td>
+	</tr>
+	<tr>
+		<td height="24"> </td>
+	</tr>
+</table>
+<hr noshade size="1" />
+
+
+<h2>Known problems</h2>
+<ul>
+<li> Shikenjo.app is a quick hack to play with distributed notifications and is not reliable.
+<li> Shikenjo.app has not been updated for the past releases.
+</ul>
+
+
+<h2><a name="Release Notes">Release Notes</a></h2>
+<p>New in Release v41 (April 2, 2005), thanks to Chris Hanson<br />
+<UL>
+	<LI> Make sure Foundation is loaded before SenTestingKit.
+	<LI> Added autorelease pool to detect over-releases faster.
+	<LI> Added license to all source files.
+</UL>
+</P>
+
+<p>New in Release v40 (March 29, 2005)<br />
+<ul>
+	<li> Two new assertion macros have been added and an old one deprecated. The two new ones are STAssertEqualScalars() and STAssertEqualScalarsWithAccuracy(). STAssertEquals() has been deprecated. These new macros give better formatting of the scalar amounts in case of failure. Also the macro STAssertEqualScalarsWithAccuracy() allows the use of an accuracy amount in case of floats and doubles where the values may not be exact.
+</ul>
+The following modifications have been contributed by Andrew Pontious.
+<ul>
+<li> Documentation - Tutorials
+	<ul type="square">
+		<li> Fully updated OCUnitWWDC2002.rtfd to describe Xcode techniques, the environment without SenFoundation.framework, and the new Xcode-ported project, TestExtras.
+	</ul>
+<li> Examples
+	<ul type="square">
+		<li> Removed old .pbproj files.
+		<li> Removed dependency on SenFoundation framework.
+	</ul>
+<li> Extras - Packaging - HomePackage
+	<ul type="square">
+		<li> Modified installOCUnit to also install TestExtras, now that it's been fully ported to Xcode.
+	</ul>
+</ul>
+
+<p>New in Release v39 (January 26, 2005)
+<ul>
+<li> Added extern "C" guard on STComposeString for Objective-C++ users
+<li> Removed fprintf and cString for compatibility with Unicode error messages
+<li> Updated XCode integration documentation with Zero Link troubleshooting
+</ul>
+
+<p>New in Release v38 (June 2, 2004)
+<ul>
+<li>The message thrown when STAssertNotNil fails was non-intuitive. This has been fixed.
+<li>Alphabetized the test methods found within a TestCase class prior to execution.
+</ul>
+
+<p>New in Release v37 (April 2, 2004)
+<ul>
+<li>Bug fix when compiling for Objective-C++.
+</ul>
+
+<p>New in Release v36 (March 31, 2004) includes v35 & v34
+<ul>
+<li>Added new improved test macros. A message can now be included with each macro.
+<li>The macros have been renamed and are now prefixed with "ST". For example the should(expression) macro is replaced by the STAssertTrue(expression, aMessage, ...) macro. The old macros will continue to work for now.
+<li>There is now two new install packages that do all the work of installing. One for home directories and one for the root directory. Only install one.
+</ul>
+
+
+<p>New in Release v33 (January 19, 2004)
+<ul>
+<li>Standardized project template names
+<li>Fixed links in the documentation
+<li>Added Xcode installation instruction in "Getting Started" page
+</ul>
+
+
+<p>New in Release v32 (January 8, 2004)
+<ul>
+<li>Put SenFoundation back in the distribution, as it used by some of the examples. (But SenFoundation is not required to build and use SenTestingKit).
+</ul>
+
+<p>New in Release v31 (January 5, 2004)
+<ul>
+<li>Removed dependency on SenFoundation (Xcode only)
+</ul>
+
+<p>New in Release v30 (December 9, 2003)
+<ul>
+<li>Merged Xcode and other environments distribution
+<li>Ported SenInterfaceTestingPalette to Xcode
+<li>Added new should macros from bbum
+<li>Updated documentation
+</ul>
+
+
+<p>New in Release v29, XCode only (November 21, 2003) 
+<ul>
+<li>Added project templates
+<li>Fixed a bug (tests from application were not running)
+<li>More documentation
+<li>Added SenRandomTest example
+</ul>
+
+
+<p>New in Release v28 (November 17, 2003)
+<ul>
+<li>OCUnit for Xcode released as a separate package
+</ul>
+
+<p>New in Release v27 (June 20, 2003)</p>
+<ul>
+<li>Updated GNUStep support (Thanks to Erik Drnenburg and Marcus Muller)
+<li>Using build products frameworks when using test after build (Thanks to St&eacute;phane Corth&eacute;sy)
+</ul>
+
+<p>New in Release v26 (December 19, 2002)</p>
+<ul>
+<li>Corrected framework test with -SenTest Self
+</ul>
+
+<p>New in Release v25 (October 23, 2002)</p>
+<ul>
+<li>Corrected test after build to work with space in path
+<li>Corrected tool test with -SenTest Self
+<li>Updated GNUStep support
+</ul>
+
+<p>New in Release v24 (May 21, 2002)</p>
+<ul>
+<li> Added more project templates
+<li> Added Howto to get error reports in PBX
+<li> Added Examples
+</ul>
+
+<p>New in Release v23 (February 23, 2002)</p>
+<ul>
+<li> Added TestCase template for PBX
+<li> Corrected RunTargetUnitTests for testing tool projects
+<li> Grouped all ProjectBuilder integration related files
+</ul>
+
+
+<p>New in Release v22 (December 12, 2001)</p>
+<ul>
+<li> Moved documentation to HTML
+<li> Added Getting Started to documentation
+<li> Fixed framework paths in installation package
+<li> Fixed testing of tools
+<li> Uses autodoc only if available
+</ul>
+
+<p>New in Release v21 (December 4, 2001)</p>
+<ul>
+<li>	Test cases are now inherited
+<li>	Integration with Mac OS X Project Builder
+<li>	Installer package for Mac OS X
+<li>	SenRandomTest example
+<li>	SenTestingKit framework now includes HTML documentation
+<li>	Ported Shikenjo.app and several examples to Mac OS X
+</ul>
+
+<p>New in Release v20 (April 14, 2001)</p>
+<ul>
+	<li>Added GnuStep patch (Thanks to Mirko Viviani mirko.viviani @ rccr.cremona.it)
+	<li>Ported SenFoundation.framework, SenTestingKit.framework and otest tool to MacOSX 10.0.
+</ul>
+
+<p>New in Release v19 (April 11, 2000)</p>
+<ul>
+	<li>Corrected test.make to test_debug (Thanks to Christian Pekeler @ Codefab)
+	<li>Changed test.make default otest.exe path to $(NEXT_ROOT)$(LOCAL_DEVELOPER_EXECUTABLES_DIR)
+</ul>
+
+<p>New in Release v18 (April 10, 2000)</p>
+<ul>
+	<li>Generalized -setUp and -tearDown to SenTest
+	<li>Added +setUp and +tearDown to SenTestCase, suites built from SenTestCase invoke these once before (resp. after) all SenTestCase tests. (Thanks to Stefano Mancini for this suggestion)
+	<li><b>Changed projects installation directories to make use of DSTROOT</b> (SenTestingKit, SenFoundation, otest, SenInterfacePalette)
+	<li>Changed SenTestableProjects installation directory to /Developer/PBBundles
+	<li>Corrected header includes (Thanks to Chuck Hill, Global Village Consulting, for this suggestion)
+	<li>Added Testable/WebApplication
+	<li><b>Removed should...Empty macros</b> so that SenFoundation framework needs not be directly included (SenTestCase, ..._Macros)
+	<li>Restored old NSBundle executablePath method (_computeExecutablePath does not work for .woa bundles on NT)  (Thanks to Albena Georgieva @Object Zoo for her help)
+	<li>Corrected (kind of) test.make to test_debug on NT
+	<li>Added -Xlinker -force  in SenTestableProjects Makefile.preamble to allow linking on NT
+</ul>
+
+
+<p>New in Release 1.17 (March 14, 2000)</p>
+<ul>
+	<li>Changed test.make to support test_debug for frameworks and bundles
+	<li>WO applications now also testable.
+</ul>
+
+	
+<p>New in Release 1.16 (March 5, 2000)</p>
+<ul>
+	<li>Change in SenFoundation for WO compatibility
+	<li>Force loading of all frameworks (correcting a bug report from Peter Lindberg, Oops, Sweden)
+	<li>Added SenTestableProjects a PB bundle to add the test and test_debug build targets to all projects.
+	<li>Added ApplicationBundle example
+	<li>Added Example/README
+</ul>
+
+	
+<p>New in Release 1.15 (December 20, 1999)</p>
+<ul>
+	<li>Terminology and semantic change: error has been renamed unexpectedException. Failures are now reported like this: <pre>Passed 3 tests, with 2 failures (1 unexpected)</pre> instead of: <pre>Passed 3 tests with 1 failure, 1 error</pre>
+	<li>TestRun totalFailureCount = failureCount + unexpectedExceptionCount
+</ul>
+
+	
+<p>New in Release 1.14 (December 7, 1999)</p>
+<ul>
+	<li>Added SenInterfaceTestingPalette
+	<li>Reimplemented SenNibTestCase as SenInterfaceTestCase (Thanks to Dominique Schoenenberger @ Nagravision SA for his collaboration)
+	<li>Added -SenTest TestCaseClassName/testMethodName option (Thanks to Dominique Schoenenberger @ Nagravision SA for his collaboration)
+	<li>otest can now test tools
+	<li>Changed Windows installation directories (Thanks to Chuck Hill @ Global Village Consulting for this suggestion).
+</ul>
+
+	
+<p>New in Release 1.13 (October 21, 1999)</p>
+<ul>
+	(Internal unreleased version)
+<li> Added SenNibTestCase. (Thanks to Dominique Schoenenberger @ Nagravision SA for this contribution)
+<li> Added -Include and Class/method launch options (Thanks to Dominique Schoenenberger @ Nagravision SA for this contribution).
+<li>Added User Guide (Thanks to Dominique Schoenenberger @ Nagravision SA for this contribution).
+</ul>
+
+
+<p>New in Release 1.12 (October 6th 1999)</p>
+<ul>
+<li><b>Changed API: recompile your tests!</b>
+<li><b>Changed Makefiles/Resources/otestSpec.plist: reinstall it!</b>
+<li>Changed failure output format to "filename:line number: message" (SenTestLog)
+<li>Refactored SenTestCase (Suite) to use closures, introduced NSInvocation (SenTesting)
+<li>Removed name ivar from SenTestCase
+</ul>
+
+<p>New in Release 1.11 (August 28 1999)</p>
+<ul>
+<li>Selection of failures in PB works on NT (NSException_SenTestFailure).
+<li>Added should...1 macros , taking a description parameter
+<li>Added fail and fail1 macros, fails inconditionaly
+<li>Added test_all and test_debug_all targets (test.make)
+<li>Corrected test coverage when launching an application without otest
+</ul>
+
+
+<p>New in Release 1.10 (June 23rd 1999)</p>
+<ul>
+<li>Changed API: recompile your tests!
+<li>Output absolute filenames for compatibility with latest ProjectBuilder.
+<li>Added shouldntRaise and shouldntBeEmpty macros.
+<li>Added more TestingKit's tests and:
+<li>Found and corrected bug in shouldBeEqual.
+</ul>
+
+<p>New in Release 1.9 (June 4th 1999)</p>
+<ul>
+<li>Fixed bug on NT (tests were not loaded)
+</ul>	
+
+<p>New in Release 1.8 (May 1999)</p>
+<ul>
+<li>Separated otest and Shikenjo projects
+<li>Simplified and corrected test launching process in otest / SenTestProbe
+<li>otest, SenTestingKit should be OPENSTEP compatible (minus Distributed Notifications)
+<li>Added small example
+</ul>
+
+
+<p>New in Release 1.7 (February 1999)</p>
+<ul>
+<li>Added option to use only tests from tested bundle or to include tests from used frameworks
+<li>Uses by default only the test cases from the tested bundle
+</ul>
+
+
+<p>Release 1.6 (December 1998)</p>
+<ul>
+<li> SenTestingKit now has tests.
+<li> Removed insertion of TestProbe with DYLD or GDB.
+<li> Transparent -SelfTest option
+</ul>
+
+
+
+<p>Release 1.5 (December 1998)</p>
+<ul>
+<li> Support for performance testing.
+</ul>
+
+
+<p>Release 1.4 (November 1998)</p>
+<ul>
+<li> Multiple assertions per test case.
+</ul>
+
+
+<p>Release 1.3 (November 1998)</p>
+<ul>
+<li> Seamless integration with ProjectBuilder.
+</ul>
+
+
+<p>Release 1.2 (September 1998)</p>
+<ul>
+<li> Ported from OPENSTEP to Yellow Box
+<li> test.make makefiles.
+</ul>
+
+
+<p>Release 1.1 (July 1998)</p>
+<ul>
+<li> Several subclasses of TestResult to record, log, notify, etc...
+<li> Automatic creation of test suites using runtime information.
+<li> Shikenjo.app, an interactive test driver.
+</ul>
+
+
+
+<p>Release 1.0 (May 1998)</p>
+<ul>
+<li> Verbatim translation of Kent Beck's Smalltalk Testing framework.
+</ul>
+
+<h2>More information</h2>
+<p>
+<a href="http://www.sente.ch/software/ocunit/">http://www.sente.ch/software/ocunit/</a><br />
+<a href="mailto:feedback@sente.ch">feedback@sente.ch</a>
+</p>
+
+<p>
+&copy;Copyright 1994-2004, Sen:te (Sente, SA). All rights reserved.
+</p>
+
+
+</body>
+</HTML>

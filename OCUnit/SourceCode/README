@@ -1,0 +1,26 @@
+
+// Copyright (c) 1997-2004 Sen:te (Sente SA).  All rights reserved.
+
+
+Contents
+	SenTestingKit
+		The unit testing framework.
+
+	SenInterfaceTestingPalette
+		A palette to help integrating tests in the User Interface.
+
+	otest
+		A command line tool to execute tests on frameworks, bundles, applications.
+
+	Shikenjo
+		A graphical application to run tests. Not ported to Xcode and unreliable
+		(as an experiment with distributed notifications which are not suited here.) 
+
+
+
+Feedback
+Your feedback is important.  It would be appreciated if you would send any changes you make in the TestingKit source code to us so that others may benefit from your changes.
+
+http://www.sente.ch/software/ocunit/
+feedback@sente.ch
+

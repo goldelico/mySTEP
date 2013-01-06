@@ -763,10 +763,6 @@ static unsigned _portDirectoryLength;
 
 - (id) init
 { // create local socket with unique name in abstract name space
-#if 1	// disable until they work again
-	[self release];
-	return nil;
-#endif
 #if 1
 	NSLog(@"NSMessagePort init %p", self);
 #endif

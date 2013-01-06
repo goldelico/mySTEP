@@ -5,8 +5,8 @@ VERSION
   The code has its root in mGstep-0.536.
   Many thanks to Felipe A. Rodriguez for providing the source codes!!!
   
-  And some parts are coming from GNUstep. Others
-  are even shared (CoreData, SimpleWebKit).
+  Some parts are coming from GNUstep. Others
+  are even shared with GNUstep (CoreData, SimpleWebKit).
   
 LICENSE
 

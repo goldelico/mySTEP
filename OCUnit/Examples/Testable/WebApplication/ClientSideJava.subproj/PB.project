@@ -1,0 +1,12 @@
+{
+    DYNAMIC_CODE_GEN = YES; 
+    FILESTABLE = {OTHER_SOURCES = (Makefile.preamble, Makefile, Makefile.postamble); }; 
+    LANGUAGE = English; 
+    MAKEFILEDIR = "$(MAKEFILEPATH)/pb_makefiles"; 
+    NEXTSTEP_BUILDTOOL = /bin/gnumake; 
+    PDO_UNIX_BUILDTOOL = $NEXT_ROOT/Developer/bin/make; 
+    PROJECTNAME = ClientSideJava; 
+    PROJECTTYPE = WebObjectsSubproject; 
+    PROJECTVERSION = 2.61; 
+    WINDOWS_BUILDTOOL = $NEXT_ROOT/Developer/Executables/make; 
+}

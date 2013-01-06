@@ -1,0 +1,65 @@
+##// TEMPLATEVERSION 1.23
+##// You may customize this file to modify the templates generated in this project.
+##// See /System/Libray/Frameworks/EOModeler.framework/Headers/EOModelExtension.h
+##// For the extended APIs available to your EO templates.
+// $entity.className$.h
+// 
+// Created on $date$ by Apple $eomVersion$
+
+#import <EOControl/EOControl.h>
+
+##loop $entity.arrayWithParentClassNameIfNeeded$
+#import "$property$.h"
+##end
+
+##loop $entity.referencedClasses$
+@class $property$;
+##end
+
+@interface $entity.className$ : $entity.parentClassName$ <NSCoding>
+{
+##loop $entity.classScalarAttributes$
+    $property.cScalarTypeString$ $property.name$;
+##end
+##loop $entity.classNonScalarAttributes$
+    $property.valueClassName$ *$property.name$;
+##end
+##// instead of scalar/nonScalar you could use:
+##// ##loop $entity.classAttributes$
+##//     $property.valueClassName$ *$property.name$;
+##// ##end
+##loop $entity.classToOneRelationships$
+    $property.destinationEntity.referenceClassName$ $property.name$;
+##end
+##loop $entity.classToManyRelationships$
+    NSMutableArray *$property.name$;
+##end
+}
+
+##loop $entity.classScalarAttributes$
+- (void)set$property.name$:($property.cScalarTypeString$) value;
+- ($property.cScalarTypeString$) $property.name$;
+
+##end
+##loop $entity.classNonScalarAttributes$
+- (void)set$property.name$:($property.valueClassName$ *)value;
+- ($property.valueClassName$ *)$property.name$;
+
+##end
+##// instead of scalar/nonScalar you could use:
+##// ##loop $entity.classAttributes$
+##// - (void)set$property.name$:($property.valueClassName$ *)value;
+##// - ($property.valueClassName$ *)$property.name$;
+##// ##end
+##loop $entity.classToOneRelationships$
+- (void)set$property.name$:($property.destinationEntity.referenceClassName$)value;
+- ($property.destinationEntity.referenceClassName$)$property.name$;
+
+##end
+##loop $entity.classToManyRelationships$
+- (NSArray *)$property.name$;
+- (void)addTo$property.name$:($property.destinationEntity.referenceClassName$)object;
+- (void)removeFrom$property.name$:($property.destinationEntity.referenceClassName$)object;
+
+##end
+@end

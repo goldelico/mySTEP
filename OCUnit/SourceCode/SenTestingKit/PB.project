@@ -1,0 +1,100 @@
+{
+    CURRENTLY_ACTIVE_VERSION = YES; 
+    DEPLOY_WITH_VERSION_NAME = A; 
+    DYNAMIC_CODE_GEN = YES; 
+    English_RESOURCES = {}; 
+    FILESTABLE = {
+        CLASSES = (
+            NSException_SenTestFailure.m, 
+            NSInvocation_SenTesting.m, 
+            SenInterfaceTestCase.m, 
+            SenTest.m, 
+            SenTestCase.m, 
+            SenTestCaseRun.m, 
+            SenTestDistributedNotifier.m, 
+            SenTestingUtilities.m, 
+            SenTestLog.m, 
+            SenTestObserver.m, 
+            SenTestProbe.m, 
+            SenTestRun.m, 
+            SenTestSuite.m, 
+            SenTestSuiteRun.m
+        ); 
+        FRAMEWORKS = (Foundation.framework, SenFoundation.framework); 
+        FRAMEWORKSEARCH = (
+            "$(USER_LIBRARY_DIR)/Frameworks", 
+            "$(NEXT_ROOT)$(LOCAL_LIBRARY_DIR)/Frameworks"
+        ); 
+        H_FILES = (
+            NSException_SenTestFailure.h, 
+            NSInvocation_SenTesting.h, 
+            SenInterfaceTestCase.h, 
+            SenTest.h, 
+            SenTestCase.h, 
+            SenTestCase_Macros.h, 
+            SenTestCaseRun.h, 
+            SenTestDefines.h, 
+            SenTestDistributedNotifier.h, 
+            SenTestingKit.h, 
+            SenTestingUtilities.h, 
+            SenTestLog.h, 
+            SenTestObserver.h, 
+            SenTestProbe.h, 
+            SenTestRun.h, 
+            SenTestSuite.h, 
+            SenTestSuiteRun.h
+        ); 
+        OTHER_RESOURCES = (ApplicationWrapperExtensions.plist, NoSourceDirectoryExtensions.plist); 
+        OTHER_SOURCES = (
+            CustomInfo.plist, 
+            h.template, 
+            m.template, 
+            Makefile, 
+            Makefile.postamble, 
+            Makefile.preamble, 
+            OpenSourceLicense.html
+        ); 
+        PRECOMPILED_HEADERS = (); 
+        PROJECT_HEADERS = (); 
+        PUBLIC_HEADERS = (
+            SenTest.h, 
+            SenTestCase.h, 
+            SenTestSuite.h, 
+            SenTestCase_Macros.h, 
+            SenTestingKit.h, 
+            SenTestDefines.h, 
+            NSException_SenTestFailure.h, 
+            SenTestRun.h, 
+            SenTestSuiteRun.h, 
+            SenTestCaseRun.h, 
+            SenTestObserver.h, 
+            SenTestLog.h, 
+            SenTestProbe.h, 
+            SenTestDistributedNotifier.h, 
+            SenInterfaceTestCase.h, 
+            SenTestingUtilities.h
+        ); 
+        SUBPROJECTS = (Tests.subproj); 
+    }; 
+    LANGUAGE = English; 
+    LOCALIZABLE_FILES = {}; 
+    MAKEFILEDIR = "$(MAKEFILEPATH)/pb_makefiles"; 
+    NEXTSTEP_BUILDDIR = "$(LOCAL_DEVELOPER_DIR)/Builds/$(USER)/$(NAME)"; 
+    NEXTSTEP_BUILDTOOL = /bin/make; 
+    NEXTSTEP_COMPILEROPTIONS = "-DRHAPSODY"; 
+    NEXTSTEP_INSTALLDIR = /Library/Frameworks; 
+    NEXTSTEP_JAVA_COMPILER = /usr/bin/javac; 
+    NEXTSTEP_OBJCPLUS_COMPILER = /usr/bin/cc; 
+    PDO_UNIX_BUILDTOOL = $NEXT_ROOT/Developer/bin/make; 
+    PDO_UNIX_JAVA_COMPILER = "$(NEXTDEV_BIN)/javac"; 
+    PDO_UNIX_OBJCPLUS_COMPILER = "$(NEXTDEV_BIN)/gcc"; 
+    PROJECTNAME = SenTestingKit; 
+    PROJECTTYPE = Framework; 
+    PROJECTVERSION = 2.8; 
+    TARGETS = (install_debug, statistics, metrics, test); 
+    WINDOWS_BUILDTOOL = $NEXT_ROOT/Developer/Executables/make; 
+    WINDOWS_COMPILEROPTIONS = "-DBUILDINGSENTEST"; 
+    WINDOWS_INSTALLDIR = /Library/Frameworks; 
+    WINDOWS_JAVA_COMPILER = "$(JDKBINDIR)/javac.exe"; 
+    WINDOWS_OBJCPLUS_COMPILER = "$(DEVDIR)/gcc"; 
+}

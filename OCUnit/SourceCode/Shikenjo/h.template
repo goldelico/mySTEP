@@ -1,0 +1,12 @@
+$$
+/*$Id: h.template,v 1.1.1.1 2000/01/27 11:05:13 marco Exp $*/
+/* Copyright (c) 1997, 1998, 1999, Sen:te Ltd.  All rights reserved. */
+
+#import <AppKit/AppKit.h>
+
+@interface $FILENAMESANSEXTENSION$ : NSObject
+{
+
+}
+
+@end

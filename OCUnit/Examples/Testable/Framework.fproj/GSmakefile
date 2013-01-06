@@ -1,0 +1,42 @@
+#
+#  tool makefile.
+#  
+#  Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+#
+#  Date: 5 October 2000
+#
+
+GNUSTEP_INSTALLATION_DIR = $(GNUSTEP_LOCAL_ROOT)
+
+GNUSTEP_MAKEFILES = $(GNUSTEP_SYSTEM_ROOT)/Makefiles
+
+include $(GNUSTEP_MAKEFILES)/common.make
+
+include ../../../Version
+
+# Main application
+
+FRAMEWORK_NAME = Framework
+CURRENT_VERSION_NAME = A
+
+Framework_LDFLAGS = -lSenFoundation -lSenTestingKit
+
+Framework_PRINCIPAL_CLASS = SetTestCase
+
+# Class files
+
+Framework_OBJC_FILES = BreakTest.m SetTestCase.m
+
+
+-include GNUmakefile.preamble
+-include GNUmakefile.local
+
+include $(GNUSTEP_MAKEFILES)/framework.make
+
+-include GNUmakefile.postamble
+
+
+
+
+
+

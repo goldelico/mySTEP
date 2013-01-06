@@ -1,0 +1,51 @@
+{
+    DYNAMIC_CODE_GEN = YES; 
+    FILESTABLE = {
+        CLASSES = (
+            SenTestContinueOrRaiseTesting.m, 
+            SenTestEmptySuite.m, 
+            SenTestErrorTesting.m, 
+            SenTestFail.m, 
+            SenTestMacroTesting.m, 
+            SenTestPerformance.m, 
+            SenTestShould.m, 
+            SenTestShouldBeEqual.m, 
+            SenTestShouldRaise.m, 
+            SenTestTestSuite.m
+        ); 
+        H_FILES = (
+            SenTestContinueOrRaiseTesting.h, 
+            SenTestEmptySuite.h, 
+            SenTestErrorTesting.h, 
+            SenTestFail.h, 
+            SenTestMacroTesting.h, 
+            SenTestPerformance.h, 
+            SenTestShould.h, 
+            SenTestShouldBeEqual.h, 
+            SenTestShouldRaise.h, 
+            SenTestTestSuite.h
+        ); 
+        OTHER_LINKED = (); 
+        OTHER_SOURCES = (Makefile.preamble, Makefile, Makefile.postamble); 
+        PRECOMPILED_HEADERS = (); 
+        PROJECT_HEADERS = (); 
+        PUBLIC_HEADERS = (); 
+        SUBPROJECTS = (); 
+    }; 
+    LANGUAGE = English; 
+    LOCALIZABLE_FILES = {}; 
+    MAKEFILEDIR = "$(MAKEFILEPATH)/pb_makefiles"; 
+    NEXTSTEP_BUILDTOOL = /bin/gnumake; 
+    NEXTSTEP_INSTALLDIR = /Local/Library/Frameworks; 
+    NEXTSTEP_JAVA_COMPILER = /usr/bin/javac; 
+    NEXTSTEP_OBJCPLUS_COMPILER = /usr/bin/cc; 
+    PDO_UNIX_BUILDTOOL = $NEXT_ROOT/Developer/bin/make; 
+    PDO_UNIX_JAVA_COMPILER = "$(NEXTDEV_BIN)/javac"; 
+    PDO_UNIX_OBJCPLUS_COMPILER = "$(NEXTDEV_BIN)/gcc"; 
+    PROJECTNAME = Tests; 
+    PROJECTTYPE = Component; 
+    PROJECTVERSION = 2.8; 
+    WINDOWS_BUILDTOOL = $NEXT_ROOT/Developer/Executables/make; 
+    WINDOWS_JAVA_COMPILER = "$(JDKBINDIR)/javac.exe"; 
+    WINDOWS_OBJCPLUS_COMPILER = "$(DEVDIR)/gcc"; 
+}

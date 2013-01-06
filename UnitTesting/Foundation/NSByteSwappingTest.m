@@ -6,7 +6,7 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 #import "NSByteSwappingTest.h"
 
 
@@ -41,7 +41,6 @@
 	NSAssert(NSSwapLittleFloatToHost(*((NSSwappedFloat *)&flt)) == ((NSHostByteOrder() == NS_BigEndian)?(float)-40331460896358400.0:(float)M_PI), @"NSSwapLittleFloatToHost failed");
 	NSAssert(NSSwapBigDoubleToHost(*((NSSwappedDouble *)&dbl)) == ((NSHostByteOrder() == NS_LittleEndian)?3.20737563067636581208678536384e-192:M_PI), @"NSSwapBigDoubleToHost failed");
 	NSAssert(NSSwapLittleDoubleToHost(*((NSSwappedDouble *)&dbl)) == ((NSHostByteOrder() == NS_BigEndian)?3.20737563067636581208678536384e-192:M_PI), @"NSSwapLittleDoubleToHost failed");
-	
 }
 
 @end

@@ -6,9 +6,26 @@
 //  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
 #import "NSAttributedStringTest.h"
-#import <Cocoa/Cocoa.h>
 
+@interface NSColor : NSObject
++ (id) redColor;
++ (id) blueColor;
+@end
+
+@implementation NSColor
++ (id) redColor;
+{
+	return [[self new] autorelease];
+}
++ (id) blueColor;
+{
+	return [[self new] autorelease];
+}
+@end
+
+NSString *NSForegroundColorAttributeName=@"NSForegroundColorAttributeName";
 
 @implementation NSAttributedStringTest
 
@@ -65,5 +82,10 @@
 	// test what happens...
 	[s release];
 }
+
+// add more tests
+// e.g. empty string
+// trying to add nil attribute
+// attributes if we insert a string w/o attributes
 
 @end

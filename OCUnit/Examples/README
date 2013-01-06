@@ -1,0 +1,40 @@
+
+// Copyright (c) 1997-2005 Sen:te (Sente SA).  All rights reserved.
+
+These are mostly trivial examples to demonstrate how OCUnit can be used in different situations.
+
+Xcode Note:
+Currently, only Person, PersonComplete, SenRandomTest and Testable/Application (as an example of testing the UI) have been ported to Xcode. The remaining projects can be converted at will.
+
+
+* SenRandomTest
+Tests the SenRandom class and compares its result and performance (approximatively) to several pseudo random number generators.
+
+* SenFoundationPerformanceTest
+Compares (approximatively!) the speed of 3 different ways of iterating through an array.
+
+
+
+The following projects contain mostly tests that intentionally fail.
+
+* Testable/Application
+Tests a simple application. Includes a test in a nib.
+
+* Testable/ApplicationBundle
+Shows how you can separate your tests from an application if you want to deploy without SenTestingKit. Just deploy your application without the bundle. A current limitation of this approach is that you have to use -SenTest All to run the tests from the bundle.
+
+* Testable/Bundle.bproj
+Tests in a bundle
+
+* Testable/Framework.fproj
+Tests in a framework
+
+* Testable/FrameworkWithJava
+A pair of frameworks that exhibited a bug, submitted by Peter Lindberg, from Oops, Sweden (thanks!). OCUnit v16 and above should successfully test this.
+
+* Testable/tool
+Tests in a tool
+
+* Testable/WebFramework
+Tests in a framework linked with WebObjects. OCUnit v16 and above should successfully test this.
+

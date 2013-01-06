@@ -1,0 +1,11 @@
+$$
+/* $FILENAME$ created by $USERNAME$ on $DATE$ */
+
+#import <WebObjects/WebObjects.h>
+
+@interface $FILENAMESANSEXTENSION$ : NSObject
+{
+
+}
+
+@end

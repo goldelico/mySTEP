@@ -1,0 +1,19 @@
+$$ Lines starting with $$ are not inserted into newly created files
+$$ The following substitutions are made:
+$$
+$$ $FILENAME$                e.g. foo.m
+$$ $FILENAMESANSEXTENSION$   e.g. foo
+$$ $DIRECTORY$               e.g. /tmp/MyNewApp
+$$ $PROJECTNAME$             e.g. MyNewApp
+$$ $SUBPROJECTNAME$          e.g. TheGoodPart.subproj
+$$ $USERNAME$                e.g. mwagner
+$$ $DATE$                    e.g. Jan-1-1994
+$$
+/*$Id: m.template,v 1.1.1.1 2000/01/27 11:05:13 marco Exp $*/
+/* Copyright (c) 1997, 1998, 1999, Sen:te Ltd.  All rights reserved. */
+
+#import "$FILENAMESANSEXTENSION$.h"
+
+@implementation $FILENAMESANSEXTENSION$
+
+@end

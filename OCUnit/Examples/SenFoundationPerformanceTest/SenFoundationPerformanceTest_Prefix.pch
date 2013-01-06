@@ -1,0 +1,8 @@
+//
+// Prefix header for all source files of the 'SenFoundationPerformanceTest' target in the 'SenFoundationPerformanceTest' project.
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+    #import <AppKit/AppKit.h>
+#endif

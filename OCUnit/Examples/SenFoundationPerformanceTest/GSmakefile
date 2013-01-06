@@ -1,0 +1,39 @@
+#
+#  SenFoundationPerformanceTest makefile.
+#  
+#  Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+#
+#  Date: 5 October 2000
+#
+
+SenTestingKit_INSTALLATION_DIR = $(GNUSTEP_LOCAL_ROOT)
+
+GNUSTEP_MAKEFILES = $(GNUSTEP_SYSTEM_ROOT)/Makefiles
+
+include $(GNUSTEP_MAKEFILES)/common.make
+
+include ../../Version
+
+PACKAGE_NAME = SenTestingKit
+LIBRARY_VAR = SENTESTINGKIT
+
+# The library to be compiled
+FRAMEWORK_NAME=SenFoundationPerformanceTest
+
+SENFOUNDATIONPERFORMANCETEST_INSTALL_PREFIX=$(GNUSTEP_LOCAL_ROOT)
+
+# The C source files to be compiled
+SenTestingKit_C_FILES = 
+
+# The Objective-C source files to be compiled
+SenFoundationPerformanceTest_OBJC_FILES = ClosurePerformanceTest.m
+
+SenFoundationPerformanceTest_HEADER_FILES = ClosurePerformanceTest.h
+
+-include Makefile.preamble
+
+-include GNUmakefile.local
+
+include $(GNUSTEP_MAKEFILES)/framework.make
+
+-include Makefile.postamble

@@ -1,0 +1,174 @@
+<HTML>
+
+<HEAD>
+<TITLE>Sen:te - OCUnit Testing from Xcode </TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<TABLE BORDER=0 WIDTH = 100%>
+	<TR>
+		<TD COLSPAN=1 ROWSPAN=3><IMG SRC="sente.gif" ALT="Sen:te"></TD>
+		<TD> </TD>
+	</TR>
+	<TR>
+		<TD ALIGN=RIGHT VALIGN=BOTTOM><H1><IMG SRC="Shikenjo.gif"><BR>Unit Testing from Xcode </H1><BR></TD>
+	</TR>
+	<TR>
+		<TD HEIGHT=24> </TD>
+	</TR>
+</TABLE>
+<HR NOSHADE SIZE=1>
+
+<UL>
+<LI><A HREF="#Where">Where should I put test cases?</A>
+<LI><A HREF="#How">How do I run the tests from Xcode?</A>
+<LI><A HREF="#Templates">Templates</A>
+<LI><A HREF="#Troubleshooting">Troubleshooting</A>
+</UL>
+
+<H2><A NAME="Where">Where should I put test cases?</A></H2>
+
+<P>There are different opinions on this, and no hard rules. Depending on your needs and preferences you can write your tests:</P>
+
+<UL>
+<LI>in a separate project from the tested code;
+<LI>in the same project, but in a different target than the tested code;
+<LI>in the same project and target as the tested code.
+</UL>
+
+<P>The TestingKit itself now uses the second method. The Examples in the OCunit distribution illustrates the other possibilities: for instance the PersonComplete project puts the tests in the same project and target, while the SenRandomTest project tests some parts of the SenFoundation project. Whatever your choice, you can configure your project to run the tests automatically from Xcode after each build, or on demand, when running an executable.</P>
+
+<H2><A NAME="How">How do I run the tests from Xcode?</A></H2>
+
+<P>Tests can be executed from Xcode in two different ways detailed below: after each build or when running your application.</P>
+
+
+<H3>After each build:</H3>
+
+<P>Two tools are used to run tests directly from XCode:<TT>otest</TT> and <TT>RunTargetUnitTests</TT>. These tools can be installed anywhere, but you will have to configure your project with the paths you choose (recommended locations for these tools include <TT>/usr/local/bin/otest</TT>, or <TT>~/Developer/Tools/otest</TT> and <TT>~/Developer/Tools/RunTargetUnitTests</TT>).
+
+<UL>
+<LI><P>Add a new "Shell Script Build Phase" to the target you want to test;
+<LI><P>Inspect this shell script build phase, and specify the path to the <TT>RunTargetUnitTests</TT> tool (Fig.&nbsp;1).
+<LI><P>Add a build setting with the name: <TT>TEST_AFTER_BUILD</TT> and the value to <TT>YES</TT> in the target inspector (or in a Build Style if you prefer to run tests only when building such a style, but there's a bug in the current version of Xcode that prevents build style values to be passed to shell script, so this does not work).
+<LI><P>If <TT>otest</TT> is installed anywhere else than <TT>~/Developer/Tools/otest</TT>, specify this path in a <TT>OTEST</TT> build setting, for instance in you target inspector.
+</UL>
+
+<CENTER>
+<TABLE BORDER=0  WIDTH=60%>
+<TR>
+<TD>
+<IMG SRC="ShellScriptInspector.jpg" ALT="Shell Script Inspector">
+</TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>
+<P> Fig. 1: Shell Script Inspector.</P>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+
+<P>When building this target or (build style), tests run after the build, and results are logged in the Build window. (Fig.&nbsp;2). When you select the error, the failed test will be selected in the code editor (however, these test failures are not yet reported in the "Errors and Warnings" smart group. </P>
+
+<CENTER>
+<TABLE BORDER=0  WIDTH=60%>
+<TR>
+<TD>
+<IMG SRC="BuildTestResults.jpg" ALT="Test results in the Build window">
+</TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>
+<P> Fig. 2: Test results in the Build window.</P>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+
+<H3>When running your application:</H3>
+<P>You can do this by configuring the <TT>Executables</TT> of your target:</P>
+
+<P>For executable targets such as applications, add a <TT>-SenTest</TT> launch argument (<TT>-SenTest All</TT> will run all your executable tests, including those of linked frameworks, <TT>-SenTest Self</TT> will run only your executable's tests, <TT>-SenTest None</TT> will not run any test).</P>
+
+<P><B>Note:</B> <B>It is currently not possible to automatically run the tests from an application if it is compiled with "Zero Link", see <A HREF="#Troubleshooting">Troubleshooting</A> below.</B></P>
+
+<P>If your project has no executable (for instance a framework):
+<UL>
+<LI> create a "New Custom Executable";
+<LI> in the assistant, use otest as the name, and give the path to <TT>otest</TT>;
+<LI>in the executable editor, specify the path of the unit to be tested. For instance: <TT>-SenTest&nbsp;Self&nbsp;/Developer/Builds/Test.framework</TT>. (Fig.&nbsp;3)
+</UL>
+
+<CENTER>
+<TABLE BORDER=0  WIDTH=60%>
+<TR>
+<TD>
+<IMG SRC="OtestAsExecutable.jpg" ALT="otest as executable">
+</TD>
+</TR>
+<TR>
+<TD ALIGN=CENTER>
+<P> Fig. 3: otest as executable.</P>
+</TD>
+</TR>
+</TABLE>
+</CENTER>
+
+When you run run or debug this executable, tests results will appear in the Run or Debug console.
+
+<H3>Which method should I use?</H3>
+<P>Both methods can be used in alternance, as the first is useful to code, build and test in short cycle, while the second can be useful when debugging a failed test.</P>
+
+
+<H2><A NAME="Templates">Templates</A></H2>
+<P>The OCUnit contains a number of templates. These can be added to your own, for instance in <TT>~/Library/Application Support/Apple/Developer Tools</TT>. </P>
+<P><B>Notes:</B> 
+<UL>
+<LI>Since Build Styles cannot currently be used reliably to launch tests, these templates define the TEST_AFTER_BUILD = YES variable both in a "Test" build style, and in the product target.
+
+<LI>The targets contains a Shell Script Build phase as described above. This shell script is configured to use <TT>~/Developer/Tools/RunTargetUnitTests</TT>. You can modify this template to reflect your preference for the location of this script.
+</UL>
+
+<H3>Project templates</H3>
+<UL>
+<LI><TT>Cocoa + Test Framework</TT>: a framework project linked against the Cocoa and SenTestingKit frameworks.
+<LI><TT>Cocoa + Test Application</TT>: an application project linked against the Cocoa and SenTestingKit frameworks.
+<LI><TT>Cocoa Document-based  + Test Application</TT>: a document-based application project linked against the Cocoa and SenTestingKit frameworks.
+<LI><TT>Cocoa + Test Bundle</TT>: a bundle project linked against the Cocoa ans SenTestingKit frameworks.
+</UL>
+
+<H3>Target templates</H3>
+<UL>
+<LI><TT>Test Framework.trgttmpl</TT>: a target linked against the Cocoa and SenTestingKit framework.
+</UL>
+
+<H3>File templates</H3>
+<UL>
+<LI><TT>Objective-C SenTestCase subclass.pbfiletemplate</TT>: a template for a subclass of SenTestCase.
+</UL>
+
+
+<H2><A NAME="Troubleshooting">Troubleshooting</A></H2>
+<P><B>Everything is installed but none of your Application tests are found.</B></P>
+<P>It is likely that you are using <B>Zero Link</B>, and this makes the automatic discovery of tests fail. There are two possible workarounds:</P>
+<UL>
+<LI> Do not use Zero Link, or,
+<LI> Add a category to your TestCase class, for instance in the implementation file: <TT>@implementation&nbsp;MyTestCase&nbsp;(ForceDiscoveryUnderZeroLink)&nbsp;@end</TT>
+</UL>
+
+<H2>More information</H2>
+<P>
+<A HREF="http://www.sente.ch/software/ocunit/">http://www.sente.ch/software/ocunit/</A><BR>
+<A HREF="mailto:feedback@sente.ch">feedback@sente.ch</A>
+</P>
+
+<P>
+&copy;Copyright 1994-2005, Sen:te (Sente, SA). All rights reserved.
+</P>
+
+
+</BODY>
+</HTML>

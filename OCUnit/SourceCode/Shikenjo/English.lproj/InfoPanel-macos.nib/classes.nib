@@ -1,0 +1,16 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            CLASS = InfoPanelController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                applicationVersionField = id; 
+                buildDateField = id; 
+                testingKitVersionField = id; 
+            }; 
+            SUPERCLASS = NSWindowController; 
+        }
+    ); 
+    IBVersion = 1; 
+}

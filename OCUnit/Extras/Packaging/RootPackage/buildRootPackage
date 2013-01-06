@@ -1,0 +1,201 @@
+#!/bin/bash
+#
+# buildRootPackage
+# This file last modified on 23-Mar-2004 by William Swats.
+# Copyright (c) 2001-2004 Sen:te (Sente SA).  All rights reserved.
+#
+if [ -z $1 ]; then
+	echo "Error: Please specify a path to the OCUnit directory"
+	echo "Usage: sudo buildRootPackage /Users/william/ProjectsForPantherXcode/OCUnit"
+	exit 1
+fi
+if [ ! -w . ] || [ ! -x . ]; then
+	echo "Error: You cannot write in this directory"
+	exit 1
+fi
+
+#
+echo "Start buildRootPackage script"
+echo ""
+echo "Arguments:"
+echo ""
+echo "\$1: full path to the OCUnit tools and source"
+echo "     $1"
+#
+# Create a new root folder (say ~/OCUnitRootPackage/Root) and 
+# then create the following directories under it:
+#
+if [ -e OCUnitRootPackage ]; then
+	rm -rf OCUnitRootPackage
+fi
+mkdir OCUnitRootPackage
+mkdir -p OCUnitRootPackage/Root/Developer/Examples/OCUnit/Testable
+mkdir -p OCUnitRootPackage/Root/Developer/Tools
+mkdir -p OCUnitRootPackage/Root/Developer/Source
+mkdir -p OCUnitRootPackage/Root/Library/Application\ Support/Apple/Developer\ Tools/File\ Templates/Cocoa
+mkdir -p OCUnitRootPackage/Root/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Application
+mkdir -p OCUnitRootPackage/Root/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Bundle
+mkdir -p OCUnitRootPackage/Root/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Framework
+mkdir -p OCUnitRootPackage/Root/Library/Application\ Support/Apple/Developer\ Tools/Target\ Templates/Cocoa
+mkdir -p OCUnitRootPackage/Root/Library/Frameworks
+mkdir -p OCUnitRootPackage/Root/usr/local/man/man1
+
+#
+# Copy the following files and/or directories to the directories created above:
+#
+cp -R $1/Examples/Person OCUnitRootPackage/Root/Developer/Examples/OCUnit/
+cp -R $1/Examples/PersonComplete OCUnitRootPackage/Root/Developer/Examples/OCUnit/
+cp  $1/Examples/README OCUnitRootPackage/Root/Developer/Examples/OCUnit/
+cp -R $1/Examples/SenRandomTest OCUnitRootPackage/Root/Developer/Examples/OCUnit/
+cp -R $1/Examples/Testable/Application OCUnitRootPackage/Root/Developer/Examples/OCUnit/Testable
+
+cp $1/Extras/Xcode\ Integration/Tools/RunTargetUnitTests OCUnitRootPackage/Root/Developer/Tools/
+cp $1/SourceCode/otest/otest.1 OCUnitRootPackage/Root/usr/local/man/man1/
+cp -R $1 OCUnitRootPackage/Root/Developer/Source/
+cp -R $1/Extras/Xcode\ Integration/Templates/File\ Templates/Cocoa/Objective-C\ SenTestCase\ subclass.pbfiletemplate OCUnitRootPackage/Root/Library/Application\ Support/Apple/Developer\ Tools/File\ Templates/Cocoa/
+cp -R $1/Extras/Xcode\ Integration/Templates/Project\ Templates/Application/Cocoa\ Application\ +\ Test OCUnitRootPackage/Root/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Application/
+cp -R $1/Extras/Xcode\ Integration/Templates/Project\ Templates/Application/Cocoa\ Document-based\ Application\ +\ Test OCUnitRootPackage/Root/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Application/
+cp -R $1/Extras/Xcode\ Integration/Templates/Project\ Templates/Bundle/Cocoa\ Bundle\ +\ Test OCUnitRootPackage/Root/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Bundle/
+cp -R $1/Extras/Xcode\ Integration/Templates/Project\ Templates/Framework/Cocoa\ Framework\ +\ Test OCUnitRootPackage/Root/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Framework/
+cp $1/Extras/Xcode\ Integration/Templates/Target\ Templates/Cocoa/Test\ Framework.trgttmpl OCUnitRootPackage/Root/Library/Application\ Support/Apple/Developer\ Tools/Target\ Templates/Cocoa/
+
+# We need to change where the tools look for other tools.
+# This is done by the perl script named convertUserToRoot.
+echo "Start running convertUserToRoot perl script"
+aPerlScript=$1/Extras/Packaging/RootPackage/convertUserToRoot
+
+echo "$aPerlScript OCUnitRootPackage/Root/Developer/Tools/RunTargetUnitTests"
+$aPerlScript "OCUnitRootPackage/Root/Developer/Tools/RunTargetUnitTests"
+# If the above command failed then exit with a non-zero code.
+if [ "$?" != 0 ]; then
+    exit 1
+fi
+
+# Convert the examples
+
+echo "$aPerlScript OCUnitRootPackage/Root/Developer/Examples/OCUnit/Person/Person.xcode/project.pbxproj"
+$aPerlScript "OCUnitRootPackage/Root/Developer/Examples/OCUnit/Person/Person.xcode/project.pbxproj"
+# If the above command failed then exit with a non-zero code.
+if [ "$?" != 0 ]; then
+    exit 1
+fi
+
+echo "$aPerlScript OCUnitRootPackage/Root/Developer/Examples/OCUnit/PersonComplete/PersonComplete.xcode/project.pbxproj"
+$aPerlScript "OCUnitRootPackage/Root/Developer/Examples/OCUnit/PersonComplete/PersonComplete.xcode/project.pbxproj"
+# If the above command failed then exit with a non-zero code.
+if [ "$?" != 0 ]; then
+    exit 1
+fi
+
+echo "$aPerlScript OCUnitRootPackage/Root/Developer/Examples/OCUnit/SenRandomTest/SenRandomTest.xcode/project.pbxproj"
+$aPerlScript "OCUnitRootPackage/Root/Developer/Examples/OCUnit/SenRandomTest/SenRandomTest.xcode/project.pbxproj"
+# If the above command failed then exit with a non-zero code.
+if [ "$?" != 0 ]; then
+    exit 1
+fi
+
+echo "$aPerlScript OCUnitRootPackage/Root/Developer/Examples/OCUnit/Testable/Application/Application.xcode/project.pbxproj"
+$aPerlScript "OCUnitRootPackage/Root/Developer/Examples/OCUnit/Testable/Application/Application.xcode/project.pbxproj"
+# If the above command failed then exit with a non-zero code.
+if [ "$?" != 0 ]; then
+    exit 1
+fi
+
+# End of converting the examples
+
+# Convert the templates
+
+echo "$aPerlScript OCUnitRootPackage/Root/Library/Application Support/Apple/Developer Tools/Project Templates/Application/Cocoa Application + Test/CocoaApp.pbproj/project.pbxproj"
+$aPerlScript "OCUnitRootPackage/Root/Library/Application Support/Apple/Developer Tools/Project Templates/Application/Cocoa Application + Test/CocoaApp.pbproj/project.pbxproj"
+# If the above command failed then exit with a non-zero code.
+if [ "$?" != 0 ]; then
+    exit 1
+fi
+
+echo "$aPerlScript  OCUnitRootPackage/Root/Library/Application Support/Apple/Developer Tools/Project Templates/Application/Cocoa Document-based Application + Test/CocoaDocApp.pbproj/project.pbxproj"
+$aPerlScript "OCUnitRootPackage/Root/Library/Application Support/Apple/Developer Tools/Project Templates/Application/Cocoa Document-based Application + Test/CocoaDocApp.pbproj/project.pbxproj"
+# If the above command failed then exit with a non-zero code.
+if [ "$?" != 0 ]; then
+    exit 1
+fi
+
+echo "$aPerlScript  OCUnitRootPackage/Root/Library/Application Support/Apple/Developer Tools/Project Templates/Bundle/Cocoa Bundle + Test/CocoaBundle.pbproj/project.pbxproj"
+$aPerlScript "OCUnitRootPackage/Root/Library/Application Support/Apple/Developer Tools/Project Templates/Bundle/Cocoa Bundle + Test/CocoaBundle.pbproj/project.pbxproj"
+# If the above command failed then exit with a non-zero code.
+if [ "$?" != 0 ]; then
+    exit 1
+fi
+
+echo "$aPerlScript  OCUnitRootPackage/Root/Library/Application Support/Apple/Developer Tools/Project Templates/Framework/Cocoa Framework + Test/CocoaFramework.pbproj/project.pbxproj"
+$aPerlScript "OCUnitRootPackage/Root/Library/Application Support/Apple/Developer Tools/Project Templates/Framework/Cocoa Framework + Test/CocoaFramework.pbproj/project.pbxproj"
+# If the above command failed then exit with a non-zero code.
+if [ "$?" != 0 ]; then
+    exit 1
+fi
+
+echo "$aPerlScript  OCUnitRootPackage/Root/Library/Application Support/Apple/Developer Tools/Target Templates/Cocoa/Test Framework.trgttmpl"
+$aPerlScript "OCUnitRootPackage/Root/Library/Application Support/Apple/Developer Tools/Target Templates/Cocoa/Test Framework.trgttmpl"
+    echo "Finished running convertUserToRoot perl script"
+# If the above command failed then exit with a non-zero code.
+if [ "$?" != 0 ]; then
+    exit 1
+fi
+
+#
+# Clean and build otest
+#
+echo "<buildRootPackage> Clean and build otest."
+if [ -e /tmp/otest ]; then
+	rm -rf /tmp/otest
+fi
+if [ -e /private/tmp/otest.dst ]; then
+	rm -rf /private/tmp/otest.dst
+fi
+cp -R $1/SourceCode/otest /tmp
+pushd /tmp/otest
+xcodebuild clean install -project otest.xcode -target otest -buildstyle RootDeployment
+popd
+cp -R /private/tmp/otest.dst/Developer/tools/otest OCUnitRootPackage/Root/Developer/Tools/
+pushd /tmp/otest
+xcodebuild clean -project otest.xcode -target otest -buildstyle RootDeployment
+rm -rf /tmp/otest
+rm -rf /private/tmp/otest.dst
+popd
+
+#
+# Clean, build and install the SenTestingKit framework
+#
+echo "<buildRootPackage> Clean, build and install the SenTestingKit framework."
+if [ -e /tmp/SenTestingKit ]; then
+	rm -rf /tmp/SenTestingKit
+fi
+if [ -e /private/tmp/SenTestingKit.dst ]; then
+	rm -rf /private/tmp/SenTestingKit.dst
+fi
+cp -R $1/SourceCode/SenTestingKit /tmp
+pushd /tmp/SenTestingKit
+xcodebuild clean install -project SenTestingKit.xcode -target SenTestingKit -buildstyle RootDeployment
+popd
+cp -R /private/tmp/SenTestingKit.dst/Library/Frameworks/SenTestingKit.framework OCUnitRootPackage/Root/Library/Frameworks/
+pushd /tmp/SenTestingKit
+xcodebuild clean -project SenTestingKit.xcode -target SenTestingKit -buildstyle RootDeployment
+rm -rf /tmp/SenTestingKit
+rm -rf /private/tmp/SenTestingKit.dst
+popd
+
+# Delete all the CVS directories.
+find OCUnitRootPackage -name "CVS" -exec rm -rf "{}" \;
+
+# Delete all the hidden .DS_Store files so as not to confuse the finder 
+# when the above directory contents are installed.
+find OCUnitRootPackage -name "*.DS_Store" -print -delete
+
+#Change the owner and group of the directory and files to root and staff.
+sudo chown -R root OCUnitRootPackage/Root
+sudo chgrp -R admin OCUnitRootPackage/Root
+
+# Create a Resources folder and copy the following files to it
+mkdir OCUnitRootPackage/Resources
+cp $1/Extras/Packaging/RootPackage/Welcome.rtf OCUnitRootPackage/Resources/
+cp $1/Extras/Packaging/RootPackage/ReadMe.rtf OCUnitRootPackage/Resources/
+cp $1/Extras/Packaging/RootPackage/IFRequirement.strings OCUnitRootPackage/Resources/

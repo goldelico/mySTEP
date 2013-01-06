@@ -1,0 +1,49 @@
+#!/usr/bin/env perl
+
+use strict;
+
+my $inputFile = $ARGV[0];
+my $outputFile = "$ARGV[0]_OCUnit_Temp_File";
+my $dev = 0;
+my $ino = 0;
+my $mode = 0;
+my $nlink = 0;
+my $uid = 0;
+my $gid = 0;
+my $rdev = 0;
+my $size = 0;
+my $atime = 0;
+my $mtime = 0;
+my $ctime = 0;
+my $blksize = 0;
+my $blocks = 0;
+my $success = 0;
+
+# We need to set the new file to have the same modes as the original
+
+
+
+open(INFILE,  $inputFile)   or die "Cannot open $inputFile: $!";
+open(OUTFILE, ">$outputFile") or die "Cannot open output.txt: $!";
+
+while (<INFILE>) {     # assigns each line in turn to $_
+    s@~/Developer/Tools@/Developer/Tools@;
+    s@~/Library/Frameworks/SenTestingKit@/Library/Frameworks/SenTestingKit@;
+    print OUTFILE $_;
+}
+
+close INFILE;
+close OUTFILE;
+
+# Save the mode of the original file.
+($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat $inputFile;
+printf "mode = o%6o, uid = %8d, gid = %8d \n", $mode, $uid, $gid;
+
+# Delete the orignial file and rename the new file to the original.
+rename $outputFile, $inputFile or die "Cannot rename $outputFile to $inputFile: $!";
+
+# Set the newly named file to have the same modes as the old file.
+$success = chmod $mode, $inputFile;
+if ( $success == 0 ) {
+     die "Cannot change the mode of $inputFile to $mode: $!";
+}

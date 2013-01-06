@@ -1,0 +1,642 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 38;
+	objects = {
+		1EAF0A730197E8B279A8000A = {
+			buildStyles = (
+				1EAF0ABB0197E8B279A8000A,
+				1EAF0ABC0197E8B279A8000A,
+			);
+			hasScannedForEncodings = 1;
+			isa = PBXProject;
+			mainGroup = 1EAF0A740197E8B279A8000A;
+			productRefGroup = 1EAF0A9E0197E8B279A8000A;
+			projectDirPath = "";
+			targets = (
+				1EAF0AA00197E8B279A8000A,
+			);
+		};
+		1EAF0A740197E8B279A8000A = {
+			children = (
+				1EAF0A750197E8B279A8000A,
+				1EAF0A780197E8B279A8000A,
+				1EAF0A7B0197E8B279A8000A,
+				1EAF0A7D0197E8B279A8000A,
+				1EAF0A820197E8B279A8000A,
+				1EAF0A8C0197E8B279A8000A,
+				1EAF0A8F0197E8B279A8000A,
+				1EAF0A980197E8B279A8000A,
+				1EAF0A9E0197E8B279A8000A,
+			);
+			isa = PBXGroup;
+			name = Shikenjo;
+			refType = 4;
+		};
+		1EAF0A750197E8B279A8000A = {
+			children = (
+				1EAF0A760197E8B279A8000A,
+				1EAF0A770197E8B279A8000A,
+			);
+			isa = PBXGroup;
+			name = Classes;
+			refType = 4;
+		};
+		1EAF0A760197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = InfoPanelController.m;
+			refType = 4;
+		};
+		1EAF0A770197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = Shikenjo.m;
+			refType = 4;
+		};
+		1EAF0A780197E8B279A8000A = {
+			children = (
+				1EAF0A790197E8B279A8000A,
+				1EAF0A7A0197E8B279A8000A,
+			);
+			isa = PBXGroup;
+			name = Headers;
+			refType = 4;
+		};
+		1EAF0A790197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = InfoPanelController.h;
+			refType = 4;
+		};
+		1EAF0A7A0197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = Shikenjo.h;
+			refType = 4;
+		};
+		1EAF0A7B0197E8B279A8000A = {
+			children = (
+				1EAF0A7C0197E8B279A8000A,
+			);
+			isa = PBXGroup;
+			name = "Other Sources";
+			refType = 4;
+		};
+		1EAF0A7C0197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = Shikenjo_main.m;
+			refType = 4;
+		};
+		1EAF0A7D0197E8B279A8000A = {
+			children = (
+				1EAF0A800197E8B279A8000A,
+				1EFB42F5019C4A4279A8000A,
+			);
+			isa = PBXGroup;
+			name = Interfaces;
+			refType = 4;
+		};
+		1EAF0A800197E8B279A8000A = {
+			children = (
+				1EAF0A810197E8B279A8000A,
+				1EFB42F2019C317779A8000A,
+			);
+			isa = PBXVariantGroup;
+			name = Shikenjo.nib;
+			refType = 4;
+		};
+		1EAF0A810197E8B279A8000A = {
+			isa = PBXFileReference;
+			name = English;
+			path = English.lproj/Shikenjo.nib;
+			refType = 4;
+		};
+		1EAF0A820197E8B279A8000A = {
+			children = (
+				1EAF0A830197E8B279A8000A,
+				1EAF0A840197E8B279A8000A,
+				1EAF0A850197E8B279A8000A,
+				1EAF0A860197E8B279A8000A,
+				1EFB42F3019C4A0079A8000A,
+				1EAF0A870197E8B279A8000A,
+				1EAF0A880197E8B279A8000A,
+				1EAF0A890197E8B279A8000A,
+				1EAF0A8A0197E8B279A8000A,
+				1EAF0A8B0197E8B279A8000A,
+			);
+			isa = PBXGroup;
+			name = Images;
+			refType = 4;
+		};
+		1EAF0A830197E8B279A8000A = {
+			isa = PBXFileReference;
+			path = Failure.tiff;
+			refType = 4;
+		};
+		1EAF0A840197E8B279A8000A = {
+			isa = PBXFileReference;
+			path = Run.tiff;
+			refType = 4;
+		};
+		1EAF0A850197E8B279A8000A = {
+			isa = PBXFileReference;
+			path = Stop.tiff;
+			refType = 4;
+		};
+		1EAF0A860197E8B279A8000A = {
+			isa = PBXFileReference;
+			path = Sente_70.eps;
+			refType = 4;
+		};
+		1EAF0A870197E8B279A8000A = {
+			isa = PBXFileReference;
+			path = Error.tiff;
+			refType = 4;
+		};
+		1EAF0A880197E8B279A8000A = {
+			isa = PBXFileReference;
+			path = Inspector.tiff;
+			refType = 4;
+		};
+		1EAF0A890197E8B279A8000A = {
+			isa = PBXFileReference;
+			path = Klein.tiff;
+			refType = 4;
+		};
+		1EAF0A8A0197E8B279A8000A = {
+			isa = PBXFileReference;
+			path = Options.tiff;
+			refType = 4;
+		};
+		1EAF0A8B0197E8B279A8000A = {
+			isa = PBXFileReference;
+			path = Shikenjo.tiff;
+			refType = 4;
+		};
+		1EAF0A8C0197E8B279A8000A = {
+			children = (
+				1EAF0A8D0197E8B279A8000A,
+			);
+			isa = PBXGroup;
+			name = Resources;
+			refType = 4;
+		};
+		1EAF0A8D0197E8B279A8000A = {
+			children = (
+				1EAF0A8E0197E8B279A8000A,
+			);
+			isa = PBXVariantGroup;
+			name = Localizable.strings;
+			refType = 4;
+		};
+		1EAF0A8E0197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			name = English;
+			path = English.lproj/Localizable.strings;
+			refType = 4;
+		};
+		1EAF0A8F0197E8B279A8000A = {
+			children = (
+				1EAF0A900197E8B279A8000A,
+				1EAF0A910197E8B279A8000A,
+				1EAF0A920197E8B279A8000A,
+				1EAF0A930197E8B279A8000A,
+				1EAF0A940197E8B279A8000A,
+				1EAF0A950197E8B279A8000A,
+				1EAF0A960197E8B279A8000A,
+				1EAF0A970197E8B279A8000A,
+			);
+			isa = PBXGroup;
+			name = "Supporting Files";
+			refType = 4;
+		};
+		1EAF0A900197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = Makefile.preamble;
+			refType = 4;
+		};
+		1EAF0A910197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = Makefile;
+			refType = 4;
+		};
+		1EAF0A920197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = Makefile.postamble;
+			refType = 4;
+		};
+		1EAF0A930197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = m.template;
+			refType = 4;
+		};
+		1EAF0A940197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = h.template;
+			refType = 4;
+		};
+		1EAF0A950197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = java.template;
+			refType = 4;
+		};
+		1EAF0A960197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = CustomInfo.plist;
+			refType = 4;
+		};
+		1EAF0A970197E8B279A8000A = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = OpenSourceLicense.html;
+			refType = 4;
+		};
+		1EAF0A980197E8B279A8000A = {
+			children = (
+				1EAF0A990197E8B279A8000A,
+				1EAF0A9A0197E8B279A8000A,
+				1EAF0A9B0197E8B279A8000A,
+				1EAF0A9C0197E8B279A8000A,
+			);
+			isa = PBXGroup;
+			name = "External Frameworks and Libraries";
+			refType = 4;
+		};
+		1EAF0A990197E8B279A8000A = {
+			isa = PBXFrameworkReference;
+			name = SenFoundation.framework;
+			path = /Library/Frameworks/SenFoundation.framework;
+			refType = 0;
+		};
+		1EAF0A9A0197E8B279A8000A = {
+			isa = PBXFrameworkReference;
+			name = SenTestingKit.framework;
+			path = /Library/Frameworks/SenTestingKit.framework;
+			refType = 0;
+		};
+		1EAF0A9B0197E8B279A8000A = {
+			isa = PBXFrameworkReference;
+			name = AppKit.framework;
+			path = /System/Library/Frameworks/AppKit.framework;
+			refType = 0;
+		};
+		1EAF0A9C0197E8B279A8000A = {
+			isa = PBXFrameworkReference;
+			name = Foundation.framework;
+			path = /System/Library/Frameworks/Foundation.framework;
+			refType = 0;
+		};
+		1EAF0A9E0197E8B279A8000A = {
+			children = (
+				1EAF0A9F0197E8B279A8000A,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+		};
+		1EAF0A9F0197E8B279A8000A = {
+			isa = PBXApplicationReference;
+			path = Shikenjo.app;
+			refType = 3;
+		};
+		1EAF0AA00197E8B279A8000A = {
+			buildPhases = (
+				1EAF0AA10197E8B279A8000A,
+				1EAF0AA40197E8B279A8000A,
+				1EAF0AB10197E8B279A8000A,
+				1EAF0AB50197E8B279A8000A,
+				1EAF0ABA0197E8B279A8000A,
+			);
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "\"$(LOCAL_LIBRARY_DIR)/Frameworks\"";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = Shikenjo;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+				WRAPPER_EXTENSION = app;
+			};
+			dependencies = (
+			);
+			isa = PBXApplicationTarget;
+			name = "Shikenjo (Application)";
+			productInstallPath = "$(HOME)/Applications";
+			productName = "Shikenjo (Application)";
+			productReference = 1EAF0A9F0197E8B279A8000A;
+			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>Shikenjo</string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
+	<key>CFBundleIconFile</key>
+	<string>Shikenjo.tiff</string>
+	<key>CFBundleIdentifier</key>
+	<string></string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string></string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string></string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>0.0.1d1</string>
+	<key>Defaults</key>
+	<dict>
+		<key>ExecutableExtensions</key>
+		<array>
+			<string>app</string>
+			<string>debug</string>
+		</array>
+		<key>LoadableExtensions</key>
+		<array>
+			<string>bundle</string>
+			<string>framework</string>
+			<string>palette</string>
+		</array>
+		<key>SenTest</key>
+		<string>All</string>
+		<key>TestRunnerPath</key>
+		<string>/usr/local/bin/otest</string>
+	</dict>
+	<key>NSExtensions</key>
+	<dict/>
+	<key>NSMainNibFile</key>
+	<string>Shikenjo</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+</dict>
+</plist>
+";
+		};
+		1EAF0AA10197E8B279A8000A = {
+			buildActionMask = 2147483647;
+			files = (
+				1EAF0AA20197E8B279A8000A,
+				1EAF0AA30197E8B279A8000A,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1EAF0AA20197E8B279A8000A = {
+			fileRef = 1EAF0A790197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AA30197E8B279A8000A = {
+			fileRef = 1EAF0A7A0197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AA40197E8B279A8000A = {
+			buildActionMask = 2147483647;
+			files = (
+				1EAF0AA60197E8B279A8000A,
+				1EAF0AA70197E8B279A8000A,
+				1EAF0AA80197E8B279A8000A,
+				1EAF0AA90197E8B279A8000A,
+				1EAF0AAA0197E8B279A8000A,
+				1EAF0AAB0197E8B279A8000A,
+				1EAF0AAC0197E8B279A8000A,
+				1EAF0AAD0197E8B279A8000A,
+				1EAF0AAE0197E8B279A8000A,
+				1EAF0AAF0197E8B279A8000A,
+				1EAF0AB00197E8B279A8000A,
+				1EFB42F4019C4A0079A8000A,
+				1EFB42F7019C4A4279A8000A,
+			);
+			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1EAF0AA60197E8B279A8000A = {
+			fileRef = 1EAF0A800197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AA70197E8B279A8000A = {
+			fileRef = 1EAF0A830197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AA80197E8B279A8000A = {
+			fileRef = 1EAF0A840197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AA90197E8B279A8000A = {
+			fileRef = 1EAF0A850197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AAA0197E8B279A8000A = {
+			fileRef = 1EAF0A860197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AAB0197E8B279A8000A = {
+			fileRef = 1EAF0A870197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AAC0197E8B279A8000A = {
+			fileRef = 1EAF0A880197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AAD0197E8B279A8000A = {
+			fileRef = 1EAF0A890197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AAE0197E8B279A8000A = {
+			fileRef = 1EAF0A8A0197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AAF0197E8B279A8000A = {
+			fileRef = 1EAF0A8B0197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AB00197E8B279A8000A = {
+			fileRef = 1EAF0A8D0197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AB10197E8B279A8000A = {
+			buildActionMask = 2147483647;
+			files = (
+				1EAF0AB20197E8B279A8000A,
+				1EAF0AB30197E8B279A8000A,
+				1EAF0AB40197E8B279A8000A,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1EAF0AB20197E8B279A8000A = {
+			fileRef = 1EAF0A760197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+				);
+			};
+		};
+		1EAF0AB30197E8B279A8000A = {
+			fileRef = 1EAF0A770197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+				);
+			};
+		};
+		1EAF0AB40197E8B279A8000A = {
+			fileRef = 1EAF0A7C0197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+				);
+			};
+		};
+		1EAF0AB50197E8B279A8000A = {
+			buildActionMask = 2147483647;
+			files = (
+				1EAF0AB60197E8B279A8000A,
+				1EAF0AB70197E8B279A8000A,
+				1EAF0AB80197E8B279A8000A,
+				1EAF0AB90197E8B279A8000A,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1EAF0AB60197E8B279A8000A = {
+			fileRef = 1EAF0A990197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AB70197E8B279A8000A = {
+			fileRef = 1EAF0A9A0197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AB80197E8B279A8000A = {
+			fileRef = 1EAF0A9B0197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0AB90197E8B279A8000A = {
+			fileRef = 1EAF0A9C0197E8B279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EAF0ABA0197E8B279A8000A = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXRezBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1EAF0ABB0197E8B279A8000A = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			isa = PBXBuildStyle;
+			name = Development;
+		};
+		1EAF0ABC0197E8B279A8000A = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+			};
+			isa = PBXBuildStyle;
+			name = Deployment;
+		};
+		1ECD66D401A1192C79A8000A = {
+			isa = PBXFileReference;
+			name = English;
+			path = English.lproj/InfoPanel.nib;
+			refType = 4;
+		};
+		1EFB42F2019C317779A8000A = {
+			isa = PBXFileReference;
+			name = "English - macos";
+			path = "English.lproj/Shikenjo-macos.nib";
+			refType = 4;
+		};
+		1EFB42F3019C4A0079A8000A = {
+			isa = PBXFileReference;
+			path = Sente.pdf;
+			refType = 4;
+		};
+		1EFB42F4019C4A0079A8000A = {
+			fileRef = 1EFB42F3019C4A0079A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1EFB42F5019C4A4279A8000A = {
+			children = (
+				1ECD66D401A1192C79A8000A,
+				1EFB42F6019C4A4279A8000A,
+			);
+			isa = PBXVariantGroup;
+			name = InfoPanel.nib;
+			path = "";
+			refType = 4;
+		};
+		1EFB42F6019C4A4279A8000A = {
+			isa = PBXFileReference;
+			name = "English - macos";
+			path = "English.lproj/InfoPanel-macos.nib";
+			refType = 4;
+		};
+		1EFB42F7019C4A4279A8000A = {
+			fileRef = 1EFB42F5019C4A4279A8000A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+	};
+	rootObject = 1EAF0A730197E8B279A8000A;
+}

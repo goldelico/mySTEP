@@ -1,0 +1,253 @@
+{\rtf1\mac\ansicpg10000\cocoartf102
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fnil\fcharset77 Monaco;
+\f3\fswiss\fcharset77 Helvetica-Oblique;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww17380\viewh15360\viewkind0
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b\fs24 \cf0 Unit Testing for Objective-C using Xcode and OCUnit
+\f1\b0 \
+\
+
+\f0\b Introduction
+\f1\b0 \
+Since 1994 and Kent Beck seminal Smalltalk Unit Testing framework, and more recently because of the popularity of Extreme Programming (XP), unit testing has become a well known technique to improve code correctness. This paper is a practical introduction on how to do it using Xcode and OCUnit, and will show you how to get a quick code-compile-test turnaround.\
+\
+In order to run these examples, you will need to install OCUnit on your system. OCUnit is a collection of frameworks, tools, and resources to implement unit testing for Objective-C in Apple's development tools. OCUnit distribution includes, among other examples, the projects used in this tutorial.\
+\
+This paper is based on the presentation made at the Stepwise Birds of Feather meeting, during WWDC 2002.\
+\
+\
+
+\f0\b Installing OCUnit
+\f1\b0 \
+OCUnit is available from http://www.sente.ch/software/ocunit . The full source code is available, but OCUnit also comes with an installer package that will put every piece at the right place, including project and class templates.\
+\
+The project templates are like their regular Foundation or Cocoa counterparts, but include the machinery needed to include tests in your projects:\
+\
+- a shell script to launch the otest tool is added to the build phases of the main target;\
+- a 'Test' build style sets the build setting that will effectively launch otest when building in this style;\
+- the SenFoundation and SenTestingKit frameworks are included.\
+\
+\
+
+\f0\b A first example
+\f1\b0 \
+This example will use the Person project, available in the Examples of the OCUnit distribution. This framework project includes a rudimentary Person class, with accessor methods for only two attributes: first name and last name.\
+\
+We will add a new simple behavior to this class: the ability to return the person's full name. In line with our 'test first' philosophy, we will start by adding tests that describe the behavior we want, the results we expect.\
+\
+Our first test will describe the result we expect in the common case: If a person has "Pablo"  for a first name and last name "Picasso", then of course, his full name should be "Pablo Picasso".\
+\
+In OCUnit, a test case is implemented as a method that takes no parameters, returns nothing, has a name that start with 'test', in a subclass of SenTestCase.\
+\
+\
+
+\f2\fs20 #import "TestPerson.h"\
+#import "Person.h"\
+\
+@implementation TestPerson\
+- (void) testFullName\
+\{\
+    Person *person = [[Person alloc] init];    \
+    [person setFirstName:@"Pablo"];\
+    [person setLastName:@"Picasso"];\
+    should ([[person fullName] isEqual:@"Pablo Picasso"]);\
+    [person release];\
+\}\
+@end\
+
+\f1\fs24 \
+The 
+\f3\i should
+\f1\i0  statement is a declarative way of expressing the result we want. In the Java world, JUnit uses 
+\f3\i assert
+\f1\i0  for this, but we prefer to make a distinction between assertions in code, which will raise an exception if violated, and tests which should pass, but could fail.  Specialized variants of should can be found in OCUnit: shouldBeEqual(), shouldRaiseException(), etc.\
+\
+Let's now add some tests to describe the results we want for the case where the first name is nil or empty (the same could and should be done for the last name).\
+\
+
+\f2\fs20 #import "TestPerson.h"\
+#import "Person.h"\
+\
+@implementation TestPerson\
+- (void) testFullName\
+\{\
+    Person *person = [[Person alloc] init];	\
+    [person setFirstName:@"Pablo"];\
+    [person setLastName:@"Picasso"];\
+    should ([[person fullName] isEqual:@"Pablo Picasso"]);\
+    [person release];\
+\}\
+\
+- (void) testEmptyFirstName\
+\{\
+    Person *person = [[Person alloc] init];    \
+    [person setFirstName:@""];\
+    [person setLastName:@"Picasso"];\
+    shouldBeEqual ([person fullName], [person lastName]);\
+    [person release];\
+\}\
+\
+- (void) testNilFirstName\
+\{\
+    Person *person = [[Person alloc] init];    \
+    [person setFirstName:nil];\
+    [person setLastName:@"Picasso"];\
+    shouldBeEqual ([person fullName], [person lastName]);\
+    [person release];\
+\}\
+@end\
+
+\f1\fs24 \
+Let's select the 'Test' build style, build the project and see what happens.\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 {{\NeXTGraphic Xcode Build.pdf \width15300 \height10700
+}¬}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\f1\fs24 \cf0 \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+\cf0 \
+Not surprisingly, we've got warnings from the compiler telling us that the fullName method is unknown, and runtime errors from the testing kit that tells us that the fullName selector is not recognized.\
+\
+We will now add the fullName method to the Person class, to get rid of these warnings and errors. In Person.h, add:\
+\
+
+\f2\fs20 - (NSString *) fullName;\
+\
+
+\f1\fs24 and in Person.m, add:\
+
+\f2\fs20 \
+- (NSString *) fullName\
+\{\
+    return @"";\
+\}\
+
+\f1\fs24 \
+Building again the project now gives this result:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li640\fi-640\ql\qnatural
+
+\f2\fs20 \cf0 Test.m:12: -[Test testFullName] : [[person fullName] isEqual:Pablo Picasso ] should be true\
+Test.m:22: -[Test testNilFirstName] : '' should be equal to 'Picasso' \
+Test.m:32: -[Test testNilFirstName] : '' should be equal to 'Picasso' \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\fs24 \cf0 \
+The results are different: the execution of the tests now shows that the fullName method is not doing what we specified (which of course is not a big surprise, given its implementation), but at least, we're not having "does not recognize selector" runtime exceptions. \
+\
+A solution to implement fullName is obviously to use NSString's stringWithFormat:\
+\
+
+\f2\fs20 - (NSString *) fullName\
+\{\
+    return [NSString stringWithFormat:@"%@ %@", [self firstName], [self lastName]];\
+\}\
+
+\f1\fs24 \
+Building again improves the situation, only two tests are now failing:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li640\fi-640\ql\qnatural
+
+\f2\fs20 \cf0 Test.m:22: -[Test testEmptyFirstName] : ' Picasso' should be equal to 'Picasso' \
+Test.m:32: -[Test testNilFirstName] : '(null) Picasso' should be equal to 'Picasso' \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\fs24 \cf0 \
+The first error is due to a leading space in the fullName. The second error is due to the way in which stringWithFormat: handles nil parameters. Let's fix these two problems by changing the firstName and fullName methods like this:\
+\
+
+\f2\fs20 - (NSString *) firstName\
+\{\
+    return firstName != nil ? firstName : @"";\
+\}\
+\
+\
+- (NSString *) fullName\
+\{\
+    return [[NSString stringWithFormat:@"%@ %@", [self firstName], [self lastName]] \CocoaLigature0 stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]\CocoaLigature1 ];\
+\}\
+
+\f1\fs24 \
+Building the project does not create errors anymore. We are now confident that the code written in the Person class satisfies the requirements expressed in the tests we have written. In OCUnit's Examples folder the PersonComplete project contains all the code typed so far, and for the sake of completeness, more tests. The TestPerson class also makes use of what testing pros call a 'test fixture'. In the example above, code duplication can be noticed to create and release a person object in each test. This common code can be factored in the -setUp and -tearDown methods which are automatically executed at the beginning and end of each tests.\
+\
+The detailed build output pane shows more information about the testing process: test suites and test cases are starting and finishing.TestSuites are collections of tests and are automatically created by OCUnit. \
+\
+Test cases can be easily created, using the available template for TestCase subclasses. This is how OCUnit can be used to test frameworks, bundles, tools, and applications.\
+\
+
+\f0\b A second example: testing a random number generator.
+\f1\b0 \
+The TestRandom project contains tests that verify that the encapsulation of the Mersenne Twister pseudo random number generator in an Objective-C class did not break the algorithm. Two 100,000 number series obtained using this class and the original implementation are compared.  \
+\
+
+\f2\fs20 - (void) testSenRandomUnsignedLong\
+\{\
+    unsigned long count = SEQUENCE_LENGTH;\
+    while (count--) \{\
+        should ([generator nextUnsignedLong] == igenrand());\
+    \}\
+\}\
+
+\f1\fs24 \
+Of course, the two number generators are initialized to the same seed in the test's setUp.\
+\
+This project also contains "performance" tests. These are not real performance measurements, because only elapsed time is measured, instead of the more precise user and system time spent in the code, but nevertheless, they give interesting indications. The optimized Objective-C version seems to be faster than the original C implementation when generating 10 million numbers.\
+\
+\
+
+\f0\b A third example: testing the UI
+\f1\b0 \
+It is often said that unit testing is too limited, because the user interface can not be tested. It is true that many things are difficult or impossible to test automatically, but some things can still be tested. \
+\
+The TestExtras project adds a few tests to Mike Ferris' TextExtras project. Rather than modifying the original distribution, we created a new project for these tests. This example assumes that you've installed TextExtras, which can be found at http://www.lorax.com/FreeStuff/TextExtras.html\
+\
+Building the TestExtras project using the Test build style will launch, test and quit the application. As before, the test results are reported in Xcode. This is an example of an automatic test performed on the application's text view:\
+\
+
+\f2\fs20 - (void) testForward\
+\{\
+    NSString *text = @"A Stepwise Apple";\
+    [self setText:text];\
+    [textView setSelectedRange:NSMakeRange (1, 0)];\
+    shouldBeEqual ([self nextCompletionFrom:text], @"pple"); \
+\}\
+
+\f1\fs24 \
+Doing this test by hand would involve the following steps:\
+\
+- launch the application;\
+- type "A Stepwise Apple" in the text view;\
+- move the cursor immediatly after the first 'A';\
+- type <esc> to trigger escape completion;\
+- visually check that the resulting text is "Apple Stepwise Apple".\
+\
+Testing this case, and all others by hand is clearly a long, painful, error-prone process. Doing it after each code modification is probably too much for all programmers. However, using OCUnit, these tests can be made at each build with minor overhead.\
+\
+How is this done? How is the test code above connected to the user interface? There is no better place, for user interface tests, than the user interface itself. OCUnit has a palette which makes it possible to include test cases in InterfaceBuilder's nib files. Open the TestExtra.nib, and you will see a TestExtras instance, with an outlet connection to the text view.\
+\
+
+\f0\b Debugging tests
+\f1\b0 \
+Since one of the test is failing (TextExtras does not cycle in completion possibilities like Xcode does), let us see an alternative method to run tests from Xcode, useful to debug tests and tested code. Select the "TestExtras" leaf within the "Executables" node under the Groups & Files tree of the project's main window, and open the leaf's Info window by double-clicking it or hitting Cmd-I. In that Info window, go to the "Arguments" tab. Add a row with the text 
+\f2\fs20 -SenTest Self
+\f1\fs24  (note the initial dash) to the "Arguments to be passed on launch" table at the top of the pane. Back to the code, put a breakpoint on the failing test, and start the program in the debugger. The console shows the trace of passed tests, and the execution will stop at the breakpoint.\
+\
+This time, tests are executed not during the build process, but during the run or debug process. The application runs in 'test mode' and the tests are executed. This also works for frameworks or bundles, where the otest tool plays the role of a test driver.\
+\
+\
+
+\f0\b Conclusion
+\f1\b0 \
+Unit testing has been lauded as a powerful tool to augment code quality. As this article shows, OCUnit tools and frameworks make it very easy to use this technique for Objective-C from Xcode. Readers interested in the mechanics involved in finding test cases from tools, applications, bundles or applications and running them are encouraged to have a look at the source code, which is distributed under a Free BSD license.\
+\
+\
+
+\f0\b Acknowledgements
+\f1\b0 \
+Thanks to Vincent Kohler and Alain Fisher for their help while preparing this presentation and article, and to all the contributors to OCUnit.\
+\
+Marco Scheurer has been programming with Cocoa and its ancestors since 1990. In 1994 he co-founded Sen:te, a company specialized in rapid software development and based in Lausanne, Switzerland. He can be reached at mailto:marco@sente.ch.\
+}

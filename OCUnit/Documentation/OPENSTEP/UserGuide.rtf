@@ -1,0 +1,231 @@
+{\rtf0\ansi{\fonttbl\f0\fswiss Helvetica;\f1\froman Times-Roman;\f2\fmodern Courier;
+\f3\fmodern Ohlfs;}
+{\colortbl;\red255\green255\blue255;}
+\paperw17520\paperh17320
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\f0\fs20 \cf0 Copyright 1999 Nagravision SA. All rights reserved.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\f1\b\fs36 \cf0 \
+TestingKit  User Guide 
+\f0\b0\fs24 \
+by Dominique Schoenenberger, Nagravision SA\
+\
+\
+\pard\tx1120\tx2240\tx3360\tx4480\tx5600\tx6720\tx7840\tx8960\tx10080\tx11200\tx12320\tx13440\tx14560\tx15680\tx16800\tx17920\tx19040\tx20160\tx21280\tx22400\tx23520\tx24640\tx25760\tx26880\tx28000\tx29120\tx30240\tx31360\tx32480\tx33600\tx34720\tx35840\tx36960\tx38080\tx39200\tx40320\tx41440\tx42560\tx43680\tx44800\tx45920\tx47040\tx48160\tx49280\tx50400\tx51520\tx52640\tx53760\tx54880\tx56000\tx57120\tx58240\tx59360\tx60480\tx61600\tx62720\tx63840\tx64960\tx66080\tx67200\tx68320\tx69440\tx70560\tx71680\tx72800\tx73920\tx75040\tx76160\tx77280\tx78400\tx79520\tx80640\tx81760\tx82880\tx84000\tx85120\tx86240\tx87360\tx88480\tx89600\tx90720\tx91840\tx92960\tx94080\tx95200\tx96320\tx97440\tx98560\tx99680\tx100800\tx101920\tx103040\tx104160\tx105280\tx106400\tx107520\tx108640\tx109760\tx110880\ql\qnatural
+
+\f1\fs36 \cf0 How doest it work ?
+\f0\fs24 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 \
+You can use the testing kit with applications, frameworks and bundles.\
+\
+\pard\tx1480\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li1480\fi-1480\ql\qnatural
+\cf0 Application: 	The otest executable launches the application and after the "applicationDidFinishLaunching",runs its tests. With special option (see below), you can run also the application's framework and bundle tests.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0                        \
+\pard\tx1480\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li1480\fi-1480\ql\qnatural
+\cf0 Framework: 	otest loads the code of the framework and runs its tests.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 \
+\pard\tx1480\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li1480\fi-1480\ql\qnatural
+\cf0 Bundle:	otest loads the code of the bundle and runs its tests.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 \
+\pard\tx1120\tx2240\tx3360\tx4480\tx5600\tx6720\tx7840\tx8960\tx10080\tx11200\tx12320\tx13440\tx14560\tx15680\tx16800\tx17920\tx19040\tx20160\tx21280\tx22400\tx23520\tx24640\tx25760\tx26880\tx28000\tx29120\tx30240\tx31360\tx32480\tx33600\tx34720\tx35840\tx36960\tx38080\tx39200\tx40320\tx41440\tx42560\tx43680\tx44800\tx45920\tx47040\tx48160\tx49280\tx50400\tx51520\tx52640\tx53760\tx54880\tx56000\tx57120\tx58240\tx59360\tx60480\tx61600\tx62720\tx63840\tx64960\tx66080\tx67200\tx68320\tx69440\tx70560\tx71680\tx72800\tx73920\tx75040\tx76160\tx77280\tx78400\tx79520\tx80640\tx81760\tx82880\tx84000\tx85120\tx86240\tx87360\tx88480\tx89600\tx90720\tx91840\tx92960\tx94080\tx95200\tx96320\tx97440\tx98560\tx99680\tx100800\tx101920\tx103040\tx104160\tx105280\tx106400\tx107520\tx108640\tx109760\tx110880\ql\qnatural
+
+\f1\fs36 \cf0 Possible usages
+\f0\b\fs24 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\b0 \cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\b \cf0 A. Within ProjectBuilder\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\b0 \cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\b \cf0 A.1 At compilation time
+\b0 \
+\
+You may test at compilation time using the following build target in ProjectBuilder:\
+\
+\pard\tx1680\tx1880\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\i \cf0 test
+\i0 	:  compile without debug \
+                               run the application, framework or bundle tests\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 \
+\pard\tx1680\tx1880\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\i \cf0 test_debug
+\i0 	:	compile debug\
+                               run the application, framework or bundle tests\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 \
+\pard\tx1680\tx1880\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\i \cf0 test_all
+\i0 	:  compile debug\
+                               run the application, framework or bundle tests and all linked frameworks and bundles.\
+                               (but only the bundle already loaded after the application did finish launching).\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\b \cf0 A.2 At run time\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\b0 \cf0 \
+You may test at run time using the following option in the launch options:\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\i \cf0 -SenTest None
+\i0 	:  run the application (no testing kit process performed)\
+\
+
+\i -SenTest Self
+\i0 	:  run the application, framework or bundle tests\
+\
+
+\i -SenTest All
+\i0 	:  run the application, framework or bundle tests and all linked frameworks.\
+\
+
+\i -SenTest <ClassName/MethodName>
+\i0  :  run one specific test case identified by the 
+\i Method
+\i0  of the
+\i  Class
+\i0 .\
+\
+Using the TestingKit at run time allows you to debug the tests you are implementing. \
+Note: In Project Builder, you need to restart the debugger in order to activate/desactivate the launch option.\
+\
+[ removed from v14\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\fs18 \cf0 You can choose to run one specific framework and bundle. This can be done using the "-Include" option with a framework or bundle name.\
+This option can be used with SenTest option "None" and "Self". ("All" option run already all framework/bundle tests).\
+\
+Example of command line options running only the tests of the "MovieDomain" framework and not the tested unit tests: \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\i \cf0 -SenTest None -Include MovieDomain \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\i0\fs24 \cf0 ]\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\b \cf0 B. In a shell
+\b0 \
+\
+In a shell you need to launch the otest with the appropriate options. \
+\
+The usage is the following:\
+\
+Usage: 
+\f2 otest [-SenTest Self | All | None | <TestCaseClassName/testMethodName>] <path of unit to be tested>
+\f0 \
+\
+
+\b C. With Shikenjo
+\b0 \
+\
+The Shikenjo application give you a Graphical User Interface TestingKit test launcher. It will include functionalities for driving the application from the outside like starting it with special environnement.\
+\
+Shikenjo is used for the moment with the Self option but the other choices will be added.\
+It display only test failures for the moment.\
+
+\b \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\f1\b0\fs36 \cf0 Available MACROs
+\f0\b\fs24 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\b0 \cf0 \
+Type of the macro variables:\
+	description			:	NSString (constant or expression evaluation)\
+	condition				: 	Objective C boolean expression\
+	expression			:	Objective C expression\
+	left,right				:	objects which can be compared with the method isEqual: .\
+\
+All macros may result in considering the test failed and will be reported as failure in the displayed report. They can be use several times in the same test case and if they all cause failure, the number of failure for the test will be incremented.\
+\
+The following macros can be used within your tests:\
+\
+\pard\tx4540\tx4860\tx5420\tx5600\tx6160\tx6720\li4860\fi-4860\ql\qnatural
+\cf0 fail()	:	call this macro if you want the test to fail.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 \
+\pard\tx4540\tx4860\tx5420\tx5600\tx6160\tx6720\li4860\fi-4860\ql\qnatural
+\cf0 fail1(description)	:	same as fail() but display the description explaining the cause of failure. Example: \
+\pard\tx2980\tx5040\tx5600\tx6160\tx6720\li2480\ql\qnatural
+\cf0 	
+\f3\fs18 FunctionalTests.m:504 -[ObjectToTest testAddAToB] :  (Can't create A, can't continue !)
+\f0\fs24 \
+
+\f3\fs18 	Test Case '-[ObjectToTest testAddAToB]' failed (0.090 seconds).\
+\pard\tx2220\tx2460\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li2440\fi-2440\ql\qnatural
+
+\f0\fs24 \cf0 \
+\pard\tx4540\tx4860\tx5420\tx5600\tx6160\tx6720\li4860\fi-4860\ql\qnatural
+\cf0 should(condition)	:	test the condition. If the condition is true, the test is considered passed and failed instead. Example of test passed: \
+\pard\tx2980\tx5040\tx5600\tx6160\tx6720\li2480\ql\qnatural
+
+\f3\fs18 \cf0 	Test Case '-[ObjectToTest testAddAToB]' passed (0.210 seconds)\
+\pard\tx2220\tx2460\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li2460\fi-2460\ql\qnatural
+
+\f0\fs24 \cf0 \
+\pard\tx4540\tx4860\tx5420\tx5600\tx6160\tx6720\li4860\fi-4860\ql\qnatural
+\cf0 should1(condition,description)	:	same as should() but display the description in case of failure. Example of test failure:\
+\pard\tx2980\tx5040\tx5600\tx6160\tx6720\li2480\ql\qnatural
+
+\f3\fs18 \cf0 	FunctionalTests.m:504 -[ObjectToTest testAddAToB] : [A contains B] should be true (B is full !)\
+	Test Case '-[ObjectToTest testAddAToB]' failed (0.090 seconds).\
+\pard\tx4540\tx4860\tx5420\tx5600\tx6160\tx6720\li4860\fi-4860\ql\qnatural
+
+\f0\fs24 \cf0 \
+shouldnt(condition)	:	same as should but test that the negation of the condition.\
+\
+shouldnt1(condition,description)	: 	same as shouldnt() but display the description in case of failure.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 \
+\pard\tx4540\tx4860\tx5420\tx5600\tx6160\tx6720\li4860\fi-4860\ql\qnatural
+\cf0 shouldBeEqual(left,right)	:	same as should but test that: [left isEqual right] (if both are nil, there are also considered to be equal)\
+\
+shouldBeEqual1(left,right,description)	:	same as shouldBeEqual but display the description in case of failure\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 \
+\pard\tx4540\tx4860\tx5420\tx5600\tx6160\tx6720\li4860\fi-4860\ql\qnatural
+\cf0 shouldRaise(expression)	:	expression is executed in an exception handler and if an exception is raised, the test is considered passed.\
+\
+shouldRaise1(expression,description)	:	same as shouldRaise but display the description in case of test failure\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 \
+\pard\tx4540\tx4860\tx5420\tx5600\tx6160\tx6720\li4860\fi-4860\ql\qnatural
+\cf0 shouldntRaise(expression)	:	expression is executed in an exception handler and if an exception is raised, the test is considered failed \
+\
+shouldntRaise1(expression,description)	:	same as shouldntRaise but display the description in case of test failure\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 \
+\pard\tx4540\tx4860\tx5420\tx5600\tx6160\tx6720\li4860\fi-4860\ql\qnatural
+\cf0 shouldBeEmpty(object)	:	test that the object is nil or respond YES to isEmpty. If YES, the test is considered passed.\
+\
+shouldBeEmpty1(object,description)	:	same as shouldBeEmpty but display the description in case of test failure\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 \
+\pard\tx4540\tx4860\tx5420\tx5600\tx6160\tx6720\li4860\fi-4860\ql\qnatural
+\cf0 shouldntBeEmpty(object)	:	same as shouldBeEmpty but test the negation of the emptiness.\
+shouldntBeEmpty1(object,description)	:	same as shouldBeEmpty1 but test the negation of the emptiness.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\b \cf0 \
+}

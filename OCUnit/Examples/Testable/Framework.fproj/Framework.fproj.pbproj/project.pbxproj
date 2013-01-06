@@ -1,0 +1,362 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 38;
+	objects = {
+		1EC2790A0233C84979A8000A = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			generatedFileNames = (
+			);
+			isa = PBXShellScriptBuildPhase;
+			neededFileNames = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = $SYSTEM_DEVELOPER_DIR/Makefiles/Resources/OCUnit/RunTargetUnitTests;
+		};
+		1EC2790B0233C84979A8000A = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				TEST_AFTER_BUILD = YES;
+			};
+			isa = PBXBuildStyle;
+			name = "Development & test";
+		};
+//1E0
+//1E1
+//1E2
+//1E3
+//1E4
+//F50
+//F51
+//F52
+//F53
+//F54
+		F543519D0192E0BC01A80018 = {
+			buildStyles = (
+				F54351BF0192E0BC01A80018,
+				F54351C00192E0BC01A80018,
+				1EC2790B0233C84979A8000A,
+			);
+			hasScannedForEncodings = 1;
+			isa = PBXProject;
+			mainGroup = F543519E0192E0BC01A80018;
+			productRefGroup = F54351B00192E0BC01A80018;
+			projectDirPath = "";
+			targets = (
+				F54351B20192E0BC01A80018,
+			);
+		};
+		F543519E0192E0BC01A80018 = {
+			children = (
+				F543519F0192E0BC01A80018,
+				F54351A20192E0BC01A80018,
+				F54351A50192E0BC01A80018,
+				F54351AB0192E0BC01A80018,
+				F54351B00192E0BC01A80018,
+			);
+			isa = PBXGroup;
+			name = Framework;
+			refType = 4;
+		};
+		F543519F0192E0BC01A80018 = {
+			children = (
+				F54351A00192E0BC01A80018,
+				F54351A10192E0BC01A80018,
+			);
+			isa = PBXGroup;
+			name = Classes;
+			refType = 4;
+		};
+		F54351A00192E0BC01A80018 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = BreakTest.m;
+			refType = 4;
+		};
+		F54351A10192E0BC01A80018 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = SetTestCase.m;
+			refType = 4;
+		};
+		F54351A20192E0BC01A80018 = {
+			children = (
+				F54351A30192E0BC01A80018,
+				F54351A40192E0BC01A80018,
+			);
+			isa = PBXGroup;
+			name = Headers;
+			refType = 4;
+		};
+		F54351A30192E0BC01A80018 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = BreakTest.h;
+			refType = 4;
+		};
+		F54351A40192E0BC01A80018 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = SetTestCase.h;
+			refType = 4;
+		};
+		F54351A50192E0BC01A80018 = {
+			children = (
+				F54351A60192E0BC01A80018,
+				F54351A70192E0BC01A80018,
+				F54351A80192E0BC01A80018,
+				F54351A90192E0BC01A80018,
+				F54351AA0192E0BC01A80018,
+			);
+			isa = PBXGroup;
+			name = "Supporting Files";
+			refType = 4;
+		};
+		F54351A60192E0BC01A80018 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = h.template;
+			refType = 4;
+		};
+		F54351A70192E0BC01A80018 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = m.template;
+			refType = 4;
+		};
+		F54351A80192E0BC01A80018 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = Makefile;
+			refType = 4;
+		};
+		F54351A90192E0BC01A80018 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = Makefile.postamble;
+			refType = 4;
+		};
+		F54351AA0192E0BC01A80018 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = Makefile.preamble;
+			refType = 4;
+		};
+		F54351AB0192E0BC01A80018 = {
+			children = (
+				F54351AD0192E0BC01A80018,
+				F54351C10192E10701A80018,
+				F54351C30192E12201A80018,
+			);
+			isa = PBXGroup;
+			name = "External Frameworks and Libraries";
+			refType = 4;
+		};
+		F54351AD0192E0BC01A80018 = {
+			isa = PBXFrameworkReference;
+			name = Foundation.framework;
+			path = /System/Library/Frameworks/Foundation.framework;
+			refType = 0;
+		};
+		F54351B00192E0BC01A80018 = {
+			children = (
+				F54351B10192E0BC01A80018,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+		};
+		F54351B10192E0BC01A80018 = {
+			isa = PBXFrameworkReference;
+			path = Framework.framework;
+			refType = 3;
+		};
+		F54351B20192E0BC01A80018 = {
+			buildPhases = (
+				F54351B30192E0BC01A80018,
+				F54351B60192E0BC01A80018,
+				F54351B70192E0BC01A80018,
+				F54351BA0192E0BC01A80018,
+				F54351BE0192E0BC01A80018,
+				1EC2790A0233C84979A8000A,
+			);
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = "\"$(LOCAL_LIBRARY_DIR)/Frameworks\"";
+				FRAMEWORK_VERSION = A;
+				INSTALL_PATH = "$(HOME)/Library/Frameworks";
+				OTHER_CFLAGS = "";
+				OTHER_LIBTOOL_FLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRINCIPAL_CLASS = "";
+				PRODUCT_NAME = Framework;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+				WRAPPER_EXTENSION = framework;
+			};
+			dependencies = (
+			);
+			isa = PBXFrameworkTarget;
+			name = "Framework (Framework)";
+			productInstallPath = "$(HOME)/Library/Frameworks";
+			productName = "Framework (Framework)";
+			productReference = F54351B10192E0BC01A80018;
+			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>Framework</string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
+	<key>CFBundleIconFile</key>
+	<string></string>
+	<key>CFBundleIdentifier</key>
+	<string></string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string></string>
+	<key>CFBundlePackageType</key>
+	<string>FMWK</string>
+	<key>CFBundleShortVersionString</key>
+	<string></string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>0.0.1d1</string>
+</dict>
+</plist>
+";
+		};
+		F54351B30192E0BC01A80018 = {
+			buildActionMask = 2147483647;
+			files = (
+				F54351B40192E0BC01A80018,
+				F54351B50192E0BC01A80018,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F54351B40192E0BC01A80018 = {
+			fileRef = F54351A30192E0BC01A80018;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F54351B50192E0BC01A80018 = {
+			fileRef = F54351A40192E0BC01A80018;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F54351B60192E0BC01A80018 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F54351B70192E0BC01A80018 = {
+			buildActionMask = 2147483647;
+			files = (
+				F54351B80192E0BC01A80018,
+				F54351B90192E0BC01A80018,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F54351B80192E0BC01A80018 = {
+			fileRef = F54351A00192E0BC01A80018;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+				);
+			};
+		};
+		F54351B90192E0BC01A80018 = {
+			fileRef = F54351A10192E0BC01A80018;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+				);
+			};
+		};
+		F54351BA0192E0BC01A80018 = {
+			buildActionMask = 2147483647;
+			files = (
+				F54351BC0192E0BC01A80018,
+				F54351C20192E10701A80018,
+				F5E6F5450192F72701A80018,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F54351BC0192E0BC01A80018 = {
+			fileRef = F54351AD0192E0BC01A80018;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F54351BE0192E0BC01A80018 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXRezBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F54351BF0192E0BC01A80018 = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			isa = PBXBuildStyle;
+			name = Development;
+		};
+		F54351C00192E0BC01A80018 = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+			};
+			isa = PBXBuildStyle;
+			name = Deployment;
+		};
+		F54351C10192E10701A80018 = {
+			isa = PBXFrameworkReference;
+			name = SenFoundation.framework;
+			path = /Library/Frameworks/SenFoundation.framework;
+			refType = 0;
+		};
+		F54351C20192E10701A80018 = {
+			fileRef = F54351C10192E10701A80018;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F54351C30192E12201A80018 = {
+			isa = PBXFrameworkReference;
+			name = SenTestingKit.framework;
+			path = /Library/Frameworks/SenTestingKit.framework;
+			refType = 0;
+		};
+		F5E6F5450192F72701A80018 = {
+			fileRef = F54351C30192E12201A80018;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+	};
+	rootObject = F543519D0192E0BC01A80018;
+}

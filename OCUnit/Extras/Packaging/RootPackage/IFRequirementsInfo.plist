@@ -1,0 +1,23 @@
+<key>IFRequirementDicts</key>
+<array>
+    <dict>
+        <key>Level</key>
+        <string>requires</string>
+        <key>SpecType</key>
+        <string>plist</string>
+        <key>SpecArgument</key>
+        <string>/System/Library/CoreServices/SystemVersion.plist</string>
+        <key>SpecProperty</key>
+        <string>ProductVersion</string>
+        <key>TestOperator</key>
+        <string>&gt;=</string>
+        <key>TestObject</key>
+        <string>10.3</string>
+        <key>LabelKey</key>
+        <string>LabelKeyValueFor10_3</string>
+        <key>TitleKey</key>
+        <string>TitleKeyValueFor10_3</string>
+        <key>MessageKey</key>
+        <string>MessageKeyValueFor10_3</string>
+    </dict>
+</array>

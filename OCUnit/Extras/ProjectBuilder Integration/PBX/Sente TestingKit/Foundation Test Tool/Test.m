@@ -1,0 +1,14 @@
+//
+//  Test.m
+//  ÇPROJECTNAMEÈ
+//
+//  Created by ÇFULLUSERNAMEÈ on ÇDATEÈ.
+//  Copyright (c) 2001 ÇORGANIZATIONNAMEÈ. All rights reserved.
+//
+
+#import "Test.h"
+
+
+@implementation Test
+
+@end

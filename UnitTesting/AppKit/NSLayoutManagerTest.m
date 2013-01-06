@@ -41,10 +41,10 @@
 
 - (void) test01
 { // allocation did work
-	STAssertTrue(textStorage != nil, nil);
-	STAssertTrue(layoutManager != nil, nil);
-	STAssertTrue(textContainer != nil, nil);
-	STAssertTrue(textView != nil, nil);
+	STAssertNotNil(textStorage, nil);
+	STAssertNotNil(layoutManager, nil);
+	STAssertNotNil(textContainer, nil);
+	STAssertNotNil(textView, nil);
 }
 
 - (void) test02
@@ -59,14 +59,14 @@
 
 - (void) test03
 { // internal classes initialized
-	STAssertTrue([layoutManager typesetter] != nil, nil);
-	STAssertTrue([layoutManager glyphGenerator] != nil, nil);
+	STAssertNotNil([layoutManager typesetter], nil);
+	STAssertNotNil([layoutManager glyphGenerator], nil);
 }
 
 - (void) test04
 { // default layout settings
-	STAssertTrue([layoutManager allowsNonContiguousLayout] == NO, nil);
-	STAssertTrue([layoutManager backgroundLayoutEnabled] == NO, nil);			
+	STAssertFalse([layoutManager allowsNonContiguousLayout], nil);
+	STAssertFalse([layoutManager backgroundLayoutEnabled], nil);			
 }
 
 - (void) test05
@@ -183,9 +183,9 @@
 	STAssertTrue([layoutManager firstUnlaidCharacterIndex] == 0, nil);			
 	[layoutManager ensureLayoutForGlyphRange:NSMakeRange(0, 5)];
 	// now we have a text container for the first glyph -- which generates all glyphs that fit into the container
-	STAssertTrue([layoutManager textContainerForGlyphAtIndex:0 effectiveRange:NULL withoutAdditionalLayout:YES] != nil, nil);
-	STAssertTrue([layoutManager textContainerForGlyphAtIndex:7 effectiveRange:NULL withoutAdditionalLayout:YES] == nil, nil);
-	STAssertTrue([layoutManager textContainerForGlyphAtIndex:20 effectiveRange:NULL withoutAdditionalLayout:YES] == nil, nil);
+	STAssertNil([layoutManager textContainerForGlyphAtIndex:0 effectiveRange:NULL withoutAdditionalLayout:YES], nil);
+	STAssertNil([layoutManager textContainerForGlyphAtIndex:7 effectiveRange:NULL withoutAdditionalLayout:YES], nil);
+	STAssertNil([layoutManager textContainerForGlyphAtIndex:20 effectiveRange:NULL withoutAdditionalLayout:YES], nil);
 	glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
 	// here we will see all 30 glyphs (all lines!)
 	STAssertTrue(glyphRange.location == 0 && glyphRange.length == 30, nil);

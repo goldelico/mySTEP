@@ -1,0 +1,39 @@
+#
+#  otest makefile.
+#  
+#  Written by: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+#
+#  Date: 5 October 2000
+#
+
+GNUSTEP_INSTALLATION_DIR = $(GNUSTEP_LOCAL_ROOT)
+
+GNUSTEP_MAKEFILES = $(GNUSTEP_SYSTEM_ROOT)/Makefiles
+
+include $(GNUSTEP_MAKEFILES)/common.make
+
+include ../Version
+
+# Main application
+
+TOOL_NAME = otest
+
+otest_LDFLAGS = -lSenFoundation
+
+# Class files
+
+otest_OBJC_FILES = SenTestTool.m otest_main.m
+
+
+-include GNUmakefile.preamble
+-include GNUmakefile.local
+
+include $(GNUSTEP_MAKEFILES)/tool.make
+
+-include GNUmakefile.postamble
+
+
+
+
+
+

@@ -1,0 +1,68 @@
+<HTML>
+
+<HEAD>
+<TITLE>Sen:te - OCUnit Testing from ProjectBuilder </TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<TABLE BORDER=0 WIDTH = 100%>
+	<TR>
+		<TD COLSPAN=1 ROWSPAN=3><IMG SRC="sente.gif" ALT="Sen:te"></TD>
+		<TD> </TD>
+	</TR>
+	<TR>
+		<TD ALIGN=RIGHT VALIGN=BOTTOM><H1><IMG SRC="Shikenjo.gif"><BR><A HREF="http://www.sente.ch/software/ocunit/">OCUnit</A> Testing from ProjectBuilder </H1><BR></TD>
+	</TR>
+	<TR>
+		<TD HEIGHT=24> </TD>
+	</TR>
+</TABLE>
+<HR NOSHADE SIZE=1>
+
+<H2>Testing from ProjectBuilder on Mac OS X</H2>
+
+<P>The SenTestingKit has not yet achieved with ProjectBuilder on Mac OS X the level of integration it has before on OPENSTEP and WebObjects. However, you can still run tests from ProjectBuilder in two different ways detailed below: after each build or when running your application.</P>
+
+
+<H3>After each build:</H3>
+<P>You can do this by following the next step:</P>
+<UL>
+<LI><P>make sure that otest is installed in '/usr/local/bin'</P> and that the file <TT>ProjectBuilderIntegration/PBX/Makefiles/Resources/OCUnit/RunTargetUnitTests</TT> is copied to <TT>/Developer/Makefiles/Resources/OCUnit/RunTargetUnitTests</TT></P>
+
+<LI><P>create a new <TT>Build Settings</TT> in your chosen <TT>Build Style</TT> with the name: <TT>TEST_AFTER_BUILD</TT> and the value to <TT>YES</TT></P>
+
+<LI><P>in the <TT>Files and Build Phases</TT> of your target add a new build phase at the end (menu <TT>Project/New BuildPase</TT>).</P>
+
+<LI><P>in the text box Shell add: <TT>/bin/sh</TT></P>
+
+<LI><P>in the text box Script add: <TT>$SYSTEM_DEVELOPER_DIR/Makefiles/Resources/OCUnit/RunTargetUnitTests</TT>
+</UL></P>
+
+<P>When building the active target using the build style with this new environment variable, tests run after the build, and results are logged in the build console.</P>
+
+
+<H3>When running your application:</H3>
+<P>You can do this by configuring the <TT>Executables</TT> tab of your target:</P>
+
+<P>For executable targets such as applications, add a <TT>-SenTest</TT> launch argument (<TT>-SenTest All</TT> will run all your executable tests, including those of linked frameworks, <TT>-SenTest Self</TT> will run only your executable's tests, <TT>-SenTest None</TT> will not run any test).</P>
+
+<P>If your project has no executable (for instance a framework), use otest as the executable, and specify the path of the unit to be tested. For instance: <TT>-SenTest Self ~/Developer/Builds/SenRandomTest.framework</TT>.</P>
+
+Tests results will appear in the Run or Debug console.
+
+<H3>Which method should I use?</H3>
+<P>Both methods can be used in alternance, as the first is useful to code, build and test in short cycle, while the second can be useful when debugging a failed test.</P>
+
+<H2>More information</H2>
+<P>
+<A HREF="http://www.sente.ch/software/ocunit/">http://www.sente.ch/software/ocunit/</A><BR>
+<A HREF="mailto:feedback@sente.ch">feedback@sente.ch</A>
+</P>
+
+<P>
+&copy;Copyright 1994-2001, Sen:te (Sente, SA). All rights reserved.
+</P>
+
+
+</BODY>
+</HTML>

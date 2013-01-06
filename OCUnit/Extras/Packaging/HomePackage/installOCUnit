@@ -1,0 +1,62 @@
+#!/bin/bash
+#
+# installOCUnit
+# This file last modified on 25-Mar-2004 by William Swats.
+# Copyright (c) 2001-2004 Sen:te (Sente SA).  All rights reserved.
+#
+#
+echo "<installOCUnit> Start installOCUnit script"
+echo ""
+#
+# Create the following directories if they do not already exists:
+#
+echo "<installOCUnit> Make directories."
+mkdir -p ~/Developer/Tools
+mkdir -p ~/Developer/Examples/OCUnit/Testable
+mkdir -p ~/Library/Application\ Support/Apple/Developer\ Tools/File\ Templates/Cocoa
+mkdir -p ~/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Application
+mkdir -p ~/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Bundle
+mkdir -p ~/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Framework
+mkdir -p ~/Library/Application\ Support/Apple/Developer\ Tools/Target\ Templates/Cocoa
+mkdir -p ~/Library/Frameworks
+
+#
+# Copy the following files and/or directories to the directories created above:
+#
+echo "<installOCUnit> Copy the following files and/or directories to the directories created above."
+cp ../../Xcode\ Integration/Tools/RunTargetUnitTests ~/Developer/Tools/
+cp -R ../../../Examples/Person ~/Developer/Examples/OCUnit/
+cp -R ../../../Examples/PersonComplete ~/Developer/Examples/OCUnit/
+cp  ../../../Examples/README ~/Developer/Examples/OCUnit/
+cp -R ../../../Examples/SenRandomTest ~/Developer/Examples/OCUnit/
+cp -R ../../../Examples/Testable/Application ~/Developer/Examples/OCUnit/Testable
+cp -R ../../../Examples/TestExtras ~/Developer/Examples/OCUnit/TestExtras
+cp -R 	../../Xcode\ Integration/Templates/File\ Templates/Cocoa/Objective-C\ SenTestCase\ subclass.pbfiletemplate ~/Library/Application\ Support/Apple/Developer\ Tools/File\ Templates/Cocoa/
+cp -R ../../Xcode\ Integration/Templates/Project\ Templates/Application/Cocoa\ Application\ +\ Test ~/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Application/
+cp -R ../../Xcode\ Integration/Templates/Project\ Templates/Application/Cocoa\ Document-based\ Application\ +\ Test ~/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Application/
+cp -R ../../Xcode\ Integration/Templates/Project\ Templates/Bundle/Cocoa\ Bundle\ +\ Test ~/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Bundle/
+cp -R ../../Xcode\ Integration/Templates/Project\ Templates/Framework/Cocoa\ Framework\ +\ Test ~/Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Framework/
+cp ../../Xcode\ Integration/Templates/Target\ Templates/Cocoa/Test\ Framework.trgttmpl ~/Library/Application\ Support/Apple/Developer\ Tools/Target\ Templates/Cocoa/
+
+#
+# Clean, build and install the otest tool
+#
+echo "<installOCUnit> Clean, build and install the otest tool."
+pushd ../../../SourceCode/otest
+xcodebuild clean install -project otest.xcode -target otest -buildstyle HomeDeployment DSTROOT="/"
+xcodebuild clean -project otest.xcode -target otest -buildstyle HomeDeployment
+popd
+
+#
+# Clean, build and install the SenTestingKit framework
+#
+if [ -e ~/Library/Frameworks/SenTestingKit.framework ]; then
+	echo "<installOCUnit> Remove old copy of the SenTestingKit framework from ~/Library/Frameworks."
+	rm -rf ~/Library/Frameworks/SenTestingKit.framework
+fi
+echo "<installOCUnit> Clean, build and install the SenTestingKit framework."
+pushd ../../../SourceCode/SenTestingKit
+xcodebuild clean install -project SenTestingKit.xcode -target SenTestingKit -buildstyle HomeDeployment DSTROOT="/"
+xcodebuild clean -project SenTestingKit.xcode -target SenTestingKit -buildstyle HomeDeployment 
+popd
+

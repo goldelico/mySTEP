@@ -1,0 +1,4 @@
+{
+    MainTemplateFile = "class.m";
+    CounterpartTemplateFile = "class.h";
+}

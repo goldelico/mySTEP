@@ -1,0 +1,8 @@
+{
+    Defaults = {
+        ExecutableExtensions = (app, debug);
+        LoadableExtensions = (bundle, framework, palette);
+        SenTest = All;
+        TestRunnerPath = "/usr/local/bin/otest";
+    };
+}

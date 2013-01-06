@@ -1,0 +1,9 @@
+This palette exports the SenInterfaceTestCase so that test cases can be instantiated easily in nib files.
+
+Subclass SenInterfaceTestCase
+Instantiate your subclass
+Add outlets to elements of your UI
+Generate the code for your subclass
+Implement your test methods. They can use the outlets.
+
+Limitation: only one instance of a SenInterfaceTestCase subclass can be instantiated in a nib file.

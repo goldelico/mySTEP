@@ -1,0 +1,296 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 38;
+	objects = {
+		08D74E9A0083793CC0A8000F = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				OPTIMIZATION_CFLAGS = "-O0";
+			};
+			isa = PBXBuildStyle;
+			name = Development;
+		};
+		08D74E9B0083793CC0A8000F = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+			};
+			isa = PBXBuildStyle;
+			name = Deployment;
+		};
+//080
+//081
+//082
+//083
+//084
+//1B0
+//1B1
+//1B2
+//1B3
+//1B4
+		1BBE6A1E0081F178C0A8000F = {
+			buildStyles = (
+				08D74E9A0083793CC0A8000F,
+				08D74E9B0083793CC0A8000F,
+			);
+			hasScannedForEncodings = 1;
+			isa = PBXProject;
+			mainGroup = 1BBE6A1F0081F178C0A8000F;
+			productRefGroup = 1BBE6A300081F178C0A8000F;
+			projectDirPath = "";
+			targets = (
+				1BBE6A320081F178C0A8000F,
+			);
+		};
+		1BBE6A1F0081F178C0A8000F = {
+			children = (
+				1BBE6A200081F178C0A8000F,
+				1BBE6A220081F178C0A8000F,
+				1BBE6A240081F178C0A8000F,
+				1BBE6A260081F178C0A8000F,
+				1BBE6A2C0081F178C0A8000F,
+				1BBE6A300081F178C0A8000F,
+			);
+			isa = PBXGroup;
+			name = otest;
+			refType = 4;
+		};
+		1BBE6A200081F178C0A8000F = {
+			children = (
+				1BBE6A210081F178C0A8000F,
+			);
+			isa = PBXGroup;
+			name = Classes;
+			refType = 4;
+		};
+		1BBE6A210081F178C0A8000F = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = SenTestTool.m;
+			refType = 4;
+		};
+		1BBE6A220081F178C0A8000F = {
+			children = (
+				1BBE6A230081F178C0A8000F,
+			);
+			isa = PBXGroup;
+			name = Headers;
+			refType = 4;
+		};
+		1BBE6A230081F178C0A8000F = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = SenTestTool.h;
+			refType = 4;
+		};
+		1BBE6A240081F178C0A8000F = {
+			children = (
+				1BBE6A250081F178C0A8000F,
+			);
+			isa = PBXGroup;
+			name = "Other Sources";
+			refType = 4;
+		};
+		1BBE6A250081F178C0A8000F = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = otest_main.m;
+			refType = 4;
+		};
+		1BBE6A260081F178C0A8000F = {
+			children = (
+				1BBE6A270081F178C0A8000F,
+				1BBE6A280081F178C0A8000F,
+				1BBE6A290081F178C0A8000F,
+				1BBE6A2A0081F178C0A8000F,
+				1BBE6A2B0081F178C0A8000F,
+			);
+			isa = PBXGroup;
+			name = "Supporting Files";
+			refType = 4;
+		};
+		1BBE6A270081F178C0A8000F = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = h.template;
+			refType = 4;
+		};
+		1BBE6A280081F178C0A8000F = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = m.template;
+			refType = 4;
+		};
+		1BBE6A290081F178C0A8000F = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = Makefile;
+			refType = 4;
+		};
+		1BBE6A2A0081F178C0A8000F = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = Makefile.postamble;
+			refType = 4;
+		};
+		1BBE6A2B0081F178C0A8000F = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = Makefile.preamble;
+			refType = 4;
+		};
+		1BBE6A2C0081F178C0A8000F = {
+			children = (
+				F64D6B6801AC3B10013257B0,
+				1BBE6A2E0081F178C0A8000F,
+			);
+			isa = PBXGroup;
+			name = "External Frameworks and Libraries";
+			refType = 4;
+		};
+		1BBE6A2E0081F178C0A8000F = {
+			isa = PBXFrameworkReference;
+			name = Foundation.framework;
+			path = /System/Library/Frameworks/Foundation.framework;
+			refType = 0;
+		};
+		1BBE6A300081F178C0A8000F = {
+			children = (
+				1BBE6A310081F178C0A8000F,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+		};
+		1BBE6A310081F178C0A8000F = {
+			isa = PBXExecutableFileReference;
+			path = otest;
+			refType = 3;
+		};
+		1BBE6A320081F178C0A8000F = {
+			buildPhases = (
+				1BBE6A330081F178C0A8000F,
+				1BBE6A350081F178C0A8000F,
+				1BBE6A380081F178C0A8000F,
+				1BBE6A3B0081F178C0A8000F,
+			);
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "\"$(USER_LIBRARY_DIR)/Frameworks\" \"$(NEXT_ROOT)$(LOCAL_LIBRARY_DIR)/Frameworks\"";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = otest;
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+			};
+			dependencies = (
+			);
+			isa = PBXToolTarget;
+			name = "otest (Tool)";
+			productInstallPath = /usr/local/bin;
+			productName = "otest (Tool)";
+			productReference = 1BBE6A310081F178C0A8000F;
+		};
+		1BBE6A330081F178C0A8000F = {
+			buildActionMask = 2147483647;
+			files = (
+				1BBE6A340081F178C0A8000F,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BBE6A340081F178C0A8000F = {
+			fileRef = 1BBE6A230081F178C0A8000F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		1BBE6A350081F178C0A8000F = {
+			buildActionMask = 2147483647;
+			files = (
+				1BBE6A360081F178C0A8000F,
+				1BBE6A370081F178C0A8000F,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BBE6A360081F178C0A8000F = {
+			fileRef = 1BBE6A210081F178C0A8000F;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+				);
+			};
+		};
+		1BBE6A370081F178C0A8000F = {
+			fileRef = 1BBE6A250081F178C0A8000F;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+				);
+			};
+		};
+		1BBE6A380081F178C0A8000F = {
+			buildActionMask = 2147483647;
+			files = (
+				F5CA85DB019194E001498D3C,
+				F64D6B6901AC3B10013257B0,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BBE6A3B0081F178C0A8000F = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXRezBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+//1B0
+//1B1
+//1B2
+//1B3
+//1B4
+//F50
+//F51
+//F52
+//F53
+//F54
+		F5CA85DB019194E001498D3C = {
+			fileRef = 1BBE6A2E0081F178C0A8000F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+//F50
+//F51
+//F52
+//F53
+//F54
+//F60
+//F61
+//F62
+//F63
+//F64
+		F64D6B6801AC3B10013257B0 = {
+			isa = PBXFrameworkReference;
+			name = SenFoundation.framework;
+			path = /Library/Frameworks/SenFoundation.framework;
+			refType = 0;
+		};
+		F64D6B6901AC3B10013257B0 = {
+			fileRef = F64D6B6801AC3B10013257B0;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+	};
+	rootObject = 1BBE6A1E0081F178C0A8000F;
+}

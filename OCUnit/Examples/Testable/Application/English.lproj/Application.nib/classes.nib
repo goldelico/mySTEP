@@ -1,0 +1,17 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {showHelp = id; }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            CLASS = TestInterface; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {textField = id; }; 
+            SUPERCLASS = SenInterfaceTestCase; 
+        }
+    ); 
+    IBVersion = 1; 
+}

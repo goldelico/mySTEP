@@ -1,0 +1,85 @@
+##// TEMPLATEVERSION 1.24
+##// You may customize this file to modify the templates generated in this project.
+// $entity.className$.java
+// Created on $date$ by Apple $eomVersion$
+
+##loop $entity.classPackage$
+package $property$;
+##end
+
+import com.apple.yellow.foundation.*;
+import com.apple.yellow.eocontrol.*;
+import java.util.*;
+import java.math.BigDecimal;
+
+public class $entity.classNameWithoutPackage$ extends $entity.javaParentClassName$ {
+
+##loop $entity.classAttributes$
+    protected $property.javaValueClassName$ $property.name$;
+##end
+##loop $entity.classToOneRelationships$
+    protected $property.destinationEntity.referenceJavaClassName$ $property.name$;
+##end
+##loop $entity.classToManyRelationships$
+    protected NSMutableArray $property.name$;
+##end
+
+    // This is the constructor used by EOF.  Later (perhaps upon a willRead()) the
+    // object will be populated with values via EOCustomObject's takeValueForKey()
+    // method.
+    public $entity.classNameWithoutPackage$ (EOEditingContext context, EOClassDescription classDesc, EOGlobalID gid) {
+        super(context, classDesc, gid);
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, java.lang.ClassNotFoundException {
+    }
+##loop $entity.classAttributes$
+
+    public $property.javaValueClassName$ $property.name$() {
+        willRead();
+        return $property.name$;
+    }
+
+    public void set$property.name$($property.javaValueClassName$ value) {
+        willChange();
+        $property.name$ = value;
+    }
+##end
+##loop $entity.classToOneRelationships$
+
+    public $property.destinationEntity.referenceJavaClassName$ $property.name$() {
+        willRead();
+        return $property.name$;
+    }
+
+    public void set$property.name$($property.destinationEntity.referenceJavaClassName$ value) {
+        willChange();
+        $property.name$ = value;
+    }
+##end
+##loop $entity.classToManyRelationships$
+
+    public NSArray $property.name$() {
+        willRead();
+        return $property.name$;
+    }
+
+    public void set$property.name$(NSMutableArray value) {
+        willChange();
+        $property.name$ = value;
+    }
+
+    public void addTo$property.name$($property.destinationEntity.referenceJavaClassName$ object) {
+        willChange();
+        $property.name$.addObject(object);
+    }
+
+    public void removeFrom$property.name$($property.destinationEntity.referenceJavaClassName$ object) {
+        willChange();
+        $property.name$.removeObject(object);
+    }
+##end
+}

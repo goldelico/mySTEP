@@ -1,0 +1,25 @@
+
+// Copyright (c) 1997-2005 Sen:te (Sente SA).  All rights reserved.
+
+Background
+OCUnit is a simple unit testing framework for Objective C implemented by Sen:te. The latest versions, starting with v33, are intended only for Mac OS X 10.3, Xcode. It earlier versions should be usable on OPENSTEP, WebObjects 4.X, Mac OS X and GNUSTEP.It was inspired from the Smalltalk testing framework of Kent Beck.
+
+Contents
+	Documentation
+		Introductory, Acknowledgements, License and Release Notes.
+
+	Examples
+		Examples of use.
+
+	SourceCode
+		Source code for the frameworks and tools used by OCUnit.
+
+	Extras
+		Xcode Integration, Packaging resources, including installation scripts.
+
+Feedback
+Your feedback is important.  It would be appreciated if you would send any changes you make in the TestingKit source code to us so that others may benefit from your changes.
+
+http://www.sente.ch/software/ocunit/
+feedback@sente.ch
+

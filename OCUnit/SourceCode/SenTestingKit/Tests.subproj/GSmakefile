@@ -1,0 +1,40 @@
+#
+#  Tests.subproj makefile for SenTestingKit.
+#  
+#  Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+#
+#  Date: 5 October 2000
+#
+
+GNUSTEP_MAKEFILES = $(GNUSTEP_SYSTEM_ROOT)/Makefiles
+
+include $(GNUSTEP_MAKEFILES)/common.make
+
+include ../../Version
+
+
+# The subproject to be compiled
+SUBPROJECT_NAME = Tests
+
+# The resource files to be compiled
+Tests_RESOURCE_FILES =
+
+# The C source files to be compiled
+Tests_C_FILES = 
+
+# The Objective-C source files to be compiled
+Tests_OBJC_FILES = SenTestContinueOrRaiseTesting.m SenTestEmptySuite.m\
+          SenTestErrorTesting.m SenTestFail.m SenTestMacroTesting.m \
+          SenTestPerformance.m SenTestShould.m SenTestShouldBeEqual.m \
+          SenTestShouldRaise.m SenTestTestSuite.m
+
+Tests_HEADER_FILES = 
+
+
+-include Makefile.preamble
+
+-include GNUmakefile.local
+
+include $(GNUSTEP_MAKEFILES)/subproject.make
+
+-include Makefile.postamble

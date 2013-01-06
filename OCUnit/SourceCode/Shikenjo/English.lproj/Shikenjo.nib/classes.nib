@@ -1,0 +1,32 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {showHelp = id; }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            CLASS = InfoPanelController; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {
+            ACTIONS = {chooseUnit = id; run = id; stop = id; }; 
+            CLASS = Shikenjo; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                casesField = id; 
+                errorsField = id; 
+                failureTableView = id; 
+                failuresField = id; 
+                messageField = id; 
+                progressView = id; 
+                runButton = id; 
+                window = id; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

@@ -1,0 +1,5 @@
+#!/bin/sh
+autodoc=/usr/local/bin/autodoc
+if [ -f "$autodoc" ]; then
+    $autodoc -force -tree -format html -project . -destination Documentation -copyright "Sen:te (Sente SA)"
+fi

@@ -1,0 +1,19 @@
+Copyright (c) 1997-2005 Sen:te (Sente SA).  All rights reserved. 
+
+Release v40 (March 21, 2005)
+
+	The following changes to examples were made by Andrew Pontious on 14/March/2005
+   Person
+      - Removed .pbproj file.
+    PersonComplete
+      - Removed .pbproj file.
+      - Removed nameByTrimmingSpace: method, used NSString methods instead (and updated tutorial to match).
+    SenRandomTest
+      - Removed .pbproj file.
+    Testable
+        Application
+          - Removed .pbproj file.
+    TestExtras
+      - Removed .pbproj file.
+      - Added fully ported .xcode file.
+      - Modified CompletionTest.m to compile without SenFoundation.h.

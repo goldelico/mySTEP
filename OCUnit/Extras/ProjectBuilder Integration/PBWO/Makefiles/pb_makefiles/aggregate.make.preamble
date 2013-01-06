@@ -1,0 +1,2 @@
+test: banner-for-test $(RECURSABLE_DIRS:%=test@%)
+test_debug: banner-for-test $(RECURSABLE_DIRS:%=test_debug@%)

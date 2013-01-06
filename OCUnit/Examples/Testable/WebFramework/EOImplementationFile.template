@@ -1,0 +1,101 @@
+##// TEMPLATEVERSION 1.23
+// $entity.className$.m
+//
+// Created on $date$ by Apple $eomVersion$
+
+#import "$entity.className$.h"
+
+##loop $entity.referencedClasses$
+#import "$property$.h"
+##end
+
+@implementation $entity.className$
+
+// EditingContext-based archiving support.  Useful for WebObjects
+// applications that store state in the page or in cookies.
+
+- (void)encodeWithCoder:(NSCoder *)aCoder {
+	[EOEditingContext encodeObject:self withCoder:aCoder];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+	return [EOEditingContext initObject:self withCoder:aDecoder];
+}
+
+##loop $entity.classScalarAttributes$
+- (void)set$property.name$:($property.cScalarTypeString$) value
+{
+    [self willChange];
+    $property.name$ = value;
+}
+- ($property.cScalarTypeString$) $property.name$ { return $property.name$; }
+
+##end
+##loop $entity.classNonScalarAttributes$
+- (void)set$property.name$:($property.valueClassName$ *)value
+{
+    [self willChange];
+    [$property.name$ autorelease];
+    $property.name$ = [value retain];
+}
+- ($property.valueClassName$ *)$property.name$ { return $property.name$; }
+
+##end
+##// instead of scalar/nonScalar you could use:
+##// ##loop $entity.classAttributes$
+##// - (void)set$property.name$:($property.valueClassName$ *)value
+##// {
+##//     [self willChange];
+##//     [$property.name$ autorelease];
+##//     $property.name$ = [value retain];
+##// }
+##// - ($property.valueClassName$ *)$property.name$ { return $property.name$; }
+##// ##end
+##loop $entity.classToOneRelationships$
+- (void)set$property.name$:($property.destinationEntity.referenceClassName$)value
+{
+    // a to-one relationship
+    [self willChange];
+    [$property.name$ autorelease];
+    $property.name$ = [value retain];
+}
+- ($property.destinationEntity.referenceClassName$)$property.name$ { return $property.name$; }
+
+##end
+##loop $entity.classToManyRelationships$
+- (void)addTo$property.name$:($property.destinationEntity.referenceClassName$)object
+{
+    // a to-many relationship
+    [self willChange];
+    [$property.name$ addObject:object];
+}
+- (void)removeFrom$property.name$:($property.destinationEntity.referenceClassName$)object
+{
+    // a to-many relationship
+    [self willChange];
+    [$property.name$ removeObject:object];
+}
+- (NSArray *)$property.name$ { return $property.name$; }
+
+##end
+
+- (void)dealloc
+{
+##loop $entity.classNonScalarAttributes$
+    [$property.name$ release];
+##end
+##// instead of scalar/nonScalar you could use:
+##// ##loop $entity.classAttributes$
+##//    [$property.name$ release];
+##// ##end
+##loop $entity.classToOneRelationships$
+    [$property.name$ release];
+##end
+##loop $entity.classToManyRelationships$
+    [$property.name$ release];
+##end
+    
+    [super dealloc];
+}
+
+@end

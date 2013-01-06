@@ -1,0 +1,55 @@
+{
+    DYNAMIC_CODE_GEN = YES; 
+    FILESTABLE = {
+        CLASSES = (Application.m, DirectAction.m, Main.m, Session.m, Test.m); 
+        FRAMEWORKS = (
+            EOAccess.framework, 
+            EOControl.framework, 
+            Foundation.framework, 
+            SenFoundation.framework, 
+            SenTestingKit.framework, 
+            WebObjects.framework, 
+            WOExtensions.framework
+        ); 
+        FRAMEWORKSEARCH = (/Local/Library/Frameworks); 
+        H_FILES = (Application.h, DirectAction.h, Main.h, Session.h, Test.h); 
+        OTHER_LINKED = (WebApplication_main.m); 
+        OTHER_SOURCES = (
+            CustomInfo.plist, 
+            EOImplementationFile.template, 
+            EOInterfaceFile.template, 
+            EOJavaClass.template, 
+            gdb.ini, 
+            h.template, 
+            java.template, 
+            m.template, 
+            Makefile, 
+            Makefile.postamble, 
+            Makefile.preamble, 
+            wos.template
+        ); 
+        WEBSERVER_RESOURCES = (); 
+        WOAPP_RESOURCES = (Main.api); 
+        WO_COMPONENTS = (Main.wo); 
+    }; 
+    LANGUAGE = English; 
+    LOCALIZABLE_FILES = {}; 
+    MAKEFILEDIR = "$(MAKEFILEPATH)/pb_makefiles"; 
+    NEXTSTEP_BUILDTOOL = /bin/gnumake; 
+    NEXTSTEP_INSTALLDIR = "$(LOCAL_LIBRARY_DIR)/WebObjects/Applications"; 
+    NEXTSTEP_JAVA_COMPILER = /usr/bin/javac; 
+    NEXTSTEP_OBJCPLUS_COMPILER = /usr/bin/cc; 
+    PBPROJECTTYPEVERSION = 4.0; 
+    PDO_UNIX_BUILDTOOL = $NEXT_ROOT/Developer/bin/make; 
+    PDO_UNIX_INSTALLDIR = "$(LOCAL_LIBRARY_DIR)/WebObjects/Applications"; 
+    PDO_UNIX_JAVA_COMPILER = "$(JDKBINDIR)/javac"; 
+    PDO_UNIX_OBJCPLUS_COMPILER = "$(NEXTDEV_BIN)/gcc"; 
+    PROJECTNAME = WebApplication; 
+    PROJECTTYPE = WebObjectsApplication; 
+    PROJECTVERSION = 2.8; 
+    TARGETS = (test); 
+    WINDOWS_BUILDTOOL = $NEXT_ROOT/Developer/Executables/make; 
+    WINDOWS_INSTALLDIR = "$(LOCAL_LIBRARY_DIR)/WebObjects/Applications"; 
+    WINDOWS_JAVA_COMPILER = "$(JDKBINDIR)/javac.exe"; 
+    WINDOWS_OBJCPLUS_COMPILER = "$(DEVDIR)/gcc"; 
+}

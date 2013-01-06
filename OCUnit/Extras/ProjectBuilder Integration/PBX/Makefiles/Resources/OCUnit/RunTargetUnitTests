@@ -1,0 +1,20 @@
+#!/bin/sh
+
+if [ "$TEST_AFTER_BUILD" = "YES" ]; then
+    OTEST=/usr/local/bin/otest
+    if [ "$WRAPPER_EXTENSION" ]; then
+        OTEST_TARGET=$SYMROOT/$PRODUCT_NAME.$WRAPPER_EXTENSION
+    else
+        OTEST_TARGET=$SYMROOT/$PRODUCT_NAME
+    fi
+    echo $OTEST $OTEST_TARGET
+	if [ "X$BUILT_PRODUCTS_DIR" = "X" ] ; then \
+		$OTEST "${OTEST_TARGET}"
+	else
+		if [ "X$DYLD_LIBRARY_PATH" = "X" ] ; then \
+			env DYLD_FRAMEWORK_PATH="$BUILT_PRODUCTS_DIR" $OTEST "${OTEST_TARGET}"
+		else
+			env DYLD_FRAMEWORK_PATH="$BUILT_PRODUCTS_DIR:$DYLD_LIBRARY_PATH" $OTEST "${OTEST_TARGET}"
+		fi
+	fi
+fi

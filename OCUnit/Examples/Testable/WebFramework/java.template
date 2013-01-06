@@ -1,0 +1,24 @@
+$$ Lines starting with $$ are not inserted into newly created files
+$$ The following substitutions are made:
+$$
+$$ $FILENAME$                e.g. foo.m
+$$ $FILENAMESANSEXTENSION$   e.g. foo
+$$ $DIRECTORY$               e.g. /tmp/MyNewApp
+$$ $PROJECTNAME$             e.g. MyNewApp
+$$ $SUBPROJECTNAME$          e.g. TheGoodPart.subproj
+$$ $USERNAME$                e.g. anyd
+$$ $DATE$                    e.g. Aug-8-1997
+$$ 
+$$ This template assumes we are going to be creating a Java class that
+$$ will represent a business object, so we extend next.eo.CustomObject.
+$$ 
+/* $FILENAME$ created by $USERNAME$ on $DATE$ */
+
+import com.apple.yellow.foundation.*;
+import com.apple.yellow.eocontrol.*;
+import com.apple.yellow.webobjects.*;
+
+
+public class $FILENAMESANSEXTENSION$ extends CustomObject {
+
+}

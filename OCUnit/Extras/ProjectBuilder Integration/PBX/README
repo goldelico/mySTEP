@@ -1,0 +1,62 @@
+// Copyright (c) 2000-2002 Sen:te (Sente SA).  All rights reserved.
+
+OCUnit - Mac OS X ProjectBuilser Integration readme
+
+Running tests from Project Buileder
+
+Copy the 'Makefiles/Resources/OCUnit/RunTargetUnitTests' script to '/Developer/Makefiles/Resources/OCUnit'
+For instance, in a Terminal shell : 
+	mkdir /Developer/Makefiles/Resources/OCUnit
+	cp Resources/OCUnit/RunTargetUnitTests /Developer/Makefiles/Resources/OCUnit
+
+
+Reporting errors in Project Builder
+
+In order to get errors reported into ProjectBuilder top build pane, the following operation is needed.
+
+WARNING: This involves modifying some private, undocumented files in one of ProjectBuilder's framework. This is not recommended, and you do this at your own risk. You will probably need administrator privileges do make that change.
+
+The file to be changed is:
+
+/System/Library/PrivateFrameworks/PBXCore.framework/Versions/A/Resources/Jambase-parse-info.plist
+
+1. Before doing anything else, make a backup copy of that file
+
+2. Add the following to the dictionary, immediatly before the CompileC entry:
+
+    PhaseScriptExecution = {
+        InfileParamNum = 0;
+        ProgressStatusFormat = "Testing %@";
+        MessageStatusFormat = "Testing %@";
+        FilenameRegexes = ("^/usr/local/bin/otest .*");
+        OutputParseRules = (
+            ("^()()(Testing.*)$", emit-notice),
+            ("^()()(warning.*)$", emit-warning),
+	    ("^(.*):([0-9]*): (.*)$", emit-error),
+	    ("^(.*):(.null.): (.*)$", emit-error),
+        );
+    };
+
+This portion of the file should now look like this:
+[...]
+*/
+{
+    PhaseScriptExecution = {
+        InfileParamNum = 0;
+        ProgressStatusFormat = "Testing %@";
+        MessageStatusFormat = "Testing %@";
+        FilenameRegexes = ("^/usr/local/bin/otest .*");
+        OutputParseRules = (
+            ("^()()(Testing.*)$", emit-notice),
+            ("^()()(warning.*)$", emit-warning),
+	    ("^(.*):([0-9]*): (.*)$", emit-error),
+	    ("^(.*):(.null.): (.*)$", emit-error),
+        );
+    };
+    CompileC = {
+[...]
+
+3. Save
+
+4. Quit and restart ProjectBuilder for this change to be effective.
+

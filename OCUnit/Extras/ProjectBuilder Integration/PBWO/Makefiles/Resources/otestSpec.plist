@@ -1,0 +1,15 @@
+{
+Version = "1.0";
+Name = "Sen:te TestingKit";
+Executables = ("/usr/local/bin/otest", "otest.exe");
+OperatingSystems = (rhapsody, windows);
+Architectures = ((ppc, i386), (i386));
+Language = "Objective C Testing";
+OutputFormat = {
+   Status = ("^Passed", "^Test Suite");
+   Warnings = ("^warning.*");
+   Errors = ("^(.*):([0-9]*): (.*)$", "^(Unknown file):(.nil.): -(.*)$");
+   File = ("otest.*/(.*)$");
+   Operation = "Testing";
+   }
+}

@@ -1,0 +1,5 @@
+{
+LabelKeyValueFor10_3 = "Mac OS X v10.3 or newer";
+TitleKeyValueFor10_3 = "The OCUnit Root package can only be installed on computers running Mac OS X 10.3 and later.";
+MessageKeyValueFor10_3 = "You must upgrade to Mac OS X v10.3 before installing this software.";
+}
