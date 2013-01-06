@@ -98,7 +98,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = EEC07F851699EC2500CA1448 /* AddressBook */;
+			remoteGlobalIDString = EEC07F851699EC2500CA1448;
 			remoteInfo = AddressBook;
 		};
 /* End PBXContainerItemProxy section */
@@ -820,7 +820,7 @@
 		EE1A0192097304E200EAB703 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_USE_STANDARD_INCLUDE_SEARCHING = NO;
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = 4.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				SDKROOT = macosx10.4;

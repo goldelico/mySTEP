@@ -1009,7 +1009,11 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) invalidateGlyphsOnLayoutInvalidationForGlyphRange:(NSRange) range;
 { // this should just be a flag where a typesetter can indicate that this glyph was temporarily inserted (e.g. hyphens)
-	NIMP;
+	// but we can simply delete all glyphs starting at range
+	if(range.location >= _numberOfGlyphs)
+		return;
+	range.length = _numberOfGlyphs-range.location;
+	[self deleteGlyphsInRange:range];
 }
 
 - (void) invalidateLayoutForCharacterRange:(NSRange) range actualCharacterRange:(NSRangePointer) charRange;

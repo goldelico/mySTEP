@@ -63,8 +63,8 @@
 	[layoutManager showsControlCharacters];
 	[layoutManager showsInvisibleCharacters];
 	switch([[textStorage string] characterAtIndex:location]) {
-		case '\t': return NSTypesetterHorizontalTabAction;
-		case '\n': return NSTypesetterParagraphBreakAction;
+		case NSTabCharacter: return NSTypesetterHorizontalTabAction;
+		case NSNewlineCharacter: return NSTypesetterParagraphBreakAction;
 		case ' ': return NSTypesetterWhitespaceAction;
 		// case ' ': return NSTypesetterControlCharacterAction;	// how does this relate to NSControlGlyph?
 		// case ' ': return NSTypesetterContainerBreakAction;
@@ -914,15 +914,23 @@ forStartOfGlyphRange:(NSRange) range;
 {
 	// this is IMHO intended to be overwritten in subclasses to control e.g. display of paragraph or tab characters
 	switch([textString characterAtIndex:curCharacterIndex]) {
-		case '\t':
+		case NSTabCharacter:
 			[self layoutTab];
 			break;
-		case 0x2028:	// unicode line separator
-		case '\n':
+		case NSLineSeparatorCharacter:	// unicode line separator
+		case NSParagraphSeparatorCharacter:	// unicode line separator
+		case NSNewlineCharacter:
 			[self breakLineAtIndex:curGlyphIndex];		
 			break;
-		case '\b':
+		case NSBackspaceCharacter:
 			// allow overprinting (?) by setting back curGlyphOffset to previous glyph or assigning negative extent?
+			break;
+		case NSCarriageReturnCharacter:
+		case NSEnterCharacter:
+		case NSBackTabCharacter:
+		case NSDeleteCharacter:
+			break;
+		case NSFormFeedCharacter:	// containerBreak?
 			break;
 	}
 	// FIXME:
