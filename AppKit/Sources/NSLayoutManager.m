@@ -234,6 +234,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		[self deleteGlyphsInRange:NSMakeRange(0, _numberOfGlyphs)];
 		objc_free(_glyphs);
 		}
+	if(_rectArray)
+		objc_free(_rectArray);
 	[_extraLineFragmentContainer release];
 	[_glyphGenerator release];
 	[_typesetter release];
@@ -1086,8 +1088,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (NSRect) lineFragmentRectForGlyphAtIndex:(unsigned)glyphIndex effectiveRange:(NSRange *)effectiveGlyphRange;
 {
-	[self ensureLayoutForGlyphRange:NSMakeRange(0, glyphIndex+1)];
-	return [self lineFragmentRectForGlyphAtIndex:glyphIndex effectiveRange:effectiveGlyphRange withoutAdditionalLayout:YES];
+	return [self lineFragmentRectForGlyphAtIndex:glyphIndex effectiveRange:effectiveGlyphRange withoutAdditionalLayout:NO];
 }
 
 - (NSRect) lineFragmentRectForGlyphAtIndex:(NSUInteger) index effectiveRange:(NSRangePointer) range withoutAdditionalLayout:(BOOL) layoutFlag;
@@ -1145,9 +1146,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				range->location--;
 				}
 			range->length=index-range->location;
-			while(NSMaxRange(*range)+1 < _numberOfGlyphs)
+			while(NSMaxRange(*range) < _numberOfGlyphs)
 				{
-				if(!NSEqualRects(lfur, _glyphs[NSMaxRange(*range)+1].usedLineFragmentRect))
+				if(!NSEqualRects(lfur, _glyphs[NSMaxRange(*range)].usedLineFragmentRect))
 					break;	// next index is different
 				range->length++;
 				}
@@ -1204,77 +1205,69 @@ static void allocateExtra(struct NSGlyphStorage *g)
 					inTextContainer:(NSTextContainer *) container 
 						  rectCount:(unsigned *) rectCount;
 {
-	// FIXME: this is not intended to be shared between all instances!
-	// FIXME: if the textContainer has holes, there can be multiple line fragment rects on the same y position!
-	// FIXME: then we can receive more than 3 rectangles
-	// FIXME: handle selGlyphRange (can be { NSNotFound, 0 } )
-	static NSRect rect[3];	// owned by us and reused; also reused by boundingRectForGlyphRange:inTextContainer (???)
-	NSPoint pos;
 	glyphRange=NSIntersectionRange(glyphRange, [self glyphRangeForTextContainer:container]);
+	unsigned int glyphIndex;
 	if(selGlyphRange.location != NSNotFound)
 		{
 		glyphRange=NSIntersectionRange(glyphRange, selGlyphRange);
 		if(glyphRange.length == 0)
 			glyphRange.location=selGlyphRange.location;	// has been wiped out by NSIntersectionRange
 		}
-	// FIXME: do we need to check this here or does lineFragmentRectForGlyphAtIndex know about the extraFragment?
-	if(glyphRange.location == _numberOfGlyphs)
+	glyphIndex=glyphRange.location;
+	*rectCount=0;
+	while(glyphIndex <= NSMaxRange(glyphRange))
 		{
-		rect[1]=rect[0]=_extraLineFragmentRect;
-		pos=NSZeroPoint;
-		}
-	else
-		{
-		rect[1]=rect[0]=[self lineFragmentRectForGlyphAtIndex:glyphRange.location effectiveRange:NULL];	// first line of range
-		pos=[self locationForGlyphAtIndex:glyphRange.location];	// first glyph
-		}
-	rect[0].size.width-=pos.x;
-	rect[0].origin.x=pos.x;	// first glyph to right margin
-	rect[1].origin.y+=rect[0].size.height;	// middle part starts below first line
-	if(_numberOfGlyphs == 0)
-		{ // empty
-			rect[2]=rect[1];
-			pos=NSZeroPoint;
-		}
-	else if(NSMaxRange(glyphRange) == _numberOfGlyphs)
-		{
-		if(_extraLineFragmentContainer)
-			{
-			rect[2]=_extraLineFragmentRect;
-			pos=NSZeroPoint;
-			}
-		else if(_numberOfGlyphs > 0)
-			{ // there is no extra fragment
-			rect[2]=[self lineFragmentUsedRectForGlyphAtIndex:NSMaxRange(glyphRange)-1 effectiveRange:NULL];	// last line of range
-			pos=NSMakePoint(NSWidth(rect[2]), rect[2].origin.y);	// line width
-			}
-		}
-	else
-		{
-		rect[2]=[self lineFragmentRectForGlyphAtIndex:NSMaxRange(glyphRange) effectiveRange:NULL];	// last line of range
-		pos=[self locationForGlyphAtIndex:NSMaxRange(glyphRange)];	// first glyph after last one
-		}
-	rect[2].size.width=pos.x-rect[2].origin.x;	// left margin to last glyph
-	// FIXME: we should also eliminate zero-width rects
-	if(rect[2].origin.y <= rect[1].origin.y)
-		{ // there is no middle block
-			if(rect[2].origin.y == rect[0].origin.y)
-				{ // first and last line are the same
-					rect[0].size.width=pos.x-rect[0].origin.x;
-					*rectCount=1;
-				}
+		NSRect lfr;
+		NSRange lfrRange;
+		unsigned int i;
+		if(glyphIndex == _numberOfGlyphs && _extraLineFragmentContainer)
+			lfr=_extraLineFragmentUsedRect;
+		else if(*rectCount != 0 && glyphIndex == NSMaxRange(glyphRange))
+			break;	// there was no extra fragment to include
+		else
+			{ // normal fragments
+			if(selGlyphRange.location != NSNotFound)	// for selection includes right margin
+				lfr=[self lineFragmentRectForGlyphAtIndex:glyphIndex effectiveRange:&lfrRange withoutAdditionalLayout:YES];
 			else
-				{ // first and last line are different, i.e. spans a single line break
-					rect[1]=rect[2];
-					*rectCount=2;
+				lfr=[self lineFragmentUsedRectForGlyphAtIndex:glyphIndex effectiveRange:&lfrRange withoutAdditionalLayout:YES];	// take only what we have
+			if(glyphIndex > lfrRange.location)
+				{ // not from beginning of LFR
+					NSPoint pos=[self locationForGlyphAtIndex:glyphIndex];
+					lfr.size.width-=pos.x;
+					lfr.origin.x+=pos.x;	// start at that glyph
 				}
+			if(NSMaxRange(lfrRange) > NSMaxRange(glyphRange))
+				{ // not to end of LFR
+					unsigned int g=NSMaxRange(glyphRange);
+					// FIXME: handle special cases
+					NSPoint pos=[self locationForGlyphAtIndex:g];
+					lfr.size.width=pos.x-lfr.origin.x;	// end at that glyph position
+				}
+			}
+		for(i=0; i<*rectCount; i++)
+			{ // check if we can merge the new lfr with the existing one
+			if(NSMinY(_rectArray[i]) == NSMinY(lfr) && NSHeight(_rectArray[i]) == NSHeight(lfr) && NSMinX(lfr) <= NSMaxX(_rectArray[i]))
+			   { // overlapping or adjacent on the same line
+				   _rectArray[i]=NSUnionRect(_rectArray[i], lfr);
+				   break;
+			   }
+			if(NSMinX(_rectArray[i]) == NSMinX(lfr) && NSWidth(_rectArray[i]) == NSWidth(lfr) && NSMinY(lfr) <= NSMaxY(_rectArray[i]))
+				{ // overlapping or adjacent in the same column
+					_rectArray[i]=NSUnionRect(_rectArray[i], lfr);
+					break;
+				}
+			}
+		if(i == *rectCount)
+			{ // could not merge
+				if(*rectCount == _rectArrayCapacity)
+					_rectArray=objc_realloc(_rectArray, sizeof(_rectArray[0])*(_rectArrayCapacity=2*_rectArrayCapacity+5));	// increase with some safety margin
+				_rectArray[(*rectCount)++]=lfr;	// new rectangle
+			}
+		glyphIndex=NSMaxRange(lfrRange);	// consult next fragment
 		}
-	else
-		{
-		rect[1].size.height=rect[2].origin.y-rect[1].origin.y;	// there is a block between first and last line
-		*rectCount=3;
-		}
-	return rect;
+	if(*rectCount+5 < _rectArrayCapacity/2)	// this time much smaller
+		_rectArray=objc_realloc(_rectArray, sizeof(_rectArray[0])*(_rectArrayCapacity=*rectCount+5));	// reduce with some safety margin
+	return _rectArray;
 }
 
 - (void) removeTemporaryAttribute:(NSString *)name forCharacterRange:(NSRange)charRange;

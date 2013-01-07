@@ -437,7 +437,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	if(NSIsEmptyRect(_caretRect))
 		{
 		_caretRect=[self firstRectForCharacterRange:_selectedRange];
-		_caretRect.origin.x+=1.0;
+		_caretRect.origin.x+=0.0;
 		_caretRect.size.width=1.0;
 		}
 	return _caretRect;
@@ -1071,7 +1071,13 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 - (NSRect) firstRectForCharacterRange:(NSRange) range actualRange:(NSRangePointer) actual
 {
 	unsigned cnt;
-	NSRectArray	r=[layoutManager rectArrayForGlyphRange:range withinSelectedGlyphRange:range inTextContainer:textContainer rectCount:&cnt];
+	NSRectArray	r;
+	range.length=0;	// this should avoid calculting *all* rects
+	r=[layoutManager rectArrayForGlyphRange:range withinSelectedGlyphRange:range inTextContainer:textContainer rectCount:&cnt];
+	if(actual)
+		{
+		
+		}
 	NSAssert(cnt > 0, @"zero count");
 	return r[0];	// first
 }

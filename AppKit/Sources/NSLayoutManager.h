@@ -121,6 +121,9 @@ typedef NSInteger NSTypesetterBehavior;
 		NSRange glyphRange;
 		NSRect usedRect;
 	} *_textContainerInfo; // there is one slot for each text container
+	
+	NSRectArray _rectArray;	// rectangle array (malloc)
+	unsigned int _rectArrayCapacity;
 
 	unsigned int _numberOfGlyphs;	// number of currently known glyphs (in relation to the characters)
 	unsigned int _nextCharacterIndex;	// next index for glyph generation
