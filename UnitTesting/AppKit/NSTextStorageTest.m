@@ -36,11 +36,12 @@
 
 - (void) textStorage:(NSTextStorage *) str edited:(unsigned) editedMask range:(NSRange) newCharRange changeInLength:(int) delta invalidatedRange:(NSRange) invalidatedCharRange;
 {
-	NSLog(@"storage=%@", str);
+/*	NSLog(@"storage=%@", str);
 	NSLog(@"edited=%u", editedMask);
 	NSLog(@"range=%@", NSStringFromRange(newCharRange));
 	NSLog(@"delta=%d", delta);
 	NSLog(@"invalidated=%@", NSStringFromRange(invalidatedCharRange));
+ */
 	mask=editedMask;
 	range=newCharRange;
 	d=delta;
@@ -51,7 +52,7 @@
 
 - (void) setTextStorage:(NSTextStorage *) str;
 {
-	NSLog(@"setTextStorage: %@", str);
+//	NSLog(@"setTextStorage: %@", str);
 	storage=str;
 	didsetTextStorage=YES;
 }
@@ -83,30 +84,36 @@
 
 - (void) test1;
 {
-	NSTextStorage *store=[[NSTextStorage alloc] initWithString:@"The files couldn’t be saved"];
+	NSTextStorage *store=[[NSTextStorage alloc] initWithString:@"The files couldn't be saved"];
 	SomeLayoutManager *lm=[[[SomeLayoutManager alloc] init] autorelease];
 	[store addLayoutManager:(NSLayoutManager *) lm];	// pretend to be a NSLayoutManager
 	STAssertTrue([lm didsetTextStorage], nil);
 	STAssertEqualObjects([lm storage], store, nil);
+	STAssertEqualObjects([store string], @"The files couldn't be saved", nil);
 	
 	[store replaceCharactersInRange:NSMakeRange(0, 3) withString:@"Several"];	// example from documentation
+	STAssertEqualObjects([store string], @"Several files couldn't be saved", nil);
 	STAssertTrue([lm didtextStorageEdited], nil);
 	// check values
 
-	[store replaceCharactersInRange:NSMakeRange(8, 5) withString:@"Documents"];
+	[store replaceCharactersInRange:NSMakeRange(8, 5) withString:@"documents"];
+	STAssertEqualObjects([store string], @"Several documents couldn't be saved", nil);
 	STAssertTrue([lm didtextStorageEdited], nil);
 	// check values
 
 	[store replaceCharactersInRange:NSMakeRange(18, 11) withString:@"have been"];
+	STAssertEqualObjects([store string], @"Several documents have been saved", nil);
 	STAssertTrue([lm didtextStorageEdited], nil);
 	// check values
 	
 	[store setAttributes:[NSDictionary dictionary] range:NSMakeRange(5, 10)];
+	STAssertEqualObjects([store string], @"Several documents have been saved", nil);
 	STAssertTrue([lm didtextStorageEdited], nil);
 	// check values
 	
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];	// mutableString proxy does a retain+autorelease on the store
 	[[store mutableString] setString:@"something else"];	// call through the mutableString proxy
+	STAssertEqualObjects([store string], @"something else", nil);
 	STAssertTrue([lm didtextStorageEdited], nil);
 	// check values
 	[arp release];

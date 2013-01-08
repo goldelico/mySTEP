@@ -35,17 +35,38 @@ static BOOL didCalltextContainerChangedGeometry;
 	NSTextContainer *c = [[NSTextContainer alloc] initWithContainerSize:NSMakeSize(20.0, 30.0)];
 	NSRect lfr, propRect, remRect, r;
 	NSLayoutManager *lm=[[MyLayoutManager alloc] init];
+
+	// default settings
+	STAssertEquals([c lineFragmentPadding], 5.0f, nil);
+	STAssertFalse([c heightTracksTextView], nil);
+	STAssertFalse([c widthTracksTextView], nil);
+	STAssertNil([c layoutManager], nil);
+	STAssertNil([c textView], nil);
+	STAssertEquals([c containerSize], NSMakeSize(20.0, 30.0), nil);
+	
 	[c setLayoutManager:lm];
 	STAssertEqualObjects([c layoutManager], lm, nil);
 
-	// line padding 0
+	// set line padding 0
 	textContainerChangedGeometryArg=nil;
 	didCalltextContainerChangedGeometry=NO;
 	[c setLineFragmentPadding:0.0];
 	STAssertEquals([c lineFragmentPadding], 0.0f, nil);
+	// check if it did call textContainerChangedGeometry
 	STAssertTrue(didCalltextContainerChangedGeometry, nil);
 	STAssertEqualObjects(textContainerChangedGeometryArg, c, nil);	
 	
+	// set container size
+	textContainerChangedGeometryArg=nil;
+	didCalltextContainerChangedGeometry=NO;
+	[c setContainerSize:NSMakeSize(20.0, 30.0)];
+	STAssertEquals([c containerSize], NSMakeSize(20.0, 30.0), nil);
+	STAssertFalse(didCalltextContainerChangedGeometry, @"optimizes for unchanged container");
+	[c setContainerSize:NSMakeSize(20.1, 30.0)];
+	STAssertTrue(didCalltextContainerChangedGeometry, @"container size really changed");
+	STAssertEqualObjects(textContainerChangedGeometryArg, c, nil);
+	[c setContainerSize:NSMakeSize(20.0, 30.0)];	// restore
+
 	propRect=NSMakeRect(0.0, 0.0, 40.0, 20.0);	// wider and less tall than full container
 	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
 	r=NSMakeRect(0.0, 0.0, 20.0, 20.0);

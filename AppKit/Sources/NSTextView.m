@@ -97,14 +97,15 @@ static NSCursor *__textCursor = nil;
 					[textContainer setTextView:self];	// this tries to track container size...
 				}
 			else
-				{
-				layoutManager=[NSLayoutManager new];
-				textContainer=[[NSTextContainer alloc] initWithContainerSize:frameRect.size];
-				[layoutManager addTextContainer:textContainer];
-				[textContainer release];	// LayoutManager retains TextContainer
-				[textStorage addLayoutManager:layoutManager];
-				[layoutManager release];	// LayoutManager retains LayoutManager (and self retains textStorage)
-				NSAssert(textContainer && layoutManager && textStorage, @"needs text system");
+				{ // create a default container
+					layoutManager=[NSLayoutManager new];
+					textContainer=[[NSTextContainer alloc] initWithContainerSize:NSMakeSize(frameRect.size.width, 1e+07)];
+					[textContainer setHeightTracksTextView:NO];
+					[layoutManager addTextContainer:textContainer];
+					[textContainer release];	// LayoutManager retains TextContainer
+					[textStorage addLayoutManager:layoutManager];
+					[layoutManager release];	// LayoutManager retains LayoutManager (and self retains textStorage)
+					NSAssert(textContainer && layoutManager && textStorage, @"needs text system");
 				}
 			insertionPointColor=[[NSColor blackColor] retain];
 			defaultParagraphStyle=[[NSParagraphStyle defaultParagraphStyle] retain];

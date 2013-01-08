@@ -26,13 +26,14 @@
 	if((self=[super init]))
 		{
 		size=sz;
+		lineFragmentPadding=5.0;
 		}
 	return self;
 }
 
 - (id) init
 { // undocumented initializer for a "sufficiently large" container; used by Apple in the CircleView example
-	return [self initWithContainerSize:(NSSize) { 10000000, 10000000 }];
+	return [self initWithContainerSize:(NSSize) { 1e+7, 1e+7 }];
 }
 
 - (void) dealloc;

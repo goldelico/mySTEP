@@ -40,21 +40,46 @@
     	NSLog(@"Tried to create NSValue with NULL value or type");
 		return nil;
 		}
-
-	if (strcmp(@encode(id), type) == 0)
-    	return [self valueWithNonretainedObject:(id)value];
+	
+    switch (*type) {
+		case _C_ID:		return [self valueWithNonretainedObject:(id)value];
+		case _C_CHR:	return [NSNumber numberWithChar:*(char *)value];
+		case _C_INT:	return [NSNumber numberWithInt:*(int *)value]; 
+		case _C_SHT:	return [NSNumber numberWithShort:*(short *)value]; 
+		case _C_LNG:	return [NSNumber numberWithLong:*(long *)value]; 
+		case 'q':		return [NSNumber numberWithLongLong:*(long long *)value];
+		case _C_FLT:	return [NSNumber numberWithFloat:*(float *)value]; 
+		case _C_DBL:	return [NSNumber numberWithDouble:*(double *)value]; 
+		case _C_UCHR: 
+			return [NSNumber numberWithUnsignedChar:*(unsigned char *)value]; 
+		case _C_USHT:	
+			return [NSNumber numberWithUnsignedShort:*(unsigned short *)value];
+		case _C_UINT:	
+			return [NSNumber numberWithUnsignedInt:*(unsigned int *)value]; 
+		case _C_ULNG:	
+			return [NSNumber numberWithUnsignedLong:*(unsigned long *)value]; 
+		case 'Q':		
+			return [NSNumber numberWithUnsignedLongLong:*(unsigned long long *)value]; 
+		default:		
+			break;
+	}
+	
 	if (strcmp(@encode(NSPoint), type) == 0)
 		return [self valueWithPoint: *(NSPoint *)value];
-	if (strcmp(@encode(void *), type) == 0)
-    	return [self valueWithPointer:value];
 	if (strcmp(@encode(NSRect), type) == 0)
     	return [self valueWithRect: *(NSRect *)value];
 	if (strcmp(@encode(NSSize), type) == 0)
 		return [self valueWithSize: *(NSSize *)value];
-    
-    return [NSNumber value:value withObjCType:type];
+	if (strcmp(@encode(NSRange), type) == 0)
+		return [self valueWithRange: *(NSRange *)value];
+	if (strcmp(@encode(void *), type) == 0)
+    	return [self valueWithPointer:value];
+	
+	[NSException raise:NSInvalidArgumentException format:@"Invalid objc type %s", type];
+	
+    return nil;
 }
-		
+
 + (NSValue *) valueWithNonretainedObject:(id)anObject
 {
 GSNonretainedObjectValue *v = [GSNonretainedObjectValue alloc];
@@ -95,6 +120,8 @@ GSSizeValue *v = [GSSizeValue alloc];
 	GSRangeValue *v = [GSRangeValue alloc];
 	return [[v initWithBytes:&range objCType:@encode(NSRange)] autorelease];
 }
+
+// CHECKME: is this an official method?
 
 + (id) valueFromString:(NSString *)string
 {

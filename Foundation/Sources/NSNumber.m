@@ -121,36 +121,6 @@ static NSNumber *__sharedNum = nil;
 	[super dealloc] /* make the compiler happy */;
 }
 
-+ (NSValue *) value:(const void *)value withObjCType:(const char *)type
-{
-    switch (*type)
-		{
-		case _C_CHR:	return [self numberWithChar:*(char *)value];
-		case _C_INT:	return [self numberWithInt:*(int *)value]; 
-		case _C_SHT:	return [self numberWithShort:*(short *)value]; 
-		case _C_LNG:	return [self numberWithLong:*(long *)value]; 
-		case 'q':		return [self numberWithLongLong:*(long long *)value];
-		case _C_FLT:	return [self numberWithFloat:*(float *)value]; 
-		case _C_DBL:	return [self numberWithDouble:*(double *)value]; 
-		case _C_UCHR: 
-			return [self numberWithUnsignedChar:*(unsigned char *)value]; 
-		case _C_USHT:	
-			return [self numberWithUnsignedShort:*(unsigned short *)value];
-		case _C_UINT:	
-			return [self numberWithUnsignedInt:*(unsigned int *)value]; 
-		case _C_ULNG:	
-			return [self numberWithUnsignedLong:*(unsigned long *)value]; 
-		case 'Q':		
-		 return [self numberWithUnsignedLongLong:*(unsigned long long *)value]; 
-		default:		
-			break;
-		}
-
-	[NSException raise:NSInvalidArgumentException format:@"Invalid objc type"];
-
-    return nil;
-}
-
 + (NSNumber *) numberWithBool:(BOOL)value
 {
 	static NSNumber *cache[2]; 
@@ -328,6 +298,12 @@ return [[[TYPE alloc] INIT:VALUE] autorelease]; }
 - (BOOL) isEqualToNumber:(NSNumber*)other
 {
 	return ([self compare: other] == NSOrderedSame) ? YES : NO;
+}
+
+- (BOOL) isEqualToValue:(NSValue*)other
+{ // maybe we can do better...
+	// check if [other isKindOfClass:[self class]]
+	return ([self compare: (NSNumber *) other] == NSOrderedSame) ? YES : NO;
 }
 
 - (BOOL) isEqual:(id)other

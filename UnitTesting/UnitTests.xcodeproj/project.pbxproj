@@ -55,6 +55,8 @@
 		EEC07FA71699EC3100CA1448 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EEC07FA81699EC3100CA1448 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EEC07FA91699EC3100CA1448 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
+		EEC08C16169C2B3D00CA1448 /* NSTextViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC08C15169C2B3D00CA1448 /* NSTextViewTest.m */; };
+		EEC08C17169C2B3D00CA1448 /* NSTextViewTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC08C15169C2B3D00CA1448 /* NSTextViewTest.m */; };
 		EED109C90F82540300E9AEC6 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
 		EED980320F875953002E4AD5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
 		EED980330F875953002E4AD5 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
@@ -144,9 +146,9 @@
 		EEC07E3B1699C69000CA1448 /* NSScannerTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSScannerTest.h; sourceTree = "<group>"; };
 		EEC07E3C1699C69000CA1448 /* NSScannerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSScannerTest.m; sourceTree = "<group>"; };
 		EEC07F991699EC2500CA1448 /* AddressBook.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AddressBook.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEC07F9A1699EC2500CA1448 /* Tests-Info copy 2.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info copy 2.plist"; sourceTree = "<group>"; };
 		EEC07FAF1699EC3100CA1448 /* AddressBook.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AddressBook.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEC07FB01699EC3100CA1448 /* Tests-Info copy 3.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info copy 3.plist"; sourceTree = "<group>"; };
+		EEC08C14169C2B3D00CA1448 /* NSTextViewTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextViewTest.h; sourceTree = "<group>"; };
+		EEC08C15169C2B3D00CA1448 /* NSTextViewTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextViewTest.m; sourceTree = "<group>"; };
 		EED109C80F82540300E9AEC6 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EED980280F87594E002E4AD5 /* NSTextFieldCellTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextFieldCellTest.h; sourceTree = "<group>"; };
@@ -246,8 +248,6 @@
 				EE0C72040F7E7328008B94EE /* Tests-Info.plist */,
 				EE488C3E0F91030800B3E56F /* main.m */,
 				EE488AEC0F91025500B3E56F /* Special-Info.plist */,
-				EEC07F9A1699EC2500CA1448 /* Tests-Info copy 2.plist */,
-				EEC07FB01699EC3100CA1448 /* Tests-Info copy 3.plist */,
 			);
 			name = BrowserTester;
 			sourceTree = "<group>";
@@ -307,10 +307,12 @@
 				EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */,
 				EED980280F87594E002E4AD5 /* NSTextFieldCellTest.h */,
 				EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */,
-				EE547B33168C3EDA00164AB4 /* NSViewBoundsTest.h */,
-				EE547B34168C3EDA00164AB4 /* NSViewBoundsTest.m */,
 				EE3854EC169BF8910089B326 /* NSTextStorageTest.h */,
 				EE3854ED169BF8910089B326 /* NSTextStorageTest.m */,
+				EEC08C14169C2B3D00CA1448 /* NSTextViewTest.h */,
+				EEC08C15169C2B3D00CA1448 /* NSTextViewTest.m */,
+				EE547B33168C3EDA00164AB4 /* NSViewBoundsTest.h */,
+				EE547B34168C3EDA00164AB4 /* NSViewBoundsTest.m */,
 			);
 			name = "AppKit-Tests";
 			path = AppKit;
@@ -676,6 +678,7 @@
 				EED9803E0F875962002E4AD5 /* NSTextFieldCellTest.m in Sources */,
 				EE547B35168C3EDA00164AB4 /* NSViewBoundsTest.m in Sources */,
 				EE3854EF169BF8920089B326 /* NSTextStorageTest.m in Sources */,
+				EEC08C16169C2B3D00CA1448 /* NSTextViewTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -706,6 +709,7 @@
 				EEDB59FC169878070011D22A /* NSTextFieldCellTest.m in Sources */,
 				EEDB59FD169878070011D22A /* NSViewBoundsTest.m in Sources */,
 				EE3854EE169BF8920089B326 /* NSTextStorageTest.m in Sources */,
+				EEC08C17169C2B3D00CA1448 /* NSTextViewTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -992,7 +996,7 @@
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "Tests-Info copy 2.plist";
+				INFOPLIST_FILE = "Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				LIBRARY_SEARCH_PATHS = /Developer/Library;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
@@ -1025,7 +1029,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
 				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "Tests-Info copy 2.plist";
+				INFOPLIST_FILE = "Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1053,7 +1057,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
 				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "Tests-Info copy 2.plist";
+				INFOPLIST_FILE = "Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				ONLY_ACTIVE_ARCH = YES;
