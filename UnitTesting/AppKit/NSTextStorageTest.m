@@ -36,12 +36,6 @@
 
 - (void) textStorage:(NSTextStorage *) str edited:(unsigned) editedMask range:(NSRange) newCharRange changeInLength:(int) delta invalidatedRange:(NSRange) invalidatedCharRange;
 {
-/*	NSLog(@"storage=%@", str);
-	NSLog(@"edited=%u", editedMask);
-	NSLog(@"range=%@", NSStringFromRange(newCharRange));
-	NSLog(@"delta=%d", delta);
-	NSLog(@"invalidated=%@", NSStringFromRange(invalidatedCharRange));
- */
 	mask=editedMask;
 	range=newCharRange;
 	d=delta;
@@ -52,7 +46,6 @@
 
 - (void) setTextStorage:(NSTextStorage *) str;
 {
-//	NSLog(@"setTextStorage: %@", str);
 	storage=str;
 	didsetTextStorage=YES;
 }
@@ -92,6 +85,7 @@
 	STAssertEqualObjects([store string], @"The files couldn't be saved", nil);
 	
 	[store replaceCharactersInRange:NSMakeRange(0, 3) withString:@"Several"];	// example from documentation
+	STAssertTrue([[store string] isEqual:@"Several files couldn't be saved"], nil);
 	STAssertEqualObjects([store string], @"Several files couldn't be saved", nil);
 	STAssertTrue([lm didtextStorageEdited], nil);
 	// check values

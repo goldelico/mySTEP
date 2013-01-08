@@ -34,7 +34,6 @@
 - (void) test2
 {
 	NSFont *font=[NSFont fontWithName:@"Helvetica" size:12.0];
-	NSLog(@"%.10f", [font xHeight]);
 	STAssertEqualObjects([font fontName], @"Helvetica", nil);
 	STAssertEquals([font pointSize], 12.0f, nil);
 	STAssertEquals([font ascender], 9.240234375f, nil);

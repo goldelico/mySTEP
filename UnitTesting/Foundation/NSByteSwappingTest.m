@@ -16,6 +16,7 @@
 { // test byte swapping methods for correctness
 	float flt=M_PI;
 	double dbl=M_PI;
+#if 0
 		{
 			float want, have;
 			float dwant, dhave;
@@ -34,6 +35,7 @@
 			NSLog(@"%016llx %016llx", *(long long *)&have, *(long long *)&want);
 			NSLog(@"%.30g", NSSwapLittleDoubleToHost(*((NSSwappedDouble *)&dbl)));
 		}
+#endif
 	STAssertEquals(NSSwapShort(0x1234), (unsigned short)0x3412, @"NSSwapShort failed");
 	STAssertEquals(NSSwapLong(0x12345678L), 0x78563412UL, @"NSSwapLong failed");
 	STAssertEquals(NSSwapLongLong(0x123456789abcdef0LL), 0xf0debc9a78563412LL, @"NSSwapLongLong failed");

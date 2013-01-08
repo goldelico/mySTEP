@@ -100,13 +100,14 @@
 	NSPredicate *p, *q;
 	p=[NSPredicate predicateWithFormat:@"%K like %@+$b+$c", @"$single", @"b\""];
 	STAssertEqualObjects(@"$single LIKE (\"b\\\"\" + $b) + $c", [p predicateFormat], nil);
-
+#if 0
 	if([p respondsToSelector:@selector(subpredicates)])
 		NSLog(@"subpredicates=%@", [(NSCompoundPredicate *)p subpredicates]);
 	if([p respondsToSelector:@selector(leftExpression)])
 		NSLog(@"left=%@", [(NSComparisonPredicate *)p leftExpression]);
 	if([p respondsToSelector:@selector(rightExpression)])
 		NSLog(@"right=%@", [(NSComparisonPredicate *)p rightExpression]);
+#endif
 	q=[p predicateWithSubstitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:
 																					 @"val_for_single_string", @"single",	// why %K does not make a variable
 																					 @"val_for_$b", @"b",

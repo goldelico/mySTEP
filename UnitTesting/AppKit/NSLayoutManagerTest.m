@@ -109,18 +109,17 @@
 - (void) test08
 { // default layout settings
 	NSSize size=[textContainer containerSize];
-//	NSLog(@"%@", NSStringFromSize(size));
 	STAssertEquals(size, NSMakeSize(1e+07, 1e+07), nil);
 }
 
 - (void) test10
 {
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);			
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);			
 	[layoutManager ensureGlyphsForGlyphRange:NSMakeRange(0, 5)];
 	// since we still see 0 here, firstUnlaidGlyph has nothing to do with the glyph generation
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	/* conclusions
 	 - ensuring glyphRanges has nothing to do with firstUnlaid*Index
 	 - it is solely for layout
@@ -129,8 +128,8 @@
 
 - (void) test11
 {
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// this shows that we may have a stale text container assignment even if we have no valid layout!
 	// it is not even clear where this comes from!
 	// if we check this right after setting up the layout manger it is/was nil
@@ -141,8 +140,8 @@
 	STAssertThrows([layoutManager invalidateLayoutForCharacterRange:NSMakeRange(0, 40) actualCharacterRange:NULL], nil);
 	STAssertNoThrow([layoutManager invalidateLayoutForCharacterRange:NSMakeRange(0, 30) actualCharacterRange:NULL], nil);
 	// here we get nil because there is no layout for this glyph
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	STAssertEqualObjects([layoutManager textContainerForGlyphAtIndex:0 effectiveRange:NULL withoutAdditionalLayout:YES], textContainer, nil);
 	STAssertEqualObjects([layoutManager textContainerForGlyphAtIndex:10 effectiveRange:NULL withoutAdditionalLayout:YES], textContainer, nil);
 	/* conclusions
@@ -153,12 +152,12 @@
 
 - (void) test12
 {
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	[layoutManager ensureGlyphsForCharacterRange:NSMakeRange(0, 10)];
 	// ensuring glyphs does not do any layout
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	/* conclusions
 	 - generating glyphs does not assign text containers
 	 */
@@ -166,12 +165,12 @@
 
 - (void) test13
 {
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	[layoutManager ensureLayoutForGlyphRange:NSMakeRange(0, 5)];
 	// here we will see 7 because the first line (7 chars/glyphs) was laid out completely
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)7, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)7, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 7u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 7u, nil);
 	/* conclusions
 	 - generating layout is done line by line as far as needed
 	 */
@@ -179,8 +178,8 @@
 
 - (void) test14
 {
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	[layoutManager ensureLayoutForGlyphRange:NSMakeRange(0, 5)];
 	// now we have a text container for the first glyph -- which generates all glyphs that fit into the container
 	STAssertNil([layoutManager textContainerForGlyphAtIndex:0 effectiveRange:NULL withoutAdditionalLayout:YES], nil);
@@ -188,8 +187,8 @@
 	STAssertNil([layoutManager textContainerForGlyphAtIndex:20 effectiveRange:NULL withoutAdditionalLayout:YES], nil);
 	// here we will see all 30 glyphs (all lines!)
 	STAssertEquals([layoutManager glyphRangeForTextContainer:textContainer], NSMakeRange(0, 30), nil);
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)30, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)30, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 30u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 30u, nil);
 	/* conclusions
 	 * unclear
 	 */
@@ -198,24 +197,23 @@
 - (void) test20
 {
 	NSRect rect;
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// try to invalidate already invalid range - ignored
 	[layoutManager invalidateLayoutForCharacterRange:NSMakeRange(7, 5) actualCharacterRange:NULL];
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// make full layout
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)30, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)30, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 30u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 30u, nil);
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 //	NSLog(@"usedRectForTextContainer: %@", NSStringFromRect(rect));
 	STAssertTrue(rect.origin.x == 0.0 && rect.origin.y == 0.0 && rect.size.width >= 1e+07 && rect.size.height == 4*14.0, @"rect=%@", NSStringFromRect(rect));
 	// invalidate subrange
 	[layoutManager invalidateLayoutForCharacterRange:NSMakeRange(7, 5) actualCharacterRange:NULL];
-//	NSLog(@"%u", [layoutManager firstUnlaidGlyphIndex]);
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)7, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)7, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 7u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 7u, nil);
 	// should have become smaller
 	rect = [layoutManager usedRectForTextContainer:textContainer];
 //	NSLog(@"usedRectForTextContainer: %@", NSStringFromRect(rect));
@@ -254,12 +252,12 @@
 	// try same directly on textstorage
 	[textStorage replaceCharactersInRange:NSMakeRange(0, [textStorage length]) withString:@""];
 	// now we should have no layout, i.e. 0
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// we must ensure the layout because usedRectForTextContainer does not
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// there is some default font for empty strings
 	STAssertEquals([layoutManager usedRectForTextContainer:textContainer], NSMakeRect(0.0, 0.0, 10.0, 14.0), nil);
 	// the text container we have provided
@@ -277,12 +275,12 @@
 	[textStorage replaceCharactersInRange:NSMakeRange(0, [textStorage length]) withString:@""];
 	[textStorage setFont:[NSFont fontWithName:@"Helvetica" size:24.0]];
 	// now we should have no layout, i.e. 0
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// we must ensure the layout because usedRectForTextContainer does not
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// there is some default font for empty strings
 	// the 10 width appears to be some default margin?
 	STAssertEquals([layoutManager usedRectForTextContainer:textContainer], NSMakeRect(0.0, 0.0, 10.0, 14.0), nil);
@@ -301,12 +299,12 @@
 	[textStorage replaceCharactersInRange:NSMakeRange(0, [textStorage length]) withString:@"x"];
 	
 	// now we should have no layout, i.e. 0
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// we must ensure the layout because usedRectForTextContainer does not
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)1, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)1, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 1u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 1u, nil);
 	// there is some default font for any string with line height 14.0
 	STAssertEquals([layoutManager usedRectForTextContainer:textContainer], NSMakeRect(0.0, 0.0, 16.0, 14.0), nil);
 	// since we have some characters there is no extra line fragment
@@ -319,12 +317,12 @@
 	[textStorage setFont:[NSFont fontWithName:@"Helvetica" size:24.0]];
 
 	// now we should have no layout, i.e. 0
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// we must ensure the layout because usedRectForTextContainer does not
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)1, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)1, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 1u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 1u, nil);
 	// now we see the bigger font height
 	STAssertEquals([layoutManager usedRectForTextContainer:textContainer], NSMakeRect(0.0, 0.0, 22.0, 29.0), nil);
 	// since we have some characters there is no extra line fragment
@@ -380,12 +378,12 @@
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"Helvetica", nil);
 
 	// now we should have no layout, i.e. 0
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// we must ensure the layout because usedRectForTextContainer does not
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)1, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)1, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 1u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 1u, nil);
 	// there is some default font for any string with line height 14.0
 	STAssertEquals([layoutManager usedRectForTextContainer:textContainer], NSMakeRect(0.0, 0.0, 16.0, 14.0), nil);
 	// since we have some characters there is no extra line fragment
@@ -404,12 +402,12 @@
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"Helvetica", nil);
 	
 	// now we should have no layout, i.e. 0
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// we must ensure the layout because usedRectForTextContainer does not
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// there is some default font for any string with line height 14.0
 	STAssertEquals([layoutManager usedRectForTextContainer:textContainer], NSMakeRect(0.0, 0.0, 10.0, 14.0), nil);
 	// since we have no characters there is now an extra line fragment
@@ -438,12 +436,12 @@
 	STAssertEqualObjects([[[[textContainer textView] typingAttributes] objectForKey:NSFontAttributeName] fontName], @"LucidaGrande", nil);
 	
 	// now we should have no layout, i.e. 0
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// we must ensure the layout because usedRectForTextContainer does not
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// there is some default font for empty string with line height 14.0
 	STAssertEquals([layoutManager usedRectForTextContainer:textContainer], NSMakeRect(0.0, 0.0, 10.0, 21.0), nil);
 	// since we have some characters there is no extra line fragment
@@ -520,8 +518,8 @@
 	// try the same string with our layout manager
 	[layoutManager invalidateGlyphsOnLayoutInvalidationForGlyphRange:NSMakeRange(0, INT_MAX)];
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// there is some default font for any string with line height 14.0 [userFontOfSize.0.0]
 	STAssertEquals([layoutManager usedRectForTextContainer:textContainer], NSMakeRect(0.0, 0.0, 10.0, 14.0), nil);
 	
@@ -533,8 +531,8 @@
 
 	[layoutManager invalidateGlyphsOnLayoutInvalidationForGlyphRange:NSMakeRange(0, INT_MAX)];
 	[layoutManager ensureLayoutForCharacterRange:NSMakeRange(0, [textStorage length])];
-	STAssertEquals([layoutManager firstUnlaidGlyphIndex], (unsigned)0, nil);
-	STAssertEquals([layoutManager firstUnlaidCharacterIndex], (unsigned)0, nil);
+	STAssertEquals([layoutManager firstUnlaidGlyphIndex], 0u, nil);
+	STAssertEquals([layoutManager firstUnlaidCharacterIndex], 0u, nil);
 	// this results in the same height as string drawing
 	STAssertEquals([layoutManager usedRectForTextContainer:textContainer], NSMakeRect(0.0, 0.0, 10.0, 15.0), nil);
 	
