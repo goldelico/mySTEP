@@ -340,15 +340,15 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		return Nil;
 		}
 	// look if the class was really defined in our bundle
-	theClass = NSClassFromString(className);
 	if (self == __mainBundle) 
 		{
+		theClass = NSClassFromString(className);
 		if (theClass && [[self class] bundleForClass:theClass] != __mainBundle)
 			theClass = Nil;
 		} 
 	else 
 		{
-		if(![_bundleClasses containsObject: theClass])
+		if(![_bundleClasses containsObject: className])
 			theClass = Nil;	// no
 		}
   
@@ -381,15 +381,18 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 			if(n)
 				_principalClass = NSClassFromString(n);
 			if(!_principalClass)
-				_principalClass = [_bundleClasses anyObject];
+				_principalClass = NSClassFromString([_bundleClasses anyObject]);
 			}
 		}
 
 	return _principalClass;
 }
 
-- (void) _addClass:(Class)aClass
+- (void) _addClass:(NSString *)aClass
 {
+#if 0
+	NSLog(@"_addClass: %@", aClass);
+#endif
 	[_bundleClasses addObject:(id)aClass];
 }
 
@@ -431,21 +434,12 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 #ifdef NeXT_RUNTIME		// FIXME rewrite routine per NeXT to avoid this mess
 		char *modPtr[2] = {"", NULL};
 		modPtr[0] = (char *) [obj fileSystemRepresentation];
-		if(objc_loadModules(modPtr, stderr, _bundleLoadCallback, NULL,NULL))
+		if(objc_loadModules(modPtr, stderr, _bundleLoadCallback, NULL, NULL))
 #else /* !NeXT_RUNTIME */
 			if(objc_load_module([obj fileSystemRepresentation], stderr, _bundleLoadCallback, NULL, NULL))
 #endif /* NeXT_RUNTIME */
 				{ // could not properly load
-#if 0
-					NSLog(@"NSBundle: before loadunlock 2");
-#endif
 					[__loadLock unlock];
-#if 0
-					NSLog(@"NSBundle: after loadunlock 2");
-#endif
-#if 0
-					fprintf(stderr, "could not properly load\n");
-#endif
 					if(error) *error=[NSError errorWithDomain:@"NSBundleLoading" code:1 userInfo:nil];
 					return NO;
 				}
@@ -454,10 +448,12 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 				NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 				NSDictionary *dict;
 				
-				// FIXME: shouldn't we pass an array with NSStrings?
 				dict = [NSDictionary dictionaryWithObjectsAndKeys:[_bundleClasses allObjects], NSLoadedClasses, nil];
 				_codeLoaded = YES;
 				__loadingBundle = nil;
+#if 0
+				fprintf(stderr, "NSBundle: posting\n");
+#endif
 				[nc postNotificationName: NSBundleDidLoadNotification 
 								  object: self
 								userInfo: dict];
@@ -946,21 +942,22 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 
 void _bundleLoadCallback(Class theClass, Category *theCategory)
 {
+	// should be: (but isn't?)
 	// theCategory->category_name
 	// theCategory->class_name
 #if 0
-	fprintf(stderr, "_bundleLoadCallback\n");
+	fprintf(stderr, "_bundleLoadCallback(%s, %s)\n", object_get_class_name(theClass), theCategory?"Category":""/*theCategory?(theCategory->category_name):"---"*/);
 #endif
 	NSCAssert(__loadingBundle, NSInternalInconsistencyException);
 	if(!theCategory)								// Don't store categories
-		[__loadingBundle _addClass:theClass];
+		[__loadingBundle _addClass:NSStringFromClass(theClass)];
 #if 0
 	// this may have unexpected side effects!!!
 	// printing the bundle description will print the list of bundle classes
 	// this may trigger +initialize for some classes that have already been loded
 	// while others are not yet initialized here!!!
 	else
-		NSLog(@"Warning: _bundleLoadCallback __loadingBundle=%@ theClass=%08x is not a class, theCategory=%08x", __loadingBundle, theClass, theCategory);
+		NSLog(@"Warning: _bundleLoadCallback __loadingBundle=%@ theClass=%s is not a class, theCategory=%08x", __loadingBundle, object_get_class_name(theClass), theCategory);
 #endif
 #if 0
 	fprintf(stderr, "_bundleLoadCallback done\n");

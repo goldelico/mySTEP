@@ -1,27 +1,27 @@
 /* 
-   NSUtilities.m
-
-   Copyright (C) 1996 Free Software Foundation, Inc.
-
-   Author:	Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
-   Date:	August 1994
-
-   NSLog
-   Author:	Adam Fedor <fedor@boulder.colorado.edu>
-   Date:	November 1996
-
-   Default Encoding
-   Author:	Stevo Crvenkovski <stevo@btinternet.com>
-   Date:	December 1997
-
-   ARM Softfloat wrapper
-   Author:	Nikolaus Schaller <hns@computer.org>
-   Date:	2003 - August 2007
+ NSUtilities.m
+ 
+ Copyright (C) 1996 Free Software Foundation, Inc.
+ 
+ Author:	Andrew Kachites McCallum <mccallum@gnu.ai.mit.edu>
+ Date:	August 1994
+ 
+ NSLog
+ Author:	Adam Fedor <fedor@boulder.colorado.edu>
+ Date:	November 1996
+ 
+ Default Encoding
+ Author:	Stevo Crvenkovski <stevo@btinternet.com>
+ Date:	December 1997
+ 
+ ARM Softfloat wrapper
+ Author:	Nikolaus Schaller <hns@computer.org>
+ Date:	2003 - August 2007
  
  This file is part of the mySTEP Library and is provided
  under the terms of the GNU Library General Public License.
  
-*/ 
+ */ 
 
 #if __arm__
 #define atof _atof	// rename atof in loaded header file to handle automatic hard/softfloat
@@ -169,13 +169,15 @@ int objc_check_undefineds(FILE *errorStream)
 void objc_invalidate_dtable(Class class)
 {
 	Class s;
-	
+#if 0
+	fprintf(stderr, "invalidate dtable for %s\n", object_get_class_name(class));
+#endif
     if (class->dtable == objc_get_uninstalled_dtable()) 
 		return;
     sarray_free(class->dtable);
     __objc_install_premature_dtable(class);
-    for (s = class->subclass_list; s; s=s->sibling_class) 
-		objc_invalidate_dtable(s);
+    for (s = class->subclass_list; s; s=s->sibling_class)
+		objc_invalidate_dtable(s);	// recursive
 }
 
 int objc_initialize_loading(FILE *errorStream)
@@ -203,12 +205,12 @@ int objc_initialize_loading(FILE *errorStream)
 void objc_load_callback(Class class, Category *category)
 {
 #if 0
-	fprintf(stderr, "objc_load_callback\n");
+	fprintf(stderr, "objc_load_callback(%s, %p)\n", object_get_class_name(class), category);
 #endif
-    if (class != 0 && category != 0) 		// Invalidate the dtable, so it 
+    if (class != Nil && category != Nil) 		// Invalidate the dtable, so it 
 		{									// will be rebuilt correctly
-		objc_invalidate_dtable(class);
-		objc_invalidate_dtable(class->class_pointer);
+			objc_invalidate_dtable(class);
+			objc_invalidate_dtable(class->class_pointer);
 		}
 	
     if (objc_loadmodule_callback)
@@ -219,10 +221,10 @@ void objc_load_callback(Class class, Category *category)
 }
 
 long objc_load_module(const char *filename,
-				 FILE *errorStream,
-				 void (*loadCallback)(Class, Category*),
-				 void **header,
-				 char *debugFilename)
+					  FILE *errorStream,
+					  void (*loadCallback)(Class, Category*),
+					  void **header,
+					  char *debugFilename)
 {
 	typedef void (*void_fn)();
 	dl_handle_t handle;
@@ -284,10 +286,10 @@ char *objc_dynamic_find_file(const void *address)
 #ifdef __linux__	// not loaded by <dlfcn.h>
 	typedef struct
 	{
-		__const char *dli_fname;	/* File name of defining object.  */
-		void *dli_fbase;			/* Load address of that object.  */
-		__const char *dli_sname;	/* Name of nearest symbol.  */
-		void *dli_saddr;			/* Exact value of nearest symbol.  */
+	__const char *dli_fname;	/* File name of defining object.  */
+	void *dli_fbase;			/* Load address of that object.  */
+	__const char *dli_sname;	/* Name of nearest symbol.  */
+	void *dli_saddr;			/* Exact value of nearest symbol.  */
 	} Dl_info;
 	extern int dladdr(const void *__address, Dl_info *__info);
 #endif
@@ -314,26 +316,26 @@ char *objc_dynamic_find_file(const void *address)
 NSRange 
 NSUnionRange(NSRange aRange, NSRange bRange)
 {
-NSRange range;											// Compute a Range from 
-														// two other Ranges
+	NSRange range;											// Compute a Range from 
+	// two other Ranges
 	range.location = MIN(aRange.location, bRange.location);
     range.length = MAX(NSMaxRange(aRange),NSMaxRange(bRange)) - range.location;
-
+	
     return range;
 }
 
 NSRange 
 NSIntersectionRange (NSRange aRange, NSRange bRange)
 {
-NSRange range;
+	NSRange range;
     
     if (NSMaxRange(aRange) < bRange.location
-    		|| NSMaxRange(bRange) < aRange.location)
+		|| NSMaxRange(bRange) < aRange.location)
 		return NSMakeRange(0, 0);
 	
     range.location = MAX(aRange.location, bRange.location);
 	range.length = MIN(NSMaxRange(aRange),NSMaxRange(bRange)) - range.location;
-
+	
     return range;
 }
 
@@ -430,86 +432,86 @@ if ((domainMask & mask) && ![paths containsObject: path] && [[NSFileManager defa
 	// we could read this from an NSDictionary in Info.plist ...
 	
 	switch (directory)
-		{
-			case NSAllApplicationsDirectory:
-				ADD_PATH(NSUserDomainMask, @"~/Applications");
-				ADD_PATH(NSUserDomainMask, @"~/Library/Applications");
-				ADD_PATH(NSLocalDomainMask, @"/Applications");
-				ADD_PATH(NSLocalDomainMask, @"/Applications/Games");
-				ADD_PATH(NSLocalDomainMask, @"/Applications/Utilities");
-				ADD_PATH(NSLocalDomainMask, @"/Developer/Applications");
-				ADD_PATH(NSLocalDomainMask, @"/Developer/Applications/Utilities");
-				ADD_PATH(NSNetworkDomainMask, @"/Network/Applications");
-				ADD_PATH(NSSystemDomainMask, @"/Library/Applications");
-				ADD_PATH(NSSystemDomainMask, @"/System/Applications");
-				ADD_PATH(NSSystemDomainMask, @"/System/Library/CoreServices");
-				break;
-			case NSApplicationDirectory:
-				ADD_PATH(NSUserDomainMask, @"~/Applications");
-				ADD_PATH(NSLocalDomainMask, @"/Applications");
-				ADD_PATH(NSNetworkDomainMask, @"/Network/Applications");
-				ADD_PATH(NSSystemDomainMask, @"/Library/Applications");
-				ADD_PATH(NSSystemDomainMask, @"/System/Applications");
-				break;
-			case NSDemoApplicationDirectory:
-				ADD_PATH(NSUserDomainMask, @"~/Applications/Games");
-				ADD_PATH(NSLocalDomainMask, @"/Applications/games");
-				ADD_PATH(NSNetworkDomainMask, @"/Network/Applications/Games");
-				break;
-			case NSCoreServiceDirectory:
-				ADD_PATH(NSSystemDomainMask, @"/System/Library/CoreServices");
-				break;
-			case NSDesktopDirectory:
-				ADD_PATH(NSUserDomainMask, @"~/Desktop");
-				break;
-			case NSDeveloperApplicationDirectory:
-				ADD_PATH(NSLocalDomainMask, @"/Developer/Applications");
-				break;
-			case NSAdminApplicationDirectory:
-				ADD_PATH(NSLocalDomainMask, @"/Applications/Utilities");
-				break;
-			case NSAllLibrariesDirectory:
-				ADD_PATH(NSUserDomainMask, @"~/Library");
-				ADD_PATH(NSLocalDomainMask, @"/Library");
-				ADD_PATH(NSNetworkDomainMask, @"/Network/Library");
-				ADD_PATH(NSSystemDomainMask, @"/System/Library");
-				break;
-			case NSLibraryDirectory:
-				ADD_PATH(NSUserDomainMask, @"~/Library");
-				ADD_PATH(NSLocalDomainMask, @"/Library");
-				ADD_PATH(NSNetworkDomainMask, @"/Network/Library");
-				ADD_PATH(NSSystemDomainMask, @"/System/Library");
-				break;
-			case NSDeveloperDirectory:
-				ADD_PATH(NSSystemDomainMask, @"/Developer");
-				break;
-			case NSUserDirectory:
-				ADD_PATH(NSSystemDomainMask, @"/Users");
-				break;
-			case NSDocumentationDirectory:
-				break;
-			case NSDocumentDirectory:
-				ADD_PATH(NSUserDomainMask, @"~/Documents");
-				break;
-			case NSDownloadsDirectory:
-				// allow for user configuration
-				ADD_PATH(NSUserDomainMask, @"~/Documents/Downloads");
-				break;
-			case NSCachesDirectory:
-				ADD_PATH(NSUserDomainMask, @"~/Library/Caches");
-				ADD_PATH(NSLocalDomainMask, @"/Library/Caches");
-				ADD_PATH(NSNetworkDomainMask, @"/Network/Library/Caches");
-				ADD_PATH(NSSystemDomainMask, @"/System/Library/Caches");
-				break;
-			case NSApplicationSupportDirectory:
-				ADD_PATH(NSUserDomainMask, @"~/Library/Application Support");
-				ADD_PATH(NSLocalDomainMask, @"/Library/Application Support");
-				ADD_PATH(NSNetworkDomainMask, @"/Network/Library/Application Support");
-				ADD_PATH(NSSystemDomainMask, @"/System/Library/Application Support");
-				break;
+	{
+		case NSAllApplicationsDirectory:
+		ADD_PATH(NSUserDomainMask, @"~/Applications");
+		ADD_PATH(NSUserDomainMask, @"~/Library/Applications");
+		ADD_PATH(NSLocalDomainMask, @"/Applications");
+		ADD_PATH(NSLocalDomainMask, @"/Applications/Games");
+		ADD_PATH(NSLocalDomainMask, @"/Applications/Utilities");
+		ADD_PATH(NSLocalDomainMask, @"/Developer/Applications");
+		ADD_PATH(NSLocalDomainMask, @"/Developer/Applications/Utilities");
+		ADD_PATH(NSNetworkDomainMask, @"/Network/Applications");
+		ADD_PATH(NSSystemDomainMask, @"/Library/Applications");
+		ADD_PATH(NSSystemDomainMask, @"/System/Applications");
+		ADD_PATH(NSSystemDomainMask, @"/System/Library/CoreServices");
+		break;
+		case NSApplicationDirectory:
+		ADD_PATH(NSUserDomainMask, @"~/Applications");
+		ADD_PATH(NSLocalDomainMask, @"/Applications");
+		ADD_PATH(NSNetworkDomainMask, @"/Network/Applications");
+		ADD_PATH(NSSystemDomainMask, @"/Library/Applications");
+		ADD_PATH(NSSystemDomainMask, @"/System/Applications");
+		break;
+		case NSDemoApplicationDirectory:
+		ADD_PATH(NSUserDomainMask, @"~/Applications/Games");
+		ADD_PATH(NSLocalDomainMask, @"/Applications/games");
+		ADD_PATH(NSNetworkDomainMask, @"/Network/Applications/Games");
+		break;
+		case NSCoreServiceDirectory:
+		ADD_PATH(NSSystemDomainMask, @"/System/Library/CoreServices");
+		break;
+		case NSDesktopDirectory:
+		ADD_PATH(NSUserDomainMask, @"~/Desktop");
+		break;
+		case NSDeveloperApplicationDirectory:
+		ADD_PATH(NSLocalDomainMask, @"/Developer/Applications");
+		break;
+		case NSAdminApplicationDirectory:
+		ADD_PATH(NSLocalDomainMask, @"/Applications/Utilities");
+		break;
+		case NSAllLibrariesDirectory:
+		ADD_PATH(NSUserDomainMask, @"~/Library");
+		ADD_PATH(NSLocalDomainMask, @"/Library");
+		ADD_PATH(NSNetworkDomainMask, @"/Network/Library");
+		ADD_PATH(NSSystemDomainMask, @"/System/Library");
+		break;
+		case NSLibraryDirectory:
+		ADD_PATH(NSUserDomainMask, @"~/Library");
+		ADD_PATH(NSLocalDomainMask, @"/Library");
+		ADD_PATH(NSNetworkDomainMask, @"/Network/Library");
+		ADD_PATH(NSSystemDomainMask, @"/System/Library");
+		break;
+		case NSDeveloperDirectory:
+		ADD_PATH(NSSystemDomainMask, @"/Developer");
+		break;
+		case NSUserDirectory:
+		ADD_PATH(NSSystemDomainMask, @"/Users");
+		break;
+		case NSDocumentationDirectory:
+		break;
+		case NSDocumentDirectory:
+		ADD_PATH(NSUserDomainMask, @"~/Documents");
+		break;
+		case NSDownloadsDirectory:
+		// allow for user configuration
+		ADD_PATH(NSUserDomainMask, @"~/Documents/Downloads");
+		break;
+		case NSCachesDirectory:
+		ADD_PATH(NSUserDomainMask, @"~/Library/Caches");
+		ADD_PATH(NSLocalDomainMask, @"/Library/Caches");
+		ADD_PATH(NSNetworkDomainMask, @"/Network/Library/Caches");
+		ADD_PATH(NSSystemDomainMask, @"/System/Library/Caches");
+		break;
+		case NSApplicationSupportDirectory:
+		ADD_PATH(NSUserDomainMask, @"~/Library/Application Support");
+		ADD_PATH(NSLocalDomainMask, @"/Library/Application Support");
+		ADD_PATH(NSNetworkDomainMask, @"/Network/Library/Application Support");
+		ADD_PATH(NSSystemDomainMask, @"/System/Library/Application Support");
+		break;
 #undef ADD_PATH
 #undef ADD_PLATFORM_PATH
-		}
+	}
 	return paths;
 }
 
@@ -540,8 +542,8 @@ void NSLogv(NSString *format, va_list args)
 		const char *msg;
 		if(__doingNSLog)
 			{ // any of the NSString, NSCalendarDate, NSProcessInfo methods may have a debugging call to NSLog()
-			fprintf(stderr, "recursive NSLog\n");
-			return;
+				fprintf(stderr, "recursive NSLog\n");
+				return;
 			}
 		pool = [NSAutoreleasePool new];
 		__doingNSLog = YES;
@@ -586,15 +588,15 @@ NSLog (NSString *format, ...)
 id 
 GSError (id errorObject, NSString *format, ...)
 {
-va_list ap;
-
+	va_list ap;
+	
 	if (errorObject)
 		NSLog (@"GSError in %@", [errorObject description]);
 	va_start (ap, format);
 	NSLogv (format, ap);
 	va_end (ap);
 	[errorObject release];
-
+	
 	return nil;
 }
 
@@ -634,8 +636,8 @@ NSSelectorFromString(NSString *aSelectorName)
 NSString *
 NSStringFromClass(Class aClass)
 {
-	if (aClass != (Class)0)
-	   return [NSString stringWithCString:(char *) class_get_class_name(aClass)];
+	if (aClass != Nil)
+		return [NSString stringWithCString:(char *) class_get_class_name(aClass)];
 	return nil;
 }
 
@@ -660,9 +662,9 @@ NSClassFromString(NSString *aClassName)
 NSString *
 NSStringFromProtocol(Protocol *aProtocol)
 {
-  if (aProtocol != (Protocol*)0)
-    return [NSString stringWithUTF8String: (const char*)[aProtocol name]];
-  return nil;
+	if (aProtocol != (Protocol*)0)
+		return [NSString stringWithUTF8String: (const char*)[aProtocol name]];
+	return nil;
 }
 
 /**
@@ -672,17 +674,17 @@ NSStringFromProtocol(Protocol *aProtocol)
 Protocol *   
 NSProtocolFromString(NSString *aProtocolName)
 {
-  if (aProtocolName != nil)
-			{
-				int	len = [aProtocolName length];
-				char	buf[len+1];
-				
-				[aProtocolName getCString: buf
-												maxLength: len + 1
-												 encoding: NSASCIIStringEncoding];
-// FIXME:				return GSProtocolFromName (buf);
-			}
-  return (Protocol*)0;
+	if (aProtocolName != nil)
+		{
+		int	len = [aProtocolName length];
+		char	buf[len+1];
+		
+		[aProtocolName getCString: buf
+						maxLength: len + 1
+						 encoding: NSASCIIStringEncoding];
+		// FIXME:	lookup --->			return GSProtocolFromName (buf);
+		}
+	return (Protocol*)0;
 }
 
 //*****************************************************************************
@@ -722,24 +724,24 @@ const struct _strenc_ str_encoding_table[] =
 NSStringEncoding 
 GSDefaultCStringEncoding()
 {
-NSStringEncoding ret, tmp;
-char *encoding = getenv("MYSTEP_STRING_ENCODING");
-
+	NSStringEncoding ret, tmp;
+	char *encoding = getenv("MYSTEP_STRING_ENCODING");
+	
 	if (encoding)
 		{
 		unsigned int count = 0;
 		const NSStringEncoding *available = [NSString availableStringEncodings];
-
+		
 		while ((count < str_encoding_table_size) 
-				&& strcmp(str_encoding_table[count].ename, encoding))
+			   && strcmp(str_encoding_table[count].ename, encoding))
 			count++;
-
+		
 		if( !(count == str_encoding_table_size))
 			{
 			ret = str_encoding_table[count].enc;
 	  		if ((ret == NSUTF8StringEncoding) 
 				|| (ret == NSUnicodeStringEncoding) 
-					|| (ret == NSSymbolStringEncoding))
+				|| (ret == NSSymbolStringEncoding))
 				{
 				fprintf(stderr, "WARNING: %s - encoding is not", encoding);
 				fprintf(stderr," supported as default c string encoding.\n");
@@ -748,55 +750,55 @@ char *encoding = getenv("MYSTEP_STRING_ENCODING");
 				}
 			else 								// encoding should be supported 
 				{								// but is it implemented?
-				count = 0;
-				tmp = 0;
-				while (!(available[count] == 0))
-					{
-					if (!(ret == available[count]))
-						tmp = 0;
-					else
+					count = 0;
+					tmp = 0;
+					while (!(available[count] == 0))
 						{
-						tmp = ret;
-						break;
-						}
-					count++;
-					};
-				if (!tmp)
-					{
-					fprintf(stderr, "WARNING: %s - encoding is not", encoding);
-					fprintf(stderr, " yet implemented.\n" /* , encoding */);
-		  			fprintf(stderr, "NSASCIIStringEncoding set as default.\n");
-					ret = NSASCIIStringEncoding;
-			}	}	}
+						if (!(ret == available[count]))
+							tmp = 0;
+						else
+							{
+							tmp = ret;
+							break;
+							}
+						count++;
+						};
+					if (!tmp)
+						{
+						fprintf(stderr, "WARNING: %s - encoding is not", encoding);
+						fprintf(stderr, " yet implemented.\n" /* , encoding */);
+						fprintf(stderr, "NSASCIIStringEncoding set as default.\n");
+						ret = NSASCIIStringEncoding;
+						}	}	}
 		else 											// encoding not found 
 			{
 			fprintf(stderr,"WARNING: %s - encoding not supported.\n",encoding);
 			fprintf(stderr, "NSASCIIStringEncoding set as default.\n");
 			ret = NSASCIIStringEncoding;
-		}	}
+			}	}
 	else 										// envirinment var not found 
 		{
-//		fprintf(stderr, "WARNING: MYSTEP_STRING_ENCODING env var not found\n");
+		//		fprintf(stderr, "WARNING: MYSTEP_STRING_ENCODING env var not found\n");
 		ret = NSASCIIStringEncoding;
 		}
-
+	
 	return ret;
 }
 
 NSString *
 GSGetEncodingName(NSStringEncoding encoding)
 {
-char *ret;
-unsigned int count = 0;
-
+	char *ret;
+	unsigned int count = 0;
+	
 	while ((count < str_encoding_table_size) &&
-			!(str_encoding_table[count].enc == encoding))
+		   !(str_encoding_table[count].enc == encoding))
 		count++;
 	if ( !(count == str_encoding_table_size) )
 		ret = str_encoding_table[count].ename;
 	else
 		ret = "Unknown encoding";
-
+	
 	return [NSString stringWithCString:ret];
 }
 
@@ -831,8 +833,8 @@ unsigned int count = 0;
 #if __mach__
 #define getpagesize vm_page_size
 #endif
-												// Cache size of a memory page 
-												// to avoid repeated calls to
+// Cache size of a memory page 
+// to avoid repeated calls to
 static unsigned _pageSize = 0;					// getpagesize() system call
 
 unsigned										// Return the number of bytes 
@@ -844,23 +846,23 @@ NSPageSize (void)								// in a memory page.
 unsigned									
 NSLogPageSize (void)							// Return log base 2 of the 
 {												// number of bytes in a memory 
-unsigned tmp_page_size = NSPageSize();			// page.
-unsigned log = 0;
-
+	unsigned tmp_page_size = NSPageSize();			// page.
+	unsigned log = 0;
+	
 	while (tmp_page_size >>= 1)
 		log++;
-
+	
 	return log;
 }
 
 unsigned
 NSRoundDownToMultipleOfPageSize (unsigned bytes)
 {												// Round BYTES down to the 
-unsigned a = NSPageSize();						// nearest multiple of the 
-												// memory page size, and return 
+	unsigned a = NSPageSize();						// nearest multiple of the 
+	// memory page size, and return 
 	return (bytes / a) * a;						// it.
 }
-												// Round BYTES up to nearest 
+// Round BYTES up to nearest 
 unsigned										// multiple of the memory page
 NSRoundUpToMultipleOfPageSize (unsigned bytes)	// size, and return it.
 {
@@ -911,10 +913,10 @@ unsigned NSRealMemoryAvailable()
 
 void *NSAllocateMemoryPages (unsigned bytes)
 {
-void *where;
+	void *where;
 #if __mach__
-kern_return_t r = vm_allocate (mach_task_self(), &where, (vm_size_t) bytes, 1);
-
+	kern_return_t r = vm_allocate (mach_task_self(), &where, (vm_size_t) bytes, 1);
+	
 	return (r != KERN_SUCCESS) ? NULL : where;
 #else
 	if ((where = malloc (bytes)) == NULL)
@@ -937,8 +939,8 @@ void
 NSCopyMemoryPages (const void *source, void *dest, unsigned bytes)
 {
 #if __mach__
-kern_return_t r = vm_copy (mach_task_self(), source, bytes, dest);
-
+	kern_return_t r = vm_copy (mach_task_self(), source, bytes, dest);
+	
 	NSParameterAssert (r == KERN_SUCCESS);
 #else
 	memcpy (dest, source, bytes);
@@ -952,104 +954,104 @@ void __NSCountAllocate(Class aClass)
 {
 	struct __NSAllocationCount *cnt=NULL;
 	static BOOL initialized=NO;
-//	fprintf(stderr, "__NSCountAllocate %s\n", aClass->name);
+	//	fprintf(stderr, "__NSCountAllocate %s\n", aClass->name);
 	if(!initialized)
-			{ // get flags from environment
-				char *log=getenv("NSLog");
-				__printLog=log && log[0] != 0;
-				__logMemory=__printLog && strcmp(log, "memory") == 0;
-				initialized=YES;
-			}
+		{ // get flags from environment
+			char *log=getenv("NSLog");
+			__printLog=log && log[0] != 0;
+			__logMemory=__printLog && strcmp(log, "memory") == 0;
+			initialized=YES;
+		}
 	if(!__logMemory)
 		return;
 	if(!__NSAllocationCountTable)
-			{
-				if(aClass == [NSMapTable class])
-					return;		// avoid recursion for allocating the __NSAllocationCountTable
-				__NSAllocationCountTable = NSCreateMapTable (NSNonOwnedPointerMapKeyCallBacks, NSOwnedPointerMapValueCallBacks, 0);	// create table
-			}
+		{
+		if(aClass == [NSMapTable class])
+			return;		// avoid recursion for allocating the __NSAllocationCountTable
+		__NSAllocationCountTable = NSCreateMapTable (NSNonOwnedPointerMapKeyCallBacks, NSOwnedPointerMapValueCallBacks, 0);	// create table
+		}
 	else
 		cnt=NSMapGet(__NSAllocationCountTable, aClass);
 	if(!cnt)
-			{	// not (yet) found - create new counter
-				cnt=objc_calloc(1, sizeof(*cnt));
-				NSMapInsert(__NSAllocationCountTable, aClass, cnt);
-			}
+		{	// not (yet) found - create new counter
+			cnt=objc_calloc(1, sizeof(*cnt));
+			NSMapInsert(__NSAllocationCountTable, aClass, cnt);
+		}
 	cnt->alloc++;	// total allocs
 	if(++cnt->instances > cnt->peak)
 		cnt->peak=cnt->instances;
-//	fprintf(stderr, "%s %d\n", aClass->name, cnt->instances);
-//	cnt=NSMapGet(__NSAllocationCountTable, [NSDataStatic class]);
-//	if(cnt)
-//		fprintf(stderr, "NSDataStatic %d\n", cnt->instances);
+	//	fprintf(stderr, "%s %d\n", aClass->name, cnt->instances);
+	//	cnt=NSMapGet(__NSAllocationCountTable, [NSDataStatic class]);
+	//	if(cnt)
+	//		fprintf(stderr, "NSDataStatic %d\n", cnt->instances);
 }
 
 void __NSCountDeallocate(Class aClass)
 {
 	extern NSMapTable *__NSAllocationCountTable;
-//	fprintf(stderr, "__NSCountDeallocate %s\n", aClass->name);
+	//	fprintf(stderr, "__NSCountDeallocate %s\n", aClass->name);
 	if(__logMemory && __NSAllocationCountTable)
+		{
+		struct __NSAllocationCount *cnt=NSMapGet(__NSAllocationCountTable, aClass);
+		if(cnt)
 			{
-				struct __NSAllocationCount *cnt=NSMapGet(__NSAllocationCountTable, aClass);
-				if(cnt)
-						{
-							NSCAssert(cnt->instances > 0, @"never allocated!");
-							cnt->instances--;
-						}
-//				cnt=NSMapGet(__NSAllocationCountTable, [NSDataStatic class]);
-//				if(cnt)
-//					fprintf(stderr, "NSDataStatic %d\n", cnt->instances);
+			NSCAssert(cnt->instances > 0, @"never allocated!");
+			cnt->instances--;
 			}
+		//				cnt=NSMapGet(__NSAllocationCountTable, [NSDataStatic class]);
+		//				if(cnt)
+		//					fprintf(stderr, "NSDataStatic %d\n", cnt->instances);
+		}
 }
 
 void __NSPrintAllocationCount(void)
 { // print current object allocation to stderr plus a trace in /tmp
 	if(__logMemory && __NSAllocationCountTable)
+		{
+		int cntLevel=1;	// cnt-Level to print next
+		unsigned long total=0;
+		fprintf(stderr, "\fCurrent Object Allocation\n");
+		while(YES)
 			{
-				int cntLevel=1;	// cnt-Level to print next
-				unsigned long total=0;
-				fprintf(stderr, "\fCurrent Object Allocation\n");
-				while(YES)
-						{
-							NSMapEnumerator e=NSEnumerateMapTable(__NSAllocationCountTable);
-							Class key;
-							struct __NSAllocationCount *cnt;
-							int nextLevel=99999999;
-							while(NSNextMapEnumeratorPair(&e, (void *) &key, (void *) &cnt))
-									{ // get all key/value pairs
-										FILE *file;
-										char name[200];
-										if(cnt->instances != cntLevel)
-												{	// don't print this level
-													if(cnt->instances > cntLevel)
-														nextLevel=MIN(nextLevel, cnt->instances);	// next level to print
-													continue;
-												}
-										if(cnt->instances > 0)	// this does not print alloc/peak but we don't want to see it on the screen - just in the files
-											fprintf(stderr, "%c %9lu %s: alloc %lu peak %lu dealloc %lu\n", ((cnt->instances>cnt->linstances)?'+':((cnt->instances<cnt->linstances)?'-':' ')), cnt->instances, class_get_class_name(key), cnt->alloc, cnt->peak, cnt->alloc-cnt->instances);
-										total += cnt->instances;
-										sprintf(name, "/tmp/%u/%s", getpid(), class_get_class_name(key));
-										file=fopen(name, "a");
-										if(file)
-												{
-													fprintf(file, "%s: alloc %lu instances %lu peak %lu dealloc %lu\n", class_get_class_name(key), cnt->alloc, cnt->instances, cnt->peak, cnt->alloc-cnt->instances);
-													fclose(file);
-												}
-										cnt->linstances=cnt->instances;	// to allow to compare to last print
-									}
-							if(nextLevel == cntLevel)
-								break;	// done (i.e. we did run with maximum level)
-							cntLevel=nextLevel;
+			NSMapEnumerator e=NSEnumerateMapTable(__NSAllocationCountTable);
+			Class key;
+			struct __NSAllocationCount *cnt;
+			int nextLevel=99999999;
+			while(NSNextMapEnumeratorPair(&e, (void *) &key, (void *) &cnt))
+				{ // get all key/value pairs
+					FILE *file;
+					char name[200];
+					if(cnt->instances != cntLevel)
+						{	// don't print this level
+							if(cnt->instances > cntLevel)
+								nextLevel=MIN(nextLevel, cnt->instances);	// next level to print
+							continue;
 						}
-				fprintf(stderr, "total: %lu\n", total);
+					if(cnt->instances > 0)	// this does not print alloc/peak but we don't want to see it on the screen - just in the files
+						fprintf(stderr, "%c %9lu %s: alloc %lu peak %lu dealloc %lu\n", ((cnt->instances>cnt->linstances)?'+':((cnt->instances<cnt->linstances)?'-':' ')), cnt->instances, class_get_class_name(key), cnt->alloc, cnt->peak, cnt->alloc-cnt->instances);
+					total += cnt->instances;
+					sprintf(name, "/tmp/%u/%s", getpid(), class_get_class_name(key));
+					file=fopen(name, "a");
+					if(file)
+						{
+						fprintf(file, "%s: alloc %lu instances %lu peak %lu dealloc %lu\n", class_get_class_name(key), cnt->alloc, cnt->instances, cnt->peak, cnt->alloc-cnt->instances);
+						fclose(file);
+						}
+					cnt->linstances=cnt->instances;	// to allow to compare to last print
+				}
+			if(nextLevel == cntLevel)
+				break;	// done (i.e. we did run with maximum level)
+			cntLevel=nextLevel;
 			}
+		fprintf(stderr, "total: %lu\n", total);
+		}
 }
 
 #endif
 
 /*
  * Workaround for ARM-OABI systems with softfloat libraries and hardfloat CPU (e.g. OpenMoko Neo 1973)
-*/
+ */
 
 #if defined(__arm__) && !defined(__ARM_EABI__)
 
@@ -1074,22 +1076,22 @@ static void * _load(char *lib)
 #endif
 	if(!_libm)
 		{ // first call - try to determine which type of library we have
-		double r;
-		double (*sqrtfn)(double);
-		sqrtfn=dlsym(libp, "sqrt");	// original, unwrapped sqrt function
+			double r;
+			double (*sqrtfn)(double);
+			sqrtfn=dlsym(libp, "sqrt");	// original, unwrapped sqrt function
 #if 0
-		printf("sqrtfn=%p\n", sqrtfn); fflush(stdout);
+			printf("sqrtfn=%p\n", sqrtfn); fflush(stdout);
 #endif
-		r=(*sqrtfn)(4.0);	// should leave r0 with 4.0
-		if(r == 2.0)
-			_softFloat=NO;	// appears to be hartfloat library that properly returns the float in fp0
-		else
-			_softFloat=YES;	// did return value in r0/r1 instead of fp0
+			r=(*sqrtfn)(4.0);	// should leave r0 with 4.0
+			if(r == 2.0)
+				_softFloat=NO;	// appears to be hartfloat library that properly returns the float in fp0
+			else
+				_softFloat=YES;	// did return value in r0/r1 instead of fp0
 #if 1
-		fprintf(stderr, "%s appears to be %s libc/libm\n", lib, _softFloat?"softfloat":"hardfloat");
+			fprintf(stderr, "%s appears to be %s libc/libm\n", lib, _softFloat?"softfloat":"hardfloat");
 #endif
-		if(_softFloat && sqrt(4.0) != 2.0)
-			fprintf(stderr, "softfloat wrapper error sqrt(4.0) -> %f", sqrt(4.0));
+			if(_softFloat && sqrt(4.0) != 2.0)
+				fprintf(stderr, "softfloat wrapper error sqrt(4.0) -> %f", sqrt(4.0));
 		}
 	return libp;
 }
@@ -1099,20 +1101,20 @@ static void * _load(char *lib)
 // add cache for symbol pointer
 
 #define FNP(FP, LIB, F) \
-	FP?FP:(FP=dlsym(_##LIB, #F))
+FP?FP:(FP=dlsym(_##LIB, #F))
 
 #define WRAP_FLOAT(LIB, FUNCTION, TYPE, ARG) float FUNCTION(TYPE ARG) \
 { static float (*fp)(); \
-	NEED(LIB); \
-	if(_softFloat) \
-		{ \
-			static long (*lp)(); \
-			volatile union { float f; long l; } val; \
-			val.l=(FNP(lp, LIB, FUNCTION))(ARG); \
-			return val.f; \
-		} \
-	else \
-		return (FNP(fp, LIB, FUNCTION))(ARG); \
+NEED(LIB); \
+if(_softFloat) \
+{ \
+static long (*lp)(); \
+volatile union { float f; long l; } val; \
+val.l=(FNP(lp, LIB, FUNCTION))(ARG); \
+return val.f; \
+} \
+else \
+return (FNP(fp, LIB, FUNCTION))(ARG); \
 }
 
 // FIXME - is this swapping rule correct?
@@ -1120,30 +1122,30 @@ static void * _load(char *lib)
 
 #define WRAP_DOUBLE(LIB, FUNCTION, TYPE, ARG) double FUNCTION(TYPE ARG) \
 { static double (*fp)(); \
-	NEED(LIB); \
-	if(_softFloat) \
-		{ \
-			static long long (*lp)(); \
-			volatile union { double f; long long l; } val; \
-			val.l=(FNP(lp, LIB, FUNCTION))(ARG); \
-			return val.f; \
-		} \
-	else \
-		return (FNP(fp, LIB, FUNCTION))(ARG); \
+NEED(LIB); \
+if(_softFloat) \
+{ \
+static long long (*lp)(); \
+volatile union { double f; long long l; } val; \
+val.l=(FNP(lp, LIB, FUNCTION))(ARG); \
+return val.f; \
+} \
+else \
+return (FNP(fp, LIB, FUNCTION))(ARG); \
 }
 
 #define WRAP_DOUBLE2(LIB, FUNCTION, TYPE1, ARG1, TYPE2, ARG2) double FUNCTION(TYPE1 ARG1, TYPE2 ARG2) \
 { static double (*fp)(); \
-	NEED(LIB); \
-	if(_softFloat) \
-		{ \
-			static long long (*lp)(); \
-			volatile union { double f; long long l; } val; \
-			val.l=(FNP(lp, LIB, FUNCTION))(ARG1, ARG2); \
-			return val.f; \
-		} \
-	else \
-		return (FNP(fp, LIB, FUNCTION))(ARG1, ARG2); \
+NEED(LIB); \
+if(_softFloat) \
+{ \
+static long long (*lp)(); \
+volatile union { double f; long long l; } val; \
+val.l=(FNP(lp, LIB, FUNCTION))(ARG1, ARG2); \
+return val.f; \
+} \
+else \
+return (FNP(fp, LIB, FUNCTION))(ARG1, ARG2); \
 }
 
 #if 1

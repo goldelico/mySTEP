@@ -338,7 +338,12 @@ NSArray *NSAllHashTableObjects(NSHashTable *table)
 		unsigned i;
 		for(i = 0; i < table->hashSize; i++)
 			for(node = table->nodes[i]; node; node = node->next)
-				[array addObject:(NSObject*)(node->key)];	// this will retain
+				{
+#if 0
+				NSLog(@"%@", (NSObject*)(node->key));
+#endif
+				[array addObject:(NSObject*)(node->key)];	// this will retain				
+				}
 		return array;
 		}
 	else

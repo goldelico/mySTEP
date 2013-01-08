@@ -431,10 +431,12 @@ build_deb: make_bundle make_exec make_binary install_tool \
 	"$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb" 
 
 # FIXME: use different /tmp/data subdirectories for each running make
+# NOTE: don't include /tmp here to protect against issues after typos
 
-TMP_DATA := data
-TMP_CONTROL := control
-TMP_DEBIAN_BINARY := debian-binary
+UNIQUE := mySTEP-$(shell date '+%Y%m%d%H%M%S')
+TMP_DATA := $(UNIQUE)/data
+TMP_CONTROL := $(UNIQUE)/control
+TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
 	# make debian package $(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb

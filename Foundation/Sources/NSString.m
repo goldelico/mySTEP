@@ -360,11 +360,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		__cStringEncoding = GSDefaultCStringEncoding();
 		__charIsMem = @selector(characterIsMember:);
 		_nsStringClass = self;
-#if __APPLE__
-//  		_constantStringClass = [NSConstantStringClassName class];
-#else
-  		_constantStringClass = [_NSConstantStringClassName class];
-#endif
+  		_constantStringClass = [@"" class];
 		_strClass = [GSString class];
 		_cStringClass = [GSCString class];
 		_mutableStringClass = [GSMutableString class];
@@ -387,7 +383,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			NSLog(@"__hexDgtsIMP not defined");
 
 		s = [NSMutableCharacterSet characterSetWithCharactersInString:
-		@"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$./_"];
+			 @"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$./_"];
 		[(NSMutableCharacterSet *)s invert];
 		__quotes = [s copy];
 		__quotesIMP = (BOOL(*)(id,SEL,unichar))
@@ -2917,29 +2913,32 @@ struct stat tmp_stat;
 
 - (void) dealloc
 {
-	if (_freeWhenDone)
-		{
-		if(_uniChars)
-			objc_free(_uniChars);
-		if(_cString)
-			objc_free(_cString);
-		}
-	
+	if (_freeWhenDone && _uniChars)
+		objc_free(_uniChars);
+	if(_cString)
+		objc_free(_cString);	
 	[super dealloc];
 }
 
 - (BOOL) isEqual:(id)obj
 { // self is a Unicode string
 	Class c;
+#if 0
+	NSLog(@"++ %@ isEqual %@", self, obj);
+#endif
 	if (obj == self)
 		return YES;
 #ifndef __APPLE__
 	if((obj != nil) && CLS_ISCLASS(((Class)obj)->class_pointer))
 		c = ((Class)obj)->class_pointer;
 	else
+		return NO;	// is nil or has no class
 #endif
-		return NO;
 	
+#if 0
+	NSLog(@"++ 1 %@ %p", c, c);
+	NSLog(@"++ 2 %@ %p", _constantStringClass, _constantStringClass);
+#endif
 	if (c == _strClass || c == _mutableStringClass)
 		{ // c is a Unicode string
 		if (_hash == 0)
@@ -2951,20 +2950,38 @@ struct stat tmp_stat;
 		}
 	else if (c == _cStringClass || c == _constantStringClass)
 		{ // c is a C-String
-		if (_hash == 0)
+#if 0
+			NSLog(@"++ 3 %@", c);
+#endif
+			if (_hash == 0)
 			_hash = _strHashImp(self, @selector(hash));
+#if 0
+			NSLog(@"  hash %u", _hash);
+#endif
 		if ((c != _constantStringClass) && (_hash != [obj hash]))
 			return NO;
-		if(_count != ((NSString*)obj)->_count)
+#if 0
+			NSLog(@"  _count %u vs. count %u", _count, ((NSString*)obj)->_count);
+#endif
+			if(_count != ((NSString*)obj)->_count)
 			return NO;
-		NS_DURING
 			if(!_cString)
-				[self cString];	// may fail with character conversion error - then we can't be equal to the other string
-			NS_VALUERETURN((memcmp(_cString, ((NSString*)obj)->_cString, _count) == 0), BOOL);
-		NS_HANDLER
-			; // ignore
-		NS_ENDHANDLER
-			return NO;	// failed - i.e. we have some non-convertible characters
+				{ // not yet cached
+				NS_DURING
+					[self cString];	// may fail with character conversion error - then we can't be equal to the other string
+				NS_HANDLER
+#if 0
+					NSLog(@"failed to convert");
+#endif
+					return NO;	// failed - i.e. we have some non-convertible characters
+				NS_ENDHANDLER
+				}
+#if 0
+			NSLog(@"cString: %p %u", _cString, _count);
+			NSLog(@"%@", [NSData dataWithBytes:_cString length:_count]);
+			NSLog(@"%@", [NSData dataWithBytes:((NSString*)obj)->_cString length:((NSString*)obj)->_count]);
+#endif
+			return memcmp(_cString, ((NSString*)obj)->_cString, _count) == 0;
 		}
 	
 	if (_classIsKindOfClass(c, _nsStringClass))
@@ -2985,8 +3002,8 @@ struct stat tmp_stat;
 	if((aString != nil) && CLS_ISCLASS(((Class)aString)->class_pointer))
 		c = ((Class)aString)->class_pointer;
 	else
-#endif
 		return NO;
+#endif
 
 	if (_hash == 0)
 		_hash = _strHashImp(self, @selector(hash));
@@ -3003,14 +3020,15 @@ struct stat tmp_stat;
 			return NO;
 		if ((c != _constantStringClass) && (_hash != [aString hash]))
 			return NO;
-		NS_DURING
-			if(!_cString)
+		if(!_cString)
+			{
+			NS_DURING
 				[self cString];	// may fail with character conversion error!
-			NS_VALUERETURN((memcmp(_cString, aString->_cString, _count) == 0), BOOL);
-		NS_HANDLER
-			; // ignore
-		NS_ENDHANDLER
-			return NO;	// failed - i.e. we have some non-convertible characters
+			NS_HANDLER
+				return NO;	// failed - i.e. we have some non-convertible characters
+			NS_ENDHANDLER
+			}
+		return memcmp(_cString, aString->_cString, _count) == 0;
 		}
 
 	if((!_count) && (!aString->_count))
@@ -3102,10 +3120,8 @@ struct stat tmp_stat;
 	int i;
 	if(!e)
 		return NULL;
-	if(_cString)
-		objc_free(_cString);
 	len=[self maximumLengthOfBytesUsingEncoding:__cStringEncoding]+1;
-	_cString=(char*) objc_malloc(len);
+	_cString=(char*) objc_realloc(_cString, len);
 	if(!_cString)
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
 	bp=(unsigned char *) _cString;
@@ -3118,11 +3134,16 @@ struct stat tmp_stat;
 			abort();
 #endif
 			*bp=0;
+			objc_free(_cString);	// release buffer
+			_cString=NULL;	// remove from cache or we get problems using the same string later on
 			[NSException raise:NSCharacterConversionException format:@"-cString can't convert: %@", self];	// conversion error
 			}
 		}
 	*bp=0;
 	NSAssert(bp-((unsigned char *) _cString) < len, @"buffer overflow");
+#if 0
+	NSLog(@"cString: %p %u", _cString, _count);
+#endif
 	return _cString;
 }
 
@@ -3178,6 +3199,14 @@ struct stat tmp_stat;
 
 @implementation GSMutableString
 
+- (BOOL) isEqual:(id)obj
+{ // self is a Unicode string
+#if 0
+	NSLog(@"%@ isEqual %@", self, obj);
+#endif
+	return [super isEqual:obj];
+}
+
 - (id) initWithCharactersNoCopy:(unichar*)chars
 						 length:(unsigned int)length
 						 freeWhenDone:(BOOL)flag
@@ -3216,11 +3245,16 @@ struct stat tmp_stat;
 
 - (void) deleteCharactersInRange:(NSRange)range
 {
-	(self->_count) -= range.length;
+	_count -= range.length;
 	memcpy(self->_uniChars + range.location,
 			self->_uniChars + NSMaxRange(range),
 			sizeof(unichar) * (self->_count - range.location));
-	(self->_hash) = 0;
+	if(_cString)
+		{ // release cached cString
+		objc_free(_cString);
+		_cString=NULL;
+		}
+	_hash = 0;
 }
 
 - (void) replaceCharactersInRange:(NSRange)aRange withString:(NSString*)aString
@@ -3248,6 +3282,11 @@ struct stat tmp_stat;
 		}
 	[aString getCharacters:&_uniChars[aRange.location]];
 	_count += offset;
+	if(_cString)
+		{ // release cached cString
+			objc_free(_cString);
+			_cString=NULL;
+		}
 	_hash = 0;
 #if 0
 	NSLog(@"  -> \"%@\" offset=%d _count=%d", self, offset, _count);
@@ -3285,6 +3324,11 @@ struct stat tmp_stat;
 		}
 	[aString getCharacters: _uniChars];
 	_count = len;
+	if(_cString)
+		{ // release cached cString
+			objc_free(_cString);
+			_cString=NULL;
+		}
 	_hash = 0;
 }
 
@@ -3579,7 +3623,7 @@ struct stat tmp_stat;
 
 - (void) dealloc
 {
-	if(_cString && _freeWhenDone)
+	if(_freeWhenDone && _cString)
 		objc_free(_cString);
 	[super dealloc];
 }
@@ -3591,8 +3635,8 @@ struct stat tmp_stat;
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
 	[self getCharacters:s];
 	return [[_mutableStringClass alloc] initWithCharactersNoCopy: s
-																										length: _count 
-																							freeWhenDone: YES];
+														  length: _count 
+													freeWhenDone: YES];
 }
 
 - (unsigned int) hash

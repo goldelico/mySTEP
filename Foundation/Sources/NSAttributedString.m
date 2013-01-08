@@ -275,7 +275,14 @@ _attributesAtIndexEffectiveRange(unsigned int index,
 }
 
 - (unsigned int) length						{ return [_string length]; }
-- (NSString *) string						{ return _string; }
+
+- (NSString *) string
+{ 
+#if 0
+	NSLog(@"%@: %@", NSStringFromClass([_string class]), _string);
+#endif
+	return _string;
+}
 
 - (NSDictionary *) attributesAtIndex:(unsigned int)index
 					  effectiveRange:(NSRange *)aRange
