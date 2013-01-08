@@ -34,13 +34,13 @@
 			NSLog(@"%016llx %016llx", *(long long *)&have, *(long long *)&want);
 			NSLog(@"%.30g", NSSwapLittleDoubleToHost(*((NSSwappedDouble *)&dbl)));
 		}
-	NSAssert(NSSwapShort(0x1234) == 0x3412, @"NSSwapShort failed");
-	NSAssert(NSSwapLong(0x12345678L) == 0x78563412L, @"NSSwapLong failed");
-	NSAssert(NSSwapLongLong(0x123456789abcdef0LL) == 0xf0debc9a78563412LL, @"NSSwapLongLong failed");
-	NSAssert(NSSwapBigFloatToHost(*((NSSwappedFloat *)&flt)) == ((NSHostByteOrder() == NS_LittleEndian)?(float)-40331460896358400.0:(float)M_PI), @"NSSwapBigFloatToHost failed");
-	NSAssert(NSSwapLittleFloatToHost(*((NSSwappedFloat *)&flt)) == ((NSHostByteOrder() == NS_BigEndian)?(float)-40331460896358400.0:(float)M_PI), @"NSSwapLittleFloatToHost failed");
-	NSAssert(NSSwapBigDoubleToHost(*((NSSwappedDouble *)&dbl)) == ((NSHostByteOrder() == NS_LittleEndian)?3.20737563067636581208678536384e-192:M_PI), @"NSSwapBigDoubleToHost failed");
-	NSAssert(NSSwapLittleDoubleToHost(*((NSSwappedDouble *)&dbl)) == ((NSHostByteOrder() == NS_BigEndian)?3.20737563067636581208678536384e-192:M_PI), @"NSSwapLittleDoubleToHost failed");
+	STAssertEquals(NSSwapShort(0x1234), (unsigned short)0x3412, @"NSSwapShort failed");
+	STAssertEquals(NSSwapLong(0x12345678L), 0x78563412UL, @"NSSwapLong failed");
+	STAssertEquals(NSSwapLongLong(0x123456789abcdef0LL), 0xf0debc9a78563412LL, @"NSSwapLongLong failed");
+	STAssertEquals(NSSwapBigFloatToHost(*((NSSwappedFloat *)&flt)), ((NSHostByteOrder() == NS_LittleEndian)?(float)-40331460896358400.0:(float)M_PI), @"NSSwapBigFloatToHost failed");
+	STAssertEquals(NSSwapLittleFloatToHost(*((NSSwappedFloat *)&flt)), ((NSHostByteOrder() == NS_BigEndian)?(float)-40331460896358400.0:(float)M_PI), @"NSSwapLittleFloatToHost failed");
+	STAssertEquals(NSSwapBigDoubleToHost(*((NSSwappedDouble *)&dbl)), ((NSHostByteOrder() == NS_LittleEndian)?3.20737563067636581208678536384e-192:M_PI), @"NSSwapBigDoubleToHost failed");
+	STAssertEquals(NSSwapLittleDoubleToHost(*((NSSwappedDouble *)&dbl)), ((NSHostByteOrder() == NS_BigEndian)?3.20737563067636581208678536384e-192:M_PI), @"NSSwapLittleDoubleToHost failed");
 }
 
 @end

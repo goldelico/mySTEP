@@ -104,6 +104,8 @@
 - (void) test5b
 {
 	NSURL *url=[NSURL URLWithString:@"file:///pathtofile;parameters?query#anchor"];
+	STAssertTrue([url isFileURL], nil);
+	STAssertEqualObjects([url scheme], @"file", nil);
 	STAssertNil([url host], @"host");
 	STAssertNil([url user], @"user");
 	STAssertNil([url password], @"password");

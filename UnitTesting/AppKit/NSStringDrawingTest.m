@@ -9,8 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import "NSStringDrawingTest.h"
 
-#define STAssertEqualFloats(A, B) STAssertTrue(A == B, @"%g == %g", A, B)
-
 @implementation NSStringDrawingTest
 
 // test sizing of strings and attributed strings
@@ -18,8 +16,8 @@
 - (void) test1;
 {
 	NSSize sz=[@"abc" sizeWithAttributes:nil];
-	STAssertEqualFloats(sz.width, 20.0);
-	STAssertEqualFloats(sz.height, 1.25*12);
+	STAssertEquals(sz.width, 20.0f, nil);
+	STAssertEquals(sz.height, 1.25f*12.0f, nil);
 	/* conclusions
 	 * default font size is 12pt and 25% line spacing
 	 */
@@ -28,8 +26,8 @@
 - (void) test2;
 {
 	NSSize sz=[@"" sizeWithAttributes:nil];	// empty string is the same
-	STAssertEqualFloats(sz.width, 0);	// no width
-	STAssertEqualFloats(sz.height, 1.25*12);
+	STAssertEquals(sz.width, 0.0f, nil);	// no width
+	STAssertEquals(sz.height, 1.25f*12.0f, nil);
 	/* conclusions
 	 * empty string uses the same 12pt default font
 	 */
@@ -40,12 +38,12 @@
 	NSDictionary *attr=[NSDictionary dictionaryWithObjectsAndKeys:[NSFont fontWithName:@"Helvetica" size:12], NSFontAttributeName, nil];
 	NSSize sz1=[@"abc" sizeWithAttributes:nil];
 	NSSize sz2=[@"abc" sizeWithAttributes:attr];
-	STAssertEqualFloats(sz1.width, sz2.width);
-	STAssertEqualFloats(sz1.height, sz2.height);
+	STAssertEquals(sz1.width, sz2.width, nil);
+	STAssertEquals(sz1.height, sz2.height, nil);
 	sz1=[@"ABCDEF GHIJK" sizeWithAttributes:nil];
 	sz2=[@"ABCDEF GHIJK" sizeWithAttributes:attr];
-	STAssertEqualFloats(sz1.width, sz2.width);
-	STAssertEqualFloats(sz1.height, sz2.height);
+	STAssertEquals(sz1.width, sz2.width, nil);
+	STAssertEquals(sz1.height, sz2.height, nil);
 	/* conclusions
 	 * it appears to be Helvetica 12 because we get same width and height for different strings
 	 */
@@ -55,7 +53,7 @@
 {
 	NSDictionary *attr=[NSDictionary dictionaryWithObjectsAndKeys:[NSFont fontWithName:@"Helvetica" size:24], NSFontAttributeName, nil];
 	NSSize sz=[@"abc" sizeWithAttributes:attr];
-	STAssertEqualFloats(sz.height, 1.25*24);
+	STAssertEquals(sz.height, 1.25f*24.0f, nil);
 	/* conclusions:
 	 * size depends on font - as expected
 	 */
@@ -65,8 +63,8 @@
 {
 	NSDictionary *attr=[NSDictionary dictionaryWithObjectsAndKeys:[NSFont fontWithName:@"Helvetica" size:24], NSFontAttributeName, nil];
 	NSSize sz=[@"" sizeWithAttributes:attr];
-	STAssertEqualFloats(sz.width, 0.0);
-	STAssertEqualFloats(sz.height, 1.25*24);
+	STAssertEquals(sz.width, 0.0f, nil);
+	STAssertEquals(sz.height, 1.25f*24.0f, nil);
 	/* conclusions:
 	 * size depends on font attribute even for an empty string!
 	 */
@@ -77,7 +75,7 @@
 	NSDictionary *attr=[NSDictionary dictionaryWithObjectsAndKeys:[NSFont fontWithName:@"Helvetica" size:24], NSFontAttributeName, nil];
 	NSAttributedString *astr=[[[NSAttributedString alloc] initWithString:@"abc" attributes:attr] autorelease];
 	NSSize sz=[astr size];
-	STAssertEqualFloats(sz.height, 1.25*24);
+	STAssertEquals(sz.height, 1.25f*24.0f, nil);
 	/* conclusions:
 	 * size can be stored in attributedString - as expected
 	 */
@@ -88,8 +86,8 @@
 	NSDictionary *attr=[NSDictionary dictionaryWithObjectsAndKeys:[NSFont fontWithName:@"Helvetica" size:24], NSFontAttributeName, nil];
 	NSAttributedString *astr=[[[NSAttributedString alloc] initWithString:@"" attributes:attr] autorelease];
 	NSSize sz=[astr size];
-	STAssertEqualFloats(sz.width, 0.0);
-	STAssertEqualFloats(sz.height, 1.25*12);
+	STAssertEquals(sz.width, 0.0f, nil);
+	STAssertEquals(sz.height, 1.25f*12.0f, nil);
 	/* conclusions:
 	 * an empty attributed string can't store a font - so the default applies!
 	 */

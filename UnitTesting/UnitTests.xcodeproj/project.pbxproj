@@ -29,6 +29,8 @@
 		EE27BF630FCAB29800A48A1E /* NSHTTPCookieTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF620FCAB29800A48A1E /* NSHTTPCookieTest.m */; };
 		EE27BF650FCAB29D00A48A1E /* NSPredicateTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF640FCAB29D00A48A1E /* NSPredicateTest.m */; };
 		EE27BF670FCAB2A300A48A1E /* NSURLTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF660FCAB2A300A48A1E /* NSURLTest.m */; };
+		EE3854EE169BF8920089B326 /* NSTextStorageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3854ED169BF8910089B326 /* NSTextStorageTest.m */; };
+		EE3854EF169BF8920089B326 /* NSTextStorageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3854ED169BF8910089B326 /* NSTextStorageTest.m */; };
 		EE488A950F90FBC300B3E56F /* NSAttributedStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */; };
 		EE488AF50F9102C000B3E56F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EE488BAA0F9102C600B3E56F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
@@ -118,6 +120,8 @@
 		EE27BF690FCAB2E800A48A1E /* NSHTTPCookieTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSHTTPCookieTest.h; sourceTree = "<group>"; };
 		EE27BF6A0FCAB30500A48A1E /* NSPredicateTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSPredicateTest.h; sourceTree = "<group>"; };
 		EE27BF6B0FCAB32000A48A1E /* NSURLTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSURLTest.h; sourceTree = "<group>"; };
+		EE3854EC169BF8910089B326 /* NSTextStorageTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextStorageTest.h; sourceTree = "<group>"; };
+		EE3854ED169BF8910089B326 /* NSTextStorageTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextStorageTest.m; sourceTree = "<group>"; };
 		EE488A930F90FBC300B3E56F /* NSAttributedStringTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSAttributedStringTest.h; sourceTree = "<group>"; };
 		EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAttributedStringTest.m; sourceTree = "<group>"; };
 		EE488AEC0F91025500B3E56F /* Special-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Special-Info.plist"; sourceTree = "<group>"; };
@@ -305,6 +309,8 @@
 				EED980290F87594E002E4AD5 /* NSTextFieldCellTest.m */,
 				EE547B33168C3EDA00164AB4 /* NSViewBoundsTest.h */,
 				EE547B34168C3EDA00164AB4 /* NSViewBoundsTest.m */,
+				EE3854EC169BF8910089B326 /* NSTextStorageTest.h */,
+				EE3854ED169BF8910089B326 /* NSTextStorageTest.m */,
 			);
 			name = "AppKit-Tests";
 			path = AppKit;
@@ -669,6 +675,7 @@
 				EE547AC1168BAC9A00164AB4 /* NSFontDescriptorTest.m in Sources */,
 				EED9803E0F875962002E4AD5 /* NSTextFieldCellTest.m in Sources */,
 				EE547B35168C3EDA00164AB4 /* NSViewBoundsTest.m in Sources */,
+				EE3854EF169BF8920089B326 /* NSTextStorageTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -698,6 +705,7 @@
 				EEDB59FB169878070011D22A /* NSFontDescriptorTest.m in Sources */,
 				EEDB59FC169878070011D22A /* NSTextFieldCellTest.m in Sources */,
 				EEDB59FD169878070011D22A /* NSViewBoundsTest.m in Sources */,
+				EE3854EE169BF8920089B326 /* NSTextStorageTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -12,7 +12,6 @@
 
 @interface NSViewBoundsTest : SenTestCase {
 	NSView *view;
-	NSRect has, want;
 }
 
 @end

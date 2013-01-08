@@ -33,9 +33,9 @@ NSString *NSForegroundColorAttributeName=@"NSForegroundColorAttributeName";
 {
 	NSAttributedString *s=[[NSAttributedString alloc] initWithString:@"string"];
 	STAssertEqualObjects(@"string", [s string], nil);
-	STAssertTrue([s length] == 6, nil);
+	STAssertEquals([s length], (unsigned)6, nil);
 	STAssertNotNil([s attributesAtIndex:0 effectiveRange:NULL], nil);	// return empty NSDictionary and not nil
-	STAssertTrue([[s attributesAtIndex:0 effectiveRange:NULL] count] == 0, nil);	
+	STAssertEquals([[s attributesAtIndex:0 effectiveRange:NULL] count], (unsigned)0, nil);	
 	[s release];
 }
 
@@ -43,15 +43,15 @@ NSString *NSForegroundColorAttributeName=@"NSForegroundColorAttributeName";
 {
 	NSMutableAttributedString *s=[[NSMutableAttributedString alloc] initWithString:@"string"];
 	STAssertEqualObjects(@"string", [s string], nil);
-	STAssertTrue([s length] == 6, nil);
+	STAssertEquals([s length], (unsigned)6, nil);
 	STAssertNotNil([s attributesAtIndex:0 effectiveRange:NULL], nil);	// return empty NSDictionary and not nil
-	STAssertTrue([[s attributesAtIndex:0 effectiveRange:NULL] count] == 0, nil);	
+	STAssertEquals([[s attributesAtIndex:0 effectiveRange:NULL] count], (unsigned)0, nil);	
 	[s setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NSColor redColor], NSForegroundColorAttributeName, nil] range:NSMakeRange(0, 3)];
-	STAssertTrue([[s attributesAtIndex:0 effectiveRange:NULL] count] == 1, nil);
-	STAssertTrue([[s attributesAtIndex:3 effectiveRange:NULL] count] == 0, nil);
+	STAssertEquals([[s attributesAtIndex:0 effectiveRange:NULL] count], (unsigned)1, nil);	
+	STAssertEquals([[s attributesAtIndex:3 effectiveRange:NULL] count], (unsigned)0, nil);	
 	[s setAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[NSColor blueColor], NSForegroundColorAttributeName, nil] range:NSMakeRange(3, 3)];
-	STAssertTrue([[s attributesAtIndex:0 effectiveRange:NULL] count] == 1, nil);
-	STAssertTrue([[s attributesAtIndex:3 effectiveRange:NULL] count] == 1, nil);
+	STAssertEquals([[s attributesAtIndex:0 effectiveRange:NULL] count], (unsigned)1, nil);	
+	STAssertEquals([[s attributesAtIndex:3 effectiveRange:NULL] count], (unsigned)1, nil);	
 	[s release];
 }
 

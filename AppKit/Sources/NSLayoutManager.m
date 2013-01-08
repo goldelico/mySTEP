@@ -1096,8 +1096,6 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	NSRect lfr;
 	if(!layoutFlag)
 		[self ensureLayoutForGlyphRange:NSMakeRange(0, index+1)];	// do additional layout
-	if(index == _numberOfGlyphs)
-		return _extraLineFragmentRect;
 	if(index >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
 	lfr=_glyphs[index].lineFragmentRect;
@@ -1131,8 +1129,6 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	NSRect lfur;
 	if(!flag)
 		[self ensureGlyphsForGlyphRange:NSMakeRange(0, index+1)];
-	if(index == _numberOfGlyphs)
-		return _extraLineFragmentUsedRect;
 	if(index >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", index];
 	lfur=_glyphs[index].usedLineFragmentRect;
@@ -1224,7 +1220,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			lfr=_extraLineFragmentUsedRect;
 		else if(*rectCount != 0 && glyphIndex == NSMaxRange(glyphRange))
 			break;	// there was no extra fragment to include
-		else
+		else if(glyphIndex != _numberOfGlyphs)
 			{ // normal fragments
 			if(selGlyphRange.location != NSNotFound)	// for selection includes right margin
 				lfr=[self lineFragmentRectForGlyphAtIndex:glyphIndex effectiveRange:&lfrRange withoutAdditionalLayout:YES];
@@ -1619,8 +1615,6 @@ static void allocateExtra(struct NSGlyphStorage *g)
 {
 	if(!flag)
 		[self ensureLayoutForGlyphRange:NSMakeRange(0, glyphIndex+1)]; // ensure layout up to and including this index
-	if(glyphIndex == _numberOfGlyphs)
-		return _extraLineFragmentContainer;
 	if(glyphIndex >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];
 	// FIXME: we could do a binary search the best matching text container's glyph range...
@@ -1652,7 +1646,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		{ // characters have been added/removed
 			NSTextView *tv=[self firstTextView];
 			NSRange aRange;
-			NSRange sel=[tv selectedRange];
+			NSRange selRange=[tv selectedRange];
 #if 0
 			NSLog(@"  tv=%@", tv);
 			if([tv frame].size.height == 0)
@@ -1660,8 +1654,11 @@ static void allocateExtra(struct NSGlyphStorage *g)
 #endif
 			[self invalidateGlyphsForCharacterRange:invalidatedCharRange changeInLength:delta actualCharacterRange:&aRange];
 			[self invalidateLayoutForCharacterRange:aRange actualCharacterRange:NULL];
-			sel=newCharRange;
-			[tv setSelectedRange:sel];	// set new selection range
+			if(aRange.location <= selRange.location)
+				selRange.location+=delta;	// inserting before selection
+			else if(aRange.location <= NSMaxRange(selRange))
+				selRange.length+=delta;		// inserting within selection
+			[tv setSelectedRange:selRange];	// set new selection range
 		}
 	else if(editedMask&NSTextStorageEditedAttributes)
 		{ // no need to change glyphs

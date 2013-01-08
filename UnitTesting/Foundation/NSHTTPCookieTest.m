@@ -26,7 +26,7 @@
 										   //		 @"FALSE", NSHTTPCookieDiscard,
 										   //		 @"FALSE", NSHTTPCookieSecure,
 										   nil]];
-	STAssertTrue(c1 != nil, nil);		// assert that cookie exists
+	STAssertNotNil(c1, nil);		// assert that cookie exists
 }
 
 - (void) test2
@@ -41,7 +41,7 @@
 										   @"FALSE", NSHTTPCookieSecure,
 										   //	 @"http://www.origin.org", NSHTTPCookieOriginURL,
 										   nil]];
-	STAssertTrue(c2 != nil, nil);		// assert that cookie exists
+	STAssertNotNil(c2, nil);		// assert that cookie exists
 }
 
 // well, tests should NOT depend on the results of previous tests (c1, c2)...
