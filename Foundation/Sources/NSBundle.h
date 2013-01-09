@@ -35,11 +35,11 @@
 
 @class NSString;
 @class NSArray;
+@class NSDictionary;
 @class NSError;
 @class NSMutableArray;
-@class NSDictionary;
 @class NSMutableDictionary;
-@class NSHashTable;
+@class NSMutableSet;
 
 extern NSString *NSBundleDidLoadNotification;
 extern NSString *NSLoadedClasses;
@@ -55,7 +55,7 @@ enum {
 {
     NSString *_path;
     NSString *_bundleContentPath;
-    NSHashTable *_bundleClasses;				// is just a list of classes - non-retained store
+    NSMutableSet *_bundleClasses;				// list of class names (if known)
     NSMutableDictionary *_searchPaths;			// cache
 	NSMutableArray *_localizations;				// cache
 	NSMutableArray *_preferredLocalizations;	// cache

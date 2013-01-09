@@ -393,7 +393,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 #if 0
 	NSLog(@"_addClass: %@", aClass);
 #endif
-	[_bundleClasses addObject:(id)aClass];
+	[_bundleClasses addObject:aClass];
 }
 
 - (BOOL) preflightAndReturnError:(NSError **) error;
@@ -428,7 +428,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		 * don't use NSNonRetainedObjectHashCallBacks because that calls -isEqual which
 		 * calls +initialize too early (before all string constants are initialized)
 		 */
-		_bundleClasses = NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 10);
+		_bundleClasses = [[NSMutableSet alloc] initWithCapacity:10];
 		__loadingBundle = self;
 		
 #ifdef NeXT_RUNTIME		// FIXME rewrite routine per NeXT to avoid this mess
