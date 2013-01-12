@@ -829,13 +829,12 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 		NSLog(@"unarchiver:%@ didDecodeObject:%@", unarchiver, NSStringFromClass([object class]));
 	NS_ENDHANDLER
 #endif
-	if([decodedObjects indexOfObjectIdenticalTo:object] != NSNotFound)
+	if([decodedObjects containsObject:object])
 		{
 			NSLog(@"duplicate - already unarchived: %@", object);
 			return object;
 		}
-	if(![decodedObjects containsObject:object])
-		[decodedObjects addObject:object];	// keep it unique (should we use a NSMutableSet for better speed?)
+	[decodedObjects addObject:object];
 	return object;
 }
 
@@ -940,7 +939,7 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #if 0
 	NSLog(@"file mapped %@", path);
 #endif
-	decodedObjects=[[NSMutableArray alloc] initWithCapacity:100];	// will store all objects
+	decodedObjects=[[NSMutableSet alloc] initWithCapacity:100];	// will store all objects
 #if 0
 	NSLog(@"initialize unarchiver %@", path);
 #endif

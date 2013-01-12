@@ -338,14 +338,14 @@ typedef NSUInteger NSFindPanelSubstringMatchType;
 			event:(NSEvent *) event
 		  atIndex:(NSUInteger) index;
 - (BOOL) textView:(NSTextView *) textView 
+	     shouldChangeTextInRange:(NSRange) affectedCharRange 
+	     replacementString:(NSString *) replacementString;
+- (BOOL) textView:(NSTextView *) textView 
 		 shouldChangeTextInRanges:(NSArray *) affectedCharRange 
 		 replacementStrings:(NSArray *) replacementString;
 - (BOOL) textView:(NSTextView *) textView 
-		 shouldChangeTextInRanges:(NSArray *) ranges 
-		 replacementStrings:(NSArray *) strings; 
-- (BOOL) textView:(NSTextView *) textView 
 		 shouldChangeTypingAttributes:(NSDictionary *) oldAttribs 
-	 toAttributes:(NSDictionary *) newAttribs;
+		 toAttributes:(NSDictionary *) newAttribs;
 - (NSInteger) textView:(NSTextView *) textView 
 shouldSetSpellingState:(NSInteger) val 
 				 range:(NSRange) charRange; 

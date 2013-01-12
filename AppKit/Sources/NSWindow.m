@@ -273,7 +273,7 @@ static BOOL __cursorHidden = NO;
 			// or shouldn't we better use a resizable NSButton with center alignment to store and draw both, the window icon and title?
 			// or at least use a centered paragraph style!
 			// [_titleButton drawInteriorWithFrame:rect between buttons inView:self];
-			if(_titleIcon)
+			if(_titleIcon && _title)
 				{
 				[_titleIcon compositeToPoint:NSMakePoint((_bounds.size.width-[_title sizeWithAttributes:a].width)/2.0-[_titleIcon size].width,
 														 1.0+(_height-16.0)/2.0)
@@ -870,8 +870,8 @@ static NSButtonCell *sharedCell;
 										[(NSScroller *) iv setControlSize:csize];	// try to adjust size of view
 									[iv setAutoresizingMask:0];	// don't autoresize
 									labelheight=[sharedCell cellSize].height;
-									min.height+=labelheight;
 									min=[item minSize];
+									min.height+=labelheight;
 									max=[item maxSize];
 								}
 							else
@@ -1269,30 +1269,31 @@ static NSButtonCell *sharedCell;
 		return (mask&NSUtilityWindowMask)?16.0:23.0;
 }
 
-#if 0
+#if 1
 - (void) release
 {
 #if 0 && defined(__mySTEP__)
 	free(malloc(8192));
 #endif
-	NSLog(@"release %@", self);
+	NSLog(@"release %p %@", self, self);
 	[super release];
 }
 #endif
 
 - (void) dealloc
 {
-#if 0
-	NSLog(@"dealloc - %@ [%d]", self, [self retainCount]);
+#if 1
+	NSLog(@"dealloc - %p %@ [%d]", self, self, [self retainCount]);
 #endif
+	[_parentWindow removeChildWindow:self];	// if we have a parent...
+	[self setDelegate:nil];	// release delegate
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSApplicationDidChangeScreenParametersNotification object:nil];
 	[self resignKeyWindow];
 #if 0
 	NSLog(@"a");
 #endif
 	[self resignMainWindow];
-	[self setDelegate:nil];	// release delegate
-	[_windowController release];
+	[_windowController release];	// if any
 	[_fieldEditor release];	// if it exists
 	[_themeFrame _setWindow:nil];
 #if 0
@@ -1307,7 +1308,6 @@ static NSButtonCell *sharedCell;
 	[_miniWindowTitle release];
 	[_representedFilename release];
 	[_windowTitle release];
-	[_parentWindow removeChildWindow:self];	// if we have a parent...
 	[_childWindows release];
 #if 0
 	NSLog(@"d");

@@ -230,8 +230,11 @@ static NSMutableDictionary *__nameToSoundDict = nil;
 
 - (id) awakeAfterUsingCoder:(NSCoder*)aDecoder
 {
-	if(_name && [__nameToSoundDict objectForKey:_name]) 
+	if(_name && [__nameToSoundDict objectForKey:_name])
+		{
+//		[self release];
 		return [__nameToSoundDict objectForKey:_name];
+		}
 	return self;
 }
 

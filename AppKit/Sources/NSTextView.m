@@ -237,6 +237,7 @@ static NSCursor *__textCursor = nil;
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:alignment]
 														   forKey:@"TextAlignment"]
 						 range:range];
+	[self didChangeText];
 }
 
 - (void) pasteAsPlainText:(id) sender
@@ -281,6 +282,7 @@ static NSCursor *__textCursor = nil;
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.0]
 														   forKey:NSKernAttributeName]
 						 range:[self rangeForUserCharacterAttributeChange]];
+	[self didChangeText];
 }
 
 - (void) useStandardKerning:(id) sender
@@ -288,6 +290,7 @@ static NSCursor *__textCursor = nil;
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:0.0]
 														   forKey:NSKernAttributeName]
 						 range:[self rangeForUserCharacterAttributeChange]];
+	[self didChangeText];
 }
 
 - (void) turnOffLigatures:(id) sender
@@ -295,6 +298,7 @@ static NSCursor *__textCursor = nil;
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:0]
 														   forKey:NSLigatureAttributeName]
 						 range:[self rangeForUserCharacterAttributeChange]];
+	[self didChangeText];
 }
 
 - (void) useStandardLigatures:(id) sender
@@ -302,6 +306,7 @@ static NSCursor *__textCursor = nil;
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:1]
 														   forKey:NSLigatureAttributeName]
 						 range:[self rangeForUserCharacterAttributeChange]];
+	[self didChangeText];
 }
 
 - (void) useAllLigatures:(id) sender
@@ -309,6 +314,7 @@ static NSCursor *__textCursor = nil;
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:1]
 														   forKey:NSLigatureAttributeName]
 						 range:[self rangeForUserCharacterAttributeChange]];
+	[self didChangeText];
 }
 
 - (void) raiseBaseline:(id) sender
@@ -317,13 +323,16 @@ static NSCursor *__textCursor = nil;
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:3.0]
 														   forKey:NSBaselineOffsetAttributeName]
 						 range:[self rangeForUserCharacterAttributeChange]];	
+	[self didChangeText];
 }
+
 - (void) lowerBaseline:(id)sender
 {
 	// FIXME: accumulate?
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:3.0]
 														   forKey:NSBaselineOffsetAttributeName]
 						 range:[self rangeForUserCharacterAttributeChange]];	
+	[self didChangeText];
 }
 // Ruler support 
 
@@ -526,7 +535,13 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 }
 
 - (NSDictionary*) typingAttributes { return typingAttributes; }
-- (void) setTypingAttributes:(NSDictionary *)attrs { ASSIGN(typingAttributes, attrs); }
+
+- (void) setTypingAttributes:(NSDictionary *)attrs
+{
+	attrs=[_delegate textView:self shouldChangeTypingAttributes:typingAttributes toAttributes:attrs];
+	ASSIGN(typingAttributes, attrs);
+	[[NSNotificationCenter defaultCenter] postNotificationName:NSTextViewDidChangeTypingAttributesNotification object:self];
+}
 
 - (void) _updateTypingAttributes;
 {
@@ -772,8 +787,8 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	NSRange range;
 	if(!layoutManager)
 		return;
-	range=[layoutManager glyphRangeForBoundingRectWithoutAdditionalLayout:rect inTextContainer:textContainer];
-#if 0
+	range=[layoutManager glyphRangeForBoundingRect:rect inTextContainer:textContainer];	// make sure that it is laid out
+#if 1
 	NSLog(@"NSTextView drawRect %@", NSStringFromRect(rect));
 	NSLog(@"         glyphRange %@", NSStringFromRange(range));
 #endif
@@ -879,7 +894,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		{
 		NSDictionary *attribs=[typingAttributes retain];
 		[self replaceCharactersInRange:rng withString:text];
-		[self setAttributes:attribs range:rng];
+		[[self textStorage] setAttributes:attribs range:rng];
 		[attribs release];
 		[self didChangeText];
 		}
@@ -887,7 +902,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (void) mouseDown:(NSEvent *) event
 { // run a text selection tracking loop
-	NSRange initialRange;	// initial range (for extending selection)
+	NSRange initialRange=_selectedRange;	// initial range (for extending selection)
 	NSRange rng;					// current selected range
 	unsigned int modifiers=[event modifierFlags];
 	if(!_tx.selectable)
@@ -992,15 +1007,22 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (void) setSelectedRange:(NSRange) range affinity:(NSSelectionAffinity) affinity stillSelecting:(BOOL) flag;
 {
-	if(_selectedRange.location == range.location && _selectedRange.length == range.length)
-		return;	// no change
-	[super setSelectedRange:range];
-	if(!flag && layoutManager)
-		{
-		[self updateInsertionPointStateAndRestartTimer:YES];	// will call _caretRect
-		[self _updateTypingAttributes];
-		_stableCursorColumn=_caretRect.origin.x;
-		// send NSTextViewDidChangeSelectionNotification
+	if(flag)
+		{ // simple version during selecting
+			if(!NSEqualRanges(_selectedRange, range))
+				[super setSelectedRange:range];	// did change
+		}
+	else
+		{ // full version			
+			// FIXME: this may notify the wrong old-range during selection by the user!
+			// we must cache the last selectedRange until it is used next time
+			NSRange _old=_selectedRange;
+			range=[_delegate textView:self willChangeSelectionFromCharacterRange:_old toCharacterRange:range];
+			[super setSelectedRange:range];
+			[self updateInsertionPointStateAndRestartTimer:YES];	// will call _caretRect
+			_stableCursorColumn=_caretRect.origin.x;
+			[self _updateTypingAttributes];
+			[[NSNotificationCenter defaultCenter] postNotificationName:NSTextViewDidChangeSelectionNotification object:self userInfo:[NSDictionary dictionaryWithObject:[NSValue valueWithRange:_old] forKey:@"NSOldSelectedCharacterRange"]];
 		}
 }
 
@@ -1083,6 +1105,14 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	return r[0];	// first
 }
 
+- (void) doCommandBySelector:(SEL)aSelector
+{ // don't pass up the responder chain
+	if(![_delegate textView:self doCommandBySelector:aSelector])
+		return;	// already processed by delegate
+	if([self respondsToSelector:aSelector])
+		[self performSelector:aSelector withObject:nil];
+}
+
 - (void) scrollRangeToVisible:(NSRange) range;
 {
 	[self scrollRectToVisible:[self firstRectForCharacterRange:range]];
@@ -1152,5 +1182,84 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 - (NSDictionary *) linkTextAttributes { return linkAttributes; }
 - (NSDictionary *) markedTextAttributes { return markedAttributes; }
 - (NSDictionary *) selectedTextAttributes { return selectedAttributes; }
+
+@end
+
+@implementation NSObject (NSTextViewDelegate)
+
+- (NSDictionary *) textView:(NSTextView *) textView shouldChangeTypingAttributes:(NSDictionary *) oldAttribs toAttributes:(NSDictionary *) newAttribs;
+{
+	return newAttribs;
+}
+
+- (BOOL) textView:(NSTextView *) textView shouldChangeTextInRange:(NSRange) affectedCharRange replacementString:(NSString *) replacementString;
+{
+	return YES;	// yes, please change
+}
+
+- (BOOL) textView:(NSTextView *) textView doCommandBySelector:(SEL) commandSelector;
+{
+	return NO;	// not done here
+}
+
+- (NSRange) textView:(NSTextView *) textView willChangeSelectionFromCharacterRange:(NSRange) oldSelectedCharRange toCharacterRange:(NSRange) newSelectedCharRange;
+{
+	return newSelectedCharRange;
+}
+
+#if 0
+- (void) textView:(NSTextView *) textView 
+	clickedOnCell:(id <NSTextAttachmentCell>) cell 
+		   inRect:(NSRect) cellFrame;
+- (void) textView:(NSTextView *) textView 
+	clickedOnCell:(id <NSTextAttachmentCell>) cell 
+		   inRect:(NSRect) cellFrame
+		  atIndex:(NSUInteger) index;
+- (void) textView:(NSTextView *) textView 
+	clickedOnLink:(id) link; /* DEPRECATED */
+- (BOOL) textView:(NSTextView *) textView 
+	clickedOnLink:(id) link
+		  atIndex:(NSUInteger) index;
+- (NSArray *) textView:(NSTextView *) textView
+		   completions:(NSArray *) words
+   forPartialWordRange:(NSRange) range
+   indexOfSelectedItem:(NSInteger *) index;
+- (void) textView:(NSTextView *) textView 
+doubleClickedOnCell:(id <NSTextAttachmentCell>) cell 
+		   inRect:(NSRect) cellFrame; /* DEPRECATED */
+- (void) textView:(NSTextView *) textView 
+doubleClickedOnCell:(id <NSTextAttachmentCell>) cell 
+		   inRect:(NSRect) cellFrame
+		  atIndex:(NSUInteger) index;
+- (void) textView:(NSTextView *) view 
+	  draggedCell:(id <NSTextAttachmentCell>) cell 
+		   inRect:(NSRect) rect
+			event:(NSEvent *) event; /* DEPRECATED */
+- (void) textView:(NSTextView *) view 
+	  draggedCell:(id <NSTextAttachmentCell>) cell 
+		   inRect:(NSRect) rect
+			event:(NSEvent *) event
+		  atIndex:(NSUInteger) index;
+- (BOOL) textView:(NSTextView *) textView 
+shouldChangeTextInRanges:(NSArray *) affectedCharRange 
+replacementStrings:(NSArray *) replacementString;
+- (NSInteger) textView:(NSTextView *) textView 
+shouldSetSpellingState:(NSInteger) val 
+				 range:(NSRange) charRange; 
+- (NSRange) textView:(NSTextView *) textView 
+willChangeSelectionFromCharacterRanges:(NSArray *) oldSelectedCharRanges 
+   toCharacterRanges:(NSArray *) newSelectedCharRanges;
+- (NSString *) textView:(NSTextView *) textView
+	 willDisplayToolTip:(NSString *) tooltip
+	forCharacterAtIndex:(NSUInteger) index;
+- (NSArray *) textView:(NSTextView *) textView
+writablePasteboardTypesForCell:(id <NSTextAttachmentCell>) cell
+			   atIndex:(NSUInteger) index;
+- (BOOL) textView:(NSTextView *) textView
+		writeCell:(id <NSTextAttachmentCell>) cell
+		  atIndex:(NSUInteger) index
+	 toPasteboard:(NSPasteboard *) pboard
+			 type:(NSString *) type;
+#endif
 
 @end

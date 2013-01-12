@@ -503,8 +503,8 @@ static NSColor *__borderedBackgroundColor = nil;
 			NSClipView *c = (NSClipView *) [textObject superview];
 			v = [c superview];
 			r = [c frame];
-			[c retain];	
-			[c removeFromSuperview];	
+			[[c retain] autorelease];	// don't dealloc immedialtey
+			[c removeFromSuperview];
 		}
 	else
 		{

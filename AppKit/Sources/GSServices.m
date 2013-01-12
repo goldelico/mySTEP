@@ -571,7 +571,7 @@ SEL msgSel;
 	message = [service objectForKey: @"NSMessage"];
 	selName = [message stringByAppendingString: @":userData:error:"];
 
-	if ((msgSel = NSSelectorFromString(selName)) == NULL)					
+	if ((NSSelectorFromString(selName)) == NULL)					
 		{
 #if QUESTIONABLE
 		NSMethodSignature *sig;					// If there is no selector - we

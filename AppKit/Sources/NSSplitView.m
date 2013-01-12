@@ -196,7 +196,7 @@ NSSplitView.h
 		}
 	
 	[self unlockFocus];
-	r = [prev frame];
+	r = prev?[prev frame]:NSZeroRect;
 	r1 = [v frame];
 #if 1
 	NSLog(@"r=%@", NSStringFromRect(r));

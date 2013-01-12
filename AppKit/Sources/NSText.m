@@ -599,7 +599,7 @@ object:self]
 
 - (void) mouseDown:(NSEvent *)event
 { // simple mouse down mechanism
-	NSRange rng;	// current selected range
+	NSRange rng=_selectedRange;	// current selected range
 #if 1
 	NSLog(@"%@ mouseDown: %@", NSStringFromClass(isa), event);
 #endif

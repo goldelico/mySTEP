@@ -164,8 +164,7 @@ id __imageCellClass = nil;
 	NSLog(@"NSImageCell drawInRect rect=%@", NSStringFromRect(rect));
 #endif
 	
-	switch (_d.imageScaling)
-		{
+	switch (_d.imageScaling) {
 		case NSScaleProportionally:
 			{
 				float d;
@@ -180,6 +179,7 @@ id __imageCellClass = nil;
 			is = rect.size;
 			break;
 
+			default:
 		case NSScaleNone:
 			is = [_contents size];
 			break;

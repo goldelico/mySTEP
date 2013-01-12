@@ -799,9 +799,11 @@ static NSMutableDictionary *__nameToImageDict = nil;
 
 - (id) awakeAfterUsingCoder:(NSCoder*)aDecoder
 {
-	if(_name && [__nameToImageDict objectForKey:_name]) 
+	if(_name && [__nameToImageDict objectForKey:_name])
+		{
+//		[self release];	--- we are always named and stored in the nameToImageDict
 		return [__nameToImageDict objectForKey:_name];
-    
+		}
 	return self;
 }
 

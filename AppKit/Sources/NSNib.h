@@ -23,7 +23,7 @@ extern NSString *NSNibTopLevelObjects;
 @interface NSNib : NSObject <NSCoding>
 {
 	id decoded;	// decoded root object tree
-	NSMutableArray *decodedObjects;
+	NSMutableSet *decodedObjects;
 	NSBundle *_bundle;	// bundle where we should locate resources
 }
 

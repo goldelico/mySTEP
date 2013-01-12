@@ -227,14 +227,14 @@ static inline void composite(NSCompositingOperation compositingOperation, struct
 				}
 			break;
 		case NSCompositeSourceIn:
-			F=dest->A, G=0;
+			F=dest->A /*, G=0 */;
 			dest->R=(F*src->R)>>8;
 			dest->G=(F*src->G)>>8;
 			dest->B=(F*src->B)>>8;
 			dest->A=(F*src->A)>>8;
 			break;
 		case NSCompositeSourceOut:
-			F=255-dest->A, G=0;
+			F=255-dest->A /*, G=0 */;
 			dest->R=(F*src->R)>>8;
 			dest->G=(F*src->G)>>8;
 			dest->B=(F*src->B)>>8;
@@ -254,7 +254,7 @@ static inline void composite(NSCompositingOperation compositingOperation, struct
 				dest->R=(G*dest->R)>>8;
 				dest->G=(G*dest->G)>>8;
 				dest->B=(G*dest->B)>>8;
-				dest->A=(G*dest->A)>>8;
+				/* dest->A=(G*dest->A)>>8; does not change - F=dest->A == 0 */
 				}
 			else
 				{
@@ -298,14 +298,14 @@ static inline void composite(NSCompositingOperation compositingOperation, struct
 			 */
 			break;
 		case NSCompositeDestinationIn:
-			F=0, G=src->A;
+			/*F=0,*/ G=src->A;
 			dest->R=(G*dest->R)>>8;
 			dest->G=(G*dest->G)>>8;
 			dest->B=(G*dest->B)>>8;
 			dest->A=(G*dest->A)>>8;
 			break;
 		case NSCompositeDestinationOut:
-			F=0, G=255-src->A;
+			/*F=0,*/ G=255-src->A;
 			dest->R=(G*dest->R)>>8;
 			dest->G=(G*dest->G)>>8;
 			dest->B=(G*dest->B)>>8;
@@ -318,7 +318,7 @@ static inline void composite(NSCompositingOperation compositingOperation, struct
 					dest->R=(F*src->R)>>8;
 					dest->G=(F*src->G)>>8;
 					dest->B=(F*src->B)>>8;
-					dest->A=(F*src->A)>>8;
+					dest->A=0 /* (F*src->A)>>8; -- G == src->A is known to be 0 */;
 				}
 			else if(F == 0)
 				{
@@ -1063,7 +1063,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 - (BOOL) _pointsForPath:(PointsForPathState *) state;
 { // process next part - return YES if anything found
 	NSPoint points[3];
-	NSPoint first, current, next;
+	NSPoint first, current=NSZeroPoint, next;
 	NSBezierPathElement element;
 	if(state->element == 0)
 		state->elements=[state->path elementCount];	// initialize
@@ -1184,13 +1184,13 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 					{ // very simple and slow approximation
 						// uses 16 multiplications, 2 scaling, 7 additions per step
 						float t1=(1.0-t);
-						float t12=t1*t1;
-						float t13=t1*t12;
+						float t1sq=t1*t1;
+						float t1cub=t1*t1sq;
 						float t2=t*t;
 						float t3=t*t2;
 						NSPoint pnt;
-						pnt.x=p0.x*t13+3.0*(p1.x*t*t12+p2.x*t2*t1)+p3.x*t3;
-						pnt.y=p0.y*t13+3.0*(p1.y*t*t12+p2.y*t2*t1)+p3.y*t3;
+						pnt.x=p0.x*t1cub+3.0*(p1.x*t*t1sq+p2.x*t2*t1)+p3.x*t3;
+						pnt.y=p0.y*t1cub+3.0*(p1.y*t*t1sq+p2.y*t2*t1)+p3.y*t3;
 						addPoint(state, pnt);
 					}
 				addPoint(state, next=p3);	// move to final point (if not already there)
@@ -1258,7 +1258,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 						   _capStyles[[path lineCapStyle]&0x03],
 						   _joinStyles[[path lineJoinStyle]&0x03]
 						   );
-		if(count > 0 && count < 100)
+		if(count > 0 && count < 100 && pattern)
 			{
 			char dash_list[count];	// allocate on stack
 			int i;
@@ -2400,6 +2400,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 		src.x=srcRect.origin.x;
 		src.y=srcRect.origin.y;
 		src.width=srcRect.size.width;
+		dest.width=src.width;
+		dest.height=src.height;
 		if(srcRect.size.height < 0)
 			{
 			src.height=-srcRect.size.height;	// negative if not flipped 
@@ -2411,8 +2413,6 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			src.height=srcRect.size.height;
 			dest.y=destPoint.y;
 			}
-		dest.width=src.width;
-		dest.height=src.height;
 		dest.x=destPoint.x;
 #if 0
 		NSLog(@"  X11 %@ to %@", NSStringFromXRect(src), NSStringFromXRect(dest));
@@ -3335,6 +3335,7 @@ static void X11ErrorHandler(Display *display, XErrorEvent *error_event)
 @implementation _NSX11Screen
 
 static NSDictionary *_x11settings;
+static NSFileHandle *fh;
 
 + (void) initialize;	// called when looking at the first screen
 { // initialize backend
@@ -3346,7 +3347,6 @@ static NSDictionary *_x11settings;
 	"_GNUSTEP_WM_ATTR"
 	};
 	Atom atoms[sizeof(atomNames)/sizeof(atomNames[0])];
-	NSFileHandle *fh;
 	NSUserDefaults *def=[[[NSUserDefaults alloc] initWithUser:@"root"] autorelease];	// load /Library/Preferences user defaults (if they exist)
 #if 1
 	NSLog(@"NSScreen backend +initialize");
@@ -5060,7 +5060,7 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 		
 		NSPoint pts[3];
 		NSPoint coeff[4];
-		NSPoint first_p, last_p;
+		NSPoint first_p, last_p=NSZeroPoint;
 		int i;
 		BOOL first = NO;
 		NSLog(@"create stroke path");
@@ -5079,7 +5079,7 @@ static int tesselate_compare3(id idx1, id idx2, void *elements)
 				{
 				float dx, dy;
 				float nn;
-				NSPoint p;
+				NSPoint p=NSZeroPoint;
 				if (first)
 					{ // NSMoveToBezierPathElement is missing
 						first_p = last_p = pts[0];

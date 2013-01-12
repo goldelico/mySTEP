@@ -220,7 +220,7 @@ FT_Library _ftLibrary(void)
 	if(!_freetypeLibrary)
 		{
 		if((error=FT_Init_FreeType(&_freetypeLibrary)))
-			[NSException raise:NSGenericException format:@"Unable to initialize libFreetype"];
+			[NSException raise:NSGenericException format:@"Unable to initialize libFreetype (%d)", error];
 		}
 	return _freetypeLibrary;
 }

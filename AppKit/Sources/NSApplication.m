@@ -222,7 +222,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 {
 //	NSNotificationCenter *n=[NSNotificationCenter defaultCenter];
 	NSMessagePort *port = [[[NSMessagePort alloc] init] autorelease];	// create new message port
-	NSConnection *connection = [[NSConnection connectionWithReceivePort:port sendPort:nil] retain];	// uses same port to send and receive
+	NSConnection *connection = [NSConnection connectionWithReceivePort:port sendPort:nil];	// uses same port to send and receive
 	NSString *name=[[NSBundle mainBundle] bundleIdentifier];
 	
 	if(![[NSMessagePortNameServer sharedInstance] registerPort:port name:name])	// register as named message port
@@ -305,7 +305,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 1
 	NSLog(@"_processCommandLineArguments: %@", args);
 #endif
-	arg=[e nextObject]; // skip application executable path
+	[e nextObject]; // skip application executable path
 	while((arg=[e nextObject]))
 		{ // process all arguments and convert to URL
 		NSURL *url;
@@ -1378,12 +1378,12 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		if(_mainWindow && (_keyWindow != _mainWindow))
 			{ // if main and key window are different
 			[_mainWindow orderFront: sender];
-			topLeft=[_mainWindow cascadeTopLeftFromPoint:topLeft];
+			[_mainWindow cascadeTopLeftFromPoint:topLeft];
 			}
 		if(_keyWindow)
 			{
 			[_keyWindow orderFront: sender];
-			topLeft=[_keyWindow cascadeTopLeftFromPoint:topLeft];
+			[_keyWindow cascadeTopLeftFromPoint:topLeft];
 			}
 		}
 }
@@ -1782,7 +1782,7 @@ NSWindow *w;
 					}	}
 				else
 					{
-					NSImage	*newImage = oldImage;
+					NSImage	*newImage;
 		
 					if (oldPos != NSImageLeft)
 						{

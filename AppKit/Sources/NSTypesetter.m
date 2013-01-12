@@ -169,7 +169,7 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 			atProposedOrigin:(NSPoint) origin;
 { // for blank lines
 	NSRect rr;
-	NSRect proposedRect;
+	NSRect proposedRect=NSZeroRect;
 	[self getLineFragmentRect:fragRect
 					 usedRect:fragUsedRect
 				remainingRect:&rr
@@ -742,10 +742,11 @@ forStartOfGlyphRange:(NSRange) range;
 }
 
 - (void) clearAttributesCache;
-{
-	// release any retained objects
+{ // release any retained objects and remove links
 	attrsRange = (NSRange) { 0, 0 };
+	attrs=nil;
 	curParaRange = (NSRange) { 0, 0 };
+	curParaStyle=nil;
 	previousFont=nil;
 	curFont=nil;
 	return;
@@ -993,7 +994,7 @@ NSLayoutOutOfGlyphs
 #endif
 	if(setBaseline)
 		*baseline=0.0;
-	curGlyphOffset=(curCharacterIndex == curParaRange.location)?[curParaStyle firstLineHeadIndent]:[curParaStyle headIndent];	// start at left indent
+	curGlyphOffset=[curParaStyle headIndent];	// start at left indent (or 0.0)
 	containerBreakAfterCurGlyph=NO;
 	curMinBaselineDistance=curMaxBaselineDistance=0.0;
 	curGlyphIndex=0;	// fill from the beginning
@@ -1013,13 +1014,13 @@ NSLayoutOutOfGlyphs
 #endif
 			if(curCharacterIndex >= NSMaxRange(curParaRange))
 				{ // switch to new paragraph style
-					// how to handle extra fragment if end of string?
 					curParaStyle=[textStorage attribute:NSParagraphStyleAttributeName
 												atIndex:curCharacterIndex
 								  longestEffectiveRange:&curParaRange
 												inRange:(NSRange){ 0, [textStorage length] }];
 					if(!curParaStyle)
 						curParaStyle=[NSParagraphStyle defaultParagraphStyle];
+					curGlyphOffset=[curParaStyle firstLineHeadIndent];	// start new paragrph
 					curMaxGlyphLocation=[curParaStyle tailIndent];	// positive values are absolute
 					if(curMaxGlyphLocation <= 0.0)	// relative to right margin
 						curMaxGlyphLocation+=lineFragmentRect->size.width;

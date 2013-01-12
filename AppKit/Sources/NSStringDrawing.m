@@ -17,19 +17,23 @@
 
 #import <AppKit/AppKit.h>
 
-// FIXME: how does -[NSTextStorage font] play a role? It is the Helvetica-12 default if we have empty strings?
-// BUT: that method is related to scripting only
-// and there is a note that empty strings are displaying by default [NSTextView typingAttributes!]
-
-// FIXME: make this thread-safe by locking (in setup) and unlocking (after use)
-
 static BOOL _NSShowStringDrawingBox=NO;
+static NSStringDrawingOptions _currentOptions;
+
 static NSTextStorage *_textStorage;
 static NSLayoutManager *_layoutManager;
 static NSTextContainer *_textContainer;
 static NSAttributedString *_currentString;
-static NSStringDrawingOptions _currentOptions;
 
+// can be boiled down to one
+static NSTextView *_textView;
+
+/* FIXME:
+ * make thread-safe (why?)
+ * use separate caches for sizing (infinite box) and drawing (finite box)
+ * cache NSTextView objects, i.e. create complete layout networks
+ * and access [view textStorage], [view layoutManager], [view textContainer]
+ */
 
 @implementation NSAttributedString (NSAttributedStringDrawingAdditions)
 
@@ -46,14 +50,14 @@ static NSStringDrawingOptions _currentOptions;
 	 */
 	_currentOptions=options;
 	if(!_textStorage)
-		{ // first call, setup text system
+		{ // first call: setup text system
 			// FIXME: should be a default and not an ENV variable
-			NSTextView *textView;
 			char *flag=getenv("QSShowStringDrawingBox");
 			if(flag) _NSShowStringDrawingBox=strcmp(flag, "YES") == 0;
 #if 0
 			NSLog(@"create global text storage");
 #endif
+			// FIXME: we should simply create one NSTextView or multiple cached view
 			_textStorage=[[NSTextStorage alloc] initWithAttributedString:self];			// store a copy
 			NSAssert(!_textContainer, @"text container left over");
 			_textContainer=[[NSTextContainer alloc] initWithContainerSize:rect.size];	// predefine the size of the container
@@ -64,15 +68,16 @@ static NSStringDrawingOptions _currentOptions;
 			[_textContainer release];	// is retained by _layoutManager
 			[_textStorage addLayoutManager:_layoutManager];
 			[_layoutManager release];	// is retained by _textStorage
-			textView=[[NSTextView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 500.0, 500.0)];
-			[_textContainer setTextView:textView];
-			[textView setTypingAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
+			_textView=[[NSTextView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 500.0, 500.0)];
+			[_textContainer setTextView:_textView];
+			[_textView setTypingAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
 										   [NSFont fontWithName:@"Helvetica" size:12],	// this defines the default font if nothing else is known!
 										   NSFontAttributeName, nil]];
-			[textView release];
+			// [_textView release];
 		}
 	else
 		{
+		// FIXME: we can separate infinitely sized and finitely sized calls
 		[_textContainer setContainerSize:rect.size];	// resize container - should invalidate layout but keep glyphs - if it changes
 		if(![self isEqual:_currentString])
 			[_textStorage setAttributedString:self];		// replace - should invalidate glyphs and layout
@@ -91,11 +96,14 @@ static NSStringDrawingOptions _currentOptions;
 - (void) _tearDown
 {
 	if(_currentOptions&NSStringDrawingOneShot)
+		// for a cache this could mean that we don't cache the NSTextView and (auto)release it when done
+		// then, we would not even need the _tearDown method
 		{ // remove
 			[_textStorage release];
 			_textStorage=nil;
 			_layoutManager=nil;
 			_textContainer=nil;
+			_textView=nil;
 		}
 }
 

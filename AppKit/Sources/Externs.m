@@ -12,11 +12,6 @@
 #import<Foundation/NSString.h>
 #import <AppKit/NSEvent.h>
 
-#ifdef __xAPPLE__	// workaround to make linker happy
-int __CFConstantStringClassReference[1];
-void *objc_main;
-#endif
-
 // Global strings
 NSString *NSModalPanelRunLoopMode = @"ModalPanelMode";
 NSString *NSEventTrackingRunLoopMode = @"EventTrackingMode";
@@ -219,6 +214,9 @@ NOTE(TableViewColumnDidMove)			= @"TableViewColumnDidMove";
 NOTE(TextDidBeginEditing)				= @"TextDidBeginEditing";
 NOTE(TextDidEndEditing)					= @"TextDidEndEditing";
 NOTE(TextDidChange)						= @"TextDidChange";
+NOTE(TextViewDidChangeSelection)		= @"TextViewDidChangeSelection";
+NOTE(TextViewWillChangeNotifyingTextView)	= @"NSTextViewWillChangeNotifyingTextView";
+NOTE(TextViewDidChangeTypingAttributes)		= @"NSTextViewDidChangeTypingAttributes";
 
 // NSView notifications
 NOTE(ViewFocusDidChange)				= @"ViewFocusDidChange";

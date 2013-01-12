@@ -162,7 +162,7 @@
 	NSRect rect;		// rect of selected cell
 	NSDate *limitDate;
 	NSWindow *dragWindow=nil;
-	float oldWidth;
+	float oldWidth=0.0;
 //	int mouseDownFlags = [event modifierFlags];
 	location = [self convertPoint:[event locationInWindow] fromView:nil];	// location on view
 	limitDate = [NSDate dateWithTimeIntervalSinceNow:0.8];	// timeout to switch to dragging
@@ -288,10 +288,13 @@
 					_draggedColumn=column;	// force to start dragging
 					limitDate = [NSDate distantFuture];	// wait unlimited...
 				}
+			else
+				{				
 #if 1
-			NSLog(@"NSTableHeaderView: got next event: %@", event);
+				NSLog(@"NSTableHeaderView: got next event: %@", event);
 #endif
-			location = [self convertPoint:[event locationInWindow] fromView:nil];	// new location
+				location = [self convertPoint:[event locationInWindow] fromView:nil];	// new location
+				}
 		}
 	if(_draggedColumn >= 0)
 		{ // end dragging

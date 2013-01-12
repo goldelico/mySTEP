@@ -115,6 +115,7 @@
 		[(NSTabView *) item_tabview font], NSFontAttributeName,
 		para, NSParagraphStyleAttributeName,
 		nil];
+	[para release];
 	bounds=[item_label boundingRectWithSize:(NSSize){ FLT_MAX, FLT_MAX } options:0 attributes:attribs].size;
 	tabRect.origin.y+=(tabRect.size.height-bounds.height)/2.0;
 	[item_label drawInRect:tabRect withAttributes:attribs];
