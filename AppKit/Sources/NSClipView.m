@@ -474,7 +474,6 @@ because this reverses the writing direction within the text container
 - (id) initWithCoder:(id)aDecoder
 {
 	NSNotificationCenter *dnc;
-	[NSLayoutManager checkMe];
 	self=[super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
 		{

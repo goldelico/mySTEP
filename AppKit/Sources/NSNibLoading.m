@@ -959,13 +959,9 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 #endif
 	if(!decoded)
 		NSLog(@"can't decode IB.objectdata");
-	[NSLayoutManager checkMe];
 	[unarchiver finishDecoding];
-	[NSLayoutManager checkMe];
 	[unarchiver release];	// no longer needed
-	[NSLayoutManager checkMe];
 	if(!decoded)
-		[NSLayoutManager checkMe];
 		decoded=[NSUnarchiver unarchiveObjectWithFile:[path stringByAppendingPathComponent:@"objects.nib"]];	// try again by unarchiving
 #if 0
 	NSLog(@"decoded NSIBObjectData: %@", decoded);
@@ -982,7 +978,6 @@ NSString *NSNibTopLevelObjects=@"NSNibTopLevelObjects";	// filled if someone pro
 	free(malloc(8192));
 #endif	
 	[arp release]; 
-	[NSLayoutManager checkMe];
 	return self;
 }
 

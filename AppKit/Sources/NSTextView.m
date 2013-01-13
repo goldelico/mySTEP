@@ -211,7 +211,6 @@ static NSCursor *__textCursor = nil;
 
 - (void) sizeToFit;
 {
-	[NSLayoutManager checkMe];
 	NSSize size=NSZeroSize;
 #if 1
 	NSLog(@"sizeToFit: %@", self);
@@ -219,17 +218,11 @@ static NSCursor *__textCursor = nil;
 	if([textStorage length] > 0)
 		{ // get bounding box assuming given or unlimited size
 			NSRange rng;
-			[NSLayoutManager checkMe];
 			[textContainer setContainerSize:NSMakeSize((_tx.horzResizable?FLT_MAX:_frame.size.width), (_tx.vertResizable?FLT_MAX:_frame.size.height))];
-			[NSLayoutManager checkMe];
 			rng=[layoutManager glyphRangeForTextContainer:textContainer];
-			[NSLayoutManager checkMe];
 			size=[layoutManager boundingRectForGlyphRange:rng inTextContainer:textContainer].size;
-			[NSLayoutManager checkMe];
 		}
-	[NSLayoutManager checkMe];
 	[self setConstrainedFrameSize:size];	// try to adjust
-	[NSLayoutManager checkMe];
 #if 0
 	if(!NSEqualSizes([textContainer containerSize], size))
 		{
@@ -792,7 +785,6 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 - (void) drawRect:(NSRect)rect
 {
 	NSRange range;
-	[NSLayoutManager checkMe];
 	if(!layoutManager)
 		return;
 	range=[layoutManager glyphRangeForBoundingRect:rect inTextContainer:textContainer];	// make sure that it is laid out
@@ -873,14 +865,6 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 				[self setMarkedTextAttributes:[shared markedTextAttributes]];
 				[self setSelectedTextAttributes:[shared selectedTextAttributes]];
 				}
-#if 1	// help to track a nasty memory corruption bug
-			if([[[self textStorage] string] hasPrefix:@"Lorem ipsum."])
-				{
-				NSLog(@"yes _glyphs");
-				[layoutManager checkMe];
-				[NSLayoutManager checkMe];
-				}
-#endif
 		}
 #if 1
 	NSLog(@"  self: %@", self);

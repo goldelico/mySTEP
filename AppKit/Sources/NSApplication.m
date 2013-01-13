@@ -843,7 +843,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (NSEvent*) _eventMatchingMask:(unsigned int)mask dequeue:(BOOL)dequeue
 {
-	[NSLayoutManager checkMe];
 	[_mainWindow flushWindow];	// this will enqueue any pending events
 #if 0
 	NSLog(@"_eventMatchingMask");
@@ -863,7 +862,6 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 0
 					NSLog(@"_eventMatchingMask found");
 #endif
-					[NSLayoutManager checkMe];
 					return [e autorelease];		// return an event from the queue which matches the mask
 					}
 			}
@@ -873,13 +871,11 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 0
 	NSLog(@"_eventMatchingMask no event found");
 #endif
-	[NSLayoutManager checkMe];
 	return nil;		// no event in the queue matches mask
 }
 
 - (void) doCommandBySelector:(SEL) sel;
 {
-	[NSLayoutManager checkMe];
 	if([self respondsToSelector:sel])
 		[self performSelector:sel withObject:nil];
 	else if(_nextResponder)

@@ -1269,16 +1269,14 @@ static NSButtonCell *sharedCell;
 		return (mask&NSUtilityWindowMask)?16.0:23.0;
 }
 
-#if 1
+#if 0
 - (void) release
 {
-	[NSLayoutManager checkMe];
 #if 0 && defined(__mySTEP__)
 	free(malloc(8192));
 #endif
 	NSLog(@"release %p %@", self, self);
 	[super release];
-	[NSLayoutManager checkMe];
 }
 #endif
 
@@ -1287,7 +1285,6 @@ static NSButtonCell *sharedCell;
 #if 1
 	NSLog(@"dealloc - %p %@ [%d]", self, self, [self retainCount]);
 #endif
-	[NSLayoutManager checkMe];
 	[_parentWindow removeChildWindow:self];	// if we have a parent...
 	[self setDelegate:nil];	// release delegate
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSApplicationDidChangeScreenParametersNotification object:nil];
@@ -1321,7 +1318,6 @@ static NSButtonCell *sharedCell;
 	NSLog(@"e");
 #endif
 	[super dealloc];
-	[NSLayoutManager checkMe];
 }
 
 - (id) init

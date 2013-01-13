@@ -240,14 +240,10 @@ forParagraphSeparatorGlyphRange:(NSRange) range
 				   forLayoutManager:(NSLayoutManager *) manager
 	   maximumNumberOfLineFragments:(NSUInteger) maxLines;
 { // this is the main layout function - we assume that the Glyphs are already generated and character indexes are assigned
-	[NSLayoutManager checkMe];
 	NSUInteger nextGlyph=[manager glyphIndexForCharacterAtIndex:range.location];
 	NSRange r=range;
-	[NSLayoutManager checkMe];
 	[self layoutGlyphsInLayoutManager:manager startingAtGlyphIndex:nextGlyph maxNumberOfLineFragments:maxLines nextGlyphIndex:&nextGlyph];
-	[NSLayoutManager checkMe];
 	r.length=[manager characterIndexForGlyphAtIndex:nextGlyph]-r.location;	// did not process all
-	[NSLayoutManager checkMe];
 	return r;
 }
 
@@ -884,15 +880,12 @@ forStartOfGlyphRange:(NSRange) range;
 - (unsigned) growGlyphCaches:(unsigned) desiredCapacity fillGlyphInfo:(BOOL) fillGlyphInfo;
 {
 	unsigned count=0;
-	[NSLayoutManager checkMe];
 	if(desiredCapacity > capacityGlyphInfo)
 		{ // really needs to grow the cache
 			glyphs=(NSTypesetterGlyphInfo *) objc_realloc(glyphs, desiredCapacity*sizeof(glyphs[0]));
-			[NSLayoutManager checkMe];
 			memset(&glyphs[capacityGlyphInfo], 0, (desiredCapacity-capacityGlyphInfo)*sizeof(glyphs[0]));	// clear newly created slots
 			capacityGlyphInfo=desiredCapacity;
 		}
-	[NSLayoutManager checkMe];
 	if(fillGlyphInfo)
 		{
 		BOOL flag;
@@ -907,7 +900,6 @@ forStartOfGlyphRange:(NSRange) range;
 			count++;
 			}
 		}
-	[NSLayoutManager checkMe];
 	return count;
 }
 
@@ -1002,7 +994,6 @@ NSLayoutOutOfGlyphs
 	*   curMaxLineHeight
 	*/
 	
-	[NSLayoutManager checkMe];
 	BOOL setBaseline=(*baseline == NSBaselineNotSet);
 	NSLayoutStatus status=NSLayoutOutOfGlyphs;	// all glyphs laid out
 	float lineHeight;
@@ -1016,12 +1007,10 @@ NSLayoutOutOfGlyphs
 	curMinBaselineDistance=curMaxBaselineDistance=0.0;
 	curGlyphIndex=0;	// fill from the beginning
 	curGlyph=NSNullGlyph;
-	[NSLayoutManager checkMe];
 	while(curCharacterIndex < [textString length])
 		{ // we still have a character to process
 			unichar curChar;
 			NSTypesetterGlyphInfo *glyphInfo;
-			[NSLayoutManager checkMe];
 #if 0
 			NSLog(@"curGlyphIndex: %u", curGlyphIndex);
 			NSLog(@"curGlyphOffset: %g", curGlyphOffset);
@@ -1047,7 +1036,6 @@ NSLayoutOutOfGlyphs
 					// check for NSTextTableBlock attribute in textStorage and if yes,
 					// get table cell size and recursively layout table cells (with lineFragmenRect reduced to column)
 					status=NSLayoutDone;	// end of paragraph
-					[NSLayoutManager checkMe];
 					break;
 				}
 			if(curCharacterIndex >= NSMaxRange(attrsRange))
@@ -1061,36 +1049,29 @@ NSLayoutOutOfGlyphs
 					// there we can detect that no new glyphs can be allocated
 					// bu how do we know the deired sizse there?
 					// could we better estimate required size by line length, i.e. distance to curParaRange?
-					[NSLayoutManager checkMe];
 					if([self growGlyphCaches:curGlyphIndex + 100 fillGlyphInfo:YES] == 0)
 						break;	// there are no more glyphs (how can this be while we still have a character to process?)
-					[NSLayoutManager checkMe];
 					continue;	// try again
 				}
-			[NSLayoutManager checkMe];
 			curChar=[textString characterAtIndex:curCharacterIndex];
 			/* [layoutManager temporaryAttributeAtCharacterIndex:curCharIndex effectiveRange:NULL]; */
 			// FIXME: how to handle multiple glyphs for single character (and vice versa: i.e. ligatures and overprinting)
 			previousGlyph=curGlyph;
 			curGlyph=[layoutManager glyphAtIndex:firstIndexOfCurrentLineFragment+curGlyphIndex];	// get glyph
-			[NSLayoutManager checkMe];
 			glyphInfo=[self _glyphInfoAtIndex:curGlyphIndex];
 			glyphInfo->curLocation=(NSPoint) { curGlyphOffset, *baseline+curBaselineOffset };
 			glyphInfo->font=curFont;
 			glyphInfo->glyphCharacterIndex=curCharacterIndex;
 			*((unsigned char *) &glyphInfo->_giflags)=0;
-			[NSLayoutManager checkMe];
 			curGlyphIsAControlGlyph=NO;
 			curGlyphExtentAboveLocation=[curFont ascender];
 			curGlyphExtentBelowLocation=[curFont descender];
 			wrapAfterCurGlyph=NO;
-			[NSLayoutManager checkMe];
 			if([[NSCharacterSet controlCharacterSet] characterIsMember:curChar])
 				{
 				glyphInfo->_giflags.dontShow=![layoutManager showsControlCharacters];
 				glyphInfo->extent=0;	// may become width of tab or \n to end of line
 				status=[self layoutControlGlyphForLineFragment:*lineFragmentRect];				
-				[NSLayoutManager checkMe];
 				}
 			else if(curChar == NSAttachmentCharacter)
 				{ // handle attachment
@@ -1103,7 +1084,6 @@ NSLayoutOutOfGlyphs
 				glyphInfo->attachmentSize=[c cellSize];
 				glyphInfo->curLocation.x+=off.x;	// adjust offset
 				glyphInfo->curLocation.y+=off.y;
-					[NSLayoutManager checkMe];
 				curGlyphExtentAboveLocation=glyphInfo->attachmentSize.height;
 				curGlyphExtentBelowLocation=-off.y;
 				frame=[c cellFrameForTextContainer:curContainer
@@ -1111,23 +1091,16 @@ NSLayoutOutOfGlyphs
 									 glyphPosition:glyphInfo->curLocation
 									characterIndex:curCharacterIndex];
 				glyphInfo->extent=frame.size.width;
-					[NSLayoutManager checkMe];
 				break;				
 				}
 			else
 				{
-				[NSLayoutManager checkMe];
 				NSRect box=[curFont boundingRectForGlyph:curGlyph];
-				[NSLayoutManager checkMe];
 				NSSize adv=[curFont advancementForGlyph:curGlyph];
-				[NSLayoutManager checkMe];
 				glyphInfo->extent=adv.width;
-				[NSLayoutManager checkMe];
 				glyphInfo->_giflags.defaultPositioning=YES;
-				[NSLayoutManager checkMe];
 				if(NSIsEmptyRect(box))
 					glyphInfo->_giflags.dontShow=YES;
-				[NSLayoutManager checkMe];
 				curGlyphExtentAboveLocation=NSMaxY(box);
 				curGlyphExtentBelowLocation=NSMinY(box);
 				//				[attribs objectForKey:NSLigatureAttributeName];
@@ -1143,7 +1116,6 @@ NSLayoutOutOfGlyphs
 							glyphInfo->curLocation.y+=k.height;
 							glyphInfo->_giflags.defaultPositioning=NO;	// must set the relative position before drawing this glyph
 							}
-						[NSLayoutManager checkMe];
 					}
 				}
 			curMinBaselineDistance=MAX(curMinBaselineDistance, curGlyphExtentAboveLocation);
@@ -1158,7 +1130,6 @@ NSLayoutOutOfGlyphs
 				}
 			[self typesetterLaidOneGlyph:glyphInfo];
 			[self updateCurGlyphOffset];	// advance writing position
-			[NSLayoutManager checkMe];
 			curCharacterIndex++;
 			curGlyphIndex++;
 			if(wrapAfterCurGlyph)
@@ -1172,7 +1143,6 @@ NSLayoutOutOfGlyphs
 				break;
 				}
 		}
-	[NSLayoutManager checkMe];
 	curMaxBaselineDistance=ceil(curMaxBaselineDistance);
 	if(setBaseline)
 		*baseline=curMinBaselineDistance; // determine here (by maximum ascender)
@@ -1199,7 +1169,6 @@ NSLayoutOutOfGlyphs
 #if 0
 	NSLog(@"   -> %d: %@", status, NSStringFromRect(*lineFragmentRect));
 #endif	
-	[NSLayoutManager checkMe];
 	return status;
 }
 
