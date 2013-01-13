@@ -628,7 +628,7 @@ GSTiffOpenData(char *data, long size, const char *mode)
 	chandle_t *handle;								// Returns NULL if can't read 
 													// the tiff info.
 	NSDebugLog (@"GSTiffOpenData\n");
-	if (!(handle = malloc(sizeof(chandle_t))))
+	if (!(handle = malloc(sizeof(*handle))))
 		return NULL;
 	handle->data = data;
 	handle->position = 0;
@@ -651,7 +651,7 @@ GSTiffGetInfo(int imageNumber, TIFF *image)			// Read some information
 														// determine numImages.
 	if (imageNumber >= 0 && !TIFFSetDirectory(image, imageNumber)) 
 		return NULL;
-	if (!(info = calloc(1, sizeof(NSTiffInfo))))
+	if (!(info = calloc(1, sizeof(*info))))
 		return NULL;
 	if (imageNumber >= 0)
 		info->imageNumber = imageNumber;
@@ -713,7 +713,7 @@ GSTiffGetColormap(TIFF *tif)				// if there is one. Returns a
 	if (info->photoInterp != PHOTOMETRIC_PALETTE)
 		return NULL;
 	
-    if (!(map = malloc(sizeof(NSTiffColormap))))
+    if (!(map = malloc(sizeof(*map))))
 		return NULL;
 	map->size = 1 << info->bitsPerSample;
 	
@@ -1060,7 +1060,7 @@ static NSArray *__pbBitmapImageReps;
 		if(planes) 
 			{
 			int i, np = ((_brep.isPlanar) ? _brep.numColors : 1);
-			_imagePlanes = calloc(np, sizeof(unsigned char *));
+			_imagePlanes = calloc(np, sizeof(_imagePlanes[0]));
 			if(!_imagePlanes)
 				{ [self release]; return nil; }
 			for(i = 0; i < np; i++)
@@ -1146,7 +1146,7 @@ static NSArray *__pbBitmapImageReps;
 		int i, planeSize = (bytesPerRow * _pixelsHigh);
 		long length = _brep.numColors * planeSize * sizeof(unsigned char);
 		
-		_imagePlanes = objc_calloc(MAX_PLANES, sizeof(unsigned char*));
+		_imagePlanes = objc_calloc(MAX_PLANES, sizeof(_imagePlanes[0]));
 		_imageData = [[NSMutableData dataWithLength: length] retain];
 		_imagePlanes[0] = [_imageData mutableBytes];
 		

@@ -32,6 +32,7 @@
 #import <AppKit/NSScreen.h>
 #import <AppKit/NSGraphicsContext.h>
 #import <AppKit/NSPageLayout.h>
+#import <AppKit/NSLayoutManager.h>
 
 #import "NSAppKitPrivate.h"
 #import "NSBackendPrivate.h"
@@ -691,7 +692,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 - (NSModalSession) beginModalSessionForWindow:(NSWindow*)aWindow
 {
 	NSModalSession s;
-	s = (NSModalSession) objc_calloc(1, sizeof(struct _NSModalSession));
+	s = (NSModalSession) objc_calloc(1, sizeof(*s));
 	if(s != NULL)
 		{
 		s->runState = NSRunContinuesResponse;
@@ -706,7 +707,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 {
 	NSModalSession s;
 	DEPRECATED;
-	s = (NSModalSession) objc_calloc(1, sizeof(struct _NSModalSession));
+	s = (NSModalSession) objc_calloc(1, sizeof(*s));
 	if(s != NULL)
 		{
 		s->runState = NSRunContinuesResponse;
@@ -749,10 +750,10 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 		{
 		tmp = _session;
 		_session = tmp->previous;
-		free(tmp);
+		objc_free(tmp);
 		}
 	_session = _session->previous;
-	free(aSession);
+	objc_free(aSession);
 }
 
 - (void) endSheet:(NSWindow *) sheet returnCode:(int) code
@@ -842,6 +843,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (NSEvent*) _eventMatchingMask:(unsigned int)mask dequeue:(BOOL)dequeue
 {
+	[NSLayoutManager checkMe];
 	[_mainWindow flushWindow];	// this will enqueue any pending events
 #if 0
 	NSLog(@"_eventMatchingMask");
@@ -861,6 +863,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 0
 					NSLog(@"_eventMatchingMask found");
 #endif
+					[NSLayoutManager checkMe];
 					return [e autorelease];		// return an event from the queue which matches the mask
 					}
 			}
@@ -870,11 +873,13 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 #if 0
 	NSLog(@"_eventMatchingMask no event found");
 #endif
+	[NSLayoutManager checkMe];
 	return nil;		// no event in the queue matches mask
 }
 
 - (void) doCommandBySelector:(SEL) sel;
 {
+	[NSLayoutManager checkMe];
 	if([self respondsToSelector:sel])
 		[self performSelector:sel withObject:nil];
 	else if(_nextResponder)

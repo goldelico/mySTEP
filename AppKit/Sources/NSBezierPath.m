@@ -388,7 +388,7 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		_bz.windingRule = __defaultWindingRule;
 		_miterLimit = __defaultMiterLimit;
 	
-		_bPath = objc_malloc((_capacity = 8) * sizeof(PathElement *));
+		_bPath = objc_malloc((_capacity = 8) * sizeof(*_bPath));
 		if(!_bPath)
 			{
 			[self release];
@@ -442,24 +442,24 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 - (void) moveToPoint:(NSPoint)aPoint				// Path construction
 {
-	PathElement *e = objc_malloc(sizeof(PathElement));
+	PathElement *e = objc_malloc(sizeof(*e));
 	
 	e->type = NSMoveToBezierPathElement;
 	e->points[0] = aPoint;
 	if (_count >= _capacity)
-		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count + 3) * sizeof(PathElement *));
+		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count + 3) * sizeof(*_bPath));
 	_bPath[_count++] = e;
 	_bz.shouldRecalculateBounds = YES;
 }
 
 - (void) lineToPoint:(NSPoint)aPoint
 {
-	PathElement *e = objc_malloc(sizeof(PathElement));
+	PathElement *e = objc_malloc(sizeof(*e));
 	
 	e->type = NSLineToBezierPathElement;
 	e->points[0] = aPoint;
 	if (_count >= _capacity)
-		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count + 3) * sizeof(PathElement *));
+		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count + 3) * sizeof(*_bPath));
 	_bPath[_count++] = e;
 	_bz.shouldRecalculateBounds = YES;
 }
@@ -468,14 +468,14 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		controlPoint1:(NSPoint)controlPoint1
 		controlPoint2:(NSPoint)controlPoint2
 {
-	PathElement *e = objc_malloc(sizeof(PathElement));
+	PathElement *e = objc_malloc(sizeof(*e));
 	
 	e->type = NSCurveToBezierPathElement;
 	e->points[0] = controlPoint1;
 	e->points[1] = controlPoint2;
 	e->points[2] = aPoint;
 	if (_count >= _capacity)
-		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count + 3) * sizeof(PathElement *));
+		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count + 3) * sizeof(*_bPath));
 	_bPath[_count++] = e;
 
 	_bz.flat = NO;
@@ -485,10 +485,10 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 
 - (void) closePath
 {
-	PathElement *e = objc_malloc(sizeof(PathElement));
+	PathElement *e = objc_malloc(sizeof(*e));
 	e->type = NSClosePathBezierPathElement;
 	if (_count >= _capacity)
-		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count + 3) * sizeof(PathElement *));
+		_bPath = objc_realloc(_bPath, (_capacity = 2 * _count + 3) * sizeof(*_bPath));
 	_bPath[_count++] = e;
 	_bz.shouldRecalculateBounds = YES;
 }
@@ -595,9 +595,9 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		}
 	
 	if (_dashPattern == NULL)
-		_dashPattern = objc_malloc(count * sizeof(float));
+		_dashPattern = objc_malloc(count * sizeof(_dashPattern[0]));
 	else
-		_dashPattern = objc_realloc(_dashPattern, count * sizeof(float));
+		_dashPattern = objc_realloc(_dashPattern, count * sizeof(_dashPattern[0]));
 	
 	_dashCount = count;
 	_dashPhase = phase;
@@ -982,12 +982,12 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 	if ((_count + count) >= _capacity)
 		{
 		_capacity = (2 * _count) + count;
-		_bPath = objc_realloc(_bPath, _capacity * sizeof(PathElement *));
+		_bPath = objc_realloc(_bPath, _capacity * sizeof(*_bPath));
 		}
 	
 	for (i = 0; i < count; i++)
 		{
-		PathElement *e = objc_malloc(sizeof(PathElement));
+		PathElement *e = objc_malloc(sizeof(*e));
 		
 		*e = *(PathElement *)aPath->_bPath[i];
 		_bPath[_count++] = e;
@@ -1410,10 +1410,10 @@ static NSWindingRule __defaultWindingRule = NSNonZeroWindingRule;
 		path->_dashPattern = pattern;
 		}
 	
-	path->_bPath = objc_malloc(_capacity * sizeof(void *));
+	path->_bPath = objc_malloc(_capacity * sizeof(path->_bPath[0]));
 	for (i = 0; i < _count; i++)
 		{
-		PathElement *e = objc_malloc(sizeof(PathElement));
+		PathElement *e = objc_malloc(sizeof(*e));
 		*e = *(PathElement *)_bPath[i];
 		path->_bPath[i] = e;
 		}

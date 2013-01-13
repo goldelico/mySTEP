@@ -221,7 +221,7 @@
 	NSLog(@"itemAdded - pos=%d, cell=%@", pos, c);
 #endif
 	[_cells insertObject:c atIndex:pos];				// make new slot (will be replaced with c)
-	_rectOfCells=(NSRect *) objc_realloc(_rectOfCells, [_cells count]*sizeof(NSRect));	// adjust size if needed
+	_rectOfCells=(NSRect *) objc_realloc(_rectOfCells, [_cells count]*sizeof(_rectOfCells[0]));	// adjust size if needed
 	_rectOfCells[pos]=NSZeroRect;	// clear
 	// might have to update highlighting!!
 	[self setMenuItemCell:c forItemAtIndex:pos];	// to add all cell connections and updates
@@ -260,7 +260,7 @@
 	NSLog(@"cells count %u", [_cells count]);
 #endif
 	if([_cells count] > 10)	// keep last 10 items
-		_rectOfCells=(NSRect *) objc_realloc(_rectOfCells, [_cells count]*sizeof(NSRect));	// adjust size
+		_rectOfCells=(NSRect *) objc_realloc(_rectOfCells, [_cells count]*sizeof(_rectOfCells[0]));	// adjust size
 	_needsSizing=YES;	// recalculate
 	[self setNeedsDisplay:YES];
 }
@@ -426,7 +426,7 @@
 #if 0
 		NSLog(@"itemAdded - pos=%d, cell=%@", pos, c);
 #endif
-		_rectOfCells=(NSRect *) objc_realloc(_rectOfCells, cnt*sizeof(NSRect));	// adjust size
+		_rectOfCells=(NSRect *) objc_realloc(_rectOfCells, cnt*sizeof(_rectOfCells[0]));	// adjust size
 #if 0
 		NSLog(@"itemAdded - %@", self);
 #endif

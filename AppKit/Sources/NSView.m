@@ -43,6 +43,7 @@
 #import <AppKit/NSPrintInfo.h>
 #import <AppKit/NSPrintOperation.h>
 #import <AppKit/NSBezierPath.h>
+#import <AppKit/NSLayoutManager.h>
 
 #import "NSAppKitPrivate.h"
 
@@ -547,6 +548,7 @@ printing
 #if 0
 	NSLog(@"NSView: %@ initWithFrame:%@", NSStringFromClass([self class]), NSStringFromRect(frameRect));
 #endif
+	[NSLayoutManager checkMe];
 	if((self=[super init]))										// super is NSResponder
 		{
 #if 0
@@ -586,6 +588,7 @@ printing
 	// FIXME: release gState if we have a private one
 	[sub_views release];
 	[super dealloc];
+	[NSLayoutManager checkMe];
 }
 
 - (NSArray *) registeredDraggedTypes; { return _dragTypes; }
@@ -606,6 +609,7 @@ printing
 		 positioned:(NSWindowOrderingMode)place		// FIX ME
 		 relativeTo:(NSView *)otherView
 {
+	[NSLayoutManager checkMe];
 	if(!aView)
 		{
 		NSLog(@"trying to add nil subview to %@", self);
@@ -625,16 +629,22 @@ printing
 		NSLog(@"%@ is already a subview of %@ (ignored)", aView, self);
 		return;
 		}
+	[NSLayoutManager checkMe];
 	[aView viewWillMoveToSuperview:self];
 	
 	// FIXME: check for relative position and otherView and insert at expected position
 	
+	[NSLayoutManager checkMe];
 	[sub_views addObject:aView];				// Append to our subview list
+	[NSLayoutManager checkMe];
 	[aView _setSuperview:self];
+	[NSLayoutManager checkMe];
 	[aView viewDidMoveToSuperview];
 													// Make ourselves the next 
+	[NSLayoutManager checkMe];
 	[aView setNextResponder:self];					// responder of the view
 
+	[NSLayoutManager checkMe];
 	[aView _setWindow:_window];						// place on same window as we are
 	[self didAddSubview:aView];
 	[aView setNeedsDisplay:YES];					// (re)draw incl. new view
@@ -763,6 +773,7 @@ printing
 
 - (void) _setWindow:(NSWindow *)newWindow
 {
+	[NSLayoutManager checkMe];
 	if(_window == newWindow)
 		return;	// no change
 	if([_window firstResponder] == self)
@@ -773,6 +784,7 @@ printing
 	[_base2bounds release], _base2bounds=nil;	// no recursion required (done through sub_views makeObjectsPerformSelector:_cmd)
 	if(newWindow)
 		_window=newWindow;	// set new window before processing siblings - unless we are tearing down
+	[NSLayoutManager checkMe];
 	[sub_views makeObjectsPerformSelector:_cmd withObject:newWindow];	// recursively for all subviews
 	_window=newWindow;	// set new window (always)
 	nInvalidRects=0;	// clear cache
@@ -782,6 +794,7 @@ printing
 //		[self setNeedsDisplayInRect:_bounds];	// we need to be redisplayed completely in the new window
 	_v.needsDisplaySubviews=YES;	// mark to redraw subviews
 	[self viewDidMoveToWindow];
+	[NSLayoutManager checkMe];
 }
 
 - (void) viewWillMoveToWindow:(NSWindow *)newWindow
@@ -2044,6 +2057,7 @@ printing
 #if 0
 	NSLog(@"displayRectIgnoringOpacity:%@ inContext:%@ for %@", NSStringFromRect(rect), context, self);
 #endif
+	[NSLayoutManager checkMe];
 	if(!context)
 		return;	// has no window (yet)
 	// _v.needsDisplay=NO;	// clear the needs-display flag
@@ -2145,6 +2159,7 @@ printing
 		}
 	if(locked)
 		[self unlockFocus];	// only after drawing subviews
+	[NSLayoutManager checkMe];
 }
 
 - (BOOL) autoscroll:(NSEvent *)event					// Auto Scrolling
@@ -2687,6 +2702,7 @@ NSMutableArray *trackingRects = [_window _trackingRects];
 //	NSLog(@"nslog worked");
 	NSLog(@"1. viewflags=%x", [aDecoder decodeIntForKey:@"NSvFlags"]);
 #endif
+	[NSLayoutManager checkMe];
 	if(![aDecoder allowsKeyedCoding])
 		{
 		_frame = [aDecoder decodeRect];
@@ -2700,6 +2716,7 @@ NSMutableArray *trackingRects = [_window _trackingRects];
 	else
 		{ // initialize, then subviews and finally superview
 		unsigned int viewflags=[aDecoder decodeIntForKey:@"NSvFlags"];
+			[NSLayoutManager checkMe];
 #if 0
 		NSLog(@"viewflags=%08x", viewflags);
 //		NSLog(@"self=%@", self);
@@ -2708,6 +2725,7 @@ NSMutableArray *trackingRects = [_window _trackingRects];
 			self=[self initWithFrame:(NSRect){NSZeroPoint, [aDecoder decodeSizeForKey:@"NSFrameSize"]}];
 		else
 			self=[self initWithFrame:[aDecoder decodeRectForKey:@"NSFrame"]];
+		[NSLayoutManager checkMe];
 #if 0
 		NSLog(@"initwithframe done");
 		NSLog(@"self=%@", self);
@@ -2732,7 +2750,8 @@ NSMutableArray *trackingRects = [_window _trackingRects];
 #endif
 #define HIDDEN (((viewflags>>31)&1)!=0)
 		_v.hidden=HIDDEN;
-		
+			[NSLayoutManager checkMe];
+
 		// how to overwrite NSBounds? - does this occur anywhere?
 
 		if([aDecoder containsValueForKey:@"NSDragTypes"])
@@ -2744,14 +2763,18 @@ NSMutableArray *trackingRects = [_window _trackingRects];
 			NSLog(@"NSWindow $null!!! %@", aDecoder);
 			}
 #endif
+			[NSLayoutManager checkMe];
 		[self _setWindow:[aDecoder decodeObjectForKey:@"NSWindow"]];
 
 #if 0
 		NSLog(@"%@ initWithCoder:%@", self, aDecoder);
 		NSLog(@"  NSvFlags=%08x", [aDecoder decodeIntForKey:@"NSvFlags"]);
 #endif
+		[NSLayoutManager checkMe];
 			{ // this may recursively initialize ourselves
+				[NSLayoutManager checkMe];
 			NSArray *svs=[aDecoder decodeObjectForKey:@"NSSubviews"];	// decode subviews - and connect them to us
+				[NSLayoutManager checkMe];
 			NSEnumerator *e=[svs objectEnumerator];
 			NSView *sv;
 #if 0
@@ -2769,8 +2792,11 @@ NSMutableArray *trackingRects = [_window _trackingRects];
 #if 0
 		NSLog(@"superview=%@", [aDecoder decodeObjectForKey:@"NSSuperview"]);
 #endif
+			[NSLayoutManager checkMe];
 		[self setNeedsDisplay:YES];
+			[NSLayoutManager checkMe];
 		}
+	[NSLayoutManager checkMe];
 	return self;
 }
 

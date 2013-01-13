@@ -26,7 +26,7 @@ NSMatrix.m
 #import "NSAppKitPrivate.h"
 
 #define CONTROL(notif_name) NSControl##notif_name##Notification
-#define FREE(p) if (p) free (p)
+
 #define INDEX_FROM_POINT(point) (point.y * _numCols + point.x)
 #define POINT_FROM_INDEX(index) \
 ({MPoint point = { index % _numCols, index / _numCols }; point; })

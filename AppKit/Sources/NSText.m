@@ -394,7 +394,7 @@ object:self]
 	_tx.isRichText=NO;
 	// make sure to keep the formatting of the old first character
 	[textStorage replaceCharactersInRange:NSMakeRange(0, [textStorage length]) withString:string];
-	[self setSelectedRange:NSMakeRange([string length], 0)];	// to end of string
+	[self setSelectedRange:NSMakeRange([string length], 0)];	// move to end of string
 }
 
 - (void) setTextColor:(NSColor*)color;
@@ -530,7 +530,7 @@ object:self]
 			{
 			textStorage=[NSTextStorage new];	// provide empty default text storage
 			_tx.ownsTextStorage=YES;			// that we own
-			[self setString:@""];	// this will default rich text to NO
+			_tx.isRichText=NO;
 			}
 		_spellCheckerDocumentTag=[NSSpellChecker uniqueSpellDocumentTag];
 		_tx.alignment = NSLeftTextAlignment;
@@ -542,7 +542,7 @@ object:self]
 		_minSize = (NSSize){5, 15};
 		_maxSize = (NSSize){HUGE,HUGE};
 		_font=[[NSFont userFontOfSize:12] retain];
-		[self setSelectedRange:NSMakeRange(0,0)];
+		_selectedRange=NSMakeRange(0,0);	// don't call setSelectedRange here which may have side effects in subclasses
 		}
 	return self;
 }

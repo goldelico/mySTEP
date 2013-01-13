@@ -211,6 +211,7 @@ static NSCursor *__textCursor = nil;
 
 - (void) sizeToFit;
 {
+	[NSLayoutManager checkMe];
 	NSSize size=NSZeroSize;
 #if 1
 	NSLog(@"sizeToFit: %@", self);
@@ -218,11 +219,17 @@ static NSCursor *__textCursor = nil;
 	if([textStorage length] > 0)
 		{ // get bounding box assuming given or unlimited size
 			NSRange rng;
+			[NSLayoutManager checkMe];
 			[textContainer setContainerSize:NSMakeSize((_tx.horzResizable?FLT_MAX:_frame.size.width), (_tx.vertResizable?FLT_MAX:_frame.size.height))];
+			[NSLayoutManager checkMe];
 			rng=[layoutManager glyphRangeForTextContainer:textContainer];
+			[NSLayoutManager checkMe];
 			size=[layoutManager boundingRectForGlyphRange:rng inTextContainer:textContainer].size;
+			[NSLayoutManager checkMe];
 		}
+	[NSLayoutManager checkMe];
 	[self setConstrainedFrameSize:size];	// try to adjust
+	[NSLayoutManager checkMe];
 #if 0
 	if(!NSEqualSizes([textContainer containerSize], size))
 		{
@@ -538,7 +545,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (void) setTypingAttributes:(NSDictionary *)attrs
 {
-	attrs=[_delegate textView:self shouldChangeTypingAttributes:typingAttributes toAttributes:attrs];
+	if(_delegate) attrs=[_delegate textView:self shouldChangeTypingAttributes:typingAttributes toAttributes:attrs];
 	ASSIGN(typingAttributes, attrs);
 	[[NSNotificationCenter defaultCenter] postNotificationName:NSTextViewDidChangeTypingAttributesNotification object:self];
 }
@@ -564,9 +571,9 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 {
 	if(![self isEditable])
 		return NO;
-	if(![_delegate textShouldBeginEditing:self])
+	if(_delegate && ![_delegate textShouldBeginEditing:self])
 		return NO;
-	if(![_delegate textView:self shouldChangeTextInRange:affectedCharRange replacementString:replacementString])
+	if(_delegate && ![_delegate textView:self shouldChangeTextInRange:affectedCharRange replacementString:replacementString])
 		return NO;
 	return YES;
 }
@@ -785,6 +792,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 - (void) drawRect:(NSRect)rect
 {
 	NSRange range;
+	[NSLayoutManager checkMe];
 	if(!layoutManager)
 		return;
 	range=[layoutManager glyphRangeForBoundingRect:rect inTextContainer:textContainer];	// make sure that it is laid out
@@ -865,6 +873,14 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 				[self setMarkedTextAttributes:[shared markedTextAttributes]];
 				[self setSelectedTextAttributes:[shared selectedTextAttributes]];
 				}
+#if 1	// help to track a nasty memory corruption bug
+			if([[[self textStorage] string] hasPrefix:@"Lorem ipsum."])
+				{
+				NSLog(@"yes _glyphs");
+				[layoutManager checkMe];
+				[NSLayoutManager checkMe];
+				}
+#endif
 		}
 #if 1
 	NSLog(@"  self: %@", self);
@@ -1017,7 +1033,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 			// FIXME: this may notify the wrong old-range during selection by the user!
 			// we must cache the last selectedRange until it is used next time
 			NSRange _old=_selectedRange;
-			range=[_delegate textView:self willChangeSelectionFromCharacterRange:_old toCharacterRange:range];
+			if(_delegate) range=[_delegate textView:self willChangeSelectionFromCharacterRange:_old toCharacterRange:range];
 			[super setSelectedRange:range];
 			[self updateInsertionPointStateAndRestartTimer:YES];	// will call _caretRect
 			_stableCursorColumn=_caretRect.origin.x;
@@ -1107,7 +1123,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (void) doCommandBySelector:(SEL)aSelector
 { // don't pass up the responder chain
-	if(![_delegate textView:self doCommandBySelector:aSelector])
+	if(_delegate && ![_delegate textView:self doCommandBySelector:aSelector])
 		return;	// already processed by delegate
 	if([self respondsToSelector:aSelector])
 		[self performSelector:aSelector withObject:nil];

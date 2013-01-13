@@ -369,7 +369,7 @@ struct _NSViewAnimation
 { // create internal tables
 	NSEnumerator *e=[_viewAnimations objectEnumerator];
 	NSDictionary *dict;
-	struct _NSViewAnimation *record=_private=objc_realloc(_private, (_count=[_viewAnimations count])*sizeof(struct _NSViewAnimation));	// adjust size if necessary/allocate
+	struct _NSViewAnimation *record=_private=objc_realloc(_private, (_count=[_viewAnimations count])*sizeof(*record));	// adjust size if necessary/allocate
 	while((dict=[e nextObject]))
 		{ // translate into internal data
 			id val;

@@ -501,7 +501,7 @@ static int GSParseSpecialRTFKeyword(IPFN ipfn)
 
 static void	GSPushRTFState(void)	// Save RTF info into a linked list stack of SAVE structures
 {
-SAVE *psaveNew = malloc(sizeof(SAVE));
+SAVE *psaveNew = malloc(sizeof(*psaveNew));
 
     if (!psaveNew)
 		[NSException raise: NSMallocException format:@"malloc failed"];

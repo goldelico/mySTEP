@@ -1272,11 +1272,13 @@ static NSButtonCell *sharedCell;
 #if 1
 - (void) release
 {
+	[NSLayoutManager checkMe];
 #if 0 && defined(__mySTEP__)
 	free(malloc(8192));
 #endif
 	NSLog(@"release %p %@", self, self);
 	[super release];
+	[NSLayoutManager checkMe];
 }
 #endif
 
@@ -1285,6 +1287,7 @@ static NSButtonCell *sharedCell;
 #if 1
 	NSLog(@"dealloc - %p %@ [%d]", self, self, [self retainCount]);
 #endif
+	[NSLayoutManager checkMe];
 	[_parentWindow removeChildWindow:self];	// if we have a parent...
 	[self setDelegate:nil];	// release delegate
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSApplicationDidChangeScreenParametersNotification object:nil];
@@ -1318,6 +1321,7 @@ static NSButtonCell *sharedCell;
 	NSLog(@"e");
 #endif
 	[super dealloc];
+	[NSLayoutManager checkMe];
 }
 
 - (id) init
@@ -1686,7 +1690,7 @@ static NSButtonCell *sharedCell;
 				int i;
 				int thisWin=[self windowNumber];
 				int n=[NSScreen _systemWindowListForContext:0 size:99999 list:NULL];	// get number of windows
-				int *list=(int *) objc_malloc(n*sizeof(int));	// allocate buffer
+				int *list=(int *) objc_malloc(n*sizeof(*list));	// allocate buffer
 				[NSScreen _systemWindowListForContext:0 size:n list:list];	// fetch window list (must be front to back stacking order, i.e. highest to lowest levels)
 #if 0
 				{

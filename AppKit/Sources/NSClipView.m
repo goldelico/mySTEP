@@ -19,6 +19,7 @@
 #import <AppKit/NSColor.h>
 #import <AppKit/NSWindow.h>
 #import <AppKit/NSGraphics.h>
+#import <AppKit/NSLayoutManager.h>
 
 #import "NSAppKitPrivate.h"
 
@@ -473,6 +474,7 @@ because this reverses the writing direction within the text container
 - (id) initWithCoder:(id)aDecoder
 {
 	NSNotificationCenter *dnc;
+	[NSLayoutManager checkMe];
 	self=[super initWithCoder:aDecoder];
 	if([aDecoder allowsKeyedCoding])
 		{
