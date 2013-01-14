@@ -397,7 +397,7 @@ static Class __rulerViewClass = nil;
 { // calculate layout: scrollers on right or bottom - headerView on top of contentView - note that we have flipped coordinates!
 	NSRect vertScrollerRect, horizScrollerRect, contentRect;
 	float borderThickness=0;
-	if(!_contentView || !_window || !super_view)
+	if(!_contentView || !_window || !_superview)
 		{ // no need to tile now
 #if 0
 		NSLog(@"tiling without window %@", self);

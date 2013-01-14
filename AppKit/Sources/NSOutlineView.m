@@ -656,10 +656,10 @@ NSString *NSOutlineViewItemWillCollapseNotification=@"NSOutlineViewItemWillColla
 	
 	/* If we are shorter in height than the enclosing clipview, we
 		should redraw us now. */
-	if (super_view != nil)
+	if (_superview != nil)
 		{
 		NSRect superviewBounds; // Get this *after* [self setFrame:]
-		superviewBounds = [super_view bounds];
+		superviewBounds = [_superview bounds];
 		if ((superviewBounds.origin.x <= _frame.origin.x) 
 			&& (NSMaxY (superviewBounds) >= NSMaxY (_frame)))
 			{

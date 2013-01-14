@@ -39,6 +39,7 @@
 #import <AppKit/NSTabView.h>
 #import <AppKit/NSTabViewItem.h>
 #import <AppKit/NSText.h>
+#import <AppKit/NSTextView.h>
 #import <AppKit/NSToolbar.h>
 #import <AppKit/NSToolbarItem.h>
 #import <AppKit/NSView.h>
@@ -313,15 +314,6 @@ extern void GSConvertRGBtoHSB(struct RGB_Color rgb, struct HSB_Color *hsb);
 - (void) _removeOutputStream:(NSOutputStream *) stream forMode:(NSString *) mode;
 @end
 
-/* declared in NSLayoutManager
-enum _NSGlyphAttribute
-{
-    NSGlyphAttributeSoft = 0,
-    NSGlyphAttributeElastic = 1,
-    NSGlyphAttributeInscribe = 5,
-};
-*/
-
 @interface NSText (NSPrivate)
 
 - (NSTextStorage *) _textStorage;	// the private text storage
@@ -330,9 +322,15 @@ enum _NSGlyphAttribute
 
 @end
 
+@interface NSTextView (NSPrivate)
+
+- (void) _updateTypingAttributes;
+
+@end
+
 @interface NSScroller (NSPrivate)
 
-- (void) _scrollWheel:(NSEvent *) event;
+- (void) _scrollWheel:(NSEvent *) event;	// internal scrollWheel event - don't rename
 
 @end
 

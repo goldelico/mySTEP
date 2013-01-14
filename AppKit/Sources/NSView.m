@@ -513,10 +513,10 @@ printing
 	[s appendFormat:@" win=%@", [_window title]];
 	[s appendFormat:@" frame=[%.1lf,%.1lf,%.1lf,%.1lf]", _frame.origin.x, _frame.origin.y, _frame.size.width, _frame.size.height];
 	[s appendFormat:@" bounds=[%.1lf,%.1lf,%.1lf,%.1lf]", _bounds.origin.x, _bounds.origin.y, _bounds.size.width, _bounds.size.height];
-	if(nInvalidRects == 1)
-		[s appendFormat:@" invalid=[%.1lf,%.1lf,%.1lf,%.1lf]", invalidRects[0].origin.x, invalidRects[0].origin.y, invalidRects[0].size.width, invalidRects[0].size.height];
-	if(nInvalidRects > 1)
-		[s appendFormat:@" %d invalid rects", nInvalidRects];
+	if(_nInvalidRects == 1)
+		[s appendFormat:@" invalid=[%.1lf,%.1lf,%.1lf,%.1lf]", _invalidRects[0].origin.x, _invalidRects[0].origin.y, _invalidRects[0].size.width, _invalidRects[0].size.height];
+	if(_nInvalidRects > 1)
+		[s appendFormat:@" %d invalid rects", _nInvalidRects];
 	if([self isHidden]) [s appendString:@" isHidden"];
 	if([self isFlipped]) [s appendString:@" isFlipped"];
 	if([self isOpaque]) [s appendString:@" isOpaque"];
@@ -530,7 +530,7 @@ printing
 - (NSString *) _subtreeDescription
 {
 	NSMutableString *s=[NSMutableString stringWithString:[self description]];
-	NSEnumerator *e=[sub_views objectEnumerator];
+	NSEnumerator *e=[_subviews objectEnumerator];
 	NSView *v;
 	while((v=[e nextObject]))
 		{ // prefix all lines with @"  "
@@ -556,7 +556,7 @@ printing
 		_frame = frameRect;
 		_bounds = (NSRect){ NSZeroPoint, _frame.size };
 		_frame2bounds = [NSAffineTransform new];	// initialize unit transform
-		sub_views = [NSMutableArray new];
+		_subviews = [NSMutableArray new];
 #if 0
 		NSLog(@"NSView: initWithFrame 2a %@", [self _descriptionWithSubviews]);
 #endif
@@ -585,7 +585,7 @@ printing
 	[_base2bounds release];
 	[_dragTypes release];
 	// FIXME: release gState if we have a private one
-	[sub_views release];
+	[_subviews release];
 	[super dealloc];
 }
 
@@ -618,7 +618,7 @@ printing
 		// should we raise an exception?
 		return;
 		}
-	if([sub_views indexOfObjectIdenticalTo:aView] != NSNotFound)
+	if([_subviews indexOfObjectIdenticalTo:aView] != NSNotFound)
 		{
 		// FIXME: this is just a Workaround for a more fundamental NIB loading problem!!!
 		// FIXME: this does sometimes happen when loading NIBs -- why???
@@ -630,7 +630,7 @@ printing
 	
 	// FIXME: check for relative position and otherView and insert at expected position
 	
-	[sub_views addObject:aView];				// Append to our subview list
+	[_subviews addObject:aView];				// Append to our subview list
 	[aView _setSuperview:self];
 	[aView viewDidMoveToSuperview];
 													// Make ourselves the next 
@@ -662,35 +662,35 @@ printing
 
 - (BOOL) isDescendantOf:(NSView *)aView
 {
-	if (aView == self || (super_view == aView))
+	if (aView == self || (_superview == aView))
 		return YES;
 
-	if (!super_view) 								// No superview then this 
+	if (!_superview) 								// No superview then this 
 		return NO;									// is end of the line
 
-	return [super_view isDescendantOf:aView];
+	return [_superview isDescendantOf:aView];
 }
 
 - (NSView *) opaqueAncestor
 {
-	return (!super_view || [self isOpaque]) ? self : [super_view opaqueAncestor];
+	return (!_superview || [self isOpaque]) ? self : [_superview opaqueAncestor];
 }
 
 - (BOOL) isHiddenOrHasHiddenAncestor;
 {
-	return [self isHidden] || (super_view && [super_view isHiddenOrHasHiddenAncestor]);
+	return [self isHidden] || (_superview && [_superview isHiddenOrHasHiddenAncestor]);
 }
 
 - (NSScrollView *) enclosingScrollView;
 {
 	static Class scrollViewClass;
-	if(!super_view)
+	if(!_superview)
 		return nil;
 	if(!scrollViewClass)
 		scrollViewClass=[NSScrollView class];	// get reference (initialized only once)
-	if([super_view isKindOfClass:scrollViewClass])
-		return (NSScrollView *) super_view;	// found!
-	return [super_view enclosingScrollView];	// go up one level
+	if([_superview isKindOfClass:scrollViewClass])
+		return (NSScrollView *) _superview;	// found!
+	return [_superview enclosingScrollView];	// go up one level
 }
 
 - (void) removeFromSuperviewWithoutNeedingDisplay
@@ -702,15 +702,15 @@ printing
 			[_window makeFirstResponder:_window];
 		[self _setWindow:nil];
 		}
-	if(super_view)
+	if(_superview)
 		{
 #if 0
 		NSLog(@"removeFromSuperviewWithoutNeedingDisplay before: %@", [super_view subviews]);
 #endif
-		[super_view willRemoveSubview:self];
-		[[super_view subviews] removeObjectIdenticalTo:self];	// this is the extra release mentioned in the documentation
+		[_superview willRemoveSubview:self];
+		[[_superview subviews] removeObjectIdenticalTo:self];	// this is the extra release mentioned in the documentation
 		[self viewWillMoveToSuperview:nil];
-		super_view = nil;
+		_superview = nil;
 		[self viewDidMoveToSuperview];
 #if 0
 		NSLog(@"removeFromSuperviewWithoutNeedingDisplay after: %@", [super_view subviews]);
@@ -723,7 +723,7 @@ printing
 
 - (void) removeFromSuperview
 {
-	[super_view setNeedsDisplay:YES];	// we could restrict to our own frame rect
+	[_superview setNeedsDisplay:YES];	// we could restrict to our own frame rect
 	[self removeFromSuperviewWithoutNeedingDisplay];
 }
 
@@ -735,7 +735,7 @@ printing
 		NSLog(@"NSView warning - can't replace subview %@ with %@", oldView, newView);
 		return;
 		}
-	index = [sub_views indexOfObjectIdenticalTo:oldView];
+	index = [_subviews indexOfObjectIdenticalTo:oldView];
 	
 	if(index != NSNotFound) 
 		{
@@ -745,7 +745,7 @@ printing
 		[newView setNextResponder:nil];
 		
 		[self willRemoveSubview:oldView];
-		[sub_views replaceObjectAtIndex:index withObject:newView];
+		[_subviews replaceObjectAtIndex:index withObject:newView];
 		
 		[self didAddSubview:newView];
 		[newView _setSuperview:self];	// must be done before _setWindow:
@@ -759,7 +759,7 @@ printing
 - (void) sortSubviewsUsingFunction:(NSComparisonResult (*)(id ,id ,void *))compare 
 						   context:(void *)context
 {
-	[sub_views sortUsingFunction:compare context:context];
+	[_subviews sortUsingFunction:compare context:context];
 }
 
 - (void) _setWindow:(NSWindow *)newWindow
@@ -774,9 +774,9 @@ printing
 	[_base2bounds release], _base2bounds=nil;	// no recursion required (done through sub_views makeObjectsPerformSelector:_cmd)
 	if(newWindow)
 		_window=newWindow;	// set new window before processing siblings - unless we are tearing down
-	[sub_views makeObjectsPerformSelector:_cmd withObject:newWindow];	// recursively for all subviews
+	[_subviews makeObjectsPerformSelector:_cmd withObject:newWindow];	// recursively for all subviews
 	_window=newWindow;	// set new window (always)
-	nInvalidRects=0;	// clear cache
+	_nInvalidRects=0;	// clear cache
 	if(newWindow)
 	// FIXME: this might be quite inefficient for many subviews since their setNeedsDisplayInRect recursively goes upwards
 	 [self _addRectNeedingDisplay:_bounds];	// set bounds as the first and only invalid rect
@@ -891,9 +891,9 @@ printing
 
 - (void) setFrameRotation:(float)angle
 {
-	if(frameRotation != angle)
+	if(_frameRotation != angle)
 		{
-		frameRotation=angle;
+		_frameRotation=angle;
 		[self _invalidateCTM];
 		_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;	// FIXME should also be set for superviews
 		}
@@ -906,7 +906,7 @@ printing
 	if (_v.isRotatedFromBase)
 		return _v.isRotatedFromBase;
 	else 
-		return (super_view) ? [super_view isRotatedFromBase] : NO;
+		return (_superview) ? [_superview isRotatedFromBase] : NO;
 }
 
 - (BOOL) isRotatedOrScaledFromBase
@@ -914,11 +914,11 @@ printing
 	if (_v.isRotatedOrScaledFromBase)
 		return _v.isRotatedOrScaledFromBase;
 	else
-		return (super_view) ? [super_view isRotatedOrScaledFromBase] : NO;
+		return (_superview) ? [_superview isRotatedOrScaledFromBase] : NO;
 }
 
 - (NSRect) frame					{ return _frame; }
-- (float) frameRotation				{ return frameRotation; }
+- (float) frameRotation				{ return _frameRotation; }
 
 - (NSRect) centerScanRect:(NSRect)aRect
 {
@@ -936,13 +936,13 @@ printing
 { // invalidate direct mapping to screen (only)
 	[_bounds2base release], _bounds2base=nil;
 	[_base2bounds release], _base2bounds=nil;
-	[sub_views makeObjectsPerformSelector:_cmd];	// and invalidate all subviews
+	[_subviews makeObjectsPerformSelector:_cmd];	// and invalidate all subviews
 }
 
 - (void) _updateFlipped;
 { // check if we or our superview have changed flipping state and clear transformation cache
 	BOOL flipped=[self isFlipped];
-	BOOL superFlipped=(super_view && [super_view isFlipped]);
+	BOOL superFlipped=(_superview && [_superview isFlipped]);
 	if(flipped != _v.flippedCache || superFlipped != _v.superFlippedCache)
 		{ // has changed - must invalidate
 			_v.flippedCache=flipped;
@@ -1312,10 +1312,10 @@ printing
 
 - (void) setBoundsRotation:(float)angle
 {
-	if(boundsRotation != angle)
+	if(_boundsRotation != angle)
 		{
 		_v.customBounds=YES;
-		boundsRotation=angle;
+		_boundsRotation=angle;
 		[self _invalidateCTM];
 		_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;
 		}
@@ -1331,7 +1331,7 @@ printing
 - (void) rotateByAngle:(float)angle
 {
 	// FIXME: this also changes the bounds rect!
-	boundsRotation+=angle;
+	_boundsRotation+=angle;
 	_v.isRotatedFromBase = _v.isRotatedOrScaledFromBase = YES;
 	[self _invalidateCTM];
 	if(_v.postBoundsChange)
@@ -1339,7 +1339,7 @@ printing
 }
 
 - (NSRect) bounds					{ return _bounds; }
-- (float) boundsRotation			{ return boundsRotation; }
+- (float) boundsRotation			{ return _boundsRotation; }
 
 - (NSAffineTransform*) _bounds2frame;
 { // create transformation matrix
@@ -1359,7 +1359,7 @@ printing
 			if(_v.isRotatedFromBase)
 				{
 				[_bounds2frame translateXBy:0 yBy:_bounds.size.height];
-				[_bounds2frame rotateByDegrees:boundsRotation];	// rotate around origin				
+				[_bounds2frame rotateByDegrees:_boundsRotation];	// rotate around origin				
 				}
 			else
 				[_bounds2frame translateXBy:0 yBy:_bounds.size.height];
@@ -1367,8 +1367,8 @@ printing
 			if(_bounds.origin.x != 0.0 || _bounds.origin.y != 0.0)
 				[_bounds2frame translateXBy:-_bounds.origin.x yBy:-_bounds.origin.y];
 			[_bounds2frame scaleXBy:1.0 yBy:-1.0];	// apply flipping
-			if(frameRotation != 0.0)
-				[_bounds2frame rotateByDegrees:-frameRotation];	// rotate around frame origin
+			if(_frameRotation != 0.0)
+				[_bounds2frame rotateByDegrees:-_frameRotation];	// rotate around frame origin
 
 			// FIXME: we can optimize this step if(super_view && [super_view isFlipped])
 
@@ -1379,14 +1379,14 @@ printing
 			// [_bounds2frame scaleXBy:unitSquareSize.width yBy:unitSquareSize.height];	// finally (or initially?) scale (incl. origin)
 			if(_bounds.origin.x != 0.0 || _bounds.origin.y != 0.0)
 				[_bounds2frame translateXBy:-_bounds.origin.x yBy:-_bounds.origin.y];
-			if(boundsRotation != 0.0)
-				[_bounds2frame rotateByDegrees:boundsRotation];
+			if(_boundsRotation != 0.0)
+				[_bounds2frame rotateByDegrees:_boundsRotation];
 			[_bounds2frame translateXBy:_frame.origin.x yBy:_frame.origin.y];	// shift view to its position within superview
-			if(frameRotation != 0.0)
-				[_bounds2frame rotateByDegrees:frameRotation];	// rotate around frame origin
+			if(_frameRotation != 0.0)
+				[_bounds2frame rotateByDegrees:_frameRotation];	// rotate around frame origin
 			}
 			// FIXME: get this from cache
-		if(super_view && _v.superFlippedCache)
+		if(_superview && _v.superFlippedCache)
 			{ // flip back coordinates, but take care that our _frame.origin is still expressed in flipped coordinates!
 			[_bounds2frame translateXBy:-_frame.origin.x yBy:_frame.origin.y];	// shift us back (_frame.origin is flipped by superview)
 			[_bounds2frame scaleXBy:1.0 yBy:-1.0];	// undo flipping
@@ -1422,9 +1422,9 @@ printing
 #if 0
 		NSLog(@"calculating _bounds2base: %@", self);
 #endif
-		if(super_view)
+		if(_superview)
 			{
-			NSAffineTransform *svb2b=[super_view _bounds2base];	// do this first since flipping may invalidate our bounds2base!
+			NSAffineTransform *svb2b=[_superview _bounds2base];	// do this first since flipping may invalidate our bounds2base!
 			_bounds2base=[[self _bounds2frame] copy];
 #if 0
 			if(_v.superFlippedCache)
@@ -1629,7 +1629,7 @@ printing
 
 - (void) _setSuperview:(NSView *)superview		
 {
-	if((super_view = superview) == nil)
+	if((_superview = superview) == nil)
 		return;	// removed
 	[self _invalidateCTMtoBase];	// update when needed
 	if(_v.hasToolTip)
@@ -1673,11 +1673,11 @@ printing
 		NSLog(@"can't resizeSubviewsWithOldSize (rotated base): %@", self);
 	else if (_v.autoSizeSubviews)					 
 		{												// resize subviews only
-		int i, count = [sub_views count];				// if we are supposed
+		int i, count = [_subviews count];				// if we are supposed
 														// to and we have never
 														// been rotated
 		for (i = 0; i < count; i++)						// resize the subviews
-			[[sub_views objectAtIndex:i] resizeWithOldSuperviewSize: oldSize];
+			[[_subviews objectAtIndex:i] resizeWithOldSuperviewSize: oldSize];
 		}
 	else
 		NSLog(@"don't autoSizeSubviews: %@", self);
@@ -1691,9 +1691,9 @@ printing
 	BOOL changedOrigin = NO;
 	BOOL changedSize = NO;
 	int options = 0;
-	if(!super_view)
+	if(!_superview)
 		return;	// how can this happen? We are called as [[sub_views objectAtIndex:i] resizeWithOldSuperviewSize: oldSize]
-	superViewFrameSize = [super_view frame].size;	// super_view should not be nil!
+	superViewFrameSize = [_superview frame].size;	// super_view should not be nil!
 	if(NSEqualSizes(oldSize, superViewFrameSize))
 		return;	// ignore unchanged superview size
 #if 1
@@ -1785,7 +1785,7 @@ printing
 					}
 				changedSize = YES;
 				}
-			if([super_view isFlipped])
+			if([_superview isFlipped])
 				{
 				if((_v.autoresizingMask & NSViewMaxYMargin))
 					{				
@@ -1832,11 +1832,11 @@ printing
 - (BOOL) needsToDrawRect:(NSRect) rect;
 {
     int i;    
-	if(!NSIntersectsRect(rect, invalidRect))
+	if(!NSIntersectsRect(rect, _invalidRect))
 		return NO;	// overall invalid rect
-    for(i = 0; i < nInvalidRects; i++)
+    for(i = 0; i < _nInvalidRects; i++)
 		{
-        if(NSIntersectsRect(rect, invalidRects[i]))
+        if(NSIntersectsRect(rect, _invalidRects[i]))
             return YES;
         }
     return NO;
@@ -1851,8 +1851,8 @@ printing
 	// then do drawRect
 	// so that an setNeedsDisplayInRect: during drawRect is added to the new list
 	// and delete the old one at unlockFocus
-	*rects=invalidRects;
-	*count=nInvalidRects;
+	*rects=_invalidRects;
+	*count=_nInvalidRects;
 }
 
 - (NSRect) rectPreservedDuringLiveResize;
@@ -1869,12 +1869,12 @@ printing
 
 - (NSRect) visibleRect
 { // return intersection between frame and superview's visible rect
-	if(super_view)
+	if(_superview)
 		{
 		NSRect s;
-		s = [super_view visibleRect];
+		s = [_superview visibleRect];
 		s = NSIntersectionRect(s, _frame);	// assume that our frame is also used for clipping
-		s = [self convertRect:s fromView:super_view];	// convert to our bounds coordinates
+		s = [self convertRect:s fromView:_superview];	// convert to our bounds coordinates
 		return NSIntersectionRect(s, _bounds);
 		}
 	return _bounds;	// if no super view, whole frame is visible
@@ -1883,24 +1883,24 @@ printing
 - (BOOL) _addRectNeedingDisplay:(NSRect) rect;
 {
 	int i;
-	for(i=0; i<nInvalidRects; i++)
+	for(i=0; i<_nInvalidRects; i++)
 		{
 		// FIXME: the algorithm should create non-overlapping rects only!
-		if(NSContainsRect(invalidRects[i], rect))
+		if(NSContainsRect(_invalidRects[i], rect))
 			return NO;	// someone already completely covers me
-		if(NSContainsRect(rect, invalidRects[i]))
+		if(NSContainsRect(rect, _invalidRects[i]))
 			{ // this one is completely covered by me - delete
-			memmove((char *)&invalidRects[i], (char *)&invalidRects[i+1], (char *)(&invalidRects[--nInvalidRects])-(char *)(&invalidRects[i]));
+			memmove((char *)&_invalidRects[i], (char *)&_invalidRects[i+1], (char *)(&_invalidRects[--_nInvalidRects])-(char *)(&_invalidRects[i]));
 			i--;	// keep index intact
 			}
 		}
-	if(nInvalidRects >= cInvalidRects)
-		invalidRects=(NSRect *) objc_realloc(invalidRects, sizeof(invalidRects[0])*(cInvalidRects=2*cInvalidRects+3));	// make more room
-	if(nInvalidRects == 0)
-		invalidRect=rect;	// we are the first rect
+	if(_nInvalidRects >= _cInvalidRects)
+		_invalidRects=(NSRect *) objc_realloc(_invalidRects, sizeof(_invalidRects[0])*(_cInvalidRects=2*_cInvalidRects+3));	// make more room
+	if(_nInvalidRects == 0)
+		_invalidRect=rect;	// we are the first rect
 	else
-		invalidRect=NSUnionRect(invalidRect, rect);	// merge
-	invalidRects[nInvalidRects++]=rect;	// append
+		_invalidRect=NSUnionRect(_invalidRect, rect);	// merge
+	_invalidRects[_nInvalidRects++]=rect;	// append
 	return YES;
 }
 
@@ -1909,15 +1909,15 @@ printing
 	int i;
 	if(NSIsEmptyRect(rect))
 		return;	// ignore
-	for(i=0; i<nInvalidRects; i++)
+	for(i=0; i<_nInvalidRects; i++)
 		{ // remove/cut down all invalidRects that intersect with aRect
-		if(NSContainsRect(rect, invalidRects[i]))
+		if(NSContainsRect(rect, _invalidRects[i]))
 			{ // has been completely drawn
-			memmove((char *)&invalidRects[i], (char *)&invalidRects[i+1], (char *)(&invalidRects[--nInvalidRects])-(char *)(&invalidRects[i]));
+			memmove((char *)&_invalidRects[i], (char *)&_invalidRects[i+1], (char *)(&_invalidRects[--_nInvalidRects])-(char *)(&_invalidRects[i]));
 			i--;				// keep index intact
 			continue;
 			}
-		if(NSIntersectsRect(rect, invalidRects[i]))
+		if(NSIntersectsRect(rect, _invalidRects[i]))
 			{
 #if 0
 			NSLog(@"drawing rect %@ intersects %@ for %@", NSStringFromRect(rect), NSStringFromRect(invalidRects[i]), self);
@@ -1927,17 +1927,17 @@ printing
 			// but since this are only hints to optimize drawing, leave it as it is
 			}
 		}
-	if(NSContainsRect(rect, invalidRect))
+	if(NSContainsRect(rect, _invalidRect))
 		{ // HACK: assume this completely covers all invalid rects
-		nInvalidRects=0;	// remove
+		_nInvalidRects=0;	// remove
 		}
-	if(nInvalidRects == 0)
-		invalidRect=NSZeroRect;	// all has been drawn
+	if(_nInvalidRects == 0)
+		_invalidRect=NSZeroRect;	// all has been drawn
 }
 
 - (BOOL) needsDisplay;
 {
-	return !_v.hidden && (_v.needsDisplaySubviews || !NSIsEmptyRect(invalidRect));	// needs to draw something if not empty
+	return !_v.hidden && (_v.needsDisplaySubviews || !NSIsEmptyRect(_invalidRect));	// needs to draw something if not empty
 	//	return nInvalidRects != 0;
 }
 
@@ -1947,13 +1947,13 @@ printing
 		return;	// ignore if we have no window
 	if(flag)
 		{
-		nInvalidRects=0;	// clear list first
+		_nInvalidRects=0;	// clear list first
 		[self setNeedsDisplayInRect:_bounds];
 		}
 	else
 		{
-		nInvalidRects=0;	// clear list
-		invalidRect=NSZeroRect;
+		_nInvalidRects=0;	// clear list
+		_invalidRect=NSZeroRect;
 		// _v.needsDisplay=NO;	// done
 		_v.needsDisplaySubviews=NO;
 		}
@@ -1981,22 +1981,22 @@ printing
 #if 0
 		NSLog(@"setneedsdisplay 1: %@", self);
 #endif
-		if(super_view)
+		if(_superview)
 			{ // FIXME: not rotation-safe
 			NSRect r;
 			if(NO && [self isOpaque])
 				{ // just mark all the superviews to needsDisplaySubviews without updating their dirty rect
-				while(super_view)
+				while(_superview)
 					{
-					self=super_view;
+					self=_superview;
 					_v.needsDisplaySubviews=YES;	// mark to redraw subviews
 					}
 				[_window setViewsNeedDisplay:YES];	// recursion has reached the topmost view
 				[NSApp setWindowsNeedUpdate:YES];	// and NSApp should also know...
 				return;
 				}
-			r=[self convertRect:rect toView:super_view];
-			[super_view setNeedsDisplayInRect:r];	// FIXME: we should simply loop instead of doing a recursion
+			r=[self convertRect:rect toView:_superview];
+			[_superview setNeedsDisplayInRect:r];	// FIXME: we should simply loop instead of doing a recursion
 			}
 		else
 			{
@@ -2027,9 +2027,9 @@ printing
 
 // the pattern of the -display methods is: -display-IfNeeded-(In)Rect-IgnoringOpacity
 
-- (void) displayIfNeeded; { if([self needsDisplay]) [self displayRect:invalidRect]; }
+- (void) displayIfNeeded; { if([self needsDisplay]) [self displayRect:_invalidRect]; }
 - (void) display; { [self displayRect:_bounds]; }
-- (void) displayIfNeededIgnoringOpacity; { if([self needsDisplay]) [self displayRectIgnoringOpacity:invalidRect]; }
+- (void) displayIfNeededIgnoringOpacity; { if([self needsDisplay]) [self displayRectIgnoringOpacity:_invalidRect]; }
 - (void) displayIgnoringOpacity; { [self displayRectIgnoringOpacity:_bounds]; }
 - (void) displayIfNeededInRect:(NSRect) rect; { if([self needsDisplay]) [self displayRect:rect]; }
 - (void) displayRect:(NSRect) rect; { NSView *a=[self opaqueAncestor]; [a displayRectIgnoringOpacity:[self convertRect:rect toView:a]]; }
@@ -2050,8 +2050,8 @@ printing
 	// _v.needsDisplay=NO;	// clear the needs-display flag
 	if(_v.hidden)
 		{ // don't draw me or my subviews
-		nInvalidRects=0;	// remove all rects
-		invalidRect=NSZeroRect;
+		_nInvalidRects=0;	// remove all rects
+		_invalidRect=NSZeroRect;
 		return;
 		}
 	rect=NSIntersectionRect(_bounds, rect);	// shrink to bounds (not invalidRect!)
@@ -2132,7 +2132,7 @@ printing
 		}
 	if(displaySubviews)
 		{
-		e=[sub_views objectEnumerator];
+		e=[_subviews objectEnumerator];
 		while((subview=[e nextObject]))	// go downwards independently of their needsDisplay status since we have redrawn the background
 			{
 			NSRect subRect;
@@ -2150,17 +2150,17 @@ printing
 
 - (BOOL) autoscroll:(NSEvent *)event					// Auto Scrolling
 {
-	return super_view ? [super_view autoscroll:event] : NO;	// closest ancestor NSClipView will have it overridden
+	return _superview ? [_superview autoscroll:event] : NO;	// closest ancestor NSClipView will have it overridden
 }
 
 - (BOOL) scrollRectToVisible:(NSRect)aRect
 {
-	if(super_view)
+	if(_superview)
 		{
-		if([super_view respondsToSelector:@selector(scrollPoint:)])
+		if([_superview respondsToSelector:@selector(scrollPoint:)])
 			{
 			NSRect v = [self adjustScroll:[self visibleRect]];
-			NSPoint a = [super_view bounds].origin;
+			NSPoint a = [_superview bounds].origin;
 			BOOL shouldScroll = NO;
 			
 			if(NSWidth(v) == 0 && NSHeight(v) == 0)			
@@ -2188,7 +2188,7 @@ printing
 			
 			if(shouldScroll)
 				{
-				NSView *cSuper = [super_view superview];
+				NSView *cSuper = [_superview superview];
 				NSDebugLog(@"NSView scrollPoint: (%1.2f, %1.2f)\n", a.x, a.y);
 				[cSuper scrollPoint:a];
 				if([cSuper respondsToSelector:@selector(reflectScrolledClipView:)])
@@ -2197,7 +2197,7 @@ printing
 				}
 			}
 		else
-			return [super_view scrollRectToVisible:aRect];	// pass up in tree
+			return [_superview scrollRectToVisible:aRect];	// pass up in tree
 		}
 		
 	return NO;
@@ -2215,7 +2215,7 @@ printing
 
 - (void) scrollPoint:(NSPoint)aPoint
 {
-	[super_view scrollPoint:aPoint];	// NSClipView will overrride
+	[_superview scrollPoint:aPoint];	// NSClipView will overrride
 }
 
 // FIXME:
@@ -2254,10 +2254,10 @@ printing
 
 - (id) viewWithTag:(int)aTag
 {
-	int i, count = [sub_views count];
+	int i, count = [_subviews count];
 	id v;
 	for (i = 0; i < count; ++i)
-		if ([(v = [sub_views objectAtIndex:i]) tag] == aTag)
+		if ([(v = [_subviews objectAtIndex:i]) tag] == aTag)
 			return v;
 	return nil;
 }
@@ -2284,9 +2284,9 @@ printing
 #endif
 	if(_v.hidden)
 		return nil;	// ignore invisible (sub)views
-	if(super_view)
+	if(_superview)
 		{
-		if(!NSMouseInRect(aPoint, _frame, [super_view isFlipped]))
+		if(!NSMouseInRect(aPoint, _frame, [_superview isFlipped]))
 			{
 #if 0
 			NSLog(@"  not in rect");
@@ -2294,12 +2294,12 @@ printing
 			return nil;		// If not within our frame then immediately return
 			}
 		}
-	if([sub_views count] > 0)
+	if([_subviews count] > 0)
 		{
-		aPoint=[self convertPoint:aPoint fromView:super_view];	// transform point from superview's coordinates
-		for(i = [sub_views count] - 1; i >= 0; i--)	
+		aPoint=[self convertPoint:aPoint fromView:_superview];	// transform point from superview's coordinates
+		for(i = [_subviews count] - 1; i >= 0; i--)	
 			{ // Check our sub_views front to back
-				if((v = [[sub_views objectAtIndex:i] hitTest:aPoint]))
+				if((v = [[_subviews objectAtIndex:i] hitTest:aPoint]))
 					{ // hit in subview
 #if 0
 					NSLog(@"  found %d=%@", i, v);
@@ -2326,10 +2326,10 @@ printing
 
 - (BOOL) performKeyEquivalent:(NSEvent *)event
 {
-	int i=0, cnt=[sub_views count];
+	int i=0, cnt=[_subviews count];
 	while(i<cnt)	// Check our sub_views
 		{
-		if([[sub_views objectAtIndex:i] performKeyEquivalent:event])
+		if([[_subviews objectAtIndex:i] performKeyEquivalent:event])
 			{
 #if 0
 			NSLog(@"%@ performKeyEquivalent -> YES", self);
@@ -2346,10 +2346,10 @@ printing
 
 - (BOOL) performMnemonic:(NSString *)string;
 {
-	int i=0, cnt = [sub_views count];
+	int i=0, cnt = [_subviews count];
 	while(i<cnt)	// Check our sub_views
 		{
-		if([[sub_views objectAtIndex:i] performMnemonic:string])
+		if([[_subviews objectAtIndex:i] performMnemonic:string])
 			return YES;	// any one responded!
 		i++;
 		}
@@ -2422,9 +2422,9 @@ NSView *p = nil;
 
 - (void) setNextKeyView:(NSView *)next			{ _nextKeyView = next; }
 - (NSView *) nextKeyView						{ return _nextKeyView; }
-- (NSView *) superview							{ return super_view; }
+- (NSView *) superview							{ return _superview; }
 - (NSWindow *) window							{ return _window; }
-- (NSMutableArray *) subviews					{ return sub_views; }
+- (NSMutableArray *) subviews					{ return _subviews; }
 - (unsigned int) autoresizingMask				{ return _v.autoresizingMask; }
 - (void) setAutoresizesSubviews:(BOOL)flag		{ _v.autoSizeSubviews = flag; }
 - (void) setAutoresizingMask:(unsigned int)mask	{ _v.autoresizingMask = mask; }
@@ -2448,8 +2448,8 @@ NSView *p = nil;
 - (BOOL) autoresizesSubviews					{ return _v.autoSizeSubviews; }
 - (BOOL) canBecomeKeyView;						{ return NO; }
 - (BOOL) isHidden								{ return _v.hidden; }
-- (BOOL) isOpaque								{ return (super_view == nil); }	// only if I represent the NSWindow
-- (BOOL) inLiveResize							{ return super_view?[super_view inLiveResize]:NO; }
+- (BOOL) isOpaque								{ return (_superview == nil); }	// only if I represent the NSWindow
+- (BOOL) inLiveResize							{ return _superview?[_superview inLiveResize]:NO; }
 - (BOOL) shouldDrawColor						{ return YES; }
 - (BOOL) wantsDefaultClipping					{ return YES; }
 - (BOOL) isFlipped								{ return NO; }
@@ -2614,7 +2614,7 @@ GSTrackingRect *o;
 
 - (void) resetCursorRects
 {
-	[sub_views makeObjectsPerformSelector:@selector(resetCursorRects)];
+	[_subviews makeObjectsPerformSelector:@selector(resetCursorRects)];
 }
 
 - (void) removeCursorRect:(NSRect)aRect cursor:(NSCursor *)anObject
@@ -2674,8 +2674,8 @@ NSMutableArray *trackingRects = [_window _trackingRects];
 	
 	[aCoder encodeRect: _frame];
 	[aCoder encodeRect: _bounds];
-	[aCoder encodeConditionalObject:super_view];
-	[aCoder encodeObject: sub_views];
+	[aCoder encodeConditionalObject:_superview];
+	[aCoder encodeObject: _subviews];
 	[aCoder encodeConditionalObject:_window];
 	[aCoder encodeConditionalObject:_nextKeyView];
 	[aCoder encodeValueOfObjCType:@encode(unsigned int) at: &_v];
@@ -2692,8 +2692,8 @@ NSMutableArray *trackingRects = [_window _trackingRects];
 		{
 		_frame = [aDecoder decodeRect];
 		_bounds = [aDecoder decodeRect];
-		super_view = [aDecoder decodeObject];
-		sub_views = [aDecoder decodeObject];
+		_superview = [aDecoder decodeObject];
+		_subviews = [aDecoder decodeObject];
 		_window = [aDecoder decodeObject];
 		_nextKeyView = [aDecoder decodeObject];
 		[aDecoder decodeValueOfObjCType:@encode(unsigned int) at: &_v];

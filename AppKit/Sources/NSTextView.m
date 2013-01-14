@@ -762,7 +762,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 // initial sizing after initWithCoder
 
-- (void) viewDidMoveToSuperview; { if(super_view) [self sizeToFit]; }
+- (void) viewDidMoveToSuperview; { if(_superview) [self sizeToFit]; }
 - (void) viewDidMoveToWindow; { if(_window) [self sizeToFit]; }
 
 - (void) setNeedsDisplayInRect:(NSRect)rect

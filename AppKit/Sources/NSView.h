@@ -63,8 +63,8 @@ typedef NSInteger NSTrackingRectTag;
 
 @interface NSView : NSResponder  <NSCoding> 
 {
-	NSView *super_view;
-	NSMutableArray *sub_views;
+	NSView *_superview;
+	NSMutableArray *_subviews;
 	NSWindow *_window;
 	NSAffineTransform *_bounds2frame;	// bounds to frame (unrotated) - created on demand
 	NSAffineTransform *_frame2bounds;	// inverse - created on demand
@@ -72,14 +72,14 @@ typedef NSInteger NSTrackingRectTag;
 	NSAffineTransform *_base2bounds;	// inverse - created on demand
 	NSRect _frame;				// as defined by setFrame
 	NSRect _bounds;				// calculated from frame and _frame2bounds
-	NSRect invalidRect;			// union of all subrects
-	NSRect *invalidRects;		// invalid rectangle list
+	NSRect _invalidRect;			// union of all subrects
+	NSRect *_invalidRects;		// invalid rectangle list
 	NSView *_nextKeyView;
     NSArray *_dragTypes;
-	float frameRotation;
-	float boundsRotation;
-	unsigned int nInvalidRects;	// number of invalid rects
-	unsigned int cInvalidRects;	// capacity of invalidRects array
+	float _frameRotation;
+	float _boundsRotation;
+	unsigned int _nInvalidRects;	// number of invalid rects
+	unsigned int _cInvalidRects;	// capacity of invalidRects array
 	int _gState;
     struct __ViewFlags {
 		unsigned int isRotatedFromBase:1;

@@ -62,7 +62,7 @@ static BOOL __cursorHidden = NO;
 @implementation NSView (LifeResize)
 - (void) _performOnAllSubviews:(SEL) sel
 {
-	NSEnumerator *e=[sub_views objectEnumerator];
+	NSEnumerator *e=[_subviews objectEnumerator];
 	NSView *v;
 	[self performSelector:sel];
 	while((v=[e nextObject]))
@@ -165,7 +165,7 @@ static BOOL __cursorHidden = NO;
 - (id) initWithFrame:(NSRect) f forStyleMask:(unsigned int) aStyle forScreen:(NSScreen *) screen;
 {
 #if 1
-	NSLog(@"init theme frame 1: subviews=%@", sub_views);
+	NSLog(@"init theme frame 1: subviews=%@", _subviews);
 #endif
 	if((aStyle&GSAllWindowMask) == NSBorderlessWindowMask)
 		{
@@ -339,23 +339,23 @@ static BOOL __cursorHidden = NO;
 	 */
 #if 1
 	NSLog(@"standardWindowButton %d", button);
-	NSLog(@"subviews %@", sub_views);
+	NSLog(@"subviews %@", _subviews);
 #endif
 	switch(button) {
-		case NSWindowCloseButton: return [sub_views objectAtIndex:0];
-		case NSWindowMiniaturizeButton: return [sub_views objectAtIndex:1];
-		case NSWindowZoomButton: return [sub_views objectAtIndex:2];
-		case NSWindowDocumentIconButton: return [sub_views objectAtIndex:3];
-		case NSWindowToolbarButton: return [sub_views count] > 5?[sub_views objectAtIndex:5]:nil;
+		case NSWindowCloseButton: return [_subviews objectAtIndex:0];
+		case NSWindowMiniaturizeButton: return [_subviews objectAtIndex:1];
+		case NSWindowZoomButton: return [_subviews objectAtIndex:2];
+		case NSWindowDocumentIconButton: return [_subviews objectAtIndex:3];
+		case NSWindowToolbarButton: return [_subviews count] > 5?[_subviews objectAtIndex:5]:nil;
 		default: return nil;
 	}
 }
 
-- (NSButton *) documentIcon; { return [sub_views count] > 3?[sub_views objectAtIndex:3]:nil; }
-- (NSView *) contentView; { return [sub_views count] > 4?[sub_views objectAtIndex:4]:nil; }
-- (NSToolbarView *) toolbarView; { return [sub_views count] > 6?[sub_views objectAtIndex:6]:nil; }
+- (NSButton *) documentIcon; { return [_subviews count] > 3?[_subviews objectAtIndex:3]:nil; }
+- (NSView *) contentView; { return [_subviews count] > 4?[_subviews objectAtIndex:4]:nil; }
+- (NSToolbarView *) toolbarView; { return [_subviews count] > 6?[_subviews objectAtIndex:6]:nil; }
 - (NSMenuView *) windowMenuView; { return nil; }	// if we have a horizontal menu inside the window
-- (NSToolbar *) toolbar; { return [sub_views count] > 6?[[sub_views objectAtIndex:6] toolbar]:(NSToolbar *) nil; }
+- (NSToolbar *) toolbar; { return [_subviews count] > 6?[[_subviews objectAtIndex:6] toolbar]:(NSToolbar *) nil; }
 
 - (void) layout;
 { // NOTE: if the window fills the screen, the content view has to be made smaller
@@ -375,7 +375,7 @@ static BOOL __cursorHidden = NO;
 			[mv setFrame:tf];					// adjust menu view
 			[mv setNeedsDisplay:YES];	// needs redraw
 		}
-	if([sub_views count] >= 7)
+	if([_subviews count] >= 7)
 		{ // has a toolbar
 			NSToolbarView *tv=[self toolbarView];
 			float height=[tv height];
@@ -428,7 +428,7 @@ static BOOL __cursorHidden = NO;
 
 - (void) setMenu:(NSMenu *) menu
 {
-	if([sub_views count] == 0)
+	if([_subviews count] == 0)
 		return;	// ignore when called from -initWithFrame:
 	if(menu && ![self windowMenuView])
 		; // allocate/deallocate a horizontal NSMenuView (subview)
@@ -441,7 +441,7 @@ static BOOL __cursorHidden = NO;
 
 - (void) setToolbar:(NSToolbar *) toolbar;
 {
-	if(toolbar && [sub_views count] <= 5)
+	if(toolbar && [_subviews count] <= 5)
 		{ // we don't have a toolbar (yet)
 			NSRect wf=[_window frame];	// window frame
 			NSToolbarView *tv;
@@ -459,14 +459,14 @@ static BOOL __cursorHidden = NO;
 			[tv release];
 			// reduce size of title bar
 		}
-	if(!toolbar && [sub_views count] > 6)
+	if(!toolbar && [_subviews count] > 6)
 		{ // remove button and toolbar
-			[[sub_views objectAtIndex:6] removeFromSuperviewWithoutNeedingDisplay];	// toolbar view
-			[[sub_views objectAtIndex:5] removeFromSuperviewWithoutNeedingDisplay];	// toolbar button
+			[[_subviews objectAtIndex:6] removeFromSuperviewWithoutNeedingDisplay];	// toolbar view
+			[[_subviews objectAtIndex:5] removeFromSuperviewWithoutNeedingDisplay];	// toolbar button
 			// increase size of title bar
 		}
 	else if(toolbar)
-		[[sub_views objectAtIndex:6] setToolbar:toolbar];	// just update
+		[[_subviews objectAtIndex:6] setToolbar:toolbar];	// just update
 	[self layout];
 	[self setNeedsDisplay:YES];
 }
@@ -666,7 +666,7 @@ static BOOL __cursorHidden = NO;
 	return nil;	// has no buttons
 }
 
-- (NSView *) contentView; { return [sub_views count] > 0?[sub_views objectAtIndex:0]:nil; }
+- (NSView *) contentView; { return [_subviews count] > 0?[_subviews objectAtIndex:0]:nil; }
 
 - (void) layout;
 { // we don't have a button bar
@@ -954,7 +954,7 @@ static NSButtonCell *sharedCell;
 								if(!NSIsEmptyRect(_itemRects[i]))
 									{ // not invisible
 										[iv setFrame:_itemRects[i]];
-										if(![sub_views containsObject:iv])
+										if(![_subviews containsObject:iv])
 											[self addSubview:iv];	// not yet visible, add to view hierarchy
 									}
 								else
@@ -995,7 +995,7 @@ static NSButtonCell *sharedCell;
 {
 	int i;
 	NSArray *items=[_toolbar _activeItems];
-	[[(NSThemeFrame *) super_view titleBarBackgroundColor] set];
+	[[(NSThemeFrame *) _superview titleBarBackgroundColor] set];
 	NSRectFill(rect);
 	if([_toolbar showsBaselineSeparator])
 		{ // draw separator

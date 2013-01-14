@@ -324,7 +324,7 @@ static struct _NSTabViewSizing
 		NSView *v=[tab_selected view];
 		[tab_selected _setTabState:NSSelectedTab];
 		[self setNeedsDisplayInRect:[tab_selected _tabRect]];	// redraw tab
-		if([sub_views indexOfObjectIdenticalTo:v] == NSNotFound)
+		if([_subviews indexOfObjectIdenticalTo:v] == NSNotFound)
 			[self addSubview:v];	// if not yet a subview - this may already resize the sbviews
 #if 1	// FIXME
 		if(!NSEqualRects([v frame], [self contentRect]))

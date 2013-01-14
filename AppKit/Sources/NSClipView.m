@@ -77,7 +77,7 @@
 			 selector:@selector(viewBoundsChanged:)
 			 name:NSViewBoundsDidChangeNotification 
 			 object:_documentView];
-		[super_view reflectScrolledClipView:self];
+		[_superview reflectScrolledClipView:self];
 		}
 }
 
@@ -142,7 +142,7 @@
 
 - (void) viewBoundsChanged:(NSNotification*)aNotification
 { // document view notification
-	[super_view reflectScrolledClipView:self];
+	[_superview reflectScrolledClipView:self];
 }
 
 - (void) viewFrameChanged:(NSNotification*)aNotification
@@ -178,8 +178,8 @@
 		[_documentView setFrameOrigin:mr.origin];	
 
 	[_documentView setPostsFrameChangedNotifications:YES];			// reenable
-	[super_view scrollClipView:self toPoint:bounds.origin];			// will call [self scrollToPoint:] and [self setBounds]
-	[super_view reflectScrolledClipView:self];
+	[_superview scrollClipView:self toPoint:bounds.origin];			// will call [self scrollToPoint:] and [self setBounds]
+	[_superview reflectScrolledClipView:self];
 //	[_documentView setNeedsDisplay:NO];		// reset area to draw in subview
 	if(NSWidth(mr) < NSWidth(_frame) || NSHeight(mr) < NSHeight(_frame))
 		[self setNeedsDisplayInRect:[self visibleRect]];
@@ -188,25 +188,25 @@
 - (void) scaleUnitSquareToSize:(NSSize)newUnitSize
 {
 	[super scaleUnitSquareToSize:newUnitSize];
-	[super_view reflectScrolledClipView:self];
+	[_superview reflectScrolledClipView:self];
 }
 
 - (void) setBounds:(NSRect)b
 {
 	[super setBounds:b];
-	[super_view reflectScrolledClipView:self];
+	[_superview reflectScrolledClipView:self];
 }
 
 - (void) setBoundsOrigin:(NSPoint)aPoint
 {
 	[super setBoundsOrigin:aPoint];
-	[super_view reflectScrolledClipView:self];
+	[_superview reflectScrolledClipView:self];
 }
 
 - (void) setBoundsSize:(NSSize)aSize
 {
 	[super setBoundsSize:aSize];
-	[super_view reflectScrolledClipView:self];
+	[_superview reflectScrolledClipView:self];
 }
 
 // FIXME: keep scrolling position (bounds) stable
@@ -215,20 +215,20 @@
 {
 	_v.customBounds=NO;
 	[super setFrameSize:aSize];
-	[super_view reflectScrolledClipView:self];
+	[_superview reflectScrolledClipView:self];
 }
 
 - (void) setFrameOrigin:(NSPoint)aPoint
 {
 	[super setFrameOrigin:aPoint];
-	[super_view reflectScrolledClipView:self];
+	[_superview reflectScrolledClipView:self];
 }
 
 - (void) setFrame:(NSRect)rect
 {
 	_v.customBounds=NO;
 	[super setFrame:rect];
-	[super_view reflectScrolledClipView:self];
+	[_superview reflectScrolledClipView:self];
 }
 
 // Disable rotation of clipview
@@ -286,7 +286,7 @@ because this reverses the writing direction within the text container
 #if 0
 	NSLog(@"scrollPoint %@", NSStringFromPoint(point));
 #endif	
-	[super_view scrollClipView:self toPoint:point];	// this should call scrollToPoint which may round up/down to raster
+	[_superview scrollClipView:self toPoint:point];	// this should call scrollToPoint which may round up/down to raster
 }
 
 - (void) scrollToPoint:(NSPoint) point

@@ -58,7 +58,7 @@ NSSplitView.h
 	float divVertical, divHorizontal;
 	NSDate *distantFuture;
 	
-	if((count = [sub_views count]) < 2)		// if there are less than two  
+	if((count = [_subviews count]) < 2)		// if there are less than two  
 		return;								// subviews, there is nothing to do
 	
 	vr = [self visibleRect];
@@ -66,7 +66,7 @@ NSSplitView.h
 	p = [self convertPoint:[event locationInWindow] fromView:nil];
 	for(i = 0; i < count; i++)
 		{ // locate subview the divider belongs to; save previous (prev)
-		v = [sub_views objectAtIndex:i];
+		v = [_subviews objectAtIndex:i];
 		r = [v frame];
 		
 		if(!_isVertical)					
@@ -257,14 +257,14 @@ NSSplitView.h
 	
 		{ // split the area up evenly 
 			// FIXME: should be scaled proportionally!
-		int i, count = [sub_views count];
+		int i, count = [_subviews count];
 		int div = (int)(_dividerThickness * (count - 1));
 		int w = (int)ceil((NSWidth(_bounds) - div) / count);
 		float total = 0, maxSize, divRemainder;
 		
 		for(i = 0; i < count; i++)
         	{	
-			id v = [sub_views objectAtIndex:i];
+			id v = [_subviews objectAtIndex:i];
 			NSRect rect, r = [v frame];
 			
 			if(!_isVertical)
@@ -341,7 +341,7 @@ NSSplitView.h
 
 - (void) drawRect:(NSRect)r
 {
-	int i, count = [sub_views count];
+	int i, count = [_subviews count];
 	
 	if(backgroundColor)
 		{
@@ -351,7 +351,7 @@ NSSplitView.h
 	
 	for(i = 0; i < (count - 1); i++)						// draw the dimples
 		{	
-		id v = [sub_views objectAtIndex:i];
+		id v = [_subviews objectAtIndex:i];
 		NSRect divRect = [v frame];
 		
 		if(!_isVertical)

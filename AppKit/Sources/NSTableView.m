@@ -717,7 +717,7 @@
 - (void) noteNumberOfRowsChanged
 { // clear cache
 	int n=_numberOfRows;
-	if(!_window || !super_view || !_dataSource)
+	if(!_window || !_superview || !_dataSource)
 		{
 #if 0
 		NSLog(@"noteNumberOfRowsChanged ignored: w:%p s:%p d:%p", _window, super_view, _dataSource);
@@ -1601,7 +1601,7 @@ int index = [self columnWithIdentifier:identifier];
 	if(_numberOfRows == NSNotFound)
 		NSLog(@"tiling before any noteNumberOfRowsChanged", self);
 #endif
-	if(_window && super_view && _dataSource)
+	if(_window && _superview && _dataSource)
 		{
 		int cols;
 		if(_numberOfRows == NSNotFound)
@@ -1617,7 +1617,7 @@ int index = [self columnWithIdentifier:identifier];
 			// FIXME: handle resizing policy - if resize last column to fit and minsize allows, use [[sv contentView] documentVisibleRect] as the reference
 			NSScrollView *sv=[self enclosingScrollView];
 			NSRect c = [self rectOfColumn: cols - 1];	// last column (c.size.height comes from current frame height and may be 0!)
-			float minH = super_view?[super_view bounds].size.height:10;
+			float minH = _superview?[_superview bounds].size.height:10;
 			NSRect r;
 			float lheight;
 			if(!sv)
@@ -1625,7 +1625,7 @@ int index = [self columnWithIdentifier:identifier];
 				NSLog(@"not enclosed in scrollview %@", self);
 				return;
 				}
-			if(!super_view)
+			if(!_superview)
 				{
 				NSLog(@"no superview %@", self);
 				return;
@@ -1909,10 +1909,10 @@ int index = [self columnWithIdentifier:identifier];
 {
 	unsigned cnt=[_tableColumns count];
 	NSTableColumn *last=[_tableColumns lastObject];
-	if(super_view && cnt > 0 && [last isResizable])
+	if(_superview && cnt > 0 && [last isResizable])
 		{
 		BOOL changed=YES;
-		NSRect bounds=[super_view bounds];
+		NSRect bounds=[_superview bounds];
 #if 0
 		NSLog(@"size to fit");
 #endif
@@ -1950,9 +1950,9 @@ int index = [self columnWithIdentifier:identifier];
 { // resize last column to fit for scrollview's width
 	unsigned cnt=[_tableColumns count];
 	NSTableColumn *last=[_tableColumns lastObject];
-	if(super_view && cnt > 0 && [last isResizable])
+	if(_superview && cnt > 0 && [last isResizable])
 		{
-		NSRect bounds=[super_view bounds];
+		NSRect bounds=[_superview bounds];
 #if 0
 		NSLog(@"size last column");
 #endif
