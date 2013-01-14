@@ -92,6 +92,7 @@ enum _NSCommonlyUsedUnicodeCharacters
 	NSColor *_backgroundColor;
 	NSFont *_font;	// insertion cursor font
 	NSRange _selectedRange;		// current selection
+	unsigned int _anchor;		// for adding/removing selections
 	NSTextStorage *textStorage;	// note: we don't provide direct accessors
 //	NSMutableArray *lineLayoutInformation;	// one record for each line
 //	NSMutableDictionary *typingAttributes; 

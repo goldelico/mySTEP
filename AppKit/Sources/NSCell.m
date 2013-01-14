@@ -496,7 +496,7 @@ static NSColor *__borderedBackgroundColor = nil;
 		[self setAttributedStringValue:[(NSTextView *) textObject textStorage]];
 	else
 		[self setStringValue:[textObject string]];
-	[textObject setDelegate:nil];	// no longer create notifications
+	[textObject setDelegate:nil];	// no longer send notifications
 	_c.editing = NO;	// we may still be first responder - so suppress sending field editor notifications during resignFirstResponder
 	if(_c.scrollable)
 		{ // we did have an encapsulating clip view

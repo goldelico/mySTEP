@@ -1262,7 +1262,7 @@ static BOOL done;
 	unsigned cnt=[self length];
 	for(i=0; i<cnt; i++)
 		{
-		// substitute illegal fonts
+		// substitute illegal or missing fonts
 		// i.e. if the font(s) don't support the characer range, substitute a font
 		}
 	return;
@@ -1274,7 +1274,8 @@ static BOOL done;
 	unsigned cnt=[self length];
 	for(i=0; i<cnt; i++)
 		{
-		// merge multiple paragraph styles for single lines		
+		// merge multiple paragraph styles for single lines
+		// fill missing paragraph style
 		}
 	return;
 }

@@ -841,6 +841,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 									}
 								break;
 							}
+						// FIXME: add some range where we report either side of \n of a paragraph
 						prevx=pos.x;	// remember horizontal offset of glyph
 						lfrRange.location++;
 						lfrRange.length--;
@@ -1251,6 +1252,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		if(!enclosing)
 			glyphRange=NSIntersectionRange(glyphRange, selGlyphRange);
 		}
+	[self ensureLayoutForGlyphRange:glyphRange];	// we must have valid layout information
 	glyphIndex=glyphRange.location;
 	*rectCount=0;
 	while(glyphIndex <= NSMaxRange(glyphRange))
@@ -1280,8 +1282,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				lfr=[self lineFragmentRectForGlyphAtIndex:glyphIndex effectiveRange:&lfrRange withoutAdditionalLayout:YES];
 			else
 				lfr=[self lineFragmentUsedRectForGlyphAtIndex:glyphIndex effectiveRange:&lfrRange withoutAdditionalLayout:YES];	// take only what we have
-			if(glyphIndex > lfrRange.location)
-				{ // not from beginning of LFR
+			if(glyphIndex == glyphRange.location)
+				{ // first glyph defines exact position
 					NSPoint pos=[self locationForGlyphAtIndex:glyphIndex];
 					lfr.size.width-=pos.x;
 					lfr.origin.x+=pos.x;	// start at that glyph

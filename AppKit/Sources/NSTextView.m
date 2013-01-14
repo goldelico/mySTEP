@@ -762,8 +762,8 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 // initial sizing after initWithCoder
 
-- (void) viewDidMoveToSuperview; { [self sizeToFit]; }
-- (void) viewDidMoveToWindow; { [self sizeToFit]; }
+- (void) viewDidMoveToSuperview; { if(super_view) [self sizeToFit]; }
+- (void) viewDidMoveToWindow; { if(_window) [self sizeToFit]; }
 
 - (void) setNeedsDisplayInRect:(NSRect)rect
 { // override as documented
@@ -892,8 +892,12 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 #endif
 	if([self shouldChangeTextInRange:rng replacementString:text])
 		{
+		BOOL isRich=_tx.isRichText;
 		NSDictionary *attribs=[typingAttributes retain];
-		[self replaceCharactersInRange:rng withString:text];
+		_tx.isRichText=NO;
+		[self replaceCharactersInRange:rng withString:text];	// no need to insert preliminary formatting
+		_tx.isRichText=isRich;
+		rng.length=[text length];	// apply typing attributes
 		[[self textStorage] setAttributes:attribs range:rng];
 		[attribs release];
 		[self didChangeText];
@@ -1036,7 +1040,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 - (void) moveUp:(id) sender
 {
 	if(_tx.fieldEditor)
-		[super moveUp:sender];	// specific handling defined there
+		[super moveUp:sender];	// specific handling defined there (???)
 	else
 		{
 		float cx=_stableCursorColumn;	// save for cursor stability

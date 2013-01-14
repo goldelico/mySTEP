@@ -1,19 +1,19 @@
 /* 
-   NSText.m
-
-   The text class. It is directly working on its NSTextStorage and does not use a NSLayoutManager and/or NSTextContainer.
-   Therefore, it has limited functionality compared to its subclass NSTextView. E.g.
-	 - less precise text manipulating methods
-   - can't format and handle lines of different font
+ NSText.m
  
-   NSTextView adds a text network and adds more sophisticated editing commands. Note: Interface Builder can create NSTextView only.
-
-   Author:	H. N. Schaller <hns@computer.org>
-   Date:	Jun 2006 - aligned with 10.4
-  
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/ 
+ The text class. It is directly working on its NSTextStorage and does not use a NSLayoutManager and/or NSTextContainer.
+ Therefore, it has limited functionality compared to its subclass NSTextView. E.g.
+ - less precise text manipulating methods
+ - can't format and handle lines of different font
+ 
+ NSTextView adds a text network and adds more sophisticated editing commands. Note: Interface Builder can create NSTextView only.
+ 
+ Author:	H. N. Schaller <hns@computer.org>
+ Date:	Jun 2006 - aligned with 10.4
+ 
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */ 
 
 #import <Foundation/NSString.h>
 #import <Foundation/NSNotification.h>
@@ -98,16 +98,16 @@ NSString *NSTextMovement=@"NSTextMovement";
 	if(!_tx.usesFontPanel)
 		return;
 	while(effectiveRange.location < NSMaxRange(rng))
-			{ // loop over all segments we get
-				NSFont *font=[textStorage attribute:NSFontAttributeName atIndex:effectiveRange.location effectiveRange:&effectiveRange];
+		{ // loop over all segments we get
+			NSFont *font=[textStorage attribute:NSFontAttributeName atIndex:effectiveRange.location effectiveRange:&effectiveRange];
+			if(font)
+				{
+				font=[sender convertFont:font];	// convert through font panel
 				if(font)
-						{
-							font=[sender convertFont:font];	// convert through font panel
-							if(font)
-								[textStorage addAttribute:NSFontAttributeName value:font range:effectiveRange];
-						}
-				effectiveRange.location=NSMaxRange(effectiveRange);	// go to next range
-			}
+					[textStorage addAttribute:NSFontAttributeName value:font range:effectiveRange];
+				}
+			effectiveRange.location=NSMaxRange(effectiveRange);	// go to next range
+		}
 }
 
 - (void) changeSpelling:(id)sender;
@@ -119,12 +119,12 @@ NSString *NSTextMovement=@"NSTextMovement";
 {
 	int wordCount;
     NSRange range=[[NSSpellChecker sharedSpellChecker]
-				checkSpellingOfString:[textStorage string]
-						   startingAt:NSMaxRange(_selectedRange)
-							 language:nil
-								 wrap:NO
-			   inSpellDocumentWithTag:_spellCheckerDocumentTag
-							wordCount:&wordCount];
+				   checkSpellingOfString:[textStorage string]
+				   startingAt:NSMaxRange(_selectedRange)
+				   language:nil
+				   wrap:NO
+				   inSpellDocumentWithTag:_spellCheckerDocumentTag
+				   wordCount:&wordCount];
 	if(range.length) 
 		[self setSelectedRange:range];
 	else 
@@ -170,8 +170,8 @@ NSString *NSTextMovement=@"NSTextMovement";
 - (void) ignoreSpelling:(id)sender
 {
     [[NSSpellChecker sharedSpellChecker]
-					ignoreWord:[[sender selectedCell] stringValue]
-		inSpellDocumentWithTag:_spellCheckerDocumentTag];
+	 ignoreWord:[[sender selectedCell] stringValue]
+	 inSpellDocumentWithTag:_spellCheckerDocumentTag];
 }
 
 - (BOOL) importsGraphics					{ return _tx.importsGraphics; }
@@ -230,9 +230,9 @@ NSString *NSTextMovement=@"NSTextMovement";
 {
 	if(_tx.isRichText)
 		{
-			NSAttributedString *a=[[NSAttributedString alloc] initWithString:aString attributes:[NSDictionary dictionaryWithObject:_font forKey:NSFontAttributeName]];
-			[textStorage replaceCharactersInRange:range withAttributedString:a];
-			[a release];
+		NSAttributedString *a=[[NSAttributedString alloc] initWithString:aString attributes:[NSDictionary dictionaryWithObject:_font forKey:NSFontAttributeName]];
+		[textStorage replaceCharactersInRange:range withAttributedString:a];
+		[a release];
 		}
 	else
 		[textStorage replaceCharactersInRange:range withString:aString];
@@ -292,26 +292,26 @@ object:self]
 	
 	n = [NSNotificationCenter defaultCenter];
 	if (_delegate)
-			{
-				IGNORE_(DidEndEditing);
-				IGNORE_(DidBeginEditing);
-				IGNORE_(DidChange);
-			}
+		{
+		IGNORE_(DidEndEditing);
+		IGNORE_(DidBeginEditing);
+		IGNORE_(DidChange);
+		}
 	
 	ASSIGN(_delegate, anObject);
 	if(anObject)
-			{
+		{
 #define OBSERVE_(notif_name) \
 if ([_delegate respondsToSelector:@selector(text##notif_name:)]) \
 [n addObserver:_delegate \
 selector:@selector(text##notif_name:) \
 name:NSText##notif_name##Notification \
 object:self]
-				
-				OBSERVE_(DidEndEditing);
-				OBSERVE_(DidBeginEditing);
-				OBSERVE_(DidChange);
-			}
+		
+		OBSERVE_(DidEndEditing);
+		OBSERVE_(DidBeginEditing);
+		OBSERVE_(DidChange);
+		}
 }
 
 - (void) setDrawsBackground:(BOOL)flag		{ _tx.drawsBackground = flag; }
@@ -373,12 +373,13 @@ object:self]
 - (void) setSelectedRange:(NSRange)range;
 {
 	if(!NSEqualRanges(_selectedRange, range))
-			{
-				// FIXME: setNeedsDisplayInRect: of previous selection
-				_selectedRange=range;
-				// setNeedsDisplayInRect: of new selection
-				[self setNeedsDisplay:YES];	// update display of selection
-			}
+		{
+		// FIXME: setNeedsDisplayInRect: of previous selection
+		_selectedRange=range;
+		// setNeedsDisplayInRect: of new selection
+		[self setNeedsDisplay:YES];	// update display of selection
+		}
+	_anchor=NSNotFound;	// no anchor (yet)
 	_tx.moveLeftRightEnd=0;
 	_tx.moveUpDownEnd=0;
 #if 0
@@ -447,8 +448,8 @@ object:self]
 	if(!_tx.isRichText)
 		return;
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:1]
-													forKey:NSSuperscriptAttributeName]
-				  range:_selectedRange];
+														   forKey:NSSuperscriptAttributeName]
+						 range:_selectedRange];
 	[self setNeedsDisplay:YES];
 }
 
@@ -457,8 +458,8 @@ object:self]
 	if(!_tx.isRichText)
 		return;
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:-1]
-													forKey:NSSuperscriptAttributeName]
-				  range:_selectedRange];
+														   forKey:NSSuperscriptAttributeName]
+						 range:_selectedRange];
 	[self setNeedsDisplay:YES];
 }
 
@@ -478,8 +479,8 @@ object:self]
 	if(!_tx.isRichText)
 		return;
 	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:NSUnderlineStyleSingle]
-													forKey:NSUnderlineStyleAttributeName]
-				  range:_selectedRange];
+														   forKey:NSUnderlineStyleAttributeName]
+						 range:_selectedRange];
 	[self setNeedsDisplay:YES];
 }
 
@@ -488,9 +489,9 @@ object:self]
 	if(!_tx.isRichText)
 		return;
 	[textStorage removeAttribute:NSUnderlineStyleAttributeName 
-						  range:_selectedRange];
+						   range:_selectedRange];
 	// typingAttributes is only known in NSTextView!
-//	[[self typingAttributes] removeObjectForKey:NSUnderlineStyleAttributeName];
+	//	[[self typingAttributes] removeObjectForKey:NSUnderlineStyleAttributeName];
 	[self setNeedsDisplay:YES];
 }
 
@@ -521,28 +522,28 @@ object:self]
 #endif
 	if((self=[super initWithFrame:f]))
 		{ // this initialization will be used for a Field Editor but is also called from initWithCoder!
-		if(ts)
-			{
-			textStorage=ts;
-			_tx.ownsTextStorage=NO;	// some subclass initWithFrame has already initialized the textStorage
-			}
-		else
-			{
-			textStorage=[NSTextStorage new];	// provide empty default text storage
-			_tx.ownsTextStorage=YES;			// that we own
-			_tx.isRichText=NO;
-			}
-		_spellCheckerDocumentTag=[NSSpellChecker uniqueSpellDocumentTag];
-		_tx.alignment = NSLeftTextAlignment;
-		_tx.editable = YES;
-		_tx.selectable = YES;
-		_tx.vertResizable = YES;
-		_tx.drawsBackground = YES;
-		_backgroundColor=[[NSColor textBackgroundColor] retain];
-		_minSize = (NSSize){5, 15};
-		_maxSize = (NSSize){HUGE,HUGE};
-		_font=[[NSFont userFontOfSize:12] retain];
-		_selectedRange=NSMakeRange(0,0);	// don't call setSelectedRange here which may have side effects in subclasses
+			if(ts)
+				{
+				textStorage=ts;
+				_tx.ownsTextStorage=NO;	// some subclass initWithFrame has already initialized the textStorage
+				}
+			else
+				{
+				textStorage=[NSTextStorage new];	// provide empty default text storage
+				_tx.ownsTextStorage=YES;			// that we own
+				_tx.isRichText=NO;
+				}
+			_spellCheckerDocumentTag=[NSSpellChecker uniqueSpellDocumentTag];
+			_tx.alignment = NSLeftTextAlignment;
+			_tx.editable = YES;
+			_tx.selectable = YES;
+			_tx.vertResizable = YES;
+			_tx.drawsBackground = YES;
+			_backgroundColor=[[NSColor textBackgroundColor] retain];
+			_minSize = (NSSize){5, 15};
+			_maxSize = (NSSize){HUGE,HUGE};
+			_font=[[NSFont userFontOfSize:12] retain];
+			_selectedRange=NSMakeRange(0,0);	// don't call setSelectedRange here which may have side effects in subclasses
 		}
 	return self;
 }
@@ -605,36 +606,36 @@ object:self]
 #endif
 	// save modifiers of first event
 	if([event clickCount] > 1)
-			{ // depending on click count, extend selection at this position and then do standard tracking
-				NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
-				unsigned int pos=[self characterIndexForPoint:p];
-				// FIXME
-			}
+		{ // depending on click count, extend selection at this position and then do standard tracking
+			NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
+			unsigned int pos=[self characterIndexForPoint:p];
+			// FIXME
+		}
 	while([event type] != NSLeftMouseUp)	// loop outside until mouse goes up 
-			{
-				NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
-				// unsigned int pos=[self characterIndexForPoint:p];
-				unsigned int pos=0;
+		{
+		NSPoint p=[self convertPoint:[event locationInWindow] fromView:nil];
+		// unsigned int pos=[self characterIndexForPoint:p];
+		unsigned int pos=0;
 #if 0
-				NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p));
+		NSLog(@"NSControl mouseDown point=%@", NSStringFromPoint(p));
 #endif
-				if([event type] == NSLeftMouseDragged)
-					[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
-				// handle click on NSTextAttachments
-				if(NSLocationInRange(pos, _selectedRange))
-						{ // in current range we already hit the current selection it is a potential drag&drop
-							rng=_selectedRange;
-						}
-				else if(1) // no modifier
-					rng=NSMakeRange(pos, 0);	// set cursor to location where we did click
-				else if(0) // shift key
-					rng=NSUnionRange(_selectedRange, NSMakeRange(pos, 0));	// extend
-				[self setSelectedRange:rng];
-				event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
-																	 untilDate:[NSDate distantFuture]						// get next event
-																			inMode:NSEventTrackingRunLoopMode 
-																		 dequeue:YES];
-				
+		if([event type] == NSLeftMouseDragged)
+			[NSApp discardEventsMatchingMask:NSLeftMouseDraggedMask beforeEvent:nil];	// discard all further movements queued up so far
+		// handle click on NSTextAttachments
+		if(NSLocationInRange(pos, _selectedRange))
+			{ // in current range we already hit the current selection it is a potential drag&drop
+				rng=_selectedRange;
+			}
+		else if(1) // no modifier
+			rng=NSMakeRange(pos, 0);	// set cursor to location where we did click
+		else if(0) // shift key
+			rng=NSUnionRange(_selectedRange, NSMakeRange(pos, 0));	// extend
+		[self setSelectedRange:rng];
+		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask
+								   untilDate:[NSDate distantFuture]						// get next event
+									  inMode:NSEventTrackingRunLoopMode 
+									 dequeue:YES];
+		
   		}
 	[self setSelectedRange:rng];	// finally update selection
 #if 1
@@ -645,34 +646,34 @@ object:self]
 - (void) keyDown:(NSEvent *)event
 { // default action (last responder)
 	if(_tx.editable)
-			{
-				// FIXME: shouldn't this be done in NSWindow?
-				// and handle keyboard shortcuts there?
-				NSMutableArray *events=[NSMutableArray arrayWithObject:event];
+		{
+		// FIXME: shouldn't this be done in NSWindow?
+		// and handle keyboard shortcuts there?
+		NSMutableArray *events=[NSMutableArray arrayWithObject:event];
 #if 1
-				NSLog(@"%@ keyDown: %@", NSStringFromClass(isa), event);
+		NSLog(@"%@ keyDown: %@", NSStringFromClass(isa), event);
 #endif
-				while((event = [NSApp nextEventMatchingMask:NSAnyEventMask
-																					untilDate:nil	// don't wait
-																						 inMode:NSEventTrackingRunLoopMode 
-																						dequeue:YES]))
-						{ // collect all queued keyboard events - and stop collecting if any other event is found
-							switch([event type])
-								{
-									case NSKeyDown:
-										[events addObject:event];	// queue them up
-										continue;
-									case NSKeyUp:
-									case NSFlagsChanged:
-										continue;
-									default:	// any other event
-										[NSApp postEvent:event atStart:YES];	// requeue
-										break;
-								}
-							break;
-						}
-				[self interpretKeyEvents:events];
+		while((event = [NSApp nextEventMatchingMask:NSAnyEventMask
+										  untilDate:nil	// don't wait
+											 inMode:NSEventTrackingRunLoopMode 
+											dequeue:YES]))
+			{ // collect all queued keyboard events - and stop collecting if any other event is found
+				switch([event type])
+				{
+					case NSKeyDown:
+					[events addObject:event];	// queue them up
+					continue;
+					case NSKeyUp:
+					case NSFlagsChanged:
+					continue;
+					default:	// any other event
+					[NSApp postEvent:event atStart:YES];	// requeue
+					break;
+				}
+				break;
 			}
+		[self interpretKeyEvents:events];
+		}
 	else
 		[super keyDown:event];
 }
@@ -683,12 +684,12 @@ object:self]
 {
 	NSRange rng=[self selectedRange];
 	if(rng.length == 0)
-			{
-				if(rng.location == 0)
-					return;	// ignore at beginning of text
-				rng.location--;
-				rng.length=1;
-			}
+		{
+		if(rng.location == 0)
+			return;	// ignore at beginning of text
+		rng.location--;
+		rng.length=1;
+		}
 	[self replaceCharactersInRange:rng withString:@""];	// remove
 	rng.length=0;
 	[self setSelectedRange:rng];
@@ -751,7 +752,8 @@ object:self]
 	if(_tx.fieldEditor)
 		[self _handleFieldEditorMovement:NSUpTextMovement];
 	else
-	// should go up one line in same column
+		// should go up one line in same column
+		// can't implement here since we don't know about pixel coordinates
 		NIMP;
 }
 
@@ -760,37 +762,72 @@ object:self]
 	if(_tx.fieldEditor)
 		[self _handleFieldEditorMovement:NSDownTextMovement];
 	else
-	// should go down one line in same column
+		// should go down one line in same column
+		// can't implement here since we don't know about pixel coordinates
 		NIMP;
 }
 
 - (void) moveRight:(id) sender
 {
+	NSRange rng=_selectedRange;
 	if(NO && _tx.fieldEditor)
-			{
-				[self _handleFieldEditorMovement:NSRightTextMovement];
-				return;
-			}
-	if(NSMaxRange(_selectedRange) < [textStorage length])
-		[self setSelectedRange:NSMakeRange(NSMaxRange(_selectedRange)+1, 0)];
+		{
+		[self _handleFieldEditorMovement:NSRightTextMovement];
+		return;
+		}
+	if(_anchor != NSNotFound)
+		{ // anchor defined
+		if(rng.location < _anchor)
+			rng.location++, rng.length--;	// selection starts before anchor - move left end
+		else if(NSMaxRange(rng) < [textStorage length])
+			rng.length++;	// selection starts at or after anchor - move right end
+		}
+	else if(_selectedRange.length > 0)
+		rng.location+=rng.length, rng.length=0;	// reduce selection to right end
+	else if(_selectedRange.location < [textStorage length])
+		rng.location++, rng.length=0;
+	[self setSelectedRange:rng];	// really move right
 }
 
-// same for top&down but use separate flags - can share left&right
+// there are two locations:
+// a) anchor
+// b) moving position
+// 1: if there is no anchor, take left or right end of initial selection (and stable position!)
+// 2: result is range between anchor and moving position
+//
+// 3: there is a single anchor!
+//
+// 4: when is it changed? by clicking on a position, not by cursor movements
+//
+// after double-clicking on a word, the stable cursor is always the left end of the initial selection
+// if shift-extending after drag-selection by mouse, both the anchor and stable cursor are defined according to rule 1: (!)
+//
+// since cursor stability is implemented in NSTextView subclass through [self setSelectedRange] we should call it only once
+// stable cursor column is also defined by any action that inserts/deletes characters and by clicking
+// i.e. it is only NOT changed by simple movements
 
 - (void) moveRightAndModifySelection:(id) sender
 {
+#if 1
+	unsigned int anchor;
+	if(_anchor == NSNotFound) _anchor=_selectedRange.location;	// initialize anchor
+	anchor=_anchor;	// save
+	[self moveRight:nil];
+	_anchor=anchor;
+#else
 	int saved;
 	if(_tx.moveLeftRightEnd == 0)
-			{
-				modifySelection[0]=_selectedRange.location;
-				modifySelection[1]=NSMaxRange(_selectedRange);
-				_tx.moveLeftRightEnd=2;	// modify right end...
-			}
+		{
+		modifySelection[0]=_selectedRange.location;
+		modifySelection[1]=NSMaxRange(_selectedRange);
+		_tx.moveLeftRightEnd=2;	// modify right end...
+		}
 	if(modifySelection[_tx.moveLeftRightEnd-1] < [textStorage length])
 		(modifySelection[_tx.moveLeftRightEnd-1])++;
 	saved=_tx.moveLeftRightEnd;
 	[self setSelectedRange:NSUnionRange(NSMakeRange(modifySelection[0], 0), NSMakeRange(modifySelection[1], 0))];	// sets _tx.moveLeftRightEnd=0;
 	_tx.moveLeftRightEnd=saved;
+#endif
 }
 
 - (void) moveForwardAndModifySelection:(id) sender
@@ -806,29 +843,49 @@ object:self]
 
 - (void) moveLeft:(id) sender
 {
+	NSRange rng=_selectedRange;
 	if(NO && _tx.fieldEditor)
-			{
-				[self _handleFieldEditorMovement:NSLeftTextMovement];
-				return;
-			}
-	if(_selectedRange.location > 0)
-		[self setSelectedRange:NSMakeRange(_selectedRange.location-1, 0)];
+		{
+		[self _handleFieldEditorMovement:NSLeftTextMovement];
+		return;
+		}
+	if(_anchor != NSNotFound)
+		{ // anchor defined
+			if(NSMaxRange(rng) > _anchor)
+				rng.length--;	// selection ends after anchor - move right end (reduce selection)
+			else if(rng.location > 0)
+				rng.location--, rng.length++;	// selection ends at anchor - move left end (extend selection)
+		}
+	else if(_selectedRange.length > 0)
+		rng.length=0;	// reduce selection to left end
+	else if(_selectedRange.location > 0)
+		rng.location--, rng.length=0;
+	[self setSelectedRange:rng];	// really move left
 }
 
 - (void) moveLeftAndModifySelection:(id) sender
 {
+#if 1
+	unsigned int anchor;
+	if(_anchor == NSNotFound) _anchor=NSMaxRange(_selectedRange);	// initialize anchor
+	anchor=_anchor;	// save
+	[self moveLeft:nil];
+	_anchor=anchor;	// restore
+#else
+	// FIXME: base on moveLeft, i.e. save current selection, move left and merge/reduce depending on _tx.moveLeftRightEnd or !_tx.moveLeftRightEnd
 	int saved;
 	if(_tx.moveLeftRightEnd == 0)
 		{
-				modifySelection[0]=_selectedRange.location;
-				modifySelection[1]=NSMaxRange(_selectedRange);
-				_tx.moveLeftRightEnd=1;	// modify left end
+		modifySelection[0]=_selectedRange.location;
+		modifySelection[1]=NSMaxRange(_selectedRange);
+		_tx.moveLeftRightEnd=1;	// modify left end
 		}
 	if(modifySelection[_tx.moveLeftRightEnd-1] > 0)
 		(modifySelection[_tx.moveLeftRightEnd-1])--;
 	saved=_tx.moveLeftRightEnd;
 	[self setSelectedRange:NSUnionRange(NSMakeRange(modifySelection[0], 0), NSMakeRange(modifySelection[1], 0))];	// sets _tx.moveLeftRightEnd=0;
 	_tx.moveLeftRightEnd=saved;
+#endif
 }
 
 - (void) moveBackwardAndModifySelection:(id) sender
@@ -843,34 +900,51 @@ object:self]
 
 - (void) moveDownAndModifySelection:(id) sender
 {
+#if 1
+	unsigned int anchor;
+	if(_anchor == NSNotFound) _anchor=_selectedRange.location;	// initialize anchor
+	anchor=_anchor;	// save
+	[self moveDown:nil];
+	_anchor=anchor;
+#else
 	int saved;
 	if(_tx.moveUpDownEnd == 0)
-			{
-				modifySelection[0]=_selectedRange.location;
-				modifySelection[1]=NSMaxRange(_selectedRange);
-				_tx.moveUpDownEnd=2;	// modify bottom end
-			}
+		{
+		modifySelection[0]=_selectedRange.location;
+		modifySelection[1]=NSMaxRange(_selectedRange);
+		_tx.moveUpDownEnd=2;	// modify bottom end
+		}
 	if(modifySelection[_tx.moveUpDownEnd-1] < [textStorage length])
 		(modifySelection[_tx.moveUpDownEnd-1])++;	// should move one line down!
 	saved=_tx.moveUpDownEnd;
 	[self setSelectedRange:NSUnionRange(NSMakeRange(modifySelection[0], 0), NSMakeRange(modifySelection[1], 0))];	// sets _tx.moveUpDownEnd=0;
 	_tx.moveUpDownEnd=saved;
+#endif
 }
 
 - (void) moveUpAndModifySelection:(id) sender
 {
+#if 1
+	unsigned int anchor;
+	if(_anchor == NSNotFound) _anchor=NSMaxRange(_selectedRange);	// initialize anchor
+	anchor=_anchor;	// save
+	[self moveUp:nil];
+	// set selected range from anchor and range
+	_anchor=anchor;
+#else
 	int saved;
 	if(_tx.moveUpDownEnd == 0)
-			{
-				modifySelection[0]=_selectedRange.location;
-				modifySelection[1]=NSMaxRange(_selectedRange);
-				_tx.moveUpDownEnd=1;	// modify top end
-			}
+		{
+		modifySelection[0]=_selectedRange.location;
+		modifySelection[1]=NSMaxRange(_selectedRange);
+		_tx.moveUpDownEnd=1;	// modify top end
+		}
 	if(modifySelection[_tx.moveUpDownEnd-1] > 0)
 		(modifySelection[_tx.moveUpDownEnd-1])--;	// should move one line up
 	saved=_tx.moveUpDownEnd;
 	[self setSelectedRange:NSUnionRange(NSMakeRange(modifySelection[0], 0), NSMakeRange(modifySelection[1], 0))];	// sets _tx.moveLeftRightEnd=0;
 	_tx.moveUpDownEnd=saved;
+#endif
 }
 
 - (BOOL) acceptsFirstResponder					{ return _tx.selectable; }

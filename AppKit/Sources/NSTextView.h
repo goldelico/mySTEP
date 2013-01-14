@@ -343,7 +343,7 @@ typedef NSUInteger NSFindPanelSubstringMatchType;
 - (BOOL) textView:(NSTextView *) textView 
 		 shouldChangeTextInRanges:(NSArray *) affectedCharRange 
 		 replacementStrings:(NSArray *) replacementString;
-- (BOOL) textView:(NSTextView *) textView 
+- (NSDictionary *) textView:(NSTextView *) textView 
 		 shouldChangeTypingAttributes:(NSDictionary *) oldAttribs 
 		 toAttributes:(NSDictionary *) newAttribs;
 - (NSInteger) textView:(NSTextView *) textView 
