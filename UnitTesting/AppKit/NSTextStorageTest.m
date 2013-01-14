@@ -73,13 +73,25 @@
 
 @end
 
+#define REFCNT	1
+
 @implementation NSTextStorageTest
 
 - (void) test1;
 {
 	NSTextStorage *store=[[NSTextStorage alloc] initWithString:@"The files couldn't be saved"];
+#if REFCNT
+	STAssertEquals([store retainCount], 1u, nil);
+#endif
 	SomeLayoutManager *lm=[[[SomeLayoutManager alloc] init] autorelease];
+#if REFCNT
+	STAssertEquals([lm retainCount], 1u, nil);
+#endif
 	[store addLayoutManager:(NSLayoutManager *) lm];	// pretend to be a NSLayoutManager
+#if REFCNT
+	STAssertEquals([store retainCount], 1u, nil);
+#endif
+	
 	STAssertTrue([lm didsetTextStorage], nil);
 	STAssertEqualObjects([lm storage], store, nil);
 	STAssertEqualObjects([store string], @"The files couldn't be saved", nil);
@@ -118,6 +130,14 @@
 	STAssertEquals([lm delta], 0, nil);
 	STAssertEquals([lm invalidated], NSMakeRange(5, 10), nil);
 	
+	[store addAttribute:NSFontAttributeName value:[NSFont systemFontOfSize:0.0] range:NSMakeRange(0, 4)];
+	STAssertEqualObjects([store string], @"Several documents have been saved", nil);
+	STAssertTrue([lm didtextStorageEdited], nil);
+	STAssertEquals([lm editedMask], 1u, nil);
+	STAssertEquals([lm range], NSMakeRange(0, 4), nil);
+	STAssertEquals([lm delta], 0, nil);
+	STAssertEquals([lm invalidated], NSMakeRange(0, 4), nil);
+
 	[store replaceCharactersInRange:NSMakeRange(11, 5) withString:@""];
 	STAssertEqualObjects([store string], @"Several docs have been saved", nil);
 	STAssertTrue([lm didtextStorageEdited], nil);
@@ -126,20 +146,45 @@
 	STAssertEquals([lm delta], -5, nil);
 	STAssertEquals([lm invalidated], NSMakeRange(11, 0), nil);
 	
+	// test if we can change the string through the mutableString proxy
+	
+#if REFCNT
+	STAssertEquals([store retainCount], 1u, nil);
+#endif
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];	// mutableString proxy does a retain+autorelease on the store
 	STAssertEquals([store length], 28u, nil);
-	[[store mutableString] setString:@"something else"];	// call through the mutableString proxy
+#if REFCNT
+	STAssertEquals([store retainCount], 1u, nil);
+#endif
+	NSMutableString *str=[store mutableString];
+#if REFCNT
+	STAssertEquals([str retainCount], 1u, nil);
+#endif
+	[str setString:@"something else"];	// call through the mutableString proxy
 	STAssertEqualObjects([store string], @"something else", nil);
 	STAssertTrue([lm didtextStorageEdited], nil);
 	STAssertEquals([lm editedMask], 2u, nil);
 	STAssertEquals([lm range], NSMakeRange(0, 14), nil);
 	STAssertEquals([lm delta], -14, nil);
 	STAssertEquals([lm invalidated], NSMakeRange(0, 14), nil);
+#if REFCNT
+	STAssertEquals([lm retainCount], 2u, nil);
+	STAssertEquals([store retainCount], 2u, nil);
+#endif
 	[arp release];
 	
+#if REFCNT
+	STAssertEquals([store retainCount], 1u, nil);
+#endif
 	[store release];
 	STAssertTrue([lm didsetTextStorage], nil);	// this would fail without the ARP
+	STAssertNil([lm storage], nil);	// has no text storage (we could check how a LM behaves... throws exceptions or ignores everything?)
 	// check values
 }
+
+// more tests:
+// we should test setting individual attributes
+// and what happens if we embrace changes by -beginEditing and -endEditing to test how adding/deleting is coalesced
+// we should test fixing attributes
 
 @end

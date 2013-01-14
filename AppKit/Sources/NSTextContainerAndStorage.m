@@ -218,14 +218,19 @@
 
 - (void) dealloc;
 {
+	NSEnumerator *e;
+	NSLayoutManager *lm;
 #if 0
 	NSLog(@"dealloc NSTextStorage %p: %@", self, self);
 #endif
 	[self setDelegate:nil];
+	e=[_layoutManagers objectEnumerator];
+	while((lm=[e nextObject]))
+		[lm setTextStorage:nil];	// disconnect
+	[_layoutManagers release];
 #if __APPLE__
 	[_concreteString release];
 #endif
-	[_layoutManagers release];
 	[super dealloc];
 }
 
@@ -384,8 +389,6 @@
 	return self;
 }
 
-#if __APPLE__
-
 // reimplement NSMutableAttributedString methods as wrappers for concreteString since we are a semiconcrete subclass of Apple's foundation
 
 - (void) addAttribute:(NSString *) name value:(id) value range:(NSRange)aRange
@@ -398,6 +401,7 @@
 	[self edited:NSTextStorageEditedAttributes range:aRange changeInLength:0];
 }
 
+#if __APPLE__	// on mySTEP we can use the inherited implementation
 - (NSDictionary *) attributesAtIndex:(unsigned) index effectiveRange:(NSRangePointer) range
 {
 	NSDictionary *d;
@@ -431,12 +435,14 @@
 }
 #endif
 
+#if __APPLE__
 - (NSMutableString *) mutableString;
 {
 	// CHECKME: is this a copy or the original??? And, Attributes are moved front/back if we insert/delete through NSMutableString methods?
 	// we might cache since this is called pretty often
 	return [_concreteString mutableString];
 }
+#endif
 
 - (void) removeAttribute:(NSString *) name range:(NSRange)aRange
 {
@@ -492,11 +498,12 @@
 	[self edited:NSTextStorageEditedAttributes range:aRange changeInLength:0];
 }
 
+#if __APPLE__
 - (NSString *) string;
 {
-	// we might cache since this is called pretty often
 	return [_concreteString string];
 }
+#endif
 
 // CHECKME: do we need to wrap other superclass methods?
 

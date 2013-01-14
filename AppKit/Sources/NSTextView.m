@@ -28,6 +28,8 @@
 #import <AppKit/NSTextStorage.h>
 #import <AppKit/NSCursor.h>
 
+#import "NSAppKitPrivate.h"
+
 #define NOTE(notice_name) NSText##notice_name##Notification
 
 @interface NSTextViewSharedData : NSObject <NSCoding>	// this is an internal class but we must be able to decode it from a TextView
@@ -79,7 +81,7 @@ static NSCursor *__textCursor = nil;
 	return self;
 }
 
-// This variant will create the text network  
+// This variant will create the complete text network for the text view
 // (textStorage, layoutManager, and a container).
 
 - (id) initWithFrame:(NSRect)frameRect
@@ -89,26 +91,25 @@ static NSCursor *__textCursor = nil;
 	textStorage=[lm textStorage];				
 	if((self=[super initWithFrame:frameRect]))	// the original values may be lost if we receive a proxy here
 		{ // create simple text network
+			insertionPointColor=[[NSColor blackColor] retain];
+			defaultParagraphStyle=[[NSParagraphStyle defaultParagraphStyle] retain];
 			if(tc)
 				{ // don't create the default if called from initWithCoder
-					textContainer=tc;
 					layoutManager=lm;
 					textStorage=[layoutManager textStorage];	// non-owned textStorage				
-					[textContainer setTextView:self];	// this tries to track container size...
 				}
 			else
 				{ // create a default container
 					layoutManager=[NSLayoutManager new];
-					textContainer=[[NSTextContainer alloc] initWithContainerSize:NSMakeSize(frameRect.size.width, 1e+07)];
-					[textContainer setHeightTracksTextView:NO];
-					[layoutManager addTextContainer:textContainer];
-					[textContainer release];	// LayoutManager retains TextContainer
+					tc=[[NSTextContainer alloc] initWithContainerSize:NSMakeSize(frameRect.size.width, 1e+07)];
+					[tc setWidthTracksTextView:YES];	// default is NO
+					[layoutManager addTextContainer:tc];
+					[tc release];	// LayoutManager retains TextContainer
 					[textStorage addLayoutManager:layoutManager];
 					[layoutManager release];	// LayoutManager retains LayoutManager (and self retains textStorage)
-					NSAssert(textContainer && layoutManager && textStorage, @"needs text system");
 				}
-			insertionPointColor=[[NSColor blackColor] retain];
-			defaultParagraphStyle=[[NSParagraphStyle defaultParagraphStyle] retain];
+			[tc setTextView:self];	// this tries to track container size and will call our setTextContainer
+			NSAssert(textContainer && layoutManager && textStorage, @"needs text system");
 			[self _updateTypingAttributes];
 		}
 	return self;
@@ -1044,6 +1045,9 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	else
 		{
 		float cx=_stableCursorColumn;	// save for cursor stability
+		// [layoutManager lineFragmentRectForGlyph: effectiveRange
+		// go one back from effective range and get lfr again (if possible)
+		// take NSMidY(lfr)
 		NSPoint p=NSMakePoint(cx, NSMinY([self _caretRect])-1.0);	// get new cursor position
 		// FIXME: this method expects SCREEN coordinates!
 		unsigned int pos=[self characterIndexForPoint:p];		// will go to start of document of p.y is negative
@@ -1060,6 +1064,9 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	else
 		{
 		float cx=_stableCursorColumn;	// save for cursor stability
+		// [layoutManager lineFragmentRectForGlyph: effectiveRange
+		// go to glyph after effective range and get lfr again (if possible)
+		// take NSMidY(lfr)
 		NSPoint p=NSMakePoint(cx, NSMaxY([self _caretRect])+1.0);	// get new cursor position
 		// FIXME: this method expects SCREEN coordinates!
 		unsigned int pos=[self characterIndexForPoint:p];		// will go to end of document if p.y is beyond end of document
