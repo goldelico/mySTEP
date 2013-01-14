@@ -87,29 +87,54 @@
 	[store replaceCharactersInRange:NSMakeRange(0, 3) withString:@"Several"];	// example from documentation
 	STAssertTrue([[store string] isEqual:@"Several files couldn't be saved"], nil);
 	STAssertEqualObjects([store string], @"Several files couldn't be saved", nil);
+	
 	STAssertTrue([lm didtextStorageEdited], nil);
-	// check values
+	STAssertEquals([lm editedMask], 2u, nil);
+	STAssertEquals([lm range], NSMakeRange(0, 7), nil);
+	STAssertEquals([lm delta], 4, nil);
+	STAssertEquals([lm invalidated], NSMakeRange(0, 7), nil);
 
 	[store replaceCharactersInRange:NSMakeRange(8, 5) withString:@"documents"];
 	STAssertEqualObjects([store string], @"Several documents couldn't be saved", nil);
 	STAssertTrue([lm didtextStorageEdited], nil);
-	// check values
-
+	STAssertEquals([lm editedMask], 2u, nil);
+	STAssertEquals([lm range], NSMakeRange(8, 9), nil);
+	STAssertEquals([lm delta], 4, nil);
+	STAssertEquals([lm invalidated], NSMakeRange(8, 9), nil);
+	
 	[store replaceCharactersInRange:NSMakeRange(18, 11) withString:@"have been"];
 	STAssertEqualObjects([store string], @"Several documents have been saved", nil);
 	STAssertTrue([lm didtextStorageEdited], nil);
-	// check values
+	STAssertEquals([lm editedMask], 2u, nil);
+	STAssertEquals([lm range], NSMakeRange(18, 9), nil);
+	STAssertEquals([lm delta], -2, nil);
+	STAssertEquals([lm invalidated], NSMakeRange(18, 9), nil);
 	
 	[store setAttributes:[NSDictionary dictionary] range:NSMakeRange(5, 10)];
 	STAssertEqualObjects([store string], @"Several documents have been saved", nil);
 	STAssertTrue([lm didtextStorageEdited], nil);
-	// check values
+	STAssertEquals([lm editedMask], 1u, nil);
+	STAssertEquals([lm range], NSMakeRange(5, 10), nil);
+	STAssertEquals([lm delta], 0, nil);
+	STAssertEquals([lm invalidated], NSMakeRange(5, 10), nil);
+	
+	[store replaceCharactersInRange:NSMakeRange(11, 5) withString:@""];
+	STAssertEqualObjects([store string], @"Several docs have been saved", nil);
+	STAssertTrue([lm didtextStorageEdited], nil);
+	STAssertEquals([lm editedMask], 2u, nil);
+	STAssertEquals([lm range], NSMakeRange(11, 0), nil);
+	STAssertEquals([lm delta], -5, nil);
+	STAssertEquals([lm invalidated], NSMakeRange(11, 0), nil);
 	
 	NSAutoreleasePool *arp=[NSAutoreleasePool new];	// mutableString proxy does a retain+autorelease on the store
+	STAssertEquals([store length], 28u, nil);
 	[[store mutableString] setString:@"something else"];	// call through the mutableString proxy
 	STAssertEqualObjects([store string], @"something else", nil);
 	STAssertTrue([lm didtextStorageEdited], nil);
-	// check values
+	STAssertEquals([lm editedMask], 2u, nil);
+	STAssertEquals([lm range], NSMakeRange(0, 14), nil);
+	STAssertEquals([lm delta], -14, nil);
+	STAssertEquals([lm invalidated], NSMakeRange(0, 14), nil);
 	[arp release];
 	
 	[store release];

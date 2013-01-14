@@ -1718,11 +1718,23 @@ static void allocateExtra(struct NSGlyphStorage *g)
 #endif
 			[self invalidateGlyphsForCharacterRange:invalidatedCharRange changeInLength:delta actualCharacterRange:&aRange];
 			[self invalidateLayoutForCharacterRange:aRange actualCharacterRange:NULL];
-			if(aRange.location <= selRange.location)
-				selRange.location+=delta;	// inserting before selection
-			else if(aRange.location <= NSMaxRange(selRange))
-				selRange.length+=delta;		// inserting within selection
-			[tv setSelectedRange:selRange];	// set new selection range
+			// FIXME: is this done here in NSLayoutManager
+			// or does the NSTextView observe the NSTextStorageDidProcessEditingNotification?
+			if(delta > 0)
+				{
+				if(newCharRange.location <= selRange.location)
+					selRange.location+=delta;	// inserting before or at selection does move it to the end of the inserted range
+				else if(newCharRange.location <= NSMaxRange(selRange))
+					newCharRange.length+=delta;		// inserting/deleting within selection
+				}
+			if(delta < 0)
+				{
+				if(newCharRange.location < selRange.location)
+					selRange.location+=delta;	// deleting before selection does move it towards beginning of text
+				else if(newCharRange.location < NSMaxRange(selRange))
+					selRange.length+=delta;		// deleting within selection
+				}
+			[tv setSelectedRange:selRange];	// adjust selection range
 		}
 	else if(editedMask&NSTextStorageEditedAttributes)
 		{ // no need to change glyphs

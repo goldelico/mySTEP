@@ -258,7 +258,8 @@ NSString *NSTextMovement=@"NSTextMovement";
 	// range should be full document if we are not richt text
 	NSRange rng=_selectedRange;
 	NSMutableParagraphStyle *p=[textStorage attribute:NSParagraphStyleAttributeName atIndex:rng.location effectiveRange:NULL];
-	if(!p) p=[[[self defaultParagraphStyle] mutableCopy] autorelease];
+	if(!p) p=(NSMutableParagraphStyle *) [self defaultParagraphStyle];
+	if(![p isKindOfClass:[NSMutableParagraphStyle class]]) p=[[p mutableCopy] autorelease];	// make mutable
 	[p setAlignment:mode];
 	[textStorage addAttribute:NSParagraphStyleAttributeName value:p range:rng];
 	_tx.alignment = mode; 
@@ -273,7 +274,8 @@ NSString *NSTextMovement=@"NSTextMovement";
 	// range should be full document if we are not richt text
 	NSRange rng=_selectedRange;
 	NSMutableParagraphStyle *p=[textStorage attribute:NSParagraphStyleAttributeName atIndex:rng.location effectiveRange:NULL];
-	if(!p) p=[[[self defaultParagraphStyle] mutableCopy] autorelease];
+	if(!p) p=(NSMutableParagraphStyle *) [self defaultParagraphStyle];
+	if(![p isKindOfClass:[NSMutableParagraphStyle class]]) p=[[p mutableCopy] autorelease];	// make mutable
 	[p setBaseWritingDirection:direct];
 	[textStorage addAttribute:NSParagraphStyleAttributeName value:p range:rng];
 	_baseWritingDirection=direct;
@@ -687,7 +689,7 @@ object:self]
 		{
 		if(rng.location == 0)
 			return;	// ignore at beginning of text
-		rng.location--;
+		rng.location--;	// delete the character before the selection
 		rng.length=1;
 		}
 	[self replaceCharactersInRange:rng withString:@""];	// remove

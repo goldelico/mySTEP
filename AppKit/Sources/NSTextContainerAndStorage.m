@@ -247,7 +247,7 @@
 #endif
 	if(!(editedMask&NSTextStorageEditedCharacters))
 		delta=0;	// ignore if we just edited attributes
-	range.length += delta;	// we need the full edited range
+	range.length += delta;	// we need to notify the full edited range
 	if(_nestingCount == 0)
 		{ // first in sequence
 			_editedMask = editedMask;
@@ -388,17 +388,14 @@
 
 // reimplement NSMutableAttributedString methods as wrappers for concreteString since we are a semiconcrete subclass of Apple's foundation
 
-- (NSString *) string;
+- (void) addAttribute:(NSString *) name value:(id) value range:(NSRange)aRange
 {
-	// we might cache since this is called pretty often
-	return [_concreteString string];
-}
-
-- (NSMutableString *) mutableString;
-{
-	// CHECKME: is this a copy or the original??? And, Attributes are moved front/back if we insert/delete through NSMutableString methods?
-	// we might cache since this is called pretty often
-	return [_concreteString mutableString];
+#if __APPLE__
+	[_concreteString addAttribute:name value:value range:aRange];
+#else
+	[super addAttribute:name value:value range:aRange];
+#endif
+	[self edited:NSTextStorageEditedAttributes range:aRange changeInLength:0];
 }
 
 - (NSDictionary *) attributesAtIndex:(unsigned) index effectiveRange:(NSRangePointer) range
@@ -433,6 +430,23 @@
 	return d;
 }
 #endif
+
+- (NSMutableString *) mutableString;
+{
+	// CHECKME: is this a copy or the original??? And, Attributes are moved front/back if we insert/delete through NSMutableString methods?
+	// we might cache since this is called pretty often
+	return [_concreteString mutableString];
+}
+
+- (void) removeAttribute:(NSString *) name range:(NSRange)aRange
+{
+#if __APPLE__
+	[_concreteString removeAttribute:name range:aRange];
+#else
+	[super removeAttribute:name range:aRange];
+#endif
+	[self edited:NSTextStorageEditedAttributes range:aRange changeInLength:0];
+}
 
 - (void) replaceCharactersInRange:(NSRange) rng withAttributedString:(NSAttributedString *) str
 {
@@ -477,6 +491,14 @@
 #endif
 	[self edited:NSTextStorageEditedAttributes range:aRange changeInLength:0];
 }
+
+- (NSString *) string;
+{
+	// we might cache since this is called pretty often
+	return [_concreteString string];
+}
+
+// CHECKME: do we need to wrap other superclass methods?
 
 @end
 
