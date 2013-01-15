@@ -11,7 +11,9 @@
 
 @class CLRegion, CLLocation;
 
-#ifndef __mySTEP__
+#ifdef __APPLE__
+#define NSBlockHandler mySTEP_NSBlockHandler
+
 @interface NSBlockHandler : NSObject;	// mySTEP extension
 - (void) performWithObject:(id) obj withObject:(id) obj;
 @end

@@ -955,6 +955,9 @@ object:self]
 
 - (BOOL) becomeFirstResponder
 {	
+#if 1
+	NSLog(@"becomeFirstResponer: %@", self);
+#endif
 	if(!_tx.selectable) 
 		return NO;	// if not selectable
 	if(_tx.editable)
