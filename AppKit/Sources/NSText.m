@@ -356,40 +356,68 @@ object:self]
 }
 
 - (void) setMaxSize:(NSSize)newMaxSize;
-{
-	_maxSize=newMaxSize;
-	if(_maxSize.width < _minSize.width)
-		_minSize.width=_maxSize.width;
-	if(_maxSize.height < _minSize.height)
-		_minSize.height=_maxSize.height;
+{ // keep minSize smaller than maxSize
+#if 1
+	NSLog(@"newMax=%@", NSStringFromSize(newMaxSize));
+	NSLog(@"  min=%@", NSStringFromSize(_minSize));
+	NSLog(@"  max=%@", NSStringFromSize(_maxSize));
+#endif
+	if(newMaxSize.width < _minSize.width)
+		_minSize=newMaxSize;	// take current _minSize
+	if(newMaxSize.width < _minSize.width)
+		_minSize.width=newMaxSize.width;
+	if(newMaxSize.height < _minSize.height)
+		_maxSize.height=_minSize.height;
+	else
+		_minSize.height=newMaxSize.height;
+#if 1
+	NSLog(@"  min=%@", NSStringFromSize(_minSize));
+	NSLog(@"  max=%@", NSStringFromSize(_maxSize));
+#endif
 }
 
 - (void) setMinSize:(NSSize)newMinSize;
-{
-	_minSize=newMinSize;
-	if(_minSize.width > _maxSize.width)
-		_maxSize.width=_minSize.width;
-	if(_minSize.height > _maxSize.height)
-		_maxSize.height=_minSize.height;
+{ // keep minSize smaller than maxSize
+#if 1
+	NSLog(@"newMin=%@", NSStringFromSize(newMinSize));
+	NSLog(@"  min=%@", NSStringFromSize(_minSize));
+	NSLog(@"  max=%@", NSStringFromSize(_maxSize));
+#endif
+	if(newMinSize.width > _maxSize.width)
+		_maxSize.width=newMinSize.width;	// increase max
+	else
+		_minSize.width=newMinSize.width;	// change
+	if(newMinSize.height > _maxSize.height)
+		_maxSize.height=newMinSize.height;	// increase max
+	else
+		_minSize.height=newMinSize.height;	// change
+#if 1
+	NSLog(@"  min=%@", NSStringFromSize(_minSize));
+	NSLog(@"  max=%@", NSStringFromSize(_maxSize));
+#endif
 }
+
+// this is modelled to fulfill our SenTest - but is it really correct?
 
 - (void) setFrameSize:(NSSize)newSize	// is called from setFrame:
 { // enlarge min/maxSize window to cover this size
 	NSSize size=[self frame].size;
-	if(newSize.width < _minSize.width)
+	NSSize tmpsize;
+	if(newSize.width < _minSize.width)	// adjust min/max size as needed
 		_minSize.width = newSize.width;
-	if(newSize.width > _maxSize.width)
-		_maxSize.width = newSize.width;
 	if(newSize.height < _minSize.height)
 		_minSize.height = newSize.height;
-	if(newSize.width > _maxSize.height)
-		_maxSize.height = newSize.width;
-	// there is NO optimization if the size is not changed, at least these two conditionals are always needed
-	if(_tx.horzResizable)
-		newSize.width=size.width;
-	if(_tx.vertResizable)
-		newSize.height=size.height;
+	if(newSize.width > _maxSize.width)
+		_maxSize.width = newSize.width;
+	if(newSize.height > _maxSize.height)
+		_maxSize.height = newSize.height;
+	tmpsize=newSize;	// both rules can apply independently
+	if(_tx.vertResizable && tmpsize.width != size.width)
+		newSize.height=_minSize.height;	// special clamping rule
+	if(_tx.horzResizable && tmpsize.height != size.height)
+		newSize.width=_minSize.width;	// special clamping rule
 	[super setFrameSize:newSize];
+	[self setBoundsSize:newSize];	// will not be updated automatically if we are enclosed in a NSClipView (custom bounds)
 }
 
 - (void) setRichText:(BOOL)flag
@@ -397,7 +425,7 @@ object:self]
 	if(_tx.isRichText == flag)
 		return;
 	_tx.isRichText=flag;
-	// do other modifications
+	// do other modifications (apply attributes at index 0 to full textStorage)
 }
 
 - (void) setSelectable:(BOOL)flag

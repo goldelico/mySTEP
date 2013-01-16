@@ -228,8 +228,14 @@ static CLHeading *newHeading;
 #if 1
 			NSLog(@"try to contact");
 #endif
-			_server=[[NSConnection rootProxyForConnectionWithRegisteredName:SERVER_ID 
+			NS_DURING
+				_server=[[NSConnection rootProxyForConnectionWithRegisteredName:SERVER_ID 
 																		   host:nil] retain];	// try again
+			NS_HANDLER
+#if 1
+				NSLog(@"Exception: %@", localException);
+#endif
+			NS_ENDHANDLER
 			if(!_server)
 				{ // not available - launch server process
 					NSLog(@"no response from %@", SERVER_ID);

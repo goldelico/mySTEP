@@ -188,22 +188,17 @@ static NSCursor *__textCursor = nil;
 - (void) setConstrainedFrameSize:(NSSize) desiredSize
 { // size to desired size if within limits and resizable
 	NSSize newSize=_frame.size;
-#if 0
+#if 1
 	NSLog(@"setConstrainedFrameSize %@: %@", NSStringFromSize(desiredSize), self);
 #endif
-	if(!_tx.horzResizable)
-		newSize.width=_frame.size.width;	// don't fit to text, i.e. keep frame as it is
-	else
-		newSize.width=MAX(MIN(desiredSize.width, _maxSize.width), _minSize.width);
-	if(!_tx.vertResizable)
-		newSize.height=_frame.size.height;	// don't fit to text, i.e. keep frame as it is
-	else
-		newSize.height=MAX(MIN(desiredSize.height, _maxSize.height), _minSize.height);
-#if 0
+	if(_tx.horzResizable)
+		newSize.width=MAX(_minSize.width, MIN(_maxSize.width, desiredSize.width));	// resize but constrained
+	if(_tx.vertResizable)
+		newSize.height=MAX(_minSize.height, MIN(_maxSize.height, desiredSize.height));	// resize but constrained
+#if 1
 	NSLog(@"newSize=%@", NSStringFromSize(newSize));
 #endif
-	[self setFrameSize:newSize];	// this should adjust the container depending on its tracking flags
-	[self setBoundsSize:newSize];	// will not be updated automatically if we are enclosed in a NSClipView (custom bounds)
+	[self setFrameSize:newSize];	// this should also adjust the container depending on its tracking flags and trigger layout invalidation
 	[self setNeedsDisplay:YES];
 #if 0
 	NSLog(@"container=%@", [self textContainer]);
@@ -213,18 +208,15 @@ static NSCursor *__textCursor = nil;
 - (void) sizeToFit;
 {
 	NSSize size=NSZeroSize;
-#if 0
+#if 1
 	NSLog(@"sizeToFit: %@", self);
 #endif
-	if([textStorage length] > 0)
-		{ // get bounding box assuming given or unlimited size
-			NSRange rng;
-			// FIXME: do we really resize the container??
-			// do we force it to frame.size if not resizable?
-			[textContainer setContainerSize:NSMakeSize((_tx.horzResizable?1e+07:_frame.size.width), (_tx.vertResizable?1e+07:_frame.size.height))];
-			rng=[layoutManager glyphRangeForTextContainer:textContainer];
-			size=[layoutManager boundingRectForGlyphRange:rng inTextContainer:textContainer].size;
-		}
+	NSRange rng;
+	// FIXME: do we really resize the container??
+	// do we force it to frame.size if not resizable?
+	[textContainer setContainerSize:NSMakeSize((_tx.horzResizable?1e+07:_frame.size.width), (_tx.vertResizable?1e+07:_frame.size.height))];
+	rng=[layoutManager glyphRangeForTextContainer:textContainer];
+	size=[layoutManager boundingRectForGlyphRange:rng inTextContainer:textContainer].size;
 	[self setConstrainedFrameSize:size];	// try to adjust
 #if 0
 	if(!NSEqualSizes([textContainer containerSize], size))
