@@ -355,8 +355,41 @@ object:self]
 	_tx.importsGraphics = flag;
 }
 
-- (void) setMaxSize:(NSSize)newMaxSize;		{ _maxSize=newMaxSize; }
-- (void) setMinSize:(NSSize)newMinSize;		{ _minSize=newMinSize; }
+- (void) setMaxSize:(NSSize)newMaxSize;
+{
+	_maxSize=newMaxSize;
+	if(_maxSize.width < _minSize.width)
+		_minSize.width=_maxSize.width;
+	if(_maxSize.height < _minSize.height)
+		_minSize.height=_maxSize.height;
+}
+
+- (void) setMinSize:(NSSize)newMinSize;
+{
+	_minSize=newMinSize;
+	if(_minSize.width > _maxSize.width)
+		_maxSize.width=_minSize.width;
+	if(_minSize.height > _maxSize.height)
+		_maxSize.height=_minSize.height;
+}
+
+- (void) setFrameSize:(NSSize)newSize	// is called from setFrame:
+{ // enlarge min/maxSize window to cover this size
+	NSSize size=[self frame].size;
+	if(newSize.width < _minSize.width)
+		_minSize.width = newSize.width;
+	if(newSize.width > _maxSize.width)
+		_maxSize.width = newSize.width;
+	if(newSize.height < _minSize.height)
+		_minSize.height = newSize.height;
+	if(newSize.width > _maxSize.height)
+		_maxSize.height = newSize.width;
+	if(_tx.horzResizable)
+		newSize.width=size.width;
+	if(_tx.vertResizable)
+		newSize.height=size.height;
+	[super setFrameSize:newSize];
+}
 
 - (void) setRichText:(BOOL)flag
 {	
@@ -425,16 +458,16 @@ object:self]
 - (void) sizeToFit;
 {
 	NSRect rect=(NSRect) { NSZeroPoint, [textStorage size] };	// ask the text storage for the unbound size
-#if 1
+#if 0
 	NSLog(@"sizeToFit %@", self);
 	NSLog(@"  rect=%@", NSStringFromRect(rect));
 	NSLog(@"  min=%@", NSStringFromSize(_minSize));
 	NSLog(@"  max=%@", NSStringFromSize(_maxSize));
 #endif
 	if(!_tx.horzResizable)
-		rect.size.width=_bounds.size.width;	// don't resize horizontally
+		rect.size.width=_frame.size.width;	// don't resize horizontally
 	if(!_tx.vertResizable)
-		rect.size.height=_bounds.size.height;	// don't resize vertically
+		rect.size.height=_frame.size.height;	// don't resize vertically
 	rect=NSUnionRect(rect, (NSRect) { NSZeroPoint, _minSize });
 	rect=NSIntersectionRect(rect, (NSRect) { NSZeroPoint, _maxSize });
 	[self setFrame:rect];	// adjust to be between min and max size
@@ -542,8 +575,8 @@ object:self]
 			_tx.vertResizable = YES;
 			_tx.drawsBackground = YES;
 			_backgroundColor=[[NSColor textBackgroundColor] retain];
-			_minSize = (NSSize){5, 15};
-			_maxSize = (NSSize){HUGE,HUGE};
+			_minSize = f.size;	// as defined by frame
+			_maxSize = (NSSize){_minSize.width, 1e+07};
 			_font=[[NSFont userFontOfSize:12] retain];
 			_selectedRange=NSMakeRange(0,0);	// don't call setSelectedRange here which may have side effects in subclasses
 		}
@@ -1007,7 +1040,7 @@ object:self]
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
-#if 0
+#if 1
 	NSLog(@"[NSText] %@ initWithCoder: %@", self, coder);
 #endif
 	if((self=[super initWithCoder:coder]))	// calls our initWithFrame
@@ -1015,6 +1048,10 @@ object:self]
 		[self setDelegate:[coder decodeObjectForKey:@"NSDelegate"]];
 		_minSize=[coder decodeSizeForKey:@"NSMinize"];	// NB: this is a bug in Apple IB: key should be @"NSMinSize" - beware of changes by Apple
 		_maxSize=[coder decodeSizeForKey:@"NSMaxSize"];
+#if 1
+		NSLog(@"minSize=%@", NSStringFromSize(_minSize));
+		NSLog(@"maxSize=%@", NSStringFromSize(_maxSize));
+#endif
 		}
 	return self;
 }
