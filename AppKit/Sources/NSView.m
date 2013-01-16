@@ -818,7 +818,7 @@ printing
 - (void) setFrame:(NSRect)frameRect
 {
 	NSSize o;
-#if 1
+#if 0
 	NSLog(@"setFrame: %@ %@", NSStringFromRect(frameRect), self);
 #endif
 #if 1
@@ -853,7 +853,7 @@ printing
 
 - (void) setFrameOrigin:(NSPoint)newOrigin
 {
-#if 1
+#if 0
 	NSLog(@"setFrameOrigin: %@ %@", NSStringFromPoint(newOrigin), self);
 #endif
 	if(!NSEqualPoints(_frame.origin, newOrigin))
@@ -868,7 +868,7 @@ printing
 - (void) setFrameSize:(NSSize)newSize
 {
 	NSSize o = _frame.size;
-#if 1
+#if 0
 	NSLog(@"setFrameSize: %@ %@", NSStringFromSize(newSize), self);
 #endif
 	if(!NSEqualSizes(o, newSize))
@@ -2275,12 +2275,12 @@ printing
 	// Note: this is a recursive call!
 	// basically we need a list of NSRect to NSView mapping that is invalidated as soon as any sub(sub)view moves
 	// or we just have a short-term cache that handles the case that hitTest is called for the same point twice (inking!)
-#if 0   // doing this trace might slow processing down so much that a double-click is no longer recognized properly
+#if 1   // doing this trace might slow processing down so much that a double-click is no longer recognized properly
 	NSLog(@"%@ hitTest:%@ frame=%@ super-flipped=%d",
 		  NSStringFromClass([self class]),
 		  NSStringFromPoint(aPoint),
-		  NSStringFromRect(frame),
-		  [super_view isFlipped]);
+		  NSStringFromRect(_frame),
+		  [_superview isFlipped]);
 #endif
 	if(_v.hidden)
 		return nil;	// ignore invisible (sub)views
@@ -2288,7 +2288,7 @@ printing
 		{
 		if(!NSMouseInRect(aPoint, _frame, [_superview isFlipped]))
 			{
-#if 0
+#if 1
 			NSLog(@"  not in rect");
 #endif
 			return nil;		// If not within our frame then immediately return
@@ -2301,14 +2301,14 @@ printing
 			{ // Check our sub_views front to back
 				if((v = [[_subviews objectAtIndex:i] hitTest:aPoint]))
 					{ // hit in subview
-#if 0
+#if 1
 					NSLog(@"  found %d=%@", i, v);
 #endif
 					return v;
 					}
 			}
 		}
-#if 0
+#if 1
 	NSLog(@"  success: %@", self);
 #endif
 	return self;	// mouse is within self

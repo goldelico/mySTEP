@@ -221,6 +221,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 
 - (NSConnection *) _setupRemoteControl;
 {
+#if 1	// disable
+	return nil;
+#endif
 //	NSNotificationCenter *n=[NSNotificationCenter defaultCenter];
 	NSMessagePort *port = [[[NSMessagePort alloc] init] autorelease];	// create new message port
 	NSConnection *connection = [NSConnection connectionWithReceivePort:port sendPort:nil];	// uses same port to send and receive

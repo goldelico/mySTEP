@@ -465,6 +465,30 @@ because this reverses the writing direction within the text container
 #endif
 }
 
+- (NSView *) hitTest:(NSPoint) aPoint // aPoint is in superview's coordinates (or window base coordinates if there is no superview)
+{
+#if 1
+	NSLog(@"%@ hitTest:%@ frame=%@ super-flipped=%d",
+		  NSStringFromClass([self class]),
+		  NSStringFromPoint(aPoint),
+		  NSStringFromRect(_frame),
+		  [_superview isFlipped]);
+#endif
+	if(_v.hidden)
+		return nil;	// ignore invisible (sub)views
+	if(_superview)
+		{
+		if(!NSMouseInRect(aPoint, _frame, [_superview isFlipped]))
+			{
+#if 1
+			NSLog(@"  not in rect");
+#endif
+			return nil;		// If not within our frame then immediately return
+			}
+		}
+	return [_documentView hitTest:aPoint];	// ask document view or it't subviews
+}
+
 - (void) encodeWithCoder:(id)aCoder						// NSCoding protocol
 {
 	[super encodeWithCoder:aCoder];

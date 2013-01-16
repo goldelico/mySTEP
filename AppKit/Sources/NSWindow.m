@@ -2491,7 +2491,7 @@ object:self]
 				}
 			hit = [_themeFrame hitTest:[event locationInWindow]];	// this assumes that we have already called shouldBeTreatedAsInkEvent!
 			NSDebugLog([hit description]);
-#if 0
+#if 1
 			NSLog(@"NSLeftMouseDown: %@", event);
 			NSLog(@"  locationInWindow=%@", NSStringFromPoint([event locationInWindow]));
 			NSLog(@"  _themeFrame=%@", _themeFrame);
