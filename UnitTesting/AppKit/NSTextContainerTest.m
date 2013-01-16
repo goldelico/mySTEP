@@ -30,10 +30,10 @@ static BOOL didCalltextContainerChangedGeometry;
 
 @implementation NSTextContainerTest
 
-- (void) testTextContainer;
+- (void) test01;
 {
 	NSTextContainer *c = [[NSTextContainer alloc] initWithContainerSize:NSMakeSize(20.0, 30.0)];
-	NSRect lfr, propRect, remRect, r;
+	NSRect lfr, propRect, remRect;
 	NSLayoutManager *lm=[[MyLayoutManager alloc] init];
 
 	// default settings
@@ -67,74 +67,83 @@ static BOOL didCalltextContainerChangedGeometry;
 	STAssertEqualObjects(textContainerChangedGeometryArg, c, nil);
 	[c setContainerSize:NSMakeSize(20.0, 30.0)];	// restore
 
-	propRect=NSMakeRect(0.0, 0.0, 40.0, 20.0);	// wider and less tall than full container
+	// wider but less tall than full container
+	propRect=NSMakeRect(0.0, 0.0, 40.0, 20.0);
 	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
-	r=NSMakeRect(0.0, 0.0, 20.0, 20.0);
-	STAssertEquals(lfr, r, nil);
-	r=NSMakeRect(0.0, 0.0, 0.0, 0.0);
-	STAssertEquals(remRect, r, nil);
+	STAssertEquals(lfr, NSMakeRect(0.0, 0.0, 20.0, 20.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
 	
+	// opposite sweep
+	propRect=NSMakeRect(0.0, 0.0, 40.0, 20.0);
+	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepLeft movementDirection:NSLineMovesDown remainingRect:&remRect];
+	STAssertEquals(lfr, NSMakeRect(0.0, 0.0, 20.0, 20.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
+
 	// same with smaller propRect
-	propRect=NSMakeRect(0.0, 0.0, 10.0, 50.0);	// less wide and taller than full container
+	propRect=NSMakeRect(0.0, 0.0, 10.0, 50.0);
 	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
-	r=NSMakeRect(0.0, 0.0, 0.0, 0.0);
-	STAssertEquals(lfr, r, nil);
-	r=NSMakeRect(0.0, 0.0, 0.0, 0.0);
-	STAssertEquals(remRect, r, nil);
+	STAssertEquals(lfr, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
 	
-	// same with propRect larger than container
-	propRect=NSMakeRect(-10.0, -20.0, 80.0, 100.0);	// totally larger than container
+	// same request larger than container
+	propRect=NSMakeRect(-10.0, -20.0, 80.0, 100.0);
 	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
-	r=NSMakeRect(0.0, 0.0, 0.0, 0.0);
-	STAssertEquals(lfr, r, nil);
-	r=NSMakeRect(0.0, 0.0, 0.0, 0.0);
-	STAssertEquals(remRect, r, nil);
+	STAssertEquals(lfr, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
 	
-	// totally smaller than container
-	propRect=NSMakeRect(5.0, 5.0, 10.0, 10.0);	// totally larger than container
+	// fully fits into container
+	propRect=NSMakeRect(5.0, 5.0, 10.0, 10.0);
 	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
-	r=NSMakeRect(5.0, 5.0, 10.0, 10.0);
-	STAssertEquals(lfr, r, nil);
-	r=NSMakeRect(0.0, 0.0, 0.0, 0.0);
-	STAssertEquals(remRect, r, nil);
+	STAssertEquals(lfr, NSMakeRect(5.0, 5.0, 10.0, 10.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
 	
 	// same as container
-	propRect=NSMakeRect(0.0, 0.0, 80.0, 25.0);	// totally larger than container
+	propRect=NSMakeRect(0.0, 0.0, 80.0, 25.0);
 	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
-	r=NSMakeRect(0.0, 0.0, 20.0, 25.0);
-	STAssertEquals(lfr, r, nil);
-	r=NSMakeRect(0.0, 0.0, 0.0, 0.0);
-	STAssertEquals(remRect, r, nil);
+	STAssertEquals(lfr, NSMakeRect(0.0, 0.0, 20.0, 25.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
 
-	// Result so far: propRect can be wider but not taller
-
+	// request wider than container
 	propRect=NSMakeRect(10.0, 0.0, 80.0, 25.0);
 	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
-	r=NSMakeRect(10.0, 0.0, 10.0, 25.0);
-	STAssertEquals(lfr, r, nil);
-	r=NSMakeRect(0.0, 0.0, 0.0, 0.0);
-	STAssertEquals(remRect, r, nil);
-		
+	STAssertEquals(lfr, NSMakeRect(10.0, 0.0, 10.0, 25.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
+	
+	// starting at right end of container
 	propRect=NSMakeRect(20.0, 0.0, 80.0, 25.0);
 	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
-	r=NSMakeRect(20.0, 0.0, 0.0, 25.0);
-	STAssertEquals(lfr, r, nil);
-	r=NSMakeRect(0.0, 0.0, 0.0, 0.0);
-	STAssertEquals(remRect, r, nil);
+	STAssertEquals(lfr, NSMakeRect(20.0, 0.0, 0.0, 25.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
 	
+	// starting beyond container width
 	propRect=NSMakeRect(30.0, 0.0, 80.0, 25.0);
 	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
-	r=NSMakeRect(30.0, 0.0, 0.0, 25.0);
-	STAssertEquals(lfr, r, nil);
-	r=NSMakeRect(0.0, 0.0, 0.0, 0.0);
-	STAssertEquals(remRect, r, nil);
-	
+	STAssertEquals(lfr, NSMakeRect(30.0, 0.0, 0.0, 25.0), nil);	// width is clamped not to be negative
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
+
+	// starting before container
 	propRect=NSMakeRect(-30.0, 0.0, 80.0, 25.0);
 	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
-	r=NSMakeRect(0.0, 0.0, 20.0, 25.0);
-	STAssertEquals(lfr, r, nil);
-	r=NSMakeRect(0.0, 0.0, 0.0, 0.0);
-	STAssertEquals(remRect, r, nil);
+	STAssertEquals(lfr, NSMakeRect(0.0, 0.0, 20.0, 25.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
+
+	// starting before container but ending within
+	propRect=NSMakeRect(-30.0, 0.0, 35.0, 25.0);
+	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
+	STAssertEquals(lfr, NSMakeRect(0.0, 0.0, 5.0, 25.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
+	
+	// working with negative width
+	propRect=NSMakeRect(30.0, 0.0, -35.0, 25.0);
+	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
+	STAssertEquals(lfr, NSMakeRect(30.0, 0.0, 0.0, 25.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
+
+	// working with negative height
+	propRect=NSMakeRect(30.0, 30.0, -35.0, -25.0);
+	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
+	STAssertEquals(lfr, NSMakeRect(30.0, 30.0, 0.0, -25.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
 	
 	// line padding != 0
 	[c setLineFragmentPadding:5.0];
@@ -142,12 +151,21 @@ static BOOL didCalltextContainerChangedGeometry;
 
 	propRect=NSMakeRect(0.0, 0.0, 40.0, 20.0);	// wider and less tall than full container
 	lfr=[c lineFragmentRectForProposedRect:propRect sweepDirection:NSLineSweepRight movementDirection:NSLineMovesDown remainingRect:&remRect];
-	r=NSMakeRect(0.0, 0.0, 20.0, 20.0);
-	STAssertEquals(lfr, r, nil);
-	r=NSMakeRect(0.0, 0.0, 0.0, 0.0);
-	STAssertEquals(remRect, r, nil);
+	STAssertEquals(lfr, NSMakeRect(0.0, 0.0, 20.0, 20.0), nil);
+	STAssertEquals(remRect, NSMakeRect(0.0, 0.0, 0.0, 0.0), nil);
 		
 	[c release];
 }
+
+- (void) test99
+{ // test extreme values
+	NSTextContainer *c = [[NSTextContainer alloc] initWithContainerSize:NSMakeSize(20.0, 30.0)];
+	[c setContainerSize:NSMakeSize(-20.0, -30.0)];
+	STAssertEquals([c containerSize], NSMakeSize(-20.0, -30.0), nil);
+	
+}
+
+// more tests:
+// better cover the influence of the NSLineSweepDirection
 
 @end

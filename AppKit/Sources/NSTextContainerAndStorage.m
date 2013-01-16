@@ -44,7 +44,7 @@
 
 - (NSString *) description;
 {
-	return [NSString stringWithFormat:@"%@: size %@", NSStringFromClass(isa), NSStringFromSize(size)];
+	return [NSString stringWithFormat:@"%@: size %@ padding=%g%@%@", NSStringFromClass(isa), NSStringFromSize(size), lineFragmentPadding, heightTracksTextView?@" height-tracks":@"", widthTracksTextView?@" width-tracks":@""];
 }
 
 - (void) _track:(NSNotification *) n;
@@ -52,10 +52,19 @@
 	NSRect frame=[textView frame];
 	NSSize inset=[textView textContainerInset];
 	NSSize newSize=size;
+#if 0
+	NSLog(@"_track: %@", n);
+	NSLog(@"  frame=%@", NSStringFromRect(frame));
+	NSLog(@"  inset=%@", NSStringFromSize(inset));
+	NSLog(@"  size=%@", NSStringFromSize(size));
+#endif
 	if(widthTracksTextView)
 		newSize.width=frame.size.width-2.0*inset.width;
 	if(heightTracksTextView)
 		newSize.height=frame.size.height-2.0*inset.height;
+#if 0
+	NSLog(@"  new=%@", NSStringFromSize(newSize));
+#endif
 	[self setContainerSize:newSize];
 }
 
@@ -68,12 +77,26 @@
 						 movementDirection:(NSLineMovementDirection) movementDirection
 							 remainingRect:(NSRect *) remainingRect;
 { // standard container - limit proposed rect to width and height of container
-	NSRect crect={ NSZeroPoint, size };	// container rectangle
-	NSRect lfr=NSIntersectionRect(proposedRect, crect);	// limit by container - may be zero if no space available
-	if(NSHeight(lfr) < NSHeight(proposedRect))
-		lfr=NSZeroRect;	// does not fit for given height
+	NSRect lfr=proposedRect;	// limit by container - may be empty if no space available
+	// what is the influence of the movement direction?
+	if(NSMinX(lfr) < 0.0)
+		{ // trim left edge to container start
+		lfr.size.width+=lfr.origin.x;
+		lfr.origin.x=0.0;
+		}
+	if(NSMinX(lfr) > size.width)
+		lfr.size.width=0.0;	// starts beyond container width
+	else if(NSMaxX(lfr) > size.width)
+		lfr.size.width=size.width-lfr.origin.x;	// trim right edge to container width
+	if(lfr.origin.y < 0.0)
+		{ // trim top edge to container start
+			lfr.size.height+=lfr.origin.y;
+			lfr.origin.y=0.0;
+		}
+	if(NSMaxY(lfr) > size.height)
+		return NSZeroRect;	// does not fit
 	if(remainingRect)
-		*remainingRect=NSZeroRect;	// there is no remaining rect
+		*remainingRect=NSZeroRect;	// there is no remaining rect for a simple rectangular container
 	return lfr;
 }
 
@@ -145,12 +168,14 @@
 
 - (void) encodeWithCoder:(NSCoder *) coder;
 {
+	// encode NSWidth, NSHeight, padding only if not default value
 	NIMP;
 }
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
 	int tcFlags=[coder decodeInt32ForKey:@"NSTCFlags"];
+	self=[self init];	// default initialization
 #if 0
 	NSLog(@"%@ initWithCoder: %@", self, coder);
 #endif
@@ -158,8 +183,10 @@
 	widthTracksTextView=WIDTHTRACKS;
 #define HEIGHTTRACKS ((tcFlags&0x02)!=0)
 	heightTracksTextView=HEIGHTTRACKS;
-	size.height=[coder decodeFloatForKey:@"NSHeight"];
-	size.width=[coder decodeFloatForKey:@"NSWidth"];
+	if([coder containsValueForKey:@"NSWidth"])
+		size.width=[coder decodeFloatForKey:@"NSWidth"];
+	if([coder containsValueForKey:@"NSHeight"])
+		size.height=[coder decodeFloatForKey:@"NSHeight"];
 	layoutManager=[coder decodeObjectForKey:@"NSLayoutManager"];
 	[self setTextView:[coder decodeObjectForKey:@"NSTextView"]];
 #if 0
