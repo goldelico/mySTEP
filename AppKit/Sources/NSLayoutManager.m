@@ -1677,18 +1677,27 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (NSTextContainer *) textContainerForGlyphAtIndex:(unsigned) glyphIndex effectiveRange:(NSRangePointer) effectiveGlyphRange withoutAdditionalLayout:(BOOL) flag
 {
+	NSTextContainer *tc;
+	NSUInteger idx;
 	if(!flag)
 		[self ensureLayoutForGlyphRange:NSMakeRange(0, glyphIndex+1)]; // ensure layout up to and including this index
 	if(glyphIndex >= _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph index: %u", glyphIndex];
 	// FIXME: we could do a binary search the best matching text container's glyph range...
 	// and get rid of the _glyphs[].textContainer variable (which needs some bytes per glyph)
+	tc=_glyphs[glyphIndex].textContainer;
+	idx=[_textContainers indexOfObjectIdenticalTo:tc];
 	if(effectiveGlyphRange)
 		{ // get glyph range of text container
-			NSUInteger idx=[_textContainers indexOfObjectIdenticalTo:_glyphs[glyphIndex].textContainer];
 			*effectiveGlyphRange=_textContainerInfo[idx].glyphRange;
 		}
-	return _glyphs[glyphIndex].textContainer;
+	if(!flag)
+		{
+		// FIXME: appears to call setFrameSize on the textView by calling _resizeTextViewForTextContainer:
+		// I think we try to resize to the usedRect
+		// i.e. [textContainer textView] setFrameSize:_textContainerInfo[idx].usedRect + view offset];
+		}
+	return tc;
 }
 
 - (NSArray *) textContainers; { return _textContainers; }

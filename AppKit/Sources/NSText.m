@@ -384,6 +384,7 @@ object:self]
 		_minSize.height = newSize.height;
 	if(newSize.width > _maxSize.height)
 		_maxSize.height = newSize.width;
+	// there is NO optimization if the size is not changed, at least these two conditionals are always needed
 	if(_tx.horzResizable)
 		newSize.width=size.width;
 	if(_tx.vertResizable)

@@ -839,13 +839,12 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 			_tx.ownsTextStorage=YES;			// that we now own
 			NSAssert(textContainer && layoutManager && textStorage, @"needs text system");
 #if 1
+			NSLog(@"textStorage=%@", textStorage);
 			NSLog(@"NSTVFlags=%08x", tvFlags);
+#endif
+			// FIXME:
 			_tx.horzResizable=NO;
 			_tx.vertResizable=YES;
-			NSLog(@"textStorage=%@", textStorage);
-			if([[textStorage string] hasPrefix:@"This"])
-				NSLog(@"This");
-#endif
 			shared=[coder decodeObjectForKey:@"NSSharedData"];
 			if(shared)
 				{
@@ -1108,14 +1107,44 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 {
 	unsigned cnt;
 	NSRectArray	r;
+	// FIXME: we must return the rect of the first line unless length is 0
 	range.length=0;	// this should avoid calculting *all* rects
+	/*
+	 * so we might need a private entry point where we can specify a maximum
+	 * for the rectCount we are interested in to save some calculations we throw away
+	 * and a way to return the actual range of the first rect
+	 * alternatively we simly ask for the usedRect at the given glyph and adjust for the first glyph horizontal offset
+	 */
 	r=[layoutManager rectArrayForGlyphRange:range withinSelectedGlyphRange:range inTextContainer:textContainer rectCount:&cnt];
 	if(actual)
 		{
-		
+		// how can we derive that?
 		}
 	NSAssert(cnt > 0, @"zero count");
 	return r[0];	// first
+#if 0
+	NSRect lfur;
+	NSRange act;
+	NSPoint pos;
+	if(range.length == 0 && range.location == [textStorage length])
+		{ // wants to know about last position
+		if([layoutManager extraLineFragmentTextContainer])
+			lfur=[layoutManager extraLineFragmentUsedRect];
+		else
+			lfur=NSZeroRect;
+		act=range;
+		}
+	else
+		{
+		unsigned int gindex=[layoutManager glyphIndexForCharacterAtIndex:range.location];
+		lfur=[layoutManager lineFragmentUsedRectForGlyphAtIndex:gindex effectiveRange:act];
+		pos=[layoutManager locationForGlyphAtIndex:gindex];
+		lfur.size.width=NSMaxX(lfr)-pos.x;	// start at given glyph
+		lfur.origin.x=pos.x;
+		}
+	if(actual)
+		*actual=act;
+	return lfur;
 }
 
 - (void) doCommandBySelector:(SEL)aSelector
