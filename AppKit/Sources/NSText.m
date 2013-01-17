@@ -418,7 +418,6 @@ object:self]
 - (void) setFrameSize:(NSSize)newSize	// is called from setFrame:
 { // enlarge min/maxSize window to cover this size
 	NSSize fsz=[self frame].size;	// there is no if(NSEqualSize(fsz, newSize)) return; !
-	NSSize tmpsize;
 #if 1
 	NSLog(@"setFrameSize: %@", NSStringFromSize(newSize));
 #endif
@@ -427,7 +426,8 @@ object:self]
 		if(newSize.width < _minSize.width)
 			_minSize.width = newSize.width;
 		if(newSize.width > _maxSize.width)
-			_maxSize.width = newSize.width;			
+			_maxSize.width = newSize.width;
+		fsz.width=newSize.width;
 		}
 	if(_tx.vertResizable)
 		{ // enforce minSize <= frameSize <= maxSize
@@ -435,16 +435,10 @@ object:self]
 			_minSize.height = newSize.height;
 		if(newSize.height > _maxSize.height)
 			_maxSize.height = newSize.height;
+		fsz.height=newSize.height;
 		}
-#if 0
-	tmpsize=newSize;	// both rules can apply independently
-	if(_tx.vertResizable && tmpsize.width != fsz.width)
-		newSize.height=_minSize.height;	// special clamping rule
-	if(_tx.horzResizable && tmpsize.height != fsz.height)
-		newSize.width=_minSize.width;	// special clamping rule
-#endif
-	[super setFrameSize:newSize];
-	[self setBoundsSize:newSize];	// will not be updated automatically if we are enclosed in a NSClipView (and have custom bounds)
+	[super setFrameSize:fsz];
+	[self setBoundsSize:fsz];	// will not be updated automatically if we are enclosed in a NSClipView (and have custom bounds)
 }
 
 - (void) viewDidMoveToSuperview
