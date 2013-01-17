@@ -127,41 +127,17 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (BOOL) backgroundLayoutEnabled; { return _backgroundLayoutEnabled; }
 
 // this is different from - (NSRectArray)rectArrayForGlyphRange:(NSRange)glyphRange withinSelectedGlyphRange:(NSRange)selGlyphRange inTextContainer:(NSTextContainer *)container rectCount:(NSUInteger *)rectCount
+// documentation says that it includes glyph bounds outside of their lfr
+// whilte rectArray may not include them (or does it?)
 
 - (NSRect) boundingRectForGlyphRange:(NSRange) glyphRange 
 					 inTextContainer:(NSTextContainer *) container;
 {
 	NSRect r=NSZeroRect;
-#if 0	// ALGORITHM1
-	// ??? does this call rectArrayForGlyphRange and NSUnionRect all rectangles??
-	NSRange cRange;
-	[self ensureLayoutForGlyphRange:glyphRange];
-	cRange=[self glyphRangeForTextContainer:container];
-	glyphRange=NSIntersectionRange(glyphRange, cRange);	// take glyphs within given container
-	while(glyphRange.length-- > 0)
-		{
-		// FIXME: improve by iterating over the effectiveRange for NSFontAttributeName and/or the same LFR, by less font substitution
-		NSDictionary *attribs=[_textStorage attributesAtIndex:_glyphs[glyphRange.location].characterIndex effectiveRange:NULL];	// could be optimized for font range
-		NSFont *font=[self substituteFontForFont:[attribs objectForKey:NSFontAttributeName]];
-		NSRect lfr=[self lineFragmentRectForGlyphAtIndex:glyphRange.location effectiveRange:NULL withoutAdditionalLayout:YES];
-		NSPoint pos=[self locationForGlyphAtIndex:glyphRange.location];
-		NSRect box;
-		if(!font) font=[[[self firstTextView] typingAttributes] objectForKey:NSFontAttributeName];		// try to get from typing attributes
-		if(!font) font=[NSFont userFontOfSize:0.0];		// use default system font
-		box=[font boundingRectForGlyph:[self glyphAtIndex:glyphRange.location]];	// origin is on baseline
-		pos.x+=lfr.origin.x;
-		pos.y+=lfr.origin.y;	// move to container coordinates
-		box.origin.x+=pos.x;
-		box.origin.y+=pos.y;	// container is in flipped coordinates
-		r=NSUnionRect(r, box);
-		glyphRange.location++;
-		}
-#elif 1	// ALGORITHM2
-	NSUInteger cnt; 
+	NSUInteger cnt;
 	NSRectArray ra=[self rectArrayForGlyphRange:glyphRange withinSelectedGlyphRange:NSMakeRange(NSNotFound, 0) inTextContainer:container rectCount:&cnt];
 	while(cnt-- > 0)
 		r=NSUnionRect(r, ra[cnt]);
-#endif
 	return r;
 }
 
@@ -1227,7 +1203,8 @@ static void allocateExtra(struct NSGlyphStorage *g)
 							  rectCount:(unsigned *) rectCount;
 {
 	charRange=[self glyphRangeForCharacterRange:charRange actualCharacterRange:NULL];
-	selCharRange=[self glyphRangeForCharacterRange:selCharRange actualCharacterRange:NULL];
+	if(selCharRange.location != NSNotFound)
+		selCharRange=[self glyphRangeForCharacterRange:selCharRange actualCharacterRange:NULL];
 	return [self rectArrayForGlyphRange:charRange withinSelectedGlyphRange:selCharRange inTextContainer:container rectCount:rectCount];
 }
 
@@ -1264,10 +1241,15 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			{ // at end of glyphs
 			if(!_extraLineFragmentContainer)
 				{ // no extra fragment - take end of last used rect
-					lfr=[self lineFragmentUsedRectForGlyphAtIndex:_numberOfGlyphs-1 effectiveRange:NULL];
-					// FIXME: depends on writing direction!
-					lfr.origin.x+=lfr.size.width;
-					lfr.size.width=0.0;
+					if(_numberOfGlyphs == 0)
+						lfr=NSZeroRect;	// no glyphs, no layout, no extra fragment, nothing... how can this happen? Something not completely initialized?
+					else
+						{
+						lfr=[self lineFragmentUsedRectForGlyphAtIndex:_numberOfGlyphs-1 effectiveRange:NULL];
+						// FIXME: depends on writing direction!
+						lfr.origin.x+=lfr.size.width;
+						lfr.size.width=0.0;
+						}
 				}
 			else
 				lfr=_extraLineFragmentUsedRect;
@@ -1693,9 +1675,15 @@ static void allocateExtra(struct NSGlyphStorage *g)
 		}
 	if(!flag)
 		{
-		// FIXME: appears to call setFrameSize on the textView by calling _resizeTextViewForTextContainer:
-		// I think we try to resize to the usedRect
-		// i.e. [textContainer textView] setFrameSize:_textContainerInfo[idx].usedRect + view offset];
+		NSTextView *tv=[tc textView];
+		if(tv)
+			{ // grow/shrink container if needed
+			NSRect used=_textContainerInfo[idx].usedRect;
+			NSSize off=[tv textContainerInset];
+			used.size.width+=2.0*off.width;
+			used.size.height+=2.0*off.height;
+			[tv setFrameSize:used.size];
+			}
 		}
 	return tc;
 }

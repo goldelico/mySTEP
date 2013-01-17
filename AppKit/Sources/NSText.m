@@ -31,6 +31,7 @@
 #import <Foundation/NSAutoreleasePool.h>
 
 #import <AppKit/NSButton.h>
+#import <AppKit/NSClipView.h>
 #import <AppKit/NSControl.h>
 #import <AppKit/NSText.h>
 #import <AppKit/NSApplication.h>
@@ -356,68 +357,103 @@ object:self]
 }
 
 - (void) setMaxSize:(NSSize)newMaxSize;
-{ // keep minSize smaller than maxSize
+{ // keep minSize smaller than maxSize and frame size as large as maxSize (if resizable)
+	NSSize fsz=[self frame].size;
 #if 1
+	NSLog(@"  omin=%@", NSStringFromSize(_minSize));
+	NSLog(@"  omax=%@", NSStringFromSize(_maxSize));
+	NSLog(@"  ofsz=%@", NSStringFromSize(fsz));
 	NSLog(@"newMax=%@", NSStringFromSize(newMaxSize));
-	NSLog(@"  min=%@", NSStringFromSize(_minSize));
-	NSLog(@"  max=%@", NSStringFromSize(_maxSize));
 #endif
-	if(newMaxSize.width < _minSize.width)
-		_minSize=newMaxSize;	// take current _minSize
-	if(newMaxSize.width < _minSize.width)
-		_minSize.width=newMaxSize.width;
-	if(newMaxSize.height < _minSize.height)
-		_maxSize.height=_minSize.height;
+	if(_tx.horzResizable)
+		NSLog(@"a"), _maxSize.width=newMaxSize.width;	// always accept
+	if(newMaxSize.width >= _minSize.width)
+		NSLog(@"b"), _maxSize.width=newMaxSize.width;	// can set max
 	else
-		_minSize.height=newMaxSize.height;
+		NSLog(@"c"), _minSize.width=newMaxSize.width;	// must reduce min instead
+	if(_tx.vertResizable)
+		NSLog(@"d"), _maxSize.height=newMaxSize.height;	// always accept
+	if(newMaxSize.height >= _minSize.height)
+		NSLog(@"e"), _maxSize.height=newMaxSize.height;	// accept setting maxSize >= _minSize
+	else
+		NSLog(@"f"), _minSize.height=newMaxSize.height;	// enforce maxSize >= minSize
+	if(fsz.width > _maxSize.width)
+		NSLog(@"g"), fsz.width=newMaxSize.width;
+	if(fsz.height > _maxSize.height)
+		NSLog(@"h"), fsz.height=newMaxSize.height;	// enforce maxSize >= frame (if resizable)
 #if 1
-	NSLog(@"  min=%@", NSStringFromSize(_minSize));
-	NSLog(@"  max=%@", NSStringFromSize(_maxSize));
+	NSLog(@"  nmin=%@", NSStringFromSize(_minSize));
+	NSLog(@"  nmax=%@", NSStringFromSize(_maxSize));
+	NSLog(@"  nfsz=%@", NSStringFromSize(fsz));
 #endif
+	[self setFrameSize:fsz];
 }
 
 - (void) setMinSize:(NSSize)newMinSize;
-{ // keep minSize smaller than maxSize
+{ // keep maxSize larger than minSize and frame size larger than minSize (if resizable)
+	NSSize fsz=[self frame].size;
 #if 1
 	NSLog(@"newMin=%@", NSStringFromSize(newMinSize));
 	NSLog(@"  min=%@", NSStringFromSize(_minSize));
 	NSLog(@"  max=%@", NSStringFromSize(_maxSize));
 #endif
 	if(newMinSize.width > _maxSize.width)
-		_maxSize.width=newMinSize.width;	// increase max
-	else
-		_minSize.width=newMinSize.width;	// change
+		_maxSize.width=newMinSize.width;
 	if(newMinSize.height > _maxSize.height)
-		_maxSize.height=newMinSize.height;	// increase max
-	else
-		_minSize.height=newMinSize.height;	// change
+		_maxSize.height=newMinSize.height;	// enforce maxSize >= minSize
+	if(_tx.horzResizable && newMinSize.width > fsz.width)
+		fsz.width=newMinSize.width;
+	if(_tx.vertResizable && newMinSize.height > fsz.height)
+		fsz.height=newMinSize.height;	// enforce maxSize >= frame (if resizable)
+	_minSize=newMinSize;
 #if 1
 	NSLog(@"  min=%@", NSStringFromSize(_minSize));
 	NSLog(@"  max=%@", NSStringFromSize(_maxSize));
 #endif
+	[self setFrameSize:fsz];
 }
 
 // this is modelled to fulfill our SenTest - but is it really correct?
 
 - (void) setFrameSize:(NSSize)newSize	// is called from setFrame:
 { // enlarge min/maxSize window to cover this size
-	NSSize size=[self frame].size;
+	NSSize fsz=[self frame].size;	// there is no if(NSEqualSize(fsz, newSize)) return; !
 	NSSize tmpsize;
-	if(newSize.width < _minSize.width)	// adjust min/max size as needed
-		_minSize.width = newSize.width;
-	if(newSize.height < _minSize.height)
-		_minSize.height = newSize.height;
-	if(newSize.width > _maxSize.width)
-		_maxSize.width = newSize.width;
-	if(newSize.height > _maxSize.height)
-		_maxSize.height = newSize.height;
+#if 1
+	NSLog(@"setFrameSize: %@", NSStringFromSize(newSize));
+#endif
+	if(_tx.horzResizable)
+		{ // enforce minSize <= frameSize <= maxSize
+		if(newSize.width < _minSize.width)
+			_minSize.width = newSize.width;
+		if(newSize.width > _maxSize.width)
+			_maxSize.width = newSize.width;			
+		}
+	if(_tx.vertResizable)
+		{ // enforce minSize <= frameSize <= maxSize
+		if(newSize.height < _minSize.height)
+			_minSize.height = newSize.height;
+		if(newSize.height > _maxSize.height)
+			_maxSize.height = newSize.height;
+		}
+#if 0
 	tmpsize=newSize;	// both rules can apply independently
-	if(_tx.vertResizable && tmpsize.width != size.width)
+	if(_tx.vertResizable && tmpsize.width != fsz.width)
 		newSize.height=_minSize.height;	// special clamping rule
-	if(_tx.horzResizable && tmpsize.height != size.height)
+	if(_tx.horzResizable && tmpsize.height != fsz.height)
 		newSize.width=_minSize.width;	// special clamping rule
+#endif
 	[super setFrameSize:newSize];
-	[self setBoundsSize:newSize];	// will not be updated automatically if we are enclosed in a NSClipView (custom bounds)
+	[self setBoundsSize:newSize];	// will not be updated automatically if we are enclosed in a NSClipView (and have custom bounds)
+}
+
+- (void) viewDidMoveToSuperview
+{ // adjust to superview dimensions
+	if([[self superview] isKindOfClass:[NSClipView class]])
+		{
+		// also enlarge minSize but not by calling setMinSize
+		[self setFrameSize:[[self superview] frame].size];
+		}
 }
 
 - (void) setRichText:(BOOL)flag

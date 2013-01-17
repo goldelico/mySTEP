@@ -182,11 +182,9 @@ static NSCursor *__textCursor = nil;
 
 // Sets the frame size of the view to desiredSize 
 // constrained within min and max size.
-// this one is probably called when the layout manager needs more or less space in its text container
-// or by sizeToFit
 
 - (void) setConstrainedFrameSize:(NSSize) desiredSize
-{ // size to desired size if within limits and resizable
+{ // size to desired size if within limits and resizable - otherwise leave untouched
 	NSSize newSize=_frame.size;
 #if 1
 	NSLog(@"setConstrainedFrameSize %@: %@", NSStringFromSize(desiredSize), self);
@@ -212,9 +210,11 @@ static NSCursor *__textCursor = nil;
 	NSLog(@"sizeToFit: %@", self);
 #endif
 	NSRange rng;
+#if 0
 	// FIXME: do we really resize the container??
 	// do we force it to frame.size if not resizable?
 	[textContainer setContainerSize:NSMakeSize((_tx.horzResizable?1e+07:_frame.size.width), (_tx.vertResizable?1e+07:_frame.size.height))];
+#endif
 	rng=[layoutManager glyphRangeForTextContainer:textContainer];
 	size=[layoutManager boundingRectForGlyphRange:rng inTextContainer:textContainer].size;
 	[self setConstrainedFrameSize:size];	// try to adjust
@@ -757,7 +757,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 // initial sizing after initWithCoder
 
-- (void) viewDidMoveToSuperview; { if(_superview) [self sizeToFit]; }
+- (void) viewDidMoveToSuperview; { if(_superview) [self sizeToFit]; [super viewDidMoveToSuperview]; }
 - (void) viewDidMoveToWindow; { if(_window) [self sizeToFit]; }
 
 - (void) setNeedsDisplayInRect:(NSRect)rect
@@ -1114,16 +1114,17 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		}
 	NSAssert(cnt > 0, @"zero count");
 	return r[0];	// first
-#if 0
+#if 0	// alternatively
 	NSRect lfur;
 	NSRange act;
 	NSPoint pos;
 	if(range.length == 0 && range.location == [textStorage length])
-		{ // wants to know about last position
+		{ // wants to know about position of last character
+		[layoutManager ensureLayoutForCharacterRange:range];	// generate extra Fragment if needed
 		if([layoutManager extraLineFragmentTextContainer])
 			lfur=[layoutManager extraLineFragmentUsedRect];
 		else
-			lfur=NSZeroRect;
+			lfur=NSZeroRect;	// don't know
 		act=range;
 		}
 	else
@@ -1137,6 +1138,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	if(actual)
 		*actual=act;
 	return lfur;
+#endif
 }
 
 - (void) doCommandBySelector:(SEL)aSelector
