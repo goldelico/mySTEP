@@ -44,6 +44,9 @@
 		EE547AC1168BAC9A00164AB4 /* NSFontDescriptorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547AC0168BAC9A00164AB4 /* NSFontDescriptorTest.m */; };
 		EE547B35168C3EDA00164AB4 /* NSViewBoundsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547B34168C3EDA00164AB4 /* NSViewBoundsTest.m */; };
 		EE7A573B14B0BD8500A12559 /* NSTextContainerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */; };
+		EE80828416A8932600830989 /* base in Resources */ = {isa = PBXBuildFile; fileRef = EE807FEB16A8932500830989 /* base */; };
+		EE80834C16A98EB500830989 /* floatspeed.m in Sources */ = {isa = PBXBuildFile; fileRef = EE80834B16A98EB500830989 /* floatspeed.m */; };
+		EE80834D16A98EB500830989 /* floatspeed.m in Sources */ = {isa = PBXBuildFile; fileRef = EE80834B16A98EB500830989 /* floatspeed.m */; };
 		EEBB6D95109CBEE500B67699 /* NSPortCoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */; };
 		EEC07E3D1699C69000CA1448 /* NSScannerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC07E3C1699C69000CA1448 /* NSScannerTest.m */; };
 		EEC07E3E1699C69000CA1448 /* NSScannerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC07E3C1699C69000CA1448 /* NSScannerTest.m */; };
@@ -141,6 +144,10 @@
 		EE5DAEF010A61BD200910F0B /* Special.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Special.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE7A573914B0BD8500A12559 /* NSTextContainerTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextContainerTest.h; sourceTree = "<group>"; };
 		EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextContainerTest.m; sourceTree = "<group>"; };
+		EE807FEB16A8932500830989 /* base */ = {isa = PBXFileReference; lastKnownFileType = folder; name = base; path = ../GNUstep/base/trunk/Tests/base; sourceTree = SOURCE_ROOT; };
+		EE80828516A8933D00830989 /* gui */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gui; path = ../GNUstep/gui/trunk/Tests/gui; sourceTree = SOURCE_ROOT; };
+		EE80834A16A98EB500830989 /* floatspeed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = floatspeed.h; sourceTree = "<group>"; };
+		EE80834B16A98EB500830989 /* floatspeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = floatspeed.m; sourceTree = "<group>"; };
 		EEBB6D93109CBEE500B67699 /* NSPortCoderTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSPortCoderTest.h; sourceTree = "<group>"; };
 		EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPortCoderTest.m; sourceTree = "<group>"; };
 		EEC07E3B1699C69000CA1448 /* NSScannerTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSScannerTest.h; sourceTree = "<group>"; };
@@ -272,6 +279,7 @@
 				EE0C71F80F7E7278008B94EE /* NSStringTest.m */,
 				EE27BF6B0FCAB32000A48A1E /* NSURLTest.h */,
 				EE27BF660FCAB2A300A48A1E /* NSURLTest.m */,
+				EE807FEB16A8932500830989 /* base */,
 			);
 			name = "Foundation-Tests";
 			path = Foundation;
@@ -313,6 +321,9 @@
 				EEC08C15169C2B3D00CA1448 /* NSTextViewTest.m */,
 				EE547B33168C3EDA00164AB4 /* NSViewBoundsTest.h */,
 				EE547B34168C3EDA00164AB4 /* NSViewBoundsTest.m */,
+				EE80828516A8933D00830989 /* gui */,
+				EE80834A16A98EB500830989 /* floatspeed.h */,
+				EE80834B16A98EB500830989 /* floatspeed.m */,
 			);
 			name = "AppKit-Tests";
 			path = AppKit;
@@ -536,6 +547,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EE80828416A8932600830989 /* base in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -679,6 +691,7 @@
 				EE547B35168C3EDA00164AB4 /* NSViewBoundsTest.m in Sources */,
 				EE3854EF169BF8920089B326 /* NSTextStorageTest.m in Sources */,
 				EEC08C16169C2B3D00CA1448 /* NSTextViewTest.m in Sources */,
+				EE80834C16A98EB500830989 /* floatspeed.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -710,6 +723,7 @@
 				EEDB59FD169878070011D22A /* NSViewBoundsTest.m in Sources */,
 				EE3854EE169BF8920089B326 /* NSTextStorageTest.m in Sources */,
 				EEC08C17169C2B3D00CA1448 /* NSTextViewTest.m in Sources */,
+				EE80834D16A98EB500830989 /* floatspeed.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -78,8 +78,6 @@
 	
 }
 
-#if 0
-
 - (void) test20
 { // sizeToFit
 	STAssertEquals([[view textContainer] containerSize], NSMakeSize(300.0, 1e+07), nil);
@@ -359,9 +357,8 @@
 	 * resizability has an influence!
 	 */
 }
-#endif
 
-- (void) test30
+- (void) test24
 { // interaction of setFrameSize, setMinSize, setMaxSize
 	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 500.0), nil);
 	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 300.0, 500.0), nil);
@@ -396,7 +393,7 @@
 	 */
 }
 
-- (void) test31
+- (void) test25
 { // interaction of setFrameSize, setMinSize, setMaxSize
 	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 500.0), nil);
 	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 300.0, 500.0), nil);
@@ -441,7 +438,7 @@
 	 */
 }
 
-- (void) test32
+- (void) test26
 { // interaction of setFrameSize, setMinSize, setMaxSize
 	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 500.0), nil);
 	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 300.0, 500.0), nil);
@@ -467,18 +464,18 @@
 	STAssertEquals([view maxSize], NSMakeSize(300.0, 400), nil);
 	// increase minSize.width
 	[view setMinSize:NSMakeSize(300.0, 250.0)];
-	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 400.0), nil);	// increased
-	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 300.0, 400.0), nil);	// increased
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 400.0), nil);	// unchanged
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 300.0, 400.0), nil);
 	STAssertEquals([view minSize], NSMakeSize(300.0, 250.0), nil);	// changed
 	STAssertEquals([view maxSize], NSMakeSize(300.0, 400.0), nil);	// also increased
 	// increase minSize.width
 	[view setMinSize:NSMakeSize(400.0, 250.0)];
-	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 400.0), nil);	// frame growing larger
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 400.0), nil);	// unchanged
 	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 300.0, 400.0), nil);
 	STAssertEquals([view minSize], NSMakeSize(400.0, 250.0), nil);	// changed
 	STAssertEquals([view maxSize], NSMakeSize(400.0, 400.0), nil);	// changed
 	[view setMinSize:NSMakeSize(500.0, 250.0)];
-	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 400.0), nil);	// frame growing larger
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 400.0), nil);	// unchanged
 	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 300.0, 400.0), nil);
 	STAssertEquals([view minSize], NSMakeSize(500.0, 250.0), nil);	// changed
 	STAssertEquals([view maxSize], NSMakeSize(500.0, 400.0), nil);	// changed
@@ -491,7 +488,7 @@
 	 */
 }
 
-- (void) test33
+- (void) test27
 { // interaction of setFrameSize, setMinSize, setMaxSize
 	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 500.0), nil);
 	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 300.0, 500.0), nil);
@@ -549,6 +546,87 @@
 	 * frameSize.height is enforced to be <= maxSize.height
 	 *
 	 * i.e. the latter depends on is*allyResizable
+	 */
+}
+
+- (void) test28
+{ // interaction of setFrameSize, setMinSize, setMaxSize
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 500.0), nil);
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 300.0, 500.0), nil);
+	STAssertEquals([view minSize], NSMakeSize(300.0, 500.0), nil);
+	STAssertEquals([view maxSize], NSMakeSize(300.0, 1e+07), nil);
+	// limit maxSize
+	[view setMaxSize:NSMakeSize(300.0, 700.0)];
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 500.0), nil);	// frame is unchanged
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 300.0, 500.0), nil);
+	STAssertEquals([view minSize], NSMakeSize(300.0, 500.0), nil);	// unchanged
+	STAssertEquals([view maxSize], NSMakeSize(300.0, 700.0), nil);	// maxSize has been set
+	// change frameSize to be smaller than minSize (and maxSize)
+	[view setFrameSize:NSMakeSize(200.0, 400.0)];
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 200.0, 400.0), nil);	// frame gets smaller
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 200.0, 400.0), nil);
+	STAssertEquals([view minSize], NSMakeSize(200.0, 400.0), nil);	// minSize is reduced to given frameSize!
+	STAssertEquals([view maxSize], NSMakeSize(300.0, 700.0), nil);	// maxSize is untouched
+	// increase frameSize.height and then increase until it reaches frame size and goes beyond
+	[view setFrameSize:NSMakeSize(200.0, 500.0)];
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 200.0, 500.0), nil);	// frame grows
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 200.0, 500.0), nil);
+	STAssertEquals([view minSize], NSMakeSize(200.0, 400.0), nil);	// no further change
+	STAssertEquals([view maxSize], NSMakeSize(300.0, 700.0), nil);	// no further change
+	// increase frameSize.height
+	[view setFrameSize:NSMakeSize(200.0, 800)];
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 200.0, 800.0), nil);	// frame grows
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 200.0, 800.0), nil);
+	STAssertEquals([view minSize], NSMakeSize(200.0, 400.0), nil);
+	STAssertEquals([view maxSize], NSMakeSize(300.0, 800.0), nil);	// maxSize enlarged to given frameSize!
+	// decrease frameSize.height a little
+	[view setFrameSize:NSMakeSize(200.0, 750.0)];
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 200.0, 750.0), nil);	// reduced
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 200.0, 750.0), nil);
+	STAssertEquals([view minSize], NSMakeSize(200.0, 400.0), nil);	// unchanged
+	STAssertEquals([view maxSize], NSMakeSize(300.0, 800.0), nil);	// unchanged
+	// now increase frameSize.width a little
+	[view setFrameSize:NSMakeSize(250.0, 750.0)];
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 250.0, 400.0), nil);	// modifies width AND resets height to minSize.height!
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 250.0, 400.0), nil);
+	STAssertEquals([view minSize], NSMakeSize(200.0, 400.0), nil);	// unchanged!
+	STAssertEquals([view maxSize], NSMakeSize(300.0, 800.0), nil);	// unchanged!
+	// now increase frameSize.width a little
+	[view setFrameSize:NSMakeSize(300.0, 750)];
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 400.0), nil);	// does not set height!
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 300.0, 400.0), nil);
+	STAssertEquals([view minSize], NSMakeSize(200.0, 400.0), nil);
+	STAssertEquals([view maxSize], NSMakeSize(300.0, 800.0), nil);
+	// now increase frameSize.width a little
+	[view setFrameSize:NSMakeSize(400.0, 750)];
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 400.0, 400.0), nil);	// does not set height!
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 400.0, 400.0), nil);
+	STAssertEquals([view minSize], NSMakeSize(200.0, 400.0), nil);
+	STAssertEquals([view maxSize], NSMakeSize(400.0, 800.0), nil);
+	// now set the same frameSize.width again
+	[view setFrameSize:NSMakeSize(400.0, 750)];
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 400.0, 750.0), nil);	// now it does set height!
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 400.0, 750.0), nil);
+	STAssertEquals([view minSize], NSMakeSize(200.0, 400.0), nil);
+	STAssertEquals([view maxSize], NSMakeSize(400.0, 800.0), nil);
+	// now decrease frameSize.width again
+	[view setFrameSize:NSMakeSize(350.0, 750)];
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 350.0, 400.0), nil);	// now it resets the height again!
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 350.0, 400.0), nil);
+	STAssertEquals([view minSize], NSMakeSize(200.0, 400.0), nil);
+	STAssertEquals([view maxSize], NSMakeSize(400.0, 800.0), nil);
+	// now decrease frameSize.width again
+	[view setFrameSize:NSMakeSize(350.0, 750)];
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 350.0, 750.0), nil);	// now it sets the height again!
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 350.0, 750.0), nil);
+	STAssertEquals([view minSize], NSMakeSize(200.0, 400.0), nil);
+	STAssertEquals([view maxSize], NSMakeSize(400.0, 800.0), nil);
+	/* conclusions
+	 * reduces minSize if needed
+	 * extends maxSize if needed
+	 * if and only if frame.width is changed, the height is taken from minSize.height instead of newSize.height
+	 * this special rule may only apply if !_tx.isHorizontallyResizable
+	 * because that effect could not be seen by increasing frame.height
 	 */
 }
 
