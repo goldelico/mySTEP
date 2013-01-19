@@ -253,7 +253,7 @@
 	STAssertEquals([view maxSize], NSMakeSize(300.0, 1e+07), nil);	// initial value is not changed!
 	// increase beyond maxSize
 	[view setFrameSize:NSMakeSize(400.0, 700.0)];
-	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 200.0, 400.0), nil);	// was not increased but width and height is reset to _minSize!
+	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 200.0, 400.0), nil);	// was not increased but width and height are reset to _minSize!
 	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 200.0, 400.0), nil);	// was not changed again
 	STAssertEquals([[view textContainer] containerSize], NSMakeSize(200.0, 1e+07), nil);
 	STAssertEquals([view minSize], NSMakeSize(200.0, 400.0), nil);	// was not adjusted!
@@ -311,7 +311,7 @@
 	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 320.0, 350.0), nil);	// was not changed again
 	STAssertEquals([[view textContainer] containerSize], NSMakeSize(320.0, 1e+07), nil);
 	STAssertEquals([view minSize], NSMakeSize(300.0, 350.0), nil);	// minSize.width is unchanged
-	STAssertEquals([view maxSize], NSMakeSize(600.0, 350.0), nil);	// was no´t changed
+	STAssertEquals([view maxSize], NSMakeSize(600.0, 350.0), nil);	// was not changed
 	// i) make maxSize partially smaller than minSize
 	[view setMaxSize:NSMakeSize(250.0, 275.0)];
 	STAssertEquals([view minSize], NSMakeSize(250.0, 275.0), nil);	// minSize is reduced
