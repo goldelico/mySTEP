@@ -259,6 +259,7 @@
 	STAssertEquals([view minSize], NSMakeSize(200.0, 400.0), nil);	// was not adjusted!
 	STAssertEquals([view maxSize], NSMakeSize(400.0, 1e+07), nil);	// was increased
 	/* conclusions
+	 * changing resizability does not change frame or size
 	 * setting horizontallyResizable makes only a difference by keeping the frame/bounds/container width as it is
 	 */
 }
@@ -343,7 +344,7 @@
 	[view setVerticallyResizable:NO];
 	STAssertTrue([view isHorizontallyResizable], nil);	// set to true
 	STAssertFalse([view isVerticallyResizable], nil);	// set to false
-	// a) make minSize bigger than maxSize
+	// a) try to make minSize bigger than maxSize
 	[view setMinSize:NSMakeSize(600.0, 900.0)];
 	STAssertEquals([view minSize], NSMakeSize(600.0, 500.0), nil);	// extra large minHeight is ignored
 	STAssertEquals([view maxSize], NSMakeSize(600.0, 1e+07), nil);	// maxSize is increased

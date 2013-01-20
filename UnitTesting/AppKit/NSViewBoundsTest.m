@@ -8,12 +8,34 @@
 
 #import "NSViewBoundsTest.h"
 
+#define MOCKUP
+
+#ifdef MOCKUP
+@interface View : NSView
+
+@end
+
+@implementation View
+
+- (id) initWithFrame:(NSRect)frameRect
+{
+	return [super initWithFrame:frameRect];
+}
+// here we can implement our own view rotation algorithms and have them tested
+
+@end
+
+#endif
 
 @implementation NSViewBoundsTest
 
 - (void) setUp;
 {
-	view=[[NSView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 500.0, 500.0)];	
+#ifdef MOCKUP
+	view=[[View alloc] initWithFrame:NSMakeRect(0.0, 0.0, 500.0, 500.0)];
+#else
+	view=[[NSView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 500.0, 500.0)];
+#endif	
 }
 
 - (void) tearDown;
@@ -32,6 +54,12 @@
 	STAssertEquals([view boundsRotation], 0.0f, nil);
 	STAssertEquals([view frame], NSMakeRect(0, 0, 500.0, 500.0), nil);
 	STAssertEquals([view bounds], NSMakeRect(0, 0, 500.0, 500.0), nil);
+}
+
+- (void) test05
+{ // setting negative frame size is possible
+	[view setFrameSize:NSMakeSize(-200.0, -300.0)];
+	STAssertEquals([view frame], NSMakeRect(0.0, 0.0, -200.0, -300.0), nil);
 }
 
 - (void) test10
@@ -60,63 +88,123 @@
 
 - (void) test20
 {
+	[view setBoundsRotation:0.0];
 	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
 	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 100.0, 100.0), nil);
+	// rotate bounds
 	[view setBoundsRotation:45.0];
+	// they grow larger
 	STAssertEquals([view bounds], NSMakeRect(0.0, -sqrt(0.5)*100.0,sqrt(2)*100.0, sqrt(2)*100.0), nil);	// enlarges to sqrt(2)*100.0
+	// and shrink back
 	[view setBoundsRotation:90.0];
 	STAssertEquals([view bounds], NSMakeRect(0.0, -100.0, 100.0, 100.0), nil);	// dimensions go back to 100, 100
+	// and the original value is known
 	[view setBoundsRotation:0.0];
 	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 100.0, 100.0), nil);	// back to original setting
+	/* conclusion: most likely the bounds are stored internally, and the enclosing rect after applying rotation is returned */
+}
+
+- (void) test21
+{
+	[view setBoundsRotation:0.0];
+	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 100.0, 100.0), nil);
+	// now try to change the underlying bounds while rotated
+	[view setBoundsRotation:45.0];	
+	STAssertEquals([view bounds], NSMakeRect(0.0, -sqrt(0.5)*100.0,sqrt(2)*100.0, sqrt(2)*100.0), nil);	// same as before
+	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, -sqrt(0.5)*100.0,sqrt(2)*100.0, sqrt(2)*100.0), nil);	// same as before
+	/* conclusion: this appears to prove the assumption of internally stored bounds */
+
+	// now scale everything down
+	[view scaleUnitSquareToSize:NSMakeSize(0.5, 0.5)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, -sqrt(0.5)*100.0/0.5, sqrt(2)*100.0/0.5, sqrt(2)*100.0/0.5), nil);
+	// and rotate back
+	[view setBoundsRotation:0.0];
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 100.0/0.5, 100.0/0.5), nil);
+	/* so far everything is linear */
+}
+
+- (void) test22
+{
+	[view setBoundsRotation:0.0];
+	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 100.0, 100.0), nil);
+	// scale down
+	[view scaleUnitSquareToSize:NSMakeSize(0.5, 0.5)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 100.0/0.5, 100.0/0.5), nil);
+
+	// and again
+	[view scaleUnitSquareToSize:NSMakeSize(0.5, 0.5)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 100.0/0.25, 100.0/0.25), nil);
+
+	// and again
+	[view scaleUnitSquareToSize:NSMakeSize(0.5, 0.5)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 100.0/0.125, 100.0/0.125), nil);
+	
+	// now set bounds
+	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 100.0, 100.0), nil);
+	/* scaling is "wiped out" by setting new bounds */
+	
+	// rotate not by 45 degrees
+	[view setBoundsRotation:30.0];
+	STAssertEquals([view bounds], NSMakeRect(0.0, -0.5*100.0, 136.603, 136.603), nil);
+
+	// and scale in a non-uniform way
+	[view scaleUnitSquareToSize:NSMakeSize(0.5, 0.75)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, -0.5*100.0/0.75, 136.603/0.5, 136.603/0.75), nil);
+
+	// and set new bounds
+	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, -0.5*100.0, 136.603, 136.603), nil);
+	/* again scaling is wiped out */
+	
+	/* so far it looks as if scaleUnitSquareToSize directly manipulates the internal bounds
+	 * while setBoundsRotation is applied in a special way so that [self bounds] returns the
+	 * enclosing rect of the rotated internal bounds
+	 */
+}
+
+- (void) test23
+{
+	[view setBoundsRotation:0.0];
+	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 100.0, 100.0), nil);
+	// let's try translations
+	[view translateOriginToPoint:NSMakePoint(50.0, 0.0)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, -0.5*100.0, 136.603, 136.603), nil);
+	[view setBoundsRotation:45.0];
+	STAssertEquals([view bounds], NSMakeRect(-35.3553, -35.3553, sqrt(2)*100.0, sqrt(2)*100.0), nil);
+	/* conclusion: origin is also rotated */
+	
+	STAssertEquals([view boundsRotation], 45.0f, nil);
+	[view translateOriginToPoint:NSMakePoint(-50.0, 0.0)];
+	STAssertEquals([view bounds], NSMakeRect(14.6447, -35.3553, sqrt(2)*100.0, sqrt(2)*100.0), nil);
+	STAssertEquals([view boundsRotation], 45.0f, nil);
+	/* boundsRotation is not derived from the rotation matrix */
+
+	// now rotate back
+	[view setBoundsRotation:0.0];
+	STAssertEquals([view bounds], NSMakeRect(-14.6447, 35.3553, 100.0, 100.0), nil);
+	STAssertEquals([view boundsRotation], 0.0f, nil);
+	/* conclusion: translation and rotation are not commutative
+	 * which means they are not stored/accumulated as separate iVars and applied when
+	 * asking for the current bounds
+	 * it appears as if only boundsRotation is accumulated in an iVar and a rotation
+	 * matrix is updated in parallel
+	 */
+}
+
+- (void) test24
+{
+	[view setBoundsRotation:0.0];
+	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
+	STAssertEquals([view bounds], NSMakeRect(0.0, 0.0, 100.0, 100.0), nil);
+}
 
 #if 0	// convert to SenTest
 
-	NSLog(@"4: %@", NSStringFromRect([view bounds]));	// back to original setting
-	[view setBoundsRotation:45.0];
-	NSLog(@"10: %@", NSStringFromRect([view bounds]));	// same as 2
-	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
-	NSLog(@"11: %@", NSStringFromRect([view bounds]));	// same as 2 - this means the bounds are stored internally and [self bounds] returns the enclosing rect!
-	[view scaleUnitSquareToSize:NSMakeSize(0.5, 0.5)];
-	NSLog(@"20: %@", NSStringFromRect([view bounds]));
-	[view setBoundsRotation:0.0];
-	NSLog(@"21: %@", NSStringFromRect([view bounds]));
-	[view scaleUnitSquareToSize:NSMakeSize(0.5, 0.5)];
-	NSLog(@"22: %@", NSStringFromRect([view bounds]));
-	[view scaleUnitSquareToSize:NSMakeSize(0.5, 0.5)];
-	NSLog(@"23: %@", NSStringFromRect([view bounds]));
-	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];	// this resets the bounds scaling
-	NSLog(@"24: %@", NSStringFromRect([view bounds]));
-	[view scaleUnitSquareToSize:NSMakeSize(0.5, 0.5)];
-	NSLog(@"25: %@", NSStringFromRect([view bounds]));		// and starts over
-	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];	// this resets the bounds scaling
-	[view setBoundsRotation:30.0];
-	NSLog(@"30: %@", NSStringFromRect([view bounds]));
-	[view scaleUnitSquareToSize:NSMakeSize(0.5, 0.75)];
-	NSLog(@"31: %@", NSStringFromRect([view bounds]));
-	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];	// this resets the bounds scaling
-	NSLog(@"32: %@", NSStringFromRect([view bounds]));
-	[view scaleUnitSquareToSize:NSMakeSize(0.75, 0.5)];
-	NSLog(@"33: %@", NSStringFromRect([view bounds]));
-	[view setBoundsRotation:0.0];
-	NSLog(@"34: %@", NSStringFromRect([view bounds]));
-	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];	// this resets the bounds scaling
-	NSLog(@"35: %@", NSStringFromRect([view bounds]));
-	[view scaleUnitSquareToSize:NSMakeSize(0.75, 0.5)];
-	NSLog(@"36: %@", NSStringFromRect([view bounds]));
-	// so far it looks as if scaleUnitSquareToSize directly manipulates the internal bounds
-	// while setBoundsRotation is applied in a special way so that [self bounds] returns the enclosing rect of the rotated internal bounds
-	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];	// this resets the bounds scaling
-	NSLog(@"40: %@", NSStringFromRect([view bounds]));
-	[view translateOriginToPoint:NSMakePoint(50.0, 0.0)];
-	NSLog(@"41: %@", NSStringFromRect([view bounds]));
-	[view setBoundsRotation:45.0];
-	NSLog(@"42: %@", NSStringFromRect([view bounds]));
-	NSLog(@"  %g", [view boundsRotation]);
-	[view translateOriginToPoint:NSMakePoint(-50.0, 0.0)];
-	NSLog(@"43: %@", NSStringFromRect([view bounds]));
-	NSLog(@"  %g", [view boundsRotation]);	// not affected from translation, i.e. not derived from the trnasform matrix!
-	[view setBoundsRotation:0.0];
-	NSLog(@"44: %@", NSStringFromRect([view bounds]));	// this is not the same as 40 - i.e. translation takes rotation into account!
 	[view setBounds:NSMakeRect(0.0, 0.0, 100.0, 100.0)];	// this resets the bounds scaling
 	NSLog(@"50: %@", NSStringFromRect([view bounds]));
 	[view setBoundsRotation:45.0];
@@ -235,6 +323,5 @@
 	[view rotateByAngle:1e-6];
 	NSLog(@"134: %@ %g %g", NSStringFromRect([view bounds]), [view boundsRotation], [view boundsRotation]-30.0f);
 #endif
-}
 
 @end
