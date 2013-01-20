@@ -464,19 +464,25 @@ object:self]
 #else
 #define P(x) 0
 #endif
+	// this are very strange rules but proven by UnitTests
 	if(newSize.width < _minSize.width)
-		P(@"ha"), _minSize.width = newSize.width;	 // enforce minSize <= frameSize <= maxSize
-	// this is a very strange rule but proven by UnitTests
+		P(@"ha"), _minSize.width = newSize.width;
+	else if(newSize.width > _maxSize.width)
+		P(@"ha1"), _maxSize.width = newSize.width;	// if we can't adjust frame size we have to increase max
 	if(_tx.horzResizable && newSize.height != ofsz.height)
 		P(@"hb"), nfsz.width=fabs(_minSize.width);	// force reset width
 	else if(newSize.width > _maxSize.width)
-		P(@"hc"), _maxSize.width = newSize.width;	 // enforce minSize <= frameSize <= maxSize
+		P(@"hc"), _maxSize.width = newSize.width;
 	if(newSize.height < _minSize.height)
 		P(@"va"), _minSize.height = newSize.height;
-	if(_tx.vertResizable && newSize.width != ofsz.width)
-		P(@"vb"), nfsz.height=fabs(_minSize.height);	// force reset height but accept (potential) change of width
 	else if(newSize.height > _maxSize.height)
-		P(@"vc"), _maxSize.height=newSize.height;	// if we can't adjust frame size we have to increase max
+		// not symmetrical! Maybe we are missing some special cases
+		// e.g.  _maxSize.height=(condition)?newSize.width:ofsz.width
+		P(@"va1"), _maxSize.height=ofsz.height;
+	if(_tx.vertResizable && newSize.width != ofsz.width)
+		P(@"vb"), nfsz.height=fabs(_minSize.height);
+	else if(newSize.height > _maxSize.height)
+		P(@"vc"), _maxSize.height=newSize.height;
 #if 1
 	NSLog(@"  nmin: %@", NSStringFromSize(_minSize));
 	NSLog(@"  nfsz: %@", NSStringFromSize(nfsz));
@@ -493,8 +499,11 @@ object:self]
 - (void) viewDidMoveToSuperview
 { // adjust to superview dimensions if it is a NSClipView
 	if([[self superview] isKindOfClass:[NSClipView class]])
-		{ // also enlarges default minSize as a side effect and not by calling setMinSize
-		[self setFrameSize:[[self superview] frame].size];
+		{ // enlarge minSize and frameSize
+			NSSize sz=[[self superview] frame].size;
+			// it appears that either one (not both) is called but the rules are not clear
+			[self setMinSize:sz];
+//			[self setFrameSize:sz];
 		}
 }
 
