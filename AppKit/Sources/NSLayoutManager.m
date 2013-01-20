@@ -1682,7 +1682,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			NSSize off=[tv textContainerInset];
 			used.size.width+=2.0*off.width;
 			used.size.height+=2.0*off.height;
-			[tv setFrameSize:used.size];
+			[tv setConstrainedFrameSize:used.size];
 			}
 		}
 	return tc;
