@@ -103,6 +103,7 @@
 - (void) beginParagraph;
 {
 	curParaStyle=[textStorage attribute:NSParagraphStyleAttributeName atIndex:curParaRange.location effectiveRange:&curParaRange];
+	// NOTE: this should not happen if fixAttributes works
 	if(!curParaStyle)
 		curParaStyle=[NSParagraphStyle defaultParagraphStyle];	// none specified
 	[self setParagraphGlyphRange:[layoutManager glyphRangeForCharacterRange:curParaRange actualCharacterRange:NULL] separatorGlyphRange:NSMakeRange(0, 0)];
@@ -1022,10 +1023,13 @@ NSLayoutOutOfGlyphs
 #endif
 			if(curCharacterIndex >= NSMaxRange(curParaRange))
 				{ // switch to new paragraph style
+					// if(curParagraphRange.location > 0)
+					//	[self endParagraph];
 					curParaStyle=[textStorage attribute:NSParagraphStyleAttributeName
 												atIndex:curCharacterIndex
 								  longestEffectiveRange:&curParaRange
 												inRange:(NSRange){ 0, [textStorage length] }];
+					// NOTE: this should not happen if fixAttributes works
 					if(!curParaStyle)
 						curParaStyle=[NSParagraphStyle defaultParagraphStyle];
 					curGlyphOffset=[curParaStyle firstLineHeadIndent];	// start new paragrph
@@ -1035,6 +1039,7 @@ NSLayoutOutOfGlyphs
 					// set up baseline offset for fixed line height
 					// check for NSTextTableBlock attribute in textStorage and if yes,
 					// get table cell size and recursively layout table cells (with lineFragmenRect reduced to column)
+					// [self beginParagraph];
 					status=NSLayoutDone;	// end of paragraph
 					break;
 				}

@@ -349,8 +349,10 @@
 #endif
 	_nestingCount++;	// protect against recursion
 	[nc postNotificationName:NSTextStorageWillProcessEditingNotification object:self];
-	if(!_fixesAttributesLazily)
+	if(_fixesAttributesLazily)
 		[self invalidateAttributesInRange:range];
+	else
+		[self fixAttributesInRange:range];
 	[nc postNotificationName:NSTextStorageDidProcessEditingNotification object:self];
 	_nestingCount--;
 	while((lm=[e nextObject]))

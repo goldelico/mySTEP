@@ -1265,7 +1265,6 @@ static BOOL done;
 		// substitute illegal or missing fonts
 		// i.e. if the font(s) don't support the characer range, substitute a font
 		}
-	return;
 }
 
 - (void) fixParagraphStyleAttributeInRange:(NSRange)range
@@ -1282,7 +1281,7 @@ static BOOL done;
 		attrib=[self attribute:NSParagraphStyleAttributeName atIndex:range.location longestEffectiveRange:&attribRange inRange:range];
 		if(attrib)
 			// CHECKME: what happens if someone wants to have only a partial paragraph fixed? i.e. attribRange goes beyond end?
-			range.length-=NSMaxRange(attribRange)-attribRange.location, range.location=attribRange.location; // make the range where we update start after attribRange
+			range.length=NSMaxRange(attribRange)-attribRange.location, range.location=attribRange.location; // make the range where we update start after attribRange
 		else if(NSMaxRange(attribRange) < end)	// get first existing range (after range w/o paragraph style)
 			attrib=[self attribute:NSParagraphStyleAttributeName atIndex:NSMaxRange(attribRange) effectiveRange:NULL];
 		else
@@ -1290,7 +1289,6 @@ static BOOL done;
 		[self addAttribute:NSParagraphStyleAttributeName value:attrib range:range];
 		range.location=NSMaxRange(range);	// go to next line
 		}
-	return;
 }
 
 - (void) fixAttachmentAttributeInRange:(NSRange)range
@@ -1301,17 +1299,24 @@ static BOOL done;
 		[NSException raise:NSRangeException format:@"range too long"];
 	while(range.location<end)
 		{
-		// to speed up by some marginal % we could collect sequences of non-NSAttachmentCharacter first and then bulk-remove
-		if([str characterAtIndex:range.location] != NSAttachmentCharacter)
-			[self removeAttribute:NSAttachmentAttributeName range:NSMakeRange(range.location, 1)];	// remove attachments for non-attachment characters			
+		if([str characterAtIndex:range.location] == NSAttachmentCharacter)
+			range.location++;	// skip attachment characters
+		else
+			{
+			NSRange rng=range;
+			while(range.location<end)
+				if([str characterAtIndex:range.location] != NSAttachmentCharacter)
+					range.location++;	// collect non-attachment characters
+			rng.length=range.location-rng.location;
+			[self removeAttribute:NSAttachmentAttributeName range:rng];	// remove attachments for non-attachment characters			
+			}
 		}
 }
 
 - (void) setBaseWritingDirection:(NSWritingDirection) direction range:(NSRange) range;
 {
-	[self setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:direction]
-													forKey:@"WritingDirection"]
-				  range:range];
+	// FIXME: does this change all paragraph styles?
+	[self addAttribute:@"BaseWritingDirection" value:[NSNumber numberWithInt:direction] range:range];
 }
 
 - (BOOL) readFromData:(NSData *) data options:(NSDictionary *) opts documentAttributes:(NSDictionary **) attrs;
