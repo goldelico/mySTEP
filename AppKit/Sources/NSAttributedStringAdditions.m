@@ -1270,29 +1270,41 @@ static BOOL done;
 
 - (void) fixParagraphStyleAttributeInRange:(NSRange)range
 {
-	unsigned i;
-	unsigned cnt=[self length];
-	for(i=0; i<cnt; i++)
+	unsigned end=NSMaxRange(range);
+	NSString *str=[self string];
+	if(end > [self length])
+		[NSException raise:NSRangeException format:@"range too long"];
+	while(range.location < end)
 		{
-		// merge multiple paragraph styles for single lines
-		// fill missing paragraph style
+		NSParagraphStyle *attrib;
+		NSRange attribRange;
+		range=[str lineRangeForRange:range];
+		attrib=[self attribute:NSParagraphStyleAttributeName atIndex:range.location longestEffectiveRange:&attribRange inRange:range];
+		if(attrib)
+			// CHECKME: what happens if someone wants to have only a partial paragraph fixed? i.e. attribRange goes beyond end?
+			range.length-=NSMaxRange(attribRange)-attribRange.location, range.location=attribRange.location; // make the range where we update start after attribRange
+		else if(NSMaxRange(attribRange) < end)	// get first existing range (after range w/o paragraph style)
+			attrib=[self attribute:NSParagraphStyleAttributeName atIndex:NSMaxRange(attribRange) effectiveRange:NULL];
+		else
+			attrib=[NSParagraphStyle defaultParagraphStyle];
+		[self addAttribute:NSParagraphStyleAttributeName value:attrib range:range];
+		range.location=NSMaxRange(range);	// go to next line
 		}
 	return;
 }
 
 - (void) fixAttachmentAttributeInRange:(NSRange)range
 {
-	unsigned i;
-	unsigned cnt=[self length];
+	unsigned end=NSMaxRange(range);
 	NSString *str=[self string];
-	for(i=0; i<cnt; i++)
+	if(end > [self length])
+		[NSException raise:NSRangeException format:@"range too long"];
+	while(range.location<end)
 		{
-		if([str characterAtIndex:i] != NSAttachmentCharacter)
-			{
-			// remove attachments for non-attachment characters			
-			}
+		// to speed up by some marginal % we could collect sequences of non-NSAttachmentCharacter first and then bulk-remove
+		if([str characterAtIndex:range.location] != NSAttachmentCharacter)
+			[self removeAttribute:NSAttachmentAttributeName range:NSMakeRange(range.location, 1)];	// remove attachments for non-attachment characters			
 		}
-	return;
 }
 
 - (void) setBaseWritingDirection:(NSWritingDirection) direction range:(NSRange) range;

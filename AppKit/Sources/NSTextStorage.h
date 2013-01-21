@@ -53,6 +53,7 @@ enum
     NSMutableArray *_layoutManagers;
     id _delegate;
     NSRange _editedRange;
+    NSRange _invalidatedRange;
 	int _editedMask;
 	int _changeInLength;
     int _editedDelta;

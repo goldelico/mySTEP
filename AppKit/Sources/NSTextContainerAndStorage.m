@@ -245,15 +245,11 @@
 
 - (void) dealloc;
 {
-	NSEnumerator *e;
-	NSLayoutManager *lm;
 #if 0
 	NSLog(@"dealloc NSTextStorage %p: %@", self, self);
 #endif
 	[self setDelegate:nil];
-	e=[_layoutManagers objectEnumerator];
-	while((lm=[e nextObject]))
-		[lm setTextStorage:nil];	// disconnect
+	[_layoutManagers makeObjectsPerformSelector:@selector(setTextStorage:) withObject:nil];
 	[_layoutManagers release];
 #if __APPLE__
 	[_concreteString release];
@@ -309,10 +305,9 @@
 - (void) endEditing;
 {
 	if(_nestingCount)
-		NSLog(@"unbalanced endEditing");
+		[NSException raise:NSGenericException format:@"unbalanced endEditing"];
 	else if(_nestingCount-- == 0)
 		{ // finally done
-		[self fixAttributesInRange:_editedRange];
 		[self processEditing];
 		}
 }
@@ -323,14 +318,22 @@
 
 - (void) ensureAttributesAreFixedInRange:(NSRange)range;
 {
-	NIMP;
+	[self fixAttributesInRange:range];
+	if(_invalidatedRange.length > 0)
+		{
+		_invalidatedRange=NSIntersectionRange(_invalidatedRange, NSMakeRange(0, range.location));
+		_invalidatedRange=NSIntersectionRange(_invalidatedRange, NSMakeRange(NSMaxRange(range), NSNotFound-NSMaxRange(range)));
+		}
 }
 
 - (BOOL) fixesAttributesLazily; { return _fixesAttributesLazily; }
 
 - (void) invalidateAttributesInRange:(NSRange)range;
 {
-	NIMP;
+	if(_fixesAttributesLazily)
+		_invalidatedRange=NSUnionRange(_invalidatedRange, range);
+	else
+		[self fixAttributesInRange:range];
 }
 
 - (NSArray *) layoutManagers; { return _layoutManagers; }
@@ -339,20 +342,26 @@
 {
 	NSEnumerator *e=[_layoutManagers objectEnumerator];
 	NSLayoutManager *lm;
+	NSRange range=_editedRange;
 	NSNotificationCenter *nc=[NSNotificationCenter defaultCenter];
 #if 0
 	NSLog(@"processEditing: %@", self);
 #endif
+	_nestingCount++;	// protect against recursion
 	[nc postNotificationName:NSTextStorageWillProcessEditingNotification object:self];
 	if(!_fixesAttributesLazily)
-		[self fixAttributesInRange:_editedRange];
+		[self invalidateAttributesInRange:range];
 	[nc postNotificationName:NSTextStorageDidProcessEditingNotification object:self];
+	_nestingCount--;
 	while((lm=[e nextObject]))
 		[lm textStorage:self
 				 edited:_editedMask
-				  range:_editedRange
+				  range:range
 		 changeInLength:_changeInLength
-	   invalidatedRange:_editedRange];	// FIXME: this should be the range where attributes were fixed and may be larger!
+	   invalidatedRange:_editedRange];	// fixing attributes may have updated the _editedRange
+	_editedMask = 0;
+	_editedRange = (NSRange) { 0, 0 };
+	_changeInLength = 0;
 }
 
 - (void) removeLayoutManager:(NSLayoutManager *)obj; { [obj setTextStorage:nil]; [_layoutManagers removeObject:obj]; }
@@ -428,11 +437,12 @@
 	[self edited:NSTextStorageEditedAttributes range:aRange changeInLength:0];
 }
 
-#if __APPLE__	// on mySTEP we can use the inherited implementation
 - (NSDictionary *) attributesAtIndex:(unsigned) index effectiveRange:(NSRangePointer) range
 {
 	NSDictionary *d;
-	//	return [_concreteString attributesAtIndex:index effectiveRange:range];
+	if(_fixesAttributesLazily)
+		[self ensureAttributesAreFixedInRange:_invalidatedRange];
+#if __APPLE__	// on mySTEP we can use the inherited implementation
 	NS_DURING
 		d=[_concreteString attributesAtIndex:index effectiveRange:range];
 	NS_HANDLER
@@ -442,13 +452,18 @@
 		NSLog(@"index %d", index);
 		d=nil;
 	NS_ENDHANDLER
+#else
+	d=[super attributesAtIndex:index effectiveRange:range];
+#endif
 	return d;
 }
 
 - (NSDictionary *) attributesAtIndex:(unsigned) index longestEffectiveRange:(NSRangePointer) longest inRange:(NSRange) range
 {
 	NSDictionary *d;
-	//	return [_concreteString attributesAtIndex:index longestEffectiveRange:longest inRange:range];
+	if(_fixesAttributesLazily)
+		[self ensureAttributesAreFixedInRange:range];
+#if __APPLE__	// on mySTEP we can use the inherited implementation
 	NS_DURING
 		d=[_concreteString attributesAtIndex:index longestEffectiveRange:longest inRange:range];
 	NS_HANDLER
@@ -458,9 +473,11 @@
 		NSLog(@"index %d", index);
 		d=nil;
 	NS_ENDHANDLER
+#else
+	d=[super attributesAtIndex:index longestEffectiveRange:longest inRange:range];
+#endif
 	return d;
 }
-#endif
 
 #if __APPLE__
 - (NSMutableString *) mutableString;

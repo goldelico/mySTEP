@@ -186,5 +186,6 @@
 // we should test setting individual attributes
 // and what happens if we embrace changes by -beginEditing and -endEditing to test how adding/deleting is coalesced
 // we should test fixing attributes
+// i.e. attachment characters w/o attachments, attachments w/o character, missing paragraph styles or unsupported fonts
 
 @end
