@@ -12,8 +12,8 @@
 
 @implementation NSURLTest
 
-- (void) test1
-{
+- (void) test10
+{ // most complex initialization...
 	NSURL *url=[NSURL URLWithString:@"file%20name.htm;param1;param2?something=other&andmore=more#fragments"
 										relativeToURL:[NSURL URLWithString:@"scheme://user:password@host.domain.org:888/path/absfile.htm"]];
 	STAssertEqualObjects(@"file%20name.htm;param1;param2?something=other&andmore=more#fragments -- scheme://user:password@host.domain.org:888/path/absfile.htm", [url description], nil);
@@ -57,34 +57,34 @@
 #endif
 }
 
-- (void) test2
+- (void) test12
 {
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note"];
 	STAssertEqualObjects(@"data", [url scheme], nil);
 	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"data:,A%20brief%20note");
 }
 
-- (void) test3
+- (void) test13
 {
 	NSURL *url=[NSURL URLWithString:@"data:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7"];
 	STAssertEqualObjects(@"data", [url scheme], nil);
 	// assert something
 }
 
-- (void) test4
+- (void) test14
 { // data: and file: URLs
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"data:other"]];
 	STAssertEqualObjects(@"data", [url scheme], @"scheme");
 	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"absoluteString");
 }
 
-- (void) test4b
+- (void) test14b
 {
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"file://localhost/"]];
 	STAssertEqualObjects(@"data:,A%20brief%20note", [url absoluteString], @"absoluteString");
 }
 
-- (void) test5
+- (void) test15
 { // file: urls
 	NSURL *url=[NSURL fileURLWithPath:@"/this#is a Path with % < > ?"];
 	STAssertEqualObjects(@"file", [url scheme], @"scheme");
@@ -99,9 +99,12 @@
 	STAssertEqualObjects(@"file://localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", [url absoluteString], @"absoluteString");
 	STAssertEqualObjects(@"/this#is a Path with % < > ?", [url relativePath], @"relativePath");
 	STAssertEqualObjects(@"file://localhost/this%23is%20a%20Path%20with%20%25%20%3C%20%3E%20%3F", [url description], @"description");
+	/* conclusions
+	 * if created by fileUrl, the host == "localhost"
+	 */
 }
 
-- (void) test5b
+- (void) test15b
 {
 	NSURL *url=[NSURL URLWithString:@"file:///pathtofile;parameters?query#anchor"];
 	STAssertTrue([url isFileURL], nil);
@@ -117,26 +120,52 @@
 	STAssertEqualObjects(@"file:///pathtofile;parameters?query#anchor", [url absoluteString], @"absoluteString");
 	STAssertEqualObjects(@"/pathtofile", [url relativePath], @"relativePath");
 	STAssertEqualObjects(@"file:///pathtofile;parameters?query#anchor", [url description], @"description");
+	/* conclusions
+	 * if created by fileUrl, the host == "localhost"
+	 * if created by file: it is as specified
+	 */
 }
 
-- (void) test5c
+- (void) test15c
 {
-	NSURL *url=[NSURL URLWithString:@"file:///pathtofile; parameters? query #anchor"];	// can't initialize with spaces (must be %20)
-	STAssertNil(url, @"url");
-}
-
-- (void) test5d
-{
-	NSURL *url=[NSURL URLWithString:@"file:///pathtofile;%20parameters?%20query%20#anchor"];
+	NSURL *url=[NSURL URLWithString:@"file:///pathtofile; parameters? query #anchor"];
+	STAssertNil(url, @"url");	// can't initialize with spaces (must be %20)
+//	STAssertEqualObjects(url, nil, @"url");
+	url=[NSURL URLWithString:@"file:///pathtofile;%20parameters?%20query%20#anchor"];
 	STAssertNotNil(url, @"url");
+	/* conclusions
+	 * can't have spaces in parameters or query part
+	 * having %20 is ok
+	 */
 }
 
-- (void) test6
+- (void) test16
 {
 	NSURL *url=[NSURL URLWithString:@""];	// empty string is invalid - should return nils
-	STAssertEqualObjects(nil, [url path], nil);
+	STAssertNil([url path], nil);
 }
 
+- (void) test20
+{
+	NSURL *url=[NSURL URLWithString:@"file:/somefile"];
+	NSURL *url2;
+	STAssertEqualObjects([url path], @"/somefile", nil);
+	url2=[[NSURL alloc] initWithString:@"http://www.goldelico.com/otherpath" relativeToURL:url];	// try relative string with its own scheme!
+	STAssertEqualObjects([url2 scheme], @"http", nil);
+	STAssertEqualObjects([url2 host], @"www.goldelico.com", nil);
+	STAssertEqualObjects([url2 path], @"/otherpath", nil);
+	[url2 release];
+	url2=[[NSURL alloc] initWithString:@"other" relativeToURL:url];	// try relative string with its own scheme!
+	STAssertEqualObjects([url2 scheme], @"file", nil);
+	STAssertNil([url2 host], nil);
+	STAssertEqualObjects([url2 path], @"/other", nil);
+	[url2 release];
+	/* conclusions
+	 * if the string is an URL of its own, that one is returned
+	 * if it is no scheme, the scheme components are copied from the other
+	 * there is no requirement to have the same schemes
+	 */
+}
 
 // add many more such tests
 

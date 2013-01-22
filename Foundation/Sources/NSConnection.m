@@ -478,12 +478,14 @@ static unsigned int _sequence;	// global sequence number
 	// this could also be done in invalidate
 	if(_localObjects)
 		{
+		NSLog(@"local objects=%@", [_localObjects allObjects]);
 		NSAssert(NSCountMapTable(_localObjects) == 0, @"local objects still use this connection"); // should be empty before we can be released...
 		NSFreeMapTable(_localObjects);
 		NSFreeMapTable(_localObjectsByRemote);
 		}
 	if(_remoteObjects)
 		{
+		NSLog(@"remote objects=%@", [_remoteObjects allObjects]);
 		NSAssert(NSCountMapTable(_remoteObjects) == 0, @"remote objects still use this connection"); // should be empty before we can be released...
 		NSFreeMapTable(_remoteObjects);
 		}

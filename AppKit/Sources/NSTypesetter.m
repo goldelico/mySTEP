@@ -103,7 +103,6 @@
 - (void) beginParagraph;
 {
 	curParaStyle=[textStorage attribute:NSParagraphStyleAttributeName atIndex:curParaRange.location effectiveRange:&curParaRange];
-	// NOTE: this should not happen if fixAttributes works
 	if(!curParaStyle)
 		curParaStyle=[NSParagraphStyle defaultParagraphStyle];	// none specified
 	[self setParagraphGlyphRange:[layoutManager glyphRangeForCharacterRange:curParaRange actualCharacterRange:NULL] separatorGlyphRange:NSMakeRange(0, 0)];
@@ -1029,7 +1028,6 @@ NSLayoutOutOfGlyphs
 												atIndex:curCharacterIndex
 								  longestEffectiveRange:&curParaRange
 												inRange:(NSRange){ 0, [textStorage length] }];
-					// NOTE: this should not happen if fixAttributes works
 					if(!curParaStyle)
 						curParaStyle=[NSParagraphStyle defaultParagraphStyle];
 					curGlyphOffset=[curParaStyle firstLineHeadIndent];	// start new paragrph

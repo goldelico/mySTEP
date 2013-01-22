@@ -1263,31 +1263,41 @@ static BOOL done;
 	for(i=0; i<cnt; i++)
 		{
 		// substitute illegal or missing fonts
-		// i.e. if the font(s) don't support the characer range, substitute a font
+		// i.e. if the font(s) don't support the character range, substitute a font
 		}
 }
 
 - (void) fixParagraphStyleAttributeInRange:(NSRange)range
 {
+	NSRange lineRange=range;
 	unsigned end=NSMaxRange(range);
 	NSString *str=[self string];
+//	NSLog(@"0 %@", NSStringFromRange(range));
 	if(end > [self length])
 		[NSException raise:NSRangeException format:@"range too long"];
-	while(range.location < end)
+	while(lineRange.location < end)
 		{
 		NSParagraphStyle *attrib;
 		NSRange attribRange;
-		range=[str lineRangeForRange:range];
-		attrib=[self attribute:NSParagraphStyleAttributeName atIndex:range.location longestEffectiveRange:&attribRange inRange:range];
-		if(attrib)
-			// CHECKME: what happens if someone wants to have only a partial paragraph fixed? i.e. attribRange goes beyond end?
-			range.length=NSMaxRange(attribRange)-attribRange.location, range.location=attribRange.location; // make the range where we update start after attribRange
-		else if(NSMaxRange(attribRange) < end)	// get first existing range (after range w/o paragraph style)
-			attrib=[self attribute:NSParagraphStyleAttributeName atIndex:NSMaxRange(attribRange) effectiveRange:NULL];
-		else
-			attrib=[NSParagraphStyle defaultParagraphStyle];
-		[self addAttribute:NSParagraphStyleAttributeName value:attrib range:range];
-		range.location=NSMaxRange(range);	// go to next line
+//		NSLog(@"a %@", NSStringFromRange(lineRange));
+		lineRange=[str lineRangeForRange:lineRange];
+//		NSLog(@"b %@", NSStringFromRange(lineRange));
+		attrib=[self attribute:NSParagraphStyleAttributeName atIndex:lineRange.location longestEffectiveRange:&attribRange inRange:range];
+//		NSLog(@"c %@ %@", NSStringFromRange(attribRange), attrib);
+		attribRange.location=NSMaxRange(attribRange);	// start to update where attribRange ends
+		attribRange=NSIntersectionRange(attribRange, lineRange);	// but not beyond line end
+		attribRange=NSIntersectionRange(attribRange, range);	// but not beyond given range
+//		NSLog(@"d %@", NSStringFromRange(attribRange));
+		if(attribRange.length > 0)
+			{ // only if there is something to fix
+			NSLog(@"d %@", NSStringFromRange(attribRange));
+			if(attrib)
+				[self addAttribute:NSParagraphStyleAttributeName value:attrib range:attribRange];
+			else
+				[self removeAttribute:NSParagraphStyleAttributeName range:attribRange];
+			}
+//		NSLog(@"e %@", NSStringFromRange(lineRange)),
+		lineRange.location=NSMaxRange(lineRange);	// go to next line
 		}
 }
 
@@ -1297,19 +1307,32 @@ static BOOL done;
 	NSString *str=[self string];
 	if(end > [self length])
 		[NSException raise:NSRangeException format:@"range too long"];
-	while(range.location<end)
+	while(range.location < end)
 		{
-		if([str characterAtIndex:range.location] == NSAttachmentCharacter)
-			range.location++;	// skip attachment characters
-		else
-			{
-			NSRange rng=range;
-			while(range.location<end)
-				if([str characterAtIndex:range.location] != NSAttachmentCharacter)
-					range.location++;	// collect non-attachment characters
-			rng.length=range.location-rng.location;
-			[self removeAttribute:NSAttachmentAttributeName range:rng];	// remove attachments for non-attachment characters			
+		NSRange aRange;
+		NSTextAttachment *a=[self attribute:NSAttachmentAttributeName atIndex:range.location effectiveRange:&aRange];
+//		NSLog(@"a %@", NSStringFromRange(aRange));
+		if(a)
+			{ // this range has an attachment attribute - remove at locations without attachment Character
+				unsigned e=NSMaxRange(aRange);
+				e=MIN(e, end);
+				while(range.location < e)
+					{
+					if([str characterAtIndex:range.location] != NSAttachmentCharacter)
+						{
+						NSRange rng=range;
+						while(range.location < e)
+							if([str characterAtIndex:range.location] != NSAttachmentCharacter)
+								range.location++;	// collect sequences of non-attachment characters
+						rng.length=range.location-rng.location;
+//						NSLog(@"b %@", NSStringFromRange(rng));
+						if(rng.length > 0)
+							[self removeAttribute:NSAttachmentAttributeName range:rng];	// remove attachments for non-attachment characters
+						}
+					range.location++;	// skip attachment characters
+					}
 			}
+		range.location=NSMaxRange(aRange);	// loop over attributes
 		}
 }
 

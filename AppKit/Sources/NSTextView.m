@@ -547,7 +547,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	else
 		{ // cursor is at end of string
 		if(length > 0)
-			attribs=[textStorage attributesAtIndex:_selectedRange.location-1 effectiveRange:NULL];	// continue with last format
+			attribs=[textStorage attributesAtIndex:length-1 effectiveRange:NULL];	// continue with attribs et end of text
 		else
 			attribs=[NSDictionary dictionaryWithObjectsAndKeys:[NSFont userFontOfSize:0.0], NSFontAttributeName, nil];	// set default typing attributes		
 		}

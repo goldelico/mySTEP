@@ -34,7 +34,11 @@ fprintf(stderr, "%s: %u.%06ds\n", MESSAGE, (unsigned int) _ns_time_end.tv_sec, _
 	NS_TIME_START(timer1);
 	for(i=1; i<10000000; i++)
 		[t rotateByDegrees:20.0];
-	NS_TIME_END(timer1, "affine rotations");	// typically 0.67 s on a iMac with 2.8 GHz Intel Core 2 Duo
+	NS_TIME_END(timer1, "affine rotations");
+	/* typical speed:
+	 * 0.67 s on a Cocoa on iMac with 2.8 GHz Intel Core 2 Duo
+	 * 27s on mySTEP on GTA04 with 800 MHz TI DM3730 Cortex-A8 with(?) NEON
+	 */
 	STAssertTrue(YES, nil);	// ok
 }
 

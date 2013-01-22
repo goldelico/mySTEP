@@ -512,7 +512,9 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 {
 	NSModalSession s = 0;
 	int r;	// Run a modal event loop
-
+#if 1
+	NSLog(@"runModalForWindow: %@", aWindow);
+#endif	
 	NS_DURING
 		{
 		s = [self beginModalSessionForWindow:aWindow];
@@ -591,7 +593,7 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 //	[as->window displayIfNeeded];
 	[as->window makeKeyAndOrderFront: self];
 	as->windowTag = [as->window windowNumber];	// should be assigned now
-#if 0
+#if 1
 		NSLog(@"new session: as->window %@", as->window);
 		NSLog(@"						 as->windowTag %d", as->windowTag);
 #endif
@@ -599,8 +601,11 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	while((e = [self _eventMatchingMask:NSAnyEventMask dequeue:YES])
 		 && (as->runState == NSRunContinuesResponse))
 		{
+#if 1
+		NSLog(@"event %@", e);
+#endif
 		if([e window] == as->window)
-				{ // the modal window
+				{ // for the modal window
 				NSWindow *w = [NSApp windowWithWindowNumber:as->windowTag];	// check if the server still knows us by tag
 				BOOL was = as->visible;
 				if(w == nil || (!(as->visible = [w isVisible]) && was))
@@ -639,14 +644,17 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	
 	if (_app.windowsNeedUpdate && (as->runState == NSRunContinuesResponse))
 			{
+#if 1
+			NSLog(@"_app.windowsNeedUpdate");
+#endif
 			[as->window displayIfNeeded];		// update first
 			[as->window flushWindowIfNeeded];
 			[self updateWindows];				// update other visible windows
-			[as->window makeKeyAndOrderFront: self];	// stay in front
+			[as->window makeKeyAndOrderFront: self];	// make the window stay in front
 			}
 
 	NSAssert(_session == as, @"Session was changed while running");
-#if 0
+#if 1
 	NSLog(@"runModalSession: %d", as->runState);
 #endif
 

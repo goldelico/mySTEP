@@ -630,7 +630,7 @@ static NSString *unescape(const char *from)
 	NSLog(@"-> %@", aPath);
 #endif
 	return [self initWithScheme: NSURLFileScheme
-						   host: nil
+						   host: @"localhost"
 						   path: aPath];
 }
 
@@ -656,331 +656,332 @@ static NSString *unescape(const char *from)
 		{
 		[NSException raise: NSInvalidArgumentException
 					format: @"[%@ %@] nil string parameter",
-			NSStringFromClass([self class]), NSStringFromSelector(_cmd)];
+		 NSStringFromClass([self class]), NSStringFromSelector(_cmd)];
 		return nil;
 		}
 	_urlString=[aUrlString copy];	// keep a copy
 	ASSIGN(_baseURL, [aBaseUrl absoluteURL]);
 	NS_DURING
-		{
-			parsedURL	*buf;
-			parsedURL	*base = _baseURL?(parsedURL*)(_baseURL->_data):NULL;
-			unsigned	size = [_urlString cStringLength];
-			char	*end;
-			char	*start;
-			char	*ptr;
-			BOOL	usesFragments = YES;
-			BOOL	usesParameters = YES;
-			BOOL	usesQueries = YES;
-			BOOL	canBeGeneric = YES;
-			
-			size = (sizeof(parsedURL) + __alignof__(parsedURL)) + (size+1);
-
-			buf = _data = (parsedURL *) objc_malloc(size);	// allocate space for parsedURL header plus the cString
-			memset(buf, '\0', size);
-			start = end = (char*)&buf[1];
-			[_urlString getCString:start];			// get the cString and store behind the parsedURL header
+	{
+	parsedURL	*buf;
+	parsedURL	*base = _baseURL?(parsedURL*)(_baseURL->_data):NULL;
+	unsigned	size = [_urlString cStringLength];
+	char	*end;
+	char	*start;
+	char	*ptr;
+	BOOL	usesFragments = YES;
+	BOOL	usesParameters = YES;
+	BOOL	usesQueries = YES;
+	BOOL	canBeGeneric = YES;
+	
+	size = (sizeof(parsedURL) + __alignof__(parsedURL)) + (size+1);
+	
+	buf = _data = (parsedURL *) objc_malloc(size);	// allocate space for parsedURL header plus the cString
+	memset(buf, '\0', size);
+	start = end = (char*)&buf[1];
+	[_urlString getCString:start];			// get the cString and store behind the parsedURL header
 #if 0
-			NSLog(@"NSURL initWithString");
-			NSLog(@"NSURL [length]=%d len=%d size=%d buf=%p", [_urlString length], [_urlString cStringLength], size, buf);
-			NSLog(@"NSURL aUrlString: %@ %@", NSStringFromClass([aUrlString class]), aUrlString);
-			NSLog(@"NSURL _urlString: %@ %@", NSStringFromClass([_urlString class]), _urlString);
-			NSLog(@"NSURL getCString result: %d %s", strlen(start), start);
+	NSLog(@"NSURL initWithString");
+	NSLog(@"NSURL [length]=%d len=%d size=%d buf=%p", [_urlString length], [_urlString cStringLength], size, buf);
+	NSLog(@"NSURL aUrlString: %@ %@", NSStringFromClass([aUrlString class]), aUrlString);
+	NSLog(@"NSURL _urlString: %@ %@", NSStringFromClass([_urlString class]), _urlString);
+	NSLog(@"NSURL getCString result: %d %s", strlen(start), start);
 #endif		
+	/*
+	 * Parse the scheme if possible.
+	 */
+	ptr = start;
+	if (isalpha(*ptr))
+		{
+		ptr++;
+		while (isalnum(*ptr) || *ptr == '+' || *ptr == '-' || *ptr == '.')
+			{
+			ptr++;
+			}
+		if (*ptr == ':')
+			{
+			buf->scheme = start;		// Got scheme.
+			*ptr = '\0';			// Terminate it.
+			end = &ptr[1];
 			/*
-			 * Parse the scheme if possible.
+			 * Standardise uppercase to lower.
 			 */
-			ptr = start;
-			if (isalpha(*ptr))
+			while (--ptr > start)
 				{
-				ptr++;
-				while (isalnum(*ptr) || *ptr == '+' || *ptr == '-' || *ptr == '.')
+				if (isupper(*ptr))
 					{
-					ptr++;
+					*ptr = tolower(*ptr);
 					}
-				if (*ptr == ':')
+				}
+#if 0	// not compatible to Cocoa
+			if (base != NULL && base->scheme != 0
+				&& strcmp(base->scheme, buf->scheme) != 0)
+				{
+				[NSException raise: NSGenericException format:
+				 @"scheme of base (%s) and relative parts (%s) does not match", base->scheme, buf->scheme];
+				}
+#endif
+			}
+		}
+	start = end;
+	
+	if (buf->scheme == 0 && base != NULL)
+		{ // if no scheme in the string, copy from base URL
+			buf->scheme = base->scheme;
+		}
+	
+	/*
+	 * Set up scheme specific parsing options.
+	 */
+	if (buf->scheme != 0)
+		{
+		if (strcmp(buf->scheme, "file") == 0)
+			{
+			usesFragments = NO;
+			usesParameters = NO;
+			usesQueries = NO;
+			buf->isFile = YES;
+			}
+		else if (strcmp(buf->scheme, "mailto") == 0)
+			{
+			usesFragments = NO;
+			usesParameters = NO;
+			// CHECKME: really no queries allowed? how to specify a subject?
+			usesQueries = NO;
+			}
+		}
+	
+	if (canBeGeneric)
+		{
+		/*
+		 * Parse the 'authority'
+		 * //user:password@host:port
+		 */
+		if (start[0] == '/' && start[1] == '/')
+			{
+			buf->isGeneric = YES;
+			start = &end[2];
+			
+			/*
+			 * Set 'end' to point to the start of the path, or just past
+			 * the 'authority' if there is no path.
+			 */
+			end = strchr(start, '/');
+			if (!end)
+				{
+				buf->hasNoPath = YES;
+				end = &start[strlen(start)];
+				}
+			else
+				{
+				*end++ = '\0';
+				}
+			
+			/*
+			 * Parser username:password part
+			 */
+			ptr = strchr(start, '@');
+			if (ptr != 0)
+				{
+				buf->user = start;
+				*ptr++ = '\0';
+				start = ptr;
+				if (!legal(buf->user, ";:&=+$,"))
 					{
-					buf->scheme = start;		// Got scheme.
-					*ptr = '\0';			// Terminate it.
-					end = &ptr[1];
-					/*
-					 * Standardise uppercase to lower.
-					 */
-					while (--ptr > start)
+					[NSException raise: NSGenericException format:
+					 @"illegal character in user/password part"];
+					}
+				ptr = strchr(buf->user, ':');
+				if (ptr != 0)
+					{
+					*ptr++ = '\0';
+					buf->password = ptr;
+					}
+				}
+			
+			/*
+			 * Parse host:port part
+			 */
+			buf->host = start;
+			ptr = strchr(buf->host, ':');
+			if (ptr != 0)
+				{
+				const char	*str;
+				
+				*ptr++ = '\0';
+				buf->port = ptr;
+				str = buf->port;
+				while (*str != 0)
+					{
+					if (*str == '%' && isxdigit(str[1]) && isxdigit(str[2]))
 						{
-						if (isupper(*ptr))
+						unsigned char	c;
+						
+						str++;
+						if (*str <= '9')
 							{
-							*ptr = tolower(*ptr);
+							c = *str - '0';
+							}
+						else if (*str <= 'A')
+							{
+							c = *str - 'A' + 10;
+							}
+						else
+							{
+							c = *str - 'a' + 10;
+							}
+						c <<= 4;
+						str++;
+						if (*str <= '9')
+							{
+							c |= *str - '0';
+							}
+						else if (*str <= 'A')
+							{
+							c |= *str - 'A' + 10;
+							}
+						else
+							{
+							c |= *str - 'a' + 10;
+							}
+						
+						if (isdigit(c))
+							{
+							str++;
+							}
+						else
+							{
+							[NSException raise: NSGenericException format:
+							 @"illegal port part"];
 							}
 						}
-					if (base != NULL && base->scheme != 0
-						&& strcmp(base->scheme, buf->scheme) != 0)
+					else if (isdigit(*str))
+						{
+						str++;
+						}
+					else
 						{
 						[NSException raise: NSGenericException format:
-							@"scheme of base and relative parts does not match"];
+						 @"illegal character in port part"];
 						}
 					}
 				}
 			start = end;
-			
-			if (buf->scheme == 0 && base != NULL)
+			if (!legal(buf->host, "-"))
 				{
-				buf->scheme = base->scheme;
+				[NSException raise: NSGenericException format:
+				 @"illegal character in user/password part"];
 				}
 			
 			/*
-			 * Set up scheme specific parsing options.
+			 * If we have an authority component,
+			 * this must be an absolute URL
 			 */
-			if (buf->scheme != 0)
+			buf->pathIsAbsolute = YES;
+			base = 0;
+			}
+		else
+			{
+			if (base != 0)
 				{
-				if (strcmp(buf->scheme, "file") == 0)
-					{
-					usesFragments = NO;
-					usesParameters = NO;
-					usesQueries = NO;
-					buf->isFile = YES;
-					}
-				else if (strcmp(buf->scheme, "mailto") == 0)
-					{
-					usesFragments = NO;
-					usesParameters = NO;
-						// CHECKME: really???
-					usesQueries = NO;
-					}
+				buf->isGeneric = base->isGeneric;
 				}
-			
-			if (canBeGeneric)
+			if (*start == '/')
 				{
-				/*
-				 * Parse the 'authority'
-				 * //user:password@host:port
-				 */
-				if (start[0] == '/' && start[1] == '/')
-					{
-					buf->isGeneric = YES;
-					start = &end[2];
-					
-					/*
-					 * Set 'end' to point to the start of the path, or just past
-					 * the 'authority' if there is no path.
-					 */
-					end = strchr(start, '/');
-					if (!end)
-						{
-						buf->hasNoPath = YES;
-						end = &start[strlen(start)];
-						}
-					else
-						{
-						*end++ = '\0';
-						}
-					
-					/*
-					 * Parser username:password part
-					 */
-					ptr = strchr(start, '@');
-					if (ptr != 0)
-						{
-						buf->user = start;
-						*ptr++ = '\0';
-						start = ptr;
-						if (!legal(buf->user, ";:&=+$,"))
-							{
-								// CHECKME - should we raise exceptions?
-							[NSException raise: NSGenericException format:
-								@"illegal character in user/password part"];
-							}
-						ptr = strchr(buf->user, ':');
-						if (ptr != 0)
-							{
-							*ptr++ = '\0';
-							buf->password = ptr;
-							}
-						}
-					
-					/*
-					 * Parse host:port part
-					 */
-					buf->host = start;
-					ptr = strchr(buf->host, ':');
-					if (ptr != 0)
-						{
-						const char	*str;
-						
-						*ptr++ = '\0';
-						buf->port = ptr;
-						str = buf->port;
-						while (*str != 0)
-							{
-							if (*str == '%' && isxdigit(str[1]) && isxdigit(str[2]))
-								{
-								unsigned char	c;
-								
-								str++;
-								if (*str <= '9')
-									{
-									c = *str - '0';
-									}
-								else if (*str <= 'A')
-									{
-									c = *str - 'A' + 10;
-									}
-								else
-									{
-									c = *str - 'a' + 10;
-									}
-								c <<= 4;
-								str++;
-								if (*str <= '9')
-									{
-									c |= *str - '0';
-									}
-								else if (*str <= 'A')
-									{
-									c |= *str - 'A' + 10;
-									}
-								else
-									{
-									c |= *str - 'a' + 10;
-									}
-								
-								if (isdigit(c))
-									{
-									str++;
-									}
-								else
-									{
-									[NSException raise: NSGenericException format:
-										@"illegal port part"];
-									}
-								}
-							else if (isdigit(*str))
-								{
-								str++;
-								}
-							else
-								{
-								[NSException raise: NSGenericException format:
-									@"illegal character in port part"];
-								}
-							}
-						}
-					start = end;
-					if (!legal(buf->host, "-"))
-						{
-						[NSException raise: NSGenericException format:
-							@"illegal character in user/password part"];
-						}
-					
-					/*
-					 * If we have an authority component,
-					 * this must be an absolute URL
-					 */
-					buf->pathIsAbsolute = YES;
-					base = 0;
-					}
-				else
-					{
-					if (base != 0)
-						{
-						buf->isGeneric = base->isGeneric;
-						}
-					if (*start == '/')
-						{
-						buf->pathIsAbsolute = YES;
-						start++;
-						}
-					}
-				
-				if (usesFragments)
-					{
-					/*
-					 * Strip fragment string from end of url.
-					 */
-					ptr = strchr(start, '#');
-					if (ptr != 0)
-						{
-						*ptr++ = '\0';
-						if (*ptr != 0)
-							{
-							buf->fragment = ptr;
-							}
-						}
-					if (buf->fragment == 0 && base != 0)
-						{
-						buf->fragment = base->fragment;
-						}
-					}
-				
-				if (usesQueries)
-					{
-					/*
-					 * Strip query string from end of url.
-					 */
-					ptr = strchr(start, '?');
-					if (ptr != 0)
-						{
-						*ptr++ = '\0';
-						if (*ptr != 0)
-							{
-							buf->query = ptr;
-							}
-						}
-					if (buf->query == 0 && base != 0)
-						{
-						buf->query = base->query;
-						}
-					}
-				
-				if (usesParameters)
-					{
-					/*
-					 * Strip parameters string from end of url.
-					 */
-					ptr = strchr(start, ';');
-					if (ptr != 0)
-						{
-						*ptr++ = '\0';
-						if (*ptr != 0)
-							{
-							buf->parameters = ptr;
-							}
-						}
-					if (buf->parameters == 0 && base != 0)
-						{
-						buf->parameters = base->parameters;
-						}
-					}
-				
-				if (buf->isFile)
-					{
-					buf->user = 0;
-					buf->password = 0;
-					buf->host = "localhost";
-					buf->port = 0;
-					buf->isGeneric = YES;
-					}
-				else if (base != 0
-						 && buf->user == 0 && buf->password == 0
-						 && buf->host == 0 && buf->port == 0)
-					{
-					buf->user = base->user;
-					buf->password = base->password;
-					buf->host = base->host;
-					buf->port = base->port;
-					}
+				buf->pathIsAbsolute = YES;
+				start++;
 				}
+			}
+		
+		if (usesFragments)
+			{
 			/*
-			 * Store the path.
+			 * Strip fragment string from end of url.
 			 */
-			buf->path = start;
+			ptr = strchr(start, '#');
+			if (ptr != 0)
+				{
+				*ptr++ = '\0';
+				if (*ptr != 0)
+					{
+					buf->fragment = ptr;
+					}
+				}
+			if (buf->fragment == 0 && base != 0)
+				{
+				buf->fragment = base->fragment;
+				}
+			}
+		
+		if (usesQueries)
+			{
+			/*
+			 * Strip query string from end of url.
+			 */
+			ptr = strchr(start, '?');
+			if (ptr != 0)
+				{
+				*ptr++ = '\0';
+				if (*ptr != 0)
+					{
+					buf->query = ptr;
+					}
+				}
+			if (buf->query == 0 && base != 0)
+				{
+				buf->query = base->query;
+				}
+			}
+		
+		if (usesParameters)
+			{
+			/*
+			 * Strip parameters string from end of url.
+			 */
+			ptr = strchr(start, ';');
+			if (ptr != 0)
+				{
+				*ptr++ = '\0';
+				if (*ptr != 0)
+					{
+					buf->parameters = ptr;
+					}
+				}
+			if (buf->parameters == 0 && base != 0)
+				{
+				buf->parameters = base->parameters;
+				}
+			}
+		
+		if (buf->isFile)
+			{
+			buf->user = 0;
+			buf->password = 0;
+			buf->host = 0;
+			buf->port = 0;
+			buf->isGeneric = YES;
+			}
+		else if (base != 0
+				 && buf->user == 0 && buf->password == 0
+				 && buf->host == 0 && buf->port == 0)
+			{
+			buf->user = base->user;
+			buf->password = base->password;
+			buf->host = base->host;
+			buf->port = base->port;
+			}
 		}
+	/*
+	 * Store the path.
+	 */
+	buf->path = start;
+	}
 	NS_HANDLER
-		{
-			NSLog(@"%@", localException);
-			[self release];
-			self=nil;
-		}
+	{
+	NSLog(@"%@", localException);
+	[self release];
+	self=nil;
+	}
 	NS_ENDHANDLER
 #if 0
 	NSLog(@"url=%@", self);
@@ -1052,7 +1053,7 @@ static NSString *unescape(const char *from)
 }
 
 /**
-* Returns the full string describing the receiver resiolved against its base.
+* Returns the full string describing the receiver resolved against its base.
  */
 - (NSString*) absoluteString
 {

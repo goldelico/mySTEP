@@ -507,7 +507,7 @@
 #else
 	[super replaceCharactersInRange:rng withAttributedString:str];
 #endif
-	[self edited:NSTextStorageEditedCharacters|NSTextStorageEditedAttributes range:rng changeInLength:[str length]-rng.length];
+	[self edited:NSTextStorageEditedCharacters range:rng changeInLength:[str length]-rng.length];
 }
 
 - (void) replaceCharactersInRange:(NSRange) rng withString:(NSString *) str

@@ -175,11 +175,11 @@ static id _NSGetAlertPanel(NSString *icon,
 	 }
 		*/
 
-#if 0
+#if 1
 		NSLog(@"_NSGetAlertPanel message=%@", msg);
 #endif
 		message = [[[NSString alloc] initWithFormat: msg arguments: ap] autorelease];
-#if 0
+#if 1
 		NSLog(@"  => %@", message);
 #endif
 		
@@ -368,6 +368,9 @@ NSReleaseAlertPanel(id alertPanel)
 static int _NSRunPanel(NSPanel *p)
 { // run any panel
 	int r = NSAlertErrorReturn;	// default
+#if 1
+	NSLog(@"_NSRunPanel");
+#endif
 	[p center];
 	//	[[p contentView] display];	// required?
 	r=[NSApp runModalForWindow: p];

@@ -421,8 +421,8 @@ object:self]
 #endif
 	if(_tx.horzResizable && fabs(newMinSize.width) > ofsz.width)
 		P(@"ha"), nfsz.width=fabs(newMinSize.width);
-	else if(newMinSize.width <= _maxSize.width)
-		P(@"hb"), _minSize.width=newMinSize.width;
+//	else if(newMinSize.width <= _maxSize.width)
+//		P(@"hb"), _minSize.width=newMinSize.width;
 	if(newMinSize.width <= _maxSize.width)
 		P(@"hc"), _minSize.width=newMinSize.width;
 	else
@@ -431,8 +431,8 @@ object:self]
 		P(@"he"), _maxSize.width=newMinSize.width;
 	if(_tx.vertResizable && fabs(newMinSize.height) > ofsz.height)
 		P(@"va"), nfsz.height=fabs(newMinSize.height);
-	else if(newMinSize.height <= _maxSize.height)
-		P(@"vb"), _minSize.height=newMinSize.height;
+//	else if(newMinSize.height <= _maxSize.height)
+//		P(@"vb"), _minSize.height=newMinSize.height;
 	if(newMinSize.height <= _maxSize.height)
 		P(@"vc"), _minSize.height=newMinSize.height;
 	else
