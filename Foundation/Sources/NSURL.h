@@ -26,9 +26,9 @@
 */
 
 /*
- How an URL is split into NSURL components
+ How an URL is split into NSURL components:
  
- scheme://user:password@host.domain.org:888/path/path.htm;parameter?query#fragment
+	scheme://user:password@host.domain.org:888/path/path.htm;parameter?query#fragment
  
  */
 

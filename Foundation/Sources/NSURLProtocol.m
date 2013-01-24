@@ -1296,13 +1296,13 @@ static NSMutableDictionary *_httpConnections;
 + (NSURLRequest *) canonicalRequestForRequest:(NSURLRequest *) request; { return request; }
 
 - (void) startLoading;
-{
+{ // data:[<mediatype>][;base64],<data>
 	NSURLResponse *r;
 	NSString *mime=@"text/plain";
 	NSString *encoding=@"US-ASCII";
 	NSData *data;
-	NSString *path=[[_request URL] path];
-	NSRange comma=[path rangeOfString:@","];
+	NSString *path=[[_request URL] resourceSpecifier];
+	NSRange comma=[path rangeOfString:@","];	// position of the ,
 	NSEnumerator *types;
 	NSString *type;
 	BOOL base64=NO;
@@ -1312,13 +1312,13 @@ static NSMutableDictionary *_httpConnections;
 																	   code:0
 																   userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
 																			 [_request URL], @"URL",
-																			 [[_request URL] path], @"path", nil]
+																			 path, @"path", nil]
 													]];
 		return;
 		}
 	types=[[[path substringToIndex:comma.location] componentsSeparatedByString:@";"] objectEnumerator];
 	while((type=[types nextObject]))
-		{
+		{ // process mediatype etc.
 		if([type isEqualToString:@"base64"])
 			base64=YES;
 		else if([type hasPrefix:@"charset="])
@@ -1326,7 +1326,7 @@ static NSMutableDictionary *_httpConnections;
 		else if([type length] > 0)
 			mime=type;
 		}
-	path=[path substringFromIndex:comma.location+1];	// data after ,
+	path=[path substringFromIndex:comma.location+1];	// part after ,
 	if(base64)
 		data=[[[NSData alloc] _initWithBase64String:path] autorelease]; // decode base64 (private extension of NSData)
 	else
