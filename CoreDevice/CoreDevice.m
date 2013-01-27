@@ -94,42 +94,13 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		if(s != _previousBatteryState)
 			{
 			_previousBatteryState=s;
-			// notification
+			[[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceBatteryStateDidChangeNotification object:nil];
 			}
-		if(l != _previousBatteryLevel)
-			{
-			_previousBatteryLevel=l;
-			// notification
+		if(fabs(l - _previousBatteryLevel) > 0.01)
+			{ // more than 1%
+				_previousBatteryLevel=l;
+				[[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceBatteryLevelDidChangeNotification object:nil];
 			}
-		// update charging parameter estimation
-		// to estimate, we need two different (persistent) sets of calibration values
-		// we should update them every 1 minute
-		// and dejitter...
-		/*
-		 * minVoltageDischarging
-		 * maxVoltageDischarging
-		 * minVoltageCharging
-		 * maxVoltageCharging
-		 * dischargeRate	// mV/min
-		 * chargeRate		// mV/min
-		 * lastVoltage
-		 * lastTimestamp
-		 *
-		 * if(charging)
-		 *    {
-		 *    chargeRate = (100*chargeRate + 1*(voltage-lastVoltage)/(now-lastTimestamp))/(100+1)	// adjust charging Rate estimation - low pass filter
-		 *	  minVoltageCharging *=1.01;	// slowly creep up
-		 *	  maxVoltageCharging *=0.99;	// slowly creep down
-		 *    if(voltage < minVoltageCharging)
-		 *        minVoltageCharging=voltage;
-		 *    if(voltage > maxVoltageCharging)
-		 *        maxVoltageCharging=voltage;
-		 *	  }
-		 * else discharging
-		 *  =>
-		 *    batteryLevel=(voltage-minVoltage)(maxVoltage-minVoltage);
-		 *    remainingTime=60*(maxVoltage-voltage)/chargeRate;
-		 */
 		}
 	if(generatingDeviceOrientationNotifications)
 		{
@@ -137,7 +108,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		if(o != _previousOrientation)
 			{
 			_previousOrientation=o;
-			// notification
+			[[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceOrientationDidChangeNotification object:nil];
 			}
 		}
 	if(proximityMonitoringEnabled)
@@ -146,7 +117,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		if(s != _previousProximityState)
 			{
 			_previousProximityState=s;
-			// notification
+			[[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceProximityStateDidChangeNotification object:nil];
 			}
 		}
 	[self performSelector:@selector(_update) withObject:nil afterDelay:1.0 inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];	// trigger updates
@@ -161,10 +132,18 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (float) batteryLevel;
 {
-	NSString *val=[NSString stringWithContentsOfFile:@"/sys/bus/platform/devices/twl4030-bci-battery/power_supply/twl4030_bci_battery/voltage_now"];
+	// bq27000 on 3.7 kernel
+	NSString *val=[NSString stringWithContentsOfFile:@"/sys/devices/w1_bus_master1/01-000000000000/bq27000-battery/power_supply/bq27000-battery/capacity"];
+	if(val)
+		return [val intValue]/100.0;
+	// battery voltage in mV on 3.7 kernel
+	val=[NSString stringWithContentsOfFile:@"/sys/devices/platform/twl4030_madc_hwmon/in12_input"];
+	// battery voltage in mV on 2.6 kernel
+	if(!val)
+		val=[NSString stringWithContentsOfFile:@"/sys/bus/platform/devices/twl4030-bci-battery/power_supply/twl4030_bci_battery/voltage_now"];
 	if(!val)
 		return -1.0;	// unknown
-	return ([val intValue]-3200)/(4250.0-3200.0);
+	return ([val intValue]-3200)/(4250.0-3200.0);	// estimate from voltage
 }
 
 - (BOOL) isBatteryMonitoringEnabled;
@@ -183,7 +162,25 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (UIDeviceBatteryState) batteryState;
 {
-	NSString *status=[NSString stringWithContentsOfFile:@"/sys/bus/platform/devices/twl4030-bci-battery/power_supply/twl4030_bci_battery/status"];
+	NSString *status=[NSString stringWithContentsOfFile:@"/sys/devices/w1_bus_master1/01-000000000000/bq27000-battery/power_supply/bq27000-battery/status"];
+	if(status)
+		{ // bq27000 on 3.7 kernel
+#if 1
+			NSLog(@"bq27000 status %@", status);
+#endif
+			if([status isEqualToString:@"Charging"])
+				return UIDeviceBatteryStateCharging;
+			return UIDeviceBatteryStateUnknown;
+		}
+	status=[NSString stringWithContentsOfFile:@"/sys/devices/platform/omap_i2c.1/i2c-1/1-004b/twl4030_bci/power_supply/twl4030_usb/status"];
+#if 1
+	NSLog(@"3.7 USB charger status %@", status);
+#endif
+	if(!status)
+		status=[NSString stringWithContentsOfFile:@"/sys/bus/platform/devices/twl4030-bci-battery/power_supply/twl4030_bci_battery/status"];
+#if 1
+	NSLog(@"status %@", status);
+#endif
 	if(status == nil)
 		return UIDeviceBatteryStateUnknown;
 	if([self batteryLevel] >= 0.97)
@@ -195,6 +192,12 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (NSTimeInterval) remainingTime;
 { // estimate
+	NSString *status=[NSString stringWithContentsOfFile:@"/sys/devices/w1_bus_master1/01-000000000000/bq27000-battery/power_supply/bq27000-battery/time_to_empty_now"];
+#if 1
+	NSLog(@"bq27000 remainingTime %@", status);
+#endif
+	if([status length] > 0)
+		;
 	return [self batteryLevel]*((1200*3600/450));	// 1200 mAh / 450 mA
 }
 
@@ -250,7 +253,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSArray *val=[[NSString stringWithContentsOfFile:@"/sys/bus/i2c/devices/i2c-2/2-0041/coord"] componentsSeparatedByString:@","];
 	if([val count] >= 3)
 		{
-			// check relative magnitudes
+		// check relative magnitudes
 		NSLog(@"orientation=%@", val);
 		}
 	return UIDeviceOrientationUnknown;
@@ -263,8 +266,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (void) setProximityMonitoringEnabled:(BOOL) state;
 {
-	// we can't set it to YES
-	// proximityMonitoringEnabled=state;
+#if 0	// we can't set it to YES unless we have a proximity sensor
+	proximityMonitoringEnabled=state;
+#endif
 	[self _updater];
 }
 

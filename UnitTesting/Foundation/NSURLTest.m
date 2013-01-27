@@ -63,15 +63,48 @@
 { // data: and file: URLs
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"data:other"]];
 	STAssertEqualObjects([url scheme], @"data", nil);
+	STAssertEqualObjects([url description], @"data:,A%20brief%20note", nil);
 	STAssertEqualObjects([url absoluteString], @"data:,A%20brief%20note", nil);
+	/* conclusions
+	 * base URL is ignored
+	 */
 }
 
 - (void) test14b
 {
 	NSURL *url=[NSURL URLWithString:@"data:,A%20brief%20note" relativeToURL:[NSURL URLWithString:@"file://localhost/"]];
+	STAssertEqualObjects([url description], @"data:,A%20brief%20note", nil);
 	STAssertEqualObjects([url absoluteString], @"data:,A%20brief%20note", nil);
 	/* conclusions
-	 * does not copy localhost
+	 * base URL is ignored in this case
+	 */
+}
+
+- (void) test14c
+{ // check influence of scheme in string and base
+	NSURL *url=[NSURL URLWithString:@"data:data" relativeToURL:[NSURL URLWithString:@"file:file"]];
+	STAssertEqualObjects([url description], @"data:data", nil);
+	STAssertEqualObjects([url absoluteString], @"data:data", nil);
+	url=[NSURL URLWithString:@"data" relativeToURL:[NSURL URLWithString:@"data:file"]];
+	STAssertEqualObjects([url description], @"data -- data:file", nil);
+	STAssertEqualObjects([url absoluteString], @"data:///data", nil);
+	url=[NSURL URLWithString:@"data:data" relativeToURL:[NSURL URLWithString:@"data:file"]];
+	STAssertEqualObjects([url description], @"data:data", nil);
+	STAssertEqualObjects([url absoluteString], @"data:data", nil);
+	url=[NSURL URLWithString:@"file:data" relativeToURL:[NSURL URLWithString:@"file:file"]];
+	STAssertEqualObjects([url description], @"file:data", nil);
+	STAssertEqualObjects([url absoluteString], @"file:data", nil);
+	url=[NSURL URLWithString:@"data" relativeToURL:[NSURL URLWithString:@"file:file"]];
+	STAssertEqualObjects([url description], @"data -- file:file", nil);
+	STAssertEqualObjects([url absoluteString], @"file:///data", nil);
+	url=[NSURL URLWithString:@"data:data" relativeToURL:[NSURL URLWithString:@"file"]];
+	STAssertEqualObjects([url description], @"data:data", nil);
+	STAssertEqualObjects([url absoluteString], @"data:data", nil);
+	url=[NSURL URLWithString:@"data" relativeToURL:[NSURL URLWithString:@"file"]];
+	STAssertEqualObjects([url description], @"data -- file", nil);
+	STAssertEqualObjects([url absoluteString], @"//data", nil);
+	/* conclusions
+	 * relative URL is only stored if we have no scheme
 	 */
 }
 
@@ -279,6 +312,7 @@
 	 * note that we have a bug in the host:port syntax - there is an additional : at the end which is stored but ignored
 	 * but it is not clear if that prevents standardization to work
 	 * what it does is to make [url port] == nil (because it is defined nowhere)
+	 * another observation: if string and baseURL define a different scheme, the base URL is ignored - sometimes
 	 */
 }
 
@@ -320,6 +354,19 @@
 	 * .. areremoved
 	 * /. are removed
 	 * trailing /. removes the . only
+	 */
+}
+
+- (void) test25
+{ // another strange case
+	NSURL *url=[NSURL URLWithString:@"//host/path"];
+	STAssertEqualObjects([url description], @"//host/path", nil);
+	STAssertEqualObjects([url host], @"host", nil);
+	STAssertEqualObjects([url path], @"/path", nil);
+	STAssertEqualObjects([url absoluteString], @"//host/path", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"host/path", nil);
+	/* conclusions
+	 * //host can be detected even if we have no scheme
 	 */
 }
 
