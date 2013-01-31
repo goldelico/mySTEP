@@ -434,6 +434,7 @@ extern int system(const char *cmd);
 			// set err
 			return NO;
 		}
+#if 0
 	cmd=[NSString stringWithFormat:@"echo ifconfig '%@' up", _name];
 #if 1
 	NSLog(@"%@", cmd);
@@ -443,6 +444,7 @@ extern int system(const char *cmd);
 			// set err
 			return NO;
 		}		
+#endif
 	cmd=[NSString stringWithFormat:@"iwconfig '%@' mode '%@' essid -- '%@'", _name, [network isIBSS]?@"ad-hoc":@"managed", [network ssid]];
 #if 1
 	NSLog(@"%@", cmd);
@@ -462,8 +464,8 @@ extern int system(const char *cmd);
 {
 	// CHECKME: is that really a disassociate?
 	// FIXME: we should set SSID="" to disassociate
-	NSString *cmd=[NSString stringWithFormat:@"ifconfig '%@' down", _name];
-	system([cmd UTF8String]);
+//	NSString *cmd=[NSString stringWithFormat:@"ifconfig '%@' down", _name];
+//	system([cmd UTF8String]);
 }
 
 - (BOOL) enableIBSSWithParameters:(NSDictionary *) params error:(NSError **) err; 
@@ -480,12 +482,14 @@ extern int system(const char *cmd);
 		network=@"GTA04";	// default; should we use [[NSProcessInfo processInfo] hostName] ?
 	if(channel <= 0)
 		channel=11;	// default
+#if 0
 	cmd=[NSString stringWithFormat:@"ifconfig '%@' up", _name];
 	if(system([cmd UTF8String]) != 0)
 		{
 		// set err
 		return NO;
 		}
+#endif
 	cmd=[NSString stringWithFormat:@"iwconfig '%@' mode '%@' essid -- '%@' channel '%u' enc 'off'", _name, @"ad-hoc", network, channel];
 	if(system([cmd UTF8String]) != 0)
 		{
@@ -511,12 +515,14 @@ extern int system(const char *cmd);
 	NSMutableDictionary *attributes=[NSMutableDictionary dictionaryWithCapacity:15];
 	CWNetwork *n;
 	if(!err) err=&dummy;
+#if 0
 	cmd=[NSString stringWithFormat:@"ifconfig '%@' up", _name];
 	if(system([cmd UTF8String]) != 0)
 		{ // interface does not exist
 			// set err
 			return NO;
-		}		
+		}
+#endif
 	cmd=[NSString stringWithFormat:@"iwlist '%@' scanning", _name];
 #if 1
 	NSLog(@"popen %@", cmd);
@@ -604,7 +610,21 @@ extern int system(const char *cmd);
 - (BOOL) setPower:(BOOL) power error:(NSError **) err;
 {
 	NSError *dummy;
+	NSString *cmd;
 	if(!err) err=&dummy;
+	if([self power] == power)
+		return YES;	// no change needed
+	if(power)
+		cmd=[NSString stringWithFormat:@"ifconfig '%@' up", _name];
+	else
+		cmd=[NSString stringWithFormat:@"ifconfig '%@' down", _name];
+	if(system([cmd UTF8String]) != 0)
+		{ // interface does not exist
+			// set err
+			return NO;
+		}
+	return YES;
+	
 #if 0	// has no result on our hardware
 	NSString *cmd=[NSString stringWithFormat:@"iwconfig '%@' power '%@'", _name, power?@"on":@"off"];
 	if(system([cmd UTF8String]) != 0)
@@ -712,7 +732,11 @@ extern int system(const char *cmd);
 
 - (BOOL) power;
 {
-	return [[NSString stringWithContentsOfFile:@"/sys/devices/platform/reg-virt-consumer.4/max_microvolts"] intValue] > 0;
+	NSString *str=[NSString stringWithContentsOfFile:[NSString stringWithFormat:@"/sys/class/net/%@/flags", _name]];
+#if 0
+	NSLog(@"power state=%@", str);
+#endif
+	return [str hasPrefix:@"0x1003"];	// or 0x1002
 }
 
 //- (BOOL) powerSave;
@@ -720,6 +744,9 @@ extern int system(const char *cmd);
 - (NSNumber *) rssi;
 { // in dBm
 	NSArray *a=[[self _getiwconfig] componentsSeparatedByString:@"Signal level:"];
+#if 1
+	NSLog(@"iwconfig: %@", a);
+#endif
 	if([a count] >= 2)
 		{
 		return [NSNumber numberWithInt:[[a objectAtIndex:1] intValue]];		
@@ -818,6 +845,8 @@ extern int system(const char *cmd);
 
 + (BOOL) _activateHardware:(BOOL) flag;
 {
+	return YES;	// no longer required on 3.7 kernel
+	
 #if 1
 	NSLog(@"WLAN _activateHardware:%d", flag);
 #endif
@@ -936,6 +965,8 @@ extern int system(const char *cmd);
 					_securityMode=[[NSNumber alloc] initWithInt:kCWSecurityModeWPA_PSK];
 				else if([m hasPrefix:@"IEEE 802.11i/WPA2 Version 1"])
 					_securityMode=[[NSNumber alloc] initWithInt:kCWSecurityModeWPA2_PSK];
+				else if([m hasPrefix:@"Unknown:"])
+					;
 				else
 					NSLog(@"unknown Encryption: %@", m);
 			}

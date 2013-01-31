@@ -59,15 +59,16 @@ extern NSString *UIDeviceProximityStateDidChangeNotification;
 - (BOOL) isBatteryMonitoringEnabled;
 - (void) setBatteryMonitoringEnabled:(BOOL) state;
 - (UIDeviceBatteryState) batteryState;
-- (NSTimeInterval) remainingTime;
 
 - (BOOL) isMultitaskingSupported;	/* always YES */
 
+// - (NSUUID *) identifierForVendor;
 - (NSString *) localizedModel;
 - (NSString *) model;	/* e.g. Zaurus, GTA04 */
 - (NSString *) name;
 - (NSString *) systemName;	/* @"QuantumSTEP" */
 - (NSString *) systemVersion;
+// - (NSString *) uniqueIdentifier;
 
 - (BOOL) isGeneratingDeviceOrientationNotifications;
 - (void) beginGeneratingDeviceOrientationNotifications;
@@ -81,5 +82,11 @@ extern NSString *UIDeviceProximityStateDidChangeNotification;
 // -(UIUserInterfaceIdiom) userInterfaceIdiom;
 
 - (void) playInputClick;
+
+@end
+
+@interface UIDevice (Extensions)
+
+- (NSTimeInterval) remainingTime;
 
 @end

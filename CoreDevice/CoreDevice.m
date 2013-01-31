@@ -80,8 +80,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (void) dealloc
 { // should not happen for a singleton!
 	[NSObject cancelPreviousPerformRequestsWithTarget:self];	// cancel previous updates
+#if 1
 	NSLog(@"CoreDevice dealloc");
 	abort();
+#endif
 	[super dealloc];
 }
 
@@ -130,11 +132,15 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		[self performSelector:@selector(_update) withObject:nil afterDelay:1.0 inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil]];	// trigger updates
 }
 
+#define VMIN	3300.0
+#define VMAX	4250.0
+
 - (float) batteryLevel;
 {
+	float level;
 	// bq27000 on 3.7 kernel
 	NSString *val=[NSString stringWithContentsOfFile:@"/sys/devices/w1_bus_master1/01-000000000000/bq27000-battery/power_supply/bq27000-battery/capacity"];
-	if(val)
+	if([val length] > 0)
 		return [val intValue]/100.0;
 	// battery voltage in mV on 3.7 kernel
 	val=[NSString stringWithContentsOfFile:@"/sys/devices/platform/twl4030_madc_hwmon/in12_input"];
@@ -143,7 +149,11 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		val=[NSString stringWithContentsOfFile:@"/sys/bus/platform/devices/twl4030-bci-battery/power_supply/twl4030_bci_battery/voltage_now"];
 	if(!val)
 		return -1.0;	// unknown
-	return ([val intValue]-3200)/(4250.0-3200.0);	// estimate from voltage
+	/* should add some calibration curve */
+	level=([val intValue]-VMIN)/(VMAX-VMIN);	// estimate charging level from voltage
+	if(level < 0.0) level=0.0;
+	if(level > 1.0) level=1.0;
+	return level;
 }
 
 - (BOOL) isBatteryMonitoringEnabled;
@@ -161,24 +171,35 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 }
 
 - (UIDeviceBatteryState) batteryState;
-{
-	NSString *status=[NSString stringWithContentsOfFile:@"/sys/devices/w1_bus_master1/01-000000000000/bq27000-battery/power_supply/bq27000-battery/status"];
-	if(status)
-		{ // bq27000 on 3.7 kernel
-#if 1
-			NSLog(@"bq27000 status %@", status);
+{ // bq always reports "presence" = "1"
+	// these bq calls are blocking for timeout if we have no battery!
+	id status=[NSData dataWithContentsOfFile:@"/sys/devices/w1_bus_master1/01-000000000000/bq27000-battery/power_supply/bq27000-battery/capacity"];
+#if 0
+	NSLog(@"bq27000 capacity %@", status);
 #endif
-			if([status isEqualToString:@"Charging"])
-				return UIDeviceBatteryStateCharging;
-			return UIDeviceBatteryStateUnknown;
+	if([status length] > 0)
+		{ // reports valid capacity value
+			status=[NSString stringWithContentsOfFile:@"/sys/devices/w1_bus_master1/01-000000000000/bq27000-battery/power_supply/bq27000-battery/status"];
+			if(status)
+				{ // bq27000 on 3.7 kernel
+#if 0
+					NSLog(@"bq27000 status %@", status);
+#endif
+					if([status hasPrefix:@"Charging"])
+						return UIDeviceBatteryStateCharging;
+					if([status hasPrefix:@"Full"])
+						return UIDeviceBatteryStateFull;
+					if([status hasPrefix:@"Discharging"])
+						return UIDeviceBatteryStateUnplugged;	// i.e.not connected to charger
+				}
 		}
 	status=[NSString stringWithContentsOfFile:@"/sys/devices/platform/omap_i2c.1/i2c-1/1-004b/twl4030_bci/power_supply/twl4030_usb/status"];
-#if 1
+#if 0
 	NSLog(@"3.7 USB charger status %@", status);
 #endif
 	if(!status)
 		status=[NSString stringWithContentsOfFile:@"/sys/bus/platform/devices/twl4030-bci-battery/power_supply/twl4030_bci_battery/status"];
-#if 1
+#if 0
 	NSLog(@"status %@", status);
 #endif
 	if(status == nil)
@@ -187,17 +208,17 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		return UIDeviceBatteryStateFull;
 	if([status hasPrefix:@"Charging"])
 		return UIDeviceBatteryStateCharging;
-	return UIDeviceBatteryStateUnplugged;
+	return UIDeviceBatteryStateUnplugged;	// assume discharging
 }
 
 - (NSTimeInterval) remainingTime;
-{ // estimate
+{ // estimate remaining time
 	NSString *status=[NSString stringWithContentsOfFile:@"/sys/devices/w1_bus_master1/01-000000000000/bq27000-battery/power_supply/bq27000-battery/time_to_empty_now"];
-#if 1
+#if 0
 	NSLog(@"bq27000 remainingTime %@", status);
 #endif
 	if([status length] > 0)
-		;
+		return [status doubleValue];
 	return [self batteryLevel]*((1200*3600/450));	// 1200 mAh / 450 mA
 }
 
@@ -253,8 +274,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSArray *val=[[NSString stringWithContentsOfFile:@"/sys/bus/i2c/devices/i2c-2/2-0041/coord"] componentsSeparatedByString:@","];
 	if([val count] >= 3)
 		{
-		// check relative magnitudes
+		// check relative magnitudes of X, Y, Z
+#if 1
 		NSLog(@"orientation=%@", val);
+#endif
 		}
 	return UIDeviceOrientationUnknown;
 }

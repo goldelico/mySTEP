@@ -207,7 +207,7 @@ void objc_load_callback(Class class, Category *category)
 #if 0
 	fprintf(stderr, "objc_load_callback(%s, %p)\n", object_get_class_name(class), category);
 #endif
-    if (class != Nil && category != Nil) 		// Invalidate the dtable, so it 
+    if (class != Nil && category != (Category *) NULL) 		// Invalidate the dtable, so it 
 		{									// will be rebuilt correctly
 			objc_invalidate_dtable(class);
 			objc_invalidate_dtable(class->class_pointer);
@@ -615,7 +615,7 @@ NSString *
 NSStringFromSelector(SEL aSelector)
 {
 	if (aSelector != (SEL)0)
-		return [NSString stringWithFormat: @"%s", (char *) sel_get_name(aSelector)];
+		return [NSString stringWithCString:(char *) sel_get_name(aSelector)];
 	return nil;
 }
 

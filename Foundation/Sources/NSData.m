@@ -946,6 +946,8 @@ static IMP appendImp;
 	NSError *localError;
 	if(!errorPtr)
 		errorPtr=&localError;
+	if([url isFileURL])
+		;; // special handling (faster)
 	data=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:errorPtr];
 #if 1
 	NSLog(@"initWithContentsOfURL: %@ done data=%p error=%@", url, data, *errorPtr);
@@ -1470,7 +1472,7 @@ void* b;
 		}
     fclose(f);
 #if 0
-	NSLog(@"initWithContentsOfFile done: %@", path);
+	NSLog(@"initWithContentsOfFile done (%d): %@", length, path);
 #endif
     return self;
 }
