@@ -15,7 +15,7 @@
 - (void) test10
 { // most complex initialization...
 	NSURL *url=[NSURL URLWithString:@"file%20name.htm;param1;param2?something=other&andmore=more#fragments"
-										relativeToURL:[NSURL URLWithString:@"scheme://user:password@host.domain.org:888/path/absfile.htm"]];
+					  relativeToURL:[NSURL URLWithString:@"scheme://user:password@host.domain.org:888/path/absfile.htm"]];
 	STAssertEqualObjects([url description], @"file%20name.htm;param1;param2?something=other&andmore=more#fragments -- scheme://user:password@host.domain.org:888/path/absfile.htm", nil);
 	STAssertEqualObjects([url absoluteString], @"scheme://user:password@host.domain.org:888/path/file%20name.htm;param1;param2?something=other&andmore=more#fragments", nil);
 	STAssertEqualObjects([[url absoluteURL] description], @"scheme://user:password@host.domain.org:888/path/file%20name.htm;param1;param2?something=other&andmore=more#fragments", nil);
@@ -54,8 +54,19 @@
 	STAssertEqualObjects([url query], nil, nil);
 	STAssertEqualObjects([url fragment], nil, nil);
 	STAssertEqualObjects([url resourceSpecifier], @"image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7", nil);
-	/*
-	 * conclusions - this appears to have neither path nor a parameter string?
+	url=[NSURL URLWithString:@"html:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7"];
+	STAssertEqualObjects([url scheme], @"html", nil);
+	STAssertEqualObjects([url absoluteString], @"html:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAwAAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFzByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSpa/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJlZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uisF81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PHhhx4dbgYKAAA7", nil);
+	STAssertEqualObjects([url path], nil, nil);
+	STAssertEqualObjects([url parameterString], nil, nil);
+	url=[NSURL URLWithString:@"html:image/gif"];
+	STAssertEqualObjects([url scheme], @"html", nil);
+	STAssertEqualObjects([url absoluteString], @"html:image/gif", nil);
+	STAssertEqualObjects([url path], nil, nil);
+	STAssertEqualObjects([url parameterString], nil, nil);
+	/* conclusions
+	 * this appears to have neither path nor a parameter string?
+	 * a relative path with no base has a nil path
 	 */
 }
 
@@ -76,7 +87,7 @@
 	STAssertEqualObjects([url description], @"data:,A%20brief%20note", nil);
 	STAssertEqualObjects([url absoluteString], @"data:,A%20brief%20note", nil);
 	/* conclusions
-	 * base URL is ignored in this case
+	 * base URL is ignored as well
 	 */
 }
 
@@ -85,26 +96,43 @@
 	NSURL *url=[NSURL URLWithString:@"data:data" relativeToURL:[NSURL URLWithString:@"file:file"]];
 	STAssertEqualObjects([url description], @"data:data", nil);
 	STAssertEqualObjects([url absoluteString], @"data:data", nil);
+	STAssertEqualObjects([url baseURL], nil, nil);
 	url=[NSURL URLWithString:@"data" relativeToURL:[NSURL URLWithString:@"data:file"]];
 	STAssertEqualObjects([url description], @"data -- data:file", nil);
 	STAssertEqualObjects([url absoluteString], @"data:///data", nil);
+	STAssertEqualObjects([url baseURL], [NSURL URLWithString:@"data:file"], nil);
 	url=[NSURL URLWithString:@"data:data" relativeToURL:[NSURL URLWithString:@"data:file"]];
 	STAssertEqualObjects([url description], @"data:data", nil);
 	STAssertEqualObjects([url absoluteString], @"data:data", nil);
+	STAssertEqualObjects([url baseURL], nil, nil);
 	url=[NSURL URLWithString:@"file:data" relativeToURL:[NSURL URLWithString:@"file:file"]];
 	STAssertEqualObjects([url description], @"file:data", nil);
 	STAssertEqualObjects([url absoluteString], @"file:data", nil);
+	STAssertEqualObjects([url baseURL], nil, nil);
 	url=[NSURL URLWithString:@"data" relativeToURL:[NSURL URLWithString:@"file:file"]];
 	STAssertEqualObjects([url description], @"data -- file:file", nil);
 	STAssertEqualObjects([url absoluteString], @"file:///data", nil);
+	STAssertEqualObjects([url baseURL], [NSURL URLWithString:@"file:file"], nil);
 	url=[NSURL URLWithString:@"data:data" relativeToURL:[NSURL URLWithString:@"file"]];
 	STAssertEqualObjects([url description], @"data:data", nil);
 	STAssertEqualObjects([url absoluteString], @"data:data", nil);
+	STAssertEqualObjects([url baseURL], nil, nil);
 	url=[NSURL URLWithString:@"data" relativeToURL:[NSURL URLWithString:@"file"]];
 	STAssertEqualObjects([url description], @"data -- file", nil);
 	STAssertEqualObjects([url absoluteString], @"//data", nil);
+	STAssertEqualObjects([url baseURL], [NSURL URLWithString:@"file"], nil);
+	url=[NSURL URLWithString:@"html:data" relativeToURL:[NSURL URLWithString:@"file:file"]];
+	STAssertEqualObjects([url description], @"html:data", nil);
+	STAssertEqualObjects([url absoluteString], @"html:data", nil);
+	STAssertEqualObjects([url baseURL], nil, nil);
+	url=[NSURL URLWithString:@"html:/data" relativeToURL:[NSURL URLWithString:@"file:file"]];
+	STAssertEqualObjects([url description], @"html:/data", nil);
+	STAssertEqualObjects([url absoluteString], @"html:/data", nil);
+	STAssertEqualObjects([url baseURL], nil, nil);
 	/* conclusions
 	 * relative URL is only stored if we have no scheme
+	 * if both are relative, // is prefixed
+	 * if only base has a scheme an additional / is prefixed (but see test23b!)
 	 */
 }
 
@@ -185,6 +213,45 @@
 	STAssertEqualObjects([url fragment], @"fragment;and?query", nil);
 }
 
+- (void) test17b
+{ // trailing / in paths
+	NSURL *url=[NSURL URLWithString:@"http://host/file/"];
+	STAssertEqualObjects([url absoluteString], @"http://host/file/", nil);
+	STAssertEqualObjects([url path], @"/file", nil);
+	STAssertEqualObjects([url relativePath], @"/file", nil);
+	STAssertEqualObjects([url relativeString], @"http://host/file/", nil);
+	url=[NSURL URLWithString:@"http://host/file"];
+	STAssertEqualObjects([url absoluteString], @"http://host/file", nil);
+	STAssertEqualObjects([url path], @"/file", nil);
+	STAssertEqualObjects([url relativePath], @"/file", nil);
+	STAssertEqualObjects([url relativeString], @"http://host/file", nil);
+	url=[NSURL URLWithString:@"http:/file/"];
+	STAssertEqualObjects([url absoluteString], @"http:/file/", nil);
+	STAssertEqualObjects([url path], @"/file", nil);
+	STAssertEqualObjects([url relativePath], @"/file", nil);
+	STAssertEqualObjects([url relativeString], @"http:/file/", nil);
+	url=[NSURL URLWithString:@"http:/file"];
+	STAssertEqualObjects([url absoluteString], @"http:/file", nil);
+	STAssertEqualObjects([url path], @"/file", nil);
+	STAssertEqualObjects([url relativePath], @"/file", nil);
+	STAssertEqualObjects([url relativeString], @"http:/file", nil);
+	url=[NSURL URLWithString:@"http:file/"];
+	STAssertEqualObjects([url absoluteString], @"http:file/", nil);
+	STAssertEqualObjects([url path], nil, nil);
+	STAssertEqualObjects([url relativePath], nil, nil);
+	STAssertEqualObjects([url relativeString], @"http:file/", nil);
+	url=[NSURL URLWithString:@"http:file"];
+	STAssertEqualObjects([url absoluteString], @"http:file", nil);
+	STAssertEqualObjects([url path], nil, nil);
+	STAssertEqualObjects([url relativePath], nil, nil);
+	STAssertEqualObjects([url relativeString], @"http:file", nil);
+	/* conclusions
+	 * a trailing / is stripped from path and relativePath
+	 * relative paths return nil if there is no baseURL
+	 * relativeString is not processed
+	 */
+}
+
 - (void) test18
 { // %escapes embedded
 	NSURL *url=[NSURL URLWithString:@"http://%25user:%28password@%26host:%31%32//path%30;parameter%31?query%32#fragment%33"];
@@ -235,7 +302,7 @@
 	url=[NSURL URLWithString:@"directory/../other/file%31.html" relativeToURL:[NSURL URLWithString:@"file:/root/../file.html"]];
 	STAssertEqualObjects([url description], @"directory/../other/file%31.html -- file:/root/../file.html", nil);
 	STAssertEqualObjects([[[url standardizedURL] absoluteURL] description], @"file:///other/file%31.html", nil);
-
+	
 	/* conclusions:
 	 * works only on the path
 	 * does not automatically resolve against the base URL
@@ -287,19 +354,19 @@
 	STAssertEqualObjects([url scheme], @"http", nil);
 	STAssertEqualObjects([[url standardizedURL] description], @"pathonly -- http://user:password@host:1234://file.html;parameters?query=q#fragment", nil);
 	STAssertEqualObjects([url user], @"user", nil);
-
+	
 	url=[NSURL URLWithString:@"scheme:newuser@otherhost/mixed" relativeToURL:[NSURL URLWithString:@"http://user:password@host:1234://file.html;parameters?query=q#fragment"]];
 	STAssertEqualObjects([url description], @"scheme:newuser@otherhost/mixed", nil);
 	STAssertEqualObjects([url absoluteString], @"scheme:newuser@otherhost/mixed", nil);
-
+	
 	url=[NSURL URLWithString:@"scheme:newuser@otherhost/mixed?newquery" relativeToURL:[NSURL URLWithString:@"http://user:password@host:1234://file.html;parameters?query=q#fragment"]];
 	STAssertEqualObjects([url description], @"scheme:newuser@otherhost/mixed?newquery", nil);
 	STAssertEqualObjects([url absoluteString], @"scheme:newuser@otherhost/mixed?newquery", nil);
-
+	
 	url=[NSURL URLWithString:@"mixed?newquery" relativeToURL:[NSURL URLWithString:@"http://user:password@host:1234://path/file.html;parameters?query=q#fragment"]];
 	STAssertEqualObjects([url description], @"mixed?newquery -- http://user:password@host:1234://path/file.html;parameters?query=q#fragment", nil);
 	STAssertEqualObjects([url absoluteString], @"http://user:password@host:1234://path/mixed?newquery", nil);
-
+	
 	url=[NSURL URLWithString:@"scheme:path/mixed.html" relativeToURL:[NSURL URLWithString:@"http://user:password@host:1234://path/file.html;parameters?query=q#fragment"]];
 	STAssertEqualObjects([url description], @"scheme:path/mixed.html", nil);
 	STAssertEqualObjects([url absoluteString], @"scheme:path/mixed.html", nil);
@@ -322,12 +389,12 @@
 	STAssertEqualObjects([url description], @"pathonly -- path/file.html", nil);
 	STAssertEqualObjects([url absoluteString], @"//path/pathonly", nil);
 	STAssertEqualObjects([[url standardizedURL] description], @"pathonly -- path/file.html", nil);
-
+	
 	url=[NSURL URLWithString:@"/pathonly" relativeToURL:[NSURL URLWithString:@"path/file.html"]];
 	STAssertEqualObjects([url description], @"/pathonly -- path/file.html", nil);
 	STAssertEqualObjects([url absoluteString], @"///pathonly", nil);
 	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- path/file.html", nil);
-
+	
 	url=[NSURL URLWithString:@"pathonly" relativeToURL:[NSURL URLWithString:@"/path/file.html"]];
 	STAssertEqualObjects([url description], @"pathonly -- /path/file.html", nil);
 	STAssertEqualObjects([url absoluteString], @"///path/pathonly", nil);
@@ -337,6 +404,63 @@
 	 * it is possible to have two relative URLs
 	 * but we can't standardize them!
 	 * unless in case 2 where the absolute string overwrites the base path
+	 * if any of them is absolute, a / is prefixed
+	 * since there is no scheme, a // is prefixed
+	 */
+}
+
+- (void) test23b
+{ // when is an empty host // added?
+	NSURL *url=[NSURL URLWithString:@"pathonly" relativeToURL:[NSURL URLWithString:@"path/file.html"]];
+	STAssertEqualObjects([url description], @"pathonly -- path/file.html", nil);
+	STAssertEqualObjects([url absoluteString], @"//path/pathonly", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"pathonly -- path/file.html", nil);
+	
+	url=[NSURL URLWithString:@"pathonly" relativeToURL:[NSURL URLWithString:@"file:path/file.html"]];
+	STAssertEqualObjects([url description], @"pathonly -- file:path/file.html", nil);
+	STAssertEqualObjects([url absoluteString], @"file:///pathonly", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"pathonly -- file:path/file.html", nil);
+	
+	url=[NSURL URLWithString:@"/pathonly" relativeToURL:[NSURL URLWithString:@"path/file.html"]];
+	STAssertEqualObjects([url description], @"/pathonly -- path/file.html", nil);
+	STAssertEqualObjects([url absoluteString], @"///pathonly", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- path/file.html", nil);
+	
+	url=[NSURL URLWithString:@"/pathonly" relativeToURL:[NSURL URLWithString:@"file:path/file.html"]];
+	STAssertEqualObjects([url description], @"/pathonly -- file:path/file.html", nil);
+	STAssertEqualObjects([url absoluteString], @"file:///pathonly", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- file:path/file.html", nil);
+	
+	url=[NSURL URLWithString:@"/pathonly" relativeToURL:[NSURL URLWithString:@"file:/path/file.html"]];
+	STAssertEqualObjects([url description], @"/pathonly -- file:/path/file.html", nil);
+	STAssertEqualObjects([url absoluteString], @"file:///pathonly", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- file:/path/file.html", nil);
+		
+	url=[NSURL URLWithString:@"pathonly" relativeToURL:nil];
+	STAssertEqualObjects([url description], @"pathonly", nil);
+	STAssertEqualObjects([url absoluteString], @"pathonly", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"pathonly", nil);
+	
+	url=[NSURL URLWithString:@"file:pathonly" relativeToURL:nil];
+	STAssertEqualObjects([url description], @"file:pathonly", nil);
+	STAssertEqualObjects([url absoluteString], @"file:pathonly", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:pathonly", nil);
+	
+	url=[NSURL URLWithString:@"file:/pathonly" relativeToURL:nil];
+	STAssertEqualObjects([url description], @"file:/pathonly", nil);
+	STAssertEqualObjects([url absoluteString], @"file:/pathonly", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///pathonly", nil);
+	
+	url=[NSURL URLWithString:@"/pathonly" relativeToURL:nil];
+	STAssertEqualObjects([url description], @"/pathonly", nil);
+	STAssertEqualObjects([url absoluteString], @"/pathonly", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly", nil);
+	
+	/* conclusions
+	 * // is added each time
+	 * we have two relative paths or
+	 * we have a baseURL or
+	 * a scheme with on an absolute path
 	 */
 }
 
@@ -351,8 +475,8 @@
 	STAssertEqualObjects([url absoluteString], @"/somewhere/../here/./other/././more/./", nil);
 	STAssertEqualObjects([[url standardizedURL] description], @"/here/other/more/", nil);
 	/* conclusions
-	 * .. areremoved
-	 * /. are removed
+	 * something/../ are removed by standardization
+	 * /./ are removed by standardization
 	 * trailing /. removes the . only
 	 */
 }
@@ -370,8 +494,272 @@
 	 */
 }
 
-// add many more such tests
-// like Unicode hostnames, user names, paths...
+- (void) test26
+{ // check if and where scheme and host name are converted to lower case
+	NSURL *url=[NSURL URLWithString:@"HTTP://WWW.SOMEHOST.COM/PaTh"];
+	STAssertEqualObjects([url description], @"HTTP://WWW.SOMEHOST.COM/PaTh", nil);
+	STAssertEqualObjects([url host], @"WWW.SOMEHOST.COM", nil);
+	STAssertEqualObjects([url path], @"/PaTh", nil);
+	STAssertEqualObjects([url absoluteString], @"HTTP://WWW.SOMEHOST.COM/PaTh", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"HTTP://WWW.SOMEHOST.COM/PaTh", nil);
+	/* conclusions
+	 * there is no case conversion
+	 */
+}
+
+- (void) test27
+{ // normalization of . and ..
+	NSURL *url;
+	url=[NSURL URLWithString:@"file:/file/."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///file/", nil);
+	url=[NSURL URLWithString:@"file:/file/./"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///file/", nil);
+	url=[NSURL URLWithString:@"file:/file//./"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///file//", nil);
+	url=[NSURL URLWithString:@"file:/file/.//"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///file//", nil);
+	url=[NSURL URLWithString:@"file:./"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:./", nil);
+	url=[NSURL URLWithString:@"file:../"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:../", nil);
+	url=[NSURL URLWithString:@"file:hello/../"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/../", nil);
+	url=[NSURL URLWithString:@"file:hello/there/../"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/../", nil);
+	url=[NSURL URLWithString:@"file:/hello/../"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///", nil);
+	url=[NSURL URLWithString:@"file:/hello/there/../"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello/", nil);
+	url=[NSURL URLWithString:@"file:/hello/there/.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello", nil);
+	url=[NSURL URLWithString:@"file:"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:", nil);
+	url=[NSURL URLWithString:@"file:/hello/there/..file"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello/there/..file", nil);
+	url=[NSURL URLWithString:@"data:/file/."];
+	STAssertEqualObjects([[url standardizedURL] description], @"data:///file/", nil);
+	url=[NSURL URLWithString:@"http:/file/."];
+	STAssertEqualObjects([[url standardizedURL] description], @"http:///file/", nil);
+	url=[NSURL URLWithString:@"http:file/."];
+	STAssertEqualObjects([[url standardizedURL] description], @"http:file/.", nil);
+	/* conclusions
+	 * ./ are removed (or simple trailing .)
+	 * /.. removes parent but only for absolute paths or if base is defined (!)
+	 * /. and /.. must be followed by / or end of string
+	 * standardization adds an empty host // for absolute paths
+	 */
+}
+
+- (void) test28
+{ // is a well known port removed?
+	NSURL *url=[NSURL URLWithString:@"http://localhost:80/"];
+	STAssertEqualObjects([url description], @"http://localhost:80/", nil);
+	STAssertEqualObjects([url absoluteString], @"http://localhost:80/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"http://localhost:80/", nil);
+	url=[NSURL URLWithString:@"https://localhost:443/"];
+	STAssertEqualObjects([url description], @"https://localhost:443/", nil);
+	STAssertEqualObjects([url absoluteString], @"https://localhost:443/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"https://localhost:443/", nil);
+	url=[NSURL URLWithString:@"https://localhost:123/"];
+	STAssertEqualObjects([url description], @"https://localhost:123/", nil);
+	STAssertEqualObjects([url absoluteString], @"https://localhost:123/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"https://localhost:123/", nil);
+	/* conclusions
+	 * no, never
+	 */
+}
+
+- (void) test29
+{ // are port numbers "standardized"?
+	NSURL *url=[NSURL URLWithString:@"http://localhost:0080/"];
+	STAssertEqualObjects([url description], @"http://localhost:0080/", nil);
+	STAssertEqualObjects([url absoluteString], @"http://localhost:0080/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"http://localhost:80/", nil);
+	url=[NSURL URLWithString:@"https://localhost:1234567890123456789/"];
+	STAssertEqualObjects([url description], @"https://localhost:1234567890123456789/", nil);
+	STAssertEqualObjects([url absoluteString], @"https://localhost:1234567890123456789/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"https://localhost:2147483647/", nil);
+	url=[NSURL URLWithString:@"https://localhost:1234567890123456788/"];
+	STAssertEqualObjects([url description], @"https://localhost:1234567890123456788/", nil);
+	STAssertEqualObjects([url absoluteString], @"https://localhost:1234567890123456788/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"https://localhost:2147483647/", nil);
+	url=[NSURL URLWithString:@"https://localhost:abc/"];
+	STAssertEqualObjects([url description], @"https://localhost:abc/", nil);
+	STAssertEqualObjects([url absoluteString], @"https://localhost:abc/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"https://localhost/", nil);
+	url=[NSURL URLWithString:@"https://localhost:01234abc/"];
+	STAssertEqualObjects([url description], @"https://localhost:01234abc/", nil);
+	STAssertEqualObjects([url absoluteString], @"https://localhost:01234abc/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"https://localhost/", nil);
+	url=[NSURL URLWithString:@"https://localhost:0000/"];
+	STAssertEqualObjects([url description], @"https://localhost:0000/", nil);
+	STAssertEqualObjects([url absoluteString], @"https://localhost:0000/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"https://localhost:0/", nil);
+	/* conclusions
+	 * yes, but only during standardization and not for absoluteString
+	 * port humber is converted to integer (limited to 2^31-1) and converted back to a string
+	 * this removes leading 0 and eliminates port numbers with non-digits
+	 */
+}
+
+- (void) test30
+{ // when are NURLs considered -isEqual? Before or after standardization?
+	NSURL *url1=[NSURL URLWithString:@"http://localhost:80/"];
+	NSURL *url2=[NSURL URLWithString:@"http://localhost:80/"];
+	STAssertTrue([url1 isEqual:url2], nil);
+	url1=[NSURL URLWithString:@"http://localhost:80/"];
+	url2=[NSURL URLWithString:@"http://localhost:0080/"];
+	STAssertFalse([url1 isEqual:url2], nil);
+	url1=[NSURL URLWithString:@"http://localhost/dir/subdir/../file"];
+	url2=[NSURL URLWithString:@"http://localhost/dir/subdir/../file"];
+	STAssertTrue([url1 isEqual:url2], nil);
+	url1=[NSURL URLWithString:@"http://localhost/dir/subdir/../file"];
+	url2=[NSURL URLWithString:@"http://localhost/dir/file"];
+	STAssertFalse([url1 isEqual:url2], nil);
+	url1=[NSURL URLWithString:@"file2" relativeToURL:[NSURL URLWithString:@"file:/root/file1"]];
+	url2=[NSURL URLWithString:@"file2" relativeToURL:[NSURL URLWithString:@"file:/root/file1"]];
+	STAssertTrue([url1 isEqual:url2], nil);
+	url1=[NSURL URLWithString:@"file2" relativeToURL:[NSURL URLWithString:@"file:///root/file1"]];
+	url2=[NSURL URLWithString:@"file:///root/file2"];
+	STAssertEqualObjects([url1 absoluteString], @"file:///root/file2", nil);
+	STAssertEqualObjects([url2 absoluteString], @"file:///root/file2", nil);
+	STAssertFalse([url1 isEqual:url2], nil);
+	/* conclusions
+	 * is based on string compares
+	 * not on the concept of standardizedURL
+	 * and it is not sufficient to return the same absoluteURL!
+	 */
+}
+
+- (void) test3986
+{ // normalization according to RFC
+	// FIXME: completely test the examples of http://tools.ietf.org/html/rfc3986#section-5.4
+	NSURL *url;
+	NSURL *base=[NSURL URLWithString:@"http://a/b/c/d;p?q"];
+
+#define RFC3986(REL, RESULT) url=[NSURL URLWithString:@REL relativeToURL:base]; STAssertEqualObjects([[url absoluteURL] description], @RESULT, nil);
+	
+	/* 5.4.1.  Normal Examples
+	 */
+	
+	RFC3986("g:h", "g:h");
+	RFC3986("g", "http://a/b/c/g");
+	
+	RFC3986("./g"           ,  "http://a/b/c/g");
+	RFC3986("g/"            ,  "http://a/b/c/g/");
+	RFC3986("/g"            ,  "http://a/g");
+	RFC3986("//g"           ,  "http://g");
+	RFC3986("?y"            ,  "http://a/b/c/d;p?y");
+	RFC3986("g?y"           ,  "http://a/b/c/g?y");
+	RFC3986("#s"            ,  "http://a/b/c/d;p?q#s");
+	RFC3986("g#s"           ,  "http://a/b/c/g#s");
+	RFC3986("g?y#s"         ,  "http://a/b/c/g?y#s");
+#if 0	// what we should get
+	RFC3986(";x"            ,  "http://a/b/c/;x");
+#else	// Cocoa does not treat ";" as empty path component to replace d
+	RFC3986(";x"            ,  "http://a/b/c/d;x");
+#endif
+	RFC3986("g;x"           ,  "http://a/b/c/g;x");
+	RFC3986("g;x?y#s"       ,  "http://a/b/c/g;x?y#s");
+	RFC3986(""              ,  "http://a/b/c/d;p?q");
+	RFC3986("."             ,  "http://a/b/c/");
+	RFC3986("./"            ,  "http://a/b/c/");
+	RFC3986(".."            ,  "http://a/b/");
+	RFC3986("../"           ,  "http://a/b/");
+	RFC3986("../g"          ,  "http://a/b/g");
+	RFC3986("../.."         ,  "http://a/");
+	RFC3986("../../"        ,  "http://a/");
+	RFC3986("../../g"       ,  "http://a/g");
+	
+	/*
+	 5.4.2.  Abnormal Examples
+	 
+	 Although the following abnormal examples are unlikely to occur in
+	 normal practice, all URI parsers should be capable of resolving them
+	 consistently.  Each example uses the same base as that above.
+	 
+	 Parsers must be careful in handling cases where there are more ".."
+	 segments in a relative-path reference than there are hierarchical
+	 levels in the base URI's path.  Note that the ".." syntax cannot be
+	 used to change the authority component of a URI.
+	 */
+	
+#if 0	// what we should get
+	RFC3986("../../../g"    ,  "http://a/g");
+	RFC3986("../../../../g" ,  "http://a/g");
+#else		// Cocoa keeps every second ../
+	RFC3986("../../../g"    ,  "http://a/../g");
+	RFC3986("../../../../g" ,  "http://a/../../g");
+#endif
+	
+	/*
+	 Similarly, parsers must remove the dot-segments "." and ".." when
+	 they are complete components of a path, but not when they are only
+	 part of a segment.
+	 */
+	
+#if 0	// what we should get
+	RFC3986("/./g"          ,  "http://a/g");
+	RFC3986("/../g"         ,  "http://a/g");
+#else		// Cocoa does not standardize if the path begins with ./ or ../, i.e. starts processing after the /
+	RFC3986("/./g"          ,  "http://a/./g");
+	RFC3986("/../g"         ,  "http://a/../g");
+#endif
+	RFC3986("g."            ,  "http://a/b/c/g.");
+	RFC3986(".g"            ,  "http://a/b/c/.g");
+	RFC3986("g.."           ,  "http://a/b/c/g..");
+	RFC3986("..g"           ,  "http://a/b/c/..g");
+	
+	/*
+	 Less likely are cases where the relative reference uses unnecessary
+	 or nonsensical forms of the "." and ".." complete path segments.
+	 */
+	
+	RFC3986("./../g"        ,  "http://a/b/g");
+	RFC3986("./g/."         ,  "http://a/b/c/g/");
+	RFC3986("g/./h"         ,  "http://a/b/c/g/h");
+	RFC3986("g/../h"        ,  "http://a/b/c/h");
+#if 0	// what we should get (which means that ./ and ../ should also be standardized in ;parameters!
+	RFC3986("g;x=1/./y"     ,  "http://a/b/c/g;x=1/y");
+	RFC3986("g;x=1/../y"    ,  "http://a/b/c/y");
+#else		// Cocoa does not standardize in parameters
+	RFC3986("g;x=1/./y"     ,  "http://a/b/c/g;x=1/./y");
+	RFC3986("g;x=1/../y"    ,  "http://a/b/c/g;x=1/../y");
+#endif
+
+	/*
+	 Some applications fail to separate the reference's query and/or
+	 fragment components from the path component before merging it with
+	 the base path and removing dot-segments.  This error is rarely
+	 noticed, as typical usage of a fragment never includes the hierarchy
+	 ("/") character and the query component is not normally used within
+	 relative references.
+	 */
+	
+	RFC3986("g?y/./x"       ,  "http://a/b/c/g?y/./x");
+	RFC3986("g?y/../x"      ,  "http://a/b/c/g?y/../x");
+	RFC3986("g#s/./x"       ,  "http://a/b/c/g#s/./x");
+	RFC3986("g#s/../x"      ,  "http://a/b/c/g#s/../x");
+	
+	/*
+	 Some parsers allow the scheme name to be present in a relative
+	 reference if it is the same as the base URI scheme.  This is
+	 considered to be a loophole in prior specifications of partial URI
+	 [RFC1630].  Its use should be avoided but is allowed for backward
+	 compatibility.
+	 */
+	
+#if 1	// Cocoa is strict in this case
+	RFC3986("http:g"        ,  "http:g"); // for strict parsers
+#else
+	RFC3986("http:g"        ,  "http://a/b/c/g"); // for backward compatibility
+#endif
+}
+
+
+// add more such tests
+// like Unicode hostnames and strings passed to the initWithString: method
+// -isEqual case sensitive or insensitive?...
 
 
 @end
