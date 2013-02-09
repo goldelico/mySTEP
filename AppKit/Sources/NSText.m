@@ -134,8 +134,12 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) copy:(id)sender;
 {
-	// copy selected characters to Text pasteboard
-	NIMP;
+	NSRange rng=[self selectedRange];
+	if(rng.length > 0)
+		{
+		NSAttributedString *str=[textStorage attributedSubstringFromRange:rng];
+		[[NSPasteboard generalPasteboard] setString:[str string] forType:NSStringPboardType];
+		}
 }
 
 - (void) copyFont:(id)sender;
@@ -188,8 +192,18 @@ NSString *NSTextMovement=@"NSTextMovement";
 
 - (void) paste:(id)sender;
 {
-	// insertText from pasteboard
-	NIMP;
+	NSPasteboard *pb=[NSPasteboard generalPasteboard];
+	// FIXME: NSAttributedString
+	// NSRTFPboardType?
+	NSString *paste=[pb stringForType:NSStringPboardType];	// get string to paste
+	[self insertText:paste];
+}
+
+- (void) pasteAsPlainText:(id) sender
+{
+	NSPasteboard *pb=[NSPasteboard generalPasteboard];
+	NSString *paste=[pb stringForType:NSStringPboardType];	// get string to paste
+	[self insertText:paste];
 }
 
 - (void) pasteFont:(id)sender;
@@ -786,7 +800,6 @@ object:self]
 								   untilDate:[NSDate distantFuture]						// get next event
 									  inMode:NSEventTrackingRunLoopMode 
 									 dequeue:YES];
-		
   		}
 	[self setSelectedRange:rng];	// finally update selection
 #if 1
