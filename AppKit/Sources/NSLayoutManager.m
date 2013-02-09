@@ -517,6 +517,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				 lineFragmentGlyphRange:(NSRange)lineGlyphRange
 						containerOrigin:(NSPoint)containerOrigin;
 {
+	// use [font xHeight]
 	NIMP;
 #if 0
 	float posy=pos.y+[font ascender]+baselineOffset-[font xHeight]/2.0;
@@ -536,6 +537,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 			 lineFragmentGlyphRange:(NSRange)lineGlyphRange 
 					containerOrigin:(NSPoint)containerOrigin;
 {
+	// use [font underlinePosition] and [font underlineThickness]
 	NIMP;
 #if 0
 	// how do we get to the font? - in the same loop over attributeRanges as for drawGlyphs
@@ -1540,6 +1542,10 @@ static void allocateExtra(struct NSGlyphStorage *g)
 											  inView:[self firstTextView]];
 }
 
+// FIXME: we *can* use this method since packed glyphs are now always 2-byte
+// there is one exception that NSBezierPath's drawGlyphs ends at a NULL glyph
+// while here we end at length and can pass NULL glyphs down to the backend
+
 - (void) showPackedGlyphs:(char *) glyphs
 				   length:(unsigned) glyphLen	// number of bytes = 2* number of glyphs
 			   glyphRange:(NSRange) glyphRange
@@ -1554,6 +1560,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 	if(font) [ctxt _setFont:font];
 	if(color) [ctxt _setColor:color];
 	// FIXME: this is used with packed glyphs!!!
+	// FIXME: could use [NSBezierPath drawGlyphs...]
 	//	[ctxt _drawGlyphs:glyphs count:glyphRange.length];	// -> (string) Tj
 	// printingAdjustment???
 }
