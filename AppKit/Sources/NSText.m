@@ -1141,7 +1141,7 @@ object:self]
 		[self _handleFieldEditorMovement:NSCancelTextMovement];
 	if([[NSUserDefaults standardUserDefaults] boolForKey:@"NSOrderFrontCharacterPalette"])
 		[NSApp _orderOutCharacterPalette:self];	// automatically hide keyboard if automatism is enabled
-	return [super resignFirstResponder];
+	return YES;
 }
 
 - (BOOL) validateMenuItem:(NSMenuItem *)menuItem
