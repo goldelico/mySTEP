@@ -925,22 +925,25 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 					rng=_selectedRange;	// default: unchanged
 					switch([event clickCount]) {
 						case 2:	// select word
-							rng=[textStorage doubleClickAtIndex:pos];
+							rng=[textStorage doubleClickAtIndex:pos];	// gets the word or linguistic unit
 							break;
-						case 3: // select line
-						case 4:	// select paragraph
-						{
-						NSString *str=[textStorage string];
-						unsigned length=[str length];
-						
-						// FIXME: this is *wrong* lineBreakBeforeIndex returns a proposed position where a line break could be inserted (e.g. a space or puncuation).
-						
-						rng.location=[textStorage lineBreakBeforeIndex:pos withinRange:NSMakeRange(0, length)];
-						rng.length=[str rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"\n"] options:0 range:NSMakeRange(pos, length-pos)].location;
-						if(rng.length == NSNotFound)
-							rng.length = length-rng.location;
-						else
-							rng.length = rng.length-rng.location;
+						case 3: // select full line
+							// get effectiveRange of lineFragmentRect
+						case 4:	{ // select full paragraph
+//							NSString *str=[textStorage string];
+//							unsigned length=[str length];
+							
+							// FIXME: this is *wrong* lineBreakBeforeIndex returns a proposed position where a line break could be inserted (e.g. a space or puncuation).
+							
+							rng=[[textStorage string] paragraphRangeForRange:NSMakeRange(pos, 0)]
+/*
+							rng.location=[textStorage lineBreakBeforeIndex:pos withinRange:NSMakeRange(0, length)];
+							rng.length=[str rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"\n"] options:0 range:NSMakeRange(pos, length-pos)].location;
+							if(rng.length == NSNotFound)
+								rng.length = length-rng.location;
+							else
+								rng.length = rng.length-rng.location;
+ */
 						}
 						default:
 							break;
