@@ -494,6 +494,20 @@
 	 */
 }
 
+- (void) test25b
+{ // another strange case
+	NSURL *url=[NSURL URLWithString:@"//host"];
+	STAssertEqualObjects([url description], @"//host", nil);
+	STAssertEqualObjects([url host], @"host", nil);
+	STAssertEqualObjects([url path], @"", nil);
+	STAssertEqualObjects([url absoluteString], @"//host", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"host", nil);
+	/* conclusions
+	 * //host can be detected even if we have no scheme
+	 * standardization removes the // but absoluteString povides it (may be a bug in Cocoa!)
+	 */
+}
+
 - (void) test26
 { // check if and where scheme and host name are converted to lower case
 	NSURL *url=[NSURL URLWithString:@"HTTP://WWW.SOMEHOST.COM/PaTh"];
@@ -719,7 +733,7 @@
 	RFC3986("./g/."         ,  "http://a/b/c/g/");
 	RFC3986("g/./h"         ,  "http://a/b/c/g/h");
 	RFC3986("g/../h"        ,  "http://a/b/c/h");
-#if 0	// what we should get (which means that ./ and ../ should also be standardized in ;parameters!
+#if 0	// what we should get according to RFC3986 (which means that ./ and ../ should also be standardized in ;parameters!
 	RFC3986("g;x=1/./y"     ,  "http://a/b/c/g;x=1/y");
 	RFC3986("g;x=1/../y"    ,  "http://a/b/c/y");
 #else		// Cocoa does not standardize in parameters

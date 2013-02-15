@@ -105,6 +105,9 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 	char		*tmp;
 	unsigned int	len = 2;	// assume some minimum length
 	BOOL hasAuthority=NO;
+#if 1
+	NSLog(@"pathonly=%d", pathonly);
+#endif
 	if(!pathonly)
 		{
 		if (rel->scheme)
@@ -164,34 +167,44 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 			ptr = &ptr[strlen(ptr)];
 			*ptr++ = ':';
 			}
-
-		if ((standardize && rel->pathIsAbsolute && !port) || (standardize && !rel->pathIsAbsolute && base && !base->pathIsAbsolute) || rel->user != NULL || rel->password != NULL || rel->host != NULL || rel->port != NULL)
+#if 1
+		NSLog(@"standardize=%d", standardize);
+		NSLog(@"rel->pathIsAbsolute=%d", rel->pathIsAbsolute);
+#endif
+		if ((standardize && rel->scheme && rel->path && !base)
+			|| (standardize && !rel->scheme && base)
+			|| (standardize && !rel->pathIsAbsolute && base && !base->pathIsAbsolute)
+			|| rel->user || rel->password || (!standardize && rel->host) || rel->port
+			|| (base && (base->scheme || base->user || base->password || base->host || base->port)))
+			{ // this rule found by trial and error (UnitTests)
+			*ptr++ = '/';
+			*ptr++ = '/';
+			}
+		if(rel->user || rel->password || rel->host || rel->port)
 			{
-			*ptr++ = '/';
-			*ptr++ = '/';
 			hasAuthority=YES;
-			if (rel->user != NULL || rel->password != NULL)
+			if (rel->user || rel->password)
 				{
-				if (rel->user != NULL)
+				if (rel->user)
 					{
 					strcpy(ptr, rel->user);
 					ptr = &ptr[strlen(ptr)];
 					}
-				if (rel->password != NULL)
+				if (rel->password)
 					{
 					*ptr++ = ':';
 					strcpy(ptr, rel->password);
 					ptr = &ptr[strlen(ptr)];
 					}
-				if (rel->host != NULL || rel->port != NULL)
+				if (rel->host || rel->port)
 					*ptr++ = '@';
 				}
-			if (rel->host != NULL)
+			if (rel->host)
 				{
 				strcpy(ptr, rel->host);
 				ptr = &ptr[strlen(ptr)];
 				}
-			if (rel->port != NULL)
+			if (rel->port)
 				{
 				if(port)
 					{ // numerical standardization
@@ -214,35 +227,33 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 				ptr = &ptr[strlen(ptr)];
 				}
 			}
-		else if (base && (base->scheme != NULL || base->user != NULL || base->password != NULL || base->host != NULL || base->port != NULL))
+		else if (base && (base->scheme || base->user || base->password || base->host || base->port))
 			{
-			*ptr++ = '/';
-			*ptr++ = '/';
 			hasAuthority=YES;
-			if (base->user != NULL || base->password != NULL)
+			if (base->user || base->password)
 				{
-				if (base->user != NULL)
+				if (base->user)
 					{
 					strcpy(ptr, base->user);
 					ptr = &ptr[strlen(ptr)];
 					}
-				if (base->password != NULL)
+				if (base->password)
 					{
 					*ptr++ = ':';
 					strcpy(ptr, base->password);
 					ptr = &ptr[strlen(ptr)];
 					}
-				if (base->host != NULL || base->port != NULL)
+				if (base->host || base->port)
 					{
 					*ptr++ = '@';
 					}
 				}
-			if (base->host != NULL)
+			if (base->host)
 				{
 				strcpy(ptr, base->host);
 				ptr = &ptr[strlen(ptr)];
 				}
-			if (base->port != NULL)
+			if (base->port)
 				{
 				if(port)
 					{ // numerical standardization
@@ -264,7 +275,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 					}
 				ptr = &ptr[strlen(ptr)];
 				}
-			}		
+			}	
 		}
 
 	/*
@@ -296,14 +307,14 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 				char *end = strrchr(start, '/');
 				if(hasAuthority || base->pathIsAbsolute)
 					*tmp++ = '/';
-				if (end != NULL)
+				if (end)
 					{ // strip off last component
 					strncpy(tmp, start, end - start);
 					tmp += (end - start);
 					}
 				if(rel->path)
 					{ // append rel path (which is always relative!)
-					if(end != NULL)
+					if(end)
 						*tmp++ = '/';	// delimit
 					strcpy(tmp, rel->path);
 					}
@@ -389,19 +400,19 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 
 	if(!pathonly)
 		{
-		if (rel->parameters != NULL)
+		if (rel->parameters)
 			{
 			*ptr++ = ';';
 			strcpy(ptr, rel->parameters);
 			ptr = &ptr[strlen(ptr)];
 			}
-		if (rel->query != NULL)
+		if (rel->query)
 			{
 			*ptr++ = '?';
 			strcpy(ptr, rel->query);
 			ptr = &ptr[strlen(ptr)];
 			}
-		if (rel->fragment != NULL)
+		if (rel->fragment)
 			{
 			*ptr++ = '#';
 			strcpy(ptr, rel->fragment);
@@ -838,7 +849,7 @@ static NSString *unescape(const char *from, BOOL stripslash)
 					 * Parse username:password part
 					 */
 					ptr = strchr(start, '@');
-					if (ptr != NULL)
+					if (ptr)
 						{
 						buf->user = start;
 						*ptr++ = '\0';
@@ -862,7 +873,7 @@ static NSString *unescape(const char *from, BOOL stripslash)
 					 */
 					buf->host = start;
 					ptr = strchr(buf->host, ':');
-					if (ptr != NULL)
+					if (ptr)
 						{ // strip off port part
 							*ptr++ = '\0';
 							buf->port = ptr;	// is not checked to be valid here or we can't reconstruct

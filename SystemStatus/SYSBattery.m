@@ -172,12 +172,13 @@ static BOOL _isOnExternalPower;
 }
 
 // power control
+// move this to UIDevice
 
 + (void) sleep;
 {
 	// make some LED show suspend state (i.e. blink on low power)
 //	system([[NSSystemStatus sysInfoForKey:@"Sleep"] UTF8String]);
-	system("echo mem >/sys/power");
+	system("echo mem >/sys/power/state");
 }
 
 + (void) shutdown;
