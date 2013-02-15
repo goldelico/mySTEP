@@ -90,6 +90,8 @@ static NSLock	*clientsLock = nil;
 static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pathonly, BOOL port);
 static id clientForHandle(void *data, NSURLHandle *hdl);
 static NSString *unescape(const char *from, BOOL stripslash);
+static BOOL legal(const char *str, const char *extras);
+static NSString *nounescape(const char *from);
 
 /**
  * Build an absolute URL as a C string
@@ -110,39 +112,45 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 #endif
 	if(!pathonly)
 		{
-		if (rel->scheme)
+		if(rel->scheme)
 			len += strlen(rel->scheme) + 3;	// scheme://
 		else if(base && base->scheme)
 			len += strlen(base->scheme) + 3;	// scheme://
 		
-		if (rel->user)
+		if(rel->user)
 			len += strlen(rel->user) + 1;	// user...@
 		else if(base && base->user)
 			len += strlen(base->user) + 1;	// user...@
 		
-		if (rel->password)
+		if(rel->password)
 			len += strlen(rel->password) + 1;	// :password
 		else if(base && base->password)
 			len += strlen(base->password) + 1;	// :password
 		
-		if (rel->host)
+		if(rel->host)
 			len += strlen(rel->host) + 1;	// host.../
 		else if(base && base->host)
 			len += strlen(base->host) + 1;	// host.../
 		
-		if (rel->port)
+		if(rel->port)
 			len += strlen(rel->port) + 1;	// :port
 		else if(base && base->port)
 			len += strlen(base->port) + 1;	// :port		
 		
-		if (rel->parameters)
+		if(rel->parameters)
 			len += strlen(rel->parameters) + 1;	// ;parameters
+		if(base && base->port)
+			len += strlen(base->port) + 1;	// ;parameters		
 		
-		if (rel->query)
-			len += strlen(rel->query) + 1;		// ?query
+		if(rel->query)
+			len += strlen(rel->query) + 1;	// ?query
+		if(base && base->query)
+			len += strlen(base->query) + 1;	// ?query		
 		
-		if (rel->fragment)
-			len += strlen(rel->fragment) + 1;		// #fragment
+		if(rel->fragment)
+			len += strlen(rel->fragment) + 1;	// #fragment
+		if(base && base->fragment)
+			len += strlen(base->fragment) + 1;	// #fragment		
 		}
 	
 	if (rel->path)
@@ -177,8 +185,8 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 			|| rel->user || rel->password || (!standardize && rel->host) || rel->port
 			|| (base && (base->scheme || base->user || base->password || base->host || base->port)))
 			{ // this rule found by trial and error (UnitTests)
-			*ptr++ = '/';
-			*ptr++ = '/';
+				*ptr++ = '/';
+				*ptr++ = '/';
 			}
 		if(rel->user || rel->password || rel->host || rel->port)
 			{
@@ -277,7 +285,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 				}
 			}	
 		}
-
+	
 	/*
 	 * Now build path by merging rel and base as needed
 	 */
@@ -294,33 +302,33 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 	if(!rel->pathIsAbsolute && base && base->path)
 		{ // resolve relative path against base
 #if 1	// empty relative path keeps full base path
-		if(!rel->path || rel->path[0] == 0)
-			{ // no rel path to append - take complete base path
-				if(hasAuthority || base->pathIsAbsolute)
-					*tmp++ = '/';
-				strcpy(tmp, base->path);
-			}
-		else
+			if(!rel->path || rel->path[0] == 0)
+				{ // no rel path to append - take complete base path
+					if(hasAuthority || base->pathIsAbsolute)
+						*tmp++ = '/';
+					strcpy(tmp, base->path);
+				}
+			else
 #endif
-			{ // strip off last component of base path and append relative path
-				char *start = base->path;
-				char *end = strrchr(start, '/');
-				if(hasAuthority || base->pathIsAbsolute)
-					*tmp++ = '/';
-				if (end)
-					{ // strip off last component
-					strncpy(tmp, start, end - start);
-					tmp += (end - start);
-					}
-				if(rel->path)
-					{ // append rel path (which is always relative!)
-					if(end)
-						*tmp++ = '/';	// delimit
-					strcpy(tmp, rel->path);
-					}
-				else
-					tmp[0]=0;	// terminate stripped base path
-			}
+				{ // strip off last component of base path and append relative path
+					char *start = base->path;
+					char *end = strrchr(start, '/');
+					if(hasAuthority || base->pathIsAbsolute)
+						*tmp++ = '/';
+					if (end)
+						{ // strip off last component
+							strncpy(tmp, start, end - start);
+							tmp += (end - start);
+						}
+					if(rel->path)
+						{ // append rel path (which is always relative!)
+							if(end)
+								*tmp++ = '/';	// delimit
+							strcpy(tmp, rel->path);
+						}
+					else
+						tmp[0]=0;	// terminate stripped base path
+				}
 		}
 	else
 		{ // overwrite base path by absolute rel
@@ -329,7 +337,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 			if(rel->path)
 				strcpy(tmp, rel->path);
 		}
-
+	
 	if (standardize)
 		{
 #if 1
@@ -397,26 +405,48 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 		}
 	
 	ptr = &ptr[strlen(ptr)];	// advance behind path
-
+	
 	if(!pathonly)
 		{
+#if 1
+		NSLog(@"rel->pathIsAbsolute=%d", rel->pathIsAbsolute);
+		NSLog(@"rel->path=%p %s", rel->path, rel->path?rel->path:"");
+#endif
 		if (rel->parameters)
-			{
-			*ptr++ = ';';
-			strcpy(ptr, rel->parameters);
-			ptr = &ptr[strlen(ptr)];
+			{ // explicit parameters have precedence
+				*ptr++ = ';';
+				strcpy(ptr, rel->parameters);
+				ptr = &ptr[strlen(ptr)];
+			}
+		else if(!rel->pathIsAbsolute && (!rel->path || rel->path[0] == 0) && base && base->parameters)
+			{ // relative to base
+				*ptr++ = ';';
+				strcpy(ptr, base->parameters);
+				ptr = &ptr[strlen(ptr)];
 			}
 		if (rel->query)
-			{
-			*ptr++ = '?';
-			strcpy(ptr, rel->query);
-			ptr = &ptr[strlen(ptr)];
+			{ // explicit query has precedence
+				*ptr++ = '?';
+				strcpy(ptr, rel->query);
+				ptr = &ptr[strlen(ptr)];
+			}
+		else if(!rel->pathIsAbsolute && (!rel->path || rel->path[0] == 0) && !rel->parameters && base && base->query)
+			{ // relative to base
+				*ptr++ = '?';
+				strcpy(ptr, base->query);
+				ptr = &ptr[strlen(ptr)];
 			}
 		if (rel->fragment)
-			{
-			*ptr++ = '#';
-			strcpy(ptr, rel->fragment);
-			ptr = &ptr[strlen(ptr)];	// last fragment
+			{ // explicit fragment has precedence
+				*ptr++ = '#';
+				strcpy(ptr, rel->fragment);
+				ptr = &ptr[strlen(ptr)];
+			}
+		else if(!rel->pathIsAbsolute && (!rel->path || rel->path[0] == 0) && !rel->parameters && !rel->query && base && base->fragment)
+			{ // relative to base
+				*ptr++ = '#';
+				strcpy(ptr, base->fragment);
+				ptr = &ptr[strlen(ptr)];
 			}
 		
 		}
@@ -631,7 +661,7 @@ static NSString *unescape(const char *from, BOOL stripslash)
        relativeToURL: (NSURL*)aBaseUrl
 {
 	return [[[NSURL alloc] initWithString: aUrlString
-									   relativeToURL: aBaseUrl] autorelease];
+							relativeToURL: aBaseUrl] autorelease];
 }
 
 /**
@@ -740,11 +770,6 @@ static NSString *unescape(const char *from, BOOL stripslash)
 	char	*end;
 	char	*start;
 	char	*ptr;
-	BOOL	usesFragments = YES;
-	BOOL	usesParameters = YES;
-	BOOL	usesQueries = YES;
-	BOOL	usesPath = YES;
-	BOOL	canBeGeneric = YES;
 #if 0
 	NSLog(@"initWithString: %@ relativeToURL: %@", aUrlString, [aBaseUrl description]);
 #endif
@@ -789,172 +814,140 @@ static NSString *unescape(const char *from, BOOL stripslash)
 			}
 		}
 	start = end;
-
-	/*
-	 * Set up scheme specific parsing options.
-	 */
+	
 	if(!buf->scheme)
-		{ // no scheme
-			ASSIGN(_baseURL, [aBaseUrl absoluteURL]);	// store only if we have no explicit scheme
-		}
-	else
+		ASSIGN(_baseURL, [aBaseUrl absoluteURL]);	// store only if we have no explicit scheme
+	else if (strcmp(buf->scheme, "file") == 0)
+		buf->isFile = YES;
+	
+	/*
+	 * Parse the 'authority'
+	 * //user:password@host:port
+	 */
+	if (start[0] == '/' && start[1] == '/')
 		{
-		if (strcmp(buf->scheme, "file") == 0)
-			{ // file:
-				buf->isFile = YES;
-			}
-#if 0	// with the latest RFCs there is no special treatment
-		else if (strcmp(buf->scheme, "mailto") == 0)
-			{ // http://en.wikipedia.org/wiki/Mailto
-				usesFragments = NO;
-				usesParameters = NO;
-				canBeGeneric = NO;
-			}
-		else if (strcmp(buf->scheme, "data") == 0)
-			{ // http://en.wikipedia.org/wiki/Data_URI_scheme
-				usesFragments = NO;
-				usesQueries = NO;
-				usesPath = NO;
-				canBeGeneric = NO;
-			}
-#endif	
-		}
-	if (canBeGeneric)
-		{
+		start += 2;
+		
 		/*
-		 * Parse the 'authority'
-		 * //user:password@host:port
+		 * Set 'end' to point to the start of the path, or just past
+		 * the 'authority' if there is no path.
 		 */
-		if (start[0] == '/' && start[1] == '/')
-			{
-			start += 2;
-			
-			/*
-			 * Set 'end' to point to the start of the path, or just past
-			 * the 'authority' if there is no path.
-			 */
-			end = strchr(start, '/');
-			if(end != start)
-				{ // is not "scheme:///path"
-					if (!end)
-						{ // "scheme://something" will lead to non-absolute but empty path
-							end = &start[strlen(start)];
-						}
-					else
-						{ // "scheme://something/path"
-							buf->pathIsAbsolute = YES;
-							*end++ = '\0';
-						}
-					/*
-					 * Parse username:password part
-					 */
-					ptr = strchr(start, '@');
-					if (ptr)
+		end = strchr(start, '/');
+		if(end != start)
+			{ // is not "scheme:///path"
+				if(!end)
+					{ // "scheme://host" will lead to an empty absolute path
+#if 1
+						NSLog(@"empty");
+#endif
+						buf->pathIsAbsolute = YES;
+						end = &start[strlen(start)];
+					}
+				else
+					{ // "scheme://something/path"
+						buf->pathIsAbsolute = YES;
+						*end++ = '\0';
+					}
+				/*
+				 * Parse username:password part
+				 */
+				ptr = strchr(start, '@');
+				if (ptr)
+					{
+					buf->user = start;
+					*ptr++ = '\0';
+					if (!legal(buf->user, ";:&=+$,"))
 						{
-						buf->user = start;
-						*ptr++ = '\0';
-						if (!legal(buf->user, ";:&=+$,"))
-							{
-							// [NSException raise: NSGenericException format:@"illegal character in user part"];
-							[self release];
-							return nil;
-							}
-						start = ptr;
-						ptr = strchr(buf->user, ':');
-						if (ptr != 0)
-							{
-							*ptr++ = '\0';
-							buf->password = ptr;
-							}
-						}
-					
-					/*
-					 * Parse host:port part
-					 */
-					buf->host = start;
-					ptr = strchr(buf->host, ':');
-					if (ptr)
-						{ // strip off port part
-							*ptr++ = '\0';
-							buf->port = ptr;	// is not checked to be valid here or we can't reconstruct
-						}
-					if (!legal(buf->host, NULL))
-						{
-						// [NSException raise: NSGenericException format:@"illegal character in hostname part"];
 						[self release];
 						return nil;
 						}
-					
-					start = end;
-				}
-			else
-				{ // "scheme://"+absolute path
+					start = ptr;
+					ptr = strchr(buf->user, ':');
+					if (ptr != 0)
+						{
+						*ptr++ = '\0';
+						buf->password = ptr;
+						}
+					}
+				
+				/*
+				 * Parse host:port part
+				 */
+				buf->host = start;
+				ptr = strchr(buf->host, ':');
+				if (ptr)
+					{ // strip off port part
+						*ptr++ = '\0';
+						buf->port = ptr;	// is not checked to be valid here or we can't reconstruct
+					}
+				if (!legal(buf->host, NULL))
+					{
+					[self release];
+					return nil;
+					}
+				
+				start = end;
+			}
+		else
+			{ // "scheme://"+absolute path
 #if 0
-					NSLog(@"scheme:/// found: %s", start);
+				NSLog(@"scheme:/// found: %s", start);
 #endif
-					buf->pathIsAbsolute = YES;
-					start++;	// but don't store the /
-				}
+				buf->pathIsAbsolute = YES;
+				start++;	// but don't store the /
 			}
-		else if (*start == '/')
-			{
-			buf->pathIsAbsolute = YES;
-			start++;	// but don't store the /
-			}
-		
-		if (!legal(start, "/:@&=+$,;?#"))
-			{
-			// [NSException raise: NSGenericException format:@"illegal character in resource part"];
-			[self release];
-			return nil;
-			}
-		if (usesFragments)
-			{
-			/*
-			 * Strip fragment string from end of url.
-			 */
-			ptr = strchr(start, '#');
-			if (ptr != 0)
-				{
-				*ptr++ = '\0';
-				if (*ptr != 0)
-					buf->fragment = ptr;
-				}
-			}
-		
-		if (usesQueries)
-			{
-			/*
-			 * Strip query string from end of url.
-			 */
-			ptr = strchr(start, '?');
-			if (ptr != 0)
-				{
-				*ptr++ = '\0';
-				if (*ptr != 0)
-					buf->query = ptr;
-				}
-			}
-		
-		if (usesParameters)
-			{
-			/*
-			 * Strip parameters string from end of url.
-			 */
-			ptr = strchr(start, ';');
-			if (ptr != 0)
-				{
-				*ptr++ = '\0';
-				if (*ptr != 0)
-					buf->parameters = ptr;
-				}
-			}		
+		}
+	else if (*start == '/')
+		{
+		buf->pathIsAbsolute = YES;
+		start++;	// but don't store the /
+		}
+	
+	if (!legal(start, "/:@&=+$,;?#"))
+		{
+		[self release];
+		return nil;
+		}
+	
+	/*
+	 * Strip fragment string from end of url.
+	 */
+	ptr = strchr(start, '#');
+	if (ptr != 0)
+		{
+		*ptr++ = '\0';
+		if (*ptr != 0)
+			buf->fragment = ptr;
+		}
+	
+	/*
+	 * Strip query string from end of url.
+	 */
+	ptr = strchr(start, '?');
+	if (ptr != 0)
+		{
+		*ptr++ = '\0';
+		if (*ptr != 0)
+			buf->query = ptr;
+		}
+	
+	/*
+	 * Strip parameters string from end of url.
+	 */
+	ptr = strchr(start, ';');
+	if (ptr != 0)
+		{
+		*ptr++ = '\0';
+		if (*ptr != 0)
+			buf->parameters = ptr;
 		}
 	/*
 	 * Store the path.
 	 */
-	if(usesPath)
+	
+//	if(*start != 0)
 		buf->path = start;
+	
 #if 0
 	NSLog(@"url=%@", self);
 #endif
@@ -1045,9 +1038,9 @@ static NSString *unescape(const char *from, BOOL stripslash)
 			char *url;
 			if(_baseURL)
 				{ // try to build absolute string
-				url=buildURL(baseData, myData, YES, NO, NO);
-				if(url)
-					return myData->absolute=[[NSString alloc] initWithCStringNoCopy:url length:strlen(url) freeWhenDone:YES];				
+					url=buildURL(baseData, myData, YES, NO, NO);
+					if(url)
+						return myData->absolute=[[NSString alloc] initWithCStringNoCopy:url length:strlen(url) freeWhenDone:YES];				
 				}
 			return myData->absolute=[_urlString retain];	// just return the _urlString we have been initialized with
 		}
