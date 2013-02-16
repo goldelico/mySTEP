@@ -107,7 +107,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 	char		*tmp;
 	unsigned int	len = 2;	// assume some minimum length
 	BOOL hasAuthority=NO;
-#if 1
+#if 0
 	NSLog(@"pathonly=%d", pathonly);
 #endif
 	if(!pathonly)
@@ -175,7 +175,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 			ptr = &ptr[strlen(ptr)];
 			*ptr++ = ':';
 			}
-#if 1
+#if 0
 		NSLog(@"standardize=%d", standardize);
 		NSLog(@"rel->pathIsAbsolute=%d", rel->pathIsAbsolute);
 #endif
@@ -292,55 +292,59 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 	
 	*ptr=0;
 	tmp = ptr;
-#if 1
+#if 0
 	if(rel->path)
 		NSLog(@"merge = %s %s", rel->pathIsAbsolute?"/":"", rel->path);
 	if(base && base->path)
 		NSLog(@"base = %s %s", base->pathIsAbsolute?"/":"", base->path);
 #endif
 	
-	if(!rel->pathIsAbsolute && base && base->path)
-		{ // resolve relative path against base
-#if 1	// empty relative path keeps full base path
-			if(!rel->path || rel->path[0] == 0)
-				{ // no rel path to append - take complete base path
-					if(hasAuthority || base->pathIsAbsolute)
-						*tmp++ = '/';
-					strcpy(tmp, base->path);
+	if((!rel->path || rel->path[0] == 0) && base && base->path)
+		{ // no rel path to append - take complete base path
+			if(hasAuthority || base->pathIsAbsolute)
+				*tmp++ = '/';
+			strcpy(tmp, base->path);
+		}
+	else if(!rel->pathIsAbsolute && base && base->path)
+		{ // resolve relative path against base (but only if it is also absolute!) by stripping off last component of base path and append relative path
+			char *start = base->path;
+			char *end = strrchr(start, '/');
+			if(hasAuthority || base->pathIsAbsolute)
+				*tmp++ = '/';
+			if (end)
+				{ // strip off last component
+					strncpy(tmp, start, end - start);
+					tmp += (end - start);
+				}
+			if(rel->path)
+				{ // append rel path (which is always relative!)
+					if(end)
+						*tmp++ = '/';	// delimit
+					strcpy(tmp, rel->path);
 				}
 			else
-#endif
-				{ // strip off last component of base path and append relative path
-					char *start = base->path;
-					char *end = strrchr(start, '/');
-					if(hasAuthority || base->pathIsAbsolute)
-						*tmp++ = '/';
-					if (end)
-						{ // strip off last component
-							strncpy(tmp, start, end - start);
-							tmp += (end - start);
-						}
-					if(rel->path)
-						{ // append rel path (which is always relative!)
-							if(end)
-								*tmp++ = '/';	// delimit
-							strcpy(tmp, rel->path);
-						}
-					else
-						tmp[0]=0;	// terminate stripped base path
-				}
+				tmp[0]=0;	// terminate stripped base path
 		}
 	else
-		{ // overwrite base path by absolute rel
-			if(hasAuthority || rel->pathIsAbsolute)
-				*tmp++ = '/';
-			if(rel->path)
+		{ // overwrite base path by (most likely absolute) rel path
+#if 1
+			NSLog(@"rel->pathIsAbsolute=%d", rel->pathIsAbsolute);
+			NSLog(@"rel->path=%p %s", rel->path, rel->path?rel->path:"");
+			if(base && base->path)
+				NSLog(@"base = %s %s", base->pathIsAbsolute?"/":"", base->path);
+			NSLog(@"hasAuthority=%d", hasAuthority);
+#endif
+			if(rel->path || rel->path[0] != 0)
+				{
+				if(rel->pathIsAbsolute)
+					*tmp++ = '/';
 				strcpy(tmp, rel->path);
+				}
 		}
 	
 	if (standardize)
 		{
-#if 1
+#if 0
 		NSLog(@"standardize= %s", ptr);
 #endif
 		/*
@@ -369,7 +373,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 		tmp = ptr;
 		while (*tmp)
 			{
-#if 1
+#if 0
 			NSLog(@"/..? %s", tmp);
 #endif
 			if (tmp[0] == '/' && tmp[1] == '.' && tmp[2] == '.' && (tmp[3] == '/' || tmp[3] == 0))
@@ -379,7 +383,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 					break;	// can't go up
 				while(up > ptr && up[0] != '/')
 					up--;
-#if 1
+#if 0
 				NSLog(@"up=%p %@ ptr=%p: tmp=%s up=%s", up, up > ptr?@">":@"<=", ptr, tmp, up);
 #endif
 				if(up == ptr && up[0] != '/' && tmp[3] == '/')
@@ -387,11 +391,11 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 				else if(tmp[3] == 0)
 					up++;	// reduce trailing /something/.. to / (keep first /)
 				// else reduce /something/../ to /
-#if 1
+#if 0
 				NSLog(@"up=%p %@ ptr=%p: tmp=%s up=%s", up, up > ptr?@">":@"<=", ptr, tmp, up);
 #endif
 				strcpy(up, tmp+3);
-#if 1
+#if 0
 				NSLog(@"  str  = %s", ptr);
 #endif
 				tmp=up;	// remove sequence
@@ -399,7 +403,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 			else
 				tmp++;
 			}				
-#if 1
+#if 0
 		NSLog(@"ptr=> %s", ptr);
 #endif
 		}
@@ -408,7 +412,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 	
 	if(!pathonly)
 		{
-#if 1
+#if 0
 		NSLog(@"rel->pathIsAbsolute=%d", rel->pathIsAbsolute);
 		NSLog(@"rel->path=%p %s", rel->path, rel->path?rel->path:"");
 #endif
@@ -453,6 +457,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 #if 1
 	if(!(ptr-buf <= len))
 		{
+		NSLog(@"overflow");
 		NSLog(@"buildURL base=%p rel=%p%@%@", base, rel, standardize?@" standarize":@"", pathonly?@" pathonly":@"");
 		NSLog(@"len=%u used=%u, str=%s\n", len, ptr-buf, buf);
 		if(base)
@@ -838,7 +843,7 @@ static NSString *unescape(const char *from, BOOL stripslash)
 				if(!end)
 					{ // "scheme://host" will lead to an empty absolute path
 #if 1
-						NSLog(@"empty");
+						NSLog(@"//something found");
 #endif
 						buf->pathIsAbsolute = YES;
 						end = &start[strlen(start)];

@@ -1,0 +1,127 @@
+#!/bin/bash
+
+# shell script goes here
+
+echo "## deprecated ##"
+exit
+
+while read CMD EQ VALUE
+do
+	case $CMD in
+		MAJOR_VERSION ) MAJOR_VERSION="$VALUE\;
+		MINOR_VERSION ) MINOR_VERSION="$VALUE\;
+		BUILD_NUMBER ) BUILD_NUMBER="$VALUE\;
+	esac
+done <Version.def
+
+DEST=Packages/mySTEP-SDK-${MAJOR_VERSION}.${MINOR_VERSION}B${BUILD_NUMBER}.tgz 
+
+tar czf $DEST \\
+--exclude '*.mode1' \\
+--exclude '*.pbxuser' \\
+--exclude .DS_Store \\
+--exclude build \\
+--exclude CVS \\
+--exclude .svn \\
+--exclude '*~.nib' \\
+--exclude '*~.mib' \\
+--exclude '._*' \\
+--exclude $'Icon\\r' \\
+--exclude '.gdb_history' \\
+/usr/share/QuantumSTEP/System/Sources/Frameworks/HISTORY.rtf \\
+"/usr/share//QuantumSTEP/System/Sources/Frameworks/LGPL LICENCE.txt" \\
+/usr/share//QuantumSTEP/System/Sources/Frameworks/README \\
+/usr/share/QuantumSTEP/System/Sources/Frameworks/Version.def \\
+/usr/share/QuantumSTEP/System/Sources/Frameworks/mySTEP.make \\
+/usr/share/QuantumSTEP/System/Library/Frameworks \\
+/usr/share/QuantumSTEP/usr/include \\
+/usr/share/QuantumSTEP/usr/lib
+
+ls -l $DEST
+tar tvzf $DEST
+# shell script goes here
+
+export BUILD_FOR_PACKAGE=true
+export SEND2ZAURUS=false
+export RUN=false
+ 
+echo ## Frameworks ##
+for i in Foundation AppKit CoreData CoreDevice CoreFoundation Cocoa AddressBook Message PreferencePanes SystemUIPlugin Security SecurityFoundation SecurityInterface IOBluetooth ImageKit PDFKit QTKit ScreenSaver
+	do
+	(cd $i && xcodebuild -configuration 'Development' -target $(basename "$i") )
+	done
+echo ## done. ##
+
+echo ## Extended Frameworks and binary tools ##
+# CoreWLAN depends on SecurityFoundation
+for i in SystemConfiguration SystemStatus CoreLocation CoreMotion CoreTelephony CoreWLAN CoreRFID MapKit SimpleWebKit Tools
+	do
+	(cd $i && xcodebuild -configuration 'Development' -project "$i.xcodeproj" -target $(basename "$i") )
+	done
+( cd objc2pp && xcodebuild -configuration 'Development' -target 'ObjC' )
+echo ## done. ##
+
+echo ## Special Frameworks ##
+false && for i in UIKit
+	do 
+	(cd $i && xcodebuild -configuration 'Development' -target $(basename "$i") )
+	done
+echo ## done. ##
+
+echo ## Tools ##
+### DataBuilder should be part of the Development toolkit
+### RFIDProbe somewhere else?
+
+for i in Tools CoreData/DataBuilder CoreRFID/RFIDProbe
+	do
+	p=$(basename "$i")
+	(cd $i && xcodebuild -configuration 'Development' -project "$p.xcodeproj" -target $p )
+	done
+echo ## done. ##
+
+echo ## UnitTesting ##
+## FIXME: should also build the SenTestingKit_UnitTests target
+for i in SenTestingKit otest
+	do
+	echo "## $i ##"
+	(cd "OCUnit/SourceCode/$i\ xcodebuild -configuration 'Development' -target "$(basename $i)" )
+	done
+
+for i in UnitTesting
+	do
+	echo "## $i ##"
+	(cd $i; xcodebuild -configuration 'Development' -target "$(basename $i)" )
+	done
+
+echo ## TestApps ##
+for i in TestApplications/NSImageRep TestApplications/NSTextTable TestApplications/NSURLConnection TestApplications/ZeroConfDistributedObjects TestApplications/FloatSpeed 
+	do
+	(cd $i && xcodebuild -configuration 'Development' -target $(basename "$i") )
+	done
+( cd CoreLocation && xcodebuild -configuration 'Development' -target 'cltest' )
+( cd MapKit && xcodebuild -configuration 'Development' -target 'MapKitTest' )
+( cd SimpleWebKit && xcodebuild -configuration 'Development' -target 'SWK Browser' )
+
+echo ## done. ##
+
+# project settings
+export SOURCES=   			  	 # no sources
+export LIBS=  				   # add any additional libraries (or flags) like -ltiff etc.
+export FRAMEWORKS=				   # add any additional Frameworks etc.
+# export FILES="./etc ./System ./usr"		# additional files to include in package (relative to project install path)
+# export DATA="./usr/bin/qssh ./usr/bin/qsx"	# additional files to include in package (relativ to root)
+export INSTALL_PATH=/			   # override INSTALL_PATH for MacOS X
+
+# global/compile settings
+#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
+#export SEND2ZAURUS=true		   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)
+#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
+
+# debian package dependencies (, separated)
+# this excludes the Tools, TestApps and UnitTesting!
+
+export DEPENDS="quantumstep-addressbook-framework, quantumstep-corefoundation-framework, quantumstep-iobluetooth-framework, quantumstep-iobluetoothui-framework, quantumstep-imagekit-framework, quantumstep-message-framework, quantumstep-qtkit-framework, quantumstep-preferencepanes-framework, quantumstep-screensaver-framework, quantumstep-securityinterface-framework, quantumstep-webkit-framework, quantumstep-systemstatus-framework, quantumstep-systemuiplugin-framework, quantumstep-mapkit-framework, quantumstep-coredevice-framework, quantumstep-corelocation-framework, quantumstep-coremotion-framework, quantumstep-corewlan-framework, quantumstep-corerfid-framework"
+
+export ROOT=/usr/share/QuantumSTEP	# project root
+/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
+

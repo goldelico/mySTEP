@@ -1,0 +1,12 @@
+#!/bin/bash
+
+export SOURCES=*.m   # all source codes
+export LIBS=  	# add any additional libraries like -ltiff etc.
+export FRAMEWORKS=CoreRFID					# add any additional Frameworks etc.
+export INSTALL=true                  # will try to install on the Zaurus (using ssh)
+export INSTALL_PATH=/Applications/Utilities   # override INSTALL_PATH for MacOS X machine Zaurus
+export RUN=true                    # will try to run with X11 and mySTEP
+export ROOT=$HOME/Documents/Projects/QuantumSTEP	# project root
+export DEPENDS="quantumstep-corerfid-framework"
+/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
+

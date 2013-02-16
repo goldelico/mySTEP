@@ -1,0 +1,12 @@
+#!/bin/bash
+
+export SOURCES="scan.m gram.m AST.m"   # all source codes
+export LIBS=  	# add any additional libraries like -ltiff etc.
+export FRAMEWORKS=					# add any additional Frameworks etc.
+export INSTALL=true                  # will try to install on the Zaurus (using ssh)
+export INSTALL_PATH=/Developer/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus
+export RUN=false                    # will try to run with X11 and mySTEP
+export ROOT=$HOME/Documents/Projects/QuantumSTEP	# project root
+# export DEPENDS="quantumstep-corelocation-framework"
+/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
+

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+export SOURCES="NS*.m"   # all source codes
+export LIBS=						# add any additional libraries like -ltiff etc.
+export FRAMEWORKS=				# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)
+export INSTALL_PATH=/System/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus
+
+# global/compile settings
+#export STRIP_Framework=true        # set to true if you want to strip headers etc.
+#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle
+#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
+#export SEND2ZAURUS=true			# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)
+#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
+export ROOT=$HOME/Documents/Projects/QuantumSTEP	# project root
+/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
+

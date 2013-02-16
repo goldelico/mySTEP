@@ -1,0 +1,29 @@
+#!/bin/bash
+
+export SOURCES="Sources/NS*.m Sources/Externs.m Sources/Functions.m Sources/GSBitmapImageReps.m Sources/GSServices.m"   # all source codes
+export LIBS="-ltiff -lgif -lpng -ljpeg -lz -lfreetype -lXrender -lXext -lX11"  	# add any additional libraries like -ltiff etc.
+export FRAMEWORKS=					# add any additional Frameworks etc.
+export INSTALL=true                  # will try to install on the Zaurus (using ssh)
+export INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus
+export RUN=false                    # will try to run with X11 and mySTEP
+export DEPENDS="libtiff4, libgif4, libpng3, libjpeg7, zlib1g, libfreetype6, libxrender1, libxext6, quantumstep-foundation-framework"	# debian package dependencies
+
+
+export ROOT=$HOME/Documents/Projects/QuantumSTEP	# project root
+/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
+
+# project settings
+export SOURCES="../TestApplications/NIB/*.m"  	    # all source codes
+export LIBS=			 			# add any additional libraries
+export FRAMEWORKS=					# add any additional Frameworks etc.
+export INSTALL_PATH=/Applications/Test   # override INSTALL_PATH for MacOS X machine Zaurus
+
+# global/compile settings
+#export STRIP_Framework=true        # set to true if you want to strip headers etc.
+#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle
+#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
+#export SEND2ZAURUS=true			# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)
+#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
+export ROOT=$HOME/Documents/Projects/QuantumSTEP	# project root
+/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
+

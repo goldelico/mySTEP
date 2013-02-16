@@ -412,49 +412,49 @@
 - (void) test23b
 { // when is an empty host // added?
 	NSURL *url=[NSURL URLWithString:@"pathonly" relativeToURL:[NSURL URLWithString:@"path/file.html"]];
-	STAssertEqualObjects([url description], @"pathonly -- path/file.html", nil);
-	STAssertEqualObjects([url absoluteString], @"//path/pathonly", nil);
-	STAssertEqualObjects([[url standardizedURL] description], @"pathonly -- path/file.html", nil);
+	STAssertEqualObjects([url description], @"pathonly -- path/file.html", [url description]);
+	STAssertEqualObjects([url absoluteString], @"//path/pathonly", [url description]);
+	STAssertEqualObjects([[url standardizedURL] description], @"pathonly -- path/file.html", [url description]);
 	
 	url=[NSURL URLWithString:@"pathonly" relativeToURL:[NSURL URLWithString:@"file:path/file.html"]];
-	STAssertEqualObjects([url description], @"pathonly -- file:path/file.html", nil);
-	STAssertEqualObjects([url absoluteString], @"file:///pathonly", nil);
-	STAssertEqualObjects([[url standardizedURL] description], @"pathonly -- file:path/file.html", nil);
+	STAssertEqualObjects([url description], @"pathonly -- file:path/file.html", [url description]);
+	STAssertEqualObjects([url absoluteString], @"file:///pathonly", [url description]);
+	STAssertEqualObjects([[url standardizedURL] description], @"pathonly -- file:path/file.html", [url description]);
 	
 	url=[NSURL URLWithString:@"/pathonly" relativeToURL:[NSURL URLWithString:@"path/file.html"]];
-	STAssertEqualObjects([url description], @"/pathonly -- path/file.html", nil);
-	STAssertEqualObjects([url absoluteString], @"///pathonly", nil);
-	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- path/file.html", nil);
+	STAssertEqualObjects([url description], @"/pathonly -- path/file.html", [url description]);
+	STAssertEqualObjects([url absoluteString], @"///pathonly", [url description]);
+	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- path/file.html", [url description]);
 	
 	url=[NSURL URLWithString:@"/pathonly" relativeToURL:[NSURL URLWithString:@"file:path/file.html"]];
-	STAssertEqualObjects([url description], @"/pathonly -- file:path/file.html", nil);
-	STAssertEqualObjects([url absoluteString], @"file:///pathonly", nil);
-	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- file:path/file.html", nil);
+	STAssertEqualObjects([url description], @"/pathonly -- file:path/file.html", [url description]);
+	STAssertEqualObjects([url absoluteString], @"file:///pathonly", [url description]);
+	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- file:path/file.html", [url description]);
 	
 	url=[NSURL URLWithString:@"/pathonly" relativeToURL:[NSURL URLWithString:@"file:/path/file.html"]];
-	STAssertEqualObjects([url description], @"/pathonly -- file:/path/file.html", nil);
-	STAssertEqualObjects([url absoluteString], @"file:///pathonly", nil);
-	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- file:/path/file.html", nil);
+	STAssertEqualObjects([url description], @"/pathonly -- file:/path/file.html", [url description]);
+	STAssertEqualObjects([url absoluteString], @"file:///pathonly", [url description]);
+	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly -- file:/path/file.html", [url description]);
 		
 	url=[NSURL URLWithString:@"pathonly" relativeToURL:nil];
-	STAssertEqualObjects([url description], @"pathonly", nil);
-	STAssertEqualObjects([url absoluteString], @"pathonly", nil);
-	STAssertEqualObjects([[url standardizedURL] description], @"pathonly", nil);
+	STAssertEqualObjects([url description], @"pathonly", [url description]);
+	STAssertEqualObjects([url absoluteString], @"pathonly", [url description]);
+	STAssertEqualObjects([[url standardizedURL] description], @"pathonly", [url description]);
 	
 	url=[NSURL URLWithString:@"file:pathonly" relativeToURL:nil];
-	STAssertEqualObjects([url description], @"file:pathonly", nil);
-	STAssertEqualObjects([url absoluteString], @"file:pathonly", nil);
-	STAssertEqualObjects([[url standardizedURL] description], @"file:pathonly", nil);
+	STAssertEqualObjects([url description], @"file:pathonly", [url description]);
+	STAssertEqualObjects([url absoluteString], @"file:pathonly", [url description]);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:pathonly", [url description]);
 	
 	url=[NSURL URLWithString:@"file:/pathonly" relativeToURL:nil];
-	STAssertEqualObjects([url description], @"file:/pathonly", nil);
-	STAssertEqualObjects([url absoluteString], @"file:/pathonly", nil);
-	STAssertEqualObjects([[url standardizedURL] description], @"file:///pathonly", nil);
+	STAssertEqualObjects([url description], @"file:/pathonly", [url description]);
+	STAssertEqualObjects([url absoluteString], @"file:/pathonly", [url description]);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///pathonly", [url description]);
 	
 	url=[NSURL URLWithString:@"/pathonly" relativeToURL:nil];
-	STAssertEqualObjects([url description], @"/pathonly", nil);
-	STAssertEqualObjects([url absoluteString], @"/pathonly", nil);
-	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly", nil);
+	STAssertEqualObjects([url description], @"/pathonly", [url description]);
+	STAssertEqualObjects([url absoluteString], @"/pathonly", [url description]);
+	STAssertEqualObjects([[url standardizedURL] description], @"/pathonly", [url description]);
 	
 	/* conclusions
 	 * // is added each time
@@ -501,7 +501,7 @@
 	STAssertEqualObjects([url host], @"host", nil);
 	STAssertEqualObjects([url path], @"", nil);
 	STAssertEqualObjects([url absoluteString], @"//host", nil);
-	STAssertEqualObjects([[url standardizedURL] description], @"host", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"host", [url description]);
 	/* conclusions
 	 * //host can be detected even if we have no scheme
 	 * standardization removes the // but absoluteString povides it (may be a bug in Cocoa!)
@@ -525,37 +525,37 @@
 { // normalization of . and ..
 	NSURL *url;
 	url=[NSURL URLWithString:@"file:/file/."];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:///file/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///file/", [url description]);
 	url=[NSURL URLWithString:@"file:/file/./"];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:///file/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///file/", [url description]);
 	url=[NSURL URLWithString:@"file:/file//./"];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:///file//", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///file//", [url description]);
 	url=[NSURL URLWithString:@"file:/file/.//"];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:///file//", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///file//", [url description]);
 	url=[NSURL URLWithString:@"file:./"];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:./", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:./", [url description]);
 	url=[NSURL URLWithString:@"file:../"];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:../", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:../", [url description]);
 	url=[NSURL URLWithString:@"file:hello/../"];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/../", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/../", [url description]);
 	url=[NSURL URLWithString:@"file:hello/there/../"];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/../", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/../", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/../"];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:///", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/there/../"];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello/", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/there/.."];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello", [url description]);
 	url=[NSURL URLWithString:@"file:"];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/there/..file"];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello/there/..file", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello/there/..file", [url description]);
 	url=[NSURL URLWithString:@"data:/file/."];
-	STAssertEqualObjects([[url standardizedURL] description], @"data:///file/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"data:///file/", [url description]);
 	url=[NSURL URLWithString:@"http:/file/."];
-	STAssertEqualObjects([[url standardizedURL] description], @"http:///file/", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"http:///file/", [url description]);
 	url=[NSURL URLWithString:@"http:file/."];
-	STAssertEqualObjects([[url standardizedURL] description], @"http:file/.", nil);
+	STAssertEqualObjects([[url standardizedURL] description], @"http:file/.", [url description]);
 	/* conclusions
 	 * ./ are removed (or simple trailing .)
 	 * /.. removes parent but only for absolute paths or if base is defined (!)
@@ -651,7 +651,7 @@
 	NSURL *url;
 	NSURL *base=[NSURL URLWithString:@"http://a/b/c/d;p?q"];
 
-#define RFC3986(REL, RESULT) url=[NSURL URLWithString:@REL relativeToURL:base]; STAssertEqualObjects([[url absoluteURL] description], @RESULT, nil);
+#define RFC3986(REL, RESULT) url=[NSURL URLWithString:@REL relativeToURL:base]; STAssertEqualObjects([[url absoluteURL] description], @RESULT, [url description]);
 	
 	/* 5.4.1.  Normal Examples
 	 */
