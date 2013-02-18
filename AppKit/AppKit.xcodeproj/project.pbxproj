@@ -1065,6 +1065,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EE037C5816CFD9E80097FC17 /* AppKit.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AppKit.qcodeproj; sourceTree = "<group>"; };
+		EE037C5916CFDA210097FC17 /* AppKitTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AppKitTests.qcodeproj; sourceTree = "<group>"; };
 		EE03CDAC0BCD431C0031DB7C /* NSTextTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextTable.m; sourceTree = "<group>"; };
 		EE05053B096EDABE004D1F47 /* NSAppKitPrivate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = NSAppKitPrivate.h; sourceTree = "<group>"; };
 		EE09BBB10C11F69700F3199C /* NSFreeTypeFont.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSFreeTypeFont.m; sourceTree = "<group>"; };
@@ -1674,6 +1676,8 @@
 			children = (
 				EEDB5E570A1497C600E4CA39 /* HISTORY.rtf */,
 				EE27270005426A7F0000013C /* mySTEP.make */,
+				EE037C5816CFD9E80097FC17 /* AppKit.qcodeproj */,
+				EE037C5916CFDA210097FC17 /* AppKitTests.qcodeproj */,
 				EE46D7A20D1BF11A00E99DA0 /* ANNOUNCE */,
 				EE59BFFE15624FD900754103 /* Web */,
 				EEA3717B09540271001244CF /* Classes */,
@@ -3374,7 +3378,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=\"Sources/NS*.m Sources/Externs.m Sources/Functions.m Sources/GSBitmapImageReps.m Sources/GSServices.m\"   # all source codes\nexport LIBS=\"-ltiff -lgif -lpng -ljpeg -lz -lfreetype -lXrender -lXext -lX11\"  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport DEPENDS=\"libtiff4, libgif4, libpng3, libjpeg7, zlib1g, libfreetype6, libxrender1, libxext6, quantumstep-foundation-framework\"\t# debian package dependencies\n\n\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "bash AppKit.qcodeproj\n\nexit\n\nexport SOURCES=\"Sources/NS*.m Sources/Externs.m Sources/Functions.m Sources/GSBitmapImageReps.m Sources/GSServices.m\"   # all source codes\nexport LIBS=\"-ltiff -lgif -lpng -ljpeg -lz -lfreetype -lXrender -lXext -lX11\"  \t# add any additional libraries like -ltiff etc.\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks etc.\nexport INSTALL=true                  # will try to install on the Zaurus (using ssh)\nexport INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for MacOS X machine Zaurus\nexport RUN=false                    # will try to run with X11 and mySTEP\nexport DEPENDS=\"libtiff4, libgif4, libpng3, libjpeg7, zlib1g, libfreetype6, libxrender1, libxext6, quantumstep-foundation-framework\"\t# debian package dependencies\n\n\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
 		};
 		EE8D72140EF6C71000A9C09B /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
