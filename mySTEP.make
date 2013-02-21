@@ -59,8 +59,7 @@ export DEPENDS="quantumstep-cocoa-framework"	# debian package dependencies (, se
 # export DEBIAN_POSTRM=./postrm		# postrm file if needed
 
 # start make script
-export ROOT=/usr/share/QuantumSTEP	# project root
-/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
+QuantumSTEP=/usr/share/QuantumSTEP /usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
 
 ########################### end to cut here ###########################
 
@@ -69,6 +68,8 @@ export ROOT=/usr/share/QuantumSTEP	# project root
 #  9. Build the project (either in deployment or development mode)
 #
 endif
+
+ROOT=$(QuantumSTEP)
 
 include $(ROOT)/System/Sources/Frameworks/Version.def
 

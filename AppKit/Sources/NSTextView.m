@@ -935,7 +935,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 							
 							// FIXME: this is *wrong* lineBreakBeforeIndex returns a proposed position where a line break could be inserted (e.g. a space or puncuation).
 							
-							rng=[[textStorage string] paragraphRangeForRange:NSMakeRange(pos, 0)]
+							rng=[[textStorage string] paragraphRangeForRange:NSMakeRange(pos, 0)];
 /*
 							rng.location=[textStorage lineBreakBeforeIndex:pos withinRange:NSMakeRange(0, length)];
 							rng.length=[str rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@"\n"] options:0 range:NSMakeRange(pos, length-pos)].location;

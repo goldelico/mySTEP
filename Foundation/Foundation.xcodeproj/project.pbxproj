@@ -1206,7 +1206,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "bash Foundation.qcodeproj\n";
+			shellScript = "QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP ./Foundation.qcodeproj\n";
 		};
 		EEBAEEC90C94803F00596D9C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
