@@ -601,11 +601,12 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 	while((e = [self _eventMatchingMask:NSAnyEventMask dequeue:YES])
 		 && (as->runState == NSRunContinuesResponse))
 		{
+		NSWindow *ew=[e window];
 #if 1
 		NSLog(@"event %@", e);
 #endif
-		if([e window] == as->window)
-				{ // for the modal window
+		if(ew == as->window)
+				{ // event is for the modal window
 				NSWindow *w = [NSApp windowWithWindowNumber:as->windowTag];	// check if the server still knows us by tag
 				BOOL was = as->visible;
 				if(w == nil || (!(as->visible = [w isVisible]) && was))
@@ -620,14 +621,21 @@ void NSRegisterServicesProvider(id provider, NSString *name)
 				else
 					[self sendEvent:e];	// dispatch to the event window (which is the modal window)
 				}
-		else if([[e window] worksWhenModal])
+		else if([ew level] > [as->window level])
+			{
+#if 0
+			NSLog(@"higher Level: %@", [e window]);
+#endif
+			[self sendEvent:e];	// the window can (at least potentially) hide the modal panel			
+			}
+		else if([ew worksWhenModal])
 			{
 #if 0
 			NSLog(@"worksWhenModal: %@", [e window]);
 #endif
 			[self sendEvent:e];	// the window has explicity opted to receive events
 			}
-		// FIXME: check if we click into the title bar to always allow moving windows which is done in NSThemeFrame
+		// FIXME: check if we clicked into the title bar to always allow moving windows (which is done in NSThemeFrame of the window)
 		else
 			{ // queue events for all other windows for processing by endModalSession
 			NSEventType t = [e type];
