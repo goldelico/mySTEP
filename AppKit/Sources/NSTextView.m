@@ -893,6 +893,15 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		}
 }
 
+- (void) resetCursorRects
+{
+	if([self isSelectable])
+		{
+		[super resetCursorRects];
+		// add cursor rects for clickable link ranges
+		}
+}
+
 - (void) mouseDown:(NSEvent *) event
 { // run a text selection tracking loop
 	NSRange initialRange=_selectedRange;	// initial range (for extending selection)
@@ -1240,6 +1249,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 {
 	return newSelectedCharRange;
 }
+
 
 #if 0
 - (void) textView:(NSTextView *) textView 

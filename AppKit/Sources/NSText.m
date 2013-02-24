@@ -763,6 +763,12 @@ object:self]
 	return NSNotFound;	// i.e. outside of all characters
 }
 
+- (void) resetCursorRects
+{
+	if([self isSelectable])
+		[self addCursorRect:[self bounds] cursor:[NSCursor IBeamCursor]];	
+}
+
 - (void) mouseDown:(NSEvent *)event
 { // simple mouse down mechanism
 	NSRange rng=_selectedRange;	// current selected range
