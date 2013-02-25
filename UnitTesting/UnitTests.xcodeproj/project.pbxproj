@@ -582,7 +582,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "QuantumSTEP=/usr/share/QuantumSTEP AddressBook/AddressBookTests.qcodeproj\n";
+			shellScript = "cd AddressBook; QuantumSTEP=/usr/share/QuantumSTEP ./AddressBookTests.qcodeproj\n";
 		};
 		EEC07FAA1699EC3100CA1448 /* Run Tests */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -610,7 +610,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "QuantumSTEP=/usr/share/QuantumSTEP Foundation/FoundationTests.qcodeproj\n";
+			shellScript = "cd Foundation; QuantumSTEP=/usr/share/QuantumSTEP ./FoundationTests.qcodeproj\n";
 		};
 		EED980340F875953002E4AD5 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -624,7 +624,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "QuantumSTEP=/usr/share/QuantumSTEP AppKit/AppKitTests.qcodeproj\n";
+			shellScript = "cd AppKit; QuantumSTEP=/usr/share/QuantumSTEP ./AppKitTests.qcodeproj\n";
 		};
 		EEDB59ED169878070011D22A /* Run Tests */ = {
 			isa = PBXShellScriptBuildPhase;

@@ -1031,7 +1031,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			if(bp >= end)
 				[NSException raise:NSCharacterConversionException format:@"can't convert due to missing buffer space: %@", self];	// conversion error
 			if(!(*e)([self characterAtIndex:i++], &bp))
-				[NSException raise:NSCharacterConversionException format:@"can't getCString dur do non-ASCII characters: %@", self];	// conversion error
+				[NSException raise:NSCharacterConversionException format:@"can't getCString due to non-ASCII characters: %@", self];	// conversion error
 			}
 		}
 	else

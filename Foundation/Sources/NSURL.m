@@ -292,32 +292,48 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 	
 	*ptr=0;
 	tmp = ptr;
-#if 0
+#if 1
 	if(rel->path)
-		NSLog(@"merge = %s %s", rel->pathIsAbsolute?"/":"", rel->path);
+		NSLog(@"path = %s %s", rel->pathIsAbsolute?"/":"", rel->path);
+	else if(rel->pathIsAbsolute)
+		NSLog(@"path = /");
 	if(base && base->path)
-		NSLog(@"base = %s %s", base->pathIsAbsolute?"/":"", base->path);
+		NSLog(@"basePath = %s %s", base->pathIsAbsolute?"/":"", base->path);
+	else
+		NSLog(@"basePath = nil");
 #endif
 	
-	if((!rel->path || rel->path[0] == 0) && base && base->path)
+	if(!rel->pathIsAbsolute && (!rel->path || rel->path[0] == 0) && base && base->path)
 		{ // no rel path to append - take complete base path
+#if 1
+			NSLog(@"a");
+#endif
 			if(hasAuthority || base->pathIsAbsolute)
 				*tmp++ = '/';
 			strcpy(tmp, base->path);
 		}
-	else if(!rel->pathIsAbsolute && base && base->path)
+	else if(!rel->pathIsAbsolute && base && base->path && (!base->scheme || base->pathIsAbsolute))
 		{ // resolve relative path against base (but only if it is also absolute!) by stripping off last component of base path and append relative path
 			char *start = base->path;
 			char *end = strrchr(start, '/');
+#if 1
+			NSLog(@"b");
+#endif
 			if(hasAuthority || base->pathIsAbsolute)
 				*tmp++ = '/';
 			if (end)
 				{ // strip off last component
+#if 1
+					NSLog(@"b1");
+#endif
 					strncpy(tmp, start, end - start);
 					tmp += (end - start);
 				}
 			if(rel->path)
 				{ // append rel path (which is always relative!)
+#if 1
+					NSLog(@"b2");
+#endif
 					if(end)
 						*tmp++ = '/';	// delimit
 					strcpy(tmp, rel->path);
@@ -328,6 +344,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 	else
 		{ // overwrite base path by (most likely absolute) rel path
 #if 1
+			NSLog(@"c");
 			NSLog(@"rel->pathIsAbsolute=%d", rel->pathIsAbsolute);
 			NSLog(@"rel->path=%p %s", rel->path, rel->path?rel->path:"");
 			if(base && base->path)
@@ -336,16 +353,20 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 #endif
 			if(rel->path || rel->path[0] != 0)
 				{
-				if(rel->pathIsAbsolute)
+				if(hasAuthority || rel->pathIsAbsolute)
 					*tmp++ = '/';
 				strcpy(tmp, rel->path);
 				}
 		}
 	
+#if 1
+	NSLog(@"result = %s", ptr);
+#endif
+
 	if (standardize)
 		{
 #if 0
-		NSLog(@"standardize= %s", ptr);
+		NSLog(@"standardize");
 #endif
 		/*
 		 * Compact '/./'  to '/' and
@@ -360,7 +381,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 				tmp[1]=0;	// remove .
 				break;
 				}
-			else if (tmp[0] == '/' && tmp[1] == '.' && tmp[2] == '/')
+			else if (tmp != ptr && tmp[0] == '/' && tmp[1] == '.' && tmp[2] == '/')
 				strcpy(tmp, &tmp[2]);	// remove /.
 			else
 				tmp++;
@@ -368,12 +389,12 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 		/*
 		 * Compact "/something/../" to "/" and
 		 * a trailing "/something/.." to "/" and
-		 * a heading "something/../" to ""
+		 * a heading "something/../" to "/"
 		 */ 
 		tmp = ptr;
 		while (*tmp)
 			{
-#if 0
+#if 1
 			NSLog(@"/..? %s", tmp);
 #endif
 			if (tmp[0] == '/' && tmp[1] == '.' && tmp[2] == '.' && (tmp[3] == '/' || tmp[3] == 0))
@@ -383,27 +404,29 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 					break;	// can't go up
 				while(up > ptr && up[0] != '/')
 					up--;
-#if 0
-				NSLog(@"up=%p %@ ptr=%p: tmp=%s up=%s", up, up > ptr?@">":@"<=", ptr, tmp, up);
+#if 1
+				NSLog(@"tmp=%p up=%p %@ ptr=%p: tmp=%s up=%s", tmp, up, up > ptr?@">":@"<=", ptr, tmp, up);
 #endif
 				if(up == ptr && up[0] != '/' && tmp[3] == '/')
-					tmp++;	// remove heading something/../ ( copy last /)
+					tmp++;	// remove heading something/../ ( copy incl. last /)
+				// FIXME: sometimes the first / is removed and sometimes not!
 				else if(tmp[3] == 0)
-					up++;	// reduce trailing /something/.. to / (keep first /)
+					up++;	// reduce trailing /something/.. to "/"
 				// else reduce /something/../ to /
-#if 0
-				NSLog(@"up=%p %@ ptr=%p: tmp=%s up=%s", up, up > ptr?@">":@"<=", ptr, tmp, up);
+#if 1
+				NSLog(@"tmp=%p up=%p %@ ptr=%p: tmp=%s up=%s", tmp, up, up > ptr?@">":@"<=", ptr, tmp, up);
 #endif
 				strcpy(up, tmp+3);
-#if 0
+#if 1
 				NSLog(@"  str  = %s", ptr);
 #endif
-				tmp=up;	// remove sequence
+				tmp=up;	// start over
 				}
 			else
 				tmp++;
-			}				
-#if 0
+			}
+		// remove trailing / but under which conditions???
+#if 1
 		NSLog(@"ptr=> %s", ptr);
 #endif
 		}
@@ -778,11 +801,13 @@ static NSString *unescape(const char *from, BOOL stripslash)
 #if 0
 	NSLog(@"initWithString: %@ relativeToURL: %@", aUrlString, [aBaseUrl description]);
 #endif
-	if (aUrlString == nil)
+	if (!aUrlString)
 		{
+		Class c=[self class];
+		[self release];
 		[NSException raise: NSInvalidArgumentException
 					format: @"[%@ %@] nil string parameter",
-		 NSStringFromClass([self class]), NSStringFromSelector(_cmd)];
+		 NSStringFromClass(c), NSStringFromSelector(_cmd)];
 		return nil;
 		}
 	_urlString=[aUrlString copy];	// keep a copy
@@ -794,7 +819,12 @@ static NSString *unescape(const char *from, BOOL stripslash)
 	buf = _data = (parsedURL *) objc_malloc(size);	// allocate space for parsedURL header plus the cString
 	memset(buf, '\0', size);
 	start = end = (char*)&buf[1];
-	[_urlString getCString:start];			// get the cString and store behind the parsedURL header
+	NS_DURING
+		[_urlString getCString:start];			// get the cString and store behind the parsedURL header
+	NS_HANDLER	// can't convert Unicode to C-String
+		[self release];
+		return nil;
+	NS_ENDHANDLER
 #if 0
 	NSLog(@"NSURL initWithString");
 	NSLog(@"NSURL [length]=%d len=%d size=%d buf=%p", [_urlString length], [_urlString cStringLength], size, buf);
