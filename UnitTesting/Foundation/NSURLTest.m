@@ -13,6 +13,20 @@
 @implementation NSURLTest
 
 - (void) test10
+{
+	NSURL *url;
+	STAssertThrowsSpecificNamed([NSURL URLWithString:nil], NSException, NSInvalidArgumentException, nil);
+	STAssertThrowsSpecificNamed([NSURL URLWithString:[NSArray array]], NSException, NSInvalidArgumentException, nil);
+	STAssertNoThrow(url=[NSURL URLWithString:@"http://host/path" relativeToURL:@"url"], nil);
+	// this can't be correctly tested
+	// STAssertThrows([url description], nil);
+	/* conclusions
+	 * passing nil is checked
+	 * type of relativeURL is not checked and fails later
+	 */
+}
+
+- (void) test11
 { // most complex initialization...
 	NSURL *url=[NSURL URLWithString:@"file%20name.htm;param1;param2?something=other&andmore=more#fragments"
 					  relativeToURL:[NSURL URLWithString:@"scheme://user:password@host.domain.org:888/path/absfile.htm"]];
@@ -642,6 +656,17 @@
 	 * is based on string compares
 	 * not on the concept of standardizedURL
 	 * and it is not sufficient to return the same absoluteURL!
+	 */
+}
+
+- (void) test31
+{ // handling unicode in URL string?
+	STAssertNil(([NSURL URLWithString:[NSString stringWithFormat:@"http://M%Cller.de/Ueberweisung", 0x00FC]]), nil);
+	STAssertNil(([NSURL URLWithString:[NSString stringWithFormat:@"http://M%Cller.de/%Cberweisung", 0x00FC, 0x00DC]]), nil);
+	STAssertNil(([NSURL URLWithString:[NSString stringWithFormat:@"http://Mueller.de/%Cberweisung", 0x00DC]]), nil);
+	/* conclusion
+	 * unicode characters are rejected everywhere
+	 * i.e. translation from a user typed URL (e.g. browser address text field) to % escapes and Punycode must be done outside this class
 	 */
 }
 

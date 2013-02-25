@@ -84,6 +84,7 @@
 		EEDB5A00169878070011D22A /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EEDB5A01169878070011D22A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EEDB5A02169878070011D22A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
+		EEF7EB2516DB63EB00CD94B5 /* AddressBookTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEF7EB2416DB63EB00CD94B5 /* AddressBookTests.qcodeproj */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -163,6 +164,9 @@
 		EED9803A0F875953002E4AD5 /* AppKit.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKit.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEDB59F2169878070011D22A /* Foundation.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Foundation.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEDB5A09169878070011D22A /* AppKit.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKit.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEF7EB2416DB63EB00CD94B5 /* AddressBookTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = AddressBookTests.qcodeproj; path = AddressBook/AddressBookTests.qcodeproj; sourceTree = "<group>"; };
+		EEF7EB2B16DB641600CD94B5 /* AppKitTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AppKitTests.qcodeproj; sourceTree = "<group>"; };
+		EEF7EB2C16DB643700CD94B5 /* FoundationTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = FoundationTests.qcodeproj; sourceTree = "<group>"; };
 		EEFFEFE2098DF088002610FC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		EEFFF0EB098DF148002610FC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		EEFFF0EC098DF148002610FC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -248,8 +252,9 @@
 			isa = PBXGroup;
 			children = (
 				EED10A0D0F8258DC00E9AEC6 /* mySTEP.make */,
-				EE0C70D20F7E7174008B94EE /* Foundation-Tests */,
+				EEF7EB1F16DB638900CD94B5 /* AddressBook-Tests */,
 				EED980270F87594E002E4AD5 /* AppKit-Tests */,
+				EE0C70D20F7E7174008B94EE /* Foundation-Tests */,
 				EEFFF241098DF160002610FC /* MacOS X Frameworks */,
 				EE29D8D8058A38830035639B /* Products */,
 				EE0C72040F7E7328008B94EE /* Tests-Info.plist */,
@@ -262,6 +267,7 @@
 		EE0C70D20F7E7174008B94EE /* Foundation-Tests */ = {
 			isa = PBXGroup;
 			children = (
+				EEF7EB2C16DB643700CD94B5 /* FoundationTests.qcodeproj */,
 				EE13454410A04EB700169BC8 /* Sources */,
 				EE488A930F90FBC300B3E56F /* NSAttributedStringTest.h */,
 				EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */,
@@ -302,7 +308,10 @@
 		EED980270F87594E002E4AD5 /* AppKit-Tests */ = {
 			isa = PBXGroup;
 			children = (
+				EEF7EB2B16DB641600CD94B5 /* AppKitTests.qcodeproj */,
 				EE13461D10A04ECB00169BC8 /* Sources */,
+				EE80834A16A98EB500830989 /* floatspeed.h */,
+				EE80834B16A98EB500830989 /* floatspeed.m */,
 				EE547ABF168BAC9A00164AB4 /* NSFontDescriptorTest.h */,
 				EE547AC0168BAC9A00164AB4 /* NSFontDescriptorTest.m */,
 				EE547ABC168BAC8E00164AB4 /* NSFontTest.h */,
@@ -322,11 +331,17 @@
 				EE547B33168C3EDA00164AB4 /* NSViewBoundsTest.h */,
 				EE547B34168C3EDA00164AB4 /* NSViewBoundsTest.m */,
 				EE80828516A8933D00830989 /* gui */,
-				EE80834A16A98EB500830989 /* floatspeed.h */,
-				EE80834B16A98EB500830989 /* floatspeed.m */,
 			);
 			name = "AppKit-Tests";
 			path = AppKit;
+			sourceTree = "<group>";
+		};
+		EEF7EB1F16DB638900CD94B5 /* AddressBook-Tests */ = {
+			isa = PBXGroup;
+			children = (
+				EEF7EB2416DB63EB00CD94B5 /* AddressBookTests.qcodeproj */,
+			);
+			name = "AddressBook-Tests";
 			sourceTree = "<group>";
 		};
 		EEFFF241098DF160002610FC /* MacOS X Frameworks */ = {
@@ -548,6 +563,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE80828416A8932600830989 /* base in Resources */,
+				EEF7EB2516DB63EB00CD94B5 /* AddressBookTests.qcodeproj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -566,7 +582,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#exit\n\n# project settings\nexport SOURCES=\"AddressBook/*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=SenTestingKit\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/UnitTests  # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "QuantumSTEP=/usr/share/QuantumSTEP AddressBook/AddressBookTests.qcodeproj\n";
 		};
 		EEC07FAA1699EC3100CA1448 /* Run Tests */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -594,7 +610,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#exit\n\n# project settings\nexport SOURCES=\"Foundation/*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=SenTestingKit\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/UnitTests  # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "QuantumSTEP=/usr/share/QuantumSTEP Foundation/FoundationTests.qcodeproj\n";
 		};
 		EED980340F875953002E4AD5 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -608,7 +624,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#exit\n\n# project settings\nexport SOURCES=\"AppKit/*.m\"   # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional libraries (or flags) like -ltiff etc.\nexport FRAMEWORKS=SenTestingKit\t\t\t\t   # add any additional Frameworks etc.\nexport INSTALL_PATH=/Library/UnitTests  # override INSTALL_PATH for MacOS X for Zaurus\n\n# global/compile settings\n#export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nexport ROOT=/usr/share/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "QuantumSTEP=/usr/share/QuantumSTEP AppKit/AppKitTests.qcodeproj\n";
 		};
 		EEDB59ED169878070011D22A /* Run Tests */ = {
 			isa = PBXShellScriptBuildPhase;
