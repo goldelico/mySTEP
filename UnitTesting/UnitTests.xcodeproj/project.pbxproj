@@ -285,7 +285,8 @@
 				EE0C71F80F7E7278008B94EE /* NSStringTest.m */,
 				EE27BF6B0FCAB32000A48A1E /* NSURLTest.h */,
 				EE27BF660FCAB2A300A48A1E /* NSURLTest.m */,
-				EE807FEB16A8932500830989 /* base */,
+				EEFC8C7416D95F97005171C9 /* Functions.h */,
+				EEFC8C7516D95F97005171C9 /* Functions.m */,
 			);
 			name = "Foundation-Tests";
 			path = Foundation;
@@ -669,6 +670,7 @@
 				EE27BF670FCAB2A300A48A1E /* NSURLTest.m in Sources */,
 				EEBB6D95109CBEE500B67699 /* NSPortCoderTest.m in Sources */,
 				EEC07E3E1699C69000CA1448 /* NSScannerTest.m in Sources */,
+				EEFC8C7616D95F97005171C9 /* Functions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -723,6 +725,7 @@
 				EEDB59E7169878070011D22A /* NSURLTest.m in Sources */,
 				EEDB59E8169878070011D22A /* NSPortCoderTest.m in Sources */,
 				EEC07E3D1699C69000CA1448 /* NSScannerTest.m in Sources */,
+				EEFC8C7716D95F97005171C9 /* Functions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

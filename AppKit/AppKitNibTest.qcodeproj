@@ -1,3 +1,4 @@
+#!/bin/bash
 
 # project settings
 export SOURCES="../TestApplications/NIB/*.m"  	    # all source codes
@@ -11,4 +12,4 @@ export INSTALL_PATH=/Applications/Test   # override INSTALL_PATH for MacOS X mac
 #export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
 #export SEND2ZAURUS=true			# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)
 #export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
-/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
+/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION

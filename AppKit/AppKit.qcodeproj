@@ -8,6 +8,4 @@ export INSTALL_PATH=/System/Library/Frameworks   # override INSTALL_PATH for Mac
 export RUN=false                    # will try to run with X11 and mySTEP
 export DEPENDS="libtiff4, libgif4, libpng3, libjpeg7, zlib1g, libfreetype6, libxrender1, libxext6, quantumstep-foundation-framework"	# debian package dependencies
 
-
-export ROOT=$HOME/Documents/Projects/QuantumSTEP	# project root
-/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION
+/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
