@@ -37,6 +37,7 @@
 #include <sys/types.h>
 #include <sys/signal.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 #ifndef mySTEP_MAJOR_VERSION
 #define mySTEP_MAJOR_VERSION	2

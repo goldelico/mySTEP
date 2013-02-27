@@ -1108,9 +1108,10 @@ BOOL allOk = YES;
 	return [self objectForKey:NSFileModificationDate];
 }
 
-- (NSNumber*) filePosixPermissions;
+- (unsigned long) filePosixPermissions;
 {
-	return [self objectForKey:NSFilePosixPermissions];
+	id o=[self objectForKey:NSFilePosixPermissions];
+	return o?[o unsignedIntValue]:0;
 }
 
 - (BOOL) fileIsAppendOnly;
@@ -1182,7 +1183,7 @@ BOOL allOk = YES;
 	NSAssert1(attributes,@"could not get the attributes for file '%@'",source);
 	
 	fileSize = [[attributes objectForKey:NSFileSize] intValue];
-	fileMode = [[attributes objectForKey:NSFilePosixPermissions] intValue];
+	fileMode = [attributes objectForKey:NSFilePosixPermissions];
 	
 	if ((sourceFd = open(cpath, O_RDONLY)) < 0) 
 			{										// Open source file. In case

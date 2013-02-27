@@ -9,8 +9,9 @@
 #import <SenTestingKit/SenTestingKit.h>
 
 
-@interface NSPredicateTest : SenTestCase {
-
+@interface NSPredicateTest : SenTestCase
+{
+	NSMutableDictionary *dict;
 }
 
 @end

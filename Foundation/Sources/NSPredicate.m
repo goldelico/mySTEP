@@ -577,6 +577,18 @@
 		type=NSEndsWithPredicateOperatorType;
 	else if([sc _scanPredicateKeyword:@"IN"])
 		type=NSInPredicateOperatorType;
+	else if([sc _scanPredicateKeyword:@"CONTAINS"])
+		type=NSContainsPredicateOperatorType;
+	else if([sc _scanPredicateKeyword:@"BETWEEN"])
+		{
+		// FIXME: we have three operands!
+		// the easiest way is to define a _NSBetweenComparisonPredicate : NSComparisonPredicate
+		// or put the between range into an Array
+		type=NSBetweenPredicateOperatorType;
+//		p=[self predicateWithLeftExpression:left rightExpression:[NSExpression _parseBinaryExpressionWithScanner:sc]
+//								   modifier:modifier type:type options:opts];
+		return negate?[NSCompoundPredicate notPredicateWithSubpredicate:p]:p;
+		}
 	else
 		[NSException raise:NSInvalidArgumentException format:@"Invalid comparison predicate: %@", [[sc string] substringFromIndex:[sc scanLocation]]];
 	if([sc scanString:@"[" intoString:NULL])
@@ -922,6 +934,7 @@
 		if([sc scanString:@"**" intoString:NULL])
 			{
 			right=[self _parseFunctionalExpressionWithScanner:sc];
+			left=[self expressionForFunction:@"pow" arguments:[NSArray arrayWithObjects:left, right, nil]];
 			}
 		else
 			return left;
@@ -933,15 +946,10 @@
 	NSExpression *left=[self _parsePowerExpressionWithScanner:sc];
 	while(YES)
 		{
-		NSExpression *right;
 		if([sc scanString:@"*" intoString:NULL])
-			{
-			right=[self _parsePowerExpressionWithScanner:sc];
-			}
+			left=[self expressionForFunction:@"mult" arguments:[NSArray arrayWithObjects:left, [self _parsePowerExpressionWithScanner:sc], nil]];
 		else if([sc scanString:@"/" intoString:NULL])
-			{
-			right=[self _parsePowerExpressionWithScanner:sc];
-			}
+			left=[self expressionForFunction:@"div" arguments:[NSArray arrayWithObjects:left, [self _parsePowerExpressionWithScanner:sc], nil]];
 		else
 			return left;
 		}
@@ -952,15 +960,10 @@
 	NSExpression *left=[self _parseMultiplicationExpressionWithScanner:sc];
 	while(YES)
 		{
-		NSExpression *right;
 		if([sc scanString:@"+" intoString:NULL])
-			{
-			right=[self _parseMultiplicationExpressionWithScanner:sc];
-			}
+			left=[self expressionForFunction:@"add" arguments:[NSArray arrayWithObjects:left, [self _parseMultiplicationExpressionWithScanner:sc], nil]];
 		else if([sc scanString:@"-" intoString:NULL])
-			{
-			right=[self _parseMultiplicationExpressionWithScanner:sc];
-			}
+			left=[self expressionForFunction:@"sub" arguments:[NSArray arrayWithObjects:left, [self _parseMultiplicationExpressionWithScanner:sc], nil]];
 		else
 			return left;
 		}
@@ -971,11 +974,10 @@
 	NSExpression *left=[self _parseAdditionExpressionWithScanner:sc];
 	while(YES)
 		{
-		NSExpression *right;
 		if([sc scanString:@":=" intoString:NULL])	// assignment
 			{
 			// check left to be a variable?
-			right=[self _parseAdditionExpressionWithScanner:sc];
+			left=[self expressionForFunction:@"assign" arguments:[NSArray arrayWithObjects:left, [self _parseAdditionExpressionWithScanner:sc], nil]];
 			}
 		else
 			return left;

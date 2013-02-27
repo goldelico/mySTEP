@@ -10,97 +10,14 @@
 #import "NSPredicateTest.h"
 
 
-#if 0	// test our mySTEP implementation
-
-// make NSPrivate.h compile on Cocoa Foundation
-
-#ifndef ASSIGN
-#define ASSIGN(var, val) ([var release], var=[val retain])
-#endif
-#define objc_malloc(A) malloc((A))
-#define objc_realloc(A, B) realloc((A), (B))
-#define objc_free(A) free(A)
-#define _NSXMLParserReadMode int
-#define GSBaseCString NSObject
-#define arglist_t void *
-#define retval_t void *
-#define METHOD_NULL NULL
-#define SEL_EQ(S1, S2) S1==S2
-#define class_get_instance_method class_getInstanceMethod
-#define objc_sizeof_type(T) 1
-#define NIMP (NSLog(@"not implemented: %@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)), (void *) 0)
-#define SUBCLASS 0
-
-#ifdef __APPLE__
-#import <objc/objc-class.h>	// #define _C_ID etc.
-// unknown on Apple runtime
-#define _C_ATOM     '%'
-#define _C_LNG_LNG  'q'
-#define _C_ULNG_LNG 'Q'
-#define _C_VECTOR   '!'
-#define _C_COMPLEX   'j'
-#endif
-
-// rename our implementation to avoid conflicts with Cocoa
-
-#define NSPredicate myNSPredicate
-#define NSCompoundPredicate myNSCompoundPredicate
-#define NSComparisonPredicate myNSComparisonPredicate
-#define NSExpression myNSExpression
-
-#define NSConstantValueExpressionType myNSConstantValueExpressionType
-#define NSEvaluatedObjectExpressionType myNSEvaluatedObjectExpressionType
-#define NSVariableExpressionType myNSVariableExpressionType
-#define NSKeyPathExpressionType myNSKeyPathExpressionType
-#define NSFunctionExpressionType myNSFunctionExpressionType
-#define NSSubqueryExpressionType myNSSubqueryExpressionType
-#define NSAggregateExpressionType myNSAggregateExpressionType
-#define NSUnionExpressionType myNSUnionExpressionType
-#define NSIntersectExpressionType myNSIntersectExpressionType
-#define NSMinusExpressionType myNSMinusExpressionType
-
-#define NSNotPredicateType myNSNotPredicateType
-#define NSAndPredicateType myNSAndPredicateType
-#define NSOrPredicateType myNSOrPredicateType
-
-#define NSDirectPredicateModifier myNSDirectPredicateModifier
-#define NSAllPredicateModifier myNSAllPredicateModifier
-#define NSAnyPredicateModifier myNSAnyPredicateModifier
-
-#define NSCaseInsensitivePredicateOption myNSCaseInsensitivePredicateOption
-#define NSDiacriticInsensitivePredicateOption myNSDiacriticInsensitivePredicateOption
-
-#define NSLessThanPredicateOperatorType myNSLessThanPredicateOperatorType
-#define NSLessThanOrEqualToPredicateOperatorType myNSLessThanOrEqualToPredicateOperatorType
-#define NSGreaterThanPredicateOperatorType myNSGreaterThanPredicateOperatorType
-#define NSGreaterThanOrEqualToPredicateOperatorType myNSGreaterThanOrEqualToPredicateOperatorType
-#define NSEqualToPredicateOperatorType myNSEqualToPredicateOperatorType
-#define NSNotEqualToPredicateOperatorType myNSNotEqualToPredicateOperatorType
-#define NSMatchesPredicateOperatorType myNSMatchesPredicateOperatorType
-#define NSLikePredicateOperatorType myNSLikePredicateOperatorType
-#define NSBeginsWithPredicateOperatorType myNSBeginsWithPredicateOperatorType
-#define NSEndsWithPredicateOperatorType myNSEndsWithPredicateOperatorType
-#define NSInPredicateOperatorType myNSInPredicateOperatorType
-#define NSCustomSelectorPredicateOperatorType myNSCustomSelectorPredicateOperatorType
-#define NSContainsPredicateOperatorType myNSContainsPredicateOperatorType
-#define NSBetweenPredicateOperatorType myNSBetweenPredicateOperatorType
-		
-#import "../../Foundation/Sources/NSPredicate.h"
-#import "../../Foundation/Sources/NSExpression.h"
-#import "../../Foundation/Sources/NSCompoundPredicate.h"
-#import "../../Foundation/Sources/NSComparisonPredicate.h"
-#import "../../Foundation/Sources/NSPredicate.m"
-#endif
-
-
 @implementation NSPredicateTest
 
 - (void) test1
 {
-	NSPredicate *p, *q;
+	NSPredicate *p;
 	p=[NSPredicate predicateWithFormat:@"%K like %@+$b+$c", @"$single", @"b\""];
-	STAssertEqualObjects(@"$single LIKE (\"b\\\"\" + $b) + $c", [p predicateFormat], nil);
-#if 0
+	STAssertEqualObjects([p predicateFormat], @"$single LIKE (\"b\\\"\" + $b) + $c", nil);
+#if 1
 	if([p respondsToSelector:@selector(subpredicates)])
 		NSLog(@"subpredicates=%@", [(NSCompoundPredicate *)p subpredicates]);
 	if([p respondsToSelector:@selector(leftExpression)])
@@ -108,15 +25,164 @@
 	if([p respondsToSelector:@selector(rightExpression)])
 		NSLog(@"right=%@", [(NSComparisonPredicate *)p rightExpression]);
 #endif
-	q=[p predicateWithSubstitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:
+	p=[p predicateWithSubstitutionVariables:[NSDictionary dictionaryWithObjectsAndKeys:
 																					 @"val_for_single_string", @"single",	// why %K does not make a variable
 																					 @"val_for_$b", @"b",
 																					 @"val_for_$c", @"c",
 																					 nil]];
-	STAssertEqualObjects(@"$single LIKE (\"b\\\"\" + \"val_for_$b\") + \"val_for_$c\"", [q predicateFormat], nil);
+	STAssertEqualObjects([p predicateFormat], @"$single LIKE (\"b\\\"\" + \"val_for_$b\") + \"val_for_$c\"", nil);
 }
 
 // add many more such tests
 
+/* tests copied from GNUstep */
+ 
+- (void) setUp
+{
+	NSDictionary *d;
+	dict = [[NSMutableDictionary alloc] init];
+	[dict setObject: @"A Title" forKey: @"title"];
+	
+	d = [NSDictionary dictionaryWithObjectsAndKeys:
+		 @"John", @"Name",
+		 [NSNumber numberWithInt: 34], @"Age",
+		 [NSArray arrayWithObjects: @"Kid1", @"Kid2", nil], @"Children",
+		 nil];
+	[dict setObject: d forKey: @"Record1"];
+	
+	d = [NSDictionary dictionaryWithObjectsAndKeys:
+		 @"Mary", @"Name",
+		 [NSNumber numberWithInt: 30], @"Age",
+		 [NSArray arrayWithObjects: @"Kid1", @"Girl1", nil], @"Children",
+		 nil];
+	[dict setObject: d forKey: @"Record2"];	
+}
+
+- (void) tearDown
+{
+	[dict release];
+}
+
+// FIXME: replace STAssertTrue by more verbose STAsserts
+
+- (void) testKVC
+{
+	STAssertTrue([@"A Title" isEqual: [dict valueForKey: @"title"]], @"valueForKeyPath: with string");
+	STAssertTrue([@"A Title" isEqual: [dict valueForKeyPath: @"title"]], @"valueForKeyPath: with string");
+	STAssertTrue([@"John" isEqual: [dict valueForKeyPath: @"Record1.Name"]], @"valueForKeyPath: with string");
+	STAssertTrue(30 == [[dict valueForKeyPath: @"Record2.Age"] intValue], @"valueForKeyPath: with int");
+}
+
+- (void) testContains
+{
+	NSPredicate *p;
+	p = [NSPredicate predicateWithFormat: @"%@ CONTAINS %@", @"AABBBAA", @"BBB"];
+	STAssertTrue([p evaluateWithObject: dict], @"%%@ CONTAINS %%@");
+	p = [NSPredicate predicateWithFormat: @"%@ IN %@", @"BBB", @"AABBBAA"];
+	STAssertTrue([p evaluateWithObject: dict], @"%%@ IN %%@");
+}
+
+- (void) testString
+{
+	NSPredicate *p;
+	
+	p = [NSPredicate predicateWithFormat: @"%K == %@", @"Record1.Name", @"John"];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K == %%@");
+	p = [NSPredicate predicateWithFormat: @"%K MATCHES[c] %@", @"Record1.Name", @"john"];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K MATCHES[c] %%@");
+	p = [NSPredicate predicateWithFormat: @"%K BEGINSWITH %@", @"Record1.Name", @"Jo"];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K BEGINSWITH %%@");
+	p = [NSPredicate predicateWithFormat: @"(%K == %@) AND (%K == %@)", @"Record1.Name", @"John", @"Record2.Name", @"Mary"];
+	STAssertTrue([p evaluateWithObject: dict], @"(%%K == %%@) AND (%%K == %%@)");
+}
+
+- (void) testInteger
+{
+	NSPredicate *p;
+	
+	p = [NSPredicate predicateWithFormat: @"%K == %d", @"Record1.Age", 34];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K == %%d");
+	p = [NSPredicate predicateWithFormat: @"%K = %@", @"Record1.Age", [NSNumber numberWithInt: 34]];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K = %%@");
+	p = [NSPredicate predicateWithFormat: @"%K == %@", @"Record1.Age", [NSNumber numberWithInt: 34]];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K == %%@");
+	p = [NSPredicate predicateWithFormat: @"%K < %d", @"Record1.Age", 40];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K < %%d");
+	p = [NSPredicate predicateWithFormat: @"%K < %@", @"Record1.Age", [NSNumber numberWithInt: 40]];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K < %%@");
+	p = [NSPredicate predicateWithFormat: @"%K <= %@", @"Record1.Age", [NSNumber numberWithInt: 40]];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K <= %%@");
+	p = [NSPredicate predicateWithFormat: @"%K <= %@", @"Record1.Age", [NSNumber numberWithInt: 34]];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K <= %%@");
+	p = [NSPredicate predicateWithFormat: @"%K > %@", @"Record1.Age", [NSNumber numberWithInt: 20]];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K > %%@");
+	p = [NSPredicate predicateWithFormat: @"%K >= %@", @"Record1.Age", [NSNumber numberWithInt: 34]];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K >= %%@");
+	p = [NSPredicate predicateWithFormat: @"%K >= %@", @"Record1.Age", [NSNumber numberWithInt: 20]];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K >= %%@");
+	p = [NSPredicate predicateWithFormat: @"%K != %@", @"Record1.Age", [NSNumber numberWithInt: 20]];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K != %%@");
+	p = [NSPredicate predicateWithFormat: @"%K <> %@", @"Record1.Age", [NSNumber numberWithInt: 20]];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K <> %%@");
+	p = [NSPredicate predicateWithFormat: @"%K BETWEEN %@", @"Record1.Age", [NSArray arrayWithObjects: [NSNumber numberWithInt: 20], [NSNumber numberWithInt: 40], nil]];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K BETWEEN %%@");
+	p = [NSPredicate predicateWithFormat: @"(%K == %d) OR (%K == %d)", @"Record1.Age", 34, @"Record2.Age", 34];
+	STAssertTrue([p evaluateWithObject: dict], @"(%%K == %%d) OR (%%K == %%d)");
+	
+	
+}
+
+- (void) testFloat
+{
+	NSPredicate *p;
+	
+	p = [NSPredicate predicateWithFormat: @"%K < %f", @"Record1.Age", 40.5];
+	STAssertTrue([p evaluateWithObject: dict], @"%%K < %%f");
+	p = [NSPredicate predicateWithFormat: @"%f > %K", 40.5, @"Record1.Age"];
+	STAssertTrue([p evaluateWithObject: dict], @"%%f > %%K");
+}
+
+- (void) testAggregate
+{
+	NSPredicate *p;
+	
+	p = [NSPredicate predicateWithFormat: @"%@ IN %K", @"Kid1", @"Record1.Children"];
+	STAssertTrue([p evaluateWithObject: dict], @"%%@ IN %%K");
+	p = [NSPredicate predicateWithFormat: @"Any %K == %@", @"Record2.Children", @"Girl1"];
+	STAssertTrue([p evaluateWithObject: dict], @"Any %%K == %%@");
+}
+
+- (void) testFiltered
+{
+	NSArray *filtered;
+	NSArray *pitches;
+	NSArray *expect;
+	NSPredicate *p;
+	NSDictionary *d;
+	
+	
+	pitches = [NSArray arrayWithObjects:
+			   @"Do", @"Re", @"Mi", @"Fa", @"So", @"La", nil];
+	expect = [NSArray arrayWithObjects: @"Do", nil];
+	
+	filtered = [pitches filteredArrayUsingPredicate:
+				[NSPredicate predicateWithFormat: @"SELF == 'Do'"]];  
+	STAssertTrue([filtered isEqual: expect], @"filter with SELF");
+	
+	filtered = [pitches filteredArrayUsingPredicate:
+				[NSPredicate predicateWithFormat: @"description == 'Do'"]];
+	STAssertTrue([filtered isEqual: expect], @"filter with description");
+	
+	filtered = [pitches filteredArrayUsingPredicate:
+				[NSPredicate predicateWithFormat: @"SELF == '%@'", @"Do"]];
+	STAssertTrue([filtered isEqual: [NSArray array]], @"filter with format");
+	
+	STAssertTrue([NSExpression expressionForEvaluatedObject]
+		 == [NSExpression expressionForEvaluatedObject],
+		 @"expressionForEvaluatedObject is unique");
+	
+	p = [NSPredicate predicateWithFormat: @"SELF == 'aaa'"];
+	STAssertTrue([p evaluateWithObject: @"aaa"], @"SELF equality works");
+}
 
 @end

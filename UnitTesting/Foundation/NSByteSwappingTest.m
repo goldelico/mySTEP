@@ -16,7 +16,7 @@
 { // test byte swapping methods for correctness
 	float flt=M_PI;
 	double dbl=M_PI;
-#if 0
+#if OLD
 		{
 			float want, have;
 			float dwant, dhave;

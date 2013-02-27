@@ -116,6 +116,8 @@ struct NSArgumentInfo
 
 // this may be called recursively (structs)
 
+// FIXME: move some of this to NSGetSizeAndAlignment()
+
 static const char *mframe_next_arg(const char *typePtr, struct NSArgumentInfo *info)
 { // returns NULL on error
 	NSCAssert(info, @"missing NSArgumentInfo");

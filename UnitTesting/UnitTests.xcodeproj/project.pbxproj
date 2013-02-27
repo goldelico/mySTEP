@@ -44,7 +44,6 @@
 		EE547AC1168BAC9A00164AB4 /* NSFontDescriptorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547AC0168BAC9A00164AB4 /* NSFontDescriptorTest.m */; };
 		EE547B35168C3EDA00164AB4 /* NSViewBoundsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE547B34168C3EDA00164AB4 /* NSViewBoundsTest.m */; };
 		EE7A573B14B0BD8500A12559 /* NSTextContainerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */; };
-		EE80828416A8932600830989 /* base in Resources */ = {isa = PBXBuildFile; fileRef = EE807FEB16A8932500830989 /* base */; };
 		EE80834C16A98EB500830989 /* floatspeed.m in Sources */ = {isa = PBXBuildFile; fileRef = EE80834B16A98EB500830989 /* floatspeed.m */; };
 		EE80834D16A98EB500830989 /* floatspeed.m in Sources */ = {isa = PBXBuildFile; fileRef = EE80834B16A98EB500830989 /* floatspeed.m */; };
 		EEBB6D95109CBEE500B67699 /* NSPortCoderTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBB6D94109CBEE500B67699 /* NSPortCoderTest.m */; };
@@ -84,6 +83,8 @@
 		EEDB5A00169878070011D22A /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EB098DF148002610FC /* AppKit.framework */; };
 		EEDB5A01169878070011D22A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFF0EC098DF148002610FC /* Cocoa.framework */; };
 		EEDB5A02169878070011D22A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
+		EEF7152716DD27C200CD94B5 /* Functions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7152616DD27C200CD94B5 /* Functions.m */; };
+		EEF7152816DD27C200CD94B5 /* Functions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7152616DD27C200CD94B5 /* Functions.m */; };
 		EEF7EB2516DB63EB00CD94B5 /* AddressBookTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEF7EB2416DB63EB00CD94B5 /* AddressBookTests.qcodeproj */; };
 /* End PBXBuildFile section */
 
@@ -145,7 +146,6 @@
 		EE5DAEF010A61BD200910F0B /* Special.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Special.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE7A573914B0BD8500A12559 /* NSTextContainerTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSTextContainerTest.h; sourceTree = "<group>"; };
 		EE7A573A14B0BD8500A12559 /* NSTextContainerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSTextContainerTest.m; sourceTree = "<group>"; };
-		EE807FEB16A8932500830989 /* base */ = {isa = PBXFileReference; lastKnownFileType = folder; name = base; path = ../GNUstep/base/trunk/Tests/base; sourceTree = SOURCE_ROOT; };
 		EE80828516A8933D00830989 /* gui */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gui; path = ../GNUstep/gui/trunk/Tests/gui; sourceTree = SOURCE_ROOT; };
 		EE80834A16A98EB500830989 /* floatspeed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = floatspeed.h; sourceTree = "<group>"; };
 		EE80834B16A98EB500830989 /* floatspeed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = floatspeed.m; sourceTree = "<group>"; };
@@ -164,6 +164,8 @@
 		EED9803A0F875953002E4AD5 /* AppKit.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKit.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEDB59F2169878070011D22A /* Foundation.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Foundation.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEDB5A09169878070011D22A /* AppKit.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKit.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEF7152516DD27C200CD94B5 /* Functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Functions.h; sourceTree = "<group>"; };
+		EEF7152616DD27C200CD94B5 /* Functions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Functions.m; sourceTree = "<group>"; };
 		EEF7EB2416DB63EB00CD94B5 /* AddressBookTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = AddressBookTests.qcodeproj; path = AddressBook/AddressBookTests.qcodeproj; sourceTree = "<group>"; };
 		EEF7EB2B16DB641600CD94B5 /* AppKitTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = AppKitTests.qcodeproj; sourceTree = "<group>"; };
 		EEF7EB2C16DB643700CD94B5 /* FoundationTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = FoundationTests.qcodeproj; sourceTree = "<group>"; };
@@ -269,6 +271,8 @@
 			children = (
 				EEF7EB2C16DB643700CD94B5 /* FoundationTests.qcodeproj */,
 				EE13454410A04EB700169BC8 /* Sources */,
+				EEF7152516DD27C200CD94B5 /* Functions.h */,
+				EEF7152616DD27C200CD94B5 /* Functions.m */,
 				EE488A930F90FBC300B3E56F /* NSAttributedStringTest.h */,
 				EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */,
 				EE27BF680FCAB2C900A48A1E /* NSByteSwappingTest.h */,
@@ -285,8 +289,6 @@
 				EE0C71F80F7E7278008B94EE /* NSStringTest.m */,
 				EE27BF6B0FCAB32000A48A1E /* NSURLTest.h */,
 				EE27BF660FCAB2A300A48A1E /* NSURLTest.m */,
-				EEFC8C7416D95F97005171C9 /* Functions.h */,
-				EEFC8C7516D95F97005171C9 /* Functions.m */,
 			);
 			name = "Foundation-Tests";
 			path = Foundation;
@@ -563,7 +565,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EE80828416A8932600830989 /* base in Resources */,
 				EEF7EB2516DB63EB00CD94B5 /* AddressBookTests.qcodeproj in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -670,7 +671,7 @@
 				EE27BF670FCAB2A300A48A1E /* NSURLTest.m in Sources */,
 				EEBB6D95109CBEE500B67699 /* NSPortCoderTest.m in Sources */,
 				EEC07E3E1699C69000CA1448 /* NSScannerTest.m in Sources */,
-				EEFC8C7616D95F97005171C9 /* Functions.m in Sources */,
+				EEF7152716DD27C200CD94B5 /* Functions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -725,7 +726,7 @@
 				EEDB59E7169878070011D22A /* NSURLTest.m in Sources */,
 				EEDB59E8169878070011D22A /* NSPortCoderTest.m in Sources */,
 				EEC07E3D1699C69000CA1448 /* NSScannerTest.m in Sources */,
-				EEFC8C7716D95F97005171C9 /* Functions.m in Sources */,
+				EEF7152816DD27C200CD94B5 /* Functions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

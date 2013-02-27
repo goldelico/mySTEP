@@ -11,62 +11,6 @@
 #import "NSPortCoderTest.h"
 
 
-#if 0	// 1: test our mySTEP implementation - 0: test our test patterns against Cocoa
-
-@implementation NSObject (Version)
-
-+ (int) _versionForPortCoder
-{
-	return [self version];
-}
-
-@end
-
-// make NSPrivate.h compile on Cocoa Foundation
-
-#ifndef ASSIGN
-#define ASSIGN(var, val) ([var release], var=[val retain])
-#endif
-#define objc_malloc(A) malloc((A))
-#define objc_realloc(A, B) realloc((A), (B))
-#define objc_free(A) free(A)
-#define _NSXMLParserReadMode int
-#define GSBaseCString NSObject
-#define arglist_t void *
-#define retval_t void *
-#define METHOD_NULL NULL
-#define SEL_EQ(S1, S2) S1==S2
-#define class_get_instance_method class_getInstanceMethod
-#define NIMP (NSLog(@"not implemented: %@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)), (void *) 0)
-
-#ifdef __APPLE__
-#import <objc/objc-class.h>	// #define _C_ID etc.
-// unknown on Apple runtime
-#define _C_ATOM     '%'
-#define _C_LNG_LNG  'q'
-#define _C_ULNG_LNG 'Q'
-#define _C_VECTOR   '!'
-#define _C_COMPLEX   'j'
-
-#endif
-
-// rename our implementation to avoid conflicts with Cocoa
-
-#define NSPortCoder myNSPortCoder
-#define NSPortMessage myNSPortMessage
-
-#import "../../Foundation/Sources/NSPortCoder.h"
-#import "../../Foundation/Sources/NSPortMessage.h"
-#import "../../Foundation/Sources/NSPortCoder.m"
-#if 0
-
-#define NSDistantObject myNSDistantObject
-#import "../../Foundation/Sources/NSDistantObject.m"
-
-#endif
-
-#endif
-
 @interface NSMethodSignature (Since10_5)
 + (NSMethodSignature *)signatureWithObjCTypes:(const char *)types;
 @end
@@ -94,13 +38,88 @@
 
 @end
 
+/* use mock objects to provide a controllable environment for the NSPortCoder */
+
+@interface MyPort : NSPort
+@end
+
+@implementation MyPort
+
+- (id) init
+{
+	return self;
+}
+
+- (void) encodeWithCoder:(NSCoder *) coder
+{
+	int val=0x12345678;
+	[coder encodeValueOfObjCType:@encode(int) at:&val];
+}
+
+@end
+
+
+@interface MyConnection : NSObject
+{
+	NSPort *_sendPort;
+	NSPort *_receivePort;
+}
+
+@end
+
+@implementation MyConnection
+
++ (NSConnection *) connectionWithReceivePort:(NSPort *) recv sendPort:(NSPort *) send
+{
+	return [[[self alloc] initWithReceivePort:recv sendPort:send] autorelease];
+}
+
+- (id) initWithReceivePort:(NSPort *) recv sendPort:(NSPort *) send
+{
+	if((self=[super init]))
+		{
+		_receivePort=[recv retain];
+		_sendPort=[send retain];
+		}
+	return self;
+}
+
+- (void) dealloc
+{
+	[_receivePort release];
+	[_sendPort release];
+	[super dealloc];
+}
+
+- (NSPort *) receivePort;
+{
+	return _receivePort;
+}
+
+- (NSPort *) sendPort;
+{
+	return _sendPort;
+}
+
+- (void) invalidate;
+{
+	return;
+}
+
+- (void) _incrementLocalProxyCount
+{
+	// called by testDistantObjectLocalProxy
+}
+
+@end
+
 
 @implementation NSPortCoderTest
 
 - (void) setUp;
 {
-	NSPort *port=[NSPort port];
-	connection=[NSConnection connectionWithReceivePort:port sendPort:port];
+	NSPort *port=[MyPort port];
+	connection=[MyConnection connectionWithReceivePort:port sendPort:port];
 	NSLog(@"connection object: %@", connection);
 }
 
@@ -135,7 +154,9 @@
 			if(++d == 2)
 				[data appendBytes:&b length:1], d=0;
 		}
+#if 1
 	NSLog(@"portCoderForDecode: %@ -> %@", str, data);
+#endif
 	pc=[[[NSPortCoder alloc] initWithReceivePort:[connection receivePort] sendPort:[connection sendPort] components:[NSArray arrayWithObject:data]] autorelease];
 	return pc;
 }
@@ -143,9 +164,7 @@
 - (void) testInit
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id have=[pc components];
-	id want=[NSArray arrayWithObject:[NSData data]];	// should be one empty data component
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([pc components], [NSArray arrayWithObject:[NSData data]],  nil);
 	pc=[[[NSPortCoder alloc] initWithReceivePort:[connection receivePort] sendPort:[connection sendPort] components:nil] autorelease];	// provide a default object
 }
 
@@ -153,165 +172,133 @@
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	char val=1;
-	id have;
-	id want=@"<01>";	// has no length encoding (!)
 	[pc encodeValueOfObjCType:@encode(char) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01>",  nil);
 }
 
 - (void) testChar
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	char val='x';
-	id have;
-	id want=@"<78>";
 	[pc encodeValueOfObjCType:@encode(char) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<78>",  nil);
 }
 
 - (void) testCharM1
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	char val=-1;
-	id have;
-	id want=@"<ff>";
 	[pc encodeValueOfObjCType:@encode(char) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ff>",  nil);
 }
 
 - (void) testInt0
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	int val=0;
-	id have;
-	id want=@"<00>";	// 0 length
 	[pc encodeValueOfObjCType:@encode(int) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>",  nil);
 }
 
 - (void) testInt1
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	int val=1;
-	id have;
-	id want=@"<0101>";	// can be encoded in 1 byte - i.e. encoder tries to figure out number of significant bytes
 	[pc encodeValueOfObjCType:@encode(int) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101>", nil);
+		// can be encoded in 1 byte - i.e. encoder tries to figure out number of significant bytes
 }
 
 - (void) testInt2
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	int val=10240;
-	id have;
-	id want=@"<020028>";	// 2 bytes integer; we also see little-endian encoding (LSB first)
 	[pc encodeValueOfObjCType:@encode(int) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<020028>", nil);
+		// 2 bytes integer; we also see little-endian encoding (LSB first)
 }
 
 - (void) testLong255
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	long val=255;
-	id have;
-	id want=@"<01ff>";	// 1 byte integer
 	[pc encodeValueOfObjCType:@encode(long) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01ff>",  nil);
+	// 1 byte positive integer
 }
 
 - (void) testLongM1
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	long val=-1;
-	id have;
-	id want=@"<ffff>";	// -1 byte negative integer; we also see little-endian encoding (LSB first)
 	[pc encodeValueOfObjCType:@encode(long) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ffff>", nil);
+	// -1 byte negative integer; we also see little-endian encoding (LSB first)
+	// the length field is negative
 }
 
 - (void) testULongM1
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	unsigned long val=-1;
-	id have;
-	id want=@"<ffff>";	// -1 byte negative integer; we also see little-endian encoding (LSB first) - coding depends on bit pattern only; not on signed/unsigned
 	[pc encodeValueOfObjCType:@encode(unsigned long) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ffff>", nil);
+	// we also see little-endian encoding (LSB first) - coding depends on bit pattern only; not on signed/unsigned
 }
 
 - (void) testLongLong
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	long long val=12345678987654321LL;
-	id have;
-	id want=@"<07b1f491 6254dc2b>";	// 7 significant bytes
 	[pc encodeValueOfObjCType:@encode(long long) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<07b1f491 6254dc2b>", nil);
+	// 7 significant bytes
 }
 
 - (void) testLongLongM1
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	long long val=-1L;
-	id have;
-	id want=@"<ffff>";	// hm... does this indicate "we can't encode"?
 	[pc encodeValueOfObjCType:@encode(long long) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ffff>", nil);
+	// - insignificant bytes are not encoded
+	// - type and memory length is not encoded
 }
 
 - (void) testFloat
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	float val=M_PI;
-	id have;
-	id want=@"<04db0f49 40>";	// 04 bytes + data -- byte order is the same on PPC and Intel Mac
 	[pc encodeValueOfObjCType:@encode(float) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<04db0f49 40>", nil);
+	// 04 bytes + data -- byte order is the same on PowerPC and Intel Mac
 }
 
 - (void) testFloat1
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	float val=1.0;
-	id have;
-	id want=@"<04000080 3f>";	// 04 bytes + data, i.e. here is no compression - we also see Little-Endian encoding (at least on an Intel Mac)
 	[pc encodeValueOfObjCType:@encode(float) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<04000080 3f>", nil);
+	// 04 bytes + data, i.e. here is no compression - we also see Little-Endian encoding
 }
 
 - (void) testDouble
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	double val=M_PI;
-	id have;
-	id want=@"<08182d44 54fb2109 40>";	// 08 bytes + data
 	[pc encodeValueOfObjCType:@encode(double) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<08182d44 54fb2109 40>", nil);
+	// 08 bytes + data
 }
 
 - (void) testClass
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	Class val=[NSData class];
-	id have;
-	id want=@"<0101074e 53446174 6100>";	// prefix 0x01, 01 bytes length, 07 bytes string, "NSData\0"
 	[pc encodeValueOfObjCType:@encode(Class) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101074e 53446174 6100>", nil);
+	// prefix 0x01, 01 bytes length, 07 bytes string, "NSData\0"
 }
 
 - (void) testClassNil
@@ -319,23 +306,19 @@
 	NSPortCoder *pc=[self portCoderForEncode];
 	Class val=Nil;
 	id have;
-	id want=@"<0101046e 696c00>";	// prefix 0x01, 01 bytes length, 04 bytes string, "nil\0"
 	[pc encodeValueOfObjCType:@encode(Class) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
-	pc=[self portCoderForDecode:want];	// <00> returns 'not enough data to decode integer'
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101046e 696c00>",  nil);
+	pc=[self portCoderForDecode:@"<0101046e 696c00>"];	// <00> returns 'not enough data to decode integer'
 	[pc decodeValueOfObjCType:@encode(Class) at:&have];
-	want=Nil;
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects(have, Nil, nil);
 }
 
 - (void) testDecodeClassNil
 { // find out what <00> returns when decoded as Class => returns Nil
 	NSPortCoder *pc=[self portCoderForDecode:@"<00>"];	// <00> returns 'not enough data to decode integer'
 	id have;
-	id want=Nil;
 	[pc decodeValueOfObjCType:@encode(Class) at:&have];
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects(have, Nil, nil);
 }
 
 - (void) testClassNSObject
@@ -343,47 +326,38 @@
 	NSPortCoder *pc=[self portCoderForEncode];
 	Class val=[NSObject class];
 	id have;
-	id want=@"<0101094e 534f626a 65637400>";	// prefix 0x01, 01 bytes length, 09 bytes string, "NSObject\0"
 	[pc encodeValueOfObjCType:@encode(Class) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
-	pc=[self portCoderForDecode:want];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101094e 534f626a 65637400>", nil);
+	// prefix 0x01, 01 bytes length, 09 bytes string, "NSObject\0"
+	pc=[self portCoderForDecode:@"<0101094e 534f626a 65637400>"];
 	[pc decodeValueOfObjCType:@encode(Class) at:&have];
-	want=[NSObject class];
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects(have, [NSObject class], nil);
 }
 
 - (void) testSelector
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	SEL val=_cmd;
-	id have;
-	id want=@"<01010d74 65737453 656c6563 746f7200>";	// prefix 0x01, 01 bytes length, 0d bytes string, "testSelector\0"
 	[pc encodeValueOfObjCType:@encode(SEL) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010d74 65737453 656c6563 746f7200>",  nil);
+	// prefix 0x01, 01 bytes length, 0d bytes string, "testSelector\0"
 }
 
-- (void) testSelectorUTF
+- (void) testSelectorUnicode
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	SEL val=NSSelectorFromString(@"€");
-	id have;
-	id want=@"<010104e2 82ac00>";	// prefix 0x01, 01 bytes length, 04 bytes string, UTF-8 encoded (€ -> 0xe2 0y82 0xac)
 	[pc encodeValueOfObjCType:@encode(SEL) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<010104e2 82ac00>", nil);
+	// prefix 0x01, 01 bytes length, 04 bytes string, UTF-8 encoded (€ -> 0xe2 0y82 0xac)
 }
 
 - (void) testSelectorNULL
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	SEL val=NULL;
-	id have;
-	id want=@"<00>";	// NULL flag
 	[pc encodeValueOfObjCType:@encode(SEL) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", nil);
 }
 
 - (void) testCharString
@@ -498,11 +472,9 @@
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	struct testStruct { char x; char *y; } val={ 'x', "y" };
-	id have;
-	id want=@"<78010102 7900>";	// 78 is first component; 01 is ???; 01 is length of len; 02 is length; 7900 is string value
 	[pc encodeValueOfObjCType:@encode(struct testStruct) at:&val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<78010102 7900>", nil);
+	// 78 is first component; 01 is ???; 01 is length of len; 02 is length; 7900 is string value
 }
 
 - (void) testNil
@@ -773,6 +745,7 @@
 	STAssertEqualObjects(have, want,  nil);
 }
 
+#if FIXME  // does not work on OS X with our mock NSConnection!?!
 - (void) testDistantObjectLocalProxy
 {
 	NSPortCoder *pc=[self portCoderForEncode];
@@ -794,43 +767,47 @@
 	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
 	STAssertEqualObjects(have, want,  nil);
 }
+#endif
 
 - (void) testMyClass
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	MyClass *obj=[[[MyClass alloc] init] autorelease];
-	id have;
-	id want=@"<01010108 4d79436c 61737300 01010500 01>";	// 0x01 prefix + Class(MyObject) + 1 byte 00 (uninitialized?) + 0x01 suffix
 	[pc encodeObject:obj];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010108 4d79436c 61737300 01010500 01>", nil);
+	// 0x01 prefix + Class(MyObject) + 1 byte 00 (uninitialized?) + 0x01 suffix
 }
-
-#if 0
-- (void) testPort
-{
-	NSPortCoder *pc=[self portCoderForEncode];
-	NSPort *port=[NSPort port];
-	id have;
-	id want=@"<01010107 4e53506f 72740000 01>";	// 0x01 prefix + Class(NSPort) + 1 byte 00 (uninitialized?) + 0x01 suffix
-	[pc encodeObject:port];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
-}
-#endif
 
 - (void) testEncodePort
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	NSPort *port=[NSPort port];
-	id have;
-	id want=@"<>";	// encodePortObject adds to components
+	NSPort *port=[MyPort port];
 	[pc encodePortObject:port];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
-	want=port;
-	have=[[pc components] objectAtIndex:1];	// returns the port
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEquals([[pc components] count], 2u, nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<>",nil);
+	STAssertEqualObjects([[pc components] objectAtIndex:1], port, nil);
+	// encodePortObject adds another component
+}
+
+- (void) testPortObject
+{
+	NSPortCoder *pc=[self portCoderForEncode];
+	NSPort *port=[MyPort port];
+	[pc encodeObject:port];
+	if(![port respondsToSelector:@selector(encodeWithCoder:)])
+		{
+		STAssertEquals([[pc components] count], 2u, nil);
+		STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010107 4e53506f 72740000 01>", nil);
+		STAssertEqualObjects([[pc components] objectAtIndex:1], port, nil);
+		// 0x01 prefix + Class(NSPort) + 1 byte 00 (uninitialized?) + 0x01 suffix
+		// and port is also added to the components, i.e. the encodePortObject is more primitive
+		}
+	else
+		{
+		STAssertEquals([[pc components] count], 1u, nil);
+		STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010107 4e53506f 72740000 04785634 1201>", nil);
+		// 0x01 prefix + Class(NSPort) + 1 byte 00 + 04 bytes value (signature of our MyPort) + 0x01 suffix
+		}
 }
 
 - (void) testThisConnection
@@ -846,6 +823,7 @@
 - (void) testOtherConnection
 {
 	NSPortCoder *pc=[self portCoderForEncode];
+	// FIXME:
 	NSConnection *c=nil;
 	id have;
 	id want=@"<00>";	// 0x00

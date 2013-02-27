@@ -72,15 +72,12 @@ extern NSRect  NSMakeRect(float x, float y, float w, float h);
 
 #define	NSMaxX(aRect)	((aRect).origin.x + (aRect).size.width)  // max x coord
 #define	NSMaxY(aRect)	((aRect).origin.y + (aRect).size.height) // max y coord
-#define	NSMidX(aRect)	(NSMinX(aRect) + NSWidth(aRect) / 2.0)	 // mid x coord
-#define	NSMidY(aRect)	(NSMinY(aRect) + NSHeight(aRect) / 2.0)	 // mid y coord
+#define	NSMidX(aRect)	((float) (NSMinX(aRect) + 0.5f*NSWidth(aRect)))	 // mid x coord
+#define	NSMidY(aRect)	((float) (NSMinY(aRect) + 0.5f*NSHeight(aRect)))	 // mid y coord
 #define	NSMinX(aRect)	((aRect).origin.x)						 // min x coord
 #define	NSMinY(aRect)	((aRect).origin.y)						 // min y coord
 #define	NSWidth(aRect)	((aRect).size.width)					 // rect width
 #define	NSHeight(aRect)	((aRect).size.height)					 // rect height
-
-						// Returns a new size inset by dX and dY
-// extern NSSize GSInsetSize(NSSize aSize, float dX, float dY);
 
 						// Returns the rectangle obtained by moving each of 
 						// ARECT's horizontal sides inward by DY and each of 

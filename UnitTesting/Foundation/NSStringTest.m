@@ -12,27 +12,27 @@
 
 @implementation NSStringTest
 
-#define TEST(NAME, INPUT, METHOD, OUTPUT) - (void) test##NAME; { STAssertEqualObjects(OUTPUT, [INPUT METHOD], nil); }
+#define TEST1(NAME, INPUT, METHOD, OUTPUT) - (void) test##NAME; { STAssertEqualObjects(OUTPUT, [INPUT METHOD], nil); }
 #define TEST2(NAME, INPUT, ARG, METHOD, OUTPUT) - (void) test##NAME; { STAssertEqualObjects(OUTPUT, [INPUT METHOD:ARG], nil); }
 
-// test creation, conversions, add, mutability etc.
+// FIXME: test creation, conversions, add, mutability, isEqual etc.
 
-TEST(lowercaseString1, @"LowerCase", lowercaseString, @"lowercase");
-TEST(lowercaseString2, @"Lower Case", lowercaseString, @"lower case");
-TEST(lowercaseString3, @"Lower Case ÄÖÜ", lowercaseString, @"lower case äöü");
-TEST(lowercaseString4, @"lowercase", lowercaseString, @"lowercase");
-TEST(lowercaseString5, @"", lowercaseString, @"");
+TEST1(lowercaseString1, @"LowerCase", lowercaseString, @"lowercase");
+TEST1(lowercaseString2, @"Lower Case", lowercaseString, @"lower case");
+TEST1(lowercaseString3, @"Lower Case ÄÖÜ", lowercaseString, @"lower case äöü");
+TEST1(lowercaseString4, @"lowercase", lowercaseString, @"lowercase");
+TEST1(lowercaseString5, @"", lowercaseString, @"");
 
-TEST(stringByDeletingLastPathComponent1, @"/tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");
-TEST(stringByDeletingLastPathComponent2, @"tmp/scratch.tiff", stringByDeletingLastPathComponent, @"tmp");
-TEST(stringByDeletingLastPathComponent3, @"/tmp/lock/", stringByDeletingLastPathComponent, @"/tmp");
-TEST(stringByDeletingLastPathComponent4, @"/tmp/", stringByDeletingLastPathComponent, @"/");
-TEST(stringByDeletingLastPathComponent5, @"/tmp", stringByDeletingLastPathComponent, @"/");
-TEST(stringByDeletingLastPathComponent6, @"/", stringByDeletingLastPathComponent, @"/");
-TEST(stringByDeletingLastPathComponent7, @"scratch.tiff", stringByDeletingLastPathComponent, @"");
+TEST1(stringByDeletingLastPathComponent1, @"/tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");
+TEST1(stringByDeletingLastPathComponent2, @"tmp/scratch.tiff", stringByDeletingLastPathComponent, @"tmp");
+TEST1(stringByDeletingLastPathComponent3, @"/tmp/lock/", stringByDeletingLastPathComponent, @"/tmp");
+TEST1(stringByDeletingLastPathComponent4, @"/tmp/", stringByDeletingLastPathComponent, @"/");
+TEST1(stringByDeletingLastPathComponent5, @"/tmp", stringByDeletingLastPathComponent, @"/");
+TEST1(stringByDeletingLastPathComponent6, @"/", stringByDeletingLastPathComponent, @"/");
+TEST1(stringByDeletingLastPathComponent7, @"scratch.tiff", stringByDeletingLastPathComponent, @"");
 
-TEST(stringByDeletingLastPathComponent8, @"//tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");
-TEST(stringByDeletingLastPathComponent9, @"//", stringByDeletingLastPathComponent, @"/");
+TEST1(stringByDeletingLastPathComponent8, @"//tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");
+TEST1(stringByDeletingLastPathComponent9, @"//", stringByDeletingLastPathComponent, @"/");
 // TEST(stringByDeletingLastPathComponent10, [NSNull null], stringByDeletingLastPathComponent, @"exception...");
 
 TEST2(componentsSeparatedByString1, @"a:b", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"a", @"b", nil]));

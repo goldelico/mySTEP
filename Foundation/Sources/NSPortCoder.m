@@ -544,12 +544,18 @@ const char *objc_skip_typespec (const char *type)
 				type++;
 			if(*type++ == 0)
 				break;	// invalid
+			
+			// FIXME: there is something wrong with alignment so that one test segfaults
+			
+			break;
+			
 			while(*type != 0 && *type != _C_STRUCT_E)
 				{
 #if 0
 				NSLog(@"addr %p struct component %s", address, type);
 #endif
 				[self encodeValueOfObjCType:type at:address];
+				// FIXME: use NSGetAlignedSize
 				address=objc_aligned_size(type) + (char *)address;
 				type=objc_skip_typespec(type);	// next
 				}
@@ -816,6 +822,7 @@ const char *objc_skip_typespec (const char *type)
 				NSLog(@"addr %p struct component %s", address, type);
 #endif
 				[self decodeValueOfObjCType:type at:address];
+				// FIXME: use NSGetSizeAndAligmnent()
 				address=objc_aligned_size(type) + (char *)address;
 				type=objc_skip_typespec(type);	// next
 				}
