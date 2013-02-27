@@ -73,6 +73,7 @@ typedef struct {
 	char	*query;			// query or NULL
 	char	*fragment;		// fragment
 	BOOL	pathIsAbsolute;	// path starts with / (which has not been stored!)
+	BOOL	hasNoPath;		// if we find scheme://host
 	BOOL	isFile;			// is file: URL
 } parsedURL;
 
@@ -356,13 +357,14 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 				  (base&&base->path)?base->path:""
 				  );
 #endif
-			if((rel->scheme || (base && base->scheme)) || (rel->path && rel->path[0] != 0))
+			if(!rel->hasNoPath &&(rel->scheme || (base && base->scheme)) || (rel->path && rel->path[0] != 0))
 				{
 #if 1
-				NSLog(@"c1: %d %d %d '%s' '%s%s' '%s' '%s%s'",
+				NSLog(@"c1: %d %d %d %d '%s' '%s%s' '%s' '%s%s'",
 					  standardize,
 					  standardizeMore,
 					  hasAuthority,
+					  rel->hasNoPath,
 					  rel->scheme?rel->scheme:"",
 					  rel->pathIsAbsolute?"/":"",
 					  rel->path?rel->path:"",
@@ -371,8 +373,9 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 					  (base&&base->path)?base->path:""
 					  );
 #endif
-				if(hasAuthority || rel->pathIsAbsolute)
-					{
+				if((rel->pathIsAbsolute || hasAuthority))
+					{ // absolute path or we need to separate a non-empty path
+						NSLog(@"c2");
 					*tmp++ = '/';					
 					}
 				strcpy(tmp, rel->path);
@@ -924,7 +927,8 @@ static NSString *unescape(const char *from, BOOL stripslash)
 #if 0
 						NSLog(@"//something found");
 #endif
-						buf->pathIsAbsolute = YES;
+						buf->pathIsAbsolute = YES;	// apply some rules for absolute paths
+						buf->hasNoPath = YES;
 						end = &start[strlen(start)];
 					}
 				else
@@ -1029,8 +1033,7 @@ static NSString *unescape(const char *from, BOOL stripslash)
 	 * Store the path.
 	 */
 	
-//	if(*start != 0)
-		buf->path = start;
+	buf->path = start;
 	
 #if 0
 	NSLog(@"url=%@", self);

@@ -581,12 +581,17 @@
 		type=NSContainsPredicateOperatorType;
 	else if([sc _scanPredicateKeyword:@"BETWEEN"])
 		{
+		NSExpression *from, *to;
 		// FIXME: we have three operands!
 		// the easiest way is to define a _NSBetweenComparisonPredicate : NSComparisonPredicate
 		// or put the between range into an Array
 		type=NSBetweenPredicateOperatorType;
-//		p=[self predicateWithLeftExpression:left rightExpression:[NSExpression _parseBinaryExpressionWithScanner:sc]
-//								   modifier:modifier type:type options:opts];
+		from=[NSExpression _parseBinaryExpressionWithScanner:sc];
+		if(![sc _scanPredicateKeyword:@"AND"])
+			[NSException raise:NSInvalidArgumentException format:@"Invalid comparison predicate: %@", [[sc string] substringFromIndex:[sc scanLocation]]];
+		to=[NSExpression _parseBinaryExpressionWithScanner:sc];
+		p=[self predicateWithLeftExpression:left rightExpression:[NSArray arrayWithObjects:from, to, nil]
+								   modifier:modifier type:type options:opts];
 		return negate?[NSCompoundPredicate notPredicateWithSubpredicate:p]:p;
 		}
 	else
