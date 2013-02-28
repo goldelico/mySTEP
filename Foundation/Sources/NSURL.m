@@ -306,7 +306,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 	
 	if(!rel->pathIsAbsolute && (!rel->path || rel->path[0] == 0) && base && base->path)
 		{ // no rel path to append - take complete base path
-#if 1
+#if 0
 			NSLog(@"a");
 #endif
 			if(hasAuthority || base->pathIsAbsolute)
@@ -359,7 +359,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 #endif
 			if(!rel->hasNoPath &&(rel->scheme || (base && base->scheme)) || (rel->path && rel->path[0] != 0))
 				{
-#if 1
+#if 0
 				NSLog(@"c1: %d %d %d %d '%s' '%s%s' '%s' '%s%s'",
 					  standardize,
 					  standardizeMore,
@@ -375,7 +375,9 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 #endif
 				if((rel->pathIsAbsolute || hasAuthority))
 					{ // absolute path or we need to separate a non-empty path
+#if 0
 						NSLog(@"c2");
+#endif
 					*tmp++ = '/';					
 					}
 				strcpy(tmp, rel->path);
@@ -388,8 +390,8 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 
 	if (standardize)
 		{
-#if 0
-		NSLog(@"standardize");
+#if 1
+		NSLog(@"standardize %s", ptr);
 #endif
 		/*
 		 * Compact '/./'  to '/' and
@@ -427,20 +429,39 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 					break;	// can't go up
 				while(up > ptr && up[0] != '/')
 					up--;
-#if 0
+#if 1
 				NSLog(@"tmp=%p up=%p %@ ptr=%p: tmp=%s up=%s", tmp, up, up > ptr?@">":@"<=", ptr, tmp, up);
 #endif
 				if(up == ptr && up[0] != '/' && tmp[3] == '/')
+					{
+					NSLog(@"sa");
 					tmp++;	// remove heading something/../ ( copy incl. last /)
+					}
 				// FIXME: sometimes the first / is removed and sometimes not!
 				else if(tmp[3] == 0)
+					{
+#if 1
+					NSLog(@"sb: %d %d %d %d '%s' '%s%s' '%s' '%s%s'",
+						  standardize,
+						  standardizeMore,
+						  hasAuthority,
+						  rel->hasNoPath,
+						  rel->scheme?rel->scheme:"",
+						  rel->pathIsAbsolute?"/":"",
+						  rel->path?rel->path:"",
+						  (base&&base->scheme)?base->scheme:"",
+						  (base&&base->pathIsAbsolute)?"/":"",
+						  (base&&base->path)?base->path:""
+						  );
+#endif
 					up++;	// reduce trailing /something/.. to "/"
+					}
 				// else reduce /something/../ to /
-#if 0
+#if 1
 				NSLog(@"tmp=%p up=%p %@ ptr=%p: tmp=%s up=%s", tmp, up, up > ptr?@">":@"<=", ptr, tmp, up);
 #endif
 				strcpy(up, tmp+3);
-#if 0
+#if 1
 				NSLog(@"  str  = %s", ptr);
 #endif
 				tmp=up;	// start over
@@ -448,37 +469,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 			else
 				tmp++;
 			}
-#if 0
-		if(!pathonly && rel->pathIsAbsolute && ptr[0] != 0 && ptr[strlen(ptr)-1] == '/')
-			{ // remove trailing /
-			NSLog(@"standardize trailing / from %s", ptr);
-			NSLog(@"pathonly=%d", pathonly);
-			NSLog(@"standardizeMore=%d", standardizeMore);
-			NSLog(@"rel->scheme=%p %s", rel->scheme, rel->scheme?rel->scheme:"");
-			NSLog(@"rel->pathIsAbsolute=%d", rel->pathIsAbsolute);
-			NSLog(@"rel->path=%p %s %s", rel->path, rel->pathIsAbsolute?"/":"", rel->path?rel->path:"");
-			if(base)
-				NSLog(@"base->scheme=%p %s", base->scheme, base->scheme?base->scheme:"");
-			if(base)
-				NSLog(@"base->pathIsAbsolute=%d", base->pathIsAbsolute);
-			if(base && base->path)
-				NSLog(@"base->path = %s %s", base->pathIsAbsolute?"/":"", base->path);
-			NSLog(@"hasAuthority=%d", hasAuthority);
-
-			NSLog(@"error: %d %d '%s' '%s%s' '%s' '%s%s'",
-				  standardizeMore,
-				  hasAuthority,
-				  rel->scheme?rel->scheme:"",
-				  rel->pathIsAbsolute?"/":"",
-				  rel->path?rel->path:"",
-				  (base&&base->scheme)?base->scheme:"",
-				  (base&&base->pathIsAbsolute)?"/":"",
-				  (base&&base->path)?base->path:""
-				  );
-
-			}
-#endif
-#if 0
+#if 1
 		NSLog(@"standardized = %s", ptr);
 #endif
 		}

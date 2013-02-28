@@ -16,8 +16,8 @@
 {
 	NSURL *url;
 	STAssertThrowsSpecificNamed([NSURL URLWithString:nil], NSException, NSInvalidArgumentException, nil);
-	STAssertThrowsSpecificNamed([NSURL URLWithString:[NSArray array]], NSException, NSInvalidArgumentException, nil);
-	STAssertNoThrow(url=[NSURL URLWithString:@"http://host/path" relativeToURL:@"url"], nil);
+	STAssertThrowsSpecificNamed([NSURL URLWithString:(NSString *) [NSArray array]], NSException, NSInvalidArgumentException, nil);
+	STAssertNoThrow(url=[NSURL URLWithString:@"http://host/path" relativeToURL:(NSURL *) @"url"], nil);
 	// this can't be correctly tested
 	// STAssertThrows([url description], nil);
 	/* conclusions
@@ -558,8 +558,10 @@
 	STAssertEqualObjects([[url standardizedURL] description], @"file:///", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/there/../"];
 	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello/", [url description]);
+	STAssertEqualObjects([[url absoluteURL] description], @"file:/hello/there/../", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/there/.."];
 	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello", [url description]);
+	STAssertEqualObjects([[url absoluteURL] description], @"file:/hello/there/..", [url description]);
 	url=[NSURL URLWithString:@"file:"];
 	STAssertEqualObjects([[url standardizedURL] description], @"file:", [url description]);
 	url=[NSURL URLWithString:@"file:/hello/there/..file"];
@@ -570,6 +572,22 @@
 	STAssertEqualObjects([[url standardizedURL] description], @"http:///file/", [url description]);
 	url=[NSURL URLWithString:@"http:file/."];
 	STAssertEqualObjects([[url standardizedURL] description], @"http:file/.", [url description]);
+	url=[NSURL URLWithString:@"file:/hello/there/../file"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello/file", [url description]);
+	url=[NSURL URLWithString:@"file:/hello/there/file/.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///hello/there", [url description]);
+	url=[NSURL URLWithString:@"file://host/hello/there/file/.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there", [url description]);
+	url=[NSURL URLWithString:@"file://host/hello/there/file/../"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there/", [url description]);
+	url=[NSURL URLWithString:@"file://host/hello/there/file/../" relativeToURL:[NSURL URLWithString:@"file://host/other"]];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there/", [url description]);
+	url=[NSURL URLWithString:@"file://host/hello/there/file/../" relativeToURL:[NSURL URLWithString:@"file://host/other/"]];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there/", [url description]);
+	url=[NSURL URLWithString:@"file:hello/there/file/../"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/../", [url description]);
+	url=[NSURL URLWithString:@"file:hello/there/file/.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/..", [url description]);
 	/* conclusions
 	 * ./ are removed (or simple trailing .)
 	 * /.. removes parent but only for absolute paths or if base is defined (!)

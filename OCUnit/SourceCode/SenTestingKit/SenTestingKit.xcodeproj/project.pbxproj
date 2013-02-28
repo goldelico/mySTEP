@@ -238,6 +238,7 @@
 		EE416F1F168EE18200869F75 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../../../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEC07E781699E54600CA1448 /* SenTestingKitTest.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SenTestingKitTest.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEC07E791699E54600CA1448 /* SenTestingKitTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SenTestingKitTest-Info.plist"; sourceTree = "<group>"; };
+		EEF716FA16DEA3FC00CD94B5 /* SenTestingKit.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = SenTestingKit.qcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -284,6 +285,7 @@
 			isa = PBXGroup;
 			children = (
 				EE416F1F168EE18200869F75 /* mySTEP.make */,
+				EEF716FA16DEA3FC00CD94B5 /* SenTestingKit.qcodeproj */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				3D6DC2FB054FEC8300091E74 /* Utility Classes */,
 				3D6DC2F2054FEC3900091E74 /* Other Headers */,
@@ -705,7 +707,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SOURCES=*.m           # all source codes\nexport LIBS=\t\t\t\t\t   # add any additional\nexport FRAMEWORKS=\t\t\t\t\t# add any additional Frameworks (e.g. AddressBook) etc. (adds -I and -L)\nexport STRIP_MacOS=false            # set to true if you want a Linux-ARM only bundle\nexport INSTALL_PATH=/Developer/Library/Frameworks  # override INSTALL_PATH for MacOS X for the Zaurus\n\n#export STRIP_Framework=false       # set to true if you want to strip headers etc.\n#export STRIP_MacOS=true            # set to true if you want a Linux-ARM only bundle\nexport INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH\n#export SEND2ZAURUS=true\t\t\t# true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)\n#export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)\nDEPENDS=\"quantumstep-foundation-framework\"\nexport ROOT=$HOME/Documents/Projects/QuantumSTEP\t# project root\n/usr/bin/make -f $ROOT/System/Sources/Frameworks/mySTEP.make $ACTION\n";
+			shellScript = "QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP bash SenTestingKit.qcodeproj\n";
 		};
 		EEC07E761699E54600CA1448 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;

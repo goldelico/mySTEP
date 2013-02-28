@@ -459,7 +459,7 @@ do { \
     } \
 	CATCH (id anException) {\
 		if([anException isKindOfClass: [specificException class]]) { \
-			if ([aName isEqualToString: [anException name]]) continue; \
+			if ([aName isEqualToString: [(NSException *) anException name]]) continue; \
 			NSString *_descrip = STComposeString(@"(Expected exception: %@ (name: %@)) %@", NSStringFromClass([specificException class]), aName, description);\
 			[self failWithException: \
 				[NSException failureInRaise: [NSString stringWithCString:#expr] \
@@ -551,7 +551,7 @@ do { \
         (expr);\
     } \
 	CATCH (id anException) {\
-		if([anException isKindOfClass: [specificException class]] && [aName isEqualToString: [anException name]]) { \
+		if([anException isKindOfClass: [specificException class]] && [aName isEqualToString: [(NSException *) anException name]]) { \
             NSString *_descrip = STComposeString(@"(Expected exception: %@ (name: %@)) %@", NSStringFromClass([specificException class]), aName, description);\
             [self failWithException: \
                 [NSException failureInRaise: [NSString stringWithCString:#expr] \

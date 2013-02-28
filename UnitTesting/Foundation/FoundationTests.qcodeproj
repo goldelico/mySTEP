@@ -1,15 +1,26 @@
 #!/bin/bash
 
+export FRAMEWORKS="SenTestingKit"
+export DEPENDS=""
+export PRODUCT_NAME="FoundationTests"
+export SOURCES="Functions.m"
+export SOURCES+=" NSAttributedStringTest.m"
+export SOURCES+=" NSByteSwappingTest.m"
+export SOURCES+=" NSHTTPCookieTest.m"
+export SOURCES+=" NSPortCoderTest.m"
+export SOURCES+=" NSPredicateTest.m"
+export SOURCES+=" NSScannerTest.m"
+export SOURCES+=" NSStringTest.m"
+export SOURCES+=" NSURLTest.m"
+
 # project settings
-export SOURCES="*.m"   # all source codes
-export LIBS=					   # add any additional libraries (or flags) like -ltiff etc.
-export FRAMEWORKS=SenTestingKit				   # add any additional Frameworks etc.
-export INSTALL_PATH=/Library/UnitTests  # override INSTALL_PATH for MacOS X for Zaurus
 
 # global/compile settings
 #export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
 #export SEND2ZAURUS=true		   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)
 #export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
 
-/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
 
+
+
+/usr/bin/make -f $QuantumSTEP/System/Sources/Frameworks/mySTEP.make $ACTION
