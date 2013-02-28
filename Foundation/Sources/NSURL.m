@@ -390,7 +390,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 
 	if (standardize)
 		{
-#if 1
+#if 0
 		NSLog(@"standardize %s", ptr);
 #endif
 		/*
@@ -429,7 +429,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 					break;	// can't go up
 				while(up > ptr && up[0] != '/')
 					up--;
-#if 1
+#if 0
 				NSLog(@"tmp=%p up=%p %@ ptr=%p: tmp=%s up=%s", tmp, up, up > ptr?@">":@"<=", ptr, tmp, up);
 #endif
 				if(up == ptr && up[0] != '/' && tmp[3] == '/')
@@ -438,9 +438,9 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 					tmp++;	// remove heading something/../ ( copy incl. last /)
 					}
 				// FIXME: sometimes the first / is removed and sometimes not!
-				else if(tmp[3] == 0)
-					{
-#if 1
+				else if(tmp[3] == 0 && !standardizeMore)
+					{ // keep trailing /
+#if 0
 					NSLog(@"sb: %d %d %d %d '%s' '%s%s' '%s' '%s%s'",
 						  standardize,
 						  standardizeMore,
@@ -457,11 +457,11 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 					up++;	// reduce trailing /something/.. to "/"
 					}
 				// else reduce /something/../ to /
-#if 1
+#if 0
 				NSLog(@"tmp=%p up=%p %@ ptr=%p: tmp=%s up=%s", tmp, up, up > ptr?@">":@"<=", ptr, tmp, up);
 #endif
 				strcpy(up, tmp+3);
-#if 1
+#if 0
 				NSLog(@"  str  = %s", ptr);
 #endif
 				tmp=up;	// start over
@@ -469,7 +469,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 			else
 				tmp++;
 			}
-#if 1
+#if 0
 		NSLog(@"standardized = %s", ptr);
 #endif
 		}
@@ -520,7 +520,7 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 			}
 		
 		}
-#if 1
+#if 0
 	if(!(ptr-buf <= len))
 		{
 		NSLog(@"overflow");

@@ -585,9 +585,9 @@
 	url=[NSURL URLWithString:@"file://host/hello/there/file/../" relativeToURL:[NSURL URLWithString:@"file://host/other/"]];
 	STAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there/", [url description]);
 	url=[NSURL URLWithString:@"file:hello/there/file/../"];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/../", [url description]);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/file/../", [url description]);
 	url=[NSURL URLWithString:@"file:hello/there/file/.."];
-	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/..", [url description]);
+	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/file/..", [url description]);
 	/* conclusions
 	 * ./ are removed (or simple trailing .)
 	 * /.. removes parent but only for absolute paths or if base is defined (!)
