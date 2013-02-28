@@ -2326,7 +2326,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	return YES;
 }
 // return a string containing the portion
-- (NSString*) lastPathComponent		// reciever following the last '/'. If last
+- (NSString*) lastPathComponent		// receiver following the last '/'. If last
 {									// char is '/' then return the previous sub
 	NSRange range;						// string delimited by '/'.  returns NULL
 	NSString *substring = nil;			// string if reciever contains only a '/'.
