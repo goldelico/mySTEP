@@ -11,7 +11,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 # Copyright, H. Nikolaus Schaller <hns@computer.org>, 2003-2013
 # This document is licenced using LGPL
 #
-# Requires Xcode 2.5 or later
+# Requires Xcode 3.2 or later
 # and Apple X11 incl. X11 SDK
 #
 # To use this makefile in Xcode with Xtoolchain:
@@ -28,11 +28,10 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 # variables inherited from Xcode environment (or version.def)
 # PROJECT_NAME
 # PRODUCT_NAME						# e.g. Foundation
-# WRAPPER_EXTENSION					# e.g. .framework
+# WRAPPER_EXTENSION					# e.g. framework
 # EXECUTABLE_NAME
 # BUILT_PRODUCTS_DIR
 # TARGET_BUILD_DIR
-# BUILD_NUMBER						# used for package versioning
 
 # project settings for cross-compiler (that can't be derived from the Xcode project)
 export SOURCES=*.m                  # all source codes (no cross-compilation if empty)
@@ -415,12 +414,7 @@ DEBIAN_SECTION = "x11"
 endif
 endif
 
-# DEBIAN_VERSION = 0.$(BUILD_NUMBER)
 ifeq ($(DEBIAN_VERSION),)
-# read from SVN
-# SVN_VERSION := $(shell svnversion)
-# DEBIAN_VERSION := 0.$(shell if expr "$(SVN_VERSION)" : '.*:.*' >/dev/null; then expr "$(SVN_VERSION)" : '.*:\([0-9]*\).*' + 200; else expr "$(SVN_VERSION)" : '\([0-9]*\).*' + 200; fi )
-# use build date as package version so that we become independent from SVN checkins
 DEBIAN_VERSION := 0.$(shell date '+%Y%m%d%H%M%S' )
 endif
 
