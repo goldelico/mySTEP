@@ -424,9 +424,38 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 #endif
 			if (tmp[0] == '/' && tmp[1] == '.' && tmp[2] == '.' && (tmp[3] == '/' || tmp[3] == 0))
 				{
-				char *up=tmp-1;	// start before /..
-				if(up < ptr)
-					break;	// can't go up
+				char *up;
+				if(tmp == ptr)
+					{
+#if 0
+					NSLog(@"s0: %d %d %d %d '%s' '%s%s' '%s' '%s%s'",
+						  standardize,
+						  standardizeMore,
+						  hasAuthority,
+						  rel->hasNoPath,
+						  rel->scheme?rel->scheme:"",
+						  rel->pathIsAbsolute?"/":"",
+						  rel->path?rel->path:"",
+						  (base&&base->scheme)?base->scheme:"",
+						  (base&&base->pathIsAbsolute)?"/":"",
+						  (base&&base->path)?base->path:""
+						  );
+#endif
+					if(standardizeMore)
+						{
+						up=tmp;
+						if(tmp[3] == 0)	// pure /.. - keep initial /
+							up++;
+						else if(tmp[4] == 0)	// pure /../ - remove all
+							tmp++;
+						strcpy(up, tmp+3);	// remove /..
+						}
+#if 0
+					NSLog(@"/.. -> %s", ptr);
+#endif
+					break;	// can't go up					
+					}
+				up=tmp-1;	// start before /..
 				while(up > ptr && up[0] != '/')
 					up--;
 #if 0
@@ -434,10 +463,11 @@ static char *buildURL(parsedURL *base, parsedURL *rel, BOOL standardize, BOOL pa
 #endif
 				if(up == ptr && up[0] != '/' && tmp[3] == '/')
 					{
+#if 0
 					NSLog(@"sa");
+#endif
 					tmp++;	// remove heading something/../ ( copy incl. last /)
 					}
-				// FIXME: sometimes the first / is removed and sometimes not!
 				else if(tmp[3] == 0 && !standardizeMore)
 					{ // keep trailing /
 #if 0
@@ -595,8 +625,7 @@ static NSString *nounescape(const char *from)
 }
 
 /*
- * Convert percent escape sequences to individual characters.
- * FIXME: what about UTF-8 character???
+ * Convert percent escape sequences to individual characters and expand UTF-8 characters
  */
 
 static NSString *unescape(const char *from, BOOL stripslash)

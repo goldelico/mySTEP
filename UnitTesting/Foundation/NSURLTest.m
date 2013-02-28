@@ -211,6 +211,16 @@
 	 */
 }
 
+- (void) test15d
+{
+	NSURL *url=[NSURL URLWithString:@"file:///M%c3%bcller"];	// UTF8...
+	STAssertEqualObjects([url absoluteString], @"file:///M%c3%bcller", nil);
+	STAssertEqualObjects([url path], ([NSString stringWithFormat:@"/M%Cller", 0x00fc]), nil);
+	/* conclusions
+	 * UTF8 esacpes in file paths are resolved into Unicode NSStrings
+	 */
+}
+
 - (void) test16
 {
 	NSURL *url=[NSURL URLWithString:@""];	// empty URL is allowed
@@ -546,8 +556,14 @@
 	STAssertEqualObjects([[url standardizedURL] description], @"file:///file//", [url description]);
 	url=[NSURL URLWithString:@"file:/file/.//"];
 	STAssertEqualObjects([[url standardizedURL] description], @"file:///file//", [url description]);
+	url=[NSURL URLWithString:@"file:/file/.//other"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///file//other", [url description]);
 	url=[NSURL URLWithString:@"file:./"];
 	STAssertEqualObjects([[url standardizedURL] description], @"file:./", [url description]);
+	url=[NSURL URLWithString:@"file:./file"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:./file", [url description]);
+	url=[NSURL URLWithString:@"file:."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:.", [url description]);
 	url=[NSURL URLWithString:@"file:../"];
 	STAssertEqualObjects([[url standardizedURL] description], @"file:../", [url description]);
 	url=[NSURL URLWithString:@"file:hello/../"];
@@ -580,6 +596,30 @@
 	STAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there", [url description]);
 	url=[NSURL URLWithString:@"file://host/hello/there/file/../"];
 	STAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there/", [url description]);
+	url=[NSURL URLWithString:@"file://host/hello/there/.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://host/hello", [url description]);
+	url=[NSURL URLWithString:@"file://host/hello/there/../"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/", [url description]);
+	url=[NSURL URLWithString:@"file://host/hello/.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://host", [url description]);
+	url=[NSURL URLWithString:@"file://host/hello/../"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://host/", [url description]);
+	url=[NSURL URLWithString:@"file://host/.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://host/", [url description]);
+	url=[NSURL URLWithString:@"file://host/../"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://host", [url description]);
+	url=[NSURL URLWithString:@"file:/.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///", [url description]);
+	url=[NSURL URLWithString:@"file:/../"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://", [url description]);
+	url=[NSURL URLWithString:@"file:.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:..", [url description]);
+	url=[NSURL URLWithString:@"file:../"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:../", [url description]);
+	url=[NSURL URLWithString:@"file://host/../hello"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://host/hello", [url description]);
+	url=[NSURL URLWithString:@"file://host/../hello/"];
+	STAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/", [url description]);
 	url=[NSURL URLWithString:@"file://host/hello/there/file/../" relativeToURL:[NSURL URLWithString:@"file://host/other"]];
 	STAssertEqualObjects([[url standardizedURL] description], @"file://host/hello/there/", [url description]);
 	url=[NSURL URLWithString:@"file://host/hello/there/file/../" relativeToURL:[NSURL URLWithString:@"file://host/other/"]];
@@ -671,9 +711,28 @@
 	STAssertEqualObjects([url2 absoluteString], @"file:///root/file2", nil);
 	STAssertFalse([url1 isEqual:url2], nil);
 	/* conclusions
-	 * is based on string compares
+	 * is based on string compare of the initializing string
 	 * not on the concept of standardizedURL
 	 * and it is not sufficient to return the same absoluteURL!
+	 */
+}
+
+- (void) test30a
+{ // when are NURLs considered -isEqual? Before or after standardization?
+	NSURL *url1=[NSURL URLWithString:@"http://localhost:80/file"];
+	NSURL *url2=[NSURL URLWithString:@"http://localhost:80/file"];
+	STAssertTrue([url1 isEqual:url2], nil);
+	url1=[NSURL URLWithString:@"http://localhost:80/file"];
+	url2=[NSURL URLWithString:@"http://LOCALHOST:80/file"];
+	STAssertFalse([url1 isEqual:url2], nil);
+	url1=[NSURL URLWithString:@"http://localhost:80/file"];
+	url2=[NSURL URLWithString:@"HTTP://localhost:80/file"];
+	STAssertFalse([url1 isEqual:url2], nil);
+	url1=[NSURL URLWithString:@"http://localhost:80/file"];
+	url2=[NSURL URLWithString:@"http://localhost:80/FILE"];
+	STAssertFalse([url1 isEqual:url2], nil);
+	/* conclusions
+	 * compare is case sensitive
 	 */
 }
 
@@ -815,8 +874,6 @@
 
 
 // add more such tests
-// like Unicode hostnames and strings passed to the initWithString: method
 // -isEqual case sensitive or insensitive?...
-
 
 @end
