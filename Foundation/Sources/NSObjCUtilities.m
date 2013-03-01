@@ -394,24 +394,29 @@ NSString *NSHomeDirectory (void)
 	return NSHomeDirectoryForUser(NSUserName());
 }
 
-// FIXME: we can't read the home directory directly since we have our own /Users area
+// FIXME: we can't use the home directory yet since we have our own /Users area
 
 NSString *NSHomeDirectoryForUser (NSString *login_name)
 { // return home dir for login name
 	NSString *h;
 	struct passwd *pwd=getpwnam([login_name UTF8String]);
 	endpwent();
-	if(!pwd)
-		h=[NSString stringWithFormat:@"/Users/%@", login_name];
-	else if(pwd->pw_uid == 0)
+	/*
+	if(!pwd) return nil;
+	else 
+	 */
+	if(pwd && pwd->pw_uid == 0)
 		h=@"/";	// root user - FIXME
 	else
 		{
+		BOOL isDir;
 #if 1
 		h=[NSString stringWithFormat:@"/Users/%@", login_name];
 #else
 		h=[NSString stringWithUTF8String:pwd->pw_dir];
 #endif
+		if(![[NSFileManager defaultManager] fileExistsAtPath:h isDirectory:&isDir] || !isDir)
+			return nil;
 		}
 #if 0
 	NSLog(@"NSHomeDirectoryForUser(%@) -> %@", login_name, h);
@@ -422,93 +427,93 @@ NSString *NSHomeDirectoryForUser (NSString *login_name)
 NSArray *NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory directory, NSSearchPathDomainMask domainMask, BOOL expandTilde)
 {
 	NSMutableArray  *paths = [NSMutableArray arrayWithCapacity:10];
+	NSString *expandedPath;
 #if 0
 	NSLog(@"NSSearchPathForDirectoriesInDomains %d mask %d", directory, domainMask);
 #endif
 #define ADD_PATH(mask, path) \
-if ((domainMask & mask) && ![paths containsObject: path] && [[NSFileManager defaultManager] fileExistsAtPath:path]) \
-[paths addObject: expandTilde?(NSString *) [path stringByExpandingTildeInPath]:(NSString *) path];
+if ((domainMask & mask) && ![paths containsObject: path] && [[NSFileManager defaultManager] fileExistsAtPath:expandedPath=[path stringByExpandingTildeInPath]]) \
+[paths addObject: expandTilde?expandedPath:path];
 	
 	// we could read this from an NSDictionary in Info.plist ...
 	
-	switch (directory)
-	{
+	switch (directory) {
 		case NSAllApplicationsDirectory:
-		ADD_PATH(NSUserDomainMask, @"~/Applications");
-		ADD_PATH(NSUserDomainMask, @"~/Library/Applications");
-		ADD_PATH(NSLocalDomainMask, @"/Applications");
-		ADD_PATH(NSLocalDomainMask, @"/Applications/Games");
-		ADD_PATH(NSLocalDomainMask, @"/Applications/Utilities");
-		ADD_PATH(NSLocalDomainMask, @"/Developer/Applications");
-		ADD_PATH(NSLocalDomainMask, @"/Developer/Applications/Utilities");
-		ADD_PATH(NSNetworkDomainMask, @"/Network/Applications");
-		ADD_PATH(NSSystemDomainMask, @"/Library/Applications");
-		ADD_PATH(NSSystemDomainMask, @"/System/Applications");
-		ADD_PATH(NSSystemDomainMask, @"/System/Library/CoreServices");
-		break;
+			ADD_PATH(NSUserDomainMask, @"~/Applications");
+			ADD_PATH(NSUserDomainMask, @"~/Library/Applications");
+			ADD_PATH(NSLocalDomainMask, @"/Applications");
+			ADD_PATH(NSLocalDomainMask, @"/Applications/Games");
+			ADD_PATH(NSLocalDomainMask, @"/Applications/Utilities");
+			ADD_PATH(NSLocalDomainMask, @"/Developer/Applications");
+			ADD_PATH(NSLocalDomainMask, @"/Developer/Applications/Utilities");
+			ADD_PATH(NSNetworkDomainMask, @"/Network/Applications");
+			ADD_PATH(NSSystemDomainMask, @"/Library/Applications");
+			ADD_PATH(NSSystemDomainMask, @"/System/Applications");
+			ADD_PATH(NSSystemDomainMask, @"/System/Library/CoreServices");
+			break;
 		case NSApplicationDirectory:
-		ADD_PATH(NSUserDomainMask, @"~/Applications");
-		ADD_PATH(NSLocalDomainMask, @"/Applications");
-		ADD_PATH(NSNetworkDomainMask, @"/Network/Applications");
-		ADD_PATH(NSSystemDomainMask, @"/Library/Applications");
-		ADD_PATH(NSSystemDomainMask, @"/System/Applications");
-		break;
+			ADD_PATH(NSUserDomainMask, @"~/Applications");
+			ADD_PATH(NSLocalDomainMask, @"/Applications");
+			ADD_PATH(NSNetworkDomainMask, @"/Network/Applications");
+			ADD_PATH(NSSystemDomainMask, @"/Library/Applications");
+			ADD_PATH(NSSystemDomainMask, @"/System/Applications");
+			break;
 		case NSDemoApplicationDirectory:
-		ADD_PATH(NSUserDomainMask, @"~/Applications/Games");
-		ADD_PATH(NSLocalDomainMask, @"/Applications/games");
-		ADD_PATH(NSNetworkDomainMask, @"/Network/Applications/Games");
-		break;
+			ADD_PATH(NSUserDomainMask, @"~/Applications/Games");
+			ADD_PATH(NSLocalDomainMask, @"/Applications/games");
+			ADD_PATH(NSNetworkDomainMask, @"/Network/Applications/Games");
+			break;
 		case NSCoreServiceDirectory:
-		ADD_PATH(NSSystemDomainMask, @"/System/Library/CoreServices");
-		break;
+			ADD_PATH(NSSystemDomainMask, @"/System/Library/CoreServices");
+			break;
 		case NSDesktopDirectory:
-		ADD_PATH(NSUserDomainMask, @"~/Desktop");
-		break;
+			ADD_PATH(NSUserDomainMask, @"~/Desktop");
+			break;
 		case NSDeveloperApplicationDirectory:
-		ADD_PATH(NSLocalDomainMask, @"/Developer/Applications");
-		break;
+			ADD_PATH(NSLocalDomainMask, @"/Developer/Applications");
+			break;
 		case NSAdminApplicationDirectory:
-		ADD_PATH(NSLocalDomainMask, @"/Applications/Utilities");
-		break;
+			ADD_PATH(NSLocalDomainMask, @"/Applications/Utilities");
+			break;
 		case NSAllLibrariesDirectory:
-		ADD_PATH(NSUserDomainMask, @"~/Library");
-		ADD_PATH(NSLocalDomainMask, @"/Library");
-		ADD_PATH(NSNetworkDomainMask, @"/Network/Library");
-		ADD_PATH(NSSystemDomainMask, @"/System/Library");
-		break;
+			ADD_PATH(NSUserDomainMask, @"~/Library");
+			ADD_PATH(NSLocalDomainMask, @"/Library");
+			ADD_PATH(NSNetworkDomainMask, @"/Network/Library");
+			ADD_PATH(NSSystemDomainMask, @"/System/Library");
+			break;
 		case NSLibraryDirectory:
-		ADD_PATH(NSUserDomainMask, @"~/Library");
-		ADD_PATH(NSLocalDomainMask, @"/Library");
-		ADD_PATH(NSNetworkDomainMask, @"/Network/Library");
-		ADD_PATH(NSSystemDomainMask, @"/System/Library");
-		break;
+			ADD_PATH(NSUserDomainMask, @"~/Library");
+			ADD_PATH(NSLocalDomainMask, @"/Library");
+			ADD_PATH(NSNetworkDomainMask, @"/Network/Library");
+			ADD_PATH(NSSystemDomainMask, @"/System/Library");
+			break;
 		case NSDeveloperDirectory:
-		ADD_PATH(NSSystemDomainMask, @"/Developer");
-		break;
+			ADD_PATH(NSSystemDomainMask, @"/Developer");
+			break;
 		case NSUserDirectory:
-		ADD_PATH(NSSystemDomainMask, @"/Users");
-		break;
+			ADD_PATH(NSSystemDomainMask, @"/Users");
+			break;
 		case NSDocumentationDirectory:
-		break;
+			break;
 		case NSDocumentDirectory:
-		ADD_PATH(NSUserDomainMask, @"~/Documents");
-		break;
+			ADD_PATH(NSUserDomainMask, @"~/Documents");
+			break;
 		case NSDownloadsDirectory:
-		// allow for user configuration
-		ADD_PATH(NSUserDomainMask, @"~/Documents/Downloads");
-		break;
+			// allow for user configuration
+			ADD_PATH(NSUserDomainMask, @"~/Documents/Downloads");
+			break;
 		case NSCachesDirectory:
-		ADD_PATH(NSUserDomainMask, @"~/Library/Caches");
-		ADD_PATH(NSLocalDomainMask, @"/Library/Caches");
-		ADD_PATH(NSNetworkDomainMask, @"/Network/Library/Caches");
-		ADD_PATH(NSSystemDomainMask, @"/System/Library/Caches");
-		break;
+			ADD_PATH(NSUserDomainMask, @"~/Library/Caches");
+			ADD_PATH(NSLocalDomainMask, @"/Library/Caches");
+			ADD_PATH(NSNetworkDomainMask, @"/Network/Library/Caches");
+			ADD_PATH(NSSystemDomainMask, @"/System/Library/Caches");
+			break;
 		case NSApplicationSupportDirectory:
-		ADD_PATH(NSUserDomainMask, @"~/Library/Application Support");
-		ADD_PATH(NSLocalDomainMask, @"/Library/Application Support");
-		ADD_PATH(NSNetworkDomainMask, @"/Network/Library/Application Support");
-		ADD_PATH(NSSystemDomainMask, @"/System/Library/Application Support");
-		break;
+			ADD_PATH(NSUserDomainMask, @"~/Library/Application Support");
+			ADD_PATH(NSLocalDomainMask, @"/Library/Application Support");
+			ADD_PATH(NSNetworkDomainMask, @"/Network/Library/Application Support");
+			ADD_PATH(NSSystemDomainMask, @"/System/Library/Application Support");
+			break;
 #undef ADD_PATH
 #undef ADD_PLATFORM_PATH
 	}

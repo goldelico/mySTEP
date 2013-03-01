@@ -12,38 +12,210 @@
 
 @implementation NSStringTest
 
-#define TEST1(NAME, INPUT, METHOD, OUTPUT) - (void) test##NAME; { STAssertEqualObjects(OUTPUT, [INPUT METHOD], nil); }
-#define TEST2(NAME, INPUT, ARG, METHOD, OUTPUT) - (void) test##NAME; { STAssertEqualObjects(OUTPUT, [INPUT METHOD:ARG], nil); }
+#define TESTT(NAME, INPUT, METHOD) - (void) test_##METHOD##NAME; { STAssertTrue([INPUT METHOD], nil); }
+#define TESTF(NAME, INPUT, METHOD) - (void) test_##METHOD##NAME; { STAssertFalse([INPUT METHOD], nil); }
+#define TEST0(NAME, INPUT, METHOD) - (void) test_##METHOD##NAME; { STAssertNil([INPUT METHOD], nil); }
+#define TEST1(NAME, INPUT, METHOD, OUTPUT) - (void) test_##METHOD##NAME; { STAssertEqualObjects([INPUT METHOD], OUTPUT, nil); }
+#define TEST2(NAME, INPUT, METHOD, ARG, OUTPUT) - (void) test_##METHOD##NAME; { STAssertEqualObjects([INPUT METHOD:ARG], OUTPUT, nil); }
 
-// FIXME: test creation, conversions, add, mutability, isEqual etc.
+// FIXME: test creation, conversions, appending, mutability, sorting, isEqual, intValue, floatValue etc.
 
-TEST1(lowercaseString1, @"LowerCase", lowercaseString, @"lowercase");
-TEST1(lowercaseString2, @"Lower Case", lowercaseString, @"lower case");
-TEST1(lowercaseString3, @"Lower Case ÄÖÜ", lowercaseString, @"lower case äöü");
-TEST1(lowercaseString4, @"lowercase", lowercaseString, @"lowercase");
-TEST1(lowercaseString5, @"", lowercaseString, @"");
+TEST2(01, @"a:b", componentsSeparatedByString, @":", ([NSArray arrayWithObjects:@"a", @"b", nil]));
+TEST2(02, @"ab", componentsSeparatedByString, @":", ([NSArray arrayWithObjects:@"ab", nil]));
+TEST2(03, @":b", componentsSeparatedByString, @":", ([NSArray arrayWithObjects:@"", @"b", nil]));
+TEST2(04, @"a:", componentsSeparatedByString, @":", ([NSArray arrayWithObjects:@"a", @"", nil]));
+TEST2(05, @"a::b", componentsSeparatedByString, @":", ([NSArray arrayWithObjects:@"a", @"", @"b", nil]));
+TEST2(06, @"a:::b", componentsSeparatedByString, @"::", ([NSArray arrayWithObjects:@"a", @":b", nil]));
+TEST2(07, @"a::::b", componentsSeparatedByString, @"::", ([NSArray arrayWithObjects:@"a", @"", @"b", nil]));
+TEST2(08, @":", componentsSeparatedByString, @":", ([NSArray arrayWithObjects:@"", @"", nil]));
+TEST2(09, @"", componentsSeparatedByString, @":", ([NSArray arrayWithObjects:@"", nil]));
+TEST2(10, @"ab", componentsSeparatedByString, @"", ([NSArray arrayWithObjects:@"ab", nil]));
 
-TEST1(stringByDeletingLastPathComponent1, @"/tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");
-TEST1(stringByDeletingLastPathComponent2, @"tmp/scratch.tiff", stringByDeletingLastPathComponent, @"tmp");
-TEST1(stringByDeletingLastPathComponent3, @"/tmp/lock/", stringByDeletingLastPathComponent, @"/tmp");
-TEST1(stringByDeletingLastPathComponent4, @"/tmp/", stringByDeletingLastPathComponent, @"/");
-TEST1(stringByDeletingLastPathComponent5, @"/tmp", stringByDeletingLastPathComponent, @"/");
-TEST1(stringByDeletingLastPathComponent6, @"/", stringByDeletingLastPathComponent, @"/");
-TEST1(stringByDeletingLastPathComponent7, @"scratch.tiff", stringByDeletingLastPathComponent, @"");
+TESTT(01, @"/here", isAbsolutePath);
+TESTT(02, @"/", isAbsolutePath);
+TESTF(03, @"here", isAbsolutePath);
+TESTF(04, @"here/", isAbsolutePath);
 
-TEST1(stringByDeletingLastPathComponent8, @"//tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");
-TEST1(stringByDeletingLastPathComponent9, @"//", stringByDeletingLastPathComponent, @"/");
-// TEST(stringByDeletingLastPathComponent10, [NSNull null], stringByDeletingLastPathComponent, @"exception...");
+- (void) testisEqualToString;
+{ // -lowercaseString converts into an Unicode String
+	STAssertTrue([@"" isEqualToString:@""], nil);
+	STAssertTrue([@"" isEqualToString:[@"" lowercaseString]], nil);	// fails...
+	STAssertTrue([[@"" lowercaseString] isEqualToString:@""], nil);
+	STAssertTrue([[@"" lowercaseString] isEqualToString:[@"" lowercaseString]], nil);
+	STAssertTrue([@"" isEqual:@""], nil);
+	STAssertTrue([@"" isEqual:[@"" lowercaseString]], nil);	// fails...
+	STAssertTrue([[@"" lowercaseString] isEqual:@""], nil);
+	STAssertTrue([[@"" lowercaseString] isEqual:[@"" lowercaseString]], nil);
+}
 
-TEST2(componentsSeparatedByString1, @"a:b", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"a", @"b", nil]));
-TEST2(componentsSeparatedByString2, @"ab", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"ab", nil]));
-TEST2(componentsSeparatedByString3, @":b", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"", @"b", nil]));
-TEST2(componentsSeparatedByString4, @"a:", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"a", @"", nil]));
-TEST2(componentsSeparatedByString5, @"a::b", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"a", @"", @"b", nil]));
-TEST2(componentsSeparatedByString6, @"a:::b", @"::", componentsSeparatedByString, ([NSArray arrayWithObjects:@"a", @":b", nil]));
-TEST2(componentsSeparatedByString7, @"a::::b", @"::", componentsSeparatedByString, ([NSArray arrayWithObjects:@"a", @"", @"b", nil]));
-TEST2(componentsSeparatedByString8, @":", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"", @"", nil]));
-TEST2(componentsSeparatedByString9, @"", @":", componentsSeparatedByString, ([NSArray arrayWithObjects:@"", nil]));
+TEST1(01, @"/tmp/scratch.tiff", lastPathComponent, @"scratch.tiff");
+TEST1(02, @"tmp/scratch.tiff", lastPathComponent, @"scratch.tiff");
+TEST1(03, @"/tmp/lock/", lastPathComponent, @"lock");
+TEST1(04, @"/tmp/", lastPathComponent, @"tmp");
+TEST1(05, @"/tmp", lastPathComponent, @"tmp");
+TEST1(06, @"/", lastPathComponent, @"/");
+TEST1(06a, @"", lastPathComponent, @"");
+TEST1(07, @"scratch.tiff", lastPathComponent, @"scratch.tiff");
+TEST1(07a, @"scratch.tiff/", lastPathComponent, @"scratch.tiff");
+TEST1(08, @"//tmp/scratch.tiff", lastPathComponent, @"scratch.tiff");
+TEST1(09, @"//", lastPathComponent, @"/");
+TEST1(10, @"///", lastPathComponent, @"/");
+TEST1(11, @"//tmp//scratch.tiff/", lastPathComponent, @"scratch.tiff");
+
+TEST1(01, @"LowerCase", lowercaseString, @"lowercase");
+TEST1(02, @"Lower Case", lowercaseString, @"lower case");
+TEST1(03, @"Lower Case ÄÖÜ", lowercaseString, @"lower case äöü");	// FIXME: unicode string constant makes problems on -isEqual:
+TEST1(04, @"lowercase", lowercaseString, @"lowercase");
+TEST1(05, @"", lowercaseString, @"");
+
+TEST1(01, @"", pathComponents, ([NSArray arrayWithObjects:nil]));
+TEST1(02, @"/", pathComponents, ([NSArray arrayWithObjects:@"/", nil]));
+TEST1(02a, @"/tmp", pathComponents, ([NSArray arrayWithObjects:@"/", @"tmp", nil]));
+TEST1(02b, @"///tmp", pathComponents, ([NSArray arrayWithObjects:@"/", @"tmp", nil]));
+TEST1(02c, @"first/", pathComponents, ([NSArray arrayWithObjects:@"first", @"/", nil]));
+TEST1(02d, @"//", pathComponents, ([NSArray arrayWithObjects:@"/", @"/", nil]));
+TEST1(02e, @"///", pathComponents, ([NSArray arrayWithObjects:@"/", @"/", nil]));
+TEST1(02f, @"first///", pathComponents, ([NSArray arrayWithObjects:@"first", @"/", nil]));
+TEST1(03, @"/tmp/scratch.tiff", pathComponents, ([NSArray arrayWithObjects:@"/", @"tmp", @"scratch.tiff", nil]));	// a leading / is explicitly stored
+TEST1(04, @"/tmp/scratch.tiff/", pathComponents, ([NSArray arrayWithObjects:@"/", @"tmp", @"scratch.tiff", @"/", nil]));
+TEST1(05, @"///tmp////scratch.tiff///", pathComponents, ([NSArray arrayWithObjects:@"/", @"tmp", @"scratch.tiff", @"/", nil]));	// empty components are removed but not a trailing /
+TEST1(06, @"   ///", pathComponents, ([NSArray arrayWithObjects:@"   ", @"/", nil]));
+
+TEST1(01, @"/tmp/scratch.tiff", pathExtension, @"tiff");
+TEST1(02, @"tmp/scratch.tiff", pathExtension, @"tiff");
+TEST1(03, @"/tmp/lock/", pathExtension, @"");
+TEST1(03b, @"/tmp/lock.tiff/", pathExtension, @"tiff");	// deletes trailing / before extracting the pathExtension
+TEST1(03c, @"/tmp/lock.tiff//", pathExtension, @"tiff");	// deletes trailing // before extracting the pathExtension
+TEST1(04, @"/", pathExtension, @"");
+TEST1(04a, @"", pathExtension, @"");
+TEST1(05, @"tiff", pathExtension, @"");
+TEST1(06, @".", pathExtension, @"");
+TEST1(07, @"..", pathExtension, @"");
+TEST1(07b, @"...", pathExtension, @"");
+TEST1(07c, @"....", pathExtension, @"");
+TEST1(07d, @"..../", pathExtension, @"");
+TEST1(08, @".tiff", pathExtension, @"");
+TEST1(08b, @"x.tiff", pathExtension, @"tiff");
+TEST1(08c, @"x.", pathExtension, @"");
+TEST1(09, @"..tiff", pathExtension, @"tiff");
+TEST1(10, @"...tiff", pathExtension, @"tiff");
+
+- (void) testpathWithComponents
+{
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:nil]]), @"", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", nil]]), @"", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"", @"", nil]]), @"", nil);	// empty entries are ignored
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", nil]]), @"/", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", nil]]), @"/", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"", nil]]), @"/", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"", @"path", nil]]), @"/path", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"path", @"", @"/", nil]]), @"path", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"", nil]]), @"/", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"/", nil]]), @"/", nil);	// not the inverse of pathComponents
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"path", @"/", nil]]), @"path", nil);	// not the inverse of pathComponents
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"path", nil]]), @"/path", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"path", @"/", nil]]), @"/path", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"tmp", @"scratch.tiff", @"/", nil]]), @"/tmp/scratch.tiff", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"/", @"/", @"/", nil]]), @"/", nil);	// multiple / are merged
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/path", @"", @"/", nil]]), @"/path", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"/path", @"/", nil]]), @"/path", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"", @"some", @"/path", @"/", nil]]), @"/some/path", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/", @"", @"some/", @"/path", @"/", nil]]), @"/some/path", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"some/path", @"", @"/", nil]]), @"some/path", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"some/", @"", @"/", nil]]), @"some", nil);
+	STAssertEqualObjects(([NSString pathWithComponents:[NSArray arrayWithObjects:@"", @"/some/", @"", @"/path/", nil]]), @"/some/path", nil);
+	/* conclusions
+	 * there appears to be no way to produce a path that ends in a /
+	 * [NSString pathWithComponents:[str pathComponents]] is not always the same str
+	 * empty components are ignored
+	 * / characters at the beginning or end of components are removed/ignored (except when deciding about absolute paths)
+	 */
+}
+
+TEST2(01, @"/tmp", stringByAppendingPathComponent, @"file", @"/tmp/file");
+TEST2(02, @"/tmp/", stringByAppendingPathComponent, @"file", @"/tmp/file");
+TEST2(03, @"", stringByAppendingPathComponent, @"file", @"file");
+TEST2(04, @"/", stringByAppendingPathComponent, @"file", @"/file");	// first / is honoured
+TEST2(05, @"/tmp", stringByAppendingPathComponent, @"/file", @"/tmp/file");
+TEST2(06, @"/tmp/", stringByAppendingPathComponent, @"/file", @"/tmp/file");
+TEST2(07, @"", stringByAppendingPathComponent, @"/file", @"/file");
+TEST2(08, @"/", stringByAppendingPathComponent, @"/file", @"/file");
+TEST2(09, @"/tmp", stringByAppendingPathComponent, @"/file/", @"/tmp/file");
+TEST2(10, @"/tmp/", stringByAppendingPathComponent, @"/file/", @"/tmp/file");
+TEST2(11, @"", stringByAppendingPathComponent, @"/file/", @"/file");
+TEST2(12, @"/", stringByAppendingPathComponent, @"/file/", @"/file");
+TEST2(13, @"///", stringByAppendingPathComponent, @"//file///", @"/file");	// leading and trailing / are stripped off before concatenating
+
+TEST2(01, @"/tmp/scratch", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.tiff");
+TEST2(02, @"", stringByAppendingPathExtension, @"tiff", @"");	// does not append to empty string, i.e. if there is no lastPathComponent
+TEST2(03, @"/tmp/scratch.gif", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.gif.tiff");
+TEST2(04, @"/tmp/scratch.gif.", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.gif..tiff");
+TEST2(05, @"/tmp/scratch.gif.", stringByAppendingPathExtension, @".tiff", @"/tmp/scratch.gif...tiff");
+TEST2(06, @"/tmp/scratch.gif", stringByAppendingPathExtension, @"", @"/tmp/scratch.gif.");
+TEST2(07, @"/tmp/scratch", stringByAppendingPathExtension, @"", @"/tmp/scratch.");	// empty suffix adds a .
+TEST2(08, @"/tmp/scratch/", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.tiff");	// trailing / is deleted
+TEST2(09, @"/tmp/scratch/", stringByAppendingPathExtension, @"", @"/tmp/scratch.");
+TEST2(09b, @"/tmp", stringByAppendingPathExtension, @"", @"/tmp.");
+TEST2(09c, @"/", stringByAppendingPathExtension, @"tmp", @"/");	// extension not added
+TEST2(10, @"//tmp///scratch////", stringByAppendingPathExtension, @"", @"/tmp/scratch.");	// empty path components are always removed
+TEST2(11, @"//", stringByAppendingPathExtension, @"something", @"//");
+TEST2(12, @"////", stringByAppendingPathExtension, @"something", @"////");	// not touched
+TEST2(13, @"   ////", stringByAppendingPathExtension, @"something", @"   .something");
+
+TEST1(01, @"/tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");
+TEST1(02, @"tmp/scratch.tiff", stringByDeletingLastPathComponent, @"tmp");
+TEST1(03, @"/tmp/lock/", stringByDeletingLastPathComponent, @"/tmp");	// trailing / is also deleted
+TEST1(04, @"/tmp/", stringByDeletingLastPathComponent, @"/");
+TEST1(05, @"/tmp", stringByDeletingLastPathComponent, @"/");
+TEST1(06, @"/", stringByDeletingLastPathComponent, @"/");
+TEST1(07, @"scratch.tiff", stringByDeletingLastPathComponent, @"");
+TEST1(08, @"//tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");
+TEST1(09, @"//", stringByDeletingLastPathComponent, @"/");
+TEST1(10, @"///", stringByDeletingLastPathComponent, @"/");
+TEST1(11, @"//tmp////scratch.tiff///", stringByDeletingLastPathComponent, @"/tmp");	// empty path components are removed
+TEST1(12, @"", stringByDeletingLastPathComponent, @"");
+
+TEST1(01, @"/tmp/scratch.tiff", stringByDeletingPathExtension, @"/tmp/scratch");
+TEST1(02, @"tmp/scratch.tiff", stringByDeletingPathExtension, @"tmp/scratch");
+TEST1(03, @"/tmp/lock/", stringByDeletingPathExtension, @"/tmp/lock");	// deletes trailing /
+TEST1(03b, @"/tmp/lock.tiff/", stringByDeletingPathExtension, @"/tmp/lock");	// deletes trailing /
+TEST1(03c, @"/tmp/lock.tiff//", stringByDeletingPathExtension, @"/tmp/lock");	// deletes trailing //
+TEST1(04, @"/", stringByDeletingPathExtension, @"/");
+TEST1(05, @"tiff", stringByDeletingPathExtension, @"tiff");
+TEST1(06, @".", stringByDeletingPathExtension, @".");
+TEST1(07, @"..", stringByDeletingPathExtension, @".");	// deletes one .
+TEST1(07b, @"...", stringByDeletingPathExtension, @"..");	// deletes one .
+TEST1(07c, @"....", stringByDeletingPathExtension, @"...");	// deletes one .
+TEST1(07d, @"..../", stringByDeletingPathExtension, @"...");	// deletes one . and the /
+TEST1(08, @".tiff", stringByDeletingPathExtension, @".tiff");
+TEST1(08b, @"x.tiff", stringByDeletingPathExtension, @"x");
+TEST1(08c, @"x.", stringByDeletingPathExtension, @"x");
+TEST1(09, @"..tiff", stringByDeletingPathExtension, @".");
+TEST1(10, @"...tiff", stringByDeletingPathExtension, @"..");
+
+TEST1(01, @"~", stringByExpandingTildeInPath, NSHomeDirectory());
+TEST1(02, @"~/", stringByExpandingTildeInPath, NSHomeDirectory());
+TEST1(03, @"~/blah", stringByExpandingTildeInPath, [NSHomeDirectory() stringByAppendingPathComponent:@"blah"]);
+TEST1(04, @"~/blah/", stringByExpandingTildeInPath, [NSHomeDirectory() stringByAppendingPathComponent:@"blah"]);
+TEST1(01a, @"~root", stringByExpandingTildeInPath, NSHomeDirectoryForUser(@"root"));
+TEST1(02a, @"~root/", stringByExpandingTildeInPath, NSHomeDirectoryForUser(@"root"));
+TEST1(03a, @"~root/blah", stringByExpandingTildeInPath, [NSHomeDirectoryForUser(@"root") stringByAppendingPathComponent:@"blah"]);
+TEST1(04a, @"~root/blah/", stringByExpandingTildeInPath, [NSHomeDirectoryForUser(@"root") stringByAppendingPathComponent:@"blah"]);
+// this assumes that the user does NOT exist!
+TEST1(01b, @"~unknownuser", stringByExpandingTildeInPath, @"~unknownuser");
+TEST1(02b, @"~unknownuser/", stringByExpandingTildeInPath, @"~unknownuser");
+TEST1(03b, @"~unknownuser/blah", stringByExpandingTildeInPath, @"~unknownuser/blah");
+TEST1(04b, @"~unknownuser/blah/", stringByExpandingTildeInPath, @"~unknownuser/blah");
+TEST1(01c, @"~*-#no-user", stringByExpandingTildeInPath, @"~*-#no-user");
+TEST1(05, @"other", stringByExpandingTildeInPath, @"other");
+TEST1(06, @"/other", stringByExpandingTildeInPath, @"/other");
+TEST1(06a, @"/", stringByExpandingTildeInPath, @"/");
+TEST1(06b, @"/other/", stringByExpandingTildeInPath, @"/other");	// always strips off trailing /
+TEST1(06c, @"////other////", stringByExpandingTildeInPath, @"/other");	// always strips off trailing /
+TEST1(07, @"/~other", stringByExpandingTildeInPath, @"/~other");	// ~must be first character
+TEST1(07b, @" ~/other", stringByExpandingTildeInPath, @" ~/other");	// ~must be first character
+
+// stringByStandardizingPath -- check similar corner cases as for URLs
 
 // add many more such tests
 

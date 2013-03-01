@@ -2325,55 +2325,86 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	
 	return YES;
 }
+
 // return a string containing the portion
-- (NSString*) lastPathComponent		// receiver following the last '/'. If last
-{									// char is '/' then return the previous sub
-	NSRange range;						// string delimited by '/'.  returns NULL
-	NSString *substring = nil;			// string if reciever contains only a '/'.
-	
+// receiver following the last '/'. If last
+// char is '/' then return the previous sub
+// string delimited by '/'.  returns emtpy
+// string if receiver contains only a '/'.
+
+- (NSString*) lastPathComponent
+{
+	NSArray *components=[self pathComponents];
+	unsigned int cnt=[components count];
+	if(cnt < 1)
+		return @"";	// FIXME: what happens if we call this on NSMutableString??? -> return [[self class] stringWithString:@""];
+	if(cnt > 1 && [[components objectAtIndex:cnt-1] isEqualToString:@"/"])	// path ends (but does not start) in /
+		return [components objectAtIndex:cnt-2];
+	return [components objectAtIndex:cnt-1];
+
+#if OLD
+	NSRange range;
+	NSString *substring = nil;
+
 	range = [self rangeOfCharacterFromSet:pathSeps options:NSBackwardsSearch];
+#if 0
+	fprintf(stderr, [[NSString stringWithFormat:@"range=%@ self=%@\n", NSStringFromRange(range), self] UTF8String]);
+#endif
 	if (range.length == 0)
 		substring = [[self copy] autorelease];
-	else 
-		if (range.location == (_count - 1))
-			{
-			if (range.location == 0)
-				substring = [[NSString new] autorelease];
-			else
-				substring = [[self substringToIndex:range.location] 
-							 lastPathComponent];
-			}
+	else  if (range.location == (_count - 1))
+		{ // ends in /
+		if (range.location == 0)
+			substring = @"/";	// pure /
 		else
-			substring = [self substringFromIndex:range.location + 1];
-	
+			substring = [[self substringToIndex:range.location] 
+							lastPathComponent];	// take last path component before trailing /
+		}
+	else
+		substring = [self substringFromIndex:range.location + 1];
 	return substring;
+#endif
 }
 
 - (NSString*) pathExtension	 
-{
-	NSRange r, range = [self rangeOfString:@"." options: NSBackwardsSearch];
-	// interpret reciever as a path
-	if (range.length == 0)						// and return the portion after
-		return [[NSString new] autorelease];	// the last '.' or a NULL str
-	// eg '.tiff' from '/me/a.tiff'
-	r = [self rangeOfCharacterFromSet: pathSeps options: NSBackwardsSearch];
-	if (r.length > 0 && range.location < r.location)
-		return [[NSString new] autorelease];
+{ // interpret receiver as a path and return the portion after the last '.' or an empty str
+	NSString *c=[self lastPathComponent];
+	NSRange r = [c rangeOfString:@"." options: NSBackwardsSearch];
+	if(r.location == NSNotFound || r.location == 0)
+		return @"";	// no . or .ext // FIXME: what happens if we call this on NSMutableString???
+	return [c substringFromIndex:NSMaxRange(r)];	// starts behind last .
 	
-	return [self substringFromIndex:range.location + 1];
+#if OLD
+	NSRange r, range = [self rangeOfString:@"." options: NSBackwardsSearch];
+	if (range.location == 0 || range.length == 0)
+		return @"";
+	range.location++;	// remove .
+	range.length=[self length]-range.location;	// all to end of string
+	r = [self rangeOfCharacterFromSet: pathSeps options: NSBackwardsSearch];	// may be multiple
+	if (r.location != NSNotFound)
+		range.length=r.location-range.location;	// strip off traling / or //
+	return [self substringWithRange:range];
+#endif
 }
 
 - (NSString*) stringByAppendingPathComponent:(NSString*)aString
-{								// return a new string with aString appended to
-	NSRange range;					// reciever.  Raises an exception if aString 
-	NSString *newstring;			// starts with a '/'.  Checks receiver to see
-	// if the last letter is a '/', if it is not, a
-	if ([aString length] == 0)	// '/' is appended before appending aString.
+{ // return a new string with aString appended to reciever
+	// FIXME: this is much less efficient than the old implementation - but handles the special cases like multiple /// correctly
+	NSMutableArray *s=[[[self pathComponents] mutableCopy] autorelease];
+	NSArray *a=[aString pathComponents];
+	[s addObjectsFromArray:a];	// append
+//	NSLog(@"a=%@", s);
+	return [[self class] pathWithComponents:s];
+#if OLD
+	NSRange range;
+	NSString *newstring;
+
+	if ([aString length] == 0)
 		return [[self copy] autorelease];
 	
 	range = [aString rangeOfCharacterFromSet: pathSeps];
 	if (range.length != 0 && range.location == 0)
-		aString = [aString substringFromIndex: 1];
+		aString = [aString substringFromIndex: 1];	// strip off first / (only)
 	
 	range = [self rangeOfCharacterFromSet:pathSeps options:NSBackwardsSearch];
 	if ((range.length == 0 || range.location != _count - 1) && _count > 0)
@@ -2382,14 +2413,25 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		newstring = self;
 	
 	return [newstring stringByAppendingString: aString];
+#endif
 }
 
 - (NSString*) stringByAppendingPathExtension:(NSString*)aString
-{						// Returns a new string with the path extension given 
-	NSRange range;			// in aString appended to the receiver.  Raises an 
-	NSString *newstring;	// exception if aString starts with a '.'.  Checks the 
-	// receiver to see if the last letter is a '.', if it
-	// is not, a '.' is appended before appending aString
+{ // returns a new string with the path extension given in aString appended to the receiver
+	NSMutableArray *a=[[[self pathComponents] mutableCopy] autorelease];
+	NSString *last;
+	NSLog(@"0=%@", a);
+	if([a count] > 1 && [[a lastObject] isEqualToString:pathSepString])
+		[a removeLastObject];
+	last=[a lastObject];
+	NSLog(@"a=%@", a);
+	if([last length] != 0)
+		[a replaceObjectAtIndex:[a count]-1 withObject:[NSString stringWithFormat:@"%@.%@", last, aString]];
+	NSLog(@"b=%@", a);
+	return [[self class] pathWithComponents:a];
+#if OLD
+	NSRange range; 
+	NSString *newstring; 
 	if ([aString length] == 0)
 		return [[self copy] autorelease];
 	
@@ -2404,29 +2446,49 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		newstring = self;
 	
 	return [newstring stringByAppendingString:aString];
+#endif
 }
 
 - (NSString*) stringByDeletingLastPathComponent
 {
-	NSRange range = [self rangeOfString:[self lastPathComponent] 
-								options:NSBackwardsSearch];
+	NSMutableArray *components=[[self pathComponents] mutableCopy];
+	unsigned int cnt=[components count];
+//	NSLog(@"c=%@", components);
+	if(cnt > 0)
+		{
+		if(cnt > 1 && [[components objectAtIndex:cnt-1] isEqualToString:@"/"])	// path ends in /
+			cnt--, [components removeLastObject];	// remove trailing /
+		if(cnt > 1 || ![[components objectAtIndex:cnt-1] isEqualToString:@"/"])
+			[components removeLastObject];	// remove path component unless we are the first and a /		
+		}
+//	NSLog(@"d=%@", components);
+	return [[self class] pathWithComponents:[components autorelease]];
 	
+#if OLD
+	NSString *str=self;
+	NSRange range;
+	while([str hasSuffix:@"/"])
+		str=[str substringToIndex:[str length]-1];	// strip off / characters
+	range = [str rangeOfString:[self lastPathComponent] 
+								options:NSBackwardsSearch];
+#if 0
+	fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"range=%@ lpath=%@ self=%@", NSStringFromRange(range), [self lastPathComponent], self] UTF8String]);
+#endif
 	if (range.length == 0)
 		return [[self copy] autorelease];
 	
 	if (range.location == 0)
-		return [[NSString new] autorelease];
+		return @"";
 	
-	return (range.location > 1) ? [self substringToIndex:range.location-1]
-	: pathSepString;
+	return (range.location > 1) ? [str substringToIndex:range.location-1] : pathSepString;
+#endif
 }
 
 - (NSString*) stringByDeletingPathExtension
 {
 	NSRange range = [self rangeOfString:[self pathExtension] 
 								options:NSBackwardsSearch];
-	return (range.length != 0) ? [self substringToIndex:range.location-1]
-	: [[self copy] autorelease];
+	return (range.length != 0) ? [self substringToIndex:range.location-1] : [[self copy] autorelease];
 }
 
 // ~			NSHomeDir()
@@ -2434,19 +2496,26 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 // ~user		home dir of user
 // ~user/blah	home dir of user/blah
 // other		other
-// ~user/blah/	should strip off trailing / (not tested)
+// ~user/blah/	should strip off trailing /
 
-- (NSString*) stringByExpandingTildeInPath
+- (NSString *) stringByExpandingTildeInPath
 {
 	NSMutableArray *path=[[[self pathComponents] mutableCopy] autorelease];
 	NSString *first=[path objectAtIndex:0]; // exists even for "/"
-	if(![first hasPrefix:@"~"])
-		return [[self copy] autorelease];   // other
-	if([first isEqualToString:@"~"])
-		[path replaceObjectAtIndex:0 withObject:NSHomeDirectory()];   // replace ~
-	else
-		[path replaceObjectAtIndex:0 withObject:NSHomeDirectoryForUser([first substringFromIndex:1])];   // replace ~user
-	return [NSString pathWithComponents:path];  // join together
+	if([first hasPrefix:@"~"])
+		{
+		if([first isEqualToString:@"~"])
+			[path replaceObjectAtIndex:0 withObject:NSHomeDirectory()];   // replace ~
+		else
+			{
+			NSString *home=NSHomeDirectoryForUser([first substringFromIndex:1]);
+			if(home)
+				[path replaceObjectAtIndex:0 withObject:home];   // replace ~user - if it exists
+			}
+		}
+	if([path count] >= 2 && [[path objectAtIndex:[path count]-1] isEqualToString:@"/"])
+		[path removeLastObject];	// remove traling /
+	return [[self class] pathWithComponents:path];  // join together
 }
 
 - (NSString*) stringByAbbreviatingWithTildeInPath
@@ -2581,38 +2650,75 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 // private methods for Unicode level 3 implementation
 - (int) _baseLength					{ return 0; } 
 
+// FIXME: it could be more efficient to count the components and estimate their total size
+// and directly operate on the unicode characters
+
 + (NSString*) pathWithComponents:(NSArray*)components
 {
-	NSString *s = [components objectAtIndex: 0];
-	int i;
-	for (i = 1; i < [components count]; i++)
-		s = [s stringByAppendingPathComponent: [components objectAtIndex: i]];
-    return s;
+	NSMutableArray *a=[NSMutableArray arrayWithCapacity:[components count]];
+	NSEnumerator *e=[components objectEnumerator];
+	NSString *c;
+	BOOL isAbsolute=NO;
+	while((c=[e nextObject]))
+		{
+		if([c hasPrefix:pathSepString])
+			{
+			c=[c substringFromIndex:1];	// remove initial /
+			if([a count] == 0)
+				isAbsolute=YES;	// the first component that is absolute defines the absolute status
+			}
+		if([c hasSuffix:pathSepString])
+			c=[c substringToIndex:[c length]-1];	// remove trailing /
+		if([c length] > 0)	// ignore empty components
+			[a addObject:c];
+		}
+	c=[a componentsJoinedByString:pathSepString];	// merge all components
+	if(isAbsolute)
+		c=[pathSepString stringByAppendingString:c];	// prefix with absolute path (unless it was already embedded in components)
+	return c;
+#if OLD
+	unsigned int cnt=[components count];
+	if(cnt > 0)
+		{
+		NSString *s = [components objectAtIndex: 0];
+		int i;
+		for (i = 1; i < cnt; i++)
+			s = [s stringByAppendingPathComponent: [components objectAtIndex: i]];
+		return s;
+		}
+	return @"";	// what happens if we call this on NSMutableString???
+#endif
 }
 
 - (BOOL) isAbsolutePath
 {
-    return (_count > 0 && [self hasPrefix:@"/"]);
+    return (_count > 0 && [self hasPrefix:pathSepString]);
 }
 
 - (NSArray*) pathComponents
 {
-	NSMutableArray *a = [[self componentsSeparatedByString: @"/"] mutableCopy];
+	NSMutableArray *a = [[self componentsSeparatedByCharactersInSet: pathSeps] mutableCopy];
 	NSArray *r;
+	int	i = [a count];
 	
-    if ([a count] > 0) 			// If the path began with a '/' then the first 
-		{						// path component must be a '/' rather than an
-			int	i;					// empty string so that our output could be fed
-			// into [+pathWithComponents:]
-			if ([[a objectAtIndex: 0] length] == 0)
-				[a replaceObjectAtIndex: 0 withObject: @"/"];
-			// Empty path components 
-			for (i = [a count] - 2; i > 0; i--) 		// (except a trailing one) 
-				{										// must be removed.
+    if (i > 0) 
+		{
+		BOOL isAbsolute=NO;	// path is absolute
+//		NSLog(@"a=%@", a);
+			if (i > 1 && [[a objectAtIndex: 0] length] == 0)
+				// If the path began with a '/' then the first path component must be a '/' rather than an empty string
+				[a replaceObjectAtIndex: 0 withObject: pathSepString], isAbsolute=YES;
+			if (i > 1 && [[a objectAtIndex: i-1] length] == 0 && !(isAbsolute && i == 2))
+				// If the path did end with a '/' then the last path component must be a '/' rather than an empty string - except for a "/" string
+				[a replaceObjectAtIndex: i-1 withObject: pathSepString];
+//		NSLog(@"b=%@", a);
+			for (i = i - 1; i >= 0; i--) 
+				{ // remove empty path components
 					if ([[a objectAtIndex: i] length] == 0) 
 						[a removeObjectAtIndex: i];
-				}	}
-	
+				}
+//		NSLog(@"c=%@", a);
+		}
     r = [a copy];	// return an immutable copy
     [a release];
 	return [r autorelease];
@@ -3816,7 +3922,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 					if(((NSString*)obj)->_count > 0)	
 						[obj cString];				// if an object is a unichar
 					else							// str but does not yet have a
-						return NO;					// C str backing, create it
+						return YES;	/* both are empty */	// C str backing, create it
 				}
 			if (memcmp(_cString, ((NSString*)obj)->_cString, _count) == 0)
 				return YES;
@@ -3836,7 +3942,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			if(aString->_count > 0)	
 				[aString cString];					// if an object is a unichar
 			else									// str but does not yet have a
-				return NO;							// C str allocated, create it
+				return YES; /* both are empty */	// C str allocated, create it
 		}
 	
 	return (memcmp(_cString, aString->_cString, _count) == 0) ? YES : NO;

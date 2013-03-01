@@ -32,21 +32,26 @@
 	STAssertEquals(NSHeight(rect), 42.2f, nil);
 	STAssertTrue(NSIsEmptyRect(NSZeroRect), nil);
 	STAssertFalse(NSIsEmptyRect(rect), nil);
-	// negative width/height?
 	STAssertTrue(NSEqualRects(rect, rect), nil);
 	STAssertFalse(NSEqualRects(rect, NSZeroRect), nil);
+	STAssertEqualObjects(NSStringFromRect(rect), @"{{10, 20}, {30, 42.2}}", nil);
+	STAssertTrue(NSEqualRects(NSRectFromString(@"{{10, 20}, {30, 42.2}}"), rect), nil);
+	STAssertTrue(NSEqualRects(NSRectFromString(@" { { 1e1, 20.000}, { 0030, 42.200}  }  "), rect), nil);
+	// check wraping into NSValue
 	// check intersection
 	// check inset
 	// check union (with empty and non-empty rect)
 	// check containsRect
 	// check NSDivideRect
-	STAssertEqualObjects(NSStringFromRect(rect), @"{{10, 20}, {30, 42.2}}", nil);
-	STAssertTrue(NSEqualRects(NSRectFromString(@"{{10, 20}, {30, 42.2}}"), rect), nil);
-	STAssertTrue(NSEqualRects(NSRectFromString(@" { { 1e1, 20.000}, { 0030, 42.200}  }  "), rect), nil);
-	// check warpping into NSValue
+	rect=NSMakeRect(10, 20, -30, 42.2);
+	STAssertTrue(NSIsEmptyRect(rect), nil);	// negative width is empty
+	rect=NSMakeRect(10, 20, -30, -42.2);
+	STAssertTrue(NSIsEmptyRect(rect), nil);	// negative height is empty
+	rect=NSMakeRect(10, 20, 0, -42.2);
+	STAssertTrue(NSIsEmptyRect(rect), nil);	// zero with is nempty
 }
 
-- (void) test11
+- (void) test20
 {
 	NSPoint point=NSMakePoint(10, 20.2);
 	STAssertEquals(point.x, 10.f, nil);
@@ -60,19 +65,40 @@
 	STAssertTrue(NSEqualPoints(NSPointFromString(@"  { 1e1, 20.200}  "), point), nil);
 }
 
+- (void) test30
+{
+	NSSize size=NSMakeSize(10, 20.2);
+	STAssertEquals(size.width, 10.f, nil);
+	STAssertEquals(size.height, 20.2f, nil);
+	STAssertEquals(NSZeroSize.width, 0.f, nil);
+	STAssertEquals(NSZeroSize.height, 0.f, nil);
+	STAssertTrue(NSEqualSizes(size, size), nil);
+	STAssertFalse(NSEqualSizes(size, NSZeroSize), nil);
+	STAssertEqualObjects(NSStringFromSize(size), @"{10, 20.2}", nil);
+	STAssertTrue(NSEqualSizes(NSSizeFromString(@"{10, 20.2}"), size), nil);
+	STAssertTrue(NSEqualSizes(NSSizeFromString(@"  { 1e1, 20.200}  "), size), nil);
+}
+
 // same for NSSize, NSPoint, NSRange
 // check point in rect (corner cases!), location in range 
 
-- (void) test20
+- (void) test60
 {
-	// 	STAssertEquals(NSUserName(), [NSString stringWithUTF8String:getenv("HOME")], nil);
+	STAssertEqualObjects(NSUserName(), [NSString stringWithUTF8String:getenv("LOGNAME")], nil);
+#ifdef __mySTEP__
+	STAssertEqualObjects(NSHomeDirectory(), @"/Users/user", nil);
+	STAssertEqualObjects(NSHomeDirectoryForUser(NSUserName()), @"/Users/user", nil);
+#else
 	STAssertEqualObjects(NSHomeDirectory(), [NSString stringWithUTF8String:getenv("HOME")], nil);
 	STAssertEqualObjects(NSHomeDirectoryForUser(NSUserName()), [NSString stringWithUTF8String:getenv("HOME")], nil);
+#endif
+	STAssertNotNil(NSHomeDirectoryForUser(@"root"), nil);
+	STAssertNil(NSHomeDirectoryForUser(@"*unknown-user*"), nil);
 	STAssertEqualObjects(NSOpenStepRootDirectory(), @"/", nil);
 	// STAssertEquals(NSTemporaryDirectory(), @"/", nil);
 }
 
-- (void) test30
+- (void) test70
 {
 	STAssertEqualObjects(NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, NO), ([NSArray arrayWithObjects:@"~/Documents", nil]), nil);
 	STAssertEqualObjects(NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES), ([NSArray arrayWithObjects:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"], nil]), nil);

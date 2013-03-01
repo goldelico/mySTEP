@@ -89,7 +89,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		virtualRoot=[NSString stringWithUTF8String:[@"/" fileSystemRepresentation]];
 		vrl=[virtualRoot length]-1;
 //		fprintf(stderr, " vRoot=%p\n", virtualRoot);
-#if 0
+#if 1
 		NSLog(@"args=%@", [pi arguments]);
 		NSLog(@"$0=%@", path);
 		NSLog(@"virtualRoot=%@", virtualRoot);
@@ -110,7 +110,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 				else if([basepath length] == 0 || [basepath isEqualToString:@"."])	// ignore .. in $PATH entry for security reasons!
 					basepath=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// $PATH entry denotes relative location
 				p=[basepath stringByAppendingPathComponent:path];
-#if 0
+#if 1
 				NSLog(@"check %@", p);
 #endif
 				if([fm fileExistsAtPath:p])
@@ -127,7 +127,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 			path=[__launchCurrentDirectory stringByAppendingPathComponent:path];	// denotes relative location
 		if([path hasPrefix:virtualRoot])
 			path=[path substringFromIndex:vrl];	// strip off - just in case...
-#if 0
+#if 1
 		NSLog(@"check for executable at %@", path);
 #endif
 		if(![fm fileExistsAtPath:path])
@@ -139,11 +139,13 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 		if([[path lastPathComponent] isEqualToString:@"."])
 			path = [path stringByDeletingLastPathComponent];	// was called as ./executable
 #ifdef __mySTEP__
-		// should be made conditionally so that we can access a binary tool like 'open' or 'defaults' as mainBundle
-		path = [path stringByDeletingLastPathComponent];		// Strip off the name of the processor
-		path = [path stringByDeletingLastPathComponent];		// Strip off 'Contents'
+		if([[[path stringByDeletingLastPathComponent] lastPathComponent] isEqualToString:@"Contents"])
+			{
+			path = [path stringByDeletingLastPathComponent];		// Strip off the name of the processor
+			path = [path stringByDeletingLastPathComponent];		// Strip off 'Contents'
+			}
 #endif
-#if 0
+#if 1
 		NSLog(@"NSBundle: main bundle path is %@", path);
 #endif
 #if 0
@@ -249,7 +251,7 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 
 	if (![[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isdir] || !isdir)
 		{
-#if 0
+#if 1
 		NSLog(@"Could not access path %@ for bundle", path);
 #endif
 		[self release];
@@ -272,35 +274,14 @@ void _bundleLoadCallback(Class theClass, Category *theCategory);
 #if 0	// does not work for Framework bundles because the default Info.plist is in _bundleContentPath/Resources
 	if (![[NSFileManager defaultManager] fileExistsAtPath:[_bundleContentPath stringByAppendingPathComponent:@"Info.plist"]])
 		{
-#if 0
+#if 1
 		NSLog(@"Could not find Info.plist for bundle %@", path);
 #endif
 		[self release];
 		return nil;
 		}
 #endif
-
-#if 0
-	NSLog(@"_bundleContentPath=%@", _bundleContentPath);
-#endif
-	NSMapInsert(__bundles, _path, self);	// map by bundle path (retains!)
 	
-	// CHECKME: __bundlesForExecutables uses a C string (absolute file name) as the key
-	// we may have to use the fileSystemRepresentation to be useful!
-	
-#if 0
-	{
-	NSString *exec;
-	if((exec=[self executablePath]))
-		{ // we have a executable
-#if 0
-			NSLog(@"info dict=%@", [self infoDictionary]);
-			NSLog(@"[bundle executablePath]=%@", exec);
-#endif
-			NSMapInsert(__bundlesForExecutables, exec, self);	// map by executable path (retains!)			
-		}
-	}
-#endif	
 	return self;
 }
 

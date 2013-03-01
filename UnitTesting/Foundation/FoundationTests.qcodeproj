@@ -13,6 +13,7 @@ export SOURCES+=" NSPredicateTest.m"
 export SOURCES+=" NSScannerTest.m"
 export SOURCES+=" NSStringTest.m"
 export SOURCES+=" NSURLTest.m"
+export SOURCES+=" NSValueTest.m"
 export WRAPPER_EXTENSION="octest"
 
 # project settings
@@ -21,6 +22,7 @@ export WRAPPER_EXTENSION="octest"
 #export INSTALL=true                # true (or empty) will install locally to $ROOT/$INSTALL_PATH
 #export SEND2ZAURUS=true		   # true (or empty) will try to install on the Zaurus at /$INSTALL_PATH (using ssh)
 #export RUN=true                    # true (or empty) will finally try to run on the Zaurus (using X11 on host)
+
 
 
 

@@ -165,12 +165,12 @@ static NSUserDefaults *__sharedDefaults = nil;
 
 - (id) init	{ return [self initWithUser:NSUserName()]; }
 
-- (id) initWithUser:(NSString *)userName
+- (id) initWithUser:(NSString *) userName
 { // Initializes defaults for the specified user - empty search list unless we initialize the sharedDefaults
 	NSString *home;
 	if (!(home = NSHomeDirectoryForUser(userName)))
 		{
-		NSLog(@"NSUserDefaults: invalid user name'%@'", userName);
+		NSLog(@"NSUserDefaults: invalid user name '%@'", userName);
 		[self release];
 		return nil;
 		}
@@ -189,7 +189,7 @@ static NSUserDefaults *__sharedDefaults = nil;
 	[_tempDomains setObject:[NSMutableDictionary dictionaryWithCapacity:10] forKey:@"English"];
 	[_tempDomains setObject:[self _createArgumentDictionary] forKey:NSArgumentDomain];
 	[_tempDomains setObject:[NSMutableDictionary dictionaryWithCapacity:10] forKey:NSRegistrationDomain];	
-	_persDomains = [[NSMutableDictionary dictionaryWithCapacity:10] retain];	// set persistent domains cache
+	_persDomains = [[NSMutableDictionary dictionaryWithCapacity:10] retain];	// create persistent domains cache
 	return self;
 }
 

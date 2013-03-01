@@ -274,6 +274,9 @@ const char *type = [self objCType];
 
 - (BOOL) isEqualToValue:(NSValue*)aValue
 {
+//	NSLog(@"self=%@", self);
+//	NSLog(@"aValue=%@", aValue);
+	
     if ([aValue isKindOfClass: [self class]]) 
 		return [data isEqual: [aValue nonretainedObjectValue]];
 
