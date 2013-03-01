@@ -235,7 +235,7 @@ do { \
 		id a1value = (a1); \
 			if (a1value != nil) { \
 				NSString *_a1 = [NSString stringWithCString: #a1]; \
-				NSString *_expression = [NSString stringWithFormat:@"((%@) != nil)", _a1]; \
+				NSString *_expression = [NSString stringWithFormat:@"((%@) == nil)", _a1]; \
 				[self failWithException:[NSException failureInCondition: _expression \
 																 isTrue: NO \
 																 inFile: [NSString stringWithCString:__FILE__] \
