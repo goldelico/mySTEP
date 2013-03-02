@@ -2341,11 +2341,11 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	if(cnt > 1 && [[components objectAtIndex:cnt-1] isEqualToString:@"/"])	// path ends (but does not start) in /
 		return [components objectAtIndex:cnt-2];
 	return [components objectAtIndex:cnt-1];
-
+	
 #if OLD
 	NSRange range;
 	NSString *substring = nil;
-
+	
 	range = [self rangeOfCharacterFromSet:pathSeps options:NSBackwardsSearch];
 #if 0
 	fprintf(stderr, [[NSString stringWithFormat:@"range=%@ self=%@\n", NSStringFromRange(range), self] UTF8String]);
@@ -2354,11 +2354,11 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		substring = [[self copy] autorelease];
 	else  if (range.location == (_count - 1))
 		{ // ends in /
-		if (range.location == 0)
-			substring = @"/";	// pure /
-		else
-			substring = [[self substringToIndex:range.location] 
-							lastPathComponent];	// take last path component before trailing /
+			if (range.location == 0)
+				substring = @"/";	// pure /
+			else
+				substring = [[self substringToIndex:range.location] 
+							 lastPathComponent];	// take last path component before trailing /
 		}
 	else
 		substring = [self substringFromIndex:range.location + 1];
@@ -2393,12 +2393,12 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	NSMutableArray *s=[[[self pathComponents] mutableCopy] autorelease];
 	NSArray *a=[aString pathComponents];
 	[s addObjectsFromArray:a];	// append
-//	NSLog(@"a=%@", s);
+	//	NSLog(@"a=%@", s);
 	return [[self class] pathWithComponents:s];
 #if OLD
 	NSRange range;
 	NSString *newstring;
-
+	
 	if ([aString length] == 0)
 		return [[self copy] autorelease];
 	
@@ -2420,14 +2420,16 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 { // returns a new string with the path extension given in aString appended to the receiver
 	NSMutableArray *a=[[[self pathComponents] mutableCopy] autorelease];
 	NSString *last;
-	NSLog(@"0=%@", a);
+	//	NSLog(@"0=%@", a);
 	if([a count] > 1 && [[a lastObject] isEqualToString:pathSepString])
 		[a removeLastObject];
 	last=[a lastObject];
-	NSLog(@"a=%@", a);
-	if([last length] != 0)
+	//	NSLog(@"a=%@", a);
+	if([last isEqualToString:pathSepString])
+		return self;	// don't modify!
+	if([last length] != 0)	// don't return /.ext
 		[a replaceObjectAtIndex:[a count]-1 withObject:[NSString stringWithFormat:@"%@.%@", last, aString]];
-	NSLog(@"b=%@", a);
+	//	NSLog(@"b=%@", a);
 	return [[self class] pathWithComponents:a];
 #if OLD
 	NSRange range; 
@@ -2453,7 +2455,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 {
 	NSMutableArray *components=[[self pathComponents] mutableCopy];
 	unsigned int cnt=[components count];
-//	NSLog(@"c=%@", components);
+	//	NSLog(@"c=%@", components);
 	if(cnt > 0)
 		{
 		if(cnt > 1 && [[components objectAtIndex:cnt-1] isEqualToString:@"/"])	// path ends in /
@@ -2461,7 +2463,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		if(cnt > 1 || ![[components objectAtIndex:cnt-1] isEqualToString:@"/"])
 			[components removeLastObject];	// remove path component unless we are the first and a /		
 		}
-//	NSLog(@"d=%@", components);
+	//	NSLog(@"d=%@", components);
 	return [[self class] pathWithComponents:[components autorelease]];
 	
 #if OLD
@@ -2470,7 +2472,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	while([str hasSuffix:@"/"])
 		str=[str substringToIndex:[str length]-1];	// strip off / characters
 	range = [str rangeOfString:[self lastPathComponent] 
-								options:NSBackwardsSearch];
+					   options:NSBackwardsSearch];
 #if 0
 	fprintf(stderr, "%s\n", [[NSString stringWithFormat:@"range=%@ lpath=%@ self=%@", NSStringFromRange(range), [self lastPathComponent], self] UTF8String]);
 #endif
@@ -2501,7 +2503,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (NSString *) stringByExpandingTildeInPath
 {
 	NSMutableArray *path=[[[self pathComponents] mutableCopy] autorelease];
-	NSString *first=[path objectAtIndex:0]; // exists even for "/"
+	unsigned int cnt=[path count];
+	NSString *first=cnt > 0 ? [path objectAtIndex:0] : nil; // exists even for "/" - except vor ""
 	if([first hasPrefix:@"~"])
 		{
 		if([first isEqualToString:@"~"])
@@ -2513,20 +2516,24 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				[path replaceObjectAtIndex:0 withObject:home];   // replace ~user - if it exists
 			}
 		}
-	if([path count] >= 2 && [[path objectAtIndex:[path count]-1] isEqualToString:@"/"])
+	if(cnt >= 2 && [[path objectAtIndex:cnt-1] isEqualToString:@"/"])
 		[path removeLastObject];	// remove traling /
 	return [[self class] pathWithComponents:path];  // join together
 }
 
 - (NSString*) stringByAbbreviatingWithTildeInPath
 {
-	NSString *homedir = NSHomeDirectory();
-	
-	if (![self hasPrefix: homedir])
-		return [[self copy] autorelease];
-	
-	return [NSString stringWithFormat: @"~%c%@", (char)pathSepChar,
-			[self substringFromIndex: [homedir length] + 1]];
+	NSString *hd=NSHomeDirectory();
+	NSArray *hdc=[hd pathComponents];
+	NSArray *path=[self pathComponents];
+	NSString *s;
+	NSEnumerator *e=[hdc objectEnumerator], *f=[path objectEnumerator];
+	while((s=[e nextObject]))
+		{
+		if(![s isEqualToString:[f nextObject]])
+			return [[self class] pathWithComponents:path];	// not prefixed
+		}
+	return [@"~" stringByAppendingPathComponent:[self substringFromIndex:[hd length]]];	// make path after stripping of home dir
 }
 
 - (NSString*) stringByResolvingSymlinksInPath
@@ -2585,6 +2592,28 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSString*) stringByStandardizingPath
 {
+	NSMutableArray *c=[[[[self stringByExpandingTildeInPath] pathComponents] mutableCopy] autorelease];
+	unsigned int cnt=[c count];
+	unsigned int i;
+//	NSLog(@"a=%@", c);
+	BOOL isAbsolute=cnt > 0 && [[c objectAtIndex:0] isEqualToString:pathSepString];
+	for(i=(isAbsolute?1:0); i < cnt; i++)
+		{
+		NSString *component=[c objectAtIndex:i];
+//		NSLog(@"i=%u cnt=%u c=%@", i, cnt, component);
+		if(cnt >= (isAbsolute?3:2) && [component isEqualToString:@"."])
+			[c removeObjectAtIndex:i], i--, cnt--;	// remove ./
+		else if(isAbsolute && [component isEqualToString:@".."])
+			{
+			if(i >= 2)
+				[c removeObjectsInRange:NSMakeRange(i-1, 2)], i--, cnt-=2;	// remove something/../
+			else
+				[c removeObjectAtIndex:1], i--, cnt--;	// remove .. from /..
+			}
+		}
+//	NSLog(@"c=%@", c);
+	return [[self class] pathWithComponents:c];
+#if OLD
 	NSMutableString *s = [[self stringByExpandingTildeInPath] mutableCopy]; // Expand `~' in path
 	NSRange search = {0, [s length]};
 	NSRange found = [s rangeOfString:@"//" options:NSLiteralSearch range:search];
@@ -2627,6 +2656,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		}
 	
 	return [s autorelease];
+#endif
 }
 
 - (NSString *) stringByTrimmingCharactersInSet:(NSCharacterSet *) set
@@ -2650,8 +2680,9 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 // private methods for Unicode level 3 implementation
 - (int) _baseLength					{ return 0; } 
 
-// FIXME: it could be more efficient to count the components and estimate their total size
-// and directly operate on the unicode characters
+// FIXME: we could define a NSPathComponentsString which has a NSMutableArray iVar
+// to speed up successive path operations on the components
+// and convert it back to a pure NSString by -string or any other primitive operation
 
 + (NSString*) pathWithComponents:(NSArray*)components
 {
@@ -2692,7 +2723,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (BOOL) isAbsolutePath
 {
-    return (_count > 0 && [self hasPrefix:pathSepString]);
+	return (_count > 0 && [self hasPrefix:pathSepString]);
 }
 
 - (NSArray*) pathComponents
@@ -2701,26 +2732,26 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	NSArray *r;
 	int	i = [a count];
 	
-    if (i > 0) 
+	if (i > 0) 
 		{
 		BOOL isAbsolute=NO;	// path is absolute
-//		NSLog(@"a=%@", a);
-			if (i > 1 && [[a objectAtIndex: 0] length] == 0)
-				// If the path began with a '/' then the first path component must be a '/' rather than an empty string
-				[a replaceObjectAtIndex: 0 withObject: pathSepString], isAbsolute=YES;
-			if (i > 1 && [[a objectAtIndex: i-1] length] == 0 && !(isAbsolute && i == 2))
-				// If the path did end with a '/' then the last path component must be a '/' rather than an empty string - except for a "/" string
-				[a replaceObjectAtIndex: i-1 withObject: pathSepString];
-//		NSLog(@"b=%@", a);
-			for (i = i - 1; i >= 0; i--) 
-				{ // remove empty path components
-					if ([[a objectAtIndex: i] length] == 0) 
-						[a removeObjectAtIndex: i];
-				}
-//		NSLog(@"c=%@", a);
+		//		NSLog(@"a=%@", a);
+		if (i > 1 && [[a objectAtIndex: 0] length] == 0)
+			// If the path began with a '/' then the first path component must be a '/' rather than an empty string
+			[a replaceObjectAtIndex: 0 withObject: pathSepString], isAbsolute=YES;
+		if (i > 1 && [[a objectAtIndex: i-1] length] == 0 && !(isAbsolute && i == 2))
+			// If the path did end with a '/' then the last path component must be a '/' rather than an empty string - except for a "/" string
+			[a replaceObjectAtIndex: i-1 withObject: pathSepString];
+		//		NSLog(@"b=%@", a);
+		for (i = i - 1; i >= 0; i--) 
+			{ // remove empty path components
+				if ([[a objectAtIndex: i] length] == 0) 
+					[a removeObjectAtIndex: i];
+			}
+		//		NSLog(@"c=%@", a);
 		}
-    r = [a copy];	// return an immutable copy
-    [a release];
+	r = [a copy];	// return an immutable copy
+	[a release];
 	return [r autorelease];
 }
 
@@ -2729,20 +2760,11 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	NSMutableArray *a = [[NSMutableArray alloc] initWithCapacity: [paths count]];
 	NSArray *r;
 	int i;
-	
-    for (i = 0; i < [paths count]; i++) 
-		{
-		NSString *s = [paths objectAtIndex: i];
-		
-		while ([s isAbsolutePath]) 
-			s = [s substringFromIndex: 1];
-		
-		[a addObject: [self stringByAppendingPathComponent: s]];
-		}
+	for (i = 0; i < [paths count]; i++) 
+		[a addObject: [self stringByAppendingPathComponent: [paths objectAtIndex: i]]];
 	r = [a copy];
-	[a release];
-	
-    return [r autorelease];
+	[a release];	
+	return [r autorelease];
 }
 
 - (NSComparisonResult) caseInsensitiveCompare:(NSString*)aString
@@ -3003,7 +3025,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	_count = length;
 	_uniChars = chars;
 	_freeWhenDone = flag;
-    return self;
+	return self;
 }
 
 - (id) initWithCStringNoCopy:(char*)byteString
@@ -3320,7 +3342,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	_count = length;
 	_uniChars = chars;
 	_freeWhenDone = flag;
-    return self;
+	return self;
 }
 
 - (id) initWithCapacity:(unsigned)capacity
@@ -3330,7 +3352,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	_uniChars = objc_malloc(sizeof(unichar) * _capacity);
 	_freeWhenDone = YES;
 	
-    return self;
+	return self;
 }
 
 - (id) initWithCStringNoCopy:(char*)byteString
@@ -3723,7 +3745,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		[NSException raise: NSMallocException format: @"Unable to allocate"];
 	[string getCString: buf];
 	buf[length]=0;
-    return [self initWithCStringNoCopy:buf length:length freeWhenDone:YES];
+	return [self initWithCStringNoCopy:buf length:length freeWhenDone:YES];
 }
 
 - (void) dealloc
@@ -3755,7 +3777,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		return YES;
 #ifndef __APPLE__
 	
-    if ((obj != nil) && (CLS_ISCLASS(((Class)obj)->class_pointer))) 
+	if ((obj != nil) && (CLS_ISCLASS(((Class)obj)->class_pointer))) 
 		{
 		Class c = ((Class)obj)->class_pointer;
 		
@@ -3804,7 +3826,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 			}	}
 #endif
 	
-    return NO;
+	return NO;
 }
 
 - (BOOL) isEqualToString:(NSString*)aString
@@ -3812,7 +3834,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	if (aString == self)
 		return YES;
 	
-    if ((aString != nil) && (CLS_ISCLASS(((Class)aString)->class_pointer))) 
+	if ((aString != nil) && (CLS_ISCLASS(((Class)aString)->class_pointer))) 
 		{
 #ifndef __APPLE__
 		
@@ -3867,7 +3889,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSStringEncoding) fastestEncoding
 {
-    return ((__cStringEncoding == NSASCIIStringEncoding) || (__cStringEncoding == NSISOLatin1StringEncoding)) 
+	return ((__cStringEncoding == NSASCIIStringEncoding) || (__cStringEncoding == NSISOLatin1StringEncoding)) 
 	? __cStringEncoding : NSUnicodeStringEncoding;
 }
 
@@ -3900,7 +3922,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		return YES;
 #ifndef __APPLE__
 	
-    if ((obj != nil) && (CLS_ISCLASS(((Class)obj)->class_pointer))) 
+	if ((obj != nil) && (CLS_ISCLASS(((Class)obj)->class_pointer))) 
 		{
 		Class c = ((Class)obj)->class_pointer;
 		
@@ -3928,7 +3950,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 				return YES;
 			}	}
 #endif
-    return NO;
+	return NO;
 }
 
 - (BOOL) isEqualToString:(NSString*)aString

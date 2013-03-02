@@ -628,11 +628,24 @@
 	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/file/../", [url description]);
 	url=[NSURL URLWithString:@"file:hello/there/file/.."];
 	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/there/file/..", [url description]);
+	url=[NSURL URLWithString:@"file:hello/.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/..", [url description]);
+	url=[NSURL URLWithString:@"file:hello/../.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/../..", [url description]);
+	url=[NSURL URLWithString:@"file:hello/../../.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:hello/../../..", [url description]);
+	url=[NSURL URLWithString:@"file:/.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///", [url description]);
+	url=[NSURL URLWithString:@"file:/../.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///", [url description]);
+	url=[NSURL URLWithString:@"file:/../../.."];
+	STAssertEqualObjects([[url standardizedURL] description], @"file:///", [url description]);
 	/* conclusions
 	 * ./ are removed (or simple trailing .)
 	 * /.. removes parent but only for absolute paths or if base is defined (!)
 	 * /. and /.. must be followed by / or end of string
 	 * standardization adds an empty host // for absolute paths
+	 * for absolute paths, we can reduce /.. to /
 	 */
 }
 

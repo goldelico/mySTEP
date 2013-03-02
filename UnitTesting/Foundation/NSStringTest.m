@@ -132,6 +132,17 @@ TEST1(10, @"...tiff", pathExtension, @"tiff");
 	 */
 }
 
+TEST1(01, (NSHomeDirectory()), stringByAbbreviatingWithTildeInPath, @"~");
+TEST1(02, ([NSHomeDirectory() stringByAppendingPathComponent:@"Documents"]), stringByAbbreviatingWithTildeInPath, @"~/Documents");
+TEST1(02b, ([NSHomeDirectory() stringByAppendingString:@"/Documents/"]), stringByAbbreviatingWithTildeInPath, @"~/Documents");	// trailing / removed
+TEST1(02c, ([NSHomeDirectory() stringByAppendingString:@"//Documents///"]), stringByAbbreviatingWithTildeInPath, @"~/Documents");	// blank components standardized
+TEST1(02d, ([NSHomeDirectory() stringByAppendingString:@"/Documents//.."]), stringByAbbreviatingWithTildeInPath, @"~/Documents/..");	// // reduced
+TEST1(02e, ([NSHomeDirectory() stringByAppendingString:@"/Documents/./.."]), stringByAbbreviatingWithTildeInPath, @"~/Documents/./..");	// // reduced
+TEST1(03, (NSHomeDirectoryForUser(@"root")), stringByAbbreviatingWithTildeInPath, NSHomeDirectoryForUser(@"root"));	// not abbreviated
+TEST1(04, ([NSString stringWithFormat:@"////%@//Documents///", NSHomeDirectory()]), stringByAbbreviatingWithTildeInPath, @"~/Documents");	// is standardized
+TEST1(05, ([NSString stringWithFormat:@"//////Documents///"]), stringByAbbreviatingWithTildeInPath, @"/Documents");	// path is simplified even if it does not match
+TEST1(06, ([NSString stringWithFormat:@".//////Documents///"]), stringByAbbreviatingWithTildeInPath, @"./Documents");	// path is simplified even if it does not match
+
 TEST2(01, @"/tmp", stringByAppendingPathComponent, @"file", @"/tmp/file");
 TEST2(02, @"/tmp/", stringByAppendingPathComponent, @"file", @"/tmp/file");
 TEST2(03, @"", stringByAppendingPathComponent, @"file", @"file");
@@ -201,7 +212,7 @@ TEST1(01a, @"~root", stringByExpandingTildeInPath, NSHomeDirectoryForUser(@"root
 TEST1(02a, @"~root/", stringByExpandingTildeInPath, NSHomeDirectoryForUser(@"root"));
 TEST1(03a, @"~root/blah", stringByExpandingTildeInPath, [NSHomeDirectoryForUser(@"root") stringByAppendingPathComponent:@"blah"]);
 TEST1(04a, @"~root/blah/", stringByExpandingTildeInPath, [NSHomeDirectoryForUser(@"root") stringByAppendingPathComponent:@"blah"]);
-// this assumes that the user does NOT exist!
+// this test assumes that the user does NOT exist!
 TEST1(01b, @"~unknownuser", stringByExpandingTildeInPath, @"~unknownuser");
 TEST1(02b, @"~unknownuser/", stringByExpandingTildeInPath, @"~unknownuser");
 TEST1(03b, @"~unknownuser/blah", stringByExpandingTildeInPath, @"~unknownuser/blah");
@@ -211,11 +222,42 @@ TEST1(05, @"other", stringByExpandingTildeInPath, @"other");
 TEST1(06, @"/other", stringByExpandingTildeInPath, @"/other");
 TEST1(06a, @"/", stringByExpandingTildeInPath, @"/");
 TEST1(06b, @"/other/", stringByExpandingTildeInPath, @"/other");	// always strips off trailing /
-TEST1(06c, @"////other////", stringByExpandingTildeInPath, @"/other");	// always strips off trailing /
+TEST1(06c, @"////other////", stringByExpandingTildeInPath, @"/other");	// merges multiple /
 TEST1(07, @"/~other", stringByExpandingTildeInPath, @"/~other");	// ~must be first character
 TEST1(07b, @" ~/other", stringByExpandingTildeInPath, @" ~/other");	// ~must be first character
+TEST1(08, @"", stringByExpandingTildeInPath, @"");	// empty
 
-// stringByStandardizingPath -- check similar corner cases as for URLs
+TEST1(01, @"/path", stringByStandardizingPath, @"/path");
+TEST1(02, @"/path/", stringByStandardizingPath, @"/path");	// trailing / removed
+TEST1(03, @"path/", stringByStandardizingPath, @"path");	// trailing / removed
+TEST1(04, @"", stringByStandardizingPath, @"");
+TEST1(05, @"//path", stringByStandardizingPath, @"/path");
+TEST1(06, @"/path///", stringByStandardizingPath, @"/path");
+TEST1(07, @"/path/..", stringByStandardizingPath, @"/");	// .. resolved
+TEST1(08, @"/path/down/..", stringByStandardizingPath, @"/path");
+TEST1(09, @"/..", stringByStandardizingPath, @"/");	// initial .. removed - for absolute paths only
+TEST1(10, @"/path/../", stringByStandardizingPath, @"/");
+TEST1(11, @"/path/down/../", stringByStandardizingPath, @"/path");
+TEST1(12, @"/../", stringByStandardizingPath, @"/");
+TEST1(13, @"/path/./", stringByStandardizingPath, @"/path");
+TEST1(14, @"/path/down/./", stringByStandardizingPath, @"/path/down");
+TEST1(15, @"/./", stringByStandardizingPath, @"/.");	// /. is not removed
+TEST1(15a, @"/./path", stringByStandardizingPath, @"/path");	// remove .
+TEST1(16, @"./", stringByStandardizingPath, @".");
+TEST1(16a, @"./path", stringByStandardizingPath, @"path");
+TEST1(16b, @"./path/.", stringByStandardizingPath, @"path");
+TEST1(17, @"/.", stringByStandardizingPath, @"/.");	// keep . after root (special case)
+TEST1(17b, @"path/.", stringByStandardizingPath, @"path");
+TEST1(19, @"./..", stringByStandardizingPath, @"..");	// initial ./ is removed but not final ..
+TEST1(19b, @"./.", stringByStandardizingPath, @".");	// initial ./ is removed
+TEST1(20, @"./../", stringByStandardizingPath, @"..");
+TEST1(20b, @"./../../..", stringByStandardizingPath, @"../../..");
+TEST1(20c, @"down/../../..", stringByStandardizingPath, @"down/../../..");
+TEST1(20d, @"down/../other/../..", stringByStandardizingPath, @"down/../other/../..");	// ../ is only reduced for absolute paths!
+TEST1(20e, @"down/..//./other/../..", stringByStandardizingPath, @"down/../other/../..");	// ./ and // are always reduced
+TEST1(20f, @"/../../..", stringByStandardizingPath, @"/");	// for absolute paths only
+TEST1(21, @"~/path", stringByStandardizingPath, [NSHomeDirectory() stringByAppendingPathComponent:@"path"]);	// ~ is also expanded
+TEST1(22, @"/../path/down/", stringByStandardizingPath, @"/path/down");	// implicitly assumes that /.. is the same as /
 
 // add many more such tests
 
