@@ -2488,9 +2488,30 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 
 - (NSString*) stringByDeletingPathExtension
 {
+	NSMutableArray *components=[[self pathComponents] mutableCopy];
+	unsigned int cnt=[components count];
+//	NSLog(@"c=%@", components);
+	if(cnt > 0)
+		{
+		NSString *last;
+		NSRange rng;
+		if(cnt > 1 && [[components objectAtIndex:cnt-1] isEqualToString:@"/"])	// path ends in /
+			cnt--, [components removeLastObject];	// remove trailing /
+		last=[components objectAtIndex:cnt-1];
+		rng=[last rangeOfString:@"." options:NSBackwardsSearch];
+		if(rng.location != NSNotFound && NSMaxRange(rng) > 1)
+			{
+			last=[last substringToIndex:NSMaxRange(rng)-1];	// delete last . only
+			[components replaceObjectAtIndex:cnt-1 withObject:last];
+			}
+		}
+//	NSLog(@"d=%@", components);
+	return [[self class] pathWithComponents:[components autorelease]];
+#if OLD
 	NSRange range = [self rangeOfString:[self pathExtension] 
 								options:NSBackwardsSearch];
 	return (range.length != 0) ? [self substringToIndex:range.location-1] : [[self copy] autorelease];
+#endif
 }
 
 // ~			NSHomeDir()
@@ -2526,6 +2547,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	NSString *hd=NSHomeDirectory();
 	NSArray *hdc=[hd pathComponents];
 	NSArray *path=[self pathComponents];
+	NSArray *r;
 	NSString *s;
 	NSEnumerator *e=[hdc objectEnumerator], *f=[path objectEnumerator];
 	while((s=[e nextObject]))
@@ -2533,7 +2555,10 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		if(![s isEqualToString:[f nextObject]])
 			return [[self class] pathWithComponents:path];	// not prefixed
 		}
-	return [@"~" stringByAppendingPathComponent:[self substringFromIndex:[hd length]]];	// make path after stripping of home dir
+	r=[f allObjects];	// all remaining components
+	if([r count] == 0)
+		return @"~";	// no remaining (sub) path
+	return [@"~/" stringByAppendingString:[[self class] pathWithComponents:r]];	// make path from remaining components
 }
 
 - (NSString*) stringByResolvingSymlinksInPath
