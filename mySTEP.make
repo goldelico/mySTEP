@@ -107,9 +107,9 @@ endif
 
 # FIXME: zaurusconnect (rename to zrsh) should simply know how to access the currently selected device
 
-DOWNLOAD := $(EMBEDDED_ROOT)/System/Sources/System/Tools/ZMacSync/ZMacSync/build/Development/ZMacSync.app/Contents/MacOS/zaurusconnect -l 
+DOWNLOAD := $(QuantumSTEP)/System/Sources/System/Tools/ZMacSync/ZMacSync/build/Development/ZMacSync.app/Contents/MacOS/zaurusconnect -l 
 
-ROOT:=/usr/share/QuantumSTEP
+ROOT:=$(QuantumSTEP)
 
 # tools
 # use platform specific cross-compiler
@@ -134,17 +134,16 @@ TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true /usr/bin/gnu
 # TAR := $(TOOLS)/gnutar-1.13.25	# use older tar that does not know about ._ resource files
 # TAR := $(ROOT)/this/bin/gnutar
 
-# if we call the makefile not within Xcode
-ifeq ($(BUILT_PRODUCTS_DIR),)
-BUILT_PRODUCTS_DIR=/tmp
-endif
-ifeq ($(TARGET_BUILD_DIR),)
-TARGET_BUILD_DIR=/tmp
-endif
-
-# aggregate target
+# Xcode aggregate target
 ifeq ($(PRODUCT_NAME),All)
 PRODUCT_NAME=$(PROJECT_NAME)
+endif
+# if we call the makefile not within Xcode
+ifeq ($(BUILT_PRODUCTS_DIR),)
+BUILT_PRODUCTS_DIR=/tmp/$(PRODUCT_NAME)/
+endif
+ifeq ($(TARGET_BUILD_DIR),)
+TARGET_BUILD_DIR=/tmp/$(PRODUCT_NAME)/
 endif
 
 ## FIXME: handle meta packages without WRAPPER_EXTENSION; PRODUCT_NAME = "All" ?
@@ -212,7 +211,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 		esac; \
 		echo "*** building for $$DEBIAN_ARCH using xtc $$ARCHITECTURE ***"; \
 		export DEBIAN_ARCH="$$DEBIAN_ARCH"; \
-		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_deb; \
+		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_deb; \
 		done
 endif
 ifneq ($(ARCHITECTURES),)
@@ -222,7 +221,7 @@ ifneq ($(ARCHITECTURES),)
 		echo "*** building for $$ARCH ***"; \
 		export ARCHITECTURE="$$ARCH"; \
 		export ARCHITECTURES="$$ARCHITECTURES"; \
-		make -f $(ROOT)/System/Sources/Frameworks/mySTEP.make build_architecture; \
+		make -f $(QuantumSTEP)/System/Sources/Frameworks/mySTEP.make build_architecture; \
 		done
 endif
 
@@ -264,6 +263,15 @@ OPTIMIZE := 3
 CFLAGS += -fno-section-anchors -ftree-vectorize -mfpu=neon -mfloat-abi=softfp
 endif
 
+## FIXME: we need different prefix paths on compile host and embedded!
+HOST_INSTALL_PATH := $(QuantumSTEP)/$(INSTALL_PATH)
+## prefix by $ROOT unless starting with //
+ifneq ($(findstring //,$(INSTALL_PATH)),//)
+TARGET_INSTALL_PATH := $(EMBEDDED_ROOT)/$(INSTALL_PATH)
+else
+TARGET_INSTALL_PATH := $(INSTALL_PATH)
+endif
+
 # check if embedded device responds
 ifneq ($(SEND2ZAURUS),false) # check if we can reach the device
 ifneq "$(shell ping -qc 1 $(IP_ADDR) | fgrep '1 packets received' >/dev/null && echo yes)" "yes"
@@ -285,33 +293,6 @@ INCLUDES := $(INCLUDES) \
 		-I$(shell sh -c 'echo $(ROOT)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
 		-I$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 
-ifeq ($(PRODUCT_NAME),Foundation)
-FMWKS := $(addprefix -l,$(FRAMEWORKS))
-else
-ifeq ($(PRODUCT_NAME),AppKit)
-FMWKS := $(addprefix -l,Foundation $(FRAMEWORKS))
-else
-FMWKS := $(addprefix -l,Foundation AppKit $(FRAMEWORKS))
-endif
-endif
-
-#		-L$(TOOLCHAIN)/lib \
-
-
-LIBRARIES := \
-		-L$(ROOT)/usr/lib \
-		-Wl,-rpath-link,$(ROOT)/usr/lib \
-		-L$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
-		-Wl,-rpath-link,$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
-		-L$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
-		-L$(shell sh -c 'echo $(ROOT)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
-		-L$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
-		$(FMWKS) \
-		$(LIBS)
-
 # set up appropriate CFLAGS for $(ARCHITECTURE)
 
 # -Wall
@@ -330,11 +311,6 @@ CFLAGS := $(CFLAGS) \
 		$(INCLUDES) \
 		$(OTHER_CFLAGS)
 
-# should be solved differently
-ifneq ($(ARCHITECTURE),arm-zaurus-linux-gnu)
-CFLAGS := $(CFLAGS) -fconstant-string-class=NSConstantString -D_NSConstantStringClassName=NSConstantString
-endif
-
 ifeq ($(PROFILING),YES)
 CFLAGS := -pg $(CFLAGS)
 endif
@@ -343,26 +319,79 @@ endif
 # CFLAGS :=  -Wxyz $(CFLAGS)
 # endif
 
+# should be solved differently
+ifneq ($(ARCHITECTURE),arm-zaurus-linux-gnu)
+OBJCFLAGS := $(CFLAGS) -fconstant-string-class=NSConstantString -D_NSConstantStringClassName=NSConstantString
+endif
+
+# expand patterns in SOURCES
+XSOURCES := $(wildcard $(SOURCES))
+
+# get the objects from all sources we need to compile and link
+OBJCSRCS   := $(filter %.m %.mm,$(XSOURCES))
+CSRCS   := $(filter %.c %.cpp %x++,$(XSOURCES))
+SRCOBJECTS := $(OBJCSRCS) $(CSRCS)
+OBJECTS := $(SRCOBJECTS:%.m=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+OBJECTS := $(OBJECTS:%.mm=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+OBJECTS := $(OBJECTS:%.c=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+OBJECTS := $(OBJECTS:%.c++=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+OBJECTS := $(OBJECTS:%.cpp=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+
+RESOURCES := $(filter-out $(SRCOBJECTS),$(XSOURCES))	# all remaining (re)sources
+SUBPROJECTS:= $(filter %.qcodrproj,$(RESOURCES))	# subprojects
+# build them in a loop - if not globaly disabled
+HEADERSRC := $(filter %.h,$(RESOURCES))	# header files
+IMAGES := $(filter %.png %.jpg %.icns %.gif %.tiff,$(RESOURCES))	# image/icon files
+
+ifeq ($(PRODUCT_NAME),Foundation)
+FMWKS := $(addprefix -l,$(FRAMEWORKS))
+else
+ifeq ($(PRODUCT_NAME),AppKit)
+FMWKS := $(addprefix -l,Foundation $(FRAMEWORKS))
+else
+ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
+FMWKS := $(addprefix -l,Foundation AppKit $(FRAMEWORKS))
+endif
+endif
+endif
+
+#		-L$(TOOLCHAIN)/lib \
+
+LIBRARIES := \
+		-L$(ROOT)/usr/lib \
+		-Wl,-rpath-link,$(ROOT)/usr/lib \
+		-L$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
+		-Wl,-rpath-link,$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
+		-L$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-L$(shell sh -c 'echo $(ROOT)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-L$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		$(FMWKS) \
+		$(LIBS)
+
 .SUFFIXES : .o .c .m
 
 # adding /+ to the file path looks strange but is to avoid problems with ../neighbour/source.m
-# if someone knows how to easily substitute ../ by ++/ or .../ we could avoid some minor problems
+# if someone knows how to easily substitute ../ by ++/ or .../ in TARGET_BUILD_DIR we could avoid some other minor problems
+# FIXME: please use $(subst ...)
 
 $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.m
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
 	# compile $< -> $*.o
-	$(CC) -c $(CFLAGS) -E $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.i	# store preprocessor result for debugging
-	$(CC) -c $(CFLAGS) -S $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.S	# store assembler source for debugging
-	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
+	$(CC) -c $(OBJCFLAGS) -E $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.i	# store preprocessor result for debugging
+	$(CC) -c $(OBJCFLAGS) -S $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.S	# store assembler source for debugging
+	$(CC) -c $(OBJCFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
 
 $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o: %.c
 	@- mkdir -p $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$(*D)
 	# compile $< -> $*.o
 	$(CC) -c $(CFLAGS) $< -o $(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+$*.o
 
-
-XSOURCES=$(wildcard $(SOURCES))
-OBJECTS=$(XSOURCES:%.m=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+#
+# makefile targets
+#
 
 build_architecture: make_bundle make_exec make_binary make_php install_local install_tool install_remote launch_remote
 	# $(BINARY) for $(ARCHITECTURE) built.
@@ -372,7 +401,7 @@ make_bundle:
 
 make_exec: "$(EXEC)"
 
-ifneq ($(SOURCES),)
+ifneq ($(SRCOBJECTS),)
 make_binary: "$(BINARY)"
 	ls -l "$(BINARY)"
 else
@@ -420,7 +449,7 @@ ifeq ($(DEBIAN_VERSION),)
 DEBIAN_VERSION := 0.$(shell date '+%Y%m%d%H%M%S' )
 endif
 
-DEBDIST="$(ROOT)/System/Installation/Debian/dists/staging/main"
+DEBDIST="$(QuantumSTEP)/System/Installation/Debian/dists/staging/main"
 
 # FIXME: allow to disable -dev and -dbg if we are marked "private"
 build_deb: make_bundle make_exec make_binary install_tool \
@@ -439,12 +468,12 @@ TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 	# make debian package $(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	- rm -rf "/tmp/$(TMP_DATA)"
-	- mkdir -p "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)"
-ifneq ($(SOURCES),)
-	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(ROOT)$(INSTALL_PATH)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)" && tar xvzf -)
+	- mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
+ifneq ($(OBJECTS),)
+	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvzf -)
 endif
 ifneq ($(FILES),)
-	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)" && tar xvzf -)
+	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(FILES) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvzf -)
 endif
 ifneq ($(DATA),)
 	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PWD)" $(DATA) | (cd "/tmp/$(TMP_DATA)/" && tar xvzf -)
@@ -454,11 +483,11 @@ endif
 	find "/tmp/$(TMP_DATA)" -name '*php' -prune -print -exec rm -rf {} ";"
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# strip MacOS X binary for frameworks
-	rm -rf "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
-	rm -rf "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
+	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)"
+	rm -rf "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)"
 endif
 	find "/tmp/$(TMP_DATA)" -type f -perm +a+x -exec $(STRIP) {} \;
-	mkdir -p "/tmp/$(TMP_DATA)/$(ROOT)/Library/Receipts" && echo $(DEBIAN_VERSION) >"/tmp/$(TMP_DATA)/$(ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
+	mkdir -p "/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts" && echo $(DEBIAN_VERSION) >"/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)_@_$(DEBIAN_ARCH).deb"
 	$(TAR) czf "/tmp/$(TMP_DATA).tar.gz" --owner 0 --group 0 -C "/tmp/$(TMP_DATA)" .
 	ls -l "/tmp/$(TMP_DATA).tar.gz"
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
@@ -486,15 +515,15 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian development package
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
 	- rm -rf /tmp/$(TMP_DATA)
-	- mkdir -p "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)"
-	# explicitly include Headers
-	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(ROOT)$(INSTALL_PATH)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)" && tar xvzf -)
+	- mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
+	# don't exclude Headers
+	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvzf -)
 	# strip all executables down so that they can be linked
 	find /tmp/$(TMP_DATA) -name '*-*-linux-gnu*' ! -name $(ARCHITECTURE) -exec rm -rf {} ";" -prune
-	rm -rf /tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
-	rm -rf /tmp/$(TMP_DATA)/$(ROOT)$(INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
+	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(CONTENTS)/$(PRODUCT_NAME)
+	rm -rf /tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)/$(NAME_EXT)/$(PRODUCT_NAME)
 	find /tmp/$(TMP_DATA) -type f -perm +a+x -exec $(STRIP) {} \;
-	mkdir -p /tmp/$(TMP_DATA)/$(ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
+	mkdir -p /tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts && echo $(DEBIAN_VERSION) >/tmp/$(TMP_DATA)/$(EMBEDDED_ROOT)/Library/Receipts/$(DEBIAN_PACKAGE_NAME)-dev_@_$(DEBIAN_ARCH).deb
 	$(TAR) czf /tmp/$(TMP_DATA).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_DATA) .
 	ls -l /tmp/$(TMP_DATA).tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
@@ -528,27 +557,28 @@ else
 endif
 	
 install_tool:
-ifneq ($(SOURCES),)
+ifneq ($(OBJECTS),)
 ifneq ($(INSTALL),false)
-	$(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(ROOT)$(INSTALL_PATH)' && cd '$(ROOT)$(INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
+	$(TAR) czf - --exclude .svn -C "$(PKG)" "$(NAME_EXT)" | (mkdir -p '$(HOST_INSTALL_PATH)' && cd '$(HOST_INSTALL_PATH)' && (pwd; rm -rf "$(NAME_EXT)" ; $(TAR) xpzvf -))
+	# installed on localhost at $(HOST_INSTALL_PATH)
 else
 	# don't install tool
 endif
 endif
 
 install_remote:
-ifneq ($(SOURCES),)
+ifneq ($(OBJECTS),)
 ifneq ($(SEND2ZAURUS),false)
 	ls -l "$(BINARY)"
-	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | $(DOWNLOAD) "cd; mkdir -p '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && gunzip | tar xpvf -"
-	# installed on $(IP_ADDR) at $(EMBEDDED_ROOT)/$(INSTALL_PATH)
+	- $(TAR) czf - --exclude .svn --exclude MacOS --owner 500 --group 1 -C "$(PKG)" "$(NAME_EXT)" | $(DOWNLOAD) "cd; mkdir -p '$(TARGET_INSTALL_PATH)' && cd '$(TARGET_INSTALL_PATH)' && gunzip | tar xpvf -"
+	# installed on $(IP_ADDR) at $(TARGET_INSTALL_PATH)
 else
 	# don't install on $(IP_ADDR)
 endif
 endif
 
 launch_remote:
-ifneq ($(SOURCES),)
+ifneq ($(OBJECTS),)
 ifneq ($(SEND2ZAURUS),false)
 ifneq ($(RUN),false)
 ifeq ($(WRAPPER_EXTENSION),app)
@@ -558,7 +588,7 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	rm -rf /tmp/.X0-lock /tmp/.X11-unix; open -a X11; sleep 5; \
 	export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(IP_ADDR) && \
 	$(DOWNLOAD) \
-		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(EMBEDDED_ROOT)/$(INSTALL_PATH)' && $(EMBEDDED_ROOT)/usr/bin/run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" || echo failed to run;
+		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(TARGET_INSTALL_PATH)' && run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" || echo failed to run;
 endif		
 endif
 endif
@@ -575,7 +605,7 @@ clean:
 # FIXME: use dependencies to link only if any object file has changed
 
 "$(BINARY)":: $(OBJECTS)
-	# link $(SOURCES) -> $(OBJECTS) -> $(BINARY)
+	# link $(SRCOBJECTS) -> $(OBJECTS) -> $(BINARY)
 	@mkdir -p "$(EXEC)"
 	$(LD) $(LDFLAGS) -o "$(BINARY)" $(OBJECTS) $(LIBRARIES)
 	# compiled.
@@ -584,15 +614,21 @@ clean:
 
 headers:
 ifeq ($(WRAPPER_EXTENSION),framework)
-# fixme: copy only public headers and recognize changes!
-# fixme: hard coding Sources/*.h is wrong!
-	- [ -r "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" ] || (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && cp Sources/*.h "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" )	# copy headers (FIXME: only public!)
-	- [ -r "$(HEADERS)" ] || (mkdir -p "$(EXEC)/Headers" && ln -s ../../Headers "$(HEADERS)")	# link to headers to find <Framework/File.h>
+ifneq ($(strip $(HEADERSRC)),)
+	# included header files $(HEADERSRC)
+	- (mkdir -p "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" && cp $(HEADERSRC) "$(PKG)/$(NAME_EXT)/$(CONTENTS)/Headers" )	# copy headers
+endif
+	- (mkdir -p "$(EXEC)/Headers" && ln -sf ../../Headers "$(HEADERS)")	# link to headers to find <Framework/File.h>
 endif
 
 "$(EXEC)":: headers
 	# make directory for Linux executable
-	# objects: $(OBJECTS)
+	# SUBPROJECTS: $(SUBPROJECTS)
+	# SRCOBJECTS: $(SRCOBJECTS)
+	# OBJCSRCS: $(OBJCSRCS)
+	# HEADERS: $(HEADERSRC)
+	# RESOURCES: $(RESOURCES)
+	# OBJECTS: $(OBJECTS)
 	mkdir -p "$(EXEC)"
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
