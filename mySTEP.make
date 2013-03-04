@@ -68,9 +68,16 @@ QuantumSTEP=/usr/share/QuantumSTEP /usr/bin/make -f $QuantumSTEP/System/Sources/
 #
 endif
 
-ROOT=$(QuantumSTEP)
+# translate old style definition
 
-include $(ROOT)/System/Sources/Frameworks/Version.def
+ifeq ($(QuantumSTEP),)
+QuantumSTEP:=$(QuantumSTEP)
+endif
+ifeq ($(DEBIAN_DEPENDS),)
+DEBIAN_DEPENDS := $(DEPENDS)
+endif
+
+include $(QuantumSTEP)/System/Sources/Frameworks/Version.def
 
 .PHONY:	clean build build_architecture
 
@@ -81,7 +88,7 @@ ifeq ($(BUILD_FOR_DEPLOYMENT),true)
 # set all architectures for which we know a compiler (should also check that we have a libobjc.so for this architecture!)
 # and that other libraries and include directories are available...
 # should exclude i386-apple-darwin
-ARCHITECTURES=$(shell cd $(ROOT)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
+ARCHITECTURES=$(shell cd $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc && echo *-*-*)
 endif
 endif
 
@@ -117,9 +124,9 @@ ifeq ($(ARCHITECTURE),arm-iPhone-darwin)
 TOOLCHAIN=/Developer/Platforms/iPhoneOS.platform/Developer/usr
 CC := $(TOOLCHAIN)/bin/arm-apple-darwin9-gcc-4.0.1
 else
-TOOLCHAIN := $(ROOT)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(ARCHITECTURE)
+TOOLCHAIN := $(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/Current/gcc/$(ARCHITECTURE)
 CC := $(TOOLCHAIN)/$(ARCHITECTURE)/bin/gcc
-# CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(ARCHITECTURE) -integrated-as --sysroot $(ROOT) -I$(ROOT)/include
+# CC := clang -march=armv7-a -mfloat-abi=soft -ccc-host-triple $(ARCHITECTURE) -integrated-as --sysroot $(QuantumSTEP) -I$(QuantumSTEP)/include
 LD := $(TOOLCHAIN)/$(ARCHITECTURE)/bin/gcc -v -L$(TOOLCHAIN)/$(ARCHITECTURE)/lib -Wl,-rpath-link,$(TOOLCHAIN)/$(ARCHITECTURE)/lib
 
 endif
@@ -132,7 +139,7 @@ STRIP := $(TOOLCHAIN)/bin/$(ARCHITECTURE)-strip
 # disable special MacOS X stuff for tar
 TAR := COPY_EXTENDED_ATTRIBUTES_DISABLED=true COPYFILE_DISABLE=true /usr/bin/gnutar
 # TAR := $(TOOLS)/gnutar-1.13.25	# use older tar that does not know about ._ resource files
-# TAR := $(ROOT)/this/bin/gnutar
+# TAR := $(QuantumSTEP)/this/bin/gnutar
 
 # Xcode aggregate target
 ifeq ($(PRODUCT_NAME),All)
@@ -284,14 +291,14 @@ endif
 
 # system includes&libraries and locate all standard frameworks
 
-#		-I$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/X11 \
-# 		-I$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include \
+#		-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/X11 \
+# 		-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include \
 
 INCLUDES := $(INCLUDES) \
-		-I$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/freetype2 \
-		-I$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
-		-I$(shell sh -c 'echo $(ROOT)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
-		-I$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
+		-I$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/include/freetype2 \
+		-I$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
+		-I$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"') \
+		-I$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE)/Headers | sed "s/ / -I/g"')
 
 # set up appropriate CFLAGS for $(ARCHITECTURE)
 
@@ -358,16 +365,16 @@ endif
 #		-L$(TOOLCHAIN)/lib \
 
 LIBRARIES := \
-		-L$(ROOT)/usr/lib \
-		-Wl,-rpath-link,$(ROOT)/usr/lib \
-		-L$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
-		-Wl,-rpath-link,$(ROOT)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
-		-L$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
-		-L$(shell sh -c 'echo $(ROOT)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
-		-L$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
-		-Wl,-rpath-link,$(shell sh -c 'echo $(ROOT)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-L$(QuantumSTEP)/usr/lib \
+		-Wl,-rpath-link,$(QuantumSTEP)/usr/lib \
+		-L$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
+		-Wl,-rpath-link,$(QuantumSTEP)/System/Library/Frameworks/System.framework/Versions/$(ARCHITECTURE)/usr/lib \
+		-L$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-L$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Developer/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
+		-L$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -L/g"') \
+		-Wl,-rpath-link,$(shell sh -c 'echo $(QuantumSTEP)/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE) | sed "s/ / -Wl,-rpath-link,/g"') \
 		$(FMWKS) \
 		$(LIBS)
 
@@ -401,7 +408,7 @@ make_bundle:
 
 make_exec: "$(EXEC)"
 
-ifneq ($(SRCOBJECTS),)
+ifneq ($(strip $(SRCOBJECTS)),)
 make_binary: "$(BINARY)"
 	ls -l "$(BINARY)"
 else
@@ -433,17 +440,26 @@ DEBIAN_PACKAGE_NAME = $(shell echo "QuantumSTEP-$(PRODUCT_NAME)-$(WRAPPER_EXTENS
 endif
 endif
 
+ifneq ($(strip $(OBJCSRCS)),)	# any objective C source
 ifeq ($(DEBIAN_DESCRIPTION),)
-DEBIAN_DESCRIPTION = "this is part of mySTEP/QuantumSTEP"
+DEBIAN_DESCRIPTION := This is part of mySTEP/QuantumSTEP
 endif
-ifeq ($(DEPENDS),)
-DEPENDS := "quantumstep-cocoa-framework"
+ifeq ($(DEBIAN_DEPENDS),)
+DEPENDS := quantumstep-cocoa-framework
+endif
+ifeq ($(DEBIAN_HOMEPAGE),)
+DEBIAN_HOMEPAGE := www.quantum-step.com
+endif
+endif
+
+ifeq ($(DEBIAN_MAINTAINER),)
+DEBIAN_MAINTAINER := info <info@goldelico.com>
 endif
 ifeq ($(DEBIAN_SECTION),)
-DEBIAN_SECTION = "x11"
+DEBIAN_SECTION := x11
 endif
 ifeq ($(DEBIAN_PRIORITY),)
-DEBIAN_PRIORITY = "optional"
+DEBIAN_PRIORITY := optional
 endif
 ifeq ($(DEBIAN_VERSION),)
 DEBIAN_VERSION := 0.$(shell date '+%Y%m%d%H%M%S' )
@@ -497,10 +513,11 @@ endif
 	  [ "$(DEBIAN_REPLACES)" ] && echo "Replaces: $(DEBIAN_REPLACES)"; \
 	  echo "Version: $(DEBIAN_VERSION)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
-	  echo "Maintainer: info@goldelico.com"; \
-	  echo "Homepage: http://www.quantum-step.com"; \
+	  [ "$(DEBIAN_MAINTAINER)" ] && echo "Maintainer: $(DEBIAN_MAINTAINER)"; \
+	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
+	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  [ "$(DEPENDS)" ] && echo "Depends: $(DEPENDS)"; \
+	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $(DEBIAN_DEPENDS)"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)"
 	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(UNIQUE) ./control
@@ -533,10 +550,11 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  echo "Version: $(DEBIAN_VERSION)"; \
 	  echo "Replaces: $(DEBIAN_PACKAGE_NAME)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
-	  echo "Maintainer: info@goldelico.com"; \
-	  echo "Homepage: http://www.quantum-step.com"; \
+	  [ "$(DEBIAN_MAINTAINER)" ] && echo "Maintainer: $(DEBIAN_MAINTAINER)"; \
+	  [ "$(DEBIAN_HOMEPAGE)" ] && echo "Homepage: $(DEBIAN_HOMEPAGE)"; \
+	  [ "$(DEBIAN_SOURCE)" ] && echo "Source: $(DEBIAN_SOURCE)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  [ "$(DEPENDS)" ] && echo "Depends: $(DEPENDS)"; \
+	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $(DEBIAN_DEPENDS)"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)"
 	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(UNIQUE) ./control
