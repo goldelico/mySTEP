@@ -406,14 +406,16 @@ endif
 
 ifeq ($(DEBIAN_DESCRIPTION),)
 DEBIAN_DESCRIPTION = "this is part of mySTEP/QuantumSTEP"
+endif
 ifeq ($(DEPENDS),)
 DEPENDS := "quantumstep-cocoa-framework"
 endif
 ifeq ($(DEBIAN_SECTION),)
 DEBIAN_SECTION = "x11"
 endif
+ifeq ($(DEBIAN_PRIORITY),)
+DEBIAN_PRIORITY = "optional"
 endif
-
 ifeq ($(DEBIAN_VERSION),)
 DEBIAN_VERSION := 0.$(shell date '+%Y%m%d%H%M%S' )
 endif
@@ -461,14 +463,15 @@ endif
 	ls -l "/tmp/$(TMP_DATA).tar.gz"
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)"; \
+	  echo "Section: $(DEBIAN_SECTION)"; \
+	  echo "Priority: $(DEBIAN_PRIORITY)"; \
+	  [ "$(DEBIAN_REPLACES)" ] && echo "Replaces: $(DEBIAN_REPLACES)"; \
 	  echo "Version: $(DEBIAN_VERSION)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
 	  echo "Maintainer: info@goldelico.com"; \
 	  echo "Homepage: http://www.quantum-step.com"; \
-	  [ "$(DEPENDS)" ] && echo "Depends: $(DEPENDS)"; \
-	  echo "Section: $(DEBIAN_SECTION)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  echo "Priority: optional"; \
+	  [ "$(DEPENDS)" ] && echo "Depends: $(DEPENDS)"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)"
 	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(UNIQUE) ./control
@@ -496,15 +499,15 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	ls -l /tmp/$(TMP_DATA).tar.gz
 	echo "2.0" >"/tmp/$(TMP_DEBIAN_BINARY)"
 	( echo "Package: $(DEBIAN_PACKAGE_NAME)-dev"; \
-	  echo "Replaces: $(DEBIAN_PACKAGE_NAME)"; \
+	  echo "Section: $(DEBIAN_SECTION)"; \
+	  echo "Priority: extra"; \
 	  echo "Version: $(DEBIAN_VERSION)"; \
+	  echo "Replaces: $(DEBIAN_PACKAGE_NAME)"; \
 	  echo "Architecture: $(DEBIAN_ARCH)"; \
 	  echo "Maintainer: info@goldelico.com"; \
 	  echo "Homepage: http://www.quantum-step.com"; \
-	  [ "$(DEPENDS)" ] && echo "Depends: $(DEPENDS)"; \
-	  echo "Section: $(DEBIAN_SECTION)"; \
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
-	  echo "Priority: optional"; \
+	  [ "$(DEPENDS)" ] && echo "Depends: $(DEPENDS)"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
 	) >"/tmp/$(TMP_CONTROL)"
 	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(UNIQUE) ./control

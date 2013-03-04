@@ -1,0 +1,35 @@
+/* Please keep the left side completely unchanged!!! Just translate the right side of the equations.*/
+/* NSBrowser (Browser) : <title:Browser> (oid:58) */
+"Browser" = "Browser";
+
+/* NSTextField (Color ) : <title:Color
+> (oid:141) */
+"Color\n" = "Color\n";
+
+/* NSTextField (Face) : <title:Face> (oid:117) */
+"Face" = "Face";
+
+/* NSTextField (Font) : <title:Font> (oid:116) */
+"Font" = "Font";
+
+/* NSFontPanel (Font Panel) : <title:Font Panel> (oid:10) */
+"Font Panel" = "Font Panel";
+
+/* NSMenu : <title:OtherViews> (oid:124) */
+"OtherViews" = "OtherViews";
+
+/* NSMenuItem : <title:Regular System> (oid:127) */
+"Regular System" = "Regular System";
+
+/* NSSearchField (0) : <title:Search Font> (oid:107) */
+"Search Font" = "Search Font";
+
+/* NSTextField (Size) : <title:Size> (oid:120) */
+"Size" = "Size";
+
+/* NSMenuItem : <title:Small System> (oid:125) */
+"Small System" = "Small System";
+
+/* NSMenuItem : <title:System> (oid:126) */
+"System" = "System";
+

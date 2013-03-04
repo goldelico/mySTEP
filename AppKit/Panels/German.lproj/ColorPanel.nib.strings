@@ -1,0 +1,35 @@
+/* Please keep the left side completely unchanged!!! Just translate the right side of the equations.*/
+/* NSTextField (0) : <title:#bba45d> (oid:207) */
+"#bba45d" = "#bba45d";
+
+/* NSTextField (Blue) : <title:Blue> (oid:124) */
+"Blue" = "Blue";
+
+/* NSTextField (Brightness) : <title:Brightness> (oid:215) */
+"Brightness" = "Brightness";
+
+/* NSColorPanel (Color Picker) : <title:Color Picker> (oid:10) */
+"Color Picker" = "Color Picker";
+
+/* NSTabViewItem : <title:Crayon> (oid:109) */
+"Crayon" = "Crayon";
+
+/* NSTextField (Green) : <title:Green> (oid:123) */
+"Green" = "Green";
+
+/* NSButton (L) : <title:L> (oid:201) */
+"L" = "L";
+
+/* NSTextField (Opacity ) : <title:Opacity
+> (oid:145) */
+"Opacity\n" = "Opacity\n";
+
+/* NSTabViewItem : <title:RGB> (oid:111) */
+"RGB" = "RGB";
+
+/* NSTextField (Red) : <title:Red> (oid:122) */
+"Red" = "Red";
+
+/* NSTabViewItem : <title:Wheel> (oid:113) */
+"Wheel" = "Wheel";
+

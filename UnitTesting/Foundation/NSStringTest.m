@@ -9,6 +9,24 @@
 #import <Foundation/Foundation.h>
 #import "NSStringTest.h"
 
+@interface NSString (Mutable)
+- (BOOL) isMutable;
+@end
+
+@implementation NSString (Mutable)
+
+- (BOOL) isMutable;
+{
+#if __mySTEP__	// this fails on Cocoa!
+	return [self isKindOfClass:[NSMutableString class]];
+#elif 0	// this fails as well on Cocoa
+	return [self respondsToSelector:@selector(setString:)];
+#else
+	return NO;
+#endif
+}
+
+@end
 
 @implementation NSStringTest
 
@@ -19,6 +37,13 @@
 #define TEST2(NAME, INPUT, METHOD, ARG, OUTPUT) - (void) test_##METHOD##NAME; { STAssertEqualObjects([INPUT METHOD:ARG], OUTPUT, nil); }
 
 // FIXME: test creation, conversions, appending, mutability, sorting, isEqual, intValue, floatValue etc.
+
+- (void) testMutablility
+{
+	STAssertFalse([@"hello" isMutable], nil);
+	STAssertFalse([[NSString string] isMutable], nil);
+	STAssertTrue([[NSMutableString string] isMutable], nil);
+}
 
 TEST2(01, @"a:b", componentsSeparatedByString, @":", ([NSArray arrayWithObjects:@"a", @"b", nil]));
 TEST2(02, @"ab", componentsSeparatedByString, @":", ([NSArray arrayWithObjects:@"ab", nil]));
@@ -156,6 +181,18 @@ TEST2(10, @"/tmp/", stringByAppendingPathComponent, @"/file/", @"/tmp/file");
 TEST2(11, @"", stringByAppendingPathComponent, @"/file/", @"/file");
 TEST2(12, @"/", stringByAppendingPathComponent, @"/file/", @"/file");
 TEST2(13, @"///", stringByAppendingPathComponent, @"//file///", @"/file");	// leading and trailing / are stripped off before concatenating
+TEST2(13b, @"///", stringByAppendingPathComponent, @"file///", @"/file");
+TEST2(14, @"/", stringByAppendingPathComponent, @"/", @"/");
+TEST2(15, @"/file", stringByAppendingPathComponent, @"/", @"/file");
+TEST2(16, @"file", stringByAppendingPathComponent, @"/", @"file");
+TEST2(17, @"file/", stringByAppendingPathComponent, @"/", @"file");
+TEST2(18, @"file/", stringByAppendingPathComponent, @"//", @"file");
+TEST2(19, @"//", stringByAppendingPathComponent, @"file", @"/file");
+TEST2(20, @"//", stringByAppendingPathComponent, @"/file", @"/file");
+TEST2(21, @"//", stringByAppendingPathComponent, @"//file", @"/file");
+TEST2(22a, @"file/", stringByAppendingPathComponent, @"/other", @"file/other");
+TEST2(22b, @"file//", stringByAppendingPathComponent, @"//other", @"file/other");
+TEST2(22c, @"file//", stringByAppendingPathComponent, @"other", @"file/other");
 
 TEST2(01, @"/tmp/scratch", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.tiff");
 TEST2(02, @"", stringByAppendingPathExtension, @"tiff", @"");	// does not append to empty string, i.e. if there is no lastPathComponent

@@ -1,0 +1,18 @@
+/* Please keep the left side completely unchanged!!! Just translate the right side of the equations.*/
+/* NSPanel () : <title:> (oid:10) */
+"" = "";
+
+/* NSTextField (Application ) : <title:Application
+> (oid:110) */
+"Application\n" = "Application\n";
+
+/* NSButton (Close) : <title:Close> (oid:47) */
+"Close" = "Close";
+
+/* NSTextField (Copyright ) : <title:Copyright
+> (oid:112) */
+"Copyright\n" = "Copyright\n";
+
+/* NSTextField (Version 1.0 (123)) : <title:Version 1.0 (123)> (oid:111) */
+"Version 1.0 (123)" = "Version 1.0 (123)";
+
