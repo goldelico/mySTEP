@@ -46,16 +46,19 @@
 	NSMutableArray *_expandedItems;
 	NSMapTable *_levelOfItems;
 	NSTableColumn *_outlineTableColumn;
+	float _indentationPerLevel;
+	/*
 	id _outlineDataSource;	// data source that understands the NSOutlinView datasource protocol
 	id _outlineDelegate;
-	float _indentationPerLevel;
 	//	unsigned _numberOfRows;
-	BOOL _autoResizesOutlineColumn;
-	BOOL _indentationMarkerFollowsCell;
-	BOOL _autosaveExpandedItems;
 	BOOL _selectingColumns;
-	BOOL _del_responds;
+	 */
 	BOOL _drawsGrid;
+	BOOL _del_responds;
+	BOOL _indentationMarkerFollowsCell;
+	BOOL _autoResizesOutlineColumn;
+	BOOL _autosaveExpandedItems;
+	BOOL _dataSource_editable;
 }
 
 // Instance methods

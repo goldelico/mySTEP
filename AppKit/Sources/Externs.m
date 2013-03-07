@@ -210,6 +210,16 @@ NOTE(TableViewSelectionIsChanging)		= @"TableViewSelectionIsChanging";
 NOTE(TableViewColumnDidResize)			= @"TableViewColumnDidResize";
 NOTE(TableViewColumnDidMove)			= @"TableViewColumnDidMove";
 
+// NSOutlineView notifications
+NOTE(OutlineViewColumnDidMove)			= @"OutlineViewColumnDidMove";
+NOTE(OutlineViewColumnDidResize)		= @"OutlineViewColumnDidResize";
+NOTE(OutlineViewSelectionDidChange)		= @"OutlineViewSelectionDidChange";
+NOTE(OutlineViewSelectionIsChanging)	= @"OutlineViewSelectionIsChanging";
+NOTE(OutlineViewItemDidExpand)			= @"OutlineViewItemDidExpand";
+NOTE(OutlineViewItemDidCollapse)		= @"OutlineViewItemDidCollapse";
+NOTE(OutlineViewItemWillExpand)			= @"OutlineViewItemWillExpand";
+NOTE(OutlineViewItemWillCollapse)		= @"OutlineViewItemWillCollapse";
+
 // NSText notifications
 NOTE(TextDidBeginEditing)				= @"TextDidBeginEditing";
 NOTE(TextDidEndEditing)					= @"TextDidEndEditing";
