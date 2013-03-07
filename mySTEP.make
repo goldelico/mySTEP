@@ -336,19 +336,23 @@ XSOURCES := $(wildcard $(SOURCES))
 
 # get the objects from all sources we need to compile and link
 OBJCSRCS   := $(filter %.m %.mm,$(XSOURCES))
-CSRCS   := $(filter %.c %.cpp %x++,$(XSOURCES))
+CSRCS   := $(filter %.c %.cpp %.c++,$(XSOURCES))
 SRCOBJECTS := $(OBJCSRCS) $(CSRCS)
 OBJECTS := $(SRCOBJECTS:%.m=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
 OBJECTS := $(OBJECTS:%.mm=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
 OBJECTS := $(OBJECTS:%.c=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
-OBJECTS := $(OBJECTS:%.c++=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
 OBJECTS := $(OBJECTS:%.cpp=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
+OBJECTS := $(OBJECTS:%.c++=$(TARGET_BUILD_DIR)/$(ARCHITECTURE)/+%.o)
 
-RESOURCES := $(filter-out $(SRCOBJECTS),$(XSOURCES))	# all remaining (re)sources
-SUBPROJECTS:= $(filter %.qcodrproj,$(RESOURCES))	# subprojects
+PHPSRCS   := $(filter %.php,$(XSOURCES))
+SHSRCS   := $(filter %.sh,$(XSOURCES))
+
+RESOURCES := $(strip $(filter-out $(SRCOBJECTS),$(XSOURCES)))	# all remaining (re)sources
+SUBPROJECTS:= $(strip $(filter %.qcodeproj,$(RESOURCES)))	# subprojects
+DEBIAN_CONTROL:= $(strip $(filter %.preinst %.postinst %.prerm %.postrm,$(RESOURCES)))	# additional debian control files
 # build them in a loop - if not globaly disabled
-HEADERSRC := $(filter %.h,$(RESOURCES))	# header files
-IMAGES := $(filter %.png %.jpg %.icns %.gif %.tiff,$(RESOURCES))	# image/icon files
+HEADERSRC := $(strip $(filter %.h,$(RESOURCES)))	# header files
+IMAGES := $(strip $(filter %.png %.jpg %.icns %.gif %.tiff,$(RESOURCES)))	# image/icon files
 
 ifeq ($(PRODUCT_NAME),Foundation)
 FMWKS := $(addprefix -l,$(FRAMEWORKS))
@@ -482,9 +486,14 @@ TMP_DEBIAN_BINARY := $(UNIQUE)/debian-binary
 
 "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb":
 	# make debian package $(DEBIAN_PACKAGE_NAME)_$(DEBIAN_VERSION)_$(DEBIAN_ARCH).deb
+	# DEBIAN_SECTION: $(DEBIAN_SECTION)
+	# DEBIAN_PRIORITY: $(DEBIAN_PRIORITY)
+	# DEBIAN_CONTROL: $(DEBIAN_CONTROL)
+	# DEBIAN_DEPENDS: $(DEBIAN_DEPENDS)
+	# DEBIAN_REPLACES: $(DEBIAN_REPLACES)
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-	- rm -rf "/tmp/$(TMP_DATA)"
-	- mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
+	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
+	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 ifneq ($(OBJECTS),)
 	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS --exclude Headers -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvzf -)
 endif
@@ -519,8 +528,9 @@ endif
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
 	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $(DEBIAN_DEPENDS)"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
-	) >"/tmp/$(TMP_CONTROL)"
-	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(UNIQUE) ./control
+	) >"/tmp/$(TMP_CONTROL)/control"
+	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
+	$(TAR) cvzf /tmp/$(TMP_CONTROL).tar.gz --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) .
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	- rm -rf $@
 	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
@@ -531,8 +541,8 @@ endif
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# make debian development package
 	mkdir -p "$(DEBDIST)/binary-$(DEBIAN_ARCH)" "$(DEBDIST)/archive"
-	- rm -rf /tmp/$(TMP_DATA)
-	- mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
+	- rm -rf "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)"
+	- mkdir -p "/tmp/$(TMP_CONTROL)" "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)"
 	# don't exclude Headers
 	tar czf - --exclude .DS_Store --exclude .svn --exclude MacOS -C "$(PKG)" $(NAME_EXT) | (mkdir -p "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && cd "/tmp/$(TMP_DATA)/$(TARGET_INSTALL_PATH)" && tar xvzf -)
 	# strip all executables down so that they can be linked
@@ -556,8 +566,9 @@ ifeq ($(WRAPPER_EXTENSION),framework)
 	  echo "Installed-Size: `du -kHs /tmp/$(TMP_DATA) | cut -f1`"; \
 	  [ "$(DEBIAN_DEPENDS)" ] && echo "Depends: $(DEBIAN_DEPENDS)"; \
 	  echo "Description: $(DEBIAN_DESCRIPTION)"; \
-	) >"/tmp/$(TMP_CONTROL)"
-	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(UNIQUE) ./control
+	) >"/tmp/$(TMP_CONTROL)/control"
+	if [ "$(strip $(DEBIAN_CONTROL))" ]; then for i in $(DEBIAN_CONTROL); do cp $$i /tmp/$(TMP_CONTROL)/$${i##*.}; done; fi
+	$(TAR) czf /tmp/$(TMP_CONTROL).tar.gz $(DEBIAN_CONTROL) --owner 0 --group 0 -C /tmp/$(TMP_CONTROL) .
 	- rm -rf $@
 	- mv -f "$(DEBDIST)/binary-$(DEBIAN_ARCH)/$(DEBIAN_PACKAGE_NAME)-dev_"*"_$(DEBIAN_ARCH).deb" "$(DEBDIST)/archive" 2>/dev/null
 	ar -r -cSv $@ /tmp/$(TMP_DEBIAN_BINARY) /tmp/$(TMP_CONTROL).tar.gz /tmp/$(TMP_DATA).tar.gz
@@ -606,7 +617,7 @@ ifeq ($(WRAPPER_EXTENSION),app)
 	rm -rf /tmp/.X0-lock /tmp/.X11-unix; open -a X11; sleep 5; \
 	export DISPLAY=localhost:0.0; [ -x /usr/X11R6/bin/xhost ] && /usr/X11R6/bin/xhost +$(IP_ADDR) && \
 	$(DOWNLOAD) \
-		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(TARGET_INSTALL_PATH)' && run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" || echo failed to run;
+		"cd; set; export QuantumSTEP=$(EMBEDDED_ROOT); export PATH=\$$PATH:$(EMBEDDED_ROOT)/usr/bin; export LOGNAME=$(LOGNAME); export NSLog=yes; export HOST=\$$(expr \"\$$SSH_CONNECTION\" : '\\(.*\\) .* .* .*'); export DISPLAY=\$$HOST:0.0; export LOGNAME=user; set; export EXECUTABLE_PATH=Contents/$(ARCHITECTURE); cd '$(TARGET_INSTALL_PATH)' && run '$(PRODUCT_NAME)' $(RUN_OPTIONS)" || echo failed to run;
 endif		
 endif
 endif
@@ -641,12 +652,13 @@ endif
 
 "$(EXEC)":: headers
 	# make directory for Linux executable
-	# SUBPROJECTS: $(SUBPROJECTS)
+	# SOURCES: $(SOURCES)
 	# SRCOBJECTS: $(SRCOBJECTS)
 	# OBJCSRCS: $(OBJCSRCS)
-	# HEADERS: $(HEADERSRC)
-	# RESOURCES: $(RESOURCES)
 	# OBJECTS: $(OBJECTS)
+	# RESOURCES: $(RESOURCES)
+	# HEADERS: $(HEADERSRC)
+	# SUBPROJECTS: $(SUBPROJECTS)
 	mkdir -p "$(EXEC)"
 ifeq ($(WRAPPER_EXTENSION),framework)
 	# link shared library for frameworks
