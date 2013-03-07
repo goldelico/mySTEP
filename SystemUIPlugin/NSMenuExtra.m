@@ -31,12 +31,11 @@
 	if(self)
 		{
 		NSString *nib;
-		_bundle=bundle;
+		_bundle=[bundle retain];
 #if 1
 		NSLog(@"add item to systemStatusBar");
 #endif
 		[[[NSStatusBar systemStatusBar] _statusMenu] addItem:item];	// attach controlled menuItem to menu
-//		[[[NSStatusBar systemStatusBar] _menuView] setNeedsDisplay:YES];
 #if 1
 		NSLog(@"added to status menu: %@", [[[NSStatusBar systemStatusBar] _statusMenu] _longDescription]);
 #endif
@@ -65,6 +64,12 @@
 		// does it control default position, additional flags?
 		}
 	return self;
+}
+
+- (void) dealloc
+{
+	[_bundle release];
+	[super dealloc];
 }
 
 - (NSBundle *) bundle; { return _bundle; }
