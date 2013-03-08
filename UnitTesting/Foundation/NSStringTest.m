@@ -8,6 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import "NSStringTest.h"
+#ifndef __mySTEP__
+@interface NSCFString : NSString
+@end
+#endif
 
 @interface NSString (Mutable)
 - (BOOL) isMutable;
@@ -15,20 +19,42 @@
 
 @implementation NSString (Mutable)
 
+/*
+ * it is not easy to find out if we have a mutable or an immutable object in Cocoa
+ * since CoreFoundation objects are returned from NSMutableString alloc and e.g. @"constant"
+ * and they all have the full NSMutableString @interface but return error messages if
+ * we attempt to apply a mutable operation to an immutable object!
+ *
+ * see discussion:
+ * http://stackoverflow.com/questions/2092637/cocoa-testing-to-find-if-an-nsstring-is-immutable-or-mutable
+ */
+
 - (BOOL) isMutable;
 {
-#if __mySTEP__	// this fails on Cocoa!
-	return [self isKindOfClass:[NSMutableString class]];
-#elif 0	// this fails as well on Cocoa
-	return [self respondsToSelector:@selector(setString:)];
-#else
-	return NO;
-#endif
+	NS_DURING
+		[(NSMutableString *) self setString:self];
+	NS_HANDLER
+		return NO;	// we can't change the value, i.e. we are immutable
+	NS_ENDHANDLER
+	return YES;
 }
 
 @end
 
 @implementation NSStringTest
+
+- (void) testShowCocoaMutabilityAPIofStringConstants
+{
+#ifdef __APPLE__
+	STAssertTrue([@"hello" respondsToSelector:@selector(setString:)], nil);
+	STAssertTrue([[NSString string] respondsToSelector:@selector(setString:)], nil);
+	STAssertTrue([[NSString string] isKindOfClass:[NSMutableString class]], nil);
+#else
+	STAssertFalse([@"hello" respondsToSelector:@selector(setString:)], nil);
+	STAssertFalse([[NSString string] respondsToSelector:@selector(setString:)], nil);
+	STAssertFalse([[NSString string] isKindOfClass:[NSMutableString class]], nil);
+#endif
+}
 
 #define TESTT(NAME, INPUT, METHOD) - (void) test_##METHOD##NAME; { STAssertTrue([INPUT METHOD], nil); }
 #define TESTF(NAME, INPUT, METHOD) - (void) test_##METHOD##NAME; { STAssertFalse([INPUT METHOD], nil); }
@@ -41,6 +67,7 @@
 - (void) testMutablility
 {
 	STAssertFalse([@"hello" isMutable], nil);
+	STAssertTrue([[[@"hello" mutableCopy] autorelease] isMutable], nil);
 	STAssertFalse([[NSString string] isMutable], nil);
 	STAssertTrue([[NSMutableString string] isMutable], nil);
 }
@@ -195,7 +222,7 @@ TEST2(22b, @"file//", stringByAppendingPathComponent, @"//other", @"file/other")
 TEST2(22c, @"file//", stringByAppendingPathComponent, @"other", @"file/other");
 
 TEST2(01, @"/tmp/scratch", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.tiff");
-TEST2(02, @"", stringByAppendingPathExtension, @"tiff", @"");	// does not append to empty string, i.e. if there is no lastPathComponent
+TEST2(02, @"", stringByAppendingPathExtension, @"tiff", @"");	// does not append to empty string, i.e. if there is no lastPathComponent - prints a warning on NSLog
 TEST2(03, @"/tmp/scratch.gif", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.gif.tiff");
 TEST2(04, @"/tmp/scratch.gif.", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.gif..tiff");
 TEST2(05, @"/tmp/scratch.gif.", stringByAppendingPathExtension, @".tiff", @"/tmp/scratch.gif...tiff");
@@ -204,10 +231,10 @@ TEST2(07, @"/tmp/scratch", stringByAppendingPathExtension, @"", @"/tmp/scratch."
 TEST2(08, @"/tmp/scratch/", stringByAppendingPathExtension, @"tiff", @"/tmp/scratch.tiff");	// trailing / is deleted
 TEST2(09, @"/tmp/scratch/", stringByAppendingPathExtension, @"", @"/tmp/scratch.");
 TEST2(09b, @"/tmp", stringByAppendingPathExtension, @"", @"/tmp.");
-TEST2(09c, @"/", stringByAppendingPathExtension, @"tmp", @"/");	// extension not added
+TEST2(09c, @"/", stringByAppendingPathExtension, @"tmp", @"/");	// extension not added - prints a warning on NSLog
 TEST2(10, @"//tmp///scratch////", stringByAppendingPathExtension, @"", @"/tmp/scratch.");	// empty path components are always removed
-TEST2(11, @"//", stringByAppendingPathExtension, @"something", @"//");
-TEST2(12, @"////", stringByAppendingPathExtension, @"something", @"////");	// not touched
+TEST2(11, @"//", stringByAppendingPathExtension, @"something", @"//");	// extension not added - prints a warning on NSLog
+TEST2(12, @"////", stringByAppendingPathExtension, @"something", @"////");	// extension not added - prints a warning on NSLog
 TEST2(13, @"   ////", stringByAppendingPathExtension, @"something", @"   .something");
 
 TEST1(01, @"/tmp/scratch.tiff", stringByDeletingLastPathComponent, @"/tmp");

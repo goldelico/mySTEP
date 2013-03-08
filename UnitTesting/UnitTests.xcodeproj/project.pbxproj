@@ -13,9 +13,9 @@
 			buildPhases = (
 			);
 			dependencies = (
-				EEBCCA1C169355A500CED788 /* PBXTargetDependency */,
-				EEBCCA1E169355A800CED788 /* PBXTargetDependency */,
 				EEC07FB21699EC8400CA1448 /* PBXTargetDependency */,
+				EEBCCA1E169355A800CED788 /* PBXTargetDependency */,
+				EEBCCA1C169355A500CED788 /* PBXTargetDependency */,
 			);
 			name = UnitTesting;
 			productName = UnitTests;
@@ -85,6 +85,20 @@
 		EEDB5A02169878070011D22A /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EED109C80F82540300E9AEC6 /* SenTestingKit.framework */; };
 		EEF7152716DD27C200CD94B5 /* Functions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7152616DD27C200CD94B5 /* Functions.m */; };
 		EEF7152816DD27C200CD94B5 /* Functions.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7152616DD27C200CD94B5 /* Functions.m */; };
+		EEF742F016E903C600CD94B5 /* ABAddressBookTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742EF16E903C600CD94B5 /* ABAddressBookTest.m */; };
+		EEF742F116E903C600CD94B5 /* ABAddressBookTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742EF16E903C600CD94B5 /* ABAddressBookTest.m */; };
+		EEF742F416E903D100CD94B5 /* ABPersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742F316E903D100CD94B5 /* ABPersonTest.m */; };
+		EEF742F516E903D100CD94B5 /* ABPersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742F316E903D100CD94B5 /* ABPersonTest.m */; };
+		EEF742F816E903DB00CD94B5 /* ABGroupTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742F716E903DB00CD94B5 /* ABGroupTest.m */; };
+		EEF742F916E903DB00CD94B5 /* ABGroupTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742F716E903DB00CD94B5 /* ABGroupTest.m */; };
+		EEF742FC16E903E500CD94B5 /* ABSearchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742FB16E903E500CD94B5 /* ABSearchTest.m */; };
+		EEF742FD16E903E500CD94B5 /* ABSearchTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF742FB16E903E500CD94B5 /* ABSearchTest.m */; };
+		EEF7441E16E943B100CD94B5 /* NSAffineTransformTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7441D16E943B100CD94B5 /* NSAffineTransformTest.m */; };
+		EEF7441F16E943B100CD94B5 /* NSAffineTransformTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7441D16E943B100CD94B5 /* NSAffineTransformTest.m */; };
+		EEF7447C16E9EA4C00CD94B5 /* NSConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7447A16E9EA4C00CD94B5 /* NSConnectionTest.m */; };
+		EEF7448616E9EC3000CD94B5 /* NSConnectionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7447A16E9EA4C00CD94B5 /* NSConnectionTest.m */; };
+		EEF744EC16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF744EB16EA13BD00CD94B5 /* NSDistantObjectTest.m */; };
+		EEF744ED16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF744EB16EA13BD00CD94B5 /* NSDistantObjectTest.m */; };
 		EEF7BCD316E0B2BB00CD94B5 /* NSValueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7BCD216E0B2BB00CD94B5 /* NSValueTest.m */; };
 		EEF7BCD416E0B2BB00CD94B5 /* NSValueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EEF7BCD216E0B2BB00CD94B5 /* NSValueTest.m */; };
 		EEF7EB2516DB63EB00CD94B5 /* AddressBookTests.qcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = EEF7EB2416DB63EB00CD94B5 /* AddressBookTests.qcodeproj */; };
@@ -168,6 +182,21 @@
 		EEDB5A09169878070011D22A /* AppKit.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AppKit.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEF7152516DD27C200CD94B5 /* Functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Functions.h; sourceTree = "<group>"; };
 		EEF7152616DD27C200CD94B5 /* Functions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Functions.m; sourceTree = "<group>"; };
+		EEF7425216E9036E00CD94B5 /* AddressBook */ = {isa = PBXFileReference; lastKnownFileType = folder; name = AddressBook; path = ../AddressBook; sourceTree = SOURCE_ROOT; };
+		EEF742EE16E903C600CD94B5 /* ABAddressBookTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ABAddressBookTest.h; path = AddressBook/ABAddressBookTest.h; sourceTree = "<group>"; };
+		EEF742EF16E903C600CD94B5 /* ABAddressBookTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABAddressBookTest.m; path = AddressBook/ABAddressBookTest.m; sourceTree = "<group>"; };
+		EEF742F216E903D100CD94B5 /* ABPersonTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ABPersonTest.h; path = AddressBook/ABPersonTest.h; sourceTree = "<group>"; };
+		EEF742F316E903D100CD94B5 /* ABPersonTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABPersonTest.m; path = AddressBook/ABPersonTest.m; sourceTree = "<group>"; };
+		EEF742F616E903DB00CD94B5 /* ABGroupTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ABGroupTest.h; path = AddressBook/ABGroupTest.h; sourceTree = "<group>"; };
+		EEF742F716E903DB00CD94B5 /* ABGroupTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABGroupTest.m; path = AddressBook/ABGroupTest.m; sourceTree = "<group>"; };
+		EEF742FA16E903E500CD94B5 /* ABSearchTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ABSearchTest.h; path = AddressBook/ABSearchTest.h; sourceTree = "<group>"; };
+		EEF742FB16E903E500CD94B5 /* ABSearchTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABSearchTest.m; path = AddressBook/ABSearchTest.m; sourceTree = "<group>"; };
+		EEF7441C16E943B100CD94B5 /* NSAffineTransformTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSAffineTransformTest.h; sourceTree = "<group>"; };
+		EEF7441D16E943B100CD94B5 /* NSAffineTransformTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAffineTransformTest.m; sourceTree = "<group>"; };
+		EEF7447916E9EA4C00CD94B5 /* NSConnectionTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSConnectionTest.h; sourceTree = "<group>"; };
+		EEF7447A16E9EA4C00CD94B5 /* NSConnectionTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSConnectionTest.m; sourceTree = "<group>"; };
+		EEF744EA16EA13BD00CD94B5 /* NSDistantObjectTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSDistantObjectTest.h; sourceTree = "<group>"; };
+		EEF744EB16EA13BD00CD94B5 /* NSDistantObjectTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDistantObjectTest.m; sourceTree = "<group>"; };
 		EEF7BCD116E0B2BB00CD94B5 /* NSValueTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSValueTest.h; sourceTree = "<group>"; };
 		EEF7BCD216E0B2BB00CD94B5 /* NSValueTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSValueTest.m; sourceTree = "<group>"; };
 		EEF7EB2416DB63EB00CD94B5 /* AddressBookTests.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = AddressBookTests.qcodeproj; path = AddressBook/AddressBookTests.qcodeproj; sourceTree = "<group>"; };
@@ -277,10 +306,16 @@
 				EE13454410A04EB700169BC8 /* Sources */,
 				EEF7152516DD27C200CD94B5 /* Functions.h */,
 				EEF7152616DD27C200CD94B5 /* Functions.m */,
+				EEF7441C16E943B100CD94B5 /* NSAffineTransformTest.h */,
+				EEF7441D16E943B100CD94B5 /* NSAffineTransformTest.m */,
 				EE488A930F90FBC300B3E56F /* NSAttributedStringTest.h */,
 				EE488A940F90FBC300B3E56F /* NSAttributedStringTest.m */,
 				EE27BF680FCAB2C900A48A1E /* NSByteSwappingTest.h */,
 				EE27BF600FCAB29200A48A1E /* NSByteSwappingTest.m */,
+				EEF7447916E9EA4C00CD94B5 /* NSConnectionTest.h */,
+				EEF7447A16E9EA4C00CD94B5 /* NSConnectionTest.m */,
+				EEF744EA16EA13BD00CD94B5 /* NSDistantObjectTest.h */,
+				EEF744EB16EA13BD00CD94B5 /* NSDistantObjectTest.m */,
 				EE27BF690FCAB2E800A48A1E /* NSHTTPCookieTest.h */,
 				EE27BF620FCAB29800A48A1E /* NSHTTPCookieTest.m */,
 				EEBB6D93109CBEE500B67699 /* NSPortCoderTest.h */,
@@ -349,6 +384,15 @@
 			isa = PBXGroup;
 			children = (
 				EEF7EB2416DB63EB00CD94B5 /* AddressBookTests.qcodeproj */,
+				EEF7425216E9036E00CD94B5 /* AddressBook */,
+				EEF742EE16E903C600CD94B5 /* ABAddressBookTest.h */,
+				EEF742EF16E903C600CD94B5 /* ABAddressBookTest.m */,
+				EEF742F616E903DB00CD94B5 /* ABGroupTest.h */,
+				EEF742F716E903DB00CD94B5 /* ABGroupTest.m */,
+				EEF742F216E903D100CD94B5 /* ABPersonTest.h */,
+				EEF742F316E903D100CD94B5 /* ABPersonTest.m */,
+				EEF742FA16E903E500CD94B5 /* ABSearchTest.h */,
+				EEF742FB16E903E500CD94B5 /* ABSearchTest.m */,
 			);
 			name = "AddressBook-Tests";
 			sourceTree = "<group>";
@@ -514,12 +558,12 @@
 			targets = (
 				EE488AE90F91025400B3E56F /* Special */,
 				EEBCCA171693559F00CED788 /* UnitTesting */,
-				EE0C72020F7E7328008B94EE /* Foundation */,
-				EEDB59DF169878070011D22A /* Foundation Build and Run */,
-				EED9802D0F875953002E4AD5 /* AppKit */,
-				EEDB59F4169878070011D22A /* AppKit Build and Run */,
 				EEC07F851699EC2500CA1448 /* AddressBook */,
 				EEC07F9B1699EC3100CA1448 /* AddressBook Build and Run */,
+				EED9802D0F875953002E4AD5 /* AppKit */,
+				EEDB59F4169878070011D22A /* AppKit Build and Run */,
+				EE0C72020F7E7328008B94EE /* Foundation */,
+				EEDB59DF169878070011D22A /* Foundation Build and Run */,
 			);
 		};
 /* End PBXProject section */
@@ -679,6 +723,9 @@
 				EEC07E3E1699C69000CA1448 /* NSScannerTest.m in Sources */,
 				EEF7152716DD27C200CD94B5 /* Functions.m in Sources */,
 				EEF7BCD316E0B2BB00CD94B5 /* NSValueTest.m in Sources */,
+				EEF7441F16E943B100CD94B5 /* NSAffineTransformTest.m in Sources */,
+				EEF7447C16E9EA4C00CD94B5 /* NSConnectionTest.m in Sources */,
+				EEF744ED16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -694,6 +741,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EEF742F116E903C600CD94B5 /* ABAddressBookTest.m in Sources */,
+				EEF742F516E903D100CD94B5 /* ABPersonTest.m in Sources */,
+				EEF742F916E903DB00CD94B5 /* ABGroupTest.m in Sources */,
+				EEF742FD16E903E500CD94B5 /* ABSearchTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -701,6 +752,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EEF742F016E903C600CD94B5 /* ABAddressBookTest.m in Sources */,
+				EEF742F416E903D100CD94B5 /* ABPersonTest.m in Sources */,
+				EEF742F816E903DB00CD94B5 /* ABGroupTest.m in Sources */,
+				EEF742FC16E903E500CD94B5 /* ABSearchTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -725,6 +780,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EEF7448616E9EC3000CD94B5 /* NSConnectionTest.m in Sources */,
 				EEDB59E2169878070011D22A /* NSStringTest.m in Sources */,
 				EEDB59E3169878070011D22A /* NSAttributedStringTest.m in Sources */,
 				EEDB59E4169878070011D22A /* NSByteSwappingTest.m in Sources */,
@@ -735,6 +791,8 @@
 				EEC07E3D1699C69000CA1448 /* NSScannerTest.m in Sources */,
 				EEF7152816DD27C200CD94B5 /* Functions.m in Sources */,
 				EEF7BCD416E0B2BB00CD94B5 /* NSValueTest.m in Sources */,
+				EEF7441E16E943B100CD94B5 /* NSAffineTransformTest.m in Sources */,
+				EEF744EC16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1135,7 +1193,7 @@
 				GCC_PREFIX_HEADER = "";
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "Tests-Info copy 3.plist";
+				INFOPLIST_FILE = "Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				LIBRARY_SEARCH_PATHS = /Developer/Library;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1167,7 +1225,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
 				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "Tests-Info copy 3.plist";
+				INFOPLIST_FILE = "Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -1195,7 +1253,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
 				GCC_VERSION = 4.0;
-				INFOPLIST_FILE = "Tests-Info copy 3.plist";
+				INFOPLIST_FILE = "Tests-Info.plist";
 				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -1333,7 +1391,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
-					Cocoa,
+					Foundation,
 					"-framework",
 					SenTestingKit,
 				);
@@ -1364,7 +1422,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
-					Cocoa,
+					Foundation,
 					"-framework",
 					SenTestingKit,
 				);
@@ -1392,7 +1450,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-framework",
-					Cocoa,
+					Foundation,
 					"-framework",
 					SenTestingKit,
 				);

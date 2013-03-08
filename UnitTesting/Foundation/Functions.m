@@ -104,4 +104,20 @@
 	STAssertEqualObjects(NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES), ([NSArray arrayWithObjects:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"], nil]), nil);
 }
 
+- (void) test80
+{ // this is more like a compiler test...
+	STAssertTrue(strcmp(@encode(char), @encode(signed char)) == 0, nil);
+	STAssertFalse(strcmp(@encode(char), @encode(unsigned char)) == 0, nil);
+	STAssertTrue(strcmp(@encode(int), @encode(signed int)) == 0, nil);
+	STAssertFalse(strcmp(@encode(int), @encode(unsigned int)) == 0, nil);
+}
+
+- (void) test90
+{
+	SEL s=NSSelectorFromString(@"test90");
+	// check if we can create nil selectors, "unknown" selctors, UTF8 selectors etc.
+}
+
+// same for class&protocol
+
 @end
