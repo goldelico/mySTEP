@@ -270,6 +270,8 @@ OPTIMIZE := 3
 CFLAGS += -fno-section-anchors -ftree-vectorize -mfpu=neon -mfloat-abi=softfp
 endif
 
+CFLAGS += -fsigned-char
+
 ## FIXME: we need different prefix paths on compile host and embedded!
 HOST_INSTALL_PATH := $(QuantumSTEP)/$(INSTALL_PATH)
 ## prefix by $ROOT unless starting with //
