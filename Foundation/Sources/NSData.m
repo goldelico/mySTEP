@@ -99,6 +99,8 @@ static IMP appendImp;
 @interface	NSDataMalloc : NSDataStatic
 @end
 
+// FIXME: NSMutableDataMalloc is NOT a subclass of NSMutableData!
+
 @interface	NSMutableDataMalloc : NSDataMalloc
 {
 	unsigned capacity;
@@ -439,13 +441,6 @@ static IMP appendImp;
 		((char *) buffer)[len]='\0';
 	[NSData dataWithBytesNoCopy:buffer length:len+(flag?1:0) freeWhenDone:YES];	// "autofree"
 	return buffer;
-}
-
-- (id) replacementObjectForPortCoder:(NSPortCoder*)coder
-{ // default is to encode by copy
-	if(![coder isByref])
-		return self;
-	return [super replacementObjectForPortCoder:coder];
 }
 
 // could be optimized to avoid copying if we know that we don't have mutable data and handle responsibility of the buffer
@@ -1054,7 +1049,7 @@ static IMP appendImp;
 														// NSCoding	Protocol
 - (Class) classForArchiver			{ return dataMalloc; }		// Not static 
 - (Class) classForCoder				{ return dataMalloc; }		// when decoded 
-- (Class) classForPortCoder			{ return dataMalloc; }	
+- (Class) classForPortCoder			{ return [NSData class]; }	
 
 - (const void *) bytes				{ return bytes; }
 - (unsigned) length					{ return length; }

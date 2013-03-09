@@ -29,7 +29,6 @@
 
 @interface NSDistantObject : NSProxy  <NSCoding>
 {
-	unsigned long long _refCount;
 	NSConnection *_connection;	// retained for local objects
 	id _local;	// retained dependent object if we are a local proxy
 	id _remote;	// reference address/number (same on both sides)

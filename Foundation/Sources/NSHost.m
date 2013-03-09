@@ -154,14 +154,6 @@ static NSMutableDictionary *__hostCache = nil;
 }
 
 - (id) init												{ return NIMP; }
-- (Class) classForPortCoder								{ return isa;}
-
-- (id) replacementObjectForPortCoder:(NSPortCoder*)coder
-{ // default is to encode a proxy
-	if([coder isBycopy])
-		return self;
-	return [super replacementObjectForPortCoder:coder];
-}
 
 - (void) dealloc
 {

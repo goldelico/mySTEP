@@ -478,14 +478,14 @@ static unsigned int _sequence;	// global sequence number
 	// this could also be done in invalidate
 	if(_localObjects)
 		{
-		NSLog(@"local objects=%@", [_localObjects allObjects]);
+		NSLog(@"local objects=%@", NSAllMapTableValues(_localObjects));
 		NSAssert(NSCountMapTable(_localObjects) == 0, @"local objects still use this connection"); // should be empty before we can be released...
 		NSFreeMapTable(_localObjects);
 		NSFreeMapTable(_localObjectsByRemote);
 		}
 	if(_remoteObjects)
 		{
-		NSLog(@"remote objects=%@", [_remoteObjects allObjects]);
+		NSLog(@"remote objects=%@", NSAllMapTableValues(_remoteObjects));
 		NSAssert(NSCountMapTable(_remoteObjects) == 0, @"remote objects still use this connection"); // should be empty before we can be released...
 		NSFreeMapTable(_remoteObjects);
 		}
@@ -777,7 +777,7 @@ static unsigned int _sequence;	// global sequence number
 	int j;
 	for(j=0; j<cnt; j++)
 		{
-		char *type=[sig getArgumentTypeAtIndex:j];
+		const char *type=[sig getArgumentTypeAtIndex:j];
 		if(*type == _C_ID)
 			{
 			id val;
@@ -1182,6 +1182,29 @@ static unsigned int _sequence;	// global sequence number
 	return [_runLoops indexOfObjectIdenticalTo:obj] != NSNotFound;
 }
 
+- (void) addClassNamed:(char *) name version:(int) version
+{
+	NSLog(@"-[NSConnection addClassNamed:%s version:%d]", name, version);
+}
+
+- (int) versionForClassNamed:(NSString *) className
+{
+	Class class;
+	NSNumber *version;
+#if 1
+	NSLog(@"-[NSConnection versionForClassName:%@]", className);
+#endif
+#if FIXME
+	version=[_classVersions objectForKey:className];
+	if(version)
+		return [version intValue];	// defined by sender
+#endif
+	class=NSClassFromString(className);
+	if(!class)
+		return NSNotFound;	// unknown class
+	return [class version];	// default defined by class
+}
+
 @end
 
 @implementation NSConnection (NSPrivate)
@@ -1213,7 +1236,6 @@ static unsigned int _sequence;	// global sequence number
 #endif
 	NSMapInsert(_localObjects, (void *) target, obj);
 	NSMapInsert(_localObjectsByRemote, (void *) remote, obj);
-	[self _incrementLocalProxyCount];
 }
 
 - (void) _removeLocalDistantObjectForLocal:(id) target andRemote:(id) remote;
@@ -1223,7 +1245,6 @@ static unsigned int _sequence;	// global sequence number
 #endif
 	NSMapRemove(_localObjectsByRemote, (void *) remote);
 	NSMapRemove(_localObjects, (void *) target);
-	[self _decrementLocalProxyCount];
 }
 
 // map target id's (may be casted from int) to the distant objects

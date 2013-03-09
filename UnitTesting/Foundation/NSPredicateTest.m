@@ -185,4 +185,16 @@
 	STAssertTrue([p evaluateWithObject: @"aaa"], @"SELF equality works");
 }
 
+#ifndef __APPLE__	// only for 10.7 or later
+- (void) testExpression
+{
+	NSExpression *e;
+	
+	e = [NSExpression expressionWithFormat: @"3*5+2"];
+	STAssertTrue([[e expressionValueWithObject:nil context:nil] intValue] == 17, nil);
+	e = [NSExpression expressionWithFormat: @"self"];
+	STAssertTrue([[e expressionValueWithObject:@"23" context:nil] intValue] == 23, nil);
+}
+#endif
+
 @end

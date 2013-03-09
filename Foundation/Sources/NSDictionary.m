@@ -601,13 +601,6 @@ NSMutableArray *keys = [[[self allKeys] mutableCopy] autorelease];
 
 - (Class) classForCoder				{ return [NSDictionary class]; }
 
-- (id) replacementObjectForPortCoder:(NSPortCoder*)coder
-{ // default is to encode a proxy
-	if([coder isBycopy])
-		return self;
-	return [super replacementObjectForPortCoder:coder];
-}
-
 - (void) encodeWithCoder:(NSCoder*)aCoder
 {
 int count = [self count];

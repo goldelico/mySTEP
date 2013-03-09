@@ -85,6 +85,8 @@
 }
 #endif
 
+// can we create a distant object for a nil local object or target?
+
 #endif
 
 @end

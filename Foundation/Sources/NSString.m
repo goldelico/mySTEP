@@ -2841,14 +2841,6 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 - (Class) classForArchiver							{ return [NSString class]; }
 - (Class) classForCoder								{ return [NSString class]; }
 
-- (id) replacementObjectForPortCoder:(NSPortCoder *)coder
-{ // default is to encode by copy
-	// FIXME: NOT for mutable strings!!!
-	if(![coder isByref])
-		return self;
-	return [super replacementObjectForPortCoder:coder];
-}
-
 - (id) propertyList
 {
 	NSString *err=@"bug: err not changed!";
@@ -3319,6 +3311,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 	//	NSLog(@"@encode(unichar)='%s'", @encode(unichar));
 	[aCoder encodeValueOfObjCType: @encode(unsigned) at: &_count];
 	// FIXME: should we always encode/decode UTF8 to become compatible with NSPortCoder?
+	// or should this depend on [aCoder versionForClassName:@"NSString"] == 1
 	if(_count > 0)
 		[aCoder encodeArrayOfObjCType: @encode(unichar)
 								count: _count
@@ -3696,6 +3689,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 {
 	//	NSLog(@"@encode(unsigned char)=%s", @encode(unsigned char));
 	[aCoder encodeValueOfObjCType:@encode(unsigned) at:&_count];
+	// FIXME: should we always encode/decode UTF8 to become compatible with NSPortCoder?
+	// or should this depend on [aCoder versionForClassName:@"NSString"] == 1
 	if(_count > 0)
 		[aCoder encodeArrayOfObjCType:@encode(unsigned char) 
 								count:_count

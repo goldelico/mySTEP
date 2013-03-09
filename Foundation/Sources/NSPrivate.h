@@ -518,9 +518,12 @@ void NSDecimalFromString(NSDecimal *result, NSString *numberValue,
 - (BOOL) hasRunloop:(NSRunLoop *) obj;
 - (void) _incrementLocalProxyCount;
 - (void) _decrementLocalProxyCount;
+- (void) addClassNamed:(char *) name version:(int) version;
+- (int) versionForClassNamed:(NSString *) className;
 
 @end
 
+// FIXME: this should be completely implemented in NSDistantObject
 @interface NSConnection (NSPrivate)
 
 - (NSDistantObject *) _getLocal:(id) target;	// check if we know a wrapper for this target

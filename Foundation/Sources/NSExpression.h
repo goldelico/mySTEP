@@ -32,6 +32,10 @@ typedef enum _NSExpressionType
 
 @interface NSExpression : NSObject <NSCoding, NSCopying>
 
++ (NSExpression *) expressionWithFormat:(NSString *) format, ...;
++ (NSExpression *) expressionWithFormat:(NSString *) format argumentArray:(NSArray *) args;
++ (NSExpression *) expressionWithFormat:(NSString *) format arguments:(va_list) args;
+
 + (NSExpression *) expressionForAggregate:(NSArray *) elements;
 + (NSExpression *) expressionForConstantValue:(id) obj;			// 123, "123" etc.
 + (NSExpression *) expressionForEvaluatedObject;				// i.e. SELF

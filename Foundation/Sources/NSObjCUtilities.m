@@ -620,7 +620,7 @@ NSString *
 NSStringFromSelector(SEL aSelector)
 {
 	if (aSelector != (SEL)0)
-		return [NSString stringWithCString:(char *) sel_get_name(aSelector)];
+		return [NSString stringWithUTF8String:(const char *) sel_get_name(aSelector)];
 	return nil;
 }
 
@@ -629,8 +629,10 @@ NSSelectorFromString(NSString *aSelectorName)
 {
 	if (aSelectorName != nil)
 		{
-		const char *selName = [aSelectorName cString];
-		SEL s = sel_get_any_uid(selName);
+		const char *selName = [aSelectorName UTF8String];
+//		SEL s = sel_get_any_uid(selName);
+		// FIXME: how can we translate/register arbitrary selectors for DO?
+		SEL s = sel_register_name(selName);
 		if(!s)
 			NSLog(@"NSSelectorFromString(): can't find SEL %@", aSelectorName);
 		return s;
@@ -642,7 +644,7 @@ NSString *
 NSStringFromClass(Class aClass)
 {
 	if (aClass != Nil)
-		return [NSString stringWithCString:(char *) class_get_class_name(aClass)];
+		return [NSString stringWithUTF8String:(const char *) class_get_class_name(aClass)];
 	return nil;
 }
 
@@ -651,7 +653,7 @@ NSClassFromString(NSString *aClassName)
 {
 	if (aClassName != nil)
 		{
-		const char *className = [aClassName cString];
+		const char *className = [aClassName UTF8String];
 		Class c = objc_lookup_class(className);
 		if(!c)
 			NSLog(@"NSClassFromString(): can't find Class %@", aClassName);
@@ -668,7 +670,7 @@ NSString *
 NSStringFromProtocol(Protocol *aProtocol)
 {
 	if (aProtocol != (Protocol*)0)
-		return [NSString stringWithUTF8String: (const char*)[aProtocol name]];
+		return [NSString stringWithUTF8String:(const char*)[aProtocol name]];
 	return nil;
 }
 
@@ -681,13 +683,9 @@ NSProtocolFromString(NSString *aProtocolName)
 {
 	if (aProtocolName != nil)
 		{
-		int	len = [aProtocolName length];
-		char	buf[len+1];
-		
-		[aProtocolName getCString: buf
-						maxLength: len + 1
-						 encoding: NSASCIIStringEncoding];
-		// FIXME:	lookup --->			return GSProtocolFromName (buf);
+		const char *protocolName = [aProtocolName UTF8String];
+		// FIXME:	lookup
+//		Protocol c = objc_lookup_protocol(protocolName);
 		}
 	return (Protocol*)0;
 }

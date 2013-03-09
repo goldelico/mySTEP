@@ -178,9 +178,8 @@ _NSFoundationUncaughtExceptionHandler(NSException *exception)
 - (NSString *) name										{ return e_name; }
 - (NSString *) reason									{ return e_reason; }
 - (NSDictionary *) userInfo								{ return e_info; }
-- (Class) classForPortCoder								{ return isa;}
 
-- (id) replacementObjectForPortCoder:(NSPortCoder*) coder { return self; }	// send exceptions bycopy
+- (id) replacementObjectForPortCoder:(NSPortCoder*) coder { return self; }	// send exceptions always bycopy
 
 - (void) encodeWithCoder:(NSCoder *) aCoder
 {

@@ -584,6 +584,17 @@ struct _NSHashNode *node;
 
 - (NSString *) description; { return NSStringFromMapTable(self); }
 
+/*
+- (NSUInteger) count;
+- (NSDictionary *) dictionaryRepresentation;
+- (NSEnumerator *) keyEnumerator;
+- (NSEnumerator *) objectEnumerator;
+- (id) objectForKey:(id) key;
+- (void) removeAllObjects;
+- (void) removeObjectForKey:(id) key;
+- (void) setObject:(id) obj forKey:(id) key;
+*/
+
 @end
 
 NSMapTable *
@@ -1146,8 +1157,18 @@ const NSHashTableCallBacks NSPointerToStructHashCallBacks = {
     (void(*)(NSHashTable*, void*))__NSReleasePointers, 
     (NSString*(*)(NSHashTable*, const void*))__NSDescribePointers 
 };
-											// NSMapTable predefined callbacks 
+
+// NSMapTable predefined callbacks 
 const NSMapTableKeyCallBacks NSIntMapKeyCallBacks = {
+    (unsigned(*)(NSMapTable *, const void *))__NSHashInteger,
+    (BOOL(*)(NSMapTable *, const void *, const void *))__NSCompareInts,
+    (void (*)(NSMapTable *, const void *anObject))__NSRetainNothing,
+    (void (*)(NSMapTable *, void *anObject))__NSReleaseNothing,
+    (NSString *(*)(NSMapTable *, const void *))__NSDescribeInts,
+    (const void *)NSNotAnIntMapKey
+};
+
+const NSMapTableKeyCallBacks NSIntegerMapKeyCallBacks = {
     (unsigned(*)(NSMapTable *, const void *))__NSHashInteger,
     (BOOL(*)(NSMapTable *, const void *, const void *))__NSCompareInts,
     (void (*)(NSMapTable *, const void *anObject))__NSRetainNothing,

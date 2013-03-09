@@ -1,9 +1,9 @@
 //
-//  NSPortCoderTest.m
-//  Foundation
+// NSPortCoderTest.m
+// Foundation
 //
-//  Created by H. Nikolaus Schaller on 28.10.09.
-//  Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
+// Created by H. Nikolaus Schaller on 28.10.09.
+// Copyright 2009 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -142,7 +142,7 @@ static NSHashTable *_allConnections;
 }
 
 + (NSConnection *) lookUpConnectionWithReceivePort:(NSPort *) receivePort
-										  sendPort:(NSPort *) sendPort;
+										 sendPort:(NSPort *) sendPort;
 { // look up if we already know this connection
 	NSLog(@"+[MockConnection lookUpConnectionWithReceivePort:]");
 	if(_allConnections)
@@ -262,7 +262,7 @@ static NSHashTable *_allConnections;
 }
 
 + (NSConnection *) lookUpConnectionWithReceivePort:(NSPort *) receivePort
-										  sendPort:(NSPort *) sendPort;
+										 sendPort:(NSPort *) sendPort;
 { // look up if we already know this connection
 	NSLog(@"+[NSConnection lookUpConnectionWithReceivePort:]");
 	return [MockConnection lookUpConnectionWithReceivePort:receivePort sendPort:sendPort];
@@ -351,7 +351,7 @@ static NSHashTable *_allConnections;
 - (void) test01Init
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	STAssertEqualObjects([pc components], [NSArray arrayWithObject:[NSData data]],  nil);
+	STAssertEqualObjects([pc components], [NSArray arrayWithObject:[NSData data]], nil);
 	pc=[[[NSPortCoder alloc] initWithReceivePort:[connection receivePort] sendPort:[connection sendPort] components:nil] autorelease];	// provide a default object
 }
 
@@ -391,7 +391,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	char val=1;
 	[pc encodeValueOfObjCType:@encode(char) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01>",  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01>", nil);
 }
 
 - (void) test11Char
@@ -399,7 +399,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	char val='x';
 	[pc encodeValueOfObjCType:@encode(char) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<78>",  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<78>", nil);
 }
 
 - (void) test12CharM1
@@ -407,7 +407,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	char val=-1;
 	[pc encodeValueOfObjCType:@encode(char) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ff>",  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<ff>", nil);
 }
 
 - (void) test13Int0
@@ -415,7 +415,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	int val=0;
 	[pc encodeValueOfObjCType:@encode(int) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>",  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", nil);
 }
 
 - (void) test14Int1
@@ -441,7 +441,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	long val=255;
 	[pc encodeValueOfObjCType:@encode(long) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01ff>",  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01ff>", nil);
 	// 1 byte positive integer
 }
 
@@ -525,7 +525,7 @@ static NSHashTable *_allConnections;
 	Class val=Nil;
 	id have;
 	[pc encodeValueOfObjCType:@encode(Class) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101046e 696c00>",  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101046e 696c00>", nil);
 	pc=[self portCoderForDecode:@"<0101046e 696c00>"];	// <00> returns 'not enough data to decode integer'
 	[pc decodeValueOfObjCType:@encode(Class) at:&have];
 	STAssertEqualObjects(have, Nil, nil);
@@ -547,9 +547,9 @@ static NSHashTable *_allConnections;
 - (void) test27Selector
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	SEL val=_cmd;
+	SEL val=@selector(testSelector);
 	[pc encodeValueOfObjCType:@encode(SEL) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010f74 65737432 3753656c 6563746f 7200>",  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010d74 65737453 656c6563 746f7200>", nil);
 	// prefix 0x01, 01 bytes length, 0d bytes string, "testSelector\0"
 }
 
@@ -578,10 +578,10 @@ static NSHashTable *_allConnections;
 	id have;
 	id want=@"<01010943 2d537472 696e6700>";	// prefix 0x01, 01 bytes length, 09 bytes string, "C-String\0"
 	[pc encodeValueOfObjCType:@encode(char *) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 	pc=[self portCoderForDecode:want];
 	[pc decodeValueOfObjCType:@encode(char *) at:&val];
-	STAssertTrue(strcmp(val, "C-String") == 0,  nil);
+	STAssertTrue(strcmp(val, "C-String") == 0, nil);
 }
 
 - (void) test31CNULL
@@ -590,10 +590,10 @@ static NSHashTable *_allConnections;
 	char *val=NULL;
 	id want=@"<00>";	// prefix 0x00
 	[pc encodeValueOfObjCType:@encode(char *) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 	pc=[self portCoderForDecode:want];
 	[pc decodeValueOfObjCType:@encode(char *) at:&val];
-	STAssertTrue(val == NULL,  nil);
+	STAssertTrue(val == NULL, nil);
 }
 
 - (void) test32IntArray
@@ -602,11 +602,11 @@ static NSHashTable *_allConnections;
 	int val[]={ 1, 2, 3, 256, 0 };
 	id want=@"<01010102 01030200 0100>";	// 5 times length, byte(s)
 	[pc encodeValueOfObjCType:@encode(int [5]) at:&val];	// crashes of we specify @encode(int [])
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 	val[0]=val[1]=val[2]=val[3]=val[4]=7;
 	pc=[self portCoderForDecode:want];
 	[pc decodeValueOfObjCType:@encode(int [5]) at:&val];
-	STAssertTrue((val[0] == 1 && val[1] == 2 && val[2] == 3 && val[3] == 256 && val[4] == 0),  nil);
+	STAssertTrue((val[0] == 1 && val[1] == 2 && val[2] == 3 && val[3] == 256 && val[4] == 0), nil);
 }
 
 - (void) test33IntPointer
@@ -616,7 +616,7 @@ static NSHashTable *_allConnections;
 	int *val=a;
 	id want=@"<010103>";	// looks as if this just encodes the first entry, i.e. *val
 	[pc encodeValueOfObjCType:@encode(int *) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test34NULLIntPointer
@@ -626,7 +626,7 @@ static NSHashTable *_allConnections;
 	id have;
 	id want=@"<00>";	// NULL pointer
 	[pc encodeValueOfObjCType:@encode(int *) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 #if 0	// prints an "unencodable type (v)" error (exception?)
@@ -638,7 +638,7 @@ static NSHashTable *_allConnections;
 	id have;
 	id want=@"<?>";
 	[pc encodeValueOfObjCType:@encode(void) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test36VoidPointer
@@ -647,7 +647,7 @@ static NSHashTable *_allConnections;
 	void *val="C-String";
 	id want=@"<?>";
 	[pc encodeValueOfObjCType:@encode(void *) at:&val];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 //	STAssertThrows([pc encodeValueOfObjCType:@encode(void *) at:&val], nil);
 }
 
@@ -662,10 +662,10 @@ static NSHashTable *_allConnections;
 	id want=@"<04000080 3f040000 0040>";	// 04 bytes length each component of the struct
 	[pc encodePoint:val];
 	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects(have, want, nil);
 	pc=[self portCoderForDecode:want];
 	phave=[pc decodePoint];
-	STAssertTrue(NSEqualPoints(phave, val),  nil);
+	STAssertTrue(NSEqualPoints(phave, val), nil);
 }
 
 - (void) test38Struct
@@ -682,7 +682,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id want=@"<00>";
 	[pc encodeObject:nil];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test40ConstString
@@ -690,7 +690,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id want=@"<01010109 4e535374 72696e67 00010101 00010653 7472696e 6701>";	// Class(NSString) + contents
 	[pc encodeObject:@"String"];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test41EncodeConstString
@@ -698,7 +698,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id want=@"<01065374 72696e67>";
 	[@"String" encodeWithCoder:pc];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test42UTF8String
@@ -706,7 +706,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id want=@"<01010109 4e535374 72696e67 00010101 00010653 7472696e 6701>";	// Class(NSString) + contents -- all immutable strings are encoded in the same format
 	[pc encodeObject:[NSString stringWithUTF8String:"String"]];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test43CString
@@ -715,12 +715,12 @@ static NSHashTable *_allConnections;
 	id have;
 	id want=@"<01010109 4e535374 72696e67 00010101 00010653 7472696e 6701>";	// Class(NSString) + contents
 	[pc encodeObject:[NSString stringWithCString:"String"]];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 	pc=[self portCoderForDecode:want];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);	// this tests portCoderForDecode:
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);	// this tests portCoderForDecode:
 	// have=[pc decodeObject];
 	[pc decodeValueOfObjCType:@encode(id) at:&have];
-	STAssertEqualObjects(have, @"String",  nil);	// error: NSString cannot decode class version 0
+	STAssertEqualObjects(have, @"String", nil);	// error: NSString cannot decode class version 0
 }
 
 - (void) test44EncodeString
@@ -728,26 +728,29 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id want=@"<01065374 72696e67>";	// contents
 	[[@"xString" substringFromIndex:1] encodeWithCoder:pc];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 	pc=[self portCoderForDecode:want];
 #if 0
 	// we would have to provide the correct version number to the string class...
 	have=[[[NSString alloc] initWithCoder:pc] autorelease];
-	STAssertEqualObjects(have, @"String",  nil);	// error: NSString cannot decode class version 0
+	STAssertEqualObjects(have, @"String", nil);	// error: NSString cannot decode class version 0
 #endif
 }
 
 - (void) test45MutableString
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id have;
-	id want=@"<01010110 4e534d75 7461626c 65537472 696e6700 01010101 0101094e 53537472 696e6700 01010001 06537472 696e6701>";	// Class(NSMutableString) + Class(NSString) + contents
 	[pc encodeObject:[NSMutableString stringWithString:@"String"]];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
-	pc=[self portCoderForDecode:want];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);	// this tests portCoderForDecode:
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534d75 7461626c 65537472 696e6700 01010101 0101094e 53537472 696e6700 01010001 06537472 696e6701>", nil);	// Class(NSMutableString) + Class(NSString) + contents
+}
+
+- (void) test45MutableStringDecode
+{
+	id want=@"<01010110 4e534d75 7461626c 65537472 696e6700 01010101 0101094e 53537472 696e6700 01010001 06537472 696e6701>";	// Class(NSMutableString) + Class(NSString) + contents
+	id have;
+	NSPortCoder *pc=[self portCoderForDecode:want];
 	[pc decodeValueOfObjCType:@encode(id) at:&have];
-	STAssertEqualObjects(have, @"String",  nil);	// error: NSString cannot decode class version 0
+	STAssertEqualObjects(have, @"String", nil);	// error: NSString cannot decode class version 0
 }
 
 - (void) test46MutableString2
@@ -757,41 +760,37 @@ static NSHashTable *_allConnections;
 	id want=[NSString stringWithFormat:@"<%@ %@>", code, code];	// exactly 2 repetitions of Class(NSMutableString) + Class(NSString) + contents - so there is no optimization or encoding cache
 	[pc encodeObject:[NSMutableString stringWithString:@"String"]];
 	[pc encodeObject:[NSMutableString stringWithString:@"String"]];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test47EncodeMutableString
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id want=@"<01065374 72696e67>";
 	[[NSMutableString stringWithString:@"String"] encodeWithCoder:pc];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01065374 72696e67>", nil);
 }
 
 - (void) test48LongString
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id want=@"<01010110 4e534d75 7461626c 65537472 696e6700 01010101 0101094e 53537472 696e6700 01010002 01013031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663001>";
 	[pc encodeObject:[@"" stringByPaddingToLength:257 withString:@"0123456789abcdef" startingAtIndex:0]];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], 
+						 @"<01010110 4e534d75 7461626c 65537472 696e6700 01010101 0101094e 53537472 696e6700 01010002 01013031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663031 32333435 36373839 61626364 65663001>",
+						 nil);
 }
 
 - (void) test49StringUTF8
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id want=@"<01010109 4e535374 72696e67 00010101 000103e2 82ac01>";	// 0x01 prefix + Class(NSString) + some internals + UTF-8 string + 0x01 suffix
-	[pc encodeObject:@"€"];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	[pc encodeObject:[NSString stringWithFormat:@"%C", 0x20AC]];	// EURO SIGN; UTF8: E2 82 AC
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010109 4e535374 72696e67 00010101 000103e2 82ac01>", nil);	// 0x01 prefix + Class(NSString) + some internals + UTF-8 string + 0x01 suffix
 }
 
 - (void) test50EncodeStringUTF8
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id have;
-	id want=@"<0103e282 ac>";	// UTF-8 string
-	[@"€" encodeWithCoder:pc];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want,  nil);
+	[[NSString stringWithFormat:@"%C", 0x20AC] encodeWithCoder:pc];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0103e282 ac>", nil);
 }
 
 - (void) test51DecodeClassNil
@@ -805,83 +804,96 @@ static NSHashTable *_allConnections;
 - (void) test52Data
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id want=@"<01010107 4e534461 74610000 00010531 32333435 01>";	// 0x01 prefix + Class(NSData) + some internals + 01 bytes for length + length 05 + 5 bytes data + 0x01 suffix
 	[pc encodeObject:[NSData dataWithBytes:"12345" length:5]];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010107 4e534461 74610000 00010531 32333435 01>", nil);
+	// 0x01 prefix + Class(NSData) + some internals + 01 bytes for length + length 05 + 5 bytes data + 0x01 suffix
 }
 
 - (void) test53MutableData
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id want=@"<0101010e 4e534d75 7461626c 65446174 61000000 01053132 33343501>";	// 0x01 prefix + Class(NSMutableData) + some internals + 01 bytes for length + length 05 + 5 bytes data + 0x01 suffix
 	[pc encodeObject:[NSMutableData dataWithBytes:"12345" length:5]];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010e 4e534d75 7461626c 65446174 61000000 01053132 33343501>", nil);
+	// 0x01 prefix + Class(NSMutableData) + some internals + 01 bytes for length + length 05 + 5 bytes data + 0x01 suffix
 }
 
 - (void) test54EncodeData
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id want=@"<00010531 32333435>";	// 0x00 internal + 01 bytes for length + length 05 + 5 bytes data
 	[pc encodeDataObject:[NSData dataWithBytes:"12345" length:5]];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00010531 32333435>", nil);
+	// 0x00 internal + 01 bytes for length + length 05 + 5 bytes data
 }
 
 - (void) test55EncodeMutableData
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id want=@"<00010531 32333435>";	// 0x00 internal + 01 bytes for length + length 05 + 5 bytes data
 	[pc encodeDataObject:[NSMutableData dataWithBytes:"12345" length:5]];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00010531 32333435>", nil);
+	// 0x00 internal + 01 bytes for length + length 05 + 5 bytes data
 }
 
 - (void) test56Date
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id obj=[NSDate dateWithTimeIntervalSince1970:12345678];
-	id want=@"<01010107 4e534461 74650000 08000000 99b3c9cc c101>";	// 0x01 prefix + Class(NSDate) + 0x00 + 8 bytes double + 0x01 suffix
-	[pc encodeObject:obj];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	[pc encodeObject:[NSDate dateWithTimeIntervalSince1970:12345678]];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010107 4e534461 74650000 08000000 99b3c9cc c101>", nil);
+	// 0x01 prefix + Class(NSDate) + 0x00 + 8 bytes double + 0x01 suffix
 }
 
 - (void) test57CalendarDate
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id obj=[NSCalendarDate dateWithTimeIntervalSince1970:12345678];
-	id want=@"<0101010f 4e534361 6c656e64 61724461 74650000 08000000 99b3c9cc c1010101 0b4e5354 696d655a 6f6e6500 00010101 094e5353 7472696e 67000101 0100010d 4575726f 70652f42 65726c69 6e010101 0101094e 53537472 696e6700 01010100 01142559 2d256d2d 25642025 483a254d 3a255320 257a0101>";
-	NSLog(@"%@", NSStringFromSelector(_cmd));
-	[pc encodeObject:obj];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	[pc encodeObject:[NSCalendarDate dateWithTimeIntervalSince1970:12345678]];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], 
+						 @"<0101010f 4e534361 6c656e64 61724461 74650000 08000000 99b3c9cc c1010101 0b4e5354 696d655a 6f6e6500 00010101 094e5353 7472696e 67000101 0100010d 4575726f 70652f42 65726c69 6e010101 0101094e 53537472 696e6700 01010100 01142559 2d256d2d 25642025 483a254d 3a255320 257a0101>",
+						 nil);
 }
 
 - (void) test58TimeZone
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id obj=[NSTimeZone timeZoneForSecondsFromGMT:0];
-	id want=@"<0101010b 4e535469 6d655a6f 6e650000 01010109 4e535374 72696e67 00010101 00010347 4d540101>";
-	NSLog(@"%@", NSStringFromSelector(_cmd));
-	[pc encodeObject:obj];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	[pc encodeObject:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010b 4e535469 6d655a6f 6e650000 01010109 4e535374 72696e67 00010101 00010347 4d540101>", nil);
 }
 
 - (void) test59EncodeTimeZone
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id obj=[NSTimeZone timeZoneForSecondsFromGMT:0];
-	id want=@"<01010109 4e535374 72696e67 00010101 00010347 4d5401>";
-	NSLog(@"%@", NSStringFromSelector(_cmd));
-	[obj encodeWithCoder:pc];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	[[NSTimeZone timeZoneForSecondsFromGMT:0] encodeWithCoder:pc];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010109 4e535374 72696e67 00010101 00010347 4d5401>", nil);
 }
 
-- (void) test61Array
+- (void) test61Null
 { // test object on low level in class hierarchy
 	NSPortCoder *pc=[self portCoderForEncode];
-	id obj=[NSMutableArray arrayWithObjects:@"1", @"2", [NSNull null], nil];
-	id want=@"<0101010f 4e534d75 7461626c 65417272 61790000 01030101 01094e53 53747269 6e670001 01010001 01310101 0101094e 53537472 696e6700 01010100 01013201 01010107 4e534e75 6c6c0000 0101>";	// maybe because we don't have a connection and a NSCompoundPredicate is encoded byref by default 
-	//	NSLog(@"obj=%@", obj);
-	[pc encodeObject:obj];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	[pc encodeObject:[NSNull null]];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description],
+						 @"<01010107 4e534e75 6c6c0000 01>",
+						 nil);	// is encoded bycopy as default (!)
 }
+
+- (void) test62Array
+{ // test object on low level in class hierarchy
+	NSPortCoder *pc=[self portCoderForEncode];
+	[pc encodeObject:[NSMutableArray arrayWithObjects:@"1", @"2", [NSNull null], nil]];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description],
+						 @"<0101010f 4e534d75 7461626c 65417272 61790000 01030101 01094e53 53747269 6e670001 01010001 01310101 0101094e 53537472 696e6700 01010100 01013201 01010107 4e534e75 6c6c0000 0101>",
+						 nil);
+	// the array (but not its contents) is encoded bycopy as default (!)
+}
+
+#if 0	// we can't really pass this test since this would include to have the same sequence of storing keys!
+- (void) test63Dict
+{ // test object on low level in class hierarchy
+	NSPortCoder *pc=[self portCoderForEncode];
+	[pc encodeObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:@"value", @"key1", [NSNull null], @"key2", nil]];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description],
+						 @"<01010114 4e534d75 7461626c 65446963 74696f6e 61727900 00010201 0101094e 53537472 696e6700 01010100 01046b65 79320101 0101074e 534e756c 6c000001 01010109 4e535374 72696e67 00010101 0001046b 65793101 01010109 4e535374 72696e67 00010101 00010576 616c7565 0101>",
+						 nil);
+	// the dictionary (but not its contents) is encoded bycopy as default (!)
+}
+#endif
 
 - (void) test70ClassForPortCoder1
 {
@@ -932,7 +944,7 @@ static NSHashTable *_allConnections;
 	[i setTarget:[NSDistantObject proxyWithTarget:0 connection:connection]];
 	[i setSelector:@selector(rootObject)];
 	[pc encodeObject:i];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test81Invocation1
@@ -943,7 +955,7 @@ static NSHashTable *_allConnections;
 	[i setTarget:nil];
 	[i setSelector:@selector(self)];
 	[pc encodeObject:i];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test81Invocation2
@@ -955,7 +967,7 @@ static NSHashTable *_allConnections;
 	[i setTarget:nil];
 	[i setSelector:@selector(self)];
 	[pc encodeObject:i];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test81Invocation3
@@ -966,7 +978,7 @@ static NSHashTable *_allConnections;
 	[i setTarget:nil];
 	[i setSelector:@selector(self)];
 	[pc encodeInvocation:i];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test81Invocation4
@@ -977,7 +989,7 @@ static NSHashTable *_allConnections;
 	[i setTarget:@"string"];
 	[i setSelector:@selector(self)];
 	[pc encodeInvocation:i];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test81Invocation5
@@ -988,7 +1000,7 @@ static NSHashTable *_allConnections;
 	[i setTarget:@"string"];
 	[i setSelector:@selector(self:)];
 	[pc encodeInvocation:i];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test81Invocation6
@@ -1000,7 +1012,7 @@ static NSHashTable *_allConnections;
 	[i setSelector:@selector(self:)];
 	// argument is nil
 	[pc encodeObject:i];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test81Invocation7
@@ -1014,10 +1026,10 @@ static NSHashTable *_allConnections;
 	have=@"arg2";	// encode [@"string" testInvocation7:@"args"]
 	[i setArgument:&have atIndex:2];
 	[pc encodeObject:i];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
-- (void) test81Invocation8
+- (void) test81Invocation8	// selector name is encoded
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	NSInvocation *i=[NSInvocation invocationWithMethodSignature:[NSMethodSignature signatureWithObjCTypes:"@@::"]];
@@ -1026,7 +1038,7 @@ static NSHashTable *_allConnections;
 	[i setSelector:@selector(testInvocation8:)];
 	[i setArgument:&_cmd atIndex:2];
 	[pc encodeObject:i];	// encode [@"string" testInvocation8:@selector(testInvocation8)]
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test81Invocation9
@@ -1038,7 +1050,7 @@ static NSHashTable *_allConnections;
 	[i setSelector:@selector(respondsToSelector:)];
 	[i setArgument:&sel atIndex:2];
 	[pc encodeObject:i];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010d 4e53496e 766f6361 74696f6e 00000101 01104e53 44697374 616e744f 626a6563 74000001 01000101 03010114 72657370 6f6e6473 546f5365 6c656374 6f723a00 01010563 403a3a00 01630101 17646573 63726970 74696f6e 57697468 4c6f6361 6c653a00 01>",  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010d 4e53496e 766f6361 74696f6e 00000101 01104e53 44697374 616e744f 626a6563 74000001 01000101 03010114 72657370 6f6e6473 546f5365 6c656374 6f723a00 01010563 403a3a00 01630101 17646573 63726970 74696f6e 57697468 4c6f6361 6c653a00 01>", nil);
 }
 
 #if 0
@@ -1051,7 +1063,7 @@ static NSHashTable *_allConnections;
 	// raises an exception: more significant bytes (37) than room to hold them (4)
 	have=[pc decodeRetainedObject];	// should be NSInvocation
 	NSLog(@"textInvocation10: %@", [[[pc components] objectAtIndex:0] description]);
-//	STAssertEqualObjects(have, want,  nil);
+//	STAssertEqualObjects(have, want, nil);
 }
 #endif
 
@@ -1066,7 +1078,7 @@ static NSHashTable *_allConnections;
 	[i setSelector:@selector(self)];
 	[i setReturnValue:&r];
 	[pc encodeReturnValue:i];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 #if FIXME	// we can't decode -> "NSString can't decode class version 0"
 	pc=[self portCoderForDecode:have];
 	[pc decodeReturnValue:i];
@@ -1086,7 +1098,7 @@ static NSHashTable *_allConnections;
 #if FIXME	// we can't decode -> "NSString can't decode class version 0"
 	[pc decodeReturnValue:i];
 	[i getReturnValue:&have];
-	STAssertEqualObjects(have, want,  nil);
+	STAssertEqualObjects(have, want, nil);
 #endif
 }
 
@@ -1099,7 +1111,7 @@ static NSHashTable *_allConnections;
 	id obj=[NSCompoundPredicate notPredicateWithSubpredicate:[NSPredicate predicateWithValue:YES]];
 	id want=@"<01010110 4e534469 7374616e 744f626a 65637400 00010400 01>";	// NSCompoundPredicate is encoded byref by default 
 	[pc encodeObject:obj];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test90ByrefObject
@@ -1107,20 +1119,20 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id obj=@"string", obj2;
 	[pc encodeByrefObject:obj];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010200 01>",  nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010200 01>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001
 	// try again
 	pc=[self portCoderForEncode];
 	[pc encodeByrefObject:obj];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010200 01>",  nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001 -- same id again, even for a new port coder!
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010200 01>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001 -- same id again, even for a new port coder!
 	// try another string
 	pc=[self portCoderForEncode];
 	obj2=@"STRING";
 	[pc encodeByrefObject:obj2];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010300 01>",  nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0102* 0001 -- next object id
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010300 01>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0102* 0001 -- next object id
 	// try again
 	pc=[self portCoderForEncode];
 	[pc encodeByrefObject:obj];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010200 01>",  nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001 -- same id again, even for a new port coder!
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010200 01>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001 -- same id again, even for a new port coder!
 	/* conclusions
 	 * byref (local) objects are numbered
 	 * encoding the same object again "remembers" the number
@@ -1142,13 +1154,13 @@ static NSHashTable *_allConnections;
 	STAssertFalse([pc1 connection] == [pc2 connection], nil);	// are indeed different connections
 	id obj=@"samestring";
 	[pc1 encodeByrefObject:obj];
-	STAssertEqualObjects([[[pc1 components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010500 01>",  nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001
+	STAssertEqualObjects([[[pc1 components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010500 01>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001
 	// now on other connection
 	[pc2 encodeByrefObject:obj];
-	STAssertEqualObjects([[[pc2 components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010600 01>",  nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001 -- same id again, even for a new port coder!
+	STAssertEqualObjects([[[pc2 components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010600 01>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001 -- same id again, even for a new port coder!
 	// and again on first connection
 	[pc1 encodeByrefObject:obj];
-	STAssertEqualObjects([[[pc1 components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010500 01010101 104e5344 69737461 6e744f62 6a656374 00000105 0001>",  nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001
+	STAssertEqualObjects([[[pc1 components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010500 01010101 104e5344 69737461 6e744f62 6a656374 00000105 0001>", nil);	// 0x01 lenlen len "NSDistantObject\0" 00 *0101* 0001
 	/* conclusions
 	 * objects encoded for different connections get a different sequence number (!)
 	 * so there *is* some storage that stores an association tuple (object, connection, number)
@@ -1163,7 +1175,7 @@ static NSHashTable *_allConnections;
 	id obj=@"string";
 	id want=@"<01010109 4e535374 72696e67 00010101 00010673 7472696e 6701>";
 	[pc encodeBycopyObject:obj];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want,  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], want, nil);
 }
 
 - (void) test93ByRefAndByCopy
@@ -1184,7 +1196,7 @@ static NSHashTable *_allConnections;
 	// STAssertTrue([obj didSeeByref:0 byCopy:1], nil);
 	STAssertFalse([pc isByref], nil);
 	STAssertFalse([pc isBycopy], nil);	// is only set while we are within encodeBycopyObject
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010112 42795265 66427943 6f707954 65737465 72000001 01010112 42795265 66427943 6f707954 65737465 72000001 01010112 42795265 66427943 6f707954 65737465 72000001>",  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010112 42795265 66427943 6f707954 65737465 72000001 01010112 42795265 66427943 6f707954 65737465 72000001 01010112 42795265 66427943 6f707954 65737465 72000001>", nil);
 	/* conclustions
 	 * byref and bycopy are only valid while an encodeBy*: method is running
 	 */
@@ -1196,7 +1208,7 @@ static NSHashTable *_allConnections;
 	id obj;
 	obj=[NSDistantObject proxyWithLocal:[[NSObject new] autorelease] connection:connection];
 	[pc encodeBycopyObject:obj];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010700 01>",  nil);	// stores the object and assignes a fresh object-id (4 in this case)
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010700 01>", nil);	// stores the object and assignes a fresh object-id (4 in this case)
 }
 
 - (void) test95DistantObjectRemoteProxy
@@ -1204,7 +1216,7 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	id obj=[NSDistantObject proxyWithTarget:(void *) 4 connection:connection];
 	[pc encodeBycopyObject:obj];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>",  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", nil);
 }
 
 - (void) test96MyClass
@@ -1224,7 +1236,7 @@ static NSHashTable *_allConnections;
 	STAssertEquals([[pc components] count], 2u, nil);
 	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<>",nil);
 	STAssertEqualObjects([[pc components] objectAtIndex:1], port, nil);
-	// encodePortObject adds another component
+	// encodePortObject adds another component - and does not check for a subclass of NSPort
 }
 
 - (void) test98PortObject
@@ -1252,7 +1264,7 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	[pc encodeObject:connection];		// encoded as NSDistantObject - gets its own unique serial number!
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010900 01>",  nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010900 01>", nil);
 }
 
 - (void) test99_2OtherConnection

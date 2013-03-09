@@ -356,17 +356,9 @@ int count;
 	return _contents[idx];
 }
 
-- (id) replacementObjectForPortCoder:(NSPortCoder*)coder
-{ // default is to encode a proxy
-	if([coder isBycopy])
-		return self;
-	return [super replacementObjectForPortCoder:coder];
-}
-
 - (void) encodeWithCoder:(NSCoder*)aCoder
 {
 	[aCoder encodeValueOfObjCType: @encode(unsigned) at: &_count];
-
 	if (_count > 0)
 		[aCoder encodeArrayOfObjCType:@encode(id) count:_count at:_contents];
 }

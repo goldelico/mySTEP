@@ -547,15 +547,6 @@ longestEffectiveRange:(NSRange *)aRange
 	return self;
 }
 
-- (Class) classForPortCoder				{ return [self class]; }
-
-- (id) replacementObjectForPortCoder:(NSPortCoder*)coder
-{ // default is to encode a proxy
-	if([coder isBycopy])
-		return self;
-	return [super replacementObjectForPortCoder:coder];
-}
-
 @end /* NSAttributedString */
 
 //*****************************************************************************

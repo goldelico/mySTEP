@@ -87,19 +87,19 @@ typedef struct _NSHashEnumerator {
 
 @end
 
-													// Predefined callback sets
+// Predefined callback sets
 extern const NSHashTableCallBacks NSIntHashCallBacks;  // deprecated since 10.5
 extern const NSHashTableCallBacks NSIntegerHashCallBacks;
-extern const NSHashTableCallBacks NSNonOwnedPointerHashCallBacks; 
-extern const NSHashTableCallBacks NSNonRetainedObjectHashCallBacks; 
-extern const NSHashTableCallBacks NSObjectHashCallBacks; 
-extern const NSHashTableCallBacks NSOwnedObjectIdentityHashCallBacks; 
-extern const NSHashTableCallBacks NSOwnedPointerHashCallBacks; 
-extern const NSHashTableCallBacks NSPointerToStructHashCallBacks; 
+extern const NSHashTableCallBacks NSNonOwnedPointerHashCallBacks;
+extern const NSHashTableCallBacks NSNonRetainedObjectHashCallBacks;
+extern const NSHashTableCallBacks NSObjectHashCallBacks;
+extern const NSHashTableCallBacks NSOwnedObjectIdentityHashCallBacks;
+extern const NSHashTableCallBacks NSOwnedPointerHashCallBacks;
+extern const NSHashTableCallBacks NSPointerToStructHashCallBacks;
 
-														// Hash Table Functions
-NSHashTable *											// Create a Table
-NSCreateHashTable(NSHashTableCallBacks callBacks, NSUInteger capacity);
+// Hash Table Functions
+NSHashTable *
+NSCreateHashTable(NSHashTableCallBacks callBacks, NSUInteger capacity);	// Create a Table
 
 NSHashTable *
 NSCreateHashTableWithZone(NSHashTableCallBacks callBacks, NSUInteger capacity, NSZone *zone);

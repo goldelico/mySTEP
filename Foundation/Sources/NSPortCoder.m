@@ -212,15 +212,11 @@ const char *objc_skip_typespec (const char *type)
 }
 
 - (NSConnection *) connection;
-{
-	if(!_connection)
-		{
-		_connection=[NSConnection connectionWithReceivePort:_recv sendPort:_send];	// get our connection object (new or existing)
-#if 0
-		printf("c: %s\n", [[_connection description] UTF8String]);
-#endif
-		}
-	return _connection;
+{ // not cached!
+	NSConnection *c=[NSConnection lookUpConnectionWithReceivePort:_recv sendPort:_send];	// get our connection object if it exists
+	if(!c)
+		c=[[[NSConnection alloc] initWithReceivePort:_recv sendPort:_send] autorelease];	// create
+	return c;
 }
 
 - (id) initWithReceivePort:(NSPort *) recv sendPort:(NSPort *) send components:(NSArray *) cmp;
@@ -231,14 +227,15 @@ const char *objc_skip_typespec (const char *type)
 		NSAssert(recv, @"receive port");
 		NSAssert(send, @"send port");
 		if(!cmp)
-			cmp=[NSMutableArray arrayWithObject:[NSMutableData dataWithCapacity:200]];	// provide a default object for encoding
-		NSAssert(cmp, @"components");
+			_components=[[NSMutableArray alloc] initWithObjects:[NSMutableData dataWithCapacity:200], nil];	// provide a default object for encoding
+		else
+			_components=[cmp retain];
+		NSAssert(_components, @"components");
 		_recv=[recv retain];
 		_send=[send retain];
-		_components=[cmp retain];
 		first=[_components objectAtIndex:0];
 		_pointer=[first bytes];	// set read pointer
-		_eod=(unsigned char *) [first bytes] + [first length];	// only relevant for decoding
+		_eod=(unsigned char *) [first bytes] + [first length];	// only relevant for decoding but initialize always
 		}
 	return self;
 }
@@ -254,18 +251,14 @@ const char *objc_skip_typespec (const char *type)
 
 // core encoding
 
-// should know about expected length
-// raise exception: more significant bytes (%d) than room to hold them (%d)
-
 - (void) _encodeInteger:(long long) val
 {
 	NSMutableData *data=[_components objectAtIndex:0];
-	union
-	{
-	long long val;
-	unsigned char data[8];
+	union {
+		long long val;
+		unsigned char data[8];
 	} d;
-	char len=8;
+	signed char len=8;
 #if 0
 	NSLog(@"encode %lld", val);
 #endif
@@ -275,6 +268,7 @@ const char *objc_skip_typespec (const char *type)
 		while(len > 1 && d.data[len-1] == (unsigned char) 0xff)
 			len--;	// get first non-0xff byte which determines length
 		len=-len;	// encode by negative length
+		NSLog(@"_encodeInteger len = %d", len);
 		}
 	else
 		{
@@ -282,16 +276,17 @@ const char *objc_skip_typespec (const char *type)
 			len--;	// get first non-0 byte which determines length
 		}
 	[data appendBytes:&len length:1];	// encode length of int
-	[data appendBytes:&d.data length:len<0?-len:len];	// encode integer with absolute length
+	[data appendBytes:&d.data length:len<0?-len:len];	// encode significant bytes
 }
 
 - (void) encodePortObject:(NSPort *) port;
 {
-	if(![port isKindOfClass:[NSPort class]])
+/*	if(![port isKindOfClass:[NSPort class]])
 		{
 		NSLog(@"encodePortObject: %@", port);
 		[NSException raise:NSInvalidArgumentException format:@"NSPort expected"];
 		}
+ */
 	[(NSMutableArray *) _components addObject:port];
 }
 
@@ -580,12 +575,14 @@ const char *objc_skip_typespec (const char *type)
 	return [NSString stringWithFormat:@"%@ * %@", [first subdataWithRange:NSMakeRange(0, _pointer-f)], [first subdataWithRange:NSMakeRange(_pointer-f, _eod-_pointer)]];
 }
 
+// should know about expected length
+// raise exception: more significant bytes (%d) than room to hold them (%d)
+
 - (long long) _decodeInteger
 {
-	union
-	{
-	long long val;
-	unsigned char data[8];
+	union {
+		long long val;
+		unsigned char data[8];
 	} d;
 	int len;
 	if(_pointer >= _eod)
@@ -837,18 +834,14 @@ const char *objc_skip_typespec (const char *type)
 
 - (int) versionForClassName:(NSString *) className
 { // can be called within initWithCoder to find out which version(s) to decode
-	Class class;
 	NSNumber *version;
-#if 0
-	NSLog(@"versionForClassName: %@", className);
+#if 1
+	NSLog(@"-[NSConnection versionForClassName:%@]", className);
 #endif
 	version=[_classVersions objectForKey:className];
 	if(version)
 		return [version intValue];	// defined by sender
-	class=NSClassFromString(className);
-	if(!class)
-		return NSNotFound;	// unknown class
-	return [class version];
+	return [[self connection] versionForClassNamed:className];
 }
 
 @end
@@ -1037,6 +1030,8 @@ const char *objc_skip_typespec (const char *type)
 		NSLog(@"decodeRetainedObject: unknown class %@", NSStringFromClass(class));
 		return nil;	// unknown - should have raised?
 		}
+	// FIXME: this all is handled by [connection addClassNamed: version:]
+	// but how do we know to pop the stack???
 	savedClassVersions=_classVersions;
 	if(_classVersions)
 		_classVersions=[_classVersions mutableCopy];
@@ -1196,17 +1191,73 @@ const char *objc_skip_typespec (const char *type)
 @end
 #endif
 
-@implementation NSTimeZone (NSPortCoding) 
-
+@implementation NSTimeZone (NSPortCoding)
 + (int) _versionForPortCoder; { return 1; }
-
 @end
 
-@implementation NSString (NSPortCoding) 
+@implementation NSArray (NSPortCoding)
+- (id) replacementObjectForPortCoder:(NSPortCoder*)coder
+{ // default is to encode bycopy
+	if(![coder isByref])
+		return self;
+	return [super replacementObjectForPortCoder:coder];
+}
+@end
+
+@implementation NSDictionary (NSPortCoding)
+- (id) replacementObjectForPortCoder:(NSPortCoder*)coder
+{ // default is to encode bycopy
+	if(![coder isByref])
+		return self;
+	return [super replacementObjectForPortCoder:coder];
+}
+@end
+
+@implementation NSNull (NSPortCoding)
+- (id) replacementObjectForPortCoder:(NSPortCoder*)coder
+{ // default is to encode bycopy
+	if(![coder isByref])
+		return self;
+	return [super replacementObjectForPortCoder:coder];
+}
+@end
+
+@implementation NSData (NSPortCoding)
+- (Class) classForPortCoder { return [NSData class]; }	// class cluster
+- (id) replacementObjectForPortCoder:(NSPortCoder*)coder
+{ // default is to encode bycopy
+	if(![coder isByref])
+		return self;
+	return [super replacementObjectForPortCoder:coder];
+}
+@end
+
+@implementation NSMutableData (NSPortCoding)
+- (Class) classForPortCoder { return [NSMutableData class]; }	// class cluster
+@end
+
+#ifdef __mySTEP__
+@interface NSDataStatic : NSData @end
+@interface NSDataMalloc : NSDataStatic @end
+@interface NSMutableDataMalloc : NSDataMalloc @end
+
+@implementation NSMutableDataMalloc (NSPortCoding)
+- (Class) classForPortCoder { return [NSMutableData class]; }	// class cluster
+@end
+#endif
+
+@implementation NSString (NSPortCoding)
 
 + (int) _versionForPortCoder; { return 1; }	// we use the encoding version #1 as UTF8-String (with length but without trailing 0!)
 
 - (Class) classForPortCoder { return [NSString class]; }	// class cluster
+
+- (id) replacementObjectForPortCoder:(NSPortCoder *)coder
+{ // default is to encode by copy
+	if(![coder isByref])
+		return self;
+	return [super replacementObjectForPortCoder:coder];
+}
 
 - (void) _encodeWithPortCoder:(NSCoder *) coder;
 {
@@ -1240,36 +1291,32 @@ const char *objc_skip_typespec (const char *type)
 @end
 
 @implementation NSMutableString (NSPortCoding)
-
 - (Class) classForPortCoder	{ return [NSMutableString class]; }	// even for subclasses
-
 @end
 
+#ifdef __mySTEP__
+@implementation GSMutableString (NSPortCoding)	// does not inherit from NSMutableString
+- (Class) classForPortCoder	{ return [NSMutableString class]; }	// even for subclasses
+@end
+#endif
 
 @implementation NSValue (NSPortCoding)
-
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode numbers bycopy
-
 @end
 
 @implementation NSNumber (NSPortCoding)
-
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode numbers bycopy
-
 - (Class) classForPortCoder { return [NSNumber class]; }	// class cluster
-
 @end
 
 @implementation NSMethodSignature (NSPortCoding)
 
-// it is not clear if we can encode it at all!
+// it is not even clear if we can encode it at all!
 
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode method signatures bycopy (if at all!)
 
 @end
 
 @implementation NSInvocation (NSPortCoding)
-
 - (id) replacementObjectForPortCoder:(NSPortCoder*)coder { return self; }	// don't replace by another proxy, i.e. encode invocations bycopy
-
 @end

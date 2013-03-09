@@ -782,6 +782,26 @@
 
 @implementation NSExpression
 
++ (NSExpression *) expressionWithFormat:(NSString *) format, ...;
+{
+	NSExpression *p;
+	va_list va;
+    va_start(va, format);
+	p=[self expressionWithFormat:format arguments:va];
+	va_end(va);
+	return p;
+}
+
++ (NSExpression *) expressionWithFormat:(NSString *) format argumentArray:(NSArray *) args;
+{
+	return [self _parseExpressionWithScanner:[_NSPredicateScanner _scannerWithString:format args:[args objectEnumerator]]];
+}
+
++ (NSExpression *) expressionWithFormat:(NSString *) format arguments:(va_list) args;
+{
+	return [self _parseExpressionWithScanner:[_NSPredicateScanner _scannerWithString:format args:nil vargs:args]];
+}
+
 + (id) _parseExpressionWithScanner:(_NSPredicateScanner *) sc;
 {
 	static NSCharacterSet *_identifier;
@@ -790,6 +810,12 @@
 	if([sc scanDouble:&dbl])
 		return [NSExpression expressionForConstantValue:[NSNumber numberWithDouble:dbl]];
 	// FIXME: handle integer, hex constants, 0x 0o 0b
+	if([sc scanString:@"0x" intoString:NULL])
+		;
+	if([sc scanString:@"0o" intoString:NULL])
+		;
+	if([sc scanString:@"0b" intoString:NULL])
+		;
 	if([sc scanString:@"-" intoString:NULL])
 		return [NSExpression expressionForFunction:@"_chs" arguments:[NSArray arrayWithObject:[self _parseExpressionWithScanner:sc]]];
 	if([sc scanString:@"(" intoString:NULL])

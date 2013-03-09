@@ -159,18 +159,27 @@
 
 @end
 
+static NSHashTable *distantObjects;	// collects all NSDistantObjects to make them exist only once
+
+// FIXME: we still need to separate name/number spaces of different connections!!!
+// therefore we need a different trick to look up by remote id
+
+static NSMapTable *distantObjectsByRef;	// maps all existing NSDistantObjects to access them by remote reference
+
 @implementation NSDistantObject		// this object forwards messages to the peer
 
 static Class _doClass;
 
+// more private methods
+// + (void) _enableLogging:(BOOL)arg1;
+// - (void) _releaseWireCount:(unsigned long long)arg1;
+
 + (void) initialize
 {
 	_doClass=[NSDistantObject class];
+	distantObjects=NSCreateHashTable(NSNonRetainedObjectHashCallBacks, 100);
+	distantObjectsByRef=NSCreateMapTable(NSIntMapKeyCallBacks, NSNonRetainedObjectMapValueCallBacks, 100);
 }
-
-// more private methods
-// + (void)_enableLogging:(BOOL)arg1;
-// - (void)_releaseWireCount:(unsigned long long)arg1;
 
 + (NSDistantObject*) proxyWithLocal:(id)anObject
 						 connection:(NSConnection*)aConnection;
@@ -184,12 +193,29 @@ static Class _doClass;
 	return [[[self alloc] initWithTarget:anObject connection:aConnection] autorelease];
 }
 
+- (BOOL) isEqual:(id)anObject
+{ // used for finding copies that reference the same local object
+	NSDistantObject *other=anObject;
+	if(other->_connection != _connection)
+		return NO;	// different connection
+	if(_local)
+		return _local == other->_local;	// same local object
+	return _remote == _remote;	// same reference
+}
+
+- (unsigned int) hash
+{ // if the objects are the same they must have the same hash value! - if they are different, some overlap is allowed
+	if(_local)
+		return (unsigned int) _connection + (unsigned int) _local;	// it is sufficient to reference the same object and connection
+	return (unsigned int) _connection + (unsigned int) _remote;	// same remote id
+}
+
 - (NSConnection *) connectionForProxy; { return _connection; }
 
 - (id) init
 { // no need to [super init] because we are subclass of NSProxy
 	_selectorCache=[[NSMutableDictionary alloc] initWithCapacity:10];
-	// fixme: should there be a global cache? How to handle conflicting signatures for different classes?
+	// fixme: should there be a global cache? If yes, how to handle conflicting signatures for different classes?
 	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodDescriptionForSelector:)] forKey:@"methodDescriptionForSelector:"]; 	// predefine NSMethodSignature cache
 	//	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(methodSignatureForSelector:)] forKey:@"methodSignatureForSelector:"]; 	// predefine NSMethodSignature cache
 	[_selectorCache setObject:[NSObject instanceMethodSignatureForSelector:@selector(respondsToSelector:)] forKey:@"respondsToSelector:"]; 	// predefine NSMethodSignature cache
@@ -199,8 +225,16 @@ static Class _doClass;
 - (id) initWithLocal:(id)localObject connection:(NSConnection*)aConnection;
 { // this is initialization for vending objects
 	id remoteObjectId;
-	static unsigned int nextReference=100;	// shared between all connections and unique for this address space
-	NSDistantObject *proxy=[aConnection _getLocal:localObject];
+	static unsigned int nextReference=0;	// shared between all connections and unique for this address space
+	NSDistantObject *proxy;
+	if(!aConnection || !localObject)
+		{
+		[self release];
+		return nil;
+		}
+	_connection=aConnection;
+	_local=[localObject retain];	// retain the local object as long as we exist
+	proxy=NSHashGet(distantObjects, self);	// returns nil or any object that -isEqual:
 	if(proxy)
 		{ // already known
 #if 1
@@ -209,16 +243,15 @@ static Class _doClass;
 			[self release];	// release newly allocated object
 			return [proxy retain];	// retain the existing proxy once
 		}
-	self=[self init];
+	self=[self init];	// initialize more parts
 #if 1	// this enables mixing 32 and 64 bit address spaces
 	remoteObjectId=(id) nextReference++;	// assign serial numbers to be able to mix 32 and 64 bit address spaces
 #else	// this is most likely a very old OpenSTEP behaviour stimulated by using an object address for proxyWithLocal:
 	remoteObjectId=localObject;	// use a unique 32 bit object address as descibed in the manual
 #endif
-	_connection=aConnection;
 	_remote=remoteObjectId;
-	_local=[localObject retain];	// retain the local object as long as we exist
-	[aConnection _addLocalDistantObject:self forLocal:localObject andRemote:remoteObjectId];	// add to local objects
+	NSHashInsertKnownAbsent(distantObjects, self);
+	NSMapInsertKnownAbsent(distantObjectsByRef, (void *) _remote, self);
 #if 1
 	NSLog(@"new local proxy (ref=%u) initialized: %@", _remote, self);
 #endif
@@ -227,7 +260,15 @@ static Class _doClass;
 
 - (id) initWithTarget:(id)remoteObject connection:(NSConnection*)aConnection;
 { // remoteObject is an id (without local meaning!) in another thread or another applicationâ in their address space!
-	NSDistantObject *proxy=[aConnection _getRemote:remoteObject];
+	NSDistantObject *proxy;
+	if(!aConnection)
+		{
+		[self release];
+		return nil;
+		}
+	_connection=aConnection;	// we are retained by the connection so don't leak
+	_remote=remoteObject;
+	proxy=NSHashGet(distantObjects, self);	// returns nil or any object that -isEqual:
 	if(proxy)
 		{ // we already have a proxy for this target
 #if 1
@@ -238,14 +279,70 @@ static Class _doClass;
 		}
 	self=[self init];
 	if(remoteObject == nil)	// root proxy
-		[_selectorCache setObject:[aConnection methodSignatureForSelector:@selector(rootObject)] forKey:@"rootObject"]; 	// predefine NSMethodSignature cache
-	_connection=aConnection;	// we are retained by the connection so don't leak
-	_remote=remoteObject;
-	[aConnection _addRemoteDistantObject:self forRemote:remoteObject];	// add to remote objects
+		{
+		NSMethodSignature *ms=[aConnection methodSignatureForSelector:@selector(rootObject)];
+		if(ms)	// don't assume it exists
+			[_selectorCache setObject:ms forKey:@"rootObject"]; 	// predefine NSMethodSignature cache
+		}
+	NSHashInsertKnownAbsent(distantObjects, self);
 #if 1
 	NSLog(@"new remote proxy (ref=%u) initialized: %@", (unsigned int) remoteObject, self);
 #endif
 	return self;
+}
+
+- (id) initWithCoder:(NSCoder *) coder;
+{
+	unsigned int ref;
+	BOOL flag1, flag2;
+	NSDistantObject *proxy;
+	NSConnection *c=[(NSPortCoder *) coder connection];
+#if 0
+	NSLog(@"NSDistantObject initWithCoder:%@", coder);
+#endif
+	[coder decodeValueOfObjCType:@encode(unsigned int) at:&ref];
+	_remote=(id) ref;
+	[coder decodeValueOfObjCType:@encode(char) at:&flag1];
+	[coder decodeValueOfObjCType:@encode(char) at:&flag2];
+#if 1
+	NSLog(@"NSDistantObject %p initWithCoder -> ref=%p flag1=%d flag2=%d", self, _remote, flag1, flag2);
+#endif
+	if(flag1)
+		{ // local (i.e. remote seen from sender's perspective)
+			proxy=NSMapGet(distantObjectsByRef, (void *) _remote);
+			if(proxy)
+				{ // local proxy for this target found
+#if 1
+					NSLog(@"replace (ref=%u) by local proxy %@", ref, proxy);
+#endif
+					[self release];	// release newly allocated object
+					return [proxy retain];	// retain the existing proxy once
+				}
+#if 1
+			NSLog(@"unknown object (ref=%u) referenced by peer", ref);
+#endif
+			// unknown - refers to connection (to get rootObject)
+			// do we check for _remote==nil?
+			[self release];	// release newly allocated object
+			return [c retain];	// unknown remote id refers to the connection object (???)
+		}
+	else
+		{ // clients sends us a handle to access its remote object
+			proxy=NSMapGet(distantObjectsByRef, (void *) _remote);
+			if(proxy)
+				{ // local proxy for this target found
+#if 1
+					NSLog(@"replace (ref=%u) by remote proxy %@", ref, proxy);
+#endif
+					[self release];	// release newly allocated object
+					return [proxy retain];	// retain the existing proxy once
+				}
+#if 1
+			NSLog(@"new remote object (ref=%u) received", ref);
+#endif
+			self=[self initWithTarget:_remote connection:c];	// initialize and install reference in _getRemote
+			return self;
+		}
 }
 
 - (void) setProtocolForProxy:(Protocol*)aProtocol;
@@ -292,13 +389,17 @@ static Class _doClass;
 #if 1
 	NSLog(@"NSDistantObject %p dealloc", self);
 #endif
+	/*
 	if(_local)
 		{
-		[_connection _removeLocalDistantObjectForLocal:_local andRemote:_remote];
+		[self _removeLocalDistantObjectForLocal:_local andRemote:_remote connection:_connection];
 		[_local release];		
 		}
 	else
-		[_connection _removeRemoteDistantObjectForRemote:_remote];
+		[self _removeRemoteDistantObjectForRemote:_remote connection:_connection];
+	 */
+	NSHashRemove(distantObjects, self);
+	NSMapRemove(distantObjectsByRef, (void *) _remote);
 	[_selectorCache release];
 	[super dealloc];
 #if 1
@@ -461,7 +562,7 @@ static Class _doClass;
 - (void) encodeWithCoder:(NSCoder *) coder;
 { // just send the reference number
 	BOOL flag;
-	unsigned int ref=(unsigned int) _remote;	// reference addresses/numbers are encoded as 32 bit unsigned integers although the API declasres them as id
+	unsigned int ref=(unsigned int) _remote;	// reference addresses/numbers are encoded as 32 bit unsigned integers although the API declares them as id
 #if 1
 	NSLog(@"NSDistantObject encodeWithCoder (%@ ref=%u): %@", _local==nil?@"remote":@"local", ref, self);
 #endif
@@ -470,60 +571,6 @@ static Class _doClass;
 	[coder encodeValueOfObjCType:@encode(char) at:&flag];
 	flag=YES;	// always 1 -- is this a "keep alive" flag?
 	[coder encodeValueOfObjCType:@encode(char) at:&flag];
-}
-
-- (id) initWithCoder:(NSCoder *) coder;
-{
-	unsigned int ref;
-	BOOL flag1, flag2;
-	NSDistantObject *proxy;
-	NSConnection *c=[(NSPortCoder *) coder connection];
-#if 0
-	NSLog(@"NSDistantObject initWithCoder:%@", coder);
-#endif
-	[coder decodeValueOfObjCType:@encode(unsigned int) at:&ref];
-	_remote=(id) ref;
-	[coder decodeValueOfObjCType:@encode(char) at:&flag1];
-	[coder decodeValueOfObjCType:@encode(char) at:&flag2];
-#if 1
-	NSLog(@"NSDistantObject %p initWithCoder -> ref=%p flag1=%d flag2=%d", self, _remote, flag1, flag2);
-#endif
-	if(flag1)
-		{ // local (i.e. remote seen from sender's perspective)
-			proxy=[c _getLocalByRemote:_remote];
-			if(proxy)
-				{ // local proxy for this target found
-#if 1
-					NSLog(@"replace (ref=%u) by local proxy %@", ref, proxy);
-#endif
-					[self release];	// release newly allocated object
-					return [proxy retain];	// retain the existing proxy once
-				}
-#if 1
-			NSLog(@"unknown object (ref=%u) referenced by peer", ref);
-#endif
-			// unknown - refers to connection (to get rootObject)
-			// do we check for _remote==nil?
-			[self release];	// release newly allocated object
-			return [c retain];	// unknown remote id refers to the connection object
-		}
-	else
-		{ // clients sends us a handle to access its remote object
-			proxy=[c _getRemote:_remote];
-			if(proxy)
-				{ // local proxy for this target found
-#if 1
-					NSLog(@"replace (ref=%u) by remote proxy %@", ref, proxy);
-#endif
-					[self release];	// release newly allocated object
-					return [proxy retain];	// retain the existing proxy once
-				}
-#if 1
-			NSLog(@"new remote object (ref=%u) received", ref);
-#endif
-			self=[self initWithTarget:_remote connection:c];	// initialize and install reference in _getRemote
-			return self;
-		}
 }
 
 + (id) newDistantObjectWithCoder:(NSCoder *) coder;

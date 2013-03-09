@@ -31,7 +31,6 @@
 
 @interface NSPortCoder : NSCoder
 {
-	NSConnection *_connection;
 	NSPort *_recv;
 	NSPort *_send;
 	NSArray *_components;
