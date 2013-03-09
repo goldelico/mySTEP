@@ -323,7 +323,7 @@
 		{
 		NSLog(@"encodeInvocation has no return value to encode");	// e.g. if [i invoke] did result in an exception!
 		len=1;	// this may also be some default value
-		*(char *) buffer=0x40;
+		*(char *) buffer=[sig methodReturnType][0];	// first character of return type
 		}
 	[aCoder encodeValueOfObjCType:@encode(unsigned char) at:&len];
 	[aCoder encodeArrayOfObjCType:@encode(char) count:len at:buffer];	// encode the bytes of the return value (not the object/type which can be done by encodeReturnValue)

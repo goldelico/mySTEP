@@ -325,7 +325,7 @@ const char *objc_skip_typespec (const char *type)
 		class=[robj classForPortCoder];	// only available for NSObject but not for NSProxy
 	else
 		class=[robj class];
-#if 0
+#if 1
 	if(robj != obj)
 		NSLog(@"different replacement object for: %@", robj);
 	NSLog(@"obj.class=%@", NSStringFromClass([obj class]));
@@ -356,6 +356,9 @@ const char *objc_skip_typespec (const char *type)
 			if(![robj isProxy])	// for some reason we can't call +version on NSProxy...
 				{
 				flag=(version=[class _versionForPortCoder]) != 0;
+#if 1
+				NSLog(@"main version %@ -> %u", NSStringFromClass(class), version);
+#endif
 				if(flag)
 					{ // main class is not version 0
 						[self encodeValueOfObjCType:@encode(BOOL) at:&flag];	// version is not 0
@@ -365,6 +368,9 @@ const char *objc_skip_typespec (const char *type)
 				while(superclass != Nil)
 					{ // check
 						version=[superclass _versionForPortCoder];
+#if 1
+						NSLog(@"superclass version %@ -> %u", NSStringFromClass(superclass), version);
+#endif
 						flag=(version != 0);
 						if(flag)
 							{ // receiver must be notified about version != 0
@@ -1171,7 +1177,7 @@ const char *objc_skip_typespec (const char *type)
 #ifndef __APPLE__	// must be disabled if we try to run on Cocoa Foundation because calling proxyWithLocal does not work well...
 @implementation NSObject (NSPortCoder)
 
-+ (int) _versionForPortCoder; { return 0; }	// default version
++ (int) _versionForPortCoder; { return [self version]; }	// we must be able to override the version for classes like NSString
 
 - (Class) classForPortCoder { return [self classForCoder]; }
 
@@ -1193,6 +1199,12 @@ const char *objc_skip_typespec (const char *type)
 
 @implementation NSTimeZone (NSPortCoding)
 + (int) _versionForPortCoder; { return 1; }
+- (id) replacementObjectForPortCoder:(NSPortCoder*)coder
+{ // default is to encode bycopy
+	if(![coder isByref])
+		return self;
+	return [super replacementObjectForPortCoder:coder];
+}
 @end
 
 @implementation NSArray (NSPortCoding)

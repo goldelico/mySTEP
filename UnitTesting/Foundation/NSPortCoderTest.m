@@ -28,13 +28,13 @@
 
 @implementation MyClass
 
-+ (void) initialize; { [self setVersion:5]; }
-+ (int) version { NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super version]; }
-- (Class) classForCoder { NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super classForCoder]; }
-- (Class) classForPortCoder { NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super classForPortCoder]; }
-- (id) replacementObjectForPortCoder:(NSCoder *) class { NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return self; }	// bycopy...
-- (void) encodeWithCoder:(NSCoder *) c; { NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); }
-- (id) initWithCoder:(NSCoder *) c; { NSLog(@"%@ %@", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return self; }
++ (void) initialize; { NSLog(@"+[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); [self setVersion:5]; }
++ (int) version { NSLog(@"+[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super version]; }
+- (Class) classForCoder { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super classForCoder]; }
+- (Class) classForPortCoder { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super classForPortCoder]; }
+- (id) replacementObjectForPortCoder:(NSCoder *) class { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return self; }	// bycopy...
+- (void) encodeWithCoder:(NSCoder *) c; { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); }
+- (id) initWithCoder:(NSCoder *) c; { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return self; }
 
 @end
 
@@ -1197,7 +1197,7 @@ static NSHashTable *_allConnections;
 	STAssertFalse([pc isByref], nil);
 	STAssertFalse([pc isBycopy], nil);	// is only set while we are within encodeBycopyObject
 	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010112 42795265 66427943 6f707954 65737465 72000001 01010112 42795265 66427943 6f707954 65737465 72000001 01010112 42795265 66427943 6f707954 65737465 72000001>", nil);
-	/* conclustions
+	/* conclusions
 	 * byref and bycopy are only valid while an encodeBy*: method is running
 	 */
 }
@@ -1211,10 +1211,20 @@ static NSHashTable *_allConnections;
 	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010110 4e534469 7374616e 744f626a 65637400 00010700 01>", nil);	// stores the object and assignes a fresh object-id (4 in this case)
 }
 
+// FIXME: we don't get an initialized NSDistantObject on cocoa
+
 - (void) test95DistantObjectRemoteProxy
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	id obj=[NSDistantObject proxyWithTarget:(void *) 4 connection:connection];
+	id obj=[NSDistantObject proxyWithTarget:(id) 44 connection:connection];	// this fails on Cocoa
+	[pc encodeBycopyObject:obj];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", nil);
+}
+
+- (void) test95DistantObjectRemoteProxy0
+{
+	NSPortCoder *pc=[self portCoderForEncode];
+	id obj=[NSDistantObject proxyWithTarget:(id) 0 connection:connection];
 	[pc encodeBycopyObject:obj];
 	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<00>", nil);
 }
@@ -1223,6 +1233,7 @@ static NSHashTable *_allConnections;
 {
 	NSPortCoder *pc=[self portCoderForEncode];
 	MyClass *obj=[[[MyClass alloc] init] autorelease];
+	STAssertEquals((int)[[obj class] version], 5, nil);
 	[pc encodeObject:obj];
 	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010108 4d79436c 61737300 01010500 01>", nil);
 	// 0x01 prefix + Class(MyObject) + 1 byte 00 (uninitialized?) + 0x01 suffix
@@ -1234,9 +1245,8 @@ static NSHashTable *_allConnections;
 	NSPort *port=[NSPort port];
 	[pc encodePortObject:port];
 	STAssertEquals([[pc components] count], 2u, nil);
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<>",nil);
-	STAssertEqualObjects([[pc components] objectAtIndex:1], port, nil);
-	// encodePortObject adds another component - and does not check for a subclass of NSPort
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<>", nil);	// remains empty
+	STAssertEqualObjects([[pc components] objectAtIndex:1], port, nil);	// encodePortObject adds another component - and does not check for a subclass of NSPort
 }
 
 - (void) test98PortObject

@@ -205,6 +205,7 @@ static Class _doClass;
 
 - (unsigned int) hash
 { // if the objects are the same they must have the same hash value! - if they are different, some overlap is allowed
+	NSLog(@"hash %p", self);
 	if(_local)
 		return (unsigned int) _connection + (unsigned int) _local;	// it is sufficient to reference the same object and connection
 	return (unsigned int) _connection + (unsigned int) _remote;	// same remote id
@@ -225,7 +226,7 @@ static Class _doClass;
 - (id) initWithLocal:(id)localObject connection:(NSConnection*)aConnection;
 { // this is initialization for vending objects
 	id remoteObjectId;
-	static unsigned int nextReference=0;	// shared between all connections and unique for this address space
+	static unsigned int nextReference=1;	// shared between all connections and unique for this address space
 	NSDistantObject *proxy;
 	if(!aConnection || !localObject)
 		{
@@ -233,16 +234,19 @@ static Class _doClass;
 		return nil;
 		}
 	_connection=aConnection;
-	_local=[localObject retain];	// retain the local object as long as we exist
+	_local=localObject;
 	proxy=NSHashGet(distantObjects, self);	// returns nil or any object that -isEqual:
 	if(proxy)
 		{ // already known
 #if 1
 			NSLog(@"local proxy for %@ already known: %@", localObject, proxy);
 #endif
-			[self release];	// release newly allocated object
-			return [proxy retain];	// retain the existing proxy once
+			_local=nil;	// avoid that the proxy is deleted from the NSHashTable!
+			[self release];	// release current object
+			return [proxy retain];	// retain and substitute the existing proxy
 		}
+	[aConnection _incrementLocalProxyCount];
+	[_local retain];	// retain the local object as long as we exist
 	self=[self init];	// initialize more parts
 #if 1	// this enables mixing 32 and 64 bit address spaces
 	remoteObjectId=(id) nextReference++;	// assign serial numbers to be able to mix 32 and 64 bit address spaces
@@ -294,7 +298,7 @@ static Class _doClass;
 - (id) initWithCoder:(NSCoder *) coder;
 {
 	unsigned int ref;
-	BOOL flag1, flag2;
+	BOOL flag1, flag2=NO;
 	NSDistantObject *proxy;
 	NSConnection *c=[(NSPortCoder *) coder connection];
 #if 0
@@ -303,7 +307,7 @@ static Class _doClass;
 	[coder decodeValueOfObjCType:@encode(unsigned int) at:&ref];
 	_remote=(id) ref;
 	[coder decodeValueOfObjCType:@encode(char) at:&flag1];
-	[coder decodeValueOfObjCType:@encode(char) at:&flag2];
+//	[coder decodeValueOfObjCType:@encode(char) at:&flag2];	// latest unittesting shows that there is no flag2!?!
 #if 1
 	NSLog(@"NSDistantObject %p initWithCoder -> ref=%p flag1=%d flag2=%d", self, _remote, flag1, flag2);
 #endif
@@ -400,6 +404,11 @@ static Class _doClass;
 	 */
 	NSHashRemove(distantObjects, self);
 	NSMapRemove(distantObjectsByRef, (void *) _remote);
+	if(_local)
+		{
+		[_local release];
+		[_connection _decrementLocalProxyCount];
+		}
 	[_selectorCache release];
 	[super dealloc];
 #if 1
@@ -569,8 +578,8 @@ static Class _doClass;
 	[coder encodeValueOfObjCType:@encode(unsigned int) at:&ref];	// encode as a reference into the address space and not the real object
 	flag=(_local == nil);	// local(0) vs. remote(1) flag
 	[coder encodeValueOfObjCType:@encode(char) at:&flag];
-	flag=YES;	// always 1 -- is this a "keep alive" flag?
-	[coder encodeValueOfObjCType:@encode(char) at:&flag];
+//	flag=YES;	// always 1 -- is this a "keep alive" flag?
+//	[coder encodeValueOfObjCType:@encode(char) at:&flag];
 }
 
 + (id) newDistantObjectWithCoder:(NSCoder *) coder;
