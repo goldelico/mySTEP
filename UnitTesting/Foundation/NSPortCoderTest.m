@@ -23,18 +23,31 @@
 
 @end
 
-@interface MyClass : NSObject <NSCoding>
+@interface MySuperClass : NSObject <NSCoding>
+@end
+
+@implementation MySuperClass
+
++ (void) initialize; { NSLog(@"+[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); [self setVersion:7]; }
++ (int) version { NSLog(@"+[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super version]; }
+
+- (Class) classForCoder { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super classForCoder]; }
+- (Class) classForPortCoder { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super classForPortCoder]; }
+// encode bycopy
+- (id) replacementObjectForPortCoder:(NSCoder *) class { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return self; }	// bycopy...
+- (void) encodeWithCoder:(NSCoder *) c; { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); }
+- (id) initWithCoder:(NSCoder *) c; { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return self; }
+
+@end
+
+
+@interface MyClass : MySuperClass
 @end
 
 @implementation MyClass
 
 + (void) initialize; { NSLog(@"+[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); [self setVersion:5]; }
 + (int) version { NSLog(@"+[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super version]; }
-- (Class) classForCoder { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super classForCoder]; }
-- (Class) classForPortCoder { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return [super classForPortCoder]; }
-- (id) replacementObjectForPortCoder:(NSCoder *) class { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return self; }	// bycopy...
-- (void) encodeWithCoder:(NSCoder *) c; { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); }
-- (id) initWithCoder:(NSCoder *) c; { NSLog(@"-[%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd)); return self; }
 
 @end
 
@@ -663,6 +676,7 @@ static NSHashTable *_allConnections;
 	[pc encodePoint:val];
 	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
 	STAssertEqualObjects(have, want, nil);
+	// decode
 	pc=[self portCoderForDecode:want];
 	phave=[pc decodePoint];
 	STAssertTrue(NSEqualPoints(phave, val), nil);
@@ -671,7 +685,8 @@ static NSHashTable *_allConnections;
 - (void) test38Struct
 {
 	NSPortCoder *pc=[self portCoderForEncode];
-	struct testStruct { char x; char *y; } val={ 'x', "y" };
+	struct testStruct { char x; char *y; } val={ 'x', "y" };	// use a struct where component alignment is important
+	NSLog(@"&x=%p x=%x &y=%p y=%s", &val.x, val.x, &val.y, val.y);
 	[pc encodeValueOfObjCType:@encode(struct testStruct) at:&val];
 	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<78010102 7900>", nil);
 	// 78 is first component; 01 is ???; 01 is length of len; 02 is length; 7900 is string value
@@ -1235,8 +1250,13 @@ static NSHashTable *_allConnections;
 	MyClass *obj=[[[MyClass alloc] init] autorelease];
 	STAssertEquals((int)[[obj class] version], 5, nil);
 	[pc encodeObject:obj];
-	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010108 4d79436c 61737300 01010500 01>", nil);
-	// 0x01 prefix + Class(MyObject) + 1 byte 00 (uninitialized?) + 0x01 suffix
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<01010108 4d79436c 61737300 01010501 01010d4d 79537570 6572436c 61737300 01070001>", nil);
+	// 0x01 prefix + Class(MyClass) + 1 byte 00 + 01057 (Version 7) + Class(MySuperClass) + 1 byte 00 + 0107 (Version 7) + 0x01 suffix
+	obj=[[[MySuperClass alloc] init] autorelease];
+	pc=[self portCoderForEncode];
+	[pc encodeObject:obj];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<0101010d 4d795375 70657243 6c617373 00010107 0001>", nil);
+	// 0x01 prefix + Class(MySuperClass) + 1 byte 00 + 0107 (Version 7) + 0x01 suffix
 }
 
 - (void) test97EncodePort

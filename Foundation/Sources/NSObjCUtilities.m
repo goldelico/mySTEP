@@ -805,11 +805,10 @@ GSGetEncodingName(NSStringEncoding encoding)
 	return [NSString stringWithCString:ret];
 }
 
-extern const char *NSGetSizeAndAlignment(const char *typePtr,
-										 unsigned int *sizep,
-										 unsigned int *alignp)
+const char *NSGetSizeAndAlignment(const char *typePtr,
+								  unsigned int *sizep,
+								  unsigned int *alignp)
 {
-	// FIXME: use a switch()
 	*sizep=objc_sizeof_type(typePtr);
 	*alignp=objc_aligned_size(typePtr);
 	return objc_skip_typespec(typePtr);

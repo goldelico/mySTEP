@@ -298,6 +298,7 @@ const char *objc_skip_typespec (const char *type)
 #if 0
 	NSLog(@"encodeArrayOfObjCType %s count %d size %d", type, count, size);
 #endif
+	// FIXME: handle alignment
 	if(size == 1)
 		{
 		[[_components objectAtIndex:0] appendBytes:array length:count];	// encode bytes directly
@@ -325,7 +326,7 @@ const char *objc_skip_typespec (const char *type)
 		class=[robj classForPortCoder];	// only available for NSObject but not for NSProxy
 	else
 		class=[robj class];
-#if 1
+#if 0
 	if(robj != obj)
 		NSLog(@"different replacement object for: %@", robj);
 	NSLog(@"obj.class=%@", NSStringFromClass([obj class]));
@@ -356,7 +357,7 @@ const char *objc_skip_typespec (const char *type)
 			if(![robj isProxy])	// for some reason we can't call +version on NSProxy...
 				{
 				flag=(version=[class _versionForPortCoder]) != 0;
-#if 1
+#if 0
 				NSLog(@"main version %@ -> %u", NSStringFromClass(class), version);
 #endif
 				if(flag)
@@ -368,7 +369,7 @@ const char *objc_skip_typespec (const char *type)
 				while(superclass != Nil)
 					{ // check
 						version=[superclass _versionForPortCoder];
-#if 1
+#if 0
 						NSLog(@"superclass version %@ -> %u", NSStringFromClass(superclass), version);
 #endif
 						flag=(version != 0);
@@ -546,18 +547,17 @@ const char *objc_skip_typespec (const char *type)
 			if(*type++ == 0)
 				break;	// invalid
 			
-			// FIXME: there is something wrong with alignment so that one test segfaults
-			
-			break;
-			
 			while(*type != 0 && *type != _C_STRUCT_E)
 				{
+				int align=objc_alignof_type(type);
+				int off=(unsigned int) address%align;	// we must handle alignment before encoding and incrementing the address afterwards
+				if(off != 0) address=((char *) address)+(align-off);	// apply alignment
 #if 0
 				NSLog(@"addr %p struct component %s", address, type);
+				NSLog(@"align=%d off=%d", align, off);
 #endif
 				[self encodeValueOfObjCType:type at:address];
-				// FIXME: use NSGetAlignedSize
-				address=objc_aligned_size(type) + (char *)address;
+				address=((char *)address)+objc_aligned_size(type);	// advance address by object size
 				type=objc_skip_typespec(type);	// next
 				}
 			break;
@@ -815,18 +815,24 @@ const char *objc_skip_typespec (const char *type)
 			break;
 		}
 		case _C_STRUCT_B: { // recursively decode components! type is e.g. "{testStruct=c*}"
+#if 0
+			NSLog(@"decodeValueOfObjCType %s", type);
+#endif
 			while(*type != 0 && *type != '=' && *type != _C_STRUCT_E)
 				type++;
 			if(*type++ == 0)
 				break;	// invalid
 			while(*type != 0 && *type != _C_STRUCT_E)
 				{
+				int align=objc_alignof_type(type);
+				int off=(unsigned int) address%align;	// we must handle alignment before encoding and incrementing the address afterwards
+				if(off != 0) address=((char *) address)+(align-off);	// apply alignment
 #if 0
 				NSLog(@"addr %p struct component %s", address, type);
+				NSLog(@"align=%d off=%d", align, off);
 #endif
 				[self decodeValueOfObjCType:type at:address];
-				// FIXME: use NSGetSizeAndAligmnent()
-				address=objc_aligned_size(type) + (char *)address;
+				address=((char *)address)+objc_aligned_size(type);	// advance address by object size
 				type=objc_skip_typespec(type);	// next
 				}
 			break;
