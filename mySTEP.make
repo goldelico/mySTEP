@@ -30,6 +30,7 @@ ifeq (nil,null)   ## this is to allow for the following text without special com
 # PRODUCT_NAME						# e.g. Foundation
 # WRAPPER_EXTENSION					# e.g. framework
 # EXECUTABLE_NAME
+# BUNDLE_IDENTIFIER
 # BUILT_PRODUCTS_DIR
 # TARGET_BUILD_DIR
 
@@ -157,6 +158,10 @@ endif
 ## i.e. target type Aggregate
 
 # define CONTENTS subdirectory as expected by the Foundation library
+
+ifeq ($(EXECUTABLE_NAME),All)
+EXECUTABLE_NAME=$(PRODUCT_NAME)
+endif
 
 ifeq ($(WRAPPER_EXTENSION),)	# command line tool
 	CONTENTS=.
