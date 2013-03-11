@@ -692,6 +692,27 @@ static NSHashTable *_allConnections;
 	// 78 is first component; 01 is ???; 01 is length of len; 02 is length; 7900 is string value
 }
 
+- (void) test38Union
+{
+	NSPortCoder *pc=[self portCoderForEncode];
+	union testUnion { char x; char *y; } val={ .y = "y" };
+	NSLog(@"&x=%p x=%x &y=%p y=%s", &val.x, val.x, &val.y, val.y);
+	[pc encodeValueOfObjCType:@encode(struct testStruct) at:&val];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<>", nil);	// Cocoa simply ignores them
+}
+
+#if 0	// SIGABORTs on Cocoa
+- (void) test38StructBitField
+{
+	NSPortCoder *pc=[self portCoderForEncode];
+	struct testStruct { int x:3, y:5; } val={ 2, 4 };
+//	NSLog(@"&x=%p x=%x &y=%p y=%s", &val.x, val.x, &val.y, val.y);	// can't take address of bitfields
+	[pc encodeValueOfObjCType:@encode(struct testStruct) at:&val];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<78010102 7900>", nil);
+	// 78 is first component; 01 is ???; 01 is length of len; 02 is length; 7900 is string value
+}
+#endif
+
 - (void) test39Nil
 {
 	NSPortCoder *pc=[self portCoderForEncode];

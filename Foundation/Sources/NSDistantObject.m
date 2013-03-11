@@ -254,7 +254,32 @@ static Class _doClass;
 	NSMapInsertKnownAbsent(distantObjectsByRef, (void *) _remote, self);
 #if 1
 	NSLog(@"new local proxy (ref=%u) initialized: %@", _remote, self);
+	NSLog(@"distantObjects: %u byRef: %u", NSCountHashTable(distantObjects), NSCountMapTable(distantObjectsByRef));
 #endif
+	
+	// FIXME: life cycle management is still broken
+
+		/*
+		 * what is the issue?
+		 * if we send a local object byref, it gets wrapped into this initWithLocal object
+		 * and we have to retain the NSDistantObject until...
+		 * ... until when?
+		 * basically as long a the connection exists
+		 * because the peer can retain its NSDistantObject
+		 * and ask to access our local object hours later.
+		 *
+		 * So we may need to observe NSConnectionDidDieNotification
+		 * and release all local objects of that connection
+		 *
+		 * Unless there is a mechanism that the other end can notify that
+		 * it has deallocated its last reference.
+		 *
+		 * But I have not yet found a hint that such a mechanism exists
+		 * in the protocol.
+		 */
+
+	[self retain];
+	
 	return self;
 }
 
@@ -322,6 +347,9 @@ static Class _doClass;
 				return [c retain];	// refers to the connection object
 				}
 			proxy=NSMapGet(distantObjectsByRef, (void *) _remote);
+#if 1
+			NSLog(@"proxy=%p", proxy);
+#endif
 			if(proxy && [proxy connectionForProxy] == c)
 				{ // local proxy for this target found
 #if 1
@@ -332,8 +360,10 @@ static Class _doClass;
 				}
 #if 1
 			NSLog(@"unknown object (ref=%u) referenced by peer", ref);
+			
 #endif
 			[self release];	// release newly allocated object
+			// we could also return [NSNull null] or an empty NSProxy
 			return nil;	// unknown remote id refers to the connection object (???)
 		}
 	// clients sends us a handle (token) to access its remote object

@@ -216,7 +216,7 @@ ifneq ($(DEBIAN_ARCHITECTURES),)
 	for DEBIAN_ARCH in $(DEBIAN_ARCHITECTURES); do \
 		case "$$DEBIAN_ARCH" in \
 			armel ) export ARCHITECTURE=arm-linux-gnueabi;; \
-			armelhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
+			armhf ) export ARCHITECTURE=arm-linux-gnueabihf;; \
 			i386 ) export ARCHITECTURE=i486-linux-gnu;; \
 			mipsel ) export ARCHITECTURE=mipsel-linux-gnu;; \
 			? ) export ARCHITECTURE=unknown-debian-linux-gnu;; \
