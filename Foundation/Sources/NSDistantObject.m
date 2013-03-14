@@ -376,7 +376,7 @@ static Class _doClass;
 - (void) dealloc;
 {
 #if 1
-	NSLog(@"NSDistantObject %p dealloc", self);
+	NSLog(@"NSDistantObject %p dealloc local=%p remote=%p", self, _local, _remote);
 #endif
 	if(_local)
 		{
@@ -386,6 +386,7 @@ static Class _doClass;
 		}
 	NSHashRemove(distantObjects, self);
 	[_selectorCache release];
+	return;
 	[super dealloc];
 #if 1
 	NSLog(@"NSDistantObject %p dealloc done", self);

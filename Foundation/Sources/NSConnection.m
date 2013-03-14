@@ -697,10 +697,21 @@ static unsigned int _sequence;	// global sequence number
 // or class-dumps found on the net
 
 // according to http://www.cocoabuilder.com/archive/cocoa/225353-distributed-objects-with-garbage-collection-on-ppc.html
-// these seem to set up and tear down the runloop scheduling
+// these also seem to set up and tear down the runloop scheduling
 
-- (void) _incrementLocalProxyCount { _localProxyCount++; }
-- (void) _decrementLocalProxyCount { _localProxyCount--; }
+- (void) _incrementLocalProxyCount
+{
+	if(_localProxyCount == 0)
+		NSLog(@"first local proxy created");
+	_localProxyCount++;
+}
+
+- (void) _decrementLocalProxyCount 
+{
+	_localProxyCount--;
+	if(_localProxyCount == 0)
+		NSLog(@"last local proxy destroyed");
+}
 
 + (NSConnection *) lookUpConnectionWithReceivePort:(NSPort *) receivePort
 										  sendPort:(NSPort *) sendPort;
@@ -969,9 +980,9 @@ static unsigned int _sequence;	// global sequence number
 		// they may have to do something with the current conversation and/or with the importedObjects
 		// but I don't know yet.
 		NS_DURING
-		NSLog(@"1st %@", [coder decodeRetainedObject]);	// one more?
+		NSLog(@"1st extra %@", [coder decodeRetainedObject]);	// one more?
 		// 2nd has been seen missing in test code where last decodeRetainedObject did have flag3=0 
-		NSLog(@"2nd %@", [coder decodeRetainedObject]);	// one more?
+		NSLog(@"2nd extra %@", [coder decodeRetainedObject]);	// one more?
 		//			NSLog(@"3rd %@", [coder decodeRetainedObject]);	// one more?
 		NS_HANDLER
 		NSLog(@"decoding exception: %@", localException);

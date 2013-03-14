@@ -1807,7 +1807,9 @@ int index = [self columnWithIdentifier:identifier];
 #if 0
 	NSLog(@"preparedCellAtColumn:%d row %d", col, row);
 	NSLog(@"column=%@", column);
-	NSLog(@"cel=%@", aCell);
+	NSLog(@"cell=%@", aCell);
+	NSLog(@"data=%p", data);
+	NSLog(@"data.class=%@", NSStringFromClass([data class]));
 	NSLog(@"data=%@", data);
 #endif
 	[aCell setObjectValue:data];	// set data from data source

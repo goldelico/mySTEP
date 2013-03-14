@@ -1012,7 +1012,7 @@ id object;
 		Class class;
 		id new_object;
 	
-		[self decodeValueOfObjCType:"#" at:&class];
+		[self decodeValueOfObjCType:@encode(Class) at:&class];
 		object = [class alloc];
 		NSMapInsert(objects, key, object);
 		new_object = [object initWithCoder:self];

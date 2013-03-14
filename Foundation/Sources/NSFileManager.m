@@ -1,15 +1,15 @@
 /* 
-   NSFileManager.m
-
-   Copyright (C) 1997 Free Software Foundation, Inc.
-
-   Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
-   Author: Ovidiu Predescu <ovidiu@net-community.com>
-   Date: Feb 1997
-
-   This file is part of the mySTEP Library and is provided
-   under the terms of the GNU Library General Public License.
-*/
+ NSFileManager.m
+ 
+ Copyright (C) 1997 Free Software Foundation, Inc.
+ 
+ Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
+ Author: Ovidiu Predescu <ovidiu@net-community.com>
+ Date: Feb 1997
+ 
+ This file is part of the mySTEP Library and is provided
+ under the terms of the GNU Library General Public License.
+ */
 
 #import <Foundation/NSFileManager.h>
 #import <Foundation/NSException.h>
@@ -48,7 +48,7 @@
 #endif
 
 #define DIR_enum_state DIR
-										// determine filesystem max path length
+// determine filesystem max path length
 #ifdef _POSIX_VERSION
 #include <limits.h>						// for PATH_MAX
 #include <utime.h>
@@ -69,8 +69,8 @@
 #  endif
 # endif
 #endif
-												// determine if we have statfs 
-												// struct and function
+// determine if we have statfs 
+// struct and function
 #ifndef __APPLE__
 #define HAVE_SYS_STATFS_H 1
 #define HAVE_SYS_VFS_H 1
@@ -106,14 +106,14 @@ static NSFileManager *__fm = nil;
 
 
 @interface NSFileManager (PrivateMethods)
-												// Copies contents of src file 
+// Copies contents of src file 
 - (BOOL) _copyFile:(NSString*)source 			// to dest file. Assumes source
 			toFile:(NSString*)destination		// and dest are regular files
-			handler:handler;					// or symbolic links.
+		   handler:handler;					// or symbolic links.
 
 - (BOOL) _copyPath:(NSString*)source 			// Recursively copies contents
 			toPath:(NSString*)destination		// of src directory to dst.
-			handler:handler;
+		   handler:handler;
 
 @end /* NSFileManager (PrivateMethods) */
 
@@ -167,19 +167,19 @@ static NSFileManager *__fm = nil;
 	const char *cpath = [self fileSystemRepresentationWithPath:path];
 	if(!cpath)
 		{ // bad path
-		if(error)
-			*error=[NSError errorWithDomain:@"FileManager" code:1 userInfo:nil];
-		return NO;
+			if(error)
+				*error=[NSError errorWithDomain:@"FileManager" code:1 userInfo:nil];
+			return NO;
 		}
 	if(stat(cpath, &statbuf) == 0)
 		{ // file or directory already exists!
-		if(error)
-			*error=[NSError errorWithDomain:@"FileManager" code:2 userInfo:nil];
-		return NO;
+			if(error)
+				*error=[NSError errorWithDomain:@"FileManager" code:2 userInfo:nil];
+			return NO;
 		}
 	if(flag)
 		{ // recursively create intermediates first
-		[self createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:attributes error:NULL];
+			[self createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:attributes error:NULL];
 		}
 	if(mkdir(cpath, 0777) != 0)			// will be reduced by umask
 		{
@@ -203,7 +203,7 @@ static NSFileManager *__fm = nil;
 - (NSString*) currentDirectoryPath
 {
 	char path[PATH_MAX];
-
+	
 #if defined(__WIN32__) || defined(_WIN32)
 	if(GetCurrentDirectory(PATH_MAX, path) > PATH_MAX)
 		return nil;
@@ -211,213 +211,213 @@ static NSFileManager *__fm = nil;
     if(getcwd(path, PATH_MAX-1) == NULL)
 		return nil;
 #endif /* WIN32 */
-
+	
     return [self stringWithFileSystemRepresentation:path length:strlen(path)];
 }
 
 - (BOOL) copyPath:(NSString*)source 						// File operations
 		   toPath:(NSString*)destination
-		   handler:handler
+		  handler:handler
 {
-BOOL sourceIsDir;
-NSDictionary *attributes;
-
+	BOOL sourceIsDir;
+	NSDictionary *attributes;
+	
     if (![self fileExistsAtPath:source isDirectory:&sourceIsDir]
-			|| [self fileExistsAtPath:destination])
+		|| [self fileExistsAtPath:destination])
 		return NO;
-
+	
     attributes = [self fileAttributesAtPath:source traverseLink:NO];
-
+	
     if (sourceIsDir) 					// If dest directory is a descendant of
 		{								// src directory copying isn't possible
-		if ([[destination stringByAppendingString:@"/"]
-						  hasPrefix:[source stringByAppendingString:@"/"]])
-			return NO;
-
-		[handler fileManager:self willProcessPath:destination];
-		if (![self createDirectoryAtPath:destination attributes:attributes]) 
-			{
-			if (handler) 
+			if ([[destination stringByAppendingString:@"/"]
+				 hasPrefix:[source stringByAppendingString:@"/"]])
+				return NO;
+			
+			[handler fileManager:self willProcessPath:destination];
+			if (![self createDirectoryAtPath:destination attributes:attributes]) 
 				{
-				NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
-									destination, @"Path",
-									@"cannot create directory", @"Error", nil];
-	
-				return [handler fileManager:self shouldProceedAfterError:e];
+				if (handler) 
+					{
+					NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
+									   destination, @"Path",
+									   @"cannot create directory", @"Error", nil];
+					
+					return [handler fileManager:self shouldProceedAfterError:e];
+					}
+				
+				return NO;
 				}
-
-			return NO;
-			}
-
-		if (![self _copyPath:source toPath:destination handler:handler])
-	    	return NO;
-
-	    [self changeFileAttributes:attributes atPath:destination];
-
-	    return YES;
+			
+			if (![self _copyPath:source toPath:destination handler:handler])
+				return NO;
+			
+			[self changeFileAttributes:attributes atPath:destination];
+			
+			return YES;
 		}
-
+	
 	[handler fileManager:self willProcessPath:source];
 	if (![self _copyFile:source toFile:destination handler:handler])
 	    return NO;
-
+	
 	[self changeFileAttributes:attributes atPath:destination];
-
+	
 	return YES;
 }
 
 - (BOOL) movePath:(NSString*)source 
 		   toPath:(NSString*)destination 
-		   handler:handler
+		  handler:handler
 {
-BOOL sourceIsDir;
-NSString *destinationParent;
-unsigned int sourceDevice, destinationDevice;
-const char *s, *d;
-
+	BOOL sourceIsDir;
+	NSString *destinationParent;
+	unsigned int sourceDevice, destinationDevice;
+	const char *s, *d;
+	
     if (![self fileExistsAtPath:source isDirectory:&sourceIsDir])
 		{
 		NSLog(@"NSFileManager movePath: source %@ does not exist", source);
 		return NO;
 		}
-
+	
     if ([self fileExistsAtPath:destination])
 		{
 		NSLog(@"NSFileManager movePath: destination %@ exists", destination);
 		return NO;
 		}
-    		// Check to see if the source and destination's parent are on the
-			// same physical device so we can perform a rename syscall directly
+	// Check to see if the source and destination's parent are on the
+	// same physical device so we can perform a rename syscall directly
     sourceDevice = [[[self fileSystemAttributesAtPath:source]
-			    			objectForKey:NSFileSystemNumber] unsignedIntValue];
+					 objectForKey:NSFileSystemNumber] unsignedIntValue];
     destinationParent = [destination stringByDeletingLastPathComponent];
     if ([destinationParent isEqual:@""])
 		destinationParent = @".";
     destinationDevice = [[[self fileSystemAttributesAtPath:destinationParent]
-		  				objectForKey:NSFileSystemNumber] unsignedIntValue];
-
+						  objectForKey:NSFileSystemNumber] unsignedIntValue];
+	
     if (sourceDevice != destinationDevice) 
 		{						// If destination directory is a descendant of 
-								// source directory moving isn't possible.
-		if (sourceIsDir && [[destination stringByAppendingString:@"/"]
-			    hasPrefix:[source stringByAppendingString:@"/"]])
+			// source directory moving isn't possible.
+			if (sourceIsDir && [[destination stringByAppendingString:@"/"]
+								hasPrefix:[source stringByAppendingString:@"/"]])
+				return NO;
+			
+			if ([self copyPath:source toPath:destination handler:handler]) 
+				{
+				NSDictionary *a=[self fileAttributesAtPath:source traverseLink:NO];
+				
+				[self changeFileAttributes:a atPath:destination];
+				
+				return [self removeFileAtPath:source handler:handler];
+				}
+			
 			return NO;
-
-		if ([self copyPath:source toPath:destination handler:handler]) 
-			{
-	    	NSDictionary *a=[self fileAttributesAtPath:source traverseLink:NO];
-
-	    	[self changeFileAttributes:a atPath:destination];
-
-	    	return [self removeFileAtPath:source handler:handler];
-			}
-
-		return NO;
 		}						// src and dest are on the same device so we
-								// can simply invoke rename on source. 
+	// can simply invoke rename on source. 
 	s = [self fileSystemRepresentationWithPath:source];
 	d = [self fileSystemRepresentationWithPath:destination];
-
+	
 	[handler fileManager:self willProcessPath:source];
 	if (rename (s, d) == -1) 
 		{
 		if (handler) 
 			{
 			NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
-									source, @"Path", destination, @"ToPath",
-									@"cannot move file", @"Error", nil];
-
+							   source, @"Path", destination, @"ToPath",
+							   @"cannot move file", @"Error", nil];
+			
 			if ([handler fileManager:self shouldProceedAfterError:e])
 				return YES;
 			}
-
+		
 		return NO;
 		}
-
+	
 	return YES;
 }
 
 - (BOOL) linkPath:(NSString*)source 
 		   toPath:(NSString*)destination
-					  handler:handler								{ NIMP ; return NO; }
+		  handler:handler								{ NIMP ; return NO; }
 
 - (BOOL) removeFileAtPath:(NSString*)path handler:handler
 {
 	NSArray	*contents;
 	int	i;
-
+	
 	if (handler)
 		[handler fileManager: self willProcessPath: path];
-
+	
 	if ((contents = [self directoryContentsAtPath: path]) == nil)
 		{
 		if (unlink([path fileSystemRepresentation]) < 0)
 			{
 			BOOL result;
 #if 1
-				NSLog(@"unlink(%s): %s", [path fileSystemRepresentation], strerror(errno));
+			NSLog(@"unlink(%s): %s", [path fileSystemRepresentation], strerror(errno));
 #endif
 			if (handler)
 				{
 				NSMutableDictionary	*d;
-		
+				
 				d = [[NSMutableDictionary alloc] initWithCapacity: 3];
 				[d setObject: path forKey: @"Path"];
 				[d setObject: [NSString stringWithCString: strerror(errno)]
-				   forKey: @"Error"];
+					  forKey: @"Error"];
 				result = [handler fileManager:self shouldProceedAfterError:d];
 				[d release];
 				}
 			else
 				result = NO;
-
+			
 			return result;
 			}
-
+		
 		return YES;
 		}
-
+	
 	for (i = 0; i < [contents count]; i++)
 		{
 		NSAutoreleasePool *arp = [NSAutoreleasePool new];
 		NSString *item = [contents objectAtIndex: i];
 		NSString *next = [path stringByAppendingPathComponent: item];
 		BOOL result = [self removeFileAtPath: next handler: handler];
-	
+		
 		[arp release];
 		if (result == NO)
 			return NO;
 		}
-
+	
 	if (rmdir([path fileSystemRepresentation]) < 0)
 		{
 		BOOL result;
 #if 1
-			NSLog(@"rmdir(%s): %s", [path fileSystemRepresentation], strerror(errno));
+		NSLog(@"rmdir(%s): %s", [path fileSystemRepresentation], strerror(errno));
 #endif
 		if (handler)
 			{
 			NSMutableDictionary	*d;
-	
+			
 			d = [[NSMutableDictionary alloc] initWithCapacity: 3];
 			[d setObject: path forKey: @"Path"];
 			[d setObject: [NSString stringWithCString: strerror(errno)]
-			   forKey: @"Error"];
+				  forKey: @"Error"];
 			result = [handler fileManager:self shouldProceedAfterError:d];
 			[d release];
 			}
 		else
 			result = NO;
-
+		
 		return result;
 		}
-
+	
 	return YES;
 }
 
 - (BOOL) createFileAtPath:(NSString*)path 
 				 contents:(NSData*)contents
-				 attributes:(NSDictionary*)attributes
+			   attributes:(NSDictionary*)attributes
 {
 	int fd, len, written;
 	const char *cpath = [self fileSystemRepresentationWithPath:path];
@@ -425,16 +425,16 @@ const char *s, *d;
 		return NO;
     if ((fd = open (cpath, O_WRONLY|O_TRUNC|O_CREAT, 0644)) < 0)
         return NO;
-
+	
     if (![self changeFileAttributes:attributes atPath:path]) 
 		{
         close (fd);
         return NO;
 		}
-
+	
 	written = (len = [contents length]) ? write(fd, [contents bytes], len) : 0;
 	close (fd);
-
+	
     return (written == len);
 }
 
@@ -464,14 +464,14 @@ const char *s, *d;
 #if 0
 	fprintf(stderr, "fileExistsAtPath %s -> %s\n", [path UTF8String], cpath);
 #endif
-  if (stat(cpath, &statbuf) != 0)
-			{
+	if (stat(cpath, &statbuf) != 0)
+		{
 #if 0
-				fprintf(stderr, "stat error=%s\n", strerror(errno));
+		fprintf(stderr, "stat error=%s\n", strerror(errno));
 #endif
-				return NO;
-			}
-  if (isDirectory)
+		return NO;
+		}
+	if (isDirectory)
 		*isDirectory = ((statbuf.st_mode & S_IFMT) == S_IFDIR);
 	return YES;
 }
@@ -498,11 +498,11 @@ const char *s, *d;
 	struct stat s;
 	if(!cpath)
 		return NO;
-    										// test the exec permission bits
+	// test the exec permission bits
 	if (stat(cpath, &s) == 0)				// return YES if any are set
 		if(s.st_mode & S_IXUSR || s.st_mode & S_IXGRP || s.st_mode & S_IXOTH)
 			return YES;
-
+	
 	return NO;
 }
 
@@ -639,11 +639,11 @@ const char *s, *d;
 - (BOOL) changeFileAttributes:(NSDictionary*)attributes 
 					   atPath:(NSString*)path
 {
-const char *cpath = [self fileSystemRepresentationWithPath:path];
-NSNumber *num;
-NSDate *date;
-BOOL allOk = YES;
-
+	const char *cpath = [self fileSystemRepresentationWithPath:path];
+	NSNumber *num;
+	NSDate *date;
+	BOOL allOk = YES;
+	
 	if(!cpath)
 		return NO;
 #ifndef __WIN32__
@@ -665,7 +665,7 @@ BOOL allOk = YES;
 #else
 		time_t ub[2];
 #endif
-
+		
 		if (stat(cpath, &sb) != 0)
 	    	allOk = NO;
 		else 
@@ -679,7 +679,7 @@ BOOL allOk = YES;
 			ub[1] = [date timeIntervalSince1970];
 			allOk &= (utime((char*)cpath, ub) == 0);
 #endif
-		}	}
+			}	}
     
     return allOk;
 }
@@ -694,15 +694,15 @@ BOOL allOk = YES;
 	NSDirectoryEnumerator_t *de;
 	BOOL isDir;
 	DIR *dir;
-
+	
     if (![self fileExistsAtPath:path isDirectory:&isDir] || !isDir)
 		return nil;
-
+	
 	de = (NSDirectoryEnumerator_t *)[NSDirectoryEnumerator alloc];
     de->_pathStack = [NSMutableArray new];	// recurse into directory `path',
     de->_enumStack = [NSMutableArray new];	// push relative path (to root of  
     de->_topPath = [path retain];			// search) on _pathStack and push
-											// sys dir enumerator onto enumPath
+	// sys dir enumerator onto enumPath
 	//
 	// FIXME: handle virtual home /Users/*
 	//
@@ -711,7 +711,7 @@ BOOL allOk = YES;
 		[de->_pathStack addObject:@""];
 		[de->_enumStack addObject:[NSValue valueWithPointer:dir]];
 		}
-
+	
 	return [(NSDirectoryEnumerator *)de autorelease];
 }
 
@@ -720,14 +720,14 @@ BOOL allOk = YES;
 	// return [self subpathsOfDirectory:path error:NULL];
 	NSDirectoryEnumerator *de = [self enumeratorAtPath: path];
 	NSMutableArray *c;
-
+	
 	if (!de)
 		return nil;
-
+	
 	c = [[NSMutableArray alloc] init];
     while ((path = [de nextObject]))
 		[c addObject:path];
-
+	
     return [c autorelease];
 }
 
@@ -745,11 +745,11 @@ BOOL allOk = YES;
 	NSLog(@"ln -s %s %s", contentPath, linkPath);
 #endif
     if(symlink(contentPath, linkPath) < 0)
-				{
-					// FIXME: raise exception?
-					NSLog(@"createSymbolicLinkAtPath error: %s", strerror(errno));
-					return NO;
-				}
+		{
+		// FIXME: raise exception?
+		NSLog(@"createSymbolicLinkAtPath error: %s", strerror(errno));
+		return NO;
+		}
 	return YES;
 #endif
 }
@@ -771,7 +771,7 @@ BOOL allOk = YES;
 
 - (const char *) fileSystemRepresentationWithPath:(NSString*)path
 {
-//	fprintf(stderr, "fileSystemRepresentation path=%p\n", path);
+	//	fprintf(stderr, "fileSystemRepresentation path=%p\n", path);
 #if 0
 	NSLog(@"fileSystemRepresentationWithPath:%@", path);
 #endif
@@ -779,84 +779,84 @@ BOOL allOk = YES;
 		{ // adapt absolute paths
 			static NSString *virtualRoot;
 			BOOL uflag;
-		if((uflag=[path hasPrefix:@"/Users/"]) || [path isEqualToString:@"/Users"])
-			{ // do search on /mnt/card for virtual home!
-			NSString *alternatePath=[@"/mnt/card" stringByAppendingString:path];
-			const char *cpath = [alternatePath UTF8String];
-			struct stat statbuf;
-			if(stat(cpath, &statbuf) == 0)
-				return cpath; // exists - use that version
-							  // FIXME: should check if we are allowed to write to that directory!
-			if(uflag && stat([[alternatePath stringByDeletingLastPathComponent] UTF8String], &statbuf) == 0)
-				{ // file exists - and is not /Users itself
-				if(((statbuf.st_mode & S_IFMT) == S_IFDIR) && (statbuf.st_mode & S_IWUSR))
-					return cpath; // directory exists and is user-writeable: still use file name in case we want to create that file
+			if((uflag=[path hasPrefix:@"/Users/"]) || [path isEqualToString:@"/Users"])
+				{ // do search on /mnt/card for virtual home!
+					NSString *alternatePath=[@"/mnt/card" stringByAppendingString:path];
+					const char *cpath = [alternatePath UTF8String];
+					struct stat statbuf;
+					if(stat(cpath, &statbuf) == 0)
+						return cpath; // exists - use that version
+					// FIXME: should check if we are allowed to write to that directory!
+					if(uflag && stat([[alternatePath stringByDeletingLastPathComponent] UTF8String], &statbuf) == 0)
+						{ // file exists - and is not /Users itself
+							if(((statbuf.st_mode & S_IFMT) == S_IFDIR) && (statbuf.st_mode & S_IWUSR))
+								return cpath; // directory exists and is user-writeable: still use file name in case we want to create that file
+						}
 				}
-			}
-		if(!virtualRoot)
-			{
-			NSProcessInfo *pi = [NSProcessInfo processInfo];
-			virtualRoot = [[[pi environment] objectForKey:@"QuantumSTEP"] retain];
-//			fprintf(stderr, "virtualRoot=%p\n", virtualRoot);
 			if(!virtualRoot)
-				virtualRoot=@"/usr/share/QuantumSTEP";		// default
+				{
+				NSProcessInfo *pi = [NSProcessInfo processInfo];
+				virtualRoot = [[[pi environment] objectForKey:@"QuantumSTEP"] retain];
+				//			fprintf(stderr, "virtualRoot=%p\n", virtualRoot);
+				if(!virtualRoot)
+					virtualRoot=@"/usr/share/QuantumSTEP";		// default
 #if 0
-			NSLog(@"virtualRoot=%@", virtualRoot);
+				NSLog(@"virtualRoot=%@", virtualRoot);
 #endif
-			}
-		if(![path hasPrefix:@"/dev"] && ![path hasPrefix:@"/sys"] && ![path hasPrefix:@"/proc"] && ![path hasPrefix:@"/tmp"] && ![path hasPrefix:@"/bin"] && ![path hasPrefix:@"/etc"])	// we could also check for upper/lower case?
-			path=[virtualRoot stringByAppendingString:path]; // virtually do a chroot("/home/myPDA")
+				}
+			if(![path hasPrefix:@"/dev"] && ![path hasPrefix:@"/sys"] && ![path hasPrefix:@"/proc"] && ![path hasPrefix:@"/tmp"] && ![path hasPrefix:@"/bin"] && ![path hasPrefix:@"/etc"])	// we could also check for upper/lower case?
+				path=[virtualRoot stringByAppendingString:path]; // virtually do a chroot("/home/myPDA")
 		}
 #if 0
 	NSLog(@" -> %@", path);
 #endif
-//	fprintf(stderr, "fileSystemRepresentation path=%p\n", path);
+	//	fprintf(stderr, "fileSystemRepresentation path=%p\n", path);
 	{
-		const char *s=[path UTF8String];
-//		fprintf(stderr, " -> %p\n", s);
-		return s;
+	const char *s=[path UTF8String];
+	//		fprintf(stderr, " -> %p\n", s);
+	return s;
 	}
 }
 
 - (NSString *) stringWithFileSystemRepresentation:(const char*)string
-										  length:(unsigned int)len
+										   length:(unsigned int)len
 {
 #if __mySTEP__
 	if(len > 0 && string[0] == '/')
 		{ // absolute path
-		static char *virtualCRoot;	// with trailing /
-		static int clen;
-		if(!virtualCRoot)
-			{
-			const char *str=[@"/" fileSystemRepresentation];
+			static char *virtualCRoot;	// with trailing /
+			static int clen;
+			if(!virtualCRoot)
+				{
+				const char *str=[@"/" fileSystemRepresentation];
 #if 0
-			NSLog(@"virtualCRoot=%s", str);
+				NSLog(@"virtualCRoot=%s", str);
 #endif
-			clen=strlen(str);
-			virtualCRoot=objc_malloc(clen+1);
-			strcpy(virtualCRoot, str);	// save (retain) a copy
-			}
+				clen=strlen(str);
+				virtualCRoot=objc_malloc(clen+1);
+				strcpy(virtualCRoot, str);	// save (retain) a copy
+				}
 #if 0
-		NSLog(@"stringWithFileSystemRepresentation: %s len:%d virtualRoot=%s", string, len, virtualCRoot);
+			NSLog(@"stringWithFileSystemRepresentation: %s len:%d virtualRoot=%s", string, len, virtualCRoot);
 #endif
-		if(len >= clen && strncmp(string, virtualCRoot, clen) == 0)
-			return [NSString stringWithCString:string+clen-1 length:len-clen+1];	// is relative to root
-		if(len == clen-1 && strncmp(string, virtualCRoot, len) == 0)
-			return @"/";	// this is virtual root /
-		if(len >= 15 && strncmp(string, "/mnt/card/Users/", 15) == 0)
-			return [NSString stringWithFormat:@"/Users/%.*s", len-15, string+15];	// translate virtual home
-		if(strcmp(string, "/mnt/card/Users") == 0)
-			return @"/Users";	// translate virtual home
-		if(len >= 17 && strncmp(string, "/media/card/Users/", 17) == 0)
-			return [NSString stringWithFormat:@"/Users/%.*s", len-17, string+17];	// translate virtual home (OpenMoko)
-		if(len >= 12 && strncmp(string, "/hdd3/Users/", 12) == 0)
-			return [NSString stringWithFormat:@"/Users/%.*s", len-12, string+12];	// translate virtual home (Zaurus)
-		if(strcmp(string, "/media/card/Users") == 0)
-			return @"/Users";	// translate virtual home
-		if(len >= 9 && strncmp(string, "/mnt/net/", 9) == 0)
-			return [NSString stringWithFormat:@"/Network/%.*s", len-8, string+8];	// translate
-		if(len >= 5 && strncmp(string, "/mnt/", 5) == 0)
-			return [NSString stringWithFormat:@"/Volumes/%.*s", len-4, string+4];	// translate
+			if(len >= clen && strncmp(string, virtualCRoot, clen) == 0)
+				return [NSString stringWithCString:string+clen-1 length:len-clen+1];	// is relative to root
+			if(len == clen-1 && strncmp(string, virtualCRoot, len) == 0)
+				return @"/";	// this is virtual root /
+			if(len >= 15 && strncmp(string, "/mnt/card/Users/", 15) == 0)
+				return [NSString stringWithFormat:@"/Users/%.*s", len-15, string+15];	// translate virtual home
+			if(strcmp(string, "/mnt/card/Users") == 0)
+				return @"/Users";	// translate virtual home
+			if(len >= 17 && strncmp(string, "/media/card/Users/", 17) == 0)
+				return [NSString stringWithFormat:@"/Users/%.*s", len-17, string+17];	// translate virtual home (OpenMoko)
+			if(len >= 12 && strncmp(string, "/hdd3/Users/", 12) == 0)
+				return [NSString stringWithFormat:@"/Users/%.*s", len-12, string+12];	// translate virtual home (Zaurus)
+			if(strcmp(string, "/media/card/Users") == 0)
+				return @"/Users";	// translate virtual home
+			if(len >= 9 && strncmp(string, "/mnt/net/", 9) == 0)
+				return [NSString stringWithFormat:@"/Network/%.*s", len-8, string+8];	// translate
+			if(len >= 5 && strncmp(string, "/mnt/", 5) == 0)
+				return [NSString stringWithFormat:@"/Volumes/%.*s", len-4, string+4];	// translate
 		}
     return [NSString _stringWithUTF8String:string length:len];  // all others unchanged
 #else
@@ -969,7 +969,7 @@ BOOL allOk = YES;
     [_topPath release];
 	[super dealloc];
 }
-														// Getting attributes
+// Getting attributes
 - (NSDictionary*) directoryAttributes
 {
     return [__fm fileAttributesAtPath:_filePath traverseLink:_fm.followLinks];
@@ -998,59 +998,59 @@ BOOL allOk = YES;
     [_fileName release];			// enumerator.  if there is a next file it
     [_filePath release];			// is put in _fileName.  if the current 
     _fileName = _filePath = nil;	// file is a directory and if isRecursive
-			// calls recurseIntoDirectory:currentFile.  if current file is a 
-			// symlink to a directory and if isRecursive and followLinks calls 
-			// recurseIntoDirectory:currentFile.  if at end of current dir pops 
-			// stack and attempts to find the next entry in the parent.  Then
-			// sets currentFile to nil if there are no more files to enumerate.
+	// calls recurseIntoDirectory:currentFile.  if current file is a 
+	// symlink to a directory and if isRecursive and followLinks calls 
+	// recurseIntoDirectory:currentFile.  if at end of current dir pops 
+	// stack and attempts to find the next entry in the parent.  Then
+	// sets currentFile to nil if there are no more files to enumerate.
     while ([_pathStack count]) 
 		{
 		DIR_enum_state *dir = (DIR*)[[_enumStack lastObject] pointerValue];
 		DIR_enum_item *dirbuf = readdir(dir);
 		struct stat statbuf;
 		const char *cpath;
-
+		
 		if (dirbuf) 
 			{							// Skip "." and ".." directory entries
-			if (strcmp(dirbuf->d_name, ".") == 0 
+				if (strcmp(dirbuf->d_name, ".") == 0 
 					|| strcmp(dirbuf->d_name, "..") == 0)
-				continue;
-			if (strncmp(dirbuf->d_name, "._", 2) == 0)
-				continue;				// skip resource forks
-			// Name of current file
-			_fileName = [__fm stringWithFileSystemRepresentation:dirbuf->d_name
-							  length:strlen(dirbuf->d_name)];
-			_fileName = [[[_pathStack lastObject]
-						stringByAppendingPathComponent:_fileName] retain];
-												// Full path of current file
-			_filePath = [_topPath stringByAppendingPathComponent:_fileName];
-			[_filePath retain];
-														// Check if directory
-			cpath = [__fm fileSystemRepresentationWithPath:_filePath];
-														// Do not follow links
-//			if (!_fm.followLinks) 
+					continue;
+				if (strncmp(dirbuf->d_name, "._", 2) == 0)
+					continue;				// skip resource forks
+				// Name of current file
+				_fileName = [__fm stringWithFileSystemRepresentation:dirbuf->d_name
+															  length:strlen(dirbuf->d_name)];
+				_fileName = [[[_pathStack lastObject]
+							  stringByAppendingPathComponent:_fileName] retain];
+				// Full path of current file
+				_filePath = [_topPath stringByAppendingPathComponent:_fileName];
+				[_filePath retain];
+				// Check if directory
+				cpath = [__fm fileSystemRepresentationWithPath:_filePath];
+				// Do not follow links
+				//			if (!_fm.followLinks) 
 				{
 				if (lstat(cpath, &statbuf) < 0)
 					break;
-											// If link then return it as link
+				// If link then return it as link
 				if (S_IFLNK == (S_IFMT & statbuf.st_mode)) 
 					break;
 				}
-											// Follow links check for directory
-			if (stat(cpath, &statbuf) < 0)
+				// Follow links check for directory
+				if (stat(cpath, &statbuf) < 0)
+					break;
+				if (S_IFDIR == (S_IFMT & statbuf.st_mode) && !_fm.shallow) 
+					{						// recurses into directory `path', push
+						DIR *dir;				// path relative to root of search onto
+						// _pathStack and push system dir
+						// enumerator on enumPath
+						if ((dir = opendir(cpath)))
+							{
+							[_pathStack addObject: _fileName ];
+							[_enumStack addObject: [NSValue valueWithPointer:dir]];
+							}	}
+				
 				break;
-			if (S_IFDIR == (S_IFMT & statbuf.st_mode) && !_fm.shallow) 
-				{						// recurses into directory `path', push
-				DIR *dir;				// path relative to root of search onto
-										// _pathStack and push system dir
-										// enumerator on enumPath
-				if ((dir = opendir(cpath)))
-					{
-					[_pathStack addObject: _fileName ];
-					[_enumStack addObject: [NSValue valueWithPointer:dir]];
-				}	}
-
-			break;
 			}
 		else
 			{
@@ -1060,8 +1060,8 @@ BOOL allOk = YES;
 			[_fileName release];
 			[_filePath release];
 			_fileName = _filePath = nil;
-		}	}
-
+			}	}
+	
     return _fileName ;
 }
 
@@ -1075,7 +1075,12 @@ BOOL allOk = YES;
 
 @implementation NSDictionary (NSFileAttributes)
 
-- (NSNumber*) fileSize		{ return [self objectForKey:NSFileSize]; }
+- (unsigned long long) fileSize
+{
+	id o=[self objectForKey:NSFileSize];
+	return o?[o unsignedLongLongValue]:0;
+}
+
 - (NSString*) fileType;		{ return [self objectForKey:NSFileType]; }
 
 - (NSString*) fileOwnerAccountName; 
@@ -1168,14 +1173,13 @@ BOOL allOk = YES;
 @implementation NSFileManager (PrivateMethods)
 
 - (BOOL) _copyFile:(NSString*)source 
-						toFile:(NSString*)destination
-					 handler:handler
+			toFile:(NSString*)destination
+		   handler:handler
 {
 	int i, bufsize = 2*4096;
 	int sourceFd, destFd, fileSize, fileMode;
 	int rbytes;
-	// FIXME: needs a lot of stack!
-	char buffer[bufsize];
+	char *buffer=objc_malloc(bufsize);
 	const char *cpath = [self fileSystemRepresentationWithPath:source];
 	NSDictionary *attributes = [self fileAttributesAtPath:source traverseLink:NO];
 	// Assumes source is file and exists
@@ -1183,168 +1187,172 @@ BOOL allOk = YES;
 	NSAssert1(attributes,@"could not get the attributes for file '%@'",source);
 	
 	fileSize = [[attributes objectForKey:NSFileSize] intValue];
-	fileMode = [attributes objectForKey:NSFilePosixPermissions];
+	fileMode = [[attributes objectForKey:NSFilePosixPermissions] intValue];
 	
 	if ((sourceFd = open(cpath, O_RDONLY)) < 0) 
-			{										// Open source file. In case
-				if (handler) 							// of error call the handler
-						{
-							NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
-																 source, @"Path", 
-																 @"cannot open file for reading", @"Error",nil];
-							
-							return [handler fileManager:self shouldProceedAfterError:e];
-						}
+		{										// Open source file. In case
+			if (handler) 							// of error call the handler
+				{
+				NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
+								   source, @"Path", 
+								   @"cannot open file for reading", @"Error",nil];
+				objc_free(buffer);
 				
-				return NO;
-			}									// Open destination file. In case
+				return [handler fileManager:self shouldProceedAfterError:e];
+				}
+			
+			return NO;
+		}									// Open destination file. In case
 	// of error call the handler.
 	cpath = [self fileSystemRepresentationWithPath:destination];
 	if ((destFd = open(cpath, O_WRONLY|O_CREAT|O_TRUNC, fileMode)) < 0) 
+		{
+		if (handler) 
 			{
-				if (handler) 
-						{
-							NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
-																 destination, @"ToPath",
-																 @"cannot open file for writing", @"Error", nil];
-							close (sourceFd);
-							
-							return [handler fileManager:self shouldProceedAfterError:e];
-						}
-				
-				return NO;			// Read bufsize bytes from source file and write
-			}					// them into the destination file. In case of
+			NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
+							   destination, @"ToPath",
+							   @"cannot open file for writing", @"Error", nil];
+			close (sourceFd);
+			objc_free(buffer);
+			
+			return [handler fileManager:self shouldProceedAfterError:e];
+			}
+		
+		return NO;			// Read bufsize bytes from source file and write
+		}					// them into the destination file. In case of
 	// errors call the handler and abort the operation.
 	for (i = 0; i < fileSize; i += rbytes) 
+		{
+		if ((rbytes = read(sourceFd, buffer, bufsize)) < 0) 
 			{
-				if ((rbytes = read(sourceFd, buffer, bufsize)) < 0) 
-						{
-							if (handler) 
-									{
-										NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys: 
-																			 source, @"Path",
-																			 @"cannot read from file", @"Error", nil];
-										close(sourceFd);
-										close(destFd);
-										
-										return [handler fileManager:self shouldProceedAfterError:e];
-									}
-							
-							return NO;
-						}
+			if (handler) 
+				{
+				NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys: 
+								   source, @"Path",
+								   @"cannot read from file", @"Error", nil];
+				close(sourceFd);
+				close(destFd);
+				objc_free(buffer);
 				
-				if ((write(destFd, buffer, rbytes)) != rbytes) 
-						{
-							if (handler) 
-									{
-										NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
-																			 source, @"Path", destination, @"ToPath",
-																			 @"cannot write to file", @"Error", nil];
-										close(sourceFd);
-										close(destFd);
-										
-										return [handler fileManager:self shouldProceedAfterError:e];
-									}
-							
-							return NO;
-						}
+				return [handler fileManager:self shouldProceedAfterError:e];
+				}
+			
+			return NO;
 			}
+		
+		if ((write(destFd, buffer, rbytes)) != rbytes) 
+			{
+			if (handler) 
+				{
+				NSDictionary *e = [NSDictionary dictionaryWithObjectsAndKeys:
+								   source, @"Path", destination, @"ToPath",
+								   @"cannot write to file", @"Error", nil];
+				close(sourceFd);
+				close(destFd);
+				objc_free(buffer);
+				
+				return [handler fileManager:self shouldProceedAfterError:e];
+				}
+			
+			return NO;
+			}
+		}
 	
 	close(sourceFd);
 	close(destFd);
-	
+	objc_free(buffer);
 	return YES;
 }
 
 - (BOOL) _copyPath:(NSString*)source
-						toPath:(NSString*)destination
-					 handler:handler
+			toPath:(NSString*)destination
+		   handler:handler
 {
 	NSAutoreleasePool *pool = [NSAutoreleasePool new];
 	NSDirectoryEnumerator *en = [self enumeratorAtPath:source];
 	NSString *dirEntry;
 	
 	while ((dirEntry = [en nextObject])) 
+		{
+		NSDictionary *attributes = [en fileAttributes];
+		NSString *fileType = [attributes objectForKey:NSFileType];
+		NSString *sf = [source stringByAppendingPathComponent:dirEntry];
+		NSString *df = [destination stringByAppendingPathComponent:dirEntry];
+		
+		[handler fileManager:self willProcessPath:sf];
+		if ([fileType isEqual:NSFileTypeDirectory]) 
 			{
-				NSDictionary *attributes = [en fileAttributes];
-				NSString *fileType = [attributes objectForKey:NSFileType];
-				NSString *sf = [source stringByAppendingPathComponent:dirEntry];
-				NSString *df = [destination stringByAppendingPathComponent:dirEntry];
-				
-				[handler fileManager:self willProcessPath:sf];
-				if ([fileType isEqual:NSFileTypeDirectory]) 
+			if (![self createDirectoryAtPath:df attributes:attributes]) 
+				{
+				if (handler) 
+					{
+					NSDictionary *e=[NSDictionary dictionaryWithObjectsAndKeys:
+									 df, @"Path",
+									 @"cannot create directory", @"Error", nil];
+					
+					if (![handler fileManager:self shouldProceedAfterError:e])
 						{
-							if (![self createDirectoryAtPath:df attributes:attributes]) 
-									{
-										if (handler) 
-												{
-													NSDictionary *e=[NSDictionary dictionaryWithObjectsAndKeys:
-																					 df, @"Path",
-																					 @"cannot create directory", @"Error", nil];
-													
-													if (![handler fileManager:self shouldProceedAfterError:e])
-															{
-																[pool release];
-																return NO;
-															}
-												}
-										else
-												{
-													[pool release];
-													return NO;
-												}
-									}
-							else 
-									{
-										[en skipDescendents];
-										if (![self _copyPath:sf toPath:df handler:handler])
-												{
-													[pool release];
-													return NO;
-												}
-									}	
+						[pool release];
+						return NO;
 						}
-				else 
-					if ([fileType isEqual:NSFileTypeRegular]) 
-							{
-								if (![self _copyFile:sf toFile:df handler:handler])
-										{
-											[pool release];
-											return NO;
-										}
-							}
-					else 
-						if ([fileType isEqual:NSFileTypeSymbolicLink]) 
-								{
-									if (![self createSymbolicLinkAtPath:df pathContent:sf]) 
-											{
-												if (handler) 
-														{
-															NSDictionary *e;
-															
-															e = [NSDictionary dictionaryWithObjectsAndKeys:
-																	 sf, @"Path", df, @"ToPath",
-																	 @"cannot create symbolic link", @"Error", nil];
-															
-															if (![handler fileManager:self
-																shouldProceedAfterError:e])
-																	{
-																		[pool release];
-																		return NO;
-																	}
-														}
-												else
-														{
-															[pool release];
-															return NO;
-														}
-											}	
-								}
-						else 
-							NSLog(@"cannot copy file '%@' of type '%@'", sf, fileType);
-				
-				[self changeFileAttributes:attributes atPath:df];
+					}
+				else
+					{
+					[pool release];
+					return NO;
+					}
+				}
+			else 
+				{
+				[en skipDescendents];
+				if (![self _copyPath:sf toPath:df handler:handler])
+					{
+					[pool release];
+					return NO;
+					}
+				}	
 			}
+		else 
+			if ([fileType isEqual:NSFileTypeRegular]) 
+				{
+				if (![self _copyFile:sf toFile:df handler:handler])
+					{
+					[pool release];
+					return NO;
+					}
+				}
+			else 
+				if ([fileType isEqual:NSFileTypeSymbolicLink]) 
+					{
+					if (![self createSymbolicLinkAtPath:df pathContent:sf]) 
+						{
+						if (handler) 
+							{
+							NSDictionary *e;
+							
+							e = [NSDictionary dictionaryWithObjectsAndKeys:
+								 sf, @"Path", df, @"ToPath",
+								 @"cannot create symbolic link", @"Error", nil];
+							
+							if (![handler fileManager:self
+							  shouldProceedAfterError:e])
+								{
+								[pool release];
+								return NO;
+								}
+							}
+						else
+							{
+							[pool release];
+							return NO;
+							}
+						}	
+					}
+				else 
+					NSLog(@"cannot copy file '%@' of type '%@'", sf, fileType);
+		
+		[self changeFileAttributes:attributes atPath:df];
+		}
 	
 	[pool release];
 	

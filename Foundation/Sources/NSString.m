@@ -335,7 +335,6 @@ static SEL msInitSel;
 static IMP csInitImp;					// designated initialiser for cString	
 
 //	Cache commonly used character sets along with methods to check membership.
-static unichar pathSepChar = (unichar)'/';
 static NSString *pathSepString = @"/";
 static NSCharacterSet *pathSeps = nil;
 
@@ -778,7 +777,7 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		}
 }
 
-- (id) initWithData:(NSData *)data;
+- (id) _initWithData:(NSData *)data;
 { // deduct encoding from data
 	NSStringEncoding e;
 	const unsigned char *t = [data bytes];
@@ -803,67 +802,6 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 #endif
 	return [self initWithData:data encoding:e];
 }
-
-- (id) initWithContentsOfFile:(NSString*)path
-{
-	return [self initWithData:[NSData dataWithContentsOfFile: path]];	// deduct encoding from contents
-}
-
-- (id) initWithContentsOfFile:(NSString *)path
-					 encoding:(NSStringEncoding)enc
-						error:(NSError **)error;
-{
-	// load if specified encoding fits
-	return NIMP;
-}
-
-- (id) initWithContentsOfFile:(NSString *)path
-				 usedEncoding:(NSStringEncoding *)enc
-						error:(NSError **)error;
-{
-	// try different encodings
-	return NIMP;
-}
-
-- (id) initWithContentsOfURL:(NSURL*)url
-{
-	return [self initWithData:[NSData dataWithContentsOfURL: url]];	// deduct encoding from contents
-}
-
-- (id) initWithContentsOfURL:(NSURL *)url
-					encoding:(NSStringEncoding)enc
-					   error:(NSError **)error;   
-{
-	if(error)
-		*error=nil;
-	return [self initWithData:[NSData dataWithContentsOfURL: url] encoding:enc];	// take encoding from arguments
-}
-
-- (id) initWithContentsOfURL:(NSURL *)url
-				usedEncoding:(NSStringEncoding *)enc
-					   error:(NSError **)error;
-{
-	NSURLRequest *request=[NSURLRequest requestWithURL:url];
-	NSURLResponse *response;
-	NSData *data=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:error];
-	// analyse response for content-type, content-encoding...
-	return [self initWithData:data encoding:*enc];	// deduct encoding from content header
-}
-
-- (id) mutableCopyWithZone:(NSZone *) z
-{
-	return [[_mutableStringClass alloc] initWithString:self];
-}
-
-- (id) copyWithZone:(NSZone *) z					{ return [self retain]; }
-- (unsigned int) length								{ return _count; }
-- (NSString*) description							{ return self; }
-- (const char *) cString							{ SUBCLASS return 0; }
-- (unsigned int) cStringLength						{ SUBCLASS return 0; }
-- (unichar) characterAtIndex:(unsigned int)index	{ SUBCLASS return 0; }
-- (void) getCharacters:(unichar*)buffer				{ SUBCLASS }
-- (void) getCharacters:(unichar*)buffer 
-				 range:(NSRange)aRange				{ SUBCLASS }
 
 - (id) initWithData:(NSData *)data encoding:(NSStringEncoding)encoding
 {
@@ -984,6 +922,67 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		}
 	return YES;	// ok
 }
+
+- (id) initWithContentsOfFile:(NSString*)path
+{
+	return [self _initWithData:[NSData dataWithContentsOfFile: path]];	// deduct encoding from contents
+}
+
+- (id) initWithContentsOfFile:(NSString *)path
+					 encoding:(NSStringEncoding)enc
+						error:(NSError **)error;
+{
+	// load if specified encoding fits
+	return NIMP;
+}
+
+- (id) initWithContentsOfFile:(NSString *)path
+				 usedEncoding:(NSStringEncoding *)enc
+						error:(NSError **)error;
+{
+	// try different encodings
+	return NIMP;
+}
+
+- (id) initWithContentsOfURL:(NSURL*)url
+{
+	return [self _initWithData:[NSData dataWithContentsOfURL: url]];	// deduct encoding from contents
+}
+
+- (id) initWithContentsOfURL:(NSURL *)url
+					encoding:(NSStringEncoding)enc
+					   error:(NSError **)error;   
+{
+	if(error)
+		*error=nil;
+	return [self initWithData:[NSData dataWithContentsOfURL: url] encoding:enc];	// take encoding from arguments
+}
+
+- (id) initWithContentsOfURL:(NSURL *)url
+				usedEncoding:(NSStringEncoding *)enc
+					   error:(NSError **)error;
+{
+	NSURLRequest *request=[NSURLRequest requestWithURL:url];
+	NSURLResponse *response;
+	NSData *data=[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:error];
+	// analyse response for content-type, content-encoding...
+	return [self initWithData:data encoding:*enc];	// deduct encoding from content header
+}
+
+- (id) mutableCopyWithZone:(NSZone *) z
+{
+	return [[_mutableStringClass alloc] initWithString:self];
+}
+
+- (id) copyWithZone:(NSZone *) z					{ return [self retain]; }
+- (unsigned int) length								{ return _count; }
+- (NSString*) description							{ return self; }
+- (const char *) cString							{ SUBCLASS return 0; }
+- (unsigned int) cStringLength						{ SUBCLASS return 0; }
+- (unichar) characterAtIndex:(unsigned int)index	{ SUBCLASS return 0; }
+- (void) getCharacters:(unichar*)buffer				{ SUBCLASS }
+- (void) getCharacters:(unichar*)buffer 
+				 range:(NSRange)aRange				{ SUBCLASS }
 
 - (void) getCString:(char*)buffer
 {

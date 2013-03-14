@@ -364,6 +364,7 @@
 	for(j=2; j<cnt; j++)
 		{ // decode arguments
 			[aCoder decodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
+			// FIXME: decodeValueOfObjCType returns (id) objects that are retained!
 			[self setArgument:buffer atIndex:j];	// set value
 		}
 	[self setTarget:target];

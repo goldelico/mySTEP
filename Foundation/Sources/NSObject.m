@@ -16,6 +16,8 @@
 #include <time.h>
 #include <sys/time.h>
 
+#include <objc/objc-api.h>
+
 #import "NSPrivate.h"
 #import <Foundation/NSObject.h>
 #import <Foundation/NSAutoreleasePool.h>
@@ -35,19 +37,20 @@ BOOL NSHangOnUncaughtException=NO;
 BOOL NSEnableAutoreleasePool=YES;
 BOOL NSAutoreleaseFreedObjectCheckEnabled=NO;
 
-@interface _NSZombie	// root class wich does not recognize any method
+@interface _NSZombie	// internal root class which does not recognize any method
 @end
 
 Class __zombieClass;
-static NSMapTable *__zombieMap;	// map object addresses to object descriptions
+static NSMapTable *__zombieMap;	// map object addresses to (old) object descriptions
 
 @implementation _NSZombie
 
 - (retval_t) forward:(SEL)aSel :(arglist_t)argFrame
 { // called by runtime
-	NSString *s=__zombieMap?NSMapGet(__zombieMap, (void *) self):@"??";
+	NSString *s=__zombieMap?NSMapGet(__zombieMap, (void *) self):@" (unknown class)";
 //	fprintf(stderr, "obj=%p sel=%s\n", s, sel_get_name(aSel));
-	NSLog(@"Trying to send selector -%@ to deallocated object: %@", NSStringFromSelector(aSel), s);
+	NSLog(@"Trying to send selector -%@ to deallocated object: %p %@", NSStringFromSelector(aSel), self, s);
+	[NSException raise:NSInternalInconsistencyException format:@"Trying to send selector -%@ to deallocated object: %@", NSStringFromSelector(aSel), s];
 	abort();
 	return NULL;
 }
@@ -183,8 +186,6 @@ static IMP autorelease_imp = 0;			// a pointer that gets read and set.
 // this should be the method [Protocol * conformsTo:(Protocol *)aProtocolObject]
 // but calling methods from the class Protocol ends up in a SIGSEGV
 
-#include <objc/objc-api.h>
-
 static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject);
 
 static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
@@ -285,7 +286,7 @@ static BOOL objectConformsTo(Protocol *self, Protocol *aProtocolObject)
 	if(((_object_layout)(self))[-1].retained != -1)
 		{
 		NSLog(@"[obj dealloc] called instead of [obj release] or [super dealloc]");
-		abort();	// that is a severe bug
+		abort();	// this is a severe bug
 		}
 #if 0
 	fprintf(stderr, "dealloc %p\n", self);

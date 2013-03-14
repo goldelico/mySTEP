@@ -677,7 +677,7 @@ const char *objc_skip_typespec (const char *type)
 		case _C_VOID:
 			return;	// nothing to decode
 		case _C_ID: {
-			*((id *)address)=[self decodeObject];
+			*((id *)address)=[self decodeRetainedObject];	// caller is responsible for releasing!
 			return;
 		}
 		case _C_CLASS: {
@@ -896,6 +896,7 @@ const char *objc_skip_typespec (const char *type)
 #endif
 	[self decodeValueOfObjCType:[sig methodReturnType] at:buffer];
 	[i setReturnValue:buffer];	// set value
+	// FIXME: autorelease? or release on -dealloc of NSInvocation
 	objc_free(buffer);
 }
 
@@ -974,7 +975,7 @@ const char *objc_skip_typespec (const char *type)
 #if 1
 	NSLog(@"decode target");
 #endif
-	[self decodeValueOfObjCType:@encode(id) at:&target];
+	[self decodeValueOfObjCType:@encode(id) at:&target];	// is retained
 	[self decodeValueOfObjCType:@encode(int) at:&cnt];
 #if 1
 	NSLog(@"%d arguments", cnt);
@@ -994,13 +995,18 @@ const char *objc_skip_typespec (const char *type)
 	[i setReturnValue:buffer];	// set value
 	for(j=2; j<cnt; j++)
 		{ // decode arguments
+			const char *type=[sig getArgumentTypeAtIndex:j];
 #if 1
-			NSLog(@"decode argument %d", j);
+			NSLog(@"decode argument %d type=%s", j, type);
 #endif
-			[self decodeValueOfObjCType:[sig getArgumentTypeAtIndex:j] at:buffer];
+			[self decodeValueOfObjCType:type at:buffer];
 			[i setArgument:buffer atIndex:j];	// set value
+			// FIXME: decoded id values are retained - are they retained again by setArgument? Not by default!
+//			if(*type == _C_ID)
+//				[(*(id *) buffer) autorelease];
 		}
 	[i setTarget:target];
+	[target release];
 	[i setSelector:selector];
 	objc_free(buffer);
 #if 1
@@ -1095,7 +1101,7 @@ const char *objc_skip_typespec (const char *type)
 	if(!obj)
 		[NSException raise:NSGenericException format:@"decodeRetainedObject: class %@ not instantiated %@", NSStringFromClass(class), [self _location]];
 #if 1
-	NSLog(@"decoded object=%p", obj);
+	NSLog(@"decoded object=%p refcnt=%u", obj, [obj retainCount]);
 #endif
 	return obj;
 }
@@ -1298,11 +1304,14 @@ const char *objc_skip_typespec (const char *type)
 	str=objc_malloc(len+1);
 	[coder decodeArrayOfObjCType:@encode(char) count:len at:str];
 	str[len]=0;
-#if 0
+#if 1
 	NSLog(@"UTF8=%s", str);
 #endif
 	self=[self initWithUTF8String:str];
 	objc_free(str);
+#if 1
+	NSLog(@"NSString _initWithPortCoder len=%d ptr=%p", len, self);
+#endif
 	return self;
 }
 

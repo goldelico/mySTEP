@@ -383,7 +383,7 @@ int count;
 	if ((_contents = objc_calloc(MAX(_count, 1), sizeof(id))) == 0)
 		[NSException raise:NSMallocException format:@"Unable to malloc array"];
 	if (_count > 0)
-		[aCoder decodeArrayOfObjCType:@encode(id) count:_count at:_contents];
+		[aCoder decodeArrayOfObjCType:@encode(id) count:_count at:_contents];	// objects will be retained by decodeArray
 #if 0
 	NSLog(@"done - array = %@", self);
 #endif

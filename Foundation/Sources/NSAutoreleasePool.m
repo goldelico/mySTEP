@@ -216,7 +216,7 @@ pop_pool_from_cache (struct autorelease_thread_vars *tv)
 {
 	struct autorelease_array_list *a;
 #if 0
-	fprintf(stderr, "dealloc ARP %p\n", self);
+	fprintf(stderr, "ARP dealloc %p\n", self);
 #endif
 	for (a = _released_head; a;)
 		{
