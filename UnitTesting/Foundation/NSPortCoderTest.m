@@ -671,15 +671,25 @@ static NSHashTable *_allConnections;
 	NSPortCoder *pc=[self portCoderForEncode];
 	NSPoint val=NSMakePoint(1.0, 2.0);
 	NSPoint phave;
-	id have;
-	id want=@"<04000080 3f040000 0040>";	// 04 bytes length each component of the struct
 	[pc encodePoint:val];
-	have=[[[pc components] objectAtIndex:0] description];	// returns NSData
-	STAssertEqualObjects(have, want, nil);
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<04000080 3f040000 0040>", nil);	// 04 bytes length each component of the struct
 	// decode
-	pc=[self portCoderForDecode:want];
+	pc=[self portCoderForDecode:@"<04000080 3f040000 0040>"];
 	phave=[pc decodePoint];
 	STAssertTrue(NSEqualPoints(phave, val), nil);
+}
+
+- (void) test37Rect
+{
+	NSPortCoder *pc=[self portCoderForEncode];
+	NSRect val=NSMakeRect(10.0, 20.0, 30.0, 40.0);
+	NSRect phave;
+	[pc encodeRect:val];
+	STAssertEqualObjects([[[pc components] objectAtIndex:0] description], @"<04000020 41040000 a0410400 00f04104 00002042>", nil);	// 04 bytes length each component of the struct
+	// decode
+	pc=[self portCoderForDecode:@"<04000020 41040000 a0410400 00f04104 00002042>"];
+	phave=[pc decodeRect];
+	STAssertTrue(NSEqualRects(phave, val), nil);
 }
 
 - (void) test38Struct
