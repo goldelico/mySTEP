@@ -28,13 +28,16 @@
 		EE55BFDA1504DB9700BDF3F7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE4108520B956BA30065DD36 /* main.m */; };
 		EE55C0271504DF4100BDF3F7 /* gram.m in Sources */ = {isa = PBXBuildFile; fileRef = EE55C0251504DF4100BDF3F7 /* gram.m */; };
 		EE55C0281504DF4100BDF3F7 /* scan.m in Sources */ = {isa = PBXBuildFile; fileRef = EE55C0261504DF4100BDF3F7 /* scan.m */; };
-		EE8E488916F21D6400DF50B4 /* Refactor.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8E488716F21D6400DF50B4 /* Refactor.h */; };
+		EE8E488916F21D6400DF50B4 /* Refactor.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8E488716F21D6400DF50B4 /* Refactor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE8E488A16F21D6400DF50B4 /* Refactor.m in Sources */ = {isa = PBXBuildFile; fileRef = EE8E488816F21D6400DF50B4 /* Refactor.m */; };
-		EE8E48C016F22B1200DF50B4 /* objc10.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8E48BE16F22B1200DF50B4 /* objc10.h */; };
+		EE8E48C016F22B1200DF50B4 /* objc10.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8E48BE16F22B1200DF50B4 /* objc10.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE8E48C116F22B1200DF50B4 /* objc10.m in Sources */ = {isa = PBXBuildFile; fileRef = EE8E48BF16F22B1200DF50B4 /* objc10.m */; };
-		EE8E48C416F22BD500DF50B4 /* compile.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8E48C216F22BD500DF50B4 /* compile.h */; };
+		EE8E48C416F22BD500DF50B4 /* compile.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8E48C216F22BD500DF50B4 /* compile.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE8E48C516F22BD500DF50B4 /* compile.m in Sources */ = {isa = PBXBuildFile; fileRef = EE8E48C316F22BD500DF50B4 /* compile.m */; };
-		EEEB70FF150DD753000EE2E5 /* Expression.h in Headers */ = {isa = PBXBuildFile; fileRef = EEEB70FD150DD753000EE2E5 /* Expression.h */; };
+		EE8E492C16F23BFC00DF50B4 /* ObjCKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8E492B16F23BFB00DF50B4 /* ObjCKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE8E493F16F23D4800DF50B4 /* Print.h in Headers */ = {isa = PBXBuildFile; fileRef = EE22088714EDB47600E78349 /* Print.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE8E494016F23D4D00DF50B4 /* Simplify.h in Headers */ = {isa = PBXBuildFile; fileRef = EE22088914EDB51200E78349 /* Simplify.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEEB70FF150DD753000EE2E5 /* Expression.h in Headers */ = {isa = PBXBuildFile; fileRef = EEEB70FD150DD753000EE2E5 /* Expression.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEEB7100150DD753000EE2E5 /* Expression.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEB70FE150DD753000EE2E5 /* Expression.m */; };
 /* End PBXBuildFile section */
 
@@ -91,7 +94,8 @@
 		EE8E48BF16F22B1200DF50B4 /* objc10.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = objc10.m; sourceTree = "<group>"; };
 		EE8E48C216F22BD500DF50B4 /* compile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compile.h; sourceTree = "<group>"; };
 		EE8E48C316F22BD500DF50B4 /* compile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = compile.m; sourceTree = "<group>"; };
-		EE8E48D516F22CAB00DF50B4 /* ObjC.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ObjC.qcodeproj; sourceTree = "<group>"; };
+		EE8E48D516F22CAB00DF50B4 /* ObjCKit.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ObjCKit.qcodeproj; sourceTree = "<group>"; };
+		EE8E492B16F23BFB00DF50B4 /* ObjCKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjCKit.h; sourceTree = "<group>"; };
 		EEEB4C011508D617000EE2E5 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEEB4C461509E84D000EE2E5 /* special.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = special.m; path = test/special.m; sourceTree = "<group>"; };
 		EEEB4C5A1509E96A000EE2E5 /* test5.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test5.c; path = test/test5.c; sourceTree = "<group>"; };
@@ -151,6 +155,7 @@
 				EE08E5A110D7CE3200684837 /* node.h */,
 				EE22087E14EDB23500E78349 /* AST.h */,
 				EE6D6105137AF9E5007F7BD7 /* AST.m */,
+				EE8E492B16F23BFB00DF50B4 /* ObjCKit.h */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -207,7 +212,7 @@
 			children = (
 				EEFD871D0B95DA5B002EA6A8 /* ToDo */,
 				EEEB4C011508D617000EE2E5 /* mySTEP.make */,
-				EE8E48D516F22CAB00DF50B4 /* ObjC.qcodeproj */,
+				EE8E48D516F22CAB00DF50B4 /* ObjCKit.qcodeproj */,
 				EE8E487C16F21C0900DF50B4 /* objc2pp.qcodeproj */,
 				EE6D3DE3137553ED003D5863 /* Source */,
 				EE8E488B16F21D7D00DF50B4 /* Actions */,
@@ -229,8 +234,11 @@
 				EE55BFCA1504DB5B00BDF3F7 /* AST.h in Headers */,
 				EEEB70FF150DD753000EE2E5 /* Expression.h in Headers */,
 				EE8E488916F21D6400DF50B4 /* Refactor.h in Headers */,
+				EE8E493F16F23D4800DF50B4 /* Print.h in Headers */,
+				EE8E494016F23D4D00DF50B4 /* Simplify.h in Headers */,
 				EE8E48C016F22B1200DF50B4 /* objc10.h in Headers */,
 				EE8E48C416F22BD500DF50B4 /* compile.h in Headers */,
+				EE8E492C16F23BFC00DF50B4 /* ObjCKit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -379,7 +387,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP; ./ObjC.qcodeproj";
+			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP; ./ObjCKit.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 

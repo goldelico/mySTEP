@@ -9,7 +9,7 @@
 #import "objc10.h"
 
 
-@implementation Node (objc10)
+@implementation Node (Objc10)
 
 - (Node *) objc10;	// translate objc 2.0 idioms to objc 1.0
 {

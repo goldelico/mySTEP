@@ -6,7 +6,7 @@
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "AST.h"
+#import <ObjCKit/AST.h>
 
 @interface Node (Refactor)
 

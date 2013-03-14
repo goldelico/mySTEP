@@ -1,7 +1,7 @@
 /* part of objc2pp - an obj-c 2 preprocessor */
 
 
-#import "AST.h"
+#import <ObjCKit/AST.h>
 #include "node.h"
 
 /* parser interface methods */

@@ -6,10 +6,10 @@
 //  Copyright 2013 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "compile.h"
+#import "Compile.h"
 
 
-@implementation Node (compile)
+@implementation Node (Compile)
 
 - (Node *) registerAssign
 { // assign 'register' variables
