@@ -12,7 +12,13 @@
 
 - (Node *) refactor:(NSDictionary *) substitutions;	// replace symbols by dictionary content
 {
-	// if(type == symbol (e.g. variable, enum, struct, class, method, @selector(), ...) and symbol in substitutions, return new symbol node
+	NSString *t=[self type];
+	if([t isEqualToString:@"identifier"])
+		{
+		NSString *new=[substitutions objectForKey:[self value]];
+		if(new)
+			return [[[Node alloc] initWithType:t value:new] autorelease];
+		}
 	Node *nl=[left refactor:substitutions];
 	Node *nr=[right refactor:substitutions];
 	if(nl != left || nr != right)

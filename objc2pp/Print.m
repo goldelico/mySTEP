@@ -56,6 +56,9 @@
 
 // allow to pass style options and max. line with
 
+// expression objects ignore the level and line width and just return a string
+// statement objects indent by level and return (wrapped) lines
+
 - (NSString *) description;
 { // tree node(s) as NSString
 	return [self descriptionAtLevel:0];
@@ -63,7 +66,30 @@
 
 - (NSString *) descriptionAtLevel:(int) level;
 { // handle indentation level
-	
+	NSString *t=[self type];
+	NSString *s;
+	if([t isEqualToString:@"identifier"])
+		{
+		if([self left] || [self right])
+			{ // type & storage class
+			return [NSString stringWithFormat:@"/* %@ %@ */", [self left], [self right], [self value]];
+			}
+		return [self value];
+		}
+	else if([t isEqualToString:@"constant"])
+		return [self value];
+	if([t isEqualToString:@"{"])
+		s=@"\n", level++;
+	else
+		s=@"";
+	s=[s stringByAppendingFormat:@"%@%@%@", [[self left] descriptionAtLevel:level], t, [[self right] descriptionAtLevel:level]];
+	if([t isEqualToString:@"("])
+		s=[s stringByAppendingString:@")"];
+	else if([t isEqualToString:@"["])
+		s=[s stringByAppendingString:@"]"];
+	else if([t isEqualToString:@"{"])
+		s=[s stringByAppendingString:@"}\n"];
+	return s;
 }
 
 @end

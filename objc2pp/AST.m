@@ -6,39 +6,39 @@
 
 /* parser interface methods */
 
-/// FIXME: can we use the Node's -hash value as the integer id ???
-/// FIXME: and use a NSMapTables to map from int back to Node object
-
 Node **nodes;
 
-static int nodecount, nodecapacity;
+static int nodecapacity;
 
-static Node *get(int node)
+static Node *get(int n)
 {
-	if(node <= 0 || node > nodecount)
+	if(n <= 0 || n > nodecapacity)
 		return nil;
-	return nodes[node-1];	/* nodes start counting at 1 */
+	return nodes[n];	/* nodes start counting at 1 */
 }
 
 int leaf(char *type, const char *value)
 { /* create a leaf node - name becomes the value */
 	int n;
-	if(nodecount >= nodecapacity)
+	Node *node=[[Node alloc] initWithType:[NSString stringWithUTF8String:type] value:value?[NSString stringWithUTF8String:value]:nil];	/* create new entry */
+	n=[node number];	// unique number
+	if(n >= nodecapacity)
 		{ /* (re)alloc */
 			if(nodecapacity == 0)
 				{ /* first allocation */
 					nodecapacity=100;
-					nodes=malloc(nodecapacity*sizeof(Node *));
+					nodes=calloc(nodecapacity*sizeof(Node *), 1);
 				}
 			else
 				{
-				nodecapacity=2*nodecapacity+10;	/* exponentially increase available capacity */
-				nodes=realloc(nodes, nodecapacity*sizeof(Node *));
+					int old=nodecapacity;
+					nodecapacity=2*nodecapacity+10;	/* exponentially increase available capacity */
+					nodes=realloc(nodes, nodecapacity*sizeof(Node *));
+				memset(&nodes[old], 0, (nodecapacity-old)*sizeof(Node *));
 				}
 		}
-	nodes[nodecount]=[[Node alloc] initWithType:[NSString stringWithUTF8String:type] number:nodecount+1 value:value?[NSString stringWithUTF8String:value]:nil];	/* create new entry */
-	nodecount++;
-	return nodecount;	/* returns node index + 1 */
+	nodes[n]=node;	/* store entry */
+	return n;	/* returns node index */
 }
 
 int node(char *type, int left, int right)
@@ -197,18 +197,25 @@ void setkeyval(int dictionary, const char *key, int value)
 
 + (Node *) node:(NSString *) type left:(Node *) left right:(Node *) right;
 {
-	Node *n=[[self alloc] initWithType:type number:0 value:nil];
+	Node *n=[[self alloc] initWithType:type value:nil];
 	[n setLeft:left];
 	[n setRight:right];
+	return [n autorelease];
 }
 
-- (id) initWithType:(NSString *) t number:(int) num value:(id) val;
++ (Node *) leaf:(NSString *) type value:(NSString *) value;
 {
+	return [[[self alloc] initWithType:type value:value] autorelease];
+}
+
+- (id) initWithType:(NSString *) t value:(id) val;
+{
+	static int uuid=0;
 	if((self=[super init]))
 		{
 		type=[t retain];
 		value=[val retain];
-		number=num;
+		number=++uuid;
 		}
 	return self;
 }

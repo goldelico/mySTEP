@@ -30,8 +30,9 @@
 
 + (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with (preprocessed!) Objective C source into AST and return root node
 + (Node *) node:(NSString *) type left:(Node *) left right:(Node *) right;
++ (Node *) leaf:(NSString *) type value:(NSString *) value;
 
-- (id) initWithType:(NSString *) type number:(int) num value:(id) value;
+- (id) initWithType:(NSString *) type value:(id) value;
 - (NSString *) type;
 - (void) setType:(NSString *) type;
 - (int) number;
