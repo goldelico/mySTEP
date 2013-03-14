@@ -195,6 +195,13 @@ void setkeyval(int dictionary, const char *key, int value)
 	return get(rootnode);
 }
 
++ (Node *) node:(NSString *) type left:(Node *) left right:(Node *) right;
+{
+	Node *n=[[self alloc] initWithType:type number:0 value:nil];
+	[n setLeft:left];
+	[n setRight:right];
+}
+
 - (id) initWithType:(NSString *) t number:(int) num value:(id) val;
 {
 	if((self=[super init]))

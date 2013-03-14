@@ -1,19 +1,19 @@
 //
-//  Printing.m
+//  Print.m
 //  objc2pp
 //
 //  Created by H. Nikolaus Schaller on 16.02.12.
 //  Copyright 2012 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import "Printing.h"
-#include "y.tab.h"
+#import "Print.h"
+#include "build/y.tab.h"
 
 // this would be much easier to design if we had an inheritance hierarchy
 // and could add some  -(int) precedence; to some nodes to automatically create () and {} if needed
 // well, we could keep () and {} in explicit nodes as well
 
-@implementation Node (Printing)
+@implementation Node (Print)
 
 - (void) print:(int) level;
 {
@@ -52,6 +52,18 @@
 - (void) print;
 {
 	[self print:0];
+}
+
+// allow to pass style options and max. line with
+
+- (NSString *) description;
+{ // tree node(s) as NSString
+	return [self descriptionAtLevel:0];
+}
+
+- (NSString *) descriptionAtLevel:(int) level;
+{ // handle indentation level
+	
 }
 
 @end

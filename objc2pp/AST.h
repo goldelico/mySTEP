@@ -11,7 +11,12 @@
 // statement
 // external_declaration
 // translation_unit
+// request substream for #import and #include...
 @end
+
+// here we can either define generic nodes with type
+// or real subclasses (which would simplify writing tree processing algorithms
+// we could also define subclasses and use/replace the isa pointer as the 'type'
 
 @interface Node : NSObject
 { /* internal structure */
@@ -22,6 +27,9 @@
 	Node *left;		// left tree
 	Node *right;	// right tree
 }
+
++ (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with (preprocessed!) Objective C source into AST and return root node
++ (Node *) node:(NSString *) type left:(Node *) left right:(Node *) right;
 
 - (id) initWithType:(NSString *) type number:(int) num value:(id) value;
 - (NSString *) type;
@@ -37,10 +45,5 @@
 - (Node *) parentWithType:(NSString *) type;	// search parent of type t (nil if not found)
 - (Node *) root;
 
-+ (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with (preprocessed!) Objective C source into AST and return root node
 
 @end
-
-// here we can either define generic nodes with type
-// or real subclasses (which would simplify writing tree processing algorithms
-// we could also define subclasses and use/replace the isa pointer as the 'type'

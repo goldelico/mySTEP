@@ -6,12 +6,11 @@
 //  Copyright 2012 Golden Delicious Computers GmbH&Co. KG. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
 #import "AST.h"
 
 @interface Node (Expression)
 
-- (id) deriveType;		// evaluate type
-- (id) contantValue;	// evaluate constant value
+- (Node *) deriveType;		// evaluate type (tree)
+- (Node *) constantValue;	// evaluate constant value(s)
 
 @end

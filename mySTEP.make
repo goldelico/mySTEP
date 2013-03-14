@@ -375,6 +375,11 @@ endif
 
 #		-L$(TOOLCHAIN)/lib \
 
+# FIXME: use $(addprefix -L,$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE))
+# and $(addprefix "-Wl,-rpath-link,",$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE))
+
+#		$(addprefix -L,$(wildcard $(QuantumSTEP)/System/Library/*Frameworks/*.framework/Versions/Current/$(ARCHITECTURE))) \
+
 LIBRARIES := \
 		-L$(QuantumSTEP)/usr/lib \
 		-Wl,-rpath-link,$(QuantumSTEP)/usr/lib \

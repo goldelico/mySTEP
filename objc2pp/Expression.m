@@ -10,18 +10,17 @@
 
 @implementation Node (Expression)
 
-- (id) deriveType;		// evaluate type
+- (Node *) deriveType;		// evaluate type
 {
 	// identifier -> right
 	// constant -> string, int, unsigned, float etc.
 	// operators -> apply rules
 }
 
-- (id) contantValue;	// evaluate constant value
+- (Node *) constantValue;	// evaluate constant value
 {
-	// constant -> nsnumber or nsstring
 	// operators -> calculate
-	// others -> nil
+	// others -> unchanged
 }
 
 @end

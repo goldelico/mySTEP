@@ -13,8 +13,16 @@
 
 @implementation Node (Simplify)
 
-- (void) simplify;
+- (Node *) simplify;
 {
+	Node *nl=[left simplify];
+	Node *nr=[right simplify];
+	// check if we can simplify everything
+	// i.e. if nl == const and nr == const and type == + - * / % etc.
+	// then return combined constant
+	if(nl != left || nr != right)
+		return [Node node:type left:nl right:nr];	// return a copy
+	return self;	// not changed
 }
 
 @end
