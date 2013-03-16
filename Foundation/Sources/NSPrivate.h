@@ -319,9 +319,10 @@ extern NSString *GSGetEncodingName(NSStringEncoding encoding);
 
 @interface NSMessagePort (NSPrivate)
 
-- (void) _setName:(NSString *) name;
-- (BOOL) _unlink;
-- (id) _initRemoteWithName:(NSString *) name;
+- (BOOL) _setName:(NSString *) name;	// set the (file) name
+- (BOOL) _exists;	// (file) name exists
+- (BOOL) _inUse;	// (file) name is in use by any process
+- (BOOL) _unlink;	// remove (file) name
 - (id) initRemoteWithProtocolFamily:(int) family socketType:(int) type protocol:(int) protocol address:(NSData *) address;
 
 // other private messages found in a core dump:

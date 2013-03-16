@@ -498,7 +498,7 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 
 static void _catchChildExit(int sig)								
 { // this is a signal handler - don't call NSLog here or put anything into an ARP
-#if 0
+#if 1
 	fprintf(stderr, "_catchChildExit %d\n", sig);
 #endif
 	if(sig == SIGCHLD)

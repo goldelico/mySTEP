@@ -141,7 +141,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		case AF_UNIX:
 			return [NSMessagePort allocWithZone:NSDefaultMallocZone()];
 		default:
-			NSLog(@"can't handle protocol family %d", family);
+			NSLog(@"### can't handle protocol family %d", family);
 			return nil;
 	}
 }
@@ -173,7 +173,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 - (void) dealloc;
 {
 #if 0
-	NSLog(@"dealloc:%@", self);
+	NSLog(@"### dealloc:%@", self);
 #endif
 	[_sendData release];	// if not nil
 	if(_fd > 0)
@@ -196,7 +196,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		// port during the invalidation process is released immediately
 		// Also bracket with retain/release pair to prevent recursion.
 #if 1
-		NSLog(@"port finally released: %@", self);
+		NSLog(@"### port finally released: %@", self);
 #endif
 		[super retain];
 		arp = [NSAutoreleasePool new];
@@ -237,8 +237,10 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 			 toRunLoop:(NSRunLoop *) runLoop
 			   forMode:(NSString *) mode;
 { // schedule for receiving for the given connection
-#if 0
-	NSLog(@"addConnection:%@ toRunLoop:%@ forMode:%@", connection, runLoop, mode);
+//	if(!_isValid)
+//		[connection invalidate];
+#if 1
+	NSLog(@"### +++ addConnection:%@ toRunLoop:%@ forMode:%@", connection, runLoop, mode);
 #endif
 	[self scheduleInRunLoop:runLoop forMode:mode];
 }
@@ -247,8 +249,8 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 			  fromRunLoop:(NSRunLoop *) runLoop
 				  forMode:(NSString *) mode;
 {
-#if 0
-	NSLog(@"removeConnection:%@ fromRunLoop:%@ forMode:%@", connection, runLoop, mode);
+#if 1
+	NSLog(@"### --- removeConnection:%@ fromRunLoop:%@ forMode:%@", connection, runLoop, mode);
 #endif
 	[self removeFromRunLoop:runLoop forMode:mode];
 }
@@ -256,8 +258,8 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 - (void) removeFromRunLoop:(NSRunLoop *)runLoop
 				   forMode:(NSString *)mode;
 {
-#if 0
-	NSLog(@"--- removeFromRunLoop:%@ forMode:%@ - %@", runLoop, mode, self);
+#if 1
+	NSLog(@"### --- removeFromRunLoop:%@ forMode:%@ - %@", runLoop, mode, self);
 #endif
 	[runLoop _removeInputWatcher:self forMode:mode];
 }
@@ -265,10 +267,13 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 - (void) scheduleInRunLoop:(NSRunLoop *)runLoop
 				   forMode:(NSString *)mode;
 {
+	if(_isValid)
+		{
 #if 1
-	NSLog(@"+++ scheduleInRunLoop:%@ forMode:%@ - %@", runLoop, mode, self);
+		NSLog(@"### +++ scheduleInRunLoop:%@ forMode:%@ - %@", runLoop, mode, self);
 #endif
-	[runLoop _addInputWatcher:self forMode:mode];
+		[runLoop _addInputWatcher:self forMode:mode];
+		}
 }
 
 - (unsigned) reservedSpaceLength; { return 0; }
@@ -293,7 +298,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 { // make us generically work as an NSPort based on UNIX file descriptors (sockets)
 	NSRunLoop *loop=[NSRunLoop currentRunLoop];
 #if 1
-	NSLog(@"%@ sendBeforeDate:%@ msgid:%u components:%@ from:%@ reserved:%u", self, limitDate, msgid, components, receivePort, headerSpaceReserved);
+	NSLog(@"### %@ sendBeforeDate:%@ msgid:%u components:%@ from:%@ reserved:%u", self, limitDate, msgid, components, receivePort, headerSpaceReserved);
 #endif
 	if(!_isValid)
 		[NSException raise:NSInvalidSendPortException format:@"invalidated: %@", self];
@@ -308,17 +313,17 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		[NSException raise:NSPortSendException format:@"could not convert data to machMessage"];
 	[_sendData retain];	// NSRunLoop may autorelease pools before everything is sent! Will be released in _writeFileDescriptorReady
 #if 1
-	NSLog(@"send length=%u data=%@ to fd=%d on %@", [_sendData length], _sendData, _sendfd);
+	NSLog(@"### send length=%u data=%@ to fd=%d on %@", [_sendData length], _sendData, _sendfd);
 #endif
 	_sendPos=0;
 	[loop _addOutputWatcher:self forMode:NSConnectionReplyMode];	// get callbacks when we can send
 #if 0
-	NSLog(@"remaining interval %lf", [limitDate timeIntervalSinceNow]);
+	NSLog(@"### remaining interval %lf", [limitDate timeIntervalSinceNow]);
 #endif
 	while(_sendData && [limitDate timeIntervalSinceNow] > 0)
 		{
 #if 0
-		NSLog(@"run loop %@ in mode %@", loop, NSConnectionReplyMode);
+		NSLog(@"### run loop %@ in mode %@", loop, NSConnectionReplyMode);
 #endif
 		if(!_isValid)
 			{
@@ -328,24 +333,24 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		if(![loop runMode:NSConnectionReplyMode beforeDate:limitDate])
 			{ // some runloop error, e.g. not scheduled in this mode
 #if 0
-				NSLog(@"sendBeforeDate: runloop error");
+				NSLog(@"### sendBeforeDate: runloop error");
 #endif
 				[loop _removeOutputWatcher:self forMode:NSConnectionReplyMode];
 				[NSException raise:NSPortSendException format:@"sendBeforeDate: runloop error for %@", self];
 				break;
 			}
 #if 0
-		NSLog(@"remaining interval %lf", [limitDate timeIntervalSinceNow]);
+		NSLog(@"### remaining interval %lf", [limitDate timeIntervalSinceNow]);
 #endif
 		}
 	[loop _removeOutputWatcher:self forMode:NSConnectionReplyMode];
 #if 0
 	if(_sendPos == NSNotFound)
-		NSLog(@"all sent");
+		NSLog(@"### all sent");
 	else
 		NSLog(@"### NOT ALL SENT ###");
 #endif
-	return _sendPos == NSNotFound;		// we did send all bytes?
+	return _sendPos == NSNotFound;		// did we send all bytes?
 }
 
 - (int) _readFileDescriptor;
@@ -364,23 +369,22 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		{ // needs to connect to peer first
 			if(!_isValid)
 				[NSException raise:NSInvalidSendPortException format:@"invalidated before connect: %@", self];
-#if 0
-			NSLog(@"connect to family=%d %@", _address.addr.ss_family, self);
+#if 1
+			NSLog(@"### connect to family=%d %@", _address.addr.ss_family, self);
 #endif
 			_sendfd=socket(_address.addr.ss_family, SOCK_STREAM, 0);
 			if(connect(_sendfd, (struct sockaddr *) &_address.addr, _address.addrlen))
 				{
-				NSLog(@"%@: could not connect due to %s", self, strerror(errno));
+				NSLog(@"### could not connect due to %s: %@", strerror(errno), self);
 				if(errno == ECONNREFUSED && [self isKindOfClass:[NSMessagePort class]])
 					{ // nobody is listening on this message port name i.e. the named socked is stale
-						NSLog(@"trying to connect stale socket: %@", self);
-						[(NSMessagePort *) self _unlink];
+						NSLog(@"### trying to connect stale socket: %@", self);
 					}
 				return NO;
 				}
 			_isBound=YES;
 #if 0
-			NSLog(@"connected %@", self);
+			NSLog(@"** connected %@", self);
 #endif
 		}
 	return YES;
@@ -388,6 +392,9 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 
 - (BOOL) _bindAndListen;
 {
+#if 1
+	NSLog(@"### bindandlisten %@", self);
+#endif
 	if(!_isBound)
 		{ // not yet bound
 			int flag=1;
@@ -397,11 +404,11 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 			// NOTE: if we have INADDR_ANY the address remains INADDR_ANY! Only an accepted() connection is bound to a specific interface
 			if(bind(_fd, (struct sockaddr *) &_address.addr, _address.addrlen))
 				{
-				NSLog(@"%@: could not bind due to %s", self, strerror(errno));
+				NSLog(@"### could not bind due to %s: %@: ", strerror(errno), self);
 				return NO;
 				}
 #if 1
-			NSLog(@"bound %@", self);
+			NSLog(@"### bound %@", self);
 #endif
 			if(_address.addr.ss_family != AF_UNIX)
 				{ // get port assigned by system - AF_UNIX does not support this system call
@@ -411,17 +418,17 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 					_address.addrlen=addrlen;
 					NSMapInsert(__sockets, &_address, self);
 #if 0
-					NSLog(@"rebound %@", self);
+					NSLog(@"### rebound %@", self);
 #endif
 				}
 			if(listen(_fd, 10))
 				{
-				NSLog(@"%@: could not listen due to %s", self, strerror(errno));
+				NSLog(@"### could not listen due to %s: %@", strerror(errno), self);
 				return NO;
 				}
 			_isBound=YES;
 #if 1
-			NSLog(@"listening %@", self);
+			NSLog(@"### listening %@", self);
 #endif
 		}
 	return YES;
@@ -436,18 +443,20 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 
 - (void) _readFileDescriptorReady;
 { // callback
-#if 0
-	NSLog(@"_readFileDescriptorReady: %@", self);
+#if 1
+	NSLog(@"### _readFileDescriptorReady: %@", self);
 #endif
 	if(!_isValid)
 		{
-		NSLog(@"_readFileDescriptorReady: became invalid: %@", self);
+#if 1
+		NSLog(@"### _readFileDescriptorReady: became invalid: %@", self);
+#endif
 		[[NSRunLoop currentRunLoop] _removeWatcher:self];
 		return;
 		}
 	if(_fd >= 0)
 		{ // listening was successful
-			struct sockaddr_storage ss;	// FIXME: is this large enough for AF_UNIX?
+			struct sockaddr_storage ss;	// this should be large enough to hold any address incl. AF_UNIX
 			socklen_t saddrlen=sizeof(ss);
 			NSRunLoop *loop=[NSRunLoop currentRunLoop];
 			NSPort *newPort;
@@ -455,27 +464,28 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 			int newfd;
 			short family;
 			if(!_isBound)
-				{ // someone has scheduled this socket but it is not yet bound
+				{ // someone has scheduled this socket but it is not yet bound - so it must be a NSMessagePort that is not registered with a public name
 #if 1
-				NSLog(@"not yet bound & listening:%@", self);
-					// FIXME: how and when is this unbound/_unlinked?
-					// would it be better not to schedule a socket that is not bound?
-				[self _bindAndListen];	// NO: bind may create a named socket file in /tmp/.QuantumSTEP which is never deleted
-//				[loop _removeWatcher:self]; // completely unschedule this port !!! this may remove the last run loop watcher and make the loop end
-				return;
+				NSLog(@"### not yet bound & listening: %@", self);
+				if(![self _bindAndListen])	// try to bind
+					{
+					[self invalidate];	// failed
+					return;
+					}
 #endif
 				}
-#if 0
-			NSLog(@"salen=%d %@", saddrlen, self);
+#if 1
+			NSLog(@"### accept salen=%d %@", saddrlen, self);
 #endif
 			memset(&ss, 0, saddrlen);			// clear completely before using
+			ss.ss_family=_address.addr.ss_family;
 			newfd=accept(_fd, (struct sockaddr *) &ss, &saddrlen);
 #if 1
-			NSLog(@"accepted on fd=%d newfd=%d salen=%d", _fd, newfd, saddrlen);
+			NSLog(@"### accepted on fd=%d newfd=%d salen=%d", _fd, newfd, saddrlen);
 #endif
 			if(newfd < 0)
 				{
-				NSLog(@"_readFileDescriptorReady: could not accept on %@ due to %s", self, strerror(errno));
+				NSLog(@"### could not accept on %@ due to %s", self, strerror(errno));
 				[self invalidate];
 				return;
 				}
@@ -483,16 +493,17 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 			*((short *) &ss.ss_family)=htons(family);	// swap family to network byte order (as expected by initRemoteWithProtocolFamily)
 			addr=[NSData dataWithBytesNoCopy:&ss length:saddrlen freeWhenDone:NO];
 #if 0
-			NSLog(@"accepted socket=%d", newfd);
+			NSLog(@"### accepted socket=%d", newfd);
 			NSLog(@"  address=%@", addr);
 #endif
 			newPort=[[isa alloc] initRemoteWithProtocolFamily:family socketType:_address.type protocol:_address.protocol address:addr];
 			NSAssert1(newPort->_sendfd < 0, @"Already connected! newport=%@", newPort);
+			NSAssert(newPort->_fd < 0, @"Already listening!");
 			newPort->_isBound=YES;			// pretend we are already bound
 			newPort->_sendfd=newfd;			// we are already connected
 			newPort->_delegate=_delegate;	// same delegate
-#if 0
-			NSLog(@"accepted %@ on parent %@", newPort, self);
+#if 1
+			NSLog(@"### accepted %@ on parent %@", newPort, self);
 #endif
 			
 			// FIXME: should we inherit the watchers/modes from our parent???
@@ -503,12 +514,12 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 
 			[newPort release];	// should now have been retained as watcher and/or by cache until invalidated
 #if 0
-			NSLog(@"accept done. retain count=%d", [newPort retainCount]);
+			NSLog(@"### accept done. retain count=%d", [newPort retainCount]);
 #endif
 			return;
 		}
 #if 0
-	NSLog(@"_readFileDescriptor:%d ready %@", _sendfd, self);
+	NSLog(@"### _readFileDescriptor:%d ready %@", _sendfd, self);
 #endif
 	if(!_recvBuffer)
 		{ // no buffer allocated so far - receive and check for header
@@ -520,7 +531,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 				{ // should we have a mechanism to resync? This appears to be not required since we assume a reliable transport socket
 					// we might have to remember a partial header!
 #if 1
-					NSLog(@"closed by peer: %@", self);
+					NSLog(@"### closed by peer: %@", self);
 #endif
 					[self invalidate];
 					if(len == 0)
@@ -528,7 +539,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 					[NSException raise:NSPortReceiveException format:@"_readFileDescriptorReady: header read error %s - len=%d", strerror(errno), len];
 				}
 #if 0
-			NSLog(@"did read %u bytes from fd %d", len, _sendfd);
+			NSLog(@"### did read %u bytes from fd %d", len, _sendfd);
 #endif
 			if(header.magic != NSSwapHostLongToBig(0xd0cf50c0))
 				{
@@ -543,7 +554,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 				return;
 				}
 #if 0
-			NSLog(@"header received length=%u on fd=%d", _recvLength, _sendfd);
+			NSLog(@"### header received length=%u on fd=%d", _recvLength, _sendfd);
 #endif
 			_recvBuffer=objc_malloc(_recvLength);
 			if(!_recvBuffer)
@@ -556,7 +567,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 			return;
 		}
 #if 0
-	NSLog(@"pos=%u length=%u", _recvPos, _recvLength);
+	NSLog(@"### pos=%u length=%u", _recvPos, _recvLength);
 #endif
 	if(_recvPos < _recvLength)
 		{ // read next fragment - as much as we can get from the missing part
@@ -570,18 +581,18 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 					[NSException raise:NSPortReceiveException format:@"_readFileDescriptorReady: read error %s", strerror(errno)];
 				}
 #if 0
-			NSLog(@"did read %u bytes from fd=%d", len, _sendfd);
+			NSLog(@"### did read %u bytes from fd=%d", len, _sendfd);
 #endif
 			_recvPos+=len;
 			if(_recvPos < _recvLength)
 				return;	// incomplete
 		}
 #if 0
-	NSLog(@"complete message received on %@: %@", self, [NSData dataWithBytesNoCopy:_recvBuffer length:_recvLength freeWhenDone:NO]);
+	NSLog(@"### complete message received on %@: %@", self, [NSData dataWithBytesNoCopy:_recvBuffer length:_recvLength freeWhenDone:NO]);
 #endif
 #if 1
 	if(!_delegate)
-		NSLog(@"no delegate! %@", self);
+		NSLog(@"### no delegate! %@", self);
 #endif
 	NS_DURING
 	if([_delegate respondsToSelector:@selector(handleMachMessage:)])
@@ -594,20 +605,20 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		{
 		NSAutoreleasePool *arp=[NSAutoreleasePool new];
 		NSPortMessage *msg=[[NSPortMessage alloc] initWithMachMessage:_recvBuffer];
+		objc_free(_recvBuffer);			// done
 		if(![msg receivePort])	[msg _setReceivePort:self];
 		if(![msg sendPort])		[msg _setSendPort:self];
-		objc_free(_recvBuffer);			// done
 		_recvBuffer=NULL;
 #if 0
-		NSLog(@"handlePortMessage:%@ by delegate %@", msg, _delegate);
+		NSLog(@"### handlePortMessage:%@ by delegate %@", msg, _delegate);
 #endif
 #if 0
-		printf("r: %s d:%s\n", [[msg description] UTF8String], [[_delegate description] UTF8String]);
+		printf("### r: %s d:%s\n", [[msg description] UTF8String], [[_delegate description] UTF8String]);
 #endif	
 		[_delegate handlePortMessage:msg];	// process by delegate
 		[msg release];
 #if 0
-		NSLog(@"received msg released");
+		NSLog(@"### received msg released");
 #endif
 		[arp release];
 		}
@@ -621,7 +632,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 	if(!_isValid)
 		{
 #if 1
-		NSLog(@"_writeFileDescriptorReady: became invalid: %@", self);
+		NSLog(@"### _writeFileDescriptorReady: became invalid: %@", self);
 #endif
 		[[NSRunLoop currentRunLoop] _removeWatcher:self];
 		return;
@@ -630,14 +641,14 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		{ // we have something more to write
 			int len;
 #if 0
-			NSLog(@"_writeFileDescriptorReady %@ (pos=%u len=%u)", self, _sendPos, [_sendData length]);
+			NSLog(@"### _writeFileDescriptorReady %@ (pos=%u len=%u)", self, _sendPos, [_sendData length]);
 #endif
 			len=[_sendData length]-_sendPos;	// remaining block
 			if(len == 0)
 				{ // done
 					fsync(_sendfd);
 #if 1
-					NSLog(@"all sent to fd %d", _sendfd);
+					NSLog(@"### all sent to fd %d", _sendfd);
 #endif
 					[_sendData release];
 					_sendData=nil;
@@ -647,16 +658,16 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 			if(len > 512)
 				len=512;	// limit to reduce risk of blocking
 #if 0
-			NSLog(@"write next %u bytes to fd=%d", len, _sendfd);
+			NSLog(@"### write next %u bytes to fd=%d", len, _sendfd);
 #endif
 			
 			// we could/should make the write non-blocking and account for how much was really sent - would prevent from stall
 #if 0
-			NSLog(@"send byte 0x02d", *(((char *)[_sendData bytes])+_sendPos));
+			NSLog(@"### send byte 0x02d", *(((char *)[_sendData bytes])+_sendPos));
 #endif
 			if(write(_sendfd, ((char *)[_sendData bytes])+_sendPos, len) != len) // this might block in the kernel if the FIFO becomes filled up!
 				{
-				NSLog(@"send error %s", strerror(errno));
+				NSLog(@"### send error %s", strerror(errno));
 				[self invalidate];
 				return;
 				}
@@ -673,7 +684,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 	if(cached)
 		{ // we already have a socket with these specific properties ("data")
 #if 1
-			NSLog(@"substitute by cached socket: %@ %d+1", cached, [self retainCount]);
+			NSLog(@"### substitute by cached socket: %@ %d+1", cached, [self retainCount]);
 #endif
 			if(cached != self)
 				{ // substitute
@@ -685,11 +696,11 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 			return cached;
 		}
 #if 0
-	NSLog(@"cache new socket: %@ %d", self, [self retainCount]);
+	NSLog(@"### cache new socket: %@ %d", self, [self retainCount]);
 #endif
 	NSMapInsertKnownAbsent(__sockets, &_address, self);
 #if 0
-	NSLog(@"cached new socket: %@ %d", self, [self retainCount]);
+	NSLog(@"### cached new socket: %@ %d", self, [self retainCount]);
 #endif
 	// FIXME: unlock
 	return self;
@@ -700,7 +711,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 	if(_isValid)
 		{
 #if 1
-		NSLog(@"invalidated: %@", self);
+		NSLog(@"### invalidated: %@", self);
 #endif
 		_isValid = NO;	// we will remove any scheduling for invalid ports!
 		[self retain];
@@ -757,102 +768,152 @@ static unsigned _portDirectoryLength;
 - (NSString *) description;
 {
 	if(SUN_PATH[0] == 0)
-		return [NSString stringWithFormat:@"%@ abstract path=%.*s %@", [super description], _address.addrlen-1, SUN_PATH+1, [self address]];
+		return [NSString stringWithFormat:@"%@ uuid=%.*s %@", [super description], _address.addrlen-1, SUN_PATH+1, [self address]];
 	return [NSString stringWithFormat:@"%@ path=%.*s %@", [super description], _address.addrlen-2, SUN_PATH, [self address]];
 }
 
 - (id) init
 { // create local socket with unique name in abstract name space
 #if 1
-	NSLog(@"NSMessagePort init %p", self);
+	NSLog(@"### NSMessagePort init %p", self);
 #endif
 	NSMutableData *addr=[[NSMutableData alloc] initWithLength:1];	// initialize with single 0 byte (abstract namespace)
 	[addr appendData:[[[NSProcessInfo processInfo] globallyUniqueString] dataUsingEncoding:NSUTF8StringEncoding]];
-	return [self initRemoteWithProtocolFamily:AF_UNIX socketType:SOCK_STREAM protocol:0 address:addr];
+	self=[self initRemoteWithProtocolFamily:AF_UNIX socketType:SOCK_STREAM protocol:0 address:addr];
+	if(self)
+		{
+		_fd=socket(SUN_FAMILY, _address.type, _address.protocol);
+		if(_fd < 0)
+			{
+#if 1
+			NSLog(@"### NSMessagePort: could not create socket due to %s", strerror(errno));
+#endif
+			[self release];
+			return nil;
+			}
+		// NOTE: we do not yet bind&listen like a NSSocketPort does
+		// We postpone this until the port is really used for the first
+		// time, so that publishing may change the socket name
+		// and name space to a public name (visible in the file system)
+		// and port objects used as tokens only don't create UNIX sockets		
+		}
+	return self;
 }
 
 - (id) initRemoteWithProtocolFamily:(int) family socketType:(int) type protocol:(int) protocol address:(NSData *) address;
 {
 	// FIXME: the first 2 bytes of address should probably be the same as the family!
 #if 1
-	NSLog(@"NSMessagePort %p _initRemoteWithFamily:%d socketType:%d protocol:%d address:%@", self, family, type, protocol, address);
+	NSLog(@"### NSMessagePort %p _initRemoteWithFamily:%d socketType:%d protocol:%d address:%@", self, family, type, protocol, address);
 #endif
 	if((self=[super init]))
 		{
 		SUN_FAMILY=family;
 		if([address length] > 0 && ((char *)[address bytes])[0] == 0)
 			{ // abstract name space
-			_address.addrlen=MIN([address length], sizeof(SUN_PATH));
-			memcpy(SUN_PATH, ((char *)[address bytes]), _address.addrlen);	// copy incl. leading 0x00
+			_address.addrlen=((size_t) (((struct sockaddr_un *) 0)->sun_path)) + MIN([address length], sizeof(SUN_PATH));
+				// FIXME: just fill bytes after address?
+			memset(SUN_PATH, 0, sizeof(SUN_PATH));			// clear completely before using
+			memcpy(SUN_PATH, ((char *)[address bytes]), _address.addrlen);	// copy incl. leading 0x00 but not more than sizeof(SUN_PATH)
 			}
-		else
+		else if([address length] >= 2)
 			{ // file system name space - prefix with directory path
 			unsigned int alen=[address length]-2;
 			strncpy(SUN_PATH, _portDirectoryPath, sizeof(SUN_PATH));
 			SUN_PATH[_portDirectoryLength]='/';
 			strncpy(SUN_PATH+_portDirectoryLength+1, (char *)[address bytes]+2, sizeof(SUN_PATH)-_portDirectoryLength-1);
-			_address.addrlen=SUN_LEN(SUN_ADDRP);	// set length after storing the path
 			if(alen+_portDirectoryLength+1 >= sizeof(SUN_PATH))
-				NSLog(@"NSMessagePort: name will be truncated!");
+				{
+#if 1
+				NSLog(@"### NSMessagePort: name will be truncated!");
+#endif
+				}
 			else
 				(SUN_PATH+_portDirectoryLength+1)[alen]=0;	// make 0-or-length terminated string			
+			_address.addrlen=SUN_LEN(SUN_ADDRP);	// set length after storing the path
 			}
 		_address.type=type;
 		_address.protocol=protocol;
-		_fd=socket(SUN_FAMILY, _address.type, _address.protocol);
-		if(_fd < 0)
-			{
-			NSLog(@"NSMessagePort: could not create socket due to %s", strerror(errno));
-			[self release];
-			return nil;
-			}
-		// NOTE: we do not yet bind&listen like a NSSocketPort does
-		// We postpone this until the port is used for the first
-		// time, so that publishing may change the socket name
-		// and name space to a public name (visible in the file system)		
 		}
-	if([address length] > 0)
-		return [self _substituteFromCache];
-	return self;	// accept() returns an empty address - don't merge all these
+	if([address length] == 0)
+		return self;	// accept() returns an empty address - don't merge all these
+	return [self _substituteFromCache];
 }
 
 - (NSSocketNativeHandle) socket; { return _fd; }
 
-- (void) _setName:(NSString *) name;
-{ // insert concrete file name into the AF_UNIX socket
+- (BOOL) _setName:(NSString *) name;
+{ // insert concrete file name into the AF_UNIX socket - may substitute from cache
 	NSMutableString *n;
 	const char *fn;
+	unsigned int alen;
 	if(_isBound)
 		{
-		NSLog(@"can't _setName:%@ - already bound: %@", name, self);
+		NSLog(@"### can't _setName:%@ - already bound: %@", name, self);
 		// raise exception
-		return;
+		return NO;
 		}
+	NSMapRemove(__sockets, &_address);	// remove old name from in cache (if known)
 	n=[name mutableCopy];	// make autoreleased mutable copy
 	[n replaceOccurrencesOfString:@"%" withString:@"%%" options:0 range:NSMakeRange(0, [name length])];
 	// FIXME: it could be sufficient to check for names beginning with .
 	[n replaceOccurrencesOfString:@"." withString:@"%." options:0 range:NSMakeRange(0, [name length])];	// prevent using .. to try harmful things
 	[n replaceOccurrencesOfString:@"/" withString:@"%-" options:0 range:NSMakeRange(0, [name length])];	// prevent using / to create or overwrite other files
-#if 0
-	NSLog(@"setname -> %@", n);
+#if 1
+	NSLog(@"### setname %@ for %@", n, self);
 #endif
 	fn=[[_portDirectory stringByAppendingPathComponent:n] fileSystemRepresentation];
-	if(strlen(fn) >= sizeof(SUN_PATH))
-		NSLog(@"NSMessagePort: name will be truncated!");
+	alen=strlen(fn);
 	SUN_FAMILY = AF_UNIX;
 	strncpy(SUN_PATH, fn, sizeof(SUN_PATH));
+	if(alen >= sizeof(SUN_PATH))
+		{
+#if 1
+		NSLog(@"### NSMessagePort: name will be truncated!");
+#endif
+		}
+	else
+		SUN_PATH[alen]=0;	// make 0-or-length terminated string
 	_address.addrlen=SUN_LEN(SUN_ADDRP);
 	[n release];
+#if 1
+	NSLog(@"### did setname %@", self);
+#endif
+	return YES;
+}
+
+- (BOOL) _exists;
+{ // check if name exists
+	return access(SUN_PATH, R_OK | W_OK | X_OK) >= 0;
+}
+
+- (BOOL) _inUse;
+{ // check if any process uses this name
+	NSString *cmd=[NSString stringWithFormat:@"fuser -s '%s'", SUN_PATH];
+	void (*save)(int)=signal(SIGCHLD, SIG_DFL);	// reset to default
+	int r=system([cmd UTF8String]);
+	if(r == -1)
+		NSLog(@"### error %s", strerror(errno));
+	signal(SIGCHLD, save);	// restore
+#if 1
+	NSLog(@"### %@ -> %d (%d %d)", cmd, r, WIFEXITED(r), WEXITSTATUS(r));
+#endif
+	return WIFEXITED(r) && WEXITSTATUS(r) == 0;	// process did exit(0)
 }
 
 - (BOOL) _unlink;
 { // delete name
-	if(unlink(SUN_PATH))	// delete any registration if it still exists
+	if(unlink(SUN_PATH) < 0)	// delete any registration if it still exists
 		{
-		// check for error != E_NOTFOUND
+#if 1
+		NSLog(@"### NSMessagePort: could not unlink socket due to %s", strerror(errno));
+#endif
 		return NO;
 		}
-	return YES;
+#if 1
+	NSLog(@"### unlinked %@", self);
+#endif
+	return YES;	// ok
 }
 
 @end

@@ -25,6 +25,8 @@
 /* Begin PBXBuildFile section */
 		EE0C72090F7E733F008B94EE /* NSStringTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE0C71F80F7E7278008B94EE /* NSStringTest.m */; };
 		EE0C72180F7E7423008B94EE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEFFEFE2098DF088002610FC /* Foundation.framework */; };
+		EE103F0A16F264530037C368 /* NSPortTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE103F0916F264530037C368 /* NSPortTest.m */; };
+		EE103F0B16F264530037C368 /* NSPortTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE103F0916F264530037C368 /* NSPortTest.m */; };
 		EE27BF610FCAB29200A48A1E /* NSByteSwappingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF600FCAB29200A48A1E /* NSByteSwappingTest.m */; };
 		EE27BF630FCAB29800A48A1E /* NSHTTPCookieTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF620FCAB29800A48A1E /* NSHTTPCookieTest.m */; };
 		EE27BF650FCAB29D00A48A1E /* NSPredicateTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EE27BF640FCAB29D00A48A1E /* NSPredicateTest.m */; };
@@ -133,6 +135,8 @@
 		EE0C71F80F7E7278008B94EE /* NSStringTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringTest.m; sourceTree = "<group>"; };
 		EE0C72030F7E7328008B94EE /* Foundation.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Foundation.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE0C72040F7E7328008B94EE /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
+		EE103F0816F264530037C368 /* NSPortTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSPortTest.h; sourceTree = "<group>"; };
+		EE103F0916F264530037C368 /* NSPortTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSPortTest.m; sourceTree = "<group>"; };
 		EE13454410A04EB700169BC8 /* Sources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Sources; path = ../Foundation/Sources; sourceTree = SOURCE_ROOT; };
 		EE13461D10A04ECB00169BC8 /* Sources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Sources; path = ../AppKit/Sources; sourceTree = SOURCE_ROOT; };
 		EE27BF600FCAB29200A48A1E /* NSByteSwappingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSByteSwappingTest.m; sourceTree = "<group>"; };
@@ -330,6 +334,8 @@
 				EE27BF660FCAB2A300A48A1E /* NSURLTest.m */,
 				EEF7BCD116E0B2BB00CD94B5 /* NSValueTest.h */,
 				EEF7BCD216E0B2BB00CD94B5 /* NSValueTest.m */,
+				EE103F0816F264530037C368 /* NSPortTest.h */,
+				EE103F0916F264530037C368 /* NSPortTest.m */,
 			);
 			name = "Foundation-Tests";
 			path = Foundation;
@@ -726,6 +732,7 @@
 				EEF7441F16E943B100CD94B5 /* NSAffineTransformTest.m in Sources */,
 				EEF7447C16E9EA4C00CD94B5 /* NSConnectionTest.m in Sources */,
 				EEF744ED16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */,
+				EE103F0B16F264530037C368 /* NSPortTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -793,6 +800,7 @@
 				EEF7BCD416E0B2BB00CD94B5 /* NSValueTest.m in Sources */,
 				EEF7441E16E943B100CD94B5 /* NSAffineTransformTest.m in Sources */,
 				EEF744EC16EA13BD00CD94B5 /* NSDistantObjectTest.m in Sources */,
+				EE103F0A16F264530037C368 /* NSPortTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

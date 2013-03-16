@@ -133,6 +133,7 @@ typedef struct __CGEvent *CGEventRef;
 
 int objc_alignof_type(const char *type);
 int objc_sizeof_type(const char *type);
+int objc_aligned_size(const char *type);
 const char *objc_skip_typespec (const char *type);
 
 #define objc_verror(OBJECT, CODE, FORMAT, ...)
@@ -175,6 +176,7 @@ const char *objc_skip_typespec (const char *type);
 
 #define sel_get_typed_uid(name, types) ((SEL)name)
 #define sel_get_any_uid(name) ((SEL)name)
+#define sel_register_name(name) ((SEL)name)
 #define sel_get_any_typed_uid(X) ((SEL)name)
 #define sel_get_name(X) (char *) (X)
 #define sel_get_type(X) "x"

@@ -54,7 +54,7 @@ typedef int NSSocketNativeHandle;
 	unsigned long _recvPos;
 	unsigned long _sendPos;
 	NSSocketNativeHandle _fd;		// the official fd (the one we listen on - may be -1)
-	NSSocketNativeHandle _sendfd;	// an inofficial socket() where we (did) connect through
+	NSSocketNativeHandle _sendfd;	// an inofficial socket() where we (did) connect through (is -1 if we are really listening)
 	struct _NSPortAddress {	// this is used as the key to find already existing ports
 		unsigned short addrlen;		// length of used part of addr
 		unsigned char type;

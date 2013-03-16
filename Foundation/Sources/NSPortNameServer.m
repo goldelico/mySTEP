@@ -201,30 +201,46 @@ static NSMessagePortNameServer *__sharedNSMessagePortNameServer;
 { // get named socket through alias
 	NSMessagePort *p;
 #if 0
-	NSLog(@"NSMessagePortNameServer portForName:%@ host:%@", portName, hostName);
+	NSLog(@"### NSMessagePortNameServer portForName:%@ host:%@", portName, hostName);
 #endif	  
 	if([hostName length] != 0)
 		return nil; // host name must be nil or empty!
-	p=[NSMessagePort new];
-	[p _setName:portName];		// connect to AF_UNIX file
-	return [p autorelease];
+	p=[[[NSMessagePort alloc] initRemoteWithProtocolFamily:AF_UNIX socketType:SOCK_STREAM protocol:0 address:nil] autorelease];	// no listening socket!
+	if(![p _setName:portName])		// connect to AF_UNIX file
+		return nil;
+	if(![(NSMessagePort *) p _exists])	// check if socket exists
+		return NO;
+	return [p _substituteFromCache];
 }
 
 - (BOOL) registerPort:(NSPort *) port name:(NSString *) name;
 { // make a named alias for the port (named FIFO)
 	if(![port isKindOfClass:[NSMessagePort class]])
 		return NO;	// not a message port
-	[(NSMessagePort *) port _setName:name];	// substitute public name
-	// we might have to move in cache!
-	return [port _bindAndListen];			// create socket and start listening (if scheduled) - must fail if the name is already in use
+	if(![(NSMessagePort *) port _setName:name])	// substitute public name
+		return NO;	// failed
+	if(![port _bindAndListen])			// create socket and start listening (if scheduled)
+		{ // must fail if the name is already in use
+			if(![(NSMessagePort *) port _inUse])
+				{ // no matching process found - try to delete and try again
+#if 1
+				NSLog(@"### nobody is using this NSMessagPort name: %@", name);
+#endif
+				if([(NSMessagePort *) port _unlink] && [port _bindAndListen])	// remove and try again
+					return YES;	// this time it was ok
+				}
+			[port invalidate];
+			return NO;
+		}
+	return YES;
 }
 
 - (BOOL) removePortForName:(NSString *) name;
 { // remove name
-	NSMessagePort *port=(NSMessagePort *) [NSMessagePort port];	// temporary port
-	[port _setName:name];	// substitute public name - this is a quite indirect way to pass the name to unlink()
-	// FIXME: this allows to remove arbitrary sockets and therefore can corrupt the system!
-	return [port _unlink];	// remove from file system
+	NSMessagePort *port=(NSMessagePort *) [[[NSMessagePort alloc] initRemoteWithProtocolFamily:AF_UNIX socketType:SOCK_STREAM protocol:0 address:nil] autorelease];
+	if([port _setName:name])	// substitute public name - this is a quite indirect way to pass the name to unlink()
+		return NO;
+	return [(NSMessagePort *) port _unlink];
 }
 
 @end
