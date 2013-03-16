@@ -103,23 +103,19 @@ primary_expression
 	| '(' expression ')'  { $$=node("(", 0, $2); }
 	/* Obj-C extensions */
 	| AT_STRING_LITERAL
-	| AT_SELECTOR '(' selector ')'  { $$=node("(", node("@selector", 0, 0), $3); }
-	| AT_ENCODE '(' type_name ')'  { $$=node("(", node("@encode", 0, 0), $3); }
-	| AT_PROTOCOL '(' IDENTIFIER ')'  { $$=node("(", node("@protocol", 0, 0), $3); }
+	| AT_SELECTOR '(' selector ')'  { $$=node("@selector", 0, $3); }
+	| AT_ENCODE '(' type_name ')'  { $$=node("@encode", 0, $3); }
+	| AT_PROTOCOL '(' IDENTIFIER ')'  { $$=node("@protocol", 0, $3); }
 	| '[' expression selector_with_arguments ']'  { $$=node("[", 0, node(" ", $2, $3)); }
 	;
 
 postfix_expression
 	: primary_expression
-	| postfix_expression '[' expression ']'  { $$=node("[", $1, $3); }
-	| postfix_expression '(' ')'  { $$=node("(", $1, 0); }
-	| postfix_expression '(' argument_expression_list ')'  { $$=node("(", $1, $3); }
-	| postfix_expression '.' IDENTIFIER
-		{
-		/* if expression is object, replace by [object valueForKey:@"path.path."] - or setValue if we are part of an LValue */
-		$$=node(".", $1, $3);
-		}
-	| postfix_expression PTR_OP IDENTIFIER  { $$=node("*", $1, 0); }
+	| postfix_expression '[' expression ']'  { $$=node("index", $1, $3); }
+	| postfix_expression '(' ')'  { $$=node("fcall", $1, 0); }
+	| postfix_expression '(' argument_expression_list ')'  { $$=node("fcall", $1, $3); }
+	| postfix_expression '.' IDENTIFIER  { $$=node("structref", $1, $3); }
+	| postfix_expression PTR_OP IDENTIFIER  { $$=node("deref", $1, 0); }
 	| postfix_expression INC_OP  { $$=node("++", $1, 0); }
 	| postfix_expression DEC_OP  { $$=node("--", $1, 0); }
 	;
@@ -151,8 +147,8 @@ unary_operator
 
 cast_expression
 	: unary_expression
-	| '(' type_name ')' cast_expression { $$=node(" ", node("(", 0, $2), $4); }
-	| '(' type_name ')' '{' struct_component_expression '}'	 { $$=node("{", node("(", 0, $2), $4); }
+	| '(' type_name ')' cast_expression { $$=node("cast", $2, $4); }
+	| '(' type_name ')' '{' struct_component_expression '}'	 { $$=node("caststruct", $2, $4); }
 	;
 
 multiplicative_expression
@@ -267,9 +263,9 @@ inherited_protocols
 
 class_name_declaration
 	: class_with_superclass
-	| class_with_superclass '<' inherited_protocols '>'
-	| class_with_superclass '(' category_name ')'  { $$=node("(", $1, $3); }
-	| class_with_superclass '<' inherited_protocols '>' '(' category_name ')'  { $$=node(",", $1, $5); }
+	| class_with_superclass '<' inherited_protocols '>' { $$=node("inheritprotocol", $1, $3); }
+	| class_with_superclass '(' category_name ')'  { $$=node("category", $1, $3); }
+	| class_with_superclass '<' inherited_protocols '>' '(' category_name ')'  { $$=node("inheritprotocol", node("category", $1, $5), $3); }
 	| error
 	;
 
@@ -692,7 +688,12 @@ iteration_statement
 		}
 	| FOR '(' declaration IN expression ')' statement
 		{
-			/* emit to { NSEnumerator *e=[expression objectEnumerator]; <type> *obj; while((obj=[e nextObject])) statement } */
+		$$=node("{",
+				$3,
+				node("forin",
+					 $5,
+					 $7)
+				);
 		}
 	;
 

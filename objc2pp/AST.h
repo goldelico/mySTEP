@@ -46,5 +46,4 @@
 - (Node *) parentWithType:(NSString *) type;	// search parent of type t (nil if not found)
 - (Node *) root;
 
-
 @end

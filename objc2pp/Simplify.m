@@ -11,6 +11,14 @@
 // NOTE: evaluation/simplification of constant float expression needs private IEEE FPU implementation!
 // unless we want to require a FPU on the underlaying system
 
+/*
+ * evaluate constant expressions
+ * remove dead code
+ * expand static inline
+ * loop unrolling/vectorization
+ * evaluate common subexpressions only once
+ */
+
 @implementation Node (Simplify)
 
 - (Node *) simplify;

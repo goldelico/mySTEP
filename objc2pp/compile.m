@@ -12,7 +12,7 @@
 @implementation Node (Compile)
 
 - (Node *) registerAssign
-{ // assign 'register' variables
+{ // assign explicit 'register' and temporary stack variables
 	
 }
 

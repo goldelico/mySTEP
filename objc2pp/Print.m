@@ -64,6 +64,18 @@
 	return [self descriptionAtLevel:0];
 }
 
+- (int) level
+{
+	NSString *t=[self type];
+	if([t isEqualToString:@"identifier"] || [t isEqualToString:@"constant"])
+		return 10;
+	if([t isEqualToString:@"*"] || [t isEqualToString:@"/"] || [t isEqualToString:@"%"])
+		return 6;
+	if([t isEqualToString:@"+"] || [t isEqualToString:@"-"])
+		return 5;
+	return 0;
+}
+
 - (NSString *) descriptionAtLevel:(int) level;
 { // handle indentation level
 	NSString *t=[self type];
@@ -82,7 +94,21 @@
 		s=@"\n", level++;
 	else
 		s=@"";
-	s=[s stringByAppendingFormat:@"%@%@%@", [[self left] descriptionAtLevel:level], t, [[self right] descriptionAtLevel:level]];
+	if([self left])
+		{
+		if([[self left] level] < [self level])
+			s=[s stringByAppendingFormat:@"(%@)", [[self left] descriptionAtLevel:level]];
+		else
+			s=[s stringByAppendingString:[[self left] descriptionAtLevel:level]];
+		}
+	s=[s stringByAppendingString:t];
+	if([self right])
+		{
+		if([[self right] level] <= [self level])
+			s=[s stringByAppendingFormat:@"(%@)", [[self right] descriptionAtLevel:level]];	// includes same level for e.g. a+(b+c)
+		else
+			s=[s stringByAppendingString:[[self right] descriptionAtLevel:level]];
+		}
 	if([t isEqualToString:@"("])
 		s=[s stringByAppendingString:@")"];
 	else if([t isEqualToString:@"["])
