@@ -130,7 +130,6 @@
 - (void) removeAllObjects;
 - (void) removeLastObject;
 - (void) removeObject:(id) anObject;
-- (void) removeObject:(id) anObject inRange:(NSRange) aRange;
 - (void) removeObjectsAtIndexes:(NSIndexSet *) indexes;
 - (void) removeObjectsFromIndices:(NSUInteger *) indices 
 					   numIndices:(NSUInteger) count;

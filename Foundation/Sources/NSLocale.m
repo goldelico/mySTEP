@@ -53,17 +53,17 @@ NSString *NSLocaleCurrencyCode;
 	if (env_list)
 		{
 		NSString *env = [NSString stringWithCString:env_list];
-		langs = [[env componentsSeparatedByString:@";"] retain];
+		langs = [env componentsSeparatedByString:@";"];
 		}
 	if (!langs || ![langs containsObject:@"English"])
 		{
-		int s = [langs count] + 2;
+		int s = [langs count] + 1;
 		NSMutableArray *u = [NSMutableArray arrayWithCapacity:s];
 		
 		if(langs)
 			[u addObjectsFromArray:langs];
 		[u addObject:@"English"];
-		ASSIGN(langs, (NSArray *)u);
+		langs=u;
 		}
 #if 0
 	NSLog(@"languages = %@", langs);

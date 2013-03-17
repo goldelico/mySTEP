@@ -1021,6 +1021,7 @@ id object;
 			object = new_object;
 			NSMapInsert(objects, key, object);
 			}
+		// FIXME memory management!
 		new_object = [object awakeAfterUsingCoder:self];
 		if(new_object != object) 
 			{

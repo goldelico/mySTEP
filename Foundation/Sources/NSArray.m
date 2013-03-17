@@ -921,15 +921,6 @@ unsigned i = range.location, j;				// beyond end of array then return
     _contents[i2] = tmp;
 }
 
-- (void) removeLastObject
-{
-	if (_count == 0)
-		[NSException raise: NSRangeException
-					format: @"Trying to removeLastObject from an empty array."];
-	_count--;
-	[_contents[_count] release];
-}
-
 - (void) removeObjectIdenticalTo:(id) anObject inRange:(NSRange)aRange
 {
 	unsigned i = MIN(NSMaxRange(aRange), _count);
@@ -964,6 +955,70 @@ unsigned i = range.location, j;				// beyond end of array then return
 			}
 		}
 }
+
+- (void) removeObjectAtIndex:(unsigned)idx
+{
+	id o;
+	
+	if (idx >= _count)
+		[NSException raise: NSRangeException
+					format:@"removeObjectAtIndex: %d is out of range", idx];
+	
+	o = _contents[idx];
+	_count--;
+	memmove(&_contents[idx], &_contents[idx+1], sizeof(_contents[0])*(_count-idx));
+	[o release];
+}
+
+- (void) replaceObjectsInRange:(NSRange)aRange
+		  withObjectsFromArray:(NSArray*)anArray
+{
+	NSEnumerator *e;
+	id o;
+	if ([self count] < NSMaxRange(aRange))
+		[NSException raise: NSRangeException
+					format: @"replaceObjectsInRange: Replacing objects beyond end of array."];
+	e = [anArray reverseObjectEnumerator];
+	while ((o = [e nextObject]))
+		[self insertObject: o atIndex: aRange.location];
+	aRange.location += aRange.length;
+	[self removeObjectsInRange: aRange];
+}
+
+- (void) replaceObjectsInRange:(NSRange)aRange
+		  withObjectsFromArray:(NSArray*)anArray
+						 range:(NSRange)anotherRange
+{
+	[self replaceObjectsInRange: aRange
+		   withObjectsFromArray: [anArray subarrayWithRange: anotherRange]];
+}
+
+- (void) removeObject:(id) anObject inRange:(NSRange)aRange
+{
+	unsigned i = MIN(NSMaxRange(aRange), _count);
+	id o;
+	
+	while (i-- > aRange.location)
+		{
+		if ((o = _contents[i]) == anObject || [o isEqual: anObject])
+			{
+			_count--;
+			memmove(&_contents[i], &_contents[i+1], sizeof(_contents[0])*(_count-i));
+			[o release];
+			}
+		}
+}
+
+@end
+
+@implementation NSMutableArray (NonCore)
+
++ (id) arrayWithCapacity:(unsigned)numItems
+{
+	return [[[self alloc] initWithCapacity:numItems] autorelease];
+}
+
+- (id) init							{ return [self initWithCapacity:2]; }
 
 - (void) removeObject:(id) anObject inRange:(NSRange)aRange
 {
@@ -1000,62 +1055,6 @@ unsigned i = range.location, j;				// beyond end of array then return
 		}
 }
 
-- (void) removeObjectAtIndex:(unsigned)idx
-{
-	id o;
-	
-	if (idx >= _count)
-		[NSException raise: NSRangeException
-					format:@"removeObjectAtIndex: %d is out of range", idx];
-	
-	o = _contents[idx];
-	_count--;
-	memmove(&_contents[idx], &_contents[idx+1], sizeof(_contents[0])*(_count-idx));
-	[o release];
-}
-
-- (void) removeAllObjects
-{
-	unsigned i;
-	for(i=0; i < _count; i++)
-		[_contents[i] release];
-	_count = 0;
-}
-
-@end
-
-@implementation NSMutableArray (NonCore)
-
-+ (id) arrayWithCapacity:(unsigned)numItems
-{
-	return [[[self alloc] initWithCapacity:numItems] autorelease];
-}
-
-- (id) init							{ return [self initWithCapacity:2]; }
-
-- (void) replaceObjectsInRange:(NSRange)aRange
-		  withObjectsFromArray:(NSArray*)anArray
-{
-	NSEnumerator *e;
-	id o;
-	if ([self count] < NSMaxRange(aRange))
-		[NSException raise: NSRangeException
-					 format: @"replaceObjectsInRange: Replacing objects beyond end of array."];
-	e = [anArray reverseObjectEnumerator];
-	while ((o = [e nextObject]))
-		[self insertObject: o atIndex: aRange.location];
-	aRange.location += aRange.length;
-	[self removeObjectsInRange: aRange];
-}
-
-- (void) replaceObjectsInRange:(NSRange)aRange
-		  withObjectsFromArray:(NSArray*)anArray
-		  range:(NSRange)anotherRange
-{
-	[self replaceObjectsInRange: aRange
-		  withObjectsFromArray: [anArray subarrayWithRange: anotherRange]];
-}
-
 - (BOOL) writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile
 {
 	NSString *error;
@@ -1078,6 +1077,23 @@ unsigned i = range.location, j;				// beyond end of array then return
 {
 	[self removeAllObjects];
 	[self addObjectsFromArray: otherArray];
+}
+
+- (void) removeAllObjects
+{
+	unsigned i;
+	for(i=0; i < _count; i++)
+		[_contents[i] release];
+	_count = 0;
+}
+
+- (void) removeLastObject
+{
+	if (_count == 0)
+		[NSException raise: NSRangeException
+					format: @"Trying to removeLastObject from an empty array."];
+	_count--;
+	[_contents[_count] release];
 }
 
 - (void) removeObjectsFromIndices:(unsigned *) indices 
@@ -1364,7 +1380,7 @@ jump_over:;
 
 				if ((*compare)(a, b, context) == NSOrderedAscending) 
 					{
-					_contents[d + stride] = b;
+					_contents[d + stride] = b;		// swap values
 					_contents[d] = a;
 					if (stride > d)
 						break;

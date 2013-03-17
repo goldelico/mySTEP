@@ -3076,6 +3076,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		c = ((Class)obj)->class_pointer;
 	else
 		return NO;	// is nil or has no class
+#else
+	c = Nil;	// make apple gcc happy
 #endif
 	
 #if 0
@@ -3146,6 +3148,8 @@ BOOL (*__quotesIMP)(id, SEL, unichar) = 0;
 		c = ((Class)aString)->class_pointer;
 	else
 		return NO;
+#else
+	c=Nil;	// make apple gcc happy
 #endif
 	
 	if (_hash == 0)

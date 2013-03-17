@@ -957,7 +957,7 @@ static unsigned _portDirectoryLength;
 		}
 	self=[self _substituteFromCache];
 #if 1
-	NSLog(@"new %@:%p", NSStringFromClass(isa), self);
+	NSLog(@"new %@:%p", NSStringFromClass([self class]), self);
 #endif
 	return self;
 }
@@ -984,7 +984,7 @@ static unsigned _portDirectoryLength;
 		}
 	self=[self _substituteFromCache];
 #if 1
-	NSLog(@"new %@:%p", NSStringFromClass(isa), self);
+	NSLog(@"new %@:%p", NSStringFromClass([self class]), self);
 #endif
 	return self;
 }

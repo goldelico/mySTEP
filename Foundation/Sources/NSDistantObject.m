@@ -196,7 +196,7 @@ static Class _doClass;
 		return NO;	// different connection
 	if(_local)
 		return _local == other->_local;	// same local object
-	return _remote == _remote;	// same reference
+	return _remote == other->_remote;	// same reference
 }
 
 - (unsigned int) hash
@@ -491,7 +491,7 @@ static Class _doClass;
 
 - (NSMethodSignature *) methodSignatureForSelector:(SEL)aSelector;
 {
-	struct objc_method_description *md;
+	struct objc_method_description *md=NULL;
 	NSMethodSignature *ret=[_selectorCache objectForKey:NSStringFromSelector(aSelector)];
 	if(ret)
 		return ret;	// known from cache

@@ -33,6 +33,7 @@
 #import <AppKit/NSColor.h>
 #import <AppKit/NSMenu.h>
 #import <AppKit/NSTextView.h>
+#import <AppKit/NSTextStorage.h>
 
 #import "NSAppKitPrivate.h"
 
@@ -492,7 +493,7 @@ static NSColor *__borderedBackgroundColor = nil;
 #if 1
 	NSLog(@"endEditing %@", self);
 #endif
-	if([textObject respondsToSelector:@"textStorage"])
+	if([textObject respondsToSelector:@selector(textStorage)])
 		[self setAttributedStringValue:[(NSTextView *) textObject textStorage]];
 	else
 		[self setStringValue:[textObject string]];

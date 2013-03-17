@@ -28,9 +28,12 @@
 {
 	if((self=[super init]))
 		{
-		*(_response=response)=nil;
-		*(_error=error)=nil;
-		*(_data=data)=nil;
+		if((_response=response))
+			*_response=nil;
+		if((_error=error))
+			*_error=error;
+		if((_data=data))
+			*_data=data;
 		_done=NO;
 		}
 	return self;
