@@ -304,8 +304,8 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		[NSException raise:NSInvalidSendPortException format:@"invalidated: %@", self];
 	if(!receivePort)
 		return NO;	// raise exception? Or can we even send in this case?
-//	if(![receivePort _bindAndListen])	// receive port wasn't bound to a file or socket yet (should happen only for NSMessagePorts)
-//		return NO;
+	if(![receivePort _bindAndListen])	// receive port wasn't bound to a file or socket yet (should happen only for NSMessagePorts)
+		return NO;
 	if(_sendfd < 0 && ![self _connect])	// we are not yet connected
 		return NO;
 	_sendData=[NSPortMessage _machMessageWithId:msgid forSendPort:self receivePort:receivePort components:components];	// convert to data block
@@ -313,7 +313,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 		[NSException raise:NSPortSendException format:@"could not convert data to machMessage"];
 	[_sendData retain];	// NSRunLoop may autorelease pools before everything is sent! Will be released in _writeFileDescriptorReady
 #if 1
-	NSLog(@"### send length=%u data=%@ to fd=%d on %@", [_sendData length], _sendData, _sendfd);
+	NSLog(@"### send length=%u data=%@ to fd=%d on %@", [_sendData length], _sendData, _sendfd, self);
 #endif
 	_sendPos=0;
 	[loop _addOutputWatcher:self forMode:NSConnectionReplyMode];	// get callbacks when we can send
@@ -395,7 +395,7 @@ static const NSMapTableKeyCallBacks NSSocketMapKeyCallBacks = {
 #if 1
 	NSLog(@"### bindandlisten %@", self);
 #endif
-	if(!_isBound)
+	if(!_isBound && _fd >= 0)
 		{ // not yet bound
 			int flag=1;
 			if(!_isValid)
