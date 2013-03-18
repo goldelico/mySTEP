@@ -14,7 +14,12 @@ export SOURCES+=" NSScannerTest.m"
 export SOURCES+=" NSStringTest.m"
 export SOURCES+=" NSURLTest.m"
 export SOURCES+=" NSValueTest.m"
+export SOURCES+=" NSAffineTransformTest.m"
+export SOURCES+=" NSDistantObjectTest.m"
+export SOURCES+=" NSConnectionTest.m"
+export SOURCES+=" NSPortTest.m"
 export WRAPPER_EXTENSION="octest"
+
 
 
 [ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP
