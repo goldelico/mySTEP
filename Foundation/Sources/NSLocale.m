@@ -9,29 +9,28 @@
 //  under the terms of the GNU Library General Public License.
 //
 
-// CODE NOT TESTED
-
 #import <Foundation/NSLocale.h>
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSUserDefaults.h>
+#import <Foundation/NSCoder.h>
 
-NSString *NSLocaleIdentifier;
-NSString *NSLocaleLanguageCode;
-NSString *NSLocaleCountryCode;
-NSString *NSLocaleScriptCode;
-NSString *NSLocaleVariantCode;
-NSString *NSLocaleExemplarCharacterSet;
-NSString *NSLocaleCalendar;
-NSString *NSLocaleCollationIdentifier;
-NSString *NSLocaleUsesMetricSystem;
-NSString *NSLocaleMeasurementSystem;
-NSString *NSLocaleDecimalSeparator;
-NSString *NSLocaleGroupingSeparator;
-NSString *NSLocaleCurrencySymbol;
-NSString *NSLocaleCurrencyCode;
+NSString *NSLocaleIdentifier=@"NSLocaleIdentifier";
+NSString *NSLocaleLanguageCode=@"NSLocaleLanguageCode";
+NSString *NSLocaleCountryCode=@"NSLocaleCountryCode";
+NSString *NSLocaleScriptCode=@"NSLocaleScriptCode";
+NSString *NSLocaleVariantCode=@"NSLocaleVariantCode";
+NSString *NSLocaleExemplarCharacterSet=@"NSLocaleExemplarCharacterSet";
+NSString *NSLocaleCalendar=@"NSLocaleCalendar";
+NSString *NSLocaleCollationIdentifier=@"NSLocaleCollationIdentifier";
+NSString *NSLocaleUsesMetricSystem=@"NSLocaleUsesMetricSystem";
+NSString *NSLocaleMeasurementSystem=@"NSLocaleMeasurementSystem";
+NSString *NSLocaleDecimalSeparator=@"NSLocaleDecimalSeparator";
+NSString *NSLocaleGroupingSeparator=@"NSLocaleGroupingSeparator";
+NSString *NSLocaleCurrencySymbol=@"NSLocaleCurrencySymbol";
+NSString *NSLocaleCurrencyCode=@"NSLocaleCurrencyCode";
 
 @implementation NSLocale
 
@@ -129,12 +128,18 @@ NSString *NSLocaleCurrencyCode;
 
 - (id) initWithLocaleIdentifier:(NSString *) ident;
 {
-	return NIMP;
+	if((self=[self init]))
+		{
+		_localeIdentifier=[ident retain];
+		}
+	return self;
 }
 
 - (id) copyWithZone:(NSZone *) z;
 {
-	return NIMP;
+	NSLocale *l=[super copyWithZone:z];
+	l->_localeIdentifier=[_localeIdentifier copyWithZone:z];
+	return l;
 }
 
 - (void) encodeWithCoder:(NSCoder *) coder;
@@ -144,17 +149,19 @@ NSString *NSLocaleCurrencyCode;
 
 - (id) initWithCoder:(NSCoder *) coder;
 {
-	return NIMP;
+	_localeIdentifier=[[coder decodeObjectForKey:@"NS.identifier"] retain];
+	return self;
 }
 
 - (void) dealloc;
 {
+	[_localeIdentifier release];
 	[super dealloc];
 }
 
 - (NSString *) localeIdentifier;
 {
-	return NIMP;
+	return _localeIdentifier;
 }
 
 - (id) objectForKey:(id) key;

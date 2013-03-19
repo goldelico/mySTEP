@@ -41,6 +41,7 @@ extern NSString *NSCurrentLocaleDidChangeNotification;
 
 @interface NSLocale : NSObject <NSCoding, NSCopying>
 {
+	NSString *_localeIdentifier;
 }
 
 + (id) autoupdatingCurrentLocale;
