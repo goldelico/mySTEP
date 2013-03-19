@@ -947,6 +947,50 @@
 	 */
 }
 
+- (void) test50
+{
+	STAssertEqualObjects([view string], @"", nil);
+	STAssertEqualObjects([view font], [NSFont fontWithName:@"Helvetica" size:12.0], nil);
+	STAssertEqualObjects([view typingAttributes], [NSDictionary dictionaryWithObject:[NSFont fontWithName:@"Helvetica" size:12.0] forKey:NSFontAttributeName], nil);
+	[view setFont:[NSFont fontWithName:@"Times" size:14.0]];
+	STAssertEqualObjects([view font], [NSFont fontWithName:@"Times" size:14.0], nil);
+	STAssertEqualObjects([view typingAttributes], [NSDictionary dictionaryWithObject:[NSFont fontWithName:@"Times" size:14.0] forKey:NSFontAttributeName], nil);
+	[view setTypingAttributes:[NSDictionary dictionaryWithObject:[NSFont fontWithName:@"Times" size:18.0] forKey:NSFontAttributeName]];
+	STAssertEqualObjects([view font], [NSFont fontWithName:@"Times" size:18.0], nil);
+	STAssertEqualObjects([view typingAttributes], [NSDictionary dictionaryWithObject:[NSFont fontWithName:@"Times" size:18.0] forKey:NSFontAttributeName], nil);
+	[[view textStorage] replaceCharactersInRange:NSMakeRange(0, [[view textStorage] length]) withString:@"String"];
+	STAssertEqualObjects([view string], @"String", nil);
+	STAssertEqualObjects([view font], [NSFont fontWithName:@"Helvetica" size:12.0], nil);
+	STAssertEqualObjects([view typingAttributes], [NSDictionary dictionaryWithObject:[NSFont fontWithName:@"Helvetica" size:12.0] forKey:NSFontAttributeName], nil);
+	STAssertEqualObjects([[view textStorage] attribute:NSFontAttributeName atIndex:0 effectiveRange:NULL], [NSFont fontWithName:@"Helvetica" size:12.0], nil);
+	[view setTypingAttributes:nil];
+	STAssertEqualObjects([view font], [NSFont fontWithName:@"Helvetica" size:12.0], nil);
+	STAssertEqualObjects([view typingAttributes], [NSDictionary dictionaryWithObject:[NSFont fontWithName:@"Helvetica" size:12.0] forKey:NSFontAttributeName], nil);
+	[view setFont:[NSFont fontWithName:@"Times" size:14.0]];
+	[view setTypingAttributes:[NSDictionary dictionary]];
+	STAssertEqualObjects([view font], [NSFont fontWithName:@"Times" size:14.0], nil);
+	STAssertEqualObjects([view typingAttributes], [NSDictionary dictionary], nil);
+	STAssertThrows([view setFont:nil], nil);
+	[view setTypingAttributes:[NSDictionary dictionaryWithObject:[NSFont fontWithName:@"Times" size:18.0] forKey:NSFontAttributeName]];
+	[[view textStorage] replaceCharactersInRange:NSMakeRange(0, [[view textStorage] length]) withString:@"Another String"];
+	STAssertEqualObjects([view string], @"Another String", nil);
+	STAssertEqualObjects([view font], [NSFont fontWithName:@"Times" size:14.0], nil);
+	STAssertEqualObjects([view typingAttributes], [NSDictionary dictionaryWithObject:[NSFont fontWithName:@"Times" size:14.0] forKey:NSFontAttributeName], nil);
+	STAssertEqualObjects([[view textStorage] attribute:NSFontAttributeName atIndex:0 effectiveRange:NULL], [NSFont fontWithName:@"Times" size:14.0], nil);
+	/*
+	 * typing attributes follow setFont:
+	 * changing typing attributes affects setFont:
+	 * but replacing an empty character range with a string (and no attributes) resets everything to Helvetica:12 (where is this defined?)
+	 * setting typingAttributes to nil is silently ignored
+	 * setting nil font raises exception
+	 * changing a string with Helvetica:12 resets font and typing attributes to Helvetica:12
+	 *
+	 * i.e. replacing characters takes the current attributes from the string as new typing attributes
+	 * if there are no current attributes of the string, the default is Helvetica:12
+	 * setFont/font are NOT simple setter/getter for the NSFontAttributeName component of the typing attributes (see the test where we set empty typing attributes)
+	 */
+}
+
 - (void) test99
 { // try setting some extreme values
 	STAssertEquals([view frame], NSMakeRect(100.0, 100.0, 300.0, 500.0), nil);
