@@ -311,7 +311,7 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 //
 - (float) bottomMargin
 {
-	NSNumber *val=[info objectForKey:NSPrintBottomMargin];
+	NSNumber *val=[info objectForKey:NSPrintLeftMargin];
 	return val?[val floatValue]:0.0;
 }
 
@@ -345,30 +345,37 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (void) setBottomMargin:(float)value
 {
+	[info setObject:[NSNumber numberWithFloat:value] forKey:NSPrintLeftMargin];
 }
 
 - (void) setLeftMargin:(float)value
 {
+	[info setObject:[NSNumber numberWithFloat:value] forKey:NSPrintLeftMargin];
 }
 
 - (void) setOrientation:(NSPrintingOrientation)mode
 {
+	[info setObject:[NSNumber numberWithInt:mode] forKey:NSPrintOrientation];
 }
 
 - (void) setPaperName:(NSString *)name
 {
+	[info setObject:name forKey:NSPrintPaperName];
 }
 
 - (void) setPaperSize:(NSSize)size
 {
+	[info setObject:[NSValue valueWithSize:size] forKey:NSPrintPaperSize];
 }
 
 - (void) setRightMargin:(float)value
 {
+	[info setObject:[NSNumber numberWithFloat:value] forKey:NSPrintRightMargin];
 }
 
 - (void) setTopMargin:(float)value
 {
+	[info setObject:[NSNumber numberWithFloat:value] forKey:NSPrintTopMargin];
 }
 
 - (float) topMargin
@@ -386,10 +393,12 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (void) setHorizontalPagination:(NSPrintingPaginationMode)mode
 {
+	[info setObject:[NSNumber numberWithInt:mode] forKey:NSPrintHorizontalPagination];
 }
 
 - (void) setVerticalPagination:(NSPrintingPaginationMode)mode
 {
+	[info setObject:[NSNumber numberWithInt:mode] forKey:NSPrintVerticalPagination];
 }
 
 - (NSPrintingPaginationMode) verticalPagination
@@ -412,10 +421,12 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 
 - (void) setHorizontallyCentered:(BOOL)flag
 {
+	[info setObject:[NSNumber numberWithBool:flag] forKey:NSPrintHorizontallyCentered];
 }
 
 - (void) setVerticallyCentered:(BOOL)flag
 {
+	[info setObject:[NSNumber numberWithBool:flag] forKey:NSPrintVerticallyCentered];
 }
 
 //
@@ -450,13 +461,15 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 	return;
 }
 
-- (NSMutableDictionary *)dictionary			{ return info; }
+- (NSMutableDictionary *) dictionary			{ return info; }
 
 - (id) initWithCoder:(NSCoder *) aDecoder								// NSCoding protocol
 {
 	if([aDecoder allowsKeyedCoding])
+		{
 		return self;
-	info = [aDecoder decodePropertyList];
+		}
+	info = [[aDecoder decodePropertyList] retain];
 	return self;
 }
 
