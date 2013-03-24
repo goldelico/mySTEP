@@ -282,7 +282,7 @@ typedef NSUInteger NSFindPanelSubstringMatchType;
 - (void) turnOffKerning:(id) sender;
 - (void) turnOffLigatures:(id) sender;
 - (NSDictionary *) typingAttributes;
-- (void) underline:(id) sender;
+// inherited - (void) underline:(id) sender;
 - (void) updateDragTypeRegistration;
 - (void) updateFontPanel;
 - (void) updateInsertionPointStateAndRestartTimer:(BOOL) flag;

@@ -229,7 +229,8 @@ NSString *NSViewAnimationFadeOutEffect=@"NSViewAnimationFadeOutEffect";
 
 - (void) _startAnimation:(NSNotification *) n
 { // conditional start of animation
-	if([n object] == _startAnimation && [[[n userInfo] objectForKey:NSAnimationProgressMark] floatValue] == _startAnimationProgress)
+	NSString *m;
+	if([n object] == _startAnimation && (m=[[n userInfo] objectForKey:NSAnimationProgressMark]) && [m floatValue] == _startAnimationProgress)
 		[self startAnimation];	// yeah!
 }
 
@@ -261,8 +262,9 @@ NSString *NSViewAnimationFadeOutEffect=@"NSViewAnimationFadeOutEffect";
 
 - (void) _stopAnimation:(NSNotification *) n
 { // conditional start of animation
-	if([n object] == _stopAnimation && [[[n userInfo] objectForKey:NSAnimationProgressMark] floatValue] == _stopAnimationProgress)
-		[self startAnimation];	// yeah!
+	NSString *m;
+	if([n object] == _stopAnimation && (m=[[n userInfo] objectForKey:NSAnimationProgressMark]) && [m floatValue] == _stopAnimationProgress)
+		[self stopAnimation];	// yeah!
 }
 
 - (void) stopWhenAnimation:(NSAnimation *) animation reachesProgress:(NSAnimationProgress) stop;

@@ -575,17 +575,20 @@ int i;										// If col is last visible or number
 
 - (void) scrollViaScroller:(NSScroller *)sender
 {
-	NSScrollerPart h = [sender hitPart];
-
-	if ((h == NSScrollerDecrementLine) || (h == NSScrollerDecrementPage))
-		[self scrollColumnsLeftBy: 1];					// Scroll to the left
-	else if ((h == NSScrollerIncrementLine) || (h == NSScrollerIncrementPage))
-		[self scrollColumnsRightBy: 1];					// Scroll to the right
-	else if ((h == NSScrollerKnob) || (h == NSScrollerKnobSlot))
+	if(sender)
 		{
-		int i = rint([sender floatValue] * [self lastColumn]);
-
-		[self scrollColumnToVisible: i];
+		NSScrollerPart h = [sender hitPart];
+		
+		if ((h == NSScrollerDecrementLine) || (h == NSScrollerDecrementPage))
+			[self scrollColumnsLeftBy: 1];					// Scroll to the left
+		else if ((h == NSScrollerIncrementLine) || (h == NSScrollerIncrementPage))
+			[self scrollColumnsRightBy: 1];					// Scroll to the right
+		else if ((h == NSScrollerKnob) || (h == NSScrollerKnobSlot))
+			{
+			int i = rint([sender floatValue] * [self lastColumn]);
+			
+			[self scrollColumnToVisible: i];
+			}
 		}
 }
 

@@ -196,16 +196,16 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (void) close;
 {
 	if(_streamStatus != NSStreamStatusNotOpen && _streamStatus != NSStreamStatusClosed)
-			{
-				// FIXME: how can we be removed from ALL runloops?
-				// _removeWatcher should be a class method of NSRunLoop!
-				[[NSRunLoop currentRunLoop] _removeWatcher:self];
+		{
+		// FIXME: how can we be removed from ALL runloops?
+		// _removeWatcher should be a class method of NSRunLoop!
+		[[NSRunLoop currentRunLoop] _removeWatcher:self];
 #if 1
-				NSLog(@"close(%d) %@", _fd, self);
+		NSLog(@"close(%d) %@", _fd, self);
 #endif
-				close(_fd);
-				_fd=-1;
-			}
+		close(_fd);
+		_fd=-1;
+		}
 	[super close];
 }
 
@@ -251,7 +251,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 {
 	[aRunLoop _addInputWatcher:self forMode:mode];	// read watcher
 }
-	
+
 - (void) _readFileDescriptorReady
 {
 	// check status
@@ -276,24 +276,24 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 /*
  - (void) open
-{
-#if 1
-	NSLog(@"open %@", self);
-#endif
-	if(_streamStatus != NSStreamStatusNotOpen)
-		{
-		[self _sendErrorWithDomain:@"already open" code:0];
-		return;
-		}
-	//	_streamStatus=NSStreamStatusOpening;
-	// listen(destination, 128);
-	[super open];
-}
-
+ {
+ #if 1
+ NSLog(@"open %@", self);
+ #endif
+ if(_streamStatus != NSStreamStatusNotOpen)
+ {
+ [self _sendErrorWithDomain:@"already open" code:0];
+ return;
+ }
+ //	_streamStatus=NSStreamStatusOpening;
+ // listen(destination, 128);
+ [super open];
+ }
+ 
  - (void) close;
-{
-	[super close];
-}
+ {
+ [super close];
+ }
  */
 
 - (int) read:(unsigned char *) buffer maxLength:(unsigned int) len;
@@ -318,12 +318,12 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 {
 	if((self=[super init]))
 		{
-			if([data isKindOfClass:[NSMutableData class]])
-				data=[[data copy] autorelease];
-			_data=[data retain];	// protect from being deallocated
-			_buffer=[data bytes];	// shouldn't we copy???
-			_capacity=[data length];
-			_fd=-1;
+		if([data isKindOfClass:[NSMutableData class]])
+			data=[[data copy] autorelease];
+		_data=[data retain];	// protect from being deallocated
+		_buffer=[data bytes];	// shouldn't we copy???
+		_capacity=[data length];
+		_fd=-1;
 		}
 	return self;
 }
@@ -367,6 +367,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (BOOL) setProperty:(id) property forKey:(NSString *) key
 {
+	if(!property) return NO;
 	if([key isEqualToString:NSStreamFileCurrentOffsetKey])
 		{
 		int pos=[property unsignedLongValue];
@@ -388,8 +389,8 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 {  
 	if(self == [NSStream class])
 		{
-			signal(SIGPIPE, SIG_IGN);	// If SIGPIPE is not ignored, we will abort on any attempt to write to a pipe/socket that has been closed by the other end!
-			signal(SIGSTOP, SIG_IGN);	// some devices might send a SIGSTOP if they become inactive
+		signal(SIGPIPE, SIG_IGN);	// If SIGPIPE is not ignored, we will abort on any attempt to write to a pipe/socket that has been closed by the other end!
+		signal(SIGSTOP, SIG_IGN);	// some devices might send a SIGSTOP if they become inactive
 		}
 }
 
@@ -459,15 +460,15 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (void) close;
 {
 	if(_streamStatus != NSStreamStatusNotOpen && _streamStatus != NSStreamStatusClosed)
-			{
-				// FIXME: how can we be removed from ALL runloops?
-				[[NSRunLoop currentRunLoop] _removeWatcher:self];
+		{
+		// FIXME: how can we be removed from ALL runloops?
+		[[NSRunLoop currentRunLoop] _removeWatcher:self];
 #if 1
-				NSLog(@"close(%d) %@", _fd, self);
+		NSLog(@"close(%d) %@", _fd, self);
 #endif
-				close(_fd);
-				_fd=-1;
-			}
+		close(_fd);
+		_fd=-1;
+		}
 	[super close];
 }
 
@@ -477,11 +478,11 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 {
 	unsigned n=write(_fd, buffer, len);
 	if(n < 0)
-			{
+		{
 #if 1
-				NSLog(@"write error %s", strerror(errno));
+		NSLog(@"write error %s", strerror(errno));
 #endif
-			}
+		}
 	return n;
 }
 
@@ -511,6 +512,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (BOOL) setProperty:(id) property forKey:(NSString *) key
 {
+	if(!property) return NO;
 	if([key isEqualToString:NSStreamFileCurrentOffsetKey])
 		return lseek(_fd, [property unsignedLongValue], SEEK_SET) >= 0;
 	return NO;
@@ -523,11 +525,11 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (id) initToBuffer:(unsigned char *) buffer capacity:(unsigned int) len;
 {
 	if((self=[super init]))
-			{
-				_buffer=buffer;
-				_capacity=len;
-				_fd=-1;
-			}
+		{
+		_buffer=buffer;
+		_capacity=len;
+		_fd=-1;
+		}
 	return self;
 }
 
@@ -559,16 +561,17 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 
 - (BOOL) setProperty:(id) property forKey:(NSString *) key
 {
+	if(!property) return NO;
 	if([key isEqualToString:NSStreamFileCurrentOffsetKey])
-			{
-				int pos=[property unsignedLongValue];
-				if(pos > _capacity)
-					return NO;
-				_position=pos;
-				if(pos > _capacity)
-					; // must we expand here to fill with 0 if someone wants to look at NSStreamDataWrittenToMemoryStreamKey?
-				return YES;
-			}
+		{
+		int pos=[property unsignedLongValue];
+		if(pos > _capacity)
+			return NO;
+		_position=pos;
+		if(pos > _capacity)
+			; // must we expand here to fill with 0 if someone wants to look at NSStreamDataWrittenToMemoryStreamKey?
+		return YES;
+		}
 	return NO;
 }
 
@@ -649,7 +652,7 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	if(_streamStatus != NSStreamStatusNotOpen)
 		{
 #if 1
-			NSLog(@"status %d for %@", _streamStatus, self);
+		NSLog(@"status %d for %@", _streamStatus, self);
 #endif
 		[self _sendErrorWithDomain:@"already open" code:0];
 		return;
@@ -680,18 +683,18 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 	if(_securityLevel && ![_securityLevel isEqualToString:NSStreamSocketSecurityLevelNone])
 		{
 		SSL_METHOD *method;
-			// lock
+		// lock
 		if(!sslInitialized)
 			{ // initialize ssl library
-			SSL_library_init();
-			if (![[NSFileManager defaultManager] fileExistsAtPath: @"/dev/urandom"])
-				{ // If there is no /dev/urandom for ssl to use, we must seed the random number generator ourselves.
-				const char	*seed = [[[NSProcessInfo processInfo] globallyUniqueString] UTF8String];
-				RAND_seed(seed, strlen(seed));
-				}
-			sslInitialized=YES;
+				SSL_library_init();
+				if (![[NSFileManager defaultManager] fileExistsAtPath: @"/dev/urandom"])
+					{ // If there is no /dev/urandom for ssl to use, we must seed the random number generator ourselves.
+						const char	*seed = [[[NSProcessInfo processInfo] globallyUniqueString] UTF8String];
+						RAND_seed(seed, strlen(seed));
+					}
+				sslInitialized=YES;
 			}
-			// unlock
+		// unlock
 		if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelSSLv2])
 			method=SSLv2_client_method();
 		else if([_securityLevel isEqualToString:NSStreamSocketSecurityLevelSSLv3])
@@ -706,11 +709,11 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 		ssl = SSL_new(ctx);
 		if(SSL_set_fd(ssl, _fd))
 			{ // error
-			[self _sendErrorWithDomain:NSStreamSocketSSLErrorDomain code:0];
+				[self _sendErrorWithDomain:NSStreamSocketSSLErrorDomain code:0];
 			}
 		if(SSL_connect(ssl))
 			{ // error
-			[self _sendErrorWithDomain:NSStreamSocketSSLErrorDomain code:0];
+				[self _sendErrorWithDomain:NSStreamSocketSSLErrorDomain code:0];
 			}
 		}
 }
@@ -739,9 +742,9 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 {
 	if(_streamStatus == NSStreamStatusOpening)
 		{ // connect is successfull
-		// cancel timeout
-		// FIXME: handle ssl connection setup
-		[self _sendDidOpenEvent];
+			// cancel timeout
+			// FIXME: handle ssl connection setup
+			[self _sendDidOpenEvent];
 		}
 	else
 		[super _writeFileDescriptorReady];
@@ -750,11 +753,11 @@ NSString *NSStreamSOCKSProxyVersion5=@"NSStreamSOCKSProxyVersion5";
 - (int) write:(const unsigned char *) buffer maxLength:(unsigned int) len;
 {
 	if(ssl)
-			{
-				unsigned n;
-				n=SSL_write(ssl, buffer, len);	// SSL
-				return n;
-			}
+		{
+		unsigned n;
+		n=SSL_write(ssl, buffer, len);	// SSL
+		return n;
+		}
 	else
 		return [super write:buffer maxLength:len];
 }

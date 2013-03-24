@@ -345,13 +345,13 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 		{
 		case -1:
 			[NSException raise: NSInvalidArgumentException			// error
-								 format: @"NSTask - failed to create child process"];
+						format: @"NSTask - failed to create child process"];
 		case 0:
 			{ // child process -- fork returns zero
 #if 1
 			NSLog(@"child process");
 #endif
-			// WARNING - don't raise NSExceptions here or we will end up in two instances of the calling task with shared address space!
+			// WARNING: don't raise NSExceptions here or we will end up in two instances of the calling task with shared address space!
 			if(idesc != 0) dup2(idesc, 0);	// redirect
 			if(odesc != 1) dup2(odesc, 1);	// redirect
 			if(edesc != 2) dup2(edesc, 2);	// redirect
@@ -366,13 +366,17 @@ static int getfd(NSTask *self, id object, BOOL read, int def)
 			if([_standardError isKindOfClass:[NSPipe class]])
 				[[_standardError fileHandleForReading] closeFile];
 			// try to switch working directory
-			if(chdir(path) == -1)
-				NSLog(@"NSTask: unable to change directory to %s", path);
+			if(chdir(path) == 0)
+				{
 #if 1
-			NSLog(@"child %@", [[NSFileManager defaultManager] contentsOfDirectoryAtPath:@"/dev/fd" error:NULL]);
+				NSLog(@"child %@", [[NSFileManager defaultManager] contentsOfDirectoryAtPath:@"/dev/fd" error:NULL]);
 #endif
-			execve(executable, (char *const *)args, (char *const *)envl);	// and execute
-			NSLog(@"NSTask: unable to execve %s", executable);
+				execve(executable, (char *const *)args, (char *const *)envl);	// and execute
+				NSLog(@"NSTask: unable to execve %s - exiting", executable);
+				}
+			else
+				NSLog(@"NSTask: unable to change directory to %s - exiting", path);
+			_task.hasTerminated=YES;	// since we did not execve, we still share the address space with our parent
 			exit(127);
 			}
 		default:						

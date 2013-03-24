@@ -27,6 +27,7 @@
 #import <AppKit/NSTextContainer.h>
 #import <AppKit/NSTextStorage.h>
 #import <AppKit/NSCursor.h>
+#import <Foundation/NSBundle.h>
 
 #import "NSAppKitPrivate.h"
 
@@ -50,6 +51,19 @@
 - (NSDictionary *) markedTextAttributes;
 - (NSDictionary *) selectedTextAttributes;
 @end
+
+@interface NSFindPanel : NSPanel
+{
+	NSTextField *searchString;
+	NSTextField *replaceString;
+}
+@end
+
+@implementation NSFindPanel
+
+@end
+
+// LinkPanel, ListPanel, TablePanel, FontPanel, ...
 
 // classes needed are: NSRulerView NSTextContainer NSLayoutManager
 
@@ -514,8 +528,12 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 		[self toggleRuler:nil];
 }
 
+- (BOOL) usesFindPanel; { return usesFindPanel; }
+- (BOOL) usesFontPanel; { return usesFontPanel; }
 - (BOOL) usesRuler { return usesRuler; }
 
+- (void) setUsesFindPanel:(BOOL) flag; { usesFindPanel=flag; }
+- (void) setUsesFontPanel:(BOOL) flag; { usesFontPanel=flag; }
 - (void) setUsesRuler:(BOOL)flag
 {
 	if(usesRuler == flag)
@@ -672,14 +690,37 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 	[self updateDragTypeRegistration];
 }
 
+- (IBAction) performFindPanelAction:(id) sender
+{
+	static NSFindPanel *sharedFindPanel;	
+	if (!sharedFindPanel)
+		{ // looks for FindPanel in ressources of NSApp's bundle
+			if(![NSBundle loadNibNamed:@"FontPanel" owner:NSApp])
+				[NSException raise: NSInternalInconsistencyException 
+							format: @"Unable to open find panel model file."];
+			[sharedFindPanel center];
+		}
+	switch([sender tag]) {
+		case NSFindPanelActionShowFindPanel:
+			// load find string from defaults
+			[sharedFindPanel makeKeyAndOrderFront:nil];
+			break;
+		case NSFindPanelActionNext:
+		case NSFindPanelActionPrevious:
+		case NSFindPanelActionReplaceAll:
+		case NSFindPanelActionReplace:
+		case NSFindPanelActionReplaceAndFind:
+		case NSFindPanelActionSetFindString:
+		case NSFindPanelActionReplaceAllInSelection:
+			break;
+	}
+}
 
 /*
  Sources/NSTextView.m:512: warning: method definition for `-writeSelectionToPasteboard:types:' not found
  Sources/NSTextView.m:512: warning: method definition for `-writeSelectionToPasteboard:type:' not found
  Sources/NSTextView.m:512: warning: method definition for `-writablePasteboardTypes' not found
  Sources/NSTextView.m:512: warning: method definition for `-validRequestorForSendType:returnType:' not found
- Sources/NSTextView.m:512: warning: method definition for `-usesFindPanel' not found
- Sources/NSTextView.m:512: warning: method definition for `-underline:' not found
  Sources/NSTextView.m:512: warning: method definition for `-toggleTraditionalCharacterShape:' not found
  Sources/NSTextView.m:512: warning: method definition for `-toggleContinuousSpellChecking:' not found
  Sources/NSTextView.m:512: warning: method definition for `-toggleBaseWritingDirection:' not found
@@ -687,9 +728,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
  Sources/NSTextView.m:512: warning: method definition for `-startSpeaking:' not found
  Sources/NSTextView.m:512: warning: method definition for `-smartInsertBeforeStringForString:replacingRange:' not found
  Sources/NSTextView.m:512: warning: method definition for `-smartInsertAfterStringForString:replacingRange:' not found
- Sources/NSTextView.m:512: warning: method definition for `-shouldDrawInsertionPoint' not found
  Sources/NSTextView.m:512: warning: method definition for `-shouldChangeTextInRanges:replacementStrings:' not found
- Sources/NSTextView.m:512: warning: method definition for `-setUsesFindPanel:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setContinuousSpellCheckingEnabled:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setAllowsUndo:' not found
  Sources/NSTextView.m:512: warning: method definition for `-setAllowsDocumentBackgroundColorChange:' not found
@@ -704,37 +743,58 @@ shouldRemoveMarker:(NSRulerMarker *)marker
  Sources/NSTextView.m:512: warning: method definition for `-rangesForUserCharacterAttributeChange' not found
  Sources/NSTextView.m:512: warning: method definition for `-rangeForUserCompletion' not found
  Sources/NSTextView.m:512: warning: method definition for `-preferredPasteboardTypeFromArray:restrictedToTypesFromArray:' not found
- Sources/NSTextView.m:512: warning: method definition for `-performFindPanelAction:' not found
- Sources/NSTextView.m:512: warning: method definition for `-outline:' not found
+ 
  Sources/NSTextView.m:512: warning: method definition for `-orderFrontTablePanel:' not found
  Sources/NSTextView.m:512: warning: method definition for `-orderFrontSpacingPanel:' not found
  Sources/NSTextView.m:512: warning: method definition for `-orderFrontListPanel:' not found
  Sources/NSTextView.m:512: warning: method definition for `-orderFrontLinkPanel:' not found
  Sources/NSTextView.m:512: warning: method definition for `-linkTextAttributes' not found
  Sources/NSTextView.m:512: warning: method definition for `-isContinuousSpellCheckingEnabled' not found
- Sources/NSTextView.m:512: warning: method definition for `-insertCompletion:forPartialWordRange:movement:isFinal:' not found
  Sources/NSTextView.m:512: warning: method definition for `-dragSelectionWithEvent:offset:slideBack:' not found
  Sources/NSTextView.m:512: warning: method definition for `-dragOperationForDraggingInfo:type:' not found
  Sources/NSTextView.m:512: warning: method definition for `-dragImageForSelectionWithEvent:origin:' not found
  Sources/NSTextView.m:512: warning: method definition for `-completionsForPartialWordRange:indexOfSelectedItem:' not found
- Sources/NSTextView.m:512: warning: method definition for `-complete:' not found
+ 
+ Sources/NSTextView.m:512: warning: method definition for `-complete:' not found --- open a NSTableView Panel with completions from dictionary (usually on F5 key)
+ Sources/NSTextView.m:512: warning: method definition for `-insertCompletion:forPartialWordRange:movement:isFinal:' not found
+ 
  Sources/NSTextView.m:512: warning: method definition for `-clickedOnLink:atIndex:' not found
  call textView:clickedOnLink:atIndex: if available
  if NO -> next responder
  if not available call textView:clickedOnLink:
+ 
  Sources/NSTextView.m:512: warning: method definition for `-cleanUpAfterDragOperation' not found
  Sources/NSTextView.m:512: warning: method definition for `-changeDocumentBackgroundColor:' not found
- Sources/NSTextView.m:512: warning: method definition for `-changeColor:' not found
- Sources/NSTextView.m:512: warning: method definition for `-changeAttributes:' not found
+ 
+ Sources/NSTextView.m:512: warning: method definition for `-changeColor:' not found --- apply
+ Sources/NSTextView.m:512: warning: method definition for `-changeAttributes:' not found -- apply
+ 
  Sources/NSTextView.m:512: warning: method definition for `-breakUndoCoalescing' not found
  Sources/NSTextView.m:512: warning: method definition for `-allowsUndo' not found
  Sources/NSTextView.m:512: warning: method definition for `-allowsDocumentBackgroundColorChange' not found
- Sources/NSTextView.m:512: warning: method definition for `-alignJustified:' not found
  Sources/NSTextView.m:512: warning: method definition for `-acceptsGlyphInfo' not found
  Sources/NSTextView.m:512: warning: incomplete implementation of class `NSTextView'
  */
 
-// overridden superclass(es) methods
+- (void) alignJustified:(id)sender;
+{
+	[self setAlignment:NSJustifiedTextAlignment];
+}
+
+- (void) outline:(id)sender;
+{
+	// FIXME:
+	return;
+	
+	if(!_tx.isRichText)
+		return;
+	[textStorage setAttributes:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:NSUnderlineStyleSingle]
+														   forKey:NSUnderlineStyleAttributeName]
+						 range:_selectedRange];
+	[self setNeedsDisplay:YES];
+}
+
+#pragma mark overridden superclass(es) methods
 
 - (BOOL) becomeFirstResponder
 {	
@@ -1082,6 +1142,7 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 
 - (BOOL) validateUserInterfaceItem:(id <NSValidatedUserInterfaceItem>) item;
 {
+	// check for performFindPanelAction and return usesFindPanel
 	return YES;
 }
 #endif
@@ -1264,10 +1325,6 @@ shouldRemoveMarker:(NSRulerMarker *)marker
 - (BOOL) textView:(NSTextView *) textView 
 	clickedOnLink:(id) link
 		  atIndex:(NSUInteger) index;
-- (NSArray *) textView:(NSTextView *) textView
-		   completions:(NSArray *) words
-   forPartialWordRange:(NSRange) range
-   indexOfSelectedItem:(NSInteger *) index;
 - (void) textView:(NSTextView *) textView 
 doubleClickedOnCell:(id <NSTextAttachmentCell>) cell 
 		   inRect:(NSRect) cellFrame; /* DEPRECATED */
@@ -1293,9 +1350,6 @@ shouldSetSpellingState:(NSInteger) val
 - (NSRange) textView:(NSTextView *) textView 
 willChangeSelectionFromCharacterRanges:(NSArray *) oldSelectedCharRanges 
    toCharacterRanges:(NSArray *) newSelectedCharRanges;
-- (NSString *) textView:(NSTextView *) textView
-	 willDisplayToolTip:(NSString *) tooltip
-	forCharacterAtIndex:(NSUInteger) index;
 - (NSArray *) textView:(NSTextView *) textView
 writablePasteboardTypesForCell:(id <NSTextAttachmentCell>) cell
 			   atIndex:(NSUInteger) index;
@@ -1304,6 +1358,24 @@ writablePasteboardTypesForCell:(id <NSTextAttachmentCell>) cell
 		  atIndex:(NSUInteger) index
 	 toPasteboard:(NSPasteboard *) pboard
 			 type:(NSString *) type;
+
+- (NSArray *) textView:(NSTextView *) textView
+		   completions:(NSArray *) words
+   forPartialWordRange:(NSRange) range
+   indexOfSelectedItem:(NSInteger *) index;
+
 #endif
+
+- (NSString *) textView:(NSTextView *) textView
+	 willDisplayToolTip:(NSString *) tooltip
+	forCharacterAtIndex:(NSUInteger) index;
+{
+	return tooltip;	/* return tooltip as provided by string attributes */
+}
+
+- (void) textViewDidChangeSelection:(NSNotification *) notification; { return; }
+- (void) textViewDidChangeTypingAttributes:(NSNotification *) notification; { return; }
+
+- (NSUndoManager *) undoManagerForTextView:(NSTextView *) textView; { return nil; }	// use default undo manager
 
 @end

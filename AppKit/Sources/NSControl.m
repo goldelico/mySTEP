@@ -66,8 +66,8 @@ static Class __controlCellClass = Nil;
 - (int) selectedTag				{ return [[self selectedCell] tag]; }
 - (int) intValue				{ return [[self selectedCell] intValue]; }
 - (NSInteger) integerValue		{ return [[self selectedCell] integerValue]; }
-- (float) floatValue			{ return [[self selectedCell] floatValue]; }
-- (double) doubleValue			{ return [[self selectedCell] doubleValue]; }
+- (float) floatValue			{ NSCell *cell; return (cell=[self selectedCell])?[cell floatValue]:0.0; }
+- (double) doubleValue			{ NSCell *cell; return (cell=[self selectedCell])?[cell doubleValue]:0.0; }
 - (NSString*) stringValue		{ return [[self selectedCell] stringValue]; }
 - (NSAttributedString*) attributedStringValue		{ return [[self selectedCell] attributedStringValue]; }
 - (id) objectValue				{ return [[self selectedCell] objectValue]; }

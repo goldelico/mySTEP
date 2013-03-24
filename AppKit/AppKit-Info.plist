@@ -40,7 +40,6 @@
 	</array>
 	<key>NSFontSearchPath</key>
 	<array>
-		<string>/opt/QtPalmtop/lib/X11/fonts/75dpi</string>
 		<string>/System/Library/Fonts</string>
 		<string>/Library/Fonts</string>
 		<string>~/Library/Fonts</string>

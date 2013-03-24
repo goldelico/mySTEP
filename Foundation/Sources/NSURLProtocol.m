@@ -525,7 +525,7 @@ static NSMutableDictionary *_httpConnections;
 			// NOTE: this may be a , separated list of encodings to be applied in sequence!
 			// so we have to loop over [encoding componentsSeparatedByString:@","] - trimmed and compared case-insensitive
 		}
-	_contentLength = [[_headers objectForKey:@"content-length"] longLongValue];
+	_contentLength = (header=[_headers objectForKey:@"content-length"])?[header longLongValue]:0;
 	_isChunked=(header=[_headers objectForKey:@"transfer-encoding"]) && [header caseInsensitiveCompare:@"chunked"] == NSOrderedSame;
 	_willClose=(header=[_headers objectForKey:@"Connection"]) && [header caseInsensitiveCompare:@"close"] == NSOrderedSame;	// will close after completing the request
 	if(!_isChunked)	// ??? must we notify (partial) response before we send any data ???

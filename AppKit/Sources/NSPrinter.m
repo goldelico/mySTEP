@@ -261,10 +261,10 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 + (NSPrintInfo *)sharedPrintInfo
 {
 	if(!sharedPrintInfoObject)
-			{
-				NSDictionary *info=[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSPrintInfoDefault"];
-				sharedPrintInfoObject=[[self alloc] initWithDictionary:info];	// create a default object
-			}
+		{
+		NSDictionary *info=[[NSBundle bundleForClass:[self class]] objectForInfoDictionaryKey:@"NSPrintInfoDefault"];
+		sharedPrintInfoObject=[[self alloc] initWithDictionary:info];	// create a default object
+		}
 	return sharedPrintInfoObject;
 }
 
@@ -309,65 +309,69 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 //
 // Managing the Printing Rectangle 
 //
-- (float)bottomMargin
+- (float) bottomMargin
 {
-  return [(NSNumber *)[info objectForKey:NSPrintBottomMargin] floatValue];
+	NSNumber *val=[info objectForKey:NSPrintBottomMargin];
+	return val?[val floatValue]:0.0;
 }
 
-- (float)leftMargin
+- (float) leftMargin
 {
-  return [(NSNumber *)[info objectForKey:NSPrintLeftMargin] floatValue];
+ 	NSNumber *val=[info objectForKey:NSPrintLeftMargin];
+	return val?[val floatValue]:0.0;
 }
 
-- (NSPrintingOrientation)orientation
+- (NSPrintingOrientation) orientation
 {
-  return [(NSNumber *)[info objectForKey:NSPrintOrientation] intValue];
+ 	return [[info objectForKey:NSPrintOrientation] intValue];
 }
 
-- (NSString *)paperName
+- (NSString *) paperName
 {
-  return [info objectForKey:NSPrintPaperName];
+	return [info objectForKey:NSPrintPaperName];
 }
 
-- (NSSize)paperSize
+- (NSSize) paperSize
 {
-  return [(NSValue *)[info objectForKey:NSPrintPaperSize] sizeValue];
+ 	NSNumber *val=[info objectForKey:NSPrintPaperSize];
+	return val?[val sizeValue]:NSZeroSize;
 }
 
-- (float)rightMargin
+- (float) rightMargin
 {
-  return [(NSNumber *)[info objectForKey:NSPrintRightMargin] floatValue];
+ 	NSNumber *val=[info objectForKey:NSPrintRightMargin];
+	return val?[val floatValue]:0.0;
 }
 
-- (void)setBottomMargin:(float)value
-{
-}
-
-- (void)setLeftMargin:(float)value
-{
-}
-
-- (void)setOrientation:(NSPrintingOrientation)mode
+- (void) setBottomMargin:(float)value
 {
 }
 
-- (void)setPaperName:(NSString *)name
+- (void) setLeftMargin:(float)value
 {
 }
 
-- (void)setPaperSize:(NSSize)size
+- (void) setOrientation:(NSPrintingOrientation)mode
 {
 }
 
-- (void)setRightMargin:(float)value
+- (void) setPaperName:(NSString *)name
 {
 }
 
-- (void)setTopMargin:(float)value
+- (void) setPaperSize:(NSSize)size
 {
 }
 
-- (float)topMargin
+- (void) setRightMargin:(float)value
+{
+}
+
+- (void) setTopMargin:(float)value
+{
+}
+
+- (float) topMargin
 {
   return [(NSNumber *)[info objectForKey:NSPrintTopMargin] floatValue];
 }
@@ -375,16 +379,16 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 //
 // Pagination 
 //
-- (NSPrintingPaginationMode)horizontalPagination
+- (NSPrintingPaginationMode) horizontalPagination
 {
   return [(NSNumber *)[info objectForKey:NSPrintHorizontalPagination] intValue];
 }
 
-- (void)setHorizontalPagination:(NSPrintingPaginationMode)mode
+- (void) setHorizontalPagination:(NSPrintingPaginationMode)mode
 {
 }
 
-- (void)setVerticalPagination:(NSPrintingPaginationMode)mode
+- (void) setVerticalPagination:(NSPrintingPaginationMode)mode
 {
 }
 
@@ -417,12 +421,12 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 //
 // Specifying the Printer 
 //
-- (NSPrinter *)printer
+- (NSPrinter *) printer
 {
   return [info objectForKey:NSPrintPrinter];
 }
 
-- (void)setPrinter:(NSPrinter *)aPrinter
+- (void)setPrinter:(NSPrinter *) aPrinter
 {
   [info setObject:aPrinter forKey:NSPrintPrinter];
 }
@@ -431,18 +435,19 @@ static NSPrintInfo *sharedPrintInfoObject = nil;
 // Controlling Printing
 //
 
-- (NSString *)jobDisposition
+- (NSString *) jobDisposition
 {
   return [info objectForKey:NSPrintJobDisposition];
 }
 
-- (void)setJobDisposition:(NSString *)disposition
+- (void) setJobDisposition:(NSString *)disposition
 {
   [info setObject:disposition forKey:NSPrintJobDisposition];
 }
 
-- (void)setUpPrintOperationDefaultValues
+- (void) setUpPrintOperationDefaultValues
 {
+	return;
 }
 
 - (NSMutableDictionary *)dictionary			{ return info; }

@@ -9,7 +9,7 @@
 #import "Functions.h"
 
 
-@implementation Functions
+@implementation FunctionsTest
 
 - (void) test10
 {
@@ -110,6 +110,18 @@
 	STAssertFalse(strcmp(@encode(char), @encode(unsigned char)) == 0, nil);
 	STAssertTrue(strcmp(@encode(int), @encode(signed int)) == 0, nil);
 	STAssertFalse(strcmp(@encode(int), @encode(unsigned int)) == 0, nil);
+}
+
+- (void) test91
+{
+	id obj=nil;
+	STAssertEqualObjects([obj self], nil, nil);
+	STAssertEquals([obj boolValue], NO, nil);
+	STAssertEquals([obj intValue], 0, nil);
+	STAssertEquals([obj longValue], 0l, nil);
+	STAssertEquals([obj longLongValue], 0ll, nil);
+	STAssertEquals([obj floatValue], 0.0f, nil);
+	STAssertEquals([obj doubleValue], 0.0, nil);
 }
 
 - (void) test90

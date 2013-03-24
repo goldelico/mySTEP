@@ -290,8 +290,8 @@ static NSColor *__borderedBackgroundColor = nil;
 	return [self _getFormattedStringIgnorePlaceholder:YES];
 }
 
-- (double) doubleValue						{ return [_contents doubleValue]; }
-- (float) floatValue;						{ return [_contents floatValue]; }
+- (double) doubleValue						{ return _contents?[_contents doubleValue]:0.0; }
+- (float) floatValue;						{ return _contents?[_contents floatValue]:0.0; }
 - (int) intValue							{ return [_contents intValue]; }
 
 // FIXME: the formatter should be applied when setting the object - not when drawing!!!
@@ -356,28 +356,34 @@ static NSColor *__borderedBackgroundColor = nil;
 
 - (void) takeDoubleValueFrom:(id)sender						// Cell Interaction
 {
-	[self setObjectValue:[NSNumber numberWithDouble:[sender doubleValue]]];
+	if(sender)
+		[self setObjectValue:[NSNumber numberWithDouble:[sender doubleValue]]];
 }
 
 - (void) takeFloatValueFrom:(id)sender
 {
-	[self setObjectValue:[NSNumber numberWithFloat:[sender floatValue]]];
+	if(sender)
+		[self setObjectValue:[NSNumber numberWithFloat:[sender floatValue]]];
 }
 
 - (void) takeIntValueFrom:(id)sender
 {
-	[self setObjectValue:[NSNumber numberWithInt:[sender intValue]]];
+	if(sender)
+		[self setObjectValue:[NSNumber numberWithInt:[sender intValue]]];
 }
 
 - (void) takeStringValueFrom:(id)sender
 {
-	[self setObjectValue:[sender stringValue]];
+	if(sender)
+		[self setObjectValue:[sender stringValue]];
 }
 
 - (void) takeObjectValueFrom:(id)sender
 {
-	[self setObjectValue:[sender objectValue]];
+	if(sender)
+		[self setObjectValue:[sender objectValue]];
 }
+
 // Text Attributes 
 - (void) setFloatingPointFormat:(BOOL)autoRange
 						   left:(unsigned int)leftDigits

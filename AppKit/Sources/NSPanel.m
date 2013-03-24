@@ -1232,47 +1232,50 @@ static NSColorPanel *__colorPanel;
 
 - (IBAction) _notify:(id) sender;
 {
-	NSColor *c=[_colorWell color];
-	float r, g, b, a;
+	if(sender)
+		{
+		NSColor *c=[_colorWell color];
+		float r, g, b, a;
 #if 0
-	NSLog(@"NSColorPanel _notify: %@", sender);
-	NSLog(@"fltvalue=%lf", [sender floatValue]);
-	NSLog(@"intvalue=%lf", [sender intValue]);
+		NSLog(@"NSColorPanel _notify: %@", sender);
+		NSLog(@"fltvalue=%lf", [sender floatValue]);
+		NSLog(@"intvalue=%lf", [sender intValue]);
 #endif
-	if(sender == _brightness || sender == _brightnessSlider)
-		{ // Color Wheel
-		float h, s, b;
-		[c getHue:&h saturation:&s brightness:&b alpha:&a];
-		if(sender == _brightness)
-			b=[sender floatValue];
+		if(sender == _brightness || sender == _brightnessSlider)
+			{ // Color Wheel
+				float h, s, b;
+				[c getHue:&h saturation:&s brightness:&b alpha:&a];
+				if(sender == _brightness)
+					b=[sender floatValue];
+				else
+					b=[sender intValue]/255.0;
+				c=[NSColor colorWithCalibratedHue:h saturation:s brightness:b alpha:a];
+			}
 		else
-			b=[sender intValue]/255.0;
-		c=[NSColor colorWithCalibratedHue:h saturation:s brightness:b alpha:a];
+			{ // RGB or Alpha
+				[c getRed:&r green:&g blue:&b alpha:&a];
+				if(sender == _redSlider)
+					r=[sender floatValue];
+				else if(sender == _greenSlider)
+					g=[sender floatValue];
+				else if(sender == _blueSlider)
+					b=[sender floatValue];
+				else if(sender == _alphaSlider)
+					a=[sender floatValue];
+				else if(sender == _red)	// text field
+					r=[sender intValue]/255.0;
+				else if(sender == _green)
+					g=[sender intValue]/255.0;
+				else if(sender == _blue)
+					b=[sender intValue]/255.0;
+				else if(sender == _alpha)
+					a=[sender intValue]/255.0;
+				c=[NSColor colorWithCalibratedRed:r green:g blue:b alpha:a];
+			}
+		[self setColor:c];
+		if(_target && _action)
+			[NSApp sendAction:_action to:_target from:self];
 		}
-	else
-		{ // RGB or Alpha
-		[c getRed:&r green:&g blue:&b alpha:&a];
-		if(sender == _redSlider)
-			r=[sender floatValue];
-		else if(sender == _greenSlider)
-			g=[sender floatValue];
-		else if(sender == _blueSlider)
-			b=[sender floatValue];
-		else if(sender == _alphaSlider)
-			a=[sender floatValue];
-		else if(sender == _red)	// text field
-			r=[sender intValue]/255.0;
-		else if(sender == _green)
-			g=[sender intValue]/255.0;
-		else if(sender == _blue)
-			b=[sender intValue]/255.0;
-		else if(sender == _alpha)
-			a=[sender intValue]/255.0;
-		c=[NSColor colorWithCalibratedRed:r green:g blue:b alpha:a];
-		}
-	[self setColor:c];
-	if(_target && _action)
-		[NSApp sendAction:_action to:_target from:self];
 }
 
 - (IBAction) _pick:(id) sender;

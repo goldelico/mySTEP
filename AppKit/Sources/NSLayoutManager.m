@@ -459,7 +459,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				// handle NSExpansionAttributeName
 				
 				// FIXME: is this relative or absolute position???
-				
+#if 1
+				NSLog(@"origin=%@ pos=%@ lfr.origin=%@", NSStringFromPoint(origin),  NSStringFromPoint(pos), NSStringFromPoint(lfr.origin));
+#endif
 				pos.x=origin.x+pos.x+lfr.origin.x;
 				pos.y=origin.y+pos.y+lfr.origin.y;	// translate container and glyphs
 				{
@@ -596,6 +598,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) ensureLayoutForCharacterRange:(NSRange) range;
 {
 	unsigned int cnt=[_textStorage length];
+#if 1
+	NSLog(@"ensureLayoutForCharacterRange %@ strlen=%u", NSStringFromRange(range), cnt);
+#endif
 	while(_firstUnlaidCharacterIndex < NSMaxRange(range) && _firstUnlaidCharacterIndex < cnt)
 		{ // not yet at end or range or text
 			int fragments=INT_MAX;
@@ -610,6 +615,9 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) ensureLayoutForGlyphRange:(NSRange) range;
 { // layout is ensured if we know a text container for all glyphs
 	unsigned int cnt=[_textStorage length];
+#if 1
+	NSLog(@"ensureLayoutForGlyphRange %@ strlen=%u", NSStringFromRange(range), cnt);
+#endif
 	while(_firstUnlaidGlyphIndex < NSMaxRange(range) && _firstUnlaidCharacterIndex < cnt)
 		{ // not yet at end or range or text
 			int fragments=INT_MAX;
@@ -1455,10 +1463,14 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) setLocation:(NSPoint) location forStartOfGlyphRange:(NSRange) glyphRange;
 {
+#if 1
+	NSLog(@"setLocation %@ forStartOfGlyphRange %@", NSStringFromPoint(location), NSStringFromRange(glyphRange));
+#endif
 	// [self setLocations:&location startingGlyphIndexes:&glyphRange.location count:1 forGlyphRange:glyphRange];
 	if(NSMaxRange(glyphRange) > _numberOfGlyphs)
 		[NSException raise:@"NSLayoutManager" format:@"invalid glyph range"];
-	// other glyphs should have no location or ot should be calculated here or if someone tries to ask its locationForGlyphAtIndex:
+	// other glyphs should have no location or it should be calculated here or if someone tries to ask its locationForGlyphAtIndex:
+	// rangeOfNominallySpacedGlyphsContainingIndex should return this glyphRange
 	_glyphs[glyphRange.location].location=location;
 }
 

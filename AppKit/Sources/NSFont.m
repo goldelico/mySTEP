@@ -839,7 +839,7 @@ static BOOL changed;
 
 - (NSAffineTransform *) matrix; { return [_attributes objectForKey:NSFontMatrixAttribute]; }
 - (id) objectForKey:(NSString *) attribute; { return [_attributes objectForKey:attribute]; }
-- (float) pointSize; { return [[_attributes objectForKey:NSFontSizeAttribute] floatValue]; }
+- (float) pointSize; { NSString *sz=[_attributes objectForKey:NSFontSizeAttribute]; return sz?[sz floatValue]:0.0; }
 - (NSFontSymbolicTraits) symbolicTraits; { return [[_attributes objectForKey:NSFontSymbolicTrait] unsignedIntValue]; }
 
 - (NSString *) postscriptName;

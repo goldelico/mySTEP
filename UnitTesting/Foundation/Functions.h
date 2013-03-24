@@ -9,7 +9,7 @@
 #import <SenTestingKit/SenTestingKit.h>
 
 
-@interface Functions : SenTestCase {
+@interface FunctionsTest : SenTestCase {
 
 }
 

@@ -7,9 +7,21 @@
 //
 
 #import <Foundation/Foundation.h>
+
 #import "NSStringTest.h"
 #ifndef __mySTEP__
 @interface NSCFString : NSString
+@end
+#endif
+
+#if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_4
+@interface NSString (MAC_OS_X_VERSION_10_5_AND_LATER)	// not in older headers
+- (BOOL) boolValue;
+- (int) intValue;
+// - (long) longValue;	-- does not exist for NSString!
+- (long long) longLongValue;
+- (float) floatValue;
+- (double) doubleValue;
 @end
 #endif
 
@@ -325,5 +337,33 @@ TEST1(22, @"/../path/down/", stringByStandardizingPath, @"/path/down");	// impli
 
 // add many more such tests
 
+- (void) test90
+{
+	NSString *obj=@"0";
+	STAssertEqualObjects([obj self], @"0", nil);
+	// starts availability in 10.5
+	STAssertEquals([obj boolValue], NO, nil);
+	STAssertEquals([obj intValue], 0, nil);
+//	STAssertEquals([obj longValue], 0l, nil);
+	STAssertEquals([obj longLongValue], 0ll, nil);
+	STAssertEquals([obj floatValue], 0.0f, nil);
+	STAssertEquals([obj doubleValue], 0.0, nil);
+	obj=@"1";
+	STAssertEqualObjects([obj self], @"1", nil);
+	STAssertEquals([obj boolValue], YES, nil);
+	STAssertEquals([obj intValue], 1, nil);
+//	STAssertEquals([obj longValue], 1l, nil);
+	STAssertEquals([obj longLongValue], 1ll, nil);
+	STAssertEquals([obj floatValue], 1.0f, nil);
+	STAssertEquals([obj doubleValue], 1.0, nil);
+	obj=@"3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679";
+	STAssertEqualObjects([obj self], @"3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679", nil);
+	STAssertEquals([obj boolValue], YES, nil);
+	STAssertEquals([obj intValue], 3, nil);
+//	STAssertEquals([obj longValue], 3l, nil);
+	STAssertEquals([obj longLongValue], 3ll, nil);
+	STAssertEquals([obj floatValue], 3.1415926535f, nil);
+	STAssertEquals([obj doubleValue], 3.14159265358979323846264, nil);
+}
 
 @end

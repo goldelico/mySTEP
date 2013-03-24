@@ -1494,12 +1494,18 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 
 - (void) _setTextPosition:(NSPoint) pos;
 { // PDF: x y Td
+#if 0
+	NSLog(@"Td %@", NSStringFromPoint(pos));
+#endif
 	[_textLineMatrix translateXBy:pos.x yBy:pos.y];
 	ASSIGN(_textMatrix, _textLineMatrix);	// update text line matrix
 }
 
 - (void) _setTM:(NSAffineTransform *) tm;
 { // PDF: a b c d e f Tm
+#if 0
+	NSLog(@"Tm %@", tm);
+#endif
 	ASSIGN(_textLineMatrix, tm);
 	ASSIGN(_textMatrix, tm);
 }
@@ -1555,9 +1561,8 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XGCValues values;
 	BOOL mustFetch;
 	struct RGBA8 stroke;
-#if 0
-	NSLog(@"_drawGlyphBitmap");
-	NSLog(@"size={%d %d}", width, height);
+#if 1
+	NSLog(@"_drawGlyphBitmap x:%d y:%d width:%u height:%u", x, y, width, height);
 	NSLog(@"font=%@", _state->_font);
 #endif
 	if(x > _state->_clipBox.x+_state->_clipBox.width || x+width <  _state->_clipBox.x)
@@ -1571,7 +1576,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	if(mustFetch)
 		{ // we must really fetch the current image from our context
 			// FIXME: this is quite slow even if we have double buffering!
-			// restrict to window/screen
+			// FIXME: restrict to window/screen
 #if 0
 			NSLog(@"fetch %ld pixels text", width*height);
 #endif			
@@ -1702,19 +1707,16 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 			int width;
 			NSAffineTransformStruct atms=[_textMatrix transformStruct];
 			NSPoint cursor=[_state->_ctm transformPoint:NSMakePoint(atms.tX, atms.tY)];
-#if 0
-			NSLog(@"_setTextPosition %@ -> %@", NSStringFromPoint(pos), NSStringFromPoint(cursor));
-#endif
 			[_state->_font _setScale:_scale];
 			font=[_state->_font _font];
 			XSetFont(_display, _state->_gc, font->fid);	// set font-ID in GC
 			// set any other attributes
 			[self _setCompositing];	// use X11 compositing
-#if 0
+#if 1
 			{
 			XRectangle box;
 			XClipBox(_state->_clip, &box);
-			NSLog(@"draw %u glyphs at (%d,%d) clip=%@", cnt, (int) cursor.x, (int)(cursor.y-_baseline+font->ascent+1), NSStringFromXRect(box));
+			NSLog(@"draw %u glyphs at (%d,%d) clip=%@", cnt, (int) cursor.x, (int)(cursor.y-_rise+font->ascent+1), NSStringFromXRect(box));
 			}
 #endif
 			if(!buf || cnt > buflen)
@@ -1766,15 +1768,28 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	else
 		{ // use Freetype
 			NSAffineTransform *trm=[NSAffineTransform transform];
+#if 0
+			NSLog(@"trm 1=%@", trm);
+#endif
 			[trm setTransformStruct:(NSAffineTransformStruct){ _horizontalScale, 0.0, 0.0, 1.0, 0.0, _rise }];
+#if 0
+			NSLog(@"trm 2=%@", trm);
+			NSLog(@"textMatrix=%@", _textMatrix);
+#endif
 			[trm appendTransform:_textMatrix];
+#if 0
+			NSLog(@"trm 3=%@", trm);
+#endif
 			[trm appendTransform:_state->_ctm];
+#if 0
+			NSLog(@"trm 4=%@", trm);
+#endif
 			[_state->_font _drawAntialisedGlyphs:glyphs count:cnt inContext:self matrix:trm];
 		}
 }
 
 - (void) _beginPage:(NSString *) title;
-{ // can we (mis-)use that as setTitle???
+{ // can we (mis-)use that as setTitle to notify an X11 window manager?
 	_characterSpace=0.0;	// reset text parameters to default
 	_wordSpace=0.0;
 	_scale=1.0;
@@ -3383,7 +3398,7 @@ static NSFileHandle *fh;
 #if 1
 					// CHECKME:
 					// do we really have to handle NSConnectionReplyMode?
-					// Well, this keeps the UI responsive if DO is multi-threaded but might als lead to strange synchronization issues (nested runloops)
+					// Well, this keeps the UI responsive if DO is multi-threaded but might also lead to strange synchronization issues (nested runloops)
 					NSConnectionReplyMode,
 #endif
 					NSModalPanelRunLoopMode,

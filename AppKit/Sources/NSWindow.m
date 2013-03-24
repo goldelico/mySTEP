@@ -2780,13 +2780,14 @@ object:self]
 {
 	NSDictionary *d = [string propertyList];
 	NSRect r;
+	NSString *val;
 #if 0
 	NSLog(@"NSWindow setFrameFromString %@\n", string);
 #endif
-	r.origin.x = [[d objectForKey:@"x"] floatValue];
-	r.origin.y = [[d objectForKey:@"y"] floatValue];
-	r.size.width = [[d objectForKey:@"width"] floatValue];
-	r.size.height = [[d objectForKey:@"height"] floatValue];
+	r.origin.x = (val=[d objectForKey:@"x"])?[val floatValue]:0.0;
+	r.origin.y = (val=[d objectForKey:@"y"])?[val floatValue]:0.0;
+	r.size.width = (val=[d objectForKey:@"width"])?[val floatValue]:0.0;
+	r.size.height = (val=[d objectForKey:@"height"])?[val floatValue]:0.0;
 	r.size.width = MIN(MAX(r.size.width, _minSize.width), _maxSize.width);
 	r.size.height = MIN(MAX(r.size.height, _minSize.height), _maxSize.height);
 	

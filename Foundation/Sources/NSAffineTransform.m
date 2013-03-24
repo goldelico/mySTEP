@@ -357,7 +357,7 @@ static const float pi = 3.1415926535897932384626433;
 
 - (NSString*) description
 {
-	NSString *fmt = @"NSAffineTransform ((%f, %f) (%f, %f) (%f, %f)%@%@)";
+	NSString *fmt = @"NSAffineTransform ((%g, %g) (%g, %g) (%g, %g)%@%@)";
 	return [NSString stringWithFormat:fmt, A, C, B, D, TX, TY, _isIdentity?@"I":@"", _isFlipY?@"F":@""];
 }
 

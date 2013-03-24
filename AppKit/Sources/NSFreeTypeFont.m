@@ -308,10 +308,15 @@ FT_Library _ftLibrary(void)
 	FT_Matrix matrix = { 1<<16, 0, 0, 1<<16 };	// identity matrix
 	FT_Vector delta;
 	NSAffineTransform *t=[_descriptor matrix];
-	// catenate Font matrix (if available)
+	// concatenate Font matrix (if available)
 	// with text matrix
 	// with CTM
 	// remove scaling (i.e. make it a non-scaling transformation matrix) - scale = sqrt(m11*m11+m22*m22)
+#if 0
+	NSLog(@"ctm=%@", ctm);
+	NSLog(@"pen=%@", NSStringFromPoint(pen));
+	NSLog(@"t=%@", t);
+#endif
 	if(t)
 		{ // we have a font with an explicit text transform
 		NSAffineTransformStruct m=[t transformStruct];		
@@ -324,6 +329,10 @@ FT_Library _ftLibrary(void)
 		delta.x=(int)(64*pen.x);
 		delta.y=32-(int)(64*pen.y);
 		}
+#if 0
+	NSLog(@"_drawAntialisedGlyphs: count:%u", cnt);
+	NSLog(@"slot=%p", slot);
+#endif
 	while(cnt-- > 0)
 		{ // render glyphs
 		FT_Error error;
