@@ -598,7 +598,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) ensureLayoutForCharacterRange:(NSRange) range;
 {
 	unsigned int cnt=[_textStorage length];
-#if 1
+#if 0
 	NSLog(@"ensureLayoutForCharacterRange %@ strlen=%u", NSStringFromRange(range), cnt);
 #endif
 	while(_firstUnlaidCharacterIndex < NSMaxRange(range) && _firstUnlaidCharacterIndex < cnt)
@@ -615,7 +615,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 - (void) ensureLayoutForGlyphRange:(NSRange) range;
 { // layout is ensured if we know a text container for all glyphs
 	unsigned int cnt=[_textStorage length];
-#if 1
+#if 0
 	NSLog(@"ensureLayoutForGlyphRange %@ strlen=%u", NSStringFromRange(range), cnt);
 #endif
 	while(_firstUnlaidGlyphIndex < NSMaxRange(range) && _firstUnlaidCharacterIndex < cnt)
@@ -1463,7 +1463,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 
 - (void) setLocation:(NSPoint) location forStartOfGlyphRange:(NSRange) glyphRange;
 {
-#if 1
+#if 0
 	NSLog(@"setLocation %@ forStartOfGlyphRange %@", NSStringFromPoint(location), NSStringFromRange(glyphRange));
 #endif
 	// [self setLocations:&location startingGlyphIndexes:&glyphRange.location count:1 forGlyphRange:glyphRange];

@@ -3378,7 +3378,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP ./AppKit.qcodeproj\n";
+			shellScript = "export PROFILING=YES\nQuantumSTEP=$HOME/Documents/Projects/QuantumSTEP ./AppKit.qcodeproj\n";
 		};
 		EE8D72140EF6C71000A9C09B /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;

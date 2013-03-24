@@ -825,7 +825,7 @@ forStartOfGlyphRange:(NSRange) range;
 	if(curMaxLineHeight <= 0.0) curMaxLineHeight=FLT_MAX;	// infinite
 	curSuperscript=[[attrs objectForKey:NSSuperscriptAttributeName] intValue];
 	curSpaceAfter=(val=[attrs objectForKey:NSKernAttributeName])?[val floatValue]:0.0;
-#if 1
+#if 0
 	NSLog(@"cbl=%@", [attrs objectForKey:NSBaselineOffsetAttributeName]);
 #endif
 	curBaselineOffset=(val=[attrs objectForKey:NSBaselineOffsetAttributeName])?[val floatValue]:0.0;
@@ -1001,7 +1001,7 @@ NSLayoutOutOfGlyphs
 	BOOL setBaseline=(*baseline == NSBaselineNotSet);
 	NSLayoutStatus status=NSLayoutOutOfGlyphs;	// all glyphs laid out
 	float lineHeight;
-#if 1
+#if 0
 	NSLog(@"layoutGlyphsInHorizontalLineFragment: %@", NSStringFromRect(*lineFragmentRect));
 	NSLog(@"baseline=%f", *baseline);
 #endif
@@ -1016,7 +1016,7 @@ NSLayoutOutOfGlyphs
 		{ // we still have a character to process
 			unichar curChar;
 			NSTypesetterGlyphInfo *glyphInfo;
-#if 1
+#if 0
 			NSLog(@"curGlyphIndex: %u", curGlyphIndex);
 			NSLog(@"curGlyphOffset: %g", curGlyphOffset);
 			NSLog(@"curBaselineOffset: %g", curBaselineOffset);
@@ -1053,13 +1053,11 @@ NSLayoutOutOfGlyphs
 				}
 			if(curCharacterIndex >= NSMaxRange(attrsRange))
 				{ // get new attribute range
-					NSLog(@"1 curBaselineOffset=%g", curBaselineOffset);
 					[self getAttributesForCharacterIndex:curCharacterIndex];
 					[self fillAttributesCache];			
 				}
 			if(curGlyphIndex >= capacityGlyphInfo)
 				{ // needs more glyphs
-					NSLog(@"2 curBaselineOffset=%g", curBaselineOffset);
 					// could return OutOfGlyphs and call the grow method in the outer loop
 					// there we can detect that no new glyphs can be allocated
 					// bu how do we know the deired sizse there?
@@ -1068,15 +1066,13 @@ NSLayoutOutOfGlyphs
 						break;	// there are no more glyphs (how can this be while we still have a character to process?)
 					continue;	// try again
 				}
-			NSLog(@"3 curBaselineOffset=%g", curBaselineOffset);
 			curChar=[textString characterAtIndex:curCharacterIndex];
 			/* [layoutManager temporaryAttributeAtCharacterIndex:curCharIndex effectiveRange:NULL]; */
 			// FIXME: how to handle multiple glyphs for single character (and vice versa: i.e. ligatures and overprinting)
 			previousGlyph=curGlyph;
-			NSLog(@"4 curBaselineOffset=%g", curBaselineOffset);
 			curGlyph=[layoutManager glyphAtIndex:firstIndexOfCurrentLineFragment+curGlyphIndex];	// get glyph
 			glyphInfo=[self _glyphInfoAtIndex:curGlyphIndex];
-#if 1
+#if 0
 			NSLog(@"glyphInfo=%p", glyphInfo);
 			NSLog(@"curGlyphOffset=%g", curGlyphOffset);
 			NSLog(@"*baseline=%g", *baseline);
@@ -1085,7 +1081,7 @@ NSLayoutOutOfGlyphs
 			NSLog(@"point=%@", NSStringFromPoint((NSPoint) { curGlyphOffset, *baseline+curBaselineOffset }));
 #endif
 			glyphInfo->curLocation=(NSPoint) { curGlyphOffset, *baseline+curBaselineOffset };
-#if 1
+#if 0
 			NSLog(@"%d[%d]: glyphInfo->curLocation=%@", curGlyphIndex, capacityGlyphInfo, NSStringFromPoint(glyphInfo->curLocation));
 #endif
 			glyphInfo->font=curFont;
@@ -1246,7 +1242,7 @@ NSLayoutOutOfGlyphs
 			// reset container and vertical start position for each table column
 			if(!containerBreakAfterCurGlyph)
 				{ // try current container again
-#if 1
+#if 0
 					NSLog(@"get next lfr from %@", *currentTextContainer);
 #endif
 					if(curContainerIsSimpleRectangular)
@@ -1267,7 +1263,7 @@ NSLayoutOutOfGlyphs
 			if(containerBreakAfterCurGlyph || NSIsEmptyRect(lineFragmentRect))
 				{ // try next container
 					NSArray *containers=[lm textContainers];
-#if 1
+#if 0
 					NSLog(@"try next container");
 #endif
 					if(!*currentTextContainer)
@@ -1315,7 +1311,7 @@ NSLayoutOutOfGlyphs
 					for(i=0; i < curGlyphIndex; i++)
 						{ // copy location and attributes to layout manager
 							NSPoint location=NSGlyphInfoAtIndex(i)->curLocation;
-#if 1
+#if 0
 							NSLog(@"%d[%d]: location=%@ ulfr=%@ lfr=%@ blo=%f", i, capacityGlyphInfo, NSStringFromPoint(location), NSStringFromRect(usedRect), NSStringFromRect(lineFragmentRect), baselineOffset);
 #endif
 							location.x+=usedRect.origin.x-lineFragmentRect.origin.x;

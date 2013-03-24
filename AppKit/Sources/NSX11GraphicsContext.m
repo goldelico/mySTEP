@@ -1561,7 +1561,7 @@ static inline void addPoint(PointsForPathState *state, NSPoint point)
 	XGCValues values;
 	BOOL mustFetch;
 	struct RGBA8 stroke;
-#if 1
+#if 0
 	NSLog(@"_drawGlyphBitmap x:%d y:%d width:%u height:%u", x, y, width, height);
 	NSLog(@"font=%@", _state->_font);
 #endif
@@ -3370,11 +3370,11 @@ static NSFileHandle *fh;
 	_x11settings=[[def persistentDomainForName:@"com.quantumstep.X11"] retain];	// /Library/Preferences/com.quantumstep.X11
 	if(!_x11settings)
 		NSLog(@"warning: no defaults for root/com.quantumstep.X11 found");
-	if([def boolForKey:@"NoNSBackingStoreBuffered"])
+	if([def boolForKey:@"NSBackingStoreNotBuffered"])
+		{
 		_doubleBufferering=NO;
-#if 1
-	NSLog(@"%@", _doubleBufferering?@"backing store is buffered":@"directly to X11");
-#endif
+		fprintf(stderr, "*** double buffering disabled ***\n");	
+		}
 #if 0
 	XInitThreads();	// make us thread-safe
 #endif
@@ -3383,11 +3383,14 @@ static NSFileHandle *fh;
 		fprintf(stderr, "Unable to connect to X server\n");
 		exit(1);
 		}
-	XSetErrorHandler((XErrorHandler)X11ErrorHandler);
-#if 1	// enable to debug X11 errors - will be notified immediately and not after other actions
-	XSynchronize(_display, True);
-	NSLog(@"X11 runs synchronized");
+	XSetErrorHandler((XErrorHandler) X11ErrorHandler);
+#if 1
 #endif
+ 	if([def boolForKey:@"X11RunSynchronized"])
+		{
+		XSynchronize(_display, True);
+		fprintf(stderr, "*** X11 runs synchronized (i.e. slowly) ***\n");	
+		}
 	fh=[[NSFileHandle alloc] initWithFileDescriptor:XConnectionNumber(_display)];
 	[[NSNotificationCenter defaultCenter] addObserver:self
 											 selector:@selector(_X11EventNotification:)
