@@ -245,7 +245,7 @@ id key, value;
 		[NSException raise: NSParseErrorException format:@"NSDictionary %@ for file %@", err, fileName];
 	if(![o isKindOfClass:_dictClass])
 		[NSException raise: NSParseErrorException 
-					format: @"%@ does not contain a %@ property list", NSStringFromClass([self class]), fileName];
+					format: @"%@ does not contain a %@ property list", fileName, NSStringFromClass([self class])];
 	return [self initWithDictionary:o];
 }
 
@@ -265,7 +265,7 @@ id key, value;
 		[NSException raise: NSParseErrorException format: @"NSDictionary %@ for URL %@", err, url];
 	if(![o isKindOfClass:_dictClass])
 		[NSException raise: NSParseErrorException 
-					format: @"%@ does not contain a property list: %@", NSStringFromClass([self class]), url];
+					format: @"%@ does not contain a property list: %@", url, NSStringFromClass([self class])];
 	return [self initWithDictionary:o];
 }
 

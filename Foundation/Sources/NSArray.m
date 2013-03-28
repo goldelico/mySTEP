@@ -261,7 +261,7 @@ int count;
 		[NSException raise: NSParseErrorException format: @"NSArray %@ for file %@", err, fileName];
 	if(![o isKindOfClass:__arrayClass])
 		[NSException raise: NSParseErrorException 
-					format: @"%@ does not contain a %@ property list", NSStringFromClass([self class]), fileName];
+					format: @"%@ does not contain a %@ property list", fileName, NSStringFromClass([self class])];
 	return [self initWithArray:o];
 }
 
@@ -281,7 +281,7 @@ int count;
 		[NSException raise: NSParseErrorException format: @"NSArray %@ for URL %@", err, url];
 	if(![o isKindOfClass:__arrayClass])
 		[NSException raise: NSParseErrorException 
-					format: @"%@ does not contain a %@ property list", NSStringFromClass([self class]), url];
+					format: @"%@ does not contain a %@ property list", url, NSStringFromClass([self class])];
 	return [self initWithArray:o];
 }
 
