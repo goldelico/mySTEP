@@ -185,6 +185,8 @@ static BOOL _isOnExternalPower;
 {
 	// make some LED show "shutting down" state (Power Button blinking red)
 //	system([[NSSystemStatus sysInfoForKey:@"Shutdown"] UTF8String]);
+	// switch off UMTS modem!
+	system("[ -r /dev/ttyHS_Application ] && ( echo 1 >/sys/devices/virtual/gpio/gpio186/value; sleep 1; echo 0 >/sys/devices/virtual/gpio/gpio186/value )");
 	system("poweroff");
 }
 
