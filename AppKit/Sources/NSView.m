@@ -2275,7 +2275,7 @@ printing
 	// Note: this is a recursive call!
 	// basically we need a list of NSRect to NSView mapping that is invalidated as soon as any sub(sub)view moves
 	// or we just have a short-term cache that handles the case that hitTest is called for the same point twice (inking!)
-#if 1   // doing this trace might slow processing down so much that a double-click is no longer recognized properly
+#if 0   // doing this trace might slow processing down so much that a double-click is no longer recognized properly
 	NSLog(@"%@ hitTest:%@ frame=%@ super-flipped=%d",
 		  NSStringFromClass([self class]),
 		  NSStringFromPoint(aPoint),
@@ -2288,7 +2288,7 @@ printing
 		{
 		if(!NSMouseInRect(aPoint, _frame, [_superview isFlipped]))
 			{
-#if 1
+#if 0
 			NSLog(@"  not in rect");
 #endif
 			return nil;		// If not within our frame then immediately return

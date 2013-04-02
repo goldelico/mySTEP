@@ -467,7 +467,7 @@ because this reverses the writing direction within the text container
 
 - (NSView *) hitTest:(NSPoint) aPoint // aPoint is in superview's coordinates (or window base coordinates if there is no superview)
 {
-#if 1
+#if 0
 	NSLog(@"%@ hitTest:%@ frame=%@ super-flipped=%d",
 		  NSStringFromClass([self class]),
 		  NSStringFromPoint(aPoint),

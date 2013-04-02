@@ -174,8 +174,8 @@ static NSImage *unexpandable  = nil;
 
 - (void) dealloc
 {
-	RELEASE(_items);
-	RELEASE(_expandedItems);
+	[_items release];
+	[_expandedItems release];
 	
 	NSFreeMapTable(_itemDict);
 	NSFreeMapTable(_levelOfItems);
@@ -697,7 +697,7 @@ format: @"data source does not respond to %@", @#selector_name]
 	// release the old array
 	if (_items != nil)
 		{
-		RELEASE(_items);
+		[_items release];
 		}
 	
 	if (_itemDict != NULL)
@@ -1029,7 +1029,7 @@ name: NSOutlineView##notif_name##Notification object: self]
 				drawingRect.size.width -= indentationFactor;
 				}
 			
-			RELEASE(imageCell);
+			[imageCell release];
 			}
 		
 		[cell drawWithFrame: drawingRect inView: self];
@@ -1097,8 +1097,10 @@ name: NSOutlineView##notif_name##Notification object: self]
 	[self setNeedsDisplayInRect: oldDraggingRect];
 	[self _autoCollapse];
 	[self displayIfNeeded];
-	DESTROY(lastDragUpdate);
-	DESTROY(lastDragChange);
+	[lastDragUpdate release];
+	lastDragUpdate=nil;
+	[lastDragChange release];
+	lastDragChange=nil;
 }
 
 // TODO: Move the part that starts at 'Compute the indicator rect area' to GSTheme
@@ -1678,7 +1680,7 @@ namesOfPromisedFilesDroppedAtDestination: dropDestination
 			drawingRect.size.width -= indentationFactor;
 			}
 		
-		RELEASE(imageCell);
+		[imageCell release];
 		}
 	
 	if (flag)
