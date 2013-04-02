@@ -67,8 +67,9 @@ typedef UInt32 CFHashCode;
 typedef UInt32 CFTypeID;
 
 typedef const struct __CFAllocator *CFAllocatorRef;
+#ifndef _mySTEP_H_NSObjCRuntime
 typedef SInt32 CFIndex;
-
+#endif
 typedef struct NSRange CFRange;
 
 #if INLINE
