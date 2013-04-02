@@ -106,55 +106,34 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			modem=nil;
 			[modes release];
 			modes=nil;
+			error=@"Modem closed";
 		}	
 }
 
 - (void) _openHSO;
 { // try to open during init or reopen after AT_ORESET
-	NSString *dir=@"/sys/class/tty";
-	NSString *typ;
-	NSString *dev=nil;
+	NSString *dev=@"/dev/ttyHS_Application";
+	int i;
 	modes=[[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSEventTrackingRunLoopMode, nil] retain];
 	pinStatus=CTPinStatusUnknown;	// needs to check
 	[self _closeHSO];	// if open
-	system("echo 1 >/sys/devices/virtual/gpio/gpio186/value");	// wake up modem on GTA04A4
-	// FIXME: use /dev/ttyHS_Application instead of searching (udev rule)
-	// FIXME: also open /dev/ttyHS_Modem to receive "NO CARRIER" messages
-	while(YES)
-		{
-		NSDirectoryEnumerator *e=[[NSFileManager defaultManager] enumeratorAtPath:dir];
-		while((typ=[e nextObject]))
-			{ // search Application interface
-				NSString *hs=[typ lastPathComponent];
-#if 0
-				NSLog(@"file: %@ - %@", typ, hs);
-#endif
-				if([hs hasPrefix:@"ttyHS"])
-					{
-					NSString *path=[[dir stringByAppendingPathComponent:typ] stringByAppendingPathComponent:@"hsotype"];
-					NSString *type=[NSString stringWithContentsOfFile:path];
-#if 1
-					NSLog(@"%@ -> %@", path, type);
-#endif
-					if([type hasPrefix:@"Application"])
-						{
-						dev=[NSString stringWithFormat:@"/dev/%@", hs];
-						break;	// application port found			
-						}
-					}
-			}
-		if(dev)
-			break;	// found!
-		NSLog(@"No GTM601 found; retrying in 2 seconds");
-		[self performSelector:_cmd withObject:nil afterDelay:2.0];	// try again
-		return;
+	for(i=1; i<5; i++)
+		{		
+			modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
+			if(modem)
+				break;	// found open
+			system("echo 1 >/sys/devices/virtual/gpio/gpio186/value");	// wake up modem on GTA04A4
+			system("echo 0 >/sys/devices/virtual/gpio/gpio186/value");
+			sleep(5);
 		}
-	modem=[[NSFileHandle fileHandleForUpdatingAtPath:dev] retain];
 	if(!modem)
 		{
+		error=@"Can't open modem.";
 		NSLog(@"could not open %@", dev);
 		return;		
 		}
+	// FIXME: also listen on /dev/ttyHS_Modem to receive "NO CARRIER" messages
+	// FIXME: or should we work only on the /dev/ttyHS_Modem port???
 	atstarted=NO;
 	done=YES;	// no command is running
 	[[NSNotificationCenter defaultCenter] addObserver:self
@@ -167,15 +146,24 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	[modem readInBackgroundAndNotifyForModes:modes];	// and trigger notifications
 	// FIXME: this does not correctly work - unsolicited messages may interrupt echo of AT commands - but the echo is split up by e.g. \nRING\n i.e. it is a full line
 	if([self runATCommand:@"ATE1"] != CTModemOk)	// enable echo so that we can separate unsolicited lines from responses
-		return;
+		{
+			error=@"Failed to intialize modem.";
+			return;			
+		}
+//	[self runATCommandReturnResponse:@"AT+FIRMWARE VERSION"];	// get firmware version
+	// FIXME:
+//	[self runATCommand:@"AT+CSCS=????"];	// define character set
 	[self runATCommand:@"AT_OPONI=1"];	// report current network registration
 	[self runATCommand:@"AT_OSQI=1"];	// report signal quality in dBm
 	[self runATCommand:@"AT_OEANT=1"];	// report quality level (0..4 or 5)
-	[self runATCommand:@"AT_OUWCTI=1"];	// report available cell data rate		
 	[self runATCommand:@"AT_OCTI=1"];	// report GSM/GPRS/EDGE cell data rate		
+	[self runATCommand:@"AT_OUWCTI=1"];	// report available cell data rate		
+	[self runATCommand:@"AT_OUHCIP=1"];	// report HSDPA call in progress		
+	[self runATCommand:@"AT_OSSYS=1"];	// report system (GSM / UTRAN)		
+	[self runATCommand:@"AT_OPATEMP=1"];	// report PA temperature		
 	[self runATCommand:@"AT+COPS"];		// report RING etc.		
 	[self runATCommand:@"AT+CRC=1"];	// report +CRING: instead of RING		
-	[self runATCommand:@"AT+CLIP=1"];	// report +CLIP:		
+	[self runATCommand:@"AT+CLIP=1"];	// report +CLIP:
 }
 
 - (NSString *) error; { return error; }
@@ -353,6 +341,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 - (void) reset;
 {
 	[self runATCommand:@"AT_ORESET"];	// with default timeout to give modem a chance to respond with "OK"
+	error=@"Resetting Modem.";
 	[self _openHSO];	// will close current connection and reopen
 }
 
@@ -360,8 +349,8 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 {
 	CTModemManager *m=[CTModemManager modemManager];
 	pinStatus=CTPinStatusUnlocked;	// now unlocked
-	[[CTTelephonyNetworkInfo telephonyNetworkInfo] processUnsolicitedInfo:[m runATCommandReturnResponse:@"AT_OSIMOP"]];
-	[[CTTelephonyNetworkInfo telephonyNetworkInfo] processUnsolicitedInfo:[m runATCommandReturnResponse:@"AT+CSQ"]];
+	[[CTTelephonyNetworkInfo telephonyNetworkInfo] _processUnsolicitedInfo:[m runATCommandReturnResponse:@"AT_OSIMOP"]];
+	[[CTTelephonyNetworkInfo telephonyNetworkInfo] _processUnsolicitedInfo:[m runATCommandReturnResponse:@"AT+CSQ"]];
 }
 
 - (BOOL) sendPIN:(NSString *) p;
@@ -401,6 +390,9 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 
 - (BOOL) setAirplaneMode:(BOOL) flag;
 {
+#if 1
+	NSLog(@"setAirplaneMode flag=%d pinStatus=%d", flag, pinStatus);
+#endif
 	if(flag)
 		{
 		if(pinStatus == CTPinStatusAirplaneMode)
@@ -414,7 +406,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		if(pinStatus != CTPinStatusAirplaneMode)
 			return YES;	// already disabled
 		[self runATCommand:@"AT_OAIR=0"];
-		pinStatus=CTPinStatusUnknown;	// check
+		pinStatus=CTPinStatusUnknown;	// check on next call for pinStatus
 		return YES;
 		}
 }

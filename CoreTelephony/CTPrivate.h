@@ -16,16 +16,14 @@
 @end
 
 @interface CTCarrier (Private)
-
 - (void) _setCarrierName:(NSString *) n;
 - (void) _setStrength:(float) s;
 - (void) _setNetworkType:(float) s;
 - (void) _setdBm:(float) s;
 - (void) _setCellID:(NSString *) n;
-
 @end
 
 @interface CTTelephonyNetworkInfo (Private)
-- (void) processUnsolicitedInfo:(NSString *) line;
+- (void) _processUnsolicitedInfo:(NSString *) line;
 @end
 

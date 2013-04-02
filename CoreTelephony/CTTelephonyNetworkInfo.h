@@ -24,6 +24,7 @@
 	CTCarrier *subscriberCellularProvider;
 	CTCarrier *currentNetwork;
 	id <CTNetworkInfoDelegate> delegate;
+	int paTemp;
 }
 
 + (CTTelephonyNetworkInfo *) telephonyNetworkInfo;
@@ -38,5 +39,8 @@
 
 - (CTCarrier *) currentNetwork;	// changes while roaming
 - (NSSet *) networks;	// list of networks that are available
+
+// FIXME: this is not really related to the NetworkInfo! It should be accessible through the modem manager
+- (float) paTemperature;	// temperature of PA in centigrade
 
 @end

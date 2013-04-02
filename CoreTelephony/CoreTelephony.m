@@ -126,6 +126,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #endif
 	/*
 	 error responses may be
+	 ERROR
 	 NO CARRIER (kein Anschluß unter dieser Nummer)
 	 BUSY
 	 NO ANSWER
@@ -151,20 +152,30 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 // FIXME: in State-Machine einbauen - ein Befehl fertig triggert den nächsten...
 // und letzter triggert nach Timeout den ersten
 // also eine polling-queue
+// oder einfacher: Timer alle 5 sekunden macht den jeweils nächsten...
 
 - (void) poll
-{ // timer triggered commands
-	[[CTModemManager modemManager] runATCommand:@"AT_OBLS"];	// get SIM status (removed etc.)
-	// wait for being processed
-	[[CTModemManager modemManager] runATCommand:@"AT_OBSI"];	// base station location
-	// wait for being processed
-	[[CTModemManager modemManager] runATCommand:@"AT_ONCI?"];	// neighbouring base stations
-	// wait for being processed
-	[[CTModemManager modemManager] runATCommand:@"AT+CMGL=\"REC UNREAD\""];	// received SMS
-	// process +CMGL: responses
-	// [delegate callCenter:self didReceiveSMS:(NSString *) message fromNumber:(NSString *) sender attributes:(NSDictionary *) dict];
-	// Dabei könnte ein NSDict mit aller Zusatzinfo (Uhrzeit - Achtung TimeZone ist in 15min-Schritten, AT+CSDH=1) mitgegeben werden.
-	// same for cell broadcasts (?) AT+CPMS="BM"
+{ // timer triggered commands (because there is no unsolicited notification)
+	static int next;
+	switch(next++ % 4) {
+		case 0:
+			[[CTModemManager modemManager] runATCommand:@"AT_OBLS"];	// get SIM status (removed etc.)
+			break;
+		case 1:
+			[[CTModemManager modemManager] runATCommand:@"AT_OBSI"];	// base station location
+			break;
+		case 2:
+			[[CTModemManager modemManager] runATCommand:@"AT_ONCI?"];	// neighbouring base stations
+			break;
+		case 3:
+			[[CTModemManager modemManager] runATCommand:@"AT+CMGL=\"REC UNREAD\""];	// received SMS
+			// process +CMGL: responses
+			// [delegate callCenter:self didReceiveSMS:(NSString *) message fromNumber:(NSString *) sender attributes:(NSDictionary *) dict];
+			// Dabei könnte ein NSDict mit aller Zusatzinfo (Uhrzeit - Achtung TimeZone ist in 15min-Schritten, AT+CSDH=1) mitgegeben werden.
+			// same for cell broadcasts (?) AT+CPMS="BM"
+			break;			
+	}
+	[self performSelector:_cmd withObject:nil afterDelay:5.0];
 }
 
 @end
@@ -351,77 +362,30 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #endif
 	if(flag && [self WWANstate] != CTCarrierWWANStateConnected)
 		{ // set up WWAN connection
-			NSString *data;
+			// FIXME: this should be carrier specific!!!
 			// see: http://blog.mobilebroadbanduser.eu/page/Worldwide-Access-Point-Name-%28APN%29-list.aspx#403
 			NSString *apn=@"web.vodafone.de";	// lookup in some database? Or let the user choose by a prefPane?
 			NSString *protocol=@"IP";	// either "IP" or "PPP"
-			NSArray *a;
-			// FIXME: may add user/password and more parameters
+			[mm runATCommand:@"AT_OPSYS=5,3"];	// register to any network in any mode
+			[mm runATCommand:@"AT_OWANCALLUNSOL=1"];	// receive unsolicited _OWANCALL messages
 			[mm runATCommand:[NSString stringWithFormat:@"AT+CGDCONT=%u,\"%@\",\"%@\"", context, protocol, apn]];
+			// secure: 0=no, 1=pap, 2=chap
+			// [mm runATCommand:[NSString stringWithFormat:@"AT_OPDPP=%u,%u,\"%@\",\"%@\"", context, secure, passwd, user]];
 			[mm runATCommand:[NSString stringWithFormat:@"AT_OWANCALL=%u,1,1", context]];	// context #1, start, send unsolicited response
-			// will give unsolicited response: _OWANCALL: 1, 1 - to NDIS channel
-			
-			// FIXME: replace by performSelector:withObject:withDelay!!!
-
-			sleep(1);
-			data=[mm runATCommandReturnResponse:@"AT_OWANDATA?"];	// e.g. _OWANDATA: 1, 10.152.124.183, 0.0.0.0, 193.189.244.225, 193.189.244.206, 0.0.0.0, 0.0.0.0,144000
-			if(!data)
-				{ // some error!
-					
-				}
-			a=[data componentsSeparatedByString:@","];
-#if 1
-			NSLog(@"Internet config: %@", a);
-#endif
-			if([a count] >= 7)
-				{
-				NSMutableString *resolv=[NSMutableString stringWithContentsOfFile:@"/etc/resolv.conf"];
-				NSString *cmd=[NSString stringWithFormat:@"ifconfig hso0 '%@' netmask 255.255.255.255 up",
-							   [[a objectAtIndex:1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
-#if 1
-				NSLog(@"system: %@", cmd);
-#endif
-				system([cmd UTF8String]);
-				// check for errors
-				if(!resolv) resolv=[NSMutableString string];
-				[resolv appendFormat:@"nameserver %@ # wwan\n",
-				 [[a objectAtIndex:3] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
-				[resolv appendFormat:@"nameserver %@ # wwan\n",
-				 [[a objectAtIndex:4] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
-				// FIXME: the network interface namer daemon should collect all DNS entries for interfaces coming and going
-				// i.e. we should write the DNS entries into that database (/Library/Preferences/SystemConfiguration/NetworkInterfaces.plist)
-				// and trigger the interface namer for an update
-				// or add interface-specific record(s) to /etc/network/interfaces
-				[resolv writeToFile:@"/etc/resolv.conf" atomically:NO];
-#if 1
-				NSLog(@"resolv=%@", resolv);
-				system("route add default hso0");
-#endif
-				}
-			[[[CTTelephonyNetworkInfo telephonyNetworkInfo] delegate] currentNetworkDidUpdate:self];	// notify
 		}
 	else if(!flag && [self WWANstate] != CTCarrierWWANStateDisconnected)
 		{ // disable WWAN connection
-#if 1
-			NSLog(@"system: ifconfig hso0 down");
-#endif
 			system("ifconfig hso0 down");	// we could make the ifconfig up/down trigger our daemon...
-			// or add interface-specific record to /etc/network/interfaces
-
-			// FIXME: replace by performSelector:withObject:withDelay!!!
-			
 			sleep(1);
 			[mm runATCommand:[NSString stringWithFormat:@"AT_OWANCALL=%u,0,1", context]];	// stop
-			// will give unsolicited response: _OWANCALL: 1, 0 
-			// restore resolv.conf
-			[[[CTTelephonyNetworkInfo telephonyNetworkInfo] delegate] currentNetworkDidUpdate:self];	// notify
-			system("route add default usb0");
-
 		}
 }
 
 - (CTCarrierWWANState) WWANstate;
 { // ask the modem
+	// FIXME: this may be a little slow if we call it too often
+	// so we should cache the state and update only if last value is older than e.g. 1 second
+#if 1
 	char bfr[512];
 	FILE *f=popen("ifconfig -s | fgrep hso0", "r");
 	NSLog(@"WWANstate f=%p", f);
@@ -432,9 +396,10 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	NSLog(@"WWANstate strlen=%d", strlen(bfr));
 	return strlen(bfr) > 10?CTCarrierWWANStateConnected:CTCarrierWWANStateDisconnected;
 
-	// does not work well since it may get called recursively - but would be the correct way of checking connectivity
 
-#if 0
+#else
+	// does not work well since it may get called recursively (why???) - but would be the correct way of checking connectivity
+	
 	CTModemManager *mm=[CTModemManager modemManager];
 	NSString *r=[mm runATCommandReturnResponse:@"AT_OWANCALL?"];
 	NSArray *a=[r componentsSeparatedByString:@" "];	// r is nil on errors
@@ -446,6 +411,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		return [[a objectAtIndex:1] intValue];	// 0..3
 		}
 #endif
+	return CTCarrierWWANStateUnknown;
 }
 
 @end
@@ -529,7 +495,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 #undef SINGLETON_VARIABLE
 #undef SINGLETON_HANDLE
 
-- (void) processUnsolicitedInfo:(NSString *) line
+- (void) _processUnsolicitedInfo:(NSString *) line
 {
 #if 1
 	NSLog(@"processUnsolicitedInfo: %@", line);
@@ -622,6 +588,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			   "amixer set 'Analog Left Main Mic' cap;"
 			   "amixer set 'Analog Left Headset Mic' nocap");
 #if 0	// does not work! Modem mutes all voice signals if we do that *during* a call
+		CTModemManager *mm=[CTModemManager modemManager];
 		[mm runATCommand:@"AT_OPCMENABLE=1"];
 		[mm runATCommand:@"AT_OPCMPROF=0"];	// default "handset"
 		[mm runATCommand:@"AT+VIP=0"];
@@ -639,26 +606,44 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 		}
 	if([line hasPrefix:@"_OPON:"])
 		{ // current visited network - _OPON: <cs>,<oper>,<src>
-			// notify through CTCarrier/CTTelephonyNetworkInfo
+			// cs=8bit code
+			// src=3 -> SE13 hex format
+			// src=4 -> MCCMNC in decimal
+			CTTelephonyNetworkInfo *ni=[CTTelephonyNetworkInfo telephonyNetworkInfo];
+			CTCarrier *carrier=[ni subscriberCellularProvider];
+			NSScanner *sc=[NSScanner scannerWithString:line];
+			NSString *cs=@"unknown";
+			NSString *name=@"unknown";
+			NSMutableString *s;
+			int src;
 			NSLog(@"visited network: %@", line);
-			/*
-			 CTTelephonyNetworkInfo *ni=[CTTelephonyNetworkInfo telephonyNetworkInfo];
-			 CTCarrier *carrier=[ni subscriberCellularProvider];
-			 NSScanner *sc=[NSScanner scannerWithString:line];
-			 NSString *cs=@"unknown";
-			 NSString *name=@"unknown";
-			 NSString *name=@"src";
-			 [sc scanString:@"_OPON: \"" intoString:NULL];
-			 [sc scanUpToString:@"\"" intoString:&cs];
-			 [sc scanUpToString:@"\"" intoString:&name];
-			 [sc scanUpToString:@"\"" intoString:&src];
-			 [carrier _setCarrierName:name];
-			 #if 1
-			 NSLog(@"carrier name=%@ delegate=%@", name, [ni delegate]);
-			 #endif
-			 [[ni delegate] subscriberCellularProviderDidUpdate:carrier];
-			 return;
-			 */
+			// Parameterliste kann auch leer sein!
+			// => Visited Network verloren gegangen
+			// wenn [ni currentNetwork] != nil -> löschen
+			[sc scanString:@"_OPON: \"" intoString:NULL];
+			[sc scanUpToString:@"," intoString:&cs];
+			[sc scanString:@"," intoString:NULL];
+			[sc scanUpToString:@"," intoString:&name];
+			[sc scanString:@"," intoString:NULL];
+			if(![sc scanInt:&src] || src != 3)
+				return;
+			s=[NSMutableString string];
+			while([name length] >= 2)
+				{ // eat each 2 characters
+				unichar c1=[name characterAtIndex:0];
+				unichar c2=[name characterAtIndex:1];
+				c1=(c1 > '9') ? tolower(c1)-'a'+10 : c1 - '0';
+				c2=(c2 > '9') ? tolower(c2)-'a'+10 : c2 - '0';
+				[s appendFormat:@"%c", (c1<<4)+c2];
+				name=[name substringFromIndex:2];
+				}
+			name=s;
+#if 1
+			NSLog(@"carrier name=%@ delegate=%@", name, [ni delegate]);
+#endif
+			// neuen Carrier in [ni currentNetwork] eintragen
+			// [carrier _setCarrierName:name];
+			[[ni delegate] subscriberCellularProviderDidUpdate:carrier];
 			return;
 		}
 	if([line hasPrefix:@"_OSIGQ:"] || [line hasPrefix:@"+CSQ:"])
@@ -717,7 +702,7 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 					[currentNetwork _setNetworkType:3.5];	// WCDMA+HSDPA
 					break;
 				case 3:
-					[currentNetwork _setNetworkType:3.75];	// WCDMA+HSUPA
+					[currentNetwork _setNetworkType:3.6];	// WCDMA+HSUPA
 					break;
 				case 4:
 					[currentNetwork _setNetworkType:3.75];	// WCDMA+HSDPA+HSUPA
@@ -726,6 +711,99 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			[delegate signalStrengthDidUpdate:currentNetwork];
 			return;
 		}
+	if([line hasPrefix:@"_OSSYSI:"])
+		{ // selected system: 0=GSM, 2=UTRAN, 3=No Service
+			// notify through CTCarrier/CTTelephonyNetworkInfo
+			NSLog(@"selected system: %@", line);
+			return;
+		}
+	if([line hasPrefix:@"_OUHCIP:"])
+		{ // HSDPA call in progress: 1
+			// notify through CTCarrier/CTTelephonyNetworkInfo
+			NSLog(@"HSDPA: %@", line);
+			return;
+		}
+	if([line hasPrefix:@"_OPATEMP:"])
+		{ // PA temperature
+			NSLog(@"PA TEMP: %@", line);
+			paTemp=[[[line componentsSeparatedByString:@" "] objectAtIndex:1] intValue];
+			// check for overtemperature and pop up some alert
+			[delegate signalStrengthDidUpdate:currentNetwork];
+			return;
+		}
+	if([line hasPrefix:@"_OWANCALL:"])
+		{ // internet connection state did change
+			int state=[[[line componentsSeparatedByString:@","] lastObject] intValue];	// connection state
+			unsigned int context=1;	// get from _OWANCALL: message
+			if(state == 0)
+				{ // became disconnected
+					NSMutableArray *resolv=[[[NSString stringWithContentsOfFile:@"/etc/resolv.conf"] componentsSeparatedByString:@"\n"] mutableCopy];
+					unsigned int i=[resolv count];
+					while(i-- > 0)
+						{
+						if([[resolv objectAtIndex:i] hasSuffix:@" # wwan"])
+							[resolv removeObjectAtIndex:i];	// remove wwan config
+						}
+#if 1
+					NSLog(@"new resolv.conf: %@", resolv);
+#endif
+					[resolv writeToFile:@"/etc/resolv.conf" atomically:NO];
+					[resolv release];
+				}
+			else if(state == 1)
+				{ // became connected
+					NSString *data=[[CTModemManager modemManager] runATCommandReturnResponse:[NSString stringWithFormat:@"AT_OWANDATA=%u", context]];	// e.g. _OWANDATA: 1, 10.152.124.183, 0.0.0.0, 193.189.244.225, 193.189.244.206, 0.0.0.0, 0.0.0.0,144000
+					NSArray *a=[data componentsSeparatedByString:@","];
+#if 1
+					NSLog(@"Internet config: %@", a);
+#endif
+					if([a count] == 8)
+						{ // format as expected: <c>, <ip>, <gw>, <dns1>, <dns2>, <nbns1>, <nbns2>, <csp>
+							NSMutableString *resolv=[NSMutableString stringWithContentsOfFile:@"/etc/resolv.conf"];
+							// FIXME: process <gw>
+							NSString *cmd=[NSString stringWithFormat:@"ifconfig hso0 '%@' netmask 255.255.255.255 up",
+										   [[a objectAtIndex:1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+#if 1
+							NSLog(@"system: %@", cmd);
+#endif
+							system([cmd UTF8String]);
+							// check for errors
+							if(!resolv) resolv=[NSMutableString string];
+							[resolv appendFormat:@"nameserver %@ # wwan\n",
+							 [[a objectAtIndex:3] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+							[resolv appendFormat:@"nameserver %@ # wwan\n",
+							 [[a objectAtIndex:4] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+							// FIXME: the network interface namer daemon should collect all DNS entries for interfaces coming and going
+							// i.e. we should write the DNS entries into that database (/Library/Preferences/SystemConfiguration/NetworkInterfaces.plist)
+							// and trigger the interface namer for an update
+							// or add interface-specific record(s) to /etc/network/interfaces
+							
+							// notify connection speed [[a objectAtIndex:7] intValue] in kbit/s
+							
+#if 1
+							NSLog(@"new resolv.conf: %@", resolv);
+#endif
+							[resolv writeToFile:@"/etc/resolv.conf" atomically:NO];
+#if 1
+							system("route add default hso0");
+							// FIXME: this should be done by Sharing&Network setup (i.e. only ONE connection can/should be the -o)
+							[@"1" writeToFile:@"/proc/sys/net/ipv4/ip_forward" atomically:NO];	// enable forwarding
+							system("iptables -t nat -A POSTROUTING -o hso0 -j MASQUERADE");
+#endif
+						}	
+				}
+			else 
+				{ // error
+					NSString *error=[[CTModemManager modemManager] runATCommandReturnResponse:@"AT_OWANNWERROR?"];
+#if 1
+					NSLog(@"WWAN error=%@", error);
+#endif
+				}
+			// FIXME: how do we know the "carrier"?
+			//			[[[CTTelephonyNetworkInfo telephonyNetworkInfo] delegate] currentNetworkDidUpdate:self];	// notify				
+			[delegate signalStrengthDidUpdate:currentNetwork];
+		}
+	// the following responses are not really "unsolicted" but are handled as if they were
 	if([line hasPrefix:@"_ONCI:"])
 		{ // neighbour cell info
 			// notify through CTCarrier/CTTelephonyNetworkInfo
@@ -739,7 +817,6 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 			// forward to CLLocation?
 			return;
 		}
-	// these responses are not really "unsolicted" but are handled like they were
 	if([line hasPrefix:@"_OSIMOP:"])
 		{ // home plnm - _OSIMOP: “<long_op>”,”<short_op>”,”<MCC_MNC>”
 			NSScanner *sc=[NSScanner scannerWithString:line];
@@ -796,9 +873,15 @@ static SINGLETON_CLASS * SINGLETON_VARIABLE = nil;
 	// +COPS: (1,"E-Plus","E-Plus","26203",0),(2,"o2 - de","o2 - de","26207",2),(1,"E-Plus","E-Plus","26203",2),(1,"T-Mobile D","TMO D","26201",0),(1,"o2 - de","o2 - de","26207",0),(1,"Vodafone.de","voda DE","26202",0),(1,"Vodafone.de","voda DE","26202",2),(1,"T-Mobile D","TMO D","26201",2),,(0,1,2,3,4),(0,1,2)	
 	// +COPS: (2,"o2 - de","o2 - de","26207",2),(1,"E-Plus","E-Plus","26203",0),(1,"E-Plus","E-Plus","26203",2),(1,"o2 - de","o2 - de","26207",0),(1,"Vodafone.de","voda DE","26202",0),(1,"T-Mobile D","TMO D","26201",0),(1,"T-Mobile D","TMO D","26201",2),(1,"Vodafone.de","voda DE","26202",2),,(0,1,2,3,4),(0,1,2)
 	// 	at+cops=0  -- automatisch
-	//  at+cops=1,2,27207  -- feste Wahl, Format <numerisch>
+	//  at+cops=1,2,26207  -- feste Wahl, Format <numerisch>
 	// ohne SIM: +COPS: 0,0,"Limited Service",2
+	// "1&1" scheint auch "26202" zu melden -> 26202 = physikalisches Netz (D1, D2, E1, E2) 
 	return nil;
+}
+
+- (float) paTemperature;
+{ // temperature of PA in centigrade
+	return paTemp;
 }
 
 @end
