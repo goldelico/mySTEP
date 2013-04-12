@@ -4,6 +4,7 @@
 
 extern int nokeyword;	// if set to 1 an IDENTIFIER is always returned (even if it looks like a keyword)
 extern int objctype;	// if 1, identifiers like BOOL, id, SEL are decoded; otherwise they are always reported as IDENTIFIER
+extern int typename;	// if 1, IDENTIFIERS representing a type name or @class forward declaration are reported as TYPENAME
 
 extern void pushscope();	// start a new local variable scope
 extern void popscope();		// pop scope

@@ -7,69 +7,27 @@
 //
 
 #import "Print.h"
-#include "build/y.tab.h"
-
-// this would be much easier to design if we had an inheritance hierarchy
-// and could add some  -(int) precedence; to some nodes to automatically create () and {} if needed
-// well, we could keep () and {} in explicit nodes as well
-
 
 // implement doSelectorByType: methods!
 
 // get operator precedence
-// distinguish between statement and expression (inline vs. block)
+// distinguish only between statement and expression (inline vs. block)
+// i.e. each node type has several attributes:
+//   int level
+//   char *token
+//   BOOL block
+// and the formatter uses that information (e.g. levels to add implicit () and block to add \n )
 
 @implementation Node (Print)
-
-- (void) print:(int) level;
-{
-#if 0
-	NSString *t=[self type];
-	if([t isEqualToString:@"identifier"])
-		{
-		if([self left] || [self right])
-			{
-			printf("/* ");
-			[[self left] print:level];	// storage class
-			printf(" ");
-			[[self right] print:level];	// type tree
-			printf("*/");				
-			}
-		printf("%s", [[self value] UTF8String]);		
-		}
-	else if([t isEqualToString:@"constant"])
-		printf("%s", [[self value] UTF8String]);
-	else
-		{
-		int l=level;
-		if([t isEqualToString:@"{"])
-			printf("\n"), l++;
-		[[self left] print:l];
-		printf("%s", [t UTF8String]);
-		[[self right] print:l];
-		if([t isEqualToString:@"("])
-			printf(")");
-		else if([t isEqualToString:@"["])
-			printf("]");
-		else if([t isEqualToString:@"{"])
-			printf("}\n");
-		}
-#endif
-}
-
-- (void) print;
-{
-	[self print:0];
-}
 
 // allow to pass style options and max. line with
 
 // expression objects ignore the level and line width and just return a string
 // statement objects indent by level and return (wrapped) lines
 
-- (NSString *) description;
+- (NSString *) pretty;
 { // tree node(s) as NSString
-	return [self descriptionAtLevel:0];
+	return [self prettyAtLevel:0];
 }
 
 - (int) level
@@ -84,7 +42,7 @@
 	return 0;
 }
 
-- (NSString *) descriptionAtLevel:(int) level;
+- (NSString *) prettyAtLevel:(int) level;
 { // handle indentation level
 #if 0
 	NSString *t=[self type];
@@ -106,17 +64,17 @@
 	if([self left])
 		{
 		if([[self left] level] < [self level])
-			s=[s stringByAppendingFormat:@"(%@)", [[self left] descriptionAtLevel:level]];
+			s=[s stringByAppendingFormat:@"(%@)", [[self left] prettyAtLevel:level]];
 		else
-			s=[s stringByAppendingString:[[self left] descriptionAtLevel:level]];
+			s=[s stringByAppendingString:[[self left] prettyAtLevel:level]];
 		}
 	s=[s stringByAppendingString:t];
 	if([self right])
 		{
 		if([[self right] level] <= [self level])
-			s=[s stringByAppendingFormat:@"(%@)", [[self right] descriptionAtLevel:level]];	// includes same level for e.g. a+(b+c)
+			s=[s stringByAppendingFormat:@"(%@)", [[self right] prettyAtLevel:level]];	// includes same level for e.g. a+(b+c)
 		else
-			s=[s stringByAppendingString:[[self right] descriptionAtLevel:level]];
+			s=[s stringByAppendingString:[[self right] prettyAtLevel:level]];
 		}
 	if([t isEqualToString:@"("])
 		s=[s stringByAppendingString:@")"];
@@ -126,6 +84,7 @@
 		s=[s stringByAppendingString:@"}\n"];
 	return s;
 #endif
+	return @"";
 }
 
 @end

@@ -27,6 +27,12 @@
 		EE55BFDA1504DB9700BDF3F7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE4108520B956BA30065DD36 /* main.m */; };
 		EE55C0271504DF4100BDF3F7 /* gram.m in Sources */ = {isa = PBXBuildFile; fileRef = EE55C0251504DF4100BDF3F7 /* gram.m */; };
 		EE55C0281504DF4100BDF3F7 /* scan.m in Sources */ = {isa = PBXBuildFile; fileRef = EE55C0261504DF4100BDF3F7 /* scan.m */; };
+		EE67070D17183F8600A38486 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6D3E0513755497003D5863 /* main.m */; };
+		EE67070E17183F8600A38486 /* simple.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6D3DDD137553CE003D5863 /* simple.m */; };
+		EE67070F17183F8600A38486 /* special.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEB4C461509E84D000EE2E5 /* special.m */; };
+		EE67071017183F8600A38486 /* test.m in Sources */ = {isa = PBXBuildFile; fileRef = EEFD77D40B957C83002EA6A8 /* test.m */; };
+		EE67075617184EDD00A38486 /* scan.lm in Sources */ = {isa = PBXBuildFile; fileRef = EE67075517184EDD00A38486 /* scan.lm */; };
+		EE67075C17184FF000A38486 /* gram.ym in Sources */ = {isa = PBXBuildFile; fileRef = EE67075B17184FF000A38486 /* gram.ym */; };
 		EE8E488916F21D6400DF50B4 /* Refactor.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8E488716F21D6400DF50B4 /* Refactor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE8E488A16F21D6400DF50B4 /* Refactor.m in Sources */ = {isa = PBXBuildFile; fileRef = EE8E488816F21D6400DF50B4 /* Refactor.m */; };
 		EE8E48C016F22B1200DF50B4 /* objc10.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8E48BE16F22B1200DF50B4 /* objc10.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -72,6 +78,9 @@
 		EE55BFF11504DC5700BDF3F7 /* y.tab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = y.tab.h; path = build/y.tab.h; sourceTree = "<group>"; };
 		EE55C0251504DF4100BDF3F7 /* gram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = gram.m; path = build/gram.m; sourceTree = "<group>"; };
 		EE55C0261504DF4100BDF3F7 /* scan.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = scan.m; path = build/scan.m; sourceTree = "<group>"; };
+		EE67070617183F7300A38486 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE67075517184EDD00A38486 /* scan.lm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.lex; path = scan.lm; sourceTree = "<group>"; };
+		EE67075B17184FF000A38486 /* gram.ym */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.yacc; path = gram.ym; sourceTree = "<group>"; };
 		EE6D3DDD137553CE003D5863 /* simple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = simple.m; path = test/simple.m; sourceTree = "<group>"; };
 		EE6D3DF613755463003D5863 /* test1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test1.c; path = test/test1.c; sourceTree = "<group>"; };
 		EE6D3DF713755463003D5863 /* test1.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = test1.i; path = test/test1.i; sourceTree = "<group>"; };
@@ -120,6 +129,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EE67070417183F7300A38486 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -149,7 +165,9 @@
 			children = (
 				EE4108530B956BA30065DD36 /* Makefile */,
 				EE4108510B956BA30065DD36 /* gram.y */,
+				EE67075B17184FF000A38486 /* gram.ym */,
 				EE4108540B956BA30065DD36 /* scan.l */,
+				EE67075517184EDD00A38486 /* scan.lm */,
 				EE08E5A110D7CE3200684837 /* node.h */,
 				EE22087E14EDB23500E78349 /* AST.h */,
 				EE6D6105137AF9E5007F7BD7 /* AST.m */,
@@ -221,6 +239,7 @@
 				EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */,
 				EE55BFC11504DB3A00BDF3F7 /* ObjC-Info.plist */,
 				EE55BFD01504DB7400BDF3F7 /* objc2pp */,
+				EE67070617183F7300A38486 /* test */,
 			);
 			sourceTree = "<group>";
 		};
@@ -250,7 +269,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = EE55BFC51504DB3A00BDF3F7 /* Build configuration list for PBXNativeTarget "ObjC" */;
 			buildPhases = (
-				EE55BFC81504DB4600BDF3F7 /* ShellScript */,
 				EE55BFBB1504DB3900BDF3F7 /* Headers */,
 				EE55BFBC1504DB3900BDF3F7 /* Resources */,
 				EE55BFBD1504DB3900BDF3F7 /* Sources */,
@@ -285,6 +303,22 @@
 			productReference = EE55BFD01504DB7400BDF3F7 /* objc2pp */;
 			productType = "com.apple.product-type.tool";
 		};
+		EE67070517183F7300A38486 /* test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE67071317183FA800A38486 /* Build configuration list for PBXNativeTarget "test" */;
+			buildPhases = (
+				EE67070317183F7300A38486 /* Sources */,
+				EE67070417183F7300A38486 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = test;
+			productName = test;
+			productReference = EE67070617183F7300A38486 /* test */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -308,6 +342,7 @@
 				EE55BFBF1504DB3900BDF3F7 /* ObjC */,
 				EE55BFCF1504DB7400BDF3F7 /* objc2pp */,
 				EE55C0761504F20E00BDF3F7 /* Test */,
+				EE67070517183F7300A38486 /* test */,
 			);
 		};
 /* End PBXProject section */
@@ -323,19 +358,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		EE55BFC81504DB4600BDF3F7 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "make -f Makefile";
-		};
 		EE55C0751504F20E00BDF3F7 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -388,7 +410,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP; ./ObjCKit.qcodeproj";
+			shellScript = "# make us include build/objc2pp.build/Development/ObjC.build/DerivedSources\n# export QuantumSTEP=$HOME/Documents/Projects/QuantumSTEP; ./ObjCKit.qcodeproj";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -407,6 +429,8 @@
 				EE8E48C116F22B1200DF50B4 /* objc10.m in Sources */,
 				EE8E48C516F22BD500DF50B4 /* compile.m in Sources */,
 				EEC876C01716E49C0093590B /* objc2c.m in Sources */,
+				EE67075617184EDD00A38486 /* scan.lm in Sources */,
+				EE67075C17184FF000A38486 /* gram.ym in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -415,6 +439,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE55BFDA1504DB9700BDF3F7 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE67070317183F7300A38486 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE67070D17183F8600A38486 /* main.m in Sources */,
+				EE67070E17183F8600A38486 /* simple.m in Sources */,
+				EE67070F17183F8600A38486 /* special.m in Sources */,
+				EE67071017183F8600A38486 /* test.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -601,6 +636,72 @@
 			};
 			name = Default;
 		};
+		EE67070817183F7300A38486 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = test;
+			};
+			name = Development;
+		};
+		EE67070917183F7300A38486 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = test;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EE67070A17183F7300A38486 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = test;
+			};
+			name = Default;
+		};
 		EE772D2F0A10C27000F73E78 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -648,6 +749,16 @@
 				EE55C0771504F20E00BDF3F7 /* Development */,
 				EE55C0781504F20E00BDF3F7 /* Deployment */,
 				EE55C0791504F20E00BDF3F7 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		EE67071317183FA800A38486 /* Build configuration list for PBXNativeTarget "test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE67070817183F7300A38486 /* Development */,
+				EE67070917183F7300A38486 /* Deployment */,
+				EE67070A17183F7300A38486 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Default;

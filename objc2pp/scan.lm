@@ -20,7 +20,9 @@ IS			(u|U|l|L)*
 #include "node.h"
 	
 #define error(X)
-	
+
+extern YYSTYPE yylval;
+
 void charCount(void);
 void comment(int cxx);
 

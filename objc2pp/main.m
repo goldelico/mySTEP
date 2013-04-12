@@ -14,12 +14,12 @@ int main(int argc, char *argv[])
 		}
 	n=[Node parse:nil delegate:nil];
 	NSLog(@"parse result: %@", [n xml]);
-	n=[n simplify];
+	[n simplify];
 	NSLog(@"simplified: %@", [n xml]);
 	// choose how we should translate -> 1.0 -> 2.0 -> ARM -> Std-C
-	n=[n objc10];	// translate to Obj-C 1.0
+	[n objc10];	// translate to Obj-C 1.0
 	NSLog(@"translated: %@", [n xml]);
-	printf("%s", [[n description] cString]);	// pretty print
+	printf("%s", [[n pretty] cString]);	// pretty print
 	return 0;
 }
 

@@ -10,11 +10,9 @@
 
 @interface Node (Print)
 
-- (void) print;	// print the tree
-
 /* pretty print the tree */
 
-- (NSString *) description;	// tree node(s) as NSString
-- (NSString *) descriptionAtLevel:(int) level;	// handle indentation level
+- (NSString *) pretty;	// tree node(s) as NSString
+- (NSString *) prettyAtLevel:(int) level;	// handle indentation level
 
 @end

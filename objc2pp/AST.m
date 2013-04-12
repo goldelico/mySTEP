@@ -161,15 +161,14 @@ int count(int list)
 int dictionary(void)
 {
 	int s=leaf("$dict$", NULL);	// dictionary object
-	Node *n=get(s);
-	[n setValue:[NSMutableDictionary dictionaryWithCapacity:10]];
+	[get(s) setValue:[NSMutableDictionary dictionaryWithCapacity:10]];
 	return s;
 }
 
 int lookup(int table, const char *word, char *type, int value)
 { // look up identifier
 	NSString *key=[NSString stringWithUTF8String:word];
-	NSMutableDictionary dict=[get(table) value];
+	NSMutableDictionary *dict=[get(table) value];
 	int s=[[dict objectForKey:key] number];
 	if(s == 0 && type != NULL)
 		{ // create new entry
@@ -234,6 +233,11 @@ void setkeyval(int dictionary, const char *key, int value)
 		number=++uuid;
 		}
 	return self;
+}
+
+- (NSString *) description
+{
+	return [NSString stringWithFormat:@"%u: %@ [%u] %@", number, type, [children count], value?[value description]:@""];
 }
 
 - (void) dealloc
@@ -313,6 +317,8 @@ void setkeyval(int dictionary, const char *key, int value)
 
 - (void) insertChild:(Node *)n atIndex:(unsigned)idx
 {
+	if(!children)
+		children=[[NSMutableArray alloc] initWithCapacity:10];
 	[children insertObject:n atIndex:idx];
 }
 
@@ -363,7 +369,7 @@ void setkeyval(int dictionary, const char *key, int value)
 {
 	unsigned idx=[(NSMutableArray *) [parent children] indexOfObject:self];
 	if(idx == NSNotFound)
-		return NO;
+		return;
 	[self retain];
 	if(other)
 		[(NSMutableArray *) [parent children] replaceObjectAtIndex:idx withObject:other];

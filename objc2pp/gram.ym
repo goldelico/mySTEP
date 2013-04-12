@@ -25,7 +25,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "node.h"
-	
+#import <ObjCKit/AST.h>
+
+#define YYSTYPE Node *
+
 	int scope;		// scope list
 	int rootnode;	// root node of the whole tree
 	
