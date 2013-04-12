@@ -160,21 +160,21 @@ int softkeywordtab;	/* soft keyword table */
 
 void pushscope()
 { // start a new local variable scope
-	push(scopestack, dictionary());	// create symbol table
+	append(scopestack, dictionary());	// create symbol table
 }
 	
 void popscope()
 { // pop scope
-	pop(scopestack);
+	removelast(scopestack);
 }	
 
 int globals()
 {
-	return first(scopestack);
+	return nth(scopestack, 0);
 }
 
 int makeglobal(int identifier)
-{ // make this a global entry 
+{ // make this a global entry, i.e. copy to global dictionary
 	
 }
 
@@ -253,10 +253,12 @@ void scaninit(void)
 			setStringValue(s, yytext);	// set symbol name
 		}
 	yylval=s;
+#if FIXME
 	if(strcmp(type(left(s)), "typedef") == 0)
 		return TYPE_NAME;	/* in current scope this identifier is a typedef'd type name */
 	if(strcmp(type(left(s)), "Class") == 0)
 		return TYPE_NAME;	/* in current scope this identifier is a Class name */
+#endif
 	return IDENTIFIER;
 } 
 

@@ -13,8 +13,12 @@ int main(int argc, char *argv[])
 		dup2(fd, 0);	// use this file as stdin
 		}
 	n=[Node parse:nil delegate:nil];
+	NSLog(@"parse result: %@", [n xml]);
 	n=[n simplify];
+	NSLog(@"simplified: %@", [n xml]);
+	// choose how we should translate -> 1.0 -> 2.0 -> ARM -> Std-C
 	n=[n objc10];	// translate to Obj-C 1.0
+	NSLog(@"translated: %@", [n xml]);
 	printf("%s", [[n description] cString]);	// pretty print
 	return 0;
 }

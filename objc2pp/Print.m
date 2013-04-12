@@ -13,10 +13,17 @@
 // and could add some  -(int) precedence; to some nodes to automatically create () and {} if needed
 // well, we could keep () and {} in explicit nodes as well
 
+
+// implement doSelectorByType: methods!
+
+// get operator precedence
+// distinguish between statement and expression (inline vs. block)
+
 @implementation Node (Print)
 
 - (void) print:(int) level;
 {
+#if 0
 	NSString *t=[self type];
 	if([t isEqualToString:@"identifier"])
 		{
@@ -47,6 +54,7 @@
 		else if([t isEqualToString:@"{"])
 			printf("}\n");
 		}
+#endif
 }
 
 - (void) print;
@@ -78,6 +86,7 @@
 
 - (NSString *) descriptionAtLevel:(int) level;
 { // handle indentation level
+#if 0
 	NSString *t=[self type];
 	NSString *s;
 	if([t isEqualToString:@"identifier"])
@@ -116,6 +125,7 @@
 	else if([t isEqualToString:@"{"])
 		s=[s stringByAppendingString:@"}\n"];
 	return s;
+#endif
 }
 
 @end

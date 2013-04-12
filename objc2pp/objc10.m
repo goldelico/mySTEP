@@ -11,8 +11,14 @@
 
 @implementation Node (Objc10)
 
-- (Node *) objc10;	// translate objc 2.0 idioms to objc 1.0
+- (void) objc10;	// translate objc 2.0 idioms to objc 1.0
 {
+	[self performSelectorForAllChildren:_cmd];
+}
+
+- (void) objc10something;
+{
+	[self performSelectorForAllChildren:@selector(objc10)];
 	// check for idioms
 	// . notation for KVC
 	// @try, @catch
@@ -20,11 +26,6 @@
 	// @synthesize
 	// @autorelease
 	// ARC
-	Node *nl=[left objc10];
-	Node *nr=[right objc10];
-	if(nl != left || nr != right)
-		return [Node node:type left:nl right:nr];	// return a copy
-	return self;	// not changed
 }
 
 @end

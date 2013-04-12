@@ -10,6 +10,6 @@
 
 @interface Node (Refactor)
 
-- (Node *) refactor:(NSDictionary *) substitutions;	// replace symbols by dictionary content
+- (void) refactor:(NSDictionary *) substitutions;	// replace symbols by dictionary content
 
 @end

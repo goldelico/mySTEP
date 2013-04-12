@@ -21,16 +21,28 @@
 
 @implementation Node (Simplify)
 
-- (Node *) simplify;
+- (void) simplify;
 {
-	Node *nl=[left simplify];
-	Node *nr=[right simplify];
-	// check if we can simplify everything
-	// i.e. if nl == const and nr == const and type == + - * / % etc.
-	// then return combined constant
-	if(nl != left || nr != right)
-		return [Node node:type left:nl right:nr];	// return a copy
-	return self;	// not changed
+	[self performSelectorForAllChildren:_cmd];
+}
+
+- (void) simplifyif
+{
+	[self performSelectorForAllChildren:_cmd];
+	// check for constant condition
+	// replace by then or else part
+	if([self childrenCount] == 0)
+		[self replaceBy:nil];	// statement has no effect - can be removed
+}
+
+- (void) simplifywhile
+{
+	[self performSelectorForAllChildren:_cmd];
+	// check for constant condition
+	// optionally remove whole loop
+	/* should we eliminate empty while loops in any case? what with while(1); ? */
+	if(/* condition is false */ [self childrenCount] == 0)
+		[self replaceBy:nil];	// statement has no effect - can be removed
 }
 
 @end

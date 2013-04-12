@@ -14,7 +14,6 @@
 				EE55C0751504F20E00BDF3F7 /* ShellScript */,
 			);
 			dependencies = (
-				EE55C0861504F34F00BDF3F7 /* PBXTargetDependency */,
 			);
 			name = Test;
 			productName = Test;
@@ -37,6 +36,10 @@
 		EE8E492C16F23BFC00DF50B4 /* ObjCKit.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8E492B16F23BFB00DF50B4 /* ObjCKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE8E493F16F23D4800DF50B4 /* Print.h in Headers */ = {isa = PBXBuildFile; fileRef = EE22088714EDB47600E78349 /* Print.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EE8E494016F23D4D00DF50B4 /* Simplify.h in Headers */ = {isa = PBXBuildFile; fileRef = EE22088914EDB51200E78349 /* Simplify.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EEC876B01716E3900093590B /* Simplify.m in Sources */ = {isa = PBXBuildFile; fileRef = EE22088A14EDB51200E78349 /* Simplify.m */; };
+		EEC876B11716E39E0093590B /* Print.m in Sources */ = {isa = PBXBuildFile; fileRef = EE22088814EDB47600E78349 /* Print.m */; };
+		EEC876BF1716E49C0093590B /* objc2c.h in Headers */ = {isa = PBXBuildFile; fileRef = EEC876BD1716E49C0093590B /* objc2c.h */; };
+		EEC876C01716E49C0093590B /* objc2c.m in Sources */ = {isa = PBXBuildFile; fileRef = EEC876BE1716E49C0093590B /* objc2c.m */; };
 		EEEB70FF150DD753000EE2E5 /* Expression.h in Headers */ = {isa = PBXBuildFile; fileRef = EEEB70FD150DD753000EE2E5 /* Expression.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEEB7100150DD753000EE2E5 /* Expression.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEB70FE150DD753000EE2E5 /* Expression.m */; };
 /* End PBXBuildFile section */
@@ -48,13 +51,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = EE55BFBF1504DB3900BDF3F7;
 			remoteInfo = ObjC;
-		};
-		EE55C0851504F34F00BDF3F7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = EED3C1240488F87500000103 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EE55BFCF1504DB7400BDF3F7;
-			remoteInfo = objc2pp;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -96,6 +92,8 @@
 		EE8E48C316F22BD500DF50B4 /* compile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = compile.m; sourceTree = "<group>"; };
 		EE8E48D516F22CAB00DF50B4 /* ObjCKit.qcodeproj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ObjCKit.qcodeproj; sourceTree = "<group>"; };
 		EE8E492B16F23BFB00DF50B4 /* ObjCKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjCKit.h; sourceTree = "<group>"; };
+		EEC876BD1716E49C0093590B /* objc2c.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = objc2c.h; sourceTree = "<group>"; };
+		EEC876BE1716E49C0093590B /* objc2c.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = objc2c.m; sourceTree = "<group>"; };
 		EEEB4C011508D617000EE2E5 /* mySTEP.make */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = mySTEP.make; path = ../mySTEP.make; sourceTree = SOURCE_ROOT; };
 		EEEB4C461509E84D000EE2E5 /* special.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = special.m; path = test/special.m; sourceTree = "<group>"; };
 		EEEB4C5A1509E96A000EE2E5 /* test5.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test5.c; path = test/test5.c; sourceTree = "<group>"; };
@@ -201,6 +199,8 @@
 				EE8E488816F21D6400DF50B4 /* Refactor.m */,
 				EE8E48BE16F22B1200DF50B4 /* objc10.h */,
 				EE8E48BF16F22B1200DF50B4 /* objc10.m */,
+				EEC876BD1716E49C0093590B /* objc2c.h */,
+				EEC876BE1716E49C0093590B /* objc2c.m */,
 				EE8E48C216F22BD500DF50B4 /* compile.h */,
 				EE8E48C316F22BD500DF50B4 /* compile.m */,
 			);
@@ -239,6 +239,7 @@
 				EE8E48C016F22B1200DF50B4 /* objc10.h in Headers */,
 				EE8E48C416F22BD500DF50B4 /* compile.h in Headers */,
 				EE8E492C16F23BFC00DF50B4 /* ObjCKit.h in Headers */,
+				EEC876BF1716E49C0093590B /* objc2c.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,7 +347,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# shell script goes here\n\n# PREPROCESS =\"cpp -P\"\nPREPROCESS=\"cc -E -P\"\n# PREPROCESS\t=\"cc -E -v -H\" \n\nCOMPILE=${TARGET_BUILD_DIR}/objc2pp\n\nMYSTEP_SYSROOT=\"-std=c99 -isysroot/usr/share/QuantumSTEP \\\n\t-I/Developer/usr/bin/../lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/local/include \\\n\t-I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/include\"\n\necho \"*** test 1 ***\"\n${PREPROCESS} test/simple.m | tee test/test1.i | ${COMPILE} | tee test/test1.c\necho \"*** test 2 ***\"\n${PREPROCESS} main.m | tee test/test2.i | ${COMPILE} | tee test/test2.c\necho \"*** test 3 ***\"\n${PREPROCESS} test/test.m | tee test/test3.i | ${COMPILE} | tee test/test3.c\necho \"*** test 4 ***\"\n${PREPROCESS} test/special.m | tee test/test4.i | ${COMPILE} | tee test/test4.c\necho \"*** test 5 ***\"\n# disable standard Cocoa framework include paths so that we can (pre)process mySTEP sources\n${PREPROCESS} ${MYSTEP_SYSROOT} ../Foundation/Sources/NSArray.m | tee test/test5.i | ${COMPILE} | tee test/test5.c\necho \"*** tests done ***\"\n\nexit 0";
+			shellScript = "# shell script goes here\n\n# PREPROCESS =\"cpp -P\"\t# here we would have to define all -I and -D\nPREPROCESS=\"cc -E -P\"\t# this variant applies the default definitions and search paths of gcc\n# PREPROCESS\t=\"cc -E -v -H\" \n\nCOMPILE=${TARGET_BUILD_DIR}/objc2pp\n\nMYSTEP_SYSROOT=\"-std=c99 -isysroot/usr/share/QuantumSTEP \\\n\t-I/Developer/usr/bin/../lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/local/include \\\n\t-I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include \\\n\t-I/usr/include\"\n\necho \"*** test 1 ***\"\n${PREPROCESS} test/simple.m | tee test/test1.i | ${COMPILE} | tee test/test1.c\necho \"*** test 2 ***\"\n${PREPROCESS} main.m | tee test/test2.i | ${COMPILE} | tee test/test2.c\necho \"*** test 3 ***\"\n${PREPROCESS} test/test.m | tee test/test3.i | ${COMPILE} | tee test/test3.c\necho \"*** test 4 ***\"\n${PREPROCESS} test/special.m | tee test/test4.i | ${COMPILE} | tee test/test4.c\necho \"*** test 5 ***\"\n# disable standard Cocoa framework include paths so that we can (pre)process mySTEP sources\n${PREPROCESS} ${MYSTEP_SYSROOT} ../Foundation/Sources/NSArray.m | tee test/test5.i | ${COMPILE} | tee test/test5.c\necho \"*** tests done ***\"\n\nexit 0";
 		};
 		EE8B94D8153DC9D0009770D4 /* Cross Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -400,9 +401,12 @@
 				EE55C0271504DF4100BDF3F7 /* gram.m in Sources */,
 				EE55C0281504DF4100BDF3F7 /* scan.m in Sources */,
 				EEEB7100150DD753000EE2E5 /* Expression.m in Sources */,
+				EEC876B11716E39E0093590B /* Print.m in Sources */,
+				EEC876B01716E3900093590B /* Simplify.m in Sources */,
 				EE8E488A16F21D6400DF50B4 /* Refactor.m in Sources */,
 				EE8E48C116F22B1200DF50B4 /* objc10.m in Sources */,
 				EE8E48C516F22BD500DF50B4 /* compile.m in Sources */,
+				EEC876C01716E49C0093590B /* objc2c.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -421,11 +425,6 @@
 			isa = PBXTargetDependency;
 			target = EE55BFBF1504DB3900BDF3F7 /* ObjC */;
 			targetProxy = EE55C02C1504DFB600BDF3F7 /* PBXContainerItemProxy */;
-		};
-		EE55C0861504F34F00BDF3F7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = EE55BFCF1504DB7400BDF3F7 /* objc2pp */;
-			targetProxy = EE55C0851504F34F00BDF3F7 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

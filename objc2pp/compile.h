@@ -10,6 +10,6 @@
 
 @interface Node (Compile)
 
-- (Node *) compile:(NSString *) target;	// translate to asm() statements
+- (void) compile:(NSString *) target;	// translate to asm() statements
 
 @end

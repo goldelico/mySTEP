@@ -10,6 +10,6 @@
 
 @interface Node (Objc10)
 
-- (Node *) objc10;	// translate objc 2.0 idioms to objc 1.0
+- (void) objc10;	// translate objc 2.0 idioms to objc 1.0
 
 @end

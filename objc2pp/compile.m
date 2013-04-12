@@ -11,14 +11,16 @@
 
 @implementation Node (Compile)
 
-- (Node *) registerAssign
+- (void) registerAssign
 { // assign explicit 'register' and temporary stack variables
 	
 }
 
-- (Node *) compile:(NSString *) target;
+- (void) compile:(NSString *) target;
 { // translate to asm() statements
-	return self;
+	Node *n=[Node node:@"asm"];
+	[n addChild:[Node leaf:@"string" value:@"some asm statement"]];
+	[self replaceBy:n];
 }
 
 @end

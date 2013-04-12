@@ -10,6 +10,6 @@
 
 @interface Node (Simplify)
 
-- (Node *) simplify;	// simplify the tree
+- (void) simplify;	// simplify the tree
 
 @end

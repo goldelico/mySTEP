@@ -41,13 +41,27 @@ int leaf(char *type, const char *value)
 	return n;	/* returns node index */
 }
 
-int node(char *type, int left, int right)
-{ /* create a binary node */
+int node(char *type, ...)	// create a node with optional child nodes (0-terminated list)
+{
 	int n=leaf(type, NULL);
+	int cn;
 	Node *node = get(n);
-	[node setLeft:get(left)];
-	[node setRight:get(right)];
+	va_list va;
+    va_start(va, type);
+    while (cn = va_arg(va, int))
+		[node addChild:get(cn)];	// add children
+	va_end(va);
 	return n;
+}
+
+int append(int list, int node)	// append a node as child
+{
+	[get(list) addChild:get(node)];
+}
+
+void removelast(int list)
+{
+	[get(list) removeLastChild];
 }
 
 const char *type(int node)
@@ -60,26 +74,6 @@ const char *type(int node)
 void setType(int node, char *type)
 {
 	[get(node) setType:[NSString stringWithUTF8String:type]];
-}
-
-int left(int node)
-{
-	return [[get(node) left] number];
-}
-
-void setLeft(int node, int left)
-{
-	[get(node) setLeft:get(left)];
-}
-
-int right(int node)
-{
-	return [[get(node) right] number];
-}
-
-void setRight(int node, int right)
-{
-	[get(node) setRight:get(right)];
 }
 
 int value(int node)
@@ -101,6 +95,7 @@ void setStringValue(int node, char *value)
 
 /* list */
 
+#if 0
 int list(void)
 { // create a list object
 	int s=leaf("list", NULL);	// dummy...
@@ -144,12 +139,28 @@ void pop(int lifo)
 { // pop last entry
 	[[get(lifo) value] removeLastObject];
 }
+#endif
+
+int last(int list)	// get last of a list
+{
+	return [[get(list) lastChild] number];	
+}
+
+int nth(int list, int n)
+{ // get n-th entry of a list
+	return [[get(list) childAtIndex:n] number];
+}
+
+int count(int list)
+{ // count elements in a list
+	return [get(list) childrenCount];
+}
 
 /* dictionary */
 
 int dictionary(void)
 {
-	int s=leaf("dict", NULL);	// dummy...
+	int s=leaf("$dict$", NULL);	// dictionary object
 	Node *n=get(s);
 	[n setValue:[NSMutableDictionary dictionaryWithCapacity:10]];
 	return s;
@@ -158,13 +169,14 @@ int dictionary(void)
 int lookup(int table, const char *word, char *type, int value)
 { // look up identifier
 	NSString *key=[NSString stringWithUTF8String:word];
-	int s=[[(NSMutableDictionary *) [get(table) value] objectForKey:key] number];
+	NSMutableDictionary dict=[get(table) value];
+	int s=[[dict objectForKey:key] number];
 	if(s == 0 && type != NULL)
 		{ // create new entry
 			s=leaf(type, NULL);
 			if(value)
 				[get(s) setValue:[NSNumber numberWithInt:value]];
-			[(NSMutableDictionary *) [get(table) value] setObject:get(s) forKey:key];		// create entry
+			[dict setObject:get(s) forKey:key];		// create entry
 		}
 	return s;
 }
@@ -195,12 +207,16 @@ void setkeyval(int dictionary, const char *key, int value)
 	return get(rootnode);
 }
 
-+ (Node *) node:(NSString *) type left:(Node *) left right:(Node *) right;
++ (Node *) node:(NSString *) type;
+{
+	return [[[self alloc] initWithType:type value:nil] autorelease];
+}
+
++ (Node *) node:(NSString *) type children:(NSArray *) children;
 {
 	Node *n=[[self alloc] initWithType:type value:nil];
-	[n setLeft:left];
-	[n setRight:right];
-	return [n autorelease];
+	n->children=[children mutableCopy];
+	return [n autorelease];	
 }
 
 + (Node *) leaf:(NSString *) type value:(NSString *) value;
@@ -223,9 +239,8 @@ void setkeyval(int dictionary, const char *key, int value)
 - (void) dealloc
 {
 	[type release];
-	[left release];
-	[right release];
 	[value release];
+	[children release];
 	// remove from map table(s)
 	[super dealloc];
 }
@@ -243,11 +258,6 @@ void setkeyval(int dictionary, const char *key, int value)
 - (id) value;
 {
 	return value;
-}
-
-- (Node *) left;
-{
-	return left;
 }
 
 - (Node *) parent;
@@ -269,30 +279,9 @@ void setkeyval(int dictionary, const char *key, int value)
 	return self;
 }
 
-- (Node *) right;
-{
-	return right;
-}
-
-- (void) setParent:(Node *) n;
+- (void) _setParent:(Node *) n;
 {
 	parent=n;
-}
-
-- (void) setLeft:(Node *) n;
-{
-	[left setParent:nil];
-	[left autorelease];
-	left=[n retain];
-	[left setParent:self];
-}
-
-- (void) setRight:(Node *) n;
-{
-	[right setParent:nil];
-	[right autorelease];
-	right=[n retain];
-	[right setParent:self];
 }
 
 - (void) setValue:(id) val;
@@ -310,6 +299,124 @@ void setkeyval(int dictionary, const char *key, int value)
 + (Node *) get:(int) number
 { // get node for given number
 	return get(number);
+}
+
+- (BOOL) isLeaf;
+{
+	return value != nil;
+}
+
+- (NSArray *) children
+{
+	return children;
+}
+
+- (void) insertChild:(Node *)n atIndex:(unsigned)idx
+{
+	[children insertObject:n atIndex:idx];
+}
+
+- (void) addChild:(Node *)n
+{
+	if(children)
+		[children addObject:n];
+	else
+		children=[[NSMutableArray alloc] initWithObjects:&n count:1];
+}
+
+- (void) removeChild:(Node *)n
+{
+	[children removeObject:n];
+}
+
+- (void) removeChildAtIndex:(unsigned)idx
+{
+	[children removeObjectAtIndex:idx];
+}
+
+- (Node *) lastChild
+{
+	return [children lastObject];
+}
+
+- (void) removeLastChild
+{
+	[children removeLastObject];
+}
+
+- (unsigned) childrenCount;
+{
+	return [children count];
+}
+
+- (Node *) childAtIndex:(unsigned) idx;
+{
+	return [children objectAtIndex:idx];
+}
+
+- (NSEnumerator *) childrenEnumerator;
+{
+	return [children objectEnumerator];
+}
+
+- (void) replaceBy:(Node *) other;	// replace in parent's children list
+{
+	unsigned idx=[(NSMutableArray *) [parent children] indexOfObject:self];
+	if(idx == NSNotFound)
+		return NO;
+	[self retain];
+	if(other)
+		[(NSMutableArray *) [parent children] replaceObjectAtIndex:idx withObject:other];
+	else
+		[parent removeChildAtIndex:idx];	// remove me from parent
+	[self release];
+}
+
+- (SEL) selectorForType:(NSString *) prefix;
+{
+	SEL sel=NSSelectorFromString([prefix stringByAppendingString:type]);
+	if(![self respondsToSelector:sel])
+		sel=NSSelectorFromString(prefix);	// default selector
+	return sel;
+}
+
+- (void) doSelectorByType:(NSString *) prefix;	// call tag specific (or general) method
+{
+	[self performSelector:[self selectorForType:prefix]];
+}
+
+- (void) doSelectorByType:(NSString *) prefix withObject:(id) obj;	// call tag specific (or general) method
+{
+	[self performSelector:[self selectorForType:prefix] withObject:obj];
+}
+
+- (void) performSelectorForAllChildren:(SEL) aSelector;
+{
+	[children makeObjectsPerformSelector:aSelector];
+}
+
+- (void) performSelectorForAllChildren:(SEL) aSelector withObject:(id) object;
+{
+	[children makeObjectsPerformSelector:aSelector withObject:object];
+}
+
+- (NSString *) xml
+{
+	NSMutableString *s;
+	NSEnumerator *e;
+	Node *c;
+	if([self isLeaf])
+		{
+		if([value length] > 0)
+			return [NSString stringWithFormat:@"<%@>%@</%@>\n", type, value, type];
+		return [NSString stringWithFormat:@"<%@/>\n", type];
+		}
+	s=[NSMutableString stringWithFormat:@"<%@>\n", type];
+	e=[children objectEnumerator];
+	while((c=[e nextObject]))
+		[s appendFormat:@"  %@\n", [[c xml] stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]]];
+	[s appendFormat:@"</%@>\n", type];
+	return s;
 }
 
 @end
