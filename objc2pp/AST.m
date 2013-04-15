@@ -2,6 +2,9 @@
 
 
 #import <ObjCKit/AST.h>
+
+#if OLD
+
 #include "node.h"
 
 /* parser interface methods */
@@ -185,13 +188,15 @@ void setkeyval(int dictionary, const char *key, int value)
 	
 }
 
+#endif
+
 @implementation Node 
 
 + (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with Objective C source into AST and return root node
 {
 	extern int yyparse();
 	extern void scaninit(void);
-	extern int rootnode;
+	extern Node *rootnode;
 #if 0
 	extern int yydebug;
 	yydebug=1;
@@ -203,55 +208,146 @@ void setkeyval(int dictionary, const char *key, int value)
 	scaninit();
 	yyparse();
 	busy=NO;
-	return get(rootnode);
+	return rootnode;
 }
 
-+ (Node *) node:(NSString *) type;
++ (Node *) node:(NSString *) type, ...;
 {
-	return [[[self alloc] initWithType:type value:nil] autorelease];
+	Node *node=[[[self alloc] initWithType:type] autorelease];
+	va_list va;
+	Node *cn;
+    va_start(va, type);
+    while (cn = va_arg(va, Node *))
+		[node addChild:cn];	// add children
+	va_end(va);
+	return node;
 }
 
 + (Node *) node:(NSString *) type children:(NSArray *) children;
 {
-	Node *n=[[self alloc] initWithType:type value:nil];
+	Node *n=[[self alloc] initWithType:type];
 	n->children=[children mutableCopy];
 	return [n autorelease];	
 }
 
-+ (Node *) leaf:(NSString *) type value:(NSString *) value;
++ (Node *) leaf:(NSString *) type;
 {
-	return [[[self alloc] initWithType:type value:value] autorelease];
+	return [[[self alloc] initWithType:type] autorelease];
 }
 
-- (id) initWithType:(NSString *) t value:(id) val;
++ (Node *) leaf:(NSString *) type value:(NSString *) value;
 {
-	static int uuid=0;
+	Node *n=[[[self alloc] initWithType:type] autorelease];
+	if(value)
+		[n setValue:value];
+	return n;
+}
+
+- (id) attributeForKey:(NSString *) key
+{ // look up identifier
+	return [attributes objectForKey:key];
+}
+
+- (void) setAttribute:(id) value forKey:(NSString *) key;
+{
+	if(!value)
+		[attributes removeObjectForKey:key];
+	else if(attributes)
+		[attributes setObject:value forKey:key];
+	else
+		attributes=[[NSMutableDictionary alloc] initWithObjects:&value forKeys:&key count:1];
+}
+
+- (id) initWithType:(NSString *) t;
+{
 	if((self=[super init]))
 		{
 		type=[t retain];
-		value=[val retain];
-		number=++uuid;
 		}
 	return self;
 }
 
+- (id) copyWithZone:(NSZone *) zone
+{
+	Node *c=[Node alloc];
+	c->type=[type copyWithZone:zone];
+	c->attributes=[attributes copyWithZone:zone];	// NOTE: this is not a deep copy!
+	c->children=[children copyWithZone:zone];	// NOTE: this is not a deep copy!
+	return c;
+}
+
+- (Node *) deepCopy
+{
+	Node *c=[Node alloc];
+	c->type=[type copy];
+	if(attributes)
+		{
+		NSEnumerator *e=[attributes keyEnumerator];
+		NSString *key;
+		c->attributes=[[NSMutableDictionary alloc] initWithCapacity:[attributes count]];
+		while((key=[e nextObject]))
+			// we need a category of NSObject that defines deepCopy as the same as copy so that we can deepCopy ordinary objects
+			[c->attributes setObject:[[[attributes objectForKey:key] deepCopy] autorelease] forKey:key];
+		}
+	if(children)
+		{
+		NSEnumerator *e=[children objectEnumerator];
+		Node *child;
+		c->children=[[NSMutableArray alloc] initWithCapacity:[children count]];
+		while((child=[e nextObject]))
+			// we need a category of NSObject that defines deepCopy as the same as copy so that we can deepCopy ordinary objects
+			[c->children addObject:[[child deepCopy] autorelease]];
+		}
+	return c;
+}
+
 - (NSString *) description
 {
-	return [NSString stringWithFormat:@"%u: %@ [%u] %@", number, type, [children count], value?[value description]:@""];
+	NSAutoreleasePool *arp=[NSAutoreleasePool new];	// we may collect quite a lot of temporary NSStrings
+	NSMutableString *s;
+	NSEnumerator *e;
+	Node *c;
+	NSMutableString *attribs=[NSMutableString string];
+	NSString *key;
+	e=[attributes keyEnumerator];
+	while((key=[e nextObject]))
+		{
+		if(![key isEqualToString:@"value"])
+			[attribs appendFormat:@" \"%@\"=\"%@\"", key, [[attributes objectForKey:key] description]];
+		}
+	if([self childrenCount] == 0)
+		{
+		if([self value])
+			s=[NSMutableString stringWithFormat:@"<%@%@>%@</%@>\n", type, attribs, [self value], type];
+		else
+			s=[NSMutableString stringWithFormat:@"<%@%@/>\n", attribs, type];
+		}
+	else
+		{
+		s=[NSMutableString stringWithFormat:@"<%@%@>\n", type, attribs];
+		e=[children objectEnumerator];
+		while((c=[e nextObject]))
+			{
+			NSEnumerator *cd=[[[c description] componentsSeparatedByString:@"\n"] objectEnumerator];
+			NSString *cdc;
+			while((cdc=[cd nextObject]))
+				if([cdc length] > 0)
+					[s appendFormat:@"  %@\n", cdc];	// indent each line of the (sub) component
+			}
+		[s appendFormat:@"</%@>\n", type];
+		}
+	[s retain];
+	[arp release];
+	return [s autorelease];
 }
+
 
 - (void) dealloc
 {
 	[type release];
-	[value release];
+	[attributes release];
 	[children release];
-	// remove from map table(s)
 	[super dealloc];
-}
-
-- (int) number
-{ // get object number (must be unique and different from 0)
-	return number;
 }
 
 - (NSString *) type;
@@ -261,7 +357,7 @@ void setkeyval(int dictionary, const char *key, int value)
 
 - (id) value;
 {
-	return value;
+	return [attributes objectForKey:@"value"];
 }
 
 - (Node *) parent;
@@ -290,24 +386,13 @@ void setkeyval(int dictionary, const char *key, int value)
 
 - (void) setValue:(id) val;
 {
-	[value autorelease];
-	value=[val retain];
+	[self setAttribute:val forKey:@"value"];
 }
 
 - (void) setType:(NSString *) t;
 {
 	[type autorelease];
 	type=[t retain];
-}
-
-+ (Node *) get:(int) number
-{ // get node for given number
-	return get(number);
-}
-
-- (BOOL) isLeaf;
-{
-	return value != nil;
 }
 
 - (NSArray *) children
@@ -404,25 +489,6 @@ void setkeyval(int dictionary, const char *key, int value)
 - (void) performSelectorForAllChildren:(SEL) aSelector withObject:(id) object;
 {
 	[children makeObjectsPerformSelector:aSelector withObject:object];
-}
-
-- (NSString *) xml
-{
-	NSMutableString *s;
-	NSEnumerator *e;
-	Node *c;
-	if([self isLeaf])
-		{
-		if([value length] > 0)
-			return [NSString stringWithFormat:@"<%@>%@</%@>\n", type, value, type];
-		return [NSString stringWithFormat:@"<%@/>\n", type];
-		}
-	s=[NSMutableString stringWithFormat:@"<%@>\n", type];
-	e=[children objectEnumerator];
-	while((c=[e nextObject]))
-		[s appendFormat:@"  %@\n", [[c xml] stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]]];
-	[s appendFormat:@"</%@>\n", type];
-	return s;
 }
 
 @end

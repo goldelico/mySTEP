@@ -25,8 +25,6 @@
 		EE55BFCC1504DB6000BDF3F7 /* AST.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6D6105137AF9E5007F7BD7 /* AST.m */; };
 		EE55BFD61504DB8100BDF3F7 /* ObjCKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */; };
 		EE55BFDA1504DB9700BDF3F7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE4108520B956BA30065DD36 /* main.m */; };
-		EE55C0271504DF4100BDF3F7 /* gram.m in Sources */ = {isa = PBXBuildFile; fileRef = EE55C0251504DF4100BDF3F7 /* gram.m */; };
-		EE55C0281504DF4100BDF3F7 /* scan.m in Sources */ = {isa = PBXBuildFile; fileRef = EE55C0261504DF4100BDF3F7 /* scan.m */; };
 		EE67070D17183F8600A38486 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6D3E0513755497003D5863 /* main.m */; };
 		EE67070E17183F8600A38486 /* simple.m in Sources */ = {isa = PBXBuildFile; fileRef = EE6D3DDD137553CE003D5863 /* simple.m */; };
 		EE67070F17183F8600A38486 /* special.m in Sources */ = {isa = PBXBuildFile; fileRef = EEEB4C461509E84D000EE2E5 /* special.m */; };
@@ -61,16 +59,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		EE08E5A110D7CE3200684837 /* node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = node.h; sourceTree = "<group>"; };
 		EE22087E14EDB23500E78349 /* AST.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AST.h; sourceTree = "<group>"; };
 		EE22088714EDB47600E78349 /* Print.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Print.h; sourceTree = "<group>"; };
 		EE22088814EDB47600E78349 /* Print.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Print.m; sourceTree = "<group>"; };
 		EE22088914EDB51200E78349 /* Simplify.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Simplify.h; sourceTree = "<group>"; };
 		EE22088A14EDB51200E78349 /* Simplify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Simplify.m; sourceTree = "<group>"; };
-		EE4108510B956BA30065DD36 /* gram.y */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.yacc; path = gram.y; sourceTree = "<group>"; };
 		EE4108520B956BA30065DD36 /* main.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EE4108530B956BA30065DD36 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		EE4108540B956BA30065DD36 /* scan.l */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.lex; path = scan.l; sourceTree = "<group>"; };
 		EE4108550B956BA30065DD36 /* y.output */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = y.output; path = build/y.output; sourceTree = "<group>"; };
 		EE55BFC01504DB3900BDF3F7 /* ObjCKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ObjCKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE55BFC11504DB3A00BDF3F7 /* ObjC-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ObjC-Info.plist"; sourceTree = "<group>"; };
@@ -164,11 +159,8 @@
 			isa = PBXGroup;
 			children = (
 				EE4108530B956BA30065DD36 /* Makefile */,
-				EE4108510B956BA30065DD36 /* gram.y */,
 				EE67075B17184FF000A38486 /* gram.ym */,
-				EE4108540B956BA30065DD36 /* scan.l */,
 				EE67075517184EDD00A38486 /* scan.lm */,
-				EE08E5A110D7CE3200684837 /* node.h */,
 				EE22087E14EDB23500E78349 /* AST.h */,
 				EE6D6105137AF9E5007F7BD7 /* AST.m */,
 				EE8E492B16F23BFB00DF50B4 /* ObjCKit.h */,
@@ -420,8 +412,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE55BFCC1504DB6000BDF3F7 /* AST.m in Sources */,
-				EE55C0271504DF4100BDF3F7 /* gram.m in Sources */,
-				EE55C0281504DF4100BDF3F7 /* scan.m in Sources */,
 				EEEB7100150DD753000EE2E5 /* Expression.m in Sources */,
 				EEC876B11716E39E0093590B /* Print.m in Sources */,
 				EEC876B01716E3900093590B /* Simplify.m in Sources */,

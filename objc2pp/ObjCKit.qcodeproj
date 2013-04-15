@@ -13,7 +13,10 @@ export SOURCES+=" Refactor.m"
 export SOURCES+=" compile.m"
 export SOURCES+=" objc10.m"
 export SOURCES+=" objc2c.m"
+export SOURCES+=" gram.ym"
+export SOURCES+=" scan.lm"
 export WRAPPER_EXTENSION="framework"
+
 
 
 [ "$QuantumSTEP" ] || export QuantumSTEP=/usr/share/QuantumSTEP

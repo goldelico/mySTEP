@@ -17,24 +17,25 @@
 @interface Node : NSObject
 { /* internal structure */
 	NSString *type;	// node type
-	int number;		// object number
-	id value;		// leaf value
+	NSMutableDictionary *attributes;		// e.g. leaf value, keyword code, assigned typedef etc.
 	Node *parent;	// parent node
 	NSMutableArray *children;	// subnodes
 }
 
 + (Node *) parse:(NSInputStream *) stream delegate:(id <Notification>) delegate;	// parse stream with (preprocessed!) Objective C source into AST and return root node
-+ (Node *) node:(NSString *) type;
++ (Node *) node:(NSString *) type, ...;
 + (Node *) node:(NSString *) type children:(NSArray *) children;
++ (Node *) leaf:(NSString *) type;	// nil value
 + (Node *) leaf:(NSString *) type value:(NSString *) value;
 
-- (id) initWithType:(NSString *) type value:(id) value;
+- (id) attributeForKey:(NSString *) key;	// look up entry with key in dictionary
+- (void) setAttribute:(id) value forKey:(NSString *) key;
+
+- (id) initWithType:(NSString *) type;
 - (NSString *) type;
 - (void) setType:(NSString *) type;
-- (int) number;
-- (id) value;	// value of leaf nodes, e.g. identifier, numerical or string constant
+- (id) value;	// direct access to the @"value" attribute
 - (void) setValue:(id) val;
-- (BOOL) isLeaf;
 - (NSArray *) children;
 - (unsigned) childrenCount;
 - (void) addChild:(Node *) n;
@@ -55,6 +56,12 @@
 - (void) _setParent:(Node *) n;
 - (Node *) root;
 
-- (NSString *) xml;	// create an XML representation for debugging
+- (NSString *) description;	// create an XML representation
 
 @end
+
+/* for lex and yacc */
+
+#define YYSTYPE Node *
+
+// EOF

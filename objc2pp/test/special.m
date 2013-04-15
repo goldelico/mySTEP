@@ -1,10 +1,13 @@
 // very special things
 
+@class MyClass;
+
 /* there can be white space between @ and the command */
 
 @ interface MyClass
 {
-	
+	/* does not raise an error */
+	int MyClass;
 }
 
 /* static vars, functions, types etc. can be declared at almost any position */

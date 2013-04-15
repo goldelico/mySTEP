@@ -16,12 +16,16 @@ IS			(u|U|l|L)*
 
 %{
 #include <stdio.h>
+#import <ObjCKit/AST.h>
 #include "y.tab.h"
-#include "node.h"
 	
 #define error(X)
 
-extern YYSTYPE yylval;
+/* scanner control */
+
+int nokeyword;	// if set to 1 an IDENTIFIER is always returned (even if it looks like a keyword)
+int objctype;	// if set to 1 do special handling for byref, oneway etc.
+int typename;	// if set to 1, IDENTIFIERS representing a type name or @class forward declaration are reported as TYPE_NAME	
 
 void charCount(void);
 void comment(int cxx);
@@ -31,166 +35,169 @@ int line = 1;
 	
 struct RESERVED
 	{
-		char *word;
+		NSString *word;
 		int token;
 	} reserved[]={
-	"asm", ASM, 
-	"auto", AUTO, 
-	"break", BREAK, 
-	"case", CASE, 
-	"char", CHAR, 
-	"const", CONST, 
-	"continue", CONTINUE, 
-	"default", DEFAULT, 
-	"do", DO, 
-	"double", DOUBLE, 
-	"else", ELSE, 
-	"enum", ENUM, 
-	"extern", EXTERN, 
-	"float", FLOAT, 
-	"for", FOR, 
-	"goto", GOTO, 
-	"if", IF, 
-	"int", INT, 
-	"long", LONG, 
-	"register", REGISTER, 
-	"return", RETURN, 
-	"short", SHORT, 
-	"signed", SIGNED, 
-	"sizeof", SIZEOF, 
-	"static", STATIC, 
-	"struct", STRUCT, 
-	"switch", SWITCH, 
-	"typedef", TYPEDEF, 
-	"union", UNION, 
-	"unsigned", UNSIGNED, 
-	"void", VOID, 
-	"volatile", VOLATILE, 
-	"while", WHILE, 
+	@"asm", ASM, 
+	@"auto", AUTO, 
+	@"break", BREAK, 
+	@"case", CASE, 
+	@"char", CHAR, 
+	@"const", CONST, 
+	@"continue", CONTINUE, 
+	@"default", DEFAULT, 
+	@"do", DO, 
+	@"double", DOUBLE, 
+	@"else", ELSE, 
+	@"enum", ENUM, 
+	@"extern", EXTERN, 
+	@"float", FLOAT, 
+	@"for", FOR, 
+	@"goto", GOTO, 
+	@"if", IF, 
+	@"int", INT, 
+	@"long", LONG, 
+	@"register", REGISTER, 
+	@"return", RETURN, 
+	@"short", SHORT, 
+	@"signed", SIGNED, 
+	@"sizeof", SIZEOF, 
+	@"static", STATIC, 
+	@"struct", STRUCT, 
+	@"switch", SWITCH, 
+	@"typedef", TYPEDEF, 
+	@"union", UNION, 
+	@"unsigned", UNSIGNED, 
+	@"void", VOID, 
+	@"volatile", VOLATILE, 
+	@"while", WHILE, 
 
 		/* operators - only used for reverse lookup since they are not keywords */
 		
-		"...", ELLIPSIS,
-		">>=", RIGHT_ASSIGN,
-		"<<=", LEFT_ASSIGN,
-		"+=", ADD_ASSIGN,
-		"-=", SUB_ASSIGN,
-		"*=", MUL_ASSIGN,
-		"/=", DIV_ASSIGN,
-		"%=", MOD_ASSIGN,
-		"&=", AND_ASSIGN,
-		"^=", XOR_ASSIGN,
-		"|=", OR_ASSIGN,
-		">>", RIGHT_OP,
-		"<<", LEFT_OP,
-		"++", INC_OP,
-		"--", DEC_OP,
-		"->", PTR_OP,
-		"&&", AND_OP,
-		"||", OR_OP,
-		"<=", LE_OP,
-		">=", GE_OP,
-		"==", EQ_OP,
-		"!=", NE_OP,
+		@"...", ELLIPSIS,
+		@">>=", RIGHT_ASSIGN,
+		@"<<=", LEFT_ASSIGN,
+		@"+=", ADD_ASSIGN,
+		@"-=", SUB_ASSIGN,
+		@"*=", MUL_ASSIGN,
+		@"/=", DIV_ASSIGN,
+		@"%=", MOD_ASSIGN,
+		@"&=", AND_ASSIGN,
+		@"^=", XOR_ASSIGN,
+		@"|=", OR_ASSIGN,
+		@">>", RIGHT_OP,
+		@"<<", LEFT_OP,
+		@"++", INC_OP,
+		@"--", DEC_OP,
+		@"->", PTR_OP,
+		@"&&", AND_OP,
+		@"||", OR_OP,
+		@"<=", LE_OP,
+		@">=", GE_OP,
+		@"==", EQ_OP,
+		@"!=", NE_OP,
 		
 	/* Obj-C 1.0 extensions */
 	
-	"@interface", AT_INTERFACE, 
-	"@implementation", AT_IMPLEMENTATION, 
-	"@end", AT_END, 
-	"@class", AT_CLASS, 
-	"@protocol", AT_PROTOCOL, 
-	"@defs", AT_DEFS, 
-	"@selector", AT_SELECTOR, 
-	"@encode", AT_ENCODE, 
-	"@protected", AT_PROTECTED, 
-	"@private", AT_PRIVATE, 
-	"@public", AT_PUBLIC,
+	@"@interface", AT_INTERFACE, 
+	@"@implementation", AT_IMPLEMENTATION, 
+	@"@end", AT_END, 
+	@"@class", AT_CLASS, 
+	@"@protocol", AT_PROTOCOL, 
+	@"@defs", AT_DEFS, 
+	@"@selector", AT_SELECTOR, 
+	@"@encode", AT_ENCODE, 
+	@"@protected", AT_PROTECTED, 
+	@"@private", AT_PRIVATE, 
+	@"@public", AT_PUBLIC,
 		
-	"inout", INOUT, 
-	"in", IN, 
-	"out", OUT, 
-	"byref", BYREF, 
-	"bycopy", BYCOPY, 
-	"oneway", ONEWAY, 
+	@"inout", INOUT, 
+	@"in", IN, 
+	@"out", OUT, 
+	@"byref", BYREF, 
+	@"bycopy", BYCOPY, 
+	@"oneway", ONEWAY, 
 	
 	/* Obj-C 1.5 extensions */
 	
-	"@property", AT_PROPERTY, 
-	"@synthesize", AT_SYNTHESIZE, 
-	"@optional", AT_OPTIONAL, 
-	"@required", AT_REQUIRED, 
+	@"@property", AT_PROPERTY, 
+	@"@synthesize", AT_SYNTHESIZE, 
+	@"@optional", AT_OPTIONAL, 
+	@"@required", AT_REQUIRED, 
 		// these two are real keywords and only allowed in type specifiers
-	"__weak", WEAK, 
-	"__strong", STRONG,
+	@"__weak", WEAK, 
+	@"__strong", STRONG,
 		
 	/* Obj-C 2.0 extensions */
 		
-	"@try", AT_TRY, 
-	"@catch", AT_CATCH, 
-	"@finally", AT_FINALLY, 
-	"@throw", AT_TRY, 
-	"@synchronized", AT_SYNCHRONIZED, 
+	@"@try", AT_TRY, 
+	@"@catch", AT_CATCH, 
+	@"@finally", AT_FINALLY, 
+	@"@throw", AT_TRY, 
+	@"@synchronized", AT_SYNCHRONIZED, 
 		
 	/* Obj-C 2.5 extensions */
 		
-	"@autoreleasepool", AT_AUTORELEASEPOOL,
-	"__unsafe_unretained", AT_UNSAFE_UNRETAINED,
-	"__autoreleasing", AT_AUTORELEASING,
-	"@[", AT_ARRAY_LITERAL,
+	@"@autoreleasepool", AT_AUTORELEASEPOOL,
+	@"__unsafe_unretained", AT_UNSAFE_UNRETAINED,
+	@"__autoreleasing", AT_AUTORELEASING,
+	@"@[", AT_ARRAY_LITERAL,
 	};
 	
 	// FIXME: should the scanner really handle the scope stack or is this part of the grammar which can handle separate symbol tables, e.g. for stuct components
 	// depends a little on context depencence: is it allowed to (re)define a struct component with the same name as a typedef? Or global function?
 	
-int scopestack;	/* global and local scope stack */
-int keywordtab;	/* keyword table */
-int softkeywordtab;	/* soft keyword table */
+Node *scopestack;	/* global and local scope stack */
+Node *keywordtab;	/* keyword table */
 
-void pushscope()
+void pushscope(void)
 { // start a new local variable scope
-	append(scopestack, dictionary());	// create symbol table
+	[scopestack addChild:[Node leaf:@"$symtab$"]];	// create symbol table for this level
 }
 	
-void popscope()
+void popscope(void)
 { // pop scope
-	removelast(scopestack);
+	[scopestack removeLastChild];
 }	
 
-int globals()
+Node *globals(void)
 {
-	return nth(scopestack, 0);
+	return [scopestack childAtIndex:0];
 }
 
-int makeglobal(int identifier)
-{ // make this a global entry, i.e. copy to global dictionary
+Node *local(void)
+{
+	return [scopestack lastChild];
+}
 	
+int makeglobal(Node *identifier)
+{ // make this a global entry, i.e. copy to global dictionary
+	// check if already global...
+	[globals() setAttribute:identifier forKey:[identifier value]];	// copy by name
 }
 
+Node *cons(char *str);
+	
 void scaninit(void)
 	{
-	int i, n;
-	softkeywordtab=dictionary();
-	n=lookup(softkeywordtab, "id", "keyword", ID);
-	n=lookup(softkeywordtab, "SEL", "keyword", SELECTOR);
-	n=lookup(softkeywordtab, "BOOL", "keyword", BOOLTYPE);
-	n=lookup(softkeywordtab, "Class", "keyword", CLASS);
-	n=lookup(softkeywordtab, "unichar", "keyword", UNICHAR);
-	keywordtab=dictionary();
+	int i;
+	Node *n;
+	keywordtab=[[Node leaf:@"$keywords$"] retain];
 	for(i=0; i<sizeof(reserved)/sizeof(reserved[0]); i++)
-		{ // initialize all reserved words in symbol table
-			if(lookup(softkeywordtab, reserved[i].word, NULL, 0))
-				continue;
-			n=lookup(keywordtab, reserved[i].word, "keyword", reserved[i].token);
+		{ // use attributes as keyword symbol table
+			[keywordtab setAttribute:[NSNumber numberWithInt:reserved[i].token] forKey:reserved[i].word];
 		}
-	scopestack=leaf("stack", NULL);	// use child entries as a stack
+#if 1
+	NSLog(@"%@", [keywordtab description]);
+#endif
+	scopestack=[[Node leaf:@"stack"] retain];	// use child entries as a stack
 	pushscope();	// create initially empty global symbol table
+#if 0
 	/* predefine some globals or should we always include /usr/include/objc/objc.h */
-	n=lookup(last(scopestack), "id", "identifier", 0);
-	setStringValue(n, "id");	// set symbol name
+	=[[scopestack lastChild] define:@"id" type:"identifier" value:@"id"];
 	// make them typedefs...
-	n=lookup(last(scopestack), "SEL", "identifier", 0);
-	setStringValue(n, "SEL");	// set symbol name
+	n=[[scopestack lastChild] define:@"SEL" type:"identifier" value:@"SEL"];
+#endif
 	}
 
 	/* FIXME: read from an NSInputStream
@@ -213,55 +220,56 @@ void scaninit(void)
 	/* identifiers and keywords */
 
 	/* FIXME: treat @ as letter and allow space(s) between @ and real letters */
-	/* (@[ \t\v\f]*|{L}) ??? */
+	/* a different solution would be to have two symbol tables and make the @ character change state */
 
-(@|{L})({L}|{D})*  { 
+(@[ \t\v\f]*|{L})({L}|{D})*  { 
 	/*
 	 * symbol table entries are nodes with type "identifier"
-	 * value is the identifier name
-	 * left is the storage class (leaf node e.g. "static", "extern", "auto", "Class", "typedef")
-	 * right is the data type
+	 * @"value" is the identifier name
+	 * @"storage" is the storage class (leaf node e.g. @"static", @"extern", @"auto", @"typedef", @"register") if specified
+	 * @"type" is the data type tree (if specified)
 	 */
-	int s;
+	id s;
 	int n;
+	char *csym=yytext;
+	NSString *sym;
 	charCount();
+	while(csym[0] == '@' && csym[1] <= ' ')
+		(++csym)[0]='@';	// strip off embedded whitespace between @ and keyword
+	sym=[NSString stringWithUTF8String:csym];
 	if(!nokeyword)
 		{ // check for keywords
-		s=lookup(keywordtab, yytext, NULL, 0);
-		if(s)
-			return value(s);	// keyword found
-		if(objctype)
-			{ // check for soft keywords
-			objctype=0;
-			s=lookup(softkeywordtab, yytext, NULL, 0);
+			s=[keywordtab attributeForKey:sym];
 			if(s)
-				return value(s);	// soft keyword found
-			}
+				return [s intValue];	// keyword found - convert into token code
 		}
 	nokeyword=0;
-	n=count(scopestack);
+	// handle special keywords like byref, inout etc.
+	n=[scopestack childrenCount];
 	while(n-- > 0)
 		{ // loop through scope stack from end (most locally) to global - but add to deepest level only
-			s=lookup(nth(scopestack, n), yytext, NULL, 0);
+			// please keep the space between [[ since there is a bug in flex that copies it to output as ]]
+			s=[ [scopestack childAtIndex:n] attributeForKey:sym];
 			if(s)
 				break;
 		}
 	if(!s)
 		{ // add new identifier (without type) to most local level
-			s=lookup(last(scopestack), yytext, "identifier", 0);
-			setStringValue(s, yytext);	// set symbol name
+			s=[Node leaf:sym value:sym];
+			// please keep the space between [[ since there is a bug in flex that copies it to output as ]]
+			[ [scopestack lastChild] setAttribute:s forKey:sym];
 		}
 	yylval=s;
-#if FIXME
 	if(typename)
 		{
 		typename=0;
-		if(strcmp(type(left(s)), "typedef") == 0)
+		// for this we should have an identifier attribute dict to separate value, keyword, typedef etc.!
+		// please keep the space between [[ since there is a bug in flex that copies it to output as ]]
+		if([ [s attributeForKey:@"storage"] isEqual:@"typedef"])
 			return TYPE_NAME;	/* in current scope this identifier is a typedef'd type name */
-		if(strcmp(type(left(s)), "Class") == 0)
+		if([s attributeForKey:@"class"])
 			return TYPE_NAME;	/* in current scope this identifier is a Class name */
 		}
-#endif
 	return IDENTIFIER;
 } 
 
@@ -335,8 +343,6 @@ L?\"(\\.|[^\\"])*\"	{ charCount(); yylval=cons(yytext); return(STRING_LITERAL); 
 .				{ charCount(); error( "bad character" ); }
 
 %%
- 
- int nokeyword, objctype, typename;
 
  int yywrap()
  {
@@ -391,7 +397,7 @@ L?\"(\\.|[^\\"])*\"	{ charCount(); yylval=cons(yytext); return(STRING_LITERAL); 
 //	 ECHO;
  }
 
-int cons(char *str)
+Node *cons(char *str)
 {
-	return leaf("constant", str);
+	return [Node leaf:@"constant" value:[NSString stringWithUTF8String:str]];
 }
