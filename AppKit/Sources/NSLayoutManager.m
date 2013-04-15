@@ -459,7 +459,7 @@ static void allocateExtra(struct NSGlyphStorage *g)
 				// handle NSExpansionAttributeName
 				
 				// FIXME: is this relative or absolute position???
-#if 1
+#if 0
 				NSLog(@"origin=%@ pos=%@ lfr.origin=%@", NSStringFromPoint(origin),  NSStringFromPoint(pos), NSStringFromPoint(lfr.origin));
 #endif
 				pos.x=origin.x+pos.x+lfr.origin.x;

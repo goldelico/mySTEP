@@ -937,6 +937,7 @@
 		EEB143C60D1260A2001212B5 /* NSTrackingArea.m in Sources */ = {isa = PBXBuildFile; fileRef = EEB143C40D1260A2001212B5 /* NSTrackingArea.m */; };
 		EEB143C70D1260A2001212B5 /* NSTrackingArea.h in Headers */ = {isa = PBXBuildFile; fileRef = EEB143C30D1260A2001212B5 /* NSTrackingArea.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EEB143C80D1260A2001212B5 /* NSTrackingArea.m in Sources */ = {isa = PBXBuildFile; fileRef = EEB143C40D1260A2001212B5 /* NSTrackingArea.m */; };
+		EEB737841710327600897028 /* GSDimple.tiff in Resources */ = {isa = PBXBuildFile; fileRef = EEA371B009540272001244CF /* GSDimple.tiff */; };
 		EEC8033D09AE4EB6006EEB03 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = EE31970609AB7E8B0089A9A2 /* MainMenu.nib */; };
 		EEC8033F09AE4EB6006EEB03 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE3196E309AB7E8A0089A9A2 /* AppController.m */; };
 		EEC8034009AE4EB6006EEB03 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EE31970C09AB7E8B0089A9A2 /* main.m */; };
@@ -3226,6 +3227,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EEA3734409540275001244CF /* GSComboBox.tiff in Resources */,
+				EEB737841710327600897028 /* GSDimple.tiff in Resources */,
 				EEA3734709540275001244CF /* GSDiscloseHalf.tiff in Resources */,
 				EEA3734809540275001244CF /* GSDiscloseOff.tiff in Resources */,
 				EEA3734909540275001244CF /* GSDiscloseOn.tiff in Resources */,

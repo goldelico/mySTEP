@@ -444,7 +444,7 @@ static NSButtonCell *__knobCell = nil;
 				_floatValue = v;
 				knobRect = [self rectForPart: NSScrollerKnob];	// update
 				[self setNeedsDisplayInRect:slotRect];	// redraw (could be optimized to redraw the scroller knob union previous position only)
-				[_target performSelector:_action withObject:self];
+				[_target performSelector:_action withObject:self];	// _target should be the NSScrollView and _action should be @selector(_doScroller:)
 				}
 			}
 		event = [NSApp nextEventMatchingMask:GSTrackingLoopMask

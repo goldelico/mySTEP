@@ -211,7 +211,8 @@ static NSCursor *__textCursor = nil;
 	NSLog(@"newSize=%@", NSStringFromSize(newSize));
 #endif
 	[self setFrameSize:newSize];	// this should also adjust the container depending on its tracking flags and trigger layout invalidation
-	[self setNeedsDisplay:YES];
+	// FIXME: check if Cocoa des this! If yes, we have a problem that redrawing a NSTextView triggers this which triggers redrawing...
+	//	[self setNeedsDisplay:YES];
 #if 0
 	NSLog(@"container=%@", [self textContainer]);
 #endif

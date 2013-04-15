@@ -1458,7 +1458,7 @@ NSWindow *w;
 	NSLog(@"updateWindows");
 #endif
 	if([_eventQueue count] >= 3 && time(NULL) < lastupdate+1)
-		return;	// throttle redrawing by ignoring for a moment
+		return;	// postpone updating requests coming too fast
 	{
 	NSArray *_windowList = [self windows];
 	int i, count = [_windowList count];
@@ -1479,6 +1479,7 @@ NSWindow *w;
 		if([w isVisible])
 			{ // send to visible windows only
 			[w update];	// update this window
+				// CHECKME: do we need this or dies setViewsNeedDisplay already set the windowsNeedUpdate flag?
 			_app.windowsNeedUpdate |= [w viewsNeedDisplay];	// might still or again need an update!
 			}
 		[w flushWindow];	// might have pending mapping and other events
